@@ -359,13 +359,6 @@ void DrawGObjWallCollision(char *gobj, int col)
     gif_EndPacket();
 }
 
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
-extern void gif_StartPacketPri(int a0);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
-extern void gif_SetAlpha(int a0, int a1, int a2);
-extern void sceVu0UnitMatrix(void *m);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
-extern void gif_EndPacket(void);
 extern const FcColor D_00553820;
 
 void DrawGObjFloorCollision(char *gobj, int col)
@@ -471,10 +464,8 @@ void DrawCollisionRay(char *ray)
 extern char D_00553960[];
 extern char D_00553980[];
 extern int frame_count;
-extern int D_0063A818;
 extern int D_0063C20C;
 extern int D_0063C240;
-extern void *D_006C0CC0[];
 extern void *D_006C1140[];
 
 void MakeExitAttributeIndex(void)
@@ -612,8 +603,6 @@ void ClipFloorCheckCB(void *a0, int a1)
     D_0063A844(a0, 0x10);
 }
 
-extern void sceVu0CopyVector(int *dst, int *src);
-
 void ClipCollision(int *self)
 {
     int buf[4];
@@ -647,13 +636,6 @@ void LoadCollision(int *self, int a1)
     p[0x14 / 4] = (int)(((char *)p) + p[new_var]);
 }
 
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
-extern void gif_StartPacketPri(int a0);
-/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
-extern void gif_SetZTest(int a0);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
-extern void gif_EndPacket(void);
-
 void DrawCollision(int a0)
 {
     int n = a0;
@@ -684,8 +666,6 @@ void DrawCollision(int a0)
         } while (D_0063C20C < D_0063A818);
     }
 }
-
-extern float sceVu0InnerProduct(int a0, int a1);
 
 int ClipPlane(int a0)
 {
@@ -854,16 +834,6 @@ float GetYProjectionOfPlane(float *a0, float *a1)
     return -(a0[0] * a1[0] + a0[2] * a1[2] + a0[3]) / a0[1];
 }
 
-extern int D_0063C210;
-extern int D_0063C214;
-extern int D_0063C218;
-extern int D_0063C21C;
-extern int D_0063C220;
-extern int D_0063C224;
-extern int D_0063C228;
-extern int D_0063C22C;
-extern int D_0063C230;
-
 void ResetCollisionPC(void)
 {
     int tmp;
@@ -925,10 +895,6 @@ int _clipWDebug(void *arg0, int arg1, int arg2)
     }
     return ret;
 }
-
-extern int D_0063C234;
-extern FuzioCtx *D_0063C238;
-extern short D_006C10C0[];
 
 int _clipW(void *arg0, int arg1, int arg2)
 {
@@ -1276,15 +1242,6 @@ int _clipFR(void *arg0, int arg1, int arg2)
     return ret;
 }
 
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
-extern void gif_StartPacketPri(int a0);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
-extern void gif_SetAlpha(int a0, int a1, int a2);
-/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
-extern void gif_SetZTest(int a0);
-extern void sceVu0UnitMatrix(void *m);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
-extern void gif_EndPacket(void);
 extern const FcColor D_005537E0;
 extern const FcColor D_005537F0;
 

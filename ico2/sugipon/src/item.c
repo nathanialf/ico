@@ -153,8 +153,6 @@ void avoidInsideOfWall(void *self, int arg)
 
 /* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
-/* kept local: this TU's uses of SetIdentityQuaternion do not fit the prototype in quaternion.h */
-extern void SetIdentityQuaternion(void *q);
 
 void ReleaseItem(char *gobj)
 {
@@ -248,7 +246,6 @@ extern void *memset(void *p, int c, int n);
 extern void RotQuaternionY(void *q, short ang);
 /* kept local: this TU's uses of CopyQuaternion do not fit the prototype in quaternion.h */
 extern void CopyQuaternion(void *dst, void *src);
-extern void *memset(void *p, int c, int n);
 /* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyMatrix(void *dst, void *m, void *src);
 /* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
@@ -258,10 +255,6 @@ extern void MatrixDrive_GetTurnZAngleYX(unsigned short *y, unsigned short *x, fl
                                         float vz);
 /* kept local: this TU's uses of RotQuaternionX do not fit the prototype in quaternion.h */
 extern void RotQuaternionX(void *q, short ang);
-/* kept local: this TU's uses of RotQuaternionY do not fit the prototype in quaternion.h */
-extern void RotQuaternionY(void *q, short ang);
-/* kept local: this TU's uses of CopyQuaternion do not fit the prototype in quaternion.h */
-extern void CopyQuaternion(void *dst, void *src);
 extern char *D_00639EA8;
 
 /* The holder's 0x15C sub-handle is read through the SubHandle union at every
@@ -728,8 +721,6 @@ void uncarriedItemGeo(char *gobj)
 
 /* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
 extern void _CopyVector(void *dst, void *src);
-/* kept local: this TU's uses of CopyQuaternion do not fit the prototype in quaternion.h */
-extern void CopyQuaternion(void *dst, void *src);
 
 void execBombGeo(char *gobj)
 {
@@ -763,7 +754,7 @@ void execBombGeo(char *gobj)
         break;
     case 2:
         *(int *)(rec + 0x64) = 0;
-        stage_SetLoopFlag(0x1FF, 0);
+        stage_SetLoopFlag(511, 0);
         stage_SetFrameStep(0x1FF, 1);
         GetRootPosition(q + 0x10, gobj);
         _AttackCenter(gobj, 0x11, (float *)(q + 0x10), 0, 200.0f, 0);
@@ -970,7 +961,7 @@ static inline int CheckCarryableItemInline(char *a0)
 int ReviveAllCarryableItems(void)
 {
     char *g;
-    for (g = isysGObjSearchFromObjKindID_begin(0x13); g != 0;
+    for (g = isysGObjSearchFromObjKindID_begin(19); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
         if (CheckCarryableItemInline(g)) {
             char *p = *(char **)(*(char **)(g + 0x15C) + 0x830);
@@ -988,7 +979,7 @@ int ReviveCarryableItemsWithBoundary(void *center, float radius)
     float pos[4];
     float r2 = radius * radius;
 
-    for (g = isysGObjSearchFromObjKindID_begin(0x13); g != 0;
+    for (g = isysGObjSearchFromObjKindID_begin(19); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
         GetRootPosition(pos, g);
         if (distance_squared(pos, center) < r2) {
@@ -1003,8 +994,6 @@ int ReviveCarryableItemsWithBoundary(void *center, float radius)
     return 1;
 }
 
-/* kept local: this TU's uses of GetTableSin do not fit the prototype in tableSin.h */
-extern float GetTableSin(short a);
 /* kept local: this TU's uses of GetTableCos do not fit the prototype in tableSin.h */
 extern float GetTableCos(short a);
 
@@ -1012,7 +1001,7 @@ int ReviveAllCarryableItemsWithRandomVelocity(float up, float horz)
 {
     char *g;
 
-    for (g = isysGObjSearchFromObjKindID_begin(0x13); g != 0;
+    for (g = isysGObjSearchFromObjKindID_begin(19); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
         short ang = random_unit() * 65536.0f;
 
@@ -1046,7 +1035,7 @@ static const char bombAnimStopMsg[] = "爆発アニメーション停止処理�
 void StopItemExplodeAnimationAll(void)
 {
     char *g;
-    for (g = isysGObjSearchFromObjKindID_begin(0x13); g != 0;
+    for (g = isysGObjSearchFromObjKindID_begin(19); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
         char *p = *(char **)(*(char **)(g + 0x15C) + 0x830);
         if (IsItemKindBomb(g)) {
@@ -1078,7 +1067,7 @@ int BreakItemWithAttackHit(char *gobj, float *dir)
 int ReviveAllCarryableItemsWithNonSleepFrame(int nonSleepFrame)
 {
     char *g;
-    for (g = isysGObjSearchFromObjKindID_begin(0x13); g != 0;
+    for (g = isysGObjSearchFromObjKindID_begin(19); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
         if (CheckCarryableItemInline(g)) {
             char *p = *(char **)(*(char **)(g + 0x15C) + 0x830);

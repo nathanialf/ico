@@ -63,7 +63,6 @@ extern float GetTableCos(int ang);
 extern float GetTableSin(int ang);
 extern void ClipWall(void *cc);
 extern void ClipFloorR(void *cc);
-extern int CreateWayGroup(void);
 extern void set_bridge(int group);
 
 void create_box_bridge(char *g)

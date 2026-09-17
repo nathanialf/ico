@@ -14,7 +14,6 @@ void free_buf(int a0)
     Free(*(int *)(a0 + 0x48));
 }
 
-extern int iosMallocAlignDebug(int heap, int size, int align, const char *file, int line);
 extern void debug_assert(const char *file, int line);
 extern void __assert(const char *file, int line, const char *expr);
 extern void *memset(void *p, int c, int n);
@@ -241,9 +240,6 @@ int mpegError(int a0, int *self)
     debug_StdPrintfDummy(D_0063AC88, self[1]);
     return 1;
 }
-
-/* kept local: this TU's uses of switchThread do not fit the prototype in mv_main.h */
-extern void switchThread();
 
 int mpegNodata(int a0, int a1, int a2)
 {

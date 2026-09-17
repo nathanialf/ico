@@ -55,7 +55,6 @@ void InitMatrixDrive(void)
 
 /* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
 extern void CopyMatrix(void *dst, void *src);
-extern int D_00639F00;
 
 void MatrixDrive_PushMatrix(void)
 {
@@ -217,9 +216,6 @@ void MatrixDrive_TransMatrix(float x, float y, float z)
     CopyVector(&matrixStack[D_00639F00 * 0x40 + 0x30], m);
 }
 
-/* kept local: this TU's uses of FSqrt do not fit the prototype in matrixDrive.h */
-extern float FSqrt(float a0);
-
 /* INTERIM stand-in: MatrixDrive_GetTurnZAngleYX is `inline` in the 2001 source, so its
    out-of-line copy lands in the deferred inline tail BELOW this caller and gcc
    cannot inline it from there. Same body. */
@@ -371,9 +367,6 @@ void MatrixDrive_TurnZObjectMatrixXY(float x, float y, float z)
     MatrixDrive_RotMatrixY(ay);
 }
 
-/* kept local: this TU's uses of FSqrt do not fit the prototype in matrixDrive.h */
-extern float FSqrt(float a0);
-
 void MatrixDrive_GetTurnXAngleZY(short *a0, short *a1, float x, float y, float z)
 {
     float v0[4] = {x, y, z, 1.0f};
@@ -422,9 +415,6 @@ void MatrixDrive_GetTurnYAngleXZ(short *a0, short *a1, float x, float y, float z
     len = FSqrt(v0[1] * v0[1] + v0[2] * v0[2]);
     *a1 = GetTableArcTan2(v0[0], len);
 }
-
-/* kept local: this TU's uses of FSqrt do not fit the prototype in matrixDrive.h */
-extern float FSqrt(float a0);
 
 void MatrixDrive_GetTurnYEAngleXZ(float *a0, float *a1, float x, float y, float z)
 {

@@ -16,7 +16,7 @@ inline int InitRopeFixGeo(void)
 
 void RopeFixGeo(int a0)
 {
-    int v0 = isysGObjSearchFromObjKindID_begin(0x15);
+    int v0 = isysGObjSearchFromObjKindID_begin(21);
     if (v0 != 0) {
         return SetChainParentGObj(v0, a0);
     }

@@ -55,7 +55,7 @@ int debug_TargetGObj(int reset)
     D_0063B408 = (int *)GetGObjP(targetGObjIdx);
     D_00639EC0 = (int)D_0063B408;
     Camctrl_SetTarget((int)D_0063B408, 0, 3);
-    debug_PrintfDummy(0x10, 0x10, 0xFFFFFFFF, "GObj address:%p", D_00639EC0);
+    debug_PrintfDummy(16, 16, 0xFFFFFFFF, "GObj address:%p", D_00639EC0);
     if ((D_0063B410++ & 7) == 0) {
         D_0063B408[0x14] = ~D_0063B408[0x14];
     }

@@ -54,14 +54,14 @@ void actSt05dDoor2(volatile int a0)
 
     if (scpTriggerBall(a0, D_00639EA4, 400.0f) != 0 ||
         (D_00639EA8 != 0 && scpTriggerBall(a0, D_00639EA8, 400.0f) != 0)) {
-        stage_SetAnimation(0x15D, 0, 0);
-        _ACTWait(0x3C);
+        stage_SetAnimation(349, 0, 0);
+        _ACTWait(60);
         door2Downchk_mes[0].func = actSt05dDoor2DownChk;
         self->mail = door2Downchk_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        stage_SetAnimation(0x15C, 0, 0);
+        stage_SetAnimation(348, 0, 0);
         door2Upchk_mes[0].func = actSt05dDoor2UpChk;
         self->mail = door2Upchk_mes;
         ACTSendMailCorrect(a0, 430);
@@ -77,23 +77,23 @@ void actSt05dDoor2UpChk(volatile int a0)
     while (scpTriggerFloorAttrTargetMan(a0, 0x2000000) == 0) {
         _ACTWait(1);
     }
-    _ACTWait(0xF);
+    _ACTWait(15);
 
-    actCreateSubThread(actSt05dDoor2UpEffect, 0x15);
+    actCreateSubThread(actSt05dDoor2UpEffect, 21);
 
-    ReviveAllCarryableItemsWithNonSleepFrame(0x3C);
+    ReviveAllCarryableItemsWithNonSleepFrame(60);
 
-    stage_SetAnimation(0x15C, 1, 0);
+    stage_SetAnimation(348, 1, 0);
 
     buf[0] = door2UpChkPos.d[0];
     buf[1] = door2UpChkPos.d[1];
-    soundSeDefPlay(0x4C4, 0, (float *)buf, 1);
-    _ACTWait(0x1E);
-    soundSeDefPlay(0x4C5, 0, (float *)buf, 1);
-    _ACTWait(0x1E);
-    soundSeDefPlay(0x4C6, 0, (float *)buf, 1);
+    soundSeDefPlay(1220, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1221, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1222, 0, (float *)buf, 1);
 
-    while (stage_CheckAnimationFinish(0x15C) == 0) {
+    while (stage_CheckAnimationFinish(348) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -112,23 +112,23 @@ void actSt05dDoor2DownChk(volatile int a0)
     while (scpTriggerFloorAttrTargetMan(a0, 0x2000000) != 0) {
         _ACTWait(1);
     }
-    _ACTWait(0xF);
+    _ACTWait(15);
 
-    actCreateSubThread(actSt05dDoor2DownEffect, 0x15);
+    actCreateSubThread(actSt05dDoor2DownEffect, 21);
 
-    ReviveAllCarryableItemsWithNonSleepFrame(0x3C);
+    ReviveAllCarryableItemsWithNonSleepFrame(60);
 
-    stage_SetAnimation(0x15D, 1, 0);
+    stage_SetAnimation(349, 1, 0);
 
     buf[0] = door2UpChkPos.d[0];
     buf[1] = door2UpChkPos.d[1];
-    soundSeDefPlay(0x4C4, 0, (float *)buf, 1);
-    _ACTWait(0x1E);
-    soundSeDefPlay(0x4C5, 0, (float *)buf, 1);
-    _ACTWait(0x1E);
-    soundSeDefPlay(0x4C6, 0, (float *)buf, 1);
+    soundSeDefPlay(1220, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1221, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1222, 0, (float *)buf, 1);
 
-    while (stage_CheckAnimationFinish(0x15D) == 0) {
+    while (stage_CheckAnimationFinish(349) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -148,7 +148,7 @@ void actSt05dEne(volatile int a0)
 
     _ACTWait(1);
 
-    g = scpSearchGobj(0x5B2);
+    g = scpSearchGobj(1458);
     rot = scpGetRotObjectCurrentRot(0x614);
 
     GetRootQuaternion(GetCurrentQuaternion(), g);
@@ -156,7 +156,7 @@ void actSt05dEne(volatile int a0)
     SetRootQuaternion(g, GetCurrentQuaternion());
     UpdateRootMatrix(g);
 
-    if (gflagChk(0xAB) == 0) {
+    if (gflagChk(171) == 0) {
         ene_mes[0].func = actSt05dEneChk;
         self->mail = ene_mes;
         ACTSendMailCorrect(a0, 430);
@@ -170,19 +170,19 @@ void actSt05dEnemy1(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
     Generator_Mask(a0);
-    Generator_Mask(scpSearchGobj(0x5C5));
-    Generator_Mask(scpSearchGobj(0x5C6));
-    while (gflagChk(0xAC) == 0) {
+    Generator_Mask(scpSearchGobj(1477));
+    Generator_Mask(scpSearchGobj(1478));
+    while (gflagChk(172) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     Generator_MaskOff(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
-    Generator_Call(scpSearchGobj(0x5C5));
-    Generator_Call(scpSearchGobj(0x5C6));
+    Generator_Call(scpSearchGobj(1477));
+    Generator_Call(scpSearchGobj(1478));
 }
 
 void actSt05dEnemy2(volatile int a0)
@@ -191,13 +191,13 @@ void actSt05dEnemy2(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
     Generator_Mask(a0);
-    while (gflagChk(0xAC) == 0) {
+    while (gflagChk(172) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     Generator_MaskOff(a0);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
 }
 
@@ -208,8 +208,8 @@ void actSt05dCrestHint(volatile int a0)
 
     _ACTWait(1);
 
-    if (gflagChk(0xAD) == 0) {
-        SleepHint(0x19);
+    if (gflagChk(173) == 0) {
+        SleepHint(25);
         crestHint_mes[0].func = actSt05dCrestHintChk;
         self->mail = crestHint_mes;
         ACTSendMailCorrect(a0, 430);
@@ -229,7 +229,7 @@ void actSt05dDoor2UpEffect(volatile int a0)
     long long v0a = door2UpEffectPos.d[0];
     long long v0b = door2UpEffect2Pos.d[0];
     int i;
-    for (i = 0; i < 0x32; i++) {
+    for (i = 0; i < 50; i++) {
         switch (i) {
         case 0:
             b1[0] = v0a;
@@ -253,7 +253,7 @@ void actSt05dDoor2DownEffect(volatile int a0)
     long long v0a = door2UpEffect2Pos.d[0];
     long long v0b = door2UpEffectPos.d[0];
     int i;
-    for (i = 0; i < 0x32; i++) {
+    for (i = 0; i < 50; i++) {
         switch (i) {
         case 0:
             b1[0] = v0a;
@@ -275,20 +275,19 @@ void actSt05dEneChk(volatile int a0)
     if (D_00639EA8 == 0) {
         _ACTWait(0);
     }
-    while (D_00639EA8 == 0 || gflagChk(0xAA) == 0) {
+    while (D_00639EA8 == 0 || gflagChk(170) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    gflagOn(0xAB);
-    gflagOn(0xAC);
+    gflagOn(171);
+    gflagOn(172);
 }
 
 void actSt05dCrestHintChk(volatile int a0)
 {
-    while (gflagChk(0xF3) == 0 || gflagChk(0xF4) == 0 || gflagChk(0xF5) == 0 ||
-           gflagChk(0xE8) != 0) {
+    while (gflagChk(243) == 0 || gflagChk(244) == 0 || gflagChk(245) == 0 || gflagChk(232) != 0) {
         _ACTWait(1);
     }
-    gflagOn(0xAD);
-    WakeupHint(0x19);
+    gflagOn(173);
+    WakeupHint(25);
 }

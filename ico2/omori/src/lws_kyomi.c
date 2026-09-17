@@ -44,12 +44,12 @@ char *CreateKyomiGObj(int no)
     lay[8] = 1.0f;
     lay[9] = 1.0f;
     lay[10] = 1.0f;
-    gobj = CreateLayoutedGObj(0x3D, 0x4B, -1, 0, lay, 1, 7, 0);
+    gobj = CreateLayoutedGObj(61, 0x4B, -1, 0, lay, 1, 7, 0);
     hint = (struct HintInfo *)iosMallocDebug(D_0063A438, 16, D_005556A8, 101);
     *(struct HintInfo **)(*(char **)(gobj + 0x15C) + 0x830) = hint;
     *hint = D_002A6020;
     hint->_0 = no;
-    for (i = 0; i < 0x1C; i++) {
+    for (i = 0; i < 28; i++) {
         if (D_002ADBA0[i]._0 == stage_no && D_002ADBA0[i].no == no) {
             hint->no = i;
             hint->time = (int)(D_002ADBA0[i].time * 60.0f * 60.0f *
@@ -60,7 +60,10 @@ char *CreateKyomiGObj(int no)
     return gobj;
 }
 
-extern float *D_0063C2E8;
+/* .sbss, owned by lws_kyomi.o (MAIN.MAP names no symbol in the run): the hint timers, a window onto the
+   per-hint elapsed-time array */
+static float *hintTimers;
+
 /* kept local: this TU's uses of brainSubLevelGop do not fit the prototype in brain.h */
 extern void brainSubLevelGop(void *gobj, float lv);
 
@@ -72,7 +75,7 @@ void LwsKyomiGeo(void *gobj)
 
     hint = *(struct HintInfo **)(*(char **)((char *)gobj + 0x15C) + 0x830);
     hint->flags &= ~1;
-    for (i = 0; i < 0x1C; i++) {
+    for (i = 0; i < 28; i++) {
         if (D_002ADBA0[i]._0 == stage_no && (D_002ADBA0[i].flags & 1) == 0) {
             if ((((unsigned int)D_002ADBA0[i].flags >> 1) & 1) == 0 && i == hint->no) {
                 hint->flags |= 1;
@@ -83,8 +86,8 @@ void LwsKyomiGeo(void *gobj)
     if (hint->no != -1) {
         fin = stage_CheckAnimationFinish(hint->_0);
         if (hint->flags & 1) {
-            D_0063C2E8[hint->no] += 1.0f;
-            if ((float)hint->time < D_0063C2E8[hint->no]) {
+            hintTimers[hint->no] += 1.0f;
+            if ((float)hint->time < hintTimers[hint->no]) {
                 if (fin != 0) {
                     stage_SetAnimation(hint->_0, 1, 0);
                 }
@@ -105,7 +108,7 @@ void LwsKyomiGeo(void *gobj)
     for (i = 0; i < 4; i++) {                                                                      \
         D_006E99B0[(off) + i] = 0;                                                                 \
     }                                                                                              \
-    for (i = 0; i < 0x1C; i++) {                                                                   \
+    for (i = 0; i < 28; i++) {                                                                     \
         if (((unsigned int)D_002ADBA0[i].flags >> (bit)) & 1) {                                    \
             int m = 1 << (i % 8);                                                                  \
             (buf)[i / 8] |= m;                                                                     \
@@ -181,7 +184,7 @@ void DebugHintStart(void *gobj)
     struct HintInfo *hint;
 
     hint = *(struct HintInfo **)(*(char **)((char *)gobj + 0x15C) + 0x830);
-    D_0063C2E8[hint->no] = hint->time;
+    hintTimers[hint->no] = hint->time;
 }
 
 int GetSizeHintSaveInfo(void)
@@ -201,7 +204,7 @@ void Hint_Init(void)
     struct HintInfo *p;
     int i;
 
-    D_0063C2E8 = D_006E99B8;
+    hintTimers = D_006E99B8;
     memset((char *)D_006E99B8 - 8, 0, 0x78);
     p = D_002ADBA0;
     for (i = 0; i < 28; i++) {

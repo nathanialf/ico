@@ -182,7 +182,7 @@ int collisionCheck(char *gobj)
     if (w.hit) {
         if (D_0063B13C & 1) {
             D_0063C2C0 = D_0063C2C0 + 0xA;
-            debug_Printf(0xA, D_0063C2C0, 0x0FFFFFFF, D_005551E0);
+            debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_005551E0);
         }
         return 1;
     }
@@ -245,7 +245,7 @@ void chain_simulate_term_ropeturn(int a0)
 
     if (D_0063B13C & 1) {
         D_0063C2C0 = D_0063C2C0 + 0xA;
-        debug_Printf(0xA, D_0063C2C0, 0x0FFFFFFF, D_005551F0);
+        debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_005551F0);
     }
     *(float *)(cw + 0x44) = -0.4f;
     chain_simulate_term_simple(a0);
@@ -259,7 +259,7 @@ void chain_simulate_term_loop(int a0)
 
     if (D_0063B13C & 1) {
         D_0063C2C0 = D_0063C2C0 + 0xA;
-        debug_Printf(0xA, D_0063C2C0, 0x0FFFFFFF, D_00555210);
+        debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_00555210);
     }
     if (*(float *)(cw + 0x34) < 0.5) {
         *(float *)(cw + 0x44) = -0.01f;
@@ -280,7 +280,7 @@ void chain_simulate_term_swingready(int a0)
 
     if (D_0063B13C & 1) {
         D_0063C2C0 = D_0063C2C0 + 0xA;
-        debug_Printf(0xA, D_0063C2C0, 0x0FFFFFFF, D_00555230);
+        debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_00555230);
     }
     if (*(float *)(cw + 0x34) < 0.5) {
         *(float *)(cw + 0x44) = -0.29999998f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
@@ -302,7 +302,7 @@ void chain_simulate_term_swingstart(int a0)
 
     if (D_0063B13C & 1) {
         D_0063C2C0 = D_0063C2C0 + 0xA;
-        debug_Printf(0xA, D_0063C2C0, 0x0FFFFFFF, D_00555250);
+        debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_00555250);
     }
 
     h = *(float *)(*(int *)((char *)D_00639EA4 + 0x15C) + 0x4AC);
@@ -343,7 +343,7 @@ void chain_simulate_term_moveup(int a0)
 
     if (D_0063B13C & 1) {
         D_0063C2C0 = D_0063C2C0 + 0xA;
-        debug_Printf(0xA, D_0063C2C0, 0x0FFFFFFF, "chain_simulate_term_moveup\n");
+        debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, "chain_simulate_term_moveup\n");
     }
     if (*(float *)(cw + 0x34) < 1.0f) {
         *(float *)(cw + 0x34) = 1.0f;
@@ -371,7 +371,7 @@ void chain_simulate_term_free(int a0)
 
     if (D_0063B13C & 1) {
         D_0063C2C0 = D_0063C2C0 + 0xA;
-        debug_Printf(0xA, D_0063C2C0, 0x0FFFFFFF, "chain_simulate_term_free\n");
+        debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, "chain_simulate_term_free\n");
     }
     if (*(float *)(cw + 0x34) < 0.5) {
         *(float *)(cw + 0x44) = -0.01f;
@@ -431,7 +431,7 @@ void chain_simulate_hangstart(int a0)
 
     if (D_0063B13C & 1) {
         D_0063C2C0 = D_0063C2C0 + 0xA;
-        debug_Printf(0xA, D_0063C2C0, 0x0FFFFFFF, D_005552E0);
+        debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_005552E0);
     }
     *(float *)(cw + 0x44) = -1.5f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
     chain_simulate_term_simple(a0);
@@ -443,7 +443,7 @@ void chain_simulate_term(int a0)
 {
     if (D_0063B13C & 1) {
         D_0063C2C0 = D_0063C2C0 + 0xA;
-        debug_Printf(0xA, D_0063C2C0, 0x0FFFFFFF, D_00555300);
+        debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_00555300);
     }
     chain_simulate_term_simple(a0);
 }
@@ -473,7 +473,7 @@ void chain_simulate_stop(int a0)
     ResetChainNodes(cw, (float *)(cw + 0x10));
     if (D_0063B13C & 1) {
         D_0063C2C0 = D_0063C2C0 + 0xA;
-        debug_Printf(0xA, D_0063C2C0, 0x0FFFFFFF, D_00555318);
+        debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_00555318);
     }
 }
 
@@ -486,7 +486,7 @@ void chain_simulate_free(int a0)
 
     if (D_0063B13C & 1) {
         D_0063C2C0 = D_0063C2C0 + 0xA;
-        debug_Printf(0xA, D_0063C2C0, 0x0FFFFFFF, D_00555330);
+        debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_00555330);
     }
     chain_sub_simulate(a0, *(ChainNode **)(cw + 0xD0), 0, *(int *)(cw + 0x74), 1, 0, 10.0f, 50.0f,
                        0.675f);
@@ -571,19 +571,19 @@ unsigned char flag;
     up = w->f24 > 0.0f ? 1 : 0;
 
     if (D_0063B13C & 1) {
-        debug_Printf(0xA, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_00555348, w->f18);
+        debug_Printf(10, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_00555348, w->f18);
         if (D_0063B13C & 1) {
-            debug_Printf(0xA, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_00555358, w->f10);
+            debug_Printf(10, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_00555358, w->f10);
             if (D_0063B13C & 1) {
-                debug_Printf(0xA, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_00555368, w->f14);
+                debug_Printf(10, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_00555368, w->f14);
                 if (D_0063B13C & 1) {
-                    debug_Printf(0xA, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_00555378, w->f28);
+                    debug_Printf(10, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_00555378, w->f28);
                     if (D_0063B13C & 1) {
-                        debug_Printf(0xA, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_00555388, w->f20);
+                        debug_Printf(10, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_00555388, w->f20);
                         if (D_0063B13C & 1) {
-                            debug_Printf(0xA, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_00555398, w->f1C);
+                            debug_Printf(10, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_00555398, w->f1C);
                             if (D_0063B13C & 1) {
-                                debug_Printf(0xA, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_005553A8, up);
+                                debug_Printf(10, D_0063C2C0 += 0xA, 0x0FFFFFFF, D_005553A8, up);
                             }
                         }
                     }
@@ -625,9 +625,6 @@ unsigned char flag;
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", InitChainGeo);
-
-/* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
-extern void _ApplyRyGV(void *a0, float a1);
 
 void chain_set_charachara(char *gobj, float amp)
 {
@@ -913,8 +910,6 @@ void GetRootPositionHandExtra(void *a0, float *a1)
     a1[1] -= 50.0f;
 }
 
-extern int D_0063B214;
-
 void InitPendulum(char *a0)
 {
     char *cw = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
@@ -980,14 +975,10 @@ void ChainPositionReset(char *a0)
     ResetChainNodes(cw, pos);
 }
 
-/* kept local: this TU's uses of _GetDirection do not fit the prototype in gv.h */
-extern float _GetDirection(float *a0);
 /* kept local: this TU's uses of RoundDegGV do not fit the prototype in gv.h */
 extern int RoundDegGV(int a0);
 /* kept local: this TU's uses of AlignDegGV do not fit the prototype in gv.h */
 extern int AlignDegGV(int a0);
-/* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
-extern void _ApplyRyGV(void *a0, float a1);
 
 void _GetCorrectOrientOfChain(float *out, char *gobj, float *dir)
 {
@@ -1070,8 +1061,6 @@ void chain_sub_pendulum(char *base, int n, void *a2)
     } while (i <= n);
 }
 
-/* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
-extern float _DistSqGV(void *a, void *b);
 extern float D_0063ABD8[];
 
 int GetChainNearestNodePosition(float *out, char *gobj, float *p)

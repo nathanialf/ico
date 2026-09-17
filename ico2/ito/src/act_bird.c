@@ -856,13 +856,11 @@ inline void actBirdStart(void *a0)
 
     w = (char *)actInitialize(a0);
     _ACTWait(1);
-    actCreateSubThread(subBirdBrainMain, 0x14);
-    actCreateSubThread(subBirdControl, 0x15);
-    actCreateSubThread(subBirdCollision, 0x15);
+    actCreateSubThread(subBirdBrainMain, 20);
+    actCreateSubThread(subBirdControl, 21);
+    actCreateSubThread(subBirdCollision, 21);
     *(int *)(w + 0x130) = SetMotionRequest(a0, 0x10E, w + 0x620);
 }
-
-extern int matrixptr;
 
 /* libvu0 sceVu0MulMatrix; the repo carries it under its vendor placeholder. */
 
@@ -886,7 +884,6 @@ void Debug_WireString_Bird(float *pos, char *fmt, ...)
     MatrixDrive_PopMatrix();
 }
 
-extern char *D_00639EC0;
 extern char *D_00639ED0;
 /* kept local: this TU's uses of CorrectStickInfo do not fit the prototype in boyact.h */
 extern int CorrectStickInfo(void *dir, void *stick);
@@ -970,7 +967,7 @@ void _ACTSendMailToBird(void *a0, void *a1, void *a2)
 
 inline void _ACTSendMailToBirdAll(void *a0, void *a1)
 {
-    void *obj = isysGObjSearchFromObjKindID_begin(0x20);
+    void *obj = isysGObjSearchFromObjKindID_begin(32);
     while (obj != 0) {
         _ACTSendMailToBird(obj, a0, a1);
         obj = isysGObjSearchFromObjKindID_next(obj);

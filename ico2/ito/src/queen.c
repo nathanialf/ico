@@ -69,7 +69,11 @@ extern int D_002A60B0[];
 extern int D_002A7740[];
 extern int D_002A6BB0[];
 extern int D_0028F4D4[];
-extern int D_0063C300;
+
+/* .sbss, owned by queen.o (MAIN.MAP names no symbol in the run): the queen's own frame counter, the
+   timestamp every wait in her state machine is measured against */
+static int queenFrame;
+
 extern char *D_00639EA4;
 /* kept local: this TU's uses of ACTDispLwsBoyStonize_InQueenStage do not fit the prototype in boyact.h */
 extern void ACTDispLwsBoyStonize_InQueenStage(char *g);
@@ -106,7 +110,7 @@ void scale_m34(LVec *a0, void *a1, float f)
 
 static void effect_end_func(int no)
 {
-    char *g = isysGObjSearchFromObjKindID_begin(0x2F);
+    char *g = isysGObjSearchFromObjKindID_begin(47);
     char *weapon = *(char **)(*(char **)(D_00639EA4 + 0x164) + 0x150);
 
     if (g != 0) {
@@ -204,7 +208,7 @@ void queenBeforeFunc(char *g)
 
                 debug_StdPrintfDummy(queenAttackedMsg);
                 *(char *)(w + 2) = 1;
-                o = isysGObjSearchFromObjKindID_begin(0x35);
+                o = isysGObjSearchFromObjKindID_begin(53);
                 if (o != 0) {
                     *(char *)(*(char **)(*(char **)(o + 0x15C) + 0x830) + 0x1A) = 1;
                 }
@@ -272,7 +276,7 @@ void gene_enemy(volatile int g)
     int k;
     char *obj;
 
-    o = isysGObjSearchFromObjKindID_begin(0x36);
+    o = isysGObjSearchFromObjKindID_begin(54);
     num = (o != 0) ? *(int *)(*(char **)(*(char **)(o + 0x15C) + 0x830) + 0x18) : 0;
     tbl = (stage_no == 0x25) ? &genEnemyTable[0] : &genEnemyTable[1];
 
@@ -293,7 +297,7 @@ void gene_enemy(volatile int g)
                 e = isysGObjSearchFromObjKindID_next(e);
             }
             if (D_0063B13C & 1) {
-                debug_Printf(10, 0x5A, -1, genEnemyStatFmt, total, alive, timer);
+                debug_Printf(10, 90, -1, genEnemyStatFmt, total, alive, timer);
             }
             if (alive < total) {
                 if (timer > ((stage_no == 0x25) ? genWaitRateSt25 : genWaitRateDefault)[num] *
@@ -310,7 +314,7 @@ void gene_enemy(volatile int g)
                             }
                             Generator_Call(obj);
                             _ACTWait(1);
-                            while (stage_CheckAnimationFinish(0x1FA) == 0) {
+                            while (stage_CheckAnimationFinish(506) == 0) {
                                 _ACTWait(1);
                             }
                             for (k = 0; k <= wait; k++) {
@@ -425,10 +429,10 @@ static inline void QueenStartAttack_inl(int flag)
 {
     char *g;
 
-    g = isysGObjSearchFromObjKindID_begin(0x2F);
+    g = isysGObjSearchFromObjKindID_begin(47);
     *(char *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 1) = flag;
 
-    g = isysGObjSearchFromObjKindID_begin(0x36);
+    g = isysGObjSearchFromObjKindID_begin(54);
     while (g != 0) {
         *(char *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 0x12) = 1;
         g = isysGObjSearchFromObjKindID_next(g);
@@ -466,7 +470,7 @@ void subQueenBrainMain(volatile int g)
 
     motionOk = 0;
     first = 1;
-    startFrame = D_0063C300;
+    startFrame = queenFrame;
     wait = 1000;
 
     _ACTWait(1);
@@ -478,11 +482,11 @@ void subQueenBrainMain(volatile int g)
     QueenStatusRestart((char *)g, &st);
 
     for (;;) {
-        bar = isysGObjSearchFromObjKindID_begin(0x35);
-        ball = isysGObjSearchFromObjKindID_begin(0x36);
+        bar = isysGObjSearchFromObjKindID_begin(53);
+        ball = isysGObjSearchFromObjKindID_begin(54);
         QueenStatusUpdate((char *)g, &st);
         if (D_0063B13C & 1) {
-            debug_Printf(10, 0x50, -1, D_0063AC58, InqQueenBarrierExist());
+            debug_Printf(10, 80, -1, D_0063AC58, InqQueenBarrierExist());
         }
         if ((*(int *)w & 0xFF0000FF) == 0 && *(signed char *)(w + 1) != 0 && bar != 0 &&
             ball != 0) {
@@ -530,7 +534,7 @@ void subQueenBrainMain(volatile int g)
                 if ((((QueenVal *)(ext + 0x130))->i =
                          SetMotionRequest((char *)g, 0x144, ext + 0x620)) != 0) {
                     if (first) {
-                        startFrame = D_0063C300;
+                        startFrame = queenFrame;
                         wait = (int)(*((stage_no == 0x25)
                                            ? &ballWaitRateSt25[*(int *)(ballw + 0x18)]
                                            : &ballWaitRateDefault[*(int *)(ballw + 0x18)]) *
@@ -542,7 +546,7 @@ void subQueenBrainMain(volatile int g)
 
             case 0x435:
                 if (*(signed char *)(barw + 0x10) == 0 && motionOk != 0 &&
-                    D_0063C300 - startFrame >= wait) {
+                    queenFrame - startFrame >= wait) {
                     ((QueenVal *)(ext + 0x130))->i =
                         SetMotionRequest((char *)g, 0x145, ext + 0x620);
                 }
@@ -563,7 +567,7 @@ void subQueenBrainMain(volatile int g)
                     *(char *)(barw + 0x11) = 1;
                     *(int *)(barw + 0x14) = 0;
                     *(char *)(barw + 0x19) = 0;
-                    startFrame = D_0063C300;
+                    startFrame = queenFrame;
                     wait =
                         (int)(*((stage_no == 0x25) ? &ballWaitRateSt25[*(int *)(ballw + 0x18)]
                                                    : &ballWaitRateDefault[*(int *)(ballw + 0x18)]) *
@@ -574,7 +578,7 @@ void subQueenBrainMain(volatile int g)
                 break;
 
             case 0x437:
-                startFrame = D_0063C300;
+                startFrame = queenFrame;
                 wait = (int)(*((stage_no == 0x25) ? &ballHoldRateSt25[*(int *)(ballw + 0x18)]
                                                   : &ballHoldRateDefault[*(int *)(ballw + 0x18)]) *
                              ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
@@ -669,7 +673,7 @@ void QueenGeo(char *g)
     char *w;
 
     if (D_0028F4D4[0] == 0) {
-        D_0063C300++;
+        queenFrame++;
     }
     ExecMotionOrient(g);
     SetActressLight(g, 0x23, 0x2C, 0x1D8);
@@ -732,7 +736,7 @@ void QueenBarrierGeo(char *g)
     memset(&pos, 0, sizeof(pos));
     pos.f[1] = 2000.0f;
     w = *(char **)(*(char **)(g + 0x15C) + 0x830);
-    queen = isysGObjSearchFromObjKindID_begin(0x2F);
+    queen = isysGObjSearchFromObjKindID_begin(47);
     qw = *(char **)(*(char **)(queen + 0x15C) + 0x830);
     if (stage_no == 0x25) {
         tbl = barrierLayoutSt25;
@@ -741,7 +745,7 @@ void QueenBarrierGeo(char *g)
     }
     mine = 0;
     if (D_0063B13C & 1) {
-        debug_Printf(0xA, 0x46, 0xFFFFFFFF, damageFmt, *(int *)(w + 0x18));
+        debug_Printf(10, 70, 0xFFFFFFFF, damageFmt, *(int *)(w + 0x18));
     }
     for (i = 0; i < 1; i++) {
         char *o = (char *)isysGObjSearchFromObjLayoutID(tbl[i]);
@@ -936,7 +940,7 @@ void QueenBallGeo(char *g)
     float r;
 
     w = *(char **)(*(char **)(g + 0x15C) + 0x830);
-    ball = isysGObjSearchFromObjKindID_begin(0x36);
+    ball = isysGObjSearchFromObjKindID_begin(54);
     num = (ball != 0) ? *(int *)(*(char **)(*(char **)(ball + 0x15C) + 0x830) + 0x18) : 0;
     r = *(float *)(w + 0x14) * 100.0f;
     weapon = *(char **)(*(char **)(D_00639EA4 + 0x164) + 0x150);
@@ -946,7 +950,7 @@ void QueenBallGeo(char *g)
     act = *(char **)(D_00639EA4 + 0x164);
     hit = (*(int *)(act + 0x34) == 0x31);
     if (*(signed char *)(w + 0x11) != 0) {
-        for (o = isysGObjSearchFromObjKindID_begin(0x11); o != 0;
+        for (o = isysGObjSearchFromObjKindID_begin(17); o != 0;
              o = isysGObjSearchFromObjKindID_next(o), i++) {
             QVec objPos;
 
@@ -959,7 +963,7 @@ void QueenBallGeo(char *g)
             }
         }
         if (*(signed char *)(w + 0x11) != 0) {
-            sword = isysGObjSearchFromObjKindID_begin(0xE);
+            sword = isysGObjSearchFromObjKindID_begin(14);
             if (weapon == 0 && sword != 0) {
                 QVec objPos;
 
@@ -1082,9 +1086,9 @@ void actQueenStart(char *g)
 
     actInitialize_ext_charcter(g);
     _ACTWait(1);
-    actCreateSubThread(subQueenBrainMain, 0x14);
-    actCreateSubThread(subQueenControl, 0x15);
-    actCreateSubThread(gene_enemy, 0x15);
+    actCreateSubThread(subQueenBrainMain, 20);
+    actCreateSubThread(subQueenControl, 21);
+    actCreateSubThread(gene_enemy, 21);
     *(int *)(sub + 0x130) = SetMotionRequest(g, 0x10E, sub + 0x620);
     *(int *)(*(int *)(g + 0x15C) + 0x7C) = 1;
 }
@@ -1093,10 +1097,10 @@ void QueenStartAttack(void)
 {
     char *g;
 
-    g = isysGObjSearchFromObjKindID_begin(0x2F);
+    g = isysGObjSearchFromObjKindID_begin(47);
     *(char *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 1) = 1;
 
-    g = isysGObjSearchFromObjKindID_begin(0x36);
+    g = isysGObjSearchFromObjKindID_begin(54);
     while (g != 0) {
         *(char *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 0x12) = 1;
         g = isysGObjSearchFromObjKindID_next(g);
@@ -1105,13 +1109,13 @@ void QueenStartAttack(void)
 
 int QueenInqDead(void)
 {
-    char *g = isysGObjSearchFromObjKindID_begin(0x2F);
+    char *g = isysGObjSearchFromObjKindID_begin(47);
     return *(signed char *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 3);
 }
 
 int QueenBoysWeaponPower(void)
 {
-    char *g = isysGObjSearchFromObjKindID_begin(0x2F);
+    char *g = isysGObjSearchFromObjKindID_begin(47);
     return *(int *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 4);
 }
 
@@ -1125,7 +1129,7 @@ int QueenBarrierInqBreakable(void)
     char *b;
     int ret = 0;
 
-    b = *(char **)(*(char **)(isysGObjSearchFromObjKindID_begin(0x2F) + 0x15C) + 0x830);
+    b = *(char **)(*(char **)(isysGObjSearchFromObjKindID_begin(47) + 0x15C) + 0x830);
     if (*(int *)(b + 4) > 0 || *(int *)(b + 8) > 0) {
         ret = 1;
     }
@@ -1146,7 +1150,7 @@ void queenBarrierBeforeFunc(char *g)
             debug_StdPrintfDummy(queenBarrierAttackedMsg);
             *(char *)(w + 0x10) = 1;
             *(char *)(w + 0x11) = 1;
-            other = isysGObjSearchFromObjKindID_begin(0x35);
+            other = isysGObjSearchFromObjKindID_begin(53);
             if (other != 0) {
                 *(char *)(*(char **)(*(char **)(other + 0x15C) + 0x830) + 0x1A) = 1;
             }
@@ -1161,7 +1165,7 @@ int InqQueenBarrierExist(void)
     char *g;
     int exist = 0;
 
-    g = isysGObjSearchFromObjKindID_begin(0x36);
+    g = isysGObjSearchFromObjKindID_begin(54);
     if (g != 0) {
         exist = *(int *)(*(char **)(*(char **)(g + 0x15C) + 0x830) + 0x18) < 5;
     }

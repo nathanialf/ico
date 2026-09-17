@@ -350,8 +350,6 @@ found:
 extern void light_getNearLight(char *a, int b);
 /* kept local: this TU's uses of light_getAmbientLight do not fit the prototype in Light.h */
 extern void light_getAmbientLight(char *a, int b);
-/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
-extern void _ScaleVectorXYZ(void *dst, void *src, float s);
 /* kept local: this TU's uses of _MakeNormalLightMatrix do not fit the prototype in Matrix.h */
 extern void _MakeNormalLightMatrix(void *a, void *b, void *c, void *d);
 /* kept local: this TU's uses of _MakeLightColorMatrix do not fit the prototype in Matrix.h */
@@ -519,8 +517,6 @@ extern void _TransCurrentMatrix(void *p);
 extern void _RotCurrentMatrixX(short a);
 /* kept local: this TU's uses of _RotCurrentMatrixY do not fit the prototype in Matrix.h */
 extern void _RotCurrentMatrixY(short a);
-/* kept local: this TU's uses of _ApplyCurrentMatrix do not fit the prototype in Matrix.h */
-extern void _ApplyCurrentMatrix(void *dst, void *src);
 /* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
 extern void _SubVector(void *dst, void *a, void *b);
 /* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
@@ -629,16 +625,8 @@ extern char D_0063A0E0[]; /* "AMB " */
 extern void light_GetColorAnalog(float *col);
 /* kept local: this TU's uses of light_DrawCursor do not fit the prototype in Light.h */
 extern void light_DrawCursor(float *dir, int mode);
-/* kept local: this TU's uses of _InitCurrentMatrix do not fit the prototype in Matrix.h */
-extern void _InitCurrentMatrix(void);
-/* kept local: this TU's uses of _RotCurrentMatrixX do not fit the prototype in Matrix.h */
-extern void _RotCurrentMatrixX(short a);
-/* kept local: this TU's uses of _RotCurrentMatrixY do not fit the prototype in Matrix.h */
-extern void _RotCurrentMatrixY(short a);
 /* kept local: this TU's uses of _RotCurrentMatrixZ do not fit the prototype in Matrix.h */
 extern void _RotCurrentMatrixZ(short a);
-/* kept local: this TU's uses of _ApplyCurrentMatrix do not fit the prototype in Matrix.h */
-extern void _ApplyCurrentMatrix(void *dst, void *src);
 
 int light_Tool(void)
 {
@@ -849,10 +837,6 @@ int light_Tool(void)
     return ret;
 }
 
-extern char D_0063A088[8];
-extern int D_0063C134;
-extern int D_0063C138;
-
 void light_InitLight(void)
 {
     D_0063C134 = 0;
@@ -862,7 +846,6 @@ void light_InitLight(void)
 
 void light_ResetLight(void) {}
 
-extern int D_0063C13C;
 /* kept local: this TU's uses of light_killLinkLight do not fit the prototype in Light.h */
 extern void light_killLinkLight(char *node);
 
@@ -884,7 +867,6 @@ void light_KillAllFixLight(void)
     D_0063C13C = 0;
 }
 
-extern int D_0063C138;
 /* kept local: this TU's uses of light_killLinkAmbient do not fit the prototype in Light.h */
 extern void light_killLinkAmbient();
 
@@ -904,9 +886,6 @@ void light_KillAllAmbient(void)
         p = p->prev;
     }
 }
-
-extern char D_0054F0C8[];
-extern int D_0063A44C;
 
 static inline void light_setLinkAmbient(AmbientVolume *p)
 {

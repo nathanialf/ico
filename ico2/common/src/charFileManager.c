@@ -16,7 +16,6 @@
 #include "particleEffect.h"
 #include "tableSin.h"
 
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
 typedef struct {
@@ -51,7 +50,11 @@ typedef struct {
     int state;     /* 0x14 */
 } CharFile;
 
-extern CharFile D_006FAD00[MAX_CHARS];
+/* .bss, owned by charFileManager.o (1637 entries of 0x18 = 0x9978, the
+   retail run; MAIN.MAP sizes its own link's at 0x91C8, which is 1555 of the
+   same entry, and names no symbol in it): the character file table. */
+/* */
+static CharFile charFiles[MAX_CHARS];
 
 /* the TU's whole .data run, VMA 0x4D9C10..0x4D9C28 (0x18, = MAIN.MAP
    charFileManager.o .data 0x18): the empty entry both initialisers copy over
@@ -69,7 +72,7 @@ PObj *GetPObjAddress(int a0);
 
 inline PObj *GetPObjAddress(int a0)
 {
-    return D_006FAD00[a0].pObj;
+    return charFiles[a0].pObj;
 }
 
 void InitCharFileManager(void)
@@ -78,7 +81,7 @@ void InitCharFileManager(void)
 
     D_0063AD00 = 0;
     for (i = 0; i < MAX_CHARS; i++) {
-        D_006FAD00[i] = charFileEmpty;
+        charFiles[i] = charFileEmpty;
     }
     InitPluralCameraSet();
     InitCameraSetManager();
@@ -90,8 +93,8 @@ void ResetCharFileManager(void)
 
     D_0063AD00 = 0;
     for (i = 0; i < MAX_CHARS; i++) {
-        if (D_006FAD00[i].state == 1) {
-            D_006FAD00[i] = charFileEmpty;
+        if (charFiles[i].state == 1) {
+            charFiles[i] = charFileEmpty;
         }
     }
     InitPluralCameraSet();
@@ -123,7 +126,7 @@ void ReadModelFile(void *h, int a1, int size, int id, int a4, int a5, int part)
         __assert(__FILE__, 0x82, D_0063AD08);
     }
 
-    if (D_006FAD00[id].pObj != 0) {
+    if (charFiles[id].pObj != 0) {
         debug_StdPrintfDummy("ReadModelFile:Already loaded. (id:%d)%s\n", id, a1);
         iosCdvdHandlerRead(h, 0, size);
         return;
@@ -135,19 +138,14 @@ void ReadModelFile(void *h, int a1, int size, int id, int a4, int a5, int part)
         malloc_SetPartition(1);
     }
 
-    D_006FAD00[id].state = part;
+    charFiles[id].state = part;
     p = iosMallocDebug(D_0063A44C, size, __FILE__, 0x91);
     iosCdvdHandlerRead(h, p, size);
     debug_StdPrintfDummy("ReadModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n", id, a1, p, size);
-    D_006FAD00[id].pObj = InitPObj(p, a1, id);
-    D_006FAD00[id].pObj->unk_20 = D_0063AD00++;
+    charFiles[id].pObj = InitPObj(p, a1, id);
+    charFiles[id].pObj->unk_20 = D_0063AD00++;
     iosFree(p);
 }
-
-extern int D_0028F4C0[];
-extern void *D_0063A44C;
-extern char D_0063AD10[];
-extern PObj *InitPObj(void *buf, int a1, int id);
 
 void ReadVolumeModelFile(void *h, int a1, int size, int id, int a4, int a5, int a6)
 {
@@ -169,7 +167,7 @@ void ReadVolumeModelFile(void *h, int a1, int size, int id, int a4, int a5, int 
         debug_assert(__FILE__, 195);
         __assert(__FILE__, 195, D_0063AD10);
     }
-    if (D_006FAD00[id].pObj != 0) {
+    if (charFiles[id].pObj != 0) {
         debug_StdPrintfDummy("ReadVolumeModelFile:Already loaded. (id:%d)%s\n", id, a1);
         iosCdvdHandlerRead(h, 0, size);
         return;
@@ -177,8 +175,8 @@ void ReadVolumeModelFile(void *h, int a1, int size, int id, int a4, int a5, int 
     iosCdvdHandlerRead(h, buf, size);
     debug_StdPrintfDummy("ReadVolumeModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n", id, a1, buf,
                          size);
-    D_006FAD00[id].pObj = InitPObj(buf, a1, id);
-    D_006FAD00[id].pObj->unk_20 = D_0063AD00++;
+    charFiles[id].pObj = InitPObj(buf, a1, id);
+    charFiles[id].pObj->unk_20 = D_0063AD00++;
     iosFree(buf);
 }
 
@@ -205,7 +203,7 @@ void ReadShadowModelFile(void *h, int a1, int size, int id, int a4, int a5, int 
         __assert(__FILE__, 235, D_0063AD10);
     }
     buf = iosMallocDebug(D_0063A44C, size, __FILE__, 239);
-    if (D_006FAD00[id].pShadow != 0) {
+    if (charFiles[id].pShadow != 0) {
         debug_StdPrintfDummy("ReadShadowModelFile:Already loaded. (id:%d)%s\n", id, a1);
         iosCdvdHandlerRead(h, 0, size);
         return;
@@ -213,9 +211,9 @@ void ReadShadowModelFile(void *h, int a1, int size, int id, int a4, int a5, int 
     iosCdvdHandlerRead(h, buf, size);
     debug_StdPrintfDummy("ReadShadowModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n", id, a1, buf,
                          size);
-    D_006FAD00[id].pShadow = AllocPObj(buf, a1, id);
-    D_006FAD00[id].pShadow->unk_20 = D_0063AD00++;
-    shadow_MakeObjectData(D_006FAD00[id].pShadow);
+    charFiles[id].pShadow = AllocPObj(buf, a1, id);
+    charFiles[id].pShadow->unk_20 = D_0063AD00++;
+    shadow_MakeObjectData(charFiles[id].pShadow);
     iosFree(buf);
 }
 
@@ -228,8 +226,6 @@ extern TexRec D_00535168[];
 extern int NonLinearCameraMove;
 /* kept local: this TU's uses of tex_InitTexture do not fit the prototype in Texture.h */
 extern int tex_InitTexture(int id, void *buf);
-extern int D_0028F4C0[];
-extern void *D_0063A44C;
 
 void ReadTextureFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
 {
@@ -300,11 +296,11 @@ void ReadSkeltonFile(void *h, char *name, int size, int a3, int a4, int a5, int 
     for (i = 0; i < MAX_CHARS; i++) {
         if (D_004FBA80[i].name != 0 && strcmp(D_004FBA80[i].name, name) == 0) {
             if (p == 0) {
-                if (D_006FAD00[i].pSkel != 0) {
+                if (charFiles[i].pSkel != 0) {
                     debug_StdPrintfDummy("ReadSkeltonFile:Already loaded. %s\n", name);
                     iosCdvdHandlerRead(h, 0, size);
-                    p = D_006FAD00[i].pSkel;
-                    sum = D_006FAD00[i].skelSum;
+                    p = charFiles[i].pSkel;
+                    sum = charFiles[i].skelSum;
                 } else {
                     int j;
 
@@ -315,13 +311,13 @@ void ReadSkeltonFile(void *h, char *name, int size, int a3, int a4, int a5, int 
                     while (*(int *)(p + j * 64) != -1) {
                         j++;
                     }
-                    D_006FAD00[i].pSkel = p;
+                    charFiles[i].pSkel = p;
                     sum = SumBytes((unsigned char *)p, j * 64);
-                    D_006FAD00[i].skelSum = sum;
+                    charFiles[i].skelSum = sum;
                 }
             } else {
-                D_006FAD00[i].pSkel = p;
-                D_006FAD00[i].skelSum = sum;
+                charFiles[i].pSkel = p;
+                charFiles[i].skelSum = sum;
             }
         }
     }
@@ -357,15 +353,15 @@ void ReadCollisionFile(void *h, char *name, int size, int a3, int a4, int a5, in
     }
     for (i = 0; i < MAX_CHARS; i++) {
         if (strcmp(D_004FBAB0[i].name, name) == 0) {
-            if (D_006FAD00[i].pColl != 0) {
+            if (charFiles[i].pColl != 0) {
                 debug_StdPrintfDummy("ReadCollisionFile:Already loaded. %s\n", name);
                 iosCdvdHandlerRead(h, 0, size);
             } else {
                 debug_StdPrintfDummy("collision size:%d\n", size);
-                D_006FAD00[i].pColl = (Coll *)mallocseki(size);
-                iosCdvdHandlerRead(h, D_006FAD00[i].pColl, size);
+                charFiles[i].pColl = (Coll *)mallocseki(size);
+                iosCdvdHandlerRead(h, charFiles[i].pColl, size);
                 debug_StdPrintfDummy("ReadCollisionFile:loaded::%s  (size:%d)\n", name, size);
-                p = D_006FAD00[i].pColl;
+                p = charFiles[i].pColl;
                 p->unk_10 = (int)p + p->unk_10;
                 p->unk_14 = (int)p + p->unk_14;
                 p->unk_18 = (int)p + p->unk_18;
@@ -407,8 +403,6 @@ void ReadCollisionFile(void *h, char *name, int size, int a3, int a4, int a5, in
     debug_assert(__FILE__, 466);
     __assert(__FILE__, 466, D_0063AD18);
 }
-
-extern char D_0063AD10[];
 
 void ReadStageAnimationFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
 {
@@ -480,7 +474,6 @@ void ReadMotionFile(void *h, int a1, int size, int id, int a4, int a5, int a6)
 }
 
 extern void *D_0063A438;
-extern int D_0028F4C0[];
 
 void ReadParticleEffectFile(void *h, int a1, int size, int a3)
 {
@@ -543,7 +536,6 @@ typedef struct {
 
 extern char *D_0063AD20;
 extern void *D_0063A45C;
-extern void *D_0063A444;
 extern void *D_0063A458;
 
 void ReadSoundHdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6)
@@ -613,10 +605,6 @@ typedef struct {
    plain `inline`, so gcc emits their bodies at the end of the object, where
    the ROM has them, while their string constants stay at this point of the
    .rodata run. */
-extern void *D_0063A444;
-extern void *D_0063A458;
-extern int D_0063A684;
-extern int D_0028F4C0[];
 
 inline void ReadSoundSqFile(void *h, int a1, int size, int a3, int kind, int a5, int a6)
 {
@@ -730,8 +718,6 @@ void ReadCamerasetFile(void *h, int a1, int size, int a3)
     iosFree(buf);
 }
 
-extern int D_0028F4C0[];
-
 void ReadEndCheckFile(void *h, int a1, int size)
 {
     char *buf = iosMallocDebug(D_0063A450, size, __FILE__, 0x356);
@@ -744,7 +730,6 @@ extern char D_0028F720[];
 extern void *memcpy(void *dst, const void *src, int n);
 /* kept local: this TU's uses of tex_RemakeRegistersSampleMin do not fit the prototype in Texture.h */
 extern void tex_RemakeRegistersSampleMin(int a);
-extern void *D_0063A44C;
 
 void ReadStageSettingFile(void *h, int a1, int size)
 {
@@ -785,19 +770,19 @@ void CSVSYSTEM_ReadCharFiles(CsvChar *rec, int id)
     }
     rec->unk_84 = id;
     debug_StdPrintfDummy("Link polygon & skelton & collision -> DObj. %d\n", id);
-    rec->unk_854 = D_006FAD00[id].pObj;
+    rec->unk_854 = charFiles[id].pObj;
     debug_StdPrintfDummy("polygon %p.\n", rec->unk_854);
     if (rec->unk_854 != 0) {
         debug_StdPrintfDummy("object name %s.\n", rec->unk_854);
     }
-    rec->unk_858 = D_006FAD00[id].pShadow;
+    rec->unk_858 = charFiles[id].pShadow;
     debug_StdPrintfDummy("shadow %p.\n", rec->unk_858);
     if (rec->unk_858 != 0) {
         debug_StdPrintfDummy("shadow object name %s.\n", rec->unk_858);
     }
-    rec->unk_8C = D_006FAD00[id].pSkel;
+    rec->unk_8C = charFiles[id].pSkel;
     debug_StdPrintfDummy("skelton %p.\n", rec->unk_8C);
-    rec->unk_70 = (int)D_006FAD00[id].pColl;
+    rec->unk_70 = (int)charFiles[id].pColl;
     debug_StdPrintfDummy("collision %p.\n", rec->unk_70);
     if (rec->unk_8C != 0) {
         while (*(int *)(rec->unk_8C + n * 64) != -1) {
@@ -812,7 +797,7 @@ void CSVSYSTEM_ReadCharFiles(CsvChar *rec, int id)
             rec->unk_834 = 0;
         }
         sum = SumBytes((unsigned char *)rec->unk_8C, rec->unk_88 * 64);
-        if (sum == D_006FAD00[id].skelSum) {
+        if (sum == charFiles[id].skelSum) {
             /* the skelton of "%s" is sound */
             debug_StdPrintfDummy("\033[36m\"%s\"のスケルトンは正常(%x)\033[m\n", rec->unk_854, sum);
         } else {
@@ -820,7 +805,7 @@ void CSVSYSTEM_ReadCharFiles(CsvChar *rec, int id)
                 "\033[33m --- W - A - R - N - I - N - G ------------------------\033[m\n");
             /* the skelton of "%s" is damaged */
             debug_StdPrintfDummy("\033[33m\"%s\"のスケルトンが破損しています(%x(NOW)!=%x)\033[m\n",
-                                 rec->unk_854, sum, D_006FAD00[id].skelSum);
+                                 rec->unk_854, sum, charFiles[id].skelSum);
             /* it was broken between the load and the stage placement */
             debug_StdPrintfDummy("\033[33mロード直後からステージ配置の間に壊されました\033[m\n");
             debug_StdPrintfDummy(

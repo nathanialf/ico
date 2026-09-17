@@ -17,7 +17,12 @@
 extern int D_0063AA08;
 extern int D_00639EA4;
 extern int D_00639EAC;
-extern int D_0063C578;
+
+/* .sbss, owned by st13a.o and reached only from this file (MAIN.MAP names no
+   symbol in the run): the demo's own end flag, raised by the
+   subthreads the wait loops below spin for. */
+static int demoEnd;
+
 extern PadState D_0028F8F0[];
 /* st13a.o's own .sdata run; MAIN.MAP names all seven. */
 extern int st13a_up;
@@ -63,16 +68,16 @@ void actSt13aElevUpSub(volatile int a0)
 {
     AdpcmPlay(*(int *)(st13a_up + 0x2C));
 
-    stage_SetAnimation(0xAD, 1, 0);
-    stage_SetAnimation(0xAE, 1, 0);
+    stage_SetAnimation(173, 1, 0);
+    stage_SetAnimation(174, 1, 0);
 
-    while (stage_CheckAnimationFrame(0xAD, 0x56, 0) == 0) {
+    while (stage_CheckAnimationFrame(173, 86, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     iosPadActRequest(D_00639EAC, 0x11);
 
-    while (stage_CheckAnimationFrame(0xAD, 0x8C, 0) == 0) {
+    while (stage_CheckAnimationFrame(173, 140, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -80,18 +85,18 @@ void actSt13aElevUpSub(volatile int a0)
     st13a_yure_vol = 0x80;
     iosPadActVolumeSet(st13a_yure, 0x80);
 
-    while (stage_CheckAnimationFrame(0xAD, 0xC8, 0) == 0) {
+    while (stage_CheckAnimationFrame(173, 200, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     st13a_yure_vol = 0x40;
 
-    while (stage_CheckAnimationFrame(0xAD, 0x17C, 0) == 0) {
+    while (stage_CheckAnimationFrame(173, 380, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
-    D_0063C578 = 1;
+    demoEnd = 1;
     _ACTWait(0);
 }
 
@@ -99,7 +104,7 @@ void actSt13aElevUp(volatile int a0)
 {
     int th;
 
-    scpAdpcmPlayRequestFunc(0x4D, &st13a_up, 0, 1, 0);
+    scpAdpcmPlayRequestFunc(77, &st13a_up, 0, 1, 0);
     while (st13a_up == 0) {
         _ACTWait(1);
     }
@@ -107,17 +112,16 @@ void actSt13aElevUp(volatile int a0)
     preload(0xF);
 
     st13a_yure = -1;
-    th = actCreateSubThread(actSt13aElevUpSub, 0x15);
-    D_0063C578 = 0;
+    th = actCreateSubThread(actSt13aElevUpSub, 21);
+    demoEnd = 0;
 
-    while (D_0063C578 == 0 &&
-           ((D_0028F8F0[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((D_0028F8F0[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
-    iosThreadSetPri(th + 0x24, 0x22);
+    iosThreadSetPri(th + 0x24, 34);
 
-    if (D_0063C578 == 0) {
+    if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
         scpAdpcmFadeCloseFunc(&st13a_up, 0x200);
         while (scpFadeChk() != 0) {
@@ -129,7 +133,7 @@ void actSt13aElevUp(volatile int a0)
     }
 
     iosPadActStop(st13a_yure);
-    gflagOn(0x145);
+    gflagOn(325);
     RequestStageChange(0xF, D_00639EA4, 0, 0.025f, 8.0f);
 }
 
@@ -140,15 +144,15 @@ void actSt13aElevDown(volatile int a0)
 
     _ACTWait(1);
 
-    if (gflagChk(0xF) != 0) {
+    if (gflagChk(15) != 0) {
         scpFadeOut(255.0f, 0, 0, 0);
-        stage_SetAnimation(0xAD, 0, 0);
-        lt_switch_layout(0x37);
+        stage_SetAnimation(173, 0, 0);
+        lt_switch_layout(55);
         D_0063AA08 = 1;
         scpPlayStart(D_00639EA4);
-        scpAdpcmPlayRequestFunc(0x50, &st13a_down, 1, 1, 0);
-        _ACTWait(0xA);
-        stage_SetAnimation(0xAD, 0, 0x1C3);
+        scpAdpcmPlayRequestFunc(80, &st13a_down, 1, 1, 0);
+        _ACTWait(10);
+        stage_SetAnimation(173, 0, 0x1C3);
 
         elevDown_mes[0].func = actSt13aElevDownChk;
         self->mail = elevDown_mes;
@@ -159,8 +163,8 @@ void actSt13aElevDown(volatile int a0)
 
 void actSt13aElevDownSub(volatile int a0)
 {
-    stage_SetAnimation(0xAD, 1, 0x1C3);
-    stage_SetAnimation(0xAF, 1, 0);
+    stage_SetAnimation(173, 1, 0x1C3);
+    stage_SetAnimation(175, 1, 0);
 
     scpPlayPosSet(D_00639EA4, -4871.0f, -2800.0f, 2699.0f);
 
@@ -168,7 +172,7 @@ void actSt13aElevDownSub(volatile int a0)
     st13a_yure_vol = 0x80;
     iosPadActVolumeSet(st13a_yure, 0x80);
 
-    while (stage_CheckAnimationFrame(0xAD, 0x352, 0) == 0) {
+    while (stage_CheckAnimationFrame(173, 850, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -176,12 +180,12 @@ void actSt13aElevDownSub(volatile int a0)
     iosPadActStop(st13a_yure);
     st13a_yure = -1;
 
-    while (stage_CheckAnimationFinish(0xAD) == 0) {
+    while (stage_CheckAnimationFinish(173) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
-    D_0063C578 = 1;
+    demoEnd = 1;
     _ACTWait(0);
 }
 
@@ -196,18 +200,17 @@ void actSt13aElevDownChk(volatile int a0)
     AdpcmPlay(*(int *)(st13a_down + 0x2C));
     scpFadeIn(6.0f);
 
-    th = actCreateSubThread(actSt13aElevDownSub, 0x15);
-    D_0063C578 = 0;
+    th = actCreateSubThread(actSt13aElevDownSub, 21);
+    demoEnd = 0;
     st13a_yure = -1;
 
-    while (D_0063C578 == 0 &&
-           ((D_0028F8F0[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((D_0028F8F0[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
-    iosThreadSetPri(th + 0x24, 0x22);
+    iosThreadSetPri(th + 0x24, 34);
 
-    if (D_0063C578 == 0) {
+    if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
         scpAdpcmFadeCloseFunc(&st13a_down, 0x200);
         while (scpFadeChk() != 0) {
@@ -216,8 +219,8 @@ void actSt13aElevDownChk(volatile int a0)
         while (lt_fade_status() != 2) {
             _ACTWait(1);
         }
-        stage_SetAnimation(0xAF, 0, -1);
-        stage_SetAnimation(0xAD, 0, -1);
+        stage_SetAnimation(175, 0, -1);
+        stage_SetAnimation(173, 0, -1);
         _ACTWait(2);
         scpPlayPosSet(D_00639EA4, -4871.0f, 3527.0f, 2699.0f);
         iosPadActStop(st13a_yure);
@@ -226,9 +229,9 @@ void actSt13aElevDownChk(volatile int a0)
 
     scpPlayMot(D_00639EA4, 0);
     scpPlayEnd(D_00639EA4);
-    lt_switch_layout(0x36);
+    lt_switch_layout(54);
     D_0063AA08 = 0;
-    gflagOff(0xF);
+    gflagOff(15);
 }
 
 void actSt13aSekizoChk(volatile int a0)
@@ -240,15 +243,15 @@ void actSt13aSekizoChk(volatile int a0)
         _ACTWait(1);
     }
 
-    lt_switch_layout(0x37);
+    lt_switch_layout(55);
     D_0063AA08 = 1;
 
-    scpAdpcmPlayRequestFunc(0x12, &sekizo13a, 1, 1, 1);
+    scpAdpcmPlayRequestFunc(18, &sekizo13a, 1, 1, 1);
     while (sekizo13a == 0) {
         _ACTWait(1);
     }
 
-    stage_SetAnimation(0xB0, 1, 0);
+    stage_SetAnimation(176, 1, 0);
 
     sekizo_13a = iosPadActRequest(D_00639EAC, 9);
     sekizo_13a_vol = 0x80;
@@ -264,25 +267,25 @@ void actSt13aSekizoChk(volatile int a0)
 
     scpSekizouCheckPoint();
 
-    scpPlayMot(D_00639EA4, 0xFB);
+    scpPlayMot(D_00639EA4, 251);
     scpPlayWaitMotEnd(D_00639EA4);
     scpPlayMot(D_00639EA4, 0);
     scpPlayEnd(D_00639EA4);
 
-    gflagOn(0x146);
+    gflagOn(326);
 
-    while (stage_CheckAnimationFrame(0xB0, 0x97, 0) == 0) {
+    while (stage_CheckAnimationFrame(176, 151, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     iosPadActStop(sekizo_13a);
 
-    while (stage_CheckAnimationFinish(0xB0) == 0) {
+    while (stage_CheckAnimationFinish(176) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
-    lt_switch_layout(0x36);
+    lt_switch_layout(54);
     D_0063AA08 = 0;
 }
 
@@ -295,8 +298,8 @@ void actSt13aElev(volatile int a0)
 
     ScpCallCameraSetTarget(4729.0f, 2715.0f, -2504.0f);
 
-    if (gflagChk(0x145) == 0) {
-        stage_SetAnimation(0xAD, 0, 0);
+    if (gflagChk(325) == 0) {
+        stage_SetAnimation(173, 0, 0);
 
         elev_mes[0].func = actSt13aElevMain;
         self->mail = elev_mes;
@@ -312,15 +315,15 @@ void actSt13aSekizo(volatile int a0)
 
     _ACTWait(1);
 
-    if (gflagChk(0x146) == 0) {
-        stage_SetAnimation(0xB0, 0, 0);
+    if (gflagChk(326) == 0) {
+        stage_SetAnimation(176, 0, 0);
 
         sekizo_mes[0].func = actSt13aSekizoChk;
         self->mail = sekizo_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        stage_SetAnimation(0xB0, 0, -1);
+        stage_SetAnimation(176, 0, -1);
     }
 }
 
@@ -331,7 +334,7 @@ void actSt13aCheck(volatile int a0)
 
     _ACTWait(1);
 
-    if (gflagChk(0x147) == 0) {
+    if (gflagChk(327) == 0) {
         check_mes[0].func = actSt13aCheckChk;
         self->mail = check_mes;
         ACTSendMailCorrect(a0, 430);
@@ -346,7 +349,7 @@ void actSt13aChain(volatile int a0)
 
     _ACTWait(1);
 
-    if (gflagChk(0x148) == 0) {
+    if (gflagChk(328) == 0) {
         chainNg_mes[0].func = actSt13aChainNG;
         self->mail = chainNg_mes;
         ACTSendMailCorrect(a0, 430);
@@ -374,7 +377,7 @@ void actSt13aElevSwitch(volatile int a0)
     Act *sub = ((PObjGObj *)a0)->act;
 
     sub->mainMail = 0;
-    lt_switch_layout(0x37);
+    lt_switch_layout(55);
     D_0063AA08 = 1;
 
     elevSwitch_mes[0].func = actSt13aElevUp;
@@ -388,19 +391,19 @@ void actSt13aCheckChk(volatile int a0)
     _ACTWait(1);
 
     CheckPoint();
-    gflagOn(0x147);
+    gflagOn(327);
 }
 
 void actSt13aChainOK(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
 
-    while (scpTriggerBall(a0, scpSearchGobj(0x818), 200.0f) != 0) {
+    while (scpTriggerBall(a0, scpSearchGobj(2072), 200.0f) != 0) {
         _ACTWait(1);
     }
 
-    EnableChainHang((char *)scpSearchGobj(0x817));
-    gflagOff(0x148);
+    EnableChainHang((char *)scpSearchGobj(2071));
+    gflagOff(328);
 
     chain_ok_mes[0].func = actSt13aChainNG;
     sub->mail = chain_ok_mes;
@@ -412,12 +415,12 @@ void actSt13aChainNG(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
 
-    while (scpTriggerBall(a0, scpSearchGobj(0x818), 200.0f) == 0) {
+    while (scpTriggerBall(a0, scpSearchGobj(2072), 200.0f) == 0) {
         _ACTWait(1);
     }
 
-    UnableChainHang((char *)scpSearchGobj(0x817));
-    gflagOn(0x148);
+    UnableChainHang((char *)scpSearchGobj(2071));
+    gflagOn(328);
 
     chainNG_mes[0].func = actSt13aChainOK;
     sub->mail = chainNG_mes;

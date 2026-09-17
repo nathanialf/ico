@@ -454,8 +454,6 @@ void inflate_start(void *a0)
     init_mblock((char *)a0 + 0x18098);
 }
 
-extern int D_0063A464;
-
 void close_inflate_handler(void *a0)
 {
     char *p;
@@ -593,7 +591,6 @@ long long inflate(void *w, unsigned char *out, long long outlen)
     return total;
 }
 
-extern char D_00550FF0[];
 extern char D_00551040[];
 extern int D_0063A450;
 extern int D_0063A470;

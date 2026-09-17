@@ -158,8 +158,6 @@ extern void *MatrixDrive_GetMatrix(void);
 extern void MatrixDrive_TransMatrix(float a0, float a1, float a2);
 /* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
 extern void CopyMatrix(void *dst, void *src);
-/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
-extern void CopyVector(void *dst, void *src);
 
 static inline void SetHandQuaternion(char *hw, char *vec, char *ref)
 {

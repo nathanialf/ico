@@ -24,12 +24,18 @@ static ActMail waterSwitch_mes[2] = {{430}, {429}};
 
 static ActMail solar_mes[2] = {{430}, {429}};
 
-extern int D_0063C550;
+/* .sbss, owned by st05e.o and reached only from this file (MAIN.MAP names no
+   symbol in the run): the demo's own end flag, raised by the
+   subthread the wait loop below spins for, and its complement, true when the
+   player skipped the demo with START. */
+static int demoEnd;
+
+static int demoSkipped;
+
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
 extern int D_0028F4C0[];
 extern float D_0063C088;
-extern int D_0063C554;
 extern int D_0028F8F4[];
 extern int D_0028F8F0[];
 /* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
@@ -50,22 +56,22 @@ void actSt05eWaterStop(volatile int a0)
 {
     int th;
 
-    lt_switch_layout(0x37);
+    lt_switch_layout(55);
 
-    D_0063C550 = 0;
-    D_0063C554 = 0;
-    actCreateSubThread(actSt05eWaterFlagOn, 0x15);
+    demoEnd = 0;
+    demoSkipped = 0;
+    actCreateSubThread(actSt05eWaterFlagOn, 21);
 
     scpSleepEnemyAll();
 
-    th = actCreateSubThread(actSt05eWaterStopSub, 0x15);
-    while (D_0063C550 == 0 && (!(D_0028F8F4[0] & 0x800) || scpAdpcmPlayRequestNum() != 0)) {
+    th = actCreateSubThread(actSt05eWaterStopSub, 21);
+    while (demoEnd == 0 && (!(D_0028F8F4[0] & 0x800) || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
-    D_0063C554 = D_0063C550 ^ 1;
-    iosThreadSetPri(th + 0x24, 0x22);
+    demoSkipped = demoEnd ^ 1;
+    iosThreadSetPri(th + 0x24, 34);
 
-    if (D_0063C550 == 0) {
+    if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -73,16 +79,16 @@ void actSt05eWaterStop(volatile int a0)
         while (lt_fade_status() != 2) {
             _ACTWait(1);
         }
-        stage_SetAnimation(0x10B, 0, -1);
-        stage_SetAnimation(0x10A, -1, -2);
+        stage_SetAnimation(267, 0, -1);
+        stage_SetAnimation(266, -1, -2);
         scpFadeIn(3.0f);
     }
 
-    scpSearchGobj(0x613)->f16C = 1;
-    scpSearchGobj(0x612)->f16C = 0;
+    scpSearchGobj(1555)->f16C = 1;
+    scpSearchGobj(1554)->f16C = 0;
 
     D_0063AA08 = 0;
-    lt_switch_layout(0x36);
+    lt_switch_layout(54);
 
     scpWakeupEnemyAll();
 
@@ -100,27 +106,27 @@ extern void scpAdpcmFadeCloseFunc(int *h, short a1);
 /* listing lines 319-389 */
 void actSt05eSolarChk(volatile int a0)
 {
-    while (scpIsRotObjectZPlusDirInclude(0x614, 0x10D, 0x10F) == 0) {
+    while (scpIsRotObjectZPlusDirInclude(1556, 0x10D, 0x10F) == 0) {
         _ACTWait(1);
     }
 
-    SetRotObjectLockFlag(scpSearchGobj(0x614), 1);
+    SetRotObjectLockFlag(scpSearchGobj(1556), 1);
 
     FinishHint(23);
     FinishHint(25);
     FinishHint(26);
 
-    if (gflagChk(0xF3) == 0 || gflagChk(0xF4) == 0 || gflagChk(0xF5) == 0) {
-        lt_switch_layout(0x37);
+    if (gflagChk(243) == 0 || gflagChk(244) == 0 || gflagChk(245) == 0) {
+        lt_switch_layout(55);
         D_0063AA08 = 1;
 
         scpSleepEnemyAll();
 
-        scpAdpcmPlayRequestFunc(0x36, &solar, 1, 1, 1);
+        scpAdpcmPlayRequestFunc(54, &solar, 1, 1, 1);
 
-        stage_SetAnimation(0x10C, 1, 0);
+        stage_SetAnimation(268, 1, 0);
 
-        while (stage_CheckAnimationFinish(0x10C) == 0) {
+        while (stage_CheckAnimationFinish(268) == 0) {
             if ((D_0028F8F0[1] & 0x800) && scpAdpcmPlayRequestNum() == 0) {
                 scpFadeOut(16.0f, 0, 0, 0);
                 while (scpFadeChk() != 0) {
@@ -129,7 +135,7 @@ void actSt05eSolarChk(volatile int a0)
                 while (lt_fade_status() != 2) {
                     _ACTWait(1);
                 }
-                stage_SetAnimation(0x10C, 0, -1);
+                stage_SetAnimation(268, 0, -1);
                 scpFadeIn(3.0f);
                 break;
             }
@@ -140,19 +146,19 @@ void actSt05eSolarChk(volatile int a0)
             scpAdpcmFadeCloseFunc(&solar, 80);
         }
 
-        lt_switch_layout(0x36);
+        lt_switch_layout(54);
 
         D_0063AA08 = 0;
         scpWakeupEnemyAll();
     }
 
-    gflagOff(0xF6);
-    gflagOff(0xF7);
-    gflagOff(0xF8);
-    gflagOff(0xF9);
-    gflagOn(0xE9);
+    gflagOff(246);
+    gflagOff(247);
+    gflagOff(248);
+    gflagOff(249);
+    gflagOn(233);
 
-    gflagOn(0xE8);
+    gflagOn(232);
 }
 
 void actSt05eWater(volatile int a0)
@@ -161,17 +167,17 @@ void actSt05eWater(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    if (gflagChk(0xE7) == 0) {
-        scpSearchGobj(0x613)->f16C = 0;
+    if (gflagChk(231) == 0) {
+        scpSearchGobj(1555)->f16C = 0;
 
         water_mes[0].func = actSt05eWaterMain;
         self->mail = water_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        scpSearchGobj(0x612)->f16C = 0;
+        scpSearchGobj(1554)->f16C = 0;
 
-        stage_SetAnimation(0x10A, -1, -2);
+        stage_SetAnimation(266, -1, -2);
     }
 }
 
@@ -181,19 +187,19 @@ void actSt05eSolar(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    SetRotObjectArmRadius(scpSearchGobj(0x614), 200.0f);
+    SetRotObjectArmRadius(scpSearchGobj(1556), 200.0f);
 
-    if (gflagChk(0xE8) == 0) {
+    if (gflagChk(232) == 0) {
         solar_mes[0].func = actSt05eSolarChk;
         self->mail = solar_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        SetRotObjectLockFlag(scpSearchGobj(0x614), 1);
+        SetRotObjectLockFlag(scpSearchGobj(1556), 1);
 
-        FinishHint(0x17);
-        FinishHint(0x19);
-        FinishHint(0x1A);
+        FinishHint(23);
+        FinishHint(25);
+        FinishHint(26);
     }
 }
 
@@ -227,28 +233,28 @@ void actSt05eWaterFlagOn(volatile int a0)
     D_0063C088 = 0.005f;
 
     while (i-- > 0) {
-        if (D_0063C554 != 0) {
+        if (demoSkipped != 0) {
             D_0063C088 = 1000.0f;
             break;
         }
         _ACTWait(1);
     }
-    gflagOn(0xE7);
+    gflagOn(231);
 }
 
 void actSt05eWaterStopSub(volatile int a0)
 {
-    _ACTWait(0x3C);
+    _ACTWait(60);
 
-    stage_SetAnimation(0x10B, 1, 0);
+    stage_SetAnimation(267, 1, 0);
 
-    stage_SetAnimation(0x10A, -1, -2);
+    stage_SetAnimation(266, -1, -2);
 
-    while (stage_CheckAnimationFinish(0x10B) == 0) {
+    while (stage_CheckAnimationFinish(267) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
-    D_0063C550 = 1;
+    demoEnd = 1;
     _ACTWait(0);
 }

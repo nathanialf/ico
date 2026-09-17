@@ -19,8 +19,8 @@ typedef struct CandleFlame {
 
 typedef struct CandleWork {
     char _pad0[0x8];
-    int num;   /* 0x8  — flame count */
-    char *mtx; /* 0xC  — the per-flame 0x40-byte matrix run */
+    int num;   /* 0x8 , flame count */
+    char *mtx; /* 0xC , the per-flame 0x40-byte matrix run */
     char _pad_10[0x74 - 0x10];
     int alive; /* 0x74 */
     char _pad_78[0x830 - 0x78];
@@ -82,7 +82,7 @@ inline void DeleteLayoutedCandleParticleEffect(void)
 {
     void *gobj;
 
-    gobj = isysGObjSearchFromObjKindID_begin(0x22);
+    gobj = isysGObjSearchFromObjKindID_begin(34);
     while (gobj != 0) {
         _deleteLayoutedCandleParticleEffect(gobj);
         gobj = isysGObjSearchFromObjKindID_next(gobj);

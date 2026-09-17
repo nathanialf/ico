@@ -94,9 +94,9 @@ void actTitleShortCut(volatile int a0)
         scpPlayStart(D_00639EA4);
     }
     if (D_0063BE6C == 0) {
-        scpAdpcmPlayRequestFunc(0x38, &D_0063BE6C, 0, 0, 1);
+        scpAdpcmPlayRequestFunc(56, &D_0063BE6C, 0, 0, 1);
     }
-    stage_SetAnimation(0x23B, 1, 0x547);
+    stage_SetAnimation(571, 1, 0x547);
 
     SetHandCameraLimitInDemo(0, 0);
     SetZoomMaxValInDemo(0);
@@ -115,7 +115,7 @@ void actTitleShortCut(volatile int a0)
 
     scpFadeIn(3.0f);
 
-    while (stage_CheckAnimationFinish(0x23B) == 0) {
+    while (stage_CheckAnimationFinish(571) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -135,21 +135,12 @@ extern char D_00622630[];
 extern char D_00622648[];
 extern char D_00622658[];
 extern char D_00622668[];
-extern int D_0063ABA8;
-extern int D_0063BE68;
-extern void *D_0063BE6C;
-extern int D_0063C4E8;
 extern int D_0063C4EC;
 /* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, char *a1, int a2, float a3, float a4);
-extern char *D_00639EA4;
 extern char D_00622680[];
 extern char D_00622690[];
 extern PadState D_0028F8F0[];
-/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
-extern void scpPlayStart(char *gobj);
-/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
-extern char *scpSearchGobj(int id);
 extern int stage_no;
 
 /* the 0x194-byte per-stage record; the cutscene entries read their exit index
@@ -171,14 +162,10 @@ extern int scpFadeChk(void);
 extern void scpPlayMot(char *self, int mot);
 /* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
 extern void scpFadeOut(int a0, int a1, int a2, float t);
-/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
-extern void scpFadeIn(float t);
 /* kept local: this TU's uses of RequestStageChangeWithColor do not fit the prototype in script.h */
 extern int RequestStageChangeWithColor(int a0, char *a1, int a2, float a3, float a4, int r, int g,
                                        int b);
 extern int D_0063BE64;
-/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
-extern void scpAdpcmPlayRequestFunc(int kind, void *id, int a2, int a3, int a4);
 /* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
 extern int scpAdpcmPlayRequestNum(void);
 /* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
@@ -205,7 +192,7 @@ void actTitleReadTimeDemo0(volatile int a0)
     D_0063ABA8 = 0;
 
     _ACTWait(1);
-    lt_switch_layout(0x37);
+    lt_switch_layout(55);
 
     _ACTWait(1);
 
@@ -380,7 +367,7 @@ void actTitleReadTimeDemo0(volatile int a0)
     lt_switch_layout(12);
 
     if (D_0063BE6C == 0) {
-        scpAdpcmPlayRequestFunc(0x38, &D_0063BE6C, 0, 0, 1);
+        scpAdpcmPlayRequestFunc(56, &D_0063BE6C, 0, 0, 1);
     }
     D_0063C4E8 = 1;
 
@@ -391,7 +378,7 @@ inline void actSt26aConte01_1_newgame(volatile int a0)
 {
     _ACTWait(1);
 
-    while (gflagChk(0x17E) == 0) {
+    while (gflagChk(382) == 0) {
         _ACTWait(1);
     }
 
@@ -415,7 +402,7 @@ void actOpDemo01_2(volatile int a0)
     D_0063BE64 = 0;
     D_0063BE60 = 0;
 
-    lt_switch_layout(0x37);
+    lt_switch_layout(55);
     D_0063AA08 = 1;
 
     scpAdpcmPlayRequestFunc(7, &D_0063BE64, 0, 0, 1);
@@ -424,7 +411,7 @@ void actOpDemo01_2(volatile int a0)
     }
     scpFadeIn(2.0f);
 
-    actCreateSubThread(actOpDemo01_2Chk, 0x15);
+    actCreateSubThread(actOpDemo01_2Chk, 21);
 
     D_0063C4F0 = 0;
     while (D_0063C4F0 == 0) {
@@ -528,10 +515,10 @@ void actOpDemo02(volatile int a0)
         scpPlayMot(D_00639EA4, 0);
     }
 
-    lt_switch_layout(0x37);
+    lt_switch_layout(55);
     D_0063AA08 = 1;
 
-    stage_SetAnimation(0x97, 0, 0);
+    stage_SetAnimation(151, 0, 0);
 
     scpAdpcmPlayRequestFunc(8, &D_0063C4F4, 0, 1, 1);
     while (D_0063C4F4 == 0) {
@@ -552,9 +539,9 @@ inline void actOpDemo02Chk(volatile int a0)
 {
     gflagOn(3);
 
-    actCreateSubThread(actSt24aConte01_2, 0x15);
+    actCreateSubThread(actSt24aConte01_2, 21);
 
-    actCreateSubThread(actSt24aConte01_2_Jimaku, 0x15);
+    actCreateSubThread(actSt24aConte01_2_Jimaku, 21);
 
     D_0063C4F0 = 0;
     while (D_0063C4F0 == 0) {
@@ -702,11 +689,11 @@ inline void actOpDemo03(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    lt_switch_layout(0x37);
+    lt_switch_layout(55);
     D_0063AA08 = 1;
 
-    stage_SetAnimation(0xB0, 0, 0);
-    stage_SetAnimation(0xAC, 0, 0);
+    stage_SetAnimation(176, 0, 0);
+    stage_SetAnimation(172, 0, 0);
 
     D_004F7E30[0].func = actOpDemo03Chk;
     self->mail = D_004F7E30;
@@ -728,7 +715,7 @@ void actOpDemo03Chk(volatile int a0)
     }
     scpFadeIn(3.0f);
 
-    actCreateSubThread(actSt13aConte01_3, 0x15);
+    actCreateSubThread(actSt13aConte01_3, 21);
 
     D_0063C4F0 = 0;
     while (D_0063C4F0 == 0) {

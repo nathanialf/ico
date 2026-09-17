@@ -33,11 +33,23 @@ void drawHT(void *v, int n, DVColor col, int neg);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/darkVolume", draw);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/darkVolume", drawHT);
 
-extern float D_0071EEF0[];
-extern float D_0071FFF0[];
-extern float D_00720010[];
-extern float D_00720030[];
-extern float D_00720050[];
+/* .bss, owned by darkVolume.o (0x13A0, the run and MAIN.MAP's own size,
+   tiled exactly by these six), in the ROM's run order: one 136-float hatch row,
+   the eight rows the volume is built from, and the four cosine and sine tables
+   the ring is stepped with. */
+/* */
+static float hatchRow[136];
+
+static float hatchRows[8 * 136];
+
+static float cosB[8];
+
+static float cosA[8];
+
+static float sinB[8];
+
+static float sinA[8];
+
 extern int D_0028FF00[];
 extern char *matrixptr;
 void _SetCurrentMatrix(void *m);
@@ -45,7 +57,6 @@ void _SetCurrentMatrix(void *m);
 extern void _ApplyMatrix(void *dst, void *m, void *src);
 /* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
 extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
-extern float D_0071ECD0[];
 
 /* listing lines 62-65: load the VU0 screen clamp limits vmaxx and vminix read
    out of vf13 and vf12 in the projection block at line 80. */
@@ -88,22 +99,22 @@ void renderViewCoordZSphere(void *pos, DVColor col, int neg, float r)
     float *q;
 
     _ApplyMatrix(v, matrixptr + 0x80, pos);
-    if (v[2] + r * D_00720010[0] < 1.0f) {
+    if (v[2] + r * cosA[0] < 1.0f) {
         return;
     }
     _SetCurrentMatrix(matrixptr + 0xC0);
     setScreenClamp(4095.0f, 0.0f);
     for (i = 0; i < 8; i++) {
-        float z0 = v[2] + r * D_0071FFF0[i];
-        float z1 = v[2] + r * D_00720010[i];
+        float z0 = v[2] + r * cosB[i];
+        float z1 = v[2] + r * cosA[i];
 
-        p = &D_0071EEF0[i * 136];
-        q = D_0071ECD0;
+        p = &hatchRows[i * 136];
+        q = hatchRow;
         if (1.0f < z0) {
             for (n = 0; n < 34; n++, p += 4, q += 4) {
                 addScaledVectorXYZ(q, v, p, r);
             }
-            drawHT(D_0071ECD0, 34, col, neg);
+            drawHT(hatchRow, 34, col, neg);
         } else {
             float t = (z1 - 1.0f) / (z1 - z0);
 
@@ -113,16 +124,16 @@ void renderViewCoordZSphere(void *pos, DVColor col, int neg, float r)
                     _InterVectorXYZ(q, q, q - 4, t);
                 }
             }
-            drawHT(D_0071ECD0, 34, col, neg);
-            q = D_0071ECD0;
+            drawHT(hatchRow, 34, col, neg);
+            q = hatchRow;
             for (n = 0; n < 34; n++, q += 4) {
                 if (n & 1) {
                     CopyVector(q - 4, q);
                     CopyVector(q, v);
-                    D_0071ECD0[n * 4 + 2] = 1.0f;
+                    hatchRow[n * 4 + 2] = 1.0f;
                 }
             }
-            draw(D_0071ECD0, 34, col, neg);
+            draw(hatchRow, 34, col, neg);
             return;
         }
     }
@@ -209,7 +220,7 @@ void DispGameOverEffect(void)
                  g = isysGObjSearchFromObjKindID_next(g)) {
                 sendGameOverMail(g, r2);
             }
-            for (g = isysGObjSearchFromObjKindID_begin(0x3E); g != 0;
+            for (g = isysGObjSearchFromObjKindID_begin(62); g != 0;
                  g = isysGObjSearchFromObjKindID_next(g)) {
                 sendGameOverMail(g, r2);
             }
@@ -257,12 +268,12 @@ void InitGameOverEffect(void)
         sa = GetTableSin(a);
         cb = GetTableCos(b);
         sb = GetTableSin(b);
-        D_00720010[i] = ca;
-        D_0071FFF0[i] = cb;
-        D_00720050[i] = sa;
-        D_00720030[i] = sb;
+        cosA[i] = ca;
+        cosB[i] = cb;
+        sinA[i] = sa;
+        sinB[i] = sb;
         for (j = 0; j < 17; j++) {
-            float *p = &D_0071EEF0[i * 136 + j * 8];
+            float *p = &hatchRows[i * 136 + j * 8];
             float *q = p + 4;
             short k = j * 0x1000;
             float s = GetTableSin(k);

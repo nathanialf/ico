@@ -23,7 +23,7 @@ extern int D_004EB758[];
 inline void ResetDynamicMotionManager(void)
 {
     int i;
-    for (i = 0; i <= 0x47A; i++) {
+    for (i = 0; i <= 1146; i++) {
         if (D_0055FE58[i].node_id == 4) {
             D_004EB758[i] = 0;
         }
@@ -34,7 +34,7 @@ inline void ResetDynamicMotionManager(void)
 inline void ResetStatic2MotionManager(int a0)
 {
     int i;
-    for (i = 0; i <= 0x47A; i++) {
+    for (i = 0; i <= 1146; i++) {
         if (D_0055FE58[i].node_id == a0) {
             D_004EB758[i] = 0;
         }

@@ -420,7 +420,7 @@ static inline int isInScreen(volatile int *p)
         return 0;
     if (p[1] < 0)
         return 0;
-    return p[1] <= 0xFFF0;
+    return p[1] <= 65520;
 }
 
 /* One vertex through the VU0 macro-mode pipeline: transform by the current
@@ -441,7 +441,7 @@ static inline void rotTransPers(void *src)
 
 /* One vertex through the VU0 pipeline into a caller-supplied projected-vertex
    slot, answering whether the result is on screen.  The destination is a
-   parameter, so its address is materialised at the call site — which is why
+   parameter, so its address is materialised at the call site, which is why
    each `addiu aN,sp,K` sits in the previous visibility test's delay slot.
    The first vertex lands at frame offset 0, where the address folds to $sp
    itself and no address register is needed, so it is written out here. */
@@ -659,7 +659,7 @@ void gif_LineOffset(int *v0, int *v1, long long z0, long long z1, unsigned char 
     gif_MakeLine2DOffset(p0, p1, z0, z1, col, prim);
 }
 
-/* .rodata — carved VMA 0x54E0B0..0x54E170; the 12 ALPHA_1/2 blend-parameter
+/* .rodata, carved VMA 0x54E0B0..0x54E170; the 12 ALPHA_1/2 blend-parameter
    quadruples gif_SetAlpha packs into the GS ALPHA register, bytes verified
    against baserom/pal/baseelf.rom */
 const GsAlphaEnt D_0054E0B0[12] = {
@@ -762,5 +762,5 @@ int _IsInScreen(volatile int *a0)
         return 0;
     if (a0[1] < 0)
         return 0;
-    return a0[1] <= 0xFFF0;
+    return a0[1] <= 65520;
 }

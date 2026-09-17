@@ -289,13 +289,8 @@ static inline void lt_reset_property_chain(int no)
 extern unsigned char D_0063B600[4];
 extern unsigned int D_0063B628;
 extern unsigned int D_0063B62C;
-extern unsigned int D_0063C400;
-extern unsigned int D_0063C404;
-extern signed char D_0063C3FC;
 extern unsigned int D_0063C40C;
 extern unsigned int D_0063C410;
-extern int D_0063B620;
-extern int D_0028F4C0[];
 
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_texture", texture_fading);
 /* census display_texture, a file static (MAIN.MAP carries no global of that
@@ -315,9 +310,6 @@ typedef struct {
 } SprCol;
 
 extern SprRect D_0061DD50;
-extern int D_0063B61C;
-extern int D_0063C3F4;
-extern int D_0063C3F8;
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
 /* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */

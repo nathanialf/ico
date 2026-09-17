@@ -51,18 +51,39 @@ typedef struct {
 
 MvDispEnv D_002A7978 = {0};
 
-extern int D_0063C320;
-extern int D_006F2B98[];
+/* .sbss, owned by mv_main.o (MAIN.MAP names no symbol in the run), in the ROM's
+   run order: the two callback argument pairs videoDecSetStream is handed by
+   address, the priority the decode thread is created at and its id, the started
+   flag, the interrupt and DMA enables and the D_CTRL word saved across playback,
+   the caller's own priority, and the GS interrupt mask saved across playback.
+   The long long forces the 8-byte alignment that leaves the word before it
+   unused, which is what makes the run 0x38 bytes. */
+static int videoCbMgr;
+
+static int videoCbStream;
+
+static int pcmCbMgr;
+
+static int pcmCbStream;
+
+static int decThreadPri;
+
+static int decThreadId;
+
+static int decThreadStarted;
+
+static int savedIntc;
+
+static int savedDmac;
+
+static int savedDmaCtrl;
+
+static int callerPri;
+
+static long long savedIMR;
+
 extern int D_0063AC78;
 extern char D_0063AC80[];
-extern int D_006F2AD0[];
-extern int D_006F2AC0[];
-extern char D_006EA900[];
-extern int D_0063C324;
-extern int D_0063C328;
-extern int D_0063C32C;
-extern int D_0063C330;
-extern int D_0063C334;
 /* kept local: this TU's uses of strFileClose do not fit the prototype in mv_strfile.h */
 extern void strFileClose(char *self);
 extern int DIntr(void);
@@ -79,10 +100,6 @@ extern void dispDelete(MvDispEnv *self);
 extern void dispClear(MvDispEnv *self, unsigned int col);
 extern int sceGsGetIMR(void);
 extern void sceGsPutIMR(long long imr);
-extern int D_006FAC40[];
-extern int D_006FAC60[];
-extern int D_0063C338;
-extern long long D_0063C340;
 extern void sceGsSyncPath(int a0, int a1);
 extern int D_0063AC70;
 void movie_end(void);
@@ -150,33 +167,51 @@ extern int vblankHandler();
 /* Argument block handed to the videoDecMain thread; it reads the three
    members back as self[0], self[1] and self[2]. */
 typedef struct {
-    int *dec;        /* D_006F2AD0, the videoDec object   */
+    int *dec;        /* videoDec, the videoDec object   */
     MvDispEnv *disp; /* the display env, MAIN.MAP `display` */
     MvVoBuf *vo;     /* voBuf, the video-out ring          */
+    /* the ROM's .bss run spaces the next object 0x40 on, so the block the
+       developers declared reserves that much; only the three above are used */
+    char reserved[64 - 12];
 } MvThreadArg;
 
-extern MvThreadArg D_006F2C00;
-extern int D_006F2C40[];
+/* .bss, owned by mv_main.o (0x10380, the run, tiled exactly by these eight;
+   MAIN.MAP's own link sizes it 0x1037C), in the ROM's run order: the stream
+   file the movie is read through, the read buffer, the video and audio decoder
+   objects, the argument block the decode thread is started with, its 0x8000
+   stack, and the DMA and interrupt enables saved per channel. */
+static char mpegStrFile[33216];
+
+static int mpegReadBuf[4];
+
+static int videoDec[50];
+
+static int audioDec[26];
+
+static MvThreadArg decThreadArg;
+
+static int decThreadStack[8192];
+
+static int savedDmacs[8];
+
+static int savedIntcs[8];
+
 extern int _gp; /* linker-defined global pointer */
-extern int D_0063C310;
-extern int D_0063C314;
-extern int D_0063C318;
-extern int D_0063C31C;
 
 void switchThread(void)
 {
-    RotateThreadReadyQueue(D_0063C320);
+    RotateThreadReadyQueue(decThreadPri);
 }
 
 void proceedAudio(void)
 {
-    audioDecSendToIOP(D_006F2B98);
+    audioDecSendToIOP(audioDec);
 }
 
 /* mv_main.c:55-57 */
 static inline int audioIsPreset(void)
 {
-    return D_0063AC70 ? audioDecIsPreset(D_006F2B98) : 1;
+    return D_0063AC70 ? audioDecIsPreset(audioDec) : 1;
 }
 
 int readMpeg(int *dec, int *rb, char *strf, int (*poll)(void))
@@ -204,12 +239,12 @@ int readMpeg(int *dec, int *rb, char *strf, int (*poll)(void))
             if (D_0063AC74 == 1) {
                 startDisplay(1);
                 if (D_0063AC70 != 0) {
-                    audioDecResume(D_006F2B98);
+                    audioDecResume(audioDec);
                 }
             } else if (D_0063AC74 == 30) {
                 endDisplay();
                 if (D_0063AC70 != 0) {
-                    audioDecPause(D_006F2B98);
+                    audioDecPause(audioDec);
                 }
             }
             if (D_0063AC74 > 0) {
@@ -217,7 +252,7 @@ int readMpeg(int *dec, int *rb, char *strf, int (*poll)(void))
             }
             if (poll() != 0) {
                 abort = 1;
-                videoDecAbort(D_006F2AD0);
+                videoDecAbort(videoDec);
             }
         }
         size = readBufBeginPut(rb, &p);
@@ -240,7 +275,7 @@ int readMpeg(int *dec, int *rb, char *strf, int (*poll)(void))
         if (started == 0 && voBufIsFull(&voBuf) && audioIsPreset()) {
             startDisplay(1);
             if (D_0063AC70 != 0) {
-                audioDecStart(D_006F2B98);
+                audioDecStart(audioDec);
             }
             started = 1;
         }
@@ -257,7 +292,7 @@ term:
     gsb_ClearFrameBuffer();
     endDisplay();
     if (D_0063AC70 != 0) {
-        audioDecReset(D_006F2B98);
+        audioDecReset(audioDec);
     }
     return abort;
 }
@@ -268,42 +303,42 @@ int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
     int ret = 0;
 
     D_0063AC74 = 0;
-    D_006F2AD0[0xC4 / 4] = -1;
-    D_006F2AD0[0xC0 / 4] = -1;
-    D_0063C328 = 0;
+    videoDec[0xC4 / 4] = -1;
+    videoDec[0xC0 / 4] = -1;
+    decThreadStarted = 0;
 
     dispCreate(&D_002A7978, a1, a2, a3, p4);
     dispClear(&D_002A7978, p7);
 
-    D_0063C334 = *(volatile int *)0x1000E000;
+    savedDmaCtrl = *(volatile int *)0x1000E000;
     debug_StdPrintfDummy("D_CTRL %x\n", *(volatile int *)0x1000E000);
     *(volatile int *)0x1000E000 |= 3;
     *(volatile int *)0x1000E010 = 4;
 
     debug_StdPrintfDummy("open movie file %s\n", a0);
-    if (strFileOpen(D_006EA900, a0) == 0) {
+    if (strFileOpen(mpegStrFile, a0) == 0) {
         return -1;
     }
-    if (readBufCreate(D_006F2AC0) != 0) {
+    if (readBufCreate(mpegReadBuf) != 0) {
         return -1;
     }
     sceMpegInit();
-    if (videoDecCreate(D_006F2AD0) != 0) {
+    if (videoDecCreate(videoDec) != 0) {
         return -1;
     }
     if (D_0063AC70 != 0) {
-        if (audioDecCreate(D_006F2B98, p5, p6) != 0) {
+        if (audioDecCreate(audioDec, p5, p6) != 0) {
             return -1;
         }
     }
 
-    D_0063C310 = (int)D_006F2AC0;
-    D_0063C314 = (int)D_006F2AD0;
-    videoDecSetStream(D_006F2AD0, 0, 0, videoCallback, &D_0063C310);
+    videoCbMgr = (int)mpegReadBuf;
+    videoCbStream = (int)videoDec;
+    videoDecSetStream(videoDec, 0, 0, videoCallback, &videoCbMgr);
     if (D_0063AC70 != 0) {
-        D_0063C318 = (int)D_006F2AC0;
-        D_0063C31C = (int)D_006F2B98;
-        videoDecSetStream(D_006F2AD0, 2, 0, pcmCallback, &D_0063C318);
+        pcmCbMgr = (int)mpegReadBuf;
+        pcmCbStream = (int)audioDec;
+        videoDecSetStream(videoDec, 2, 0, pcmCallback, &pcmCbMgr);
     }
 
     if (voBufCreate(&voBuf) != 0) {
@@ -312,35 +347,35 @@ int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
     debug_StdPrintfDummy("create video decode thread\n");
 
     th.entry = (void *)videoDecMain;
-    th.stack = (void *)D_006F2C40;
+    th.stack = (void *)decThreadStack;
     th.stackSize = 0x8000;
-    th.initPriority = D_0063C320;
+    th.initPriority = decThreadPri;
     th.gpReg = &_gp;
     th.option = 0;
-    D_0063C324 = CreateThread(&th);
+    decThreadId = CreateThread(&th);
     debug_StdPrintfDummy("start thread\n");
 
-    D_006F2C00.dec = D_006F2AD0;
-    D_006F2C00.disp = &D_002A7978;
-    D_006F2C00.vo = &voBuf;
-    StartThread(D_0063C324, &D_006F2C00);
-    D_0063C328 = 1;
+    decThreadArg.dec = videoDec;
+    decThreadArg.disp = &D_002A7978;
+    decThreadArg.vo = &voBuf;
+    StartThread(decThreadId, &decThreadArg);
+    decThreadStarted = 1;
 
     DIntr();
     debug_StdPrintfDummy("add intc\n");
-    D_006F2AD0[0xC4 / 4] = AddIntcHandler(2, vblankHandler, 0);
-    if (D_006F2AD0[0xC4 / 4] < 0) {
+    videoDec[0xC4 / 4] = AddIntcHandler(2, vblankHandler, 0);
+    if (videoDec[0xC4 / 4] < 0) {
         debug_StdPrintfDummy("add intc failed\n");
         ret = -1;
     } else {
-        D_0063C32C = EnableIntc(2);
+        savedIntc = EnableIntc(2);
         debug_StdPrintfDummy("add dmac\n");
-        D_006F2AD0[0xC0 / 4] = AddDmacHandler(2, handler_endimage, 0);
-        if (D_006F2AD0[0xC0 / 4] < 0) {
+        videoDec[0xC0 / 4] = AddDmacHandler(2, handler_endimage, 0);
+        if (videoDec[0xC0 / 4] < 0) {
             debug_StdPrintfDummy("add dmac failed\n");
             ret = -1;
         } else {
-            D_0063C330 = EnableDmac(2);
+            savedDmac = EnableDmac(2);
         }
     }
     EIntr();
@@ -349,33 +384,33 @@ int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
 
 void termAll(void)
 {
-    strFileClose(D_006EA900);
+    strFileClose(mpegStrFile);
     DIntr();
-    if (D_0063C330 != 0) {
+    if (savedDmac != 0) {
         DisableDmac(2);
     }
-    D_0063C330 = 0;
-    if (D_006F2AD0[0xC0 / 4] >= 0) {
-        RemoveDmacHandler(2, D_006F2AD0[0xC0 / 4]);
+    savedDmac = 0;
+    if (videoDec[0xC0 / 4] >= 0) {
+        RemoveDmacHandler(2, videoDec[0xC0 / 4]);
     }
-    if (D_0063C32C != 0) {
+    if (savedIntc != 0) {
         DisableIntc(2);
     }
-    D_0063C32C = 0;
-    if (D_006F2AD0[0xC4 / 4] >= 0) {
-        RemoveIntcHandler(2, D_006F2AD0[0xC4 / 4]);
+    savedIntc = 0;
+    if (videoDec[0xC4 / 4] >= 0) {
+        RemoveIntcHandler(2, videoDec[0xC4 / 4]);
     }
     EIntr();
-    if (D_0063C328 != 0) {
-        TerminateThread(D_0063C324);
-        DeleteThread(D_0063C324);
+    if (decThreadStarted != 0) {
+        TerminateThread(decThreadId);
+        DeleteThread(decThreadId);
     }
-    readBufDelete(D_006F2AC0);
+    readBufDelete(mpegReadBuf);
     voBufDelete(&voBuf);
-    videoDecDelete(D_006F2AD0);
-    audioDecDelete(D_006F2B98);
+    videoDecDelete(videoDec);
+    audioDecDelete(audioDec);
     dispDelete(&D_002A7978);
-    *(volatile unsigned int *)0x1000E000 = D_0063C334;
+    *(volatile unsigned int *)0x1000E000 = savedDmaCtrl;
 }
 
 /* mv_main.c:425 - the VU0 status register, read back into C */
@@ -396,19 +431,19 @@ int movie_init(int a0, int a1, int a2, int a3, int p4, int p5, int p6)
     sceGsSyncPath(0, 0);
 
     ReferThreadStatus(GetThreadId(), st);
-    D_0063C338 = st[0x18 / 4];
-    D_0063C320 = st[0x18 / 4];
-    D_0063C340 = sceGsGetIMR();
+    callerPri = st[0x18 / 4];
+    decThreadPri = st[0x18 / 4];
+    savedIMR = sceGsGetIMR();
     debug_StdPrintfDummy("sceGsGetIMR() %lx\n", sceGsGetIMR());
 
     DIntr();
     for (i = 0; i < 7; i++) {
-        D_006FAC40[i] = DisableDmac(movieDmacChannel[i]);
-        debug_StdPrintfDummy("dmac %d %d\n", movieDmacChannel[i], D_006FAC40[i]);
+        savedDmacs[i] = DisableDmac(movieDmacChannel[i]);
+        debug_StdPrintfDummy("dmac %d %d\n", movieDmacChannel[i], savedDmacs[i]);
     }
     for (j = 0; j < 7; j++) {
-        D_006FAC60[j] = DisableIntc(movieIntcChannel[j]);
-        debug_StdPrintfDummy("intc %d %d\n", movieIntcChannel[j], D_006FAC60[j]);
+        savedIntcs[j] = DisableIntc(movieIntcChannel[j]);
+        debug_StdPrintfDummy("intc %d %d\n", movieIntcChannel[j], savedIntcs[j]);
     }
     EIntr();
 
@@ -430,18 +465,18 @@ void movie_end(void)
     termAll();
     DIntr();
     debug_StdPrintfDummy("sceGsGetIMR() %lx\n", sceGsGetIMR());
-    sceGsPutIMR(D_0063C340);
+    sceGsPutIMR(savedIMR);
     for (i = 0; i < 7; i++) {
-        if (D_006FAC40[i] != 0) {
+        if (savedDmacs[i] != 0) {
             EnableDmac(movieDmacChannel[i]);
         }
     }
     for (j = 0; j < 7; j++) {
-        if (D_006FAC60[j] != 0) {
+        if (savedIntcs[j] != 0) {
             EnableIntc(movieIntcChannel[j]);
         }
     }
-    ChangeThreadPriority(GetThreadId(), D_0063C338);
+    ChangeThreadPriority(GetThreadId(), callerPri);
     EIntr();
     debug_StdPrintfDummy("movie end\n");
 }
@@ -450,7 +485,7 @@ int movie_proc(int (*poll)(void))
 {
     int r;
     debug_StdPrintfDummy(D_0063AC80, D_0063AC78++);
-    r = readMpeg(D_006F2AD0, D_006F2AC0, D_006EA900, poll);
+    r = readMpeg(videoDec, mpegReadBuf, mpegStrFile, poll);
     movie_end();
     return r;
 }

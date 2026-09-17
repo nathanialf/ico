@@ -30,7 +30,13 @@ extern void _ApplyRyGV(void *a0, float a1);
 extern StageLabelRange D_005F5D50[];
 extern GVGeo2 D_002C2DC8[];
 extern int stage_no;
-extern int D_006E6D80[];
+
+/* .bss, owned by generator.o (0x2C10, the run, tiled exactly; the packet
+   read into it is 11277 bytes, which is what GetsizeGeneratorPacket returns,
+   three under the buffer): the generator packet. */
+/* */
+static int generatorPacket[2820];
+
 extern int fptodp(float f);
 extern char D_0063AC08[];
 extern char D_00308924[];
@@ -42,7 +48,7 @@ inline int SearchActiveGenerator(void)
 {
     char *g;
 
-    g = (char *)isysGObjSearchFromObjKindID_begin(0x21);
+    g = (char *)isysGObjSearchFromObjKindID_begin(33);
     while (g != 0) {
         char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
 
@@ -68,7 +74,7 @@ int CheckGeneratorCollision(char *gobj, float *dir)
     float p[4];
     char *g;
 
-    g = (char *)isysGObjSearchFromObjKindID_begin(0x21);
+    g = (char *)isysGObjSearchFromObjKindID_begin(33);
     GetRootPosition(pos, gobj);
     sceVu0ScaleVector(tmp, dir, 100.0f);
     sceVu0AddVector(pos, pos, tmp);
@@ -111,7 +117,7 @@ static inline unsigned char IsGeneratorSafePosition(float *pos)
 {
     char *g;
 
-    for (g = (char *)isysGObjSearchFromObjKindID_begin(0x11); g != 0;
+    for (g = (char *)isysGObjSearchFromObjKindID_begin(17); g != 0;
          g = (char *)isysGObjSearchFromObjKindID_next(g)) {
         float p[4];
 
@@ -320,10 +326,10 @@ char *IsNeedGeneratorHard(char *mother)
         }
     }
 
-    for (g = (char *)isysGObjSearchFromObjKindID_begin(0x21); g != 0;
+    for (g = (char *)isysGObjSearchFromObjKindID_begin(33); g != 0;
          g = (char *)isysGObjSearchFromObjKindID_next(g)) {}
 
-    for (g = (char *)isysGObjSearchFromObjKindID_begin(0x3E); g != 0;
+    for (g = (char *)isysGObjSearchFromObjKindID_begin(62); g != 0;
          g = (char *)isysGObjSearchFromObjKindID_next(g)) {
         char *p = *(char **)(g + 0x164);
 
@@ -627,7 +633,7 @@ inline void ReturnEnemyToGenerator(int a0)
 
 inline int *GetbufpGeneratorPacket(void)
 {
-    return D_006E6D80;
+    return generatorPacket;
 }
 
 inline int GetsizeGeneratorPacket(void)
@@ -863,7 +869,7 @@ static inline unsigned char IsGeneratorCalling(void)
 {
     char *g;
 
-    g = (char *)isysGObjSearchFromObjKindID_begin(0x21);
+    g = (char *)isysGObjSearchFromObjKindID_begin(33);
     while (g != 0) {
         char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
 
@@ -914,7 +920,7 @@ void GeneratorGeo(char *gobj)
             *(char *)(w + 0x12) = 0;
         }
 
-        if (isysGObjSearchFromObjKindID_begin(0x2F) != 0) {
+        if (isysGObjSearchFromObjKindID_begin(47) != 0) {
             *(char *)(w + 0x11) = 1;
         } else {
             *(char *)(w + 0x11) = 0;

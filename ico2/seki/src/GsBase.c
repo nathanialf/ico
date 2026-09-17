@@ -231,15 +231,8 @@ void updateOtherEditingLockFlag(void)
     }
 }
 
-extern int stage_no;
-extern char D_005F5D90[];
-extern char D_0067BB88[];
-extern char D_0054EF00[];
 extern char D_0054EF40[];
 extern char D_0054EF58[];
-extern char D_0063A000[];
-extern char D_0063A038[];
-extern int D_00639F7C;
 
 /* the line-2873 helper the PAL listing shows inlined at the head of
    updateOtherEditingLockFlag, createLockFile and removeLockFile */
@@ -271,7 +264,6 @@ int createLockFile(void)
 
 extern char D_0054EF78[];
 extern char D_0054EF90[];
-extern char D_0063A040[];
 
 int removeLockFile(void)
 {
@@ -321,7 +313,7 @@ int gsb_StageSetting(void)
     }
     if (D_00639F7C) {
         for (i = 0; i < 11; i++) {
-            debug_PrintfDummy(0x12, (i + 1) * 8 + 0x1E, D_0054F078[(D_0063A048 == i) ? 1 : 0],
+            debug_PrintfDummy(18, (i + 1) * 8 + 0x1E, D_0054F078[(D_0063A048 == i) ? 1 : 0],
                               D_0063A050, D_00290830[i].name);
         }
         if (D_0028F8F0[0].rep & 0x4000) {
@@ -338,8 +330,8 @@ int gsb_StageSetting(void)
             D_0063A04C = D_0063A048;
         }
     } else {
-        debug_PrintfDummy(0x1A, 0x16, 0xFFFFFFFF, D_0054F080);
-        debug_PrintfDummy(0x12, 0x26, D_0054F07C[0], D_0063A050, D_00290820[0].name);
+        debug_PrintfDummy(26, 22, 0xFFFFFFFF, D_0054F080);
+        debug_PrintfDummy(18, 38, D_0054F07C[0], D_0063A050, D_00290820[0].name);
         if (D_0028F8F0[0].trg & 0x20) {
             D_00290820[0].fn(1);
         }
@@ -371,7 +363,6 @@ inline void gsb_GetBGColor(unsigned char *a0)
     a0[3] = D_0067BCD0[0xC];
 }
 
-extern int CurrentTargetGObjSub;
 extern int D_0054E3C0[];
 extern char D_0054E3D8[];
 extern char D_0054E3F0[];
@@ -425,8 +416,6 @@ inline int gsb_SyncGSSystem(void)
     return 0;
 }
 
-extern int stage_no;
-extern char D_005F5D90[];
 extern char D_0054E488[];
 extern char D_0054E4A8[];
 extern char D_0054E4D8[];
@@ -447,7 +436,6 @@ inline int gsb_LoadStageSettings(void)
     return -1;
 }
 
-extern int D_00639F78;
 extern char D_0054E568[];
 extern char D_0054E598[];
 /* kept local: the declaration in GsBase.h changes this TU codegen */

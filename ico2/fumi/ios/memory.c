@@ -58,7 +58,12 @@ extern char D_00551990[];
 extern char D_005519A0[];
 extern char D_005519B0[];
 extern char D_005519C8[];
-extern char D_006BC918[];
+
+/* .bss, owned by memory.o (MAIN.MAP sizes the run 0x20 and names no
+   symbol in it): the node name the heap walk copies out before printing it. */
+/* */
+static char nodeName[32];
+
 extern int strncpy(char *dst, int src, int n);
 extern char D_00551470[];
 extern char D_005514B0[];
@@ -66,7 +71,6 @@ extern char D_00551720[];
 extern char D_00551770[];
 extern char D_00551788[];
 extern char D_0063A4E8[];
-extern void debug_assert(char *file, int line);
 extern int fptodp(float f);
 
 inline IosMemPart *iosMallocInitPartition(unsigned int start, unsigned int end)
@@ -442,11 +446,11 @@ void iosMallocCheckLeak2(int a0, int a1)
     }
     do {
         node += a1;
-        strncpy(D_006BC918, node + 0x10, 0xF);
-        D_006BC918[0xF] = 0;
+        strncpy(nodeName, node + 0x10, 0xF);
+        nodeName[0xF] = 0;
         r = strcmp((int *)node, D_00551740);
         if (r == 0) {
-            debug_StdPrintfDummy(D_00551990, node - a1, D_006BC918);
+            debug_StdPrintfDummy(D_00551990, node - a1, nodeName);
             r = 0xB;
             goto delay;
         }

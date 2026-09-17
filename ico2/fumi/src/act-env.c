@@ -7,7 +7,7 @@ union ENVIF {
     float f;
 };
 
-/* .data — carved VMA 0x4F1D60..0x4F1E10: the per-stage ditch-distance
+/* .data, carved VMA 0x4F1D60..0x4F1E10: the per-stage ditch-distance
    tables getDitchDistTbl selects between (the first six are ranges
    terminated by -1.0f, the rest position/orientation vectors).  Values are
    the shortest decimals that round-trip through binary32; every byte

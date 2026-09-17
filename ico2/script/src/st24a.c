@@ -47,7 +47,11 @@ typedef struct SwordObj {
 } SwordObj;
 
 extern SwordObj *sword;
-extern int D_0063C5B0;
+
+/* .sbss, owned by st24a.o and reached only from this file (MAIN.MAP names no
+   symbol in the run): the demo's own end flag, raised by the
+   subthread the wait loop below spins for. */
+static int demoEnd;
 
 static const Vec16 swordChkPos = {{1685.0f, -1080.0f, -1000.0f, 1.0f}};
 
@@ -81,19 +85,19 @@ void actSt24aSwordChk(volatile int self)
            scpTriggerBall(self, D_00639EA4, 100.0f) == 0) {
         _ACTWait(1);
     }
-    lt_switch_layout(0x37);
+    lt_switch_layout(55);
     D_0063AA08 = 1;
     scpPlayStart(D_00639EA4);
-    gflagOn(0x149);
-    soundSeDefPlay(0x53F, 0, 0, 1);
-    scpAdpcmPlayRequestFunc(0x22, &sword, 1, 1, 0);
-    th = (char *)actCreateSubThread(actSt24aSwordSub, 0x15);
-    D_0063C5B0 = 0;
-    while (D_0063C5B0 == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    gflagOn(329);
+    soundSeDefPlay(1343, 0, 0, 1);
+    scpAdpcmPlayRequestFunc(34, &sword, 1, 1, 0);
+    th = (char *)actCreateSubThread(actSt24aSwordSub, 21);
+    demoEnd = 0;
+    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
-    iosThreadSetPri(th + 0x24, 0x22);
-    if (D_0063C5B0 == 0) {
+    iosThreadSetPri(th + 0x24, 34);
+    if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
         while (sword == 0) {
             _ACTWait(1);
@@ -105,18 +109,18 @@ void actSt24aSwordChk(volatile int self)
         while (lt_fade_status() != 2) {
             _ACTWait(1);
         }
-        stage_SetAnimation(0x99, 0, -1);
+        stage_SetAnimation(153, 0, -1);
         scpPlayPosSet(D_00639EA4, 1685.0f, -1080.0f, -550.0f);
         *(Vec16 *)v = swordChkPos;
         sceVu0SubVector(dir, v, test_CURRENTROOT(D_00639EA4));
         scpPlayMotDir(D_00639EA4, dir);
         SetCameraFlag_LwsCutBack();
-        scpSetBoyWeaponGObj(scpSearchGobj(0x832));
+        scpSetBoyWeaponGObj(scpSearchGobj(2098));
         scpFadeIn(3.0f);
     }
     scpPlayMot(D_00639EA4, 0);
     scpPlayEnd(D_00639EA4);
-    lt_switch_layout(0x36);
+    lt_switch_layout(54);
     D_0063AA08 = 0;
 }
 
@@ -125,12 +129,12 @@ void actSt24aDemoCamChk(volatile int a0)
     while (scpTriggerBall(a0, D_00639EA4, 700.0f) == 0) {
         _ACTWait(1);
     }
-    lt_switch_layout(0x37);
+    lt_switch_layout(55);
     D_0063AA08 = 1;
-    gflagOn(0x14A);
-    stage_SetAnimation(0x9A, 1, 0);
+    gflagOn(330);
+    stage_SetAnimation(154, 1, 0);
     SetCameraFlag_LwsCutBack();
-    while (stage_CheckAnimationFinish(0x9A) == 0) {
+    while (stage_CheckAnimationFinish(154) == 0) {
         if (D_0028F8F0.trg & 0x800) {
             if (scpAdpcmPlayRequestNum() == 0) {
                 scpFadeOut(16.0f, 0, 0, 0);
@@ -140,14 +144,14 @@ void actSt24aDemoCamChk(volatile int a0)
                 while (lt_fade_status() != 2) {
                     _ACTWait(1);
                 }
-                stage_SetAnimation(0x9A, 0, -1);
+                stage_SetAnimation(154, 0, -1);
                 scpFadeIn(3.0f);
                 break;
             }
         }
         _ACTWait(1);
     }
-    lt_switch_layout(0x36);
+    lt_switch_layout(54);
     D_0063AA08 = 0;
 }
 
@@ -162,7 +166,7 @@ void actSt24aSword(volatile int a0)
 
     ScpCallCameraSetTarget(363.0f, 1307.0f, -3297.0f);
 
-    if (gflagChk(0x149) == 0) {
+    if (gflagChk(329) == 0) {
         sword_mes[0].func = actSt24aSwordChk;
         self->mail = sword_mes;
         ACTSendMailCorrect(a0, 430);
@@ -176,7 +180,7 @@ void actSt24aSaku(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    stage_SetAnimation(0x97, 0, 0);
+    stage_SetAnimation(151, 0, 0);
 }
 
 void actSt24aDemoCam(volatile int a0)
@@ -185,7 +189,7 @@ void actSt24aDemoCam(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    if (gflagChk(0x14A) == 0) {
+    if (gflagChk(330) == 0) {
         demoCam_mes[0].func = actSt24aDemoCamChk;
         self->mail = demoCam_mes;
         ACTSendMailCorrect(a0, 430);
@@ -200,22 +204,22 @@ void actSt24aSwordSub(volatile int a0)
     }
     AdpcmPlay(sword->unk2C);
 
-    stage_SetAnimation(0x99, 1, 0);
+    stage_SetAnimation(153, 1, 0);
 
     scpPlayMot(D_00639EA4, 250);
 
-    while (stage_CheckAnimationFrame(0x99, 0x15, 0) == 0) {
+    while (stage_CheckAnimationFrame(153, 21, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
-    scpSetBoyWeaponGObj(scpSearchGobj(0x832));
+    scpSetBoyWeaponGObj(scpSearchGobj(2098));
 
-    while (stage_CheckAnimationFinish(0x99) == 0) {
+    while (stage_CheckAnimationFinish(153) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
-    D_0063C5B0 = 1;
+    demoEnd = 1;
     _ACTWait(0);
 }

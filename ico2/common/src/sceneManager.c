@@ -375,7 +375,7 @@ static inline void initGamesysSceneGObjs(int stage)
     GamesysObjInfoFlag *p = D_004DA980;
     int i;
 
-    for (i = 0; i <= 0xB5; i++, p++) {
+    for (i = 0; i <= 181; i++, p++) {
         if (p->info.no != 0 && (p->flag & 1) == 0 && p->info.stage == stage) {
             initSceneGObj(stage, p->info.no);
         }

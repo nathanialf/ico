@@ -25,26 +25,26 @@ void actSt05bCrest01XL(volatile int a0)
 
     actInitialize(a0);
     _ACTWait(1);
-    if (gflagChk(0xF3) == 0) {
-        stage_SetAnimation(0xBB, 0, 0);
-        stage_SetAnimation(0xBD, 0, 0);
+    if (gflagChk(243) == 0) {
+        stage_SetAnimation(187, 0, 0);
+        stage_SetAnimation(189, 0, 0);
     } else {
-        stage_SetAnimation(0xBB, 0, -1);
-        stage_SetAnimation(0xBD, 0, -1);
-        scpTorchLightOn(0x53F);
-        scpTorchLightOn(0x540);
+        stage_SetAnimation(187, 0, -1);
+        stage_SetAnimation(189, 0, -1);
+        scpTorchLightOn(1343);
+        scpTorchLightOn(1344);
     }
-    if (gflagChk(0xF4) == 0) {
-        stage_SetAnimation(0xBC, 0, 0);
+    if (gflagChk(244) == 0) {
+        stage_SetAnimation(188, 0, 0);
     } else {
-        stage_SetAnimation(0xBC, 0, -1);
-        scpTorchLightOn(0x541);
-        scpTorchLightOn(0x542);
+        stage_SetAnimation(188, 0, -1);
+        scpTorchLightOn(1345);
+        scpTorchLightOn(1346);
     }
-    if (gflagChk(0xFB) == 0) {
-        stage_SetAnimation(0xBE, 0, 0);
+    if (gflagChk(251) == 0) {
+        stage_SetAnimation(190, 0, 0);
     } else {
-        stage_SetAnimation(0xBE, 0, -1);
+        stage_SetAnimation(190, 0, -1);
     }
 }
 
@@ -77,8 +77,6 @@ extern void scpPlayPosSet(int gobj, float x, float y, float z);
 extern void scpPlayMotDir(int gobj, float *dir);
 /* kept local: this TU's uses of scpSekizouCheckPoint do not fit the prototype in script.h */
 extern void scpSekizouCheckPoint(void);
-/* kept local: this TU's uses of ScpCallCameraSetTarget do not fit the prototype in script.h */
-extern void ScpCallCameraSetTarget(float x, float y, float z);
 
 void actSt05bSekizoChk(volatile int a0)
 {
@@ -92,26 +90,26 @@ void actSt05bSekizoChk(volatile int a0)
            scpTriggerBall(a0, D_00639EA8, 200.0f) == 0) {
         _ACTWait(1);
     }
-    lt_switch_layout(0x37);
+    lt_switch_layout(55);
     D_0063AA08 = 1;
     brainLockGirl();
     scpKillEnemyAll();
     scpMaskGeneratorAll();
-    scpAdpcmPlayRequestFunc(0x12, &sekizo5b, 1, 1, 1);
+    scpAdpcmPlayRequestFunc(18, &sekizo5b, 1, 1, 1);
     while (sekizo5b == 0) {
         _ACTWait(1);
     }
-    gflagOn(0x186);
-    stage_SetAnimation(0xC0, 1, 0);
-    ReviveAllCarryableItemsWithNonSleepFrame(0xFA);
+    gflagOn(390);
+    stage_SetAnimation(192, 1, 0);
+    ReviveAllCarryableItemsWithNonSleepFrame(250);
     sekizo_5b = iosPadActRequest(D_00639EAC, 9);
     sekizo_5b_vol = 0x80;
     iosPadActVolumeSet(sekizo_5b, 0x80);
-    h = soundSeDefPlay(0x4C1, 0, 0, 1);
+    h = soundSeDefPlay(1217, 0, 0, 1);
     scpPlayStart(D_00639EA4);
     scpPlayStart(D_00639EA8);
     scpPlayMot(D_00639EA4, 0);
-    scpPlayMot(D_00639EA8, 0x214);
+    scpPlayMot(D_00639EA8, 532);
     scpPlayPosSet(D_00639EA8, 10350.0f, -2150.0f, 0.0f);
     scpPlayPosSet(D_00639EA4, 10350.0f, -2150.0f, -100.0f);
     _ACTWait(1);
@@ -121,29 +119,29 @@ void actSt05bSekizoChk(volatile int a0)
     sceVu0SubVector(d, test_CURRENTROOT(D_00639EA8), test_CURRENTROOT(D_00639EA4));
     scpPlayMotDir(D_00639EA4, d);
     scpSekizouCheckPoint();
-    scpPlayMot(D_00639EA8, 0x285);
+    scpPlayMot(D_00639EA8, 645);
     scpPlayWaitMotEnd(D_00639EA8);
-    gflagOn(0xA0);
+    gflagOn(160);
     soundSeDefStop(h);
-    while (stage_CheckAnimationFrame(0xC0, 0x97, 0) == 0) {
+    while (stage_CheckAnimationFrame(192, 151, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     iosPadActStop(sekizo_5b);
-    scpPlayMot(D_00639EA8, 0x214);
+    scpPlayMot(D_00639EA8, 532);
     scpPlayEnd(D_00639EA8);
-    actCreateSubThread(actSt05bGirlWay, 0x15);
-    _ACTWait(0x1E);
-    scpPlayMot(D_00639EA4, 0xFC);
+    actCreateSubThread(actSt05bGirlWay, 21);
+    _ACTWait(30);
+    scpPlayMot(D_00639EA4, 252);
     scpPlayWaitMotEnd(D_00639EA4);
     scpPlayMot(D_00639EA4, 0);
     scpPlayEnd(D_00639EA4);
     ScpCallCameraSetTarget(-10793.0f, 2122.0f, 0.0f);
-    while (stage_CheckAnimationFinish(0xC0) == 0) {
+    while (stage_CheckAnimationFinish(192) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    lt_switch_layout(0x36);
+    lt_switch_layout(54);
     D_0063AA08 = 0;
 }
 
@@ -154,10 +152,10 @@ void actSt05bDoorXL(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    if (gflagChk(0xF3) != 0 && gflagChk(0x8B) == 0) {
-        stage_SetAnimation(0x159, 0, -1);
+    if (gflagChk(243) != 0 && gflagChk(139) == 0) {
+        stage_SetAnimation(345, 0, -1);
     } else {
-        stage_SetAnimation(0x159, 0, 0);
+        stage_SetAnimation(345, 0, 0);
     }
 }
 
@@ -168,10 +166,10 @@ void actSt05bMonyoDoorXL(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    if (gflagChk(0xEA) == 0) {
-        stage_SetAnimation(0xFB, 0, 0);
+    if (gflagChk(234) == 0) {
+        stage_SetAnimation(251, 0, 0);
     } else {
-        stage_SetAnimation(0xFB, 0, -1);
+        stage_SetAnimation(251, 0, -1);
     }
 }
 
@@ -181,15 +179,15 @@ void actSt05bSekizo(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    if (gflagChk(0xA0) == 0) {
-        stage_SetAnimation(0xC0, 0, 0);
+    if (gflagChk(160) == 0) {
+        stage_SetAnimation(192, 0, 0);
         sekizo_mes[0].func = actSt05bSekizoChk;
         self->mail = sekizo_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        stage_SetAnimation(0xC0, 0, -1);
-        if (gflagChk(0xF3) == 0) {
+        stage_SetAnimation(192, 0, -1);
+        if (gflagChk(243) == 0) {
             ScpCallCameraSetTarget(-10793.0f, 2122.0f, 0.0f);
         }
     }
@@ -202,10 +200,10 @@ void actSt05bBallXL(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    if (gflagChk(0x8B) == 0) {
-        stage_SetAnimation(0x12C, -1, -2);
+    if (gflagChk(139) == 0) {
+        stage_SetAnimation(300, -1, -2);
     } else {
-        stage_SetAnimation(0x12A, -1, -2);
+        stage_SetAnimation(298, -1, -2);
     }
 }
 
@@ -216,9 +214,9 @@ void actSt05bSolarXL(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    if (gflagChk(0x8B) == 0) {
-        stage_SetAnimation(0x12F, -1, -2);
-        stage_SetAnimation(0x132, -1, -2);
+    if (gflagChk(139) == 0) {
+        stage_SetAnimation(303, -1, -2);
+        stage_SetAnimation(306, -1, -2);
     }
 }
 
@@ -235,7 +233,6 @@ static const ConstVec girlWayPos = {{10750.0f, -2122.0f, 0.0f, 0.0f}};
 
 static const ConstVec girlWay2Pos = {{139.0f, -177.0f, 1670.0f, 0.0f}};
 
-extern int D_00639EA8;
 /* Returns int: st04b.c carries the same prototype, and the live $2 at the
  * call boundary is what puts the second way record's %hi in $3. */
 /* kept local: this TU's uses of _SCPMoveCharactorByWay do not fit the prototype in script.h */

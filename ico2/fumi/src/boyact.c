@@ -60,7 +60,7 @@ int CorrectOrient_RopeCliff(float *out, void *gobj)
         return 0;
     }
     GetRootProjectionPosOfGObj(pos, gobj);
-    p = isysGObjSearchFromObjKindID_begin(0x15);
+    p = isysGObjSearchFromObjKindID_begin(21);
     while (p != 0) {
         if (*(int *)((char *)p + 0x16C) != 0) {
             GetRootPosition(rpos, p);
@@ -121,7 +121,7 @@ void motBoyHand50(volatile int a0)
         }
         _ACTWait(1);
     }
-    _ACTWait(0x2D);
+    _ACTWait(45);
     *(int *)(sub + 0x14) = 0;
     while (1) {
         ACTSendMailCorrect(a0, 0x47);
@@ -133,8 +133,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", motBoyHand100);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", motBoyHand200);
 
 extern void *D_00639EA4;
-extern void *D_00639EA8;
-extern void *D_0063A61C;
 extern char D_005577D0[];
 /* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
 extern CCPResult *test_CURRENTROOT(void *a0);
@@ -142,8 +140,6 @@ extern CCPResult *test_CURRENTROOT(void *a0);
 extern float _DistxzGV(void *a, void *b);
 /* kept local: this TU's uses of GetHeightOfFieldPlaneDifference do not fit the prototype in motionManager2.h */
 extern float GetHeightOfFieldPlaneDifference(void *boy, void *girl);
-/* kept local: this TU's uses of ACTSendMailCorrect do not fit the prototype in commonact.h */
-extern void ACTSendMailCorrect(int a0, int mail);
 
 /* One 0x50-byte record per act status, indexed by sub->0x34. */
 
@@ -182,7 +178,6 @@ void handoff_heroin(void)
 }
 
 extern long long D_006C0AD0[];
-extern void *D_00639EA4;
 /* kept local: this TU's uses of CheckFloorAttribute do not fit the prototype in motionManager2.h */
 extern int CheckFloorAttribute(void *self, int id);
 /* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
@@ -212,7 +207,7 @@ void CheckCollisionAttr(void *self)
     if (D_0063AA08 != 0) {
         return;
     }
-    for (i = 1; i < 0x10; i++) {
+    for (i = 1; i < 16; i++) {
         if (CheckFloorAttribute(self, i)) {
             int *w = (int *)D_006C0AD0;
 
@@ -261,10 +256,6 @@ typedef struct {
 extern BgaEntry D_0029C690[];
 /* kept local: this TU's uses of test_CURRENTORIENT do not fit the prototype in commonact.h */
 extern void *test_CURRENTORIENT(void *a0);
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
-extern CCPResult *test_CURRENTROOT(void *a0);
-/* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
-extern void _OrientXZGV(void *dst, void *a, void *b);
 extern void sceVu0ScaleVector(void *dst, void *src, float s);
 extern void sceVu0AddVector(void *dst, void *a, void *b);
 /* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
@@ -293,7 +284,7 @@ void BoyBgaManager(void *self, int id, void *dst)
             dir[1] = ((float *)test_CURRENTORIENT(self))[1];
             dir[2] = ((float *)test_CURRENTORIENT(self))[2];
         } else {
-            obj = isysGObjSearchFromObjKindID_begin(0x2F);
+            obj = isysGObjSearchFromObjKindID_begin(47);
             _OrientXZGV(dir, test_CURRENTROOT(obj), test_CURRENTROOT(self));
         }
         sceVu0ScaleVector(dir, dir, p->f10);
@@ -344,12 +335,6 @@ found:
 extern unsigned char D_0063C1F6;
 extern unsigned char D_0063C1F7;
 extern unsigned char D_0063C1F8;
-/* kept local: this TU's uses of test_CURRENTORIENT do not fit the prototype in commonact.h */
-extern void *test_CURRENTORIENT(void *a0);
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
-extern CCPResult *test_CURRENTROOT(void *a0);
-extern void sceVu0ScaleVector(void *dst, void *src, float s);
-extern void sceVu0AddVector(void *dst, void *a, void *b);
 /* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(void *a0);
 /* kept local: this TU's uses of scpPlayMotReq do not fit the prototype in script.h */
@@ -369,8 +354,8 @@ void E3_StageStartBoy(void *self)
         sceVu0AddVector(buf, buf, test_CURRENTROOT(self));
         SetDirectRootPositionNoFitting(self, buf);
     }
-    if (gflagChk(0x17D)) {
-        gflagOff(0x17D);
+    if (gflagChk(381)) {
+        gflagOff(381);
         return;
     }
     if (GetStageStartInfo(self, 0, 0, &w1, &w2, &w3) == 0) {
@@ -417,10 +402,10 @@ int GetChainSlope(void)
     ACTGame_SetMotionPlaySpeedRatio_Reserve(
         g, ratio * (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 30.0f, 7);
     if (D_0063B13C & 1) {
-        debug_Printf(10, 0x8C, 0x0FFFFFFF, D_00552818, fptodp(ratio), fptodp(c));
+        debug_Printf(10, 140, 0x0FFFFFFF, D_00552818, fptodp(ratio), fptodp(c));
     }
     if (D_0063B13C & 1) {
-        debug_Printf(10, 0x96, 0x0FFFFFFF, D_00552830,
+        debug_Printf(10, 150, 0x0FFFFFFF, D_00552830,
                      fptodp(*(float *)(*(char **)(g + 0x15C) + 0x4AC)),
                      fptodp((float)*D_004EB758[*(int *)(*(char **)(g + 0x15C) + 0x4A0)]));
     }
@@ -438,8 +423,6 @@ int GetChainSlope(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", subBoyControl);
-
-extern long long D_006C0AD0[];
 
 typedef struct {
     int a;
@@ -523,7 +506,6 @@ extern void InitMotionGeoInfo(void *node, float x, float y, float z, float rx, f
 extern int CheckWeaponKind(void *w);
 /* kept local: this TU's uses of SetWeaponOffsetMode do not fit the prototype in weapon.h */
 extern void SetWeaponOffsetMode(void *w, int mode);
-extern long long D_006C0AD0[];
 
 void PutWeapon(void)
 {
@@ -543,13 +525,8 @@ void PutWeapon(void)
 extern float D_006C0A80[];
 extern float D_006C0A90[];
 extern float D_006C0AA0[];
-extern int D_0028F4C0[];
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
-extern CCPResult *test_CURRENTROOT(void *a0);
 /* kept local: the declaration in camera-root.h changes this TU codegen */
 extern float *GetCurrentCameraSet2(void);
-extern void sceVu0ScaleVector(void *dst, void *src, float s);
-extern void sceVu0AddVector(void *dst, void *a, void *b);
 
 void OtherStageGirlPinchCamera_After(float t)
 {
@@ -603,12 +580,8 @@ typedef struct {
 extern PrivInsCam D_006C0B50;
 /* kept local: this TU's uses of _InterGV do not fit the prototype in gv.h */
 extern void _InterGV(void *dst, void *a, void *b, float t, float u);
-/* kept local: the declaration in camera-root.h changes this TU codegen */
-extern float *GetCurrentCameraSet2(void);
 /* kept local: this TU's uses of InsertCamera_SetDetail do not fit the prototype in camera-root.h */
 extern void InsertCamera_SetDetail(float *cam, float *p, int a2, int a3, int a4, int a5, float f);
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
-extern CCPResult *test_CURRENTROOT(void *a0);
 
 void PrivInsCamProcess(void)
 {
@@ -661,10 +634,8 @@ void PrivInsCamProcess(void)
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", subBoyCollision);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", actBoySwim);
 
-extern void *D_00639EA4;
 /* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
 extern float _DistGV(CCPResult *a, CCPResult *b);
-extern int D_0028F4C0[];
 
 void actBoyWalk(volatile int a0)
 {
@@ -720,19 +691,10 @@ void actBoyRun(volatile int a0)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", actBoyAttack);
 
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
-extern CCPResult *test_CURRENTROOT(void *a0);
-/* kept local: this TU's uses of test_CURRENTORIENT do not fit the prototype in commonact.h */
-extern void *test_CURRENTORIENT(void *a0);
-/* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
-extern void _OrientXZGV(void *dst, void *a, void *b);
 /* kept local: this TU's uses of SetMotionDirection do not fit the prototype in motionManager2.h */
 extern void SetMotionDirection(void *self, float *dir);
-/* kept local: this TU's uses of _AbsRotyGV do not fit the prototype in gv.h */
-extern int _AbsRotyGV(void *a, void *b);
 /* kept local: this TU's uses of _ACTMotDirSmzDirect do not fit the prototype in commonact.h */
 extern void _ACTMotDirSmzDirect(void *self, float *dir);
-extern int D_0028F4C0[];
 
 void actBoyTakeWeaponReady(volatile int a0)
 {
@@ -859,10 +821,6 @@ void actBoyCliffHesitate(volatile int a0)
     }
 }
 
-extern void *D_00639EA4;
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
-extern CCPResult *test_CURRENTROOT(void *a0);
-
 #define BOY_GIRL_DY()                                                                              \
     (((float *)test_CURRENTROOT(D_00639EA8))[1] - ((float *)test_CURRENTROOT(D_00639EA4))[1])
 
@@ -895,19 +853,10 @@ void ACTSendMail_PULLUP_GO(void)
 }
 
 extern void *D_00639EA0;
-extern void *D_00639EA4;
-extern void *D_00639EA8;
-extern void *D_0063A61C;
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
-extern CCPResult *test_CURRENTROOT(void *a0);
 extern void sceVu0SubVector(void *, CCPResult *, CCPResult *);
 extern float sceVu0InnerProduct(void *a, void *b);
-/* kept local: this TU's uses of _DistxzGV do not fit the prototype in gv.h */
-extern float _DistxzGV(void *a, void *b);
 /* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
 extern float _DistSqGV(void *a, void *b);
-/* kept local: this TU's uses of ACTSendMailCorrect do not fit the prototype in commonact.h */
-extern void ACTSendMailCorrect(int a0, int mail);
 
 int pullup_check_heroin_position(void)
 {
@@ -948,15 +897,6 @@ int pullup_check_heroin_position(void)
     return 0;
 }
 
-extern void *D_00639EA4;
-extern void *D_00639EA8;
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
-extern CCPResult *test_CURRENTROOT(void *a0);
-extern void sceVu0SubVector(void *, CCPResult *, CCPResult *);
-extern float sceVu0InnerProduct(void *a, void *b);
-/* kept local: this TU's uses of _DistxzGV do not fit the prototype in gv.h */
-extern float _DistxzGV(void *a, void *b);
-
 int ditch_check_heroin_position(void)
 {
     float buf[4];
@@ -976,23 +916,9 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", actBoyPullupReady);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", actBoyPullupGo);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", actBoyBelift);
 
-extern void *D_00639EA0;
-extern void *D_00639EA8;
 extern char D_0055FE58[];
 /* kept local: this TU's uses of SetMotionDirectionSmooze do not fit the prototype in commonact.h */
 extern void SetMotionDirectionSmooze(void *self, float *dir, float t);
-/* kept local: this TU's uses of _ACTMotDirSmzDirect do not fit the prototype in commonact.h */
-extern void _ACTMotDirSmzDirect(void *self, float *dir);
-/* kept local: this TU's uses of ACTSendMailCorrect do not fit the prototype in commonact.h */
-extern void ACTSendMailCorrect(int a0, int mail);
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
-extern CCPResult *test_CURRENTROOT(void *a0);
-/* kept local: this TU's uses of _DistxzSqGV do not fit the prototype in gv.h */
-extern float _DistxzSqGV(void *a, void *b);
-/* kept local: this TU's uses of _AbsRotyGV do not fit the prototype in gv.h */
-extern int _AbsRotyGV(void *a, void *b);
-/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
-extern void _ACTWait(int a0);
 
 /* The walk order the boy is executing: sub->0x30 points at the request record
    the caller filled in, and actBoyReadyMove works on a private copy of it. */
@@ -1056,9 +982,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", actBoyDitch3mReady);
 extern char D_0055FFA8[];
 /* kept local: this TU's uses of _MoveGV do not fit the prototype in gv.h */
 extern void _MoveGV(float *dst, float *from, float *to, float d);
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
-extern CCPResult *test_CURRENTROOT(void *a0);
-extern int D_0028F4C0[];
 
 void actBoyRescueGirlBhang(volatile int a0)
 {
@@ -1124,8 +1047,6 @@ void actBoyRescueGirlBhang(volatile int a0)
     }
 }
 
-/* kept local: the declaration in camera-root.h changes this TU codegen */
-extern float *GetCurrentCameraSet2(void);
 /* kept local: this TU's uses of InsertCamera_SetNoraml do not fit the prototype in camera-root.h */
 extern void InsertCamera_SetNoraml(float *a, float *b, int c, int d);
 
@@ -1176,8 +1097,6 @@ void CorrectStickInfo(int a0)
     _RotyGV(buf, a0);
 }
 
-extern void *D_00639EA4;
-
 void *GetBoyWeaponGObj(void)
 {
     char *g = (char *)D_00639EA4;
@@ -1193,12 +1112,6 @@ typedef struct {
     char pad190[4];
 } BoyParaRow;
 
-extern char D_0055FE58[];
-/* kept local: this TU's uses of ACTAdjustPlane do not fit the prototype in commonact.h */
-extern void ACTAdjustPlane(int a0, void *p);
-/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
-extern void _ACTWait(int a0);
-
 void actBoyStand(volatile int a0)
 {
     BoyParaRow *row =
@@ -1213,22 +1126,12 @@ void actBoyStand(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of ACTAdjustPlane do not fit the prototype in commonact.h */
-extern void ACTAdjustPlane(int a0, void *p);
-/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
-extern void _ACTWait(int a0);
-
 void actBoyHang(volatile int a0)
 {
     char *g = (char *)a0;
     ACTAdjustPlane(a0, *(char **)(*(char **)(g + 0x164) + 0x688) + 0x8B0);
     _ACTWait(0);
 }
-
-/* kept local: this TU's uses of ACTAdjustPlane do not fit the prototype in commonact.h */
-extern void ACTAdjustPlane(int a0, void *p);
-/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
-extern void _ACTWait(int a0);
 
 void actBoyBHang(volatile int a0)
 {
@@ -1296,9 +1199,6 @@ void actBoyHangBefore(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of test_CURRENTORIENT do not fit the prototype in commonact.h */
-extern void *test_CURRENTORIENT(void *a0);
-extern void sceVu0ScaleVector(void *dst, void *src, float s);
 extern void *D_0063C200;
 
 void actBoyBeslam(volatile int a0)
@@ -1490,14 +1390,6 @@ void afterBoyHand200(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
-extern float _DistGV(CCPResult *a, CCPResult *b);
-extern void sceVu0SubVector(void *, CCPResult *, CCPResult *);
-/* kept local: this TU's uses of test_CURRENTORIENT do not fit the prototype in commonact.h */
-extern void *test_CURRENTORIENT(void *a0);
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
-extern CCPResult *test_CURRENTROOT(void *a0);
-
 void ACTSearchEnemy(void *a0, int *out_id, float *out_vec)
 {
     float buf[4];
@@ -1537,10 +1429,6 @@ void ACTSearchEnemy(void *a0, int *out_id, float *out_vec)
     }
 }
 
-/* kept local: this TU's uses of ReleaseWeapon do not fit the prototype in weapon.h */
-extern void ReleaseWeapon(void *w);
-extern int stage_no;
-extern long long D_006C0AD0[];
 extern int D_006C0B38[];
 
 void DeleteBoyWeapon(void)
@@ -1567,8 +1455,6 @@ void DeleteBoyWeapon(void)
         *(void **)(sub + 0x150) = 0;
     }
 }
-
-extern void *D_00639EA4;
 
 int isLiftBoyEnable(void)
 {
@@ -1637,11 +1523,6 @@ void BoyInfoUpdate_StageChange(void)
     }
 }
 
-extern void debug_assert(char *file, int line);
-extern void __assert(char *file, int line, char *expr);
-extern char D_00552808[];
-extern char D_0063A6D0[];
-
 int IsBoyStatus_EnemyMustWait(void)
 {
     char *sub;
@@ -1683,9 +1564,6 @@ unsigned char IsGirlEscortedInCurrentStage(void)
     return D_0063C1F4;
 }
 
-extern void *D_00639EA4;
-extern void *D_00639EA8;
-
 int GetSaveSofaLayoutID(void)
 {
     int *a = (int *)D_00639EA4;
@@ -1709,23 +1587,11 @@ err:
     return -1;
 }
 
-extern long long D_006C0AD0[];
-
 void OnGirlEscortFlag(void)
 {
     D_006C0AD0[1] |= 0x800000000LL;
 }
 
-/* kept local: this TU's uses of PickupWeapon do not fit the prototype in weapon.h */
-extern void PickupWeapon(void *w, void *boy, int kind);
-/* kept local: this TU's uses of SetWeaponOffsetMode do not fit the prototype in weapon.h */
-extern void SetWeaponOffsetMode(void *w, int mode);
-/* kept local: this TU's uses of ReleaseWeapon do not fit the prototype in weapon.h */
-extern void ReleaseWeapon(void *w);
-extern void debug_assert(char *file, int line);
-extern void __assert(char *file, int line, char *expr);
-extern int stage_no;
-extern char D_00552808[];
 extern char D_00552A38[];
 extern char D_0063A6F0[];
 
@@ -1777,7 +1643,6 @@ int IsBoyStatus_NotDanger(void)
 }
 
 extern char D_00552C10[];
-extern void *D_00639EA4;
 extern unsigned char D_006C0B20[];
 /* kept local: this TU's uses of RequestStageChangeSimple do not fit the prototype in script.h */
 extern int RequestStageChangeSimple(void *a0, int a1, int a2, int a3, float a4, float a5);
@@ -1798,8 +1663,6 @@ int RequestStageChangeKidnapEnd(void *a0, int a1)
     }
     return rv;
 }
-
-extern unsigned char D_006C0B20[];
 
 int GetEfStageCameraTargetID(void)
 {
@@ -1827,8 +1690,6 @@ unsigned char PrivInsCamChk_Control(void)
 {
     return D_006C0B84[0];
 }
-
-extern int D_006C0B30[];
 
 int *GetbufpCharacterPacket(void)
 {
@@ -1951,11 +1812,6 @@ void afterBoySwim(volatile int a0)
     debug_StdPrintfDummy(D_0063A700);
 }
 
-/* kept local: this TU's uses of ACTSendMailCorrect do not fit the prototype in commonact.h */
-extern void ACTSendMailCorrect(int a0, int mail);
-/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
-extern void _ACTWait(int a0);
-
 void actBoyJump(volatile int a0)
 {
     while (1) {
@@ -2010,9 +1866,6 @@ void SetBoyInfo(int *a0, int *a1)
         ((int *)D_006C0AD0)[n] = i;
     }
 }
-
-/* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
-extern float _DistSqGV(void *a, void *b);
 
 void GetBoyRootPositionForCamera(float *out)
 {

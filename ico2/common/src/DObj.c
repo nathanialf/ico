@@ -312,8 +312,6 @@ typedef struct {
     unsigned long long kind : 2;
 } PolyFlags;
 
-extern void *D_0063A44C;
-
 /* listing lines 232-246 */
 static inline void initPolyHead(char *d)
 {
@@ -425,8 +423,6 @@ void initPolygonState(char *d, float *lay)
 }
 
 inline void FreeDObj(void) {}
-
-extern void *D_0063A44C;
 
 /* listing lines 423-432: the slot index of the entry tagged id, or -1 */
 static inline int findSlot(char *d, int id)

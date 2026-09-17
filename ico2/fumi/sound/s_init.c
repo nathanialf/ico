@@ -123,7 +123,6 @@ found:
 
 extern char D_005521C0[];
 extern char D_005521D0[];
-extern char D_006BF570[];
 extern char D_006BF870[];
 extern int D_0063A370;
 extern int D_0063A650;
@@ -185,8 +184,6 @@ void soundOutputModeSet(int a0)
 }
 
 extern int D_0063A648;
-extern void SgSetMasterVol(int a0, int a1, int a2);
-extern void SgSetReverbDepth(int a0, int a1, int a2);
 
 void soundReverbDepthSet(int a0)
 {
@@ -220,14 +217,11 @@ void soundAllocIopFree(void)
     sceSifFreeIopHeap(D_0063A680);
 }
 
-extern char D_005521E8[];
 extern char D_00552238[];
 extern char D_00552248[];
 extern char D_00552260[];
 extern char D_00552270[];
 extern char D_0063A660[];
-extern char D_006BF870[];
-extern long long D_0063C1E8;
 extern void __assert(char *file, int line, char *msg);
 extern void debug_assert(char *file, int line);
 extern int SgVabOpenFakeBody(int a0, int a1);
@@ -331,14 +325,10 @@ void soundDataOpenChk(char *self)
     }
 }
 
-extern char D_005521E8[];
-extern char D_0063A660[];
 extern int D_0063A640;
 extern int D_0063A644;
 extern int D_0063C1D8;
 extern int D_0063C1DC;
-extern void __assert(char *file, int line, char *msg);
-extern void debug_assert(char *file, int line);
 
 /* The SPU-buffer view of a sound data area: at 0x18 the same bytes are the
    adpcm channel mask (long long, see soundBufAdpcmChAlloc) in the SqEntry
@@ -409,14 +399,6 @@ void soundBufAlloc(SoundBufReq *self, int size)
     self->size = size;
 }
 
-extern int D_0063A640;
-extern int D_0063A644;
-extern char D_0063A660[];
-extern int D_0063C1D8;
-extern int D_0063C1DC;
-extern void __assert(char *file, int line, char *msg);
-extern void debug_assert(char *file, int line);
-
 void soundBufSegFree(int a0, int a1)
 {
     switch (a0) {
@@ -470,7 +452,7 @@ char *soundBDDataSet(int a0, int a1, int a2, int a3, int a4, int a5)
     int key;
 
     off = 0;
-    hi = a2 << 0x10;
+    hi = a2 << 16;
     key = (a1 & 0xFFFF) | hi;
     e = hd_search(&key);
     if (e == 0) {
@@ -565,8 +547,6 @@ int *soundDataOpenSync(int *work)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", soundDataClose);
 
-extern char D_006BF570[];
-
 void soundDataSegAllClose(int a0, int a1)
 {
     char *p = D_006BF570;
@@ -642,7 +622,6 @@ void soundSeVolSet(SeSlot *self)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", debug_DispSEInfo);
 
-extern void SgSetSeVolDirect(int id, int l, int r);
 extern void soundSeVolSet(SeSlot *self);
 
 void sound3DParamSet(SeSlot *self)
@@ -755,8 +734,6 @@ void sound3DParamSet(SeSlot *self)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", _soundSeDefPlay);
 
-extern char D_006BF870[];
-extern long long D_0063C1E8;
 extern void SgSeStop(int a0);
 
 typedef struct SeInfo {
@@ -817,7 +794,6 @@ void soundSeDefStopNoRelease(int a0)
     _soundSeDefStop(a0, 1);
 }
 
-extern char D_006BF870[];
 extern void SgSetSePitchDirect();
 
 void soundSeDefPitchSet(int a0)
@@ -905,10 +881,6 @@ void soundSeEnvPlay(void)
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", soundSeEnvNotUseClose);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", soundDataSegNextStageNotUseClose);
 
-extern char D_00552170[];
-extern char D_00552188[];
-extern char D_005521A0[];
-
 int Ee2Iop(int a0, int a1, int a2)
 {
     int buf[4];
@@ -938,7 +910,6 @@ int soundReverbDepthGet(void)
     return D_0063A648;
 }
 
-extern long long D_0063C1E0;
 extern char D_00552280[];
 
 int soundBufAdpcmChAlloc(SqEntry *self, int *chp)
@@ -968,8 +939,6 @@ found:
     }
 }
 
-extern long long D_0063C1E0;
-
 void soundBufAdpcmFree(char *self)
 {
     long long mask = ~*(long long *)(self + 0x18);
@@ -985,7 +954,7 @@ char *soundDataAreaSearch(int *a0)
 char *soundDataAreaGet(int a0, int a1, int a2, int a3)
 {
     SqEntry *e;
-    int hi = a1 << 0x10;
+    int hi = a1 << 16;
     int key = (a0 & 0xFFFF) | hi;
 
     e = hd_search(&key);
@@ -1006,15 +975,9 @@ char *soundDataAreaGet(int a0, int a1, int a2, int a3)
     return (char *)e;
 }
 
-extern char D_0063A660[];
-extern char D_006BF570[];
-extern void __assert(char *file, int line, char *msg);
-extern void debug_assert(char *file, int line);
-extern int memset(void *dst, int val, int size);
-
 char *soundHDDataSet(int a0, int a1, int a2, int a3, int a4)
 {
-    int hi = a2 << 0x10;
+    int hi = a2 << 16;
     int key = (a1 & 0xFFFF) | hi;
     SqEntry *e = hd_search(&key);
     if (e == 0) {
@@ -1038,7 +1001,7 @@ char *soundHDDataSet(int a0, int a1, int a2, int a3, int a4)
 
 char *soundSQDataSet(int a0, int a1, int a2, int a3, int a4)
 {
-    int hi = a2 << 0x10;
+    int hi = a2 << 16;
     int key = (a1 & 0xFFFF) | hi;
     SqEntry *e = hd_search(&key);
     if (e == 0) {
@@ -1192,7 +1155,7 @@ void soundReqTickProc(void)
 void soundVBlank(void)
 {
     int i;
-    for (i = 0; i < 0x300; i += 0x30) {
+    for (i = 0; i < 768; i += 0x30) {
         char *p = D_006BF570 + i;
         if (*(unsigned short *)(p + 2) == 0x11) {
             adpcmTickProc2(p);

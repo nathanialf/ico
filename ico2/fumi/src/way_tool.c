@@ -28,8 +28,35 @@ extern int D_0063B13C;
 extern int D_0063BD78;
 extern int D_0063BD84;
 extern char D_0063BD88[];
-extern WayRec *D_0063C4CC;
-extern int D_00729B7C[];
+
+/* .sbss, owned by way_tool.o (MAIN.MAP names no symbol in the run), in the ROM's run order: the way
+   record the tool is showing, the group the selection window is on, the camera
+   target saved while the tool holds the camera, and the cursor object */
+static WayRec *selectedWay;
+
+static int wayGroupSel;
+
+static int savedCamTarget;
+
+static char *cursorGObj;
+
+typedef struct {
+    int c[4];
+} WayCol;
+
+/* .bss, owned by way_tool.o (MAIN.MAP sizes its own link's run 0xD0 and names
+   no symbol in it), in the ROM's run order: the colour packet every way point
+   is drawn through, the pad handle and its read buffer, the stick buffer, and
+   the 32-byte way-point file block quick_save_wpfile writes and
+   quick_load_wpfile reads back. */
+static WayCol wayDrawCol;
+
+static char wayToolPad[96];
+
+static char wayToolStick[32];
+
+static unsigned char wpBuf[32];
+
 /* Deferred-`inline` tail members: a plain `inline` function's out-of-line copy
    is emitted at the END of the object in PROTOTYPE order, while its string
    literals are emitted where it is DEFINED. */
@@ -43,14 +70,14 @@ int group_create(void)
     int f;
 
     if (D_0063B13C & 1) {
-        debug_Printf(0x12, 0x36, 0xFF000000, "group + create");
+        debug_Printf(18, 54, 0xFF000000, "group + create");
     }
     if (D_0063BD84 == 0) {
         int g = CreateWayGroup();
 
         D_0063BD84 = 1;
         D_0063BD78 = g;
-        D_0063C4CC = &D_004F1EC0[g];
+        selectedWay = &D_004F1EC0[g];
         debug_StdPrintfDummy("search:%p %p\n", isysGObjSearchFromObjKindID_begin(0), D_00639EA4);
         return 0;
     }
@@ -58,9 +85,9 @@ int group_create(void)
         return 0;
     }
     if (D_0063B13C & 1) {
-        debug_Printf(0x1A, 0x42, 0xFF808000, D_0063BD88, D_0063C4CC->w[4]);
+        debug_Printf(26, 66, 0xFF808000, D_0063BD88, selectedWay->w[4]);
     }
-    f = D_00729B7C[0];
+    f = *(int *)&wayToolPad[12];
     if (f & 0x20) {
         int p = CreateWayPoint(wayWorkPos);
 
@@ -69,7 +96,7 @@ int group_create(void)
         return 0;
     }
     if (f & 0x40) {
-        if (D_0063C4CC->w[4] == 0) {
+        if (selectedWay->w[4] == 0) {
             DeleteWayGroup(D_0063BD78);
         }
         D_0063BD84 = 0;
@@ -110,13 +137,9 @@ WayMenuLine debugWayGroupSelect[64] = {
     {"55 ( -)  ", 0}, {"56 ( -)  ", 0}, {"57 ( -)  ", 0}, {"58 ( -)  ", 0}, {"59 ( -)  ", 0},
     {"60 ( -)  ", 0}, {"61 ( -)  ", 0}, {"62 ( -)  ", 0}, {"63 ( -)  ", 0}};
 
-extern WayRec D_004F1EC0[];
 extern char D_0063BD90[];
-extern int D_00729B7C[];
 extern int D_0063BD74;
-extern int D_0063BD78;
 extern int D_0063BD94;
-extern int D_0063C4D0;
 extern char *strcat(char *d, char *s);
 /* kept local: this TU's uses of set_bridge do not fit the prototype in way_util.h */
 extern int set_bridge(int gid);
@@ -158,25 +181,25 @@ static int group_select(void)
             e = &D_004F1EC0[i];
             if (e->w[0] == 1) {
                 if (i == D_0063BD78) {
-                    D_0063C4D0 = i;
+                    wayGroupSel = i;
                     break;
                 }
             }
         }
         D_0063BD94 = 1;
     } else if (state == 1) {
-        if (D_00729B7C[0] & 0x2000) {
+        if ((*(int *)&wayToolPad[12]) & 0x2000) {
             set_bridge(D_0063BD78);
             relabel_way_groups();
-        } else if (D_00729B7C[0] & 0x8000) {
+        } else if ((*(int *)&wayToolPad[12]) & 0x8000) {
             D_004F1EC0[D_0063BD78].w[6] = 0;
             relabel_way_groups();
         }
         r = debug_SelectCsvWindow("group + select", 0x12, 0x36, 0xB, debugWayGroupSelect, 8, 0, 1,
-                                  D_0063BD74, &D_0063C4D0);
+                                  D_0063BD74, &wayGroupSel);
         switch (r) {
         case 0:
-            D_0063BD78 = D_0063C4D0;
+            D_0063BD78 = wayGroupSel;
             return 0;
         case -1:
             D_0063BD94 = 0;
@@ -186,19 +209,14 @@ static int group_select(void)
             break;
         }
     } else if (state == 2) {
-        D_0063BD78 = D_0063C4D0;
+        D_0063BD78 = wayGroupSel;
         D_0063BD94 = 0;
         return -1;
     }
     return 0;
 }
 
-extern WayRec D_004F1EC0[];
-extern int D_0063B13C;
-extern int D_0063BD78;
 extern int D_0063BD80;
-extern char D_0063BD88[];
-extern int D_00729B7C[];
 /* kept local: this TU's uses of waypoint_with_range do not fit the prototype in way_util.h */
 extern char *waypoint_with_range(int *, float);
 
@@ -208,12 +226,12 @@ int point_delete(void)
     int f;
 
     if (D_0063B13C & 1) {
-        debug_Printf(0x12, 0x36, 0xFF000000, "point + delete\n");
+        debug_Printf(18, 54, 0xFF000000, "point + delete\n");
         if (D_0063B13C & 1) {
-            debug_Printf(0x1A, 0x42, 0xFF808000, D_0063BD88, entry->w[4]);
+            debug_Printf(26, 66, 0xFF808000, D_0063BD88, entry->w[4]);
         }
     }
-    f = D_00729B7C[0];
+    f = *(int *)&wayToolPad[12];
     if (f & 0x20) {
         char *res = waypoint_with_range((int *)wayWorkPos, 60.0f);
 
@@ -239,12 +257,7 @@ int point_delete(void)
     return 0;
 }
 
-extern WayRec D_004F1EC0[];
-extern int D_0063B13C;
-extern int D_0063BD78;
-extern char D_0063BD88[];
 extern int D_0063BD98;
-extern int D_00729B7C[];
 /* kept local: this TU's uses of nearest_waypoint_by_lineseg do not fit the prototype in way_util.h */
 extern void *nearest_waypoint_by_lineseg(void *a0);
 
@@ -254,13 +267,13 @@ int point_insert(void)
     int f;
 
     if (D_0063B13C & 1) {
-        debug_Printf(0x12, 0x36, 0xFF000000, "point + insert\n");
+        debug_Printf(18, 54, 0xFF000000, "point + insert\n");
         if (D_0063B13C & 1) {
-            debug_Printf(0x1A, 0x42, 0xFF808000, D_0063BD88, entry->w[4]);
+            debug_Printf(26, 66, 0xFF808000, D_0063BD88, entry->w[4]);
         }
     }
     D_0063BD98 = 1;
-    f = D_00729B7C[0];
+    f = *(int *)&wayToolPad[12];
     if (!(f & 0x20)) {
         if (f & 0x40) {
             D_0063BD98 = 0;
@@ -292,9 +305,9 @@ inline int play_way(void)
     int f;
 
     if (D_0063B13C & 1) {
-        debug_Printf(0x12, 0x36, 0xFF000000, D_0063BDA0);
+        debug_Printf(18, 54, 0xFF000000, D_0063BDA0);
     }
-    f = D_00729B7C[0];
+    f = *(int *)&wayToolPad[12];
     if (f & 0x20) {
         g = isysGObjSearchFromObjKindID_begin(2);
         switch (D_0063BD9C) {
@@ -318,10 +331,6 @@ inline int play_way(void)
     return 0;
 }
 
-extern int D_0063BD80;
-/* kept local: this TU's uses of waypoint_with_range do not fit the prototype in way_util.h */
-extern char *waypoint_with_range(int *, float);
-
 inline int point_nige(void)
 {
     int *p;
@@ -329,9 +338,9 @@ inline int point_nige(void)
 
     if (D_0063B13C & 1) {
         unsigned int color = 0xFF000000;
-        debug_Printf(0x12, 0x36, color, "point + nige\n");
+        debug_Printf(18, 54, color, "point + nige\n");
     }
-    v = D_00729B7C[0];
+    v = *(int *)&wayToolPad[12];
     if (v & 0x20) {
         p = (int *)waypoint_with_range((int *)wayWorkPos, 60.0f);
         if (p == 0) {
@@ -350,7 +359,6 @@ inline int point_nige(void)
 extern int load_save_flag;
 extern char D_0063BDA8[];
 extern char D_0063BDB0[];
-extern unsigned char D_00729BF0[];
 extern void sceWrite(int a0, void *a1, int a2);
 
 inline int quick_save_wpfile(void)
@@ -368,26 +376,22 @@ inline int quick_save_wpfile(void)
         return 0;
     }
     i = 0xF;
-    p = &D_00729BF0[i];
+    p = &wpBuf[i];
     do {
         *p = i;
         p--;
         i--;
     } while (i >= 0);
-    sceWrite(s0, D_00729BF0, 0x10);
+    sceWrite(s0, wpBuf, 0x10);
     debugSceClose(s0);
     debug_StdPrintfDummy(D_0063BDB0);
     load_save_flag = 0;
     return 1;
 }
 
-extern int load_save_flag;
-extern char D_0063BDA8[];
 extern char D_0063BDB8[];
 extern char D_0063BDC0[];
 extern char D_0063BDC8[];
-extern unsigned char D_00729BF0[];
-extern char D_00729BFF[];
 extern void sceRead(int a0, void *a1, int a2);
 
 int quick_load_wpfile(void)
@@ -407,16 +411,16 @@ int quick_load_wpfile(void)
     }
     FlushCache(0);
     i = 0x1F;
-    p = (char *)&D_00729BF0[i];
+    p = (char *)&wpBuf[i];
     do {
         *p = -1;
         p--;
         i--;
     } while (i >= 0);
-    sceRead(s0, D_00729BFF, 0x10);
+    sceRead(s0, &wpBuf[15], 0x10);
     debugSceClose(s0);
     for (i = -15; i < 17; i++) {
-        debug_StdPrintfDummy(D_0063BDB8, D_00729BFF[i]);
+        debug_StdPrintfDummy(D_0063BDB8, ((char *)wpBuf)[i + 15]);
     }
     debug_StdPrintfDummy(D_0063BDC0);
     debug_StdPrintfDummy(D_0063BDC8);
@@ -483,12 +487,7 @@ extern WayStgRec D_005F5D50[];
 extern WaySrcGrp wayGroupSheet[];
 extern WaySrcPt wayPointSheet[];
 extern WayNode D_004F31E0[];
-extern WayRec D_004F1EC0[];
-extern int D_0063BD74;
-extern int D_0063BD78;
 extern void memset(void *p, int a, int n);
-/* kept local: this TU's uses of set_bridge do not fit the prototype in way_util.h */
-extern int set_bridge(int gid);
 extern WayBridge *WayBridgeAll_begin(void);
 extern WayBridge *WayBridgeAll_next(WayBridge *p);
 
@@ -555,7 +554,6 @@ typedef struct {
 
 extern WpName D_0063BDD0[];
 extern char D_0063BDD8[];
-extern int load_save_flag;
 extern int strlen(char *s);
 extern void sceWrite(int fd, void *buf, int n);
 extern WayRec *WayGroup_begin(void);
@@ -614,10 +612,6 @@ typedef struct {
     float f[4];
 } __attribute__((aligned(8))) WayVec;
 
-typedef struct {
-    int c[4];
-} WayCol;
-
 /* way_tool.o .data +0x210: the nine RGBA packets the tool draws with. */
 static WayCol wayColorSelected = {{0xFF, 0xFF, 0xFF, 0xFF}};
 
@@ -637,11 +631,7 @@ static WayCol wayColorClosedOther = {{0x40, 0x40, 0x00, 0x40}};
 
 static WayCol wayColorBridge = {{0xFF, 0x00, 0xFF, 0xFF}};
 
-extern WayRec D_004F1EC0[];
-extern int D_0063BD80;
-extern WayCol D_00729B60;
 extern unsigned int frame_count;
-extern void memset(void *p, int a, int n);
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
 /* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
@@ -649,7 +639,7 @@ extern void gif_EndPacket(void);
 
 static inline void set_way_point_color(char *p, WayCol *col)
 {
-    WayCol *d = &D_00729B60;
+    WayCol *d = &wayDrawCol;
 
     if (*(int *)(p + 0x28) != 0) {
         *d = wayColorLinked;
@@ -680,7 +670,7 @@ void draw_way_group(int g, WayCol *col)
         q = p + 0x10;
         SetVObjRT(&m, q);
         set_way_point_color(p, col);
-        DrawVObj(0, &D_00729B60);
+        DrawVObj(0, &wayDrawCol);
         if (*(int *)(p + 0xC) != 0) {
             gif_StartPacketPri(11);
             sceVu0UnitMatrix(MatrixDrive_GetMatrix());
@@ -704,9 +694,6 @@ typedef struct {
 
 extern WayNodePos D_004F31F0[];
 extern int D_0063B168;
-extern int load_save_flag;
-extern int D_00639EA4;
-extern int D_0063BD78;
 /* kept local: this TU's uses of visible_waypoint_of_all do not fit the prototype in way_util.h */
 extern char *visible_waypoint_of_all(void *pos);
 /* kept local: this TU's uses of ez_circle do not fit the prototype in way_util.h */
@@ -813,10 +800,6 @@ extern int D_00639EC0;
 extern int D_0063BD70;
 extern int D_0063BDE8;
 extern int D_0063BDEC;
-extern int D_0063C4D4;
-extern char *D_0063C4D8;
-extern char D_00729B70[];
-extern char D_00729BD0[];
 extern char iosPadConfDefault[];
 /* kept local: the declaration in way_tool.h changes this TU codegen */
 extern void cursor_control(volatile int a0);
@@ -828,28 +811,28 @@ int debug_WayTool(void)
     int (*f)(int);
     int state;
 
-    D_0063C4D8 = isysGObjSearchFromObjLayoutID(2);
-    if (D_0063C4D8 != 0) {
+    cursorGObj = isysGObjSearchFromObjLayoutID(2);
+    if (cursorGObj != 0) {
         if (D_0063BD70 == 0) {
-            *(void **)(D_0063C4D8 + 0x164) = iosMallocDebug(D_0063A44C, 0x850, __FILE__, 0x4AA);
-            isysGObjProcAdd(D_0063C4D8, cursor_control, 0, 0x13);
-            isysGObjLinkObjDL(D_0063C4D8, way_toolDL, 0, 0, 0xFFFFFFFF);
+            *(void **)(cursorGObj + 0x164) = iosMallocDebug(D_0063A44C, 0x850, __FILE__, 0x4AA);
+            isysGObjProcAdd(cursorGObj, cursor_control, 0, 0x13);
+            isysGObjLinkObjDL(cursorGObj, way_toolDL, 0, 0, 0xFFFFFFFF);
             D_0063BD70 = 1;
         }
     }
 
     if (D_0063BD70 == 1) {
-        D_0063C4D4 = D_00639EC0;
-        D_00639EC0 = (int)D_0063C4D8;
-        GetRootPosition(pos, D_0063C4D4);
+        savedCamTarget = D_00639EC0;
+        D_00639EC0 = (int)cursorGObj;
+        GetRootPosition(pos, savedCamTarget);
         SetDirectRootPosition((void *)D_00639EC0, pos);
         Camctrl_SetTarget(D_00639EC0, 0, 3);
         D_0063BD70 = 2;
     }
 
-    iosPadConnect(D_00729B70, 0, 0, iosPadConfDefault);
-    iosPadRead(D_00729B70);
-    iosPadGetStick(D_00729B70, D_00729BD0, 1, 0, 0, 0);
+    iosPadConnect(wayToolPad, 0, 0, iosPadConfDefault);
+    iosPadRead(wayToolPad);
+    iosPadGetStick(wayToolPad, wayToolStick, 1, 0, 0, 0);
 
     state = D_0063BDE8;
     if (state == 1) {
@@ -861,7 +844,7 @@ int debug_WayTool(void)
         case -1:
             D_0063BD70 = 1;
             D_0063BDE8 = 1;
-            D_00639EC0 = D_0063C4D4;
+            D_00639EC0 = savedCamTarget;
             Camctrl_SetTarget(D_00639EC0, 0, 3);
             return -1;
         default:
@@ -884,9 +867,6 @@ int debug_WayTool(void)
     }
     return 0;
 }
-
-extern char iosPadConfDefault[];
-extern int D_00639EC0;
 
 inline void cursor_control(volatile int a0)
 {

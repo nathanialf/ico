@@ -1,5 +1,5 @@
 #include "common.h"
-/* .data — carved VMA 0x4EE5F0..0x4EE6F0 (1 symbols), bytes verified against the target ELF */
+/* .data, carved VMA 0x4EE5F0..0x4EE6F0 (1 symbols), bytes verified against the target ELF */
 #include "DisplayFont.h"
 #include <string.h>
 

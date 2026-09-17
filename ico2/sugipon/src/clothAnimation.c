@@ -435,8 +435,6 @@ extern void _AddVectorXYZ(void *dst, void *a, void *b);
 extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
 /* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyMatrix(void *dst, void *m, void *src);
-/* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
-extern void AddVectorXYZ(void *dst, void *a, void *b);
 /* kept local: this TU's uses of GetWindVector do not fit the prototype in windField.h */
 extern void *GetWindVector(void *out, void *pos);
 
@@ -578,8 +576,6 @@ void GetClothAnimationFix4Points(VECTOR **pa, VECTOR **pv, ClothFixCfg *cfg, voi
     }
 }
 
-/* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
-extern void AddVectorXYZ(void *dst, void *a, void *b);
 extern char D_004E6ED0[];
 extern char D_004E6EF0[];
 extern float D_0063B758;
@@ -642,7 +638,7 @@ static __inline__ float xzLengthSquare(const void *p)
    `d`: the listing shows both plane tests sharing rows 1139/1141/1143 (one
    inlined helper used twice, its `&&` materialised into $v0 as a return
    value), and referencing `p` from a nested body is what makes the parameter
-   memory-resident with its home at frame offset 0 — ahead of `d`@0x10 and
+   memory-resident with its home at frame offset 0, ahead of `d`@0x10 and
    getCrossPoint's `v`@0x20, which is ROM's frame layout. */
 int clipCylinderCollision(char *p)
 {
@@ -731,8 +727,6 @@ typedef struct {
 } ClothSet;
 
 extern void *memset(void *a0, int a1, int a2);
-extern int D_0063A438;
-extern char D_0061F270[];
 extern char D_0061F288[];
 
 ClothSet *InitClothes(int cfg)
@@ -857,14 +851,8 @@ extern int buffer_ID;
 extern int matrixptr;
 /* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _SetCurrentMatrix(int a0);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
-extern void gif_EndPacket(void);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
-extern void gif_SetAlpha(int a0, int a1, int a2);
 /* kept local: this TU's uses of gif_SetGsReg do not fit the prototype in GifPacket.h */
 extern void gif_SetGsReg(int a0, int a1);
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
-extern void gif_StartPacketPri(int a0);
 
 void DispClothMesh(int *a0, void *a1, void *a2)
 {
@@ -885,8 +873,6 @@ void DispClothMesh(int *a0, void *a1, void *a2)
     prim_DispMesh3D(a0[0], a1, a2, t);
 }
 
-/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
-extern void *MatrixDrive_GetMatrix(void);
 /* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int a0);
 /* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
@@ -990,7 +976,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/clothAnimation", getCloth4D);
 extern void CopyMatrix(void *dst, void *src);
 /* kept local: this TU's uses of SubVectorXYZ do not fit the prototype in matrixDrive.h */
 extern void SubVectorXYZ(void *a0, void *a1, void *a2);
-extern void *memset(void *a0, int a1, int a2);
 
 void getCloth4D_postProcess(int *a0, int **a1)
 {
@@ -1039,8 +1024,6 @@ extern void getCloth4D_preProcess(void *a0, int tight, void *a6, void *a7, float
 /* kept local: this TU's uses of getCloth4D do not fit the prototype in clothAnimation.h */
 extern void getCloth4D(void *a0, int **rows);
 extern char D_0055FE58[];
-/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
-extern void _ScaleVector(void *dst, void *src, float k);
 /* kept local: this TU's uses of _SubVectorXYZ do not fit the prototype in Matrix.h */
 extern void _SubVectorXYZ(void *dst, void *a, void *b);
 
@@ -1104,7 +1087,7 @@ void GetCloth4DWithDetail(void *a0, float x, float y, float z, float w)
 }
 
 /* Parameter ORDER corrected 2026-09-09: the two pointers follow the four
- * floats, like _getCloth4D's own tail.  src/girl.c's execClothes proves it —
+ * floats, like _getCloth4D's own tail.  src/girl.c's execClothes proves it -
  * with `a2` declared third, gcc's load_register_parameters emits `daddu
  * a2,sp,zero` before the `mov.s $f15,$f13` that loads the last float, and ROM
  * has them the other way round (two sites).  Byte-neutral here: the incoming
@@ -1154,12 +1137,6 @@ typedef struct {
     void *tex;
     char *p24;
 } Cloth4DCfg;
-
-extern int buffer_ID;
-/* kept local: this TU's uses of ZeroPoint do not fit the prototype in matrixDrive.h */
-extern char ZeroPoint[];
-/* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
-extern char ZeroVector[];
 
 Cloth4D *InitCloth4D(int a0, Cloth4DCfg *cfg, int tbl)
 {
@@ -1230,8 +1207,6 @@ Cloth4D *InitCloth4D(int a0, Cloth4DCfg *cfg, int tbl)
 /* kept local: this TU's uses of MatrixDrive_GetTurnYAngleXZ do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_GetTurnYAngleXZ(unsigned short *o1, unsigned short *o2, float x, float y,
                                         float z);
-/* kept local: this TU's uses of SubVectorXYZ do not fit the prototype in matrixDrive.h */
-extern void SubVectorXYZ(void *a0, void *a1, void *a2);
 
 void GetChainNodeGlobalQuaternion(void *a0, int *a1, int count)
 {
@@ -1251,9 +1226,6 @@ void MoveChainExtendedWeight(int a0, int a1, float f)
 {
     *(float *)(a0 + a1 * 0x50 + 0x10) = f;
 }
-
-/* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
-extern char ZeroVector[];
 
 void InitChainVelocity(int *a0)
 {
@@ -1287,8 +1259,6 @@ float GetChainNodeID(int a0, float f)
 
 /* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *a0, void *a1);
-/* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
-extern char ZeroVector[];
 
 void ResetClothAnimation(int *a0, int *a1, int *a2)
 {
@@ -1492,9 +1462,6 @@ void tensionMove(void *a0, void *a1, void *a2, float f12, float f13)
     }
 }
 
-/* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
-extern void AddVectorXYZ(void *dst, void *a, void *b);
-
 void getCrossPoint(void *out, void *seg, void *plane)
 {
     float v[4];
@@ -1535,11 +1502,6 @@ void LockZAnimation(int *a0)
         }
     }
 }
-
-/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
-extern void _ScaleVector(void *dst, void *src, float k);
-/* kept local: this TU's uses of _SubVectorXYZ do not fit the prototype in Matrix.h */
-extern void _SubVectorXYZ(void *dst, void *a, void *b);
 
 void getCloth4D_planeClip(int *a0, void *plane)
 {

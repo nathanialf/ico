@@ -62,7 +62,7 @@ static inline EBSlot *eBrainGetPacket(void *gop)
 {
     int i;
 
-    for (i = 0; i < 0x20; i++) {
+    for (i = 0; i < 32; i++) {
         if (((EBSlot *)ebrainSlots)[i].f18 == gop)
             break;
     }
@@ -95,7 +95,7 @@ inline int eBrainStatusSet(void *a0, int a1)
     int i;
     if (a1 != 4)
         return 0;
-    for (i = 0; i < 0x20; i++) {
+    for (i = 0; i < 32; i++) {
         if (((EBSlot *)ebrainSlots)[i].f18 == 0)
             break;
     }
@@ -165,7 +165,7 @@ void eBrainProcess(void)
         GetRootPosition(gpos, D_00639EA8);
     }
 
-    for (i = 0; i < 0x20; i++) {
+    for (i = 0; i < 32; i++) {
         s = &((EBSlot *)ebrainSlots)[i];
         if (s->f18 == 0)
             continue;
@@ -196,7 +196,7 @@ inline int GetStageFromLabel(int label)
     int stage = -1;
     int i;
 
-    for (i = 0; i < 0x6A; i++) {
+    for (i = 0; i < 106; i++) {
         if (label >= D_005F5D50[i].labelTop && label < D_005F5D50[i].labelEnd) {
             stage = i;
             break;
@@ -256,7 +256,7 @@ int eBrainGetTargetGeneratorFromLabel(int label)
         return ret;
 
     stage = -1;
-    for (i = 0; i < 0x6A; i++) {
+    for (i = 0; i < 106; i++) {
         if (label >= D_005F5D50[i].labelTop && label < D_005F5D50[i].labelEnd) {
             stage = i;
             break;

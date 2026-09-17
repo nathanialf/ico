@@ -43,9 +43,7 @@ typedef struct {
 extern SMotion D_00724AA8[];
 extern SMotion D_004ED100;
 extern int D_0063BBF0;
-extern int D_0063BBF4;
 extern int D_0063BBF8;
-extern int D_0063BBFC;
 extern int D_0063BC00;
 extern int D_0063BC04;
 extern int D_0063BC14;
@@ -89,7 +87,6 @@ void _deleteStreamMotionManager(void)
 }
 
 extern int D_006211C8[];
-extern unsigned int D_0063BC24;
 
 void DisableStreamMotionManagerAutomaticDelete(void)
 {
@@ -133,8 +130,6 @@ void GetStreamMotionDataNext(int a0, int a1)
     getStreamMotionData(a0, D_00724AA8[a1].w[4], a1);
 }
 
-extern void memcpy();
-
 void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
 {
     int old_idx = *idx_p;
@@ -156,7 +151,6 @@ extern int D_0063A068;
 extern char D_0063BC40[];
 extern char D_006212A0[];
 extern char D_00621278[];
-extern int D_0063BBFC;
 extern int D_0063BC1C;
 
 void ExecStreamMotionManager(void)
@@ -204,13 +198,12 @@ void ExecStreamMotionManager(void)
             debug_Printf(0, D_0063A068 / 2 - 16, 0xFF404000, D_0063BC40, pct);
         }
         if (D_0063B13C & 1) {
-            debug_Printf(0x3A, D_0063A068 / 2 - 16, 0x40FF4000, D_006212A0, D_0063BBF0, D_0063BC1C);
+            debug_Printf(58, D_0063A068 / 2 - 16, 0x40FF4000, D_006212A0, D_0063BBF0, D_0063BC1C);
         }
     }
 }
 
 extern int D_0063A438;
-extern int D_0063BC08;
 extern int D_0063BC0C;
 extern int D_0063BC10;
 extern char D_006212B8[];
@@ -225,8 +218,6 @@ void MallocStreamMotionBuffer(void)
         debug_StdPrintfDummy(D_006212D8);
     }
 }
-
-extern int D_0063BBF0;
 
 inline void ClearAllStreamMotionEntry(void)
 {
@@ -244,8 +235,6 @@ inline void ClearAllStreamMotionEntry(void)
     D_0063BBF0 = 0;
 }
 
-extern int D_0063BBFC;
-
 inline void DeleteStreamMotionManager(void)
 {
     if (D_0063BBFC != 0) {
@@ -259,7 +248,6 @@ inline void DeleteStreamMotionManager(void)
 /* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
 extern void iosThreadSleep(void);
 extern char D_00621310[];
-extern int D_0063BC1C;
 
 inline void StandbyStreamMotion(int self)
 {
@@ -304,7 +292,6 @@ inline int GetDataSizeOfStreamMotion(int no)
 
 extern char D_00621228[];
 extern char D_00621230[];
-extern int D_0063BC28;
 
 typedef struct {
     char c[4];
@@ -321,19 +308,12 @@ inline float GetStreamMotionData(char *dst, int no)
     return (float)D_0063BC28 / 2997.0f;
 }
 
-extern int D_0063BC08;
-extern int D_0063BC0C;
-extern int D_0063BC10;
-
 inline void InitStreamMotionManager(void)
 {
     D_0063BC10 = 0;
     D_0063BC08 = 0;
     D_0063BC0C = 0;
 }
-
-extern int D_0063BC00;
-extern int D_0063BC04;
 
 inline int CheckReadyStreamMotion(void)
 {
@@ -354,10 +334,6 @@ inline void SetStreamMotionFinishCallBackFunc(int a0, int a1)
     D_00724AA8[a0].w[6] = a1;
 }
 
-extern int D_0063BC08;
-extern int D_0063BC0C;
-extern int D_0063BC10;
-
 inline void FreeStreamMotionBuffer(void)
 {
     if (D_0063BC08 != 0) {
@@ -374,8 +350,6 @@ inline int _closeHander(void)
     _deleteStreamMotionManager();
     return 1;
 }
-
-extern int D_0063BBF8;
 
 inline int _handler(int self)
 {

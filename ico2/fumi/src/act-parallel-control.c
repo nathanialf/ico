@@ -50,9 +50,9 @@ void ActPara_MakeTbl(int *tbl, unsigned long long mask, int n)
         return v;
     }
 
-    for (i = 0; i < 0x2C; i++) {
+    for (i = 0; i < 44; i++) {
         if (((mask >> i) & 1) == 1) {
-            for (j = 0; j < 0x56; j++) {
+            for (j = 0; j < 86; j++) {
                 val = *(int *)(D_003089C0 + j * 0xB0 + i * 4);
                 val = resolve(val);
                 if (val != 0x47B) {
@@ -66,7 +66,7 @@ void ActPara_MakeTbl(int *tbl, unsigned long long mask, int n)
 void ActPara_InitSystem(void)
 {
     int i;
-    for (i = 0; i <= 0x55; i++) {
+    for (i = 0; i <= 85; i++) {
         parallelIds[i] = *(int *)(D_003089C0 + i * 0xB0);
     }
 }

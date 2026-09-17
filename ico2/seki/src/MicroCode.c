@@ -88,7 +88,7 @@ inline void mc_TransMicroCode(int a0, int a1)
 {
     int *q = &D_00290B20[a0];
     int i;
-    for (i = 0; i < 0xD; i++) {
+    for (i = 0; i < 13; i++) {
         if ((a1 >> i) & 1) {
             if (a0 != mcResident[i]) {
                 mcUploadCount++;

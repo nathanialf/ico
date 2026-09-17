@@ -362,7 +362,6 @@ void debug_makeBackImage(void)
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_PrintCharacter);
 
 extern int D_0063AEB0;
-extern int D_0063B13C;
 /* kept local: this TU's uses of gif_CheckOpen do not fit the prototype in GifPacket.h */
 extern int gif_CheckOpen(void);
 /* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
@@ -506,7 +505,7 @@ void debug_brainBar(void)
     gif_StartPacketPri(0xB);
     gif_SetAlpha(1, 2, c3.a);
     brain = &D_002A5580[0];
-    for (i = 0; i < 0x28; i++) {
+    for (i = 0; i < 40; i++) {
         b.x = 300;
         a.y = b.y = y;
         if (brain->tgt[i].gobj == 0) {
@@ -568,7 +567,6 @@ void debug_brainBar(void)
 
 extern char D_00704680[];
 extern char D_0063AE90[];
-extern int D_0063B13C;
 
 int debug_MakeBarString(char *p, int a, int b, FR fr, long long x, int line)
 {
@@ -789,12 +787,10 @@ void debug_StdPrintfDummy(char *fmt, ...)
 }
 
 extern char D_007046C0[];
-extern char D_0063AE90[];
 extern char D_0063AF58[];
 extern char D_0063AF60[];
 extern char D_0061BB28[];
 extern float dptofp(double v);
-extern double fptodp(float v);
 
 void debug_PrintFontf(int x, int y, char *p, ...)
 {
@@ -1096,10 +1092,10 @@ int debug_SelectStageMain(int ret, int stage)
                 D_0063A650 = on;
                 enable_game_pause = on;
                 kanbanInit(0);
-                gflagOn(0x18A);
+                gflagOn(394);
                 D_0063AA08 = 0;
                 stgmgrForceSwitch(stage);
-                gflagOff(0x184);
+                gflagOff(388);
                 ACTGame_SetActors_Debug(stage, on);
             }
         }
@@ -1144,7 +1140,7 @@ extern int D_0028F8F4[];
 static inline int debug_mcAsk(char *msg)
 {
     int yes = 0;
-    debug_PrintfDummy(0x50, 0x46, 0xFFFFFF00u, (int)D_0063AF80, (int)msg);
+    debug_PrintfDummy(80, 70, 0xFFFFFF00u, (int)D_0063AF80, (int)msg);
     if (D_0028F8F4[0] & 0x20) {
         yes = 1;
     }
@@ -1210,12 +1206,11 @@ int debug_mcRetErrCheck(McReq *mc)
    inline -- prints the confirmation prompt and reads the pad:
    circle (0x20) = yes -> 1, cross (0x40) = cancel -> -1, otherwise 0. */
 extern char D_0061BC98[];
-extern int D_0028F8F4[];
 
 static inline int debug_mcConfirm(char *msg)
 {
     int yes = 0;
-    debug_PrintfDummy(0x50, 0x46, 0xFFFFFF00u, (int)D_0061BC98, (int)msg);
+    debug_PrintfDummy(80, 70, 0xFFFFFF00u, (int)D_0061BC98, (int)msg);
     if (D_0028F8F4[0] & 0x20) {
         yes = 1;
     }
@@ -1363,7 +1358,7 @@ int debug_mcSaveMainBlock(McReq *mc)
     case 5:
     case 7:
     case 12:
-        debug_PrintfDummy(0x78, 0x46, 0xFFFFFF00u, (int)D_0063AFE0, (int)mc->name47C);
+        debug_PrintfDummy(120, 70, 0xFFFFFF00u, (int)D_0063AFE0, (int)mc->name47C);
         if (iosMcSync(mc)) {
             D_0063AFD4++;
         }
@@ -1387,7 +1382,6 @@ int debug_mcSaveMainBlock(McReq *mc)
 }
 
 extern int D_0063AFE8;
-extern int D_0063AA08;
 extern char D_0061BED8[];
 extern char D_0063AFF0[];
 extern char D_0061BF18[];
@@ -1440,7 +1434,7 @@ int debug_mcLoadMainBlock(McReq *mc)
         break;
     case 5:
     case 8:
-        debug_PrintfDummy(0x78, 0x46, 0xFFFFFF00u, (int)D_0063AFF0, (int)mc->name47C);
+        debug_PrintfDummy(120, 70, 0xFFFFFF00u, (int)D_0063AFF0, (int)mc->name47C);
         if (iosMcSync(mc)) {
             D_0063AFE8++;
         }
@@ -1510,7 +1504,7 @@ int debug_mcDeleteFile(McReq *mc)
         D_0063AFF8++;
         break;
     case 3:
-        debug_PrintfDummy(0x78, 0x46, 0xFFFFFF00u, (int)D_0061C0D0, (int)mc->name47C);
+        debug_PrintfDummy(120, 70, 0xFFFFFF00u, (int)D_0061C0D0, (int)mc->name47C);
         if (iosMcSync(mc)) {
             D_0063AFF8++;
         }
@@ -1586,8 +1580,8 @@ int debug_MemoryCard(void)
         if (mc.f14 != 2) {
             p = &tm[2];
         }
-        debug_PrintfDummy(0xA, 0x3C, p->col, (int)"Memory card port 0: %s free:%d Kbytes",
-                          (int)p->msg, mc.f18);
+        debug_PrintfDummy(10, 60, p->col, (int)"Memory card port 0: %s free:%d Kbytes", (int)p->msg,
+                          mc.f18);
         if (mc.ret >= -2) {
             r = debug_SelectCsvWindow("MENU", 0xA, 0x44, 0xA, menu, 8, 0, 1, 6, &D_0063AFFC);
             if (r == 1) {
@@ -1689,7 +1683,7 @@ void debug_SESlotDisp(void)
             }
             strcat(buf, tmp);
             if (bit == 7) {
-                debug_PrintfDummy(0x190, y, col, (int)D_0063AF80, (int)buf);
+                debug_PrintfDummy(400, y, col, (int)D_0063AF80, (int)buf);
             }
         }
     }
@@ -1797,7 +1791,7 @@ static inline void debug_MenuHelp(void)
     int y;
     int i;
 
-    debug_PrintfDummy(0xDC, 0x46, 0xFFFFFF80u, (int)D_0061C558);
+    debug_PrintfDummy(220, 70, 0xFFFFFF80u, (int)D_0061C558);
     x = 0xF0;
     y = 0x50;
     i = 0;
@@ -1815,8 +1809,7 @@ static inline void debug_MenuHelp(void)
 static inline void debug_MenuBlink(void)
 {
     if (D_0063B0F0 >> 4) {
-        debug_PrintfDummy(0xDC, 0x3C, 0x80C0FF80u, (int)D_0061C528, (int)D_0061C538,
-                          (int)D_0061C548);
+        debug_PrintfDummy(220, 60, 0x80C0FF80u, (int)D_0061C528, (int)D_0061C538, (int)D_0061C548);
     }
     D_0063B0F0++;
     if (D_0063B0F0 >= 0x41) {
@@ -1880,8 +1873,6 @@ void debug_Menu(void)
     }
 }
 
-extern int D_0063B0F4;
-
 void debug_Menu_off(void)
 {
     D_0063B0F4 = 0;
@@ -1918,7 +1909,6 @@ float debug_GetTimerCount(void)
     return (float)(*(volatile unsigned int *)0x10000800);
 }
 
-extern int D_0063AE64;
 extern char D_007082D0[];
 
 void debug_ClearFontWindow(void)
@@ -1945,7 +1935,6 @@ void debug_ResizeFontWindowHeight(int val)
    main.c and motionManager2.c, where a3 is literally the caller's line number.
    +0x14 samples the EE timer T0_COUNT at 0x10000000; volatile because it is a
    hardware counter (and the ROM's 32-bit `lw` shows the read is not narrowed). */
-extern int D_0063C384;
 extern int D_0063B1D4;
 extern char D_0063AF30[];
 
@@ -1982,14 +1971,6 @@ void debug_SetBar2(char *name, unsigned int col, char *file, int line)
         D_0063C384++;
     }
 }
-
-extern int D_0063B110;
-extern int D_0063B114;
-extern int D_0063B118;
-extern int D_0063B11C;
-extern int D_0063B120;
-extern int D_0063B124;
-extern int D_0063C384;
 
 void debug_ResetBar(void)
 {
@@ -2081,7 +2062,6 @@ int debugSceOpen(int a0, int a1)
     return D_0063B100 = sceOpen(D_007049D0, a1);
 }
 
-extern int D_0063B100;
 extern int sceClose();
 
 int debugSceClose(int a0)
@@ -2105,8 +2085,6 @@ int debugSceCloseFdNew(void)
 }
 
 void debug_closeLog(void) {}
-
-extern int D_0070F880[];
 
 void debugCdvdLoadInfoSegInit(int idx)
 {
@@ -2142,16 +2120,12 @@ int gsResetFunc(void)
     return 1;
 }
 
-extern int D_00639EA0;
-
 void ChangeGirlControlMode(int a0)
 {
     if (a0 == 1) {
         D_00639EA0 = a0;
     }
 }
-
-extern int D_0063AE68;
 
 int debug_CallbackGsFinish(void)
 {
@@ -2163,8 +2137,6 @@ extern char D_0061B4A8[];
 extern char D_0061B4E8[];
 extern char D_0061B500[];
 extern char D_0061B538[];
-extern char D_0061B570[];
-extern char D_0063AE90[];
 
 void debug_SaveStartStageFile(int stage)
 {
@@ -2181,10 +2153,6 @@ void debug_SaveStartStageFile(int stage)
     debug_StdPrintfDummy(D_0061B570);
     debug_openLog();
 }
-
-extern int D_0063AF7C;
-extern int D_0028F4C4[];
-extern char D_0063AF88[];
 
 int _debug_SelectCsvWindow(char *title, int x, int y, int rows, int base, int stride, int off,
                            int deref, int n, int *psel, void (*getline)(), int (*colfunc)(int))
@@ -2306,7 +2274,7 @@ int debug_mcFormat(int port)
         break;
     case 1:
         if (D_0063AFA4++ & 0x10) {
-            debug_PrintfDummy(0x78, 0x46, 0xFFFFFF00u, (int)D_0061BCA8);
+            debug_PrintfDummy(120, 70, 0xFFFFFF00u, (int)D_0061BCA8);
         }
         if (iosMcSync(port) != 0) {
             D_0063AFA0++;
@@ -2340,7 +2308,7 @@ int debug_mcUnformat(int port)
         break;
     case 1:
         if (D_0063AFB4++ & 0x10) {
-            debug_PrintfDummy(0x78, 0x46, 0xFFFFFF00u, (int)D_0061BCC8);
+            debug_PrintfDummy(120, 70, 0xFFFFFF00u, (int)D_0061BCC8);
         }
         if (iosMcSync(port) != 0) {
             D_0063AFB0++;
@@ -2383,7 +2351,6 @@ int debug_STAFFROLLTest(void)
 }
 
 extern unsigned short D_0030C4E0[];
-extern GsysObjInfo D_005D6DB0[];
 
 int debug_SETest_color(int idx)
 {
@@ -2413,7 +2380,7 @@ int debug_reverbTest(void)
         depth -= (0 < depth);
     }
     soundReverbDepthSet(depth);
-    debug_PrintfDummy(10, 0x50, 0xFFFFFF00u, (int)D_0061C1A8, soundReverbDepthGet());
+    debug_PrintfDummy(10, 80, 0xFFFFFF00u, (int)D_0061C1A8, soundReverbDepthGet());
     return (D_0028F8F0[0].hold & 0x60) != 0;
 }
 
@@ -2551,8 +2518,6 @@ int debug_SelectPad2ControlGobj(int reset)
     }
     return (r == -1) ? -1 : 0;
 }
-
-extern int D_0028F8F4[];
 
 int debug_FreeCamera(int a0)
 {

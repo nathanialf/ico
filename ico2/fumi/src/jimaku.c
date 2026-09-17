@@ -312,8 +312,6 @@ void jimakuEnd(void)
     jimakuMgrEnd();
 }
 
-extern char D_006E5038[];
-extern char D_006E5070[];
 extern int lock_execIcoMisc;
 
 /* the 0x70-byte layout-texture property records (LtProperty in

@@ -79,7 +79,7 @@ void InitWayPointSystem(void)
 {
     int i;
 
-    for (i = 0; i < 0x113; i++) {
+    for (i = 0; i < 275; i++) {
         NdW *node = (NdW *)&D_004F31E0[i];
 
         node->f0 = 0;
@@ -208,13 +208,11 @@ inline void CloseWayGroup(int idx)
     *(int *)(v0 + 12) = v1;
 }
 
-extern Nd D_004F31E0[];
-
 inline int CreateWayPoint(int a0)
 {
     NdW *node = (NdW *)D_004F31E0;
     int i;
-    for (i = 0; i < 0x113; i++) {
+    for (i = 0; i < 275; i++) {
         if (node->f0 == 0) {
             node->f0 = 1;
             node->f20 = -1;

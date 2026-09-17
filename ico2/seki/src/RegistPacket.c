@@ -189,11 +189,8 @@ void reg_dispBoxLine(char *pk)
     gif_EndPacket();
 }
 
-extern char *matrixptr;
 extern int D_0063B184;
 extern char D_0054FB40[];
-/* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
-extern void _SetCurrentMatrix(void *mtx);
 
 int reg_clipPacketBoundingBox(char *pk)
 {
@@ -906,8 +903,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/RegistPacket", reg_dispLine);
 
 extern int D_0063A06C;
 extern int GlobalTimer;
-/* kept local: this TU's uses of _MulCurrentMatrixL do not fit the prototype in Matrix.h */
-extern void _MulCurrentMatrixL(void *m);
 
 void reg_dispPointLineObj(char *o)
 {

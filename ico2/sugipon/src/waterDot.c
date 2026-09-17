@@ -10,11 +10,14 @@
 /* 0x30 */
 
 /* The per-emitter work AllocWaterDot mallocs (0x1C bytes) and registers in
- * D_00724BC0[D_0063BC48++]. */
+ * waterDots[D_0063BC48++]. */
 /* 0x1C */
 
-extern WaterDotWork *D_00724BC0[]; /* the registered emitters */
-extern int D_0063BC48;             /* how many are registered */
+/* .bss, owned by waterDot.o (InitializeWaterDot clears five slots): the
+   registered emitters. */
+static WaterDotWork *waterDots[5];
+
+extern int D_0063BC48; /* how many are registered */
 /* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(VECTOR *dst, VECTOR *a, VECTOR *b);
 extern void setWaterDot(WaterDot *dot, VECTOR *pos, VECTOR *vel);
@@ -25,7 +28,7 @@ inline void InitializeWaterDot(void)
 
     D_0063BC48 = 0;
     for (i = 4; i >= 0; i--) {
-        D_00724BC0[i] = 0;
+        waterDots[i] = 0;
     }
 }
 
@@ -63,7 +66,7 @@ WaterDotWork *AllocWaterDot(int gobj, int num, int num2)
 
     w->gobj = gobj;
 
-    D_00724BC0[D_0063BC48] = w;
+    waterDots[D_0063BC48] = w;
     D_0063BC48++;
 
     return w;

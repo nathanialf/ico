@@ -218,7 +218,6 @@ extern unsigned char D_0063A378;
 extern int D_0063A374;
 extern int sceCdDiskReady(int mode);
 extern int sceCdGetDiskType(void);
-extern int sceCdSearchFile(CdlFILE *fp, const char *name);
 
 /* INTERIM: the listing expands iosCdvdDiskReadyBlock (cdvd.c rows 701-720)
  * here too, so the 2001 source declared it `inline` as well.  Same treatment
@@ -579,11 +578,9 @@ void iosCdvdPackLoad(void *a0)
 }
 
 extern char D_006B7B80[];
-extern char D_00550ED8[];
 extern char D_0063A398[];
 extern void debug_assert();
 extern char *strrchr(const char *s, int c);
-extern int strcmp(const char *a, const char *b);
 
 /* INTERIM: the January-2002 listing expands iosCdvdGetFileLsn (cdvd.c rows
  * 739-753) inside iosCdvdBackGroundMgrAdd, so the 2001 source declared it
@@ -655,7 +652,6 @@ found:
     return bg;
 }
 
-extern int D_0028F4C0[];
 extern int D_0063C17C;
 extern int D_0063A368;
 extern int D_0063A384;
@@ -732,7 +728,6 @@ extern int D_0063A370;
 extern int D_0063A380;
 extern int D_0063A3D0;
 extern int D_0063A3D4;
-extern int sceCdStatus(void);
 extern int sceCdSync(int mode);
 extern int sceCdGetError(void);
 extern int sceCdReadIOPm(int lsn, int sectors, void *buf, int *mode);
@@ -825,11 +820,6 @@ void iosCdvdDirectStClose(int *self)
     sceSifFreeIopHeap(self[0x164 / 4]);
 }
 
-extern char D_00637E69[];
-extern char D_0063A3A0[];
-extern void sprintf();
-extern int strcpy();
-
 int iosCdvdChgFileName(int a0)
 {
     unsigned char buf[0x100];
@@ -860,9 +850,7 @@ int iosCdvdChgFileName(int a0)
     return strcpy(a0, buf);
 }
 
-extern char D_0063A398[];
 extern int strcmp();
-extern void debug_assert();
 extern void __assert();
 
 int iosCdvdGetFileLsn(char *name, int *size)
@@ -904,8 +892,6 @@ void iosCdvdLoadPackFile(int a0, char *name, int a2)
     iosMsgRecv(CdvdMsgQ_LoadEnd, buf, 1);
 }
 
-extern int D_0063A384;
-
 int iosCdvdDiskStatusGet(void)
 {
     return D_0063A384;
@@ -921,8 +907,6 @@ int iosCdvdBackGroundMgrNotDiskReadyPauseSet(void *a0, int a1)
     int *p = (int *)((char *)a0 + 0x108);
     return *p = (*p & ~0x10) | ((a1 & 1) << 4);
 }
-
-extern char D_006B7B80[];
 
 int iosCdvdBackGroundMgrDeleteRequestGet(void)
 {
@@ -958,8 +942,6 @@ void iosCdvdBackGroundMgrSeek(char *self, int val)
 {
     *(int *)(self + 0x110) = val;
 }
-
-extern int D_0063C17C;
 
 int iosCdvdBackGroundMgrGetRunning(void)
 {
@@ -1002,8 +984,6 @@ long long inflate_cd_read_func(void *buf, long long size, int *self)
     return len;
 }
 
-extern int D_0063C17C;
-
 void iosCdvdBackGroundMgrInit(void)
 {
     char *p = D_006B7B80;
@@ -1042,13 +1022,6 @@ void iosCdvdBackGroundMgr(void)
         D_0063C17C = 0;
     }
 }
-
-extern char D_00550CC8[];
-extern char D_00550CD8[];
-extern int D_0063A374;
-extern int sceCdDiskReady(int mode);
-extern int sceCdGetDiskType(void);
-extern int sceCdSearchFile(CdlFILE *fp, const char *name);
 
 void iosCdvdDiskReadyBlock(void)
 {

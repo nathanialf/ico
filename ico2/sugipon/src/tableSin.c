@@ -22,7 +22,7 @@ static inline void makeSinTable(void)
     int i;
     float m = 1.5707964f;
     float d = 16385.0f;
-    for (i = 0; i < 0x4001; i++) {
+    for (i = 0; i < 16385; i++) {
         sinTable[i] = sinf((float)i * m / d);
     }
 }
@@ -32,7 +32,7 @@ static inline void makeArcSinTable(void)
     int i;
     float k = 0.000244140625f;
     float s = 10430.378f;
-    for (i = 0; i < 0x1001; i++) {
+    for (i = 0; i < 4097; i++) {
         arcSinTable[i] = (int)(asinf((float)i * k) * s);
     }
 }
@@ -98,7 +98,7 @@ inline float GetTableSin(short a0)
     int idx = __builtin_abs(a0);
     int s;
     float v;
-    s = (unsigned int)a0 >> 0x1F;
+    s = (unsigned int)a0 >> 31;
     if (idx >= 0x4000) {
         idx = 0x8000 - idx;
     }

@@ -496,14 +496,11 @@ typedef struct {
 } PrimParticle;
 
 extern char *matrixptr;
-extern char D_0054F8C0[];
 extern char D_0054F9A8[];
 extern int D_0028F4D4[];
 extern int D_0063A160[];
 extern int D_0063B124;
 extern int D_0063B200;
-extern void debug_assert(char *file, int line);
-extern void __assert(char *file, int line, char *expr);
 /* kept local: this TU's uses of _CopyMatrix do not fit the prototype in Matrix.h */
 extern void _CopyMatrix(void *dst, void *src);
 
@@ -520,7 +517,6 @@ extern char D_0054F978[];
 extern char D_0063A158[];
 extern void _UnitMatrix(void *m);
 extern void malloc_MemCpy(void *dst, void *src, int n);
-extern int tex_GetTextureNo(char *name);
 extern void _CopyVector(void *dst, void *src);
 
 PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, int a1, char *name,

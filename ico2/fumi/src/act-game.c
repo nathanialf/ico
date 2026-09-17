@@ -153,7 +153,6 @@ void ACTGame_StageChangeGObj(char *self, int idx)
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/act-game", ACTGame_SetActors_Debug);
 
 extern char *D_00639EA4;
-extern char *D_00639EA8;
 
 void ACTGame_TryConnectHand(void)
 {
@@ -342,8 +341,6 @@ void ACTGame_LwsEffectProcess(char *a0)
     }
 }
 
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
-extern int *test_CURRENTROOT(int *a0);
 /* kept local: this TU's uses of _DistxzSqGV do not fit the prototype in gv.h */
 extern float _DistxzSqGV(void *a, void *b);
 
@@ -404,7 +401,7 @@ int ACTLookTarget_Exec(char *a0)
     int b0;
 
     if (D_0063B13C & 1) {
-        debug_Printf(0xA, 0xAA, 0x0FFFFFFF, D_00552450,
+        debug_Printf(10, 170, 0x0FFFFFFF, D_00552450,
                      *(int *)((char *)*(int *)(a0 + 0x15C) + 0x380));
     }
     rv = 0;
@@ -493,19 +490,12 @@ void ACTParaStatus_Exec(char *self)
 
 extern float D_0063A69C[];
 extern int D_0028F4C0[];
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
-extern int *test_CURRENTROOT(int *a0);
-/* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
-extern float _DistGV(void *a, void *b);
 /* kept local: this TU's uses of actEnemyFlagCheckActive do not fit the prototype in enemy_act.h */
 extern int actEnemyFlagCheckActive(void *g);
 /* kept local: this TU's uses of isysGObjSearchFromObjKindID_begin do not fit the prototype in gobj.h */
 extern int *isysGObjSearchFromObjKindID_begin(int);
 /* kept local: this TU's uses of isysGObjSearchFromObjKindID_next do not fit the prototype in gobj.h */
 extern int *isysGObjSearchFromObjKindID_next(int *);
-extern void *memset(void *a0, int a1, int a2);
-extern char *D_00639EA4;
-extern char *D_00639EA8;
 
 void _ACTCharStatus_Clear(char *a0)
 {
@@ -921,11 +911,6 @@ typedef struct {
 typedef struct {
     float f[8];
 } EnvOct;
-
-extern MotionRec D_0055FE58[];
-extern void *memset(void *a0, int a1, int a2);
-/* kept local: this TU's uses of test_CURRENTORIENT do not fit the prototype in commonact.h */
-extern float *test_CURRENTORIENT(char *a0);
 
 /* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
    listing inlines ACTGame_CheckPriInputFrame (line 1255) here and into its own
@@ -1544,21 +1529,8 @@ typedef struct {
 } HandClInfo;
 
 extern HandClInfo D_0029C5D0;
-extern char *D_00639EA4;
-extern char *D_00639EA8;
-/* kept local: this TU's uses of _DistxzSqGV do not fit the prototype in gv.h */
-extern float _DistxzSqGV(void *a, void *b);
-/* kept local: this TU's uses of CompareAttribute do not fit the prototype in fieldCollision.h */
-extern int CompareAttribute(int attr, int mask);
 /* kept local: this TU's uses of debug_Arrow do not fit the prototype in camera-editor.h */
 extern void debug_Arrow(void *root, void *vec, float len, int r, int g, int b);
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
-extern int *test_CURRENTROOT(int *a0);
-/* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
-extern void ClipWall(void *);
-/* kept local: this TU's uses of GetOrientOfWall do not fit the prototype in fieldCollision.h */
-extern void GetOrientOfWall(void *out, int n, void *vec);
-extern void *memset(void *a0, int a1, int a2);
 extern void sceVu0CopyVector(void *buf, int x);
 
 /* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
@@ -1696,13 +1668,6 @@ draw:
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/act-game", hand_able_connect);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/act-game", ACTGame_CommonLoop);
 
-extern char *D_00639EA4;
-extern char *D_00639EA8;
-extern int stage_no;
-/* kept local: this TU's uses of test_CURRENTORIENT do not fit the prototype in commonact.h */
-extern float *test_CURRENTORIENT(char *a0);
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
-extern int *test_CURRENTROOT(int *a0);
 /* kept local: this TU's uses of debug_NMarker do not fit the prototype in camera-editor.h */
 extern void debug_NMarker(float *pos, int r, int g, int b, float size);
 extern void sceVu0AddVector(void *a0, void *a1, void *a2);
@@ -1973,7 +1938,6 @@ void ACTLookTargetSystem_Exec(char *self)
 extern char D_0063A6A0[];
 extern char D_0063A6A8[];
 extern float D_002ADAF0[];
-extern void sceVu0ScaleVector(void *dst, void *src, float k);
 /* kept local: this TU's uses of GetItemKind do not fit the prototype in item.h */
 extern int GetItemKind(int item);
 /* kept local: this TU's uses of ThrowItem do not fit the prototype in item.h */
@@ -1982,12 +1946,8 @@ extern void ThrowItem(int item, float *v);
 extern void HoldItem(int item, char *self);
 /* kept local: this TU's uses of ReleaseItem do not fit the prototype in item.h */
 extern void ReleaseItem(int item);
-/* kept local: this TU's uses of ACTSendMailCorrect do not fit the prototype in commonact.h */
-extern void ACTSendMailCorrect(char *self, int mail);
 /* kept local: this TU's uses of SetBoyInfo do not fit the prototype in boyact.h */
 extern void SetBoyInfo(int *a0, int *a1);
-extern char *D_00639EA4;
-extern char *D_00639EA8;
 extern int D_00639EBC;
 
 /* INTERIM: the listing inlines _ACTGame_GetParamF (act-game.c:4375) into
@@ -2244,8 +2204,6 @@ void RequestChangeHandMode(char *self, int mode, int pri, int flag, int p5, int 
     }
 }
 
-extern char *D_00639EA4;
-
 int ACTNotNeedCameraOffset(char *a0)
 {
     char *s;
@@ -2297,9 +2255,6 @@ void ACTGame_StageChangeGObjID(char *self, char *other, int idx)
     gamesysObjInfoPosNewStageSet(self, other, D_0055C518[idx].f_24, tmp_a, tmp_b);
 }
 
-extern void *memset(void *a0, int a1, int a2);
-extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
-
 void ACTGame_StageChangeGObjDirect(int *a0, int a1, void *a2, int a3)
 {
     float buf0[4];
@@ -2316,8 +2271,6 @@ int ACTGame_FLAG_LIFEPINCH(char *a0)
         return 1;
     return 0;
 }
-
-extern char *D_00639EA8;
 
 /* Returns a char-width boolean: the three PAIR_IsStatus_* sites the listing
    inlines this into all mask the result with `andi 0xff`, which only a
@@ -2351,9 +2304,7 @@ void GetSkeltonPosition(float *dst, char *obj, void *a2)
     dst[2] = *(float *)(idx + ((IntFloat *)(((IntFloat *)(obj + 0x15C))->i + 0xC))->i + 0x38);
 }
 
-extern void sceVu0AddVector(void *a0, void *a1, void *a2);
 extern void sceVu0Normalize(void *a0, void *a1);
-extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 extern void sceVu0SubVector(void *a0, void *a1, void *a2);
 
 void SetDirectRootPositionWithNodePointLimit(void *a0, void *a1, void *a2, float farg0, float farg1)
@@ -2397,9 +2348,6 @@ void ACTCharctrl_Unlock(char *a0)
     *(unsigned long long *)(p + 0x18) |= (1ULL << 49);
 }
 
-extern char *D_00639EA4;
-extern char *D_00639EA8;
-
 void ACTGame_ConnectHand(void)
 {
     char *s = *(char **)(D_00639EA8 + 0x164);
@@ -2408,9 +2356,6 @@ void ACTGame_ConnectHand(void)
     *(unsigned long long *)(s + 0x18) |= (1ULL << 40);
 }
 
-extern char *D_00639EA4;
-extern char *D_00639EA8;
-
 void ACTGame_DisconnectHand(void)
 {
     char *s = *(char **)(D_00639EA8 + 0x164);
@@ -2418,8 +2363,6 @@ void ACTGame_DisconnectHand(void)
     RequestChangeHandMode(D_00639EA4, 1, 5, 0, 0, 0, 0);
     *(unsigned long long *)(s + 0x18) &= ~(1ULL << 40);
 }
-
-extern char *D_00639EA4;
 
 void PAIR_GetPosition_BOY(float *a0, float *a1)
 {
@@ -2504,8 +2447,6 @@ int PAIR_IsStatus_BOY_WAIT(void)
     return 0;
 }
 
-extern char *D_00639EA4;
-
 void PAIR_GetPosition_BOY_DITCH(float *a0, float *a1)
 {
     float *q = (float *)*(char **)(D_00639EA4 + 0x164);
@@ -2542,9 +2483,6 @@ int PAIR_IsStatus_BOY_DITCH(void)
     return 0;
 }
 
-extern char *D_00639EA4;
-extern char D_005577D0[];
-
 int ACTGame_isHangChain(char *a0)
 {
     char *s = *(char **)(a0 + 0x164);
@@ -2570,12 +2508,6 @@ int ACTGame_isWeaponEnableCatchfire(int *self)
     }
     return ret;
 }
-
-/* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
-extern void ClipWall(void *);
-/* kept local: this TU's uses of ClipFloor do not fit the prototype in fieldCollision.h */
-extern void ClipFloor(void *);
-extern void sceVu0CopyVector(void *buf, int x);
 
 int ACTCheckCollis_WF(float f, void *p0, void *p1, void *actor, void *posout)
 {
@@ -2609,13 +2541,6 @@ int ACTCheckCollis_WF(float f, void *p0, void *p1, void *actor, void *posout)
     }
     return rv & 0xFF;
 }
-
-/* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
-extern void ClipWall(void *);
-/* kept local: this TU's uses of GetOrientOfWall do not fit the prototype in fieldCollision.h */
-extern void GetOrientOfWall(void *out, int n, void *vec);
-extern void *memset(void *a0, int a1, int a2);
-extern void sceVu0CopyVector(void *buf, int x);
 
 int ACTCheckCollis_W(float f, void *hand0, void *hand1, void *actor, void *posout, void *magtarget,
                      int *flagout)
@@ -2712,8 +2637,6 @@ int ACTCheckCollis_WELL(float f, void *p0, void *p1, void *actor, void *posout)
 extern int D_0063A6B4;
 /* kept local: this TU's uses of ClipWallField do not fit the prototype in fieldCollision.h */
 extern void ClipWallField(void *);
-/* kept local: this TU's uses of CompareAttribute do not fit the prototype in fieldCollision.h */
-extern int CompareAttribute(int attr, int mask);
 
 int ACTCheckCollis_WAY(float f, void *p0, void *p1, void *actor, void *posout)
 {
@@ -2764,12 +2687,6 @@ int ACTCheckCollis_WAY(float f, void *p0, void *p1, void *actor, void *posout)
     }
     return 1;
 }
-
-/* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
-extern void ClipWall(void *);
-/* kept local: this TU's uses of ClipFloor do not fit the prototype in fieldCollision.h */
-extern void ClipFloor(void *);
-extern void sceVu0CopyVector(void *buf, int x);
 
 /* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
    listing inlines ACTCheckCollis_VIEW (line 1606) here and in
@@ -2832,14 +2749,6 @@ int ACTCheckViewCl(char *self, void *a1, void *a2, void *a3, float f)
 }
 
 extern char D_00552400[];
-extern char D_00552420[];
-extern char D_0063A698[];
-extern void debug_assert(char *file, int line);
-extern void __assert(char *file, int line, char *expr);
-/* kept local: this TU's uses of isysGObjSearchFromObjKindID_begin do not fit the prototype in gobj.h */
-extern int *isysGObjSearchFromObjKindID_begin(int);
-/* kept local: this TU's uses of isysGObjSearchFromObjKindID_next do not fit the prototype in gobj.h */
-extern int *isysGObjSearchFromObjKindID_next(int *);
 
 /* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
    listing inlines ACTGameView_Add (line 1788) here, so it is `inline` in the
@@ -2870,12 +2779,6 @@ void ACTGameView_FirstSet(void)
         g = isysGObjSearchFromObjKindID_next(g);
     }
 }
-
-extern char D_00552400[];
-extern char D_00552420[];
-extern char D_0063A698[];
-extern void debug_assert(char *file, int line);
-extern void __assert(char *file, int line, char *expr);
 
 /* actGameView is one table: a 100-entry object list at +0x000, two parallel
    100-entry int arrays at +0x190 and +0x320, and the entry count at +0x4B0.
@@ -2917,8 +2820,6 @@ int ACTGameViewSimple_Check(int a0, int a1)
     return 0;
 }
 
-/* kept local: this TU's uses of CheckWeaponKind do not fit the prototype in weapon.h */
-extern int CheckWeaponKind();
 extern WeaponEntry D_00318EB8[];
 
 int ACTGame_GetMotOrientFromWeapon(int a0)
@@ -2947,14 +2848,6 @@ int ACTGame_isWeaponCombustible(void)
 }
 
 extern const float D_0063A6AC[];
-/* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
-extern float _DistSqGV(int *a0, int a1);
-/* kept local: this TU's uses of isysGObjSearchFromObjKindID_begin do not fit the prototype in gobj.h */
-extern int *isysGObjSearchFromObjKindID_begin(int);
-/* kept local: this TU's uses of isysGObjSearchFromObjKindID_next do not fit the prototype in gobj.h */
-extern int *isysGObjSearchFromObjKindID_next(int *);
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
-extern int *test_CURRENTROOT(int *a0);
 
 int *ACTGame_GetNearestGObj(int a0, int a1)
 {
@@ -3100,8 +2993,6 @@ void ACTGame_SetMotionPlaySpeedRatio_Reserve(char *a0, float f, unsigned int a1)
     }
 }
 
-extern float D_002ADAF0[];
-
 float _ACTGame_GetParamF(int idx)
 {
     return D_002ADAF0[idx];
@@ -3182,8 +3073,6 @@ void ACTGame_LwsEffectInit(char *a0)
     *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1B8) = InitMultiBgaManager(1);
 }
 
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
-extern int *test_CURRENTROOT(int *a0);
 /* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
 extern void _OrientXZGV(void *dst, void *a, void *b);
 
@@ -3196,13 +3085,12 @@ void ACTGame_LwsEffect_Guard(char *a0)
     _OrientXZGV(v, test_CURRENTROOT((int *)D_00639EA4), test_CURRENTROOT((int *)a0));
     ActGame_GetOrientQ(q, v, 0);
 
-    stage_SetLoopFlag(0x1F8, 0);
+    stage_SetLoopFlag(504, 0);
     stage_SetFrameStep(0x1F8, 1);
     p = *(char **)(*(char **)(a0 + 0x164) + 0x680);
     EntryMultiBgaManager(*(int *)(p + 0x1B8), 0, -1, test_CURRENTROOT((int *)a0), q);
 }
 
-extern void sceVu0ScaleVector(void *dst, void *src, float k);
 /* kept local: this TU's uses of _GetDirection do not fit the prototype in gv.h */
 extern float _GetDirection(void *v);
 
@@ -3224,9 +3112,6 @@ void _GetRootObjectOrient(void *a0, char *a1)
     float v[4] = {0.0f, 0.0f, 1.0f, 0.0f};
     sceVu0ApplyMatrix(a0, *(void **)(*(char **)(a1 + 0x15C) + 0xC), v);
 }
-
-/* kept local: this TU's uses of ReleaseItem do not fit the prototype in item.h */
-extern void ReleaseItem(int item);
 
 void ACTItemForceDrop(char *a0)
 {
@@ -3262,8 +3147,6 @@ void GetOtherStageGirlOrient(float *a0, float *a1)
     _OrientGV(a0, pos, a1);
 }
 
-extern int D_0063AA08;
-
 int ACTChkAttackIgnore_BOY(char *a0)
 {
     char *s = *(char **)(a0 + 0x164);
@@ -3291,8 +3174,6 @@ int ACTChkAttackIgnore_GIRL(char *a0, int *a1)
     return 0;
 }
 
-extern int D_0028F4C0[];
-
 int ACTChkAttackIgnore_ENEMY(char *a0)
 {
     char *s = *(char **)(a0 + 0x164);
@@ -3313,11 +3194,6 @@ int ACTChkAttackIgnore_ENEMY(char *a0)
     }
     return 0;
 }
-
-/* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
-extern float _DistSqGV(int *a0, int a1);
-/* kept local: this TU's uses of ClipFloor do not fit the prototype in fieldCollision.h */
-extern void ClipFloor(void *);
 
 unsigned char ACTCheckCollis_VIEW(float f, void *p0, void *p1, void *actor)
 {
@@ -3383,9 +3259,6 @@ void ACTGame_SetMotionPlaySpeedRatio_Clear(char *a0)
     *(float *)(p + 0x58) = 1.0f;
     *(int *)(p + 0x54) = 0;
 }
-
-extern MotionRec D_0055FE58[];
-extern char *D_00639EA8;
 
 void ACTGame_SetMotionPlaySpeedRatio_Exec(char *a0)
 {

@@ -63,7 +63,7 @@ int stageSEtaimatsu(SEObj *self)
     float *campos;
     int i;
 
-    if (gflagChk(0x185)) {
+    if (gflagChk(389)) {
         return 0;
     }
     campos = (float *)GetCameraPos();
@@ -110,12 +110,17 @@ int stageSEtaimatsu(SEObj *self)
     return rv;
 }
 
-/* kept local: this TU's uses of GetCameraPos do not fit the prototype in camera-root.h */
-extern int *GetCameraPos();
 extern int stage_no;
-extern float D_0063C5B8;
-extern float D_0063C5BC;
-extern float D_0063C5C0;
+
+/* .sbss, owned by stageSEProc.o (MAIN.MAP names no symbol in the run): the
+   running level of each river sound effect, held across frames so SEFadeOut can
+   walk it down to silence. */
+static float river04eLevelA;
+
+static float river04eLevelB;
+
+static float river06aLevel;
+
 extern float D_0063C088;
 
 /* the river fade-out the PAL listing places at stageSEProc.c lines 397-401 and
@@ -142,15 +147,15 @@ int stageSE04eriver(SEObj *a0)
     float r;
 
     if (stage_no == 0x15) {
-        if (gflagChk(0xE6)) {
-            return SEFadeOut((char *)a0, &D_0063C5B8);
+        if (gflagChk(230)) {
+            return SEFadeOut((char *)a0, &river04eLevelA);
         }
-        D_0063C5B8 = 1.0f;
+        river04eLevelA = 1.0f;
     } else {
-        if (gflagChk(0xE7)) {
-            return SEFadeOut((char *)a0, &D_0063C5BC);
+        if (gflagChk(231)) {
+            return SEFadeOut((char *)a0, &river04eLevelB);
         }
-        D_0063C5BC = 1.0f;
+        river04eLevelB = 1.0f;
     }
     if (-5500.0f < z) {
         if (z < -5500.0f) {
@@ -181,12 +186,12 @@ int stageSE06ariver(SEObj *a0)
 {
     float *p = (float *)GetCameraPos();
 
-    if (gflagChk(0x6A)) {
-        return SEFadeOut((char *)a0, &D_0063C5C0);
+    if (gflagChk(106)) {
+        return SEFadeOut((char *)a0, &river06aLevel);
     }
-    D_0063C5C0 = 1.0f;
+    river06aLevel = 1.0f;
     if (p[0] < 300.0f && 848.0f < p[2]) {
-        if (gflagChk(0x6B) == 0) {
+        if (gflagChk(107) == 0) {
             a0->vol.f = 0.05f;
         } else {
             a0->vol.f = 0.4f;
@@ -209,8 +214,6 @@ int stageSE06ariver(SEObj *a0)
 extern int frame_count;
 extern float D_0063C078;
 extern int D_0063C07C;
-/* kept local: this TU's uses of GetCameraPos do not fit the prototype in camera-root.h */
-extern int *GetCameraPos();
 extern Blk16 D_00623130;
 extern Blk16 D_00623140;
 
@@ -257,11 +260,6 @@ typedef struct {
     Blk16 b;
 } Blk32;
 
-extern int frame_count;
-extern float D_0063C078;
-extern int D_0063C07C;
-/* kept local: this TU's uses of GetCameraPos do not fit the prototype in camera-root.h */
-extern int *GetCameraPos();
 extern Blk32 D_006230F0;
 extern float D_0063C08C[];
 
@@ -337,7 +335,7 @@ int stageSE02ataki(char *self)
     p[0] = 785.0f;
     p[2] = 482.0f;
     *(float *)(self + 0x1C) = 0.5f;
-    if (gflagChk(0x6A)) {
+    if (gflagChk(106)) {
         *(int *)(self + 0x18) = 0;
     }
     return 1;
@@ -350,7 +348,7 @@ int stageSE02atakib(char *self)
     p[1] = 1786.0f;
     p[2] = 482.0f;
     *(float *)(self + 0x1C) = 0.5f;
-    if (gflagChk(0x6A)) {
+    if (gflagChk(106)) {
         *(int *)(self + 0x18) = 0;
     }
     return 1;
@@ -375,12 +373,6 @@ int stageSE03tnotSuiro(void)
     return -1;
 }
 
-extern int frame_count;
-extern float D_0063C078;
-extern int D_0063C07C;
-/* kept local: this TU's uses of GetCameraPos do not fit the prototype in camera-root.h */
-extern int *GetCameraPos();
-
 int stageSE04agate(char *a0)
 {
     float x = ((float *)GetCameraPos(a0))[2];
@@ -389,7 +381,7 @@ int stageSE04agate(char *a0)
     if (x < -1300.0f) {
         return 0;
     }
-    if (gflagChk(0x8C) == 0) {
+    if (gflagChk(140) == 0) {
         return 0;
     }
     if (x < 750.0f) {
@@ -406,10 +398,6 @@ int stageSE04agate(char *a0)
     *(float *)(a0 + 0x18) = ratio * w;
     return -1;
 }
-
-extern int frame_count;
-extern float D_0063C078;
-extern int D_0063C07C;
 
 int stageSE04bstrong(void *a0)
 {
@@ -440,20 +428,16 @@ int stageSE04ewind(char *a0)
     return -1;
 }
 
-/* kept local: this TU's uses of GetCameraPos do not fit the prototype in camera-root.h */
-extern int *GetCameraPos();
-extern int stage_no;
-
 int stageSE04eriverDown(char *a0)
 {
     float x = ((float *)GetCameraPos(a0))[2];
     float f;
     if (stage_no == 0x15) {
-        if (gflagChk(0xE6)) {
+        if (gflagChk(230)) {
             return 0;
         }
     } else {
-        if (gflagChk(0xE7)) {
+        if (gflagChk(231)) {
             return 0;
         }
     }
@@ -496,9 +480,6 @@ int stageSE06astrong(char *a0)
         return 1;
     }
 }
-
-/* kept local: this TU's uses of GetCameraPos do not fit the prototype in camera-root.h */
-extern int *GetCameraPos();
 
 int stageSE06abirdIn(int *self)
 {
@@ -573,9 +554,6 @@ int stageSE08astrong(char *a0)
     return -1;
 }
 
-extern Blk16 D_00623110;
-extern Blk16 D_00623120;
-
 int stageSE08astrong2(char *a0)
 {
     Blk16 b1;
@@ -605,9 +583,6 @@ int stageSE08astrong2(char *a0)
     return -1;
 }
 
-extern Blk16 D_00623110;
-extern Blk16 D_00623120;
-
 int stageSE08anoise3(int self)
 {
     Blk16 b1;
@@ -622,9 +597,6 @@ int stageSE08anoise3(int self)
     }
     return -1;
 }
-
-extern Blk16 D_00623110;
-extern Blk16 D_00623120;
 
 int stageSE08ataimatsu(int a0)
 {
@@ -686,9 +658,6 @@ int stageSE09asea(char *a0)
     *(float *)(a0 + 0x18) = 1.0f;
     return 1;
 }
-
-extern Blk16 D_00623130;
-extern Blk16 D_00623140;
 
 int stageSE10lstrong(char *a0)
 {
@@ -964,10 +933,6 @@ int stageSE20astrong2(void *a0)
     *(float *)((char *)a0 + 0x18) = f;
     return -1;
 }
-
-extern int frame_count;
-extern float D_0063C078;
-extern int D_0063C07C;
 
 int stageSE22astrong(void *a0)
 {

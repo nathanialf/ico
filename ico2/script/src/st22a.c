@@ -17,7 +17,12 @@ INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st22a", actSt22aLightningVolime);
 INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st22a", actSt22aIntro);
 
 extern int D_00639EA4;
-extern int D_0063C5AC;
+
+/* .sbss, owned by st22a.o and reached only from this file (MAIN.MAP names no
+   symbol in the run): the demo's own end flag, raised by the
+   subthread the wait loop below spins for. */
+static int demoEnd;
+
 extern StVec D_00623090;
 extern int D_0063AA08;
 extern int D_0028F4C0[];
@@ -38,35 +43,35 @@ void actSt22aIntroChk(volatile int a0)
     int fin;
     unsigned int i;
 
-    gflagOn(0x143);
+    gflagOn(323);
     scpSekizouCheckPoint();
-    lt_switch_layout(0x37);
+    lt_switch_layout(55);
     D_0063AA08 = 1;
     scpPlayStart(D_00639EA4);
-    gflagOn(0x144);
-    stage_SetAnimation(0x2F6, 1, 0);
+    gflagOn(324);
+    stage_SetAnimation(758, 1, 0);
     _ACTWait((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 10);
     scpFadeIn(6.0f);
-    th = actCreateSubThread(actSt22aIntroSub, 0x15);
-    D_0063C5AC = 0;
-    while (D_0063C5AC == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    th = actCreateSubThread(actSt22aIntroSub, 21);
+    demoEnd = 0;
+    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
-    fin = D_0063C5AC ^ 1;
+    fin = demoEnd ^ 1;
     if (fin != 0) {
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
             _ACTWait(1);
         }
     }
-    iosThreadSetPri(th + 0x24, 0x22);
+    iosThreadSetPri(th + 0x24, 34);
     if (fin != 0) {
         anims = *(St22Anims *)D_0063C050;
         for (i = 0; i < 2; i++) {
             stage_SetAnimation(anims.id[i], 1, -1);
             _ACTWait(1);
         }
-        stage_SetAnimation(0x2F7, 1, -1);
+        stage_SetAnimation(759, 1, -1);
         StabilizeAllLayoutedCage();
         scpPlayPosSet(D_00639EA4, -808.0f, 148.0f, -1053.0f);
         pos = D_00623090;
@@ -83,7 +88,7 @@ void actSt22aIntroChk(volatile int a0)
         scpPlayMot(D_00639EA4, 0);
     }
     scpPlayEnd(D_00639EA4);
-    lt_switch_layout(0x36);
+    lt_switch_layout(54);
     D_0063AA08 = 0;
 }
 
@@ -92,20 +97,20 @@ void actSt22aIntroSub(volatile int a0)
     StVec pos;
     float dir[4];
 
-    stage_SetAnimation(0x2F6, 1, 0);
-    scpPlayMot(D_00639EA4, 0x18D);
-    while (stage_ContinueAnimation(0x2F6, 0x2F7) == 0) {
+    stage_SetAnimation(758, 1, 0);
+    scpPlayMot(D_00639EA4, 397);
+    while (stage_ContinueAnimation(758, 759) == 0) {
         _ACTWait(1);
     }
     scpPlayPosSet(D_00639EA4, -707.0f, 148.0f, -1112.0f);
     pos = D_00623090;
     sceVu0SubVector(dir, &pos, test_CURRENTROOT(D_00639EA4));
     scpPlayMotDir(D_00639EA4, dir);
-    scpPlayMot(D_00639EA4, 0x18E);
-    while (stage_CheckAnimationFinish(0x2F7) == 0) {
+    scpPlayMot(D_00639EA4, 398);
+    while (stage_CheckAnimationFinish(759) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    D_0063C5AC = 1;
+    demoEnd = 1;
     _ACTWait(0);
 }

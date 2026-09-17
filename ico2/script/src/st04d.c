@@ -33,14 +33,14 @@ void actSt04dDoor1(volatile int a0)
 
     if (scpTriggerBall(a0, D_00639EA4, 400.0f) != 0 ||
         (D_00639EA8 != 0 && scpTriggerBall(a0, D_00639EA8, 400.0f) != 0)) {
-        stage_SetAnimation(0xFF, 0, 0);
-        _ACTWait(0x3C);
+        stage_SetAnimation(255, 0, 0);
+        _ACTWait(60);
         door1_down_mes[0].func = actSt04dDoor1DownChk;
         self->mail = door1_down_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        stage_SetAnimation(0xFE, 0, 0);
+        stage_SetAnimation(254, 0, 0);
         door1_up_mes[0].func = actSt04dDoor1UpChk;
         self->mail = door1_up_mes;
         ACTSendMailCorrect(a0, 430);
@@ -66,21 +66,21 @@ void actSt04dDoor1UpChk(volatile int a0)
     while (scpTriggerFloorAttrTargetMan(a0, 0x1000000) == 0) {
         _ACTWait(1);
     }
-    _ACTWait(0xF);
+    _ACTWait(15);
 
-    actCreateSubThread(actSt04dDoor1UpEffect, 0x15);
+    actCreateSubThread(actSt04dDoor1UpEffect, 21);
 
-    stage_SetAnimation(0xFE, 1, 0);
+    stage_SetAnimation(254, 1, 0);
 
     buf[0] = door1SoundPos.d[0];
     buf[1] = door1SoundPos.d[1];
-    soundSeDefPlay(0x4C4, 0, (float *)buf, 1);
-    _ACTWait(0x1E);
-    soundSeDefPlay(0x4C5, 0, (float *)buf, 1);
-    _ACTWait(0x1E);
-    soundSeDefPlay(0x4C6, 0, (float *)buf, 1);
+    soundSeDefPlay(1220, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1221, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1222, 0, (float *)buf, 1);
 
-    while (stage_CheckAnimationFinish(0xFE) == 0) {
+    while (stage_CheckAnimationFinish(254) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -98,7 +98,7 @@ inline void actSt04dDoor1UpEffect(volatile int a0)
     long long v0a = door1UpEffectPos.d[0];
     long long v0b = door1DownEffectPos.d[0];
     int i;
-    for (i = 0; i < 0x32; i++) {
+    for (i = 0; i < 50; i++) {
         switch (i) {
         case 0:
             b1[0] = v0a;
@@ -122,7 +122,7 @@ inline void actSt04dDoor1DownEffect(volatile int a0)
     long long v0a = door1DownEffectPos.d[0];
     long long v0b = door1UpEffectPos.d[0];
     int i;
-    for (i = 0; i < 0x32; i++) {
+    for (i = 0; i < 50; i++) {
         switch (i) {
         case 0:
             b1[0] = v0a;
@@ -149,21 +149,21 @@ void actSt04dDoor1DownChk(volatile int a0)
     while (scpTriggerFloorAttrTargetMan(a0, 0x1000000) != 0) {
         _ACTWait(1);
     }
-    _ACTWait(0xF);
+    _ACTWait(15);
 
-    actCreateSubThread(actSt04dDoor1DownEffect, 0x15);
+    actCreateSubThread(actSt04dDoor1DownEffect, 21);
 
-    stage_SetAnimation(0xFF, 1, 0);
+    stage_SetAnimation(255, 1, 0);
 
     buf[0] = door1SoundPos.d[0];
     buf[1] = door1SoundPos.d[1];
-    soundSeDefPlay(0x4C4, 0, (float *)buf, 1);
-    _ACTWait(0x1E);
-    soundSeDefPlay(0x4C5, 0, (float *)buf, 1);
-    _ACTWait(0x1E);
-    soundSeDefPlay(0x4C6, 0, (float *)buf, 1);
+    soundSeDefPlay(1220, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1221, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1222, 0, (float *)buf, 1);
 
-    while (stage_CheckAnimationFinish(0xFF) == 0) {
+    while (stage_CheckAnimationFinish(255) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -192,14 +192,14 @@ void actSt04dDoor2(volatile int a0)
 
     if (scpTriggerBall(a0, D_00639EA4, 400.0f) != 0 ||
         (D_00639EA8 != 0 && scpTriggerBall(a0, D_00639EA8, 400.0f) != 0)) {
-        stage_SetAnimation(0x101, 0, 0);
-        _ACTWait(0x3C);
+        stage_SetAnimation(257, 0, 0);
+        _ACTWait(60);
         door2_down_mes[0].func = actSt04dDoor2DownChk;
         self->mail = door2_down_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        stage_SetAnimation(0x100, 0, 0);
+        stage_SetAnimation(256, 0, 0);
         door2_up_mes[0].func = actSt04dDoor2UpChk;
         self->mail = door2_up_mes;
         ACTSendMailCorrect(a0, 430);
@@ -225,21 +225,21 @@ void actSt04dDoor2UpChk(volatile int a0)
     while (scpTriggerFloorAttrTargetMan(a0, 0x2000000) == 0) {
         _ACTWait(1);
     }
-    _ACTWait(0xF);
+    _ACTWait(15);
 
-    actCreateSubThread(actSt04dDoor2UpEffect, 0x15);
+    actCreateSubThread(actSt04dDoor2UpEffect, 21);
 
-    stage_SetAnimation(0x100, 1, 0);
+    stage_SetAnimation(256, 1, 0);
 
     buf[0] = door2SoundPos.d[0];
     buf[1] = door2SoundPos.d[1];
-    soundSeDefPlay(0x4C4, 0, (float *)buf, 1);
-    _ACTWait(0x1E);
-    soundSeDefPlay(0x4C5, 0, (float *)buf, 1);
-    _ACTWait(0x1E);
-    soundSeDefPlay(0x4C6, 0, (float *)buf, 1);
+    soundSeDefPlay(1220, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1221, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1222, 0, (float *)buf, 1);
 
-    while (stage_CheckAnimationFinish(0x100) == 0) {
+    while (stage_CheckAnimationFinish(256) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -257,7 +257,7 @@ inline void actSt04dDoor2UpEffect(volatile int a0)
     long long v0a = door2UpEffectPos.d[0];
     long long v0b = door2DownEffectPos.d[0];
     int i;
-    for (i = 0; i < 0x32; i++) {
+    for (i = 0; i < 50; i++) {
         switch (i) {
         case 0:
             b1[0] = v0a;
@@ -281,7 +281,7 @@ inline void actSt04dDoor2DownEffect(volatile int a0)
     long long v0a = door2DownEffectPos.d[0];
     long long v0b = door2UpEffectPos.d[0];
     int i;
-    for (i = 0; i < 0x32; i++) {
+    for (i = 0; i < 50; i++) {
         switch (i) {
         case 0:
             b1[0] = v0a;
@@ -308,21 +308,21 @@ void actSt04dDoor2DownChk(volatile int a0)
     while (scpTriggerFloorAttrTargetMan(a0, 0x2000000) != 0) {
         _ACTWait(1);
     }
-    _ACTWait(0xF);
+    _ACTWait(15);
 
-    actCreateSubThread(actSt04dDoor2DownEffect, 0x15);
+    actCreateSubThread(actSt04dDoor2DownEffect, 21);
 
-    stage_SetAnimation(0x101, 1, 0);
+    stage_SetAnimation(257, 1, 0);
 
     buf[0] = door2SoundPos.d[0];
     buf[1] = door2SoundPos.d[1];
-    soundSeDefPlay(0x4C4, 0, (float *)buf, 1);
-    _ACTWait(0x1E);
-    soundSeDefPlay(0x4C5, 0, (float *)buf, 1);
-    _ACTWait(0x1E);
-    soundSeDefPlay(0x4C6, 0, (float *)buf, 1);
+    soundSeDefPlay(1220, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1221, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1222, 0, (float *)buf, 1);
 
-    while (stage_CheckAnimationFinish(0x101) == 0) {
+    while (stage_CheckAnimationFinish(257) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);

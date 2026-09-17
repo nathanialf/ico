@@ -154,7 +154,6 @@ int iosPadDevInit(void *a0)
     return 1;
 }
 
-extern unsigned char iosPadDev[];
 /* the frame counter this TU reads unsigned: the ROM divides it with divu */
 extern unsigned int frame_count;
 extern char D_00551D60[];
@@ -378,7 +377,15 @@ int iosPadGetStick_func(void *dev, void *out, int mode, int a3, int a4, int a5)
 /* The act table search the listing inlines into iosPadActRequest,
    iosPadActStop and iosPadActVolumeSet alike (pad.c:1038-1045); here the key
    searched for is 0, so the compare folds to a beqz. */
-extern unsigned char D_006BCD58[];
+
+/* .bss, owned by pad.o (MAIN.MAP sizes the run 0x1A0 and names no symbol
+   in it), in the ROM's run order: the device manager's message queue buffer and
+   the sixteen actuator requests iosPadActRequest hands out. */
+/* */
+static int padDevMgrMsgBuf[8];
+
+static PadAct padActs[16];
+
 extern int D_0063A538;
 extern int D_0063A5C8;
 
@@ -399,7 +406,7 @@ typedef struct {
 
 int iosPadActRequest(int port, int id)
 {
-    PadAct *p = (PadAct *)D_006BCD58;
+    PadAct *p = (PadAct *)padActs;
     PadAct *entry;
     int i = 0xF;
 
@@ -447,8 +454,6 @@ int iosPadDevRead(void)
     iosMsgSend(padDevMgrMsgQ, 0, 0);
     return 0;
 }
-
-extern unsigned char iosPadDev[];
 
 int iosPadGetPort(int a0, int a1)
 {
@@ -504,8 +509,6 @@ void iosPadStickCameraCoord(void *a0, float *a1)
     sceVu0ApplyMatrix(a0, m, &v);
 }
 
-extern int D_0063C19C;
-
 void iosPadEnable(void)
 {
     D_0063C19C = 1;
@@ -522,14 +525,13 @@ int iosPadEnableGet(void)
 }
 
 extern int ShockVoiceSetCommon;
-extern unsigned char D_006BCD58[];
 
 void iosPadActInit(void)
 {
     unsigned char *base;
     unsigned char *p;
     int i;
-    memset(D_006BCD58, 0, 0x180);
+    memset(padActs, 0, sizeof(padActs));
     Init_Shock();
     Shock_SetShockVoiceSet(0, ShockVoiceSetCommon);
     base = iosPadDev;
@@ -549,7 +551,7 @@ void iosPadActStop(int key)
         return;
     }
     for (;;) {
-        int *p = (int *)D_006BCD58;
+        int *p = (int *)padActs;
         int *entry;
         int i = 0xF;
         while (1) {
@@ -578,7 +580,7 @@ void iosPadActStop(int key)
 
 void iosPadActStopAll(void)
 {
-    int *p = (int *)D_006BCD58;
+    int *p = (int *)padActs;
     int i;
     for (i = 0xF; i != -1; i--) {
         int x = p[0];
@@ -592,7 +594,7 @@ void iosPadActStopAll(void)
 
 int *iosPadActVolumeSet(int key, unsigned int val)
 {
-    int *p = (int *)D_006BCD58;
+    int *p = (int *)padActs;
     int *rv;
     int i;
     val = val & 0xFF;
@@ -617,12 +619,10 @@ end:
     return rv;
 }
 
-extern int D_006BCD38[];
-
 void iosPadDevManager(void)
 {
     int local_buf;
-    iosMsgQueueCreate(padDevMgrMsgQ, D_006BCD38, 8);
+    iosMsgQueueCreate(padDevMgrMsgQ, padDevMgrMsgBuf, 8);
     while (1) {
         iosMsgRecv(padDevMgrMsgQ, &local_buf, 1);
         iosPadDevReadFunc();
@@ -647,7 +647,7 @@ static inline void setRequestVolume(ShockRequest *req, unsigned int volume)
 
 void iosPadActTickProc(void)
 {
-    PadAct *p = (PadAct *)D_006BCD58;
+    PadAct *p = (PadAct *)padActs;
     int i;
     for (i = 0xF; i != -1; i--) {
         if (p->key != 0) {

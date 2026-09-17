@@ -101,8 +101,6 @@ extern void _ApplyMatrix(void *dst, void *m, void *src);
 extern void _AddVectorXYZ(void *dst, void *a, void *b);
 /* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
 extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
-/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
-extern void CopyVector(void *dst, void *src);
 
 /* INTERIM NAMES, chosen and not recovered: the PAL listing carries these two
    file-static helpers at weapon.c:362-373 and 375-385 and inlines them here,
@@ -172,8 +170,6 @@ extern void CopyMatrix(void *dst, void *src);
 extern void *MatrixDrive_GetMatrix(void);
 /* kept local: this TU's uses of MatrixDrive_TransMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_TransMatrix(float x, float y, float z);
-/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
-extern void CopyVector(void *dst, void *src);
 
 /* INTERIM: a stand-in for SetWeaponOffsetMode, which the PAL listing inlines
    here (its rows at weapon.c:197 appear inside getGeometry) while keeping its
@@ -247,8 +243,6 @@ void ExecWeaponHitReaction(int a0, int a1, int a2, int a3)
 }
 
 extern char D_004ED300[];
-/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
-extern void *MatrixDrive_GetMatrix(void);
 /* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_PushMatrix(void);
 /* kept local: this TU's uses of MatrixDrive_PopMatrix do not fit the prototype in matrixDrive.h */
@@ -306,7 +300,6 @@ extern const char D_006214E0[];
 extern float D_004ED310[];
 extern void *CreateLayoutedGObj(int a0, int a1, int a2, int a3, void *lay, int a5, int a6, int a7);
 extern void LinkParentOfDObj(void *gobj, void *link);
-extern void CopyVector(void *dst, void *src);
 
 void initializeQueenzSword(char *g, int index, QSwordLayout *lay)
 {
@@ -341,10 +334,6 @@ void initializeQueenzSword(char *g, int index, QSwordLayout *lay)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/weapon", InitWeaponGeo);
 
-/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
-extern void CopyMatrix(void *dst, void *src);
-/* kept local: this TU's uses of MatrixDrive_TransMatrix do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_TransMatrix(float x, float y, float z);
 /* kept local: this TU's uses of MatrixDrive_ScaleMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_ScaleMatrix(float x, float y, float z);
 
@@ -384,7 +373,7 @@ void dispInsectNet(char *g)
     gif_SetZWrite(1);
     gif_SetAlpha(1, 7, 128);
     DrawLineG(D_004ED330, D_004ED320, D_004ED340, D_004ED320, 0);
-    for (i = 0; i <= 0xFFFF; i += 4096) {
+    for (i = 0; i <= 65535; i += 4096) {
         NetVec p = {
             {GetTableCos((short)i) * 30.0f, 0.0f, GetTableSin((short)i) * 30.0f + 130.0f, 1.0f}};
         NetVec q = {{GetTableCos((short)(i + 4096)) * 30.0f, 0.0f,
@@ -458,10 +447,6 @@ void dispBlur(char *g)
     }
 }
 
-/* kept local: this TU's uses of SubVectorXYZ do not fit the prototype in matrixDrive.h */
-extern void SubVectorXYZ(void *dst, void *a, void *b);
-/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
-extern void _ApplyMatrix(void *dst, void *m, void *src);
 /* kept local: this TU's uses of _OuterProduct do not fit the prototype in Matrix.h */
 extern void _OuterProduct(void *dst, void *a, void *b);
 /* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
@@ -476,8 +461,6 @@ extern void _ScaleVector(void *dst, void *src, float s);
 extern void _InterVector(void *dst, void *a, void *b, float t);
 /* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
 extern void _SubVector(void *dst, void *a, void *b);
-/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
-extern void CopyVector(void *dst, void *src);
 /* kept local: this TU's uses of ZUnitVector do not fit the prototype in matrixDrive.h */
 extern float ZUnitVector[];
 
@@ -570,10 +553,6 @@ void calcBlur(char *g, float t)
 
 extern void *D_00639EA4;
 extern int D_0028F4D4[];
-/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
-extern void *MatrixDrive_GetMatrix(void);
-/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
-extern void CopyMatrix(void *dst, void *src);
 /* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
 extern float _Sqrt(float x);
 
@@ -867,8 +846,6 @@ typedef struct {
     double d[28];
 } DemoQueenSwordWork;
 
-extern void *D_0063A438;
-extern const char D_006214E0[];
 extern DemoQueenSwordWork D_004ED1F0;
 extern void initializeQueenzSword(char *gobj, int index, QSwordLayout *a2);
 

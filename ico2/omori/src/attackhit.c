@@ -346,10 +346,6 @@ int AttackCheckSameGroup(char *self, char *other, char *third)
 }
 
 extern char *D_00639EA4;
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
-extern float *test_CURRENTROOT(void *gobj);
-/* kept local: this TU's uses of _OrientGV do not fit the prototype in gv.h */
-extern void _OrientGV(float *dst, float *a, float *b);
 
 void AttackMail(char *self, AttackPack *pack)
 {

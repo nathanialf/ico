@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <string.h>
 
-/* .data — carved VMA 0x4EE5B0..0x4EE5F0, bytes verified against
+/* .data, carved VMA 0x4EE5B0..0x4EE5F0, bytes verified against
    baserom/pal/baseelf.rom.  D_004EE5B0 is the 0x30-byte default record
    bga_InitData block-copies into its mallocseki() allocation (two
    (0,0,0,1.0f) vectors then four words); D_004EE5E0 is the (0,0,0,1.0f)
@@ -664,8 +664,6 @@ void _RotTransCurrentMatrixYXZ(void *t, int *rot)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_CalcObject);
 
-extern int D_0028F4C0[];
-
 static inline float bga_palFrame(float f)
 {
     if (D_0028F4C0[0]) {
@@ -857,8 +855,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_CalcSdfCamera);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_addLightning);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_DispLightning);
 
-extern int D_0063C4B4;
-
 void bga_ResetCamera(void)
 {
     D_0063C4B4 = 0;
@@ -866,7 +862,6 @@ void bga_ResetCamera(void)
 
 extern int D_0063BCC0;
 extern int D_0063BCC8;
-extern int D_0063C4B4;
 extern int D_007281F0[];
 /* kept local: this TU's uses of _CopyMatrix do not fit the prototype in Matrix.h */
 extern void _CopyMatrix(void *dst, void *src);
@@ -885,7 +880,6 @@ int bga_GetCameraMatrix(void *p)
 
 extern char D_0063BCE0[];
 extern char D_006215D8[];
-extern char D_00621598[];
 extern char D_0063BCD8[];
 
 char *bga_InitSdfCamera(char *a0)
@@ -898,7 +892,6 @@ char *bga_InitSdfCamera(char *a0)
     return a0;
 }
 
-extern int D_0063C4B4;
 extern int D_0063BCB8;
 extern int GlobalTimer;
 extern float D_00728230[];

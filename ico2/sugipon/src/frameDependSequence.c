@@ -86,8 +86,6 @@ extern int CheckWallAttribute(void *self, int id);
 /* Declared before the three predicates: gcc 2.9 emits deferred inline bodies
    in first-declaration order, and the ROM has execSE before them. */
 /* kept local: the declaration in frameDependSequence.h changes this TU codegen */
-extern int execSE(int a0, void *a1);
-/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
 extern int checkWaterDepth(void *a0, int a1);
 /* kept local: the declaration in frameDependSequence.h changes this TU codegen */
 extern int checkModelDataID(void *a0, int a1);
@@ -411,12 +409,6 @@ inline int execSE(int a0, void *a1)
     }
 }
 
-extern char D_0055FE58[];
-extern void *D_0063B89C;
-extern void *D_0063B8A0;
-extern void *D_0063B8A4;
-extern void *D_0063B8A8;
-extern char *D_0063B8AC;
 extern int D_0063B8B4;
 
 /* static helper the listing places at frameDependSequence.c lines 549-564; never
@@ -477,7 +469,6 @@ void executeSEPackageWithNoGObj(int no)
     }
 }
 
-extern float D_0063B8B0;
 /* kept local: the declaration in frameDependSequence.h changes this TU codegen */
 extern void executeSEPackageWithNoGObj(int a0);
 
@@ -499,7 +490,6 @@ void ExecuteSEPackage(int a0, int a1)
     ExecuteSEPackageWithGroupVariation(a0, a1, 0);
 }
 
-extern float D_0063B8B0;
 /* kept local: the declaration in frameDependSequence.h changes this TU codegen */
 extern void executeSEPackageByGObj();
 

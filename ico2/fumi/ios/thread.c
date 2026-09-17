@@ -129,9 +129,9 @@ void iosThreadMain(int a0)
     int *obj = (int *)iosThreadTable[idx];
     (*(void (**)(int))((char *)obj + 0x38))(a0);
     if (*(int *)((char *)obj + 0x40) == 0) {
-        iosThreadSetPri((int *)obj, 0x21);
+        iosThreadSetPri((int *)obj, 33);
     } else {
-        iosThreadSetPri((int *)obj, 0x22);
+        iosThreadSetPri((int *)obj, 34);
     }
 }
 
@@ -245,8 +245,6 @@ inline int iosThreadWakeup(int *self)
     return WakeupThread(self[0x30 / 4]);
 }
 
-extern void TerminateThread();
-
 /* thread.c:299 - the destroy-manager thread body.  iosThreadInit creates a
  * thread running this; iosThreadDestroy posts the dying IOSThread to its
  * message queue and this loop does the actual teardown.  Never returns. */
@@ -282,8 +280,6 @@ inline void iosThreadDestroyMgr(void)
         iosThreadTable[id] = 0;
     }
 }
-
-extern int GetThreadId();
 
 void iosThreadDestroy(int a0)
 {
@@ -402,9 +398,6 @@ inline int iosThreadCancelWakeup(int *self)
 }
 
 extern int CreateSema(int *self);
-extern char D_0063A5F8[];
-extern void __assert(const char *file, int line, const char *expr);
-extern void debug_assert(const char *file, int line);
 
 inline int iosSemaCreate(int *self, int a1, int a2, int a3)
 {
@@ -491,7 +484,7 @@ inline void iosThreadAllQuit(int self)
 {
     int i;
 
-    for (i = 0; i < 0x100; i++) {
+    for (i = 0; i < 256; i++) {
         if (iosThreadTable[i] != 0 && i != self) {
             iosThreadDestroy(iosThreadTable[i]);
         }

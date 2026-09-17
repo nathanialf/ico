@@ -25,17 +25,17 @@ typedef struct {
 
 void POSITIVE_SE(void)
 {
-    soundSeDefPlay(0x19C, 0xFFFFFFFE, 0, 0);
+    soundSeDefPlay(412, 0xFFFFFFFE, 0, 0);
 }
 
 void NEGATIVE_SE()
 {
-    soundSeDefPlay(0x19D, 0xFFFFFFFE, 0, 0);
+    soundSeDefPlay(413, 0xFFFFFFFE, 0, 0);
 }
 
 void CUR_SE(void)
 {
-    soundSeDefPlay(0x19B, 0xFFFFFFFE, 0, 0);
+    soundSeDefPlay(411, 0xFFFFFFFE, 0, 0);
 }
 
 extern R58 D_0028F8F0[];
@@ -146,7 +146,6 @@ int la_boot_confirm_memory_card(void)
 extern int D_0028F4D4[];
 extern int lock_execIcoMisc;
 extern int D_0063C3CC;
-extern int layout_boot_flag;
 /* kept local: this TU's uses of stgmgrNextStagePreLoadForceStageSet do not fit the prototype in StageManager.h */
 extern void stgmgrNextStagePreLoadForceStageSet(int val);
 
@@ -158,7 +157,7 @@ int la_scei_logo(int a0)
         D_0028F4D4[0] = 1;
         iosPadEnable();
         isysGObjActiveLink(0, 0);
-        gflagOff(0x182);
+        gflagOff(386);
         if (layout_boot_flag == 0) {
             layout_boot_flag = 1;
         }
@@ -197,8 +196,6 @@ int la_mc_current_slot(void)
 extern R8 D_0071D900[];
 extern R8 *D_0063B4D8;
 extern int D_0063B4DC;
-extern int D_0063B4E0;
-extern int D_0063B4F4;
 
 int la_mc_load_current_slot_select(void)
 {
@@ -220,12 +217,6 @@ int la_mc_load_current_slot_select(void)
     }
     return -1;
 }
-
-extern R8 D_0071D900[];
-extern R8 *D_0063B4D8;
-extern int D_0063B4DC;
-extern int D_0063B4E0;
-extern int D_0063B4F4;
 
 int la_mc_save_current_slot_select(void)
 {
@@ -256,9 +247,7 @@ int la_general_mc_confirm(void)
 }
 
 extern int mc[];
-extern int D_0063B4F4;
 extern int D_0063B528;
-extern R8 *D_0063B4D8;
 
 int la_save_confirm_no_memory_card(int a0)
 {
@@ -289,11 +278,6 @@ int la_save_confirm_no_memory_card(int a0)
     }
     return -1;
 }
-
-extern int mc[];
-extern int D_0063B4F4;
-extern int D_0063B528;
-extern R8 *D_0063B4D8;
 
 int la_save_confirm_no_free_area(int a0)
 {
@@ -326,9 +310,6 @@ int la_save_confirm_no_free_area(int a0)
 }
 
 extern int D_0063B5C8;
-extern int D_0063B4E0;
-extern int D_0063B4F4;
-extern int mc[];
 /* kept local: the declaration in mcard.h changes this TU codegen */
 extern void iosMcFormat(void *a0);
 /* kept local: this TU's uses of iosMcSync do not fit the prototype in mcard.h */
@@ -376,13 +357,9 @@ struct S14 {
 
 extern int D_0071D910[];
 extern int D_0029B9D0[];
-extern int D_0028F4D4[];
 extern int D_0061DC40[];
 extern int D_0061DC58[];
-extern int D_0063B4F0;
-extern int D_0063B4E4;
 extern int D_0063B4EC;
-extern int D_0063B4F4;
 
 int la_save_confirm_complete(int a0, int a1)
 {
@@ -420,10 +397,7 @@ int la_format_confirm_fail(void)
     return -1;
 }
 
-extern int mc[];
-extern int D_0063B4F4;
 extern int D_0063B4E8;
-extern R8 *D_0063B4D8;
 
 int la_delete_start_check(int a0)
 {
@@ -447,8 +421,6 @@ int la_delete_start_check(int a0)
     return -1;
 }
 
-extern int D_0063B4F4;
-
 int la_delete_confirm(int a0, int a1)
 {
     switch (a1) {
@@ -463,8 +435,6 @@ int la_delete_confirm(int a0, int a1)
     }
     return -1;
 }
-
-extern int D_0063B4F4;
 
 int la_delete_confirm_complete(void)
 {
@@ -496,9 +466,6 @@ int la_game_loading(int a0)
     return -1;
 }
 
-extern int D_0028F4D4[];
-extern int D_0029B9D0[];
-
 void la_playtime_count(void)
 {
     if (D_0028F4D4[0] == 0) {
@@ -509,9 +476,6 @@ void la_playtime_count(void)
 extern int stage_no;
 extern int title_demo_mode;
 extern int D_0063B5F0;
-extern int D_0063B4EC;
-extern int D_0063B4F4;
-extern int D_0028F8F4[];
 extern int D_0061DC68[];
 /* kept local: the declaration in StageManager.h changes this TU codegen */
 extern void stgmgrForceSwitchWithFade(float a0, float a1, int a2);
@@ -523,9 +487,9 @@ int la_game_demo(int a0)
             iosPadDisable();
         }
     }
-    if ((D_0028F8F4[0] & 0x800) && gflagChk(0x184)) {
+    if ((D_0028F8F4[0] & 0x800) && gflagChk(388)) {
         debug_StdPrintfDummy(D_0061DC68);
-        gflagOff(0x184);
+        gflagOff(388);
         title_demo_mode ^= 1;
         D_0063B4EC = D_0063B5F0;
         stgmgrForceSwitchWithFade(8.0f, 4.0f, D_0063B4EC);
@@ -538,9 +502,6 @@ int la_game_demo(int a0)
     }
     return -1;
 }
-
-extern int D_0028F4D4[];
-extern int D_0063B4F4;
 
 int la_game_demo_pause(int a0)
 {
@@ -555,10 +516,7 @@ int la_game_demo_pause(int a0)
     return 0x37;
 }
 
-extern int D_0028F4D4[];
 extern int D_00534CC0[];
-extern R58 D_0028F8F0[];
-extern int D_0063B4F4;
 
 int la_game_pause(int a0)
 {
@@ -580,10 +538,6 @@ int la_game_pause(int a0)
     }
     return -1;
 }
-
-extern int D_0063B4EC;
-/* kept local: the declaration in StageManager.h changes this TU codegen */
-extern void stgmgrForceSwitchWithFade(float a0, float a1, int a2);
 
 int la_switching_stage(void)
 {

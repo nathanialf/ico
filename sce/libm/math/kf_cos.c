@@ -47,7 +47,7 @@ float __kernel_cosf(float x, float y)
     z = x * x;
     /* Emit the six polynomial coefficient loads (into $f0/$f2/$f3/$f1/$f4/$f5),
      * the first Horner multiply (acc = z*c0), and the |x|<0.3 comparison
-     * (cmp = 0x3e999999 < ix) in the exact ROM instruction order — the EE
+     * (cmp = 0x3e999999 < ix) in the exact ROM instruction order, the EE
      * scheduler will not interleave GPR comparison ops among asm-opaque coeff
      * loads, so the interleave is hand-placed here. */
     __asm__("lui   $1,0xad47\n\t"
@@ -80,7 +80,7 @@ float __kernel_cosf(float x, float y)
     acc = z * acc + c4;
     acc = z * acc + c5;
     /* r = z*acc: reuse c1 (dead since the a3 step) so r lands in $f1, leaving
-     * $f0 free for the 0.5 constant the tail branches load — matches ROM. */
+     * $f0 free for the 0.5 constant the tail branches load, matches ROM. */
     c1 = z * acc;
     if (!cmp) {
         return 1.0f - (0.5f * z - (z * c1 - x * y));

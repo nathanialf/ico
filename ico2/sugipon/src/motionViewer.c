@@ -132,7 +132,7 @@ void dispMotFrameProgress(int obj, float cur)
 
 typedef struct MvSub {
     char pad000[0xC];
-    char *nodes; /* 0x00C — per-node 0x40 matrices */
+    char *nodes; /* 0x00C, per-node 0x40 matrices */
     char pad010[0x8C - 0x10];
     float *ground; /* 0x08C */
     char pad090[0xF0 - 0x90];
@@ -152,23 +152,23 @@ typedef struct MvSub {
     char pad384[0x390 - 0x384];
     float testAt[4]; /* 0x390 */
     char pad3A0[0x488 - 0x3A0];
-    int select; /* 0x488 — "this object is the viewer target" */
+    int select; /* 0x488, "this object is the viewer target" */
 } MvSub;
 
 typedef struct MvObj {
     char pad00[0x28];
-    void *motTbl; /* 0x28 — parallel motion table, parked while viewing */
+    void *motTbl; /* 0x28, parallel motion table, parked while viewing */
     char pad2C[0x15C - 0x2C];
     MvSub *sub; /* 0x15C */
 } MvObj;
 
 typedef struct MvMenuEnt {
-    char *name;   /* 0x00 — csv window title */
-    int kind;     /* 0x04 — isys object kind */
-    int motFirst; /* 0x08 — first motion id of this object's block */
+    char *name;   /* 0x00, csv window title */
+    int kind;     /* 0x04, isys object kind */
+    int motFirst; /* 0x08, first motion id of this object's block */
     int motLast;  /* 0x0C */
-    int oriFrom;  /* 0x10 — first motionOrient row */
-    int oriTo;    /* 0x14 — one past the last motionOrient row */
+    int oriFrom;  /* 0x10, first motionOrient row */
+    int oriTo;    /* 0x14, one past the last motionOrient row */
 } MvMenuEnt;
 
 extern MvMenuEnt objMenu[];
@@ -242,7 +242,7 @@ typedef struct MvPad {
     int unk08; /* 0x08 */
     int rep;   /* 0x0C */
     char unk10[0x54 - 0x10];
-    unsigned char stick[4]; /* 0x54 — the two analog sticks */
+    unsigned char stick[4]; /* 0x54, the two analog sticks */
 } MvPad;
 
 /* motionOrientManager's table row (same object as src/motionOrientManager.c) */
@@ -270,7 +270,6 @@ typedef struct OriCsv {
 
 extern OriCsv D_0063BA00;
 extern int D_0063BA0C;
-extern float D_0063BA14;
 extern int D_0063BA2C;
 extern int D_0063C4AC;
 /* kept local: this TU's uses of debug_PrintfDummy do not fit the prototype in debug.h */
@@ -335,13 +334,13 @@ int motKindMenuProc(void)
     if (D_0055FE58[cur].unk134 != 0 && D_0055FE58[cur].unk178 == 0x140 && D_004EB758[cur] == 0) {
         base = 0;
         if (((D_0063BA0C >> 4) & 3) != 0) {
-            debug_PrintfDummy(10, 0x3C, 0x4080FF00, D_00620728);
+            debug_PrintfDummy(10, 60, 0x4080FF00, D_00620728);
         }
     } else {
-        debug_PrintfDummy(10, 0x32, 0xC0FFFF00, D_00620748,
+        debug_PrintfDummy(10, 50, 0xC0FFFF00, D_00620748,
                           fptodp(ForMotionViewer_GetCurrentAnimationFrame(D_0063BA08)),
                           GetNbMotionFrames(mot) - 1);
-        debug_PrintfDummy(10, 0x3C, 0x80FFFF00, D_00620760, fptodp(speed),
+        debug_PrintfDummy(10, 60, 0x80FFFF00, D_00620760, fptodp(speed),
                           fptodp(ForMotionViewer_GetCurrentAnimationFrame(D_0063BA08) / speed),
                           (int)((GetNbMotionFrames(mot) - 1) / speed));
     }
@@ -415,7 +414,7 @@ void lookAtTest(MvVec *pos, float rad, void *colAxis, void *colRing, short dy, s
     gif_StartPacketPri(0xB);
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     MatrixDrive_TransMatrixV(pos);
-    for (a = 0; a <= 0xFFFF; a += 2048) {
+    for (a = 0; a <= 65535; a += 2048) {
         p0[1] = p1[1] = 0.0f;
         p0[0] = rad * GetTableCos(a);
         p0[2] = rad * GetTableSin(a);
@@ -429,7 +428,7 @@ void lookAtTest(MvVec *pos, float rad, void *colAxis, void *colRing, short dy, s
     gif_StartPacketPri(0xB);
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     MatrixDrive_TransMatrixV(pos);
-    for (a = 0; a <= 0xFFFF; a += 2048) {
+    for (a = 0; a <= 65535; a += 2048) {
         p0[1] = p1[1] = 0.0f;
         p0[0] = rad * GetTableCos(a);
         p0[2] = rad * GetTableSin(a);

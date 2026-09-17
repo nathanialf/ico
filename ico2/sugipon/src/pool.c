@@ -368,17 +368,12 @@ extern char D_002906E0[];
 extern char D_00290720[];
 extern int D_0028F4D4[];
 extern int D_00639F94;
-extern int D_0063A064;
-extern int D_0063A068;
 extern int D_0063A07C;
 extern int D_0063A080;
 extern int D_0063B148;
-extern int matrixptr;
 extern int stage_no;
 /* kept local: this TU's uses of _MulMatrix do not fit the prototype in Matrix.h */
 extern void _MulMatrix(void *dst, void *a, void *b);
-/* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
-extern void _SetCurrentMatrix(int m);
 /* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
 extern void _UnitMatrix(void *m);
 /* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
@@ -505,8 +500,6 @@ void dispPool(char *self)
     }
 }
 
-extern int D_0028F4C0[];
-
 void PoolDL(char *self)
 {
     char *w = *(char **)(*(char **)(self + 0x15C) + 0x830);
@@ -611,24 +604,8 @@ void SetLayoutedPoolReflactionMesh(char *a0)
     prim_UpdateMesh3D(mesh, 9, buffer_ID);
 }
 
-extern int D_0028F4D4[];
-extern const Blob16L D_0054DA70;
-extern int D_0063A064;
-extern int D_0063A068;
-extern int buffer_ID;
-extern int matrixptr;
 /* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
 extern void _InterVectorXYZ(void *dst, void *p0, void *p1, float t);
-/* kept local: this TU's uses of _InitCurrentMatrix do not fit the prototype in Matrix.h */
-extern void _InitCurrentMatrix(void);
-/* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
-extern void _SetCurrentMatrix(int m);
-/* kept local: this TU's uses of _ApplyCurrentMatrix do not fit the prototype in Matrix.h */
-extern void _ApplyCurrentMatrix(void *dst, void *src);
-/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
-extern void _ScaleVector(void *dst, void *src, float k);
-/* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
-extern void _SubVector(void *dst, void *a, void *b);
 
 void SetLimitedPoolReflactionMesh(char *a0, char *a1, char *a2)
 {
@@ -713,21 +690,6 @@ void SetLimitedPoolReflactionMesh(char *a0, char *a1, char *a2)
     }
     prim_UpdateMesh3D(mesh, 9, buffer_ID);
 }
-
-extern int D_0063A064;
-extern int D_0063A068;
-extern int D_0063B148;
-extern char D_002906E0[];
-extern char D_00290720[];
-extern int matrixptr;
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
-extern void gif_StartPacketPri(int pri);
-/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
-extern void gif_SetZWrite(int a0);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
-extern void gif_EndPacket(void);
-/* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
-extern void _SetCurrentMatrix(int m);
 
 void DispLimitedPoolReflactionMesh(int *a0)
 {

@@ -17,8 +17,6 @@ void MultiCurrentQuaternion(void *a0)
     MultiQuaternion(q, q, a0);
 }
 
-extern int D_00639F3C;
-
 void InvertCurrentQuaternion(void)
 {
     int *p = &quatStack[D_00639F3C * 4];
@@ -197,8 +195,6 @@ void GetInverseQuaternion(int a0, int a1)
 
 /* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
 extern void _ScaleVector(void *a, void *b, float c);
-/* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
-extern float _Sqrt(float);
 
 void RegularizeQuaternion(void *a0)
 {
@@ -238,8 +234,6 @@ inline float GetQuaternionCosRadian(void *p0, void *p1)
     return r;
 }
 
-/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
-extern void _ScaleVector(void *a, void *b, float c);
 /* kept local: this TU's uses of GetTableArcCos do not fit the prototype in tableSin.h */
 extern int GetTableArcCos(float c);
 /* kept local: this TU's uses of GetTableSin do not fit the prototype in tableSin.h */
@@ -328,8 +322,6 @@ inline void PopQuaternion(void)
 extern void _NormalizeVector(void *out, int *p);
 /* kept local: this TU's uses of GetTableCos do not fit the prototype in tableSin.h */
 extern float GetTableCos(int x);
-/* kept local: this TU's uses of GetTableSin do not fit the prototype in tableSin.h */
-extern float GetTableSin(int x);
 
 inline void SetQuaternionByAxisRotateVWithNoRegularize(int *self, short a1, void *src)
 {
@@ -353,11 +345,6 @@ inline void SetQuaternionByAxisRotate(int *self, short a1, float x, float y, flo
     SetQuaternionByAxisRotateV(self, a1, (int *)v);
 }
 
-/* kept local: this TU's uses of GetTableCos do not fit the prototype in tableSin.h */
-extern float GetTableCos(int x);
-/* kept local: this TU's uses of GetTableSin do not fit the prototype in tableSin.h */
-extern float GetTableSin(int x);
-
 inline void SetQuaternionByAxisRotateWithNoRegularize(int *self, int a1, float x, float y, float z)
 {
     char buf[0x10];
@@ -371,9 +358,6 @@ inline void SetQuaternionByAxisRotateWithNoRegularize(int *self, int a1, float x
     _ScaleVector(self, buf, f);
     *(float *)((char *)self + 0xC) = GetTableCos(half);
 }
-
-/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
-extern void _NormalizeVector(void *out, int *p);
 
 inline void SetQuaternionByAxisRotateVEAngle(void *a0, float *a1, void *a2)
 {

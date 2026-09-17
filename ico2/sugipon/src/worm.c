@@ -293,7 +293,7 @@ void disp(void *act)
                 c1 = tipLineTo;
                 c2 = tipLineColor;
                 MatrixDrive_TransMatrix(0.0f, len[num - 2] * 0.02f, 0.0f);
-                for (k = 0; k <= 0xFFFF; k += 0x4000) {
+                for (k = 0; k <= 65535; k += 0x4000) {
                     MatrixDrive_PushMatrix();
                     MatrixDrive_RotMatrixY(k);
                     MatrixDrive_TransMatrix(0.0f, 0.0f, -5.0f);

@@ -194,8 +194,6 @@ extern int moveXMinus(float *a0, float f12, float f13, float f14);
 extern int moveZPlus(float *a0, float f12, float f13, float f14);
 extern int moveZMinus(float *a0, float f12, float f13, float f14);
 extern int stage_no;
-/* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
-extern char ZeroVector[];
 extern int D_0028F4C0[];
 extern char D_0061F080[];
 

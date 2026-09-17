@@ -340,7 +340,7 @@ void dispCircle2(float rad, short elev, int step)
 
     memset(&o, 0, sizeof(o));
     o.w = 1.0f;
-    for (i = 0; i <= 0xFFFF; i += step) {
+    for (i = 0; i <= 65535; i += step) {
         float r = rad * GetTableSin(elev);
         EffVec a = {r * GetTableSin((short)i), r * GetTableCos((short)i), rad * GetTableCos(elev),
                     1.0f};
@@ -368,8 +368,6 @@ void setQ(int *self)
     RotQuaternionX(self, -D_0063B85A);
 }
 
-extern short D_0063B858;
-extern short D_0063B85A;
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
 /* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
@@ -380,9 +378,6 @@ extern void gif_SetZTest(int on);
 extern void gif_EndPacket(void);
 /* kept local: this TU's uses of MultiMatrixByQuaternion do not fit the prototype in quaternion.h */
 extern void MultiMatrixByQuaternion(int *q);
-extern double fptodp(float v);
-/* kept local: this TU's uses of debug_PrintfDummy do not fit the prototype in debug.h */
-extern void debug_PrintfDummy(int x, int y, unsigned int col, char *fmt, ...);
 
 void dispEffectToolField(int idx)
 {
@@ -528,8 +523,6 @@ extern void debug_openLog(void);
 extern int debugSceOpen(void *name, int flags);
 /* kept local: this TU's uses of debugSceClose do not fit the prototype in debug.h */
 extern int debugSceClose(int fd);
-/* kept local: this TU's uses of debug_StdPrintfDummy do not fit the prototype in debug.h */
-extern void debug_StdPrintfDummy(char *fmt, ...);
 
 int saveEffectData(int id)
 {
@@ -552,7 +545,6 @@ int saveEffectData(int id)
 }
 
 extern char iosPadConfDefault[];
-extern int D_0063B854;
 
 /* iosPadGetStick's output block (camera-ico2.c's IosPadStick, extended): the
  * camera-coord helper reads the two floats at 0xC/0x10 as a1[3]/a1[4]. */
@@ -607,10 +599,7 @@ void moveEffectToolGeometry(int idx)
 
 extern char D_0062A278[];
 extern int targetMemo;
-extern int D_0063B854;
-extern int D_0063B85C;
 extern int D_0063B860;
-extern int D_0063B864;
 extern int D_0063B868;
 /* kept local: this TU's uses of debug_SelectCsvWindow do not fit the prototype in debug.h */
 extern int debug_SelectCsvWindow(char *title, int a1, int a2, int a3, void *tbl, int stride, int a6,
@@ -676,12 +665,7 @@ int execEffectTool(void)
     return r;
 }
 
-extern int D_0063AA08;
-extern int D_0063B854;
-extern int D_0063B86C;
 extern char D_0063B878[];
-/* kept local: this TU's uses of debug_StdPrintfDummy do not fit the prototype in debug.h */
-extern void debug_StdPrintfDummy(char *fmt, ...);
 
 void exitEffectTool(void)
 {
@@ -693,9 +677,6 @@ void exitEffectTool(void)
 }
 
 extern int D_0063B880;
-extern int D_0063B868;
-extern int D_0063B860;
-extern int D_0063B864;
 
 int EffectTool(void)
 {

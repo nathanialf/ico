@@ -49,8 +49,8 @@ extern char *D_00639EA8;
 void actSt18aEnd(void)
 {
     if (D_00639EA8 != 0) {
-        if (gflagChk(0x3D) == 0) {
-            gflagOn(0x187);
+        if (gflagChk(61) == 0) {
+            gflagOn(391);
         }
     }
 }
@@ -75,17 +75,17 @@ void actSt18aIntroChk(volatile int a0)
         _ACTWait(1);
     }
 
-    lt_switch_layout(0x37);
+    lt_switch_layout(55);
 
-    gflagOn(0x37);
+    gflagOn(55);
 
     D_0063AA08 = 1;
 
     _ACTWait(1);
 
-    stage_SetAnimation(0x162, 1, 0);
+    stage_SetAnimation(354, 1, 0);
 
-    while (stage_CheckAnimationFinish(0x162) == 0) {
+    while (stage_CheckAnimationFinish(354) == 0) {
         if ((D_0028F8F0[0].trg & 0x800) && scpAdpcmPlayRequestNum() == 0) {
             scpFadeOut(16.0f, 0, 0, 0);
 
@@ -96,7 +96,7 @@ void actSt18aIntroChk(volatile int a0)
                 _ACTWait(1);
             }
 
-            stage_SetAnimation(0x162, 1, -1);
+            stage_SetAnimation(354, 1, -1);
             SetCameraFlag_LwsCutBack();
             scpFadeIn(3.0f);
             break;
@@ -104,12 +104,11 @@ void actSt18aIntroChk(volatile int a0)
         _ACTWait(1);
     }
 
-    lt_switch_layout(0x36);
+    lt_switch_layout(54);
     D_0063AA08 = 0;
 }
 
 extern int D_0028F4C0[];
-extern int D_00639EA4;
 
 void actSt18aSwitchLChk(volatile int a0)
 {
@@ -118,8 +117,8 @@ void actSt18aSwitchLChk(volatile int a0)
 
     i = 0;
     while (i < (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) {
-        if (scpTriggerFloorAttr(scpSearchGobj(0x305), 0x1000000) != 0 ||
-            scpTriggerFloorAttr(scpSearchGobj(0x306), 0x1000000) != 0 ||
+        if (scpTriggerFloorAttr(scpSearchGobj(773), 0x1000000) != 0 ||
+            scpTriggerFloorAttr(scpSearchGobj(774), 0x1000000) != 0 ||
             scpTriggerFloorAttr(D_00639EA4, 0x1000000) != 0 ||
             (D_00639EA8 != 0 && scpTriggerFloorAttr(D_00639EA8, 0x1000000) != 0)) {
             i++;
@@ -129,20 +128,20 @@ void actSt18aSwitchLChk(volatile int a0)
         _ACTWait(1);
     }
 
-    stage_SetAnimation(0x79, 1, 0);
+    stage_SetAnimation(121, 1, 0);
 
-    soundSeDefPlay(0x4C4, 0, 0, 1);
+    soundSeDefPlay(1220, 0, 0, 1);
 
-    while (stage_CheckAnimationFrame(0x79, 0x2D, 1) == 0) {
+    while (stage_CheckAnimationFrame(121, 45, 1) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
-    if (scpTriggerFloorAttr(scpSearchGobj(0x305), 0x1000000) != 0 ||
-        scpTriggerFloorAttr(scpSearchGobj(0x306), 0x1000000) != 0 ||
+    if (scpTriggerFloorAttr(scpSearchGobj(773), 0x1000000) != 0 ||
+        scpTriggerFloorAttr(scpSearchGobj(774), 0x1000000) != 0 ||
         scpTriggerFloorAttr(D_00639EA4, 0x1000000) != 0 ||
         (D_00639EA8 != 0 && scpTriggerFloorAttr(D_00639EA8, 0x1000000) != 0)) {
-        gflagOn(0x3A);
+        gflagOn(58);
         FinishHint(7);
     }
 
@@ -162,20 +161,20 @@ void actSt18aSwitchLUpChk(volatile int a0)
         _ACTWait(1);
     }
 
-    _ACTWait(0xF);
-    gflagOff(0x3A);
+    _ACTWait(15);
+    gflagOff(58);
 
-    stage_SetAnimation(0x79, 1, 0x2E);
-    soundSeDefPlay(0x4C4, 0, 0, 1);
+    stage_SetAnimation(121, 1, 0x2E);
+    soundSeDefPlay(1220, 0, 0, 1);
 
-    while (stage_CheckAnimationFrame(0x79, 0x32, 0) == 0) {
+    while (stage_CheckAnimationFrame(121, 50, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
     scpWakeupItemWithBoundary(3054.0f, 1530.0f, -3061.0f, 100.0f);
 
-    while (stage_CheckAnimationFrame(0x79, 0x5A, 1) == 0) {
+    while (stage_CheckAnimationFrame(121, 90, 1) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -186,9 +185,6 @@ void actSt18aSwitchLUpChk(volatile int a0)
     _ACTWait(0);
 }
 
-extern int D_0028F4C0[];
-extern int D_00639EA4;
-
 void actSt18aSwitchRChk(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
@@ -196,8 +192,8 @@ void actSt18aSwitchRChk(volatile int a0)
 
     i = 0;
     while (i < (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) {
-        if (scpTriggerFloorAttr(scpSearchGobj(0x305), 0x2000000) != 0 ||
-            scpTriggerFloorAttr(scpSearchGobj(0x306), 0x2000000) != 0 ||
+        if (scpTriggerFloorAttr(scpSearchGobj(773), 0x2000000) != 0 ||
+            scpTriggerFloorAttr(scpSearchGobj(774), 0x2000000) != 0 ||
             scpTriggerFloorAttr(D_00639EA4, 0x2000000) != 0 ||
             (D_00639EA8 != 0 && scpTriggerFloorAttr(D_00639EA8, 0x2000000) != 0)) {
             i++;
@@ -207,20 +203,20 @@ void actSt18aSwitchRChk(volatile int a0)
         _ACTWait(1);
     }
 
-    stage_SetAnimation(0x7A, 1, 0);
+    stage_SetAnimation(122, 1, 0);
 
-    soundSeDefPlay(0x4C4, 0, 0, 1);
+    soundSeDefPlay(1220, 0, 0, 1);
 
-    while (stage_CheckAnimationFrame(0x7A, 0x2D, 1) == 0) {
+    while (stage_CheckAnimationFrame(122, 45, 1) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
-    if (scpTriggerFloorAttr(scpSearchGobj(0x305), 0x2000000) != 0 ||
-        scpTriggerFloorAttr(scpSearchGobj(0x306), 0x2000000) != 0 ||
+    if (scpTriggerFloorAttr(scpSearchGobj(773), 0x2000000) != 0 ||
+        scpTriggerFloorAttr(scpSearchGobj(774), 0x2000000) != 0 ||
         scpTriggerFloorAttr(D_00639EA4, 0x2000000) != 0 ||
         (D_00639EA8 != 0 && scpTriggerFloorAttr(D_00639EA8, 0x2000000) != 0)) {
-        gflagOn(0x3B);
+        gflagOn(59);
         FinishHint(7);
     }
 
@@ -238,20 +234,20 @@ void actSt18aSwitchRUpChk(volatile int a0)
         _ACTWait(1);
     }
 
-    _ACTWait(0xF);
-    gflagOff(0x3B);
+    _ACTWait(15);
+    gflagOff(59);
 
-    stage_SetAnimation(0x7A, 1, 0x2E);
-    soundSeDefPlay(0x4C4, 0, 0, 1);
+    stage_SetAnimation(122, 1, 0x2E);
+    soundSeDefPlay(1220, 0, 0, 1);
 
-    while (stage_CheckAnimationFrame(0x7A, 0x32, 0) == 0) {
+    while (stage_CheckAnimationFrame(122, 50, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
     scpWakeupItemWithBoundary(1451.0f, 1530.0f, -3039.0f, 100.0f);
 
-    while (stage_CheckAnimationFrame(0x7A, 0x5A, 1) == 0) {
+    while (stage_CheckAnimationFrame(122, 90, 1) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -262,37 +258,40 @@ void actSt18aSwitchRUpChk(volatile int a0)
     _ACTWait(0);
 }
 
-extern PadStateSt18A D_0028F8F0[];
-extern int D_0063AA08;
-extern int D_0063C59C;
-extern int D_0063C5A0;
+/* .sbss, owned by st18a.o and reached only from this file (MAIN.MAP names no
+   symbol in the run): the demo's own end flag, raised by the
+   subthread the wait loop below spins for, and the flag actSt18aDoorChkSub
+   raises when the door check is done. */
+static int demoEnd;
+
+static int doorChkDone;
 
 void actSt18aDoorChk(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
     int th;
 
-    while (gflagChk(0x3A) == 0 || gflagChk(0x3B) == 0) {
+    while (gflagChk(58) == 0 || gflagChk(59) == 0) {
         _ACTWait(1);
     }
 
-    lt_switch_layout(0x37);
+    lt_switch_layout(55);
     D_0063AA08 = 1;
     scpSleepEnemyAll();
 
-    gflagOn(0x3C);
+    gflagOn(60);
 
-    th = actCreateSubThread(actSt18aDoorChkSub, 0x15);
-    D_0063C59C = 0;
-    D_0063C5A0 = 0;
+    th = actCreateSubThread(actSt18aDoorChkSub, 21);
+    demoEnd = 0;
+    doorChkDone = 0;
 
-    while (D_0063C59C == 0 && ((D_0028F8F0[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((D_0028F8F0[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
-    iosThreadSetPri(th + 0x24, 0x22);
+    iosThreadSetPri(th + 0x24, 34);
 
-    if (D_0063C59C == 0) {
+    if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
 
         while (scpFadeChk() != 0) {
@@ -302,17 +301,17 @@ void actSt18aDoorChk(volatile int a0)
             _ACTWait(1);
         }
 
-        stage_SetAnimation(0x7B, 0, -1);
+        stage_SetAnimation(123, 0, -1);
 
-        if (D_0063C5A0 == 0) {
-            soundSeDefPlay(0x4C6, 0, 0, 1);
+        if (doorChkDone == 0) {
+            soundSeDefPlay(1222, 0, 0, 1);
         }
 
         scpFadeIn(3.0f);
     }
 
     scpWakeupEnemyAll();
-    lt_switch_layout(0x36);
+    lt_switch_layout(54);
 
     doorChk_mes[0].func = actSt18aDoorDownChk;
     sub->mail = doorChk_mes;
@@ -329,19 +328,19 @@ void actSt18aDoorDownChk(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    while (gflagChk(0x3A) != 0 && gflagChk(0x3B) != 0) {
+    while (gflagChk(58) != 0 && gflagChk(59) != 0) {
         _ACTWait(1);
     }
 
-    _ACTWait(0xF);
-    gflagOff(0x3C);
+    _ACTWait(15);
+    gflagOff(60);
 
-    stage_SetAnimation(0x7C, 1, 0);
+    stage_SetAnimation(124, 1, 0);
 
-    soundSeDefPlay(0x4C5, 0, 0, 1);
-    _ACTWait(0x32);
-    soundSeDefPlay(0x4C6, 0, 0, 1);
-    while (stage_CheckAnimationFinish(0x7C) == 0) {
+    soundSeDefPlay(1221, 0, 0, 1);
+    _ACTWait(50);
+    soundSeDefPlay(1222, 0, 0, 1);
+    while (stage_CheckAnimationFinish(124) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -360,10 +359,10 @@ void actSt18aEnemy1_1(volatile int a0)
 
     Generator_Mask(a0);
 
-    Generator_Mask(scpSearchGobj(0x2FD));
-    Generator_Mask(scpSearchGobj(0x2FE));
+    Generator_Mask(scpSearchGobj(765));
+    Generator_Mask(scpSearchGobj(766));
 
-    while (gflagChk(0x3E) == 0) {
+    while (gflagChk(62) == 0) {
         _ACTWait(1);
     }
 
@@ -378,8 +377,8 @@ void actSt18aEnemy1_1(volatile int a0)
     Generator_Call(a0);
     _ACTWait(30);
     Generator_Call(a0);
-    Generator_Call(scpSearchGobj(0x2FD));
-    Generator_Call(scpSearchGobj(0x2FE));
+    Generator_Call(scpSearchGobj(765));
+    Generator_Call(scpSearchGobj(766));
 }
 
 void actSt18aEnemy2_1(volatile int a0)
@@ -390,9 +389,9 @@ void actSt18aEnemy2_1(volatile int a0)
 
     Generator_Mask(a0);
 
-    Generator_Mask(scpSearchGobj(0x2FE));
+    Generator_Mask(scpSearchGobj(766));
 
-    while (gflagChk(0x40) == 0) {
+    while (gflagChk(64) == 0) {
         _ACTWait(1);
     }
 
@@ -405,7 +404,7 @@ void actSt18aEnemy2_1(volatile int a0)
     Generator_Call(a0);
     _ACTWait(60);
     Generator_Call(a0);
-    Generator_Call(scpSearchGobj(0x2FE));
+    Generator_Call(scpSearchGobj(766));
 }
 
 void actSt18aIntro(volatile int a0)
@@ -415,7 +414,7 @@ void actSt18aIntro(volatile int a0)
 
     _ACTWait(1);
 
-    if (gflagChk(0x37) == 0) {
+    if (gflagChk(55) == 0) {
         intro_mes[0].func = actSt18aIntroChk;
         self->mail = intro_mes;
         ACTSendMailCorrect(a0, 430);
@@ -430,15 +429,15 @@ void actSt18aDoor(volatile int a0)
 
     _ACTWait(1);
 
-    if (gflagChk(0x3C) == 0) {
-        stage_SetAnimation(0x7B, 0, 0);
+    if (gflagChk(60) == 0) {
+        stage_SetAnimation(123, 0, 0);
 
         door_mes[0].func = actSt18aDoorChk;
         self->mail = door_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        stage_SetAnimation(0x7B, 0, -1);
+        stage_SetAnimation(123, 0, -1);
 
         doorDown_mes[0].func = actSt18aDoorDownChk;
         self->mail = doorDown_mes;
@@ -454,15 +453,15 @@ void actSt18aSwitchL(volatile int a0)
 
     _ACTWait(1);
 
-    if (gflagChk(0x3A) == 0) {
-        stage_SetAnimation(0x79, 0, 0);
+    if (gflagChk(58) == 0) {
+        stage_SetAnimation(121, 0, 0);
 
         switchL_mes[0].func = actSt18aSwitchLChk;
         self->mail = switchL_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        stage_SetAnimation(0x79, 0, 0x2D);
+        stage_SetAnimation(121, 0, 0x2D);
 
         switchLUp_mes[0].func = actSt18aSwitchLUpChk;
         self->mail = switchLUp_mes;
@@ -478,15 +477,15 @@ void actSt18aSwitchR(volatile int a0)
 
     _ACTWait(1);
 
-    if (gflagChk(0x3B) == 0) {
-        stage_SetAnimation(0x7A, 0, 0);
+    if (gflagChk(59) == 0) {
+        stage_SetAnimation(122, 0, 0);
 
         switchR_mes[0].func = actSt18aSwitchRChk;
         self->mail = switchR_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        stage_SetAnimation(0x7A, 0, 0x2D);
+        stage_SetAnimation(122, 0, 0x2D);
 
         switchRUp_mes[0].func = actSt18aSwitchRUpChk;
         self->mail = switchRUp_mes;
@@ -502,7 +501,7 @@ void actSt18aEne(volatile int a0)
 
     _ACTWait(1);
 
-    if (gflagChk(0x3D) == 0) {
+    if (gflagChk(61) == 0) {
         ene_mes[0].func = actSt18aEneChk;
         self->mail = ene_mes;
         ACTSendMailCorrect(a0, 430);
@@ -518,7 +517,7 @@ void actSt18aEnemy1_2(volatile int a0)
 
     Generator_Mask(a0);
 
-    while (gflagChk(0x3E) == 0) {
+    while (gflagChk(62) == 0) {
         _ACTWait(1);
     }
 
@@ -542,7 +541,7 @@ void actSt18aEne2(volatile int a0)
 
     _ACTWait(1);
 
-    if (gflagChk(0x3F) == 0) {
+    if (gflagChk(63) == 0) {
         ene2_mes[0].func = actSt18aEne2Chk;
         self->mail = ene2_mes;
         ACTSendMailCorrect(a0, 430);
@@ -558,7 +557,7 @@ void actSt18aEnemy2_2(volatile int a0)
 
     Generator_Mask(a0);
 
-    while (gflagChk(0x40) == 0) {
+    while (gflagChk(64) == 0) {
         _ACTWait(1);
     }
 
@@ -580,10 +579,6 @@ void actSt18aCamera(int x)
     volatile int local = x;
 }
 
-extern int D_00639EA4;
-extern int D_0063C59C;
-extern int D_0063C5A0;
-
 void actSt18aDoorChkSub(volatile int a0)
 {
     _ACTWait(60);
@@ -594,15 +589,15 @@ void actSt18aDoorChkSub(volatile int a0)
         SetCameraFlag_LwsCutBack();
     }
 
-    soundSeDefPlay(0x4C5, 0, 0, 1);
+    soundSeDefPlay(1221, 0, 0, 1);
     _ACTWait(50);
-    D_0063C5A0 = 1;
-    soundSeDefPlay(0x4C6, 0, 0, 1);
+    doorChkDone = 1;
+    soundSeDefPlay(1222, 0, 0, 1);
     while (stage_CheckAnimationFinish(123) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    D_0063C59C = 1;
+    demoEnd = 1;
     _ACTWait(0);
 }
 
@@ -615,9 +610,9 @@ void actSt18aEneChk(volatile int a0)
         _ACTWait(1);
     }
     _ACTWait(1);
-    gflagOff(0x187);
-    gflagOn(0x3D);
-    gflagOn(0x3E);
+    gflagOff(391);
+    gflagOn(61);
+    gflagOn(62);
 }
 
 void actSt18aEne2Chk(volatile int a0)
@@ -625,11 +620,11 @@ void actSt18aEne2Chk(volatile int a0)
     if (D_00639EA8 == 0) {
         _ACTWait(0);
     }
-    while (D_00639EA8 == 0 || scpTriggerFloorAttr(scpSearchGobj(0x306), 0x4000000) == 0) {
+    while (D_00639EA8 == 0 || scpTriggerFloorAttr(scpSearchGobj(774), 0x4000000) == 0) {
         _ACTWait(1);
     }
     FinishHint(8);
     _ACTWait(300);
-    gflagOn(0x3F);
-    gflagOn(0x40);
+    gflagOn(63);
+    gflagOn(64);
 }

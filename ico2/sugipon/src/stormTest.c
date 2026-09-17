@@ -93,7 +93,6 @@ static __inline__ void StormProject(void *dst, void *src)
 }
 
 extern StormPackage *InitStormPackage(int mode, int num, int flag);
-extern float _GetRandom(void);
 
 StormPackage *InitStormPackage(int mode, int num, int flag)
 {

@@ -298,10 +298,6 @@ void AdpcmOpen(int *self, int no, int a2, int a3)
     self[4] = a3;
 }
 
-extern char D_0063A630[];
-extern int D_006BF498[];
-extern void debug_assert(char *file, int line);
-extern void __assert(char *file, int line, char *expr);
 /* kept local: this TU's uses of iosCdvdBackGroundMgrDelete do not fit the prototype in cdvd.h */
 extern void iosCdvdBackGroundMgrDelete(int handle);
 extern int SgStAdpcmClose(int ch);
@@ -350,7 +346,6 @@ void AdpcmClose(int *a0)
 }
 
 extern int D_0063A628;
-extern int SgStAdpcmChannelVolume(long long mask, int l, int r);
 
 /* vol is in the ABI (AdpcmInterLeaveVolumeSet passes it) but the ROM never
    reads $6: the levels come back out of the record the caller just wrote. */
@@ -407,14 +402,10 @@ void AdpcmVolumeSet(int a0, int a1)
     AdpcmInterLeaveVolumeSet(a0, 0, a1);
 }
 
-extern int D_0063C1C8;
-
 inline void adpcmPauseRequest(int val)
 {
     D_0063C1C8 = val;
 }
-
-extern int D_0063C1B8;
 
 inline void AdpcmStreamHeap(void)
 {
@@ -427,9 +418,6 @@ inline void AdpcmStreamHeap(void)
     }
 }
 
-extern int D_006BF548[];
-extern int D_006BF498[];
-extern int D_0063C1C0[2];
 extern int SgGetSpuSlotMalloc(int a);
 extern void SgStAdpcmInit(void);
 
@@ -451,8 +439,6 @@ inline void AdpcmStreamInit(void)
     }
     D_0063C1C8 = 0;
 }
-
-extern int D_006BF498[];
 
 inline int AdpcmNotUseIopAreaFree(void)
 {
@@ -490,8 +476,6 @@ inline int AdpcmNotUseIopAreaFree(void)
 
 /* kept local: this TU's uses of iosCdvdBackGroundMgrDelete do not fit the prototype in cdvd.h */
 extern void iosCdvdBackGroundMgrDelete(int x);
-/* kept local: this TU's uses of iosCdvdBackGroundMgrSeek do not fit the prototype in cdvd.h */
-extern void iosCdvdBackGroundMgrSeek(int a, int b);
 
 inline int *AdpcmOpenSync(int *self)
 {
@@ -510,8 +494,6 @@ body:
     iosCdvdBackGroundMgrSeek(((int *)r[11])[10], 0x5C000);
     return r;
 }
-
-extern int D_006BF498[];
 
 inline void AdpcmFadeCloseAll(short a0)
 {
@@ -560,7 +542,7 @@ inline int AdpcmFreeAreaGet(void)
 inline void AdpcmInterStereoVolumeSetAll(void)
 {
     int i;
-    for (i = 0; i < 0xB0; i += 0x58) {
+    for (i = 0; i < 176; i += 0x58) {
         int *p = (int *)((char *)D_006BF498 + i);
         if (*p != 0) {
             int v = *(int *)((char *)p + 0x38);
@@ -591,8 +573,6 @@ inline short AdpcmVolumeGet(char *self)
 extern int SgStAdpcmIopReadAddr(int a);
 /* kept local: this TU's uses of iosCdvdBackGroundReadIOPm do not fit the prototype in cdvd.h */
 extern void iosCdvdBackGroundReadIOPm(int a0, int a1, int a2);
-/* kept local: this TU's uses of iosCdvdBackGroundMgrSeek do not fit the prototype in cdvd.h */
-extern void iosCdvdBackGroundMgrSeek(int a, int b);
 
 inline int adpcmTickProc(int self, int obj)
 {

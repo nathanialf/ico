@@ -110,7 +110,7 @@ inline void StabilizeAllLayoutedCage(void)
 {
     void *gobj;
 
-    gobj = isysGObjSearchFromObjKindID_begin(0x2C);
+    gobj = isysGObjSearchFromObjKindID_begin(44);
     while (gobj != 0) {
         HotInitCageGeo(gobj);
         gobj = isysGObjSearchFromObjKindID_next(gobj);

@@ -315,7 +315,6 @@ int execParticleEffect(void *a0)
 /* One 64-bit slot of a DMA/GIF packet, written either whole or as one half. */
 
 extern GifDpk D_004EE6F0;
-extern char *matrixptr;
 
 /* INTERIM (the same construct src/GifPacket.c uses for its own gif_SetGsReg):
    the listing inlines the GS-register writer at every site in this TU, so it is
@@ -407,7 +406,7 @@ static inline int searchFreeParticleEffect(void)
 {
     int i;
 
-    for (i = 0; i < 0x80; i++) {
+    for (i = 0; i < 128; i++) {
         if (particleEffects[i].used == 0) {
             if (particleEffects[i].geo != 0) {
                 debug_StdPrintfDummy(D_006208E0);
@@ -551,9 +550,6 @@ void ExecParticleEffect(int no)
 }
 
 extern int D_0063A450;
-extern char D_00620908[];
-/* kept local: this TU's uses of setParticleEffect do not fit the prototype in particleEffect.h */
-extern int setParticleEffect(int geo, int *pkg, int part);
 
 void ResetParticleEffectPackages(int *pkg)
 {
@@ -563,7 +559,7 @@ void ResetParticleEffectPackages(int *pkg)
     int i;
 
     part = D_0063A450;
-    for (i = 0; i < 0x80; i++) {
+    for (i = 0; i < 128; i++) {
         if (particleEffects[i].used != 0 &&
             *(int **)((char *)particleEffects[i].geo + 0x20) == pkg) {
             CopyVector(&pos, particleEffects[i].geo);
@@ -595,7 +591,7 @@ void InitParticleEffects(void)
 {
     int i;
 
-    for (i = 0; i < 0x80; i++) {
+    for (i = 0; i < 128; i++) {
         particleEffects[i] = D_004ECDD0;
     }
 }
@@ -603,7 +599,7 @@ void InitParticleEffects(void)
 void ExecParticleEffects(void)
 {
     int i;
-    for (i = 0; i < 0x80; i++) {
+    for (i = 0; i < 128; i++) {
         ExecParticleEffect(i);
     }
 }
@@ -614,7 +610,7 @@ void DispParticleEffects(void)
 {
     int i;
 
-    for (i = 0; i < 0x80; i++) {
+    for (i = 0; i < 128; i++) {
         if (particleEffects[i].used != 0) {
             dispParticleEffect(particleEffects[i].geo);
         }
@@ -634,7 +630,6 @@ void SetParticleEffectPauseFlag(int a0, int a1)
     particleEffects[a0].pause = a1;
 }
 
-extern int D_0063A450;
 /* kept local: this TU's uses of SetParticleEffectByPartition do not fit the prototype in particleEffect.h */
 extern int SetParticleEffectByPartition(int no, PEVector *pos, PEQuaternion *quat, int part);
 
@@ -675,7 +670,7 @@ void DeleteParticleEffectsByPackage(int *pkg)
 {
     int i;
 
-    for (i = 0; i < 0x80; i++) {
+    for (i = 0; i < 128; i++) {
         if (particleEffects[i].used != 0 &&
             *(int **)((char *)particleEffects[i].geo + 0x20) == pkg) {
             deleteParticleEffectGeo(i);
@@ -699,7 +694,7 @@ static inline void DeleteParticleEffectsByPackage_inl(int *pkg)
 {
     int i;
 
-    for (i = 0; i < 0x80; i++) {
+    for (i = 0; i < 128; i++) {
         if (particleEffects[i].used != 0 &&
             *(int **)((char *)particleEffects[i].geo + 0x20) == pkg) {
             deleteParticleEffectGeo(i);
@@ -728,7 +723,7 @@ extern char D_0062A278[];
 int GetParticleIDWithName(char *name)
 {
     int i;
-    for (i = 0; i < 0x3D; i++) {
+    for (i = 0; i < 61; i++) {
         if (strcmp(D_0062A278 + i * 0x50, name) == 0) {
             return i;
         }
@@ -750,7 +745,7 @@ void ParticleEffects_SetAllGoal(void *goal)
 {
     int i;
 
-    for (i = 0; i < 0x80; i++) {
+    for (i = 0; i < 128; i++) {
         if (particleEffects[i].used != 0) {
             char *v = (char *)particleEffects[i].geo;
             if (v != 0) {

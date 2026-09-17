@@ -9,13 +9,23 @@
 #include <libvu0.h>
 
 extern int D_0028F4C0[];
-extern float D_0063C2E0;
-extern float D_006E9990[];
-extern unsigned char D_0063C2E4;
+
+/* .sbss, owned by hand-camera.o (MAIN.MAP names no symbol in the run), in the ROM's run order: the
+   correction rate scaled by the frame budget, and the correction mode
+   HandCameraCorrect is called with */
+static float handCameraRate;
+
+static unsigned char handCameraMode;
+
+/* .bss, owned by hand-camera.o (MAIN.MAP sizes the run 0x1C and names
+   no symbol in it): the correction work area, two angles and the two limits
+   SetLimitHandCameraCorrect writes. */
+/* */
+static float handCameraWork[7];
 
 void RotateAccordingToStick_PatternThree(float *a, float *b, float x, float y)
 {
-    float *p = D_006E9990;
+    float *p = handCameraWork;
     float len = FSqrt(x * x + y * y);
     float ang = atan2f(y, x);
     float v[4] = {len, 0.0f, 0.0f, 0.0f};
@@ -30,14 +40,14 @@ void RotateAccordingToStick_PatternThree(float *a, float *b, float x, float y)
     y = v[2];
 
     if (len < 0.1f) {
-        if (D_0063C2E4 == 0)
-            spd = D_0063C2E0 * 0.008726646f * _ACTGame_GetParamF(16);
+        if (handCameraMode == 0)
+            spd = handCameraRate * 0.008726646f * _ACTGame_GetParamF(16);
         else
-            spd = D_0063C2E0 * 0.008726646f * _ACTGame_GetParamF(18);
-    } else if (D_0063C2E4 == 0)
-        spd = D_0063C2E0 * 0.008726646f * _ACTGame_GetParamF(15);
+            spd = handCameraRate * 0.008726646f * _ACTGame_GetParamF(18);
+    } else if (handCameraMode == 0)
+        spd = handCameraRate * 0.008726646f * _ACTGame_GetParamF(15);
     else
-        spd = D_0063C2E0 * 0.008726646f * _ACTGame_GetParamF(17);
+        spd = handCameraRate * 0.008726646f * _ACTGame_GetParamF(17);
 
     db = x * (p[5] * 3.1415927f / 180.0f) - *b;
 
@@ -65,7 +75,7 @@ void RotateAccordingToStick_PatternThree(float *a, float *b, float x, float y)
 
 void SetCurrentInfo(void *a0, void *a1)
 {
-    float *p = D_006E9990;
+    float *p = handCameraWork;
     float v[4];
     float w[4];
     float ang;
@@ -82,7 +92,7 @@ void SetCurrentInfo(void *a0, void *a1)
     if (v[1] > 0.0f)
         p[4] = -ang;
 
-    if (D_0063C2E4 == 0) {
+    if (handCameraMode == 0) {
         t = p[6] * 3.1415927f / 180.0f;
         mx = (t < p[4]) ? p[4] : t;
         p[2] = mx - p[4];
@@ -100,7 +110,7 @@ void SetCurrentInfo(void *a0, void *a1)
 
 void HandyCamera_TargetMoveType(void *a0, void *a1)
 {
-    float *p = D_006E9990;
+    float *p = handCameraWork;
     float q[4];
     float d[4];
     float m[16];
@@ -147,10 +157,10 @@ inline void ClearHandCameraCorrect(void)
     int t = a * 10;
     int diff = 0x3C - t;
     int q;
-    *(int *)&D_006E9990[0] = 0;
-    *(int *)&D_006E9990[1] = 0;
+    *(int *)&handCameraWork[0] = 0;
+    *(int *)&handCameraWork[1] = 0;
     q = diff / b;
-    D_0063C2E0 = 60.0f / (float)q;
+    handCameraRate = 60.0f / (float)q;
 }
 
 inline void InitHandCameraCorrect(void)
@@ -160,26 +170,26 @@ inline void InitHandCameraCorrect(void)
     int t = a * 10;
     int diff = 0x3C - t;
     int q;
-    *(int *)&D_006E9990[0] = 0;
-    *(int *)&D_006E9990[1] = 0;
+    *(int *)&handCameraWork[0] = 0;
+    *(int *)&handCameraWork[1] = 0;
     q = diff / b;
-    D_006E9990[5] = 120.0f;
-    D_006E9990[6] = 80.0f;
-    D_0063C2E0 = 60.0f / (float)q;
+    handCameraWork[5] = 120.0f;
+    handCameraWork[6] = 80.0f;
+    handCameraRate = 60.0f / (float)q;
 }
 
 inline void SetLimitHandCameraCorrect(float a0, float a1)
 {
-    D_006E9990[5] = a0;
-    D_006E9990[6] = a1;
+    handCameraWork[5] = a0;
+    handCameraWork[6] = a1;
 }
 
 void HandCameraCorrect(void *a0, void *a1, int a2, float f12, float f13, float f14)
 {
-    float *p = D_006E9990;
+    float *p = handCameraWork;
 
-    D_0063C2E0 = f14;
-    D_0063C2E4 = a2;
+    handCameraRate = f14;
+    handCameraMode = a2;
 
     SetCurrentInfo(a0, a1);
 

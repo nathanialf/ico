@@ -33,32 +33,32 @@ extern void scpLinkBGAtoLayoutedTarget(int a0, int a1);
 
 void actSt07aInit(void)
 {
-    if (gflagChk(0x7E) != 0) {
-        scpSearchGobj(0x18D)->f16C = 0;
+    if (gflagChk(126) != 0) {
+        scpSearchGobj(397)->f16C = 0;
 
-        stage_SetAnimation(0x168, -1, -2);
+        stage_SetAnimation(360, -1, -2);
 
         FinishHint(3);
 
-        if (gflagChk(0x80) != 0) {
-            SetWayGroupActive(0xB, 0);
-            SetWayGroupActive(0xC, 0);
-            stage_SetAnimation(0x165, 0, -1);
+        if (gflagChk(128) != 0) {
+            SetWayGroupActive(11, 0);
+            SetWayGroupActive(12, 0);
+            stage_SetAnimation(357, 0, -1);
         } else {
-            SetWayGroupActive(0xD, 0);
-            SetWayGroupActive(0xE, 0);
-            SetWayGroupActive(0xF, 0);
-            stage_SetAnimation(0x164, 0, -1);
+            SetWayGroupActive(13, 0);
+            SetWayGroupActive(14, 0);
+            SetWayGroupActive(15, 0);
+            stage_SetAnimation(356, 0, -1);
         }
     } else {
         scpLinkBGAtoLayoutedTarget(0x18D, 0x168);
 
-        SetWayGroupActive(0xD, 0);
-        SetWayGroupActive(0xE, 0);
-        SetWayGroupActive(0xF, 0);
+        SetWayGroupActive(13, 0);
+        SetWayGroupActive(14, 0);
+        SetWayGroupActive(15, 0);
 
-        stage_SetAnimation(0x164, 0, 0);
-        stage_SetAnimation(0x163, 0, 0);
+        stage_SetAnimation(356, 0, 0);
+        stage_SetAnimation(355, 0, 0);
     }
 }
 
@@ -66,18 +66,23 @@ extern int D_00639EA8;
 
 void actSt07aEnd(void)
 {
-    if (D_00639EA8 != 0 && gflagChk(0x83) == 0 && gflagChk(0x80) != 0) {
-        gflagOn(0x187);
+    if (D_00639EA8 != 0 && gflagChk(131) == 0 && gflagChk(128) != 0) {
+        gflagOn(391);
     }
-    if (D_00639EA8 != 0 && gflagChk(0x86) == 0 && gflagChk(0xAE) != 0) {
-        gflagOn(0x187);
+    if (D_00639EA8 != 0 && gflagChk(134) == 0 && gflagChk(174) != 0) {
+        gflagOn(391);
     }
 }
 
 extern Pad D_0028F8F0[];
 extern int D_00639EA4;
 extern int D_0063AA08;
-extern int D_0063C560;
+
+/* .sbss, owned by st07a.o and reached only from this file (MAIN.MAP names no
+   symbol in the run): the demo's own end flag, raised by the
+   subthreads the wait loops below spin for. */
+static int demoEnd;
+
 /* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
 /* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
@@ -150,33 +155,33 @@ void actSt07aChanChk(volatile int a0)
     int hMot;
     int hFall;
 
-    while (gflagChk(0x7F) == 0) {
+    while (gflagChk(127) == 0) {
         _ACTWait(1);
     }
 
-    soundSeDefPlay(0x521, 0, 0, 1);
+    soundSeDefPlay(1313, 0, 0, 1);
 
     if (D_00639EA8 != 0 && scpTriggerFloorAttr(D_00639EA8, 0x3000000) != 0) {
-        actCreateSubThread(actSt07aChanWay1, 0x15);
+        actCreateSubThread(actSt07aChanWay1, 21);
     }
     if (D_00639EA8 != 0 && scpTriggerFloorAttr(D_00639EA8, 0x5000000) != 0) {
-        actCreateSubThread(actSt07aChanWay2, 0x15);
+        actCreateSubThread(actSt07aChanWay2, 21);
     }
 
     scpSleepEnemyAll();
     FinishHint(3);
 
-    lt_switch_layout(0x37);
+    lt_switch_layout(55);
     D_0063AA08 = 1;
 
-    stage_SetAnimation(0x163, 1, 0);
+    stage_SetAnimation(355, 1, 0);
 
     _ACTWait(1);
 
-    scpSearchGobj(0x18D)->f16C = 0;
-    stage_SetAnimation(0x168, -1, -2);
+    scpSearchGobj(397)->f16C = 0;
+    stage_SetAnimation(360, -1, -2);
 
-    while (stage_CheckAnimationFinish(0x163) == 0) {
+    while (stage_CheckAnimationFinish(355) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -187,51 +192,51 @@ void actSt07aChanChk(volatile int a0)
         scpPlayStart(D_00639EA8);
     }
 
-    gflagOn(0x7E);
+    gflagOn(126);
 
     while (bridge == 0) {
         _ACTWait(1);
     }
     AdpcmPlay(*(int *)(bridge + 0x2C));
 
-    hEffect = actCreateSubThread(actSt07aChanEffect, 0x15);
+    hEffect = actCreateSubThread(actSt07aChanEffect, 21);
 
-    hMot = actCreateSubThread(actSt07aChanMot, 0x15);
+    hMot = actCreateSubThread(actSt07aChanMot, 21);
 
-    hFall = actCreateSubThread(actSt07aChanFall, 0x15);
+    hFall = actCreateSubThread(actSt07aChanFall, 21);
 
-    D_0063C560 = 0;
+    demoEnd = 0;
 
-    while (D_0063C560 == 0 && ((D_0028F8F0[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((D_0028F8F0[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
-    if (D_0063C560 == 0) {
+    if (demoEnd == 0) {
         scpAdpcmFadeCloseFunc(&bridge, 0xC0);
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
             _ACTWait(1);
         }
 
-        iosThreadSetPri(hEffect + 0x24, 0x22);
-        iosThreadSetPri(hMot + 0x24, 0x22);
-        iosThreadSetPri(hFall + 0x24, 0x22);
+        iosThreadSetPri(hEffect + 0x24, 34);
+        iosThreadSetPri(hMot + 0x24, 34);
+        iosThreadSetPri(hFall + 0x24, 34);
 
-        stage_SetAnimation(0x164, 1, -1);
-        scpPlayMot(D_00639EA4, 0x1DB);
+        stage_SetAnimation(356, 1, -1);
+        scpPlayMot(D_00639EA4, 475);
 
         DeleteLayoutedCandleParticleEffect();
         _ACTWait(1);
 
-        scpTorchLightOn(0x1AF);
-        scpTorchLightOn(0x1B0);
+        scpTorchLightOn(431);
+        scpTorchLightOn(432);
 
         SetCameraFlag_GamecamCutBack();
         scpFadeIn(3.0f);
     } else {
-        iosThreadSetPri(hEffect + 0x24, 0x22);
-        iosThreadSetPri(hMot + 0x24, 0x22);
-        iosThreadSetPri(hFall + 0x24, 0x22);
+        iosThreadSetPri(hEffect + 0x24, 34);
+        iosThreadSetPri(hMot + 0x24, 34);
+        iosThreadSetPri(hFall + 0x24, 34);
     }
 
     buf[0] = chanChkPos.d[0];
@@ -248,7 +253,7 @@ void actSt07aChanChk(volatile int a0)
     }
 
     D_0063AA08 = 0;
-    lt_switch_layout(0x36);
+    lt_switch_layout(54);
     scpWakeupEnemyAll();
 }
 
@@ -300,29 +305,11 @@ void actSt07aChanEffect(volatile int a0)
 extern int scpIsBombExplode(int a0);
 /* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int a1, float radius);
-/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
-extern int scpTriggerFloorAttr(int a0, int a1);
-/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
-extern void scpSleepEnemyAll(void);
-/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
-extern void scpWakeupEnemyAll(void);
 /* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
-extern int scpAdpcmPlayRequestNum(void);
-/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
-extern void scpAdpcmFadeCloseFunc(int *a0, int a1);
-/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
-extern void scpFadeOut(float t, int a1, int a2, int a3);
-/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
-extern void scpFadeIn(float t);
-/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
-extern int scpFadeChk(void);
 /* kept local: this TU's uses of _SCPMoveCharactorByWay_Cancel do not fit the prototype in script.h */
 extern void _SCPMoveCharactorByWay_Cancel(int a0);
 extern int sekizo7a;
-extern int D_0063C560;
-extern int D_0063AA08;
 
 void actSt07aTsuroChk(volatile int a0)
 {
@@ -335,37 +322,37 @@ void actSt07aTsuroChk(volatile int a0)
 
     hGirl = 0;
 
-    while ((obj = scpIsBombExplode(0x13)) == 0 || scpTriggerBall(a0, obj, 200.0f) == 0) {
+    while ((obj = scpIsBombExplode(19)) == 0 || scpTriggerBall(a0, obj, 200.0f) == 0) {
         _ACTWait(1);
     }
 
     if (D_00639EA8 != 0 && scpTriggerFloorAttr(D_00639EA8, 0x3000000) != 0) {
-        hGirl = actCreateSubThread(actSt07aGirlWay, 0x15);
+        hGirl = actCreateSubThread(actSt07aGirlWay, 21);
     }
 
-    gflagOn(0x80);
+    gflagOn(128);
 
-    lt_switch_layout(0x37);
+    lt_switch_layout(55);
 
     D_0063AA08 = 1;
     brainLockGirl();
 
     scpSleepEnemyAll();
 
-    scpAdpcmPlayRequestFunc(0x3C, &sekizo7a, 1, 1, 1);
+    scpAdpcmPlayRequestFunc(60, &sekizo7a, 1, 1, 1);
     while (sekizo7a == 0) {
         _ACTWait(1);
     }
 
-    hEffect = actCreateSubThread(actSt07aTsuroEffect, 0x15);
-    hConte = actCreateSubThread(actSt07aTsuroConte, 0x15);
+    hEffect = actCreateSubThread(actSt07aTsuroEffect, 21);
+    hConte = actCreateSubThread(actSt07aTsuroConte, 21);
 
-    D_0063C560 = 0;
-    while (D_0063C560 == 0 && ((D_0028F8F0[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    demoEnd = 0;
+    while (demoEnd == 0 && ((D_0028F8F0[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
-    wk = D_0063C560 ^ 1;
+    wk = demoEnd ^ 1;
 
     if (wk != 0) {
         scpAdpcmFadeCloseFunc(&sekizo7a, 0xC0);
@@ -376,17 +363,17 @@ void actSt07aTsuroChk(volatile int a0)
     }
 
     iosPadActStopAll();
-    iosThreadSetPri(hConte + 0x24, 0x22);
-    iosThreadSetPri(hEffect + 0x24, 0x22);
+    iosThreadSetPri(hConte + 0x24, 34);
+    iosThreadSetPri(hEffect + 0x24, 34);
     if (hGirl != 0) {
-        iosThreadSetPri(hGirl + 0x24, 0x22);
+        iosThreadSetPri(hGirl + 0x24, 34);
         _ACTWait(2);
         _SCPMoveCharactorByWay_Cancel(D_00639EA8);
     }
 
     if (wk != 0) {
-        stage_SetAnimation(0x165, 0, -1);
-        stage_SetAnimation(0x166, 0, -1);
+        stage_SetAnimation(357, 0, -1);
+        stage_SetAnimation(358, 0, -1);
         ReviveAllCarryableItemsWithRandomVelocity(-5.0f, 0.0f);
         _ACTWait(2);
 
@@ -403,29 +390,27 @@ void actSt07aTsuroChk(volatile int a0)
         }
     }
 
-    lt_switch_layout(0x36);
+    lt_switch_layout(54);
 
     D_0063AA08 = 0;
     brainUnlockGirl();
 
-    gflagOn(0x85);
+    gflagOn(133);
 
     scpWakeupEnemyAll();
 
-    SetWayGroupActive(0xB, 0);
-    SetWayGroupActive(0xC, 0);
-    SetWayGroupActive(0xD, 1);
-    SetWayGroupActive(0xE, 1);
-    SetWayGroupActive(0xF, 1);
+    SetWayGroupActive(11, 0);
+    SetWayGroupActive(12, 0);
+    SetWayGroupActive(13, 1);
+    SetWayGroupActive(14, 1);
+    SetWayGroupActive(15, 1);
 
-    scpTorchLightOff(0x1AF);
-    scpTorchLightOff(0x1B0);
+    scpTorchLightOff(431);
+    scpTorchLightOff(432);
 }
 
-extern int D_0028F4C0[];
 /* kept local: this TU's uses of scpEffectStart do not fit the prototype in script.h */
 extern int scpEffectStart(void *a0, int a1);
-extern int D_00639EAC;
 
 void actSt07aTsuroEffect(volatile int a0)
 {
@@ -500,8 +485,6 @@ void actSt07aTsuroEffect(volatile int a0)
     _ACTWait(0);
 }
 
-extern int D_00639EA4;
-extern int D_00639EAC;
 extern int sekizo_7a;
 extern int sekizo_7a_vol;
 extern unsigned char D_0063BF78;
@@ -511,14 +494,8 @@ extern void scpKillEnemyOne(int a0);
 extern void scpKillSpiderGroup(int a0);
 /* kept local: this TU's uses of scpMaskGeneratorAll do not fit the prototype in script.h */
 extern void scpMaskGeneratorAll(void);
-/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
-extern void scpPlayStart(int a0);
-/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
-extern void scpPlayEnd(int a0);
 /* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
 extern void scpPlayPosSet(int a0, float x, float y, float z);
-/* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
-extern void scpPlayMotDir(int a0, void *dir);
 /* kept local: this TU's uses of scpSekizouCheckPoint do not fit the prototype in script.h */
 extern void scpSekizouCheckPoint(void);
 /* kept local: this TU's uses of scpPlayWaitMotEnd do not fit the prototype in script.h */
@@ -540,42 +517,42 @@ void actSt07aSekizoChk(volatile int a0)
         _ACTWait(1);
     }
 
-    lt_switch_layout(0x37);
+    lt_switch_layout(55);
     D_0063AA08 = 1;
 
     scpSleepEnemyAll();
 
-    scpAdpcmPlayRequestFunc(0x13, &sekizo_7a, 1, 1, 1);
+    scpAdpcmPlayRequestFunc(19, &sekizo_7a, 1, 1, 1);
     while (sekizo_7a == 0) {
         _ACTWait(1);
     }
 
-    scpKillEnemyOne(0x18F);
-    scpKillEnemyOne(0x190);
-    scpKillEnemyOne(0x191);
-    scpKillEnemyOne(0x192);
-    scpKillEnemyOne(0x193);
-    scpKillEnemyOne(0x194);
-    scpKillEnemyOne(0xEAD);
-    scpKillSpiderGroup(0x195);
+    scpKillEnemyOne(399);
+    scpKillEnemyOne(400);
+    scpKillEnemyOne(401);
+    scpKillEnemyOne(402);
+    scpKillEnemyOne(403);
+    scpKillEnemyOne(404);
+    scpKillEnemyOne(3757);
+    scpKillSpiderGroup(405);
 
     scpMaskGeneratorAll();
 
-    stage_SetAnimation(0x16A, 1, 0);
+    stage_SetAnimation(362, 1, 0);
 
-    ReviveAllCarryableItemsWithNonSleepFrame(0xFA);
+    ReviveAllCarryableItemsWithNonSleepFrame(250);
 
     sekizo_7a_vol = iosPadActRequest(D_00639EAC, 9);
     D_0063BF78 = 0x80;
     iosPadActVolumeSet(sekizo_7a_vol, 0x80);
 
-    se = soundSeDefPlay(0x4C1, 0, 0, 1);
+    se = soundSeDefPlay(1217, 0, 0, 1);
 
     scpPlayStart(D_00639EA4);
     scpPlayStart(D_00639EA8);
 
     scpPlayMot(D_00639EA4, 0);
-    scpPlayMot(D_00639EA8, 0x214);
+    scpPlayMot(D_00639EA8, 532);
 
     scpPlayPosSet(D_00639EA4, -3300.0f, 977.0f, -1050.0f);
     scpPlayPosSet(D_00639EA8, -3300.0f, 977.0f, -950.0f);
@@ -592,26 +569,26 @@ void actSt07aSekizoChk(volatile int a0)
 
     scpSekizouCheckPoint();
 
-    scpPlayMot(D_00639EA8, 0x285);
+    scpPlayMot(D_00639EA8, 645);
     scpPlayWaitMotEnd(D_00639EA8);
 
-    gflagOn(0x82);
+    gflagOn(130);
 
     soundSeDefStop(se);
 
-    while (stage_CheckAnimationFrame(0x16A, 0xB4, 0) == 0) {
+    while (stage_CheckAnimationFrame(362, 180, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
     iosPadActStop(sekizo_7a_vol);
 
-    while (stage_CheckAnimationFinish(0x16A) == 0) {
+    while (stage_CheckAnimationFinish(362) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
-    scpPlayMot(D_00639EA8, 0x214);
+    scpPlayMot(D_00639EA8, 532);
     scpPlayEnd(D_00639EA8);
     scpPlayMot(D_00639EA4, 0);
     scpPlayEnd(D_00639EA4);
@@ -619,7 +596,7 @@ void actSt07aSekizoChk(volatile int a0)
     scpWakeupEnemyAll();
 
     D_0063AA08 = 0;
-    lt_switch_layout(0x36);
+    lt_switch_layout(54);
 }
 
 static ActMail chanReady_mes[2] = {{430}, {429}};
@@ -645,18 +622,18 @@ void actSt07aEne(volatile int a0)
 
     _ACTWait(1);
 
-    scpSearchGobj(0x18C)->f16C = 0;
+    scpSearchGobj(396)->f16C = 0;
 
-    scpSearchGobj(0x198)->f50 = 0;
-    scpSearchGobj(0x199)->f50 = 0;
+    scpSearchGobj(408)->f50 = 0;
+    scpSearchGobj(409)->f50 = 0;
 
-    if (gflagChk(0x83) == 0) {
-        scpSearchGobj(0x19B)->f16C = 0;
-        scpSearchGobj(0x19C)->f16C = 0;
-        scpSearchGobj(0x19D)->f16C = 0;
-        scpSearchGobj(0x19E)->f16C = 0;
-        scpSearchGobj(0x19F)->f16C = 0;
-        scpSearchGobj(0x1A0)->f16C = 0;
+    if (gflagChk(131) == 0) {
+        scpSearchGobj(411)->f16C = 0;
+        scpSearchGobj(412)->f16C = 0;
+        scpSearchGobj(413)->f16C = 0;
+        scpSearchGobj(414)->f16C = 0;
+        scpSearchGobj(415)->f16C = 0;
+        scpSearchGobj(416)->f16C = 0;
 
         ene_mes[0].func = actSt07aEneChk;
         self->mail = ene_mes;
@@ -665,8 +642,6 @@ void actSt07aEne(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
-extern int scpTriggerBall(int a0, int a1, float radius);
 /* kept local: this TU's uses of scpSleepEnemyOne do not fit the prototype in script.h */
 extern void scpSleepEnemyOne(int a0);
 /* kept local: this TU's uses of scpSleepSpiderGroupOne do not fit the prototype in script.h */
@@ -675,7 +650,6 @@ extern void scpSleepSpiderGroupOne(int a0);
 extern void scpWakeupEnemyOne(int a0);
 /* kept local: this TU's uses of scpWakeupSpiderGroupOne do not fit the prototype in script.h */
 extern void scpWakeupSpiderGroupOne(int a0);
-extern int D_0063AA08;
 
 void actSt07aEneChk(volatile int a0)
 {
@@ -683,33 +657,33 @@ void actSt07aEneChk(volatile int a0)
         _ACTWait(0);
     }
 
-    while (gflagChk(0x85) == 0 || scpTriggerBall(a0, D_00639EA8, 400.0f) == 0) {
+    while (gflagChk(133) == 0 || scpTriggerBall(a0, D_00639EA8, 400.0f) == 0) {
         _ACTWait(1);
     }
 
-    scpSearchGobj(0x18C)->f16C = 1;
+    scpSearchGobj(396)->f16C = 1;
 
-    lt_switch_layout(0x37);
+    lt_switch_layout(55);
     D_0063AA08 = 1;
 
-    scpSleepEnemyOne(0xEAD);
+    scpSleepEnemyOne(3757);
 
-    gflagOff(0x187);
+    gflagOff(391);
 
-    gflagOn(0x83);
-    gflagOn(0x84);
+    gflagOn(131);
+    gflagOn(132);
 
-    stage_SetAnimation(0x167, 1, 0);
+    stage_SetAnimation(359, 1, 0);
     SetCameraFlag_LwsCutBack();
 
     reg_SetScissorSw(1);
 
     SetStaticBlur(0);
 
-    scpSleepEnemyOne(0x190);
+    scpSleepEnemyOne(400);
     scpSleepSpiderGroupOne(0x195);
 
-    while (stage_CheckAnimationFinish(0x167) == 0) {
+    while (stage_CheckAnimationFinish(359) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -718,15 +692,15 @@ void actSt07aEneChk(volatile int a0)
 
     SetStaticBlur(1);
 
-    lt_switch_layout(0x36);
+    lt_switch_layout(54);
     D_0063AA08 = 0;
 
-    scpSearchGobj(0x18C)->f16C = 0;
+    scpSearchGobj(396)->f16C = 0;
 
-    _ACTWait(0x1E);
+    _ACTWait(30);
 
-    scpWakeupEnemyOne(0xEAD);
-    scpWakeupEnemyOne(0x190);
+    scpWakeupEnemyOne(3757);
+    scpWakeupEnemyOne(400);
     scpWakeupSpiderGroupOne(0x195);
 }
 
@@ -738,9 +712,9 @@ void actSt07aGene1(volatile int a0)
 
     Generator_Mask(a0);
 
-    Generator_Mask((int)scpSearchGobj(0x19A));
+    Generator_Mask((int)scpSearchGobj(410));
 
-    while (gflagChk(0x84) == 0) {
+    while (gflagChk(132) == 0) {
         _ACTWait(1);
     }
 
@@ -749,13 +723,13 @@ void actSt07aGene1(volatile int a0)
     Generator_MaskOff(a0);
 
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
-    Generator_Call((int)scpSearchGobj(0x19A));
+    Generator_Call((int)scpSearchGobj(410));
 }
 
 void actSt07aChan(volatile int a0)
@@ -765,15 +739,15 @@ void actSt07aChan(volatile int a0)
 
     _ACTWait(1);
 
-    if (gflagChk(0x7E) != 0) {
+    if (gflagChk(126) != 0) {
         DeleteLayoutedCandleParticleEffect();
-        if (gflagChk(0x80) != 0) {
-            scpTorchLightOff(0x1AF);
-            scpTorchLightOff(0x1B0);
+        if (gflagChk(128) != 0) {
+            scpTorchLightOff(431);
+            scpTorchLightOff(432);
         }
     } else {
-        scpTorchLightOff(0x1AF);
-        scpTorchLightOff(0x1B0);
+        scpTorchLightOff(431);
+        scpTorchLightOff(432);
         chan_mes[0].func = actSt07aChanChk;
         self->mail = chan_mes;
         ACTSendMailCorrect(a0, 430);
@@ -788,7 +762,7 @@ void actSt07aChanReady(volatile int a0)
 
     _ACTWait(1);
 
-    if (gflagChk(0x7E) == 0) {
+    if (gflagChk(126) == 0) {
         chanReady_mes[0].func = actSt07aChanReadyChk;
         self->mail = chanReady_mes;
         ACTSendMailCorrect(a0, 430);
@@ -803,13 +777,13 @@ void actSt07aChanChain(volatile int a0)
 
     _ACTWait(1);
 
-    if (gflagChk(0x7F) == 0) {
+    if (gflagChk(127) == 0) {
         chanChain_mes[0].func = actSt07aChanChainChk;
         self->mail = chanChain_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        scpSearchGobj(0x1C6)->f16C = 0;
+        scpSearchGobj(454)->f16C = 0;
     }
 }
 
@@ -820,13 +794,13 @@ void actSt07aTsuro(volatile int a0)
 
     _ACTWait(1);
 
-    if (gflagChk(0x80) == 0) {
+    if (gflagChk(128) == 0) {
         tsuro_mes[0].func = actSt07aTsuroChk;
         self->mail = tsuro_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        gflagOn(0x85);
+        gflagOn(133);
     }
 }
 
@@ -837,7 +811,7 @@ void actSt07aIntro(volatile int a0)
 
     _ACTWait(1);
 
-    if (gflagChk(0x81) == 0) {
+    if (gflagChk(129) == 0) {
         intro_mes[0].func = actSt07aIntroChk;
         self->mail = intro_mes;
         ACTSendMailCorrect(a0, 430);
@@ -852,14 +826,14 @@ void actSt07aSekizo(volatile int a0)
 
     _ACTWait(1);
 
-    if (gflagChk(0x82) == 0) {
-        stage_SetAnimation(0x16A, 0, 0);
+    if (gflagChk(130) == 0) {
+        stage_SetAnimation(362, 0, 0);
         sekizo_mes[0].func = actSt07aSekizoChk;
         self->mail = sekizo_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        stage_SetAnimation(0x16A, 0, -1);
+        stage_SetAnimation(362, 0, -1);
     }
 }
 
@@ -869,18 +843,18 @@ void actSt07aGene2(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
     Generator_Mask(a0);
-    while (gflagChk(0x84) == 0) {
+    while (gflagChk(132) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
     Generator_MaskOff(a0);
 }
@@ -891,18 +865,18 @@ void actSt07aGene3(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
     Generator_Mask(a0);
-    while (gflagChk(0x84) == 0) {
+    while (gflagChk(132) == 0) {
         _ACTWait(1);
     }
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
     Generator_MaskOff(a0);
 }
@@ -914,7 +888,7 @@ void actSt07aEne2(volatile int a0)
 
     _ACTWait(1);
 
-    if (gflagChk(0x86) == 0) {
+    if (gflagChk(134) == 0) {
         ene2_mes[0].func = actSt07aEne2Chk;
         self->mail = ene2_mes;
         ACTSendMailCorrect(a0, 430);
@@ -928,17 +902,17 @@ void actSt07aGene2_1(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
     Generator_Mask(a0);
-    while (gflagChk(0x87) == 0) {
+    while (gflagChk(135) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     Generator_MaskOff(a0);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
 }
 
@@ -948,18 +922,18 @@ void actSt07aGene2_2(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
     Generator_Mask(a0);
-    while (gflagChk(0x87) == 0) {
+    while (gflagChk(135) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
     Generator_MaskOff(a0);
 }
@@ -970,19 +944,12 @@ void actSt07aGene2_3(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
     Generator_Mask(a0);
-    while (gflagChk(0x87) == 0) {
+    while (gflagChk(135) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     Generator_MaskOff(a0);
 }
-
-extern int D_00639EA4;
-extern int bridge;
-/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
-extern int scpTriggerFloorAttr(int a0, int a1);
-/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
-extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 
 void actSt07aChanReadyChk(volatile int a0)
 {
@@ -992,7 +959,7 @@ void actSt07aChanReadyChk(volatile int a0)
     while (scpTriggerFloorAttr(D_00639EA4, 0x1000000) == 0) {
         _ACTWait(1);
     }
-    scpAdpcmPlayRequestFunc(0x3B, &bridge, 1, 1, 0);
+    scpAdpcmPlayRequestFunc(59, &bridge, 1, 1, 0);
 }
 
 /* kept local: this TU's uses of scpGameStat_BoyWeaponkind do not fit the prototype in script.h */
@@ -1004,21 +971,21 @@ void actSt07aChanChainChk(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    while (gflagChk(0x7F) == 0) {
-        switch (GetAttackCheckBoundaryManagerStatus(scpSearchGobj(0x1C6))) {
+    while (gflagChk(127) == 0) {
+        switch (GetAttackCheckBoundaryManagerStatus(scpSearchGobj(454))) {
         case 1:
             if (scpGameStat_BoyWeaponkind() != 0) {
-                gflagOn(0x7F);
-                soundSeDefPlay(0x36E, 0, 0, 1);
-                _ACTWait(0x1E);
-                scpSearchGobj(0x1C6)->f16C = 0;
+                gflagOn(127);
+                soundSeDefPlay(878, 0, 0, 1);
+                _ACTWait(30);
+                scpSearchGobj(454)->f16C = 0;
             }
         case 0:
             _ACTWait(1);
             break;
         case 2:
-            scpSearchGobj(0x1C6)->f16C = 0;
-            gflagOn(0x7F);
+            scpSearchGobj(454)->f16C = 0;
+            gflagOn(127);
             break;
         }
     }
@@ -1029,45 +996,35 @@ void actSt07ChanEvent(int x)
     volatile int local = x;
 }
 
-/* kept local: this TU's uses of scpTorchLightOn do not fit the prototype in script.h */
-extern void scpTorchLightOn(int a0);
-
 void actSt07aChanFall(volatile int a0)
 {
-    stage_SetAnimation(0x164, 1, 0);
+    stage_SetAnimation(356, 1, 0);
     _ACTWait(5);
-    stage_SetAnimation(0x163, -1, -2);
+    stage_SetAnimation(355, -1, -2);
 
-    while (stage_CheckAnimationFinish(0x164) == 0) {
+    while (stage_CheckAnimationFinish(356) == 0) {
         _ACTWait(1);
     }
 
     _ACTWait(1);
     DeleteLayoutedCandleParticleEffect();
-    _ACTWait(0x78);
-    scpTorchLightOn(0x1AF);
-    scpTorchLightOn(0x1B0);
+    _ACTWait(120);
+    scpTorchLightOn(431);
+    scpTorchLightOn(432);
     _ACTWait(0);
 }
-
-/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
-extern void scpPlayMot(int a0, int mot);
-/* kept local: this TU's uses of scpPlayWaitMotEnd do not fit the prototype in script.h */
-extern void scpPlayWaitMotEnd(int a0);
-extern int D_0063C560;
 
 void actSt07aChanMot(volatile int a0)
 {
-    scpPlayMot(D_00639EA4, 0x1DA);
+    scpPlayMot(D_00639EA4, 474);
     scpPlayWaitMotEnd(D_00639EA4);
-    scpPlayMot(D_00639EA4, 0x1DB);
+    scpPlayMot(D_00639EA4, 475);
     scpPlayWaitMotEnd(D_00639EA4);
 
-    D_0063C560 = 1;
+    demoEnd = 1;
     _ACTWait(0);
 }
 
-extern int D_00639EA8;
 /* kept local: this TU's uses of _SCPMoveCharactorByWay do not fit the prototype in script.h */
 extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
 
@@ -1096,18 +1053,18 @@ void actSt07TsuroEvent(int x)
 
 void actSt07aTsuroConte(volatile int a0)
 {
-    stage_SetAnimation(0x165, 1, 0);
-    stage_SetAnimation(0x166, 1, 0);
+    stage_SetAnimation(357, 1, 0);
+    stage_SetAnimation(358, 1, 0);
 
     SetCameraFlag_LwsCutBack();
 
-    while (stage_CheckAnimationFinish(0x166) == 0) {
+    while (stage_CheckAnimationFinish(358) == 0) {
         _ACTWait(1);
     }
 
     _ACTWait(1);
 
-    D_0063C560 = 1;
+    demoEnd = 1;
     _ACTWait(0);
 }
 
@@ -1125,29 +1082,25 @@ void actSt07aCamera2(int x)
     volatile int local = x;
 }
 
-/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
-extern int scpTriggerBall(int a0, int a1, float radius);
-extern int D_0063AA08;
-
 void actSt07aIntroChk(volatile int a0)
 {
     while (scpTriggerBall(a0, D_00639EA4, 100.0f) == 0) {
         _ACTWait(1);
     }
 
-    lt_switch_layout(0x37);
-    gflagOn(0x81);
+    lt_switch_layout(55);
+    gflagOn(129);
 
     D_0063AA08 = 1;
     _ACTWait(1);
 
-    stage_SetAnimation(0x161, 1, 0);
-    while (stage_CheckAnimationFinish(0x161) == 0) {
+    stage_SetAnimation(353, 1, 0);
+    while (stage_CheckAnimationFinish(353) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
-    lt_switch_layout(0x36);
+    lt_switch_layout(54);
     D_0063AA08 = 0;
 }
 
@@ -1162,11 +1115,11 @@ void actSt07aEne2Chk(volatile int a0)
         _ACTWait(0);
     }
 
-    while (gflagChk(0xAE) == 0 || scpTriggerFloorAttr(D_00639EA8, 0x4000000) == 0) {
+    while (gflagChk(174) == 0 || scpTriggerFloorAttr(D_00639EA8, 0x4000000) == 0) {
         _ACTWait(1);
     }
 
-    gflagOff(0x187);
-    gflagOn(0x86);
-    gflagOn(0x87);
+    gflagOff(391);
+    gflagOn(134);
+    gflagOn(135);
 }

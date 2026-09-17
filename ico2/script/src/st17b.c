@@ -25,9 +25,9 @@ void actSt17bCheck(volatile int a0)
 
     _ACTWait(1);
     ScpCallCameraSetTarget(14990.0f, 7074.0f, -4694.0f);
-    scpAdpcmPlayRequestFunc(0x5E, &lightning2, 1, 0, 1);
+    scpAdpcmPlayRequestFunc(94, &lightning2, 1, 0, 1);
 
-    if (gflagChk(0x24) == 0) {
+    if (gflagChk(36) == 0) {
         check_mes[0].func = actSt17bCheckChk;
         self->mail = check_mes;
         ACTSendMailCorrect(a0, 430);
@@ -39,5 +39,5 @@ void actSt17bCheckChk(volatile int a0)
 {
     _ACTWait(1);
     CheckPoint();
-    gflagOn(0x22);
+    gflagOn(34);
 }

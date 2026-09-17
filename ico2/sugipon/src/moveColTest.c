@@ -74,7 +74,7 @@ void MoveColTestGeo(char *self)
         }
     }
     if ((D_0063BA78++ >> 5) & 1) {
-        debug_PrintfDummy(0xA, 0x3C, 0x4080FF00, "PUSH R3 TO BORN SPIDER.");
+        debug_PrintfDummy(10, 60, 0x4080FF00, "PUSH R3 TO BORN SPIDER.");
     }
 
     GetRootPosition(pos, D_00639EA4);

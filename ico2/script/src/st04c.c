@@ -17,8 +17,8 @@ extern char *D_00639EA8;
 void actSt04cEnd(void)
 {
     if (D_00639EA8 != 0) {
-        if (gflagChk(0xA3) == 0) {
-            gflagOn(0x187);
+        if (gflagChk(163) == 0) {
+            gflagOn(391);
         }
     }
 }
@@ -50,26 +50,31 @@ void actSt04cDoorDownChk(volatile int a0)
 
     _ACTWait(30);
 
-    actCreateSubThread(actSt04cDoorDownEffect, 0x15);
+    actCreateSubThread(actSt04cDoorDownEffect, 21);
 
-    stage_SetAnimation(0xFD, 1, 0);
+    stage_SetAnimation(253, 1, 0);
 
     pos = doorDownChkPos;
 
     _ACTWait(30);
-    soundSeDefPlay(0x4C5, 0, &pos, 1);
+    soundSeDefPlay(1221, 0, &pos, 1);
     _ACTWait(30);
-    soundSeDefPlay(0x4C6, 0, &pos, 1);
+    soundSeDefPlay(1222, 0, &pos, 1);
 
-    while (stage_CheckAnimationFinish(0xFD) == 0) {
+    while (stage_CheckAnimationFinish(253) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    gflagOn(0xA2);
+    gflagOn(162);
 }
 
 extern int D_0063AA08;
-extern int D_0063C510;
+
+/* .sbss, owned by st04c.o and reached only from this file (MAIN.MAP names no
+   symbol in the run): the demo's own end flag, raised by the
+   subthread the wait loop below spins for. */
+static int demoEnd;
+
 extern int D_0028F8F4[];
 /* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
 extern int scpAdpcmPlayRequestNum(void);
@@ -89,25 +94,25 @@ void actSt04cIntroChk(volatile int a0)
         _ACTWait(1);
     }
 
-    lt_switch_layout(0x37);
+    lt_switch_layout(55);
 
-    gflagOff(0x186);
+    gflagOff(390);
 
-    gflagOn(0xA1);
+    gflagOn(161);
     D_0063AA08 = 1;
 
-    stage_SetAnimation(0x160, 1, 0);
+    stage_SetAnimation(352, 1, 0);
 
-    th = actCreateSubThread(actSt04cIntroChkSub, 0x15);
-    D_0063C510 = 0;
+    th = actCreateSubThread(actSt04cIntroChkSub, 21);
+    demoEnd = 0;
 
-    while (D_0063C510 == 0 && (!(D_0028F8F4[0] & 0x800) || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && (!(D_0028F8F4[0] & 0x800) || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
-    iosThreadSetPri(th + 0x24, 0x22);
+    iosThreadSetPri(th + 0x24, 34);
 
-    if (D_0063C510 == 0) {
+    if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -115,11 +120,11 @@ void actSt04cIntroChk(volatile int a0)
         while (lt_fade_status() != 2) {
             _ACTWait(1);
         }
-        stage_SetAnimation(0x160, 0, -1);
+        stage_SetAnimation(352, 0, -1);
         scpFadeIn(3.0f);
     }
 
-    lt_switch_layout(0x36);
+    lt_switch_layout(54);
     D_0063AA08 = 0;
 }
 
@@ -141,34 +146,34 @@ void actSt04lDoorChk(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    while (gflagChk(0xC7) == 0) {
-        switch (GetAttackCheckBoundaryManagerStatus(scpSearchGobj(0x44A))) {
+    while (gflagChk(199) == 0) {
+        switch (GetAttackCheckBoundaryManagerStatus(scpSearchGobj(1098))) {
         case 0:
             _ACTWait(1);
             break;
 
         case 1:
-            stage_SetAnimation(0xE8, 1, 0);
-            while (stage_CheckAnimationFinish(0xE8) == 0) {
+            stage_SetAnimation(232, 1, 0);
+            while (stage_CheckAnimationFinish(232) == 0) {
                 _ACTWait(1);
             }
             _ACTWait(1);
             break;
 
         case 2:
-            *(int *)(scpSearchGobj(0x44A) + 0x16C) = 0;
+            *(int *)(scpSearchGobj(1098) + 0x16C) = 0;
             FinishHint(15);
 
-            lt_switch_layout(0x37);
+            lt_switch_layout(55);
 
             D_0063AA08 = 1;
             scpSleepEnemyAll();
 
-            gflagOn(0xC7);
+            gflagOn(199);
 
-            stage_SetAnimation(0xE7, 1, 0);
+            stage_SetAnimation(231, 1, 0);
 
-            h = soundSeDefPlay(0x532, 0, 0, 1);
+            h = soundSeDefPlay(1330, 0, 0, 1);
 
             for (i = 90; i-- > 0;) {
                 if ((D_0028F8F0[1] & 0x800) && scpAdpcmPlayRequestNum() == 0) {
@@ -179,7 +184,7 @@ void actSt04lDoorChk(volatile int a0)
                     while (lt_fade_status() != 2) {
                         _ACTWait(1);
                     }
-                    stage_SetAnimation(0xE7, 0, -1);
+                    stage_SetAnimation(231, 0, -1);
                     scpFadeIn(3.0f);
                     break;
                 }
@@ -188,12 +193,12 @@ void actSt04lDoorChk(volatile int a0)
 
             soundSeDefStop(h);
 
-            soundSeDefPlay(0x533, 0, 0, 1);
+            soundSeDefPlay(1331, 0, 0, 1);
 
             scpWakeupEnemyAll();
             D_0063AA08 = 0;
 
-            lt_switch_layout(0x36);
+            lt_switch_layout(54);
             break;
         }
     }
@@ -206,8 +211,8 @@ void actSt04cSolarXL(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    if (gflagChk(0x8A) == 0) {
-        stage_SetAnimation(0x12E, -1, -2);
+    if (gflagChk(138) == 0) {
+        stage_SetAnimation(302, -1, -2);
     }
 }
 
@@ -219,25 +224,22 @@ static ActMail intro_mes[2] = {{430}, {429}};
 
 static ActMail st04lDoor_mes[2] = {{430}, {429}};
 
-/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
-extern int scpSearchGobj(int a0);
-
 void actSt04lDoor(volatile int a0)
 {
     int x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    if (gflagChk(0xC7) == 0) {
-        stage_SetAnimation(0xE7, 0, 0);
+    if (gflagChk(199) == 0) {
+        stage_SetAnimation(231, 0, 0);
         st04lDoor_mes[0].func = actSt04lDoorChk;
         self->mail = st04lDoor_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        stage_SetAnimation(0xE7, 0, -1);
-        *(int *)(scpSearchGobj(0x44A) + 0x16C) = 0;
-        FinishHint(0xF);
+        stage_SetAnimation(231, 0, -1);
+        *(int *)(scpSearchGobj(1098) + 0x16C) = 0;
+        FinishHint(15);
     }
 }
 
@@ -247,7 +249,7 @@ void actSt04cIntro(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    if (gflagChk(0xA1) == 0) {
+    if (gflagChk(161) == 0) {
         intro_mes[0].func = actSt04cIntroChk;
         self->mail = intro_mes;
         ACTSendMailCorrect(a0, 430);
@@ -260,7 +262,7 @@ void actSt04cDoorDown(volatile int a0)
     int x = a0;
     Act *self = actInitialize(a0);
 
-    if (gflagChk(0xA2) == 0) {
+    if (gflagChk(162) == 0) {
         doorDown_mes[0].func = actSt04cDoorDownChk;
         self->mail = doorDown_mes;
         ACTSendMailCorrect(a0, 430);
@@ -274,7 +276,7 @@ void actSt04cEne(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    if (gflagChk(0xA3) == 0) {
+    if (gflagChk(163) == 0) {
         ene_mes[0].func = actSt04cEneChk;
         self->mail = ene_mes;
         ACTSendMailCorrect(a0, 430);
@@ -290,7 +292,7 @@ void actSt04cEnemy1(volatile int a0)
     _ACTWait(1);
 
     Generator_Mask(a0);
-    while (gflagChk(0xA4) == 0) {
+    while (gflagChk(164) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -309,7 +311,7 @@ void actSt04cEnemy2(volatile int a0)
     _ACTWait(1);
 
     Generator_Mask(a0);
-    while (gflagChk(0xA4) == 0) {
+    while (gflagChk(164) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -327,8 +329,8 @@ void actSt04cWaterXL(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    if (gflagChk(0xE6) != 0) {
-        *(int *)(scpSearchGobj(0x446) + 0x16C) = 0;
+    if (gflagChk(230) != 0) {
+        *(int *)(scpSearchGobj(1094) + 0x16C) = 0;
     }
 }
 
@@ -350,7 +352,7 @@ void actSt04cDoorDownEffect(volatile int a0)
     long long v0b = doorDownEffect2Pos.d[0];
     long long v0c = doorDownEffect3Pos.d[0];
     int i;
-    for (i = 0; i < 0x32; i++) {
+    for (i = 0; i < 50; i++) {
         switch (i) {
         case 0:
             b1[0] = v0a;
@@ -370,8 +372,6 @@ void actSt04cDoorDownEffect(volatile int a0)
     }
 }
 
-extern char *D_00639EA8;
-
 void actSt04cEneChk(volatile int a0)
 {
     if (D_00639EA8 == 0) {
@@ -380,21 +380,19 @@ void actSt04cEneChk(volatile int a0)
     while (scpTriggerFloorAttr(D_00639EA8, 0xB000000) == 0) {
         _ACTWait(1);
     }
-    gflagOff(0x187);
+    gflagOff(391);
     _ACTWait(1);
-    gflagOn(0xA3);
-    gflagOn(0xA4);
+    gflagOn(163);
+    gflagOn(164);
 }
-
-extern int D_0063C510;
 
 void actSt04cIntroChkSub(volatile int a0)
 {
-    while (stage_CheckAnimationFinish(0x160) == 0) {
+    while (stage_CheckAnimationFinish(352) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    D_0063C510 = 1;
+    demoEnd = 1;
     _ACTWait(0);
 }
 

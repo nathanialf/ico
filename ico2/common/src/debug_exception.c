@@ -77,7 +77,6 @@ extern DebugExcEntry D_004D9F70[11];
 /* The source-listing work buffer handed in at init; initLineTraceTable and
  * traceLine read it back and pass it to sceRead as the read buffer. It sits in
  * src/debug's .sdata run, hence the gp-relative store. */
-extern void *D_0063B268;
 extern char D_0063B3F8[]; /* "num %d\n" -- this TU's own .sdata, uncarved */
 extern int SetDebugHandler();
 

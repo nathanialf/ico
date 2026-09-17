@@ -75,7 +75,7 @@ inline void ActSetStartBrainStatus(char *self, int status)
 void actChangeActBrain(int a0, int a1, int *a2)
 {
     int old = *a2;
-    int n = actCreateSubThread(a1, 0x14);
+    int n = actCreateSubThread(a1, 20);
     *a2 = n;
     if (old != 0) {
         debug_StdPrintfDummy(D_00621BB0, a0, n);

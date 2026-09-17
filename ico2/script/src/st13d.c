@@ -36,7 +36,7 @@ void actSt13dExit(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    if (gflagChk(0x12) == 0) {
+    if (gflagChk(18) == 0) {
         ScpCallCameraOff();
     }
 

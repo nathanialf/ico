@@ -14,7 +14,7 @@
 extern char D_0061EEC8[];
 extern int D_0063A438;
 
-/* .data — carved VMA 0x4E5A90..0x4E5AA0; bytes verified against baserom/pal/baseelf.rom */
+/* .data, carved VMA 0x4E5A90..0x4E5AA0; bytes verified against baserom/pal/baseelf.rom */
 unsigned int D_004E5A90[4] = {
     0x00000000,
     0x00000080,
@@ -51,7 +51,7 @@ extern AcbLayout D_004E45C0;
 
 static inline char *createAttackCheckBoundaryGObj(AcbLayout *lay)
 {
-    return CreateLayoutedGObj(0x3F, 0x4B, -1, 0, lay, -1, 7, 1);
+    return CreateLayoutedGObj(63, 0x4B, -1, 0, lay, -1, 7, 1);
 }
 
 inline int InitAttackCheckBoundaryGeo(int unused, void *obj)

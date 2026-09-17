@@ -626,8 +626,6 @@ typedef struct AP1Spec {
 
 extern AP1Spec D_0062B588[];
 extern void *D_00639EA8;
-/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
-extern void CopyVector(void *dst, void *src);
 void subAP1Control(int x);
 
 void actAP1Start(char *g)

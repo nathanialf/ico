@@ -26,9 +26,9 @@ void actSt17aDoor(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    if (gflagChk(0x20) == 0) {
-        stage_SetLoopFlag(0x83, 1);
-        stage_SetAnimation(0x83, 1, 0);
+    if (gflagChk(32) == 0) {
+        stage_SetLoopFlag(131, 1);
+        stage_SetAnimation(131, 1, 0);
 
         D_004FAF30[0].func = actSt17aDoorUpChk;
         self->mail = D_004FAF30;
@@ -36,16 +36,16 @@ void actSt17aDoor(volatile int a0)
         _ACTWait(0);
     } else if (scpTriggerBall(a0, D_00639EA4, 200.0f) != 0 ||
                (D_00639EA8 != 0 && scpTriggerBall(a0, D_00639EA8, 400.0f) != 0)) {
-        stage_SetLoopFlag(0x83, 1);
-        stage_SetAnimation(0x83, 1, 0);
+        stage_SetLoopFlag(131, 1);
+        stage_SetAnimation(131, 1, 0);
 
-        _ACTWait(0x3C);
+        _ACTWait(60);
         D_004FAF50[0].func = actSt17aDoorDownChk;
         self->mail = D_004FAF50;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        stage_SetAnimation(0x81, 0, 0);
+        stage_SetAnimation(129, 0, 0);
         D_004FAF70[0].func = actSt17aDoorUpChk;
         self->mail = D_004FAF70;
         ACTSendMailCorrect(a0, 430);
@@ -70,32 +70,32 @@ void actSt17aDoorUpChk(volatile int a0)
         _ACTWait(1);
     }
 
-    _ACTWait(0xF);
+    _ACTWait(15);
 
-    actCreateSubThread(actSt17aDoorUpEffect, 0x15);
+    actCreateSubThread(actSt17aDoorUpEffect, 21);
 
     scpWakeupItemWithBoundary(6573.0f, -2077.0f, 1089.0f, 100.0f);
 
-    stage_SetAnimation(0x81, 1, 0);
+    stage_SetAnimation(129, 1, 0);
 
     buf[0] = D_00622F60[0];
     buf[1] = D_00622F60[1];
-    soundSeDefPlay(0x4C4, 0, (float *)buf, 1);
-    _ACTWait(0x1E);
+    soundSeDefPlay(1220, 0, (float *)buf, 1);
+    _ACTWait(30);
 
-    h = soundSeDefPlay(0x4C5, 0, (float *)buf, 1);
-    _ACTWait(0x3C);
+    h = soundSeDefPlay(1221, 0, (float *)buf, 1);
+    _ACTWait(60);
     soundSeDefStop(h);
 
-    soundSeDefPlay(0x4C6, 0, (float *)buf, 1);
+    soundSeDefPlay(1222, 0, (float *)buf, 1);
 
-    while (stage_CheckAnimationFinish(0x81) == 0) {
+    while (stage_CheckAnimationFinish(129) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
-    stage_SetLoopFlag(0x83, 1);
-    stage_SetAnimation(0x83, 1, 0);
+    stage_SetLoopFlag(131, 1);
+    stage_SetAnimation(131, 1, 0);
 
     D_004FAF90[0].func = actSt17aDoorDownChk;
     sub->mail = D_004FAF90;
@@ -119,28 +119,28 @@ void actSt17aDoorDownChk(volatile int a0)
         _ACTWait(1);
     }
 
-    _ACTWait(0xF);
+    _ACTWait(15);
 
-    actCreateSubThread(actSt17aDoorDownEffect, 0x15);
+    actCreateSubThread(actSt17aDoorDownEffect, 21);
 
     scpWakeupItemWithBoundary(6573.0f, -2077.0f, 1089.0f, 100.0f);
 
-    stage_SetLoopFlag(0x83, 0);
+    stage_SetLoopFlag(131, 0);
 
-    stage_SetAnimation(0x82, 1, 0);
+    stage_SetAnimation(130, 1, 0);
 
     buf[0] = D_00622F60[0];
     buf[1] = D_00622F60[1];
-    soundSeDefPlay(0x4C4, 0, (float *)buf, 1);
-    _ACTWait(0x1E);
+    soundSeDefPlay(1220, 0, (float *)buf, 1);
+    _ACTWait(30);
 
-    h = soundSeDefPlay(0x4C5, 0, (float *)buf, 1);
-    _ACTWait(0x26);
+    h = soundSeDefPlay(1221, 0, (float *)buf, 1);
+    _ACTWait(38);
     soundSeDefStop(h);
 
-    soundSeDefPlay(0x4C6, 0, (float *)buf, 1);
+    soundSeDefPlay(1222, 0, (float *)buf, 1);
 
-    while (stage_CheckAnimationFinish(0x82) == 0) {
+    while (stage_CheckAnimationFinish(130) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -186,34 +186,34 @@ void actSt17aHasiChk(volatile int a0)
         _ACTWait(1);
     }
 
-    gflagOn(0x21);
+    gflagOn(33);
 
     iosPadActRequest(D_00639EAC, 0xF);
     SetWayGroupActive(3, 0);
 
-    *(int *)(scpSearchGobj(0xF3) + 0x16C) = 0;
-    *(int *)(scpSearchGobj(0xF4) + 0x16C) = 1;
+    *(int *)(scpSearchGobj(243) + 0x16C) = 0;
+    *(int *)(scpSearchGobj(244) + 0x16C) = 1;
 
-    stage_SetAnimation(0x85, 1, 0);
+    stage_SetAnimation(133, 1, 0);
     SetCameraFlag_LwsCutBack();
 
-    actCreateSubThread(actSt17aHasiEffect, 0x15);
+    actCreateSubThread(actSt17aHasiEffect, 21);
 
     if (ACTGame_FLAG_TETSUNAGI() == 0) {
         long long buf[2];
 
         scpPlayStart(D_00639EA8);
 
-        stage_SetAnimation(0x84, 1, 0);
+        stage_SetAnimation(132, 1, 0);
 
         buf[0] = D_00622FA0[0];
         buf[1] = D_00622FA0[1];
-        soundSeDefPlay(0x50A, 0, (float *)buf, 1);
+        soundSeDefPlay(1290, 0, (float *)buf, 1);
 
-        scpPlayMot(D_00639EA8, 0x2D3);
+        scpPlayMot(D_00639EA8, 723);
         scpPlayWaitMotEnd(D_00639EA8);
 
-        scpPlayMot(D_00639EA8, 0x214);
+        scpPlayMot(D_00639EA8, 532);
         *(int *)(*(int *)((char *)D_00639EA8 + 0x15C) + 0x514) =
             (int)((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f * 0.0f);
 
@@ -226,26 +226,26 @@ void actSt17aHasiChk(volatile int a0)
         scpPlayStart(D_00639EA4);
         scpPlayStart(D_00639EA8);
 
-        stage_SetAnimation(0x84, 1, 0);
+        stage_SetAnimation(132, 1, 0);
 
         buf2[0] = D_00622FA0[0];
         buf2[1] = D_00622FA0[1];
-        soundSeDefPlay(0x50A, 0, (float *)buf2, 1);
+        soundSeDefPlay(1290, 0, (float *)buf2, 1);
 
-        scpPlayMot(D_00639EA4, 0x106);
-        scpPlayMot(D_00639EA8, 0x2D2);
+        scpPlayMot(D_00639EA4, 262);
+        scpPlayMot(D_00639EA8, 722);
         scpPlayWaitMotEnd(D_00639EA4);
 
         scpPlayEnd(D_00639EA4);
         scpPlayEnd(D_00639EA8);
 
         scpPlayMot(D_00639EA4, 0);
-        scpPlayMot(D_00639EA8, 0x214);
+        scpPlayMot(D_00639EA8, 532);
         *(int *)(*(int *)((char *)D_00639EA8 + 0x15C) + 0x514) =
             (int)((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f * 0.0f);
     }
 
-    while (stage_CheckAnimationFinish(0x84) == 0) {
+    while (stage_CheckAnimationFinish(132) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -262,25 +262,27 @@ extern void scpFadeOut(float t, int a1, int a2, int a3);
 extern int scpFadeChk(void);
 /* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
-extern int D_0063AA08;
-extern int D_0063C598;
+
+/* .sbss, owned by st17a.o and reached only from this file (MAIN.MAP names no
+   symbol in the run): the demo's own end flag, raised by the
+   subthread the wait loop below spins for. */
+static int demoEnd;
 
 /* a0 is the actor entry parameter: its stack home is the actor-thread frame
    slot the scheduler reads, so it is volatile like every other stage actor. */
 void actSt17aIntroCancel(volatile int a0)
 {
-    D_0063C598 = 0;
+    demoEnd = 0;
 
     while (lt_fade_status() != 2) {
         _ACTWait(1);
     }
 
-    while (D_0063C598 == 0 &&
-           ((D_0028F8F0[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((D_0028F8F0[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
-    if (D_0063C598 == 0) {
+    if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -289,12 +291,12 @@ void actSt17aIntroCancel(volatile int a0)
             _ACTWait(1);
         }
 
-        stage_SetAnimation(0x53, 1, -1);
+        stage_SetAnimation(83, 1, -1);
         SetCameraFlag_LwsCutBack();
         scpFadeIn(3.0f);
     }
 
-    lt_switch_layout(0x36);
+    lt_switch_layout(54);
     D_0063AA08 = 0;
 }
 
@@ -327,8 +329,6 @@ void actSt17aSekizo(volatile int a0)
 }
 
 extern ActMail D_004FAFD0[];
-/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
-extern int scpSearchGobj(int a0);
 
 void actSt17aHasi(volatile int a0)
 {
@@ -336,17 +336,17 @@ void actSt17aHasi(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    if (gflagChk(0x21) == 0) {
-        *(int *)(scpSearchGobj(0xF4) + 0x16C) = 0;
-        stage_SetAnimation(0x84, 0, 0);
+    if (gflagChk(33) == 0) {
+        *(int *)(scpSearchGobj(244) + 0x16C) = 0;
+        stage_SetAnimation(132, 0, 0);
         SetWayGroupActive(3, 1);
         D_004FAFD0[0].func = actSt17aHasiChk;
         self->mail = D_004FAFD0;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        *(int *)(scpSearchGobj(0xF3) + 0x16C) = 0;
-        stage_SetAnimation(0x84, 0, -1);
+        *(int *)(scpSearchGobj(243) + 0x16C) = 0;
+        stage_SetAnimation(132, 0, -1);
     }
 }
 
@@ -358,7 +358,7 @@ void actSt17aIntro(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    if (gflagChk(0x22) == 0) {
+    if (gflagChk(34) == 0) {
         D_004FAFF0[0].func = actSt17aIntroChk;
         self->mail = D_004FAFF0;
         ACTSendMailCorrect(a0, 430);
@@ -374,7 +374,7 @@ void actSt17aHint1(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    if (gflagChk(0x23) == 0) {
+    if (gflagChk(35) == 0) {
         D_004FB010[0].func = actSt17aHint1Chk;
         self->mail = D_004FB010;
         ACTSendMailCorrect(a0, 430);
@@ -392,7 +392,7 @@ void actSt17aFall(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    if (gflagChk(0x21) == 0) {
+    if (gflagChk(33) == 0) {
         D_004FB030[0].func = actSt17aFallChk;
         self->mail = D_004FB030;
         ACTSendMailCorrect(a0, 430);
@@ -405,7 +405,6 @@ void actSt17aSekizoEvent(int x)
     volatile int local = x;
 }
 
-extern int *D_00639EA4;
 /* kept local: this TU's uses of scpGetWallCollision do not fit the prototype in script.h */
 extern void scpGetWallCollision(float a0, float a1, float a2, float a3, float a4, float a5);
 
@@ -414,7 +413,7 @@ void actLinkTestChk(volatile int a0)
     *(int *)(D_00639EA4[0x57] + 0x4E8) = 1;
     *(int *)(D_00639EA4[0x57] + 0x4E8) = 0;
     scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
-    _ACTWait(0x3C);
+    _ACTWait(60);
 }
 
 void actSt17aDoorEvent(int x)
@@ -434,7 +433,7 @@ void actSt17aDoorUpEffect(volatile int a0)
     long long v0a = D_00622F70[0];
     long long v0b = D_00622F80[0];
     int i;
-    for (i = 0; i < 0x32; i++) {
+    for (i = 0; i < 50; i++) {
         switch (i) {
         case 0:
             b1[0] = v0a;
@@ -460,7 +459,7 @@ void actSt17aDoorDownEffect(volatile int a0)
     long long v0a = D_00622F80[0];
     long long v0b = D_00622F90[0];
     int i;
-    for (i = 0; i < 0x32; i++) {
+    for (i = 0; i < 50; i++) {
         switch (i) {
         case 0:
             b1[0] = v0a;
@@ -482,32 +481,29 @@ void actSt17aHasiEvent(int x)
     volatile int local = x;
 }
 
-extern int D_0063AA08;
-extern int D_0063C598;
 extern int cam;
 /* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 
 void actSt17aIntroChk(volatile int a0)
 {
-    lt_switch_layout(0x37);
+    lt_switch_layout(55);
     D_0063AA08 = 1;
-    gflagOn(0x22);
-    scpAdpcmPlayRequestFunc(0x35, &cam, 1, 1, 1);
+    gflagOn(34);
+    scpAdpcmPlayRequestFunc(53, &cam, 1, 1, 1);
     _ACTWait(1);
-    stage_SetAnimation(0x53, 1, 0);
+    stage_SetAnimation(83, 1, 0);
     SetCameraFlag_LwsCutBack();
-    actCreateSubThread(actSt17aIntroCancel, 0x15);
+    actCreateSubThread(actSt17aIntroCancel, 21);
 
-    while (stage_CheckAnimationFinish(0x53) == 0) {
+    while (stage_CheckAnimationFinish(83) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    D_0063C598 = 1;
+    demoEnd = 1;
 }
 
 extern long long D_00623020[];
-extern void *D_00639EA8;
 /* kept local: this TU's uses of _SCPMoveCharactorByWay do not fit the prototype in script.h */
 extern void _SCPMoveCharactorByWay(void *a0, int a1, int *buf, int a3, float f);
 
@@ -519,8 +515,6 @@ void actSt17aGirlWay(volatile int a0)
     _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)buf, 2, 100.0f);
 }
 
-/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
-extern int scpTriggerBall(int a0, void *a1, float radius);
 extern char D_00623030[];
 
 void actSt17aHint1Chk(volatile int a0)
@@ -531,7 +525,7 @@ void actSt17aHint1Chk(volatile int a0)
 
     debug_StdPrintfDummy(D_00623030);
 
-    gflagOn(0x23);
+    gflagOn(35);
     FinishHint(0);
 }
 
@@ -539,7 +533,7 @@ extern char D_00623050[];
 
 void actSt17aFallChk(volatile int a0)
 {
-    while (!(gflagChk(0x21) && scpTriggerBall(a0, D_00639EA4, 1800.0f))) {
+    while (!(gflagChk(33) && scpTriggerBall(a0, D_00639EA4, 1800.0f))) {
         _ACTWait(1);
     }
 

@@ -48,7 +48,6 @@ extern char D_005501A8[];
 extern char D_005501E0[];
 extern char D_00550028[];
 extern char D_0063A1A8[];
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 /* kept local: this TU's uses of bga_CheckAnimationFinish do not fit the prototype in BgAnimation.h */
 extern int bga_CheckAnimationFinish(int a0);

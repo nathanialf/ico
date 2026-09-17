@@ -403,7 +403,7 @@ void *WayUtilWorkAlloc(void)
     p->f18 = iosMallocDebug(D_0063A438, 0x17C, D_00554300, 0x360);
     q = (int *)iosMallocDebug(D_0063A438, 0x178, D_00554300, 0x362);
     p->f8 = (int)q;
-    for (i = 0; i < 0x5E; i++) {
+    for (i = 0; i < 94; i++) {
         q[i] = p->f4 + i * 0x178;
     }
     return p;
@@ -1066,7 +1066,7 @@ inline void *get_wp_nearest_bridge_side_me(int arg0, int arg1)
     char *b = (char *)D_004F31E0;
     int va, vb, new_var, i;
     char *bA, *bB, *a;
-    for (i = 0; i < 0x1318; i += 0x34) {
+    for (i = 0; i < 4888; i += 0x34) {
         a = (char *)base + i;
         if (*(int *)(a + 0x0) == 0)
             continue;
@@ -1100,7 +1100,7 @@ inline int get_wp_nearest_bridge_side_bridge(int arg0, int arg1)
     char *b = (char *)D_004F31E0;
     int va, vb, new_var, i;
     char *bA, *bB, *a;
-    for (i = 0; i < 0x1318; i += 0x34) {
+    for (i = 0; i < 4888; i += 0x34) {
         a = (char *)base + i;
         if (*(int *)(a + 0x0) == 0)
             continue;

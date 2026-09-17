@@ -51,7 +51,7 @@ void gamesysObjInfoInit(void)
 {
     int i;
 
-    for (i = 0; i <= 0xB5; i++) {
+    for (i = 0; i <= 181; i++) {
         ((GamesysObjInfo *)D_004DA980)[i].no = 0;
         ((GamesysObjInfo *)D_004DA980)[i].stage = 0xFFFF;
     }
@@ -60,8 +60,6 @@ void gamesysObjInfoInit(void)
     backStageProcessInit();
 }
 
-extern char D_004DA980[];
-extern int D_004DA7D0[];
 extern int gamesysTimeCount;
 /* kept local: this TU's uses of gamesysMemoryHandlerWrite do not fit the prototype in gamesys.h */
 extern void gamesysMemoryHandlerWrite();
@@ -85,10 +83,6 @@ void gamesysObjInfoSave(void *h)
     gamesysMemoryHandlerWrite(h, D_004DA7D0, 0x1A8);
 }
 
-extern char D_004DA980[];
-extern int D_004DA7D0[];
-extern int gamesysTimeCount;
-
 void gamesysObjInfoLoad(void *h)
 {
     gamesysMemoryHandlerRead(h, &gamesysTimeCount, 4);
@@ -102,8 +96,6 @@ extern GamesysObjInfo *gamesysObjInfoEmptyAreaSearch(GamesysObjInfoReq *req);
 /* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
 extern float _Sqrt(float x);
 extern char D_0061D300[];
-extern void memset(char *p, int a, int n);
-extern int stage_no;
 
 int *gamesysObjInfoBaseSet(int *self, int stage)
 {
@@ -171,9 +163,7 @@ int *gamesysObjInfoBaseSet(int *self, int stage)
     return (int *)p;
 }
 
-extern char D_004DA980[];
 extern short D_0063B418;
-extern int gamesysTimeCount;
 
 void gamesysBackStageProcess(void)
 {
@@ -263,8 +253,6 @@ void gamesysCharacterInfoLoad(int *a0)
     return ReadCharacterPacket();
 }
 
-extern char D_004DA980[];
-
 void gamesysNObjInfoInit(void)
 {
     int mask = 0xFFFF;
@@ -315,7 +303,6 @@ int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3)
 }
 
 extern char D_002C1270[];
-extern int stage_no;
 
 int *gamesysObjInfoUniqDataSet(int a0)
 {
@@ -333,9 +320,6 @@ int *gamesysObjInfoUniqDataSet(int a0)
     }
     return p;
 }
-
-extern int stage_no;
-extern GamesysObjInfo *gamesysObjInfoEmptyAreaSearch(GamesysObjInfoReq *req);
 
 /* Two static helpers the listing inlines into the ObjInfo functions (lines
  * 426-456 and 350-364); neither is emitted out of line, so neither has a
@@ -427,9 +411,6 @@ int gamesysGetGirlStageIDAndPosition(int a0)
     return 4;
 }
 
-extern int D_004DA7D0[];
-extern int gamesysTimeCount;
-
 void gamesysStageExitTimeSet(int a0)
 {
     D_004DA7D0[a0] = gamesysTimeCount;
@@ -473,7 +454,7 @@ void gamesysMemoryLoad(void **tbl, int a1, void *a2)
         ((void (*)(void *, void *))tbl[0])(buf, a2);
         tbl += 2;
     }
-    gflagOn(0x18A);
+    gflagOn(394);
 }
 
 extern int D_004DA770[];
@@ -490,8 +471,6 @@ void gamesysVersionLoad(int *self)
         gamesysVersionDiff = 0;
     }
 }
-
-extern void memset(char *p, int a, int n);
 
 void gamesysVersionSave(int a0)
 {

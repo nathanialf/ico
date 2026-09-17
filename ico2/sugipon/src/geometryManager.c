@@ -257,12 +257,7 @@ extern char D_0054D750[];
 extern char D_0054D768[];
 extern char D_00639EF0[];
 extern char D_00639EF8[];
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
-/* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_SetTransposeMatrix(void *a0, void *a1);
-/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
-extern void CopyMatrix();
 
 /* The 0x15C slot is the engine's sub-object HANDLE: the code stores an int and
  * reads it back as a pointer, so every read of it is a union view and any store
@@ -319,9 +314,6 @@ void LocalizeGeometry(char *gobj, int *dobj)
     LocalizeDirectionOrient_i((int *)gobj, dobj);
 }
 
-/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
-extern void CopyVector();
-
 void GetGlobalDirectionOrient(int *self, int *other, char *p)
 {
     CopyVector((int)self, (int)p);
@@ -373,8 +365,6 @@ void GetRootVelocity(int a0, int a1)
 
 /* kept local: this TU's uses of MatrixDrive_TransMatrixV do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_TransMatrixV(void *a0);
-/* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_SetTransposeMatrix(void *a0, void *a1);
 /* kept local: this TU's uses of MatrixDrive_RotMatrixX do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_RotMatrixX(int a0);
 
@@ -528,8 +518,6 @@ void LocalizeDirectionOrient(int *self, int *a1)
                     (int *)((char *)((GObj *)((char *)self))->p_15C + 0x520));
     ((GObj *)((char *)self))->p_15C->f_52C = 0;
 }
-
-extern int D_00639EFC;
 
 /* INTERIM: ROM inlines GetRootPosition into both cylinder-collision walkers and
  * inlines CylinderCollisionWithControlDynamics into CylinderCollision; the TU's
@@ -692,9 +680,6 @@ void GetRootPositionByDObj(void *a0, char *src)
     *(float *)((char *)a0 + 0x4) += f0;
     *(float *)((char *)a0 + 0xC) = 1.0f;
 }
-
-/* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
-extern char ZeroVector[];
 
 /* INTERIM: ROM inlines SetRootPosition into this function and into
  * SetDirectRootPositionNoFitting; the TU's out-of-line copy stays a plain

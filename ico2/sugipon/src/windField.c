@@ -97,7 +97,6 @@ void drawSenpuukiHaneUnit(float scale)
     D_0063BC5C = (short)(D_0063BC5C + scale * 4864.0f);
 }
 
-extern char D_004ED380[];
 extern float D_004ED4F0[];
 extern float D_004ED690[];
 /* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
@@ -135,8 +134,6 @@ void drawSenpuuki(float scale)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/windField", ExecWindField);
 
-extern int (*D_0063BC58)(void);
-
 int GetWindVector(void)
 {
     return D_0063BC58();
@@ -150,10 +147,7 @@ int *dummyGetWindVector(int *a0)
 }
 
 extern int D_0028F4C0[];
-extern float D_004ED360[];
-extern float D_004ED370[];
 extern float D_00724BE0[];
-extern float D_00724BF0[];
 
 float *getParallelWindVector(float *power, void *pos)
 {
@@ -194,8 +188,6 @@ void StopWindField(void)
     D_0063BC58 = (int (*)(void))dummyGetWindVector;
 }
 
-extern char D_004ED380[];
-
 void drawLines(char *a0)
 {
     char *cur = a0;
@@ -207,8 +199,6 @@ void drawLines(char *a0)
     }
 }
 
-extern float D_004ED390[];
-
 void drawSenpuukiHane(void)
 {
     float *p;
@@ -217,8 +207,6 @@ void drawSenpuukiHane(void)
     }
 }
 
-extern float D_004ED4F0[];
-
 void drawSenpuukiUnit(void)
 {
     float *p;
@@ -226,8 +214,6 @@ void drawSenpuukiUnit(void)
         DrawLineG(p, D_004ED380, p + 4, D_004ED380, -1);
     }
 }
-
-extern float D_004ED690[];
 
 void drawSenpuukiBase(void)
 {

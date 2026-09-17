@@ -820,7 +820,6 @@ extern char D_005513E0[];
 extern char D_005513F0[];
 extern char D_00551400[];
 extern char D_0055F70C[];
-extern char D_0063A490[];
 extern char D_0063A4A8[];
 extern char D_0063A4B0[];
 extern char D_0063A4B8[];

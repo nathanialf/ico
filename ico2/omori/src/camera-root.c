@@ -215,8 +215,6 @@ void CameraEditManual(CameraSet2 *set, int noLock)
     MatrixDrive_PopMatrix();
 }
 
-extern int D_006E66C0[];
-
 void DebugCameraManual(void)
 {
     CameraEditManual(D_006E66C0, 0);
@@ -248,7 +246,6 @@ void DebugCameraSemiAuto(void)
     MakeCameraMatrix(D_006E66C0);
 }
 
-extern char *matrixptr;
 extern int D_0063AB9C;
 extern float D_0063C2A8;
 /* kept local: this TU's uses of SetCameraTargetPosition do not fit the prototype in camera-ico2.h */
@@ -455,15 +452,12 @@ int CameraGetTarget(void)
     return D_0063C290;
 }
 
-extern int D_0063C294;
-
 void CameraGetTargets(int *a0, int *a1)
 {
     *a0 = D_0063C290;
     *a1 = D_0063C294;
 }
 
-extern int D_0063C2A0;
 extern int D_006E66F8[];
 
 void CameraSetMode(int x)
@@ -578,22 +572,15 @@ int *GetCurrentCameraSet2(void)
     return D_006E66C0;
 }
 
-extern char D_0063C2AC;
-
 void SetCameraFlag_LwsCutBack(void)
 {
     D_0063C2AC = 1;
 }
 
-extern char D_0063C298;
-
 void SetCameraFlag_GamecamCutBack(void)
 {
     D_0063C298 = 1;
 }
-
-extern int D_0063C2B0;
-extern int D_0063C2B4;
 
 void SetHandCameraLimitInDemo(int a0, int a1)
 {
@@ -601,24 +588,17 @@ void SetHandCameraLimitInDemo(int a0, int a1)
     D_0063C2B4 = a1;
 }
 
-extern int D_0028F720[];
-extern int D_0063C2B0;
-extern int D_0063C2B4;
-
 void ResetHandCameraLimitInDemo(void)
 {
     D_0063C2B0 = D_0028F720[0x180 / 4];
     D_0063C2B4 = D_0028F720[0x184 / 4];
 }
 
-extern int D_0063C2B8;
-
 void SetZoomMaxValInDemo(int a0)
 {
     D_0063C2B8 = a0;
 }
 
-extern int D_0063C2B8;
 extern int D_0028F8B0[];
 
 void ResetZoomMaxValInDemo(void)
@@ -627,7 +607,6 @@ void ResetZoomMaxValInDemo(void)
 }
 
 extern int D_0028F8A0[];
-extern int D_0063C2B0;
 
 int UpdateHandCameraLimitP(void)
 {
@@ -636,7 +615,6 @@ int UpdateHandCameraLimitP(void)
 }
 
 extern int D_0028F8A4[];
-extern int D_0063C2B4;
 
 int UpdateHandCameraLimitV(void)
 {
@@ -671,8 +649,6 @@ void CameraSetCameraPosition(float *src)
 
 void CameraSetTargetPos(void) {}
 
-extern int D_0063AB98;
-
 void *GetCameraPos(void)
 {
     if (D_0063AB98 == 0) {
@@ -691,8 +667,6 @@ void GetCameraInfo_tmp(void *dst, float *out)
     d->q[3] = s->q[3];
     *out = D_0063B1B0 / 100.0f;
 }
-
-extern unsigned char D_0063C299;
 
 void testcamerazoom(void)
 {

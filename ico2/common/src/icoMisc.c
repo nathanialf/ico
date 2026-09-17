@@ -18,7 +18,11 @@
 extern char D_0061D3E0[];
 extern char D_0061D418[];
 extern void *D_0063A428;
-extern char D_0071CA90[];
+
+/* .bss, owned by icoMisc.o (MAIN.MAP sizes the run 0x80 and names no
+   symbol in it): the line buffer the memory report is printed through. */
+/* */
+static char printBuf[128];
 
 inline void ExitIcoMisc(void) {}
 
@@ -28,7 +32,7 @@ void disp_memory_partition(void)
 {
     char *p;
     int y = 0x70;
-    debug_PrintfDummy(0x18, 0x64, 0xFFFFFF00, D_0061D3E0);
+    debug_PrintfDummy(24, 100, 0xFFFFFF00, D_0061D3E0);
     iosMallocCheckLeak(D_0063A428);
     p = *(char **)((char *)D_0063A428 + 0x28);
     if (p != 0) {
@@ -50,8 +54,8 @@ void disp_memory_partition(void)
                 } while (e != 0);
             }
             diff = *(int *)(p + 0x3C) - *(int *)(p + 0x38) + 0x10;
-            sprintf(D_0071CA90, D_0061D418, p + 0x10, p, sum, diff, max);
-            debug_PrintfDummy(0x64, y, 0xFFFFFF00, D_0071CA90);
+            sprintf(printBuf, D_0061D418, p + 0x10, p, sum, diff, max);
+            debug_PrintfDummy(100, y, 0xFFFFFF00, printBuf);
             y += 8;
             p = *(char **)(p + 0x24);
         } while (p != 0);
@@ -129,7 +133,6 @@ extern char D_0063B478[];
 extern void debug_StdPrintfDummy();
 extern void InitializeStaticBlur(void);
 extern void InitStreamMotionManager(void);
-extern void InitSpiderGroupManager(void);
 extern void InitFlyManager(void);
 extern void gamesysMemoryLoad(void *a0, void *a1, int a2);
 extern void ACTGame_SetActors_Debug(int stage, int a1);
@@ -146,11 +149,9 @@ extern void kanbanInit(int a0);
 extern void kanbanBootInit(void);
 extern void kanbanBootStart(void);
 extern void ResetStatic2MotionManager(int a0);
-extern void iosMallocResetPartition(void *part);
 extern void InitWayPointSystem(void);
 extern void fog_MakeFogClut(void);
 extern void InitParticleEffects(void);
-extern void InitStageMultiBgaManager(void);
 extern void InitializeWaterDot(void);
 extern void InitSceneObjects(int stage);
 extern void InitWindManager(int stage);

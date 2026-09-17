@@ -53,7 +53,7 @@ void brainInit(void)
     b->cur = 0;
     b->wC = 0;
     b->w10 = 0;
-    for (i = 0; i < 0x28; i++) {
+    for (i = 0; i < 40; i++) {
         b->tgt[i].gobj = 0;
     }
     b->f14 = 0.0f;
@@ -70,7 +70,7 @@ void OverrideBrainStatusByGObj(Brain *b, int gobj, float f8, float f10, float fC
     BrainTarget *t;
     int i;
 
-    for (i = 0; i < 0x28; i++) {
+    for (i = 0; i < 40; i++) {
         if (b->tgt[i].gobj == gobj) {
             t = &b->tgt[i];
             t->f8 = f8;
@@ -99,7 +99,7 @@ static inline void brainSetTargetSub(Brain *b, int gobj, float lvl, int k)
     BrainTarget *t;
     int i;
 
-    for (i = 0; i < 0x28; i++) {
+    for (i = 0; i < 40; i++) {
         if (b->tgt[i].gobj == 0) {
             break;
         }
@@ -162,7 +162,7 @@ void brainGetTarget(Brain *b)
     int lv;
     int i;
 
-    for (i = 0; i < 0x28; i++) {
+    for (i = 0; i < 40; i++) {
         if (b->tgt[i].gobj == 0) {
             continue;
         }
@@ -200,7 +200,7 @@ void brainGetTarget(Brain *b)
 
     if ((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] / 3 < b->w10) {
         best = b->cur;
-        for (i = 0; i < 0x28; i++) {
+        for (i = 0; i < 40; i++) {
             t = &b->tgt[i];
             if (t == best) {
                 idx = i;
@@ -311,7 +311,7 @@ void brainAddLevelGop(int gobj, float lv)
     int tgt = brain + 0x28;
     int i;
 
-    for (i = 0; i < 0x28; i++) {
+    for (i = 0; i < 40; i++) {
         if (((BrainTarget *)tgt)[i].gobj == gobj) {
             brainAddLevel(&((BrainTarget *)tgt)[i], lv);
         }
@@ -326,7 +326,7 @@ void brainSetLevelGop(int gobj, int a1, int a2, float lv)
     int tgt = brain + 0x28;
     int i;
 
-    for (i = 0; i < 0x28; i++) {
+    for (i = 0; i < 40; i++) {
         if (((BrainTarget *)tgt)[i].gobj == gobj) {
             ((BrainTarget *)tgt)[i].b18 = a1;
             ((BrainTarget *)tgt)[i].b19 = a2;
@@ -362,7 +362,7 @@ int brainDecTargetTimer(int gobj)
     BrainTarget *e;
     int i;
 
-    for (i = 0; i < 0x28; i++) {
+    for (i = 0; i < 40; i++) {
         if (((BrainTarget *)tgt)[i].gobj == gobj) {
             e = &((BrainTarget *)tgt)[i];
             goto found;

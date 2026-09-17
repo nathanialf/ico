@@ -95,7 +95,11 @@ void actSt08bDoorDownChk(volatile int a0);
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
 extern int D_00639EAC;
-extern int D_0063C56C;
+
+/* .sbss, owned by st08b.o and reached only from this file (MAIN.MAP names no
+   symbol in the run): the demo's own end flag, raised by the
+   subthreads the wait loop below spins for. */
+static int demoEnd;
 
 inline void actSt08bKuren(volatile int a0)
 {
@@ -138,55 +142,54 @@ void actSt08bKurenSwitch(volatile int a0)
 
     if (D_00639EA8 != 0) {
         if (scpTriggerFloorAttr(D_00639EA8, 0x3000000) != 0) {
-            th = actCreateSubThread(actSt08aGirlYoro, 0x15);
+            th = actCreateSubThread(actSt08aGirlYoro, 21);
         }
     }
 
-    lt_switch_layout(0x37);
+    lt_switch_layout(55);
 
-    if (gflagChk(0x50) != 0) {
-        scpAdpcmPlayRequestFunc(0x3A, &h, 1, 1, 1);
+    if (gflagChk(80) != 0) {
+        scpAdpcmPlayRequestFunc(58, &h, 1, 1, 1);
         while (h == 0) {
             _ACTWait(1);
         }
-        thread = actCreateSubThread(actSt08bKurenRight, 0x15);
+        thread = actCreateSubThread(actSt08bKurenRight, 21);
         frame = 0x3FC;
     } else {
-        scpAdpcmPlayRequestFunc(0x39, &h, 1, 1, 1);
+        scpAdpcmPlayRequestFunc(57, &h, 1, 1, 1);
         while (h == 0) {
             _ACTWait(1);
         }
-        thread = actCreateSubThread(actSt08bKurenLeft, 0x15);
+        thread = actCreateSubThread(actSt08bKurenLeft, 21);
         frame = 0x1FE;
     }
 
     _ACTWait(3);
 
-    D_0063C56C = 0;
-    while (D_0063C56C == 0 &&
-           ((D_0028F8F0[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    demoEnd = 0;
+    while (demoEnd == 0 && ((D_0028F8F0[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
-    iosThreadSetPri(thread + 0x24, 0x22);
+    iosThreadSetPri(thread + 0x24, 34);
     if (th != 0) {
-        iosThreadSetPri(th + 0x24, 0x22);
+        iosThreadSetPri(th + 0x24, 34);
     }
 
-    if (D_0063C56C == 0) {
+    if (demoEnd == 0) {
         scpAdpcmFadeCloseFunc(&h, 0x80);
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
             _ACTWait(1);
         }
-        stage_SetAnimation(0x172, 1, frame - 0x3C);
+        stage_SetAnimation(370, 1, frame - 0x3C);
         _ACTWait(1);
-        HotInitCageGeo(scpSearchGobj(0x16D));
-        HotInitCageGeo(scpSearchGobj(0x16C));
+        HotInitCageGeo(scpSearchGobj(365));
+        HotInitCageGeo(scpSearchGobj(364));
         _ACTWait(1);
         if (th != 0) {
-            scpPlayMot(D_00639EA8, 0x214);
-            if (gflagChk(0x50) != 0) {
+            scpPlayMot(D_00639EA8, 532);
+            if (gflagChk(80) != 0) {
                 p1.ll[0] = kurenSwitchPos.d[0];
                 p1.ll[1] = kurenSwitchPos.d[1];
                 SetDirectRootPosition(D_00639EA8, &p1);
@@ -205,20 +208,20 @@ void actSt08bKurenSwitch(volatile int a0)
         *(float *)(*(int *)(D_00639EA8 + 0x15C) + 0x254) = p1.f[1];
     }
 
-    while (stage_CheckAnimationFrame(0x172, frame, 1) == 0) {
+    while (stage_CheckAnimationFrame(370, frame, 1) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
-    lt_switch_layout(0x36);
+    lt_switch_layout(54);
 
-    if (gflagChk(0x50) != 0) {
-        scpSearchGobj(0x16D)->f16C = 1;
-        scpSearchGobj(0x16C)->f16C = 0;
+    if (gflagChk(80) != 0) {
+        scpSearchGobj(365)->f16C = 1;
+        scpSearchGobj(364)->f16C = 0;
         _ACTWait(1);
-        gflagOff(0x50);
+        gflagOff(80);
     } else {
-        gflagOn(0x50);
+        gflagOn(80);
     }
 
     kurenSwitch_mes[0].func = actSt08bKurenMain;
@@ -229,69 +232,69 @@ void actSt08bKurenSwitch(volatile int a0)
 
 void actSt08bKurenLeft(volatile int a0)
 {
-    ReviveAllCarryableItemsWithNonSleepFrame(0x12C);
+    ReviveAllCarryableItemsWithNonSleepFrame(300);
 
-    stage_SetAnimation(0x172, 1, 0);
+    stage_SetAnimation(370, 1, 0);
 
-    scpSearchGobj(0x16D)->f16C = 0;
-    scpSearchGobj(0x16C)->f16C = 1;
+    scpSearchGobj(365)->f16C = 0;
+    scpSearchGobj(364)->f16C = 1;
 
-    while (stage_CheckAnimationFrame(0x172, 0x5, 0) == 0) {
+    while (stage_CheckAnimationFrame(370, 5, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     iosPadActRequest(D_00639EAC, 0x10);
 
-    while (stage_CheckAnimationFrame(0x172, 0xD7, 0) == 0) {
+    while (stage_CheckAnimationFrame(370, 215, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     iosPadActRequest(D_00639EAC, 0x11);
 
-    while (stage_CheckAnimationFrame(0x172, 0x1D1, 0) == 0) {
+    while (stage_CheckAnimationFrame(370, 465, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     iosPadActRequest(D_00639EAC, 0x11);
 
-    D_0063C56C = 1;
+    demoEnd = 1;
     _ACTWait(0);
 }
 
 void actSt08bKurenRight(volatile int a0)
 {
-    ReviveAllCarryableItemsWithNonSleepFrame(0x12C);
+    ReviveAllCarryableItemsWithNonSleepFrame(300);
 
-    stage_SetAnimation(0x172, 1, 0x1FF);
+    stage_SetAnimation(370, 1, 0x1FF);
 
-    while (stage_CheckAnimationFrame(0x172, 0x2DC, 0) == 0) {
+    while (stage_CheckAnimationFrame(370, 732, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     iosPadActRequest(D_00639EAC, 0x11);
 
-    while (stage_CheckAnimationFrame(0x172, 0x336, 0) == 0) {
+    while (stage_CheckAnimationFrame(370, 822, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     iosPadActRequest(D_00639EAC, 0x11);
 
-    while (stage_CheckAnimationFrame(0x172, 0x3E3, 0) == 0) {
+    while (stage_CheckAnimationFrame(370, 995, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     iosPadActRequest(D_00639EAC, 0x11);
 
-    D_0063C56C = 1;
+    demoEnd = 1;
     _ACTWait(0);
 }
 
 inline void actSt08aGirlYoro(volatile int a0)
 {
     scpPlayStart(D_00639EA8);
-    scpPlayMot(D_00639EA8, 0x222);
+    scpPlayMot(D_00639EA8, 546);
     scpPlayWaitMotEnd(D_00639EA8);
-    scpPlayMot(D_00639EA8, 0x253);
+    scpPlayMot(D_00639EA8, 595);
     scpPlayWaitMotEnd(D_00639EA8);
     _ACTWait(0);
 }
@@ -310,14 +313,14 @@ void actSt08bDoor(volatile int a0)
 
     if (scpTriggerBall(a0, D_00639EA4, 200.0f) != 0 ||
         (D_00639EA8 != 0 && scpTriggerBall(a0, D_00639EA8, 400.0f) != 0)) {
-        stage_SetAnimation(0x174, 0, 0);
-        _ACTWait(0x3C);
+        stage_SetAnimation(372, 0, 0);
+        _ACTWait(60);
         doorDownchk_mes[0].func = actSt08bDoorDownChk;
         self->mail = doorDownchk_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        stage_SetAnimation(0x173, 0, 0);
+        stage_SetAnimation(371, 0, 0);
         doorUpchk_mes[0].func = actSt08bDoorUpChk;
         self->mail = doorUpchk_mes;
         ACTSendMailCorrect(a0, 430);
@@ -333,23 +336,23 @@ void actSt08bDoorUpChk(volatile int a0)
     while (scpTriggerFloorAttrTargetMan(a0, 0x4000000) == 0) {
         _ACTWait(1);
     }
-    _ACTWait(0xF);
+    _ACTWait(15);
 
-    actCreateSubThread(actSt08bDoorUpEffect, 0x15);
+    actCreateSubThread(actSt08bDoorUpEffect, 21);
 
     scpWakeupItemWithBoundary(-1189.0f, -2326.0f, -408.0f, 100.0f);
 
-    stage_SetAnimation(0x173, 1, 0);
+    stage_SetAnimation(371, 1, 0);
 
     buf[0] = doorUpChkPos.d[0];
     buf[1] = doorUpChkPos.d[1];
-    soundSeDefPlay(0x4C4, 0, (float *)buf, 1);
-    _ACTWait(0x1E);
-    soundSeDefPlay(0x4C5, 0, (float *)buf, 1);
-    _ACTWait(0x1E);
-    soundSeDefPlay(0x4C6, 0, (float *)buf, 1);
+    soundSeDefPlay(1220, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1221, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1222, 0, (float *)buf, 1);
 
-    while (stage_CheckAnimationFinish(0x173) == 0) {
+    while (stage_CheckAnimationFinish(371) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -367,7 +370,7 @@ inline void actSt08bDoorUpEffect(volatile int a0)
     long long v0a = doorUpEffectPos.d[0];
     long long v0b = doorUpEffect2Pos.d[0];
     int i;
-    for (i = 0; i < 0x32; i++) {
+    for (i = 0; i < 50; i++) {
         switch (i) {
         case 0:
             b1[0] = v0a;
@@ -391,7 +394,7 @@ inline void actSt08bDoorDownEffect(volatile int a0)
     long long v0a = doorUpEffect2Pos.d[0];
     long long v0b = doorUpEffectPos.d[0];
     int i;
-    for (i = 0; i < 0x32; i++) {
+    for (i = 0; i < 50; i++) {
         switch (i) {
         case 0:
             b1[0] = v0a;
@@ -419,23 +422,23 @@ void actSt08bDoorDownChk(volatile int a0)
     while (scpTriggerFloorAttrTargetMan(a0, 0x4000000) != 0) {
         _ACTWait(1);
     }
-    _ACTWait(0xF);
+    _ACTWait(15);
 
-    actCreateSubThread(actSt08bDoorDownEffect, 0x15);
+    actCreateSubThread(actSt08bDoorDownEffect, 21);
 
     scpWakeupItemWithBoundary(-1189.0f, -2326.0f, -408.0f, 100.0f);
 
-    stage_SetAnimation(0x174, 1, 0);
+    stage_SetAnimation(372, 1, 0);
 
     buf[0] = doorUpChkPos.d[0];
     buf[1] = doorUpChkPos.d[1];
-    soundSeDefPlay(0x4C4, 0, (float *)buf, 1);
-    _ACTWait(0x1E);
-    soundSeDefPlay(0x4C5, 0, (float *)buf, 1);
-    _ACTWait(0x1E);
-    soundSeDefPlay(0x4C6, 0, (float *)buf, 1);
+    soundSeDefPlay(1220, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1221, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1222, 0, (float *)buf, 1);
 
-    while (stage_CheckAnimationFinish(0x174) == 0) {
+    while (stage_CheckAnimationFinish(372) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -452,7 +455,7 @@ inline void actSt08bEne(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    if (gflagChk(0x51) == 0) {
+    if (gflagChk(81) == 0) {
         ene_mes[0].func = actSt08bEneChk;
         self->mail = ene_mes;
         ACTSendMailCorrect(a0, 430);
@@ -469,8 +472,8 @@ inline void actSt08bEneChk(volatile int a0)
         _ACTWait(1);
     }
     _ACTWait(1);
-    gflagOn(0x51);
-    gflagOn(0x52);
+    gflagOn(81);
+    gflagOn(82);
 }
 
 inline void actSt08bEnemy1(volatile int a0)
@@ -479,13 +482,13 @@ inline void actSt08bEnemy1(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
     Generator_Mask(a0);
-    while (gflagChk(0x52) == 0) {
+    while (gflagChk(82) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     Generator_MaskOff(a0);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
 }
 
@@ -495,12 +498,12 @@ inline void actSt08bEnemy2(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
     Generator_Mask(a0);
-    while (gflagChk(0x52) == 0) {
+    while (gflagChk(82) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     Generator_MaskOff(a0);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
 }

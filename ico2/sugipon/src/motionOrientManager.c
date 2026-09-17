@@ -170,7 +170,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", shiftMotion
 
 extern char D_00620300[];
 extern char D_0063B9B8[];
-extern void debug_assert(char *file, int line);
 /* kept local: this TU's uses of FeedbackWallWorkInfoToBrainSystem do not fit the prototype in motionManager2.h */
 extern void FeedbackWallWorkInfoToBrainSystem(void *self);
 
@@ -406,9 +405,9 @@ void ExecMotionOrient(void *self)
             parallelMotionShift(self);
         }
         if ((D_0063B194 == 0 && self == D_00639EA4) || (D_0063B194 == 1 && self == D_00639EA8) ||
-            (D_0063B194 == 2 && self == isysGObjSearchFromObjKindID_begin(0x20)) ||
-            (D_0063B194 == 3 && self == isysGObjSearchFromObjKindID_begin(0x4)) ||
-            (D_0063B194 == 4 && self == isysGObjSearchFromObjKindID_begin(0x2F))) {
+            (D_0063B194 == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
+            (D_0063B194 == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
+            (D_0063B194 == 4 && self == isysGObjSearchFromObjKindID_begin(47))) {
             if (*(int *)(w + 0xC) != 0) {
                 if (D_0063B9C4 != 0 && D_0063B160 != 0) {
                     debug_PrintFontWindow(0xC0FF20, D_0063B9D0);

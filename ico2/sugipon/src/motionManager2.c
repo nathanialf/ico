@@ -223,9 +223,6 @@ void dispPlane(Vec4 *plane, float *pos)
     gif_EndPacket();
 }
 
-/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
-extern void CopyVector();
-
 void GetOrientOfWallOfGObj(int a0, int a1)
 {
     CopyVector(a0, (int)((GObj *)(a1))->p_15C + 0x5C0);
@@ -398,12 +395,6 @@ extern void CopyQuaternion(void *dst, void *src);
 extern void DivQuaternion(void *dst, void *a, void *b);
 /* kept local: this TU's uses of MultiQuaternion do not fit the prototype in quaternion.h */
 extern void MultiQuaternion(void *dst, void *a, void *b);
-/* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_PushMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
-extern void *MatrixDrive_GetMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_PopMatrix do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_PopMatrix(void);
 /* kept local: this TU's uses of MatrixDrive_TransMatrixV do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_TransMatrixV(void *v);
 /* kept local: this TU's uses of MultiMatrixByQuaternion do not fit the prototype in quaternion.h */
@@ -518,8 +509,6 @@ typedef struct {
 } _0x3D0;
 
 extern _0x3D0 D_00290080;
-/* kept local: this TU's uses of RotQuaternionX do not fit the prototype in quaternion.h */
-extern void RotQuaternionX(void *q, short ang);
 /* kept local: this TU's uses of RegularizeQuaternion do not fit the prototype in quaternion.h */
 extern void RegularizeQuaternion(void *q);
 /* kept local: this TU's uses of SetSimplePlane do not fit the prototype in fieldCollision.h */
@@ -543,14 +532,18 @@ void InitMotionGeoInfo(char *self, float x, float y, float z, float rx, float ry
     CopyVector((int)(self + 0x1B0), (int)self);
 }
 
-extern void *D_0063C10C;
-extern void *D_0063C114;
-/* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_PushMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
-extern void *MatrixDrive_GetMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_PopMatrix do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_PopMatrix(void);
+/* .sbss, owned by motionManager2.o (MAIN.MAP names no symbol in the run): the
+   skeleton-display state DispSkelton hands to dispSkeltonHierarchy through file
+   scope. The two store types are the developer's TBAA: int for the flag, which
+   pairs it with the int-typed 0x15C read, void * for the object, which pairs it
+   with the 0x8C read, and that is what orders the four gp memory ops in
+   DispSkelton. Nothing in the ROM reads skelDispFlag back. */
+static void *skelGObj;
+
+static int skelDispFlag;
+
+static void *skelNodes;
+
 /* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
 extern void CopyMatrix(void *dst, void *src);
 
@@ -558,11 +551,11 @@ extern void CopyMatrix(void *dst, void *src);
    that name, still the placeholder func_001ECE40. */
 static void dispSkeltonHierarchy(int node)
 {
-    if (*(int *)((char *)D_0063C114 + node * 64 + 0x38) != -1) {
+    if (*(int *)((char *)skelNodes + node * 64 + 0x38) != -1) {
         float o[3] = {0.0f, 0.0f, 0.0f};
-        float p[3] = {*(float *)((char *)D_0063C114 + node * 64 + 0x10),
-                      *(float *)((char *)D_0063C114 + node * 64 + 0x14),
-                      *(float *)((char *)D_0063C114 + node * 64 + 0x18)};
+        float p[3] = {*(float *)((char *)skelNodes + node * 64 + 0x10),
+                      *(float *)((char *)skelNodes + node * 64 + 0x14),
+                      *(float *)((char *)skelNodes + node * 64 + 0x18)};
         float ax[3] = {0.0f, 5.0f, 0.0f};
         float ay[3] = {0.0f, 0.0f, 5.0f};
         float az[3] = {5.0f, 0.0f, 0.0f};
@@ -578,51 +571,30 @@ static void dispSkeltonHierarchy(int node)
     }
     MatrixDrive_PushMatrix();
     CopyMatrix(MatrixDrive_GetMatrix(),
-               *(char **)((char *)*(void **)((char *)D_0063C10C + 0x15C) + 0xC) + node * 64);
-    if (*(int *)((char *)D_0063C114 + node * 64 + 0x30) == -1) {
+               *(char **)((char *)*(void **)((char *)skelGObj + 0x15C) + 0xC) + node * 64);
+    if (*(int *)((char *)skelNodes + node * 64 + 0x30) == -1) {
         float o2[3] = {0.0f, 0.0f, 0.0f};
         float e[3] = {10.0f, 0.0f, 0.0f};
         Col4 c = {{0xFF, 0xFF, 0xFF, 0x80}};
 
         DrawLineG(o2, &c, e, &c, -1);
     }
-    if (*(int *)((char *)D_0063C114 + node * 64 + 0x30) != -1) {
-        dispSkeltonHierarchy(*(int *)((char *)D_0063C114 + node * 64 + 0x30));
+    if (*(int *)((char *)skelNodes + node * 64 + 0x30) != -1) {
+        dispSkeltonHierarchy(*(int *)((char *)skelNodes + node * 64 + 0x30));
     }
     MatrixDrive_PopMatrix();
-    if (*(int *)((char *)D_0063C114 + node * 64 + 0x34) != -1) {
-        dispSkeltonHierarchy(*(int *)((char *)D_0063C114 + node * 64 + 0x34));
+    if (*(int *)((char *)skelNodes + node * 64 + 0x34) != -1) {
+        dispSkeltonHierarchy(*(int *)((char *)skelNodes + node * 64 + 0x34));
     }
 }
 
 extern int D_00639F08;
-/* motionManager2.o's own .sbss run (MAIN.MAP: 0xC after main.o's).  Only
-   DispSkelton writes them; dispSkeltonHierarchy reads C10C and C114.  The two
-   store types are the developer's TBAA: `int` for the flag pairs it with the
-   int-typed 0x15C read, `void *` for the object pairs it with the 0x8C read,
-   which is what orders the four gp memory ops in this block. */
-extern void *D_0063C10C;
-extern int D_0063C110;
-extern void *D_0063C114;
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
-extern void gif_StartPacketPri(int pri);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
-extern void gif_SetAlpha(int a, int b, int c);
-/* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_PushMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
-extern void *MatrixDrive_GetMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_PopMatrix do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_PopMatrix(void);
-extern void sceVu0UnitMatrix(void *m);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
-extern void gif_EndPacket(void);
 
 void DispSkelton(GObj *self, int a1)
 {
-    D_0063C114 = *(void **)((char *)GOBJ_SUB(self) + 0x8C);
-    D_0063C110 = a1;
-    D_0063C10C = self;
+    skelNodes = *(void **)((char *)GOBJ_SUB(self) + 0x8C);
+    skelDispFlag = a1;
+    skelGObj = self;
 
     if (D_00639F08) {
         gif_StartPacketPri(11);
@@ -634,11 +606,6 @@ void DispSkelton(GObj *self, int a1)
         gif_EndPacket();
     }
 }
-
-/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
-extern void CopyVector();
-/* kept local: this TU's uses of GetYProjectionOfPlane do not fit the prototype in fieldCollision.h */
-extern float GetYProjectionOfPlane();
 
 /* the motion record table SlopeIKControl indexes by the IK block's 0x30 word;
    the two slope rates are the only fields this TU reaches. */
@@ -734,10 +701,7 @@ void SlopeIKControl(GObj *self, char *arg, int a2, Vec4 *vel)
 
 extern void sceVu0SubVector(float *dst, float *a, float *b);
 extern void sceVu0OuterProduct(float *dst, float *a, float *b);
-extern void sceVu0ScaleVectorXYZ(float *dst, float *a, float s);
 extern float sceVu0InnerProduct(float *a, float *b);
-/* kept local: this TU's uses of SetSimplePlane do not fit the prototype in fieldCollision.h */
-extern void SetSimplePlane(void *plane, float x, float y, float z, float d);
 /* kept local: this TU's uses of GetYDistanceFromPlane do not fit the prototype in fieldCollision.h */
 extern float GetYDistanceFromPlane();
 /* kept local: this TU's uses of GetWallGlobalInfo do not fit the prototype in fieldCollision.h */
@@ -837,8 +801,6 @@ int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *pts
     return bestIdx;
 }
 
-/* kept local: this TU's uses of GetWallGlobalInfo do not fit the prototype in fieldCollision.h */
-extern void GetWallGlobalInfo();
 /* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector();
 
@@ -929,14 +891,6 @@ void AdjustVerticalSidePlaneOfWall(float *out, int *cfg, float *pos, float t)
     }
     out[3] = 1.0f;
 }
-
-extern void sceVu0SubVector(float *dst, float *a, float *b);
-extern void sceVu0OuterProduct(float *dst, float *a, float *b);
-extern void sceVu0ScaleVectorXYZ(float *dst, float *a, float s);
-extern float sceVu0InnerProduct(float *a, float *b);
-/* kept local: this TU's uses of SetSimplePlane do not fit the prototype in fieldCollision.h */
-extern void SetSimplePlane(void *plane, float x, float y, float z, float d);
-extern int D_00290670[];
 
 int GetPureVerticalPlane(void *plane0, void *plane1, float *ptsIn, int *cfg, int flip)
 {
@@ -1086,8 +1040,6 @@ typedef struct {
     unsigned short a, b, c;
 } MotElemS;
 
-/* kept local: this TU's uses of SetIdentityQuaternion do not fit the prototype in quaternion.h */
-extern void SetIdentityQuaternion(void *q);
 /* kept local: this TU's uses of FSqrt do not fit the prototype in matrixDrive.h */
 extern float FSqrt(float x);
 /* kept local: this TU's uses of _getS16MotRotElem do not fit the prototype in motionManager2.h */
@@ -1174,10 +1126,6 @@ void _getMotion(void *dst, void *m, int node, int frame)
 
 /* kept local: this TU's uses of CopyQuaternion do not fit the prototype in quaternion.h */
 extern void CopyQuaternion();
-/* kept local: this TU's uses of RotQuaternionX do not fit the prototype in quaternion.h */
-extern void RotQuaternionX(void *q, short ang);
-/* kept local: this TU's uses of _getS16MotRotElem do not fit the prototype in motionManager2.h */
-extern void _getS16MotRotElem(void *dst, void *src);
 /* kept local: this TU's uses of MultiQuaternion do not fit the prototype in quaternion.h */
 extern void MultiQuaternion(void *a0, void *a1, void *a2);
 /* kept local: this TU's uses of ZeroPoint do not fit the prototype in matrixDrive.h */
@@ -1376,12 +1324,8 @@ void GetFloatingMotion(StreamElem *dst, float *root, void *motion, int count, un
     }
 }
 
-/* kept local: this TU's uses of GetInverseQuaternion do not fit the prototype in quaternion.h */
-extern void GetInverseQuaternion(float *dst, float *src);
 /* kept local: this TU's uses of GetMirrorQuaternion do not fit the prototype in quaternion.h */
 extern void GetMirrorQuaternion(float *a0, float *a1, unsigned int a2);
-/* kept local: this TU's uses of MultiQuaternion do not fit the prototype in quaternion.h */
-extern void MultiQuaternion(void *a0, void *a1, void *a2);
 
 int MakeMirrorMotion(StreamElem *a, StreamNode *b)
 {
@@ -1482,11 +1426,6 @@ int GetCollisionOfLastActiveField(char *self)
     return ((GObj *)(self))->p_15C->f_1E0;
 }
 
-/* kept local: this TU's uses of GetFloorAttribute do not fit the prototype in fieldCollision.h */
-extern int GetFloorAttribute();
-/* kept local: this TU's uses of CompareAttribute do not fit the prototype in fieldCollision.h */
-extern int CompareAttribute();
-
 int CheckFieldContact(char *info, char *self, float *pos, float lim)
 {
     float h;
@@ -1531,19 +1470,6 @@ int CheckFieldContact(char *info, char *self, float *pos, float lim)
 
 extern int D_00290640[];
 extern int D_00290660[];
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
-extern void gif_StartPacketPri(int pri);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
-extern void gif_SetAlpha(int a, int b, int c);
-/* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_PushMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
-extern void *MatrixDrive_GetMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_PopMatrix do not fit the prototype in matrixDrive.h */
-extern void MatrixDrive_PopMatrix(void);
-extern void sceVu0UnitMatrix(void *m);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
-extern void gif_EndPacket(void);
 
 /* INTERIM (same reason as getSkeltonFocusNode above): the listing inlines
    DebugDisp1CollisionWithColor (its body carries DebugDisp1Collision's rows)
@@ -1688,9 +1614,6 @@ void DisableMotionOrientUpdate(char *self)
 {
     ((GObj *)(self))->p_15C->f_4E4 = 1;
 }
-
-/* kept local: this TU's uses of CompareAttribute do not fit the prototype in fieldCollision.h */
-extern int CompareAttribute();
 
 int CheckFloorAttribute(char *self)
 {
@@ -1867,9 +1790,6 @@ loop:
         goto loop;
 }
 
-/* kept local: this TU's uses of CopyQuaternion do not fit the prototype in quaternion.h */
-extern void CopyQuaternion();
-
 void SetMotionNodeFixModeParameter(char *self, char *obj, float x, float y, float z, int mode,
                                    int node, float w, void *quat)
 {
@@ -1894,8 +1814,6 @@ void SetMotionPlaySpeedRatio(char *self, float val)
     *(float *)(*(char **)(self + 0x15C) + 0x4B8) = val;
 }
 
-/* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
-extern char ZeroVector[];
 extern void sceVu0AddVector();
 
 void ClearMotionGeometryInfo(int *self)
@@ -1910,8 +1828,6 @@ void ClearMotionGeometryInfo(int *self)
     *((int *)(((char *)p2) + 0x180)) = ret;
     return ret;
 }
-
-extern int D_00639F08;
 
 void SetSkeltonDispSwitch(int val)
 {
@@ -1938,7 +1854,6 @@ void GetMotionRootPos(
     getRootPos(dst, src);
 }
 
-extern int D_002906D0[];
 /* kept local: this TU's uses of _getMotion do not fit the prototype in motionManager2.h */
 extern void _getMotion(void *dst, void *m, int node, int idx);
 
@@ -1974,9 +1889,6 @@ void GetMotion(char *dst, float *root, void *motion, int idx, unsigned char *mas
         getMotionRootPos(root, motion, idx);
     }
 }
-
-/* kept local: this TU's uses of GetSlerpQuaternionNoRegularize do not fit the prototype in quaternion.h */
-extern void GetSlerpQuaternionNoRegularize(float *dst, float *a, float *b, float t);
 
 void GetBlendedMotion(StreamElem *dst, float *root, StreamElem *a, float *rootA, StreamElem *b,
                       float *rootB, unsigned char *mask, int count, float t)

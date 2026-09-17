@@ -24,12 +24,12 @@ void gflagOn(int bit_idx);
 
 void gflagInit(void)
 {
-    int keep = gflagChk(0x17B);
+    int keep = gflagChk(379);
 
     memset(gflags, 0, sizeof(gflags));
     before_stage_no = 0;
     if (keep != 0) {
-        gflagOn(0x17B);
+        gflagOn(379);
     }
     Boy_Init();
     Hint_Init();

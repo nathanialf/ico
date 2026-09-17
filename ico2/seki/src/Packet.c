@@ -75,7 +75,6 @@ extern char D_0054F290[];
 extern char D_0054F2A8[];
 extern char D_0054F2C8[];
 extern char D_0054F2E8[];
-extern char D_0063A118[];
 
 void pac_DumpPac(char *pac)
 {

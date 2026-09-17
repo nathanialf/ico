@@ -37,8 +37,14 @@ extern int D_0028F8F4[];
 extern int D_00639EA4;
 extern int D_0063AA08;
 extern float D_0063C088;
-extern int D_0063C514;
-extern int D_0063C518;
+
+/* .sbss, owned by st04e.o and reached only from this file (MAIN.MAP names no
+   symbol in the run): the demo's own end flag, raised by the
+   subthread the wait loop below spins for, and its complement, true when the
+   player skipped the demo with START. */
+static int demoEnd;
+
+static int demoSkipped;
 
 static ActMail waterMain_mes[2] = {{406, actSt04eWaterSwitch}, {429}};
 
@@ -64,24 +70,24 @@ void actSt04eWaterStop(volatile int a0)
 {
     int th;
 
-    lt_switch_layout(0x37);
+    lt_switch_layout(55);
 
-    D_0063C514 = 0;
-    D_0063C518 = 0;
-    actCreateSubThread(actSt04eWaterFlagOn, 0x15);
+    demoEnd = 0;
+    demoSkipped = 0;
+    actCreateSubThread(actSt04eWaterFlagOn, 21);
 
     scpSleepEnemyAll();
 
-    th = actCreateSubThread(actSt04eWaterStopSub, 0x15);
+    th = actCreateSubThread(actSt04eWaterStopSub, 21);
 
-    while (D_0063C514 == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
-    D_0063C518 = D_0063C514 ^ 1;
-    iosThreadSetPri(th + 0x24, 0x22);
+    demoSkipped = demoEnd ^ 1;
+    iosThreadSetPri(th + 0x24, 34);
 
-    if (D_0063C514 == 0) {
+    if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
 
         while (scpFadeChk() != 0) {
@@ -92,16 +98,16 @@ void actSt04eWaterStop(volatile int a0)
             _ACTWait(1);
         }
 
-        stage_SetAnimation(0x106, 0, -1);
-        stage_SetAnimation(0x105, -1, -2);
+        stage_SetAnimation(262, 0, -1);
+        stage_SetAnimation(261, -1, -2);
         scpFadeIn(3.0f);
     }
 
-    scpSearchGobj(0x4F9)->f16C = 1;
-    scpSearchGobj(0x4F8)->f16C = 0;
+    scpSearchGobj(1273)->f16C = 1;
+    scpSearchGobj(1272)->f16C = 0;
 
     D_0063AA08 = 0;
-    lt_switch_layout(0x36);
+    lt_switch_layout(54);
 
     scpWakeupEnemyAll();
 
@@ -114,13 +120,13 @@ void actSt04eHint1(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    if (gflagChk(0xE1) == 0) {
+    if (gflagChk(225) == 0) {
         hint1_mes[0].func = actSt04eHint1Chk;
         self->mail = hint1_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        FinishHint(0x12);
+        FinishHint(18);
     }
 }
 
@@ -130,8 +136,8 @@ void actSt04eHint1WakeUp(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    if (gflagChk(0xE2) == 0) {
-        SleepHint(0x12);
+    if (gflagChk(226) == 0) {
+        SleepHint(18);
         hint1WakeUp_mes[0].func = actSt04eHint1WakeUpChk;
         self->mail = hint1WakeUp_mes;
         ACTSendMailCorrect(a0, 430);
@@ -145,14 +151,14 @@ void actSt04eFuchi1(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    if (gflagChk(0xE3) == 0) {
-        stage_SetAnimation(0x107, 0, 0);
+    if (gflagChk(227) == 0) {
+        stage_SetAnimation(263, 0, 0);
         fuchi1_mes[0].func = actSt04eFuchi1Chk;
         self->mail = fuchi1_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        stage_SetAnimation(0x107, 0, -1);
+        stage_SetAnimation(263, 0, -1);
     }
 }
 
@@ -162,14 +168,14 @@ void actSt04eFuchi2(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    if (gflagChk(0xE4) == 0) {
-        stage_SetAnimation(0x108, 0, 0);
+    if (gflagChk(228) == 0) {
+        stage_SetAnimation(264, 0, 0);
         fuchi2_mes[0].func = actSt04eFuchi2Chk;
         self->mail = fuchi2_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        stage_SetAnimation(0x108, 0, -1);
+        stage_SetAnimation(264, 0, -1);
     }
 }
 
@@ -179,14 +185,14 @@ void actSt04eFuchi3(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    if (gflagChk(0xE5) == 0) {
-        stage_SetAnimation(0x109, 0, 0);
+    if (gflagChk(229) == 0) {
+        stage_SetAnimation(265, 0, 0);
         fuchi3_mes[0].func = actSt04eFuchi3Chk;
         self->mail = fuchi3_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        stage_SetAnimation(0x109, 0, -1);
+        stage_SetAnimation(265, 0, -1);
     }
 }
 
@@ -208,17 +214,17 @@ void actSt04eWater(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    SetRotObjectLockFlag(scpSearchGobj(0x4FA), 1);
+    SetRotObjectLockFlag(scpSearchGobj(1274), 1);
 
-    if (gflagChk(0xE6) == 0) {
-        scpSearchGobj(0x4F9)->f16C = 0;
+    if (gflagChk(230) == 0) {
+        scpSearchGobj(1273)->f16C = 0;
         water_mes[0].func = actSt04eWaterMain;
         self->mail = water_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        scpSearchGobj(0x4F8)->f16C = 0;
-        stage_SetAnimation(0x105, -1, -2);
+        scpSearchGobj(1272)->f16C = 0;
+        stage_SetAnimation(261, -1, -2);
     }
 }
 
@@ -253,29 +259,29 @@ void actSt04eWaterFlagOn(volatile int a0)
     D_0063C088 = 0.005f;
 
     while (t-- > 0) {
-        if (D_0063C518 != 0) {
+        if (demoSkipped != 0) {
             D_0063C088 = 1000.0f;
             break;
         }
         _ACTWait(1);
     }
 
-    gflagOn(0xE6);
+    gflagOn(230);
 }
 
 void actSt04eWaterStopSub(volatile int a0)
 {
-    _ACTWait(0x3C);
+    _ACTWait(60);
 
-    stage_SetAnimation(0x106, 1, 0);
-    stage_SetAnimation(0x105, -1, -2);
+    stage_SetAnimation(262, 1, 0);
+    stage_SetAnimation(261, -1, -2);
 
-    while (stage_CheckAnimationFinish(0x106) == 0) {
+    while (stage_CheckAnimationFinish(262) == 0) {
         _ACTWait(1);
     }
 
     _ACTWait(1);
-    D_0063C514 = 1;
+    demoEnd = 1;
     _ACTWait(0);
 }
 
@@ -287,8 +293,8 @@ void actSt04eHint1Chk(volatile int a0)
     }
 
     debug_StdPrintfDummy("HINT1_FINISH!!!!!!!!!!!!!!!\n");
-    gflagOn(0xE1);
-    FinishHint(0x12);
+    gflagOn(225);
+    FinishHint(18);
 }
 
 void actSt04eFuchi1Chk(volatile int a0)
@@ -297,12 +303,12 @@ void actSt04eFuchi1Chk(volatile int a0)
         _ACTWait(1);
     }
 
-    gflagOn(0xE3);
+    gflagOn(227);
     _ACTWait((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
-    stage_SetAnimation(0x107, 1, 0);
-    soundSeDefPlay(0x53E, 0, 0, 1);
+    stage_SetAnimation(263, 1, 0);
+    soundSeDefPlay(1342, 0, 0, 1);
 
-    while (stage_CheckAnimationFinish(0x107) == 0) {
+    while (stage_CheckAnimationFinish(263) == 0) {
         _ACTWait(1);
     }
 
@@ -315,12 +321,12 @@ void actSt04eFuchi2Chk(volatile int a0)
         _ACTWait(1);
     }
 
-    gflagOn(0xE4);
+    gflagOn(228);
     _ACTWait((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
-    stage_SetAnimation(0x108, 1, 0);
-    soundSeDefPlay(0x53E, 0, 0, 1);
+    stage_SetAnimation(264, 1, 0);
+    soundSeDefPlay(1342, 0, 0, 1);
 
-    while (stage_CheckAnimationFinish(0x108) == 0) {
+    while (stage_CheckAnimationFinish(264) == 0) {
         _ACTWait(1);
     }
 
@@ -333,12 +339,12 @@ void actSt04eFuchi3Chk(volatile int a0)
         _ACTWait(1);
     }
 
-    gflagOn(0xE5);
+    gflagOn(229);
     _ACTWait((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
-    stage_SetAnimation(0x109, 1, 0);
-    soundSeDefPlay(0x53E, 0, 0, 1);
+    stage_SetAnimation(265, 1, 0);
+    soundSeDefPlay(1342, 0, 0, 1);
 
-    while (stage_CheckAnimationFinish(0x109) == 0) {
+    while (stage_CheckAnimationFinish(265) == 0) {
         _ACTWait(1);
     }
 
@@ -355,11 +361,11 @@ void actSt04eSeChk(volatile int a0)
             _ACTWait(1);
         }
 
-        h = soundSeDefPlay(0x53C, 0, seChkPos, 1);
+        h = soundSeDefPlay(1340, 0, seChkPos, 1);
         _ACTWait((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 0.5);
         soundSeDefStop(h);
 
-        soundSeDefPlay(0x53D, 0, seChkPos, 1);
+        soundSeDefPlay(1341, 0, seChkPos, 1);
 
         _ACTWait(1);
     }
@@ -371,6 +377,6 @@ void actSt04eHint1WakeUpChk(volatile int a0)
         _ACTWait(1);
     }
 
-    gflagOn(0xE2);
-    WakeupHint(0x12);
+    gflagOn(226);
+    WakeupHint(18);
 }

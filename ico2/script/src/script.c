@@ -126,9 +126,6 @@ void scpTorchLightOn(void)
     }
 }
 
-/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
-extern int scpSearchGobj();
-
 void scpTorchLightOff(void)
 {
     int v = scpSearchGobj();
@@ -138,8 +135,6 @@ void scpTorchLightOff(void)
 }
 
 extern const char D_005543C0[];
-/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
-extern int scpSearchGobj();
 
 void scpSetCageVelocityFriction(float f12)
 {
@@ -534,8 +529,6 @@ extern const char D_00554720[];
 extern char *D_0063AA10;
 extern float D_0063AA14;
 extern float D_0063AA18;
-/* kept local: this TU's uses of AdpcmFreeAreaGet do not fit the prototype in adpcm_init.h */
-extern int AdpcmFreeAreaGet(void);
 /* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
 extern void _SubVector(float *dst, float *a, float *b);
 /* kept local: this TU's uses of _InnerProduct do not fit the prototype in Matrix.h */
@@ -605,7 +598,6 @@ void scpGirlHintVoiceReady(int kind)
     scpAdpcmPlayRequestFuncInline(kind, &D_0063AA10, 1, 1, 0);
 }
 
-extern char *D_0063AA10;
 extern char D_00554750[];
 
 void scpGirlHintVoicePlay(void)
@@ -681,7 +673,7 @@ void scpWoodSrh(char *self, struct WoodBoxEnt *w)
                 st = 2;
             }
             if (st == 1 && w->kind == 8) {
-                for (g = isysGObjSearchFromObjKindID_begin(0x11); g != 0;
+                for (g = isysGObjSearchFromObjKindID_begin(17); g != 0;
                      g = isysGObjSearchFromObjKindID_next(g)) {
                     if (g != self) {
                         if (*(int *)(g + 8) == 865 || *(int *)(g + 8) == 866) {
@@ -974,8 +966,6 @@ void _SCPMoveCharactorByWay_Cancel(char *a0)
     ACTCharctrl_Unlock(a0);
 }
 
-extern char *D_00639EA8;
-extern char *D_00639EA4;
 extern int stage_no;
 
 void scpSekizouCheckPoint(void)
@@ -988,16 +978,13 @@ void scpSekizouCheckPoint(void)
     }
     gamesysObjInfoPosSetStage((int *)D_00639EA4, *(int *)(*(char **)(D_00639EA4 + 0x164) + 0x444),
                               0, stage_no);
-    was = gflagChk(0x17D);
-    gflagOn(0x17D);
+    was = gflagChk(381);
+    gflagOn(381);
     CheckPoint();
     if (was == 0) {
-        gflagOff(0x17D);
+        gflagOff(381);
     }
 }
-
-/* kept local: this TU's uses of isysGObjSearchFromObjLayoutID do not fit the prototype in gobj.h */
-extern int isysGObjSearchFromObjLayoutID();
 
 void scpWakeupEnemyOne(void)
 {
@@ -1050,7 +1037,6 @@ struct StgRow {
 
 extern struct StgEnt D_0055C518[];
 extern struct StgRow D_005F5D50[];
-extern int stage_no;
 
 void preload(int idx)
 {
@@ -1301,7 +1287,6 @@ int scpAdpcmCloseChkFunc(char **h)
 }
 
 extern char D_005546E0[];
-extern char *D_0063AA10;
 extern float D_0063AA0C;
 extern int startStagePauseDisableTimer;
 /* kept local: this TU's uses of scpSubAdpcmPlay do not fit the prototype in script.h */
@@ -1312,19 +1297,19 @@ void scpDeamon(volatile int a0)
     debug_StdPrintfDummy(D_005546E0);
     D_0063AA10 = 0;
     startStagePauseDisableTimer = 0;
-    if (stage_no == 0xB && gflagChk(0x89) == 0) {
+    if (stage_no == 0xB && gflagChk(137) == 0) {
         D_0063AA0C = 0.0f;
     } else {
         D_0063AA0C = 1.0f;
     }
-    gflagOff(0x185);
+    gflagOff(389);
     _ACTWait(1);
-    actCreateSubThread(scpSubAdpcmPlay, 0x15);
+    actCreateSubThread(scpSubAdpcmPlay, 21);
     _ACTWait(3);
     StabilizeAllLayoutedCage();
     _ACTWait(1);
     backStageProcessInStage(0.0f);
-    gflagOff(0x18A);
+    gflagOff(394);
 }
 
 /* INTERIM stand-in.  scpAdpcmCloseChkFunc is a real TU function with its
@@ -1365,7 +1350,7 @@ void scpWoodBox(volatile int a0)
     struct WoodBoxEnt *p;
     unsigned int i;
 
-    _ACTWait(0xA);
+    _ACTWait(10);
 
     for (i = 0, p = D_002A51F0; i < 11; i++, p++) {
         if (p->id == *(int *)(a0 + 8)) {
@@ -1500,16 +1485,6 @@ void scpRotateLinear(void *obj, int deg, short step, int axis)
         _ACTWait(1);
     }
 }
-
-extern int D_0063B150;
-extern char D_00554550[];
-extern void sceVu0SubVector(float *d, float *a, float *b);
-extern float sceVu0InnerProduct(float *a, float *b);
-extern void sceVu0UnitMatrix(void *m);
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
-extern void gif_StartPacketPri(int pri);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
-extern void gif_EndPacket(void);
 
 int scpTriggerPosBall(float *pos, float *target, float r)
 {
@@ -1674,7 +1649,7 @@ void scpSleepEnemyAll(void)
          g = isysGObjSearchFromObjKindID_next(g)) {
         iosOmSendMail(g, 0x20, g);
     }
-    for (g = isysGObjSearchFromObjKindID_begin(0x3E); g != 0;
+    for (g = isysGObjSearchFromObjKindID_begin(62); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
         iosOmSendMail(g, 0x20, g);
     }
@@ -1687,7 +1662,7 @@ void scpWakeupEnemyAll(void)
          g = isysGObjSearchFromObjKindID_next(g)) {
         iosOmSendMail(g, 0x1F, g);
     }
-    for (g = isysGObjSearchFromObjKindID_begin(0x3E); g != 0;
+    for (g = isysGObjSearchFromObjKindID_begin(62); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
         iosOmSendMail(g, 0x1F, g);
     }
@@ -1709,7 +1684,7 @@ void scpKillEnemyAll(void)
         iosOmSendMail(g, 0x26, g);
         ((struct EnemyEnt *)(*(int *)(g + 8) * 0x4C + (char *)D_002C2DC8))->f42 = 0;
     }
-    for (g = (char *)isysGObjSearchFromObjKindID_begin(0x3E); g != 0;
+    for (g = (char *)isysGObjSearchFromObjKindID_begin(62); g != 0;
          g = (char *)isysGObjSearchFromObjKindID_next(g)) {
         iosOmSendMail(g, 0x26, g);
     }
@@ -1717,14 +1692,12 @@ void scpKillEnemyAll(void)
 
 void scpMaskGeneratorAll(void)
 {
-    int *p = isysGObjSearchFromObjKindID_begin(0x21);
+    int *p = isysGObjSearchFromObjKindID_begin(33);
     while (p != 0) {
         Generator_Mask(p);
         p = isysGObjSearchFromObjKindID_next(p);
     }
 }
-
-extern char D_002C2DC8[];
 
 void scpKillEnemyOne(void)
 {
@@ -1759,10 +1732,6 @@ int _SCPMoveCharactorByWay(char *self, int a1, int a2, float speed, int a3)
 
 /* kept local: this TU's uses of test_CURRENTORIENT do not fit the prototype in commonact.h */
 extern float *test_CURRENTORIENT(char *target);
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
-extern float *test_CURRENTROOT(char *target);
-extern void sceVu0ScaleVector(float *dst, float *src, float scale);
-extern void sceVu0AddVector(float *dst, float *a, float *b);
 
 /* INTERIM stand-in.  _SCPMoveCharactorByWay is a real TU function with its own
    ROM slot (just above); the compiler inlines it here.  Delete once the TU is
@@ -1830,11 +1799,6 @@ void scpPlayMotReq(char *a0, int a1)
     *(int *)(p + 0x130) = SetMotionRequest(a0, a1, p + 0x620);
 }
 
-/* kept local: this TU's uses of ClearMotionGeometryInfo do not fit the prototype in motionManager2.h */
-extern void ClearMotionGeometryInfo(void *a0);
-/* kept local: this TU's uses of SetDirectRootPosition do not fit the prototype in geometryManager.h */
-extern void SetDirectRootPosition();
-
 void scpPlayPosSet(void *a0, float f12, float f13, float f14)
 {
     float buf[4];
@@ -1880,7 +1844,6 @@ int RequestStageChange(int no, char *g, int flag, float speed, float wait)
 }
 
 extern int D_00639EB4;
-extern char *D_00639EA8;
 /* kept local: this TU's uses of ACTGame_StageChangeGObj do not fit the prototype in act-game.h */
 extern void ACTGame_StageChangeGObj(char *g, int no);
 /* kept local: this TU's uses of BoyInfoUpdate_StageChange do not fit the prototype in boyact.h */
@@ -1917,7 +1880,6 @@ int RequestStageChangeWithColor(int no, char *g, int flag, float speed, float wa
     return ret;
 }
 
-extern int D_00639EB4;
 /* kept local: this TU's uses of stgmgrForceSwitchWithFadeColor do not fit the prototype in StageManager.h */
 extern void stgmgrForceSwitchWithFadeColor();
 
@@ -1991,8 +1953,6 @@ int scpFadeChk(void)
     return 1;
 }
 
-extern char *D_00639EA4;
-
 int scpGameStat_BoyWeaponkind(void)
 {
     char *w = *(char **)(*(char **)(D_00639EA4 + 0x164) + 0x150);
@@ -2017,8 +1977,6 @@ int scpIsHangChain(void)
 {
     return ACTGame_isHangChain() != 0;
 }
-
-extern int ACTGame_isHangChain();
 
 int scpIsHangChainOptional(int a0, int b)
 {
@@ -2058,9 +2016,6 @@ void scpBornSpider(int n, float a, float b, float c, float d)
         WakeUpAP1(dead);
     }
 }
-
-/* kept local: this TU's uses of _ACTGame_GetParamF do not fit the prototype in act-game.h */
-extern float _ACTGame_GetParamF(int idx);
 
 int scpActStatusDeathFall(char *self)
 {
@@ -2106,14 +2061,8 @@ void scpSetStreamMotionRootOffset(int a0, float x, float y, float z)
 }
 
 extern char D_00554810[];
-extern int D_0063B150;
 /* kept local: this TU's uses of ReviveCarryableItemsWithBoundary do not fit the prototype in item.h */
 extern int ReviveCarryableItemsWithBoundary(float *pos, float r);
-extern void sceVu0UnitMatrix(void *m);
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
-extern void gif_StartPacketPri(int pri);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
-extern void gif_EndPacket(void);
 
 void scpWakeupItemWithBoundary(float x, float y, float z, float r)
 {
@@ -2177,8 +2126,6 @@ void ScpCallCameraOff(void)
     }
 }
 
-extern char *D_00639EA4;
-
 void ScpCallCameraOn(void)
 {
     char *g = D_00639EA4;
@@ -2219,7 +2166,7 @@ extern int GetItemKind(void *o);
 
 void scpExplodeSecretItem(void)
 {
-    void *o = (void *)isysGObjSearchFromObjKindID_begin(0x13);
+    void *o = (void *)isysGObjSearchFromObjKindID_begin(19);
     while (o) {
         if (GetItemKind(o) == 6 && CheckItemDead(o) == 0) {
             BreakItemFromOutside(o);
@@ -2254,7 +2201,7 @@ extern int IsActCharDead(char *g);
 int scpCheckExistAliveSpider(void)
 {
     char *g;
-    for (g = (char *)isysGObjSearchFromObjKindID_begin(0x3E); g != 0;
+    for (g = (char *)isysGObjSearchFromObjKindID_begin(62); g != 0;
          g = (char *)isysGObjSearchFromObjKindID_next(g)) {
         if (IsActCharDead(g) == 0) {
             debug_StdPrintfDummy(D_00554888);
@@ -2301,10 +2248,6 @@ void scpCheckDisconnectWallEnd(char *a0)
     *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x18) &= ~(1ULL << 58);
 }
 
-extern int D_00554570[];
-/* kept local: this TU's uses of _ACTGame_GetParamF do not fit the prototype in act-game.h */
-extern float _ACTGame_GetParamF(int idx);
-
 int scpTriggerIgnore(char *self)
 {
     int i = 0;
@@ -2345,10 +2288,10 @@ void actSubSekizoSe(volatile int a0)
     struct ScpAct *act = (struct ScpAct *)actInitialize(a0);
 
     _ACTWait(1);
-    if (gflagChk(0x14C) == 0) {
+    if (gflagChk(332) == 0) {
         ScpCallCameraSetTarget(3834.0f, -888.0f, 0.0f);
-        *(int *)(scpSearchGobj(0x865) + 0x16C) = 0;
-        stage_SetLoopFlag(0x22B, 0);
+        *(int *)(scpSearchGobj(2149) + 0x16C) = 0;
+        stage_SetLoopFlag(555, 0);
         queen_appear_mes[0].func = actSt25aQueenAppearChk;
         act->mail = queen_appear_mes;
         ACTSendMailCorrect(a0, 430);
@@ -2356,11 +2299,11 @@ void actSubSekizoSe(volatile int a0)
         return;
     }
     scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(0x2F, 0, 0x22B, 0);
-    *(int *)(scpSearchGobj(0x865) + 0x16C) = 1;
-    scpPlayMot((char *)scpSearchGobj(0x865), 0x450);
+    *(int *)(scpSearchGobj(2149) + 0x16C) = 1;
+    scpPlayMot((char *)scpSearchGobj(2149), 1104);
     tex_SetUVScroll(faceShadowTex, 0.0f, 0.0f, 0.25f, 0.0625f, 0.8f, 0.8f, 1);
     tex_SetUVScroll(faceShadowTex00, 0.0f, 0.0f, 0.25f, 0.0625f, 0.45f, 0.45f, 1);
     ScpCallCameraSetTarget(3834.0f, -888.0f, 0.0f);
-    stage_SetAnimation(0x9C, 0, -1);
-    stage_SetAnimation(0x9F, 1, 0);
+    stage_SetAnimation(156, 0, -1);
+    stage_SetAnimation(159, 1, 0);
 }

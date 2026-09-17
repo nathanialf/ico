@@ -68,22 +68,22 @@ extern int D_0063AA08;
 
 void actSt20aInit(void)
 {
-    if (gflagChk(0x13B) == 0) {
-        stage_SetAnimation(0x94, 0, 0);
+    if (gflagChk(315) == 0) {
+        stage_SetAnimation(148, 0, 0);
         SetWayGroupActive(4, 0);
     } else {
-        stage_SetAnimation(0x94, 0, -1);
+        stage_SetAnimation(148, 0, -1);
         SetWayGroupActive(4, 1);
     }
 }
 
 void actSt20aEnd(void)
 {
-    if (D_00639EA8 != 0 && gflagChk(0x13B) != 0 && gflagChk(0x13E) == 0) {
-        gflagOn(0x187);
+    if (D_00639EA8 != 0 && gflagChk(315) != 0 && gflagChk(318) == 0) {
+        gflagOn(391);
     }
-    gamesysObjInfoCls(*(int *)(scpSearchGobj(0x7E9) + 0xC), *(int *)(scpSearchGobj(0x7E9) + 8));
-    gamesysObjInfoCls(*(int *)(scpSearchGobj(0x7E7) + 0xC), *(int *)(scpSearchGobj(0x7E7) + 8));
+    gamesysObjInfoCls(*(int *)(scpSearchGobj(2025) + 0xC), *(int *)(scpSearchGobj(2025) + 8));
+    gamesysObjInfoCls(*(int *)(scpSearchGobj(2023) + 0xC), *(int *)(scpSearchGobj(2023) + 8));
 }
 
 extern int brg20a;
@@ -91,26 +91,31 @@ extern int gondola_up;
 extern int gondola_down;
 extern unsigned int st20a_yure;
 extern int D_00639EAC;
-extern int D_0063C5A8;
+
+/* .sbss, owned by st20a.o and reached only from this file (MAIN.MAP names no
+   symbol in the run): the demo's own end flag, raised by the
+   subthread the wait loop below spins for. */
+static int demoEnd;
+
 extern int D_0028F8F4[];
 
 void actSt20aBridgeDown(volatile int a0)
 {
     int th;
 
-    lt_switch_layout(0x37);
+    lt_switch_layout(55);
     scpSleepEnemyAll();
-    gflagOn(0x13B);
-    gflagOff(0x187);
+    gflagOn(315);
+    gflagOff(391);
     st20a_yure = 0xFFFFFFFF;
-    D_0063C5A8 = 0;
-    scpAdpcmPlayRequestFunc(0x47, &brg20a, 1, 1, 0);
-    th = actCreateSubThread(actSt20aBridgeDownSub, 0x15);
-    while (D_0063C5A8 == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    demoEnd = 0;
+    scpAdpcmPlayRequestFunc(71, &brg20a, 1, 1, 0);
+    th = actCreateSubThread(actSt20aBridgeDownSub, 21);
+    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
-    iosThreadSetPri(th + 0x24, 0x22);
-    if (D_0063C5A8 == 0) {
+    iosThreadSetPri(th + 0x24, 34);
+    if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
         while (brg20a == 0) {
             _ACTWait(1);
@@ -122,14 +127,14 @@ void actSt20aBridgeDown(volatile int a0)
         while (lt_fade_status() != 2) {
             _ACTWait(1);
         }
-        stage_SetAnimation(0x94, 0, -1);
+        stage_SetAnimation(148, 0, -1);
         scpFadeIn(3.0f);
     }
     iosPadActStop(st20a_yure);
     SetWayGroupActive(4, 1);
     scpWakeupEnemyAll();
     D_0063AA08 = 0;
-    lt_switch_layout(0x36);
+    lt_switch_layout(54);
 }
 
 void actSt20aGondolaDown(volatile int a0)
@@ -137,18 +142,18 @@ void actSt20aGondolaDown(volatile int a0)
     Act *sub = (Act *)*(int *)(a0 + 0x164);
 
     SetGirlDangerGObj(D_00639EA4);
-    scpAdpcmPlayRequestFunc(0x45, &gondola_down, 1, 1, 1);
+    scpAdpcmPlayRequestFunc(69, &gondola_down, 1, 1, 1);
     while (gondola_down == 0) {
         _ACTWait(1);
     }
-    stage_SetAnimation(0x93, 1, 0);
-    gflagOn(0x13C);
-    while (stage_CheckAnimationFrame(0x93, 0x96, 0) == 0) {
+    stage_SetAnimation(147, 1, 0);
+    gflagOn(316);
+    while (stage_CheckAnimationFrame(147, 150, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     iosPadActRequest(D_00639EAC, 0x11);
-    while (stage_CheckAnimationFrame(0x93, 0x1F4, 1) == 0) {
+    while (stage_CheckAnimationFrame(147, 500, 1) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -170,18 +175,18 @@ void actSt20aGondolaUp(volatile int a0)
 {
     Act *sub = (Act *)*(int *)(a0 + 0x164);
 
-    scpAdpcmPlayRequestFunc(0x46, &gondola_up, 1, 1, 1);
+    scpAdpcmPlayRequestFunc(70, &gondola_up, 1, 1, 1);
     while (gondola_up == 0) {
         _ACTWait(1);
     }
-    stage_SetAnimation(0x93, 1, 0x1F4);
-    gflagOff(0x13C);
-    while (stage_CheckAnimationFrame(0x93, 0x334, 0) == 0) {
+    stage_SetAnimation(147, 1, 0x1F4);
+    gflagOff(316);
+    while (stage_CheckAnimationFrame(147, 820, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     iosPadActRequest(D_00639EAC, 0x11);
-    while (stage_CheckAnimationFrame(0x93, 0x3E8, 1) == 0) {
+    while (stage_CheckAnimationFrame(147, 1000, 1) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -204,44 +209,44 @@ void actSt20aFence(volatile int a0)
     Act *sub = (Act *)actInitialize(a0);
 
     _ACTWait(1);
-    if (gflagChk(0x135) == 0) {
-        SetWayGroupActive(0x13, 1);
+    if (gflagChk(309) == 0) {
+        SetWayGroupActive(19, 1);
 
-        *(int *)(scpSearchGobj(0x7E8) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(0x7E9) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(2024) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(2025) + 0x16C) = 0;
 
-        *(int *)(scpSearchGobj(0x7EE) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(0x7EF) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(0x7F0) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(0x7F1) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(2030) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(2031) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(2032) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(2033) + 0x16C) = 0;
 
-        *(int *)(scpSearchGobj(0x7EA) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(0x7EB) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(0x7EC) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(0x7ED) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(2026) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(2027) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(2028) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(2029) + 0x16C) = 0;
 
         scpLinkBGAtoLayoutedTarget(0x7E6, 0x95);
-        stage_SetAnimation(0x95, 0, 0x1E);
+        stage_SetAnimation(149, 0, 0x1E);
 
         fence_mes[0].func = actSt20aFenceUpChk;
         sub->mail = fence_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        SetWayGroupActive(0x13, 0);
+        SetWayGroupActive(19, 0);
 
-        *(int *)(scpSearchGobj(0x7E6) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(0x7E7) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(2022) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(2023) + 0x16C) = 0;
 
-        *(int *)(scpSearchGobj(0x7EA) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(0x7EB) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(0x7EC) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(0x7ED) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(2026) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(2027) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(2028) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(2029) + 0x16C) = 0;
 
-        gflagOff(0x135);
+        gflagOff(309);
 
         scpLinkBGAtoLayoutedTarget(0x7E8, 0x95);
-        stage_SetAnimation(0x95, 0, 0);
+        stage_SetAnimation(149, 0, 0);
 
         if (D_00639EA8 != 0 && scpTriggerFloorAttr(D_00639EA8, 0x2000000) != 0) {
             scpPlayPosSet(D_00639EA8, 3973.0f, -1100.0f, -1169.0f);
@@ -258,25 +263,25 @@ void actSt20aFenceDownChk(volatile int a0)
 {
     Act *sub = (Act *)*(int *)(a0 + 0x164);
 
-    while (scpTriggerBall(a0, scpSearchGobj(0x7E6), 5.0f) == 0) {
+    while (scpTriggerBall(a0, scpSearchGobj(2022), 5.0f) == 0) {
         _ACTWait(1);
     }
-    stage_SetAnimation(0x95, 1, 0);
-    while (stage_CheckAnimationFrame(0x95, 0xA, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    soundSeDefPlay(0x53B, 0, 0, 1);
-    while (stage_CheckAnimationFrame(0x95, 0x1E, 1) == 0) {
+    stage_SetAnimation(149, 1, 0);
+    while (stage_CheckAnimationFrame(149, 10, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    SetWayGroupActive(0x13, 1);
-    *(int *)(scpSearchGobj(0x7EA) + 0x16C) = 0;
-    *(int *)(scpSearchGobj(0x7EB) + 0x16C) = 0;
-    *(int *)(scpSearchGobj(0x7EC) + 0x16C) = 0;
-    *(int *)(scpSearchGobj(0x7ED) + 0x16C) = 0;
-    gflagOff(0x140);
+    soundSeDefPlay(1339, 0, 0, 1);
+    while (stage_CheckAnimationFrame(149, 30, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    SetWayGroupActive(19, 1);
+    *(int *)(scpSearchGobj(2026) + 0x16C) = 0;
+    *(int *)(scpSearchGobj(2027) + 0x16C) = 0;
+    *(int *)(scpSearchGobj(2028) + 0x16C) = 0;
+    *(int *)(scpSearchGobj(2029) + 0x16C) = 0;
+    gflagOff(320);
     fenceDownChk_mes[0].func = actSt20aFenceUpChk;
     sub->mail = fenceDownChk_mes;
     ACTSendMailCorrect(a0, 430);
@@ -287,25 +292,25 @@ void actSt20aFenceUpChk(volatile int a0)
 {
     Act *sub = (Act *)*(int *)(a0 + 0x164);
 
-    while (scpTriggerBall(a0, scpSearchGobj(0x7E6), 5.0f) != 0) {
+    while (scpTriggerBall(a0, scpSearchGobj(2022), 5.0f) != 0) {
         _ACTWait(1);
     }
-    SetWayGroupActive(0x13, 0);
-    stage_SetAnimation(0x95, 1, 0x1F);
-    while (stage_CheckAnimationFrame(0x95, 0x28, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    soundSeDefPlay(0x53B, 0, 0, 1);
-    while (stage_CheckAnimationFinish(0x95) == 0) {
+    SetWayGroupActive(19, 0);
+    stage_SetAnimation(149, 1, 0x1F);
+    while (stage_CheckAnimationFrame(149, 40, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    *(int *)(scpSearchGobj(0x7EA) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(0x7EB) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(0x7EC) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(0x7ED) + 0x16C) = 1;
-    gflagOn(0x140);
+    soundSeDefPlay(1339, 0, 0, 1);
+    while (stage_CheckAnimationFinish(149) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    *(int *)(scpSearchGobj(2026) + 0x16C) = 1;
+    *(int *)(scpSearchGobj(2027) + 0x16C) = 1;
+    *(int *)(scpSearchGobj(2028) + 0x16C) = 1;
+    *(int *)(scpSearchGobj(2029) + 0x16C) = 1;
+    gflagOn(320);
     fenceUpChk_mes[0].func = actSt20aFenceDownChk;
     sub->mail = fenceUpChk_mes;
     ACTSendMailCorrect(a0, 430);
@@ -316,25 +321,25 @@ void actSt20aFenceDownChk2(volatile int a0)
 {
     Act *sub = (Act *)*(int *)(a0 + 0x164);
 
-    while (scpTriggerBall(a0, scpSearchGobj(0x7E8), 5.0f) == 0) {
+    while (scpTriggerBall(a0, scpSearchGobj(2024), 5.0f) == 0) {
         _ACTWait(1);
     }
-    stage_SetAnimation(0x95, 1, 0);
-    while (stage_CheckAnimationFrame(0x95, 0xA, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    soundSeDefPlay(0x53B, 0, 0, 1);
-    while (stage_CheckAnimationFrame(0x95, 0x1E, 1) == 0) {
+    stage_SetAnimation(149, 1, 0);
+    while (stage_CheckAnimationFrame(149, 10, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    *(int *)(scpSearchGobj(0x7EE) + 0x16C) = 0;
-    *(int *)(scpSearchGobj(0x7EF) + 0x16C) = 0;
-    *(int *)(scpSearchGobj(0x7F0) + 0x16C) = 0;
-    *(int *)(scpSearchGobj(0x7F1) + 0x16C) = 0;
-    SetWayGroupActive(0x13, 1);
-    gflagOff(0x140);
+    soundSeDefPlay(1339, 0, 0, 1);
+    while (stage_CheckAnimationFrame(149, 30, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    *(int *)(scpSearchGobj(2030) + 0x16C) = 0;
+    *(int *)(scpSearchGobj(2031) + 0x16C) = 0;
+    *(int *)(scpSearchGobj(2032) + 0x16C) = 0;
+    *(int *)(scpSearchGobj(2033) + 0x16C) = 0;
+    SetWayGroupActive(19, 1);
+    gflagOff(320);
     fenceDownChk2_mes[0].func = actSt20aFenceUpChk2;
     sub->mail = fenceDownChk2_mes;
     ACTSendMailCorrect(a0, 430);
@@ -345,25 +350,25 @@ void actSt20aFenceUpChk2(volatile int a0)
 {
     Act *sub = (Act *)*(int *)(a0 + 0x164);
 
-    while (scpTriggerBall(a0, scpSearchGobj(0x7E8), 5.0f) != 0) {
+    while (scpTriggerBall(a0, scpSearchGobj(2024), 5.0f) != 0) {
         _ACTWait(1);
     }
-    SetWayGroupActive(0x13, 0);
-    stage_SetAnimation(0x95, 1, 0x1F);
-    while (stage_CheckAnimationFrame(0x95, 0x28, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    soundSeDefPlay(0x53B, 0, 0, 1);
-    while (stage_CheckAnimationFinish(0x95) == 0) {
+    SetWayGroupActive(19, 0);
+    stage_SetAnimation(149, 1, 0x1F);
+    while (stage_CheckAnimationFrame(149, 40, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    *(int *)(scpSearchGobj(0x7EE) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(0x7EF) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(0x7F0) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(0x7F1) + 0x16C) = 1;
-    gflagOn(0x140);
+    soundSeDefPlay(1339, 0, 0, 1);
+    while (stage_CheckAnimationFinish(149) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    *(int *)(scpSearchGobj(2030) + 0x16C) = 1;
+    *(int *)(scpSearchGobj(2031) + 0x16C) = 1;
+    *(int *)(scpSearchGobj(2032) + 0x16C) = 1;
+    *(int *)(scpSearchGobj(2033) + 0x16C) = 1;
+    gflagOn(320);
     fenceUpChk2_mes[0].func = actSt20aFenceDownChk2;
     sub->mail = fenceUpChk2_mes;
     ACTSendMailCorrect(a0, 430);
@@ -376,7 +381,7 @@ void actSt20aBridge(volatile int a0)
     Act *sub = (Act *)actInitialize(a0);
 
     _ACTWait(1);
-    if (gflagChk(0x13B) == 0) {
+    if (gflagChk(315) == 0) {
         bridge_mes[0].func = actSt20aBridgeMain;
         sub->mail = bridge_mes;
         ACTSendMailCorrect(a0, 430);
@@ -390,12 +395,12 @@ void actSt20aGondola(volatile int a0)
     Act *sub = (Act *)actInitialize(a0);
 
     _ACTWait(1);
-    if (gflagChk(0x13C) != 0) {
-        stage_SetAnimation(0x93, 0, 0);
-        _ACTWait(0xA);
-        stage_SetAnimation(0x93, 0, 0x1F4);
+    if (gflagChk(316) != 0) {
+        stage_SetAnimation(147, 0, 0);
+        _ACTWait(10);
+        stage_SetAnimation(147, 0, 0x1F4);
     } else {
-        stage_SetAnimation(0x93, 0, 0);
+        stage_SetAnimation(147, 0, 0);
     }
     gondola_mes[0].func = actSt20aGondolaMain;
     sub->mail = gondola_mes;
@@ -421,13 +426,13 @@ void actSt20aElv(volatile int a0)
 
     actInitialize(a0);
     _ACTWait(1);
-    if (gflagChk(0x135) != 0) {
-        *(int *)(scpSearchGobj(0x7E6) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(0x7E7) + 0x16C) = 0;
-        gflagOff(0x135);
+    if (gflagChk(309) != 0) {
+        *(int *)(scpSearchGobj(2022) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(2023) + 0x16C) = 0;
+        gflagOff(309);
     } else {
-        *(int *)(scpSearchGobj(0x7E8) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(0x7E9) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(2024) + 0x16C) = 0;
+        *(int *)(scpSearchGobj(2025) + 0x16C) = 0;
     }
 }
 
@@ -437,7 +442,7 @@ void actSt20aEne(volatile int a0)
     Act *sub = (Act *)actInitialize(a0);
 
     _ACTWait(1);
-    if (gflagChk(0x13E) == 0) {
+    if (gflagChk(318) == 0) {
         ene_mes[0].func = actSt20aEneChk;
         sub->mail = ene_mes;
         ACTSendMailCorrect(a0, 430);
@@ -452,15 +457,15 @@ void actSt20aEnemy1(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
     Generator_Mask(a0);
-    while (gflagChk(0x13F) == 0) {
+    while (gflagChk(319) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     Generator_MaskOff(a0);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
 }
 
@@ -471,15 +476,15 @@ void actSt20aEnemy2(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
     Generator_Mask(a0);
-    while (gflagChk(0x13F) == 0) {
+    while (gflagChk(319) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     Generator_MaskOff(a0);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
-    _ACTWait(0x3C);
+    _ACTWait(60);
     Generator_Call(a0);
 }
 
@@ -490,7 +495,7 @@ void actSt20aEnemy3(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
     Generator_Mask(a0);
-    while (gflagChk(0x13F) == 0) {
+    while (gflagChk(319) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -503,13 +508,13 @@ void actSt20aHint1(volatile int a0)
     Act *sub = (Act *)actInitialize(a0);
 
     _ACTWait(1);
-    if (gflagChk(0x141) == 0) {
+    if (gflagChk(321) == 0) {
         hint1_mes[0].func = actSt20aHint1Chk;
         sub->mail = hint1_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        FinishHint(0x14);
+        FinishHint(20);
     }
 }
 
@@ -519,8 +524,8 @@ void actSt20aGirlPos(volatile int a0)
     Act *sub = (Act *)actInitialize(a0);
 
     _ACTWait(1);
-    if (gflagChk(0x142) == 0) {
-        SleepHint(0x14);
+    if (gflagChk(322) == 0) {
+        SleepHint(20);
         girlPos_mes[0].func = actSt20aGirlPosChk;
         sub->mail = girlPos_mes;
         ACTSendMailCorrect(a0, 430);
@@ -550,28 +555,24 @@ void actSt20aBridgeSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-extern int brg20a;
-extern unsigned int st20a_yure;
 extern unsigned char st20a_yure_vol;
-extern int D_00639EAC;
-extern int D_0063C5A8;
 
 void actSt20aBridgeDownSub(volatile int a0)
 {
-    _ACTWait(0x1E);
+    _ACTWait(30);
     while (brg20a == 0) {
         _ACTWait(1);
     }
     AdpcmPlay(*(int *)(brg20a + 0x2C));
-    stage_SetAnimation(0x94, 1, 0);
+    stage_SetAnimation(148, 1, 0);
     st20a_yure = iosPadActRequest(D_00639EAC, 9);
     st20a_yure_vol = 0x80;
     iosPadActVolumeSet(st20a_yure, 0x80);
-    while (stage_CheckAnimationFinish(0x94) == 0) {
+    while (stage_CheckAnimationFinish(148) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    D_0063C5A8 = 1;
+    demoEnd = 1;
     _ACTWait(0);
 }
 
@@ -579,7 +580,7 @@ void actSt20aGondolaMain(volatile int a0)
 {
     char *p = *(char **)(a0 + 0x164);
 
-    lt_switch_layout(0x36);
+    lt_switch_layout(54);
     D_0063AA08 = 0;
     scpWakeupEnemyAll();
     *(char **)(p + 0xD0) = (char *)gondolaMain_mes;
@@ -593,10 +594,10 @@ void actSt20aGondolaSwitch(volatile int a0)
     Act *sub = (Act *)*(int *)(a0 + 0x164);
 
     sub->mainMail = 0;
-    lt_switch_layout(0x37);
+    lt_switch_layout(55);
     D_0063AA08 = 1;
     scpSleepEnemyAll();
-    if (gflagChk(0x13C) != 0) {
+    if (gflagChk(316) != 0) {
         gondolaSwitchUp_mes[0].func = actSt20aGondolaUp;
         sub->mail = gondolaSwitchUp_mes;
         ACTSendMailCorrect(a0, 430);
@@ -614,8 +615,8 @@ void actSt20aExitChk(volatile int a0)
            scpTriggerFloorAttr(D_00639EA4, 0x2000000) == 0) {
         _ACTWait(1);
     }
-    gflagOn(0x13D);
-    gflagOff(0x135);
+    gflagOn(317);
+    gflagOff(309);
     if (D_00639EA8 != 0 && scpTriggerFloorAttr(D_00639EA8, 0x2000000) != 0) {
         OnGirlEscortFlag();
         RequestStageChange(4, D_00639EA4, D_00639EA8, 2.0f, 8.0f);
@@ -628,12 +629,12 @@ void actSt20aEneChk(volatile int a0)
     if (D_00639EA8 == 0) {
         _ACTWait(0);
     }
-    while (gflagChk(0x13B) == 0 || scpTriggerFloorAttr(D_00639EA8, 0x3000000) == 0) {
+    while (gflagChk(315) == 0 || scpTriggerFloorAttr(D_00639EA8, 0x3000000) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    gflagOn(0x13E);
-    gflagOn(0x13F);
+    gflagOn(318);
+    gflagOn(319);
 }
 
 void actSt20aGirlPosChk(volatile int a0)
@@ -641,8 +642,8 @@ void actSt20aGirlPosChk(volatile int a0)
     while (D_00639EA8 == 0 || scpTriggerBall(a0, D_00639EA8, 200.0f) == 0) {
         _ACTWait(1);
     }
-    gflagOn(0x142);
-    WakeupHint(0x14);
+    gflagOn(322);
+    WakeupHint(20);
 }
 
 void actSt20aHint1Chk(volatile int a0)
@@ -652,6 +653,6 @@ void actSt20aHint1Chk(volatile int a0)
         _ACTWait(1);
     }
     debug_StdPrintfDummy("HINT1_FINISH!!!!!!!!!!!!!!!\n");
-    gflagOn(0x141);
-    FinishHint(0x14);
+    gflagOn(321);
+    FinishHint(20);
 }

@@ -236,8 +236,6 @@ void _DoAwait(char *self)
     }
 }
 
-extern char *D_00639EA8;
-
 void _DoAwaitGirl(char *self)
 {
     EnemyParaRow *row;
@@ -250,7 +248,6 @@ void _DoAwaitGirl(char *self)
     }
 }
 
-extern void *D_00639EA4;
 /* kept local: this TU's uses of _DistxzSqGV do not fit the prototype in gv.h */
 extern float _DistxzSqGV(float *a0, float *a1);
 
@@ -525,17 +522,13 @@ int actEnemyForceSwitchToCarry(void *a0)
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", actEnemyKidnapEnd);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", actEnemyKidnapBegin);
 
-extern void *D_00639EA4;
 /* kept local: this TU's uses of GetRootProjectionPosOfGObj do not fit the prototype in motionManager2.h */
 extern void GetRootProjectionPosOfGObj(float *dst, char *gobj);
-/* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
-extern void _OrientXZGV(float *dst, float *a, float *b);
 /* kept local: this TU's uses of _RotyGV do not fit the prototype in gv.h */
 extern int _RotyGV(float *a0, void *a1);
 /* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
 extern void _ApplyRyGV(float *v, float ang);
 extern void sceVu0ScaleVector(float *dst, float *src, float s);
-extern void sceVu0AddVector(float *dst, float *a, float *b);
 
 void MoveChestForCatchBoy(char *self)
 {
@@ -590,8 +583,6 @@ extern void sceVu0SubVector(float *dst, float *a, float *b);
 extern float _DistSqGV(float *a, float *b);
 /* kept local: this TU's uses of GetMotionFrameFlag1 do not fit the prototype in motionManager2.h */
 extern int GetMotionFrameFlag1(void *self);
-/* kept local: this TU's uses of GetMotionFrameFlag2 do not fit the prototype in motionManager2.h */
-extern int GetMotionFrameFlag2(void *self);
 extern float D_0029D100[];
 
 /* listing rows 2655-2657: a `static inline` outside this function's span. */
@@ -684,13 +675,6 @@ void actEnemyBodylift(volatile int a0)
         _ACTWait(1);
     }
 }
-
-/* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
-extern void _OrientXZGV(float *dst, float *a, float *b);
-/* kept local: this TU's uses of SetMotionDirection do not fit the prototype in motionManager2.h */
-extern void SetMotionDirection(void *self, float *dir);
-/* kept local: this TU's uses of _RotyGV do not fit the prototype in gv.h */
-extern int _RotyGV(float *a0, void *a1);
 
 /* Static inline of the 2001 source (listing lines 2889-2892 sit inside
    actEnemyPickupBegin's ROM range but above its own body lines).  ROM's frame
@@ -838,8 +822,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", BrainMode_Requset);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", subEnemyBrainMain);
 
 extern char D_005535A0[];
-/* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
-extern float _DistSqGV(float *a, float *b);
 
 void subEnemyBrain_ToGenerator(int self)
 {
@@ -856,7 +838,7 @@ void subEnemyBrain_ToGenerator(int self)
         float best = 0.0f;
         char *g;
 
-        for (g = isysGObjSearchFromObjKindID_begin(0x21); g != 0;
+        for (g = isysGObjSearchFromObjKindID_begin(33); g != 0;
              g = isysGObjSearchFromObjKindID_next(g)) {
             if (IsOpenGenerator(g) != 0) {
                 float d;
@@ -881,7 +863,7 @@ void subEnemyBrain_ToGenerator(int self)
         *(int *)(sub + 0x120) = 0;
         *(int *)(sub + 0x124) = 0;
         *(int *)(sub + 0x128) = 0;
-        _ACTWait(0x1E);
+        _ACTWait(30);
         ACTSendMailCorrect((void *)a0, 0x100);
         _ACTWait(0);
     }
@@ -894,7 +876,6 @@ void subEnemyBrain_ToGenerator(int self)
 /* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
 extern float _DistGV(void *a, void *b);
 extern int D_0063B240;
-extern void sceVu0SubVector(float *dst, float *a, float *b);
 extern void sceVu0Normalize(float *dst, float *src);
 extern float _GetRandom(void);
 
@@ -958,10 +939,6 @@ void enemy_dodge(char *self)
         }
     }
 }
-
-/* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
-extern float _DistSqGV(float *a, float *b);
-extern int D_0063B240;
 
 void enemy_dodge_to_boy(char *self)
 {
@@ -1080,9 +1057,6 @@ int Battle_isCurrentStatus(char *self, char *tgt, float *pos)
     return ret;
 }
 
-/* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
-extern float _DistSqGV(float *a, float *b);
-extern float _GetRandom(void);
 extern float D_0063A7F4[];
 extern float D_0029D130[4][4];
 extern float D_0029D170[4][4];
@@ -1169,10 +1143,6 @@ int GetFlyPosition(float *out, float *me, float *tgt)
     }
     return ret;
 }
-
-/* kept local: this TU's uses of _AbsRotyGV do not fit the prototype in gv.h */
-extern int _AbsRotyGV(float *a, float *b);
-extern int stage_no;
 
 void NakaBoss(char *self, int flag)
 {
@@ -1401,9 +1371,6 @@ void subEnemyBrain_Attack(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
-extern float _DistSqGV(float *a, float *b);
-
 void subEnemyBrain_Cling(volatile int a0)
 {
     char *sub = *(char **)(a0 + 0x164);
@@ -1426,7 +1393,7 @@ void subEnemyBrain_Cling(volatile int a0)
                 ACTSendMailCorrect((void *)a0, 0xD0);
             }
         } else {
-            _ACTWait(0x1E);
+            _ACTWait(30);
             _BrainMode_SetDirect_INTERIM((char *)a0, 0, 0);
         }
         _ACTWait(1);
@@ -1481,11 +1448,6 @@ void actEnemyHang(volatile int a0)
     _ACTWait(0);
 }
 
-extern char D_00553370[];
-extern char D_0063A7E8[];
-extern void debug_assert(char *file, int line);
-extern void __assert(char *file, int line, char *expr);
-
 void actEnemyCarry(volatile int a0)
 {
     debug_assert(D_00553370, 0xB75);
@@ -1511,7 +1473,6 @@ void actEnemyBodyslamFail(volatile int a0)
 }
 
 extern char *D_0063A61C;
-extern int stage_no;
 extern char D_00553500[];
 
 void actEnemyNest(volatile int a0)
@@ -1546,8 +1507,6 @@ void funcEnemyCarryFail(char *a0)
     *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x20) |= (1ULL << 34);
 }
 
-extern char D_00553500[];
-
 void actEnemyHyde(int *self)
 {
     char spill[16];
@@ -1558,15 +1517,11 @@ void actEnemyHyde(int *self)
     actEnemyFlagOnFree(self);
 }
 
-extern char D_002C2DC8[];
-
 void actEnemyFlagOnFree(int *a0)
 {
     char *base = D_002C2DC8 + a0[2] * 0x4C;
     *(int *)(base + 0x48) &= ~0x200000;
 }
-
-extern char *D_00639EA8;
 
 void afterCommonCarry(volatile int a0)
 {
@@ -1655,9 +1610,6 @@ int actEnemy_isSmallEnemy(char *a0)
     return *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1E8) == 0;
 }
 
-extern char D_00553370[];
-extern char D_00553380[];
-
 int IsEnemyBrainToGenerator(char *a0, int *out)
 {
     char *b = *(char **)(a0 + 0x164);
@@ -1670,8 +1622,6 @@ int IsEnemyBrainToGenerator(char *a0, int *out)
     }
     return 1;
 }
-
-extern char *D_00639EA8;
 
 int IsEnemyBrainToBoy(char *self)
 {
@@ -1704,10 +1654,6 @@ int isEnemyKidnapEnable(int *self)
     }
     return actEnemyFlagCheckActive_INTERIM(self);
 }
-
-extern char D_00553510[];
-extern void debug_assert(char *file, int line);
-extern void __assert(char *file, int line, char *expr);
 
 int isEnemyActive(int *self)
 {
@@ -1743,8 +1689,6 @@ void subEnemyBrain_Idle(volatile int a0)
     }
 }
 
-extern float _GetRandom(void);
-
 void subEnemyBrain_Await(volatile int a0)
 {
     char *sub = *(char **)(a0 + 0x164);
@@ -1765,8 +1709,6 @@ void subEnemyBrain_Await(volatile int a0)
         _ACTWait(1);
     }
 }
-
-extern int D_0028F4C0[];
 
 void subEnemyBrain_FindGirl(volatile int a0)
 {
@@ -1792,9 +1734,6 @@ void subEnemyBrain_FindGirl(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
-extern float _DistGV(void *a, void *b);
-
 void subEnemyBrain_BodyGuard(volatile int a0)
 {
     char *sub = *(char **)(a0 + 0x164);
@@ -1810,21 +1749,19 @@ void subEnemyBrain_BodyGuard(volatile int a0)
                 *(int *)(sub + 0x120) = 0;
                 *(int *)(sub + 0x124) = 0;
                 *(int *)(sub + 0x128) = 0;
-                _ACTWait(0x1E);
+                _ACTWait(30);
             }
             *(int *)(sub + 0x34C) = 0;
             *(int *)(sub + 0x120) = 0;
             *(int *)(sub + 0x124) = 0;
             *(int *)(sub + 0x128) = 0;
-            _ACTWait(0x3C);
+            _ACTWait(60);
         }
     }
 }
 
 /* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
 extern void _OrientXZGV(float *out, float *a, float *b);
-/* kept local: this TU's uses of SetMotionDirection do not fit the prototype in motionManager2.h */
-extern void SetMotionDirection(void *self, float *dir);
 
 void subEnemyBrain_Shoulder(volatile int a0)
 {
@@ -1835,7 +1772,7 @@ void subEnemyBrain_Shoulder(volatile int a0)
     SetMotionDirection((void *)a0, dir);
     ACTSendMailCorrect((void *)a0, 0x162);
     while (1) {
-        _ACTWait(0x78);
+        _ACTWait(120);
         _BrainMode_SetDirect_INTERIM((char *)a0, 0, 0);
     }
 }
@@ -1844,7 +1781,7 @@ void subEnemyBrain_Pickup(volatile int a0)
 {
     ACTSendMailCorrect((void *)a0, 0x16C);
     while (1) {
-        _ACTWait(0x78);
+        _ACTWait(120);
         _BrainMode_SetDirect_INTERIM((char *)a0, 0, 0);
     }
 }
@@ -1857,7 +1794,7 @@ void subEnemyBrain_Bodyslam(volatile int a0)
         ACTSendMailCorrect((void *)a0, 0x173);
     }
     while (1) {
-        _ACTWait(0x78);
+        _ACTWait(120);
         _BrainMode_SetDirect_INTERIM((char *)a0, 0, 0);
     }
 }
@@ -1896,12 +1833,10 @@ void subEnemyBrain_Irregular(volatile int a0)
         afterCommonCarry_INTERIM(a0);
     }
     while (1) {
-        _ACTWait(0x1E);
+        _ACTWait(30);
         _BrainMode_SetDirect_INTERIM((char *)a0, 0, 0);
     }
 }
-
-extern int D_0063A7E0;
 
 void _BrainMode_SetDirect(char *a0, int a1, int *a2)
 {

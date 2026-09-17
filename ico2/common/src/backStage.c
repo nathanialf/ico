@@ -161,7 +161,7 @@ void backStageProcessOutStage(void)
     int o;
 
     done = 0;
-    if (gflagChk(0x18A) != 0) {
+    if (gflagChk(394) != 0) {
         kidnapState = 0;
         done = 1;
     }
@@ -249,7 +249,7 @@ void backStageProcessOutStage(void)
             }
             o = isysGObjSearchFromObjKindID_next(o);
         }
-        o = isysGObjSearchFromObjKindID_begin(0x21);
+        o = isysGObjSearchFromObjKindID_begin(33);
         while (o != 0) {
             if (*(int *)(o + 8) == 0xEAE) {
                 gamesysObjInfoCls(0x21, 0xEAE);
@@ -268,7 +268,7 @@ void backStageProcessMain(void)
     GamesysObjInfoBackstage *g2;
 
     gamesysAnotherStageTsuresari = 0;
-    if (gflagChk(0x186) != 0) {
+    if (gflagChk(390) != 0) {
         return;
     }
     if (D_0063B60C != 0x36) {
@@ -415,7 +415,7 @@ void backStageProcessInStage(float arg)
         if (D_004DA7D0[stage_no] == 0) {
             return;
         }
-        if (gflagChk(0x186) != 0) {
+        if (gflagChk(390) != 0) {
             return;
         }
     }
@@ -423,11 +423,11 @@ void backStageProcessInStage(float arg)
     if (limit < range) {
         range = limit;
     }
-    if (D_0063ACF0 == 0 && IsGirlEscortedInCurrentStage() == 0 && gflagChk(0x18A) == 0 &&
+    if (D_0063ACF0 == 0 && IsGirlEscortedInCurrentStage() == 0 && gflagChk(394) == 0 &&
         D_004DA980[1].stage == stage_no && warpGirlInStageSet == 0) {
         /* the heroine is not held, so the position is changed at random */
         debug_StdPrintfDummy("ヒロイン捕まっていないのでランダムで位置変更");
-        if (gflagChk(0x187) == 0) {
+        if (gflagChk(391) == 0) {
             kidnapWarpToWaypoint(D_00639EA8, range);
         }
     }
@@ -437,7 +437,7 @@ void backStageProcessInStage(float arg)
             if (D_0063ACF0 != gobj) {
                 /* the heroine is not held */
                 debug_StdPrintfDummy("ヒロイン捕まってない");
-                if (gflagChk(0x187) == 0 && InqCapsuleGhostBossStage() == 0) {
+                if (gflagChk(391) == 0 && InqCapsuleGhostBossStage() == 0) {
                     kidnapWarpToWaypoint(gobj, range);
                 }
             } else {

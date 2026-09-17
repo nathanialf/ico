@@ -41,8 +41,33 @@ extern float D_006E6590[3];
 extern float D_006E6620[3];
 extern float D_006E6630[3];
 extern float D_0063AB4C[];
-extern char *D_0063C264;
-extern int D_0063C26C;
+
+/* .sbss, owned by camera-ico2.o (MAIN.MAP names no symbol in the run), in the
+   ROM's run order: the camera-set binary this file reads in and the group
+   window into it, the frame counter the warp guard tests, the current group,
+   the two hand-camera correction rates setHandCameraRates scales by the frame
+   budget, the "group changed this frame" flag, and the number of plural camera
+   sets held in D_006E6640. */
+static char *cameraSetBuf;
+
+static char *cameraSetGroups;
+
+static char *cameraSetGroupsEnd;
+
+static int cameraSetGroupNum;
+
+static int cameraFrames;
+
+static int cameraGroupCurrent;
+
+static float handCameraEyeRate;
+
+static float handCameraAtRate;
+
+static unsigned char cameraGroupChanged;
+
+static int pluralCameraSetNum;
+
 extern char D_006E64F4[];
 /* kept local: this TU's uses of SetMonitorCameraInitializeFlag do not fit the prototype in camera-root.h */
 extern void SetMonitorCameraInitializeFlag();
@@ -65,7 +90,6 @@ typedef struct IosPadStick {
 
 extern char iosPadConfDefault[];
 extern float D_0063AB48;
-extern int D_0063C274;
 
 typedef struct PluralCameraSet {
     int id;    /* 0x00 */
@@ -76,7 +100,6 @@ extern PluralCameraSet D_006E6640[];
 extern char D_00555060[];
 extern char D_00555090[];
 extern char D_0063AB58[];
-extern int D_0063C284;
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 /* kept local: this TU's uses of ReadCameraSet do not fit the prototype in camera-ico2.h */
@@ -224,9 +247,9 @@ int ico2camera_GetGroupNearest(float *query)
     int result = -1;
     float min = D_0063AB4C[0];
     int i;
-    for (i = 0; i < D_0063C26C; i++) {
+    for (i = 0; i < cameraSetGroupNum; i++) {
         float buf[4];
-        char *entry = D_0063C264 + i * 0x4C;
+        char *entry = cameraSetGroups + i * 0x4C;
         float *center = (float *)(entry + 0x20);
         float *range = (float *)(entry + 0x2C);
         int k;
@@ -300,9 +323,6 @@ typedef struct CameraState {
 extern CameraState D_006E64B0;
 extern int D_0063ABA8;
 extern int D_0063ABAC;
-extern int D_0063C270;
-extern float D_0063C278;
-extern float D_0063C27C;
 extern int D_0028F4C0[];
 /* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
 extern float _DistGV(void *a0, void *a1);
@@ -348,7 +368,7 @@ void monitorMonitorCamera(CamWork *cam, CamWork *out)
         D_006E64B0.moveDist = 0.0f;
         D_006E64B0.atRate = 0.0f;
         D_006E64B0.active = 0;
-        if (flag != 0 && D_0063C270 < 10) {
+        if (flag != 0 && cameraFrames < 10) {
             D_006E64B0.active = 1;
         }
         D_006E64B0.dbgA[0] = 0.0f;
@@ -369,20 +389,22 @@ void monitorMonitorCamera(CamWork *cam, CamWork *out)
     vDiff[2] = cam->eye.f[2] - D_006E64B0.work.eye.f[2];
     sceVu0SubVector(vEye, cam, &D_006E64B0.work);
     len = FSqrt(vEye[0] * vEye[0] + vEye[1] * vEye[1] + vEye[2] * vEye[2]);
-    if (D_0063C278 * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 11.0f < len) {
-        if (D_0063C278 * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) <
+    if (handCameraEyeRate * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 11.0f <
+        len) {
+        if (handCameraEyeRate * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) <
             D_006E64B0.moveDist) {
             D_006E64B0.moveDist =
-                D_0063C278 * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+                handCameraEyeRate * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
         }
         if (D_006E64B0.moveDist < len) {
-            len = D_006E64B0.moveDist +
-                  D_0063C278 * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 30.0f;
+            len = D_006E64B0.moveDist + handCameraEyeRate * 30.0f /
+                                            (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) /
+                                            30.0f;
             sceVu0Normalize(vEye, vEye);
             sceVu0ScaleVector(vEye, vEye, len);
             sceVu0AddVector(out, &D_006E64B0.work, vEye);
         } else {
-            len = D_0063C278 * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+            len = handCameraEyeRate * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
             sceVu0Normalize(vEye, vEye);
             sceVu0ScaleVector(vEye, vEye, len);
             sceVu0AddVector(out, &D_006E64B0.work, vEye);
@@ -395,7 +417,7 @@ void monitorMonitorCamera(CamWork *cam, CamWork *out)
     t = FSqrt(vOut[0] * vOut[0] + vOut[1] * vOut[1] + vOut[2] * vOut[2]);
     D_006E64B0.moveDist = t;
     held = 0;
-    d = D_0063C27C * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+    d = handCameraAtRate * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
     if (d < 0.0f) {
         d = -d;
     }
@@ -493,11 +515,6 @@ void ChaseCamera(float *a0, float *a1)
     a1[8] = 50.0f;
 }
 
-extern char *D_0063C264;
-extern int D_0063C270;
-extern float D_0063C278;
-extern float D_0063C27C;
-extern int D_0028F4C0[];
 extern int D_0063B178;
 
 /* Static helper at camera-ico2.c lines 149-158 of the listing, hosted by both
@@ -508,8 +525,8 @@ extern int D_0063B178;
  * insns survive with no encoding of their own. */
 static inline int setHandCameraRates(float a, float b)
 {
-    D_0063C278 = a * 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
-    D_0063C27C = b * 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+    handCameraEyeRate = a * 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+    handCameraAtRate = b * 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
     return (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1];
 }
 
@@ -539,7 +556,7 @@ typedef struct CamSetGroup { /* 0x4C */
     CamMoveItem *items; /* 0x48 */
 } CamSetGroup;
 
-#define CAMSET_GROUP(n) ((CamSetGroup *)(D_0063C264 + (n) * 0x4C))
+#define CAMSET_GROUP(n) ((CamSetGroup *)(cameraSetGroups + (n) * 0x4C))
 
 extern float D_006E6320[];
 extern float D_006E6190[];
@@ -770,37 +787,30 @@ inline void MakeCameraSetBinary(S4C *src, int count, S4C *dst)
     } while (src != sEnd);
 }
 
-extern char *D_0063C260;
-extern char *D_0063C268;
 extern int D_0063A450;
 
 void ReflectCameraSetBinary(S4C *src, int count)
 {
-    if (D_0063C260 != 0) {
-        iosFree(D_0063C260);
+    if (cameraSetBuf != 0) {
+        iosFree(cameraSetBuf);
     }
 
-    D_0063C260 = iosMallocDebug(D_0063A450, GetSizeOfCameraSetBinary(src, count), D_00555060, 1577);
-    D_0063C264 = D_0063C260;
-    D_0063C268 = D_0063C260 + count * 0x4C;
-    D_0063C26C = count;
-    MakeCameraSetBinary(src, count, (S4C *)D_0063C260);
+    cameraSetBuf =
+        iosMallocDebug(D_0063A450, GetSizeOfCameraSetBinary(src, count), D_00555060, 1577);
+    cameraSetGroups = cameraSetBuf;
+    cameraSetGroupsEnd = cameraSetBuf + count * 0x4C;
+    cameraSetGroupNum = count;
+    MakeCameraSetBinary(src, count, (S4C *)cameraSetBuf);
 }
-
-extern int D_0063C270;
-extern float D_0063C278;
-extern float D_0063C27C;
-extern unsigned char D_0063C280;
-extern int D_0028F4C0[];
 
 void InitIco2Camera(void)
 {
-    D_0063C270 = 0;
-    D_0063C260 = 0;
+    cameraFrames = 0;
+    cameraSetBuf = 0;
     CameraSetCameraSet_Default();
     initMonitorCamera(1);
-    D_0063C274 = -1;
-    D_0063C280 = 1;
+    cameraGroupCurrent = -1;
+    cameraGroupChanged = 1;
     setHandCameraRates(D_005F5D50[stage_no].rate, 10.0f);
     InitHandCameraCorrect();
 }
@@ -866,7 +876,6 @@ inline void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag)
 }
 
 extern int D_0063ABA4;
-extern int D_0063B178;
 /* kept local: this TU's uses of CameraMove do not fit the prototype in camera-ico2.h */
 extern void CameraMove(int group, float *pos, float *out, float *ofsA, float *ofsB);
 /* kept local: this TU's uses of InsertCamera_Exec do not fit the prototype in camera-root.h */
@@ -883,9 +892,9 @@ static inline int findCameraGroupContaining(float *pos)
 {
     int result = -1;
     int i;
-    for (i = 0; i < D_0063C26C; i++) {
+    for (i = 0; i < cameraSetGroupNum; i++) {
         int k = 0;
-        char *entry = D_0063C264 + i * 0x4C;
+        char *entry = cameraSetGroups + i * 0x4C;
         float *range = (float *)(entry + 0x2C);
         float *center = (float *)(entry + 0x20);
         float *p = pos;
@@ -922,9 +931,9 @@ void SetCameraMatrix_Ico2(int flag)
     unsigned char f8;
     int group;
 
-    if (D_0063C280 != 0) {
+    if (cameraGroupChanged != 0) {
         flag = 1;
-        D_0063C280 = 0;
+        cameraGroupChanged = 0;
         changed = 1;
     }
     if (flag) {
@@ -946,9 +955,9 @@ void SetCameraMatrix_Ico2(int flag)
         sceVu0ScaleVector(vA, vA, D_0063AB48);
         sceVu0AddVector(cw.at.f, cw.at.f, vA);
     } else {
-        if (flag != 0 ||
-            (D_0063C274 != -1 && *(int *)(D_0063C264 + group * 0x4C + 0x44) !=
-                                     *(int *)(D_0063C264 + D_0063C274 * 0x4C + 0x44))) {
+        if (flag != 0 || (cameraGroupCurrent != -1 &&
+                          *(int *)(cameraSetGroups + group * 0x4C + 0x44) !=
+                              *(int *)(cameraSetGroups + cameraGroupCurrent * 0x4C + 0x44))) {
             initMonitorCamera(1);
             f8 = 1;
         }
@@ -963,7 +972,7 @@ void SetCameraMatrix_Ico2(int flag)
         sceVu0ScaleVector(vB, vB, D_0063AB48);
         sceVu0AddVector(cw.at.f, cw.at.f, vA);
         sceVu0AddVector(cw.at.f, cw.at.f, vB);
-        D_0063C274 = group;
+        cameraGroupCurrent = group;
     }
     InsertCamera_Exec((float *)&cw, &cut, &cutType, &enable);
     if (cut != 0) {
@@ -994,14 +1003,14 @@ void SetCameraMatrix_Ico2(int flag)
         }
     }
     SetWSMatrix(&cw);
-    D_0063C270 = D_0063C270 + 1;
+    cameraFrames = cameraFrames + 1;
 }
 
 inline void *GetPluralCameraSet(int id)
 {
     int i;
 
-    for (i = 0; i < D_0063C284; i++) {
+    for (i = 0; i < pluralCameraSetNum; i++) {
         if (D_006E6640[i].id == id) {
             return D_006E6640[i].set;
         }
@@ -1016,27 +1025,27 @@ inline void AddPluralCameraSet(int id, char *name)
 {
     PluralCameraSet *p;
 
-    if (D_0063C284 >= 10) {
+    if (pluralCameraSetNum >= 10) {
         debug_StdPrintfDummy(D_00555090, 10);
         debug_assert(D_00555060, 0x7FD);
         __assert(D_00555060, 0x7FD, D_0063AB58);
     }
-    p = &D_006E6640[D_0063C284];
+    p = &D_006E6640[pluralCameraSetNum];
     p->id = id;
     p->set = ReadCameraSet(name, stage_no);
-    D_0063C284++;
+    pluralCameraSetNum++;
 }
 
 inline void InitPluralCameraSet(void)
 {
-    D_0063C284 = 0;
+    pluralCameraSetNum = 0;
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/camera-ico2", ReadCameraSet);
 
 inline int GetCameraGroupCurrent(void)
 {
-    return D_0063C274;
+    return cameraGroupCurrent;
 }
 
 inline int GetCameraGroupFromGObj(void *obj)
@@ -1049,9 +1058,9 @@ inline int GetCameraGroupFromGObj(void *obj)
     sceVu0ScaleVector(buf, buf, -1.0f);
     bp = buf;
     result = -1;
-    for (i = 0; i < D_0063C26C; i++) {
+    for (i = 0; i < cameraSetGroupNum; i++) {
         int k = 0;
-        char *entry = D_0063C264 + i * 0x4C;
+        char *entry = cameraSetGroups + i * 0x4C;
         float *range = (float *)(entry + 0x2C);
         float *center = (float *)(entry + 0x20);
         float *p = bp;
@@ -1083,9 +1092,9 @@ inline int GetCameraGroupFromPosition(float *pos)
     sceVu0ScaleVector(buf, pos, -1.0f);
     bp = buf;
     result = -1;
-    for (i = 0; i < D_0063C26C; i++) {
+    for (i = 0; i < cameraSetGroupNum; i++) {
         int k = 0;
-        char *entry = D_0063C264 + i * 0x4C;
+        char *entry = cameraSetGroups + i * 0x4C;
         float *range = (float *)(entry + 0x2C);
         float *center = (float *)(entry + 0x20);
         float *p = bp;

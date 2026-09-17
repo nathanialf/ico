@@ -25,7 +25,7 @@ void effect_end_func(void *a0)
 {
     signed char *e;
 
-    if (isysGObjSearchFromObjKindID_begin(0x41) != 0) {
+    if (isysGObjSearchFromObjKindID_begin(65) != 0) {
         e = D_006E9A40 + *(int *)(GetParticleEffectData(a0) + 0x70) * 0x40;
         pbga_start(e, 0x228);
         _CopyVector(*(char **)e + 0x20, e + 0x20);
@@ -35,7 +35,6 @@ void effect_end_func(void *a0)
     }
 }
 
-extern float _GetRandom(void);
 /* kept local: this TU's uses of GatherEffect_Set do not fit the prototype in gather_effect.h */
 extern int GatherEffect_Set(int kind, void *pos, void *tmpl, void *v, void *fn, float f);
 
@@ -134,8 +133,6 @@ void BossCtrlGeo(void *self)
         scpSleepEnemyAll();
 }
 
-extern unsigned char D_006E9A30[];
-
 void itou_boss_gflag_init(void)
 {
     memset(D_006E9A30, 0, 0xD50);
@@ -170,8 +167,6 @@ void BossCtrlDL(void)
         debug_Printf(10, 60, 0xFFFFFFFF, D_00556880, n, 53);
     }
 }
-
-extern int stage_no;
 
 int InqCapsuleGhostBossStage(void)
 {
@@ -216,7 +211,7 @@ void actBossCtrlStart(void *a0)
     no = 0;
     bossCtrlInit(a0);
     D_0063C2EC = 0;
-    o = (char *)isysGObjSearchFromObjKindID_begin(0x21);
+    o = (char *)isysGObjSearchFromObjKindID_begin(33);
     while (o != 0) {
         sendEnemyAway(o);
         no++;
@@ -224,7 +219,7 @@ void actBossCtrlStart(void *a0)
     }
     debug_StdPrintfDummy(D_00556850, no);
     for (i = 0; i < no; i++) {
-        actCreateSubThread(func_001A08F8, 0x15);
+        actCreateSubThread(func_001A08F8, 21);
     }
 }
 
@@ -233,7 +228,6 @@ extern char D_005564F0[];
 extern char D_00556860[];
 extern char D_00556870[];
 extern void *D_0063A438;
-extern signed char D_006E9A40[];
 /* kept local: this TU's uses of ico_m33_to_quat do not fit the prototype in itou_sub.h */
 extern void ico_m33_to_quat(void *a0, void *a1);
 
@@ -287,7 +281,7 @@ int InqCapsuleGhostBossEnd(void)
     unsigned int cnt = 0;
     void *o;
 
-    if (isysGObjSearchFromObjKindID_begin(0x41) != 0) {
+    if (isysGObjSearchFromObjKindID_begin(65) != 0) {
         signed char *base = D_006E9A40;
         unsigned int i = 0;
         do {

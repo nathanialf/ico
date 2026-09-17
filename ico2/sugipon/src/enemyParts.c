@@ -351,9 +351,6 @@ int ExecEnemyFootPrints(char *self)
     return 1;
 }
 
-/* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
-extern void _CopyVector(void *dst, void *src);
-
 int EntryEnemyFootPrint(char *self, void *pos)
 {
     int i = *(int *)(self + 0x8);

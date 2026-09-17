@@ -228,10 +228,6 @@ typedef struct {
 
 extern GirlClothSetting D_004EB400;
 extern GirlClothSetting D_004EB410;
-extern int D_0063B250;
-extern int D_0063B254;
-extern int D_0063B258;
-extern int D_0063B25C;
 
 /* static helper the listing places at girl.c line(s) 864-868; never emitted out
  * of line, so it has no MAIN.MAP symbol and this name is ours. */

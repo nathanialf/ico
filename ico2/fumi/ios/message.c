@@ -190,8 +190,6 @@ void iosMsgInit(void)
     }
 }
 
-extern char D_0063A510[];
-
 int iosMsgSend(char *q, int val, int mode)
 {
     int st[8];
@@ -215,8 +213,6 @@ int iosMsgSend(char *q, int val, int mode)
     }
     return 0;
 }
-
-extern char D_0063A510[];
 
 int iosMsgRecv(char *q, int *out, int mode)
 {
@@ -259,7 +255,6 @@ void iosMsgQueueDestroyAll(void)
 }
 
 extern int odd_even;
-extern int *D_0063A530;
 extern void iWakeupThread(int);
 
 int signal_handler(int a0)

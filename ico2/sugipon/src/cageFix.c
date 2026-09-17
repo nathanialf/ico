@@ -14,7 +14,7 @@ inline int InitCageFixGeo(void)
 
 void CageFixGeo(char *a0)
 {
-    char *g = isysGObjSearchFromObjKindID_begin(0x2C);
+    char *g = isysGObjSearchFromObjKindID_begin(44);
     if (g != 0) {
         CopyMatrix(MatrixDrive_GetMatrix(), *(char **)(*(char **)(a0 + 0x15C) + 0xC));
         SetCageFixGeometry(g, MatrixDrive_GetMatrix() + 0x30,

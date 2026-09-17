@@ -86,7 +86,13 @@ extern int stageMgrMsgQ[];
 extern int graphics_ready;
 extern unsigned int mpegPlayInitColor;
 extern int D_0028F4F0[];
-extern unsigned int D_006FAC80[];
+
+/* .bss, owned by StageManager.o (the retail run is 0x70, the size of thread.c's
+   own IOSThread record; MAIN.MAP sizes its own link's 0x80 and names no symbol
+   in it): the thread descriptor InitIcoMisc is started through. */
+/* */
+static unsigned int initIcoMiscThread[28];
+
 extern void *D_0063A428;
 extern int D_00639ED4;
 extern int mpegPlay;
@@ -113,7 +119,6 @@ extern unsigned char D_0063BCB3;
 extern float mpegPlayFadeInSpeed;
 extern int D_0063A054;
 extern int stgMgrWakeupRequest;
-extern int D_0063ACD0;
 extern char D_00619140[];
 extern char D_00619158[];
 extern char D_00619168[];
@@ -132,7 +137,6 @@ extern void *D_0063A450;
 extern void *D_0063A458;
 extern void *D_00639EA4;
 extern void *D_00639EA8;
-extern int D_0028F4C0[];
 extern int jimaku_msg[];
 extern char D_00618FF8[];
 extern char D_00619010[];
@@ -253,9 +257,10 @@ void start_stage_Load_thread(int stage)
         iosThreadCancelWakeup(0);
         gsb_SetMotionBlur();
         D_00639ED4 = stage;
-        iosThreadCreateS(D_006FAC80, 1, InitIcoMisc, (int)&stage_no, D_0063A428, 0x18000, 27);
-        iosThreadStart(D_006FAC80);
-        flags = D_006FAC80[15];
+        iosThreadCreateS(initIcoMiscThread, 1, InitIcoMisc, (int)&stage_no, D_0063A428, 0x18000,
+                         27);
+        iosThreadStart(initIcoMiscThread);
+        flags = initIcoMiscThread[15];
         debug_StdPrintfDummy(D_006190D0, (int)flags & 1);
         game_pause = 1;
         debug_StdPrintfDummy(D_006190E0);

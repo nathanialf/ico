@@ -149,7 +149,6 @@ int _AbsRotyGV(void *a0, void *a1)
 
 extern void sceVu0RotMatrixY(float *dst, float *src, float a);
 extern void sceVu0ApplyMatrix(float *dst, float *m, float *v);
-extern void sceVu0UnitMatrix(float *m);
 
 void _ApplyRyGV(float *a0, float a1)
 {

@@ -174,9 +174,6 @@ void isysGObjRemoveAll(void)
     isysGObjKindTableInit();
 }
 
-extern char D_0029C4F0[];
-extern char *D_0029C510[];
-
 void add_gobj_to_tail(int a0, int a1, int a2)
 {
     char *g = (char *)a0;
@@ -395,8 +392,6 @@ int isysGetNbAllocedGObjs(void)
     return result;
 }
 
-extern char D_0063A608[];
-
 inline void isysGObjRemove(char *g)
 {
     int kind = *(int *)(g + 0xC);
@@ -463,8 +458,6 @@ inline void isysGObjKindTableAdd(char *g, int kind)
     }
 }
 
-extern char D_0063A608[];
-
 inline void isysGObjKindTableRemove(char *g)
 {
     int kind = *(int *)(g + 0xC);
@@ -488,9 +481,6 @@ inline void isysGObjKindTableRemove(char *g)
     }
 }
 
-/* kept local: this TU's uses of cut_gobj_link do not fit the prototype in gobj.h */
-extern void cut_gobj_link(int a0);
-
 inline void isysGObjMoveAfterGObj(char *self, char *other)
 {
     cut_gobj_link((int)self);
@@ -503,10 +493,6 @@ inline void isysGObjMoveAfterGObj(char *self, char *other)
         D_0029C510[*(unsigned char *)(self + 0x18)] = self;
     }
 }
-
-extern char D_0029C4F0[];
-/* kept local: this TU's uses of cut_gobj_link do not fit the prototype in gobj.h */
-extern void cut_gobj_link(int a0);
 
 inline void isysGObjMoveBeforeGObj(int self, int other)
 {
@@ -650,8 +636,6 @@ inline struct GObj__p4 *isysGObjGetExist_next(struct GObj__p4 *start)
     return 0;
 }
 
-extern int D_0063A60C;
-
 inline void isysGObjActiveLink(int bit, int set)
 {
     if (set != 0)
@@ -661,8 +645,6 @@ inline void isysGObjActiveLink(int bit, int set)
 set_path:
     D_0063A60C |= (1 << bit);
 }
-
-extern unsigned int D_0063A610;
 
 inline void isysGObjActiveDlLink(int a0, int a1)
 {

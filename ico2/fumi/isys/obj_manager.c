@@ -260,7 +260,7 @@ void _iosOmMain(int a0, int a1, int a2, int a3)
                 D_0063A61C = (char *)g2;
                 if (D_0028F4C0[5] == 0 || g2->pauseExempt != 0) {
                     if (g2->active != 0) {
-                        for (pri = 0x13; pri < 0x1B; pri++) {
+                        for (pri = 0x13; pri < 27; pri++) {
                             p = g2->procs;
                             while (p != 0) {
                                 if (p->pri == pri) {
@@ -319,7 +319,6 @@ typedef struct OmObj {
 } OmObj;
 
 extern OmCam *D_0063A614;
-extern int D_0063A60C;
 extern OmObj *D_0029C530[];
 
 void iosOmCreateDL(void)
@@ -334,7 +333,7 @@ void iosOmCreateDL(void)
                 c->dl(c);
             }
         }
-        for (i = 0; i < 0x20; i++) {
+        for (i = 0; i < 32; i++) {
             if ((D_0063A60C >> i) & 1) {
                 if ((c->kindMask >> i) & 1) {
                     for (g = D_0029C530[i]; g != 0; g = g->next) {

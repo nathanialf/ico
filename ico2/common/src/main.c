@@ -151,9 +151,6 @@ void boot(void)
 extern ThreadTbl D_0054D508;
 /* kept local: this TU's uses of iosThreadDestroy do not fit the prototype in thread.h */
 extern void iosThreadDestroy(int *th);
-extern ThreadTbl D_0054D508;
-/* kept local: this TU's uses of iosThreadDestroy do not fit the prototype in thread.h */
-extern void iosThreadDestroy(int *th);
 
 void Emergency_DestroyAllThread(void)
 {

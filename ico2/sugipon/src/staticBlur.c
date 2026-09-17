@@ -94,7 +94,12 @@ extern int D_004ED070[];
 extern int D_004ED080[];
 extern float D_004ED090[];
 extern int D_004ED024[];
-extern int D_00724A78[];
+
+/* .bss, owned by staticBlur.o (0x30, the run): the twelve texture and
+   rectangle coordinates the two blur sprites are built from. */
+/* */
+static int blurUv[12];
+
 extern int GlobalTimer;
 extern SprUV D_00620DF0;
 extern SprUV D_00620E00;
@@ -120,10 +125,9 @@ void auraInspireAfter(int mode)
 
     void reduceCopyAlphaChannelOfWork1ToWork0(void)
     {
-        int suv[4] = {D_00724A78[0] + 16, D_00724A78[1] + 16, D_0063A064 * 16 + D_00724A78[2],
-                      D_0063A068 * 16 + D_00724A78[3]};
-        int srect[4] = {D_00724A78[4] - 2048, D_00724A78[5] - 1032, 4096,
-                        D_0028F4C0[0] == 0 ? 1792 : 2048};
+        int suv[4] = {blurUv[0] + 16, blurUv[1] + 16, D_0063A064 * 16 + blurUv[2],
+                      D_0063A068 * 16 + blurUv[3]};
+        int srect[4] = {blurUv[4] - 2048, blurUv[5] - 1032, 4096, D_0028F4C0[0] == 0 ? 1792 : 2048};
 
         gif_SetGsReg(6, D_004ED020[1] | ((long long)(D_0063A064 / 64) << 14) | 0x664000000LL);
 
@@ -135,8 +139,8 @@ void auraInspireAfter(int mode)
 
     void copyAlphaChannelOfWork0ToFeedBackArea(void)
     {
-        int suv[4] = {D_00724A78[6], D_00724A78[7], D_00724A78[8] + 4096, D_00724A78[9] + 2048};
-        int srect[4] = {D_00724A78[10] - 1024, D_00724A78[11] - 1024, 2048, 2048};
+        int suv[4] = {blurUv[6], blurUv[7], blurUv[8] + 4096, blurUv[9] + 2048};
+        int srect[4] = {blurUv[10] - 1024, blurUv[11] - 1024, 2048, 2048};
 
         gif_SetGsReg(6, D_004ED020[0] | 0x20010000 | 0x5C0000000LL);
 
@@ -371,9 +375,7 @@ extern float D_004ED048[];
 extern int D_0063BB1C;
 extern int D_0063BB20;
 extern int D_0063BB24;
-extern int D_0063BB40;
 extern int D_0063BB48;
-extern SprCol D_0063BB50;
 extern SprUV D_00620E20;
 
 void makeFullScreenFlareBefore(int mode)
@@ -508,7 +510,6 @@ extern int D_004ED0B0[];
 extern int D_004ED0C0[];
 extern SprUV D_00620E30;
 extern SprUV D_00620E40;
-extern SprCol D_0063BB58;
 extern SprCol D_0063BB60;
 extern int D_0063BB74;
 
@@ -737,19 +738,14 @@ void pasteFullScreenFlare(void)
     gif_EndPacket();
 }
 
-extern int D_004ED024[];
 extern SprUV D_00620E50;
 extern SprUV D_00620E60;
 extern int D_004ED0D0[];
 extern float D_004ED0E0[];
-extern int D_0028F4C0[];
-extern int matrixptr;
 extern int D_0063BB78;
 extern int D_0063BB80;
 extern int D_0063BB88;
 extern int D_0063BB90;
-/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
-extern void _ApplyMatrix(void *a0, int a1, void *a2);
 
 /* One blend pass of the depth-of-field chain: shrink the work buffer named by
    `n` into its twin, taking the previous pass's shrink (`pre`) as the source
@@ -897,14 +893,10 @@ void GetSunWorldPos(int a0)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/staticBlur", MotionBlur);
 
-extern int D_004ED030[];
 extern int D_004ED040[];
 extern int D_004ED060[];
-extern int matrixptr;
 /* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(void *a0, void *a1, void *a2);
-/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
-extern void _ApplyMatrix(void *a0, int a1, void *a2);
 /* kept local: this TU's uses of _FTOI0Vector do not fit the prototype in Matrix.h */
 extern void _FTOI0Vector(void *a0, void *a1);
 /* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
@@ -996,7 +988,7 @@ void colorSetting(void)
         break;
     }
     if (D_0063B13C & 1) {
-        debug_Printf(0x1B8, 0x28, 0xFFFFFF00, buf);
+        debug_Printf(440, 40, 0xFFFFFF00, buf);
     }
 }
 
@@ -1056,7 +1048,7 @@ void dispPostInfo(void)
             break;
         }
         if (D_0063B13C & 1) {
-            debug_Printf(0x1B8, 0x14, 0xFFFFFF00, D_00620F10, buf);
+            debug_Printf(440, 20, 0xFFFFFF00, D_00620F10, buf);
         }
     }
 }
@@ -1096,7 +1088,7 @@ void dispFeedInfo(void)
             break;
         }
         if (D_0063B13C & 1) {
-            debug_Printf(0x1B8, 0x1E, 0xFFFFFF00, D_00620F48, buf);
+            debug_Printf(440, 30, 0xFFFFFF00, D_00620F48, buf);
         }
     }
 }
@@ -1255,9 +1247,6 @@ void FullScreenEffectAfter(void)
 
 /* kept local: this TU's uses of ZeroPoint do not fit the prototype in matrixDrive.h */
 extern int ZeroPoint[];
-extern int D_0063BB1C;
-extern int D_0063BB20;
-extern int D_0063BB24;
 /* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector();
 
@@ -1300,16 +1289,12 @@ void SetStaticBlur(int x)
     D_0028F808[0] = x;
 }
 
-extern struct D275 D_0028F720;
-
 void SetDepthFadeParam(float f12, float f13, int a0)
 {
     D_0028F720.field_EC = (int)f12;
     D_0028F720.field_F0 = (int)f13;
     D_0028F720.field_F8 = a0;
 }
-
-extern float D_0063BB30;
 
 void SetAuraInspireParam(float a0)
 {

@@ -112,14 +112,14 @@ int fog_FogTool(void)
     int ret;
 
     ret = 0;
-    debug_PrintfDummy(0xA, 0x32, 0xFF800000, D_00550C10);
+    debug_PrintfDummy(10, 50, 0xFF800000, D_00550C10);
 
     for (i = 0; i < 9; i++) {
         if (D_00550AE8[i].min == 0 && D_00550AE8[i].max == 1) {
-            debug_PrintfDummy(0x12, (i + 1) * 8 + 0x32, D_00550C08[(D_0063A354 == i) ? 1 : 0],
+            debug_PrintfDummy(18, (i + 1) * 8 + 0x32, D_00550C08[(D_0063A354 == i) ? 1 : 0],
                               D_0063A358, D_00550AE8[i].name, D_00290C08[*D_00550AE8[i].val]);
         } else {
-            debug_PrintfDummy(0x12, (i + 1) * 8 + 0x32, D_00550C08[(D_0063A354 == i) ? 1 : 0],
+            debug_PrintfDummy(18, (i + 1) * 8 + 0x32, D_00550C08[(D_0063A354 == i) ? 1 : 0],
                               D_0063A360, D_00550AE8[i].name, *D_00550AE8[i].val);
         }
     }

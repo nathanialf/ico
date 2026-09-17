@@ -18,7 +18,31 @@ extern int D_0063BAF0;
 extern int D_0063BAF4;
 extern int D_0063BAF8;
 extern int D_0063BAFC;
-extern int D_00723C98[];
+
+typedef struct {
+    int group;    /* 0x00 */
+    void *spider; /* 0x04 */
+} SpiderPair;
+
+typedef struct {
+    void *gobj; /* 0x00 */
+    int rev;    /* 0x04 */
+} SpiderGroupEnt;
+
+/* .bss, owned by spiderGroupManager.o (0x5B8, the run and MAIN.MAP's own size),
+   in the ROM's run order: the spiders found inside a revive range, the pairs
+   picked out of them, the registered group ids, the group table and the group
+   ids the revive walk works from. */
+static int spidersInRange[100];
+
+static SpiderPair spiderPairs[5];
+
+static int spiderGroupIds[64];
+
+static SpiderGroupEnt spiderGroups[64];
+
+static int reviveGroupIds[64];
+
 extern int D_0028F8F4[];
 
 /* one RGBA tint per spider group, alpha 0x80 throughout */
@@ -29,7 +53,6 @@ static int spiderGroupColors[7][4] = {{0x7F, 0x00, 0x00, 0x80}, {0x40, 0x7F, 0x0
 
 extern int D_0063BAC4;
 extern int D_0063BADC;
-extern int D_00723F98[];
 
 inline void InitSpiderGroupManager(void)
 {
@@ -70,22 +93,15 @@ inline void EntryRevivedSpiderGroupManager(int a0)
 {
     int idx = D_0063BAE4;
     D_0063BAE4 = idx + 1;
-    D_00723C98[idx] = a0;
+    spiderGroupIds[idx] = a0;
 }
-
-typedef struct {
-    void *gobj; /* 0x00 */
-    int rev;    /* 0x04 */
-} SpiderGroupEnt;
-
-extern SpiderGroupEnt D_00723D98[];
 
 /* listing lines 96-103 */
 void EntrySpiderGroupManager(int gobj)
 {
     int *p;
 
-    D_00723D98[D_0063BAE8].gobj = (void *)gobj;
+    spiderGroups[D_0063BAE8].gobj = (void *)gobj;
     p = getReviveEnemyGObj(D_0063BAE4);
     if (p != 0) {
         debug_StdPrintfDummy("LOCK %p for LABEL %d, ID:%d\n", p, p[2], D_0063BAE8);
@@ -97,7 +113,7 @@ void EntrySpiderGroupManager(int gobj)
             "No valid enemy layout data for spider.\n(Lack of enemy layout for spider revive.)\n");
         __assert("src/spiderGroupManager.c", 85, D_0063BB00);
     }
-    D_00723D98[D_0063BAE8].rev = (int)p;
+    spiderGroups[D_0063BAE8].rev = (int)p;
     D_0063BAE8 = D_0063BAE8 + 1;
     EntryRevivedSpiderGroupManager(gobj);
 }
@@ -110,22 +126,12 @@ inline void EntryToSpiderGroupManagerForReviveMaster(int a0, int a1)
     int *new_var2;
     new_var2 = &a1;
     D_0063BAF4 = *new_var2;
-    p = D_00723F98 + idx;
+    p = reviveGroupIds + idx;
     new_var = idx;
     idx = new_var + 1;
     *p = a0;
     D_0063BAEC = idx;
 }
-
-extern int D_0063BAF4;
-extern int D_00723AE0[];
-
-typedef struct {
-    int group;    /* 0x00 */
-    void *spider; /* 0x04 */
-} SpiderPair;
-
-extern SpiderPair D_00723C70[];
 
 /* listing lines 124-171 */
 int tryToRevive(void)
@@ -141,17 +147,17 @@ int tryToRevive(void)
         GetRootPosition(pos, D_0063BAF4);
         pos[1] -= *(float *)(*(int *)(D_0063BAF4 + 0x15C) + 0x160);
         for (i = 0; i < D_0063BAEC; i++) {
-            n = CheckSpidersInsideOfReviveRange(D_00723AE0, D_00723F98[i], pos);
+            n = CheckSpidersInsideOfReviveRange(spidersInRange, reviveGroupIds[i], pos);
             if (n != 0) {
                 for (j = 0; j < n; j++) {
-                    D_00723C70[k].group = D_00723F98[i];
-                    D_00723C70[k].spider = D_00723AE0[j];
+                    spiderPairs[k].group = reviveGroupIds[i];
+                    spiderPairs[k].spider = spidersInRange[j];
                     k++;
                     if (k == 5) {
                         if (D_0063BAE0 < D_0063BAE8) {
                             int m;
 
-                            p = D_00723D98[D_0063BAE0].rev;
+                            p = spiderGroups[D_0063BAE0].rev;
                             UnlockEnemyGenerate(p);
                             debug_StdPrintfDummy("UNLOCK %p: (id:%d)\n", p, D_0063BAE0);
                             *(int *)((char *)p + 0x16C) = 1;
@@ -160,10 +166,10 @@ int tryToRevive(void)
                             }
                             ExecuteSEPackage(p, 107);
                             for (m = 0; m < 5; m++) {
-                                SetAP1DeadStatus(DeleteSpiderFromLayoutGroup(D_00723C70[m].group,
-                                                                             D_00723C70[m].spider));
+                                SetAP1DeadStatus(DeleteSpiderFromLayoutGroup(
+                                    spiderPairs[m].group, spiderPairs[m].spider));
                             }
-                            SetSpiderGroupReviveStatus(D_00723D98[D_0063BAE0].gobj);
+                            SetSpiderGroupReviveStatus(spiderGroups[D_0063BAE0].gobj);
                             D_0063BAE0++;
                             return 1;
                         }
@@ -192,7 +198,7 @@ void ExecSpiderGroupManager(void)
         groups = 0;
         total = 0;
         for (i = 0; i < D_0063BAE4; i++) {
-            int n = GetAliveSpiders(D_00723C98[i]);
+            int n = GetAliveSpiders(spiderGroupIds[i]);
             if (n >= 0) {
                 total += n;
                 groups++;
@@ -209,8 +215,8 @@ void ExecSpiderGroupManager(void)
 
         if ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 45 < D_0063BAF8) {
             for (i = 0; i < D_0063BAE4; i++) {
-                if (GetAliveSpiders(D_00723C98[i]) >= 0) {
-                    DeadAllSpiders(D_00723C98[i]);
+                if (GetAliveSpiders(spiderGroupIds[i]) >= 0) {
+                    DeadAllSpiders(spiderGroupIds[i]);
                 }
             }
             D_0063BAFC = 1;
@@ -241,7 +247,7 @@ inline void DispAllSpiderGroups(void)
     {
         int i;
         for (i = 0; i < D_0063BAE4; i++) {
-            DispAllMemberOfSpider(D_00723C98[i], spiderGroupColors[i]);
+            DispAllMemberOfSpider(spiderGroupIds[i], spiderGroupColors[i]);
         }
     }
 }

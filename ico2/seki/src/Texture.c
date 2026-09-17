@@ -202,8 +202,6 @@ short tex_GetVramFreeAddress(int a0)
     return D_0068AF88[a0].f0;
 }
 
-extern int D_0063C164;
-extern CdvdRec D_0068AFE0[];
 extern int D_0028F804[];
 
 void tex_UpdateMipMapLevel(void)
@@ -285,8 +283,6 @@ void tex_ResetVramPri(int pri)
     }
 }
 
-extern int D_0063C164;
-
 int tex_GetTextureNum(void)
 {
     return D_0063C164;
@@ -337,8 +333,6 @@ void tex_SetUVScroll(char *name, float u, float v, float su, float sv, float ou,
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_Init);
 
 extern int D_0028F720[];
-extern int D_0063C164;
-extern CdvdRec D_0068AFE0[];
 
 int tex_RemakeRegistersSampleMin(void)
 {
