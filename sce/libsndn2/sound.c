@@ -375,7 +375,28 @@ int SgSetSeMasterVol(int a0, int a1)
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sound", SgBgmPlay);
+void SgBgmPlay(unsigned int a0)
+{
+    volatile int *p;
+    void *t;
+
+    if (a0 < 0x30) {
+        /* the sequence object's status word is written by the IOP side, so
+           every read and write of it is volatile */
+        p = (volatile int *)_SgGetSeqContext(a0);
+        p[0] |= 0x2000;
+        if (*(unsigned short *)((char *)p + 0x18) >= 1 &&
+            *(unsigned short *)((char *)p + 0x18) <= 127 && (p[0] & 1)) {
+            t = _SgGetVabContext(*(unsigned short *)((char *)p + 0x18));
+            if (*(int *)((char *)t + 8) != 0) {
+                p[0] |= 2;
+                p[0] &= 0xFFFFFF8F;
+            }
+        }
+        p[0] &= 0xFFFFDFFF;
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sound", SgBgmStop);
 
 void SgSetBgmTempo(unsigned int a0, int a1)
