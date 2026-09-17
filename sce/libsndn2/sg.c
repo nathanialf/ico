@@ -114,6 +114,13 @@ INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgSeMain);
  * head of the function.  The derived body and the mechanism are in
  * tails/seeds/sg.c3p15_SgBgmMain_295of295_strict15_TU.c. */
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgBgmMain);
+/* Reverted to asm 2026-09-17 (chain 3 pass 16): 450 of 450 instructions,
+ * the whole shape derived and every block in ROM's order; the residual is
+ * one whole-function allocation class (ROM keeps the 0x400 flag in a
+ * callee-saved register and spells the 0x28 range through the frame, the
+ * built code does the reverse) and the delay-slot fills that follow from
+ * it.  Derived body and mechanism:
+ * tails/seeds/sg.c3p16_SgSetRealtimeTickProc_450of450_strict355_TU.c. */
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgSetRealtimeTickProc);
 
 /* Realtime volume: mode 1 takes the SE volume table's value for the vab and
@@ -615,14 +622,17 @@ void _SgContModLoop(int *a0)
     }
 }
 
-/* Reverted to asm 2026-09-15: the only body in the tree that the raw
- * toolchain cannot produce. ROM puts `cvt.s.w $f1,$f1` in the delay slot of
- * the `b` that joins the two arms of the float divide; ee-gcc emits the cvt
- * before the b and ee-as 2.9-991111 never swaps an instruction into a branch
- * delay slot (probed: default, -O, -O0, -g excepted, .set bopt, every -mcpu
- * and -mips level). It matched only through the compile_c.sh `mtc1;cvt;b`
- * reorder rewrite, retired with the rest. Seed: tails/seeds/
- * sg.rewrite_cop1_mtc1cvtb_SgContPolta_TU.c, ledger: docs/rewrite_ledger.md. */
+/* Reverted to asm 2026-09-15, re-measured 2026-09-17 (chain 3 pass 16):
+ * 84 of 84 instructions, one instruction out of place.  ROM puts
+ * `cvt.s.w $f1,$f1` in the delay slot of the `b` that joins the two arms of
+ * the float divide.  gcc cannot put it there: `mtc1;cvt.s.w` is ONE insn
+ * (floatsisf2, length 3) and mips.md's define_delay only accepts a length 1
+ * insn, so gcc leaves the `b` inside `.set reorder` with an empty slot for
+ * the assembler to fill.  ee-as 2.9-991111 never fills a delay slot by
+ * moving an instruction, integer or COP1, under any -mcpu, -mips or -O
+ * setting (re-probed 2026-09-17).  It matched only through the retired
+ * compile_c.sh `mtc1;cvt;b` reorder rewrite.  Seed:
+ * tails/seeds/sg.c3p16_SgContPolta_84of84_strict24_TU.c. */
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContPolta);
 
 /* Volume controller: with bit 8 of the status word set the event keys the
