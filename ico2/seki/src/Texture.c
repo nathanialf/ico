@@ -1,4 +1,5 @@
 #include "common.h"
+#include "typedef.h"
 #include "Texture.h"
 #include "DisplayList.h"
 #include <string.h>
@@ -38,7 +39,8 @@ typedef struct CdvdRec {
     char pad204[0x290 - 0x204];
     int x290;
     int x294;
-    char pad298[0x2A4 - 0x298];
+    unsigned int x298;
+    char pad29C[0x2A4 - 0x29C];
     short x2A4;
     short x2A6;
     int x2A8;
@@ -244,7 +246,98 @@ int tex_loadImage(unsigned int addr, CdvdRec *tex, int idx, short dbp, short dbw
     return size << 4;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_setTexReg);
+/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
+ * tex_GetTWTH into tex_setTexReg and tex_TransTextureDefocus, so it is a
+ * public `inline` of the
+ * deferred tail; until tex_Init, which sits between the tail's members, is C,
+ * the copy is emitted at its ROM position and the callers inline this static
+ * stand-in, which collapses at layout. */
+static inline int getTWTH(int a0)
+{
+    int ret = -1;
+    int i;
+    for (i = 0; i < 11; i++) {
+        if ((1 << i) >= a0) {
+            ret = i;
+            break;
+        }
+    }
+    return ret;
+}
+
+/* EUC-JP: "a texture type that is neither DIRECT nor CLUT was specified" + ".\n" */
+extern char D_00550460[];
+extern GifDpk D_004EE6F0;
+
+/* The GS A+D writer this TU expands at every site. It is a MACRO and not the
+ * static inline stand-in src/GifPacket.c carries, and the ROM says which:
+ * expanded here, the packet cursor is read and bumped BEFORE the register
+ * value is computed (`lw 0x10`, save, `addiu 8`, `sw 0x10`, then the forty
+ * instructions of the value, then the `sd`), and the second write re-reads
+ * the cursor. Through an inline function the value is an argument, so it is
+ * computed first and the second write reuses the bumped cursor in a register:
+ * two instructions short per packet, measured on all four of them. */
+#define setGsReg(reg, val)                                                                         \
+    {                                                                                              \
+        *D_004EE6F0.ptr++ = (val);                                                                 \
+        *D_004EE6F0.ptr++ = (reg);                                                                 \
+    }
+/* the record carries seven mipmap levels, so a level index is clamped to the
+ * last one before it indexes lv[] */
+#define TEXLV(n) ((n) < 7 ? (n) : 6)
+
+void tex_setTexReg(Tim2Picture *pic, CdvdRec *t, int levels, int lv, int clut)
+{
+    unsigned int tfx = 0;
+
+    if (t->x2A8 != 0) {
+        tfx = t->x298;
+    }
+    gif_StartPacketPri(dl_GetPri());
+    switch (clut) {
+    case 0:
+        setGsReg(6, (long long)t->lv[TEXLV(lv)].tbp[dl_GetPri()] |
+                        ((long long)t->lv[TEXLV(lv)].dbw << 14) |
+                        ((long long)D_00290B78[pic->imageType].f0 << 20) |
+                        ((long long)(getTWTH(pic->imageWidth) - lv) << 26) |
+                        ((long long)(getTWTH(pic->imageHeight) - lv) << 30) | ((long long)1 << 34) |
+                        ((long long)tfx << 35));
+        break;
+    case 1:
+        setGsReg(6, (long long)t->lv[TEXLV(lv)].tbp[dl_GetPri()] |
+                        ((long long)t->lv[TEXLV(lv)].dbw << 14) |
+                        ((long long)D_00290B78[pic->imageType].f0 << 20) |
+                        ((long long)(getTWTH(pic->imageWidth) - lv) << 26) |
+                        ((long long)(getTWTH(pic->imageHeight) - lv) << 30) | ((long long)1 << 34) |
+                        ((long long)tfx << 35) | ((long long)t->clut.tbp[dl_GetPri()] << 37) |
+                        ((long long)D_00290B78[pic->clutType & 0x3F].f0 << 51) |
+                        ((long long)2 << 61));
+        break;
+    default:
+        debug_StdPrintfDummy(D_00550460);
+        debug_assert(D_00550328, 788);
+        __assert(D_00550328, 788, D_0063A1F0);
+        break;
+    }
+    if (2 <= levels) {
+        setGsReg(0x34, (long long)t->lv[TEXLV(lv + 1)].tbp[dl_GetPri()] |
+                           ((long long)t->lv[TEXLV(lv + 1)].dbw << 14) |
+                           ((long long)t->lv[TEXLV(lv + 2)].tbp[dl_GetPri()] << 20) |
+                           ((long long)t->lv[TEXLV(lv + 2)].dbw << 34) |
+                           ((long long)t->lv[TEXLV(lv + 3)].tbp[dl_GetPri()] << 40) |
+                           ((long long)t->lv[TEXLV(lv + 3)].dbw << 54));
+    }
+    if (5 <= levels) {
+        setGsReg(0x36, (long long)t->lv[TEXLV(lv + 4)].tbp[dl_GetPri()] |
+                           ((long long)t->lv[TEXLV(lv + 4)].dbw << 14) |
+                           ((long long)t->lv[TEXLV(lv + 5)].tbp[dl_GetPri()] << 20) |
+                           ((long long)t->lv[TEXLV(lv + 5)].dbw << 34) |
+                           ((long long)t->lv[TEXLV(lv + 6)].tbp[dl_GetPri()] << 40) |
+                           ((long long)t->lv[TEXLV(lv + 6)].dbw << 54));
+    }
+    gif_EndPacket();
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_transVramClutTex);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_transVramDirectTex);
 
@@ -902,24 +995,6 @@ int tex_TransTexture(int id, int ret)
     }
     dl_OpenDma(2, (int)((char *)t + 0xA8), 3);
     dl_CloseDma();
-    return ret;
-}
-
-/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
- * tex_GetTWTH here and in tex_setTexReg, so it is a public `inline` of the
- * deferred tail; until tex_Init, which sits between the tail's members, is C,
- * the copy is emitted at its ROM position and the callers inline this static
- * stand-in, which collapses at layout. */
-static inline int getTWTH(int a0)
-{
-    int ret = -1;
-    int i;
-    for (i = 0; i < 11; i++) {
-        if ((1 << i) >= a0) {
-            ret = i;
-            break;
-        }
-    }
     return ret;
 }
 

@@ -1,4 +1,5 @@
 #include "common.h"
+#include "typedef.h"
 #include "debug.h"
 #include "Shadow.h"
 
@@ -22,6 +23,11 @@ extern void _PushCurrentMatrix(void *a0);
 extern void _ScaleVector(void *a0, void *a1, float a2);
 /* kept local: this TU's uses of _TransposeCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _TransposeCurrentMatrix(void);
+/* kept local: this TU's uses of these do not fit the prototypes in Matrix.h */
+extern void _ScaleVectorXYZ(void *a0, void *a1, float a2);
+extern void _AddVectorXYZ(void *a0, void *a1, void *a2);
+extern void _InterVectorXYZ(void *a0, void *a1, void *a2, float t);
+extern void _MulCurrentMatrixL(void *a0);
 extern int D_0063A17C;
 extern int D_0063A178;
 
@@ -47,7 +53,78 @@ void shadow_getShadowVectorAverage(void *a0, char *a1)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Shadow", shadow_EntryClusterShadow);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Shadow", shadow_EntryNormalShadow);
+
+/* The listing puts this body at rows 750-751, inside shadow_EntryNormalShadow's
+ * own line span, so the dev wrote it at the head of that function. One asm
+ * block because the two vnop runs are hand scheduled around the multiply, and
+ * both addresses are "r" operands: the ROM's copy reaches them in $3 and $2,
+ * the registers the surrounding loop allocates, not in the argument
+ * registers a fixed spelling would force. */
+static inline void applyCurrentMatrixV(void *dst, void *src)
+{
+    __asm__ __volatile__("lqc2 $vf8, 0(%1)\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "vmulax.xyzw ACC, $vf4, $vf8x\n\t"
+                         "vmadday.xyzw ACC, $vf5, $vf8y\n\t"
+                         "vmaddaz.xyzw ACC, $vf6, $vf8z\n\t"
+                         "vmaddw.xyzw $vf9, $vf7, $vf0w\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "sqc2 $vf9, 0(%0)"
+                         :
+                         : "r"(dst), "r"(src));
+}
+
+void shadow_EntryNormalShadow(char *a0, int a1, float a2)
+{
+    float v[4];
+    float sa[4];
+    float sb[4];
+    char *x = *(char **)(a0 + 0x858);
+    int i;
+    int j;
+    char *p;
+
+    shadow_getShadowVectorAverage(v, a0);
+    _ScaleVectorXYZ(sa, v, a2);
+    _ScaleVectorXYZ(sb, v, 4.0f);
+    _SetCurrentMatrix(*(char **)(a0 + 0xC) + a1 * 0x40);
+    _MulCurrentMatrixL(matrixptr + 0x80);
+
+    p = *(char **)(x + 0x40);
+    for (i = 0; i < *(char *)(x + 0x2E); i++, p += 0x180) {
+        for (j = 0; j < *(unsigned int *)(p + 0x94); j++) {
+            applyCurrentMatrixV(*(char **)(p + 0x174) + j * 16, *(char **)(p + 0x90) + j * 16);
+        }
+        for (j = 0; j < *(unsigned int *)(p + 0x94); j++) {
+            _AddVectorXYZ(*(char **)(p + 0x178) + j * 16, *(char **)(p + 0x174) + j * 16, sa);
+            _AddVectorXYZ(*(char **)(p + 0x174) + j * 16, *(char **)(p + 0x174) + j * 16, sb);
+        }
+    }
+
+    p = *(char **)(x + 0x40);
+    for (i = 0; i < *(char *)(x + 0x2E); i++, p += 0x180) {
+        VECTOR *va = (VECTOR *)*(char **)(p + 0x174);
+        VECTOR *vb = (VECTOR *)*(char **)(p + 0x178);
+
+        for (j = 0; j < *(unsigned int *)(p + 0x94); j++) {
+            if (1.0f <= va[j].z && 1.0f <= vb[j].z) {
+            } else if (va[j].z < 1.0f && vb[j].z < 1.0f) {
+                vb[j].w = -1.0f;
+                va[j].w = -1.0f;
+            } else if (vb[j].z < 1.0f) {
+                _InterVectorXYZ(&vb[j], &va[j], &vb[j],
+                                1.0f - (va[j].z - 1.0f) / (va[j].z - vb[j].z));
+            } else if (va[j].z < 1.0f) {
+                _InterVectorXYZ(&va[j], &vb[j], &va[j],
+                                1.0f - (vb[j].z - 1.0f) / (vb[j].z - va[j].z));
+            }
+        }
+    }
+}
 
 void __GetCameraPos(void *a0)
 {
@@ -122,4 +199,99 @@ inline void shadow_Init(void)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Shadow", shadow_Tool);
+/* one row of the shadow tool: the name it prints, the variable it edits and
+ * the range it wraps that variable through */
+typedef struct ShadowToolRow {
+    char *name;
+    int *val;
+    int min;
+    int max;
+} ShadowToolRow;
+
+extern ShadowToolRow D_0054FE18[];
+/* the two menu colours, unselected then selected */
+extern unsigned int D_0054FF58[];
+/* "Shadow Tool" */
+extern char D_0054FF60[];
+/* "%s : %s" */
+extern char D_0063A198[];
+/* "%s : %d" */
+extern char D_0063A1A0[];
+/* "Shadow %s => %s\n" */
+extern char D_0054FF70[];
+/* "Shadow %s => %d\n" */
+extern char D_0054FF88[];
+/* the names a 0/1 row prints instead of its number */
+extern char *D_00290B50[];
+/* the row the tool has selected */
+extern int D_0063A194;
+
+/* the pad record this TU reads, the same one common/src/layout_action.c calls
+ * R58: the flag word it tests for the two buttons at 4 and the auto-repeat
+ * word it tests for the four directions at 0xC */
+typedef struct PadRec {
+    int _0;
+    int flags;
+    int _8;
+    int repeat;
+    char _10[0x48];
+} PadRec;
+
+extern PadRec D_0028F8F0[];
+
+int shadow_Tool(void)
+{
+    int ret = 0;
+    int i;
+
+    debug_PrintfDummy(10, 50, 0xFF800000u, (int)D_0054FF60);
+    for (i = 0; i < 8; i++) {
+        if (D_0054FE18[i].min == 0 && D_0054FE18[i].max == 1) {
+            debug_PrintfDummy(0x12, (i + 1) * 8 + 50, D_0054FF58[D_0063A194 == i], (int)D_0063A198,
+                              (int)D_0054FE18[i].name, (int)D_00290B50[*D_0054FE18[i].val]);
+        } else {
+            debug_PrintfDummy(0x12, (i + 1) * 8 + 50, D_0054FF58[D_0063A194 == i], (int)D_0063A1A0,
+                              (int)D_0054FE18[i].name, *D_0054FE18[i].val);
+        }
+    }
+    if (D_0028F8F0[0].repeat & 0x4000) {
+        D_0063A194++;
+        if (8 <= D_0063A194) {
+            D_0063A194 = 0;
+        }
+    }
+    if (D_0028F8F0[0].repeat & 0x1000) {
+        D_0063A194--;
+        if (D_0063A194 < 0) {
+            D_0063A194 = 7;
+        }
+    }
+    if (D_0028F8F0[0].repeat & 0x2000) {
+        if (++*D_0054FE18[D_0063A194].val > D_0054FE18[D_0063A194].max) {
+            *D_0054FE18[D_0063A194].val = D_0054FE18[D_0063A194].min;
+        }
+    }
+    if (D_0028F8F0[0].repeat & 0x8000) {
+        if (--*D_0054FE18[D_0063A194].val < D_0054FE18[D_0063A194].min) {
+            *D_0054FE18[D_0063A194].val = D_0054FE18[D_0063A194].max;
+        }
+    }
+    if (D_0028F8F0[0].flags & 0x20) {
+        for (i = 0; i < 8; i++) {
+            if (D_0054FE18[i].min == 0 && D_0054FE18[i].max == 1) {
+                debug_StdPrintfDummy(D_0054FF70, D_0054FE18[i].name,
+                                     D_00290B50[*D_0054FE18[i].val]);
+            } else {
+                debug_StdPrintfDummy(D_0054FF88, D_0054FE18[i].name, *D_0054FE18[i].val);
+            }
+        }
+        ret = 1;
+    }
+    if (D_0028F8F0[0].flags & 0x40) {
+        ret = -1;
+    }
+    if (ret != 0) {
+        D_0063A194 = 0;
+    }
+    return ret;
+}

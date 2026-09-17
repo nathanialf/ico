@@ -229,7 +229,7 @@ fi
 CC_RC=$?
 # ee-gcc writes the functions it compiled before an error, so a non-empty .s is
 # not proof of a clean compile: the exit status is (2026-09-17, second fix).
-[[ $CC_RC -eq 0 && -s "$ASM_OUT" ]] || { echo "quick_diff: compile failed for $CSRC (exit $CC_RC)" >&2; rm -f "$ASM_OUT"; exit 1; }
+[[ $CC_RC -eq 0 && -s "$ASM_OUT" ]] || { echo "quick_diff: compile failed for $CSRC (exit $CC_RC)" >&2; rm -f "$ASM_OUT" "$OBJ"; exit 1; }
 
 # Stage 1b: the only postprocess left is the jtbl section split, which is
 # placement, not an instruction rewrite. Every rule that rewrote what ee-gcc or
