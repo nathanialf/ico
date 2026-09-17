@@ -33,6 +33,318 @@ extern LightLineExt *llExtGeo;
 
 #include "boy.h"
 
+/* The boy's five generated cloth meshes, in the order InitBoyGeo hands them to
+   InitCloth4D: the mantle, the tape belt and the three loose tape strips.
+   MAIN.MAP names no symbol in boy.o's .data, so these names are ours, taken
+   from the texture each mesh is drawn with.  The floats are the generator's
+   own three-decimal output, read back from the ROM. */
+
+/* boy.o's .sdata is not carved yet, so the third mesh's texture name is still
+   the blob's. */
+extern char D_0063B748[];
+
+static Cloth4DCol mantleMeshCols[5];
+
+static Cloth4DCfg mantleMesh = {
+    5, 6, 0, 0, 0x59, 0x59, 0x59, 0x80, "b_mantle", mantleMeshCols, 11.239f, 0,
+};
+
+static float mantleMeshUv[5][6][2] = {
+    {{0.992f, 0.617f},
+     {0.993f, 0.694f},
+     {0.994f, 0.77f},
+     {0.995f, 0.847f},
+     {0.995f, 0.923f},
+     {0.996f, 1.0f}},
+    {{0.004f, 0.617f},
+     {0.004f, 0.694f},
+     {0.004f, 0.77f},
+     {0.004f, 0.847f},
+     {0.004f, 0.923f},
+     {0.004f, 1.0f}},
+    {{0.752f, 0.667f},
+     {0.752f, 0.734f},
+     {0.753f, 0.8f},
+     {0.753f, 0.867f},
+     {0.754f, 0.933f},
+     {0.754f, 1.0f}},
+    {{0.485f, 0.69f},
+     {0.486f, 0.752f},
+     {0.486f, 0.814f},
+     {0.487f, 0.876f},
+     {0.488f, 0.938f},
+     {0.488f, 1.0f}},
+    {{0.256f, 0.667f},
+     {0.255f, 0.734f},
+     {0.255f, 0.8f},
+     {0.255f, 0.867f},
+     {0.254f, 0.933f},
+     {0.254f, 1.0f}},
+};
+
+static Cloth4DCol mantleMeshCols[5] = {
+    {5.908f,
+     {0},
+     {9.617f, 97.683f, -3.421f, 1.0f},
+     {0.22f, 0.438f, 0.872f, 0.0f},
+     2,
+     0.6f,
+     1,
+     0.4f,
+     mantleMeshUv[0],
+     {0},
+     {0.32f, -5.877f, 0.505f, 0.0f}},
+    {5.958f,
+     {0},
+     {5.324f, 97.805f, -2.397f, 1.0f},
+     {0.096f, 0.526f, 0.845f, 0.0f},
+     2,
+     0.15f,
+     1,
+     0.85f,
+     mantleMeshUv[2],
+     {0},
+     {0.171f, -5.902f, 0.803f, 0.0f}},
+    {5.919f,
+     {0},
+     {0.009f, 97.685f, -1.686f, 1.0f},
+     {0.0f, 0.571f, 0.821f, 0.0f},
+     1,
+     1.0f,
+     -1,
+     0.0f,
+     mantleMeshUv[3],
+     {0},
+     {-0.002f, -5.878f, 0.695f, 0.0f}},
+    {5.958f,
+     {0},
+     {-5.324f, 97.805f, -2.397f, 1.0f},
+     {-0.095f, 0.526f, 0.845f, 0.0f},
+     17,
+     0.15f,
+     1,
+     0.85f,
+     mantleMeshUv[4],
+     {0},
+     {-0.171f, -5.902f, 0.803f, 0.0f}},
+    {5.908f,
+     {0},
+     {-9.617f, 97.683f, -3.421f, 1.0f},
+     {-0.22f, 0.438f, 0.872f, 0.0f},
+     17,
+     0.6f,
+     1,
+     0.4f,
+     mantleMeshUv[1],
+     {0},
+     {-0.32f, -5.877f, 0.505f, 0.0f}},
+};
+
+static Cloth4DCol tapeMeshCols[5];
+
+static Cloth4DCfg tapeMesh = {
+    5, 6, 0, 0, 0x59, 0x59, 0x59, 0x80, "b_mantle", tapeMeshCols, 11.352f, 0,
+};
+
+static float tapeMeshUv[5][6][2] = {
+    {{0.004f, 0.466f},
+     {0.003f, 0.373f},
+     {0.002f, 0.28f},
+     {0.002f, 0.187f},
+     {0.001f, 0.093f},
+     {0.0f, 0.0f}},
+    {{0.992f, 0.466f},
+     {0.993f, 0.374f},
+     {0.994f, 0.281f},
+     {0.995f, 0.189f},
+     {0.995f, 0.096f},
+     {0.996f, 0.004f}},
+    {{0.488f, 0.465f},
+     {0.487f, 0.372f},
+     {0.486f, 0.279f},
+     {0.486f, 0.186f},
+     {0.485f, 0.093f},
+     {0.484f, 0.0f}},
+    {{0.752f, 0.466f},
+     {0.752f, 0.373f},
+     {0.753f, 0.28f},
+     {0.753f, 0.187f},
+     {0.754f, 0.093f},
+     {0.754f, 0.0f}},
+    {{0.256f, 0.466f},
+     {0.255f, 0.374f},
+     {0.255f, 0.281f},
+     {0.255f, 0.189f},
+     {0.254f, 0.096f},
+     {0.254f, 0.004f}},
+};
+
+static Cloth4DCol tapeMeshCols[5] = {
+    {8.261f,
+     {0},
+     {-9.427f, 105.429f, -13.729f, 1.0f},
+     {-0.021f, 0.835f, -0.549f, 0.0f},
+     18,
+     0.2f,
+     17,
+     0.8f,
+     tapeMeshUv[0],
+     {0},
+     {-0.672f, -7.233f, -3.933f, 0.0f}},
+    {8.03f,
+     {0},
+     {-5.611f, 104.027f, -14.75f, 1.0f},
+     {-0.107f, 0.664f, -0.74f, 0.0f},
+     17,
+     1.0f,
+     -1,
+     0.0f,
+     tapeMeshUv[4],
+     {0},
+     {-0.25f, -6.953f, -4.009f, 0.0f}},
+    {8.355f,
+     {0},
+     {0.078f, 105.776f, -15.346f, 1.0f},
+     {0.004f, 0.647f, -0.763f, 0.0f},
+     32,
+     1.0f,
+     -1,
+     0.0f,
+     tapeMeshUv[2],
+     {0},
+     {-0.016f, -7.303f, -4.06f, 0.0f}},
+    {8.03f,
+     {0},
+     {5.611f, 104.027f, -14.75f, 1.0f},
+     {0.11f, 0.664f, -0.74f, 0.0f},
+     2,
+     1.0f,
+     -1,
+     0.0f,
+     tapeMeshUv[3],
+     {0},
+     {0.25f, -6.953f, -4.009f, 0.0f}},
+    {8.26f,
+     {0},
+     {9.43f, 105.429f, -13.731f, 1.0f},
+     {0.021f, 0.835f, -0.549f, 0.0f},
+     3,
+     0.2f,
+     2,
+     0.8f,
+     tapeMeshUv[1],
+     {0},
+     {0.671f, -7.233f, -3.933f, 0.0f}},
+};
+
+static Cloth4DCol tapeBMeshCols[2];
+
+static Cloth4DCfg tapeBMesh = {
+    2, 5, 0, 0, 0x59, 0x59, 0x59, 0x80, D_0063B748, tapeBMeshCols, 2.48f, 0,
+};
+
+static float tapeBMeshUv[2][5][2] = {
+    {{0.005f, 0.992f}, {0.251f, 0.992f}, {0.497f, 0.991f}, {0.743f, 0.99f}, {0.99f, 0.99f}},
+    {{0.01f, 0.008f}, {0.257f, 0.008f}, {0.503f, 0.008f}, {0.749f, 0.008f}, {0.995f, 0.008f}},
+};
+
+static Cloth4DCol tapeBMeshCols[2] = {
+    {1.825f,
+     {0},
+     {8.241f, 119.005f, -10.755f, 1.0f},
+     {0.846f, 0.163f, 0.508f, 0.0f},
+     33,
+     1.0f,
+     -1,
+     0.0f,
+     tapeBMeshUv[0],
+     {0},
+     {0.127f, -0.933f, -1.563f, 0.0f}},
+    {1.567f,
+     {0},
+     {8.546f, 116.569f, -10.402f, 1.0f},
+     {0.846f, 0.163f, 0.508f, 0.0f},
+     33,
+     1.0f,
+     -1,
+     0.0f,
+     tapeBMeshUv[1],
+     {0},
+     {0.486f, -0.719f, -1.305f, 0.0f}},
+};
+
+static Cloth4DCol tapeBoro1MeshCols[2];
+
+static Cloth4DCfg tapeBoro1Mesh = {
+    2, 5, 0, 0, 0x59, 0x59, 0x59, 0x80, "tape_boro", tapeBoro1MeshCols, 2.277f, 0,
+};
+
+static float tapeBoro1MeshUv[2][5][2] = {
+    {{0.023f, 0.008f}, {0.26f, 0.009f}, {0.496f, 0.01f}, {0.732f, 0.012f}, {0.969f, 0.013f}},
+    {{0.117f, 0.987f}, {0.333f, 0.987f}, {0.548f, 0.987f}, {0.764f, 0.987f}, {0.979f, 0.987f}},
+};
+
+static Cloth4DCol tapeBoro1MeshCols[2] = {
+    {2.166f,
+     {0},
+     {-7.434f, 118.357f, -5.971f, 1.0f},
+     {-0.797f, 0.185f, 0.575f, 0.0f},
+     33,
+     1.0f,
+     -1,
+     0.0f,
+     tapeBoro1MeshUv[0],
+     {0},
+     {-1.501f, -0.748f, -1.371f, 0.0f}},
+    {2.19f,
+     {0},
+     {-7.644f, 120.421f, -6.91f, 1.0f},
+     {-0.797f, 0.185f, 0.575f, 0.0f},
+     33,
+     1.0f,
+     -1,
+     0.0f,
+     tapeBoro1MeshUv[1],
+     {0},
+     {-1.632f, -0.648f, -1.309f, 0.0f}},
+};
+
+static Cloth4DCol tapeBoro2MeshCols[2];
+
+static Cloth4DCfg tapeBoro2Mesh = {
+    2, 5, 0, 0, 0x59, 0x59, 0x59, 0x80, "tape_boro", tapeBoro2MeshCols, 3.186f, 0,
+};
+
+static float tapeBoro2MeshUv[2][5][2] = {
+    {{0.117f, 0.987f}, {0.313f, 0.988f}, {0.509f, 0.988f}, {0.705f, 0.989f}, {0.901f, 0.99f}},
+    {{0.211f, 0.008f}, {0.406f, 0.007f}, {0.6f, 0.007f}, {0.795f, 0.006f}, {0.99f, 0.005f}},
+};
+
+static Cloth4DCol tapeBoro2MeshCols[2] = {
+    {1.891f,
+     {0},
+     {-2.205f, 114.505f, -18.416f, 1.0f},
+     {-0.235f, 0.131f, -0.963f, 0.0f},
+     33,
+     1.0f,
+     -1,
+     0.0f,
+     tapeBoro2MeshUv[1],
+     {0},
+     {1.274f, -0.694f, -1.213f, 0.0f}},
+    {2.352f,
+     {0},
+     {-0.858f, 117.392f, -18.42f, 1.0f},
+     {-0.235f, 0.131f, -0.963f, 0.0f},
+     33,
+     1.0f,
+     -1,
+     0.0f,
+     tapeBoro2MeshUv[0],
+     {0},
+     {1.58f, -0.946f, -1.463f, 0.0f}},
+};
+
 void dispClothes(char *gobj)
 {
     char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
@@ -52,7 +364,6 @@ void dispClothes(char *gobj)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/boy", execClothes);
 
-extern char D_0061F178[];
 extern void *D_0063A438;
 extern char D_004E6E10[];
 
@@ -65,13 +376,13 @@ LightLineExt *InitLightLineGeo(char *gobj, float *pos)
     float f;
 
     llExtGeo = (LightLineExt *)D_004E6E10;
-    llExtGeo->phase = iosMallocDebug(D_0063A438, 0x190, D_0061F178, 0xA1);
-    llExtGeo->speed = iosMallocDebug(D_0063A438, 0x190, D_0061F178, 0xA2);
-    llExtGeo->line = iosMallocDebug(D_0063A438, 0x190, D_0061F178, 0xA3);
+    llExtGeo->phase = iosMallocDebug(D_0063A438, 0x190, "src/boy.c", 161);
+    llExtGeo->speed = iosMallocDebug(D_0063A438, 0x190, "src/boy.c", 162);
+    llExtGeo->line = iosMallocDebug(D_0063A438, 0x190, "src/boy.c", 163);
     for (i = 0; i < 100; i++) {
         llExtGeo->phase[i] = 0.0f;
         llExtGeo->speed[i] = random_unit() * 0.1f + 0.01f;
-        llExtGeo->line[i] = iosMallocDebug(D_0063A438, 0x140, D_0061F178, 0xA8);
+        llExtGeo->line[i] = iosMallocDebug(D_0063A438, 0x140, "src/boy.c", 168);
         CopyVector(llExtGeo->line[i], &v);
         llExtGeo->line[i][0].x += (float)((i - 0x32) * 5);
         for (j = 1; j < 20; j++) {
@@ -118,11 +429,6 @@ inline void SelectBoyCrown(char *a0, int a1)
    container reached with a plain sh; the same union src/enemyParts.c uses. */
 
 extern void *D_0063A44C;
-extern char D_004E62B0[];
-extern char D_004E65B0[];
-extern char D_004E68B0[];
-extern char D_004E69F0[];
-extern char D_004E6B30[];
 
 /* The two points the boy's mantle hangs from, once for each cloth.  MAIN.MAP
    names no symbol in boy.o's .data, so these names are ours. */
@@ -144,14 +450,14 @@ char *InitBoyGeo(char *gobj, void *csv)
     char *p;
     int i;
 
-    w = (char *)iosMallocDebug(D_0063A438, 0x68, D_0061F178, 0x118);
+    w = (char *)iosMallocDebug(D_0063A438, 0x68, "src/boy.c", 280);
     *(char **)(*(char **)(gobj + 0x15C) + 0x830) = w;
     p = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
-    *(char **)(p + 0x20) = InitCloth4D(gobj, D_004E62B0, mantleHang);
-    *(char **)(p + 0x24) = InitCloth4D(gobj, D_004E65B0, tapeHang);
-    *(char **)(p + 0x2C) = InitCloth4D(gobj, D_004E68B0, 0);
-    *(char **)(p + 0x28) = InitCloth4D(gobj, D_004E69F0, 0);
-    *(char **)(p + 0x30) = InitCloth4D(gobj, D_004E6B30, 0);
+    *(char **)(p + 0x20) = InitCloth4D(gobj, &mantleMesh, mantleHang);
+    *(char **)(p + 0x24) = InitCloth4D(gobj, &tapeMesh, tapeHang);
+    *(char **)(p + 0x2C) = InitCloth4D(gobj, &tapeBMesh, 0);
+    *(char **)(p + 0x28) = InitCloth4D(gobj, &tapeBoro1Mesh, 0);
+    *(char **)(p + 0x30) = InitCloth4D(gobj, &tapeBoro2Mesh, 0);
     *(int *)(*(char **)(gobj + 0x15C) + 0x554) = 1;
     *(char **)(w + 0x4) = CSVSYSTEM_InitDObj(2, csv);
     *(char **)(w + 0x8) = CSVSYSTEM_InitDObj(3, csv);
@@ -163,14 +469,13 @@ char *InitBoyGeo(char *gobj, void *csv)
     }
     *(int *)(*(char **)(w + 0x8) + 0xC) = 0;
     *(int *)(*(char **)(w + 0x8) + 0x10) = 0;
-    *(int *)(*(char **)(w + 0x8) + 0xC) = (int)iosMallocDebug(D_0063A44C, 0x80, D_0061F178, 0x123);
-    *(int *)(*(char **)(w + 0x8) + 0x10) = (int)iosMallocDebug(D_0063A44C, 0x20, D_0061F178, 0x123);
+    *(int *)(*(char **)(w + 0x8) + 0xC) = (int)iosMallocDebug(D_0063A44C, 0x80, "src/boy.c", 291);
+    *(int *)(*(char **)(w + 0x8) + 0x10) = (int)iosMallocDebug(D_0063A44C, 0x20, "src/boy.c", 291);
     *(int *)(*(char **)(w + 0x8) + 0x8) = 2;
     if (*(int *)(*(char **)(w + 0x8) + 0x870) != 0) {
         iosFree(*(int *)(*(char **)(w + 0x8) + 0x870) & 0xFFFFFFF);
     }
-    *(int *)(*(char **)(w + 0x8) + 0x870) =
-        (int)iosMallocDebug(D_0063A44C, 0xA0, D_0061F178, 0x123);
+    *(int *)(*(char **)(w + 0x8) + 0x870) = (int)iosMallocDebug(D_0063A44C, 0xA0, "src/boy.c", 291);
     for (i = 0; i < 2; i++) {
         ((DlFlag *)(i * 0x50 + *(int *)(*(char **)(w + 0x8) + 0x870) + 0x38))->ll &= ~1;
         ((DlFlag *)(i * 0x50 + *(int *)(*(char **)(w + 0x8) + 0x870) + 0x38))->ll &= ~2;

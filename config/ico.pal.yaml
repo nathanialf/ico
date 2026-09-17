@@ -556,7 +556,7 @@ segments:
       - [0x1A5ED0, data, cod/1A5ED0]     # .data blob resume
       - [0x1A6030, .data, ico2/omori/src/poly-flat]  # the TU's whole .data run as source (data pass 6), VMA 0x2A6030..0x2A6070, 64 B
       - [0x1A6070, data, cod/1A6070]     # data blob resume
-      - [0x1A7740, .data, ico2/ito/src/queen]  # the TU's whole .data run as source (completeness pass 6), VMA 0x2A7740..0x2A7920, 480 B emitted
+      - [0x1A60B0, .data, ico2/ito/src/queen]  # the TU's whole .data run as source (completeness pass 7): the generated cloth mesh (config, UV arrays, columns) then the earlier tables, VMA 0x2A60B0..0x2A7920
       - [0x1A7920, .data, ico2/ito/mpeg/mv_main]  # the TU's whole .data run as source (data pass 6; = MAIN.MAP mv_main.o .data 0x98 with voBuf at 0x40 and display at 0x58), VMA 0x2A7920..0x2A79B8, 152 B
       - [0x1A79B8, data, cod/1A79B8]     # data blob resume
       - [0x219020, .data, ico2/common/src/DObj]  # the TU's whole .data run as source (data pass 5), VMA 0x319020..0x319A00, 2528 B
@@ -570,7 +570,7 @@ segments:
       - [0x3E5A30, .data, ico2/sugipon/src/act_a_p_1]  # the TU's whole .data run as source (data pass 6), abutting attackCheckBoundary's row, VMA 0x4E5A30..0x4E5A90, 96 B
       - [0x3E5A90, .data, ico2/sugipon/src/attackCheckBoundary]  # carved D_004E5A90 (VMA 0x4E5A90..0x4E5AA0, 16 B, 1 sym), referenced only by still-asm AttackCheckBoundaryDL via %hi/%lo
       - [0x3E5AA0, data, cod/3E5AA0]     # .data blob resume
-      - [0x3E6C70, .data, ico2/sugipon/src/boy]  # the TU's whole .data run as source (completeness pass 6), VMA 0x4E6C70..0x4E6E10, 416 B emitted
+      - [0x3E62B0, .data, ico2/sugipon/src/boy]  # the TU's whole .data run as source (completeness pass 7): the cloth mesh then the earlier tables, VMA 0x4E62B0..0x4E6E10
       - [0x3E6E10, data, cod/3E6E10]     # .data blob resume
       - [0x3E7060, .data, ico2/sugipon/src/clothTest]  # the TU's whole .data run as source (data pass 3): twenty anchors and the two cloth configurations, VMA 0x4E7060..0x4E7458, 1016 B
       - [0x3E7458, data, cod/3E7458]     # data blob resume
@@ -578,7 +578,7 @@ segments:
       - [0x3E78A0, .data, ico2/sugipon/src/enemy]  # the TU's whole .data run as source (completeness pass 5), VMA 0x4E78A0..0x4E78E0, 64 B emitted
       - [0x3E78E0, .data, ico2/sugipon/src/enemyParts]  # the TU's whole .data run as source (data pass 3): eight part templates, VMA 0x4E78E0..0x4E7A20, 320 B
       - [0x3E7A20, data, cod/3E7A20]     # data blob resume
-      - [0x3EB180, .data, ico2/sugipon/src/girl]  # the TU's whole .data run as source (completeness pass 6), VMA 0x4EB180..0x4EB430, 688 B emitted
+      - [0x3E7AC0, .data, ico2/sugipon/src/girl]  # the TU's whole .data run as source (completeness pass 7): the cloth mesh then the earlier tables, VMA 0x4E7AC0..0x4EB430
       - [0x3EB430, data, cod/3EB430]     # .data blob resume
       - [0x3EB440, .data, ico2/sugipon/src/item]  # the TU's whole .data run as source (data pass 5), abutting lodManager's, VMA 0x4EB440..0x4EB5E0, 416 B
       - [0x3EB5E0, .data, ico2/sugipon/src/lodManager]  # the TU's whole .data run as source (data pass 5; = MAIN.MAP lodManager.o .data 0x178), VMA 0x4EB5E0..0x4EB758, 376 B
@@ -743,8 +743,7 @@ segments:
       - [0x456890, .rodata, ico2/ito/src/itou_sub]  # plain-rodata: m33_to_quat's `int nxt[3] = {1,2,0}` initialiser template (12 B, 8-aligned), VMA 0x556890..0x55689C
       - [0x45689C, rodata, cod/45689C]   # .rodata blob resume (the zero pad word, then lightning's "lightning_test" string at 0x5568A0)
       - [0x4568B0, .rodata, ico2/ito/src/lightning]  # carved $LC0/$LC1 of lightning_test (VMA 0x5568B0..0x556900, 80 B): the colour quad and the four vertices, local brace initialisers in the source; the "lightning_test" string before them belongs to the still-asm DrawLightning2 and stays in the blob
-      - [0x456900, rodata, cod/456900]   # .rodata blob resume (queen's strings and rate tables; TU fully C, strings still in the blob)
-      - [0x456910, .rodata, ico2/ito/src/queen]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP queen.o .rodata 0x4F0), the tables, strings and the switch table in one row, VMA 0x556910..0x556E00, 1264 B
+      - [0x456900, .rodata, ico2/ito/src/queen]  # plain-rodata: the TU's whole .rodata run as source (completeness pass 7 widened it to the run head: the mesh texture name as a named static const string, then strings, rate tables and jump tables), VMA 0x556900..0x556E00
       - [0x456E00, rodata, cod/456E00]     # rodata blob resume
       - [0x456E50, .rodata, ico2/ito/src/stage_orient]  # the TU's whole .rodata run as source (data pass 3): the 41-entry orientation table, VMA 0x556E50..0x55755C, 1804 B
       - [0x457560, rodata, cod/457560]     # rodata blob resume
@@ -792,6 +791,8 @@ segments:
       - [0x51EE30, .rodata, ico2/sugipon/src/a_p_1]  # the TU's whole .rodata run as source (completeness pass 6), VMA 0x61EE30..0x61EE98, 98 B emitted
       - [0x51EE98, .rodata, ico2/sugipon/src/act_a_p_1]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP act_a_p_1.o .rodata 0x2A), VMA 0x61EE98..0x61EEC2, 42 B
       - [0x51EEC2, rodata, cod/51EEC2]     # rodata blob resume
+      - [0x51F158, .rodata, ico2/sugipon/src/boy]  # the TU's whole .rodata run as source (completeness pass 7): the mesh texture name and strings, VMA 0x61F158..0x61F182
+      - [0x51F182, rodata, cod/51F182]     # .rodata blob resume
       - [0x51F198, .rodata, ico2/sugipon/src/candle]  # the TU's whole .rodata run as source (completeness pass 5), VMA 0x61F198..0x61F1D0, 55 B emitted
       - [0x51F1D0, .rodata, ico2/sugipon/src/clipCollisionManager]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP clipCollisionManager.o .rodata 0x48), VMA 0x61F1D0..0x61F218, 72 B
       - [0x51F218, rodata, cod/51F218]     # rodata blob resume
@@ -803,7 +804,7 @@ segments:
       - [0x51F728, rodata, cod/51F728]     # rodata blob resume
       - [0x51F7D0, .rodata, ico2/sugipon/src/frameDependSequence]  # carved jtbl_0061F7D0 (VMA 0x61F7D0..0x61F7E4, 20 B, 5 arms): playSEConditionID's switch table, emitted by the compiled function
       - [0x51F7E4, rodata, cod/51F7E4]   # .rodata blob resume
-      - [0x51F8D0, .rodata, ico2/sugipon/src/girl]  # the TU's whole .rodata run as source (data pass 5), in census function order with the deferred inline setters, VMA 0x61F8D0..0x61F9DB, 267 B
+      - [0x51F8A0, .rodata, ico2/sugipon/src/girl]  # the TU's whole .rodata run as source (completeness pass 7 widened it to the run head), VMA 0x61F8A0..0x61F9DB
       - [0x51F9DB, rodata, cod/51F9DB]     # rodata blob resume
       - [0x51F9E0, .rodata, ico2/sugipon/src/girlForceField]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x61F9E0..0x61FA00, 32 B
       - [0x51FA00, .rodata, ico2/sugipon/src/handManager]  # carved jtbl_0061FA00 (VMA 0x61FA00..0x61FA18, 24 B, 6 arms): _handManager's switch table, emitted by the compiled function; the two zero pad words after it are the blob's first words
@@ -1084,7 +1085,7 @@ segments:
       - [0x53AC58, sdata, cod/53AC58]     # .sdata blob resume
       - [0x53B008, .sdata, ico2/common/src/debug]  # carved debug_MemoryCard's short menu labels ("LOAD".."MENU", -G 8 puts them in small data), VMA 0x63B008..0x63B040
       - [0x53B040, sdata, cod/53B040]    # .sdata blob resume
-      - [0x53B8C8, .sdata, ico2/sugipon/src/girl]  # the TU's whole .sdata run as source (completeness pass 6), VMA 0x63B8C8..0x63B8D9, 17 B emitted
+      - [0x53B8B8, .sdata, ico2/sugipon/src/girl]  # the TU's .sdata literals (completeness pass 7 widened it to the run head), VMA 0x63B8B8..0x63B8D9
       - [0x53B8D9, sdata, cod/53B8D9]     # .sdata blob resume
       - [0x53C0D0, .sdata, ico2/common/src/GobjProc]  # the TU's .sdata: one anonymous string literal ("%d\n", 4 B), VMA 0x63C0D0..0x63C0D4; completeness pass 1
       - [0x53C0D4, sdata, cod/53C0D4]     # .sdata blob resume
