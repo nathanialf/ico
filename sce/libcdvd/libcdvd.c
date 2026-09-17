@@ -304,7 +304,15 @@ int sceCdReadClock(CdClock *clock)
 
 extern int D_0054BFB0[];
 extern int D_0072F1D8[];
-extern int sceCdStream(int a0, int a1, int a2, int a3, void *a4);
+
+typedef struct {
+    unsigned char trycount;
+    unsigned char spindlctrl;
+    unsigned char datapattern;
+    unsigned char pad;
+} CdRMode;
+
+extern int sceCdStream(int a0, int a1, int a2, int a3, CdRMode *mode);
 
 int sceCdStInit(int a0, int a1, int a2)
 {
@@ -368,7 +376,59 @@ int sceCdStStat(void)
     return sceCdStream(0, 0, 0, 6, D_0072F1D8);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", sceCdStream);
+extern int _sceCd_ncmdsdata[];
+extern char D_00636AF8[];
+extern char D_00636B10[];
+extern char D_00636B28[];
+
+typedef struct {
+    int f0;
+    int f4;
+    int f8;
+    int cmd;
+    unsigned char trycount;
+    unsigned char spindlctrl;
+    unsigned char datapattern;
+    unsigned char pad;
+} CdStreamCmd;
+
+int sceCdStream(int a0, int a1, int a2, int cmd, CdRMode *mode)
+{
+    CdStreamCmd *sd = (CdStreamCmd *)_sceCd_ncmdsdata;
+    int *p;
+    int v;
+
+    if (_sceCd_ncmd_prechk(0xF) == 0) {
+        return 0;
+    }
+    if (SCE_CD_debug[0] > 0) {
+        scePrintf(D_00636AF8);
+    }
+    sd->f0 = a0;
+    sd->f4 = a1;
+    sd->f8 = a2;
+    sd->cmd = cmd;
+    if (mode != 0) {
+        sd->trycount = mode->trycount;
+        sd->spindlctrl = mode->spindlctrl;
+        sd->datapattern = mode->datapattern;
+    }
+    if (SCE_CD_debug[0] > 0) {
+        scePrintf(D_00636B10);
+    }
+    sceSifWriteBackDCache(sd, 0x14);
+    p = _sceCd_ncmdrdata;
+    if (sceSifCallRpc(_sceCd_cd_ncmd, 9, 0, sd, 0x14, p, 4, 0, 0) < 0) {
+        SignalSema(_sceCd_ncmd_semid[0]);
+        return 0;
+    }
+    if (SCE_CD_debug[0] > 0) {
+        scePrintf(D_00636B28);
+    }
+    v = *(int *)((int)p | 0x20000000);
+    SignalSema(_sceCd_ncmd_semid[0]);
+    return v;
+}
 
 extern int D_0054BFCC[];
 extern char D_00636B38[];
