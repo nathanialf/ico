@@ -366,6 +366,9 @@ int la_title_new_game_only(int a0)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", la_mc_file_select);
 
+extern int D_0063B4E4;
+extern int D_0071D910[];
+
 /* layout_action.c:1924-1942 in the listing. */
 void _la_mask_preview_info(void)
 {
@@ -444,7 +447,107 @@ int la_load_game_memory_card_check(int a0)
     return -1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", la_mc_load_file_select);
+extern int D_0063B568;
+extern int D_0063B56C;
+/* the two load-select trace messages, VMA 0x63B570 and 0x63B578 (.sdata) */
+extern char D_0063B570[];
+extern char D_0063B578[];
+int la_mc_saved_file_select(int a0);
+
+/* layout_action.c:2139-2235 in the listing. */
+int la_mc_load_file_select(int a0, int a1)
+{
+    int r;
+
+    if (a0) {
+        D_0063B4F0 = 0;
+        D_0063B4DC = D_0063B550 = D_0063B4E0;
+        D_0063B56C = 0;
+    }
+
+    if (D_0063B4F0 != 0) {
+        _la_set_preview_info();
+        lt_mask_property(73, 1);
+        lt_mask_property(72, 1);
+        lt_mask_property(195, 0);
+        lt_mask_property(196, 0);
+    } else {
+        _la_mask_preview_info();
+        lt_mask_property(73, 0);
+        lt_mask_property(72, 0);
+        lt_mask_property(195, 1);
+        lt_mask_property(196, 1);
+    }
+    lt_set_item_select_func((int)la_mc_saved_file_select);
+
+    if (D_0028F8F4[0] & 0x10) {
+        NEGATIVE_SE();
+        lt_set_item_select_func(0);
+        D_0063B4F4 = 0;
+        return 12;
+    }
+
+    if ((D_0063B4F0 != 0 || D_0063B56C != 0) && (D_0028F8F4[0] & 0x40)) {
+        POSITIVE_SE();
+        if (D_0029B5F0[D_0063B550].f[a1]._0 != 0xFFFFFFFF) {
+            D_0063B4E8 = a1;
+            D_0063B4DC = D_0063B550;
+            lt_set_item_select_func(0);
+            D_0063B4F4 = 0;
+            return 21;
+        }
+    }
+
+    r = _la_set_current_port_lock_2(mc, a0);
+    switch (r) {
+    case -1:
+        if (((D_0063B4D8->_0 >> 1) & 1) == 0) {
+            lt_set_item_select_func(0);
+            D_0063B4F4 = 0;
+            return 22;
+        }
+        lt_set_item_select_func(0);
+        D_0063B4F4 = 0;
+        return 23;
+    case 1:
+        if (((D_0063B4D8->_0 >> 1) & 1) == 0) {
+            lt_set_item_select_func(0);
+            D_0063B4F4 = 0;
+            return 22;
+        }
+        if ((D_0063B4D8->_0 & 0x22) == 2) {
+            lt_set_item_select_func(0);
+            D_0063B4F4 = 0;
+            return 23;
+        }
+        break;
+    case 0:
+    default:
+        return -1;
+    }
+
+    if (D_0063B4F0 != 0) {
+        if (D_0063B568 == 0) {
+            if (((D_0063B4D8->_0 >> 6) & 1) != 0) {
+                debug_StdPrintfDummy(D_0063B570);
+                lt_set_item_select_func(0);
+                D_0063B4F4 = 0;
+                return 17;
+            }
+        } else if (((D_0063B4D8->_0 >> 6) & 1) == 0) {
+            debug_StdPrintfDummy(D_0063B578);
+            D_0063B568 = (D_0063B4D8->_0 >> 6) & 1;
+        }
+    } else {
+        D_0063B568 = (D_0063B4D8->_0 >> 6) & 1;
+        D_0063B4F0 = D_0063B4D8->_4;
+        D_0063B4F4 = r;
+        if ((D_0063B4D8->_0 & 0xA) == 2) {
+            D_0063B56C = r;
+        }
+    }
+    return -1;
+}
 
 /* layout_action.c:2245-2267 in the listing. */
 int la_load_confirm_no_memory_card(int a0)
@@ -741,7 +844,106 @@ void progressive_bar(void)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", la_mc_save_file_select);
+extern int D_0063C3DC;
+/* the two save-select trace messages, VMA 0x61DB58 and 0x61DB68 */
+extern char D_0061DB58[];
+extern char D_0061DB68[];
+
+/* layout_action.c:2860-2951 in the listing. */
+int la_mc_save_file_select(int a0, int a1)
+{
+    int r;
+
+    if (a0) {
+        D_0063B4F0 = 0;
+        D_0063B4DC = D_0063B550 = D_0063B4E0;
+        D_0063C3DC = 0;
+        D_0063C3EC = 2;
+        D_0063B5B0 = 0;
+    }
+
+    if (D_0063B4F4 != 0) {
+        _la_set_preview_info();
+        lt_mask_property(73, 1);
+        lt_mask_property(72, 1);
+        lt_mask_property(239, 0);
+        lt_mask_property(240, 0);
+    } else {
+        lt_mask_property(73, 0);
+        lt_mask_property(72, 0);
+        lt_mask_property(239, 1);
+        lt_mask_property(240, 1);
+    }
+
+    if (D_0063B4F4 != 0) {
+        if (D_0028F8F4[0] & 0x10) {
+            NEGATIVE_SE();
+            lt_set_item_select_func(0);
+            D_0063B4F4 = 0;
+            return 28;
+        }
+    }
+
+    if ((D_0063B4F0 != 0 || D_0063C3DC != 0) && (D_0028F8F4[0] & 0x40)) {
+        POSITIVE_SE();
+        D_0063B4E8 = a1;
+        lt_set_item_select_func(0);
+        D_0063B4F4 = 0;
+        return 34;
+    }
+
+    r = _la_set_current_port_lock_2(mc, a0);
+    switch (r) {
+    case -1:
+        if (((D_0063B4D8->_0 >> 1) & 1) == 0) {
+            lt_set_item_select_func(0);
+            D_0063B4F4 = 0;
+            return 31;
+        }
+        lt_set_item_select_func(0);
+        D_0063B4F4 = 0;
+        return 32;
+    case 1:
+        if (((D_0071D900[D_0063B550]._0 >> 1) & 1) == 0) {
+            lt_set_item_select_func(0);
+            D_0063B4F4 = 0;
+            return 28;
+        }
+        if (D_0063B4F0 != 0) {
+            if (D_0063B5C4 == 0) {
+                if (((D_0063B4D8->_0 >> 2) & 1) != 0) {
+                    lt_set_item_select_func(0);
+                    D_0063B4F4 = 0;
+                    return 18;
+                }
+            } else if (((D_0063B4D8->_0 >> 2) & 1) == 0) {
+                D_0063B5C4 = 0;
+            }
+        } else {
+            D_0063B5C4 = (D_0063B4D8->_0 >> 2) & 1;
+            if ((D_0063B4D8->_0 >> 3) & 1) {
+                debug_StdPrintfDummy(D_0061DB58);
+                D_0063C3DC = r;
+            } else if ((D_0063B4D8->_0 & 0xA) == 2) {
+                debug_StdPrintfDummy(D_0061DB68);
+                if (D_0063B550 == D_0063B4E0) {
+                    D_0063B4F4 = r;
+                }
+                D_0063C3DC = r;
+                return -1;
+            }
+        }
+        if (D_0063B550 == D_0063B4E0) {
+            D_0063B4F0 = D_0063B4D8->_4;
+            D_0063B4F4 = 1;
+        }
+        break;
+    case 0:
+    default:
+        return -1;
+    }
+    return -1;
+}
 
 /* the save-slot messages, VMA 0x61DB78 and 0x61DB98 */
 extern char D_0061DB78[];
@@ -1239,8 +1441,6 @@ int la_title_demo(void)
     return -1;
 }
 
-extern int D_0063B4E4;
-
 int la_mc_preview_info(void)
 {
     if (D_0063B4F0 == 0) {
@@ -1412,7 +1612,6 @@ struct S14 {
     int w[5];
 };
 
-extern int D_0071D910[];
 extern int D_0029B9D0[];
 extern int D_0061DC40[];
 extern int D_0061DC58[];
