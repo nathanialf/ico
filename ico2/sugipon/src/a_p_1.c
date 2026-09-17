@@ -14,6 +14,7 @@
 #include "tableSin.h"
 #include <stdlib.h>
 #include "typedef.h"
+#include "sugiCommon.h"
 
 typedef struct {
     float m[4];
@@ -291,7 +292,203 @@ void zAxisRotFitting(int *self, int arg2)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/a_p_1", fitToCol);
+/* Two static helpers the listing places at a_p_1.c lines 283-292 and 156-165,
+ * above the def lines of fitToCol and InitAP1, so both names are ours. */
+static inline int clipAndTakeHit(AP1ColHit *dst, char *col)
+{
+    ClipCollision(col);
+    if (*(int *)(col + 0x88) != 0) {
+        dst->attr = *(int *)(col + 0x88);
+        dst->p = *(AP1PackedLL *)(col + 0x80);
+        return 1;
+    }
+    if (*(int *)(col + 0x94) != 0) {
+        dst->attr = *(int *)(col + 0x94);
+        dst->p = *(AP1PackedLL *)(col + 0x8C);
+        return 1;
+    }
+    return 0;
+}
+
+/* The clip table the two collision segments are read from: each entry is a
+ * pair of endpoints the root matrix is applied to. */
+typedef struct {
+    Vec4A_P_1 a; /* 0x00 */
+    Vec4A_P_1 b; /* 0x10 */
+} AP1ColSeg;
+
+extern AP1ColSeg D_004E55F0[];
+extern AP1ColSeg D_004E5630[];
+extern char D_004E56E0[];
+extern char D_004E5700[];
+/* kept local: this TU's uses of GetInverseQuaternion do not fit the prototype in matrixDrive.h */
+extern void GetInverseQuaternion(void *dst, void *src);
+/* kept local: this TU's uses of _SubVectorXYZ do not fit the prototype in Matrix.h */
+extern void _SubVectorXYZ(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _InterVector do not fit the prototype in Matrix.h */
+extern void _InterVector(void *dst, void *a, void *b, float t);
+
+/* Listing lines 322-332, above fitToCol's def line, so the name is ours. */
+static inline void fitYawToVector(char *self, Vec4A_P_1 *dir)
+{
+    Vec4A_P_1 q;
+    Vec4A_P_1 qi;
+    Vec4A_P_1 rot;
+    Mtx44 mm;
+    Vec4A_P_1 v;
+
+    GetRootQuaternion((int)&q, (int *)self);
+    GetInverseQuaternion(&qi, &q);
+    GetMatrixFromQuaternion((int)&mm, (int)&qi);
+    _ApplyMatrix((int)&v, (int)&mm, (int)dir);
+    v.m[2] = 0.0f;
+    _NormalizeVector((int)&v, (int)&v);
+    SetQuaternionByAxisRotateV((int)&rot, (short)-GetTableArcTan2(v.m[0], -v.m[1]),
+                               (int)ZUnitVector);
+    MultiQuaternion((int)&q, (int)&q, (int)&rot);
+    SetRootQuaternion((int)self, (int)&q);
+}
+
+/* Listing lines 360-373, above fitToCol's def line, so the name is ours. */
+static inline int clipPartPair(AP1ColHit *dst, Mtx44 *m, AP1ColSeg *tbl, Vec4A_P_1 *pos,
+                               Vec4A_P_1 *nrm)
+{
+    int i;
+
+    for (i = 0; i < 2; i++) {
+        _ApplyMatrix((int)D_004E56E0, (int)m, (int)&tbl[i].a);
+        _ApplyMatrix((int)(D_004E56E0 + 0x10), (int)m, (int)&tbl[i].b);
+        if (clipAndTakeHit(dst, D_004E56E0)) {
+            CopyVector(pos, D_004E5700);
+            CopyVector(nrm, D_004E5700 + 0x80);
+            return 1;
+        }
+    }
+    dst->attr = 0;
+    return 0;
+}
+
+/* Two static helpers above fitToCol's def line, so both names are ours. The
+   listing runs a_p_1.c:392 (the CopyVector) before 386 and 387 (the two field
+   writes), so the writes cannot sit below the call in one function: they are
+   their own helper at listing lines 385-388, called from the one at 390-393. */
+static inline void setPartHit(char *part)
+{
+    *(int *)part = 1;
+    *(int *)(part + 4) = 0;
+}
+
+static inline void resetPartHit(char *part, float *orient)
+{
+    CopyVector(part + 0x20, orient);
+    setPartHit(part);
+}
+
+int fitToCol(char *self, int arg1)
+{
+    Mtx44 m;
+    Vec4A_P_1 posA;
+    Vec4A_P_1 posB;
+    Vec4A_P_1 nrmA;
+    Vec4A_P_1 nrmB;
+    Vec4A_P_1 nrm;
+    Vec4A_P_1 dir;
+    Vec4A_P_1 pos;
+    char *p;
+    int hit1;
+    int hit2;
+
+    p = *(char **)((char *)GOBJ_SUB(self) + 0x830);
+    GetRootMatrix(&m, self);
+    hit1 = clipPartPair((AP1ColHit *)(p + 0x150), &m, D_004E55F0, &posA, &nrmA);
+    hit2 = clipPartPair((AP1ColHit *)(p + 0x15C), &m, D_004E5630, &posB, &nrmB);
+    if (hit1) {
+        if (hit2) {
+            _SubVectorXYZ(&dir, &posA, &posB);
+            _NormalizeVector((int)&dir, (int)&dir);
+            zAxisRotFitting((int *)self, (int)&dir);
+            _InterVector(&nrm, &nrmA, &nrmB, 0.5f);
+            _NormalizeVector((int)&nrm, (int)&nrm);
+            fitYawToVector(self, &nrm);
+            _InterVector(&pos, &posA, &posB, 0.5f);
+            SetRootPosition(self, &pos);
+            {
+                Mtx44 tm;
+                Vec4A_P_1 t;
+                int i;
+                float rangeSq = 10000.0f;
+                char *tbl;
+
+                MatrixDrive_SetTransposeMatrix(&tm, &m);
+                tbl = D_004E5670;
+                /* part, tbl, lim and z are our names: the listing carries no
+                   symbols for locals. ROM holds every bound of the test in one
+                   FP scratch and the component under test in another, which is
+                   what lim and z spell. */
+                for (i = 0; i < 4; i++) {
+                    char *part = p + 0x10 + i * 0x50;
+                    float lim;
+                    float z;
+
+                    _ApplyMatrix((int)&t, (int)&tm, (int)(part + 0x10));
+                    if (*(int *)part != 0) {
+                        continue;
+                    }
+                    if (arg1 != 0) {
+                        if (i == 0) {
+                            if (*(int *)(p + 0x60) == 0) {
+                                goto reset;
+                            }
+                        }
+                        if (i == 3) {
+                            if (*(int *)(p + 0xB0) == 0) {
+                                goto reset;
+                            }
+                        }
+                    }
+                    if (distance_squared(&pos, part + 0x10) > rangeSq) {
+                        goto reset;
+                    }
+                    z = t.m[2];
+                    if (i & 2) {
+                        lim = 0.0f;
+                        if (z > lim) {
+                            goto reset;
+                        }
+                        lim = -50.0f;
+                    } else {
+                        lim = 20.0f;
+                    }
+                    if (z < lim) {
+                        goto reset;
+                    }
+                    z = t.m[0];
+                    if (i & 1) {
+                        lim = -10.0f;
+                        if (z > lim) {
+                            goto reset;
+                        }
+                    } else {
+                        lim = 10.0f;
+                        if (z < lim) {
+                            goto reset;
+                        }
+                    }
+                    continue;
+                reset:
+                    resetPartHit(part, (float *)(tbl + i * 0x10));
+                }
+            }
+            return -1;
+        }
+        fitYawToVector(self, &nrmA);
+        return -1;
+    }
+    if (hit2) {
+        fitYawToVector(self, &nrmB);
+    }
+    return 2;
+}
 
 /* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
@@ -355,24 +552,6 @@ extern int D_0028F4C0[];
 extern char ZeroVector[];
 extern char D_004E57A0[];
 extern char D_004E57C0[];
-
-/* Two static helpers the listing places at a_p_1.c lines 283-292 and 156-165,
- * above the def lines of fitToCol and InitAP1, so both names are ours. */
-static inline int clipAndTakeHit(AP1ColHit *dst, char *col)
-{
-    ClipCollision(col);
-    if (*(int *)(col + 0x88) != 0) {
-        dst->attr = *(int *)(col + 0x88);
-        dst->p = *(AP1PackedLL *)(col + 0x80);
-        return 1;
-    }
-    if (*(int *)(col + 0x94) != 0) {
-        dst->attr = *(int *)(col + 0x94);
-        dst->p = *(AP1PackedLL *)(col + 0x8C);
-        return 1;
-    }
-    return 0;
-}
 
 int rolling(char *a0)
 {

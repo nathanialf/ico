@@ -179,4 +179,21 @@ int movie_abort_check(void)
 
 void demoEnd(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/main", main);
+extern char D_00639CB0[]; /* the "main\n" banner the blob already holds at 0x00639CB0 */
+
+/* main.c's own small-bss cell at 0x0063C108, the boot thread id. It has to be a
+   DEFINITION in this TU rather than an extern off the sbss run base: gas emits a
+   non-macro gp-relative store only for a symbol it already knows is small, and
+   only a non-macro store is swapped into the `jal boot` delay slot. The name is
+   ours; MAIN.MAP does not name the cell. */
+static int bootThreadId;
+
+int main(void)
+{
+    debug_StdPrintfDummy(D_00639CB0);
+    debug_StdPrintfDummy(D_00639CB0);
+    ChangeThreadPriority(GetThreadId(), 14);
+    bootThreadId = GetThreadId();
+    boot();
+    return 0;
+}
