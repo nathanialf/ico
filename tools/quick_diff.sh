@@ -197,6 +197,9 @@ ICO2_PROG=""
 case "$CSRC" in
     ico2/*/*) ICO2_PROG="${CSRC#ico2/}"; ICO2_PROG="${ICO2_PROG%%/*}" ;;
 esac
+# A failed compile must never score a stale .s from an earlier run: clear the
+# output first and stop when the compiler leaves nothing behind (2026-09-17).
+rm -f "$ASM_OUT"
 if [[ -n "$ICO2_PROG" ]]; then
     # Same rule as compile_c.sh: compile from inside the programmer's own
     # directory with relative -I entries, so __FILE__ and the header spellings
@@ -223,6 +226,7 @@ else
     ASM_ABS="$ASM_OUT"; case "$ASM_ABS" in /*) ;; *) ASM_ABS="$ROOT/$ASM_ABS";; esac
     ( cd "$(dirname "$CSRC_ABS")" && $CC $CFLAGS -I"$ROOT/include" -o "$ASM_ABS" "$(basename "$CSRC_ABS")" )
 fi
+[[ -s "$ASM_OUT" ]] || { echo "quick_diff: compile failed for $CSRC, no assembly produced" >&2; exit 1; }
 
 # Stage 1b: the only postprocess left is the jtbl section split, which is
 # placement, not an instruction rewrite. Every rule that rewrote what ee-gcc or
