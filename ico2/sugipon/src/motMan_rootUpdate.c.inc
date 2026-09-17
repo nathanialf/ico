@@ -35,6 +35,10 @@ extern char D_004ECAF0[];
 extern char D_004ECB00[];
 extern void CopyQuaternion(void *a0, void *a1);
 extern void GetRootQuaternion(void *q, void *obj);
+extern char D_00720200[];
+/* the two ints the demo timer keeps: the elapsed count and its divisor. */
+extern int D_0028F4C0[];
+extern char D_0061FE80[];
 
 /* 12-byte plane record copied out of the motion work block. */
 typedef struct {
@@ -82,7 +86,7 @@ void _wallCollisionPreProcess(char *w, void *p, void *q, float dy)
 /* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into its
  * callers (rows 306-320, above wallCollisionAndReact's 331), so it carries no
  * symbol in MAIN.MAP. */
-static inline void wallCollisionAndFloorFit(char *cur, char *last, float dy)
+static inline int wallCollisionAndFloorFit(char *cur, char *last, float dy)
 {
     ClipBuf w;
     Vec16 t;
@@ -90,12 +94,15 @@ static inline void wallCollisionAndFloorFit(char *cur, char *last, float dy)
     _wallCollisionPreProcess((char *)&w, cur, last, dy);
     if (*(int *)((char *)&w + 0x88) != 0) {
         _wallHitReaction(&w, cur, last, 0);
+        return 1;
     } else if (*(int *)((char *)&w + 0x94) != 0) {
         CopyVector(&t, (char *)&w + 0x20);
         t.f[1] = t.f[1] - dy;
         CopyVector(cur, &t);
         CopyVector(last, &t);
+        return 1;
     }
+    return 0;
 }
 
 /* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into its
@@ -268,7 +275,92 @@ void floorFitting(int kind)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", rootUpdateXZ);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", rootUpdateXZ_MotPos);
+
+MotShift rootUpdateXZ_MotPos(int kind, int no)
+{
+    MotShift ret;
+    ClipBuf w;
+    Vec16 mv;
+    Vec16 step;
+    float mtx[16];
+    float lim;
+    int r;
+
+    ret = D_0063B930[0];
+    GetMatrixFromQuaternion(mtx, D_0063C490 + 0x30);
+    sceVu0ApplyMatrix((int *)&mv, (int)mtx, (char *)D_007201F0);
+    sceVu0ApplyMatrix((int *)&step, (int)mtx, D_00720200);
+    AddVectorXYZ(D_0063C490, D_0063C490, &step);
+
+    if (no != -1) {
+        CopyVector(D_0063C490 + 0xD0, D_00720210);
+    } else {
+        if (*(int *)(D_0063C494 + 0x58) != 0) {
+            if (D_0028F4C0[0] == 1) {
+                AddVectorXYZ(D_0063C490, D_0063C490, D_0063C490 + 0x90);
+            }
+        }
+        if (*(int *)(D_0063C494 + 0x30) == 21) {
+            lim = -(60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 10.0f);
+            if (*(float *)(D_0063C490 + 0xD4) < lim) {
+                *(float *)(D_0063C490 + 0xD4) = lim;
+                /* retail links debug_StdPrintfDummy in place of the listing's printf. */
+                debug_StdPrintfDummy(D_0061FE80);
+            }
+        }
+        AddVectorXYZ(D_0063C490, D_0063C490, D_0063C490 + 0xD0);
+    }
+
+    if (wallCollisionAndFloorFit(D_0063C490, D_0063C490 + 0x150,
+                                 *(float *)(D_0063C490 + 0x1D0) + -30.0f) == 0) {
+        if (*(int *)(D_0063C494 + 0xD8) != 0) {
+            wallCollisionAndFloorFit(D_0063C490, D_0063C490 + 0x150, 5.0f);
+        }
+    }
+
+    if (*(int *)(D_0063C494 + 0xD4) != 0) {
+        if (no != -1 || *(int *)(D_0063C490 + 0x310) != 0) {
+            if (getFieldCollision((char *)&w) != 0) {
+                CopyVector(D_0063C490 + 0x130, (char *)&w + 0xA0);
+                *(float *)(D_0063C490 + 4) = *(float *)((char *)&w + 0x24) + mv.f[1];
+                if (no != -1 || *(int *)(D_0063C494 + 0x30) == 75 ||
+                    *(int *)(D_0063C494 + 0x30) == 599 || *(int *)(D_0063C494 + 0x30) == 58) {
+                    *(int *)(D_0063C494 + 0x188) = GetFloorAttribute((char *)&w);
+                    ret = *(MotShift *)((char *)&w + 0x8C);
+                } else {
+                    *(int *)(D_0063C494 + 0x188) = 0;
+                }
+            } else {
+                *(int *)(D_0063C494 + 0x14) = *(int *)(D_0063C494 + 0x14) | 4;
+            }
+        } else {
+            getFieldCollision((char *)&w);
+        }
+        r = getFlyFieldCollision((char *)&w);
+        switch (r) {
+        case 1:
+            if (*(float *)(D_0063C4A8 + 0x120) > *(float *)(D_0063C494 + 0x3C)) {
+                *(float *)(D_0063C490 + 4) = *(float *)((char *)&w + 0x24) + mv.f[1];
+            } else {
+                landingFieldAction((char *)&w);
+            }
+            break;
+        case 2:
+            markPoolContact((char *)&w);
+            break;
+        }
+    }
+
+    checkCliffAndWallStateAtJump();
+    floorFitting(kind);
+    *(float *)(D_0063C490 + 0xC0) = D_007201F0[1];
+    SubVectorXYZ(D_0063C490 + 0x90, D_0063C490, D_0063C490 + 0x150);
+    CopyVector(D_0063C490 + 0x10, ZeroPoint);
+    CopyVector(D_0063C490 + 0x150, D_0063C490);
+    *(int *)(D_0063C490 + 0x180) = no;
+    return ret;
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", adjustSideWall);
 
 int checkSideWall(int a0, int a1, int p, int a3, int a4)
