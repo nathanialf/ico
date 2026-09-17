@@ -21,7 +21,50 @@ void sceMpegDemuxPss(void *a0, int a1, int a2)
     } while (0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", sceMpegAddStrCallback);
+/* the ten PSS stream descriptors: the id template of the stream and the mask
+ * of the bits its stream number occupies */
+typedef struct {
+    long long id;
+    unsigned long long mask;
+} StrDesc;
+
+extern StrDesc D_0054C018[];
+
+/* one demux callback: the stream id it matches, the mask of the id bits that
+ * take part in the match, and the handler with its user argument */
+typedef struct {
+    long long id;
+    unsigned long long mask;
+    int func;
+    int arg;
+} StrCb;
+
+extern long long _type2id(int a0, long long a1);
+
+int sceMpegAddStrCallback(int *a0, int a1, long long a2, int a3, int a4)
+{
+    int ret = 0;
+    int *p = (int *)a0[0x40 / 4];
+    StrCb *tbl = (StrCb *)p[0x44 / 4];
+    long long id = _type2id(a1, a2);
+    int n = p[0x48 / 4];
+    int i;
+
+    for (i = 0; i < n; i++) {
+        if (id == tbl[i].id) {
+            ret = tbl[i].func;
+            break;
+        }
+    }
+    if (i < 0x40) {
+        p[0x48 / 4] = n + 1;
+        tbl[i].id = id;
+        tbl[i].arg = a4;
+        tbl[i].func = a3;
+        tbl[i].mask = D_0054C018[a1].mask;
+    }
+    return ret;
+}
 
 extern int _sysbitGet(int *bs, int nbits);
 extern int _sysbitMarker(int *bs);
@@ -465,12 +508,131 @@ int _RefImageInit(int *a0, int a1, int a2)
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _sequenceHeader);
+extern unsigned int _nextBit(int n);
+extern int _frame_rate_code;
+extern int _aspect_ratio_information;
+extern int _horizontal_size;
+extern int _vertical_size;
+extern int _constrained_parameters_flag;
+extern int _vbv_buffer_size_value;
+extern int _bit_rate_value;
+extern int _load_intra_quantizer_matrix;
+extern int _load_non_intra_quantizer_matrix;
+extern int _defIQM[];
+extern int _defNIQM[];
+extern int D_00636E08[];
+extern void _setDefaultQM(int a0, int *a1);
+extern void _sendIpuCommand(unsigned int a0);
+extern void _waitIpuIdle(void);
+extern void _extensionAndUserData(void);
+extern void _initSeq(void *a0);
+
+void _sequenceHeader(void)
+{
+    unsigned int v;
+
+    *(int *)(*(int *)((char *)D_0054C0E4[0] + 0x40) + 0xD4) = 0;
+    v = _nextBit(32);
+    _frame_rate_code = v & 0xF;
+    _aspect_ratio_information = (v >> 4) & 0xF;
+    _vertical_size = (v >> 8) & 0xFFF;
+    _horizontal_size = v >> 20;
+    if (_vertical_size >= 0xAF1) {
+        _Error(D_00636E08);
+    }
+    v = _nextBit(30);
+    _constrained_parameters_flag = v & 1;
+    _vbv_buffer_size_value = (v >> 1) & 0x3FF;
+    _bit_rate_value = v >> 12;
+    if ((_load_intra_quantizer_matrix = _nextBit(1)) != 0) {
+        _waitIpuIdle();
+        _sendIpuCommand(0x50000000);
+        _waitIpuIdle();
+    } else {
+        _setDefaultQM(0x50000000, _defIQM);
+    }
+    if ((_load_non_intra_quantizer_matrix = _nextBit(1)) != 0) {
+        _waitIpuIdle();
+        _sendIpuCommand(0x58000000);
+        _waitIpuIdle();
+    } else {
+        _setDefaultQM(0x58000000, _defNIQM);
+    }
+    _extensionAndUserData();
+    _initSeq(D_0054C0E4[0]);
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _initSeq);
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _initRefImages);
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _setDefaultQM);
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _sequenceExtension);
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _sequenceDisplayExtension);
+
+extern int _chroma_format;
+extern int _progressive_sequence;
+extern int _profile_and_level_indication;
+extern int _low_delay;
+extern int _frame_rate_extension_n;
+extern int _frame_rate_extension_d;
+extern int D_00636E20[];
+extern int D_00636E48[];
+extern void _ipuSetMPEG1(int a0);
+
+void _sequenceExtension(void)
+{
+    unsigned int v;
+    int horiz_ext;
+    int vert_ext;
+    int bit_rate_ext;
+    int vbv_ext;
+
+    _isMpeg2[0] = 1;
+    _ipuSetMPEG1(0);
+    v = _nextBit(28);
+    bit_rate_ext = (v >> 1) & 0xFFF;
+    _chroma_format = (v >> 17) & 3;
+    vert_ext = (v >> 13) & 3;
+    horiz_ext = (v >> 15) & 3;
+    if (_chroma_format != 1) {
+        _Error(D_00636E20);
+    }
+    _progressive_sequence = (v >> 19) & 1;
+    _profile_and_level_indication = v >> 20;
+    v = _nextBit(16);
+    _frame_rate_extension_d = v & 0x1F;
+    _frame_rate_extension_n = (v >> 5) & 3;
+    _low_delay = (v >> 7) & 1;
+    vbv_ext = v >> 8;
+    if (_profile_and_level_indication != 0x48 && _profile_and_level_indication != 0x58) {
+        _Error(D_00636E48);
+    }
+    _horizontal_size = (horiz_ext << 12) | (_horizontal_size & 0xFFF);
+    _vertical_size = (vert_ext << 12) | (_vertical_size & 0xFFF);
+    _bit_rate_value = _bit_rate_value + (bit_rate_ext << 18);
+    _vbv_buffer_size_value = _vbv_buffer_size_value + (vbv_ext << 10);
+}
+
+extern unsigned int _nextBit(int n);
+/* the sequence_display_extension fields, all of them in the vendor's own
+ * variable object */
+extern int _video_format;
+extern int _color_description;
+extern int _color_primaries;
+extern int _transfer_characteristics;
+extern int _matrix_coefficients;
+extern int _display_horizontal_size;
+extern int _display_vertical_size;
+
+void _sequenceDisplayExtension(void)
+{
+    _video_format = _nextBit(3);
+    if ((_color_description = _nextBit(1)) != 0) {
+        _color_primaries = _nextBit(8);
+        _transfer_characteristics = _nextBit(8);
+        _matrix_coefficients = _nextBit(8);
+    }
+    _display_horizontal_size = _nextBit(14);
+    _nextBit(1);
+    _display_vertical_size = _nextBit(14);
+}
 
 extern int D_00636E68[];
 
@@ -1629,7 +1791,40 @@ int _mbAddressIncrement(void)
     return sum;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _pictureData0);
+extern int _widthMB[];
+extern int _heightMB[];
+extern void _waitIpuIdle(void);
+extern int _slice0(int a0, int a1);
+extern int _waitBdecOut(void);
+extern void _doMC(int a0);
+extern int D_00637018[];
+
+int _pictureData0(int a0)
+{
+    int n = _widthMB[0] * _heightMB[0];
+    int r;
+
+    _mbcont[0x280 / 4] = 0;
+    _mbcont[0x284 / 4] = 0;
+    if (_picture_structure[0] != 3) {
+        n = n >> 1;
+    }
+    do {
+        r = _slice0(a0, n);
+    } while (r == 1 || r == 3);
+    _waitIpuIdle();
+    if (_waitBdecOut() == 0) {
+        r = 2;
+    }
+    while (((*(volatile unsigned int *)0x1000D400) >> 8) & 1) {}
+    if (r == 0) {
+        _doMC(_mbcont[0x280 / 4] == 0);
+    }
+    if (r == 1 || r == 2) {
+        _Error(D_00637018);
+    }
+    return r == 0;
+}
 
 extern int _widthMB[];
 extern int _sp_dcr[];
@@ -1674,7 +1869,35 @@ int _sliceA0(int a0, int *a1, int *a2, int *a3)
 }
 
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _slice0);
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _skipMB0);
+
+extern int D_006370A0[];
+extern int _picture_coding_type[];
+
+int _skipMB0(int *a0, int *a1, int *a2, int *a3)
+{
+    int ret = 1;
+    char *p;
+
+    _sp_dcr[0] = 1;
+    p = (char *)_mbcont + _mbcont[0xA0] * 0x140;
+    *(int *)(p + 0x13C) = 1;
+    if (_picture_coding_type[0] == 2) {
+        a0[0] = a0[1] = a0[4] = a0[5] = 0;
+    }
+    if (_picture_structure[0] == 3) {
+        a1[0] = 2;
+    } else {
+        a1[0] = 1;
+        a2[0] = a2[1] = _picture_structure[0] == 2;
+    }
+    if (_picture_coding_type[0] == 1) {
+        _Error(D_006370A0);
+        ret = 0;
+    }
+    a3[0] = a3[0] & ~1;
+    return ret;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _decMB0);
 
 void _decode_motion_vector(int *pred, int r_size, int motion_code, int motion_r, int full_pel)
@@ -1699,7 +1922,7 @@ void _decode_motion_vector(int *pred, int r_size, int motion_code, int motion_r,
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _motionVectors);
 
 extern void _decode_motion_vector();
-extern int _nextBit(int a0);
+extern unsigned int _nextBit(int a0);
 
 void _motionVector(char *a0, char *a1, void *a2, void *a3, int a4, int a5, int a6)
 {
@@ -1756,11 +1979,84 @@ void _sendIpuCommand(unsigned int a0)
     _isTop32dirty[0] = D_0054CA08[a0 >> 28];
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _waitIpuIdle);
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _waitIpuIdle64);
+void _waitIpuIdle(void)
+{
+    int n = 0;
+
+    /* the IPU control register the hardware clears when the decode retires */
+    while ((*(volatile int *)0x10002010 & 0x80004000) == 0x80000000) {
+        if (n++ >= 5001) {
+            _dispatchMpegCbNodata(D_0054C0E4[0]);
+            n = 0;
+        }
+    }
+}
+
+long long _waitIpuIdle64(void)
+{
+    long long v;
+    int n = 0;
+
+    /* the 64 bit IPU command register: the top bit stays set while the
+     * command is running, and 0x4000 of the control register at 0x10002010
+     * is the error the decoder gives up on */
+    while ((v = *(volatile long long *)0x10002000) < 0 &&
+           (*(volatile int *)0x10002010 & 0x4000) == 0) {
+        if (n++ >= 5001) {
+            _dispatchMpegCbNodata(D_0054C0E4[0]);
+            n = 0;
+        }
+    }
+    return v;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _ipuVdec);
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _peepBit);
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _flushBuf);
+
+extern int _top32;
+extern int _top32len;
+extern long long _waitIpuIdle64(void);
+
+int _peepBit(int a0)
+{
+    if (_isTop32dirty[0] != 0 || _top32len < a0) {
+        int n = 0;
+
+        while ((*(volatile int *)0x10002010 & 0x80004000) == 0x80000000) {
+            if (n++ >= 5001) {
+                _dispatchMpegCbNodata(D_0054C0E4[0]);
+                n = 0;
+            }
+        }
+        *(volatile unsigned int *)0x10002000 = 0x40000000;
+        _isTop32dirty[0] = D_0054CA08[4];
+        _top32 = _waitIpuIdle64();
+        _top32len = 32;
+    }
+    return (unsigned int)_top32 >> (32 - a0);
+}
+
+extern int _top32;
+extern int _top32len;
+extern long long _waitIpuIdle64(void);
+
+void _flushBuf(int a0)
+{
+    int n = 0;
+    int cmd;
+
+    while ((*(volatile int *)0x10002010 & 0x80004000) == 0x80000000) {
+        if (n++ >= 5001) {
+            _dispatchMpegCbNodata(D_0054C0E4[0]);
+            n = 0;
+        }
+    }
+    cmd = a0 | 0x40000000;
+    *(volatile unsigned int *)0x10002000 = cmd;
+    _isTop32dirty[0] = D_0054CA08[(unsigned int)cmd >> 28];
+    _top32 = _waitIpuIdle64();
+    _top32len = 32;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _nextBit);
 
 extern void _waitIpuIdle(void);
@@ -1778,15 +2074,89 @@ void _nextStartCode(void)
 }
 
 extern void _extrainfo(void);
+extern int _qscqsc;
+extern int _intra_slice;
+extern void _extrainfo(void);
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _sliceB);
+int _sliceB(void)
+{
+    _qscqsc = _nextBit(5);
+    if (_nextBit(1) != 0) {
+        _intra_slice = _nextBit(1);
+        _flushBuf(7);
+        _extrainfo();
+    } else {
+        _intra_slice = 0;
+    }
+    return 0;
+}
 
 extern void _groupOfPicturesHeader(void);
 extern void _pictureHeader(void);
 extern void _sequenceHeader(void);
+extern long long _headerPts;
+extern long long _headerDts;
+extern void _sequenceHeader(void);
+extern void _groupOfPicturesHeader(void);
+extern void _pictureHeader(void);
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _nextHeader);
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _pictureHeader);
+int _nextHeader(void)
+{
+    int buf[8];
+    unsigned int code;
+
+    for (;;) {
+        _nextStartCode();
+        code = _nextBit(32);
+        switch (code) {
+        case 0x1B3:
+            _sequenceHeader();
+            break;
+        case 0x1B8:
+            _groupOfPicturesHeader();
+            break;
+        case 0x100:
+            _pictureHeader();
+            buf[0] = 5;
+            *(long long *)&buf[2] = -1;
+            *(long long *)&buf[4] = -1;
+            _dispatchMpegCallback(D_0054C0E4[0], buf);
+            _headerPts = *(long long *)&buf[2];
+            _headerDts = *(long long *)&buf[4];
+            return _picture_coding_type[0];
+        case 0x1B7:
+            return 0;
+        }
+    }
+}
+
+extern int _temporal_reference;
+extern int _vbv_delay;
+extern int _full_pel_forward_vector;
+extern int _forward_f_code;
+extern int _full_pel_backward_vector;
+extern int _backward_f_code;
+extern void _extensionAndUserData(void);
+extern void _updateTempTackData(void);
+
+void _pictureHeader(void)
+{
+    _temporal_reference = _nextBit(10);
+    _picture_coding_type[0] = _nextBit(3);
+    _vbv_delay = _nextBit(16);
+    if (_picture_coding_type[0] == 2 || _picture_coding_type[0] == 3) {
+        _full_pel_forward_vector = _nextBit(1);
+        _forward_f_code = _nextBit(3);
+    }
+    if (_picture_coding_type[0] == 3) {
+        _full_pel_backward_vector = _nextBit(1);
+        _backward_f_code = _nextBit(3);
+    }
+    _extrainfo();
+    _extensionAndUserData();
+    _updateTempTackData();
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _extensionAndUserData);
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _pictureCodingExtension);
 
@@ -1797,13 +2167,188 @@ void _extrainfo(void)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _updateTempTackData);
+extern int D_0054CA6C;
+extern int D_0054CA70;
+extern int _tmpRefBase;
+extern int _tmpRefGOPreset;
+extern int _trFrameNumber;
+extern int _trFrameNumberA;
+
+void _updateTempTackData(void)
+{
+    if (_picture_coding_type[0] != 3 && _temporal_reference != D_0054CA70) {
+        if (D_0054CA6C != 0) {
+            D_0054CA6C = 0;
+            _tmpRefBase += 0x400;
+        }
+        if (_temporal_reference < D_0054CA70 && _tmpRefGOPreset == 0) {
+            D_0054CA6C = 1;
+        }
+        _tmpRefGOPreset = 0;
+        D_0054CA70 = _temporal_reference;
+    }
+    _trFrameNumber = _tmpRefBase + _temporal_reference;
+    if (D_0054CA6C != 0 && D_0054CA70 >= _temporal_reference) {
+        _trFrameNumber = _tmpRefBase + _temporal_reference + 0x400;
+    }
+    _trFrameNumberA = _trFrameNumberA < _trFrameNumber ? _trFrameNumber : _trFrameNumberA;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _groupOfPicturesHeader);
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _quantMatrixExtension);
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _pictureDisplayExtension);
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _copyrightExtension);
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _decPicture);
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _outputFrame);
+
+extern int _load_intra_quantizer_matrix;
+extern int _load_non_intra_quantizer_matrix;
+extern int D_006370F0[];
+extern int D_00637118[];
+
+void _quantMatrixExtension(void)
+{
+    if ((_load_intra_quantizer_matrix = _nextBit(1)) != 0) {
+        _waitIpuIdle();
+        _sendIpuCommand(0x50000000);
+        _waitIpuIdle();
+    }
+    if ((_load_non_intra_quantizer_matrix = _nextBit(1)) != 0) {
+        _waitIpuIdle();
+        _sendIpuCommand(0x58000000);
+        _waitIpuIdle();
+    }
+    if (_nextBit(1) != 0) {
+        _Error(D_006370F0);
+    }
+    if (_nextBit(1) != 0) {
+        _Error(D_00637118);
+    }
+}
+
+extern int _progressive_sequence;
+extern int _repeat_first_field;
+extern int _top_field_first;
+extern int _frame_center_horizontal_offset[];
+extern int _frame_center_vertical_offset[];
+
+void _pictureDisplayExtension(void)
+{
+    int n;
+    int i;
+
+    if (_progressive_sequence != 0) {
+        if (_repeat_first_field != 0) {
+            n = _top_field_first != 0 ? 3 : 2;
+        } else {
+            n = 1;
+        }
+    } else {
+        if (_picture_structure[0] != 3) {
+            n = 1;
+        } else {
+            n = _repeat_first_field != 0 ? 3 : 2;
+        }
+    }
+    for (i = 0; i < n; i++) {
+        _frame_center_horizontal_offset[i] = _nextBit(16);
+        _nextBit(1);
+        _frame_center_vertical_offset[i] = _nextBit(16);
+        _nextBit(1);
+    }
+}
+
+extern int _copyright_flag;
+extern int _copyright_identifier;
+extern int _original_or_copy;
+extern int _copyright_number_1;
+extern int _copyright_number_2;
+extern int _copyright_number_3;
+
+void _copyrightExtension(void)
+{
+    _copyright_flag = _nextBit(1);
+    _copyright_identifier = _nextBit(8);
+    _original_or_copy = _nextBit(1);
+    /* seven reserved bits, then the marker bit before each field */
+    _nextBit(7);
+    _nextBit(1);
+    _copyright_number_1 = _nextBit(20);
+    _nextBit(1);
+    _copyright_number_2 = _nextBit(22);
+    _nextBit(1);
+    _copyright_number_3 = _nextBit(22);
+}
+
+extern int _curFrame[];
+extern int _curTop[];
+extern int _curBot[];
+extern int D_00637148[];
+extern int D_00637168[];
+extern int _pictureData0(int a0);
+
+int _decPicture(int a0, int a1)
+{
+    int p;
+    int r;
+
+    if (_picture_structure[0] == 3 && _isSecondField[0] != 0) {
+        _Error(D_00637148);
+        _isSecondField[0] = 0;
+    }
+    switch (_picture_structure[0]) {
+    case 3:
+        p = _curFrame[0];
+        break;
+    case 1:
+        p = _curTop[0];
+        break;
+    case 2:
+        p = _curBot[0];
+        break;
+    default:
+        p = _curFrame[0];
+        _Error(D_00637168);
+        break;
+    }
+    r = _pictureData0(a0);
+    if (r != 0) {
+        *(int *)(p + 0x28) = 1;
+    }
+    return r;
+}
+
+extern int _picture_coding_type[];
+extern int _zFrame[];
+extern int _zTop[];
+extern int _zBot[];
+
+void _outputFrame(int a0, int a1)
+{
+    int *p = *(int **)((char *)D_0054C0E4[0] + 0x40);
+
+    if (a1 != 0) {
+        int top;
+        int bot;
+
+        if (_picture_structure[0] == 3) {
+            if (_picture_coding_type[0] == 3) {
+                top = _zFrame[0];
+            } else {
+                top = _forwFrame[0];
+            }
+            _dispRefImage(top, a0 - 1);
+        } else {
+            if (_picture_coding_type[0] == 3) {
+                top = _zTop[0];
+                bot = _zBot[0];
+            } else {
+                top = _forwTop[0];
+                bot = _forwBot[0];
+            }
+            _dispRefImageField(top, bot, a0 - 1);
+        }
+    }
+    if (p[0xF8 / 4] == 1) {
+        p[0xF8 / 4] = 2;
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _updateRefImage);
 
 extern char D_00637188[];
@@ -1844,9 +2389,58 @@ int _markOutput(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _getPtsDtsFlags);
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _dispRefImage);
+
+extern unsigned int _showCount[];
+extern void _getPtsDtsFlags(char *a0, void *a1, void *a2, void *a3);
+extern int _isOutSizeOK(char *p);
+extern void _csc_storeRefImage(char *p);
+extern void _cpr8(char *p);
+extern int _markOutput(void);
+
+void _dispRefImage(char *a0, int a1)
+{
+    char *q = D_0054C0E4[0];
+    char *r = *(char **)(q + 0x40);
+
+    _getPtsDtsFlags(a0, q + 0x10, q + 0x18, q + 0x20);
+    q = D_0054C0E4[0];
+    *(int *)(r + 0x80) = *(int *)(q + 0x10);
+    *(long long *)(r + 0x88) = _showCount[(int)(*(long long *)(q + 0x20) >> 5) & 0xF];
+    *(int *)(r + 0xCC) = *(int *)(a0 + 0x5C);
+    *(int *)(r + 0xD0) = *(int *)(a0 + 0x60);
+    *(int *)(r + 0xB4) = *(int *)(a0 + 0x44);
+    *(int *)(r + 0xB8) = *(int *)(a0 + 0x48);
+    *(int *)(r + 0xBC) = *(int *)(a0 + 0x4C);
+    *(int *)(r + 0xC0) = *(int *)(a0 + 0x50);
+    *(int *)(r + 0xC4) = *(int *)(a0 + 0x54);
+    *(int *)(r + 0xC8) = *(int *)(a0 + 0x58);
+    if (_isOutSizeOK(a0) != 0 && *(int *)(a0 + 0x28) == 1) {
+        if (*(int *)(r + 0xB0) != 0) {
+            _csc_storeRefImage(a0);
+        } else {
+            _cpr8(a0);
+        }
+        _markOutput();
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _dispRefImageField);
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _doCSC);
+
+void _doCSC(int a0, int a1)
+{
+    int buf[8];
+
+    while (*(volatile int *)0x10002010 < 0) {}
+    *(volatile int *)0x1000B010 = a0 & 0x0FFFFFFF;
+    *(volatile int *)0x1000B020 = a1 << 6;
+    *(volatile int *)0x1000B000 = 0x100;
+    _sendIpuCommand(a1 | 0x70000000);
+    buf[0] = 4;
+    _dispatchMpegCallback(D_0054C0E4[0], buf);
+    while (((*(volatile unsigned int *)0x1000B000) >> 8) & 1) {}
+    while (*(volatile int *)0x10002010 < 0) {}
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _ch3dmaCSC);
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _doCSC2);
 
