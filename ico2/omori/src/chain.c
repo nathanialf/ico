@@ -331,7 +331,39 @@ void chain_simulate_term_swingstart(int a0)
     chain_simulate_term_simple(a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", chain_simulate_term_moveup);
+/* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
+extern void _ApplyRyGV(void *a0, float a1);
+
+void chain_simulate_term_moveup(int a0)
+{
+    float w[4];
+    float v[4];
+    char *cw = *(char **)(*(int *)(a0 + 0x15C) + 0x830);
+    float h;
+
+    if (D_0063B13C & 1) {
+        D_0063C2C0 = D_0063C2C0 + 0xA;
+        debug_Printf(0xA, D_0063C2C0, 0x0FFFFFFF, "chain_simulate_term_moveup\n");
+    }
+    if (*(float *)(cw + 0x34) < 1.0f) {
+        *(float *)(cw + 0x34) = 1.0f;
+        *(float *)(cw + 0x44) = 0.0f;
+    } else if (*(float *)(cw + 0x34) < 2.0) {
+        *(float *)(cw + 0x44) = -0.05f;
+    } else {
+        *(float *)(cw + 0x44) = -0.15f;
+    }
+    chain_simulate_term_simple(a0);
+    h = *(float *)(*(int *)((char *)D_00639EA4 + 0x15C) + 0x4AC);
+    v[0] = *(float *)(cw + 0x20);
+    v[1] = *(float *)(cw + 0x24);
+    v[2] = *(float *)(cw + 0x28);
+    _ApplyRyGV(v, -1.5707964f);
+    sceVu0ScaleVector(v, v,
+                      GetTableSin(h * 6.283185307179586 / 40.0 * 32768.0 / 3.1415927f) * 5.0f);
+    sceVu0AddVector(w, *(char **)(cw + 0xD0) + (*(int *)(cw + 0x68) << 5), v);
+    chain_sub_pendulum(*(char **)(cw + 0xD0), *(int *)(cw + 0x68), w);
+}
 
 extern char D_005552B0[];
 
