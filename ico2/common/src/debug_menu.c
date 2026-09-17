@@ -1,4 +1,5 @@
 #include "common.h"
+#include "typedef.h"
 #include "debug.h"
 #include "camera-root.h"
 
@@ -76,12 +77,12 @@ void init_debug_menu(void)
     targetGObjIdx = 0;
 }
 
-extern int D_002C1270[];
+extern ObjKindEnt D_002C1270[];
 /* kept local: this TU's uses of GetGObjP do not fit the prototype in GobjProc.h */
 extern int GetGObjP();
 
 char *debug_TargetGObj_Func(void)
 {
-    int idx = *(int *)((char *)GetGObjP() + 0xC);
-    return (char *)D_002C1270 + idx * 0x64;
+    int idx = ((PObjGObj *)GetGObjP())->kind;
+    return ((ObjKindEnt *)((char *)D_002C1270 + idx * 0x64))->name;
 }

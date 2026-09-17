@@ -108,10 +108,29 @@ typedef struct Obj7F0  Obj7F0;   /* *(Sub15C + 0x7F0), shared geometry/model obj
 typedef struct GeoNode GeoNode;  /* *(Obj7F0  + 0x20) */
 typedef struct GeoSub  GeoSub;   /* *(GeoNode + 0x8)  */
 
+/* GObj and PObjGObj below are two views of ONE record: the game object.  Every
+ * offset either view knows is named in both, under the same name, so no offset
+ * a translation unit has identified is left inside a pad; the two names survive
+ * only because their field types differ where the bytes let them (this view
+ * carries the typed sub-object and actor pointers, the other carries them as
+ * words).  Rungs: ROM bytes for every offset, the reading translation units for
+ * the roles; names are this repository's. */
 struct GObj {
-    char    _pad0[0x8];
+    char    _pad0[0x4];
+    int     f04;              /* 0x4   */
     int     f_8;              /* 0x8   */
-    char    _pad_c[0x150];    /* 0xC .. 0x15B */
+    int     kind;             /* 0xC, the object-kind id, -1 when the object has
+                                 none; it indexes the ObjKindEnt table */
+    char    _pad10[0x30];     /* 0x10 .. 0x3F */
+    int     f40;              /* 0x40  */
+    char    _pad44[0x4];
+    int     f48;              /* 0x48  */
+    int     f4C;              /* 0x4C  */
+    int     f50;              /* 0x50  */
+    char    _pad54[0x8];
+    int     f5C;              /* 0x5C  */
+    int     f60;              /* 0x60  */
+    char    _pad64[0xF8];     /* 0x64 .. 0x15B */
     Sub15C *p_15C;            /* 0x15C, sub-object pointer */
     char    _pad160[0x4];
     void   *p_164;           /* 0x164, actor/action-state object (engine-wide,
@@ -511,18 +530,78 @@ typedef union Vec16 {
     long long ll[2];
 } Vec16;
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 6 TUs that carried 6 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: the 70-entry object-kind table at
+ * D_002C1270, one 0x64-byte row per kind, indexed by the kind id a GObj carries
+ * at +0xC.  The row's leading 0x24 bytes are the kind's name ("BOY", "GIRL",
+ * "GIRLDEMOCTRL", ...), which debug.c and debug_menu.c hand straight to the
+ * menu as a string.  Five translation units read this row through five
+ * different local views (brain, gamesys, sceneManager, debug, debug_menu) and
+ * this record is the merge of what all of them know; the offsets that hold a
+ * text address in every row are spelled as function pointers.  Field names are
+ * this repository's. */
+typedef struct {
+    char name[0x24];                 /* 0x00 */
+    float targetTime;                /* 0x24, brain's target timer, -1.0 = none */
+    float f28;                       /* 0x28 */
+    float f2C;                       /* 0x2C */
+    int f30;                         /* 0x30 */
+    void (*f34)();                   /* 0x34 */
+    void (*f38)();                   /* 0x38 */
+    void (*uniqDataSet)(int *, int); /* 0x3C, gamesys' per-kind unique-data writer */
+    void (*f40)();                   /* 0x40 */
+    int f44;                         /* 0x44 */
+    void (*f48)();                   /* 0x48 */
+    int f4C;                         /* 0x4C */
+    void (*f50)();                   /* 0x50 */
+    void (*hotInit)(int *);          /* 0x54, sceneManager's hot-init hook */
+    int (*create)(char *, int);      /* 0x58, the kind's GObj constructor */
+    void (*f5C)();                   /* 0x5C */
+    void (*f60)();                   /* 0x60, nonzero means the kind takes mail 47 */
+} ObjKindEnt;
+
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: the 0x194-byte per-stage preset
+ * record at D_005F5D50.  Every offset any translation unit reads is named here:
+ * the views that stayed local (sceneManager, deja, st25a, script, way_tool,
+ * s_init, camera-editor, ebrain, layout_texture, commonact) each say in a
+ * comment why their bytes need their own spelling, and this record is the
+ * merge of what all of them know.  Field names are this repository's; no disc
+ * artefact names a field of this table. */
 typedef struct {
     unsigned char _0[0x20];
-    char name[0x80];         /* 0x20, the stage name icoMisc prints */
-    short ent[0x18];         /* 0xA0 */
-    unsigned char _d0[0x7C];
+    char name[0x40];         /* 0x20, the stage name icoMisc prints */
+    float f60[8];            /* 0x60, the eight scene values sceneManager casts
+                                into the stage setting record */
+    char dataFile[0x20];     /* 0x80, the data file name access.c builds a path from */
+    short ent[0x18];         /* 0xA0, the stage-manager table entries */
+    unsigned char _d0[0x8];
+    float bgCol[3];          /* 0xD8 */
+    float ambientCol[3];     /* 0xE4 */
+    float flatLightCol[3];   /* 0xF0 */
+    float flatLightDir[3];   /* 0xFC */
+    int seSegFirst;          /* 0x108, sound data segment range */
+    int seSegLast;           /* 0x10C */
+    int seEnvFirst;          /* 0x110, sound SE environment range */
+    int seEnvLast;           /* 0x114 */
+    int camSetId;            /* 0x118, the camera set the stage opens with */
+    unsigned char _11c[0xC];
+    int labelTop;            /* 0x128, generator label range */
+    int labelEnd;            /* 0x12C */
+    int layoutFirst;         /* 0x130, layout range */
+    int layoutLast;          /* 0x134 */
+    unsigned char _138[0x14];
     int mot;                 /* 0x14C, the motion-set id */
     void (*endproc)(void);   /* 0x150 */
     void (*initproc)(void);  /* 0x154, the per-stage init hook */
-    unsigned char _158[0x34];
-    unsigned int attr;       /* 0x18C */
-    unsigned char _190[0x4];
+    unsigned char _158[0xC];
+    int wayGroupEnd;         /* 0x164 */
+    unsigned char _168[0x8];
+    int wayGroupStart;       /* 0x170 */
+    unsigned char _174[0x10];
+    float handCameraRate;    /* 0x184 */
+    short f188;              /* 0x188 */
+    unsigned char _18a[0x2];
+    unsigned int attr;       /* 0x18C, flag word whose low half is the reverb depth */
+    unsigned int flags;      /* 0x190 */
 } StgPre;
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 12 TUs that carried 6 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
@@ -617,7 +696,7 @@ typedef struct PObjGObj {
     char pad00[0x4]; /* 0x000 */
     int f04;         /* 0x004 */
     int f08;         /* 0x008 */
-    int f0C;         /* 0x00C */
+    int kind;        /* 0x00C, the object-kind id, -1 when the object has none */
     char pad10[0x30];
     int f40; /* 0x040 */
     char pad44[0x4];
@@ -627,7 +706,9 @@ typedef struct PObjGObj {
     char pad54[0x8];
     int f5C; /* 0x05C */
     int f60; /* 0x060 */
-    char pad64[0x100];
+    char pad64[0xF8];
+    int sub; /* 0x15C, the sub-object GObj's own view types as Sub15C * */
+    char pad160[0x4];
     int act; /* 0x164, the actor/action-state object */
     char pad168[0x4];
     int f16C; /* 0x16C */

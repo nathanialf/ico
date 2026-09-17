@@ -63,7 +63,7 @@ PObjGObj *InitCameraGObjs(int a0, int from, int to)
         g->act = 0;
         g->f04 = 0;
         g->f08 = -1;
-        g->f0C = -1;
+        g->kind = -1;
         g->f16C = 1;
         isysGObjLinkObjDL(g, (int)DispIcoMisc, 0, 0, 0xFFFFFFFF);
     }
@@ -83,7 +83,7 @@ inline PObjGObj *CreateGObjByFuncSet(int a0, int a1, int a2, int a3, int a4, int
     g->act = 0;
     g->f04 = 1;
     g->f08 = -1;
-    g->f0C = -1;
+    g->kind = -1;
     g->f16C = 1;
     gobj_table[D_0063C0C8++] = g;
     isysGObjProcAdd(g, a1, 1, 0x16);

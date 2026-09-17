@@ -34,13 +34,5 @@ int eBrainGetTargetGeneratorFromLabelStage(int label, int stage);
 EBSlot *eBrainGetTarget(void *gop);
 int eBrainGetTargetGeneratorFromLabel(int label);
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 2 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
-typedef struct StageLabelRange {
-    char pad0[0x128];
-    int labelTop; /* 0x128 */
-    int labelEnd; /* 0x12C */
-    char pad130[0x190 - 0x130];
-    unsigned int f190; /* 0x190 */
-} StageLabelRange;
 
 #endif /* EBRAIN_H */

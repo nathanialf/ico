@@ -1,4 +1,5 @@
 #include "common.h"
+#include "typedef.h"
 #include "backStage.h"
 #include "debug.h"
 #include "boyact.h"
@@ -302,19 +303,19 @@ int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3)
     return p;
 }
 
-extern char D_002C1270[];
+extern ObjKindEnt D_002C1270[];
 
 int *gamesysObjInfoUniqDataSet(int a0)
 {
     int *p;
     void (*fn)(int *, int);
-    char *elem;
+    ObjKindEnt *elem;
     int idx;
 
     p = gamesysObjInfoBaseSet((int *)a0, stage_no);
-    idx = *(int *)((char *)a0 + 0xC);
-    elem = D_002C1270 + idx * 0x64;
-    fn = *(void (**)(int *, int))(elem + 0x3C);
+    idx = ((PObjGObj *)a0)->kind;
+    elem = (ObjKindEnt *)((char *)D_002C1270 + idx * 0x64);
+    fn = elem->uniqDataSet;
     if (fn != 0) {
         fn(p + 12, a0);
     }

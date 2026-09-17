@@ -1,4 +1,5 @@
 #include "common.h"
+#include "typedef.h"
 #include "debug.h"
 #include "gflag.h"
 
@@ -50,17 +51,7 @@ typedef struct LtProperty {
 } LtProperty;
 
 extern LtProperty D_0030CFF8[];
-
-/* The stage table this TU shares with src/generator: 0x194-byte records whose
-   0x130 / 0x134 pair is the first and one-past-last layout of the stage. */
-typedef struct LtStageRange {
-    char pad0[0x130];
-    int first; /* 0x130 */
-    int last;  /* 0x134 */
-    char pad138[0x194 - 0x138];
-} LtStageRange;
-
-extern LtStageRange D_005F5D50[];
+extern StgPre D_005F5D50[];
 extern int D_0063B5F0;
 extern int D_0063B614;
 extern int layout_boot_flag;
@@ -594,8 +585,8 @@ static void init_textures_of_specified_property(int first, int last)
 /* source lines 1322-1331 */
 static inline void lt_init_stage_textures(int stage)
 {
-    int i = D_005F5D50[stage].first;
-    int last = D_005F5D50[stage].last;
+    int i = D_005F5D50[stage].layoutFirst;
+    int last = D_005F5D50[stage].layoutLast;
 
     for (; i < last; i++) {
         init_textures_of_specified_property(D_00533FE8[i].first, D_00533FE8[i].last);
@@ -671,8 +662,8 @@ inline int lt_link_layout(int dir)
 inline int lt_prev_layout(int stage)
 {
     D_0063B60C = D_0063B60C - 1;
-    if (D_0063B60C < D_005F5D50[stage].first) {
-        D_0063B60C = D_005F5D50[stage].last - 1;
+    if (D_0063B60C < D_005F5D50[stage].layoutFirst) {
+        D_0063B60C = D_005F5D50[stage].layoutLast - 1;
     }
     lt_switch_layout(D_0063B60C);
     return D_0063B60C;
@@ -681,8 +672,8 @@ inline int lt_prev_layout(int stage)
 inline int lt_next_layout(int stage)
 {
     D_0063B60C = D_0063B60C + 1;
-    if (D_0063B60C >= D_005F5D50[stage].last) {
-        D_0063B60C = D_005F5D50[stage].first;
+    if (D_0063B60C >= D_005F5D50[stage].layoutLast) {
+        D_0063B60C = D_005F5D50[stage].layoutFirst;
     }
     lt_switch_layout(D_0063B60C);
     return D_0063B60C;

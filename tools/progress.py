@@ -302,7 +302,10 @@ def _src_exists(name: str, stype: str) -> bool:
         if (REPO_ROOT / f"{name}.S").exists():
             return True
         return (REPO_ROOT / f"{name}.s").exists()
-    return (REPO_ROOT / f"{name}.c").exists()
+    # A `c` row whose member the developers assembled (crt0, the R5900
+    # string members) is backed by `<name>.s` instead of `<name>.c`;
+    # gen_ninja assembles it and it is a full match like any C object.
+    return (REPO_ROOT / f"{name}.c").exists() or (REPO_ROOT / f"{name}.s").exists()
 
 
 def _section_for_object_section(name: str) -> str | None:

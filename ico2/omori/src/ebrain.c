@@ -28,7 +28,7 @@ static int enemiesWait;
 
 static int ebrainSlots[224];
 
-extern StageLabelRange D_005F5D50[];
+extern StgPre D_005F5D50[];
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 extern GenGeo D_002C2DC8[];

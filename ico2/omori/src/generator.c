@@ -1,4 +1,5 @@
 #include "common.h"
+#include "typedef.h"
 #include "debug.h"
 #include "gamesys.h"
 #include "memory.h"
@@ -27,7 +28,7 @@ typedef struct {
 extern int D_0063A438;
 /* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
 extern void _ApplyRyGV(void *a0, float a1);
-extern StageLabelRange D_005F5D50[];
+extern StgPre D_005F5D50[];
 extern GVGeo2 D_002C2DC8[];
 extern int stage_no;
 
@@ -904,8 +905,8 @@ void GeneratorGeo(char *gobj)
 {
     char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
     int hard = 0;
-    StageLabelRange *sd = &D_005F5D50[stage_no];
-    int noBoy = ((sd->f190 >> 1) & 1) && D_00639EA8 == 0;
+    StgPre *sd = &D_005F5D50[stage_no];
+    int noBoy = ((sd->flags >> 1) & 1) && D_00639EA8 == 0;
 
     *(int *)(w + 0xC) = (int)IsNeedGeneratorHard(gobj);
     if (*(int *)(w + 0xC) != 0) {

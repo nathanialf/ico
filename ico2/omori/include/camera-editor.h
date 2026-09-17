@@ -51,13 +51,5 @@ typedef struct {
     int w[23];
 } S5C;
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
-typedef struct StageParam {
-    char pad0[0x118];
-    int camSetId; /* 0x118 */
-    char pad11c[0x184 - 0x11C];
-    float rate; /* 0x184 */
-    char pad188[0x194 - 0x188];
-} StageParam;
 
 #endif /* CAMERA_EDITOR_H */

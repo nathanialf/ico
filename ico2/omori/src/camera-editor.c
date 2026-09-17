@@ -985,7 +985,7 @@ INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/camera-editor", menuPinEdit);
 
 extern int D_0028F94C[];
 extern char D_002AD010[];
-extern StageParam D_005F5D50[];
+extern StgPre D_005F5D50[];
 extern int stage_no;
 /* kept local: this TU's uses of iosThreadWakeup do not fit the prototype in thread.h */
 extern void iosThreadWakeup(void *thread);
@@ -1290,7 +1290,7 @@ void ConvertCameraSetBuffer(int n, S4C *item, char *groups)
     int a;
     int b;
     char *f;
-    D_002A5D68[0] = D_005F5D50[stage_no].rate;
+    D_002A5D68[0] = D_005F5D50[stage_no].handCameraRate;
     m1 = (CamMgr *)D_0063AA78;
     m1->items = (char *)m1 + 0x70;
     m1->pool = (char *)m1 + 0x1E20;

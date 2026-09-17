@@ -1,4 +1,5 @@
 #include "common.h"
+#include "typedef.h"
 #include "debug.h"
 #include "adpcm_init.h"
 #include "Matrix.h"
@@ -15,7 +16,7 @@ extern void soundSePlayModeStop(int arg);
 extern void soundDataSegNextStageNotUseClose(int x, int *p);
 /* kept local: this TU's uses of soundSeEnvNotUseClose do not fit the prototype in s_init.h */
 extern void soundSeEnvNotUseClose(int *a, int *b);
-extern unsigned char D_005F5D50[];
+extern StgPre D_005F5D50[];
 /* kept local: this TU's uses of soundReverbDepthSet do not fit the prototype in s_init.h */
 extern void soundReverbDepthSet(int a0);
 /* kept local: this TU's uses of soundSeKindBuild do not fit the prototype in s_init.h */
@@ -72,9 +73,9 @@ void sndBgmReadyNextStage(int *a, int *b)
 
 void sndInit(int idx)
 {
-    short new_var;
+    short attrOff;
     soundSeKindBuild(idx);
     adpcmPauseRequest(0);
-    new_var = 0x18C;
-    soundReverbDepthSet(*((unsigned short *)((((char *)D_005F5D50) + (idx * 0x194)) + new_var)));
+    attrOff = 0x18C;
+    soundReverbDepthSet(*(unsigned short *)((char *)&D_005F5D50[idx] + attrOff));
 }

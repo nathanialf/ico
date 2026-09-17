@@ -1,4 +1,5 @@
 #include "common.h"
+#include "typedef.h"
 #include "debug.h"
 #include "memory.h"
 #include "pad.h"
@@ -27,7 +28,7 @@ extern void *D_0063ABB0;
 extern int D_0063ABB4;
 /* kept local: this TU's uses of ReflectCameraSetBinary do not fit the prototype in camera-ico2.h */
 extern void ReflectCameraSetBinary(S4C *src, int count);
-extern StageParam D_005F5D50[];
+extern StgPre D_005F5D50[];
 extern int stage_no;
 extern int *D_00639EA4;
 /* kept local: this TU's uses of GetBoyRootPositionForCamera do not fit the prototype in boyact.h */
@@ -811,7 +812,7 @@ void InitIco2Camera(void)
     initMonitorCamera(1);
     cameraGroupCurrent = -1;
     cameraGroupChanged = 1;
-    setHandCameraRates(D_005F5D50[stage_no].rate, 10.0f);
+    setHandCameraRates(D_005F5D50[stage_no].handCameraRate, 10.0f);
     InitHandCameraCorrect();
 }
 

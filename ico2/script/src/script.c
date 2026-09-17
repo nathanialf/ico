@@ -1024,25 +1024,20 @@ void scpKillSpiderGroup(void)
 }
 
 /* the 0x28-byte stage table at D_0055C518 and the per-stage 0x194-byte link
-   table at D_005F5D50: row [stage_no], entry .next[no - 1] at +0xA0. */
+   table at D_005F5D50: row [stage_no], entry .ent[no - 1] at +0xA0. */
 struct StgEnt {
     char _00[0x24];
     int id;
 }; /* 0x28 */
 
-struct StgRow {
-    char _000[0xA0];
-    short next[122];
-}; /* 0x194 */
-
 extern struct StgEnt D_0055C518[];
-extern struct StgRow D_005F5D50[];
+extern StgPre D_005F5D50[];
 
 void preload(int idx)
 {
     short s;
 
-    s = D_005F5D50[stage_no].next[idx - 1];
+    s = D_005F5D50[stage_no].ent[idx - 1];
     stgmgrNextStagePreLoadForceStageSet(D_0055C518[s].id);
     stgmgrNextStagePreLoadForceNoCancel(1);
 }
@@ -1856,7 +1851,7 @@ int RequestStageChangeWithColor(int no, char *g, int flag, float speed, float wa
     short next;
     char *act;
 
-    next = D_005F5D50[stage_no].next[no - 1];
+    next = D_005F5D50[stage_no].ent[no - 1];
     ret = 0;
     if (D_00639EB4 == 0 && stageChangeReq == 0 && next != 0) {
         if (g != 0) {

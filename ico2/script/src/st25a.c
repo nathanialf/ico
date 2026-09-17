@@ -578,20 +578,7 @@ void actConte12Jimaku(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: st25a's bytes only come out with its own view of the stage
-   preload record, so it keeps one under its own name; the shared view lives in
-   ico2/common/include/typedef.h as StgPre. */
-typedef struct StgPreSt25a {
-    unsigned char _0[0xA0];   /* 0x000 */
-    short ent[0x18];          /* 0x0A0 */
-    unsigned char _d0[0x80];  /* 0x0D0 */
-    void (*endproc)(void);    /* 0x150 */
-    unsigned char _154[0x38]; /* 0x154 */
-    unsigned int attr;        /* 0x18C */
-    unsigned char _190[0x4];  /* 0x190 */
-} StgPreSt25a;
-
-extern const StgPreSt25a D_005F5D50[];
+extern const StgPre D_005F5D50[];
 extern const ExitData D_0055C518[];
 extern int stage_no;
 /* kept local: this TU's uses of scpKillEnemyAll do not fit the prototype in script.h */

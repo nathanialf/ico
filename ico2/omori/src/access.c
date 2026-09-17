@@ -1,11 +1,8 @@
 #include "common.h"
+#include "typedef.h"
 #include <stdio.h>
 
-typedef struct {
-    char pad[0x194];
-} DispBuf;
-
-extern DispBuf D_005F5DD0[];
+extern StgPre D_005F5D50[];
 extern char D_0063C090[];
 /* kept local: this TU's uses of GetDataFileName2 do not fit the prototype in access.h */
 extern char *GetDataFileName2();
@@ -29,7 +26,7 @@ int GetDataFileName(int a0)
     if (a0 == -1) {
         p = D_0063C090;
     } else {
-        p = (void *)&D_005F5DD0[a0];
+        p = (void *)D_005F5D50[a0].dataFile;
     }
     return GetDataFileName2(p);
 }

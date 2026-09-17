@@ -15,7 +15,7 @@
 #include "clipCollisionManager.h"
 #include "waySystemManager.h"
 
-extern char D_002C1270[];
+extern ObjKindEnt D_002C1270[];
 /* kept local: this TU's uses of isysGObjGetExist_begin do not fit the prototype in gobj.h */
 extern int *isysGObjGetExist_begin(int a0);
 /* kept local: this TU's uses of isysGObjGetExist_next do not fit the prototype in gobj.h */
@@ -108,27 +108,7 @@ inline void MoveNextStage_Clear(void)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/sceneManager", GetRealModelId);
 
-/* kept local: this TU's bytes only come out with its own view of StgPreScenemanager. */
-typedef struct {
-    char _0[0x60];
-    float f060[8]; /* 0x060 */
-    char _080[0x58];
-    float f0D8[3]; /* 0x0D8 */
-    float f0E4[3]; /* 0x0E4 */
-    float f0F0[3]; /* 0x0F0 */
-    float f0FC[3]; /* 0x0FC */
-    char _108[0x20];
-    int labelTop; /* 0x128 */
-    int labelEnd; /* 0x12C */
-    char _130[0x58];
-    short f188; /* 0x188 */
-    char _18A[0x6];
-    unsigned int attr0 : 1; /* 0x190 */
-    unsigned int attr1 : 1;
-    unsigned int attr2 : 30;
-} StgPreScenemanager;
-
-extern const StgPreScenemanager D_005F5D50[];
+extern const StgPre D_005F5D50[];
 
 /* sceneManager.c:213-313.  D_0028F720 is the StageSettingScenemanager record ico2/seki/src/GsBase.c
    already names; the fields this TU touches beyond that file's four are spelled by
@@ -215,18 +195,19 @@ void InitStageLight(int stage)
     debug_StdPrintfDummy(D_0061DDD8);
 
     for (i = 0; i < 3; i++) {
-        D_0028F720.flatLightDir[0][i] = -D_005F5D50[stage].f0FC[i];
+        D_0028F720.flatLightDir[0][i] = -D_005F5D50[stage].flatLightDir[i];
 
-        D_0028F720.flatLightCol[0][i] = D_005F5D50[stage].f0F0[i] * 0.0078125f;
+        D_0028F720.flatLightCol[0][i] = D_005F5D50[stage].flatLightCol[i] * 0.0078125f;
     }
 
     _NormalizeVector(D_0028F720.flatLightDir[0], D_0028F720.flatLightDir[0]);
 
     for (i = 0; i < 3; i++) {
-        D_0028F720.flatLightDir[1][i] = D_0028F720.flatLightDir[2][i] = D_005F5D50[stage].f0FC[i];
+        D_0028F720.flatLightDir[1][i] = D_0028F720.flatLightDir[2][i] =
+            D_005F5D50[stage].flatLightDir[i];
 
         D_0028F720.flatLightCol[1][i] = D_0028F720.flatLightCol[2][i] =
-            D_005F5D50[stage].f0F0[i] * 0.0078125f * 0.25f;
+            D_005F5D50[stage].flatLightCol[i] * 0.0078125f * 0.25f;
     }
 
     _NormalizeVector(D_0028F720.flatLightDir[1], D_0028F720.flatLightDir[1]);
@@ -234,22 +215,22 @@ void InitStageLight(int stage)
     _NormalizeVector(D_0028F720.flatLightDir[2], D_0028F720.flatLightDir[2]);
 
     for (i = 0; i < 3; i++) {
-        D_0028F720.ambientCol[i] = D_005F5D50[stage].f0E4[i] * 0.0078125f;
+        D_0028F720.ambientCol[i] = D_005F5D50[stage].ambientCol[i] * 0.0078125f;
 
-        D_0028F720.bgCol[i] = D_005F5D50[stage].f0D8[i];
+        D_0028F720.bgCol[i] = D_005F5D50[stage].bgCol[i];
     }
     D_0028F720.ambientCol[3] = D_0028F720.bgCol[3] = 1.0f;
 
     light_AddLight(0, 0, 0);
 
-    D_0028F720.f080 = (int)D_005F5D50[stage].f060[0];
-    D_0028F720.f090[0] = (int)D_005F5D50[stage].f060[1];
-    D_0028F720.f090[1] = (int)D_005F5D50[stage].f060[2];
-    D_0028F720.f090[2] = (int)D_005F5D50[stage].f060[3];
-    D_0028F720.f090[3] = (int)D_005F5D50[stage].f060[4];
-    D_0028F720.f0A0[0] = (int)D_005F5D50[stage].f060[5];
-    D_0028F720.f0A0[1] = (int)D_005F5D50[stage].f060[6];
-    D_0028F720.f0A0[2] = (int)D_005F5D50[stage].f060[7];
+    D_0028F720.f080 = (int)D_005F5D50[stage].f60[0];
+    D_0028F720.f090[0] = (int)D_005F5D50[stage].f60[1];
+    D_0028F720.f090[1] = (int)D_005F5D50[stage].f60[2];
+    D_0028F720.f090[2] = (int)D_005F5D50[stage].f60[3];
+    D_0028F720.f090[3] = (int)D_005F5D50[stage].f60[4];
+    D_0028F720.f0A0[0] = (int)D_005F5D50[stage].f60[5];
+    D_0028F720.f0A0[1] = (int)D_005F5D50[stage].f60[6];
+    D_0028F720.f0A0[2] = (int)D_005F5D50[stage].f60[7];
     D_0028F720.f120 = 128;
 
     gsb_SetBGColor(D_0028F4F0, (int)D_0028F720.bgCol[0], (int)D_0028F720.bgCol[1],
@@ -307,7 +288,7 @@ void InitStageLight(int stage)
 
 inline char *CreateLayoutedGObj(int id, int a1, int a2, int a3, int a4, int a5, int a6, int a7)
 {
-    char *layout = D_002C1270 + id * 0x64;
+    ObjKindEnt *layout = (ObjKindEnt *)((char *)D_002C1270 + id * 0x64);
     char *gobj = CreateGObj(layout, id, a5, a6, a7);
     int dobj = CSVSYSTEM_InitDObj(a1, a4);
     int (*fn)(char *, int);
@@ -317,7 +298,7 @@ inline char *CreateLayoutedGObj(int id, int a1, int a2, int a3, int a4, int a5, 
 
     light_AddLight(gobj, a3, 1);
 
-    fn = *(int (**)(char *, int))(layout + 0x58);
+    fn = layout->create;
     if (fn != 0) {
         *(int *)(*(int *)(gobj + 0x15C) + 0x830) = fn(gobj, a4);
     }
@@ -452,14 +433,14 @@ int HotInitSceneObjects(int a0)
     int *node = isysGObjGetExist_begin(a0);
     if (node != 0) {
         do {
-            int idx = node[3];
+            int idx = ((PObjGObj *)node)->kind;
             if (idx >= 0) {
-                char *e = D_002C1270 + idx * 0x64;
+                ObjKindEnt *e = (ObjKindEnt *)((char *)D_002C1270 + idx * 0x64);
                 void (*fn)(int *);
-                if (*(int *)(e + 0x60) != 0) {
+                if (e->f60 != 0) {
                     iosOmSendMail(node, 0x2F, node);
                 }
-                fn = *(void (**)(int *))(e + 0x54);
+                fn = e->hotInit;
                 if (fn != 0) {
                     fn(node);
                 }

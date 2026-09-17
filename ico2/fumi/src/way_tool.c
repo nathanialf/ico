@@ -428,16 +428,6 @@ int quick_load_wpfile(void)
     return 1;
 }
 
-/* the 0x194-byte per-stage record D_005F5D50: +0x164 is the last way group of
-   the stage, +0x170 the first */
-typedef struct {
-    int _0[0x59];
-    int wayGroupEnd;
-    int _168[2];
-    int wayGroupStart;
-    int _174[8];
-} WayStgRec;
-
 /* the authored way group table: one 0x3C record per group */
 typedef struct {
     int _0[8];
@@ -483,7 +473,7 @@ typedef struct {
     float f[4];
 } __attribute__((aligned(8))) WayPos;
 
-extern WayStgRec D_005F5D50[];
+extern StgPre D_005F5D50[];
 extern WaySrcGrp wayGroupSheet[];
 extern WaySrcPt wayPointSheet[];
 extern WayNode D_004F31E0[];

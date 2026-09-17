@@ -417,7 +417,7 @@ D_0063C10C = 0x0063C10C; // size:0x4  // ico2/sugipon/src/motionManager2
 
 
 // ---- (vendor)
-D_00100000 = 0x00100000; // type:u32 size:0x8  // sce/crt0  // (vendor) crt0.s (SRCFILE.TXT)  // not a function, the 8 zero bytes the listing labels _start-0x8, emitted as data from sce/crt0.c
+D_00100000 = 0x00100000; // type:u32 size:0x8  // sce/crt0  // (vendor) crt0.s (SRCFILE.TXT)  // not a function, the 8 zero bytes the listing labels _start-0x8, emitted as data from sce/crt0.s
 _exit = 0x001000B8; // type:func  // sce/crt0  // (vendor) crt0.s (SRCFILE.TXT)
 _root = 0x001000C0; // type:func  // sce/crt0  // (vendor) crt0.s (SRCFILE.TXT)
 

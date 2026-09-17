@@ -1,4 +1,5 @@
 #include "common.h"
+#include "typedef.h"
 #include "s_init.h"
 #include "debug.h"
 #include "ios.h"
@@ -811,17 +812,7 @@ void soundSeDefPitchSet(int a0)
 }
 
 extern char D_005D3F30[];
-
-typedef struct SeEnvStage {
-    int unk0[66];   /* 0x000 */
-    int segFirst;   /* 0x108 */
-    int segLast;    /* 0x10C */
-    int first;      /* 0x110 */
-    int last;       /* 0x114 */
-    int unk118[31]; /* 0x118 */
-} SeEnvStage;
-
-extern SeEnvStage D_005F5D50[];
+extern StgPre D_005F5D50[];
 extern int D_0063A458;
 extern int stage_no;
 extern int _soundSeDefPlay(int kind, unsigned int a1, int a2, int a3, float vol, SeEnvDef *env,
@@ -865,7 +856,7 @@ void soundSeEnvPlay(void)
     SeSlot *slot;
     int i;
 
-    for (i = D_005F5D50[stage_no].first; i < D_005F5D50[stage_no].last; i++) {
+    for (i = D_005F5D50[stage_no].seEnvFirst; i < D_005F5D50[stage_no].seEnvLast; i++) {
         SeEnvDef *e = (SeEnvDef *)&D_005D3F30[i * 0x1C];
         _soundSeDefPlay(*(int *)e, 0xFFFFFFFF, 0, 0, -1.0f, (SeEnvDef *)e, &slot);
         if (slot != 0) {

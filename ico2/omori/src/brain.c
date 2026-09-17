@@ -5,16 +5,7 @@
 #include "ebrain.h"
 #include "typedef.h"
 
-typedef struct {
-    char _0[0x24];
-    float f24;
-    float f28;
-    float f2C;
-    int w30;
-    char _34[0x30];
-} SceneEnt;
-
-extern SceneEnt D_002C1270[];
+extern ObjKindEnt D_002C1270[];
 extern int D_0028F4C0[];
 
 static inline void brainSetTargetTimer(BrainTarget *t)
@@ -22,7 +13,7 @@ static inline void brainSetTargetTimer(BrainTarget *t)
     int n;
 
     if (t->gobj != 0) {
-        n = (int)D_002C1270[*(int *)(t->gobj + 0xC)].f24;
+        n = (int)D_002C1270[((PObjGObj *)t->gobj)->kind].targetTime;
         if (n != -1) {
             n = n * ((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]);
         }
@@ -125,8 +116,8 @@ void brainStatusDefaultSet(Brain *b, int gobj, int idx)
     int k = d->b46;
 
     if ((d->w48 >> 20) & 1) {
-        if (D_002C1270[k].w30 != 0) {
-            brainSetTargetSub(b, gobj, (float)D_002C1270[k].w30, k);
+        if (D_002C1270[k].f30 != 0) {
+            brainSetTargetSub(b, gobj, (float)D_002C1270[k].f30, k);
         }
     }
 }

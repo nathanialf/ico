@@ -38,17 +38,6 @@ static int demoEnd;
 void actDejaDemo(volatile int a0);
 extern int stage_no;
 
-/* the 0x194-byte per-stage record; the demo reads its next-stage index at
-   0xA0.  The record is 4-byte aligned (its padding is spelled `int` for that
-   reason): with a 2-byte alignment gcc folds the 0xA0 into the array base
-   before the index add, which reverses which of the two values ends up in
-   $a1 and which in $a2. */
-typedef struct {
-    int pad000[0x28];
-    short nextStage; /* 0xA0 */
-    char pad0A2[0xF2];
-} StageRec;
-
 /* the 0x28-byte stage-manager table entry */
 typedef struct {
     char pad00[0x24];
@@ -60,7 +49,7 @@ typedef struct {
    rooted at a const object makes the `nextStage` load unchanging, and only
    then is it free of the `volatile int a0` parameter home's memory
    dependence, which is what lets the home store issue two slots later. */
-extern const StageRec D_005F5D50[];
+extern const StgPre D_005F5D50[];
 extern const StgEntry D_0055C518[];
 void actDejaAfterChk(volatile int a0);
 extern char *deja;
@@ -123,7 +112,7 @@ void actDejaChk(volatile int a0)
 
 void actDejaDemo(volatile int a0)
 {
-    stgmgrNextStagePreLoadForceStageSet(D_0055C518[D_005F5D50[stage_no].nextStage].preload);
+    stgmgrNextStagePreLoadForceStageSet(D_0055C518[D_005F5D50[stage_no].ent[0]].preload);
     scpPlayStart((int)D_00639EA4);
     stage_SetAnimation(608, 1, 0);
     scpPlayMot(D_00639EA4, 298);

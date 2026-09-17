@@ -1062,12 +1062,7 @@ int debug_SelectCsvWindow(char *title, int x, int y, int rows, void *base, int s
                                       getBuffer, 0);
 }
 
-/* stage records are 0x194 bytes; +0x80 (= D_005F5DD0) is the data file name */
-typedef struct {
-    char pad[0x194];
-} StgFileName;
-
-extern StgFileName D_005F5DD0[];
+extern StgPre D_005F5D50[];
 extern int D_0028F4D8[];
 extern char D_0063AF98[];
 extern char D_0061BC78[];
@@ -1086,7 +1081,7 @@ int debug_SelectStageMain(int ret, int stage)
         debug_StdPrintfDummy(D_0061BC78, stage);
         if (stage != 0) {
             int on = 1;
-            if (strstr((char *)&D_005F5DD0[stage], D_0063AF98) == 0) {
+            if (strstr(D_005F5D50[stage].dataFile, D_0063AF98) == 0) {
                 mpegPlayReturnStage = stage_no;
                 soundDataSegAllClose(0, 2);
                 D_0063A650 = on;
@@ -1720,20 +1715,20 @@ typedef struct {
     void *obj;
 } DbgGobjEnt;
 
-extern char D_002C1270[];
+extern ObjKindEnt D_002C1270[];
 
 static inline int debug_ListActGobj(DbgGobjEnt *list)
 {
     void *g;
     int n = 0;
     for (g = isysGObjGetExist_begin(); g != 0; g = isysGObjGetExist_next(g)) {
-        int kind = ((int *)g)[3];
+        int kind = ((PObjGObj *)g)->kind;
         switch (kind) {
         case 1:
         case 2:
         case 4:
         case 0x2F:
-            list[n].name = kind * 0x64 + D_002C1270;
+            list[n].name = ((ObjKindEnt *)((char *)D_002C1270 + kind * 0x64))->name;
             list[n].obj = g;
             n++;
         }
@@ -2488,10 +2483,10 @@ static inline int debug_ListPadControlGobj(DbgGobjEnt *list)
     void *g;
     int n = 0;
     for (g = isysGObjGetExist_begin(); g != 0; g = isysGObjGetExist_next(g)) {
-        int kind = ((int *)g)[3];
+        int kind = ((PObjGObj *)g)->kind;
         if (kind == 2 || kind == 4) {
             list[n].obj = g;
-            list[n].name = kind * 0x64 + D_002C1270;
+            list[n].name = ((ObjKindEnt *)((char *)D_002C1270 + kind * 0x64))->name;
             n++;
         }
     }

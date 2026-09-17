@@ -536,7 +536,7 @@ extern void sceVu0ApplyMatrix(void *dst, void *m, void *v);
 void GetSkeltonOrient(float *out, void *obj, int node)
 {
     int n = GetSkeltonFocusNode(obj, (void *)node);
-    if (*(int *)((char *)obj + 0xC) == 4) {
+    if (((PObjGObj *)obj)->kind == 4) {
         *(int *)((char *)out + 0x0) = 0;
         ((IntFloat *)((char *)out + 0x4))->f = -1.0f;
         *(int *)((char *)out + 0x8) = 0;

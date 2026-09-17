@@ -1694,12 +1694,7 @@ void actCommonLadder(volatile int a0)
 
 #undef LADW
 
-extern char D_005F5D50[];
-
-typedef struct {
-    char _0[0x190];
-    unsigned int f190;
-} StageRecEH;
+extern StgPre D_005F5D50[];
 
 typedef struct {
     char _00[0x20];
@@ -1731,7 +1726,7 @@ void actCommonEdgeHang(volatile int a0)
         if (-*(float *)(*(char **)(a0 + 0x15C) + 0x5E8) > 250.0f) {
             ACTSendMailCorrect((char *)a0, 0x18);
         }
-        if ((((StageRecEH *)(D_005F5D50 + stage_no * 0x194))->f190 >> 2) & 1) {
+        if ((((StgPre *)((char *)D_005F5D50 + stage_no * 0x194))->flags >> 2) & 1) {
             memset(&work, 0, 0xC0);
             GetSkeltonPosition((float *)&work, (char *)a0, 0x2C);
             GetSkeltonPosition(p1, (char *)a0, 0x33);
