@@ -454,18 +454,43 @@ def emit_rules(out) -> None:
     out.write("  description = VERIFY $in\n\n")
 
 
+_HASM_NAMES: set[str] | None = None
+
+
+def hasm_names() -> set[str]:
+    """Names of the yaml's `hasm` rows (the hand-typed VU1 microprograms)."""
+    global _HASM_NAMES
+    if _HASM_NAMES is None:
+        yaml_path = ROOT / "config" / f"ico.{VERSION}.yaml"
+        _HASM_NAMES = set()
+        for line in yaml_path.read_text().splitlines():
+            m = re.match(r"\s*-\s*\[0x[0-9A-Fa-f]+,\s*hasm,\s*(\S+?)\]", line)
+            if m:
+                _HASM_NAMES.add(m.group(1))
+    return _HASM_NAMES
+
+
+def _stem_of(obj_path: str) -> str:
+    m = SRC_RE.match(obj_path)
+    return m.group(1) if m else ""
+
+
 def emit_edges(out, objs: list[str]) -> None:
     for obj in objs:
         src, rule = source_for(obj)
         align = align_for(Path(obj).name)
         sect = section_for(Path(obj).name)
-        if rule == "as_hasm":
+        if rule == "as_hasm" and _stem_of(obj) in hasm_names():
             # The VU1 microprograms are the ROM's own .vutext output section,
             # which the shipped ELF aligns to 16 (readelf: .vutext at 0x289BD0,
             # align 16). Our link folds them behind the last .text object, so
             # their input section carries that alignment itself; without it the
             # twelve bytes between .text's end (0x289BC4) and .vutext are lost as
             # soon as the last text function is C rather than a padded stub.
+            # Only the yaml's `hasm` rows get this: a `.s` beside a `c` row
+            # (crt0, the R5900 string members) is ordinary text and keeps
+            # align_for(), since five of those members start at ROM addresses
+            # that are 8- but not 16-aligned.
             align = 16
         if rule == "cc_src":
             out.write(f"build {obj}: cc_src {src}\n")
