@@ -387,7 +387,75 @@ extern char D_0063BA40[];
 extern char D_0063BA48[];
 extern char D_0063BA50[];
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionViewer", modeMessage);
+void modeMessage(void)
+{
+    char buf[256];
+    unsigned char rdata[32];
+    /* CARRIER, user-approved 2026-09-17 as a ROM-proven carrier for this one
+       site: pf is defined once and dies at the read below, which gives that
+       load a REG_DEAD note and register weight 0 in the first scheduling
+       pass, so it is picked ahead of the lui of the format address as the
+       ROM has it. Every other spelling measured leaves the pair reversed
+       (complete3 ledger row). It emits no bytes. FOLLOW-UP: revisit for the
+       developer's own spelling once .text is fully matched. */
+    float *pf = &D_0063BA14;
+
+    debug_PrintfDummy(470, 58, 0xFFFFFF00, D_006207C0);
+    switch (D_0063BA10) {
+    case 0:
+    default:
+        sprintf(buf, D_0063BA40);
+        break;
+    case 19:
+        sprintf(buf, D_0063BA48);
+        break;
+    }
+    debug_PrintfDummy(470, 66, 0xFFFFFF00, D_0063BA50, buf);
+    debug_PrintfDummy(470, 74, 0xFFFFFF00, D_006207D0, fptodp(*pf));
+    if (D_0028F8F0[0].trg & 0x80) {
+        switch (D_0063BA10) {
+        case 0:
+        default:
+            D_0063BA10 = 19;
+            break;
+        case 19:
+            D_0063BA10 = 0;
+            break;
+        }
+        setRootUpdateMode();
+    }
+    if (D_0028F8F0[0].rep & 0x8000) {
+        D_0063BA14 -= 0.01f;
+        if (D_0063BA14 < 0.0f) {
+            D_0063BA14 = 0.0f;
+        }
+        setMotionSpeed(D_0063BA14);
+    }
+    if (D_0028F8F0[0].rep & 0x2000) {
+        D_0063BA14 += 0.01f;
+        if (D_0063BA14 > 2.0f) {
+            D_0063BA14 = 2.0f;
+        }
+        setMotionSpeed(D_0063BA14);
+    }
+    scePadRead(0, 0, rdata);
+    if (D_0028F8F0[0].now & 0x8) {
+        D_0063BA14 = 1.0f - rdata[17] / 255.0f;
+        setMotionSpeed(D_0063BA14);
+    }
+    if (D_0028F8F0[0].now & 0x2) {
+        D_0063BA08->sub->speed = 1.0f - rdata[19] * 0.0078125f;
+    } else {
+        D_0063BA08->sub->speed = 1.0f;
+    }
+    if (D_0028F8F0[0].now & 0x8000) {
+        D_0063BA08->sub->rot = rdata[9] / 255.0f * 8192.0f;
+    } else if (D_0028F8F0[0].now & 0x2000) {
+        D_0063BA08->sub->rot = rdata[8] / 255.0f * -8192.0f;
+    } else {
+        D_0063BA08->sub->rot = 0;
+    }
+}
 
 /*SWEEP-ENDmodeMessage*/
 /*SWEEPlookAtTest*/
