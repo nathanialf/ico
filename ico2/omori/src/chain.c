@@ -365,15 +365,13 @@ void chain_simulate_term_moveup(int a0)
     chain_sub_pendulum(*(char **)(cw + 0xD0), *(int *)(cw + 0x68), w);
 }
 
-extern char D_005552B0[];
-
 void chain_simulate_term_free(int a0)
 {
     char *cw = *(char **)(*(int *)(a0 + 0x15C) + 0x830);
 
     if (D_0063B13C & 1) {
         D_0063C2C0 = D_0063C2C0 + 0xA;
-        debug_Printf(0xA, D_0063C2C0, 0x0FFFFFFF, D_005552B0);
+        debug_Printf(0xA, D_0063C2C0, 0x0FFFFFFF, "chain_simulate_term_free\n");
     }
     if (*(float *)(cw + 0x34) < 0.5) {
         *(float *)(cw + 0x44) = -0.01f;
@@ -385,7 +383,45 @@ void chain_simulate_term_free(int a0)
     chain_simulate_term_simple(a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", chain_simulate_term_down);
+void chain_simulate_term_down(int a0)
+{
+    float w[4];
+    float v[4];
+    char *cw = *(char **)(*(int *)(a0 + 0x15C) + 0x830);
+    ChainNode *nd;
+    ChainNode *next;
+    float h;
+
+    if (D_0063B13C & 1) {
+        D_0063C2C0 = D_0063C2C0 + 0xA;
+        /* a 2001 copy and paste: this arm prints the sibling term's name */
+        debug_Printf(0xA, D_0063C2C0, 0x0FFFFFFF, "chain_simulate_term_free\n");
+    }
+    if (*(float *)(cw + 0x34) < 0.5) {
+        *(float *)(cw + 0x44) = -0.01f;
+    } else if (*(float *)(cw + 0x34) < 2.0) {
+        *(float *)(cw + 0x44) = -0.05f;
+    } else {
+        *(float *)(cw + 0x44) = -0.15f;
+    }
+    chain_simulate_term_simple(a0);
+    h = *(float *)(*(int *)((char *)D_00639EA4 + 0x15C) + 0x4AC);
+    v[0] = *(float *)(cw + 0x20);
+    v[1] = *(float *)(cw + 0x24);
+    v[2] = *(float *)(cw + 0x28);
+    _ApplyRyGV(v, -1.5707964f);
+    sceVu0ScaleVector(v, v,
+                      GetTableSin(h * 6.283185307179586 / 23.0 * 32768.0 / 3.1415927f) * 2.0f);
+    sceVu0AddVector(w, *(char **)(cw + 0xD0) + (*(int *)(cw + 0x68) << 5), v);
+    chain_sub_pendulum(*(char **)(cw + 0xD0), *(int *)(cw + 0x68), w);
+    if (*(int *)(cw + 0x68) + 1 <= *(int *)(cw + 0x74) - 1) {
+        nd = (ChainNode *)((*(int *)(cw + 0x68) << 5) + *(int *)(cw + 0xD0));
+        next = nd + 1;
+        next->x = nd->x;
+        next->y = nd->y + 50.0f;
+        next->z = nd->z;
+    }
+}
 
 extern char D_005552E0[];
 
