@@ -85,14 +85,14 @@ inline void initParentize(char *a0)
     }
 }
 
-extern FloorLeverGeo D_004E5AA0;
+extern LeverGeoWork D_004E5AA0;
 extern char D_0061EF10[];
 extern int D_0063A438;
 extern char D_002A79B8[];
 
-inline FloorLeverGeo *InitFloorLeverGeo(char *a0, char *a1)
+inline LeverGeoWork *InitFloorLeverGeo(char *a0, char *a1)
 {
-    FloorLeverGeo *g = (FloorLeverGeo *)iosMallocDebug(D_0063A438, 0x20, D_0061EF10, 0x8D);
+    LeverGeoWork *g = (LeverGeoWork *)iosMallocDebug(D_0063A438, 0x20, D_0061EF10, 0x8D);
     *g = D_004E5AA0;
     if (*(int *)(a1 + 0x30) != 0) {
         g->w[5] = 1;
@@ -135,7 +135,72 @@ void FloorLeverTriStateGeo(char *a0)
     UpdateRootMatrix(a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", FloorLeverGeo);
+/* kept local: this TU's uses of SetIdentityQuaternion, RotQuaternionX,
+   SetParticleEffect and ObjAction_MailCenter do not fit the prototypes in the
+   headers that declare them */
+extern void SetIdentityQuaternion(void *q);
+extern void RotQuaternionX(void *q, int angle);
+extern void SetParticleEffect(int kind, void *mat, void *q);
+extern void ObjAction_MailCenter(void *obj, int mail);
+/* the two frame-rate divisors, the pair box.c's own fall code reads */
+extern int D_0028F4C0[];
+
+/* switch.c:179-225 in the listing.  The frame divisor (60 - D_0028F4C0[0] *
+   10) / D_0028F4C0[1] is written twice, once for the limit test and once for
+   the equality test, which is what the ROM's two divisions are; the parentize
+   probe at switch.c:122-133 is the inlined initParentize above, and the
+   quaternion the particle effect is given shares its frame slot with that
+   probe's work buffer, so it is declared in the block that uses it. */
+void FloorLeverGeo(char *a0)
+{
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+
+    if (*(int *)(p + 0x14) == 0) {
+        if ((*(int *)(p + 0x18))++ >= 3) {
+            initParentize(a0);
+            *(int *)(p + 0x14) = 1;
+        }
+    }
+    if (*(int *)(p + 4) != 0) {
+        *(int *)(p + 8) = *(int *)(p + 8) + 1;
+        if (*(int *)(p + 8) <= (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) {
+            *(short *)p = (short)(random_signed() * 128.0f);
+            if (*(int *)(p + 8) == (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) {
+                switchReleaseSE((int)a0);
+            }
+            if (*(int *)(p + 0x1C) != 0) {
+                (*(void (**)(int, int))(p + 0x1C))(**(int **)(a0 + 0x15C), *(int *)(p + 4));
+            }
+        } else if (*(short *)(p + 2) != 0) {
+            *(short *)p = 0;
+            *(short *)(p + 2) = (short)((float)*(short *)(p + 2) * 0.2f);
+        } else {
+            float q[4];
+
+            SetIdentityQuaternion(q);
+            RotQuaternionX(q, 0x4000);
+            GetRootMatrix(MatrixDrive_GetMatrix(), a0);
+            SetParticleEffect(0, (char *)MatrixDrive_GetMatrix() + 0x30, q);
+            *(int *)(p + 4) = 0;
+            *(int *)(p + 8) = 0;
+            if (*(int *)(p + 0x1C) != 0) {
+                (*(void (**)(int, int))(p + 0x1C))(**(int **)(a0 + 0x15C), 0);
+            }
+        }
+    } else {
+        if (__builtin_abs(*(short *)(p + 2)) < 0x5DD) {
+            if (__builtin_abs(*(short *)p) < 0x5DD) {
+                goto end;
+            }
+        }
+        *(int *)(p + 4) = 1;
+        *(int *)(p + 8) = 0;
+        switchOnSE((int)a0);
+        ObjAction_MailCenter(a0, -1);
+    }
+end:
+    UpdateRootMatrix(a0);
+}
 
 inline int GetFloorLeverAngle(char *a0)
 {
@@ -189,9 +254,9 @@ inline int CanWallLeverPull(char *a0)
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 4) == 0;
 }
 
-inline FloorLeverGeo *InitWallLeverGeo(char *a0, char *a1)
+inline LeverGeoWork *InitWallLeverGeo(char *a0, char *a1)
 {
-    FloorLeverGeo *g = (FloorLeverGeo *)iosMallocDebug(D_0063A438, 0x20, D_0061EF10, 0x12C);
+    LeverGeoWork *g = (LeverGeoWork *)iosMallocDebug(D_0063A438, 0x20, D_0061EF10, 0x12C);
     *g = D_004E5AA0;
     if (*(int *)(a1 + 0x30) != 0) {
         g->w[5] = 1;
@@ -224,7 +289,60 @@ end:
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", WallLeverGeo);
+/* switch.c:331-380 in the listing, the wall lever's twin of FloorLeverGeo: the
+   same parentize probe and the same frame divisor written twice, no trigger
+   callback, and a mail sent every frame that reports the lever's rest state
+   (the inlined IsWallLeverStatus above, switch.c:319-328). */
+void WallLeverGeo(char *a0)
+{
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+
+    if (*(int *)(p + 0x14) == 0) {
+        if ((*(int *)(p + 0x18))++ >= 3) {
+            initParentize(a0);
+            *(int *)(p + 0x14) = 1;
+        }
+    }
+    if (*(int *)(p + 4) != 0) {
+        *(int *)(p + 8) = *(int *)(p + 8) + 1;
+        if (*(int *)(p + 8) <= (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) {
+            *(short *)p = (short)(random_signed() * 128.0f);
+            if (*(int *)(p + 8) == (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) {
+                switchReleaseSE((int)a0);
+            }
+        } else if (*(short *)(p + 2) != 0) {
+            *(short *)p = 0;
+            *(short *)(p + 2) = (short)((float)*(short *)(p + 2) * 0.2f);
+        } else {
+            float q[4];
+
+            SetIdentityQuaternion(q);
+            RotQuaternionX(q, 0x4000);
+            GetRootMatrix(MatrixDrive_GetMatrix(), a0);
+            SetParticleEffect(0, (char *)MatrixDrive_GetMatrix() + 0x30, q);
+            *(int *)(p + 4) = 0;
+
+            *(int *)(p + 8) = 0;
+        }
+    } else {
+        if (__builtin_abs(*(short *)(p + 2)) < 0x3E9) {
+            if (__builtin_abs(*(short *)p) < 0x3E9) {
+                goto end;
+            }
+        }
+        *(int *)(p + 4) = 1;
+        *(int *)(p + 8) = 0;
+        switchOnSE((int)a0);
+        ObjAction_MailCenter(a0, -1);
+    }
+end:
+    if (IsWallLeverStatus(a0)) {
+        ObjAction_MailCenter(a0, 0);
+    } else {
+        ObjAction_MailCenter(a0, 1);
+    }
+    UpdateRootMatrix(a0);
+}
 
 void WallLeverDL(char *a0)
 {

@@ -1,5 +1,6 @@
 #include "common.h"
 #include "box.h"
+#include "sugiCommon.h"
 #include "switch.c.inc"
 #include "DObj.h"
 #include "debug.h"
@@ -36,6 +37,28 @@ void pullStartSE(int a0)
 void wallHitSE(int a0)
 {
     ExecuteSEPackage(a0, 0x1E);
+}
+
+/* kept local: this TU's uses of StopSEPackage and StopSEPackageWithGroupVariation
+   do not fit the prototypes in frameDependSequence.h */
+extern void StopSEPackage(int a0);
+extern void StopSEPackageWithGroupVariation(int a0, int a1);
+
+/* box.c:232-241 in the listing: inlined into onPath and into
+   ExecBoxMoveEndReaction, so it is a static inline here; it has no symbol of
+   its own in the ROM and no census row, and the name is descriptive. */
+static inline void stopBoxMoveSE(char *self)
+{
+    char *q = *(char **)((char *)GOBJ_SUB(self) + 0x830);
+
+    StopSEPackage((int)self);
+    StopSEPackageWithGroupVariation((int)self, 1);
+
+    ExecuteSEPackage((int)self, 0x16);
+    if (*(int *)(q + 0x140) != 0) {
+        wallHitSE((int)self);
+        *(int *)(q + 0x140) = 0;
+    }
 }
 
 void initFallDown(char *a0)
@@ -129,16 +152,17 @@ extern void SetRootPosition(void *obj, void *pos);
    ClipWall, once with ClipWallBoxStop) and into inertiaMove once, so it is a
    static inline here; it has no symbol of its own in the ROM and no census
    row, and the name is descriptive.  The two constant arguments fold, which is
-   why each inlining carries only one of the two clip calls. */
-static inline int checkBoxWallHit(char *self, float *pos, int stop)
+   why each inlining carries only one of the two clip calls.  The work buffer
+   and the root-position scratch are the CALLER's: the ROM's frames place them
+   among the caller's own locals, and execNormalMove's two expansions get two
+   separate work buffers while sharing one output vector. */
+static inline void checkBoxWallHit(char *self, char *w, float *base, float *out, int stop)
 {
-    char w[0xC0];
-    float base[4];
     char *p = (char *)GOBJ_SUB(self)->f_830;
 
     GetRootPosition(base, self);
-    if (pos != 0) {
-        CopyVector(pos, base);
+    if (out != 0) {
+        CopyVector(out, base);
     }
     *(float *)(w + 0x70) = (*(float *)(p + 0x24) < *(float *)(p + 0x28) ? *(float *)(p + 0x24)
                                                                         : *(float *)(p + 0x28)) *
@@ -153,7 +177,6 @@ static inline int checkBoxWallHit(char *self, float *pos, int stop)
         ClipWall(w);
     }
     *(float *)(w + 0x24) -= 40.0f;
-    return *(int *)(w + 0x88);
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", execNormalMove);
@@ -259,7 +282,94 @@ static inline void updateBoxWheelAngle(char *self)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", dispWheels);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", getNearestPosition);
+
+/* the per-route point arrays (a pointer table in the TU's .data at VMA
+   0x4E5F30) and the Y axis the side plane is built from (VMA 0x4E61D0,
+   { 0.0f, 1.0f, 0.0f, 0.0f }) */
+extern float *D_004E5F30[];
+extern float D_004E61D0[];
+/* the largest float, 0x7F7FFFFF, in the TU's .sdata at VMA 0x63B738; the
+   declaration withholds its size so the load keeps the ROM's %hi/%lo */
+extern float D_0063B738[];
+
+/* one 16-byte route point */
+typedef float PathPt[4];
+
+/* box.c:603-672 in the listing.  The signed plane distance is what the
+   projection is scaled by and its magnitude is what the nearest test keeps,
+   which is why the ROM copies the value into the argument register before it
+   negates it.  0.707 is the ROM's spelling of the 45 degree axis test. */
+int getNearestPosition(float *out, int *pidx, int *path)
+{
+    float pos[4];
+    float seg[4];
+    float dir[4];
+    float proj[4];
+    float pl[4];
+    float foot[4];
+    PathPt *pts = (PathPt *)D_004E5F30[path[0]];
+    float best = D_0063B738[0];
+    int bi = -1;
+    int start;
+    int end;
+    int i;
+    float dist;
+    float ad;
+    float t;
+
+    if (*pidx != -1) {
+        start = *pidx - 1;
+        start = 0 < start ? start : 1;
+        end = *pidx + 2;
+        end = path[1] < end ? path[1] : end;
+    } else {
+        start = 0;
+        end = path[1] - 1;
+    }
+
+    for (i = start; i < end; i++) {
+        sceVu0SubVector(seg, pts[i], pts[i - 1]);
+        seg[1] = 0.0f;
+        sceVu0Normalize(dir, seg);
+        sceVu0OuterProduct(pl, D_004E61D0, dir);
+        pl[1] = 0.0f;
+        sceVu0Normalize(pl, pl);
+        pl[3] = -(pl[0] * pts[i][0] + pl[2] * pts[i][2]);
+        dist = pl[0] * out[0] + pl[2] * out[2] + pl[3];
+        ad = dist < 0.0f ? -dist : dist;
+        pl[1] = 0.0f;
+        pl[3] = 0.0f;
+        sceVu0ScaleVector(proj, pl, dist);
+        SubVectorXYZ(foot, out, proj);
+
+        if (0.707f < (dir[0] < 0.0f ? -dir[0] : dir[0])) {
+            t = (foot[0] - pts[i - 1][0]) / seg[0];
+        } else {
+            t = (foot[2] - pts[i - 1][2]) / seg[2];
+        }
+        if (0.0f <= t && t <= 1.0f) {
+            CopyVector(out, foot);
+            *pidx = i;
+            return 0;
+        }
+        if (ad < best) {
+            best = ad;
+            bi = i;
+            if (t < 0.0f) {
+                CopyVector(pos, pts[i - 1]);
+            } else {
+                CopyVector(pos, pts[i]);
+            }
+        }
+    }
+    out[0] = pos[0];
+    out[2] = pos[2];
+    out[3] = 1.0f;
+
+    *pidx = bi;
+    return 1;
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", onPathInitialize);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", onPath);
 
@@ -327,12 +437,93 @@ static inline void execBoxFall(char *self)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", MoveFloatingBox);
+/* kept local: this TU's uses of _Sqrt do not fit the prototype in matrixDrive.h */
+extern float _Sqrt(float f);
+extern int GetCylinderCollisionWithExceptOwnCollision(char *self, int target, float r, float h,
+                                                      float s, float t, int ctrl);
+/* the local Z axis the floating box's facing is rebuilt from, VMA 0x4E6200,
+   { 0.0f, 0.0f, 1.0f, 0.0f } */
+extern float D_004E6200[];
+
+/* box.c:882-951 in the listing.  0.31830987 is 1 / pi and the ROM keeps two
+   copies of it, one per arm of the sign test, the way it keeps two copies of
+   every other constant that appears once in each arm. */
+int MoveFloatingBox(char *self, char *other, float *dst, void *src, float lim)
+{
+    float pos[4];
+    float opos[4];
+    float tp[4];
+    float m[16];
+    char *w = (char *)GOBJ_SUB(self)->f_830;
+    float dx;
+    float dz;
+    float len;
+
+    GetRootMatrix(m, self);
+    _ApplyMatrix(tp, m, src);
+    GetRootPosition(pos, self);
+    GetRootPosition(opos, other);
+
+    dx = dst[0] - tp[0];
+    dz = dst[2] - tp[2];
+    len = _Sqrt(dx * dx + dz * dz);
+
+    if (lim < len) {
+        float over = len - lim;
+        float ox;
+        float oz;
+        float tx;
+        float tz;
+        float l1;
+        float l2;
+        float px;
+        float pz;
+        float ax;
+        float az;
+        float d;
+        int ang;
+
+        dx = dx * (over / len);
+        dz = dz * (over / len);
+
+        ox = tp[0] - pos[0];
+        oz = tp[2] - pos[2];
+
+        tx = ox + dx * 0.2f;
+        tz = oz + dz * 0.2f;
+        l2 = FSqrt(tx * tx + tz * tz);
+        l1 = FSqrt(ox * ox + oz * oz);
+        px = tx * l1 / l2;
+        pz = tz * l1 / l2;
+
+        pos[0] = pos[0] + (tx - px);
+        pos[2] = pos[2] + (tz - pz);
+        ax = px - ox;
+        az = pz - oz;
+        d = FSqrt(ax * ax + az * az) * 32768.0f;
+        ang = (short)(ox * az - oz * ax < 0.0f ? d / l1 * 0.31830987f : -d / l1 * 0.31830987f);
+
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        MatrixDrive_RotMatrixY(GetTableArcTan2(*(float *)((char *)GOBJ_SUB(self) + 0x520),
+                                               *(float *)((char *)GOBJ_SUB(self) + 0x528)));
+        MatrixDrive_RotMatrixY(ang);
+        sceVu0ApplyMatrix((char *)GOBJ_SUB(self) + 0x520, MatrixDrive_GetMatrix(), D_004E6200);
+
+        SetRootPosition(self, pos);
+
+        opos[0] = opos[0] - dx * 0.05f;
+        opos[2] = opos[2] - dz * 0.05f;
+        SetRootPosition(other, opos);
+    }
+
+    GetCylinderCollisionWithExceptOwnCollision(self, (int)other, 70.0f, 50.0f, 0.5f, 0.5f, 0);
+
+    *(int *)(w + 0x164) = 1;
+    return 1;
+}
 
 /* kept local: this TU's uses of ClipWallE do not fit the prototype in fieldCollision.h */
 extern void ClipWallE(void *a0);
-extern int GetCylinderCollisionWithExceptOwnCollision(char *self, int target, float r, float h,
-                                                      float s, float t, int ctrl);
 
 void avoidCharGObj(char *a0, char *a1)
 {
@@ -526,6 +717,8 @@ void inertiaMove(char *a0)
 {
     float pos[4];
     float tmp[4];
+    char w[0xC0];
+    float base[4];
     char *p = (char *)GOBJ_SUB(a0)->f_830;
 
     if (onPath(a0) != 0) {
@@ -536,7 +729,8 @@ void inertiaMove(char *a0)
     sceVu0ApplyMatrix(tmp, (void *)GOBJ_SUB(a0)->f_C, p + 0x40);
     sceVu0AddVector(pos, pos, tmp);
     SetRootPosition(a0, pos);
-    if (checkBoxWallHit(a0, pos, 1) != 0) {
+    checkBoxWallHit(a0, w, base, pos, 1);
+    if (*(int *)(w + 0x88) != 0) {
         SetRootPosition(a0, pos);
         CopyVector(p + 0x40, ZeroVector);
     }
@@ -604,7 +798,70 @@ inline void GetBoxGlobalHoldPoint(void *a0, void *a1, void *a2)
     sceVu0ApplyMatrix(a0, buf, a2);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", GetBoxHoldPoint);
+/* kept local: this TU's uses of GetWallAttribute and CompareAttribute do not
+   fit the prototypes in fieldCollision.h */
+extern int GetWallAttribute(void *w);
+extern int CompareAttribute(int attr, int mask);
+/* kept local: this TU does not include matrixDrive.h, whose other prototypes
+   do not fit this TU's uses of them. */
+extern float ZeroPoint[4];
+/* The four hold-point candidates in the box's local frame and the four
+   offsets added back after they are scaled by the box's half extents; both
+   live in the TU's .data run (VMA 0x4E5FB0 and 0x4E5FF0, 4 x 16 bytes each). */
+extern float D_004E5FB0[4][4];
+extern float D_004E5FF0[4][4];
+
+/* box.c:1477-1520 in the listing.  The clip work buffer is declared in a block
+   of its own after the candidate loop: the ROM's frame puts it at sp+0x60,
+   above the 64-byte matrix the inlined GetBoxGlobalHoldPoint keeps at sp+0x20,
+   so it is allocated after the first inlining and not with the function's
+   top-level locals.  The two squared-distance spellings are the listing's:
+   sugiCommon.h:97 in the first iteration, sugiCommon.h:87 in the rest. */
+int GetBoxHoldPoint(float *out, char *self, void *chara)
+{
+    float pos[4];
+    float p[4];
+    char *q = *(char **)((char *)GOBJ_SUB(self) + 0x830);
+    int best = 0;
+    float min = 0.0f;
+    float d;
+    int i;
+
+    GetRootPosition(pos, chara);
+    for (i = 0; i < 4; i++) {
+        GetBoxGlobalHoldPoint(p, self, D_004E5FB0[i]);
+        if (i == 0) {
+            min = distance_squared_b(p, pos);
+            best = 0;
+        } else {
+            if ((d = distance_squared(p, pos)) < min) {
+                min = d;
+                best = i;
+            }
+        }
+    }
+    CopyVector(out, D_004E5FB0[best]);
+    out[0] *= *(float *)(q + 0x24);
+    out[2] *= *(float *)(q + 0x28);
+    AddVectorXYZ(out, out, D_004E5FF0[best]);
+    *(void **)(q + 4) = chara;
+    CopyVector(q + 0x10, out);
+    {
+        char w[0xC0];
+
+        memset(w, 0, 0xC0);
+        GetBoxGlobalHoldPoint(w + 0x10, self, ZeroPoint);
+        GetBoxGlobalHoldPoint(w, self, out);
+        ClipWall(w);
+        if (*(int *)(w + 0x88) != 0) {
+            if (CompareAttribute(GetWallAttribute(w), 0xB00) ||
+                CompareAttribute(GetWallAttribute(w), 0x400)) {
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
 
 inline int CanHoldBox(char *a0)
 {
@@ -1017,13 +1274,7 @@ inline void ExecBoxMoveEndReaction(char *a0)
 {
     char *q = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
     if (*(int *)(q + 0x58) == 0 || *(int *)(q + 0x110) != 0) {
-        StopSEPackage((int)a0);
-        StopSEPackageWithGroupVariation((int)a0, 1);
-        ExecuteSEPackage((int)a0, 0x16);
-        if (*(int *)(q + 0x140) != 0) {
-            wallHitSE((int)a0);
-            *(int *)(q + 0x140) = 0;
-        }
+        stopBoxMoveSE(a0);
     }
     *(int *)(q + 0x110) = 0;
 }

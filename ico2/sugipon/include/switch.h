@@ -14,10 +14,12 @@
 #define SWITCH_H
 
 /* The floor and wall lever geometry block InitFloorLeverGeo returns: eight
- * words, read back as such at box.c's own call sites. */
+ * words, read back as such at box.c's own call sites.  RECONSTRUCTION: the
+ * name is ours, and it deliberately is not FloorLeverGeo, which MAIN.MAP
+ * gives to the lever's per-frame function in the same TU. */
 typedef struct {
     int w[8];
-} FloorLeverGeo;
+} LeverGeoWork;
 
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
@@ -29,12 +31,12 @@ void SetSwitchTriggerFunc(char *a0, void *a1);
 void SetSwitchState(char *a0, int a1);
 void SetFloorLeverWithNodePoint(char *a0, char *a1, int a2);
 int CanFloorLeverPull(char *a0);
-FloorLeverGeo *InitFloorLeverGeo(char *a0, char *a1);
+LeverGeoWork *InitFloorLeverGeo(char *a0, char *a1);
 int GetFloorLeverAngle(char *a0);
 void SetWallLeverWithNodePoint(char *a0, char *a1, int a2);
 int CanWallLeverPull(char *a0);
 int IsWallLeverStatus(char *a0);
-FloorLeverGeo *InitWallLeverGeo(char *a0, char *a1);
+LeverGeoWork *InitWallLeverGeo(char *a0, char *a1);
 int GetWallLeverAngle(char *a0);
 
 #endif /* SWITCH_H */
