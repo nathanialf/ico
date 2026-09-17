@@ -798,6 +798,10 @@ segments:
       - [0x51D750, rodata, cod/51D750]   # .rodata blob resume ("sync end\n" and the rest of the run)
       - [0x51D840, .rodata, ico2/common/src/layout_action]  # carved jtbl_0061D840 (_la_mcard_error_check, 17 arms over the card result, section .rodata.0x0061D840), VMA 0x61D840..0x61D884
       - [0x51D884, rodata, cod/51D884]     # .rodata blob resume
+      - [0x51D8D0, .rodata, ico2/common/src/layout_action]  # carved jtbl_0061D8D0 (_la_memory_card_check, 24 arms over the step argument, section .rodata.0x0061D8D0), VMA 0x61D8D0..0x61D930
+      - [0x51D930, rodata, cod/51D930]   # .rodata blob resume
+      - [0x51DCC0, .rodata, ico2/common/src/layout_action]  # carved jtbl_0061DCC0 (la_game_option, 26 arms over the property item minus 300, section .rodata.0x0061DCC0), VMA 0x61DCC0..0x61DD28
+      - [0x51DD28, rodata, cod/51DD28]   # .rodata blob resume (two pad words)
       - [0x51DD30, .rodata, ico2/common/src/layout_action]  # carved jtbl_0061DD30 (5 arms, 0x14): la_format_processing's switch table, emitted by the compiled function; VMA 0x61DD30..0x61DD44
       - [0x51DD44, rodata, cod/51DD44]   # .rodata blob resume (three pad words)
       - [0x51DF10, .rodata, ico2/common/src/staffroll]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP staffroll.o .rodata 0x4C), the switch table included, VMA 0x61DF10..0x61DF5C, 76 B
