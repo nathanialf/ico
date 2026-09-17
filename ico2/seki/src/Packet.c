@@ -389,7 +389,129 @@ void pac_countOneVertexPacketSize(char *shp, char *mat)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Packet", pac_makeStrip);
+extern char D_0054F6E8[];
+extern char D_0054F718[];
+extern char D_0054F758[];
+extern char D_0054F780[];
+extern char D_0054F7A8[];
+extern char D_0054F7C8[];
+extern char D_0063A130[];
+extern int D_0063A0F8;
+extern float D_0063A3DC;
+extern unsigned int D_0063C148;
+extern unsigned int D_0063C150;
+extern void malloc_MemCpy(int dst, int src, int n);
+extern void iosFree(int p);
+extern void debug_assertMessage(char *file, int line, char *msg);
+extern void pac_countOneVertexPacketSize(char *shp, char *mat);
+extern int pac_makeNormalStrip(char *obj, short *p, int n);
+extern int pac_makeClusterStrip(char *obj, short *p, int n);
+extern void pac_checkDivide(int num, char *shp, char *mat);
+
+/* listing rows 1207-1219: a static inline above pac_makeStrip that copies a
+   finished packet down into a fresh seki-heap block. */
+static inline int pac_moveToSeki(int src, int size)
+{
+    int p;
+
+    p = mallocseki(size);
+    if (p == 0)
+        debug_Assert(D_0054F6E8);
+    debug_StdPrintfDummy(D_0054F718, src, p, size);
+    if (src != p)
+        malloc_MemCpy(p, src, size);
+    return p;
+}
+
+int pac_makeStrip(int *out, char *obj, char **tbl, int shpno, int matno, int line)
+{
+    char buf[1024];
+    int num;
+    int dst;
+    char *mat;
+    char *shp;
+    int pkt;
+    short *p;
+    int n;
+    int i;
+    int first;
+    int size;
+    int sz;
+    int used;
+    int packetSize;
+    char *ctx;
+    float t0;
+
+    num = *(int *)(obj + 0x104);
+    dst = 0;
+    mat = 0;
+    shp = tbl[0] + shpno * 0x70;
+    D_0063C150 = 0;
+    if (matno != -1) {
+        mat = tbl[1] + matno * 0x50;
+    }
+    pac_countOneVertexPacketSize(shp, mat);
+    pkt = mallocsekistage(0x100000);
+    if (pkt == 0)
+        debug_Assert(D_0054F758);
+    pac_openDmaTag(pkt);
+    t0 = debug_GetTimerSec();
+    for (i = 0; i < num; i++) {
+        p = ((short **)*(int *)(obj + 0x100))[i];
+        n = p[0];
+        first = 0;
+        while (n >= 3) {
+            p += 8;
+            if (p[7] == matno) {
+                if (matno == -1)
+                    debug_Assert(D_0054F780, line);
+                if (p[6] == shpno) {
+                    if (first != 0)
+                        pac_checkDivide(n, shp, mat);
+                    else
+                        first = 1;
+                    if ((*(int *)(shp + 0x60) & 1) == 0)
+                        sz = pac_makeNormalStrip(obj, p, n);
+                    else
+                        sz = pac_makeClusterStrip(obj, p, n);
+                    D_0063C148 += sz;
+                    D_0063C150 += 1;
+                }
+            }
+            p += n * 8;
+            n = p[0];
+        }
+    }
+    D_0063A3DC += debug_GetTimerSec() - t0;
+    size = pac_closeTag(shp, mat);
+    ctx = D_0067C010;
+    used = *(int *)(ctx + 0x2C) - pkt;
+    if (D_0063A0F8 < used) {
+        D_0063A0F8 = used;
+        debug_StdPrintfDummy(D_0054F7A8, used);
+    }
+    /* D_0054F7C8 carries two conversions, "%s" for the object and "0x%x" for
+       the size, so the recomputed size is sprintf's fourth argument. */
+    packetSize = *(int *)(ctx + 0x2C) - pkt;
+    if (0x100000 < packetSize) {
+        sprintf(buf, D_0054F7C8, ctx, packetSize);
+        debug_assertMessage(D_0054F400, 1362, buf);
+        __assert(D_0054F400, 1362, D_0063A130);
+    }
+    if (size > 0) {
+        if (malloc_GetPartition() == 0) {
+            dst = pac_moveToSeki(pkt & 0x0FFFFFFF, size);
+            iosFree(pkt & 0x0FFFFFFF);
+        } else {
+            dst = reallocseki(pkt & 0x0FFFFFFF, size);
+        }
+    } else {
+        iosFree(pkt & 0x0FFFFFFF);
+    }
+    *out = dst;
+    return size;
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Packet", pac_setMaterialPacket);
 
 /* The material table entry's 64-bit mode word at +0x60: the same qword
