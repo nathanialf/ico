@@ -522,6 +522,58 @@ int MoveFloatingBox(char *self, char *other, float *dst, void *src, float lim)
     return 1;
 }
 
+extern char IdentityQuaternion[];
+/* kept local: this TU's uses of CopyQuaternion do not fit the prototype in quaternion.h */
+extern void CopyQuaternion(void *dst, void *src);
+/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
+extern void _AddVectorXYZ(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
+extern void _SubVector(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
+extern void _ScaleVectorXYZ(void *dst, void *src, float k);
+/* kept local: this TU's uses of these do not fit the prototypes in Matrix.h,
+   matrixDrive.h and quaternion.h */
+extern void _SubVectorXYZ(void *dst, void *a, void *b);
+extern float VectorLength(void *v);
+extern float VectorLengthSquare(void *v);
+extern void GetMatrixFromQuaternionPos(void *m, void *q, void *pos);
+/* the eight horizontal push-out directions the floating box is tested along,
+   VMA 0x4E6210, eight vectors */
+extern float D_004E6210[];
+
+/* box.c:965-988 in the listing: inlined once, into execFloating, so it is a
+   static inline here; it has no symbol of its own in the ROM and no census
+   row, and the name is descriptive.  The clip work, the matrix and the two
+   scratch vectors are the CALLER's: the ROM's frame places them among
+   execFloating's own locals, ahead of the word whose address goes to
+   GetWaterReaction. */
+static inline void pushOutFloatingBox(char *cw, float *m, float *sv, float *dv, float *pos,
+                                      float *q, float r)
+{
+    float *dir;
+    float len;
+    int i;
+
+    memset(cw, 0, 0xC0);
+    /* the counter is only read by the test, so loop.c reverses it: the ROM
+       counts down from 7 while the direction pointer still walks up. */
+    for (i = 0, dir = D_004E6210; i < 8; i++, dir += 4) {
+        CopyVector(cw, pos);
+        GetMatrixFromQuaternionPos(m, q, pos);
+        _ScaleVectorXYZ(sv, dir, r);
+        _ApplyMatrix(cw + 0x10, m, sv);
+        ClipWall(cw);
+        if (*(int *)(cw + 0x88) != 0) {
+            _SubVectorXYZ(dv, cw + 0x20, cw + 0x10);
+            len = VectorLengthSquare(dv);
+            if (1.0f < len) {
+                _ScaleVector(dv, dv, 1.0f / _Sqrt(len));
+            }
+            _AddVectorXYZ(pos, pos, dv);
+        }
+    }
+}
+
 /* kept local: this TU's uses of ClipWallE do not fit the prototype in fieldCollision.h */
 extern void ClipWallE(void *a0);
 
@@ -563,15 +615,131 @@ void avoidCharGObj(char *a0, char *a1)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", execFloating);
+/* kept local: this TU's uses of these do not fit the prototypes in
+   motionManager2.h, quaternion.h and stageMultiBgaManager.h */
+extern int GetWaterReaction(void *w, int *hit, void *plane, void *pos, void *vel, float low,
+                            float mid, float high, float k, float acc);
+extern void MultiQuaternion(void *dst, void *a, void *b);
+extern void SetQuaternionByAxisRotateV(void *dst, short ang, void *axis);
+extern void RotQuaternionY(void *q, int ang);
+extern void GetMatrixFromQuaternion(void *m, void *q);
+extern void EntryStageMultiBgaManager(int kind, void *pos, void *rot);
+/* the two characters the floating box has to keep clear of, the boy and the
+   girl, as sceneManager.c sets them */
+extern char *D_00639EA4;
+extern char *D_00639EA8;
+/* the world Y axis the box's tilt is measured around, VMA 0x4E6290,
+   { 0.0f, 1.0f, 0.0f, 0.0f } */
+extern float D_004E6290[];
+
+void execFloating(char *self)
+{
+    char fw[0xC0];
+    float pos[4];
+    float d[4];
+    float g[4];
+    float sub[4];
+    float axis[4];
+    float ofs[4];
+    float acc[4];
+    float q[4];
+    float rot[4];
+    float m[16];
+    char cw[0xC0];
+    float cm[16];
+    float sv[4];
+    float dv[4];
+    int hit;
+    char *w = (char *)GOBJ_SUB(self)->f_830;
+    float len;
+    float r;
+
+    if (D_00639EA4 != 0) {
+        if (*(int *)(w + 0x164) == 0) {
+            GetCylinderCollisionWithExceptOwnCollision(self, (int)D_00639EA4, 50.0f, 50.0f, 0.0f,
+                                                       1.0f, 1);
+            avoidCharGObj(self, D_00639EA4);
+        }
+    }
+    if (D_00639EA8 != 0) {
+        GetCylinderCollisionWithExceptOwnCollision(self, (int)D_00639EA8, 70.700005f, 50.0f, 0.0f,
+                                                   1.0f, 1);
+        avoidCharGObj(self, D_00639EA8);
+    }
+    GetRootPosition(pos, self);
+    GetLowerPlaneCollision(fw, pos);
+    len = VectorLengthSquare((char *)GOBJ_SUB(self) + 0x130);
+    if (100.0f < len) {
+        _ScaleVectorXYZ((char *)GOBJ_SUB(self) + 0x130, (char *)GOBJ_SUB(self) + 0x130,
+                        3.0f / _Sqrt(len));
+    }
+    /* the three water-probe heights are written as additions of the offset, not
+       as subtractions: the ROM adds -50.0f and -25.0f and gcc 2.9 emits sub.s
+       for a written subtraction (line 1128 below is one). */
+    if (GetWaterReaction(w + 0xB0, &hit, fw, pos, (char *)GOBJ_SUB(self) + 0x130, pos[1] + -50.0f,
+                         pos[1] + -25.0f, pos[1] + 50.0f, 0.9f,
+                         60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * -0.1f *
+                             (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1])) * 3.0f) !=
+        0) {
+        if (*(float *)(fw + 0x24) - 50.0f < pos[1]) {
+            pos[1] = *(float *)(fw + 0x24) - 50.0f;
+        }
+        _SubVector(d, pos, w + 0x170);
+        d[1] = 0.0f;
+        /* 0.1f * 0.1f, not 0.01f: the pool word is 0x3C23D70B, one ulp above
+           the float nearest 0.01. */
+        if (0.1f * 0.1f < VectorLengthSquare(d)) {
+            _SubVector(d, pos, w + 0x170);
+            *(float *)(w + 0x170) = pos[0];
+            *(float *)(w + 0x178) = pos[2];
+        } else {
+            pos[0] = *(float *)(w + 0x170);
+            pos[2] = *(float *)(w + 0x178);
+        }
+        memset(g, 0, 0x10);
+        g[1] = -35.0f;
+        sceVu0ScaleVectorXYZ(acc, w + 0xC0, -0.01f);
+        sceVu0AddVector(w + 0xD0, w + 0xD0, acc);
+        sceVu0AddVector(w + 0xD0, w + 0xD0, w + 0xF0);
+        sceVu0ScaleVectorXYZ(w + 0xD0, w + 0xD0, 0.95f);
+        sceVu0AddVector(w + 0xC0, w + 0xC0, w + 0xD0);
+        sceVu0OuterProduct(axis, D_004E6290, w + 0xC0);
+        CopyQuaternion(q, IdentityQuaternion);
+        RotQuaternionY(q, GetTableArcTan2(*(float *)((char *)GOBJ_SUB(self) + 0x520),
+                                          *(float *)((char *)GOBJ_SUB(self) + 0x528)));
+        SetQuaternionByAxisRotateV(rot, VectorLength(w + 0xC0) * 20.48f / 50.0f, axis);
+        MultiQuaternion(q, q, rot);
+        SetRootQuaternion(self, q);
+        GetMatrixFromQuaternion(m, rot);
+        sceVu0ApplyMatrix(ofs, m, g);
+        ofs[1] = 0.0f;
+        sceVu0SubVector(sub, ofs, w + 0xE0);
+        sceVu0SubVector(pos, pos, sub);
+        CopyVector(w + 0xE0, ofs);
+        r = *(float *)(w + 0x24) > *(float *)(w + 0x28) ? *(float *)(w + 0x24) * 50.0f
+                                                        : *(float *)(w + 0x28) * 50.0f;
+        pushOutFloatingBox(cw, cm, sv, dv, pos, q, r);
+        _AddVectorXYZ(cw, pos, ofs);
+        *(float *)(cw + 0xC) = 0.0f;
+        _SubVector((char *)GOBJ_SUB(self) + 0x130, cw, w + 0x100);
+        *(int *)((char *)GOBJ_SUB(self) + 0x13C) = 0;
+        CopyVector(w + 0x100, cw);
+        SetRootPosition(self, pos);
+    }
+    *(float *)((char *)GOBJ_SUB(self) + 0x134) += GetTableSin(*(short *)(w + 0x118)) * 0.1f;
+    *(short *)(w + 0x118) += 2048;
+    *(int *)(w + 0x164) = 0;
+    if (*(short *)(w + 0x118) == 0) {
+        CopyVector(cw, pos);
+        *(float *)(cw + 4) = *(float *)(w + 0xB0);
+        EntryStageMultiBgaManager(491, cw, IdentityQuaternion);
+    }
+}
 
 /* kept local: this TU's uses of IdentityQuaternion do not fit the prototype in quaternion.h */
-extern char IdentityQuaternion[];
 /* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
 extern char ZeroVector[];
 extern char D_004E62A0[];
-/* kept local: this TU's uses of CopyQuaternion do not fit the prototype in quaternion.h */
-extern void CopyQuaternion(void *dst, void *src);
 
 void initFloating(char *a0)
 {
@@ -590,12 +758,6 @@ void initFloating(char *a0)
     execFloating(a0);
 }
 
-/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
-extern void _AddVectorXYZ(void *dst, void *a, void *b);
-/* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
-extern void _SubVector(void *dst, void *a, void *b);
-/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
-extern void _ScaleVectorXYZ(void *dst, void *src, float k);
 /* kept local: this TU's uses of SetSimplePlane do not fit the prototype in fieldCollision.h */
 extern void SetSimplePlane(void *plane, float x, float y, float z, float d);
 /* kept local: this TU's uses of GetDistanceFromPlane do not fit the prototype in fieldCollision.h */
