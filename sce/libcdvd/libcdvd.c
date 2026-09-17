@@ -52,7 +52,36 @@ int sceCdCallback(int a0)
 
 INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", _sceCd_cd_callback);
 INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", _Cdvd_cbLoop);
-INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", sceCdInitEeCB);
+
+extern int D_0054A554;
+extern int D_0072EF10;
+extern int D_0072EF18[];
+extern int D_0072EF48[];
+extern char D_00640AF0[];
+extern void _Cdvd_cbLoop(void);
+extern int CreateThread(int *param);
+
+int sceCdInitEeCB(int priority, void *stack, int stackSize)
+{
+    int r = 1;
+
+    if (D_0054A554 == 0) {
+        D_0072EF10 = GetThreadId();
+        ReferThreadStatus(D_0072EF10, D_0072EF18);
+        D_0072EF48[3] = stackSize;
+        D_0072EF48[4] = (int)D_00640AF0;
+        D_0072EF48[1] = (int)_Cdvd_cbLoop;
+        D_0072EF48[2] = (int)stack;
+        D_0072EF48[5] = priority;
+        D_0054A554 = CreateThread(D_0072EF48);
+        StartThread(D_0054A554, 0);
+    } else {
+        ChangeThreadPriority(D_0054A554, priority);
+        r = 0;
+    }
+    return r;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", _sceCd_cd_read_intr);
 INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", cmd_sem_init);
 INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", cdvd_exit);
@@ -112,12 +141,30 @@ int sceCdNcmdDiskReady(void)
     return v;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", sceCdSync);
-
 extern int SCE_CD_debug[];
+extern int _sceCd_cd_ncmd[];
+extern int _sceCd_c_cb_sem;
+extern char D_006368B8[];
+extern int sceSifCheckStatRpc(char *a0);
+
+int sceCdSync(int mode)
+{
+    if (!mode) {
+        if (SCE_CD_debug[0] > 0)
+            scePrintf(D_006368B8);
+        while (_sceCd_c_cb_sem != 0 || sceSifCheckStatRpc((char *)_sceCd_cd_ncmd)) {
+            sceCdDelayThread(0x3C);
+        }
+        return 0;
+    }
+    if (_sceCd_c_cb_sem != 0 || sceSifCheckStatRpc((char *)_sceCd_cd_ncmd) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
 extern char _sceCd_cd_scmd[];
 extern char D_006368C8[];
-extern int sceSifCheckStatRpc(char *a0);
 
 int sceCdSyncS(int a0)
 {
@@ -135,14 +182,125 @@ int sceCdSyncS(int a0)
 INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", _sceCd_scmd_prechk);
 INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", sceCdInit);
 INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", sceCdDiskReady);
-INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", sceCdMmode);
+
+extern int _sceCd_scmdsdata[];
+extern int _sceCd_scmdrdata[];
+extern int _sceCd_scmd_semid[];
+extern int _sceCd_scmd_prechk(int a0);
+extern void sceSifWriteBackDCache(void *p, int n);
+
+int sceCdMmode(int media)
+{
+    int *p;
+    int *sd;
+    int v;
+    sd = _sceCd_scmdsdata;
+    if (_sceCd_scmd_prechk(0x22) == 0) {
+        return 0;
+    }
+    sd[0] = media;
+    sceSifWriteBackDCache(sd, 4);
+    p = _sceCd_scmdrdata;
+    if (sceSifCallRpc(_sceCd_cd_scmd, 0x22, 0, sd, 4, p, 4, 0, 0) < 0) {
+        SignalSema(_sceCd_scmd_semid[0]);
+        return 0;
+    }
+    v = *(int *)((int)p | 0x20000000);
+    SignalSema(_sceCd_scmd_semid[0]);
+    return v;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", sceCdRead);
 INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", sceCdReadIOPm);
-INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", sceCdGetDiskType);
-INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", sceCdGetError);
-INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", sceCdStatus);
+
+int sceCdGetDiskType(void)
+{
+    int *p;
+    int v;
+    if (_sceCd_scmd_prechk(1) == 0) {
+        return 0;
+    }
+    p = _sceCd_scmdrdata;
+    if (sceSifCallRpc(_sceCd_cd_scmd, 3, 0, 0, 0, p, 4, 0, 0) < 0) {
+        SignalSema(_sceCd_scmd_semid[0]);
+        return 0;
+    }
+    v = *(int *)((int)p | 0x20000000);
+    SignalSema(_sceCd_scmd_semid[0]);
+    return v;
+}
+
+int sceCdGetError(void)
+{
+    int *p;
+    int v;
+    if (_sceCd_scmd_prechk(3) == 0) {
+        return -1;
+    }
+    p = _sceCd_scmdrdata;
+    if (sceSifCallRpc(_sceCd_cd_scmd, 4, 0, 0, 0, p, 4, 0, 0) < 0) {
+        SignalSema(_sceCd_scmd_semid[0]);
+        return -1;
+    }
+    v = *(int *)((int)p | 0x20000000);
+    SignalSema(_sceCd_scmd_semid[0]);
+    return v;
+}
+
+extern char D_006369C8[];
+
+int sceCdStatus(void)
+{
+    int *p;
+    int v;
+    if (_sceCd_scmd_prechk(2) == 0) {
+        return -1;
+    }
+    p = _sceCd_scmdrdata;
+    if (sceSifCallRpc(_sceCd_cd_scmd, 0xC, 0, 0, 0, p, 4, 0, 0) < 0) {
+        SignalSema(_sceCd_scmd_semid[0]);
+        return -1;
+    }
+    v = *(int *)((int)p | 0x20000000);
+    SignalSema(_sceCd_scmd_semid[0]);
+    if (SCE_CD_debug[0] > 1) {
+        scePrintf(D_006369C8);
+    }
+    return v;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", sceCdBreak);
-INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd", sceCdReadClock);
+
+extern char D_006369D8[];
+extern char D_006369F8[];
+
+typedef struct {
+    unsigned char b[8];
+} CdClock;
+
+int sceCdReadClock(CdClock *clock)
+{
+    int *p;
+    int v;
+    if (_sceCd_scmd_prechk(0xF) == 0) {
+        return 0;
+    }
+    if (SCE_CD_debug[0] > 0) {
+        scePrintf(D_006369D8);
+    }
+    p = _sceCd_scmdrdata;
+    if (sceSifCallRpc(_sceCd_cd_scmd, 1, 0, 0, 0, p, 0x10, 0, 0) < 0) {
+        SignalSema(_sceCd_scmd_semid[0]);
+        return 0;
+    }
+    *clock = *(CdClock *)((int)(p + 1) | 0x20000000);
+    if (SCE_CD_debug[0] > 0) {
+        scePrintf(D_006369F8);
+    }
+    v = *(int *)((int)p | 0x20000000);
+    SignalSema(_sceCd_scmd_semid[0]);
+    return v;
+}
 
 extern int D_0054BFB0[];
 extern int D_0072F1D8[];
