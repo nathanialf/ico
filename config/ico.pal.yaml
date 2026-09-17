@@ -683,6 +683,14 @@ segments:
       - [0x44F424, rodata, cod/44F424]   # .rodata blob resume
       - [0x44F9E8, .rodata, ico2/seki/src/Primitive]  # carved D_0054F9E8 (VMA 0x54F9E8..0x54FA48, 96 B, align 8): prim_DispWireBox's twelve cube edges as int[12][2], emitted by the compiled function
       - [0x44FA48, rodata, cod/44FA48]   # .rodata blob resume (eight zero bytes before the next TU's string at 0x54FA50)
+      - [0x450370, .rodata, ico2/seki/src/Texture]  # carved jtbl_00550370 (tex_loadImage, 59 arms over the GS pixel storage modes, section .rodata.0x00550370), VMA 0x550370..0x55045C
+      - [0x45045C, rodata, cod/45045C]     # .rodata blob resume
+      - [0x450520, .rodata, ico2/seki/src/Texture]  # carved jtbl_00550520 (tex_initClutTexture, 59 arms over the GS pixel storage modes, section .rodata.0x00550520), VMA 0x550520..0x55060C
+      - [0x45060C, rodata, cod/45060C]     # .rodata blob resume
+      - [0x450610, .rodata, ico2/seki/src/Texture]  # carved jtbl_00550610 (tex_initClutTexture, 59 arms over the GS pixel storage modes, section .rodata.0x00550610), VMA 0x550610..0x5506FC
+      - [0x4506FC, rodata, cod/4506FC]     # .rodata blob resume
+      - [0x450700, .rodata, ico2/seki/src/Texture]  # carved jtbl_00550700 (tex_initTM2, 59 arms over the GS pixel storage modes, section .rodata.0x00550700), VMA 0x550700..0x5507EC
+      - [0x4507EC, rodata, cod/4507EC]     # .rodata blob resume
       - [0x450AE8, .rodata, ico2/seki/src/ZFog]  # the TU's whole .rodata run as source (completeness pass 6), VMA 0x550AE8..0x550C10, 296 B emitted
       - [0x450C10, rodata, cod/450C10]     # .rodata blob resume
       - [0x451058, .rodata, ico2/fumi/ios/ios]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x551058..0x551430, 984 B
