@@ -761,6 +761,8 @@ segments:
       - [0x519342, rodata, cod/519342]     # rodata blob resume
       - [0x519348, .rodata, ico2/common/src/charFileManager]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP charFileManager.o .rodata 0x861), in census function order with the deferred inline setters, VMA 0x619348..0x619BA9, 2145 B
       - [0x519BA9, rodata, cod/519BA9]     # rodata blob resume
+      - [0x51B9A0, .rodata, ico2/common/src/debug]  # carved jtbl_0061B9A0 (debug_Load, 11 arms, section .rodata.0x0061B9A0), VMA 0x61B9A0..0x61B9CC
+      - [0x51B9CC, rodata, cod/51B9CC]     # .rodata blob resume
       - [0x51BAE0, .rodata, ico2/common/src/debug]  # carved jtbl_0061BAE0 (debug_DispQW, 17 arms), VMA 0x61BAE0..0x61BB24
       - [0x51BB24, rodata, cod/51BB24]   # .rodata blob resume (pad word, strings)
       - [0x51BDC0, .rodata, ico2/common/src/debug]  # carved jtbl_0061BDC0 (debug_mcRetErrCheck's 17-arm table), VMA 0x61BDC0..0x61BE04; one zero pad word then the 8-aligned string run stay in the blob

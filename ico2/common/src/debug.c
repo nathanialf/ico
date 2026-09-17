@@ -8,6 +8,7 @@
 #include "act-game.h"
 #include "commonact.h"
 #include "fieldCollision.h"
+#include "memory.h"
 #include "brain.h"
 #include "camera-root.h"
 #include "lws_kyomi.h"
@@ -322,7 +323,133 @@ void debug_Init(void)
     debug_makeBackImage();
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_Load);
+/* the areas debug_Load parcels its files into; the report prints how much of
+   each one is in use once the file has been allocated out of it */
+extern IosMemPart *D_0063A434; /* hara */
+extern IosMemPart *D_0063A438; /* sugi */
+extern IosMemPart *D_0063A43C; /* static object */
+extern IosMemPart *D_0063A440; /* dynamic motion */
+extern IosMemPart *D_0063A444; /* static motion */
+extern IosMemPart *D_0063A44C; /* seki */
+extern IosMemPart *D_0063A450; /* oomori */
+extern IosMemPart *D_0063A454; /* horagai */
+extern IosMemPart *D_0063A458; /* sound */
+extern IosMemPart *D_0063A45C; /* sound_semi */
+/* kept local: this TU's other raw-file calls do not fit sifdev.h's sceClose */
+extern int sceLseek(int fd, int offset, int whence);
+extern int sceRead(int fd, void *buf, int size);
+extern char D_0061B7D8[]; /* "ico2Data/%s" */
+extern char D_0061B7E8[]; /* "file is not exist(%s)\n" */
+extern char D_0061B800[]; /* the coloured loading report: name, address, size */
+extern char D_0061B840[]; /* " to seki area.(%2.1f%%)\n" */
+extern char D_0061B860[]; /* " to sugi area.(%2.1f%%/%2.1f%%)\n" */
+extern char D_0061B888[]; /* " to static object area.(%2.1f%%/%2.1f%%)\n" */
+extern char D_0061B8B8[]; /* " to static motion area.(%2.1f%%/%2.1f%%)\n" */
+extern char D_0061B8E8[]; /* " to dynamic motion area.(%2.1f%%/%2.1f%%)\n" */
+extern char D_0061B918[]; /* " to hara-area.(%2.1f%%)\n" */
+extern char D_0061B938[]; /* " to oomori area.(%2.1f%%)\n" */
+extern char D_0061B958[]; /* " to horagai-area.\n" */
+extern char D_0061B970[]; /* " to sound-area.\n" */
+extern char D_0061B988[]; /* " to sound_semi-area.\n" */
+
+int debug_Load(char **dst, char *name, int kind)
+{
+    char buf[0x100];
+    int size;
+    int sz;
+    int fd;
+
+    sprintf(buf, D_0061B7D8, name);
+    fd = debugSceOpen((int)buf, 1);
+    if (fd < 0) {
+        debug_StdPrintfDummy(D_0061B7E8, name);
+        return -1;
+    }
+    size = sceLseek(fd, 0, 2);
+    sceLseek(fd, 0, 0);
+    sz = (size / 16 + 1) * 16;
+    {
+        /* The line every arm prints once it has the file's address. It is a
+           nested function, and that is what puts dst, name and size in the
+           frame: each arm reads them back from their home slots rather than
+           out of a register. The block is what lets it be declared here, after
+           the size rounding, which is where the listing's rows for its body
+           sit (debug.c:1952, between the rounding at 1950 and the switch at
+           1955) and which is what decides the conditional move's sense in that
+           rounding: with the nested function above it the value is already in
+           the frame and gcc emits movn against the other arm. The line numbers
+           the iosMallocDebug calls pass are the source's own __LINE__, read
+           off the listing. */
+        inline void loadReport(void)
+        {
+            debug_StdPrintfDummy(D_0061B800, name, *dst, size);
+        }
+        switch (kind) {
+        case 0:
+        default:
+            *dst = iosMallocDebug(D_0063A44C, sz, D_0061B440, 1958);
+            loadReport();
+            debug_StdPrintfDummy(D_0061B840,
+                                 (*dst + sz - D_0063A44C->start) * 100.0f / 10059776.0f);
+            break;
+        case 1:
+            *dst = iosMallocDebug(D_0063A438, sz, D_0061B440, 1965);
+            loadReport();
+            debug_StdPrintfDummy(D_0061B860, sz * 100.0f / 524288.0f,
+                                 (*dst + sz - D_0063A438->start) * 100.0f / 524288.0f);
+            break;
+        case 2:
+            *dst = iosMallocDebug(D_0063A43C, sz, D_0061B440, 1973);
+            loadReport();
+            debug_StdPrintfDummy(D_0061B888, sz * 100.0f / 2.0f,
+                                 (*dst + sz - D_0063A43C->start) * 100.0f / 2.0f);
+            break;
+        case 3:
+            *dst = iosMallocDebug(D_0063A444, sz, D_0061B440, 1982);
+            loadReport();
+            debug_StdPrintfDummy(D_0061B8B8, sz * 100.0f / 1179648.0f,
+                                 (*dst + sz - D_0063A444->start) * 100.0f / 1179648.0f);
+            break;
+        case 5:
+            *dst = iosMallocDebug(D_0063A440, sz, D_0061B440, 1991);
+            loadReport();
+            debug_StdPrintfDummy(D_0061B8E8, sz * 100.0f / 3670016.0f,
+                                 (*dst + sz - D_0063A440->start) * 100.0f / 3670016.0f);
+            break;
+        case 6:
+            *dst = iosMallocDebug(D_0063A434, sz, D_0061B440, 2000);
+            loadReport();
+            debug_StdPrintfDummy(D_0061B918, (*dst + sz - D_0063A434->start) * 100.0f);
+            break;
+        case 7:
+            *dst = iosMallocDebug(D_0063A450, sz, D_0061B440, 2007);
+            loadReport();
+            debug_StdPrintfDummy(D_0061B938, (*dst + sz - D_0063A450->start) * 100.0f / 327680.0f);
+            break;
+        case 8:
+            *dst = iosMallocDebug(D_0063A454, sz, D_0061B440, 2014);
+            loadReport();
+            debug_StdPrintfDummy(D_0061B958);
+            break;
+        case 9:
+            *dst = iosMallocDebug(D_0063A458, sz, D_0061B440, 2019);
+            loadReport();
+            debug_StdPrintfDummy(D_0061B970);
+            break;
+        case 10:
+            *dst = iosMallocDebug(D_0063A45C, sz, D_0061B440, 2024);
+            loadReport();
+            debug_StdPrintfDummy(D_0061B988);
+            break;
+        }
+    }
+    sceRead(fd, *dst, size);
+    debugSceClose(fd);
+    FlushCache(0);
+    sceGsSyncPath(0, 0);
+    return size;
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_MakeFont);
 
 /* D_00619BB0 = the 8x8 1bpp font bitmap (8 bytes per glyph);
@@ -2027,7 +2154,150 @@ int debug_DispBall(int on)
     return (D_0028F8F0[0].hold & 0x40) ? -1 : 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_CollisionTest);
+/* iosPadGetStick's output block: the raw pair at +0 and +4, the camera-space
+   pair at +0xC/+0x10 and the stick deflection at +0x14 (the same record
+   effectTool.c and camera-ico2.c read) */
+typedef struct {
+    int x;         /* 0x00 */
+    int y;         /* 0x04 */
+    int unk08;     /* 0x08 */
+    float fx;      /* 0x0C */
+    float fz;      /* 0x10 */
+    float mag;     /* 0x14 */
+    char unk18[8]; /* 0x18 */
+} DbgPadStick;
+
+/* the wall record ClipCollision leaves at +0x80 of the ray: the polygon it hit,
+   the triangle within it and the hit flag, exactly the three words
+   DebugDisp1Collision reads back */
+typedef struct {
+    void *poly;
+    int tri;
+} DbgWallRef;
+
+typedef struct {
+    DbgWallRef ref;
+    int hit;
+} DbgWallHit;
+
+/* the ray debug_CollisionTest drives through ClipCollision: the two end points,
+   the hit point it fills in, and the wall and floor results it reports */
+typedef struct {
+    float src[4];    /* 0x00 */
+    float dst[4];    /* 0x10 */
+    float hit[4];    /* 0x20 */
+    char _30[64];    /* 0x30 */
+    int f70;         /* 0x70 */
+    char _74[12];    /* 0x74 */
+    DbgWallHit wall; /* 0x80 */
+    char _8C[8];     /* 0x8C */
+    int floorHit;    /* 0x94 */
+} DbgRay;
+
+extern char D_0061C300[];     /* "Collision Test" */
+extern char *D_004D9D58[];    /* the three row labels: move all, move src, move dst */
+extern int D_0063C380;        /* the selected row */
+extern DbgRay D_00704910;     /* the ray the test drives */
+extern char D_0061C310[];     /* "HIT: %p,%d" */
+extern char D_0061C320[];     /* "ATTR: %x" */
+extern char D_0061C330[];     /* "SRC: %f, %f, %f" */
+extern char D_0061C340[];     /* "DST: %f, %f, %f" */
+extern const Col4 D_004D9D70; /* the wall hit sphere colour */
+extern const Col4 D_004D9D80; /* the floor hit sphere colour */
+extern char iosPadConfDefault[];
+extern int iosPadConnect(void *dev, int a1, int a2, void *conf);
+extern int iosPadRead(void *dev);
+extern int iosPadGetStick(void *dev, void *out, int mode, int a3, int a4, int a5);
+extern void iosPadStickCameraCoord(void *out, float *stick);
+/* kept local: this TU's use of _AddVector does not fit the prototype in Matrix.h */
+extern void _AddVector(void *dst, void *a, void *b);
+extern void CopyVector(void *dst, void *src);
+extern void DebugDisp1Collision(void *hit);
+
+int debug_CollisionTest(int reset)
+{
+    float v[4];
+    VECTOR mv;
+    int padCtx[0x60 / 4];
+    DbgPadStick st0;
+    DbgPadStick st1;
+    DbgWallHit wall;
+    int r;
+
+    r = debug_SelectCsvWindow(D_0061C300, 10, 50, 11, D_004D9D58, 4, 0, 1, 3, &D_0063C380);
+    if (reset != 0) {
+        GetRootPosition(D_00704910.src, D_00639EA4);
+        CopyVector(D_00704910.dst, D_00704910.src);
+        D_00704910.f70 = 0;
+        D_00704910.dst[2] += 100.0f;
+    }
+    memset(&mv, 0, sizeof(mv));
+    iosPadConnect(padCtx, 0, 0, iosPadConfDefault);
+    iosPadRead(padCtx);
+    iosPadGetStick(padCtx, &st0, 0, 2, 2, 0);
+    iosPadGetStick(padCtx, &st1, 1, 2, 2, 0);
+    iosPadStickCameraCoord(v, (float *)&st1);
+    if (padCtx[2] & 8) {
+        if (st1.mag > 0.001f) {
+            mv.y = st1.fz * st1.mag * 16.0f;
+        }
+    } else {
+        if (st1.mag > 0.001f) {
+            mv.x = v[0] * st1.mag * 16.0f;
+            mv.z = v[2] * st1.mag * 16.0f;
+        }
+    }
+    switch (D_0063C380) {
+    case 1:
+        _AddVector(D_00704910.src, D_00704910.src, &mv);
+        break;
+    case 2:
+        _AddVector(D_00704910.dst, D_00704910.dst, &mv);
+        break;
+    case 0:
+    default:
+        _AddVector(D_00704910.src, D_00704910.src, &mv);
+        _AddVector(D_00704910.dst, D_00704910.dst, &mv);
+        break;
+    }
+    ClipCollision((int *)&D_00704910);
+    if (D_00704910.wall.hit != 0) {
+        wall.ref = D_00704910.wall.ref;
+        wall.hit = D_00704910.wall.hit;
+        *(DbgWallHit *)&mv = wall;
+        gif_StartPacketPri(11);
+        gif_SetZWrite(0);
+        gif_SetZTest(0);
+        gif_SetAlpha(1, 0, 0x80);
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        MatrixDrive_TransMatrixV(D_00704910.hit);
+        prim_DispWireSphere((void *)&D_004D9D70, 8, 4, 5.0f);
+        gif_EndPacket();
+        DebugDisp1Collision(&mv);
+        debug_PrintfDummy(80, 180, 0xFFFFFF00u, (int)D_0061C310, (int)D_00704910.wall.ref.poly,
+                          D_00704910.wall.ref.tri);
+        debug_PrintfDummy(80, 190, 0xFFFFFF00u, (int)D_0061C320,
+                          GetWallAttribute((int)&D_00704910));
+    }
+    if (D_00704910.floorHit != 0) {
+        gif_StartPacketPri(11);
+        gif_SetZWrite(0);
+        gif_SetZTest(0);
+        gif_SetAlpha(1, 0, 0x80);
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        MatrixDrive_TransMatrixV(D_00704910.hit);
+        prim_DispWireSphere((void *)&D_004D9D80, 8, 4, 5.0f);
+        gif_EndPacket();
+    }
+    debug_PrintfDummy(80, 160, 0xFFFFFF00u, (int)D_0061C330, fptodp(D_00704910.src[0]),
+                      fptodp(D_00704910.src[1]), fptodp(D_00704910.src[2]));
+    debug_PrintfDummy(80, 170, 0xFFFFFF00u, (int)D_0061C340, fptodp(D_00704910.dst[0]),
+                      fptodp(D_00704910.dst[1]), fptodp(D_00704910.dst[2]));
+    CameraSetMode(1);
+    DrawCollisionRay((char *)&D_00704910);
+    DrawCollision(0);
+    return r;
+}
 
 /* one debug-menu entry: the label the selector prints, the handler, and a
    "stay in the menu" flag */

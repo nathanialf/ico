@@ -21,7 +21,8 @@ typedef struct {
 } PrintSink;
 
 extern int D_0054A3E0[];
-extern void sceTtyInit(int a0);
+/* unprototyped: sceResetttyinit passes the port, write and read call it bare */
+extern int sceTtyInit();
 
 void sceResetttyinit(int a0)
 {
@@ -47,8 +48,36 @@ long long VSync2(void)
     return val;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", write);
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", read);
+extern int sceTtyWrite(void *buf, int size);
+extern int sceTtyRead(void *buf, int size);
+
+int write(int fd, void *buf, int size)
+{
+    if (fd - 1 < 2U) {
+        if (D_0054A3E0[0] == 0) {
+            if (sceTtyInit() == 0) {
+                return -1;
+            }
+            D_0054A3E0[0] = 1;
+        }
+        return sceTtyWrite(buf, size);
+    }
+    return -1;
+}
+
+int read(int fd, void *buf, int size)
+{
+    if (fd == 0) {
+        if (D_0054A3E0[0] == 0) {
+            if (sceTtyInit() == 0) {
+                return -1;
+            }
+            D_0054A3E0[0] = 1;
+        }
+        return sceTtyRead(buf, size);
+    }
+    return -1;
+}
 
 extern int __errno(void);
 
@@ -337,13 +366,36 @@ ret1:
     return 1;
 }
 
+/* unprototyped: sceSifGetNextRequest passes its record, the queue routines call it bare */
+extern void DIntr();
+extern void EIntr(void);
+/* the RPC server's own record: the queue list head is the word at +0x28 */
+extern int *D_0072C1C0[];
+
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifSetRpcQueue);
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifRegisterRpc);
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifRemoveRpc);
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifRemoveRpcQueue);
 
-extern void DIntr(int *self);
-extern void EIntr(void);
+int *sceSifRemoveRpc(int *sd, int *qd)
+{
+    int *q;
+    DIntr();
+    q = (int *)qd[0x8 / 4];
+    if (q == sd) {
+        qd[0x8 / 4] = sd[0x38 / 4];
+    } else {
+        while (q != 0) {
+            if ((int *)q[0x38 / 4] == sd) {
+                q[0x38 / 4] = sd[0x38 / 4];
+                break;
+            }
+            q = (int *)q[0x38 / 4];
+        }
+    }
+    EIntr();
+    return q;
+}
+
+INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifRemoveRpcQueue);
 
 int *sceSifGetNextRequest(int *self)
 {
@@ -1364,7 +1416,11 @@ INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _kTLBException);
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _xlaunch);
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _kExitTLBHandler);
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _kDebugException);
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _set_sreg);
+
+void _set_sreg(int *a0, int *a1)
+{
+    ((int *)a1[7])[a0[4]] = a0[5];
+}
 
 void _change_addr(int *a0, int *a1)
 {
