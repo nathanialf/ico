@@ -193,7 +193,79 @@ void GetCorrectOrientOfChain(void *buf, void *obj)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/commonact", CollisCheckInRope);
+/* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
+extern void ClipWall(void *a0);
+/* kept local: this TU's uses of SwapGV do not fit the prototype in gv.h */
+extern void SwapGV(void *a0, void *a1);
+
+/* reconstruction: the ClipWall work buffer as this function reads it. RsWork
+   below is the other view of the same 0xC0-byte record and disagrees at 0x80
+   (two floats there, the hit object at 0x88) where this one reads the hit
+   object at 0x80 and the hit flag at 0x88; what ClipWall writes has not been
+   established, so the two views are kept apart rather than merged. */
+typedef struct {
+    char _00[0x70];
+    float f70;
+    char _74[0x0C];
+    int f80;
+    char _84[0x04];
+    int f88;
+    char _8C[0x34];
+} RopeWallWork;
+
+int CollisCheckInRope(void *a0, int chain)
+{
+    /* reconstruction: the name is ours. The narrow return type is what the ROM
+       proves: with an int the two inlined copies both cross-jump and the flag
+       store-flags to xori/sltu. */
+    inline char ropeWallIsBox(char *p)
+    {
+        if (p != 0 && *(int *)(p + 0xC) == 0x11) {
+            return 1;
+        }
+        return 0;
+    }
+
+    RopeWallWork work;
+    float mid[4];
+    float p[4];
+    float dir[4];
+    float tmp[4];
+    float n51[4];
+    float n47[4];
+    int rv = 0;
+
+    sceVu0ScaleVector(dir, test_CURRENTORIENT((char *)a0), 15.0f);
+    GetSkeltonPosition(n51, (char *)a0, 51);
+    GetSkeltonPosition(n47, (char *)a0, 47);
+    sceVu0AddVector(mid, n51, n47);
+    sceVu0ScaleVector(mid, mid, 0.5f);
+    p[0] = mid[0];
+    p[2] = mid[2];
+    p[1] = mid[1] + 10.0f;
+    sceVu0ScaleVector(tmp, dir, -1.0f);
+    sceVu0AddVector(&work, p, tmp);
+    sceVu0ScaleVector(tmp, dir, 1.0f);
+    sceVu0AddVector((char *)&work + 0x10, p, tmp);
+    work.f70 = 10.0f;
+    ClipWall(&work);
+    if (work.f88 != 0) {
+        if (ropeWallIsBox((char *)work.f80))
+            rv = 2;
+        else
+            rv = 1;
+    } else {
+        SwapGV(&work, (char *)&work + 0x10);
+        ClipWall(&work);
+        if (work.f88 != 0) {
+            if (ropeWallIsBox((char *)work.f80))
+                rv = 2;
+            else
+                rv = 1;
+        }
+    }
+    return rv;
+}
 
 /* kept local: this TU's uses of GetRootPositionHandExtra do not fit the prototype in chain.h */
 extern void GetRootPositionHandExtra(void *a0, void *out);
@@ -641,8 +713,6 @@ void TestCageUpDown(int cage, char *gobj)
 
 /* SU-E END TestCageUpDown */
 
-/* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
-extern void ClipWall(void *a0);
 /* kept local: this TU's uses of GetOrientOfWall do not fit the prototype in fieldCollision.h */
 extern void GetOrientOfWall(void *out, void *obj, void *pos);
 extern char D_00552DD0[];

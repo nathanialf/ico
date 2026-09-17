@@ -446,7 +446,30 @@ int SgGetBgmChStatus(unsigned int a0, int a1, int a2)
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sound", SgSetBgmPanpot);
+int SgSetBgmPanpot(unsigned int a0, int a1)
+{
+    int ret = -1;
+    volatile int *p;
+    char *body;
+    char *tone;
+    int i;
+
+    if (a0 < 0x30 && a1 >= 0 && a1 < 0x80) {
+        p = (volatile int *)_SgGetSeqContext(a0);
+        p[0] |= 0x2000;
+        if ((p[0] & 5) == 1) {
+            body = *(char **)_SgGetVabContext(*(unsigned short *)((char *)p + 0x18));
+            tone = body + *(int *)(body + 0x10);
+            for (i = 0; i < *(unsigned short *)tone + 1; i++) {
+                *(char *)(tone + *(unsigned short *)(tone + i * 2 + 2) + 2) = a1;
+            }
+            ret = 0;
+        }
+        p[0] &= 0xFFFFDFFF;
+    }
+    return ret;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sound", SgSePlay);
 
 void SgSeStop(int a0)
