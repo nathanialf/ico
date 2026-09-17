@@ -67,8 +67,105 @@ typedef struct MotOriTrigEnt {
 
 extern MotOriTrigEnt D_0055FE58[];
 extern int D_0028F4D4[];
+/* the seventeen fixed captions the orientation debug window prints, one per
+   trigger kind, plus the window's own format at 0x6201C8 */
+extern char D_0063B948[];
+extern char D_0063B950[];
+extern char D_0063B958[];
+extern char D_0063B960[];
+extern char D_0063B968[];
+extern char D_0063B970[];
+extern char D_0063B978[];
+extern char D_0063B980[];
+extern char D_00620120[];
+extern char D_00620130[];
+extern char D_00620140[];
+extern char D_00620158[];
+extern char D_00620170[];
+extern char D_00620188[];
+extern char D_00620198[];
+extern char D_006201A8[];
+extern char D_006201B8[];
+extern char D_006201C8[];
+extern int D_0063B160;
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", orientDebug);
+/* The motion-name row the debug line prints: 32 bytes the ROM copies with
+ * ldl/ldr, so a 4-aligned record and not an 8-aligned one. */
+typedef struct MotOriName {
+    char s[0x20];
+} MotOriName;
+
+extern MotOriName D_005D1278[];
+
+void orientDebug(void *self, int idx, int y)
+{
+    char buf[256];
+    MotOriName name;
+
+    switch (D_0055FE58[*(int *)(MOWORK(self) + 0x4A0)].f118) {
+    default:
+    case 12:
+    case 13:
+    case 14:
+    case 18:
+    case 19:
+        sprintf(buf, D_0063B948);
+        break;
+    case 1:
+        sprintf(buf, D_0063B950);
+        break;
+    case 20:
+        sprintf(buf, D_0063B958);
+        break;
+    case 2:
+        sprintf(buf, D_00620120);
+        break;
+    case 17:
+        sprintf(buf, D_00620130);
+        break;
+    case 7:
+        sprintf(buf, D_00620140);
+        break;
+    case 16:
+        sprintf(buf, D_00620158);
+        break;
+    case 8:
+        sprintf(buf, D_00620170);
+        break;
+    case 9:
+        sprintf(buf, D_00620188);
+        break;
+    case 10:
+        sprintf(buf, D_0063B960);
+        break;
+    case 15:
+        sprintf(buf, D_00620198);
+        break;
+    case 11:
+        sprintf(buf, D_0063B968);
+        break;
+    case 5:
+        sprintf(buf, D_0063B970);
+        break;
+    case 4:
+        sprintf(buf, D_0063B978);
+        break;
+    case 3:
+        sprintf(buf, D_0063B980);
+        break;
+    case 0:
+        sprintf(buf, D_006201A8);
+        break;
+    case 6:
+        sprintf(buf, D_006201B8);
+        break;
+    }
+    if (D_0063B160 != 0) {
+        name = D_005D1278[idx];
+        debug_PrintFontWindow(y, D_006201C8, &name, D_0055FE58[*(int *)(MOWORK(self) + 0x4A0)].name,
+                              buf);
+    }
+}
 
 extern char D_00620238[];
 extern char D_00620290[];
@@ -357,13 +454,6 @@ inline void CopyBlendMotionDataSource(void *self, short ang)
     }
 }
 
-/* The motion-name row the debug line prints: 32 bytes the ROM copies with
- * ldl/ldr, so a 4-aligned record and not an 8-aligned one. */
-typedef struct MotOriName {
-    char s[0x20];
-} MotOriName;
-
-extern MotOriName D_005D1278[];
 extern char D_0063B9C0[];
 extern char D_00620348[];
 extern char D_00620390[];

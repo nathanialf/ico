@@ -570,7 +570,71 @@ void SgSetSePitchDirect(unsigned int a0, int a1)
     p[0] = v3;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sound", SgGetSpuSlotMalloc);
+int SgGetSpuSlotMalloc(int a0)
+{
+    char *com;
+    char *sl;
+    int found = -1;
+    unsigned int best = 0xFFFFFFFF;
+    int first;
+    int last;
+    int i;
+    int st;
+    unsigned int t;
+
+    com = (char *)_SgGetComContext();
+    switch (a0) {
+    case 0:
+        first = 0;
+        last = 0x30;
+        break;
+    case 1:
+        first = 0;
+        last = 0x18;
+        break;
+    case 2:
+        first = 0x18;
+        last = 0x30;
+        break;
+    default:
+        return -1;
+    }
+    sl = (char *)_SgGetSlotContext(first);
+    for (i = first; i < last; i++, sl += 0x58) {
+        st = *(unsigned char *)(sl + 0x51);
+        if (st == 0) {
+            *(volatile int *)sl |= 0x100;
+            *(unsigned char *)(sl + 0x51) = 3;
+            found = i;
+            *(volatile int *)sl &= 0xFFFFFEFF;
+            goto done;
+        }
+        t = *(unsigned int *)(sl + 4);
+        if (t < best) {
+            if (st != 3) {
+                best = t;
+                found = i;
+            }
+        }
+    }
+    if (found == -1) {
+        return -1;
+    }
+    sl = (char *)_SgGetSlotContext(found);
+    *(int *)sl |= 0x100;
+    _SgSetPkAdd(2, found, 0, 0);
+    *(long long *)(com + 0x28) |= (long long)1 << found;
+    memset(sl + 4, 0, 0x54);
+    *(unsigned char *)(sl + 0x51) = 3;
+    *(int *)sl = 0;
+    *(unsigned char *)(sl + 0x50) = 0xFF;
+    *(unsigned char *)(sl + 0x56) = 0xFF;
+    *(unsigned char *)(sl + 0x55) = 0xFF;
+    *(unsigned char *)(sl + 0x54) = 0xFF;
+done:
+    *(long long *)(com + 0x10) &= ~((long long)1 << found);
+    return found;
+}
 
 int SgSetSpuSlotFree(unsigned int a0)
 {

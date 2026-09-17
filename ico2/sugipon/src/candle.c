@@ -57,7 +57,43 @@ int InitCandleGeo(void *self, void *mtx)
     return (int)flame;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/candle", CandleGeo);
+void CandleGeo(void *self)
+{
+    CandleWork *w = CANDLE_WORK(self);
+    CandleFlame *flame = w->flame;
+    /* RECONSTRUCTION.  The release pass reads the work block through its own
+       handle, and the ROM proves there are two: with one pointer, gcse's PRE
+       finds the release loop's count load fully redundant against the update
+       loop's and deletes it, and no ordering of these statements brings it
+       back.  Two pointer quantities give the two loops two expressions, the
+       release loop keeps its own `lw 0x8` before the guard, and the update
+       loop's count then dies at its own exit and takes $2 the way the ROM has
+       it.  The bytes cannot say whether the source fetched the block again or
+       copied the first handle; the fetch is written because cse turns it into
+       a copy that coalesces away, which is why it costs no instruction. */
+    CandleWork *cw = CANDLE_WORK(self);
+    int i;
+
+    if (w->num >= 2) {
+        for (i = 0; i < w->num; i++) {
+            CopyMatrix(MatrixDrive_GetMatrix(), CANDLE_WORK(self)->mtx + i * 0x40);
+            MatrixDrive_TransMatrix(0.0f, -40.0f, 0.0f);
+            if (flame[i].effect != -1) {
+                SetParticleEffectGeometry(flame[i].effect, (char *)MatrixDrive_GetMatrix() + 0x30,
+                                          IdentityQuaternion);
+            }
+        }
+        if (cw->alive == 0) {
+            for (i = 0; i < cw->num; i++) {
+                if (flame[i].effect != -1) {
+                    DeleteParticleEffect(flame[i].effect);
+                    flame[i].effect = -1;
+                    flame[i].off = 1;
+                }
+            }
+        }
+    }
+}
 
 inline void _deleteLayoutedCandleParticleEffect(void *gobj)
 {

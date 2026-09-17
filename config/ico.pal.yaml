@@ -834,7 +834,9 @@ segments:
       - [0x51FBD8, rodata, cod/51FBD8]   # .rodata blob resume (two zero pad words)
       - [0x520030, .rodata, ico2/sugipon/src/motionManager]  # carved jtbl_00620030 (VMA 0x620030..0x620088, 88 B, 22 arms): _getGeometryOfMotion's switch table, emitted by the compiled function once matched (splat migrate_rodata_to_functions); the blob keeps every other motionManager string
       - [0x520088, rodata, cod/520088]   # .rodata blob resume
-      - [0x520460, .rodata, ico2/sugipon/src/motionOrientManager]  # SetMotionRequest's jump table jtbl_00620460 (14 words, section .rodata.0x00620460), VMA 0x620460..0x620498; orientDebug's table at 0x6201E0 stays in the blob until it lands
+      - [0x5201E0, .rodata, ico2/sugipon/src/motionOrientManager]  # orientDebug's jump table jtbl_006201E0 (21 words, section .rodata.0x006201E0), VMA 0x6201E0..0x620233
+      - [0x520234, rodata, cod/520234]   # .rodata blob resume
+      - [0x520460, .rodata, ico2/sugipon/src/motionOrientManager]  # SetMotionRequest's jump table jtbl_00620460 (14 words, section .rodata.0x00620460), VMA 0x620460..0x620498
       - [0x520498, rodata, cod/520498]     # .rodata blob resume
       - [0x520898, .rodata, ico2/sugipon/src/moveColTest]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x620898..0x620C90, 1016 B
       - [0x5208C8, .rodata, ico2/sugipon/src/multiBgaManager]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x6208C8..0x620C90, 968 B

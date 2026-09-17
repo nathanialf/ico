@@ -28,6 +28,11 @@ inline void SwitchDL(void) {}
 
 /* kept local: this TU's uses of MatrixDrive_TransMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_TransMatrix(float x, float y, float z);
+/* kept local for the same reason.  The void return is ROM bytes: a
+   value-returning call sets $2, local-alloc marks that unused $2 live at the
+   call insn, and the quantity born in the next insn is pushed off $2, which
+   is where dispWheels' last CopyMatrix reads its wheel pointer. */
+extern void MatrixDrive_RotMatrixX(short a0);
 
 void GetFloorLeverGlobalHoldPoint(void *dst, char *a1)
 {

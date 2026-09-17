@@ -179,7 +179,142 @@ static inline void checkBoxWallHit(char *self, char *w, float *base, float *out,
     *(float *)(w + 0x24) -= 40.0f;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", execNormalMove);
+/* kept local: this TU's uses of these do not fit the prototypes in the headers
+   that declare them */
+extern void iosOmSendMail(int dst, int mail, void *arg);
+extern void GetProjectionPosOfPlane(void *dst, void *plane, void *pos);
+extern void CopyQuaternion(void *dst, void *src);
+extern void _OuterProduct(void *dst, void *a, void *b);
+extern void SetQuaternionByAxisRotateV(void *dst, int ang, void *axis);
+extern void GetSlerpQuaternion(void *dst, void *a, void *b, float t);
+extern void GetInverseQuaternion(void *dst, void *src);
+extern void MultiQuaternion(void *dst, void *a, void *b);
+extern void SetRootQuaternion(void *obj, void *q);
+extern double fptodp(float v);
+/* kept local: this TU's uses of IdentityQuaternion and YUnitVector do not fit
+   the prototypes in quaternion.h and matrixDrive.h */
+extern char IdentityQuaternion[];
+extern char YUnitVector[];
+/* the two debug lines the wall fit prints, rodata VMA 0x61EF20 and 0x61EF48;
+   the second is EUC-JP, "this terrain is wrong (it is not cut to 100cm)" */
+extern char D_0061EF20[];
+extern char D_0061EF48[];
+
+/* the record the clip work reports at +0x80: the contact point's x and z, and
+   the hit flag the caller has just tested at +0x88.  The point and the flag
+   are separate members and the staging copy fills them with two assignments,
+   which is why the ROM emits the point's ldl/ldr/sdl/sdr as a block move of
+   its own and the flag's lw/sw after it; the read back is one assignment of
+   the whole record and comes out as a single twelve-byte move. */
+typedef struct {
+    float x;
+    float z;
+} BoxWallPt;
+
+typedef struct {
+    BoxWallPt pt;
+    int hit;
+} BoxWallRec;
+
+/* box.c:362-457 in the listing. */
+int execNormalMove(char *self, int stop)
+{
+    char stopWork[0xC0];
+    float pos[4];
+    char work[0xC0];
+    float wn[4];
+    BoxWallRec wn2;
+    float plTop[4];
+    float plSide[4];
+    float up[4];
+    float proj[4];
+    float axis[4];
+    float norm[4];
+    float rot[4];
+    char *p = (char *)GOBJ_SUB(self)->f_830;
+    int ret = 1;
+    float hw;
+    float d;
+    float dy;
+    float adj;
+    int ang;
+
+    if (stop != 0) {
+        checkBoxWallHit(self, stopWork, pos, 0, 1);
+        if (*(int *)(stopWork + 0x88) != 0) {
+            ret = 0;
+            SetDirectRootPosition(self, stopWork + 0x20);
+        }
+    }
+
+    if (checkFieldContact(self, 110.0f) != 1) {
+        if (*(int *)(p + 4) != 0) {
+            iosOmSendMail(*(int *)(p + 4), 25, self);
+            *(int *)(p + 4) = 0;
+        }
+        initFallDown(self);
+        fallDownStartSE(self);
+        *(int *)(p + 0x20) = 2;
+    } else {
+        if (stop == 0) {
+            checkBoxWallHit(self, work, wn, pos, 0);
+            if (*(int *)(work + 0x88) != 0) {
+                wn2.pt = *(BoxWallPt *)(work + 0x80);
+                wn2.hit = *(int *)(work + 0x88);
+                *(BoxWallRec *)wn = wn2;
+
+                hw = (*(float *)(p + 0x24) < *(float *)(p + 0x28) ? *(float *)(p + 0x24)
+                                                                  : *(float *)(p + 0x28)) *
+                     50.0f;
+
+                CopyVector(up, pos);
+                up[1] += 50.0f;
+                GetPureVerticalPlane(plTop, plSide, 0, (int *)wn, 0);
+
+                d = plane_distance(up, plSide);
+
+                if (hw - 10.0f < d) {
+                    CopyQuaternion(p + 0x150, IdentityQuaternion);
+                } else {
+                    GetProjectionPosOfPlane(proj, plSide, up);
+                    GetProjectionPosOfPlane(proj, plTop, proj);
+
+                    dy = up[1] - proj[1];
+                    if (dy < 60.0f) {
+                        adj = dy * (1.0f - d / hw);
+                        pos[1] = pos[1] - adj;
+                        SetDirectRootPosition(self, pos);
+
+                        axis[0] = 0.0f;
+                        axis[1] = dy;
+                        axis[2] = d + hw;
+                        axis[3] = 0.0f;
+
+                        _NormalizeVector(axis, axis);
+                        _OuterProduct(norm, YUnitVector, plSide);
+                        ang = GetTableArcTan2(axis[0], axis[2]);
+                        SetQuaternionByAxisRotateV(rot, ang, norm);
+                        debug_StdPrintfDummy(D_0061EF20, fptodp(dy), fptodp(d), fptodp(adj), ang);
+
+                        GetSlerpQuaternion(p + 0x150, rot, p + 0x150, 0.5f);
+                    } else {
+                        debug_StdPrintfDummy(D_0061EF48);
+                        GetSlerpQuaternion(p + 0x150, IdentityQuaternion, p + 0x150, 0.5f);
+                    }
+                }
+            } else {
+                GetSlerpQuaternion(p + 0x150, IdentityQuaternion, p + 0x150, 0.5f);
+            }
+            GetInverseQuaternion(axis, (char *)GOBJ_SUB(self) + 0x60);
+            MultiQuaternion(proj, axis, p + 0x150);
+            SetRootQuaternion(self, proj);
+        } else {
+            SetIdentityQuaternion(p + 0x150);
+        }
+    }
+
+    return ret;
+}
 
 /* box.c:461-478 in the listing: inlined once, into execAutoMove, so it has no
    symbol of its own in the ROM and no census row; the name is descriptive. */
@@ -244,11 +379,6 @@ static inline void alignPosition(char *self, float *dst, float *src, float grid)
     CopyVector(dst, npos);
 }
 
-/* kept local: this TU's uses of GetInverseQuaternion do not fit the prototype in quaternion.h */
-extern void GetInverseQuaternion(void *dst, void *src);
-/* kept local: this TU's uses of SetRootQuaternion do not fit the prototype in geometryManager.h */
-extern void SetRootQuaternion(void *obj, void *q);
-
 int AlignBox(char *a0, float grid)
 {
     float pos[4];
@@ -281,7 +411,25 @@ static inline void updateBoxWheelAngle(char *self)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", dispWheels);
+void dispWheels(char *a0)
+{
+    char *p = (char *)GOBJ_SUB(a0)->f_830;
+
+    if (*(char **)(p + 0x11C) == 0) {
+        return;
+    }
+    CopyMatrix(MatrixDrive_GetMatrix(), *(void **)&GOBJ_SUB(a0)->f_C);
+    MatrixDrive_TransMatrix(0.0f, *(float *)(p + 0x128), 0.0f);
+    MatrixDrive_PushMatrix();
+    MatrixDrive_TransMatrix(0.0f, 0.0f, *(float *)(p + 0x12C));
+    MatrixDrive_RotMatrixX(*(short *)(p + 0x120));
+    CopyMatrix(*(void **)(*(char **)(p + 0x11C) + 0xC), MatrixDrive_GetMatrix());
+    MatrixDrive_PopMatrix();
+    MatrixDrive_TransMatrix(0.0f, 0.0f, *(float *)(p + 0x130));
+    MatrixDrive_RotMatrixX((short)(*(unsigned short *)(p + 0x120) + 0x4000));
+    CopyMatrix((char *)*(void **)(*(char **)(p + 0x11C) + 0xC) + 0x40, MatrixDrive_GetMatrix());
+    p2o_DispVU1DObjMulti(*(void **)(p + 0x11C));
+}
 
 /* the per-route point arrays (a pointer table in the TU's .data at VMA
    0x4E5F30) and the Y axis the side plane is built from (VMA 0x4E61D0,
@@ -522,9 +670,6 @@ int MoveFloatingBox(char *self, char *other, float *dst, void *src, float lim)
     return 1;
 }
 
-extern char IdentityQuaternion[];
-/* kept local: this TU's uses of CopyQuaternion do not fit the prototype in quaternion.h */
-extern void CopyQuaternion(void *dst, void *src);
 /* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(void *dst, void *a, void *b);
 /* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
@@ -619,8 +764,6 @@ void avoidCharGObj(char *a0, char *a1)
    motionManager2.h, quaternion.h and stageMultiBgaManager.h */
 extern int GetWaterReaction(void *w, int *hit, void *plane, void *pos, void *vel, float low,
                             float mid, float high, float k, float acc);
-extern void MultiQuaternion(void *dst, void *a, void *b);
-extern void SetQuaternionByAxisRotateV(void *dst, short ang, void *axis);
 extern void RotQuaternionY(void *q, int ang);
 extern void GetMatrixFromQuaternion(void *m, void *q);
 extern void EntryStageMultiBgaManager(int kind, void *pos, void *rot);
@@ -707,7 +850,7 @@ void execFloating(char *self)
         CopyQuaternion(q, IdentityQuaternion);
         RotQuaternionY(q, GetTableArcTan2(*(float *)((char *)GOBJ_SUB(self) + 0x520),
                                           *(float *)((char *)GOBJ_SUB(self) + 0x528)));
-        SetQuaternionByAxisRotateV(rot, VectorLength(w + 0xC0) * 20.48f / 50.0f, axis);
+        SetQuaternionByAxisRotateV(rot, (short)(VectorLength(w + 0xC0) * 20.48f / 50.0f), axis);
         MultiQuaternion(q, q, rot);
         SetRootQuaternion(self, q);
         GetMatrixFromQuaternion(m, rot);
