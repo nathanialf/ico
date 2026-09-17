@@ -18,7 +18,7 @@
 #define SCE_LIBKERNL_SIFRPC_H
 
 int _sceSifLoadElfPart(void *a0, int a1, int a2, int a3);              /* dominant spelling at 1 sites */
-void _sceSifLoadModule(void *a0, int a1, int a2, int a3, int a4);      /* dominant spelling at 1 sites */
+int _sceSifLoadModule(void *a0, int a1, int a2, int a3, int a4);       /* dominant spelling at 1 sites; returns the module id or a negative error */
 int _sceSifLoadModuleBuffer(void *a0, int a1, int a2, void *a3);       /* dominant spelling at 1 sites */
 int _sceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1, int t2); /* dominant spelling at 1 sites */
 int sceSifAllocIopHeap(int a0);                                        /* definition in sce/ */

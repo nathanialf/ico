@@ -958,7 +958,64 @@ INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceLseek);
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceRead);
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceWrite);
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceIoctl);
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceIoctl2);
+
+int sceIoctl2(unsigned int fd, int request, void *argp, unsigned int arglen, void *bufp,
+              unsigned int buflen)
+{
+    int *g = D_0072C240;
+    SceIob *iob;
+    int uv;
+    int h;
+    int rc;
+    int result;
+    int buf[8];
+
+    iob = (SceIob *)get_iob(fd);
+    _sceFsWaitS(0x1A);
+    if (D_0054A470[0] == 0) {
+        sceFsInit();
+    }
+    if (iob == 0 || iob->inuse == 0) {
+        _sceFsSigSema();
+        return -9;
+    }
+    if (arglen > 0x400 || buflen > 0x400) {
+        return -0x16;
+    }
+    if (argp == 0) {
+        g[0x107] = 0;
+    } else {
+        memcpy((char *)g + 0x14, argp, arglen);
+    }
+    g[3] = iob->fd;
+    g[4] = request;
+    g[0x107] = arglen;
+    buf[1] = 1;
+    buf[2] = 0;
+    buf[5] = 0;
+    h = CreateSema(buf);
+    *(void **)(g + 1) = &result;
+    g[0x106] = buflen;
+    g[2] = 4;
+    *(void **)(g + 0x105) = bufp;
+    g[0] = h;
+    sceSifWriteBackDCache(D_0072C240, 0x420);
+    rc = sceSifCallRpc(D_0072D500, 0x1A, 0, D_0072C240, 0x420, D_0072CE80, 4, 0, 0);
+    if (rc < 0) {
+        DeleteSema(h);
+        _sceFsSigSema();
+        return -0xB;
+    }
+    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    _sceFsSigSema();
+    if (uv == 0) {
+        DeleteSema(h);
+        return -0xB;
+    }
+    WaitSema(h);
+    DeleteSema(h);
+    return result;
+}
 
 int _sceCallCode(void *name, int code)
 {
@@ -1067,7 +1124,75 @@ int sceRmdir(void *a0)
     return _sceCallCode(a0, 8);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceFormat);
+int sceFormat(unsigned char *dev, unsigned char *blockdev, unsigned char *arg, int arglen)
+{
+    int *g = D_0072C240;
+    int uv;
+    int h;
+    int rc;
+    int i;
+    int result;
+    int buf[8];
+
+    _sceFsWaitS(0xE);
+    if (D_0054A470[0] == 0) {
+        sceFsInit();
+    }
+    for (i = 0; i < 0x400; i++) {
+        *((char *)g + i + 0xC) = dev[i];
+        if (*((char *)g + i + 0xC) == 0) {
+            break;
+        }
+    }
+    if (i == 0x400) {
+        ((char *)g)[0x40B] = 0;
+    }
+    if (blockdev == 0) {
+        ((char *)g)[0x40C] = 0;
+    } else {
+        for (i = 0; i < 0x400; i++) {
+            char *d = (char *)g + 0x40C;
+            d[i] = blockdev[i];
+            if (d[i] == 0) {
+                break;
+            }
+        }
+        if (i == 0x400) {
+            ((char *)g)[0x80B] = 0;
+        }
+    }
+    if (arglen > 0x400) {
+        _sceFsSigSema();
+        return -7;
+    }
+    for (i = 0; i < arglen; i++) {
+        char *d = (char *)g + 0x80C;
+        d[i] = arg[i];
+    }
+    g[0x303] = arglen;
+    buf[1] = 1;
+    buf[2] = 0;
+    buf[5] = 0;
+    g[0] = h = CreateSema(buf);
+    *(void **)(g + 1) = &result;
+    g[2] = 4;
+    sceSifWriteBackDCache(D_0072C240, 0xC10);
+    rc = sceSifCallRpc(D_0072D500, 0xE, 0, D_0072C240, 0xC10, D_0072CE80, 4, 0, 0);
+    if (rc < 0) {
+        DeleteSema(h);
+        _sceFsSigSema();
+        return -0xB;
+    }
+    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    _sceFsSigSema();
+    if (uv == 0) {
+        DeleteSema(h);
+        return -0xB;
+    }
+    WaitSema(h);
+    DeleteSema(h);
+    return result;
+}
 
 extern int D_0072C240[];
 extern int D_0072CE80[];
@@ -1298,8 +1423,119 @@ int sceGetstat(unsigned char *name, void *stat)
     return result;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceChstat);
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceRename);
+/* the 0x40-byte stat record the request carries; the copy below is a record
+   assignment, which gcc expands inline, since memcpy stays a call at
+   -fno-builtin */
+typedef struct {
+    char v[0x40];
+} SceFsStat;
+
+int sceChstat(unsigned char *name, void *stat, int mask)
+{
+    int *g = D_0072C240;
+    int uv;
+    int h;
+    int rc;
+    int i;
+    int result;
+    int buf[8];
+
+    _sceFsWaitS(0xD);
+    if (D_0054A470[0] == 0) {
+        sceFsInit();
+    }
+    for (i = 0; i < 0x400; i++) {
+        *((unsigned char *)g + i + 0x50) = name[i];
+        if (*((unsigned char *)g + i + 0x50) == 0) {
+            break;
+        }
+    }
+    if (i == 0x400) {
+        *((char *)g + 0x44F) = 0;
+        i = 0x3FF;
+    }
+    *(SceFsStat *)((char *)g + 0x10) = *(SceFsStat *)stat;
+    g[3] = mask;
+    buf[1] = 1;
+    buf[2] = 0;
+    buf[5] = 0;
+    g[0] = h = CreateSema(buf);
+    *(void **)(g + 1) = &result;
+    g[2] = 4;
+    sceSifWriteBackDCache(D_0072C240, 0x450);
+    rc = sceSifCallRpc(D_0072D500, 0xD, 0, D_0072C240, i + 0x51, D_0072CE80, 4, 0, 0);
+    if (rc < 0) {
+        DeleteSema(h);
+        _sceFsSigSema();
+        return -0xB;
+    }
+    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    _sceFsSigSema();
+    if (uv == 0) {
+        DeleteSema(h);
+        return -0xB;
+    }
+    WaitSema(h);
+    DeleteSema(h);
+    return result;
+}
+
+int sceRename(unsigned char *oldname, unsigned char *newname)
+{
+    int *g = D_0072C240;
+    int uv;
+    int h;
+    int rc;
+    int i;
+    int result;
+    int buf[8];
+
+    _sceFsWaitS(0x11);
+    if (D_0054A470[0] == 0) {
+        sceFsInit();
+    }
+    for (i = 0; i < 0x400; i++) {
+        *((char *)g + i + 0xC) = oldname[i];
+        if (*((char *)g + i + 0xC) == 0) {
+            break;
+        }
+    }
+    if (i == 0x400) {
+        ((char *)g)[0x40B] = 0;
+    }
+    for (i = 0; i < 0x400; i++) {
+        char *d = (char *)g + 0x40C;
+        d[i] = newname[i];
+        if (d[i] == 0) {
+            break;
+        }
+    }
+    if (i == 0x400) {
+        ((char *)g)[0x80B] = 0;
+    }
+    buf[1] = 1;
+    buf[2] = 0;
+    buf[5] = 0;
+    g[0] = h = CreateSema(buf);
+    *(void **)(g + 1) = &result;
+    g[2] = 4;
+    sceSifWriteBackDCache(D_0072C240, 0x80C);
+    rc = sceSifCallRpc(D_0072D500, 0x11, 0, D_0072C240, 0x80C, D_0072CE80, 4, 0, 0);
+    if (rc < 0) {
+        DeleteSema(h);
+        _sceFsSigSema();
+        return -0xB;
+    }
+    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    _sceFsSigSema();
+    if (uv == 0) {
+        DeleteSema(h);
+        return -0xB;
+    }
+    WaitSema(h);
+    DeleteSema(h);
+    return result;
+}
 
 int sceChdir(void *a0)
 {
@@ -1353,7 +1589,73 @@ int sceSync(unsigned char *name, int flag)
     return result;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceMount);
+int sceMount(unsigned char *fsname, unsigned char *devname, int flag, unsigned char *arg,
+             int arglen)
+{
+    int *g = D_0072C240;
+    int uv;
+    int h;
+    int rc;
+    int i;
+    int result;
+    int buf[8];
+
+    _sceFsWaitS(0x14);
+    if (D_0054A470[0] == 0) {
+        sceFsInit();
+    }
+    for (i = 0; i < 0x400; i++) {
+        *((char *)g + i + 0xC) = fsname[i];
+        if (*((char *)g + i + 0xC) == 0) {
+            break;
+        }
+    }
+    if (i == 0x400) {
+        ((char *)g)[0x40B] = 0;
+    }
+    for (i = 0; i < 0x400; i++) {
+        char *d = (char *)g + 0x40C;
+        d[i] = devname[i];
+        if (d[i] == 0) {
+            break;
+        }
+    }
+    if (i == 0x400) {
+        ((char *)g)[0x80B] = 0;
+    }
+    if (arglen > 0x400) {
+        _sceFsSigSema();
+        return -7;
+    }
+    for (i = 0; i < arglen; i++) {
+        char *d = (char *)g + 0x80C;
+        d[i] = arg[i];
+    }
+    g[0x304] = arglen;
+    g[0x303] = flag;
+    buf[1] = 1;
+    buf[2] = 0;
+    buf[5] = 0;
+    g[0] = h = CreateSema(buf);
+    *(void **)(g + 1) = &result;
+    g[2] = 4;
+    sceSifWriteBackDCache(D_0072C240, 0xC14);
+    rc = sceSifCallRpc(D_0072D500, 0x14, 0, D_0072C240, 0xC14, D_0072CE80, 4, 0, 0);
+    if (rc < 0) {
+        DeleteSema(h);
+        _sceFsSigSema();
+        return -0xB;
+    }
+    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    _sceFsSigSema();
+    if (uv == 0) {
+        DeleteSema(h);
+        return -0xB;
+    }
+    WaitSema(h);
+    DeleteSema(h);
+    return result;
+}
 
 int sceUmount(void *a0)
 {
@@ -1361,9 +1663,174 @@ int sceUmount(void *a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceLseek64);
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceDevctl);
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSymlink);
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceReadlink);
+
+int sceDevctl(unsigned char *name, int cmd, unsigned char *arg, unsigned int arglen, void *bufp,
+              unsigned int buflen)
+{
+    int *g = D_0072C240;
+    int uv;
+    int h;
+    int rc;
+    int i;
+    int result;
+    int buf[8];
+
+    _sceFsWaitS(0x17);
+    if (D_0054A470[0] == 0) {
+        sceFsInit();
+    }
+    for (i = 0; i < 0x400; i++) {
+        *((char *)g + i + 0xC) = name[i];
+        if (*((char *)g + i + 0xC) == 0) {
+            break;
+        }
+    }
+    if (i == 0x400) {
+        ((char *)g)[0x40B] = 0;
+    }
+    if (arglen > 0x400 || buflen > 0x400) {
+        return -0x16;
+    }
+    for (i = 0; i < arglen; i++) {
+        char *d = (char *)g + 0x40C;
+        d[i] = arg[i];
+    }
+    g[0x204] = arglen;
+    g[0x203] = cmd;
+    buf[1] = 1;
+    buf[2] = 0;
+    buf[5] = 0;
+    h = CreateSema(buf);
+    g[0x206] = buflen;
+    *(void **)(g + 1) = &result;
+    g[2] = 4;
+    *(void **)(g + 0x205) = bufp;
+    g[0] = h;
+    sceSifWriteBackDCache(D_0072C240, 0x81C);
+    rc = sceSifCallRpc(D_0072D500, 0x17, 0, D_0072C240, 0x81C, D_0072CE80, 4, 0, 0);
+    if (rc < 0) {
+        DeleteSema(h);
+        _sceFsSigSema();
+        return -0xB;
+    }
+    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    _sceFsSigSema();
+    if (uv == 0) {
+        DeleteSema(h);
+        return -0xB;
+    }
+    WaitSema(h);
+    DeleteSema(h);
+    return result;
+}
+
+int sceSymlink(unsigned char *existing, unsigned char *newpath)
+{
+    int *g = D_0072C240;
+    int uv;
+    int h;
+    int rc;
+    int i;
+    int result;
+    int buf[8];
+
+    _sceFsWaitS(0x11);
+    if (D_0054A470[0] == 0) {
+        sceFsInit();
+    }
+    for (i = 0; i < 0x400; i++) {
+        *((char *)g + i + 0xC) = existing[i];
+        if (*((char *)g + i + 0xC) == 0) {
+            break;
+        }
+    }
+    if (i == 0x400) {
+        ((char *)g)[0x40B] = 0;
+    }
+    for (i = 0; i < 0x400; i++) {
+        char *d = (char *)g + 0x40C;
+        d[i] = newpath[i];
+        if (d[i] == 0) {
+            break;
+        }
+    }
+    if (i == 0x400) {
+        ((char *)g)[0x80B] = 0;
+    }
+    buf[1] = 1;
+    buf[2] = 0;
+    buf[5] = 0;
+    g[0] = h = CreateSema(buf);
+    *(void **)(g + 1) = &result;
+    g[2] = 4;
+    rc = sceSifCallRpc(D_0072D500, 0x18, 0, D_0072C240, 0x80C, D_0072CE80, 4, 0, 0);
+    if (rc < 0) {
+        DeleteSema(h);
+        _sceFsSigSema();
+        return -0xB;
+    }
+    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    _sceFsSigSema();
+    if (uv == 0) {
+        DeleteSema(h);
+        return -0xB;
+    }
+    WaitSema(h);
+    DeleteSema(h);
+    return result;
+}
+
+int sceReadlink(unsigned char *name, void *buf, unsigned int len)
+{
+    int *g = D_0072C240;
+    int uv;
+    int h;
+    int rc;
+    int i;
+    int result;
+    int sema[8];
+
+    _sceFsWaitS(0x11);
+    if (D_0054A470[0] == 0) {
+        sceFsInit();
+    }
+    for (i = 0; i < 0x400; i++) {
+        *((char *)g + i + 0x14) = name[i];
+        if (*((char *)g + i + 0x14) == 0) {
+            break;
+        }
+    }
+    if (i == 0x400) {
+        ((char *)g)[0x413] = 0;
+    }
+    if (len >= 0x400) {
+        len = 0x3FF;
+    }
+    g[4] = (int)buf;
+    g[3] = len;
+    sceSifWriteBackDCache(buf, len);
+    sema[1] = 1;
+    sema[2] = 0;
+    sema[5] = 0;
+    g[0] = h = CreateSema(sema);
+    *(void **)(g + 1) = &result;
+    g[2] = 4;
+    rc = sceSifCallRpc(D_0072D500, 0x19, 0, D_0072C240, 0x80C, D_0072CE80, 4, 0, 0);
+    if (rc < 0) {
+        DeleteSema(h);
+        _sceFsSigSema();
+        return -0xB;
+    }
+    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    _sceFsSigSema();
+    if (uv == 0) {
+        DeleteSema(h);
+        return -0xB;
+    }
+    WaitSema(h);
+    DeleteSema(h);
+    return result;
+}
 
 extern int D_0054A484[];
 extern int D_0072D580[];
@@ -1500,7 +1967,48 @@ int sceSifLoadStartModuleBuffer(void *a0, int a1, int a2, void *a3)
     return _sceSifLoadModuleBuffer(a0, a1, a2, a3);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _sceSifLoadModule);
+extern char D_0072D788[];
+
+/* The request's 0xFC-byte argument block.  The oversize copy below is a record
+   assignment, which gcc expands inline through movstrsi; memcpy stays a call at
+   -fno-builtin, so the inline ldl/ldr run can only come from a record. */
+typedef struct {
+    char v[0xFC];
+} SceLfArgBuf;
+
+int _sceSifLoadModule(void *name, int arglen, int args, int ret, int rpcno)
+{
+    char *buf;
+    int r;
+
+    if (_lf_bind() < 0) {
+        return 0xFFFF0000;
+    }
+    if (_lf_version() != 0) {
+        return 0xFFFEFFFC;
+    }
+    strncpy(D_0072D788, (char *)name, 252);
+    buf = D_0072D788 - 8;
+    buf[0x103] = 0;
+    if (args != 0) {
+        if (arglen >= 0xFD) {
+            *(SceLfArgBuf *)(buf + 0x104) = *(SceLfArgBuf *)args;
+            *(int *)D_0072D780 = 0xFC;
+        } else {
+            memcpy(buf + 0x104, (char *)args, arglen);
+            *(int *)buf = arglen;
+        }
+    } else {
+        buf[0x104] = 0;
+        *(int *)buf = 0;
+    }
+    if (sceSifCallRpc(D_0072D980, rpcno, 0, D_0072D780, 0x200, D_0072D780, 8, 0, 0) < 0) {
+        return 0xFFFEFFFF;
+    }
+    r = *(int *)(D_0072D780 + 0);
+    *(int *)ret = *(int *)(D_0072D780 + 4);
+    return r;
+}
 
 void sceSifLoadModule(void *a0, int a1, int a2)
 {
