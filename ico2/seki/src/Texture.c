@@ -14,7 +14,7 @@
  * seven of them and they end at 0x204, below the packet tex_TransTexture
  * passes at 0x208. */
 typedef struct TexLevel {
-    int addr;
+    void *addr;
     short dbw;
     short vramSize;
     short tbp[13];
@@ -28,7 +28,9 @@ typedef struct CdvdRec {
     char name[0x18];
     char file[0x60];
     long long x78;
-    char pad80[0xE0 - 0x80];
+    char pad80[0xDC - 0x80];
+    /* the TIM2 file image the record was built from */
+    void *xDC;
     unsigned short xE0;
     char padE2[0xE4 - 0xE2];
     TexLevel clut;
@@ -43,7 +45,9 @@ typedef struct CdvdRec {
     char pad2AC[0x2C8 - 0x2AC];
     /* one byte per display list priority: the slot's transfer-done flag */
     char x2C8[8];
-    char pad2D0[0x2E8 - 0x2D0];
+    char pad2D0[0x2D6 - 0x2D0];
+    unsigned short x2D6;
+    char pad2D8[0x2E8 - 0x2D8];
 } CdvdRec;
 
 extern CdvdRec D_0068AFE0[];
@@ -104,13 +108,70 @@ typedef struct Tim2Picture {
     unsigned long long GsTex1;
     unsigned int GsRegs;
     unsigned int GsTexClut;
-    /* the mipmap header that follows the picture header when there is more
-     * than one level: two MIPTBP registers and then one image size per level,
-     * which is the array at 0x40 tex_makeCopyImage walks. */
+} Tim2Picture;
+
+/* PUBLIC SDK NAMING RUNG: the mipmap header that follows the picture header
+ * when there is more than one level, two MIPTBP registers and then one image
+ * size per level. tex_makeTexturePacket proves the split: it copies 0x30 bytes
+ * of picture header into the record and a second 0x30 bytes of mipmap header
+ * after it, and it steps over a variable number of size words through the
+ * mipmap_header_size table before it reaches the ICO block. */
+typedef struct Tim2Mipmap {
     unsigned long long GsMiptbp1;
     unsigned long long GsMiptbp2;
     unsigned int sizes[8];
-} Tim2Picture;
+} Tim2Mipmap;
+
+/* the 0x40-byte block the ICO tools append to the TIM2 header, recognised by
+ * its "ICO" magic and copied whole into the first 0x40 bytes of the record's
+ * TexExt at 0x268. The two ints at 0x28 and 0x2C are the mag and min filter
+ * terms tex_UpdateMipMapLevel reads back as x290 and x294, and the two shorts
+ * at 0x3C and 0x3E the terms it reads back as x2A4 and x2A6. */
+typedef struct Tim2Ext {
+    char magic[4];
+    /* the U and V scroll speeds, and behind them the U and V amplitudes the
+     * sine animation multiplies its sample by */
+    float f04;
+    float f08;
+    float f0C;
+    float f10;
+    int x14;
+    int x18;
+    /* the two enables tex_textureAnimation tests before it scrolls the CLUT */
+    int x1C;
+    int x20;
+    char pad24[0x28 - 0x24];
+    int x28;
+    int x2C;
+    char pad30[0x3C - 0x30];
+    short h3C;
+    short h3E;
+} Tim2Ext;
+
+/* the texture's UV record at 0x A8 of the texture record: the two scroll
+ * offsets tex_textureAnimation writes and tex_SetUVScroll seeds. */
+typedef struct TexUV {
+    char pad0[0x10];
+    float f10;
+    float f14;
+    char pad18[0x30 - 0x18];
+} TexUV;
+
+/* the animation record at 0x268 of the texture record. It opens with the
+ * 0x40-byte ICO block copied off the TIM2 header and continues with the state
+ * the animation keeps between frames. */
+typedef struct TexExt {
+    Tim2Ext file;
+    int x40;
+    float f44;
+    float f48;
+    int x4C;
+    unsigned short h50;
+    unsigned short h52;
+    int x54;
+    int x58;
+    char pad5C[0x80 - 0x5C];
+} TexExt;
 
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_AllocVramAuto);
 
@@ -456,12 +517,13 @@ void tex_convertImage(void *dst, void *src, short fmt, short w, short h)
     sceGsSyncPath(0, 0);
 }
 
-extern int mallocseki(int size);
+extern void *mallocseki(int size);
 extern void malloc_MemCpy(void *dst, void *src, int n);
 extern void tex_convertImage(void *dst, void *src, short fmt, short w, short h);
 
 void tex_makeCopyImage(Tim2Picture *pic, CdvdRec *t, char *src, int convert)
 {
+    Tim2Mipmap *mip = (Tim2Mipmap *)(pic + 1);
     int i;
     int *p;
     int *q;
@@ -471,10 +533,10 @@ void tex_makeCopyImage(Tim2Picture *pic, CdvdRec *t, char *src, int convert)
         t->lv[0].addr = mallocseki(pic->imageSize + 48);
 
         if (convert && 256 <= pic->imageWidth) {
-            tex_convertImage((void *)(t->lv[0].addr + 32), src, pic->imageType, pic->imageWidth,
+            tex_convertImage((char *)t->lv[0].addr + 32, src, pic->imageType, pic->imageWidth,
                              pic->imageHeight);
         } else {
-            malloc_MemCpy((void *)(t->lv[0].addr + 32), src, pic->imageSize);
+            malloc_MemCpy((char *)t->lv[0].addr + 32, src, pic->imageSize);
         }
 
         p = (int *)t->lv[0].addr;
@@ -493,25 +555,25 @@ void tex_makeCopyImage(Tim2Picture *pic, CdvdRec *t, char *src, int convert)
         *q++ = 0;
     } else {
         for (i = 0; i < t->xE0; i++) {
-            t->lv[i].addr = mallocseki(pic->sizes[i] + 48);
+            t->lv[i].addr = mallocseki(mip->sizes[i] + 48);
 
             if (convert && 256 <= (pic->imageWidth >> i)) {
-                tex_convertImage((void *)(t->lv[i].addr + 32), src, pic->imageType,
+                tex_convertImage((char *)t->lv[i].addr + 32, src, pic->imageType,
                                  pic->imageWidth >> i, pic->imageHeight >> i);
             } else {
-                malloc_MemCpy((void *)(t->lv[i].addr + 32), src, pic->sizes[i]);
+                malloc_MemCpy((char *)t->lv[i].addr + 32, src, mip->sizes[i]);
             }
 
             p = (int *)t->lv[i].addr;
-            n = pic->sizes[i] >> 4;
+            n = mip->sizes[i] >> 4;
             p[0] = 0;
             p[1] = 0;
             p[2] = 0x13000000;
             p[3] = (n + 1) | 0x50000000;
             *(long long *)(p + 4) = (n | 0x8000) | ((long long)0x8000 << 44);
             *(long long *)(p + 6) = 0;
-            src += pic->sizes[i];
-            q = (int *)((char *)p + (pic->sizes[i] + 32));
+            src += mip->sizes[i];
+            q = (int *)((char *)p + (mip->sizes[i] + 32));
             *q++ = 0;
             *q++ = 0;
 
@@ -521,7 +583,129 @@ void tex_makeCopyImage(Tim2Picture *pic, CdvdRec *t, char *src, int convert)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_makeTexturePacket);
+extern int mipmap_header_size[];
+extern int sprintf(char *buf, const char *fmt, ...);
+extern void tex_convertClutCSM2ToCSM1(Tim2Picture *pic);
+extern void debug_DispQW(void *p, int n);
+extern void debug_StdPrintfDummy();
+extern void debug_assert(char *file, int line);
+extern void debug_assertMessage(char *file, int line, char *msg);
+extern void __assert(char *file, int line, char *expr);
+/* "ICO" */
+extern char D_0063A200[];
+/* "e" */
+extern char D_0063A208[];
+/* "src/Texture.c" */
+extern char D_00550328[];
+/* "0" */
+extern char D_0063A1F0[];
+/* "tex_makeTexturePacket:" + EUC-JP "the texture user header is an unknown
+ * format" + ".'%s'\n" */
+extern char D_005507F0[];
+/* "TEXTURE BROKEN. \"%s\"\n    I:%d C:%d iadr:%p cadr:%p hadr:%p\n" */
+extern char D_00550840[];
+
+/* listing row 1159: a one-line file-static helper with no symbol of its own,
+ * inlined here only. It steps over the 16-byte TIM2 file header. */
+static inline Tim2Picture *tim2Picture(void *file)
+{
+    return (Tim2Picture *)((char *)file + 16);
+}
+
+/* listing rows 1204-1224: the third file-static helper, inlined here only. It
+ * is the CLUT twin of tex_makeCopyImage's single-level arm, the same packet
+ * header written in front of a copy of the palette. */
+static inline void tim2MakeClutPacket(Tim2Picture *pic, CdvdRec *t, char *clut)
+{
+    int *p;
+    int *q;
+    int n;
+
+    if (pic->clutSize != 0) {
+        t->clut.addr = mallocseki(pic->clutSize + 80);
+        malloc_MemCpy((char *)t->clut.addr + 32, clut, pic->clutSize);
+
+        p = (int *)t->clut.addr;
+        n = pic->clutSize >> 4;
+        p[0] = 0;
+        p[1] = 0;
+        p[2] = 0x13000000;
+        p[3] = (n + 1) | 0x50000000;
+        *(long long *)(p + 4) = (n | 0x8000) | ((long long)0x8000 << 44);
+        *(long long *)(p + 6) = 0;
+        q = (int *)((char *)p + (pic->clutSize + 32));
+        *q++ = 0;
+        *q++ = 0;
+
+        *q++ = 0;
+        *q++ = 0;
+    }
+}
+
+void tex_makeTexturePacket(void *file, CdvdRec *t)
+{
+    char buf[1024];
+    Tim2Picture *pic = tim2Picture(file);
+    Tim2Mipmap *mip;
+    Tim2Ext *ext;
+    char *image;
+    char *clut;
+    int i;
+
+    mip = (Tim2Mipmap *)(pic + 1);
+    ext = (Tim2Ext *)((char *)mip + mipmap_header_size[pic->mipMapTextures]);
+    image = (char *)pic + pic->headerSize;
+    clut = image + pic->imageSize;
+
+    tex_convertClutCSM2ToCSM1(pic);
+
+    t->xDC = file;
+    t->xE0 = pic->mipMapTextures;
+    t->clut.addr = 0;
+
+    for (i = 0; i < 7; i++) {
+        t->lv[i].addr = 0;
+    }
+
+    *(Tim2Picture *)((char *)t + 0x208) = *pic;
+    if (2 <= pic->mipMapTextures) {
+        *(Tim2Mipmap *)((char *)t + 0x238) = *mip;
+    }
+
+    if (strcmp(ext->magic, D_0063A200) == 0 &&
+        pic->headerSize != mipmap_header_size[pic->mipMapTextures] + 48) {
+        if (mipmap_header_size[pic->mipMapTextures] + 48 != pic->headerSize - 64) {
+            debug_StdPrintfDummy(D_005507F0, t);
+            debug_assert(D_00550328, 1392);
+            __assert(D_00550328, 1392, D_0063A1F0);
+        }
+        *(Tim2Ext *)((char *)t + 0x268) = *ext;
+        t->x2A8 = 1;
+    } else {
+        t->x2A8 = 0;
+    }
+
+    switch (pic->imageType) {
+    case 4:
+    case 5:
+        tim2MakeClutPacket(pic, t, clut);
+        tex_makeCopyImage(pic, t, image, 0);
+        break;
+    case 1:
+    case 2:
+    case 3:
+        tex_makeCopyImage(pic, t, image, 0);
+        break;
+    default:
+        debug_DispQW(file, 1);
+        debug_DispQW(pic, 1);
+        sprintf(buf, D_00550840, t, pic->imageType, pic->clutType, t->lv[0].addr, t->clut.addr, t);
+        debug_StdPrintfDummy(buf);
+        debug_assertMessage(D_00550328, 1427, buf);
+        __assert(D_00550328, 1427, D_0063A208);
+        break;
+    }
+}
 
 extern int sprintf(char *buf, const char *fmt, ...);
 /* "%s" */
@@ -810,7 +994,84 @@ void tex_TransTextureDefocus(int id, int lv)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_scrollClut);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_textureAnimation);
+
+extern int D_0028F4C0[];
+extern float GetTableSin(short angle);
+
+void tex_textureAnimation(void)
+{
+    int i;
+
+    for (i = 0; i < D_0063C164; i++) {
+        CdvdRec *t = &D_0068AFE0[i];
+        TexExt *e = (TexExt *)((char *)t + 0x268);
+        TexUV *uv = (TexUV *)((char *)t + 0xA8);
+
+        if (e->x40 != 0) {
+            if (e->file.f0C != 0.0f) {
+                uv->f10 =
+                    e->file.f0C *
+                    GetTableSin((short)(e->h50 * 3.1415927f * e->file.f04 /
+                                        ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 10430.378f));
+            } else {
+                uv->f10 = uv->f10 + e->file.f04;
+                if (0.0f < e->file.f04) {
+                    if (1.0f < uv->f10) {
+                        uv->f10 = uv->f10 - 2.0f;
+                    }
+                    if (e->x4C != 0 && uv->f10 > e->f44) {
+                        uv->f10 = e->f44;
+                        e->file.f04 = 0.0f;
+                    }
+                } else {
+                    if (uv->f10 < -1.0f) {
+                        uv->f10 = uv->f10 + 2.0f;
+                    }
+                    if (e->x4C != 0 && uv->f10 < e->f44) {
+                        uv->f10 = e->f44;
+                        e->file.f04 = 0.0f;
+                    }
+                }
+            }
+
+            if (e->file.f10 != 0.0f) {
+                uv->f14 =
+                    e->file.f10 *
+                    GetTableSin((short)(e->h50 * 3.1415927f * e->file.f08 /
+                                        ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 10430.378f));
+            } else {
+                uv->f14 = uv->f14 + e->file.f08;
+                if (0.0f < e->file.f08) {
+                    if (1.0f < uv->f14) {
+                        uv->f14 = uv->f14 - 2.0f;
+                    }
+                    if (e->x4C != 0 && uv->f14 > e->f48) {
+                        uv->f14 = e->f48;
+                        e->file.f08 = 0.0f;
+                    }
+                } else {
+                    if (uv->f14 < -1.0f) {
+                        uv->f14 = uv->f14 + 2.0f;
+                    }
+                    if (e->x4C != 0 && uv->f14 < e->f48) {
+                        uv->f14 = e->f48;
+                        e->file.f08 = 0.0f;
+                    }
+                }
+            }
+
+            e->h50++;
+
+            if (e->file.x1C != 0 && e->file.x20 != 0 && e->file.x14 != e->file.x18) {
+                int clut = D_00290B78[*(unsigned char *)((char *)t + 0x21A) & 0x3F].f4;
+                unsigned int n = *(unsigned int *)((char *)t + 0x20C) >> 2;
+
+                tex_scrollClut((int)t->clut.addr + 0x20, e->x54, e->x58, clut, n, e, e->h52, t);
+            }
+            e->h52++;
+        }
+    }
+}
 
 void tex_SetClutAnimation(int id, int frame)
 {
@@ -1036,26 +1297,6 @@ int tex_GetTextureNum(void)
     return D_0063C164;
 }
 
-typedef struct TexUV {
-    char pad0[0x10];
-    float f10;
-    float f14;
-    char pad18[0x18];
-} TexUV;
-
-typedef struct TexExt {
-    char pad0[4];
-    float f04;
-    float f08;
-    char pad0C[0x40 - 0x0C];
-    int x40;
-    float f44;
-    float f48;
-    int x4C;
-    short h50;
-    char pad52[0x80 - 0x52];
-} TexExt;
-
 /* The int flag is the LAST parameter: EABI assigns the same registers either
    way, but a caller (script.c actSubSekizoSe) shows ROM loading it after the
    six floats. */
@@ -1067,8 +1308,8 @@ void tex_SetUVScroll(char *name, float u, float v, float su, float sv, float ou,
     TexUV *uv = (TexUV *)(tex + 0xA8);
 
     if (ext->x40 != 0) {
-        ext->f04 = su;
-        ext->f08 = sv;
+        ext->file.f04 = su;
+        ext->file.f08 = sv;
         ext->h50 = 0;
         uv->f10 = u;
         uv->f14 = v;
