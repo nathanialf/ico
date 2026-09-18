@@ -23,7 +23,158 @@ inline int ResetMotionProgramInterpInfo(char *a0, int a1)
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", limitHPAngleAndSetB);
+/* RECONSTRUCTED spellings.  The PAL listing gives every instruction of
+   limitHPAngleAndSetB the line of its call site, so the repeated degree
+   conversion and the repeated clamped ratio are macros in the 2001 source and
+   not inline functions (gcc 2.9 copies an inlined body's own line notes,
+   integrate.c:2092-2103).  32768 units are 180 degrees. */
+#define ANG_OF_DEG(x) ((x) * 32768.0f / 180.0f)
+#define ANG_RATE(v, lim)                                                                           \
+    ((lim) == 0.0f ? 0.0f : ((v) / (lim) < 0.0f ? -((v) / (lim)) : (v) / (lim)))
+
+/* lim is the motion program's interp record, the same one limitInterpAngle
+   reads at +0x30 and +0x48.  hp and pp are the heading and pitch of the turn
+   being limited, bp the bank the record's tables interpolate from them. */
+static void limitHPAngleAndSetB(short *hp, short *pp, short *bp, char *lim, short h, short kind,
+                                short p, int unused, int setb, int setflag, float rate)
+{
+    *hp = h;
+    *pp = p;
+    *bp = 0;
+
+    if (lim != 0) {
+        short rev = (1.0f - rate) * 32768.0f;
+
+        float lo = ANG_OF_DEG(*(float *)(lim + 0x30));
+        float hi = ANG_OF_DEG(*(float *)(lim + 0x48));
+        float pdn = *(float *)(lim + 0x70);
+        float pup = *(float *)(lim + 0x10);
+        float dnlim;
+        float uplim;
+        float t;
+        float rp;
+
+        if (kind < 0 && *hp > 0) {
+            /* base and d share one listing line (both are line 159, resp. 170):
+               the subtraction has to be its own object or fold folds 32768 onto
+               the heading instead, and the ROM recomputes it in each arm. */
+            int base = rev - 32768;
+            short d = (-*hp - base) / rate;
+
+            if ((float)d < ANG_OF_DEG(*(float *)(lim + 0x58))) {
+                *hp = (short)lo;
+                if (setflag) {
+                    *(int *)(D_0063C494 + 0x14) = *(int *)(D_0063C494 + 0x14) | 0x100;
+                }
+            }
+        }
+        if (kind > 0 && *hp < 0) {
+            int base = rev - 32768;
+            short d = (*hp - base) / rate;
+
+            if ((float)d < ANG_OF_DEG(*(float *)(lim + 0x58))) {
+                *hp = (short)hi;
+                if (setflag) {
+                    *(int *)(D_0063C494 + 0x14) = *(int *)(D_0063C494 + 0x14) | 0x200;
+                }
+            }
+        }
+        if ((float)*hp < lo) {
+            *hp = (short)lo;
+            if (setflag) {
+                *(int *)(D_0063C494 + 0x14) = *(int *)(D_0063C494 + 0x14) | 0x100;
+            }
+        }
+        if (hi < (float)*hp) {
+            *hp = (short)hi;
+            if (setflag) {
+                *(int *)(D_0063C494 + 0x14) = *(int *)(D_0063C494 + 0x14) | 0x200;
+            }
+        }
+
+        if (*hp >= 0) {
+            t = ANG_RATE((float)*hp, ANG_OF_DEG(*(float *)(lim + 0x48)));
+
+            dnlim = ANG_OF_DEG(pdn) + (ANG_OF_DEG(*(float *)(lim + 0x7C)) - ANG_OF_DEG(pdn)) * t;
+
+            uplim = ANG_OF_DEG(pup) + (ANG_OF_DEG(*(float *)(lim + 0x1C)) - ANG_OF_DEG(pup)) * t;
+
+        } else {
+            /* The guard is the +0x48 limit and not the +0x30 one the division uses:
+               the listing computes both here, so the 2001 line was copied from the
+               positive arm above and only its divisor changed. */
+            t = ANG_OF_DEG(*(float *)(lim + 0x48)) == 0.0f
+                    ? 0.0f
+                    : ((float)*hp / ANG_OF_DEG(*(float *)(lim + 0x30)) < 0.0f
+                           ? -((float)*hp / ANG_OF_DEG(*(float *)(lim + 0x30)))
+                           : (float)*hp / ANG_OF_DEG(*(float *)(lim + 0x30)));
+
+            dnlim = ANG_OF_DEG(pdn) + (ANG_OF_DEG(*(float *)(lim + 0x64)) - ANG_OF_DEG(pdn)) * t;
+
+            uplim = ANG_OF_DEG(pup) + (ANG_OF_DEG(*(float *)(lim + 0x04)) - ANG_OF_DEG(pup)) * t;
+        }
+
+        if ((float)*pp < dnlim) {
+            *pp = (short)dnlim;
+        }
+        if (uplim < (float)*pp) {
+            *pp = (short)uplim;
+        }
+
+        if (*hp >= 0) {
+            float rh = ANG_RATE((float)*hp, hi);
+            float va =
+                (ANG_OF_DEG(*(float *)(lim + 0x50)) - ANG_OF_DEG(*(float *)(lim + 0x44))) * rh +
+                ANG_OF_DEG(*(float *)(lim + 0x44));
+
+            if (*pp >= 0) {
+                float vb =
+                    (ANG_OF_DEG(*(float *)(lim + 0x20)) - ANG_OF_DEG(*(float *)(lim + 0x14))) * rh +
+                    ANG_OF_DEG(*(float *)(lim + 0x14));
+
+                rp = ANG_RATE((float)*pp, uplim);
+                *bp = (vb - va) * rp + va;
+
+            } else {
+                float vb =
+                    (ANG_OF_DEG(*(float *)(lim + 0x80)) - ANG_OF_DEG(*(float *)(lim + 0x74))) * rh +
+                    ANG_OF_DEG(*(float *)(lim + 0x74));
+
+                rp = ANG_RATE((float)*pp, dnlim);
+                *bp = (vb - va) * rp + va;
+            }
+        } else {
+            float rh = ANG_RATE((float)*hp, lo);
+            float va =
+                (ANG_OF_DEG(*(float *)(lim + 0x38)) - ANG_OF_DEG(*(float *)(lim + 0x44))) * rh +
+                ANG_OF_DEG(*(float *)(lim + 0x44));
+
+            if (*pp >= 0) {
+                float vb =
+                    (ANG_OF_DEG(*(float *)(lim + 0x08)) - ANG_OF_DEG(*(float *)(lim + 0x14))) * rh +
+                    ANG_OF_DEG(*(float *)(lim + 0x14));
+
+                rp = ANG_RATE((float)*pp, uplim);
+                *bp = (vb - va) * rp + va;
+
+            } else {
+                float vb =
+                    (ANG_OF_DEG(*(float *)(lim + 0x68)) - ANG_OF_DEG(*(float *)(lim + 0x74))) * rh +
+                    ANG_OF_DEG(*(float *)(lim + 0x74));
+
+                rp = ANG_RATE((float)*pp, dnlim);
+                *bp = (vb - va) * rp + va;
+            }
+        }
+
+        if (setb) {
+            if (*pp >= 0)
+                *bp = (float)*bp * (1.0f - rp) + ANG_OF_DEG(*(float *)(lim + 0x14)) * rp;
+            else
+                *bp = (float)*bp * (1.0f - rp) + ANG_OF_DEG(*(float *)(lim + 0x74)) * rp;
+        }
+    }
+}
 
 /* kept local: this TU's uses of these do not fit the prototypes in matrixDrive.h */
 extern void MatrixDrive_GetTurnYAngleXZ(short *a0, short *a1, float x, float y, float z);

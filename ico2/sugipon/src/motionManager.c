@@ -47,7 +47,10 @@ extern void MatrixDrive_PushMatrix(void);
 extern void SetQuaternionByAxisRotateV(void *dst, short ang, void *v);
 /* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyMatrix(void *a0, int a1, char *a2);
-extern float D_0063B900;
+/* const: setIKAndAdjustRootHeight reads this between two stores through
+ * D_0063C490 and the ROM does not reload it, which only holds if the object
+ * is unchanging; every other member of the TU re-verifies with the qualifier. */
+extern const float D_0063B900;
 extern char *D_0063C4A4;
 extern char D_007201A0[];
 extern char D_007201E0[];

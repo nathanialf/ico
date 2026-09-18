@@ -180,7 +180,216 @@ int getFieldCollision(char *w)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", setIKAndAdjustRootHeight);
+/* RECONSTRUCTED NAMES for two helpers the PAL listing shows only inlined into
+ * setIKAndAdjustRootHeight (rows 439-483 and 492-517, both above its def line
+ * 548), so neither carries a symbol in MAIN.MAP. */
+
+/* kept local: this TU's uses of these do not fit the prototypes in
+ * Matrix.h / debug.h. */
+extern float _InnerProduct(void *a, void *b);
+/* "PLANE<EUC-JP riMItto desu> %f <EUC-JP abunai node rakka sasemasu>\n":
+ * the plane limit was exceeded, so the actor is dropped. */
+extern char D_0061FE08[];
+extern int D_0063B21C;
+/* declared as an array so the load is %hi/%lo and not gp-relative. */
+extern float D_0063B928[];
+
+/* Builds the plane the root height is measured against out of the floor plane
+ * the motion block carries, and reports whether the floor was steep enough to
+ * need one. */
+static inline int makeRootFitPlane(char *pl, char *o)
+{
+    char *fl = o + 0x130;
+    Vec16 pos;
+    Vec16 n;
+    int ret = 0;
+
+    CopyVector(pl, fl);
+    if (-0.3f < *(float *)(fl + 4)) {
+        CopyVector(&pos, o);
+        pos.f[1] = GetYProjectionOfPlane((int)fl, (int)o);
+
+        *(float *)(pl + 4) = 0.0f;
+        _NormalizeVector(&n, pl);
+        _ScaleVectorXYZ(pl, &n, _Sqrt(0.90999997f));
+        *(float *)(pl + 4) = -0.3f;
+
+        *(float *)(pl + 0) = 0.0f;
+        *(float *)(pl + 4) = -1.0f;
+        *(float *)(pl + 8) = 0.0f;
+        *(float *)(pl + 0xC) = -_InnerProduct(pl, &pos);
+        ret = 1;
+    }
+    return ret;
+}
+
+/* Drops a probe from v onto the floor and returns how far the root has to move
+ * to sit on it. */
+static inline float getFloorDropAt(char *v, char *pl, char *o)
+{
+    char w[0xC0] __attribute__((aligned(16)));
+    float d;
+
+    CopyVector(w, v);
+    CopyVector(w + 0x10, v);
+    *(float *)(w + 4) = *(float *)(w + 4) - 100.0f;
+    *(float *)(w + 0x14) = *(float *)(w + 0x14) + 500.0f;
+    ClipFloor(w);
+    if (*(int *)(w + 0x94) != 0) {
+        d = -(*(float *)(w + 0x24) - *(float *)(v + 4));
+    } else {
+        d = D_0063B928[0];
+    }
+
+    if (*(int *)(w + 0x94) != 0) {
+        float t =
+            GetYProjectionOfPlane((int)(w + 0xA0), (int)o) - GetYProjectionOfPlane((int)pl, (int)o);
+
+        if (45.0f < (t < 0.0f ? -t : t)) {
+            d = GetYDistanceFromPlane(pl, v);
+        }
+    } else {
+        d = GetYDistanceFromPlane(pl, v);
+    }
+    return d;
+}
+
+static void setIKAndAdjustRootHeight(char *mv)
+{
+    Vec16 p0;
+    Vec16 p1;
+    Vec16 p2;
+    Vec16 pl;
+    float d0;
+    float d1;
+    float dy;
+    float h;
+    float t;
+    int steep;
+    int node;
+
+    if (*(int *)(D_0063C490 + 0x364) < 0) {
+        return;
+    }
+    steep = makeRootFitPlane((char *)&pl, D_0063C490);
+    h = GetYProjectionOfPlane((int)&pl, (int)D_0063C490) + *(float *)(mv + 4) -
+        *(float *)(D_0063C490 + 4);
+    if (steep != 0) {
+        if ((h < 0.0f ? -h : h) < 35.0f) {
+            *(float *)(D_0063C490 + 4) = *(float *)(D_0063C490 + 4) + h;
+            *(float *)(D_0063C490 + 0x154) = *(float *)(D_0063C490 + 0x154) + h;
+            return;
+        }
+        *(int *)(D_0063C494 + 0x14) = *(int *)(D_0063C494 + 0x14) | 4;
+        *(float *)(D_0063C490 + 0x154) = *(float *)(D_0063C490 + 4);
+        /* retail links debug_StdPrintfDummy in place of the listing's printf. */
+        debug_StdPrintfDummy(D_0061FE08, fptodp(h));
+
+        return;
+    }
+    if (*(int *)(D_0063C494 + 0x68) == 0x14) {
+        *(float *)(D_0063C490 + 4) = *(float *)(D_0063C490 + 4) + h;
+        *(float *)(D_0063C490 + 0x154) = *(float *)(D_0063C490 + 0x154) + h;
+        return;
+    }
+    if (*(float *)(D_0063B938 + 0x14) * D_0063B900 < (h < 0.0f ? -h : h)) {
+        *(float *)(D_0063C490 + 4) = *(float *)(D_0063C490 + 4) + h;
+        *(float *)(D_0063C490 + 0x154) = *(float *)(D_0063C490 + 0x154) + h;
+        return;
+    }
+
+    makeRootFitPlane((char *)&pl, D_0063C490);
+
+    AddVectorXYZ(&p0, D_0063C488 + *(int *)(D_0063C490 + 0x364) * 0x10, mv);
+
+    AddVectorXYZ(&p1, D_0063C488 + *(int *)(D_0063C490 + 0x364) * 0x10, D_0063C490);
+
+    p1.f[1] = p1.f[1] - p0.f[1];
+
+    d0 = getFloorDropAt((char *)&p1, (char *)&pl, D_0063C490);
+
+    dy = d0;
+    switch (*(int *)(D_0063B938 + *(int *)(D_0063C490 + 0x364) * 0x40 + 4)) {
+    case 0x30:
+        node = GetSkeltonFocusNode((char *)D_0063B93C, 0x34);
+        break;
+    case 0x34:
+        node = GetSkeltonFocusNode((char *)D_0063B93C, 0x30);
+        break;
+    default:
+        node = -1;
+        break;
+    }
+    if (node != -1) {
+        Vec16 p3;
+
+        AddVectorXYZ(&p2, D_0063C488 + node * 0x10, D_0063C490);
+
+        p2.f[1] = p1.f[1];
+        CopyVector(&p3, &p2);
+        p3.f[1] = p3.f[1] - d0;
+
+        d1 = getFloorDropAt((char *)&p3, (char *)&pl, D_0063C490);
+
+        if (d1 < 0.0f) {
+            dy = d0 + d1;
+        }
+
+        if (*(int *)(D_0063C494 + 0x1BC) == 0 || (*(int *)(D_0063C494 + 0x188) & 0xF00000) == 0) {
+            Vec16 pl2;
+
+            pl2 = pl;
+            pl2.f[3] = 0.0f;
+
+            t = GetYDistanceFromPlane(&pl2, D_0063C490 + 0x90);
+
+            if (!(5.0f < (t < 0.0f ? -t : t))) {
+                if (D_0063B21C == 0) {
+                    if (10.0f < (dy < 0.0f ? -dy : dy)) {
+                        if (dy < 0.0f) {
+                            dy = -10.0f;
+                        } else {
+                            dy = 10.0f;
+                        }
+                    }
+                } else {
+                    dy = dy * ((float)D_0063B21C * 0.1f);
+                }
+            }
+        }
+        if (*(int *)(D_0063C490 + 0x200) != 0) {
+            *(int *)(D_0063C490 + 0x204) = 1;
+            if (*(int *)(D_0063B938 + *(int *)(D_0063C490 + 0x364) * 0x40 + 4) == 0x30) {
+                if (0.0f < d1) {
+                    *(float *)(D_0063C490 + 0x208) = 0.0f;
+                    *(float *)(D_0063C490 + 0x20C) = -d1;
+                } else {
+                    *(float *)(D_0063C490 + 0x208) = d1;
+                    *(float *)(D_0063C490 + 0x20C) = 0.0f;
+                }
+            } else {
+                if (0.0f < d1) {
+                    *(float *)(D_0063C490 + 0x208) = -d1;
+                    *(float *)(D_0063C490 + 0x20C) = 0.0f;
+                } else {
+                    *(float *)(D_0063C490 + 0x208) = 0.0f;
+                    *(float *)(D_0063C490 + 0x20C) = d1;
+                }
+            }
+            if (*(float *)(D_0063C490 + 0x208) <
+                -(*(float *)(D_0063B938 + 0x14) * D_0063B900 * 0.5f)) {
+                *(float *)(D_0063C490 + 0x208) =
+                    -(*(float *)(D_0063B938 + 0x14) * D_0063B900 * 0.5f);
+            }
+            if (*(float *)(D_0063C490 + 0x20C) <
+                -(*(float *)(D_0063B938 + 0x14) * D_0063B900 * 0.5f)) {
+                *(float *)(D_0063C490 + 0x20C) =
+                    -(*(float *)(D_0063B938 + 0x14) * D_0063B900 * 0.5f);
+            }
+        }
+    }
+    *(float *)(D_0063C490 + 4) = *(float *)(D_0063C490 + 4) - dy;
+}
 
 /* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into
  * rootUpdateFly and rootUpdateEnemyFly (rows 736-756, which sit between
