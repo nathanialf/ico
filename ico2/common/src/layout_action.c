@@ -134,7 +134,7 @@ extern int D_00534400[];
 extern char D_0063B5A8[];
 extern int D_0063C3D0;
 extern int D_0063B548;
-extern struct S40 D_0029BC00;
+extern int D_0029BC00[];
 extern struct S40 D_0061D968;
 extern int D_0063A538;
 extern char *D_0063BE6C;
@@ -488,7 +488,7 @@ static inline void keyconfigReset(void)
     struct S40 tmp;
 
     tmp = D_0061D968;
-    D_0029BC00 = tmp;
+    *(struct S40 *)D_0029BC00 = tmp;
 }
 
 /* layout_action.c:1455-1490 in the listing. */
@@ -1599,7 +1599,134 @@ int la_game_over_continue(int a0)
     return -1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", la_key_config);
+/* the eight pad button codes the key-config screen offers, VMA 0x004E3B58, and
+   the six-plus-two slot assignments it edits, VMA 0x004E3B78 */
+extern int D_004E3B58[];
+extern int D_004E3B78[];
+extern int D_0063B5EC;
+/* the custom pad configuration ios/pad.c owns, reached here as its words */
+extern int iosPadConfCustom[];
+
+/* layout_action.c:3941-3947 in the listing: the key-config property sweep,
+   inlined into la_key_config twice; it has no symbol of its own in the ROM and
+   no census row, so the name is descriptive. */
+static inline void keyconfigMaskAll(void)
+{
+    int i;
+
+    for (i = 0; i < 48; i++) {
+        lt_mask_property(i + 342, 1);
+        lt_default_mask_property(i + 342, 1);
+    }
+}
+
+/* layout_action.c:4079-4085 in the listing */
+static inline int keyBitIndex(int v)
+{
+    int i;
+
+    for (i = 0; i < 16; i++) {
+        if ((v >> i) & 1) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+/* layout_action.c:4087-4093 in the listing */
+static inline int keyCodeIndex(int v)
+{
+    int i;
+
+    for (i = 0; i < 8; i++) {
+        if (v == D_004E3B58[i]) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+/* layout_action.c:4095-4100 in the listing */
+static inline int keyAssignIndex(int v)
+{
+    int i;
+
+    for (i = 0; i < 8; i++) {
+        if (v == D_004E3B58[D_004E3B78[i]]) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+/* layout_action.c:4053-4237 in the listing. */
+int la_key_config(int a0)
+{
+    int i;
+    int sel;
+    int m;
+    int k;
+    int n;
+
+    sel = lt_current_property_item() - 336;
+    if (a0) {
+        D_00534CC0[0] = 323;
+        for (i = 0; i < 16; i++) {
+            if ((D_0063B5EC >> i) & 1) {
+                D_004E3B78[keyCodeIndex(D_0029BC00[i])] = keyCodeIndex(1 << i);
+            }
+        }
+    }
+    if (sel >= 0 && sel < 6) {
+        m = D_0028F8F0[0].flags & D_0063B5EC;
+        if (m != 0 && m == D_0028F8F0[0].flags) {
+            k = keyCodeIndex(m);
+            POSITIVE_SE();
+            if (k != -1) {
+                n = keyAssignIndex(m);
+                if (n != -1) {
+                    D_004E3B78[n] = D_004E3B78[sel];
+                }
+                D_004E3B78[sel] = k;
+            }
+        }
+    }
+    keyconfigMaskAll();
+    for (i = 0; i < 6; i++) {
+        lt_mask_property(i * 8 + 342 + D_004E3B78[i], 0);
+        lt_default_mask_property(i * 8 + 342 + D_004E3B78[i], 0);
+    }
+    if (D_0028F8F0[0].flags & 0x40) {
+        if (lt_current_property_item() == 391) {
+            for (i = 7; i >= 0; i--) {
+                D_004E3B78[i] = i;
+            }
+            NEGATIVE_SE();
+        }
+        if (lt_current_property_item() == 390) {
+            POSITIVE_SE();
+            for (i = 0; i < 16; i++) {
+                if ((D_0063B5EC >> i) & 1) {
+                    iosPadConfCustom[i + 44] = 0;
+                } else {
+                    iosPadConfCustom[i + 44] = 1 << i;
+                }
+            }
+            for (i = 0; i < 8; i++) {
+                D_0029BC00[keyBitIndex(D_004E3B58[D_004E3B78[i]])] = D_004E3B58[i];
+            }
+            keyconfigMaskAll();
+            for (i = 0; i < 6; i++) {
+                lt_default_mask_property(i * 8 + 342 + D_004E3B78[i], 0);
+                lt_mask_property(i * 8 + 342 + D_004E3B78[i], 0);
+            }
+            lt_set_item_select_func(0);
+            D_0063B4F4 = 0;
+            return 58;
+        }
+    }
+    return -1;
+}
 
 extern int CurrentTargetGObj;
 extern int D_00639EA0;
@@ -2220,7 +2347,7 @@ void keyconfig_reset(void)
 {
     struct S40 tmp;
     tmp = D_0061D968;
-    D_0029BC00 = tmp;
+    *(struct S40 *)D_0029BC00 = tmp;
 }
 
 extern int D_0063B550;
