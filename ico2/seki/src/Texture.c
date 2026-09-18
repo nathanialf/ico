@@ -175,7 +175,53 @@ typedef struct TexExt {
     char pad5C[0x80 - 0x5C];
 } TexExt;
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_AllocVramAuto);
+/* The two VRAM bump allocators tex_AllocVramAuto dispatches to. The listing
+   attributes them to two separate line runs of Texture.c (533/535 and
+   558/560) whose tails jump.c cross-jumped into the one shared copy at
+   563/565/566, which is what makes tex_AllocVramAuto's two switch arms share
+   everything from the limit test down. Both names are ours: an inlined static
+   leaves no symbol for the map to record. The limits are the texture and CLUT
+   ends of the 16 KB VRAM window the priority table hands out. */
+static inline int texAllocTexVram(int size)
+{
+    int pri = dl_GetPri();
+    int ret;
+
+    if (16000 <= D_0068AF88[dl_GetPri()].f0 + size) {
+        tex_ResetVramPri(pri);
+    }
+    ret = D_0068AF88[dl_GetPri()].f0;
+    D_0068AF88[dl_GetPri()].f0 = ret + size;
+    return ret;
+}
+
+static inline int texAllocClutVram(int size)
+{
+    int pri = dl_GetPri();
+    int ret;
+
+    if (16128 <= D_0068AF88[dl_GetPri()].f1 + size) {
+        tex_ResetVramPri(pri);
+    }
+    ret = D_0068AF88[dl_GetPri()].f1;
+    D_0068AF88[dl_GetPri()].f1 = ret + size;
+    return ret;
+}
+
+int tex_AllocVramAuto(int kind, int size)
+{
+    int ret = -1;
+
+    switch (kind) {
+    case 0:
+        ret = texAllocTexVram(size);
+        break;
+    case 1:
+        ret = texAllocClutVram(size);
+        break;
+    }
+    return ret;
+}
 
 /* kept local: this TU's uses of these do not fit the prototypes in GifPacket.h */
 extern void gif_StartPacketPri(int pri);

@@ -18,6 +18,26 @@
 extern char D_0061D3E0[];
 extern char D_0061D418[];
 extern void *D_0063A428;
+extern int D_0063A054;
+extern int D_0063A064;
+extern int D_0063A068;
+extern int D_0063B130;
+extern void *D_0063A430;
+extern void *D_0063A43C;
+extern void *D_0063A444;
+extern void *D_0063A448;
+extern unsigned int D_0063B428;
+extern char D_0061D340[];
+extern char D_0061D3B8[];
+extern char D_0063B430[];
+extern char D_0063B438[];
+extern int D_004E3B00[];
+extern int D_004E3B10[];
+/* kept local: this TU's use of gif_MakeSpriteNoTexture does not fit the
+   prototype in GifPacket.h (the colour word arrives as a 32-bit unsigned,
+   which the ROM materialises with lui + ori). */
+extern void gif_MakeSpriteNoTexture(int x, int y, int w, int h, unsigned int col,
+                                    unsigned int *tint, int mode);
 
 /* .bss, owned by icoMisc.o (MAIN.MAP sizes the run 0x80 and names no
    symbol in it): the line buffer the memory report is printed through. */
@@ -26,7 +46,124 @@ static char printBuf[128];
 
 inline void ExitIcoMisc(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/icoMisc", disp_memory_partition_bar);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
+extern void gif_StartPacketPri(int pri);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
+extern void gif_SetAlpha(int a0, int a1, int a2);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
+extern void gif_EndPacket(void);
+
+/* two-dimensional screen position handed to Draw2DLine */
+typedef struct {
+    int x;
+    int y;
+    int z;
+    int w;
+} D2Pos;
+
+/* Compiled-out debug hook, the same construct clothAnimation.c carries: the
+   Jan-2002 listing emits nothing for icoMisc.c:636-647, twelve source lines
+   between the last gif_SetAlpha (line 635) and gif_EndPacket (line 648), and
+   the ROM's schedule for that basic block needs exactly the one zero-byte
+   insn an inlined empty body leaves behind.  ee-gcc emits `(use (const_int
+   0))` for an inlined call; with two issue slots per clock it takes the free
+   second slot at clock 2, which pushes the third loop's `i = 0` out to clock
+   3, so `addiu $a2,$0,0x80` stays adjacent to the first call and reorg fills
+   gif_SetAlpha's delay slot with it and gif_EndPacket's with `daddu
+   $s5,$0,$0`.  Without the hook the init takes that free slot and the two
+   delay slots come out swapped, with a nop in the second.  The name is ours:
+   the listing records no symbol for an inlined empty body.  Evidence rung:
+   ROM bytes (0x1B7AF0..0x1B7B1C) plus the listing's line map. */
+static __inline__ void partitionBarDebugDisp(void) {}
+
+void disp_memory_partition_bar(void)
+{
+    char *parts[5] = {D_0063A430, D_0063A448, D_0063A444, D_0063A43C, 0};
+    D2Pos st;
+    D2Pos ed;
+    char buf[1024];
+    char *p;
+    char *e;
+    int i = 0;
+    int j;
+    int k;
+    int size;
+    int total;
+    int used;
+    int max;
+    int x;
+
+    if (D_0063A054 != 0) {
+        return;
+    }
+    max = 0;
+    gif_StartPacketPri(12);
+    for (; parts[i] != 0; i++) {
+        p = parts[i];
+        size = *(int *)(p + 0x3C) - *(int *)(p + 0x38) + 0x10;
+        if (max < size) {
+            max = size;
+        }
+    }
+    st.z = ed.z = 0;
+    st.w = ed.w = 0;
+    st.y = (D_0063A068 / 2 + 1898) << 4;
+    ed.y = st.y + 1280;
+    if (D_0063B130 == 2) {
+        gif_SetAlpha(1, 2, 32);
+        gif_MakeSpriteNoTexture((-(D_0063A064 >> 1) + 2178) << 4, (D_0063A068 / 2 + 1898) << 4,
+                                (D_0063A064 - 200) << 4, 768, 0xFFFFFFFF, &D_0063B428, 1);
+    }
+    gif_SetAlpha(1, 2, 112);
+    for (j = 0, k = 0; j < max; j += 0x100000) {
+        st.x = ed.x = (int)(((float)(-(D_0063A064 >> 1) + 130) + 2048.0f) * 16.0f +
+                            (float)j * (float)(D_0063A064 - 200) / (float)max * 16.0f);
+        if (k % 10) {
+            Draw2DLine((int *)&st, (int *)&ed, D_004E3B10, -1);
+        } else {
+            Draw2DLine((int *)&st, (int *)&ed, D_004E3B00, -1);
+        }
+        k++;
+    }
+    for (i = 0; parts[i] != 0; i++) {
+        used = 0;
+        p = parts[i];
+        e = *(char **)(p + 0x44);
+        total = *(int *)(p + 0x3C) - *(int *)(p + 0x38) + 0x10;
+        if (e != 0) {
+            do {
+                used += *(int *)(e + 0x34) << 4;
+                e = *(char **)(e + 0x2C);
+                if ((unsigned int)e > 0x1FEFFF0) {
+                    sprintf(buf, D_0061D340, p + 0x10, e);
+                    debug_assertMessage(D_0061D3B8, 609, buf);
+                    __assert(D_0061D3B8, 609, D_0063B430);
+                }
+            } while (e != 0);
+        }
+        gif_SetAlpha(0, 2, 112);
+        gif_SetAlpha(1, 2, 112);
+        st.y = ed.y = (D_0063A068 / 2 + i * 18 + 1907) << 4;
+        st.x = (int)(((float)(-(D_0063A064 >> 1) + 130) + 2048.0f) * 16.0f);
+        ed.x = (int)((float)st.x +
+                     (float)(total - used) * (float)(D_0063A064 - 200) / (float)max * 16.0f);
+        Draw2DLine((int *)&st, (int *)&ed, D_004E3B00, -1);
+        x = (int)(((float)(-(D_0063A064 >> 1) + 130) + 2048.0f) * 16.0f);
+        st.x = (int)((float)x + (float)total * (float)(D_0063A064 - 200) / (float)max * 16.0f);
+        ed.x = (int)((float)x +
+                     (float)(total - used) * (float)(D_0063A064 - 200) / (float)max * 16.0f);
+        Draw2DLine((int *)&st, (int *)&ed, D_004E3B10, -1);
+    }
+    gif_SetAlpha(1, 4, 128);
+    partitionBarDebugDisp();
+    gif_EndPacket();
+    for (i = 0; parts[i] != 0; i++) {
+        p = parts[i];
+        debug_PrintfDummy(D_0063A064 / 2 - (D_0063A064 >> 1) + 30,
+                          (D_0063A068 / 2 - 150 + D_0063A068 / 2 + i * 18) / 2, 0xFFFFFF80,
+                          D_0063B438, p + 0x10);
+    }
+}
 
 void disp_memory_partition(void)
 {
@@ -109,7 +246,6 @@ extern int D_0063B0D8;
    named sbss symbols); the frame stamp the load-time report below prints. */
 static int load_time;
 
-extern void *D_0063A448;
 extern char D_004DA788[];
 extern char D_004DD700[];
 extern char D_0061D468[];
