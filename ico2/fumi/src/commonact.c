@@ -492,7 +492,129 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
     return msg;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/commonact", ACTGetOrientFromIntrK);
+typedef struct {
+    float x, y, z;
+} IntrVec3;
+
+typedef struct {
+    IntrVec3 a;
+    float aw;
+    IntrVec3 b;
+    float bw;
+} IntrOrient;
+
+extern int D_0029C840[];
+extern int ACTGame_GetMotOrientFromWeapon(int a0);
+
+int ACTGetOrientFromIntrK(char *self, int k, void *buf, int arg)
+{
+    IntrOrient *out = (IntrOrient *)buf;
+    char *s = *(char **)(self + 0x164);
+    IntrVec3 tmp;
+    int ret = D_0029C840[k];
+
+    *out = *(IntrOrient *)(s + 0x620);
+    switch (k) {
+    case 140:
+        out->b = ((IntrOrient *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x480))->b;
+        break;
+    case 305:
+        out->a = ((IntrOrient *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x480))->a;
+        break;
+    case 298:
+        *(char **)(s + 0x30) = GetMailAdditionalData(self, arg);
+        tmp = *(IntrVec3 *)(*(char **)(*(char **)(self + 0x164) + 0x30));
+        out->b = ((IntrOrient *)(s + 0x620))->b = tmp;
+        break;
+    case 54:
+        *(char **)(s + 0x30) = GetMailAdditionalData(self, arg);
+        tmp = *(IntrVec3 *)(*(char **)(*(char **)(self + 0x164) + 0x30));
+        out->a = out->b = ((IntrOrient *)(s + 0x620))->a = ((IntrOrient *)(s + 0x620))->b = tmp;
+        *(int *)(s + 0x61C) = *(int *)&tmp;
+        GetSofaPosition(self, *(char **)(s + 0x61C));
+        break;
+    case 145:
+        out->a = *(IntrVec3 *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x3D8);
+        break;
+    case 144:
+        out->a = *(IntrVec3 *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x3CC);
+        break;
+    case 114:
+    case 115:
+    case 116:
+    case 117:
+        out->b = ((IntrOrient *)(s + 0x620))->a;
+        break;
+    case 45:
+        return *(int *)(*(char **)(*(char **)(self + 0x164) + 0x680) + 0xC0);
+    case 63:
+        if (*(int *)(s + 0x34) == 0x4A) {
+            ret = 272;
+        }
+        break;
+    case 378:
+    case 379:
+    case 380:
+        out->b = out->a = ((IntrOrient *)(s + 0x640))->b;
+        break;
+    case 381:
+        *out = *(IntrOrient *)(s + 0x640) = *(IntrOrient *)(*(char **)(D_00639EA4 + 0x164) + 0x640);
+        break;
+    case 382:
+    case 383:
+    case 384:
+        *out = *(IntrOrient *)(s + 0x640);
+        break;
+    case 385:
+    case 386:
+        *out = *(IntrOrient *)(s + 0x660);
+        *(IntrOrient *)(s + 0x620) = *out;
+        break;
+    case 205:
+    case 206:
+    case 207:
+        if (self == D_00639EA4) {
+            if (ACTGame_NoWeapon(self)) {
+                ret = 42;
+            } else {
+                ret = ACTGame_GetMotOrientFromWeapon(*(int *)(s + 0x150));
+            }
+        }
+        break;
+    case 72:
+    case 74:
+    case 338:
+        ret = *(int *)(s + 0x44);
+        break;
+    case 81:
+        ret = *(int *)(s + 0x44);
+        out->a = ((IntrOrient *)(*(char **)(D_00639EA4 + 0x164) + 0x620))->b;
+        *(IntrOrient *)(s + 0x620) = *out;
+        break;
+    case 89:
+    case 399:
+    case 403:
+        out->a = ((IntrOrient *)(*(char **)(D_00639EA4 + 0x164) + 0x620))->b;
+        *(IntrOrient *)(s + 0x620) = *out;
+        break;
+    case 416:
+        ret = 0;
+        if (*(int *)(s + 0x134) != 0 && !((int)(*(unsigned long long *)(s + 0x20) >> 13) & 1)) {
+            ret = *(int *)(s + 0x134);
+            *(int *)(s + 0x134) = 0;
+        }
+        break;
+    case 152:
+    case 155:
+    case 156:
+        out->a = *(IntrVec3 *)(*(char **)(*(char **)(self + 0x164) + 0x680) + 0x350);
+        break;
+    default:
+        ret = D_0029C840[k];
+        break;
+    }
+    return ret;
+}
 
 extern char D_0055FE58[];
 extern char D_0063A710[];
@@ -1017,7 +1139,53 @@ void actCommonRopeClimbEnd1(volatile int a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/commonact", actCommonRopeCliff);
+typedef union {
+    char *p;
+    float *f;
+} CagePtr;
+
+extern void afterCommonRopeCliff(char *a0);
+/* kept local: this TU's uses of _InterGV do not fit the prototype in gv.h */
+extern void _InterGV(void *dst, void *a, void *b, float ta, float tb);
+/* kept local: this TU's uses of SetChainRootUpdateMode do not fit the prototype in chain.h */
+extern void SetChainRootUpdateMode(void *a0, int mode, float *p);
+
+void actCommonRopeCliff(volatile int a0)
+{
+    float dst[4];
+    float root[4];
+    float cur[4];
+    float p[4];
+    Act *s = GOBJ_ACT(a0);
+    int n = ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 2;
+    float y;
+    int i = 0;
+
+    s->afterProc = afterCommonRopeCliff;
+    ((CagePtr *)(((CagePtr *)(D_00639EA4 + 0x15C))->p + 0x420))->p = 0;
+    dst[0] = *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x1C0);
+    dst[1] = *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x1C4);
+    dst[2] = *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x1C8);
+    GetRootPosition(root, (void *)a0);
+    while (1) {
+        i++;
+        if (i <= n) {
+            _InterGV(cur, root, dst, (float)i, (float)(n - i));
+            SetDirectRootPositionNoFitting((void *)a0, cur);
+        }
+        if (*(int *)(*(char **)(a0 + 0x15C) + 0x4A0) == 118) {
+            y = ((float *)test_CURRENTROOT((void *)a0))[1];
+            SetChainRootUpdateMode(D_00639EA4, 3,
+                                   (float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1D0));
+            p[0] = ((float *)test_CURRENTROOT((void *)a0))[0];
+            p[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
+            p[2] = ((float *)test_CURRENTROOT((void *)a0))[2];
+            p[1] = y + 5.0f;
+            SetDirectRootPositionNoFitting((void *)a0, p);
+        }
+        _ACTWait(1);
+    }
+}
 
 /* SU-E BEGIN TestCageUpDown */
 extern int *D_004EB758[];
@@ -1025,11 +1193,6 @@ extern int *D_004EB758[];
 extern void _InterGV(void *dst, void *a, void *b, float ta, float tb);
 /* kept local: this TU's uses of GetSkeltonFocusNode do not fit the prototype in motionManager2.h */
 extern int GetSkeltonFocusNode(void *a0, void *a1);
-
-typedef union {
-    char *p;
-    float *f;
-} CagePtr;
 
 typedef struct {
     float a[4];
@@ -1444,7 +1607,94 @@ void actCommonDown(volatile int a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/commonact", actCommonDie);
+extern char D_00552E48[];
+extern void debug_StdPrintfDummy();
+extern void DownFunc(char *a0);
+extern void gamesysObjInfoCls(int a0, int a1);
+extern void *isysGObjSearchFromObjKindID_begin(int a0);
+extern void ResetReviveCountEnemy(volatile int a0);
+extern void enemySetParticleDie(void *root, void *dir);
+extern void EnemySetfDisappearAll(volatile int a0);
+extern void actEnemyFlagOnDead(volatile int a0);
+extern void ACTGame_DeleteActorInformation(volatile int a0);
+extern void SetEnemyDissolve(volatile int a0, float d);
+extern void actEnemyHyde(volatile int a0);
+
+void actCommonDie(volatile int a0)
+{
+    /* SRCFILE.TXT puts these rows (commonact.c:2619-2631) after the 2650
+       statement, inside actCommonDie's own 2616-2700 span, which is the
+       inlined body of a helper defined at the head of this body. */
+    inline void dieNotifyObjects(void)
+    {
+        void *g;
+
+        if (*(int *)(a0 + 8) == 0xEAD) {
+            gamesysObjInfoCls(4, 0xEAD);
+            gamesysObjInfoCls(0x21, 0xEAE);
+        }
+        g = isysGObjSearchFromObjKindID_begin(0x2F);
+        if (g == 0) {
+            g = isysGObjSearchFromObjKindID_begin(0x41);
+        }
+        if (*(int *)(a0 + 0xC) == 4 && g != 0) {
+            iosOmSendMail(g, 0x12, a0);
+        }
+    }
+    char *s = *(char **)(a0 + 0x164);
+    int cnt = 0;
+    float t;
+    int corpse;
+
+    if (*(int *)(s + 0xD8) == 0x2C) {
+        corpse = 1;
+    } else {
+        corpse = 0;
+    }
+    debug_StdPrintfDummy(D_00552E48);
+    SetMotionDirection(a0, *(char **)(a0 + 0x164) + 0x1C0);
+    DownFunc((char *)a0);
+    *(char *)(*(char **)(a0 + 0x164) + 0x1DA) = 1;
+    dieNotifyObjects();
+    if (*(int *)(a0 + 8) == 0xEAD) {
+        ResetReviveCountEnemy(a0);
+    }
+    while (1) {
+        if (corpse) {
+            ACTSetPositionWithFitting((void *)a0, test_CURRENTROOT((void *)a0));
+        }
+        if (*(int *)(a0 + 0xC) == 4) {
+            _ACTWait(1);
+            enemySetParticleDie(test_CURRENTROOT((void *)a0), *(char **)(a0 + 0x164) + 0x1C0);
+            EnemySetfDisappearAll(a0);
+            actEnemyFlagOnDead(a0);
+            ACTGame_DeleteActorInformation(a0);
+            for (t = 0.0f; t < (float)(((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 6);
+                 t += *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x334)) {
+                float d = (t + t - (float)(((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 6)) /
+                          (float)(((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 6);
+                if (d < 0.01f) {
+                    d = 0.01f;
+                }
+                SetEnemyDissolve(a0, d);
+                if ((int)(*(long long *)(s + 0x20) >> 22) & 1) {
+                    t += 10.0f;
+                }
+                _ACTWait(1);
+            }
+            actEnemyHyde(a0);
+            _ACTWait(0);
+        }
+        if (a0 == (int)D_00639EA4 || a0 == (int)D_00639EA8) {
+            if (((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 2 < cnt) {
+                ACT_LAYOUT_GAMEOVER();
+                _ACTWait(0);
+            }
+        }
+        cnt++;
+        _ACTWait(1);
+    }
+}
 
 /* kept local: this TU's uses of RotQuaternionX do not fit the prototype in quaternion.h */
 extern void RotQuaternionX(float *q, short a);

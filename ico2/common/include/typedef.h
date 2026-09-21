@@ -846,9 +846,14 @@ typedef struct PObjGObj {
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 38 TUs that carried 6 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
 typedef struct Act {
     char _pad0[0x10];
-    int f_10; /* 0x10 */
-    int f_14; /* 0x14 */
-    char _pad18[0x8];
+    int f_10;                  /* 0x10 */
+    int f_14;                  /* 0x14 */
+    void (*afterProc)(char *); /* 0x18, the actor's after-proc: commonact.c
+                                  stores actAfterForceRope, afterCommonRopeCliff,
+                                  actAfterDown and actAfterRopeJump here.
+                                  Reconstruction, rung: ROM bytes (the four
+                                  stores) plus the callees' own signatures. */
+    char _pad1C[0x4];
     ActStatus flags20; /* 0x20 */
     char _pad28[0x8];
     int f_30;          /* 0x30 */
