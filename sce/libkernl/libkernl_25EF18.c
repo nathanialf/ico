@@ -242,7 +242,7 @@ INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceTtyHandler);
 
 extern int D_0072A710[];
 extern char D_0072A740[];
-extern void DIntr();
+extern int DIntr();
 extern void EIntr(void);
 extern int sceDeci2ReqSend(int s, int c);
 extern void sceDeci2Poll(int s);
@@ -332,7 +332,7 @@ void sceSifExitRpc(void)
     D_0054A3E8[0] = 0;
 }
 
-extern void DIntr();
+extern int DIntr();
 extern void EIntr(void);
 
 int *_sceRpcGetPacket(int *q)
@@ -631,13 +631,38 @@ ret1:
     return 1;
 }
 
-/* unprototyped: sceSifGetNextRequest passes its record, the queue routines call it bare */
-extern void DIntr();
+/* Unprototyped in the K&R sense, so DIntr returns int: sceSifGetNextRequest
+   passes its record and the queue routines call it bare.  The implicit int
+   return is load bearing, not cosmetic: the call sets $2, which keeps the
+   %hi address pseudo of D_0072C1C0 out of $2 in local-alloc and lets it tie
+   with the lo_sum in $3, which is the ROM's `lui $3 / addiu $3,$3` pair. */
+extern int DIntr();
 extern void EIntr(void);
 /* the RPC server's own record: the queue list head is the word at +0x28 */
 extern int *D_0072C1C0[];
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifSetRpcQueue);
+void sceSifSetRpcQueue(int *qd, int key)
+{
+    int *q;
+
+    DIntr();
+    qd[0x0 / 4] = key;
+    qd[0x4 / 4] = 0;
+    qd[0x8 / 4] = 0;
+    qd[0xC / 4] = 0;
+    qd[0x10 / 4] = 0;
+    qd[0x14 / 4] = 0;
+    if (D_0072C1C0[0x28 / 4] == 0) {
+        D_0072C1C0[0x28 / 4] = qd;
+    } else {
+        for (q = D_0072C1C0[0x28 / 4]; q[0x14 / 4] != 0; q = (int *)q[0x14 / 4]) {
+            ;
+        }
+        q[0x14 / 4] = (int)qd;
+    }
+    EIntr();
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifRegisterRpc);
 
 int *sceSifRemoveRpc(int *sd, int *qd)
@@ -660,7 +685,25 @@ int *sceSifRemoveRpc(int *sd, int *qd)
     return q;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifRemoveRpcQueue);
+int *sceSifRemoveRpcQueue(int *qd)
+{
+    int *q;
+    DIntr();
+    q = D_0072C1C0[0x28 / 4];
+    if (q == qd) {
+        D_0072C1C0[0x28 / 4] = (int *)qd[0x14 / 4];
+    } else {
+        while (q != 0) {
+            if ((int *)q[0x14 / 4] == qd) {
+                q[0x14 / 4] = qd[0x14 / 4];
+                break;
+            }
+            q = (int *)q[0x14 / 4];
+        }
+    }
+    EIntr();
+    return q;
+}
 
 int *sceSifGetNextRequest(int *self)
 {
