@@ -26,7 +26,7 @@ struct MotOriHead8 {
 } __attribute__((packed));
 
 struct MotOriFloat {
-    float f;
+    float frame;
 };
 
 #define MOWORK(self) (*(char **)((char *)(self) + 0x15C))
@@ -67,7 +67,41 @@ typedef struct MotOriTrigEnt {
     /* 0x190 */ unsigned int f190;
 } MotOriTrigEnt;
 
-extern MotOriTrigEnt D_0055FE58[];
+/* The 0x470 motion work area, reconstructed from the ROM's own displacements.
+   The TU reaches it as bytes elsewhere; UpdateFrameCounter needs the record
+   form because a field reference and an `extern int` are in different alias
+   sets, which is what lets the ROM's motionFrameUpdate load schedule above the
+   two preceding work-area stores. */
+typedef struct MotOriWork {
+    /* 0x000 */ char pad000[0x30];
+    /* 0x030 */ int f30;
+    /* 0x034 */ char pad034[0x4];
+    /* 0x038 */ int f38;
+    /* 0x03C */ float f3C;
+    /* 0x040 */ float f40;
+    /* 0x044 */ float f44;
+    /* 0x048 */ float f48;
+    /* 0x04C */ float f4C;
+    /* 0x050 */ float f50;
+    /* 0x054 */ int f54;
+    /* 0x058 */ int f58;
+    /* 0x05C */ int f5C;
+    /* 0x060 */ char pad060[0x8];
+    /* 0x068 */ int f68;
+    /* 0x06C */ char pad06C[0x14];
+    /* 0x080 */ int f80;
+    /* 0x084 */ char pad084[0x8];
+    /* 0x08C */ int f8C;
+    /* 0x090 */ char pad090[0x10];
+    /* 0x0A0 */ int fA0;
+    /* 0x0A4 */ int fA4;
+    /* 0x0A8 */ char pad0A8[0xE8];
+    /* 0x190 */ int f190;
+    /* 0x194 */ int f194;
+} MotOriWork;
+
+/* .rodata at 0x55FE58 in the ROM: the trigger definition table is read-only. */
+extern const MotOriTrigEnt D_0055FE58[];
 extern int D_0028F4D4[];
 /* the seventeen fixed captions the orientation debug window prints, one per
    trigger kind, plus the window's own format at 0x6201C8 */
@@ -268,7 +302,132 @@ static __inline__ void clearFrameTriggerState(void *self)
     *(int *)((char *)*(int *)((char *)self + 0x15C) + 0x614) = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", UpdateFrameCounter);
+/* Three range tests with no symbol and no census row, listing lines 156 to 193;
+ * shiftMotionData and UpdateFrameCounter both inline them. */
+static __inline__ int checkFrameInRange(int mot, float t)
+{
+    if ((float)D_0055FE58[mot].f144 <= t && t <= (float)D_0055FE58[mot].f148) {
+        return 1;
+    }
+    return 0;
+}
+
+static __inline__ int checkFrameInRange2(int mot, float t, float t2)
+{
+    if ((float)D_0055FE58[mot].f14C <= t2 && t <= (float)D_0055FE58[mot].f154) {
+        return 1;
+    }
+    return 0;
+}
+
+static __inline__ int checkMotionShiftRange(int mot, float t, float t2)
+{
+    MotOriTrigEnt *e = &D_0055FE58[mot];
+    float a = (float)e->f13C;
+    float b = (float)e->f140;
+    float ab = a + b;
+
+    if (a < 0.0f || b < 0.0f) {
+        return 0;
+    }
+    if ((e->f18C >> 19) & 1) {
+        if (a < t2 && t < ab) {
+            return 1;
+        }
+        return 0;
+    }
+    if (a < t2 && t < ab) {
+        return 0;
+    }
+    return 1;
+}
+
+extern int D_0028F4C0[];
+extern int motionFrameUpdate;
+
+int UpdateFrameCounter(void *self)
+{
+    char *m = MOWORK(self);
+    MotOriWork *w = (MotOriWork *)(m + 0x470);
+    int nf = GetNbMotionFrames(w->f30);
+    float t;
+    float r;
+    float frame;
+
+    if (w->f58 != 0) {
+        w->f58 = 0;
+    }
+    w->f5C = 0;
+    w->f80 = 0;
+    if (motionFrameUpdate == 1) {
+        t = w->f48 * D_0055FE58[w->f30].f174 * w->f4C *
+            (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f);
+        if (D_0028F4C0[0] != 0) {
+            t = t * D_0055FE58[w->f30].f15C;
+        }
+        if (w->f54 != 0) {
+            switch (w->f68) {
+            case 1:
+            case 2:
+            case 17:
+            case 20:
+                if (*(int *)(MOWORK(self) + 0x8C) != 0) {
+                    float a =
+                        1.0f - *(float *)(MOWORK(self) + 0x644) * *(float *)(MOWORK(self) + 0x824);
+
+                    if (a < 0.1f) {
+                        a = 0.1f;
+                    }
+                    if (1.0f < a) {
+                        a = 1.0f;
+                    }
+                    t = t * a;
+                }
+                break;
+            }
+        }
+        w->f40 = w->f3C;
+        w->f3C = w->f3C + t;
+        switch (D_0055FE58[w->f30].f150) {
+        case 1:
+            if ((float)(nf - 1) <= w->f3C) {
+                w->f3C = w->f3C - (float)(nf - 1);
+                w->f5C = D_0055FE58[w->f30].f150;
+                InitFrameDependSequence(m + 0x740);
+                clearFrameTriggerState(self);
+                if (((D_0055FE58[w->f30].f18C >> 20) & 1) != 0) {
+                    w->f80 = 1;
+                }
+            }
+            break;
+        case 4:
+            r = w->f50;
+            r = r < 0.0f ? 0.0f : (1.0f < r ? 1.0f : r);
+            w->f3C = (float)(nf - 1) * r;
+            break;
+        default:
+            if ((float)(nf - 1) <= w->f3C) {
+                w->f3C = w->f40;
+                w->f5C = 1;
+            }
+            break;
+        }
+        w->f44 =
+            w->f44 + w->f48 * (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f);
+        w->f8C = w->f8C + 1;
+        if (!(w->fA4 < w->fA0)) {
+            w->fA0 = w->fA0 + 1;
+        }
+        /* The two-frame range tests take a second frame value; here it is the
+           same frame, held in a local, and the ROM's mov.s of the loaded frame
+           into a second register is that local's copy. */
+        frame = w->f3C;
+        w->f190 = checkFrameInRange(w->f30, w->f3C);
+        w->f194 = checkFrameInRange2(w->f30, w->f3C, frame);
+        w->f38 = checkMotionShiftRange(w->f30, w->f3C, frame);
+    }
+    return w->f5C;
+}
 
 inline MotionOrientEntry *GetMotionOrient(int i, int n, int id, int kind)
 {

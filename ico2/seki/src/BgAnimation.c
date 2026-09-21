@@ -1367,7 +1367,53 @@ void bga_resetObjectCounter(BgaCntNode *o, float f, int a1)
     bga_clampCount(&o->f34, f);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_SetFrame);
+extern int D_0063BCB8;
+extern int GlobalTimer;
+extern float D_00728230[];
+extern float D_00728220[];
+/* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
+extern void _CopyVector(void *dst, void *src);
+extern char D_006217B0[];
+extern char D_006217C8[];
+extern void bga_CalcAnimation(char *p, int a1, int a2);
+
+void bga_SetFrame(char *p, int frame, int mode, int a3)
+{
+    float f;
+
+    if (p[0xB]) {
+        GlobalTimer = 1;
+        D_0063BCB8 = 1;
+        _CopyVector(D_00728230, D_00728220);
+    }
+    switch (frame) {
+    case 0:
+        *(float *)(p + 0x20) = bga_palFrame(*(float *)(p + 0x14));
+        p[0xA] = mode;
+        break;
+    case -1:
+        debug_StdPrintfDummy(D_006217B0, *(char **)(p + 0xC) + 4);
+        *(float *)(p + 0x20) = bga_palFrame(*(float *)(p + 0x18));
+        p[0xA] = mode;
+        break;
+    case -2:
+        debug_StdPrintfDummy(D_006217C8, *(char **)(p + 0xC) + 4);
+        *(float *)(p + 0x20) = bga_palFrame(*(float *)(p + 0x14));
+        p[0xA] = -1;
+        return;
+    default:
+        f = (float)frame;
+        *(float *)(p + 0x20) = bga_palFrame(f);
+        if (f < *(float *)(p + 0x14)) {
+            *(float *)(p + 0x20) = bga_palFrame(*(float *)(p + 0x14));
+        } else if (*(float *)(p + 0x18) < f) {
+            *(float *)(p + 0x20) = bga_palFrame(*(float *)(p + 0x18));
+        }
+        p[0xA] = mode;
+        break;
+    }
+    bga_CalcAnimation(p, a3, 1);
+}
 
 extern int D_0063C4B4;
 extern int D_0063BCBC;
@@ -1488,10 +1534,9 @@ INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_CalcSdfCamera);
 
 extern char *D_0063BCCC;
 extern char D_006217E0[];
-/* kept local: this TU's uses of _UnitVector and _CopyVector do not fit the
-   prototypes in Matrix.h */
+/* kept local: this TU's uses of _UnitVector do not fit the prototype in
+   Matrix.h (_CopyVector is declared above bga_SetFrame) */
 extern void _UnitVector(void *v);
-extern void _CopyVector(void *dst, void *src);
 
 void bga_addLightning(int kind, char *a1, float *vec, int id, int t0, float f)
 {

@@ -567,8 +567,6 @@ int pac_makeStrip(int *out, char *obj, char **tbl, int shpno, int matno, int lin
     return size;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Packet", pac_setMaterialPacket);
-
 /* The material table entry's 64-bit mode word at +0x60: the same qword
    pac_setMaterialPacket reads back as its three mode selectors. */
 typedef struct MatEnt {
@@ -582,6 +580,75 @@ typedef struct MatEnt {
     unsigned long long b9 : 1;
     char pad1[8];
 } MatEnt;
+
+void pac_setMaterialPacket(MatEnt *ent)
+{
+    char *p;
+
+    p = (char *)ent;
+    *(int *)p = 0;
+    p += 4;
+    *(int *)p = 0;
+    p += 4;
+    *(int *)p = 0;
+    p += 4;
+    *(int *)p = 0x6C048000;
+    p += 4;
+    *(long long *)p = 0x1000000000008003LL;
+    p += 8;
+    *(long long *)p = 14;
+    p += 8;
+    switch ((int)(*(long long *)((char *)ent + 0x60) >> 1) & 3) {
+    case 2:
+        *(long long *)p = 0x8000000048LL;
+        p += 8;
+        break;
+    case 3:
+        *(long long *)p = 0x8000000042LL;
+        p += 8;
+        break;
+    case 1:
+        *(long long *)p = 0x8000000044LL;
+        p += 8;
+        break;
+    default:
+        *(long long *)p = 0x8000000044LL;
+        p += 8;
+        break;
+    }
+    *(long long *)p = 0x42;
+    p += 8;
+    switch ((int)(*(long long *)((char *)ent + 0x60) >> 3) & 3) {
+    case 0:
+        *(long long *)p = 5;
+        p += 8;
+        break;
+    case 1:
+        *(long long *)p = 4;
+        p += 8;
+        break;
+    case 2:
+        *(long long *)p = 1;
+        p += 8;
+        break;
+    default:
+        *(long long *)p = 0;
+        p += 8;
+        break;
+    }
+    *(long long *)p = 8;
+    p += 8;
+    *(long long *)p = (int)(*(long long *)((char *)ent + 0x60) >> 9) & 1;
+    p += 8;
+    *(long long *)p = 0x4A;
+    p += 8;
+    *(int *)p = 0x14000000;
+    p += 4;
+    *(int *)p = 0;
+    p += 4;
+    *(int *)p = 0;
+    *(int *)(p + 4) = 0;
+}
 
 typedef struct MatSrc {
     char pad0[5];
