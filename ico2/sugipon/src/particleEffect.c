@@ -30,7 +30,7 @@ typedef struct {
 
 /* .bss, owned by particleEffect.o and reached only from this file (MAIN.MAP
    names no symbol in the run), in the ROM's run order: 128 effect slots of
-   0x1C bytes, then 61 parameter records of 0xA0 bytes (the PE160 pool the
+   0x1C bytes, then 61 parameter records of 160 bytes (the PE160 pool the
    effect slots index into). */
 static PEffect particleEffects[128];
 
@@ -194,8 +194,6 @@ void _setParticleEffect(char *out, char *pkg, char *m, float k)
     *(PEPartRec *)out = particleWork;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/particleEffect", setParticleEffect);
-
 extern char *matrixptr;
 /* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_PushMatrix(void);
@@ -230,6 +228,71 @@ static inline void peSetVtx(char *dst, char *pt)
     *(float *)(dst + 0x10) = *(float *)(pt + 0x60);
     *(float *)(dst + 0x14) = *(float *)(pt + 0x64);
     *(float *)(dst + 0x18) = 128.0f;
+}
+
+extern char D_006208F8[];
+extern char D_00620908[];
+
+/* listing rows 286-354. The statement order here is the listing's own line
+   attribution (287 self->pkg, 289, 291, 292, 293, 295, 296, 299, 300, 303),
+   not the order the ROM issues them in: gcc 2.9 carries each insn's line
+   note through scheduling (haifa-sched.c restore_line_notes). */
+int setParticleEffect(char *self, char *pkg, int part)
+{
+    float m[16];
+    char *p;
+    char *d0;
+    char *d1;
+    int i;
+    int n;
+
+    *(char **)(self + 0x20) = pkg;
+
+    *(int *)(self + 0x34) = 1;
+
+    *(int *)(self + 0x38) = *(int *)(pkg + 0x94);
+    *(float *)(self + 0x3C) = (float)(-*(int *)(pkg + 0x98));
+    *(float *)(self + 0x40) = 1.0f;
+
+    n = *(int *)(pkg + 0x40);
+    *(int *)(self + 0x30) = n;
+    *(float *)(self + 0x2C) = 0.0f;
+
+    *(int *)(self + 0x64) = 0;
+    *(int *)(self + 0x68) = 0;
+
+    *(int *)(self + 0x28) =
+        (int)prim_InitParticleByPartition(n, 1.0f, 0.25f, 0.25f, 1, D_006208F8, 1, (void *)part);
+    if (*(int *)(self + 0x28) == 0)
+        return 0;
+    *(int *)(self + 0x24) =
+        iosMallocDebugNoAssert(part, *(int *)(self + 0x30) * 112, D_00620908, 320);
+    if (*(int *)(self + 0x24) == 0) {
+        prim_DeleteParticle(*(int *)(self + 0x28));
+        return 0;
+    }
+    p = *(char **)(self + 0x24);
+    d0 = *(char **)(*(int *)(self + 0x28) + 0x190);
+    d1 = *(char **)(*(int *)(self + 0x28) + 0x194);
+    GetMatrixFromQuaternionPos((char *)m, self + 0x10, self);
+    MatrixDrive_PushMatrix();
+    for (i = 0; i < *(int *)(self + 0x30); i++) {
+        _setParticleEffect(p, *(char **)(self + 0x20), (char *)m, 1.0f);
+        peSetVtx(d0, p);
+        peSetVtx(d1, p);
+        p += 112;
+        d0 += 32;
+        d1 += 32;
+    }
+    MatrixDrive_PopMatrix();
+    if (*(int *)(*(char **)(self + 0x20) + 0x4) == 1) {
+        for (i = 0; i < *(int *)(self + 0x30); i++) {
+            ((PEPartRec *)(*(char **)(self + 0x24) + i * 112))->life =
+                (int)(_GetRandom() * (float)(unsigned int)*(int *)(*(char **)(self + 0x20) + 0x44));
+        }
+        *(float *)(self + 0x2C) = (float)*(int *)(self + 0x30);
+    }
+    return *(int *)(self + 0x24);
 }
 
 /* kept local: this TU's uses of GetWindVector do not fit the prototype in windField.h */
@@ -321,7 +384,7 @@ int execParticleEffect(void *a0)
     }
     GetMatrixFromQuaternionPos(m, self + 0x10, self);
     part = *(char **)(self + 0x24);
-    for (i = 0; i < *(int *)(self + 0x30); i++, part += 0x70, d0 += 0x20) {
+    for (i = 0; i < *(int *)(self + 0x30); i++, part += 112, d0 += 32) {
         if ((float)i < *(float *)(self + 0x2C)) {
             PEWORK = *(PEPartRec *)part;
             flags |= updateParticle(self, m);
@@ -344,9 +407,9 @@ int execParticleEffect(void *a0)
             n = (int)total;
         }
         for (i = (int)last; i < n; i++) {
-            _setParticleEffect(base + i * 0x70, *(char **)(self + 0x20), (char *)m, 1.0f);
-            peSetVtx(v0 + i * 0x20, base + i * 0x70);
-            peSetVtx(v1 + i * 0x20, base + i * 0x70);
+            _setParticleEffect(base + i * 112, *(char **)(self + 0x20), (char *)m, 1.0f);
+            peSetVtx(v0 + i * 32, base + i * 112);
+            peSetVtx(v1 + i * 32, base + i * 112);
         }
         *(float *)(self + 0x2C) = next;
     }
@@ -442,8 +505,6 @@ void dispParticleEffect(PEGeo *geo)
 extern char D_006208E0[];
 extern char D_00620920[];
 extern char D_00620908[];
-/* kept local: this TU's uses of setParticleEffect do not fit the prototype in particleEffect.h */
-extern int setParticleEffect(int geo, int *pkg, int part);
 
 /* the listing's lines 129-137: a static free-slot search with no out-of-line
  * copy, inlined here. */
@@ -474,14 +535,14 @@ int SetParticleEffectByPartition(int no, PEVector *pos, PEQuaternion *quat, int 
     }
     particleEffects[id].used = 1;
     particleEffects[id].geoCtrl = 1;
-    particleEffects[id].geo = (PEGeo *)iosMallocDebugNoAssert(part, 0x80, D_00620908, 501);
+    particleEffects[id].geo = (PEGeo *)iosMallocDebugNoAssert(part, 128, D_00620908, 501);
     particleEffects[id].sensing = 0;
     particleEffects[id].sensPos = 0;
     particleEffects[id].sensQuat = 0;
     if (particleEffects[id].geo != 0) {
         setParticleEffectGeometry((int)particleEffects[id].geo, (int)pos, (int)quat);
-        if (setParticleEffect((int)particleEffects[id].geo,
-                              (int *)((char *)particleParams + no * 0xA0), part) == 0) {
+        if (setParticleEffect((char *)particleEffects[id].geo, (char *)particleParams + no * 160,
+                              part) == 0) {
             iosFree(particleEffects[id].geo);
             particleEffects[id].geo = 0;
             particleEffects[id].used = 0;
@@ -558,8 +619,8 @@ static inline void updateParticleVectors(int no)
     s = *(char **)(g + 0x24);
     for (i = 0; i < *(int *)(g + 0x30); i++) {
         setParticleVector(d, s);
-        s += 0x70;
-        d += 0x20;
+        s += 112;
+        d += 32;
     }
 }
 
@@ -610,10 +671,10 @@ void ResetParticleEffectPackages(int *pkg)
             CopyVector(&pos, particleEffects[i].geo);
             CopyQuaternion(&quat, (char *)particleEffects[i].geo + 0x10);
             deleteParticleEffectGeo(i);
-            particleEffects[i].geo = (PEGeo *)iosMallocDebugNoAssert(part, 0x80, D_00620908, 663);
+            particleEffects[i].geo = (PEGeo *)iosMallocDebugNoAssert(part, 128, D_00620908, 663);
             particleEffects[i].used = 1;
             setParticleEffectGeometry((int)particleEffects[i].geo, (int)&pos, (int)&quat);
-            setParticleEffect((int)particleEffects[i].geo, pkg, part);
+            setParticleEffect((char *)particleEffects[i].geo, (char *)pkg, part);
         }
     }
 }
@@ -623,11 +684,11 @@ extern char D_00620980[];
 
 void SetParticleEffectPackage(int a0, int *a1, int a2)
 {
-    *(PE160 *)((unsigned char *)particleParams + a0 * 0xA0) = D_004ECDF0;
+    *(PE160 *)((unsigned char *)particleParams + a0 * 160) = D_004ECDF0;
     if (*(int *)&D_004ECDF0 != *a1) {
         debug_StdPrintfDummy(D_00620980, *a1);
     }
-    memcpy(((unsigned char *)particleParams + a0 * 0xA0), a1, a2);
+    memcpy(((unsigned char *)particleParams + a0 * 160), a1, a2);
 }
 
 void InitParticleEffects(void)
@@ -706,7 +767,7 @@ int SetParticleEffectActiveSensing(int no, PEVector *pos, PEQuaternion *quat)
 
 int *GetParticleEffectPackage(int idx)
 {
-    return (int *)((char *)particleParams + idx * 0xA0);
+    return (int *)((char *)particleParams + idx * 160);
 }
 
 void DeleteParticleEffectsByPackage(int *pkg)
@@ -730,7 +791,7 @@ void DeleteParticleEffectsByPackage(int *pkg)
  * which collapse at layout. */
 static inline int *GetParticleEffectPackage_inl(int idx)
 {
-    return (int *)((char *)particleParams + idx * 0xA0);
+    return (int *)((char *)particleParams + idx * 160);
 }
 
 static inline void DeleteParticleEffectsByPackage_inl(int *pkg)
@@ -780,7 +841,7 @@ int GetParticleLoopFlag(int a0)
     if (a0 < 0) {
         return -1;
     }
-    p = (int *)((char *)particleParams + a0 * 0xA0);
+    p = (int *)((char *)particleParams + a0 * 160);
     return p[1] == 1;
 }
 

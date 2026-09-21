@@ -155,8 +155,8 @@ void pac_error(char *name, int type)
         debug_Assert(D_0054F3D8, D_0067C010, name);
         break;
     }
-    debug_assert(D_0054F400, 0x2AC);
-    __assert(D_0054F400, 0x2AC, D_0063A120);
+    debug_assert(D_0054F400, 684);
+    __assert(D_0054F400, 684, D_0063A120);
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Packet", pac_makeNormalStrip);
@@ -313,8 +313,8 @@ void pac_continueTag(char *shp, char *mat)
     ctx = D_0067C010;
     if (((*(unsigned int *)(ctx + 0x2C) & 0x0FFFFFFF) - *(unsigned int *)(ctx + 0x28)) >> 4 == 1) {
         debug_StdPrintfDummy(D_0054F620, 0);
-        debug_assert(D_0054F400, 0x47B);
-        __assert(D_0054F400, 0x47B, D_0063A120);
+        debug_assert(D_0054F400, 1147);
+        __assert(D_0054F400, 1147, D_0063A120);
     }
     pac_setVifCode(((*(unsigned int *)(ctx + 0x2C) & 0x0FFFFFFF) - *(unsigned int *)(ctx + 0x28)) >>
                    4);
@@ -327,7 +327,65 @@ void pac_continueTag(char *shp, char *mat)
     D_0063C14C += 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Packet", pac_checkDivide);
+extern char D_0054F648[];
+extern char D_0054F670[];
+extern char D_0054F688[];
+extern char D_0054F698[];
+extern char D_0054F6D0[];
+extern unsigned int D_0063C148;
+extern unsigned int D_0063C150;
+
+/* listing rows 1166-1194. 192 is the DMA chain's qword budget; the ROM's
+   compare is against a register, so it is a local and not a literal.
+   D_0054F698 is "gif over! cut! %d/%d polys:%d/%d fchain:%d vif+gif:%d":
+   the last field is the qword count plus the gif tags the chain already
+   holds plus the one about to be opened. */
+void pac_checkDivide(int num, char *shp, char *mat)
+{
+    int limit = 192;
+    char *ctx;
+    unsigned int qwc;
+
+    ctx = D_0067C010;
+    if (*(int *)(ctx + 0x30) * num > limit) {
+        debug_StdPrintfDummy(D_0054F648, *(int *)(ctx + 0x30) * num);
+        debug_assert(D_0054F400, 1172);
+        __assert(D_0054F400, 1172, D_0063A120);
+    }
+    qwc = ((*(unsigned int *)(ctx + 0x2C) & 0x0FFFFFFF) - *(unsigned int *)(ctx + 0x28)) >> 4;
+    if (qwc + *(int *)(ctx + 0x30) * num > limit) {
+        pac_continueTag(shp, mat);
+        debug_StdPrintfDummy(
+            D_0054F670,
+            ((*(unsigned int *)(ctx + 0x2C) & 0x0FFFFFFF) - *(unsigned int *)(ctx + 0x28)) >> 4,
+            D_0063C150);
+        debug_StdPrintfDummy(D_0054F688);
+        D_0063C150 = 0;
+    } else if ((qwc - 1) / *(unsigned int *)(ctx + 0x30) * *(int *)(ctx + 0x34) + 1 +
+                   *(int *)(ctx + 0x34) * num >
+               limit) {
+        debug_StdPrintfDummy(
+            D_0054F698, qwc + *(int *)(ctx + 0x30) * num, limit, D_0063C148, *(int *)(ctx + 0x30),
+            D_0063C150,
+            qwc + ((qwc - 1) / *(unsigned int *)(ctx + 0x30) * *(int *)(ctx + 0x34) + 1));
+        pac_continueTag(shp, mat);
+        debug_StdPrintfDummy(
+            D_0054F670,
+            ((*(unsigned int *)(ctx + 0x2C) & 0x0FFFFFFF) - *(unsigned int *)(ctx + 0x28)) >> 4,
+            D_0063C150);
+        debug_StdPrintfDummy(D_0054F688);
+        D_0063C150 = 0;
+    } else if (*(int *)(ctx + 0x30) * num >= 256) {
+        debug_StdPrintfDummy(D_0054F6D0);
+        pac_continueTag(shp, mat);
+        debug_StdPrintfDummy(
+            D_0054F670,
+            ((*(unsigned int *)(ctx + 0x2C) & 0x0FFFFFFF) - *(unsigned int *)(ctx + 0x28)) >> 4,
+            D_0063C150);
+        debug_StdPrintfDummy(D_0054F688);
+        D_0063C150 = 0;
+    }
+}
 
 extern char D_0054F738[];
 
@@ -398,15 +456,12 @@ extern char D_0054F7C8[];
 extern char D_0063A130[];
 extern int D_0063A0F8;
 extern float D_0063A3DC;
-extern unsigned int D_0063C148;
-extern unsigned int D_0063C150;
 extern void malloc_MemCpy(int dst, int src, int n);
 extern void iosFree(int p);
 extern void debug_assertMessage(char *file, int line, char *msg);
 extern void pac_countOneVertexPacketSize(char *shp, char *mat);
 extern int pac_makeNormalStrip(char *obj, short *p, int n);
 extern int pac_makeClusterStrip(char *obj, short *p, int n);
-extern void pac_checkDivide(int num, char *shp, char *mat);
 
 /* listing rows 1207-1219: a static inline above pac_makeStrip that copies a
    finished packet down into a fresh seki-heap block. */

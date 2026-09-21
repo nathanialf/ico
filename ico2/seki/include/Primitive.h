@@ -21,7 +21,15 @@ void prim_DispWireSphere(void *col, int nu, int nv, float r);
 int prim_InitFan2D(int a, float e, int *b, unsigned int c, int d);
 char *prim_InitMesh3D(int a0, int a1, int a2, int a3, unsigned int a4, int a5);
 int prim_InitParticle(int a0, int a1, int a2, int a3);
-int prim_InitParticleByPartition();
+
+/* reconstruction: the parameter list is Primitive.c's own definition at
+   ico2/seki/src/Primitive.c:522, and the ROM's call from particleEffect
+   fills $4/$5/$6/$7/$8 and $f12/$f13/$f14 in exactly this order. The
+   return type is the definition's PrimParticle *, a type local to
+   Primitive.c, so it is declared void * here and cast at the call. */
+void *prim_InitParticleByPartition(int num, float x, float y, float z, int a1, char *name, int a3,
+                                   void *heap);
+
 void prim_SetFan2D(int handle, float radius, void *pos, unsigned int c0, unsigned int c1);
 void prim_UpdateMesh3D(void *mesh, int a1, int a2);
 
