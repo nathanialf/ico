@@ -523,12 +523,17 @@ typedef struct StageSetting {
        and the per sub target row whose fourth word is the film grain tint
        ico2/seki/src/GsBase.c reads at 0x13C. */
     int reductionCol[3]; /* 0x0D0 */
-    char pad0DC[0x18];   /* 0x0DC */
-    int motionBlur;      /* 0x0F4 */
-    char pad0F8[0x4];    /* 0x0F8 */
-    int f0FC;            /* 0x0FC */
-    int f100;            /* 0x100 */
-    char pad104[0x2C];   /* 0x104 */
+    char pad0DC[0x4];    /* 0x0DC */
+    /* RECONSTRUCTION: the stage's view scale, a percentage that
+       ico2/seki/src/GsBase.c's gsb_SetVSMatrix divides by 100 into the zoom
+       and again into the mip map level. */
+    int viewScale;     /* 0x0E0 */
+    char pad0E4[0x10]; /* 0x0E4 */
+    int motionBlur;    /* 0x0F4 */
+    char pad0F8[0x4];  /* 0x0F8 */
+    int f0FC;          /* 0x0FC */
+    int f100;          /* 0x100 */
+    char pad104[0x2C]; /* 0x104 */
 
     struct {
         int r;

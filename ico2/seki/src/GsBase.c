@@ -95,28 +95,61 @@ void gsb_Init(void *db)
     D_00639F8C = 1.0f;
 }
 
-/* Reverted to asm 2026-09-17 (chain 3 pass 17): 337 of 337 instructions, only
- * the three per target tint reads differ (10 words) and the whole packet
- * build, the DMA kick and the default tint arms are word for word.  The body
- * is derived: one `long long pk[44]` local whose 44 element initialiser is the
+/* Reverted to asm 2026-09-21 (chain 3 pass 43, was pass 17): 337 of 337
+ * instructions, STRICT 16 of which 6 are the reloc addend class, so 10 real
+ * words, all three of them in the per target tint reads.  The packet build,
+ * the DMA kick and the default tint arms are word for word.  The body is
+ * derived: one `long long pk[44]` local whose 44 element initialiser is the
  * 22 qword GIF packet (gcc 2.9 builds a 352 byte initialiser in a temporary
  * and block copies it, which is ROM's ld/sd loop), then sceGsSyncPath,
  * FlushCache, the three volatile GIF channel registers at 0x1000A020,
- * 0x1000A010 and 0x1000A000 and a second sceGsSyncPath.  MEASURED RESIDUAL:
- * ROM composes the tint row address as index plus base (`addu idx, base` with
- * 0x130 as the load displacement), which expr.c's both_summands rule ("put a
- * multiplication first") only produces when the address is an explicit
- * pointer sum whose offset RTL is still a MULT; the struct member spelling
- * `D_0028F720.targetCol[i - 1].r` goes through the handled component path,
- * which emits base plus index.  Casting the base to the record type
- * (`((StageSetting *)((char *)&D_0028F720 + ((i - 1) << 4)))->targetCol[0].r`)
- * reproduces ROM's three address words exactly but costs the tail: ROM's two
- * branches share one `addiu $2, $0, 0x80` block and the cast spelling leaves
- * the third arm's result in the other register, so the cross jump does not
- * merge (45 strict rows against 16).  A plain cast deref with the 0x130 in
- * the address folds the offset onto the symbol (%lo(D_0028F720) + 304), which
- * is a different word.  Derived body:
- * tails/seeds/GsBase.c3p17_gsb_Reduction_337of337_strict16_TU.c. */
+ * 0x1000A010 and 0x1000A000 and a second sceGsSyncPath.
+ *
+ * MEASURED RESIDUAL, narrowed to ONE rtx this pass.  With the struct member
+ * spelling `D_0028F720.targetCol[CurrentTargetGObjSub - 1].r` the emission
+ * order is already the ROM's: expand_expr's handled component path
+ * (expr.c around line 6430) expands the base VAR_DECL first, and validating
+ * that BLKmode MEM's address force_regs the symbol, so the `high` and the
+ * `lo_sum` carry lower INSN_LUIDs than the index `addiu -1` and its `sll`.
+ * sched1 then reproduces ROM's first two words in every arm (`lui %hi` wins
+ * the t1 tie on LUID in arms one and two; in arm three the index `addiu`
+ * wins it on INSN_REG_WEIGHT instead, because CurrentTargetGObjSub's value
+ * dies there, which is exactly why ROM's third arm starts with the addiu and
+ * the first two start with the lui).  The one wrong rtx is the address sum
+ * itself: that path builds `gen_rtx_PLUS (ptr_mode, XEXP (op0, 0),
+ * force_reg (ptr_mode, offset_rtx))`, base first, and addsi3_internal is not
+ * commutative for reload, so the built `addu` is `addu base, base, index`
+ * where ROM has `addu index, index, base`.  Everything else follows from
+ * that one operand order: the destination is the base's register instead of
+ * the index's, so the `sll` that writes the index register is no longer
+ * killed by the `addu` and gains an output dependence on the load; in sched2
+ * that gives the `sll` three dependents against the `lo_sum`'s two, and
+ * rank_for_schedule reaches depend_count before INSN_LUID, so the two swap
+ * in arms one and two.  Ten words, one cause.
+ *
+ * REFUTED this pass, each measured: the record cast
+ * `((StageSetting *)((char *)&D_0028F720 + ((i - 1) << 4)))->targetCol[0].r`
+ * does give ROM's index plus base sum (both_summands, "put a multiplication
+ * first") but its index is expanded eagerly during expand_expr, so the
+ * symbol's force_reg lands after it and the arms start with the addiu in all
+ * three, and the third arm's result then takes the other register, the two
+ * branches' `addiu $2, $0, 0x80` blocks do not cross jump and the tail is
+ * duplicated: 45 strict rows.  Spelling the index `* 16` instead of `<< 4`
+ * to keep a MULT rtx alive to both_summands does not work either: expr.c's
+ * MULT_EXPR case under EXPAND_SUM applies the distributive law when its
+ * first operand expands to a PLUS with a CONST_INT, so `(i - 1) * 16`
+ * becomes `i * 16 - 16` and the arm loses an instruction (four words instead
+ * of ROM's five, 31 strict rows); an `(unsigned int)` cast on the index does
+ * not block it.  A plain cast deref with the 0x130 in the address folds the
+ * offset onto the symbol (%lo(D_0028F720) + 304).
+ *
+ * NEXT AXIS: a spelling that materialises the symbol before the index AND
+ * yields PLUS(index, base).  Neither expansion path does both, so the swap
+ * has to come from a later pass (cse_insn's commutative retry at cse.c:5398
+ * is the untested one) or from a base object that is not a plain VAR_DECL.
+ * Seeds: tails/seeds/GsBase.c3p43_gsb_Reduction_337of337_strict16_member_TU.c
+ * (carry this one forward) and the record cast state in
+ * tails/seeds/GsBase.c3p43_gsb_Reduction_337of337_strict45_recordcast_TU.c. */
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_Reduction);
 
 extern unsigned char D_00639F98;
@@ -131,15 +164,36 @@ extern void gif_SetGsReg(int a0, long long a1);
 extern void gif_StartPacketPriPath1(int a0);
 extern GifDpk D_004EE6F0;
 
-/* Reverted to asm 2026-09-17 (chain 3 pass 16): 163 of 163 instructions and
- * the first 77 word for word.  The body is derived: two rectangles built as
- * struct initialisers (ROM's ldl/ldr pair copies prove the 16-byte record),
- * the five register writes, and twelve 64-bit words into the display list
- * through an inline handle.  The residual is the register permutation of
- * the packet block (ROM has the context base in $6, the write pointer in $3
- * and the four colour bytes in $5 $4 $7 $2) and the scheduling that follows
- * it.  Derived body:
- * tails/seeds/GsBase.c3p16_gsb_KeepFrameBuffer_163of163_strict85_TU.c. */
+/* Reverted to asm 2026-09-21 (chain 3 pass 43, was pass 16): 165 instructions
+ * against ROM's 163 and the first 78 word for word.  THE SHAPE IS NOW
+ * RECOVERED FROM THE LISTING, which attributes the whole twelve word packet
+ * to ONE source line (SRCFILE.TXT GsBase.c:957, 0x112d10 to 0x112e48): it is
+ * a single textured sprite, ico2/seki/src/GifPacket.c's `gif_MakeSprite`
+ * expanded inline (PRIM 0x116 with prim 0, RGBAQ from the four kept colour
+ * bytes at 0x00639F98, then UV, XYZ2, UV, XYZ2), not the twelve separate
+ * word writes the pass 16 seed guessed.  Lines 942 and 946 are the two
+ * `GsbRect` initialisers, 948 to 953 the six register writes and 958 the
+ * closing gif_EndPacket.  With that shape the built code reproduces ROM's
+ * packet idiom exactly: one `lw` of the write pointer, the pointer rebased
+ * by eight after the first store and every later store at a displacement off
+ * it, the same twelve write backs to 0x10 of the context, and the same
+ * reassociated colour tree ((F9A << 16 | F99 << 8) or'd into (F98 |
+ * F9B << 24)), which gcc's fold builds out of GIF_RGBA's plain left
+ * associated chain.
+ *
+ * MEASURED RESIDUAL: the packet block's SCHEDULE, and one register that
+ * follows from it.  The built code hoists the pointer offset `addiu`s and
+ * the UV word's two stack reloads to the head of the block, which keeps two
+ * values live across it, so reload takes a SECOND callee-saved register
+ * ($17) and the frame grows from ROM's 0x50 to 0x60: those two extra saves
+ * are the whole 165 against 163.  ROM interleaves each `addiu ptr + k` with
+ * the store that consumes it.  Everything the block computes is otherwise
+ * identical, operand for operand.  This is a whole-block sched1 convergence
+ * (rank_for_schedule reaches INSN_REG_WEIGHT before the ready list's LUID
+ * tie), not a semantic gap.  Seed:
+ * tails/seeds/GsBase.c3p43_gsb_KeepFrameBuffer_165of163_strict143_sprite_TU.c
+ * (carry this one forward, it has the sprite shape; the pass 16 seed's
+ * twelve-word spelling is superseded). */
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_KeepFrameBuffer);
 
 extern int fadeStatus;
@@ -147,18 +201,117 @@ extern float D_0063C124;
 extern int D_0063B13C;
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
+extern unsigned char fadeColor[4];
+extern float fadeSpeed;
+extern int fadeContinue;
+extern char D_00639FA0[];
+/* kept local: this TU's uses of gif_SetDrawEnviroment do not fit the prototype in GifPacket.h */
+extern void gif_SetDrawEnviroment(int a0, int a1, int w, int h, int a4, int a5);
 
-/* Reverted to asm 2026-09-17 (chain 3 pass 16): 223 of 224 instructions, the
- * first 65 word for word and the whole tail aligned one instruction on.
- * The shape is derived: a switch on fadeStatus whose default arm is a goto
- * to a clear block placed after the debug print (ROM puts it between the
- * main path and the epilogue), the level step and the two end tests, the
- * clamp into fadeColor[3], and the packet, whose last six words are the
- * inlined A+D writes of an untextured sprite.  The residual is one FPU
- * constant reload: ROM shares $f0 between the 0.0 and 128.0 compares and
- * reloads 0.0 on the join, the built code keeps the level in $f3 instead.
- * Derived body: tails/seeds/GsBase.c3p16_gsb_fade_223of224_strict145_TU.c. */
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_fade);
+/* A rectangle in 16ths of a pixel, the form the sprite corners are written
+   in.  RECONSTRUCTION: the record is 16 bytes and ROM's ldl/ldr pairs copy
+   it whole out of its initialiser temporary. */
+typedef struct {
+    int x;
+    int y;
+    int w;
+    int h;
+} GsbRect;
+
+/* INTERIM, the same construct ico2/seki/src/GifPacket.c carries for its own
+ * callers: the A+D register write and the untextured sprite are inline, and
+ * the January-2002 listing expands both into this TU (GsBase.c:1025 writes
+ * two registers, GsBase.c:1026 the whole four pair sprite), so while
+ * GifPacket.c still has assembled members the inline bodies live here as
+ * static stand-ins.  gsb_controlBrightness's own call to the sprite stays a
+ * `jal` in the ROM, which is what this TU's `unsigned int z` declaration of
+ * it says: an argument whose mode does not match the formal's makes gcc 2.9
+ * fall back from expand_inline_function to a real call. */
+static inline void setGsReg(long long reg, long long data)
+{
+    *D_004EE6F0.ptr++ = data;
+    *D_004EE6F0.ptr++ = reg;
+}
+
+static inline void gsbSpriteNoTexture(int x, int y, int w, int h, long long z, unsigned char *col,
+                                      int prim)
+{
+    int fx = w + 0x8000;
+    int fy = h + 0x8000;
+
+    setGsReg(0x00, (prim << 6) | 0x406);
+    setGsReg(0x01, (long long)col[0] | ((long long)col[1] << 8) | ((long long)col[2] << 16) |
+                       ((long long)col[3] << 24));
+    setGsReg(0x05, (long long)(x + 0x8000) | ((long long)(y + 0x8000) << 16) | (z << 32));
+    setGsReg(0x05, (long long)(x + fx) | ((long long)(y + fy) << 16) | (z << 32));
+}
+
+/* The fade overlay: step the fade level by half the speed each frame, clamp
+ * it to 0 to 128, stop or hand over to the continue state at the ends, and
+ * draw the whole screen as one sprite in the fade colour.  The two end tests
+ * are `&&` chains, not nested ifs: the ROM's short circuit path out of the
+ * first condition falls into the SECOND condition's test, which is why the
+ * else arm is entered twice and materialises 0.0 again at 0x001130B0, and a
+ * nested if would jump past it instead (223 instructions against ROM's 224). */
+void gsb_fade(void)
+{
+    GsbRect r = {-(D_0063A064 >> 1) * 16, -(D_0063A068 >> 1) * 16, D_0063A064 * 16,
+                 D_0063A068 * 16};
+
+    switch (fadeStatus) {
+    case 1:
+        if (0.0f < fadeSpeed) {
+            D_0063C124 = 0.0f;
+            fadeStatus = 2;
+        } else if (fadeSpeed < 0.0f) {
+            fadeStatus = 2;
+            D_0063C124 = 144.0f;
+        }
+        /* FALLTHROUGH */
+    case 2:
+        D_0063C124 = D_0063C124 + fadeSpeed * 0.5f;
+        break;
+    case 3:
+        break;
+    default:
+        goto clear;
+    }
+    if (0.0f < fadeSpeed && 128.0f <= D_0063C124) {
+        if (fadeContinue != 0) {
+            fadeStatus = 3;
+        } else {
+            fadeStatus = 0;
+        }
+    } else if (fadeSpeed < 0.0f && D_0063C124 < 0.0f) {
+        if (fadeContinue != 0) {
+            fadeStatus = 3;
+        } else {
+            fadeStatus = 0;
+        }
+    }
+    if (128.0f <= D_0063C124) {
+        fadeColor[3] = 128;
+    } else if (D_0063C124 < 0.0f) {
+        fadeColor[3] = 0;
+    } else {
+        fadeColor[3] = D_0063C124;
+    }
+    gif_StartPacketPri(0xB);
+    gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 1, 0);
+    gif_SetGsReg(0x47, 0x30000);
+    gif_SetGsReg(0x4E, 0x1300000C0LL);
+    setGsReg(0x49, 0);
+    setGsReg(0x42, 0x44);
+    gsbSpriteNoTexture(r.x, r.y, r.w, r.h, -1, fadeColor, 1);
+    gif_EndPacket();
+    if (D_0063B13C & 1) {
+        debug_Printf(0x208, D_0063A068 / 2 - 8, 0xCCCCCC00, D_00639FA0);
+    }
+    return;
+clear:
+    fadeColor[3] = 0;
+    fadeStatus = 0;
+}
 
 extern int CurrentTargetGObjSub;
 extern StageSetting D_0028F720;
@@ -183,18 +336,26 @@ extern int D_0028F814;
 extern void SetMotionBlur(int on);
 extern void gif_EndPacketPath1(void);
 
-/* Reverted to asm 2026-09-17 (chain 3 pass 16): 223 of 226 instructions with
- * the first 82 word for word and the tail aligned one instruction on.  The
- * shape is derived: the two letterbox bars as one `GsbRect r[2]` array
- * initialiser (ROM's four ldl/ldr pairs copy the 32 bytes), the alpha ease
- * towards 128 or 0 on the demo state, the two clamps, and a two-iteration
- * loop whose body is an inlined untextured sprite.  MEASURED RESIDUAL: ROM
- * carries two extra lui (one is %hi(D_0028F814) computed in both
- * predecessors of the SetMotionBlur call, the other still unattributed),
- * one extra hazard nop before the first bc1f (the built code spends that
- * slot on the branch delay instead) and spells one sp-relative address with
- * ori where the built code uses addiu.  Derived body:
- * tails/seeds/GsBase.c3p16_gsb_scissorOnDemo_223of226_strict141_TU.c. */
+/* Reverted to asm 2026-09-21 (chain 3 pass 43, was pass 16): 221 instructions
+ * against ROM's 226 and the first 82 word for word.  The shape is derived and
+ * the listing agrees with it (SRCFILE.TXT GsBase.c:1067 is the two bar
+ * `GsbRect r[2]` initialiser, 1092 to 1119 the ease and the two clamps, 1120
+ * the two-iteration `for` and 1121 its whole body, one untextured sprite).
+ * The alpha window is an `&&` chain like gsb_fade's, which is what gives the
+ * else arm its two entries.
+ *
+ * MEASURED RESIDUAL, five instructions: ROM's `SetMotionBlur` call is
+ * entered twice and reorg fills the first entry's branch delay slot FROM THE
+ * TARGET THREAD, copying `lui $2, %hi(D_0028F814)` out of .L0011367C into the
+ * `bc1f` at 0x00113478 and retargeting that branch one instruction past it to
+ * .L00113680, so ROM carries the `lui` twice and a `nop` the built code does
+ * not have; the built code's two branches share one entry and leave the slot
+ * empty.  ROM also parks the sprite's PRIM word 0x446 in a callee-saved
+ * register across the loop (`addiu $22, $0, 0x446`) where the built code
+ * parks 0x8000 there instead.  Seed:
+ * tails/seeds/GsBase.c3p43_gsb_scissorOnDemo_221of226_strict137_TU.c (the
+ * pass 16 seed is superseded: its sprite is now the shared
+ * `gsbSpriteNoTexture` stand-in that landed gsb_fade). */
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_scissorOnDemo);
 
 extern int D_0028F4C0[];
@@ -242,23 +403,29 @@ void gsb_controlBrightness(void)
     }
 }
 
-/* Reverted to asm 2026-09-17 (chain 3 pass 16): 233 of 233 instructions with
- * the derived shape and the exact .rodata.  The body is six 16-byte source
- * and destination rectangles as local initialisers, the 0x80808080 colour
- * copied out of D_00639FC0 (declared as an incomplete array so the address
- * is absolute, not gp-relative), the stage record's two anti-alias levels
- * read into an `int lv[2]` (an array, which is what keeps them on the
- * frame the way ROM re-reads them), and up to four sensitive-sprite blends
- * whose TEX0 is written as two groups so the 0x400000000 TCC bit stays a
- * separate hoisted constant.  DATA the landing would emit: .rodata 96
- * bytes, byte-identical to D_0054E310..D_0054E36F (VMA 0x0054E310, ROM
- * offset 0x0044E310), six records {4,4,0x2000,0x2000} {4,4,0x1000,0x1000}
+/* Reverted to asm 2026-09-21 (chain 3 pass 43, was pass 16).  CORRECTION to
+ * the pass 16 row: this body is 239 instructions, not 233.  `nm -S` gives
+ * 0x3BC against the ROM span's 0x3A4 and the strict comparator truncates to
+ * the ROM's length, which is what made the earlier row read 233 of 233.
+ * STRICT 212.  The shape and the .rodata are unchanged and still derived:
+ * six 16-byte source and destination rectangles as local initialisers, the
+ * 0x80808080 colour copied out of D_00639FC0 (an incomplete array so the
+ * address is absolute, not gp-relative), the stage record's two anti-alias
+ * levels in an `int lv[2]`, and up to four sensitive-sprite blends whose
+ * TEX0 is written as two groups so the 0x400000000 TCC bit stays a separate
+ * hoisted constant.  DATA the landing would emit: .rodata 96 bytes,
+ * byte-identical to D_0054E310..D_0054E36F (VMA 0x0054E310, ROM offset
+ * 0x0044E310), six records {4,4,0x2000,0x2000} {4,4,0x1000,0x1000}
  * {4,4,0x800,0x800} {-0x1004,-0x1004,0x2000,0x2000} {-0x804,-0x804,0x1000,
- * 0x1000} {-0x404,-0x404,0x800,0x800}.  RESIDUAL: the callee-saved count
- * (ROM holds the first tex_GetTWTH result and the TCC constant in $16 and
- * $17, frame 0xB0; the built code keeps one and spills, frame 0xA0) and the
- * scheduling that follows.  Derived body:
- * tails/seeds/GsBase.c3p16_gsb_antiAlias_233of233_strict212_TU.c. */
+ * 0x1000} {-0x404,-0x404,0x800,0x800}.
+ *
+ * MEASURED RESIDUAL: whole-function allocation.  ROM reserves 0xB0 and saves
+ * TWO callee-saved registers ($16 and $17, holding the first tex_GetTWTH
+ * result and the TCC constant); the built code reserves 0xA0, saves only
+ * $16, and pays for it with six more instructions of reload traffic.  The
+ * divergence starts at the prologue, so this is the convergence class that
+ * wants the whole body driven at once, not a local tie.  Seed:
+ * tails/seeds/GsBase.c3p43_gsb_antiAlias_239of233_strict212_TU.c. */
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_antiAlias);
 
 /* kept local: this TU's uses of dl_GetPri do not fit the prototype in DisplayList.h */
@@ -666,33 +833,75 @@ void gsb_ResetGSSystem(void)
     gsb_SetGsDefault();
 }
 
-/* Reverted to asm 2026-09-17 (chain 3 pass 16): 313 of 313 instructions with
- * the whole body derived.  It builds the four view matrices from the view
- * record gsb_SetVSMatrix fills: the screen scale (vs[0] down the diagonal
- * with the w row swapped in), the perspective projection for the main view,
- * the half scale projection for the reduction buffer, and the 1500 unit
- * orthographic pair for the reflection, multiplying two of them into
- * matrixptr+0x640 and +0x680.  LEVERS ALREADY MEASURED: the two range
+extern void _UnitMatrix(float *m);
+
+/* Reverted to asm 2026-09-21 (chain 3 pass 43, re-measured from pass 16):
+ * 313 of 313 instructions, `nm -S` 0x4E4 equal to the ROM span (the count
+ * and the size are both confirmed this pass, unlike gsb_antiAlias's), STRICT
+ * 129.  The body is derived: the screen half size pair, the projection rows
+ * (a unit matrix with the w row swapped in), the perspective projection for
+ * the main view, the half scale projection for the reduction buffer, and the
+ * 1500 unit orthographic pair for the reflection, multiplying two of them
+ * into matrixptr+0x640 and +0x680.  LEVERS ALREADY MEASURED: the two range
  * terms are written `-vs[5] + vs[6]` and `-vs[7] + vs[8]` (ROM's neg.s plus
- * add.s, not sub.s), which took the function from 311 of 313 and 263
- * differing words to 313 of 313 and 129; the screen half size pair is a
- * `union { float f[4]; long long d[2]; }` initialiser, which is what makes
- * ROM copy it with ld/sd rather than lwl/lwr; 1500.0f twice is a static
- * const float[4] in .rodata (VMA 0x0054E478, ROM offset 0x0044E478, bytes
- * 1500.0 1500.0 0.0 0.0) that a landing would emit and that needs a carve
- * row.  RESIDUAL: the floating point register assignment (ROM holds the far
- * and near terms in $f26 and $f25, the four scale terms in $f21 $f22 $f23
- * $f20 and the three constants in $f24 $f27 $f28) and the load order that
- * follows from it; the instruction count and every mnemonic class match.
- * Derived body:
- * tails/seeds/GsBase.c3p16_gsb_SetVSMatrixSub_313of313_strict129_TU.c. */
+ * add.s, not sub.s); the screen half size pair is a `union { float f[4];
+ * long long d[2]; }` initialiser, which is what makes ROM copy it with ld/sd
+ * rather than lwl/lwr.
+ *
+ * DATA the landing would emit, verified against the ROM this pass: one
+ * `.rodata.scr` section, 16 bytes, contents 0x0080BB44 0x0080BB44 0x00000000
+ * 0x00000000 (1500.0f, 1500.0f, 0.0f, 0.0f), byte-identical to the ROM run
+ * at VMA 0x0054E478..0x0054E488 (ROM offset 0x0044E478); the carve row is a
+ * plain `[0x44E478, .rodata, ico2/seki/src/GsBase]` and the object is NAMED
+ * (a file-scope `static const float scr[4]`), not anonymous.
+ *
+ * MEASURED RESIDUAL: whole-function FLOATING POINT register assignment and
+ * the load order that follows it.  The first divergence is row 14, where ROM
+ * converts the frame width into $f1 and the built code into $f0, and it runs
+ * through the callee-saved block (ROM holds the far and near terms in $f26
+ * and $f25 and the four scale terms in $f21 $f22 $f23 $f20, the built code
+ * puts the same values one register across and saves $f22 before $f21).
+ * Every mnemonic class and the instruction count already match, so this is
+ * the convergence class that wants the whole body driven at once.  Seed:
+ * tails/seeds/GsBase.c3p43_gsb_SetVSMatrixSub_313of313_strict129_TU.c. */
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_SetVSMatrixSub);
-/* Reverted to asm 2026-09-17 (chain 3 pass 16): 156 of 159 instructions, the
- * whole body derived and the tail word for word; the residual is three
- * `addiu $2, $6, %lo(D_0028F720)` that ROM keeps as a separate address
- * value (0xE0 stays the load displacement) where the built code folds the
- * lo_sum and the offset into each load.  Derived body and mechanism:
- * tails/seeds/GsBase.c3p16_gsb_SetVSMatrix_156of159_strict112_TU.c. */
+/* Reverted to asm 2026-09-21 (chain 3 pass 43, was pass 16): 159 of 159
+ * instructions, `nm -S` 0x27C equal to the ROM span, STRICT 4.  TWO LEVERS
+ * MEASURED THIS PASS took it from 156 of 159 and 112 differing words to
+ * this.  (1) The stage record's view scale at 0x0E0 is read through the
+ * MEMBER reference `D_0028F720.viewScale`, not a cast deref: expand_expr's
+ * handled component path (expr.c around line 6430) force_regs the base
+ * symbol and keeps the member offset as the load's DISPLACEMENT, which is
+ * ROM's `lui %hi` / `addiu %lo` pair with 0xE0 on the `lw`, while
+ * `*(int *)((char *)&D_0028F720 + 0xE0)` folds the 0xE0 onto the %lo.  The
+ * field is named in ico2/common/include/typedef.h inside the existing pad,
+ * offsets and size unchanged.  (2) `D_0028F948` is declared as the
+ * INCOMPLETE array `extern int D_0028F948[]`: at -G 8 a bare `extern int`
+ * goes to small data and is read off $gp, and the ROM reads it absolutely
+ * with a `lui %hi` / `lw %lo` pair (the same lever the pass 16 gsb_antiAlias
+ * row measured for D_00639FC0).
+ *
+ * MEASURED RESIDUAL, four rows, two of them a class this repo already lands
+ * on: rows 29 and 129 are R_MIPS_LITERAL pool words, which the strict
+ * comparator does not mask; the object's own .lit4 is 0x6F12833A 0xFFFFFF4D
+ * 0xA4707D3F, byte-identical to the ROM run at VMA 0x00638BCC..0x00638BD8
+ * (ROM offset 0x00538BCC), 0.001f and 536870880.0f owned by this function
+ * and 0.99f by the already matched gsb_ClipBox, interned in file order.  The
+ * two REAL words are the order of the two 2048.0f stores: ROM writes
+ * D_0063A05C then puts D_0063A060 in the `bc1f` delay slot, the built code
+ * the other way round.  Both stores share one CSE'd 2048.0f pseudo, and in
+ * sched1 rank_for_schedule reaches INSN_REG_WEIGHT before the ready list's
+ * LUID tie, so the store that KILLS that pseudo (the second one) has weight
+ * -1 against the first one's 0 and is scheduled first; reorg then takes the
+ * nearest store into the delay slot.  For ROM to keep source order the
+ * shared constant has to still be live past both stores, so the next axis is
+ * what else in the dev's body reads 2048.0f.  Writing the pair as the chain
+ * `D_0063A060 = D_0063A05C = 2048.0f;` does not change it (still 4), and
+ * swapping the two statements reaches STRICT 2 but is anti-ROM: the
+ * listing attributes the D_0063A05C store to the earlier source line
+ * (SRCFILE.TXT GsBase.c:2259 against the other store's 2263), so the source
+ * order is X then Y and the swap would only mask the scheduler.  Seed:
+ * tails/seeds/GsBase.c3p43_gsb_SetVSMatrix_159of159_strict4_TU.c. */
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_SetVSMatrix);
 
 /* Clip a box against the current matrix: transform its eight corners with the
