@@ -72,7 +72,6 @@ void GatherEffect_SetGoal(int a0, void *a1)
 extern float _GetNorm(void *p);
 extern float _GetLength(void *a, void *b);
 extern float acosf(float x);
-extern char D_00555798[];
 
 int GatherEffect_Proc(struct GGeo *geo)
 {
@@ -158,7 +157,7 @@ int GatherEffect_Proc(struct GGeo *geo)
             geo->f68(geo->f6C);
         }
 
-        debug_StdPrintfDummy(D_00555798);
+        debug_StdPrintfDummy("gather effect end\n");
     }
 
     return !end;
