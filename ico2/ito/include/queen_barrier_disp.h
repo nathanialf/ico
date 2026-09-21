@@ -22,7 +22,7 @@ void queen_barrier_anim(void);
  * first-declaration order, so this is the order queen_barrier_disp.c's inline tail has. */
 
 void queen_barrier_disp_init(void);
-void queen_barrier_disp_proc(float);
+void queen_barrier_disp_proc(char *g, float k);
 void queen_barrier_set_damage(void);
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */

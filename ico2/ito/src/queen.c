@@ -1553,7 +1553,7 @@ void QueenBarrierDL(char *g)
 {
     char *b = *(char **)((char *)GOBJ_SUB(g) + 0x830);
     if (*(signed char *)(b + 0x12)) {
-        queen_barrier_disp_proc(1.0f - *(int *)(b + 0x18) / 5.0f);
+        queen_barrier_disp_proc(g, 1.0f - *(int *)(b + 0x18) / 5.0f);
     }
 }
 

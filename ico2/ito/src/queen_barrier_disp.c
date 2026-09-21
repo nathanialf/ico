@@ -1,4 +1,5 @@
 #include "common.h"
+#include "typedef.h"
 #include "debug.h"
 #include "Primitive.h"
 #include "tableSin.h"
@@ -32,7 +33,70 @@ extern void _ScaleVectorXYZ(QVec *dst, QVec *src, float k);
 /* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector(QVec *dst, QVec *src);
 
-INCLUDE_ASM("asm/nonmatchings/ico2/ito/src/queen_barrier_disp", MakeRefractTexture);
+/* The screen rectangle and the texture rectangle this packet draws, in the
+   1/16-unit form the GS registers take. */
+typedef struct {
+    int x0, y0, x1, y1;
+} GifRect;
+
+typedef struct {
+    int u0, v0, u1, v1;
+} GifUvRect;
+
+#define GIF_RGBA(c)                                                                                \
+    ((long long)(c)[0] | ((long long)(c)[1] << 8) | ((long long)(c)[2] << 16) |                    \
+     ((long long)(c)[3] << 24))
+#define GIF_UV(u, v) ((long long)(u) | ((long long)(v) << 16))
+#define GIF_XY(x, y) ((long long)((x) + 0x8000) | ((long long)((y) + 0x8000) << 16))
+#define GIF_XY0(x, y) ((long long)(x) | ((long long)(y) << 16))
+
+typedef struct {
+    unsigned char c[4];
+} GifCol;
+
+extern GifCol D_0063AC60[];
+extern int D_0063A064;
+extern int D_0063A068;
+extern GifRect D_00556E00;
+extern GifDpk D_004EE6F0;
+
+/* INTERIM: the listing inlines gif_SetGsReg here the same way it does across
+   GifPacket.c; while that TU's own out-of-line copy is still asm the callers
+   the listing shows inlining it call this static stand-in. */
+static inline void setGsReg(long long a0, long long a1)
+{
+    *D_004EE6F0.ptr++ = a1;
+    *D_004EE6F0.ptr++ = a0;
+}
+
+void MakeRefractTexture(int frame)
+{
+    GifCol col = D_0063AC60[0];
+    GifRect r = D_00556E00;
+    GifUvRect uv = {8, 8, D_0063A064 * 16, D_0063A068 * 16};
+    int fx;
+    int fy;
+
+    gif_SetGsReg(0x47, 0x30000);
+
+    gif_SetGsReg(0x4E, 0x1300000C0LL);
+
+    gif_SetGsReg(0x06, ((long long)(D_0063A064 / 64) << 14) | 0x664000800LL);
+
+    setGsReg(0x4C, frame | 0x80000);
+    setGsReg(0x40, 0xFF000001FF0000LL);
+    setGsReg(0x18, 0x780000007000LL);
+    setGsReg(0x00, 0x116);
+    setGsReg(0x01, GIF_RGBA(col.c));
+    setGsReg(0x03, GIF_UV(uv.u0, uv.v0));
+    setGsReg(0x05, GIF_XY(r.x0, r.y0));
+    /* the far corner is offset once and the near corner added to it, the
+       gif_MakeSprite idiom: the ROM adds 0x8000 to the size, not to the sum */
+    fx = r.x1 + 0x8000;
+    fy = r.y1 + 0x8000;
+    setGsReg(0x03, GIF_UV(uv.u0 + uv.u1, uv.v0 + uv.v1));
+    setGsReg(0x05, GIF_XY0(r.x0 + fx, r.y0 + fy));
+}
 
 void queen_barrier_set_damage(void)
 {
