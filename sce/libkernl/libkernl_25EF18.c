@@ -304,7 +304,23 @@ extern int D_0072A710[];
 /* the DECI2 receive flag the tty handler sets from interrupt level */
 extern volatile int *D_0072A728;
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceTtyRead);
+int sceTtyRead(void *buf, int size)
+{
+    int i;
+    char *p;
+
+    for (i = 0; i < size; i++) {
+        p = (char *)buf + i;
+        while (D_0072A728[1] == 0) {}
+        *p = *((RingBuf_241C80 *)D_0072A710[6])->f8;
+        QueuePeekReadDone((RingBuf_241C80 *)D_0072A710[6]);
+        if (*p == '\n' || *p == '\r') {
+            return i + 1;
+        }
+    }
+    return i;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceTtyInit);
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifInitRpc);
 
