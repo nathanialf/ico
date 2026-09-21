@@ -47,7 +47,7 @@ float GetPoolGlobalHeight(char *a0);
 float GetPoolGlobalHeightDetail(char *a0, float *pos);
 void InitLayoutedPoolReflactionMesh(char *a0, char *a1);
 void InitLimitedPoolReflactionMesh(char *a0);
-void SetFallDownSplash(int pool, void *self);
+void SetFallDownSplash(char *pool, char *self);
 void SetLayoutedPoolReflactionMesh(char *a0);
 void SetLimitedPoolReflactionMesh(char *a0, char *a1, char *a2);
 void copyToWork(int pri);

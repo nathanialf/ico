@@ -20,7 +20,13 @@ def _resolve_obj(tu):
     cands = [c for c in dict.fromkeys(cands) if os.path.exists(c)]
     if not cands:
         raise SystemExit("no quick_diff object for %s (run tools/quick_diff.sh <tu> <func> first)" % tu)
-    return max(cands, key=os.path.getmtime)
+    # quick_diff.sh writes build/quick_diff/<tu>.o and removes it when the compile or
+    # the assembly fails; an older object at another path must never be scored in its
+    # place, so the exact path wins and its absence is an error, not a fallback.
+    exact = "build/quick_diff/%s.o" % tu
+    if os.path.exists(exact):
+        return exact
+    raise SystemExit("no quick_diff object at %s (the last quick_diff for this TU failed; older objects at %s are not scored)" % (exact, ", ".join(cands)))
 tu,fn=sys.argv[1],sys.argv[2]
 sub=sys.argv[3] if len(sys.argv)>3 and not sys.argv[3].startswith('-') else '.'
 txt=open('asm/nonmatchings/%s/%s/%s.s'%(sub,tu,fn)).read()

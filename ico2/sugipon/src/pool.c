@@ -14,6 +14,7 @@
 #include "multiBgaManager.h"
 #include "particleEffect.h"
 #include "quaternion.h"
+#include "StageAnimation.h"
 #include "tableSin.h"
 #include <string.h>
 
@@ -107,6 +108,41 @@ void flushWork(int pri)
     gif_SetZTest(1);
 }
 
+/* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
+extern void _SubVector(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
+extern void _AddVector(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
+extern void _ScaleVectorXYZ(void *dst, void *src, float k);
+
+/* The listing gives this body rows 178 to 186 and attributes those rows to
+   both SetFallDownSplash and InitPoolGeo, so it is a static of this file that
+   the compiler inlines into each of them and it has no symbol of its own.  It
+   plants one cell of the pool's ripple grid at a world position: the grid
+   index and the in-cell remainder on each of the two horizontal axes, then
+   the amplitude the caller asks for and a zero age. */
+static inline void setWaveCell(char *w, float *pos, int idx, float amp)
+{
+    float step = *(float *)(w + 0x3C);
+    int nx = *(int *)(w + 0x34);
+    int ny = *(int *)(w + 0x38);
+    char *cell = (char *)(idx * 24 + (int)w);
+    float d[4];
+
+    _SubVector(d, pos, w);
+    /* The step to the record is its own statement: written into the
+       initialiser the record address becomes cell = base + 0x50 with base
+       still live, and cse's find_best_addr then spells the first store as
+       0x50(base) instead of 0x0(cell). */
+    cell += 0x50;
+    *(int *)(cell + 0x0) = (int)(d[0] / step) + (nx >> 1);
+    *(float *)(cell + 0x4) = d[0] - (float)(int)(d[0] / step) * step;
+    *(int *)(cell + 0x8) = (int)(d[2] / step) + (ny >> 1);
+    *(float *)(cell + 0xC) = d[2] - (float)(int)(d[2] / step) * step;
+    *(float *)(cell + 0x10) = amp;
+    *(float *)(cell + 0x14) = 0.0f;
+}
+
 void setNodePursueParticleEffectWithUpperLimit(char *a0, char *a1, int a2, float f)
 {
     int ret = GetSkeltonFocusNode(a1, a2);
@@ -118,7 +154,38 @@ void setNodePursueParticleEffectWithUpperLimit(char *a0, char *a1, int a2, float
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/pool", SetFallDownSplash);
+void SetFallDownSplash(char *pool, char *self)
+{
+    float pos[4];
+    float tmp[4];
+    char *w = *(char **)(*(char **)(pool + 0x15C) + 0x830);
+
+    GetRootPosition(pos, self);
+    _ScaleVectorXYZ(tmp, *(char **)(self + 0x15C) + 0x130, 2.0f);
+    _AddVector(pos, pos, tmp);
+    pos[1] = *(float *)(w + 0x4);
+
+    if (*(int *)(*(char **)(self + 0x15C) + 0x8C) != 0) {
+        setNodePursueParticleEffectWithUpperLimit((char *)48, self, 51, pos[1]);
+        setNodePursueParticleEffectWithUpperLimit((char *)48, self, 47, pos[1]);
+    }
+
+    stage_SetLoopFlag(499, 0);
+    stage_SetFrameStep(499, 1);
+
+    EntryMultiBgaManagerNoKind(*(BgaDisp **)(w + 0x24), *(int *)(w + 0x20), pos);
+    *(int *)(w + 0x20) = (*(int *)(w + 0x20) + 1) % 2;
+
+    if (*(int *)(w + 0x30) != 0) {
+        setWaveCell(w, pos, *(int *)(w + 0xC8), 0.5f);
+        *(int *)(w + 0xC8) = *(int *)(w + 0xC8) + 1;
+        if (*(int *)(w + 0xC8) == 5) {
+            *(int *)(w + 0xC8) = 0;
+        }
+    }
+
+    falldownSE((int)self);
+}
 
 void GetPoolGlobalDrainVector(void *dst, char *a0)
 {
@@ -229,8 +296,6 @@ extern int buffer_ID;
 extern int matrixptr;
 /* kept local: this TU's uses of _InnerProduct do not fit the prototype in Matrix.h */
 extern float _InnerProduct(void *a, void *b);
-/* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
-extern void _AddVector(void *dst, void *a, void *b);
 /* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(void *dst, void *a, void *b);
 /* kept local: this TU's uses of _ApplyCurrentMatrix do not fit the prototype in Matrix.h */
@@ -241,12 +306,8 @@ extern void _InitCurrentMatrix(void);
 extern void _NormalizeVector(void *dst, void *src);
 /* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
 extern void _ScaleVector(void *dst, void *src, float k);
-/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
-extern void _ScaleVectorXYZ(void *dst, void *src, float k);
 /* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _SetCurrentMatrix(int m);
-/* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
-extern void _SubVector(void *dst, void *a, void *b);
 
 void updatePoolGeo(char *self)
 {
@@ -435,10 +496,10 @@ extern int D_0063A07C;
 extern int D_0063A080;
 extern int D_0063B148;
 extern int stage_no;
-/* kept local: this TU's uses of _MulMatrix do not fit the prototype in Matrix.h */
-extern void _MulMatrix(void *dst, void *a, void *b);
 /* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
 extern void _UnitMatrix(void *m);
+/* kept local: this TU's uses of _MulMatrix do not fit the prototype in Matrix.h */
+extern void _MulMatrix(void *dst, void *a, void *b);
 /* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
