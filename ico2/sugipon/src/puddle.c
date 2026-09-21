@@ -8,7 +8,6 @@
 #include "Texture.h"
 #include "matrixDrive.h"
 #include "tableSin.h"
-#include <string.h>
 
 /* 16-byte aligned: the template copy in InitPuddleGeo is ld/sd, not ldl/ldr. */
 typedef struct {
@@ -31,6 +30,11 @@ typedef struct {
     int y1;
 } PuddleRect;
 
+/* Declared here, not through string.h: with newlib's prototype in scope gcc
+   expands the four-byte zero fill below as one store, and the ROM calls
+   memset there (ROM bytes 0x1BD6D0 frame). The non-standard prototype is
+   what keeps the builtin off in this file. */
+extern void memset(void *p, int c, int n);
 extern void *D_0063A438;
 extern char D_006209D8[];
 extern char D_002A79B8[];
