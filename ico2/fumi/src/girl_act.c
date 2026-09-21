@@ -516,7 +516,156 @@ void ChangeRunMode(int mode)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", subGirlBrainMain);
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", subGirlBrain_Pulledup);
+
+/* kept local: this TU's uses of debug_NMarker do not fit the prototype in camera-editor.h */
+extern void debug_NMarker(void *pos, int r, int g, int b, float size);
+/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
+extern void *test_CURRENTROOT(void *a0);
+/* kept local: this TU's uses of test_CURRENTORIENT do not fit the prototype in commonact.h */
+extern void *test_CURRENTORIENT(void *a0);
+/* kept local: this TU's uses of _DistxzGV do not fit the prototype in gv.h */
+extern float _DistxzGV(void *a, void *b);
+/* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
+extern float _DistGV(void *a, void *b);
+/* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
+extern void _OrientXZGV(void *out, void *a, void *b);
+/* kept local: this TU's uses of _RotyGV do not fit the prototype in gv.h */
+extern int _RotyGV(void *buf, void *vec);
+/* kept local: this TU's uses of GetSkeltonOrient do not fit the prototype in act-game.h */
+extern void GetSkeltonOrient(float *out, void *obj, int node);
+extern void _ACTCharStatus_Set(void *obj, int id, float v, int flag);
+extern void sceVu0AddVector(float *dst, float *a, float *b);
+extern int ACTCheckCollis_WELL(void *p0, void *p1, void *actor, void *posout, float f);
+extern void *D_0063A6B0;
+extern void *D_00639EA0;
+extern int D_006C1E20[];
+
+/* girl_brain_main.c.inc:2-8 -- a file-scope static helper with no out-of-line
+ * ROM copy (no MAIN.MAP symbol); the listing attributes lines 3/4/5/7 of the
+ * .inc inside subGirlBrain_HideAdvance's move arm and inside
+ * subGirlBrain_Pulledup's. */
+static inline void girlBrainSetWalkRatio(void *g)
+{
+    float run = 1.0f;
+    Act *s = GOBJ_ACT(g);
+    float walk = 0.5f;
+
+    if (ACTWay_IsMustWalkFromWay(g)) {
+        *(float *)((char *)s + 0x34C) = walk;
+    } else {
+        *(float *)((char *)s + 0x34C) = run;
+    }
+}
+
+/* girl_act.c:692-698 in the listing, which is why it sits here and not in
+   girl_brain_attract.c.inc: subGirlBrain_Pulledup (whose text the .inc
+   follows) expands it too.  The first parameter is unused -- the listing
+   emits the read anyway at every site whose actor is the volatile entry
+   parameter, which is what pins the parameter's existence. */
+static inline void ATGoalTurnSet(void *actor, int prio, int dir, float *v)
+{
+    if (prio >= D_006C1E20[0]) {
+        D_006C1E20[0] = prio;
+        D_006C1E20[1] = dir;
+        *(float *)&D_006C1E20[4] = v[0];
+        *(float *)&D_006C1E20[5] = v[1];
+        *(float *)&D_006C1E20[6] = v[2];
+    }
+}
+
+void subGirlBrain_Pulledup(volatile int a0)
+{
+    float self_pos[4];
+    float boy_pos[4];
+    float ofs[4];
+    float base[4];
+    float top[4];
+    float well[4];
+    float cur[4];
+    float sk[4];
+    float oz[4];
+    Act *sub = GOBJ_ACT(a0);
+    int hit;
+    float d;
+    float dy;
+    float lim;
+    int ry;
+
+    GetRootProjectionPosOfGObj(self_pos, (void *)a0);
+    GetRootProjectionPosOfGObj(boy_pos, D_00639EA4);
+    *(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x374) = 0;
+    sceVu0ScaleVector(ofs, test_CURRENTORIENT(D_00639EA4), 60.0f);
+    sceVu0AddVector(base, boy_pos, ofs);
+    base[1] = base[1] - 50.0f;
+    top[0] = base[0];
+    top[2] = base[2];
+    top[1] = base[1] + 1000.0f;
+    if (ACTCheckCollis_WELL(base, top, D_00639EA4, well, 0.0f)) {
+        boy_pos[0] = well[0];
+        boy_pos[1] = well[1];
+        boy_pos[2] = well[2];
+        if (D_0063A6B0 != 0 && *(int *)((char *)D_0063A6B0 + 0xC) == 0x11) {
+            *(void **)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x374) = D_0063A6B0;
+        }
+        boy_pos[1] = boy_pos[1] - 10.0f;
+    }
+    if (*(int *)(*(char **)((char *)D_00639EA4 + 0x164) + 0x34) == 0x58) {
+        boy_pos[0] = *(float *)(*(char **)((char *)D_00639EA4 + 0x164) + 0x510);
+        boy_pos[1] = *(float *)(*(char **)((char *)D_00639EA4 + 0x164) + 0x514);
+        boy_pos[2] = *(float *)(*(char **)((char *)D_00639EA4 + 0x164) + 0x518);
+    }
+    if (!ACTWayMove_BeginDetail((void *)a0, self_pos, boy_pos, 0, 0, 0)) {
+        while (1) {
+            _ACTWait(1);
+        }
+    }
+    for (;;) {
+        cur[0] = ((float *)test_CURRENTROOT((void *)a0))[0];
+        cur[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
+        cur[2] = ((float *)test_CURRENTROOT((void *)a0))[2];
+        hit = ACTWayMove_NextDetail((void *)a0, (char *)sub + 0x120, boy_pos, 0, 0);
+        debug_NMarker(boy_pos, 0xFF, 0, 0, 100.0f);
+        if (!hit) {
+            sub->f_34C = 0;
+        } else {
+            sub->f_120 = *(float *)((char *)sub + 0x3E0);
+            sub->f_124 = *(float *)((char *)sub + 0x3E4);
+            sub->f_128 = *(float *)((char *)sub + 0x3E8);
+            girlBrainSetWalkRatio((void *)a0);
+        }
+        d = _DistxzGV(boy_pos, cur);
+        dy = boy_pos[1] - cur[1];
+        dy = (dy < 0.0f) ? -dy : dy;
+        lim = (*(int *)(*(char **)((char *)D_00639EA4 + 0x164) + 0x34) == 0x58) ? 200.0f : 100.0f;
+        if (d < 30.0f && dy < 200.0f) {
+            sub->f_34C = 0;
+            GetSkeltonOrient(sk, (void *)a0, 0x2C);
+            _OrientXZGV(oz, test_CURRENTROOT(D_00639EA4), test_CURRENTROOT((void *)a0));
+            ry = _RotyGV(sk, oz);
+            if (0x15 <= ((ry < 0) ? -ry : ry)) {
+                if (D_00639EA0 == 0) {
+                    if (0 < ry) {
+                        ATGoalTurnSet((void *)a0, 3, 2, oz);
+                    } else {
+                        ATGoalTurnSet((void *)a0, 3, 1, oz);
+                    }
+                }
+            } else {
+                *(unsigned long long *)((char *)sub + 0x18) |= 0x40000000000000;
+            }
+        } else if (d < lim) {
+            *(float *)((char *)sub + 0x34C) =
+                (*(float *)((char *)sub + 0x34C) < 0.0f)
+                    ? 0.0f
+                    : ((0.5f < *(float *)((char *)sub + 0x34C)) ? 0.5f
+                                                                : *(float *)((char *)sub + 0x34C));
+        }
+        _ACTCharStatus_Set((void *)a0, 0x1C, -1.0f, 0);
+        *(float *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x32C) =
+            _DistGV(test_CURRENTROOT((void *)a0), boy_pos);
+        _ACTWait(1);
+    }
+}
 
 #include "girl_brain_attract.c.inc"
 
@@ -527,7 +676,6 @@ extern void ClipFloor(void *w);
 extern char D_00553A88[];
 extern char D_0063A8A0[];
 extern void sceVu0Normalize(void *dst, void *src);
-extern void sceVu0AddVector(float *dst, float *a, float *b);
 extern void sceVu0CopyVector(void *dst, void *src);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
@@ -587,8 +735,6 @@ void _girlBrainHide_MakeHidePoint(float *p, float dist)
     p[1] = work.pos[1] - 10.0f;
 }
 
-/* kept local: this TU's uses of _RotyGV do not fit the prototype in gv.h */
-extern int _RotyGV(void *buf, void *vec);
 extern char D_00553BF0[];
 extern char D_00553C00[];
 
@@ -630,12 +776,6 @@ void girlBrainHide_GoalTurn(float *dir, unsigned char sendMail)
 
 /* kept local: this TU's uses of _DistxzSqGV do not fit the prototype in gv.h */
 extern float _DistxzSqGV(void *a, void *b);
-/* kept local: this TU's uses of _DistxzGV do not fit the prototype in gv.h */
-extern float _DistxzGV(void *a, void *b);
-/* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
-extern void _OrientXZGV(void *out, void *a, void *b);
-/* kept local: this TU's uses of _ACTCharStatus_Set do not fit the prototype in act-game.h */
-extern void _ACTCharStatus_Set(void *obj, int id, float v, int flag);
 /* one object: [0] is the entry count, +0x20 the 0x30-byte hide-point records
    (ROM re-reads the count as -0x20 off the record base). */
 extern int D_0029F5B0[];
@@ -871,8 +1011,6 @@ int girlBrainRunawayMoveByWay(char *self, float *out, float *tgt)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", subGirlBrain_Escape);
 
-/* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
-extern float _DistGV(void *a, void *b);
 /* kept local: this TU's uses of _InterGV do not fit the prototype in gv.h */
 extern void _InterGV(float *dst, float *a, float *b, float t0, float t1);
 
@@ -1103,8 +1241,6 @@ static inline unsigned char isBoyPushBoxTruck(void)
     return 0;
 }
 
-/* kept local: this TU's uses of test_CURRENTORIENT do not fit the prototype in commonact.h */
-extern void *test_CURRENTORIENT(void *a0);
 /* kept local: this TU's uses of _GetDirection do not fit the prototype in gv.h */
 extern float _GetDirection(void *orient);
 extern char D_00553C58[];
@@ -1379,25 +1515,6 @@ static void Danger_Rotobject(void *self)
     }
 }
 
-/* kept local: this TU's uses of debug_NMarker do not fit the prototype in camera-editor.h */
-extern void debug_NMarker(void *pos, int r, int g, int b, float size);
-
-/* girl_brain_main.c.inc:2-8 -- a file-scope static helper with no out-of-line
- * ROM copy (no MAIN.MAP symbol); the listing attributes lines 3/4/5/7 of the
- * .inc inside subGirlBrain_HideAdvance's move arm. */
-static inline void girlBrainSetWalkRatio(void *g)
-{
-    float run = 1.0f;
-    Act *s = GOBJ_ACT(g);
-    float walk = 0.5f;
-
-    if (ACTWay_IsMustWalkFromWay(g)) {
-        *(float *)((char *)s + 0x34C) = walk;
-    } else {
-        *(float *)((char *)s + 0x34C) = run;
-    }
-}
-
 void subGirlBrain_HideAdvance(volatile int a0)
 {
     float self_pos[4];
@@ -1439,8 +1556,6 @@ void subGirlBrain_HideAdvance(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
-extern void *test_CURRENTROOT(void *a0);
 /* kept local: this TU's uses of _AbsRotyGV do not fit the prototype in gv.h */
 extern int _AbsRotyGV(void *a, void *b);
 
@@ -2199,7 +2314,6 @@ void actGirlHintPoint(volatile int a0)
     }
 }
 
-extern int D_006C1E20[];
 /* kept local: this TU's uses of ACTGame_FLAG_TETSUNAGI do not fit the prototype in act-game.h */
 extern int ACTGame_FLAG_TETSUNAGI(void);
 
@@ -2370,7 +2484,6 @@ void actGirlRun(volatile int a0)
     _ACTWait(0);
 }
 
-extern void *D_00639EA0;
 /* kept local: this TU's uses of ACTAdjustPlane do not fit the prototype in commonact.h */
 extern void ACTAdjustPlane(void *self, void *plane);
 

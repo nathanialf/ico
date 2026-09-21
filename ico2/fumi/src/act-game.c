@@ -2592,7 +2592,14 @@ int ACTCheckCollis_CI(int a0, int a1, int *a2, char *a3)
 
 extern int D_0063A6B0;
 
-int ACTCheckCollis_WELL(float f, void *p0, void *p1, void *actor, void *posout)
+/* the float is the LAST parameter, not the first: girl_act.c's
+   subGirlBrain_Pulledup call site puts `mtc1 $0,$f12` after the fourth
+   pointer's argument move, and load_register_parameters emits the moves in
+   declared order, which is what breaks the scheduler's INSN_LUID tie there
+   (the same class as ACTGame_SetMotionPlaySpeedRatio_Reserve).  The EE ABI
+   puts the single float in $f12 wherever it sits, so this function's own
+   bytes do not change. */
+int ACTCheckCollis_WELL(void *p0, void *p1, void *actor, void *posout, float f)
 {
     HandWork work;
     int flag;

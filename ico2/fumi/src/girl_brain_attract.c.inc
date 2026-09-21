@@ -7,22 +7,10 @@
  * INCLUDE_ASM paths name the INCLUDER's asm directory because splat splits by the
  * translation unit, not by the included file. */
 
-extern int D_006C1E20[];
 /* kept local: this TU's uses of GetSkeltonOrient do not fit the prototype in act-game.h */
 extern void GetSkeltonOrient(float *out, void *obj, int node);
 /* kept local: this TU's uses of _RotyGV do not fit the prototype in gv.h */
 extern int _RotyGV(void *buf, void *vec);
-
-static inline void ATGoalTurnSet(int prio, int dir, float *v)
-{
-    if (prio >= D_006C1E20[0]) {
-        D_006C1E20[0] = prio;
-        D_006C1E20[1] = dir;
-        *(float *)&D_006C1E20[4] = v[0];
-        *(float *)&D_006C1E20[5] = v[1];
-        *(float *)&D_006C1E20[6] = v[2];
-    }
-}
 
 int ATGoalTurnMail(void *actor, float *dir, int node)
 {
@@ -58,9 +46,9 @@ int ATGoalTurnMail(void *actor, float *dir, int node)
         d = r1;
     have_d:
         if (d > 0) {
-            ATGoalTurnSet(2, 2, v);
+            ATGoalTurnSet(actor, 2, 2, v);
         } else {
-            ATGoalTurnSet(2, 1, v);
+            ATGoalTurnSet(actor, 2, 1, v);
         }
         ret = 1;
     }
