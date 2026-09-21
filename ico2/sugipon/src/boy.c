@@ -29,6 +29,12 @@ typedef struct {
     LLVec **line; /* 0x08 */
 } LightLineExt;
 
+/* The colour record LightLineDL builds for DrawLineG: four 32-bit components,
+   and the ROM's frame places both of them on a 16-byte boundary. */
+typedef struct { /* 0x10 */
+    int r, g, b, a;
+} __attribute__((aligned(16))) LLColor;
+
 extern LightLineExt *llExtGeo;
 
 #include "boy.h"
@@ -417,7 +423,90 @@ inline void LightLineGeo(void)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/boy", LightLineDL);
+/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
+extern void gif_StartPacketPri(int a0);
+/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
+extern void gif_SetAlpha(int a0, int a1, int a2);
+/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
+extern void gif_EndPacket(void);
+/* lineManager.h declares DrawLineG with int * endpoints; this TU hands it the
+   vector and colour records it builds on its own frame. */
+extern void DrawLineG(LLVec *p0, LLColor *c0, LLVec *p1, LLColor *c1, int flags);
+
+void LightLineDL(void)
+{
+    int i;
+    /* The ROM gives i a frame slot of its own at 0x0, ahead of the five
+       16-byte records: this helper reads the enclosing loop's index rather
+       than taking it as an argument, which puts i in the parent's frame at
+       the point the helper is declared.  It is inlined at both call sites,
+       so no static chain is built. */
+    inline int LightLineVtx(LLVec * dst, float ph)
+    {
+        float f = ph * 18.99998f;
+        LLVec *p = llExtGeo->line[i];
+
+        sceVu0InterVector(dst, &p[(int)f + 1], &p[(int)f], f - (int)f);
+
+        dst->w = 1.0f;
+
+        return (int)f;
+    }
+    LLColor c0;
+    LLColor c1;
+    LLVec p0;
+    LLVec p1;
+    LLVec mid;
+    float t;
+    float bright;
+    float d;
+    int n0;
+    int n1;
+    int r0, g0, b0;
+    int r1, g1, b1;
+
+    gif_StartPacketPri(11);
+    memset(&c0, 0, sizeof(c0));
+    c0.a = 255;
+    memset(&c1, 0, sizeof(c1));
+    c1.a = 255;
+    bright = 2.5f;
+    gif_SetAlpha(1, 5, 255);
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+
+    for (i = 0; i < 100; i++) {
+        for (t = 0.0f; t + 0.05f < llExtGeo->phase[i] && t + 0.05f < 0.4f; t += 0.05f) {
+            d = 0.4f - t;
+            n0 = LightLineVtx(&p0, llExtGeo->phase[i] - t);
+            n1 = LightLineVtx(&p1, llExtGeo->phase[i] - t - 0.05f);
+
+            r0 = d * 32.0f * bright;
+            g0 = d * 128.0f * bright;
+            b0 = d * 255.0f * bright;
+
+            r1 = (d - 0.05f) * 32.0f * bright;
+            g1 = (d - 0.05f) * 128.0f * bright;
+            b1 = (d - 0.05f) * 255.0f * bright;
+
+            c0.r = (r0 < 256) ? r0 : 255;
+            c0.g = (g0 < 256) ? g0 : 255;
+            c0.b = (b0 < 256) ? b0 : 255;
+
+            c1.r = (r1 < 256) ? r1 : 255;
+            c1.g = (g1 < 256) ? g1 : 255;
+            c1.b = (b1 < 256) ? b1 : 255;
+
+            if (n0 == n1) {
+                DrawLineG(&p0, &c0, &p1, &c1, 0x800000);
+            } else {
+                CopyVector(&mid, &llExtGeo->line[i][n0]);
+                DrawLineG(&p0, &c0, &mid, &c0, 0x800000);
+                DrawLineG(&mid, &c0, &p1, &c1, 0x800000);
+            }
+        }
+    }
+    gif_EndPacket();
+}
 
 inline void SelectBoyCrown(char *a0, int a1)
 {
@@ -537,12 +626,6 @@ extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
 extern void _SubVectorXYZ(void *dst, void *a, void *b);
 /* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(void *dst, void *a, void *b);
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
-extern void gif_StartPacketPri(int a0);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
-extern void gif_SetAlpha(int a0, int a1, int a2);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
-extern void gif_EndPacket(void);
 /* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
 extern void _UnitMatrix(void *p);
 /* kept local: this TU's uses of prim_DispWireSphere do not fit the prototype in Primitive.h */
