@@ -3,6 +3,7 @@
 #include "windField.h"
 #include "lineManager.h"
 #include "matrixDrive.h"
+#include "tableSin.h"
 #include <libvu0.h>
 
 extern int D_0063BC54;
@@ -132,7 +133,49 @@ void drawSenpuuki(float scale)
     gif_EndPacket();
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/windField", ExecWindField);
+extern int D_0028F4C0[];
+extern float D_004ED750[];
+extern int D_0063B148;
+
+void ExecWindField(float str)
+{
+    float d[4];
+    float len;
+    int i;
+    int j;
+    int n;
+    int m;
+
+    D_00724BF0[0] = str;
+    for (i = 255; i != 0; i--) {
+        D_00724BF0[i] = D_00724BF0[i - 1];
+    }
+    if (D_0063BC54 == 0) {
+        for (i = 0; i < 20; i++) {
+            D_004ED750[2] = ((float)i - 10.0f) * 100.0f;
+            for (j = 0; j < 20; j++) {
+                D_004ED750[0] = ((float)j - 10.0f) * 100.0f;
+                sceVu0SubVector(d, D_004ED750, D_004ED350);
+                len = FSqrt(sceVu0InnerProduct(d, d));
+                n = (int)(len * 0.1f *
+                          ((float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 60.0f));
+                m = n < 256 ? n : 255;
+                (D_00724FF0[i] + j)->str = D_00724BF0[m];
+                sceVu0ScaleVector(D_00724FF0[i][j].v, d,
+                                  60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) *
+                                      D_00724BF0[m] / len);
+            }
+        }
+    }
+    if (D_0063B148 != 0) {
+        MatrixDrive_PushMatrix();
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        MatrixDrive_TransMatrixV((char *)D_004ED350);
+        MatrixDrive_RotMatrixY(GetTableArcTan2(D_004ED360[0], D_004ED360[2]));
+        drawSenpuuki(str);
+        MatrixDrive_PopMatrix();
+    }
+}
 
 int GetWindVector(void)
 {
