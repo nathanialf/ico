@@ -243,7 +243,7 @@ INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceTtyHandler);
 extern int D_0072A710[];
 extern char D_0072A740[];
 extern int DIntr();
-extern void EIntr(void);
+extern int EIntr();
 extern int sceDeci2ReqSend(int s, int c);
 extern void sceDeci2Poll(int s);
 
@@ -333,7 +333,7 @@ void sceSifExitRpc(void)
 }
 
 extern int DIntr();
-extern void EIntr(void);
+extern int EIntr();
 
 int *_sceRpcGetPacket(int *q)
 {
@@ -637,7 +637,11 @@ ret1:
    %hi address pseudo of D_0072C1C0 out of $2 in local-alloc and lets it tie
    with the lo_sum in $3, which is the ROM's `lui $3 / addiu $3,$3` pair. */
 extern int DIntr();
-extern void EIntr(void);
+/* EIntr is unprototyped for the same reason DIntr is, and it is load bearing
+   in sceSifExecRequest: the call sets $2, which keeps the 0x8000000A constant
+   born right after it out of $2 and puts it in $3 beside the client pointer
+   in $4, the ROM's pair. */
+extern int EIntr();
 /* the RPC server's own record: the queue list head is the word at +0x28 */
 extern int *D_0072C1C0[];
 
@@ -663,7 +667,35 @@ void sceSifSetRpcQueue(int *qd, int key)
     EIntr();
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifRegisterRpc);
+/* sd is a server record and qd a data queue.  The record's 0x38 and 0x3C
+   words are server-record pointers, the same type as the queue's 0x8 word,
+   which is why the queue read has to stay behind those two stores and ahead
+   of the 0x4..0x40 stores: those carry the callback and buffer pointers and
+   the queue back-pointer, none of which the queue read can alias.  The word
+   at 0x0 is the plain integer service id. */
+void sceSifRegisterRpc(int *sd, int sid, void *func, void *buff, void *cfunc, void *cbuff, int *qd)
+{
+    int *q;
+
+    DIntr();
+    ((int **)sd)[0x3C / 4] = 0;
+    ((int **)sd)[0x38 / 4] = 0;
+    sd[0x0 / 4] = sid;
+    ((void **)sd)[0x4 / 4] = func;
+    ((void **)sd)[0x8 / 4] = buff;
+    ((void **)sd)[0x10 / 4] = cfunc;
+    ((void **)sd)[0x14 / 4] = cbuff;
+    ((void **)sd)[0x40 / 4] = qd;
+    if (((int **)qd)[0x8 / 4] == 0) {
+        ((int **)qd)[0x8 / 4] = sd;
+    } else {
+        for (q = ((int **)qd)[0x8 / 4]; ((int **)q)[0x38 / 4] != 0; q = ((int **)q)[0x38 / 4]) {
+            ;
+        }
+        ((int **)q)[0x38 / 4] = sd;
+    }
+    EIntr();
+}
 
 int *sceSifRemoveRpc(int *sd, int *qd)
 {
@@ -750,7 +782,73 @@ typedef struct {
     int attr;
 } SifDmaTransfer;
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifExecRequest);
+/* the server function the record at +0x4 carries: it is handed the request
+   number, the receive buffer and its length and returns the reply buffer */
+typedef void *(*SifRpcFunc)(int fno, void *buff, int size);
+
+extern int sceSifSetDma(int p, int a);
+extern void sceSifWriteBackDCache(void *addr, int len);
+
+void sceSifExecRequest(int *sd)
+{
+    int size = 0;
+    void *rec;
+    int *pkt;
+    int i;
+    SifDmaTransfer dmat[2];
+    int j;
+    int r;
+
+    rec = ((SifRpcFunc)sd[0x4 / 4])(sd[0x24 / 4], (void *)sd[0x8 / 4], sd[0xC / 4]);
+    if (rec != 0) {
+        size = sd[0x2C / 4];
+    }
+    if (sd[0xC / 4] > 0) {
+        sceSifWriteBackDCache((void *)sd[0x8 / 4], sd[0xC / 4]);
+    }
+    if (size > 0) {
+        sceSifWriteBackDCache(rec, size);
+    }
+    DIntr();
+    if (sd[0x34 / 4] & 4) {
+        pkt = (int *)_sceRpcGetFPacket2((int *)D_0072C1C0, (int)((unsigned int)sd[0x34 / 4] >> 16));
+    } else {
+        pkt = (int *)_sceRpcGetFPacket((int *)D_0072C1C0);
+    }
+    EIntr();
+    pkt[0x20 / 4] = 0x8000000A;
+    ((void **)pkt)[0x1C / 4] = ((void **)sd)[0x1C / 4];
+    if (sd[0x30 / 4] != 0) {
+        while (sceSifSendCmd(0x80000008, (int)pkt, 0x40, (int)rec, sd[0x28 / 4], size) == 0) {
+            ;
+        }
+        return;
+    }
+    pkt[0x18 / 4] = 0;
+    i = 0;
+    pkt[0x10 / 4] = 0;
+    if (size > 0) {
+        dmat[0].src = (int)rec;
+        dmat[0].dest = sd[0x28 / 4];
+        dmat[0].size = size;
+        dmat[0].attr = 0;
+        i = 1;
+    }
+    dmat[i].src = (int)pkt;
+    dmat[i].dest = sd[0x20 / 4];
+    dmat[i].size = 0x40;
+    dmat[i].attr = 0;
+    i++;
+    do {
+        r = sceSifSetDma((int)dmat, i);
+        if (r != 0) {
+            break;
+        }
+        for (j = 0x100000; j != -1; j--) {
+            ;
+        }
+    } while (r == 0);
+}
 
 extern void SleepThread(void);
 
