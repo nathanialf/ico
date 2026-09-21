@@ -99,7 +99,84 @@ void saveEditedDataBinary(int no, int a1, int a2)
     iosFree(buf);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/camera-editor", saveEditedData);
+/* the camera box record: centre and half-size at 0x20 and 0x2C, the pin range
+ * at 0x38 and the kind word at 0x44; the 0x4C stride is the TU's */
+typedef struct {
+    char pad00[0x20];
+    float cx, cy, cz; /* 0x20 */
+    float sx, sy, sz; /* 0x2C */
+    int pinFirst;     /* 0x38 */
+    int pinLast;      /* 0x3C */
+    char pad40[0x44 - 0x40];
+    int kind; /* 0x44 */
+    char pad48[0x4C - 0x48];
+} BoxRec;
+
+/* the camera pin record the pin editor edits in place: the two vec3s the
+ * editor's rows step, the type word at 0x24 and the marker size at 0x28 */
+typedef struct {
+    float pos[3];  /* 0x00 */
+    float look[3]; /* 0x0C */
+    char pad18[0x24 - 0x18];
+    int type;   /* 0x24 */
+    float size; /* 0x28 */
+} PinRec;
+
+extern int *D_0063AA7C;
+extern char D_00554DC8[];
+extern char D_00554DF0[];
+extern char D_00554E18[];
+extern char D_00554E30[];
+extern char D_0063AA80[]; /* the output file name */
+extern char D_0063AA88[]; /* the assert expression text */
+extern char D_0063AA90[]; /* the EUC-JP maru the pin flag prints when set */
+extern char D_0063AA98[]; /* and the batsu when clear */
+extern char D_006E5990[]; /* the shared line buffer the whole dump formats into */
+extern void __assert(char *file, int line, char *expr);
+extern void debug_assert(char *file, int line);
+extern void iosThreadMessage(int a0);
+extern int strlen(char *s);
+
+void saveEditedData(int *range)
+{
+    char path[0x70];
+    int from = range[0];
+    int to = range[1];
+    int i;
+    int j;
+    int fd;
+
+    sprintf(path, D_0063AA80);
+    fd = debugSceOpen(path, 0x202);
+    if (fd < 0) {
+        debug_StdPrintfDummy(D_00554DC8);
+        debug_assert(D_00554CE0, 435);
+        __assert(D_00554CE0, 435, D_0063AA88);
+    }
+    for (i = from; i < to; i++) {
+        BoxRec *b = (BoxRec *)(D_0063AA7C[1] + i * 0x4C);
+
+        sprintf(D_006E5990, D_00554DF0, b, b->kind, (int)b->cx, (int)b->cy, (int)b->cz, (int)b->sx,
+                (int)b->sy, (int)((BoxRec *)(i * 0x4C + D_0063AA7C[1]))->sz);
+        sceWrite(fd, D_006E5990, strlen(D_006E5990));
+        debug_StdPrintfDummy(D_006E5990);
+    }
+    for (i = from; i < to; i++) {
+        sprintf(D_006E5990, D_00554E18, (BoxRec *)(D_0063AA7C[1] + i * 0x4C));
+        sceWrite(fd, D_006E5990, strlen(D_006E5990));
+        for (j = ((BoxRec *)(i * 0x4C + D_0063AA7C[1]))->pinFirst;
+             j < ((BoxRec *)(i * 0x4C + D_0063AA7C[1]))->pinLast; j++) {
+            PinRec *p = (PinRec *)CameraEdit_PIN(i, j);
+
+            sprintf(D_006E5990, D_00554E30, p->type ? D_0063AA90 : D_0063AA98, (int)p->size,
+                    (int)p->pos[0], (int)p->pos[1], (int)p->pos[2], (int)p->look[0],
+                    (int)p->look[1], (int)p->look[2]);
+            sceWrite(fd, D_006E5990, strlen(D_006E5990));
+        }
+    }
+    debugSceClose(fd);
+    iosThreadMessage(2);
+}
 
 /* kept local: this TU's uses of gif_SetGsReg do not fit the prototype in GifPacket.h */
 extern void gif_SetGsReg(int code, long data);
@@ -226,16 +303,6 @@ void DebugDispBox(BoxVec *c, BoxVec *s)
     }
     after_DrawLine();
 }
-
-/* the camera box record: centre and half-size at 0x20 and 0x2C */
-typedef struct {
-    char pad00[0x20];
-    float cx, cy, cz; /* 0x20 */
-    float sx, sy, sz; /* 0x2C */
-    char pad38[0x4C - 0x38];
-} BoxRec;
-
-extern int *D_0063AA7C;
 
 void DispCameraGroup(int box, unsigned char sel)
 {
