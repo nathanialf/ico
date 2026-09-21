@@ -6335,3 +6335,6 @@ D_0070006F = 0x0070006F; // ignore:true  // ico2/common/src/charFileManager  // 
 D_006F6365 = 0x006F6365; // ignore:true  // ico2/common/src/charFileManager  // packed bytes 65 63 6F 00 (eco.) at ROM 0x51A405 in a data blob, not an address into the CharFile table
 D_006F726F = 0x006F726F; // ignore:true  // ico2/common/src/charFileManager  // packed bytes 6F 72 6F 00 (oro.) at ROM 0x51F16E in a data blob, not an address into the CharFile table
 D_0063BDE0 = 0x0063BDE0; // type:asciz size:0x8  // ico2/fumi/src/way_tool  // the menu label "play" (8 B of -G 8 small data) that way_tool reads by name, defined by the blob after girl's .sdata carve
+D_00726574 = 0x00726574; // ignore:true  // ico2/sugipon/src/windField  // packed bytes 74 65 72 00 inside the 0x4D3CE8 rodata blob, not an address into the wind field arrays
+D_00726F6F = 0x00726F6F; // ignore:true  // ico2/sugipon/src/windField  // packed bytes 6F 6F 72 00 inside the 0x4D3CE8 rodata blob, not an address into the wind field arrays
+D_00726165 = 0x00726165; // ignore:true  // ico2/sugipon/src/windField  // packed bytes 65 61 72 00 inside the 0x4D3CE8 rodata blob, not an address into the wind field arrays
