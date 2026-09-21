@@ -64,14 +64,6 @@
  * ANYTHING ABOVE IT.
  * ------------------------------------------------------------------ */
 
-
-
-
-
-
-
-
-
 /*
  * RECONSTRUCTION.  Every shape below was read back out of the binary's own
  * memory accesses (offsets and widths from the load and store mnemonics, via
@@ -100,17 +92,20 @@
  * matching byte-for-byte WITHOUT the per-function int-typed-reload hacks
  * (COOKBOOK section 8.22). Pointer-chain users still match (no aliasing trigger).
  * Use this accessor for 0x15C; keep p_15C in the struct for layout only. */
-#define GOBJ_SUB(o)  ((Sub15C *)*(int *)&((GObj *)(o))->p_15C)
-
+#define GOBJ_SUB(o) ((Sub15C *)*(int *)&((GObj *)(o))->p_15C)
 /* The 0x164 actor slot, the companion of GOBJ_SUB: the action-state object the
  * per-object functions run their state machines out of. */
-#define GOBJ_ACT(o)  ((Act *)((GObj *)(o))->p_164)
+#define GOBJ_ACT(o) ((Act *)((GObj *)(o))->p_164)
 
-typedef struct GObj    GObj;
-typedef struct Sub15C  Sub15C;   /* *(GObj   + 0x15C), per-object sub state */
-typedef struct Obj7F0  Obj7F0;   /* *(Sub15C + 0x7F0), shared geometry/model obj (~25 TUs) */
-typedef struct GeoNode GeoNode;  /* *(Obj7F0  + 0x20) */
-typedef struct GeoSub  GeoSub;   /* *(GeoNode + 0x8)  */
+typedef struct GObj GObj;
+
+typedef struct Sub15C Sub15C;   /* *(GObj   + 0x15C), per-object sub state */
+
+typedef struct Obj7F0 Obj7F0;   /* *(Sub15C + 0x7F0), shared geometry/model obj (~25 TUs) */
+
+typedef struct GeoNode GeoNode; /* *(Obj7F0  + 0x20) */
+
+typedef struct GeoSub GeoSub;   /* *(GeoNode + 0x8)  */
 
 /* GObj and PObjGObj below are two views of ONE record: the game object.  Every
  * offset either view knows is named in both, under the same name, so no offset
@@ -120,192 +115,192 @@ typedef struct GeoSub  GeoSub;   /* *(GeoNode + 0x8)  */
  * words).  Rungs: ROM bytes for every offset, the reading translation units for
  * the roles; names are this repository's. */
 struct GObj {
-    char    _pad0[0x4];
-    int     f04;              /* 0x4   */
-    int     f_8;              /* 0x8   */
-    int     kind;             /* 0xC, the object-kind id, -1 when the object has
+    char _pad0[0x4];
+    int f04;                /* 0x4   */
+    int f_8;                /* 0x8   */
+    int kind;               /* 0xC, the object-kind id, -1 when the object has
                                  none; it indexes the ObjKindEnt table */
-    char    _pad10[0x1C];     /* 0x10 .. 0x2B */
-    struct GProc *procHead;   /* 0x2C, head of the object's process list */
-    struct GProc *procTail;   /* 0x30, tail of the same list */
-    char    _pad34[0xC];      /* 0x34 .. 0x3F */
-    int     f40;              /* 0x40  */
-    char    _pad44[0x4];
-    int     f48;              /* 0x48  */
-    int     f4C;              /* 0x4C  */
-    int     f50;              /* 0x50  */
-    char    _pad54[0x8];
-    int     f5C;              /* 0x5C  */
-    int     f60;              /* 0x60  */
-    char    _pad64[0xF8];     /* 0x64 .. 0x15B */
-    Sub15C *p_15C;            /* 0x15C, sub-object pointer */
-    char    _pad160[0x4];
-    void   *p_164;           /* 0x164, actor/action-state object.  The actor and
+    char _pad10[0x1C];      /* 0x10 .. 0x2B */
+    struct GProc *procHead; /* 0x2C, head of the object's process list */
+    struct GProc *procTail; /* 0x30, tail of the same list */
+    char _pad34[0xC];       /* 0x34 .. 0x3F */
+    int f40;                /* 0x40  */
+    char _pad44[0x4];
+    int f48; /* 0x48  */
+    int f4C; /* 0x4C  */
+    int f50; /* 0x50  */
+    char _pad54[0x8];
+    int f5C;           /* 0x5C  */
+    int f60;           /* 0x60  */
+    char _pad64[0xF8]; /* 0x64 .. 0x15B */
+    Sub15C *p_15C;     /* 0x15C, sub-object pointer */
+    char _pad160[0x4];
+    void *p_164; /* 0x164, actor/action-state object.  The actor and
                                 script translation units read it as Act, through
                                 GOBJ_ACT below; it stays void * because other
                                 translation units hang their own record there */
-    char    _pad168[0x4];
-    int     f_16C;            /* 0x16C */
+    char _pad168[0x4];
+    int f_16C; /* 0x16C */
 };
 
 struct Sub15C {
-    char    _pad0[0x4];
-    int     f_4; /* 0x4 */
-    int     f_8; /* 0x8 */
-    int     f_C; /* 0xC */
-    int     f_10; /* 0x10 */
-    char    _pad14[0x4];
-    int     f_18; /* 0x18 */
-    int     f_1C; /* 0x1C */
-    int     f_20; /* 0x20 */
-    int     f_24; /* 0x24 */
-    int     f_28; /* 0x28 */
-    char    _pad2C[0x4];
-    int     f_30; /* 0x30 */
-    char    _pad34[0x8];
-    int     f_3C; /* 0x3C */
-    char    _pad40[0x4];
-    int     f_44; /* 0x44 */
-    char    _pad48[0x8];
-    int     f_50; /* 0x50 */
-    float   f_54; /* 0x54 */
-    int     f_58; /* 0x58 */
-    char    _pad5C[0x10];
-    char    f_6C; /* 0x6C */
-    char    _pad6D[0x3];
-    int     f_70; /* 0x70 */
-    int     f_74; /* 0x74 */
-    int     f_78; /* 0x78 */
-    int     f_7C; /* 0x7C */
-    int     f_80; /* 0x80 */
-    int     f_84; /* 0x84 */
-    int     f_88; /* 0x88 */
-    char    _pad8C[0x18];
-    float   f_A4; /* 0xA4 */
-    char    _padA8[0x28];
-    int     f_D0; /* 0xD0 */
-    char    _padD4[0x5C];
-    float   f_130; /* 0x130 */
-    float   f_134; /* 0x134 */
-    float   f_138; /* 0x138 */
-    char    _pad13C[0x44];
-    int     f_180; /* 0x180 */
-    char    _pad184[0x4];
-    int     f_188; /* 0x188 */
-    char    _pad18C[0x8];
-    int     f_194; /* 0x194 */
-    int     f_198; /* 0x198 */
-    int     f_19C; /* 0x19C */
-    char    _pad1A0[0x24];
-    int     f_1C4; /* 0x1C4 */
-    int     f_1C8; /* 0x1C8 */
-    char    _pad1CC[0x14];
-    int     f_1E0; /* 0x1E0 */
-    char    _pad1E4[0x8C];
-    float   f_270; /* 0x270 */
-    int     f_274; /* 0x274 */
-    int     f_278; /* 0x278 */
-    char    _pad27C[0x34];
-    int     f_2B0; /* 0x2B0 */
-    int     f_2B4; /* 0x2B4 */
-    int     f_2B8; /* 0x2B8 */
-    char    _pad2BC[0x4];
-    float   f_2C0; /* 0x2C0 */
-    float   f_2C4; /* 0x2C4 */
-    float   f_2C8; /* 0x2C8 */
-    char    _pad2CC[0x44];
-    int     f_310; /* 0x310 */
-    int     f_314; /* 0x314 */
-    int     f_318; /* 0x318 */
-    char    _pad31C[0x4];
-    float   f_320; /* 0x320 */
-    float   f_324; /* 0x324 */
-    float   f_328; /* 0x328 */
-    char    _pad32C[0x44];
-    int     f_370; /* 0x370 */
-    char    _pad374[0xC];
-    int     f_380; /* 0x380 */
-    char    _pad384[0xC];
-    float   f_390; /* 0x390 */
-    float   f_394; /* 0x394 */
-    float   f_398; /* 0x398 */
-    char    _pad39C[0x1C];
-    int     f_3B8; /* 0x3B8 */
-    int     f_3BC; /* 0x3BC */
-    char    _pad3C0[0x18];
-    int     f_3D8; /* 0x3D8 */
-    char    _pad3DC[0x44];
-    int     f_420; /* 0x420 */
-    char    _pad424[0x38];
-    float   f_45C; /* 0x45C */
-    char    _pad460[0x4];
-    float   f_464; /* 0x464 */
-    float   f_468; /* 0x468 */
-    char    _pad46C[0x24];
-    int     f_490; /* 0x490, char-status index */
-    char    _pad494[0xC];
-    int     f_4A0; /* 0x4A0 index */
-    char    _pad4A4[0x8];
-    float   f_4AC; /* 0x4AC */
-    char    _pad4B0[0x8];
-    float   f_4B8; /* 0x4B8 */
-    char    _pad4BC[0x1C];
-    int     f_4D8; /* 0x4D8 */
-    char    _pad4DC[0x8];
-    int     f_4E4; /* 0x4E4 */
-    char    _pad4E8[0x4];
-    int     f_4EC; /* 0x4EC */
-    char    _pad4F0[0x8];
-    int     f_4F8; /* 0x4F8 */
-    char    _pad4FC[0x18];
-    int     f_514; /* 0x514 */
-    char    _pad518[0x14];
-    int     f_52C; /* 0x52C */
-    char    _pad530[0x4];
-    int     f_534; /* 0x534 */
-    int     f_538; /* 0x538 */
-    int     f_53C; /* 0x53C */
-    int     f_540; /* 0x540 */
-    char    _pad544[0x10];
-    int     f_554; /* 0x554 */
-    char    _pad558[0x14];
-    int     f_56C; /* 0x56C */
-    char    _pad570[0x78];
-    float   f_5E8; /* 0x5E8 */
-    char    _pad5EC[0x8];
-    int     f_5F4; /* 0x5F4 */
-    int     f_5F8; /* 0x5F8 */
-    char    _pad5FC[0x4];
-    int     f_600; /* 0x600 */
-    int     f_604; /* 0x604 */
-    float   f_608; /* 0x608 */
-    char    _pad60C[0x18];
-    int     f_624; /* 0x624 */
-    int     f_628; /* 0x628 */
-    char    _pad62C[0x4];
-    int     f_630; /* 0x630 */
-    int     f_634; /* 0x634 */
-    char    _pad638[0x8];
-    float   f_640; /* 0x640 */
-    float   f_644; /* 0x644 */
-    int     f_648; /* 0x648 */
-    char    _pad64C[0x1A4];
+    char _pad0[0x4];
+    int f_4;  /* 0x4 */
+    int f_8;  /* 0x8 */
+    int f_C;  /* 0xC */
+    int f_10; /* 0x10 */
+    char _pad14[0x4];
+    int f_18; /* 0x18 */
+    int f_1C; /* 0x1C */
+    int f_20; /* 0x20 */
+    int f_24; /* 0x24 */
+    int f_28; /* 0x28 */
+    char _pad2C[0x4];
+    int f_30; /* 0x30 */
+    char _pad34[0x8];
+    int f_3C; /* 0x3C */
+    char _pad40[0x4];
+    int f_44; /* 0x44 */
+    char _pad48[0x8];
+    int f_50;   /* 0x50 */
+    float f_54; /* 0x54 */
+    int f_58;   /* 0x58 */
+    char _pad5C[0x10];
+    char f_6C; /* 0x6C */
+    char _pad6D[0x3];
+    int f_70; /* 0x70 */
+    int f_74; /* 0x74 */
+    int f_78; /* 0x78 */
+    int f_7C; /* 0x7C */
+    int f_80; /* 0x80 */
+    int f_84; /* 0x84 */
+    int f_88; /* 0x88 */
+    char _pad8C[0x18];
+    float f_A4; /* 0xA4 */
+    char _padA8[0x28];
+    int f_D0; /* 0xD0 */
+    char _padD4[0x5C];
+    float f_130; /* 0x130 */
+    float f_134; /* 0x134 */
+    float f_138; /* 0x138 */
+    char _pad13C[0x44];
+    int f_180; /* 0x180 */
+    char _pad184[0x4];
+    int f_188; /* 0x188 */
+    char _pad18C[0x8];
+    int f_194; /* 0x194 */
+    int f_198; /* 0x198 */
+    int f_19C; /* 0x19C */
+    char _pad1A0[0x24];
+    int f_1C4; /* 0x1C4 */
+    int f_1C8; /* 0x1C8 */
+    char _pad1CC[0x14];
+    int f_1E0; /* 0x1E0 */
+    char _pad1E4[0x8C];
+    float f_270; /* 0x270 */
+    int f_274;   /* 0x274 */
+    int f_278;   /* 0x278 */
+    char _pad27C[0x34];
+    int f_2B0; /* 0x2B0 */
+    int f_2B4; /* 0x2B4 */
+    int f_2B8; /* 0x2B8 */
+    char _pad2BC[0x4];
+    float f_2C0; /* 0x2C0 */
+    float f_2C4; /* 0x2C4 */
+    float f_2C8; /* 0x2C8 */
+    char _pad2CC[0x44];
+    int f_310; /* 0x310 */
+    int f_314; /* 0x314 */
+    int f_318; /* 0x318 */
+    char _pad31C[0x4];
+    float f_320; /* 0x320 */
+    float f_324; /* 0x324 */
+    float f_328; /* 0x328 */
+    char _pad32C[0x44];
+    int f_370; /* 0x370 */
+    char _pad374[0xC];
+    int f_380; /* 0x380 */
+    char _pad384[0xC];
+    float f_390; /* 0x390 */
+    float f_394; /* 0x394 */
+    float f_398; /* 0x398 */
+    char _pad39C[0x1C];
+    int f_3B8; /* 0x3B8 */
+    int f_3BC; /* 0x3BC */
+    char _pad3C0[0x18];
+    int f_3D8; /* 0x3D8 */
+    char _pad3DC[0x44];
+    int f_420; /* 0x420 */
+    char _pad424[0x38];
+    float f_45C; /* 0x45C */
+    char _pad460[0x4];
+    float f_464; /* 0x464 */
+    float f_468; /* 0x468 */
+    char _pad46C[0x24];
+    int f_490; /* 0x490, char-status index */
+    char _pad494[0xC];
+    int f_4A0; /* 0x4A0 index */
+    char _pad4A4[0x8];
+    float f_4AC; /* 0x4AC */
+    char _pad4B0[0x8];
+    float f_4B8; /* 0x4B8 */
+    char _pad4BC[0x1C];
+    int f_4D8; /* 0x4D8 */
+    char _pad4DC[0x8];
+    int f_4E4; /* 0x4E4 */
+    char _pad4E8[0x4];
+    int f_4EC; /* 0x4EC */
+    char _pad4F0[0x8];
+    int f_4F8; /* 0x4F8 */
+    char _pad4FC[0x18];
+    int f_514; /* 0x514 */
+    char _pad518[0x14];
+    int f_52C; /* 0x52C */
+    char _pad530[0x4];
+    int f_534; /* 0x534 */
+    int f_538; /* 0x538 */
+    int f_53C; /* 0x53C */
+    int f_540; /* 0x540 */
+    char _pad544[0x10];
+    int f_554; /* 0x554 */
+    char _pad558[0x14];
+    int f_56C; /* 0x56C */
+    char _pad570[0x78];
+    float f_5E8; /* 0x5E8 */
+    char _pad5EC[0x8];
+    int f_5F4; /* 0x5F4 */
+    int f_5F8; /* 0x5F8 */
+    char _pad5FC[0x4];
+    int f_600;   /* 0x600 */
+    int f_604;   /* 0x604 */
+    float f_608; /* 0x608 */
+    char _pad60C[0x18];
+    int f_624; /* 0x624 */
+    int f_628; /* 0x628 */
+    char _pad62C[0x4];
+    int f_630; /* 0x630 */
+    int f_634; /* 0x634 */
+    char _pad638[0x8];
+    float f_640; /* 0x640 */
+    float f_644; /* 0x644 */
+    int f_648;   /* 0x648 */
+    char _pad64C[0x1A4];
     Obj7F0 *p_7F0; /* 0x7F0, cage-fix geometry */
-    char    _pad7F4[0xC];
-    void   *p_800; /* 0x800, untyped (no consumers yet) */
-    char    _pad804[0x10];
-    int     f_814; /* 0x814 */
-    char    _pad818[0x4];
-    int     f_81C; /* 0x81C */
-    char    _pad820[0x10];
-    int     f_830; /* 0x830, the actor's own work record; each actor TU casts it to its own shape */
-    int     f_834; /* 0x834 */
-    int     f_838; /* 0x838 */
-    char    _pad83C[0x8];
-    int     f_844; /* 0x844 */
-    char    _pad848[0x28];
-    void   *p_870; /* 0x870 */
-    void   *p_874; /* 0x874 */
+    char _pad7F4[0xC];
+    void *p_800; /* 0x800, untyped (no consumers yet) */
+    char _pad804[0x10];
+    int f_814; /* 0x814 */
+    char _pad818[0x4];
+    int f_81C; /* 0x81C */
+    char _pad820[0x10];
+    int f_830; /* 0x830, the actor's own work record; each actor TU casts it to its own shape */
+    int f_834; /* 0x834 */
+    int f_838; /* 0x838 */
+    char _pad83C[0x8];
+    int f_844; /* 0x844 */
+    char _pad848[0x28];
+    void *p_870; /* 0x870 */
+    void *p_874; /* 0x874 */
 };
 
 /* Geometry/model object hanging off Sub15C + 0x7F0. The p_7F0 field is read
@@ -313,27 +308,27 @@ struct Sub15C {
  * this is shared-core; only cageFix.c walks the +0x20 matrix chain so far.
  * Fields grow as TUs are typed; names are offset-derived (no string evidence). */
 struct GeoSub {
-    void   *p_0;          /* 0x0, object matrix passed to TurnObjectMatrix */
+    void *p_0; /* 0x0, object matrix passed to TurnObjectMatrix */
 };
 
 struct GeoNode {
-    char    _pad0[0x8];
-    GeoSub *p_8;          /* 0x8 */
+    char _pad0[0x8];
+    GeoSub *p_8; /* 0x8 */
 };
 
 struct Obj7F0 {
-    void    *p_0;         /* 0x00, model / geometry node pointer */
-    int      f_4;         /* 0x04 */
-    int      f_8;         /* 0x08 */
-    int      f_C;         /* 0x0C */
-    int      f_10;        /* 0x10 */
-    char     _pad14[0x4];
-    int      f_18;        /* 0x18 */
-    char     _pad1C[0x4];
-    GeoNode *p_20;        /* 0x20 */
-    char     _pad24[0x18];
-    float    f_3C;        /* 0x3C */
-    int      f_40;        /* 0x40 */
+    void *p_0; /* 0x00, model / geometry node pointer */
+    int f_4;   /* 0x04 */
+    int f_8;   /* 0x08 */
+    int f_C;   /* 0x0C */
+    int f_10;  /* 0x10 */
+    char _pad14[0x4];
+    int f_18; /* 0x18 */
+    char _pad1C[0x4];
+    GeoNode *p_20; /* 0x20 */
+    char _pad24[0x18];
+    float f_3C; /* 0x3C */
+    int f_40;   /* 0x40 */
 };
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN.  The 16-byte aligned float
@@ -356,23 +351,21 @@ typedef struct {
 /* Memory sync barrier, stalls the CPU until pending stores commit.
  * Used as a fence between a write and an external observer (GS, IPU,
  * VU0/1, DMAC).  ico2 sites: ito/mpeg/mv_disp, ito/mpeg/mv_vobuf. */
-#define SYNC()      __asm__ __volatile__("sync"   : : : "memory")
-
+#define SYNC() __asm__ __volatile__("sync" : : : "memory")
 /* Disable / enable interrupts (COP0 DI, EI).  Encodings 0x42000039 and
  * 0x42000038; the period ee-as has no mnemonic for either.  ico2 sites:
  * seki/src/Matrix (the VU0 register push/pop pair), ito/mpeg/mv_disp,
  * ito/mpeg/mv_vobuf. */
-#define DI()        __asm__ __volatile__(".word 0x42000039" : : : "memory")
-#define EI()        __asm__ __volatile__(".word 0x42000038" : : : "memory")
-
+#define DI() __asm__ __volatile__(".word 0x42000039" : : : "memory")
+#define EI() __asm__ __volatile__(".word 0x42000038" : : : "memory")
 /* Quadword copy, one 128-bit lq/sq pair through a scratch GPR, with the
  * trailing nop the ROM's lq+sq+nop shape carries.  The scratch register
  * differs per call site ($t0 in seki/src/Matrix, $a2 in
  * sugipon/src/matrixDrive), so it is a macro argument.  dst/src are
  * implicit in $a0/$a1: the macro is the BODY of a two-pointer wrapper. */
-#define QCOPY16(scratch)                                                       \
-    __asm__ __volatile__("lq " scratch ", 0($a1)" : : : "memory");             \
-    __asm__ __volatile__("sq " scratch ", 0($a0)" : : : "memory");             \
+#define QCOPY16(scratch)                                                                           \
+    __asm__ __volatile__("lq " scratch ", 0($a1)" : : : "memory");                                 \
+    __asm__ __volatile__("sq " scratch ", 0($a0)" : : : "memory");                                 \
     __asm__ __volatile__("nop")
 
 /* ------------------------------------------------------------------ *
@@ -462,41 +455,36 @@ typedef struct {
  * SDK's own copy of these macros in sce/libvu0/libvu0.c is deliberately not
  * spelled this way: the ROM carries `sqc2` in 26 of that archive's return
  * slots, so the two trees were built from differently spelled templates. */
-#define VU0_MEM(insn)   __asm__ __volatile__(".set noreorder\n\t" insn "\n\t.set reorder" : : : "memory")
-#define VU0_REG(insn)   __asm__ __volatile__(".set noreorder\n\t" insn "\n\t.set reorder")
-
+#define VU0_MEM(insn)                                                                              \
+    __asm__ __volatile__(".set noreorder\n\t" insn "\n\t.set reorder" : : : "memory")
+#define VU0_REG(insn) __asm__ __volatile__(".set noreorder\n\t" insn "\n\t.set reorder")
 /* Memory load/store: typed forms. */
-#define VU0_LSV(mnem, vf, off, base)        VU0_MEM(#mnem " $vf" #vf ", " #off "($" #base ")")
-#define VU0_LSGP(mnem, gp, off, base)       VU0_MEM(#mnem " $" #gp ", " #off "($" #base ")")
-
+#define VU0_LSV(mnem, vf, off, base) VU0_MEM(#mnem " $vf" #vf ", " #off "($" #base ")")
+#define VU0_LSGP(mnem, gp, off, base) VU0_MEM(#mnem " $" #gp ", " #off "($" #base ")")
 /* Like VU0_LSV but the base address is a C expression bound via an "r"
  * constraint, so gcc sees the data dependency on `base`. Use when the
  * base is a function argument/local that must stay in a callee-saved reg
  * across calls: the explicit dependency makes the scheduler emit the
  * base-setup move just before the load (filling the prologue's ra-save
  * gap) instead of greedily up front. */
-#define VU0_LSV_R(mnem, vf, off, base)      __asm__ __volatile__(#mnem " $vf" #vf ", " #off "(%0)" : : "r"(base) : "memory")
-
+#define VU0_LSV_R(mnem, vf, off, base)                                                             \
+    __asm__ __volatile__(#mnem " $vf" #vf ", " #off "(%0)" : : "r"(base) : "memory")
 /* VU compute: 2-operand register-to-register (vmove, vmr32, vftoi*). */
-#define VU0_V2OP(mnem, d, a)                VU0_REG(#mnem " $vf" #d ", $vf" #a)
-
+#define VU0_V2OP(mnem, d, a) VU0_REG(#mnem " $vf" #d ", $vf" #a)
 /* VU compute: 3-operand register-to-register. */
-#define VU0_V3OP(mnem, d, a, b)             VU0_REG(#mnem " $vf" #d ", $vf" #a ", $vf" #b)
-
+#define VU0_V3OP(mnem, d, a, b) VU0_REG(#mnem " $vf" #d ", $vf" #a ", $vf" #b)
 /* Same with broadcast on b operand (mnemonic has broadcast letter,
  * b operand has matching register suffix). */
-#define VU0_V3OP_BC(mnem, d, a, b, bc)      VU0_REG(#mnem " $vf" #d ", $vf" #a ", $vf" #b #bc)
-
+#define VU0_V3OP_BC(mnem, d, a, b, bc) VU0_REG(#mnem " $vf" #d ", $vf" #a ", $vf" #b #bc)
 /* VU compute to ACC. */
-#define VU0_V3OP_ACC(mnem, a, b)            VU0_REG(#mnem " ACC, $vf" #a ", $vf" #b)
-#define VU0_V3OP_ACC_BC(mnem, a, b, bc)     VU0_REG(#mnem " ACC, $vf" #a ", $vf" #b #bc)
-
+#define VU0_V3OP_ACC(mnem, a, b) VU0_REG(#mnem " ACC, $vf" #a ", $vf" #b)
+#define VU0_V3OP_ACC_BC(mnem, a, b, bc) VU0_REG(#mnem " ACC, $vf" #a ", $vf" #b #bc)
 /* EE<->VU transfer ops. */
-#define VU0_MFC1(gp, fp)                    VU0_REG("mfc1 $" #gp ", $f" #fp)
-#define VU0_MTC1(gp, fp)                    VU0_REG("mtc1 $" #gp ", $f" #fp)
-#define VU0_QMFC2_NI(gp, vf)                VU0_REG("qmfc2.ni $" #gp ", $vf" #vf)
-#define VU0_QMTC2_NI(gp, vf)                VU0_REG("qmtc2.ni $" #gp ", $vf" #vf)
-#define VU0_CFC2_NI(gp, vi)                 VU0_REG("cfc2.ni $" #gp ", $vi" #vi)
+#define VU0_MFC1(gp, fp) VU0_REG("mfc1 $" #gp ", $f" #fp)
+#define VU0_MTC1(gp, fp) VU0_REG("mtc1 $" #gp ", $f" #fp)
+#define VU0_QMFC2_NI(gp, vf) VU0_REG("qmfc2.ni $" #gp ", $vf" #vf)
+#define VU0_QMTC2_NI(gp, vf) VU0_REG("qmtc2.ni $" #gp ", $vf" #vf)
+#define VU0_CFC2_NI(gp, vi) VU0_REG("cfc2.ni $" #gp ", $vi" #vi)
 
 /* VU0_NOP() (an explicit `nop` before a VU0 leaf's return) was retired 2026-09-05:
    the return-slot nop after an inline-asm block is the assembler's, and
@@ -504,12 +492,10 @@ typedef struct {
 
 /* Wait-for-Q-pipeline barrier (vwaitq).  No memory effect but
  * sequences subsequent VU0 ops with prior compute. */
-#define VU0_WAIT()      __asm__ __volatile__("vwaitq")
-
+#define VU0_WAIT() __asm__ __volatile__("vwaitq")
 /* Raw 32-bit word emission for COP2 ops without a gas mnemonic
  * (e.g., `vsqrt Q, $vfNx` -> .word 0x4A0X03BD). */
-#define VU0_WORD(w)     __asm__ __volatile__(".word " #w)
-
+#define VU0_WORD(w) __asm__ __volatile__(".word " #w)
 /* Hazard-pair scheduler barriers.
  *
  * Several R5900 COP2 transfer pairs have intrinsic load-delay or
@@ -524,11 +510,8 @@ typedef struct {
  * between them; in `.set noreorder` gas leaves the bytes untouched
  * (the EE pipeline is forwarding-correct already).
  */
-#define VU0_NOREORDER_BEGIN()  __asm__ __volatile__(".set noreorder")
-#define VU0_NOREORDER_END()    __asm__ __volatile__(".set reorder")
-
-
-
+#define VU0_NOREORDER_BEGIN() __asm__ __volatile__(".set noreorder")
+#define VU0_NOREORDER_END() __asm__ __volatile__(".set reorder")
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 3 TUs that carried 3 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
 typedef struct StageSetting {
@@ -539,25 +522,29 @@ typedef struct StageSetting {
     /* RECONSTRUCTION: the reduction tint used while no sub target is current,
        and the per sub target row whose fourth word is the film grain tint
        ico2/seki/src/GsBase.c reads at 0x13C. */
-    int reductionCol[3];      /* 0x0D0 */
-    char pad0DC[0x18];        /* 0x0DC */
-    int motionBlur;           /* 0x0F4 */
-    char pad0F8[0x4];         /* 0x0F8 */
-    int f0FC;                 /* 0x0FC */
-    int f100;                 /* 0x100 */
-    char pad104[0x2C];        /* 0x104 */
+    int reductionCol[3]; /* 0x0D0 */
+    char pad0DC[0x18];   /* 0x0DC */
+    int motionBlur;      /* 0x0F4 */
+    char pad0F8[0x4];    /* 0x0F8 */
+    int f0FC;            /* 0x0FC */
+    int f100;            /* 0x100 */
+    char pad104[0x2C];   /* 0x104 */
+
     struct {
         int r;
         int g;
         int b;
         int a;
-    } targetCol[4];           /* 0x130 */
-    char pad170[0x2C];        /* 0x170 */
+    } targetCol[4]; /* 0x130 */
+
+    char pad170[0x2C]; /* 0x170 */
+
     struct {
         int a;
         int b;
-    } f19C[4];                /* 0x19C */
-    int subMotionBlur[5];     /* 0x1BC */
+    } f19C[4]; /* 0x19C */
+
+    int subMotionBlur[5]; /* 0x1BC */
 } StageSetting;
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 3 TUs that carried 3 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
@@ -675,40 +662,40 @@ typedef struct {
  * artefact names a field of this table. */
 typedef struct {
     unsigned char _0[0x20];
-    char name[0x40];         /* 0x20, the stage name icoMisc prints */
-    float f60[8];            /* 0x60, the eight scene values sceneManager casts
+    char name[0x40];     /* 0x20, the stage name icoMisc prints */
+    float f60[8];        /* 0x60, the eight scene values sceneManager casts
                                 into the stage setting record */
-    char dataFile[0x20];     /* 0x80, the data file name access.c builds a path from */
-    short ent[0x18];         /* 0xA0, the stage-manager table entries */
+    char dataFile[0x20]; /* 0x80, the data file name access.c builds a path from */
+    short ent[0x18];     /* 0xA0, the stage-manager table entries */
     unsigned char _d0[0x8];
-    float bgCol[3];          /* 0xD8 */
-    float ambientCol[3];     /* 0xE4 */
-    float flatLightCol[3];   /* 0xF0 */
-    float flatLightDir[3];   /* 0xFC */
-    int seSegFirst;          /* 0x108, sound data segment range */
-    int seSegLast;           /* 0x10C */
-    int seEnvFirst;          /* 0x110, sound SE environment range */
-    int seEnvLast;           /* 0x114 */
-    int camSetId;            /* 0x118, the camera set the stage opens with */
+    float bgCol[3];        /* 0xD8 */
+    float ambientCol[3];   /* 0xE4 */
+    float flatLightCol[3]; /* 0xF0 */
+    float flatLightDir[3]; /* 0xFC */
+    int seSegFirst;        /* 0x108, sound data segment range */
+    int seSegLast;         /* 0x10C */
+    int seEnvFirst;        /* 0x110, sound SE environment range */
+    int seEnvLast;         /* 0x114 */
+    int camSetId;          /* 0x118, the camera set the stage opens with */
     unsigned char _11c[0xC];
-    int labelTop;            /* 0x128, generator label range */
-    int labelEnd;            /* 0x12C */
-    int layoutFirst;         /* 0x130, layout range */
-    int layoutLast;          /* 0x134 */
+    int labelTop;    /* 0x128, generator label range */
+    int labelEnd;    /* 0x12C */
+    int layoutFirst; /* 0x130, layout range */
+    int layoutLast;  /* 0x134 */
     unsigned char _138[0x14];
-    int mot;                 /* 0x14C, the motion-set id */
-    void (*endproc)(void);   /* 0x150 */
-    void (*initproc)(void);  /* 0x154, the per-stage init hook */
+    int mot;                /* 0x14C, the motion-set id */
+    void (*endproc)(void);  /* 0x150 */
+    void (*initproc)(void); /* 0x154, the per-stage init hook */
     unsigned char _158[0xC];
-    int wayGroupEnd;         /* 0x164 */
+    int wayGroupEnd; /* 0x164 */
     unsigned char _168[0x8];
-    int wayGroupStart;       /* 0x170 */
+    int wayGroupStart; /* 0x170 */
     unsigned char _174[0x10];
-    float handCameraRate;    /* 0x184 */
-    short f188;              /* 0x188 */
+    float handCameraRate; /* 0x184 */
+    short f188;           /* 0x188 */
     unsigned char _18a[0x2];
-    unsigned int attr;       /* 0x18C, flag word whose low half is the reverb depth */
-    unsigned int flags;      /* 0x190 */
+    unsigned int attr;  /* 0x18C, flag word whose low half is the reverb depth */
+    unsigned int flags; /* 0x190 */
 } StgPre;
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 12 TUs that carried 6 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
@@ -833,69 +820,70 @@ typedef struct PObjGObj {
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 38 TUs that carried 6 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
 typedef struct Act {
     char _pad0[0x10];
-    int           f_10; /* 0x10 */
-    int           f_14; /* 0x14 */
+    int f_10; /* 0x10 */
+    int f_14; /* 0x14 */
     char _pad18[0x8];
-    ActStatus     flags20; /* 0x20 */
+    ActStatus flags20; /* 0x20 */
     char _pad28[0x8];
-    int           f_30; /* 0x30 */
-    int           unk34; /* 0x34 */
-    unsigned int  f_38; /* 0x38 */
+    int f_30;          /* 0x30 */
+    int unk34;         /* 0x34 */
+    unsigned int f_38; /* 0x38 */
     char _pad3C[0x8];
-    int           f_44; /* 0x44 */
+    int f_44; /* 0x44 */
     char _pad48[0x48];
-    long long     f_90; /* 0x90 */
+    long long f_90; /* 0x90 */
     char _pad98[0x8];
-    long long     flags; /* 0xA0 */
-    int           f_A8; /* 0xA8 */
-    int           f_AC; /* 0xAC */
+    long long flags; /* 0xA0 */
+    int f_A8;        /* 0xA8 */
+    int f_AC;        /* 0xAC */
     char _padB0[0x20];
-    ActMail       *mainMail; /* 0xD0 */
-    ActMail       *mail; /* 0xD4 */
+    ActMail *mainMail; /* 0xD0 */
+    ActMail *mail;     /* 0xD4 */
     char _padD8[0x8];
-    int           f_E0; /* 0xE0 */
+    int f_E0; /* 0xE0 */
     char _padE4[0x3C];
-    float         f_120; /* 0x120 */
-    float         f_124; /* 0x124 */
-    float         f_128; /* 0x128 */
-    char _pad12C[0x8];
-    int           f_134; /* 0x134 */
+    float f_120; /* 0x120 */
+    float f_124; /* 0x124 */
+    float f_128; /* 0x128 */
+    char _pad12C[0x4];
+    void *f_130; /* 0x130: the motion record SetMotionRequest returns */
+    int f_134;   /* 0x134 */
     char _pad138[0x2];
-    short         f_13A; /* 0x13A */
+    short f_13A; /* 0x13A */
     char _pad13C[0x8];
-    int           f_144; /* 0x144 */
-    int           f_148; /* 0x148 */
+    int f_144; /* 0x144 */
+    int f_148; /* 0x148 */
     char _pad14C[0x4];
-    int           f_150; /* 0x150 */
+    int f_150; /* 0x150 */
     char _pad154[0x3C];
-    int           f_190; /* 0x190 */
+    int f_190; /* 0x190 */
     char _pad194[0x2C];
-    float         f_1C0; /* 0x1C0 */
-    float         f_1C4; /* 0x1C4 */
-    float         f_1C8; /* 0x1C8 */
+    float f_1C0; /* 0x1C0 */
+    float f_1C4; /* 0x1C4 */
+    float f_1C8; /* 0x1C8 */
     char _pad1CC[0x4];
-    int           f_1D0; /* 0x1D0 */
-    int           f_1D4; /* 0x1D4 */
-    char          f_1D8; /* 0x1D8 */
-    char          f_1D9; /* 0x1D9 */
-    char          f_1DA; /* 0x1DA */
-    char          f_1DB; /* 0x1DB */
+    int f_1D0;  /* 0x1D0 */
+    int f_1D4;  /* 0x1D4 */
+    char f_1D8; /* 0x1D8 */
+    char f_1D9; /* 0x1D9 */
+    char f_1DA; /* 0x1DA */
+    char f_1DB; /* 0x1DB */
     char _pad1DC[0x4];
-    float         f_1E0; /* 0x1E0 */
+    float f_1E0; /* 0x1E0 */
     char _pad1E4[0x100];
-    int           unk2E4; /* 0x2E4 */
+    int unk2E4; /* 0x2E4 */
     char _pad2E8[0x64];
-    int           f_34C; /* 0x34C */
-    int           f_350; /* 0x350 */
+    int f_34C; /* 0x34C */
+    int f_350; /* 0x350 */
     char _pad354[0xEC];
-    int           f_440; /* 0x440 */
-    int           f_444; /* 0x444 */
+    int f_440; /* 0x440 */
+    int f_444; /* 0x444 */
     char _pad448[0x1B4];
-    int           f_5FC; /* 0x5FC */
+    int f_5FC; /* 0x5FC */
     char _pad600[0x80];
-    int           f_680; /* 0x680 */
-    int           f_684; /* 0x684 */
-    int           f_688; /* 0x688 */
+    int f_680; /* 0x680 */
+    int f_684; /* 0x684 */
+    int f_688; /* 0x688 */
 } Act;
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 2 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */

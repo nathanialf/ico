@@ -15,6 +15,7 @@
 #include "geometryManager.h"
 #include "chain.h"
 #include "act-game.h"
+#include "motionOrientManager.h"
 
 typedef struct {
     int a, b, c;
@@ -25,7 +26,184 @@ typedef struct {
     float f4;
 } CCPResult;
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", findChainInJump);
+/* One word of the boy's actor parameter block at gobj->x15C: the motion code
+   writes these slots as float and the evaluator reads them as int, so the word
+   itself is a union.  ROM re-loads gobj->x15C before every store through one,
+   which only an alias-set-0 union member does. */
+typedef union BoyVal {
+    int i;
+    float f;
+} BoyVal;
+
+extern char D_0055FE58[];
+extern int D_0028F4C0[];
+extern void *isysGObjSearchFromObjKindID_begin(int id);
+extern CCPResult *test_CURRENTROOT(void *a0);
+extern void *test_CURRENTORIENT(void *a0);
+extern float _DistxzSqGV(void *a, void *b);
+extern void _OrientXZGV(void *dst, void *a, void *b);
+extern int _RotyGV();
+extern void GetMatrixDirectionToZ(void *dst, void *orient);
+extern void sceVu0SubVector(void *dst, CCPResult *a, CCPResult *b);
+extern void sceVu0ApplyMatrix(void *dst, void *m, void *v);
+extern void GetChainNearestNodePosition(float *out, void *g, float *ref);
+extern int GetCageChainPoint(float *a, float *b, void *obj);
+extern void GetRootPositionHandExtra(void *self, float *out);
+extern void ACTSendMailCorrect(int a0, int mail);
+
+/* one 0x194-byte motion row per motion id; 0x190 carries the jump-chain flags */
+typedef struct {
+    char _000[0x190];
+    unsigned int f_190;
+} ChainMotRow;
+
+#define CHAINROW(self)                                                                             \
+    ((ChainMotRow *)(*(int *)(*(char **)((char *)(self) + 0x15C) + 0x4A0) * sizeof(ChainMotRow) +  \
+                     D_0055FE58))
+
+void findChainInJump(void *self)
+{
+    float p[4];
+    float q[4];
+    float w[4];
+    float sk[4];
+    float rt[4];
+    float lp[4];
+    float lv[4];
+    float mtx[16];
+    float hp0[4];
+    float hp1[4];
+    float cp[4];
+    float ce[4];
+    float pos[4];
+    float hx[4];
+    float cp2[4];
+    float ce2[4];
+    char *sub;
+    void *g;
+    void *cage;
+    float r;
+    float r2;
+    float ang;
+    int rside = 0;
+    int lside = 0;
+
+    sub = *(char **)((char *)self + 0x164);
+    r = ((CHAINROW(self)->f_190 >> 8) & 1) ? 300.0f : 100.0f;
+    r2 = ((CHAINROW(self)->f_190 >> 8) & 1) ? 90.0f : 120.0f;
+
+    for (g = isysGObjSearchFromObjKindID_begin(0x15); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
+        if (*(int *)((char *)g + 0x16C) != 0) {
+            GetRootPosition(p, g);
+            q[0] = p[0];
+            q[1] = p[1];
+            q[2] = p[2];
+            q[1] += GetChainLength(g) + 50.0f;
+            if (_DistxzSqGV(test_CURRENTROOT(self), p) < r * r &&
+                p[1] < test_CURRENTROOT(self)->f4 && test_CURRENTROOT(self)->f4 < q[1]) {
+                _OrientXZGV(rt, p, test_CURRENTROOT(self));
+                ang = (float)_RotyGV(rt, test_CURRENTORIENT(self));
+                if ((ang < 0.0f ? -ang : ang) < r2) {
+                    if (*(int *)(sub + 0x34) == 4) {
+                        if (0.0f < ang) {
+                            rside = 1;
+                        } else {
+                            lside = 1;
+                        }
+                    }
+                }
+                GetSkeltonPosition(sk, self, 18);
+                w[0] = 0.0f;
+                w[1] = sk[1] - p[1];
+                w[2] = 0.0f;
+                break;
+            }
+        }
+    }
+
+    rt[0] = ((float *)test_CURRENTROOT(self))[0];
+    rt[1] = ((float *)test_CURRENTROOT(self))[1];
+    rt[2] = ((float *)test_CURRENTROOT(self))[2];
+    GetMatrixDirectionToZ(mtx, test_CURRENTORIENT(self));
+    lp[0] = p[0];
+    lp[1] = p[1];
+    lp[2] = p[2];
+    sceVu0SubVector(lv, (CCPResult *)lp, (CCPResult *)rt);
+    lv[3] = 0.0f;
+    sceVu0ApplyMatrix(lv, mtx, lv);
+
+    if (((CHAINROW(self)->f_190 >> 6) & 1) == 0 && (rside != 0 || lside != 0) &&
+        (lv[2] < 0.0f ? -lv[2] : lv[2]) < 150.0f) {
+        RequestChangeHandMode(self, 0, 2, 1, g, 0, (int)w);
+        RequestChangeHandMode(self, 1, 2, 1, g, 0, (int)w);
+    } else {
+        RequestChangeHandMode(self, 0, 2, 0, 0, 0, 0);
+        RequestChangeHandMode(self, 1, 2, 0, 0, 0, 0);
+    }
+
+    if ((rside != 0 || lside != 0) && ((CHAINROW(self)->f_190 >> 5) & 1) != 0) {
+        float sp = (D_0028F4C0[0] == 1) ? 0.5f : 0.8f;
+
+        ((BoyVal *)(*(char **)((char *)self + 0x15C) + 0x45C))->f = sp;
+        ((BoyVal *)(*(char **)((char *)self + 0x15C) + 0x464))->f = sp;
+        ((BoyVal *)(*(char **)((char *)self + 0x15C) + 0x468))->f = sp;
+    }
+
+    if (rside != 0 || lside != 0) {
+        _ACTCharStatus_Set(self, 18, -1.0f, g);
+    }
+
+    if (rside != 0) {
+        GetSkeltonPosition(hp0, self, 22);
+        if ((lv[0] < 0.0f ? -lv[0] : lv[0]) < 60.0f && (lv[2] < 0.0f ? -lv[2] : lv[2]) < 100.0f) {
+            iosOmSendMail(self, 20, g);
+        }
+    }
+
+    if (lside != 0) {
+        GetSkeltonPosition(hp1, self, 6);
+        if ((lv[0] < 0.0f ? -lv[0] : lv[0]) < 60.0f && (lv[2] < 0.0f ? -lv[2] : lv[2]) < 100.0f) {
+            iosOmSendMail(self, 20, g);
+        }
+    }
+
+    if (g != 0 && *(int *)(sub + 0x34) == 65) {
+        GetSkeltonPosition(hp0, self, 6);
+        GetChainNearestNodePosition(hp1, g, hp0);
+        if ((hp0[1] - hp1[1] < 0.0f ? -(hp0[1] - hp1[1]) : (hp0[1] - hp1[1])) < 5.0f) {
+            iosOmSendMail(self, 20, g);
+        }
+    }
+
+    if (*(int *)(sub + 0x34) == 65) {
+        void *o;
+
+        cage = 0;
+        pos[0] = ((float *)test_CURRENTROOT(self))[0];
+        pos[1] = ((float *)test_CURRENTROOT(self))[1];
+        pos[2] = ((float *)test_CURRENTROOT(self))[2];
+        for (o = isysGObjSearchFromObjKindID_begin(0x2C); o != 0;
+             o = isysGObjSearchFromObjKindID_next(o)) {
+            if (*(int *)((char *)o + 0x16C) != 0) {
+                if (GetCageChainPoint(cp, ce, o) != 0) {
+                    if (_DistxzSqGV(test_CURRENTROOT(self), cp) < 4.9e+03f && ce[1] > pos[1]) {
+                        cage = o;
+                        break;
+                    }
+                }
+            }
+        }
+        if (cage != 0) {
+            GetRootPositionHandExtra(self, hx);
+            GetCageChainPoint(cp2, ce2, cage);
+            if (cp2[1] + 150.0f < hx[1]) {
+                ACTSendMailCorrect((int)self, 0xAE);
+                ACTSendMailCorrect((int)self, 0xAD);
+            }
+        }
+    }
+}
 
 /* kept local: this TU's uses of GetRootProjectionPosOfGObj do not fit the prototype in motionManager2.h */
 extern void GetRootProjectionPosOfGObj(void *out, void *obj);
@@ -128,8 +306,163 @@ void motBoyHand50(volatile int a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", motBoyHand100);
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", motBoyHand200);
+extern void *D_00639EA4;
+extern char D_005527B0[];
+extern char D_005527C8[];
+extern char D_0063A6C0[];
+extern char D_0063A6C8[];
+extern int D_0028F4C0[];
+extern CCPResult *test_CURRENTROOT(void *a0);
+extern void sceVu0SubVector(void *, CCPResult *, CCPResult *);
+extern void sceVu0Normalize(float *dst, float *src);
+extern void SetMotionDirection(void *self, float *dir);
+
+/* boyact.c rows 1522-1529 of the listing: the shared "face the girl" prologue
+   the b100climb.h / b200climb.h climb motions open with. */
+static inline void faceGirlFlat(void)
+{
+    float dir[4];
+    void *boy = D_00639EA4;
+
+    sceVu0SubVector(dir, test_CURRENTROOT(D_00639EA4), test_CURRENTROOT(D_00639EA8));
+    dir[1] = 0.0f;
+    sceVu0Normalize(dir, dir);
+    SetMotionDirection(boy, dir);
+}
+
+void motBoyHand100(volatile int a0)
+{
+    Act *sub = GOBJ_ACT(a0);
+    int n;
+
+    debug_StdPrintfDummy(D_005527B0);
+    faceGirlFlat();
+    n = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 2;
+    while (1) {
+        if (0 < n) {
+            n--;
+            if (D_00639EA8 != 0) {
+                iosOmSendMail(D_00639EA8, 0x61, D_0063A61C);
+            }
+            if ((sub->f_E0 & 1) == 0) {
+                goto cont;
+            }
+            goto done;
+        }
+        break;
+    cont:
+        _ACTWait(1);
+    }
+    ACTSendMailCorrect(a0, 0x65);
+    debug_StdPrintfDummy(D_005527C8, (void *)a0 == D_00639EA4 ? D_0063A6C0 : D_0063A6C8);
+done:
+    while (GOBJ_SUB(a0)->f_4A0 < 0 || 2 <= GOBJ_SUB(a0)->f_4A0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    sub->f_130 = SetMotionRequest((void *)a0, 0x65, *(MotOriReq *)((char *)sub + 0x620));
+    sub->f_130 = SetMotionRequest((void *)a0, 0xA4, *(MotOriReq *)((char *)sub + 0x620));
+    while ((*(int *)((char *)sub->f_130 + 0x5C) & 1) == 0) {
+        _ACTWait(1);
+    }
+    while (1) {
+        if (D_00639EA8 != 0) {
+            iosOmSendMail(D_00639EA8, 0x62, D_0063A61C);
+        }
+        if (sub->f_E0 & 2) {
+            break;
+        }
+        _ACTWait(1);
+    }
+    sub->f_130 = SetMotionRequest((void *)a0, 0x65, *(MotOriReq *)((char *)sub + 0x620));
+    while ((*(int *)((char *)sub->f_130 + 0x5C) & 1) == 0) {
+        _ACTWait(1);
+    }
+    while (1) {
+        if (D_00639EA8 != 0) {
+            iosOmSendMail(D_00639EA8, 0x64, D_0063A61C);
+        }
+        if (sub->f_E0 & 8) {
+            break;
+        }
+        _ACTWait(1);
+    }
+    sub->f_14 = 0;
+    while (1) {
+        ACTSendMailCorrect(a0, 0x47);
+        _ACTWait(1);
+    }
+}
+
+extern char D_005527F0[];
+
+void motBoyHand200(volatile int a0)
+{
+    Act *sub = GOBJ_ACT(a0);
+    int n;
+
+    debug_StdPrintfDummy(D_005527F0);
+    faceGirlFlat();
+    n = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 2;
+    while (1) {
+        if (0 < n) {
+            n--;
+            if (D_00639EA8 != 0) {
+                iosOmSendMail(D_00639EA8, 0x66, D_0063A61C);
+            }
+            if ((sub->f_E0 & 1) == 0) {
+                goto cont;
+            }
+            goto done;
+        }
+        break;
+    cont:
+        _ACTWait(1);
+    }
+    ACTSendMailCorrect(a0, 0x6A);
+    debug_StdPrintfDummy(D_005527C8, (void *)a0 == D_00639EA4 ? D_0063A6C0 : D_0063A6C8);
+done:
+    while (GOBJ_SUB(a0)->f_4A0 < 0 || 2 <= GOBJ_SUB(a0)->f_4A0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    sub->f_130 = SetMotionRequest((void *)a0, 0x66, *(MotOriReq *)((char *)sub + 0x620));
+    while ((*(int *)((char *)sub->f_130 + 0x5C) & 1) == 0) {
+        _ACTWait(1);
+    }
+    sub->f_130 = SetMotionRequest((void *)a0, 0x66, *(MotOriReq *)((char *)sub + 0x620));
+    sub->f_130 = SetMotionRequest((void *)a0, 0xA4, *(MotOriReq *)((char *)sub + 0x620));
+    while ((*(int *)((char *)sub->f_130 + 0x5C) & 1) == 0) {
+        _ACTWait(1);
+    }
+    while (1) {
+        if (D_00639EA8 != 0) {
+            iosOmSendMail(D_00639EA8, 0x67, D_0063A61C);
+        }
+        if (sub->f_E0 & 2) {
+            break;
+        }
+        _ACTWait(1);
+    }
+    sub->f_130 = SetMotionRequest((void *)a0, 0x66, *(MotOriReq *)((char *)sub + 0x620));
+    while ((*(int *)((char *)sub->f_130 + 0x5C) & 1) == 0) {
+        _ACTWait(1);
+    }
+    while (1) {
+        if (D_00639EA8 != 0) {
+            iosOmSendMail(D_00639EA8, 0x69, D_0063A61C);
+        }
+        if (sub->f_E0 & 8) {
+            break;
+        }
+        _ACTWait(1);
+    }
+    sub->f_14 = 0;
+    while (1) {
+        ACTSendMailCorrect(a0, 0x47);
+        _ACTWait(1);
+    }
+}
 
 extern void *D_00639EA4;
 extern char D_005577D0[];
