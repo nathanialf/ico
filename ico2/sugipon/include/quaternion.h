@@ -44,11 +44,14 @@ void SetQuaternionByCosineAxisRotateVWithNoRegularize(void *a0, void *a1, float 
 void SetQuaternionByCosineAxisRotateV(void *a0, void *a1, float angle);
 void SetQuaternionByAxisRotateVEAngle(void *a0, float *a1, void *a2);
 float GetQuaternionCosRadian(void *p0, void *p1);
-
 void CopyQuaternion(void *a0, void *a1);
 void GetInverseQuaternion(int a0, int a1);
 void GetMatrixFromQuaternion(char *a0, char *a1);
-void GetSlerpQuaternion(int a0);
+/* The ROM proves the arity: GetSlerpQuaternion is a forwarder that saves a0,
+ * calls GetSlerpQuaternionNoRegularize and tail-calls RegularizeQuaternion,
+ * so its other three arguments reach the callee untouched in $5, $6 and $f12
+ * (0x0010DA40). Its callers pass four. */
+void GetSlerpQuaternion(void *out, void *qa, void *qb, float t);
 void GetSlerpQuaternionNoRegularize(void *out, void *qa, void *qb, float t);
 extern float IdentityQuaternion[4];
 void InitQuaternionDrive(void);

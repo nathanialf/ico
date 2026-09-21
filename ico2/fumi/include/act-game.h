@@ -39,7 +39,9 @@ void ACTGame_LwsEffect_Guard(char *a0);
 unsigned char ACTGame_NoWeapon(char *a0);
 void ACTGame_SaveActorInformation(char *a0);
 void ACTGame_SendSoundMail(char *a0, int mail, int a2, int a3, int a4);
-void ACTGame_SetActors_Debug(int stage, int a1);
+/* The second parameter is an unsigned char: the ROM masks it on entry with
+ * `andi $16, $5, 0xFF` at 0x00146F8C. */
+void ACTGame_SetActors_Debug(int stage, unsigned char flag);
 void ACTGame_SetMotionPlaySpeedRatio_Reserve(char *a0, float f, unsigned int a1);
 void ACTGame_StageChangeGObj(char *self, int idx);
 void ACTGame_StageChangeGObjDirect(int *a0, int a1, void *a2, int a3);

@@ -276,10 +276,13 @@ void GetSlerpQuaternionNoRegularize(void *out, void *qa, void *qb, float t)
 /* kept local: this TU's uses of GetSlerpQuaternionNoRegularize do not fit the prototype in quaternion.h */
 extern void GetSlerpQuaternionNoRegularize();
 
-void GetSlerpQuaternion(int a0)
+/* The three trailing arguments are never named here: the forwarder leaves them
+ * in $5, $6 and $f12 for GetSlerpQuaternionNoRegularize, which is why the
+ * kept-local declaration above is unprototyped. */
+void GetSlerpQuaternion(void *out, void *qa, void *qb, float t)
 {
-    GetSlerpQuaternionNoRegularize(a0);
-    RegularizeQuaternion(a0);
+    GetSlerpQuaternionNoRegularize(out);
+    RegularizeQuaternion(out);
 }
 
 inline int *GetCurrentQuaternion(void)
