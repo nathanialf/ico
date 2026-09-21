@@ -61,7 +61,45 @@ void actSt02aDoor(volatile int a0)
     }
 }
 
-extern long long D_00622710[];
+/* The TU's .rodata run, VMA 0x00622710..0x00622820, declared in the ROM's own
+ * order.  MAIN.MAP names no symbol in it and sizes the January link's st02a.o
+ * .rodata at 0xb0 against the retail run's 0x110; the run is st02a.o's whole
+ * run all the same, since st01b.o ends at 0x00622710, st03t.o starts at
+ * 0x00622820 and no TU sorts between them, and every word is reached from this
+ * file alone. */
+
+/* The two-part door's SE position, copied into the local the sound call reads. */
+static const ConstVec doorSePos = {{-1823.0f, -1174.0f, 2429.0f, 0.0f}};
+
+/* The door's two effect positions; the up sequence plays them in this order and
+ * the down sequence in the other.  ico2/script/src/st08b.c carries the same two
+ * points for its own door. */
+static const ConstVec doorUpEffectPos = {{-505.0f, -1200.0f, -5671.0f, 1.0f}};
+
+static const ConstVec doorUpEffect2Pos = {{-505.0f, -1447.0f, -5671.0f, 1.0f}};
+
+/* The two boundary points the boy's splash check tests against. */
+static const ConstVec boySplashPos[2] = {{{840.0f, 235.0f, 560.0f, 1.0f}},
+                                         {{740.0f, 235.0f, 560.0f, 1.0f}}};
+
+/* The waterfall's two reflection meshes and the two layout quads they are
+ * stretched over: the first quad drops from y 280 to y 0, which is the falling
+ * water, and the second is flat at y 0, which is the pool below it.  The value
+ * at offset 0x1C is a hardware field and keeps its ROM spelling. */
+static const PoolMesh fallReflactionMesh = {30, 20, 0, 0, 0, 0, 0, 0x60687080};
+
+static const PoolMesh poolReflactionMesh = {10, 10, 0, 0, 0, 0, 0, 0x60687080};
+
+static const PoolMeshQuad fallReflactionQuad = {{{650.0f, 280.0f, 550.0f, 1.0f},
+                                                 {650.0f, 0.0f, 700.0f, 1.0f},
+                                                 {920.0f, 280.0f, 550.0f, 1.0f},
+                                                 {920.0f, 0.0f, 700.0f, 1.0f}}};
+
+static const PoolMeshQuad poolReflactionQuad = {{{650.0f, 0.0f, 700.0f, 1.0f},
+                                                 {650.0f, 0.0f, 1200.0f, 1.0f},
+                                                 {920.0f, 0.0f, 700.0f, 1.0f},
+                                                 {920.0f, 0.0f, 1200.0f, 1.0f}}};
+
 extern ActMail D_004F8090[];
 /* kept local: this TU's uses of scpTriggerFloorAttrTargetMan do not fit the prototype in script.h */
 extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
@@ -81,8 +119,8 @@ void actSt02aDoorUpChk(volatile int a0)
     actCreateSubThread(actSt02aDoorUpEffect, 21);
     scpWakeupItemWithBoundary(-1827.0f, -1072.0f, 2285.0f, 100.0f);
     stage_SetAnimation(97, 1, 0);
-    pos[0] = D_00622710[0];
-    pos[1] = D_00622710[1];
+    pos[0] = doorSePos.d[0];
+    pos[1] = doorSePos.d[1];
     soundSeDefPlay(1220, 0, pos, 1);
     _ACTWait(30);
     h = soundSeDefPlay(1221, 0, pos, 1);
@@ -114,8 +152,8 @@ void actSt02aDoorDownChk(volatile int a0)
     actCreateSubThread(actSt02aDoorDownEffect, 21);
     scpWakeupItemWithBoundary(-1827.0f, -1072.0f, 2285.0f, 100.0f);
     stage_SetAnimation(98, 1, 0);
-    pos[0] = D_00622710[0];
-    pos[1] = D_00622710[1];
+    pos[0] = doorSePos.d[0];
+    pos[1] = doorSePos.d[1];
     soundSeDefPlay(1220, 0, pos, 1);
     _ACTWait(30);
     h = soundSeDefPlay(1221, 0, pos, 1);
@@ -196,7 +234,6 @@ void actSt02aFenceOpen(volatile int a0)
     scpWakeupEnemyAll();
 }
 
-extern long long D_00622740[];
 /* kept local: this TU's uses of scpEffectStart do not fit the prototype in script.h */
 extern void scpEffectStart(void *buf, int kind);
 /* kept local: this TU's uses of scpTriggerPosBall do not fit the prototype in script.h */
@@ -209,10 +246,10 @@ void actSt02WaterFallBoySplashCheck(volatile int a0)
     int idx;
     if (D_00639EA4 == 0)
         return;
-    buf[0] = D_00622740[0];
-    buf[1] = D_00622740[1];
-    buf[2] = D_00622740[2];
-    buf[3] = D_00622740[3];
+    buf[0] = boySplashPos[0].d[0];
+    buf[1] = boySplashPos[0].d[1];
+    buf[2] = boySplashPos[1].d[0];
+    buf[3] = boySplashPos[1].d[1];
     for (;;) {
         idx = GetSkeltonFocusNode(D_00639EA4, 0x23);
         CopyVector(buf2, (float *)(GOBJ_SUB(D_00639EA4)->f_C + (idx << 6) + 0x30));
@@ -227,20 +264,12 @@ void actSt02WaterFallBoySplashCheck(volatile int a0)
     }
 }
 
-/* The waterfall's two reflection meshes and the two layout quads they are
- * stretched over, read straight out of .rodata by the %hi/%lo pairs the ROM
- * carries; `const` is what keeps the four copies in the ROM's order. */
-extern const PoolMesh D_00622760;
-extern const PoolMesh D_00622780;
-extern const PoolMeshQuad D_006227A0;
-extern const PoolMeshQuad D_006227E0;
-
 void actSt02aWaterFallReflactionEffect(volatile int a0)
 {
-    PoolMesh m0 = D_00622760;
-    PoolMesh m1 = D_00622780;
-    PoolMeshQuad q0 = D_006227A0;
-    PoolMeshQuad q1 = D_006227E0;
+    PoolMesh m0 = fallReflactionMesh;
+    PoolMesh m1 = poolReflactionMesh;
+    PoolMeshQuad q0 = fallReflactionQuad;
+    PoolMeshQuad q1 = poolReflactionQuad;
 
     InitLayoutedPoolReflactionMesh((char *)&m0, (char *)&q0);
     InitLayoutedPoolReflactionMesh((char *)&m1, (char *)&q1);
@@ -610,26 +639,23 @@ void actSt02aDoorEvent(int x)
     volatile int local = x;
 }
 
-extern long long D_00622720[];
-extern long long D_00622730[];
-
 void actSt02aDoorUpEffect(volatile int a0)
 {
     long long b1[2];
     long long b2[2];
-    long long v0a = D_00622720[0];
-    long long v0b = D_00622730[0];
+    long long v0a = doorUpEffectPos.d[0];
+    long long v0b = doorUpEffect2Pos.d[0];
     int i;
     for (i = 0; i < 50; i++) {
         switch (i) {
         case 0:
             b1[0] = v0a;
-            b1[1] = D_00622720[1];
+            b1[1] = doorUpEffectPos.d[1];
             scpEffectStart(b1, 0);
             break;
         case 0x1E:
             b2[0] = v0b;
-            b2[1] = D_00622730[1];
+            b2[1] = doorUpEffect2Pos.d[1];
             scpEffectStart(b2, 0);
             break;
         }
@@ -641,19 +667,19 @@ void actSt02aDoorDownEffect(volatile int a0)
 {
     long long b1[2];
     long long b2[2];
-    long long v0a = D_00622730[0];
-    long long v0b = D_00622720[0];
+    long long v0a = doorUpEffect2Pos.d[0];
+    long long v0b = doorUpEffectPos.d[0];
     int i;
     for (i = 0; i < 50; i++) {
         switch (i) {
         case 0:
             b1[0] = v0a;
-            b1[1] = D_00622730[1];
+            b1[1] = doorUpEffect2Pos.d[1];
             scpEffectStart(b1, 0);
             break;
         case 0x1E:
             b2[0] = v0b;
-            b2[1] = D_00622720[1];
+            b2[1] = doorUpEffectPos.d[1];
             scpEffectStart(b2, 0);
             break;
         }

@@ -285,6 +285,34 @@ inline int DeleteWayPoint(int pno)
     return 0;
 }
 
+/* The January listing puts CreateBridge at way_llf.c:341-369, between
+   DeleteWayPoint (285-333) and the begin iterators (376+), and it is the one
+   function of the TU too large to inline, so gcc emits it first in the object,
+   ahead of every deferred `inline` body.  Its source position still decides the
+   constant pool: the failure message below is created before waypoint_
+   bidirectional_list's "bidir wp:%p\n" and lands first in .rodata, as in ROM. */
+int CreateBridge(int a0, int a1)
+{
+    int gno;
+    int p0;
+    int p1;
+
+    gno = CreateWayGroup();
+    if (gno < 0) {
+        debug_StdPrintfDummy("WayPointCreateNewBridge: way group not create\n");
+        return -1;
+    }
+    p0 = CreateWayPoint(a0);
+    AddWayPoint(gno, p0);
+    ((NdW *)&D_004F31E0[p0])->f30 = 1;
+    p1 = CreateWayPoint(a1);
+    AddWayPoint(gno, p1);
+    ((NdW *)&D_004F31E0[p1])->f30 = 1;
+    set_bridge(gno);
+    SetWayGroupActive(gno, 1);
+    return gno;
+}
+
 /* the begin iterators start one record before the way-group table (the ROM
    folds that base to 0x4F1E8C) and step before the first test */
 
@@ -475,45 +503,16 @@ inline int WayPointList_next(int *a0)
     return v;
 }
 
-extern char D_00621EB0[];
-
 inline int waypoint_bidirectional_list(int *self, int which)
 {
     if (self == 0) {
         return 0;
     }
-    debug_StdPrintfDummy(D_00621EB0, self);
+    debug_StdPrintfDummy("bidir wp:%p\n", self);
     if (which == 0) {
         return self[0x8 / 4];
     }
     return self[0xC / 4];
-}
-
-extern char D_00621E80[];
-
-/* CreateBridge opens the object at VMA 0x00215CA0 and InitWayPointSystem
-   follows it: both are plain functions, so gcc emits them where they are
-   defined, ahead of every deferred `inline` body above. */
-int CreateBridge(int a0, int a1)
-{
-    int gno;
-    int p0;
-    int p1;
-
-    gno = CreateWayGroup();
-    if (gno < 0) {
-        debug_StdPrintfDummy(D_00621E80);
-        return -1;
-    }
-    p0 = CreateWayPoint(a0);
-    AddWayPoint(gno, p0);
-    ((NdW *)&D_004F31E0[p0])->f30 = 1;
-    p1 = CreateWayPoint(a1);
-    AddWayPoint(gno, p1);
-    ((NdW *)&D_004F31E0[p1])->f30 = 1;
-    set_bridge(gno);
-    SetWayGroupActive(gno, 1);
-    return gno;
 }
 
 void InitWayPointSystem(void)

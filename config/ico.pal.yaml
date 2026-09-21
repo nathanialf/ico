@@ -880,6 +880,7 @@ segments:
       - [0x521B64, rodata, cod/521B64]     # rodata blob resume
       - [0x521D40, .rodata, ico2/fumi/src/seMail]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x621D40..0x6229B0, 3184 B
       - [0x521D58, rodata, cod/521D58]     # rodata blob resume
+      - [0x521E80, .rodata, ico2/fumi/src/way_llf]  # the TU's two debug strings (completeness pass 28; the pool is numbered in source order, so CreateBridge sits at its listing position), 0x3D B, VMA 0x621E80..0x621EBD, abutting way_tool's row
       - [0x521EC0, .rodata, ico2/fumi/src/way_tool]  # the TU's whole .rodata run as source (data pass 2): 92 string literals, including the 64 way-group selector lines that gcc flushes LIFO out of debugWayGroupSelect's initialiser; VMA 0x621EC0..0x6224D9 + 7 B link pad
       - [0x5224E0, .rodata, ico2/script/src/deja]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x6224E0..0x6229B0, 1232 B
       - [0x5224F0, .rodata, ico2/script/src/e3]  # the TU's whole .rodata run as source (data pass 3), in definition order, VMA 0x6224F0..0x6225F4, 260 B
@@ -888,7 +889,7 @@ segments:
       - [0x522630, .rodata, ico2/script/src/op]  # the TU's whole .rodata run as source (completeness pass 5), VMA 0x622630..0x6226A0, 109 B emitted
       - [0x5226A0, rodata, cod/5226A0]     # .rodata blob resume
       - [0x522700, .rodata, ico2/script/src/st01b]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x622700..0x6229B0, 688 B
-      - [0x522710, rodata, cod/522710]     # rodata blob resume
+      - [0x522710, .rodata, ico2/script/src/st02a]  # the TU's whole .rodata run as source (completeness pass 28): three position vectors, the two splash positions, the fall and pool reflection meshes and quads, eight named objects, 272 B, VMA 0x622710..0x622820 up to st03t's row; the January link's 0xB0 is not the retail member's size
       - [0x522820, .rodata, ico2/script/src/st03t]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x622820..0x6229B0, 400 B
       - [0x522840, rodata, cod/522840]     # rodata blob resume
       - [0x5229B0, .rodata, ico2/script/src/st04a]  # carved jtbl_006229B0 (VMA 0x6229B0..0x6229D0, 32 B, 8 arms): actSt04aTorch1Chk's switch table, emitted by the compiled function
