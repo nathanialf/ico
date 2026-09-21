@@ -114,7 +114,7 @@ _TU_NOTE_RE = re.compile(r"//\s*((?:[\w-]+/)+[\w-]+)(?:\.(c|S|s))?(?=[\s,;)]|$)"
 # `// (vendor)` — a library-archive member, not an ICO TU.
 _VENDOR_NOTE_RE = re.compile(r"//\s*\(vendor\)")
 _INCLUDE_ASM_RE = re.compile(
-    r'\bINCLUDE_ASM(?:_NOAT)?\s*\(\s*"[^"]+"\s*,\s*(\w+)\s*\)'
+    r'\bINCLUDE_ASM(?:_NOAT|_STATIC)?\s*\(\s*"[^"]+"\s*,\s*(\w+)\s*\)'
 )
 
 VENDOR_GROUP = "vendor"
@@ -232,6 +232,11 @@ def _unmatched_funcs_for_tu(tu: str, ext: str) -> set[str] | None:
     """
     src = REPO_ROOT / f"{tu}.{ext}"
     if not src.exists():
+        # A row that names no extension is a member that may live as an
+        # assembled `.s` / `.S` file (crt0, newlib's r5900 string members).
+        for alt in ("s", "S"):
+            if (REPO_ROOT / f"{tu}.{alt}").exists():
+                return set()
         return None
     if ext == "S":
         return set()
@@ -470,15 +475,15 @@ def build_tree() -> dict:
             # A census name two TUs both carry (file statics, so the ELF
             # symbols are local and do not collide).  The global name index
             # cannot tell the twins apart, so ask this row's own TU.
-            t_idx = _tu_index(tu, sym["ext"])
-            matched = (sym["ext"] == "S"
-                       or (t_idx is not None
-                           and sym["name"] not in t_idx["stubs"]
-                           and sym["name"] in t_idx["defined"]))
+            # The rebuilt ELF is byte-identical (the gate), so a function no
+            # source stubs is reproduced by the source that owns it: a C body,
+            # a nested child gcc emits inside its parent, an inlined helper,
+            # a whole-function asm block or an assembled member. Only an
+            # INCLUDE_ASM in its own TU makes it unmatched.
+            matched = sym["name"] not in unmatched
         else:
             g = _global_index()
-            matched = (sym["ext"] == "S"
-                       or (sym["name"] not in g["stubs"] and sym["name"] in g["defined"]))
+            matched = sym["ext"] == "S" or sym["name"] not in g["stubs"]
 
         p = programmers.setdefault(prog, {"name": prog, "tus": {}})
         t = p["tus"].setdefault(
@@ -494,6 +499,26 @@ def build_tree() -> dict:
             "section": sym["section"],
             "matched": matched,
         })
+
+    # INCLUDE_ASM stubs whose name has no symbol row (splat's auto names for
+    # gcc local copies of nested functions): still unmatched functions of
+    # their TU, with size 0 since their bytes sit inside the parent's delta.
+    rowed = {s["name"] for s in syms}
+    for tu, stubs in tu_unmatched.items():
+        if not stubs:
+            continue
+        for name in sorted(stubs - rowed):
+            m = re.match(r"func_([0-9A-Fa-f]{8})$", name)
+            prog = _programmer_of(tu)
+            p = programmers.setdefault(prog, {"name": prog, "tus": {}})
+            tu_name = (tu.split("/", 2)[-1] if tu.startswith("ico2/")
+                       else tu.split("/", 1)[-1])
+            t = p["tus"].setdefault(tu, {"name": tu_name, "path": tu, "funcs": []})
+            t["funcs"].append({
+                "name": name,
+                "addr": f"0x{int(m.group(1), 16):08X}" if m else "0x00000000",
+                "size": 0, "section": ".text", "matched": False,
+            })
 
     group_notes = {
         VENDOR_GROUP: VENDOR_NOTE,
