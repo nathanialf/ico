@@ -886,7 +886,12 @@ typedef struct Act {
     int f_148; /* 0x148 */
     char _pad14C[0x4];
     int f_150; /* 0x150 */
-    char _pad154[0x3C];
+    char _pad154[0x4];
+    void *box; /* 0x158, the box/truck GObj the actor is holding: commonact.c
+                  stores it here in actCommonBox and reads it back through
+                  `*(void **)(s + 0x158)` in the boxbar helpers.
+                  Reconstruction, rung: ROM bytes (the store and those reads). */
+    char _pad15C[0x34];
     int f_190; /* 0x190 */
     char _pad194[0x2C];
     float f_1C0; /* 0x1C0 */

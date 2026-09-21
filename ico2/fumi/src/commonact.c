@@ -1967,7 +1967,162 @@ void _boxbar_set_sound(int a0, int mode)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/commonact", actCommonBox);
+extern void afterCommonBox(volatile int a0);
+typedef void (*BoxAfterFn)(volatile int);
+extern void brainAddLevelGirl(float f);
+extern void GetBoxHoldPoint(void *hold, char *box, void *self);
+extern void sceVu0AddVector(void *out, void *a, void *b);
+extern void ACTSendMailCorrect(char *a0, int a1);
+extern void AlignBox(char *box, float f);
+extern int MoveBoxWithHoldPoint(char *box, void *hold, void *self, int node, void *dir);
+extern void GetBoxGlobalHoldPoint(void *out, char *box, void *hold);
+extern int GetBoxMode(char *box);
+extern char D_0063A728[];
+extern char D_0063A730[];
+
+/* reconstruction: the third view of the same 0xC0-byte ClipWall work buffer
+   (RopeWallWork above and RsWork below are the other two). This one reads the
+   two vectors at 0x00 and 0x10, the height at 0x70 and the hit flag at 0x88;
+   the views are kept apart for the reason given at RopeWallWork. */
+typedef struct {
+    float p[4];
+    float q[4];
+    char _20[0x50];
+    float f70;
+    char _74[0x14];
+    int f88;
+    char _8C[0x34];
+} BoxWallWork;
+
+/* The height is an int: the ROM materialises 48.0f and 30.0f at the 0x70 store
+   inside each inlined copy, which only happens when the constant reaches that
+   store through a conversion integrate.c can fold there. A float parameter is
+   copied into a pseudo at the top of the inlined body instead, and loop.c then
+   hoists the 30.0f copy out of the loop into a fourth callee-saved FP register
+   the ROM does not save. */
+static inline int boxWallCheck(int a0, char *box, float dist, int h)
+{
+    BoxWallWork w;
+    float t[4];
+    char *s = *(char **)(a0 + 0x164);
+
+    GetRootPosition(w.p, box);
+    GetRootPosition(w.q, box);
+    sceVu0ScaleVector(t, s + 0x4B0, dist);
+    sceVu0AddVector(w.q, w.q, t);
+    w.f70 = h;
+    w.p[1] += 10.0f;
+    w.q[1] += 10.0f;
+    ClipWall(&w);
+    if (w.f88 == 0) {
+        return 0;
+    }
+    return 1;
+}
+
+void actCommonBox(volatile int a0)
+{
+    char *box;
+    /* SRCFILE.TXT puts commonact.c:3276-3280 after the 3316 rows and before
+       the 3322 rows, inside actCommonBox's own span: an inlined helper
+       defined at the head of this body, above the 3284 chase. */
+    inline void addGirlLevelForBox(char *b)
+    {
+        if (D_00639EA8 != 0 && *(char **)(*(char **)(D_00639EA8 + 0x15C)) == b) {
+            brainAddLevelGirl(1000.0f);
+        }
+    }
+    char *s = *(char **)(a0 + 0x164);
+    char *sub;
+    float hold[4];
+
+    *(BoxAfterFn *)(s + 0x14) = afterCommonBox;
+    box = *(char **)(s + 0x5F4);
+    if (stage_no == 0x10) {
+        sub = *(char **)(*(char **)(box + 0x15C));
+        if (sub != 0) {
+            if (*(int *)(sub + 0xC) == 0x11) {
+                box = sub;
+            }
+        }
+    }
+    ((Act *)s)->box = box;
+    actMotDirToWall((char *)a0);
+    sceVu0ScaleVector(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x530, s + 0x4B0, -1.0f);
+    while (1) {
+        int had = *(int *)(s + 0x38) != 0;
+        int f2 = 0;
+        int miss = 0;
+        int flag = 0;
+        unsigned char isTruck = IsThisBoxTruck(box);
+
+        addGirlLevelForBox(box);
+        GetBoxHoldPoint(hold, box, (void *)a0);
+        if (!isTruck) {
+            if (boxWallCheck(a0, box, 100.0f, 48)) {
+                ACTSendMailCorrect((char *)a0, 0xC7);
+                miss = 1;
+            }
+            if (*(unsigned int *)(s + 0x38) == 0xFFFFFFFF) {
+                if (boxWallCheck(a0, box, 150.0f, 48)) {
+                    miss = 1;
+                }
+            }
+        }
+        if (!miss && (isTruck == 0 ? *(int *)(*(char **)(a0 + 0x15C) + 0x608)
+                                   : *(int *)(*(char **)(a0 + 0x15C) + 0x600))) {
+            f2 = 1;
+            if (*(int *)(s + 0x38) == 1 && boxWallCheck(a0, box, -25.0f, 30)) {
+                miss = 1;
+            } else {
+                float dir[4];
+                unsigned char ok;
+                if (*(unsigned int *)(s + 0x38) == 0xFFFFFFFF) {
+                    dir[0] = *(float *)(s + 0x4B0);
+                    dir[1] = *(float *)(s + 0x4B4);
+                    dir[2] = *(float *)(s + 0x4B8);
+                } else {
+                    sceVu0ScaleVector(dir, s + 0x4B0, -1.0f);
+                }
+                if (!isTruck) {
+                    debug_StdPrintfDummy(D_0063A728);
+                    AlignBox(box, 100.0f);
+                }
+                ok = MoveBoxWithHoldPoint(box, hold, (void *)a0, 22, dir);
+                if (ok) {
+                    flag = 1;
+                } else {
+                    miss = 1;
+                }
+            }
+        }
+        if (GetMotionFrameFlag2((void *)a0)) {
+            float pos[4];
+            GetBoxGlobalHoldPoint(pos, box, hold);
+            SetDirectRootPositionNoFittingWithNodePointXZ(
+                (void *)a0, 22, pos, *(int *)(*(char **)(a0 + 0x15C) + 0x600) != 0 ? 1.0f : 0.3f);
+        }
+        if (!had) {
+            _boxbar_set_sound(a0, 0);
+            if (!isTruck) {
+                debug_StdPrintfDummy(D_0063A730);
+            }
+        } else if (f2) {
+            _boxbar_set_sound(a0, 1);
+        }
+        if (flag) {
+            _boxbar_set_sound(a0, 3);
+        }
+        if (miss) {
+            _boxbar_set_sound(a0, 2);
+        }
+        if (!isTruck && GetBoxMode(box) == 0) {
+            *(unsigned long long *)(s + 0x20) |= (1ULL << 40);
+            *(unsigned long long *)(s + 0x20) |= (1ULL << 41);
+        }
+        _ACTWait(1);
+    }
+}
 
 /* kept local: this TU's uses of GetMotionFrameFlag1 do not fit the prototype in motionManager2.h */
 extern int GetMotionFrameFlag1(void *a0);
