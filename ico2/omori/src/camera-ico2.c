@@ -28,7 +28,7 @@ extern void *D_0063ABB0;
 extern int D_0063ABB4;
 /* kept local: this TU's uses of ReflectCameraSetBinary do not fit the prototype in camera-ico2.h */
 extern void ReflectCameraSetBinary(S4C *src, int count);
-extern StgPre D_005F5D50[];
+extern const StgPre D_005F5D50[];
 extern int stage_no;
 extern int *D_00639EA4;
 /* kept local: this TU's uses of GetBoyRootPositionForCamera do not fit the prototype in boyact.h */
@@ -141,8 +141,54 @@ extern char D_00555090[];
 extern char D_0063AB58[];
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
+
+/* the camera-set binary: a sixteen byte header, `count` group records of 0x4C
+   and `total` item records whose stride is the file version's */
+typedef struct CamSetFile {
+    int magic; /* 0x00 */
+    int ver;   /* 0x04 */
+    int count; /* 0x08 */
+    int total; /* 0x0C */
+} CamSetFile;
+
+typedef struct CamGroup { /* 0x4C */
+    unsigned char _0[0x38];
+    int first; /* 0x38 */
+    int last;  /* 0x3C */
+    unsigned char _40[0xC];
+} CamGroup;
+
+typedef struct CamItem { /* 0x5C, the version 3 record */
+    unsigned char _0[0x38];
+    float f38;
+    float f3C;
+    float f40;
+    float f44;
+    unsigned char _48[0x8];
+    float f50;
+    float f54;
+    float f58;
+} CamItem;
+
+typedef struct CamItemV0 { /* 0x38 */
+    unsigned char _0[0x38];
+} CamItemV0;
+
+typedef struct CamItemV1 { /* 0x40 */
+    unsigned char _0[0x40];
+} CamItemV1;
+
+typedef struct CamItemV2 { /* 0x50 */
+    unsigned char _0[0x50];
+} CamItemV2;
+
+extern int D_0063A44C;
+extern char D_005550C8[];
+extern char D_005550E8[];
+extern char D_00555100[];
+extern char D_00555148[];
 /* kept local: this TU's uses of ReadCameraSet do not fit the prototype in camera-ico2.h */
-extern void *ReadCameraSet(char *name, int stage);
+extern void *ReadCameraSet(CamSetFile *f, int stage);
 extern char D_002AD010[][0x20];
 extern char D_00555078[];
 /* prototypes: their order is the inline tail's emission order */
@@ -1055,7 +1101,7 @@ inline void AddPluralCameraSet(int id, char *name)
     }
     p = &pluralCameraSet[pluralCameraSetNum];
     p->id = id;
-    p->set = ReadCameraSet(name, stage_no);
+    p->set = ReadCameraSet((CamSetFile *)name, stage_no);
     pluralCameraSetNum++;
 }
 
@@ -1064,7 +1110,153 @@ inline void InitPluralCameraSet(void)
     pluralCameraSetNum = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/camera-ico2", ReadCameraSet);
+/* camera-ico2.c:2162-2173: the reallocator, written inside ReadCameraSet's own
+   declaration list in the dev's source (its listing rows sit above the
+   function's first statement and below its def line) and inlined at all four
+   call sites; there is no out of line copy between ReadCameraSet and
+   GetHandCameraStickInfo in the symbol file. */
+static inline CamSetFile *allocCameraSet(CamSetFile *f)
+{
+    CamSetFile *p;
+
+    p = (CamSetFile *)iosMallocDebug(D_0063A44C, 16 + f->count * 0x4C + f->total * 0x5C, D_00555060,
+                                     2166);
+    *p = *f;
+    p->magic = 0x1234;
+    p->ver = 3;
+    return p;
+}
+
+void *ReadCameraSet(CamSetFile *f, int stage)
+{
+    CamSetFile *p = 0;
+    int n = f->count;
+    int i;
+    int n_pin;
+
+    debug_StdPrintfDummy(D_005550C8, f->ver);
+    switch (f->ver) {
+    case 0: {
+        CamGroup *og = (CamGroup *)((char *)f + 16);
+        char *oi = (char *)og + n * 0x4C;
+        CamGroup *ng;
+        CamItem *ni;
+        int total;
+
+        total = 0;
+        for (i = 0; i < n; i++) {
+            total += og[i].last - og[i].first;
+        }
+        f->total = n_pin = total;
+        debug_StdPrintfDummy(D_005550E8, n, n_pin);
+        p = allocCameraSet(f);
+        ng = (CamGroup *)((char *)p + 16);
+        ni = (CamItem *)((char *)ng + n * 0x4C);
+        for (i = 0; i < n; i++) {
+            ng[i] = og[i];
+        }
+        for (i = 0; i < total; i++) {
+            *(CamItemV0 *)&ni[i] = ((CamItemV0 *)oi)[i];
+        }
+        for (i = 0; i < total; i++) {
+            ni[i].f38 = D_005F5D50[stage].handCameraRate;
+            ni[i].f3C = 10.0f;
+            ni[i].f40 = 120.0f;
+            ni[i].f44 = 80.0f;
+            ni[i].f50 = ni[i].f54 = ni[i].f58 = 0.0f;
+        }
+        break;
+    }
+    case 1: {
+        CamGroup *og = (CamGroup *)((char *)f + 16);
+        char *oi = (char *)og + n * 0x4C;
+        CamGroup *ng;
+        CamItem *ni;
+        int total;
+
+        total = 0;
+        for (i = 0; i < n; i++) {
+            total += og[i].last - og[i].first;
+        }
+        f->total = n_pin = total;
+        debug_StdPrintfDummy(D_005550E8, n, n_pin);
+        p = allocCameraSet(f);
+        ng = (CamGroup *)((char *)p + 16);
+        ni = (CamItem *)((char *)ng + n * 0x4C);
+        for (i = 0; i < n; i++) {
+            ng[i] = og[i];
+        }
+        for (i = 0; i < total; i++) {
+            *(CamItemV1 *)&ni[i] = ((CamItemV1 *)oi)[i];
+        }
+        for (i = 0; i < total; i++) {
+            ni[i].f40 = 120.0f;
+            ni[i].f44 = 80.0f;
+            ni[i].f50 = ni[i].f54 = ni[i].f58 = 0.0f;
+        }
+        break;
+    }
+    case 2: {
+        CamGroup *og = (CamGroup *)((char *)f + 16);
+        char *oi = (char *)og + n * 0x4C;
+        CamGroup *ng;
+        CamItem *ni;
+        int total;
+
+        total = 0;
+        for (i = 0; i < n; i++) {
+            total += og[i].last - og[i].first;
+        }
+        f->total = n_pin = total;
+        debug_StdPrintfDummy(D_005550E8, n, n_pin);
+        p = allocCameraSet(f);
+        ng = (CamGroup *)((char *)p + 16);
+        ni = (CamItem *)((char *)ng + n * 0x4C);
+        for (i = 0; i < n; i++) {
+            ng[i] = og[i];
+        }
+        for (i = 0; i < total; i++) {
+            *(CamItemV2 *)&ni[i] = ((CamItemV2 *)oi)[i];
+        }
+        for (i = 0; i < total; i++) {
+            ni[i].f50 = ni[i].f54 = ni[i].f58 = 0.0f;
+        }
+        break;
+    }
+    case 3: {
+        CamGroup *og = (CamGroup *)((char *)f + 16);
+        char *oi = (char *)og + n * 0x4C;
+        CamGroup *ng;
+        CamItem *ni;
+        int total;
+
+        total = 0;
+        for (i = 0; i < n; i++) {
+            total += og[i].last - og[i].first;
+        }
+        f->total = n_pin = total;
+        debug_StdPrintfDummy(D_005550E8, n, n_pin);
+        p = allocCameraSet(f);
+        ng = (CamGroup *)((char *)p + 16);
+        ni = (CamItem *)((char *)ng + n * 0x4C);
+        for (i = 0; i < n; i++) {
+            ng[i] = og[i];
+        }
+        for (i = 0; i < total; i++) {
+            ni[i] = ((CamItem *)oi)[i];
+        }
+        for (i = 0; i < total; i++) {}
+        break;
+    }
+    default:
+        debug_StdPrintfDummy(D_00555100);
+        debug_StdPrintfDummy(D_00555148, f->ver);
+        debug_assert(D_00555060, 2355);
+        __assert(D_00555060, 2355, D_0063AB58);
+        break;
+    }
+    return p;
+}
 
 inline int GetCameraGroupCurrent(void)
 {
