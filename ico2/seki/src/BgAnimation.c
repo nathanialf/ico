@@ -1485,7 +1485,79 @@ void bga_CalcAnimation(char *p, int a1, int a2)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_CalcSdfCamera);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_addLightning);
+
+extern char *D_0063BCCC;
+extern char D_006217E0[];
+/* kept local: this TU's uses of _UnitVector and _CopyVector do not fit the
+   prototypes in Matrix.h */
+extern void _UnitVector(void *v);
+extern void _CopyVector(void *dst, void *src);
+
+void bga_addLightning(int kind, char *a1, float *vec, int id, int t0, float f)
+{
+    char *p;
+
+    for (p = D_0063BCCC; p != 0; p = *(char **)(p + 0x154)) {
+        if (*(int *)(p + 0x144) == id) {
+            switch (kind) {
+            case 15:
+                *(short *)(a1 + 2) = -1;
+                /* FALLTHROUGH */
+            case 14:
+                *(char **)(p + 0x150) = a1;
+                *(float *)(p + 0x14C) = f;
+                *(int *)(p + 0x148) = t0;
+                *(int *)(p + 0x10) = -1;
+                _CopyVector(p, vec);
+                return;
+            case 16: {
+                char *e = p + *(int *)(p + 0x140) * 0x20;
+
+                *(int *)(e + 0x10) = *(short *)(a1 + 2);
+                _CopyVector(p + *(int *)(p + 0x140) * 0x20, vec);
+                *(int *)(p + 0x140) = *(int *)(p + 0x140) + 1;
+                return;
+            }
+            default:
+                debug_StdPrintfDummy(D_006217E0);
+                debug_assert(D_00621598, 2960);
+                __assert(D_00621598, 2960, D_0063BCE8);
+                return;
+            }
+        }
+    }
+    p = iosMallocDebug(D_0063A44C, 0x160, D_00621598, 2968);
+    *(char **)(p + 0x154) = D_0063BCCC;
+    *(int *)(p + 0x144) = id;
+    *(int *)(p + 0x140) = 1;
+    D_0063BCCC = p;
+    switch (kind) {
+    case 15:
+        *(short *)(a1 + 2) = -1;
+        /* FALLTHROUGH */
+    case 14:
+        *(char **)(p + 0x150) = a1;
+        *(float *)(p + 0x14C) = f;
+        *(int *)(p + 0x148) = t0;
+        _CopyVector(p, vec);
+        break;
+    case 16: {
+        char *e = p + *(int *)(p + 0x140) * 0x20;
+
+        *(int *)(e + 0x10) = *(short *)(a1 + 2);
+        _CopyVector(p + *(int *)(p + 0x140) * 0x20, vec);
+        *(int *)(p + 0x150) = 0;
+        _UnitVector(p);
+        *(int *)(p + 0x140) = *(int *)(p + 0x140) + 1;
+        break;
+    }
+    default:
+        debug_StdPrintfDummy(D_006217E0);
+        debug_assert(D_00621598, 2994);
+        __assert(D_00621598, 2994, D_0063BCE8);
+        break;
+    }
+}
 
 /* The lightning record bga_addLightning allocates: ten 0x20-byte segments,
    the live segment count, the two flags, the frame, the definition it was
@@ -1542,12 +1614,9 @@ typedef struct BgaObjKind {
 } BgaObjKind;
 
 extern BgaObjKind D_002C2DF4[];
-extern int D_0063BCCC;
 extern char D_00621800[];
-/* kept local: this TU does not include gobj.h or enemy_act.h, and its uses of
-   DrawLightningN and _CopyVector do not fit the prototypes in lightning.h and
-   Matrix.h */
-extern void _CopyVector(void *dst, void *src);
+/* kept local: this TU does not include gobj.h or enemy_act.h, and its use of
+   DrawLightningN does not fit the prototype in lightning.h */
 extern void *isysGObjSearchFromObjKindID_begin(int kind);
 extern void *isysGObjSearchFromObjKindID_next(void *g);
 extern void *isysGObjGetExist_begin(void);
@@ -1860,8 +1929,6 @@ void bga_SetCameraForceOff(void)
 {
     D_0063BCC8 = 1;
 }
-
-extern int D_0063BCCC;
 
 void bga_InitBGA(void)
 {
