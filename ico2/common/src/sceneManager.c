@@ -106,9 +106,55 @@ inline void MoveNextStage_Clear(void)
     D_0063B644 = -1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/sceneManager", GetRealModelId);
-
 extern const StgPre D_005F5D50[];
+extern int GetEnemyType(float x, float y, float z);
+extern float _GetRandom(void);
+
+/* RECONSTRUCTION: the 0x28-byte enemy-model record; the two members named are the
+   first and one-past-last index into the model-id list D_00624F00. */
+typedef struct {
+    unsigned char _0[0x20]; /* 0x00 */
+    int first;              /* 0x20 */
+    int last;               /* 0x24 */
+} EnemyMdlRec;
+
+extern EnemyMdlRec D_00624D70[];
+extern int D_00624F00[];
+
+int GetRealModelId(int stageNo, char *gen)
+{
+    int mdl;
+    int first;
+    int count;
+    int r;
+
+    if (*(unsigned char *)(gen + 0x46) == 4) {
+        switch (GetEnemyType(*(float *)gen, *(float *)(gen + 4), *(float *)(gen + 8))) {
+        case 0:
+            mdl = D_005F5D50[stageNo].mdl[2];
+            break;
+        case 1:
+            mdl = D_005F5D50[stageNo].mdl[3];
+            break;
+        case 2:
+            mdl = D_005F5D50[stageNo].mdl[1];
+            break;
+        case 3:
+            mdl = D_005F5D50[stageNo].mdl[0];
+            break;
+        default:
+            goto plain;
+        }
+        count = D_00624D70[mdl].last - D_00624D70[mdl].first;
+        first = D_00624D70[mdl].first;
+        if (count != 0) {
+            r = (int)(_GetRandom() * 10.0f);
+            return D_00624F00[first + r % count];
+        }
+    }
+plain:
+    return *(int *)(gen + 0x2C);
+}
 
 /* sceneManager.c:213-313.  D_0028F720 is the StageSettingScenemanager record ico2/seki/src/GsBase.c
    already names; the fields this TU touches beyond that file's four are spelled by
@@ -312,6 +358,7 @@ typedef union {
 
 extern GenGeo D_002C2DC8[];
 extern void *D_0063ACF0;
+extern void *D_00639EA4;
 
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/sceneManager", initSceneGObj);
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/sceneManager", initParentLink);

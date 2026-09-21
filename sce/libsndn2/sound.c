@@ -397,7 +397,84 @@ void SgBgmPlay(unsigned int a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sound", SgBgmStop);
+void SgBgmStop(unsigned int a0, int a1)
+{
+    volatile int *seq;
+    char *sl;
+    char *com;
+    char *body;
+    char *q;
+    int i;
+    int want;
+    int st;
+
+    if (a0 >= 0x30) {
+        return;
+    }
+    seq = (volatile int *)_SgGetSeqContext(a0);
+    seq[0] |= 0x2000;
+    if (*(unsigned short *)((char *)seq + 0x18) < 1 ||
+        *(unsigned short *)((char *)seq + 0x18) > 127) {
+        goto cleanup;
+    }
+    if ((seq[0] & 1) == 0) {
+        goto cleanup;
+    }
+    if (*(int *)((char *)_SgGetVabContext(*(unsigned short *)((char *)seq + 0x18)) + 8) == 0) {
+        goto cleanup;
+    }
+    sl = (char *)_SgGetSlotContext(0);
+    com = (char *)_SgGetComContext();
+    if (a1 < 0) {
+        goto cleanup;
+    }
+    if (a1 < 2) {
+        seq[0] &= 0xFFFFFFDD;
+        *(int *)((char *)seq + 4) = 0x110;
+        want = a1;
+        *(short *)((char *)seq + 0x22) = 0;
+        seq[0] |= 0x10;
+    } else {
+        if (a1 >= 4) {
+            goto cleanup;
+        }
+        if ((seq[0] & 2) == 0) {
+            if ((seq[0] & 0x50) == 0) {
+                seq[0] |= 2;
+                *(int *)seq &= 0xFFFFFFDF;
+            }
+            goto cleanup;
+        }
+        seq[0] &= 0xFFFFFFFD;
+        want = a1 - 2;
+        seq[0] |= 0x20;
+    }
+    for (i = 0; i < 0x30; i++, sl += 0x58) {
+        if (*(unsigned char *)(sl + 0x50) == a0) {
+            st = *(unsigned char *)(sl + 0x51);
+            if (st == 1) {
+                *(volatile int *)sl |= 0x100;
+                *(short *)(sl + 0x12) = 0;
+                *(short *)(sl + 0x26) = 0x40;
+                *(volatile int *)sl &= 0xFFFFFFEF;
+                *(volatile int *)sl &= 0xFFFFFEFF;
+                *(long long *)(com + 0x28) |= (long long)1 << i;
+                if (want == st) {
+                    _SgSetPkAdd(2, i, 0, 0);
+                }
+            }
+        }
+    }
+    body = *(char **)((char *)seq + 8);
+    if (*(int *)(body + 0xC) == 0x71735353) {
+        q = body + 0x109;
+        for (i = 0xF; i >= 0; i--, q -= 0x10) {
+            *q = 0;
+        }
+    }
+cleanup:
+    seq[0] &= 0xFFFFDFFF;
+}
 
 void SgSetBgmTempo(unsigned int a0, int a1)
 {
@@ -491,7 +568,61 @@ int SgSetBgmPanpot(unsigned int a0, int a1)
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sound", SgSePlay);
+int SgSePlay(int a0, int a1, int a2)
+{
+    int ret = -1;
+    int vabid = a0 & 0x7F;
+    volatile int *p;
+    char *com;
+    char *vab;
+    char *body;
+    unsigned short *tbl;
+    unsigned int h;
+    int i;
+
+    if ((unsigned int)(vabid - 1) < 0x7F && a1 >= 0 && a1 < 0x80 && a2 >= 0 && a2 < 0x80) {
+        p = (volatile int *)_SgGetSeqContext(0);
+        for (i = 0; i < 0x30; i++, p = (volatile int *)((char *)p + 0x54)) {
+            p[0] |= 0x2000;
+            if ((p[0] & 0xF) == 0) {
+                com = (char *)_SgGetComContext();
+                vab = (char *)_SgGetVabContext(vabid);
+                body = *(char **)vab;
+                tbl = *(unsigned short **)(body + 0x3C);
+                if (*(int *)(vab + 8) == 0 || *(int *)(body + 0xC) != 0x64685353 ||
+                    *(unsigned int *)(body + 0x20) == 0xFFFFFFFF ||
+                    (unsigned int)tbl == 0xFFFFFFFF || tbl[0] < a1 || tbl[a1 + 1] == 0xFFFF ||
+                    tbl[h = tbl[a1 + 1] / 2] < a2) {
+                    p[0] &= 0xFFFFDFFF;
+                    return ret;
+                }
+                {
+                    p[0] |= 0xC;
+                    *(int *)((char *)p + 8) = (int)((char *)tbl + tbl[a2 + h + 1]);
+                    *(short *)((char *)p + 0x1E) = 0x78;
+                    *(short *)((char *)p + 0x18) = vabid;
+                    *(short *)((char *)p + 0x1A) = a1;
+                    *(short *)((char *)p + 0x1C) = a2;
+                    *(short *)((char *)p + 0x4C) = i;
+                    *(int *)((char *)p + 0x40) = 0x1000;
+                    *(int *)((char *)p + 0x44) = 0x1000;
+                    *(int *)((char *)p + 0x48) = 0x1000;
+                    *(int *)((char *)p + 0x10) =
+                        ((0x78 * 240) << 12) / 0x3C / *(unsigned short *)(com + 0x3A);
+                    if (a0 & 0x8000) {
+                        p[0] |= 0x1000;
+                    }
+                    ret = i;
+                }
+            }
+            p[0] &= 0xFFFFDFFF;
+            if (ret != -1) {
+                break;
+            }
+        }
+    }
+    return ret;
+}
 
 void SgSeStop(int a0)
 {

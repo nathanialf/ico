@@ -99,13 +99,13 @@
 
 typedef struct GObj GObj;
 
-typedef struct Sub15C Sub15C;   /* *(GObj   + 0x15C), per-object sub state */
+typedef struct Sub15C Sub15C; /* *(GObj   + 0x15C), per-object sub state */
 
-typedef struct Obj7F0 Obj7F0;   /* *(Sub15C + 0x7F0), shared geometry/model obj (~25 TUs) */
+typedef struct Obj7F0 Obj7F0; /* *(Sub15C + 0x7F0), shared geometry/model obj (~25 TUs) */
 
 typedef struct GeoNode GeoNode; /* *(Obj7F0  + 0x20) */
 
-typedef struct GeoSub GeoSub;   /* *(GeoNode + 0x8)  */
+typedef struct GeoSub GeoSub; /* *(GeoNode + 0x8)  */
 
 /* GObj and PObjGObj below are two views of ONE record: the game object.  Every
  * offset either view knows is named in both, under the same name, so no offset
@@ -682,7 +682,8 @@ typedef struct {
     int labelEnd;    /* 0x12C */
     int layoutFirst; /* 0x130, layout range */
     int layoutLast;  /* 0x134 */
-    unsigned char _138[0x14];
+    int mdl[4];      /* 0x138, the four stage model ids GetRealModelId picks from */
+    unsigned char _148[0x4];
     int mot;                /* 0x14C, the motion-set id */
     void (*endproc)(void);  /* 0x150 */
     void (*initproc)(void); /* 0x154, the per-stage init hook */
