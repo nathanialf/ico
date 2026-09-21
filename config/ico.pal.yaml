@@ -847,7 +847,7 @@ segments:
       - [0x520498, rodata, cod/520498]     # .rodata blob resume
       - [0x520898, .rodata, ico2/sugipon/src/moveColTest]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x620898..0x620C90, 1016 B
       - [0x5208C8, .rodata, ico2/sugipon/src/multiBgaManager]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x6208C8..0x620C90, 968 B
-      - [0x5208E0, rodata, cod/5208E0]     # rodata blob resume
+      - [0x5208E0, .rodata, ico2/sugipon/src/particleEffect]  # the TU's whole .rodata run as source (completeness pass 39): six anonymous message and name literals at their use sites, __FILE__ for the allocator's file argument, the pool in definition order; VMA 0x6208E0..0x6209BE, 222 B, tail is link pad up to particleLayout's row
       - [0x5209C0, .rodata, ico2/sugipon/src/particleLayout]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x6209C0..0x620C90, 720 B
       - [0x5209D8, rodata, cod/5209D8]     # rodata blob resume
       - [0x520AE8, .rodata, ico2/sugipon/src/rotObject]  # the TU's whole .rodata run as source (completeness pass 6), VMA 0x620AE8..0x620B60, 119 B emitted

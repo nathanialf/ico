@@ -43,6 +43,28 @@ typedef struct {
 /* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector();
 
+/* the listing's lines 129-137: a static free-slot search with no out-of-line
+ * copy, inlined at its one call site. It sits here, ahead of
+ * setParticleEffectGeometry (the listing's 141), because the listing's line
+ * attribution puts it there and because gcc 2.9 enters a string constant into
+ * the output pool when the function that uses it is read, so its message is
+ * the first word of the TU's .rodata run in the ROM. */
+static inline int searchFreeParticleEffect(void)
+{
+    int i;
+
+    for (i = 0; i < 128; i++) {
+        if (particleEffects[i].used == 0) {
+            if (particleEffects[i].geo != 0) {
+                debug_StdPrintfDummy("PARTICLE EFFECT WRONG\n");
+                for (;;) {}
+            }
+            return i;
+        }
+    }
+    return -1;
+}
+
 void setParticleEffectGeometry(int a0, int a1, int a2)
 {
     CopyVector(a0);
@@ -230,9 +252,6 @@ static inline void peSetVtx(char *dst, char *pt)
     *(float *)(dst + 0x18) = 128.0f;
 }
 
-extern char D_006208F8[];
-extern char D_00620908[];
-
 /* listing rows 286-354. The statement order here is the listing's own line
    attribution (287 self->pkg, 289, 291, 292, 293, 295, 296, 299, 300, 303),
    not the order the ROM issues them in: gcc 2.9 carries each insn's line
@@ -262,11 +281,11 @@ int setParticleEffect(char *self, char *pkg, int part)
     *(int *)(self + 0x68) = 0;
 
     *(int *)(self + 0x28) =
-        (int)prim_InitParticleByPartition(n, 1.0f, 0.25f, 0.25f, 1, D_006208F8, 1, (void *)part);
+        (int)prim_InitParticleByPartition(n, 1.0f, 0.25f, 0.25f, 1, "enemy_tex01", 1, (void *)part);
     if (*(int *)(self + 0x28) == 0)
         return 0;
     *(int *)(self + 0x24) =
-        iosMallocDebugNoAssert(part, *(int *)(self + 0x30) * 112, D_00620908, 320);
+        iosMallocDebugNoAssert(part, *(int *)(self + 0x30) * 112, __FILE__, 320);
     if (*(int *)(self + 0x24) == 0) {
         prim_DeleteParticle(*(int *)(self + 0x28));
         return 0;
@@ -502,40 +521,18 @@ void dispParticleEffect(PEGeo *geo)
     prim_DispParticle(*(int *)((char *)geo + 0x28), matrixptr + 0x100);
 }
 
-extern char D_006208E0[];
-extern char D_00620920[];
-extern char D_00620908[];
-
-/* the listing's lines 129-137: a static free-slot search with no out-of-line
- * copy, inlined here. */
-static inline int searchFreeParticleEffect(void)
-{
-    int i;
-
-    for (i = 0; i < 128; i++) {
-        if (particleEffects[i].used == 0) {
-            if (particleEffects[i].geo != 0) {
-                debug_StdPrintfDummy(D_006208E0);
-                for (;;) {}
-            }
-            return i;
-        }
-    }
-    return -1;
-}
-
 int SetParticleEffectByPartition(int no, PEVector *pos, PEQuaternion *quat, int part)
 {
     int id;
 
     id = searchFreeParticleEffect();
     if (id < 0) {
-        debug_StdPrintfDummy(D_00620920);
+        debug_StdPrintfDummy("No more effect... Ignored.\n");
         return -1;
     }
     particleEffects[id].used = 1;
     particleEffects[id].geoCtrl = 1;
-    particleEffects[id].geo = (PEGeo *)iosMallocDebugNoAssert(part, 128, D_00620908, 501);
+    particleEffects[id].geo = (PEGeo *)iosMallocDebugNoAssert(part, 128, __FILE__, 501);
     particleEffects[id].sensing = 0;
     particleEffects[id].sensPos = 0;
     particleEffects[id].sensQuat = 0;
@@ -555,8 +552,6 @@ int SetParticleEffectByPartition(int no, PEVector *pos, PEQuaternion *quat, int 
     return id;
 }
 
-extern char D_00620940[];
-
 /* INTERIM: the listing's lines 430-435 (a static helper with no out-of-line
  * copy) are inlined into every deleter in this TU. */
 static inline void deleteParticleEffectGeo(int no)
@@ -572,7 +567,8 @@ void SetParticleEffectGeometry(int a0, int a1, int a2)
 {
     if (a0 >= 0) {
         if (particleEffects[a0].used == 0) {
-            debug_StdPrintfDummy(D_00620940);
+            debug_StdPrintfDummy(
+                "\033[36mError!!! Set geometry for release type particle.\033[m\n");
         } else {
             setParticleEffectGeometry((int)particleEffects[a0].geo, a1, a2);
         }
@@ -671,7 +667,7 @@ void ResetParticleEffectPackages(int *pkg)
             CopyVector(&pos, particleEffects[i].geo);
             CopyQuaternion(&quat, (char *)particleEffects[i].geo + 0x10);
             deleteParticleEffectGeo(i);
-            particleEffects[i].geo = (PEGeo *)iosMallocDebugNoAssert(part, 128, D_00620908, 663);
+            particleEffects[i].geo = (PEGeo *)iosMallocDebugNoAssert(part, 128, __FILE__, 663);
             particleEffects[i].used = 1;
             setParticleEffectGeometry((int)particleEffects[i].geo, (int)&pos, (int)&quat);
             setParticleEffect((char *)particleEffects[i].geo, (char *)pkg, part);
@@ -680,13 +676,13 @@ void ResetParticleEffectPackages(int *pkg)
 }
 
 extern PE160 D_004ECDF0;
-extern char D_00620980[];
 
 void SetParticleEffectPackage(int a0, int *a1, int a2)
 {
     *(PE160 *)((unsigned char *)particleParams + a0 * 160) = D_004ECDF0;
     if (*(int *)&D_004ECDF0 != *a1) {
-        debug_StdPrintfDummy(D_00620980, *a1);
+        debug_StdPrintfDummy("\033[36mThis is old version(%d) file. May be an error occur.\033[m\n",
+                             *a1);
     }
     memcpy(((unsigned char *)particleParams + a0 * 160), a1, a2);
 }
