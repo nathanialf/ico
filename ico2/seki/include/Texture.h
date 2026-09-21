@@ -18,7 +18,7 @@ int *tex_GetTextureData(int idx);
 int tex_GetTextureNo(char *name);
 int tex_GetTextureNum(void);
 void tex_Init(void);
-int tex_InitTexture(void);
+int tex_InitTexture();
 int tex_LoadTexturePart(void *a0, int a1);
 void tex_LockHeadTBP(int tbp, int pri);
 int tex_RemakeRegistersSampleMin(void);

@@ -515,7 +515,7 @@ inline void _NormalizeVector(void *p0, void *p1, void *p2)
                          : "memory");
 }
 
-inline void _InnerProduct(void *p0, void *p1, void *p2)
+inline float _InnerProduct(void *a, void *b)
 {
     VU0_LSV(lqc2, 1, 0x0, a0);
     VU0_LSV(lqc2, 2, 0x0, a1);
@@ -559,7 +559,7 @@ inline void _AddVectorXYZ(void *p0, void *p1, void *p2, void *p3)
     VU0_LSV(sqc2, 1, 0x0, a0);
 }
 
-inline void _SubVector(void *p0, void *p1, void *p2, void *p3)
+inline void _SubVector(void *dst, void *a, void *b)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
     VU0_LSV(lqc2, 2, 0x0, a2);

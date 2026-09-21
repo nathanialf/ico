@@ -26,7 +26,10 @@ int iosThreadGetPri(int *a0);
 void iosThreadInit(void);
 int iosThreadJoin(void *a0);
 void iosThreadSetPri(int *a0, int a1);
-void iosThreadSleep(int a0, int a1, int a2, int a3);
+/* reconstruction corrected: the ROM sets no argument register at any call
+   site (StageManager has a bare nop in the jal delay slot); ios/thread.c keeps
+   four parameters only so they flow through to SleepThread. */
+void iosThreadSleep(void);
 void iosThreadStart(int a0);
 void iosThreadStop(int a0);
 int iosThreadWakeup(int *self);

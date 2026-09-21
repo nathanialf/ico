@@ -12,7 +12,12 @@
 #ifndef ACCESS_H
 #define ACCESS_H
 
-int GetDataFileName(int a0);
+/* reconstruction corrected: the ROM calls this with TWO arguments (stage and
+   the pack flag) and hands the result to strcpy, and the second argument is
+   what reaches GetDataFileName2 through omori/src/access.c's one-argument
+   call. Declared old style, which is what lets the one-parameter definition
+   in access.c stand. */
+char *GetDataFileName();
 char *GetDataFileName2(char *name, int isDF);
 
 #endif /* ACCESS_H */

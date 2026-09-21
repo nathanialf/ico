@@ -38,11 +38,16 @@ void _TransposeCurrentMatrix(void);
 void _TransposeRotationCurrentMatrix(void);
 void _InverseCurrentMatrix(void);
 void _NormalizeVector(void *p0, void *p1, void *p2);
-void _InnerProduct(void *p0, void *p1, void *p2);
+/* reconstruction corrected: the ROM calls this with TWO arguments and reads
+   the result out of $f0 (stgmgrNextStagePreLoad does mov.s $f1,$f0 on the
+   return), and every TU in the tree that calls it declares it this way. */
+float _InnerProduct(void *a, void *b);
 void _OuterProduct(void *p0, void *p1, void *p2, void *p3);
 void _AddVector(void *p0, void *p1, void *p2, void *p3);
 void _AddVectorXYZ(void *p0, void *p1, void *p2, void *p3);
-void _SubVector(void *p0, void *p1, void *p2, void *p3);
+/* reconstruction corrected: the ROM sets only $4, $5 and $6 at every call
+   site, and every TU in the tree that calls it declares three parameters. */
+void _SubVector(void *dst, void *a, void *b);
 void _SubVectorXYZ(void *p0, void *p1, void *p2, void *p3);
 void _ScaleVector(void *p0, void *p1, void *p2);
 void _ScaleVectorXYZ(void *p0, void *p1, void *p2);
