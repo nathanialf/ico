@@ -1155,7 +1155,8 @@ segments:
       - { type: .sbss, vram: 0x0063C258, name: ico2/script/src/warpGirl }  # the TU's own .sbss, 0x4 B, VMA 0x63C258..0x63C25C; static definitions in ROM run order (completeness pass)
       - { type: sbss, vram: 0x0063C25C, name: cod/0063C25C }  # .sbss blob resume
       - { type: .sbss, vram: 0x0063C260, name: ico2/omori/src/camera-ico2 }  # the TU's own .sbss, 0x28 B, VMA 0x63C260..0x63C288; static definitions in ROM run order (completeness pass)
-      - { type: sbss, vram: 0x0063C288, name: cod/0063C288 }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C288, name: ico2/omori/src/camera-root }  # the TU's own .sbss, 0x38 B, VMA 0x63C288..0x63C2C0, fifteen statics in ROM run order (completeness pass 51; MAIN.MAP line 7600 gives 0x25, the January object before the retail revision added SetHandCameraLimitInDemo / SetZoomMaxValInDemo and their four ints); the two interior gaps are the natural alignment after the unsigned chars
+      - { type: sbss, vram: 0x0063C2C0, name: cod/0063C2C0 }  # .sbss blob resume (chain.o's one word, before ebrain)
       - { type: .sbss, vram: 0x0063C2C4, name: ico2/omori/src/ebrain }  # the TU's own .sbss, 0x10 B, VMA 0x63C2C4..0x63C2D4; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C2D4, name: ico2/omori/src/enemy-control }  # the TU's own .sbss, 0xC B, VMA 0x63C2D4..0x63C2E0; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C2E0, name: ico2/omori/src/hand-camera }  # the TU's own .sbss, 0x5 B, VMA 0x63C2E0..0x63C2E5; static definitions in ROM run order (completeness pass)
@@ -1246,7 +1247,7 @@ segments:
       - { type: .bss, vram: 0x006E5940, name: ico2/script/src/script }  # the TU's own .bss, 0x50 B, VMA 0x6E5940..0x6E5990; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006E5990, name: ico2/omori/src/camera-editor }  # the member's one static, the 2048-byte dump line saveEditedData formats (completeness pass 29; MAIN.MAP camera-editor.o .bss 0x800, no map symbol), abutting camera-ico2's row
       - { type: .bss, vram: 0x006E6190, name: ico2/omori/src/camera-ico2 }  # the TU's own .bss, 0x500 B = MAIN.MAP camera-ico2.o .bss, VMA 0x6E6190..0x6E6690; static definitions in ROM run order (completeness pass; the run-bounds file credits the next 0x10 to this TU, but the map's sizes put camera-root.o's 0xC0 .bss at 0x6E6690)
-      - { type: bss, vram: 0x006E6690, name: cod/006E6690 }  # .bss blob resume (camera-root.o's own .bss, 0xC0 to ebrain, until it is carved)
+      - { type: .bss, vram: 0x006E6690, name: ico2/omori/src/camera-root }  # the TU's own .bss, 0xC0 B = MAIN.MAP line 7713, VMA 0x6E6690..0x6E6750, five statics in ROM run order (prevCameraSet, cameraSet, targetCameraSet, camctrl, insertCamera; completeness pass 51), abutting ebrain
       - { type: .bss, vram: 0x006E6750, name: ico2/omori/src/ebrain }  # the TU's own .bss, 0x480 B, VMA 0x6E6750..0x6E6BD0; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006E6BD0, name: ico2/omori/src/enemy-control }  # the TU's own .bss, 0x190 B, VMA 0x6E6BD0..0x6E6D60; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006E6D60, name: ico2/omori/src/fightSound }  # the TU's own .bss, 0x20 B, VMA 0x6E6D60..0x6E6D80; static definitions in ROM run order (completeness pass)
