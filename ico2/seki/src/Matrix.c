@@ -303,7 +303,7 @@ inline void _MulCurrentMatrixL(void *m)
     VU0_V3OP_BC(vmaddw.xyzw, 7, 17, 7, w);
 }
 
-inline void _ApplyCurrentMatrix(void *p0, void *p1, void *p2)
+inline void _ApplyCurrentMatrix(void *p0, void *p1)
 {
     VU0_LSV(lqc2, 8, 0x0, a1);
     VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 8, x);
@@ -543,7 +543,7 @@ inline void _OuterProduct(void *p0, void *p1, void *p2, void *p3)
                          : "memory");
 }
 
-inline void _AddVector(void *p0, void *p1, void *p2, void *p3)
+inline void _AddVector(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
     VU0_LSV(lqc2, 2, 0x0, a2);
@@ -551,7 +551,7 @@ inline void _AddVector(void *p0, void *p1, void *p2, void *p3)
     VU0_LSV(sqc2, 3, 0x0, a0);
 }
 
-inline void _AddVectorXYZ(void *p0, void *p1, void *p2, void *p3)
+inline void _AddVectorXYZ(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
     VU0_LSV(lqc2, 2, 0x0, a2);
@@ -567,7 +567,7 @@ inline void _SubVector(void *dst, void *a, void *b)
     VU0_LSV(sqc2, 3, 0x0, a0);
 }
 
-inline void _SubVectorXYZ(void *p0, void *p1, void *p2, void *p3)
+inline void _SubVectorXYZ(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
     VU0_LSV(lqc2, 2, 0x0, a2);
@@ -575,7 +575,7 @@ inline void _SubVectorXYZ(void *p0, void *p1, void *p2, void *p3)
     VU0_LSV(sqc2, 1, 0x0, a0);
 }
 
-inline void _ScaleVector(void *p0, void *p1, void *p2)
+inline void _ScaleVector(void *p0, void *p1, float s)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
     VU0_NOREORDER_BEGIN();
@@ -586,7 +586,7 @@ inline void _ScaleVector(void *p0, void *p1, void *p2)
     VU0_LSV(sqc2, 3, 0x0, a0);
 }
 
-inline void _ScaleVectorXYZ(void *p0, void *p1, void *p2)
+inline void _ScaleVectorXYZ(void *p0, void *p1, float s)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
     VU0_NOREORDER_BEGIN();
@@ -597,7 +597,7 @@ inline void _ScaleVectorXYZ(void *p0, void *p1, void *p2)
     VU0_LSV(sqc2, 1, 0x0, a0);
 }
 
-inline void _ScaleVector2XYZ(void *p0, void *p1, void *p2, void *p3)
+inline void _ScaleVector2XYZ(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 1, 0x0, a1);
     VU0_LSV(lqc2, 2, 0x0, a2);
@@ -771,7 +771,7 @@ inline void _MulMatrix(void *p0, void *p1, void *p2)
                          : "memory");
 }
 
-inline void _ApplyMatrix(void *p0, void *p1, void *p2, void *p3)
+inline void _ApplyMatrix(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 8, 0x0, a2);
     VU0_LSV(lqc2, 14, 0x0, a1);

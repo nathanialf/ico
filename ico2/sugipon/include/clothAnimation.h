@@ -20,6 +20,7 @@ void GetChainAnimation(void *chain, int a, void *m);
 float GetChainCollision(int *a0, void *pos, float r);
 float GetChainNodeID(int a0, float f);
 void GetCloth4D(void *a0, float x, float y);
+void GetCloth4DWithDetail(void *a0, float x, float y, float z, float w);
 void GetCloth4DWithTight(void *a0, float x, float y, float z, float w, void *a1, void *a2);
 void GetClothAnimation(void *a0, void *a1, int a2, void *m, int a4, int a5, void *a6, int a7);
 void GetClothAnimationFix4Points(void *a0, void *a1, int a2, void *m);
