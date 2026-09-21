@@ -131,7 +131,13 @@ extern char D_0063AA80[]; /* the output file name */
 extern char D_0063AA88[]; /* the assert expression text */
 extern char D_0063AA90[]; /* the EUC-JP maru the pin flag prints when set */
 extern char D_0063AA98[]; /* and the batsu when clear */
-extern char D_006E5990[]; /* the shared line buffer the whole dump formats into */
+
+/* .bss, owned by camera-editor.o (MAIN.MAP line 7711 gives the member 0x800
+   and names no symbol in the run, so the name is this pass's), in the ROM at
+   VMA 0x6E5990..0x6E6190: the line buffer every row of the dump is formatted
+   into before it is written and echoed. */
+static char dumpLine[2048];
+
 extern void __assert(char *file, int line, char *expr);
 extern void debug_assert(char *file, int line);
 extern void iosThreadMessage(int a0);
@@ -156,22 +162,22 @@ void saveEditedData(int *range)
     for (i = from; i < to; i++) {
         BoxRec *b = (BoxRec *)(D_0063AA7C[1] + i * 0x4C);
 
-        sprintf(D_006E5990, D_00554DF0, b, b->kind, (int)b->cx, (int)b->cy, (int)b->cz, (int)b->sx,
+        sprintf(dumpLine, D_00554DF0, b, b->kind, (int)b->cx, (int)b->cy, (int)b->cz, (int)b->sx,
                 (int)b->sy, (int)((BoxRec *)(i * 0x4C + D_0063AA7C[1]))->sz);
-        sceWrite(fd, D_006E5990, strlen(D_006E5990));
-        debug_StdPrintfDummy(D_006E5990);
+        sceWrite(fd, dumpLine, strlen(dumpLine));
+        debug_StdPrintfDummy(dumpLine);
     }
     for (i = from; i < to; i++) {
-        sprintf(D_006E5990, D_00554E18, (BoxRec *)(D_0063AA7C[1] + i * 0x4C));
-        sceWrite(fd, D_006E5990, strlen(D_006E5990));
+        sprintf(dumpLine, D_00554E18, (BoxRec *)(D_0063AA7C[1] + i * 0x4C));
+        sceWrite(fd, dumpLine, strlen(dumpLine));
         for (j = ((BoxRec *)(i * 0x4C + D_0063AA7C[1]))->pinFirst;
              j < ((BoxRec *)(i * 0x4C + D_0063AA7C[1]))->pinLast; j++) {
             PinRec *p = (PinRec *)CameraEdit_PIN(i, j);
 
-            sprintf(D_006E5990, D_00554E30, p->type ? D_0063AA90 : D_0063AA98, (int)p->size,
+            sprintf(dumpLine, D_00554E30, p->type ? D_0063AA90 : D_0063AA98, (int)p->size,
                     (int)p->pos[0], (int)p->pos[1], (int)p->pos[2], (int)p->look[0],
                     (int)p->look[1], (int)p->look[2]);
-            sceWrite(fd, D_006E5990, strlen(D_006E5990));
+            sceWrite(fd, dumpLine, strlen(dumpLine));
         }
     }
     debugSceClose(fd);

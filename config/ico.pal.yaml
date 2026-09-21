@@ -1231,7 +1231,7 @@ segments:
       - { type: .bss, vram: 0x006C0BA0, name: ico2/fumi/src/commonact }  # the TU's own .bss, 0x20 B, VMA 0x6C0BA0..0x6C0BC0; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x006C0BC0, name: cod/006C0BC0 }  # .bss blob resume
       - { type: .bss, vram: 0x006E5940, name: ico2/script/src/script }  # the TU's own .bss, 0x50 B, VMA 0x6E5940..0x6E5990; static definitions in ROM run order (completeness pass)
-      - { type: bss, vram: 0x006E5990, name: cod/006E5990 }  # .bss blob resume
+      - { type: .bss, vram: 0x006E5990, name: ico2/omori/src/camera-editor }  # the member's one static, the 2048-byte dump line saveEditedData formats (completeness pass 29; MAIN.MAP camera-editor.o .bss 0x800, no map symbol), abutting camera-ico2's row
       - { type: .bss, vram: 0x006E6190, name: ico2/omori/src/camera-ico2 }  # the TU's own .bss, 0x510 B, VMA 0x6E6190..0x6E66A0; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x006E66A0, name: cod/006E66A0 }  # .bss blob resume
       - { type: .bss, vram: 0x006E6750, name: ico2/omori/src/ebrain }  # the TU's own .bss, 0x480 B, VMA 0x6E6750..0x6E6BD0; static definitions in ROM run order (completeness pass)
