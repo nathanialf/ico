@@ -503,7 +503,193 @@ void MakeCharGObjList(void)
     charGObjList[D_00639EFC] = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/geometryManager", cylinderCollisionCheck);
+/* kept local: VectorLengthSquare and _Sqrt return float, where the prototypes in
+ * matrixDrive.h and Matrix.h have them void. */
+extern float VectorLengthSquare(void *v);
+extern float _Sqrt(float f);
+extern void ClipWall(void *w);
+extern void ClipWallE(void *w);
+
+/* The wall-clip request handed to ClipWall / ClipWallE: the segment endpoints,
+ * the clipped point at 0x20, the clip radius at 0x70, the owner to ignore at
+ * 0x74 and the hit result at 0x88. */
+typedef struct {
+    /* 0x00 */ float from[4];
+    /* 0x10 */ float to[4];
+    /* 0x20 */ float out[4];
+    /* 0x30 */ char _30[0x40];
+    /* 0x70 */ float radius;
+    /* 0x74 */ void *owner;
+    /* 0x78 */ int _78;
+    /* 0x7C */ int _7C;
+    /* 0x80 */ char _80[8];
+    /* 0x88 */ int hit;
+    /* 0x8C */ char _8c[0x34];
+} CylClipWork;
+
+static __inline__ void GetRootPosition_cc(void *a0, char *outer)
+{
+    char *src = ((GObj *)(outer))->p_15C;
+    float *p = (float *)(src + 0xA0);
+    float f0;
+    int *g = *(int **)src;
+    if (g) {
+        sceVu0ApplyMatrix(
+            (int *)a0, *(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (*(int *)(src + 4) << 6),
+            (char *)p);
+    } else {
+        CopyVector((int)a0, (int)p);
+    }
+    f0 = p[0x30];
+    *(float *)((char *)a0 + 0x4) += f0;
+    *(float *)((char *)a0 + 0xC) = 1.0f;
+}
+
+/* INTERIM: the January-2002 listing inlines SetRootPosition (its :180-188 rows)
+ * and SetDirectRootPositionNoFitting (its :255-274 rows, which carry the
+ * SetRootPosition rows inside them) into cylinderCollisionCheck; the TU's
+ * out-of-line copies stay plain definitions further down while the
+ * deferred-inline tail still has asm members, so their bodies are repeated here
+ * as static stand-ins. */
+typedef union {
+    float f[4];
+    long long ll[2];
+} CylVec4;
+
+static __inline__ void SetRootPosition_c(char *a0, void *a1)
+{
+    char buf[0x40];
+    CylVec4 *p = (CylVec4 *)(*(char **)(a0 + 0x15C) + 0xA0);
+    CopyVector(p, a1);
+    p->f[1] = p->f[1] - *(float *)((char *)p + 0xC0);
+    p->f[3] = 1.0f;
+    {
+        char *sub = *(char **)(a0 + 0x15C);
+        char *q = *(char **)sub;
+        if (q != 0) {
+            MatrixDrive_SetTransposeMatrix(
+                buf, (char *)(*(int *)(*(char **)(q + 0x15C) + 0xC) + (*(int *)(sub + 4) << 6)));
+            sceVu0ApplyMatrix(p, buf, p);
+        }
+    }
+}
+
+static __inline__ void SetDirectRootPositionNoFitting_c(char *self, void *v)
+{
+    char *sub = *(char **)(self + 0x15C);
+    char *p = sub + 0xA0;
+    char pos[0x10];
+    char tmp[0x10];
+
+    CopyVector(pos, v);
+    CopyVector(tmp, p);
+    SetRootPosition_c(self, pos);
+    CopyVector(sub + 0x1F0, p);
+    CopyVector(sub + 0x110, p);
+    *(int *)(*(char **)(self + 0x15C) + 0x4EC) = 0;
+    CopyVector(sub + 0x200, v);
+    CopyVector(sub + 0x130, ZeroVector);
+    CopyVector(sub + 0x170, ZeroVector);
+}
+
+int cylinderCollisionCheck(void *self, void *ppos, int target, float r, float rr, float h, float s,
+                           float t, int ctrl, int exceptOwn)
+{
+    float pos[4];
+    float v[4];
+    float d1[4];
+    float d2[4];
+    float d3[4];
+    CylClipWork w;
+    float dy;
+    float len;
+    float over;
+    float a;
+    float b;
+    float c;
+
+    GetRootPosition_cc(pos, (char *)target);
+    dy = pos[1] - ((float *)ppos)[1];
+    if (!((dy < 0.0f ? -dy : dy) < h)) {
+        goto fail;
+    }
+    sceVu0SubVector(v, pos, ppos);
+    v[1] = 0.0f;
+    len = VectorLengthSquare(v);
+    if (!(len < rr)) {
+        goto fail;
+    }
+    over = r - _Sqrt(len);
+    sceVu0Normalize(v, v);
+    sceVu0ScaleVector(d1, v, over * s);
+    sceVu0SubVector(d2, ppos, d1);
+    sceVu0ScaleVector(d1, v, over * t);
+    sceVu0AddVector(d3, pos, d1);
+
+    if (self != 0) {
+        if (exceptOwn != 0) {
+            w.owner = self;
+            w._78 = -1;
+            w._7C = 0;
+            w.radius = *(float *)(SUBOF((char *)self) + 0x3D8);
+            CopyVector(w.from, ppos);
+            CopyVector(w.to, d2);
+            ClipWallE(&w);
+            if (w.hit != 0) {
+                CopyVector(d2, w.out);
+            }
+            w.radius = *(float *)(SUBOF((char *)target) + 0x3D8);
+            CopyVector(w.from, pos);
+            CopyVector(w.to, d3);
+            ClipWallE(&w);
+            if (w.hit != 0) {
+                CopyVector(d3, w.out);
+            }
+            goto moved;
+        }
+        w.radius = *(float *)(SUBOF((char *)self) + 0x3D8);
+        CopyVector(w.from, ppos);
+        CopyVector(w.to, d2);
+        ClipWall(&w);
+        if (w.hit != 0) {
+            CopyVector(d2, w.out);
+        }
+    }
+    w.radius = *(float *)(SUBOF((char *)target) + 0x3D8);
+    CopyVector(w.from, pos);
+    CopyVector(w.to, d3);
+    ClipWall(&w);
+    if (w.hit != 0) {
+        CopyVector(d3, w.out);
+    }
+moved:
+    if (ctrl != 0) {
+        if (self != 0) {
+            b = *(float *)(SUBOF((char *)self) + 0x1F4);
+            c = *(float *)(SUBOF((char *)self) + 0x204);
+            a = *(float *)(SUBOF((char *)self) + 0x134);
+            SetDirectRootPositionNoFitting_c(self, d2);
+            *(float *)(SUBOF((char *)self) + 0x134) = a;
+            *(float *)(SUBOF((char *)self) + 0x1F4) = b;
+            *(float *)(SUBOF((char *)self) + 0x204) = c;
+        }
+        b = *(float *)(SUBOF((char *)target) + 0x1F4);
+        c = *(float *)(SUBOF((char *)target) + 0x204);
+        a = *(float *)(SUBOF((char *)target) + 0x134);
+        SetDirectRootPositionNoFitting_c((char *)target, d3);
+        *(float *)(SUBOF((char *)target) + 0x134) = a;
+        *(float *)(SUBOF((char *)target) + 0x1F4) = b;
+        *(float *)(SUBOF((char *)target) + 0x204) = c;
+    } else {
+        if (self != 0) {
+            SetRootPosition_c(self, d2);
+        }
+        SetRootPosition_c((char *)target, d3);
+    }
+    return 1;
+fail:
+    return 0;
+}
 
 /* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_SetTransposeMatrix();
