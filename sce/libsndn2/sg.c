@@ -76,11 +76,156 @@ void *_SgGetPacketCntext(int a0, int a1)
     return (void *)(a0 * 0x1000 + (int)p);
 }
 
-/* Reverted to asm 2026-09-17 (chain 3 pass 15): 305 of 312 instructions, the
- * whole shape derived; the residual is the emission order of the status-nibble
- * switch arms.  Body and mechanism:
- * tails/seeds/sg.c3p15_SgCalledTickProc_305of312_TU.c. */
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgCalledTickProc);
+/* _SgDeltaTime is defined at the foot of this file; the tick needs its real
+ * void return type here, since an implicit int declaration would make every
+ * call set the return register. */
+void _SgDeltaTime(char *s);
+
+/* The driver's tick: run every sequence context's event stream up to the next
+ * delta time, then flush the four 64-bit key-on, key-off and dump masks the
+ * events built to the IOP side and hand it the packet page the tick filled.
+ * The sequence status word is read through a volatile view at every test, as
+ * everywhere else in this file: the IOP side sets and clears its flags while
+ * the EE walks the contexts.  The packet ring's page index at 0x3C and byte
+ * count at 0x40 are read and written the same way, since the IOP consumes the
+ * page this call just handed it. */
+void _SgCalledTickProc(void)
+{
+    char *seq = _SgGetSeqContext(0);
+    char *com = _SgGetComContext();
+    unsigned char **head = _SgGetHeadContext();
+    int iop = _SgGetIop2EeContext();
+    int i;
+
+    _SgSeqSeRrEnd(seq);
+    for (i = 0; i < 0x30; i++, seq += 0x54) {
+        int st;
+
+        if (*(volatile int *)seq & 0x2000) {
+            continue;
+        }
+        st = *(volatile int *)seq & 0xF;
+        if (st == 3 || st == 0xC) {
+            while (*(int *)(seq + 0x14) <= 0) {
+                int r = _SgTableEnvAdd(seq);
+
+                if (r == -1) {
+                    goto skip;
+                }
+                if (r == 1) {
+                    switch (*(unsigned char *)(seq + 0x50) & 0xF0) {
+                    case 0xF0:
+                        switch (head[4][1]) {
+                        case 0x2F:
+                            _SgEndSeq(seq);
+                            goto tick;
+                        case 0x51:
+                            _SgTempoChange(seq);
+                            break;
+                        }
+                        break;
+                    case 0xC0:
+                        _SgProgChange(seq);
+                        break;
+                    case 0xB0:
+                        switch (head[4][1]) {
+                        case 1:
+                            _SgContMod(seq);
+                            break;
+                        case 2:
+                            _SgContModLoop(seq);
+                            break;
+                        case 6:
+                            _SgContParam(seq);
+                            break;
+                        case 7:
+                            _SgContVol(seq);
+                            break;
+                        case 10:
+                            _SgContPan(seq);
+                            break;
+                        case 64:
+                            _SgContDump(seq);
+                            break;
+                        case 65:
+                            _SgContPolta(seq);
+                            break;
+                        case 96:
+                            _SgContSeLoop(seq);
+                            _SgDeltaTime(seq);
+                            *(int *)(seq + 0x14) = 0;
+                            goto tick;
+                        case 98:
+                            _SgContLoopCount(seq);
+                            break;
+                        case 99:
+                            _SgContLoop(seq);
+                            break;
+                        }
+                        break;
+                    case 0xE0:
+                        _SgBendForm(seq);
+                        break;
+                    case 0x80:
+                        _SgSeqKeyOff(seq);
+                        break;
+                    case 0xA0:
+                        _SgSeMain(seq);
+                        break;
+                    case 0x90:
+                        _SgBgmMain(seq);
+                        break;
+                    }
+                }
+                _SgDeltaTime(seq);
+            }
+        tick:
+            if (*(unsigned short *)(seq + 0x1E) != 0 || (*(volatile int *)seq & 8)) {
+                *(int *)(seq + 0x14) = *(int *)(seq + 0x14) - *(int *)(seq + 0x10);
+            }
+            if (*(volatile int *)seq & 0x80) {
+                *(int *)seq = *(volatile int *)seq & 0xFFFFFF7F;
+                *(char *)(seq + 0x50) = *(unsigned char *)(seq + 0x24);
+                *(char *)(seq + 0x51) = *(unsigned char *)(seq + 0x24);
+                *(int *)(seq + 4) = *(int *)(seq + 0xC);
+                if (*(volatile int *)seq & 4) {
+                    *(int *)seq = *(volatile int *)seq | 8;
+                } else {
+                    *(int *)(seq + 0x14) = 0;
+                    *(int *)seq = *(volatile int *)seq | 2;
+                    *(int *)seq = *(volatile int *)seq & 0xFFFFFFBF;
+                }
+            }
+        }
+        _SgSetRealtimeVolume(seq);
+    skip:;
+    }
+    _SgSetRealtimeTickProc();
+    if (*(unsigned long long *)(com + 8) != *(unsigned long long *)com) {
+        _SgSetPkAdd(0xC, 0, (int)(*(unsigned long long *)com & 0xFFFFFF),
+                    (int)((*(unsigned long long *)com >> 24) & 0xFFFFFF));
+        *(unsigned long long *)(com + 8) = *(unsigned long long *)com;
+    }
+    if (*(unsigned long long *)(com + 0x18) != *(unsigned long long *)(com + 0x10)) {
+        _SgSetPkAdd(0xD, 0, (int)(*(unsigned long long *)(com + 0x10) & 0xFFFFFF),
+                    (int)((*(unsigned long long *)(com + 0x10) >> 24) & 0xFFFFFF));
+        *(unsigned long long *)(com + 0x18) = *(unsigned long long *)(com + 0x10);
+    }
+    if (*(unsigned long long *)(com + 0x20) != 0) {
+        _SgSetPkAdd(0xA, 0, (int)(*(unsigned long long *)(com + 0x20) & 0xFFFFFF),
+                    (int)((*(unsigned long long *)(com + 0x20) >> 24) & 0xFFFFFF));
+        *(unsigned long long *)(com + 0x20) = 0;
+    }
+    if (*(unsigned long long *)(com + 0x28) != 0) {
+        _SgSetPkAdd(0xB, 0, (int)(*(unsigned long long *)(com + 0x28) & 0xFFFFFF),
+                    (int)((*(unsigned long long *)(com + 0x28) >> 24) & 0xFFFFFF));
+        *(unsigned long long *)(com + 0x28) = 0;
+    }
+    _SgSndn2Remote(0x64, 1, _SgGetPacketCntext(*(int *)(com + 0x3C), 0), iop,
+                   *(int *)(com + 0x40) << 4, 0x200);
+    *(volatile int *)(com + 0x40) = 0;
+    *(int *)(com + 0x3C) = (*(volatile int *)(com + 0x3C) + 1) & 1;
+}
 
 /* The EE to IOP packet ring in the common context: c[0xF] is the page the ring
  * lives in and c[0x10] the write index _SgGetPacketCntext resolves to a slot.
@@ -104,23 +249,128 @@ int _SgSetPkAdd(int a0, int a1, int a2, int a3)
     return *n;
 }
 
-/* Reverted to asm 2026-09-17 (chain 3 pass 15): 262 of 263 instructions, the
- * whole callee-saved colouring and every other word identical.  The one
- * residual is a gcse PRE edge insertion; the mechanism and the derived body
- * are in tails/seeds/sg.c3p15_SgSeMain_262of263_strict94_TU.c. */
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgSeMain);
-/* Reverted to asm 2026-09-17 (chain 3 pass 15): 295 of 295 instructions with
- * fifteen differing words, all of them inside the note-count dispatch at the
- * head of the function.  The derived body and the mechanism are in
- * tails/seeds/sg.c3p15_SgBgmMain_295of295_strict15_TU.c. */
+extern unsigned short D_0054CB78[];
+
+/* Sound-effect note event: the event's program byte picks a record in the
+ * head context's SE table at head[1], _SgSeKeyOnSlot finds a voice for it and
+ * the whole voice slot is filled from that record, the sequence and the
+ * program record, then keyed on through the pitch, volume and two register
+ * packets.  A zero velocity is a key-off, a program below the table's base or
+ * a full slot table leaves the cursor advanced and nothing else. */
+int _SgSeMain(int *a0)
+{
+    int *vab = _SgGetVabContext(*(unsigned short *)((char *)a0 + 0x18));
+    char *com = _SgGetComContext();
+    unsigned char **head = _SgGetHeadContext();
+    long long mask = 1;
+    unsigned char *s;
+    int n;
+    int off;
+    int slot;
+
+    if (head[4][2] == 0) {
+        _SgSeKeyOff((char *)a0);
+        return 0;
+    }
+    n = head[4][1] - head[0][6];
+    if (n < 0) {
+        a0[1] += 4;
+        return 0;
+    }
+    off = n << 4;
+    head[1] += off;
+    *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1A) = 0x40;
+    slot = _SgSeKeyOnSlot(head[1][0], head[1][1], *(unsigned short *)((char *)a0 + 0x18));
+    if (slot == -1) {
+        a0[1] += 4;
+        return 0;
+    }
+    mask <<= slot;
+    s = _SgGetSlotContext(slot);
+    if (head[1][0xF] & 1) {
+        *(int *)s = *(volatile int *)s | 4;
+    } else {
+        *(int *)s = *(volatile int *)s & 0xFFFFFFFB;
+    }
+    *(int *)s = *(volatile int *)s & 0xFFFFFFD7;
+    s[0x4E] = head[4][1];
+    s[0x4F] = *(unsigned char *)((char *)a0 + 0x4E);
+    s[0x50] = *(unsigned char *)((char *)a0 + 0x4C);
+    *(short *)(s + 0xC) = n;
+    *(short *)(s + 0x10) = 0;
+    *(int *)(s + 4) = *(int *)(com + 0x34);
+    s[0x51] = 2;
+    *(int *)(s + 8) = 0;
+    s[0x52] = head[1][1];
+    s[0x53] = head[1][0];
+    s[0x54] = *(unsigned char *)((char *)a0 + 0x18);
+    s[0x55] = *(unsigned char *)((char *)a0 + 0x1A);
+    s[0x56] = *(unsigned char *)((char *)a0 + 0x1C);
+    *(short *)(s + 0x16) = *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1E);
+    *(short *)(s + 0x18) = head[0][1];
+    *(short *)(s + 0x1A) = head[4][2];
+    *(short *)(s + 0x1C) = head[1][0xB];
+    *(short *)(s + 0x1E) = head[2][0];
+    *(short *)(s + 0x20) = D_0054CB78[head[1][0xC] >> 2];
+    *(short *)(s + 0x22) = *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x13);
+    *(short *)(s + 0x24) = *(char *)(head[1] + 3);
+    *(short *)(s + 0x26) = *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1A);
+    *(short *)(s + 0x28) = head[1][0xD];
+    *(short *)(s + 0x14) = *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1C);
+    *(short *)(s + 0x2C) = head[4][3];
+    *(short *)(s + 0x2A) = head[1][2];
+    *(short *)(s + 0x2E) = head[1][0xA];
+    *(short *)(s + 0x30) = head[1][0xC];
+    *(int *)(s + 0x44) = 0;
+    /* The vibrato enable bit is written through the volatile view on both
+     * arms.  The ROM proves the qualifier: with a plain store, reorg sinks it
+     * into the branch delay slot of the arm's `b`, where the ROM instead keeps
+     * the store in place and steals the join's 0x4E read into the slot.  No
+     * data-model reason beyond that is known for this field. */
+    if (head[1][0xF] & 0x20) {
+        int e = head[1][0xE];
+
+        *(volatile int *)s = *(volatile int *)s | 0x10;
+        *(short *)(s + 0x12) = 0x7F;
+        *(short *)(s + 0xE) = e;
+    } else {
+        *(volatile int *)s = *(volatile int *)s & 0xFFFFFFEF;
+    }
+    _SgPitchTableVag(slot, head[1][2], head[4][1], *(char *)(head[1] + 3),
+                     *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1A),
+                     head[1][0xD], a0[0x10]);
+    _SgSeqSeVolume(slot, a0);
+    _SgSetPkAdd(3, slot, (vab[1] + *(unsigned short *)(head[1] + 4)) << vab[2], 0);
+    _SgSetPkAdd(2, slot, *(unsigned short *)(head[1] + 6), *(unsigned short *)(head[1] + 8));
+    if (a0[0] & 0x1000) {
+        *(long long *)com = *(long long *)com | mask;
+    } else if (head[1][0xF] & 0x80) {
+        *(long long *)com = *(long long *)com | mask;
+    } else {
+        *(long long *)com = *(long long *)com & ~mask;
+    }
+    *(long long *)(com + 0x20) = *(long long *)(com + 0x20) | mask;
+    if (head[1][0xF] & 2) {
+        *(long long *)(com + 0x10) = *(long long *)(com + 0x10) | mask;
+        _SgSetPkAdd(0x32, 8, slot, head[1][2]);
+    } else {
+        *(long long *)(com + 0x10) = *(long long *)(com + 0x10) & ~mask;
+    }
+    head[1] -= off;
+    *(int *)(com + 0x34) = *(int *)(com + 0x34) + 1;
+    a0[1] += 4;
+    return 0;
+}
+
+/* Reverted to asm 2026-09-21 (chain 3 pass 42): 295 of 295 instructions with
+ * twelve differing words, all of them in the note-count dispatch at the head.
+ * The derived body and the measured mechanism are in
+ * tails/seeds/sg.c3p42_SgBgmMain_295of295_strict12_TU.c. */
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgBgmMain);
-/* Reverted to asm 2026-09-17 (chain 3 pass 16): 450 of 450 instructions,
- * the whole shape derived and every block in ROM's order; the residual is
- * one whole-function allocation class (ROM keeps the 0x400 flag in a
- * callee-saved register and spells the 0x28 range through the frame, the
- * built code does the reverse) and the delay-slot fills that follow from
- * it.  Derived body and mechanism:
- * tails/seeds/sg.c3p16_SgSetRealtimeTickProc_450of450_strict355_TU.c. */
+/* Reverted to asm (chain 3 pass 16, re-measured pass 42): 450 of 450
+ * instructions, the whole shape derived and every block in ROM's order; the
+ * residual is one whole-function allocation class.  Derived body and
+ * mechanism: tails/seeds/sg.c3p16_SgSetRealtimeTickProc_450of450_strict355_TU.c. */
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgSetRealtimeTickProc);
 
 /* Realtime volume: mode 1 takes the SE volume table's value for the vab and
@@ -189,6 +439,10 @@ int _SgSetRealtimeVolume(int *a0)
     return 0;
 }
 
+/* Reverted to asm (chain 3 pass 14, re-measured pass 42): 104 of 104
+ * instructions with 21 differing words, every one of them a register name.
+ * Derived body and mechanism:
+ * tails/seeds/sg.c3p42_SgTableEnvAdd_104of104_strict21_TU.c. */
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgTableEnvAdd);
 
 extern void *_SgGetComContext(void);
@@ -681,6 +935,10 @@ void _SgContVol(int *a0)
     }
 }
 
+/* Reverted to asm (chain 3 pass 14, re-measured pass 42): 133 of 135
+ * instructions; the two missing words are one address materialisation.
+ * Derived body and mechanism:
+ * tails/seeds/sg.c3p42_SgContPan_133of135_TU.c. */
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContPan);
 
 /* Dump (damper) controller: the program record's 0x1B byte takes the event's
@@ -1014,6 +1272,10 @@ void _SgDeltaTime(char *s)
     }
 }
 
+/* Reverted to asm (chain 3 pass 14, re-measured pass 42): 108 of 112
+ * instructions; the ROM splits the pass-two walker across two callee-saved
+ * registers.  Derived body and mechanism:
+ * tails/seeds/sg.c3p42_SgSeqSeRrEnd_108of112_TU.c. */
 INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgSeqSeRrEnd);
 
 int _SgfadeParam(int a0, int a1, int a2, int a3)
