@@ -201,6 +201,8 @@ extern char D_005521E8[];
 extern char D_005521F8[];
 extern char D_00552210[];
 extern int D_0063A680;
+extern char D_005F5EB8[];
+extern int D_0063A684;
 
 void soundAllocIopHeap(void)
 {
@@ -870,7 +872,48 @@ void soundSeEnvPlay(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", soundSeEnvNotUseClose);
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", soundDataSegNextStageNotUseClose);
+
+void soundDataSegNextStageNotUseClose(int a0, int a1)
+{
+    int i;
+    int closed = 0;
+    int found = 0;
+    char *tbl;
+    /* base in the loop header, not in a declaration of its own: that is what
+       keeps the walk on the entry pointer and the test against the table end */
+    for (i = 0, tbl = D_006BF570; i < 768; i += 0x30) {
+        char *p = tbl + i;
+        if (*(int *)p != 0 && *(unsigned short *)(p + 6) == 1 && *(unsigned short *)(p + 4) == a0) {
+            found = 1;
+            switch (a0) {
+            case 0:
+                break;
+            case 1:
+                if (*(int *)&D_005F5EB8[a1 * 404] != *(unsigned short *)p) {
+                    closed++;
+                    soundDataClose(p);
+                    soundBufSegFree(1, 1);
+                }
+                break;
+            case 2:
+                if (*(int *)&D_005F5EB8[a1 * 404 + 4] != *(unsigned short *)p) {
+                    soundDataClose(p);
+                }
+                break;
+            default:
+                debug_assert(D_005521E8, 1741);
+                __assert(D_005521E8, 1741, D_0063A660);
+                break;
+            }
+        }
+    }
+    if (a0 == 1) {
+        D_0063A684 = 0;
+        if (found != 0 && closed == 0) {
+            D_0063A684 = a0;
+        }
+    }
+}
 
 int Ee2Iop(int a0, int a1, int a2)
 {

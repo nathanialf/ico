@@ -865,44 +865,64 @@ extern void _UnitMatrix(float *m);
  * the convergence class that wants the whole body driven at once.  Seed:
  * tails/seeds/GsBase.c3p43_gsb_SetVSMatrixSub_313of313_strict129_TU.c. */
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_SetVSMatrixSub);
-/* Reverted to asm 2026-09-21 (chain 3 pass 43, was pass 16): 159 of 159
- * instructions, `nm -S` 0x27C equal to the ROM span, STRICT 4.  TWO LEVERS
- * MEASURED THIS PASS took it from 156 of 159 and 112 differing words to
- * this.  (1) The stage record's view scale at 0x0E0 is read through the
- * MEMBER reference `D_0028F720.viewScale`, not a cast deref: expand_expr's
- * handled component path (expr.c around line 6430) force_regs the base
- * symbol and keeps the member offset as the load's DISPLACEMENT, which is
- * ROM's `lui %hi` / `addiu %lo` pair with 0xE0 on the `lw`, while
- * `*(int *)((char *)&D_0028F720 + 0xE0)` folds the 0xE0 onto the %lo.  The
- * field is named in ico2/common/include/typedef.h inside the existing pad,
- * offsets and size unchanged.  (2) `D_0028F948` is declared as the
- * INCOMPLETE array `extern int D_0028F948[]`: at -G 8 a bare `extern int`
- * goes to small data and is read off $gp, and the ROM reads it absolutely
- * with a `lui %hi` / `lw %lo` pair (the same lever the pass 16 gsb_antiAlias
- * row measured for D_00639FC0).
- *
- * MEASURED RESIDUAL, four rows, two of them a class this repo already lands
- * on: rows 29 and 129 are R_MIPS_LITERAL pool words, which the strict
- * comparator does not mask; the object's own .lit4 is 0x6F12833A 0xFFFFFF4D
- * 0xA4707D3F, byte-identical to the ROM run at VMA 0x00638BCC..0x00638BD8
- * (ROM offset 0x00538BCC), 0.001f and 536870880.0f owned by this function
- * and 0.99f by the already matched gsb_ClipBox, interned in file order.  The
- * two REAL words are the order of the two 2048.0f stores: ROM writes
- * D_0063A05C then puts D_0063A060 in the `bc1f` delay slot, the built code
- * the other way round.  Both stores share one CSE'd 2048.0f pseudo, and in
- * sched1 rank_for_schedule reaches INSN_REG_WEIGHT before the ready list's
- * LUID tie, so the store that KILLS that pseudo (the second one) has weight
- * -1 against the first one's 0 and is scheduled first; reorg then takes the
- * nearest store into the delay slot.  For ROM to keep source order the
- * shared constant has to still be live past both stores, so the next axis is
- * what else in the dev's body reads 2048.0f.  Writing the pair as the chain
- * `D_0063A060 = D_0063A05C = 2048.0f;` does not change it (still 4), and
- * swapping the two statements reaches STRICT 2 but is anti-ROM: the
- * listing attributes the D_0063A05C store to the earlier source line
- * (SRCFILE.TXT GsBase.c:2259 against the other store's 2263), so the source
- * order is X then Y and the swap would only mask the scheduler.  Seed:
- * tails/seeds/GsBase.c3p43_gsb_SetVSMatrix_159of159_strict4_TU.c. */
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_SetVSMatrix);
+
+extern int D_0063A07C;
+extern int D_0063A080;
+extern float staffRollCenterOffsetX;
+extern int D_0063B1B0;
+extern int D_0063B1B8;
+extern int D_0063B1C8;
+extern int D_0028F948[];
+extern float D_0063A05C;
+extern float D_0063A060;
+extern int D_00639F94;
+extern float D_0067BA60[];
+extern void tex_UpdateMipMapLevel(float lv);
+extern void gsb_SetVSMatrixSub(void *a, void *b, void *c, void *d, float *vs);
+
+/* Set the view and screen matrices for a frame of w by h at depth d: the
+ * centre is the screen middle less the staff roll offset, the zoom eases
+ * towards its target by a thousandth of the step, and the view record at
+ * D_0067BA60 carries the centre, the aspect terms and the near and far
+ * planes gsb_SetVSMatrixSub builds the matrices from. */
+void gsb_SetVSMatrix(int w, int h, float d)
+{
+    float zoom;
+
+    D_0063A05C = D_0063A060 = 2048.0f;
+    if (d == 0.0f) {
+        d = (float)D_00639F94;
+    } else {
+        D_00639F94 = d;
+    }
+    D_0063A07C = w;
+    D_0063A080 = h;
+    if (D_00639F88 != D_00639F8C) {
+        D_00639F8C = D_00639F8C + (D_00639F88 - D_00639F8C) * D_00639F90 * 0.001f;
+    }
+    if (staffRollStartFlag != 0) {
+        D_0063A05C = D_0063A05C - staffRollCenterOffsetX;
+    }
+    zoom = (float)D_0028F720.viewScale * D_00639F8C * d * (float)D_0063B1B0 * (float)D_0063A064 /
+           640.0f / 100.0f / 100.0f;
+    D_0067BA60[0] = zoom;
+    if (D_0063B1C8 != 0 || (D_0028F948[0] & 0x800) != 0) {
+        D_0067BA60[0] = zoom * (float)D_0063B1B8 / 100.0f;
+    }
+    tex_UpdateMipMapLevel((float)D_0028F720.viewScale * D_00639F8C * (float)D_0063B1B0 *
+                          (float)D_0063A064 / 640.0f / 100.0f);
+    D_0067BA60[3] = D_0063A05C;
+    D_0067BA60[4] = D_0063A060;
+    D_0067BA60[5] = 1.0f;
+    D_0067BA60[6] = 536870880.0f;
+    D_0067BA60[7] = 2.0f;
+    D_0067BA60[1] = (float)w / (float)D_0063A064;
+    D_0067BA60[8] = 262144.0f;
+    D_0067BA60[2] =
+        (float)D_0063A068 * 4.0f / ((float)D_0063A064 * 3.0f) * (float)h / (float)D_0063A068;
+    gsb_SetVSMatrixSub(matrixptr + 0xC0, matrixptr + 0x1C0, matrixptr + 0x240, matrixptr + 0x340,
+                       D_0067BA60);
+}
 
 /* Clip a box against the current matrix: transform its eight corners with the
  * matrix in $vf4 to $vf7 and read the clip flags out of $vi18.  All eight

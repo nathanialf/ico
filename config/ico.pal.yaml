@@ -994,8 +994,7 @@ segments:
       - [0x538BB8, .lit4, ico2/sugipon/src/quaternion]  # carved D_00638BB8 (1 word, 0.05f, GetSlerpQuaternionNoRegularize's sine floor as a literal; the TU's whole pool, between pool's carve and tableSin's), VMA 0x638BB8..0x638BBC, 4 B
       - [0x538BBC, .lit4, ico2/sugipon/src/tableSin]  # carved D_00638BBC..D_00638BC4 (3 words: makeSinTable's pi/2 and 16385.0f, makeArcSinTable's 10430.378f, all literals; the TU's whole pool, bounded by quaternion's word and FileManager's carve), VMA 0x638BBC..0x638BC8, 12 B
       - [0x538BC8, .lit4, ico2/seki/src/FileManager]  # carved D_00638BC8 (1 slot: file_LoadCDFile's 10059776.0f, the CD-file size divisor, written as a literal), VMA 0x638BC8..0x638BCC
-      - [0x538BCC, lit4, cod/538BCC]     # .lit4 blob resume
-      - [0x538BD4, .lit4, ico2/seki/src/GsBase]  # gsb_ClipBox's 0.99f, one word at VMA 0x638BD4, abutting Light's carve
+      - [0x538BCC, .lit4, ico2/seki/src/GsBase]  # the TU's whole pool = MAIN.MAP line 6810 GsBase.o .lit4 0xC: gsb_SetVSMatrix's 0.001f and 536870880.0f then gsb_ClipBox's 0.99f, VMA 0x638BCC..0x638BD8, abutting Light's carve (completeness pass 45)
       - [0x538BD8, .lit4, ico2/seki/src/Light]  # carved D_00638BD8..D_00638C3C (26 slots, light_AddLight..light_resetFlatLight; the TU's whole pool, = MAIN.MAP Light.o .lit4 0x68), VMA 0x638BD8..0x638C40
       - [0x538C40, .lit4, ico2/seki/src/Packet]  # carved D_00638C40..D_00638C54 (6 slots: three 0.501960814f as one literal and two slots, pac_openDmaTag's 16777215.0f and -16777215.0f, one slot for the still-asm pac_makePacket; the TU's whole pool), VMA 0x638C40..0x638C58, 24 B
       - [0x538C58, .lit4, ico2/seki/src/Primitive]  # carved D_00638C58..D_00638C70 (7 slots in ROM order: 6.2831855f, 10430.378f, 6.2831855f, 10430.378f, 4095.0f (slot for the still-asm prim_DispFan2D), 3.1415927f, 10430.378f; the TU's whole pool between Packet and StageAnimation), VMA 0x638C58..0x638C74, 28 B
