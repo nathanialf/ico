@@ -1220,6 +1220,7 @@ segments:
       - { type: .bss, vram: 0x00669640, name: ico2/sugipon/src/quaternion }  # the TU's own .bss, 0x400 B, VMA 0x669640..0x669A40; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x00669A40, name: ico2/sugipon/src/tableSin }  # the TU's own .bss, 0x12012 B, VMA 0x669A40..0x67BA52; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x0067BA52, name: cod/0067BA52 }  # .bss blob resume
+      - { type: .bss, vram: 0x0067BA60, name: ico2/seki/src/GsBase }  # the TU's own .bss, 0x280 B, VMA 0x67BA60..0x67BCE0, five statics in ROM run order (vsParam, logBuf, lockFileName, lockOwner, bgColor; completeness pass 46); MAIN.MAP line 7678 gives the owner, its 0x40 is the January object before the retail revision added the three character buffers; abuts Light
       - { type: .bss, vram: 0x0067BCE0, name: ico2/seki/src/Light }  # the TU's own .bss, 0xF0 B, VMA 0x67BCE0..0x67BDD0; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x0067BDD0, name: cod/0067BDD0 }  # .bss blob resume
       - { type: .bss, vram: 0x0067BFD0, name: ico2/seki/src/MicroCode }  # the TU's own .bss, 0x40 B, VMA 0x67BFD0..0x67C010; static definitions in ROM run order (completeness pass)

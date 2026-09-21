@@ -552,18 +552,18 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", soundDataClose);
 
 void soundDataSegAllClose(int a0, int a1)
 {
-    char *p = D_006BF570;
-    char *end = D_006BF570 + 0x300;
-    do {
-        if (*(int *)p != 0) {
-            if (*(unsigned short *)(p + 6) == a0) {
-                if (*(unsigned short *)(p + 4) == a1) {
-                    soundDataClose(p);
-                }
-            }
+    int i;
+    char *tbl;
+    /* base in the loop header, not in a declaration of its own: the same
+       index for its sibling soundDataSegNextStageNotUseClose carries, and
+       the form the listing's line rows for this function show */
+    for (i = 0, tbl = D_006BF570; i < 768; i += 0x30) {
+        char *p = tbl + i;
+        if (*(int *)p != 0 && *(unsigned short *)(p + 6) == a0 &&
+            *(unsigned short *)(p + 4) == a1) {
+            soundDataClose(p);
         }
-        p += 0x30;
-    } while ((int)p < (int)end);
+    }
     if (a1 == 2)
         return;
     soundBufSegFree(a0, a1);

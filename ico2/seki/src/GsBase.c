@@ -876,14 +876,20 @@ extern int D_0028F948[];
 extern float D_0063A05C;
 extern float D_0063A060;
 extern int D_00639F94;
-extern float D_0067BA60[];
+
+/* The view record gsb_SetVSMatrixSub builds the view and screen matrices
+ * from: the zoom, the two aspect terms, the centre, and the near and far
+ * planes.  MAIN.MAP names no symbol inside GsBase.o's .bss, so the name is
+ * a reconstruction; the extent (10 floats) is the ROM run's. */
+static float vsParam[10];
+
 extern void tex_UpdateMipMapLevel(float lv);
 extern void gsb_SetVSMatrixSub(void *a, void *b, void *c, void *d, float *vs);
 
 /* Set the view and screen matrices for a frame of w by h at depth d: the
  * centre is the screen middle less the staff roll offset, the zoom eases
  * towards its target by a thousandth of the step, and the view record at
- * D_0067BA60 carries the centre, the aspect terms and the near and far
+ * vsParam carries the centre, the aspect terms and the near and far
  * planes gsb_SetVSMatrixSub builds the matrices from. */
 void gsb_SetVSMatrix(int w, int h, float d)
 {
@@ -905,23 +911,23 @@ void gsb_SetVSMatrix(int w, int h, float d)
     }
     zoom = (float)D_0028F720.viewScale * D_00639F8C * d * (float)D_0063B1B0 * (float)D_0063A064 /
            640.0f / 100.0f / 100.0f;
-    D_0067BA60[0] = zoom;
+    vsParam[0] = zoom;
     if (D_0063B1C8 != 0 || (D_0028F948[0] & 0x800) != 0) {
-        D_0067BA60[0] = zoom * (float)D_0063B1B8 / 100.0f;
+        vsParam[0] = zoom * (float)D_0063B1B8 / 100.0f;
     }
     tex_UpdateMipMapLevel((float)D_0028F720.viewScale * D_00639F8C * (float)D_0063B1B0 *
                           (float)D_0063A064 / 640.0f / 100.0f);
-    D_0067BA60[3] = D_0063A05C;
-    D_0067BA60[4] = D_0063A060;
-    D_0067BA60[5] = 1.0f;
-    D_0067BA60[6] = 536870880.0f;
-    D_0067BA60[7] = 2.0f;
-    D_0067BA60[1] = (float)w / (float)D_0063A064;
-    D_0067BA60[8] = 262144.0f;
-    D_0067BA60[2] =
+    vsParam[3] = D_0063A05C;
+    vsParam[4] = D_0063A060;
+    vsParam[5] = 1.0f;
+    vsParam[6] = 536870880.0f;
+    vsParam[7] = 2.0f;
+    vsParam[1] = (float)w / (float)D_0063A064;
+    vsParam[8] = 262144.0f;
+    vsParam[2] =
         (float)D_0063A068 * 4.0f / ((float)D_0063A064 * 3.0f) * (float)h / (float)D_0063A068;
     gsb_SetVSMatrixSub(matrixptr + 0xC0, matrixptr + 0x1C0, matrixptr + 0x240, matrixptr + 0x340,
-                       D_0067BA60);
+                       vsParam);
 }
 
 /* Clip a box against the current matrix: transform its eight corners with the
@@ -1011,7 +1017,12 @@ extern char D_0063A000[];
 extern char D_0054E4F8[];
 extern char D_0054E518[];
 extern char D_0054E530[];
-extern char D_0067BA88[];
+
+/* Scratch for the editing log: first the log file's name, then the line
+ * appended to it.  MAIN.MAP names no symbol inside GsBase.o's .bss, so the
+ * name is a reconstruction; the extent is the ROM run's. */
+static char logBuf[256];
+
 extern int sceCdReadClock(sceCdCLOCK *c);
 
 void appendLogFile(void)
@@ -1020,18 +1031,18 @@ void appendLogFile(void)
     int fd;
 
     sceCdReadClock(&clock);
-    sprintf(D_0067BA88, D_0054E4F8);
-    fd = debugSceOpen(D_0067BA88, 0x302);
+    sprintf(logBuf, D_0054E4F8);
+    fd = debugSceOpen(logBuf, 0x302);
     if (fd < 0) {
         debug_StdPrintfDummy(D_0054E518);
         return;
     }
-    sprintf(D_0067BA88, D_0054E530, clock.year | 0x2000, clock.month, clock.day, clock.hour,
+    sprintf(logBuf, D_0054E530, clock.year | 0x2000, clock.month, clock.day, clock.hour,
             clock.minute, clock.second, D_005F5D90 + stage_no * 0x194, D_0063A000);
     sceLseek(fd, 0, 2);
-    sceWrite(fd, D_0067BA88, strlen(D_0067BA88));
+    sceWrite(fd, logBuf, strlen(logBuf));
     debugSceClose(fd);
-    debug_StdPrintfDummy(D_0067BA88);
+    debug_StdPrintfDummy(logBuf);
 }
 
 /* one row of the film noise debug menu (the same shape ico2/seki/src/ZFog.c
@@ -1322,8 +1333,14 @@ extern char D_0054EF20[];
 extern char D_0054EF30[];
 extern char D_0063A038[];
 extern char D_0063A040[];
-extern char D_0067BB88[];
-extern char D_0067BC88[];
+
+/* The stage lock file's name, and the owner name read back out of it.
+ * MAIN.MAP names no symbol inside GsBase.o's .bss, so both names are
+ * reconstructions; the extents are the ROM run's. */
+static char lockFileName[256];
+
+static char lockOwner[72];
+
 extern int D_00639F7C;
 
 void updateOtherEditingLockFlag(void)
@@ -1331,19 +1348,19 @@ void updateOtherEditingLockFlag(void)
     char buf[0x100];
     int fd;
 
-    sprintf(D_0067BB88, D_0054EF00, D_005F5D90 + stage_no * 0x194);
+    sprintf(lockFileName, D_0054EF00, D_005F5D90 + stage_no * 0x194);
     D_00639F78 = 0;
-    fd = debugSceOpen(D_0067BB88, 1);
+    fd = debugSceOpen(lockFileName, 1);
     if (fd >= 0) {
         sceRead(fd, buf, 0x100);
         debugSceClose(fd);
-        sscanf(buf, D_0063A038, D_0067BC88);
+        sscanf(buf, D_0063A038, lockOwner);
     }
-    if (fd < 0 || strcmp(D_0063A040, D_0067BC88) == 0) {
+    if (fd < 0 || strcmp(D_0063A040, lockOwner) == 0) {
         debug_StdPrintfDummy(D_0054EF20);
         D_00639F7C = 0;
-    } else if (strcmp(D_0063A000, D_0067BC88) != 0) {
-        debug_StdPrintfDummy(D_0054EF30, D_0067BC88);
+    } else if (strcmp(D_0063A000, lockOwner) != 0) {
+        debug_StdPrintfDummy(D_0054EF30, lockOwner);
         D_00639F78 = 1;
     } else {
         D_00639F7C = 1;
@@ -1360,8 +1377,8 @@ extern char D_0054EF58[];
  * out of line, so it has no MAIN.MAP symbol and this name is ours. */
 static inline char *makeLockFileName(void)
 {
-    sprintf(D_0067BB88, D_0054EF00, D_005F5D90 + stage_no * 0x194);
-    return D_0067BB88;
+    sprintf(lockFileName, D_0054EF00, D_005F5D90 + stage_no * 0x194);
+    return lockFileName;
 }
 
 int createLockFile(void)
@@ -1481,28 +1498,33 @@ int gsb_StageSetting(void)
     return (D_0028F8F0[0].trg & 0x40) ? -1 : 0;
 }
 
-extern unsigned char D_0067BCD0[];
+/* The background colour the display list is cleared to, one component per
+ * word: gsb_SetBGColor writes the four words and gsb_GetBGColor reads their
+ * low bytes back, which is why the declaration is a byte array.  MAIN.MAP
+ * names no symbol inside GsBase.o's .bss, so the name is a reconstruction;
+ * the extent is the ROM run's. */
+static unsigned char bgColor[16];
 
 inline void gsb_SetBGColor(void *a0, int r, int g, int b)
 {
     unsigned long long bg = ((long long)b << 16) | ((long long)g << 8);
     unsigned long long v = r | 0x3F80000000000000ULL;
     v |= bg;
-    *(int *)&D_0067BCD0[0] = r;
+    *(int *)&bgColor[0] = r;
     v |= 0x80000000;
-    *(int *)&D_0067BCD0[4] = g;
-    *(int *)&D_0067BCD0[8] = b;
-    *(int *)&D_0067BCD0[0xC] = 0x80;
+    *(int *)&bgColor[4] = g;
+    *(int *)&bgColor[8] = b;
+    *(int *)&bgColor[0xC] = 0x80;
     *(unsigned long long *)((char *)a0 + 0x1F0) = v;
     *(unsigned long long *)((char *)a0 + 0x100) = v;
 }
 
 inline void gsb_GetBGColor(unsigned char *a0)
 {
-    a0[0] = D_0067BCD0[0];
-    a0[1] = D_0067BCD0[4];
-    a0[2] = D_0067BCD0[8];
-    a0[3] = D_0067BCD0[0xC];
+    a0[0] = bgColor[0];
+    a0[1] = bgColor[4];
+    a0[2] = bgColor[8];
+    a0[3] = bgColor[0xC];
 }
 
 extern int D_0054E3C0[];
