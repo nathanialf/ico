@@ -30,7 +30,43 @@ void sceResetttyinit(int a0)
     sceTtyInit(a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", VSync);
+/* VSync polls INTC_STAT (0x1000F000) for the VBLANK bit and clears it, which
+   is one of the whole-function asm exceptions this project documents (a
+   busy-wait on a hardware register).  It is assembled here rather than written
+   in C because two measurements say no C that keeps the data model reaches the
+   ROM's last two words, which end `jr $31` with `sw $2,-0x1000($1)` in the
+   delay slot: gcc's reorg cannot fill a return's delay slot with a VOLATILE
+   store, and a store through an ABSOLUTE CONSTANT address is a two-instruction
+   assembler macro and so is not eligible for a delay slot either; this
+   function's store is both.  ee-as never fills a `j $31` slot itself.  The C
+   that produces the other fourteen words is kept on record in
+   tails/seeds/libkernl_25EF18.c1p40_VSync_16of16_strict2.c. */
+__asm__(".section .text\n"
+        "    .set noat\n"
+        "    .set noreorder\n"
+        ".global VSync\n"
+        ".type VSync, @function\n"
+        "    .align 3\n"
+        "VSync:\n"
+        "    lui $2, (0x1000F000 >> 16)\n"
+        "    addiu $3, $0, 0x4\n"
+        "    ori $2, $2, (0x1000F000 & 0xFFFF)\n"
+        "    sw $3, 0x0($2)\n"
+        ".LVSync0025EF38:\n"
+        "    lui $2, (0x10010000 >> 16)\n"
+        "    lw $2, -0x1000($2)\n"
+        "    andi $2, $2, 0x4\n"
+        "    nop\n"
+        "    nop\n"
+        "    nop\n"
+        "    beqz $2, .LVSync0025EF38\n"
+        "    nop\n"
+        "    addiu $2, $0, 0x4\n"
+        "    lui $1, (0x10010000 >> 16)\n"
+        "    jr $31\n"
+        "    sw $2, -0x1000($1)\n"
+        "    .set reorder\n"
+        "    .set at\n");
 
 extern void SetVSyncFlag(void *a0, void *a1);
 
