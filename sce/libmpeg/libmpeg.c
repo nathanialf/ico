@@ -341,7 +341,26 @@ int _PES_packet(int *bs, PesPkt *pkt)
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", sceMpegInit);
+extern void DIntr();
+extern int EIntr(void);
+extern int sceIpuInit();
+
+/* The DMAC and IPU registers are hardware the DMAC itself updates, so every
+   access is volatile. The second write of the enable register at 0x1000F590 is
+   plain: its address is already live in a register from the first write, and
+   only a non-volatile store can be scheduled into the delay slot of jal EIntr. */
+void sceMpegInit(void)
+{
+    DIntr();
+    *(volatile unsigned int *)0x1000F590 = *(volatile unsigned int *)0x1000F520 | 0x10000;
+    *(volatile unsigned int *)0x1000B000 &= 0xFFFFFEFF;
+    *(volatile unsigned int *)0x1000B400 &= 0xFFFFFEFF;
+    *(unsigned int *)0x1000F590 = *(volatile unsigned int *)0x1000F520 & 0xFFFEFFFF;
+    EIntr();
+    *(volatile unsigned int *)0x1000B020 = 0;
+    *(volatile unsigned int *)0x1000B420 = 0;
+    sceIpuInit();
+}
 
 extern void *D_0054C0E4[];
 extern void _Error(void *a0);
@@ -902,7 +921,30 @@ void _clearOnce(void)
     *(float *)((char *)_mbcont + 0x280) = 0.0f;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _clearEach);
+extern int _sp_dcr[];
+extern int _isTop32dirty[];
+extern int sceIpuSync();
+
+/* Same hardware-register rule as sceMpegInit: volatile everywhere, and the
+   second write of the enable register at 0x1000F590 plain so it can be
+   scheduled into the delay slot of jal EIntr. */
+void _clearEach(void)
+{
+    _sp_dcr[0] = 0;
+    _isTop32dirty[0] = 1;
+    DIntr();
+    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 | 0x10000;
+    *(volatile int *)0x1000B000 = 0;
+    *(volatile int *)0x1000B400 = 0;
+    *(volatile int *)0x1000D400 = 0;
+    *(int *)0x1000F590 = *(volatile int *)0x1000F520 & 0xFFFEFFFF;
+    EIntr();
+    *(volatile int *)0x1000B020 = 0;
+    *(volatile int *)0x1000B420 = 0;
+    *(volatile int *)0x1000D420 = 0;
+    *(volatile int *)0x10002010 = 0x40000000;
+    sceIpuSync(0, 0);
+}
 
 extern int D_00636DF8[];
 extern void printf(void *a0, ...);
