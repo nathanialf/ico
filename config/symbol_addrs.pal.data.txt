@@ -387,4 +387,6 @@ hane1down = 0x0063C068; // size:0x4  // ico2/script/src/st47a  // map-anchor 7of
 hane2down = 0x0063C06C; // size:0x4  // ico2/script/src/st47a  // map-anchor 7of7 carried from st47a.o
 sekizo_47a = 0x0063C070; // size:0x4  // ico2/script/src/st47a  // map-anchor 7of7 carried from st47a.o
 sekizo_47a_vol = 0x0063C074; // size:0x4  // ico2/script/src/st47a  // map-anchor 7of7 carried from st47a.o
+__CTOR_LIST__ = 0x0063C5C8; // size:0x8  // (vendor)  // MAIN.MAP line 7656, libgcc.a(_ctors.o) .scommon 0x10 holding __CTOR_LIST__ then __DTOR_LIST__, the pair kept in .sbss before sbrkr.o's errno in retail
+__DTOR_LIST__ = 0x0063C5D0; // size:0x8  // (vendor)  // MAIN.MAP line 7657, the second half of libgcc.a(_ctors.o)'s common pair
 errno = 0x0063C5D8; // size:0x4  // (vendor)  // map-size 1of1 from sbrkr.o
