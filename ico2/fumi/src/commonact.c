@@ -582,8 +582,8 @@ void WithMailFunc_AttackFail(char *a0)
 
 extern int stage_no;
 extern int D_0063B210;
-/* kept local: this TU's uses of ReleaseWeaponWithFumbleSequential do not fit the prototype in weapon.h */
-extern void ReleaseWeaponWithFumbleSequential(void *a0);
+/* kept local: this TU does not include weapon.h; the ROM proves the int return (the callee sets $2 to 1 or 0 on its two exits). */
+extern int ReleaseWeaponWithFumbleSequential(void *a0);
 
 void WithMailFunc_AttackRejectInQueen(char *a0)
 {

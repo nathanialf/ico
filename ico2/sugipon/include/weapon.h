@@ -19,7 +19,7 @@ void LightTorchOffOfWeapon(char *a0);
 void LightTorchOnOfWeapon(char *a0);
 void PickupWeapon(char *a0, char *a1, int a2);
 void ReleaseWeapon(char *a0);
-void ReleaseWeaponWithFumbleSequential(void *a0);
+int ReleaseWeaponWithFumbleSequential(char *g);
 void SetWeaponOffsetMode(char *a0, int a1);
 void SetWeaponTorchChainReactionFlagAll(int a0);
 void WeaponCurPos(char *a0, void *a1, void *a2, void *a3);
