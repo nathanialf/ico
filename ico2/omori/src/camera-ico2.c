@@ -118,7 +118,6 @@ static int pluralCameraSetNum;
 
 /* kept local: this TU's uses of SetMonitorCameraInitializeFlag do not fit the prototype in camera-root.h */
 extern void SetMonitorCameraInitializeFlag();
-extern Mat4 D_00555050;
 extern int D_0063AB9C;
 /* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
 extern void _ApplyRyGV(void *a0, float v);
@@ -137,8 +136,6 @@ typedef struct IosPadStick {
 
 extern char iosPadConfDefault[];
 extern float D_0063AB48;
-extern char D_00555060[];
-extern char D_00555090[];
 extern char D_0063AB58[];
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
@@ -184,14 +181,9 @@ typedef struct CamItemV2 { /* 0x50 */
 } CamItemV2;
 
 extern int D_0063A44C;
-extern char D_005550C8[];
-extern char D_005550E8[];
-extern char D_00555100[];
-extern char D_00555148[];
 /* kept local: this TU's uses of ReadCameraSet do not fit the prototype in camera-ico2.h */
 extern void *ReadCameraSet(CamSetFile *f, int stage);
 extern char D_002AD010[][0x20];
-extern char D_00555078[];
 /* prototypes: their order is the inline tail's emission order */
 void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag);
 void SetCameraZoomOffsetRatio(float val);
@@ -559,10 +551,12 @@ void ChaseCamera(float *a0, float *a1)
 {
     Mat4 v0;
     Mat4 v1;
-    Mat4 mat;
+    /* the chase offset from the target, 200 up and 500 behind, rotated onto the
+       target orient below; the same two distances are spelled out again for the
+       fallback eye this function blends with */
+    Mat4 mat = {{0.0f, 200.0f, 500.0f, 0.0f}};
     Mat4 v3;
     float t;
-    mat = D_00555050;
     t = _GetDirection(test_CURRENTORIENT(D_0063AB9C));
     _ApplyRyGV(&mat, (float)(int)(t / 3.1415927f * 180.0f) * 3.1415927f / 180.0f);
     sceVu0AddVector(&v0, a0, &mat);
@@ -862,8 +856,7 @@ void ReflectCameraSetBinary(S4C *src, int count)
         iosFree(cameraSetBuf);
     }
 
-    cameraSetBuf =
-        iosMallocDebug(D_0063A450, GetSizeOfCameraSetBinary(src, count), D_00555060, 1577);
+    cameraSetBuf = iosMallocDebug(D_0063A450, GetSizeOfCameraSetBinary(src, count), __FILE__, 1577);
     cameraSetGroups = cameraSetBuf;
     cameraSetGroupsEnd = cameraSetBuf + count * 0x4C;
     cameraSetGroupNum = count;
@@ -1085,9 +1078,10 @@ inline void *GetPluralCameraSet(int id)
             return pluralCameraSet[i].set;
         }
     }
-    debug_StdPrintfDummy(D_00555078, D_002AD010[id]);
-    debug_assert(D_00555060, 0x7F4);
-    __assert(D_00555060, 0x7F4, D_0063AB58);
+    /* EUC-JP: "[%s] was not found\n" */
+    debug_StdPrintfDummy("[%s]が見つかりません\n", D_002AD010[id]);
+    debug_assert(__FILE__, 2036);
+    __assert(__FILE__, 2036, D_0063AB58);
     return 0;
 }
 
@@ -1096,9 +1090,10 @@ inline void AddPluralCameraSet(int id, char *name)
     PluralCameraSet *p;
 
     if (pluralCameraSetNum >= 10) {
-        debug_StdPrintfDummy(D_00555090, 10);
-        debug_assert(D_00555060, 0x7FD);
-        __assert(D_00555060, 0x7FD, D_0063AB58);
+        /* EUC-JP: "at most [%d] camera sets can be registered in one stage." */
+        debug_StdPrintfDummy("１ステージに登録できるカメラセットは、最大[%d]個です。", 10);
+        debug_assert(__FILE__, 2045);
+        __assert(__FILE__, 2045, D_0063AB58);
     }
     p = &pluralCameraSet[pluralCameraSetNum];
     p->id = id;
@@ -1120,7 +1115,7 @@ static inline CamSetFile *allocCameraSet(CamSetFile *f)
 {
     CamSetFile *p;
 
-    p = (CamSetFile *)iosMallocDebug(D_0063A44C, 16 + f->count * 0x4C + f->total * 0x5C, D_00555060,
+    p = (CamSetFile *)iosMallocDebug(D_0063A44C, 16 + f->count * 0x4C + f->total * 0x5C, __FILE__,
                                      2166);
     *p = *f;
     p->magic = 0x1234;
@@ -1135,7 +1130,7 @@ void *ReadCameraSet(CamSetFile *f, int stage)
     int i;
     int n_pin;
 
-    debug_StdPrintfDummy(D_005550C8, f->ver);
+    debug_StdPrintfDummy("camera data version = [%d]\n", f->ver);
     switch (f->ver) {
     case 0: {
         CamGroup *og = (CamGroup *)((char *)f + 16);
@@ -1149,7 +1144,7 @@ void *ReadCameraSet(CamSetFile *f, int stage)
             total += og[i].last - og[i].first;
         }
         f->total = n_pin = total;
-        debug_StdPrintfDummy(D_005550E8, n, n_pin);
+        debug_StdPrintfDummy("n_group[%d], n_pin[%d]\n", n, n_pin);
         p = allocCameraSet(f);
         ng = (CamGroup *)((char *)p + 16);
         ni = (CamItem *)((char *)ng + n * 0x4C);
@@ -1180,7 +1175,7 @@ void *ReadCameraSet(CamSetFile *f, int stage)
             total += og[i].last - og[i].first;
         }
         f->total = n_pin = total;
-        debug_StdPrintfDummy(D_005550E8, n, n_pin);
+        debug_StdPrintfDummy("n_group[%d], n_pin[%d]\n", n, n_pin);
         p = allocCameraSet(f);
         ng = (CamGroup *)((char *)p + 16);
         ni = (CamItem *)((char *)ng + n * 0x4C);
@@ -1209,7 +1204,7 @@ void *ReadCameraSet(CamSetFile *f, int stage)
             total += og[i].last - og[i].first;
         }
         f->total = n_pin = total;
-        debug_StdPrintfDummy(D_005550E8, n, n_pin);
+        debug_StdPrintfDummy("n_group[%d], n_pin[%d]\n", n, n_pin);
         p = allocCameraSet(f);
         ng = (CamGroup *)((char *)p + 16);
         ni = (CamItem *)((char *)ng + n * 0x4C);
@@ -1236,7 +1231,7 @@ void *ReadCameraSet(CamSetFile *f, int stage)
             total += og[i].last - og[i].first;
         }
         f->total = n_pin = total;
-        debug_StdPrintfDummy(D_005550E8, n, n_pin);
+        debug_StdPrintfDummy("n_group[%d], n_pin[%d]\n", n, n_pin);
         p = allocCameraSet(f);
         ng = (CamGroup *)((char *)p + 16);
         ni = (CamItem *)((char *)ng + n * 0x4C);
@@ -1250,10 +1245,12 @@ void *ReadCameraSet(CamSetFile *f, int stage)
         break;
     }
     default:
-        debug_StdPrintfDummy(D_00555100);
-        debug_StdPrintfDummy(D_00555148, f->ver);
-        debug_assert(D_00555060, 2355);
-        __assert(D_00555060, 2355, D_0063AB58);
+        /* EUC-JP: "the camera data version is wrong. please tell Omori.\n" */
+        debug_StdPrintfDummy(
+            "カメラデータのバージョンに異常があります。大森まで知らせてください\n");
+        debug_StdPrintfDummy("illegal camera data version [%d]\n", f->ver);
+        debug_assert(__FILE__, 2355);
+        __assert(__FILE__, 2355, D_0063AB58);
         break;
     }
     return p;
