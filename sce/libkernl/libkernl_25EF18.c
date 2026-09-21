@@ -2081,9 +2081,51 @@ int sceSifFreeIopHeap(int a0)
     return D_0072D5C0[0];
 }
 
-extern char D_0072D680[];
+/* The LoadIopHeap RPC request block, reconstructed: the ROM stores the address
+ * argument at offset 0, copies the module name into offset 4 and sends
+ * i + 5 bytes, so the record is one int followed by a 252-byte name and the
+ * sent length is the name length plus the int plus the terminator.  It is
+ * spelled as a struct rather than as `char D_0072D680[]` because the ROM's
+ * destination address is `addu $3,$3,$8`, base first: the C front end builds
+ * `arr[j]` on an array object as PLUS_EXPR(ADDR_EXPR(arr), j), fold moves the
+ * TREE_CONSTANT array address to the right and expand then emits
+ * `addu dest,index,base`, while a COMPONENT_REF of a struct reaches expand
+ * with the base already in a register and keeps the ROM's order. */
+typedef struct {
+    int addr;       /* 0x00 */
+    char name[252]; /* 0x04 */
+} SifHeapReq;
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifLoadIopHeap);
+extern SifHeapReq D_0072D680;
+
+int sceSifLoadIopHeap(char *name, void *addr)
+{
+    int i;
+
+    if (D_0054A484[0] < 0) {
+        return 0;
+    }
+    /* the terminator test reads the byte back out of the DESTINATION, which is
+     * the value cse already holds; reading name[i] again cannot be folded away
+     * because the char store may alias the char load, and the ROM loads the
+     * name byte once (lbu, then sll 24 and beqz on the same register) */
+    for (i = 0; i < 252; i++) {
+        D_0072D680.name[i] = name[i];
+        if (D_0072D680.name[i] == 0) {
+            break;
+        }
+    }
+    if (i == 252) {
+        D_0072D680.name[251] = 0;
+        i = 251;
+    }
+    D_0072D680.addr = (int)addr;
+    D_0072D680.name[251] = 0;
+    if (sceSifCallRpc(D_0072D580, 3, 0, &D_0072D680, i + 5, D_0072D5C0, 4, 0, 0) >= 0) {
+        return D_0072D5C0[0];
+    }
+    return -1;
+}
 
 extern int D_0054A488[];
 extern char D_0072D780[];
@@ -3343,6 +3385,11 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 
+/* The four `.align 2` directives below are the ones the shipped function's own
+ * asm carries at its internal labels; they emit no bytes here, but without them
+ * the period assembler inserts two nops before the first loop's closing bgtz
+ * as soon as any neighbouring member in this object is compiled C rather than
+ * assembled. */
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -3363,6 +3410,7 @@ __asm__(".section .text\n"
         "    andi $9, $11, 0x7\n"
         "    beqz $9, .L00265A3800248448\n"
         "    srl $10, $11, 3\n"
+        "    .align 2\n"
         ".L00265A380024842C:\n"
         "    sync\n"
         "    cache 0x18, 0x0($8)\n"
@@ -3371,8 +3419,10 @@ __asm__(".section .text\n"
         "    nop\n"
         "    bgtz $9, .L00265A380024842C\n"
         "    addiu $8, $8, 0x40\n"
+        "    .align 2\n"
         ".L00265A3800248448:\n"
         "    beqz $10, .L00265A380024849C\n"
+        "    .align 2\n"
         ".L00265A380024844C:\n"
         "    addiu $10, $10, -0x1\n"
         "    sync\n"
@@ -3394,6 +3444,7 @@ __asm__(".section .text\n"
         "    sync\n"
         "    bgtz $10, .L00265A380024844C\n"
         "    addiu $8, $8, 0x200\n"
+        "    .align 2\n"
         ".L00265A380024849C:\n"
         "    jr $31\n"
         "    nop\n"
