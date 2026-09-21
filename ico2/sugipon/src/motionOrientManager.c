@@ -16,7 +16,9 @@
 
 extern MotionOrientEntry D_002ADD60[];
 extern MotionOrientEntry D_002BC4A8;
-/* kept local: this TU's uses of CopyMotion do not fit the prototype in motionManager2.h */
+/* kept local: this declaration is identical to the motionManager2.h prototype, but the
+ * TU cannot include that header while its GetStreamMotion, DispSkelton and
+ * FeedbackWallWorkInfoToBrainSystem uses still need declarations of their own. */
 extern void CopyMotion(void *dst, void *src, int n);
 
 struct MotOriHead8 {
@@ -668,7 +670,9 @@ void getStreamMotionGeometry(void *self, void *sm)
     }
 }
 
-/* kept local: this TU's uses of GetBlendedMotion do not fit the prototype in motionManager2.h */
+/* kept local: this declaration is identical to the motionManager2.h prototype, but the
+ * TU cannot include that header while its GetStreamMotion, DispSkelton and
+ * FeedbackWallWorkInfoToBrainSystem uses still need declarations of their own. */
 extern void GetBlendedMotion(void *dst, float *dv, void *m1, float *v1, void *m0, float *v0,
                              float t, int tbl, int n);
 
@@ -694,7 +698,9 @@ void getStreamBlendMotionGeometry(void *self, void *sm0, void *sm1, float t)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", getStreamBlendShapeGeometry);
 
-/* kept local: this TU's uses of GetStreamShapeMotion do not fit the prototype in motionManager2.h */
+/* kept local: this declaration is identical to the motionManager2.h prototype, but the
+ * TU cannot include that header while its GetStreamMotion, DispSkelton and
+ * FeedbackWallWorkInfoToBrainSystem uses still need declarations of their own. */
 extern int GetStreamShapeMotion(float *dst, void *sm);
 
 void getStreamShapeGeometry(void *self, void *sm)
