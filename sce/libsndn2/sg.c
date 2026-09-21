@@ -362,11 +362,137 @@ int _SgSeMain(int *a0)
     return 0;
 }
 
-/* Reverted to asm 2026-09-21 (chain 3 pass 42): 295 of 295 instructions with
- * twelve differing words, all of them in the note-count dispatch at the head.
- * The derived body and the measured mechanism are in
- * tails/seeds/sg.c3p42_SgBgmMain_295of295_strict12_TU.c. */
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgBgmMain);
+/* Sequence note event: the program record picked by the event's note byte can
+ * key on a whole chord, so the note count comes out of the record table's
+ * first byte (0xFF means the single note the event names, bit 7 means keep
+ * going after this one) and each note takes its own voice slot.  The slot is
+ * filled from the record, the sequence and the program record, then keyed on
+ * through the pan curve, the pitch and volume calls and the two register
+ * packets. */
+int _SgBgmMain(int *a0)
+{
+    int *vab = _SgGetVabContext(*(unsigned short *)((char *)a0 + 0x18));
+    char *com = _SgGetComContext();
+    unsigned char **head = _SgGetHeadContext();
+    long long mask;
+    unsigned char *s;
+    int cont = 0;
+    int i;
+    int off;
+    int slot;
+    int n;
+    int first;
+
+    if (head[4][2] == 0) {
+        _SgSeqKeyOff(a0);
+        return -1;
+    }
+    if (head[0][6] - head[4][1] > 0) {
+        a0[1] += 3;
+        return -1;
+    }
+    if (head[0][0] == 0xFF) {
+        n = head[4][1] - head[0][6];
+        first = n;
+    } else {
+        if (head[0][0] & 0x80) {
+            n = head[0][0];
+            cont = 1;
+            n -= 0x80;
+        } else {
+            n = head[0][0];
+        }
+        first = 0;
+    }
+    for (i = first; i < n + 1; i++) {
+        if (_SgIntoKeyOn(head[0][0], i, head[4][1]) == 0) {
+            continue;
+        }
+        slot = _SgSeqKeyOnSlot(i);
+        mask = 1;
+        if (slot == -1) {
+            break;
+        }
+        off = i << 4;
+        head[1] += off;
+        if (head[1][0xD] == 0xFF) {
+            head[1] -= off;
+            break;
+        }
+        mask <<= slot;
+        s = _SgGetSlotContext(slot);
+        if (head[1][0xF] & 1) {
+            *(int *)s = *(volatile int *)s | 4;
+        } else {
+            *(int *)s = *(volatile int *)s & 0xFFFFFFFB;
+        }
+        *(int *)s = *(volatile int *)s & 0xFFFFFFDF;
+        s[0x4E] = head[4][1];
+        s[0x4F] = *(unsigned char *)((char *)a0 + 0x4E);
+        s[0x50] = *(unsigned char *)((char *)a0 + 0x4C);
+        *(short *)(s + 0xC) = i;
+        *(short *)(s + 0x10) = 0;
+        *(int *)(s + 4) = *(int *)(com + 0x34);
+        s[0x51] = 1;
+        *(int *)(s + 8) = 0;
+        s[0x52] = head[1][1];
+        s[0x53] = head[1][0];
+        s[0x54] = *(unsigned char *)((char *)a0 + 0x18);
+        *(short *)(s + 0x16) = *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1E);
+        *(short *)(s + 0x18) = head[0][1];
+        *(short *)(s + 0x1A) = head[4][2];
+        *(short *)(s + 0x1C) = head[1][0xB];
+        *(short *)(s + 0x1E) = head[2][0];
+        *(short *)(s + 0x20) = D_0054CB78[_SgPan(0, *(unsigned short *)((char *)a0 + 0x4E)) >> 2];
+        *(short *)(s + 0x22) = *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x13);
+        *(short *)(s + 0x24) = *(char *)(head[1] + 3);
+        *(short *)(s + 0x26) = *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1A);
+        *(short *)(s + 0x28) = head[1][0xD];
+        *(short *)(s + 0x14) = *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1C);
+        *(short *)(s + 0x2C) = head[4][3];
+        *(short *)(s + 0x2A) = head[1][2];
+        *(short *)(s + 0x2E) = head[1][0xA];
+        *(short *)(s + 0x30) = *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x14);
+        if (*(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1B) == 0x7F) {
+            *(int *)s = *(volatile int *)s | 8;
+        }
+        if (head[1][0xF] & 0x20) {
+            unsigned char *lfo = head[2] + 0x19;
+
+            if (lfo[*(unsigned short *)((char *)a0 + 0x4E) << 4] == 0) {
+                goto nolfo;
+            }
+            *(int *)s = *(volatile int *)s | 0x10;
+            *(short *)(s + 0xE) = head[1][0xE];
+            *(short *)(s + 0x12) = lfo[*(unsigned short *)((char *)a0 + 0x4E) << 4];
+        } else {
+        nolfo:
+            *(short *)(s + 0x12) = 0;
+            *(int *)s = *(volatile int *)s & 0xFFFFFFEF;
+        }
+        _SgPitchTableVag(slot, head[1][2], head[4][1], *(char *)(head[1] + 3),
+                         *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1A),
+                         head[1][0xD], 0x1000);
+        _SgSeqSeVolume(slot, a0);
+        _SgSetPkAdd(3, slot, (vab[1] + *(unsigned short *)(head[1] + 4)) << vab[2], 0);
+        _SgSetPkAdd(2, slot, *(unsigned short *)(head[1] + 6), *(unsigned short *)(head[1] + 8));
+        *(long long *)(com + 0x20) = *(long long *)(com + 0x20) | mask;
+        if (head[1][0xF] & 0x80) {
+            *(long long *)com = *(long long *)com | mask;
+        } else {
+            *(long long *)com = *(long long *)com & ~mask;
+        }
+        head[1] -= off;
+        *(long long *)(com + 0x10) = *(long long *)(com + 0x10) & ~mask;
+        *(int *)(com + 0x34) = *(int *)(com + 0x34) + 1;
+        if (cont == 0) {
+            break;
+        }
+    }
+    a0[1] += 3;
+    return 0;
+}
+
 /* Reverted to asm (chain 3 pass 16, re-measured pass 42): 450 of 450
  * instructions, the whole shape derived and every block in ROM's order; the
  * residual is one whole-function allocation class.  Derived body and

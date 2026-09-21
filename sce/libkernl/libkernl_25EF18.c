@@ -650,6 +650,10 @@ void _request_call(int *a0)
     iWakeupThread(a6[0]);
 }
 
+/* Reverted to asm 2026-09-21 (completeness pass 47): 123 of 123 instructions,
+ * STRICT 2, the c[0] and c[1] client-record stores in the opposite order.
+ * The derived body and the measured mechanism are in
+ * tails/seeds/libkernl_25EF18.c1p46_sceSifCallRpc_123of123_strict2.c. */
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifCallRpc);
 
 int sceSifCheckStatRpc(char *a0)
@@ -1150,7 +1154,112 @@ int sceClose(unsigned int fd)
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceLseek);
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceRead);
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceWrite);
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceIoctl);
+
+/* the async request slot table _sceFs_Rcv_Intr writes from the SIF receive interrupt,
+ * read here under the D_0054A47C guard semaphore (C volatile ruling 2026-09-07) */
+extern volatile int D_0054A3F0[];
+/* the ioctl argument pointer the request-0x1 arm reads back */
+extern void *D_0072C200;
+/* the 8-byte status word the IOP leaves for requests 0x2 and 0x3 */
+extern char D_0072CED0[];
+
+typedef struct {
+    char b[1024];
+} SceIoctlArg;
+
+int sceIoctl(unsigned int fd, int request, void *argp)
+{
+    int *g = D_0072C240;
+    SceIob *iob;
+    int uv;
+    int h;
+    int rc;
+    int i;
+    int result;
+    int sema[8];
+
+    rc = 1; /* RULING-VESTIGIAL-EXCEPTION instance (user-approved 2026-09-21):
+               a dead assignment the 2001 source carried, overwritten by the
+               sceSifCallRpc result below and read nowhere before it. The ROM
+               proves it: `addiu $21,$0,0x1` at 0x00261A6C is the first
+               instruction after the register saves and puts the constant 1 in
+               a callee-saved register with no consumer until the switch's
+               case-1 test, `beql $17,$21` at 0x00261AEC. Only a const-1
+               pseudo born at the function head survives local_alloc into a
+               callee-saved register and is there for that compare; without
+               the statement the arm builds its own constant and the whole
+               dispatch reorders (211 of 211 instructions, 38 differing
+               words). */
+
+    iob = (SceIob *)get_iob(fd);
+    _sceFsWaitS(5);
+    D_0072C200 = argp;
+    if (D_0054A470[0] == 0) {
+        sceFsInit();
+    }
+    if (iob == 0 || iob->inuse == 0) {
+        _sceFsSigSema();
+        return -9;
+    }
+    g[0x105] = 0;
+    g[0x106] = 0;
+    switch (request) {
+    case 1:
+        WaitSema(D_0054A47C[0]);
+        for (i = 0; i < 0x20; i++) {
+            if (D_0054A3F0[i] != -1) {
+                break;
+            }
+        }
+        if (i == 0x20) {
+            *(int *)D_0072C200 = 0;
+        } else {
+            *(int *)D_0072C200 = 1;
+        }
+        SignalSema(D_0054A47C[0]);
+        _sceFsSigSema();
+        return 0;
+    case 2:
+        *(int *)argp = *(int *)((int)D_0072CED0 | 0x20000000);
+        _sceFsSigSema();
+        return 0;
+    case 3:
+        *(long long *)argp = *(long long *)((int)D_0072CED0 | 0x20000000);
+        _sceFsSigSema();
+        return 0;
+    }
+    g[3] = iob->fd;
+    g[4] = request;
+    if (argp == 0) {
+        g[0x107] = 0;
+    } else {
+        g[0x107] = 1024;
+        *(SceIoctlArg *)((char *)g + 0x14) = *(SceIoctlArg *)argp;
+    }
+    sema[1] = 1;
+    sema[2] = 0;
+    sema[5] = 0;
+    h = CreateSema(sema);
+    g[2] = 4;
+    *(void **)(g + 1) = &result;
+    g[0] = h;
+    sceSifWriteBackDCache(D_0072C240, 0x420);
+    rc = sceSifCallRpc(D_0072D500, 5, 0, D_0072C240, 0x420, D_0072CE80, 4, 0, 0);
+    if (rc < 0) {
+        DeleteSema(h);
+        _sceFsSigSema();
+        return -0xB;
+    }
+    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    _sceFsSigSema();
+    if (uv == 0) {
+        DeleteSema(h);
+        return -0xB;
+    }
+    WaitSema(h);
+    DeleteSema(h);
+    return result;
+}
 
 int sceIoctl2(unsigned int fd, int request, void *argp, unsigned int arglen, void *bufp,
               unsigned int buflen)
