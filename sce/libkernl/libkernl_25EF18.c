@@ -2365,7 +2365,31 @@ extern char D_00636730[]; /* "too long parameter '%s'\n" */
 extern int printf(const char *fmt, ...);
 extern int sceSifResetIop(char *arg, int mode);
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifRebootIop);
+int sceSifRebootIop(const char *arg)
+{
+    char buf[80];
+    char *s = D_00636720;
+    char *d;
+    char *p;
+
+    for (p = (char *)arg; *p != 0; p++) {}
+    /* the ten characters of "rom0:UDNL " plus the terminator */
+    if ((unsigned int)(p + 11 - (char *)arg) > 80) {
+        printf(D_00636730, arg);
+        return 0;
+    }
+    sceSifInitRpc(0);
+    sceSifExitRpc();
+    d = buf;
+    while (*s != 0) {
+        *d++ = *s++;
+    }
+    while (*arg != 0) {
+        *d++ = *arg++;
+    }
+    *d = 0;
+    return sceSifResetIop(buf, 0);
+}
 
 __asm__(".section .text\n"
         "    .set noat\n"
