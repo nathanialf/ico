@@ -3378,25 +3378,7 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 
-/* CB_DelayTh opens in the delay slot of the jr that closes the block above,
-   which is why splat had split it one word late as func_00265AEC. */
-__asm__(".section .text\n"
-        "    .set at\n"
-        "    .set noreorder\n"
-        "    .global CB_DelayTh\n"
-        "    .type CB_DelayTh, @function\n"
-        "    .align 2\n"
-        "CB_DelayTh:\n"
-        "    addiu $29, $29, -0x10\n"
-        "    sd    $31, 0x0($29)\n"
-        "    jal   iSignalSema\n"
-        "    daddu $4, $6, $0\n"
-        "    sync\n"
-        "    ei\n"
-        "    ld    $31, 0x0($29)\n"
-        "    jr    $31\n"
-        "    addiu $29, $29, 0x10\n"
-        "    .size CB_DelayTh, . - CB_DelayTh\n"
-        "    nop\n"
-        "    .set reorder\n"
-        "    .set at\n");
+/* The stray jr that closes the block above has no delay-slot instruction of
+   its own: the next input, libcdvd.a(cdvd000), starts with CB_DelayTh at
+   0x265AE8, whose first word sits in that slot.  The member boundary is the
+   object boundary, as the retail link had it. */

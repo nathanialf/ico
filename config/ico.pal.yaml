@@ -412,7 +412,13 @@ segments:
       - [0x15EE70, c, sce/libpkt/vifpk044]  # 1 funcs, vendor libpkt.a member vifpk044.o (1/1 MAIN.MAP)
       - [0x15EEF0, c, sce/libpkt/vifpk053]  # 1 funcs, vendor libpkt.a member vifpk053.o (1/1 MAIN.MAP)
       - [0x15EF18, c, sce/libkernl/libkernl_25EF18]  # 141 funcs, vendor libkernl.a whole run (135/141 MAIN.MAP)
-      - [0x165B10, c, sce/libcdvd/libcdvd]  # 37 funcs, vendor libcdvd.a whole run (36/37 MAIN.MAP)
+      - [0x165AE8, c, sce/libcdvd/cdvd000]  # 21 funcs, vendor libcdvd.a member cdvd000.o; MAIN.MAP size 0x1434 tiles the run from CB_DelayTh (whose first word is the delay slot of the stray jr ending libkernl's sceSifWriteBackDCache) to sceCdMmode's end, 4 bytes of fill before cdvd005
+      - [0x166F20, c, sce/libcdvd/cdvd005]  # 1 funcs, vendor libcdvd.a member cdvd005.o (sceCdRead, MAIN.MAP 0x1E0)
+      - [0x167100, c, sce/libcdvd/cdvd006]  # 1 funcs, vendor libcdvd.a member cdvd006.o (sceCdReadIOPm, MAIN.MAP 0x154 + 4 fill)
+      - [0x167258, c, sce/libcdvd/cdvd014]  # 1 funcs, vendor libcdvd.a member cdvd014.o (sceCdGetDiskType, MAIN.MAP 0x98)
+      - [0x1672F0, c, sce/libcdvd/cdvd015]  # 1 funcs, vendor libcdvd.a member cdvd015.o (sceCdGetError, MAIN.MAP 0x98)
+      - [0x167388, c, sce/libcdvd/libcdvd_267388]  # 3 funcs, sceCdStatus sceCdBreak sceCdReadClock: libcdvd.a members absent from the January MAIN.MAP link (SRCFILE.TXT carries them, retail revision), member names unknown, one row named by its address until the ROM forces a split
+      - [0x1675F0, c, sce/libcdvd/cdvd047]  # 11 funcs, vendor libcdvd.a member cdvd047.o: MAIN.MAP 0x4E0 covers sceCdStInit..sceCdStream; _send_to_iop after it is unreferenced (no jal, no address word) so it rides the member linked for the others, the retail revision
       - [0x167C00, c, sce/libpad/libpad]  # 29 funcs, vendor libpad.a whole run (29/29 MAIN.MAP)
       - [0x168E78, c, sce/libmc/libmc]  # 26 funcs, vendor libmc.a member libmc.o (26/26 MAIN.MAP)
       - [0x16A630, c, sce/libmpeg/libmpeg]  # 141 funcs, vendor libmpeg.a whole run (140/141 MAIN.MAP)
