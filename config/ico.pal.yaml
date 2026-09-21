@@ -967,7 +967,7 @@ segments:
       - [0x53888A, rodata, cod/53888A]     # rodata blob resume
       - [0x5389C0, .rodata, sce/libc/stdlib/strtod]  # syms: 0x006389C0  _strtod_r's 46-arm jump table then its three rounding doubles; VMA 0x6389C0..0x638A90
       - [0x538A90, rodata, cod/538A90]   # .rodata blob resume
-      - [0x538B00, lit4, cod/538B00]     # .lit4
+      - [0x538B00, .lit4, ico2/common/src/main]  # the TU's one pool word, the random seed 1.2345678f Main passes (completeness pass 36), VMA 0x638B00, 256-aligned as the section head
       # --- per-TU .lit4 constant-pool carves (see docs/NOTES.md ".lit4 pools",
       # docs/carve_ledger.md "PAL phase 1").  A TU that writes its float
       # constants as INLINE LITERALS makes ee-as intern them into that TU's own

@@ -3333,7 +3333,45 @@ int _markOutput(void)
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _getPtsDtsFlags);
+void _getPtsDtsFlags(char *a0, void *a1, void *a2, void *a3)
+{
+    char *s = *(char **)((char *)D_0054C0E4[0] + 0x40);
+    long long t;
+    int v88;
+    int b80;
+    int carry;
+
+    if (*(int *)(s + 0x70) != 0) {
+        t = *(long long *)(a0 + 0x18);
+        if (t < 0 && (b80 = *(int *)(s + 0x80)) >= 0) {
+            v88 = (int)*(long long *)(s + 0x88);
+            carry = (int)((long long)(v88 & 1) * (*(long long *)(s + 0x78) & 1) *
+                          (*(int *)(s + 0x90) & 1));
+            *(long long *)a1 = b80 + ((int)((*(long long *)(s + 0x78) * v88) >> 1) + carry);
+            if ((long long)(v88 & 1) * (*(long long *)(s + 0x78) & 1) != 0) {
+                *(int *)(s + 0x90) = *(int *)(s + 0x90) + 1;
+            }
+        } else {
+            *(long long *)a1 = t;
+        }
+    } else {
+        *(long long *)a1 = *(long long *)(a0 + 0x18);
+    }
+    if (*(int *)(s + 0xF8) == 2) {
+        long long v = *(long long *)(s + 0xF0);
+
+        if (v >= 0) {
+            *(long long *)a1 = v;
+            *(int *)(s + 0xF8) = 0;
+            *(long long *)(s + 0xF0) = -1;
+        }
+    }
+    *(long long *)a2 = *(long long *)(a0 + 0x20);
+    *(long long *)a3 =
+        ((long long)*(int *)(a0 + 0x34) << 8) | ((long long)*(int *)(a0 + 0x38) << 7) |
+        ((long long)*(int *)(a0 + 0x3C) << 6) | ((long long)*(int *)(a0 + 0x40) << 5) |
+        ((long long)*(int *)(a0 + 0x30) << 3) | *(int *)(a0 + 0x2C);
+}
 
 extern unsigned int _showCount[];
 extern void _getPtsDtsFlags(char *a0, void *a1, void *a2, void *a3);

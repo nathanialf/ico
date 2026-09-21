@@ -1376,9 +1376,9 @@ inline void gsb_ClearFrameBuffer(void)
     volatile int local[96];
 }
 
-inline void gsb_ResetSnap(void) {}
+inline int gsb_ResetSnap(void) {}
 
-inline void gsb_TakeSnap(void) {}
+inline int gsb_TakeSnap(void) {}
 
 /* kept local: the declaration in GsBase.h changes this TU codegen */
 extern void updateOtherEditingLockFlag(void);
