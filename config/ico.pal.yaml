@@ -789,6 +789,8 @@ segments:
       - [0x51C298, rodata, cod/51C298]     # .rodata blob resume
       - [0x51CF00, .rodata, ico2/common/src/debug_exception]  # carved jtbl_0061CF00 (VMA 0x61CF00..0x61CF20, 32 B incl. 3 zero pad words, 5 arms): SetDrawEnvironment's switch table (debug_exception_screen.c.inc), emitted by the compiled function
       - [0x51CF14, rodata, cod/51CF14]   # .rodata blob resume (the 12 zero bytes padding the jtbl to the 16-aligned GIF tags are the blob's first words: the compiled table is 0x14 B and blob sections align at most to 8)
+      - [0x51CFF8, .rodata, ico2/common/src/debug_exception]  # plain-rodata: traceLine's SrcRef initialiser template (anonymous, so the TU's unnamed .rodata lands here), 4 words of 0xFFFFFFFF, VMA 0x61CFF8..0x61D008
+      - [0x51D008, rodata, cod/51D008]   # .rodata blob resume (strings)
       - [0x51D2B0, .rodata, ico2/common/src/debug_menu]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x61D2B0..0x61D6F0, 1088 B
       - [0x51D2D0, rodata, cod/51D2D0]     # rodata blob resume
       - [0x51D670, .rodata, ico2/common/src/kanban]  # the TU's whole .rodata run as source (data pass 5), abutting kanbanBoot's switch table, VMA 0x61D670..0x61D6EF, 127 B
