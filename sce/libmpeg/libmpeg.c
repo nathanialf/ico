@@ -180,7 +180,167 @@ int _system_header(int *a0)
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _PES_packet);
+/* one PES packet header: the 64-bit stream id the demux matches against, the
+ * packet and payload lengths, the two timestamps and the bit positions the
+ * ring buffer is rewound to */
+typedef struct {
+    long long id;
+    int length;
+    int scramble;
+    long long pts;
+    long long dts;
+    int pos;
+    int datalen;
+    int startpos;
+} PesPkt;
+
+extern int _sysbitGet(int *bs, int nbits);
+extern int _sysbitMarker(int *bs);
+extern void _sysbitJump(int *bs, int n);
+extern void _Error(void *a0);
+/* the bit count each combination of the four header flags adds */
+extern unsigned char D_0054C0B8[];
+extern char D_00636CF8[];
+
+int _PES_packet(int *bs, PesPkt *pkt)
+{
+    int ptsdts;
+    int escr;
+    int flags;
+    int ext;
+    int hdrlen;
+    int base;
+    int n;
+    int len;
+
+    pkt->startpos = bs[6];
+    _sysbitGet(bs, 0x18);
+    pkt->id = (long long)_sysbitGet(bs, 8) << 32;
+    pkt->length = _sysbitGet(bs, 0x10);
+    pkt->pts = pkt->dts = -1;
+    if (pkt->id != 0xBC00000000 && pkt->id != 0xBE00000000 && pkt->id != 0xBF00000000 &&
+        pkt->id != 0xF000000000 && pkt->id != 0xF100000000 && pkt->id != 0xFF00000000 &&
+        pkt->id != 0xF200000000 && pkt->id != 0xF800000000) {
+        _sysbitGet(bs, 2);
+        pkt->scramble = _sysbitGet(bs, 2);
+        _sysbitGet(bs, 4);
+        ptsdts = _sysbitGet(bs, 2);
+        escr = _sysbitGet(bs, 1);
+        flags = _sysbitGet(bs, 4);
+        ext = _sysbitGet(bs, 1);
+        hdrlen = _sysbitGet(bs, 8);
+        base = (int)*(long long *)(bs + 6);
+        if (ptsdts & 2) {
+            unsigned int a;
+            int b;
+            int c;
+            unsigned int low;
+
+            _sysbitGet(bs, 4);
+            a = _sysbitGet(bs, 3);
+            _sysbitMarker(bs);
+            b = _sysbitGet(bs, 0xF);
+            _sysbitMarker(bs);
+            c = _sysbitGet(bs, 0xF);
+            _sysbitMarker(bs);
+            low = (a << 30) | (b << 15) | c;
+            pkt->pts = ((long long)((a >> 2) & 1) << 32) | low;
+        }
+        if (ptsdts == 3) {
+            unsigned int a;
+            int b;
+            int c;
+            unsigned int low;
+
+            _sysbitGet(bs, 4);
+            a = _sysbitGet(bs, 3);
+            _sysbitMarker(bs);
+            b = _sysbitGet(bs, 0xF);
+            _sysbitMarker(bs);
+            c = _sysbitGet(bs, 0xF);
+            _sysbitMarker(bs);
+            low = (a << 30) | (b << 15) | c;
+            pkt->dts = ((long long)((a >> 2) & 1) << 32) | low;
+        }
+        if (escr == 1) {
+            _sysbitGet(bs, 0x30);
+        }
+        if (flags != 0) {
+            _sysbitGet(bs, D_0054C0B8[flags]);
+        }
+        if (ext == 1) {
+            int priv;
+            int pack;
+            int seq;
+            int pstd;
+            int ext2;
+            unsigned int i;
+            unsigned int cnt;
+
+            priv = _sysbitGet(bs, 1);
+            pack = _sysbitGet(bs, 1);
+            seq = _sysbitGet(bs, 1);
+            pstd = _sysbitGet(bs, 1);
+            _sysbitGet(bs, 3);
+            ext2 = _sysbitGet(bs, 1);
+            if (priv == 1) {
+                _sysbitGet(bs, 0x30);
+                _sysbitGet(bs, 0x30);
+                _sysbitGet(bs, 0x20);
+            }
+            if (pack == 1) {
+                _Error(D_00636CF8);
+                return 0;
+            }
+            if (seq == 1) {
+                _sysbitGet(bs, 0x10);
+            }
+            if (pstd == 1) {
+                _sysbitGet(bs, 0x10);
+            }
+            if (ext2 == 1) {
+                _sysbitMarker(bs);
+                cnt = _sysbitGet(bs, 7);
+                for (i = 0; i < cnt; i++) {
+                    _sysbitGet(bs, 8);
+                }
+            }
+        }
+        n = hdrlen - (int)((*(long long *)(bs + 6) - base) >> 3);
+        if (n != 0) {
+            _sysbitJump(bs, n);
+        }
+        len = pkt->length - hdrlen;
+        n = len - 3;
+        pkt->datalen = n;
+        pkt->pos = bs[6];
+        if (pkt->id == 0xBD00000000) {
+            pkt->id = pkt->id | (unsigned int)_sysbitGet(bs, 0x20);
+            n = len - 7;
+        }
+        if (n != 0) {
+            _sysbitJump(bs, n);
+        }
+    } else if (pkt->id == 0xBC00000000 || pkt->id == 0xBF00000000 || pkt->id == 0xF000000000 ||
+               pkt->id == 0xF100000000 || pkt->id == 0xFF00000000 || pkt->id == 0xF200000000 ||
+               pkt->id == 0xF800000000) {
+        len = pkt->length;
+        if (pkt->id == 0xBF00000000) {
+            len = len - 4;
+            pkt->id = pkt->id | (unsigned int)_sysbitGet(bs, 0x20);
+        }
+        if (len != 0) {
+            _sysbitJump(bs, len);
+        }
+    } else if (pkt->id == 0xBE00000000) {
+        n = pkt->length;
+        if (n != 0) {
+            _sysbitJump(bs, n);
+        }
+    }
+    return 1;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", sceMpegInit);
 
 extern void *D_0054C0E4[];
