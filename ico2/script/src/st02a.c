@@ -15,6 +15,7 @@
 #include "matrixDrive.h"
 #include "motionManager2.h"
 #include "particleLayout.h"
+#include "pool.h"
 #include "typedef.h"
 
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
@@ -226,7 +227,31 @@ void actSt02WaterFallBoySplashCheck(volatile int a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st02a", actSt02aWaterFallReflactionEffect);
+/* The waterfall's two reflection meshes and the two layout quads they are
+ * stretched over, read straight out of .rodata by the %hi/%lo pairs the ROM
+ * carries; `const` is what keeps the four copies in the ROM's order. */
+extern const PoolMesh D_00622760;
+extern const PoolMesh D_00622780;
+extern const PoolMeshQuad D_006227A0;
+extern const PoolMeshQuad D_006227E0;
+
+void actSt02aWaterFallReflactionEffect(volatile int a0)
+{
+    PoolMesh m0 = D_00622760;
+    PoolMesh m1 = D_00622780;
+    PoolMeshQuad q0 = D_006227A0;
+    PoolMeshQuad q1 = D_006227E0;
+
+    InitLayoutedPoolReflactionMesh((char *)&m0, (char *)&q0);
+    InitLayoutedPoolReflactionMesh((char *)&m1, (char *)&q1);
+    for (;;) {
+        SetLayoutedPoolReflactionMesh((char *)&m0);
+        DispLimitedPoolReflactionMesh((int *)&m0);
+        SetLayoutedPoolReflactionMesh((char *)&m1);
+        DispLimitedPoolReflactionMesh((int *)&m1);
+        _ACTWait(1);
+    }
+}
 
 /* kept local: this TU's uses of scpTransGObj do not fit the prototype in script.h */
 extern void scpTransGObj(void *a0, float x, float y, float z);

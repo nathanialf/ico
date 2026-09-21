@@ -2,6 +2,7 @@
 #include "debug.h"
 #include <libvu0.h>
 #include "typedef.h"
+#include "way_util.h"
 
 typedef struct WayGroup {
     int f0;
@@ -39,7 +40,9 @@ typedef struct NdW {
     int f20;
     char _24[0x4];
     int f28;
-    char _2C[0x14];
+    char _2C[0x4];
+    int f30;
+    char _34[0xC];
 } NdW;
 
 typedef struct Nd {
@@ -69,46 +72,6 @@ extern WayRec D_004F1EC0[];
 extern Nd D_004F31E0[];
 extern int D_0063BD70;
 extern int D_0063BD74;
-
-/* CreateBridge opens the object at VMA 0x00215CA0. The listing records it
-   in way_llf.c (lines 98 to 369) but emits it after CreateTempWayGroup;
-   the retail link emits it first, ahead of InitWayPointSystem. */
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/way_llf", CreateBridge);
-
-void InitWayPointSystem(void)
-{
-    int i;
-
-    for (i = 0; i < 275; i++) {
-        NdW *node = (NdW *)&D_004F31E0[i];
-
-        node->f0 = 0;
-        node->_4 = i;
-        node->f8 = 0;
-        node->fC = 0;
-        node->f20 = -1;
-    }
-
-    for (i = 0; i < 94; i++) {
-        WayGrp *wg = (WayGrp *)&D_004F1EC0[i];
-
-        wg->f0 = 0;
-        wg->_4 = i;
-        wg->f8 = 0;
-        wg->fC = 0;
-        wg->f10 = 0;
-        wg->f14 = 0;
-        wg->f18 = 0;
-        wg->f1C = 0;
-        wg->_28 = 0;
-        wg->f20 = -1;
-        wg->f24 = -1;
-    }
-
-    D_0063BD70 = 0;
-    D_0063BD74 = 0;
-}
-
 /* gcc 2.9 emits a non-static `inline` function's out-of-line copy at the end of
  * the object, in first-declaration order, so the whole TU is declared here in
  * ROM order and every definition below is `inline`.  That reproduces the ROM's
@@ -210,9 +173,11 @@ inline void CloseWayGroup(int idx)
 
 inline int CreateWayPoint(int a0)
 {
-    NdW *node = (NdW *)D_004F31E0;
     int i;
+
     for (i = 0; i < 275; i++) {
+        NdW *node = (NdW *)&D_004F31E0[i];
+
         if (node->f0 == 0) {
             node->f0 = 1;
             node->f20 = -1;
@@ -222,7 +187,6 @@ inline int CreateWayPoint(int a0)
             sceVu0CopyVector(&node->f10, a0);
             return i;
         }
-        node++;
     }
     return -1;
 }
@@ -523,6 +487,67 @@ inline int waypoint_bidirectional_list(int *self, int which)
         return self[0x8 / 4];
     }
     return self[0xC / 4];
+}
+
+extern char D_00621E80[];
+
+/* CreateBridge opens the object at VMA 0x00215CA0 and InitWayPointSystem
+   follows it: both are plain functions, so gcc emits them where they are
+   defined, ahead of every deferred `inline` body above. */
+int CreateBridge(int a0, int a1)
+{
+    int gno;
+    int p0;
+    int p1;
+
+    gno = CreateWayGroup();
+    if (gno < 0) {
+        debug_StdPrintfDummy(D_00621E80);
+        return -1;
+    }
+    p0 = CreateWayPoint(a0);
+    AddWayPoint(gno, p0);
+    ((NdW *)&D_004F31E0[p0])->f30 = 1;
+    p1 = CreateWayPoint(a1);
+    AddWayPoint(gno, p1);
+    ((NdW *)&D_004F31E0[p1])->f30 = 1;
+    set_bridge(gno);
+    SetWayGroupActive(gno, 1);
+    return gno;
+}
+
+void InitWayPointSystem(void)
+{
+    int i;
+
+    for (i = 0; i < 275; i++) {
+        NdW *node = (NdW *)&D_004F31E0[i];
+
+        node->f0 = 0;
+        node->_4 = i;
+        node->f8 = 0;
+        node->fC = 0;
+        node->f20 = -1;
+    }
+
+    for (i = 0; i < 94; i++) {
+        WayGrp *wg = (WayGrp *)&D_004F1EC0[i];
+
+        wg->f0 = 0;
+        wg->_4 = i;
+        wg->f8 = 0;
+        wg->fC = 0;
+        wg->f10 = 0;
+        wg->f14 = 0;
+        wg->f18 = 0;
+        wg->f1C = 0;
+        wg->_28 = 0;
+        wg->f20 = -1;
+        wg->f24 = -1;
+    }
+
+    D_0063BD70 = 0;
+    D_0063BD74 = 0;
 }
 
 inline void SetWayGroupActive(int a0, int a1)
