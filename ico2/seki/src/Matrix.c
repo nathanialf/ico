@@ -981,7 +981,7 @@ inline void _MakeLightColorMatrix(void *dst, void *s0, void *s1, void *s2, void 
                          : "$6", "$7", "$8", "$9", "memory");
 }
 
-inline void _InitRandom(void *p0, void *p1, void *p2, void *p3)
+inline void _InitRandom(float seed)
 {
     VU0_NOREORDER_BEGIN();
     VU0_MFC1(a2, 12);

@@ -117,7 +117,38 @@ float __pack_f(void *s)
     return dst.value;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libgcc/fp-bit", __unpack_f);
+void __unpack_f(void *in, void *out)
+{
+    FLO_union_type *src = in;
+    fp_number_type *dst = out;
+    unsigned int fraction;
+    int exp;
+    int sign;
+
+    fraction = src->bits.fraction;
+    exp = src->bits.exp;
+    sign = src->bits.sign;
+
+    dst->sign = sign;
+    if (exp == 0) {
+        dst->class = CLASS_ZERO;
+    } else if (exp == 0xFF) {
+        if (fraction == 0) {
+            dst->class = CLASS_INFINITY;
+        } else {
+            if (fraction & 0x100000) {
+                dst->class = CLASS_QNAN;
+            } else {
+                dst->class = CLASS_SNAN;
+            }
+            dst->fraction = fraction;
+        }
+    } else {
+        dst->normal_exp = exp - 127;
+        dst->class = CLASS_NUMBER;
+        dst->fraction = (fraction << 7) | IMPLICIT_1;
+    }
+}
 
 extern float __pack_f(void *s);
 extern void __unpack_f(void *in, void *out);

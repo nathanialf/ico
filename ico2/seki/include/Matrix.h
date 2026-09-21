@@ -69,12 +69,13 @@ void _ScaleMatrixV(void *dst, void *src, void *v);
 void _SetCameraMatrix(void *dst, void *pos, void *dir, void *up);
 void _MakeNormalLightMatrix(void *dst, void *s0, void *s1, void *s2);
 void _MakeLightColorMatrix(void *dst, void *s0, void *s1, void *s2, void *s3);
-void _InitRandom(void *p0, void *p1, void *p2, void *p3);
+/* corrected from the reconstruction: the ROM body reads $f12 (VU0_MFC1(a2, 12)), so
+ * the call takes ONE float, which is what ico2/common/src/main.c passes. */
+void _InitRandom(float seed);
 float _GetRandom(void);
 void _GetRandomVector(void *p0);
 void _GetRandomVector0(void *p0);
 void _RotTransCurrentMatrix(void *p0, void *p1);
-
 void _PopVu0Registers(void);
 void _PushVu0Registers(void);
 
