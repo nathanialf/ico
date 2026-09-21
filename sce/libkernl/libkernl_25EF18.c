@@ -487,18 +487,21 @@ extern int sceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1);
 int sceSifGetOtherData(void *cd, void *src, void *dest, int size, int mode)
 {
     int *c = (int *)cd;
+    /* the request fields the SIF command callback reads back (see
+       _request_end): written through the volatile view of the client record,
+       the same way sceSifCallRpc writes its four */
+    volatile int *vc = (volatile int *)cd;
     int *pkt;
     int buf[8];
+    int pid;
 
     pkt = _sceRpcGetPacket((int *)D_0072C1C0);
     if (pkt == 0) {
         return -1;
     }
-    /* field 0 of the client record is the server packet pointer: written
-       as a pointer it does not alias the packet's own int reads, which is
-       what lets the +0x18 load stay ahead of this store. */
-    *(int **)cd = pkt;
-    c[1] = pkt[6];
+    pid = pkt[6];
+    vc[0] = (int)pkt;
+    vc[1] = pid;
     pkt[8] = (int)src;
     pkt[9] = (int)dest;
     pkt[10] = size;
@@ -575,8 +578,13 @@ extern int sceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1);
 int sceSifBindRpc(void *cd, unsigned int sid, int mode)
 {
     int *c = (int *)cd;
+    /* the request fields the SIF command callback reads back (see
+       _request_end): written through the volatile view of the client record,
+       the same way sceSifCallRpc writes its four */
+    volatile int *vc = (volatile int *)cd;
     int *pkt;
     int buf[8];
+    int pid;
 
     c[4] = 0;
     c[9] = 0;
@@ -584,11 +592,9 @@ int sceSifBindRpc(void *cd, unsigned int sid, int mode)
     if (pkt == 0) {
         return -1;
     }
-    /* field 0 of the client record is the server packet pointer: written
-       as a pointer it does not alias the packet's own int reads, which is
-       what lets the +0x18 load stay ahead of this store. */
-    *(int **)cd = pkt;
-    c[1] = pkt[6];
+    pid = pkt[6];
+    vc[0] = (int)pkt;
+    vc[1] = pid;
     pkt[8] = sid;
     pkt[5] = (int)pkt;
     pkt[7] = (int)c;
@@ -650,11 +656,80 @@ void _request_call(int *a0)
     iWakeupThread(a6[0]);
 }
 
-/* Reverted to asm 2026-09-21 (completeness pass 47): 123 of 123 instructions,
- * STRICT 2, the c[0] and c[1] client-record stores in the opposite order.
- * The derived body and the measured mechanism are in
- * tails/seeds/libkernl_25EF18.c1p46_sceSifCallRpc_123of123_strict2.c. */
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifCallRpc);
+int sceSifCallRpc(void *cd, unsigned int rpc_number, unsigned int mode, void *sendbuf, int ssize,
+                  void *recvbuf, int rsize, void *end_func, void *end_param)
+{
+    int *c = (int *)cd;
+    /* The request fields of the client record are written through a volatile
+       view: the record is shared with _request_end above, which runs from the
+       SIF command callback and reads back the end function at +0x1C and its
+       parameter at +0x20, tests the semaphore at +0x08 and clears the packet
+       pointer at +0x00. The four stores below reach the record in the order
+       written; the same view is what sceSifBindRpc and sceSifGetOtherData
+       write their own two request fields through. */
+    volatile int *vc = (volatile int *)cd;
+    int *pkt;
+    int buf[8];
+    int pid;
+
+    pkt = _sceRpcGetPacket((int *)D_0072C1C0);
+    if (pkt == 0) {
+        return -1;
+    }
+    pid = pkt[6];
+    vc[8] = (int)end_param;
+    vc[0] = (int)pkt;
+    vc[1] = pid;
+    vc[7] = (int)end_func;
+    pkt[8] = rpc_number;
+    pkt[9] = ssize;
+    pkt[10] = (int)recvbuf;
+    pkt[11] = rsize;
+    pkt[5] = (int)pkt;
+    pkt[13] = c[9];
+    pkt[7] = (int)c;
+    if ((mode & 2) == 0) {
+        if (sendbuf == recvbuf) {
+            sceSifWriteBackDCache(sendbuf, (ssize < rsize) ? rsize : ssize);
+        } else {
+            if (ssize > 0) {
+                sceSifWriteBackDCache(sendbuf, ssize);
+            }
+            if (rsize > 0) {
+                sceSifWriteBackDCache(recvbuf, rsize);
+            }
+        }
+    }
+    if (mode & 1) {
+        if (end_func == 0) {
+            pkt[12] = 0;
+        } else {
+            pkt[12] = 1;
+        }
+        c[2] = -1;
+        if (sceSifSendCmd(0x8000000A, (int)pkt, 0x40, (int)sendbuf, c[5], ssize) != 0) {
+            return 0;
+        }
+        _sceRpcFreePacket(pkt);
+        return -2;
+    }
+    buf[1] = 1;
+    buf[2] = 0;
+    c[2] = CreateSema(buf);
+    if (c[2] < 0) {
+        _sceRpcFreePacket(pkt);
+        return -3;
+    }
+    pkt[12] = 1;
+    if (sceSifSendCmd(0x8000000A, (int)pkt, 0x40, (int)sendbuf, c[5], ssize) == 0) {
+        DeleteSema(c[2]);
+        _sceRpcFreePacket(pkt);
+        return -2;
+    }
+    WaitSema(c[2]);
+    DeleteSema(c[2]);
+    return 0;
+}
 
 int sceSifCheckStatRpc(char *a0)
 {
