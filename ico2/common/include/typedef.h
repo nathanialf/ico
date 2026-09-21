@@ -103,6 +103,8 @@ typedef struct Sub15C Sub15C; /* *(GObj   + 0x15C), per-object sub state */
 
 typedef struct Obj7F0 Obj7F0; /* *(Sub15C + 0x7F0), shared geometry/model obj (~25 TUs) */
 
+typedef struct Obj874 Obj874; /* *(Sub15C + 0x874), per-object light record */
+
 typedef struct GeoNode GeoNode; /* *(Obj7F0  + 0x20) */
 
 typedef struct GeoSub GeoSub; /* *(GeoNode + 0x8)  */
@@ -301,6 +303,24 @@ struct Sub15C {
     char _pad848[0x28];
     void *p_870; /* 0x870 */
     void *p_874; /* 0x874 */
+};
+
+/* Per-object light record, *(Sub15C + 0x874).  Light.c fills the three light
+ * colour vectors at 0xB0, 0xC0 and 0xD0, the ambient at 0xE0 and the scale at
+ * 0xEC, and f_F0 selects the light mode: Light.c tests it against 0, DObj.c
+ * copies it and tests it against 4, Packet.c hands it to pac_makePacket and
+ * RegistPacket.c gates the light packet on it.  Rung: ROM bytes for every
+ * offset, the reading translation units for the roles; names are offset
+ * derived (no string evidence).  p_874 above stays void * because most
+ * readers reach the record through a char * cast. */
+struct Obj874 {
+    char _pad0[0xB0];
+    float f_B0[4]; /* 0xB0 */
+    float f_C0[4]; /* 0xC0 */
+    float f_D0[4]; /* 0xD0 */
+    float f_E0[3]; /* 0xE0 */
+    float f_EC;    /* 0xEC */
+    int f_F0;      /* 0xF0, light mode */
 };
 
 /* Geometry/model object hanging off Sub15C + 0x7F0. The p_7F0 field is read

@@ -1,4 +1,5 @@
 #include "common.h"
+#include "typedef.h"
 #include "RegistPacket.h"
 #include "debug.h"
 #include "DisplayList.h"
@@ -413,9 +414,193 @@ char *reg_setNMatrixPacket(char *o, int idx)
     return pkt;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/RegistPacket", setMatrix_116);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/RegistPacket", setLight_120);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/RegistPacket", reg_setMMatrixPacket);
+/* kept local: this TU's uses of these matrix helpers do not fit the prototypes
+   in Matrix.h (two arguments and a float result for _GetLength) */
+extern void _UnitMatrix(void *m);
+extern void _ApplyCurrentMatrix(void *dst, void *src);
+extern float _GetLength(void *a, void *b);
+extern void _SetTransCurrentMatrix(void *v);
+extern void _TransCurrentMatrix(void *v);
+extern void _RotCurrentMatrixZ(int a);
+
+typedef struct {
+    float x;
+    float y;
+    float z;
+    float w;
+} RegVec;
+
+typedef struct {
+    RegVec r[4];
+} RegMtx;
+
+char *reg_setMMatrixPacket(char *o, int idx)
+{
+    RegVec s;
+    RegVec v;
+    char *pkt;
+    char *box;
+    char *w;
+    int mode;
+
+    void setMatrix(void)
+    {
+        char *c;
+        char *m;
+
+        c = D_004EE6F0.ptr;
+        D_004EE6F0.tail = c;
+        ((RegPkWord *)c)->d = 0x1000000D;
+        D_004EE6F0.ptr = c + 8;
+        ((RegPkWord *)(c + 8))->w[0] = 0;
+        D_004EE6F0.ptr = c + 0xC;
+        D_004EE6F0.gif = c + 0xC;
+        ((RegPkWord *)(c + 8))->w[1] = 0x6C0C8000;
+        D_004EE6F0.ptr = c + 0x50;
+        _CopyMatrix(c + 0x10, matrixptr + 0x140);
+        if ((*(long long *)(*(int *)(o + 0x870) + idx * 0x50 + 0x38) & 6) != 0) {
+            _MulMatrix(D_004EE6F0.ptr, matrixptr + 0x1C0, matrixptr + 0x180);
+        } else {
+            _MulMatrix(matrixptr + 0x180, matrixptr + 0x80, matrixptr + 0x40);
+            _MulMatrix(D_004EE6F0.ptr, matrixptr + 0x200, matrixptr + 0x40);
+        }
+        D_004EE6F0.ptr = D_004EE6F0.ptr + 0x40;
+        _MulMatrix(D_004EE6F0.ptr, matrixptr + 0x80, matrixptr + 0x40);
+        m = D_004EE6F0.ptr;
+        D_004EE6F0.ptr = m + 0x40;
+        ((RegPkWord *)(m + 0x40))->w[0] = 0x15000010;
+        D_004EE6F0.ptr = m + 0x44;
+        ((RegPkWord *)(m + 0x40))->w[1] = 0;
+        D_004EE6F0.ptr = m + 0x48;
+        ((RegPkWord *)(m + 0x48))->d = 0;
+        D_004EE6F0.ptr = m + 0x50;
+    }
+    void setLight(void)
+    {
+        char *c;
+        char *m;
+        char *n;
+
+        c = D_004EE6F0.ptr;
+        D_004EE6F0.tail = c;
+        ((RegPkWord *)c)->d = 0x10000009;
+        D_004EE6F0.ptr = c + 8;
+        ((RegPkWord *)(c + 8))->w[0] = 0;
+        D_004EE6F0.ptr = c + 0xC;
+        D_004EE6F0.gif = c + 0xC;
+        ((RegPkWord *)(c + 8))->w[1] = 0x6C088000;
+        D_004EE6F0.ptr = c + 0x10;
+        _GetCurrentMatrix(c + 0x10);
+        m = D_004EE6F0.ptr;
+        D_004EE6F0.ptr = m + 0x80;
+        _CopyMatrix(m + 0x40, *(char **)(o + 0x874) + 0x40);
+        n = D_004EE6F0.ptr;
+        ((RegPkWord *)n)->w[0] = 0x15000012;
+        n += 4;
+        D_004EE6F0.ptr = n;
+        ((RegPkWord *)n)->w[0] = 0;
+        D_004EE6F0.ptr = n + 4;
+        ((RegPkWord *)(n + 4))->d = 0;
+        D_004EE6F0.ptr = n + 0xC;
+    }
+    w = (char *)(idx * 0x50 + (int)((Sub15C *)o)->p_870);
+    mode = ((Obj874 *)((Sub15C *)o)->p_874)->f_F0;
+    if ((*(long long *)(w + 0x38) & 2) != 0) {
+        RegMtx um;
+
+        _SetCurrentMatrix(*(char **)(o + 0xC) + idx * 0x40);
+        _ClearTransCurrentMatrix();
+        _UnitMatrix(&um);
+        _ApplyCurrentMatrix(&v, &um.r[0]);
+        s.x = _GetLength(&v, &um.r[3]);
+        _ApplyCurrentMatrix(&v, &um.r[1]);
+        s.y = _GetLength(&v, &um.r[3]);
+        _ApplyCurrentMatrix(&v, &um.r[2]);
+        s.z = _GetLength(&v, &um.r[3]);
+        _InitCurrentMatrix();
+        if (*(float *)(idx * 0x50 + *(int *)(o + 0x870) + 0x48) < 5.0f) {
+            _ScaleVectorXYZ(&s, &s, 5.0f);
+            _ScaleCurrentMatrix(s.x, s.y, s.z);
+            _ScaleVectorXYZ(&s, (char *)(*(int *)(o + 0x870) + idx * 0x50) + 0x40, 5.0f);
+            s.w = 1.0f;
+            _SetTransCurrentMatrix(&s);
+        } else {
+            _ScaleCurrentMatrix(s.x, s.y, s.z);
+            _SetTransCurrentMatrix((char *)(*(int *)(o + 0x870) + idx * 0x50) + 0x40);
+        }
+        _GetCurrentMatrix(matrixptr + 0x180);
+        _MulMatrix(matrixptr + 0x140, matrixptr + 0x640, matrixptr + 0x180);
+        _MulMatrix(matrixptr + 0x300, matrixptr + 0x680, matrixptr + 0x180);
+    } else if ((*(long long *)(w + 0x38) & 4) != 0) {
+        RegMtx um2;
+
+        _MulMatrix(matrixptr + 0x180, matrixptr + 0x80, *(char **)(o + 0xC) + idx * 0x40);
+        _UnitMatrix(&um2);
+        _SetCurrentMatrix(matrixptr + 0x180);
+        _ClearTransCurrentMatrix();
+        _ApplyCurrentMatrix(&v, &um2.r[0]);
+        s.x = _GetLength(&v, &um2.r[3]);
+        _ApplyCurrentMatrix(&v, &um2.r[1]);
+        s.y = _GetLength(&v, &um2.r[3]);
+        _ApplyCurrentMatrix(&v, &um2.r[2]);
+        s.z = _GetLength(&v, &um2.r[3]);
+        _InitCurrentMatrix();
+        _TransCurrentMatrix(matrixptr + 0x1B0);
+        _RotCurrentMatrixZ(*(short *)(idx * 0x50 + *(int *)(o + 0x870) + 0x3A));
+        _ScaleCurrentMatrix(s.x, s.y, s.z);
+        _GetCurrentMatrix(matrixptr + 0x180);
+        _MulMatrix(matrixptr + 0x140, matrixptr + 0xC0, matrixptr + 0x180);
+        _MulMatrix(matrixptr + 0x300, matrixptr + 0x240, matrixptr + 0x180);
+    } else {
+        if (*(float *)(w + 0x20) != 1.0f || *(float *)(w + 0x24) != 1.0f ||
+            *(float *)(w + 0x28) != 1.0f) {
+            _InitCurrentMatrix();
+            _SetCurrentMatrix(*(char **)(o + 0xC) + idx * 0x40);
+            _ScaleCurrentMatrix(*(float *)(idx * 0x50 + *(int *)(o + 0x870) + 0x20),
+                                *(float *)(idx * 0x50 + *(int *)(o + 0x870) + 0x24),
+                                *(float *)(idx * 0x50 + *(int *)(o + 0x870) + 0x28));
+            _GetCurrentMatrix(matrixptr + 0x40);
+        } else {
+            _CopyMatrix(matrixptr + 0x40, *(char **)(o + 0xC) + idx * 0x40);
+        }
+        _MulMatrix(matrixptr + 0x140, matrixptr + 0x100, matrixptr + 0x40);
+        _MulMatrix(matrixptr + 0x300, matrixptr + 0x280, matrixptr + 0x40);
+    }
+    box = *(char **)(o + 0x854) + 0x50;
+    _SetCurrentMatrix(matrixptr + 0x300);
+    if (gsb_ClipBox(box) == 0) {
+        if (*(int *)(o + 0x858) != 0) {
+            light_MakeLightMatrix(o, idx);
+        }
+        return 0;
+    }
+    pkt = D_004EE6F0.ptr;
+    D_004EE6F0.dma = pkt;
+    D_004EE6F0.tail = 0;
+    D_004EE6F0.gif = 0;
+    D_004EE6F0.end = 0;
+    setMatrix();
+    if (mode != 0 && mode != 3) {
+        light_MakeLightMatrix(o, idx);
+        _SetCurrentMatrix(matrixptr + 0x40);
+        _ClearTransCurrentMatrix();
+        _MulCurrentMatrixL(*(char **)(o + 0x874));
+        setLight();
+    }
+    {
+        char *c = D_004EE6F0.ptr;
+
+        D_004EE6F0.tail = c;
+        ((RegPkWord *)c)->d = 0x60000000;
+        D_004EE6F0.ptr = c + 8;
+        ((RegPkWord *)(c + 8))->w[0] = 0;
+        D_004EE6F0.ptr = c + 0xC;
+        ((RegPkWord *)(c + 8))->w[1] = 0;
+        D_004EE6F0.ptr = c + 0x10;
+    }
+    return pkt;
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/RegistPacket", reg_setCMatrixPacket);
 
 /* This helper has NO NAME IN THE DISC MAPS, so it keeps the placeholder on
@@ -903,6 +1088,8 @@ INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/RegistPacket", reg_dispLine);
 
 extern int D_0063A06C;
 extern int GlobalTimer;
+/* kept local: this TU's uses of _MulCurrentMatrixL do not fit the prototype in Matrix.h */
+extern void _MulCurrentMatrixL(void *m);
 
 void reg_dispPointLineObj(char *o)
 {
