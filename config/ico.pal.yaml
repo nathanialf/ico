@@ -746,6 +746,8 @@ segments:
       - [0x454A39, rodata, cod/454A39]     # rodata blob resume
       - [0x454A40, .rodata, ico2/omori/src/attackhit]  # the TU's whole .rodata run as source (data pass 3), widening the jump-table row: the tables and the strings, VMA 0x554A40..0x554C82, 578 B; the 6 zero bytes to 0x554C88 are the next input's alignment pad
       - [0x454C88, rodata, cod/454C88]     # rodata blob resume
+      - [0x4551A0, .rodata, ico2/omori/src/camera-root]  # SetCameraMatrix's jump table jtbl_005551A0 (5 words, section .rodata.0x005551A0, selector D_0063C2A0, anonymous), VMA 0x5551A0..0x5551B4; arms verified against the ROM words (chain 2 pass 52)
+      - [0x4551B4, rodata, cod/4551B4]   # .rodata blob resume
       - [0x455270, .rodata, ico2/omori/src/chain]  # plain-rodata: chain_simulate_term_swingstart's doubles 0.3 and 21.5, then chain_simulate_term_moveup's trace string (32 B) and its two doubles (2 pi, pi), then chain_simulate_term_down's trace string (32 B) and its own two doubles (gcc 2.9 flushes the constant pool per function, strings dedupe file-wide); VMA 0x555270..0x5552E0, 112 B; the rest of chain.c's run (the other functions' strings and doubles) stays in the blob until they land
       - [0x4552E0, rodata, cod/4552E0]   # .rodata blob resume (the rest of chain.c's compiler-generated run)
       - [0x455580, .rodata, ico2/omori/src/ebrain]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x555580..0x556890, 4880 B
@@ -1241,8 +1243,8 @@ segments:
       - { type: bss, vram: 0x006C0BC0, name: cod/006C0BC0 }  # .bss blob resume
       - { type: .bss, vram: 0x006E5940, name: ico2/script/src/script }  # the TU's own .bss, 0x50 B, VMA 0x6E5940..0x6E5990; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006E5990, name: ico2/omori/src/camera-editor }  # the member's one static, the 2048-byte dump line saveEditedData formats (completeness pass 29; MAIN.MAP camera-editor.o .bss 0x800, no map symbol), abutting camera-ico2's row
-      - { type: .bss, vram: 0x006E6190, name: ico2/omori/src/camera-ico2 }  # the TU's own .bss, 0x510 B, VMA 0x6E6190..0x6E66A0; static definitions in ROM run order (completeness pass)
-      - { type: bss, vram: 0x006E66A0, name: cod/006E66A0 }  # .bss blob resume
+      - { type: .bss, vram: 0x006E6190, name: ico2/omori/src/camera-ico2 }  # the TU's own .bss, 0x500 B = MAIN.MAP camera-ico2.o .bss, VMA 0x6E6190..0x6E6690; static definitions in ROM run order (completeness pass; the run-bounds file credits the next 0x10 to this TU, but the map's sizes put camera-root.o's 0xC0 .bss at 0x6E6690)
+      - { type: bss, vram: 0x006E6690, name: cod/006E6690 }  # .bss blob resume (camera-root.o's own .bss, 0xC0 to ebrain, until it is carved)
       - { type: .bss, vram: 0x006E6750, name: ico2/omori/src/ebrain }  # the TU's own .bss, 0x480 B, VMA 0x6E6750..0x6E6BD0; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006E6BD0, name: ico2/omori/src/enemy-control }  # the TU's own .bss, 0x190 B, VMA 0x6E6BD0..0x6E6D60; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006E6D60, name: ico2/omori/src/fightSound }  # the TU's own .bss, 0x20 B, VMA 0x6E6D60..0x6E6D80; static definitions in ROM run order (completeness pass)

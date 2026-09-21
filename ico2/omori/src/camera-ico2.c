@@ -85,7 +85,8 @@ static float targetAPrev[3];
 
 static float targetBPrev[3];
 
-static PluralCameraSet pluralCameraSet[12];
+static PluralCameraSet pluralCameraSet
+    [10]; /* ten sets, the AddPluralCameraSet limit; MAIN.MAP camera-ico2.o .bss 0x500 ends here */
 
 extern float D_0063AB4C[];
 

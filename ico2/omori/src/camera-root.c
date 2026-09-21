@@ -102,7 +102,8 @@ void MakeCameraMatrix(CameraSet2 *cs)
 
 typedef struct EditPad {
     int flags; /* 0x00 */
-    char pad04[0x58 - 0x04];
+    int trg04; /* 0x04 */
+    char pad08[0x58 - 0x08];
     int mode; /* 0x58 */
     int trg;  /* 0x5C */
     char pad60[0xAC - 0x60];
@@ -362,9 +363,9 @@ extern int D_0063AB98;
 extern int D_0063ABA0;
 extern int D_0063ABA4;
 extern int D_0063ABA8;
-extern char D_0063C298;
+extern unsigned char D_0063C298;
 extern unsigned char D_0063C299;
-extern char D_0063C2AC;
+extern unsigned char D_0063C2AC;
 extern int D_0063C2A0;
 extern int D_0063C2B0;
 extern int D_0063C2B4;
@@ -394,7 +395,400 @@ void InitCamera(void)
     D_0063C2B8 = D_0028F720[0x190 / 4];
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/camera-root", SetCameraMatrix);
+/* camera-root.c lines 1051-1352.  The listing inlines five helpers into this
+   body: GetCameraDefaultTargetGObj (rows 970-978), the camera-control step at
+   rows 255-270, InsertCamera_isEnable (428-431) with the insert-camera step at
+   rows 455-471, CameraSetMode (547-548) and the target release at row 281.
+   Only the first and the last two have census names; the two insert/control
+   steps sit inside coalesced spans and their names here are ours. */
+
+typedef struct {
+    int step; /* 0x00 */
+    int max;  /* 0x04 */
+} CamZoomStep;
+
+typedef struct {
+    CamZoomStep e[3];
+} CamZoomTbl;
+
+/* the one scratch quadword-and-a-half the body reuses: the screen test's
+   output point first, then the three zoom steps */
+/* one quadword copied whole out of the const table */
+union CamQuad {
+    float f[4];
+    long long q[2];
+};
+
+union CamWork {
+    float v[4];
+    CamZoomTbl zoom;
+};
+
+extern int D_0028F4C0[];
+extern int D_0063AB98;
+extern int D_0063C2A0;
+extern unsigned char D_0063C2AC;
+extern char *matrixptr;
+extern int D_006E66F8[];
+extern void BackToGameCamera(void);
+extern int D_0063ABA0;
+extern int D_0063ABA4;
+extern int D_0063ABAC;
+extern int D_0063AB9C;
+extern float IsPointIsInScreen();
+/* same prototype as commonact.h's, kept local: this TU includes no commonact.h */
+extern void *test_CURRENTROOT(void *gobj);
+extern void CameraSetTargetGObj(int a, int b);
+
+/* rows 255-270: one step of the camera target queue.  The name is ours. */
+static inline void Camctrl_Exec(void)
+{
+    float pos[4];
+    int last;
+
+    if (D_006E6700[2] != 0) {
+        D_0063ABAC = 0;
+    }
+    if (D_0063ABAC != 0) {
+        D_0063ABAC = D_0063ABAC - 1;
+    }
+    if ((last = D_006E6700[3]) == 1 && D_006E6700[2] == 0 && D_0063AB9C != 0 &&
+        IsPointIsInScreen(pos, test_CURRENTROOT((void *)D_0063AB9C)) < 0.0f) {
+        D_0063ABAC = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1];
+        D_0063ABA0 = last;
+    }
+    CameraSetTargetGObj(D_006E6700[0], D_006E6700[1]);
+    D_006E6700[3] = D_006E6700[2];
+}
+
+/* row 281: release the target once its priority drops below the demo level.
+   The name is ours; Camctrl_ExitEveRock is the same shape with 4. */
+static inline void Camctrl_ExitNormal(void)
+{
+    if (D_006E6700[2] < 3) {
+        Camctrl_ForceTarget(D_0063AB9C);
+    }
+}
+
+/* rows 428-431, inlined here; the out-of-line body the earlier InsertCamera_*
+   setters call lives at its ROM address. */
+static inline unsigned char insertCamera_isEnable(void)
+{
+    if (D_006E6700[2] < 2) {
+        return 1;
+    }
+    return 0;
+}
+
+extern unsigned char D_0063C298;
+extern unsigned char D_0063C299;
+extern float D_0063C29C;
+
+/* rows 455-471: one step of the insert camera.  The name is ours. */
+static inline void InsertCamera_Step(void)
+{
+    if (insertCamera_isEnable() == 0) {
+        D_006E6710.enable = 0;
+    }
+    if (D_006E6710.enable != 0) {
+        if (D_006E6710.w04 < D_006E6710.gobj) {
+            D_006E6710.w04 = D_006E6710.w04 + 1;
+            D_0063C299 = D_006E6710.b37;
+            D_0063C29C = D_006E6710.blend;
+        } else {
+            D_006E6710.enable = 0;
+            D_0063C298 = D_006E6710.b38;
+        }
+    }
+}
+
+/* rows 547-548, inlined here; CameraSetMode keeps its out-of-line body. */
+static inline void cameraSetMode(int x)
+{
+    D_0063C2A0 = x;
+    D_006E66F8[0] = 0;
+}
+
+#define CAM_ABS(x) ((x) < 0 ? -(x) : (x))
+
+extern int D_0063A064;
+extern int D_0063A068;
+extern char D_0063AB70[]; /* "FREECAM" */
+extern char D_0063AB78[]; /* "GAMECAM" */
+extern char D_0063AB80[]; /* "HANDCAM" */
+extern char D_0063AB88[]; /* "PATHCAM" */
+extern unsigned char D_0063AB90;
+extern int D_0063AB94;
+extern int D_0063AB6C;
+extern int D_0063B134;
+extern int D_0063B13C;
+extern int D_0063B144;
+extern int D_0063B1B0;
+extern int D_0063B244;
+extern float D_0063C2A4;
+extern float D_0063C2A8;
+extern int D_0063C2B0;
+extern int D_0063C2B4;
+extern int D_0063C2B8;
+extern int D_0063C2BC;
+extern int D_0063C288;
+extern int D_0063C28C;
+extern int GlobalTimer;
+extern char D_00555170[]; /* "%d,%d,%d %d" */
+extern const union CamQuad D_00555180;
+extern const union CamQuad D_00555190;
+/* the previous camera set: eye at 0x6E6690, target at 0x6E66A0, fov at 0x6E66B0 */
+extern union CameraSetIn D_006E6690;
+extern char iosPadConfCustom[];
+extern float _ACTGame_GetParamF(int id);
+extern void _ApplyRyGV(void *v, float ry);
+extern float _GetDirection(void *v);
+extern void _InterGV(void *dst, void *a, void *b, float ta, float tb);
+extern void ClearHandCameraCorrect(void);
+extern void CopyMatrix(void *dst, void *src);
+extern void CopyVector(void *dst, void *src);
+extern void DebugCameraManual(void);
+extern void DebugCameraSemiAuto(void);
+extern void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag);
+/* GetRootPosition and MatrixDrive_SetTransposeMatrix come from their owners' headers */
+extern void HandCameraCorrect(void *a0, void *a1, int a2, float f12, float f13, float f14);
+extern void SetCameraMatrix_Ico2(int cut);
+extern void SetCameraZoomOffsetRatio(float r);
+extern void SetLimitHandCameraCorrect(float x, float z);
+extern void SetWSMatrix(void *a0);
+extern void bga_ResetCamera(void);
+extern int bga_GetCameraMatrix(void *m);
+extern float bga_GetZoom(void);
+extern void debug_Printf(int x, int y, unsigned int col, char *fmt, ...);
+extern void gsb_MakeCommonMatrix(void);
+extern void gsb_SetVSMatrix(int w, int h, float d);
+extern int iosPadConnect(void *pad, int slot, int port, void *conf);
+extern void iosPadRead(void *pad);
+extern void sceVu0AddVector(void *dst, void *a, void *b);
+extern void sceVu0ApplyMatrix(void *dst, void *m, void *v);
+extern void sceVu0CopyMatrix(void *dst, void *src);
+extern void sceVu0ScaleVector(void *dst, void *src, float s);
+extern void sceVu0TransposeMatrix(void *dst, void *src);
+extern int test_CURRENTORIENT(int gobj);
+
+void SetCameraMatrix(void)
+{
+    float m[16];
+    int gobj;
+    int root;
+    int useDemo;
+    int zoomMax;
+    int target;
+    int step;
+    char *pad;
+    float zoom;
+
+    useDemo = 0;
+    gobj = getCameraDefaultTargetGObj();
+    D_0063AB9C = gobj;
+    D_0063AB98 = 1;
+    D_0063ABA0 = 0;
+    D_0063ABA4 = 0;
+    D_0063C29C = -1.0f;
+    Camctrl_Exec();
+    D_0063C2A4 = 0.0f;
+    if (bga_GetCameraMatrix(m) != 0) {
+        D_0063C2A0 = 4;
+        D_0063C2A4 = bga_GetZoom();
+    } else if (D_0063C2A0 == 4) {
+        cameraSetMode(3);
+        BackToGameCamera();
+        bga_ResetCamera();
+        D_0063C298 = D_0063C2AC;
+        D_0063C2AC = 0;
+    }
+    InsertCamera_Step();
+    switch (D_0063C2A0) {
+    case 0:
+        break;
+    case 2:
+        DebugCameraSemiAuto();
+        if (D_0063B144 != 0 || (D_0063B13C & 1) != 0) {
+            debug_Printf(220, 30, 0xFFFFFF00, D_0063AB70);
+        }
+        if ((D_0028F8F0.flags & 2) != 0 && (D_0028F8F0.trg04 & 0x100) != 0) {
+            cameraSetMode(3);
+        }
+        break;
+    case 3:
+        if (D_0063B134 != 0) {
+            goto handCamera;
+        }
+        SetCameraMatrix_Ico2(D_0063C298);
+        D_0063C298 = 0;
+        if (D_0063B144 != 0 || (D_0063B13C & 1) != 0) {
+            debug_Printf(220, 30, 0xFFFFFF00, D_0063AB78);
+        }
+        break;
+    case 1:
+    handCamera:
+        DebugCameraManual();
+        if (D_0063B144 != 0 || (D_0063B13C & 1) != 0) {
+            debug_Printf(220, 30, 0xFFFFFF00, D_0063AB80);
+        }
+        if ((D_0028F8F0.trg04 & 0x100) != 0) {
+            cameraSetMode(3);
+        }
+        break;
+    case 4: {
+        float ofs[4];
+        float mt[16];
+        float pos[4];
+        float eye[4];
+
+        if (D_0063B134 != 0) {
+            goto handCamera;
+        }
+        SetLimitHandCameraCorrect((float)D_0063C2B0, (float)D_0063C2B4);
+        if (D_0063B144 != 0 || (D_0063B13C & 1) != 0) {
+            debug_Printf(220, 30, 0xFFFFFF00, D_0063AB88);
+        }
+        if (D_0063B144 != 0 || (D_0063B13C & 1) != 0) {
+            debug_Printf(310, 30, 0xFFFFFF00, D_00555170, (int)m[12], (int)m[13], (int)m[14],
+                         (int)D_0063C2A4);
+        }
+        sceVu0TransposeMatrix(mt, m);
+        CopyVector(ofs, &m[12]);
+        ofs[3] = 0.0f;
+        sceVu0ApplyMatrix(D_006E66C0, mt, ofs);
+        sceVu0ScaleVector(D_006E66C0, D_006E66C0, -1.0f);
+        useDemo = D_0063B244 != 0;
+        if (D_0063B244 != 0) {
+            if (D_0063C2B0 != 0 || D_0063C2B4 != 0) {
+                union CameraSetIn in;
+                union CameraSetIn set;
+                float stickX;
+                float stickZ;
+                float stickMag;
+
+                MatrixDrive_PushMatrix();
+                *(union CamQuad *)eye = D_00555180;
+                CopyMatrix(MatrixDrive_GetMatrix(), m);
+                MatrixDrive_SetTransposeMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix());
+                eye[3] = 0.0f;
+                sceVu0ApplyMatrix(eye, MatrixDrive_GetMatrix(), eye);
+                sceVu0AddVector(pos, D_006E66C0, eye);
+                MatrixDrive_PopMatrix();
+                GetHandCameraStickInfo(&stickX, &stickZ, &stickMag);
+                if (GlobalTimer != 0) {
+                    ClearHandCameraCorrect();
+                    D_0063B1B0 = D_0063C2BC;
+                }
+                HandCameraCorrect(D_006E66C0, pos, 1, stickX, stickZ,
+                                  60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+                in.f[0] = ((CameraSet2 *)D_006E66C0)->pos[0];
+                in.f[1] = ((CameraSet2 *)D_006E66C0)->pos[1];
+                in.f[2] = ((CameraSet2 *)D_006E66C0)->pos[2];
+                in.f[4] = pos[0];
+                in.f[5] = pos[1];
+                in.f[6] = pos[2];
+                ConvertCameraSet((CameraSet2 *)&set, &in);
+                MakeMatrixFromCameraSet2(m, (CameraSet2 *)&set);
+            }
+        }
+        zoom = D_0063C2A4;
+        if (zoom == 0.0f) {
+            if (zoom == 0.0f) {
+                zoom = GetTableCos(((CameraSet2 *)D_006E66C0)->fov * 32768.0f / 180.0f) * 1024.0f /
+                       GetTableSin(((CameraSet2 *)D_006E66C0)->fov * 32768.0f / 180.0f);
+            }
+            D_0063C2A4 = zoom;
+            D_0063C2A8 = ((CameraSet2 *)D_006E66C0)->fov;
+        } else {
+            D_0063C2A8 = atan2f(1024.0f / zoom, 1.0f) * 180.0f / 3.14159265f;
+        }
+        gsb_SetVSMatrix(D_0063A064, D_0063A068, D_0063C2A4);
+        sceVu0CopyMatrix(matrixptr + 0x80, m);
+        gsb_MakeCommonMatrix();
+        break;
+    }
+    default: {
+        union CameraSetIn in;
+        float eye[4];
+        float rootPos[4];
+        union CamQuad ofs;
+        float ry;
+
+        root = D_0063AB9C;
+        GetRootPosition(rootPos, root);
+        ofs = D_00555190;
+        ry = (float)(int)(_GetDirection(test_CURRENTORIENT(root)) / 3.14159265f * 180.0f) *
+             3.14159265f / 180.0f;
+        _ApplyRyGV(ofs.f, ry);
+        sceVu0AddVector(eye, rootPos, ofs.f);
+        _InterGV(&in.f[4], rootPos, &D_006E6690.f[4], 10.0f, 1.0f);
+        _InterGV(&in, eye, &D_006E6690, 48.0f, 1.0f);
+        in.f[8] = 50.0f;
+        SetWSMatrix(&in);
+        D_006E6690 = in;
+        break;
+    }
+    }
+    Camctrl_ExitNormal();
+    {
+        CamZoomStep zp[3] = {
+            {10, 200}, {10, 200}, {(int)_ACTGame_GetParamF(12), (int)_ACTGame_GetParamF(11)}};
+        int padCtx[0x30 / 4];
+        int ply;
+
+        if (useDemo != 0) {
+            zoomMax = D_0063C2B8;
+        } else {
+            zoomMax = zp[0].max;
+        }
+        iosPadConnect(padCtx, 0, 0, iosPadConfCustom);
+        if (D_0063AB90 != 0) {
+            D_0063AB90 = 0;
+            D_0063C2BC = D_0063B1B0;
+        }
+        iosPadRead(padCtx);
+        ply = D_00639EA4;
+        if (ply != 0 && useDemo == 0) {
+            ply = *(int *)((char *)ply + 0x164);
+            pad = (char *)ply + 0x2D8;
+        } else {
+            pad = (char *)padCtx;
+        }
+        if (D_0063C299 != 0) {
+            step = 2;
+        } else if (*(int *)(pad + 8) & 2) {
+            step = 1;
+        } else {
+            step = 0;
+        }
+        D_0063C288 = D_0063C2BC;
+        D_0063C28C = D_0063C2BC + zoomMax;
+        if (D_0063C299 == 2) {
+            D_0063C28C = D_0063C2BC * 0.75;
+        }
+        target = step != 0 ? D_0063C28C : D_0063C2BC;
+        D_0063C299 = 0;
+        if (D_0063C29C < 0.0f) {
+            if (CAM_ABS(D_0063B1B0 - target) < zp[step].step * 5) {
+                D_0063B1B0 = ((float)D_0063B1B0 * 4.0f + (float)target) / 5.0f;
+            } else if (target < D_0063B1B0) {
+                D_0063B1B0 = D_0063B1B0 - zp[step].step;
+            } else if (D_0063B1B0 < target) {
+                D_0063B1B0 = D_0063B1B0 + zp[step].step;
+            }
+        } else {
+            D_0063B1B0 = (float)D_0063B1B0 * (1.0f - D_0063C29C) + (float)target * D_0063C29C;
+        }
+        SetCameraZoomOffsetRatio(1.0f - (float)(D_0063B1B0 - D_0063C288) /
+                                            (float)(D_0063C28C - D_0063C288));
+    }
+    GlobalTimer = 0;
+    if (D_0063AB94 != D_0063C2A0 || D_0063AB6C != 0) {
+        GlobalTimer = 1;
+    }
+    D_0063AB94 = D_0063C2A0;
+    D_0063AB6C = 0;
+}
 
 void Camctrl_ExitEveRock(void)
 {
