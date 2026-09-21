@@ -1126,8 +1126,7 @@ segments:
       - [0x53B8D9, sdata, cod/53B8D9]     # .sdata blob resume
       - [0x53C0D0, .sdata, ico2/common/src/GobjProc]  # the TU's .sdata: one anonymous string literal ("%d\n", 4 B), VMA 0x63C0D0..0x63C0D4; completeness pass 1
       - [0x53C0D4, sdata, cod/53C0D4]     # .sdata blob resume
-      - { type: sbss, vram: 0x0063C100, name: cod/0063C100, align: 0x100 }  # .sbss — original aligns to 0x100, not 0x10
-      - { type: .sbss, vram: 0x0063C108, name: ico2/common/src/main }  # the TU's own .sbss, 0x4 B, VMA 0x63C108..0x63C10C (the boot thread id cell; the two cells before it stay in the blob until idle lands); static definitions in ROM run order (completeness pass)
+      - { type: .sbss, vram: 0x0063C100, name: ico2/common/src/main, align: 0x100 }  # the TU's own .sbss, 0xC B: idleCount, idleLoop, bootThreadId at 0x63C100..0x63C10C (completeness pass 35; the section aligns to 0x100 as the original does)
       - { type: .sbss, vram: 0x0063C10C, name: ico2/sugipon/src/motionManager2 }  # the TU's own .sbss, 0xC B, VMA 0x63C10C..0x63C118; static definitions in ROM run order (completeness pass)
       - { type: sbss, vram: 0x0063C118, name: cod/0063C118 }  # .sbss blob resume
       - { type: .sbss, vram: 0x0063C140, name: ico2/seki/src/MicroCode }  # the TU's own .sbss, 0x4 B, VMA 0x63C140..0x63C144; static definitions in ROM run order (completeness pass)

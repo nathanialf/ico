@@ -23,10 +23,10 @@ D_00100000:
     .globl _start
     .type _start, @function
 _start:
-    lui $2, %hi(D_0063C100)
-    lui $3, %hi(D_736198)
-    addiu $2, $2, %lo(D_0063C100)
-    addiu $3, $3, %lo(D_736198)
+    lui $2, %hi(_fbss)
+    lui $3, %hi(_end)
+    addiu $2, $2, %lo(_fbss)
+    addiu $3, $3, %lo(_end)
     .align 2
     .L1:
     sq $0, 0x0($2)
@@ -50,9 +50,9 @@ _start:
     addiu $3, $0, 0x3C
     syscall 0
     daddu $29, $2, $0
-    lui $4, %hi(D_736198)
+    lui $4, %hi(_end)
     lui $5, %hi(D_10000)
-    addiu $4, $4, %lo(D_736198)
+    addiu $4, $4, %lo(_end)
     addiu $5, $5, %lo(D_10000)
     addiu $3, $0, 0x3D
     syscall 0

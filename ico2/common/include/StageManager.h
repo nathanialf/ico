@@ -19,9 +19,13 @@ void stgmgrNextStagePreLoadForceStageSet(int val);
 void stgmgrNextStagePreLoadDistBoyMode(void);
 void stgmgrNextStagePreLoadForceNoCancel(int val);
 void CheckPoint(void);
-
 void stgmgrForceSwitch(int stage);
 void stgmgrForceSwitchWithFade(int stage, float fadeIn, float fadeOut);
-void stgmgrForceSwitchWithFadeColor(int stage, float fadeIn, float fadeOut, unsigned char r, unsigned char g, unsigned char b);
+
+void stgmgrForceSwitchWithFadeColor(int stage, float fadeIn, float fadeOut, unsigned char r,
+                                    unsigned char g, unsigned char b);
+
+/* The stage thread's entry point, the fifth thread main.c's idle creates. */
+void StageManager(void);
 
 #endif /* STAGEMANAGER_H */

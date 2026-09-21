@@ -2,3 +2,9 @@
  * Splat-generated `undefined_syms_auto.pal.txt` is regenerated on every
  * `tools/build.sh setup`; entries here persist across that step.
  */
+/* crt0's _start clears memory from the small-bss base to the link's end, the
+ * SDK crt0's `la $2, _fbss` / `la $3, _end`. The link seats .sbss at the ROM's
+ * base and ends at the ROM's end, so these are the ROM's own values; they stop
+ * being fixed numbers when the linker script defines them (splat exit). */
+_fbss = 0x0063C100;
+_end = 0x00736198;
