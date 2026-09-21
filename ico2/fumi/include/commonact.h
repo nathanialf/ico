@@ -15,7 +15,13 @@
 void ACTAcceptMail(char *a0, int a1);
 void ACTAdjustPlane(int a0, int a1);
 int ACTGetOrientFromIntrK(char *self, int kind, void *buf, int i);
-void ACTRunIntrCorrect(char *self, void *a1, void *a2);
+
+/* Reconstruction: the 0x18-byte actor mail record ico2/fumi/src/act.c
+ * reconstructs as IntrMail (id at 0x10, flag word at 0x14); commonact.c
+ * spells its members where the body needs them. */
+struct IntrRec;
+
+void ACTRunIntrCorrect(char *self, struct IntrRec *a1, struct IntrRec *a2);
 void ACTSendMailCorrect(char *a0, int a1);
 void ACTSetPositionWithFitting(void *a0, float *pos);
 void ACT_LAYOUT_GAMEOVER(void);

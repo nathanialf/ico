@@ -110,9 +110,453 @@ int ChangeMailInLadder(char *a0, int a1)
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/commonact", _ACTCorrectMsg);
+extern int _RotyGV(void *a0, void *a1);
+extern int _AbsRotyGV(void *a0, void *a1);
+void DamageFunc(char *a0);
+
+typedef struct {
+    char _0[0x188];
+    unsigned int f188;
+    unsigned int f18C;
+    char _190[4];
+} CorrMotRec;
+
+/* The TU's .rodata run starts at VMA 0x00552CB8 with these seven strings and
+ * ends at WithMailFunc_FallDead's double at 0x00553318; the 0x5B8 bytes
+ * between them belong to commonact functions that are still INCLUDE_ASM, so a
+ * string literal here would emit at the wrong address (the GsBase precedent).
+ * Spell them as literals once the run's other owners have landed:
+ *   D_00552CB8 critical hit to boss!!!
+ *   D_00552CD0 !!! unable guard flag get\n
+ *   D_00552CF0 guard mail\n
+ *   D_00552D00 guard error=[%d][%d][%d][%d]\n
+ *   D_00552D20 die!!!!!!!!!!!\n
+ *   D_00552D30 down!!!!!!!!!!!\n
+ *   D_00552D48 damage!!!!!!!!!!!  %d\n */
+extern char D_00552CB8[];
+extern char D_00552CD0[];
+extern char D_00552CF0[];
+extern char D_00552D00[];
+extern char D_00552D20[];
+extern char D_00552D30[];
+extern char D_00552D48[];
+extern int stage_no;
+extern int D_00639EAC;
+extern int D_00639EB4;
+extern int D_0063B210;
+extern int IsAbleChainHang(char *a0);
+extern void BoySekikaTexScroll(void);
+extern int EnemyGetNSafeParts(char *a0);
+extern char D_0055FE58[];
+
+/* lines 625-631: a static inline used only by _ACTCorrectMsg */
+static inline int GetHitDirIdx(char *self)
+{
+    char *p = *(char **)(self + 0x164) + 0x1C0;
+    int a = _RotyGV(test_CURRENTORIENT(self), p);
+
+    if (-45 <= a && a <= 45) {
+        return 0;
+    }
+    if (a < -134 || 134 < a) {
+        return 1;
+    }
+    if (46 <= a && a <= 134) {
+        return 2;
+    }
+    if (-134 <= a) {
+        if (a <= -46) {
+            return 3;
+        }
+    }
+    return 0;
+}
+
+int _ACTCorrectMsg(char *self, int msg, void *param)
+{
+    float pos[4];
+    char *sk = (char *)*(int *)(self + 0x164);
+    int fast = _ACTGame_GetParamF(2) < *(float *)(*(char **)(self + 0x15C) + 0x560);
+
+    switch (msg) {
+    case 309:
+        if (!(((int)(*(unsigned long long *)(sk + 0x18) >> 53) & 1) &&
+              *(float *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x338) <
+                  *(float *)(*(char **)(self + 0x15C) + 0x560))) {
+            msg = 418;
+        }
+        break;
+    case 42:
+        if (!(((int)(*(unsigned long long *)(sk + 0x18) >> 53) & 1) &&
+              *(float *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x338) <
+                  *(float *)(*(char **)(self + 0x15C) + 0x560))) {
+            msg = 418;
+        }
+        break;
+    case 259:
+        if ((((CorrMotRec *)(D_0055FE58 + *(int *)(*(char **)(self + 0x15C) + 0x4A0) * 0x194))
+                 ->f18C >>
+             9) &
+            1) {
+            msg = 418;
+        }
+        break;
+    case 298:
+        if (*(int *)(sk + 0x34) == 5 &&
+            *(int *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x900) == 26) {
+            msg = 418;
+        }
+        break;
+    case 297:
+        if (*(int *)(sk + 0x34) == 1 &&
+            *(long long *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x900) ==
+                0x1A00000005LL) {
+            msg = 418;
+        }
+        break;
+    case 330:
+    case 331:
+        msg = ChangeMailInLadder(self, msg);
+        break;
+    case 240:
+        if ((((CorrMotRec *)(D_0055FE58 + *(int *)(*(char **)(self + 0x15C) + 0x4A0) * 0x194))
+                 ->f18C >>
+             5) &
+            1) {
+            msg = 418;
+        } else if ((int)(*(unsigned long long *)(sk + 0x20) >> 14) & 1) {
+            msg = 239;
+        }
+        break;
+    case 241:
+        if ((((CorrMotRec *)(D_0055FE58 + *(int *)(*(char **)(self + 0x15C) + 0x4A0) * 0x194))
+                 ->f18C >>
+             5) &
+            1) {
+            msg = 418;
+        }
+        break;
+    case 231:
+        if (*(int *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x384) != 0) {
+            msg = 418;
+        } else if ((int)(*(unsigned long long *)(sk + 0x20) >> 14) & 1) {
+            msg = 233;
+        }
+        break;
+    case 232:
+        if (*(int *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x388) != 0) {
+            msg = 418;
+        } else if ((int)(*(unsigned long long *)(sk + 0x20) >> 14) & 1) {
+            msg = 234;
+        }
+        break;
+    case 348:
+    case 349:
+    case 350:
+        if (D_00639EB4 != 0) {
+            msg = 418;
+        }
+        break;
+    case 205:
+        if (*(int *)(sk + 0x50) != 0) {
+            msg = 418;
+        }
+        break;
+    case 174:
+        if (fast) {
+            msg = 418;
+        }
+        if (((int)(*(unsigned long long *)(sk + 0x18) >> 53) & 1) &&
+            *(float *)(*(char **)(self + 0x15C) + 0x560) <
+                *(float *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x338)) {
+            msg = 418;
+        }
+        break;
+    case 26:
+        if (*(float *)(*(char **)(self + 0x15C) + 0x644) < (self == D_00639EA4 ? 110.0f : 135.0f)) {
+            msg = 418;
+        }
+        /* fallthrough */
+    case 218:
+        if (*(int *)(self + 0xC) == 4) {
+            msg = 223;
+            if ((int)(*(unsigned long long *)(sk + 0x20) >> 30) & 1) {
+                msg = 418;
+            }
+        }
+        break;
+    case 219:
+        if (*(int *)(self + 0xC) == 4) {
+            msg = 223;
+            if ((int)(*(unsigned long long *)(sk + 0x20) >> 30) & 1) {
+                msg = 418;
+                if (13 <= *(int *)(sk + 0x10)) {
+                    msg = 30;
+                    iosOmSendMail(self, 29, (int)param);
+                }
+            }
+        }
+        break;
+    case 21:
+        if (*(int *)(sk + 0x34) == 62 && param == *(char **)(sk + 0x194)) {
+            msg = 418;
+        }
+        if (fast) {
+            msg = 418;
+        }
+        if (IsAbleChainHang(param) == 0) {
+            msg = 418;
+        }
+        if (((int)(*(unsigned long long *)(sk + 0x18) >> 53) & 1) &&
+            *(float *)(*(char **)(self + 0x15C) + 0x560) <
+                *(float *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x338)) {
+            msg = 418;
+        }
+        break;
+    case 20:
+        if (IsAbleChainHang(param) == 0) {
+            msg = 418;
+        }
+        if (((int)(*(unsigned long long *)(sk + 0x18) >> 53) & 1) &&
+            *(float *)(*(char **)(self + 0x15C) + 0x560) <
+                *(float *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x338)) {
+            msg = 418;
+        }
+        break;
+    case 7:
+        if ((((CorrMotRec *)(D_0055FE58 + *(int *)(*(char **)(self + 0x15C) + 0x4A0) * 0x194))
+                 ->f188 >>
+             19) &
+            7) {
+            if (*(int *)(sk + 0x180) != 0) {
+                msg = 315;
+            }
+        }
+        break;
+    case 10: {
+        int iv = (int)*(float *)(*(char **)(self + 0x15C) + 0x55C);
+        int flagA = 0;
+        int flagB = 0;
+
+        if (120.0f < *(float *)(*(char **)(self + 0x15C) + 0x55C)) {
+            ACTWay_SetBeginPositionIllegal(self);
+        }
+        if (!((((CorrMotRec *)(D_0055FE58 + *(int *)(*(char **)(self + 0x15C) + 0x4A0) * 0x194))
+                   ->f18C >>
+               25) &
+              1)) {
+            msg = 418;
+            break;
+        }
+        if (iv < 130) {
+            iosOmSendMail(self, 59, (int)param);
+        }
+        if (self == D_00639EA8 && ACTGame_FLAG_TETSUNAGI()) {
+            iosOmSendMail(self, 58, (int)param);
+            if (iv < 130) {
+                iosOmSendMail(self, 57, (int)param);
+            }
+        }
+        if (*(int *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x900) == 38) {
+            iosOmSendMail(self, 60, (int)self);
+        }
+        if (_ACTGame_GetParamF(2) < (float)iv) {
+            flagA = 1;
+        } else if (_ACTGame_GetParamF(1) < (float)iv) {
+            flagB = 1;
+        }
+        switch (*(int *)(sk + 0x34)) {
+        case 95:
+            flagB = 1;
+            break;
+        case 96:
+            flagA = 1;
+            break;
+        }
+        if (flagA) {
+            msg = 44;
+        } else if (flagB) {
+            msg = 43;
+        }
+        if (*(int *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x900) == 21) {
+            iosOmSendMail(self, 56, (int)param);
+            if (msg == 43) {
+                iosOmSendMail(self, 55, (int)param);
+            }
+        }
+        break;
+    }
+    case 14:
+        debug_StdPrintfDummy(D_00552CB8);
+        if (*(int *)(*(char **)(*(char **)(self + 0x164) + 0x680) + 0x20C) <= 1) {
+            msg = 293;
+        } else {
+            msg = 285;
+        }
+        break;
+    case 13: {
+        float d = *(float *)(sk + 0x1E0) - (float)*(int *)(*(int *)(self + 0x164) + 0x1D0);
+
+        if (self == D_00639EA4 || self == D_00639EA8) {
+            d = *(float *)(sk + 0x1E0) = 100.0f;
+        }
+        if (*(signed char *)(*(int *)(self + 0x164) + 0x1DB) != 0) {
+            debug_StdPrintfDummy(D_00552CD0);
+        }
+        if (stage_no == 85 || D_0063B210 != 0) {
+            if (*(signed char *)(*(int *)(self + 0x164) + 0x1D9) != 0) {
+                if (ACTGame_NoWeapon(self) != 0 && *(int *)(sk + 0x34) != 14) {
+                    msg = 110;
+                    *(int *)(*(int *)(*(int *)(self + 0x164) + 0x680) + 0xCC) = 10;
+                    BoySekikaTexScroll();
+                    *(int *)(*(int *)(*(int *)(self + 0x164) + 0x680) + 0x2A8) += 1;
+                    break;
+                } else {
+                    msg = 282;
+                    *(int *)(*(int *)(*(int *)(self + 0x164) + 0x680) + 0x2AC) += 1;
+                    *(int *)(*(int *)(*(int *)(self + 0x164) + 0x680) + 0xCC) = 10;
+                    break;
+                }
+            }
+        }
+        if (_AbsRotyGV(test_CURRENTORIENT(self), (void *)(*(int *)(self + 0x164) + 0x1C0)) < 60 &&
+            *(int *)(sk + 0x34) != 15 && *(int *)(sk + 0x34) != 20 &&
+            *(signed char *)(*(int *)(self + 0x164) + 0x1DB) == 0 &&
+            !((int)(*(unsigned long long *)(sk + 0x18) >> 51) & 1)) {
+            iosOmSendMail(self, 283, (int)param);
+            debug_StdPrintfDummy(D_00552CF0);
+        } else {
+            debug_StdPrintfDummy(
+                D_00552D00,
+                _AbsRotyGV(test_CURRENTORIENT(self), (void *)(*(int *)(self + 0x164) + 0x1C0)),
+                *(int *)(sk + 0x34), 15, 20);
+        }
+        if (*(signed char *)(*(int *)(self + 0x164) + 0x1D9) != 0) {
+            *(int *)(*(int *)(*(int *)(self + 0x164) + 0x680) + 0x29C) += 1;
+            *(int *)(*(int *)(*(int *)(self + 0x164) + 0x680) + 0xCC) = 10;
+        }
+        if (*(int *)(self + 0xC) == 4 &&
+            *(int *)(*(int *)(*(int *)(self + 0x164) + 0x680) + 0x1E4) == 3) {
+            if (*(int *)(*(int *)(*(int *)(self + 0x164) + 0x680) + 0x228) <= 0) {
+                DamageFunc(self);
+                iosPadActRequest(D_00639EAC, 2);
+                pos[0] = ((float *)test_CURRENTROOT(self))[0];
+                pos[1] = ((float *)test_CURRENTROOT(self))[1];
+                pos[2] = ((float *)test_CURRENTROOT(self))[2];
+                soundSeDefPlay(382, 0, pos, 1);
+            }
+            msg = 418;
+            *(int *)(*(int *)(*(int *)(self + 0x164) + 0x680) + 0x228) = 60;
+            break;
+        }
+        if (self == D_00639EA4 && *(int *)(param + 0xC) == 17) {
+            msg = 418;
+            break;
+        }
+        if (*(int *)(self + 0xC) == 4 && *(int *)(sk + 0x34) == 16 &&
+            *(char **)(*(int *)(*(int *)(self + 0x164) + 0x680) + 0x220) == D_00639EA8) {
+            msg = 215;
+            break;
+        }
+        if (*(int *)(self + 0xC) == 4 &&
+            *(int *)(*(int *)(*(int *)(self + 0x164) + 0x680) + 0x1E4) != 3 &&
+            EnemyGetNSafeParts(self) < 8) {
+            msg = 293;
+            debug_StdPrintfDummy(D_00552D20);
+            break;
+        }
+        if (d < 0.0f) {
+            msg = 293;
+            if (self == D_00639EA4) {
+                msg = 291;
+                *(float *)(sk + 0x1E0) = 100.0f;
+            }
+            debug_StdPrintfDummy(D_00552D20);
+            break;
+        }
+        if (*(signed char *)(*(int *)(self + 0x164) + 0x1D8) != 0 ||
+            _ACTCharStatus_Check(self, 16) != 0) {
+            msg = 291;
+            debug_StdPrintfDummy(D_00552D30);
+            break;
+        }
+        {
+            int dir = GetHitDirIdx(self);
+
+            msg = dir + 287;
+            debug_StdPrintfDummy(D_00552D48, dir);
+        }
+        break;
+    }
+    }
+    return msg;
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/commonact", ACTGetOrientFromIntrK);
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/commonact", ACTRunIntrCorrect);
+
+extern char D_0055FE58[];
+extern char D_0063A710[];
+extern int D_0028F4C0[];
+
+/* The actor mail record ico2/fumi/src/act.c reconstructs as IntrMail: a
+ * 0x18-byte entry with the id at 0x10 and the flag word at 0x14. */
+typedef struct IntrRec {
+    void *f0;
+    void *f4;
+    void (*handler)(char *self, int id, void *arg);
+    void (*f0C)(char *self, int id, void *arg);
+    unsigned short kind;
+    short f12;
+    unsigned int f14;
+} IntrRec;
+
+extern IntrRec D_002A7E08[];
+
+void ACTRunIntrCorrect(char *a0, IntrRec *a1, IntrRec *a2)
+{
+    char *rec;
+    char *s = *(char **)(a0 + 0x164);
+    inline void setIntrFlags(void)
+    {
+        IntrRec *p;
+
+        for (p = a1; p != 0 && (short)p->kind != 429; p++) {
+            p->f14 |= 0x40000;
+        }
+    }
+    inline void correctIntrList(void)
+    {
+        IntrRec *ip;
+        IntrRec *q;
+
+        for (q = a2; q != 0 && (short)q->kind != 429; q++) {
+            if (q->f12 == -1) {
+                for (ip = a1; ip != 0 && (short)ip->kind != 429; ip++) {
+                    if (ip->kind == q->kind) {
+                        ip->f14 &= ~0x40000;
+                        debug_StdPrintfDummy(D_0063A710);
+                    }
+                }
+            }
+        }
+    }
+
+    setIntrFlags();
+    correctIntrList();
+    rec = D_0055FE58 + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 404;
+    if (rec[399] & 1) {
+        D_002A7E08[10].f14 |= 0x40000;
+    } else {
+        D_002A7E08[10].f14 &= ~0x40000;
+    }
+    if (*(int *)(s + 0x34) == 26) {
+        if (*(int *)(s + 0x4C) < ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 3) {
+            D_002A7E08[371].f14 |= 0x40000;
+        } else {
+            D_002A7E08[371].f14 &= ~0x40000;
+        }
+    }
+}
 
 void WithMailFunc_WayBeginPosError(void *a0)
 {
