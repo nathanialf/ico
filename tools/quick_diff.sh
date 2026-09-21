@@ -325,7 +325,9 @@ assemble() {
 # silently falling back to modern gas and disagreeing with the ninja build.
 sed -i -E -e 's/\$ACC\b/ACC/g' -e 's/\$Q\b/Q/g' -e 's/\$R\b/R/g' "$ASM_OUT"
 canon_regnames "$ASM_OUT"
-assemble "$OBJ" "$ASM_OUT"
+# A failed assembly must never leave the previous object for strict_cmp to score.
+rm -f "$OBJ"
+assemble "$OBJ" "$ASM_OUT" || { rm -f "$OBJ"; exit 1; }
 
 # Canonicalize both sides via the same objdump so the diff is meaningful.
 # splat's per-function .s files don't .include the label macros themselves, so
