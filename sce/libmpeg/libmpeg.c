@@ -847,7 +847,78 @@ void _sequenceHeader(void)
     _initSeq(D_0054C0E4[0]);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _initSeq);
+extern int _isMpeg2[];
+extern int _picture_structure;
+extern int _frame_pred_frame_dct;
+extern int _matrix_coefficients;
+extern int _progressive_sequence;
+extern int _chroma_format;
+extern int _progressive_frame;
+extern int _widthMB[];
+extern int _heightMB[];
+extern int _picWidth;
+extern int _picHeight;
+extern int _cWidth;
+extern int _cHeight;
+extern void _initRefImages(int *frame0, int *frame1, int *frame2, int *top0, int *top1, int *top2,
+                           int *bot0, int *bot1, int *bot2, int y, int cb, int cr);
+
+/* the stream record _initSeq re-sizes: the picture size the decoder was last
+ * set up for, and at 0x40 the decoder the three frame buffers are allocated
+ * out of */
+typedef struct {
+    int width;
+    int height;
+    int _8[14];
+    int *dec;
+} MpegSeq;
+
+void _initSeq(void *a0)
+{
+    MpegSeq *p = (MpegSeq *)a0;
+    int *r = p->dec;
+    int *heap;
+    unsigned int size;
+
+    if (_isMpeg2[0] == 0) {
+        _progressive_sequence = 1;
+        _chroma_format = 1;
+        _progressive_frame = 1;
+        _picture_structure = 3;
+        _frame_pred_frame_dct = 1;
+        _matrix_coefficients = 5;
+    }
+    _widthMB[0] = (_horizontal_size + 15) >> 4;
+    _heightMB[0] = (_isMpeg2[0] != 0 && _progressive_sequence == 0)
+                       ? ((_vertical_size + 31) >> 5) * 2
+                       : (_vertical_size + 15) >> 4;
+    _picWidth = _widthMB[0] * 16;
+    _picHeight = _heightMB[0] * 16;
+    if (_picWidth != p->width || _picHeight != p->height) {
+        p->width = _picWidth;
+        p->height = _picHeight;
+        _cWidth = _picWidth >> 1;
+        _cHeight = _picHeight >> 1;
+        heap = (int *)((char *)r + 0x108);
+        size = (unsigned int)(_picWidth * 0x180 * _picHeight) >> 8;
+        _alalcFree(heap);
+        r[0xFC / 4] = _alalcAlloc((unsigned int *)heap, size, 0x40);
+        r[0x100 / 4] = _alalcAlloc((unsigned int *)heap, size, 0x40);
+        r[0x104 / 4] = _alalcAlloc((unsigned int *)heap, size, 0x40);
+        _initRefImages(_refFrame0, _refFrame1, _refFrame2, _refTop0, _refTop1, _refTop2, _refBot0,
+                       _refBot1, _refBot2, r[0xFC / 4], r[0x100 / 4], r[0x104 / 4]);
+        _RefImageInit(_refFrame0, _picWidth, _picHeight);
+        _RefImageInit(_refFrame1, _picWidth, _picHeight);
+        _RefImageInit(_refFrame2, _picWidth, _picHeight);
+        _RefImageInit(_refTop0, _picWidth, _picHeight / 2);
+        _RefImageInit(_refTop1, _picWidth, _picHeight / 2);
+        _RefImageInit(_refTop2, _picWidth, _picHeight / 2);
+        _RefImageInit(_refBot0, _picWidth, _picHeight / 2);
+        _RefImageInit(_refBot1, _picWidth, _picHeight / 2);
+        _RefImageInit(_refBot2, _picWidth, _picHeight / 2);
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _initRefImages);
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _setDefaultQM);
 
@@ -953,7 +1024,82 @@ void _defStopDMA(int **a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _defRestartDMA);
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _motionComp0);
+
+extern int _widthMB[];
+extern int _isError[];
+extern int _picture_structure;
+extern int _curFrame[];
+extern int _curTop[];
+extern int _curBot[];
+extern int D_0054C0DC[];
+extern int D_00636F20[];
+extern void _getAllRefs(int a0, int a1, int a2);
+
+int _motionComp0(int a0, int a1, int a2, int a3, int *a4, int *a5, int *a6)
+{
+    int col = a0 % _widthMB[0];
+    int row = a0 / _widthMB[0];
+    int x = col * 16;
+    int y = row * 16;
+    int intra = a2 & 1;
+
+    if (intra) {
+        while (((*(volatile unsigned int *)0x1000D400) >> 8) & 1) {}
+        *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x138) = 0;
+    } else {
+        long long *tag;
+        int cnt;
+        int i;
+
+        if ((unsigned int)(a3 - 1) >= 3) {
+            _Error1((int)D_00636F20, a3);
+            _isError[0] = 1;
+            return 0;
+        }
+        _getAllRefs(x, y, a2);
+        while (((*(volatile unsigned int *)0x1000D400) >> 8) & 1) {}
+        tag = (long long *)((D_0054C0DC[0] & 0x0FFFFFFF) | 0x20000000);
+        cnt = *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x12C);
+        for (i = 0; i < cnt; i++) {
+            int id;
+            tag[0] =
+                ((long long)(((int *)((char *)_mbcont + i * 4 + _mbcont[0x280 / 4] * 0x140))[2] &
+                             0x0FFFFFFF)
+                 << 32) |
+                (3 << 28) | 0x30;
+            id = i == cnt - 1 ? 0 : 3;
+            tag[2] =
+                ((long long)(((int *)((char *)_mbcont + i * 4 + _mbcont[0x280 / 4] * 0x140))[6] &
+                             0x0FFFFFFF)
+                 << 32) |
+                ((long long)id << 28) | 0x30;
+            tag += 4;
+        }
+        __asm__ __volatile__("sync");
+        *(volatile int *)0x1000D480 = *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140);
+        *(volatile int *)0x1000D430 = D_0054C0DC[0];
+        *(volatile int *)0x1000D420 = 0;
+        *(volatile int *)0x1000D400 = 0x105;
+        *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x138) = 1;
+    }
+    if (a1 == 1 && (a2 & 2)) {
+        *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x134) = a1;
+    } else {
+        *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x134) = 0;
+    }
+    ((int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140))[0x130 / 4] = intra;
+    if (_picture_structure == 3) {
+        int *p = (int *)_curFrame[0];
+        *(void **)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x128) =
+            (void *)(p[0] + (col * p[4] + row) * 0x180);
+    } else {
+        int *p = (int *)(_picture_structure == 2 ? _curBot[0] : _curTop[0]);
+        *(void **)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x128) =
+            (void *)(p[0] + (col * p[4] + row) * 0x180);
+    }
+    return 1;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _getAllRefs);
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _getRef0);
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _doMC);
