@@ -95,62 +95,96 @@ void gsb_Init(void *db)
     D_00639F8C = 1.0f;
 }
 
-/* Reverted to asm 2026-09-21 (chain 3 pass 43, was pass 17): 337 of 337
- * instructions, STRICT 16 of which 6 are the reloc addend class, so 10 real
- * words, all three of them in the per target tint reads.  The packet build,
- * the DMA kick and the default tint arms are word for word.  The body is
- * derived: one `long long pk[44]` local whose 44 element initialiser is the
- * 22 qword GIF packet (gcc 2.9 builds a 352 byte initialiser in a temporary
- * and block copies it, which is ROM's ld/sd loop), then sceGsSyncPath,
- * FlushCache, the three volatile GIF channel registers at 0x1000A020,
- * 0x1000A010 and 0x1000A000 and a second sceGsSyncPath.
- *
- * MEASURED RESIDUAL, narrowed to ONE rtx this pass.  With the struct member
- * spelling `D_0028F720.targetCol[CurrentTargetGObjSub - 1].r` the emission
- * order is already the ROM's: expand_expr's handled component path
- * (expr.c around line 6430) expands the base VAR_DECL first, and validating
- * that BLKmode MEM's address force_regs the symbol, so the `high` and the
- * `lo_sum` carry lower INSN_LUIDs than the index `addiu -1` and its `sll`.
- * sched1 then reproduces ROM's first two words in every arm (`lui %hi` wins
- * the t1 tie on LUID in arms one and two; in arm three the index `addiu`
- * wins it on INSN_REG_WEIGHT instead, because CurrentTargetGObjSub's value
- * dies there, which is exactly why ROM's third arm starts with the addiu and
- * the first two start with the lui).  The one wrong rtx is the address sum
- * itself: that path builds `gen_rtx_PLUS (ptr_mode, XEXP (op0, 0),
- * force_reg (ptr_mode, offset_rtx))`, base first, and addsi3_internal is not
- * commutative for reload, so the built `addu` is `addu base, base, index`
- * where ROM has `addu index, index, base`.  Everything else follows from
- * that one operand order: the destination is the base's register instead of
- * the index's, so the `sll` that writes the index register is no longer
- * killed by the `addu` and gains an output dependence on the load; in sched2
- * that gives the `sll` three dependents against the `lo_sum`'s two, and
- * rank_for_schedule reaches depend_count before INSN_LUID, so the two swap
- * in arms one and two.  Ten words, one cause.
- *
- * REFUTED this pass, each measured: the record cast
- * `((StageSetting *)((char *)&D_0028F720 + ((i - 1) << 4)))->targetCol[0].r`
- * does give ROM's index plus base sum (both_summands, "put a multiplication
- * first") but its index is expanded eagerly during expand_expr, so the
- * symbol's force_reg lands after it and the arms start with the addiu in all
- * three, and the third arm's result then takes the other register, the two
- * branches' `addiu $2, $0, 0x80` blocks do not cross jump and the tail is
- * duplicated: 45 strict rows.  Spelling the index `* 16` instead of `<< 4`
- * to keep a MULT rtx alive to both_summands does not work either: expr.c's
- * MULT_EXPR case under EXPAND_SUM applies the distributive law when its
- * first operand expands to a PLUS with a CONST_INT, so `(i - 1) * 16`
- * becomes `i * 16 - 16` and the arm loses an instruction (four words instead
- * of ROM's five, 31 strict rows); an `(unsigned int)` cast on the index does
- * not block it.  A plain cast deref with the 0x130 in the address folds the
- * offset onto the symbol (%lo(D_0028F720) + 304).
- *
- * NEXT AXIS: a spelling that materialises the symbol before the index AND
- * yields PLUS(index, base).  Neither expansion path does both, so the swap
- * has to come from a later pass (cse_insn's commutative retry at cse.c:5398
- * is the untested one) or from a base object that is not a plain VAR_DECL.
- * Seeds: tails/seeds/GsBase.c3p43_gsb_Reduction_337of337_strict16_member_TU.c
- * (carry this one forward) and the record cast state in
- * tails/seeds/GsBase.c3p43_gsb_Reduction_337of337_strict45_recordcast_TU.c. */
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_Reduction);
+extern int D_0063C118;
+extern int D_0063C11C;
+extern int D_0063C120;
+extern int D_0063A054;
+extern int CurrentTargetGObjSub;
+extern char D_0054E300[];
+extern StageSetting D_0028F720;
+extern GsbPad D_0028F8F0[];
+
+/* Reduce the frame into the feedback area: one 22 qword GIF packet, built on
+ * the stack and sent down the GIF channel by hand, that first clears the
+ * half height frame in black and then draws it back over itself through the
+ * texture at 0x800 in the reduction tint, and last the tint this stage's
+ * current target asks for. */
+void gsb_Reduction(void)
+{
+    long long pk[44] = {
+        0x1000000000008015LL,
+        0xE,
+        0,
+        0x4A,
+        0x8000000048LL,
+        0x42,
+        (long long)((D_0063A064 >> 6) & 0x3F) << 16,
+        0x4C,
+        ((long long)(0x800 - D_0063A064 / 2) << 4) | ((long long)(0x800 - D_0063A068 / 4) << 36),
+        0x18,
+        ((long long)(D_0063A064 - 1) << 16) | ((long long)(D_0063A068 / 2 - 1) << 48),
+        0x40,
+        0x30000,
+        0x47,
+        0x1300000C0LL,
+        0x4E,
+        0x106,
+        0,
+        0,
+        1,
+        (long long)(-D_0063A064 / 2 * 16 + 0x8000 - 4) |
+            ((long long)(-D_0063A068 / 4 * 16 + 0x8000 - 4) << 16) | (-1LL << 32),
+        5,
+        (long long)(-D_0063A064 / 2 * 16 + 0x8000 + D_0063A064 * 16 - 4) |
+            ((long long)(-D_0063A068 / 4 * 16 + 0x8000 + D_0063A068 / 2 * 16 - 4) << 16) |
+            (-1LL << 32),
+        5,
+        ((long long)(D_0063A064 - 3) << 16) | 2 | ((long long)(D_0028F4C0[0] == 0 ? 2 : 8) << 32) |
+            ((long long)(D_0063A068 / 2 - 1 - (D_0028F4C0[0] == 0 ? 2 : 8)) << 48),
+        0x40,
+        ((long long)(D_0063A064 / 64) << 14) | 0x664000800LL,
+        6,
+        0x60,
+        0x14,
+        0x116,
+        0,
+        (long long)D_0063C118 |
+            ((long long)D_0063C120 << 16 | (long long)D_0063C11C << 8 | 0x80000000LL),
+        1,
+        0x80008,
+        3,
+        (long long)(-D_0063A064 / 2 * 16 + 0x8000 - 4) |
+            ((long long)(-D_0063A068 / 4 * 16 + 0x8000 - 4) << 16) | (-1LL << 32),
+        5,
+        (long long)(D_0063A064 * 16 + 8) | ((long long)(D_0063A068 * 16 + 8) << 16),
+        3,
+        (long long)(-D_0063A064 / 2 * 16 + 0x8000 + D_0063A064 * 16 - 4) |
+            ((long long)(-D_0063A068 / 4 * 16 + 0x8000 + D_0063A068 / 2 * 16 - 4) << 16) |
+            (-1LL << 32),
+        5,
+        ((long long)D_0063A064 << 16) | ((long long)D_0063A068 << 48),
+        0x40,
+    };
+
+    sceGsSyncPath(0, 0);
+    FlushCache(0);
+    *(volatile int *)0x1000A020 = 22;
+    *(volatile int *)0x1000A010 = (int)pk & 0x0FFFFFFF;
+    *(volatile int *)0x1000A000 = 0x101;
+    sceGsSyncPath(0, 0);
+    if (D_0028F8F0[0].trg & 0x20) {
+        debug_StdPrintfDummy(D_0054E300, CurrentTargetGObjSub);
+    }
+    if (CurrentTargetGObjSub) {
+        D_0063C118 = D_0063A054 ? 128 : D_0028F720.targetCol[CurrentTargetGObjSub - 1].r;
+        D_0063C11C = D_0063A054 ? 128 : D_0028F720.targetCol[CurrentTargetGObjSub - 1].g;
+        D_0063C120 = D_0063A054 ? 128 : D_0028F720.targetCol[CurrentTargetGObjSub - 1].b;
+    } else {
+        D_0063C118 = D_0063A054 ? 128 : D_0028F720.reductionCol[0];
+        D_0063C11C = D_0063A054 ? 128 : D_0028F720.reductionCol[1];
+        D_0063C120 = D_0063A054 ? 128 : D_0028F720.reductionCol[2];
+    }
+}
 
 extern unsigned char D_00639F98;
 extern unsigned char D_00639F99;
@@ -606,14 +640,12 @@ extern char D_0054E3B0[];
 void gsb_filmNoise(void)
 {
     int n = tex_GetTextureNo(D_0054E3B0);
-    char *st;
     float scale;
 
     if (n < 0) {
         return;
     }
-    st = (char *)&D_0028F720;
-    scale = *(float *)(st + 0x170);
+    scale = D_0028F720.grainScale;
     tex_TransTexture(n, 0xA);
     gif_StartPacketPriPath1(dl_GetPri());
     gif_SetGsReg(8, 0);
@@ -622,7 +654,7 @@ void gsb_filmNoise(void)
     gif_SetGsReg(0x49, 0);
     gif_SetGsReg(0x42, 0x44);
     gif_SetGsReg(0, 0x56);
-    gif_SetGsReg(1, ((long long)*(int *)(st + ((CurrentTargetGObjSub - 1) << 4) + 0x13C) << 24) |
+    gif_SetGsReg(1, ((long long)D_0028F720.targetCol[CurrentTargetGObjSub - 1].a << 24) |
                         0x3F80000000808080LL);
     gif_SetGsReg(2, 0);
     gif_SetGsReg(5, 0xFFFFFFFF70007000LL);
@@ -1191,11 +1223,9 @@ int gsb_FilmNoiseTool(int target)
         ret = 1;
     }
     if (D_0028F8F0[0].trg & 0x80) {
-        char *st = (char *)&D_0028F720;
-
-        *(int *)(st + (target << 4) + 0x130) = D_0028F720.reductionCol[0];
-        *(int *)(st + (target << 4) + 0x134) = D_0028F720.reductionCol[1];
-        *(int *)(st + (target << 4) + 0x138) = D_0028F720.reductionCol[2];
+        D_0028F720.targetCol[target].r = D_0028F720.reductionCol[0];
+        D_0028F720.targetCol[target].g = D_0028F720.reductionCol[1];
+        D_0028F720.targetCol[target].b = D_0028F720.reductionCol[2];
         D_0028F720.subMotionBlur[target] = D_0028F720.motionBlur;
         D_0028F720.f19C[target].a = D_0028F720.f0FC;
         D_0028F720.f19C[target].b = D_0028F720.f100;

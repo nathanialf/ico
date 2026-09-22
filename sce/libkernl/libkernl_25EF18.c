@@ -357,7 +357,42 @@ int sceTtyRead(void *buf, int size)
     return i;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceTtyInit);
+extern int sceDeci2Open(unsigned short protocol, void *opt, void *handler);
+extern void sceTtyHandler(int event, int param, void *opt);
+/* the DECI2 receive packet, reached through the uncached accelerated window */
+extern char D_0072A880[];
+
+int sceTtyInit(void)
+{
+    /* the tty handler writes the socket's send length, receive count and busy
+       flag from interrupt level (its stores at +0x4, +0x8 and +0xC), so the
+       record's four header words are volatile; the buffer and queue pointers
+       below them are plain */
+    volatile int *rec = D_0072A710;
+    char *snd;
+    char *rcv;
+
+    FlushCache(0);
+    rec[0] = sceDeci2Open(0x210, D_0072A710, sceTtyHandler);
+    if (rec[0] < 0) {
+        return 0;
+    }
+    rec[3] = 0;
+    rcv = (char *)((unsigned int)D_0072A880 | 0x20000000);
+    snd = (char *)((unsigned int)D_0072A740 | 0x20000000);
+    rec[1] = 0;
+    rec[2] = 0;
+    D_0072A710[5] = (int)rcv;
+    D_0072A710[4] = (int)snd;
+    *(short *)(snd + 4) = 0x210;
+    snd[6] = 'E';
+    snd[7] = 'H';
+    *(short *)(snd + 2) = 0;
+    *(int *)(snd + 8) = 0;
+    D_0072A710[6] = (int)QueueInit(256);
+    return 1;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifInitRpc);
 
 extern int D_0054A3E8[];

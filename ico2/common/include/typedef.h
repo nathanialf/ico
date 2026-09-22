@@ -555,14 +555,25 @@ typedef struct StageSetting {
     int f100;          /* 0x100 */
     char pad104[0x2C]; /* 0x104 */
 
+    /* RECONSTRUCTION: each target row is a 16 byte aligned quadword, the
+       ROM's own proof being gsb_Reduction's tint reads in
+       ico2/seki/src/GsBase.c.  expr.c folds a member's constant offset
+       onto the record's base before adding the variable index only while
+       the reference's alignment is exactly the field's; with the row
+       aligned to 16 it adds base and index first, cse puts the index
+       first, and the 0x130 stays the load's displacement, which is the
+       ROM's `addu index, index, base` / `lw 0x130`. */
     struct {
         int r;
         int g;
         int b;
         int a;
-    } targetCol[4]; /* 0x130 */
+    } __attribute__((aligned(16))) targetCol[4]; /* 0x130 */
 
-    char pad170[0x2C]; /* 0x170 */
+    /* RECONSTRUCTION: the film grain's UV step, which
+       ico2/seki/src/GsBase.c's gsb_filmNoise passes as raw bits. */
+    float grainScale;  /* 0x170 */
+    char pad174[0x28]; /* 0x174 */
 
     struct {
         int a;

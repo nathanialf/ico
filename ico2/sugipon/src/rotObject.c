@@ -83,9 +83,103 @@ void GetRotObjectHoldPoint(void *a0, void *a1, void *a2, void *a3)
     sceVu0Normalize(a1, a1);
 }
 
-/* MoveRotObjectWithHoldPoint owns the first four words of this TU's .lit4 run
- * (VMA 0x639680..0x63968C); reserve them until it lands in C. */
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/rotObject", MoveRotObjectWithHoldPoint);
+/* kept local: rotObject.c does not include matrixDrive.h, which declares FSqrt */
+extern float FSqrt(float x);
+/* kept local: this TU's uses of _OuterProduct do not fit the prototype in Matrix.h */
+extern void _OuterProduct(void *d, void *a, void *b);
+/* kept local: this TU's uses of _GetLengthXZ do not fit the prototype in Matrix.h */
+extern float _GetLengthXZ(void *a, void *b);
+/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
+extern void CopyVector(void *dst, void *src);
+
+int MoveRotObjectWithHoldPoint(void *bar, void *hold, void *self, void *dir, void *up)
+{
+    char *w = *(char **)(*(char **)((char *)bar + 0x15C) + 0x830);
+    char *gobj = (char *)bar;
+    float *a1 = (float *)hold;
+    float *a3 = (float *)dir;
+    float *a4 = (float *)up;
+    float q[4];
+    float m[16];
+    float tm[16];
+    float p[4];
+    char *h;
+    float vy;
+    float len;
+    float sl;
+    float ang;
+    float k;
+
+    if (*(int *)(w + 0x34) != 0)
+        return 0;
+    if (*(int *)(gobj + 0x16C) == 0) {
+        *(int *)(w + 0x24) = 0;
+        return 0;
+    }
+    getRotObjectDriveMatrix(gobj, m);
+    {
+        float v[4];
+        float o[4];
+        MatrixDrive_SetTransposeMatrix(tm, (int)m);
+        sceVu0ApplyMatrix(q, tm, a3);
+        CopyVector(p, a4);
+        p[1] = 0.0f;
+        p[3] = 0.0f;
+        _ApplyMatrix(p, tm, p);
+        _OuterProduct(v, p, a1);
+        vy = v[1];
+        len = FSqrt(a1[0] * a1[0] + a1[2] * a1[2]);
+        sceVu0ScaleVector(q, q, len / FSqrt(q[0] * q[0] + q[2] * q[2]));
+        sceVu0OuterProduct(o, q, a1);
+        sl = _GetLengthXZ(q, a1);
+        if (o[1] < 0.0f)
+            sl = -sl;
+        if (sl * vy < 0.0f)
+            return 0;
+    }
+    ang = -atan2f(sl, len);
+    ang *= *(float *)(w + 0x38);
+    k = len * 0.01f * *(float *)(w + 0x3C);
+    if (k > 1.0f)
+        k = 1.0f;
+    k *= k;
+    k *= k;
+    ang *= k;
+    switch (*(int *)(w + 0x0)) {
+    case 2:
+        if (0.0f <= ang)
+            return 0;
+        break;
+    case 3:
+        if (*(int *)*(char **)(gobj + 0x15C) != 0) {
+            float r;
+
+            h = *(char **)(*(char **)(*(int *)*(char **)(gobj + 0x15C) + 0x15C) + 0xC);
+            ((Vec4 *)(h + 0x30))->f[1] += ang * 31.83098793f;
+            CopyVector(*(char **)(*(int *)*(char **)(gobj + 0x15C) + 0x15C) + 0xA0,
+                       *(char **)(*(char **)(*(int *)*(char **)(gobj + 0x15C) + 0x15C) + 0xC) +
+                           0x30);
+            r = -((Vec4 *)(h + 0x30))->f[1];
+            if (*(float *)(w + 0x28) < r) {
+                ((Vec4 *)(h + 0x30))->f[1] = -*(float *)(w + 0x28);
+                CopyVector(*(char **)(*(int *)*(char **)(gobj + 0x15C) + 0x15C) + 0xA0,
+                           *(char **)(*(char **)(*(int *)*(char **)(gobj + 0x15C) + 0x15C) + 0xC) +
+                               0x30);
+                return 0;
+            } else if (r < *(float *)(w + 0x2C)) {
+                ((Vec4 *)(h + 0x30))->f[1] = -*(float *)(w + 0x2C);
+                CopyVector(*(char **)(*(int *)*(char **)(gobj + 0x15C) + 0x15C) + 0xA0,
+                           *(char **)(*(char **)(*(int *)*(char **)(gobj + 0x15C) + 0x15C) + 0xC) +
+                               0x30);
+                return 0;
+            }
+        }
+        break;
+    }
+    *(int *)(w + 0x24) += ang * 10430.378f;
+    *(short *)(w + 0x20) += ang * 10430.378f;
+    return 1;
+}
 
 void ExecRotObjectMoveStartReaction(int a0, int a1, int a2, int a3)
 {
@@ -111,8 +205,6 @@ void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, void *gobj, void *posM
     sceVu0ApplyMatrix(dir, m, dirMtx);
 }
 
-/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
-extern void CopyVector(void *dst, void *src);
 extern int D_0063A438;
 
 /* the name every iosMallocDebug in this file reports itself under */
