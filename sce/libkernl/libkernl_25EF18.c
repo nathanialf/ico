@@ -875,11 +875,20 @@ after:
    the DMA payload length; the ROM writes dsize through a 64-bit read/modify/
    write, which is get_best_mode picking DImode off the packet's 16-byte
    alignment. */
+/* RECONSTRUCTION (user ruling 2026-09-22): the command id has its own
+   type.  The ROM's schedule of _sceSifSendCmd needs the cid store outside
+   the alias set of the int stores that fill the DMA records (the compiler's
+   sched2 dump gives int set 1 and this enum set 10); with a plain int cid
+   three words of that function come out in the wrong order.  Only the zero
+   member is attested by the bytes; the developers' list of command ids is
+   not recoverable from this member. */
+typedef enum { SIF_CMD_DIAG = 0 } SifCmdId;
+
 typedef struct {
     unsigned int psize : 8;
     unsigned int dsize : 24;
     void *dest;
-    int cid;
+    SifCmdId cid;
     unsigned int opt;
 } SifCmdHeader;
 
@@ -894,7 +903,18 @@ typedef struct {
     int src;
     int dest;
     int size;
-    int attr;
+
+    /* RECONSTRUCTION (user ruling 2026-09-22, same class as layout_action's
+       R8Flags): the attribute word is reached through a union member.  The
+       ROM's codegen of _sceSifSendCmd proves the store is an alias-set-0
+       access: on the compiler's sched2 dump it must conflict with both the
+       cid store and the size store while the cid store leaves the size
+       store's set, and a 32-bit store gets set 0 only from a direct union
+       member.  Only the word member is attested by the bytes; the
+       developers' union may have carried a flag-bit view beside it. */
+    union {
+        int attr;
+    } u;
 } SifDmaTransfer;
 
 /* the server function the record at +0x4 carries: it is handed the request
@@ -946,13 +966,13 @@ void sceSifExecRequest(int *sd)
         dmat[0].src = (int)rec;
         dmat[0].dest = sd[0x28 / 4];
         dmat[0].size = size;
-        dmat[0].attr = 0;
+        dmat[0].u.attr = 0;
         i = 1;
     }
     dmat[i].src = (int)pkt;
     dmat[i].dest = sd[0x20 / 4];
     dmat[i].size = 0x40;
-    dmat[i].attr = 0;
+    dmat[i].u.attr = 0;
     i++;
     do {
         r = sceSifSetDma((int)dmat, i);
@@ -2556,7 +2576,7 @@ int sceSifResetIop(char *arg, int mode)
     dma.src = (int)&D_0072D9C0;
     dma.dest = addr;
     dma.size = sizeof(D_0072D9C0);
-    dma.attr = 0x44;
+    dma.u.attr = 0x44;
     sceSifWriteBackDCache(&D_0072D9C0, sizeof(D_0072D9C0));
     if (sceSifSetDma((int)&dma, 1) != 0) {
         sceSifSetReg(4, 0x10000);
@@ -3467,7 +3487,48 @@ void sceSifRemoveCmdHandler(int a0)
     *(int *)off = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _sceSifSendCmd);
+extern int D_0072ED60;
+extern int isceSifSetDma(int p, int a);
+
+int _sceSifSendCmd(int cid, int mode, int pkt, int pktsize, int src, int dest, int size)
+{
+    SifDmaTransfer dmat[2];
+    SifCmdHeader *header;
+    int count;
+
+    if (pktsize < 16 || pktsize > 112) {
+        return 0;
+    }
+    header = (SifCmdHeader *)pkt;
+    count = 0;
+    if (size > 0) {
+        header->dsize = size;
+        dmat[0].src = src;
+        dmat[0].dest = dest;
+        dmat[0].size = size;
+        header->dest = dest;
+        dmat[0].u.attr = 0;
+        count = 1;
+        if (mode & 4) {
+            sceSifWriteBackDCache((void *)src, size);
+        }
+    } else {
+        header->dsize = 0;
+        header->dest = 0;
+    }
+    dmat[count].src = pkt;
+    dmat[count].dest = D_0072ED60;
+    dmat[count].size = pktsize;
+    header->cid = cid;
+    header->psize = pktsize;
+    dmat[count].u.attr = 0x44;
+    count++;
+    sceSifWriteBackDCache((void *)pkt, pktsize);
+    if (mode & 1) {
+        return isceSifSetDma((int)dmat, count);
+    }
+    return sceSifSetDma((int)dmat, count);
+}
 
 int sceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1)
 {
