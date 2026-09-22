@@ -149,7 +149,14 @@ typedef struct MvSub {
     char pad334[0x340 - 0x334];
     float headAt[4]; /* 0x340 */
     char pad350[0x380 - 0x350];
-    int testMode; /* 0x380 */
+
+    /* 0x380. Reconstruction: an enumerated type, not int. MotionViewer's
+       gcse needs this store outside int's alias set so the in-block read of
+       D_0063BA5C stays available and the join's reload moves onto the skip
+       edge; typed int, the ROM's one-load modulus block is unreachable
+       (measured 0x814 against 0x810). Enumerator names are ours. */
+    enum { TEST_OFF, TEST_PAD, TEST_RANDOM } testMode;
+
     char pad384[0x390 - 0x384];
     float testAt[4]; /* 0x390 */
     char pad3A0[0x488 - 0x3A0];
@@ -236,7 +243,6 @@ int objMenuProc(void)
     return ret;
 }
 
-/*SWEEPmotKindMenuProc*/
 typedef struct MvPad {
     int now;   /* 0x00 */
     int trg;   /* 0x04 */
@@ -375,8 +381,6 @@ int motKindMenuProc(void)
     return ret;
 }
 
-/*SWEEP-ENDmotKindMenuProc*/
-/*SWEEPmotOriMenuProc*/
 extern char D_0055FF18[];
 extern char D_00620778[];
 extern char D_00620798[];
@@ -457,8 +461,6 @@ int motOriMenuProc(void)
     return ret;
 }
 
-/*SWEEP-ENDmotOriMenuProc*/
-/*SWEEPmodeMessage*/
 extern char D_006207C0[];
 extern char D_0063BA40[];
 extern char D_0063BA48[];
@@ -534,8 +536,6 @@ void modeMessage(void)
     }
 }
 
-/*SWEEP-ENDmodeMessage*/
-/*SWEEPlookAtTest*/
 typedef struct MvVec {
     float x, y, z, w;
 } __attribute__((aligned(16))) MvVec;
@@ -620,13 +620,11 @@ void lookAtTest(MvVec *pos, float rad, void *colAxis, void *colRing, short dy, s
     gif_EndPacket();
 }
 
-/*SWEEP-ENDlookAtTest*/
-/*SWEEPMotionViewer*/
 extern MvCol D_004ECC70;
 extern MvCol D_004ECC80;
 extern MvCol D_004ECC90;
-extern MvVec D_006207E0;
-extern MvVec D_006207F0;
+extern const MvVec D_006207E0;
+extern const MvVec D_006207F0;
 extern char D_00620800[];
 extern char D_00620820[];
 extern char D_00620840[];
@@ -647,6 +645,209 @@ extern void sceVu0ApplyMatrix(MvVec *dst, void *m, MvVec *src);
 extern float sceVu0InnerProduct(MvVec *a, MvVec *b);
 extern void sceVu0TransposeMatrix(void *dst, void *src);
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionViewer", MotionViewer);
+int MotionViewer(void)
+{
+    MvVec v;
+    MvVec dir;
+    float m[16];
+    MvVec pos;
+    MvVec p;
 
-/*SWEEP-ENDMotionViewer*/
+    union {
+        MvVec v;
+        float f[4];
+    } q;
+
+    MvCol col;
+    MvVec look;
+    MvVec head;
+    int ret;
+    int mode;
+
+    D_0063B198 = 1;
+    switch (D_0063BA58) {
+    default:
+    case 0:
+        ret = objMenuProc();
+        break;
+
+    case 1:
+        ret = motKindMenuProc();
+        modeMessage();
+        break;
+
+    case 2:
+        ret = motOriMenuProc();
+        modeMessage();
+        break;
+    }
+
+    if (D_0063BA08 != 0) {
+        memset(&dir, 0, sizeof(dir));
+        dir.x = (D_0028F8F0[1].stick[2] - 128) * 0.0078125f;
+        dir.z = (128 - D_0028F8F0[1].stick[3]) * 0.0078125f;
+        v = dir;
+        sceVu0TransposeMatrix(m, matrixptr + 128);
+        sceVu0ApplyMatrix(&dir, m, &v);
+        if (FSqrt(sceVu0InnerProduct(&dir, &dir)) > 0.5f && (D_0028F8F0[1].now & 0x200) == 0) {
+            SetMotionDirection(D_0063BA08, &dir);
+        }
+        gif_StartPacketPri(0xB);
+        gif_SetAlpha(1, 5, 0x80);
+        gif_SetZTest(1);
+        gif_EndPacket();
+
+        GetRootPosition(&pos, D_0063BA08);
+        q.v.x = 0.0f;
+        q.v.y = -1.0f;
+        q.v.z = 0.0f;
+        q.v.w = pos.y + D_0063BA08->sub->ground[5];
+        p = q.v;
+        dispPlane(&p, &pos);
+
+        if (D_0028F8F0[1].trg & 0x8) {
+            mode = D_0063BA5C + 1;
+            mode %= 3;
+            D_0063BA08->sub->testMode = D_0063BA5C = mode;
+        }
+        mode = D_0063BA5C;
+        switch (mode) {
+        case 0:
+            break;
+
+        case 1:
+            lookAtTest(&p, 50.0f, &D_004ECC70, &D_004ECC80, (D_0028F8F0[1].stick[1] - 128) * 2.0f,
+                       -D_0028F8F0[1].stick[0] * 256);
+            CopyVector(D_0063BA08->sub->testAt, &p);
+            mode = D_0063BA5C;
+            break;
+
+        case 2:
+            D_0063BA60++;
+            lookAtTest(&p, 50.0f, &D_004ECC70, &D_004ECC80, D_0063BA64, D_0063BA66);
+            if (D_0063BA60 > 100) {
+                D_0063BA64 = random_signed() * 256.0f;
+                D_0063BA66 = random_signed() * 32768.0f;
+                lookAtTest(&p, 50.0f, &D_004ECC70, &D_004ECC80, D_0063BA64, D_0063BA66);
+                CopyVector(D_0063BA08->sub->testAt, &p);
+                D_0063BA60 = 0;
+            }
+            mode = D_0063BA5C;
+            break;
+        }
+        if (mode != 0) {
+            int n;
+            gif_StartPacketPri(0xB);
+            n = GetSkeltonFocusNode(D_0063BA08, 0x23);
+            sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+            DrawLineG(&p, &D_004ECC90, D_0063BA08->sub->nodes + n * 64 + 0x30, &D_004ECC80, 0);
+            gif_EndPacket();
+        }
+
+        p = D_006207E0;
+        q.v = D_006207F0;
+        memset(&col, 0, sizeof(col));
+        col.a = 128;
+        if (D_0028F8F0[1].now & 0x200) {
+            D_0063BA74 = D_0028F8F0[1].stick[2] * 100.0f / 255.0f;
+        }
+        if (D_0028F8F0[1].trg & 0x2) {
+            switch (D_0063BA70) {
+            default:
+            case 0:
+                D_0063BA68 = 1;
+                D_0063BA70 = D_0063BA70 + 1;
+                D_0063BA6C = 0;
+                break;
+
+            case 1:
+                D_0063BA68 = 2;
+                D_0063BA70 = D_0063BA70 + 1;
+                D_0063BA6C = 0;
+                break;
+
+            case 2:
+                D_0063BA6C = 1;
+                D_0063BA70 = D_0063BA70 + 1;
+                D_0063BA68 = 0;
+                break;
+
+            case 3:
+                D_0063BA6C = 2;
+                D_0063BA70 = D_0063BA70 + 1;
+                D_0063BA68 = 0;
+                break;
+
+            case 4:
+                D_0063BA6C = 0;
+                D_0063BA68 = 0;
+                D_0063BA70 = 0;
+                break;
+            }
+        }
+        D_0063BA08->sub->lookMode = D_0063BA68;
+        if (D_0063BA68 != 0) {
+            int n;
+            lookAtTest(&look, D_0063BA74, &p, &q.v, (D_0028F8F0[1].stick[1] - 128) * 2.0f,
+                       -D_0028F8F0[1].stick[0] * 256);
+            CopyVector(D_0063BA08->sub->lookAt, &look);
+            gif_StartPacketPri(0xB);
+            n = GetSkeltonFocusNode(D_0063BA08, 3);
+            sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+            DrawLineG(&look, &col, D_0063BA08->sub->nodes + n * 64 + 0x30, &q.v, 0);
+            gif_EndPacket();
+        }
+        D_0063BA08->sub->headMode = D_0063BA6C;
+        if (D_0063BA6C != 0) {
+            int n;
+            lookAtTest(&head, D_0063BA74, &p, &q.v, (D_0028F8F0[1].stick[1] - 128) * 2.0f,
+                       -D_0028F8F0[1].stick[0] * 256);
+            CopyVector(D_0063BA08->sub->headAt, &head);
+            gif_StartPacketPri(0xB);
+            n = GetSkeltonFocusNode(D_0063BA08, 0x13);
+            sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+            DrawLineG(&head, &col, D_0063BA08->sub->nodes + n * 64 + 0x30, &q.v, 0);
+            gif_EndPacket();
+        }
+        switch (D_0063BA68) {
+        default:
+            break;
+
+        case 1:
+            debug_PrintfDummy(300, 180, 0xFFFFFF00, D_00620800);
+            break;
+
+        case 2:
+            debug_PrintfDummy(300, 180, 0xFFFFFF00, D_00620820);
+            break;
+        }
+        switch (D_0063BA6C) {
+        default:
+            break;
+
+        case 1:
+            debug_PrintfDummy(300, 180, 0xFFFFFF00, D_00620840);
+            break;
+
+        case 2:
+            debug_PrintfDummy(300, 180, 0xFFFFFF00, D_00620860);
+            break;
+        }
+    }
+    if (ret == -1) {
+        D_0063BA58 = D_0063BA58 - 1;
+        if (D_0063BA58 < 0) {
+            D_0063BA58 = 0;
+            D_0063B198 = 0;
+            return -1;
+        }
+    }
+    if (ret == 1) {
+        D_0063BA58 = D_0063BA58 + 1;
+        if (D_0063BA58 == 3) {
+            D_0063BA58 = D_0063BA58 - 1;
+        }
+    }
+    D_0063BA0C = (D_0063BA0C + 1) & 0x7F;
+    return 0;
+}

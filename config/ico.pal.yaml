@@ -857,6 +857,8 @@ segments:
       - [0x520234, rodata, cod/520234]   # .rodata blob resume
       - [0x520460, .rodata, ico2/sugipon/src/motionOrientManager]  # SetMotionRequest's jump table jtbl_00620460 (14 words, section .rodata.0x00620460), VMA 0x620460..0x620498
       - [0x520498, rodata, cod/520498]     # .rodata blob resume
+      - [0x520880, .rodata, ico2/sugipon/src/motionViewer]  # carved jtbl_00620880 (VMA 0x620880..0x620894, 20 B, 5 arms): MotionViewer's switch table on the D_0063BA70 mode, emitted by the compiled function (section .rodata.0x00620880); arms 0x1F3318 0x1F3324 0x1F333C 0x1F3348 0x1F3360 checked against the ROM words at 0x520880
+      - [0x520894, rodata, cod/520894]     # .rodata blob resume (one zero pad word before moveColTest's run)
       - [0x520898, .rodata, ico2/sugipon/src/moveColTest]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x620898..0x620C90, 1016 B
       - [0x5208C8, .rodata, ico2/sugipon/src/multiBgaManager]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x6208C8..0x620C90, 968 B
       - [0x5208E0, .rodata, ico2/sugipon/src/particleEffect]  # the TU's whole .rodata run as source (completeness pass 39): six anonymous message and name literals at their use sites, __FILE__ for the allocator's file argument, the pool in definition order; VMA 0x6208E0..0x6209BE, 222 B, tail is link pad up to particleLayout's row
