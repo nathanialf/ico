@@ -31,16 +31,7 @@ void torchOffOfWeaponSE(int a0)
     ExecuteSEPackage(a0, 0x43);
 }
 
-/* K&R: the 2001 TU has no prototype for this, so calcDynamicGeometry calls it
-   with one argument while ExecWeaponHitReaction calls it with four. */
-void weaponHitReactionSE(a0, a1, a2, a3) int a0;
-
-int a1;
-
-int a2;
-
-int a3;
-
+void weaponHitReactionSE(int a0)
 {
     ExecuteSEPackage(a0, 0x44);
 }
@@ -515,7 +506,7 @@ void WeaponHitEffect(char *a0, void *a1)
 
 void ExecWeaponHitReaction(int a0, int a1, int a2, int a3)
 {
-    weaponHitReactionSE(a0, a1, a2, a3);
+    weaponHitReactionSE(a0);
 }
 
 extern char D_004ED300[];
