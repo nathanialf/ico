@@ -36,7 +36,181 @@ extern char D_0067C070[];
 extern int D_0063A17C;
 extern int D_0063A178;
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Shadow", shadow_Reset);
+/* The display-list packet builder state, the record src/GifPacket.c carries
+ * as GifDpk; this function opens, fills and closes a PATH1 packet of its own.
+ * RECONSTRUCTION: this TU holds every packet address (dma, ptr, tail, gif,
+ * end) as one pointer union, read and written through its members, so each
+ * field access is alias set 0 (c-common.c c_get_alias_set: a reference
+ * through a union). WHAT THE BYTES PIN: the open's gif = 0, end = 0 and
+ * ptr = c + 8 stores survive flow's dead-store scan, so the int tag word
+ * store between them and their second stores may alias them; the screen-size
+ * loads wait for that tag store, so it is an int store outside any struct;
+ * and the close's end load waits for the last A+D packet store, which only a
+ * field read that may alias the unsigned long long packet words does (the
+ * ROM's end-tag arithmetic reuses the final cursor's register, so the cursor
+ * store precedes it in sched1, and that register file is what leaves t7 to
+ * reload for the whole function). WHAT THEY CANNOT PIN: the member names and
+ * types beyond one 64-bit packet pointer and one byte pointer, or the names
+ * of the union and the record in the dev's header. */
+typedef union {
+    unsigned long long *d;
+    char *c;
+} ShadowPkPtr;
+
+typedef struct {
+    int cur;
+    int *buf[2];
+    ShadowPkPtr dma;
+    ShadowPkPtr ptr;
+    ShadowPkPtr tail;
+    ShadowPkPtr gif;
+    ShadowPkPtr end;
+} ShadowDpk;
+
+extern ShadowDpk D_004EE6F0;
+/* the screen width and height in pixels */
+extern int D_0063A064;
+extern int D_0063A068;
+/* kept local: this TU's uses of these do not fit the prototypes in the headers */
+extern void tex_LockHeadTBP(int tbp, int pri);
+extern void dl_SetDLPriority(int pri);
+extern void dl_OpenDma(int chan, void *dma, int flag);
+extern void dl_CloseDma(void);
+
+/* The GS A+D writer, a MACRO as in Texture.c: the listing puts every writer's
+ * value and both of its stores on the line of the use (337 carries FRAME,
+ * SCISSOR and XYOFFSET together, 340 the whole sprite), where an inlined
+ * function would carry its own lines. */
+#define setGsReg(reg, val)                                                                         \
+    {                                                                                              \
+        *D_004EE6F0.ptr.d++ = (val);                                                               \
+        *D_004EE6F0.ptr.d++ = (reg);                                                               \
+    }
+/* The PATH1 packet open and close, written out here and not called: the
+ * listing puts every instruction of each on ONE line of Shadow.c (332 for the
+ * open), where an inlined function body would carry src/GifPacket.c's own
+ * lines, so both are MACROS in the dev's TU and gif_StartPacketPath1 keeps its
+ * out-of-line copy at its own ROM slot. The statements are, one for one, the
+ * ones that file's matched gif_StartPacketPath1 and gif_EndPacketPath1 carry
+ * (the close, on line 351, is written out at its site below). */
+#define gifStartPacketPath1(c)                                                                     \
+    {                                                                                              \
+        (c) = D_004EE6F0.ptr.c;                                                                    \
+        D_004EE6F0.gif.c = 0;                                                                      \
+        D_004EE6F0.end.c = 0;                                                                      \
+        D_004EE6F0.dma.c = (c);                                                                    \
+        D_004EE6F0.tail.c = (c);                                                                   \
+        D_004EE6F0.ptr.c = ((c) + 8);                                                              \
+        *(unsigned int *)((c) + 8) = 0x11000000;                                                   \
+        D_004EE6F0.gif.c = ((c) + 0xC);                                                            \
+        D_004EE6F0.end.c = ((c) + 0x10);                                                           \
+        D_004EE6F0.ptr.c = ((c) + 0x18);                                                           \
+        ((GifPkWord *)((c) + 0x18))->d = 0xE;                                                      \
+        D_004EE6F0.ptr.c = ((c) + 0x20);                                                           \
+    }
+/* FRAME_1, SCISSOR_1 and XYOFFSET_1 for a w by h buffer at base fbp, the
+ * window centred on the GS's 2048.0 origin and moved by ox, oy sixteenths. A
+ * MACRO: the listing puts all six stores of each use on one line (337, 342,
+ * 432, 444, 462). */
+#define setFrame(fbp, w, h, ox, oy)                                                                \
+    {                                                                                              \
+        setGsReg(0x4C, (fbp) | ((long long)(((w) >> 6) & 0x3F) << 16));                            \
+        setGsReg(0x40, ((long long)((w) - 1) << 16) | ((long long)((h) - 1) << 48));               \
+        setGsReg(0x18, (((long long)(2048 - (w) / 2) << 4) + (ox)) |                               \
+                           ((((long long)(2048 - (h) / 2) << 4) + (oy)) << 32));                   \
+    }
+/* RGBAQ packed from a four-byte colour, as src/GifPacket.c packs it */
+#define GIF_RGBA(c)                                                                                \
+    ((long long)(c)[0] | ((long long)(c)[1] << 8) | ((long long)(c)[2] << 16) |                    \
+     ((long long)(c)[3] << 24))
+/* XYZ2 with the 2048.0-pixel window origin folded in, and without it */
+#define GIF_XY0(x, y, z) ((long long)(x) | ((long long)(y) << 16) | ((z) << 32))
+#define GIF_XY(x, y, z)                                                                            \
+    ((long long)((x) + 0x8000) | ((long long)((y) + 0x8000) << 16) | ((z) << 32))
+/* The untextured sprite: PRIM, RGBAQ and the two XYZ2 corners of the rect r
+ * (x, y, w, h in sixteenths). The far corner is x + fx with fx = w + 0x8000,
+ * as GsBase.c's gsbSpriteNoTexture holds it: the ROM adds 0x8000 to w and h
+ * first (`addu a2,a2,t3`, `addu a3,a3,t3`) and x and y to those sums, where
+ * a textual x + w + 0x8000 is reassociated by fold. A MACRO: the listing puts
+ * the whole sprite on the line of the use (340, 345) and shows no rows of a
+ * helper. */
+#define spriteRect(r, col, prim)                                                                   \
+    {                                                                                              \
+        setGsReg(0x00, prim);                                                                      \
+        setGsReg(0x01, GIF_RGBA(col));                                                             \
+        setGsReg(0x05, GIF_XY((r)[0], (r)[1], 0xFFFFFFFFLL));                                      \
+        {                                                                                          \
+            int fx = (r)[2] + 0x8000;                                                              \
+            int fy = (r)[3] + 0x8000;                                                              \
+                                                                                                   \
+            setGsReg(0x05, GIF_XY0((r)[0] + fx, (r)[1] + fy, 0xFFFFFFFFLL));                       \
+        }                                                                                          \
+    }
+
+void shadow_Reset(void)
+{
+    char *c;
+    char *p;
+    char *q;
+
+    if (D_0063A17C != D_0063A178) {
+        D_0063A178 = D_0063A17C;
+    }
+    tex_LockHeadTBP(0x3D80, 3);
+    dl_SetDLPriority(3);
+    gifStartPacketPath1(c);
+    {
+        int full[4] = {-D_0063A064 / 2 * 16, -D_0063A068 / 2 * 16, D_0063A064 * 16,
+                       D_0063A068 * 16};
+        int band[4] = {-D_0063A064 / 2 * 16, -D_0063A068 / 2 * 16, D_0063A064 * 16, 256};
+        unsigned char col[4] = {0};
+
+        setFrame(0x140, D_0063A064, D_0063A068, 0, 0);
+        setGsReg(0x4E, 0xC0 | ((long long)0x30 << 24) | ((long long)1 << 32));
+        setGsReg(0x47, 0x30000);
+        spriteRect(band, col, 0x406);
+
+        setFrame(0x142, D_0063A064, D_0063A068, 0, 0);
+        setGsReg(0x4E, 0xC0 | ((long long)0x30 << 24) | ((long long)1 << 32));
+        setGsReg(0x47, 0x30000);
+        spriteRect(full, col, 0x406);
+
+        setGsReg(0x4A, 0);
+        setGsReg(0x3B, 0x80 | ((long long)0x80 << 32));
+        setGsReg(0x47, 0x50000);
+        setGsReg(0x42, 0x68 | ((long long)0x80 << 32));
+        setGsReg(0x46, 0);
+    }
+    ((GifPkWord *)D_004EE6F0.end.c)->d =
+        (unsigned int)(((unsigned int)(D_004EE6F0.ptr.c - D_004EE6F0.end.c) >> 4) - 1) |
+        0x1000000000008000LL;
+    ((GifPkWord *)D_004EE6F0.gif.c)->w[0] =
+        (((unsigned int)(D_004EE6F0.ptr.c - D_004EE6F0.gif.c) >> 4) << 16) | 0x6C008000;
+    p = D_004EE6F0.ptr.c;
+    ((GifPkWord *)p)->w[0] = 0x15000000;
+    p += 4;
+    D_004EE6F0.ptr.c = p;
+    ((GifPkWord *)p)->w[0] = 0;
+    D_004EE6F0.ptr.c = (p + 4);
+    ((GifPkWord *)(p + 4))->w[0] = 0;
+    D_004EE6F0.ptr.c = (p + 8);
+    ((GifPkWord *)(p + 8))->w[0] = 0;
+    D_004EE6F0.ptr.c = (p + 0xC);
+    ((GifPkWord *)D_004EE6F0.tail.c)->d =
+        (unsigned int)((((unsigned int)(D_004EE6F0.ptr.c - D_004EE6F0.tail.c) >> 4) - 1) |
+                       0x10000000);
+    q = D_004EE6F0.ptr.c;
+    D_004EE6F0.tail.c = q;
+    ((GifPkWord *)q)->d = 0x60000000;
+    D_004EE6F0.ptr.c = (q + 8);
+    ((GifPkWord *)(q + 8))->w[0] = 0;
+    D_004EE6F0.ptr.c = (q + 0xC);
+    ((GifPkWord *)(q + 8))->w[1] = 0;
+    D_004EE6F0.ptr.c = (q + 0x10);
+    dl_OpenDma(5, D_004EE6F0.dma.c, 0);
+    dl_CloseDma();
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Shadow", shadow_Draw);
 
 void shadow_Render(void)
