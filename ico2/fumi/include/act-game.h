@@ -24,6 +24,7 @@ void ACTGameCollisionOff(volatile int *self);
 void ACTGameCollisionOn(volatile int *self);
 void ACTGameView_Add(char *a0, char *a1);
 int ACTGameView_Check(int a0, int a1);
+int ACTGameViewSimple_Check(int a0, int a1);
 void ACTGameView_FirstSet(void);
 void ACTGameView_Init(void);
 void ACTGame_BeforeFunc(char *self);

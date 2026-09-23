@@ -1,4 +1,5 @@
 #include "common.h"
+#include "debug.h"
 #include "sugiCommon.h"
 #include "weapon.h"
 #include "memory.h"
@@ -80,9 +81,89 @@ void ReleaseWeaponWithFumbleTargetPos(char *g, void *pos, void *quat, void *rot,
     weaponFumbleSE((int)g);
 }
 
-/* ReleaseWeaponWithFumbleSequential is still asm: its one .lit4 word, the
-   first of this TU's pool run. */
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/weapon", ReleaseWeaponWithFumbleSequential);
+/* One row of the fumble drop table: a target position and the three angles the
+   dropped weapon is turned by, 24 bytes, three rows to a weapon slot. */
+typedef struct {
+    float x;    /* 0x00 */
+    float y;    /* 0x04 */
+    float z;    /* 0x08 */
+    float rotY; /* 0x0C */
+    float rotX; /* 0x10 */
+    float rotZ; /* 0x14 */
+} FumbleRow;
+
+/* RECONSTRUCTION: the position vector this function builds and hands on. The
+   ROM copies it with two ld/sd pairs, so the type is 8-byte aligned; it is
+   built by aggregate initialisers, whose stores into the initialiser's
+   temporary are what make every component re-read the slot index. */
+typedef struct {
+    float x, y, z, w;
+} __attribute__((aligned(8))) FumbleVec;
+
+extern FumbleRow D_0054A040[][3];
+extern const char D_006213A0[];
+extern const char D_006213F0[];
+
+/* INTERIM NAME, chosen and not recovered: the PAL listing carries this file
+   static at weapon.c:310-320 and inlines it here, so it has no census row and
+   no name of its own in any map. */
+static inline int fumbleTargetBlocked(FumbleVec *p)
+{
+    char *o;
+    FumbleVec tmp;
+
+    for (o = isysGObjSearchFromObjKindID_begin(17); o != 0;
+         o = isysGObjSearchFromObjKindID_next(o)) {
+        float dx;
+        float dz;
+
+        GetRootPosition(&tmp, o);
+        dx = tmp.x - p->x;
+        if (((dx < 0.0f) ? -dx : dx) <= 50.0f) {
+            dz = tmp.z - p->z;
+            if (((dz < 0.0f) ? -dz : dz) <= 50.0f) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+#define FUMBLE_ROW(i, w) (&D_0054A040[*(int *)((w) + 0xA0)][i])
+
+int ReleaseWeaponWithFumbleSequential(char *g)
+{
+    char *w = *(char **)(*(char **)(g + 0x15C) + 0x830);
+    FumbleVec a;
+    int i;
+
+    for (i = 0; i < 3; i++) {
+        a = (FumbleVec){FUMBLE_ROW(i, w)->x, -FUMBLE_ROW(i, w)->y, FUMBLE_ROW(i, w)->z, 1.0f};
+        if (!fumbleTargetBlocked(&a)) {
+            break;
+        }
+        debug_StdPrintfDummy(D_006213A0, *(int *)(w + 0xA0), i);
+    }
+    debug_StdPrintfDummy(D_006213F0, *(int *)(w + 0xA0), i, FUMBLE_ROW(i, w)->x,
+                         FUMBLE_ROW(i, w)->y, FUMBLE_ROW(i, w)->z);
+    {
+        FumbleVec pos = {FUMBLE_ROW(i, w)->x, -FUMBLE_ROW(i, w)->y, FUMBLE_ROW(i, w)->z, 1.0f};
+        float quat[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+        float rot[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+
+        RotQuaternionY(quat, (short)(FUMBLE_ROW(i, w)->rotY * 182.04445f));
+        RotQuaternionX(quat, (short)(-FUMBLE_ROW(i, w)->rotX * 182.04445f));
+        RotQuaternionZ(quat, (short)(FUMBLE_ROW(i, w)->rotZ * 182.04445f));
+        RotQuaternionX(rot, 8192);
+        ReleaseWeaponWithFumbleTargetPos(g, &pos, quat, rot, 2.0f);
+    }
+    *(int *)(w + 0xA0) = *(int *)(w + 0xA0) + 1;
+    if (*(int *)(w + 0xA0) == 7) {
+        *(int *)(w + 0xA0) = 0;
+        return 1;
+    }
+    return 0;
+}
 
 typedef struct {
     float f00; /* 0x00 */

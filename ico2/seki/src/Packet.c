@@ -1,6 +1,7 @@
 #include "common.h"
 #include "debug.h"
 #include "Basic.h"
+#include "Matrix.h"
 #include "Texture.h"
 
 extern char D_0054F5C0[];
@@ -793,7 +794,82 @@ void pac_getTextureInfo(char *m, char *info, int idx)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Packet", pac_makeShapeTable);
+/* One 16-byte shape-table qword. Four ints, so 4-byte aligned: the ROM's
+   copy of it comes out as ldl/ldr plus sdl/sdr. */
+typedef struct {
+    int _0[4];
+} PacQw;
+
+/* One 32-byte cluster node. 8-byte aligned (the ROM copies it with ld/sd),
+   terminated by -1 in the word at +0x10. */
+typedef struct {
+    long long _0[2];
+    int f10;
+    int _14[3];
+} PacNode;
+
+void pac_makeShapeTable(int a0, char *obj)
+{
+    unsigned int i;
+    int k;
+    int cnt;
+    int m;
+    short *p;
+    int n;
+    PacQw **tbl;
+    PacNode **ntbl;
+    PacNode *dst;
+    PacNode *r;
+    PacNode *q;
+
+    *(int *)(obj + 0x174) = mallocseki(*(int *)(obj + 0x94) * 16);
+    for (i = 0; i < *(unsigned int *)(obj + 0x94); i++)
+        _CopyVector(*(char **)(obj + 0x174) + i * 16, *(char **)(obj + 0x90) + i * 16);
+    *(int *)(obj + 0x178) = mallocseki(*(int *)(obj + 0xA4) * 16);
+    for (i = 0; i < *(unsigned int *)(obj + 0xA4); i++)
+        _CopyVector(*(char **)(obj + 0x178) + i * 16, *(char **)(obj + 0xA0) + i * 16);
+    *(int *)(obj + 0x90) = mallocseki(*(int *)(obj + 0x94) * 16);
+    for (i = 0; i < *(unsigned int *)(obj + 0x94); i++)
+        _CopyVector(*(char **)(obj + 0x90) + i * 16, *(char **)(obj + 0x174) + i * 16);
+    *(int *)(obj + 0xA0) = mallocseki(*(int *)(obj + 0xA4) * 16);
+    for (i = 0; i < *(unsigned int *)(obj + 0xA4); i++)
+        _CopyVector(*(char **)(obj + 0xA0) + i * 16, *(char **)(obj + 0x178) + i * 16);
+    tbl = (PacQw **)mallocseki(*(int *)(obj + 0x104) * 4);
+    for (i = 0; i < *(unsigned int *)(obj + 0x104); i++) {
+        p = ((short **)*(int *)(obj + 0x100))[i];
+        cnt = 0;
+        n = p[0];
+        while (n != 0) {
+            p += n * 8 + 8;
+            cnt += n + 1;
+            n = p[0];
+        }
+        cnt++;
+        tbl[i] = (PacQw *)mallocseki(cnt * 16);
+        for (k = 0; k < cnt; k++)
+            tbl[i][k] = ((PacQw **)*(int *)(obj + 0x100))[i][k];
+    }
+    *(int *)(obj + 0x100) = (int)tbl;
+    ntbl = (PacNode **)mallocseki(*(int *)(obj + 0x124) * 4);
+    for (i = 0; i < *(unsigned int *)(obj + 0x124); i++) {
+        ntbl[i] = 0;
+        q = ((PacNode **)*(int *)(obj + 0x120))[i];
+        if (q != 0) {
+            r = q;
+            for (m = 0; r->f10 != -1; r++)
+                m++;
+            m += 2;
+            ntbl[i] = (PacNode *)mallocseki(m * 32);
+            for (r = ((PacNode **)*(int *)(obj + 0x120))[i], dst = ntbl[i];; r++, dst++) {
+                *dst = *r;
+                if (r->f10 == -1)
+                    break;
+            }
+        }
+    }
+    *(int *)(obj + 0x120) = (int)ntbl;
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Packet", pac_makePacket);
 
 void pac_MakePacket(char *a0)

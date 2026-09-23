@@ -565,11 +565,80 @@ int _SgSetRealtimeVolume(int *a0)
     return 0;
 }
 
-/* Reverted to asm (chain 3 pass 14, re-measured pass 42): 104 of 104
- * instructions with 21 differing words, every one of them a register name.
- * Derived body and mechanism:
- * tails/seeds/sg.c3p42_SgTableEnvAdd_104of104_strict21_TU.c. */
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgTableEnvAdd);
+/* Both arms fill the same three head slots from one table pointer (tb) and
+ * one data pointer (p, reloaded from the header in the flag-4 arm): the
+ * ROM keeps each in the same register ($6, $5) across the two arms. */
+int _SgTableEnvAdd(int *a0)
+{
+    int *head = _SgGetHeadContext();
+    int *vab;
+    char *hdr;
+    char *p;
+    unsigned char *e;
+    int magic;
+    int cur;
+    int b;
+    int ret;
+    unsigned char *tb;
+
+    /* volatile: the ROM reads the vab id at 0x18 twice, once for the range
+       check and again in the delay slot of the _SgGetVabContext call. */
+    if ((unsigned int)(*(volatile unsigned short *)((char *)a0 + 0x18) - 1) >= 127) {
+        return -1;
+    }
+    vab = _SgGetVabContext(*(unsigned short *)((char *)a0 + 0x18));
+    hdr = (char *)vab[0];
+    if (hdr == 0) {
+        return -1;
+    }
+    p = (char *)a0[2];
+    if (p == 0) {
+        return -1;
+    }
+    magic = *(int *)(hdr + 0xC);
+    head[3] = (int)hdr;
+    if (magic != 0x64685353) {
+        return -1;
+    }
+    cur = a0[1];
+    e = (unsigned char *)(p + cur);
+    head[4] = (int)e;
+    b = *e;
+    if (b & 0x80) {
+        *((char *)a0 + 0x50) = b;
+        *((char *)a0 + 0x51) = b;
+    } else {
+        a0[1] = cur - 1;
+        *((char *)a0 + 0x50) = *((unsigned char *)a0 + 0x51);
+        head[4] = (int)(p + (cur - 1));
+    }
+    ret = 1;
+    if (a0[0] & 4) {
+        *(short *)((char *)a0 + 0x4E) = *(unsigned short *)((char *)a0 + 0x4C);
+        tb = *(unsigned char **)(head[3] + 0x44);
+        p = *(char **)(head[3] + 0x40);
+        head[0] = (int)tb + *(unsigned short *)(tb + *(unsigned char *)(head[4] + 3) * 2 + 2);
+        head[2] = (int)p;
+        head[1] = head[0] + 8;
+    } else {
+        int n;
+
+        head[2] = (int)p;
+        tb = (unsigned char *)*(int *)(head[3] + 0x30);
+        *(short *)((char *)a0 + 0x4E) = *((unsigned char *)a0 + 0x50) & 0xF;
+        n = *(unsigned char *)(p + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x12);
+        head[0] = (int)tb + *(unsigned short *)(tb + n * 2 + 2);
+        head[1] = head[0] + 8;
+        if (*((unsigned char *)a0 + 0x50) < 0xA0) {
+            if (*(unsigned short *)(tb + n * 2 + 2) == 0xFFFF || *(unsigned short *)tb < n ||
+                *(unsigned int *)(head[3] + 0x10) == 0xFFFFFFFF) {
+                ret = 0;
+                a0[1] += 3;
+            }
+        }
+    }
+    return ret;
+}
 
 extern void *_SgGetComContext(void);
 

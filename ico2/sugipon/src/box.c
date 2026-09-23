@@ -395,7 +395,120 @@ int AlignBox(char *a0, float grid)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", initWheels);
+/* declared here: box.c includes no header that declares the ios allocators
+   (ico2/fumi/include/memory.h has them with an IosMemPart * partition) */
+extern void *iosMallocDebug(void *part, int size, char *file, int line);
+extern void iosFree(void *p);
+/* the heap partition the wheel buffers come from and the "src/box.c" file
+   string the debug allocator records, both read by VMA: D_0063A44C is the
+   gp-relative partition handle, D_0061EF80 is at rodata VMA 0x61EF80 */
+extern void *D_0063A44C;
+extern char D_0061EF80[];
+extern GenGeo D_002C2DC8[];
+
+/* box.c:546-565 in the listing.  Lines 558 to 560 are one call-site line in
+   the listing, the same DObj-buffer setup ico2/omori/src/chain.c expands by
+   hand at its own line 1245 (InitChainGeo, matched): the wheel count is 2
+   here, so the three allocation sizes are 2<<6, 2<<4 and 2*80 bytes and the
+   560 the allocator records is the dev source line. */
+void initWheels(char *self, float *lay)
+{
+    char *w = (char *)GOBJ_SUB(self)->f_830;
+    int i;
+
+    if (D_002C2DC8[((int *)self)[2]].f30 == 26 ||
+        D_002A79B8[*(int *)((char *)GOBJ_SUB(self) + 0x844)].dobj0 == 0x610) {
+        *(int *)(w + 0x11C) = 0;
+    } else {
+        *(char **)(w + 0x11C) =
+            CSVSYSTEM_InitDObj(D_002A79B8[*(int *)((char *)GOBJ_SUB(self) + 0x844)].dobj0, lay);
+        if (*(int *)(*(char **)(w + 0x11C) + 0xC) != 0) {
+            iosFree((void *)(*(int *)(*(char **)(w + 0x11C) + 0xC) & 0x0FFFFFFF));
+        }
+        if (*(int *)(*(char **)(w + 0x11C) + 0x10) != 0) {
+            iosFree((void *)(*(int *)(*(char **)(w + 0x11C) + 0x10) & 0x0FFFFFFF));
+        }
+        *(int *)(*(char **)(w + 0x11C) + 0xC) = 0;
+        *(int *)(*(char **)(w + 0x11C) + 0x10) = 0;
+        *(int *)(*(char **)(w + 0x11C) + 0xC) =
+            (int)iosMallocDebug(D_0063A44C, 128, D_0061EF80, 560);
+        *(int *)(*(char **)(w + 0x11C) + 0x10) =
+            (int)iosMallocDebug(D_0063A44C, 32, D_0061EF80, 560);
+        *(int *)(*(char **)(w + 0x11C) + 0x8) = 2;
+        if (*(int *)(*(char **)(w + 0x11C) + 0x870) != 0) {
+            iosFree((void *)(*(int *)(*(char **)(w + 0x11C) + 0x870) & 0x0FFFFFFF));
+        }
+        *(int *)(*(char **)(w + 0x11C) + 0x870) =
+            (int)iosMallocDebug(D_0063A44C, 160, D_0061EF80, 560);
+
+        for (i = 0; i < 2; i++) {
+            {
+                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                ((DlFlag *)(e + 0x38))->ll &= ~1;
+            }
+            {
+                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                ((DlFlag *)(e + 0x38))->ll &= ~2;
+            }
+            {
+                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                *(float *)(e + 0x40) = 0.0f;
+            }
+            {
+                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                *(float *)(e + 0x44) = 0.0f;
+            }
+            {
+                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                *(float *)(e + 0x48) = 0.0f;
+            }
+            {
+                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                *(float *)(e + 0x4C) = 1.0f;
+            }
+            {
+                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                ((DlFlag *)(e + 0x38))->ll &= ~4;
+            }
+            {
+                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                *(int *)(e + 0x30) = 0;
+            }
+            {
+                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                *(float *)(e + 0x34) = 1.0f;
+            }
+            {
+                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                *(short *)(e + 0x3A) = 0;
+            }
+            {
+                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                *(float *)(e + 0x20) = 1.0f;
+            }
+            {
+                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                *(float *)(e + 0x24) = 1.0f;
+            }
+            {
+                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                *(float *)(e + 0x28) = 1.0f;
+            }
+        }
+        *(short *)(*(char **)(w + 0x11C) + 0x84C) = 2;
+
+        /* the sub-object handle at 0x15C read through the TU's IntFloat union
+           (alias set 0), as the wheel-float stores are: the ROM keeps the first
+           handle load behind the 0x84C store above, which a plain int read,
+           free to move past a short store, does not give */
+        ((IntFloat *)(w + 0x128))->f =
+            D_002A79B8[*(int *)(((IntFloat *)(self + 0x15C))->i + 0x844)].f0C;
+        ((IntFloat *)(w + 0x12C))->f =
+            D_002A79B8[*(int *)(((IntFloat *)(self + 0x15C))->i + 0x844)].f10;
+        ((IntFloat *)(w + 0x130))->f =
+            D_002A79B8[*(int *)(((IntFloat *)(self + 0x15C))->i + 0x844)].f14;
+    }
+}
 
 /* box.c:567-572 in the listing: inlined once, into action's case 0, so it is a
    static inline here; it has no symbol of its own in the ROM and no census row,
@@ -518,7 +631,36 @@ int getNearestPosition(float *out, int *pidx, int *path)
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", onPathInitialize);
+extern char D_0061EF90[];
+extern char D_0061EFA8[];
+
+void onPathInitialize(char *a0)
+{
+    float front[4];
+    float rear[4];
+    char *p = (char *)GOBJ_SUB(a0)->f_830;
+    /* one offset variable for both wheels: the ROM loads 50.0f and -50.0f
+       into the same register, each on its own vector's line */
+    float ofs;
+    Vec16 fv = {{0.0f, 0.0f, *(float *)(p + 0x28) * (ofs = 50.0f), 1.0f}};
+    Vec16 rv = {{0.0f, 0.0f, *(float *)(p + 0x28) * (ofs = -50.0f), 1.0f}};
+    float quat[4];
+
+    *(int *)(p + 0x50) = *(int *)(p + 0x54) = -1;
+    sceVu0ApplyMatrix(front, (void *)GOBJ_SUB(a0)->f_C, &fv);
+    sceVu0ApplyMatrix(rear, (void *)GOBJ_SUB(a0)->f_C, &rv);
+    getNearestPosition(front, (int *)(p + 0x50), (int *)(p + 0x58));
+    getNearestPosition(rear, (int *)(p + 0x54), (int *)(p + 0x58));
+    debug_StdPrintfDummy(D_0061EF90, front[0], front[1], front[2]);
+    debug_StdPrintfDummy(D_0061EFA8, rear[0], rear[1], rear[2]);
+    if (distance_squared(front, rear) < 0.010000001f) {
+        GetRootQuaternion((int)quat, (int)a0);
+        RotQuaternionY(quat, 16384);
+        SetRootQuaternion(a0, quat);
+        UpdateRootMatrix(a0);
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", onPath);
 
 /* kept local: this TU's uses of FSqrt do not fit the prototype in matrixDrive.h */

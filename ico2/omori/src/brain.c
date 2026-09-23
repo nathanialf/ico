@@ -54,8 +54,6 @@ void brainInit(void)
     eBrainInit();
 }
 
-extern char D_00554C88[];
-
 void OverrideBrainStatusByGObj(Brain *b, int gobj, float f8, float f10, float fC)
 {
     BrainTarget *t;
@@ -71,7 +69,8 @@ void OverrideBrainStatusByGObj(Brain *b, int gobj, float f8, float f10, float fC
             return;
         }
     }
-    debug_StdPrintfDummy(D_00554C88);
+    /* "failed to override the brain level" */
+    debug_StdPrintfDummy("ブレインレベルのオーバーライドに失敗しました\n");
 }
 
 typedef struct {
@@ -122,15 +121,108 @@ void brainStatusDefaultSet(Brain *b, int gobj, int idx)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/brain", brainLevelProcess);
+extern char *D_00639EA8;
+
+/* RECONSTRUCTION: listing brain.c:450-456 is a file-static helper the ROM only
+ * ever expands; MAIN.MAP has no symbol for it, so the name is ours. */
+static inline void brainLevelUp(BrainTarget *t)
+{
+    float d = t->f10;
+
+    if (t->level <= t->f8) {
+        float r;
+        t->level = t->level + d;
+        if (t->level < 0.0f) {
+            r = 0.0f;
+        } else if (t->level > t->f8) {
+            r = t->f8;
+        } else {
+            r = t->level;
+        }
+        t->level = r;
+    }
+}
+
+/* INTERIM stand-in for brainCheckView (listing brain.c:266-270), which the ROM
+ * expands here; the out-of-line definition keeps its ROM slot below until the
+ * TU is put back in its source order (every member is C, so that is open). */
+static inline int brainCheckView_INTERIM(Brain *b, BrainTarget *t)
+{
+    if (t->b19 != 0) {
+        return 1;
+    }
+    return ACTGameView_Check(b->girl, t->gobj) != 0;
+}
+
+void brainLevelProcess(Brain *b)
+{
+    int i;
+
+    b->f14 = b->f14 - _ACTGame_GetParamF(24) * 0.1f;
+    if (b->f14 < b->f18) {
+        b->f14 = b->f18;
+    }
+    for (i = 0; i < 40; i++) {
+        BrainTarget *t = &b->tgt[i];
+
+        if (t->gobj == 0) {
+            continue;
+        }
+        if (*(int *)(t->gobj + 0x16C) == 0) {
+            t->level = 0.0f;
+            continue;
+        }
+        if (b->w8 != 0) {
+            t->level = 0.0f;
+            continue;
+        }
+        if (t != b->cur && t->level > 1.9 && D_00639EA8 != 0 &&
+            ((int)(*(long long *)(*(int *)(D_00639EA8 + 0x164) + 0x20) >> 27) & 1)) {
+            float r;
+            /* 3.40282347e+38f is FLT_MAX: outside mips_const_double_ok's li.s
+               range, so each function that uses it gets its own constant-pool
+               word in this TU's .sdata (0x63AA6C here, 0x63AA70 for
+               brainSubLevelGop) */
+            if (ACTGameViewSimple_Check(b->girl, t->gobj) != 0) {
+                t->level = t->level - 0.002;
+            } else {
+                t->level = t->level - 0.005;
+            }
+            if (t->level < 1.9) {
+                r = 1.9f;
+            } else if (t->level > 3.40282347e+38f) {
+                r = 3.40282347e+38f;
+            } else {
+                r = t->level;
+            }
+            t->level = r;
+            continue;
+        }
+        if (brainCheckView_INTERIM(b, t) == 0) {
+            continue;
+        }
+        brainLevelUp(t);
+        if (t->f8 < t->level) {
+            float r;
+            t->level = t->level - t->f10 / 10.0f;
+            if (t->level < t->f8) {
+                r = t->f8;
+            } else if (t->level > 3.40282347e+38f) {
+                r = 3.40282347e+38f;
+            } else {
+                r = t->level;
+            }
+            t->level = r;
+        }
+    }
+}
 
 /* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
 extern float _DistSqGV(void *a, void *b);
-extern char *D_00639EA8;
 
 /* INTERIM stand-in for brainGetLevel (listing brain.c:541-545), which the ROM
- * expands into brainGetTarget; the out-of-line definition stays at its own ROM
- * slot below while this TU still has asm members. */
+ * expands into brainGetTarget; the out-of-line definition keeps its ROM slot
+ * below until the TU is put back in its source order. */
 static inline float brainGetLevel_INTERIM(Brain *b, BrainTarget *t)
 {
     if (b->cur == t) {
@@ -233,10 +325,9 @@ void brainStatusDel(char *self)
     *(int *)(self + 0x0) = 0;
 }
 
-float brainGetLevel(
-    Brain *b,
-    BrainTarget *
-        t) /* inlined by brainLevelProcess and brainGetTarget in ROM: `inline` once those are C, plain until then (the tail still has asm members) */
+/* expanded into brainGetTarget in ROM; a plain definition at its ROM slot
+   until the TU is put back in its source order */
+float brainGetLevel(Brain *b, BrainTarget *t)
 {
     if (b->cur == t) {
         return t->level + b->f14;
@@ -309,7 +400,28 @@ void brainAddLevelGop(int gobj, float lv)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/brain", brainSubLevelGop);
+void brainSubLevelGop(int gobj, float lv)
+{
+    int brain = (int)D_002A5580;
+    int tgt = brain + 0x28;
+    int i;
+
+    for (i = 0; i < 40; i++) {
+        if (((BrainTarget *)tgt)[i].gobj == gobj) {
+            float r;
+            ((BrainTarget *)tgt)[i].level = ((BrainTarget *)tgt)[i].level - lv;
+            /* 3.40282347e+38f is FLT_MAX, a constant-pool word (see brainLevelProcess) */
+            if (((BrainTarget *)tgt)[i].level < 0.0f) {
+                r = 0.0f;
+            } else if (((BrainTarget *)tgt)[i].level > 3.40282347e+38f) {
+                r = 3.40282347e+38f;
+            } else {
+                r = ((BrainTarget *)tgt)[i].level;
+            }
+            ((BrainTarget *)tgt)[i].level = r;
+        }
+    }
+}
 
 void brainSetLevelGop(int gobj, int a1, int a2, float lv)
 {

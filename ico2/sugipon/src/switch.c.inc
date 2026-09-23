@@ -93,7 +93,24 @@ inline void initParentize(char *a0)
 extern LeverGeoWork D_004E5AA0;
 extern char D_0061EF10[];
 extern int D_0063A438;
-extern char D_002A79B8[];
+
+/* The per-model box record table at VMA 0x2A79B8, 0x28 bytes a record: the
+   two DObj ids the levers here and initWheels in box.c pass to
+   CSVSYSTEM_InitDObj, and the three wheel floats initWheels copies out.
+   RECONSTRUCTION: declared as an array of records because initWheels' first
+   wheel float is an ARRAY_REF in the ROM (base register first in the address
+   add, addu v0,a0,v0), which a subscript through a cast pointer does not give. */
+typedef struct {
+    int dobj0;    /* 0x00 */
+    int dobj1;    /* 0x04 */
+    char _08[4];  /* 0x08 */
+    float f0C;    /* 0x0C */
+    float f10;    /* 0x10 */
+    float f14;    /* 0x14 */
+    char _18[16]; /* 0x18 */
+} BoxModelRec;
+
+extern BoxModelRec D_002A79B8[];
 
 inline LeverGeoWork *InitFloorLeverGeo(char *a0, char *a1)
 {
@@ -104,10 +121,8 @@ inline LeverGeoWork *InitFloorLeverGeo(char *a0, char *a1)
     } else {
         g->w[5] = 0;
     }
-    g->w[3] = CSVSYSTEM_InitDObj(
-        *(int *)(D_002A79B8 + *(int *)(*(char **)(a0 + 0x15C) + 0x844) * 0x28), a1);
-    g->w[4] = CSVSYSTEM_InitDObj(
-        *(int *)(D_002A79B8 + *(int *)(*(char **)(a0 + 0x15C) + 0x844) * 0x28 + 4), a1);
+    g->w[3] = CSVSYSTEM_InitDObj(D_002A79B8[*(int *)(*(char **)(a0 + 0x15C) + 0x844)].dobj0, a1);
+    g->w[4] = CSVSYSTEM_InitDObj(D_002A79B8[*(int *)(*(char **)(a0 + 0x15C) + 0x844)].dobj1, a1);
     return g;
 }
 
@@ -268,10 +283,8 @@ inline LeverGeoWork *InitWallLeverGeo(char *a0, char *a1)
     } else {
         g->w[5] = 0;
     }
-    g->w[3] = CSVSYSTEM_InitDObj(
-        *(int *)(D_002A79B8 + *(int *)(*(char **)(a0 + 0x15C) + 0x844) * 0x28), a1);
-    g->w[4] = CSVSYSTEM_InitDObj(
-        *(int *)(D_002A79B8 + *(int *)(*(char **)(a0 + 0x15C) + 0x844) * 0x28 + 4), a1);
+    g->w[3] = CSVSYSTEM_InitDObj(D_002A79B8[*(int *)(*(char **)(a0 + 0x15C) + 0x844)].dobj0, a1);
+    g->w[4] = CSVSYSTEM_InitDObj(D_002A79B8[*(int *)(*(char **)(a0 + 0x15C) + 0x844)].dobj1, a1);
     return g;
 }
 
