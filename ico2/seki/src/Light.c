@@ -536,7 +536,192 @@ void light_MakeLightMatrix(char *a, int b)
                           *(char **)(a + 0x874) + 0xE0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Light", light_DispVolume);
+/* Light.c lines 1200-1373.  The January-2002 listing carries two debug arms
+   the retail build does not: a kind-0 search of the three editor slots
+   (rows 1211-1217), the same search again before the packet (rows 1241-1258)
+   and the ambient volume's selected-slot blink and print (rows 1323-1324,
+   1363-1364).  Retail keeps neither, so the slot search that sets `i` in the
+   listing is gone and the test below reads what the previous light left in
+   it: the ROM's `li 3` in the gif_EndPacket delay slot is loop.c's final
+   value for the reversed three-step loop, emitted because `i` is still live
+   out of the loop through the back edge.
+   Both lists are walked as `p = head; while (p != 0) { ...; p = p->prev; }`
+   (rows 1202/1203 and 1307/1309, 1313/1314 and 1370/1372: the step is a body
+   statement and the bottom test carries the closing brace's line).  The first
+   block's arrays are declared in its `if` block, so they are freed when it
+   ends and the ambient loop's colour and extents re-take the frame base (the
+   ROM's sp+0 and sp+0x10); a `for` would expand its step at the arrays' own
+   level after their addresses were taken, and stmt.c's preserve_temp_slots
+   would then keep them for the whole function (measured, frame 0x280).
+   Row 1315 is one declaration: the ambient colour is built by its
+   initializer in a temporary (the three conversions, the 128 and the ld/sd
+   copy all sit on that row), and the temporary is the slot the extents
+   re-take. */
+
+/* RECONSTRUCTION, ROM BYTES: the 16-byte wire colour the debug draws pass to
+ * prim_DispWireSphere and prim_DispWireBox, the same record typedef.h calls
+ * Col4 for debug.c and girl_act.c (this file cannot include typedef.h, which
+ * redefines StageSetting and Pad).  The long long member gives the 8-byte
+ * alignment the ROM's ld/sd copy of the initializer's temporary shows. */
+typedef union {
+    int c[4];
+    long long ll[2];
+} Col4;
+
+extern int D_0063B1CC; /* the debug display flags: 1 lights, 2 ambient volumes */
+extern char *D_00639EA4;
+extern char *matrixptr;
+extern char D_0063A098[]; /* "OBJ" */
+extern char D_0063A0A0[]; /* "FIX" */
+extern void _TransposeMatrix(void *dst, void *src);
+extern void _MulMatrix(void *dst, void *a, void *b);
+extern void _UnitMatrix(void *m);
+extern void _SubVector(void *dst, void *a, void *b);
+extern void _UnitVector(void *p);
+extern void _GetCurrentMatrix(void *m);
+extern void _ScaleCurrentMatrix(float x, float y, float z);
+extern void *MatrixDrive_GetMatrix(void);
+extern void DispWireString(char *s);
+extern void prim_DispWireSphere(void *col, int nu, int nv, float r);
+extern void prim_DispWireBox(float *sz, void *col);
+extern void gif_StartPacketPri(int pri);
+extern void gif_SetZTest(int on);
+extern void gif_SetAlpha(int a, int b, int c);
+extern void gif_EndPacket(void);
+extern int sprintf(char *buf, char *fmt, ...);
+
+void light_DispVolume(void)
+{
+    int i;
+
+    if (D_0063B1CC & 1) {
+        sceVu0FMATRIX m;
+        char buf[256];
+        int col[4];
+        int black[4];
+        int dir[4];
+        float pos[4];
+        float p0[4];
+        float p1[4];
+        Light *lp;
+
+        lp = (Light *)D_0063C134;
+        while (lp != 0) {
+            switch (lp->f_44) {
+            case 1:
+                if (lp == 0) {
+                    break;
+                }
+                if (lp->f_40 == 0) {
+                    break;
+                }
+                if (*(int *)(*(char **)(lp->f_40 + 0x15C) + 0x83C) == 0) {
+                    break;
+                }
+            case 2:
+            case 3:
+                if (lp->f_34 == 0.0f) {
+                    break;
+                }
+                _UnitMatrix(MatrixDrive_GetMatrix());
+                _CopyVector((char *)MatrixDrive_GetMatrix() + 0x30, lp);
+                _TransposeMatrix(m, matrixptr + 0x80);
+                m[0][3] = m[1][3] = m[2][3] = 0.0f;
+                _MulMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix(), m);
+                if (lp->f_44 == 1) {
+                    sprintf(buf, D_0063A098);
+                } else {
+                    sprintf(buf, D_0063A0A0);
+                }
+                DispWireString(buf);
+                gif_StartPacketPri(11);
+                col[0] = lp->f_20[0] * 255.0f;
+                col[1] = lp->f_20[1] * 255.0f;
+                col[2] = lp->f_20[2] * 255.0f;
+                col[3] = 128;
+                black[0] = black[1] = black[2] = 0;
+                black[3] = 128;
+                _UnitMatrix(MatrixDrive_GetMatrix());
+                _CopyVector((char *)MatrixDrive_GetMatrix() + 0x30, lp);
+                gif_SetZTest(1);
+                gif_SetAlpha(1, 2, 64);
+                prim_DispWireSphere(col, 6, 6, lp->f_34 * 0.1f);
+                if (i != 0) {
+                    GetRootPosition(pos, D_00639EA4);
+                    _SubVector(pos, pos, lp);
+                    pos[3] = 1.0f;
+                    _NormalizeVector(pos, pos);
+                    _ScaleVectorXYZ(pos, pos, lp->f_34);
+                    _UnitVector(dir);
+                    DrawLineG(dir, col, pos, black, 0);
+                }
+                for (i = 0; i < 3; i++) {
+                    _UnitVector(p0);
+                    _UnitVector(p1);
+                    p0[i] -= lp->f_34;
+                    p1[i] += lp->f_34;
+                    p0[3] = p1[3] = 1.0f;
+                    DrawLineG(p0, col, p1, col, 0);
+                }
+                gif_EndPacket();
+                break;
+            }
+            lp = lp->prev;
+        }
+    }
+    if (D_0063B1CC & 2) {
+        AmbientVolume *av;
+
+        av = (AmbientVolume *)D_0063C138;
+        while (av != 0) {
+            Col4 col = {{av->f_40[0] * 255.0f, av->f_40[1] * 255.0f, av->f_40[2] * 255.0f, 128}};
+            float ext[4];
+
+            /* Row 1316.  The null test folds away (the loop test already
+               proved av), but as a loop exit it is what makes stmt.c's
+               expand_end_loop roll the colour with the loop test, so jump.c
+               copies both above the loop: the ROM's two colour blocks.  The
+               bytes pin a loop exit after the initializer and before the
+               switch, not its spelling; the same function re-tests its
+               light pointer the same way in case 1 of the first loop, where
+               the test survives.  Without it the copy is gone (362 of 380). */
+            if (av == 0) {
+                break;
+            }
+            switch (av->f_90) {
+            case 2:
+                _SetCurrentMatrix(av);
+                _ScaleCurrentMatrix(1.0f / av->f_70[0], 1.0f / av->f_70[1], 1.0f / av->f_70[2]);
+                _GetCurrentMatrix(MatrixDrive_GetMatrix());
+                gif_StartPacketPri(11);
+                gif_SetZTest(1);
+                gif_SetAlpha(1, 2, 64);
+                prim_DispWireSphere(&col, 6, 6, 1.0f / av->f_60[0]);
+                prim_DispWireSphere(&col, 6, 6, 1.0f / av->f_50[0]);
+                gif_EndPacket();
+                break;
+            case 1:
+                _SetCurrentMatrix(av);
+                _ScaleCurrentMatrix(1.0f / av->f_70[0], 1.0f / av->f_70[1], 1.0f / av->f_70[2]);
+                _GetCurrentMatrix(MatrixDrive_GetMatrix());
+                gif_StartPacketPri(11);
+                gif_SetZTest(1);
+                gif_SetAlpha(1, 2, 64);
+                ext[0] = 1.0f / av->f_50[0];
+                ext[1] = 1.0f / av->f_50[1];
+                ext[2] = 1.0f / av->f_50[2];
+                prim_DispWireBox(ext, &col);
+                ext[0] = 1.0f / av->f_60[0];
+                ext[1] = 1.0f / av->f_60[1];
+                ext[2] = 1.0f / av->f_60[2];
+                prim_DispWireBox(ext, &col);
+                gif_EndPacket();
+                break;
+            }
+            av = av->prev;
+        }
+    }
+}
 
 /* Light.c line 1388.  Declared `inline`, so ee-gcc expands it into light_Tool
    (listing rows 1388-1406 sit inside light_Tool's span) and defers the

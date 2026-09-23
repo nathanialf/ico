@@ -240,7 +240,75 @@ void *_i2b(void *a0, int a1)
     return r;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libc/stdlib/mprec", _multiply);
+/* newlib mprec.h Storeinc for a little-endian target: the two halves of the
+   word go out as halfword stores. */
+#define Storeinc(a, b, c)                                                                          \
+    (((unsigned short *)(a))[1] = (unsigned short)(b),                                             \
+     ((unsigned short *)(a))[0] = (unsigned short)(c), (a)++)
+
+int *_multiply(void *ptr, Bigint *a, Bigint *b)
+{
+    Bigint *c;
+    int k, wa, wb, wc;
+    unsigned int carry, *x, *xa, *xae, *xb, *xbe, *xc, *xc0, y, z;
+    unsigned int z2;
+
+    if (a->wds < b->wds) {
+        c = a;
+        a = b;
+        b = c;
+    }
+    k = a->k;
+    wa = a->wds;
+    wb = b->wds;
+    wc = wa + wb;
+    if (wc > a->maxwds) {
+        k++;
+    }
+    c = (Bigint *)_Balloc(ptr, k);
+    for (x = c->x, xa = x + wc; x < xa; x++) {
+        *x = 0;
+    }
+    xa = a->x;
+    xae = xa + wa;
+    xb = b->x;
+    xbe = xb + wb;
+    xc0 = c->x;
+    for (; xb < xbe; xb++, xc0++) {
+        if ((y = *xb & 0xFFFF) != 0) {
+            x = xa;
+            xc = xc0;
+            carry = 0;
+            do {
+                z = (*x & 0xFFFF) * y + (*xc & 0xFFFF) + carry;
+                carry = z >> 16;
+                z2 = (*x++ >> 16) * y + (*xc >> 16) + carry;
+                carry = z2 >> 16;
+                Storeinc(xc, z2, z);
+            } while (x < xae);
+            *xc = carry;
+        }
+        if ((y = *xb >> 16) != 0) {
+            x = xa;
+            xc = xc0;
+            carry = 0;
+            z2 = *xc;
+            do {
+                z = (*x & 0xFFFF) * y + (*xc >> 16) + carry;
+                carry = z >> 16;
+                Storeinc(xc, z, z2);
+                z2 = (*x++ >> 16) * y + (*xc & 0xFFFF) + carry;
+                carry = z2 >> 16;
+            } while (x < xae);
+            *xc = z2;
+        }
+    }
+    for (xc0 = c->x, xc = xc0 + wc; wc > 0 && *--xc == 0; wc--) {
+        ;
+    }
+    c->wds = wc;
+    return (int *)c;
+}
 
 extern const int D_00638890[];
 extern int *_multiply(void *ptr, Bigint *a, Bigint *b);
@@ -344,12 +412,6 @@ int __mcmp(unsigned int *a, unsigned int *b)
     } while (pa < pae);
     return 0;
 }
-
-/* newlib mprec.h Storeinc for a little-endian target: the two halves of the
-   word go out as halfword stores. */
-#define Storeinc(a, b, c)                                                                          \
-    (((unsigned short *)(a))[1] = (unsigned short)(b),                                             \
-     ((unsigned short *)(a))[0] = (unsigned short)(c), (a)++)
 
 int *__mdiff(void *ptr, Bigint *a, Bigint *b)
 {

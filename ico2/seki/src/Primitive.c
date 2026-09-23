@@ -3,6 +3,7 @@
 #include "memory.h"
 #include "DisplayList.h"
 #include "MicroCode.h"
+#include "RegistPacket.h"
 #include "Texture.h"
 #include "delayFreeManager.h"
 #include "lineManager.h"
@@ -416,7 +417,130 @@ Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col
     return m;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Primitive", prim_makeNormal);
+/* Primitive.c lines 635-706.  prim_makeNormal fills the per-vertex normal
+   buffer at Mesh3D+0x70 (the field the other members of this TU call `uv`;
+   the names in the typedef are placeholders and 0x70 is the normal buffer
+   here).  The four neighbours of a vertex are walked with one pair of
+   indices, x and y, reassigned for each neighbour (listing rows 645, 651,
+   657 and 663) and wrapped when the mesh is closed in that direction. */
+extern char *matrixptr;
+extern void _PushCurrentMatrix(void);
+extern void _PopCurrentMatrix(void);
+extern void _SubVector(void *d, void *a, void *b);
+extern void _OuterProduct(void *d, void *a, void *b);
+extern void _AddVector(void *d, void *a, void *b);
+extern void _NormalizeVector(void *d, void *s);
+extern float _InnerProduct(void *a, void *b);
+extern void _ScaleVector(void *d, void *s, float k);
+
+void prim_makeNormal(Mesh3D *m)
+{
+    int f[4];
+    Prim3DVec n;
+    Prim3DVec a;
+    Prim3DVec b;
+    Prim3DVec c;
+    Prim3DVec d;
+    Prim3DVec e0;
+    Prim3DVec e1;
+    Prim3DVec e2;
+    Prim3DVec e3;
+    int i;
+    int j;
+    int x;
+    int y;
+    int cnt;
+    float s;
+
+    _PushCurrentMatrix();
+    _SetCurrentMatrix(matrixptr + 0x80);
+    for (i = 0; i < m->ny; i++) {
+        for (j = 0; j < m->nx; j++) {
+            f[0] = f[1] = f[2] = f[3] = 0;
+            x = j - 1;
+            y = i;
+            if (x < 0) {
+                if (m->f08 != 0) {
+                    x = m->nx - 1;
+                }
+            }
+            if (x >= 0) {
+                _SubVector(&e0, &m->pos[y * m->nx + x], &m->pos[i * m->nx + j]);
+                f[0] = 1;
+            }
+            x = j;
+            y = i - 1;
+            if (y < 0) {
+                if (m->f0C != 0) {
+                    y = m->ny - 1;
+                }
+            }
+            if (y >= 0) {
+                _SubVector(&e1, &m->pos[y * m->nx + x], &m->pos[i * m->nx + j]);
+                f[1] = 1;
+            }
+            x = j + 1;
+            y = i;
+            if (x >= m->nx) {
+                if (m->f08 != 0) {
+                    x = 0;
+                }
+            }
+            if (x < m->nx) {
+                _SubVector(&e2, &m->pos[y * m->nx + x], &m->pos[i * m->nx + j]);
+                f[2] = 1;
+            }
+            x = j;
+            y = i + 1;
+            if (y >= m->ny) {
+                if (m->f0C != 0) {
+                    y = 0;
+                }
+            }
+            if (y < m->ny) {
+                _SubVector(&e3, &m->pos[y * m->nx + x], &m->pos[i * m->nx + j]);
+                f[3] = 1;
+            }
+            n.x = n.y = n.z = n.w = 0.0f;
+            cnt = 0;
+            if (f[0] != 0 && f[1] != 0) {
+                _OuterProduct(&a, &e0, &e1);
+                _AddVector(&n, &n, &a);
+                cnt++;
+            }
+            if (f[1] != 0 && f[2] != 0) {
+                _OuterProduct(&b, &e1, &e2);
+                _AddVector(&n, &n, &b);
+                cnt++;
+            }
+            if (f[2] != 0 && f[3] != 0) {
+                _OuterProduct(&c, &e2, &e3);
+                _AddVector(&n, &n, &c);
+                cnt++;
+            }
+            if (f[3] != 0 && f[0] != 0) {
+                _OuterProduct(&d, &e3, &e0);
+                _AddVector(&n, &n, &d);
+                cnt++;
+            }
+            s = 1.0f / cnt;
+            m->uv[i * m->nx + j].x = n.x * s;
+            m->uv[i * m->nx + j].y = n.y * s;
+            m->uv[i * m->nx + j].z = n.z * s;
+            m->uv[i * m->nx + j].w = 0.0f;
+            _NormalizeVector(&m->uv[i * m->nx + j], &m->uv[i * m->nx + j]);
+            _ApplyCurrentMatrix(&a, &m->uv[i * m->nx + j]);
+            b.x = b.y = 0.0f;
+            b.z = b.w = 1.0f;
+            a.z = _InnerProduct(&b, &a);
+            if (a.z > 0.0f) {
+                _ScaleVector(&m->uv[i * m->nx + j], &m->uv[i * m->nx + j], -1.0f);
+            }
+            m->uv[i * m->nx + j].w = 0.0f;
+        }
+    }
+    _PopCurrentMatrix();
+}
 
 extern void prim_makeNormal(Mesh3D *m);
 
@@ -465,10 +589,180 @@ void prim_UpdateMesh3D(Mesh3D *m, int flags, int idx)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Primitive", setMatrix);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Primitive", setLight);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Primitive", clearUVOffset);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Primitive", prim_DispMesh3D);
+/* Primitive.c lines 785-868.  setMatrix, setLight and clearUVOffset are GNU
+   nested functions of prim_DispMesh3D: each consumes the static chain in $2 on
+   entry (the ROM stores it at the top of the frame, and setLight reads the
+   parent's two light arguments through it), and the January-2002 listing names
+   them setMatrix.100, setLight.104 and clearUVOffset.108, gcc's own labels for
+   a nested body.  The retail build drops the three primitive counters the
+   listing carries at rows 860-862.
+   A matrix or vector copied into the packet takes the cursor post-incremented
+   as its destination, `_CopyMatrix(((float (*)[16])dd->ptr)++, m)`: the
+   increment is queued (expr.c expand_increment, the MEM path), so the old
+   cursor is copied out first and the add is done in place on the loaded
+   register before the store and the call, which is setLight's second copy in
+   the ROM (listing row 810: move $a0,$v0 then addiu $v0,$v0,64, the store in
+   the call's slot).  A cursor local assigned `r + 0x40` schedules the add
+   before the argument copy and ties the pointer to $a0 (measured, 52 of 53
+   or 16 words).  Rows 809 and 810 are the same statement, so every packet
+   copy here is spelled the same way. */
+extern int D_0063B124;
+extern int D_0063B204;
+extern int buffer_ID;
+extern void mc_SetMicroCode(int a, int b, int c, int d, int e);
+/* kept local: this TU's uses of the gif packet calls do not fit GifPacket.h
+   (gif_StartPacketPri takes the priority, gif_SetGsReg two ints here) */
+extern void gif_SetGsReg(int reg, int val);
+extern void gif_StartPacketPri(int pri);
+extern void gif_EndPacket(void);
+/* kept local: this TU's uses of _CopyMatrix do not fit the prototype in Matrix.h */
+extern void _CopyMatrix(void *dst, void *src);
+extern void _CopyVector(void *dst, void *src);
+
+void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
+{
+    PrimDpk *d;
+    char *p;
+    char *q;
+    char *ext;
+    int pri;
+
+    void setMatrix(void)
+    {
+        float mtx[16];
+        PrimDpk *dd;
+        char *q;
+        char *r;
+
+        _GetCurrentMatrix(mtx);
+        dd = &D_004EE6F0;
+        q = dd->ptr;
+        dd->tail = q;
+        ((PrimPkWord *)q)->d = 0x10000005;
+        dd->ptr = q + 8;
+        ((PrimPkWord *)(q + 8))->w[0] = 0;
+        dd->ptr = q + 0xC;
+        dd->gif = q + 0xC;
+        ((PrimPkWord *)(q + 0xC))->w[0] = 0x6C048000;
+        dd->ptr = q + 0x10;
+        _CopyMatrix(((float (*)[16])dd->ptr)++, mtx);
+        r = dd->ptr;
+        ((PrimPkWord *)r)->w[0] = 0x15000010;
+        r += 4;
+        dd->ptr = r;
+        ((PrimPkWord *)r)->w[0] = 0;
+        dd->ptr = r + 4;
+        ((PrimPkWord *)(r + 4))->w[0] = 0;
+        dd->ptr = r + 8;
+        ((PrimPkWord *)(r + 8))->w[0] = 0;
+        dd->ptr = r + 0xC;
+    }
+
+    void setLight(void)
+    {
+        PrimDpk *dd;
+        char *q;
+        char *r;
+
+        dd = &D_004EE6F0;
+        q = dd->ptr;
+        dd->tail = q;
+        ((PrimPkWord *)q)->d = 0x10000009;
+        dd->ptr = q + 8;
+        ((PrimPkWord *)(q + 8))->w[0] = 0;
+        dd->ptr = q + 0xC;
+        dd->gif = q + 0xC;
+        ((PrimPkWord *)(q + 0xC))->w[0] = 0x6C088000;
+        dd->ptr = q + 0x10;
+        _CopyMatrix(((float (*)[16])dd->ptr)++, lb);
+        _CopyMatrix(((float (*)[16])dd->ptr)++, la);
+        r = dd->ptr;
+        ((PrimPkWord *)r)->w[0] = 0x15000012;
+        r += 4;
+        dd->ptr = r;
+        ((PrimPkWord *)r)->w[0] = 0;
+        dd->ptr = r + 4;
+        ((PrimPkWord *)(r + 4))->w[0] = 0;
+        dd->ptr = r + 8;
+        ((PrimPkWord *)(r + 8))->w[0] = 0;
+        dd->ptr = r + 0xC;
+    }
+
+    void clearUVOffset(void)
+    {
+        float v[4];
+        PrimDpk *dd;
+        char *q;
+        char *r;
+
+        memset(v, 0, 16);
+        dd = &D_004EE6F0;
+        q = dd->ptr;
+        dd->tail = q;
+        ((PrimPkWord *)q)->d = 0x10000002;
+        dd->ptr = q + 8;
+        ((PrimPkWord *)(q + 8))->w[0] = 0;
+        dd->ptr = q + 0xC;
+        dd->gif = q + 0xC;
+        ((PrimPkWord *)(q + 0xC))->w[0] = 0x6C018000;
+        dd->ptr = q + 0x10;
+        _CopyVector(((float (*)[4])dd->ptr)++, v);
+        r = dd->ptr;
+        ((PrimPkWord *)r)->w[0] = 0x15000002;
+        r += 4;
+        dd->ptr = r;
+        ((PrimPkWord *)r)->w[0] = 0;
+        dd->ptr = r + 4;
+        ((PrimPkWord *)(r + 4))->w[0] = 0;
+        dd->ptr = r + 8;
+        ((PrimPkWord *)(r + 8))->w[0] = 0;
+        dd->ptr = r + 0xC;
+    }
+
+    pri = dl_GetPri();
+    if (D_0063B204 == 0) {
+        return;
+    }
+    ext = (char *)tex_GetTexExtData(tex);
+    if (*(int *)(ext + 0x40) != 0) {
+        if (*(int *)(ext + 0x24) != 0) {
+            pri = reg_GetShinePri(*(int *)(ext + 0x24));
+        }
+    }
+    if (tex != -1) {
+        D_0063B124 += tex_TransTexture(tex, pri);
+    }
+    mc_TransMicroCode(4, 1 << pri);
+    d = &D_004EE6F0;
+    p = d->ptr;
+    d->tail = 0;
+    d->dma = p;
+    d->gif = 0;
+    d->end = 0;
+    setMatrix();
+    if (m->f58 != 0) {
+        setLight();
+    }
+    if (tex == -1) {
+        clearUVOffset();
+    }
+    q = d->ptr;
+    d->tail = q;
+    ((PrimPkWord *)q)->d = 0x60000000;
+    d->ptr = q + 8;
+    ((PrimPkWord *)(q + 8))->w[0] = 0;
+    d->ptr = q + 0xC;
+    ((PrimPkWord *)(q + 0xC))->w[0] = 0;
+    d->ptr = q + 0x10;
+    dl_OpenDma(5, (int)d->dma, 0);
+    dl_CloseDma();
+    gif_StartPacketPri(pri);
+    gif_SetGsReg(0x4A, 0);
+    gif_EndPacket();
+    mc_SetMicroCode(2, m->f58, 0, 1, pri);
+    dl_OpenDma(2, (int)m->bufs[buffer_ID], m->f78);
+    dl_CloseDma();
+}
 
 typedef struct {
     /* 0x00 */ int head[4];
@@ -495,14 +789,10 @@ typedef struct {
     /* 0x194 */ int f194;
 } PrimParticle;
 
-extern char *matrixptr;
 extern char D_0054F9A8[];
 extern int D_0028F4D4[];
 extern int D_0063A160[];
-extern int D_0063B124;
 extern int D_0063B200;
-/* kept local: this TU's uses of _CopyMatrix do not fit the prototype in Matrix.h */
-extern void _CopyMatrix(void *dst, void *src);
 
 /* One 16-byte constant packet template, copied to the stack. */
 typedef struct {
@@ -517,7 +807,6 @@ extern char D_0054F978[];
 extern char D_0063A158[];
 extern void _UnitMatrix(void *m);
 extern void malloc_MemCpy(void *dst, void *src, int n);
-extern void _CopyVector(void *dst, void *src);
 
 PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, int a1, char *name,
                                            int a3, void *heap)

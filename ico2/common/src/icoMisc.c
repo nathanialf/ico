@@ -199,7 +199,150 @@ void disp_memory_partition(void)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/icoMisc", ExecIcoMisc);
+extern int D_0063B174;
+extern int D_0063B14C;
+extern int D_0063B448;
+extern int D_0063A3E0;
+extern int D_0063B140;
+extern int D_0063B13C;
+extern int D_0063B1A4;
+extern int D_0063B60C;
+extern int D_0063B444;
+extern int D_0063B440;
+extern int D_0063B150;
+extern int graphics_ready;
+extern int kanbanCommonRead;
+extern int stage_no;
+extern int title_fading_out;
+extern float D_0063A64C;
+extern float D_0063AA0C;
+extern char *D_00639EA4;
+extern char *D_00639EA8;
+extern char D_0061D430[];
+extern char D_0061D440[];
+extern char D_0061D458[];
+extern int D_0028F4C0[];
+extern char jimaku_msg[];
+extern void disp_memory_partition(void);
+extern void disp_memory_partition_bar(void);
+extern void debug_SESlotDisp(void);
+extern int iosCdvdDiskStatusGet(void);
+/* debug_Printf comes from debug.h */
+extern void iosOmGetGObjStatus(int *a0, int *a1);
+extern void exec_layout_texture(void);
+extern void kanbanBootMain(void);
+extern void kanbanExec(void);
+extern void ExecParticleEffects(void);
+extern void ExecStreamMotionManager(void);
+extern void ExecWindManager(void);
+extern void ExecSpiderGroupManager(void);
+extern void ExecGameOverEffect(void);
+extern void gamesysBackStageProcess(void);
+extern void warpGirlOutStage(int stage, int flag);
+extern int GetCameraPos(void);
+extern void soundSeEnvPlay(void);
+extern void soundReqTickProc(void);
+extern void scpGirlHintVoiceTickProc(int cam);
+extern void fightSoundProcess(void);
+extern void eBrainProcess(void);
+extern void lt_switch_layout(int id);
+extern void jimakuDisp(char *self);
+
+void ExecIcoMisc(void)
+{
+    int total;
+    int used;
+    int cam;
+
+    if (D_0063B174 == 1) {
+        disp_memory_partition();
+    }
+    if (D_0063B14C == 1) {
+        debug_SESlotDisp();
+    }
+    if (iosCdvdDiskStatusGet() != 0) {
+        if (D_0063B448++ < 15) {
+            debug_PrintfDummy(250, 100, 0xFF000000, (int)D_0061D430);
+        } else if (D_0063B448 >= 31) {
+            D_0063B448 = 0;
+        }
+    }
+    if (D_0063A3E0 != 0) {
+        debug_PrintfDummy(250, 100, 0xFF000000, (int)D_0061D440, D_0063A3E0);
+    }
+    iosOmGetGObjStatus(&total, &used);
+    if (D_0063B140 != 0 || (D_0063B13C & 1) != 0) {
+        debug_Printf(470, 10, (used * 100 / total > 90) ? 0xFF300080 : 0xC0FF80, (int)D_0061D458,
+                     used, total);
+    }
+    if (D_0063B1A4 != 0) {
+        disp_memory_partition_bar();
+    }
+    if (graphics_ready == 0) {
+        if (iosCdvdDiskStatusGet() == 0) {
+            exec_layout_texture();
+        }
+    }
+    if (kanbanCommonRead != 0) {
+        if (stage_no == 1) {
+            kanbanBootMain();
+        }
+    }
+    kanbanExec();
+    if (graphics_ready != 0) {
+        return;
+    }
+    if (D_0028F4C0[5] == 0) {
+        ExecParticleEffects();
+        ExecStreamMotionManager();
+        ExecWindManager();
+        D_0063A64C = D_0063AA0C;
+        ExecSpiderGroupManager();
+        ExecGameOverEffect();
+        D_0063B444 = 0;
+    } else {
+        if (D_0063B60C == 28) {
+            D_0063B444 = 1;
+        }
+        if (D_0063B444 != 0) {
+            D_0063A64C = 0.0f;
+        } else if (D_0063AA0C > 0.5f) {
+            D_0063A64C = 0.5f;
+        }
+    }
+    if (D_0028F4C0[6] == 0) {
+        gamesysBackStageProcess();
+        if (D_0063B150 == 1) {
+            warpGirlOutStage(stage_no, 1);
+        }
+        cam = GetCameraPos();
+        if (D_0063B440 == 0) {
+            if (cam != 0) {
+                soundSeEnvPlay();
+            }
+        }
+        D_0063B440 = cam;
+        if (cam != 0) {
+            soundReqTickProc();
+            scpGirlHintVoiceTickProc(cam);
+        }
+        fightSoundProcess();
+    }
+    eBrainProcess();
+    if (title_fading_out != 0) {
+        if (D_00639EA4 != 0) {
+            if (*(float *)(*(char **)(D_00639EA4 + 0x15C) + 0x55C) > 1000.0f) {
+                lt_switch_layout(62);
+            }
+        }
+        if (D_00639EA8 != 0) {
+            if (*(float *)(*(char **)(D_00639EA8 + 0x15C) + 0x55C) > 1000.0f) {
+                lt_switch_layout(62);
+            }
+        }
+    }
+    jimakuDisp(jimaku_msg);
+}
 
 /* per-scene preset: twelve (time, effect id) pairs then the scene label at 0xC0 */
 typedef struct {
