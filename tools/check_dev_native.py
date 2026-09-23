@@ -22,6 +22,9 @@ pins are fine only where the developers' own source was assembly).
      those; a function attributed to one or two lines was a hand asm
      statement; a function the listing does not carry (an archive member
      without line info) is reported as unverified, not refused.
+  5. tools/compile_c.sh names exactly one assembler, ee-as 2.9-991111, and
+     SELECTED_EE_AS is only ever EE_AS_OLD: one assembler for every TU, no
+     selection by archive or by TU (user ruling 2026-09-23).
 """
 import os
 import re
@@ -115,12 +118,27 @@ def asm_block_text(L, i):
     return '\n'.join(buf)
 
 
+def check_one_assembler(bad):
+    """user ruling 2026-09-23: one assembler for every TU, no selection by archive or TU."""
+    path = os.path.join(ROOT, 'tools', 'compile_c.sh')
+    if not os.path.exists(path):
+        return
+    ok = 'tools/cc/ee-gcc2.9-991111/bin/as'
+    for i, l in enumerate(open(path, errors='replace').read().split('\n')):
+        code = l.split('#', 1)[0]
+        if re.search(r'/bin/as\b|\bmips[\w-]*-as\b', code) and ok not in code:
+            bad.append(f'tools/compile_c.sh:{i+1}: an assembler other than ee-as 2.9-991111 is named in code (one assembler for every TU, no exceptions)')
+        if re.search(r'SELECTED_EE_AS=', code) and 'EE_AS_OLD' not in code:
+            bad.append(f'tools/compile_c.sh:{i+1}: SELECTED_EE_AS is set to something other than EE_AS_OLD (no per-archive or per-TU assembler)')
+
+
 def main(argv):
     files = staged_or_all(argv)
     listing = load_listing()
     allow = load_allow()
     bad = []
     warn = []
+    check_one_assembler(bad)
     for f in files:
         path = os.path.join(ROOT, f)
         if not os.path.exists(path):
