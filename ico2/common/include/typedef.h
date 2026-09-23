@@ -362,6 +362,14 @@ typedef struct {
     float x, y, z, w;
 } __attribute__((aligned(16))) VECTOR;
 
+/* RECONSTRUCTION, PUBLIC SDK NAMING RUNG.  The 16-byte aligned integer
+ * quadword; the name is the one the public PS2 SDK documentation gives
+ * libvu0's integer vector.  It is declared here rather than in
+ * sce/libvu0/libvu0.h because StageSetting below uses it and 64 of the TUs
+ * that include this header do not include libvu0.h.
+ */
+typedef int sceVu0IVECTOR[4] __attribute__((aligned(16)));
+
 /* ------------------------------------------------------------------ *
  * (c) R5900 opcodes with no C spelling.
  *
@@ -555,20 +563,18 @@ typedef struct StageSetting {
     int f100;          /* 0x100 */
     char pad104[0x2C]; /* 0x104 */
 
-    /* RECONSTRUCTION: each target row is a 16 byte aligned quadword, the
-       ROM's own proof being gsb_Reduction's tint reads in
-       ico2/seki/src/GsBase.c.  expr.c folds a member's constant offset
-       onto the record's base before adding the variable index only while
-       the reference's alignment is exactly the field's; with the row
-       aligned to 16 it adds base and index first, cse puts the index
-       first, and the 0x130 stays the load's displacement, which is the
-       ROM's `addu index, index, base` / `lw 0x130`. */
-    struct {
-        int r;
-        int g;
-        int b;
-        int a;
-    } __attribute__((aligned(16))) targetCol[4]; /* 0x130 */
+    /* RECONSTRUCTION: each target row is a 16 byte aligned quadword (red,
+       green, blue, then the film grain tint), the ROM's own proof being
+       gsb_Reduction's tint reads in ico2/seki/src/GsBase.c.  expr.c folds
+       a member's constant offset onto the record's base before adding the
+       variable index only while the reference's alignment is exactly the
+       field's; with the row aligned to 16 it adds base and index first, cse
+       puts the index first, and the 0x130 stays the load's displacement,
+       which is the ROM's `addu index, index, base` / `lw 0x130`.  The row
+       is the typed quadword; it replaced a bare aligned(16) on an r, g, b, a
+       struct (re-audit, completeness pass 57), with every user's object
+       byte-identical. */
+    sceVu0IVECTOR targetCol[4]; /* 0x130 */
 
     /* RECONSTRUCTION: the film grain's UV step, which
        ico2/seki/src/GsBase.c's gsb_filmNoise passes as raw bits. */

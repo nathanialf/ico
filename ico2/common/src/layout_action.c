@@ -22,7 +22,12 @@ typedef struct {
    codegen at layout_action.c:1128 proves that store is an alias-set-0 access
    (it kills the cached D_0063B4D8 load, which a plain scalar field store does
    not).  RECONSTRUCTION: only the word member is attested by the bytes; the
-   developer's union may have carried a bit-field view beside it. */
+   developer's union may have carried a bit-field view beside it.  Re-audit
+   (completeness pass 57): a plain struct member changes the object, a second
+   bit-field member beside the word leaves it byte-identical (the bytes cannot
+   count members), and reading bits 1 and 3..5 through such a bit-field view
+   in currentPortLockState's test changes the object, so the one member the
+   bytes attest stays alone. */
 typedef union {
     unsigned int w;
 } R8Flags;

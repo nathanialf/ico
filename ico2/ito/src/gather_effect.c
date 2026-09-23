@@ -142,15 +142,6 @@ int GatherEffect_Proc(struct GGeo *geo)
     }
 
     end = (flag == 0);
-    i = 0; /* RULING-VESTIGIAL-EXCEPTION instance (user-approved 2026-09-21):
-              a dead assignment the 2001 source carried. It emits no bytes and
-              is the only construct that gives i a later last mention than
-              flag, so cse keeps i in the duplicated loop guard, combine
-              re-emits the zero at the compare slot and reorg takes it for the
-              blez delay slot, as the ROM has it. The same rule (the const-0
-              pseudo with the later last mention wins the slot) holds at four
-              other ROM sites, and this instruction order is in the August
-              2001 prototype, the USA and the PAL builds alike. */
 
     if (end) {
         if (geo->f68 != 0) {
@@ -160,7 +151,15 @@ int GatherEffect_Proc(struct GGeo *geo)
         debug_StdPrintfDummy("gather effect end\n");
     }
 
-    return !end;
+    /* The loop counter carries the result out.  This live use is what gives
+       i a later last mention than flag, so cse keeps i in the duplicated loop
+       guard, combine re-emits the zero at the compare slot and reorg takes it
+       for the blez delay slot, as the ROM has it; it replaced the approved
+       vestigial `i = 0;` after the loop (re-audit, completeness pass 57),
+       with the whole object byte-identical.  `return i = !end;` measures the
+       same; reusing i for end itself does not. */
+    i = !end;
+    return i;
 }
 
 inline int GatherEffect_InqEnd(int a0)

@@ -95,9 +95,15 @@ void gsb_Init(void *db)
     D_00639F8C = 1.0f;
 }
 
-extern int D_0063C118;
-extern int D_0063C11C;
-extern int D_0063C120;
+/* .sbss, owned by GsBase.o (MAIN.MAP line 7575; it names no symbol in the
+   run, so the names are ours), in the ROM's run order: the reduction tint
+   gsb_Reduction picks each frame and packs into the sprite colour. */
+static int reductionRed;
+
+static int reductionGreen;
+
+static int reductionBlue;
+
 extern int D_0063A054;
 extern int CurrentTargetGObjSub;
 extern char D_0054E300[];
@@ -148,8 +154,8 @@ void gsb_Reduction(void)
         0x14,
         0x116,
         0,
-        (long long)D_0063C118 |
-            ((long long)D_0063C120 << 16 | (long long)D_0063C11C << 8 | 0x80000000LL),
+        (long long)reductionRed |
+            ((long long)reductionBlue << 16 | (long long)reductionGreen << 8 | 0x80000000LL),
         1,
         0x80008,
         3,
@@ -176,13 +182,13 @@ void gsb_Reduction(void)
         debug_StdPrintfDummy(D_0054E300, CurrentTargetGObjSub);
     }
     if (CurrentTargetGObjSub) {
-        D_0063C118 = D_0063A054 ? 128 : D_0028F720.targetCol[CurrentTargetGObjSub - 1].r;
-        D_0063C11C = D_0063A054 ? 128 : D_0028F720.targetCol[CurrentTargetGObjSub - 1].g;
-        D_0063C120 = D_0063A054 ? 128 : D_0028F720.targetCol[CurrentTargetGObjSub - 1].b;
+        reductionRed = D_0063A054 ? 128 : D_0028F720.targetCol[CurrentTargetGObjSub - 1][0];
+        reductionGreen = D_0063A054 ? 128 : D_0028F720.targetCol[CurrentTargetGObjSub - 1][1];
+        reductionBlue = D_0063A054 ? 128 : D_0028F720.targetCol[CurrentTargetGObjSub - 1][2];
     } else {
-        D_0063C118 = D_0063A054 ? 128 : D_0028F720.reductionCol[0];
-        D_0063C11C = D_0063A054 ? 128 : D_0028F720.reductionCol[1];
-        D_0063C120 = D_0063A054 ? 128 : D_0028F720.reductionCol[2];
+        reductionRed = D_0063A054 ? 128 : D_0028F720.reductionCol[0];
+        reductionGreen = D_0063A054 ? 128 : D_0028F720.reductionCol[1];
+        reductionBlue = D_0063A054 ? 128 : D_0028F720.reductionCol[2];
     }
 }
 
@@ -231,7 +237,17 @@ extern GifDpk D_004EE6F0;
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_KeepFrameBuffer);
 
 extern int fadeStatus;
-extern float D_0063C124;
+
+/* The rest of GsBase.o's .sbss run, after the reduction tint: the fade level
+   gsb_fade steps from 0 to 128 and gsb_PostEffect prints, then one word no
+   instruction in the ROM reads or writes (checked over every gp-relative and
+   absolute access in .text), so that name is positional and ours.  MAIN.MAP
+   line 7575 sizes the January object at 0x10, four words; the retail object
+   has the fifth. */
+static float fadeLevel;
+
+static int gsbUnusedWord;
+
 extern int D_0063B13C;
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
@@ -295,40 +311,40 @@ void gsb_fade(void)
     switch (fadeStatus) {
     case 1:
         if (0.0f < fadeSpeed) {
-            D_0063C124 = 0.0f;
+            fadeLevel = 0.0f;
             fadeStatus = 2;
         } else if (fadeSpeed < 0.0f) {
             fadeStatus = 2;
-            D_0063C124 = 144.0f;
+            fadeLevel = 144.0f;
         }
         /* FALLTHROUGH */
     case 2:
-        D_0063C124 = D_0063C124 + fadeSpeed * 0.5f;
+        fadeLevel = fadeLevel + fadeSpeed * 0.5f;
         break;
     case 3:
         break;
     default:
         goto clear;
     }
-    if (0.0f < fadeSpeed && 128.0f <= D_0063C124) {
+    if (0.0f < fadeSpeed && 128.0f <= fadeLevel) {
         if (fadeContinue != 0) {
             fadeStatus = 3;
         } else {
             fadeStatus = 0;
         }
-    } else if (fadeSpeed < 0.0f && D_0063C124 < 0.0f) {
+    } else if (fadeSpeed < 0.0f && fadeLevel < 0.0f) {
         if (fadeContinue != 0) {
             fadeStatus = 3;
         } else {
             fadeStatus = 0;
         }
     }
-    if (128.0f <= D_0063C124) {
+    if (128.0f <= fadeLevel) {
         fadeColor[3] = 128;
-    } else if (D_0063C124 < 0.0f) {
+    } else if (fadeLevel < 0.0f) {
         fadeColor[3] = 0;
     } else {
-        fadeColor[3] = D_0063C124;
+        fadeColor[3] = fadeLevel;
     }
     gif_StartPacketPri(0xB);
     gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 1, 0);
@@ -654,7 +670,7 @@ void gsb_filmNoise(void)
     gif_SetGsReg(0x49, 0);
     gif_SetGsReg(0x42, 0x44);
     gif_SetGsReg(0, 0x56);
-    gif_SetGsReg(1, ((long long)D_0028F720.targetCol[CurrentTargetGObjSub - 1].a << 24) |
+    gif_SetGsReg(1, ((long long)D_0028F720.targetCol[CurrentTargetGObjSub - 1][3] << 24) |
                         0x3F80000000808080LL);
     gif_SetGsReg(2, 0);
     gif_SetGsReg(5, 0xFFFFFFFF70007000LL);
@@ -669,7 +685,6 @@ extern char D_00639FD0[];
 extern char D_00639FD8[];
 extern int D_0063B60C;
 extern int fadeStatus;
-extern float D_0063C124;
 extern unsigned char D_0063BCB3;
 extern int D_00639FC4;
 extern int D_0063AA00;
@@ -693,7 +708,7 @@ int gsb_PostEffect(void)
 {
     if (D_0063B13C & 1) {
         debug_Printf(0xA, D_0063A068 / 2 - 8, 0xCCCCCC00, D_0054E408, D_0063B60C, fadeStatus,
-                     D_0063C124, D_0063BCB3);
+                     fadeLevel, D_0063BCB3);
     }
     if (D_0028F4C0[0x18 / 4] != 0 && (D_0063B13C & 1)) {
         debug_Printf(0x230, D_0063A068 / 2 - 8, 0xCCCCCC00, D_00639FC8);
@@ -1223,9 +1238,9 @@ int gsb_FilmNoiseTool(int target)
         ret = 1;
     }
     if (D_0028F8F0[0].trg & 0x80) {
-        D_0028F720.targetCol[target].r = D_0028F720.reductionCol[0];
-        D_0028F720.targetCol[target].g = D_0028F720.reductionCol[1];
-        D_0028F720.targetCol[target].b = D_0028F720.reductionCol[2];
+        D_0028F720.targetCol[target][0] = D_0028F720.reductionCol[0];
+        D_0028F720.targetCol[target][1] = D_0028F720.reductionCol[1];
+        D_0028F720.targetCol[target][2] = D_0028F720.reductionCol[2];
         D_0028F720.subMotionBlur[target] = D_0028F720.motionBlur;
         D_0028F720.f19C[target].a = D_0028F720.f0FC;
         D_0028F720.f19C[target].b = D_0028F720.f100;

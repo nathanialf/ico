@@ -169,7 +169,12 @@ void GetChainAnimation(ChainSet *sys, int obj, char *mtx)
            source lines 344-354 here that emit nothing, an empty debug-hook call
            is deleted before the loop pass (measured), and only a store to a
            variable the function reassigns survives -- the 2001 source held such
-           a line. Re-verified on the final frame. */
+           a line. Re-verified on the final frame.  Re-audit (completeness
+           pass 57): no live spelling exists, since both j and k are
+           reassigned by the next two loops before any read and a read of the
+           loop's result would emit code; the empty body and the TU's own empty
+           hook `chainDebugOld(&old[j])` were measured and both reverse the
+           loop into a countdown (7 words differ). */
         for (j = 0; j < n; j++) {
             k = j;
         }

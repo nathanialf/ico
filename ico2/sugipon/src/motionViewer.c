@@ -290,7 +290,6 @@ extern void debug_PrintfDummy(int x, int y, unsigned int color, const char *fmt,
 /* kept local: this TU's uses of debug_SelectCsvWindowWithLine do not fit the prototype in debug.h */
 extern int debug_SelectCsvWindowWithLine(char *title, int a1, int a2, int a3, void *tbl, int stride,
                                          int a6, int a7, int count, int *cur, int a10);
-extern int fptodp(float f);
 
 static inline int countMotionKinds(int id, int from, int to)
 {
@@ -351,10 +350,10 @@ int motKindMenuProc(void)
         }
     } else {
         debug_PrintfDummy(10, 50, 0xC0FFFF00, D_00620748,
-                          fptodp(ForMotionViewer_GetCurrentAnimationFrame(D_0063BA08)),
+                          ForMotionViewer_GetCurrentAnimationFrame(D_0063BA08),
                           GetNbMotionFrames(mot) - 1);
-        debug_PrintfDummy(10, 60, 0x80FFFF00, D_00620760, fptodp(speed),
-                          fptodp(ForMotionViewer_GetCurrentAnimationFrame(D_0063BA08) / speed),
+        debug_PrintfDummy(10, 60, 0x80FFFF00, D_00620760, speed,
+                          ForMotionViewer_GetCurrentAnimationFrame(D_0063BA08) / speed,
                           (int)((GetNbMotionFrames(mot) - 1) / speed));
     }
     if (D_0063B9FC != D_0063BA2C) {
@@ -414,8 +413,7 @@ int motOriMenuProc(void)
     dispMotFrameProgress(mot, ForMotionViewer_GetCurrentAnimationFrame(D_0063BA08));
     if (motionKindCount != 0) {
         sprintf(buf, D_00620778, &D_0055FF18[cur * 404],
-                fptodp(ForMotionViewer_GetCurrentAnimationFrame(D_0063BA08)),
-                GetNbMotionFrames(mot));
+                ForMotionViewer_GetCurrentAnimationFrame(D_0063BA08), GetNbMotionFrames(mot));
         ret = debug_SelectCsvWindow(buf, 10, 50, 11, D_0063BA00.rows, 8, 0, 1, motionKindCount,
                                     &D_0063BA00.sel);
         if (D_0063BA00.sel != D_0063BA30) {
@@ -470,14 +468,6 @@ void modeMessage(void)
 {
     char buf[256];
     unsigned char rdata[32];
-    /* CARRIER, user-approved 2026-09-17 as a ROM-proven carrier for this one
-       site: pf is defined once and dies at the read below, which gives that
-       load a REG_DEAD note and register weight 0 in the first scheduling
-       pass, so it is picked ahead of the lui of the format address as the
-       ROM has it. Every other spelling measured leaves the pair reversed
-       (complete3 ledger row). It emits no bytes. FOLLOW-UP: revisit for the
-       developer's own spelling once .text is fully matched. */
-    float *pf = &D_0063BA14;
 
     debug_PrintfDummy(470, 58, 0xFFFFFF00, D_006207C0);
     switch (D_0063BA10) {
@@ -490,7 +480,13 @@ void modeMessage(void)
         break;
     }
     debug_PrintfDummy(470, 66, 0xFFFFFF00, D_0063BA50, buf);
-    debug_PrintfDummy(470, 74, 0xFFFFFF00, D_006207D0, fptodp(*pf));
+    /* The speed goes to the variadic call as a plain float: the default
+       argument promotion is the compiler's own fptodp libcall, whose load of
+       the float sits ahead of the lui of the format address as the ROM has
+       it.  This replaced the approved pointer carrier `float *pf` (re-audit,
+       completeness pass 57), with the whole object byte-identical; an
+       explicit fptodp call on the plain global reverses the pair. */
+    debug_PrintfDummy(470, 74, 0xFFFFFF00, D_006207D0, D_0063BA14);
     if (D_0028F8F0[0].trg & 0x80) {
         switch (D_0063BA10) {
         case 0:

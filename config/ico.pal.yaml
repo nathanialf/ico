@@ -1146,7 +1146,8 @@ segments:
       - [0x53C0D4, sdata, cod/53C0D4]     # .sdata blob resume
       - { type: .sbss, vram: 0x0063C100, name: ico2/common/src/main, align: 0x100 }  # the TU's own .sbss, 0xC B: idleCount, idleLoop, bootThreadId at 0x63C100..0x63C10C (completeness pass 35; the section aligns to 0x100 as the original does)
       - { type: .sbss, vram: 0x0063C10C, name: ico2/sugipon/src/motionManager2 }  # the TU's own .sbss, 0xC B, VMA 0x63C10C..0x63C118; static definitions in ROM run order (completeness pass)
-      - { type: sbss, vram: 0x0063C118, name: cod/0063C118 }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C118, name: ico2/seki/src/GsBase }  # the TU's own .sbss as source (completeness pass 57): reductionRed, reductionGreen, reductionBlue, fadeLevel, gsbUnusedWord in ROM run order, VMA 0x63C118..0x63C12C, 0x14 B; MAIN.MAP line 7575 (the January object is 0x10)
+      - { type: sbss, vram: 0x0063C12C, name: cod/0063C12C }  # .sbss blob resume (Light's words)
       - { type: .sbss, vram: 0x0063C140, name: ico2/seki/src/MicroCode }  # the TU's own .sbss, 0x4 B, VMA 0x63C140..0x63C144; static definitions in ROM run order (completeness pass)
       - { type: sbss, vram: 0x0063C144, name: cod/0063C144 }  # .sbss blob resume
       - { type: .sbss, vram: 0x0063C18C, name: ico2/fumi/ios/mcdata }  # the TU's own .sbss, 0x4 B, VMA 0x63C18C..0x63C190; static definitions in ROM run order (completeness pass)

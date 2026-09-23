@@ -916,7 +916,9 @@ after:
    sched2 dump gives int set 1 and this enum set 10); with a plain int cid
    three words of that function come out in the wrong order.  Only the zero
    member is attested by the bytes; the developers' list of command ids is
-   not recoverable from this member. */
+   not recoverable from this member.  Re-audit (completeness pass 57): the
+   public SDK naming's plain `int cid` was measured and changes 14 words of
+   the object. */
 typedef enum { SIF_CMD_DIAG = 0 } SifCmdId;
 
 typedef struct {
@@ -946,7 +948,10 @@ typedef struct {
        cid store and the size store while the cid store leaves the size
        store's set, and a 32-bit store gets set 0 only from a direct union
        member.  Only the word member is attested by the bytes; the
-       developers' union may have carried a flag-bit view beside it. */
+       developers' union may have carried a flag-bit view beside it.
+       Re-audit (completeness pass 57): the public SDK naming's plain
+       `int attr` was measured and puts three words of _sceSifSendCmd out of
+       order. */
     union {
         int attr;
     } u;
@@ -1281,13 +1286,94 @@ int sceClose(unsigned int fd)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceLseek);
+/* the async request slot table _sceFs_Rcv_Intr matches a reply against, read
+   and written here under the D_0054A47C guard semaphore; an entry of -1 is
+   free.  The table is written by the SIF receive interrupt, so every access
+   to it is volatile (C volatile ruling 2026-09-07). */
+extern volatile int D_0054A3F0[];
+
+/* RECONSTRUCTION, the name is ours: whether a descriptor was opened with the
+   no-wait flag (0x8000, SCE_NOWAIT in the public SDK naming), read from the
+   open-mode half of the descriptor's in-use word.  The ROM's second no-wait
+   test in sceLseek (and in sceLseek64, sceRead and sceWrite) is its own
+   `andi 0x8000` on the register the first test already masked: the
+   argument's narrowing is its own insn when the call is inlined, so gcse
+   sees (and (zero_extend (subreg:HI inuse)) 0x8000) apart from the first
+   test's (and inuse 0x8000) and PRE keeps it, and combine then folds the
+   extension into the mask (-da gcse and combine dumps, completeness pass
+   57).  Written plainly, or with the cast at the test, PRE deletes it. */
+static inline int isNowait(unsigned short mode)
+{
+    return mode & 0x8000;
+}
+
+int sceLseek(unsigned int fd, int offset, int whence)
+{
+    int *g = D_0072C240;
+    SceIob *iob;
+    int inuse;
+    int uv;
+    int h;
+    int rc;
+    int i;
+    int result;
+    int buf[8];
+
+    iob = (SceIob *)get_iob(fd);
+    _sceFsWaitS(4);
+    if (D_0054A470[0] == 0) {
+        _sceFsSigSema();
+        return -1;
+    }
+    if (iob == 0 || (inuse = iob->inuse) == 0) {
+        _sceFsSigSema();
+        return -9;
+    }
+    g[3] = iob->fd;
+    g[4] = offset;
+    g[5] = whence;
+    g[6] = iob - (SceIob *)D_0072D300;
+    buf[1] = 1;
+    buf[2] = 0;
+    buf[5] = 0;
+    D_0072C240[0] = h = CreateSema(buf);
+    *(void **)(g + 1) = &result;
+    g[2] = 4;
+    if (inuse & 0x8000) {
+        WaitSema(D_0054A47C[0]);
+        for (i = 0; i < 0x20; i++) {
+            if (D_0054A3F0[i] == -1) {
+                D_0054A3F0[i] = g[0];
+                g[0] = -g[0];
+                break;
+            }
+        }
+        SignalSema(D_0054A47C[0]);
+    }
+    rc = sceSifCallRpc(D_0072D500, 4, 0, D_0072C240, 0x1C, D_0072CE80, 4, 0, 0);
+    if (rc < 0) {
+        DeleteSema(h);
+        _sceFsSigSema();
+        return -0xB;
+    }
+    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    _sceFsSigSema();
+    if (uv == 0) {
+        DeleteSema(h);
+        return -0xB;
+    }
+    if (isNowait(inuse)) {
+        DeleteSema(h);
+        return 0;
+    }
+    WaitSema(h);
+    DeleteSema(h);
+    return result;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceRead);
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceWrite);
 
-/* the async request slot table _sceFs_Rcv_Intr writes from the SIF receive interrupt,
- * read here under the D_0054A47C guard semaphore (C volatile ruling 2026-09-07) */
-extern volatile int D_0054A3F0[];
 /* the ioctl argument pointer the request-0x1 arm reads back */
 extern void *D_0072C200;
 /* the 8-byte status word the IOP leaves for requests 0x2 and 0x3 */
@@ -1319,7 +1405,10 @@ int sceIoctl(unsigned int fd, int request, void *argp)
                callee-saved register and is there for that compare; without
                the statement the arm builds its own constant and the whole
                dispatch reorders (211 of 211 instructions, 38 differing
-               words). */
+               words).  Re-audit (completeness pass 57): the two live reads of
+               the 1 the function has, case 1's `*(int *)D_0072C200 = rc;`
+               and `sema[1] = rc;`, were measured and change the function's
+               size (0x344 and 0x354 against the ROM's 0x34C). */
 
     iob = (SceIob *)get_iob(fd);
     _sceFsWaitS(5);
