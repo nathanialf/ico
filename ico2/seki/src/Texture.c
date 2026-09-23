@@ -120,7 +120,13 @@ typedef struct TexEntry {
     char pad2E2[0x2E8 - 0x2E2];
 } TexEntry;
 
-extern int D_0063C164;
+/* .sbss, Texture.o's two words in the ROM's order (MAIN.MAP line 7580 sizes
+   the run 8 and names no symbol in it, so the names are ours): the row
+   tex_Tool has selected, and the number of texture slots in use. */
+static int toolRow;
+
+static int texCount;
+
 extern TexEntry D_0068AFD8[];
 
 typedef struct TexClutEnt {
@@ -1127,7 +1133,6 @@ static inline void texTrimName(char *name)
 extern int tex_GetTextureNo(char *name);
 extern void tex_makeTexturePacket(void *pkt, CdvdRec *t);
 extern int malloc_GetPartition(void);
-extern int D_0063C164;
 /* "\x1b[31m" + EUC-JP "a texture of the same name was read from another path" + ".\n" */
 extern char D_00550880[];
 /* "2:%s\x1b[0m\n" */
@@ -1166,15 +1171,15 @@ void *pkt;
         return -1;
     }
 
-    t = &D_0068AFE0[D_0063C164];
-    ((TexEntry *)((char *)D_0068AFE0 - 8))[D_0063C164].lv = 0;
-    D_0068AFE0[D_0063C164].x2C8[pri] = 0;
+    t = &D_0068AFE0[texCount];
+    ((TexEntry *)((char *)D_0068AFE0 - 8))[texCount].lv = 0;
+    D_0068AFE0[texCount].x2C8[pri] = 0;
 
     sprintf(t->file, D_0063A210, name);
     sprintf(t->name, D_0063A210, buf);
     tex_makeTexturePacket(pkt, t);
     tex_initTM2((Tim2Picture *)((char *)t + 0x208), t);
-    no = D_0063C164;
+    no = texCount;
 
     *(int *)((char *)t + 0x2AC) = 0;
     *(int *)((char *)t + 0x2B0) = 0;
@@ -1201,11 +1206,11 @@ void *pkt;
         *(int *)((char *)t + 0x2C0) = 0;
         *(int *)((char *)t + 0x2C4) = 0;
     }
-    D_0068AFD8[D_0063C164].used = 1;
+    D_0068AFD8[texCount].used = 1;
 
-    D_0068AFD8[D_0063C164].x2E0 = malloc_GetPartition();
-    D_0063C164++;
-    if (200 <= D_0063C164) {
+    D_0068AFD8[texCount].x2E0 = malloc_GetPartition();
+    texCount++;
+    if (200 <= texCount) {
         debug_StdPrintfDummy(D_005508C8);
         debug_assert(D_00550328, 1523);
         __assert(D_00550328, 1523, D_0063A1F0);
@@ -1265,8 +1270,8 @@ int tex_TransTexture(int id, int ret)
 {
     CdvdRec *t = &D_0068AFE0[id];
 
-    if (id < 0 || D_0063C164 <= id) {
-        debug_Assert(D_00550930, id, D_0063C164);
+    if (id < 0 || texCount <= id) {
+        debug_Assert(D_00550930, id, texCount);
     }
     if (id < 0) {
         ret = -1;
@@ -1474,7 +1479,7 @@ void tex_textureAnimation(void)
 {
     int i;
 
-    for (i = 0; i < D_0063C164; i++) {
+    for (i = 0; i < texCount; i++) {
         CdvdRec *t = &D_0068AFE0[i];
         TexExt *e = (TexExt *)((char *)t + 0x268);
         TexUV *uv = (TexUV *)((char *)t + 0xA8);
@@ -1614,7 +1619,7 @@ static inline void resetVramPri(int pri)
     }
     D_0068AF88[pri].f1 = 0x3E80;
     D_0068AF88[pri].f2 = -1;
-    for (i = 0; i < D_0063C164; i++) {
+    for (i = 0; i < texCount; i++) {
         D_0068AFD8[i].x2D0[pri] = 0;
     }
 }
@@ -1824,9 +1829,7 @@ typedef struct TexToolRow {
 /* the working copy of the selected texture's ICO block: the menu rows point
  * straight at its fields and the tool writes it back into the record */
 extern Tim2Ext D_006AF550;
-/* the row the tool has selected, and the step multiplier the shoulder button
- * scales by ten at a time */
-extern int D_0063C160;
+/* the step multiplier the shoulder button scales by ten at a time */
 extern int D_0063A2B8;
 /* "SELTEX" "SCRL-U" "SCRL-V" "AMP-U " "AMP-V " "CS-BGN" "CS-END" "CS-SPD"
  * "CS-STP" "SHINE " "SMPMAG" "SMPMIN" "TEXFNC" "ALPTST" "ALPFAI" "MIPMAPK"
@@ -1857,7 +1860,7 @@ extern char D_00550A30[];
 int tex_Tool(int *tno)
 {
     TexToolRow m[17] = {
-        {D_0063A230, 0.0f, (float)(D_0063C164 - 1), 1.0f, 0, tno},
+        {D_0063A230, 0.0f, (float)(texCount - 1), 1.0f, 0, tno},
         {D_0063A238, -1.0f, 1.0f, 1e-05f, 1, &D_006AF550.f04},
         {D_0063A240, -1.0f, 1.0f, 1e-05f, 1, &D_006AF550.f08},
         {D_0063A248, -1.0f, 1.0f, 0.01f, 1, &D_006AF550.f0C},
@@ -1883,19 +1886,19 @@ int tex_Tool(int *tno)
      * as case 0, 1, 2: nested inline helpers. The names are ours. */
     inline void printInt(int i)
     {
-        debug_PrintfDummy(10, i * 9 + 46, col[i == D_0063C160], (int)D_0063A2C8, (int)m[i].label,
+        debug_PrintfDummy(10, i * 9 + 46, col[i == toolRow], (int)D_0063A2C8, (int)m[i].label,
                           *(int *)m[i].var);
     }
 
     inline void printShort(int i)
     {
-        debug_PrintfDummy(10, i * 9 + 46, col[i == D_0063C160], (int)D_0063A2C8, (int)m[i].label,
+        debug_PrintfDummy(10, i * 9 + 46, col[i == toolRow], (int)D_0063A2C8, (int)m[i].label,
                           *(short *)m[i].var);
     }
 
     inline void printFloat(int i)
     {
-        debug_PrintfDummy(10, i * 9 + 46, col[i == D_0063C160], (int)D_0063A2D0, (int)m[i].label,
+        debug_PrintfDummy(10, i * 9 + 46, col[i == toolRow], (int)D_0063A2D0, (int)m[i].label,
                           *(float *)m[i].var);
     }
 
@@ -1905,7 +1908,7 @@ int tex_Tool(int *tno)
     int i;
     CdvdRec *rec;
 
-    for (i = 0; i < D_0063C164; i++) {
+    for (i = 0; i < texCount; i++) {
         if (D_0068AFD8[i].x2B0 != 0) {
             cnt++;
         }
@@ -1916,7 +1919,7 @@ int tex_Tool(int *tno)
     tex_printTexture(*tno);
     while (D_0068AFD8[*tno].x2B0 == 0) {
         *tno = *tno + 1;
-        if (D_0063C164 - 1 < *tno) {
+        if (texCount - 1 < *tno) {
             *tno = 0;
         }
     }
@@ -1926,44 +1929,44 @@ int tex_Tool(int *tno)
         tex_dispClut((unsigned char *)rec->clut.addr + 0x20, rec->clut.vramSize < 4);
     }
     debug_PrintfDummy(0x90, 0x2E, col[0], (int)D_00550A30, cnt, (int)rec, D_0063A2B8);
-    switch (m[D_0063C160].type) {
+    switch (m[toolRow].type) {
     case 0:
     case 2:
-        if (m[D_0063C160].type == 0) {
+        if (m[toolRow].type == 0) {
             if (D_0028F8F0[0].rep & 0x2000) {
-                *(int *)m[D_0063C160].var =
-                    (int)((float)*(int *)m[D_0063C160].var + m[D_0063C160].step * D_0063A2B8);
+                *(int *)m[toolRow].var =
+                    (int)((float)*(int *)m[toolRow].var + m[toolRow].step * D_0063A2B8);
                 chg = 1;
             } else if (D_0028F8F0[0].rep & 0x8000) {
-                *(int *)m[D_0063C160].var =
-                    (int)((float)*(int *)m[D_0063C160].var - m[D_0063C160].step * D_0063A2B8);
+                *(int *)m[toolRow].var =
+                    (int)((float)*(int *)m[toolRow].var - m[toolRow].step * D_0063A2B8);
                 chg = -1;
             }
-            if (m[D_0063C160].max < (float)*(int *)m[D_0063C160].var) {
-                *(int *)m[D_0063C160].var = (int)m[D_0063C160].min;
+            if (m[toolRow].max < (float)*(int *)m[toolRow].var) {
+                *(int *)m[toolRow].var = (int)m[toolRow].min;
             }
-            if ((float)*(int *)m[D_0063C160].var < m[D_0063C160].min) {
-                *(int *)m[D_0063C160].var = (int)m[D_0063C160].max;
+            if ((float)*(int *)m[toolRow].var < m[toolRow].min) {
+                *(int *)m[toolRow].var = (int)m[toolRow].max;
             }
         } else {
             if (D_0028F8F0[0].rep & 0x2000) {
-                *(short *)m[D_0063C160].var =
-                    (short)((float)*(short *)m[D_0063C160].var + m[D_0063C160].step * D_0063A2B8);
+                *(short *)m[toolRow].var =
+                    (short)((float)*(short *)m[toolRow].var + m[toolRow].step * D_0063A2B8);
                 chg = 1;
             } else if (D_0028F8F0[0].rep & 0x8000) {
-                *(short *)m[D_0063C160].var =
-                    (short)((float)*(short *)m[D_0063C160].var - m[D_0063C160].step * D_0063A2B8);
+                *(short *)m[toolRow].var =
+                    (short)((float)*(short *)m[toolRow].var - m[toolRow].step * D_0063A2B8);
                 chg = -1;
             }
-            if (m[D_0063C160].max < (float)*(short *)m[D_0063C160].var) {
-                *(short *)m[D_0063C160].var = (short)m[D_0063C160].min;
+            if (m[toolRow].max < (float)*(short *)m[toolRow].var) {
+                *(short *)m[toolRow].var = (short)m[toolRow].min;
             }
-            if ((float)*(short *)m[D_0063C160].var < m[D_0063C160].min) {
-                *(short *)m[D_0063C160].var = (short)m[D_0063C160].max;
+            if ((float)*(short *)m[toolRow].var < m[toolRow].min) {
+                *(short *)m[toolRow].var = (short)m[toolRow].max;
             }
         }
         if (chg != 0) {
-            if (D_0063C160 == 0) {
+            if (toolRow == 0) {
                 /* case -1 breaks and case 1 runs off the end into the one
                  * return (listing rows 2440 and 2446): reorg then gives the
                  * second test the return value and the default jump the
@@ -1973,14 +1976,14 @@ int tex_Tool(int *tno)
                     while (D_0068AFD8[*tno].x2B0 == 0) {
                         *tno = *tno - 1;
                         if (*tno < 0) {
-                            *tno = D_0063C164 - 1;
+                            *tno = texCount - 1;
                         }
                     }
                     break;
                 case 1:
                     while (D_0068AFD8[*tno].x2B0 == 0) {
                         *tno = *tno + 1;
-                        if (D_0063C164 - 1 < *tno) {
+                        if (texCount - 1 < *tno) {
                             *tno = 0;
                         }
                     }
@@ -1996,21 +1999,19 @@ int tex_Tool(int *tno)
         break;
     case 1:
         if (D_0028F8F0[0].rep & 0x2000) {
-            *(float *)m[D_0063C160].var =
-                *(float *)m[D_0063C160].var + m[D_0063C160].step * D_0063A2B8;
+            *(float *)m[toolRow].var = *(float *)m[toolRow].var + m[toolRow].step * D_0063A2B8;
         }
         if (D_0028F8F0[0].rep & 0x8000) {
-            *(float *)m[D_0063C160].var =
-                *(float *)m[D_0063C160].var - m[D_0063C160].step * D_0063A2B8;
+            *(float *)m[toolRow].var = *(float *)m[toolRow].var - m[toolRow].step * D_0063A2B8;
         }
         if (D_0028F8F0[0].rep & 0x10) {
-            *(float *)m[D_0063C160].var = 0.0f;
+            *(float *)m[toolRow].var = 0.0f;
         }
-        if (m[D_0063C160].max < *(float *)m[D_0063C160].var) {
-            *(float *)m[D_0063C160].var = m[D_0063C160].min;
+        if (m[toolRow].max < *(float *)m[toolRow].var) {
+            *(float *)m[toolRow].var = m[toolRow].min;
         }
-        if (*(float *)m[D_0063C160].var < m[D_0063C160].min) {
-            *(float *)m[D_0063C160].var = m[D_0063C160].max;
+        if (*(float *)m[toolRow].var < m[toolRow].min) {
+            *(float *)m[toolRow].var = m[toolRow].max;
         }
         break;
     }
@@ -2030,18 +2031,18 @@ int tex_Tool(int *tno)
         }
         ret = (D_0028F8F0[0].trg & 0x40) ? -1 : 0;
         if (D_0028F8F0[0].rep & 0x1000) {
-            D_0063C160--;
+            toolRow--;
             D_0063A2B8 = 1;
         }
         if (D_0028F8F0[0].rep & 0x4000) {
-            D_0063C160++;
+            toolRow++;
             D_0063A2B8 = 1;
         }
-        if (D_0063C160 < 0) {
-            D_0063C160 = 16;
+        if (toolRow < 0) {
+            toolRow = 16;
         }
-        if (16 < D_0063C160) {
-            D_0063C160 = 0;
+        if (16 < toolRow) {
+            toolRow = 0;
         }
         if (D_0028F8F0[0].trg & 0x20) {
             D_0063A2B8 = D_0063A2B8 * 10;
@@ -2050,7 +2051,7 @@ int tex_Tool(int *tno)
             D_0063A2B8 = 1;
         }
     } else {
-        D_0063C160 = 0;
+        toolRow = 0;
     }
     if (D_006AF550.f04 == 0.0f) {
         ((TexUV *)((char *)rec + 0xA8))->f10 = 0.0f;
@@ -2115,7 +2116,7 @@ int tex_ListTool(void)
     debug_PrintfDummy(10, 50, 0xFFFFFF00, (int)D_00550A48, D_0063A338);
     debug_PrintfDummy(10, 58, 0xFF800000, (int)D_00550A70);
 
-    for (i = 0; i < D_0063C164; i++) {
+    for (i = 0; i < texCount; i++) {
         CdvdRec *t = &D_0068AFE0[i];
 
         sum = 0;
@@ -2126,8 +2127,8 @@ int tex_ListTool(void)
     }
 
     top = D_0063A338 > 5 ? D_0063A338 : 6;
-    if (D_0063C164 - 7 < top) {
-        top = D_0063C164 - 7;
+    if (texCount - 7 < top) {
+        top = texCount - 7;
     }
     end = top + 7;
     row = 2;
@@ -2170,14 +2171,14 @@ int tex_ListTool(void)
 
     if ((D_0028F8F0[0].rep & 0x4000) != 0) {
         D_0063A338 = D_0063A338 + 1;
-        if (D_0063C164 - 1 < D_0063A338) {
+        if (texCount - 1 < D_0063A338) {
             D_0063A338 = 0;
         }
     }
     if ((D_0028F8F0[0].rep & 0x1000) != 0) {
         D_0063A338 = D_0063A338 - 1;
         if (D_0063A338 < 0) {
-            D_0063A338 = D_0063C164 - 1;
+            D_0063A338 = texCount - 1;
         }
     }
     if ((D_0028F8F0[0].trg & 0x20) != 0) {
@@ -2225,7 +2226,7 @@ int tex_GetTextureNo(char *name)
     int i;
     int ret = -1;
 
-    for (i = 0; i < D_0063C164; i++) {
+    for (i = 0; i < texCount; i++) {
         if (D_0068AFD8[i].used) {
             if (strcmp(name, D_0068AFD8[i].name) == 0) {
                 ret = i;
@@ -2241,7 +2242,7 @@ static inline int getTextureNo(char *name)
     int i;
     int ret = -1;
 
-    for (i = 0; i < D_0063C164; i++) {
+    for (i = 0; i < texCount; i++) {
         if (D_0068AFD8[i].used) {
             if (strcmp(name, D_0068AFD8[i].name) == 0) {
                 ret = i;
@@ -2293,7 +2294,7 @@ short tex_GetVramFreeAddress(int a0)
 void tex_UpdateMipMapLevel(void)
 {
     int i;
-    for (i = 0; i < D_0063C164; i++) {
+    for (i = 0; i < texCount; i++) {
         CdvdRec *tex = &D_0068AFE0[i];
         int mxl = tex->xE0;
         int k, l;
@@ -2339,14 +2340,14 @@ void tex_ResetVramPri(int pri)
     }
     D_0068AF88[pri].f1 = 0x3E80;
     D_0068AF88[pri].f2 = -1;
-    for (i = 0; i < D_0063C164; i++) {
+    for (i = 0; i < texCount; i++) {
         D_0068AFD8[i].x2D0[pri] = 0;
     }
 }
 
 int tex_GetTextureNum(void)
 {
-    return D_0063C164;
+    return texCount;
 }
 
 /* The int flag is the LAST parameter: EABI assigns the same registers either
@@ -2379,15 +2380,15 @@ void tex_Init(void)
     int i;
 
     tex_ResetVram();
-    D_0063C164 = 0;
+    texCount = 0;
     if (D_0063A22C == 0) {
         for (i = 199; i >= 0; i--) {
             D_0068AFD8[i].x2E0 = 1;
         }
         D_0063A22C = 1;
     } else {
-        while (D_0068AFD8[D_0063C164].x2E0 == 0) {
-            D_0063C164++;
+        while (D_0068AFD8[texCount].x2E0 == 0) {
+            texCount++;
         }
     }
 }
@@ -2396,7 +2397,7 @@ extern int D_0028F720[];
 
 int tex_RemakeRegistersSampleMin(void)
 {
-    int count = D_0063C164;
+    int count = texCount;
     int i;
     for (i = 0; i < count; i++) {
         CdvdRec *b = &D_0068AFE0[i];

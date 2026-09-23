@@ -71,8 +71,13 @@ typedef struct {
     unsigned long long xyz;
 } LightningGsVtx;
 
-extern LightningGsVtx D_006EA7C0[2];
-extern int D_0063C2F4;
+/* the strip's last two vertices, resent when a clipped strip reopens; the
+   names in this block are ours, MAIN.MAP names nothing in lightning.o's small
+   data or bss */
+static LightningGsVtx lastVtx[2];
+
+/* nonzero while the open strip is being written */
+static int stripOn;
 
 typedef struct {
     unsigned long long NLOOP : 15;
@@ -87,8 +92,12 @@ typedef struct {
     unsigned long long REGS1 : 60;
 } sceGifTag;
 
-extern char *D_0063C2F8;
-extern int D_0063C2FC;
+/* the GIFtag that opened the current strip, whose NLOOP close_strip fills */
+static char *stripTag;
+
+/* vertices set since the draw began */
+static int vtxCount;
+
 extern char *matrixptr;
 extern void apply_matrix_w1(void *dst, void *m, void *src);
 extern void sceVu0FTOI4Vector(void *dst, void *src);
@@ -127,13 +136,13 @@ static __inline__ void close_strip(void)
     int n;
     unsigned long long *e;
 
-    if (D_0063C2F8 != 0) {
+    if (stripTag != 0) {
         e = PacketBufferStruct.ptr.d - 2;
-        n = e - (unsigned long long *)D_0063C2F8;
+        n = e - (unsigned long long *)stripTag;
         if (n & 1) {
             *PacketBufferStruct.ptr.d++ = 0;
         }
-        ((sceGifTag *)D_0063C2F8)->NLOOP = n / 3;
+        ((sceGifTag *)stripTag)->NLOOP = n / 3;
     }
 }
 
@@ -166,8 +175,8 @@ void set_vertex(LightningVtx *dir, LightningVtx *pos, float u, int *col, float h
         sceVu0FTOI4Vector(&xyz, &pt);
         apply_matrix_w1(&clip, matrixptr + 0x1C0, &e[i]);
         if (clip_flags(&clip) & 0x3FFFF) {
-            D_0063C2F4 = 0;
-        } else if (D_0063C2F4 == 0 && D_0063C2FC >= 2) {
+            stripOn = 0;
+        } else if (stripOn == 0 && vtxCount >= 2) {
             close_strip();
             /* The strip-state reset DrawLightning2 opens with, left dead here:
                close_strip() has already used the tag pointer and this block
@@ -179,42 +188,42 @@ void set_vertex(LightningVtx *dir, LightningVtx *pos, float u, int *col, float h
                0xA0 and 0xA4; at 245 insns the two slots swap. What they cannot
                pin: the text, the number or the lines of the dead statements
                (SRCFILE.TXT line 168 is code-free, as any deleted one is). */
-            D_0063C2F4 = 0;
-            D_0063C2F8 = 0;
+            stripOn = 0;
+            stripTag = 0;
             *PacketBufferStruct.ptr.d++ = 0x1400000000008001LL;
             *PacketBufferStruct.ptr.d++ = 0;
             *PacketBufferStruct.ptr.d++ = 84;
 
             *PacketBufferStruct.ptr.d++ = 0;
 
-            D_0063C2F8 = PacketBufferStruct.ptr.c;
+            stripTag = PacketBufferStruct.ptr.c;
             *PacketBufferStruct.ptr.d++ = 0x3400000000008000LL;
             *PacketBufferStruct.ptr.d++ = 1313;
 
-            *PacketBufferStruct.ptr.d++ = D_006EA7C0[0].rgbaq;
-            *PacketBufferStruct.ptr.d++ = D_006EA7C0[0].uv;
-            *PacketBufferStruct.ptr.d++ = D_006EA7C0[0].xyz;
-            *PacketBufferStruct.ptr.d++ = D_006EA7C0[1].rgbaq;
-            *PacketBufferStruct.ptr.d++ = D_006EA7C0[1].uv;
-            *PacketBufferStruct.ptr.d++ = D_006EA7C0[1].xyz;
+            *PacketBufferStruct.ptr.d++ = lastVtx[0].rgbaq;
+            *PacketBufferStruct.ptr.d++ = lastVtx[0].uv;
+            *PacketBufferStruct.ptr.d++ = lastVtx[0].xyz;
+            *PacketBufferStruct.ptr.d++ = lastVtx[1].rgbaq;
+            *PacketBufferStruct.ptr.d++ = lastVtx[1].uv;
+            *PacketBufferStruct.ptr.d++ = lastVtx[1].xyz;
 
-            D_0063C2F4 = 1;
+            stripOn = 1;
         }
 
-        D_006EA7C0[0] = D_006EA7C0[1];
-        D_006EA7C0[1].rgbaq = ((long long)col[0] | ((long long)col[1] << 8) |
-                               ((long long)col[2] << 16) | ((long long)col[3] << 24)) |
-                              ((long long)fbits(q) << 32);
-        D_006EA7C0[1].uv = (long long)t.i[0] | ((long long)t.i[1] << 32);
-        D_006EA7C0[1].xyz =
+        lastVtx[0] = lastVtx[1];
+        lastVtx[1].rgbaq = ((long long)col[0] | ((long long)col[1] << 8) |
+                            ((long long)col[2] << 16) | ((long long)col[3] << 24)) |
+                           ((long long)fbits(q) << 32);
+        lastVtx[1].uv = (long long)t.i[0] | ((long long)t.i[1] << 32);
+        lastVtx[1].xyz =
             (long long)xyz.i[0] | ((long long)xyz.i[1] << 16) | ((long long)xyz.i[2] << 32);
 
-        if (D_0063C2F4) {
-            *PacketBufferStruct.ptr.d++ = D_006EA7C0[1].rgbaq;
-            *PacketBufferStruct.ptr.d++ = D_006EA7C0[1].uv;
-            *PacketBufferStruct.ptr.d++ = D_006EA7C0[1].xyz;
+        if (stripOn) {
+            *PacketBufferStruct.ptr.d++ = lastVtx[1].rgbaq;
+            *PacketBufferStruct.ptr.d++ = lastVtx[1].uv;
+            *PacketBufferStruct.ptr.d++ = lastVtx[1].xyz;
         }
-        D_0063C2FC++;
+        vtxCount++;
     }
 }
 
@@ -268,7 +277,15 @@ extern float _GetNorm(void *v);
 extern float GetTableSin(short a);
 extern float GetTableCos(short a);
 extern void set_vertex(LightningVtx *dir, LightningVtx *pos, float u, int *col, float half);
-extern LightningVtx D_002A6070[4];
+
+/* the Catmull-Rom basis, halved, that turns four control points into the
+   segment's cubic coefficients */
+static LightningMtx catmullRom = {
+    {-0.5f, 1.5f, -1.5f, 0.5f},
+    {1.0f, -2.5f, 2.0f, -0.5f},
+    {-0.5f, 0.0f, 0.5f, 0.0f},
+    {0.0f, 1.0f, 0.0f, 0.0f},
+};
 
 void DrawLightning2(int num, LightningVtx *v, StructB *col, float f0, float f1, float f2, float f3,
                     float f4, float f5, float f6, float f7, float f8, float f9, int c)
@@ -349,9 +366,9 @@ void DrawLightning2(int num, LightningVtx *v, StructB *col, float f0, float f1, 
     ((GifPkWord *)(pk + 8))->w[0] = 0x11000000;
     PacketBufferStruct.gif = pk + 12;
     PacketBufferStruct.ptr.d = top;
-    D_0063C2F4 = 0;
-    D_0063C2F8 = 0;
-    D_0063C2FC = 0;
+    stripOn = 0;
+    stripTag = 0;
+    vtxCount = 0;
     if (f9 != 0.0f) {
         f9 = __builtin_fabsf(f9);
         f9 = f9 - (int)f9 + one;
@@ -389,7 +406,7 @@ void DrawLightning2(int num, LightningVtx *v, StructB *col, float f0, float f1, 
         sceVu0SubVector(&t, &v[num - 1], &v[num - 2]);
         sceVu0AddVector(&w[num + 1], &v[num - 1], &t);
         for (i = 0; i < np - 3; i++) {
-            sceVu0MulMatrix(m[i], &w[i], D_002A6070);
+            sceVu0MulMatrix(m[i], &w[i], catmullRom);
         }
     }
     sceVu0CopyVector(&cur, &v[0]);

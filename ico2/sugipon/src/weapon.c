@@ -173,8 +173,77 @@ typedef struct {
 } WeaponDef;
 
 extern WeaponDef D_00318EB8[];
-extern float D_004ED2D0[];
-extern float D_004ED2E0[];
+
+/* The work record InitWeaponGeo and InitDemoQueensSword allocate and the
+   template they initialise it from: 224 bytes, 8-aligned (ROM copies it 32
+   bytes at a time with ld/sd pairs).  The fields are the ones this file
+   reads; the names are ours. */
+typedef struct {
+    int kind;            /* 0x00: the switch in InitWeaponGeo */
+    int state;           /* 0x04: 2 while the weapon falls from a fumble */
+    char *holder;        /* 0x08: the holding object, 0 when none */
+    int holderId;        /* 0x0C: -1 when none */
+    float hit[4][4];     /* 0x10: checkHit's positions at 0x20, 0x30, 0x40 */
+    int count;           /* 0x50 */
+    char **objs;         /* 0x54 */
+    char *buf;           /* 0x58 */
+    char *sword;         /* 0x5C */
+    int fumbleTime;      /* 0x60 */
+    int fumbleFrame;     /* 0x64 */
+    float fumbleSpeed;   /* 0x68 */
+    int f6C;             /* 0x6C */
+    float fumbleFrom[4]; /* 0x70 */
+    float fumbleTo[4];   /* 0x80 */
+    float fumbleQuat[4]; /* 0x90 */
+    int fumbleSlot;      /* 0xA0: the drop-table row, 0 to 6 */
+    int fA4[3];          /* 0xA4 */
+    char *net;           /* 0xB0 */
+    char *model0;        /* 0xB4 */
+    char *model1;        /* 0xB8 */
+    int fBC;             /* 0xBC */
+    int offsetMode;      /* 0xC0: SetWeaponOffsetMode */
+    int fC4[3];          /* 0xC4 */
+    float vD0[4];        /* 0xD0 */
+} __attribute__((aligned(8))) DemoQueenSwordWork;
+
+/* This file's .data, in the ROM's order; MAIN.MAP names nothing in weapon.o's
+   .data, so every name here is ours. */
+static DemoQueenSwordWork swordWorkTemplate = {
+    0,
+    0,
+    0,
+    -1,
+    {{0.0f, 0.0f, 0.0f, 1.0f},
+     {0.0f, 0.0f, 0.0f, 1.0f},
+     {0.0f, 0.0f, 0.0f, 1.0f},
+     {0.0f, 0.0f, 0.0f, 1.0f}},
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.0f,
+    0,
+    {0.0f, 0.0f, 0.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+    0,
+    {0, 0, 0},
+    0,
+    0,
+    0,
+    0,
+    0,
+    {0, 0, 0},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+};
+
+/* the offsets the two path helpers below set the z of and push along */
+static float pathOfsFwd[4] = {0.0f, 0.0f, 1.0f, 1.0f};
+
+static float pathOfsBack[4] = {0.0f, 0.0f, 1.0f, 1.0f};
+
 /* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
 extern char ZeroVector[];
 /* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
@@ -194,8 +263,8 @@ static inline void addWeaponPathOffset(char *p, char *rp, float d)
     char *q = p + 0xD0;
 
     GetMatrixFromQuaternion(m, q);
-    D_004ED2D0[2] = d;
-    _ApplyMatrix(v, m, D_004ED2D0);
+    pathOfsFwd[2] = d;
+    _ApplyMatrix(v, m, pathOfsFwd);
     _AddVectorXYZ(rp, rp, v);
 }
 
@@ -206,8 +275,8 @@ static inline void subWeaponPathOffset(char *p, char *rp, float d)
     char *q = p + 0xD0;
 
     GetMatrixFromQuaternion(m, q);
-    D_004ED2E0[2] = -d;
-    _ApplyMatrix(v, m, D_004ED2E0);
+    pathOfsBack[2] = -d;
+    _ApplyMatrix(v, m, pathOfsBack);
     _AddVectorXYZ(rp, rp, v);
 }
 
@@ -262,7 +331,10 @@ typedef struct {
 } CollWork;
 
 extern CollWork D_00621420;
-extern float D_004ED2F0[];
+
+/* the offset the wall test pushes the blade tip along, its z set per test */
+static float hitOfs[4] = {0.0f, 0.0f, 1.0f, 1.0f};
+
 extern void ClipCollision(void *cc);
 extern void GetReflectionElement(void *cc, float a, float b);
 extern int GetWallAttribute(void *cc);
@@ -319,9 +391,9 @@ void calcDynamicGeometry(char *g)
         MultiQuaternion((p + 0xD0), rp + 0xB0, (p + 0xD0));
         GetMatrixFromQuaternionPos(m2, (p + 0xD0), rp);
 
-        D_004ED2F0[2] = r;
-        _ApplyMatrix(cc.p0, m1, D_004ED2F0);
-        _ApplyMatrix(cc.p1, m2, D_004ED2F0);
+        hitOfs[2] = r;
+        _ApplyMatrix(cc.p0, m1, hitOfs);
+        _ApplyMatrix(cc.p1, m2, hitOfs);
         CopyVector(v1, cc.p1);
         _SubVector(dir1, cc.p1, cc.p0);
 
@@ -341,9 +413,9 @@ void calcDynamicGeometry(char *g)
             }
         }
 
-        D_004ED2F0[2] = -r;
-        _ApplyMatrix(cc.p0, m1, D_004ED2F0);
-        _ApplyMatrix(cc.p1, m2, D_004ED2F0);
+        hitOfs[2] = -r;
+        _ApplyMatrix(cc.p0, m1, hitOfs);
+        _ApplyMatrix(cc.p1, m2, hitOfs);
         CopyVector(v2, cc.p1);
         _SubVector(dir2, cc.p1, cc.p0);
 
@@ -404,13 +476,13 @@ void calcDynamicGeometry(char *g)
                         eA = 0.0f;
                         eB = 0.0f;
                         GetMatrixFromQuaternionPos(m3, (p + 0xD0), rp);
-                        D_004ED2F0[2] = r;
-                        _ApplyMatrix(v5, m3, D_004ED2F0);
+                        hitOfs[2] = r;
+                        _ApplyMatrix(v5, m3, hitOfs);
                         if (v5[1] > v1[1]) {
                             eA = v5[1] - v1[1];
                         }
-                        D_004ED2F0[2] = -r;
-                        _ApplyMatrix(v6, m3, D_004ED2F0);
+                        hitOfs[2] = -r;
+                        _ApplyMatrix(v6, m3, hitOfs);
                         if (v6[1] > v2[1]) {
                             eB = v6[1] - v2[1];
                         }
@@ -515,7 +587,9 @@ void ExecWeaponHitReaction(int a0, int a1, int a2, int a3)
     weaponHitReactionSE(a0);
 }
 
-extern char D_004ED300[];
+/* the blade tip in the sword's own frame */
+static float swordTip[4] = {0.0f, 0.0f, 80.0f, 1.0f};
+
 /* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_PushMatrix(void);
 /* kept local: this TU's uses of MatrixDrive_PopMatrix do not fit the prototype in matrixDrive.h */
@@ -539,13 +613,13 @@ void checkHit(char *g)
     }
     MatrixDrive_PushMatrix();
     GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), (char *)p + 0xD0, (char *)p + 0xA0);
-    MatrixDrive_TransMatrixV(D_004ED300);
+    MatrixDrive_TransMatrixV((char *)swordTip);
     CopyVector(v0, (char *)MatrixDrive_GetMatrix() + 0x30);
     GetInverseQuaternion(quat, (char *)p + 0x150);
     MultiQuaternion(quat, (char *)p + 0xD0, quat);
     SubVectorXYZ(pos, (char *)p + 0xA0, (char *)p + 0x130);
     GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), quat, pos);
-    MatrixDrive_TransMatrixV(D_004ED300);
+    MatrixDrive_TransMatrixV((char *)swordTip);
     CopyVector(v1, (char *)MatrixDrive_GetMatrix() + 0x30);
     MatrixDrive_PopMatrix();
     CopyVector(w + 0x20, v0);
@@ -570,7 +644,10 @@ typedef struct {
 
 extern void *D_0063A438;
 extern const char D_006214E0[];
-extern float D_004ED310[];
+
+/* the queen's sword offset, its z set per sword */
+static float queenSwordOfs[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+
 extern void *CreateLayoutedGObj(int a0, int a1, int a2, int a3, void *lay, int a5, int a6, int a7);
 extern void LinkParentOfDObj(void *gobj, void *link);
 
@@ -591,10 +668,10 @@ void initializeQueenzSword(char *g, int index, QSwordLayout *lay)
     *(int **)(w + 0x54) = iosMallocDebug(D_0063A438, 1 * 4, D_006214E0, 759);
 
     for (i = 0; i < 1; i++) {
-        D_004ED310[2] = D_00318EB8[*(int *)w].f00 * (float)i / 0.0f;
+        queenSwordOfs[2] = D_00318EB8[*(int *)w].f00 * (float)i / 0.0f;
         o = CreateLayoutedGObj(10, 75, -1, i == 0, &r, -1, 7, 0);
         LinkParentOfDObj(o, &lnk);
-        CopyVector((char *)GOBJ_SUB(o) + 0xA0, D_004ED310);
+        CopyVector((char *)GOBJ_SUB(o) + 0xA0, queenSwordOfs);
         (*(int **)(w + 0x54))[i] = (int)o;
     }
 
@@ -604,15 +681,6 @@ void initializeQueenzSword(char *g, int index, QSwordLayout *lay)
     *(QSwordLink *)(char *)GOBJ_SUB(o2) = lnk;
     *(char **)(w + 0x5C) = o2;
 }
-
-/* The work record InitWeaponGeo allocates and the .rodata template it is
-   initialised from: 224 bytes, 8-aligned (ROM copies it 32 bytes at a time
-   with ld/sd pairs). */
-typedef struct {
-    double d[28];
-} DemoQueenSwordWork;
-
-extern DemoQueenSwordWork D_004ED1F0;
 
 /* The per-weapon CSV model-id pair table, 40 bytes a row. */
 typedef struct {
@@ -634,7 +702,7 @@ void *InitWeaponGeo(char *g, QSwordLayout *lay)
 
     GOBJ_SUB(g)->f_830 = (int)w;
 
-    *(DemoQueenSwordWork *)w = D_004ED1F0;
+    *(DemoQueenSwordWork *)w = swordWorkTemplate;
     *(int *)w = lay->kind & 0xFF;
 
     for (i = 0; i < GOBJ_SUB(g)->f_8; i++) {
@@ -712,9 +780,12 @@ void dispLaserSword(char *g, float t)
     }
 }
 
-extern char D_004ED320[];
-extern char D_004ED330[];
-extern char D_004ED340[];
+/* the insect net's line colour and its handle, end to end */
+static int netColor[4] = {128, 128, 128, 128};
+
+static float netHandleStart[4] = {0.0f, 0.0f, -50.0f, 1.0f};
+
+static float netHandleEnd[4] = {0.0f, 0.0f, 100.0f, 1.0f};
 
 typedef struct {
     float f[4];
@@ -729,14 +800,14 @@ void dispInsectNet(char *g)
     gif_SetZTest(1);
     gif_SetZWrite(1);
     gif_SetAlpha(1, 7, 128);
-    DrawLineG(D_004ED330, D_004ED320, D_004ED340, D_004ED320, 0);
+    DrawLineG((int *)netHandleStart, netColor, (int *)netHandleEnd, netColor, 0);
     for (i = 0; i <= 65535; i += 4096) {
         NetVec p = {
             {GetTableCos((short)i) * 30.0f, 0.0f, GetTableSin((short)i) * 30.0f + 130.0f, 1.0f}};
         NetVec q = {{GetTableCos((short)(i + 4096)) * 30.0f, 0.0f,
                      GetTableSin((short)(i + 4096)) * 30.0f + 130.0f, 1.0f}};
 
-        DrawLineG(&p, D_004ED320, &q, D_004ED320, 0);
+        DrawLineG(&p, netColor, &q, netColor, 0);
     }
     gif_EndPacket();
 }
@@ -1189,7 +1260,7 @@ void *InitDemoQueensSword(char *a0, void *a1)
 
     w = (DemoQueenSwordWork *)iosMallocDebug(D_0063A438, 0xE0, D_006214E0, 802);
     *(DemoQueenSwordWork **)((char *)GOBJ_SUB(a0) + 0x830) = w;
-    *w = D_004ED1F0;
+    *w = swordWorkTemplate;
     for (i = 0; i < GOBJ_SUB(a0)->f_8; i++) {
         initializeQueenzSword(a0, i, a1);
     }

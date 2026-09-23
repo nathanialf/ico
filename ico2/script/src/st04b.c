@@ -18,9 +18,9 @@ static ActMail sekizo_mes[2] = {{430}, {429}};
 
 static ActMail ene1_mes[2] = {{430}, {429}};
 
-/* kept local: this TU's uses of ScpCallCameraSetTarget do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void ScpCallCameraSetTarget(float x, float y, float z);
-/* kept local: this TU's uses of scpTorchLightOn do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpTorchLightOn(int a0);
 extern int D_00639EA8;
 /* kept local: this TU's uses of _SCPMoveCharactorByWay do not fit the prototype in script.h */
@@ -55,13 +55,13 @@ extern int sekizo_4b;
 extern unsigned char sekizo_4b_vol;
 /* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int gobj, float r);
-/* kept local: this TU's uses of scpKillEnemyOne do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpKillEnemyOne(int a0);
-/* kept local: this TU's uses of scpMaskGeneratorAll do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpMaskGeneratorAll(void);
 /* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpPlayStart(int a0);
 /* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
@@ -69,11 +69,11 @@ extern void scpPlayMot(int a0, int mot);
 extern void scpPlayPosSet(int a0, float x, float y, float z);
 /* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(int a0, void *dir);
-/* kept local: this TU's uses of scpSekizouCheckPoint do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpSekizouCheckPoint(void);
 /* kept local: this TU's uses of scpPlayWaitMotEnd do not fit the prototype in script.h */
 extern void scpPlayWaitMotEnd(int a0);
-/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpPlayEnd(int a0);
 
 void actSt04bSekizoChk(volatile int a0)
@@ -174,9 +174,9 @@ void actSt04bSekizoChk(volatile int a0)
 
 /* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int a0, int attr);
-/* kept local: this TU's uses of scpSleepEnemyOne do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpSleepEnemyOne(int a0);
-/* kept local: this TU's uses of scpWakeupEnemyOne do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpWakeupEnemyOne(int a0);
 
 void actSt04bEne1Chk(volatile int a0)

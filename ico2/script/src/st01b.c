@@ -48,9 +48,9 @@ extern int D_00639EA8;
 extern int D_0063AA08;
 /* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int gobj, int attr);
-/* kept local: this TU's uses of scpSleepEnemyOne do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpSleepEnemyOne(int id);
-/* kept local: this TU's uses of scpWakeupEnemyOne do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpWakeupEnemyOne(int id);
 
 void actSt01bEneChk(volatile int a0)
@@ -138,7 +138,7 @@ void actSt01bFloorChkSub(volatile int a0)
 }
 
 extern int D_0028F8F4[];
-/* kept local: this TU's uses of scpIsHangChainOptional do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern int scpIsHangChainOptional(int gobj, int id);
 /* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
 extern void scpPlayPosSet(int gobj, float x, float y, float z);
@@ -146,17 +146,17 @@ extern void scpPlayPosSet(int gobj, float x, float y, float z);
 extern void scpAdpcmPlayRequestFunc(int a0, void *a1, int a2, int a3, int a4);
 /* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern int scpAdpcmFadeCloseFunc(void *h, int fade);
-/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern int scpAdpcmPlayRequestNum(void);
-/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpFadeOut(float t, int a1, int a2, int a3);
-/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpFadeIn(float t);
-/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern int scpFadeChk(void);
-/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpSleepEnemyAll(void);
-/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpWakeupEnemyAll(void);
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern void *scpSearchGobj(int id);

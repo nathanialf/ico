@@ -41,7 +41,52 @@ extern char D_00553750[];
 extern char D_00553768[];
 extern char D_0063A820[];
 extern int D_0063A818;
-extern void *D_006C0CC0[];
+
+/* fieldCollision.o's .sbss and .bss, each in the ROM's order (MAIN.MAP lines
+   7593 and 7704 size the runs 0x38 and 0x5C0 and name no symbol in either, so
+   every name here is ours).  .sbss: the number of objects in the collision
+   list, the nine collision statistics DispCollisionPC prints (a pair per
+   format, wall, wall R, floor, floor R, with the timer between the two
+   halves; the retail build only resets them), the number of block-table
+   entries, the fuzio context the current object carries, the filter the
+   list builder asks, and the number of exit-attribute slots in use. */
+static int colObjNum;
+
+static int pcWall0;
+
+static int pcWallR0;
+
+static int pcFloor0;
+
+static int pcFloorR0;
+
+static int pcTime;
+
+static int pcWall1;
+
+static int pcWallR1;
+
+static int pcFloor1;
+
+static int pcFloorR1;
+
+static int blockNum;
+
+static FuzioCtx *curFuzio;
+
+static int (*colFilter)(void *obj);
+
+static int exitAttrNum;
+
+/* .bss: DispCollisionPC's line buffer, the collision object list, the block
+   table and the exit-attribute slots. */
+static char pcLine[256];
+
+static void *colObjList[256];
+
+static short blockTable[64];
+
+static void *exitAttr[16];
 
 void MakeCollisionDependGObjList(void)
 {
@@ -60,7 +105,7 @@ void MakeCollisionDependGObjList(void)
         sub = (char *)GOBJ_SUB(g);
         if (sub != 0 && *(int *)(sub + 0x70) != 0 && *(int *)(g + 0x16C) != 0 &&
             *(int *)(g + 0x4) == 1 && *(int *)(g + 0x8) >= 0 && *(int *)(sub + 0x74) != 0) {
-            D_006C0CC0[D_0063A818] = g;
+            colObjList[D_0063A818] = g;
             D_0063A818 = D_0063A818 + 1;
         }
     }
@@ -377,48 +422,34 @@ extern int game_pause;
 extern int D_0063B13C;
 extern int ScreenWidth;
 extern int ScreenHeight;
-extern int D_0063C210;
-extern int D_0063C214;
-extern int D_0063C218;
-extern int D_0063C21C;
-extern int D_0063C220;
-extern int D_0063C224;
-extern int D_0063C228;
-extern int D_0063C22C;
-extern int D_0063C230;
 extern char D_005537A0[];
 extern char D_005537B0[];
 extern char D_005537C0[];
 extern char D_005537D0[];
-extern char D_006C0BC0[];
 
 void DispCollisionPC(void)
 {
     if (game_pause == 0) {
         return;
     }
-    D_0063C220 = *(volatile int *)0x10000000 - D_0063C220;
-    sprintf(D_006C0BC0, D_005537A0, D_0063C210, D_0063C224);
+    pcTime = *(volatile int *)0x10000000 - pcTime;
+    sprintf(pcLine, D_005537A0, pcWall0, pcWall1);
     if (D_0063B13C & 1) {
-        debug_Printf(ScreenWidth / 2, ScreenHeight / 2, 0xFFFFFF00, D_006C0BC0);
+        debug_Printf(ScreenWidth / 2, ScreenHeight / 2, 0xFFFFFF00, pcLine);
     }
-    sprintf(D_006C0BC0, D_005537B0, D_0063C214, D_0063C228);
+    sprintf(pcLine, D_005537B0, pcWallR0, pcWallR1);
     if (D_0063B13C & 1) {
-        debug_Printf(ScreenWidth / 2, ScreenHeight / 2 + 8, 0xFFFFFF00, D_006C0BC0);
+        debug_Printf(ScreenWidth / 2, ScreenHeight / 2 + 8, 0xFFFFFF00, pcLine);
     }
-    sprintf(D_006C0BC0, D_005537C0, D_0063C218, D_0063C22C);
+    sprintf(pcLine, D_005537C0, pcFloor0, pcFloor1);
     if (D_0063B13C & 1) {
-        debug_Printf(ScreenWidth / 2, ScreenHeight / 2 + 0x10, 0xFFFFFF00, D_006C0BC0);
+        debug_Printf(ScreenWidth / 2, ScreenHeight / 2 + 0x10, 0xFFFFFF00, pcLine);
     }
-    sprintf(D_006C0BC0, D_005537D0, D_0063C21C, D_0063C230);
+    sprintf(pcLine, D_005537D0, pcFloorR0, pcFloorR1);
     if (D_0063B13C & 1) {
-        debug_Printf(ScreenWidth / 2, ScreenHeight / 2 + 0x18, 0xFFFFFF00, D_006C0BC0);
+        debug_Printf(ScreenWidth / 2, ScreenHeight / 2 + 0x18, 0xFFFFFF00, pcLine);
     }
 }
-
-extern int D_0063C234;
-extern FuzioCtx *D_0063C238;
-extern short D_006C10C0[];
 
 void makeCollisionBlockTable(float *ray)
 {
@@ -444,11 +475,11 @@ void makeCollisionBlockTable(float *ray)
     int px;
     int pz;
 
-    D_0063C234 = 0;
-    x0 = (int)(ray[0] - D_0063C238->unk20[0]);
-    x1 = (int)(ray[8] - D_0063C238->unk20[0]);
-    z0 = (int)(ray[2] - D_0063C238->unk20[2]);
-    z1 = (int)(ray[10] - D_0063C238->unk20[2]);
+    blockNum = 0;
+    x0 = (int)(ray[0] - curFuzio->unk20[0]);
+    x1 = (int)(ray[8] - curFuzio->unk20[0]);
+    z0 = (int)(ray[2] - curFuzio->unk20[2]);
+    z1 = (int)(ray[10] - curFuzio->unk20[2]);
     bx = x0 >> 9;
     bz = z0 >> 9;
     dx = x1 - x0;
@@ -480,8 +511,8 @@ void makeCollisionBlockTable(float *ray)
         }
         for (i = 0; i <= cx; i++) {
             if (bx >= 0 && bx < 32 && bz >= 0 && bz < 32) {
-                D_006C10C0[D_0063C234] = (bz << 5) + bx;
-                D_0063C234 = D_0063C234 + 1;
+                blockTable[blockNum] = (bz << 5) + bx;
+                blockNum = blockNum + 1;
             }
             while (err >= 0) {
                 if (swap == 1) {
@@ -490,8 +521,8 @@ void makeCollisionBlockTable(float *ray)
                     bz += sz;
                 }
                 if (bx >= 0 && bx < 32 && bz >= 0 && bz < 32) {
-                    D_006C10C0[D_0063C234] = (bz << 5) + bx;
-                    D_0063C234 = D_0063C234 + 1;
+                    blockTable[blockNum] = (bz << 5) + bx;
+                    blockNum = blockNum + 1;
                 }
                 err -= dx * 2;
             }
@@ -504,8 +535,8 @@ void makeCollisionBlockTable(float *ray)
         }
     } else {
         if (bx >= 0 && bx < 32 && bz >= 0 && bz < 32) {
-            D_006C10C0[D_0063C234] = (bz << 5) + bx;
-            D_0063C234 = D_0063C234 + 1;
+            blockTable[blockNum] = (bz << 5) + bx;
+            blockNum = blockNum + 1;
         }
     }
 }
@@ -527,8 +558,6 @@ extern FcClipMode D_0029D200[];
 extern float D_0029D310[16];
 extern float D_0029D340[4];
 extern float D_0029D350[4];
-extern int D_0063C20C;
-extern int (*D_0063C23C)(void *obj);
 extern void _ApplyMatrix(void *dst, void *m, void *src);
 extern float sceVu0InnerProduct(int a0, int a1);
 extern void sceVu0ApplyMatrix(void *a0, void *a1, void *buf);
@@ -583,8 +612,8 @@ void _Clip(char *self, int mode)
         sceVu0CopyVector((int *)sv0, (int *)self);
         sceVu0CopyVector((int *)sv1, (int *)(self + 0x10));
         sceVu0CopyVector((int *)(self + 0x20), (int *)(self + 0x10));
-        D_0063C20C = 0;
-        obj = (char *)D_006C0CC0[0];
+        colObjNum = 0;
+        obj = (char *)colObjList[0];
         if (D_0063A818 > 0) {
             do {
                 m = (char *)D_0029D310;
@@ -598,7 +627,7 @@ void _Clip(char *self, int mode)
                         }
                     }
                     if (y != 0) {
-                        if (D_0063C23C(obj) == 0) {
+                        if (colFilter(obj) == 0) {
                             goto next_gobj;
                         }
                     }
@@ -607,7 +636,7 @@ void _Clip(char *self, int mode)
                     if (*(int *)(sub + 0x80) != 0) {
                         cnt = *(int *)(sub + 0x8);
                     }
-                    D_0063C238 = (FuzioCtx *)*(int *)(sub + 0x70);
+                    curFuzio = (FuzioCtx *)*(int *)(sub + 0x70);
                     for (i = 0; i < cnt; i++) {
                         if (x != 0) {
                             if (obj == *(char **)(self + 0x74) && i == *(int *)(self + 0x78) &&
@@ -638,9 +667,9 @@ void _Clip(char *self, int mode)
                     }
                 }
             next_gobj:
-                D_0063C20C = D_0063C20C + 1;
-                obj = (char *)D_006C0CC0[D_0063C20C];
-            } while (D_0063C20C < D_0063A818);
+                colObjNum = colObjNum + 1;
+                obj = (char *)colObjList[colObjNum];
+            } while (colObjNum < D_0063A818);
         }
         if (D_0029D200[mode].f_0 != 0) {
             if (*(int *)(self + 0x88) != 0) {
@@ -995,8 +1024,6 @@ void DrawCollisionRay(char *ray)
 extern char D_00553960[];
 extern char D_00553980[];
 extern int frame_count;
-extern int D_0063C240;
-extern void *D_006C1140[];
 
 void MakeExitAttributeIndex(void)
 {
@@ -1009,14 +1036,14 @@ void MakeExitAttributeIndex(void)
     int slot;
 
     debug_StdPrintfDummy(D_00553960, frame_count);
-    D_0063C240 = 0;
+    exitAttrNum = 0;
     i = 0xF;
     do {
-        D_006C1140[i] = 0;
+        exitAttr[i] = 0;
         i--;
     } while (i >= 0);
-    D_0063C20C = 0;
-    obj = D_006C0CC0[0];
+    colObjNum = 0;
+    obj = colObjList[0];
     if (D_0063A818 > 0) {
         do {
             p70 = (int *)GOBJ_SUB(obj)->f_70;
@@ -1024,16 +1051,16 @@ void MakeExitAttributeIndex(void)
                 entry = (char *)p70[0x14 / 4] + j * 0x70;
                 slot = *(int *)(entry + 0x60) & 0xF;
                 if (slot != 0) {
-                    if (D_006C1140[slot] == 0) {
+                    if (exitAttr[slot] == 0) {
                         debug_StdPrintfDummy(D_00553980, slot);
-                        D_0063C240 = D_0063C240 + 1;
-                        D_006C1140[slot] = entry;
+                        exitAttrNum = exitAttrNum + 1;
+                        exitAttr[slot] = entry;
                     }
                 }
             }
-            D_0063C20C = D_0063C20C + 1;
-            obj = D_006C0CC0[D_0063C20C];
-        } while (D_0063C20C < D_0063A818);
+            colObjNum = colObjNum + 1;
+            obj = colObjList[colObjNum];
+        } while (colObjNum < D_0063A818);
     }
 }
 
@@ -1053,7 +1080,7 @@ void ClipFloorByGObj(char *p, char *gobj)
     sceVu0CopyVector((int *)buf1, (int *)(p + 0x10));
     pos = p + 0x20;
     sceVu0CopyVector((int *)pos, (int *)(p + 0x10));
-    D_0063C238 = (FuzioCtx *)*(int *)(((FcSubSlot *)(gobj + 0x15C))->sub + 0x70);
+    curFuzio = (FuzioCtx *)*(int *)(((FcSubSlot *)(gobj + 0x15C))->sub + 0x70);
     ep = pos;
     CopyVector(&keep, ep);
     CopyVector(p, buf0);
@@ -1150,13 +1177,13 @@ int ClipWallE(void *a0)
 
 void ClipWallCheckCB(void *a0, int a1)
 {
-    D_0063C23C = (int (*)(void *))a1;
+    colFilter = (int (*)(void *))a1;
     D_0063A840(a0, 8);
 }
 
 void ClipWallFieldCheckCB(void *a0, int a1)
 {
-    D_0063C23C = (int (*)(void *))a1;
+    colFilter = (int (*)(void *))a1;
     D_0063A840(a0, 9);
 }
 
@@ -1184,7 +1211,7 @@ int ClipFloorIH(void *a0)
 
 void ClipFloorCheckCB(void *a0, int a1)
 {
-    D_0063C23C = (int (*)(void *))a1;
+    colFilter = (int (*)(void *))a1;
     D_0063A844(a0, 0x10);
 }
 
@@ -1232,23 +1259,23 @@ void DrawCollision(int a0)
     gif_StartPacketPri(11);
     gif_SetZTest(1);
     gif_EndPacket();
-    D_0063C20C = 0;
-    obj = D_006C0CC0[0];
+    colObjNum = 0;
+    obj = colObjList[0];
     if (D_0063A818 > 0) {
         do {
             DrawGObjWallCollision(obj, n);
-            D_0063C20C = D_0063C20C + 1;
-            obj = D_006C0CC0[D_0063C20C];
-        } while (D_0063C20C < D_0063A818);
+            colObjNum = colObjNum + 1;
+            obj = colObjList[colObjNum];
+        } while (colObjNum < D_0063A818);
     }
-    D_0063C20C = 0;
-    obj = D_006C0CC0[0];
+    colObjNum = 0;
+    obj = colObjList[0];
     if (D_0063A818 > 0) {
         do {
             DrawGObjFloorCollision(obj, n);
-            D_0063C20C = D_0063C20C + 1;
-            obj = D_006C0CC0[D_0063C20C];
-        } while (D_0063C20C < D_0063A818);
+            colObjNum = colObjNum + 1;
+            obj = colObjList[colObjNum];
+        } while (colObjNum < D_0063A818);
     }
 }
 
@@ -1421,22 +1448,22 @@ float GetYProjectionOfPlane(float *a0, float *a1)
 void ResetCollisionPC(void)
 {
     int tmp;
-    D_0063C210 = 0;
+    pcWall0 = 0;
     tmp = *(volatile int *)0x10000000;
-    D_0063C214 = 0;
-    D_0063C220 = tmp;
+    pcWallR0 = 0;
+    pcTime = tmp;
 
-    D_0063C218 = 0;
-    D_0063C21C = 0;
-    D_0063C224 = 0;
-    D_0063C228 = 0;
-    D_0063C22C = 0;
-    D_0063C230 = 0;
+    pcFloor0 = 0;
+    pcFloorR0 = 0;
+    pcWall1 = 0;
+    pcWallR1 = 0;
+    pcFloor1 = 0;
+    pcFloorR1 = 0;
 }
 
 int PositionOfExit(int a0, int a1)
 {
-    int v = (int)D_006C1140[a1 & 0xF];
+    int v = (int)exitAttr[a1 & 0xF];
     if (v != 0) {
         CopyVector(a0, v);
         return 0;
@@ -1458,11 +1485,11 @@ int _clipWDebug(ClipWork *arg0, int arg1, int arg2)
     int ret = 0;
     int i;
 
-    for (i = 0; i < D_0063C234; i++) {
-        short *p = D_0063C238->unk18[D_006C10C0[i]];
+    for (i = 0; i < blockNum; i++) {
+        short *p = curFuzio->unk18[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
-                FcWallEnt *e = &D_0063C238->walls[*p];
+                FcWallEnt *e = &curFuzio->walls[*p];
                 if (clip_wall_1(arg0, e, 0, 1) != 0) {
                     arg0->wallHit = e;
                     ret = 1;
@@ -1481,11 +1508,11 @@ int _clipW(ClipWork *arg0, int arg1, int arg2)
     int ret = 0;
     int i;
 
-    for (i = 0; i < D_0063C234; i++) {
-        short *p = D_0063C238->unk18[D_006C10C0[i]];
+    for (i = 0; i < blockNum; i++) {
+        short *p = curFuzio->unk18[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
-                FcWallEnt *e = &D_0063C238->walls[*p];
+                FcWallEnt *e = &curFuzio->walls[*p];
                 int val = e->attr;
                 if ((val & 0xF0000000) == 0) {
                     if ((val & 0xF0000) != 0x10000) {
@@ -1509,11 +1536,11 @@ int _clipWE(ClipWork *arg0, int arg1, int arg2)
     int ret = 0;
     int i;
 
-    for (i = 0; i < D_0063C234; i++) {
-        short *p = D_0063C238->unk18[D_006C10C0[i]];
+    for (i = 0; i < blockNum; i++) {
+        short *p = curFuzio->unk18[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
-                FcWallEnt *e = &D_0063C238->walls[*p];
+                FcWallEnt *e = &curFuzio->walls[*p];
                 int val = e->attr;
                 if ((val & 0xF0000000) == 0) {
                     if ((val & 0xF0000) != 0x10000) {
@@ -1540,11 +1567,11 @@ int _clipWEField(ClipWork *arg0, int arg1, int arg2)
     int found = 0;
     int i;
 
-    for (i = 0; i < D_0063C234; i++) {
-        short *p = D_0063C238->unk18[D_006C10C0[i]];
+    for (i = 0; i < blockNum; i++) {
+        short *p = curFuzio->unk18[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
-                FcWallEnt *e = &D_0063C238->walls[*p];
+                FcWallEnt *e = &curFuzio->walls[*p];
                 if ((e->attr & 0xF0000000) == 0) {
                     if (arg1 != arg0->skipSrc[0] || arg2 != arg0->skipSrc[1] ||
                         (int)e != arg0->skipElem) {
@@ -1568,11 +1595,11 @@ int _clipWR(ClipWork *arg0, int arg1, int arg2)
     int ret = 0;
     int i;
 
-    for (i = 0; i < D_0063C234; i++) {
-        short *p = D_0063C238->unk18[D_006C10C0[i]];
+    for (i = 0; i < blockNum; i++) {
+        short *p = curFuzio->unk18[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
-                FcWallEnt *e = &D_0063C238->walls[*p];
+                FcWallEnt *e = &curFuzio->walls[*p];
                 int val = e->attr;
                 if ((val & 0xF0000000) == 0) {
                     if ((val & 0xF0000) != 0x10000) {
@@ -1596,11 +1623,11 @@ int _clipWField(ClipWork *arg0, int arg1, int arg2)
     int ret = 0;
     int i;
 
-    for (i = 0; i < D_0063C234; i++) {
-        short *p = D_0063C238->unk18[D_006C10C0[i]];
+    for (i = 0; i < blockNum; i++) {
+        short *p = curFuzio->unk18[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
-                FcWallEnt *e = &D_0063C238->walls[*p];
+                FcWallEnt *e = &curFuzio->walls[*p];
                 if ((e->attr & 0xF0000000) == 0) {
                     if (clip_wall_1(arg0, e, 0, 1) != 0) {
                         arg0->wallHit = e;
@@ -1621,11 +1648,11 @@ int _clipWDitchHangWalkStop(ClipWork *arg0, int arg1, int arg2)
     int ret = 0;
     int i;
 
-    for (i = 0; i < D_0063C234; i++) {
-        short *p = D_0063C238->unk18[D_006C10C0[i]];
+    for (i = 0; i < blockNum; i++) {
+        short *p = curFuzio->unk18[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
-                FcWallEnt *e = &D_0063C238->walls[*p];
+                FcWallEnt *e = &curFuzio->walls[*p];
                 if ((e->attr & 0x30000000) != 0) {
                     if (clip_wall_1(arg0, e, 0, 1) != 0) {
                         arg0->wallHit = e;
@@ -1646,11 +1673,11 @@ int _clipWWaveForce(ClipWork *arg0, int arg1, int arg2)
     int ret = 0;
     int i;
 
-    for (i = 0; i < D_0063C234; i++) {
-        short *p = D_0063C238->unk18[D_006C10C0[i]];
+    for (i = 0; i < blockNum; i++) {
+        short *p = curFuzio->unk18[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
-                FcWallEnt *e = &D_0063C238->walls[*p];
+                FcWallEnt *e = &curFuzio->walls[*p];
                 if ((e->attr & 0xC0000000) == 0x40000000) {
                     if (clip_wall_1(arg0, e, 0, 1) != 0) {
                         arg0->wallHit = e;
@@ -1671,11 +1698,11 @@ int _clipWBoxStop(ClipWork *arg0, int arg1, int arg2)
     int ret = 0;
     int i;
 
-    for (i = 0; i < D_0063C234; i++) {
-        short *p = D_0063C238->unk18[D_006C10C0[i]];
+    for (i = 0; i < blockNum; i++) {
+        short *p = curFuzio->unk18[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
-                FcWallEnt *e = &D_0063C238->walls[*p];
+                FcWallEnt *e = &curFuzio->walls[*p];
                 int val = e->attr;
                 if ((val & 0x70000000) == 0) {
                     if ((val & 0xF0000) != 0x10000 || (val & 0xC0000000) == 0x80000000) {
@@ -1699,11 +1726,11 @@ int _clipWAdjustPos(ClipWork *arg0, int arg1, int arg2)
     int ret = 0;
     int i;
 
-    for (i = 0; i < D_0063C234; i++) {
-        short *p = D_0063C238->unk18[D_006C10C0[i]];
+    for (i = 0; i < blockNum; i++) {
+        short *p = curFuzio->unk18[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
-                FcWallEnt *e = &D_0063C238->walls[*p];
+                FcWallEnt *e = &curFuzio->walls[*p];
                 if ((e->attr & 0xC0000000) == 0xC0000000) {
                     if (clip_wall_1(arg0, e, 0, 1) != 0) {
                         arg0->wallHit = e;
@@ -1724,11 +1751,11 @@ int _clipF(ClipWork *arg0, int arg1, int arg2)
     int ret = 0;
     int i;
 
-    for (i = 0; i < D_0063C234; i++) {
-        short *p = D_0063C238->unk1C[D_006C10C0[i]];
+    for (i = 0; i < blockNum; i++) {
+        short *p = curFuzio->unk1C[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
-                int e = D_0063C238->unk14 + (int)*p * 0x70;
+                int e = curFuzio->unk14 + (int)*p * 0x70;
                 if (clip_floor_1(arg0, e, 0) != 0) {
                     arg0->floorHit = e;
                     ret = 1;
@@ -1748,11 +1775,11 @@ int _clipFE(ClipWork *arg0, int arg1, int arg2)
     int ret = 0;
     int i;
 
-    for (i = 0; i < D_0063C234; i++) {
-        short *p = D_0063C238->unk1C[D_006C10C0[i]];
+    for (i = 0; i < blockNum; i++) {
+        short *p = curFuzio->unk1C[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
-                int e = D_0063C238->unk14 + (int)*p * 0x70;
+                int e = curFuzio->unk14 + (int)*p * 0x70;
                 if (arg1 != arg0->skipSrc[0] || arg2 != arg0->skipSrc[1] || e != arg0->skipElem) {
                     if (clip_floor_1(arg0, e, 0) != 0) {
                         arg0->floorHit = e;
@@ -1774,11 +1801,11 @@ int _clipFIH(ClipWork *arg0, int arg1, int arg2)
     int ret = 0;
     int i;
 
-    for (i = 0; i < D_0063C234; i++) {
-        short *p = D_0063C238->unk1C[D_006C10C0[i]];
+    for (i = 0; i < blockNum; i++) {
+        short *p = curFuzio->unk1C[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
-                int e = D_0063C238->unk14 + (int)*p * 0x70;
+                int e = curFuzio->unk14 + (int)*p * 0x70;
                 if ((*(int *)(e + 0x60) & 0xF0000) != 0x20000) {
                     if (clip_floor_1(arg0, e, 0) != 0) {
                         arg0->floorHit = e;
@@ -1800,11 +1827,11 @@ int _clipFR(ClipWork *arg0, int arg1, int arg2)
     int ret = 0;
     int i;
 
-    for (i = 0; i < D_0063C234; i++) {
-        short *p = D_0063C238->unk1C[D_006C10C0[i]];
+    for (i = 0; i < blockNum; i++) {
+        short *p = curFuzio->unk1C[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
-                int e = D_0063C238->unk14 + (int)*p * 0x70;
+                int e = curFuzio->unk14 + (int)*p * 0x70;
                 if (clip_floor_1(arg0, e, 1) != 0) {
                     arg0->floorHit = e;
                     ret = 1;

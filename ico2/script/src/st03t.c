@@ -148,9 +148,9 @@ void actSt03tSwitchLChk(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: this TU's uses of scpCheckDisconnectWallStart do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpCheckDisconnectWallStart(char *a0);
-/* kept local: this TU's uses of scpCheckDisconnectWallEnd do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpCheckDisconnectWallEnd(char *a0);
 extern int D_00639EA8;
 
@@ -345,7 +345,7 @@ void actSt03tGene(volatile int a0)
     Generator_Call((int)scpSearchGobj(878));
 }
 
-/* kept local: this TU's uses of scpTransGObj do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpTransGObj(void *a0, float x, float y, float z);
 
 void actSt03tBoxA(volatile int a0)
@@ -569,9 +569,9 @@ void actSt03tSekizoEvent(int x)
 }
 
 extern int D_0063AA08;
-/* kept local: this TU's uses of scpSleepEnemyOne do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpSleepEnemyOne(int a0);
-/* kept local: this TU's uses of scpWakeupEnemyOne do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpWakeupEnemyOne(int a0);
 
 void actSt03tEneChk(volatile int a0)
@@ -600,7 +600,7 @@ void actSt03tEneChk(volatile int a0)
     scpWakeupEnemyOne(3757);
 }
 
-/* kept local: this TU's uses of scpCheckExistAliveEnemy do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern int scpCheckExistAliveEnemy(void);
 /* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);

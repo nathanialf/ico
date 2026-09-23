@@ -31,9 +31,9 @@ extern int D_00639EA8;
 extern int D_0063AA08;
 extern int enable_game_pause;
 extern int D_0028F4C0[];
-/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpFadeOut(float t, int a1, int a2, int a3);
-/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern int scpFadeChk(void);
 /* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
@@ -65,7 +65,7 @@ void actE3WarningChk(volatile int a0)
 
 /* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpFadeIn(float t);
 
 #include "e3.h"
@@ -323,7 +323,7 @@ void actE3Inst1Chk(volatile int a0)
     RequestStageChange(1, D_00639EA4, 0, 255.0f, 16.0f);
 }
 
-/* kept local: this TU's uses of ScpCallCameraOff do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void ScpCallCameraOff(void);
 
 void actE3Capsule(volatile int a0)
@@ -408,7 +408,7 @@ void actE3CapsuleDemoCancel(volatile int a0)
     actCreateSubThread(actE3CapsuleDemoEnd, 21);
 }
 
-/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpPlayStart(int a0);
 
 void actE3CapsuleDemo(volatile int a0)
@@ -559,7 +559,7 @@ void actE3CageFallChk(volatile int a0)
 
 /* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
 extern void scpPlayMotDir(int a0, void *dir);
-/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpPlayEnd(int a0);
 extern int stage_no;
 
@@ -679,7 +679,7 @@ void actE3CageFallDemo(volatile int a0)
 /* no prototype in the dev's TU: the C89 implicit-int return is what makes
    ee-gcc treat $v0 as clobbered at every call site. The definition in
    src/script.c is void. */
-/* kept local: this TU's uses of scpEffectStart do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern int scpEffectStart(void *a0, int a1);
 extern int D_00639EAC;
 /* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
@@ -786,7 +786,7 @@ void actE3CageFallEffect(volatile int a0)
     } while (t < 400.0f);
 }
 
-/* kept local: this TU's uses of ScpCallCameraSetTarget do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void ScpCallCameraSetTarget(float x, float y, float z);
 
 /* e3.o's own .data run (no MAIN.MAP symbol): the sekizou's SE position. */
@@ -815,11 +815,11 @@ void actE3St09aSekizo(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of scpSekizouCheckPoint do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpSekizouCheckPoint(void);
-/* kept local: this TU's uses of scpKillEnemyAll do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpKillEnemyAll(void);
-/* kept local: this TU's uses of scpMaskGeneratorAll do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpMaskGeneratorAll(void);
 /* kept local: this TU's uses of scpPlayWaitMotEnd do not fit the prototype in script.h */
 extern void scpPlayWaitMotEnd(int a0);
@@ -1399,7 +1399,7 @@ void actE3Gate(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpFadeIn(float f);
 
 void actE3CapsuleChk(volatile int a0)

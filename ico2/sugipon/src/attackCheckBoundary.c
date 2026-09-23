@@ -12,7 +12,6 @@
 #include "weapon.h"
 #include <libvu0.h>
 
-extern char D_0061EEC8[];
 extern int D_0063A438;
 
 /* .data, carved VMA 0x4E5A90..0x4E5AA0; bytes verified against baserom/pal/baseelf.rom */
@@ -60,7 +59,7 @@ static inline char *createAttackCheckBoundaryGObj(AcbLayout *lay)
 
 inline int InitAttackCheckBoundaryGeo(int unused, void *obj)
 {
-    int buf = iosMallocDebug(D_0063A438, 0xC, D_0061EEC8, 0x1B);
+    int buf = iosMallocDebug(D_0063A438, 0xC, __FILE__, 27);
     int *p = *((int **)(((char *)obj) + 0x30));
     int new_var4;
     int *new_var2;
@@ -155,8 +154,6 @@ inline void actAttackCheckBoundaryStart(int *self)
 }
 
 extern char *D_00639EA4;
-extern char D_0061EEE8[];
-extern char D_0061EF00[];
 
 /* mail-add-data.c defines this returning int; declaring it void costs the
    $v1 allocation of the reloaded state pointer in the mail block below. */
@@ -182,7 +179,8 @@ void AttackCheckBoundaryBeforeFunc(char *self)
                             ExecuteSEPackage(g, 74);
                             b[1] = 2;
                             *(int *)b[0] = 2;
-                            debug_StdPrintfDummy(D_0061EEE8);
+                            /* " - cut by the sword" */
+                            debug_StdPrintfDummy(" - 剣で切られた\n");
                         }
                         goto done;
                     }
@@ -191,7 +189,8 @@ void AttackCheckBoundaryBeforeFunc(char *self)
                     ActSendMail_WithAdditionalData(D_00639EA4, 209, self, &b[2]);
                     b[1] = 1;
                     *(int *)b[0] = 1;
-                    debug_StdPrintfDummy(D_0061EF00);
+                    /* " - cannot cut" */
+                    debug_StdPrintfDummy(" - きれない\n");
                 }
             }
         done:
@@ -264,11 +263,11 @@ AcbMgr *InitAttackCheckBoundaryManagerGeo(int a0, char *a1)
     char *g;
 
     rec = &layoutClothDef[*(int *)(a1 + 0x30)];
-    mgr = (AcbMgr *)iosMallocDebug(D_0063A438, 0x10, D_0061EEC8, 180);
+    mgr = (AcbMgr *)iosMallocDebug(D_0063A438, 0x10, __FILE__, 180);
     mgr->prev = mgr->cur;
     mgr->cur = 0;
     mgr->count = rec->count;
-    mgr->list = (AcbEntry *)iosMallocDebug(D_0063A438, mgr->count * 8, D_0061EEC8, 189);
+    mgr->list = (AcbEntry *)iosMallocDebug(D_0063A438, mgr->count * 8, __FILE__, 189);
     v0[0] = rec->pt[0][0];
     v0[1] = -rec->pt[0][1];
     v0[2] = rec->pt[0][2];

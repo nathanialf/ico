@@ -274,7 +274,77 @@ void QueuePeekReadDone(RingBuf_241C80 *a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceTtyHandler);
+/* unprototyped: the ROM passes a second argument in a register at two of the
+   four call sites */
+extern void kprintf();
+extern int sceDeci2ExRecv(int s, int buf, unsigned short len);
+extern int sceDeci2ExSend(int s, int buf, unsigned short len);
+
+/* RECONSTRUCTION: the tty socket record at D_0072A710 as the handler sees it.
+   The four header words are volatile, the view sceTtyInit and sceTtyWrite
+   already take (the handler writes them from interrupt level while the
+   callers poll them); the buffer and queue pointers below them are plain.
+   The names are ours. */
+typedef struct {
+    volatile int s;    /* 0x00 the DECI2 socket */
+    volatile int wlen; /* 0x04 bytes left to send */
+    volatile int rlen; /* 0x08 bytes received into rbuf */
+    volatile int busy; /* 0x0C set while a send is outstanding */
+    char *wbuf;        /* 0x10 */
+    char *rbuf;        /* 0x14 */
+    int *q;            /* 0x18 the receive queue */
+} TtyRec;
+
+void sceTtyHandler(int event, int param, void *opt)
+{
+    TtyRec *tty = opt;
+    int n;
+    int i;
+    char *hdr;
+
+    switch (event) {
+    case 1:
+    case 2:
+        if (param != 0) {
+            if (320 < (unsigned int)(tty->rlen + param)) {
+                kprintf("TTY: packet size larger than expect\n");
+            }
+            i = sceDeci2ExRecv(tty->s, (int)(tty->rbuf + tty->rlen), (unsigned short)param);
+            if (i < 0) {
+                kprintf("TTY: receive error");
+            }
+            tty->rlen = tty->rlen + i;
+            return;
+        }
+        hdr = tty->rbuf;
+        for (i = 12; i < *(unsigned short *)hdr; i++) {
+            *(char *)tty->q[3] = tty->rbuf[i];
+            QueuePeekWriteDone(tty->q);
+        }
+        tty->rlen = 0;
+        return;
+
+    case 3:
+        n = sceDeci2ExSend(tty->s, (int)tty->wbuf, (unsigned short)tty->wlen);
+        if (n < 0) {
+            kprintf("TTY: send err %d\n", n);
+            break;
+        }
+        tty->wbuf = tty->wbuf + n;
+        tty->wlen = tty->wlen - n;
+        return;
+
+    case 4:
+        if (tty->wlen != 0) {
+            kprintf("TTY: err ti->wlen=%08x\n", tty->wlen);
+        }
+        break;
+
+    default:
+        return;
+    }
+    tty->busy = 0;
+}
 
 extern int D_0072A710[];
 extern char D_0072A740[];

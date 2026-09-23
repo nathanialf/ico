@@ -44,3 +44,4 @@ ico2/sugipon/src/spider.c working-tree-encoding=EUC-JP
 ico2/sugipon/src/torch.c working-tree-encoding=EUC-JP
 ico2/omori/src/brain.c working-tree-encoding=EUC-JP
 ico2/omori/src/camera-ico2.c working-tree-encoding=EUC-JP
+ico2/sugipon/src/attackCheckBoundary.c working-tree-encoding=EUC-JP

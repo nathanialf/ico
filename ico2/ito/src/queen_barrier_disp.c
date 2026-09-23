@@ -6,10 +6,7 @@
 #include "tableSin.h"
 
 /* header prototypes (order fixes the inline tail) */
-extern int D_00556E10[];
-extern int D_0063C308;
 extern unsigned short D_0063AC64;
-extern int D_0063C30C;
 
 #include "queen_barrier_disp.h"
 #include <string.h>
@@ -29,7 +26,16 @@ typedef struct Mesh3D {
     MeshST *st; /* 0x74 */
 } Mesh3D;
 
-extern Mesh3D *D_0063C304;
+/* .sbss, queen_barrier_disp.o's three words in the ROM's order (MAIN.MAP line
+   7608 sizes the run 0xC and names no symbol in it, so the names are ours):
+   the barrier mesh, the damage flash timer queen_barrier_set_damage starts at
+   60, and the ripple phase the animation advances each frame. */
+static Mesh3D *barrierMesh;
+
+static int damageTimer;
+
+static int ripplePhase;
+
 /* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
 extern void _ScaleVectorXYZ(QVec *dst, QVec *src, float k);
 /* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
@@ -59,7 +65,6 @@ typedef struct {
 extern GifCol D_0063AC60[];
 extern int ScreenWidth;
 extern int ScreenHeight;
-extern GifRect D_00556E00;
 extern GifDpk PacketBufferStruct;
 
 /* INTERIM: the listing inlines gif_SetGsReg here the same way it does across
@@ -74,7 +79,7 @@ static inline void setGsReg(long long a0, long long a1)
 void MakeRefractTexture(int frame)
 {
     GifCol col = D_0063AC60[0];
-    GifRect r = D_00556E00;
+    GifRect r = {-4096, -2048, 8192, 4096};
     GifUvRect uv = {8, 8, ScreenWidth * 16, ScreenHeight * 16};
     int fx;
     int fy;
@@ -102,17 +107,17 @@ void MakeRefractTexture(int frame)
 
 void queen_barrier_set_damage(void)
 {
-    D_0063C308 = 0x3C;
-    debug_StdPrintfDummy(D_00556E10);
+    damageTimer = 0x3C;
+    debug_StdPrintfDummy("queen barrier damaged\n");
 }
 
 inline void queen_barrier_anim(void)
 {
     D_0063AC64 += 0x7D0;
-    D_0063C30C += 0x1000;
-    if (D_0063C308 > 0) {
-        if (--D_0063C308 < 0) {
-            D_0063C308 = 0;
+    ripplePhase += 0x1000;
+    if (damageTimer > 0) {
+        if (--damageTimer < 0) {
+            damageTimer = 0;
         }
     }
 }
@@ -140,7 +145,7 @@ void makeRefractST(float k)
     memset(&v, 0, sizeof(v));
     v.f[3] = 1.0f;
 
-    t = (float)D_0063C308 / 60.0f;
+    t = (float)damageTimer / 60.0f;
 
     ang = (short)D_0063AC64;
 
@@ -148,24 +153,24 @@ void makeRefractST(float k)
         for (j = 0; j < 15; j++) {
             idx = i * 15 + j;
 
-            sceVu0CopyVector(&v, &D_0063C304->nrm[idx]);
+            sceVu0CopyVector(&v, &barrierMesh->nrm[idx]);
             v.f[2] = 0.0f;
-            f = GetTableSin((short)(_GetNorm(&v) * 4.0f * 65536.0f + (float)D_0063C30C)) * 60.0f;
+            f = GetTableSin((short)(_GetNorm(&v) * 4.0f * 65536.0f + (float)ripplePhase)) * 60.0f;
 
-            _ScaleVectorXYZ(&w, &D_0063C304->nrm[idx], f * t);
+            _ScaleVectorXYZ(&w, &barrierMesh->nrm[idx], f * t);
 
             f = GetTableSin((short)ang) * 18.0f;
             ang += 0x4000;
 
-            _ScaleVectorXYZ(&v, &D_0063C304->nrm[idx], f * k);
+            _ScaleVectorXYZ(&v, &barrierMesh->nrm[idx], f * k);
 
-            _AddVectorXYZ(&v, &D_0063C304->pos[idx], &v);
+            _AddVectorXYZ(&v, &barrierMesh->pos[idx], &v);
             _AddVectorXYZ(&v, &v, &w);
             v.f[3] = 1.0f;
             _RotTransPersCurrentMatrix(&v, &v);
-            D_0063C304->st[idx].s =
+            barrierMesh->st[idx].s =
                 ((v.f[0] - 2048.0f) + (float)(ScreenWidth >> 1)) * (1.0f / (float)ScreenWidth);
-            D_0063C304->st[idx].t =
+            barrierMesh->st[idx].t =
                 ((v.f[1] - 2048.0f) + (float)(ScreenHeight >> 1)) * (1.0f / (float)ScreenHeight);
         }
     }
@@ -173,8 +178,6 @@ void makeRefractST(float k)
 
 extern int D_0063A074;
 extern int D_0063A078;
-extern QVec D_00556E30;
-extern QVec D_00556E40;
 extern int matrixptr;
 extern int buffer_ID;
 extern void tex_ResetVramPri(int pri);
@@ -182,8 +185,8 @@ extern int tex_AllocVramAuto(int a0, int a1);
 extern void GetRootMatrix(void *dst, char *outer);
 extern void _SetCurrentMatrix(void *m);
 
-/* rows 86 and 93 to 105: the barrier tint, faded from D_00556E30 to
-   D_00556E40 across the damage timer and packed into the mesh colour word.
+/* rows 86 and 93 to 105: the barrier tint, faded from a to b across the
+   damage timer and packed into the mesh colour word.
    Row 105 carries the three float-to-int conversions and the mesh pointer
    load and row 86 only the masks, shifts and ors, so the packing helper
    takes ints converted at its call (names ours). */
@@ -195,11 +198,11 @@ static __inline__ int packBarrierColor(int r, int g, int b)
 static __inline__ void updateBarrierColor(void)
 {
     QVec c;
-    QVec a = D_00556E30;
-    QVec b = D_00556E40;
+    sceVu0FVECTOR a = {250.0f, 150.0f, 200.0f, 0.0f};
+    sceVu0FVECTOR b = {100.0f, 120.0f, 115.0f, 0.0f};
 
-    sceVu0InterVector(&c, &a, &b, (float)D_0063C308 / 60.0f);
-    D_0063C304->col = packBarrierColor(c.f[0], c.f[1], c.f[2]);
+    sceVu0InterVector(&c, a, b, (float)damageTimer / 60.0f);
+    barrierMesh->col = packBarrierColor(c.f[0], c.f[1], c.f[2]);
 }
 
 void queen_barrier_disp_proc(char *g, float k)
@@ -242,8 +245,8 @@ void queen_barrier_disp_proc(char *g, float k)
 
     makeRefractST(k);
 
-    prim_UpdateMesh3D(D_0063C304, 24, buffer_ID);
-    prim_DispMesh3D((int)D_0063C304, 0, 0, -1);
+    prim_UpdateMesh3D(barrierMesh, 24, buffer_ID);
+    prim_DispMesh3D((int)barrierMesh, 0, 0, -1);
 }
 
 void queen_barrier_disp_init(void)
@@ -262,23 +265,23 @@ void queen_barrier_disp_init(void)
        hoisted constant, which is where a declaration puts it. */
     step = 32768.0f / 14.0f;
 
-    D_0063C304 = prim_InitMesh3D(15, 15, 1, 0x1C, 0x64787380, 0);
+    barrierMesh = prim_InitMesh3D(15, 15, 1, 0x1C, 0x64787380, 0);
 
     for (i = 0, x = -16384.0f; x < 16384.0f; i++, x += step) {
         for (j = 0, y = 16384.0f; y < 49152.0f; j++, y += step) {
             QVec v = {{GetTableSin((short)y) * GetTableCos((short)x), GetTableSin((short)x),
                        GetTableCos((short)y) * GetTableCos((short)x), 1.0f}};
 
-            pos = D_0063C304->pos;
-            nrm = D_0063C304->nrm;
+            pos = barrierMesh->pos;
+            nrm = barrierMesh->nrm;
             idx = i * 15 + j;
             _ScaleVectorXYZ(&pos[idx], &v, 300.0f);
             _NormalizeVector(&nrm[idx], &pos[idx]);
-            D_0063C304->st[idx].s = (float)j / 14.0f;
-            D_0063C304->st[idx].t = (float)i / 14.0f;
+            barrierMesh->st[idx].s = (float)j / 14.0f;
+            barrierMesh->st[idx].t = (float)i / 14.0f;
         }
     }
-    prim_UpdateMesh3D(D_0063C304, 11, 0);
-    prim_UpdateMesh3D(D_0063C304, 11, 1);
-    D_0063C308 = 0;
+    prim_UpdateMesh3D(barrierMesh, 11, 0);
+    prim_UpdateMesh3D(barrierMesh, 11, 1);
+    damageTimer = 0;
 }

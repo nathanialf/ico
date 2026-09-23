@@ -103,7 +103,7 @@ static const PoolMeshQuad poolReflactionQuad = {{{650.0f, 0.0f, 700.0f, 1.0f},
 extern ActMail D_004F8090[];
 /* kept local: this TU's uses of scpTriggerFloorAttrTargetMan do not fit the prototype in script.h */
 extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
-/* kept local: this TU's uses of scpWakeupItemWithBoundary do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpWakeupItemWithBoundary(float x, float y, float z, float r);
 
 void actSt02aDoorUpChk(volatile int a0)
@@ -179,17 +179,17 @@ extern int st02a_fence;
    subthread the wait loop below spins for. */
 static int demoEnd;
 
-/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpSleepEnemyAll(void);
-/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern int scpAdpcmPlayRequestNum(void);
 /* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern int scpAdpcmFadeCloseFunc(int *h, int fade);
-/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpFadeOut(float t, int a1, int a2, int a3);
-/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpFadeIn(float t);
-/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern int scpFadeChk(void);
 
 void actSt02aFenceOpen(volatile int a0)
@@ -282,7 +282,7 @@ void actSt02aWaterFallReflactionEffect(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of scpTransGObj do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpTransGObj(void *a0, float x, float y, float z);
 
 void actSt02aWaterFallChk(volatile int a0)
@@ -314,7 +314,7 @@ extern ActMail D_004F81D0[];
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 /* kept local: this TU's uses of scpAdpcmCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmCloseFunc(int *a0);
-/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpWakeupEnemyAll(void);
 
 void actSt02aGondolaUp(volatile int a0)
@@ -789,7 +789,7 @@ void actSt02aSekizoEvent(int x)
     volatile int local = x;
 }
 
-/* kept local: this TU's uses of scpCheckExistAliveEnemy do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern int scpCheckExistAliveEnemy(void);
 
 /* The way-on watcher's mail record: it installs actSt02aWayOffChk here and
@@ -894,7 +894,7 @@ void actSt02aTakiWayOffChk(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: this TU's uses of scpExplodeSecretItem do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpExplodeSecretItem(void);
 
 void actSt02aSecretItemChk(volatile int a0)

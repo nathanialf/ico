@@ -1036,7 +1036,11 @@ extern char D_0063AB08[];
 extern char D_0063AB10[];
 extern char D_0063AB18[];
 extern char D_0063AB20[];
-extern int D_0063C25C;
+
+/* .sbss, camera-editor.o's one word (MAIN.MAP line 7598, no symbol named, so
+   the name is ours): the pin the pin editor was opened on. */
+static int editPinNo;
+
 extern void sceVu0ScaleVector(int *buf, int *p, float t);
 
 void menuPinSelect(char *m)
@@ -1111,7 +1115,7 @@ void menuPinSelect(char *m)
             curmenu = *(int *)(m + 0x70);
             iosThreadDestroy(m);
         } else if (D_0028F8F0[1].trg & 0x20) {
-            D_0063C25C = no;
+            editPinNo = no;
             EnterMenu(menuPinEdit, cur, m);
         }
         iosThreadSleep(m);
@@ -1183,7 +1187,7 @@ static inline void StickToTransInline(int a0, int a1, int a2, int a3, float *out
 
 void menuPinEdit(char *m)
 {
-    PinRec *pin = (PinRec *)CameraEdit_PIN(D_0063C25C, *(int *)(m + 0x74));
+    PinRec *pin = (PinRec *)CameraEdit_PIN(editPinNo, *(int *)(m + 0x74));
     int cur = 0;
     int i;
 

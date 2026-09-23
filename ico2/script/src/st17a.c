@@ -56,7 +56,7 @@ void actSt17aDoor(volatile int a0)
 extern long long D_00622F60[];
 /* kept local: this TU's uses of scpTriggerFloorAttrTargetMan do not fit the prototype in script.h */
 extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
-/* kept local: this TU's uses of scpWakeupItemWithBoundary do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpWakeupItemWithBoundary(float a0, float a1, float a2, float a3);
 extern ActMail D_004FAF90[];
 
@@ -153,7 +153,7 @@ void actSt17aDoorDownChk(volatile int a0)
 
 /* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(void *obj, int attr);
-/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern int scpSearchGobj(int a0);
 extern int D_0063AA08;
 extern void *D_00639EAC;
@@ -254,13 +254,13 @@ void actSt17aHasiChk(volatile int a0)
 INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st17a", actSt17aHasiEffect);
 
 extern PadState D_0028F8F0[];
-/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern int scpAdpcmPlayRequestNum(void);
-/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpFadeOut(float t, int a1, int a2, int a3);
-/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern int scpFadeChk(void);
-/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpFadeIn(float f);
 
 /* .sbss, owned by st17a.o and reached only from this file (MAIN.MAP names no

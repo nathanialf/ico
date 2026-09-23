@@ -32,9 +32,9 @@ static ActMail ene_mes[2] = {{430}, {429}};
 
 extern int D_00639EA8;
 extern int D_0063AA08;
-/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpPlayEnd(int a0);
-/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpPlayStart(int a0);
 /* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
@@ -65,15 +65,15 @@ extern int scpTriggerBall(int a0, int a1, float radius);
 extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
 /* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *h, int a2, int a3, int a4);
-/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern int scpAdpcmPlayRequestNum(void);
 /* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmFadeCloseFunc(int *h, int a1);
-/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
-/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern int scpFadeChk(void);
-/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpFadeIn(float a0);
 
 typedef union Pos {
@@ -84,7 +84,7 @@ typedef union Pos {
 extern PadState D_0028F8F0[];
 void actSt08bKurenLeft(volatile int a0);
 void actSt08bKurenRight(volatile int a0);
-/* kept local: this TU's uses of scpWakeupItemWithBoundary do not fit the prototype in script.h */
+/* as script.h declares it; this TU does not include that header */
 extern void scpWakeupItemWithBoundary(float a0, float a1, float a2, float a3);
 extern int D_00639EA4;
 /* The door-boundary X/Z corners live in the -G8 gp float pool and are written

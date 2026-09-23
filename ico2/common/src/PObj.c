@@ -4,9 +4,14 @@
 #include "DisplayP2O.h"
 #include <stdio.h>
 
-extern const char D_006360D8[];
-
-typedef float Vec[4];
+/* RECONSTRUCTION, PUBLIC SDK NAMING RUNG for the shape (libvu0's
+   sceVu0FVECTOR, a 16-byte aligned float[4]); the name is ours.  The ROM pins
+   the alignment: MakeBoundingBox's bounds sit at 16-byte stack slots and its
+   last loop writes self->bb through one pointer at +0x5C.  expand_expr builds
+   an array element's address as base plus constant first only when the
+   element's alignment is the float's own, which is the four-pointer loop a
+   plain float[4] gives. */
+typedef float Vec[4] __attribute__((aligned(16)));
 
 typedef struct PObjMdl {
     char _0[0x70];
@@ -44,13 +49,16 @@ typedef struct PObjSub { /* 0x180 stride, hung off the PObj at 0x40 */
 
 typedef struct PObj {
     char _0[0x24];
-    int f24;              /* 0x24 */
-    PObjPkt *pkt;         /* 0x28 */
-    short f2C;            /* 0x2C */
-    char f2E;             /* 0x2E */
-    unsigned int f2F : 8; /* 0x2F; a bitfield, not a char: the ROM lets the
-                             D_004FBA80 float load hoist past this store, which
-                             a character type's alias set 0 would forbid */
+    int f24;      /* 0x24 */
+    PObjPkt *pkt; /* 0x28 */
+    short f2C;    /* 0x2C */
+    /* 0x2E and 0x2F, the sub-object count and a second byte, as one short's
+       two bitfields rather than chars: a character type's alias set 0 would
+       let every float store kill them, where the ROM keeps the count's lbu
+       live across MakeBoundingBox's loops and lets the D_004FBA80 float
+       load hoist past InitPObj's store to 0x2F */
+    short f2E : 8;          /* 0x2E */
+    unsigned short f2F : 8; /* 0x2F */
 
     union {
         long long ll;
@@ -70,8 +78,6 @@ typedef struct PObj {
     Vec bb[8]; /* 0x50 */
 } PObj;
 
-extern char D_0063C0D8[]; /* the %s format, .sdata */
-
 /* The file's own name tidier: rows 26 to 39 sit inside AllocPObj's span and the
    census lists no out-of-line copy, so it is defined here and inlined once. */
 static __inline__ void TidyPObjName(char *name)
@@ -87,8 +93,8 @@ static __inline__ void TidyPObjName(char *name)
         if (name[i] == '/')
             top = i + 1;
     }
-    sprintf(buf, D_0063C0D8, &name[top]);
-    sprintf(name, D_0063C0D8, buf);
+    sprintf(buf, "%s", &name[top]);
+    sprintf(name, "%s", buf);
     for (i = 0; name[i] != 0; i++) {
         if (name[i] == '.') {
             name[i] = 0;
@@ -97,13 +103,100 @@ static __inline__ void TidyPObjName(char *name)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/PObj", MakeBoundingBox);
+/* MakeBoundingBox: one axis-aligned box per sub-object into the block it
+   allocates at 0x44, plus the whole object's box in self->bb.  The line map
+   (SRCFILE.TXT rows 55 to 107) gives the statement boundaries used here. */
+void MakeBoundingBox(PObj *self)
+{
+    Vec mn;
+    Vec mx;
+    Vec gmn;
+    Vec gmx;
+    Vec *out;
+    float *p;
+    PObjSub *sub;
+    int i;
+    unsigned int j;
+    int l;
+
+    self->f44 = (Vec(*)[8])mallocseki(self->f2E << 7);
+
+    gmn[0] = gmn[1] = gmn[2] = 16777215.0f;
+    gmx[0] = gmx[1] = gmx[2] = -16777215.0f;
+
+    for (i = 0; i < self->f2E; i++) {
+        sub = &self->sub[i];
+        out = self->f44[i];
+
+        mn[0] = mn[1] = mn[2] = 16777215.0f;
+        mx[0] = mx[1] = mx[2] = -16777215.0f;
+
+        for (j = 0; j < sub->f94; j++) {
+            p = sub->f90[j];
+            if (p[0] < mn[0])
+                mn[0] = p[0];
+            if (mx[0] < p[0])
+                mx[0] = p[0];
+            if (p[1] < mn[1])
+                mn[1] = p[1];
+            if (mx[1] < p[1])
+                mx[1] = p[1];
+            if (p[2] < mn[2])
+                mn[2] = p[2];
+            if (mx[2] < p[2])
+                mx[2] = p[2];
+            if (p[0] < gmn[0])
+                gmn[0] = p[0];
+            if (gmx[0] < p[0])
+                gmx[0] = p[0];
+            if (p[1] < gmn[1])
+                gmn[1] = p[1];
+            if (gmx[1] < p[1])
+                gmx[1] = p[1];
+            if (p[2] < gmn[2])
+                gmn[2] = p[2];
+            if (gmx[2] < p[2])
+                gmx[2] = p[2];
+        }
+
+        for (l = 0; l < 8; l++) {
+            if (l & 1)
+                out[l][0] = mn[0];
+            else
+                out[l][0] = mx[0];
+            if (l & 2)
+                out[l][1] = mn[1];
+            else
+                out[l][1] = mx[1];
+            if (l & 4)
+                out[l][2] = mn[2];
+            else
+                out[l][2] = mx[2];
+            out[l][3] = 1.0f;
+        }
+    }
+
+    for (l = 0; l < 8; l++) {
+        if (l & 1)
+            self->bb[l][0] = gmn[0];
+        else
+            self->bb[l][0] = gmx[0];
+        if (l & 2)
+            self->bb[l][1] = gmn[1];
+        else
+            self->bb[l][1] = gmx[1];
+        if (l & 4)
+            self->bb[l][2] = gmn[2];
+        else
+            self->bb[l][2] = gmx[2];
+        self->bb[l][3] = 1.0f;
+    }
+}
 
 /* The 0x8C-stride model table this member shares with charFileManager: only
    the three columns MakePacket reads are spelled out here. */
 
 extern PObjMdl D_004FBA80[];
-extern char D_00635FC0[];
 
 void MakePacket(PObj *p, int n)
 {
@@ -126,7 +219,7 @@ void MakePacket(PObj *p, int n)
         if (p->f24 != 0)
             p2o_MakePacket(q);
     }
-    debug_StdPrintfDummy(D_00635FC0);
+    debug_StdPrintfDummy("end of packet making...\n");
 }
 
 /* The file's own vector setter, defined between MakePacket and AllocPObj and
@@ -139,16 +232,6 @@ static __inline__ void SetPObjVector(Vec v, float x, float y, float z)
     v[3] = 0.0f;
 }
 
-extern char D_00635FE0[];
-extern char D_00636018[];
-extern char D_00636038[];
-extern char D_00636060[];
-extern char D_00636088[];
-extern char D_006360A8[];
-extern char D_006360C8[];
-extern char D_0063C0E0[];
-extern char D_0063C0E8[];
-extern char D_0063C0F0[];
 extern void MakeBoundingBox(PObj *p);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
@@ -236,34 +319,35 @@ PObj *AllocPObj(ObjHdr *h, char *name, int n)
 
     list = (int *)h->f4;
 
-    debug_StdPrintfDummy(D_00635FE0, h, h->f8, h->fC);
+    debug_StdPrintfDummy("\033[33mobject info : adrs(%p) objnum(%d) clstnum(%d)\n", h, h->f8,
+                         h->fC);
 
     p = (PObj *)mallocseki(0xD0);
-    sprintf((char *)p, D_0063C0D8, name);
+    sprintf((char *)p, "%s", name);
     TidyPObjName((char *)p);
 
-    debug_StdPrintfDummy(D_00636018, (char *)p);
-    debug_StdPrintfDummy(D_00636038, list);
+    debug_StdPrintfDummy("            : object name (%s)\n", (char *)p);
+    debug_StdPrintfDummy("            : object table (%p)\033\n", list);
     if (tex != 0)
-        debug_StdPrintfDummy(D_00636060, tex);
+        debug_StdPrintfDummy("            : texture table (%p)\033[m\n", tex);
     else
-        debug_StdPrintfDummy(D_0063C0E0);
+        debug_StdPrintfDummy("\033[m");
 
     if (tex != 0) {
         for (i = 0; i < h->f14; i++)
             tex[i] += (int)h;
     }
 
-    debug_StdPrintfDummy(D_00636088, list);
+    debug_StdPrintfDummy("Solve object address. %p\n", list);
 
     for (i = 0; i < h->f8; i++) {
         list[i] += (int)h;
         o = (ObjRec *)list[i];
 
-        if (o->f80 != *(int *)D_0063C0E8) {
-            debug_StdPrintfDummy(D_006360A8);
-            debug_assert(D_006360C8, 249);
-            __assert(D_006360C8, 249, D_0063C0F0);
+        if (o->f80 != *(int *)"OBJH") {
+            debug_StdPrintfDummy("allocPObj:Invalid Object.\n");
+            debug_assert(__FILE__, 249);
+            __assert(__FILE__, 249, "FALSE");
         }
 
         o->f90 += (int)h;
@@ -324,6 +408,6 @@ PObj *InitPObj(int a0, int a1, int n)
 void FreePObj(void)
 {
     do {
-        debug_StdPrintfDummy(D_006360D8);
+        debug_StdPrintfDummy("free object\n");
     } while (0);
 }

@@ -8,8 +8,30 @@ extern unsigned int D_0063B610;
 extern int D_0063B618;
 extern int D_0063B61C;
 extern int D_0063B624;
-extern int D_0063C3F4;
-extern int D_0063C3F8;
+
+/* .sbss, layout_texture.o's nine words in the ROM's order (MAIN.MAP line 7619
+   gives the January object's 8 bytes and no symbol, so the names are ours and
+   the other seven are the retail revision's): the pad buttons of the last
+   frame, the layout switched to and the fade state that follows the switch,
+   the selection glow's flag, count and length, the frame of the last
+   selection, and the switch fade's length and count. */
+static int lastButton;
+
+static int nextLayout;
+
+static int nextFadeState;
+
+static signed char glowOn;
+
+static unsigned int glowCount;
+
+static unsigned int glowLength;
+
+static int selectFrame;
+
+static unsigned int fadeLength;
+
+static unsigned int fadeCount;
 
 /* The 0x70-byte layout-property records. */
 typedef struct LtProperty {
@@ -142,39 +164,37 @@ typedef struct LtPad {
 } LtPad;
 
 extern LtPad D_0028F8F0;
-extern int D_0063C3F0;
 
 void lt_analog2Pad(void)
 {
     if (D_0028F8F0.rx < 20) {
         D_0028F8F0.button |= 0x1000;
-        if ((D_0063C3F0 & 0x1000) == 0) {
+        if ((lastButton & 0x1000) == 0) {
             D_0028F8F0.trigger |= 0x1000;
         }
     }
     if (D_0028F8F0.rx >= 236) {
         D_0028F8F0.button |= 0x4000;
-        if ((D_0063C3F0 & 0x4000) == 0) {
+        if ((lastButton & 0x4000) == 0) {
             D_0028F8F0.trigger |= 0x4000;
         }
     }
     if (D_0028F8F0.ry < 20) {
         D_0028F8F0.button |= 0x8000;
-        if ((D_0063C3F0 & 0x8000) == 0) {
+        if ((lastButton & 0x8000) == 0) {
             D_0028F8F0.trigger |= 0x8000;
         }
     }
     if (D_0028F8F0.ry >= 236) {
         D_0028F8F0.button |= 0x2000;
-        if ((D_0063C3F0 & 0x2000) == 0) {
+        if ((lastButton & 0x2000) == 0) {
             D_0028F8F0.trigger |= 0x2000;
         }
     }
-    D_0063C3F0 = D_0028F8F0.button;
+    lastButton = D_0028F8F0.button;
 }
 
 extern int frame_count;
-extern int D_0063C408;
 extern int D_0028F8F4[];
 extern int D_0063B620;
 extern int D_0063AA00;
@@ -212,9 +232,6 @@ static inline void lt_draw_layout(int no)
 
 /* kept local: the declaration in s_init.h changes this TU codegen */
 extern int soundSeDefPlay(int se, unsigned int handle, float *pos, int a3);
-extern unsigned int D_0063C400;
-extern unsigned int D_0063C404;
-extern signed char D_0063C3FC;
 extern int D_0028F4C0[];
 
 /* Source lines 441-451.  lt_switch_layout is a real global at its own ROM slot
@@ -226,19 +243,19 @@ extern int D_0028F4C0[];
    what the ROM has (0x001BF548 `addiu $3,$0,0x7` feeding `sw $3,%gp_rel(D_0063B618)`
    against 0x001BF5EC's `sw $2` with $2 = 3), and it is also what keeps the two
    else arms from cross-jumping: with one constant the pair of stores is the
-   ordinary adjacent-store reversal (D_0063B618 first, then D_0063C3F8) and with two
+   ordinary adjacent-store reversal (D_0063B618 first, then nextFadeState) and with two
    it stays in source order, so the tails do not match.  A single stand-in taking
    the value as a parameter compiles one instruction short for exactly that
    reason. */
 static inline void lt_switch_layout_7(int no)
 {
     if ((D_0063B618 == 2 && no != D_0063B60C) || no == 62) {
-        D_0063C3F4 = no;
+        nextLayout = no;
         display_texture_fade_cancel_chk(D_0063B60C, no);
         if (D_0063B61C == 1) {
             D_0063B618 = 5;
         } else {
-            D_0063C3F8 = 3;
+            nextFadeState = 3;
             D_0063B618 = 7;
         }
     }
@@ -247,12 +264,12 @@ static inline void lt_switch_layout_7(int no)
 static inline void lt_switch_layout_3(int no)
 {
     if ((D_0063B618 == 2 && no != D_0063B60C) || no == 62) {
-        D_0063C3F4 = no;
+        nextLayout = no;
         display_texture_fade_cancel_chk(D_0063B60C, no);
         if (D_0063B61C == 1) {
             D_0063B618 = 5;
         } else {
-            D_0063C3F8 = 3;
+            nextFadeState = 3;
             D_0063B618 = 3;
         }
     }
@@ -296,10 +313,10 @@ void default_item_select(int no)
         }
         if (p->f2C != prev) {
             soundSeDefPlay(411, 0xFFFFFFFE, 0, 0);
-            D_0063C3FC = 1;
-            D_0063C404 = (unsigned int)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 0.25f);
-            D_0063C408 = frame_count;
-            D_0063C400 = 0;
+            glowOn = 1;
+            glowLength = (unsigned int)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 0.25f);
+            selectFrame = frame_count;
+            glowCount = 0;
         }
     } else {
         p->f2C = ((int (*)(void))D_0063B624)();
@@ -342,8 +359,6 @@ static inline void lt_reset_property_chain(int no)
 extern unsigned char D_0063B600[4];
 extern unsigned int D_0063B628;
 extern unsigned int D_0063B62C;
-extern unsigned int D_0063C40C;
-extern unsigned int D_0063C410;
 
 /* source lines 748-859.  The fade state D_0063B618 is read and written as the
    global itself, as the rest of this TU does (the listing puts each `li N` on
@@ -400,12 +415,12 @@ void texture_fading(LtProp *p)
         break;
     case 7:
         D_0063B618 = 8;
-        D_0063C40C = (unsigned int)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 0.25f);
-        D_0063C410 = 0;
+        fadeLength = (unsigned int)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 0.25f);
+        fadeCount = 0;
         /* fall through */
     case 8:
-        if (++D_0063C410 >= D_0063C40C) {
-            D_0063B618 = D_0063C3F8;
+        if (++fadeCount >= fadeLength) {
+            D_0063B618 = nextFadeState;
         }
         break;
     case 3:
@@ -424,7 +439,7 @@ void texture_fading(LtProp *p)
         col[3] = 0;
         /* fall through */
     case 6:
-        D_0063B60C = D_0063C3F4;
+        D_0063B60C = nextLayout;
         cur = &D_00533FE8[D_0063B60C].f2C;
         *cur = D_00533FE8[D_0063B60C].f28;
         D_0063B614 = 1;
@@ -436,9 +451,9 @@ void texture_fading(LtProp *p)
         lt_reset_property_chain(D_0063B60C);
         break;
     }
-    if (D_0063C3FC != 0) {
-        if (D_0063C400++ >= D_0063C404) {
-            D_0063C3FC = 0;
+    if (glowOn != 0) {
+        if (glowCount++ >= glowLength) {
+            glowOn = 0;
         }
     }
 }
@@ -612,12 +627,12 @@ static void display_texture(int no, LtProperty *e)
         gif_SpriteSensitiveOffset(&box, 0xFFFFFF9B, &ofs, &u.col, 1);
 
         if (e->f6C_b3 != 0 && sel != 0 && D_0063B618 == 8) {
-            float t = (float)D_0063C410 / (float)D_0063C40C;
+            float t = (float)fadeCount / (float)fadeLength;
 
             lt_glow_sprite(&box, &ofs, 80, 80, 80, t, 55, 50);
             lt_glow_sprite(&box, &ofs, 30, 30, 30, t, 110, 100);
-        } else if (e->f6C_b3 != 0 && sel != 0 && D_0063C3FC != 0) {
-            lt_glow_sprite(&box, &ofs, 54, 80, 115, (float)D_0063C400 / (float)D_0063C404, 32, 32);
+        } else if (e->f6C_b3 != 0 && sel != 0 && glowOn != 0) {
+            lt_glow_sprite(&box, &ofs, 54, 80, 115, (float)glowCount / (float)glowLength, 32, 32);
         }
         gif_SetZWrite(1);
         gif_EndPacket();
@@ -667,18 +682,18 @@ void display_primary_texture_layout(int no, int sel)
                 flag = m == 1;
             }
             if ((D_0063B618 == 2 && sel != D_0063B60C) || sel == 62) {
-                D_0063C3F4 = sel;
+                nextLayout = sel;
                 display_texture_fade_cancel_chk(D_0063B60C, sel);
                 if (D_0063B61C == 1) {
                     D_0063B618 = 5;
                 } else {
-                    D_0063C3F8 = 3;
+                    nextFadeState = 3;
                     D_0063B618 = flag ? 7 : 3;
                 }
             }
         } else if ((D_0028F8F4[0] & 0x40) != 0) {
             if (m == 2) {
-                D_0063C3F8 = m;
+                nextFadeState = m;
                 D_0063B618 = 7;
             }
         }
@@ -698,7 +713,7 @@ void exec_layout_texture(void)
     int j;
     int k;
 
-    if (frame_count - D_0063C408 == 0 || frame_count - D_0063C408 == 1) {
+    if (frame_count - selectFrame == 0 || frame_count - selectFrame == 1) {
         D_0028F8F4[0] = 0;
     }
     p = &D_00533FE8[D_0063B60C];
@@ -865,12 +880,12 @@ void init_layout_texture(int stage)
 inline void lt_switch_layout(int no)
 {
     if ((D_0063B618 == 2 && no != D_0063B60C) || no == 62) {
-        D_0063C3F4 = no;
+        nextLayout = no;
         display_texture_fade_cancel_chk(D_0063B60C, no);
         if (D_0063B61C == 1) {
             D_0063B618 = 5;
         } else {
-            D_0063C3F8 = 3;
+            nextFadeState = 3;
             D_0063B618 = 3;
         }
     }

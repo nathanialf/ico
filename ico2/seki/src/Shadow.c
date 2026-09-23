@@ -30,8 +30,13 @@ extern void _MulCurrentMatrixL(void *a0);
 extern void _InitCurrentMatrix(void);
 extern void _MulCurrentMatrixR(void *a0);
 extern void _GetCurrentMatrix(void *a0);
-/* one skinning matrix per cluster, built by shadow_EntryClusterShadow */
-extern char D_0067C070[];
+
+/* .bss, Shadow.o's two objects in the ROM's order (MAIN.MAP line 7683 sizes
+ * the run 0x1028 and names no symbol in it, so the names are ours).  One
+ * skinning matrix per cluster, 64 of 64 bytes, built by
+ * shadow_EntryClusterShadow. */
+static char clusterMatrix[4096];
+
 extern int D_0063A17C;
 extern int D_0063A178;
 
@@ -463,7 +468,7 @@ void shadow_EntryClusterShadow(char *a0, float a1)
         _SetCurrentMatrix(*(char **)(a0 + 0xC) + i * 0x40);
         _MulCurrentMatrixR(*(char **)(a0 + 0x90) + i * 0x40);
         _MulCurrentMatrixL(matrixptr + 0x80);
-        _GetCurrentMatrix(D_0067C070 + i * 0x40);
+        _GetCurrentMatrix(clusterMatrix + i * 0x40);
     }
 
     __asm__ __volatile__("lq $8, 0(%0)" : : "r"(&zero) : "$8");
@@ -479,7 +484,7 @@ void shadow_EntryClusterShadow(char *a0, float a1)
             VECTOR *dst;
             VECTOR *src;
 
-            _SetCurrentMatrix(D_0067C070 + (*(ClusterPoly **)(p + 0xF0))[k].matrix * 0x40);
+            _SetCurrentMatrix(clusterMatrix + (*(ClusterPoly **)(p + 0xF0))[k].matrix * 0x40);
             e = (*(ClusterPoly **)(p + 0xF0))[k].run;
             /* the listing gives both base loads the run load's row (648) and
              * the -1 of the loop test the next row (649): they are read once
@@ -594,11 +599,14 @@ void shadow_EntryNormalShadow(char *a0, int a1, float a2)
  * None of them has a symbol of its own: every row run appears only inside
  * shadow_RenderVolume and shadow_RenderVolumeMulti. */
 
-/* the screen-space origin every projected point is measured from */
-extern VECTOR D_00290B40;
+/* the screen-space origin every projected point is measured from: the centre
+ * of the GS's 4096-unit primitive coordinate space.  The name is ours, MAIN.MAP
+ * names nothing in Shadow.o's .data. */
+static VECTOR screenOrigin = {2048.0f, 2048.0f, 0.0f, 0.0f};
+
 /* the face normal z of each strip position, read back by the position that
  * shares the face with the one that computed it */
-extern float D_0067D070[];
+static float stripFaceZ[10];
 
 /* rows 844-845: the projection matrix and the shadow direction into the VU0
  * register file, where the edge projector below leaves them for the whole
@@ -714,7 +722,7 @@ static inline float clipVolumeEdge(VECTOR *pa, VECTOR *pb, float sgn)
                          "sqc2 $vf18, 0x0(%3)\n\t"
                          "sqc2 $vf19, 0x0(%4)"
                          : "=f"(dot)
-                         : "r"(pa), "r"(pb), "r"(&oa), "r"(&ob), "r"(&D_00290B40)
+                         : "r"(pa), "r"(pb), "r"(&oa), "r"(&ob), "r"(&screenOrigin)
                          : "$7");
 
     rate[0] = rate[1] = 1.0f;
@@ -805,7 +813,7 @@ static inline float clipVolumeEdge(VECTOR *pa, VECTOR *pb, float sgn)
                              "vnop\n\t"
                              "vadd.xyzw $vf22, $vf22, $vf8"
                              :
-                             : "f"(rate[0]), "r"(&D_00290B40)
+                             : "f"(rate[0]), "r"(&screenOrigin)
                              : "$8");
     }
     if (0.0f < rate[1] && rate[1] < 1.0f) {
@@ -823,7 +831,7 @@ static inline float clipVolumeEdge(VECTOR *pa, VECTOR *pb, float sgn)
                              "vnop\n\t"
                              "vadd.xyzw $vf25, $vf25, $vf8"
                              :
-                             : "f"(rate[1]), "r"(&D_00290B40)
+                             : "f"(rate[1]), "r"(&screenOrigin)
                              : "$8");
     }
     return dot * sgn;
@@ -851,7 +859,7 @@ static inline int clipVolumeHead(VECTOR *ta, VECTOR *ba, VECTOR *tb, VECTOR *bb,
 
 /* the facing z of the strip position i. The three positions that share a face
  * with the position two before them read the facing that one measured back
- * out of D_0067D070 instead of taking the cross product again. The cross
+ * out of stripFaceZ instead of taking the cross product again. The cross
  * product of the two edges left in vf8 and vf9 is written straight into the
  * table (row 1124 carries both the block and the store; row 1134 only the
  * return). */
@@ -865,7 +873,7 @@ static inline float volumeStripFaceZ(int i)
         VOLUME_EDGE(20, 21, 23);
         break;
     case 3:
-        return -D_0067D070[2];
+        return -stripFaceZ[2];
     case 4:
         VOLUME_EDGE(23, 24, 25);
         break;
@@ -873,7 +881,7 @@ static inline float volumeStripFaceZ(int i)
         VOLUME_EDGE(24, 25, 21);
         break;
     case 6:
-        return -D_0067D070[5];
+        return -stripFaceZ[5];
     case 7:
         VOLUME_EDGE(21, 22, 20);
         break;
@@ -881,17 +889,17 @@ static inline float volumeStripFaceZ(int i)
         VOLUME_EDGE(22, 20, 25);
         break;
     case 9:
-        return -D_0067D070[8];
+        return -stripFaceZ[8];
     }
     __asm__ __volatile__("vopmula.xyz ACC, $vf8, $vf9\n\t"
                          "vopmsub.xyz $vf2, $vf9, $vf8\n\t"
                          "vaddz.x $vf2, $vf0, $vf2z\n\t"
                          "qmfc2.ni $7, $vf2\n\t"
                          "mtc1 $7, %0"
-                         : "=f"(D_0067D070[i])
+                         : "=f"(stripFaceZ[i])
                          :
                          : "$7");
-    return D_0067D070[i];
+    return stripFaceZ[i];
 }
 
 /* rows 1197-1202: the strip is dropped whole if any of its six vertices left
@@ -1358,8 +1366,12 @@ extern char D_0063A1A0[];
 extern char D_0054FF70[];
 /* "Shadow %s => %d\n" */
 extern char D_0054FF88[];
-/* the names a 0/1 row prints instead of its number */
-extern char *D_00290B50[];
+
+/* the names a 0/1 row prints instead of its number, ZFog's fogOnOffText
+ * idiom; the unspecified bound keeps the 8-byte pointer array out of small data
+ * under -G 8, which is where the ROM has it */
+static char *shadowOnOffText[] = {"Off", "On"};
+
 /* the row the tool has selected */
 extern int D_0063A194;
 
@@ -1385,7 +1397,7 @@ int shadow_Tool(void)
     for (i = 0; i < 8; i++) {
         if (D_0054FE18[i].min == 0 && D_0054FE18[i].max == 1) {
             debug_PrintfDummy(0x12, (i + 1) * 8 + 50, D_0054FF58[D_0063A194 == i], (int)D_0063A198,
-                              (int)D_0054FE18[i].name, (int)D_00290B50[*D_0054FE18[i].val]);
+                              (int)D_0054FE18[i].name, (int)shadowOnOffText[*D_0054FE18[i].val]);
         } else {
             debug_PrintfDummy(0x12, (i + 1) * 8 + 50, D_0054FF58[D_0063A194 == i], (int)D_0063A1A0,
                               (int)D_0054FE18[i].name, *D_0054FE18[i].val);
@@ -1417,7 +1429,7 @@ int shadow_Tool(void)
         for (i = 0; i < 8; i++) {
             if (D_0054FE18[i].min == 0 && D_0054FE18[i].max == 1) {
                 debug_StdPrintfDummy(D_0054FF70, D_0054FE18[i].name,
-                                     D_00290B50[*D_0054FE18[i].val]);
+                                     shadowOnOffText[*D_0054FE18[i].val]);
             } else {
                 debug_StdPrintfDummy(D_0054FF88, D_0054FE18[i].name, *D_0054FE18[i].val);
             }

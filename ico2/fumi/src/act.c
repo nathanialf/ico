@@ -7,22 +7,13 @@
 #include "mail-add-data.h"
 #include "motionOrientManager.h"
 
-extern char D_00621BB0[];
-extern char D_00621BD0[];
 extern char D_002C2DC8[];
-extern char D_00621BF0[];
-extern char D_00621C10[];
 /* kept local: this TU's uses of isysGObjProcAdd do not fit the prototype in gobj_process.h */
 extern int isysGObjProcAdd(void *a0, void *a1, int a2, void *a3);
 /* kept local: this TU's uses of isysGObjProcAddS do not fit the prototype in gobj_process.h */
 extern int isysGObjProcAddS(void *a0, void *a1, int a2, void *a3, long long a4);
 /* kept local: this TU's uses of isysGObjProcRemove do not fit the prototype in gobj_process.h */
 extern void isysGObjProcRemove();
-extern char D_00621C30[];
-extern char D_00621C50[];
-extern char D_00621C70[];
-extern char D_00621C80[];
-extern char D_00621C90[];
 extern int D_0063B208;
 
 /* One 0x50-byte record per act status, indexed by the actor status index; the
@@ -78,10 +69,10 @@ void actChangeActBrain(int a0, int a1, int *a2)
     int n = actCreateSubThread(a1, 20);
     *a2 = n;
     if (old != 0) {
-        debug_StdPrintfDummy(D_00621BB0, a0, n);
+        debug_StdPrintfDummy("--b-- %p:act brain del %p\n", a0, n);
         isysGObjProcRemove(old);
     } else {
-        debug_StdPrintfDummy(D_00621BD0, a0, n);
+        debug_StdPrintfDummy("--b-- %p:act brain NULL %p\n", a0, n);
     }
 }
 
@@ -98,10 +89,10 @@ void actChangeActMain(void *a0, void *a1, void **a2)
     }
     *a2 = (void *)ret;
     if (old != 0) {
-        debug_StdPrintfDummy(D_00621BF0, a0, ret);
+        debug_StdPrintfDummy("--m-- %p:act main del %p\n", a0, ret);
         isysGObjProcRemove(old);
     } else {
-        debug_StdPrintfDummy(D_00621C10, a0, ret);
+        debug_StdPrintfDummy("--m-- %p:act main NULL %p\n", a0, ret);
     }
 }
 
@@ -111,10 +102,10 @@ void actCreateMotionThread(void *a0, void *a1, void **a2)
     int ret = isysGObjProcAdd(D_0063A61C, a0, 0, a1);
     *a2 = (void *)ret;
     if (old != 0) {
-        debug_StdPrintfDummy(D_00621C30, *(int *)((char *)old + 4), ret);
+        debug_StdPrintfDummy("--t-- %p:act mot del %p\n", *(int *)((char *)old + 4), ret);
         isysGObjProcRemove(old);
     } else {
-        debug_StdPrintfDummy(D_00621C50, ret, ret);
+        debug_StdPrintfDummy("--t-- %p:act mot NULL %p\n", ret, ret);
     }
 }
 
@@ -126,12 +117,12 @@ int actCreateSubThread(void *a0, void *a1)
 
     if (D_0063B208) {
         Act *lval = GOBJ_ACT(D_0063A61C);
-        debug_StdPrintfDummy(D_00621C70, D_0063A61C);
-        debug_StdPrintfDummy(D_00621C80, *(int *)(D_0063A61C + 8));
-        debug_StdPrintfDummy(D_00621C80, *(int *)(D_0063A61C + 0xC));
+        debug_StdPrintfDummy("acst[%p]\n", D_0063A61C);
+        debug_StdPrintfDummy("    [%d]\n", *(int *)(D_0063A61C + 8));
+        debug_StdPrintfDummy("    [%d]\n", *(int *)(D_0063A61C + 0xC));
         if (lval != 0) {
-            debug_StdPrintfDummy(D_00621C90, lval);
-            debug_StdPrintfDummy(D_00621C80, lval->unk34);
+            debug_StdPrintfDummy("lval[%p]\n", lval);
+            debug_StdPrintfDummy("    [%d]\n", lval->unk34);
         }
     }
     e = D_002C2DC8 + *(int *)(D_0063A61C + 8) * 0x4C;
@@ -249,14 +240,13 @@ typedef struct {
 } PadConf;
 
 extern PadConf iosPadConfDefault;
-extern char D_00621CA0[];
 extern int D_0063A44C;
 extern void *D_0063A620;
 
 void actInitialize_ext_charcter(char *self)
 {
     Act *g = GOBJ_ACT(self);
-    char *p = (char *)iosMallocDebug(D_0063A44C, 0x400, D_00621CA0, 0x375);
+    char *p = (char *)iosMallocDebug(D_0063A44C, 0x400, __FILE__, 885);
 
     memset(p, 0, 0x400);
     *(char **)((char *)g + 0x680) = p;
@@ -292,7 +282,7 @@ typedef struct {
 void actInitialize_only_charcter(char *self)
 {
     char *g = (char *)*(int *)(self + 0x164);
-    char *p = (char *)iosMallocDebug(D_0063A44C, 0x980, D_00621CA0, 0x38B);
+    char *p = (char *)iosMallocDebug(D_0063A44C, 0x980, __FILE__, 907);
     Vec4 *q;
     int i;
 
@@ -315,7 +305,7 @@ void actInitialize_only_charcter(char *self)
 
 char *actInitialize(char *self)
 {
-    char *w = (char *)iosMallocDebug(D_0063A44C, 0x850, D_00621CA0, 934);
+    char *w = (char *)iosMallocDebug(D_0063A44C, 0x850, __FILE__, 934);
 
     *(char **)(self + 0x164) = w;
     memset(w, 0, 0x850);
@@ -435,8 +425,6 @@ typedef struct {
     unsigned int f14;                               /* 0x14 */
 } IntrMail;
 
-extern char D_00621CB0[];
-
 typedef struct {
     int w[8];
 } IntrOrient;
@@ -491,7 +479,7 @@ void act_check_mail(char *self, IntrMail *m)
     int id;
 
     if (m == 0) {
-        debug_StdPrintfDummy(D_00621CB0);
+        debug_StdPrintfDummy("intr list is null\n");
         return;
     }
     for (i = 0; i < k->n; i++) {
@@ -559,10 +547,10 @@ extern IntrMail D_002A7E08[];
 /* the boy object, typed as the work block object pointers it is compared and
    exchanged with (ActObjRefs below; void * as in boyact.c and chain.c) */
 extern void *D_00639EA4;
-extern char D_00621CC8[];
 extern int D_0063A800;
 
-/* the 16 bytes at D_00621CC8 are this TU's own {0, 0, -1, -1} template */
+/* one flag per mail list: a list whose flag is set is not checked for an
+   interrupt while the status record's b11 is set */
 typedef struct {
     unsigned int w[4];
 } IntrSkip;
@@ -632,7 +620,7 @@ void BeforeFunc(char *self)
     {
         IntrMail *mails[5] = {&D_002A7E08[0], &D_002A7E08[3], *(IntrMail **)(w + 0xD4),
                               *(IntrMail **)(w + 0xD0), (IntrMail *)0xFFFFFFFF};
-        IntrSkip skip = *(IntrSkip *)D_00621CC8;
+        IntrSkip skip = {{0, 1, 0, 1}};
 
         ACTSendMailCorrect(self, D_005577D0[*(int *)(w + 0x34)].f48);
         for (i = 0; i < *(int *)(mb + 4); i++) {
@@ -743,10 +731,6 @@ typedef struct {
 } ActPadStick;
 
 extern char *D_00639EC0;
-extern Vec4 D_00621CE0;
-extern char D_00621CF0[];
-extern char D_00621D00[];
-extern Vec4 D_00621D20;
 extern void sceVu0CopyVector(void *dst, void *src);
 extern void sceVu0UnitMatrix(void *m);
 extern void GetRootPosition(void *out, char *self);
@@ -854,14 +838,14 @@ void ACTDebugMove(int a0, int a1)
             if (w.f_94 != 0 && CompareAttribute(w.f_98, 0x800) == 0 &&
                 CompareAttribute(w.f_98, 0x900) == 0) {
                 ActClipWork w2;
-                Vec4 col;
 
                 sceVu0CopyVector(w2.a, pos);
                 sceVu0CopyVector(w2.b, pos);
                 w2.b[1] += 10000.0f;
                 ClipFloor(&w2);
                 if (w2.f_94 != 0) {
-                    col = D_00621CE0;
+                    sceVu0IVECTOR col = {32, 32, 255, 128};
+
                     w2.a[1] += 200.0f;
                     gif_StartPacketPri(11);
                     MatrixDrive_PushMatrix();
@@ -869,7 +853,7 @@ void ACTDebugMove(int a0, int a1)
                     gif_SetZWrite(0);
                     gif_SetZTest(1);
                     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-                    DrawLineG(w2.a, &col, w2.pos, &col, 0);
+                    DrawLineG(w2.a, col, w2.pos, col, 0);
                     MatrixDrive_PopMatrix();
                     gif_EndPacket();
                 }
@@ -880,15 +864,11 @@ void ACTDebugMove(int a0, int a1)
                 *(float *)(*(char **)(self + 0x15C) + 0x254) += h;
             }
         }
-        debug_PrintfDummy(10, 185, 0xFFFFFF00u, (int)D_00621CF0);
-        debug_PrintfDummy(20, 195, 0xFFFFFF00u, (int)D_00621D00, -pos[0], -pos[1], -pos[2]);
+        debug_PrintfDummy(10, 185, 0xFFFFFF00u, (int)"LW's coord:");
+        debug_PrintfDummy(20, 195, 0xFFFFFF00u, (int)"POS X:%8.2f Y:%8.2f Z:%8.2f", -pos[0],
+                          -pos[1], -pos[2]);
         {
             ActClipWork w3;
-            Vec4 col2;
-            float q1[4];
-            float q2[4];
-            float q3[4];
-            float q4[4];
 
             sceVu0CopyVector(w3.a, pos);
             sceVu0CopyVector(w3.b, pos);
@@ -901,18 +881,25 @@ void ACTDebugMove(int a0, int a1)
             gif_SetZTest(1);
             MatrixDrive_PushMatrix();
             sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-            col2 = D_00621D20;
-            CopyVector(q1, pos);
-            CopyVector(q2, pos);
-            CopyVector(q3, pos);
-            CopyVector(q4, pos);
-            q1[0] -= 200.0f;
-            q2[0] += 200.0f;
-            q3[2] -= 200.0f;
-            q4[2] += 200.0f;
-            DrawLineG(w3.a, &col2, w3.b, &col2, 0);
-            DrawLineG(q1, &col2, q2, &col2, 0);
-            DrawLineG(q3, &col2, q4, &col2, 0);
+            {
+                sceVu0IVECTOR col2 = {128, 128, 128, 128};
+                float q1[4];
+                float q2[4];
+                float q3[4];
+                float q4[4];
+
+                CopyVector(q1, pos);
+                CopyVector(q2, pos);
+                CopyVector(q3, pos);
+                CopyVector(q4, pos);
+                q1[0] -= 200.0f;
+                q2[0] += 200.0f;
+                q3[2] -= 200.0f;
+                q4[2] += 200.0f;
+                DrawLineG(w3.a, col2, w3.b, col2, 0);
+                DrawLineG(q1, col2, q2, col2, 0);
+                DrawLineG(q3, col2, q4, col2, 0);
+            }
             MatrixDrive_PopMatrix();
             gif_EndPacket();
             /* Local debug switch, off. What the bytes pin: ACTDebugMove reached
@@ -929,13 +916,12 @@ void ACTDebugMove(int a0, int a1)
                What the bytes cannot pin: the arm's text. */
             if (dbg) {
                 ActClipWork w4;
-                Vec4 col;
+                sceVu0IVECTOR col = {0, 64, 255, 128};
                 Vec4 pt[5];
                 int i;
 
-                col = ((Vec4 *)&D_00621D20)[1]; /* {0, 64, 255, 128}, after D_00621D20 */
                 for (i = 0; i < 5; i++) {
-                    DrawLineG(w4.a, &col, pt[i].f, &col, 0);
+                    DrawLineG(w4.a, col, pt[i].f, col, 0);
                 }
             }
         }

@@ -116,7 +116,15 @@ extern char D_0063A598[];
 extern char D_0063A5A0[];
 extern char D_0063A5A8[];
 extern char D_0063A5B0[];
-extern int D_0063C198;
+
+/* .sbss, pad.o's two words in the ROM's order (MAIN.MAP names no symbol in the
+   run, so the names are ours): the terminal id the reconnect check compares
+   against, which nothing in the retail build writes, and the enable flag
+   iosPadEnable and iosPadDisable set. */
+static int padTermId;
+
+static int padEnabled;
+
 extern int scePadInfoMode(int port, int slot, int term, int offs);
 extern int scePadSetMainMode(int port, int slot, int offs, int lock);
 extern int scePadGetReqState(int port, int slot);
@@ -308,7 +316,7 @@ int controler_stable_check(void *a0)
         }
         if (state == 6 || state == 2) {
             /* RULING-VESTIGIAL-EXCEPTION (supervisor 2026-09-23, under the user's
-               standing instruction of 2026-09-23): the `id = D_0063C198;` inside
+               standing instruction of 2026-09-23): the `id = padTermId;` inside
                the if is dead, the line after reassigns id. What the bytes pin: listing row 477 carries the
                reset arm's split-edge `b` with no instruction of its own, so
                a statement sits there; an arm holding only `phase = 0;` is
@@ -318,11 +326,11 @@ int controler_stable_check(void *a0)
                (the seed's `else { id = D; }` with f8 = D or f8 = id, the
                `||` and local-copy forms) each miss the ROM (ledger c2p65).
                What they cannot pin: the dead line's exact text. */
-            if (id != 0 && D_0063C198 != id) {
+            if (id != 0 && padTermId != id) {
                 phase = 0;
-                id = D_0063C198;
+                id = padTermId;
             }
-            dev->f8 = id = D_0063C198;
+            dev->f8 = id = padTermId;
         }
         break;
     }
@@ -445,7 +453,6 @@ int iosPadDevReadFunc(void)
     return 0;
 }
 
-extern int D_0063C19C;
 extern int D_0063B244;
 
 int iosPadRead(void *pad)
@@ -499,7 +506,7 @@ int iosPadRead(void *pad)
         ctx->f24 = 0;
         return 0;
     }
-    if (D_0063C19C == 0) {
+    if (padEnabled == 0) {
         int mask = D_0063B244 != 0 ? 2 : 0;
         ctx->now &= mask;
         ctx->trg &= mask;
@@ -742,17 +749,17 @@ void iosPadStickCameraCoord(void *a0, float *a1)
 
 void iosPadEnable(void)
 {
-    D_0063C19C = 1;
+    padEnabled = 1;
 }
 
 void iosPadDisable(void)
 {
-    D_0063C19C = 0;
+    padEnabled = 0;
 }
 
 int iosPadEnableGet(void)
 {
-    return D_0063C19C;
+    return padEnabled;
 }
 
 extern int ShockVoiceSetCommon;

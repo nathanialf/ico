@@ -43,8 +43,22 @@ extern char D_0054F0B0[];
 extern char D_0054F0C8[];
 extern char D_0054F0D8[];
 extern char D_0063A090[];
-extern int D_0063C134;
-extern int D_0063C138;
+
+/* .sbss, Light.o's five words in the ROM's order (MAIN.MAP line 7576 sizes
+   the run 0x14 and names no symbol in it, so the names are ours): the cursor
+   debug view's two pad angles, the newest light and the newest ambient volume
+   (each list is walked back through prev), and the light count the retail
+   build no longer increments. */
+static int cursorRotY;
+
+static int cursorRotX;
+
+static int lastLight;
+
+static int lastAmbient;
+
+static int lightCount;
+
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
@@ -60,13 +74,13 @@ void light_killLinkLight(char *node)
     if (p->next != 0) {
         p->next->prev = p->prev;
     } else {
-        D_0063C134 = (int)p->prev;
+        lastLight = (int)p->prev;
     }
     if (p->prev != 0) {
         p->prev->next = p->next;
     }
-    if (D_0063C134 != 0) {
-        ((Light *)D_0063C134)->next = 0;
+    if (lastLight != 0) {
+        ((Light *)lastLight)->next = 0;
     }
     freeseki(p);
 }
@@ -81,13 +95,13 @@ void light_killLinkAmbient(AmbientVolume *p)
     if (p->next != 0) {
         p->next->prev = p->prev;
     } else {
-        D_0063C138 = (int)p->prev;
+        lastAmbient = (int)p->prev;
     }
     if (p->prev != 0) {
         p->prev->next = p->next;
     }
-    if (D_0063C138 != 0) {
-        ((AmbientVolume *)D_0063C138)->next = 0;
+    if (lastAmbient != 0) {
+        ((AmbientVolume *)lastAmbient)->next = 0;
     }
     freeseki(p);
 }
@@ -123,19 +137,18 @@ extern void light_resetFlatLight(void);
 static Light flatLight[3];
 
 extern float D_005D3DC8[][4];
-extern int D_0063C13C;
 
 /* Light.c lines 382-391: the list head keeps the newest node.  Line 391's
    counter update is a debug arm the retail build compiles out (the
    January-2002 listing still has it, three expansions, nine instructions). */
 static inline void light_setLinkLight(Light *p)
 {
-    if (D_0063C134 != 0) {
-        ((Light *)D_0063C134)->next = p;
+    if (lastLight != 0) {
+        ((Light *)lastLight)->next = p;
     }
     p->next = 0;
-    p->prev = (Light *)D_0063C134;
-    D_0063C134 = (int)p;
+    p->prev = (Light *)lastLight;
+    lastLight = (int)p;
 }
 
 Light *light_AddLight(char *self, int b, int kind)
@@ -243,7 +256,7 @@ void light_getNearLight(char *self, int idx)
     int k;
 
     memset(dir, 0, 16);
-    if (D_0063C134 == 0) {
+    if (lastLight == 0) {
         return;
     }
     for (i = 0; i < 3; i++) {
@@ -254,7 +267,7 @@ void light_getNearLight(char *self, int idx)
     } else {
         _CopyVector(pos, *(char **)(self + 0xC) + 0x30);
     }
-    for (p = (Light *)D_0063C134; p != 0; p = p->prev) {
+    for (p = (Light *)lastLight; p != 0; p = p->prev) {
         switch (p->f_44) {
         case 0:
             p->f_30 = 1.0f;
@@ -312,7 +325,7 @@ void light_getNearLight(char *self, int idx)
             continue;
         }
     }
-    for (p = (Light *)D_0063C134; p != 0; p = p->prev) {
+    for (p = (Light *)lastLight; p != 0; p = p->prev) {
         if (p->f_3C == 0.0f) {
             continue;
         }
@@ -326,7 +339,7 @@ void light_getNearLight(char *self, int idx)
             }
         }
     }
-    for (p = (Light *)D_0063C134; p != 0; p = p->prev) {
+    for (p = (Light *)lastLight; p != 0; p = p->prev) {
         if (p->f_3C == 0.0f) {
             continue;
         }
@@ -407,7 +420,7 @@ void light_getAmbientLight(char *a, int b)
     float my;
 
     scale = 1.0f;
-    if (D_0063C138 == 0) {
+    if (lastAmbient == 0) {
         _CopyVector(*(char **)(a + 0x874) + 0xE0, D_0028F780);
         return;
     }
@@ -418,7 +431,7 @@ void light_getAmbientLight(char *a, int b)
     } else {
         _CopyVector(pos, *(char **)(a + 0xC) + 0x30);
     }
-    for (v = (AmbientVolume *)D_0063C138; v != 0; v = v->prev) {
+    for (v = (AmbientVolume *)lastAmbient; v != 0; v = v->prev) {
         if (v->f_90 == 0) {
             continue;
         }
@@ -605,7 +618,7 @@ void light_DispVolume(void)
         float p1[4];
         Light *lp;
 
-        lp = (Light *)D_0063C134;
+        lp = (Light *)lastLight;
         while (lp != 0) {
             switch (lp->f_44) {
             case 1:
@@ -672,7 +685,7 @@ void light_DispVolume(void)
     if (D_0063B1CC & 2) {
         AmbientVolume *av;
 
-        av = (AmbientVolume *)D_0063C138;
+        av = (AmbientVolume *)lastAmbient;
         while (av != 0) {
             Col4 col = {{av->f_40[0] * 255.0f, av->f_40[1] * 255.0f, av->f_40[2] * 255.0f, 128}};
             float ext[4];
@@ -850,8 +863,6 @@ extern const LtVec D_0054F140;
 extern const LtVec D_0054F150;
 extern const LtVec D_0054F160;
 extern const LtVec D_0054F170;
-extern int D_0063C12C;
-extern int D_0063C130;
 /* kept local: this TU's uses of _InitCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _InitCurrentMatrix(void);
 /* kept local: this TU's uses of _TransCurrentMatrix do not fit the prototype in Matrix.h */
@@ -894,12 +905,12 @@ void light_DrawCursor(float *dir, int mode)
     if (mode == 0) {
         LtVec col;
 
-        D_0063C12C = (128 - D_0028F8F0[1].ana[0]) * 32767 / 128;
-        D_0063C130 = (D_0028F8F0[1].ana[1] - 128) * 32767 / 128;
+        cursorRotY = (128 - D_0028F8F0[1].ana[0]) * 32767 / 128;
+        cursorRotX = (D_0028F8F0[1].ana[1] - 128) * 32767 / 128;
         _InitCurrentMatrix();
         _TransCurrentMatrix(m[3]);
-        _RotCurrentMatrixX(D_0063C130);
-        _RotCurrentMatrixY(D_0063C12C);
+        _RotCurrentMatrixX(cursorRotX);
+        _RotCurrentMatrixY(cursorRotY);
         _ApplyCurrentMatrix(&tip, &tip);
         _ApplyCurrentMatrix(&left, &left);
         _ApplyCurrentMatrix(&right, &right);
@@ -1186,8 +1197,8 @@ int light_Tool(void)
 
 void light_InitLight(void)
 {
-    D_0063C134 = 0;
-    D_0063C138 = 0;
+    lastLight = 0;
+    lastAmbient = 0;
     *(int *)D_0063A088 = 0;
 }
 
@@ -1198,7 +1209,7 @@ extern void light_killLinkLight(char *node);
 
 void light_KillAllFixLight(void)
 {
-    Light *p = (Light *)D_0063C134;
+    Light *p = (Light *)lastLight;
     while (p != 0) {
         short v = p->f_44;
         if (v < 4) {
@@ -1211,7 +1222,7 @@ void light_KillAllFixLight(void)
         }
         p = p->prev;
     }
-    D_0063C13C = 0;
+    lightCount = 0;
 }
 
 /* kept local: this TU's uses of light_killLinkAmbient do not fit the prototype in Light.h */
@@ -1219,7 +1230,7 @@ extern void light_killLinkAmbient();
 
 void light_KillAllAmbient(void)
 {
-    AmbientVolume *p = (AmbientVolume *)D_0063C138;
+    AmbientVolume *p = (AmbientVolume *)lastAmbient;
     while (p != 0) {
         int v = p->f_90;
         if (v < 3) {
@@ -1236,11 +1247,11 @@ void light_KillAllAmbient(void)
 
 static inline void light_setLinkAmbient(AmbientVolume *p)
 {
-    if (D_0063C138 != 0)
-        ((AmbientVolume *)D_0063C138)->next = p;
+    if (lastAmbient != 0)
+        ((AmbientVolume *)lastAmbient)->next = p;
     p->next = 0;
-    p->prev = (AmbientVolume *)D_0063C138;
-    D_0063C138 = (int)p;
+    p->prev = (AmbientVolume *)lastAmbient;
+    lastAmbient = (int)p;
 }
 
 AmbientVolume *light_AddAmbientObject(int obj)
