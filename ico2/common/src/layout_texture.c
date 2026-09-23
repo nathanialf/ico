@@ -80,7 +80,13 @@ typedef struct LtProp {
 extern LtProp D_00533FE8[];
 
 #include "layout_texture.h"
-#include <string.h>
+
+/* No <string.h>: display_texture's 4-byte zero fill is a `jal memset` in the
+   ROM, so newlib's builtin-compatible prototype was not in scope; memset is
+   declared as layout_action.c (same directory) declares it. */
+extern void *memset(void *dst, int c, int n);
+extern char *strcpy(char *dst, const char *src);
+
 #include "Texture.h"
 
 /* source lines 342-390 */
@@ -172,9 +178,9 @@ extern int D_0063C408;
 extern int D_0028F8F4[];
 extern int D_0063B620;
 extern int D_0063AA00;
-/* census name: display_texture (the name is also src/jimaku's global and
-   src/kanban's file-local one). */
-extern void func_001BF960(int no, LtProperty *e);
+/* census display_texture: a file static here (the name is also src/jimaku's
+   global and src/kanban's file-local one). */
+static void display_texture(int no, LtProperty *e);
 
 /* source lines 533-541 */
 /* source line 533-541. The second range is spelled as a conditional expression,
@@ -199,7 +205,7 @@ static inline void lt_draw_layout(int no)
 
     for (; i < last; i++) {
         if (lt_property_visible(i)) {
-            func_001BF960(no, &D_0030CFF8[i]);
+            display_texture(no, &D_0030CFF8[i]);
         }
     }
 }
@@ -339,7 +345,103 @@ extern unsigned int D_0063B62C;
 extern unsigned int D_0063C40C;
 extern unsigned int D_0063C410;
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_texture", texture_fading);
+/* source lines 748-859.  The fade state D_0063B618 is read and written as the
+   global itself, as the rest of this TU does (the listing puts each `li N` on
+   the line of its store, 783, 802, 815).  gcse's load/store PRE then carries the
+   value in one register into the second switch, and its edge block for the
+   D_0063B61C default path (the load reorg later moves into the bne delay slot)
+   sits between case 3's store and the join at jump2, which is what keeps case 0
+   from cross-jumping into it; case 3's store then comes back inline after the
+   `sb` with no line of its own, as rows 771-772 show. */
+void texture_fading(LtProp *p)
+{
+    unsigned char *col = D_0063B600;
+    int *cur;
+
+    switch (D_0063B61C) {
+    case 1:
+        if (D_0063B618 < 2) {
+            if (D_0063B618 >= 0) {
+                D_0063B618 = 2;
+            }
+        }
+        break;
+    case 0:
+        switch (D_0063B618) {
+        case 0:
+            if (p->f8 == 0.0f) {
+                D_0063B618 = 2;
+            }
+            break;
+        case 3:
+            if (p->fC == 0.0f) {
+                D_0063B618 = 6;
+                col[3] = 127;
+            }
+            break;
+        }
+        break;
+    }
+    switch (D_0063B618) {
+    case 0:
+        D_0063B618 = 1;
+        D_0063B62C = (int)(p->f8 * ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+        D_0063B628 = D_0063B62C;
+        /* fall through */
+    case 1:
+        col[3] = (D_0063B62C - D_0063B628) * 127 / D_0063B62C;
+        D_0063B628--;
+        if (D_0063B628 == 0) {
+            D_0063B618 = 2;
+        }
+        break;
+    case 2:
+        col[3] = 127;
+        break;
+    case 7:
+        D_0063B618 = 8;
+        D_0063C40C = (unsigned int)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 0.25f);
+        D_0063C410 = 0;
+        /* fall through */
+    case 8:
+        if (++D_0063C410 >= D_0063C40C) {
+            D_0063B618 = D_0063C3F8;
+        }
+        break;
+    case 3:
+        D_0063B618 = 4;
+        D_0063B62C = (int)(p->fC * ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+        D_0063B628 = D_0063B62C;
+        break;
+    case 4:
+        col[3] = D_0063B628 * 127 / D_0063B62C;
+        D_0063B628--;
+        if (D_0063B628 == 0) {
+            D_0063B618 = 5;
+        }
+        break;
+    case 5:
+        col[3] = 0;
+        /* fall through */
+    case 6:
+        D_0063B60C = D_0063C3F4;
+        cur = &D_00533FE8[D_0063B60C].f2C;
+        *cur = D_00533FE8[D_0063B60C].f28;
+        D_0063B614 = 1;
+        D_0063B618 = 0;
+        if (D_00533FE8[D_0063B60C].f8 == 0.0f) {
+            D_0063B620 = 1;
+            D_0063B618 = 2;
+        }
+        lt_reset_property_chain(D_0063B60C);
+        break;
+    }
+    if (D_0063C3FC != 0) {
+        if (D_0063C400++ >= D_0063C404) {
+            D_0063C3FC = 0;
+        }
+    }
+}
 
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
@@ -371,7 +473,7 @@ typedef struct {
 } SprCol;
 
 extern SprRect D_0061DD50;
-/* The census display_texture body (still INCLUDE_ASM below) reads these:
+/* The census display_texture body below reads these:
    D_0063B608 is the second highlight colour, D_0028F720 the system record whose
    bytes at 0xD0/0xD4/0xD8 it inverts, and GetTableSin/gif_SpriteSensitiveOffset/
    gif_PointOffset/gif_SetGsReg/rand are its callees. */
@@ -383,10 +485,144 @@ extern void gif_PointOffset(void *pt, unsigned int z, void *col, int prim);
 extern void gif_SetGsReg(int reg, int val);
 extern int rand(void);
 
-/* census display_texture, a file static (MAIN.MAP carries no global of that
-   name), takes the name as static display_texture once this body is C: the stub
-   assembles a glabel that would emit a global display_texture */
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_texture", func_001BF960);
+/* source lines 870-887: the pulsing highlight sprite, inlined three times by
+   display_texture.  The listing puts the parameter setup on the brace line
+   (871) and the copy, the four colour stores and the GetTableSin call on 872,
+   873 and 874, so the three locals are initialized declarations.  The
+   aggregate initializer also clobbers `c` before its field stores, which is
+   what lets sched1 take the copy ahead of the colour constant. */
+static inline void lt_glow_sprite(SprRect *box, SprRect *ofs, int r, int g, int b, float t, int dx,
+                                  int dy)
+{
+    SprRect rr = *box;
+    SprCol c = {r, g, b, 127};
+    float s = GetTableSin((short)(t * 3.1415926535897932 * 10430.3779296875));
+
+    c.r = c.r * s;
+    c.g = c.g * s;
+    c.b = c.b * s;
+    rr.x = rr.x - s * dx;
+    rr.y = rr.y - s * dy;
+    rr.w = rr.w + s * dx * 2;
+    rr.h = rr.h + s * dy * 2;
+    gif_SetAlpha(1, 5, 0);
+    gif_SpriteSensitiveOffset(&rr, 0xFFFFFF9B, ofs, &c, 1);
+}
+
+/* census display_texture, a file static; source lines 896-1045 */
+static void display_texture(int no, LtProperty *e)
+{
+    SprRect ofs;
+    SprRect box;
+
+    union {
+        int pt[2];
+        SprCol col;
+    } u;
+
+    int sel;
+    int i;
+
+    ofs.x = (e->f5C << 4) + 8;
+    ofs.y = (e->f68 << 4) + 8;
+    ofs.w = e->f64 << 4;
+    ofs.h = e->f60 << 4;
+
+    box.w = e->f4C << 4;
+    box.h = e->f48 << 3;
+    if (box.w == 0) {
+        box.w = ofs.w;
+    }
+    if (box.h == 0) {
+        box.h = ofs.h >> 1;
+    }
+    if (e->f44 != 0) {
+        box.x = (10240 - box.w) / 2 - 5120;
+    } else {
+        box.x = (e->f54 - 320) * 16;
+    }
+    box.y = (e->f50 - 113) * 16;
+
+    sel = (e == &D_0030CFF8[D_00533FE8[no].f2C]);
+    if (sel && D_0063B620 == 0 && D_0063B618 == 2 && e->f6C_b3 == 0) {
+        SprCol pcol;
+
+        memset(&pcol, 0, sizeof(pcol));
+        pcol.a = 127;
+        gif_StartPacketPri(11);
+        gif_SetZTest(0);
+        for (i = 0; i < box.w * box.h / 1200; i++) {
+            u.pt[0] = box.x + rand() % box.w;
+            u.pt[1] = box.y + rand() % box.h;
+            pcol.a = rand() % 127;
+            gif_PointOffset(u.pt, 0x800000, &pcol, 1);
+        }
+        gif_EndPacket();
+    }
+    if (e->f6C_b4 == 0) {
+        int flag;
+
+        flag = (e->f3C >= 0 || e->f38 >= 0 || e->f34 >= 0 || e->f30 >= 0 || e->right >= 0 ||
+                e->left >= 0 || e->down >= 0 || e->up >= 0);
+        tex_TransTexture(e->f1C, 11);
+
+        gif_StartPacketPri(11);
+        gif_SetZTest(0);
+        gif_SetZWrite(0);
+        gif_SetAlpha(1, 7, 0);
+        box.y = box.y + 4;
+        box.x = box.x + 4;
+        gif_SetGsReg(20, 96);
+        box.h = box.h - 16;
+        ofs.h = ofs.h - 16;
+        box.w = box.w - 16;
+        ofs.w = ofs.w - 16;
+        if (e->fade_cancel == 0) {
+            u.col = *(SprCol *)D_0063B600;
+        } else {
+            u.col = *(SprCol *)&D_0063B608;
+        }
+        u.col.r = ~D_0028F720[0xD0];
+        u.col.g = ~D_0028F720[0xD4];
+        u.col.b = ~D_0028F720[0xD8];
+        if (u.col.r < 120 || u.col.g < 120 || u.col.b < 120) {
+            if (u.col.r >= 17) {
+                u.col.r = u.col.r - 16;
+            } else {
+                u.col.r = 0;
+            }
+            if (u.col.g >= 17) {
+                u.col.g = u.col.g - 16;
+            } else {
+                u.col.g = 0;
+            }
+            if (u.col.b >= 17) {
+                u.col.b = u.col.b - 16;
+            } else {
+                u.col.b = 0;
+            }
+        }
+        if (D_00533FE8[no].f2C != e->f10) {
+            if (e->f6C_b3 != 0 && sel == 0 && (flag != 0 || e->f10 >= 0)) {
+                u.col.r = u.col.r * 0.5f;
+                u.col.g = u.col.g * 0.5f;
+                u.col.b = u.col.b * 0.5f;
+            }
+        }
+        gif_SpriteSensitiveOffset(&box, 0xFFFFFF9B, &ofs, &u.col, 1);
+
+        if (e->f6C_b3 != 0 && sel != 0 && D_0063B618 == 8) {
+            float t = (float)D_0063C410 / (float)D_0063C40C;
+
+            lt_glow_sprite(&box, &ofs, 80, 80, 80, t, 55, 50);
+            lt_glow_sprite(&box, &ofs, 30, 30, 30, t, 110, 100);
+        } else if (e->f6C_b3 != 0 && sel != 0 && D_0063C3FC != 0) {
+            lt_glow_sprite(&box, &ofs, 54, 80, 115, (float)D_0063C400 / (float)D_0063C404, 32, 32);
+        }
+        gif_SetZWrite(1);
+        gif_EndPacket();
+    }
+}
 
 /* source lines 715-735 */
 static inline void lt_draw_primary_sprite(SprCol *col)
