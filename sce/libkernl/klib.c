@@ -123,7 +123,7 @@ SYSCALL_WRAPPER(CreateSema, 64)
 SYSCALL_WRAPPER(DeleteSema, 65)
 SYSCALL_WRAPPER(SignalSema, 66)
 
-void iSignalSema(int handle)
+int iSignalSema(int handle)
 {
     __asm__ __volatile__("addiu $3, $zero, -67\n\tsyscall 0" : : : "$3", "memory");
 }

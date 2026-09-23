@@ -538,7 +538,7 @@ elem:
     return a0[7] + a1 * 64;
 }
 
-extern void iSignalSema(int a0);
+extern int iSignalSema(int a0);
 
 void _request_end(int *pkt)
 {

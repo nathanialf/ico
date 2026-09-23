@@ -53,7 +53,7 @@ void _iDisableDmac();                                                  /* domina
 void _iDisableIntc();                                                  /* dominant spelling at 1 sites */
 void _iEnableDmac();                                                   /* dominant spelling at 1 sites */
 void _iEnableIntc();                                                   /* dominant spelling at 1 sites */
-void iSignalSema(int handle);                                          /* definition in sce/ */
+int iSignalSema(int handle);                                           /* definition in sce/ */
 int iWakeupThread(int id);                                             /* definition in sce/ */
 void scePrintf(int a0, ...);                                           /* definition in sce/ */
 

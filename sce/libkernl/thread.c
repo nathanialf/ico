@@ -148,7 +148,7 @@ int InitThread(void)
 
 extern KernEventRing D_0063CB58;
 extern int _iWakeupThread(void);
-extern void iSignalSema(int handle);
+extern int iSignalSema(int handle);
 
 int iWakeupThread(int id)
 {
