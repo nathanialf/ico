@@ -13,8 +13,8 @@
 #include <string.h>
 #include "typedef.h"
 
-extern int D_0063A064;
-extern int D_0063A068;
+extern int ScreenWidth;
+extern int ScreenHeight;
 extern void sceGsSetDefDispEnv(int *env, int psm, short w, short h, short dx, short dy);
 
 /* Point the double buffer's two display and two draw environments at the
@@ -25,8 +25,8 @@ void gsb_SetFrame(int *db, int a1, int a2, int psm, short zbp)
 {
     int *disp1 = db + 0x28 / 4;
     long long zb = ((long long)zbp << 32) | 0xC0;
-    short h = (short)(unsigned short)D_0063A068 / 2;
-    short w = D_0063A064;
+    short h = (short)(unsigned short)ScreenHeight / 2;
+    short w = ScreenWidth;
 
     *(int *)((char *)disp1 + 0x10) &= ~0x1FF;
     *(int *)((char *)db + 0x10) &= ~0x1FF;
@@ -41,8 +41,8 @@ void gsb_SetFrame(int *db, int a1, int a2, int psm, short zbp)
 
 extern int D_0028F4C0[];
 extern int D_0063A058;
-extern int D_0063A064;
-extern int D_0063A068;
+extern int ScreenWidth;
+extern int ScreenHeight;
 extern int D_00639F80;
 extern float D_00639F88;
 extern float D_00639F8C;
@@ -70,17 +70,17 @@ void gsb_Init(void *db)
     D_00639F80 = 0;
     switch (D_0028F4C0[0]) {
     case 0:
-        D_0063A064 = 0x200;
-        D_0063A068 = 0x1C0;
+        ScreenWidth = 0x200;
+        ScreenHeight = 0x1C0;
         break;
     case 1:
-        D_0063A064 = 0x200;
-        D_0063A068 = 0x200;
+        ScreenWidth = 0x200;
+        ScreenHeight = 0x200;
         omode = 3;
         break;
     }
     sceGsResetGraph(0, D_0028F4C0[1] == 1, omode, 1);
-    sceGsSetDefDBuff(db, 0, D_0063A064, D_0063A068, 2, 0x30, D_0063A058);
+    sceGsSetDefDBuff(db, 0, ScreenWidth, ScreenHeight, 2, 0x30, D_0063A058);
     gsb_SetFrame(db, 0, 0, 0x30, 2);
     sceGsSyncV(0);
     buffer_ID = 0;
@@ -89,7 +89,7 @@ void gsb_Init(void *db)
     while (sceGsSyncPath(1, 0) != 0) {
         debug_StdPrintfDummy(D_0054E170);
     }
-    gsb_SetVSMatrix(D_0063A064, D_0063A068, 512.0f);
+    gsb_SetVSMatrix(ScreenWidth, ScreenHeight, 512.0f);
     D_00639F88 = 1.0f;
     D_00639F90 = 1000.0f;
     D_00639F8C = 1.0f;
@@ -124,11 +124,11 @@ void gsb_Reduction(void)
         0x4A,
         0x8000000048LL,
         0x42,
-        (long long)((D_0063A064 >> 6) & 0x3F) << 16,
+        (long long)((ScreenWidth >> 6) & 0x3F) << 16,
         0x4C,
-        ((long long)(0x800 - D_0063A064 / 2) << 4) | ((long long)(0x800 - D_0063A068 / 4) << 36),
+        ((long long)(0x800 - ScreenWidth / 2) << 4) | ((long long)(0x800 - ScreenHeight / 4) << 36),
         0x18,
-        ((long long)(D_0063A064 - 1) << 16) | ((long long)(D_0063A068 / 2 - 1) << 48),
+        ((long long)(ScreenWidth - 1) << 16) | ((long long)(ScreenHeight / 2 - 1) << 48),
         0x40,
         0x30000,
         0x47,
@@ -138,17 +138,17 @@ void gsb_Reduction(void)
         0,
         0,
         1,
-        (long long)(-D_0063A064 / 2 * 16 + 0x8000 - 4) |
-            ((long long)(-D_0063A068 / 4 * 16 + 0x8000 - 4) << 16) | (-1LL << 32),
+        (long long)(-ScreenWidth / 2 * 16 + 0x8000 - 4) |
+            ((long long)(-ScreenHeight / 4 * 16 + 0x8000 - 4) << 16) | (-1LL << 32),
         5,
-        (long long)(-D_0063A064 / 2 * 16 + 0x8000 + D_0063A064 * 16 - 4) |
-            ((long long)(-D_0063A068 / 4 * 16 + 0x8000 + D_0063A068 / 2 * 16 - 4) << 16) |
+        (long long)(-ScreenWidth / 2 * 16 + 0x8000 + ScreenWidth * 16 - 4) |
+            ((long long)(-ScreenHeight / 4 * 16 + 0x8000 + ScreenHeight / 2 * 16 - 4) << 16) |
             (-1LL << 32),
         5,
-        ((long long)(D_0063A064 - 3) << 16) | 2 | ((long long)(D_0028F4C0[0] == 0 ? 2 : 8) << 32) |
-            ((long long)(D_0063A068 / 2 - 1 - (D_0028F4C0[0] == 0 ? 2 : 8)) << 48),
+        ((long long)(ScreenWidth - 3) << 16) | 2 | ((long long)(D_0028F4C0[0] == 0 ? 2 : 8) << 32) |
+            ((long long)(ScreenHeight / 2 - 1 - (D_0028F4C0[0] == 0 ? 2 : 8)) << 48),
         0x40,
-        ((long long)(D_0063A064 / 64) << 14) | 0x664000800LL,
+        ((long long)(ScreenWidth / 64) << 14) | 0x664000800LL,
         6,
         0x60,
         0x14,
@@ -159,16 +159,16 @@ void gsb_Reduction(void)
         1,
         0x80008,
         3,
-        (long long)(-D_0063A064 / 2 * 16 + 0x8000 - 4) |
-            ((long long)(-D_0063A068 / 4 * 16 + 0x8000 - 4) << 16) | (-1LL << 32),
+        (long long)(-ScreenWidth / 2 * 16 + 0x8000 - 4) |
+            ((long long)(-ScreenHeight / 4 * 16 + 0x8000 - 4) << 16) | (-1LL << 32),
         5,
-        (long long)(D_0063A064 * 16 + 8) | ((long long)(D_0063A068 * 16 + 8) << 16),
+        (long long)(ScreenWidth * 16 + 8) | ((long long)(ScreenHeight * 16 + 8) << 16),
         3,
-        (long long)(-D_0063A064 / 2 * 16 + 0x8000 + D_0063A064 * 16 - 4) |
-            ((long long)(-D_0063A068 / 4 * 16 + 0x8000 + D_0063A068 / 2 * 16 - 4) << 16) |
+        (long long)(-ScreenWidth / 2 * 16 + 0x8000 + ScreenWidth * 16 - 4) |
+            ((long long)(-ScreenHeight / 4 * 16 + 0x8000 + ScreenHeight / 2 * 16 - 4) << 16) |
             (-1LL << 32),
         5,
-        ((long long)D_0063A064 << 16) | ((long long)D_0063A068 << 48),
+        ((long long)ScreenWidth << 16) | ((long long)ScreenHeight << 48),
         0x40,
     };
 
@@ -202,7 +202,7 @@ extern void gif_EndPacket(void);
 extern void gif_SetGsReg(int a0, long long a1);
 /* kept local: this TU's uses of gif_StartPacketPriPath1 do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPriPath1(int a0);
-extern GifDpk D_004EE6F0;
+extern GifDpk PacketBufferStruct;
 
 /* Reverted to asm 2026-09-21 (chain 3 pass 43, was pass 16): 165 instructions
  * against ROM's 163 and the first 78 word for word.  THE SHAPE IS NOW
@@ -279,8 +279,8 @@ typedef struct {
  * fall back from expand_inline_function to a real call. */
 static inline void setGsReg(long long reg, long long data)
 {
-    *D_004EE6F0.ptr++ = data;
-    *D_004EE6F0.ptr++ = reg;
+    *PacketBufferStruct.ptr++ = data;
+    *PacketBufferStruct.ptr++ = reg;
 }
 
 static inline void gsbSpriteNoTexture(int x, int y, int w, int h, long long z, unsigned char *col,
@@ -305,8 +305,8 @@ static inline void gsbSpriteNoTexture(int x, int y, int w, int h, long long z, u
  * nested if would jump past it instead (223 instructions against ROM's 224). */
 void gsb_fade(void)
 {
-    GsbRect r = {-(D_0063A064 >> 1) * 16, -(D_0063A068 >> 1) * 16, D_0063A064 * 16,
-                 D_0063A068 * 16};
+    GsbRect r = {-(ScreenWidth >> 1) * 16, -(ScreenHeight >> 1) * 16, ScreenWidth * 16,
+                 ScreenHeight * 16};
 
     switch (fadeStatus) {
     case 1:
@@ -347,7 +347,7 @@ void gsb_fade(void)
         fadeColor[3] = fadeLevel;
     }
     gif_StartPacketPri(0xB);
-    gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 1, 0);
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
     gif_SetGsReg(0x47, 0x30000);
     gif_SetGsReg(0x4E, 0x1300000C0LL);
     setGsReg(0x49, 0);
@@ -355,7 +355,7 @@ void gsb_fade(void)
     gsbSpriteNoTexture(r.x, r.y, r.w, r.h, -1, fadeColor, 1);
     gif_EndPacket();
     if (D_0063B13C & 1) {
-        debug_Printf(0x208, D_0063A068 / 2 - 8, 0xCCCCCC00, D_00639FA0);
+        debug_Printf(0x208, ScreenHeight / 2 - 8, 0xCCCCCC00, D_00639FA0);
     }
     return;
 clear:
@@ -437,7 +437,7 @@ void gsb_controlBrightness(void)
     }
     if (v != 0) {
         if (D_0063B13C & 1) {
-            debug_Printf(0x212, D_0063A068 / 2 - 8, 0xCCCCCC00, D_00639FB8);
+            debug_Printf(0x212, ScreenHeight / 2 - 8, 0xCCCCCC00, D_00639FB8);
         }
         gif_StartPacketPri(0xB);
         {
@@ -446,8 +446,8 @@ void gsb_controlBrightness(void)
             gif_SetGsReg(0x47, 0x30000);
             gif_SetGsReg(0x4E, 0x1300000C0LL);
             gif_SetAlpha(1, 7, 0);
-            gif_MakeSpriteNoTexture((0x800 - D_0063A064 / 2) << 4, (0x800 - D_0063A068 / 2) << 4,
-                                    D_0063A064 << 4, D_0063A068 << 4, 0xFFFFFFFE, col, 1);
+            gif_MakeSpriteNoTexture((0x800 - ScreenWidth / 2) << 4, (0x800 - ScreenHeight / 2) << 4,
+                                    ScreenWidth << 4, ScreenHeight << 4, 0xFFFFFFFE, col, 1);
             gif_EndPacketPath1();
         }
     }
@@ -561,46 +561,46 @@ void gsb_MakeCommonMatrix(void)
     _MulMatrix(matrixptr + 0x200, matrixptr + 0x1C0, matrixptr + 0x80);
     _MulMatrix(matrixptr + 0x280, matrixptr + 0x240, matrixptr + 0x80);
     _InversMatrix(matrixptr + 0x380, matrixptr + 0x80);
-    p = (GifPkWord *)D_004EE6F0.ptr;
-    D_004EE6F0.gif = 0;
-    D_004EE6F0.dma = (char *)p;
-    D_004EE6F0.end = 0;
-    D_004EE6F0.tail = (char *)p;
+    p = (GifPkWord *)PacketBufferStruct.ptr;
+    PacketBufferStruct.gif = 0;
+    PacketBufferStruct.dma = (char *)p;
+    PacketBufferStruct.end = 0;
+    PacketBufferStruct.tail = (char *)p;
     p[0].d = 0x10000011;
-    D_004EE6F0.ptr = (unsigned long long *)((char *)p + 8);
+    PacketBufferStruct.ptr = (unsigned long long *)((char *)p + 8);
     p[1].w[0] = 0x13000000;
-    D_004EE6F0.ptr = (unsigned long long *)((char *)p + 0xC);
-    D_004EE6F0.gif = (char *)p + 0xC;
+    PacketBufferStruct.ptr = (unsigned long long *)((char *)p + 0xC);
+    PacketBufferStruct.gif = (char *)p + 0xC;
     p[1].w[1] = 0x6C100000;
-    D_004EE6F0.ptr = (unsigned long long *)((char *)p + 0x10);
+    PacketBufferStruct.ptr = (unsigned long long *)((char *)p + 0x10);
     _CopyMatrix((char *)p + 0x10, D_0054E370);
-    D_004EE6F0.ptr = (unsigned long long *)((char *)D_004EE6F0.ptr + 0x40);
-    _CopyMatrix(D_004EE6F0.ptr, matrixptr + 0x100);
-    D_004EE6F0.ptr = (unsigned long long *)((char *)D_004EE6F0.ptr + 0x40);
-    _CopyMatrix(D_004EE6F0.ptr, matrixptr + 0x340);
-    D_004EE6F0.ptr = (unsigned long long *)((char *)D_004EE6F0.ptr + 0x40);
-    _CopyMatrix(D_004EE6F0.ptr, matrixptr + 0x380);
-    q = (GifPkWord *)D_004EE6F0.ptr;
-    D_004EE6F0.ptr = (unsigned long long *)((char *)q + 0x40);
+    PacketBufferStruct.ptr = (unsigned long long *)((char *)PacketBufferStruct.ptr + 0x40);
+    _CopyMatrix(PacketBufferStruct.ptr, matrixptr + 0x100);
+    PacketBufferStruct.ptr = (unsigned long long *)((char *)PacketBufferStruct.ptr + 0x40);
+    _CopyMatrix(PacketBufferStruct.ptr, matrixptr + 0x340);
+    PacketBufferStruct.ptr = (unsigned long long *)((char *)PacketBufferStruct.ptr + 0x40);
+    _CopyMatrix(PacketBufferStruct.ptr, matrixptr + 0x380);
+    q = (GifPkWord *)PacketBufferStruct.ptr;
+    PacketBufferStruct.ptr = (unsigned long long *)((char *)q + 0x40);
     q[8].w[0] = 0x13000000;
-    D_004EE6F0.ptr = (unsigned long long *)((char *)q + 0x44);
+    PacketBufferStruct.ptr = (unsigned long long *)((char *)q + 0x44);
     q[8].w[1] = 0;
-    D_004EE6F0.ptr = (unsigned long long *)((char *)q + 0x48);
+    PacketBufferStruct.ptr = (unsigned long long *)((char *)q + 0x48);
     q[9].w[0] = 0;
-    D_004EE6F0.ptr = (unsigned long long *)((char *)q + 0x4C);
+    PacketBufferStruct.ptr = (unsigned long long *)((char *)q + 0x4C);
     q[9].w[1] = 0;
-    D_004EE6F0.ptr = (unsigned long long *)((char *)q + 0x50);
-    D_004EE6F0.tail = (char *)q + 0x50;
+    PacketBufferStruct.ptr = (unsigned long long *)((char *)q + 0x50);
+    PacketBufferStruct.tail = (char *)q + 0x50;
     q[10].d = 0x60000000;
-    D_004EE6F0.ptr = (unsigned long long *)((char *)q + 0x58);
+    PacketBufferStruct.ptr = (unsigned long long *)((char *)q + 0x58);
     q[11].w[0] = 0;
-    D_004EE6F0.ptr = (unsigned long long *)((char *)q + 0x5C);
+    PacketBufferStruct.ptr = (unsigned long long *)((char *)q + 0x5C);
     q[11].w[1] = 0;
-    D_004EE6F0.ptr = (unsigned long long *)((char *)q + 0x60);
+    PacketBufferStruct.ptr = (unsigned long long *)((char *)q + 0x60);
     do {
         dl_SetDLPriority(i);
         i++;
-        dl_OpenDma(5, D_004EE6F0.dma, 0);
+        dl_OpenDma(5, PacketBufferStruct.dma, 0);
         dl_CloseDma();
     } while (i < 0xD);
 }
@@ -610,7 +610,7 @@ void gsb_MakeCommonMatrix(void)
  * default register set for each of the thirteen contexts. */
 void gsb_SetGsDefault(void)
 {
-    GifDpk *d = &D_004EE6F0;
+    GifDpk *d = &PacketBufferStruct;
     GifPkWord *p = (GifPkWord *)d->ptr;
 
     d->gif = 0;
@@ -707,14 +707,14 @@ extern void gsb_scissorOnDemo(void);
 int gsb_PostEffect(void)
 {
     if (D_0063B13C & 1) {
-        debug_Printf(0xA, D_0063A068 / 2 - 8, 0xCCCCCC00, D_0054E408, D_0063B60C, fadeStatus,
+        debug_Printf(0xA, ScreenHeight / 2 - 8, 0xCCCCCC00, D_0054E408, D_0063B60C, fadeStatus,
                      fadeLevel, D_0063BCB3);
     }
     if (D_0028F4C0[0x18 / 4] != 0 && (D_0063B13C & 1)) {
-        debug_Printf(0x230, D_0063A068 / 2 - 8, 0xCCCCCC00, D_00639FC8);
+        debug_Printf(0x230, ScreenHeight / 2 - 8, 0xCCCCCC00, D_00639FC8);
     }
     if (D_0028F4C0[0x14 / 4] != 0 && (D_0063B13C & 1)) {
-        debug_Printf(0x23A, D_0063A068 / 2 - 8, 0xCCCCCC00, D_00639FD0);
+        debug_Printf(0x23A, ScreenHeight / 2 - 8, 0xCCCCCC00, D_00639FD0);
     }
     FullScreenEffectAfter();
     if (D_00639FC4 != 0) {
@@ -730,7 +730,7 @@ int gsb_PostEffect(void)
     if (D_0063A054 != 0) {
         gsb_KeepFrameBuffer();
         if (D_0063B13C & 1) {
-            debug_Printf(0x226, D_0063A068 / 2 - 8, 0xCCCCCC00, D_00639FD8);
+            debug_Printf(0x226, ScreenHeight / 2 - 8, 0xCCCCCC00, D_00639FD8);
         }
     }
     if (staffRollStartFlag != 0) {
@@ -920,8 +920,8 @@ extern int D_0063B1B0;
 extern int D_0063B1B8;
 extern int D_0063B1C8;
 extern int D_0028F948[];
-extern float D_0063A05C;
-extern float D_0063A060;
+extern float center_X;
+extern float center_Y;
 extern int D_00639F94;
 
 /* The view record gsb_SetVSMatrixSub builds the view and screen matrices
@@ -942,7 +942,7 @@ void gsb_SetVSMatrix(int w, int h, float d)
 {
     float zoom;
 
-    D_0063A05C = D_0063A060 = 2048.0f;
+    center_X = center_Y = 2048.0f;
     if (d == 0.0f) {
         d = (float)D_00639F94;
     } else {
@@ -954,25 +954,25 @@ void gsb_SetVSMatrix(int w, int h, float d)
         D_00639F8C = D_00639F8C + (D_00639F88 - D_00639F8C) * D_00639F90 * 0.001f;
     }
     if (staffRollStartFlag != 0) {
-        D_0063A05C = D_0063A05C - staffRollCenterOffsetX;
+        center_X = center_X - staffRollCenterOffsetX;
     }
-    zoom = (float)D_0028F720.viewScale * D_00639F8C * d * (float)D_0063B1B0 * (float)D_0063A064 /
+    zoom = (float)D_0028F720.viewScale * D_00639F8C * d * (float)D_0063B1B0 * (float)ScreenWidth /
            640.0f / 100.0f / 100.0f;
     vsParam[0] = zoom;
     if (D_0063B1C8 != 0 || (D_0028F948[0] & 0x800) != 0) {
         vsParam[0] = zoom * (float)D_0063B1B8 / 100.0f;
     }
     tex_UpdateMipMapLevel((float)D_0028F720.viewScale * D_00639F8C * (float)D_0063B1B0 *
-                          (float)D_0063A064 / 640.0f / 100.0f);
-    vsParam[3] = D_0063A05C;
-    vsParam[4] = D_0063A060;
+                          (float)ScreenWidth / 640.0f / 100.0f);
+    vsParam[3] = center_X;
+    vsParam[4] = center_Y;
     vsParam[5] = 1.0f;
     vsParam[6] = 536870880.0f;
     vsParam[7] = 2.0f;
-    vsParam[1] = (float)w / (float)D_0063A064;
+    vsParam[1] = (float)w / (float)ScreenWidth;
     vsParam[8] = 262144.0f;
     vsParam[2] =
-        (float)D_0063A068 * 4.0f / ((float)D_0063A064 * 3.0f) * (float)h / (float)D_0063A068;
+        (float)ScreenHeight * 4.0f / ((float)ScreenWidth * 3.0f) * (float)h / (float)ScreenHeight;
     gsb_SetVSMatrixSub(matrixptr + 0xC0, matrixptr + 0x1C0, matrixptr + 0x240, matrixptr + 0x340,
                        vsParam);
 }

@@ -27,8 +27,8 @@ extern int _IsInScreen(int *p);
 /* kept local: this TU's uses of gif_MakeLine2D do not fit the prototype in GifPacket.h */
 extern void gif_MakeLine2D(int *v0, int *v1, int z0, int z1, unsigned char *col, int n);
 extern char *matrixptr;
-extern int D_0063A064; /* screen width  */
-extern int D_0063A068; /* screen height */
+extern int ScreenWidth;  /* screen width  */
+extern int ScreenHeight; /* screen height */
 
 #include "poly-flat.h"
 #include <libvu0.h>
@@ -76,14 +76,14 @@ float _IsInScreen2(int *p)
     if (0x0FFFFFF0 < p[2]) {
         return -1.0f;
     }
-    hw = D_0063A064 / 2;
+    hw = ScreenWidth / 2;
     if (p[0] < (0x800 - hw) * 16) {
         return -1.0f;
     }
     if ((0x800 + hw) * 16 < p[0]) {
         return -1.0f;
     }
-    hh = D_0063A068 / 2;
+    hh = ScreenHeight / 2;
     if (p[1] < (0x800 - hh) * 16) {
         return -1.0f;
     }

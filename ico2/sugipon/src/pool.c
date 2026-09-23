@@ -38,8 +38,8 @@ void falldownSE(int a0)
 extern char D_0054DA50[];
 extern int D_00639F28;
 extern char D_00639F30[];
-extern int D_0063A064;
-extern int D_0063A068;
+extern int ScreenWidth;
+extern int ScreenHeight;
 extern int D_00639F2C;
 extern char D_00639F38[];
 /* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
@@ -65,7 +65,7 @@ void copyToWork(int pri)
 
     tex_ResetVramPri();
     D_00639F28 = tex_AllocVramAuto(0, 0x400);
-    gif_SetGsReg(6, ((long long)(D_0063A064 / 64) << 14) | 0x664000800LL);
+    gif_SetGsReg(6, ((long long)(ScreenWidth / 64) << 14) | 0x664000800LL);
     gif_SetDrawEnviroment(D_00639F28, 0, 0x100, 0x100, 0, 0);
     gif_SetZTest(0);
     gif_SetZWrite(0);
@@ -81,7 +81,7 @@ void copyToWork(int pri)
        to sp+0x10, then overwrites sp+0x20 with the four colour bytes and
        passes sp+0x20 as the colour pointer, all inside a 0x40 frame. */
     {
-        int uv[4] = {8, 8, D_0063A064 * 16, D_0063A068 * 16};
+        int uv[4] = {8, 8, ScreenWidth * 16, ScreenHeight * 16};
         Blob4 col = *(Blob4 *)D_00639F30;
 
         gif_SpriteSensitiveOrg(rect, 0, uv, &col, 0);
@@ -349,8 +349,8 @@ void updatePoolGeo(char *self)
     int j;
 
     org = D_0054DA70;
-    sx = 1.0f / (float)D_0063A064;
-    sy = 1.0f / (float)D_0063A068;
+    sx = 1.0f / (float)ScreenWidth;
+    sy = 1.0f / (float)ScreenHeight;
 
     pc = (float *)(matrixptr + 0x4C0);
     pa = (float *)(matrixptr + 0x400);
@@ -406,8 +406,8 @@ void updatePoolGeo(char *self)
     memset(nrm, 0, 16);
     nrm[1] = -1.0f;
 
-    usc = 1.0f / (float)D_0063A064 * 0.8f;
-    vsc = 1.0f / (float)D_0063A068 * 0.8f;
+    usc = 1.0f / (float)ScreenWidth * 0.8f;
+    vsc = 1.0f / (float)ScreenHeight * 0.8f;
 
     MatrixDrive_SetTransposeMatrix(mat, (char *)(matrixptr + 0x80));
     CopyVector(eye, mat + 0x30);
@@ -518,7 +518,7 @@ void dispPool(char *self)
     copyToWork(4);
     gif_SetGsReg(6, D_00639F28 | 0x20010000 | 0x600000000LL);
 
-    gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 1, 0);
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
 
     gif_SetGsReg(0x14, 0x60);
     gif_SetZWrite(0);
@@ -589,12 +589,12 @@ void dispPool(char *self)
     CopyMatrix((char *)(matrixptr + 0x340), m4);
     CopyMatrix((char *)(matrixptr + 0x100), m2);
     CopyMatrix((char *)(matrixptr + 0x200), m3);
-    D_0063A07C = D_0063A064;
-    D_0063A080 = D_0063A068;
+    D_0063A07C = ScreenWidth;
+    D_0063A080 = ScreenHeight;
 
     gif_SetGsReg(6, D_00639F28 | 0x20010000 | 0x600000000LL);
 
-    gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 1, 0);
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
 
     gif_SetGsReg(0x14, 0x60);
     gif_SetZWrite(0);
@@ -608,7 +608,7 @@ void dispPool(char *self)
     prim_DispMesh3D(*(int *)(w + 0x40), dispLightColor, dispLightNormal, -1);
 
     gif_StartPacketPri(4);
-    gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 1, 0);
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
 
     gif_SetGsReg(0x14, 0x60);
     gif_SetZWrite(0);
@@ -696,8 +696,8 @@ void SetLayoutedPoolReflactionMesh(char *a0)
 
     mesh = *(char **)(a0 + 0x10);
     vec = D_0054DA70;
-    sx = 1.0f / (float)D_0063A064;
-    sy = 1.0f / (float)D_0063A068;
+    sx = 1.0f / (float)ScreenWidth;
+    sy = 1.0f / (float)ScreenHeight;
     tmp = (char *)(matrixptr + 0x4C0);
     base = (char *)(matrixptr + 0x440);
 
@@ -779,8 +779,8 @@ void SetLimitedPoolReflactionMesh(char *a0, char *a1, char *a2)
 
     mesh = *(char **)(a0 + 0x10);
     vec = D_0054DA70;
-    sx = 1.0f / (float)D_0063A064;
-    sy = 1.0f / (float)D_0063A068;
+    sx = 1.0f / (float)ScreenWidth;
+    sy = 1.0f / (float)ScreenHeight;
     tmp = (char *)(matrixptr + 0x4C0);
     base = (char *)(matrixptr + 0x440);
 
@@ -818,7 +818,7 @@ void DispLimitedPoolReflactionMesh(int *a0)
     gif_StartPacketPri(4);
     copyToWork(4);
     gif_SetGsReg(6, D_00639F28 | 0x20010000 | 0x600000000LL);
-    gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 1, 0);
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
     gif_SetGsReg(0x14, 0x60);
     gif_SetZWrite(0);
     gif_SetZTest(1);

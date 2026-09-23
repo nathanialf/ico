@@ -255,8 +255,8 @@ extern int IdentityQuaternion[];
 extern int D_0028F4C0[];
 extern int matrixptr;
 extern char *D_00639EC0;
-extern int D_0063A064;
-extern int D_0063A068;
+extern int ScreenWidth;
+extern int ScreenHeight;
 extern void Debug_WireString_Bird(float *pos, char *fmt, ...);
 
 /* rows 256-263: point the bird `ang` radians round from where it faces. */
@@ -681,8 +681,8 @@ void subBirdBrainMain(void *volatile gobj)
                 sv[0] = sv[0] / sv[3] - 2048.0f;
                 sv[1] = sv[1] / sv[3] - 2048.0f;
 
-                sx = sv[0] / (D_0063A064 / 2);
-                sy = sv[1] / (D_0063A068 / 2);
+                sx = sv[0] / (ScreenWidth / 2);
+                sy = sv[1] / (ScreenHeight / 2);
                 if (sv[3] > 0.0f && __builtin_fabsf(sx) < 0.6f && sy > -1.3f && sy < 0.5f) {
                     float dy;
 
@@ -690,7 +690,7 @@ void subBirdBrainMain(void *volatile gobj)
                     point_ahead(p2, pos, im[1]);
                     apply_matrix_w1(sv2, (char *)matrixptr + 0x100, p2);
                     sv2[1] = sv2[1] / sv2[3] - 2048.0f;
-                    dy = __builtin_fabsf(sv2[1] - sv[1]) / D_0063A068;
+                    dy = __builtin_fabsf(sv2[1] - sv[1]) / ScreenHeight;
 
                     if (dy > 0.5f &&
                         (*(int *)(bw + 0x30) == 0 || ((float *)*(int *)(bw + 0x30))[1] > 100.0f)) {

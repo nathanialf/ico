@@ -55,8 +55,8 @@ typedef struct {
 extern MotRec D_0055FE58[];
 extern BarCol D_0063BA18[];
 extern BarCol D_0063BA20[];
-extern int D_0063A064;
-extern int D_0063A068;
+extern int ScreenWidth;
+extern int ScreenHeight;
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
 /* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
@@ -87,19 +87,19 @@ void dispMotFrameProgress(int obj, float cur)
         gif_SetAlpha(1, 5, 0x80);
         if (r0 < rc && rc <= r1) {
             BarCol dark = {col->r / 2, col->g / 2, col->b / 2, 0x80};
-            BarRect ra = {(int)((-(D_0063A064 << 4) / 2 + (D_0063A064 << 4) * r0) * 8 / 10),
-                          ((D_0063A068 << 4) * 6 / 20) & ~15,
-                          (int)(((D_0063A064 << 4) * (rc - r0)) * 8 / 10),
-                          (((D_0063A068 << 4) / 100) & ~15) + 24};
-            BarRect rb = {(int)((-(D_0063A064 << 4) / 2 + (D_0063A064 << 4) * rc) * 8 / 10), ra.y,
-                          (int)(((D_0063A064 << 4) * (r1 - rc)) * 8 / 10), ra.h};
+            BarRect ra = {(int)((-(ScreenWidth << 4) / 2 + (ScreenWidth << 4) * r0) * 8 / 10),
+                          ((ScreenHeight << 4) * 6 / 20) & ~15,
+                          (int)(((ScreenWidth << 4) * (rc - r0)) * 8 / 10),
+                          (((ScreenHeight << 4) / 100) & ~15) + 24};
+            BarRect rb = {(int)((-(ScreenWidth << 4) / 2 + (ScreenWidth << 4) * rc) * 8 / 10), ra.y,
+                          (int)(((ScreenWidth << 4) * (r1 - rc)) * 8 / 10), ra.h};
             gif_SpriteSensitiveOrg(&ra, 0, 0, col, 1);
             gif_SpriteSensitiveOrg(&rb, 0, 0, &dark, 1);
         } else {
-            BarRect rc2 = {(int)((-(D_0063A064 << 4) / 2 + (D_0063A064 << 4) * r0) * 8 / 10),
-                           ((D_0063A068 << 4) * 6 / 20) & ~15,
-                           (int)(((D_0063A064 << 4) * (r1 - r0)) * 8 / 10),
-                           (((D_0063A068 << 4) / 100) & ~15) + 24};
+            BarRect rc2 = {(int)((-(ScreenWidth << 4) / 2 + (ScreenWidth << 4) * r0) * 8 / 10),
+                           ((ScreenHeight << 4) * 6 / 20) & ~15,
+                           (int)(((ScreenWidth << 4) * (r1 - r0)) * 8 / 10),
+                           (((ScreenHeight << 4) / 100) & ~15) + 24};
             if (rc <= r0) {
                 BarCol dark = {col->r / 2, col->g / 2, col->b / 2, 0x80};
                 gif_SpriteSensitiveOrg(&rc2, 0, 0, &dark, 1);

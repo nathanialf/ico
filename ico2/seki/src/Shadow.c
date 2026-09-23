@@ -67,10 +67,10 @@ typedef struct {
     ShadowPkPtr end;
 } ShadowDpk;
 
-extern ShadowDpk D_004EE6F0;
+extern ShadowDpk PacketBufferStruct;
 /* the screen width and height in pixels */
-extern int D_0063A064;
-extern int D_0063A068;
+extern int ScreenWidth;
+extern int ScreenHeight;
 /* kept local: this TU's uses of these do not fit the prototypes in the headers */
 extern void tex_LockHeadTBP(int tbp, int pri);
 extern void dl_SetDLPriority(int pri);
@@ -83,8 +83,8 @@ extern void dl_CloseDma(void);
  * function would carry its own lines. */
 #define setGsReg(reg, val)                                                                         \
     {                                                                                              \
-        *D_004EE6F0.ptr.d++ = (val);                                                               \
-        *D_004EE6F0.ptr.d++ = (reg);                                                               \
+        *PacketBufferStruct.ptr.d++ = (val);                                                       \
+        *PacketBufferStruct.ptr.d++ = (reg);                                                       \
     }
 /* The PATH1 packet open and close, written out here and not called: the
  * listing puts every instruction of each on ONE line of Shadow.c (332 for the
@@ -95,18 +95,18 @@ extern void dl_CloseDma(void);
  * (the close, on line 351, is written out at its site below). */
 #define gifStartPacketPath1(c)                                                                     \
     {                                                                                              \
-        (c) = D_004EE6F0.ptr.c;                                                                    \
-        D_004EE6F0.gif.c = 0;                                                                      \
-        D_004EE6F0.end.c = 0;                                                                      \
-        D_004EE6F0.dma.c = (c);                                                                    \
-        D_004EE6F0.tail.c = (c);                                                                   \
-        D_004EE6F0.ptr.c = ((c) + 8);                                                              \
+        (c) = PacketBufferStruct.ptr.c;                                                            \
+        PacketBufferStruct.gif.c = 0;                                                              \
+        PacketBufferStruct.end.c = 0;                                                              \
+        PacketBufferStruct.dma.c = (c);                                                            \
+        PacketBufferStruct.tail.c = (c);                                                           \
+        PacketBufferStruct.ptr.c = ((c) + 8);                                                      \
         *(unsigned int *)((c) + 8) = 0x11000000;                                                   \
-        D_004EE6F0.gif.c = ((c) + 0xC);                                                            \
-        D_004EE6F0.end.c = ((c) + 0x10);                                                           \
-        D_004EE6F0.ptr.c = ((c) + 0x18);                                                           \
+        PacketBufferStruct.gif.c = ((c) + 0xC);                                                    \
+        PacketBufferStruct.end.c = ((c) + 0x10);                                                   \
+        PacketBufferStruct.ptr.c = ((c) + 0x18);                                                   \
         ((GifPkWord *)((c) + 0x18))->d = 0xE;                                                      \
-        D_004EE6F0.ptr.c = ((c) + 0x20);                                                           \
+        PacketBufferStruct.ptr.c = ((c) + 0x20);                                                   \
     }
 /* FRAME_1, SCISSOR_1 and XYOFFSET_1 for a w by h buffer at base fbp, the
  * window centred on the GS's 2048.0 origin and moved by ox, oy sixteenths. A
@@ -160,17 +160,17 @@ void shadow_Reset(void)
     dl_SetDLPriority(3);
     gifStartPacketPath1(c);
     {
-        int full[4] = {-D_0063A064 / 2 * 16, -D_0063A068 / 2 * 16, D_0063A064 * 16,
-                       D_0063A068 * 16};
-        int band[4] = {-D_0063A064 / 2 * 16, -D_0063A068 / 2 * 16, D_0063A064 * 16, 256};
+        int full[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
+                       ScreenHeight * 16};
+        int band[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16, 256};
         unsigned char col[4] = {0};
 
-        setFrame(0x140, D_0063A064, D_0063A068, 0, 0);
+        setFrame(0x140, ScreenWidth, ScreenHeight, 0, 0);
         setGsReg(0x4E, 0xC0 | ((long long)0x30 << 24) | ((long long)1 << 32));
         setGsReg(0x47, 0x30000);
         spriteRect(band, col, 0x406);
 
-        setFrame(0x142, D_0063A064, D_0063A068, 0, 0);
+        setFrame(0x142, ScreenWidth, ScreenHeight, 0, 0);
         setGsReg(0x4E, 0xC0 | ((long long)0x30 << 24) | ((long long)1 << 32));
         setGsReg(0x47, 0x30000);
         spriteRect(full, col, 0x406);
@@ -181,33 +181,37 @@ void shadow_Reset(void)
         setGsReg(0x42, 0x68 | ((long long)0x80 << 32));
         setGsReg(0x46, 0);
     }
-    ((GifPkWord *)D_004EE6F0.end.c)->d =
-        (unsigned int)(((unsigned int)(D_004EE6F0.ptr.c - D_004EE6F0.end.c) >> 4) - 1) |
+    ((GifPkWord *)PacketBufferStruct.end.c)->d =
+        (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >> 4) -
+                       1) |
         0x1000000000008000LL;
-    ((GifPkWord *)D_004EE6F0.gif.c)->w[0] =
-        (((unsigned int)(D_004EE6F0.ptr.c - D_004EE6F0.gif.c) >> 4) << 16) | 0x6C008000;
-    p = D_004EE6F0.ptr.c;
+    ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
+        (((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) << 16) |
+        0x6C008000;
+    p = PacketBufferStruct.ptr.c;
     ((GifPkWord *)p)->w[0] = 0x15000000;
     p += 4;
-    D_004EE6F0.ptr.c = p;
+    PacketBufferStruct.ptr.c = p;
     ((GifPkWord *)p)->w[0] = 0;
-    D_004EE6F0.ptr.c = (p + 4);
+    PacketBufferStruct.ptr.c = (p + 4);
     ((GifPkWord *)(p + 4))->w[0] = 0;
-    D_004EE6F0.ptr.c = (p + 8);
+    PacketBufferStruct.ptr.c = (p + 8);
     ((GifPkWord *)(p + 8))->w[0] = 0;
-    D_004EE6F0.ptr.c = (p + 0xC);
-    ((GifPkWord *)D_004EE6F0.tail.c)->d =
-        (unsigned int)((((unsigned int)(D_004EE6F0.ptr.c - D_004EE6F0.tail.c) >> 4) - 1) |
+    PacketBufferStruct.ptr.c = (p + 0xC);
+    ((GifPkWord *)PacketBufferStruct.tail.c)->d =
+        (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
+                         4) -
+                        1) |
                        0x10000000);
-    q = D_004EE6F0.ptr.c;
-    D_004EE6F0.tail.c = q;
+    q = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.tail.c = q;
     ((GifPkWord *)q)->d = 0x60000000;
-    D_004EE6F0.ptr.c = (q + 8);
+    PacketBufferStruct.ptr.c = (q + 8);
     ((GifPkWord *)(q + 8))->w[0] = 0;
-    D_004EE6F0.ptr.c = (q + 0xC);
+    PacketBufferStruct.ptr.c = (q + 0xC);
     ((GifPkWord *)(q + 8))->w[1] = 0;
-    D_004EE6F0.ptr.c = (q + 0x10);
-    dl_OpenDma(5, D_004EE6F0.dma.c, 0);
+    PacketBufferStruct.ptr.c = (q + 0x10);
+    dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
     dl_CloseDma();
 }
 

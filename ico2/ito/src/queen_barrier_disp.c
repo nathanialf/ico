@@ -57,25 +57,25 @@ typedef struct {
 } GifCol;
 
 extern GifCol D_0063AC60[];
-extern int D_0063A064;
-extern int D_0063A068;
+extern int ScreenWidth;
+extern int ScreenHeight;
 extern GifRect D_00556E00;
-extern GifDpk D_004EE6F0;
+extern GifDpk PacketBufferStruct;
 
 /* INTERIM: the listing inlines gif_SetGsReg here the same way it does across
    GifPacket.c; while that TU's own out-of-line copy is still asm the callers
    the listing shows inlining it call this static stand-in. */
 static inline void setGsReg(long long a0, long long a1)
 {
-    *D_004EE6F0.ptr++ = a1;
-    *D_004EE6F0.ptr++ = a0;
+    *PacketBufferStruct.ptr++ = a1;
+    *PacketBufferStruct.ptr++ = a0;
 }
 
 void MakeRefractTexture(int frame)
 {
     GifCol col = D_0063AC60[0];
     GifRect r = D_00556E00;
-    GifUvRect uv = {8, 8, D_0063A064 * 16, D_0063A068 * 16};
+    GifUvRect uv = {8, 8, ScreenWidth * 16, ScreenHeight * 16};
     int fx;
     int fy;
 
@@ -83,7 +83,7 @@ void MakeRefractTexture(int frame)
 
     gif_SetGsReg(0x4E, 0x1300000C0LL);
 
-    gif_SetGsReg(0x06, ((long long)(D_0063A064 / 64) << 14) | 0x664000800LL);
+    gif_SetGsReg(0x06, ((long long)(ScreenWidth / 64) << 14) | 0x664000800LL);
 
     setGsReg(0x4C, frame | 0x80000);
     setGsReg(0x40, 0xFF000001FF0000LL);
@@ -117,8 +117,8 @@ inline void queen_barrier_anim(void)
     }
 }
 
-extern int D_0063A064;
-extern int D_0063A068;
+extern int ScreenWidth;
+extern int ScreenHeight;
 /* kept local: this TU's uses of _GetNorm do not fit the prototype in Matrix.h */
 extern float _GetNorm(QVec *v);
 /* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
@@ -164,9 +164,9 @@ void makeRefractST(float k)
             v.f[3] = 1.0f;
             _RotTransPersCurrentMatrix(&v, &v);
             D_0063C304->st[idx].s =
-                ((v.f[0] - 2048.0f) + (float)(D_0063A064 >> 1)) * (1.0f / (float)D_0063A064);
+                ((v.f[0] - 2048.0f) + (float)(ScreenWidth >> 1)) * (1.0f / (float)ScreenWidth);
             D_0063C304->st[idx].t =
-                ((v.f[1] - 2048.0f) + (float)(D_0063A068 >> 1)) * (1.0f / (float)D_0063A068);
+                ((v.f[1] - 2048.0f) + (float)(ScreenHeight >> 1)) * (1.0f / (float)ScreenHeight);
         }
     }
 }
@@ -211,10 +211,10 @@ void queen_barrier_disp_proc(char *g, float k)
     vram = tex_AllocVramAuto(0, 2048);
     MakeRefractTexture(vram >> 5);
 
-    setGsReg(0x4C, ((long long)((D_0063A064 >> 6) & 0x3F) << 16) | 64);
-    setGsReg(0x40, ((long long)(D_0063A064 - 1) << 16) | ((long long)(D_0063A068 - 1) << 48));
-    setGsReg(0x18, (((long long)(2048 - D_0063A064 / 2) << 4) + D_0063A074) |
-                       ((((long long)(2048 - D_0063A068 / 2) << 4) + D_0063A078) << 32));
+    setGsReg(0x4C, ((long long)((ScreenWidth >> 6) & 0x3F) << 16) | 64);
+    setGsReg(0x40, ((long long)(ScreenWidth - 1) << 16) | ((long long)(ScreenHeight - 1) << 48));
+    setGsReg(0x18, (((long long)(2048 - ScreenWidth / 2) << 4) + D_0063A074) |
+                       ((((long long)(2048 - ScreenHeight / 2) << 4) + D_0063A078) << 32));
 
     gif_SetGsReg(0x4E, 0x300000C0);
     gif_SetGsReg(0x47, 0x50000);

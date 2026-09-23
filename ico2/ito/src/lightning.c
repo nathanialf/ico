@@ -62,7 +62,7 @@ typedef struct {
     char *end;
 } LightningDpk;
 
-extern LightningDpk D_004EE6F0;
+extern LightningDpk PacketBufferStruct;
 
 /* one strip vertex as the three GS register payloads it is sent as */
 typedef struct {
@@ -128,10 +128,10 @@ static __inline__ void close_strip(void)
     unsigned long long *e;
 
     if (D_0063C2F8 != 0) {
-        e = D_004EE6F0.ptr.d - 2;
+        e = PacketBufferStruct.ptr.d - 2;
         n = e - (unsigned long long *)D_0063C2F8;
         if (n & 1) {
-            *D_004EE6F0.ptr.d++ = 0;
+            *PacketBufferStruct.ptr.d++ = 0;
         }
         ((sceGifTag *)D_0063C2F8)->NLOOP = n / 3;
     }
@@ -181,22 +181,22 @@ void set_vertex(LightningVtx *dir, LightningVtx *pos, float u, int *col, float h
                (SRCFILE.TXT line 168 is code-free, as any deleted one is). */
             D_0063C2F4 = 0;
             D_0063C2F8 = 0;
-            *D_004EE6F0.ptr.d++ = 0x1400000000008001LL;
-            *D_004EE6F0.ptr.d++ = 0;
-            *D_004EE6F0.ptr.d++ = 84;
+            *PacketBufferStruct.ptr.d++ = 0x1400000000008001LL;
+            *PacketBufferStruct.ptr.d++ = 0;
+            *PacketBufferStruct.ptr.d++ = 84;
 
-            *D_004EE6F0.ptr.d++ = 0;
+            *PacketBufferStruct.ptr.d++ = 0;
 
-            D_0063C2F8 = D_004EE6F0.ptr.c;
-            *D_004EE6F0.ptr.d++ = 0x3400000000008000LL;
-            *D_004EE6F0.ptr.d++ = 1313;
+            D_0063C2F8 = PacketBufferStruct.ptr.c;
+            *PacketBufferStruct.ptr.d++ = 0x3400000000008000LL;
+            *PacketBufferStruct.ptr.d++ = 1313;
 
-            *D_004EE6F0.ptr.d++ = D_006EA7C0[0].rgbaq;
-            *D_004EE6F0.ptr.d++ = D_006EA7C0[0].uv;
-            *D_004EE6F0.ptr.d++ = D_006EA7C0[0].xyz;
-            *D_004EE6F0.ptr.d++ = D_006EA7C0[1].rgbaq;
-            *D_004EE6F0.ptr.d++ = D_006EA7C0[1].uv;
-            *D_004EE6F0.ptr.d++ = D_006EA7C0[1].xyz;
+            *PacketBufferStruct.ptr.d++ = D_006EA7C0[0].rgbaq;
+            *PacketBufferStruct.ptr.d++ = D_006EA7C0[0].uv;
+            *PacketBufferStruct.ptr.d++ = D_006EA7C0[0].xyz;
+            *PacketBufferStruct.ptr.d++ = D_006EA7C0[1].rgbaq;
+            *PacketBufferStruct.ptr.d++ = D_006EA7C0[1].uv;
+            *PacketBufferStruct.ptr.d++ = D_006EA7C0[1].xyz;
 
             D_0063C2F4 = 1;
         }
@@ -210,9 +210,9 @@ void set_vertex(LightningVtx *dir, LightningVtx *pos, float u, int *col, float h
             (long long)xyz.i[0] | ((long long)xyz.i[1] << 16) | ((long long)xyz.i[2] << 32);
 
         if (D_0063C2F4) {
-            *D_004EE6F0.ptr.d++ = D_006EA7C0[1].rgbaq;
-            *D_004EE6F0.ptr.d++ = D_006EA7C0[1].uv;
-            *D_004EE6F0.ptr.d++ = D_006EA7C0[1].xyz;
+            *PacketBufferStruct.ptr.d++ = D_006EA7C0[1].rgbaq;
+            *PacketBufferStruct.ptr.d++ = D_006EA7C0[1].uv;
+            *PacketBufferStruct.ptr.d++ = D_006EA7C0[1].xyz;
         }
         D_0063C2FC++;
     }
@@ -339,16 +339,16 @@ void DrawLightning2(int num, LightningVtx *v, StructB *col, float f0, float f1, 
     }
     gif_EndPacket();
     dl_SetDLPriority(6);
-    pk = D_004EE6F0.ptr.c;
+    pk = PacketBufferStruct.ptr.c;
     top = (unsigned long long *)(pk + 16);
-    D_004EE6F0.gif = 0;
-    D_004EE6F0.dma = pk;
-    D_004EE6F0.ptr.c = pk + 8;
-    D_004EE6F0.end = 0;
-    D_004EE6F0.tail = pk;
+    PacketBufferStruct.gif = 0;
+    PacketBufferStruct.dma = pk;
+    PacketBufferStruct.ptr.c = pk + 8;
+    PacketBufferStruct.end = 0;
+    PacketBufferStruct.tail = pk;
     ((GifPkWord *)(pk + 8))->w[0] = 0x11000000;
-    D_004EE6F0.gif = pk + 12;
-    D_004EE6F0.ptr.d = top;
+    PacketBufferStruct.gif = pk + 12;
+    PacketBufferStruct.ptr.d = top;
     D_0063C2F4 = 0;
     D_0063C2F8 = 0;
     D_0063C2FC = 0;
@@ -477,26 +477,27 @@ void DrawLightning2(int num, LightningVtx *v, StructB *col, float f0, float f1, 
     }
 end:
     close_strip();
-    n = D_004EE6F0.ptr.d - top;
+    n = PacketBufferStruct.ptr.d - top;
     if (n & 1) {
-        *D_004EE6F0.ptr.d++ = 0;
+        *PacketBufferStruct.ptr.d++ = 0;
     }
-    ((GifPkWord *)D_004EE6F0.tail)->d =
-        (unsigned int)((((unsigned int)(D_004EE6F0.ptr.c - D_004EE6F0.tail) >> 4) - 1) |
+    ((GifPkWord *)PacketBufferStruct.tail)->d =
+        (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail) >> 4) -
+                        1) |
                        0x10000000);
-    ((GifPkWord *)D_004EE6F0.gif)->w[0] =
-        ((unsigned int)(D_004EE6F0.ptr.c - D_004EE6F0.gif) >> 4) | 0x50000000;
-    p = D_004EE6F0.ptr.c;
-    D_004EE6F0.tail = p;
+    ((GifPkWord *)PacketBufferStruct.gif)->w[0] =
+        ((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif) >> 4) | 0x50000000;
+    p = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.tail = p;
     ((GifPkWord *)p)->d = 0x60000000;
-    D_004EE6F0.ptr.c = p + 8;
+    PacketBufferStruct.ptr.c = p + 8;
     ((GifPkWord *)(p + 8))->w[0] = 0;
-    D_004EE6F0.ptr.c = p + 0xC;
+    PacketBufferStruct.ptr.c = p + 0xC;
     ((GifPkWord *)(p + 8))->w[1] = 0;
-    D_004EE6F0.ptr.c = p + 0x10;
+    PacketBufferStruct.ptr.c = p + 0x10;
     if (n > 0) {
         dl_SetDLPriority(dl_GetPri());
-        dl_OpenDma(5, D_004EE6F0.dma, 0);
+        dl_OpenDma(5, PacketBufferStruct.dma, 0);
         dl_CloseDma();
     }
 }

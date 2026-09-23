@@ -338,7 +338,7 @@ static inline int getTWTH(int a0)
 
 /* EUC-JP: "a texture type that is neither DIRECT nor CLUT was specified" + ".\n" */
 extern char D_00550460[];
-extern GifDpk D_004EE6F0;
+extern GifDpk PacketBufferStruct;
 
 /* The GS A+D writer this TU expands at every site. It is a MACRO and not the
  * static inline stand-in src/GifPacket.c carries, and the ROM says which:
@@ -350,8 +350,8 @@ extern GifDpk D_004EE6F0;
  * two instructions short per packet, measured on all four of them. */
 #define setGsReg(reg, val)                                                                         \
     {                                                                                              \
-        *D_004EE6F0.ptr++ = (val);                                                                 \
-        *D_004EE6F0.ptr++ = (reg);                                                                 \
+        *PacketBufferStruct.ptr++ = (val);                                                         \
+        *PacketBufferStruct.ptr++ = (reg);                                                         \
     }
 /* the record carries seven mipmap levels, so a level index is clamped to the
  * last one before it indexes lv[] */
@@ -1308,8 +1308,8 @@ typedef struct TexColor {
 
 /* the four bytes 0x80 0x80 0x80 0x80 */
 extern TexColor D_0063A228[];
-extern int D_0063A064;
-extern int D_0063A068;
+extern int ScreenWidth;
+extern int ScreenHeight;
 extern void gif_StartPacketPri(int pri);
 extern void gif_SetGsReg(long long reg, long long val);
 extern void gif_EndPacket(void);
@@ -1357,7 +1357,7 @@ void tex_TransTextureDefocus(int id, int lv)
         gif_SetGsReg(6, tbp | ((long long)(w < 64 ? 1 : w / 64) << 14) |
                             ((long long)getTWTH(w) << 26) | ((long long)getTWTH(h) << 30) |
                             ((long long)1 << 34));
-        gif_SetDrawEnviroment(2048, 0, D_0063A064, D_0063A068, 1, 0);
+        gif_SetDrawEnviroment(2048, 0, ScreenWidth, ScreenHeight, 1, 0);
         gif_EndPacket();
     }
 }
@@ -1643,8 +1643,8 @@ void tex_ResetVram(void)
 #define GIF_XY(x, y, z)                                                                            \
     ((long long)((x) + 0x8000) | ((long long)((y) + 0x8000) << 16) | ((z) << 32))
 /* a 640x224 layout coordinate to the screen, gif_SpriteSensitive's scaling */
-#define DISP_X(v) ((v) * D_0063A064 / 640)
-#define DISP_Y(v) ((v) * D_0063A068 / 224)
+#define DISP_X(v) ((v) * ScreenWidth / 640)
+#define DISP_Y(v) ((v) * ScreenHeight / 224)
 
 /* The far corner, x + fx with fx = w + 0x8000, the way gif_MakeSpriteNoTexture
  * in GifPacket.c holds it. WHAT THE BYTES PIN: w + 0x8000 is computed on its
@@ -1758,7 +1758,7 @@ void tex_printTexture(int id)
     int lv = D_0068AFD8[id].lv;
     float st[4];
 
-    debug_PrintfDummy(D_0063A064 - 160, 195, 0xFF800000, D_00550A18,
+    debug_PrintfDummy(ScreenWidth - 160, 195, 0xFF800000, D_00550A18,
                       textype[*(unsigned char *)(p + 0x21B)], *(unsigned short *)(p + 0x21C) >> lv,
                       *(unsigned short *)(p + 0x21E) >> lv);
 
@@ -1782,24 +1782,27 @@ void tex_printTexture(int id)
         setGsReg(0x08, 0);
         setGsReg(0x47, 0x30000);
         setGsReg(0x4E, 0x1300000C0LL);
-        *D_004EE6F0.ptr++ = (D_0028F8F0[0]._0 & 0x10) == 0 ? 0x56 : 0x16;
-        *D_004EE6F0.ptr++ = 0x00;
+        *PacketBufferStruct.ptr++ = (D_0028F8F0[0]._0 & 0x10) == 0 ? 0x56 : 0x16;
+        *PacketBufferStruct.ptr++ = 0x00;
         /* Q is the bits of `one`, read unsigned the way gsb_filmNoise in
          * GsBase.c reads its scale. The ROM pins the unsigned read: cse2 folds
          * its SImode bit copy to the constant (lui at 2321) and `one` dies in
          * $f0 after the ST sums; a signed read keeps `one` live across
          * FlushCache in $f20. */
-        *D_004EE6F0.ptr++ = GIF_RGBA(&col.r) | ((long long)*(unsigned int *)&one << 32);
-        *D_004EE6F0.ptr++ = 0x01;
-        *D_004EE6F0.ptr++ = (long long)*(unsigned int *)&st[0] | ((long long)*(int *)&st[1] << 32);
-        *D_004EE6F0.ptr++ = 0x02;
-        *D_004EE6F0.ptr++ = GIF_XY(DISP_X(rect[0]), DISP_Y(rect[1]), 0x7FFFFFFFLL);
-        *D_004EE6F0.ptr++ = 0x05;
-        *D_004EE6F0.ptr++ = (long long)*(unsigned int *)&st[2] | ((long long)*(int *)&st[3] << 32);
-        *D_004EE6F0.ptr++ = 0x02;
-        *D_004EE6F0.ptr++ = GIF_XY0(dispFar(DISP_X(rect[0]), DISP_X(rect[2])),
-                                    dispFar(DISP_Y(rect[1]), DISP_Y(rect[3])), 0x7FFFFFFFLL);
-        *D_004EE6F0.ptr++ = 0x05;
+        *PacketBufferStruct.ptr++ = GIF_RGBA(&col.r) | ((long long)*(unsigned int *)&one << 32);
+        *PacketBufferStruct.ptr++ = 0x01;
+        *PacketBufferStruct.ptr++ =
+            (long long)*(unsigned int *)&st[0] | ((long long)*(int *)&st[1] << 32);
+        *PacketBufferStruct.ptr++ = 0x02;
+        *PacketBufferStruct.ptr++ = GIF_XY(DISP_X(rect[0]), DISP_Y(rect[1]), 0x7FFFFFFFLL);
+        *PacketBufferStruct.ptr++ = 0x05;
+        *PacketBufferStruct.ptr++ =
+            (long long)*(unsigned int *)&st[2] | ((long long)*(int *)&st[3] << 32);
+        *PacketBufferStruct.ptr++ = 0x02;
+        *PacketBufferStruct.ptr++ =
+            GIF_XY0(dispFar(DISP_X(rect[0]), DISP_X(rect[2])),
+                    dispFar(DISP_Y(rect[1]), DISP_Y(rect[3])), 0x7FFFFFFFLL);
+        *PacketBufferStruct.ptr++ = 0x05;
         setGsReg(0x4E, 0x300000C0);
         setGsReg(0x47, 0x50000);
     }

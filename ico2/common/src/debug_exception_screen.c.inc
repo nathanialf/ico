@@ -46,8 +46,8 @@ extern void sceVif1PkAddGsData(void *packet, unsigned long long data);
 extern int D_0063B370;
 extern unsigned int D_0063B374;
 extern unsigned int D_0063B378;
-extern int D_0063A064;
-extern int D_0063A068;
+extern int ScreenWidth;
+extern int ScreenHeight;
 extern u128_dbgscr D_0061CF20[];
 extern u128_dbgscr D_0061CF30[];
 extern u128_dbgscr D_004DA740[];
@@ -128,7 +128,7 @@ void SetTextureWithFrameBuffer(int x)
     unsigned long long *env;
 
     env = (unsigned long long *)((unsigned int)D_004DA4D0 | 0x20000000);
-    sceGsSetDefTexEnv(&env[12], 0, (short)x, (short)(D_0063A064 / 64), 1, 10, 8, 0, 0, 0, 0, 1);
+    sceGsSetDefTexEnv(&env[12], 0, (short)x, (short)(ScreenWidth / 64), 1, 10, 8, 0, 0, 0, 0, 1);
     sceGsSetDefAlphaEnv(&env[4], 0);
     env[4] = 0x44;
     env[2] = 0x20000;
@@ -144,7 +144,7 @@ void SetTexDrawEnvironment(int addr)
     unsigned long long *env;
 
     env = (unsigned long long *)((unsigned int)D_004DA570 | 0x20000000);
-    sceGsSetDefDrawEnv(&env[2], 0, (short)D_0063A064, (short)D_0063A068, 1, 0x31);
+    sceGsSetDefDrawEnv(&env[2], 0, (short)ScreenWidth, (short)ScreenHeight, 1, 0x31);
     env[2] = (env[2] & ~0x1FF) | ((addr / 32) & 0x1FF);
     env[4] |= 0x100000000;
     sceGsSyncPath(0, 0);
@@ -156,7 +156,7 @@ void SetDrawnTextureEnvironment(int x)
     unsigned long long *env;
 
     env = (unsigned long long *)((unsigned int)D_004DA600 | 0x20000000);
-    sceGsSetDefTexEnv(&env[12], 0, (short)x, (short)(D_0063A064 / 64), 0, 10, 8, 0, 0, 0, 0, 1);
+    sceGsSetDefTexEnv(&env[12], 0, (short)x, (short)(ScreenWidth / 64), 0, 10, 8, 0, 0, 0, 0, 1);
     sceGsSetDefAlphaEnv(&env[4], 0);
     env[4] = 0x44;
     env[2] = 0x20000;
@@ -240,8 +240,8 @@ void drawSprite(int r, int g, int b, int a, int x0, int y0, int x1, int y1, int 
         sceVif1PkAddGsData(&packet, (unsigned long long)((x0 + 0x800) << 4) |
                                         ((unsigned long long)((y0 + 0x800) << 4) << 16) |
                                         0x0080000000000000ULL);
-        sceVif1PkAddGsData(&packet, (unsigned long long)(D_0063A064 << 4) |
-                                        ((unsigned long long)(D_0063A068 << 4) << 16));
+        sceVif1PkAddGsData(&packet, (unsigned long long)(ScreenWidth << 4) |
+                                        ((unsigned long long)(ScreenHeight << 4) << 16));
         sceVif1PkAddGsData(&packet, (unsigned long long)((x1 + 0x800) << 4) |
                                         ((unsigned long long)((y1 + 0x800) << 4) << 16) |
                                         0x0080000000000000ULL);

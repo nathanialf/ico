@@ -14,7 +14,7 @@ unsigned int D_004EE5F0[64] = {
     0x0E050E05, 0x0E060D06, 0x0E050D06, 0x11020E04, 0x0E040F04, 0x0C060E05, 0x0D070B08, 0x10020F05,
 };
 
-extern int D_0063A064;
+extern int ScreenWidth;
 extern int D_0063BD00;
 extern int D_0063BD04;
 extern int D_0063BD08;
@@ -28,7 +28,7 @@ inline int font_GetWidth(void)
 
 inline int font_GetHeight(void)
 {
-    return (0x3200 / D_0063A064) / 2;
+    return (0x3200 / ScreenWidth) / 2;
 }
 
 inline void font_Init(void)

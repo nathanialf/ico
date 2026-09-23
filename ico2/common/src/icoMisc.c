@@ -19,8 +19,8 @@ extern char D_0061D3E0[];
 extern char D_0061D418[];
 extern void *D_0063A428;
 extern int D_0063A054;
-extern int D_0063A064;
-extern int D_0063A068;
+extern int ScreenWidth;
+extern int ScreenHeight;
 extern int D_0063B130;
 extern void *D_0063A430;
 extern void *D_0063A43C;
@@ -107,17 +107,17 @@ void disp_memory_partition_bar(void)
     }
     st.z = ed.z = 0;
     st.w = ed.w = 0;
-    st.y = (D_0063A068 / 2 + 1898) << 4;
+    st.y = (ScreenHeight / 2 + 1898) << 4;
     ed.y = st.y + 1280;
     if (D_0063B130 == 2) {
         gif_SetAlpha(1, 2, 32);
-        gif_MakeSpriteNoTexture((-(D_0063A064 >> 1) + 2178) << 4, (D_0063A068 / 2 + 1898) << 4,
-                                (D_0063A064 - 200) << 4, 768, 0xFFFFFFFF, &D_0063B428, 1);
+        gif_MakeSpriteNoTexture((-(ScreenWidth >> 1) + 2178) << 4, (ScreenHeight / 2 + 1898) << 4,
+                                (ScreenWidth - 200) << 4, 768, 0xFFFFFFFF, &D_0063B428, 1);
     }
     gif_SetAlpha(1, 2, 112);
     for (j = 0, k = 0; j < max; j += 0x100000) {
-        st.x = ed.x = (int)(((float)(-(D_0063A064 >> 1) + 130) + 2048.0f) * 16.0f +
-                            (float)j * (float)(D_0063A064 - 200) / (float)max * 16.0f);
+        st.x = ed.x = (int)(((float)(-(ScreenWidth >> 1) + 130) + 2048.0f) * 16.0f +
+                            (float)j * (float)(ScreenWidth - 200) / (float)max * 16.0f);
         if (k % 10) {
             Draw2DLine((int *)&st, (int *)&ed, D_004E3B10, -1);
         } else {
@@ -143,15 +143,15 @@ void disp_memory_partition_bar(void)
         }
         gif_SetAlpha(0, 2, 112);
         gif_SetAlpha(1, 2, 112);
-        st.y = ed.y = (D_0063A068 / 2 + i * 18 + 1907) << 4;
-        st.x = (int)(((float)(-(D_0063A064 >> 1) + 130) + 2048.0f) * 16.0f);
+        st.y = ed.y = (ScreenHeight / 2 + i * 18 + 1907) << 4;
+        st.x = (int)(((float)(-(ScreenWidth >> 1) + 130) + 2048.0f) * 16.0f);
         ed.x = (int)((float)st.x +
-                     (float)(total - used) * (float)(D_0063A064 - 200) / (float)max * 16.0f);
+                     (float)(total - used) * (float)(ScreenWidth - 200) / (float)max * 16.0f);
         Draw2DLine((int *)&st, (int *)&ed, D_004E3B00, -1);
-        x = (int)(((float)(-(D_0063A064 >> 1) + 130) + 2048.0f) * 16.0f);
-        st.x = (int)((float)x + (float)total * (float)(D_0063A064 - 200) / (float)max * 16.0f);
+        x = (int)(((float)(-(ScreenWidth >> 1) + 130) + 2048.0f) * 16.0f);
+        st.x = (int)((float)x + (float)total * (float)(ScreenWidth - 200) / (float)max * 16.0f);
         ed.x = (int)((float)x +
-                     (float)(total - used) * (float)(D_0063A064 - 200) / (float)max * 16.0f);
+                     (float)(total - used) * (float)(ScreenWidth - 200) / (float)max * 16.0f);
         Draw2DLine((int *)&st, (int *)&ed, D_004E3B10, -1);
     }
     gif_SetAlpha(1, 4, 128);
@@ -159,8 +159,8 @@ void disp_memory_partition_bar(void)
     gif_EndPacket();
     for (i = 0; parts[i] != 0; i++) {
         p = parts[i];
-        debug_PrintfDummy(D_0063A064 / 2 - (D_0063A064 >> 1) + 30,
-                          (D_0063A068 / 2 - 150 + D_0063A068 / 2 + i * 18) / 2, 0xFFFFFF80,
+        debug_PrintfDummy(ScreenWidth / 2 - (ScreenWidth >> 1) + 30,
+                          (ScreenHeight / 2 - 150 + ScreenHeight / 2 + i * 18) / 2, 0xFFFFFF80,
                           D_0063B438, p + 0x10);
     }
 }

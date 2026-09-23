@@ -167,8 +167,8 @@ void MakeMatrixFromCameraSet2(void *dst, CameraSet2 *cs)
 }
 
 extern char *matrixptr;
-extern int D_0063A064;
-extern int D_0063A068;
+extern int ScreenWidth;
+extern int ScreenHeight;
 
 void MakeCameraMatrix(CameraSet2 *cs)
 {
@@ -176,7 +176,7 @@ void MakeCameraMatrix(CameraSet2 *cs)
     MakeMatrixFromCameraSet2(mat, cs);
     MatrixDrive_PushMatrix();
     CopyMatrix(MatrixDrive_GetMatrix(), mat);
-    gsb_SetVSMatrix(D_0063A064, D_0063A068,
+    gsb_SetVSMatrix(ScreenWidth, ScreenHeight,
                     GetTableCos(cs->fov * 32768.0f / 180.0f) * 1024.0f /
                         GetTableSin(cs->fov * 32768.0f / 180.0f));
     sceVu0CopyMatrix(matrixptr + 0x80, MatrixDrive_GetMatrix());
@@ -555,8 +555,8 @@ static inline void cameraSetMode(int x)
 
 #define CAM_ABS(x) ((x) < 0 ? -(x) : (x))
 
-extern int D_0063A064;
-extern int D_0063A068;
+extern int ScreenWidth;
+extern int ScreenHeight;
 extern char D_0063AB70[]; /* "FREECAM" */
 extern char D_0063AB78[]; /* "GAMECAM" */
 extern char D_0063AB80[]; /* "HANDCAM" */
@@ -736,7 +736,7 @@ void SetCameraMatrix(void)
         } else {
             cameraFov = atan2f(1024.0f / zoom, 1.0f) * 180.0f / 3.14159265f;
         }
-        gsb_SetVSMatrix(D_0063A064, D_0063A068, cameraZoom);
+        gsb_SetVSMatrix(ScreenWidth, ScreenHeight, cameraZoom);
         sceVu0CopyMatrix(matrixptr + 0x80, m);
         gsb_MakeCommonMatrix();
         break;

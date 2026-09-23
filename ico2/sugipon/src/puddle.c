@@ -46,8 +46,8 @@ extern int D_0063BA90;
 extern int D_00639F94;
 extern char D_006209E8[];
 extern char *matrixptr;
-extern int D_0063A064; /* screen width  */
-extern int D_0063A068; /* screen height */
+extern int ScreenWidth;  /* screen width  */
+extern int ScreenHeight; /* screen height */
 extern int D_0063A07C;
 extern int D_0063A080;
 extern int D_0063BA88;
@@ -102,14 +102,14 @@ PuddleWork *InitPuddleGeo(char *a0, char *a1)
 void baseSetup(char *a0)
 {
     gif_StartPacketPri(4);
-    gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 1, 0);
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
     gif_SetZTest(0);
     gif_SetZWrite(0);
     gif_SetAlpha(1, 5, 0x80);
 
     {
-        PuddleRect r = {-D_0063A064 / 2 * 16, -D_0063A068 / 2 * 16, D_0063A064 * 16,
-                        D_0063A068 * 16};
+        PuddleRect r = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
+                        ScreenHeight * 16};
 
         {
             unsigned char col[4];
@@ -177,10 +177,10 @@ void drawAreaRestore(void)
     CopyMatrix(matrixptr + 0x100, D_00723A20);
     CopyMatrix(matrixptr + 0x200, D_00723A60);
 
-    D_0063A07C = D_0063A064;
-    D_0063A080 = D_0063A068;
+    D_0063A07C = ScreenWidth;
+    D_0063A080 = ScreenHeight;
     gif_SetGsReg(6, (long long)D_0063BA88 | 0x20010000 | 0x600000000LL);
-    gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 1, 0);
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
     gif_SetGsReg(0x14, 0x60);
     gif_SetZWrite(0);
     gif_SetZTest(1);
@@ -192,15 +192,15 @@ void leveldown(int pri)
 {
     gif_StartPacketPri(pri);
     gif_SetGsReg(6, (long long)D_0063BA88 | 0x20010000 | 0x600000000LL);
-    gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 1, 0);
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
     gif_SetGsReg(0x14, 0x60);
     gif_SetZWrite(0);
     gif_SetGsReg(0x47, 0x3F001);
     gif_SetAlpha(1, 2, 0x10);
 
     {
-        PuddleRect r = {-D_0063A064 / 2 * 16, -D_0063A068 / 2 * 16, D_0063A064 * 16,
-                        D_0063A068 * 16};
+        PuddleRect r = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
+                        ScreenHeight * 16};
 
         gif_SpriteSensitiveOrg(&r, 0, 0, &D_0063BA98, 1);
     }
@@ -226,7 +226,7 @@ void copy(int pri)
 {
     gif_StartPacketPri(pri);
     gif_SetGsReg(6, (long long)D_0063BA88 | 0x20010000 | 0x600000000LL);
-    gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 1, 0);
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
     gif_SetGsReg(0x14, 0x60);
     gif_SetZWrite(0);
     gif_SetGsReg(0x47, 0x3F001);
@@ -238,7 +238,8 @@ void copy(int pri)
     }
 
     {
-        int r[4] = {-D_0063A064 / 2 * 16, -D_0063A068 / 2 * 16, D_0063A064 * 16, D_0063A068 * 16};
+        int r[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
+                    ScreenHeight * 16};
         int uv[4] = {texUV(13.25f), texUV(13.25f), texUV(230.375f), texUV(230.375f)};
 
         gif_SpriteSensitiveOrg(r, 0, uv, &D_0063BAA0, 1);
@@ -270,8 +271,8 @@ void drawRipple(float t, void *pos)
     col.r = c;
     col.g = c;
     col.b = c;
-    sx = 0.9f / (float)D_0063A064;
-    sy = 0.9f / (float)D_0063A068;
+    sx = 0.9f / (float)ScreenWidth;
+    sy = 0.9f / (float)ScreenHeight;
     _UnitMatrix(MatrixDrive_GetMatrix());
     MatrixDrive_RotMatrixY((short)(int)(age * 10.24f));
 
@@ -326,7 +327,7 @@ void drawRipples(char *a0, int pri)
 
     gif_StartPacketPri(pri);
     gif_SetGsReg(6, (long long)D_0063BA88 | 0x20010000 | 0x600000000LL);
-    gif_SetDrawEnviroment(0x800, 0, D_0063A064, D_0063A068, 1, 0);
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
     gif_SetGsReg(0x14, 0x60);
     gif_SetGsReg(0x47, 0x3F000);
 

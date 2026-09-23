@@ -11,7 +11,7 @@ typedef struct {
    gif_EndPacket patches once the packet's size is known (DMA tag, source
    chain tail, VIF DIRECT code and GIF tag respectively). */
 
-extern GifDpk D_004EE6F0;
+extern GifDpk PacketBufferStruct;
 
 /* One 64-bit slot of a DMA/GIF packet: written either as the whole qword
    (DMA tag, GIF tag, A+D data) or as one of its two 32-bit halves. */
@@ -25,8 +25,8 @@ extern GifDpk D_004EE6F0;
    stand-in.  Collapses to one `inline` definition at layout. */
 static inline void setGsReg(long long a0, long long a1)
 {
-    *D_004EE6F0.ptr++ = a1;
-    *D_004EE6F0.ptr++ = a0;
+    *PacketBufferStruct.ptr++ = a1;
+    *PacketBufferStruct.ptr++ = a0;
 }
 
 /* The two GS register payloads this file packs over and over: RGBAQ from a
@@ -50,33 +50,33 @@ typedef struct {
     int u0, v0, u1, v1;
 } GifUvRect;
 
-extern int D_0063A064;
-extern int D_0063A068;
-extern float D_0063A05C;
-extern float D_0063A060;
+extern int ScreenWidth;
+extern int ScreenHeight;
+extern float center_X;
+extern float center_Y;
 
 /* The "Offset" family adds the float draw origin (in 1/16-pixel units) instead
    of the fixed 2048.0-pixel window origin. */
-#define GIF_OX ((int)D_0063A05C * 16)
-#define GIF_OY ((int)D_0063A060 * 16)
+#define GIF_OX ((int)center_X * 16)
+#define GIF_OY ((int)center_Y * 16)
 #define GIF_XYZOFF(v, z) GIF_XY0(GIF_OX + (v)[0], GIF_OY + (v)[1], z)
 
 void gif_StartPacket(void)
 {
     char *c;
 
-    c = (char *)D_004EE6F0.ptr;
-    D_004EE6F0.gif = 0;
-    D_004EE6F0.end = 0;
-    D_004EE6F0.dma = c;
-    D_004EE6F0.tail = c;
-    D_004EE6F0.ptr = (unsigned long long *)(c + 8);
+    c = (char *)PacketBufferStruct.ptr;
+    PacketBufferStruct.gif = 0;
+    PacketBufferStruct.end = 0;
+    PacketBufferStruct.dma = c;
+    PacketBufferStruct.tail = c;
+    PacketBufferStruct.ptr = (unsigned long long *)(c + 8);
     ((GifPkWord *)(c + 8))->w[0] = 0x11000000;
-    D_004EE6F0.gif = c + 0xC;
-    D_004EE6F0.end = c + 0x10;
-    D_004EE6F0.ptr = (unsigned long long *)(c + 0x18);
+    PacketBufferStruct.gif = c + 0xC;
+    PacketBufferStruct.end = c + 0x10;
+    PacketBufferStruct.ptr = (unsigned long long *)(c + 0x18);
     ((GifPkWord *)(c + 0x18))->d = 0xE;
-    D_004EE6F0.ptr = (unsigned long long *)(c + 0x20);
+    PacketBufferStruct.ptr = (unsigned long long *)(c + 0x20);
 }
 
 extern int D_00639F60;
@@ -89,23 +89,27 @@ void gif_EndPacket(void)
 {
     char *p;
 
-    ((GifPkWord *)D_004EE6F0.end)->d =
-        (unsigned int)(((unsigned int)((char *)D_004EE6F0.ptr - D_004EE6F0.end) >> 4) - 1) |
+    ((GifPkWord *)PacketBufferStruct.end)->d =
+        (unsigned int)(((unsigned int)((char *)PacketBufferStruct.ptr - PacketBufferStruct.end) >>
+                        4) -
+                       1) |
         0x1000000000008000LL;
-    ((GifPkWord *)D_004EE6F0.gif)->w[0] =
-        ((unsigned int)((char *)D_004EE6F0.ptr - D_004EE6F0.gif) >> 4) | 0x50000000;
-    ((GifPkWord *)D_004EE6F0.tail)->d =
-        (unsigned int)((((unsigned int)((char *)D_004EE6F0.ptr - D_004EE6F0.tail) >> 4) - 1) |
+    ((GifPkWord *)PacketBufferStruct.gif)->w[0] =
+        ((unsigned int)((char *)PacketBufferStruct.ptr - PacketBufferStruct.gif) >> 4) | 0x50000000;
+    ((GifPkWord *)PacketBufferStruct.tail)->d =
+        (unsigned int)((((unsigned int)((char *)PacketBufferStruct.ptr - PacketBufferStruct.tail) >>
+                         4) -
+                        1) |
                        0x10000000);
-    p = (char *)D_004EE6F0.ptr;
-    D_004EE6F0.tail = p;
+    p = (char *)PacketBufferStruct.ptr;
+    PacketBufferStruct.tail = p;
     ((GifPkWord *)p)->d = 0x60000000;
-    D_004EE6F0.ptr = (unsigned long long *)(p + 8);
+    PacketBufferStruct.ptr = (unsigned long long *)(p + 8);
     ((GifPkWord *)(p + 8))->w[0] = 0;
-    D_004EE6F0.ptr = (unsigned long long *)(p + 0xC);
+    PacketBufferStruct.ptr = (unsigned long long *)(p + 0xC);
     ((GifPkWord *)(p + 8))->w[1] = 0;
-    D_004EE6F0.ptr = (unsigned long long *)(p + 0x10);
-    dl_OpenDma(5, D_004EE6F0.dma, 0);
+    PacketBufferStruct.ptr = (unsigned long long *)(p + 0x10);
+    dl_OpenDma(5, PacketBufferStruct.dma, 0);
     dl_CloseDma();
     D_00639F60 = 0;
 }
@@ -114,18 +118,18 @@ void gif_StartPacketPath1(void)
 {
     char *c;
 
-    c = (char *)D_004EE6F0.ptr;
-    D_004EE6F0.gif = 0;
-    D_004EE6F0.end = 0;
-    D_004EE6F0.dma = c;
-    D_004EE6F0.tail = c;
-    D_004EE6F0.ptr = (unsigned long long *)(c + 8);
+    c = (char *)PacketBufferStruct.ptr;
+    PacketBufferStruct.gif = 0;
+    PacketBufferStruct.end = 0;
+    PacketBufferStruct.dma = c;
+    PacketBufferStruct.tail = c;
+    PacketBufferStruct.ptr = (unsigned long long *)(c + 8);
     ((GifPkWord *)(c + 8))->w[0] = 0x11000000;
-    D_004EE6F0.gif = c + 0xC;
-    D_004EE6F0.end = c + 0x10;
-    D_004EE6F0.ptr = (unsigned long long *)(c + 0x18);
+    PacketBufferStruct.gif = c + 0xC;
+    PacketBufferStruct.end = c + 0x10;
+    PacketBufferStruct.ptr = (unsigned long long *)(c + 0x18);
     ((GifPkWord *)(c + 0x18))->d = 0xE;
-    D_004EE6F0.ptr = (unsigned long long *)(c + 0x20);
+    PacketBufferStruct.ptr = (unsigned long long *)(c + 0x20);
 }
 
 void gif_EndPacketPath1(void)
@@ -133,33 +137,38 @@ void gif_EndPacketPath1(void)
     char *p;
     char *q;
 
-    ((GifPkWord *)D_004EE6F0.end)->d =
-        (unsigned int)(((unsigned int)((char *)D_004EE6F0.ptr - D_004EE6F0.end) >> 4) - 1) |
+    ((GifPkWord *)PacketBufferStruct.end)->d =
+        (unsigned int)(((unsigned int)((char *)PacketBufferStruct.ptr - PacketBufferStruct.end) >>
+                        4) -
+                       1) |
         0x1000000000008000LL;
-    ((GifPkWord *)D_004EE6F0.gif)->w[0] =
-        (((unsigned int)((char *)D_004EE6F0.ptr - D_004EE6F0.gif) >> 4) << 16) | 0x6C008000;
-    p = (char *)D_004EE6F0.ptr;
+    ((GifPkWord *)PacketBufferStruct.gif)->w[0] =
+        (((unsigned int)((char *)PacketBufferStruct.ptr - PacketBufferStruct.gif) >> 4) << 16) |
+        0x6C008000;
+    p = (char *)PacketBufferStruct.ptr;
     ((GifPkWord *)p)->w[0] = 0x15000000;
     p += 4;
-    D_004EE6F0.ptr = (unsigned long long *)p;
+    PacketBufferStruct.ptr = (unsigned long long *)p;
     ((GifPkWord *)p)->w[0] = 0;
-    D_004EE6F0.ptr = (unsigned long long *)(p + 4);
+    PacketBufferStruct.ptr = (unsigned long long *)(p + 4);
     ((GifPkWord *)(p + 4))->w[0] = 0;
-    D_004EE6F0.ptr = (unsigned long long *)(p + 8);
+    PacketBufferStruct.ptr = (unsigned long long *)(p + 8);
     ((GifPkWord *)(p + 8))->w[0] = 0;
-    D_004EE6F0.ptr = (unsigned long long *)(p + 0xC);
-    ((GifPkWord *)D_004EE6F0.tail)->d =
-        (unsigned int)((((unsigned int)((char *)D_004EE6F0.ptr - D_004EE6F0.tail) >> 4) - 1) |
+    PacketBufferStruct.ptr = (unsigned long long *)(p + 0xC);
+    ((GifPkWord *)PacketBufferStruct.tail)->d =
+        (unsigned int)((((unsigned int)((char *)PacketBufferStruct.ptr - PacketBufferStruct.tail) >>
+                         4) -
+                        1) |
                        0x10000000);
-    q = (char *)D_004EE6F0.ptr;
-    D_004EE6F0.tail = q;
+    q = (char *)PacketBufferStruct.ptr;
+    PacketBufferStruct.tail = q;
     ((GifPkWord *)q)->d = 0x60000000;
-    D_004EE6F0.ptr = (unsigned long long *)(q + 8);
+    PacketBufferStruct.ptr = (unsigned long long *)(q + 8);
     ((GifPkWord *)(q + 8))->w[0] = 0;
-    D_004EE6F0.ptr = (unsigned long long *)(q + 0xC);
+    PacketBufferStruct.ptr = (unsigned long long *)(q + 0xC);
     ((GifPkWord *)(q + 8))->w[1] = 0;
-    D_004EE6F0.ptr = (unsigned long long *)(q + 0x10);
-    dl_OpenDma(5, D_004EE6F0.dma, 0);
+    PacketBufferStruct.ptr = (unsigned long long *)(q + 0x10);
+    dl_OpenDma(5, PacketBufferStruct.dma, 0);
     dl_CloseDma();
     D_00639F60 = 0;
 }
@@ -224,8 +233,8 @@ void gif_PointOffset(int *v, long long z, unsigned char *col, int prim)
 {
     int p[4];
 
-    p[0] = v[0] * D_0063A064 / 640;
-    p[1] = v[1] * D_0063A068 / 224;
+    p[0] = v[0] * ScreenWidth / 640;
+    p[1] = v[1] * ScreenHeight / 224;
     makePoint2DOffset(p, z, col, prim);
 }
 
@@ -244,10 +253,10 @@ void gif_Line(int *v0, int *v1, long long z0, long long z1, unsigned char *col, 
     int p0[4];
     int p1[4];
 
-    p0[0] = v0[0] * D_0063A064 / 640 * 16;
-    p0[1] = v0[1] * D_0063A068 / 224 * 16;
-    p1[0] = v1[0] * D_0063A064 / 640 * 16;
-    p1[1] = v1[1] * D_0063A068 / 224 * 16;
+    p0[0] = v0[0] * ScreenWidth / 640 * 16;
+    p0[1] = v0[1] * ScreenHeight / 224 * 16;
+    p1[0] = v1[0] * ScreenWidth / 640 * 16;
+    p1[1] = v1[1] * ScreenHeight / 224 * 16;
     makeLine2D(p0, p1, z0, z1, col, prim);
 }
 
@@ -277,10 +286,10 @@ static inline void makeSpriteNoTextureOffset(int x, int y, int w, int h, long lo
 
 void gif_Sprite(int *r, long long z, int *uv, unsigned char *col, int prim)
 {
-    int x = r[0] * D_0063A064 / 640 * 16;
-    int y = r[1] * D_0063A068 / 224 * 16;
-    int w = r[2] * D_0063A064 / 640 * 16;
-    int h = r[3] * D_0063A068 / 224 * 16;
+    int x = r[0] * ScreenWidth / 640 * 16;
+    int y = r[1] * ScreenHeight / 224 * 16;
+    int w = r[2] * ScreenWidth / 640 * 16;
+    int h = r[3] * ScreenHeight / 224 * 16;
 
     if (uv == 0) {
         makeSpriteNoTexture(x, y, w, h, z, col, prim);
@@ -297,10 +306,10 @@ void gif_Sprite(int *r, long long z, int *uv, unsigned char *col, int prim)
 
 void gif_SpriteSensitive(int *r, long long z, int *uv, unsigned char *col, int prim)
 {
-    int x = r[0] * D_0063A064 / 640;
-    int y = r[1] * D_0063A068 / 224;
-    int w = r[2] * D_0063A064 / 640;
-    int h = r[3] * D_0063A068 / 224;
+    int x = r[0] * ScreenWidth / 640;
+    int y = r[1] * ScreenHeight / 224;
+    int w = r[2] * ScreenWidth / 640;
+    int h = r[3] * ScreenHeight / 224;
 
     if (uv) {
         gif_MakeSprite(x, y, w, h, z, uv, col, prim);
@@ -311,10 +320,10 @@ void gif_SpriteSensitive(int *r, long long z, int *uv, unsigned char *col, int p
 
 void gif_SpriteOffset(int *r, long long z, int *uv, unsigned char *col, int prim)
 {
-    int x = r[0] * D_0063A064 / 640 * 16;
-    int y = r[1] * D_0063A068 / 224 * 16;
-    int w = r[2] * D_0063A064 / 640 * 16;
-    int h = r[3] * D_0063A068 / 224 * 16;
+    int x = r[0] * ScreenWidth / 640 * 16;
+    int y = r[1] * ScreenHeight / 224 * 16;
+    int w = r[2] * ScreenWidth / 640 * 16;
+    int h = r[3] * ScreenHeight / 224 * 16;
 
     if (uv == 0) {
         makeSpriteNoTextureOffset(x, y, w, h, z, col, prim);
@@ -331,10 +340,10 @@ void gif_SpriteOffset(int *r, long long z, int *uv, unsigned char *col, int prim
 
 void gif_SpriteSensitiveOffset(int *r, long long z, int *uv, unsigned char *col, int prim)
 {
-    int x = r[0] * D_0063A064 / 640;
-    int y = r[1] * D_0063A068 / 224;
-    int w = r[2] * D_0063A064 / 640;
-    int h = r[3] * D_0063A068 / 224;
+    int x = r[0] * ScreenWidth / 640;
+    int y = r[1] * ScreenHeight / 224;
+    int w = r[2] * ScreenWidth / 640;
+    int h = r[3] * ScreenHeight / 224;
 
     if (uv) {
         gif_MakeSpriteOffset(x, y, w, h, z, uv, col, prim);
@@ -577,8 +586,8 @@ void gif_StartPacketPriPath1(int pri)
 
 void gif_SetGsReg(long long a0, long long a1)
 {
-    *D_004EE6F0.ptr++ = a1;
-    *D_004EE6F0.ptr++ = a0;
+    *PacketBufferStruct.ptr++ = a1;
+    *PacketBufferStruct.ptr++ = a0;
 }
 
 int gif_CheckOpen(void)
@@ -643,8 +652,8 @@ void gif_Point(int *v, long long z, unsigned char *col, int prim)
 {
     int p[2];
 
-    p[0] = v[0] * D_0063A064 / 640;
-    p[1] = v[1] * D_0063A068 / 224;
+    p[0] = v[0] * ScreenWidth / 640;
+    p[1] = v[1] * ScreenHeight / 224;
     makePoint2D(p, z, col, prim);
 }
 
@@ -653,10 +662,10 @@ void gif_LineOffset(int *v0, int *v1, long long z0, long long z1, unsigned char 
     int p0[4];
     int p1[4];
 
-    p0[0] = v0[0] * D_0063A064 / 640 * 16;
-    p0[1] = v0[1] * D_0063A068 / 224 * 16;
-    p1[0] = v1[0] * D_0063A064 / 640 * 16;
-    p1[1] = v1[1] * D_0063A068 / 224 * 16;
+    p0[0] = v0[0] * ScreenWidth / 640 * 16;
+    p0[1] = v0[1] * ScreenHeight / 224 * 16;
+    p1[0] = v1[0] * ScreenWidth / 640 * 16;
+    p1[1] = v1[1] * ScreenHeight / 224 * 16;
     gif_MakeLine2DOffset(p0, p1, z0, z1, col, prim);
 }
 
@@ -675,22 +684,22 @@ void gif_SetAlpha(long long a0, long long a1, long long a2)
     int idx;
 
     idx = (int)a1;
-    p = D_004EE6F0.ptr;
+    p = PacketBufferStruct.ptr;
     *(volatile unsigned long long *)p = (a0 == 0);
     p++;
-    *(unsigned long long *volatile *)&D_004EE6F0.ptr = p;
+    *(unsigned long long *volatile *)&PacketBufferStruct.ptr = p;
     *(volatile unsigned long long *)p = 0x49;
-    *(unsigned long long *volatile *)&D_004EE6F0.ptr = p + 1;
+    *(unsigned long long *volatile *)&PacketBufferStruct.ptr = p + 1;
     a1 = 0x42;
     v = (unsigned long long)D_0054E0B0[idx].a | ((unsigned long long)a2 << 32);
     v |=
         ((unsigned long long)D_0054E0B0[idx].c << 4) | ((unsigned long long)D_0054E0B0[idx].b << 2);
     v |= (unsigned long long)D_0054E0B0[idx].d << 6;
     *(volatile unsigned long long *)(p + 1) = v;
-    *(unsigned long long *volatile *)&D_004EE6F0.ptr = p + 2;
+    *(unsigned long long *volatile *)&PacketBufferStruct.ptr = p + 2;
     q = p + 3;
     *(volatile unsigned long long *)(p + 2) = a1;
-    D_004EE6F0.ptr = q;
+    PacketBufferStruct.ptr = q;
 }
 
 void gif_MoveImage(long long sbp, long long sbw, long long psm, int *rect, long long dbp,
@@ -714,13 +723,13 @@ void gif_SetZTest(int a0)
     } else {
         a0 = 0x30000;
     }
-    p = D_004EE6F0.ptr;
+    p = PacketBufferStruct.ptr;
     *(volatile unsigned long long *)p = a0;
     p++;
-    *(unsigned long long *volatile *)&D_004EE6F0.ptr = p;
+    *(unsigned long long *volatile *)&PacketBufferStruct.ptr = p;
     q = p + 1;
     *(volatile unsigned long long *)p = 0x47;
-    D_004EE6F0.ptr = q;
+    PacketBufferStruct.ptr = q;
 }
 
 void gif_SetZWrite(int a0)
@@ -736,19 +745,19 @@ void gif_SetZWrite(int a0)
     } else {
         tag = 0x1300000C0;
     }
-    p = D_004EE6F0.ptr;
+    p = PacketBufferStruct.ptr;
     *(volatile unsigned long long *)p = tag;
     p++;
-    *(unsigned long long *volatile *)&D_004EE6F0.ptr = p;
+    *(unsigned long long *volatile *)&PacketBufferStruct.ptr = p;
     q = p + 1;
     *(volatile unsigned long long *)p = 0x4E;
-    D_004EE6F0.ptr = q;
+    PacketBufferStruct.ptr = q;
 }
 
 void gif_SetHalfOffset(void)
 {
-    setGsReg(0x18, (long long)(((0x800 - D_0063A064 / 2) << 4) + D_0063A074) |
-                       ((long long)(((0x800 - D_0063A068 / 2) << 4) + D_0063A078) << 32));
+    setGsReg(0x18, (long long)(((0x800 - ScreenWidth / 2) << 4) + D_0063A074) |
+                       ((long long)(((0x800 - ScreenHeight / 2) << 4) + D_0063A078) << 32));
 }
 
 int _IsInScreen(volatile int *a0)

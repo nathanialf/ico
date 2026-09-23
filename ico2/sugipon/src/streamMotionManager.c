@@ -151,7 +151,7 @@ void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
 }
 
 extern int D_0063B13C;
-extern int D_0063A068;
+extern int ScreenHeight;
 extern char D_0063BC40[];
 extern char D_006212A0[];
 extern char D_00621278[];
@@ -199,10 +199,10 @@ void ExecStreamMotionManager(void)
         }
         pct = pct * 100 / 0x28000;
         if (D_0063B13C & 1) {
-            debug_Printf(0, D_0063A068 / 2 - 16, 0xFF404000, D_0063BC40, pct);
+            debug_Printf(0, ScreenHeight / 2 - 16, 0xFF404000, D_0063BC40, pct);
         }
         if (D_0063B13C & 1) {
-            debug_Printf(58, D_0063A068 / 2 - 16, 0x40FF4000, D_006212A0, D_0063BBF0, D_0063BC1C);
+            debug_Printf(58, ScreenHeight / 2 - 16, 0x40FF4000, D_006212A0, D_0063BBF0, D_0063BC1C);
         }
     }
 }

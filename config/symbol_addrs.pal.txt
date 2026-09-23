@@ -368,9 +368,14 @@ funcEnemyAiGetGirl = 0x00169E38; // type:func  // ico2/fumi/src/enemy_act
 // motionManager2: its .sbss run starts at 0x63C10C (MAIN.MAP: main.o 0xC, then motionManager2.o 0xC; the Jan-2002
 // sampleMode.o word between them is absent from retail). splat merged 0x63C100..0x63C110 into one main.o object, so the
 // TU's first word had no label; DispSkelton stores all three words and main.o touches only +0x8.
+PacketBufferStruct = 0x004EE6F0; // size:0x20  // ico2/seki/src/DmaPacket  // MAIN.MAP line 245 (DmaPacket.o pulled in by GifPacket.o for this symbol) and line 5996, DmaPacket.o .data is the eight-word record, positional name recovery
 D_00623458 = 0x00623458; // size:0x14  // ico2/ito/mpeg/mv_vibuf  // "DMA ADD not active\n", reached by viBufAddDMA's stub, a rodata blob while the TU's five compiled-C functions are stubs
 layoutClothDef = 0x00625170; // size:0xEA0  // ico2/sugipon/src/attackCheckBoundary  // MAIN.MAP line 6655, member layout-cloth-def.o, the cloth layout table (rodata blob label, named by the map, read by attackCheckBoundary's C and flag's InitFlagGeo stub)
 D_00629E40 = 0x00629E40; // size:0x438  // ico2/sugipon/src/motionOrientManager  // findParallelMotion's 54 by 5 word table at the head of the rodata blob cod/529E40, named by C (its owner in the member map is a PObj run with a forced size, not settled)
+center_X = 0x0063A05C; // size:0x4  // ico2/seki/src/GsBase  // MAIN.MAP line 6987 (GsBase.o .sdata, the four words center_X, center_Y, ScreenWidth, ScreenHeight in the January link at 0x629f5c..0x629f68, the same low bytes here), positional name recovery
+center_Y = 0x0063A060; // size:0x4  // ico2/seki/src/GsBase  // MAIN.MAP line 6985, positional name recovery
+ScreenWidth = 0x0063A064; // size:0x4  // ico2/seki/src/GsBase  // MAIN.MAP line 6986, positional name recovery
+ScreenHeight = 0x0063A068; // size:0x4  // ico2/seki/src/GsBase  // MAIN.MAP line 6988, positional name recovery
 D_0063A098 = 0x0063A098; // type:asciz  // ico2/seki/src/Light  // "OBJ", the light editor mode label light_DispVolume prints
 D_0063A0A0 = 0x0063A0A0; // type:asciz  // ico2/seki/src/Light  // "FIX", the light editor mode label light_DispVolume prints
 D_0063A0B0 = 0x0063A0B0; // type:asciz  // ico2/seki/src/Light  // the r label light_Tool prints

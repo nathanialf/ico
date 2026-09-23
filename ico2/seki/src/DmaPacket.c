@@ -10,33 +10,33 @@ typedef struct {
     int *_1C;
 } DpkCtl;
 
-extern DpkCtl D_004EE6F0;
+extern DpkCtl PacketBufferStruct;
 extern int D_0063A43C;
 
 void dpk_Init(void)
 {
-    D_004EE6F0.cur = 0;
-    D_004EE6F0.buf[0] =
+    PacketBufferStruct.cur = 0;
+    PacketBufferStruct.buf[0] =
         (int *)((int)iosMallocDebug(D_0063A43C, 0x80000, "src/DmaPacket.c", 134) | 0x30000000);
-    D_004EE6F0.buf[1] =
+    PacketBufferStruct.buf[1] =
         (int *)((int)iosMallocDebug(D_0063A43C, 0x80000, "src/DmaPacket.c", 135) | 0x30000000);
-    D_004EE6F0.ptr = D_004EE6F0.buf[D_004EE6F0.cur];
+    PacketBufferStruct.ptr = PacketBufferStruct.buf[PacketBufferStruct.cur];
 }
 
 void dpk_SwapBuffer(void)
 {
-    int i = D_004EE6F0.cur ^ 1;
-    D_004EE6F0.cur = i;
-    D_004EE6F0.ptr = D_004EE6F0.buf[i];
-    D_004EE6F0._14 = 0;
-    D_004EE6F0._18 = 0;
-    D_004EE6F0._1C = 0;
+    int i = PacketBufferStruct.cur ^ 1;
+    PacketBufferStruct.cur = i;
+    PacketBufferStruct.ptr = PacketBufferStruct.buf[i];
+    PacketBufferStruct._14 = 0;
+    PacketBufferStruct._18 = 0;
+    PacketBufferStruct._1C = 0;
 }
 
 int dpk_CheckBufferSize(void)
 {
-    int idx = ((int *)&D_004EE6F0)[0];
-    int adj_cur = ((int *)&D_004EE6F0)[4] - 0x80000;
-    int end_off = ((int *)&D_004EE6F0 + idx)[1];
+    int idx = ((int *)&PacketBufferStruct)[0];
+    int adj_cur = ((int *)&PacketBufferStruct)[4] - 0x80000;
+    int end_off = ((int *)&PacketBufferStruct + idx)[1];
     return (end_off - adj_cur) >> 4;
 }

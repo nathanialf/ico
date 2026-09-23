@@ -289,7 +289,7 @@ typedef struct {
     char *end;
 } RegDpk;
 
-extern RegDpk D_004EE6F0;
+extern RegDpk PacketBufferStruct;
 /* kept local: this TU's uses of _InitCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _InitCurrentMatrix(void);
 /* kept local: this TU's uses of _GetCurrentMatrix do not fit the prototype in Matrix.h */
@@ -310,27 +310,27 @@ char *reg_setNMatrixPacket(char *o, int idx)
         char *c;
         char *m;
 
-        c = D_004EE6F0.ptr;
-        D_004EE6F0.tail = c;
+        c = PacketBufferStruct.ptr;
+        PacketBufferStruct.tail = c;
         ((RegPkWord *)c)->d = 0x1000000D;
-        D_004EE6F0.ptr = c + 8;
+        PacketBufferStruct.ptr = c + 8;
         ((RegPkWord *)(c + 8))->w[0] = 0;
-        D_004EE6F0.ptr = c + 0xC;
-        D_004EE6F0.gif = c + 0xC;
+        PacketBufferStruct.ptr = c + 0xC;
+        PacketBufferStruct.gif = c + 0xC;
         ((RegPkWord *)(c + 8))->w[1] = 0x6C0C8000;
-        D_004EE6F0.ptr = c + 0x50;
+        PacketBufferStruct.ptr = c + 0x50;
         _CopyMatrix(c + 0x10, matrixptr + 0x140);
-        _MulMatrix(D_004EE6F0.ptr, matrixptr + 0x200, matrixptr + 0x40);
-        D_004EE6F0.ptr = D_004EE6F0.ptr + 0x40;
-        _MulMatrix(D_004EE6F0.ptr, matrixptr + 0x80, matrixptr + 0x40);
-        m = D_004EE6F0.ptr;
-        D_004EE6F0.ptr = m + 0x40;
+        _MulMatrix(PacketBufferStruct.ptr, matrixptr + 0x200, matrixptr + 0x40);
+        PacketBufferStruct.ptr = PacketBufferStruct.ptr + 0x40;
+        _MulMatrix(PacketBufferStruct.ptr, matrixptr + 0x80, matrixptr + 0x40);
+        m = PacketBufferStruct.ptr;
+        PacketBufferStruct.ptr = m + 0x40;
         ((RegPkWord *)(m + 0x40))->w[0] = 0x15000010;
-        D_004EE6F0.ptr = m + 0x44;
+        PacketBufferStruct.ptr = m + 0x44;
         ((RegPkWord *)(m + 0x40))->w[1] = 0;
-        D_004EE6F0.ptr = m + 0x48;
+        PacketBufferStruct.ptr = m + 0x48;
         ((RegPkWord *)(m + 0x48))->d = 0;
-        D_004EE6F0.ptr = m + 0x50;
+        PacketBufferStruct.ptr = m + 0x50;
     }
     void setLight(void)
     {
@@ -338,27 +338,27 @@ char *reg_setNMatrixPacket(char *o, int idx)
         char *m;
         char *n;
 
-        c = D_004EE6F0.ptr;
-        D_004EE6F0.tail = c;
+        c = PacketBufferStruct.ptr;
+        PacketBufferStruct.tail = c;
         ((RegPkWord *)c)->d = 0x10000009;
-        D_004EE6F0.ptr = c + 8;
+        PacketBufferStruct.ptr = c + 8;
         ((RegPkWord *)(c + 8))->w[0] = 0;
-        D_004EE6F0.ptr = c + 0xC;
-        D_004EE6F0.gif = c + 0xC;
+        PacketBufferStruct.ptr = c + 0xC;
+        PacketBufferStruct.gif = c + 0xC;
         ((RegPkWord *)(c + 8))->w[1] = 0x6C088000;
-        D_004EE6F0.ptr = c + 0x10;
+        PacketBufferStruct.ptr = c + 0x10;
         _GetCurrentMatrix(c + 0x10);
-        m = D_004EE6F0.ptr;
-        D_004EE6F0.ptr = m + 0x80;
+        m = PacketBufferStruct.ptr;
+        PacketBufferStruct.ptr = m + 0x80;
         _CopyMatrix(m + 0x40, *(char **)(o + 0x874) + 0x40);
-        n = D_004EE6F0.ptr;
+        n = PacketBufferStruct.ptr;
         ((RegPkWord *)n)->w[0] = 0x15000012;
         n += 4;
-        D_004EE6F0.ptr = n;
+        PacketBufferStruct.ptr = n;
         ((RegPkWord *)n)->w[0] = 0;
-        D_004EE6F0.ptr = n + 4;
+        PacketBufferStruct.ptr = n + 4;
         ((RegPkWord *)(n + 4))->d = 0;
-        D_004EE6F0.ptr = n + 0xC;
+        PacketBufferStruct.ptr = n + 0xC;
     }
     char *pkt;
     char *box;
@@ -387,11 +387,11 @@ char *reg_setNMatrixPacket(char *o, int idx)
         }
         return 0;
     }
-    pkt = D_004EE6F0.ptr;
-    D_004EE6F0.dma = pkt;
-    D_004EE6F0.tail = 0;
-    D_004EE6F0.gif = 0;
-    D_004EE6F0.end = 0;
+    pkt = PacketBufferStruct.ptr;
+    PacketBufferStruct.dma = pkt;
+    PacketBufferStruct.tail = 0;
+    PacketBufferStruct.gif = 0;
+    PacketBufferStruct.end = 0;
     setMatrix();
     if (mode != 0 && mode != 3) {
         light_MakeLightMatrix(o, idx);
@@ -401,15 +401,15 @@ char *reg_setNMatrixPacket(char *o, int idx)
         setLight();
     }
     {
-        char *c = D_004EE6F0.ptr;
+        char *c = PacketBufferStruct.ptr;
 
-        D_004EE6F0.tail = c;
+        PacketBufferStruct.tail = c;
         ((RegPkWord *)c)->d = 0x60000000;
-        D_004EE6F0.ptr = c + 8;
+        PacketBufferStruct.ptr = c + 8;
         ((RegPkWord *)(c + 8))->w[0] = 0;
-        D_004EE6F0.ptr = c + 0xC;
+        PacketBufferStruct.ptr = c + 0xC;
         ((RegPkWord *)(c + 8))->w[1] = 0;
-        D_004EE6F0.ptr = c + 0x10;
+        PacketBufferStruct.ptr = c + 0x10;
     }
     return pkt;
 }
@@ -448,32 +448,32 @@ char *reg_setMMatrixPacket(char *o, int idx)
         char *c;
         char *m;
 
-        c = D_004EE6F0.ptr;
-        D_004EE6F0.tail = c;
+        c = PacketBufferStruct.ptr;
+        PacketBufferStruct.tail = c;
         ((RegPkWord *)c)->d = 0x1000000D;
-        D_004EE6F0.ptr = c + 8;
+        PacketBufferStruct.ptr = c + 8;
         ((RegPkWord *)(c + 8))->w[0] = 0;
-        D_004EE6F0.ptr = c + 0xC;
-        D_004EE6F0.gif = c + 0xC;
+        PacketBufferStruct.ptr = c + 0xC;
+        PacketBufferStruct.gif = c + 0xC;
         ((RegPkWord *)(c + 8))->w[1] = 0x6C0C8000;
-        D_004EE6F0.ptr = c + 0x50;
+        PacketBufferStruct.ptr = c + 0x50;
         _CopyMatrix(c + 0x10, matrixptr + 0x140);
         if ((*(long long *)(*(int *)(o + 0x870) + idx * 0x50 + 0x38) & 6) != 0) {
-            _MulMatrix(D_004EE6F0.ptr, matrixptr + 0x1C0, matrixptr + 0x180);
+            _MulMatrix(PacketBufferStruct.ptr, matrixptr + 0x1C0, matrixptr + 0x180);
         } else {
             _MulMatrix(matrixptr + 0x180, matrixptr + 0x80, matrixptr + 0x40);
-            _MulMatrix(D_004EE6F0.ptr, matrixptr + 0x200, matrixptr + 0x40);
+            _MulMatrix(PacketBufferStruct.ptr, matrixptr + 0x200, matrixptr + 0x40);
         }
-        D_004EE6F0.ptr = D_004EE6F0.ptr + 0x40;
-        _MulMatrix(D_004EE6F0.ptr, matrixptr + 0x80, matrixptr + 0x40);
-        m = D_004EE6F0.ptr;
-        D_004EE6F0.ptr = m + 0x40;
+        PacketBufferStruct.ptr = PacketBufferStruct.ptr + 0x40;
+        _MulMatrix(PacketBufferStruct.ptr, matrixptr + 0x80, matrixptr + 0x40);
+        m = PacketBufferStruct.ptr;
+        PacketBufferStruct.ptr = m + 0x40;
         ((RegPkWord *)(m + 0x40))->w[0] = 0x15000010;
-        D_004EE6F0.ptr = m + 0x44;
+        PacketBufferStruct.ptr = m + 0x44;
         ((RegPkWord *)(m + 0x40))->w[1] = 0;
-        D_004EE6F0.ptr = m + 0x48;
+        PacketBufferStruct.ptr = m + 0x48;
         ((RegPkWord *)(m + 0x48))->d = 0;
-        D_004EE6F0.ptr = m + 0x50;
+        PacketBufferStruct.ptr = m + 0x50;
     }
     void setLight(void)
     {
@@ -481,27 +481,27 @@ char *reg_setMMatrixPacket(char *o, int idx)
         char *m;
         char *n;
 
-        c = D_004EE6F0.ptr;
-        D_004EE6F0.tail = c;
+        c = PacketBufferStruct.ptr;
+        PacketBufferStruct.tail = c;
         ((RegPkWord *)c)->d = 0x10000009;
-        D_004EE6F0.ptr = c + 8;
+        PacketBufferStruct.ptr = c + 8;
         ((RegPkWord *)(c + 8))->w[0] = 0;
-        D_004EE6F0.ptr = c + 0xC;
-        D_004EE6F0.gif = c + 0xC;
+        PacketBufferStruct.ptr = c + 0xC;
+        PacketBufferStruct.gif = c + 0xC;
         ((RegPkWord *)(c + 8))->w[1] = 0x6C088000;
-        D_004EE6F0.ptr = c + 0x10;
+        PacketBufferStruct.ptr = c + 0x10;
         _GetCurrentMatrix(c + 0x10);
-        m = D_004EE6F0.ptr;
-        D_004EE6F0.ptr = m + 0x80;
+        m = PacketBufferStruct.ptr;
+        PacketBufferStruct.ptr = m + 0x80;
         _CopyMatrix(m + 0x40, *(char **)(o + 0x874) + 0x40);
-        n = D_004EE6F0.ptr;
+        n = PacketBufferStruct.ptr;
         ((RegPkWord *)n)->w[0] = 0x15000012;
         n += 4;
-        D_004EE6F0.ptr = n;
+        PacketBufferStruct.ptr = n;
         ((RegPkWord *)n)->w[0] = 0;
-        D_004EE6F0.ptr = n + 4;
+        PacketBufferStruct.ptr = n + 4;
         ((RegPkWord *)(n + 4))->d = 0;
-        D_004EE6F0.ptr = n + 0xC;
+        PacketBufferStruct.ptr = n + 0xC;
     }
     w = (char *)(idx * 0x50 + (int)((Sub15C *)o)->p_870);
     mode = ((LightMatrix *)((Sub15C *)o)->p_874)->mode;
@@ -574,11 +574,11 @@ char *reg_setMMatrixPacket(char *o, int idx)
         }
         return 0;
     }
-    pkt = D_004EE6F0.ptr;
-    D_004EE6F0.dma = pkt;
-    D_004EE6F0.tail = 0;
-    D_004EE6F0.gif = 0;
-    D_004EE6F0.end = 0;
+    pkt = PacketBufferStruct.ptr;
+    PacketBufferStruct.dma = pkt;
+    PacketBufferStruct.tail = 0;
+    PacketBufferStruct.gif = 0;
+    PacketBufferStruct.end = 0;
     setMatrix();
     if (mode != 0 && mode != 3) {
         light_MakeLightMatrix(o, idx);
@@ -588,15 +588,15 @@ char *reg_setMMatrixPacket(char *o, int idx)
         setLight();
     }
     {
-        char *c = D_004EE6F0.ptr;
+        char *c = PacketBufferStruct.ptr;
 
-        D_004EE6F0.tail = c;
+        PacketBufferStruct.tail = c;
         ((RegPkWord *)c)->d = 0x60000000;
-        D_004EE6F0.ptr = c + 8;
+        PacketBufferStruct.ptr = c + 8;
         ((RegPkWord *)(c + 8))->w[0] = 0;
-        D_004EE6F0.ptr = c + 0xC;
+        PacketBufferStruct.ptr = c + 0xC;
         ((RegPkWord *)(c + 8))->w[1] = 0;
-        D_004EE6F0.ptr = c + 0x10;
+        PacketBufferStruct.ptr = c + 0x10;
     }
     return pkt;
 }
@@ -649,56 +649,56 @@ int reg_setDissolve(float a, int pri)
     if (v < 0) {
         v = 0;
     }
-    p = D_004EE6F0.ptr;
-    D_004EE6F0.gif = 0;
-    D_004EE6F0.dma = p;
-    D_004EE6F0.end = 0;
-    D_004EE6F0.tail = p;
+    p = PacketBufferStruct.ptr;
+    PacketBufferStruct.gif = 0;
+    PacketBufferStruct.dma = p;
+    PacketBufferStruct.end = 0;
+    PacketBufferStruct.tail = p;
     ((RegPkWord *)p)->d = 0x10000005;
-    D_004EE6F0.ptr = p + 8;
+    PacketBufferStruct.ptr = p + 8;
     ((RegPkWord *)(p + 8))->w[0] = 0;
-    D_004EE6F0.ptr = p + 0xC;
-    D_004EE6F0.gif = p + 0xC;
+    PacketBufferStruct.ptr = p + 0xC;
+    PacketBufferStruct.gif = p + 0xC;
     ((RegPkWord *)(p + 8))->w[1] = 0x6C048000;
-    D_004EE6F0.ptr = p + 0x10;
+    PacketBufferStruct.ptr = p + 0x10;
     ((RegPkWord *)(p + 0x10))->d = 0x1000000000008003LL;
-    D_004EE6F0.ptr = p + 0x18;
+    PacketBufferStruct.ptr = p + 0x18;
     ((RegPkWord *)(p + 0x18))->d = 14;
-    D_004EE6F0.ptr = p + 0x20;
+    PacketBufferStruct.ptr = p + 0x20;
     ((RegPkWord *)(p + 0x20))->d = 0;
-    D_004EE6F0.ptr = p + 0x28;
+    PacketBufferStruct.ptr = p + 0x28;
     ((RegPkWord *)(p + 0x28))->d = 0x49;
-    D_004EE6F0.ptr = p + 0x30;
+    PacketBufferStruct.ptr = p + 0x30;
     if (0.0f < a) {
         ((RegPkWord *)(p + 0x30))->d = ((long long)v << 32) | 0x68;
-        D_004EE6F0.ptr = p + 0x38;
+        PacketBufferStruct.ptr = p + 0x38;
     } else {
         ((RegPkWord *)(p + 0x30))->d = ((long long)v << 32) | 0x62;
-        D_004EE6F0.ptr = p + 0x38;
+        PacketBufferStruct.ptr = p + 0x38;
     }
-    q = D_004EE6F0.ptr;
+    q = PacketBufferStruct.ptr;
     ((RegPkWord *)q)->d = 0x42;
     q += 8;
-    D_004EE6F0.ptr = q;
+    PacketBufferStruct.ptr = q;
     ((RegPkWord *)q)->d = 0x1300000C0LL;
-    D_004EE6F0.ptr = q + 8;
+    PacketBufferStruct.ptr = q + 8;
     ((RegPkWord *)(q + 8))->d = 0x4E;
-    D_004EE6F0.ptr = q + 0x10;
+    PacketBufferStruct.ptr = q + 0x10;
     ((RegPkWord *)(q + 0x10))->w[0] = 0x15000000;
-    D_004EE6F0.ptr = q + 0x14;
+    PacketBufferStruct.ptr = q + 0x14;
     ((RegPkWord *)(q + 0x10))->w[1] = 0;
-    D_004EE6F0.ptr = q + 0x18;
+    PacketBufferStruct.ptr = q + 0x18;
     ((RegPkWord *)(q + 0x18))->d = 0;
-    D_004EE6F0.ptr = q + 0x20;
-    D_004EE6F0.tail = q + 0x20;
+    PacketBufferStruct.ptr = q + 0x20;
+    PacketBufferStruct.tail = q + 0x20;
     ((RegPkWord *)(q + 0x20))->d = 0x60000000;
-    D_004EE6F0.ptr = q + 0x28;
+    PacketBufferStruct.ptr = q + 0x28;
     ((RegPkWord *)(q + 0x28))->w[0] = 0;
-    D_004EE6F0.ptr = q + 0x2C;
+    PacketBufferStruct.ptr = q + 0x2C;
     ((RegPkWord *)(q + 0x28))->w[1] = 0;
-    D_004EE6F0.ptr = q + 0x30;
+    PacketBufferStruct.ptr = q + 0x30;
     dl_SetDLPriority(pri);
-    dl_OpenDma(5, D_004EE6F0.dma, 0);
+    dl_OpenDma(5, PacketBufferStruct.dma, 0);
     dl_CloseDma();
     return 1;
 }
@@ -1154,27 +1154,27 @@ void reg_DispAccessoryWithShadow(char *o, char *src)
             char *c;
             char *m;
 
-            c = D_004EE6F0.ptr;
-            D_004EE6F0.tail = c;
+            c = PacketBufferStruct.ptr;
+            PacketBufferStruct.tail = c;
             ((RegPkWord *)c)->d = 0x1000000D;
-            D_004EE6F0.ptr = c + 8;
+            PacketBufferStruct.ptr = c + 8;
             ((RegPkWord *)(c + 8))->w[0] = 0;
-            D_004EE6F0.ptr = c + 0xC;
-            D_004EE6F0.gif = c + 0xC;
+            PacketBufferStruct.ptr = c + 0xC;
+            PacketBufferStruct.gif = c + 0xC;
             ((RegPkWord *)(c + 8))->w[1] = 0x6C0C8000;
-            D_004EE6F0.ptr = c + 0x50;
+            PacketBufferStruct.ptr = c + 0x50;
             _CopyMatrix(c + 0x10, matrixptr + 0x140);
-            _MulMatrix(D_004EE6F0.ptr, matrixptr + 0x200, matrixptr + 0x40);
-            D_004EE6F0.ptr = D_004EE6F0.ptr + 0x40;
-            _MulMatrix(D_004EE6F0.ptr, matrixptr + 0x80, matrixptr + 0x40);
-            m = D_004EE6F0.ptr;
-            D_004EE6F0.ptr = m + 0x40;
+            _MulMatrix(PacketBufferStruct.ptr, matrixptr + 0x200, matrixptr + 0x40);
+            PacketBufferStruct.ptr = PacketBufferStruct.ptr + 0x40;
+            _MulMatrix(PacketBufferStruct.ptr, matrixptr + 0x80, matrixptr + 0x40);
+            m = PacketBufferStruct.ptr;
+            PacketBufferStruct.ptr = m + 0x40;
             ((RegPkWord *)(m + 0x40))->w[0] = 0x15000010;
-            D_004EE6F0.ptr = m + 0x44;
+            PacketBufferStruct.ptr = m + 0x44;
             ((RegPkWord *)(m + 0x40))->w[1] = 0;
-            D_004EE6F0.ptr = m + 0x48;
+            PacketBufferStruct.ptr = m + 0x48;
             ((RegPkWord *)(m + 0x48))->d = 0;
-            D_004EE6F0.ptr = m + 0x50;
+            PacketBufferStruct.ptr = m + 0x50;
         }
         void setLight(void)
         {
@@ -1182,27 +1182,27 @@ void reg_DispAccessoryWithShadow(char *o, char *src)
             char *m;
             char *n;
 
-            c = D_004EE6F0.ptr;
-            D_004EE6F0.tail = c;
+            c = PacketBufferStruct.ptr;
+            PacketBufferStruct.tail = c;
             ((RegPkWord *)c)->d = 0x10000009;
-            D_004EE6F0.ptr = c + 8;
+            PacketBufferStruct.ptr = c + 8;
             ((RegPkWord *)(c + 8))->w[0] = 0;
-            D_004EE6F0.ptr = c + 0xC;
-            D_004EE6F0.gif = c + 0xC;
+            PacketBufferStruct.ptr = c + 0xC;
+            PacketBufferStruct.gif = c + 0xC;
             ((RegPkWord *)(c + 8))->w[1] = 0x6C088000;
-            D_004EE6F0.ptr = c + 0x10;
+            PacketBufferStruct.ptr = c + 0x10;
             _GetCurrentMatrix(c + 0x10);
-            m = D_004EE6F0.ptr;
-            D_004EE6F0.ptr = m + 0x80;
+            m = PacketBufferStruct.ptr;
+            PacketBufferStruct.ptr = m + 0x80;
             _CopyMatrix(m + 0x40, *(char **)(o + 0x874) + 0x40);
-            n = D_004EE6F0.ptr;
+            n = PacketBufferStruct.ptr;
             ((RegPkWord *)n)->w[0] = 0x15000012;
             n += 4;
-            D_004EE6F0.ptr = n;
+            PacketBufferStruct.ptr = n;
             ((RegPkWord *)n)->w[0] = 0;
-            D_004EE6F0.ptr = n + 4;
+            PacketBufferStruct.ptr = n + 4;
             ((RegPkWord *)(n + 4))->d = 0;
-            D_004EE6F0.ptr = n + 0xC;
+            PacketBufferStruct.ptr = n + 0xC;
         }
         char *pkt;
         char *box;
@@ -1228,11 +1228,11 @@ void reg_DispAccessoryWithShadow(char *o, char *src)
         if (gsb_ClipBox(box) == 0) {
             return 0;
         }
-        pkt = D_004EE6F0.ptr;
-        D_004EE6F0.dma = pkt;
-        D_004EE6F0.tail = 0;
-        D_004EE6F0.gif = 0;
-        D_004EE6F0.end = 0;
+        pkt = PacketBufferStruct.ptr;
+        PacketBufferStruct.dma = pkt;
+        PacketBufferStruct.tail = 0;
+        PacketBufferStruct.gif = 0;
+        PacketBufferStruct.end = 0;
         setMatrix();
         if (mode != 0 && mode != 3) {
             *(float *)(*(char **)(o + 0x854) + 0x3C) = *(float *)(*(char **)(src + 0x854) + 0x3C);
@@ -1245,15 +1245,15 @@ void reg_DispAccessoryWithShadow(char *o, char *src)
             setLight();
         }
         {
-            char *c = D_004EE6F0.ptr;
+            char *c = PacketBufferStruct.ptr;
 
-            D_004EE6F0.tail = c;
+            PacketBufferStruct.tail = c;
             ((RegPkWord *)c)->d = 0x60000000;
-            D_004EE6F0.ptr = c + 8;
+            PacketBufferStruct.ptr = c + 8;
             ((RegPkWord *)(c + 8))->w[0] = 0;
-            D_004EE6F0.ptr = c + 0xC;
+            PacketBufferStruct.ptr = c + 0xC;
             ((RegPkWord *)(c + 8))->w[1] = 0;
-            D_004EE6F0.ptr = c + 0x10;
+            PacketBufferStruct.ptr = c + 0x10;
         }
         return pkt;
     }

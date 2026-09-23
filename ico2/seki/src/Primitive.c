@@ -30,10 +30,10 @@ typedef struct {
 
 extern void *D_0063A44C;
 extern char D_0054F8C0[];
-extern float D_0063A05C;
-extern float D_0063A060;
-extern int D_0063A064;
-extern int D_0063A068;
+extern float center_X;
+extern float center_Y;
+extern int ScreenWidth;
+extern int ScreenHeight;
 
 Fan2D *prim_InitFan2D(int n, float *pos, unsigned int cc, unsigned int rc, float r)
 {
@@ -55,8 +55,8 @@ Fan2D *prim_InitFan2D(int n, float *pos, unsigned int cc, unsigned int rc, float
     if ((cc & 0xFF) != 128) {
         f->f04 = 1;
     }
-    q->x = pos[0] + D_0063A05C;
-    q->y = pos[1] + D_0063A060;
+    q->x = pos[0] + center_X;
+    q->y = pos[1] + center_Y;
     q->z = -pos[2];
     q->w = 1.0f;
     q++;
@@ -64,9 +64,9 @@ Fan2D *prim_InitFan2D(int n, float *pos, unsigned int cc, unsigned int rc, float
     first = q;
     for (i = 0; i < n; i++) {
         q->x = r * GetTableCos((short)((float)i * 6.2831855f / (float)f->n * 10430.3779f)) +
-               pos[0] + D_0063A05C;
+               pos[0] + center_X;
         q->y = r * GetTableSin((short)((float)i * 6.2831855f / (float)f->n * 10430.3779f)) * 0.5f +
-               pos[1] + D_0063A060;
+               pos[1] + center_Y;
         q->z = -pos[2];
         q->w = 1.0f;
         q->cr = rc >> 24;
@@ -93,8 +93,8 @@ void prim_SetFan2D(Fan2D *f, float *pos, unsigned int cc, unsigned int rc, float
     q->cg = (cc >> 16) & 0xFF;
     q->cb = (cc >> 8) & 0xFF;
     q->ca = cc & 0xFF;
-    q->x = pos[0] + D_0063A05C;
-    q->y = pos[1] + D_0063A060;
+    q->x = pos[0] + center_X;
+    q->y = pos[1] + center_Y;
     q->z = -pos[2];
     q->w = 1.0f;
     q++;
@@ -102,10 +102,10 @@ void prim_SetFan2D(Fan2D *f, float *pos, unsigned int cc, unsigned int rc, float
     first = q;
     for (i = 0; i < f->n; i++) {
         q->x = r * GetTableCos((short)((float)i * 6.2831855f / (float)f->n * 10430.3779f)) +
-               pos[0] + D_0063A05C;
+               pos[0] + center_X;
         q->y = r * GetTableSin((short)((float)i * 6.2831855f / (float)f->n * 10430.3779f)) *
-                   ((float)D_0063A068 * 4.0f / ((float)D_0063A064 * 3.0f)) +
-               pos[1] + D_0063A060;
+                   ((float)ScreenHeight * 4.0f / ((float)ScreenWidth * 3.0f)) +
+               pos[1] + center_Y;
         q->z = -pos[2];
         q->w = 1.0f;
         q->cr = rc >> 24;
@@ -134,7 +134,7 @@ typedef struct {
     /* 0x1C */ char *end;
 } PrimDpk;
 
-extern PrimDpk D_004EE6F0;
+extern PrimDpk PacketBufferStruct;
 /* kept local: this TU's uses of _FTOI4Vector do not fit the prototype in Matrix.h */
 extern void _FTOI4Vector(void *dst, void *src);
 
@@ -177,7 +177,7 @@ void prim_DispFan2D(Fan2D *f, int mode)
         /* The header is written through a block-scoped handle on the packet
            context: one address materialisation covers the whole region,
            including the tag if/else. */
-        PrimDpk *d = &D_004EE6F0;
+        PrimDpk *d = &PacketBufferStruct;
 
         p = d->ptr;
         d->dma = p;
@@ -206,14 +206,14 @@ void prim_DispFan2D(Fan2D *f, int mode)
 
     for (i = 0; i < f->n + 2; i++) {
         _FTOI4Vector(v, &q->x);
-        pp = D_004EE6F0.ptr;
+        pp = PacketBufferStruct.ptr;
         ((PrimPkWord *)pp)->d = ((long long)q->cr | ((long long)q->cg << 8) |
                                  ((long long)q->cb << 16) | ((long long)q->ca << 24)) |
                                 ((long long)0x3F800000 << 32);
         pp += 8;
-        D_004EE6F0.ptr = pp;
+        PacketBufferStruct.ptr = pp;
         ((PrimPkWord *)pp)->d = 1;
-        D_004EE6F0.ptr = pp + 8;
+        PacketBufferStruct.ptr = pp + 8;
         if (q->z < 0.0f) {
             kick = 3;
         }
@@ -221,50 +221,52 @@ void prim_DispFan2D(Fan2D *f, int mode)
         if (kick > 0) {
             ((PrimPkWord *)(pp + 8))->d =
                 (long long)v[0] | ((long long)v[1] << 16) | ((long long)v[2] << 32);
-            D_004EE6F0.ptr = pp + 0x10;
+            PacketBufferStruct.ptr = pp + 0x10;
             ((PrimPkWord *)(pp + 0x10))->d = 0xD;
-            D_004EE6F0.ptr = pp + 0x18;
+            PacketBufferStruct.ptr = pp + 0x18;
         } else {
             ((PrimPkWord *)(pp + 8))->d =
                 (long long)v[0] | ((long long)v[1] << 16) | ((long long)v[2] << 32);
-            D_004EE6F0.ptr = pp + 0x10;
+            PacketBufferStruct.ptr = pp + 0x10;
             ((PrimPkWord *)(pp + 0x10))->d = 5;
-            D_004EE6F0.ptr = pp + 0x18;
+            PacketBufferStruct.ptr = pp + 0x18;
         }
         q++;
     }
 
-    end = D_004EE6F0.end;
+    end = PacketBufferStruct.end;
     ((PrimPkWord *)end)->d =
-        (unsigned int)(((unsigned int)(D_004EE6F0.ptr - end) >> 4) - 1) | 0x1000000000008000LL;
-    gif = D_004EE6F0.gif;
-    ((PrimPkWord *)gif)->w[0] = (((unsigned int)(D_004EE6F0.ptr - gif) >> 4) << 16) | 0x6C008000;
+        (unsigned int)(((unsigned int)(PacketBufferStruct.ptr - end) >> 4) - 1) |
+        0x1000000000008000LL;
+    gif = PacketBufferStruct.gif;
+    ((PrimPkWord *)gif)->w[0] =
+        (((unsigned int)(PacketBufferStruct.ptr - gif) >> 4) << 16) | 0x6C008000;
 
-    n = D_004EE6F0.ptr;
+    n = PacketBufferStruct.ptr;
     ((PrimPkWord *)n)->w[0] = 0x15000000;
     n += 4;
-    D_004EE6F0.ptr = n;
+    PacketBufferStruct.ptr = n;
     ((PrimPkWord *)n)->w[0] = 0;
-    D_004EE6F0.ptr = n + 4;
+    PacketBufferStruct.ptr = n + 4;
     ((PrimPkWord *)n)->w[1] = 0;
-    D_004EE6F0.ptr = n + 8;
+    PacketBufferStruct.ptr = n + 8;
     ((PrimPkWord *)(n + 8))->w[0] = 0;
-    D_004EE6F0.ptr = n + 0xC;
+    PacketBufferStruct.ptr = n + 0xC;
 
-    tail = D_004EE6F0.tail;
+    tail = PacketBufferStruct.tail;
     ((PrimPkWord *)tail)->d =
-        (unsigned int)(((unsigned int)(D_004EE6F0.ptr - tail) >> 4) - 1) | 0x10000000;
+        (unsigned int)(((unsigned int)(PacketBufferStruct.ptr - tail) >> 4) - 1) | 0x10000000;
 
-    m = D_004EE6F0.ptr;
-    D_004EE6F0.tail = m;
+    m = PacketBufferStruct.ptr;
+    PacketBufferStruct.tail = m;
     ((PrimPkWord *)m)->d = 0x60000000;
-    D_004EE6F0.ptr = m + 8;
+    PacketBufferStruct.ptr = m + 8;
     ((PrimPkWord *)(m + 8))->w[0] = 0;
-    D_004EE6F0.ptr = m + 0xC;
+    PacketBufferStruct.ptr = m + 0xC;
     ((PrimPkWord *)(m + 8))->w[1] = 0;
-    D_004EE6F0.ptr = m + 0x10;
+    PacketBufferStruct.ptr = m + 0x10;
 
-    dl_OpenDma(5, (int)D_004EE6F0.dma, 0);
+    dl_OpenDma(5, (int)PacketBufferStruct.dma, 0);
     dl_CloseDma();
 }
 
@@ -635,7 +637,7 @@ void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
         char *r;
 
         _GetCurrentMatrix(mtx);
-        dd = &D_004EE6F0;
+        dd = &PacketBufferStruct;
         q = dd->ptr;
         dd->tail = q;
         ((PrimPkWord *)q)->d = 0x10000005;
@@ -664,7 +666,7 @@ void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
         char *q;
         char *r;
 
-        dd = &D_004EE6F0;
+        dd = &PacketBufferStruct;
         q = dd->ptr;
         dd->tail = q;
         ((PrimPkWord *)q)->d = 0x10000009;
@@ -696,7 +698,7 @@ void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
         char *r;
 
         memset(v, 0, 16);
-        dd = &D_004EE6F0;
+        dd = &PacketBufferStruct;
         q = dd->ptr;
         dd->tail = q;
         ((PrimPkWord *)q)->d = 0x10000002;
@@ -733,7 +735,7 @@ void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
         D_0063B124 += tex_TransTexture(tex, pri);
     }
     mc_TransMicroCode(4, 1 << pri);
-    d = &D_004EE6F0;
+    d = &PacketBufferStruct;
     p = d->ptr;
     d->tail = 0;
     d->dma = p;

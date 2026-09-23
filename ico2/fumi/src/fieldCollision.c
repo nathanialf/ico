@@ -375,8 +375,8 @@ int clip_floor_1(void *a0, int a1, int a2)
 
 extern int game_pause;
 extern int D_0063B13C;
-extern int D_0063A064;
-extern int D_0063A068;
+extern int ScreenWidth;
+extern int ScreenHeight;
 extern int D_0063C210;
 extern int D_0063C214;
 extern int D_0063C218;
@@ -400,19 +400,19 @@ void DispCollisionPC(void)
     D_0063C220 = *(volatile int *)0x10000000 - D_0063C220;
     sprintf(D_006C0BC0, D_005537A0, D_0063C210, D_0063C224);
     if (D_0063B13C & 1) {
-        debug_Printf(D_0063A064 / 2, D_0063A068 / 2, 0xFFFFFF00, D_006C0BC0);
+        debug_Printf(ScreenWidth / 2, ScreenHeight / 2, 0xFFFFFF00, D_006C0BC0);
     }
     sprintf(D_006C0BC0, D_005537B0, D_0063C214, D_0063C228);
     if (D_0063B13C & 1) {
-        debug_Printf(D_0063A064 / 2, D_0063A068 / 2 + 8, 0xFFFFFF00, D_006C0BC0);
+        debug_Printf(ScreenWidth / 2, ScreenHeight / 2 + 8, 0xFFFFFF00, D_006C0BC0);
     }
     sprintf(D_006C0BC0, D_005537C0, D_0063C218, D_0063C22C);
     if (D_0063B13C & 1) {
-        debug_Printf(D_0063A064 / 2, D_0063A068 / 2 + 0x10, 0xFFFFFF00, D_006C0BC0);
+        debug_Printf(ScreenWidth / 2, ScreenHeight / 2 + 0x10, 0xFFFFFF00, D_006C0BC0);
     }
     sprintf(D_006C0BC0, D_005537D0, D_0063C21C, D_0063C230);
     if (D_0063B13C & 1) {
-        debug_Printf(D_0063A064 / 2, D_0063A068 / 2 + 0x18, 0xFFFFFF00, D_006C0BC0);
+        debug_Printf(ScreenWidth / 2, ScreenHeight / 2 + 0x18, 0xFFFFFF00, D_006C0BC0);
     }
 }
 
