@@ -36,6 +36,44 @@ typedef struct AnimNode {
     struct AnimNode *next; /* 0x14 */
 } AnimNode;
 
+/* RECONSTRUCTION: the 0x290-byte animation record D_0067D098 holds, laid out
+   from the offsets this TU reads (kind, object and data tables, the three
+   entry pointers, the packed count/mode word). stage_SetScale and
+   stage_SetAnimation read the object table as a member of this record:
+   expand_expr forces the member's address `e + 0x80` into its own register
+   before the index is added, which is the ROM's addiu/addu pair (and in
+   stage_SetScale the k-loop test's own copy of it). */
+typedef struct {
+    short kind[64]; /* 0x000 */
+    char *obj[64];  /* 0x080 */
+    int *data[64];  /* 0x180 */
+    int *entry1;    /* 0x280 */
+    int *entry2;    /* 0x284 */
+    int *entry3;    /* 0x288 */
+    AnimWord flags; /* 0x28C */
+} StageAnim;
+
+/* RECONSTRUCTION: the play node stage_MakePlayBgAnimation links into
+   D_0063C15C and stage_DispBgAnimation walks. The ROM reads its first word as
+   int bit-fields in a doubleword unit (ld, then andi 0xFFFF/sll 18/sra 18 for
+   the 14-bit animation number, andi 0x8000 for the kill flag, and 0xFFFFBFFF
+   for the play flag), which is what gcc 2.9 emits for int bit-fields in a
+   16-byte aligned record; the names are this repository's. */
+typedef struct {
+    int no : 14; /* 0x00 */
+    int play : 1;
+    int kill : 1;
+    short num;   /* 0x02 */
+    float frame; /* 0x04 */
+    float speed; /* 0x08 */
+    float scale; /* 0x0C */
+    void *next;  /* 0x10 */
+    void *prev;  /* 0x14 */
+    int _18[2];
+    float pos[4] __attribute__((aligned(16))); /* 0x20 */
+    float rot[4];                              /* 0x30 */
+} BgaPlayNode;
+
 extern int D_0028F4D4[];
 /* kept local: this TU's uses of bga_ResetAnimation do not fit the prototype in BgAnimation.h */
 extern void bga_ResetAnimation();
@@ -194,7 +232,68 @@ void stage_ApplyData(char *name, char *data)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/StageAnimation", stage_Init);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/StageAnimation", stage_SetAnimation);
+
+void stage_SetAnimation(int key, int p1, int p2)
+{
+    int uid = -1;
+    int i;
+    int k;
+    int dbg = 0; /* local debug switch, see the test in case 0 below */
+    StageAnim *e;
+
+    for (i = 0, e = (StageAnim *)D_0067D098; i < D_0063C158; i++, e++) {
+        if (key != e->entry1[0x58 / 4]) {
+            continue;
+        }
+        switch (e->flags.i >> 30) {
+        case 0:
+            uid = e->entry2[1];
+            /* Local debug switch, off. What the bytes pin: the ROM's .rodata
+               keeps "Illegal Group No. %d\n" at 0x550190 with no reference
+               anywhere in the ROM, between stage_Init's data and
+               stage_CheckAnimationFinish's string, so a print of it stood in
+               this function and the optimizer deleted it; and the ROM's
+               allocation needs gcse to see a count outside 96 to 99 insns here
+               (106 with this block, 97 without, whose expression table of 49
+               buckets puts the flags word's PRE register ahead of the object
+               table's and rotates $7/$8/$9). A switch set
+               to 0 outside the loop does both: cse cannot carry the constant
+               across the loop label, gcse's last constant propagation folds
+               the test and the next jump pass deletes the call. The listing
+               leaves rows 847 to 852 code-free around the group number read.
+               What the bytes cannot pin: the switch's name, the test's exact
+               form and which value the line printed. */
+            if (dbg) {
+                debug_StdPrintfDummy("Illegal Group No. %d\n", uid);
+            }
+            bga_SetFrame(e->entry2, p2, p1, e->entry1[0x50 / 4]);
+            for (k = 0; k < ((e->flags.i << 22) >> 22); k++) {
+                *(int *)(*(char **)(e->obj[k] + 0x15C) + 0x74) = 1;
+            }
+            break;
+        case 1:
+            bga_SetCamFrame(e->entry3, p2, p1, e->entry1[0x50 / 4]);
+            break;
+        }
+        break;
+    }
+
+    if (uid != -1) {
+        for (i = 0, e = (StageAnim *)D_0067D098; i < D_0063C158; i++, e++) {
+            if ((e->flags.i >> 30) != 0) {
+                continue;
+            }
+            if (uid != e->entry2[1] || key == e->entry1[0x58 / 4]) {
+                continue;
+            }
+            for (k = 0; k < ((e->flags.i << 22) >> 22); k++) {
+                if (*(char **)(e->obj[k] + 0x15C) != 0) {
+                    *(int *)(*(char **)(e->obj[k] + 0x15C) + 0x74) = 0;
+                }
+            }
+        }
+    }
+}
 
 inline int stage_CheckAnimationFinish(int a0)
 {
@@ -552,7 +651,34 @@ inline void stage_SetLocalizeGeometry(int key, int arg1, int arg2)
     } while (i < count);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/StageAnimation", stage_SetScale);
+void stage_SetScale(int key, float scale)
+{
+    int i;
+    int j;
+    int k;
+    StageAnim *e = (StageAnim *)D_0067D098;
+
+    for (i = 0; i < D_0063C158; i++, e++) {
+        if (key == e->entry1[0x58 / 4]) {
+            if ((e->flags.i >> 30) == 0) {
+                for (j = 0; j < ((e->flags.i << 22) >> 22); j++) {
+                    for (k = 0; k < *(int *)((char *)((AnimWord *)(e->obj[j] + 0x15C))->i + 0x8);
+                         k++) {
+                        *(float *)(*(char **)((char *)((AnimWord *)(e->obj[j] + 0x15C))->i +
+                                              0x870) +
+                                   k * 0x50 + 0x20) =
+                            *(float *)(*(char **)((char *)((AnimWord *)(e->obj[j] + 0x15C))->i +
+                                                  0x870) +
+                                       k * 0x50 + 0x24) =
+                                *(float *)(*(char **)((char *)((AnimWord *)(e->obj[j] + 0x15C))->i +
+                                                      0x870) +
+                                           k * 0x50 + 0x28) = scale;
+                    }
+                }
+            }
+        }
+    }
+}
 
 float stage_PlayBgAnimation(int key, float t, void *v, void *q)
 {
@@ -719,7 +845,60 @@ inline void stage_KillPlayBgAnimationIfOverMaxCount(int a0, int a1)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/StageAnimation", stage_DispBgAnimation);
+/* File-static helper the January listing shows at src/StageAnimation.c:1588-1592,
+ * inlined twice in stage_DispBgAnimation and twice in stage_DispBgAnimationNoFinish.
+ * It has no symbol in MAIN.MAP and no census row: INTERIM, the name below is
+ * ours, not the developer's. */
+static inline void stage_SetBgAnimationPlayNode(BgaPlayNode *node, int key)
+{
+    int i;
+    int k;
+    StageAnim *e;
+
+    for (i = 0, e = (StageAnim *)D_0067D098; i < D_0063C158; i++, e++) {
+        if (key == e->entry1[0x58 / 4]) {
+            if ((e->flags.i >> 30) == 0) {
+                for (k = 0; k < ((e->flags.i << 22) >> 22); k++) {
+                    *(void **)(*(char **)(e->obj[k] + 0x15C) + 0x850) = node;
+                }
+            }
+        }
+    }
+}
+
+int stage_DispBgAnimation(void *p)
+{
+    BgaPlayNode **self = (BgaPlayNode **)p;
+
+    if (*self == 0) {
+        return -1;
+    }
+    if ((*self)->kill) {
+        stage_KillPlayBgAnimation((int **)self);
+        *self = 0;
+        return -1;
+    }
+    if ((*self)->scale != 1.0f) {
+        stage_SetScale((*self)->no, (*self)->scale);
+    }
+    if ((*self)->speed == 1.0f) {
+        stage_SetBgAnimationPlayNode(*self, (*self)->no);
+        (*self)->frame =
+            stage_PlayBgAnimation((*self)->no, (*self)->frame, (*self)->pos, (*self)->rot);
+    } else {
+        stage_SetBgAnimationPlayNode(*self, (*self)->no);
+        (*self)->frame = stage_PlayBgAnimationDissolve((*self)->no, (*self)->pos, (*self)->rot,
+                                                       (*self)->frame, (*self)->speed);
+    }
+    (*self)->play = 0;
+    if ((*self)->frame == -1.0f) {
+        stage_KillPlayBgAnimation((int **)self);
+        *self = 0;
+        return -1;
+    }
+    return 0;
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/StageAnimation", stage_DispBgAnimationNoFinish);
 
 void stage_SetCameraForceOff(int a0, int a1, int a2, int a3)

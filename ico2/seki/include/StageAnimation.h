@@ -33,7 +33,7 @@ void stage_DispBgAnimationNoFinish(char **slot);
 void stage_KillPlayBgAnimation(int **self);
 int *stage_MakePlayBgAnimation(int key);
 float stage_PlayBgAnimation(int key, float t, void *v, void *q);
-float stage_PlayBgAnimationDissolve(int key, float t, float d, void *a, void *b);
+float stage_PlayBgAnimationDissolve(int key, void *a, void *b, float t, float d);
 void stage_SetAnimation(int a0, int a1, int a2);
 void stage_SetScale(int id, float s);
 
