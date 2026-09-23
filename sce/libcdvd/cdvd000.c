@@ -52,7 +52,7 @@ void sceCdDelayThread(unsigned short a0)
 
 extern void DIntr(int *self);
 extern int D_0072EF00[];
-extern void EIntr(void);
+extern int EIntr(void);
 extern int sceCdSync(int a0);
 
 int sceCdCallback(int a0)
@@ -182,7 +182,7 @@ INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/cdvd000", cdvd_exit);
 extern int D_0054A57C[];
 extern void (*D_0072EF04[])(int);
 extern int D_0072EF08[];
-extern void PowerOffCB();
+extern int PowerOffCB(void);
 
 int sceCdPOffCallback(int a0, int a1)
 {
@@ -207,9 +207,210 @@ void _sceCd_Poff_Intr(void)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/cdvd000", PowerOffCB);
-INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/cdvd000", sceCdSearchFile);
-INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/cdvd000", _sceCd_ncmd_prechk);
+extern int D_0072EF78[];
+extern int D_0072EFA0;
+extern char D_006367E8[];
+extern int SCE_CD_debug[];
+
+/* Binds the power-off RPC once and asks the IOP side to arm it. The bound
+ * flag is cleared in the serve arm ahead of the break: the loop rotation moves
+ * that arm with its exit test to the loop's tail, so the clear sits inside the
+ * loop, which is what ranks the flag's %hi first among the three callee-saved
+ * %hi values (flow.c recompute_reg_usage weights it by loop depth; a clear
+ * after the loop ranks it last). The busy flag D_0054A564 is read by
+ * _sceCd_Poff_Intr from the SIF command interrupt: its three clears are
+ * volatile accesses (both return arms keep their clear out of the final
+ * bgez delay slot, which reorg refuses only to a volatile store) while the
+ * set is plain (it fills the jal DIntr slot). WHAT THE BYTES CANNOT PIN: how
+ * the volatile clears were spelled. */
+int PowerOffCB(void)
+{
+    int i;
+    int w;
+
+    sceSifInitRpc(0);
+    D_0054A564[0] = 1;
+    (*(int (*)(void))DIntr)();
+    sceSifAddCmdHandler(0x80000012, _sceCd_Poff_Intr, 0);
+    EIntr();
+    if (D_0054A57C[0] < 0) {
+        i = 0;
+        while (1) {
+            if (sceSifBindRpc(D_0072EF78, 0x80000596, 0) < 0) {
+                if (SCE_CD_debug[0] > 0) {
+                    scePrintf(D_006367E8);
+                }
+                w = 0x100000;
+                while (w--) {}
+                continue;
+            }
+            if (D_0072EF78[9] != 0) {
+                D_0054A57C[0] = 0;
+                break;
+            }
+            w = 0x100000;
+            while (w--) {}
+            if (i++ >= 17) {
+                *(volatile int *)&D_0054A564[0] = 0;
+                return 0;
+            }
+        }
+    }
+    D_0072EFA0 = 11;
+    if (sceSifCallRpc(D_0072EF78, 1, 1, 0, 0, 0, 0, 0, 0) < 0) {
+        *(volatile int *)&D_0054A564[0] = 0;
+        return 0;
+    }
+    *(volatile int *)&D_0054A564[0] = 0;
+    return 1;
+}
+
+extern int D_0054A55C;
+extern int D_0054A580;
+extern void cmd_sem_init(void);
+extern void sceSifWriteBackDCache(void *p, int n);
+extern int D_0072F140[];
+extern int D_0072F100[];
+
+/* RECONSTRUCTION: the search RPC's request record, read off this function's
+   offsets: the 0x24-byte file entry the reply fills, the 256-byte name, then
+   the request's own address. */
+typedef struct {
+    unsigned char file[0x24];
+    char name[0x100];
+    void *addr;
+} CdSearchReq;
+
+extern CdSearchReq D_0072EFC0;
+extern char D_00636808[];
+extern char D_00636828[];
+extern char D_00636840[];
+extern char D_00636850[];
+extern char D_00636860[];
+extern int sceSifCallRpc();
+
+/* RECONSTRUCTION: the 0x24-byte file entry, copied whole (the ROM's ldl/ldr
+   and sdl/sdr run). */
+typedef struct {
+    unsigned char b[0x24];
+} CdFileEntry;
+
+/* The bind block is PowerOffCB's (bound flag cleared in the serve arm); the
+   semaphore-handle loads are the per-site volatile accesses described above
+   _sceCd_cd_callback. */
+int sceCdSearchFile(CdFileEntry *fp, const char *name)
+{
+    char *req;
+    int w;
+    int i;
+    int v;
+
+    cmd_sem_init();
+    if (_sceCd_ncmd_semid[0] != PollSema(*(volatile int *)&_sceCd_ncmd_semid[0])) {
+        return 0;
+    }
+    D_0054A55C = 1;
+    ReferThreadStatus(D_0072EF10, D_0072EF18);
+    if (sceCdSync(1) != 0) {
+        SignalSema(*(volatile int *)&_sceCd_ncmd_semid[0]);
+        return 0;
+    }
+    sceSifInitRpc(0);
+    if (D_0054A580 < 0) {
+        while (1) {
+            if (sceSifBindRpc(D_0072F140, 0x80000597, 0) < 0) {
+                if (SCE_CD_debug[0] > 0) {
+                    scePrintf(D_00636808);
+                }
+                w = 0x100000;
+                while (w--) {}
+                continue;
+            }
+            if (D_0072F140[9] != 0) {
+                D_0054A580 = 0;
+                break;
+            }
+            w = 0x100000;
+            while (w--) {}
+        }
+    }
+    for (i = 0; i < 0x100; i++) {
+        if ((D_0072EFC0.name[i] = name[i]) == 0) {
+            break;
+        }
+    }
+    if (i == 0x100) {
+        D_0072EFC0.name[i - 1] = 0;
+    }
+    req = (char *)&D_0072EFC0;
+    *(char **)(req + 0x124) = req;
+    if (SCE_CD_debug[0] > 0) {
+        scePrintf(D_00636828, req + 0x24);
+    }
+    sceSifWriteBackDCache(req, 0x128);
+    if (sceSifCallRpc(D_0072F140, 0, 0, req, 0x128, D_0072F100, 4, 0, 0) < 0) {
+        SignalSema(*(volatile int *)&_sceCd_ncmd_semid[0]);
+        return 0;
+    }
+    *fp = *(CdFileEntry *)((int)req | 0x20000000);
+    if (SCE_CD_debug[0] > 0) {
+        scePrintf(D_00636840, (char *)fp + 8);
+    }
+    if (SCE_CD_debug[0] > 0) {
+        scePrintf(D_00636850, ((int *)fp)[1]);
+    }
+    if (SCE_CD_debug[0] > 0) {
+        scePrintf(D_00636860, ((int *)fp)[0]);
+    }
+    v = *(int *)((int)D_0072F100 | 0x20000000);
+    SignalSema(_sceCd_ncmd_semid[0]);
+    return v;
+}
+
+extern int D_0054A578;
+extern int _sceCd_cd_ncmd[];
+extern char D_00636878[];
+extern char D_006368A0[];
+
+/* Same bind block and handle accesses as sceCdSearchFile. */
+int _sceCd_ncmd_prechk(int cmd)
+{
+    int w;
+
+    cmd_sem_init();
+    if (_sceCd_ncmd_semid[0] != PollSema(*(volatile int *)&_sceCd_ncmd_semid[0])) {
+        if (SCE_CD_debug[0] > 0) {
+            scePrintf(D_00636878, cmd, D_0054A55C);
+        }
+        return 0;
+    }
+    D_0054A55C = cmd;
+    ReferThreadStatus(D_0072EF10, D_0072EF18);
+    if (sceCdSync(1) != 0) {
+        SignalSema(*(volatile int *)&_sceCd_ncmd_semid[0]);
+        return 0;
+    }
+    sceSifInitRpc(0);
+    if (D_0054A578 < 0) {
+        while (1) {
+            if (sceSifBindRpc(_sceCd_cd_ncmd, 0x80000595, 0) < 0) {
+                if (SCE_CD_debug[0] > 0) {
+                    scePrintf(D_006368A0);
+                }
+                w = 0x100000;
+                while (w--) {}
+                continue;
+            }
+            if (_sceCd_cd_ncmd[9] != 0) {
+                D_0054A578 = 0;
+                break;
+            }
+            w = 0x100000;
+            while (w--) {}
+        }
+    }
+    return 1;
+}
 
 extern int _sceCd_ncmd_semid[];
 extern int _sceCd_ncmdrdata[];
@@ -272,7 +473,53 @@ int sceCdSyncS(int a0)
     return sceSifCheckStatRpc(_sceCd_cd_scmd);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/cdvd000", _sceCd_scmd_prechk);
+extern int _sceCd_scmd_semid[];
+extern int D_0054A558;
+extern int D_0054A588;
+extern char D_006368D8[];
+extern char D_00636900[];
+extern int sceCdSyncS(int a0);
+
+/* The scmd twin of _sceCd_ncmd_prechk. */
+int _sceCd_scmd_prechk(int cmd)
+{
+    int w;
+
+    cmd_sem_init();
+    if (_sceCd_scmd_semid[0] != PollSema(*(volatile int *)&_sceCd_scmd_semid[0])) {
+        if (SCE_CD_debug[0] > 0) {
+            scePrintf(D_006368D8, cmd, D_0054A558);
+        }
+        return 0;
+    }
+    D_0054A558 = cmd;
+    ReferThreadStatus(D_0072EF10, D_0072EF18);
+    if (sceCdSyncS(1) != 0) {
+        SignalSema(*(volatile int *)&_sceCd_scmd_semid[0]);
+        return 0;
+    }
+    sceSifInitRpc(0);
+    if (D_0054A588 < 0) {
+        while (1) {
+            if (sceSifBindRpc(_sceCd_cd_scmd, 0x80000593, 0) < 0) {
+                if (SCE_CD_debug[0] > 0) {
+                    scePrintf(D_00636900);
+                }
+                w = 0x100000;
+                while (w--) {}
+                continue;
+            }
+            if (((int *)_sceCd_cd_scmd)[9] != 0) {
+                D_0054A588 = 0;
+                break;
+            }
+            w = 0x100000;
+            while (w--) {}
+        }
+    }
+    return 1;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/cdvd000", sceCdInit);
 INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/cdvd000", sceCdDiskReady);
 
