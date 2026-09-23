@@ -68,7 +68,50 @@ int sceCdCallback(int a0)
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/cdvd000", _sceCd_cd_callback);
+/* The command number the SIF RPC end interrupt writes and the callback thread
+   polls: read back after every store, in every function of the member. */
+extern volatile int sceCdCbfunc_num;
+extern int sceCdCbfunc_number;
+extern int _sceCd_c_cb_sem;
+extern int _sceCd_ncmd_semid[];
+extern int D_0054A554;
+extern int D_0054A560;
+
+/* Runs from the SIF RPC end interrupt. WHAT THE BYTES PIN: four accesses here
+ * are volatile accesses to words that are not volatile objects. The number
+ * store stays ahead of the third num read, the ==11 arm's flag store stays out
+ * of the return branch's slot, and both semaphore-handle loads stay in front of
+ * their jal iSignalSema with the slot empty; in this compiler only a volatile
+ * MEM does that (reorg.c fill_simple_delay_slots with resource.c
+ * resource_conflicts_p; alias.c true_dependence orders two distinct globals
+ * only when both are volatile). The same words are plain elsewhere in the
+ * member (cbLoop's number argument loads and flag store, cmd_sem_init's and
+ * cdvd_exit's handle accesses and sceCdNcmdDiskReady's fill delay slots), and a
+ * volatile declaration of any of them, at file or block scope, makes every
+ * later access volatile. Sony's member reads these words the same way at its
+ * other synchronisation points: _Cdvd_cbLoop's guard read of the number (not
+ * merged with the argument load two words later, which fills the jalr slot)
+ * and the PollSema and error-path SignalSema handle loads of
+ * _sceCd_ncmd_prechk, _sceCd_scmd_prechk, sceCdSearchFile and sceCdDiskReady.
+ * WHAT THEY CANNOT PIN: how the volatile accesses were spelled. */
+void _sceCd_cd_callback(int *data)
+{
+    sceCdCbfunc_num = data[0];
+    *(volatile int *)&sceCdCbfunc_number = sceCdCbfunc_num;
+    if (sceCdCbfunc_num == 11) {
+        sceCdCbfunc_num = 0;
+        *(volatile int *)&_sceCd_c_cb_sem = 0;
+        return;
+    }
+    iSignalSema(*(volatile int *)&_sceCd_ncmd_semid[0]);
+    if (D_0054A554 != 0 && D_0072EF00[0] != 0) {
+        iSignalSema(*(volatile int *)&D_0054A560);
+    } else {
+        _sceCd_c_cb_sem = 0;
+    }
+    sceCdCbfunc_num = 0;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/cdvd000", _Cdvd_cbLoop);
 
 extern int D_0054A554;
