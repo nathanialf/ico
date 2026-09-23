@@ -13,10 +13,19 @@ struct S12 {
     char b[12];
 };
 
+/* The per-port, per-slot state record (0x1C bytes, D_0072F250[2][4]).  The
+ * pointer fields are typed by what scePadPortOpen stores in them: f0 the EE
+ * pad DMA area the caller passes, f4 this slot's command buffer (read back as
+ * an int pointer by scePadSetActDirect), f8 the IOP-side buffer address the
+ * open RPC returns.  f8 carries f4's own type: the bytes pin that f8 and f4
+ * share an alias set and f0 does not (scePadPortOpen's tail stores come out
+ * f10, q[0], fC, f8, f0, f4 only then; void * f8 swaps fC and f8, unsigned
+ * int *, char * and short * f8 each lose a register copy).  The field names
+ * stay placeholders.  Evidence rung: ROM bytes. */
 typedef struct {
-    int f0;
+    void *f0;
     int *f4;
-    int f8;
+    int *f8;
     int fC;
     int f10;
     int f14;
@@ -108,7 +117,61 @@ int scePadEnd(void)
     return val;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libpad/libpad", scePadPortOpen);
+extern char D_00636BD0[];
+extern char D_00636C00[];
+extern int D_0072F340[][4][16];
+
+int scePadPortOpen(int a0, int a1, void *a2)
+{
+    int ret;
+    int val;
+    int i;
+    char *p;
+    int *q;
+
+    if (((unsigned int)a2 & 0x3F) != 0) {
+        if (D_0054BFCC[0] != 0) {
+            printf(D_00636BD0, a2);
+        }
+        return 0;
+    }
+    if (D_0072F250[a0][a1].f10 == 1) {
+        if (D_0054BFCC[0] != 0) {
+            printf(D_00636C00, a0, a1);
+        }
+        return 0;
+    }
+    p = (char *)a2;
+    for (i = 0; i < 2; i++) {
+        *(int *)(p + 0x58) = 0;
+        p[0x70] = 5;
+        p[0x71] = 2;
+        p[0x67] = 0;
+        memset(p, 0xFF, 0x20);
+        *(int *)(p + 0x60) = 0;
+        p += 0x80;
+    }
+    D_0072F540[0] = 1;
+    D_0072F540[1] = a0;
+    D_0072F540[2] = a1;
+    D_0072F540[4] = (int)a2;
+    ret = sceSifCallRpc(D_0072F200, 1, 0, D_0072F540, 0x80, D_0072F540, 0x80, 0, 0);
+    if (ret < 0) {
+        return 0;
+    }
+    /* q is this slot's command buffer, D_0072F340[2][4][16]; reply word 5 is
+     * the IOP buffer address, read as a pointer (an int read would take the
+     * int record stores' alias set and reorder the tail). */
+    q = D_0072F340[a0][a1];
+    val = (int)*(void **)&D_0072F540[5];
+    D_0072F250[a0][a1].f10 = 1;
+    D_0072F250[a0][a1].f8 = (int *)val;
+    D_0072F250[a0][a1].f0 = a2;
+    D_0072F250[a0][a1].f4 = q;
+    q[0] = 0;
+    D_0072F250[a0][a1].fC = 0;
+    return D_0072F540[3];
+}
 
 int scePadPortClose(int a0, int a1)
 {
