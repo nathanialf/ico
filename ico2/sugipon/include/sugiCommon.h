@@ -171,20 +171,24 @@ static __inline__ float distance_squared_b(const void *a, const void *b)
 
 /* --- header lines 100-103 ----------------------------------------------
  * Squared distance in the XZ plane: `vmul.xz` + a single `vaddz.x`, 7
- * instructions.  ONE census host (clip_wall_1, src/fieldCollision, line 102)
- *, kept because the sequence is unambiguous, but it is a one-host
- * RECONSTRUCTION and no matched host exists. */
+ * instructions.  ONE census host (clip_wall_1, src/fieldCollision, line 102),
+ * matched 2026-09-23.  RECONSTRUCTION in distance_squared's form: one asm
+ * block, the qmfc2 -> mtc1 hand-off through $v0 as the ROM has it, and no
+ * memory clobber.  The host proves the missing clobber: its lines 815 to 846
+ * read gcse copies of loads made before this block, which a "memory" clobber
+ * would kill (the matched host body under the old VU0_LSV_R form: 156 words
+ * against the ROM, measured). */
 static __inline__ float distance_squared_xz(const void *a, const void *b)
 {
     float d;
-    int t;
-    VU0_LSV_R(lqc2, 1, 0x0, a);
-    VU0_LSV_R(lqc2, 2, 0x0, b);
-    VU0_V3OP(vsub.wxyz, 3, 1, 2);
-    VU0_V3OP(vmul.xz, 3, 3, 3);
-    VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
-    __asm__ __volatile__("qmfc2.ni %0, $vf3" : "=r"(t));
-    __asm__ __volatile__("mtc1 %1, %0" : "=f"(d) : "r"(t));
+    __asm__ __volatile__("lqc2 $vf1, 0x0(%1)\n\t"
+                         "lqc2 $vf2, 0x0(%2)\n\t"
+                         "vsub.wxyz $vf3, $vf1, $vf2\n\t"
+                         "vmul.xz $vf3, $vf3, $vf3\n\t"
+                         "vaddz.x $vf3, $vf3, $vf3z\n\t"
+                         "qmfc2.ni $2, $vf3\n\t"
+                         "mtc1 $2, %0"
+                         : "=f"(d) : "r"(a), "r"(b) : "$2");
     return d;
 }
 

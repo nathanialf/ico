@@ -44,6 +44,6 @@ void _Clip(char *a0, int a1);
 void __ClipFloorWithDrawRay(char *w, int a1);
 void __ClipWallWithDrawRay(char *w, int a1);
 int clip_floor_1(void *a0, int a1, int a2);
-int clip_wall_1(void *a0, int a1, int a2, int a3);
+int clip_wall_1(void *a0, float *a1, int a2, int a3);
 
 #endif /* FIELDCOLLISION_H */

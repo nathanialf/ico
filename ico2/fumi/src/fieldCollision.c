@@ -7,6 +7,7 @@
 #include "lineManager.h"
 #include "matrixDrive.h"
 #include "tableSin.h"
+#include "sugiCommon.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -97,9 +98,184 @@ void GetReflectionElement(char *a0, float arg0, float arg1)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/fieldCollision", clip_wall_1);
-
 extern void sceVu0CopyVector(int *dst, int *src);
+
+/* listing line 628: the absolute value clip_wall_1 inlines five times */
+static __inline__ float FcAbsF(float v)
+{
+    if (v < 0.0f) {
+        v = -v;
+    }
+    return v;
+}
+
+int clip_wall_1(void *a0, float *wall, int flip, int useh)
+{
+    ClipWork *ray = (ClipWork *)a0;
+    float *e;
+    float pa[4];
+    float pb[4];
+    float pc[4];
+    float d[4];
+    float out[4];
+    float h;
+    float lo;
+    float hi;
+    float nx;
+    float nz;
+    float mx;
+    float ex;
+    float ez;
+    float ds;
+    float hh;
+    float t1;
+    float t2;
+    float sz;
+    float *n;
+    int far;
+
+    h = 0.0f;
+    if (useh) {
+        h = ray->radius;
+    }
+    lo = -h;
+    hi = wall[16] + h;
+    n = *(float **)&wall[19];
+    nx = n[0];
+    nz = n[1];
+    mx = -nx;
+
+    sceVu0CopyVector((int *)out, (int *)ray->pos);
+
+    d[0] = out[0] - wall[0];
+    d[1] = out[1];
+    d[2] = out[2] - wall[2];
+    pb[2] = d[0] * nx + d[2] * nz;
+    if (flip) {
+        pb[2] = -pb[2];
+    }
+    if (ray->radius < pb[2]) {
+        return 0;
+    }
+    pb[0] = d[0] * nz - d[2] * nx;
+    pb[1] = d[1];
+    /* What the bytes pin: the start point (lines 742-745) reads the wall through
+     * a pointer other than the one the end point (716-719) used, set in the
+     * block after line 735's reject. The ROM loads e[0] and e[2] a second time
+     * here and keeps those loads to lines 872/873; through `wall` gcse would
+     * find them redundant with line 716/718's. The pointer is pointer-typed:
+     * both groups schedule the [2] load above the d[] stores. What they cannot
+     * pin: its name or the line between 736 and 741 it sat on. */
+    e = wall;
+    d[0] = ray->a[0] - e[0];
+    d[1] = ray->a[1];
+    d[2] = ray->a[2] - e[2];
+    /* the ROM reads ray->a[0] before e[0] at line 742, so the wall origin
+     * is taken after the subtraction that reads it */
+    ex = e[0];
+    ez = e[2];
+    pa[2] = d[0] * nx + d[2] * nz;
+    if (flip) {
+        pa[2] = -pa[2];
+    }
+    ds = pa[2];
+    if (ds <= 0.0f) {
+        return 0;
+    }
+    pa[0] = d[0] * nz - d[2] * nx;
+    pa[1] = d[1];
+    if (pa[0] < lo && pb[0] < lo) {
+        return 0;
+    }
+    /* What the bytes pin: a second read of pa[2], into its own variable, after
+     * line 760's compares and before line 761's. It is outside the cse path
+     * that holds ds, so gcse turns it into a copy of line 752's load ($f9
+     * beside ds in $f7), and the depth tests at 770/825/838 and the pb[2]
+     * stores of the two edge arms read that copy while the far clamp reads
+     * ds. Moved to just before line 770 it shares a block with its first use
+     * and the copy disappears (measured, 22 words). What they cannot pin: its
+     * name, or which of lines 760/761 it shared (no line lies between them). */
+    sz = pa[2];
+    if (hi < pa[0] && hi < pb[0]) {
+        return 0;
+    }
+    if (FcAbsF(pb[2] - sz) < 1.0f) {
+        if (ray->f_B0 > 0) {
+            pc[0] = pb[0];
+            pc[1] = pb[1];
+            pb[2] = ray->radius + 1.0f;
+        } else if (pa[0] < 0.0f) {
+            pc[0] = lo;
+            if (FcAbsF(pb[0] - pa[0]) < 5.0f) {
+                pc[1] = pa[1];
+            } else {
+                pc[1] = (pb[1] - pa[1]) * (lo - pa[0]) / (pb[0] - pa[0]) + pa[1];
+            }
+            pb[2] = sz;
+        } else if (e[16] < pa[0]) {
+            pc[0] = hi;
+            if (FcAbsF(pb[0] - pa[0]) < 5.0f) {
+                pc[1] = pa[1];
+            } else {
+                pc[1] = (pb[1] - pa[1]) * (hi - pa[0]) / (pb[0] - pa[0]) + pa[1];
+            }
+            pb[2] = sz;
+        } else {
+            pc[0] = pa[0];
+            pc[1] = pa[1];
+            pb[2] = ray->radius + 1.0f;
+        }
+        pb[0] = pc[0];
+        pb[1] = pc[1];
+        ray->f_B0++;
+    } else {
+        far = 25.0f < distance_squared_xz(pa, pb);
+        if (ds < ray->radius) {
+            hh = ds;
+            ray->f_B0++;
+        } else {
+            hh = ray->radius;
+        }
+        if (pa[0] != pb[0] && far != 0) {
+            pc[0] = (pb[0] - pa[0]) * (ds - hh) / FcAbsF(pb[2] - sz) + pa[0];
+        } else {
+            pc[0] = pa[0];
+        }
+        if (pc[0] < lo || hi < pc[0]) {
+            return 0;
+        }
+        if (pa[1] != pb[1] && far != 0) {
+            pc[1] = (pb[1] - pa[1]) * (ds - hh) / FcAbsF(pb[2] - sz) + pa[1];
+        } else {
+            pc[1] = pa[1];
+        }
+        pb[0] = pc[0];
+        pb[1] = pc[1];
+        pb[2] = ray->radius + 1.0f;
+    }
+    if (pb[1] < e[1] && pb[1] < e[5]) {
+        return 0;
+    }
+    if (e[9] < pb[1] && e[13] < pb[1]) {
+        return 0;
+    }
+    if (pb[1] < (e[5] - e[1]) * pb[0] / e[16] + e[1]) {
+        return 0;
+    }
+    if ((e[13] - e[9]) * pb[0] / e[16] + e[9] < pb[1]) {
+        return 0;
+    }
+    if (flip) {
+        pb[2] = -pb[2];
+    }
+    t2 = pb[0] * nz - pb[2] * mx;
+    out[1] = pb[1];
+    t1 = pb[0] * mx + pb[2] * nz;
+    out[0] = t2 + ex;
+    out[2] = t1 + ez;
+    sceVu0CopyVector((int *)ray->pos, (int *)out);
+    return 1;
+}
 
 typedef struct {
     float x, y, z, w;
@@ -124,9 +300,10 @@ static __inline__ int FloorPointInside(FcFloorEnt *e, float *pt)
 
     cross = 0;
     n = e->nex + 2;
-    v = e->v;
-    p2 = v + n;
+    /* indexed, not walked: every expansion rebuilds &e->v[i] each pass */
+    p2 = &e->v[n];
     for (i = 0; i <= n; i++) {
+        v = &e->v[i];
         vx = v->x;
         if ((vx < pt[0] && pt[0] <= p2->x) || (p2->x < pt[0] && pt[0] <= vx)) {
             cp[0] = pt[0];
@@ -138,7 +315,6 @@ static __inline__ int FloorPointInside(FcFloorEnt *e, float *pt)
             }
         }
         p2 = v;
-        v++;
     }
 
     return cross & 1;
@@ -666,7 +842,107 @@ void DBG_VECTOR(float *vec)
     return debug_StdPrintfDummy(D_00553830, vec[0], vec[1], vec[2]);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/fieldCollision", GetEdgeOfFloor);
+extern char D_00553840[];
+extern char D_00553858[];
+extern char D_00553870[];
+extern char D_00553880[];
+extern char D_00553898[];
+extern char D_005538B0[];
+extern char D_0063A850[];
+extern char D_0063A858[];
+extern char D_0063A860[];
+
+int GetEdgeOfFloor(float *out, FcFloorEnt *e, float *p1, float *p2)
+{
+    float n[4];
+    FcVec4 *va;
+    FcVec4 *vb;
+    float d1;
+    float d2;
+    int i;
+    int j;
+
+    if (FloorPointInside(e, p1) != 1) {
+        debug_StdPrintfDummy(D_00553840);
+    }
+    if (FloorPointInside(e, p2) != 0) {
+        debug_StdPrintfDummy(D_00553858);
+    }
+    for (i = 0; i < 4; i++) {
+        j = (i + 3) % 4;
+        va = &e->v[i];
+        vb = &e->v[j];
+        if (va->x != vb->x) {
+            d1 = (va->z - vb->z) * (p1[0] - vb->x) / (va->x - vb->x) - (p1[2] - vb->z);
+            d2 = (va->z - vb->z) * (p2[0] - vb->x) / (va->x - vb->x) - (p2[2] - vb->z);
+        } else {
+            d1 = (va->x - vb->x) * (p1[2] - vb->z) / (va->z - vb->z) - (p1[0] - vb->x);
+            d2 = (va->x - vb->x) * (p2[2] - vb->z) / (va->z - vb->z) - (p2[0] - vb->x);
+        }
+        if (d1 < 0.0f && d2 < 0.0f) {
+            continue;
+        }
+        if (d1 > 0.0f && d2 > 0.0f) {
+            continue;
+        }
+        /* What the bytes pin: the normal reads both vertices through pointers
+         * of its own. The ROM reloads all four coordinates here and rebuilds
+         * the second vertex's address from the shifted index it kept; read
+         * through va/vb, gcse reuses the loads of the two arms instead, and
+         * setting va again here stops loop.c treating it as an induction
+         * variable. The fourth store lands one float past n (sp+0x10, the
+         * inlined helper's cp slot) and the one after the call at out+0x10.
+         * What they cannot pin: the pointers' names or their scope. */
+        {
+            FcVec4 *ca = &e->v[i];
+            FcVec4 *cb = &e->v[j];
+
+            n[0] = ca->z - cb->z;
+            n[1] = 0.0f;
+            n[2] = -(ca->x - cb->x);
+            n[4] = 0.0f;
+            sceVu0Normalize(out, n);
+            out[4] = 0.0f;
+            break;
+        }
+    }
+    if (i == 4) {
+        /* The dump's loop has locals of its own: sharing the main loop's
+         * pointers moves the main loop's second vertex from $a1 to $v0, and
+         * sharing its distances costs a second callee-saved float register.
+         * The fptodp calls below are the float-to-double promotions of the
+         * variadic call's arguments. */
+        FcVec4 *da;
+        FcVec4 *db;
+        float g1;
+        float g2;
+
+        debug_StdPrintfDummy(D_00553870);
+        debug_StdPrintfDummy(D_00553880, p1[0], p1[1], p1[2]);
+        debug_StdPrintfDummy(D_00553898, p2[0], p2[1], p2[2]);
+        for (i = 0; i < 4; i++) {
+            debug_StdPrintfDummy(D_0063A850, i);
+            DBG_VECTOR((float *)&e->v[i]);
+            debug_StdPrintfDummy(D_0063A858);
+        }
+        for (i = 0; i < 4; i++) {
+            j = (i + 3) % 4;
+            da = &e->v[i];
+            db = &e->v[j];
+            if (da->x != db->x) {
+                g1 = (da->z - db->z) * (p1[0] - db->x) / (da->x - db->x) - (p1[2] - db->z);
+                g2 = (da->z - db->z) * (p2[0] - db->x) / (da->x - db->x) - (p2[2] - db->z);
+            } else {
+                g1 = (da->x - db->x) * (p1[2] - db->z) / (da->z - db->z) - (p1[0] - db->x);
+                g2 = (da->x - db->x) * (p2[2] - db->z) / (da->z - db->z) - (p2[0] - db->x);
+            }
+            debug_StdPrintfDummy(D_005538B0, i, g1, g2);
+        }
+        debug_assert(D_00553750, 2006);
+        __assert(D_00553750, 2006, D_0063A860);
+    }
+    return i;
+}
 
 extern void sceVu0SubVector(void *dst, void *a, void *b);
 /* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
