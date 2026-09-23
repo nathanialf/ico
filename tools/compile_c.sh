@@ -27,17 +27,26 @@ else
 fi
 OBJCOPY="${MIPS_PREFIX}objcopy"
 
-# NOTE: neither modern gas (${MIPS_PREFIX}as) nor the 2.10-ee-001003-1 assembler
-# under tools/cc/ee-gcc2.96/bin/as is reachable from this script any more, and
-# neither is bound to a variable — a spare handle on another assembler is the
-# first thing a stuck matching run reaches for. THE assembler is EE_AS_OLD below:
-# the one bundled with the compiler this build uses. See docs/NOTES.md.
-# Period assembler whose delay-slot reorder is LESS aggressive than 2.96: it
+# THE assembler is EE_AS_OLD below, the one bundled with the compiler this build
+# uses; modern gas is not reachable from this script. See docs/NOTES.md.
+# Period assembler whose delay-slot reorder is LESS aggressive than 2.10: it
 # does not hoist a preceding unaligned store (sdl/sdr/...) into a `j <func>`
-# tail-call delay slot, matching the original ICO toolchain (verified universal:
-# 0 of 783 ROM tail-calls carry an unaligned store in the delay). It is THE
-# assembler for every C TU — there is no per-TU selection and no fallback.
+# tail-call or `jr $31` return delay slot, matching the game's toolchain
+# (verified universal over the game: 0 of 783 ROM tail-calls carry an unaligned
+# store in the delay). There is no per-TU selection and no fallback.
 EE_AS_OLD="${ROOT}/tools/cc/ee-gcc2.9-991111/bin/as"
+# ONE ARCHIVE WAS ASSEMBLED BY THE LATER SDK ASSEMBLER (measured 2026-09-23 by
+# the ROM gate, supervisor): sce/libscf. Its member sceScfSetT10kConfig ends
+# `sdl; jr $31; sdr` in the ROM, the only return in the whole ROM whose delay slot
+# holds an unaligned store; ee-as 2.9-991111 leaves that slot bare (`sdl; sdr;
+# jr; nop`) and ee-as 2.10-ee-001003-1 (the assembler shipped with the 2.96
+# toolchain under tools/cc/ee-gcc2.96) fills it. With libscf's 21 members
+# assembled by 2.10 the whole ROM is byte-identical; with the 2.9 assembler
+# exactly those two words differ; with EVERY sce/ archive on 2.10 the ROM breaks
+# in 22634 words, so the other archives were not assembled that way. A library's
+# assembler is a fact of that archive's build, like its -G 0 and -fno-builtin,
+# never a per-TU or per-function lever.
+EE_AS_SDK="${ROOT}/tools/cc/ee-gcc2.96/bin/as"
 
 INCLUDE_DIR="${ROOT}/include"
 # include/ holds stub scaffolding only (the fdlibm two-word idiom now lives in the libm members that use it): the libm
@@ -229,7 +238,10 @@ ASM_INPUT="${S}"
 # fixing, or a match that is really the assembler's delay-slot scheduling wearing
 # a source's clothes. See docs/NOTES.md "Assembler" section.
 SELECTED_EE_AS="${EE_AS_OLD}"
-# ONE ASSEMBLER, NO EXCEPTIONS. ee-as 2.9-991111 is the assembler BUNDLED WITH
+case "${1:-}" in
+    sce/libscf/*|*/sce/libscf/*) SELECTED_EE_AS="${EE_AS_SDK}" ;;  # libscf.a: see EE_AS_SDK above
+esac
+# ONE ASSEMBLER PER ARCHIVE, NO PER-TU EXCEPTIONS. ee-as 2.9-991111 is the assembler BUNDLED WITH
 # the compiler this build uses (EEGCC_DIR above is ee-gcc 2.9-991111), and that
 # pairing is the whole argument for it. config/use_as296.txt — a per-TU opt-in to
 # the 2.10-ee-001003-1 assembler bundled with the "2.96" toolchain — was tried on
