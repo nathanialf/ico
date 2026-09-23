@@ -653,7 +653,7 @@ segments:
       - [0x3FB070, .data, ico2/script/src/st18a]  # the TU's whole .data run as source (data pass 2), VMA 0x4FB070..0x4FB250, 480 B: 15 ActMail[2] records {{430}, {429}} in ROM order, owner-named
       - [0x3FB250, .data, ico2/script/src/st19a]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4FB250..0x4FB370, 288 B
       - [0x3FB370, .data, ico2/script/src/st20a]  # syms: bridgeMain_mes bridge_mes bridgeSwitch_mes gondolaMain_mes gondola_mes gondolaSwitchUp_mes gondolaSwitchDown_mes gondolaDown_mes gondolaUp_mes exit_mes ene_mes fence_mes fence2_mes fenceDownChk_mes fenceUpChk_mes fenceDownChk2_mes fenceUpChk2_mes girlPos_mes hint1_mes  the TU's whole .data run (VMA 0x4FB370..0x4FB5D0, nineteen ActMail[2] records of 0x20); ROM bytes: the first and fourth carry their own ids 0x196/0x197 with the switch handlers, the rest {{0x1AE},{0x1AD}}; role-named per the 2026-09-07 ruling, order fixed by the ROM run
-      - [0x3FB5D0, data, cod/3FB5D0]     # .data blob resume
+      - [0x3FB5D0, .data, ico2/script/src/st22a]  # intro_mes, the TU's named static mail pair {{430}, {429}} (32 B), VMA 0x4FB5D0..0x4FB5F0; st24a's run follows
       - [0x3FB5F0, .data, ico2/script/src/st24a]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4FB5F0..0x54D850, 336480 B
       - [0x3FB630, .data, ico2/script/src/st47a]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4FB630..0x54D850, 336416 B
       - [0x3FB890, .data, ico2/script/src/st99a]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4FB890..0x54D850, 335808 B
@@ -958,6 +958,8 @@ segments:
       - [0x529E40, rodata, cod/529E40]     # rodata blob resume
       - [0x536120, .rodata, sce/libgraph/graph008]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x636120..0x636610, 1264 B
       - [0x536150, rodata, cod/536150]     # rodata blob resume
+      - [0x5362E0, .rodata, sce/libgraph/graph015]  # the member's whole .rodata (= MAIN.MAP graph015.o .rodata 0x11C): sceGsSetDefLoadImage's format string as an anonymous literal (zero-padded to 0x636310) and its 59-entry jump table on dpsm (section .rodata.0x00636310, 0xEC B), VMA 0x6362E0..0x6363FC
+      - [0x5363FC, rodata, cod/5363FC]     # .rodata blob resume
       - [0x536400, .rodata, sce/libgraph/graph017]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x636400..0x636610, 528 B
       - [0x536440, rodata, cod/536440]     # rodata blob resume
       - [0x536610, .rodata, sce/libdma/libdma]  # the wait loops' one string literal "libdma: sync timeout\n" (0x16 B, = MAIN.MAP libdma.o .rodata 0x16), VMA 0x636610..0x636626, padded to 0x636628 where tty.o's strings begin
@@ -1134,8 +1136,7 @@ segments:
       - [0x539A90, .lit4, ico2/script/src/st18a]  # carved D_00639A90..D_00639AA4 (6 words: 3054, 1530, -3061, 1451, 1530, -3039, all literals of the now fully-C TU), VMA 0x639A90..0x639AA8
       - [0x539AA8, .lit4, ico2/script/src/st19a]  # carved D_00639AA8..D_00639AB4 (4 slots: actSt19aPipeChk's 3933 still asm, actSt19aOri's 4298/-2342/1331 as literals; the TU's whole pool, bounded by st18a's and st20a's words), VMA 0x639AA8..0x639AB8
       - [0x539AB8, .lit4, ico2/script/src/st20a]  # carved D_00639AB8..D_00639AC0 (3 words: actSt20aFence's 3973.0f, -1100.0f, -1169.0f; the TU's whole pool, bounded by st19a's words and the blob), VMA 0x639AB8..0x639AC4
-      - [0x539AC4, lit4, cod/539AC4]     # .lit4 blob resume
-      - [0x539AE0, .lit4, ico2/script/src/st22a]  # carved D_00639AE0..D_00639AE4 (2 slots: actSt22aIntroSub's -707.0f/-1112.0f; MAIN.MAP says 0x24, the retail object needs 0x8), VMA 0x639AE0..0x639AE8
+      - [0x539AC4, .lit4, ico2/script/src/st22a]  # the TU's whole pool (= MAIN.MAP st22a.o .lit4 0x24): actSt22aLightningVolime's and actSt22aIntro's seven literals (16383.0f, 0.1f, -1355.0f, 6645.0f, 7000.0f, 4938.0f, -1053.0f) then actSt22aIntroSub's -707.0f and -1112.0f, anonymous, VMA 0x639AC4..0x639AE8; st24a's carve follows
       - [0x539AE8, .lit4, ico2/script/src/st24a]  # carved D_00639AE8..D_00639AF8 (5 slots: actSt24aSwordChk x2, actSt24aSword's camera target 363/1307/-3297; = MAIN.MAP st24a.o .lit4 0x14), VMA 0x639AE8..0x639AFC
       - [0x539AFC, .lit4, ico2/script/src/st47a]  # carved D_00639AFC..D_00639B14 (7 slots, the TU's whole pool, all owners in C; gcc 2.9 does not share a literal between functions, so -3000.0f appears twice), VMA 0x639AFC..0x639B18, 28 B
       - [0x539B18, .lit4, ico2/script/src/stageSEProc]  # carved D_00639B18..D_00639C40 (75 words: 20 slots beside the still-asm stageSE04eriver/06ariver/10lstrong2/19ataki, the rest literals in the C owners), VMA 0x639B18..0x639C44, 300 B; MAIN.MAP stageSEProc.o .lit4 is 0x138 (different link; PAL ELF is authoritative).  USA: no .lit4 carve for this TU.
