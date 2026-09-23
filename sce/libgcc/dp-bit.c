@@ -8,6 +8,15 @@
 #define CLASS_ZERO 2
 #define CLASS_NUMBER 3
 #define CLASS_INFINITY 4
+/* libgcc's fp-bit.c reads a zero exponent as zero when NO_DENORMALS is
+   defined (`if (fraction == 0 || 1)` under #ifdef NO_DENORMALS in the public
+   GCC source), and this build defined it: the EE FPU has no denormals.  The
+   ROM shows the arm compiled away: __unpack_d's exp == 0 arm emits only
+   CLASS_ZERO, yet the label after its return carries the 8-byte loop
+   alignment that the dead normalisation loop's loop note gives it (measured:
+   without the loop the pad goes).  Where the developers' build defined the
+   macro (a target makefile fragment) is not attested; the define is here. */
+#define NO_DENORMALS
 
 /* The double number in unpacked form.  FRAC_NBITS is 64 and NGARDS is 8, so the
    implicit one sits at bit 60 and the fraction is a 64-bit field at 0x10. */
@@ -16,7 +25,17 @@ typedef struct {
     int sign;
     int normal_exp;
     int pad;
-    unsigned long long fraction;
+
+    /* libgcc's fp_number_type keeps the fraction in a union of the 64-bit
+       value and its two 32-bit halves (public GCC fp-bit.c).  The union is
+       what the ROM needs too: dpmul stores the fraction ahead of the class
+       constant, which takes the fraction store in alias set 0 on the
+       compiler's sched2 dump; as a plain unsigned long long field the
+       constant goes first (four words). */
+    union {
+        unsigned long long ll;
+        unsigned int l[2];
+    } fraction;
 } fp_number_type_d;
 
 static __inline__ int isnan_d(fp_number_type_d *x)
@@ -45,8 +64,8 @@ static __inline__ fp_number_type_d *nan_d(void)
 typedef union {
     struct {
         unsigned long long fraction : 52;
-        unsigned long long exp : 11;
-        unsigned long long sign : 1;
+        unsigned int exp : 11;
+        unsigned int sign : 1;
     } bits;
 
     long long value;
@@ -56,7 +75,7 @@ long long __pack_d(void *s)
 {
     fp_number_type_d *src = s;
     FLO_union_type_d dst;
-    unsigned long long fraction = src->fraction;
+    unsigned long long fraction = src->fraction.ll;
     int sign = src->sign;
     int exp = 0;
 
@@ -111,7 +130,55 @@ long long __pack_d(void *s)
     return dst.value;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libgcc/dp-bit", __unpack_d);
+void __unpack_d(void *in, void *out)
+{
+    FLO_union_type_d src;
+    fp_number_type_d *dst = out;
+    unsigned long long fraction;
+    int exp;
+    int sign;
+
+    src.value = *(long long *)in;
+    fraction = src.bits.fraction;
+    exp = src.bits.exp;
+    sign = src.bits.sign;
+
+    dst->sign = sign;
+    if (exp == 0) {
+        if (fraction == 0
+#ifdef NO_DENORMALS
+            || 1
+#endif
+        ) {
+            dst->class = CLASS_ZERO;
+        } else {
+            /* a denormal has no implicit one: shift until it has one */
+            dst->normal_exp = exp - 1023 + 1;
+            fraction <<= 8;
+            dst->class = CLASS_NUMBER;
+            while (fraction < 0x1000000000000000ULL) {
+                fraction <<= 1;
+                dst->normal_exp--;
+            }
+            dst->fraction.ll = fraction;
+        }
+    } else if (exp == 0x7FF) {
+        if (fraction == 0) {
+            dst->class = CLASS_INFINITY;
+        } else {
+            if (fraction & 0x8000000000000ULL) {
+                dst->class = CLASS_QNAN;
+            } else {
+                dst->class = CLASS_SNAN;
+            }
+            dst->fraction.ll = fraction;
+        }
+    } else {
+        dst->normal_exp = exp - 1023;
+        dst->class = CLASS_NUMBER;
+        dst->fraction.ll = (fraction << 8) | 0x1000000000000000ULL;
+    }
+}
 
 fp_number_type_d *_fpadd_parts(fp_number_type_d *a, fp_number_type_d *b, fp_number_type_d *tmp)
 {
@@ -147,8 +214,8 @@ fp_number_type_d *_fpadd_parts(fp_number_type_d *a, fp_number_type_d *b, fp_numb
 
     a_normal_exp = a->normal_exp;
     b_normal_exp = b->normal_exp;
-    a_fraction = a->fraction;
-    b_fraction = b->fraction;
+    a_fraction = a->fraction.ll;
+    b_fraction = b->fraction.ll;
 
     diff = a_normal_exp - b_normal_exp;
     if (diff < 0)
@@ -181,25 +248,25 @@ fp_number_type_d *_fpadd_parts(fp_number_type_d *a, fp_number_type_d *b, fp_numb
         if (tfraction >= 0) {
             tmp->sign = 0;
             tmp->normal_exp = a_normal_exp;
-            tmp->fraction = tfraction;
+            tmp->fraction.ll = tfraction;
         } else {
             tmp->sign = 1;
             tmp->normal_exp = a_normal_exp;
-            tmp->fraction = -tfraction;
+            tmp->fraction.ll = -tfraction;
         }
-        while (tmp->fraction < 0x1000000000000000ULL && tmp->fraction) {
-            tmp->fraction <<= 1;
+        while (tmp->fraction.ll < 0x1000000000000000ULL && tmp->fraction.ll) {
+            tmp->fraction.ll <<= 1;
             tmp->normal_exp--;
         }
     } else {
         tmp->sign = a->sign;
         tmp->normal_exp = a_normal_exp;
-        tmp->fraction = a_fraction + b_fraction;
+        tmp->fraction.ll = a_fraction + b_fraction;
     }
     tmp->class = CLASS_NUMBER;
 
-    if (tmp->fraction >= 0x2000000000000000ULL) {
-        tmp->fraction = (tmp->fraction & 1) | (tmp->fraction >> 1);
+    if (tmp->fraction.ll >= 0x2000000000000000ULL) {
+        tmp->fraction.ll = (tmp->fraction.ll & 1) | (tmp->fraction.ll >> 1);
         tmp->normal_exp++;
     }
     return tmp;
@@ -235,7 +302,118 @@ long long dpsub(long a0, long a1)
     return __pack_d(_fpadd_parts(&x, &y, &z));
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libgcc/dp-bit", dpmul);
+static __inline__ fp_number_type_d *_fpmul_parts(fp_number_type_d *a, fp_number_type_d *b,
+                                                 fp_number_type_d *tmp)
+{
+    unsigned long long low;
+    unsigned long long high;
+    unsigned long long nl;
+    unsigned long long nh;
+    unsigned long long ml;
+    unsigned long long mh;
+    unsigned long long pp_ll;
+    unsigned long long pp_hl;
+    unsigned long long pp_lh;
+    unsigned long long pp_hh;
+    unsigned long long ps;
+    unsigned long long res0;
+    unsigned long long res2;
+
+    if (isnan_d(a)) {
+        a->sign = a->sign != b->sign;
+        return a;
+    }
+    if (isnan_d(b)) {
+        b->sign = a->sign != b->sign;
+        return b;
+    }
+    if (isinf_d(a)) {
+        if (iszero_d(b)) {
+            return nan_d();
+        }
+        a->sign = a->sign != b->sign;
+        return a;
+    }
+    if (isinf_d(b)) {
+        if (iszero_d(a)) {
+            return nan_d();
+        }
+        b->sign = a->sign != b->sign;
+        return b;
+    }
+    if (iszero_d(a)) {
+        a->sign = a->sign != b->sign;
+        return a;
+    }
+    if (iszero_d(b)) {
+        b->sign = a->sign != b->sign;
+        return b;
+    }
+
+    nl = a->fraction.ll & 0xFFFFFFFF;
+    nh = a->fraction.ll >> 32;
+    ml = b->fraction.ll & 0xFFFFFFFF;
+    mh = b->fraction.ll >> 32;
+
+    pp_ll = ml * nl;
+    pp_hl = mh * nl;
+    pp_lh = ml * nh;
+    pp_hh = mh * nh;
+
+    res2 = 0;
+    ps = pp_hl + pp_lh;
+    if (ps < pp_hl) {
+        res2 += 1ULL << 32;
+    }
+    pp_hl = (ps << 32) & 0xFFFFFFFF00000000ULL;
+    res0 = pp_ll + pp_hl;
+    if (res0 < pp_ll) {
+        res2++;
+    }
+    res2 += ((ps >> 32) & 0xFFFFFFFF) + pp_hh;
+    high = res2;
+    low = res0;
+
+    tmp->normal_exp = a->normal_exp + b->normal_exp;
+    tmp->sign = a->sign != b->sign;
+    tmp->normal_exp += 4;
+
+    while (high >= 0x2000000000000000ULL) {
+        tmp->normal_exp++;
+        if (high & 1) {
+            low >>= 1;
+            low |= 0x8000000000000000ULL;
+        }
+        high >>= 1;
+    }
+    while (high < 0x1000000000000000ULL) {
+        high <<= 1;
+        if (low & 0x8000000000000000ULL) {
+            high |= 1;
+        }
+        tmp->normal_exp--;
+        low <<= 1;
+    }
+    if ((high & 0xFF) == 0x80) {
+        if (high & 0x100) {
+            high += 0x80;
+        } else if (low != 0) {
+            high += 0x80;
+        }
+    }
+    tmp->fraction.ll = high;
+    tmp->class = CLASS_NUMBER;
+    return tmp;
+}
+
+long long dpmul(long a0, long a1)
+{
+    fp_number_type_d x, y, z;
+
+    __unpack_d(&a0, &x);
+    __unpack_d(&a1, &y);
+    return __pack_d(_fpmul_parts(&x, &y, &z));
+}
 
 extern char D_736170[];
 
@@ -414,12 +592,12 @@ long long litodp(int arg_a)
             if (arg_a == (-0x7FFFFFFF) - 1) {
                 return 0xC1E0000000000000LL;
             }
-            in.fraction = -arg_a;
+            in.fraction.ll = -arg_a;
         } else {
-            in.fraction = arg_a;
+            in.fraction.ll = arg_a;
         }
-        while (in.fraction < 0x1000000000000000ULL) {
-            in.fraction <<= 1;
+        while (in.fraction.ll < 0x1000000000000000ULL) {
+            in.fraction.ll <<= 1;
             in.normal_exp--;
         }
     }
@@ -448,7 +626,7 @@ int dptoli(long a0)
     if (a.normal_exp > 30) {
         return a.sign ? (-0x7FFFFFFF) - 1 : 0x7FFFFFFF;
     }
-    tmp = a.fraction >> (60 - a.normal_exp);
+    tmp = a.fraction.ll >> (60 - a.normal_exp);
     return a.sign ? -tmp : tmp;
 }
 
@@ -477,9 +655,9 @@ unsigned int dptoul(long a0)
         return 0xFFFFFFFF;
     }
     if (a.normal_exp > 60) {
-        return a.fraction << (a.normal_exp - 60);
+        return a.fraction.ll << (a.normal_exp - 60);
     }
-    return a.fraction >> (60 - a.normal_exp);
+    return a.fraction.ll >> (60 - a.normal_exp);
 }
 
 void __negdf2(long long a0)

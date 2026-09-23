@@ -217,8 +217,90 @@ void scePadReqIntToStr(unsigned int a0, char *a1)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libpad/libpad", scePadInfoAct);
-INCLUDE_ASM("asm/nonmatchings/sce/libpad/libpad", scePadInfoComb);
+/* RECONSTRUCTION: the pad DMA buffer scePadGetDmaStr hands back, read off the
+   offsets this TU's members use.  The actuator and combination tables are
+   arrays of four-byte records: scePadInfoAct's ROM indexes them through a
+   member array (base register plus scaled index, the record offset folded
+   into the load), which a plain byte-offset dereference does not give.  Only
+   the members these functions touch are named; the rest is padding. */
+typedef struct {
+    unsigned char f00[48];
+    unsigned char act[4][4];  /* 0x30 */
+    unsigned char comb[4][4]; /* 0x40 */
+    unsigned char f50[20];
+    unsigned char f64;
+    unsigned char f65[5];
+    unsigned char nact;  /* 0x6A */
+    unsigned char ncomb; /* 0x6B */
+    unsigned char f6C[6];
+    unsigned char f72;
+} PadDmaStr;
+
+int scePadInfoAct(int a0, int a1, int a2, int a3)
+{
+    PadDmaStr *p;
+
+    if (D_0072F250[a0][a1].f10 == 0) {
+        return 0;
+    }
+    p = (PadDmaStr *)scePadGetDmaStr(a0, a1);
+    if (p->f72 != 1) {
+        return 0;
+    }
+    if (p->f64 < 2) {
+        return 0;
+    }
+    if (a2 >= p->nact) {
+        return 0;
+    }
+    if (a2 == -1) {
+        return p->nact;
+    }
+    switch (a3) {
+    case 1:
+        return p->act[a2][0];
+    case 2:
+        return p->act[a2][1];
+    case 3:
+        return p->act[a2][2];
+    case 4:
+        return p->act[a2][3];
+    }
+    return 0;
+}
+
+int scePadInfoComb(int a0, int a1, int a2, int a3)
+{
+    PadDmaStr *p;
+
+    if (D_0072F250[a0][a1].f10 == 0) {
+        return 0;
+    }
+    p = (PadDmaStr *)scePadGetDmaStr(a0, a1);
+    if (p->f72 != 1) {
+        return 0;
+    }
+    if (p->f64 < 2) {
+        return 0;
+    }
+    if (a2 == -1) {
+        return p->ncomb;
+    }
+    if (a2 >= p->ncomb) {
+        return 0;
+    }
+    switch (a3) {
+    case -1:
+        return p->comb[a2][0];
+    case 0:
+        return p->comb[a2][1];
+    case 1:
+        return p->comb[a2][2];
+    case 2:
+        return p->comb[a2][3];
+    }
+    return 0;
+}
 
 int scePadInfoMode(int a0, int a1, int a2, int a3)
 {
