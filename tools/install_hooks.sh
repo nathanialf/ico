@@ -53,6 +53,12 @@ ROOT="$(git rev-parse --show-toplevel)"
 
 "$ROOT/tools/check_no_rom.sh"
 
+# Staged C must be developer-native: no K&R definitions, no empty do-while
+# loop notes, no empty asm, no register pins or asm blocks in functions the
+# January listing proves were compiled C. tools/dev_native_allow.txt holds the
+# ROM-proven exceptions with their reasons.
+python3 "$ROOT/tools/check_dev_native.py"
+
 # Staged C must be clang-formatted (whitespace only; the byte gate below
 # proves formatting never changes the ROM). Fix with: tools/format.sh FILE
 STAGED_C=$(git diff --cached --name-only --diff-filter=ACMR -z | tr '\0' '\n' |
