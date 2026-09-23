@@ -20,7 +20,7 @@ void viBufDelete();
 void viBufEndPut(int *self, int a1);
 void viBufFlush(int *self);
 void viBufGetTs();
-void viBufReset();
+int viBufReset();
 void viBufRestartDMA();
 void viBufStopDMA();
 

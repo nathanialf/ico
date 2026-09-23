@@ -34,6 +34,39 @@ typedef struct ViBuf {
 } ViBuf;
 
 static void Free();
+extern int DIntr(void);
+
+/* Write the IPU input channel's CHCR (0x1000B400) with the DMA controller
+   held (D_ENABLER/D_ENABLEW bit 16) and interrupts off: listing rows 66-71,
+   inlined into every caller, the shape libmpeg's setD4_CHCR has with the
+   SYNC/EI pair where that one calls EIntr. Our name. */
+static __inline__ void setIpuInChcr(int chcr)
+{
+    DIntr();
+    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 | 0x10000;
+    *(volatile int *)0x1000B400 = chcr;
+    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 & 0xFFFEFFFF;
+    SYNC();
+    EI();
+}
+
+/* RECONSTRUCTION: one quadword of the DMA tag list, written through a union
+   member. The ROM reloads self->data, self->nSector and self->dmaTag after
+   every tag store and does not strength-reduce the tag loop, which is what
+   an alias-set-0 store gives (gcc 2.9's c_get_alias_set returns 0 for an
+   access directly through a union member); a plain `unsigned long` store
+   lets loop.c hoist all three. Our names. */
+typedef union {
+    unsigned long ul[2];
+    int w[4];
+} QWord;
+
+/* One 16-byte DMA source-chain tag: the data address in the upper word, the
+   tag id and quadword count below. Listing rows 80-81. Our name. */
+static __inline__ void setDmaTag(char *tag, int i, int addr, int qwc, int id)
+{
+    ((QWord *)tag)[i].ul[0] = ((unsigned long)addr << 32) | ((unsigned long)id << 28) | qwc;
+}
 
 /* census free_buf, a file static, `static` keeps its ELF symbol local so it cannot
    collide with the ico2/ito/mpeg/mv_videodec global of the same name */
@@ -45,7 +78,7 @@ static void free_buf(int *a0)
 }
 
 /* kept local: this TU's uses of viBufReset do not fit the prototype in mv_vibuf.h */
-extern void viBufReset(ViBuf *self);
+extern int viBufReset(ViBuf *self);
 
 int viBufCreate(ViBuf *self)
 {
@@ -98,7 +131,36 @@ int viBufCreate(ViBuf *self)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/ito/mpeg/mv_vibuf", viBufReset);
+int viBufReset(ViBuf *self)
+{
+    int i;
+
+    self->rdSector = 0;
+    self->nReady = 0;
+    self->wOffset = 0;
+    self->running = 1;
+
+    self->tsCount = 0;
+    self->tsWr = 0;
+    for (i = 0; i < self->tsMax; i++) {
+        self->ts[i].pts = -1;
+        self->ts[i].dts = -1;
+        self->ts[i].pos = 0;
+        self->ts[i].len = 0;
+    }
+
+    for (i = 0; i < self->nSector; i++) {
+        setDmaTag(self->dmaTag, i, phys_addr((int)(self->data + i * 2048)), 128, 3);
+    }
+    setDmaTag(self->dmaTag, i, phys_addr((int)self->dmaTag), 0, 2);
+
+    *(volatile int *)0x1000B420 = 0;
+    *(volatile int *)0x1000B410 = phys_addr((int)self->data);
+    *(volatile int *)0x1000B430 = phys_addr((int)self->dmaTag);
+    setIpuInChcr(5);
+
+    return 1;
+}
 
 /* Hand out the region the caller may write next, as up to two runs: the one
    that ends at the top of the ring and, if it wraps, the one that starts at

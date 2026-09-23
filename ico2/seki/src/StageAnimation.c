@@ -81,7 +81,7 @@ extern int *D_0063C15C;
 /* kept local: this TU's uses of bga_SetCameraForceOff do not fit the prototype in BgAnimation.h */
 extern void bga_SetCameraForceOff();
 extern int D_0063C158;
-extern char D_0067D098[];
+extern StageAnim D_0067D098[];
 extern char D_005501A8[];
 extern char D_005501E0[];
 extern char D_00550028[];
@@ -124,7 +124,7 @@ extern void bga_SetUniqAnimationFlag(int val);
 extern void bga_CalcAnimation(void *a0, int a1, int a2);
 extern char D_00550230[];
 extern char D_00550278[];
-extern int D_0063A44C;
+extern IosMemPart *D_0063A44C;
 /* kept local: this TU's uses of bga_DispLightning do not fit the prototype in BgAnimation.h */
 extern void bga_DispLightning(void);
 /* kept local: this TU's uses of bga_CheckAnimationFrameIn do not fit the prototype in BgAnimation.h */
@@ -231,7 +231,285 @@ void stage_ApplyData(char *name, char *data)
     __assert(D_00550028, 0x269, D_0063A1B8);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/StageAnimation", stage_Init);
+typedef struct {
+    short kinds[64]; /* 0x000 */
+    char *objs[64];  /* 0x080 */
+    int *dats[64];   /* 0x180 */
+    char *p280;      /* 0x280 */
+    char *p284;      /* 0x284 */
+    char *p288;      /* 0x288 */
+    AnimWord flags;  /* 0x28C: count 0 to 9, node count 10 to 19, play 20 to 29, mode 30 to 31 */
+} StageEnt;
+
+#define STG ((StageEnt *)D_0067D098)
+
+typedef struct {
+    int kind; /* 0x00 */
+    int aux;  /* 0x04 */
+} StgObjDat;
+
+typedef struct {
+    int id[2]; /* 0x00 */
+    int _8[3];
+} StgBgaSet;
+
+extern const StageGObjInit D_00550150;
+extern StgObjDat D_00600498[];
+extern char D_002C1270[];
+extern char D_00550098[];
+extern char D_005500C8[];
+extern char D_005500F8[];
+extern char D_00550128[];
+extern void bga_InitBGA(void);
+extern void bga_ResetCamera(void);
+extern void bga_ApplyDObject(char *a0, char **a1, int a2, int a3);
+
+#define STG_DAT(o) ((char *)((AnimWord *)((char *)(o) + 0x15C))->i)
+#define STG_NODE(o, t) ((char *)((AnimWord *)(STG_DAT(o) + 0x870))->i + (t) * 0x50)
+
+/* Compiled-out debug hook (our name), the construct main.c's mainDebugBar,
+   icoMisc.c's partitionBarDebugDisp and weapon.c's dynGeoDebugHook carry: it
+   inlines to nothing and emits no byte, but each call leaves one
+   (use (const_int 0)) insn that loop.c counts and flow never deletes.
+   WHAT THE BYTES PIN: the ROM keeps the m loop's `li 80` and the
+   `li -1` of the entry2 store inside the second loop, and loop.c's
+   move_movables (threshold 64 with a call in the loop) hoists both into
+   two more callee-saved registers (frame 0xC0 against the ROM's 0xA0)
+   unless that loop counts at least 65 real insns at both loop passes. Its
+   statements give 63 and 62, so three or more insns that emit no byte sat
+   in the loop after the m loop: three or four hooks are byte-identical, two
+   let the second pass hoist the stride, and one between d and the m loop
+   changes five words. The January listing has the gp display counter
+   (lw, lw, addu, sw) at line 1453 and no code at 1452, 1454 and 1455, and the
+   retail .sbss has no counter word. WHAT THEY CANNOT PIN: that the
+   developer's code was this construct, its lines, or the count beyond three.
+   The same hook at stage_PlayBgAnimation's counter (listing line 1380)
+   changes six words there, so these are not that counter's remnant.
+   stage_Init's uses carry their own pinned/not-pinned comments; the
+   definition sits above stage_Init because gcc 2.9 inlines only a body it
+   has already read. */
+static __inline__ void stageAnimDebugHook(void) {}
+
+int stage_Init(void)
+{
+    StgObjDat *p = 0;
+    char *tbl[2] = {D_005F5E70 + stage_no * 0x194, D_005F5E70 + 8 + stage_no * 0x194};
+    StageGObjInit arg;
+    int max = 0;
+    int m;
+    int i;
+    int k;
+    int t;
+    int u;
+    int n;
+    int id;
+    int no;
+    StgObjDat *q;
+    char *rec;
+    char *tbl2;
+    char *obj;
+    char *g;
+    char *a;
+    char *r;
+    int (*fn)(char *, StageGObjInit *);
+    StageEnt *e;
+
+    bga_InitBGA();
+    for (i = 0; i < 87; i++) {
+        for (k = 0; k < 64; k++) {
+            STG[i].kinds[k] = -1;
+        }
+    }
+    D_0063C158 = 0;
+    for (i = 0; i < 87; i++) {
+        STG[i].flags.i &= ~0x3FF;
+    }
+    /* Compiled-out debug hooks (see stageAnimDebugHook). The January listing
+       zeroes a gp counter at line 650 (rows 649 and 651 to 654 code-free) and
+       the retail build has neither that code nor the .sbss word. WHAT THE
+       BYTES PIN: stage_Init reaches gcse with 656 to 659 insns, six to nine
+       more than its statements give, so the expression table has 329 buckets
+       and puts e + 0x180 ahead of m + 1, which is the ROM's spill slot order
+       (dats base 0x78, m + 1 at 0x7C); at 325 buckets the two slots swap.
+       WHAT THEY CANNOT PIN: how many of those insns sat here and how many at
+       the code-free rows 679, 692 and 697 below, or the statements' text. */
+    stageAnimDebugHook();
+    stageAnimDebugHook();
+    stageAnimDebugHook();
+    D_0063C15C = 0;
+    bga_ResetCamera();
+    for (m = 0; m < 2; m++) {
+        for (i = ((int *)tbl[m])[0]; i < ((int *)tbl[m])[1]; i++) {
+            rec = D_002C2DC8 + i * 0x4C;
+            n = *(int *)(rec + 0x34);
+            if (n != 0) {
+                char *ent = D_002BC6E0 + n * 0x14;
+
+                for (k = 0; k < 2; k++) {
+                    id = ((StgBgaSet *)ent)->id[k];
+                    obj = D_00602FA0 + id * 0x5C;
+                    if (id != 972) {
+                        if (strncmp(*(char **)(obj + 0x54), D_0063A1B0, 3) == 0) {
+                            /* Listing row 679, code-free. WHAT THE BYTES PIN: one
+                           insn between the D_0063C158 load and the 0x284 store
+                           at local-alloc, gone by final; without it the flags
+                           address takes $4 and the 0x284 address $3, the
+                           ROM's are the other way round. WHAT THEY CANNOT
+                           PIN: the statement's text. */
+                            stageAnimDebugHook();
+                            STG[D_0063C158].flags.i &= 0x3FFFFFFF;
+                            *(int *)((char *)D_0067D098 + D_0063C158 * 0x290 + 0x284) =
+                                (int)*(char **)(obj + 0x54);
+                            *(int *)(*(char **)(obj + 0x54) + 0x4) = *(int *)(obj + 0x48);
+                            (*(char **)(obj + 0x54))[0xB] = obj[0x4C];
+                            *(char *)(*(int *)((char *)D_0067D098 + D_0063C158 * 0x290 + 0x284) +
+                                      0xA) = -1;
+                            *(int *)((char *)D_0067D098 + D_0063C158 * 0x290 + 0x280) = (int)obj;
+                            STG[D_0063C158].flags.i &= 0xC00FFFFF;
+                            p = &D_00600498[*(int *)(obj + 0x40)];
+                            q = &D_00600498[*(int *)(obj + 0x44)];
+                            for (; p != q; p++) {
+                                stage_MakeGObj((int *)p, D_0063C158);
+                            }
+                        } else {
+                            /* listing row 692, code-free: counted in the gcse
+                           window above */
+                            stageAnimDebugHook();
+                            STG[D_0063C158].flags.i =
+                                (STG[D_0063C158].flags.i & 0x3FFFFFFF) | 0x40000000;
+                            D_0067D098[D_0063C158].entry3 = *(int **)(obj + 0x54);
+                            *(int *)((char *)D_0067D098 + D_0063C158 * 0x290 + 0x280) = (int)obj;
+                        }
+                        /* listing row 697, code-free: counted in the gcse window
+                       above */
+                        stageAnimDebugHook();
+                        D_0063C158++;
+                        if (D_0063C158 >= 88) {
+                            debug_StdPrintfDummy(D_00550098, D_0063C158, 87);
+                            debug_StdPrintfDummy(D_005500C8);
+                            debug_assert(D_00550028, 0x2BE);
+                            __assert(D_00550028, 0x2BE, D_0063A1A8);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    for (i = 0; i < D_0063C158; i++) {
+        if (((STG[i].flags.i << 22) >> 22) >= 64) {
+            debug_StdPrintfDummy(D_005500F8, ((STG[i].flags.i << 22) >> 22), 64);
+            debug_assert(D_00550028, 0x2C8);
+            __assert(D_00550028, 0x2C8, D_0063A1A8);
+        }
+        max = max < ((STG[i].flags.i << 22) >> 22) ? ((STG[i].flags.i << 22) >> 22) : max;
+    }
+    debug_StdPrintfDummy(D_00550128, D_0063C158, max);
+    if (p != 0) {
+        e = STG;
+        for (i = 0; i < D_0063C158; i++, e++) {
+            if ((e->flags.i >> 30) == 1) {
+                continue;
+            }
+            for (k = 0; k < ((e->flags.i << 22) >> 22); k++) {
+                if (STG_DAT(e->objs[k]) != 0) {
+                    *(int *)(STG_DAT(e->objs[k]) + 0x8) = 0;
+                }
+            }
+            k = 0;
+            for (;;) {
+                a = ((char **)*(int *)(e->p284 + 0x10))[k++];
+                if (a == 0) {
+                    break;
+                }
+                r = e->p280;
+                no = -1;
+                if (r != 0) {
+                    no = (r - D_00602FA0) / 0x5CU;
+                }
+                bga_ApplyDObject(a, e->objs, ((e->flags.i << 22) >> 22), no);
+            }
+            e->flags.i &= 0xFFF003FF;
+            for (k = 0; k < ((e->flags.i << 22) >> 22); k++) {
+                if (*(int *)(STG_DAT(e->objs[k]) + 0xC) != 0) {
+                    iosFree((void *)(*(int *)(STG_DAT(e->objs[k]) + 0xC) & 0x0FFFFFFF));
+                }
+                if (*(int *)(STG_DAT(e->objs[k]) + 0x10) != 0) {
+                    iosFree((void *)(*(int *)(STG_DAT(e->objs[k]) + 0x10) & 0x0FFFFFFF));
+                }
+                *(int *)(STG_DAT(e->objs[k]) + 0xC) = 0;
+                *(int *)(STG_DAT(e->objs[k]) + 0x10) = 0;
+                *(int *)(STG_DAT(e->objs[k]) + 0xC) = (int)iosMallocDebug(
+                    D_0063A44C, *(int *)(STG_DAT(e->objs[k]) + 0x8) << 6, D_00550028, 0x2F9);
+                *(int *)(STG_DAT(e->objs[k]) + 0x10) = (int)iosMallocDebug(
+                    D_0063A44C, *(int *)(STG_DAT(e->objs[k]) + 0x8) << 4, D_00550028, 0x2F9);
+                /* The reallocation block's own count line (`X->8 = N;`, as
+                   chain.c, boy.c and box.c spell the same block), here passed
+                   the count field itself (listing 762; all three allocations
+                   pass line 761, one macro invocation). reload_cse deletes it
+                   as a no-op and turns the 0x870 test's load into the ROM's
+                   register copy. */
+                *(int *)(STG_DAT(e->objs[k]) + 0x8) = *(int *)(STG_DAT(e->objs[k]) + 0x8);
+                if (*(int *)(STG_DAT(e->objs[k]) + 0x870) != 0) {
+                    iosFree((void *)(*(int *)(STG_DAT(e->objs[k]) + 0x870) & 0x0FFFFFFF));
+                }
+                *(int *)(STG_DAT(e->objs[k]) + 0x870) = (int)iosMallocDebug(
+                    D_0063A44C, *(int *)(STG_DAT(e->objs[k]) + 0x8) * 0x50, D_00550028, 0x2F9);
+                for (t = 0; t < *(int *)(STG_DAT(e->objs[k]) + 0x8); t++) {
+                    ((PlayWord *)(STG_NODE(e->objs[k], t) + 0x38))->l &= ~1;
+                    ((PlayWord *)(STG_NODE(e->objs[k], t) + 0x38))->l &= ~2;
+                    *(int *)(STG_NODE(e->objs[k], t) + 0x40) = 0;
+                    *(int *)(STG_NODE(e->objs[k], t) + 0x44) = 0;
+                    *(int *)(STG_NODE(e->objs[k], t) + 0x48) = 0;
+                    *(float *)(STG_NODE(e->objs[k], t) + 0x4C) = 1.0f;
+                    ((PlayWord *)(STG_NODE(e->objs[k], t) + 0x38))->l &= ~4;
+                    *(int *)(STG_NODE(e->objs[k], t) + 0x30) = 0;
+                    *(float *)(STG_NODE(e->objs[k], t) + 0x34) = 1.0f;
+                    *(short *)(STG_NODE(e->objs[k], t) + 0x3A) = 0;
+                    *(float *)(STG_NODE(e->objs[k], t) + 0x20) = 1.0f;
+                    *(float *)(STG_NODE(e->objs[k], t) + 0x24) = 1.0f;
+                    *(float *)(STG_NODE(e->objs[k], t) + 0x28) = 1.0f;
+                }
+                *(short *)(STG_DAT(e->objs[k]) + 0x84C) = 2;
+                e->flags.i =
+                    (e->flags.i & 0xFFF003FF) |
+                    ((((e->flags.i << 12) >> 22) + *(int *)(STG_DAT(e->objs[k]) + 0x8)) & 0x3FF)
+                        << 10;
+                for (u = 0; u < *(int *)(STG_DAT(e->objs[k]) + 0x8); u++) {
+                    _UnitMatrix((void *)(*(int *)(STG_DAT(e->objs[k]) + 0xC) + u * 64));
+                    SetIdentityQuaternion((void *)(*(int *)(STG_DAT(e->objs[k]) + 0x10) + u * 16));
+                }
+            }
+        }
+        e = STG;
+        for (i = 0; i < D_0063C158; i++, e++) {
+            if ((e->flags.i >> 30) == 1) {
+                continue;
+            }
+            for (k = 0; k < ((e->flags.i << 22) >> 22); k++) {
+                g = e->objs[k];
+                arg = D_00550150;
+                tbl2 = D_002C1270 + *(int *)((char *)e->dats[k] + 4) * 100;
+                fn = *(int (**)(char *, StageGObjInit *))(tbl2 + 0x58);
+                if (fn != 0) {
+                    *(int *)(STG_DAT(e->objs[k]) + 0x830) = fn(g, &arg);
+                }
+                isysGObjProcAdd(g, *(int *)(tbl2 + 0x5C), 1, 0x16);
+                isysGObjProcAdd(g, *(int *)(tbl2 + 0x50), 1, 0x17);
+                isysGObjProcAdd(g, *(int *)(tbl2 + 0x4C), 1, 0x18);
+                isysGObjLinkObjDL(g, 0, 0, 7, 0xFFFFFFFF);
+                *(int *)(g + 0x16C) = 1;
+                *(int *)(STG_DAT(e->objs[k]) + 0x74) = 0;
+            }
+        }
+    }
+    e = STG;
+    for (i = 0; i < D_0063C158; i++, e++) {
+        if (*(int *)(e->p280 + 0x50) != 0) {
+            stage_SetAnimation(*(int *)(e->p280 + 0x58), 1, 0);
+        }
+    }
+    return D_0063C158;
+}
 
 void stage_SetAnimation(int key, int p1, int p2)
 {
@@ -745,26 +1023,6 @@ float stage_PlayBgAnimation(int key, float t, void *v, void *q)
     }
     return r;
 }
-
-/* Compiled-out debug hook (our name), the construct main.c's mainDebugBar,
-   icoMisc.c's partitionBarDebugDisp and weapon.c's dynGeoDebugHook carry: it
-   inlines to nothing and emits no byte, but each call leaves one
-   (use (const_int 0)) insn that loop.c counts and flow never deletes.
-   WHAT THE BYTES PIN: the ROM keeps the m loop's `li 80` and the
-   `li -1` of the entry2 store inside the second loop, and loop.c's
-   move_movables (threshold 64 with a call in the loop) hoists both into
-   two more callee-saved registers (frame 0xC0 against the ROM's 0xA0)
-   unless that loop counts at least 65 real insns at both loop passes. Its
-   statements give 63 and 62, so three or more insns that emit no byte sat
-   in the loop after the m loop: three or four hooks are byte-identical, two
-   let the second pass hoist the stride, and one between d and the m loop
-   changes five words. The January listing has the gp display counter
-   (lw, lw, addu, sw) at line 1453 and no code at 1452, 1454 and 1455, and the
-   retail .sbss has no counter word. WHAT THEY CANNOT PIN: that the
-   developer's code was this construct, its lines, or the count beyond three.
-   The same hook at stage_PlayBgAnimation's counter (listing line 1380)
-   changes six words there, so these are not that counter's remnant. */
-static __inline__ void stageAnimDebugHook(void) {}
 
 /* This TU's .lit4 holds 1.2075409f twice, one word per owner and no
    deduplication: stage_PlayBgAnimation's literal above is the first, and
