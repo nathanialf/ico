@@ -61,7 +61,12 @@ def staged_or_all(argv):
                              cwd=ROOT, capture_output=True, text=True).stdout.split()
         return out
     if os.environ.get('FILES'):
-        return os.environ['FILES'].split()
+        out = []
+        for f in os.environ['FILES'].split():
+            # an absolute path, in this checkout or a worktree, keys the same repo-relative name
+            m = re.search(r'(?:^|/)((?:ico2|sce)/.*)$', f)
+            out.append((m.group(1), f) if m else (f, f))
+        return out
     out = subprocess.run(['git', 'diff', '--cached', '--name-only', '--diff-filter=ACMR'],
                          cwd=ROOT, capture_output=True, text=True).stdout.split()
     return [f for f in out if re.search(r'\.(c|inc)$', f) and re.match(r'(ico2|sce)/', f)]
@@ -140,7 +145,10 @@ def main(argv):
     warn = []
     check_one_assembler(bad)
     for f in files:
-        path = os.path.join(ROOT, f)
+        if isinstance(f, tuple):
+            f, path = f
+        else:
+            path = os.path.join(ROOT, f)
         if not os.path.exists(path):
             continue
         try:

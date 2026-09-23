@@ -1361,8 +1361,95 @@ extern char D_005509D0[];
  * taken through a float comparison, which is where the ROM's cvt.s.w pairs
  * come from; Light.c's LIGHT_ABS is the same macro */
 #define ABSF(x) ((x) < 0.0f ? -(x) : (x))
+#define SIGNF(x) ((x) < 0.0f ? -1.0f : ((x) > 0.0f ? 1.0f : 0.0f))
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_scrollClut);
+void tex_scrollClut(int a0, int a1, int a2, int a3, int a4, void *a5, int a6, void *a7)
+{
+    TexColor buf[a4];
+    TexExt *e = (TexExt *)a5;
+    TexColor *dst = (TexColor *)a0;
+    TexColor *cur = (TexColor *)a1;
+    TexColor *src = (TexColor *)a2;
+    int lo;
+    int hi;
+    int step;
+    int rem;
+    int span;
+    int k;
+    int i;
+    int j;
+    int n;
+
+    if (a3 != 2) {
+        return;
+    }
+
+    lo = e->file.x14;
+    hi = e->file.x18;
+    if (a4 < lo || a4 < hi) {
+        debug_StdPrintfDummy(D_005509D0, a7, a4, lo, hi);
+        return;
+    }
+
+    /* A swap of start and end whose last line reads lo where the temporary
+     * was meant, so it only clamps start to end (listing rows 1850 to 1854).
+     * What the bytes pin: the then-block held two insns when jump.c tried its
+     * conditional-move conversion (the ROM keeps bnezl plus the annulled
+     * move, not slt plus movn), cse having deleted the no-op `hi = lo`, and
+     * the temporary's store is gone by final. What they cannot pin: which
+     * local served as the temporary; it must be one read elsewhere, since a
+     * fresh one is deleted as trivially dead after cse1 and movn returns. */
+    if (hi < lo) {
+        i = lo;
+        lo = hi;
+        hi = lo;
+    }
+
+    step = ABSF(e->file.x1C);
+    rem = a6 % step;
+    if (rem == 0) {
+        span = hi - lo + 1;
+        /* listing row 1859 is this one statement: fold pushes the products
+         * and the int conversion into the arms of the ABSF and SIGNF
+         * conditionals, which is where the ROM's two remainders, the neg.s
+         * and times-zero arms and the conversion after the last sign step
+         * come from (BgAnimation's rows 2135 to 2137 are the same sign idiom
+         * on one line each) */
+        k = ABSF(e->file.x20) % span * SIGNF(e->file.x1C) * SIGNF(e->file.x20);
+
+        for (i = lo; i <= hi; i++) {
+            cur[CLUT_CSM1(a4, i)] = src[CLUT_CSM1(a4, i)];
+        }
+        for (i = lo; i <= hi; i++) {
+            j = i + k;
+            while (j < lo) {
+                j += span;
+            }
+            while (hi < j) {
+                j -= span;
+            }
+            buf[CLUT_CSM1(a4, i)] = src[CLUT_CSM1(a4, j)];
+        }
+        for (i = lo; i <= hi; i++) {
+            src[CLUT_CSM1(a4, i)] = buf[CLUT_CSM1(a4, i)];
+        }
+    }
+    for (i = lo; i <= hi; i++) {
+        n = CLUT_CSM1(a4, i);
+        if (step == 1) {
+            dst[n] = src[n];
+        } else {
+            int dr = src[n].r - cur[n].r;
+            int dg = src[n].g - cur[n].g;
+            int db = src[n].b - cur[n].b;
+            int da = src[n].a - cur[n].a;
+            dst[n].r = cur[n].r + dr * rem / step;
+            dst[n].g = cur[n].g + dg * rem / step;
+            dst[n].b = cur[n].b + db * rem / step;
+            dst[n].a = cur[n].a + da * rem / step;
+        }
+    }
+}
 
 extern int D_0028F4C0[];
 extern float GetTableSin(short angle);
