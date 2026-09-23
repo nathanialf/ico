@@ -18,7 +18,7 @@
 extern char D_0061D3E0[];
 extern char D_0061D418[];
 extern void *D_0063A428;
-extern int D_0063A054;
+extern int fbKeep;
 extern int ScreenWidth;
 extern int ScreenHeight;
 extern int D_0063B130;
@@ -93,7 +93,7 @@ void disp_memory_partition_bar(void)
     int max;
     int x;
 
-    if (D_0063A054 != 0) {
+    if (fbKeep != 0) {
         return;
     }
     max = 0;

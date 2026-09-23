@@ -117,7 +117,7 @@ extern unsigned char D_0063BCB1;
 extern unsigned char D_0063BCB2;
 extern unsigned char D_0063BCB3;
 extern float mpegPlayFadeInSpeed;
-extern int D_0063A054;
+extern int fbKeep;
 extern int stgMgrWakeupRequest;
 extern char D_00619140[];
 extern char D_00619158[];

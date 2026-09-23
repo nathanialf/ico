@@ -65,7 +65,7 @@ extern KanbanStageRec D_0029B5F0[];
 extern int D_00534010[];
 extern int D_0028F4C0[];
 extern int D_0028F4D8[];
-extern int D_0063A054;
+extern int fbKeep;
 extern int D_0063B4C0;
 extern int D_0063B4C8;
 extern int D_0063B4CC;
@@ -111,7 +111,7 @@ int kanbanBootMcCheck(void)
         D_0063B4C0++;
         /* fallthrough */
     case 2:
-        D_0063A054 = 1;
+        fbKeep = 1;
         mc->f8 = mcPort;
         mc->fC = 0;
         mc->f0.ll &= ~2;
@@ -298,7 +298,7 @@ int kanbanBootMcCheck(void)
         D_0063B4C0 = 301;
         /* fallthrough */
     case 301:
-        D_0063A054 = 0;
+        fbKeep = 0;
         fadeStatus = 0;
         bootKanban = kanbanReqAdd(5, 2);
         if (bootKanbanSub != 0) {
@@ -322,7 +322,7 @@ int kanbanBootMcCheck(void)
         D_0063B4C0 = 1;
         break;
     default:
-        D_0063A054 = 0;
+        fbKeep = 0;
         fadeStatus = 0;
         ret = 1;
         break;

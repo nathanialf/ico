@@ -1063,7 +1063,7 @@ extern SprRect D_0061DB38;
 extern SprRect D_0061DB48;
 extern SprCol D_0063B5B8[];
 extern SprCol D_0063B5C0[];
-extern int D_0063A054;
+extern int fbKeep;
 extern int D_0063C3EC;
 extern int D_0063B5B0;
 extern int D_0063B5B4;
@@ -1088,7 +1088,7 @@ void progressive_bar(void)
     int n;
     int w;
 
-    if (D_0063A054 != 0) {
+    if (fbKeep != 0) {
         return;
     }
     if (D_0028F4C0[7] <= 0) {

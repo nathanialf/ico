@@ -1505,7 +1505,7 @@ void bga_CalcAnimation(char *p, int a1, int a2)
 
 extern int D_0063BCC0;
 extern int D_007281F0[];
-extern int D_0063A06C;
+extern int currentScreenWidth;
 /* kept local: this TU's uses of the matrix and vector entry points do not fit
    the prototypes in Matrix.h (the interpolator takes its weight as a float,
    the length returns one and both take two vectors). */
@@ -1630,7 +1630,7 @@ void bga_CalcSdfCamera(char *data, int loop)
         if (GlobalTimer != 0) {
             if (_GetLength(&D_007281F0[12], D_00728230) < 100.0f) {
                 GlobalTimer = 0;
-                D_0063A06C = 0;
+                currentScreenWidth = 0;
             }
         }
         a = (short)(fov * 3.1415927f / 360.0f * 10430.378f);

@@ -1497,7 +1497,7 @@ void reg_dispLine(char *node, float alpha)
     }
 }
 
-extern int D_0063A06C;
+extern int currentScreenWidth;
 extern int GlobalTimer;
 /* kept local: this TU's uses of _MulCurrentMatrixL do not fit the prototype in Matrix.h */
 extern void _MulCurrentMatrixL(void *m);
@@ -1527,7 +1527,7 @@ void reg_dispPointLineObj(char *o)
     if (hdr != 0) {
         flag = ((int)(*(long long *)hdr >> 14)) & 1;
     }
-    if (D_0063A06C != 0 || GlobalTimer != 0) {
+    if (currentScreenWidth != 0 || GlobalTimer != 0) {
         flag = 1;
     }
     for (i = 0; i < *(int *)(o + 8); i++) {

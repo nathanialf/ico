@@ -29,7 +29,7 @@ typedef struct PointBlur {
     /* 0x38 */ char _pad38[8];
 } PointBlur;
 
-extern int D_0063A06C;
+extern int currentScreenWidth;
 extern int GlobalTimer;
 extern char *matrixptr;
 /* kept local: this TU's uses of ZUnitVector do not fit the prototype in matrixDrive.h */
@@ -90,7 +90,7 @@ int UpdatePointBlur(PointBlur *p, void *mtx, void *a2, float f)
     float scale;
     Rgba *t;
 
-    if (D_0063A06C != 0 || GlobalTimer != 0) {
+    if (currentScreenWidth != 0 || GlobalTimer != 0) {
         p->dirty = 1;
     }
     if (p->dirty == 0) {

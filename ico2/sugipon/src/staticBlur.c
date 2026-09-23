@@ -896,7 +896,7 @@ void GetSunWorldPos(int a0)
 }
 
 extern char D_00620E70[];
-extern int D_0063A06C;
+extern int currentScreenWidth;
 extern int D_0063B13C;
 extern int D_0063BB94;
 
@@ -910,7 +910,7 @@ void MotionBlur(void)
     if (D_0063BB94 == 0) {
         return;
     }
-    if (D_0063A06C != 0) {
+    if (currentScreenWidth != 0) {
         return;
     }
     if (D_0063B13C & 1) {

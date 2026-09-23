@@ -947,7 +947,7 @@ extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
    this TU's own terse snake_case house style (its MAIN.MAP globals are
    ed1..ed6, sea, happy_end) for the ending demo it belongs to. */
 
-extern int D_0063A054;
+extern int fbKeep;
 extern int D_0063BE34;
 
 void actEndDemo14(volatile int a0)
@@ -959,14 +959,14 @@ void actEndDemo14(volatile int a0)
 
     lt_switch_layout(55);
     D_0063AA08 = 1;
-    D_0063A054 = 1;
+    fbKeep = 1;
     scpFadeOut(3.0f, 0xFF, 0xFF, 0xFF);
 
     while (scpFadeChk() != 0) {
         _ACTWait(1);
     }
 
-    D_0063A054 = 0;
+    fbKeep = 0;
     ScpCallCameraSetTarget(7046.0f, -77.0f, 1678.0f);
 
     scpAdpcmPlayRequestFunc(95, &D_0063BE34, 1, 0, 1);

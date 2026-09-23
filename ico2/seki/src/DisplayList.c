@@ -32,7 +32,7 @@ static DlEntry dlEntries[13];
 
 static int dlBufferHead[2][13];
 
-extern int D_0063A054;
+extern int fbKeep;
 extern int dmaVif;
 extern int D_006218E0[];
 extern int D_00621840[];
@@ -123,7 +123,7 @@ void dl_Swap(void)
         i = j;
     } while (j < 0xC);
     FlushCache(0);
-    if (D_0063A054) {
+    if (fbKeep) {
         sceDmaSend(dmaVif, dlEntries[11].pad_20 & 0xFFFFFFF);
     } else {
         sceDmaSend(dmaVif, dlEntries[0].pad_20 & 0xFFFFFFF);

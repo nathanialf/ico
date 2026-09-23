@@ -40,7 +40,7 @@ void gsb_SetFrame(int *db, int a1, int a2, int psm, short zbp)
 }
 
 extern int D_0028F4C0[];
-extern int D_0063A058;
+extern int fbClear;
 extern int ScreenWidth;
 extern int ScreenHeight;
 extern int D_00639F80;
@@ -66,7 +66,7 @@ void gsb_Init(void *db)
     int omode = 2;
 
     sceGsSyncV(0);
-    D_0063A058 = 1;
+    fbClear = 1;
     D_00639F80 = 0;
     switch (D_0028F4C0[0]) {
     case 0:
@@ -80,7 +80,7 @@ void gsb_Init(void *db)
         break;
     }
     sceGsResetGraph(0, D_0028F4C0[1] == 1, omode, 1);
-    sceGsSetDefDBuff(db, 0, ScreenWidth, ScreenHeight, 2, 0x30, D_0063A058);
+    sceGsSetDefDBuff(db, 0, ScreenWidth, ScreenHeight, 2, 0x30, fbClear);
     gsb_SetFrame(db, 0, 0, 0x30, 2);
     sceGsSyncV(0);
     buffer_ID = 0;
@@ -104,7 +104,7 @@ static int reductionGreen;
 
 static int reductionBlue;
 
-extern int D_0063A054;
+extern int fbKeep;
 extern int CurrentTargetGObjSub;
 extern char D_0054E300[];
 extern StageSetting D_0028F720;
@@ -182,13 +182,13 @@ void gsb_Reduction(void)
         debug_StdPrintfDummy(D_0054E300, CurrentTargetGObjSub);
     }
     if (CurrentTargetGObjSub) {
-        reductionRed = D_0063A054 ? 128 : D_0028F720.targetCol[CurrentTargetGObjSub - 1][0];
-        reductionGreen = D_0063A054 ? 128 : D_0028F720.targetCol[CurrentTargetGObjSub - 1][1];
-        reductionBlue = D_0063A054 ? 128 : D_0028F720.targetCol[CurrentTargetGObjSub - 1][2];
+        reductionRed = fbKeep ? 128 : D_0028F720.targetCol[CurrentTargetGObjSub - 1][0];
+        reductionGreen = fbKeep ? 128 : D_0028F720.targetCol[CurrentTargetGObjSub - 1][1];
+        reductionBlue = fbKeep ? 128 : D_0028F720.targetCol[CurrentTargetGObjSub - 1][2];
     } else {
-        reductionRed = D_0063A054 ? 128 : D_0028F720.reductionCol[0];
-        reductionGreen = D_0063A054 ? 128 : D_0028F720.reductionCol[1];
-        reductionBlue = D_0063A054 ? 128 : D_0028F720.reductionCol[2];
+        reductionRed = fbKeep ? 128 : D_0028F720.reductionCol[0];
+        reductionGreen = fbKeep ? 128 : D_0028F720.reductionCol[1];
+        reductionBlue = fbKeep ? 128 : D_0028F720.reductionCol[2];
     }
 }
 
@@ -688,7 +688,7 @@ extern int fadeStatus;
 extern unsigned char D_0063BCB3;
 extern int D_00639FC4;
 extern int D_0063AA00;
-extern int D_0063A054;
+extern int fbKeep;
 extern int staffRollStartFlag;
 extern void FullScreenEffectAfter(void);
 extern void shadow_Draw(void);
@@ -727,7 +727,7 @@ int gsb_PostEffect(void)
         gsb_filmNoise();
     }
     gsb_controlBrightness();
-    if (D_0063A054 != 0) {
+    if (fbKeep != 0) {
         gsb_KeepFrameBuffer();
         if (D_0063B13C & 1) {
             debug_Printf(0x226, ScreenHeight / 2 - 8, 0xCCCCCC00, D_00639FD8);
@@ -738,7 +738,7 @@ int gsb_PostEffect(void)
     }
     gsb_fade();
     gsb_scissorOnDemo();
-    return D_0063A054;
+    return fbKeep;
 }
 
 extern int D_00639FDC;
@@ -796,7 +796,7 @@ extern int frame_count;
 extern int buffer_ID;
 extern int odd_even;
 extern int D_00639FC4;
-extern int D_0063A06C;
+extern int currentScreenWidth;
 extern int GlobalTimer;
 extern void sceGsSetHalfOffset(void *env, short x, short y, int field);
 extern void gsb_Reduction(void);
@@ -843,7 +843,7 @@ void gsb_UpdateGSSystem(int keep)
     shadow_Reset();
     D_00639FC4 = 1;
     FullScreenEffectBefore();
-    D_0063A06C = GlobalTimer;
+    currentScreenWidth = GlobalTimer;
     light_ResetLight();
 }
 
