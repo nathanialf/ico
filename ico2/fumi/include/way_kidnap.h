@@ -18,6 +18,7 @@ int NumOfWpPos(void);
 float WayLengthOfGObj_GObj(void *obj0, void *obj1);
 float WayLengthOfPos_Pos(float *pos0, float *pos1);
 int WayPointWithRangeFromPos(float *pos, int mode, float range);
-int WayPointWithRangeFromPos2(float *pos, void *a1, float *out, int flag);
+struct WayWork;
+int WayPointWithRangeFromPos2(float *pos, struct WayWork *w, float *out, int flag);
 
 #endif /* WAY_KIDNAP_H */

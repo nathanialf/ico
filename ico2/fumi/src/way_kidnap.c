@@ -234,11 +234,23 @@ int WayPointWithRangeFromPos(float *pos, int mode, float range)
 }
 
 extern WpNode D_004F31E0[];
-extern char D_004F1EC0[];
-extern char D_004F1EC8[];
-extern char D_004F1ED8[];
-extern char D_004F1EE0[];
-extern char D_004F1EE8[];
+
+/* One entry of the way-edge table: the pair of waypoint nodes an edge joins
+   (f8/fC), the two node indices it spans (f20[]) and its enable flags. */
+typedef struct WayEdge {
+    int f0;
+    int _4;
+    WpNode *f8;
+    WpNode *fC;
+    int _10[2];
+    int f18;
+    int _1C;
+    int f20[2];
+    int f28;
+    int _2C[2];
+} WayEdge;
+
+extern WayEdge D_004F1EC0[];
 extern WpNode *D_00728610[];
 extern char D_00728A60[];
 extern float D_0063BD6C[];
@@ -294,7 +306,156 @@ static inline WpNode *SearchOpenNode(WpNode *start)
     return p;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/way_kidnap", WayPointWithRangeFromPos2);
+int WayPointWithRangeFromPos2(float *pos, WayWork *w, float *dst, int chk)
+{
+    float v[4];
+    WpNode *found;
+    WpNode *cur;
+    /* RULING-VESTIGIAL-EXCEPTION (supervisor 2026-09-24, under the user's
+       2026-09-21 standard for dead assignments the ROM proves).
+       Deleted-code window (c3p75/c3p76, for the landing audit): the
+       initialiser is dead (edge is set at the top of every pass of the
+       loop before any read) and flow deletes it. What the bytes pin: a
+       second set of edge before cse1, since alias.c record_set then
+       forgets edge's base and the char store D_00728A60[k] = 1 kills the
+       edge->f20[j] load, which the bridge arm reloads at 0x2157E0; without
+       it the function is 354 words. What they cannot pin: the statement.
+       The declaration form follows this programmer's pointer locals
+       initialised to 0 (`void *nearest = 0;` in NearestEnemyFromGirl here,
+       `HandModeCmd *hmc = 0;` in act-game.c, `char *gen = 0;` in
+       commonact.c). */
+    WayEdge *edge = 0;
+    WpNode *nearest;
+    float best;
+    float d;
+    int n = 0;
+    int i;
+    int j;
+    int k;
+
+    for (i = 0; i < 275; i++) {
+        D_00728610[i] = 0;
+    }
+    for (k = 0; k < 94; k++) {
+        D_00728A60[k] = 0;
+    }
+    GetWay_begin(pos, w, pos);
+    found = 0;
+    cur = w->f2C;
+    if (cur == 0) {
+        debug_StdPrintfDummy(D_00621D68);
+        goto ret;
+    }
+    D_00728A60[cur->f20] = 1;
+    D_00728610[n++] = cur;
+
+    while (1) {
+        for (i = 0; i < n; i++) {
+            if (D_00728610[i] != 0) {
+                goto found;
+            }
+        }
+        break;
+    found:
+        cur = D_00728610[i];
+        edge = &D_004F1EC0[cur->f20];
+        debug_StdPrintfDummy(D_00621D88, cur, cur->f20, i);
+        D_00728610[i] = 0;
+        debug_StdPrintfDummy(D_00621DA8, edge->f28);
+        if (edge->f28 != 0) {
+            /* RULING-VESTIGIAL-EXCEPTION (supervisor 2026-09-24, under the
+               user's 2026-09-21 standard for dead assignments the ROM proves).
+               Deleted-code window (c3p76): k is the
+               index of this edge in the table, as everywhere below, and the
+               value is dead (the next read of k follows its reassignment in
+               both loops) so flow deletes it; listing rows 427-429 carry no
+               code. What the bytes pin: a read of the table base in this arm,
+               on cse1's path from the found block, so the base register row
+               419 builds is used outside its block when loop.c runs; the
+               second loop pass then leaves that lo_sum in the block (scan_loop's
+               maybe_never guard) and hoists only the high part, local-alloc
+               cannot tie the two, and combine keeps mult + addu where a
+               hoisted base gives an EE madd (r5900_madd_profitable_p). What
+               they cannot pin: the statement's text. */
+            k = edge - D_004F1EC0;
+            found = SearchOpenNode(cur);
+        }
+        if (found != 0) {
+            break;
+        }
+        if (edge->f18 == 0) {
+            for (k = 0; k < 94; k++) {
+                if (D_004F1EC0[k].f0 == 0) {
+                    continue;
+                }
+                if (D_004F1EC0[k].f18 == 0) {
+                    continue;
+                }
+                for (j = 0; j < 2; j++) {
+                    if (cur->f20 != ((WpNode *)D_004F31E0)[D_004F1EC0[k].f20[j]].f20) {
+                        continue;
+                    }
+                    if (D_00728A60[k] != 0) {
+                        continue;
+                    }
+                    D_00728A60[k] = 1;
+                    if (chk && D_004F1EC0[k].f28 == 0) {
+                        continue;
+                    }
+                    if (j == 0) {
+                        D_00728610[n++] = D_004F1EC0[k].f8;
+                    } else {
+                        D_00728610[n++] = D_004F1EC0[k].fC;
+                    }
+                    debug_StdPrintfDummy(D_00621DB8, D_00728610[n - 1], j, k);
+                }
+            }
+        } else {
+            for (j = 0; j < 2; j++) {
+                k = ((WpNode *)D_004F31E0)[edge->f20[j]].f20;
+                if (D_00728A60[k] != 0) {
+                    continue;
+                }
+                D_00728A60[k] = 1;
+                if (chk && D_004F1EC0[k].f28 == 0) {
+                    continue;
+                }
+                D_00728610[n++] = &D_004F31E0[edge->f20[j]];
+                debug_StdPrintfDummy(D_00621DD8, D_00728610[n - 1], j, k);
+            }
+        }
+    }
+
+ret:
+    if (found == 0 && chk) {
+        return 0;
+    }
+    if (found == 0) {
+        nearest = 0;
+        best = D_0063BD6C[0];
+        debug_StdPrintfDummy(D_00621DF0);
+        for (i = 0; i < 275; i++) {
+            cur = &D_004F31E0[i];
+            if (cur->f0 == 0 || cur->f30 != 0 || D_004F1EC0[cur->f20].f28 == 0) {
+                continue;
+            }
+            _SubVector(v, pos, cur->pos);
+            d = _InnerProduct(v, v);
+            if (d < best) {
+                nearest = cur;
+                best = d;
+            }
+        }
+        if (nearest != 0) {
+            sceVu0CopyVector(dst, cur->pos);
+            return 1;
+        }
+        debug_StdPrintfDummy(D_00621E48);
+        return 0;
+    }
+    sceVu0CopyVector(dst, found->pos);
+    return 1;
+}
 
 extern char D_00621D58[];
 extern void *D_00639EA8;
