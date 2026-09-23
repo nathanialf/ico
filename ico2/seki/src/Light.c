@@ -8,6 +8,7 @@
 #include "matrixDrive.h"
 #include <math.h>
 #include <string.h>
+#include <libvu0.h>
 
 typedef struct Light {
     char _pad0[0x10];
@@ -36,6 +37,27 @@ typedef struct AmbientVolume {
     struct AmbientVolume *next; /* 0x94 */
     struct AmbientVolume *prev; /* 0x98 */
 } AmbientVolume;
+
+/* RECONSTRUCTION: the per-object light matrix record at *(char **)(self +
+ * 0x874) (the record typedef.h calls Obj874; this file cannot include
+ * typedef.h, which redefines StageSetting and Pad).  Rung: ROM bytes.
+ * light_MakeLightMatrix builds the normal light matrix at 0x00 from the three
+ * directions at 0x80 and the colour matrix at 0x40 from the colours at 0xB0
+ * and the ambient at 0xE0, and tests the mode at 0xF0; light_getNearLight
+ * fills the directions and colours.  The members are the SDK's 16-byte
+ * aligned vector types: with that alignment gcc adds a row's variable offset
+ * to the record base before the member displacement (expr.c,
+ * expand_assignment), which is the ROM's one base-first addu shared by the
+ * 0x8C and 0xBC stores; a 4-byte aligned layout adds the displacement first
+ * and costs a second address register (measured).  Names are role names. */
+typedef struct LightMatrix {
+    sceVu0FMATRIX normal;  /* 0x00 */
+    sceVu0FMATRIX color;   /* 0x40 */
+    sceVu0FVECTOR dir[3];  /* 0x80 */
+    sceVu0FVECTOR col[3];  /* 0xB0 */
+    sceVu0FVECTOR ambient; /* 0xE0 */
+    int mode;              /* 0xF0 */
+} LightMatrix;
 
 extern char D_0054F0B0[];
 extern char D_0054F0C8[];
@@ -216,7 +238,153 @@ Light *light_AddLight(char *self, int b, int kind)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Light", light_getNearLight);
+extern float _GetLength(void *a, void *b);
+extern void _ScaleVectorXYZ(void *dst, void *src, float s);
+extern void _AddVector(void *dst, void *x, void *y);
+extern void _SubVector(void *dst, void *x, void *y);
+extern void _UnitVector(void *dst);
+
+/* Listing rows 754-964.  The January listing's rows 877-881 (a flag-guarded
+   copy of near[] and its weights into two debug arrays) are absent from the
+   retail build.  Each switch arm writes its own abs and weight store and
+   jump.c cross-jumps the copies (listing lines 802, 841-842); the range tests
+   are nested ifs, since an && pair folds into one unsigned compare where the
+   ROM keeps bltz and slti. */
+void light_getNearLight(char *self, int idx)
+{
+    Light *near[3];
+    float pos[4];
+    float dir[4];
+    float tmp[4];
+    Light *p;
+    float d;
+    int i;
+    int j;
+    int k;
+
+    memset(dir, 0, 16);
+    if (D_0063C134 == 0) {
+        return;
+    }
+    for (i = 0; i < 3; i++) {
+        near[i] = 0;
+    }
+    if (*(unsigned short *)(self + 0x84C) == 2) {
+        _CopyVector(pos, *(char **)(self + 0xC) + idx * 0x40 + 0x30);
+    } else {
+        _CopyVector(pos, *(char **)(self + 0xC) + 0x30);
+    }
+    for (p = (Light *)D_0063C134; p != 0; p = p->prev) {
+        switch (p->f_44) {
+        case 0:
+            p->f_30 = 1.0f;
+            p->f_34 = 0.0f;
+            p->f_38 = 1.0f;
+            d = (p->f_20[0] + p->f_20[1] + p->f_20[2]) * 0.3333f;
+            if (d < 0.0f) {
+                d = -d;
+            }
+            p->f_3C = d;
+            break;
+        case 1:
+            /* Listing line 805 reads the dobj's light number and 806 tests
+               it.  The ROM keeps that word in $6, the insert loop's index
+               register, so it is the same variable as j (gcc 2.9 gives one
+               variable one allocno); the bytes pin the sharing, not the
+               name.  GetRootPositionByDObj takes the dobj as its second
+               argument (geometryManager.c), already in $5 from the test. */
+            j = *(int *)(*(int *)(p->f_40 + 0x15C) + 0x83C);
+            if (j == 0) {
+                p->f_38 = 0.0f;
+                p->f_3C = 0.0f;
+                continue;
+            }
+            GetRootPositionByDObj(p, *(char **)(p->f_40 + 0x15C));
+            d = _GetLength(pos, p);
+            if (p->f_34 < d) {
+                p->f_38 = 0.0f;
+                p->f_3C = 0.0f;
+                continue;
+            }
+            p->f_38 = (p->f_34 - d) / p->f_34;
+            d = p->f_38 * p->f_30 * ((p->f_20[0] + p->f_20[1] + p->f_20[2]) * 0.3333f);
+            if (d < 0.0f) {
+                d = -d;
+            }
+            p->f_3C = d;
+            break;
+        case 2:
+        case 3:
+            d = _GetLength(pos, p);
+            if (p->f_34 < d) {
+                p->f_38 = 0.0f;
+                p->f_3C = 0.0f;
+                continue;
+            }
+            p->f_38 = (p->f_34 - d) / p->f_34;
+            d = p->f_38 * p->f_30 * ((p->f_20[0] + p->f_20[1] + p->f_20[2]) * 0.3333f);
+            if (d < 0.0f) {
+                d = -d;
+            }
+            p->f_3C = d;
+            break;
+        default:
+            continue;
+        }
+    }
+    for (p = (Light *)D_0063C134; p != 0; p = p->prev) {
+        if (p->f_3C == 0.0f) {
+            continue;
+        }
+        for (j = 0; j < 3; j++) {
+            if (near[j] == 0 || near[j]->f_3C < p->f_3C) {
+                for (k = 2; k > j; k--) {
+                    near[k] = near[k - 1];
+                }
+                near[j] = p;
+                break;
+            }
+        }
+    }
+    for (p = (Light *)D_0063C134; p != 0; p = p->prev) {
+        if (p->f_3C == 0.0f) {
+            continue;
+        }
+        if (p->f_44 == 0) {
+            _ScaleVectorXYZ(tmp, p->f_10, p->f_3C);
+            _AddVector(dir, dir, tmp);
+        } else if (p->f_44 >= 0) {
+            if (p->f_44 < 3) {
+                _SubVector(tmp, pos, p);
+                _NormalizeVector(tmp, tmp);
+                _ScaleVectorXYZ(tmp, tmp, p->f_3C);
+                _AddVector(dir, dir, tmp);
+            }
+        }
+    }
+    _NormalizeVector(self + 0x860, dir);
+    for (i = 0; i < 3; i++) {
+        if (near[i] != 0) {
+            if (near[i]->f_44 == 0) {
+                _NormalizeVector(((LightMatrix *)*(char **)(self + 0x874))->dir[i], near[i]->f_10);
+                _CopyVector(((LightMatrix *)*(char **)(self + 0x874))->col[i], near[i]->f_20);
+            } else if (near[i]->f_44 >= 0) {
+                if (near[i]->f_44 < 4) {
+                    _SubVector(((LightMatrix *)*(char **)(self + 0x874))->dir[i], pos, near[i]);
+                    _NormalizeVector(((LightMatrix *)*(char **)(self + 0x874))->dir[i],
+                                     ((LightMatrix *)*(char **)(self + 0x874))->dir[i]);
+                    _ScaleVectorXYZ(((LightMatrix *)*(char **)(self + 0x874))->col[i],
+                                    near[i]->f_20, near[i]->f_38 * near[i]->f_30);
+                }
+            }
+        } else {
+            _UnitVector(((LightMatrix *)*(char **)(self + 0x874))->dir[i]);
+            _UnitVector(((LightMatrix *)*(char **)(self + 0x874))->col[i]);
+        }
+        ((LightMatrix *)*(char **)(self + 0x874))->dir[i][3] = 0.0f;
+        ((LightMatrix *)*(char **)(self + 0x874))->col[i][3] = 1.0f;
+    }
+}
 
 extern float D_0028F780[4];
 /* kept local: this TU's uses of _GetNorm do not fit the prototype in Matrix.h */

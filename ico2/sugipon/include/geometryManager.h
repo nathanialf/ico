@@ -13,7 +13,10 @@
 #define GEOMETRYMANAGER_H
 
 int CylinderCollision(char *self, int group, float r, float h, float s);
-int CylinderCollisionWithControlDynamics(char *self, int group, int ctrl, float r, float h, float s);
+
+int CylinderCollisionWithControlDynamics(char *self, int group, int ctrl, float r, float h,
+                                         float s);
+
 int *GetCharGObjList(void);
 void GetGlobalDirectionOrient(int *self, int *other, char *p);
 void GetInitialSkeltonMatrixByDObj(char *mdl);
@@ -26,6 +29,7 @@ void GetRootMatrixTransOffset(char *dst, char *src);
 void GetRootMotionOrient(char *a0, char *a1);
 void GetRootOrient(char *a0, char *a1);
 void GetRootPosition(void *a0, char *outer);
+void GetRootPositionByDObj(void *a0, char *src);
 void GetRootQuaternion(int a0, int a1);
 void GetRootQuaternionByDObj(int a0, int *a1);
 void GlobalizeGeometry(char *gobj);
@@ -43,7 +47,10 @@ void SetRootPosition(char *a0, void *a1);
 void SetRootQuaternion(char *a0, void *a1);
 void UpdateRootMatrix(int a0);
 void UpdateRootMatrixByDObj(char *a0);
-int cylinderCollisionCheck(void *a0, void *a1, int a2, float f0, float f1, float f2, float f3, float f4, int a3, int a4);
+
+int cylinderCollisionCheck(void *a0, void *a1, int a2, float f0, float f1, float f2, float f3,
+                           float f4, int a3, int a4);
+
 void getInitialInverseMatrix(char *mat, char *mdl, int no);
 void getInitialMatrix(char *mdl, int no);
 
