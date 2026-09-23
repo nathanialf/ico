@@ -28,6 +28,11 @@ extern void _ScaleVectorXYZ(void *a0, void *a1, float a2);
 extern void _AddVectorXYZ(void *a0, void *a1, void *a2);
 extern void _InterVectorXYZ(void *a0, void *a1, void *a2, float t);
 extern void _MulCurrentMatrixL(void *a0);
+extern void _InitCurrentMatrix(void);
+extern void _MulCurrentMatrixR(void *a0);
+extern void _GetCurrentMatrix(void *a0);
+/* one skinning matrix per cluster, built by shadow_EntryClusterShadow */
+extern char D_0067C070[];
 extern int D_0063A17C;
 extern int D_0063A178;
 
@@ -52,7 +57,130 @@ void shadow_getShadowVectorAverage(void *a0, char *a1)
     _NormalizeVector(a0, a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Shadow", shadow_EntryClusterShadow);
+/* the same quadword copy type src/Primitive.c uses: the accumulator reset is
+ * one lq/sq pair per vertex */
+typedef int Qw128 __attribute__((mode(TI)));
+
+/* one weighted vertex of a cluster run: the vertex it moves and the weight it
+ * moves it by */
+typedef struct ClusterWeight {
+    int idx;
+    float w;
+    int _8;
+    int _C;
+} ClusterWeight;
+
+/* one cluster of a shadow volume: the -1 terminated run of weighted vertices
+ * and the matrix slot it is skinned through */
+typedef struct ClusterPoly {
+    ClusterWeight *run;
+    int matrix;
+    int _8;
+    int _C;
+} ClusterPoly;
+
+/* The listing puts this body at rows 619-620, inside shadow_EntryClusterShadow's
+ * own line span. One asm block: the weight goes through $8 by hand and the
+ * three vnop runs are scheduled around the multiply and the accumulate. */
+static inline void applyWeightedVtx(void *dst, void *src, float w)
+{
+    __asm__ __volatile__("lqc2 $vf8, 0(%1)\n\t"
+                         "lqc2 $vf9, 0(%0)\n\t"
+                         "mfc1 $8, %2\n\t"
+                         "qmtc2.ni $8, $vf11\n\t"
+                         "vmulax.xyzw ACC, $vf4, $vf8x\n\t"
+                         "vmadday.xyzw ACC, $vf5, $vf8y\n\t"
+                         "vmaddaz.xyzw ACC, $vf6, $vf8z\n\t"
+                         "vmaddw.xyzw $vf10, $vf7, $vf0w\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "vmulx.xyz $vf10, $vf10, $vf11x\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "vadd.xyz $vf9, $vf9, $vf10\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "sqc2 $vf9, 0(%0)"
+                         :
+                         : "r"(dst), "r"(src), "f"(w)
+                         : "$8");
+}
+
+void shadow_EntryClusterShadow(char *a0, float a1)
+{
+    VECTOR zero = {0.0f, 0.0f, 0.0f, 1.0f};
+    float v[4];
+    float sa[4];
+    float sb[4];
+    char *x = *(char **)(a0 + 0x858);
+    char *p;
+    int i;
+    unsigned int k;
+
+    _InitCurrentMatrix();
+    shadow_getShadowVectorAverage(v, a0);
+    _ScaleVectorXYZ(sa, v, a1);
+    _ScaleVectorXYZ(sb, v, 4.0f);
+
+    for (i = 0; i < *(int *)(a0 + 8); i++) {
+        _SetCurrentMatrix(*(char **)(a0 + 0xC) + i * 0x40);
+        _MulCurrentMatrixR(*(char **)(a0 + 0x90) + i * 0x40);
+        _MulCurrentMatrixL(matrixptr + 0x80);
+        _GetCurrentMatrix(D_0067C070 + i * 0x40);
+    }
+
+    __asm__ __volatile__("lq $8, 0(%0)" : : "r"(&zero) : "$8");
+    for (i = 0, p = *(char **)(x + 0x40); i < *(char *)(x + 0x2E); i++, p += 0x180) {
+        for (k = 0; k < *(unsigned int *)(p + 0x94); k++) {
+            __asm__ __volatile__("sq $8, 0(%0)" : : "r"((Qw128 *)*(char **)(p + 0x174) + k) : "$8");
+        }
+    }
+
+    for (i = 0, p = *(char **)(x + 0x40); i < *(char *)(x + 0x2E); i++, p += 0x180) {
+        for (k = 0; k < *(unsigned int *)(p + 0xF4); k++) {
+            ClusterWeight *e;
+            VECTOR *dst;
+            VECTOR *src;
+
+            _SetCurrentMatrix(D_0067C070 + (*(ClusterPoly **)(p + 0xF0))[k].matrix * 0x40);
+            e = (*(ClusterPoly **)(p + 0xF0))[k].run;
+            /* the listing gives both base loads the run load's row (648) and
+             * the -1 of the loop test the next row (649): they are read once
+             * here, ahead of the loop, not inside it */
+            dst = *(VECTOR **)(p + 0x174);
+            src = *(VECTOR **)(p + 0x90);
+            do {
+                applyWeightedVtx(dst + e->idx, src + e->idx, e->w);
+            } while ((++e)->idx != -1);
+        }
+        for (k = 0; k < *(unsigned int *)(p + 0x94); k++) {
+            _AddVectorXYZ(*(char **)(p + 0x178) + k * 16, *(char **)(p + 0x174) + k * 16, sa);
+            _AddVectorXYZ(*(char **)(p + 0x174) + k * 16, *(char **)(p + 0x174) + k * 16, sb);
+        }
+    }
+
+    for (i = 0, p = *(char **)(x + 0x40); i < *(char *)(x + 0x2E); i++, p += 0x180) {
+        VECTOR *va = (VECTOR *)*(char **)(p + 0x174);
+        VECTOR *vb = (VECTOR *)*(char **)(p + 0x178);
+
+        for (k = 0; k < *(unsigned int *)(p + 0x94); k++) {
+            if (1.0f <= va[k].z && 1.0f <= vb[k].z) {
+            } else if (va[k].z < 1.0f && vb[k].z < 1.0f) {
+                vb[k].w = -1.0f;
+                va[k].w = -1.0f;
+            } else if (vb[k].z < 1.0f) {
+                _InterVectorXYZ(&vb[k], &va[k], &vb[k],
+                                1.0f - (va[k].z - 1.0f) / (va[k].z - vb[k].z));
+            } else if (va[k].z < 1.0f) {
+                _InterVectorXYZ(&va[k], &vb[k], &va[k],
+                                1.0f - (vb[k].z - 1.0f) / (vb[k].z - va[k].z));
+            }
+        }
+    }
+}
 
 /* The listing puts this body at rows 750-751, inside shadow_EntryNormalShadow's
  * own line span, so the dev wrote it at the head of that function. One asm
@@ -140,7 +268,107 @@ void __GetCameraPos(void *a0)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Shadow", shadow_RenderVolume);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Shadow", shadow_RenderVolumeMulti);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Shadow", shadow_MakeObjectData);
+
+extern void *mallocseki(int size);
+
+/* The three record shapes shadow_MakeObjectData copies out of the model into
+ * its own heap. The vertex and polygon records are eight-byte aligned, which
+ * is what makes the ROM copy them with ld/sd pairs; the strip record starts
+ * with a short count and is only two-byte aligned, so its copy is ldl/ldr. */
+typedef struct ShadowVtx {
+    int _0;
+    int _4;
+    int _8;
+    int _C;
+} __attribute__((aligned(16))) ShadowVtx;
+
+typedef struct ShadowPoly {
+    ShadowVtx *pts;
+    int _4;
+    int _8;
+    int _C;
+} __attribute__((aligned(16))) ShadowPoly;
+
+typedef struct ShadowRun {
+    short count;
+    char _2[0xE];
+} ShadowRun;
+
+void shadow_MakeObjectData(char *a0)
+{
+    int i;
+    int j;
+    int l;
+    /* zeroed here and again after each polygon, so the scan starts from a
+     * value carried round the loop (the ROM clears it in the outer loop's
+     * preheader and in the polygon loop's latch, never before the scan) */
+    int m = 0;
+    int n;
+    int c;
+    char *p;
+    ShadowVtx *q;
+    ShadowPoly *r;
+    ShadowVtx *t;
+    ShadowRun **s;
+    ShadowRun *u;
+
+    for (i = 0; i < *(char *)(a0 + 0x2E); i++) {
+        p = *(char **)(a0 + 0x40) + i * 0x180;
+        if (*(char *)(a0 + 0x2F) != 0) {
+            *(void **)(p + 0x174) = mallocseki(*(unsigned int *)(p + 0x94) * 16);
+            *(void **)(p + 0x178) = mallocseki(*(unsigned int *)(p + 0x94) * 16);
+            q = (ShadowVtx *)mallocseki(*(unsigned int *)(p + 0x94) * 16);
+            for (j = 0; j < *(unsigned int *)(p + 0x94); j++) {
+                _CopyVector(&q[j], *(char **)(p + 0x90) + j * 16);
+            }
+            *(ShadowVtx **)(p + 0x90) = q;
+
+            r = (ShadowPoly *)mallocseki(*(unsigned int *)(p + 0xF4) * 16);
+            for (j = 0; j < *(unsigned int *)(p + 0xF4); j++) {
+                r[j] = (*(ShadowPoly **)(p + 0xF0))[j];
+                while (r[j].pts[m]._0 != -1) {
+                    m++;
+                }
+                t = r[j].pts = (ShadowVtx *)mallocseki((m + 1) * 16);
+                for (l = 0; l < m + 1; l++) {
+                    *t++ = (*(ShadowPoly **)(p + 0xF0))[j].pts[l];
+                }
+                m = 0;
+            }
+            *(ShadowPoly **)(p + 0xF0) = r;
+        } else {
+            *(void **)(p + 0x174) = mallocseki(*(unsigned int *)(p + 0x94) * 16);
+            *(void **)(p + 0x178) = mallocseki(*(unsigned int *)(p + 0x94) * 16);
+            q = (ShadowVtx *)mallocseki(*(unsigned int *)(p + 0x94) * 16);
+            for (j = 0; j < *(unsigned int *)(p + 0x94); j++) {
+                _CopyVector(&q[j], *(char **)(p + 0x90) + j * 16);
+            }
+            *(ShadowVtx **)(p + 0x90) = q;
+        }
+
+        s = (ShadowRun **)mallocseki(*(unsigned int *)(p + 0x104) * 4);
+        /* the strip pass reuses the outer loop's own index, which is what
+         * makes the ROM step the outer loop on from where this one ended */
+        for (i = 0; i < *(unsigned int *)(p + 0x104); i++) {
+            u = (*(ShadowRun ***)(p + 0x100))[i];
+            n = 0;
+            for (;;) {
+                c = u->count;
+                if (c == 0) {
+                    break;
+                }
+                u += c + 1;
+                n += c + 1;
+            }
+            n++;
+            s[i] = (ShadowRun *)mallocseki(n * 16);
+            for (j = 0; j < n; j++) {
+                s[i][j] = (*(ShadowRun ***)(p + 0x100))[i][j];
+            }
+        }
+        *(ShadowRun ***)(p + 0x100) = s;
+    }
+}
 
 inline void shadow_KillShadow(int val)
 {

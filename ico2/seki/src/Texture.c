@@ -39,7 +39,11 @@ typedef struct CdvdRec {
     char padE2[0xE4 - 0xE2];
     TexLevel clut;
     TexLevel lv[7];
-    char pad204[0x290 - 0x204];
+    char pad204[0x20C - 0x204];
+    /* the byte count tex_Tool hands malloc_MemCpy when it rebuilds the three
+     * shadow copies of the image after an edit */
+    int x20C;
+    char pad210[0x290 - 0x210];
     int x290;
     int x294;
     unsigned int x298;
@@ -48,7 +52,9 @@ typedef struct CdvdRec {
     short x2A4;
     short x2A6;
     int x2A8;
-    char pad2AC[0x2BC - 0x2AC];
+    char pad2AC[0x2B8 - 0x2AC];
+    short x2B8;
+    short x2BA;
     /* the three CLUT copies tex_initTextureSub allocates for the scroll */
     void *x2BC;
     void *x2C0;
@@ -62,11 +68,48 @@ typedef struct CdvdRec {
 
 extern CdvdRec D_0068AFE0[];
 
+/* the 0x40-byte block the ICO tools append to the TIM2 header, recognised by
+ * its "ICO" magic and copied whole into the first 0x40 bytes of the record's
+ * TexExt at 0x268. The two ints at 0x28 and 0x2C are the mag and min filter
+ * terms tex_UpdateMipMapLevel reads back as x290 and x294, and the two shorts
+ * at 0x3C and 0x3E the terms it reads back as x2A4 and x2A6. */
+typedef struct Tim2Ext {
+    char magic[4];
+    /* the U and V scroll speeds, and behind them the U and V amplitudes the
+     * sine animation multiplies its sample by */
+    float f04;
+    float f08;
+    float f0C;
+    float f10;
+    int x14;
+    int x18;
+    /* the two enables tex_textureAnimation tests before it scrolls the CLUT */
+    int x1C;
+    int x20;
+    /* SHINE */
+    int x24;
+    /* SMPMAG and SMPMIN */
+    int x28;
+    int x2C;
+    /* TEXFNC, ALPTST and ALPFAI */
+    int x30;
+    int x34;
+    int x38;
+    /* MIPMAPK and MIPMAPL */
+    short h3C;
+    short h3E;
+} Tim2Ext;
+
 typedef struct TexEntry {
     char pad0[8];
     char name[0x78];
     long long x80;
-    char pad88[0x2D0 - 0x88];
+    char pad88[0x270 - 0x88];
+    /* the 0x40-byte ICO block, the same bytes the record keeps at 0x268 */
+    Tim2Ext ext;
+    /* the slot-in-use flag tex_Tool walks the table by */
+    int x2B0;
+    char pad2B4[0x2D0 - 0x2B4];
     char x2D0[0x2D8 - 0x2D0];
     unsigned int pad2D8;
     unsigned char pad2DC;
@@ -131,32 +174,6 @@ typedef struct Tim2Mipmap {
     unsigned long long GsMiptbp2;
     unsigned int sizes[8];
 } Tim2Mipmap;
-
-/* the 0x40-byte block the ICO tools append to the TIM2 header, recognised by
- * its "ICO" magic and copied whole into the first 0x40 bytes of the record's
- * TexExt at 0x268. The two ints at 0x28 and 0x2C are the mag and min filter
- * terms tex_UpdateMipMapLevel reads back as x290 and x294, and the two shorts
- * at 0x3C and 0x3E the terms it reads back as x2A4 and x2A6. */
-typedef struct Tim2Ext {
-    char magic[4];
-    /* the U and V scroll speeds, and behind them the U and V amplitudes the
-     * sine animation multiplies its sample by */
-    float f04;
-    float f08;
-    float f0C;
-    float f10;
-    int x14;
-    int x18;
-    /* the two enables tex_textureAnimation tests before it scrolls the CLUT */
-    int x1C;
-    int x20;
-    char pad24[0x28 - 0x24];
-    int x28;
-    int x2C;
-    char pad30[0x3C - 0x30];
-    short h3C;
-    short h3E;
-} Tim2Ext;
 
 /* the texture's UV record at 0x A8 of the texture record: the two scroll
  * offsets tex_textureAnimation writes and tex_SetUVScroll seeds. */
@@ -1698,9 +1715,479 @@ void tex_dispClut(unsigned char *clut, int mode)
     gif_EndPacket();
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_printTexture);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_Tool);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_ListTool);
+/* TEX1 and TEST_1 for the record's own five-qword GS packet at 0x58: the tool
+ * rebuilds them from the block it just edited. Listing rows 2265-2279, between
+ * tex_dispClut and tex_printTexture, inlined only into tex_Tool. */
+static inline void toolMakeRegs(CdvdRec *t, int lv)
+{
+    int aref = 96;
+    int afail = 1;
+    int zte = 1;
+    int ztst = 2;
+    int mmag = t->x290;
+    int mmin = t->x294;
+    long long *reg;
+
+    if (t->x29C != 0) {
+        aref = t->x29C;
+        afail = t->x2A0;
+    }
+    reg = (long long *)((char *)t + 0x58);
+    reg[4] = ((long long)(t->xE0 - lv - 1) << 2) | ((long long)mmag << 5) | ((long long)mmin << 6) |
+             ((long long)t->x2A6 << 19) | ((long long)t->x2A4 << 32);
+    /* 13 is the alpha test switched on with the GEQUAL function in the two
+     * fields below AREF */
+    reg[6] = 13 | (long long)aref << 4 | (long long)afail << 12 | (long long)zte << 16 |
+             (long long)ztst << 17;
+}
+
+/* the shared pad-state array (GsBase.c's GsbPad): holding the 0x10 button on
+ * pad 0 drops alpha blending from the PRIM word. Declared as the array, so the
+ * word is reached %hi/%lo as the ROM does, not gp-relative. */
+extern GsbPad D_0028F8F0[];
+/* one string per TIM2 image type, printed with %8s */
+extern char *textype[];
+/* "%8s:SIZE=%3dX%3d" */
+extern char D_00550A18[];
+/* UNPROTOTYPED: the ROM passes seven arguments in $4 to $10 */
+extern void debug_PrintfDummy();
+
+void tex_printTexture(int id)
+{
+    char *p = D_0068AFD8[id].name;
+    int lv = D_0068AFD8[id].lv;
+    float st[4];
+
+    debug_PrintfDummy(D_0063A064 - 160, 195, 0xFF800000, D_00550A18,
+                      textype[*(unsigned char *)(p + 0x21B)], *(unsigned short *)(p + 0x21C) >> lv,
+                      *(unsigned short *)(p + 0x21E) >> lv);
+
+    tex_TransTexture(id, 11);
+    gif_StartPacketPri(11);
+    {
+        float one = 1.0f;
+        TexColor col = D_0063A228[0];
+        int w = *(unsigned short *)(p + 0x21C) >> lv;
+        int h = *(unsigned short *)(p + 0x21E) >> lv;
+        int rect[4] = {(304 - w) * 16, -1536, w * 16, h / 2 * 16};
+
+        st[0] = *(float *)(p + 0xB8);
+        st[1] = *(float *)(p + 0xBC);
+        st[2] = st[0] + one;
+        st[3] = st[1] + one;
+        FlushCache(0);
+
+        setGsReg(0x49, 0);
+        setGsReg(0x42, 0x44);
+        setGsReg(0x08, 0);
+        setGsReg(0x47, 0x30000);
+        setGsReg(0x4E, 0x1300000C0LL);
+        *D_004EE6F0.ptr++ = (D_0028F8F0[0]._0 & 0x10) == 0 ? 0x56 : 0x16;
+        *D_004EE6F0.ptr++ = 0x00;
+        /* Q is the bits of `one`, read unsigned the way gsb_filmNoise in
+         * GsBase.c reads its scale. The ROM pins the unsigned read: cse2 folds
+         * its SImode bit copy to the constant (lui at 2321) and `one` dies in
+         * $f0 after the ST sums; a signed read keeps `one` live across
+         * FlushCache in $f20. */
+        *D_004EE6F0.ptr++ = GIF_RGBA(&col.r) | ((long long)*(unsigned int *)&one << 32);
+        *D_004EE6F0.ptr++ = 0x01;
+        *D_004EE6F0.ptr++ = (long long)*(unsigned int *)&st[0] | ((long long)*(int *)&st[1] << 32);
+        *D_004EE6F0.ptr++ = 0x02;
+        *D_004EE6F0.ptr++ = GIF_XY(DISP_X(rect[0]), DISP_Y(rect[1]), 0x7FFFFFFFLL);
+        *D_004EE6F0.ptr++ = 0x05;
+        *D_004EE6F0.ptr++ = (long long)*(unsigned int *)&st[2] | ((long long)*(int *)&st[3] << 32);
+        *D_004EE6F0.ptr++ = 0x02;
+        *D_004EE6F0.ptr++ = GIF_XY0(dispFar(DISP_X(rect[0]), DISP_X(rect[2])),
+                                    dispFar(DISP_Y(rect[1]), DISP_Y(rect[3])), 0x7FFFFFFFLL);
+        *D_004EE6F0.ptr++ = 0x05;
+        setGsReg(0x4E, 0x300000C0);
+        setGsReg(0x47, 0x50000);
+    }
+    gif_EndPacket();
+}
+
+/* The texture tool's menu table, one row per tunable. `type` picks how `var`
+ * is read back: 0 an int, 1 a float, 2 a short. */
+typedef struct TexToolRow {
+    char *label;
+    float min;
+    float max;
+    float step;
+    int type;
+    void *var;
+    int _18;
+} TexToolRow;
+
+/* the working copy of the selected texture's ICO block: the menu rows point
+ * straight at its fields and the tool writes it back into the record */
+extern Tim2Ext D_006AF550;
+/* the row the tool has selected, and the step multiplier the shoulder button
+ * scales by ten at a time */
+extern int D_0063C160;
+extern int D_0063A2B8;
+/* "SELTEX" "SCRL-U" "SCRL-V" "AMP-U " "AMP-V " "CS-BGN" "CS-END" "CS-SPD"
+ * "CS-STP" "SHINE " "SMPMAG" "SMPMIN" "TEXFNC" "ALPTST" "ALPFAI" "MIPMAPK"
+ * "MIPMAPL" */
+extern char D_0063A230[];
+extern char D_0063A238[];
+extern char D_0063A240[];
+extern char D_0063A248[];
+extern char D_0063A250[];
+extern char D_0063A258[];
+extern char D_0063A260[];
+extern char D_0063A268[];
+extern char D_0063A270[];
+extern char D_0063A278[];
+extern char D_0063A280[];
+extern char D_0063A288[];
+extern char D_0063A290[];
+extern char D_0063A298[];
+extern char D_0063A2A0[];
+extern char D_0063A2A8[];
+extern char D_0063A2B0[];
+/* "%s:%d" and "%s:%f" */
+extern char D_0063A2C8[];
+extern char D_0063A2D0[];
+/* "/%d Name:%s x:x%d" */
+extern char D_00550A30[];
+
+int tex_Tool(int *tno)
+{
+    TexToolRow m[17] = {
+        {D_0063A230, 0.0f, (float)(D_0063C164 - 1), 1.0f, 0, tno},
+        {D_0063A238, -1.0f, 1.0f, 1e-05f, 1, &D_006AF550.f04},
+        {D_0063A240, -1.0f, 1.0f, 1e-05f, 1, &D_006AF550.f08},
+        {D_0063A248, -1.0f, 1.0f, 0.01f, 1, &D_006AF550.f0C},
+        {D_0063A250, -1.0f, 1.0f, 0.01f, 1, &D_006AF550.f10},
+        {D_0063A258, 0.0f, 255.0f, 1.0f, 0, &D_006AF550.x14},
+        {D_0063A260, 0.0f, 255.0f, 1.0f, 0, &D_006AF550.x18},
+        {D_0063A268, -120.0f, 120.0f, 1.0f, 0, &D_006AF550.x1C},
+        {D_0063A270, -127.0f, 127.0f, 1.0f, 0, &D_006AF550.x20},
+        {D_0063A278, 0.0f, 3.0f, 1.0f, 0, &D_006AF550.x24},
+        {D_0063A280, 0.0f, 1.0f, 1.0f, 0, &D_006AF550.x28},
+        {D_0063A288, 0.0f, 5.0f, 1.0f, 0, &D_006AF550.x2C},
+        {D_0063A290, 0.0f, 3.0f, 1.0f, 0, &D_006AF550.x30},
+        {D_0063A298, 0.0f, 128.0f, 1.0f, 0, &D_006AF550.x34},
+        {D_0063A2A0, 0.0f, 3.0f, 1.0f, 0, &D_006AF550.x38},
+        {D_0063A2A8, -2047.0f, 0.0f, 1.0f, 2, &D_006AF550.h3C},
+        {D_0063A2B0, 0.0f, 3.0f, 1.0f, 2, &D_006AF550.h3E},
+    };
+    unsigned int col[2] = {0xFFFFFF00, 0xFFC0C000};
+
+    /* One print per row type. The listing carries their bodies on rows 2370,
+     * 2375 and 2380, inside tex_Tool between col (2366) and the counters
+     * (2385), in the order int, short, float, while the row loop reaches them
+     * as case 0, 1, 2: nested inline helpers. The names are ours. */
+    inline void printInt(int i)
+    {
+        debug_PrintfDummy(10, i * 9 + 46, col[i == D_0063C160], (int)D_0063A2C8, (int)m[i].label,
+                          *(int *)m[i].var);
+    }
+
+    inline void printShort(int i)
+    {
+        debug_PrintfDummy(10, i * 9 + 46, col[i == D_0063C160], (int)D_0063A2C8, (int)m[i].label,
+                          *(short *)m[i].var);
+    }
+
+    inline void printFloat(int i)
+    {
+        debug_PrintfDummy(10, i * 9 + 46, col[i == D_0063C160], (int)D_0063A2D0, (int)m[i].label,
+                          *(float *)m[i].var);
+    }
+
+    int cnt = 0;
+    int chg = 0;
+    int ret = 0;
+    int i;
+    CdvdRec *rec;
+
+    for (i = 0; i < D_0063C164; i++) {
+        if (D_0068AFD8[i].x2B0 != 0) {
+            cnt++;
+        }
+    }
+    if (cnt == 0) {
+        return -1;
+    }
+    tex_printTexture(*tno);
+    while (D_0068AFD8[*tno].x2B0 == 0) {
+        *tno = *tno + 1;
+        if (D_0063C164 - 1 < *tno) {
+            *tno = 0;
+        }
+    }
+    rec = (CdvdRec *)D_0068AFD8[*tno].name;
+    D_006AF550 = D_0068AFD8[*tno].ext;
+    if (rec->clut.vramSize != 0) {
+        tex_dispClut((unsigned char *)rec->clut.addr + 0x20, rec->clut.vramSize < 4);
+    }
+    debug_PrintfDummy(0x90, 0x2E, col[0], (int)D_00550A30, cnt, (int)rec, D_0063A2B8);
+    switch (m[D_0063C160].type) {
+    case 0:
+    case 2:
+        if (m[D_0063C160].type == 0) {
+            if (D_0028F8F0[0].rep & 0x2000) {
+                *(int *)m[D_0063C160].var =
+                    (int)((float)*(int *)m[D_0063C160].var + m[D_0063C160].step * D_0063A2B8);
+                chg = 1;
+            } else if (D_0028F8F0[0].rep & 0x8000) {
+                *(int *)m[D_0063C160].var =
+                    (int)((float)*(int *)m[D_0063C160].var - m[D_0063C160].step * D_0063A2B8);
+                chg = -1;
+            }
+            if (m[D_0063C160].max < (float)*(int *)m[D_0063C160].var) {
+                *(int *)m[D_0063C160].var = (int)m[D_0063C160].min;
+            }
+            if ((float)*(int *)m[D_0063C160].var < m[D_0063C160].min) {
+                *(int *)m[D_0063C160].var = (int)m[D_0063C160].max;
+            }
+        } else {
+            if (D_0028F8F0[0].rep & 0x2000) {
+                *(short *)m[D_0063C160].var =
+                    (short)((float)*(short *)m[D_0063C160].var + m[D_0063C160].step * D_0063A2B8);
+                chg = 1;
+            } else if (D_0028F8F0[0].rep & 0x8000) {
+                *(short *)m[D_0063C160].var =
+                    (short)((float)*(short *)m[D_0063C160].var - m[D_0063C160].step * D_0063A2B8);
+                chg = -1;
+            }
+            if (m[D_0063C160].max < (float)*(short *)m[D_0063C160].var) {
+                *(short *)m[D_0063C160].var = (short)m[D_0063C160].min;
+            }
+            if ((float)*(short *)m[D_0063C160].var < m[D_0063C160].min) {
+                *(short *)m[D_0063C160].var = (short)m[D_0063C160].max;
+            }
+        }
+        if (chg != 0) {
+            if (D_0063C160 == 0) {
+                /* case -1 breaks and case 1 runs off the end into the one
+                 * return (listing rows 2440 and 2446): reorg then gives the
+                 * second test the return value and the default jump the
+                 * epilogue's first load, as the ROM has them. */
+                switch (chg) {
+                case -1:
+                    while (D_0068AFD8[*tno].x2B0 == 0) {
+                        *tno = *tno - 1;
+                        if (*tno < 0) {
+                            *tno = D_0063C164 - 1;
+                        }
+                    }
+                    break;
+                case 1:
+                    while (D_0068AFD8[*tno].x2B0 == 0) {
+                        *tno = *tno + 1;
+                        if (D_0063C164 - 1 < *tno) {
+                            *tno = 0;
+                        }
+                    }
+                }
+                return 0;
+            }
+            malloc_MemCpy((char *)rec->clut.addr + 0x20, rec->x2C4, rec->x20C);
+            malloc_MemCpy(rec->x2BC, rec->x2C4, rec->x20C);
+            malloc_MemCpy(rec->x2C0, rec->x2C4, rec->x20C);
+            rec->x2BA = 0;
+        }
+        toolMakeRegs(rec, D_0068AFD8[*tno].lv);
+        break;
+    case 1:
+        if (D_0028F8F0[0].rep & 0x2000) {
+            *(float *)m[D_0063C160].var =
+                *(float *)m[D_0063C160].var + m[D_0063C160].step * D_0063A2B8;
+        }
+        if (D_0028F8F0[0].rep & 0x8000) {
+            *(float *)m[D_0063C160].var =
+                *(float *)m[D_0063C160].var - m[D_0063C160].step * D_0063A2B8;
+        }
+        if (D_0028F8F0[0].rep & 0x10) {
+            *(float *)m[D_0063C160].var = 0.0f;
+        }
+        if (m[D_0063C160].max < *(float *)m[D_0063C160].var) {
+            *(float *)m[D_0063C160].var = m[D_0063C160].min;
+        }
+        if (*(float *)m[D_0063C160].var < m[D_0063C160].min) {
+            *(float *)m[D_0063C160].var = m[D_0063C160].max;
+        }
+        break;
+    }
+    if (rec->x2A8 != 0) {
+        for (i = 0; i < 17; i++) {
+            switch (m[i].type) {
+            case 0:
+                printInt(i);
+                break;
+            case 1:
+                printFloat(i);
+                break;
+            case 2:
+                printShort(i);
+                break;
+            }
+        }
+        ret = (D_0028F8F0[0].trg & 0x40) ? -1 : 0;
+        if (D_0028F8F0[0].rep & 0x1000) {
+            D_0063C160--;
+            D_0063A2B8 = 1;
+        }
+        if (D_0028F8F0[0].rep & 0x4000) {
+            D_0063C160++;
+            D_0063A2B8 = 1;
+        }
+        if (D_0063C160 < 0) {
+            D_0063C160 = 16;
+        }
+        if (16 < D_0063C160) {
+            D_0063C160 = 0;
+        }
+        if (D_0028F8F0[0].trg & 0x20) {
+            D_0063A2B8 = D_0063A2B8 * 10;
+        }
+        if (1000 < D_0063A2B8) {
+            D_0063A2B8 = 1;
+        }
+    } else {
+        D_0063C160 = 0;
+    }
+    if (D_006AF550.f04 == 0.0f) {
+        ((TexUV *)((char *)rec + 0xA8))->f10 = 0.0f;
+    }
+    if (D_006AF550.f08 == 0.0f) {
+        ((TexUV *)((char *)rec + 0xA8))->f14 = 0.0f;
+    }
+    if (D_006AF550.f0C == 0.0f && D_006AF550.f10 == 0.0f) {
+        rec->x2B8 = 0;
+    }
+    D_0068AFD8[*tno].ext = D_006AF550;
+    return ret;
+}
+
+extern int D_0063A334;
+extern int D_0063A338;
+/* one name per TIM2 image type, per CLUT type and per user-header state */
+extern char *D_00290BD8[];
+extern char *D_00290BF0[];
+extern char *D_00290C00[];
+/* "Texture List [%d] PUSH '\x80' TO EDIT US." */
+extern char D_00550A48[];
+/* "No.              Name   Size MIP IMG CL US" */
+extern char D_00550A70[];
+/* "%03d%18s%7d:%1d/%1d:%s:%s:%s" */
+extern char D_00550AA0[];
+/* "   %17s %7d " */
+extern char D_00550AC0[];
+/* "TotalTextureSize" */
+extern char D_00550AD0[];
+
+static inline void remakeSampling(CdvdRec *t)
+{
+    int mmag = 1;
+    int mmin = D_0028F804[0];
+
+    if (t->x2A8 != 0) {
+        mmag = t->x290;
+        mmin = t->x294;
+    }
+    t->x78 = (t->x78 & ~0xE0) | (mmag << 5) | (mmin << 6);
+}
+
+int tex_ListTool(void)
+{
+    int total;
+    int sum;
+    int i;
+    int j;
+    int row;
+    int top;
+    int end;
+    int ret = 0;
+
+    if (D_0063A334 != 0) {
+        D_0063A334 = tex_Tool(&D_0063A338) == 0;
+        return 0;
+    }
+    total = 0;
+    tex_printTexture(D_0063A338);
+
+    debug_PrintfDummy(10, 50, 0xFFFFFF00, (int)D_00550A48, D_0063A338);
+    debug_PrintfDummy(10, 58, 0xFF800000, (int)D_00550A70);
+
+    for (i = 0; i < D_0063C164; i++) {
+        CdvdRec *t = &D_0068AFE0[i];
+
+        sum = 0;
+        for (j = 0; j < t->xE0; j++) {
+            sum += *(unsigned int *)((char *)t + 0x208) >> (j * 2);
+        }
+        total += sum;
+    }
+
+    top = D_0063A338 > 5 ? D_0063A338 : 6;
+    if (D_0063C164 - 7 < top) {
+        top = D_0063C164 - 7;
+    }
+    end = top + 7;
+    row = 2;
+
+    for (i = top - 6; i < end; i++) {
+        CdvdRec *t = &D_0068AFE0[i];
+
+        sum = 0;
+        for (j = 0; j < t->xE0; j++) {
+            sum += *(unsigned int *)((char *)t + 0x208) >> (j * 2);
+        }
+
+        if (i == D_0063A338) {
+            debug_PrintfDummy(10, row * 8 + 50, 0xFF808000, (int)D_00550AA0, D_0063A338, (int)t,
+                              sum, D_0068AFD8[D_0063A338].lv + 1, t->xE0,
+                              D_00290BD8[*(unsigned char *)((char *)t + 0x21B)],
+                              D_00290BF0[*(unsigned char *)((char *)t + 0x21A) & 0x3F],
+                              D_00290C00[*(int *)((char *)t + 0x2A8)]);
+        } else {
+            debug_PrintfDummy(10, row * 8 + 50, 0xFFFFFF00, (int)D_00550AA0, i, (int)t, sum,
+                              D_0068AFD8[i].lv + 1, t->xE0,
+                              D_00290BD8[*(unsigned char *)((char *)t + 0x21B)],
+                              D_00290BF0[*(unsigned char *)((char *)t + 0x21A) & 0x3F],
+                              D_00290C00[*(int *)((char *)t + 0x2A8)]);
+        }
+        row++;
+    }
+
+    debug_PrintfDummy(10, row * 8 + 50, 0xFF800000, (int)D_00550AC0, (int)D_00550AD0, total);
+
+    if ((D_0028F8F0[0].trg & 0x80) != 0) {
+        TexEntry *e = &D_0068AFD8[D_0063A338];
+        CdvdRec *t = (CdvdRec *)e->name;
+
+        if (++e->lv >= t->xE0) {
+            e->lv = 0;
+        }
+        remakeSampling(t);
+    }
+
+    if ((D_0028F8F0[0].rep & 0x4000) != 0) {
+        D_0063A338 = D_0063A338 + 1;
+        if (D_0063C164 - 1 < D_0063A338) {
+            D_0063A338 = 0;
+        }
+    }
+    if ((D_0028F8F0[0].rep & 0x1000) != 0) {
+        D_0063A338 = D_0063A338 - 1;
+        if (D_0063A338 < 0) {
+            D_0063A338 = D_0063C164 - 1;
+        }
+    }
+    if ((D_0028F8F0[0].trg & 0x20) != 0) {
+        D_0063A334 = 1;
+    }
+    if ((D_0028F8F0[0].trg & 0x40) != 0) {
+        ret = -1;
+    }
+    if (ret != 0) {
+        D_0063A338 = 0;
+    }
+    return ret;
+}
 
 int tex_GetTWTH(int a0)
 {

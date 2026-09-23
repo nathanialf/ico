@@ -1016,8 +1016,7 @@ segments:
       - [0x538C40, .lit4, ico2/seki/src/Packet]  # carved D_00638C40..D_00638C54 (6 slots: three 0.501960814f as one literal and two slots, pac_openDmaTag's 16777215.0f and -16777215.0f, one slot for the still-asm pac_makePacket; the TU's whole pool), VMA 0x638C40..0x638C58, 24 B
       - [0x538C58, .lit4, ico2/seki/src/Primitive]  # carved D_00638C58..D_00638C70 (7 slots in ROM order: 6.2831855f, 10430.378f, 6.2831855f, 10430.378f, 4095.0f (slot for the still-asm prim_DispFan2D), 3.1415927f, 10430.378f; the TU's whole pool between Packet and StageAnimation), VMA 0x638C58..0x638C74, 28 B
       - [0x538C74, .lit4, ico2/seki/src/StageAnimation]  # carved D_00638C74..D_00638C78 (2 slots, both 1.2075409f: stage_PlayBgAnimation's own literal and one slot for the still-asm stage_PlayBgAnimationDissolve; the TU's whole pool), VMA 0x638C74..0x638C7C, 8 B
-      - [0x538C7C, .lit4, ico2/seki/src/Texture]  # tex_textureAnimation's pi and 10430.378f, each emitted twice (gcc does not fold the pairs), VMA 0x638C7C..0x638C8C; the run's last three words belong to the still-asm tex_Tool
-      - [0x538C8C, lit4, cod/538C8C]     # .lit4 blob resume
+      - [0x538C7C, .lit4, ico2/seki/src/Texture]  # the TU's whole pool, 7 words: tex_textureAnimation's pi and 10430.378f, each emitted twice (gcc does not fold the pairs), then tex_Tool's three words (1.0e-5f, 0.01f, -2047.0f), VMA 0x638C7C..0x638C98; pad's carve follows
       - [0x538C98, .lit4, ico2/fumi/ios/pad]  # carved D_00638C98..D_00638C9C (2 words, iosPadNormalizeStick's pi and 0.2f, the only pool words the TU's text references; the blob before it keeps the other TUs' words), VMA 0x638C98..0x638CA0
       - [0x538CA0, .lit4, ico2/fumi/sound/s_init]  # carved D_00638CA0..D_00638CC4 (10 slots, one per occurrence: debug_DispSEInfo x2, sound3DParamSet, _soundSeDefPlay x3, soundSeEnvPlay x2, soundSeEnvDefaultSet x2; the TU's whole pool, adjacent to act-game's), VMA 0x638CA0..0x638CC8
       - [0x538CC8, .lit4, ico2/fumi/src/act-game]  # carved D_00638CC8..D_00638D0C (18 slots, 15 fns EXITDATA_GetNextPosition..ACTCheckViewClDetail), VMA 0x638CC8..0x638D10, 72 B; MAIN.MAP act-game.o .lit4 is 0x40 (different link; PAL ELF is authoritative).  USA: - [0x530AEC, .lit4, ico2/fumi/src/act-game]      # carved D_00630AEC/AF0/AF4 (22500f, pi, 25000000f), VMA 0x630AEC..0x630AF8
@@ -1133,6 +1132,8 @@ segments:
       - [0x539C80, sdata, cod/539C80]    # .sdata
       - [0x539F10, .sdata, ico2/sugipon/src/motionManager2]  # the TU's two anonymous assert literals (10 B), VMA 0x639F10..0x639F1A; named small objects stay blocked by -fdata-sections
       - [0x539F1C, sdata, cod/539F1C]     # .sdata blob resume
+      - [0x53A2C0, .sdata, ico2/seki/src/Texture]  # tex_Tool's anonymous 8-byte colour pair (00 ff ff ff / 00 c0 c0 ff), VMA 0x63A2C0..0x63A2C8; the blob before it keeps the other TUs' words
+      - [0x53A2C8, sdata, cod/53A2C8]     # .sdata blob resume
       - [0x53A348, .sdata, ico2/seki/src/ZFog]  # the TU's whole .sdata run as source (completeness pass 6), VMA 0x63A348..0x63A354, 12 B emitted
       - [0x53A354, sdata, cod/53A354]     # .sdata blob resume
       # --- per-TU .sdata carves ---
