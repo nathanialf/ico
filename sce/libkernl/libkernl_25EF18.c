@@ -1168,7 +1168,119 @@ ok:
     return p;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _sceFs_Rcv_Intr);
+/* Reconstruction: the four-byte filesystem version stamp the IOP hands back
+   in the RPC receive buffer; _fs_version() memcmps it against the two
+   built-in stamps. */
+typedef struct {
+    char v[4];
+} SceFsVersion;
+
+extern char D_0072CEC0[];
+/* the async request slot table _sceFs_Rcv_Intr matches a reply against, read
+   and written here under the D_0054A47C guard semaphore; an entry of -1 is
+   free.  The table is written by the SIF receive interrupt, so every access
+   to it is volatile (C volatile ruling 2026-09-07). */
+extern volatile int D_0054A3F0[];
+
+/* the FS reply packet the IOP leaves in D_0072CEC0; the handler reads it
+   through the uncached accelerated window, so every record copy below is a
+   byte-array assignment and gcc expands each one inline with the unaligned
+   pairs the window forces. */
+/* the readdir reply record and the 0x40-byte stat record */
+typedef struct {
+    char v[0x144];
+} SceFsDirent;
+
+typedef struct {
+    char v[0x40];
+} SceFsStatRec;
+
+extern char D_0072CED4[];
+
+/* The SIF command handler for the FS reply.  Each reply word is its own
+   local (the header's request id, command, buffer and size, then a
+   command's destination and length), filled by a four-byte record copy
+   through the uncached window.  Rung: ROM bytes.  The frame puts them at
+   0x0..0x14 in first-use order, which is where gcc places locals whose
+   address is taken once purge_addressof, after the first cse pass, sends
+   them to the stack; an int array is allocated before them (measured).
+   The same property gives the search its id register: until the purge the
+   id is an ADDRESSOF MEM, so cse1 keeps the peel's read of it, gcse carries
+   that read into the loop, and cse2 then forwards the negated id's store
+   into it, which is the ROM's `daddu $6,$2,$0` beside the `sw $2,0($29)`
+   (an int array or a copy into a second local measured 30 words off). */
+void _sceFs_Rcv_Intr(void)
+{
+    int id;
+    int cmd;
+    int buf;
+    int size;
+    int addr;
+    int len;
+    int *q;
+    int i;
+    int k;
+
+    *(SceFsVersion *)&id = *(SceFsVersion *)((int)(D_0072CEC0 + 0x0) | 0x20000000);
+    *(SceFsVersion *)&cmd = *(SceFsVersion *)((int)(D_0072CEC0 + 0x4) | 0x20000000);
+    *(SceFsVersion *)&buf = *(SceFsVersion *)((int)(D_0072CEC0 + 0x8) | 0x20000000);
+    *(SceFsVersion *)&size = *(SceFsVersion *)((int)(D_0072CEC0 + 0xC) | 0x20000000);
+    memcpy((void *)buf, (void *)((int)(D_0072CEC0 + 0x10) | 0x20000000), size);
+    switch (cmd) {
+    case 2:
+        q = (int *)((int)D_0072CED4 | 0x20000000);
+        if (q[0] > 0) {
+            char *dst = (char *)q[2];
+
+            for (i = 0; i < q[0]; i++) {
+                char *src = (char *)q + 0x10;
+
+                dst[i] = src[i];
+            }
+        }
+        if (q[1] > 0) {
+            char *dst = (char *)q[3];
+
+            for (i = 0; i < q[1]; i++) {
+                char *src = (char *)q + 0x50;
+
+                dst[i] = src[i];
+            }
+        }
+        break;
+    case 11:
+        *(SceFsVersion *)&addr = *(SceFsVersion *)((int)D_0072CED4 | 0x20000000);
+        *(SceFsDirent *)addr = *(SceFsDirent *)((int)(D_0072CED4 + 4) | 0x20000000);
+        break;
+    case 12:
+        *(SceFsVersion *)&addr = *(SceFsVersion *)((int)D_0072CED4 | 0x20000000);
+        *(SceFsStatRec *)addr = *(SceFsStatRec *)((int)(D_0072CED4 + 4) | 0x20000000);
+        break;
+    case 23:
+    case 25:
+    case 26:
+        *(SceFsVersion *)&addr = *(SceFsVersion *)((int)D_0072CED4 | 0x20000000);
+        *(SceFsVersion *)&len = *(SceFsVersion *)((int)(D_0072CED4 + 4) | 0x20000000);
+        k = len;
+        if (1024 < (unsigned int)k) {
+            len = 1024;
+            k = 1024;
+        }
+        memcpy((void *)addr, (void *)((int)(D_0072CED4 + 8) | 0x20000000), k);
+        break;
+    }
+    if (id < 0) {
+        id = -id;
+        for (i = 0; i < 32; i++) {
+            if (D_0054A3F0[i] == id) {
+                D_0054A3F0[i] = -1;
+                break;
+            }
+        }
+    } else {
+        iSignalSema(id);
+    }
+}
 
 extern int D_0054A474[];
 
@@ -1195,21 +1307,12 @@ void _sceFsSigSema(void)
     SignalSema(D_0054A474[0]);
 }
 
-/* Reconstruction: the four-byte filesystem version stamp the IOP hands back
-   in the RPC receive buffer; _fs_version() memcmps it against the two
-   built-in stamps. */
-typedef struct {
-    char v[4];
-} SceFsVersion;
-
 extern char D_0072D300[];
 extern int D_0072D500[];
 extern char D_0072D528[];
 extern char D_0072D530[];
 extern int D_0072CE80[];
-extern char D_0072CEC0[];
 extern int D_0054A470[];
-extern void _sceFs_Rcv_Intr();
 extern void _sceFsIobSemaMK(void);
 extern int SignalSema(int a0);
 extern int sceSifAddCmdHandler(int a0, int a1, int a2);
@@ -1437,12 +1540,6 @@ int sceClose(unsigned int fd)
     }
     return 0;
 }
-
-/* the async request slot table _sceFs_Rcv_Intr matches a reply against, read
-   and written here under the D_0054A47C guard semaphore; an entry of -1 is
-   free.  The table is written by the SIF receive interrupt, so every access
-   to it is volatile (C volatile ruling 2026-09-07). */
-extern volatile int D_0054A3F0[];
 
 /* RECONSTRUCTION, the name is ours: whether a descriptor was opened with the
    no-wait flag (0x8000, SCE_NOWAIT in the public SDK naming), read from the

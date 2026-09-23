@@ -12,11 +12,24 @@
 #ifndef GIFPACKET_H
 #define GIFPACKET_H
 
+/* RECONSTRUCTION: the colour gif_DrawStripF and gif_DrawStripFST take by
+ * value (name ours).  Rung: ROM bytes: gif_DrawStripFST's prologue homes its
+ * third argument with `sw $6,0x0($29)` and reads it back with four `lbu` at
+ * 0..3, so the parameter is a four-byte struct; weapon.c's dispBlur and
+ * puddle.c's drawRipple build it at their call sites. */
+typedef struct {
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+    unsigned char a;
+} GifColor;
+
 int _IsInScreen(volatile int *a0);
 int gif_CheckOpen(void);
 void gif_Draw2DStripG(int *v, unsigned char *col, int n, int prim);
 void gif_DrawPolyF4(void *p0, void *p1, void *p2, void *p3, int r, int g, int b, int a, int prim);
-void gif_DrawStripFST(void *a, void *b, unsigned long long col, int n, int e);
+void gif_DrawStripF(void *p, GifColor c, int n, int f);
+void gif_DrawStripFST(void *a, void *b, GifColor col, int n, int e);
 void gif_EndPacket(void);
 void gif_EndPacketPath1(void);
 void gif_Init(void);
@@ -34,7 +47,7 @@ void gif_SpriteSensitiveOffset(int *r, long long z, int *uv, unsigned char *col,
 void gif_SpriteSensitiveOrg(int *r, long long z, int *uv, unsigned char *col, int prim);
 void gif_StartPacket(void);
 void gif_StartPacketPath1(void);
-void gif_StartPacketPri(void);
-void gif_StartPacketPriPath1(void);
+void gif_StartPacketPri(int pri);
+void gif_StartPacketPriPath1(int pri);
 
 #endif /* GIFPACKET_H */

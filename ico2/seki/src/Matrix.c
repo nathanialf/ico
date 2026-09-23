@@ -640,7 +640,7 @@ inline void _UnitVector(void *p0)
     VU0_LSV(sqc2, 0, 0x0, a0);
 }
 
-inline void _InterVector(void *p0, void *p1, void *p2, void *p3)
+inline void _InterVector(void *p0, void *p1, void *p2, float t)
 {
     VU0_NOREORDER_BEGIN();
     VU0_MFC1(t0, 12);
@@ -654,7 +654,7 @@ inline void _InterVector(void *p0, void *p1, void *p2, void *p3)
     VU0_LSV(sqc2, 9, 0x0, a0);
 }
 
-inline void _InterVectorXYZ(void *p0, void *p1, void *p2, void *p3)
+inline void _InterVectorXYZ(void *p0, void *p1, void *p2, float t)
 {
     VU0_NOREORDER_BEGIN();
     VU0_MFC1(t0, 12);

@@ -557,19 +557,20 @@ void gif_Init(void)
     D_00639F60 = 0;
 }
 
-/* kept local: this TU's uses of dl_SetDLPriority do not fit the prototype in DisplayList.h */
-extern void dl_SetDLPriority();
+/* kept local: DisplayList.h is not included, since this TU's uses of dl_OpenDma
+ * do not fit its prototype there */
+extern void dl_SetDLPriority(int a0);
 
-void gif_StartPacketPri(void)
+void gif_StartPacketPri(int pri)
 {
-    dl_SetDLPriority();
+    dl_SetDLPriority(pri);
     gif_StartPacket();
     D_00639F60 = 1;
 }
 
-void gif_StartPacketPriPath1(void)
+void gif_StartPacketPriPath1(int pri)
 {
-    dl_SetDLPriority();
+    dl_SetDLPriority(pri);
     gif_StartPacketPath1();
     D_00639F60 = 1;
 }

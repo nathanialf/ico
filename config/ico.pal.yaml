@@ -881,6 +881,8 @@ segments:
       - [0x521384, rodata, cod/521384]     # rodata blob resume
       - [0x521388, .rodata, ico2/sugipon/src/waterDot]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x621388..0x621680, 760 B
       - [0x5213A0, rodata, cod/5213A0]     # rodata blob resume
+      - [0x5214F0, .rodata, ico2/sugipon/src/weapon]  # InitWeaponGeo's jump table (10 words, section .rodata.0x006214F0), VMA 0x6214F0..0x621518, anonymous; arms checked against the ROM words
+      - [0x521518, rodata, cod/521518]  # .rodata blob resume
       - [0x521520, .rodata, ico2/sugipon/src/worm]  # the TU's whole .rodata run as source (data pass 2): tipLineTo, the Color16 tipLineColor {0x80, 0x80, 0x80, 0x80}, then __FILE__; VMA 0x621520..0x62154B + 5 B link pad
       - [0x521550, .rodata, ico2/seki/src/Basic]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x621550..0x621680, 304 B
       - [0x521580, rodata, cod/521580]     # rodata blob resume
@@ -951,6 +953,8 @@ segments:
       - [0x536440, rodata, cod/536440]     # rodata blob resume
       - [0x536610, .rodata, sce/libdma/libdma]  # the wait loops' one string literal "libdma: sync timeout\n" (0x16 B, = MAIN.MAP libdma.o .rodata 0x16), VMA 0x636610..0x636626, padded to 0x636628 where tty.o's strings begin
       - [0x536628, rodata, cod/536628]   # .rodata blob resume
+      - [0x5366A0, .rodata, sce/libkernl/libkernl_25EF18]  # _sceFs_Rcv_Intr's jump table (25 words, section .rodata.0x006366A0), VMA 0x6366A0..0x636704, anonymous; arms checked against the ROM words
+      - [0x536704, rodata, cod/536704]  # .rodata blob resume
       - [0x536DC0, .rodata, sce/libmpeg/libmpeg]  # _getpic's jump table jtbl_00636DC0 (5 words, section .rodata.0x00636DC0), VMA 0x636DC0..0x636DD4; cases 3 and 4 share a block
       - [0x536DD4, rodata, cod/536DD4]   # .rodata blob resume
       - [0x5371D0, .rodata, sce/libscf/libscf]  # the member's whole .rodata run (0xF6 B + 2 B link pad): its twelve string literals in order of first use (rom0:ROMVER, the two ROM errors, the four OSD printf formats, libscf.c from __FILE__, the assert texts) with the month table between the assert groups because adddate precedes AdjustTime, VMA 0x6371D0..0x6372C8; libscf builds at -G 0 so its 7-byte string stays out of .sdata

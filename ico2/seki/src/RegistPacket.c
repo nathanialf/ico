@@ -504,7 +504,7 @@ char *reg_setMMatrixPacket(char *o, int idx)
         D_004EE6F0.ptr = n + 0xC;
     }
     w = (char *)(idx * 0x50 + (int)((Sub15C *)o)->p_870);
-    mode = ((Obj874 *)((Sub15C *)o)->p_874)->f_F0;
+    mode = ((LightMatrix *)((Sub15C *)o)->p_874)->mode;
     if ((*(long long *)(w + 0x38) & 2) != 0) {
         RegMtx um;
 

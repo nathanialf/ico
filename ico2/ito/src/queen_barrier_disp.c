@@ -1,6 +1,7 @@
 #include "common.h"
 #include "typedef.h"
 #include "debug.h"
+#include "GifPacket.h"
 #include "Primitive.h"
 #include "tableSin.h"
 
@@ -21,7 +22,8 @@ typedef struct MeshST { /* the 0x10 stride texture coordinate record */
 } MeshST;
 
 typedef struct Mesh3D {
-    char _0[0x6C];
+    char _0[0x68];
+    int col;    /* 0x68 */
     QVec *pos;  /* 0x6C */
     QVec *nrm;  /* 0x70 */
     MeshST *st; /* 0x74 */
@@ -169,7 +171,80 @@ void makeRefractST(float k)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/ito/src/queen_barrier_disp", queen_barrier_disp_proc);
+extern int D_0063A074;
+extern int D_0063A078;
+extern QVec D_00556E30;
+extern QVec D_00556E40;
+extern int matrixptr;
+extern int buffer_ID;
+extern void tex_ResetVramPri(int pri);
+extern int tex_AllocVramAuto(int a0, int a1);
+extern void GetRootMatrix(void *dst, char *outer);
+extern void _SetCurrentMatrix(void *m);
+
+/* rows 86 and 93 to 105: the barrier tint, faded from D_00556E30 to
+   D_00556E40 across the damage timer and packed into the mesh colour word.
+   Row 105 carries the three float-to-int conversions and the mesh pointer
+   load and row 86 only the masks, shifts and ors, so the packing helper
+   takes ints converted at its call (names ours). */
+static __inline__ int packBarrierColor(int r, int g, int b)
+{
+    return ((r & 0xFF) << 24) | ((g & 0xFF) << 16) | ((b & 0xFF) << 8) | 0x80;
+}
+
+static __inline__ void updateBarrierColor(void)
+{
+    QVec c;
+    QVec a = D_00556E30;
+    QVec b = D_00556E40;
+
+    sceVu0InterVector(&c, &a, &b, (float)D_0063C308 / 60.0f);
+    D_0063C304->col = packBarrierColor(c.f[0], c.f[1], c.f[2]);
+}
+
+void queen_barrier_disp_proc(char *g, float k)
+{
+    int vram;
+
+    gif_StartPacketPriPath1(10);
+    tex_ResetVramPri(10);
+    vram = tex_AllocVramAuto(0, 2048);
+    MakeRefractTexture(vram >> 5);
+
+    setGsReg(0x4C, ((long long)((D_0063A064 >> 6) & 0x3F) << 16) | 64);
+    setGsReg(0x40, ((long long)(D_0063A064 - 1) << 16) | ((long long)(D_0063A068 - 1) << 48));
+    setGsReg(0x18, (((long long)(2048 - D_0063A064 / 2) << 4) + D_0063A074) |
+                       ((((long long)(2048 - D_0063A068 / 2) << 4) + D_0063A078) << 32));
+
+    gif_SetGsReg(0x4E, 0x300000C0);
+    gif_SetGsReg(0x47, 0x50000);
+    gif_SetGsReg(0x06, (vram | 0x24020000) | 0x600000000LL);
+    gif_SetGsReg(0x14, 0x60);
+
+    setGsReg(0x49, 1);
+    setGsReg(0x42, ((long long)128 << 32) | 0x44);
+
+    gif_EndPacketPath1();
+
+    updateBarrierColor();
+
+    {
+        QVec m1[4];
+        QVec root[4];
+        QVec m2[4];
+
+        sceVu0InversMatrix(m1, (char *)matrixptr + 0x80);
+        GetRootMatrix(root, g);
+        sceVu0CopyVector(&m1[3], &root[3]);
+        sceVu0MulMatrix(m2, (char *)matrixptr + 0x100, m1);
+        _SetCurrentMatrix(m2);
+    }
+
+    makeRefractST(k);
+
+    prim_UpdateMesh3D(D_0063C304, 24, buffer_ID);
+    prim_DispMesh3D((int)D_0063C304, 0, 0, -1);
+}
 
 void queen_barrier_disp_init(void)
 {

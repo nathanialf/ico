@@ -1159,36 +1159,9 @@ void _RotTransCurrentMatrixYXZ(void *t, int *rot)
     cx = GetTableCos(rot[0]);
     cy = GetTableCos(rot[1]);
     cz = GetTableCos(rot[2]);
-    {
-        float q = _Sqrt(1.0f - cx * cx);
-        if (rot[0] < 0.0f) {
-            sx = -q;
-        } else if (rot[0] > 0.0f) {
-            sx = q;
-        } else {
-            sx = q * 0.0f;
-        }
-    }
-    {
-        float q = _Sqrt(1.0f - cy * cy);
-        if (rot[1] < 0.0f) {
-            sy = -q;
-        } else if (rot[1] > 0.0f) {
-            sy = q;
-        } else {
-            sy = q * 0.0f;
-        }
-    }
-    {
-        float q = _Sqrt(1.0f - cz * cz);
-        if (rot[2] < 0.0f) {
-            sz = -q;
-        } else if (rot[2] > 0.0f) {
-            sz = q;
-        } else {
-            sz = q * 0.0f;
-        }
-    }
+    sx = SIGNF(rot[0]) * _Sqrt(1.0f - cx * cx);
+    sy = SIGNF(rot[1]) * _Sqrt(1.0f - cy * cy);
+    sz = SIGNF(rot[2]) * _Sqrt(1.0f - cz * cz);
 
     /* The rotation pairs go into $vf21..$vf26 while the vmr32 chain builds
        the identity rows in $vf14..$vf17.  The sequence is one asm block

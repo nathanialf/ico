@@ -6324,6 +6324,7 @@ D_10008 = 0x10008; // ignore:true  // ico2/fumi/ios/inflate  // the window const
 
 D_00622910 = 0x00622910; // type:asciz  // ico2/script/src/st04a  // "face_sadow_sd", the texture name actSt04aConte06 passes to tex_SetUVScroll
 D_00676E61 = 0x00676E61; // ignore:true  // ico2/sugipon/src/tableSin  // packed bytes 61 6E 67 00 inside the 0x5D3CE8 rodata blob, not an address into the sine table
+D_0067C050 = 0x0067C050; // size:0x20  // ico2/seki/src/Packet  // the bounding box pac_makeBoundingBox fills (minimum then maximum corner), .bss blob cod/0067C010
 D_00720161 = 0x00720161; // ignore:true  // ico2/sugipon/src/effectTool  // packed bytes 61 01 72 00 inside the 0x2A8280 data blob, not an address
 D_00670166 = 0x00670166; // ignore:true  // ico2/sugipon/src/tableSin  // packed bytes 66 01 67 00 inside the 0x2A82C8 data blob, not an address
 D_00673270 = 0x00673270; // ignore:true  // ico2/sugipon/src/tableSin  // packed bytes 70 32 67 00 inside the 0x55F8B8 rodata blob, not an address

@@ -1,6 +1,7 @@
 #include "common.h"
 #include "puddle.h"
 #include "DObj.h"
+#include "GifPacket.h"
 #include "memory.h"
 #include "GsBase.h"
 #include "Matrix.h"
@@ -40,8 +41,6 @@ extern char D_006209D8[];
 extern char D_002A79B8[];
 extern float D_00723910[];
 extern char D_004ECEA0[];
-/* kept local: this TU's uses of gif_SpriteSensitiveOrg do not fit the prototype in GifPacket.h */
-extern void gif_SpriteSensitiveOrg(void *rect, int z, void *uv, void *col, int e);
 extern int D_0063BA8C;
 extern int D_0063BA90;
 extern int D_00639F94;
@@ -57,20 +56,6 @@ extern char D_007239E0[];
 extern char D_00723A20[];
 extern char D_00723A60[];
 extern char D_00723AA0[];
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
-extern void gif_StartPacketPri(int pri);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
-extern void gif_EndPacket(void);
-/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
-extern void gif_SetZTest(int on);
-/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
-extern void gif_SetZWrite(int on);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
-extern void gif_SetAlpha(int a, int b, int c);
-/* kept local: this TU's uses of gif_SetGsReg do not fit the prototype in GifPacket.h */
-extern void gif_SetGsReg(int reg, long long val);
-/* kept local: this TU's uses of gif_SetDrawEnviroment do not fit the prototype in GifPacket.h */
-extern void gif_SetDrawEnviroment(int a0, int a1, int a2, int a3, int a4, int a5);
 extern int D_0063BA98;
 extern int D_0063BAA0;
 extern float D_00723640[];
@@ -78,15 +63,6 @@ extern float D_00723760[];
 extern float D_00723880[];
 extern char D_004ECEC0[];
 extern char D_004ECED0[];
-
-typedef struct {
-    unsigned char r;
-    unsigned char g;
-    unsigned char b;
-    unsigned char a;
-} GifColor;
-
-extern void gif_DrawStripFST(void *a, void *b, GifColor col, int n, int e);
 extern int stage_no;
 extern int D_0028F4C0[];
 void PuddleGeo(char *a0);

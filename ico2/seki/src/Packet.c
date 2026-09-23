@@ -124,7 +124,52 @@ inline void pac_DispVu1Memory(int idx, int n, int size)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Packet", pac_makeBoundingBox);
+extern char D_0054F300[];
+extern char D_0067C050[];
+
+/* RECONSTRUCTION (name ours): a 16-byte vector copied as two doublewords,
+   the ROM's ld/ld and sd/sd pair for the margin copy out of D_0054F300.
+   D_0067C050 is one 32-byte bounding box, minimum then maximum corner (the
+   ROM reaches the maximum as %lo(D_0067C060) and the minimum with -16). */
+typedef struct {
+    long long d[2];
+} PacBoxVec;
+
+void pac_makeBoundingBox(float (*box)[4], int flag)
+{
+    PacBoxVec sum;
+    PacBoxVec mrg;
+    char *ctx;
+    int i;
+
+    memset(&sum, 0, sizeof(sum));
+    mrg = *(PacBoxVec *)D_0054F300;
+    if (flag != 0) {
+        _AddVectorXYZ(D_0067C050 + 0x10, D_0067C050 + 0x10, &mrg);
+        _SubVectorXYZ(D_0067C050, D_0067C050, &mrg);
+    }
+    /* The eight corners are indexed off the box, not walked with a pointer:
+       loop.c reduces the box[i] addresses to one pointer giv, and in that
+       form sched1 schedules each block of the loop alone, the ROM's order; a
+       pointer walk forms a ten-block interblock region and hoists the masks
+       and the call's argument moves into the first block (measured). */
+    for (ctx = D_0067C010, i = 0; i < 8; i++) {
+        if (i & 1)
+            box[i][0] = *(float *)(ctx + 0x50);
+        else
+            box[i][0] = *(float *)(ctx + 0x40);
+        if (i & 2)
+            box[i][1] = *(float *)(ctx + 0x54);
+        else
+            box[i][1] = *(float *)(ctx + 0x44);
+        if (i & 4)
+            box[i][2] = *(float *)(ctx + 0x58);
+        else
+            box[i][2] = *(float *)(ctx + 0x48);
+        box[i][3] = 1.0f;
+        _AddVectorXYZ(&sum, &sum, box[i]);
+    }
+}
 
 extern char D_0054F310[];
 extern char D_0054F340[];

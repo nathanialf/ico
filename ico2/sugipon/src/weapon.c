@@ -6,6 +6,7 @@
 #include "gobj.h"
 #include "act-game.h"
 #include "DisplayP2O.h"
+#include "GifPacket.h"
 #include "StageAnimation.h"
 #include "enemy.h"
 #include "frameDependSequence.h"
@@ -439,11 +440,16 @@ extern void *MatrixDrive_GetMatrix(void);
 extern void MatrixDrive_TransMatrix(float x, float y, float z);
 
 /* INTERIM: a stand-in for SetWeaponOffsetMode, which the PAL listing inlines
-   here (its rows at weapon.c:197 appear inside getGeometry) while keeping its
-   own out-of-line copy at its ROM slot further down this file. */
+   here (its rows at weapon.c:196 and 197 appear inside getGeometry and
+   InitWeaponGeo) while keeping its own out-of-line copy at its ROM slot
+   further down this file.  The work pointer is read as Sub15C's int field
+   f_830, so the chase loads and the offset-mode store share the int alias
+   set: the store kills the chase load for gcse and cse2, and InitWeaponGeo's
+   loop latch reloads the sub-object pointer on its own, the ROM's second
+   `lw $a1,0x15C($s7)` and the register order it decides (measured). */
 static inline void setWeaponOffsetMode(char *g, int v)
 {
-    *(int *)(*(char **)((char *)GOBJ_SUB(g) + 0x830) + 0xC0) = v;
+    *(int *)(GOBJ_SUB(g)->f_830 + 0xC0) = v;
 }
 
 void getGeometry(char *g)
@@ -599,7 +605,91 @@ void initializeQueenzSword(char *g, int index, QSwordLayout *lay)
     *(char **)(w + 0x5C) = o2;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/weapon", InitWeaponGeo);
+/* The work record InitWeaponGeo allocates and the .rodata template it is
+   initialised from: 224 bytes, 8-aligned (ROM copies it 32 bytes at a time
+   with ld/sd pairs). */
+typedef struct {
+    double d[28];
+} DemoQueenSwordWork;
+
+extern DemoQueenSwordWork D_004ED1F0;
+
+/* The per-weapon CSV model-id pair table, 40 bytes a row. */
+typedef struct {
+    int model0; /* 0x00 */
+    int model1; /* 0x04 */
+    char pad08[0x20];
+} WeaponCsvEntry;
+
+extern WeaponCsvEntry D_002A79B8[];
+
+typedef float WeaponVec[4] __attribute__((aligned(8)));
+
+extern char *CSVSYSTEM_InitDObj(int modelId, void *lay);
+
+void *InitWeaponGeo(char *g, QSwordLayout *lay)
+{
+    char *w = iosMallocDebug(D_0063A438, 0xE0, D_006214E0, 820);
+    int i;
+
+    GOBJ_SUB(g)->f_830 = (int)w;
+
+    *(DemoQueenSwordWork *)w = D_004ED1F0;
+    *(int *)w = lay->kind & 0xFF;
+
+    for (i = 0; i < GOBJ_SUB(g)->f_8; i++) {
+        switch (*(int *)w) {
+        case 0:
+            break;
+
+        case 1: {
+            QSwordLink lnk = {(int)g, i};
+            WeaponVec v = {0.0f, 0.0f, D_00318EB8[*(int *)w].f00, 1.0f};
+            char *o;
+            QSwordLayout r = *lay;
+
+            r.kind = (lay->kind & 0xFF00) != 0;
+            o = CreateLayoutedGObj(10, 75, -1, 1, &r, -1, 7, 1);
+            LinkParentOfDObj(o, &lnk);
+            CopyVector(*(char **)(o + 0x15C) + 0xA0, v);
+            SetTorchLife(o, (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 15,
+                         (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 3);
+            *(int *)(w + 0x50) = 1;
+            *(char ***)(w + 0x54) = iosMallocDebug(D_0063A438, 1 * 4, D_006214E0, 848);
+            (*(char ***)(w + 0x54))[0] = o;
+            *(char **)(w + 0x58) = iosMallocDebug(D_0063A438, 0x160, D_006214E0, 856);
+            break;
+        }
+
+        case 5:
+            initializeQueenzSword(g, i, lay);
+            *(char **)(w + 0x58) = iosMallocDebug(D_0063A438, 0x160, D_006214E0, 861);
+            break;
+
+        case 7:
+            *(char **)(w + 0x58) = iosMallocDebug(D_0063A438, 0x160, D_006214E0, 865);
+            break;
+
+        case 8:
+        case 9:
+            *(char **)(w + 0x58) = iosMallocDebug(D_0063A438, 0x160, D_006214E0, 870);
+            *(char **)(w + 0xB0) = iosMallocDebug(D_0063A438, 8, D_006214E0, 871);
+            *(char **)(w + 0xB4) =
+                CSVSYSTEM_InitDObj(D_002A79B8[*(int *)(*(char **)(g + 0x15C) + 0x844)].model0, lay);
+            *(char **)(w + 0xB8) =
+                CSVSYSTEM_InitDObj(D_002A79B8[*(int *)(*(char **)(g + 0x15C) + 0x844)].model1, lay);
+            CopyQuaternion(*(char **)(g + 0x15C) + 0xD0, *(char **)(g + 0x15C) + 0x60);
+            UpdateRootMatrix(g);
+            setWeaponOffsetMode(g, 1);
+            break;
+
+        default:
+            *(char **)(w + 0x58) = iosMallocDebug(D_0063A438, 0x160, D_006214E0, 884);
+            break;
+        }
+    }
+    return w;
+}
 
 /* kept local: this TU's uses of MatrixDrive_ScaleMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_ScaleMatrix(float x, float y, float z);
@@ -656,25 +746,6 @@ extern char *matrixptr;
 extern void _SetCurrentMatrix(void *p);
 /* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
 extern void _UnitMatrix(void *m);
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
-extern void gif_StartPacketPri(int pri);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
-extern void gif_EndPacket(void);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
-extern void gif_SetAlpha(int a0, int a1, int a2);
-/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
-extern void gif_SetZTest(int a0);
-/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
-extern void gif_SetZWrite(int a0);
-
-typedef struct {
-    unsigned char r;
-    unsigned char g;
-    unsigned char b;
-    unsigned char a;
-} GifColor;
-
-extern void gif_DrawStripF(void *p, GifColor c, int n, int f);
 
 void dispBlur(char *g)
 {
@@ -1109,11 +1180,6 @@ void SetWeaponTorchChainReactionFlagAll(int a0)
     }
 }
 
-typedef struct {
-    double d[28];
-} DemoQueenSwordWork;
-
-extern DemoQueenSwordWork D_004ED1F0;
 extern void initializeQueenzSword(char *gobj, int index, QSwordLayout *a2);
 
 void *InitDemoQueensSword(char *a0, void *a1)
@@ -1139,5 +1205,5 @@ void ExecDemoQueensSword(char *a0)
 
 void SetWeaponOffsetMode(char *a0, int a1)
 {
-    *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0xC0) = a1;
+    *(int *)(GOBJ_SUB(a0)->f_830 + 0xC0) = a1;
 }

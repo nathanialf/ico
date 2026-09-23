@@ -3,6 +3,7 @@
 #include "memory.h"
 #include "camera-root.h"
 #include "Basic.h"
+#include "Light.h"
 #include "geometryManager.h"
 #include "lineManager.h"
 #include "matrixDrive.h"
@@ -37,27 +38,6 @@ typedef struct AmbientVolume {
     struct AmbientVolume *next; /* 0x94 */
     struct AmbientVolume *prev; /* 0x98 */
 } AmbientVolume;
-
-/* RECONSTRUCTION: the per-object light matrix record at *(char **)(self +
- * 0x874) (the record typedef.h calls Obj874; this file cannot include
- * typedef.h, which redefines StageSetting and Pad).  Rung: ROM bytes.
- * light_MakeLightMatrix builds the normal light matrix at 0x00 from the three
- * directions at 0x80 and the colour matrix at 0x40 from the colours at 0xB0
- * and the ambient at 0xE0, and tests the mode at 0xF0; light_getNearLight
- * fills the directions and colours.  The members are the SDK's 16-byte
- * aligned vector types: with that alignment gcc adds a row's variable offset
- * to the record base before the member displacement (expr.c,
- * expand_assignment), which is the ROM's one base-first addu shared by the
- * 0x8C and 0xBC stores; a 4-byte aligned layout adds the displacement first
- * and costs a second address register (measured).  Names are role names. */
-typedef struct LightMatrix {
-    sceVu0FMATRIX normal;  /* 0x00 */
-    sceVu0FMATRIX color;   /* 0x40 */
-    sceVu0FVECTOR dir[3];  /* 0x80 */
-    sceVu0FVECTOR col[3];  /* 0xB0 */
-    sceVu0FVECTOR ambient; /* 0xE0 */
-    int mode;              /* 0xF0 */
-} LightMatrix;
 
 extern char D_0054F0B0[];
 extern char D_0054F0C8[];

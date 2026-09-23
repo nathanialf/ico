@@ -1,5 +1,6 @@
 #include "common.h"
 #include "typedef.h"
+#include "Basic.h"
 #include "Texture.h"
 #include "DisplayList.h"
 #include <string.h>
@@ -596,7 +597,6 @@ void tex_initClutTexture(Tim2Picture *pic, CdvdRec *t)
 }
 
 extern int D_0028F804[];
-extern void *mallocseki(int size);
 
 void tex_setRegisters(Tim2Picture *pic, CdvdRec *t)
 {
@@ -1357,11 +1357,10 @@ extern char D_005509D0[];
      : (((i) & 0xF) >= 8 && (((i) >> 4) & 1) == 0)                                                 \
          ? (i) + 8                                                                                 \
          : ((((i) & 0xF) < 8 && (((i) >> 4) & 1) != 0) ? (i) - 8 : (i)))
+
 /* the scroll step and the offset are ints in the ICO block but their sign is
- * taken through a float comparison, which is where the ROM's cvt.s.w pairs
- * come from; Light.c's LIGHT_ABS is the same macro */
-#define ABSF(x) ((x) < 0.0f ? -(x) : (x))
-#define SIGNF(x) ((x) < 0.0f ? -1.0f : ((x) > 0.0f ? 1.0f : 0.0f))
+ * taken through a float comparison (Basic.h's ABSF and SIGNF), which is where
+ * the ROM's cvt.s.w pairs come from */
 
 void tex_scrollClut(int a0, int a1, int a2, int a3, int a4, void *a5, int a6, void *a7)
 {

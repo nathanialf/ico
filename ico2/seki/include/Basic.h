@@ -26,4 +26,15 @@ int reallocseki(int size, int align);
 void dma_init(void);
 void matrix_init(void);
 
+/* RECONSTRUCTION: seki's float absolute value and sign, one macro each
+ * (names ours).  Rung: ROM bytes.  Texture.c's tex_scrollClut takes the
+ * sign of an int through them (the ROM's cvt.s.w pairs) and
+ * BgAnimation.c's _RotTransCurrentMatrixYXZ derives each sine as
+ * SIGNF(angle) * sqrt(1 - cos^2) on one listing row (BgAnimation.c:2135 to
+ * 2137): fold pushes the product into the three arms, the neg.s, the plain
+ * value and the times-zero the ROM carries.  Light.c's LIGHT_ABS is the
+ * same text as ABSF. */
+#define ABSF(x) ((x) < 0.0f ? -(x) : (x))
+#define SIGNF(x) ((x) < 0.0f ? -1.0f : ((x) > 0.0f ? 1.0f : 0.0f))
+
 #endif /* BASIC_H */

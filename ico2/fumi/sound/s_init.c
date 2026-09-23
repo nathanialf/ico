@@ -24,14 +24,6 @@ typedef struct SqEntry {
     int unk28;                 /* 0x28 */
 } SqEntry;
 
-typedef struct SeReqRec {
-    int unk0;            /* 0x00 */
-    unsigned short unk4; /* 0x04 */
-    short unk6;          /* 0x06 */
-    int unk8[6];         /* 0x08 */
-    long long chMask;    /* 0x20 */
-} SeReqRec;
-
 typedef struct SeEnvDef {
     float unk0;          /* 0x00 */
     int (*unk4)();       /* 0x04 */
@@ -238,12 +230,12 @@ extern void SgBgmPlay(int h);
    helpers defined there and never emitted out of line, so static inlines (the
    names are ours).  seReqRelease takes the channel, not the slot, because
    _soundSeDefStop's copy recomputes the request word's address from it. */
-static inline void seReqChClear(SeReqRec *req, int ch, char **rp)
+static inline void seReqChClear(SqEntry *req, int ch, char **rp)
 {
     long long bit = (long long)1 << ch;
 
-    if ((req->chMask & bit) != 0) {
-        req->chMask &= ~bit;
+    if ((req->seMask & bit) != 0) {
+        req->seMask &= ~bit;
         D_0063C1E8 &= ~bit;
         *(unsigned short *)&D_006BF870[ch * 64] = *(unsigned short *)&D_006BF870[ch * 64] + 1;
         *rp = 0;
@@ -253,7 +245,7 @@ static inline void seReqChClear(SeReqRec *req, int ch, char **rp)
 static inline void seReqRelease(int ch)
 {
     char **rp = (char **)&D_006BF870[ch * 64 + 0x30];
-    SeReqRec *req = *(SeReqRec **)rp;
+    SqEntry *req = *(SqEntry **)rp;
 
     if (req != 0)
         seReqChClear(req, ch, rp);
