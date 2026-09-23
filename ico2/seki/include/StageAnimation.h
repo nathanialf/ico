@@ -29,7 +29,7 @@ void stage_ApplyData(char *name, char *data);
 int stage_ContinueAnimation(int a0, int a1);
 void stage_DispAnimation(void);
 int stage_DispBgAnimation(void *p);
-void stage_DispBgAnimationNoFinish(char **slot);
+int stage_DispBgAnimationNoFinish(char **slot);
 void stage_KillPlayBgAnimation(int **self);
 int *stage_MakePlayBgAnimation(int key);
 float stage_PlayBgAnimation(int key, float t, void *v, void *q);

@@ -746,10 +746,91 @@ float stage_PlayBgAnimation(int key, float t, void *v, void *q)
     return r;
 }
 
+/* Compiled-out debug hook (our name), the construct main.c's mainDebugBar,
+   icoMisc.c's partitionBarDebugDisp and weapon.c's dynGeoDebugHook carry: it
+   inlines to nothing and emits no byte, but each call leaves one
+   (use (const_int 0)) insn that loop.c counts and flow never deletes.
+   WHAT THE BYTES PIN: the ROM keeps the m loop's `li 80` and the
+   `li -1` of the entry2 store inside the second loop, and loop.c's
+   move_movables (threshold 64 with a call in the loop) hoists both into
+   two more callee-saved registers (frame 0xC0 against the ROM's 0xA0)
+   unless that loop counts at least 65 real insns at both loop passes. Its
+   statements give 63 and 62, so three or more insns that emit no byte sat
+   in the loop after the m loop: three or four hooks are byte-identical, two
+   let the second pass hoist the stride, and one between d and the m loop
+   changes five words. The January listing has the gp display counter
+   (lw, lw, addu, sw) at line 1453 and no code at 1452, 1454 and 1455, and the
+   retail .sbss has no counter word. WHAT THEY CANNOT PIN: that the
+   developer's code was this construct, its lines, or the count beyond three.
+   The same hook at stage_PlayBgAnimation's counter (listing line 1380)
+   changes six words there, so these are not that counter's remnant. */
+static __inline__ void stageAnimDebugHook(void) {}
+
 /* This TU's .lit4 holds 1.2075409f twice, one word per owner and no
    deduplication: stage_PlayBgAnimation's literal above is the first, and
-   this stub's own load is the second. */
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/StageAnimation", stage_PlayBgAnimationDissolve);
+   this function's own is the second. */
+float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv)
+{
+    int i;
+    int k;
+    int m;
+    float r = t;
+    float f;
+    StageAnim *e;
+
+    if (D_0063C158 == 0) {
+        return 0.0f;
+    }
+    for (i = 0, e = (StageAnim *)D_0067D098; i < D_0063C158; i++, e++) {
+        if (key != e->entry1[0x58 / 4]) {
+            continue;
+        }
+        if ((e->flags.i >> 30) != 0) {
+            continue;
+        }
+        _CopyVector(*(void **)((char *)e->entry2 + 0x24), v);
+        CopyQuaternion(*(char **)((char *)e->entry2 + 0x24) + 0x10, q);
+        bga_SetFrame(e->entry2, (int)r, 1, e->entry1[0x50 / 4]);
+        for (k = 0; k < ((e->flags.i << 22) >> 22); k++) {
+            *(int *)(*(char **)(e->obj[k] + 0x15C) + 0x74) = 1;
+        }
+        if (D_0028F4C0[0x14 / 4] != 0) {
+            break;
+        }
+        f = *(float *)((char *)e->entry2 + 0x1C);
+        if (D_0028F4C0[0] != 0) {
+            r = t + f * 1.2075409f;
+        } else {
+            r = t + f;
+        }
+        if (*(float *)((char *)e->entry2 + 0x18) <= r) {
+            r = e->entry1[0x50 / 4] != 0 ? *(float *)((char *)e->entry2 + 0x14) : -1.0f;
+        }
+        break;
+    }
+    for (i = 0, e = (StageAnim *)D_0067D098; i < D_0063C158; i++, e++) {
+        if (key != e->entry1[0x58 / 4]) {
+            continue;
+        }
+        if ((e->flags.i >> 30) != 0) {
+            continue;
+        }
+        for (k = 0; k < ((e->flags.i << 22) >> 22); k++) {
+            char *d = *(char **)(e->obj[k] + 0x15C);
+
+            for (m = 0; m < *(int *)(d + 0x8); m++) {
+                *(float *)(*(int *)(d + 0x870) + m * 80 + 0x34) = dv;
+            }
+            reg_DispObj(d);
+            *(int *)(d + 0x74) = 0;
+            stageAnimDebugHook();
+            stageAnimDebugHook();
+        }
+        stageAnimDebugHook();
+        *(signed char *)((char *)e->entry2 + 0xA) = -1;
+    }
+    return r;
+}
 
 int *stage_MakePlayBgAnimation(int key)
 {
@@ -899,7 +980,55 @@ int stage_DispBgAnimation(void *p)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/StageAnimation", stage_DispBgAnimationNoFinish);
+int stage_DispBgAnimationNoFinish(char **slot)
+{
+    BgaPlayNode **self = (BgaPlayNode **)slot;
+    int i;
+    StageAnim *e;
+
+    if (*self == 0) {
+        return -1;
+    }
+    if ((*self)->kill) {
+        stage_KillPlayBgAnimation((int **)self);
+        *self = 0;
+        return -1;
+    }
+    if ((*self)->scale != 1.0f) {
+        stage_SetScale((*self)->no, (*self)->scale);
+    }
+    if ((*self)->speed == 1.0f) {
+        stage_SetBgAnimationPlayNode(*self, (*self)->no);
+        (*self)->frame =
+            stage_PlayBgAnimation((*self)->no, (*self)->frame, (*self)->pos, (*self)->rot);
+    } else {
+        stage_SetBgAnimationPlayNode(*self, (*self)->no);
+        (*self)->frame = stage_PlayBgAnimationDissolve((*self)->no, (*self)->pos, (*self)->rot,
+                                                       (*self)->frame, (*self)->speed);
+    }
+    (*self)->play = 0;
+    if ((*self)->frame == -1.0f) {
+        for (i = 0, e = (StageAnim *)D_0067D098; i < D_0063C158; i++, e++) {
+            if ((*self)->no == e->entry1[0x58 / 4]) {
+                if ((e->flags.i >> 30) == 0) {
+                    /* A jump to the function's exit, the way Light.c leaves
+                       its loops (goto found): the ROM keeps this store in a
+                       block loop.c moved out of the loop, with the key and
+                       the bound hoisted, and jumps to the shared `return 0`.
+                       A break (the loop's own exit label) is rolled into the
+                       loop's exit test by stmt.c's expand_end_loop, which
+                       jump then duplicates into a second loop entry; a
+                       return gets its own $2 = 0 before the store. The bytes
+                       pin the target, not the label's name. */
+                    (*self)->frame = *(float *)((char *)e->entry2 + 0x18);
+                    goto end;
+                }
+            }
+        }
+    }
+end:
+    return 0;
+}
 
 void stage_SetCameraForceOff(int a0, int a1, int a2, int a3)
 {
