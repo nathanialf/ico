@@ -4,6 +4,7 @@
 #include "mv_defs.h"
 #include "memory.h"
 #include <eekernel.h>
+#include "mv_sub.h"
 #include "typedef.h"
 
 /* One entry of the timestamp ring: the PTS/DTS pair the demuxer read out of a
@@ -13,28 +14,40 @@
    the MPEG demuxer drains.  Byte counts are (sector << 11) + a partial
    offset into the sector the writer is part way through. */
 typedef struct ViBuf {
-    char *data;      /* 0x00 ring buffer, 2048 bytes per sector */
-    char *dmaTag;    /* 0x04 uncached-accel DMA tag list over the ring */
-    int nSector;     /* 0x08 ring size in sectors */
-    int rdSector;    /* 0x0C sector the reader is on */
-    int nReady;      /* 0x10 whole sectors written but not yet read */
-    int wOffset;     /* 0x14 bytes written into the sector after those */
-    int size;        /* 0x18 ring size in bytes (nSector << 11) */
-    int unk1C[7];    /* 0x1C */
-    int bitPos;      /* 0x38 IPU bit pointer at the head of the ring */
-    int unk3C;       /* 0x3C */
-    int sema;        /* 0x40 */
-    int running;     /* 0x44 the ring's DMA chain is armed */
-    long long total; /* 0x48 bytes handed to the ring since the last reset */
-    ViTs *ts;        /* 0x50 timestamp ring */
-    int tsMax;       /* 0x54 timestamp ring capacity */
-    int tsCount;     /* 0x58 timestamps live in it */
-    int tsWr;        /* 0x5C index the next timestamp goes to */
-    char created;    /* 0x60 */
+    char *data;          /* 0x00 ring buffer, 2048 bytes per sector */
+    char *dmaTag;        /* 0x04 uncached-accel DMA tag list over the ring */
+    int nSector;         /* 0x08 ring size in sectors */
+    int rdSector;        /* 0x0C sector the reader is on */
+    int nReady;          /* 0x10 whole sectors written but not yet read */
+    int wOffset;         /* 0x14 bytes written into the sector after those */
+    int size;            /* 0x18 ring size in bytes (nSector << 11) */
+    int unk1C[7];        /* 0x1C */
+    unsigned int bitPos; /* 0x38 IPU_BP saved by viBufStopDMA */
+    int unk3C;           /* 0x3C */
+    int sema;            /* 0x40 */
+    int running;         /* 0x44 the ring's DMA chain is armed */
+    long long total;     /* 0x48 bytes handed to the ring since the last reset */
+    ViTs *ts;            /* 0x50 timestamp ring */
+    int tsMax;           /* 0x54 timestamp ring capacity */
+    int tsCount;         /* 0x58 timestamps live in it */
+    int tsWr;            /* 0x5C index the next timestamp goes to */
+    char created;        /* 0x60 */
 } ViBuf;
 
 static void Free();
 extern int DIntr(void);
+
+/* The same for the IPU output channel's CHCR (0x1000B000): listing rows
+   56-61. Our name. */
+static __inline__ void setIpuOutChcr(int chcr)
+{
+    DIntr();
+    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 | 0x10000;
+    *(volatile int *)0x1000B000 = chcr;
+    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 & 0xFFFEFFFF;
+    SYNC();
+    EI();
+}
 
 /* Write the IPU input channel's CHCR (0x1000B400) with the DMA controller
    held (D_ENABLER/D_ENABLEW bit 16) and interrupts off: listing rows 66-71,
@@ -66,6 +79,19 @@ typedef union {
 static __inline__ void setDmaTag(char *tag, int i, int addr, int qwc, int id)
 {
     ((QWord *)tag)[i].ul[0] = ((unsigned long)addr << 32) | ((unsigned long)id << 28) | qwc;
+}
+
+/* The ring sector a DMA address points into, or 0 once the chain has run
+   onto the tag after the last one. Listing rows 46-50. The address comes in
+   by value: the inliner copies a memory argument into its register after the
+   helper's first line note, which is why the caller's line keeps only the
+   MADR register's address (line 305) and row 46 carries the load. Our name. */
+static __inline__ int getDmaSector(ViBuf *self, unsigned int madr)
+{
+    if (madr == phys_addr((int)((QWord *)self->dmaTag + self->nSector + 1))) {
+        return 0;
+    }
+    return (madr - (unsigned int)self->data) / 2048;
 }
 
 /* census free_buf, a file static, `static` keeps its ELF symbol local so it cannot
@@ -206,9 +232,190 @@ void viBufEndPut(int *self, int a1)
     SignalSema(self[0x40 / 4]);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/ito/mpeg/mv_vibuf", viBufAddDMA);
-INCLUDE_ASM("asm/nonmatchings/ico2/ito/mpeg/mv_vibuf", viBufStopDMA);
-INCLUDE_ASM("asm/nonmatchings/ico2/ito/mpeg/mv_vibuf", viBufRestartDMA);
+/* Retire the sectors the IPU DMA has consumed and chain the whole sectors
+   written since the last call onto the tag list, restarting the channel when
+   it had run dry.  Listing rows 272-361.  One variable carries the DMA's
+   current sector and then walks the new tags (the ROM keeps both in one
+   register); the write position of line 314 is its own variable, handed to
+   the walk on the for line. */
+int viBufAddDMA(ViBuf *self)
+{
+    int chcr;
+    int d;
+    int w;
+    int n;
+    int prev;
+    int i;
+    int sector;
+    int id;
+    int restart = 0;
+
+    WaitSema(self->sema);
+
+    if (self->running == 0) {
+        ErrMessage("DMA ADD not active\n");
+        return 0;
+    }
+
+    setIpuInChcr(5);
+    chcr = *(volatile int *)0x1000B400;
+
+    sector = getDmaSector(self, *(volatile unsigned int *)0x1000B410);
+    d = (sector + self->nSector - self->rdSector) % self->nSector;
+    self->rdSector = (self->rdSector + d) % self->nSector;
+    self->nReady -= d;
+
+    w = (self->rdSector + self->nReady) % self->nSector;
+    n = self->wOffset / 2048;
+    self->wOffset -= n * 2048;
+
+    if (n > 0) {
+        prev = (self->rdSector + self->nReady - 1 + self->nSector) % self->nSector;
+        setDmaTag(self->dmaTag, prev, (int)(self->data + prev * 2048), 128, 3);
+        restart = 1;
+    }
+
+    for (sector = w, i = 0; i < n; i++) {
+        id = (i == n - 1) ? 0 : 3;
+        setDmaTag(self->dmaTag, sector, (int)(self->data + sector * 2048), 128, id);
+        sector = (sector + 1) % self->nSector;
+    }
+
+    self->nReady += n;
+
+    if (self->nReady != 0) {
+        if (restart) {
+            chcr = (chcr & 0x0FFFFFFF) | 0x30000000;
+        }
+        setIpuInChcr(chcr | 0x100);
+    }
+
+    SignalSema(self->sema);
+
+    return 1;
+}
+
+/* Stop both IPU DMA channels and keep their registers and the IPU's bit
+   position for viBufRestartDMA: the shape of libipu's sceIpuStopDMA over the
+   ring's save area.  Listing rows 369-396. */
+int viBufStopDMA(ViBuf *self)
+{
+    WaitSema(self->sema);
+
+    self->running = 0;
+    setIpuInChcr(5);
+
+    self->unk1C[0] = *(volatile int *)0x1000B410;
+    self->unk1C[1] = *(volatile int *)0x1000B430;
+    self->unk1C[2] = *(volatile int *)0x1000B420;
+    self->unk1C[3] = *(volatile int *)0x1000B400;
+
+    while (*(volatile int *)0x10002010 & 0xF0) {}
+
+    setIpuOutChcr(0);
+
+    self->unk1C[4] = *(volatile int *)0x1000B010;
+    self->unk1C[5] = *(volatile int *)0x1000B020;
+    self->unk1C[6] = *(volatile int *)0x1000B000;
+    self->bitPos = *(volatile int *)0x10002020;
+    self->unk3C = *(volatile int *)0x10002010;
+
+    SignalSema(self->sema);
+
+    return 1;
+}
+
+/* Restart the IPU input DMA saved by viBufStopDMA, rewound by the bytes still
+   sitting in the IPU FIFO (the fifo and ifc fields of IPU_BP), re-chaining
+   from the tag of the sector the rewound address falls in: libipu's
+   sceIpuRestartDMA over the ring.  Listing rows 404-483.  Each range test on
+   lines 432 and 447 repeats its modulo (the ROM keeps the second divide's
+   zero trap); in the else arm the tag address is set on line 438, ahead of
+   the quadword count, which is the order that gives the ROM's registers
+   (the listing leaves that statement's own line code-free). */
+int viBufRestartDMA(ViBuf *self)
+{
+    int cmd;
+    int fifo;
+    int ifc;
+    unsigned int madr;
+    int tadr;
+    unsigned int qwc;
+    int chcr;
+    int id;
+    int now;
+    int sector;
+
+    cmd = self->bitPos & 0x7F;
+    fifo = (self->bitPos >> 16) & 3;
+    ifc = (self->bitPos >> 8) & 0xF;
+    madr = self->unk1C[0] - ((fifo + ifc) << 4);
+    qwc = self->unk1C[2] + (fifo + ifc);
+    tadr = self->unk1C[1];
+    chcr = self->unk1C[3] | 0x100;
+
+    WaitSema(self->sema);
+
+    if (madr < (unsigned int)self->data) {
+        qwc = ((unsigned int)self->data - madr) / 16;
+        madr += self->nSector << 11;
+        tadr = phys_addr((int)self->dmaTag);
+        id = (self->unk1C[0] == (int)self->data ||
+              self->unk1C[0] == (int)(self->data + (self->nSector << 11)))
+                 ? 0
+                 : 3;
+        chcr = (self->unk1C[3] & 0x0FFFFFFF) | (id << 28) | 0x100;
+        if ((self->nSector - self->rdSector) % self->nSector < 0 ||
+            (self->nSector - self->rdSector) % self->nSector >= self->nReady) {
+            self->rdSector = self->nSector - 1;
+            self->nReady++;
+        }
+    } else {
+        if ((now = getDmaSector(self, self->unk1C[0])) != (sector = getDmaSector(self, madr))) {
+            tadr = phys_addr((int)((QWord *)self->dmaTag + now));
+            qwc = ((unsigned int)self->data + (now << 11) - madr) / 16;
+            id =
+                ((unsigned int)self->data +
+                     (self->unk1C[0] - (unsigned int)self->data) % (self->nSector << 11) ==
+                 (unsigned int)self->data + ((self->rdSector + self->nReady) % self->nSector << 11))
+                    ? 0
+                    : 3;
+            chcr = (self->unk1C[3] & 0x0FFFFFFF) | (id << 28) | 0x100;
+            if ((sector + self->nSector - self->rdSector) % self->nSector < 0 ||
+                (sector + self->nSector - self->rdSector) % self->nSector >= self->nReady) {
+                self->rdSector = sector;
+                self->nReady++;
+            }
+        }
+    }
+
+    if (self->unk1C[4] != 0 && self->unk1C[5] != 0) {
+        *(volatile int *)0x1000B010 = self->unk1C[4];
+        *(volatile int *)0x1000B020 = self->unk1C[5];
+        setIpuOutChcr(self->unk1C[6] | 0x100);
+    }
+
+    if (self->nReady != 0) {
+        while (*(volatile int *)0x10002010 < 0) {}
+        *(volatile int *)0x10002000 = cmd;
+        while (*(volatile int *)0x10002010 < 0) {}
+    }
+
+    *(volatile int *)0x1000B410 = madr;
+    *(volatile int *)0x1000B430 = tadr;
+    *(volatile int *)0x1000B420 = qwc;
+    if (self->nReady != 0) {
+        setIpuInChcr(chcr);
+    }
+
+    *(volatile int *)0x10002010 = self->unk3C;
+
+    self->running = 1;
+
+    SignalSema(self->sema);
+
+    return 1;
+}
 
 void viBufFlush(int *self)
 {
@@ -349,7 +556,25 @@ static void Free(int a0)
     iosFree(phys_addr(a0));
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/ito/mpeg/mv_vibuf", viBufDelete);
+/* Stop the IPU input DMA, clear its registers and release the ring.
+   Listing rows 155-166. */
+int viBufDelete(ViBuf *self)
+{
+    setIpuInChcr(5);
+
+    *(volatile int *)0x1000B420 = 0;
+    *(volatile int *)0x1000B410 = 0;
+    *(volatile int *)0x1000B430 = 0;
+
+    if (self->created) {
+        DeleteSema(self->sema);
+    }
+    self->created = 0;
+
+    free_buf((int *)self);
+
+    return 1;
+}
 
 int viBufCount(int *self)
 {

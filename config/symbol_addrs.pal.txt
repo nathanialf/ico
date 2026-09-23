@@ -369,7 +369,6 @@ funcEnemyAiGetGirl = 0x00169E38; // type:func  // ico2/fumi/src/enemy_act
 // sampleMode.o word between them is absent from retail). splat merged 0x63C100..0x63C110 into one main.o object, so the
 // TU's first word had no label; DispSkelton stores all three words and main.o touches only +0x8.
 PacketBufferStruct = 0x004EE6F0; // size:0x20  // ico2/seki/src/DmaPacket  // MAIN.MAP line 245 (DmaPacket.o pulled in by GifPacket.o for this symbol) and line 5996, DmaPacket.o .data is the eight-word record, positional name recovery
-D_00623458 = 0x00623458; // size:0x14  // ico2/ito/mpeg/mv_vibuf  // "DMA ADD not active\n", reached by viBufAddDMA's stub, a rodata blob while the TU's five compiled-C functions are stubs
 layoutClothDef = 0x00625170; // size:0xEA0  // ico2/sugipon/src/attackCheckBoundary  // MAIN.MAP line 6655, member layout-cloth-def.o, the cloth layout table (rodata blob label, named by the map, read by attackCheckBoundary's C and flag's InitFlagGeo stub)
 D_00629E40 = 0x00629E40; // size:0x438  // ico2/sugipon/src/motionOrientManager  // findParallelMotion's 54 by 5 word table at the head of the rodata blob cod/529E40, named by C (its owner in the member map is a PObj run with a forced size, not settled)
 fbKeep = 0x0063A054; // size:0x4  // ico2/seki/src/GsBase  // MAIN.MAP line 6981 (GsBase.o .sdata run 0x629f54..0x629f70 in the January link, the same low bytes here), positional name recovery

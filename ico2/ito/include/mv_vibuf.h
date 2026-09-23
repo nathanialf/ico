@@ -12,16 +12,16 @@
 #ifndef MV_VIBUF_H
 #define MV_VIBUF_H
 
-void viBufAddDMA();
+int viBufAddDMA();
 void viBufBeginPut(void *self, void **addr1, int *size1, void **addr2, int *size2);
 int viBufCount(int *self);
 int viBufCreate(void *self);
-void viBufDelete();
+int viBufDelete();
 void viBufEndPut(int *self, int a1);
 void viBufFlush(int *self);
 void viBufGetTs();
 int viBufReset();
-void viBufRestartDMA();
-void viBufStopDMA();
+int viBufRestartDMA();
+int viBufStopDMA();
 
 #endif /* MV_VIBUF_H */
