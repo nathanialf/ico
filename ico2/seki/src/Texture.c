@@ -1619,7 +1619,86 @@ void tex_ResetVram(void)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_dispClut);
+/* the GS register payloads, spelled as ico2/seki/src/GifPacket.c spells them */
+#define GIF_RGBA(c)                                                                                \
+    ((long long)(c)[0] | ((long long)(c)[1] << 8) | ((long long)(c)[2] << 16) |                    \
+     ((long long)(c)[3] << 24))
+#define GIF_XY0(x, y, z) ((long long)(x) | ((long long)(y) << 16) | ((z) << 32))
+#define GIF_XY(x, y, z)                                                                            \
+    ((long long)((x) + 0x8000) | ((long long)((y) + 0x8000) << 16) | ((z) << 32))
+/* a 640x224 layout coordinate to the screen, gif_SpriteSensitive's scaling */
+#define DISP_X(v) ((v) * D_0063A064 / 640)
+#define DISP_Y(v) ((v) * D_0063A068 / 224)
+
+/* The far corner, x + fx with fx = w + 0x8000, the way gif_MakeSpriteNoTexture
+ * in GifPacket.c holds it. WHAT THE BYTES PIN: w + 0x8000 is computed on its
+ * own and x added to it (`addu v0,v0,s2; addu a3,a3,v0`), where fold turns a
+ * textual x + (w + 0x8000) into (x + 0x8000) + w and cse then reuses the near
+ * corner's sum; and the trap chain orders the far corner's divisions x, w then
+ * y, h. A two-argument helper gives both. WHAT THEY CANNOT PIN: the form of
+ * the 2002 construct. The listing gives it no rows of its own (every
+ * instruction of the sprite is on 2240 or 2247), which a same-file inline
+ * would not do (tex_GetTWTH's rows 513-518 inside tex_setTexReg) and a header
+ * inline would not do either (sugiCommon.h and mv_defs.h rows appear inside
+ * their callers); GsBase.c's sprite at its line 1026 is the same case and
+ * carries the same stand-in. INTERIM, like GsBase.c's gsbSpriteNoTexture. */
+static inline int dispFar(int x, int w)
+{
+    int fx = w + 0x8000;
+
+    return x + fx;
+}
+
+/* The untextured sprite of gif_SpriteSensitive (uv NULL, prim 0: PRIM 0x406),
+ * expanded as a MACRO: the listing puts all four register writes on the line
+ * of the use, and the ROM divides the near corner's x and y a second time for
+ * the far corner (six divide-by-zero traps for four divisions), which is the
+ * textual substitution of the corner coordinates into both corners. */
+#define dispClutSprite(r, col)                                                                     \
+    {                                                                                              \
+        setGsReg(0x00, 0x406);                                                                     \
+        setGsReg(0x01, GIF_RGBA(col));                                                             \
+        setGsReg(0x05, GIF_XY(DISP_X((r)[0]), DISP_Y((r)[1]), (long long)-4));                     \
+        setGsReg(0x05, GIF_XY0(dispFar(DISP_X((r)[0]), DISP_X((r)[2])),                            \
+                               dispFar(DISP_Y((r)[1]), DISP_Y((r)[3])), (long long)-4));           \
+    }
+
+/* The CLUT viewer: mode 0 draws a 256-entry CLUT as a 16x16 grid in CSM1
+ * order, mode 1 a 16-entry CLUT as one row. Each cell's rectangle is an
+ * initialised block-scope array, rows 2238 and 2246 holding the whole
+ * declaration: its BLKmode clobber (expr.c store_constructor) makes loop.c's
+ * prescan_loop set unknown_address_altered, so the rectangle is neither
+ * hoisted out of the loop nor forwarded into the sprite, and both cells share
+ * the frame's first sixteen bytes as the ROM's do. The coordinates are pixels
+ * scaled to the GS's sixteenths with `<< 4`; written `* 16`, fold would merge
+ * k * 5 * 16 into one multiply by 80, which keeps k live and stops loop.c
+ * reversing the inner loop, where the shift of k * 5 is a giv of k. */
+void tex_dispClut(unsigned char *clut, int mode)
+{
+    int i;
+    int k;
+
+    gif_StartPacketPri(11);
+    switch (mode) {
+    case 0:
+        for (i = 0; i < 16; i++) {
+            for (k = 0; k < 16; k++) {
+                int rect[4] = {(i * 10 - 160) << 4, (k * 5) << 4, 8 << 4, 4 << 4};
+                int n = CLUT_CSM1(256, i + k * 16);
+                dispClutSprite(rect, clut + n * 4);
+            }
+        }
+        break;
+    case 1:
+        for (i = 0; i < 16; i++) {
+            int rect[4] = {(i * 10 - 160) << 4, 0, 8 << 4, 4 << 4};
+            dispClutSprite(rect, clut + i * 4);
+        }
+        break;
+    }
+    gif_EndPacket();
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_printTexture);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_Tool);
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_ListTool);
