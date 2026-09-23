@@ -1690,7 +1690,78 @@ int sceLseek(unsigned int fd, int offset, int whence)
     return result;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceRead);
+int sceRead(int fd, void *buf, int nbyte)
+{
+    int *g = D_0072C240;
+    SceIob *iob;
+    int inuse;
+    int uv;
+    int h;
+    int rc;
+    int i;
+    int result;
+    int sema[8];
+
+    iob = (SceIob *)get_iob(fd);
+    _sceFsWaitS(2);
+    if (D_0054A470[0] == 0) {
+        _sceFsSigSema();
+        return -1;
+    }
+    if (iob == 0 || (inuse = iob->inuse) == 0) {
+        _sceFsSigSema();
+        return -9;
+    }
+    g[3] = iob->fd;
+    g[7] = iob - (SceIob *)D_0072D300;
+    g[4] = (int)buf;
+    g[5] = nbyte;
+    sema[1] = 1;
+    sema[2] = 0;
+    sema[5] = 0;
+    D_0072C240[0] = h = CreateSema(sema);
+    *(void **)(g + 1) = &result;
+    g[2] = 4;
+    if (inuse & 0x8000) {
+        WaitSema(D_0054A47C[0]);
+        for (i = 0; i < 0x20; i++) {
+            if (D_0054A3F0[i] == -1) {
+                D_0054A3F0[i] = g[0];
+                g[0] = -g[0];
+                break;
+            }
+        }
+        SignalSema(D_0054A47C[0]);
+    }
+    if ((inuse & 0x20000000) == 0) {
+        sceSifWriteBackDCache(buf, nbyte);
+    }
+    sceSifWriteBackDCache(D_0072CEC0, 0xA4);
+    /* the request record is flushed through g and handed to the RPC by its
+       symbol: the ROM passes $17 here and rebuilds %lo(D_0072C240) for the
+       call's fourth argument */
+    sceSifWriteBackDCache(g, 0x20);
+    rc = sceSifCallRpc(D_0072D500, 2, 0, D_0072C240, 0x20, D_0072CE80, 4, 0, 0);
+    if (rc < 0) {
+        DeleteSema(h);
+        _sceFsSigSema();
+        return -0xB;
+    }
+    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    _sceFsSigSema();
+    if (uv == 0) {
+        DeleteSema(h);
+        return -0xB;
+    }
+    if (isNowait(inuse)) {
+        DeleteSema(h);
+        return 0;
+    }
+    WaitSema(h);
+    DeleteSema(h);
+    return result;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceWrite);
 
 /* the ioctl argument pointer the request-0x1 arm reads back */

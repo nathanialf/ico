@@ -559,6 +559,20 @@ extern float D_0063B738[];
 /* one 16-byte route point */
 typedef float PathPt[4];
 
+/* box.c:595-600 in the listing: inlined once, into InitBoxGeo, so it is a
+   static inline here; it has no symbol of its own in the ROM and no census
+   row, and the name is ours.  A route array ends at the first point whose
+   fourth word is 10.0f or more. */
+static inline int countPathPoints(int route)
+{
+    PathPt *pts = (PathPt *)D_004E5F30[route];
+    int i;
+
+    for (i = 1; pts[i][3] < 10.0f; i++) {}
+
+    return i;
+}
+
 /* box.c:603-672 in the listing.  The signed plane distance is what the
    projection is scaled by and its magnitude is what the nearest test keeps,
    which is why the ROM copies the value into the argument register before it
@@ -1948,7 +1962,124 @@ void ReInitBoxGeo(char *a0)
     UpdateRootMatrix(a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", InitBoxGeo);
+/* the "%d\n" format the route point count is printed with (sdata VMA
+   0x63B740), the box serial counter (sdata VMA 0x63B73C), the 416-byte box
+   work template (data VMA 0x4E6030) and the empty layout record the effect
+   DObj is built from (sceneManager's data at VMA 0x4E45C0) */
+extern char D_0063B740[];
+extern unsigned char D_0063B73C;
+extern char D_004E45C0[];
+
+/* the 416-byte box work block and the template it is seeded from */
+typedef struct {
+    long long _0[52];
+} BoxWorkBlock;
+
+extern BoxWorkBlock D_004E6030;
+
+/* The 64-byte layout record InitBoxGeo is handed; the word at 0x30 packs the
+   route number in its low half and the sub-box model in its high half. */
+typedef struct {
+    char pad00[0x20];
+    float scale[4]; /* 0x20 */
+    int kind;       /* 0x30 */
+    char pad34[0xC];
+} __attribute__((aligned(8))) BoxLayout;
+
+/* The parent-link record LinkParentOfDObj copies as one word pair: the
+   parent GObj and the node index. */
+typedef struct {
+    int gobj;  /* 0x0 */
+    int index; /* 0x4 */
+} BoxLink;
+
+/* box.c:2014-2102 in the listing. */
+char *InitBoxGeo(char *self, BoxLayout *lay)
+{
+    char *w = (char *)iosMallocDebug(D_0063A438, 416, D_0061EF80, 2017);
+    char *o;
+    char *g;
+    int sub;
+
+    *(char **)((char *)GOBJ_SUB(self) + 0x830) = w;
+
+    *(BoxWorkBlock *)w = D_004E6030;
+
+    *(int *)w = D_0063B73C;
+    D_0063B73C = (D_0063B73C + 1) % 30;
+
+    ((IntFloat *)(w + 0x24))->f = lay->scale[0];
+    ((IntFloat *)(w + 0x28))->f = lay->scale[2];
+    ((IntFloat *)(*(char **)((char *)GOBJ_SUB(self) + 0x870) + 0x20))->f =
+        ((IntFloat *)(*(char **)((char *)GOBJ_SUB(self) + 0x870) + 0x24))->f =
+            ((IntFloat *)(*(char **)((char *)GOBJ_SUB(self) + 0x870) + 0x28))->f = 1.0f;
+
+    *(int *)(w + 0x2C) = *(int *)(*(char **)(self + 0x15C) + 0x70);
+
+    *(int *)(w + 0x160) = (int)CSVSYSTEM_InitDObj(63, (float *)D_004E45C0);
+
+    *(int *)(w + 0x58) = lay->kind & 0xFFFF;
+    *(void **)((char *)GOBJ_SUB(self) + 0x81C) = (void *)BoxRideFunc;
+
+    g = CreateLayoutedGObj(0, 64, -1, 0, (int)lay, 0, 7, 0);
+    *(int *)(w + 0x180) = (int)g;
+
+    GOBJ_SUB(g)->f_74 = 1;
+    *(int *)(g + 0x16C) = 0;
+
+    if (*(int *)(w + 0x58) != 0) {
+        *(int *)(w + 0x5C) = countPathPoints(*(int *)(w + 0x58));
+        *(float *)(w + 0x134) = 0.98f;
+        onPathInitialize(self);
+        onPath(self);
+        initWheels(self, (float *)lay);
+        execNormalMove(self, 1);
+        debug_StdPrintfDummy(D_0063B740, *(int *)(w + 0x5C));
+
+        if ((lay->kind & 0xFFFF0000) != 0) {
+            BoxLayout r = *lay;
+            BoxLink lnk = {(int)self, 0};
+            Vec4 v;
+            Vec4 q;
+
+            r.scale[0] = 1.0f;
+            r.scale[1] = 1.0f;
+            r.scale[2] = 1.0f;
+            r.scale[3] = 1.0f;
+            r.kind = 1;
+
+            sub = D_002A79B8[GOBJ_SUB(self)->f_844].sub;
+            o = CreateLayoutedGObj(23, D_002A79B8[sub].dobj0, sub, 0, (int)&r, 0, 7, 0);
+
+            LinkParentOfDObj(o, (PackedLL_19CAF0 *)&lnk);
+
+            q.f[0] = D_002A79B8[GOBJ_SUB(self)->f_844].pos[0];
+            q.f[1] = D_002A79B8[GOBJ_SUB(self)->f_844].pos[1];
+            q.f[2] = D_002A79B8[GOBJ_SUB(self)->f_844].pos[2];
+            q.f[3] = 1.0f;
+            v = q;
+
+            CopyVector((char *)GOBJ_SUB(o) + 0xA0, &v);
+
+            memset(&q, 0, 16);
+            q.f[3] = 1.0f;
+            RotQuaternionY(&q, (short)(D_002A79B8[GOBJ_SUB(self)->f_844].rotY * 32768.0f / 180.0f));
+            CopyVector((char *)GOBJ_SUB(o) + 0xD0, &q);
+
+            SetSwitchTriggerFunc(o, (void *)moveBoxAutoMatic);
+
+            *(float *)(w + 0x134) = 0.85f;
+        }
+        UpdateRootMatrix(self);
+        return w;
+    }
+
+    *(float *)(w + 0xF0) = random_signed() * 50.0f * 0.5f;
+    *(float *)(w + 0xF4) = random_signed() * 50.0f * 0.5f;
+    ReInitBoxGeo(self);
+
+    return w;
+}
 
 void BoxGeo(char *a0)
 {

@@ -128,7 +128,7 @@ void debug_SetDmaCallback(void)
 
 extern int D_0063AD28;
 extern int D_0063AE64;
-extern int D_0063B130;
+extern int debug_bar_flag;
 extern int D_0063B134;
 extern int D_0063B138;
 extern int D_0063B13C;
@@ -222,7 +222,7 @@ void debug_VariableInit(void)
     D_0063B170 = 15;
     D_0063B160 = 0;
     D_0063B134 = 0;
-    D_0063B130 = 0;
+    debug_bar_flag = 0;
     D_0063B1A4 = 0;
     D_0063B13C = 0;
     D_0063B140 = 0;
@@ -770,7 +770,7 @@ void debug_DispBar(void)
         debug_Printf(10, 10, 0xFFFFFF00u, (int)D_0061BA18, vb, va, frame_count);
     if (D_0063B138 != 0)
         debug_brainBar();
-    if (D_0063B130 != 0)
+    if (debug_bar_flag != 0)
         debug_DrawBar();
     if (D_0063B114 != 0 || D_0063B124 != 0) {
         n = 1;

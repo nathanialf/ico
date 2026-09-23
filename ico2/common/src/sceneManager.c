@@ -33,8 +33,14 @@ static int stageStartWait3;
 
 extern char D_0063B640;
 extern int D_0063B644;
-extern float D_0071D960[];
-extern float D_0071D970[];
+
+/* .bss, owned by sceneManager.o (MAIN.MAP line 7741, 0x20 bytes, no symbol
+   named): the position and rotation MoveNextStage_Set keeps for the next
+   stage and MoveNextStage_Get restores, in the ROM's run order. */
+static float nextStagePos[4];
+
+static float nextStageRot[4];
+
 extern int exit_no;
 
 #include "sceneManager.h"
@@ -43,16 +49,16 @@ extern int exit_no;
 
 inline void MoveNextStage_Set(float *a0, float *a1, int a2, int a3, int a4, int a5)
 {
-    D_0071D960[0] = a0[0];
-    D_0071D960[1] = a0[1];
-    D_0071D960[2] = a0[2];
+    nextStagePos[0] = a0[0];
+    nextStagePos[1] = a0[1];
+    nextStagePos[2] = a0[2];
     stageStartWait1 = a2;
     stageStartWait2 = a3;
     stageStartWait3 = a4;
     D_0063B644 = a5;
-    D_0071D970[0] = a1[0];
-    D_0071D970[1] = a1[1];
-    D_0071D970[2] = a1[2];
+    nextStageRot[0] = a1[0];
+    nextStageRot[1] = a1[1];
+    nextStageRot[2] = a1[2];
     D_0063B640 = 1;
 }
 
@@ -360,7 +366,164 @@ extern GenGeo D_002C2DC8[];
 extern void *D_0063ACF0;
 extern void *D_00639EA4;
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/sceneManager", initSceneGObj);
+/* RECONSTRUCTION: the 0x40-byte actor-init record CreateLayoutedGObj hands to the
+   kind's constructor: position, angle and scale as VU0 vectors, then the
+   generator's word at 0x38.  The vectors' 16-byte alignment is what makes gcc
+   copy the record with eight ld/sd pairs, and the record has exactly the four
+   members initSceneGObj's constructor names, so store_constructor fills the
+   temporary without clearing it first (the ROM has no clear); 0x34..0x3F is
+   the alignment tail, copied but never written. */
+typedef struct {
+    sceVu0FVECTOR pos;   /* 0x00 */
+    sceVu0FVECTOR ang;   /* 0x10 */
+    sceVu0FVECTOR scale; /* 0x20 */
+    int f30;             /* 0x30 */
+} ActInit;
+
+extern int stage_no;
+
+/* sceneManager.c:118-127: the static helper that restores the position the
+   previous stage stored through MoveNextStage_Set.  It is fully inlined in the
+   ROM, so it has no symbol and no census row; the name follows its two siblings
+   MoveNextStage_Set and MoveNextStage_Clear. */
+static inline void MoveNextStage_Get(ActInit *a, int kind)
+{
+    if (stage_no == D_0063B644 && kind == 1) {
+        a->pos[0] = nextStagePos[0];
+        a->pos[1] = nextStagePos[1];
+        a->pos[2] = nextStagePos[2];
+        a->ang[1] = nextStageRot[1] * 3.1415927f / 180.0f;
+    }
+}
+
+extern int gamesysGirlStageGet(void);
+extern char D_0061DE08[];
+extern char D_002A5580[];
+extern void *D_00639EA8;
+extern void MakeCollisionDependGObjList(void);
+/* kept local: this TU passes a 64-bit process priority where the prototype in
+   gobj_process.h carries an int, and the ROM's `dsll $8, $2, 10` proves the
+   fifth argument is 64 bits wide. */
+extern int isysGObjProcAddS(char *gobj, int fn, int a2, int a3, long long pri);
+
+void initSceneGObj(int stage, int no)
+{
+    ActInit a;
+    GenGeo *gen = &D_002C2DC8[no];
+    ObjKindEnt *lay = (ObjKindEnt *)((char *)D_002C1270 + gen->kind * 0x64);
+    GamesysObjInfo *info = gamesysObjInfoGet(gen->kind, no);
+    int mdl = gen->mdl;
+    int st;
+    char *gobj;
+    float ry;
+    int sno;
+    long long pri;
+    unsigned short fld;
+
+    if (info != 0) {
+        sno = info->stage;
+        if (sno != stage) {
+            return;
+        }
+
+        ((GamesysObjInfoFlag *)info)->flag |= 1;
+
+        if (D_005F5D50[sno].flag1 == 1 && gamesysGirlStageGet() != sno) {
+            switch (gen->kind) {
+            case 4:
+                ReturnEnemyToGenerator(no);
+            case 15:
+            case 33:
+                gamesysObjInfoCls(gen->kind, no);
+                info = 0;
+                break;
+            }
+        }
+    }
+
+    debug_StdPrintfDummy(D_0061DE08, no, mdl);
+
+    st = 0;
+
+    if (lay->f44 != 0) {
+        /* sceneManager.c:394 holds the whole fill and the copy into a: one
+           statement, a constructor built in a temporary and assigned (the
+           construct ico2/ito/src/lightning.c uses for its LightningVtx). */
+        a = (ActInit){
+            {-gen->pos[0], -gen->pos[1], -gen->pos[2], 1.0f},
+            {gen->rot[0] * 3.1415927f / 180.0f, 0.0f, gen->rot[2] * 3.1415927f / 180.0f, 0.0f},
+            {gen->scale[0], gen->scale[1], gen->scale[2], 1.0f},
+            gen->f38};
+
+        ry = gen->rot[1];
+        if (ry > 180.0f) {
+            ry -= 360.0f;
+        }
+        if (gen->rot[1] < -180.0f) {
+            ry += 360.0f;
+        }
+        a.ang[1] = ry * 3.1415927f / 180.0f;
+
+        if (info != 0) {
+            if (lay->f38 != 0) {
+                lay->f38(&a, info);
+            } else {
+                a.pos[0] = info->pos[0];
+                a.pos[1] = info->pos[1];
+                a.pos[2] = info->pos[2];
+                a.ang[0] = info->rot[0];
+                a.ang[1] = info->rot[1];
+                a.ang[2] = info->rot[2];
+                st = info->work[0];
+            }
+        }
+
+        MoveNextStage_Get(&a, gen->kind);
+
+        gobj = CreateLayoutedGObj(gen->kind, mdl, gen->f30, gen->f47 & 0x1F, (int)&a, no,
+                                  (gen->f48 >> 14) & 7, 0);
+
+        fld = gen->f40;
+        pri = 0x1800;
+        if (fld != 0) {
+            pri = (long long)fld << 10;
+        }
+
+        if (gen->f24 != 0) {
+            isysGObjProcAddS(gobj, gen->f24, 0, 0x13, pri);
+        } else if (lay->f40 != 0) {
+            isysGObjProcAddS(gobj, (int)lay->f40, 0, 0x13, pri);
+        }
+
+        if (gen->kind == 1) {
+            D_00639EA4 = gobj;
+        }
+        if (gen->kind == 2) {
+            D_00639EA8 = gobj;
+        }
+
+        if (info != 0 && lay->f34 != 0) {
+            lay->f34(gobj, info);
+        }
+
+        if (st == 4) {
+            D_0063ACF0 = gobj;
+        }
+
+        if (gen->f28 != 0) {
+            *gen->f28 = (int)gobj;
+        }
+
+        brainStatusDefaultSet(D_002A5580, (int)gobj, no);
+
+        eBrainStatusSet(gobj, gen->kind);
+
+        ActSetStartBrainStatus(gobj, st);
+    }
+
+    MakeCollisionDependGObjList();
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/sceneManager", initParentLink);
 
 /* sceneManager.c:519-536, 553-570, 606-617: three static helpers the listing

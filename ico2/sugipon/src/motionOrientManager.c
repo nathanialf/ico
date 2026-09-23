@@ -12,6 +12,7 @@
 #include "streamMotionManager.h"
 #include "tableSin.h"
 #include "typedef.h"
+#include "GifPacket.h"
 #include <libvu0.h>
 
 extern MotionOrientEntry D_002ADD60[];
@@ -942,7 +943,114 @@ inline void SetParallelMotionTable(void *self, int a1, int a2, int a3, int a4)
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", getNodeBlendedFloatingMotion);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", getMotionGeometry);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", getShapeGeometry);
+
+extern char D_00620580[];
+extern char D_006205D8[];
+
+/* The two line colours the debug bar graph draws with: 16-byte records the ROM
+ * copies into the frame with ld/sd, so the type is 8-byte aligned; the union
+ * spelling is the one ico2/omori/src/camera-editor.c already carries (BoxCol4). */
+typedef union {
+    unsigned int c[4];
+    unsigned long long w[2];
+} MotOriCol4;
+
+extern const MotOriCol4 D_00620610;
+extern const MotOriCol4 D_00620620;
+extern int ScreenWidth;
+extern int ScreenHeight;
+
+/* RECONSTRUCTION, the type and enumerator names are ours: debug_bar_flag is debug.o's
+ * debug bar mode (MAIN.MAP line 7189 names the word debug_bar_flag by position),
+ * which ico2/common/src/debug.c clears and debug_DrawBar dispatches on 1 and 2.
+ * The ROM proves it is not read as a plain int here: its load sits in the clamp
+ * loop's preheader, and gcse only places it there when the loop body is
+ * transparent for it, which the loop's int store to the shape weight makes false
+ * for any int-typed global (gcse's mems_conflict_for_gcse_p asks
+ * true_dependence, and DIFFERENT_ALIAS_SETS_P is its only exit). An enumerated
+ * mode has an alias set of its own; the act-game MpsrMode record is the same
+ * proof in another TU. */
+enum DebugDisplayMode { DEBUG_DISPLAY_OFF, DEBUG_DISPLAY_ON, DEBUG_DISPLAY_FULL };
+
+extern enum DebugDisplayMode debug_bar_flag;
+/* kept local: motionFileManager.h types the argument unsigned int *, this TU's is the motion block */
+extern int CheckMotionIncludeFacialData(void *mot);
+/* kept local: no header declares it; the shape motion is written into the caller's buffer */
+extern void GetFloatingShapeMotion(float *dst, void *mot, int n, float frame);
+/* kept local: no header declares it (lineManager.h has only the segment calls) */
+extern void Draw2DLine(int *p1, int *p2, int *color, int z);
+
+void getShapeGeometry(void *self)
+{
+    char *m = (char *)*(int *)((char *)self + 0x15C) + 0x470;
+
+    if (D_0055FE58[*(int *)(m + 0x30)].f178 == 0x140) {
+        void *mot = D_004EB758[*(int *)(m + 0x30)];
+
+        if (CheckMotionIncludeFacialData(mot) == 0) {
+            int n = **(int **)((char *)mot + 0x10);
+            float buf[n];
+            int i;
+
+            GetFloatingShapeMotion(buf, mot, n, *(float *)(m + 0x3C));
+            if (n != 0) {
+                int cnt = *(int *)((char *)*(int *)((char *)self + 0x15C) + 0x834);
+
+                if (cnt != 0) {
+                    if (cnt != n) {
+                        debug_StdPrintfDummy(D_00620580, n, cnt);
+                    }
+                    for (i = 0; i < n; i++) {
+                        float x = buf[i] * 0.01f;
+                        int *p = (int *)(i * 4 +
+                                         *(int *)((char *)*(int *)((char *)self + 0x15C) + 0x838));
+
+                        if (x < 0.0f) {
+                            if (0.0001f < -x) {
+                                *(float *)p = x;
+                            } else {
+                                *p = 0;
+                            }
+                        } else {
+                            if (0.0001f < x) {
+                                *(float *)p = x;
+                            } else {
+                                *p = 0;
+                            }
+                        }
+                    }
+                } else {
+                    debug_StdPrintfDummy(D_006205D8);
+                }
+                if (debug_bar_flag != 0) {
+                    gif_StartPacketPri(11);
+                    {
+                        int p1[4];
+                        int p2[4];
+                        MotOriCol4 c0;
+                        MotOriCol4 c1;
+
+                        c0 = D_00620610;
+                        c1 = D_00620620;
+
+                        gif_SetAlpha(1, 5, 128);
+                        for (i = 0; i < n; i++) {
+                            p1[0] = (ScreenWidth / 2 + 1824) << 4;
+                            p2[0] = (ScreenWidth / 2 + 2024) << 4;
+                            p1[1] = p2[1] = (ScreenHeight / 2 - n * 6 + 2024 + i * 6) << 4;
+                            Draw2DLine(p1, p2, (int *)c0.c, -1);
+                            p1[0] = p2[0] = (ScreenWidth / 2 + (int)buf[i] + 1924) << 4;
+                            p1[1] = (ScreenHeight / 2 - n * 6 + 2025 + i * 6) << 4;
+                            p2[1] = (ScreenHeight / 2 - n * 6 + 2028 + i * 6) << 4;
+                            Draw2DLine(p1, p2, (int *)c1.c, -1);
+                        }
+                        gif_EndPacket();
+                    }
+                }
+            }
+        }
+    }
+}
 
 /* kept local: this TU's uses of GetStreamMotion do not fit the prototype in motionManager2.h */
 extern int GetStreamMotion(void *dst, float *v, void *sm, int n);

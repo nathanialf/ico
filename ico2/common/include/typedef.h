@@ -722,8 +722,8 @@ typedef struct {
      * ROM reads them as bitfields: a read off the record itself keeps the
      * const table's unchanging flag on the load and emits the index product
      * as the first operand of the address add (actCommonFall, actCommonEdgeHang). */
-    unsigned int flag0 : 1; /* initSceneGObj tests it (still asm) */
-    unsigned int flag1 : 1; /* GeneratorGeo: the stage keeps the boy out */
+    unsigned int flag0 : 1; /* no C reader */
+    unsigned int flag1 : 1; /* GeneratorGeo: the stage keeps the boy out; initSceneGObj tests it */
     unsigned int flag2 : 1; /* actCommonEdgeHang: re-clip the hang to the floor */
     unsigned int flag3 : 1; /* actCommonFall: print and keep the low nibble of 0x5F8 */
 } StgPre;

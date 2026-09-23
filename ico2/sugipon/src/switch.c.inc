@@ -103,11 +103,12 @@ extern int D_0063A438;
 typedef struct {
     int dobj0;    /* 0x00 */
     int dobj1;    /* 0x04 */
-    char _08[4];  /* 0x08 */
+    int sub;      /* 0x08, the sub-box model InitBoxGeo creates */
     float f0C;    /* 0x0C */
     float f10;    /* 0x10 */
     float f14;    /* 0x14 */
-    char _18[16]; /* 0x18 */
+    float pos[3]; /* 0x18, the sub-box's offset */
+    float rotY;   /* 0x24, the sub-box's facing in degrees */
 } BoxModelRec;
 
 extern BoxModelRec D_002A79B8[];

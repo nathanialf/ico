@@ -1077,7 +1077,7 @@ segments:
       - [0x539354, .lit4, ico2/common/src/debug_exception]  # carved D_00639354 (1 slot: drawWin's 0.8f, debug_exception_screen.c.inc), VMA 0x639354..0x639358, 4 B
       - [0x539358, .lit4, ico2/common/src/gamesys]  # carved D_00639358..D_0063935C (2 words, both pi, gamesysObjInfoBaseSet's own literals; the TU's whole pool), VMA 0x639358..0x639360, 8 B
       - [0x539360, .lit4, ico2/common/src/layout_action]  # carved D_00639360..D_00639368 (3 slots, la_load_processing / la_get_next_stage_name / la_switching_stage), VMA 0x639360..0x63936C, 12 B; MAIN.MAP layout_action.o .lit4 is 0x8 (different link; PAL ELF is authoritative).  USA: no .lit4 carve for this TU.
-      - [0x53936C, lit4, cod/53936C]     # .lit4 blob resume
+      - [0x53936C, .lit4, ico2/common/src/sceneManager]  # the TU's whole pool as source (completeness pass 67), initSceneGObj's two pi literals, VMA 0x63936C..0x639374, 8 B, MAIN.MAP line 6850, anonymous, a_p_1's carve follows
       - [0x539374, .lit4, ico2/sugipon/src/a_p_1]  # carved D_00639374..D_00639390 (8 slots, 6 fns fitToCol..attackMot in source order; 3 slots beside still-asm owners), VMA 0x639374..0x639394, 32 B
       - [0x539394, .lit4, ico2/sugipon/src/act_a_p_1]  # carved D_00639394..D_0063939C (3 words: walkAI's two 10000.0f jump-range tests and subAP1BrainMain's 40000.0f smoothing threshold, all literals; the TU's whole pool, between a_p_1's and box's carves), VMA 0x639394..0x6393A0, 12 B
       - [0x5393A0, .lit4, ico2/sugipon/src/box]  # carved D_006393A0..D_00639408 (27 slots, 13 fns FloorLeverGeo..InitBoxGeo, in source order with switch.c.inc first), VMA 0x6393A0..0x63940C, 108 B; MAIN.MAP box.o .lit4 0x6c agrees.
@@ -1325,6 +1325,7 @@ segments:
       - { type: bss, vram: 0x0071CED0, name: cod/0071CED0 }  # .bss blob resume
       - { type: .bss, vram: 0x0071CF00, name: ico2/common/src/kanbanBoot }  # the TU's own .bss, 0xA00 B, VMA 0x71CF00..0x71D900; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x0071D900, name: cod/0071D900 }  # .bss blob resume
+      - { type: .bss, vram: 0x0071D960, name: ico2/common/src/sceneManager }  # the TU's own .bss as source (completeness pass 67), 0x20 B, VMA 0x71D960..0x71D980, nextStagePos and nextStageRot in ROM run order (MAIN.MAP line 7741), staffroll's row abuts
       - { type: .bss, vram: 0x0071D980, name: ico2/common/src/staffroll }  # the TU's own .bss, 0x12C0 B, VMA 0x71D980..0x71EC40; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x0071EC40, name: ico2/sugipon/src/act_a_p_1 }  # the TU's own .bss, 0x90 B, VMA 0x71EC40..0x71ECD0; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x0071ECD0, name: ico2/sugipon/src/darkVolume }  # the TU's own .bss, 0x13A0 B, VMA 0x71ECD0..0x720070; static definitions in ROM run order (completeness pass)

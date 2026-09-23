@@ -19,7 +19,7 @@ extern void *D_0063A428;
 extern int fbKeep;
 extern int ScreenWidth;
 extern int ScreenHeight;
-extern int D_0063B130;
+extern int debug_bar_flag;
 extern void *D_0063A430;
 extern void *D_0063A43C;
 extern void *D_0063A444;
@@ -105,7 +105,7 @@ void disp_memory_partition_bar(void)
     st.w = ed.w = 0;
     st.y = (ScreenHeight / 2 + 1898) << 4;
     ed.y = st.y + 1280;
-    if (D_0063B130 == 2) {
+    if (debug_bar_flag == 2) {
         gif_SetAlpha(1, 2, 32);
         gif_MakeSpriteNoTexture((-(ScreenWidth >> 1) + 2178) << 4, (ScreenHeight / 2 + 1898) << 4,
                                 (ScreenWidth - 200) << 4, 768, 0xFFFFFFFF, &D_0063B428, 1);
