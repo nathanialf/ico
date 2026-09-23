@@ -143,7 +143,39 @@ int sceCdInitEeCB(int priority, void *stack, int stackSize)
     return r;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/cdvd000", _sceCd_cd_read_intr);
+/* RECONSTRUCTION: the read RPC's reply record, read off this function's
+   offsets: the byte counts and destinations of the unaligned head and tail
+   of a read, then the two 64-byte bounce buffers. */
+typedef struct {
+    int size1;
+    int size2;
+    char *dest1;
+    char *dest2;
+    char buf1[64];
+    char buf2[64];
+} CdReadEnd;
+
+void _sceCd_cd_read_intr(void *pkt)
+{
+    CdReadEnd *r = (CdReadEnd *)((int)pkt | 0x20000000);
+    char *dst;
+    int i;
+
+    if (r->size1 > 0) {
+        dst = r->dest1;
+        for (i = 0; i < r->size1; i++) {
+            dst[i] = r->buf1[i];
+        }
+    }
+    if (r->size2 > 0) {
+        dst = r->dest2;
+        for (i = 0; i < r->size2; i++) {
+            dst[i] = r->buf2[i];
+        }
+    }
+    _sceCd_cd_callback((int *)&sceCdCbfunc_num);
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/cdvd000", cmd_sem_init);
 INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/cdvd000", cdvd_exit);
 
