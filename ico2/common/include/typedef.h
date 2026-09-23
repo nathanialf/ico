@@ -737,8 +737,15 @@ typedef struct {
     float handCameraRate; /* 0x184 */
     short f188;           /* 0x188 */
     unsigned char _18a[0x2];
-    unsigned int attr;  /* 0x18C, flag word whose low half is the reverb depth */
-    unsigned int flags; /* 0x190 */
+    unsigned int attr; /* 0x18C, flag word whose low half is the reverb depth */
+    /* 0x190, a word of one-bit stage switches.  They are bitfields because the
+     * ROM reads them as bitfields: a read off the record itself keeps the
+     * const table's unchanging flag on the load and emits the index product
+     * as the first operand of the address add (actCommonFall, actCommonEdgeHang). */
+    unsigned int flag0 : 1; /* initSceneGObj tests it (still asm) */
+    unsigned int flag1 : 1; /* GeneratorGeo: the stage keeps the boy out */
+    unsigned int flag2 : 1; /* actCommonEdgeHang: re-clip the hang to the floor */
+    unsigned int flag3 : 1; /* actCommonFall: print and keep the low nibble of 0x5F8 */
 } StgPre;
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 12 TUs that carried 6 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */

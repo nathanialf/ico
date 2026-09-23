@@ -37,7 +37,10 @@ void _RotTransPersCurrentMatrix(void *p0, void *p1, void *p2);
 void _TransposeCurrentMatrix(void);
 void _TransposeRotationCurrentMatrix(void);
 void _InverseCurrentMatrix(void);
-void _NormalizeVector(void *p0, void *p1, void *p2);
+/* reconstruction corrected: the ROM sets only $4 and $5 at every call site
+   (flyCoreLoop), and every other TU in the tree that calls it declares two
+   parameters; the body reads only those two. */
+void _NormalizeVector(void *p0, void *p1);
 /* reconstruction corrected: the ROM calls this with TWO arguments and reads
    the result out of $f0 (stgmgrNextStagePreLoad does mov.s $f1,$f0 on the
    return), and every TU in the tree that calls it declares it this way. */

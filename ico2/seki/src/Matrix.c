@@ -497,7 +497,7 @@ void _PopVu0Registers(void)
     }
 }
 
-inline void _NormalizeVector(void *p0, void *p1, void *p2)
+inline void _NormalizeVector(void *p0, void *p1)
 {
     __asm__ __volatile__(".set noreorder\n\t"
                          "lqc2 $vf1, 0x0(%1)\n\t"
@@ -885,8 +885,8 @@ inline void _SetCameraMatrix(void *dst, void *pos, void *dir, void *up)
 
     _UnitMatrix(m);
     _OuterProduct(t, up, dir, 0);
-    _NormalizeVector(m[0], t, 0);
-    _NormalizeVector(m[2], dir, 0);
+    _NormalizeVector(m[0], t);
+    _NormalizeVector(m[2], dir);
     _OuterProduct(m[1], m[2], m[0], 0);
     _CopyVector(m[3], pos);
     _InversMatrix(dst, m);

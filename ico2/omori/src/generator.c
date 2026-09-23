@@ -906,7 +906,7 @@ void GeneratorGeo(char *gobj)
     char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
     int hard = 0;
     StgPre *sd = &D_005F5D50[stage_no];
-    int noBoy = ((sd->flags >> 1) & 1) && D_00639EA8 == 0;
+    int noBoy = sd->flag1 && D_00639EA8 == 0;
 
     *(int *)(w + 0xC) = (int)IsNeedGeneratorHard(gobj);
     if (*(int *)(w + 0xC) != 0) {

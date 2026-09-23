@@ -51,8 +51,8 @@ void afterCommonRope(volatile int a0);
 void afterCommonRopeTurnSpecial(volatile int a0);
 void afterCommonStone(volatile int a0);
 void afterCommonTruckLever(volatile int a0);
-void flyCoreLoop(volatile int a0, char *target, int flag);
-void subCommonIdle(void);
+void flyCoreLoop(char *a0, char *target, int flag);
+void subCommonIdle(volatile int a0);
 void *test_CURRENTORIENT(char *a0);
 void *test_CURRENTROOT(void *a0);
 
