@@ -16,7 +16,6 @@ void BossCtrlGeo(void *self);
 void CapsuleGhostBossStart(void);
 int InqCapsuleGhostBossEnd(void);
 int InqCapsuleGhostBossStage(void);
-void func_001A08F8();
 void itou_boss_gflag_init(void);
 
 #endif /* ITOU_BOSS_H */

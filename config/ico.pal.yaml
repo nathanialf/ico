@@ -884,6 +884,7 @@ segments:
       - [0x5208E0, .rodata, ico2/sugipon/src/particleEffect]  # the TU's whole .rodata run as source (completeness pass 39): six anonymous message and name literals at their use sites, __FILE__ for the allocator's file argument, the pool in definition order; VMA 0x6208E0..0x6209BE, 222 B, tail is link pad up to particleLayout's row
       - [0x5209C0, .rodata, ico2/sugipon/src/particleLayout]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x6209C0..0x620C90, 720 B
       - [0x5209D8, rodata, cod/5209D8]     # rodata blob resume
+      - [0x520A00, .rodata, ico2/sugipon/src/rope]  # the TU's whole .rodata run as source (chain 3 pass 74, InitRopeGeo landed), 227 B as MAIN.MAP gives, VMA 0x620A00..0x620AE3, anonymous (the file name, two EUC-JP messages, the two probe vectors and "HOLD ROPE"), five pad bytes before rotObject's row
       - [0x520AE8, .rodata, ico2/sugipon/src/rotObject]  # the TU's whole .rodata run as source (completeness pass 6), VMA 0x620AE8..0x620B60, 119 B emitted
       - [0x520B60, .rodata, ico2/sugipon/src/spider]  # the TU's whole .rodata run as source (data pass 5), the switch table included, abutting spiderGroupManager's row, VMA 0x620B60..0x620CF7, 407 B
       - [0x520CF8, .rodata, ico2/sugipon/src/spiderGroupManager]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x620CF8..0x620F20, 552 B
@@ -1098,7 +1099,7 @@ segments:
       - [0x539658, .lit4, ico2/sugipon/src/motionViewer]  # carved D_00639658..D_0063965C (2 words, both 0.01f, the still-asm modeMessage's two slots; the TU's whole pool, between motionOrientManager's and particleEffect's carves), VMA 0x639658..0x639660, 8 B
       - [0x539660, .lit4, ico2/sugipon/src/particleEffect]  # carved D_00639660..D_0063966C (4 slots: 182.04445f, 4095.0f, 0.2f, 4095.0f; two slots beside the still-asm execParticleEffect; the TU's whole pool), VMA 0x639660..0x639670, 16 B
       - [0x539670, .lit4, ico2/sugipon/src/puddle]  # carved D_00639670..D_00639678 (3 slots beside the still-asm drawRipple, one per use site in ROM order: 0.635f, 0.9f, 10.24f; the TU's whole pool), VMA 0x639670..0x63967C, 12 B
-      - [0x53967C, lit4, cod/53967C]     # .lit4 blob resume (rope InitRopeGeo's word)
+      - [0x53967C, .lit4, ico2/sugipon/src/rope]  # the TU's .lit4 word as source (chain 3 pass 74), 10430.378f, VMA 0x63967C, rotObject's row follows
       - [0x539680, .lit4, ico2/sugipon/src/rotObject]  # carved D_00639680..D_0063969C (8 slots: MoveRotObjectWithHoldPoint x4, GetRotObjectGlobalHoldGeometry, InitRotObjectGeo, RotObjectDL, GetRotObjectZPlusDirection — per-function copies of 10430.378f; the TU's whole pool), VMA 0x639680..0x6396A0
       - [0x5396A0, .lit4, ico2/sugipon/src/spider]  # carved D_006396A0..D_006396A4 (2 slots: InitSpiderLayoutGeo's pi still asm, CheckSpidersInsideOfReviveRange's 10000.0f as a literal; the TU's whole pool, between rotObject's and staticBlur's carves), VMA 0x6396A0..0x6396A8
       - [0x5396A8, .lit4, ico2/sugipon/src/staticBlur]  # carved D_006396A8..D_006396AC (2 slots: 0.9f eyeBlur, 1000000.0f calcSun), VMA 0x6396A8..0x6396B0, 8 B; MAIN.MAP staticBlur.o .lit4 0x8 agrees.  USA: - [0x5313D8, .lit4, ico2/sugipon/src/staticBlur]    # carved D_006313D8/13DC (0.9f, 1000000f), VMA 0x6313D8..0x6313E0
@@ -1177,6 +1178,8 @@ segments:
       - [0x53B040, sdata, cod/53B040]    # .sdata blob resume
       - [0x53B8B8, .sdata, ico2/sugipon/src/girl]  # the TU's .sdata literals (completeness pass 7 widened it to the run head), VMA 0x63B8B8..0x63B8D9
       - [0x53B8D9, sdata, cod/53B8D9]     # .sdata blob resume
+      - [0x53BAA8, .sdata, ico2/sugipon/src/rope]  # the TU's .sdata as source (chain 3 pass 74), the anonymous string "0", 2 B as MAIN.MAP gives, VMA 0x63BAA8, the linker pads to the next 8-aligned string
+      - [0x53BAB0, sdata, cod/53BAB0]     # .sdata blob resume
       - [0x53C0D0, .sdata, ico2/common/src/GobjProc]  # the TU's .sdata: one anonymous string literal ("%d\n", 4 B), VMA 0x63C0D0..0x63C0D4; completeness pass 1
       - [0x53C0D4, sdata, cod/53C0D4]     # .sdata blob resume
       - [0x53C0D8, .sdata, ico2/common/src/PObj]  # the TU's .sdata run as source (completeness pass 65; MAIN.MAP line 7565), VMA 0x63C0D8..0x63C0F6

@@ -1,12 +1,12 @@
 # ico
 
 <!-- progress:begin -->
-![.text progress](https://img.shields.io/badge/text-85.43%20%25-green.svg)
+![.text progress](https://img.shields.io/badge/text-85.57%20%25-green.svg)
 ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg)
 ![.data progress](https://img.shields.io/badge/data-2.09%20%25-orange.svg)
-![.rodata progress](https://img.shields.io/badge/rodata-4.00%20%25-orange.svg)
-![.lit4 progress](https://img.shields.io/badge/lit4-99.55%20%25-green.svg)
-![.sdata progress](https://img.shields.io/badge/sdata-2.49%20%25-orange.svg)
+![.rodata progress](https://img.shields.io/badge/rodata-4.02%20%25-orange.svg)
+![.lit4 progress](https://img.shields.io/badge/lit4-99.64%20%25-green.svg)
+![.sdata progress](https://img.shields.io/badge/sdata-2.51%20%25-orange.svg)
 ![.sbss progress](https://img.shields.io/badge/sbss-70.02%20%25-yellowgreen.svg)
 ![.bss progress](https://img.shields.io/badge/bss-41.33%20%25-yellow.svg)
 <!-- progress:end -->
