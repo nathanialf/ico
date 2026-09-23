@@ -628,7 +628,101 @@ void scpGirlHintVoicePlay(void)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/script/src/script", scpGirlHintVoiceTickProc);
+/* INTERIM stand-in.  scpAdpcmCloseChkFunc is a real TU function with its
+   own ROM slot, but the compiler INLINES it here.  While the tail of this TU
+   still holds INCLUDE_ASM members its definition cannot be turned into a
+   single `inline` one ahead of its callers without moving its ROM slot, so
+   this caller uses a byte-identical static copy.  Delete it once the TU is
+   C-complete. */
+static inline int scpAdpcmCloseChkFuncInline(char **h)
+{
+    int no;
+    char *p = *h;
+    if (p != 0) {
+        if (*(char **)(p + 0x2C) == 0 || *(int *)(*(char **)(p + 0x2C) + 0x28) == 0) {
+            return 0;
+        }
+        return 1;
+    }
+    no = -1;
+    return no < scpAdpcmRequestSlot(h);
+}
+
+/* the listing's rows put a label of TickProc's own at script.c:1773 after
+   the inlined scpAdpcmCloseChkFunc (1760-1767): a static inline of its own
+   that returns that check for the hint voice's slot, used only here (the name
+   is ours; it has no out-of-line copy and no MAIN.MAP symbol) */
+static inline int scpGirlHintVoiceChk(void)
+{
+    return scpAdpcmCloseChkFuncInline(&D_0063AA10);
+}
+
+/* kept local: this TU's uses of AdpcmInterStereoVolumeSet do not fit the
+   prototype in adpcm_init.h */
+extern void AdpcmInterStereoVolumeSet(void *h, int a1);
+
+void scpGirlHintVoiceTickProc(void)
+{
+    float rmin = D_0063AA14; /* the listing's line 1892: both range globals are
+                                read into locals before the early returns */
+    float rmax = D_0063AA18;
+    float pos[4];
+    float dist;
+    int deg;
+    char *snd;
+    float vol;
+    float lr;
+    float l;
+    float r;
+    int adeg;
+
+    if (D_0063AA10 == 0 || D_00639EA8 == 0)
+        return;
+    if (scpGirlHintVoiceChk() == 0) {
+        D_0063AA10 = 0;
+        return;
+    }
+    snd = *(char **)(D_0063AA10 + 0x2C);
+    GetRootPosition(pos, D_00639EA8);
+    CameraGetOtherObjOffset(pos, &dist, &deg);
+    if (rmax <= dist) {
+        vol = 0.0f;
+    } else if (dist < rmin) {
+        vol = 1.0f / (dist / rmin + 1.0f);
+    } else {
+        dist = dist - rmin;
+        vol = 1.0f / (dist / (rmax - rmin) + 1.0f) - 0.5f;
+    }
+    /* What the bytes pin (listing lines 1923 and 1925): the angle is read into
+       adeg on a line of its own and the negation reads the angle again, so the
+       conditional move keeps adeg in the load's register and jump's copy of
+       the compared value carries the angle into the sign test below. What they
+       cannot pin: whether the test was spelled `<= -1` or `< 0` (the same
+       code). */
+    adeg = deg;
+    if (adeg <= -1)
+        adeg = -deg;
+    lr = (float)adeg * -0.0027777778f + 1.0f;
+    /* each arm sets its fixed side first: the ROM keeps r in the register of
+       the 1.0f the lr line loaded (no copy in this arm) and builds r from l
+       in the other */
+    if (deg >= 0) {
+        r = 1.0f;
+        adeg = deg;
+        if (adeg >= 91)
+            adeg = 180 - adeg;
+        l = (float)adeg * -0.01f + 1.0f;
+    } else {
+        l = 1.0f;
+        adeg = -deg;
+        if (adeg >= 91)
+            adeg = 180 - adeg;
+        r = (float)adeg * -0.01f + 1.0f;
+    }
+    *(short *)(snd + 0x3C) = vol * 16383.0f * lr * l;
+    *(short *)(snd + 0x42) = vol * 16383.0f * lr * r;
+    AdpcmInterStereoVolumeSet(snd, 0);
+}
 
 /* the 0x30-byte wood-bridge table entry at woodBoxTbl: an object id, the
    trigger `kind` that selects which axis test runs, the bridge end offset the
@@ -1318,26 +1412,6 @@ void scpDeamon(volatile int a0)
     _ACTWait(1);
     backStageProcessInStage(0.0f);
     gflagOff(394);
-}
-
-/* INTERIM stand-in.  scpAdpcmCloseChkFunc is a real TU function with its
-   own ROM slot, but the compiler INLINES it here.  While the tail of this TU
-   still holds INCLUDE_ASM members its definition cannot be turned into a
-   single `inline` one ahead of its callers without moving its ROM slot, so
-   this caller uses a byte-identical static copy.  Delete it once the TU is
-   C-complete. */
-static inline int scpAdpcmCloseChkFuncInline(char **h)
-{
-    int no;
-    char *p = *h;
-    if (p != 0) {
-        if (*(char **)(p + 0x2C) == 0 || *(int *)(*(char **)(p + 0x2C) + 0x28) == 0) {
-            return 0;
-        }
-        return 1;
-    }
-    no = -1;
-    return no < scpAdpcmRequestSlot(h);
 }
 
 /* kept local: this TU's uses of scpAdpcmCloseFunc do not fit the prototype in script.h */

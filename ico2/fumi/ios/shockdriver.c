@@ -5,6 +5,7 @@
 typedef struct {
     int count;
     int *arr;
+    int level; /* 0x8, the level the decoders read; Init_ShockDriver clears it */
 } ShockMgr;
 
 struct PadNode {
@@ -483,8 +484,8 @@ static inline int decodeRequestBox(ShockRequestBox *box, unsigned char *pFlags,
     count = 0;
     while (p != 0) {
         count++;
-        sum += Vibration_WaveDecode(p, ((int *)System_shock_driver)[2]);
-        flags |= Vibration_ShotDecode(p, ((int *)System_shock_driver)[2]);
+        sum += Vibration_WaveDecode(p, System_shock_driver->level);
+        flags |= Vibration_ShotDecode(p, System_shock_driver->level);
         p = p->next;
     }
     count |= sum << 16;
@@ -640,22 +641,26 @@ extern int ShockVoiceSetBuf[2];
 extern int ShockRequestMemory[2];
 extern char ShockRequest[];
 
-void Init_ShockDriver(int *a0, int a1, int a2)
+/* What the bytes pin (listing lines 34-43, here and in Init_Shock's inlined
+   copy): after the guards the manager is reached through the global it has
+   just been stored in, which is the copy of the pointer the ROM keeps in a
+   second register ($8 here, $4 in Init_Shock) and the reason Init_Shock
+   reloads the table pointer before its loop. What they cannot pin: whether
+   the store at line 37 and the accesses after it were spelled through the
+   global or through a local the developer loaded from it. */
+void Init_ShockDriver(ShockMgr *m, int *arr, int num)
 {
-    int *b;
     int i;
-    if (a0 == 0)
+    if (m == 0)
         return;
-    if (a1 == 0)
+    if (arr == 0)
         return;
-    b = a0;
-    a0 = 0;
-    b[1] = a1;
-    System_shock_driver = (ShockMgr *)b;
-    b[0] = a2;
-    for (i = 0; i < a2; i++)
-        *(int *)(b[1] + i * 4) = 0;
-    b[2] = 0;
+    System_shock_driver = m;
+    System_shock_driver->count = num;
+    System_shock_driver->arr = arr;
+    for (i = 0; i < num; i++)
+        System_shock_driver->arr[i] = 0;
+    System_shock_driver->level = 0;
 }
 
 int ShockDriver_VoiceSet_NumberRegist(unsigned int idx, int val)
@@ -767,17 +772,26 @@ unsigned short ShockEmulator_EmulationWave(short *a0, int a1)
     return (unsigned short)a0[0];
 }
 
-void Init_ShockRequestAlloc(int *a0, char *a1, int a2)
+/* RECONSTRUCTION (the name is ours): the request pool header ShockRequestMemory
+   holds, a count and the pool's base. The base is a pointer field: its store
+   must not alias the count's, or Init_Shock's inlined copy could not issue it
+   ahead of the count store as the ROM does (listing lines 637-638). */
+typedef struct {
+    int num;
+    char *buf;
+} ShockReqAlloc;
+
+void Init_ShockRequestAlloc(ShockReqAlloc *a0, char *a1, int a2)
 {
     int i;
     if (a0 != 0 && a1 != 0) {
-        a0[0] = a2;
-        a0[1] = (int)a1;
+        a0->num = a2;
+        a0->buf = a1;
         for (i = 0; i < a2; i++) {
             a1[i * 0x40] = 0;
         }
     } else {
-        a0[0] = 0;
+        a0->num = 0;
     }
 }
 
@@ -838,7 +852,44 @@ Lend:
     return a0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/ios/shockdriver", Init_Shock);
+/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
+ * Init_ShockDriver and Init_ShockRequestAlloc into Init_Shock, so both are public
+ * `inline`s; each keeps its plain definition at its own ROM position above and the
+ * caller inlines this static stand-in, which collapses at layout. */
+static inline void initShockDriver(ShockMgr *m, int *arr, int num)
+{
+    int i;
+    if (m == 0)
+        return;
+    if (arr == 0)
+        return;
+    System_shock_driver = m;
+    System_shock_driver->count = num;
+    System_shock_driver->arr = arr;
+    for (i = 0; i < num; i++)
+        System_shock_driver->arr[i] = 0;
+    System_shock_driver->level = 0;
+}
+
+static inline void initShockRequestAlloc(ShockReqAlloc *a0, char *a1, int a2)
+{
+    int i;
+    if (a0 != 0 && a1 != 0) {
+        a0->num = a2;
+        a0->buf = a1;
+        for (i = 0; i < a2; i++) {
+            a1[i * 0x40] = 0;
+        }
+    } else {
+        a0->num = 0;
+    }
+}
+
+void Init_Shock(void)
+{
+    initShockDriver((ShockMgr *)ShockDriver, ShockVoiceSetBuf, 2);
+    initShockRequestAlloc((ShockReqAlloc *)ShockRequestMemory, ShockRequest, 0x10);
+}
 
 int Shock_SetShockVoiceSet(int idx, int val)
 {

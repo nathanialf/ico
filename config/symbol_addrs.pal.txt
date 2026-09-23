@@ -369,6 +369,7 @@ funcEnemyAiGetGirl = 0x00169E38; // type:func  // ico2/fumi/src/enemy_act
 // sampleMode.o word between them is absent from retail). splat merged 0x63C100..0x63C110 into one main.o object, so the
 // TU's first word had no label; DispSkelton stores all three words and main.o touches only +0x8.
 D_00623458 = 0x00623458; // size:0x14  // ico2/ito/mpeg/mv_vibuf  // "DMA ADD not active\n", reached by viBufAddDMA's stub, a rodata blob while the TU's five compiled-C functions are stubs
+layoutClothDef = 0x00625170; // size:0xEA0  // ico2/sugipon/src/attackCheckBoundary  // MAIN.MAP line 6655, member layout-cloth-def.o, the cloth layout table (rodata blob label, named by the map, read by attackCheckBoundary's C and flag's InitFlagGeo stub)
 D_0063A098 = 0x0063A098; // type:asciz  // ico2/seki/src/Light  // "OBJ", the light editor mode label light_DispVolume prints
 D_0063A0A0 = 0x0063A0A0; // type:asciz  // ico2/seki/src/Light  // "FIX", the light editor mode label light_DispVolume prints
 D_0063A0B0 = 0x0063A0B0; // type:asciz  // ico2/seki/src/Light  // the r label light_Tool prints

@@ -13,7 +13,7 @@
 
 typedef struct {
     char _0[0x10];
-    int unk10;
+    FcWallEnt *walls; /* 0x10 */
     int unk14;
     short **unk18;
     short **unk1C;
@@ -109,10 +109,10 @@ static __inline__ float FcAbsF(float v)
     return v;
 }
 
-int clip_wall_1(void *a0, float *wall, int flip, int useh)
+int clip_wall_1(void *a0, FcWallEnt *wall, int flip, int useh)
 {
     ClipWork *ray = (ClipWork *)a0;
-    float *e;
+    FcWallEnt *e;
     float pa[4];
     float pb[4];
     float pc[4];
@@ -139,17 +139,17 @@ int clip_wall_1(void *a0, float *wall, int flip, int useh)
         h = ray->radius;
     }
     lo = -h;
-    hi = wall[16] + h;
-    n = *(float **)&wall[19];
+    hi = wall->height + h;
+    n = wall->normal;
     nx = n[0];
     nz = n[1];
     mx = -nx;
 
     sceVu0CopyVector((int *)out, (int *)ray->pos);
 
-    d[0] = out[0] - wall[0];
+    d[0] = out[0] - wall->pt[0][0];
     d[1] = out[1];
-    d[2] = out[2] - wall[2];
+    d[2] = out[2] - wall->pt[0][2];
     pb[2] = d[0] * nx + d[2] * nz;
     if (flip) {
         pb[2] = -pb[2];
@@ -167,13 +167,13 @@ int clip_wall_1(void *a0, float *wall, int flip, int useh)
      * both groups schedule the [2] load above the d[] stores. What they cannot
      * pin: its name or the line between 736 and 741 it sat on. */
     e = wall;
-    d[0] = ray->a[0] - e[0];
+    d[0] = ray->a[0] - e->pt[0][0];
     d[1] = ray->a[1];
-    d[2] = ray->a[2] - e[2];
+    d[2] = ray->a[2] - e->pt[0][2];
     /* the ROM reads ray->a[0] before e[0] at line 742, so the wall origin
      * is taken after the subtraction that reads it */
-    ex = e[0];
-    ez = e[2];
+    ex = e->pt[0][0];
+    ez = e->pt[0][2];
     pa[2] = d[0] * nx + d[2] * nz;
     if (flip) {
         pa[2] = -pa[2];
@@ -212,7 +212,7 @@ int clip_wall_1(void *a0, float *wall, int flip, int useh)
                 pc[1] = (pb[1] - pa[1]) * (lo - pa[0]) / (pb[0] - pa[0]) + pa[1];
             }
             pb[2] = sz;
-        } else if (e[16] < pa[0]) {
+        } else if (e->height < pa[0]) {
             pc[0] = hi;
             if (FcAbsF(pb[0] - pa[0]) < 5.0f) {
                 pc[1] = pa[1];
@@ -253,16 +253,16 @@ int clip_wall_1(void *a0, float *wall, int flip, int useh)
         pb[1] = pc[1];
         pb[2] = ray->radius + 1.0f;
     }
-    if (pb[1] < e[1] && pb[1] < e[5]) {
+    if (pb[1] < e->pt[0][1] && pb[1] < e->pt[1][1]) {
         return 0;
     }
-    if (e[9] < pb[1] && e[13] < pb[1]) {
+    if (e->pt[2][1] < pb[1] && e->pt[3][1] < pb[1]) {
         return 0;
     }
-    if (pb[1] < (e[5] - e[1]) * pb[0] / e[16] + e[1]) {
+    if (pb[1] < (e->pt[1][1] - e->pt[0][1]) * pb[0] / e->height + e->pt[0][1]) {
         return 0;
     }
-    if ((e[13] - e[9]) * pb[0] / e[16] + e[9] < pb[1]) {
+    if ((e->pt[3][1] - e->pt[2][1]) * pb[0] / e->height + e->pt[2][1] < pb[1]) {
         return 0;
     }
     if (flip) {
@@ -1462,7 +1462,7 @@ int _clipWDebug(ClipWork *arg0, int arg1, int arg2)
         short *p = D_0063C238->unk18[D_006C10C0[i]];
         if (p != 0) {
             while (*p >= 0) {
-                int e = D_0063C238->unk10 + (int)*p * 0x50;
+                FcWallEnt *e = &D_0063C238->walls[*p];
                 if (clip_wall_1(arg0, e, 0, 1) != 0) {
                     arg0->wallHit = e;
                     ret = 1;
@@ -1485,8 +1485,8 @@ int _clipW(ClipWork *arg0, int arg1, int arg2)
         short *p = D_0063C238->unk18[D_006C10C0[i]];
         if (p != 0) {
             while (*p >= 0) {
-                int e = D_0063C238->unk10 + (int)*p * 0x50;
-                int val = *(int *)(e + 0x48);
+                FcWallEnt *e = &D_0063C238->walls[*p];
+                int val = e->attr;
                 if ((val & 0xF0000000) == 0) {
                     if ((val & 0xF0000) != 0x10000) {
                         if (clip_wall_1(arg0, e, 0, 1) != 0) {
@@ -1513,12 +1513,12 @@ int _clipWE(ClipWork *arg0, int arg1, int arg2)
         short *p = D_0063C238->unk18[D_006C10C0[i]];
         if (p != 0) {
             while (*p >= 0) {
-                int e = D_0063C238->unk10 + (int)*p * 0x50;
-                int val = *(int *)(e + 0x48);
+                FcWallEnt *e = &D_0063C238->walls[*p];
+                int val = e->attr;
                 if ((val & 0xF0000000) == 0) {
                     if ((val & 0xF0000) != 0x10000) {
                         if (arg1 != arg0->skipSrc[0] || arg2 != arg0->skipSrc[1] ||
-                            e != arg0->skipElem) {
+                            (int)e != arg0->skipElem) {
                             if (clip_wall_1(arg0, e, 0, 0) != 0) {
                                 arg0->wallHit = e;
                                 ret = 1;
@@ -1544,10 +1544,10 @@ int _clipWEField(ClipWork *arg0, int arg1, int arg2)
         short *p = D_0063C238->unk18[D_006C10C0[i]];
         if (p != 0) {
             while (*p >= 0) {
-                int e = D_0063C238->unk10 + (int)*p * 0x50;
-                if ((*(int *)(e + 0x48) & 0xF0000000) == 0) {
+                FcWallEnt *e = &D_0063C238->walls[*p];
+                if ((e->attr & 0xF0000000) == 0) {
                     if (arg1 != arg0->skipSrc[0] || arg2 != arg0->skipSrc[1] ||
-                        e != arg0->skipElem) {
+                        (int)e != arg0->skipElem) {
                         if (clip_wall_1(arg0, e, 0, 0) != 0) {
                             arg0->wallHit = e;
                             found = 1;
@@ -1572,8 +1572,8 @@ int _clipWR(ClipWork *arg0, int arg1, int arg2)
         short *p = D_0063C238->unk18[D_006C10C0[i]];
         if (p != 0) {
             while (*p >= 0) {
-                int e = D_0063C238->unk10 + (int)*p * 0x50;
-                int val = *(int *)(e + 0x48);
+                FcWallEnt *e = &D_0063C238->walls[*p];
+                int val = e->attr;
                 if ((val & 0xF0000000) == 0) {
                     if ((val & 0xF0000) != 0x10000) {
                         if (clip_wall_1(arg0, e, 1, 1) != 0) {
@@ -1600,8 +1600,8 @@ int _clipWField(ClipWork *arg0, int arg1, int arg2)
         short *p = D_0063C238->unk18[D_006C10C0[i]];
         if (p != 0) {
             while (*p >= 0) {
-                int e = D_0063C238->unk10 + (int)*p * 0x50;
-                if ((*(int *)(e + 0x48) & 0xF0000000) == 0) {
+                FcWallEnt *e = &D_0063C238->walls[*p];
+                if ((e->attr & 0xF0000000) == 0) {
                     if (clip_wall_1(arg0, e, 0, 1) != 0) {
                         arg0->wallHit = e;
                         ret = 1;
@@ -1625,8 +1625,8 @@ int _clipWDitchHangWalkStop(ClipWork *arg0, int arg1, int arg2)
         short *p = D_0063C238->unk18[D_006C10C0[i]];
         if (p != 0) {
             while (*p >= 0) {
-                int e = D_0063C238->unk10 + (int)*p * 0x50;
-                if ((*(int *)(e + 0x48) & 0x30000000) != 0) {
+                FcWallEnt *e = &D_0063C238->walls[*p];
+                if ((e->attr & 0x30000000) != 0) {
                     if (clip_wall_1(arg0, e, 0, 1) != 0) {
                         arg0->wallHit = e;
                         ret = 1;
@@ -1650,8 +1650,8 @@ int _clipWWaveForce(ClipWork *arg0, int arg1, int arg2)
         short *p = D_0063C238->unk18[D_006C10C0[i]];
         if (p != 0) {
             while (*p >= 0) {
-                int e = D_0063C238->unk10 + (int)*p * 0x50;
-                if ((*(int *)(e + 0x48) & 0xC0000000) == 0x40000000) {
+                FcWallEnt *e = &D_0063C238->walls[*p];
+                if ((e->attr & 0xC0000000) == 0x40000000) {
                     if (clip_wall_1(arg0, e, 0, 1) != 0) {
                         arg0->wallHit = e;
                         ret = 1;
@@ -1675,8 +1675,8 @@ int _clipWBoxStop(ClipWork *arg0, int arg1, int arg2)
         short *p = D_0063C238->unk18[D_006C10C0[i]];
         if (p != 0) {
             while (*p >= 0) {
-                int e = D_0063C238->unk10 + (int)*p * 0x50;
-                int val = *(int *)(e + 0x48);
+                FcWallEnt *e = &D_0063C238->walls[*p];
+                int val = e->attr;
                 if ((val & 0x70000000) == 0) {
                     if ((val & 0xF0000) != 0x10000 || (val & 0xC0000000) == 0x80000000) {
                         if (clip_wall_1(arg0, e, 0, 1) != 0) {
@@ -1703,8 +1703,8 @@ int _clipWAdjustPos(ClipWork *arg0, int arg1, int arg2)
         short *p = D_0063C238->unk18[D_006C10C0[i]];
         if (p != 0) {
             while (*p >= 0) {
-                int e = D_0063C238->unk10 + (int)*p * 0x50;
-                if ((*(int *)(e + 0x48) & 0xC0000000) == 0xC0000000) {
+                FcWallEnt *e = &D_0063C238->walls[*p];
+                if ((e->attr & 0xC0000000) == 0xC0000000) {
                     if (clip_wall_1(arg0, e, 0, 1) != 0) {
                         arg0->wallHit = e;
                         ret = 1;

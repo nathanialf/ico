@@ -1062,7 +1062,41 @@ extern int moveZMinus(float *a0, float f12, float f13, float f14);
 extern int stage_no;
 extern char D_0061F080[];
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", _checkItemBreak);
+int _checkItemBreak(void *pos)
+{
+    float p[4];
+    float d[4];
+    char *o;
+
+    /* listing lines 1259 and 1263 sit inside this function's own span, so
+       the test is a nested inline function (the name is ours). What the
+       bytes pin: the range is an integer argument converted at each compare,
+       so fold evaluates the converted limit once per axis ahead of the
+       ternary's two arms (the ROM's three 50.0f loads, none hoisted out of
+       the loop), and only the helper's result is materialised. What they
+       cannot pin: the parameter's integer type or its name. */
+    inline int isNearItem(float *v, int r)
+    {
+        if ((v[0] < 0.0f ? -v[0] : v[0]) < r && (v[1] < 0.0f ? -v[1] : v[1]) < r &&
+            (v[2] < 0.0f ? -v[2] : v[2]) < r) {
+            return 1;
+        }
+        return 0;
+    }
+
+    for (o = isysGObjSearchFromObjKindID_begin(19); o != 0;
+         o = isysGObjSearchFromObjKindID_next(o)) {
+        if (CheckItemDead(o) != 0) {
+            continue;
+        }
+        GetRootPosition(p, o);
+        _SubVectorXYZ(d, p, pos);
+        if (isNearItem(d, 50) != 0) {
+            BreakItemFromOutside(o);
+        }
+    }
+    return 1;
+}
 
 void initLanding(char *a0)
 {
@@ -1543,7 +1577,36 @@ static inline int checkCharGObjs(char *obj, char *holder, float *dir)
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", _checkItemCollision);
+int _checkItemCollision(void *pos)
+{
+    float p[4];
+    float d[4];
+    char *o;
+
+    /* listing lines 1735 and 1739: the same nested range test as
+       _checkItemBreak's (see the comment there for what the bytes pin) */
+    inline int isNearItem(float *v, int r)
+    {
+        if ((v[0] < 0.0f ? -v[0] : v[0]) < r && (v[1] < 0.0f ? -v[1] : v[1]) < r &&
+            (v[2] < 0.0f ? -v[2] : v[2]) < r) {
+            return 1;
+        }
+        return 0;
+    }
+
+    for (o = isysGObjSearchFromObjKindID_begin(19); o != 0;
+         o = isysGObjSearchFromObjKindID_next(o)) {
+        if (CheckItemDead(o) != 0) {
+            continue;
+        }
+        GetRootPosition(p, o);
+        _SubVectorXYZ(d, p, pos);
+        if (isNearItem(d, 50) != 0) {
+            return 0;
+        }
+    }
+    return 1;
+}
 
 static inline int checkItemHit(char *obj, float *dir)
 {

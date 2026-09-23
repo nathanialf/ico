@@ -12,6 +12,19 @@
 #ifndef FIELDCOLLISION_H
 #define FIELDCOLLISION_H
 
+/* RECONSTRUCTION: one wall of a collision set, 0x50 bytes (the table
+ * stride). The corners are what GetWallGlobalInfo transforms, the height
+ * and normal are what clip_wall_1 reads, the angle is GetWallGlobalInfo's
+ * 0x44 short and the attribute is the word the _clipW filters test. */
+typedef struct FcWallEnt {
+    float pt[4][4]; /* 0x00 corners */
+    float height;   /* 0x40 */
+    short angle;    /* 0x44 */
+    short _46;
+    int attr;       /* 0x48 */
+    float *normal;  /* 0x4C */
+} FcWallEnt;
+
 int ChangeFieldCollisionDebugMode(int a0);
 void ClipCollision(int *self);
 int ClipFloor(void *a0);
@@ -44,6 +57,6 @@ void _Clip(char *a0, int a1);
 void __ClipFloorWithDrawRay(char *w, int a1);
 void __ClipWallWithDrawRay(char *w, int a1);
 int clip_floor_1(void *a0, int a1, int a2);
-int clip_wall_1(void *a0, float *a1, int a2, int a3);
+int clip_wall_1(void *a0, FcWallEnt *a1, int a2, int a3);
 
 #endif /* FIELDCOLLISION_H */

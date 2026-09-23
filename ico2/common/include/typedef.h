@@ -745,7 +745,7 @@ typedef struct {
                         the search must skip */
     int skipElem;    /* 0x7C */
     int wallSrc[2];  /* 0x80 the same pair for the wall the search hit */
-    int wallHit;     /* 0x88 */
+    struct FcWallEnt *wallHit; /* 0x88, fieldCollision.h's wall record */
     int floorSrc[2]; /* 0x8C the same pair for the floor the search hit */
     int floorHit;    /* 0x94 */
     char _98[0x8];

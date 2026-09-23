@@ -10,6 +10,7 @@
 #include "frameDependSequence.h"
 #include "matrixDrive.h"
 #include "weapon.h"
+#include <libvu0.h>
 
 extern char D_0061EEC8[];
 extern int D_0063A438;
@@ -32,17 +33,20 @@ extern void gif_SetZTest(int a0);
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int a0);
 
-typedef union {
-    float f[4];
-    long long ll[2];
-} AcbVec;
-
+/* What the bytes pin (InitAttackCheckBoundaryManagerGeo's copy of the
+   template, listing lines 85 to 91): an 8-aligned record, since the 0x40-byte
+   copy is eight ld/sd pairs; position members that are plain float arrays,
+   since a union member's stores alias the int store `*obj = 0` and keep it
+   behind them where the ROM issues it first; and an int handle at 0x30,
+   whose store must conflict with `*obj = 0` so that sched1 keeps the two in
+   source order, which is what issues the 0x30 chunk of the copy first. What
+   they cannot pin: the vector type's name (sceVu0FVECTOR is the SDK's). */
 typedef struct {
-    AcbVec pos;   /* 0x00 */
-    AcbVec rot;   /* 0x10 */
-    AcbVec scale; /* 0x20 */
-    int *obj;     /* 0x30 */
-    int unk34[3]; /* 0x34 */
+    sceVu0FVECTOR pos;   /* 0x00 */
+    sceVu0FVECTOR rot;   /* 0x10 */
+    sceVu0FVECTOR scale; /* 0x20 */
+    int obj;             /* 0x30 */
+    int unk34[3];        /* 0x34 */
 } AcbLayout;
 
 extern AcbLayout D_004E45C0;
@@ -113,7 +117,12 @@ inline void AttackCheckBoundaryDL(char *obj)
 
 inline void SetAttackCheckBoundaryAttribute(char *a0, int a1)
 {
-    *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8) = a1;
+    /* listing lines 62 and 63: the work pointer is its own statement, and
+       the sub-object chase is int-typed (the engine's int handle), so the
+       attribute store kills it and the manager's owner store at line 218
+       reloads 0x15C */
+    char *w = (char *)*(int *)(*(int *)(a0 + 0x15C) + 0x830);
+    *(int *)(w + 8) = a1;
 }
 
 inline float GetAttackCheckBoundaryRadius(char *a0)
@@ -125,11 +134,11 @@ inline char *CreateAttackCheckBoundary(int *obj, float x, float y, float z, floa
 {
     AcbLayout lay = D_004E45C0;
 
-    lay.pos.f[0] = x;
-    lay.pos.f[1] = y;
-    lay.pos.f[2] = z;
-    lay.scale.f[0] = r;
-    lay.obj = obj;
+    lay.pos[0] = x;
+    lay.pos[1] = y;
+    lay.pos[2] = z;
+    lay.scale[0] = r;
+    lay.obj = (int)obj;
     *obj = 0;
     return createAttackCheckBoundaryGObj(&lay);
 }
@@ -196,12 +205,10 @@ void AttackCheckBoundaryBeforeFunc(char *self)
     mgr[1] = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/attackCheckBoundary", InitAttackCheckBoundaryManagerGeo);
-
 /* the manager's 8-byte roster entries and its work block at sub+0x830 */
 typedef struct AcbEntry {
-    char *obj; /* 0x00 */
-    int hit;   /* 0x04 */
+    int obj; /* 0x00 */
+    int hit; /* 0x04 */
 } AcbEntry;
 
 typedef struct AcbMgr {
@@ -211,13 +218,91 @@ typedef struct AcbMgr {
     AcbEntry *list; /* 0x0C */
 } AcbMgr;
 
+/* RECONSTRUCTION: the attribute word of a cloth layout record has a type of
+   its own. The ROM's schedule of InitAttackCheckBoundaryManagerGeo loads
+   rec->attr (line 61) above the roster store `mgr->list[i].obj = g` (line
+   214), while that store must still precede the first sub-object chase
+   (line 62) and the attribute store must force the second chase (line 218)
+   to reload; with the roster handle and both chases int (the engine's
+   int-handle reading, GOBJ_SUB), only an attribute load outside int's alias
+   set is free to rise (the compiler's sched2 dump gives int set 2 and this
+   enum its own set). Only the type is attested: the table holds 96 and 128
+   here and the developers' enumerator names are not recoverable. */
+typedef enum { CLOTH_ATTR_NONE = 0 } ClothAttr;
+
+/* RECONSTRUCTION: one record of layoutClothDef (MAIN.MAP line 6655, member
+   layout-cloth-def.o, .rodata; the retail table is 36 records, 0xEA0 bytes).
+   The name string and the four corner points are the table's own bytes; this
+   TU reads the first two corners, the attribute and the boundary count, and
+   InitFlagGeo reads the rest. */
+typedef struct {
+    char name[32];  /* 0x00 */
+    float pt[4][3]; /* 0x20 */
+    int f_50;       /* 0x50 */
+    ClothAttr attr; /* 0x54 */
+    int f_58;       /* 0x58 */
+    int count;      /* 0x5C, the boundaries a manager lays out */
+    float f_60;     /* 0x60 */
+    float f_64;     /* 0x64 */
+} LayoutClothDef;
+
+extern const LayoutClothDef layoutClothDef[];
+/* attackCheckBoundary.o's own 8-byte .sdata (MAIN.MAP line 7305, unnamed
+   there): the blank roster entry each slot starts from */
+extern AcbEntry D_0063B730;
+
+AcbMgr *InitAttackCheckBoundaryManagerGeo(int a0, char *a1)
+{
+    float v0[4];
+    float v1[4];
+    float v2[4];
+    float p[4];
+    AcbMgr *mgr;
+    const LayoutClothDef *rec;
+    float len;
+    int i;
+    char *g;
+
+    rec = &layoutClothDef[*(int *)(a1 + 0x30)];
+    mgr = (AcbMgr *)iosMallocDebug(D_0063A438, 0x10, D_0061EEC8, 180);
+    mgr->prev = mgr->cur;
+    mgr->cur = 0;
+    mgr->count = rec->count;
+    mgr->list = (AcbEntry *)iosMallocDebug(D_0063A438, mgr->count * 8, D_0061EEC8, 189);
+    v0[0] = rec->pt[0][0];
+    v0[1] = -rec->pt[0][1];
+    v0[2] = rec->pt[0][2];
+    v0[3] = 1.0f;
+    v1[0] = rec->pt[1][0];
+    v1[1] = -rec->pt[1][1];
+    v1[2] = rec->pt[1][2];
+    v1[3] = 1.0f;
+    _SubVector(v2, v1, v0);
+    _ScaleVector(v2, v2, 0.5f / (float)mgr->count);
+    _AddVectorXYZ(v0, v0, v2);
+    _SubVectorXYZ(v1, v1, v2);
+    len = VectorLength(v2);
+    for (i = 0; i < mgr->count; i++) {
+        _InterVector(p, v1, v0, (float)i / (float)(mgr->count - 1));
+        mgr->list[i] = D_0063B730;
+        g = CreateAttackCheckBoundary(&mgr->cur, p[0], p[1], p[2], len);
+        mgr->list[i].obj = (int)g;
+        SetAttackCheckBoundaryAttribute(g, rec->attr);
+        /* the sub-object's first word is its owner (AttackCheckBoundaryGeo
+           reads it as an int pointer); an int-typed store would hold the
+           loop test's count reload behind it and lose the delay slot */
+        *(int **)*(int *)(g + 0x15C) = (int *)a0;
+    }
+    return mgr;
+}
+
 void AttackCheckBoundaryManagerGeo(char *self)
 {
     AcbMgr *m = *(AcbMgr **)(*(char **)(self + 0x15C) + 0x830);
     int i;
 
     for (i = 0; i < m->count; i++) {
-        char *e = m->list[i].obj;
+        char *e = (char *)m->list[i].obj;
 
         /* int-typed chase (types.h GOBJ_SUB): the int store below may-alias the
            chase, so ROM reloads 0x15C/0x830 for the second access */
