@@ -18,7 +18,6 @@ extern char D_0063A100[];
 extern char D_0063A108[];
 extern char D_0063A110[];
 extern char D_0063A118[];
-extern int fptodp(float v);
 
 void pac_DispQW(void *p, int size)
 {
@@ -49,7 +48,7 @@ void pac_DispQW(void *p, int size)
                 debug_StdPrintfDummy(D_0063A100, ((unsigned char *)p)[i * size + j]);
             debug_StdPrintfDummy(D_0063A108);
         } else {
-            debug_StdPrintfDummy(D_0063A110, fptodp(((float *)p)[i]));
+            debug_StdPrintfDummy(D_0063A110, ((float *)p)[i]);
         }
     }
     debug_StdPrintfDummy(D_0063A118);

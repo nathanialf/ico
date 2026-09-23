@@ -12,10 +12,21 @@ union U001325D8 {
     int i[2];
 };
 
+/* The cdvd handle the streaming request reads through: the sector cursor and
+ * the remaining count the manager advances, and the sceCdRead mode word the
+ * handle carries at 0x15C. */
+typedef struct {
+    char _0[0x14];
+    int lsn;  /* 0x14 */
+    int left; /* 0x18 */
+    char _1C[0x140];
+    int mode; /* 0x15C */
+} CdStOwner;
+
 /* The streaming request iosCdvdMgrStStart hands to the cdvd thread: the
  * request record at D_0029B410 and the preload window it describes. */
 typedef struct {
-    char *owner; /* 0x00 */
+    CdStOwner *owner; /* 0x00 */
     int f_4;
     int f_8;
     char *buf; /* 0x0C */
@@ -26,8 +37,133 @@ typedef struct {
 } CdStReq;
 
 extern CdStReq D_0029B410;
+extern char D_006BC830[];
+extern char D_0029B3E0[];
+extern int D_0063C180;
+extern int D_0063C188;
+extern char D_00550C40[];
+extern char D_00550C58[];
+extern char D_00550C68[];
+extern char D_00550C88[];
+extern char D_0063A390[];
+extern int D_0063A370;
+extern int D_0063A388;
+extern void sprintf();
+extern void __assert(const char *file, int line, char *expr);
+extern int sceCdRead(int lsn, int sectors, void *buf, int *mode);
+extern int sceCdSync(int mode);
+extern int sceCdGetError(void);
+extern int sceCdInit(int mode);
+extern int sceCdMmode(int media);
+extern void iosCdvdDiskReadyBlock(void);
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/ios/cdvd", iosCdvdStManager);
+/* Compiled-out debug print (our name), the empty-body construct main.c's
+   mainDebugBar and debug_exception.c's debugExcDebugDisp carry: it inlines to
+   nothing and emits no byte, but each call leaves one (use (const_int 0))
+   until flow.  WHAT THE BYTES PIN: the January listing prints at rows 577
+   (puts, in the err == -1 block) and 582 (printf of err), and retail keeps
+   both strings ("get error fail", "st cd read error %d\n") in this member's
+   .rodata but has no call; retail's n in $s0 and err in $s1, the reverse of
+   January's, need err's live length at 9 or more, which three such insns in
+   the err == -1 block give and two do not (complete56: deleted lines, if (0),
+   a string-argument or an err-argument empty inline all 16 words, a
+   do-while(0) 63).  WHAT THEY CANNOT PIN: the construct the retail source
+   used for those prints, or why it left three zero-code insns here. */
+static __inline__ void stDebugPrint(void) {}
+
+void iosCdvdStManager(void)
+{
+    char buf[128];
+    char buf2[256];
+    CdStReq *req;
+    char *p;
+    int n;
+    unsigned int err;
+    int mode;
+
+    D_0029B410.f_4 = 0;
+    iosMsgQueueCreate(D_006BC830, &D_0063C180, 1);
+    iosMsgQueueCreate(D_0029B3E0, &D_0063C188, 1);
+
+    while (1) {
+        req = &D_0029B410;
+        mode = 0;
+        if (req->f_4 != 1) {
+            mode = 1;
+        }
+        if (iosMsgRecv(D_006BC830, (int *)&req, mode) == -1) {
+            if (req->f_4 != 1) {
+                sprintf(buf, D_00550C40, req->f_4);
+                debug_assertMessage(D_00550C58, 518, buf);
+                __assert(D_00550C58, 518, D_0063A390);
+            }
+            if (req->f_1C > req->f_14) {
+                n = req->f_1C - req->f_14;
+            } else if (req->f_1C < req->f_14 || req->f_18 == 0) {
+                n = req->size - req->f_14;
+            } else {
+                n = 0;
+                if (req->f_18 != req->size) {
+                    sprintf(buf2, D_00550C68, req->f_18);
+                    debug_assertMessage(D_00550C58, 546, buf2);
+                    __assert(D_00550C58, 546, D_0063A390);
+                }
+            }
+            if (n > 16) {
+                n = 16;
+            }
+            if (req->owner->left < n) {
+                n = req->owner->left;
+            }
+            if (n != 0) {
+                p = req->buf + (req->f_14 << 11);
+            retry:
+                if (sceCdRead(req->owner->lsn, n, p, &req->owner->mode) == 0) {
+                    sprintf(buf2, D_00550C88);
+                    debug_assertMessage(D_00550C58, 569, buf2);
+                    __assert(D_00550C58, 569, D_0063A390);
+                }
+                sceCdSync(0);
+                err = sceCdGetError();
+                if ((int)err == -1) {
+                    sceCdInit(0);
+                    sceCdMmode(D_0063A370);
+                    stDebugPrint();
+                    stDebugPrint();
+                    stDebugPrint();
+                }
+                if (err >= 2) {
+                    iosCdvdDiskReadyBlock();
+                    goto retry;
+                }
+                if (D_0063A388 != 0) {
+                    iosMsgSend(D_0029B3E0, 1, 0);
+                    D_0063A388 = 0;
+                }
+                req->owner->lsn += n;
+                req->owner->left -= n;
+                req->f_14 += n;
+                req->f_18 += n;
+                if (req->f_14 >= req->size) {
+                    req->f_14 = 0;
+                }
+            } else {
+                req->f_4 = 2;
+            }
+        } else {
+            switch (req->f_8) {
+            case 0:
+            case 2:
+                req->f_4 = 1;
+                break;
+            case 1:
+                iosMsgSend(D_0029B3E0, 2, 0);
+                req->f_4 = 0;
+                break;
+            }
+        }
+    }
+}
 
 /* The record sceCdSearchFile fills in: it writes 0x24 bytes of it (lsn, size,
  * the name column and the date), and the stack slot it is given is 0x30.  */
@@ -118,7 +254,7 @@ void iosCdvdMgrStStart(char *self)
         stagePreLoadSectorCnt = 0;
         D_0063C178 = 0;
     }
-    D_0029B410.owner = self;
+    D_0029B410.owner = (CdStOwner *)self;
     D_0029B410.buf = stagePreLoadBuff;
     D_0029B410.size = 0x380;
     D_0029B410.f_18 = D_0063C178;

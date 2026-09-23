@@ -403,11 +403,10 @@ void DrawGObjFloorCollision(char *gobj, int col)
 }
 
 extern char D_00553830[];
-extern int fptodp(float f);
 
 void DBG_VECTOR(float *vec)
 {
-    return debug_StdPrintfDummy(D_00553830, fptodp(vec[0]), fptodp(vec[1]), fptodp(vec[2]));
+    return debug_StdPrintfDummy(D_00553830, vec[0], vec[1], vec[2]);
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/fieldCollision", GetEdgeOfFloor);

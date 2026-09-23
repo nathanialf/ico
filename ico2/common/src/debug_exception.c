@@ -183,7 +183,97 @@ SrcRef traceLine(char *out, unsigned int addr)
     return info;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug_exception", dispSource);
+extern char D_0061D0C8[]; /* "SRCFILE.TXT" */
+extern char D_0061D0D8[]; /* the EUC-JP "cannot open the source file" message */
+extern char D_0063B3A8[]; /* " \n" -- this TU's own .sdata, uncarved */
+extern char D_0063B3B0[]; /* "  %x:" -- this TU's own .sdata, uncarved */
+extern char D_0063B3B8[]; /* "%s\n" -- this TU's own .sdata, uncarved */
+
+/* debug_exception.c:409-464.  Prints the source lines around the faulting
+   address: opens SRCFILE.TXT, reads a kilobyte at the offset traceLine found
+   and walks it line by line, highlighting the one whose listing address
+   matches.  The reference arrives BY VALUE: the EE ABI hands a 16-byte struct
+   over by invisible reference and the callee copies it into its own frame,
+   which is the unaligned 16-byte copy at the head.
+
+   The four debugExcDebugDisp() calls are the TU's compiled-out debug hook
+   (see its definition above), one in the listing's code-free run 431-435
+   and three in 444-449.  WHAT THE BYTES PIN: the hook in 431-435 is a
+   zero-byte insn that sched2 ranks ahead of `n = 0` by LUID, so it takes
+   the free issue slot beside the sceRead call and `n = 0` falls into the
+   putString delay slot with the loop constants after the call, the ROM's
+   order; the three in 444-449 lengthen every loop-wide live range by
+   three, which global.c's allocno_compare needs for the ROM's s0-s8
+   assignment (fd 12/90 against the "%s\n" high part 10/75 ties and fd,
+   the lower allocno, takes $s4; the frame reference against &buf[1024]
+   needs two or more).  WHAT THEY CANNOT PIN: that the developer's
+   compiled-out debug code was this construct, or its exact lines. */
+
+void dispSource(SrcRef ref, int lines)
+{
+    unsigned char buf[1024];
+    char *line;
+    int fd;
+    int i;
+    int n;
+    int num;
+
+    if (ref.offset < 0) {
+        return;
+    }
+
+    waitCd();
+    sceFsReset();
+
+    if ((fd = debugSceOpen(D_0061D0C8, 1)) < 0) {
+        scePrintf(D_0061D0D8, D_0061D0C8, -fd);
+
+        putString(0xFF000000, D_0061CF98, D_0061D0C8);
+
+        return;
+    }
+
+    waitCd();
+    sceLseek(fd, ref.offset, 0);
+    waitCd();
+
+    sceRead(fd, buf, 1024);
+    buf[1023] = 0;
+
+    line = (char *)buf;
+    debugExcDebugDisp();
+
+    putString(0xFFFFFF00, D_0063B3A8);
+    n = 0;
+
+    for (i = 0; i < 1024; i++) {
+        if (buf[i] == 0xA) {
+            num = 0;
+
+            buf[i] = 0;
+            sscanf(line, D_0063B3B0, &num);
+            debugExcDebugDisp();
+            debugExcDebugDisp();
+            debugExcDebugDisp();
+
+            if (ref.addr == num) {
+                *line = 0x87;
+                putString(0x00FFFF00, D_0063B3B8, line);
+            } else {
+                putString(0xFFFFFF00, D_0063B3B8, line);
+            }
+
+            line = (char *)(&buf[i] + 1);
+            if (++n >= lines) {
+                break;
+            }
+        }
+    }
+
+    sceClose(fd);
+    waitCd();
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug_exception", display);
 
 /* The EE exceptions the debug monitor traps: {cause code, printable name}.

@@ -5,15 +5,13 @@
 
 extern char D_0063A868[];
 extern char D_0063A870[];
-extern int fptodp(float f);
 extern char D_0063A878[];
 
 void fzShowV(float *p)
 {
     int i = 3;
     do {
-        int s = fptodp(*p);
-        debug_StdPrintfDummy(D_0063A868, s);
+        debug_StdPrintfDummy(D_0063A868, *p);
         p++;
         i--;
     } while (i >= 0);

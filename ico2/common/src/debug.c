@@ -852,7 +852,6 @@ extern char D_0063AF38[];
 extern char D_0063AF40[];
 extern char D_0063AF48[];
 extern char D_0063AF50[];
-extern double fptodp(float v);
 
 void debug_DispQW(void *p, int size)
 {
@@ -883,7 +882,7 @@ void debug_DispQW(void *p, int size)
             }
             debug_StdPrintfDummy(D_0063AF40);
         } else {
-            debug_StdPrintfDummy(D_0063AF48, fptodp(((float *)p)[i]));
+            debug_StdPrintfDummy(D_0063AF48, ((float *)p)[i]);
         }
     }
     debug_StdPrintfDummy(D_0063AF50);
@@ -1009,7 +1008,7 @@ void debug_PrintFontf(int x, int y, char *p, ...)
                 va += 8;
                 v = dptofp(*(double *)(va - 8));
                 f = D_0063AF60;
-                d += sprintf(d, f, fptodp(v));
+                d += sprintf(d, f, v);
                 break;
             default:
                 f = D_0061BB28;
@@ -1023,17 +1022,12 @@ void debug_PrintFontf(int x, int y, char *p, ...)
 }
 
 extern const char D_0061BB40[];
-extern double fptodp(float);
 
 void debug_PrintMatrix(float *arg)
 {
     int i;
     for (i = 3; i >= 0; i--) {
-        double v0 = fptodp(arg[0]);
-        double v1 = fptodp(arg[1]);
-        double v2 = fptodp(arg[2]);
-        double v3 = fptodp(arg[3]);
-        debug_StdPrintfDummy((int)D_0061BB40, v0, v1, v2, v3);
+        debug_StdPrintfDummy((int)D_0061BB40, arg[0], arg[1], arg[2], arg[3]);
         arg += 4;
     }
     debug_StdPrintfDummy((int)D_0063AF50);
@@ -1052,15 +1046,13 @@ void debug_DispVu1FReg(int no, int mode)
             __asm__ __volatile__("ctc2.ni %0, $vi1" : : "r"(no * 16 + 0x400));
             __asm__ __volatile__("vlqi.xyzw $vf2, ($vi1++)");
             __asm__ __volatile__("sqc2 $vf2, 0(%0)" : : "r"(f) : "memory");
-            debug_StdPrintfDummy(D_0061BB50, no, fptodp(f[0]), fptodp(f[1]), fptodp(f[2]),
-                                 fptodp(f[3]));
+            debug_StdPrintfDummy(D_0061BB50, no, f[0], f[1], f[2], f[3]);
         } else {
             __asm__ __volatile__("ctc2.ni %0, $vi1" : : "r"(0x400));
             for (i = 0; i < 32; i++) {
                 __asm__ __volatile__("vlqi.xyzw $vf2, ($vi1++)");
                 __asm__ __volatile__("sqc2 $vf2, 0(%0)" : : "r"(f) : "memory");
-                debug_StdPrintfDummy(D_0061BB50, i, fptodp(f[0]), fptodp(f[1]), fptodp(f[2]),
-                                     fptodp(f[3]));
+                debug_StdPrintfDummy(D_0061BB50, i, f[0], f[1], f[2], f[3]);
             }
         }
     } else {
@@ -2289,10 +2281,10 @@ int debug_CollisionTest(int reset)
         prim_DispWireSphere((void *)&D_004D9D80, 8, 4, 5.0f);
         gif_EndPacket();
     }
-    debug_PrintfDummy(80, 160, 0xFFFFFF00u, (int)D_0061C330, fptodp(D_00704910.src[0]),
-                      fptodp(D_00704910.src[1]), fptodp(D_00704910.src[2]));
-    debug_PrintfDummy(80, 170, 0xFFFFFF00u, (int)D_0061C340, fptodp(D_00704910.dst[0]),
-                      fptodp(D_00704910.dst[1]), fptodp(D_00704910.dst[2]));
+    debug_PrintfDummy(80, 160, 0xFFFFFF00u, (int)D_0061C330, D_00704910.src[0], D_00704910.src[1],
+                      D_00704910.src[2]);
+    debug_PrintfDummy(80, 170, 0xFFFFFF00u, (int)D_0061C340, D_00704910.dst[0], D_00704910.dst[1],
+                      D_00704910.dst[2]);
     CameraSetMode(1);
     DrawCollisionRay((char *)&D_00704910);
     DrawCollision(0);

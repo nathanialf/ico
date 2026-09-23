@@ -17,6 +17,15 @@
 #ifndef SCE_LIBVU0_LIBVU0_H
 #define SCE_LIBVU0_LIBVU0_H
 
+/* RECONSTRUCTION, PUBLIC SDK NAMING RUNG.  The 16-byte aligned float
+ * quadword and 4x4 matrix the VU0 entry points work on; the names are the
+ * ones the public PS2 SDK documentation gives libvu0's float vector and
+ * matrix, the alignment is the ROM's (its frame copies of these values are
+ * quadword moves).
+ */
+typedef float sceVu0FVECTOR[4] __attribute__((aligned(16)));
+typedef float sceVu0FMATRIX[4][4] __attribute__((aligned(16)));
+
 void sceVpu0Reset(void);                                               /* definition in sce/ */
 void sceVu0AddVector(void *a0, void *a1, void *a2);                    /* definition in sce/ */
 void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);                  /* definition in sce/ */

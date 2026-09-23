@@ -190,7 +190,6 @@ extern void GetSlerpQuaternion(void *dst, void *a, void *b, float t);
 extern void GetInverseQuaternion(void *dst, void *src);
 extern void MultiQuaternion(void *dst, void *a, void *b);
 extern void SetRootQuaternion(void *obj, void *q);
-extern double fptodp(float v);
 /* kept local: this TU's uses of IdentityQuaternion and YUnitVector do not fit
    the prototypes in quaternion.h and matrixDrive.h */
 extern char IdentityQuaternion[];
@@ -294,7 +293,7 @@ int execNormalMove(char *self, int stop)
                         _OuterProduct(norm, YUnitVector, plSide);
                         ang = GetTableArcTan2(axis[0], axis[2]);
                         SetQuaternionByAxisRotateV(rot, ang, norm);
-                        debug_StdPrintfDummy(D_0061EF20, fptodp(dy), fptodp(d), fptodp(adj), ang);
+                        debug_StdPrintfDummy(D_0061EF20, dy, d, adj, ang);
 
                         GetSlerpQuaternion(p + 0x150, rot, p + 0x150, 0.5f);
                     } else {

@@ -31,7 +31,16 @@ void torchOffOfWeaponSE(int a0)
     ExecuteSEPackage(a0, 0x43);
 }
 
-void weaponHitReactionSE(int a0, int a1, int a2, int a3)
+/* K&R: the 2001 TU has no prototype for this, so calcDynamicGeometry calls it
+   with one argument while ExecWeaponHitReaction calls it with four. */
+void weaponHitReactionSE(a0, a1, a2, a3) int a0;
+
+int a1;
+
+int a2;
+
+int a3;
+
 {
     ExecuteSEPackage(a0, 0x44);
 }
@@ -242,8 +251,194 @@ int calcDynamicPathGeometry(char *g)
     return 0;
 }
 
-/* calcDynamicGeometry is still asm: its three .lit4 words, in its own order. */
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/weapon", calcDynamicGeometry);
+/* The collision query ClipCollision fills in (reconstruction; names ours):
+   192 bytes, its quadword members giving it the 16-byte alignment the ROM's
+   template copy relies on (32 bytes at a time with ld/sd pairs). */
+typedef struct {
+    sceVu0FVECTOR p0;  /* 0x00 start of the swept segment */
+    sceVu0FVECTOR p1;  /* 0x10 end of the swept segment */
+    char pad20[0x10];  /* 0x20 */
+    sceVu0FVECTOR d;   /* 0x30 the clipped travel */
+    char pad40[0x10];  /* 0x40 */
+    sceVu0FVECTOR hit; /* 0x50 */
+    sceVu0FVECTOR dir; /* 0x60 */
+    char pad70[0x18];  /* 0x70 */
+    int wall;          /* 0x88 */
+    char pad8C[0x8];   /* 0x8C */
+    int hit94;         /* 0x94 */
+    char pad98[0x28];  /* 0x98 */
+} CollWork;
+
+extern CollWork D_00621420;
+extern float D_004ED2F0[];
+extern void ClipCollision(void *cc);
+extern void GetReflectionElement(void *cc, float a, float b);
+extern int GetWallAttribute(void *cc);
+extern int GetFloorAttribute(void *cc);
+extern float VectorLengthSquare(void *v);
+extern float VectorLength(void *v);
+extern void _SubVector(void *dst, void *a, void *b);
+extern void _InterVector(void *dst, void *a, void *b, float t);
+extern void _NormalizeVector(void *dst, void *src);
+extern void _OuterProduct(void *dst, void *a, void *b);
+
+/* Compiled-out debug hook (our name), the construct sugipon's own
+   clothAnimation.c carries as chainDebugOld and clothFixDebug: it inlines to
+   nothing and emits no byte, but each call leaves one real insn until flow.
+   WHAT THE BYTES PIN: the three spill slots at sp+0x23C..0x248 hold gcse PRE
+   reaching registers in expression-hash bucket order, which puts gcse's
+   max_cuid in a window this body reaches only with three to four more insns
+   than its statements give (complete56: none 18 words, three or four hooks
+   byte-identical, a hook between 536 and 557 six words); the calls sit in the
+   listing's code-free runs 499-516, 580-585 and 590-597.  WHAT THEY CANNOT
+   PIN: that the developer's debug code was this construct, or its lines. */
+static __inline__ void dynGeoDebugHook(void) {}
+
+void calcDynamicGeometry(char *g)
+{
+    char *p = *(char **)(g + 0x15C);
+    char *w = *(char **)(p + 0x830);
+    char *rp = p + 0xA0;
+    float d = D_00318EB8[*(int *)w].f04;
+    float r = D_00318EB8[*(int *)w].f00 - d;
+    CollWork cc = D_00621420;
+    int hitA;
+    int hitB;
+
+    addWeaponPathOffset(p, rp, d);
+    {
+        sceVu0FMATRIX m1;
+        sceVu0FVECTOR v1;
+        sceVu0FMATRIX m2;
+        sceVu0FVECTOR v2;
+        sceVu0FVECTOR dir1;
+        sceVu0FVECTOR dir2;
+        sceVu0FVECTOR nrm;
+        sceVu0FVECTOR tan;
+        sceVu0FVECTOR axis;
+
+        hitA = 0;
+        hitB = 0;
+        GetMatrixFromQuaternionPos(m1, (p + 0xD0), rp);
+        *(float *)(rp + 0x94) = *(float *)(rp + 0x94) +
+                                60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f *
+                                    (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+        _AddVectorXYZ(rp, rp, rp + 0x90);
+        MultiQuaternion((p + 0xD0), rp + 0xB0, (p + 0xD0));
+        GetMatrixFromQuaternionPos(m2, (p + 0xD0), rp);
+
+        D_004ED2F0[2] = r;
+        _ApplyMatrix(cc.p0, m1, D_004ED2F0);
+        _ApplyMatrix(cc.p1, m2, D_004ED2F0);
+        CopyVector(v1, cc.p1);
+        _SubVector(dir1, cc.p1, cc.p0);
+
+        ClipCollision(&cc);
+        if (cc.wall != 0 || cc.hit94 != 0) {
+            hitA = 1;
+            GetReflectionElement(&cc, 0.7f, 0.7f);
+            CopyVector(v1, cc.hit);
+            CopyVector(dir1, cc.dir);
+            if (36.0f < VectorLengthSquare(cc.d)) {
+                if (cc.wall) {
+                    *(int *)(*(char **)(g + 0x15C) + 0x5F4) = GetWallAttribute(&cc);
+                } else {
+                    *(int *)(*(char **)(g + 0x15C) + 0x5F4) = GetFloorAttribute(&cc);
+                }
+                weaponHitReactionSE(g);
+            }
+        }
+
+        D_004ED2F0[2] = -r;
+        _ApplyMatrix(cc.p0, m1, D_004ED2F0);
+        _ApplyMatrix(cc.p1, m2, D_004ED2F0);
+        CopyVector(v2, cc.p1);
+        _SubVector(dir2, cc.p1, cc.p0);
+
+        ClipCollision(&cc);
+        if (cc.wall != 0 || cc.hit94 != 0) {
+            hitB = 1;
+            GetReflectionElement(&cc, 0.7f, 0.7f);
+            CopyVector(v2, cc.hit);
+            CopyVector(dir2, cc.dir);
+            if (36.0f < VectorLengthSquare(cc.d)) {
+                if (cc.wall) {
+                    *(int *)(*(char **)(g + 0x15C) + 0x5F4) = GetWallAttribute(&cc);
+                } else {
+                    *(int *)(*(char **)(g + 0x15C) + 0x5F4) = GetFloorAttribute(&cc);
+                }
+                weaponHitReactionSE(g);
+            }
+        }
+
+        if (cc.hit94) {
+            *(int *)(w + 0x4) = 0;
+            CopyVector(rp + 0x90, ZeroVector);
+            CopyQuaternion((p + 0xD0), IdentityQuaternion);
+        } else {
+            dynGeoDebugHook();
+            if (hitA || hitB) {
+                _InterVector(rp + 0x90, dir1, dir2, 0.5f);
+                _InterVector(rp, v1, v2, 0.5f);
+                *(int *)(rp + 0x9C) = 0;
+                *(float *)(rp + 0xC) = 1.0f;
+                if (hitA) {
+                    _SubVector(tan, dir1, rp + 0x90);
+                } else {
+                    _SubVector(tan, rp + 0x90, dir2);
+                }
+                _SubVector(nrm, v1, rp);
+                _NormalizeVector(nrm, nrm);
+                _OuterProduct(axis, nrm, tan);
+                {
+                    sceVu0FVECTOR qr;
+
+                    {
+                        sceVu0FVECTOR sc = {0.0f, VectorLength(tan), r, 0.0f};
+
+                        _NormalizeVector(sc, sc);
+                        SetQuaternionByAxisRotateV(qr, (short)-GetTableArcTan2(sc[1], sc[2]), axis);
+                    }
+                    CopyQuaternion(rp + 0xB0, qr);
+                    MultiQuaternion((p + 0xD0), qr, (p + 0xD0));
+                    {
+                        sceVu0FMATRIX m3;
+                        sceVu0FVECTOR v5;
+                        sceVu0FVECTOR v6;
+                        float eA;
+                        float eB;
+                        float e;
+
+                        eA = 0.0f;
+                        eB = 0.0f;
+                        GetMatrixFromQuaternionPos(m3, (p + 0xD0), rp);
+                        D_004ED2F0[2] = r;
+                        _ApplyMatrix(v5, m3, D_004ED2F0);
+                        if (v5[1] > v1[1]) {
+                            eA = v5[1] - v1[1];
+                        }
+                        D_004ED2F0[2] = -r;
+                        _ApplyMatrix(v6, m3, D_004ED2F0);
+                        if (v6[1] > v2[1]) {
+                            eB = v6[1] - v2[1];
+                        }
+                        e = (eB < eA) ? eA : eB;
+                        if (0.0f < e) {
+                            *(float *)(rp + 0x4) = *(float *)(rp + 0x4) - (e + 1.0f);
+                            GetSlerpQuaternion(rp + 0xB0, rp + 0xB0, IdentityQuaternion, 0.9f);
+                        }
+                    }
+                }
+            }
+            dynGeoDebugHook();
+            RegularizeQuaternion((p + 0xD0));
+            VectorLengthSquare(rp + 0x90);
+            dynGeoDebugHook();
+        }
+        subWeaponPathOffset(p, rp, d);
+        UpdateRootMatrix(g);
+    }
+}
 
 /* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
 extern void CopyMatrix(void *dst, void *src);

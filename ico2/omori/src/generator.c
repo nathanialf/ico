@@ -38,7 +38,6 @@ extern int stage_no;
 /* */
 static int generatorPacket[2820];
 
-extern int fptodp(float f);
 extern char D_0063AC08[];
 extern char D_00308924[];
 
@@ -431,8 +430,7 @@ inline char *DirectCallEnemy(char *gobj, char *mother, float *pos, float *dir, i
 
     debug_StdPrintfDummy("call enemy! = %d (%p : %d)\n", *(int *)(gobj + 8), mother,
                          (mother != 0) ? *(int *)(mother + 8) : -1);
-    debug_StdPrintfDummy("[%8s] %8f %8f %8f %8f\n", D_0063AC08, fptodp(pos[0]), fptodp(pos[1]),
-                         fptodp(pos[2]), fptodp(pos[3]));
+    debug_StdPrintfDummy("[%8s] %8f %8f %8f %8f\n", D_0063AC08, pos[0], pos[1], pos[2], pos[3]);
     if (mother != 0) {
         SetMotherGenerator(*(int *)(gobj + 8), *(int *)(mother + 8));
     }

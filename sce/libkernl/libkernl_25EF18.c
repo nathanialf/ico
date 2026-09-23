@@ -1233,7 +1233,86 @@ extern int DeleteSema(int a0);
 extern void _sceFsSigSema(void);
 extern void *get_iob(unsigned int a0);
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceOpen);
+/* Varargs: the mode is the first anonymous argument, read from gcc's own
+   save area after the new_iob() check (the ROM's lw $7,0x120($29)).  One
+   status local, rc, carries the RPC result, the uncached reply word and the
+   returned index, the way sceLseek keeps its own; the ROM's register pairs
+   (name and the semaphore in $s0, the request pointer and the reply word in
+   $s1) need the reply word to be that cross-block variable, since a local
+   used in one block is local-alloc's and takes $s0 first.  The descriptor is
+   stored before the in-use flag is or-ed: the ROM loads `result` ahead of
+   the flag store, which an addressed stack local cannot pass. */
+int sceOpen(unsigned char *name, int flags, ...)
+{
+    int *g = D_0072C240;
+    int mode;
+    SceIob *iob;
+    int i;
+    int idx;
+    int h;
+    int rc;
+    int result;
+    int buf[8];
+
+    _sceFsWaitS(0);
+    if (D_0054A470[0] == 0)
+        sceFsInit();
+    if (_fs_version() != 0) {
+        _sceFsSigSema();
+        return 0xFFFEFFFC;
+    }
+    iob = (SceIob *)new_iob();
+    if (iob == 0) {
+        _sceFsSigSema();
+        return -0x13;
+    }
+    mode = *(int *)((char *)__builtin_next_arg(flags) - 0x30);
+    for (i = 0; i < 0x400; i++) {
+        *((char *)g + i + 0x14) = name[i];
+        if (*((char *)g + i + 0x14) == 0) {
+            break;
+        }
+    }
+    if (i == 0x400) {
+        ((char *)g)[0x413] = 0;
+    }
+    idx = iob - (SceIob *)D_0072D300;
+    g[3] = flags & 0xFFFFFFF;
+    g[4] = mode;
+    g[0x414 / 4] = idx;
+    buf[1] = 1;
+    buf[2] = 0;
+    buf[5] = 0;
+    g[0] = h = CreateSema(buf);
+    *(void **)(g + 1) = &result;
+    g[2] = 4;
+    rc = sceSifCallRpc(D_0072D500, 0, 0, D_0072C240, 0x418, D_0072CE80, 4, 0, 0);
+    if (rc < 0) {
+        DeleteSema(h);
+        _sceFsSigSema();
+        return -0xB;
+    }
+    rc = *(int *)((int)D_0072CE80 | 0x20000000);
+    _sceFsSigSema();
+    if (rc == 0) {
+        DeleteSema(h);
+        return -0xB;
+    }
+    WaitSema(h);
+    DeleteSema(h);
+    if (result < 0) {
+        WaitSema(D_0054A478);
+        iob->inuse = 0;
+        SignalSema(D_0054A478);
+        return result;
+    }
+    rc = idx;
+    WaitSema(D_0054A478);
+    iob->fd = result;
+    iob->inuse |= flags;
+    SignalSema(D_0054A478);
+    return rc;
+}
 
 int sceClose(unsigned int fd)
 {

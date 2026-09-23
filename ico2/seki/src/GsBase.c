@@ -1129,7 +1129,6 @@ static char *filmNoiseOnOffText[] = {D_0063A010, D_0063A008};
 
 extern int D_0063A014; /* the highlighted row */
 extern GsbPad D_0028F8F0[];
-extern double fptodp(float v);
 
 /* The film noise page of the debug menu: seven editable words of the stage
  * record for the target this page names, the pad keys that walk and change
@@ -1156,7 +1155,7 @@ int gsb_FilmNoiseTool(int target)
         } else {
             debug_PrintfDummy(18, (i + 1) * 8 + 30, D_0054E9E0[(D_0063A014 == i) ? 1 : 0],
                               D_0063A028, D_0054E5B8[target][i].name,
-                              fptodp(*(float *)D_0054E5B8[target][i].val));
+                              *(float *)D_0054E5B8[target][i].val);
         }
     }
 
@@ -1232,7 +1231,7 @@ int gsb_FilmNoiseTool(int target)
                                      *(int *)D_0054E5B8[page][i].val);
             } else {
                 debug_StdPrintfDummy(D_0054EA30, D_0054E5B8[page][i].name,
-                                     fptodp(*(float *)D_0054E5B8[page][i].val));
+                                     *(float *)D_0054E5B8[page][i].val);
             }
         }
         ret = 1;
@@ -1287,7 +1286,7 @@ int gsb_StageSettingTool(void)
                               D_0063A020, D_0054EA48[i].name, *(int *)D_0054EA48[i].val);
         } else {
             debug_PrintfDummy(18, (i + 1) * 8 + 30, D_0054EEE0[(D_0063A030 == i) ? 1 : 0],
-                              D_0063A028, D_0054EA48[i].name, fptodp(*(float *)D_0054EA48[i].val));
+                              D_0063A028, D_0054EA48[i].name, *(float *)D_0054EA48[i].val);
         }
     }
 
@@ -1357,8 +1356,7 @@ int gsb_StageSettingTool(void)
             } else if (D_0054EA48[i].isFloat == 0) {
                 debug_StdPrintfDummy(D_0054EA18, D_0054EA48[i].name, *(int *)D_0054EA48[i].val);
             } else {
-                debug_StdPrintfDummy(D_0054EA30, D_0054EA48[i].name,
-                                     fptodp(*(float *)D_0054EA48[i].val));
+                debug_StdPrintfDummy(D_0054EA30, D_0054EA48[i].name, *(float *)D_0054EA48[i].val);
             }
         }
         ret = 1;

@@ -71,7 +71,6 @@ extern char D_00551720[];
 extern char D_00551770[];
 extern char D_00551788[];
 extern char D_0063A4E8[];
-extern int fptodp(float f);
 
 inline IosMemPart *iosMallocInitPartition(unsigned int start, unsigned int end)
 {
@@ -186,7 +185,7 @@ inline void *iosMallocDebug(IosMemPart *part, int size, char *file, int line)
     if (ptr == 0) {
         debug_StdPrintfDummy(D_00551770, size);
         debug_StdPrintfDummy(D_00551720, file, line);
-        sprintf(buf, D_00551788, part->name, size, fptodp((float)size / 1024.0f / 1024.0f));
+        sprintf(buf, D_00551788, part->name, size, (float)size / 1024.0f / 1024.0f);
         debug_assertMessage(file, line, buf);
         __asm__ __volatile__("break");
         debug_assert(D_00551600, 0x2CC);

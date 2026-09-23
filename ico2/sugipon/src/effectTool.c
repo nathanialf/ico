@@ -87,7 +87,6 @@ extern char D_0063B830[]; /* "(%d,%d)" */
 extern char D_0063B838[]; /* "%d" */
 extern char D_0063B840[]; /* "%s" */
 extern char D_0063B848[]; /* "%s%s" */
-extern double fptodp(float v);
 /* kept local: this TU's uses of debug_PrintfDummy do not fit the prototype in debug.h */
 extern void debug_PrintfDummy(int x, int y, unsigned int col, char *fmt, ...);
 
@@ -101,7 +100,7 @@ void _dispParam(int *pkg, int idx, int x, int y, int col)
 
     switch (e->type) {
     case 1:
-        sprintf(val, D_0063B828, fptodp(*(float *)p));
+        sprintf(val, D_0063B828, *(float *)p);
         sprintf(rng, D_0063B830, e->min, e->max);
         break;
     case 0:
@@ -412,11 +411,11 @@ void dispEffectToolField(int idx)
 
     MatrixDrive_PopMatrix();
     gif_EndPacket();
-    debug_PrintfDummy(450, 58, 0xFFFFFF00, "POS-X:%4.3f", fptodp(-effectToolPos[0]));
-    debug_PrintfDummy(450, 66, 0xFFFFFF00, "POS-Y:%4.3f", fptodp(-effectToolPos[1]));
-    debug_PrintfDummy(450, 74, 0xFFFFFF00, "POS-Z:%4.3f", fptodp(-effectToolPos[2]));
-    debug_PrintfDummy(450, 88, 0xFFFFFF00, "ROT-Y:%4.3f", fptodp(D_0063B858 * -180.0f / 32768.0f));
-    debug_PrintfDummy(450, 96, 0xFFFFFF00, "ROT-X:%4.3f", fptodp(D_0063B85A * -180.0f / 32768.0f));
+    debug_PrintfDummy(450, 58, 0xFFFFFF00, "POS-X:%4.3f", -effectToolPos[0]);
+    debug_PrintfDummy(450, 66, 0xFFFFFF00, "POS-Y:%4.3f", -effectToolPos[1]);
+    debug_PrintfDummy(450, 74, 0xFFFFFF00, "POS-Z:%4.3f", -effectToolPos[2]);
+    debug_PrintfDummy(450, 88, 0xFFFFFF00, "ROT-Y:%4.3f", D_0063B858 * -180.0f / 32768.0f);
+    debug_PrintfDummy(450, 96, 0xFFFFFF00, "ROT-X:%4.3f", D_0063B85A * -180.0f / 32768.0f);
 }
 
 extern int D_0063B854;
