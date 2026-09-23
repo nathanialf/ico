@@ -36,7 +36,7 @@ static float oriXLPos[4] = {-642.0f, 2132.0f, -2861.0f, 0.0f};
 
 static float haguruma2Pos[4] = {486.0f, 2386.0f, -2917.0f, 0.0f};
 
-static ActMail hagurumaChk_mes[2] = {{430}, {429}};
+static ActMail haguruma_mes[2] = {{430}, {429}};
 
 static ActMail pipe_mes[2] = {{430}, {429}};
 
@@ -129,8 +129,8 @@ void actSt19aHaguruma(volatile int a0)
         scpSearchGobj(1960)->f16C = 0;
         stage_SetAnimation(139, 0, 0);
         stage_SetAnimation(140, -1, -2);
-        hagurumaChk_mes[0].func = actSt19aHagurumaChk;
-        sub->mail = hagurumaChk_mes;
+        haguruma_mes[0].func = actSt19aHagurumaChk;
+        sub->mail = haguruma_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {

@@ -23,51 +23,6 @@ typedef struct TexLevel {
     short pad22;
 } TexLevel;
 
-typedef struct CdvdRec {
-    /* the trimmed name tex_GetTextureNo compares against, and behind it the
-     * path the texture was loaded from, which tex_initTextureSub keeps so a
-     * second read of the same name from a different path can be reported */
-    char name[0x18];
-    char file[0x60];
-    long long x78;
-    char pad80[0xD8 - 0x80];
-    /* the base of the per-level transfer packets tex_setRegisters allocates */
-    char *xD8;
-    /* the TIM2 file image the record was built from */
-    void *xDC;
-    unsigned short xE0;
-    char padE2[0xE4 - 0xE2];
-    TexLevel clut;
-    TexLevel lv[7];
-    char pad204[0x20C - 0x204];
-    /* the byte count tex_Tool hands malloc_MemCpy when it rebuilds the three
-     * shadow copies of the image after an edit */
-    int x20C;
-    char pad210[0x290 - 0x210];
-    int x290;
-    int x294;
-    unsigned int x298;
-    int x29C;
-    int x2A0;
-    short x2A4;
-    short x2A6;
-    int x2A8;
-    char pad2AC[0x2B8 - 0x2AC];
-    short x2B8;
-    short x2BA;
-    /* the three CLUT copies tex_initTextureSub allocates for the scroll */
-    void *x2BC;
-    void *x2C0;
-    void *x2C4;
-    /* one byte per display list priority: the slot's transfer-done flag */
-    char x2C8[8];
-    char pad2D0[0x2D6 - 0x2D0];
-    unsigned short x2D6;
-    char pad2D8[0x2E8 - 0x2D8];
-} CdvdRec;
-
-extern CdvdRec D_0068AFE0[];
-
 /* the 0x40-byte block the ICO tools append to the TIM2 header, recognised by
  * its "ICO" magic and copied whole into the first 0x40 bytes of the record's
  * TexExt at 0x268. The two ints at 0x28 and 0x2C are the mag and min filter
@@ -100,24 +55,55 @@ typedef struct Tim2Ext {
     short h3E;
 } Tim2Ext;
 
-typedef struct TexEntry {
-    char pad0[8];
-    char name[0x78];
-    long long x80;
-    char pad88[0x270 - 0x88];
-    /* the 0x40-byte ICO block, the same bytes the record keeps at 0x268 */
+typedef struct CdvdRec {
+    /* the trimmed name tex_GetTextureNo compares against, and behind it the
+     * path the texture was loaded from, which tex_initTextureSub keeps so a
+     * second read of the same name from a different path can be reported */
+    char name[0x18];
+    char file[0x60];
+    long long x78;
+    char pad80[0xD8 - 0x80];
+    /* the base of the per-level transfer packets tex_setRegisters allocates */
+    char *xD8;
+    /* the TIM2 file image the record was built from */
+    void *xDC;
+    unsigned short xE0;
+    char padE2[0xE4 - 0xE2];
+    TexLevel clut;
+    TexLevel lv[7];
+    char pad204[0x20C - 0x204];
+    /* the byte count tex_Tool hands malloc_MemCpy when it rebuilds the three
+     * shadow copies of the image after an edit */
+    int x20C;
+    char pad210[0x268 - 0x210];
+    /* the 0x40-byte ICO block, copied whole from the TIM2 header */
     Tim2Ext ext;
     /* the slot-in-use flag tex_Tool walks the table by */
-    int x2B0;
-    char pad2B4[0x2D0 - 0x2B4];
-    char x2D0[0x2D8 - 0x2D0];
-    unsigned int pad2D8;
-    unsigned char pad2DC;
+    int x2A8;
+    char pad2AC[0x2B8 - 0x2AC];
+    short x2B8;
+    short x2BA;
+    /* the three CLUT copies tex_initTextureSub allocates for the scroll */
+    void *x2BC;
+    void *x2C0;
+    void *x2C4;
+    /* one byte per display list priority: the slot's transfer-done flag */
+    char x2C8[8];
+    unsigned int pad2D0;
+    unsigned char pad2D4;
     unsigned short used : 1;
-    unsigned short lv : 15;
-    unsigned short pad2DF : 1;
-    short x2E0;
-    char pad2E2[0x2E8 - 0x2E2];
+    /* the mipmap level the record is drawn from */
+    unsigned short level : 15;
+    unsigned short pad2D7 : 1;
+    short x2D8;
+    char pad2DA[0x2E0 - 0x2DA];
+} CdvdRec;
+
+/* one texture slot, 0x2E8 bytes: eight bytes the record follows. The code
+ * passes the record itself around (the address of slot + 8). */
+typedef struct TexEntry {
+    char head[8];
+    CdvdRec rec;
 } TexEntry;
 
 /* .sbss, Texture.o's two words in the ROM's order (MAIN.MAP line 7580 sizes
@@ -127,15 +113,60 @@ static int toolRow;
 
 static int texCount;
 
-extern TexEntry D_0068AFD8[];
-
 typedef struct TexClutEnt {
     int f0;
     int f4;
     int f8;
 } TexClutEnt;
 
-extern TexClutEnt D_00290B78[];
+/* .data, Texture.o's whole run in the ROM's order (MAIN.MAP line 5807, 0xB0;
+   the map names mipmap_header_size at +0 and textype at +0x68, the other
+   four are file statics it does not name, so their names are ours). */
+
+/* the TIM2 mipmap header size by mipmap level count */
+int mipmap_header_size[] = {0, 0, 32, 32, 32, 48, 48, 48};
+
+/* one entry per TIM2 image type: the GS pixel storage mode and the two
+   factors the buffer width and size arithmetic reads */
+static TexClutEnt psmTable[] = {
+    {0, 0, 0}, {2, 4, 4}, {1, 3, 2}, {0, 2, 2}, {20, 1, 1}, {19, 2, 1},
+};
+
+/* The four name tables point at Texture.o's short strings, which the ROM
+   keeps in the TU's .sdata between its named small statics; under
+   -fdata-sections the anonymous literals share one section and cannot be
+   interleaved with them, so the strings stay in the .sdata blob under
+   placeholder names until that run can be source. */
+extern char D_0063A1C0[]; /* "PSMT8" */
+extern char D_0063A1C8[]; /* "PSMT4" */
+extern char D_0063A1D0[]; /* "PSMCT32" */
+extern char D_0063A1D8[]; /* "PSMCT24" */
+extern char D_0063A1E0[]; /* "PSMCT16" */
+extern char D_0063A1E8[]; /* "NONE" */
+extern char D_0063A2D8[]; /* "C-8" */
+extern char D_0063A2E0[]; /* "C-4" */
+extern char D_0063A2E8[]; /* "D32" */
+extern char D_0063A2F0[]; /* "D24" */
+extern char D_0063A2F8[]; /* "D16" */
+extern char D_0063A300[]; /* "NON" */
+extern char D_0063A308[]; /* "32" */
+extern char D_0063A310[]; /* "24" */
+extern char D_0063A318[]; /* "16" */
+extern char D_0063A320[]; /* "--" */
+extern char D_0063A328[]; /* "\x80" */
+extern char D_0063A330[]; /* " " */
+
+/* one string per TIM2 image type, printed with %8s */
+char *textype[] = {D_0063A1E8, D_0063A1E0, D_0063A1D8, D_0063A1D0, D_0063A1C8, D_0063A1C0};
+
+/* tex_ListTool's short names: per TIM2 image type, per CLUT type and per
+   user-header state */
+static char *imageTypeName[] = {D_0063A300, D_0063A2F8, D_0063A2F0,
+                                D_0063A2E8, D_0063A2E0, D_0063A2D8};
+
+static char *clutTypeName[] = {D_0063A320, D_0063A318, D_0063A310, D_0063A308};
+
+static char *headerName[] = {D_0063A330, D_0063A328};
 
 /* one VRAM slot per display list priority: the free-address cursor, the top of
  * the region and the texture id the slot last had programmed. */
@@ -145,7 +176,18 @@ typedef struct VramPri {
     short f2;
 } VramPri;
 
-extern VramPri D_0068AF88[];
+/* .bss, Texture.o's run in the ROM's order (MAIN.MAP line 7685 names no symbol
+ * in it, so the names are ours; 0x245D0 there is the January object before the
+ * retail revision added headTbp): the VRAM slot per display list priority, the
+ * 200 texture slots, the head TBP tex_LockHeadTBP holds per priority, and the
+ * working copy of the selected texture's ICO block tex_Tool edits. */
+static VramPri vramPri[13];
+
+static TexEntry texTable[200];
+
+static int headTbp[14];
+
+static Tim2Ext toolExt;
 
 /* PUBLIC SDK NAMING RUNG: the TIM2 picture header. The fields this TU reads off
  * it are clutColors at 0x0E, clutType at 0x12 (masked with 0x3F where the
@@ -218,11 +260,11 @@ static inline int texAllocTexVram(int size)
     int pri = dl_GetPri();
     int ret;
 
-    if (16000 <= D_0068AF88[dl_GetPri()].f0 + size) {
+    if (16000 <= vramPri[dl_GetPri()].f0 + size) {
         tex_ResetVramPri(pri);
     }
-    ret = D_0068AF88[dl_GetPri()].f0;
-    D_0068AF88[dl_GetPri()].f0 = ret + size;
+    ret = vramPri[dl_GetPri()].f0;
+    vramPri[dl_GetPri()].f0 = ret + size;
     return ret;
 }
 
@@ -231,11 +273,11 @@ static inline int texAllocClutVram(int size)
     int pri = dl_GetPri();
     int ret;
 
-    if (16128 <= D_0068AF88[dl_GetPri()].f1 + size) {
+    if (16128 <= vramPri[dl_GetPri()].f1 + size) {
         tex_ResetVramPri(pri);
     }
-    ret = D_0068AF88[dl_GetPri()].f1;
-    D_0068AF88[dl_GetPri()].f1 = ret + size;
+    ret = vramPri[dl_GetPri()].f1;
+    vramPri[dl_GetPri()].f1 = ret + size;
     return ret;
 }
 
@@ -368,14 +410,14 @@ void tex_setTexReg(Tim2Picture *pic, CdvdRec *t, int levels, int lv, int clut)
     unsigned int tfx = 0;
 
     if (t->x2A8 != 0) {
-        tfx = t->x298;
+        tfx = t->ext.x30;
     }
     gif_StartPacketPri(dl_GetPri());
     switch (clut) {
     case 0:
         setGsReg(6, (long long)t->lv[TEXLV(lv)].tbp[dl_GetPri()] |
                         ((long long)t->lv[TEXLV(lv)].dbw << 14) |
-                        ((long long)D_00290B78[pic->imageType].f0 << 20) |
+                        ((long long)psmTable[pic->imageType].f0 << 20) |
                         ((long long)(getTWTH(pic->imageWidth) - lv) << 26) |
                         ((long long)(getTWTH(pic->imageHeight) - lv) << 30) | ((long long)1 << 34) |
                         ((long long)tfx << 35));
@@ -383,11 +425,11 @@ void tex_setTexReg(Tim2Picture *pic, CdvdRec *t, int levels, int lv, int clut)
     case 1:
         setGsReg(6, (long long)t->lv[TEXLV(lv)].tbp[dl_GetPri()] |
                         ((long long)t->lv[TEXLV(lv)].dbw << 14) |
-                        ((long long)D_00290B78[pic->imageType].f0 << 20) |
+                        ((long long)psmTable[pic->imageType].f0 << 20) |
                         ((long long)(getTWTH(pic->imageWidth) - lv) << 26) |
                         ((long long)(getTWTH(pic->imageHeight) - lv) << 30) | ((long long)1 << 34) |
                         ((long long)tfx << 35) | ((long long)t->clut.tbp[dl_GetPri()] << 37) |
-                        ((long long)D_00290B78[pic->clutType & 0x3F].f0 << 51) |
+                        ((long long)psmTable[pic->clutType & 0x3F].f0 << 51) |
                         ((long long)2 << 61));
         break;
     default:
@@ -453,11 +495,10 @@ int tex_transVramClutTex(Tim2Picture *pic, CdvdRec *t, int levels, int lv)
         h = 2;
     }
     total = texLoadLevel(t->clut.addr, t, levels - lv, t->clut.tbp[dl_GetPri()], t->clut.dbw,
-                         D_00290B78[pic->clutType & 0x3F].f0, w, h);
+                         psmTable[pic->clutType & 0x3F].f0, w, h);
     for (i = lv; i < levels - lv; i++) {
         n = texLoadLevel(t->lv[i].addr, t, i, t->lv[i].tbp[dl_GetPri()], t->lv[i].dbw,
-                         D_00290B78[pic->imageType].f0, pic->imageWidth >> i,
-                         pic->imageHeight >> i);
+                         psmTable[pic->imageType].f0, pic->imageWidth >> i, pic->imageHeight >> i);
         total += n;
     }
     return total;
@@ -483,8 +524,7 @@ int tex_transVramDirectTex(Tim2Picture *pic, CdvdRec *t, int levels, int lv)
     texAllocLevels(t, levels, lv);
     for (i = lv; i < levels - lv; i++) {
         n = texLoadLevel(t->lv[i].addr, t, i, t->lv[i].tbp[dl_GetPri()], t->lv[i].dbw,
-                         D_00290B78[pic->imageType].f0, pic->imageWidth >> i,
-                         pic->imageHeight >> i);
+                         psmTable[pic->imageType].f0, pic->imageWidth >> i, pic->imageHeight >> i);
         total += n;
     }
     return total;
@@ -516,7 +556,7 @@ extern char D_0063A1F8[];
 int tex_transTM2(Tim2Picture *pic, CdvdRec *t, int id, int pri)
 {
     int ret = 0;
-    int levels = t->xE0 - D_0068AFD8[id].lv;
+    int levels = t->xE0 - texTable[id].rec.level;
 
     if (8 <= levels) {
         debug_StdPrintfDummy(D_005504A0);
@@ -528,25 +568,25 @@ int tex_transTM2(Tim2Picture *pic, CdvdRec *t, int id, int pri)
     case 1:
     case 2:
     case 3:
-        if (D_0068AFD8[id].x2D0[pri] == 0) {
-            ret = tex_transVramDirectTex(pic, t, levels, D_0068AFD8[id].lv);
+        if (texTable[id].rec.x2C8[pri] == 0) {
+            ret = tex_transVramDirectTex(pic, t, levels, texTable[id].rec.level);
         }
-        if (D_0068AF88[dl_GetPri()].f2 != id) {
+        if (vramPri[dl_GetPri()].f2 != id) {
             tex_transRegister(t);
-            tex_setTexReg(pic, t, levels, D_0068AFD8[id].lv, 0);
-            D_0068AF88[dl_GetPri()].f2 = id;
+            tex_setTexReg(pic, t, levels, texTable[id].rec.level, 0);
+            vramPri[dl_GetPri()].f2 = id;
             D_0063B120++;
         }
         break;
     case 4:
     case 5:
-        if (D_0068AFD8[id].x2D0[pri] == 0) {
-            ret = tex_transVramClutTex(pic, t, levels, D_0068AFD8[id].lv);
+        if (texTable[id].rec.x2C8[pri] == 0) {
+            ret = tex_transVramClutTex(pic, t, levels, texTable[id].rec.level);
         }
-        if (D_0068AF88[dl_GetPri()].f2 != id) {
+        if (vramPri[dl_GetPri()].f2 != id) {
             tex_transRegister(t);
-            tex_setTexReg(pic, t, levels, D_0068AFD8[id].lv, 1);
-            D_0068AF88[dl_GetPri()].f2 = id;
+            tex_setTexReg(pic, t, levels, texTable[id].rec.level, 1);
+            vramPri[dl_GetPri()].f2 = id;
             D_0063B120++;
         }
         break;
@@ -557,7 +597,7 @@ int tex_transTM2(Tim2Picture *pic, CdvdRec *t, int id, int pri)
         __assert(D_00550328, 919, D_0063A1F8);
         break;
     }
-    D_0068AFD8[id].x2D0[pri] = 1;
+    texTable[id].rec.x2C8[pri] = 1;
     return ret;
 }
 
@@ -605,15 +645,15 @@ void tex_initClutTexture(Tim2Picture *pic, CdvdRec *t)
 
     t->clut.vramSize = 8;
 
-    t->clut.dbw = texTBW(&D_00290B78[pic->clutType & 0x3F], pic->imageWidth);
+    t->clut.dbw = texTBW(&psmTable[pic->clutType & 0x3F], pic->imageWidth);
 
     for (i = 0; i < t->xE0; i++) {
         t->lv[i].vramSize =
-            ((pic->imageWidth >> i) * (pic->imageHeight >> i) / D_00290B78[pic->imageType].f4 / 2) *
-                D_00290B78[pic->imageType].f8 >>
+            ((pic->imageWidth >> i) * (pic->imageHeight >> i) / psmTable[pic->imageType].f4 / 2) *
+                psmTable[pic->imageType].f8 >>
             6;
 
-        dbw = texTBW(&D_00290B78[pic->imageType], pic->imageWidth >> i);
+        dbw = texTBW(&psmTable[pic->imageType], pic->imageWidth >> i);
 
         t->lv[i].dbw = dbw;
     }
@@ -637,14 +677,14 @@ void tex_setRegisters(Tim2Picture *pic, CdvdRec *t)
     int l = 0;
 
     if (t->x2A8 != 0) {
-        mmag = t->x290;
-        mmin = t->x294;
-        if (t->x29C != 0) {
-            aref = t->x29C;
-            atst = t->x2A0;
+        mmag = t->ext.x28;
+        mmin = t->ext.x2C;
+        if (t->ext.x34 != 0) {
+            aref = t->ext.x34;
+            atst = t->ext.x38;
         }
-        k = t->x2A4;
-        l = t->x2A6;
+        k = t->ext.h3C;
+        l = t->ext.h3E;
     }
 
     p = (int *)((char *)t + 0x58);
@@ -761,11 +801,11 @@ static inline void texInitMipLevels(Tim2Picture *pic, CdvdRec *t)
 
     for (i = 0; i < t->xE0; i++) {
         t->lv[i].vramSize =
-            ((pic->imageWidth >> i) * (pic->imageHeight >> i) / D_00290B78[pic->imageType].f4) *
-                D_00290B78[pic->imageType].f8 >>
+            ((pic->imageWidth >> i) * (pic->imageHeight >> i) / psmTable[pic->imageType].f4) *
+                psmTable[pic->imageType].f8 >>
             6;
 
-        dbw = texTBW(&D_00290B78[pic->imageType], pic->imageWidth >> i);
+        dbw = texTBW(&psmTable[pic->imageType], pic->imageWidth >> i);
 
         t->lv[i].dbw = dbw;
     }
@@ -856,7 +896,7 @@ typedef struct sceGsStoreImage {
 
 extern void sceGsSyncPath(int mode, int timeout);
 /* dpsm is short here for the reason the repo's sceGsSetDefDispEnv declaration
- * carries: the ROM reads D_00290B78's first word with lh at this call site and
+ * carries: the ROM reads psmTable's first word with lh at this call site and
  * with lw five instructions later, so the argument is a 16-bit conversion of an
  * int field, which is what a short parameter spells. */
 extern void sceGsSetDefLoadImage(sceGsLoadImage *img, int dbp, int dbw, short dpsm, int dsax,
@@ -880,14 +920,14 @@ void tex_convertImage(void *dst, void *src, short fmt, short w, short h)
     int w2 = w;
 
     sceGsSyncPath(0, 0);
-    sceGsSetDefLoadImage(&limg, 0x2800, w >> 6, D_00290B78[fmt].f0, 0, 0, w2, h);
+    sceGsSetDefLoadImage(&limg, 0x2800, w >> 6, psmTable[fmt].f0, 0, 0, w2, h);
     FlushCache(0);
     if (sceGsExecLoadImage(&limg, src)) {
         debug_assert(D_00550328, 1246);
         __assert(D_00550328, 1246, D_0063A1F8);
     }
     sceGsSyncPath(0, 0);
-    switch (D_00290B78[fmt].f0) {
+    switch (psmTable[fmt].f0) {
     case 19:
         w2 = w >> 2;
         break;
@@ -977,7 +1017,6 @@ void tex_makeCopyImage(Tim2Picture *pic, CdvdRec *t, char *src, int convert)
     }
 }
 
-extern int mipmap_header_size[];
 extern int sprintf(char *buf, const char *fmt, ...);
 extern void debug_DispQW(void *p, int n);
 extern void debug_StdPrintfDummy();
@@ -1163,17 +1202,17 @@ void *pkt;
 
     no = tex_GetTextureNo(buf);
     if (no != -1) {
-        if (strcmp(name, D_0068AFE0[no].file) != 0) {
+        if (strcmp(name, texTable[no].rec.file) != 0) {
             debug_StdPrintfDummy(D_00550880);
             debug_StdPrintfDummy(D_0063A218, name);
-            debug_StdPrintfDummy(D_005508B8, D_0068AFE0[no].file);
+            debug_StdPrintfDummy(D_005508B8, texTable[no].rec.file);
         }
         return -1;
     }
 
-    t = &D_0068AFE0[texCount];
-    ((TexEntry *)((char *)D_0068AFE0 - 8))[texCount].lv = 0;
-    D_0068AFE0[texCount].x2C8[pri] = 0;
+    t = &texTable[texCount].rec;
+    texTable[texCount].rec.level = 0;
+    texTable[texCount].rec.x2C8[pri] = 0;
 
     sprintf(t->file, D_0063A210, name);
     sprintf(t->name, D_0063A210, buf);
@@ -1206,9 +1245,9 @@ void *pkt;
         *(int *)((char *)t + 0x2C0) = 0;
         *(int *)((char *)t + 0x2C4) = 0;
     }
-    D_0068AFD8[texCount].used = 1;
+    texTable[texCount].rec.used = 1;
 
-    D_0068AFD8[texCount].x2E0 = malloc_GetPartition();
+    texTable[texCount].rec.x2D8 = malloc_GetPartition();
     texCount++;
     if (200 <= texCount) {
         debug_StdPrintfDummy(D_005508C8);
@@ -1268,7 +1307,7 @@ extern int D_0063B11C;
 
 int tex_TransTexture(int id, int ret)
 {
-    CdvdRec *t = &D_0068AFE0[id];
+    CdvdRec *t = &texTable[id].rec;
 
     if (id < 0 || texCount <= id) {
         debug_Assert(D_00550930, id, texCount);
@@ -1301,7 +1340,7 @@ int tex_TransTexture(int id, int ret)
  * here at row 1642. */
 static inline int *getTextureDataDefocus(int idx)
 {
-    return (int *)((char *)D_0068AFE0 + idx * 0x2E8);
+    return (int *)&texTable[idx].rec;
 }
 
 typedef struct TexColor {
@@ -1480,7 +1519,7 @@ void tex_textureAnimation(void)
     int i;
 
     for (i = 0; i < texCount; i++) {
-        CdvdRec *t = &D_0068AFE0[i];
+        CdvdRec *t = &texTable[i].rec;
         TexExt *e = (TexExt *)((char *)t + 0x268);
         TexUV *uv = (TexUV *)((char *)t + 0xA8);
 
@@ -1540,7 +1579,7 @@ void tex_textureAnimation(void)
             e->h50++;
 
             if (e->file.x1C != 0 && e->file.x20 != 0 && e->file.x14 != e->file.x18) {
-                int clut = D_00290B78[*(unsigned char *)((char *)t + 0x21A) & 0x3F].f4;
+                int clut = psmTable[*(unsigned char *)((char *)t + 0x21A) & 0x3F].f4;
                 unsigned int n = *(unsigned int *)((char *)t + 0x20C) >> 2;
 
                 tex_scrollClut((int)t->clut.addr + 0x20, e->x54, e->x58, clut, n, e, e->h52, t);
@@ -1552,11 +1591,11 @@ void tex_textureAnimation(void)
 
 void tex_SetClutAnimation(int id, int frame)
 {
-    char *t = (char *)&D_0068AFE0[id];
+    char *t = (char *)&texTable[id].rec;
     char *c = t + 0x268;
 
     if (*(int *)(c + 0x40) != 0) {
-        int clut = D_00290B78[*(unsigned char *)(t + 0x21A) & 0x3F].f4;
+        int clut = psmTable[*(unsigned char *)(t + 0x21A) & 0x3F].f4;
         unsigned int n = *(unsigned int *)(t + 0x20C) >> 2;
 
         if (frame != -1) {
@@ -1572,12 +1611,12 @@ extern int freeseki(void *p);
 int tex_FreeTexture(int id)
 {
     int i;
-    CdvdRec *t = (CdvdRec *)D_0068AFD8[id].name;
+    CdvdRec *t = &texTable[id].rec;
 
-    if (D_0068AFD8[id].used == 0) {
+    if (texTable[id].rec.used == 0) {
         return -1;
     }
-    D_0068AFD8[id].used = 0;
+    texTable[id].rec.used = 0;
 
     if (t->clut.addr != 0) {
         freeseki(t->clut.addr);
@@ -1599,8 +1638,6 @@ int tex_FreeTexture(int id)
     return 0;
 }
 
-extern int D_006AF518[];
-
 /* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
  * tex_ResetVramPri into tex_LockHeadTBP/tex_UnlockHeadTBP, so it is a public `inline` of the
  * deferred tail; until tex_Init, which sits between the tail's members, is C,
@@ -1612,15 +1649,15 @@ static inline void resetVramPri(int pri)
 
     dl_SetDLPriority(pri);
 
-    if (D_006AF518[pri] != 0) {
-        D_0068AF88[pri].f0 = D_006AF518[pri];
+    if (headTbp[pri] != 0) {
+        vramPri[pri].f0 = headTbp[pri];
     } else {
-        D_0068AF88[pri].f0 = 0x2800;
+        vramPri[pri].f0 = 0x2800;
     }
-    D_0068AF88[pri].f1 = 0x3E80;
-    D_0068AF88[pri].f2 = -1;
+    vramPri[pri].f1 = 0x3E80;
+    vramPri[pri].f2 = -1;
     for (i = 0; i < texCount; i++) {
-        D_0068AFD8[i].x2D0[pri] = 0;
+        texTable[i].rec.x2C8[pri] = 0;
     }
 }
 
@@ -1632,7 +1669,7 @@ void tex_ResetVram(void)
     int i;
 
     for (i = 0; i < 13; i++) {
-        D_006AF518[i] = 0;
+        headTbp[i] = 0;
         resetVramPri(i);
     }
     if (D_0028F4C0[5] == 0) {
@@ -1729,17 +1766,17 @@ static inline void toolMakeRegs(CdvdRec *t, int lv)
     int afail = 1;
     int zte = 1;
     int ztst = 2;
-    int mmag = t->x290;
-    int mmin = t->x294;
+    int mmag = t->ext.x28;
+    int mmin = t->ext.x2C;
     long long *reg;
 
-    if (t->x29C != 0) {
-        aref = t->x29C;
-        afail = t->x2A0;
+    if (t->ext.x34 != 0) {
+        aref = t->ext.x34;
+        afail = t->ext.x38;
     }
     reg = (long long *)((char *)t + 0x58);
     reg[4] = ((long long)(t->xE0 - lv - 1) << 2) | ((long long)mmag << 5) | ((long long)mmin << 6) |
-             ((long long)t->x2A6 << 19) | ((long long)t->x2A4 << 32);
+             ((long long)t->ext.h3E << 19) | ((long long)t->ext.h3C << 32);
     /* 13 is the alpha test switched on with the GEQUAL function in the two
      * fields below AREF */
     reg[6] = 13 | (long long)aref << 4 | (long long)afail << 12 | (long long)zte << 16 |
@@ -1750,8 +1787,6 @@ static inline void toolMakeRegs(CdvdRec *t, int lv)
  * pad 0 drops alpha blending from the PRIM word. Declared as the array, so the
  * word is reached %hi/%lo as the ROM does, not gp-relative. */
 extern GsbPad D_0028F8F0[];
-/* one string per TIM2 image type, printed with %8s */
-extern char *textype[];
 /* "%8s:SIZE=%3dX%3d" */
 extern char D_00550A18[];
 /* UNPROTOTYPED: the ROM passes seven arguments in $4 to $10 */
@@ -1759,8 +1794,8 @@ extern void debug_PrintfDummy();
 
 void tex_printTexture(int id)
 {
-    char *p = D_0068AFD8[id].name;
-    int lv = D_0068AFD8[id].lv;
+    char *p = texTable[id].rec.name;
+    int lv = texTable[id].rec.level;
     float st[4];
 
     debug_PrintfDummy(ScreenWidth - 160, 195, 0xFF800000, D_00550A18,
@@ -1826,9 +1861,6 @@ typedef struct TexToolRow {
     int _18;
 } TexToolRow;
 
-/* the working copy of the selected texture's ICO block: the menu rows point
- * straight at its fields and the tool writes it back into the record */
-extern Tim2Ext D_006AF550;
 /* the step multiplier the shoulder button scales by ten at a time */
 extern int D_0063A2B8;
 /* "SELTEX" "SCRL-U" "SCRL-V" "AMP-U " "AMP-V " "CS-BGN" "CS-END" "CS-SPD"
@@ -1861,22 +1893,22 @@ int tex_Tool(int *tno)
 {
     TexToolRow m[17] = {
         {D_0063A230, 0.0f, (float)(texCount - 1), 1.0f, 0, tno},
-        {D_0063A238, -1.0f, 1.0f, 1e-05f, 1, &D_006AF550.f04},
-        {D_0063A240, -1.0f, 1.0f, 1e-05f, 1, &D_006AF550.f08},
-        {D_0063A248, -1.0f, 1.0f, 0.01f, 1, &D_006AF550.f0C},
-        {D_0063A250, -1.0f, 1.0f, 0.01f, 1, &D_006AF550.f10},
-        {D_0063A258, 0.0f, 255.0f, 1.0f, 0, &D_006AF550.x14},
-        {D_0063A260, 0.0f, 255.0f, 1.0f, 0, &D_006AF550.x18},
-        {D_0063A268, -120.0f, 120.0f, 1.0f, 0, &D_006AF550.x1C},
-        {D_0063A270, -127.0f, 127.0f, 1.0f, 0, &D_006AF550.x20},
-        {D_0063A278, 0.0f, 3.0f, 1.0f, 0, &D_006AF550.x24},
-        {D_0063A280, 0.0f, 1.0f, 1.0f, 0, &D_006AF550.x28},
-        {D_0063A288, 0.0f, 5.0f, 1.0f, 0, &D_006AF550.x2C},
-        {D_0063A290, 0.0f, 3.0f, 1.0f, 0, &D_006AF550.x30},
-        {D_0063A298, 0.0f, 128.0f, 1.0f, 0, &D_006AF550.x34},
-        {D_0063A2A0, 0.0f, 3.0f, 1.0f, 0, &D_006AF550.x38},
-        {D_0063A2A8, -2047.0f, 0.0f, 1.0f, 2, &D_006AF550.h3C},
-        {D_0063A2B0, 0.0f, 3.0f, 1.0f, 2, &D_006AF550.h3E},
+        {D_0063A238, -1.0f, 1.0f, 1e-05f, 1, &toolExt.f04},
+        {D_0063A240, -1.0f, 1.0f, 1e-05f, 1, &toolExt.f08},
+        {D_0063A248, -1.0f, 1.0f, 0.01f, 1, &toolExt.f0C},
+        {D_0063A250, -1.0f, 1.0f, 0.01f, 1, &toolExt.f10},
+        {D_0063A258, 0.0f, 255.0f, 1.0f, 0, &toolExt.x14},
+        {D_0063A260, 0.0f, 255.0f, 1.0f, 0, &toolExt.x18},
+        {D_0063A268, -120.0f, 120.0f, 1.0f, 0, &toolExt.x1C},
+        {D_0063A270, -127.0f, 127.0f, 1.0f, 0, &toolExt.x20},
+        {D_0063A278, 0.0f, 3.0f, 1.0f, 0, &toolExt.x24},
+        {D_0063A280, 0.0f, 1.0f, 1.0f, 0, &toolExt.x28},
+        {D_0063A288, 0.0f, 5.0f, 1.0f, 0, &toolExt.x2C},
+        {D_0063A290, 0.0f, 3.0f, 1.0f, 0, &toolExt.x30},
+        {D_0063A298, 0.0f, 128.0f, 1.0f, 0, &toolExt.x34},
+        {D_0063A2A0, 0.0f, 3.0f, 1.0f, 0, &toolExt.x38},
+        {D_0063A2A8, -2047.0f, 0.0f, 1.0f, 2, &toolExt.h3C},
+        {D_0063A2B0, 0.0f, 3.0f, 1.0f, 2, &toolExt.h3E},
     };
     unsigned int col[2] = {0xFFFFFF00, 0xFFC0C000};
 
@@ -1909,7 +1941,7 @@ int tex_Tool(int *tno)
     CdvdRec *rec;
 
     for (i = 0; i < texCount; i++) {
-        if (D_0068AFD8[i].x2B0 != 0) {
+        if (texTable[i].rec.x2A8 != 0) {
             cnt++;
         }
     }
@@ -1917,14 +1949,14 @@ int tex_Tool(int *tno)
         return -1;
     }
     tex_printTexture(*tno);
-    while (D_0068AFD8[*tno].x2B0 == 0) {
+    while (texTable[*tno].rec.x2A8 == 0) {
         *tno = *tno + 1;
         if (texCount - 1 < *tno) {
             *tno = 0;
         }
     }
-    rec = (CdvdRec *)D_0068AFD8[*tno].name;
-    D_006AF550 = D_0068AFD8[*tno].ext;
+    rec = &texTable[*tno].rec;
+    toolExt = texTable[*tno].rec.ext;
     if (rec->clut.vramSize != 0) {
         tex_dispClut((unsigned char *)rec->clut.addr + 0x20, rec->clut.vramSize < 4);
     }
@@ -1973,7 +2005,7 @@ int tex_Tool(int *tno)
                  * epilogue's first load, as the ROM has them. */
                 switch (chg) {
                 case -1:
-                    while (D_0068AFD8[*tno].x2B0 == 0) {
+                    while (texTable[*tno].rec.x2A8 == 0) {
                         *tno = *tno - 1;
                         if (*tno < 0) {
                             *tno = texCount - 1;
@@ -1981,7 +2013,7 @@ int tex_Tool(int *tno)
                     }
                     break;
                 case 1:
-                    while (D_0068AFD8[*tno].x2B0 == 0) {
+                    while (texTable[*tno].rec.x2A8 == 0) {
                         *tno = *tno + 1;
                         if (texCount - 1 < *tno) {
                             *tno = 0;
@@ -1995,7 +2027,7 @@ int tex_Tool(int *tno)
             malloc_MemCpy(rec->x2C0, rec->x2C4, rec->x20C);
             rec->x2BA = 0;
         }
-        toolMakeRegs(rec, D_0068AFD8[*tno].lv);
+        toolMakeRegs(rec, texTable[*tno].rec.level);
         break;
     case 1:
         if (D_0028F8F0[0].rep & 0x2000) {
@@ -2053,25 +2085,21 @@ int tex_Tool(int *tno)
     } else {
         toolRow = 0;
     }
-    if (D_006AF550.f04 == 0.0f) {
+    if (toolExt.f04 == 0.0f) {
         ((TexUV *)((char *)rec + 0xA8))->f10 = 0.0f;
     }
-    if (D_006AF550.f08 == 0.0f) {
+    if (toolExt.f08 == 0.0f) {
         ((TexUV *)((char *)rec + 0xA8))->f14 = 0.0f;
     }
-    if (D_006AF550.f0C == 0.0f && D_006AF550.f10 == 0.0f) {
+    if (toolExt.f0C == 0.0f && toolExt.f10 == 0.0f) {
         rec->x2B8 = 0;
     }
-    D_0068AFD8[*tno].ext = D_006AF550;
+    texTable[*tno].rec.ext = toolExt;
     return ret;
 }
 
 extern int D_0063A334;
 extern int D_0063A338;
-/* one name per TIM2 image type, per CLUT type and per user-header state */
-extern char *D_00290BD8[];
-extern char *D_00290BF0[];
-extern char *D_00290C00[];
 /* "Texture List [%d] PUSH '\x80' TO EDIT US." */
 extern char D_00550A48[];
 /* "No.              Name   Size MIP IMG CL US" */
@@ -2089,8 +2117,8 @@ static inline void remakeSampling(CdvdRec *t)
     int mmin = D_0028F804[0];
 
     if (t->x2A8 != 0) {
-        mmag = t->x290;
-        mmin = t->x294;
+        mmag = t->ext.x28;
+        mmin = t->ext.x2C;
     }
     t->x78 = (t->x78 & ~0xE0) | (mmag << 5) | (mmin << 6);
 }
@@ -2117,7 +2145,7 @@ int tex_ListTool(void)
     debug_PrintfDummy(10, 58, 0xFF800000, (int)D_00550A70);
 
     for (i = 0; i < texCount; i++) {
-        CdvdRec *t = &D_0068AFE0[i];
+        CdvdRec *t = &texTable[i].rec;
 
         sum = 0;
         for (j = 0; j < t->xE0; j++) {
@@ -2134,7 +2162,7 @@ int tex_ListTool(void)
     row = 2;
 
     for (i = top - 6; i < end; i++) {
-        CdvdRec *t = &D_0068AFE0[i];
+        CdvdRec *t = &texTable[i].rec;
 
         sum = 0;
         for (j = 0; j < t->xE0; j++) {
@@ -2143,16 +2171,16 @@ int tex_ListTool(void)
 
         if (i == D_0063A338) {
             debug_PrintfDummy(10, row * 8 + 50, 0xFF808000, (int)D_00550AA0, D_0063A338, (int)t,
-                              sum, D_0068AFD8[D_0063A338].lv + 1, t->xE0,
-                              D_00290BD8[*(unsigned char *)((char *)t + 0x21B)],
-                              D_00290BF0[*(unsigned char *)((char *)t + 0x21A) & 0x3F],
-                              D_00290C00[*(int *)((char *)t + 0x2A8)]);
+                              sum, texTable[D_0063A338].rec.level + 1, t->xE0,
+                              imageTypeName[*(unsigned char *)((char *)t + 0x21B)],
+                              clutTypeName[*(unsigned char *)((char *)t + 0x21A) & 0x3F],
+                              headerName[*(int *)((char *)t + 0x2A8)]);
         } else {
             debug_PrintfDummy(10, row * 8 + 50, 0xFFFFFF00, (int)D_00550AA0, i, (int)t, sum,
-                              D_0068AFD8[i].lv + 1, t->xE0,
-                              D_00290BD8[*(unsigned char *)((char *)t + 0x21B)],
-                              D_00290BF0[*(unsigned char *)((char *)t + 0x21A) & 0x3F],
-                              D_00290C00[*(int *)((char *)t + 0x2A8)]);
+                              texTable[i].rec.level + 1, t->xE0,
+                              imageTypeName[*(unsigned char *)((char *)t + 0x21B)],
+                              clutTypeName[*(unsigned char *)((char *)t + 0x21A) & 0x3F],
+                              headerName[*(int *)((char *)t + 0x2A8)]);
         }
         row++;
     }
@@ -2160,11 +2188,11 @@ int tex_ListTool(void)
     debug_PrintfDummy(10, row * 8 + 50, 0xFF800000, (int)D_00550AC0, (int)D_00550AD0, total);
 
     if ((D_0028F8F0[0].trg & 0x80) != 0) {
-        TexEntry *e = &D_0068AFD8[D_0063A338];
-        CdvdRec *t = (CdvdRec *)e->name;
+        TexEntry *e = &texTable[D_0063A338];
+        CdvdRec *t = &e->rec;
 
-        if (++e->lv >= t->xE0) {
-            e->lv = 0;
+        if (++e->rec.level >= t->xE0) {
+            e->rec.level = 0;
         }
         remakeSampling(t);
     }
@@ -2227,8 +2255,8 @@ int tex_GetTextureNo(char *name)
     int ret = -1;
 
     for (i = 0; i < texCount; i++) {
-        if (D_0068AFD8[i].used) {
-            if (strcmp(name, D_0068AFD8[i].name) == 0) {
+        if (texTable[i].rec.used) {
+            if (strcmp(name, texTable[i].rec.name) == 0) {
                 ret = i;
                 break;
             }
@@ -2243,8 +2271,8 @@ static inline int getTextureNo(char *name)
     int ret = -1;
 
     for (i = 0; i < texCount; i++) {
-        if (D_0068AFD8[i].used) {
-            if (strcmp(name, D_0068AFD8[i].name) == 0) {
+        if (texTable[i].rec.used) {
+            if (strcmp(name, texTable[i].rec.name) == 0) {
                 ret = i;
                 break;
             }
@@ -2260,17 +2288,17 @@ static inline int getTextureNo(char *name)
  * caller inlines the static stand-in getTextureData, which collapses at layout. */
 int *tex_GetTextureData(int idx)
 {
-    return (int *)((char *)D_0068AFE0 + idx * 0x2E8);
+    return (int *)&texTable[idx].rec;
 }
 
 static inline int *getTextureData(int idx)
 {
-    return (int *)((char *)D_0068AFE0 + idx * 0x2E8);
+    return (int *)&texTable[idx].rec;
 }
 
 int *tex_GetTextureName(int idx)
 {
-    return (int *)((char *)D_0068AFE0 + idx * 0x2E8);
+    return (int *)&texTable[idx].rec;
 }
 
 void tex_SetSamplingType(int *a0, int a1, int a2)
@@ -2279,31 +2307,29 @@ void tex_SetSamplingType(int *a0, int a1, int a2)
     *slot = (*slot & ~(long long)0xE0) | (a1 << 5) | (a2 << 6);
 }
 
-extern int D_0068B248[];
-
 int *tex_GetTexExtData(int idx)
 {
-    return (int *)((char *)D_0068B248 + idx * 0x2E8);
+    return (int *)&texTable[idx].rec.ext;
 }
 
 short tex_GetVramFreeAddress(int a0)
 {
-    return D_0068AF88[a0].f0;
+    return vramPri[a0].f0;
 }
 
 void tex_UpdateMipMapLevel(void)
 {
     int i;
     for (i = 0; i < texCount; i++) {
-        CdvdRec *tex = &D_0068AFE0[i];
+        CdvdRec *tex = &texTable[i].rec;
         int mxl = tex->xE0;
         int k, l;
         int mmag, mmin;
         if (tex->x2A8 != 0) {
-            k = tex->x2A4;
-            l = tex->x2A6;
-            mmag = tex->x290;
-            mmin = tex->x294;
+            k = tex->ext.h3C;
+            l = tex->ext.h3E;
+            mmag = tex->ext.x28;
+            mmin = tex->ext.x2C;
         } else {
             k = -165;
             l = 0;
@@ -2317,13 +2343,13 @@ void tex_UpdateMipMapLevel(void)
 
 void tex_LockHeadTBP(int tbp, int pri)
 {
-    D_006AF518[pri] = tbp;
+    headTbp[pri] = tbp;
     resetVramPri(pri);
 }
 
 void tex_UnlockHeadTBP(int pri)
 {
-    D_006AF518[pri] = 0;
+    headTbp[pri] = 0;
     resetVramPri(pri);
 }
 
@@ -2333,15 +2359,15 @@ void tex_ResetVramPri(int pri)
 
     dl_SetDLPriority(pri);
 
-    if (D_006AF518[pri] != 0) {
-        D_0068AF88[pri].f0 = D_006AF518[pri];
+    if (headTbp[pri] != 0) {
+        vramPri[pri].f0 = headTbp[pri];
     } else {
-        D_0068AF88[pri].f0 = 0x2800;
+        vramPri[pri].f0 = 0x2800;
     }
-    D_0068AF88[pri].f1 = 0x3E80;
-    D_0068AF88[pri].f2 = -1;
+    vramPri[pri].f1 = 0x3E80;
+    vramPri[pri].f2 = -1;
     for (i = 0; i < texCount; i++) {
-        D_0068AFD8[i].x2D0[pri] = 0;
+        texTable[i].rec.x2C8[pri] = 0;
     }
 }
 
@@ -2383,11 +2409,11 @@ void tex_Init(void)
     texCount = 0;
     if (D_0063A22C == 0) {
         for (i = 199; i >= 0; i--) {
-            D_0068AFD8[i].x2E0 = 1;
+            texTable[i].rec.x2D8 = 1;
         }
         D_0063A22C = 1;
     } else {
-        while (D_0068AFD8[texCount].x2E0 == 0) {
+        while (texTable[texCount].rec.x2D8 == 0) {
             texCount++;
         }
     }
@@ -2400,12 +2426,12 @@ int tex_RemakeRegistersSampleMin(void)
     int count = texCount;
     int i;
     for (i = 0; i < count; i++) {
-        CdvdRec *b = &D_0068AFE0[i];
+        CdvdRec *b = &texTable[i].rec;
         int f5 = D_0028F720[57];
         int f8 = 1;
         if (b->x2A8 != 0) {
-            f8 = b->x290;
-            f5 = b->x294;
+            f8 = b->ext.x28;
+            f5 = b->ext.x2C;
         }
         b->x78 = (b->x78 & ~0xE0) | (f8 << 5) | (f5 << 6);
     }

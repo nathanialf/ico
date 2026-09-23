@@ -60,7 +60,7 @@ static ActMail chainNg_mes[2] = {{430}, {429}};
 
 static ActMail chainOk_mes[2] = {{430}, {429}};
 
-static ActMail chain_ok_mes[2] = {{430}, {429}};
+static ActMail chainOK_mes[2] = {{430}, {429}};
 
 static ActMail chainNG_mes[2] = {{430}, {429}};
 
@@ -405,8 +405,8 @@ void actSt13aChainOK(volatile int a0)
     EnableChainHang((char *)scpSearchGobj(2071));
     gflagOff(328);
 
-    chain_ok_mes[0].func = actSt13aChainNG;
-    sub->mail = chain_ok_mes;
+    chainOK_mes[0].func = actSt13aChainNG;
+    sub->mail = chainOK_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }

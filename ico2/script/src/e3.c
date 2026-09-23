@@ -94,7 +94,7 @@ static ActMail st01bEne_mes[2] = {{430}, {429}};
 
 static float st09aSekizoPos[4] = {1548.0f, -412.0f, -608.0f, 0.0f};
 
-static ActMail st09aSekizoChk_mes[2] = {{430}, {429}};
+static ActMail st09aSekizo_mes[2] = {{430}, {429}};
 
 static ActMail gate_mes[2] = {{430}, {429}};
 
@@ -805,8 +805,8 @@ void actE3St09aSekizo(volatile int a0)
     if (gflagChk(366) == 0) {
         stage_SetAnimation(376, 0, 0);
 
-        st09aSekizoChk_mes[0].func = actE3St09aSekizoChk;
-        sub->mail = st09aSekizoChk_mes;
+        st09aSekizo_mes[0].func = actE3St09aSekizoChk;
+        sub->mail = st09aSekizo_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {

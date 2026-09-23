@@ -25,37 +25,53 @@ typedef struct FcWallEnt {
     float *normal;  /* 0x4C */
 } FcWallEnt;
 
-int ChangeFieldCollisionDebugMode(int a0);
-void ClipCollision(int *self);
+/* The functions fieldCollision.c defines `inline` (all but the sixteen it
+ * compiles in place), in the order the ROM emits their out-of-line copies:
+ * gcc 2.9 writes deferred functions at the end of the file in the order of
+ * their first declaration, so this block is that order. */
+int ClipWallDebug(void *a0);
+int ClipWall(void *a0);
+int ClipWallR(void *a0);
+int ClipWallWaveForce(void *a0);
+int ClipWallFuchiHangWalkStop(void *a0);
+int ClipWallField(void *a0);
+int ClipWallEField(void *a0);
+int ClipWallBoxStop(void *a0);
+int ClipWallAdjustPos(void *a0);
+void ClipWallE(void *a0);
+void ClipWallCheckCB(void *a0, int a1);
+void ClipWallFieldCheckCB(void *a0, int a1);
 int ClipFloor(void *a0);
-void ClipFloorByGObj(char *work, char *gobj);
 int ClipFloorE(void *a0);
 int ClipFloorR(void *a0);
-int ClipWall(void *a0);
-int ClipWallBoxStop(void *a0);
-int ClipWallField(void *a0);
-int ClipWallFuchiHangWalkStop(void *a0);
-int ClipWallWaveForce(void *a0);
-int CompareAttribute(unsigned int a, unsigned int b);
+int ClipFloorIH(void *a0);
+void ClipFloorCheckCB(void *a0, int a1);
+void ClipCollision(int *self);
+int ChangeFieldCollisionDebugMode(int a0);
+void LoadCollision(int *self, int a1);
 void DrawCollision(int a0);
+int ClipPlane(int a0);
+void GetOrientOfWall(void *a0, void *a1, int *a2);
+void SetSimplePlane(float *self, float a, float b, float c, float d);
+int GetWallAttribute(int a0);
+int GetFloorAttribute(int a0);
+int CompareAttribute(unsigned int a, unsigned int b);
+void GetWallGlobalInfo(char *pts, void *nrm, char *w, void *m);
+float GetDistanceFromPlane(void *a0, void *a1);
+float GetYDistanceFromPlane(float *a0, float *a1);
+float GetYProjectionOfPlane(float *a0, float *a1);
+void ResetCollisionPC(void);
+int PositionOfExit(int a0, int a1);
+void GetGlobalWallPlane(float *plane, int *r);
+
+/* compiled in place */
+void ClipFloorByGObj(char *work, char *gobj);
 void DrawCollisionRay(char *ray);
 void DrawGObjFloorCollision(char *gobj, int col);
 void DrawGObjWallCollision(char *gobj, int col);
-float GetDistanceFromPlane(void *a0, void *a1);
-int GetFloorAttribute(int a0);
-void GetGlobalWallPlane(float *plane, int *r);
-void GetOrientOfWall(void *a0, void *a1, int *a2);
 void GetReflectionElement(char *a0, float arg0, float arg1);
-int GetWallAttribute(int a0);
-void GetWallGlobalInfo(char *pts, void *nrm, char *w, void *m);
-float GetYDistanceFromPlane(float *a0, float *a1);
-float GetYProjectionOfPlane(float *a0, float *a1);
 void MakeExitAttributeIndex(void);
-int PositionOfExit(int a0, int a1);
-void SetSimplePlane(float *self, float a, float b, float c, float d);
 void _Clip(char *a0, int a1);
-void __ClipFloorWithDrawRay(char *w, int a1);
-void __ClipWallWithDrawRay(char *w, int a1);
 int clip_floor_1(void *a0, int a1, int a2);
 int clip_wall_1(void *a0, FcWallEnt *a1, int a2, int a3);
 

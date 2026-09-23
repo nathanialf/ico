@@ -30,9 +30,9 @@ void actSt05dDoor2DownEffect(volatile int a0);
 void actSt05dEneChk(volatile int a0);
 void actSt05dCrestHintChk(volatile int a0);
 
-static ActMail door2Downchk_mes[2] = {{430}, {429}};
+static ActMail door2Down_mes[2] = {{430}, {429}};
 
-static ActMail door2Upchk_mes[2] = {{430}, {429}};
+static ActMail door2Up_mes[2] = {{430}, {429}};
 
 static ActMail door2UpChk_mes[2] = {{430}, {429}};
 
@@ -56,14 +56,14 @@ void actSt05dDoor2(volatile int a0)
         (D_00639EA8 != 0 && scpTriggerBall(a0, D_00639EA8, 400.0f) != 0)) {
         stage_SetAnimation(349, 0, 0);
         _ACTWait(60);
-        door2Downchk_mes[0].func = actSt05dDoor2DownChk;
-        self->mail = door2Downchk_mes;
+        door2Down_mes[0].func = actSt05dDoor2DownChk;
+        self->mail = door2Down_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(348, 0, 0);
-        door2Upchk_mes[0].func = actSt05dDoor2UpChk;
-        self->mail = door2Upchk_mes;
+        door2Up_mes[0].func = actSt05dDoor2UpChk;
+        self->mail = door2Up_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }

@@ -136,7 +136,7 @@ static ActMail elev2Chk_mes[2] = {{430}, {429}};
 
 static ActMail elev2Chk2_mes[2] = {{430}, {429}};
 
-static ActMail elev2chara_mes[2] = {{430}, {429}};
+static ActMail elev2Chara_mes[2] = {{430}, {429}};
 
 static ActMail elev2CharaChk_mes[2] = {{430}, {429}};
 
@@ -1018,8 +1018,8 @@ void actSt13bElev2Chk(volatile int a0)
 
     lt_switch_layout(54);
 
-    elev2chara_mes[0].func = actSt13bElev2CharaChk;
-    sub->mail = elev2chara_mes;
+    elev2Chara_mes[0].func = actSt13bElev2CharaChk;
+    sub->mail = elev2Chara_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }

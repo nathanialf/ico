@@ -59,6 +59,8 @@ static ActMail door_up_mes[2] = {{430}, {429}};
 
 static ActMail door_upchk_mes[2] = {{430}, {429}};
 
+/* The name is ours and not settled: the TU's idiom would spell it door_downchk_mes, which moves
+   this function's register allocation (the complete66 mail-record audit); the bytes pin the hash class. */
 static ActMail door_dnchk_mes[2] = {{430}, {429}};
 
 static ActMail shutter_main_mes[2] = {{406, actSt06aShutterSwitch}, {429}};
@@ -85,6 +87,8 @@ static ActMail box_event2_out_mes[2] = {{430}, {429}};
 
 static ActMail box_event2_inchk_mes[2] = {{430}, {429}};
 
+/* The name is ours and not settled: the TU's idiom would spell it box_event2_outchk_mes, which moves
+   this function's register allocation (the complete66 mail-record audit); the bytes pin the hash class. */
 static ActMail box_event2_out_chk_mes[2] = {{430}, {429}};
 
 static ActMail way_mes[2] = {{430}, {429}};
@@ -119,6 +123,8 @@ static ActMail kyomi_mes[2] = {{430}, {429}};
 
 static ActMail kyomi_onchk_mes[2] = {{430}, {429}};
 
+/* The name is ours and not settled: the TU's idiom would spell it kyomi_offchk_mes, which moves
+   this function's register allocation (the complete66 mail-record audit); the bytes pin the hash class. */
 static ActMail kyomi_off_chk_mes[2] = {{430}, {429}};
 
 static ActMail jump_main_mes[2] = {{407, actSt06aJumpSwitch}, {429}};

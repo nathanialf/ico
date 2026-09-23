@@ -20,13 +20,13 @@ static ActMail kuren_mes[2] = {{430}, {429}};
 
 static ActMail kurenSwitch_mes[2] = {{430}, {429}};
 
-static ActMail doorDownchk_mes[2] = {{430}, {429}};
+static ActMail doorDown_mes[2] = {{430}, {429}};
 
-static ActMail doorUpchk_mes[2] = {{430}, {429}};
+static ActMail doorUp_mes[2] = {{430}, {429}};
 
 static ActMail doorUpChk_mes[2] = {{430}, {429}};
 
-static ActMail door_down_mes[2] = {{430}, {429}};
+static ActMail doorDownChk_mes[2] = {{430}, {429}};
 
 static ActMail ene_mes[2] = {{430}, {429}};
 
@@ -315,14 +315,14 @@ void actSt08bDoor(volatile int a0)
         (D_00639EA8 != 0 && scpTriggerBall(a0, D_00639EA8, 400.0f) != 0)) {
         stage_SetAnimation(372, 0, 0);
         _ACTWait(60);
-        doorDownchk_mes[0].func = actSt08bDoorDownChk;
-        self->mail = doorDownchk_mes;
+        doorDown_mes[0].func = actSt08bDoorDownChk;
+        self->mail = doorDown_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(371, 0, 0);
-        doorUpchk_mes[0].func = actSt08bDoorUpChk;
-        self->mail = doorUpchk_mes;
+        doorUp_mes[0].func = actSt08bDoorUpChk;
+        self->mail = doorUp_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -411,8 +411,9 @@ inline void actSt08bDoorDownEffect(volatile int a0)
     }
 }
 
-/* TU-owned mail record: role-named file static per the 2026-09-07 ruling,
-   same shape as st17a's door_mes / st18a's switch_l_mes. */
+/* The door records are named for the actor that posts them: the door actor's
+   doorDown_mes and doorUp_mes, each check thread's own doorUpChk_mes and
+   doorDownChk_mes (st04d's door1_up_chk_mes idiom, st18a's switchLUpChk_mes). */
 
 void actSt08bDoorDownChk(volatile int a0)
 {
@@ -443,8 +444,8 @@ void actSt08bDoorDownChk(volatile int a0)
     }
     _ACTWait(1);
 
-    door_down_mes[0].func = actSt08bDoorUpChk;
-    sub->mail = door_down_mes;
+    doorDownChk_mes[0].func = actSt08bDoorUpChk;
+    sub->mail = doorDownChk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }

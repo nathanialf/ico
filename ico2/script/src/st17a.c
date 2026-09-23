@@ -103,10 +103,11 @@ void actSt17aDoorUpChk(volatile int a0)
     _ACTWait(0);
 }
 
-/* TU-owned .data record (VMA 0x004FAFB0..0x004FAFCF, ROM 0x3FAFB0): the mail
-   table actSt17aDoorDownChk hands to the door actor. Role-named file static per
-   the 2026-09-07 ruling, same shape as st13a's chain_ok_mes / st10r's
-   fence_up2_mes. Needs the carve row [0x3FAFB0, .data, src/st17a]. */
+/* TU-owned .data record (VMA 0x004FAFB0..0x004FAFCF, ROM 0x3FAFB0, its own
+   .data row): the mail table actSt17aDoorDownChk hands to the door actor. The
+   name is ours (no map names a file static). The door-template spellings
+   doorDownChk_mes and door_down_chk_mes both move this function's s4/s5
+   allocation (the complete66 mail-record audit), so the name is not settled. */
 static ActMail door_mes[2] = {{430}, {429}};
 
 void actSt17aDoorDownChk(volatile int a0)

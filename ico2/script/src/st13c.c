@@ -95,9 +95,9 @@ static ActMail cageDownSwitch_mes[2] = {{430}, {429}};
 
 static ActMail cageFallReady_mes[2] = {{430}, {429}};
 
-static ActMail cageFallChk_mes[2] = {{430}, {429}};
+static ActMail cageFall_mes[2] = {{430}, {429}};
 
-static ActMail cageFallChk2_mes[2] = {{430}, {429}};
+static ActMail cageFall2_mes[2] = {{430}, {429}};
 
 static ActMail sekizoJimaku_mes[2] = {{430}, {429}};
 
@@ -476,8 +476,8 @@ void actSt13cCageFall(volatile int a0)
         ((PObjGObjSt13c *)scpSearchGobj(128))->unk16C = 0;
         SetWeaponTorchChainReactionFlagAll(1);
 
-        cageFallChk_mes[0].func = actSt13cCageFallChk;
-        self->mail = cageFallChk_mes;
+        cageFall_mes[0].func = actSt13cCageFallChk;
+        self->mail = cageFall_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -488,8 +488,8 @@ void actSt13cCageFall(volatile int a0)
             stage_SetAnimation(72, 0, -1);
             stage_SetAnimation(76, 0, 0);
 
-            cageFallChk2_mes[0].func = actSt13cCageFallChk;
-            self->mail = cageFallChk2_mes;
+            cageFall2_mes[0].func = actSt13cCageFallChk;
+            self->mail = cageFall2_mes;
             ACTSendMailCorrect(a0, 430);
             _ACTWait(0);
         }

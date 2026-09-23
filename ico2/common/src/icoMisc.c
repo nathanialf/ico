@@ -15,8 +15,6 @@
 #include "icoMisc.h"
 #include <stdio.h>
 
-extern char D_0061D3E0[];
-extern char D_0061D418[];
 extern void *D_0063A428;
 extern int fbKeep;
 extern int ScreenWidth;
@@ -27,8 +25,6 @@ extern void *D_0063A43C;
 extern void *D_0063A444;
 extern void *D_0063A448;
 extern unsigned int D_0063B428;
-extern char D_0061D340[];
-extern char D_0061D3B8[];
 extern char D_0063B430[];
 extern char D_0063B438[];
 extern int D_004E3B00[];
@@ -135,9 +131,12 @@ void disp_memory_partition_bar(void)
                 used += *(int *)(e + 0x34) << 4;
                 e = *(char **)(e + 0x2C);
                 if ((unsigned int)e > 0x1FEFFF0) {
-                    sprintf(buf, D_0061D340, p + 0x10, e);
-                    debug_assertMessage(D_0061D3B8, 609, buf);
-                    __assert(D_0061D3B8, 609, D_0063B430);
+                    sprintf(
+                        buf,
+                        "DISP_MEMORY_PARTITION_BAR():\n\tINVALID MEMORY FREE AREA INDICATED IN PARTITION \"%s\"\n\tMALLOCED MEMORY'S NEXT_FREE: %p\n",
+                        p + 0x10, e);
+                    debug_assertMessage(__FILE__, 609, buf);
+                    __assert(__FILE__, 609, D_0063B430);
                 }
             } while (e != 0);
         }
@@ -156,6 +155,16 @@ void disp_memory_partition_bar(void)
     }
     gif_SetAlpha(1, 4, 128);
     partitionBarDebugDisp();
+    /* The same code-free rows held a compiled-out draw in white. What the
+       bytes pin: the 16-byte-aligned template {255, 255, 255, 128} the ROM's
+       .rodata holds between this function's __FILE__ and
+       disp_memory_partition's header with no reader, and no frame slot for it
+       (a white local of its own grows the frame from 1328 to 1344, measured),
+       so it was an rvalue. What they cannot pin: the draw call or its
+       arguments. */
+    if (0) {
+        Draw2DLine((int *)&st, (int *)&ed, (sceVu0IVECTOR){255, 255, 255, 128}, -1);
+    }
     gif_EndPacket();
     for (i = 0; parts[i] != 0; i++) {
         p = parts[i];
@@ -169,7 +178,7 @@ void disp_memory_partition(void)
 {
     char *p;
     int y = 0x70;
-    debug_PrintfDummy(24, 100, 0xFFFFFF00, D_0061D3E0);
+    debug_PrintfDummy(24, 100, 0xFFFFFF00, "partition             total free/all      max free");
     iosMallocCheckLeak(D_0063A428);
     p = *(char **)((char *)D_0063A428 + 0x28);
     if (p != 0) {
@@ -191,7 +200,7 @@ void disp_memory_partition(void)
                 } while (e != 0);
             }
             diff = *(int *)(p + 0x3C) - *(int *)(p + 0x38) + 0x10;
-            sprintf(printBuf, D_0061D418, p + 0x10, p, sum, diff, max);
+            sprintf(printBuf, "%8s%8x: %8x/%8x %x", p + 0x10, p, sum, diff, max);
             debug_PrintfDummy(100, y, 0xFFFFFF00, printBuf);
             y += 8;
             p = *(char **)(p + 0x24);
@@ -218,9 +227,6 @@ extern float D_0063A64C;
 extern float D_0063AA0C;
 extern char *D_00639EA4;
 extern char *D_00639EA8;
-extern char D_0061D430[];
-extern char D_0061D440[];
-extern char D_0061D458[];
 extern int D_0028F4C0[];
 extern char jimaku_msg[];
 extern void disp_memory_partition(void);
@@ -262,17 +268,17 @@ void ExecIcoMisc(void)
     }
     if (iosCdvdDiskStatusGet() != 0) {
         if (D_0063B448++ < 15) {
-            debug_PrintfDummy(250, 100, 0xFF000000, (int)D_0061D430);
+            debug_PrintfDummy(250, 100, 0xFF000000, (int)"DISK ERROR");
         } else if (D_0063B448 >= 31) {
             D_0063B448 = 0;
         }
     }
     if (D_0063A3E0 != 0) {
-        debug_PrintfDummy(250, 100, 0xFF000000, (int)D_0061D440, D_0063A3E0);
+        debug_PrintfDummy(250, 100, 0xFF000000, (int)"IOP BUFF OVER -%d bytes", D_0063A3E0);
     }
     iosOmGetGObjStatus(&total, &used);
     if (D_0063B140 != 0 || (D_0063B13C & 1) != 0) {
-        debug_Printf(470, 10, (used * 100 / total > 90) ? 0xFF300080 : 0xC0FF80, (int)D_0061D458,
+        debug_Printf(470, 10, (used * 100 / total > 90) ? 0xFF300080 : 0xC0FF80, (int)"GObj %d/%d",
                      used, total);
     }
     if (D_0063B1A4 != 0) {
@@ -391,20 +397,6 @@ static int load_time;
 
 extern char D_004DA788[];
 extern char D_004DD700[];
-extern char D_0061D468[];
-extern char D_0061D480[];
-extern char D_0061D498[];
-extern char D_0061D4B8[];
-extern char D_0061D508[];
-extern char D_0061D520[];
-extern char D_0061D538[];
-extern char D_0061D548[];
-extern char D_0061D560[];
-extern char D_0061D578[];
-extern char D_0061D5B8[];
-extern char D_0061D628[];
-extern char D_0061D640[];
-extern char D_0061D658[];
 extern char D_0063B460[];
 extern char D_0063B468[];
 extern char D_0063B470[];
@@ -473,11 +465,11 @@ void InitIcoMisc(int *arg)
         ACTGame_SetActors_Debug(stage, 0);
         D_0063B44C = 0;
     }
-    debug_StdPrintfDummy(D_0061D468);
+    debug_StdPrintfDummy("Init Object Light\n");
     light_InitLight();
     InitStageLight(stage);
     enemy_Initialize();
-    debug_StdPrintfDummy(D_0061D480);
+    debug_StdPrintfDummy("Init Packing Data\n");
     load_time = frame_count;
     if (D_0063B450 == 0) {
         InitCharFileManager();
@@ -485,7 +477,7 @@ void InitIcoMisc(int *arg)
         ResetCharFileManager();
     }
     D_0063B450 = 1;
-    debug_StdPrintfDummy(D_0061D498);
+    debug_StdPrintfDummy("InitCharFIleManager out\n");
     pack = D_0063B0D8;
     if (D_0063B454 == 0) {
         debugCdvdLoadInfoSegInit(0);
@@ -513,26 +505,28 @@ void InitIcoMisc(int *arg)
             break;
         }
         if (D_0063B458 != -1) {
-            debug_StdPrintfDummy(D_0061D4B8);
+            /* "this stage uses a different motion segment from the previous one" */
+            debug_StdPrintfDummy(
+                "\033[33mこのステージは前のステージと異なるモーションセグメントを使用します。\033[m\n");
             ResetStatic2MotionManager(D_0063B458);
         }
         iosMallocResetPartition(D_0063A448);
         iosCdvdLoadPackFile(pack, fname, 0);
         D_0063B458 = D_005F5D50[stage].mot;
     }
-    debug_StdPrintfDummy(D_0061D508);
+    debug_StdPrintfDummy("iosCdvdLoadPackFile\n");
     debugCdvdLoadInfoSegInit(1);
     iosCdvdLoadPackFile(pack, GetDataFileName(stage, pack), 1);
     load_time = frame_count - load_time;
-    debug_StdPrintfDummy(D_0061D520);
+    debug_StdPrintfDummy("InitWayPointSystem\n");
     InitWayPointSystem();
-    debug_StdPrintfDummy(D_0061D538);
+    debug_StdPrintfDummy("MakeFogClut\n");
     fog_MakeFogClut();
-    debug_StdPrintfDummy(D_0061D548);
+    debug_StdPrintfDummy("InitParticleEffects\n");
     InitParticleEffects();
     InitStageMultiBgaManager();
     InitializeWaterDot();
-    debug_StdPrintfDummy(D_0061D560, stage);
+    debug_StdPrintfDummy("InitSceneObjects( %d )\n", stage);
     InitSceneObjects(stage);
     InitWindManager(stage);
     debug_StdPrintfDummy(D_0063B478, D_005F5D50[stage_no].name);
@@ -554,21 +548,27 @@ void InitIcoMisc(int *arg)
             if (GetParticleEffectPackage(D_00626278[id].pkg)[1] != 1) {
                 continue;
             }
-            debug_StdPrintfDummy(D_0061D578, D_0055FE58[i].name, D_0062A278[D_00626278[id].pkg]);
+            /* "the particle %s that %s calls is emitted forever" */
+            debug_StdPrintfDummy(
+                "\"\033[33m%s\033[m\"が呼ぶパーティクル\"\033[33m%s\033[m\"は永久発生です\n",
+                D_0055FE58[i].name, D_0062A278[D_00626278[id].pkg]);
             found = 1;
         }
     }
     if (found != 0) {
-        debug_StdPrintfDummy(D_0061D5B8);
+        /* "it runs, but left going it eats up memory: change the data to one
+           that does not loop" */
+        debug_StdPrintfDummy(
+            "\033[36m動作はさせますが続けているとメモリの\n資源を食いつくします\nループではないものにデータを修正してください\033[m\n");
     }
-    debug_StdPrintfDummy(D_0061D628);
+    debug_StdPrintfDummy("Init Stage Animation\n");
     gsb_ResetFilmNoise();
     stage_Init();
-    debug_StdPrintfDummy(D_0061D640);
+    debug_StdPrintfDummy("Init Object Action\n");
     ObjAction_Init();
     InitStageChange();
     graphics_ready = 0;
-    debug_StdPrintfDummy(D_0061D658, load_time / 60.0f);
+    debug_StdPrintfDummy("load time %f sec\n", load_time / 60.0f);
     sndInit(stage);
     iosPadActInit();
     if (D_005F5D50[stage_no].initproc != 0) {

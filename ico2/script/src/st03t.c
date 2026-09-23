@@ -16,19 +16,19 @@
 #include "motionManager2.h"
 #include "typedef.h"
 
+static ActMail switchL_mes[2] = {{430}, {429}};
+
+static ActMail switchLUp_mes[2] = {{430}, {429}};
+
 static ActMail switchLChk_mes[2] = {{430}, {429}};
-
-static ActMail switchLUpchk_mes[2] = {{430}, {429}};
-
-static ActMail switchLChk2_mes[2] = {{430}, {429}};
 
 static ActMail switchLUpChk_mes[2] = {{430}, {429}};
 
+static ActMail switchR_mes[2] = {{430}, {429}};
+
+static ActMail switchRUp_mes[2] = {{430}, {429}};
+
 static ActMail switchRChk_mes[2] = {{430}, {429}};
-
-static ActMail switchRUpchk_mes[2] = {{430}, {429}};
-
-static ActMail switchRChk2_mes[2] = {{430}, {429}};
 
 static ActMail switchRUpChk_mes[2] = {{430}, {429}};
 
@@ -40,13 +40,13 @@ static ActMail girlCamEndChk_mes[2] = {{430}, {429}};
 
 static ActMail ene_mes[2] = {{430}, {429}};
 
-static ActMail wayOnchk_mes[2] = {{430}, {429}};
+static ActMail wayOn_mes[2] = {{430}, {429}};
 
-static ActMail wayOffchk_mes[2] = {{430}, {429}};
+static ActMail wayOff_mes[2] = {{430}, {429}};
 
-static ActMail way_on_mes[2] = {{430}, {429}};
+static ActMail wayOnChk_mes[2] = {{430}, {429}};
 
-static ActMail way_off_mes[2] = {{430}, {429}};
+static ActMail wayOffChk_mes[2] = {{430}, {429}};
 
 static ActMail girlPos_mes[2] = {{430}, {429}};
 
@@ -69,16 +69,16 @@ void actSt03tSwitchL(volatile int a0)
         stage_SetAnimation(364, 0, 0);
         stage_SetAnimation(366, 0, 0);
 
-        switchLChk_mes[0].func = actSt03tSwitchLChk;
-        self->mail = switchLChk_mes;
+        switchL_mes[0].func = actSt03tSwitchLChk;
+        self->mail = switchL_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(364, 0, 0x2D);
         stage_SetAnimation(366, 0, -1);
 
-        switchLUpchk_mes[0].func = actSt03tSwitchLUpChk;
-        self->mail = switchLUpchk_mes;
+        switchLUp_mes[0].func = actSt03tSwitchLUpChk;
+        self->mail = switchLUp_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -142,8 +142,8 @@ void actSt03tSwitchLChk(volatile int a0)
     }
     _ACTWait(1);
 
-    switchLChk2_mes[0].func = actSt03tSwitchLUpChk;
-    self->mail = switchLChk2_mes;
+    switchLChk_mes[0].func = actSt03tSwitchLUpChk;
+    self->mail = switchLChk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -214,16 +214,16 @@ void actSt03tSwitchR(volatile int a0)
         stage_SetAnimation(365, 0, 0);
         stage_SetAnimation(368, 0, 0);
 
-        switchRChk_mes[0].func = actSt03tSwitchRChk;
-        self->mail = switchRChk_mes;
+        switchR_mes[0].func = actSt03tSwitchRChk;
+        self->mail = switchR_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(365, 0, 0x2D);
         stage_SetAnimation(368, 0, -1);
 
-        switchRUpchk_mes[0].func = actSt03tSwitchRUpChk;
-        self->mail = switchRUpchk_mes;
+        switchRUp_mes[0].func = actSt03tSwitchRUpChk;
+        self->mail = switchRUp_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -271,8 +271,8 @@ void actSt03tSwitchRChk(volatile int a0)
 
     gflagOn(90);
 
-    switchRChk2_mes[0].func = actSt03tSwitchRUpChk;
-    self->mail = switchRChk2_mes;
+    switchRChk_mes[0].func = actSt03tSwitchRUpChk;
+    self->mail = switchRChk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -457,13 +457,13 @@ void actSt03tWay(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(100) == 0) {
-        wayOnchk_mes[0].func = actSt03tWayOnChk;
-        self->mail = wayOnchk_mes;
+        wayOn_mes[0].func = actSt03tWayOnChk;
+        self->mail = wayOn_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        wayOffchk_mes[0].func = actSt03tWayOffChk;
-        self->mail = wayOffchk_mes;
+        wayOff_mes[0].func = actSt03tWayOffChk;
+        self->mail = wayOff_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -624,8 +624,8 @@ void actSt03tWayOnChk(volatile int a0)
     SetWayGroupActive(17, 1);
     gflagOn(100);
 
-    way_on_mes[0].func = actSt03tWayOffChk;
-    sub->mail = way_on_mes;
+    wayOnChk_mes[0].func = actSt03tWayOffChk;
+    sub->mail = wayOnChk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -646,8 +646,8 @@ void actSt03tWayOffChk(volatile int a0)
     SetWayGroupActive(17, 0);
     gflagOff(100);
 
-    way_off_mes[0].func = actSt03tWayOnChk;
-    sub->mail = way_off_mes;
+    wayOffChk_mes[0].func = actSt03tWayOnChk;
+    sub->mail = wayOffChk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }

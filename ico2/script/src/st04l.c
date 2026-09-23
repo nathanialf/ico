@@ -441,11 +441,11 @@ static ActMail sekizo_mes[2] = {{430}, {429}};
 
 static ActMail turi_mes[2] = {{430}, {429}};
 
+static ActMail gondola_mes[2] = {{430}, {429}};
+
+static ActMail gondola2_mes[2] = {{430}, {429}};
+
 static ActMail gondolaChk_mes[2] = {{430}, {429}};
-
-static ActMail gondolaChk2_mes[2] = {{430}, {429}};
-
-static ActMail gondolaChk3_mes[2] = {{430}, {429}};
 
 static ActMail gondola_chara[2] = {{430}, {429}};
 
@@ -1321,8 +1321,8 @@ void actSt04lGondolaChk(volatile int a0)
     lt_switch_layout(54);
     scpWakeupEnemyAll();
 
-    gondolaChk3_mes[0].func = actSt04lGondolaCharaChk;
-    sub->mail = gondolaChk3_mes;
+    gondolaChk_mes[0].func = actSt04lGondolaCharaChk;
+    sub->mail = gondolaChk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -2285,15 +2285,15 @@ void actSt04lGondola(volatile int a0)
     if (gflagChk(190) != 0) {
         stage_SetAnimation(228, 0, 0xC8);
 
-        gondolaChk_mes[0].func = actSt04lGondolaChk;
-        self->mail = gondolaChk_mes;
+        gondola_mes[0].func = actSt04lGondolaChk;
+        self->mail = gondola_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(228, 0, 0);
 
-        gondolaChk2_mes[0].func = actSt04lGondolaChk;
-        self->mail = gondolaChk2_mes;
+        gondola2_mes[0].func = actSt04lGondolaChk;
+        self->mail = gondola2_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }

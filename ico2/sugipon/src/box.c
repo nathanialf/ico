@@ -991,7 +991,8 @@ static inline void pushOutFloatingBox(char *cw, float *m, float *sv, float *dv, 
     }
 }
 
-/* kept local: this TU's uses of ClipWallE do not fit the prototype in fieldCollision.h */
+/* The same prototype fieldCollision.h gives; dropping this redeclaration moves
+   avoidCharGObj's w+0x88 load from $2 to $3 (measured, complete66 row). */
 extern void ClipWallE(void *a0);
 
 void avoidCharGObj(char *a0, char *a1)

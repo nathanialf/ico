@@ -547,7 +547,7 @@ segments:
       - [0x190B20, .data, ico2/seki/src/MicroCode]  # the TU's whole .data run as source (completeness pass 5), VMA 0x290B20..0x290B3C, 28 B emitted
       - [0x190B3C, data, cod/190B3C]     # .data blob resume
       - [0x190B40, .data, ico2/seki/src/Shadow]  # the TU's .data run as source (completeness pass 65; MAIN.MAP line 5806), VMA 0x290B40..0x290B58, 24 B
-      - [0x190B58, data, cod/190B58]     # .data blob resume
+      - [0x190B58, .data, ico2/seki/src/Texture]  # the TU's .data run as source (completeness pass 66): mipmap_header_size, textype, psmTable, imageTypeName, clutTypeName, headerName in ROM order, VMA 0x290B58..0x290C08, 0xB0 B, ZFog's row follows
       - [0x190C08, .data, ico2/seki/src/ZFog]  # the TU's whole .data run as source (completeness pass 6), VMA 0x290C08..0x290C10, 8 B emitted
       - [0x190C10, data, cod/190C10]     # .data blob resume
       - [0x19B430, .data, ico2/fumi/ios/inflate]  # the TU's whole .data run as source (completeness pass 5), VMA 0x29B430..0x29B57C, 332 B emitted
@@ -745,6 +745,8 @@ segments:
       - [0x453320, rodata, cod/453320]   # .rodata blob resume (strings)
       - [0x4535B8, .rodata, ico2/fumi/src/enemy_act]  # plain-rodata: NakaBoss's and Battle_isCurrentStatus's doubles (1.2 x2, 360, 270) and the "not found" string, 0x30 B 8-aligned, VMA 0x5535B8..0x5535E8; the TU's four jump tables stay in the blob until their owners land
       - [0x4535E8, rodata, cod/4535E8]   # .rodata blob resume ("**toboy " strings)
+      - [0x453750, .rodata, ico2/fumi/src/fieldCollision]  # the TU's .rodata run as source (completeness pass 66), VMA 0x553750, 0x23E B, anonymous strings in the listing's source order with the compiled-out "%s%d(%d)\n" among them
+      - [0x453990, rodata, cod/453990]   # .rodata blob resume
       - [0x453EB0, .rodata, ico2/fumi/src/girl_act]  # carved jtbl_00553EB0 (VMA 0x553EB0..0x553FBC, 67 arms, 268 B): GetBoyMode's switch table, emitted by the compiled function; girl_act owns 7 more jtbls (0x553AD0..0x553D30) interleaved with its strings, so this stays a single-table carve until a spanning one is byte-neutral
       - [0x453FBC, rodata, cod/453FBC]   # .rodata blob resume (the zero pad word before the .align 3 D_00553FC0 is the blob's first word)
       - [0x4540B0, .rodata, ico2/fumi/src/jimaku]  # carved jtbl_005540B0 (VMA 0x5540B0..0x5540C4, 20 B, 5 arms): jimakuMgrBegin's switch table, selector NonLinearCameraMove - 2, emitted by the compiled function
@@ -758,7 +760,7 @@ segments:
       - [0x454A39, rodata, cod/454A39]     # rodata blob resume
       - [0x454A40, .rodata, ico2/omori/src/attackhit]  # the TU's whole .rodata run as source (data pass 3), widening the jump-table row: the tables and the strings, VMA 0x554A40..0x554C82, 578 B; the 6 zero bytes to 0x554C88 are the next input's alignment pad
       - [0x454C88, .rodata, ico2/omori/src/brain]  # the TU's whole .rodata run as source (completeness pass 56): OverrideBrainStatusByGObj's EUC-JP message literal (44 B) and brainLevelProcess's three doubles, VMA 0x554C88..0x554CD8, 80 B; MAIN.MAP line 6366
-      - [0x454CE0, rodata, cod/454CE0]     # rodata blob resume (two zero pad words at 0x454CD8 belong to the pad)
+      - [0x454CE0, .rodata, ico2/omori/src/camera-editor]  # the TU's .rodata run as source (completeness pass 66), VMA 0x554CE0, 0x36F B, anonymous strings and the two box templates in the listing's source order, camera-ico2's row follows (two zero pad words at 0x454CD8 belong to the pad)
       - [0x455050, .rodata, ico2/omori/src/camera-ico2]  # plain-rodata: the TU's whole .rodata run as source (completeness pass 50; = MAIN.MAP line 6370, camera-ico2.o .rodata 0x11a), ChaseCamera's chase-offset initialiser template then seven anonymous literals at their use sites, VMA 0x555050..0x55516A, 282 B; the 6 zero bytes to 0x555170 are the next input's alignment pad the object does not write
       - [0x45516A, rodata, cod/45516A]     # rodata blob resume
       - [0x4551A0, .rodata, ico2/omori/src/camera-root]  # SetCameraMatrix's jump table jtbl_005551A0 (5 words, section .rodata.0x005551A0, selector D_0063C2A0, anonymous), VMA 0x5551A0..0x5551B4; arms verified against the ROM words (chain 2 pass 52)
@@ -819,6 +821,7 @@ segments:
       - [0x51D008, rodata, cod/51D008]   # .rodata blob resume (strings)
       - [0x51D2B0, .rodata, ico2/common/src/debug_menu]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x61D2B0..0x61D6F0, 1088 B
       - [0x51D2D0, rodata, cod/51D2D0]     # rodata blob resume
+      - [0x51D340, .rodata, ico2/common/src/icoMisc]  # the TU's .rodata run as source (completeness pass 66), VMA 0x61D340, 0x32A B, the compiled-out white template among its strings, kanban's row follows
       - [0x51D670, .rodata, ico2/common/src/kanban]  # the TU's whole .rodata run as source (data pass 5), abutting kanbanBoot's switch table, VMA 0x61D670..0x61D6EF, 127 B
       - [0x51D6F0, .rodata, ico2/common/src/kanbanBoot]  # syms: 0x0061D6F0  carved jtbl_0061D6F0 (kanbanBootMcCheck's first 5-arm table, 0x14 B, 16-aligned), VMA 0x61D6F0..0x61D710
       - [0x51D710, .rodata, ico2/common/src/kanbanBoot]  # syms: 0x0061D710  carved jtbl_0061D710 (kanbanBootMcCheck's second 5-arm table, 0x14 B, 16-aligned), VMA 0x61D710..0x61D730
@@ -1194,7 +1197,8 @@ segments:
       - { type: .sbss, vram: 0x0063C1B0, name: ico2/fumi/isys/gobj_process }  # the TU's own .sbss, 0x8 B, VMA 0x63C1B0..0x63C1B8; static definitions in ROM run order (completeness pass)
       - { type: sbss, vram: 0x0063C1B8, name: cod/0063C1B8 }  # .sbss blob resume
       - { type: .sbss, vram: 0x0063C20C, name: ico2/fumi/src/fieldCollision }  # the TU's .sbss as source (completeness pass 65)
-      - { type: sbss, vram: 0x0063C244, name: cod/0063C244 }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C244, name: ico2/fumi/src/girl_act }  # the TU's first .sbss word as source (completeness pass 66), 4 of the run's 8 B, the second word D_0063C248 stays a blob while the .c.inc stub subGirlBrain_Attract names it
+      - { type: sbss, vram: 0x0063C248, name: cod/0063C248 }  # .sbss blob resume
       - { type: .sbss, vram: 0x0063C24C, name: ico2/script/src/script }  # the TU's own .sbss, 0x4 B, VMA 0x63C24C..0x63C250; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C250, name: ico2/script/src/st25a }  # the TU's own .sbss, 0x8 B, VMA 0x63C250..0x63C258; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C258, name: ico2/script/src/warpGirl }  # the TU's own .sbss, 0x4 B, VMA 0x63C258..0x63C25C; static definitions in ROM run order (completeness pass)
@@ -1279,6 +1283,8 @@ segments:
       - { type: bss, vram: 0x0067C010, name: cod/0067C010 }  # .bss blob resume
       - { type: .bss, vram: 0x0067C070, name: ico2/seki/src/Shadow }  # the TU's .bss as source (completeness pass 65)
       - { type: bss, vram: 0x0067D098, name: cod/0067D098 }  # .bss blob resume (StageAnimation's run)
+      - { type: .bss, vram: 0x0068AF88, name: ico2/seki/src/Texture }  # the TU's .bss run as source (completeness pass 66), 0x24608 B, the 200-slot texture record table and three role-named statics
+      - { type: bss, vram: 0x006AF590, name: cod/006AF590 }  # .bss blob resume
       - { type: .bss, vram: 0x006BC860, name: ico2/fumi/ios/ios }  # the TU's own .bss, 0x60 B, VMA 0x6BC860..0x6BC8C0; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006BC8C0, name: ico2/fumi/ios/mcard }  # the TU's own .bss, 0x58 B, VMA 0x6BC8C0..0x6BC918; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006BC918, name: ico2/fumi/ios/memory }  # the TU's own .bss, 0x20 B, VMA 0x6BC918..0x6BC938; static definitions in ROM run order (completeness pass)

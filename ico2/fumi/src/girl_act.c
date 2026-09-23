@@ -1643,7 +1643,12 @@ extern unsigned char D_0063A8E0[4];
 extern unsigned char D_0063A8E4;
 extern char D_0063A8E8[];
 extern char D_00553C78[];
-extern int D_0063C244;
+
+/* .sbss, girl_act.o's first word (MAIN.MAP line 7594 names no symbol, so the
+   name is ours): how many frames in a row WayTest has seen the girl's heading
+   swing by more than 90 units. The second word, 0x63C248, stays in the blob
+   while subGirlBrain_Attract's stub names it. */
+static int wayTurnFrames;
 
 void WayTest(void)
 {
@@ -1676,7 +1681,7 @@ void WayTest(void)
     r = _RotyGV(s + 0x3E0, s + 0x120);
     r = (r < 0) ? -r : r;
     if (r >= 0x5B) {
-        D_0063C244 = D_0063C244 + 1;
+        wayTurnFrames = wayTurnFrames + 1;
         *(float *)(s + 0x120) = *(float *)(s + 0x3E0);
         *(float *)(s + 0x124) = *(float *)(s + 0x3E4);
         *(float *)(s + 0x128) = *(float *)(s + 0x3E8);
@@ -1684,7 +1689,7 @@ void WayTest(void)
         *(float *)(s + 0x120) = *(float *)(s + 0x3E0);
         *(float *)(s + 0x124) = *(float *)(s + 0x3E4);
         *(float *)(s + 0x128) = *(float *)(s + 0x3E8);
-        D_0063C244 = 0;
+        wayTurnFrames = 0;
     }
     dispWayMarker(*(char **)(s + 0x380));
     dispWayMarker(*(char **)(s + 0x384));
