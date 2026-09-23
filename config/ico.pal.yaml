@@ -940,7 +940,8 @@ segments:
       - [0x523160, .rodata, ico2/ito/mpeg/mv_audiodec]  # the TU's whole .rodata run as source (data pass 2): mv_defs.h's alloc_zeroed literals (the TU now spells MV_DEFS_WANT_ALLOC + #include "mv_defs.h") then seven debug formats; VMA 0x623160..0x6233B7 + 1 B link pad
       - [0x5233B8, rodata, cod/5233B8]   # .rodata blob resume (the other two mpeg TUs' copies of mv_defs.h's two literals)
       - [0x523418, .rodata, ico2/ito/mpeg/mv_sub]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x623418..0x623428, 16 B
-      - [0x523428, .rodata, ico2/ito/mpeg/mv_vibuf]  # the TU's whole .rodata run as source (data pass 3), widened to the member's full 68 B: the constant its asm block reaches by name is defined in the C, VMA 0x623428..0x62346C
+      - [0x523428, .rodata, ico2/ito/mpeg/mv_vibuf]  # the TU's .rodata as source (data pass 3), 44 B, VMA 0x623428..0x623458; the member's last 20 B are the string below
+      - [0x523458, rodata, cod/523458]  # "DMA ADD not active\n", the string viBufAddDMA reaches: a blob while the TU's five compiled-C functions (viBufReset, viBufAddDMA, viBufStopDMA, viBufRestartDMA, viBufDelete; SRCFILE.TXT attributes 13 to 56 source lines each) are INCLUDE_ASM stubs, VMA 0x623458..0x62346C; it returns to the C with viBufAddDMA
       - [0x52346C, rodata, cod/52346C]     # rodata blob resume
       - [0x529D08, .rodata, ico2/omori/src/objact]  # syms: objActMailId objActMailTable  the TU's whole .rodata run as source (data pass 4; evidence ROM bytes and exclusive reference, the January map has no objact.o .rodata line), VMA 0x629D08..0x629E40, 312 B
       - [0x529E40, rodata, cod/529E40]     # rodata blob resume

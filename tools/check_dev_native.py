@@ -25,6 +25,11 @@ pins are fine only where the developers' own source was assembly).
   5. tools/compile_c.sh names exactly one assembler, ee-as 2.9-991111, and
      SELECTED_EE_AS is only ever EE_AS_OLD: one assembler for every TU, no
      selection by archive or by TU (user ruling 2026-09-23).
+  6. A file-scope `__asm__(...)` block that defines (`.global NAME`) a function
+     the listing attributes to three or more source lines of a .c file: that is
+     a compiled-C function typed out as asm, a stub hidden from the
+     NON_MATCHING count (mv_vibuf carried five until 2026-09-23); it is written
+     as an INCLUDE_ASM stub instead.
 """
 import os
 import re
@@ -103,7 +108,11 @@ def load_allow():
 
 
 def enclosing_function(L, i):
+    """the C function whose body holds line i, or None at file scope (a `}` in
+    column 0 closes the previous function before any header is reached)."""
     for j in range(i, -1, -1):
+        if j < i and L[j].rstrip() == '}':
+            return None
         m = FN_HDR.match(L[j])
         if m and not L[j].rstrip().endswith(';') and m.group(1) not in ('if', 'while', 'for', 'switch', 'return', 'sizeof'):
             return m.group(1)
@@ -177,6 +186,24 @@ def main(argv):
                 bad.append(f'{f}:{i+1}: retired pin macro')
             if PIN.search(l) or (ASM_OPEN.search(l) and not EMPTY_ASM.search(l)):
                 fn = enclosing_function(L, i)
+                if fn is None and not PIN.search(l):
+                    # a file-scope asm block: every function it defines is judged by
+                    # the listing on its own name (rule 6: a compiled-C function typed
+                    # out as asm is a stub hidden from the NON_MATCHING count)
+                    text = asm_block_text(L, i)
+                    for g in re.findall(r'\.globa?l\s+(\w+)', text):
+                        key = f'{f}:{g}'
+                        if key in allow:
+                            continue
+                        if listing is None:
+                            warn.append(f'{f}:{i+1}: file-scope asm defines {g}: listing not available, unverified')
+                        elif g not in listing:
+                            warn.append(f'{f}:{i+1}: file-scope asm defines {g}: no listing rows (archive member without line info), unverified')
+                        else:
+                            src, n = listing[g]
+                            if not (src.endswith(('.s', '.S')) or n <= 2):
+                                bad.append(f'{f}:{i+1}: file-scope asm defines {g}, which the listing attributes to {n} source lines of {src} (compiled C typed out as asm: make it an INCLUDE_ASM stub)')
+                    continue
                 key = f'{f}:{fn}'
                 if key in allow:
                     continue
