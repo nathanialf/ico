@@ -28,6 +28,6 @@ void tex_SetUVScroll(char *name, float u, float v, float su, float sv, float ou,
 int tex_TransTexture(int no, int pri);
 void tex_UnlockHeadTBP(int pri);
 int tex_initTextureSub();
-void tex_scrollClut(int a0, int a1, int a2, int a3, unsigned int a4, void *a5, int a6, void *a7);
+void tex_scrollClut(int a0, int a1, int a2, int a3, int a4, void *a5, int a6, void *a7);
 
 #endif /* TEXTURE_H */

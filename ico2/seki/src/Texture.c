@@ -29,7 +29,9 @@ typedef struct CdvdRec {
     char name[0x18];
     char file[0x60];
     long long x78;
-    char pad80[0xDC - 0x80];
+    char pad80[0xD8 - 0x80];
+    /* the base of the per-level transfer packets tex_setRegisters allocates */
+    char *xD8;
     /* the TIM2 file image the record was built from */
     void *xDC;
     unsigned short xE0;
@@ -40,11 +42,16 @@ typedef struct CdvdRec {
     int x290;
     int x294;
     unsigned int x298;
-    char pad29C[0x2A4 - 0x29C];
+    int x29C;
+    int x2A0;
     short x2A4;
     short x2A6;
     int x2A8;
-    char pad2AC[0x2C8 - 0x2AC];
+    char pad2AC[0x2BC - 0x2AC];
+    /* the three CLUT copies tex_initTextureSub allocates for the scroll */
+    void *x2BC;
+    void *x2C0;
+    void *x2C4;
     /* one byte per display list priority: the slot's transfer-done flag */
     char x2C8[8];
     char pad2D0[0x2D6 - 0x2D0];
@@ -283,7 +290,7 @@ int tex_loadImage(unsigned int addr, CdvdRec *tex, int idx, short dbp, short dbw
     gif_StartPacketPri(dl_GetPri());
     gif_SetGsReg(0x50, ((long long)dbp << 32) | ((long long)dbw << 48) | ((long long)dpsm << 56));
     gif_EndPacket();
-    dl_OpenDma(2, *(int *)((char *)tex + 0xD8) + idx * 0x50, 5);
+    dl_OpenDma(2, (int)(tex->xD8 + idx * 80), 5);
     dl_CloseDma();
     dl_OpenDma(2, addr & 0x0FFFFFFF, size + 3);
     dl_CloseDma();
@@ -384,8 +391,80 @@ void tex_setTexReg(Tim2Picture *pic, CdvdRec *t, int levels, int lv, int clut)
     gif_EndPacket();
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_transVramClutTex);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_transVramDirectTex);
+/* listing rows 708-710: a file-static helper with no symbol of its own, so the
+ * January-2002 build inlined it at its only call site. It claims one VRAM
+ * buffer per level for the current display list priority. */
+static inline void texAllocVram(CdvdRec *t, int levels, int lv)
+{
+    int i;
+
+    t->clut.tbp[dl_GetPri()] = tex_AllocVramAuto(1, t->clut.vramSize);
+    for (i = lv; i < levels - lv; i++) {
+        t->lv[i].tbp[dl_GetPri()] = tex_AllocVramAuto(0, t->lv[i].vramSize);
+    }
+}
+
+/* listing rows 677 and 694: the level upload, a second file-static helper
+ * inlined at both call sites. Its parameters are ints, so the short loads of
+ * the buffer slot, the buffer width and the format word are folded into the
+ * narrowing for tex_loadImage's short parameters on row 694, while the address
+ * needs no narrowing and is loaded on row 677, the header, where the inlined
+ * copy of the argument is made. */
+static inline int texLoadLevel(void *addr, CdvdRec *t, int n, int dbp, int dbw, int dpsm, int w,
+                               int h)
+{
+    return tex_loadImage((unsigned int)addr, t, n, dbp, dbw, dpsm, 0, 0, w, h);
+}
+
+int tex_transVramClutTex(Tim2Picture *pic, CdvdRec *t, int levels, int lv)
+{
+    int total;
+    int n;
+    int i;
+    short w = 16, h = 16;
+
+    texAllocVram(t, levels, lv);
+    if (pic->clutColors == 16) {
+        w = 8;
+        h = 2;
+    }
+    total = texLoadLevel(t->clut.addr, t, levels - lv, t->clut.tbp[dl_GetPri()], t->clut.dbw,
+                         D_00290B78[pic->clutType & 0x3F].f0, w, h);
+    for (i = lv; i < levels - lv; i++) {
+        n = texLoadLevel(t->lv[i].addr, t, i, t->lv[i].tbp[dl_GetPri()], t->lv[i].dbw,
+                         D_00290B78[pic->imageType].f0, pic->imageWidth >> i,
+                         pic->imageHeight >> i);
+        total += n;
+    }
+    return total;
+}
+
+/* listing rows 732-733: the same claim loop as texAllocVram's tail without the
+ * CLUT, a 2001 copy of it. */
+static inline void texAllocLevels(CdvdRec *t, int levels, int lv)
+{
+    int i;
+
+    for (i = lv; i < levels - lv; i++) {
+        t->lv[i].tbp[dl_GetPri()] = tex_AllocVramAuto(0, t->lv[i].vramSize);
+    }
+}
+
+int tex_transVramDirectTex(Tim2Picture *pic, CdvdRec *t, int levels, int lv)
+{
+    int total = 0;
+    int n;
+    int i;
+
+    texAllocLevels(t, levels, lv);
+    for (i = lv; i < levels - lv; i++) {
+        n = texLoadLevel(t->lv[i].addr, t, i, t->lv[i].tbp[dl_GetPri()], t->lv[i].dbw,
+                         D_00290B78[pic->imageType].f0, pic->imageWidth >> i,
+                         pic->imageHeight >> i);
+        total += n;
+    }
+    return total;
+}
 
 void tex_transRegister(int a0)
 {
@@ -516,7 +595,139 @@ void tex_initClutTexture(Tim2Picture *pic, CdvdRec *t)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_setRegisters);
+extern int D_0028F804[];
+extern void *mallocseki(int size);
+
+void tex_setRegisters(Tim2Picture *pic, CdvdRec *t)
+{
+    int *p;
+    int *q;
+    int i;
+    int levels = t->xE0;
+    int cw = 0;
+    int ch = 0;
+    int mmag = 1;
+    int mmin = D_0028F804[0];
+    int aref = 96;
+    int atst = 1;
+    int k = -165;
+    int l = 0;
+
+    if (t->x2A8 != 0) {
+        mmag = t->x290;
+        mmin = t->x294;
+        if (t->x29C != 0) {
+            aref = t->x29C;
+            atst = t->x2A0;
+        }
+        k = t->x2A4;
+        l = t->x2A6;
+    }
+
+    p = (int *)((char *)t + 0x58);
+
+    p[0] = 0;
+    p[1] = 0;
+    p[2] = 0x13000000;
+    p[3] = 0x6C038000;
+
+    *(long long *)(p + 4) = 0x1000000000008002LL;
+    *(long long *)(p + 6) = 14;
+
+    *(long long *)(p + 8) = ((long long)(levels - 1) << 2) | ((long long)mmag << 5) |
+                            ((long long)mmin << 6) | ((long long)l << 19) | ((long long)k << 32);
+    *(long long *)(p + 10) = 20;
+    *(long long *)(p + 12) =
+        1 | (6 << 1) | ((long long)aref << 4) | ((long long)atst << 12) | (1 << 16) | (2 << 17);
+    *(long long *)(p + 14) = 71;
+
+    p[16] = 0x15000000;
+    p[17] = 0;
+    p[18] = 0;
+    p[19] = 0;
+
+    q = (int *)((char *)t + 0xA8);
+
+    q[0] = 0;
+    q[1] = 0;
+    q[2] = 0x13000000;
+    q[3] = 0x6C018000;
+
+    q[4] = 0;
+    q[5] = 0;
+    *(long long *)(q + 6) = 0;
+
+    q[8] = 0x15000002;
+    q[9] = 0;
+    q[10] = 0;
+    q[11] = 0;
+
+    t->xD8 = mallocseki((pic->imageType == 4 || pic->imageType == 5 ? levels + 1 : levels) * 80);
+
+    switch (pic->imageType) {
+    case 1:
+    case 2:
+    case 3:
+        break;
+    case 4:
+        cw = 8;
+        ch = 2;
+        break;
+    case 5:
+        cw = 16;
+        ch = 16;
+        break;
+    default:
+        debug_StdPrintfDummy(D_005504D8, t, pic->imageType, pic->clutType, t->lv[0].addr,
+                             t->clut.addr, t);
+        debug_assert(D_00550328, 1066);
+        __assert(D_00550328, 1066, D_0063A1F8);
+    }
+
+    /* listing row 1069 is a second switch on the same field: the case range
+     * 4..5 is what lowers to the ROM's signed slti 6 and slti 4 pair, and gcse
+     * shares the field's load with the switch above, reloading it only after
+     * the default arm's calls. */
+    switch (pic->imageType) {
+    case 4:
+    case 5:
+        *(int *)(t->xD8 + levels * 80) = 0;
+        *(int *)(t->xD8 + levels * 80 + 4) = 0;
+        *(int *)(t->xD8 + levels * 80 + 8) = 0x13000000;
+        *(int *)(t->xD8 + levels * 80 + 12) = 0x50000005;
+
+        *(long long *)(t->xD8 + levels * 80 + 16) = 0x1000000000008004LL;
+        *(long long *)(t->xD8 + levels * 80 + 24) = 14;
+
+        *(long long *)(t->xD8 + levels * 80 + 32) = 0;
+        *(long long *)(t->xD8 + levels * 80 + 40) = 81;
+        *(long long *)(t->xD8 + levels * 80 + 48) = cw | ((long long)ch << 32);
+        *(long long *)(t->xD8 + levels * 80 + 56) = 82;
+
+        *(long long *)(t->xD8 + levels * 80 + 64) = 0;
+        *(long long *)(t->xD8 + levels * 80 + 72) = 83;
+        break;
+    }
+
+    for (i = 0; i < levels; i++) {
+        *(int *)(t->xD8 + i * 80) = 0;
+        *(int *)(t->xD8 + i * 80 + 4) = 0;
+        *(int *)(t->xD8 + i * 80 + 8) = 0x13000000;
+        *(int *)(t->xD8 + i * 80 + 12) = 0x50000005;
+
+        *(long long *)(t->xD8 + i * 80 + 16) = 0x1000000000008004LL;
+        *(long long *)(t->xD8 + i * 80 + 24) = 14;
+
+        *(long long *)(t->xD8 + i * 80 + 32) = 0;
+        *(long long *)(t->xD8 + i * 80 + 40) = 81;
+        *(long long *)(t->xD8 + i * 80 + 48) =
+            (pic->imageWidth >> i) | ((long long)(pic->imageHeight >> i) << 32);
+        *(long long *)(t->xD8 + i * 80 + 56) = 82;
+
+        *(long long *)(t->xD8 + i * 80 + 64) = 0;
+        *(long long *)(t->xD8 + i * 80 + 72) = 83;
+    }
+}
 
 /* listing rows 970-979: the second file-static helper, inlined here only. It
  * fills in one VRAM size and one buffer width per mipmap level. */
@@ -678,7 +889,6 @@ void tex_convertImage(void *dst, void *src, short fmt, short w, short h)
     sceGsSyncPath(0, 0);
 }
 
-extern void *mallocseki(int size);
 extern void malloc_MemCpy(void *dst, void *src, int n);
 extern void tex_convertImage(void *dst, void *src, short fmt, short w, short h);
 
@@ -1135,6 +1345,23 @@ void tex_TransTextureDefocus(int id, int lv)
     }
 }
 
+/* "illegal user space data [%s] Clut Scroll (color:%d start:%d end:%d)\n" */
+extern char D_005509D0[];
+
+/* A 256-entry CLUT is held in CSM1 order, the two halves of every other
+ * 16-entry block swapped, so an entry index is swizzled before the entry is
+ * touched. A 16-entry CLUT is held straight. tex_dispClut walks the same
+ * order. */
+#define CLUT_CSM1(n, i)                                                                            \
+    ((n) == 16 ? (i)                                                                               \
+     : (((i) & 0xF) >= 8 && (((i) >> 4) & 1) == 0)                                                 \
+         ? (i) + 8                                                                                 \
+         : ((((i) & 0xF) < 8 && (((i) >> 4) & 1) != 0) ? (i) - 8 : (i)))
+/* the scroll step and the offset are ints in the ICO block but their sign is
+ * taken through a float comparison, which is where the ROM's cvt.s.w pairs
+ * come from; Light.c's LIGHT_ABS is the same macro */
+#define ABSF(x) ((x) < 0.0f ? -(x) : (x))
+
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_scrollClut);
 
 extern int D_0028F4C0[];
@@ -1232,7 +1459,37 @@ void tex_SetClutAnimation(int id, int frame)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Texture", tex_FreeTexture);
+extern int freeseki(void *p);
+
+int tex_FreeTexture(int id)
+{
+    int i;
+    CdvdRec *t = (CdvdRec *)D_0068AFD8[id].name;
+
+    if (D_0068AFD8[id].used == 0) {
+        return -1;
+    }
+    D_0068AFD8[id].used = 0;
+
+    if (t->clut.addr != 0) {
+        freeseki(t->clut.addr);
+    }
+    for (i = 0; i < t->xE0; i++) {
+        if (t->lv[i].addr != 0) {
+            freeseki(t->lv[i].addr);
+        }
+    }
+    if (t->x2BC != 0) {
+        freeseki(t->x2BC);
+    }
+    if (t->x2C0 != 0) {
+        freeseki(t->x2C0);
+    }
+    if (t->x2C4 != 0) {
+        freeseki(t->x2C4);
+    }
+    return 0;
+}
 
 extern int D_006AF518[];
 
@@ -1377,8 +1634,6 @@ short tex_GetVramFreeAddress(int a0)
 {
     return D_0068AF88[a0].f0;
 }
-
-extern int D_0028F804[];
 
 void tex_UpdateMipMapLevel(void)
 {
