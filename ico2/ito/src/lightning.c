@@ -90,6 +90,35 @@ typedef struct {
 extern char *D_0063C2F8;
 extern int D_0063C2FC;
 extern char *matrixptr;
+extern void apply_matrix_w1(void *dst, void *m, void *src);
+extern void sceVu0FTOI4Vector(void *dst, void *src);
+
+/* the GS RGBAQ register carries Q as the raw float word in bits 63..32 */
+static __inline__ int fbits(float f)
+{
+    return *(int *)&f;
+}
+
+/* VU0's clipping flags for one w-homogeneous point */
+static __inline__ int clip_flags(LightningVtx *p)
+{
+    int flags;
+
+    __asm__ __volatile__(".set noreorder\n\t"
+                         "lqc2 $vf1, 0(%1)\n\t"
+                         "vclipw.xyzw $vf1, $vf1w\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "cfc2.ni %0, $vi18\n\t"
+                         ".set reorder"
+                         : "=r"(flags)
+                         : "r"(p)
+                         : "memory");
+    return flags;
+}
 
 /* pad the open strip to a whole triangle count and write its vertex count
  * back into the GIFtag that opened it */
@@ -108,7 +137,86 @@ static __inline__ void close_strip(void)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/ito/src/lightning", set_vertex);
+void set_vertex(LightningVtx *dir, LightningVtx *pos, float u, int *col, float half)
+{
+    VECTOR uv[2] = {{0.0f, u, 1.0f, 0.0f}, {1.0f, u, 1.0f, 0.0f}};
+    LightningVtx v;
+    LightningVtx e[2];
+    LightningVtx n;
+    LightningVtx pt;
+    LightningVtx t;
+    LightningVtx xyz;
+    LightningVtx clip;
+    float q;
+    int i = 0; /* dead initialiser: see the note after close_strip() below */
+
+    apply_matrix_w1(&v, matrixptr + 0x80, pos);
+    sceVu0OuterProduct(&n, &v, dir);
+    n.f[2] = 0.0f;
+    sceVu0Normalize(&n, &n);
+    sceVu0ScaleVectorXYZ(&n, &n, half);
+    sceVu0SubVector(&e[0], &v, &n);
+    sceVu0AddVector(&e[1], &v, &n);
+
+    for (i = 0; i < 2; i++) {
+        apply_matrix_w1(&pt, matrixptr + 0xC0, &e[i]);
+        q = 1.0f / pt.f[3];
+        sceVu0ScaleVectorXYZ(&pt, &pt, q);
+        sceVu0ScaleVectorXYZ(&t, &uv[i], q);
+        sceVu0FTOI4Vector(&xyz, &pt);
+        apply_matrix_w1(&clip, matrixptr + 0x1C0, &e[i]);
+        if (clip_flags(&clip) & 0x3FFFF) {
+            D_0063C2F4 = 0;
+        } else if (D_0063C2F4 == 0 && D_0063C2FC >= 2) {
+            close_strip();
+            /* The strip-state reset DrawLightning2 opens with, left dead here:
+               close_strip() has already used the tag pointer and this block
+               reopens the strip at the two stores below, so flow deletes both
+               and they emit no bytes (with the `i = 0` initialiser above).
+               What the bytes pin: 248 to 259 real insns at gcse entry, which
+               gives a 125 to 129 bucket expression table and orders the PRE
+               reaching registers of &t and &xyz into the ROM's spill slots
+               0xA0 and 0xA4; at 245 insns the two slots swap. What they cannot
+               pin: the text, the number or the lines of the dead statements
+               (SRCFILE.TXT line 168 is code-free, as any deleted one is). */
+            D_0063C2F4 = 0;
+            D_0063C2F8 = 0;
+            *D_004EE6F0.ptr.d++ = 0x1400000000008001LL;
+            *D_004EE6F0.ptr.d++ = 0;
+            *D_004EE6F0.ptr.d++ = 84;
+
+            *D_004EE6F0.ptr.d++ = 0;
+
+            D_0063C2F8 = D_004EE6F0.ptr.c;
+            *D_004EE6F0.ptr.d++ = 0x3400000000008000LL;
+            *D_004EE6F0.ptr.d++ = 1313;
+
+            *D_004EE6F0.ptr.d++ = D_006EA7C0[0].rgbaq;
+            *D_004EE6F0.ptr.d++ = D_006EA7C0[0].uv;
+            *D_004EE6F0.ptr.d++ = D_006EA7C0[0].xyz;
+            *D_004EE6F0.ptr.d++ = D_006EA7C0[1].rgbaq;
+            *D_004EE6F0.ptr.d++ = D_006EA7C0[1].uv;
+            *D_004EE6F0.ptr.d++ = D_006EA7C0[1].xyz;
+
+            D_0063C2F4 = 1;
+        }
+
+        D_006EA7C0[0] = D_006EA7C0[1];
+        D_006EA7C0[1].rgbaq = ((long long)col[0] | ((long long)col[1] << 8) |
+                               ((long long)col[2] << 16) | ((long long)col[3] << 24)) |
+                              ((long long)fbits(q) << 32);
+        D_006EA7C0[1].uv = (long long)t.i[0] | ((long long)t.i[1] << 32);
+        D_006EA7C0[1].xyz =
+            (long long)xyz.i[0] | ((long long)xyz.i[1] << 16) | ((long long)xyz.i[2] << 32);
+
+        if (D_0063C2F4) {
+            *D_004EE6F0.ptr.d++ = D_006EA7C0[1].rgbaq;
+            *D_004EE6F0.ptr.d++ = D_006EA7C0[1].uv;
+            *D_004EE6F0.ptr.d++ = D_006EA7C0[1].xyz;
+        }
+        D_0063C2FC++;
+    }
+}
 
 /* out = the 3x4 part of m applied to in */
 inline void apply_m34(void *out, void *m, void *in)

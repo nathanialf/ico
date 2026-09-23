@@ -240,8 +240,265 @@ void DispCollisionPC(void)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/fieldCollision", makeCollisionBlockTable);
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/fieldCollision", _Clip);
+extern int D_0063C234;
+extern FuzioCtx *D_0063C238;
+extern short D_006C10C0[];
+
+void makeCollisionBlockTable(float *ray)
+{
+    int x0;
+    int x1;
+    int z0;
+    int z1;
+    int bx;
+    int bz;
+    int bx1;
+    int bz1;
+    int dx;
+    int dz;
+    int cx;
+    int cz;
+    int sx;
+    int sz;
+    int d;
+    int err;
+    int swap;
+    int i;
+    int t;
+    int px;
+    int pz;
+
+    D_0063C234 = 0;
+    x0 = (int)(ray[0] - D_0063C238->unk20[0]);
+    x1 = (int)(ray[8] - D_0063C238->unk20[0]);
+    z0 = (int)(ray[2] - D_0063C238->unk20[2]);
+    z1 = (int)(ray[10] - D_0063C238->unk20[2]);
+    bx = x0 >> 9;
+    bz = z0 >> 9;
+    dx = x1 - x0;
+    dz = z1 - z0;
+    if (dx != 0 || dz != 0) {
+        bx1 = x1 >> 9;
+        bz1 = z1 >> 9;
+        cx = abs(bx1 - bx);
+        cz = abs(bz1 - bz);
+        sx = dx > 0 ? 1 : -1;
+        sz = dz > 0 ? 1 : (dz < 0 ? -1 : 0);
+        px = x0 - 256;
+        pz = z0 - 256;
+        d = (sx * sz * (dz * ((bx << 9) - px) - dx * ((bz << 9) - pz))) >> 8;
+        dx = dx < 0 ? -dx : dx;
+        dz = dz < 0 ? -dz : dz;
+        swap = 0;
+        if (dx < dz) {
+            t = dx;
+            dx = dz;
+            dz = t;
+            cx = cz;
+            d = -d;
+            swap = 1;
+        }
+        err = dz - dx + d;
+        if (dx > 100000) {
+            return;
+        }
+        for (i = 0; i <= cx; i++) {
+            if (bx >= 0 && bx < 32 && bz >= 0 && bz < 32) {
+                D_006C10C0[D_0063C234] = (bz << 5) + bx;
+                D_0063C234 = D_0063C234 + 1;
+            }
+            while (err >= 0) {
+                if (swap == 1) {
+                    bx += sx;
+                } else {
+                    bz += sz;
+                }
+                if (bx >= 0 && bx < 32 && bz >= 0 && bz < 32) {
+                    D_006C10C0[D_0063C234] = (bz << 5) + bx;
+                    D_0063C234 = D_0063C234 + 1;
+                }
+                err -= dx * 2;
+            }
+            if (swap == 1) {
+                bz += sz;
+            } else {
+                bx += sx;
+            }
+            err += dz * 2;
+        }
+    } else {
+        if (bx >= 0 && bx < 32 && bz >= 0 && bz < 32) {
+            D_006C10C0[D_0063C234] = (bz << 5) + bx;
+            D_0063C234 = D_0063C234 + 1;
+        }
+    }
+}
+
+/* The clip-mode table the ClipWall/ClipFloor wrappers index by mode: modes
+ * 0..11 are the wall entries, 12 on the floor ones (ClipFloor passes 0xC).
+ * VMA 0x0029D200, 16-byte records, func at +0xC. splat splits the blob at
+ * entry 12's func word (D_0029D2CC) because ClipFloorByGObj's load is the only
+ * reference into the table's middle; D_0029D200 + 0xCC links to the same
+ * address. */
+typedef struct {
+    int f_0;
+    int f_4;
+    int f_8;
+    int (*func)(void *p, void *gobj, int mode);
+} FcClipMode;
+
+extern FcClipMode D_0029D200[];
+extern float D_0029D310[16];
+extern float D_0029D340[4];
+extern float D_0029D350[4];
+extern int D_0063C20C;
+extern int (*D_0063C23C)(void *obj);
+extern void _ApplyMatrix(void *dst, void *m, void *src);
+extern float sceVu0InnerProduct(int a0, int a1);
+extern void sceVu0ApplyMatrix(void *a0, void *a1, void *buf);
+
+typedef union {
+    float f[4];
+    int i[4];
+    long long ll[2];
+} FcPlane;
+
+/* listing lines 1470-1472: one static inline expanded in both tail arms */
+static __inline__ void setClipPlane(char *self, void *m, void *v)
+{
+    FcPlane *n = (FcPlane *)(self + 0xA0);
+
+    sceVu0ApplyMatrix(n, m, v);
+    n->f[3] = -sceVu0InnerProduct((int)n, (int)(self + 0x20));
+}
+
+/* RECONSTRUCTION: the 0x15C sub-object slot of a gobj, read as the union of
+ * its pointer and int-handle views. _Clip's wall-hit arm is the proof: the
+ * ROM keeps the slot read behind both float stores to D_0029D350 while the
+ * int reads of the ClipWork fields move ahead of them. Only an alias-set-0
+ * read does that (a union member access, c_get_alias_set), where
+ * typedef.h's int-typed GOBJ_SUB read or a plain pointer read lets the
+ * scheduler hoist the chase and rotates the arm's registers. */
+typedef union {
+    char *sub;
+    int handle;
+} FcSubSlot;
+
+void _Clip(char *self, int mode)
+{
+    float sv0[4];
+    float sv1[4];
+    float m0[16];
+    float keep[4];
+    float m1[16];
+    FcPlane keep2;
+    int (*func)(void *, void *, int);
+    char *obj;
+    char *sub;
+    char *m;
+    int cnt;
+    int i;
+
+    func = D_0029D200[mode].func;
+    {
+        int x = D_0029D200[mode].f_4;
+        int y = D_0029D200[mode].f_8;
+
+        sceVu0CopyVector((int *)sv0, (int *)self);
+        sceVu0CopyVector((int *)sv1, (int *)(self + 0x10));
+        sceVu0CopyVector((int *)(self + 0x20), (int *)(self + 0x10));
+        D_0063C20C = 0;
+        obj = (char *)D_006C0CC0[0];
+        if (D_0063A818 > 0) {
+            do {
+                m = (char *)D_0029D310;
+                sub = ((FcSubSlot *)(obj + 0x15C))->sub;
+                if (*(int *)(sub + 0x74) != 0) {
+                    if (x != 0) {
+                        if (obj == *(char **)(self + 0x74)) {
+                            if (*(int *)(self + 0x78) < 0) {
+                                goto next_gobj;
+                            }
+                        }
+                    }
+                    if (y != 0) {
+                        if (D_0063C23C(obj) == 0) {
+                            goto next_gobj;
+                        }
+                    }
+                    sub = ((FcSubSlot *)(obj + 0x15C))->sub;
+                    cnt = 1;
+                    if (*(int *)(sub + 0x80) != 0) {
+                        cnt = *(int *)(sub + 0x8);
+                    }
+                    D_0063C238 = (FuzioCtx *)*(int *)(sub + 0x70);
+                    for (i = 0; i < cnt; i++) {
+                        if (x != 0) {
+                            if (obj == *(char **)(self + 0x74) && i == *(int *)(self + 0x78) &&
+                                *(int *)(self + 0x7C) == 0) {
+                                continue;
+                            }
+                        }
+                        CopyVector(keep, self + 0x20);
+                        CopyVector(self, sv0);
+                        if (*(int *)(((FcSubSlot *)(obj + 0x15C))->sub + 0x78) == 0) {
+                            CopyVector(D_0029D340,
+                                       *(char **)(((FcSubSlot *)(obj + 0x15C))->sub + 0xC) +
+                                           (i << 6) + 0x30);
+                        } else {
+                            m = *(char **)(((FcSubSlot *)(obj + 0x15C))->sub + 0xC) + (i << 6);
+                        }
+                        MatrixDrive_SetTransposeMatrix(m0, m);
+                        *(float *)(self + 0xC) = *(float *)(self + 0x2C) = 1.0f;
+                        _ApplyMatrix(self, m0, self);
+                        _ApplyMatrix(self + 0x20, m0, self + 0x20);
+                        makeCollisionBlockTable((float *)self);
+                        if (func(self, obj, i)) {
+                            *(float *)(self + 0x2C) = 1.0f;
+                            _ApplyMatrix(self + 0x20, m, self + 0x20);
+                        } else {
+                            CopyVector(self + 0x20, keep);
+                        }
+                    }
+                }
+            next_gobj:
+                D_0063C20C = D_0063C20C + 1;
+                obj = (char *)D_006C0CC0[D_0063C20C];
+            } while (D_0063C20C < D_0063A818);
+        }
+        if (D_0029D200[mode].f_0 != 0) {
+            if (*(int *)(self + 0x88) != 0) {
+                D_0029D350[0] = (*(float **)(*(char **)(self + 0x88) + 0x4C))[0];
+                D_0029D350[2] = (*(float **)(*(char **)(self + 0x88) + 0x4C))[1];
+                CopyMatrix(m1,
+                           *(char **)(((FcSubSlot *)(*(char **)(self + 0x80) + 0x15C))->sub + 0xC) +
+                               (*(int *)(self + 0x84) << 6));
+                if (*(int *)(((FcSubSlot *)(*(char **)(self + 0x80) + 0x15C))->sub + 0x78) == 0) {
+                    UnitRotation(m1);
+                }
+                setClipPlane(self, m1, D_0029D350);
+                *(int *)(self + 0x98) = *(int *)(*(char **)(self + 0x88) + 0x48);
+            } else {
+                sceVu0CopyVector((int *)(self + 0x20), (int *)sv1);
+            }
+        } else {
+            if (*(int *)(self + 0x94) != 0) {
+                CopyVector(&keep2, *(char **)(self + 0x94) + 0x40);
+                keep2.i[3] = 0;
+                CopyMatrix(m1,
+                           *(char **)(((FcSubSlot *)(*(char **)(self + 0x8C) + 0x15C))->sub + 0xC) +
+                               (*(int *)(self + 0x90) << 6));
+                if (*(int *)(((FcSubSlot *)(*(char **)(self + 0x8C) + 0x15C))->sub + 0x78) == 0) {
+                    UnitRotation(m1);
+                }
+                setClipPlane(self, m1, &keep2);
+                *(int *)(self + 0x98) = *(int *)(*(char **)(self + 0x94) + 0x60);
+            }
+        }
+        sceVu0CopyVector((int *)self, (int *)sv0);
+        sceVu0CopyVector((int *)(self + 0x10), (int *)sv1);
+    }
+}
 
 extern FcBlk8 D_0063A810;
 
@@ -412,7 +669,6 @@ void DBG_VECTOR(float *vec)
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/fieldCollision", GetEdgeOfFloor);
 
 extern void sceVu0SubVector(void *dst, void *a, void *b);
-extern float sceVu0InnerProduct(int a0, int a1);
 /* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int a0);
 extern const FcColor D_00553940;
@@ -463,7 +719,6 @@ void DrawCollisionRay(char *ray)
 extern char D_00553960[];
 extern char D_00553980[];
 extern int frame_count;
-extern int D_0063C20C;
 extern int D_0063C240;
 extern void *D_006C1140[];
 
@@ -506,7 +761,64 @@ void MakeExitAttributeIndex(void)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/fieldCollision", ClipFloorByGObj);
+void ClipFloorByGObj(char *p, char *gobj)
+{
+    float buf0[4];
+    float buf1[4];
+    float mtx[16];
+    FcPlane keep;
+    int (*clip)(void *, void *, int);
+    char *m;
+    char *ep;
+    char *pos;
+
+    clip = D_0029D200[12].func;
+    sceVu0CopyVector((int *)buf0, (int *)p);
+    sceVu0CopyVector((int *)buf1, (int *)(p + 0x10));
+    pos = p + 0x20;
+    sceVu0CopyVector((int *)pos, (int *)(p + 0x10));
+    D_0063C238 = (FuzioCtx *)*(int *)(((FcSubSlot *)(gobj + 0x15C))->sub + 0x70);
+    ep = pos;
+    CopyVector(&keep, ep);
+    CopyVector(p, buf0);
+    /* Dead reset of the scratch pointer (flow deletes it; SRCFILE.TXT line
+     * 2244 has no instructions). What the bytes pin: some set of pos after
+     * the ep copy and before the clip call, because otherwise gcse records
+     * `ep = pos` as an available copy and propagates pos into the if arms.
+     * pos then lives past block 0 and local-alloc no longer puts it in $16
+     * ahead of gobj ($17) and clip ($18). What they cannot pin: the value,
+     * the spelling or the line of that set. */
+    pos = 0;
+    m = *(char **)(((FcSubSlot *)(gobj + 0x15C))->sub + 0xC);
+    MatrixDrive_SetTransposeMatrix(mtx, (float *)m);
+    *(float *)(p + 0xC) = *(float *)(p + 0x2C) = 1.0f;
+    _ApplyMatrix(p, mtx, p);
+    _ApplyMatrix(ep, mtx, ep);
+    makeCollisionBlockTable((float *)p);
+    if (clip(p, gobj, 0)) {
+        *(float *)(p + 0x2C) = 1.0f;
+        _ApplyMatrix(ep, m, ep);
+    } else {
+        CopyVector(ep, &keep);
+    }
+    if (*(int *)(p + 0x94) != 0) {
+        FcPlane *n;
+
+        CopyVector(&keep, *(char **)(p + 0x94) + 0x40);
+        keep.i[3] = 0;
+        CopyMatrix(mtx, *(char **)(((FcSubSlot *)(*(char **)(p + 0x8C) + 0x15C))->sub + 0xC) +
+                            (*(int *)(p + 0x90) << 6));
+        if (*(int *)(((FcSubSlot *)(*(char **)(p + 0x8C) + 0x15C))->sub + 0x78) == 0) {
+            UnitRotation(mtx);
+        }
+        n = (FcPlane *)(p + 0xA0);
+        sceVu0ApplyMatrix(n, mtx, &keep);
+        n->f[3] = -sceVu0InnerProduct((int)n, (int)ep);
+        *(int *)(p + 0x98) = *(int *)(*(char **)(p + 0x94) + 0x60);
+    }
+    sceVu0CopyVector((int *)p, (int *)buf0);
+    sceVu0CopyVector((int *)(p + 0x10), (int *)buf1);
+}
 
 extern int (*D_0063A840)(void *a0, int a1);
 
@@ -559,8 +871,6 @@ int ClipWallE(void *a0)
 {
     return D_0063A840(a0, 0x4);
 }
-
-extern int (*D_0063C23C)(void *obj);
 
 void ClipWallCheckCB(void *a0, int a1)
 {
@@ -692,7 +1002,6 @@ int ClipPlane(int a0)
 
 extern char D_005538C8[];
 extern char D_005538F8[];
-extern void sceVu0ApplyMatrix(void *a0, void *a1, void *buf);
 
 void GetOrientOfWall(void *a0, void *a1, int *a2)
 {
@@ -867,10 +1176,6 @@ void GetGlobalWallPlane(float *plane, int *r)
                       (void *)((r[1] << 6) + *(int *)(*(int *)(r[0] + 0x15C) + 0xC)));
     plane[3] = -sceVu0InnerProduct((int)plane, (int)pts);
 }
-
-extern int D_0063C234;
-extern FuzioCtx *D_0063C238;
-extern short D_006C10C0[];
 
 int _clipWDebug(ClipWork *arg0, int arg1, int arg2)
 {

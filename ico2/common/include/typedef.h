@@ -812,9 +812,10 @@ typedef struct {
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 10 TUs that carried 4 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
 typedef struct Pad {
-    int unk00;        /* 0x00 */
-    int trg;          /* 0x04 */
-    char unk08[0x50]; /* 0x08 */
+    int unk00;            /* 0x00 */
+    int trg;              /* 0x04 */
+    char unk08[0x4C];     /* 0x08 */
+    unsigned char ana[4]; /* 0x54 */
 } Pad;
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 4 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */

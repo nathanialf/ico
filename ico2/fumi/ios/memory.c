@@ -6,9 +6,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-/* kept local: memory.c defines iosMallocDebugNoAssert with no parameters, and the
-   TUs that call it pass four, so the owner's own prototype cannot serve them. */
-void *iosMallocDebugNoAssert(void);
+/* kept local: the TUs that call iosMallocDebugNoAssert declare it themselves; it
+   passes its four arguments straight through to _iosMallocDebug. */
+void *iosMallocDebugNoAssert(IosMemPart *part, int size, char *file, int line);
 
 typedef struct IosMemTag {
     char c[16];
@@ -76,11 +76,12 @@ inline IosMemPart *iosMallocInitPartition(unsigned int start, unsigned int end)
 {
     IosMemPart *part;
     IosMemNode *node;
+    unsigned int top;
 
     part = (IosMemPart *)((start + 0xF) & 0xFFFFFFF0);
-    end = (end + 1) & 0xFFFFFFF0;
+    top = (end + 1) & 0xFFFFFFF0;
 
-    if (end - (unsigned int)part < 0xA0) {
+    if (top - (unsigned int)part < 0xA0) {
         debug_StdPrintfDummy(D_00551470);
         return 0;
     }
@@ -92,12 +93,12 @@ inline IosMemPart *iosMallocInitPartition(unsigned int start, unsigned int end)
     part->parent = 0;
 
     part->start = (char *)(node = (IosMemNode *)((char *)part + 0x50));
-    part->end = (char *)end;
-    part->total = (end - (unsigned int)node) >> 4;
+    part->end = (char *)top;
+    part->total = (top - (unsigned int)node) >> 4;
 
     part->nused = 0;
-    part->top = (char *)end;
-    part->free = (end - (unsigned int)node) >> 4;
+    part->top = (char *)top;
+    part->free = (top - (unsigned int)node) >> 4;
 
     part->head = node;
 
@@ -112,8 +113,79 @@ inline IosMemPart *iosMallocInitPartition(unsigned int start, unsigned int end)
     return part;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/ios/memory", iosMallocSetPartition);
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/ios/memory", iosMallocResetPartition);
+extern char D_00551518[];
+extern char D_00551540[];
+extern char D_00551560[];
+
+IosMemPart *iosMallocSetPartition(IosMemPart *part, int size, int align)
+{
+    IosMemPart *base;
+    int avail;
+    int need;
+
+    if (part == 0) {
+        debug_StdPrintfDummy(D_005514D8);
+        return 0;
+    }
+    if (strcmp((int *)part, D_00551490) != 0) {
+        debug_StdPrintfDummy(D_005514F8);
+        return 0;
+    }
+    avail = part->free - 5;
+    need = (((size + 0xF) & 0xFFFFFFF0) + 0x90) >> 4;
+    if (avail < need) {
+        debug_StdPrintfDummy(D_00551518, need, avail);
+        return 0;
+    }
+    base = (IosMemPart *)(part->top - (need << 4));
+    debug_StdPrintfDummy(D_00551540, base);
+    if (iosMallocInitPartition((unsigned int)base, (unsigned int)part->top - 1) == 0) {
+        debug_StdPrintfDummy(D_00551560);
+        return 0;
+    }
+    base->prev = part;
+    if (part->parent != 0) {
+        base->next = part->parent;
+    }
+    part->nused = part->nused + 1;
+    part->top = (char *)base;
+    part->free = part->free - need;
+    part->parent = base;
+    part->head->size = part->head->size - need;
+    return base;
+}
+
+IosMemPart *iosMallocResetPartition(IosMemPart *part)
+{
+    IosMemNode *node;
+    IosMemPart *prev;
+    IosMemPart *next;
+    IosMemPart *parent;
+
+    if (part == 0) {
+        debug_StdPrintfDummy(D_005514D8);
+        return 0;
+    }
+    if (strcmp((int *)part, D_00551490) != 0) {
+        debug_StdPrintfDummy(D_005514F8);
+        return 0;
+    }
+    node = (IosMemNode *)part->start;
+    if (node != 0) {
+        do {
+            *(IosMemTag *)node = *(IosMemTag *)D_00551580;
+            node = node->next;
+        } while (node != 0);
+    }
+    prev = part->prev;
+    next = part->next;
+    parent = part->parent;
+    iosMallocInitPartition((unsigned int)part, (unsigned int)part->end);
+    part->prev = prev;
+    part->next = next;
+    part->parent = parent;
+    return part;
+}
 
 int iosMallocSetPartitionName(int *a0, int a1)
 {
@@ -174,7 +246,144 @@ void iosMallocClearPartition(IosMemPart *part)
     *(IosMemTag *)part = *(IosMemTag *)D_005515A8;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/ios/memory", _iosMallocDebug);
+extern char D_005515B8[];
+extern char D_00551610[];
+extern char D_00551640[];
+extern char D_00551660[];
+extern char D_00551688[];
+extern char D_005516A0[];
+extern char D_005516C8[];
+extern char D_005516E0[];
+extern char D_00551708[];
+extern char D_00551750[];
+extern char D_00551760[];
+extern int D_0063A4D8;
+extern char *D_0063C190;
+extern int D_0063C194;
+extern unsigned int strlen(char *s);
+
+void *_iosMallocDebug(IosMemPart *part, int size, char *file, int line)
+{
+    char buf[1024];
+    /* the 16 bytes between buf and the register saves: SRCFILE.TXT gives
+       memory.c rows 529-539 no instructions at all, and the ROM's frame is
+       0x4B0 where buf plus the ten saved doublewords account for only 0x4A0 */
+    char tag[16];
+    IosMemNode *node;
+    IosMemNode *best;
+    IosMemNode *newnode;
+    char *name;
+    int need;
+    int i;
+    int len;
+    int v;
+    int q;
+    int n;
+
+    if (D_0063A4D8 != 0) {
+        sprintf(buf, D_005515B8, part->name, size, D_0063C190, D_0063C194);
+        debug_assertMessage(file, line, buf);
+    }
+    D_0063A4D8 = 1;
+    D_0063C190 = file;
+    D_0063C194 = line;
+    if (part == 0) {
+        debug_assertMessage(D_00551600, 0x22B, D_00551610);
+        __assert(D_00551600, 0x22B, D_0063A4E0);
+        D_0063A4D8 = 0;
+        return 0;
+    }
+    if (strcmp((int *)part, D_00551490) != 0) {
+        debug_assertMessage(D_00551600, 0x232, D_00551610);
+        __assert(D_00551600, 0x232, D_0063A4E0);
+        D_0063A4D8 = 0;
+        return 0;
+    }
+    need = (((size + 0xF) & 0xFFFFFFF0) + 0x40) >> 4;
+    for (node = part->head; node != 0; node = node->free_next) {
+        if (strcmp((int *)node, D_005514A0) != 0) {
+            debug_StdPrintfDummy(D_00551640);
+            if (node->prev != 0) {
+                debug_StdPrintfDummy(D_00551660, node->prev, node->prev->name);
+                debug_StdPrintfDummy(D_00551688, node->prev);
+            }
+            debug_StdPrintfDummy(D_005516A0, node, node->name);
+            debug_StdPrintfDummy(D_005516C8, node);
+            if (node->next != 0) {
+                debug_StdPrintfDummy(D_005516E0, node->next, node->next->name);
+                debug_StdPrintfDummy(D_00551708, node->next);
+            }
+            debug_StdPrintfDummy(D_00551720, file, line);
+            D_0063A4D8 = 0;
+            debug_assert(D_00551600, 0x256);
+            __assert(D_00551600, 0x256, D_0063A4E8);
+            return 0;
+        }
+        if (node->size >= need) {
+            best = node;
+            node = node->free_next;
+            if (node != 0) {
+                n = 9;
+                do {
+                    if (node->size >= need && node->size < best->size) {
+                        best = node;
+                    }
+                    node = node->free_next;
+                } while (n-- > 0 && node != 0);
+            }
+            node = best;
+            newnode = (IosMemNode *)((char *)node + (need << 4));
+            *(IosMemTag *)newnode = *(IosMemTag *)D_005514A0;
+            newnode->prev = node;
+            newnode->next = node->next;
+            newnode->free_prev = node->free_prev;
+            newnode->free_next = node->free_next;
+            newnode->size = node->size - need;
+            if (node->free_prev == 0) {
+                part->head = newnode;
+            } else {
+                node->free_prev->free_next = newnode;
+            }
+            if (best->free_next != 0) {
+                best->free_next->free_prev = newnode;
+            }
+            if (best->next != 0) {
+                best->next->prev = newnode;
+            }
+            *(IosMemTag *)node = *(IosMemTag *)D_00551740;
+            name = best->name;
+            strncpy(name, (int)file, 15);
+            if (strlen(file) < 16) {
+                len = strlen(file);
+            }
+            for (len = strlen(name); len < 15; len++) {
+                name[len] = ' ';
+            }
+            v = line;
+            q = v / 10;
+            /* the subscript through best->name (not name + i + 11): the array
+               reference computes i + 11 first, so loop.c strength-reduces the
+               store address to the ROM's pointer off name + 14 and keeps i as
+               the counter */
+            for (i = 3; i >= 0; i--) {
+                best->name[i + 11] = v - q * 10 + '0';
+                v = q;
+                q = v / 10;
+            }
+            best->part = part;
+            best->line = line;
+            best->next = newnode;
+            best->size = need - 4;
+            best->name[15] = 0;
+            debug_StdPrintfDummy(D_00551750, best, best);
+            debug_StdPrintfDummy(D_00551760, best->next, best->next);
+            D_0063A4D8 = 0;
+            return (char *)best + 0x40;
+        }
+    }
+    D_0063A4D8 = 0;
+    return 0;
+}
 
 inline void *iosMallocDebug(IosMemPart *part, int size, char *file, int line)
 {
@@ -194,12 +403,31 @@ inline void *iosMallocDebug(IosMemPart *part, int size, char *file, int line)
     return ptr;
 }
 
-inline void *iosMallocDebugNoAssert(void)
+inline void *iosMallocDebugNoAssert(IosMemPart *part, int size, char *file, int line)
 {
-    return _iosMallocDebug();
+    return _iosMallocDebug(part, size, file, line);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/ios/memory", iosMallocAlignDebug);
+extern char D_005517C8[];
+
+void *iosMallocAlignDebug(IosMemPart *part, int size, int align, char *file, int line)
+{
+    unsigned int ptr;
+    int ofs;
+
+    if (align <= 16) {
+        return iosMallocDebug(part, size, file, line);
+    }
+    align = (align + 15) / 16 * 16;
+    size += align - 16;
+    ptr = (unsigned int)iosMallocDebug(part, size, file, line);
+    if (ptr % align != 0) {
+        ofs = align - ptr % align;
+        ptr = ptr + ofs;
+        sprintf((char *)ptr - 16, D_005517C8, ofs);
+    }
+    return (void *)ptr;
+}
 
 void _iosFreeWithFill(int *a0, int a1, int a2)
 {

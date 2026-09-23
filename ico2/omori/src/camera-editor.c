@@ -929,13 +929,11 @@ void menuGroupEdit(char *m)
                 {(int)rec->cy, 10, 0, D_00554F60}, {(int)rec->cz, 10, 0, D_00554F70},
                 {(int)rec->sx, 10, 0, D_0063AAF0}, {(int)rec->sy, 10, 0, D_0063AAF8},
                 {(int)rec->sz, 10, 0, D_0063AB00}};
-            int d;
+            int d = 0;
 
             if (item[cur].mode) {
                 if (D_0028F8F0[1].trg & 0x2000) {
                     d = 1;
-                } else {
-                    d = 0;
                 }
                 if (D_0028F8F0[1].trg & 0x8000) {
                     d = -1;
@@ -943,8 +941,6 @@ void menuGroupEdit(char *m)
             } else {
                 if (D_0028F8F0[1].unk00 & 0x2000) {
                     d = 1;
-                } else {
-                    d = 0;
                 }
                 if (D_0028F8F0[1].unk00 & 0x8000) {
                     d = -1;
@@ -1010,12 +1006,15 @@ static inline void dispPinRange(int box, int from, int to)
 }
 
 /* the camera work SetWSMatrix converts: eye at 0x00, look-at at 0x10 and the
-   field of view at 0x20, the same record camera-ico2.c hands it */
-
+   field of view at 0x20, the same record camera-ico2.c hands it.  The two
+   points are plain 16-byte float vectors: their three-element initialisers are
+   cleared with the ROM's two 16-byte memset calls and emit no union CLOBBER,
+   which menuPinEdit's loop count needs (its -1.0f is hoisted by loop.c's second
+   pass only at 448 insns or fewer) */
 typedef struct CamWork {
-    Mat4 eye;  /* 0x00 */
-    Mat4 at;   /* 0x10 */
-    float fov; /* 0x20 */
+    float eye[4]; /* 0x00 */
+    float at[4];  /* 0x10 */
+    float fov;    /* 0x20 */
 } __attribute__((aligned(16))) CamWork;
 
 /* the group record CameraEdit_BOX hands back, as the pin menus read it: the
@@ -1046,8 +1045,15 @@ void menuPinSelect(char *m)
     int cur = ((BoxPins *)(D_0063AA7C[1] + no * 0x4C))->first;
     int min;
     int max;
-    int i;
-    int n;
+    /* Both initialisers are dead (the loop assigns i and n before any read)
+       and flow deletes them; they emit no bytes.  What the bytes pin: 284 to
+       287 real insns at gcse entry, a 143-bucket expression table, which
+       orders the PRE reaching registers of the four hoisted frame addresses
+       (sp+16, sp+32, sp+64, sp+80) into the ROM's spill slots; without them
+       the count is 282, the table 141 buckets, and the slots rotate.  What
+       they cannot pin: which locals, how many (two to five), or the text. */
+    int i = 0;
+    int n = 0;
     int start;
     int end;
 
@@ -1098,7 +1104,7 @@ void menuPinSelect(char *m)
             CamWork cw = {{p[0], p[1], p[2]}, {p[3], p[4], p[5]}, p[10]};
 
             sceVu0ScaleVector(&cw, &cw, -1.0f);
-            sceVu0ScaleVector(cw.at.f, cw.at.f, -1.0f);
+            sceVu0ScaleVector(cw.at, cw.at, -1.0f);
             SetWSMatrix(&cw);
         }
         if (D_0028F8F0[1].trg & 0x10) {
@@ -1112,7 +1118,168 @@ void menuPinSelect(char *m)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/camera-editor", menuPinEdit);
+extern char D_00554FA0[];
+extern char D_00554FB0[];
+extern char D_00554FC0[];
+extern char D_00554FD0[];
+extern char D_00554FE0[];
+extern char D_00554FF0[];
+extern char D_0063AB28[];
+extern char D_0063AB30[];
+extern void sceVu0SubVector(void *dst, void *a, void *b);
+extern void sceVu0Normalize(void *dst, void *src);
+extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
+extern void MatrixDrive_PushMatrix(void);
+extern void MatrixDrive_PopMatrix(void);
+extern float FSqrt(float v);
+
+/* the file static the listing expands at camera-editor.c rows 255-261: the
+   heading from the camera's eye to its look-at point, which is the angle the
+   pin editor turns the pad stick vector by.  The ROM gives it no symbol and
+   the census no row, so the name is descriptive. */
+static inline int camHeading(float *at, float *eye)
+{
+    float v[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+    float len;
+
+    sceVu0SubVector(v, at, eye);
+    sceVu0Normalize(v, v);
+    len = FSqrt(v[0] * v[0] + v[2] * v[2]);
+    return GetTableArcTan2(v[0], -v[2] / len);
+}
+
+/* INTERIM: StickToTrans is a public function (0x0018F418) the January-2002
+   listing expands inline at both of menuPinEdit's stick rows (1398 and 1404);
+   its plain definition further down keeps the out-of-line copy the other call
+   sites reach, this stand-in is the same body for the two here */
+static inline void StickToTransInline(int a0, int a1, int a2, int a3, float *out, int a5)
+{
+    out[0] = out[1] = out[2] = 0.0f;
+    if ((a0 < 0 ? -a0 : a0) < 50 && (a1 < 0 ? -a1 : a1) < 50) {
+        return;
+    }
+    if (a2 != 0) {
+        if (a0 > 0) {
+            out[1] = (float)a5;
+        }
+        if (a0 < 0) {
+            out[1] = (float)(-a5);
+        }
+    } else {
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        MatrixDrive_PushMatrix();
+        {
+            float vec[4] = {(float)a1, 0.0f, (float)a0, 0.0f};
+            sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+            MatrixDrive_RotMatrixY((short)a3);
+            sceVu0ApplyMatrix(vec, MatrixDrive_GetMatrix(), vec);
+            sceVu0Normalize(out, vec);
+        }
+        MatrixDrive_PopMatrix();
+        out[0] = out[0] * (float)(-a5);
+        out[2] = out[2] * (float)a5;
+    }
+}
+
+void menuPinEdit(char *m)
+{
+    PinRec *pin = (PinRec *)CameraEdit_PIN(D_0063C25C, *(int *)(m + 0x74));
+    int cur = 0;
+    int i;
+
+    iosThreadSleep(m);
+
+    while (1) {
+        if (D_0028F8F0[1].trg & 0x1000) {
+            cur--;
+        }
+        if (D_0028F8F0[1].trg & 0x4000) {
+            cur++;
+        }
+        cur = (cur < 0) ? 7 : ((cur > 7) ? 0 : cur);
+        {
+            EditItem item[8] = {
+                {pin->type, 1, 1, D_0063AB28},          {(int)pin->size, 1, 1, D_0063AB30},
+                {(int)pin->pos[0], 10, 0, D_00554FA0},  {(int)pin->pos[1], 10, 0, D_00554FB0},
+                {(int)pin->pos[2], 10, 0, D_00554FC0},  {(int)pin->look[0], 10, 0, D_00554FD0},
+                {(int)pin->look[1], 10, 0, D_00554FE0}, {(int)pin->look[2], 10, 0, D_00554FF0}};
+            int d = 0;
+
+            if (item[cur].mode) {
+                if (D_0028F8F0[1].trg & 0x2000) {
+                    d = 1;
+                }
+                if (D_0028F8F0[1].trg & 0x8000) {
+                    d = -1;
+                }
+            } else {
+                if (D_0028F8F0[1].unk00 & 0x2000) {
+                    d = 1;
+                }
+                if (D_0028F8F0[1].unk00 & 0x8000) {
+                    d = -1;
+                }
+            }
+            d = d * item[cur].step;
+            item[cur].val += d;
+            for (i = 0; i < 8; i++) {
+                if (i == cur) {
+                    if (D_0063B13C & 1) {
+                        print_y += 10;
+                        debug_Printf(40, print_y, 0xFFFFFF00, D_00554F80, item[i].name,
+                                     item[i].val);
+                    }
+                } else {
+                    if (D_0063B13C & 1) {
+                        print_y += 10;
+                        debug_Printf(40, print_y, 0xFFFFFF00, D_00554F90, item[i].name,
+                                     item[i].val);
+                    }
+                }
+            }
+            pin->type = item[0].val;
+
+            pin->size = (float)item[1].val;
+            pin->pos[0] = (float)item[2].val;
+            pin->pos[1] = (float)item[3].val;
+            pin->pos[2] = (float)item[4].val;
+            pin->look[0] = (float)item[5].val;
+            pin->look[1] = (float)item[6].val;
+            pin->look[2] = (float)item[7].val;
+            {
+                CamWork cw = {{pin->pos[0], pin->pos[1], pin->pos[2]},
+                              {pin->look[0], pin->look[1], pin->look[2]},
+                              pin->size};
+                float out[4];
+
+                sceVu0ScaleVector(&cw, &cw, -1.0f);
+                sceVu0ScaleVector(cw.at, cw.at, -1.0f);
+                SetWSMatrix(&cw);
+
+                StickToTransInline(D_0028F8F0[1].ana[1] - 128, D_0028F8F0[1].ana[0] - 128,
+                                   D_0028F8F0[1].unk00 & 2, camHeading(cw.at, &cw), out, 20);
+                sceVu0ScaleVector(out, out, -1.0f);
+                pin->pos[0] = pin->pos[0] + out[0];
+                pin->pos[1] = pin->pos[1] + out[1];
+                pin->pos[2] = pin->pos[2] + out[2];
+
+                StickToTransInline(D_0028F8F0[1].ana[3] - 128, D_0028F8F0[1].ana[2] - 128,
+                                   D_0028F8F0[1].unk00 & 2, camHeading(cw.at, &cw), out, 20);
+                sceVu0ScaleVector(out, out, -1.0f);
+                pin->look[0] = pin->look[0] + out[0];
+                pin->look[1] = pin->look[1] + out[1];
+                pin->look[2] = pin->look[2] + out[2];
+
+                debug_MarkerInline((int)pin->look, 255, 0, 0, 100.0f, 0.0f);
+            }
+        }
+        if (D_0028F8F0[1].trg & 0x10) {
+            curmenu = *(int *)(m + 0x70);
+            iosThreadDestroy(m);
+        }
+        iosThreadSleep(m);
+    }
+}
 
 extern int D_0028F94C[];
 extern char D_002AD010[];
@@ -1453,16 +1620,9 @@ extern void sceVu0UnitMatrix(void *a0);
 
 void StickToTrans(int a0, int a1, int a2, int a3, float *out, int a5)
 {
-    float zero = 0.0f;
-    int absA0 = a0 < 0 ? -a0 : a0;
-    out[2] = zero;
-    out[1] = zero;
-    out[0] = zero;
-    if (absA0 < 0x32) {
-        int absA1 = a1 < 0 ? -a1 : a1;
-        if (absA1 < 0x32) {
-            return;
-        }
+    out[0] = out[1] = out[2] = 0.0f;
+    if ((a0 < 0 ? -a0 : a0) < 50 && (a1 < 0 ? -a1 : a1) < 50) {
+        return;
     }
     if (a2 != 0) {
         if (a0 > 0) {
@@ -1472,19 +1632,15 @@ void StickToTrans(int a0, int a1, int a2, int a3, float *out, int a5)
             out[1] = (float)(-a5);
         }
     } else {
-        float vec[4];
-        void *p;
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
         MatrixDrive_PushMatrix();
-        vec[0] = (float)a1;
-        vec[1] = zero;
-        vec[2] = (float)a0;
-        vec[3] = zero;
-        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-        MatrixDrive_RotMatrixY((short)a3);
-        p = MatrixDrive_GetMatrix();
-        sceVu0ApplyMatrix(vec, p, vec);
-        sceVu0Normalize(out, vec);
+        {
+            float vec[4] = {(float)a1, 0.0f, (float)a0, 0.0f};
+            sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+            MatrixDrive_RotMatrixY((short)a3);
+            sceVu0ApplyMatrix(vec, MatrixDrive_GetMatrix(), vec);
+            sceVu0Normalize(out, vec);
+        }
         MatrixDrive_PopMatrix();
         out[0] = out[0] * (float)(-a5);
         out[2] = out[2] * (float)a5;

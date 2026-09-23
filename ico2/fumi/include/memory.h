@@ -32,15 +32,14 @@ typedef struct IosMemPart {
  * first-declaration order, so this is the order memory.c's inline tail has. */
 IosMemPart *iosMallocInitPartition(unsigned int start, unsigned int end);
 void *iosMallocDebug(IosMemPart *part, int size, char *file, int line);
-
 void *_iosMallocDebug();
 void *iosFree(void *ptr);
 void iosMallocCheckLeak(IosMemPart *part);
 /* unprototyped: ios/memory.c matches it as `(void)` while seki/src/Primitive.c
    and sugipon/src/particleEffect.c call it with the four arguments the ROM
    passes, so the header cannot commit to either spelling. */
-void iosMallocResetPartition(void *part);
-int iosMallocSetPartition(int part, int size, int align);
+IosMemPart *iosMallocResetPartition(IosMemPart *part);
+IosMemPart *iosMallocSetPartition(IosMemPart *part, int size, int align);
 int iosMallocSetPartitionName(int *a0, int a1);
 void *iosReallocDebug(void *ptr, unsigned int size);
 

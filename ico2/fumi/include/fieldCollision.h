@@ -15,7 +15,7 @@
 int ChangeFieldCollisionDebugMode(int a0);
 void ClipCollision(int *self);
 int ClipFloor(void *a0);
-void ClipFloorByGObj(void *work, int gobj);
+void ClipFloorByGObj(char *work, char *gobj);
 int ClipFloorE(void *a0);
 int ClipFloorR(void *a0);
 int ClipWall(void *a0);
