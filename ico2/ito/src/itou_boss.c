@@ -23,6 +23,226 @@ extern char *GetParticleEffectData();
 /* kept local: this TU's uses of pbga_start do not fit the prototype in itou_sub.h */
 extern void pbga_start(void *a0, int a1);
 
+/* The fifty-three capsules' placements and the points their enemies are
+   released at: itou_boss.o's two .rodata tables (VMA 0x5557B0, 53 records
+   of 64 bytes, then 0x5564F0, 53 points), ahead of the TU's strings in the
+   ROM.  InitBossCtrlGeo copies each position and turns each rotation into
+   the record's quaternion, and gene_enemy puts a released enemy at the
+   capsule's release point.  The listing gives the .c no rows for these 106
+   records before effect_end_func (line 56), so the developers' text most
+   likely came from an included generated file that no disc map names; the
+   ROM's order places them here.  RECONSTRUCTION: the record and the names
+   are ours. */
+typedef struct {
+    float rot[3][4]; /* the rotation rows, w zero */
+    float pos[4];
+} CapsulePlace;
+
+static const CapsulePlace capsulePlace[53] = {
+    {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}},
+     {1100.0f, -763.8f, 1641.22f, 1.0f}},
+    {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}},
+     {800.0f, -763.8f, 1641.2f, 1.0f}},
+    {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}},
+     {1100.0f, -363.8f, 1441.2f, 1.0f}},
+    {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}},
+     {800.0f, -363.8f, 1441.2f, 1.0f}},
+    {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}},
+     {499.998f, -763.8f, 1641.22f, 1.0f}},
+    {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}},
+     {199.998f, -763.8f, 1641.2f, 1.0f}},
+    {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}},
+     {499.998f, -363.8f, 1441.2f, 1.0f}},
+    {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}},
+     {199.998f, -363.8f, 1441.2f, 1.0f}},
+    {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}},
+     {-100.002f, -763.8f, 1641.2f, 1.0f}},
+    {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}},
+     {-100.002f, -363.8f, 1441.2f, 1.0f}},
+    {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}},
+     {-399.911f, -763.8f, 1641.22f, 1.0f}},
+    {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}},
+     {-699.91f, -763.8f, 1641.2f, 1.0f}},
+    {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}},
+     {-399.911f, -363.8f, 1441.2f, 1.0f}},
+    {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}},
+     {-699.91f, -363.8f, 1441.2f, 1.0f}},
+    {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}},
+     {-999.913f, -763.8f, 1641.22f, 1.0f}},
+    {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}},
+     {-1299.91f, -763.8f, 1641.2f, 1.0f}},
+    {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}},
+     {-999.913f, -363.8f, 1441.2f, 1.0f}},
+    {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}},
+     {-1299.91f, -363.8f, 1441.2f, 1.0f}},
+    {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}},
+     {-1599.91f, -363.8f, 1441.2f, 1.0f}},
+    {{{-1.0f, 0.0f, 1.22461e-16f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-1.22461e-16f, 0.0f, -1.0f, 0.0f}},
+     {1100.1f, -763.8f, -1641.2f, 1.0f}},
+    {{{-1.0f, 0.0f, 1.22461e-16f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-1.22461e-16f, 0.0f, -1.0f, 0.0f}},
+     {-1300.1f, -763.8f, -1641.2f, 1.0f}},
+    {{{-1.0f, 0.0f, 1.22461e-16f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-1.22461e-16f, 0.0f, -1.0f, 0.0f}},
+     {-1600.1f, -363.8f, -1441.2f, 1.0f}},
+    {{{-1.0f, 0.0f, 1.22461e-16f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-1.22461e-16f, 0.0f, -1.0f, 0.0f}},
+     {-1300.1f, -363.8f, -1441.2f, 1.0f}},
+    {{{-1.0f, 0.0f, 1.22461e-16f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-1.22461e-16f, 0.0f, -1.0f, 0.0f}},
+     {-1000.1f, -763.8f, -1641.22f, 1.0f}},
+    {{{-1.0f, 0.0f, 1.22461e-16f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-1.22461e-16f, 0.0f, -1.0f, 0.0f}},
+     {-700.097f, -763.8f, -1641.2f, 1.0f}},
+    {{{-1.0f, 0.0f, 1.22461e-16f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-1.22461e-16f, 0.0f, -1.0f, 0.0f}},
+     {-700.097f, -363.8f, -1441.2f, 1.0f}},
+    {{{-1.0f, 0.0f, 1.22461e-16f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-1.22461e-16f, 0.0f, -1.0f, 0.0f}},
+     {-400.097f, -763.8f, -1641.2f, 1.0f}},
+    {{{-1.0f, 0.0f, 1.22461e-16f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-1.22461e-16f, 0.0f, -1.0f, 0.0f}},
+     {-400.097f, -363.8f, -1441.2f, 1.0f}},
+    {{{-1.0f, 0.0f, 1.22461e-16f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-1.22461e-16f, 0.0f, -1.0f, 0.0f}},
+     {-100.188f, -763.8f, -1641.22f, 1.0f}},
+    {{{-1.0f, 0.0f, 1.22461e-16f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-1.22461e-16f, 0.0f, -1.0f, 0.0f}},
+     {199.811f, -763.8f, -1641.2f, 1.0f}},
+    {{{-1.0f, 0.0f, 1.22461e-16f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-1.22461e-16f, 0.0f, -1.0f, 0.0f}},
+     {-100.188f, -363.8f, -1441.2f, 1.0f}},
+    {{{-1.0f, 0.0f, 1.22461e-16f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-1.22461e-16f, 0.0f, -1.0f, 0.0f}},
+     {199.811f, -363.8f, -1441.2f, 1.0f}},
+    {{{-1.0f, 0.0f, 1.22461e-16f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-1.22461e-16f, 0.0f, -1.0f, 0.0f}},
+     {499.814f, -763.8f, -1641.22f, 1.0f}},
+    {{{-1.0f, 0.0f, 1.22461e-16f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-1.22461e-16f, 0.0f, -1.0f, 0.0f}},
+     {799.811f, -763.8f, -1641.2f, 1.0f}},
+    {{{-1.0f, 0.0f, 1.22461e-16f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-1.22461e-16f, 0.0f, -1.0f, 0.0f}},
+     {499.814f, -363.8f, -1441.2f, 1.0f}},
+    {{{-1.0f, 0.0f, 1.22461e-16f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-1.22461e-16f, 0.0f, -1.0f, 0.0f}},
+     {799.811f, -363.8f, -1441.2f, 1.0f}},
+    {{{-1.0f, 0.0f, 1.22461e-16f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-1.22461e-16f, 0.0f, -1.0f, 0.0f}},
+     {1099.81f, -363.8f, -1441.2f, 1.0f}},
+    {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}},
+     {-1894.99f, -763.8f, 1884.19f, 1.0f}},
+    {{{0.987688f, 0.0f, 0.156434f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-0.156434f, 0.0f, 0.987688f, 0.0f}},
+     {-2187.96f, -763.8f, 1838.31f, 1.0f}},
+    {{{0.951057f, 0.0f, 0.309017f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-0.309017f, 0.0f, 0.951057f, 0.0f}},
+     {-2470.14f, -763.8f, 1747.17f, 1.0f}},
+    {{{0.891007f, 0.0f, 0.45399f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-0.45399f, 0.0f, 0.891007f, 0.0f}},
+     {-2734.59f, -763.8f, 1613.0f, 1.0f}},
+    {{{0.809017f, 0.0f, 0.587785f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-0.587785f, 0.0f, 0.809017f, 0.0f}},
+     {-2974.8f, -763.8f, 1439.12f, 1.0f}},
+    {{{0.707107f, 0.0f, 0.707107f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-0.707107f, 0.0f, 0.707107f, 0.0f}},
+     {-3184.85f, -763.8f, 1229.8f, 1.0f}},
+    {{{0.587785f, 0.0f, 0.809017f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-0.809017f, 0.0f, 0.587785f, 0.0f}},
+     {-3359.56f, -763.8f, 990.199f, 1.0f}},
+    {{{0.45399f, 0.0f, 0.891007f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-0.891007f, 0.0f, 0.45399f, 0.0f}},
+     {-3494.65f, -763.8f, 726.217f, 1.0f}},
+    {{{-1.0f, 0.0f, -1.22461e-16f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {1.22461e-16f, 0.0f, -1.0f, 0.0f}},
+     {-1895.0f, -763.8f, -1884.2f, 1.0f}},
+    {{{-0.987688f, 0.0f, 0.156434f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-0.156434f, 0.0f, -0.987688f, 0.0f}},
+     {-2187.97f, -763.8f, -1838.32f, 1.0f}},
+    {{{-0.951057f, 0.0f, 0.309017f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-0.309017f, 0.0f, -0.951057f, 0.0f}},
+     {-2470.15f, -763.8f, -1747.17f, 1.0f}},
+    {{{-0.891007f, 0.0f, 0.45399f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-0.45399f, 0.0f, -0.891007f, 0.0f}},
+     {-2734.6f, -763.8f, -1613.01f, 1.0f}},
+    {{{-0.809017f, 0.0f, 0.587785f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-0.587785f, 0.0f, -0.809017f, 0.0f}},
+     {-2974.81f, -763.8f, -1439.12f, 1.0f}},
+    {{{-0.707107f, 0.0f, 0.707107f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-0.707107f, 0.0f, -0.707107f, 0.0f}},
+     {-3184.86f, -763.8f, -1229.8f, 1.0f}},
+    {{{-0.587785f, 0.0f, 0.809017f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-0.809017f, 0.0f, -0.587785f, 0.0f}},
+     {-3359.58f, -763.8f, -990.197f, 1.0f}},
+    {{{-0.45399f, 0.0f, 0.891007f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {-0.891007f, 0.0f, -0.45399f, 0.0f}},
+     {-3494.66f, -763.8f, -726.213f, 1.0f}},
+};
+
+static const float capsuleRelease[53][4] = {
+    {1100.0f, -601.8f, 1554.22f, 1.0f},    {800.0f, -601.8f, 1554.2f, 1.0f},
+    {1100.0f, -201.8f, 1354.2f, 1.0f},     {800.0f, -201.8f, 1354.2f, 1.0f},
+    {499.998f, -601.8f, 1554.22f, 1.0f},   {199.998f, -601.8f, 1554.2f, 1.0f},
+    {499.998f, -201.8f, 1354.2f, 1.0f},    {199.998f, -201.8f, 1354.2f, 1.0f},
+    {-100.002f, -601.8f, 1554.2f, 1.0f},   {-100.002f, -201.8f, 1354.2f, 1.0f},
+    {-399.911f, -601.8f, 1554.22f, 1.0f},  {-699.91f, -601.8f, 1554.2f, 1.0f},
+    {-399.911f, -201.8f, 1354.2f, 1.0f},   {-699.91f, -201.8f, 1354.2f, 1.0f},
+    {-999.913f, -601.8f, 1554.22f, 1.0f},  {-1299.91f, -601.8f, 1554.2f, 1.0f},
+    {-999.913f, -201.8f, 1354.2f, 1.0f},   {-1299.91f, -201.8f, 1354.2f, 1.0f},
+    {-1599.91f, -201.8f, 1354.2f, 1.0f},   {1100.1f, -601.8f, -1554.2f, 1.0f},
+    {-1300.1f, -601.8f, -1554.2f, 1.0f},   {-1600.1f, -201.8f, -1354.2f, 1.0f},
+    {-1300.1f, -201.8f, -1354.2f, 1.0f},   {-1000.1f, -601.8f, -1554.22f, 1.0f},
+    {-700.097f, -601.8f, -1554.2f, 1.0f},  {-700.097f, -201.8f, -1354.2f, 1.0f},
+    {-400.097f, -601.8f, -1554.2f, 1.0f},  {-400.097f, -201.8f, -1354.2f, 1.0f},
+    {-100.188f, -601.8f, -1554.22f, 1.0f}, {199.811f, -601.8f, -1554.2f, 1.0f},
+    {-100.188f, -201.8f, -1354.2f, 1.0f},  {199.811f, -201.8f, -1354.2f, 1.0f},
+    {499.814f, -601.8f, -1554.22f, 1.0f},  {799.811f, -601.8f, -1554.2f, 1.0f},
+    {499.814f, -201.8f, -1354.2f, 1.0f},   {799.811f, -201.8f, -1354.2f, 1.0f},
+    {1099.81f, -201.8f, -1354.2f, 1.0f},   {-1894.99f, -601.8f, 1797.19f, 1.0f},
+    {-2174.35f, -601.8f, 1752.38f, 1.0f},  {-2443.26f, -601.8f, 1664.43f, 1.0f},
+    {-2695.09f, -601.8f, 1535.48f, 1.0f},  {-2923.66f, -601.8f, 1368.74f, 1.0f},
+    {-3123.33f, -601.8f, 1168.28f, 1.0f},  {-3289.18f, -601.8f, 939.062f, 1.0f},
+    {-3417.13f, -601.8f, 686.72f, 1.0f},   {-1895.0f, -601.8f, -1797.2f, 1.0f},
+    {-2174.36f, -601.8f, -1752.39f, 1.0f}, {-2443.27f, -601.8f, -1664.43f, 1.0f},
+    {-2695.1f, -601.8f, -1535.49f, 1.0f},  {-2923.67f, -601.8f, -1368.74f, 1.0f},
+    {-3123.34f, -601.8f, -1168.28f, 1.0f}, {-3289.2f, -601.8f, -939.06f, 1.0f},
+    {-3417.14f, -601.8f, -686.716f, 1.0f},
+};
+
 void effect_end_func(void *a0)
 {
     signed char *e;
@@ -127,8 +347,14 @@ extern int D_0028F4C0[];
 extern char D_00556840[];
 extern char *D_00639EA4;
 extern int D_0063B13C;
-extern int D_0063C2EC;
-extern int D_0063C2F0;
+
+/* The TU's .sbss (VMA 0x63C2EC, 8 B, MAIN.MAP itou_boss.o .sbss 0x8): the
+   number of gene_enemy threads started, which indexes their done flags, and
+   the number of releases under way.  The names are ours. */
+static int geneCount;
+
+static int geneReleasing;
+
 /* kept local: this TU's uses of ico_m33_to_quat do not fit the prototype in itou_sub.h */
 extern void ico_m33_to_quat(void *a0, void *a1);
 extern void gene_eff_end_func(void);
@@ -159,8 +385,8 @@ static inline void putEnemyAt(char *o, float *pos)
    lives in ico2/ito/src/queen at 0x001A2A10. Do not make it global. */
 static void gene_enemy(volatile int a0)
 {
-    int no = D_0063C2EC;
-    volatile int *flag = &D_006EA780[D_0063C2EC++];
+    int no = geneCount;
+    volatile int *flag = &D_006EA780[geneCount++];
     signed char *buf[53];
     char *o;
     void *c;
@@ -216,7 +442,7 @@ static void gene_enemy(volatile int a0)
             if (total >= freen) {
                 total = freen;
             }
-            if (alive + D_0063C2F0 < total && num > 0 && o != 0) {
+            if (alive + geneReleasing < total && num > 0 && o != 0) {
                 float pp[4];
                 float pos[4];
                 float dir[4];
@@ -243,7 +469,7 @@ static void gene_enemy(volatile int a0)
 
                 sel = buf[(int)(random_unit() * num)];
                 sceVu0CopyVector(pos, *(char **)(sel + 0x30));
-                D_0063C2F0++;
+                geneReleasing++;
                 sel[0x34] = 1;
                 *flag = 0;
                 r = GatherEffect_Set(12, sel + 0x20, sel + 0x10, pos, (void *)gene_eff_end_func,
@@ -278,7 +504,7 @@ static void gene_enemy(volatile int a0)
                 while (GeneratorWorkEnd(o) == 0) {
                     _ACTWait(1);
                 }
-                D_0063C2F0--;
+                geneReleasing--;
                 sel[0x34] = 0;
                 _ACTWait(((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 5);
                 sendEnemyAway(o);
@@ -339,15 +565,13 @@ int InqCapsuleGhostBossStage(void)
 }
 
 extern char D_00556850[];
-extern int D_0063C2EC;
-extern int D_0063C2F0;
 
 /* listing lines 327-333: the boss controller's actor start */
 static inline void bossCtrlInit(void *a0)
 {
     actInitialize(a0);
     _ACTWait(1);
-    D_0063C2F0 = 0;
+    geneReleasing = 0;
 }
 
 void actBossCtrlStart(void *a0)
@@ -358,7 +582,7 @@ void actBossCtrlStart(void *a0)
 
     no = 0;
     bossCtrlInit(a0);
-    D_0063C2EC = 0;
+    geneCount = 0;
     o = (char *)isysGObjSearchFromObjKindID_begin(33);
     while (o != 0) {
         sendEnemyAway(o);
@@ -371,8 +595,11 @@ void actBossCtrlStart(void *a0)
     }
 }
 
-extern char D_005557E0[];
-extern char D_005564F0[];
+/* the TU's five strings stay in the rodata blob after the two tables (VMA
+   0x556840..0x55688E): their ROM order is the January listing's parse order
+   (gene_enemy, actBossCtrlStart, InitBossCtrlGeo twice, BossCtrlDL) while
+   this file keeps the retail text order, BossCtrlDL ahead of
+   actBossCtrlStart, and a literal is emitted when its function is parsed */
 extern char D_00556860[];
 extern char D_00556870[];
 extern void *D_0063A438;
@@ -390,15 +617,15 @@ int InitBossCtrlGeo(void *a0)
     char *q;
     char *r;
 
-    ret = iosMallocDebug(D_0063A438, 0, D_00556860, 0x15E);
+    ret = iosMallocDebug(D_0063A438, 0, D_00556860, 350);
     actInitialize(a0);
     actInitialize_ext_charcter(a0);
-    debug_StdPrintfDummy(D_00556870, 0x35);
+    debug_StdPrintfDummy(D_00556870, 53);
 
     base = D_006E9A40;
     m = (char *)base + 0x20;
-    q_arr = (char (*)[]) & D_005557E0;
-    r = D_005564F0;
+    q_arr = (char (*)[])capsulePlace[0].pos;
+    r = (char *)capsuleRelease;
     q = *q_arr;
     k = 0;
     do {

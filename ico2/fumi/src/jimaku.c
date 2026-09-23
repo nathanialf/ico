@@ -214,7 +214,64 @@ void jimakuMgrBegin(struct jArg *p)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/jimaku", jimakuMgrNext);
+extern int lock_execIcoMisc;
+extern char D_005540C8[];
+extern char D_005540D8[];
+extern char D_005540E8[];
+extern char D_0063A978[];
+extern void __assert(char *file, int line, char *expr);
+
+void jimakuMgrNext(struct jArg *p)
+{
+    char buf[16];
+    struct jSub *sub = &p->sub;
+    struct jWayGroup *g = &D_006C1E80[sub->n];
+
+    while (g->node->f4 != 4) {
+        if (iosSemaWait(D_006E5000) < 0) {
+            return;
+        }
+    }
+    if (iosSemaWait(D_006E5000) < 0) {
+        return;
+    }
+    g->node->f4 = 1;
+    sprintf(buf, D_005540C8, (sub->n + 1) % 4);
+    g->node->f8 = tex_InitTexture(buf, g->node->buf);
+    tex_SetSamplingType(tex_GetTextureData(g->node->f8), 1, 1);
+    g->node->fC = lock_execIcoMisc;
+    if (g->node->f8 == -1) {
+        debug_StdPrintfDummy(D_005540D8);
+        debug_assert(D_005540E8, 688);
+        __assert(D_005540E8, 688, D_0063A978);
+    }
+    sub->n = (sub->n + 1) % 4;
+    if (iosSemaWait(D_006E5038) < 0) {
+        return;
+    }
+    g->f4 = 2;
+    if (g->f8 >= 0) {
+        tex_FreeTexture(g->f8);
+    }
+    sub->field3C = D_006C1F00[sub->n];
+    D_0063A964 = 1;
+    /* The listing's rows 705 to 714 carry no code, and the ROM's second and
+     * third returns take `ld $31` from the epilogue where the build without
+     * this block takes the next statement's constant into the second one's
+     * slot: reorg predicts a branch to the epilogue taken when a loop-begin
+     * note stands just before it (mostly_true_jump), so a loop compiled out
+     * at the end of the function is what the bytes pin. What they cannot
+     * pin: the block's contents (no string of it reached the .rodata); the
+     * walk over the four way groups here is ours, in jimakuMgrBegin's
+     * terms. */
+    if (0) {
+        int m;
+
+        for (m = 0; m < 4; m++) {
+            D_006C1E80[m].f4 = 3;
+        }
+    }
+}
 
 void jimakuMgrJump(struct jArg *p)
 {

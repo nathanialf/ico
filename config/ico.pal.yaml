@@ -579,7 +579,7 @@ segments:
       - [0x3E4610, data, cod/3E4610]     # data blob resume
       - [0x3E5A30, .data, ico2/sugipon/src/act_a_p_1]  # the TU's whole .data run as source (data pass 6), abutting attackCheckBoundary's row, VMA 0x4E5A30..0x4E5A90, 96 B
       - [0x3E5A90, .data, ico2/sugipon/src/attackCheckBoundary]  # carved D_004E5A90 (VMA 0x4E5A90..0x4E5AA0, 16 B, 1 sym), referenced only by still-asm AttackCheckBoundaryDL via %hi/%lo
-      - [0x3E5AA0, data, cod/3E5AA0]     # .data blob resume
+      - [0x3E5AA0, .data, ico2/sugipon/src/box]  # the TU's .data run as source (completeness pass 68): leverGeoInit, the 29 routes and their table, the hold points, the BoxWork record and its init, seven constants, 0x810 B, VMA 0x4E5AA0..0x4E62B0, boy's row follows
       - [0x3E62B0, .data, ico2/sugipon/src/boy]  # the TU's whole .data run as source (completeness pass 7): the cloth mesh then the earlier tables, VMA 0x4E62B0..0x4E6E10
       - [0x3E6E10, data, cod/3E6E10]     # .data blob resume
       - [0x3E7060, .data, ico2/sugipon/src/clothTest]  # the TU's whole .data run as source (data pass 3): twenty anchors and the two cloth configurations, VMA 0x4E7060..0x4E7458, 1016 B
@@ -775,7 +775,8 @@ segments:
       - [0x455710, .rodata, ico2/ito/src/act_bird]  # syms: 0x00555760  the TU's whole .rodata: subBirdBrainMain's constants (0x44 B) then its 9-arm jump table at 16-alignment; VMA 0x555710..0x555784
       - [0x455784, rodata, cod/455784]   # .rodata blob resume
       - [0x455798, .rodata, ico2/ito/src/gather_effect]  # the TU's whole .rodata run as source: GatherEffect_Proc's end message as a literal at its debug_StdPrintfDummy site (completeness pass 42), VMA 0x555798..0x5557AB, 19 B plus 5 B of link pad; MAIN.MAP line 6385 gives the member 0x13
-      - [0x4557B0, rodata, cod/4557B0]   # .rodata blob resume (itou_boss.o's rodata head, the twelve identity-matrix words at 0x5557B0, until itou_boss lands; MAIN.MAP line 6387)
+      - [0x4557B0, .rodata, ico2/ito/src/itou_boss]  # the TU's two named tables as source (completeness pass 68), 4240 B, VMA 0x5557B0..0x556840, byte-equal to the ROM
+      - [0x456840, rodata, cod/456840]   # .rodata blob resume (itou_boss's five strings and 2 B of pad before itou_sub's row)
       - [0x456890, .rodata, ico2/ito/src/itou_sub]  # plain-rodata: m33_to_quat's `int nxt[3] = {1,2,0}` initialiser template (12 B, 8-aligned), VMA 0x556890..0x55689C
       - [0x45689C, rodata, cod/45689C]   # .rodata blob resume (one zero pad word, 4 B, before lightning's run)
       - [0x4568A0, .rodata, ico2/ito/src/lightning]  # the TU's whole .rodata run as source: DrawLightning2's "lightning_test" string (anonymous literal, 16 B) then lightning_test's local brace initialisers $LC0/$LC1 (the colour quad and the four vertices, 80 B), VMA 0x5568A0..0x556900, 96 B
@@ -1213,7 +1214,7 @@ segments:
       - { type: .sbss, vram: 0x0063C2E0, name: ico2/omori/src/hand-camera }  # the TU's own .sbss, 0x5 B, VMA 0x63C2E0..0x63C2E5; static definitions in ROM run order (completeness pass)
       - { type: sbss, vram: 0x0063C2E5, name: cod/0063C2E5 }  # .sbss blob resume
       - { type: .sbss, vram: 0x0063C2E8, name: ico2/omori/src/lws_kyomi }  # the TU's own .sbss, 0x4 B, VMA 0x63C2E8..0x63C2EC; static definitions in ROM run order (completeness pass)
-      - { type: sbss, vram: 0x0063C2EC, name: cod/0063C2EC }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C2EC, name: ico2/ito/src/itou_boss }  # the TU's .sbss as source (completeness pass 68), 8 B, MAIN.MAP line 7606, lightning's row follows
       - { type: .sbss, vram: 0x0063C2F4, name: ico2/ito/src/lightning }  # the TU's .sbss as source (completeness pass 65)
       - { type: .sbss, vram: 0x0063C300, name: ico2/ito/src/queen }  # the TU's own .sbss, 0x4 B, VMA 0x63C300..0x63C304; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C304, name: ico2/ito/src/queen_barrier_disp }  # the TU's .sbss as source (completeness pass 65)

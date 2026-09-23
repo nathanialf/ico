@@ -192,10 +192,11 @@ void gsb_Reduction(void)
     }
 }
 
-extern unsigned char D_00639F98;
-extern unsigned char D_00639F99;
-extern unsigned char D_00639F9A;
-extern unsigned char D_00639F9B;
+/* the colour the kept frame is drawn back in, {112, 112, 112, 128} in the
+   TU's .sdata at VMA 0x639F98.  `const` is what the ROM proves: its four
+   byte loads issue ahead of the sprite's first packet store, and a QImode
+   load may pass a store only as an unchanging read (alias.c true_dependence) */
+extern const unsigned char D_00639F98[4];
 /* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
 /* kept local: this TU's uses of gif_SetGsReg do not fit the prototype in GifPacket.h */
@@ -204,37 +205,66 @@ extern void gif_SetGsReg(int a0, long long a1);
 extern void gif_StartPacketPriPath1(int a0);
 extern GifDpk PacketBufferStruct;
 
-/* Reverted to asm 2026-09-21 (chain 3 pass 43, was pass 16): 165 instructions
- * against ROM's 163 and the first 78 word for word.  THE SHAPE IS NOW
- * RECOVERED FROM THE LISTING, which attributes the whole twelve word packet
- * to ONE source line (SRCFILE.TXT GsBase.c:957, 0x112d10 to 0x112e48): it is
- * a single textured sprite, ico2/seki/src/GifPacket.c's `gif_MakeSprite`
- * expanded inline (PRIM 0x116 with prim 0, RGBAQ from the four kept colour
- * bytes at 0x00639F98, then UV, XYZ2, UV, XYZ2), not the twelve separate
- * word writes the pass 16 seed guessed.  Lines 942 and 946 are the two
- * `GsbRect` initialisers, 948 to 953 the six register writes and 958 the
- * closing gif_EndPacket.  With that shape the built code reproduces ROM's
- * packet idiom exactly: one `lw` of the write pointer, the pointer rebased
- * by eight after the first store and every later store at a displacement off
- * it, the same twelve write backs to 0x10 of the context, and the same
- * reassociated colour tree ((F9A << 16 | F99 << 8) or'd into (F98 |
- * F9B << 24)), which gcc's fold builds out of GIF_RGBA's plain left
- * associated chain.
- *
- * MEASURED RESIDUAL: the packet block's SCHEDULE, and one register that
- * follows from it.  The built code hoists the pointer offset `addiu`s and
- * the UV word's two stack reloads to the head of the block, which keeps two
- * values live across it, so reload takes a SECOND callee-saved register
- * ($17) and the frame grows from ROM's 0x50 to 0x60: those two extra saves
- * are the whole 165 against 163.  ROM interleaves each `addiu ptr + k` with
- * the store that consumes it.  Everything the block computes is otherwise
- * identical, operand for operand.  This is a whole-block sched1 convergence
- * (rank_for_schedule reaches INSN_REG_WEIGHT before the ready list's LUID
- * tie), not a semantic gap.  Seed:
- * tails/seeds/GsBase.c3p43_gsb_KeepFrameBuffer_165of163_strict143_sprite_TU.c
- * (carry this one forward, it has the sprite shape; the pass 16 seed's
- * twelve-word spelling is superseded). */
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_KeepFrameBuffer);
+/* A rectangle in 16ths of a pixel, the form the sprite corners are written
+   in.  RECONSTRUCTION: the record is 16 bytes and ROM's ldl/ldr pairs copy
+   it whole out of its initialiser temporary. */
+typedef struct {
+    int x;
+    int y;
+    int w;
+    int h;
+} GsbRect;
+
+/* The GS A+D writer, the payload word then the register word, a MACRO as in
+ * Shadow.c and Texture.c: the listing puts every writer's stores on the line
+ * of the use (GsBase.c:957 carries the whole sprite, 1025 two registers). */
+#define setGsReg(reg, val)                                                                         \
+    {                                                                                              \
+        *PacketBufferStruct.ptr++ = (val);                                                         \
+        *PacketBufferStruct.ptr++ = (reg);                                                         \
+    }
+/* RGBAQ packed from a four-byte colour, as Shadow.c packs it */
+#define GIF_RGBA(c)                                                                                \
+    ((long long)(c)[0] | ((long long)(c)[1] << 8) | ((long long)(c)[2] << 16) |                    \
+     ((long long)(c)[3] << 24))
+/* The textured sprite at depth 0: PRIM, RGBAQ, then a UV and an XYZ2 pair for
+ * each corner of the rect r (x, y, w, h in sixteenths) and its texture rect
+ * uv, the far corner as x + fx with fx = w + 0x8000.  Shadow.c's spriteUV
+ * with the depth left out; a MACRO for the same reason. */
+#define spriteUV(r, uv, col, prim)                                                                 \
+    {                                                                                              \
+        setGsReg(0x00, prim);                                                                      \
+        setGsReg(0x01, GIF_RGBA(col));                                                             \
+        setGsReg(0x03, (long long)(uv)[0] | ((long long)(uv)[1] << 16));                           \
+        setGsReg(0x05, (long long)((r)[0] + 0x8000) | ((long long)((r)[1] + 0x8000) << 16));       \
+        setGsReg(0x03, (long long)((uv)[0] + (uv)[2]) | ((long long)((uv)[1] + (uv)[3]) << 16));   \
+        {                                                                                          \
+            int fx = (r)[2] + 0x8000;                                                              \
+            int fy = (r)[3] + 0x8000;                                                              \
+                                                                                                   \
+            setGsReg(0x05, (long long)((r)[0] + fx) | ((long long)((r)[1] + fy) << 16));           \
+        }                                                                                          \
+    }
+
+/* GsBase.c:942-958 in the listing: the two rect initialisers (942, 946), the
+ * packet open and the five register writes (948-953), the whole textured
+ * sprite on one line (957) and the close (958).  Draw the whole screen back
+ * over itself as one sprite in the kept colour. */
+void gsb_KeepFrameBuffer(void)
+{
+    GsbRect r0 = {-(ScreenWidth >> 1) * 16 - 12, -(ScreenHeight >> 1) * 16 - 12,
+                  ScreenWidth * 16 + 32, ScreenHeight * 16 + 32};
+    GsbRect r1 = {8, 8, ScreenWidth * 16, ScreenHeight / 2 * 16};
+
+    gif_StartPacketPriPath1(11);
+    gif_SetGsReg(0x47, 0x30000);
+    gif_SetGsReg(0x4E, 0x1300000C0LL);
+    gif_SetGsReg(0x4A, 0);
+    gif_SetGsReg(0x3B, 0x8000000080LL);
+    gif_SetGsReg(6, ((long long)(ScreenWidth / 64) << 14) | (0xC482LL << 19));
+    spriteUV(&r0.x, &r1.x, D_00639F98, 0x116);
+    gif_EndPacket();
+}
 
 extern int fadeStatus;
 
@@ -258,31 +288,15 @@ extern char D_00639FA0[];
 /* kept local: this TU's uses of gif_SetDrawEnviroment do not fit the prototype in GifPacket.h */
 extern void gif_SetDrawEnviroment(int a0, int a1, int w, int h, int a4, int a5);
 
-/* A rectangle in 16ths of a pixel, the form the sprite corners are written
-   in.  RECONSTRUCTION: the record is 16 bytes and ROM's ldl/ldr pairs copy
-   it whole out of its initialiser temporary. */
-typedef struct {
-    int x;
-    int y;
-    int w;
-    int h;
-} GsbRect;
-
 /* INTERIM, the same construct ico2/seki/src/GifPacket.c carries for its own
- * callers: the A+D register write and the untextured sprite are inline, and
- * the January-2002 listing expands both into this TU (GsBase.c:1025 writes
- * two registers, GsBase.c:1026 the whole four pair sprite), so while
- * GifPacket.c still has assembled members the inline bodies live here as
- * static stand-ins.  gsb_controlBrightness's own call to the sprite stays a
- * `jal` in the ROM, which is what this TU's `unsigned int z` declaration of
- * it says: an argument whose mode does not match the formal's makes gcc 2.9
- * fall back from expand_inline_function to a real call. */
-static inline void setGsReg(long long reg, long long data)
-{
-    *PacketBufferStruct.ptr++ = data;
-    *PacketBufferStruct.ptr++ = reg;
-}
-
+ * callers: the untextured sprite is inline, and the January-2002 listing
+ * expands it into this TU (GsBase.c:1026 the whole four pair sprite), so
+ * while GifPacket.c still has assembled members the inline body lives here
+ * as a static stand-in.  gsb_controlBrightness's own call to the sprite
+ * stays a `jal` in the ROM, which is what this TU's `unsigned int z`
+ * declaration of it says: an argument whose mode does not match the
+ * formal's makes gcc 2.9 fall back from expand_inline_function to a real
+ * call. */
 static inline void gsbSpriteNoTexture(int x, int y, int w, int h, long long z, unsigned char *col,
                                       int prim)
 {

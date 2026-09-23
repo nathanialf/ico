@@ -52,8 +52,39 @@ typedef struct {
 extern int D_004ED02C[];
 extern SprUV D_00620DE0;
 extern SprCol D_0063BB70[];
+extern SprCol D_0063BB38;
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/staticBlur", blur);
+/* staticBlur.c:141-164 in the listing, inlined twice into blur: one pass of
+ * the blur, the buffer fb drawn from the texture buffer tex as one sprite,
+ * the sprite rect or the texture rect shrunk by rm or um.  A file-scope
+ * inline ahead of blur, not a nested function: its rows (142-163) precede
+ * blur's own (168-172).  Row 142 is the parameter binding, which is where
+ * the listing puts the tex load and the n + 6 of the first call, and the
+ * rect and uv rows (154, 160) hold the subtractions, so the shrink is
+ * applied here and not at the call.  The name is ours. */
+static inline void blurPass(int fb, int tex, int rm, int um, void *col)
+{
+    gif_SetDrawEnviroment(fb, 0, 256, 128, 0, 0);
+
+    gif_SetGsReg(6, tex | 0x20010000 | 0x15C0000000LL);
+    gif_SetGsReg(0x14, 0x60);
+    gif_SetGsReg(8, 5);
+    gif_SetAlpha(1, 4, 0);
+    {
+        int rect[4] = {-2048, -1024, 4096 - rm, 2048 - rm};
+        int uv[4] = {8, 8, 4096 - um, 2048 - um};
+
+        gif_SpriteSensitiveOrg(rect, 0, uv, col, 0);
+    }
+}
+
+/* staticBlur.c:168-172: the first pass shrinks the sprite by n + 6 in the
+ * blur colour, the second shrinks the texture back in the caller's colour. */
+void blur(int n, void *col)
+{
+    blurPass(D_004ED020[1], D_004ED020[0], n + 6, 0, &D_0063BB38);
+    blurPass(D_004ED020[0], D_004ED020[1], 0, n + 6, col);
+}
 
 extern int ScreenWidth;
 extern int ScreenHeight;

@@ -122,7 +122,149 @@ inline void mc_TransMicroCode(int a0, int a1)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/MicroCode", mc_SetMicroCode);
+extern int D_0063B1AC;
+/* A compiled-out trace (our name) in the empty-hook form other TUs carry
+   (cdvd.c's stDebugPrint, main.c's mainDebugBar).  WHAT THE BYTES PIN: a
+   call with nine or more integer arguments that emits nothing, since the
+   ROM's 0x30 frame keeps sixteen bytes of outgoing argument space below its
+   two saves (a declared local would cost the `j dl_CloseDma` sibling call),
+   inlining carries the callee's argument space into mc_SetMicroCode, and no
+   string reaches MicroCode.o's .rodata (the jump table fills it); and a
+   zero-code insn left by the inlined body in the mode 1, a1 == 0 arm, which
+   keeps jump2 from cross-jumping that arm's `code = 20` into mode 2's (the
+   ROM keeps both, rows 221 and 258; the listing's rows 212-220 are
+   code-free).  WHAT THEY CANNOT PIN: the callee, its arguments, or how the
+   developers switched it off; mcTracePut and its argument list are ours. */
+extern void mcTracePut(int mode, int a1, int a2, int a3, int pri, int x, int y, int w, int h);
+
+static inline void mcTrace(void)
+{
+    if (0) {
+        mcTracePut(0, 0, 0, 0, 0, 0, 0, 0, 0);
+    }
+}
+
+/* MicroCode.c:166-280 in the listing: every level of the selection is a
+   switch except the a1 tests, and the three conditional codes are if/else
+   pairs (the else value on its own row, the conditional move on the next). */
+void mc_SetMicroCode(int mode, int a1, int a2, int a3, int pri)
+{
+    int code = 0xFFFF;
+    char *c;
+
+    switch (mode) {
+    case 0:
+        switch (a1) {
+        case 0:
+            switch (a3) {
+            case -1:
+                code = 34;
+                break;
+            case 2:
+                code = 36;
+                break;
+            default:
+                code = 32;
+                break;
+            }
+            break;
+        case 3:
+            code = 38;
+            break;
+        default:
+            switch (a2) {
+            case 0:
+                if (a3 == 2) {
+                    code = 36;
+                } else {
+                    code = 32;
+                }
+                break;
+            case 1:
+                code = 34;
+                break;
+            case 2:
+                code = 38;
+                break;
+            }
+            break;
+        }
+        break;
+    case 1:
+        if (a1 == 0) {
+            mcTrace();
+            code = 20;
+        } else {
+            if (a3 == -1) {
+                switch (a2) {
+                case 0:
+                    if (D_0063B1AC != 1) {
+                        code = 20;
+                    } else {
+                        code = 24;
+                    }
+                    break;
+                case 1:
+                    code = 22;
+                    break;
+                }
+            } else {
+                switch (a2) {
+                case 0:
+                    if (D_0063B1AC != 1) {
+                        code = 20;
+                    } else {
+                        code = 24;
+                    }
+                    break;
+                case 1:
+                    code = 22;
+                    break;
+                }
+            }
+        }
+        break;
+    case 2:
+        if (a1 == 0) {
+            code = 20;
+        } else {
+            if (D_0063B1AC == 0) {
+                code = 22;
+            } else {
+                code = 24;
+            }
+        }
+        break;
+    case 3:
+        code = 18;
+        break;
+    }
+    if (code == 0xFFFF) {
+        return;
+    }
+
+    c = (char *)PacketBufferStruct.ptr;
+    PacketBufferStruct.gif = 0;
+    PacketBufferStruct.tail = c;
+    PacketBufferStruct.dma = c;
+    PacketBufferStruct.end = 0;
+    ((GifPkWord *)c)->d = 0x10000000;
+    PacketBufferStruct.ptr = (unsigned long long *)(c + 8);
+    ((GifPkWord *)(c + 8))->w[0] = code | 0x15000000;
+    PacketBufferStruct.ptr = (unsigned long long *)(c + 0xC);
+    ((GifPkWord *)(c + 0xC))->w[0] = 0x13000000;
+    PacketBufferStruct.ptr = (unsigned long long *)(c + 0x10);
+    PacketBufferStruct.tail = c + 0x10;
+    ((GifPkWord *)(c + 0x10))->d = 0x60000000;
+    PacketBufferStruct.ptr = (unsigned long long *)(c + 0x18);
+    ((GifPkWord *)(c + 0x18))->w[0] = 0;
+    PacketBufferStruct.ptr = (unsigned long long *)(c + 0x1C);
+    ((GifPkWord *)(c + 0x18))->w[1] = 0;
+    PacketBufferStruct.ptr = (unsigned long long *)(c + 0x20);
+    dl_SetDLPriority(pri);
+    dl_OpenDma(5, (int)PacketBufferStruct.dma, 0);
+    dl_CloseDma();
+}
 
 inline void mc_Init(void)
 {

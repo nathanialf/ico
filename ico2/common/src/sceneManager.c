@@ -524,7 +524,50 @@ void initSceneGObj(int stage, int no)
     MakeCollisionDependGObjList();
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/sceneManager", initParentLink);
+extern char D_0061DE40[];
+extern char D_0061DE88[];
+extern char D_0061DEA0[];
+extern char D_0061DEB0[];
+extern char D_0063B648[];
+extern void __assert(char *file, int line, char *expr);
+
+/* sceneManager.c:486-514 in the listing.  The parent id is read before the
+   kind, so the kind load carries the record pointer's death: sched1 raises
+   both loads to one priority and then prefers the lighter register weight,
+   issues the kind load first and keeps the record live past it, which is
+   what gives the ROM its registers and lets reorg put the parent load in the
+   first branch's slot.  The listing's rows cannot say where the read stood (the
+   load sits in that slot, under row 490; rows 487 and 488 hold the record
+   and the layout row, 489 is code-free), so the declaration here is ours.
+   The three tests share row 490, one condition; each assert pair shares its
+   row, 502 and 511, the line numbers it passes. */
+void initParentLink(int id)
+{
+    GenGeo *gen = &D_002C2DC8[id];
+    int parentId = gen->parent;
+    ObjKindEnt *lay = &D_002C1270[gen->kind];
+    int self;
+    int parent;
+
+    if (lay->f44 != 0 && parentId != 0 && gen->kind != 4) {
+        self = (int)isysGObjSearchFromObjLayoutID(id);
+        parent = (int)isysGObjSearchFromObjLayoutID(parentId);
+        if (parent != 0) {
+            if (parent == self) {
+                debug_StdPrintfDummy(D_0061DE40, lay);
+                debug_assert(D_0061DE88, 502);
+                __assert(D_0061DE88, 502, D_0063B648);
+            }
+            debug_StdPrintfDummy(D_0061DEA0, lay);
+            *(int *)(*(int *)(self + 0x15C)) = parent;
+            *(int *)(*(int *)(self + 0x15C) + 4) = 0;
+        } else {
+            debug_StdPrintfDummy(D_0061DEB0, lay);
+            debug_assert(D_0061DE88, 511);
+            __assert(D_0061DE88, 511, D_0063B648);
+        }
+    }
+}
 
 /* sceneManager.c:519-536, 553-570, 606-617: three static helpers the listing
    inlines into InitSceneObjects; they have no symbol of their own in the ROM

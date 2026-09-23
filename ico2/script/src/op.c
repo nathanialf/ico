@@ -16,7 +16,7 @@
    the functions the listing hashes named. */
 
 /* the three functions at the head of the TU need their callees declared here,
-   above their definitions; the TU's own declaration block below repeats them */
+   above their definitions */
 extern int D_0063ABA8;
 extern void *D_0063BE6C;
 extern int D_0063C4E8;
@@ -80,7 +80,184 @@ void actTitleCamera2(volatile int a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/script/src/op", actOpDemo01);
+extern PadState D_0028F8F0[];
+extern int D_0028F4C0[];
+extern int D_0063AA00;
+extern int CurrentTargetGObjSub;
+extern int D_00639EA0;
+extern int D_0063AA08;
+extern int D_0063B4D0;
+extern int D_0063BE40;
+extern int D_0063BE44;
+extern char D_0063BE48[];
+extern char D_0063BE50[];
+extern char D_0063BE58[];
+extern int D_0063B60C;
+extern int D_0063B5F8;
+extern int D_0063C4EC;
+extern int mpegPlayReturnStage;
+/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
+extern int scpFadeChk(void);
+/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
+extern void scpFadeOut(int a0, int a1, int a2, float t);
+/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
+extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
+/* kept local, the sibling script TUs' spelling: this TU's uses of
+   scpAdpcmCloseFunc and scpAdpcmCloseChkFunc do not fit script.h's */
+extern void scpAdpcmCloseFunc(int *h);
+extern int scpAdpcmCloseChkFunc(int *h);
+/* thread.h's prototype; op.c does not include thread.h */
+extern void iosThreadSetPri(int *a0, int a1);
+void actTitleReadTimeDemo0(volatile int a0);
+void actTitleShortCut(volatile int a0);
+
+/* op.c:605-736 in the listing.  The timer countdown at 617-623 is a GNU
+   nested function declared inline at the head of the body: it reads and
+   writes the parent's `t` through the static chain (the listing's inlined
+   copies address it as 4($a0) with $a0 = $sp) and is inlined at both of its
+   calls.  The tail after each demo (the thread priority and the fade out) is
+   written in case 0 and in case 1: jump2 cross-jumps the two copies, which is
+   why case 0's `b` carries its break's line 689 and falls into case 1's copy
+   at 706.  Case 1's loop leaves through the break inside its test, so the
+   tail starts at the loop's exit label and sched1 cannot pull its argument
+   moves above the D_0063BE40 store; that keeps the two copies identical for
+   the cross-jump.  The duplicated tail also sets the outer loop's size at
+   loop time, which is what keeps the 60 of the timer out of the outer loop's
+   preheader (move_movables' threshold test). */
+void actOpDemo01(volatile int a0)
+{
+    int x = a0;
+    int th;
+    int t = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 10;
+
+    inline int tick(void)
+    {
+        if ((D_0063B60C == 12 || D_0063B60C == 13) && D_0063B5F8 == 0) {
+            t--;
+        } else {
+            t = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 10;
+        }
+        if (t < 0) {
+            D_0063B60C = 55;
+            return 1;
+        }
+        return 0;
+    }
+
+    actInitialize(a0);
+    _ACTWait(1);
+
+    D_0063AA00 = 0;
+    CurrentTargetGObjSub = 0;
+    D_00639EA0 = 0;
+    stgmgrNextStagePreLoadForceStageSet(0);
+
+    actCreateSubThread(actSubMpegReturnPreload, 21);
+
+    actCreateSubThread(actSt26aConte01_1_newgame, 21);
+
+    D_0063AA08 = 1;
+
+    while (D_0063B4D0 == 0) {
+        _ACTWait(1);
+    }
+
+    scpFadeOut(0, 0, 0, 255.0f);
+    D_0063BE6C = 0;
+
+    while (1) {
+        D_0063C4E8 = 0;
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+        D_0063BE68 = 0;
+
+        stage_SetAnimation(571, -1, -2);
+        stage_SetAnimation(563, -1, -2);
+        stage_SetAnimation(564, -1, -2);
+        stage_SetAnimation(565, -1, -2);
+        stage_SetAnimation(567, -1, -2);
+        stage_SetAnimation(568, -1, -2);
+        stage_SetAnimation(569, -1, -2);
+
+        switch (D_0063BE40) {
+        case 0:
+            debug_StdPrintfDummy(D_0063BE48);
+            D_0063B60C = 55;
+
+            if (D_0063BE6C != 0) {
+                scpAdpcmFadeCloseFunc(&D_0063BE6C, 288);
+            }
+            D_0063BE6C = 0;
+            D_0063C4EC = 0;
+            th = actCreateSubThread(actTitleReadTimeDemo0, 21);
+
+            t = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 10;
+            while (D_0063C4EC == 0) {
+                _ACTWait(1);
+            }
+            _ACTWait(30);
+
+            while (1) {
+                _ACTWait(1);
+                if (D_0063C4E8 == 0) {
+                    if (D_0028F8F0[0].flags & 0x800) {
+                        D_0063BE40 = 1;
+                        D_0063BE44 = 2;
+                        break;
+                    }
+                } else if (tick()) {
+                    D_0063BE40 = 2;
+                    break;
+                }
+            }
+
+            if (D_0063C4EC != 0) {
+                scpAdpcmCloseFunc(&D_0063C4EC);
+            }
+            iosThreadSetPri((int *)(th + 0x24), 34);
+            scpFadeOut(0, 0, 0, 16.0f);
+            break;
+
+        case 1:
+            debug_StdPrintfDummy(D_0063BE50);
+            D_0063BE68 = 1;
+            lt_switch_layout(12);
+            th = actCreateSubThread(actTitleShortCut, 21);
+
+            t = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 10;
+
+            while (1) {
+                _ACTWait(1);
+                if (D_0063C4E8 != 0 && tick()) {
+                    lt_switch_layout(55);
+                    D_0063BE40 = D_0063BE44;
+                    break;
+                }
+            }
+            iosThreadSetPri((int *)(th + 0x24), 34);
+            scpFadeOut(0, 0, 0, 16.0f);
+            break;
+
+        case 2:
+            debug_StdPrintfDummy(D_0063BE58);
+            D_0063BE40 = 1;
+            D_0063BE44 = 0;
+            mpegPlayReturnStage = 1;
+            if (D_0063BE6C != 0) {
+                scpAdpcmFadeCloseFunc(&D_0063BE6C, 1024);
+                while (scpAdpcmCloseChkFunc(&D_0063BE6C) != 0) {
+                    _ACTWait(1);
+                }
+            }
+            D_0063BE6C = 0;
+            _ACTWait(1);
+            stgmgrForceSwitchWithFade(D_0028F4C0[0] != 0 ? 58 : 57, 256.0f, 4.0f);
+            _ACTWait(0);
+            break;
+        }
+    }
+}
 
 void actTitleShortCut(volatile int a0)
 {
@@ -130,15 +307,11 @@ static ActMail opDemo02_mes[2] = {{430}, {429}};
 
 static ActMail opDemo03_mes[2] = {{430}, {429}};
 
-extern int D_0063AA08;
-extern int D_0028F4C0[];
 /* the retail build's printf stub; the 2001 declaration was unprototyped, which
    is why the extra arguments still travel in $a1/$a2 rather than on the stack */
 extern int frame_count;
-extern int D_0063C4EC;
 /* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
 extern int RequestStageChange(int a0, char *a1, int a2, float a3, float a4);
-extern PadState D_0028F8F0[];
 extern int stage_no;
 
 /* the 0x194-byte per-stage record; the cutscene entries read their exit index
@@ -154,20 +327,14 @@ extern int stage_no;
    home store issue three slots later. */
 extern const StgPre D_005F5D50[];
 extern const ExitData D_0055C518[];
-/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
-extern int scpFadeChk(void);
 /* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(char *self, int mot);
-/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
-extern void scpFadeOut(int a0, int a1, int a2, float t);
 /* kept local: this TU's uses of RequestStageChangeWithColor do not fit the prototype in script.h */
 extern int RequestStageChangeWithColor(int a0, char *a1, int a2, float a3, float a4, int r, int g,
                                        int b);
 extern int D_0063BE64;
 /* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
 extern int scpAdpcmPlayRequestNum(void);
-/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
-extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
 extern int D_0063C4F0;
 extern int D_0063C4F4;
 extern int D_0063BE60;

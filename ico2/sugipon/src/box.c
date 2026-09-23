@@ -547,17 +547,281 @@ void dispWheels(char *a0)
     p2o_DispVU1DObjMulti(*(void **)(p + 0x11C));
 }
 
-/* the per-route point arrays (a pointer table in the TU's .data at VMA
-   0x4E5F30) and the Y axis the side plane is built from (VMA 0x4E61D0,
-   { 0.0f, 1.0f, 0.0f, 0.0f }) */
-extern float *D_004E5F30[];
-extern float D_004E61D0[];
+/* one 16-byte route point */
+typedef float PathPt[4];
+
+/* The routes a box can be pushed along, box.o's .data after switch.c's
+   lever template (VMA 0x4E5AB0..0x4E5F30): each a list of points ending in
+   one whose fourth word is the largest float (countPathPoints stops at a
+   fourth word of 10.0f or more).  Routes 9 and 18 to 29 are empty.  The
+   names are ours: MAIN.MAP gives box.o's .data no symbols. */
+static PathPt route1[] = {
+    {-3380.0f, -3500.0f, 100.0f, 1.0f},  {-3380.0f, -3500.0f, 5700.0f, 1.0f},
+    {-3337.0f, -3500.0f, 5890.0f, 1.0f}, {-3200.0f, -3500.0f, 6050.0f, 1.0f},
+    {-3150.0f, -3500.0f, 6090.0f, 1.0f}, {-2930.0f, -3500.0f, 6150.0f, 1.0f},
+    {-1000.0f, -3500.0f, 6150.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+};
+
+static PathPt route2[] = {
+    {0.0f, -50.0f, 0.0f, 1.0f},          {-300.0f, -50.0f, 0.0f, 1.0f},
+    {-1000.0f, -50.0f, 700.0f, 1.0f},    {-1000.0f, -50.0f, 1400.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+};
+
+static PathPt route3[] = {
+    {-525.0f, 1450.0f, -1650.0f, 1.0f},
+    {-1700.0f, 1450.0f, -1650.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+};
+
+static PathPt route4[] = {
+    {6500.0f, -3470.0f, -1450.0f, 1.0f},
+    {6500.0f, -3470.0f, 3400.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+};
+
+static PathPt route5[] = {
+    {500.0f, 2650.0f, -2050.0f, 1.0f},
+    {500.0f, 2650.0f, -2600.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+};
+
+static PathPt route6[] = {
+    {-2890.0f, -3510.0f, 6150.0f, 1.0f},
+    {1000.0f, -3510.0f, 6150.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+};
+
+static PathPt route7[] = {
+    {-3400.0f, -3450.0f, -2300.0f, 1.0f}, {-3400.0f, -3450.0f, 5680.0f, 1.0f},
+    {-3290.0f, -3450.0f, 6000.0f, 1.0f},  {-3000.0f, -3450.0f, 6150.0f, 1.0f},
+    {1100.0f, -3450.0f, 6150.0f, 1.0f},   {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+};
+
+static PathPt route8[] = {
+    {-4750.0f, 650.0f, 3300.0f, 1.0f},
+    {-4750.0f, 650.0f, 3900.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+};
+
+static PathPt route9[] = {
+    {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+};
+
+static PathPt route10[] = {
+    {-380.0f, -50.0f, -570.0f, 1.0f},
+    {-220.0f, -50.0f, -570.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+};
+
+static PathPt route11[] = {
+    {-380.0f, -50.0f, -1370.0f, 1.0f},
+    {-220.0f, -50.0f, -1370.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+};
+
+static PathPt route12[] = {
+    {-380.0f, -50.0f, -2170.0f, 1.0f},
+    {-220.0f, -50.0f, -2170.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+};
+
+static PathPt route13[] = {
+    {-380.0f, -50.0f, -2970.0f, 1.0f},
+    {-220.0f, -50.0f, -2970.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+};
+
+static PathPt route14[] = {
+    {380.0f, -50.0f, -570.0f, 1.0f},
+    {220.0f, -50.0f, -570.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+};
+
+static PathPt route15[] = {
+    {380.0f, -50.0f, -1370.0f, 1.0f},
+    {220.0f, -50.0f, -1370.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+};
+
+static PathPt route16[] = {
+    {380.0f, -50.0f, -2170.0f, 1.0f},
+    {220.0f, -50.0f, -2170.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+};
+
+static PathPt route17[] = {
+    {380.0f, -50.0f, -2970.0f, 1.0f},
+    {220.0f, -50.0f, -2970.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+};
+
+static PathPt route18[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}};
+
+static PathPt route19[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}};
+
+static PathPt route20[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}};
+
+static PathPt route21[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}};
+
+static PathPt route22[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}};
+
+static PathPt route23[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}};
+
+static PathPt route24[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}};
+
+static PathPt route25[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}};
+
+static PathPt route26[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}};
+
+static PathPt route27[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}};
+
+static PathPt route28[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}};
+
+static PathPt route29[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}};
+
+/* the route a box's layout names (the low half of its kind word) indexes
+   this table; route 0 is no route and the last two slots are empty */
+static PathPt *routeTable[32] = {
+    0,       route1,  route2,  route3,  route4,  route5,  route6,  route7,  route8,  route9,
+    route10, route11, route12, route13, route14, route15, route16, route17, route18, route19,
+    route20, route21, route22, route23, route24, route25, route26, route27, route28, route29,
+};
+
+/* GetBoxHoldPoint's four hold-point candidates in the box's local frame and
+   the four offsets added back after they are scaled by the box's half
+   extents */
+static float holdPointLocal[4][4] = {
+    {0.0f, 0.0f, 50.0f, 1.0f},
+    {50.0f, 0.0f, 0.0f, 1.0f},
+    {0.0f, 0.0f, -50.0f, 1.0f},
+    {-50.0f, 0.0f, 0.0f, 1.0f},
+};
+
+static float holdPointOffset[4][4] = {
+    {0.0f, 0.0f, 10.0f, 1.0f},
+    {10.0f, 0.0f, 0.0f, 1.0f},
+    {0.0f, 0.0f, -10.0f, 1.0f},
+    {-10.0f, 0.0f, 0.0f, 1.0f},
+};
+
+/* The 416-byte box work block InitBoxGeo allocates and seeds from the
+   template below (VMA 0x4E6030).  RECONSTRUCTION: the record and every name
+   are ours, from what box.c does at each offset, f_<offset> where the role
+   is not plain; box.c still reaches the block by byte offsets.  aligned(8)
+   because the seeding copy is the ROM's doubleword loop. */
+typedef struct {
+    int serial;        /* 0x000, the box's number, mod 30 */
+    int f_004;         /* 0x004 */
+    char f_008[8];     /* 0x008 */
+    float f_010[4];    /* 0x010 */
+    int f_020;         /* 0x020 */
+    float scaleX;      /* 0x024, the layout's X scale */
+    float scaleZ;      /* 0x028, the layout's Z scale */
+    int f_02C;         /* 0x02C */
+    int f_030;         /* 0x030 */
+    char f_034[12];    /* 0x034 */
+    float f_040[4];    /* 0x040 */
+    int f_050;         /* 0x050 */
+    int f_054;         /* 0x054 */
+    int route;         /* 0x058, the routeTable index */
+    int pointCount;    /* 0x05C, the route's point count */
+    int f_060;         /* 0x060 */
+    int f_064;         /* 0x064 */
+    int f_068;         /* 0x068 */
+    char f_06C[4];     /* 0x06C */
+    float f_070[4];    /* 0x070 */
+    float f_080[3][4]; /* 0x080 */
+    char f_0B0[64];    /* 0x0B0 */
+    float f_0F0;       /* 0x0F0 */
+    float f_0F4;       /* 0x0F4 */
+    char f_0F8[8];     /* 0x0F8 */
+    float f_100[4];    /* 0x100 */
+    char f_110[4];     /* 0x110 */
+    int f_114;         /* 0x114 */
+    short f_118;       /* 0x118 */
+    short f_11A;       /* 0x11A */
+    int wheelDObj;     /* 0x11C, the wheel DObj dispWheels draws */
+    short wheelAngle;  /* 0x120, the wheels' X rotation */
+    short f_122;       /* 0x122 */
+    float f_124;       /* 0x124 */
+    float f_128;       /* 0x128 */
+    float wheelFront;  /* 0x12C, the front axle's Z */
+    float wheelRear;   /* 0x130, the rear axle's Z */
+    float f_134;       /* 0x134 */
+    int f_138;         /* 0x138 */
+    char f_13C[4];     /* 0x13C */
+    int f_140;         /* 0x140 */
+    char f_144[12];    /* 0x144 */
+    float f_150[4];    /* 0x150 */
+    int effectDObj;    /* 0x160, the effect DObj */
+    int f_164;         /* 0x164 */
+    char f_168[8];     /* 0x168 */
+    float f_170[4];    /* 0x170 */
+    int subGObj;       /* 0x180, the layouted sub GObj */
+    char f_184[12];    /* 0x184 */
+    float f_190[4];    /* 0x190 */
+} __attribute__((aligned(8))) BoxWork;
+
+static BoxWork boxWorkInit = {
+    0,
+    0,
+    {0},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+    0,
+    1.0f,
+    1.0f,
+    0,
+    0,
+    {0},
+    {0.0f, 0.0f, 0.0f, 0.0f},
+    2,
+    1,
+    0,
+    0,
+    0,
+    -1,
+    0,
+    {0},
+    {0.0f},
+    {{0.0f}},
+    {0},
+    0.0f,
+    0.0f,
+    {0},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+    {0},
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    10.0f,
+    30.0f,
+    50.0f,
+    -50.0f,
+    0.9f,
+    0,
+    {0},
+    0,
+    {0},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+    0,
+    0,
+    {0},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+    0,
+    {0},
+    {0.0f, 0.0f, 1.0f, 0.0f},
+};
+
+/* the Y axis the side plane is built from */
+static float yAxis[4] = {0.0f, 1.0f, 0.0f, 0.0f};
+
 /* the largest float, 0x7F7FFFFF, in the TU's .sdata at VMA 0x63B738; the
    declaration withholds its size so the load keeps the ROM's %hi/%lo */
 extern float D_0063B738[];
-
-/* one 16-byte route point */
-typedef float PathPt[4];
 
 /* box.c:595-600 in the listing: inlined once, into InitBoxGeo, so it is a
    static inline here; it has no symbol of its own in the ROM and no census
@@ -565,7 +829,7 @@ typedef float PathPt[4];
    fourth word is 10.0f or more. */
 static inline int countPathPoints(int route)
 {
-    PathPt *pts = (PathPt *)D_004E5F30[route];
+    PathPt *pts = routeTable[route];
     int i;
 
     for (i = 1; pts[i][3] < 10.0f; i++) {}
@@ -585,7 +849,7 @@ int getNearestPosition(float *out, int *pidx, int *path)
     float proj[4];
     float pl[4];
     float foot[4];
-    PathPt *pts = (PathPt *)D_004E5F30[path[0]];
+    PathPt *pts = routeTable[path[0]];
     float best = D_0063B738[0];
     int bi = -1;
     int start;
@@ -609,7 +873,7 @@ int getNearestPosition(float *out, int *pidx, int *path)
         sceVu0SubVector(seg, pts[i], pts[i - 1]);
         seg[1] = 0.0f;
         sceVu0Normalize(dir, seg);
-        sceVu0OuterProduct(pl, D_004E61D0, dir);
+        sceVu0OuterProduct(pl, yAxis, dir);
         pl[1] = 0.0f;
         sceVu0Normalize(pl, pl);
         pl[3] = -(pl[0] * pts[i][0] + pl[2] * pts[i][2]);
@@ -703,9 +967,12 @@ extern char D_0061EFC0[];
 extern char D_0061EFD0[];
 extern char D_0061EFE0[];
 extern char D_0061EFF0[];
-/* the two route colours, data VMA 0x4E61E0 and 0x4E61F0, four words each */
-extern char D_004E61E0[];
-extern char D_004E61F0[];
+
+/* the two route colours onPath draws the route and its end points in, one
+   word per channel, RGBA */
+static int routeFrontColor[4] = {0, 128, 255, 128};
+
+static int routeRearColor[4] = {255, 128, 0, 128};
 
 /* box.c:710-813 in the listing.  10430.378 is 32768 / pi, the repo's spelling
    of the radian-to-angle-table factor.  Rows 718, 720 and 721 are the three
@@ -722,7 +989,7 @@ int onPath(char *self)
     float q[4] = {0.0f, 0.0f, 0.0f, 1.0f};
     VECTOR fwd = {0.0f, 0.0f, *(float *)(p + 0x28) * 50.0f, 1.0f};
     VECTOR bwd = {0.0f, 0.0f, *(float *)(p + 0x28) * -50.0f, 1.0f};
-    PathPt *pts = (PathPt *)D_004E5F30[*(int *)(p + 0x58)];
+    PathPt *pts = routeTable[*(int *)(p + 0x58)];
     Vec4 mid;
     Vec4 ofs;
     float m[16];
@@ -793,14 +1060,14 @@ int onPath(char *self)
         gif_SetZTest(1);
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
         for (i = 1; pts[i][3] < 10.0f; i++) {
-            DrawLineG(pts[i - 1], D_004E61E0, pts[i], D_004E61E0, -1);
+            DrawLineG(pts[i - 1], routeFrontColor, pts[i], routeFrontColor, -1);
         }
         CopyMatrix(MatrixDrive_GetMatrix(), (void *)GOBJ_SUB(self)->f_C);
         MatrixDrive_TransMatrix(0.0f, 0.0f, *(float *)(p + 0x28) * 50.0f);
-        prim_DispWireSphere(10.0f, D_004E61E0, 4, 4);
+        prim_DispWireSphere(10.0f, routeFrontColor, 4, 4);
         CopyMatrix(MatrixDrive_GetMatrix(), (void *)GOBJ_SUB(self)->f_C);
         MatrixDrive_TransMatrix(0.0f, 0.0f, *(float *)(p + 0x28) * -50.0f);
-        prim_DispWireSphere(10.0f, D_004E61F0, 4, 4);
+        prim_DispWireSphere(10.0f, routeRearColor, 4, 4);
         gif_EndPacket();
     }
 
@@ -875,9 +1142,9 @@ static inline void execBoxFall(char *self)
 extern float _Sqrt(float f);
 extern int GetCylinderCollisionWithExceptOwnCollision(char *self, int target, float r, float h,
                                                       float s, float t, int ctrl);
-/* the local Z axis the floating box's facing is rebuilt from, VMA 0x4E6200,
-   { 0.0f, 0.0f, 1.0f, 0.0f } */
-extern float D_004E6200[];
+
+/* the local Z axis the floating box's facing is rebuilt from */
+static float floatFacingAxis[4] = {0.0f, 0.0f, 1.0f, 0.0f};
 
 /* box.c:882-951 in the listing.  0.31830987 is 1 / pi and the ROM keeps two
    copies of it, one per arm of the sign test, the way it keeps two copies of
@@ -941,7 +1208,7 @@ int MoveFloatingBox(char *self, char *other, float *dst, void *src, float lim)
         MatrixDrive_RotMatrixY(GetTableArcTan2(*(float *)((char *)GOBJ_SUB(self) + 0x520),
                                                *(float *)((char *)GOBJ_SUB(self) + 0x528)));
         MatrixDrive_RotMatrixY(ang);
-        sceVu0ApplyMatrix((char *)GOBJ_SUB(self) + 0x520, MatrixDrive_GetMatrix(), D_004E6200);
+        sceVu0ApplyMatrix((char *)GOBJ_SUB(self) + 0x520, MatrixDrive_GetMatrix(), floatFacingAxis);
 
         SetRootPosition(self, pos);
 
@@ -968,9 +1235,13 @@ extern void _SubVectorXYZ(void *dst, void *a, void *b);
 extern float VectorLength(void *v);
 extern float VectorLengthSquare(void *v);
 extern void GetMatrixFromQuaternionPos(void *m, void *q, void *pos);
-/* the eight horizontal push-out directions the floating box is tested along,
-   VMA 0x4E6210, eight vectors */
-extern float D_004E6210[];
+
+/* the eight horizontal push-out directions the floating box is tested along */
+static float floatPushDir[8][4] = {
+    {0.0f, 0.0f, 1.0f, 1.0f},  {0.0f, 0.0f, -1.0f, 1.0f},  {1.0f, 0.0f, 0.0f, 1.0f},
+    {-1.0f, 0.0f, 0.0f, 1.0f}, {-1.0f, 0.0f, -1.0f, 1.0f}, {1.0f, 0.0f, -1.0f, 1.0f},
+    {1.0f, 0.0f, 1.0f, 1.0f},  {-1.0f, 0.0f, 1.0f, 1.0f},
+};
 
 /* box.c:965-988 in the listing: inlined once, into execFloating, so it is a
    static inline here; it has no symbol of its own in the ROM and no census
@@ -988,7 +1259,7 @@ static inline void pushOutFloatingBox(char *cw, float *m, float *sv, float *dv, 
     memset(cw, 0, 0xC0);
     /* the counter is only read by the test, so loop.c reverses it: the ROM
        counts down from 7 while the direction pointer still walks up. */
-    for (i = 0, dir = D_004E6210; i < 8; i++, dir += 4) {
+    for (i = 0, dir = floatPushDir[0]; i < 8; i++, dir += 4) {
         CopyVector(cw, pos);
         GetMatrixFromQuaternionPos(m, q, pos);
         _ScaleVectorXYZ(sv, dir, r);
@@ -1058,9 +1329,9 @@ extern void EntryStageMultiBgaManager(int kind, void *pos, void *rot);
    girl, as sceneManager.c sets them */
 extern char *D_00639EA4;
 extern char *D_00639EA8;
-/* the world Y axis the box's tilt is measured around, VMA 0x4E6290,
-   { 0.0f, 1.0f, 0.0f, 0.0f } */
-extern float D_004E6290[];
+
+/* the world Y axis the box's tilt is measured around */
+static float floatTiltAxis[4] = {0.0f, 1.0f, 0.0f, 0.0f};
 
 void execFloating(char *self)
 {
@@ -1133,7 +1404,7 @@ void execFloating(char *self)
         sceVu0AddVector(w + 0xD0, w + 0xD0, w + 0xF0);
         sceVu0ScaleVectorXYZ(w + 0xD0, w + 0xD0, 0.95f);
         sceVu0AddVector(w + 0xC0, w + 0xC0, w + 0xD0);
-        sceVu0OuterProduct(axis, D_004E6290, w + 0xC0);
+        sceVu0OuterProduct(axis, floatTiltAxis, w + 0xC0);
         CopyQuaternion(q, IdentityQuaternion);
         RotQuaternionY(q, GetTableArcTan2(*(float *)((char *)GOBJ_SUB(self) + 0x520),
                                           *(float *)((char *)GOBJ_SUB(self) + 0x528)));
@@ -1169,7 +1440,9 @@ void execFloating(char *self)
 /* kept local: this TU's uses of IdentityQuaternion do not fit the prototype in quaternion.h */
 /* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
 extern char ZeroVector[];
-extern char D_004E62A0[];
+
+/* the facing a floating box starts with */
+static float floatInitFacing[4] = {0.0f, 0.0f, 1.0f, 0.0f};
 
 void initFloating(char *a0)
 {
@@ -1183,7 +1456,7 @@ void initFloating(char *a0)
     CopyVector(p + 0xC0, ZeroVector);
     CopyVector(p + 0xD0, ZeroVector);
     GetRootPosition(p + 0x100, a0);
-    CopyVector((char *)(int)GOBJ_SUB(a0) + 0x520, D_004E62A0);
+    CopyVector((char *)(int)GOBJ_SUB(a0) + 0x520, floatInitFacing);
     *(short *)(p + 0x118) = 0;
     execFloating(a0);
 }
@@ -1429,11 +1702,6 @@ extern int CompareAttribute(int attr, int mask);
 /* kept local: this TU does not include matrixDrive.h, whose other prototypes
    do not fit this TU's uses of them. */
 extern float ZeroPoint[4];
-/* The four hold-point candidates in the box's local frame and the four
-   offsets added back after they are scaled by the box's half extents; both
-   live in the TU's .data run (VMA 0x4E5FB0 and 0x4E5FF0, 4 x 16 bytes each). */
-extern float D_004E5FB0[4][4];
-extern float D_004E5FF0[4][4];
 
 /* box.c:1477-1520 in the listing.  The clip work buffer is declared in a block
    of its own after the candidate loop: the ROM's frame puts it at sp+0x60,
@@ -1453,7 +1721,7 @@ int GetBoxHoldPoint(float *out, char *self, void *chara)
 
     GetRootPosition(pos, chara);
     for (i = 0; i < 4; i++) {
-        GetBoxGlobalHoldPoint(p, self, D_004E5FB0[i]);
+        GetBoxGlobalHoldPoint(p, self, holdPointLocal[i]);
         if (i == 0) {
             min = distance_squared_b(p, pos);
             best = 0;
@@ -1464,10 +1732,10 @@ int GetBoxHoldPoint(float *out, char *self, void *chara)
             }
         }
     }
-    CopyVector(out, D_004E5FB0[best]);
+    CopyVector(out, holdPointLocal[best]);
     out[0] *= *(float *)(q + 0x24);
     out[2] *= *(float *)(q + 0x28);
-    AddVectorXYZ(out, out, D_004E5FF0[best]);
+    AddVectorXYZ(out, out, holdPointOffset[best]);
     *(void **)(q + 4) = chara;
     CopyVector(q + 0x10, out);
     {
@@ -1963,19 +2231,12 @@ void ReInitBoxGeo(char *a0)
 }
 
 /* the "%d\n" format the route point count is printed with (sdata VMA
-   0x63B740), the box serial counter (sdata VMA 0x63B73C), the 416-byte box
-   work template (data VMA 0x4E6030) and the empty layout record the effect
-   DObj is built from (sceneManager's data at VMA 0x4E45C0) */
+   0x63B740), the box serial counter (sdata VMA 0x63B73C) and the empty
+   layout record the effect DObj is built from (sceneManager's data at VMA
+   0x4E45C0) */
 extern char D_0063B740[];
 extern unsigned char D_0063B73C;
 extern char D_004E45C0[];
-
-/* the 416-byte box work block and the template it is seeded from */
-typedef struct {
-    long long _0[52];
-} BoxWorkBlock;
-
-extern BoxWorkBlock D_004E6030;
 
 /* The 64-byte layout record InitBoxGeo is handed; the word at 0x30 packs the
    route number in its low half and the sub-box model in its high half. */
@@ -2003,7 +2264,7 @@ char *InitBoxGeo(char *self, BoxLayout *lay)
 
     *(char **)((char *)GOBJ_SUB(self) + 0x830) = w;
 
-    *(BoxWorkBlock *)w = D_004E6030;
+    *(BoxWork *)w = boxWorkInit;
 
     *(int *)w = D_0063B73C;
     D_0063B73C = (D_0063B73C + 1) % 30;

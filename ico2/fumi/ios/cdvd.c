@@ -691,9 +691,90 @@ void iosCdvdUnifileInfoGet(void)
     iosCdvdMgrLoad(D_006AF9C0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/ios/cdvd", iosCdvdManager);
-
 extern unsigned char CdvdMsgQ[];
+extern int CdvdMsgQ_LoadEnd[];
+extern int D_0063C168;
+extern int D_0063C170;
+extern int IosSndLock;
+extern char D_006B87B8[];
+extern char D_006B8830[];
+extern int D_0063A3B8;
+extern int D_0063A368;
+extern char D_00550F10[];
+extern void sceFsReset(void);
+/* kept local: this TU does not include thread.h, whose iosThreadStart and
+   iosThreadCreate take the thread record as an int and a void pointer */
+extern void iosThreadCreate(char *th, int prio, void *entry, int arg, char *stack, int stacksize,
+                            int a6);
+extern void iosThreadStart(char *th);
+extern void iosThreadSleep(void);
+extern void iosCdvdBackGroundMgrInit(void);
+extern void SignalSema(int sema);
+
+/* cdvd.c:1665-1724 in the listing, with iosCdvdDiskReadyBlock (rows
+   701-708) expanded in case 0.  The frame is the ROM's: the inlined block's
+   fp and file at sp+0 and sp+0x30 (its frame is taken when case 0 is
+   expanded), the reply buffer at sp+0x50, msg at sp+0x8210 (an address-taken
+   local gets its slot last).  The buffer's block opens after the switch: a
+   block's locals take their slot when the block is entered, so declared at
+   the top the buffer takes sp+0 and every later slot moves (measured, 87
+   words).  Its size is what puts msg at 0x8210.  What the bytes cannot pin:
+   the buffer's type and name, or what the developers kept in it (the
+   LoadEnd receivers never read the value).  req is the request the switch
+   dispatches on, held across case 0's calls; the default arm reads msg
+   again, which is the ROM's reload. */
+void iosCdvdManager(void)
+{
+    int *msg;
+    int *req;
+
+    sceCdInit(0);
+    sceCdMmode(D_0063A370);
+    sceFsReset();
+
+    iosThreadCreate(D_006B87B8, 6, iosCdvdStManager, 0, D_006B8830, 16384, 27);
+    iosThreadStart(D_006B87B8);
+
+    iosCdvdBackGroundMgrInit();
+
+    iosMsgQueueCreate(CdvdMsgQ, &D_0063C168, 2);
+    iosMsgQueueCreate(CdvdMsgQ_LoadEnd, &D_0063C170, 2);
+
+    iosCdvdUnifileInfoGet();
+
+    SignalSema(IosSndLock);
+
+    while (1) {
+        while (iosMsgRecv(CdvdMsgQ, &msg, 0) == -1) {
+            D_0063A3B8 = 1;
+            iosCdvdBackGroundMgr();
+            D_0063A3B8 = 0;
+            D_0063A368 = 1;
+            iosThreadSleep();
+            D_0063A368 = 0;
+        }
+        req = msg;
+        switch (req[1]) {
+        case 0:
+            diskReadyBlockInlined();
+            req[3] = 0;
+            break;
+        case 1:
+            iosCdvdMgrLoad((char *)req);
+            break;
+        case 2:
+            iosCdvdMgrPackLoad((char *)req);
+            break;
+        default:
+            debug_StdPrintfDummy(D_00550F10, msg[1]);
+            break;
+        }
+        {
+            char reply[33216];
+            iosMsgSend(CdvdMsgQ_LoadEnd, reply, 0);
+        }
+    }
+}
 
 void iosCdvdDiskReady(int a0)
 {
@@ -792,12 +873,9 @@ found:
 }
 
 extern int D_0063C17C;
-extern int D_0063A368;
 extern int D_0063A384;
 extern int D_0063A3C8;
 extern int D_0063A3CC;
-/* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
-extern void iosThreadSleep(void);
 extern int sceCdStatus(void);
 typedef void (*BgReadyFunc)(char *self, int arg, int flag);
 typedef void (*BgResumeFunc)(char *self, int arg);
@@ -1037,8 +1115,6 @@ found:
     *size = iosCdvdSrhBuff[i].size;
     return iosCdvdSrhBuff[i].lsn;
 }
-
-extern int CdvdMsgQ_LoadEnd[];
 
 int iosCdvdSync(int a0)
 {

@@ -90,7 +90,10 @@ inline void initParentize(char *a0)
     }
 }
 
-extern LeverGeoWork D_004E5AA0;
+/* the zeroed template both lever inits copy into a new geometry block (the
+   head of box.o's .data, VMA 0x4E5AA0, 32 bytes); the name is ours */
+static LeverGeoWork leverGeoInit = {{0}};
+
 extern char D_0061EF10[];
 extern int D_0063A438;
 
@@ -116,7 +119,7 @@ extern BoxModelRec D_002A79B8[];
 inline LeverGeoWork *InitFloorLeverGeo(char *a0, char *a1)
 {
     LeverGeoWork *g = (LeverGeoWork *)iosMallocDebug(D_0063A438, 0x20, D_0061EF10, 0x8D);
-    *g = D_004E5AA0;
+    *g = leverGeoInit;
     if (*(int *)(a1 + 0x30) != 0) {
         g->w[5] = 1;
     } else {
@@ -278,7 +281,7 @@ inline int CanWallLeverPull(char *a0)
 inline LeverGeoWork *InitWallLeverGeo(char *a0, char *a1)
 {
     LeverGeoWork *g = (LeverGeoWork *)iosMallocDebug(D_0063A438, 0x20, D_0061EF10, 0x12C);
-    *g = D_004E5AA0;
+    *g = leverGeoInit;
     if (*(int *)(a1 + 0x30) != 0) {
         g->w[5] = 1;
     } else {
