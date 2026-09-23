@@ -215,7 +215,164 @@ void shadow_Reset(void)
     dl_CloseDma();
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Shadow", shadow_Draw);
+/* The textured sprite: PRIM, RGBAQ, then a UV and an XYZ2 pair for each
+ * corner, the far corner as spriteRect holds it. A MACRO: the listing puts all
+ * of it on the line of the use (440 and 457). */
+#define spriteUV(r, uv, col, prim)                                                                 \
+    {                                                                                              \
+        setGsReg(0x00, prim);                                                                      \
+        setGsReg(0x01, GIF_RGBA(col));                                                             \
+        setGsReg(0x03, (long long)(uv)[0] | ((long long)(uv)[1] << 16));                           \
+        setGsReg(0x05, GIF_XY((r)[0], (r)[1], 0xFFFFFFFFLL));                                      \
+        setGsReg(0x03, (long long)((uv)[0] + (uv)[2]) | ((long long)((uv)[1] + (uv)[3]) << 16));   \
+        {                                                                                          \
+            int fx = (r)[2] + 0x8000;                                                              \
+            int fy = (r)[3] + 0x8000;                                                              \
+                                                                                                   \
+            setGsReg(0x05, GIF_XY0((r)[0] + fx, (r)[1] + fy, 0xFFFFFFFFLL));                       \
+        }                                                                                          \
+    }
+
+/* the 12.4 window offsets XYOFFSET_1 is programmed with for the screen pass */
+extern int D_0063A074;
+extern int D_0063A078;
+/* the debug flag word: bit 0 turns the on-screen labels on */
+extern int D_0063B13C;
+/* "S", the one character label this pass prints */
+extern char D_0063A180[];
+/* kept local: this TU reads the stage setting record for its tint bytes only,
+ * so it takes the byte view src/layout_texture.c also uses */
+extern unsigned char D_0028F720[];
+/* kept local: this TU's uses of these do not fit the prototypes in the headers */
+extern void tex_UnlockHeadTBP(int pri);
+
+void shadow_Draw(void)
+{
+    if (D_0063B13C & 1) {
+        debug_Printf(500, ScreenHeight / 2 - 8, 0xCCCCCC00u, (int)D_0063A180);
+    }
+    {
+        /* The four level tables are this block's statics: Shadow.o's .rodata
+         * opens with them in this order (0x54FCB0, 0x54FCC0, 0x54FCD0,
+         * 0x54FD10), and the listing leaves rows 382 to 409 code-free between
+         * the label print and the rect initializer. As block statics they
+         * give the ROM's register file and preheader order, where extern
+         * placeholders left the loop-one preheader and the open's cursor
+         * register off (strict 150 against 40 before the switch below). The
+         * names are ours: the map lists none. */
+        /* the frame buffer pointer of each shadow mipmap level */
+        static const unsigned int levelFbp[4] = {0x142, 0x1C2, 0x1E2, 0x1EA};
+        /* the texture base pointer of each shadow mipmap level */
+        static const unsigned int levelTbp[4] = {0x2840, 0x3840, 0x3C40, 0x3D40};
+        /* the sprite corner and size of each level in 12.4 screen units */
+        static const int levelRect[4][4] = {{-4100, -4100, 8192, 8192},
+                                            {-2052, -2052, 4096, 4096},
+                                            {-1028, -1028, 2048, 2048},
+                                            {-516, -516, 1024, 1024}};
+        /* the sprite texture rectangle of each level at the 512 pixel default */
+        static const int levelUV[4][4] = {
+            {4, 4, 8192, 8192}, {4, 4, 4096, 4096}, {4, 4, 2048, 2048}, {4, 4, 1024, 1024}};
+        int rect[4][4] = {{4, 4, ScreenWidth * 16, ScreenHeight * 16},
+                          {4, 4, ScreenWidth * 8, ScreenHeight * 8},
+                          {4, 4, ScreenWidth * 4, ScreenHeight * 4},
+                          {4, 4, ScreenWidth * 2, ScreenHeight * 2}};
+        int off[4] = {-(ScreenWidth >> 1) * 16, -(ScreenHeight >> 1) * 16, ScreenWidth * 16,
+                      ScreenHeight * 16};
+        unsigned char col[4] = {128, 128, 128, D_0028F720[0xAC]};
+        int dbg = 0; /* local debug switch, see the test in the upward loop */
+        int i;
+        char *c;
+        char *q;
+
+        dl_SetDLPriority(3);
+        gifStartPacketPath1(c);
+        setGsReg(0x47, 0x30000);
+        setGsReg(0x4E, 0xC0 | ((long long)0x30 << 24) | ((long long)1 << 32));
+        setGsReg(0x46, 1);
+        setGsReg(0x4A, 0);
+        setGsReg(0x3B, 0x8080 | ((long long)0x80 << 32));
+        setGsReg(0x14, 0x60);
+
+        for (i = 0; i < 3; i++) {
+            setFrame(levelFbp[i + 1], 512 >> (i + 1), 512 >> (i + 1), 0, 0);
+            if (i == 0) {
+                *PacketBufferStruct.ptr.d++ = levelTbp[i] | ((long long)(512 >> i) / 64 << 14) |
+                                              ((long long)1 << 20) | ((long long)(9 - i) << 26) |
+                                              ((long long)(9 - i) << 30) |
+                                              ((long long)0x8000 << 19);
+                *PacketBufferStruct.ptr.d++ = 0x06;
+            } else {
+                *PacketBufferStruct.ptr.d++ =
+                    levelTbp[i] | ((long long)(512 >> i) / 64 << 14) | ((long long)(9 - i) << 26) |
+                    ((long long)(9 - i) << 30) | ((long long)0x8000 << 19);
+                *PacketBufferStruct.ptr.d++ = 0x06;
+            }
+            spriteUV(levelRect[i + 1], levelUV[i], col, 0x116);
+        }
+
+        setFrame(0x40, ScreenWidth, ScreenHeight, 0, 0);
+        setGsReg(0x42, 0x44);
+        setGsReg(0x47, 0x3400D);
+
+        for (i = 3; i > 0; i--) {
+            unsigned char col2[4] = {D_0028F720[0xC0], D_0028F720[0xC4], D_0028F720[0xC8],
+                                     D_0028F720[0xB0 + i * 4]};
+
+            /* Local debug switch, off. What the bytes pin: the ROM's seven
+               spill slots (ScreenHeight 0x80, ScreenWidth 0x84, the two window
+               offsets 0x88 and 0x90, the rect column addresses 0x98 to 0xA0)
+               are gcse's PRE reaching registers in hash-bucket order, and that
+               order needs an expression table of 391 buckets, so shadow_Draw
+               reached gcse with 780 to 783 insns (781 with this arm, 774
+               without it; the 405-bucket window, 808 to 811, is the other
+               one). Also pinned: the arm is one test around straight-line
+               stores inside the upward loop, since a test that cse's
+               skip-blocks cannot pass (an && chain) or an edge out of the body
+               (a continue) changes PRE's insertions there. cse cannot carry
+               dbg's 0 across the loop label, gcse's constant propagation folds
+               the test and the next jump pass deletes the arm; the listing
+               leaves rows 449 to 453 code-free between the colour and the
+               TEX0 word. What the bytes cannot pin: the arm's text. */
+            if (dbg) {
+                col2[0] = col2[1] = col2[2] = col2[3] = 0x80;
+            }
+            *PacketBufferStruct.ptr.d++ = levelTbp[i] | ((long long)(512 >> i) / 64 << 14) |
+                                          ((long long)(9 - i) << 26) | ((long long)(9 - i) << 30) |
+                                          ((long long)0x8000 << 19);
+            *PacketBufferStruct.ptr.d++ = 0x06;
+            setGsReg(0x14, 0x60);
+            spriteUV(off, rect[i], col2, 0x156);
+        }
+
+        setGsReg(0x4E, 0x300000C0);
+        setGsReg(0x47, 0x50000);
+        setFrame(0x40, ScreenWidth, ScreenHeight, D_0063A074, D_0063A078);
+
+        ((GifPkWord *)PacketBufferStruct.end.c)->d =
+            (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >>
+                            4) -
+                           1) |
+            0x1000000000008000LL;
+        ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
+            ((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) | 0x50000000;
+        ((GifPkWord *)PacketBufferStruct.tail.c)->d =
+            (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
+                             4) -
+                            1) |
+                           0x10000000);
+        q = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.tail.c = q;
+        ((GifPkWord *)q)->d = 0x60000000;
+        PacketBufferStruct.ptr.c = (q + 8);
+        ((GifPkWord *)(q + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = (q + 0xC);
+        ((GifPkWord *)(q + 8))->w[1] = 0;
+        PacketBufferStruct.ptr.c = (q + 0x10);
+        dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
+        dl_CloseDma();
+    }
+    tex_UnlockHeadTBP(3);
+}
 
 void shadow_Render(void)
 {
