@@ -952,11 +952,11 @@ inline int scpTriggerPosBox(float *p, float *pos, float *size)
     return hit;
 }
 
-inline void scpEffectStart(int a0, int a1)
+inline int scpEffectStart(void *pos, int kind)
 {
     int buf[4];
     SetIdentityQuaternion(buf);
-    SetParticleEffect(a1, a0, buf);
+    return SetParticleEffect(kind, pos, buf);
 }
 
 inline void scpDoorTypeUp(volatile int a0)
@@ -1789,9 +1789,9 @@ out:
     return (int)v;
 }
 
-void scpWakeupEnemyOne(void)
+void scpWakeupEnemyOne(int id)
 {
-    int rc = isysGObjSearchFromObjLayoutID();
+    int rc = isysGObjSearchFromObjLayoutID(id);
     if (rc) {
         iosOmSendMail(rc, 0x1F, rc);
     }
@@ -1810,25 +1810,25 @@ inline void scpWakeupEnemyAll(void)
     }
 }
 
-void scpSleepEnemyOne(void)
+void scpSleepEnemyOne(int id)
 {
-    int rc = isysGObjSearchFromObjLayoutID();
+    int rc = isysGObjSearchFromObjLayoutID(id);
     if (rc) {
         iosOmSendMail(rc, 0x20, rc);
     }
 }
 
-void scpSleepSpiderGroupOne(void)
+void scpSleepSpiderGroupOne(int id)
 {
-    int v = isysGObjSearchFromObjLayoutID();
+    int v = isysGObjSearchFromObjLayoutID(id);
     if (v) {
         SleepSpiderGroup(v);
     }
 }
 
-void scpWakeupSpiderGroupOne(void)
+void scpWakeupSpiderGroupOne(int id)
 {
-    int v = isysGObjSearchFromObjLayoutID();
+    int v = isysGObjSearchFromObjLayoutID(id);
     if (v) {
         WakeupSpiderGroup(v);
     }
@@ -1847,10 +1847,10 @@ inline void scpSleepEnemyAll(void)
     }
 }
 
-inline void scpKillEnemyOne(void)
+inline void scpKillEnemyOne(int id)
 {
     char *new_var;
-    int *p = isysGObjSearchFromObjLayoutID();
+    int *p = isysGObjSearchFromObjLayoutID(id);
     if (p != 0) {
         iosOmSendMail((int)p, 0x26, (int)p);
         new_var = (char *)D_002C2DC8;
@@ -1882,9 +1882,9 @@ inline void scpMaskGeneratorAll(void)
     }
 }
 
-void scpKillSpiderGroup(void)
+void scpKillSpiderGroup(int id)
 {
-    DeleteAllSpidersOfLayoutGroup(isysGObjSearchFromObjLayoutID());
+    DeleteAllSpidersOfLayoutGroup(isysGObjSearchFromObjLayoutID(id));
 }
 
 inline void scpBornSpider(int n, float a, float b, float c, float d)

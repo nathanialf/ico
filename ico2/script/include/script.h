@@ -46,12 +46,12 @@ int scpTriggerFloorAttr(char *self, int attr);
 int scpTriggerWallAttr(char *self, int attr);
 int scpTriggerFloorAttrTargetMan(char *self, int attr);
 int scpTriggerPosBox(float *p, float *pos, float *size);
-void scpEffectStart(int a0, int a1);
+int scpEffectStart(void *pos, int kind);
 void scpSleepEnemyAll(void);
 void scpWakeupEnemyAll(void);
 void scpKillEnemyAll(void);
 void scpMaskGeneratorAll(void);
-void scpKillEnemyOne(void);
+void scpKillEnemyOne(int id);
 int _SCPMoveCharactorByWay(char *self, int a1, int a2, float speed, int a3);
 int _SCPMoveByWay_ToChar(char *self, char *target, int deg, int a3, float scale, float speed);
 void _SCPCharacterStop(char *self);
@@ -119,11 +119,11 @@ void scpSekizou(char *self, int flag, int anim, int anim2, int kind, float bx, f
 
 void _SCPMoveCharactorByWay_Cancel(char *a0);
 void scpSekizouCheckPoint(void);
-void scpWakeupEnemyOne(void);
-void scpSleepEnemyOne(void);
-void scpSleepSpiderGroupOne(void);
-void scpWakeupSpiderGroupOne(void);
-void scpKillSpiderGroup(void);
+void scpWakeupEnemyOne(int id);
+void scpSleepEnemyOne(int id);
+void scpSleepSpiderGroupOne(int id);
+void scpWakeupSpiderGroupOne(int id);
+void scpKillSpiderGroup(int id);
 void preload(int idx);
 void scpSetBoyWeaponGObj(int a0, int a1, int a2, int a3);
 

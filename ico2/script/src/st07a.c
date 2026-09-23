@@ -13,6 +13,7 @@
 #include "generator.h"
 #include "lws_kyomi.h"
 #include "gflag.h"
+#include "script.h"
 #include "RegistPacket.h"
 #include "StageAnimation.h"
 #include "attackCheckBoundary.h"
@@ -24,18 +25,10 @@
 #include "typedef.h"
 #include "e3.h"
 
-/* declared as script.h declares it; this TU does not include script.h, whose
-   pointer-typed prototypes its other script calls (int handles) do not fit */
-extern void scpTorchLightOff(int id);
-/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
-/* kept local: this TU's uses of scpLinkBGAtoLayoutedTarget do not fit the prototype in script.h */
-extern void scpLinkBGAtoLayoutedTarget(int a0, int a1);
-
 void actSt07aInit(void)
 {
     if (gflagChk(126) != 0) {
-        scpSearchGobj(397)->f16C = 0;
+        ((PObjGObj *)scpSearchGobj(397))->f16C = 0;
 
         stage_SetAnimation(360, -1, -2);
 
@@ -84,35 +77,8 @@ extern int D_0063AA08;
    subthreads the wait loops below spin for. */
 static int demoEnd;
 
-/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
-extern int scpTriggerFloorAttr(int a0, int a1);
-/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
-extern void scpSleepEnemyAll(void);
-/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
-extern void scpWakeupEnemyAll(void);
-/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
-extern int scpAdpcmPlayRequestNum(void);
-/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
-extern void scpAdpcmFadeCloseFunc(int *a0, int a1);
-/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
-extern void scpFadeOut(float t, int a1, int a2, int a3);
-/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
-extern void scpFadeIn(float t);
-/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
-extern int scpFadeChk(void);
-/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
-extern void scpPlayStart(int a0);
-/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
-extern void scpPlayEnd(int a0);
-/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
-extern void scpPlayMot(int a0, int mot);
-/* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
-extern void scpPlayMotDir(int a0, void *dir);
 extern int D_00639EAC;
 extern int D_0028F4C0[];
-/* declared as script.h declares it; this TU does not include script.h, whose
-   pointer-typed prototypes its other script calls (int handles) do not fit */
-extern void scpTorchLightOn(int id);
 
 /* A 16-byte constant vector: the float view carries the values, the long
    long view is the one the whole-object copy reads. */
@@ -180,7 +146,7 @@ void actSt07aChanChk(volatile int a0)
 
     _ACTWait(1);
 
-    scpSearchGobj(397)->f16C = 0;
+    ((PObjGObj *)scpSearchGobj(397))->f16C = 0;
     stage_SetAnimation(360, -1, -2);
 
     while (stage_CheckAnimationFinish(355) == 0) {
@@ -303,14 +269,6 @@ void actSt07aChanEffect(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: this TU's uses of scpIsBombExplode do not fit the prototype in script.h */
-extern int scpIsBombExplode(int a0);
-/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
-extern int scpTriggerBall(int a0, int a1, float radius);
-/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
-extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-/* kept local: this TU's uses of _SCPMoveCharactorByWay_Cancel do not fit the prototype in script.h */
-extern void _SCPMoveCharactorByWay_Cancel(int a0);
 extern int sekizo7a;
 
 void actSt07aTsuroChk(volatile int a0)
@@ -411,9 +369,6 @@ void actSt07aTsuroChk(volatile int a0)
     scpTorchLightOff(432);
 }
 
-/* kept local: this TU's uses of scpEffectStart do not fit the prototype in script.h */
-extern int scpEffectStart(void *a0, int a1);
-
 void actSt07aTsuroEffect(volatile int a0)
 {
     EffectArg b1;
@@ -490,18 +445,6 @@ void actSt07aTsuroEffect(volatile int a0)
 extern int sekizo_7a;
 extern int sekizo_7a_vol;
 extern unsigned char D_0063BF78;
-/* kept local: this TU's uses of scpKillEnemyOne do not fit the prototype in script.h */
-extern void scpKillEnemyOne(int a0);
-/* kept local: this TU's uses of scpKillSpiderGroup do not fit the prototype in script.h */
-extern void scpKillSpiderGroup(int a0);
-/* kept local: this TU's uses of scpMaskGeneratorAll do not fit the prototype in script.h */
-extern void scpMaskGeneratorAll(void);
-/* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
-extern void scpPlayPosSet(int a0, float x, float y, float z);
-/* kept local: this TU's uses of scpSekizouCheckPoint do not fit the prototype in script.h */
-extern void scpSekizouCheckPoint(void);
-/* kept local: this TU's uses of scpPlayWaitMotEnd do not fit the prototype in script.h */
-extern void scpPlayWaitMotEnd(int a0);
 
 void actSt07aSekizoChk(volatile int a0)
 {
@@ -624,18 +567,18 @@ void actSt07aEne(volatile int a0)
 
     _ACTWait(1);
 
-    scpSearchGobj(396)->f16C = 0;
+    ((PObjGObj *)scpSearchGobj(396))->f16C = 0;
 
-    scpSearchGobj(408)->f50 = 0;
-    scpSearchGobj(409)->f50 = 0;
+    ((PObjGObj *)scpSearchGobj(408))->f50 = 0;
+    ((PObjGObj *)scpSearchGobj(409))->f50 = 0;
 
     if (gflagChk(131) == 0) {
-        scpSearchGobj(411)->f16C = 0;
-        scpSearchGobj(412)->f16C = 0;
-        scpSearchGobj(413)->f16C = 0;
-        scpSearchGobj(414)->f16C = 0;
-        scpSearchGobj(415)->f16C = 0;
-        scpSearchGobj(416)->f16C = 0;
+        ((PObjGObj *)scpSearchGobj(411))->f16C = 0;
+        ((PObjGObj *)scpSearchGobj(412))->f16C = 0;
+        ((PObjGObj *)scpSearchGobj(413))->f16C = 0;
+        ((PObjGObj *)scpSearchGobj(414))->f16C = 0;
+        ((PObjGObj *)scpSearchGobj(415))->f16C = 0;
+        ((PObjGObj *)scpSearchGobj(416))->f16C = 0;
 
         ene_mes[0].func = actSt07aEneChk;
         self->mail = ene_mes;
@@ -643,15 +586,6 @@ void actSt07aEne(volatile int a0)
         _ACTWait(0);
     }
 }
-
-/* kept local: this TU's uses of scpSleepEnemyOne do not fit the prototype in script.h */
-extern void scpSleepEnemyOne(int a0);
-/* kept local: this TU's uses of scpSleepSpiderGroupOne do not fit the prototype in script.h */
-extern void scpSleepSpiderGroupOne(int a0);
-/* kept local: this TU's uses of scpWakeupEnemyOne do not fit the prototype in script.h */
-extern void scpWakeupEnemyOne(int a0);
-/* kept local: this TU's uses of scpWakeupSpiderGroupOne do not fit the prototype in script.h */
-extern void scpWakeupSpiderGroupOne(int a0);
 
 void actSt07aEneChk(volatile int a0)
 {
@@ -663,7 +597,7 @@ void actSt07aEneChk(volatile int a0)
         _ACTWait(1);
     }
 
-    scpSearchGobj(396)->f16C = 1;
+    ((PObjGObj *)scpSearchGobj(396))->f16C = 1;
 
     lt_switch_layout(55);
     D_0063AA08 = 1;
@@ -697,7 +631,7 @@ void actSt07aEneChk(volatile int a0)
     lt_switch_layout(54);
     D_0063AA08 = 0;
 
-    scpSearchGobj(396)->f16C = 0;
+    ((PObjGObj *)scpSearchGobj(396))->f16C = 0;
 
     _ACTWait(30);
 
@@ -785,7 +719,7 @@ void actSt07aChanChain(volatile int a0)
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        scpSearchGobj(454)->f16C = 0;
+        ((PObjGObj *)scpSearchGobj(454))->f16C = 0;
     }
 }
 
@@ -964,9 +898,6 @@ void actSt07aChanReadyChk(volatile int a0)
     scpAdpcmPlayRequestFunc(59, &bridge, 1, 1, 0);
 }
 
-/* kept local: this TU's uses of scpGameStat_BoyWeaponkind do not fit the prototype in script.h */
-extern int scpGameStat_BoyWeaponkind(void);
-
 void actSt07aChanChainChk(volatile int a0)
 {
     int x = a0;
@@ -980,13 +911,13 @@ void actSt07aChanChainChk(volatile int a0)
                 gflagOn(127);
                 soundSeDefPlay(878, 0, 0, 1);
                 _ACTWait(30);
-                scpSearchGobj(454)->f16C = 0;
+                ((PObjGObj *)scpSearchGobj(454))->f16C = 0;
             }
         case 0:
             _ACTWait(1);
             break;
         case 2:
-            scpSearchGobj(454)->f16C = 0;
+            ((PObjGObj *)scpSearchGobj(454))->f16C = 0;
             gflagOn(127);
             break;
         }
@@ -1027,15 +958,12 @@ void actSt07aChanMot(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: this TU's uses of _SCPMoveCharactorByWay do not fit the prototype in script.h */
-extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
-
 void actSt07aChanWay1(volatile unsigned int a0)
 {
     long long buf[2];
     buf[0] = chanWay1Pos.d[0];
     buf[1] = chanWay1Pos.d[1];
-    _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)buf, 0, 100.0f);
+    _SCPMoveCharactorByWay(D_00639EA8, 0, (int)buf, 100.0f, 0);
     _ACTWait(0);
 }
 
@@ -1044,7 +972,7 @@ void actSt07aChanWay2(volatile unsigned int a0)
     long long buf[2];
     buf[0] = chanWay2Pos.d[0];
     buf[1] = chanWay2Pos.d[1];
-    _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)buf, 0, 100.0f);
+    _SCPMoveCharactorByWay(D_00639EA8, 0, (int)buf, 100.0f, 0);
     _ACTWait(0);
 }
 
@@ -1075,7 +1003,7 @@ void actSt07aGirlWay(volatile unsigned int a0)
     long long buf[2];
     buf[0] = tsuroChkPos.d[0];
     buf[1] = tsuroChkPos.d[1];
-    _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)buf, 0, 100.0f);
+    _SCPMoveCharactorByWay(D_00639EA8, 0, (int)buf, 100.0f, 0);
     _ACTWait(0);
 }
 

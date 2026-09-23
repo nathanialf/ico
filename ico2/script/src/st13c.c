@@ -18,6 +18,7 @@
 #include "fightSound.h"
 #include "generator.h"
 #include "gflag.h"
+#include "script.h"
 #include "GsBase.h"
 #include "StageAnimation.h"
 #include "motionManager2.h"
@@ -60,75 +61,10 @@ typedef struct PObjGObjSt13c {
     int unk16C;        /* 0x16C */
 } PObjGObjSt13c;
 
-/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
-extern int scpSearchGobj(int a0);
-/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
-extern void scpSleepEnemyAll(void);
-/* kept local: this TU's uses of scpPlayWaitMotEnd do not fit the prototype in script.h */
-extern void scpPlayWaitMotEnd(int a0);
-/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
-extern void scpPlayStart(int a0);
-/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
-extern void scpPlayMot(int a0, int mot);
-/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
-extern int scpTriggerFloorAttr(int a0, int a1);
-/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
-extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
-extern int scpTriggerBall(int a0, int gobj, float r);
-/* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
-extern void scpPlayMotDir(int a0, void *dir);
-/* kept local: this TU's uses of scpPlayMotReq do not fit the prototype in script.h */
-extern void scpPlayMotReq(int a0, int mot);
-/* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
-extern void scpPlayPosSet(int a0, float x, float y, float z);
-/* kept local: this TU's uses of ScpCallCameraOff do not fit the prototype in script.h */
-extern void ScpCallCameraOff(void);
 /* kept local: this TU's uses of jimakuBegin do not fit the prototype in jimaku.h */
 extern void jimakuBegin(int a0);
-/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
-extern int scpAdpcmPlayRequestNum(void);
-/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
-extern void scpFadeOut(float t, int a1, int a2, int a3);
-/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
-extern void scpFadeIn(float f);
-/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
-extern int scpFadeChk(void);
-/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
-extern void scpPlayEnd(int a0);
-/* kept local: this TU's uses of ScpCallCameraOn do not fit the prototype in script.h */
-extern void ScpCallCameraOn(void);
-/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
-extern void scpAdpcmFadeCloseFunc(int *a0, int a1);
 /* kept local: this TU's uses of jimakuUndisp do not fit the prototype in jimaku.h */
 extern void jimakuUndisp(int a0);
-/* no prototype in the dev's TU: the C89 implicit-int return is what makes
-   ee-gcc treat $v0 as clobbered at every call site (it is why ROM alternates
-   $2/$3 across the nine calls below). The definition in src/script.c is void. */
-/* kept local: this TU's uses of scpEffectStart do not fit the prototype in script.h */
-extern int scpEffectStart(void *a0, int a1);
-/* kept local: this TU's uses of scpKillEnemyAll do not fit the prototype in script.h */
-extern void scpKillEnemyAll(void);
-/* declared as script.h declares it; this TU does not include script.h, whose
-   pointer-typed prototypes its other script calls (int handles) do not fit */
-extern void scpTorchLightOn(int id);
-/* kept local: this TU's uses of scpActStatusDeathFall do not fit the prototype in script.h */
-extern int scpActStatusDeathFall(int a0);
-/* kept local: this TU's uses of scpLockMaxRotate do not fit the prototype in script.h */
-extern void scpLockMaxRotate(int a0, float a1);
-/* kept local: this TU's uses of scpUnLockMaxRotate do not fit the prototype in script.h */
-extern void scpUnLockMaxRotate(int a0);
-/* kept local: this TU's uses of _SCPMoveByWay_ToChar do not fit the prototype in script.h */
-extern void _SCPMoveByWay_ToChar(int a0, int a1, int a2, int a3, float f0, float f1);
-/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
-extern void scpWakeupEnemyAll(void);
-/* declared as script.h declares it; this TU does not include script.h, whose
-   pointer-typed prototypes its other script calls (int handles) do not fit */
-extern void scpTorchLightOff(int id);
-/* kept local: this TU's uses of scpMaskGeneratorAll do not fit the prototype in script.h */
-extern void scpMaskGeneratorAll(void);
-/* kept local: this TU's uses of scpSekizouCheckPoint do not fit the prototype in script.h */
-extern void scpSekizouCheckPoint(void);
 /* kept local: this TU's uses of jimakuJump do not fit the prototype in jimaku.h */
 extern void jimakuJump(int a0);
 extern int D_00639EA4;
@@ -1457,10 +1393,6 @@ void actSt13cBuki(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-/* kept local: this TU's uses of scpSekizou do not fit the prototype in script.h */
-extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
-                       float x2, float y2, float z2);
 
 void actE3St13cSekizo(volatile int a0)
 {

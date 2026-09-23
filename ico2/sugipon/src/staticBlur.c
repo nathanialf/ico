@@ -42,7 +42,7 @@ extern void gif_SpriteSensitiveOrg(void *rect, unsigned int z, void *uv, void *c
 extern void gif_StartPacketPri(int pri);
 
 typedef struct {
-    int f[4];
+    int x, y, w, h;
 } SprUV;
 
 typedef struct {
@@ -895,7 +895,45 @@ void GetSunWorldPos(int a0)
     _NormalizeVector(a0, D_004ED050);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/staticBlur", MotionBlur);
+extern char D_00620E70[];
+extern int D_0063A06C;
+extern int D_0063B13C;
+extern int D_0063BB94;
+
+void MotionBlur(void)
+{
+    SprCol col = D_0063BB70[0];
+    SprUV uv = {4, 4, ScreenWidth * 16, ScreenHeight / 2 * 16};
+    SprUV rect = {-ScreenWidth / 2 * 16 - 4, -ScreenHeight / 2 * 16 - 4, ScreenWidth * 16,
+                  ScreenHeight * 16};
+
+    if (D_0063BB94 == 0) {
+        return;
+    }
+    if (D_0063A06C != 0) {
+        return;
+    }
+    if (D_0063B13C & 1) {
+        /* D_00620E70 is "MBLUR %d": the blur strength is the value printed */
+        debug_Printf(300, 40, 0xFFFFFF00, (int)D_00620E70, D_0063BB94);
+    }
+
+    gif_StartPacketPri(7);
+
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+
+    gif_SetGsReg(6, ((long long)(ScreenWidth / 64) << 14) | 0x664100000LL);
+    gif_SetGsReg(0x3B, 0x8000000080LL);
+    gif_SetGsReg(0x47, 0x3000C);
+
+    gif_SetZWrite(0);
+    gif_SetAlpha(1, 2, D_0063BB94);
+    gif_SpriteSensitiveOrg(&rect, -1, &uv, &col, 1);
+    gif_SetZWrite(1);
+
+    gif_SetGsReg(0x47, 0x5000D);
+    gif_EndPacket();
+}
 
 extern int D_004ED040[];
 extern int D_004ED060[];
@@ -921,7 +959,6 @@ void calcSun(void)
     _ApplyMatrix(D_004ED040, matrixptr + 0x80, D_004ED050);
 }
 
-extern int D_0063B13C;
 extern int D_0028F954[];
 extern int D_0063BB98;
 extern char D_00620E80[];
@@ -1278,8 +1315,6 @@ int InitStaticBlur(void)
 void StaticBlur(void) {}
 
 void StaticBlurDL(void) {}
-
-extern int D_0063BB94;
 
 void SetMotionBlur(int val)
 {
