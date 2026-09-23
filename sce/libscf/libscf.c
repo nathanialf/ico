@@ -1,9 +1,12 @@
-/* Vendor SCE library run, attribution INFERRED: libscf.a (no disc map names an archive for
- * these 21 functions; SRCFILE.TXT carries them with symbols, no source paths).  The sceScf
- * family is the public SDK's libscf and GetRomName, IsT10K and the BCD date helpers feed it,
- * so the run is one library, VMA 0x272878..0x273228.  The FILE name is the run's own
- * __assert string "libscf.c" at 0x637260 (ROM bytes); the archive stays an inference.  The
- * __assert line arguments pin this file's line layout (sceScfSetT10kConfig spans four). */
+/* Vendor SCE library run, attribution INFERRED: libscf.a.  Neither disc map names an
+ * archive for these 21 functions (MAIN.MAP is an older link whose .text ends before
+ * them; SRCFILE.TXT carries them with symbols but no source paths).  The sceScf
+ * family is the public SDK's libscf, GetRomName and IsT10K feed
+ * sceScfSetT10kConfig, and the BCD date helpers feed sceScfGetGMTfromRTC and
+ * sceScfGetLocalTimefromRTC, so the run is treated as one library.  VMA
+ * 0x272878..0x273228.  The FILE name is no longer inferred: the run's own
+ * __assert file string is "libscf.c" at 0x637260 (evidence rung: ROM bytes);
+ * only the archive it was linked from stays an inference. */
 #include "common.h"
 #include <stdio.h>
 #include <libscf.h>
@@ -163,10 +166,7 @@ int sceScfGetLanguage(void)
     return lang;
 }
 
-void sceScfSetT10kConfig(sceScfT10KConfig *param)
-{
-    D_0054CB60[0] = *param;
-}
+INCLUDE_ASM("asm/nonmatchings/sce/libscf/libscf", sceScfSetT10kConfig);
 
 int sceScfGetAspect(void)
 {
