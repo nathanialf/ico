@@ -50,7 +50,7 @@ typedef struct {
     unsigned int _b13 : 19;
 } StatusAttrAct;
 
-extern StatusAttrAct D_005577D0[];
+extern const StatusAttrAct D_005577D0[];
 extern char *D_0063A61C;
 /* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
 extern void iosThreadSleep(void);
@@ -172,12 +172,8 @@ inline void _ACTRun(int n)
             iosThreadSleep();
         }
     }
-    if (n > 0) {
-        i = n;
-        do {
-            iosThreadSleep();
-            i--;
-        } while (i != 0);
+    for (i = 0; i < n; i++) {
+        iosThreadSleep();
     }
 }
 
@@ -189,18 +185,7 @@ inline void _ACTWait(int a0)
             count = 1;
         }
     }
-    if (count == 0) {
-        for (;;) {
-            iosThreadSleep();
-        }
-    }
-    if (count > 0) {
-        int i = count;
-        do {
-            iosThreadSleep();
-            i--;
-        } while (i != 0);
-    }
+    _ACTRun(count);
 }
 
 inline void actWaitCondition(int a0, int a1)
@@ -571,9 +556,405 @@ typedef struct {
 
 extern ActMotionRec D_0055FE58[];
 extern IntrMail D_002A7E08[];
-extern char *D_00639EA4;
+/* the boy object, typed as the work block object pointers it is compared and
+   exchanged with (ActObjRefs below; void * as in boyact.c and chain.c) */
+extern void *D_00639EA4;
 extern char D_00621CC8[];
 extern int D_0063A800;
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/act", BeforeFunc);
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/act", ACTDebugMove);
+/* the 16 bytes at D_00621CC8 are this TU's own {0, 0, -1, -1} template */
+typedef struct {
+    unsigned int w[4];
+} IntrSkip;
+
+/* The work block's object pointers: +0x2C takes a mail entry's object
+   (act_check_mail), +0x80 and +0x84 are the targets src/act-game.c reads
+   beside D_00639EA4.  Reconstruction, rung: ROM bytes (BeforeFunc's clears
+   are record-field stores in the load's alias set: the sw 0x2C and sw 0x80
+   follow the D_00639EA4 load at sched2). */
+typedef struct {
+    char _0[0x2C];
+    void *f_2C;
+    char _30[0x50];
+    void *f_80;
+    void *f_84;
+} ActObjRefs;
+
+void BeforeFunc(char *self)
+{
+    char *w = (char *)((ActSelf *)self)->work;
+    char *mb = self + 0x54;
+    IntrMail *intr;
+    char *g;
+    void *act;
+    IntrEnt *ent;
+    int i;
+    int old;
+
+    ((ActObjRefs *)w)->f_2C = 0;
+    *(char **)(w + 0x30) = 0;
+    *(int *)(w + 0x4C) += 1;
+    *(int *)(w + 0x10) += 1;
+    ((ActStatusWord *)(w + 0x18))->q &= ~(1LL << 52);
+    ((ActStatusWord *)(w + 0x18))->q &= ~(1LL << 62);
+    ((ActStatusWord *)(w + 0x18))->q &= ~(1LL << 63);
+    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 0);
+    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 1);
+    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 2);
+    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 3);
+    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 4);
+    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 5);
+    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 8);
+    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 10);
+    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 18);
+    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 22);
+    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 37);
+    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 44);
+    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 45);
+    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 12);
+    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 31);
+    ((ActStatusWord *)(w + 0x18))->q &= ~(1LL << 36);
+    ((ActStatusWord *)(w + 0x18))->q &= ~(1LL << 37);
+    ((ActStatusWord *)(w + 0x18))->q &= ~(1LL << 38);
+    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 35);
+    ((ActObjRefs *)w)->f_80 = 0;
+    ((ActObjRefs *)w)->f_84 = 0;
+    if (self == D_00639EA4) {
+        char *p = *(char **)(*(char **)(self + 0x164) + 0x688);
+
+        ((ActFloat *)(*(char **)(self + 0x15C) + 0x45C))->f = *(float *)(p + 0x320);
+        ((ActFloat *)(*(char **)(self + 0x15C) + 0x464))->f = *(float *)(p + 0x324);
+        ((ActFloat *)(*(char **)(self + 0x15C) + 0x468))->f = *(float *)(p + 0x328);
+    }
+    if (*(int *)(w + 0x50) != 0) {
+        *(int *)(w + 0x50) -= 1;
+    }
+    {
+        IntrMail *mails[5] = {&D_002A7E08[0], &D_002A7E08[3], *(IntrMail **)(w + 0xD4),
+                              *(IntrMail **)(w + 0xD0), (IntrMail *)0xFFFFFFFF};
+        IntrSkip skip = *(IntrSkip *)D_00621CC8;
+
+        ACTSendMailCorrect(self, D_005577D0[*(int *)(w + 0x34)].f48);
+        for (i = 0; i < *(int *)(mb + 4); i++) {
+            ((IntrList *)mb)->ent[i].id =
+                _ACTCorrectMsg(self, *(int *)(mb + 8 + i * 8), *(void **)(mb + 0xC + i * 8));
+        }
+        ACTRunIntrCorrect(self, (struct IntrRec *)mails[1], (struct IntrRec *)mails[2]);
+        for (i = 0; mails[i] != (IntrMail *)0xFFFFFFFF; i++) {
+            act_check_mail(self, mails[i]);
+        }
+        intr = 0;
+        for (i = 0; mails[i] != (IntrMail *)0xFFFFFFFF; i++) {
+            if (skip.w[i] == 0 || D_005577D0[*(int *)(w + 0x34)].b11 == 0) {
+                intr = act_check_intr_list(self, mails[i], (void **)&ent);
+                if (intr != 0) {
+                    break;
+                }
+            }
+        }
+    }
+    g = *(char **)(self + 0x15C);
+    *(char **)(w + 0x40) = *(char **)(g + 0x540);
+    if ((((&D_0055FE58[*(int *)(*(char **)(self + 0x15C) + 0x4A0)])->f18C >> 1) & 1) != 0 &&
+        *(float *)(*(char **)(self + 0x15C) + 0x4AC) < 3.0f) {
+        ((ActStatusWord *)(w + 0x20))->q |= 1LL << 18;
+    }
+    if (intr != 0) {
+        old = *(int *)(w + 0xD8);
+        *(int *)(w + 0xD8) = (short)intr->kind;
+        act = (void *)D_005577D0[intr->f12].ent[*(int *)(w + 0x48)].f0;
+        if (act != 0) {
+            after_func_exec(self, *(int *)(w + 0x34), intr->f12);
+            if (*(int *)(w + 0x18) != 0) {
+                (*(void (**)(char *))(w + 0x18))(self);
+                *(int *)(w + 0x18) = 0;
+            }
+            *(int *)(w + 0x4C) = 0;
+            for (i = 9; i > 0; i--) {
+                ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a900[i] =
+                    ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a900[i - 1];
+                ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a928[i] =
+                    ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a928[i - 1];
+                ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a950[i] =
+                    ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a950[i - 1];
+            }
+            ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a900[0] = *(int *)(w + 0x34);
+            ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a928[0] = *(int *)(w + 0x10);
+            ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a950[0] = old;
+            *(int *)(w + 0x34) = intr->f12;
+            ((ActStatusWord *)(w + 0x18))->q =
+                (((ActStatusWord *)(w + 0x18))->q & ~(1LL << 39)) |
+                ((unsigned long long)D_005577D0[*(int *)(w + 0x34)].b10 << 39);
+            ((ActStatusWord *)(w + 0x18))->q =
+                (((ActStatusWord *)(w + 0x18))->q & ~(1LL << 50)) |
+                ((unsigned long long)D_005577D0[intr->f12].b12 << 50);
+            ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 11);
+            *(IntrMail **)(w + 0xD4) = &D_002A7E08[D_005577D0[*(int *)(w + 0x34)].ent[5].f8];
+            actChangeActMain(D_0063A61C, act, (void **)(w + 4));
+        }
+        if (intr->f0 != 0) {
+            *(int *)(w + 0x38) = 0;
+            actCreateMotionThread(intr->f0, (void *)21, (void **)(w + 8));
+        }
+        if (intr->f4 != 0) {
+            actCreateMotionThread(intr->f4, (void *)22, (void **)(w + 0xC));
+        }
+        if (intr->f0C != 0) {
+            intr->f0C(self, ent->id, ent->f4);
+        }
+        ACTAcceptMail(self, (short)intr->kind);
+    }
+    ((ActStatusWord *)(w + 0x138))->q &= ~(1LL << 0);
+    *(int *)(w + 0x13C) = 0;
+    *(int *)(mb + 4) = 0;
+    ClearMailAdditionalData(self);
+    ACTGame_BeforeFunc(self);
+    D_0063A800 = 100;
+}
+
+/* The floor/wall collision work block: the 0xC0-byte record src/act-env.c
+   and src/girl_act.c carry, with the attribute word at +0x98 that the ROM
+   hands to CompareAttribute. */
+typedef struct {
+    float a[4];   /* 0x00 start point   */
+    float b[4];   /* 0x10 end point     */
+    float pos[4]; /* 0x20 clipped point */
+    char _30[0x40];
+    float f_70;
+    char _74[0x14];
+    int f_88;
+    char _8c[0x08];
+    int f_94;
+    int f_98;
+    char _9c[0x24];
+} ActClipWork;
+
+/* The stick reading iosPadGetStick fills in: the 0x20-byte record
+   omori/src/camera-ico2.c carries, read here through its two direction
+   words and its magnitude. */
+typedef struct {
+    int x; /* 0x00 */
+    int y; /* 0x04 */
+    char _08[0x04];
+    float dx;  /* 0x0C */
+    float dz;  /* 0x10 */
+    float mag; /* 0x14 */
+    char _18[0x08];
+} ActPadStick;
+
+extern char *D_00639EC0;
+extern Vec4 D_00621CE0;
+extern char D_00621CF0[];
+extern char D_00621D00[];
+extern Vec4 D_00621D20;
+extern void sceVu0CopyVector(void *dst, void *src);
+extern void sceVu0UnitMatrix(void *m);
+extern void GetRootPosition(void *out, char *self);
+extern void SetDirectRootPositionNoFitting(char *self, void *v);
+extern void GetLowerPlaneCollision(void *work, void *pos);
+extern void ClipFloor(void *work);
+extern void ClipFloorR(void *work);
+extern int CompareAttribute(unsigned int a, unsigned int b);
+extern void SetSimplePlane(float *plane, float a, float b, float c, float d);
+extern void CopyVector(void *dst, void *src);
+extern void DrawLineG(void *a, void *ca, void *b, void *cb, int flag);
+/* kept local: this TU passes the packet priority that the prototype in
+   seki/include/GifPacket.h leaves out */
+extern void gif_StartPacketPri(int pri);
+extern void gif_SetAlpha(long long a0, long long a1, long long a2);
+extern void gif_SetZWrite(int on);
+extern void gif_SetZTest(int on);
+extern void gif_EndPacket(void);
+extern void MatrixDrive_PushMatrix(void);
+extern void *MatrixDrive_GetMatrix(void);
+extern void MatrixDrive_PopMatrix(void);
+extern void iosPadRead(void *pad);
+extern int iosPadGetStick(void *dev, void *out, int mode, int a3, int a4, int a5);
+extern void DisableChangeRootUpdateMode(char *self);
+extern void EnableChangeRootUpdateMode(char *self);
+extern void SetRootUpdateMode(char *self, int val);
+extern int AdjustMotionHeightToNearestField(char *self);
+
+void ACTDebugMove(int a0, int a1)
+{
+    char *self = (char *)a0;
+    float dir[4];
+    float pos[4];
+    ActPadStick st;
+    char *ext;
+    char *p;
+    float h;
+    int mode = 1;
+    int dbg = 0; /* local debug switch, see the test at the end of the loop */
+
+    ext = *(char **)(self + 0x164);
+    p = *(char **)(*(char **)(self + 0x15C) + 0x8C);
+    h = (p != 0) ? *(float *)(p + 0x14) : 0.0f;
+    DisableChangeRootUpdateMode(self);
+    SetRootUpdateMode(self, 0);
+    while (((*(int *)(ext + 0x2E0) & 1) != 0 || mode == 1) && self == D_00639EC0) {
+        _ACTWait(1);
+        iosPadRead(ext + 0x2D8);
+        iosPadGetStick(ext + 0x2D8, ext + 0x338, 0, 2, 2, 0);
+        iosPadGetStick(ext + 0x2D8, &st, 1, 2, 2, 0);
+        if (0.001f < *(float *)(ext + 0x34C)) {
+            ConvertStickToAbsCoord(dir, (float *)(ext + 0x338));
+        }
+        GetRootPosition(pos, self);
+        pos[0] += dir[0] * *(float *)(ext + 0x34C) * 32.0f;
+        pos[2] += dir[2] * *(float *)(ext + 0x34C) * 32.0f;
+        if (0.001f < st.mag) {
+            mode = 1;
+        }
+        switch (mode) {
+        case 0: {
+            ActClipWork w;
+
+            if ((*(int *)(ext + 0x2E4) & 0x200) != 0) {
+                sceVu0CopyVector(w.a, pos);
+                sceVu0CopyVector(w.b, pos);
+                w.b[1] -= 10000.0f;
+                ClipFloorR(&w);
+                if (w.f_94 != 0) {
+                    pos[1] = w.pos[1] - h;
+                    break;
+                }
+            }
+            sceVu0CopyVector(w.a, pos);
+            sceVu0CopyVector(w.b, pos);
+            w.a[1] -= 10.0f;
+            w.b[1] += 10000.0f;
+            ClipFloor(&w);
+            if (w.f_94 == 0) {
+                sceVu0CopyVector(w.a, pos);
+                sceVu0CopyVector(w.b, pos);
+                w.b[1] -= 10000.0f;
+                ClipFloorR(&w);
+                if (w.f_94 == 0) {
+                    break;
+                }
+            }
+            pos[1] = w.pos[1] - h;
+            break;
+        }
+        case 1:
+            if ((*(int *)(ext + 0x2E4) & 0x200) != 0) {
+                SetRootUpdateMode(self, 1);
+                mode = 0;
+            } else {
+                pos[1] += st.dz * st.mag * 32.0f;
+            }
+            break;
+        }
+        SetDirectRootPositionNoFitting(self, pos);
+        {
+            ActClipWork w;
+
+            GetLowerPlaneCollision(&w, pos);
+            if (w.f_94 != 0 && CompareAttribute(w.f_98, 0x800) == 0 &&
+                CompareAttribute(w.f_98, 0x900) == 0) {
+                ActClipWork w2;
+                Vec4 col;
+
+                sceVu0CopyVector(w2.a, pos);
+                sceVu0CopyVector(w2.b, pos);
+                w2.b[1] += 10000.0f;
+                ClipFloor(&w2);
+                if (w2.f_94 != 0) {
+                    col = D_00621CE0;
+                    w2.a[1] += 200.0f;
+                    gif_StartPacketPri(11);
+                    MatrixDrive_PushMatrix();
+                    gif_SetAlpha(1, 5, 128);
+                    gif_SetZWrite(0);
+                    gif_SetZTest(1);
+                    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+                    DrawLineG(w2.a, &col, w2.pos, &col, 0);
+                    MatrixDrive_PopMatrix();
+                    gif_EndPacket();
+                }
+            } else {
+                SetSimplePlane((float *)(*(char **)(self + 0x15C) + 0x1D0), 0.0f, -1.0f, 0.0f,
+                               pos[1] + h);
+                CopyVector(*(char **)(self + 0x15C) + 0x250, pos);
+                *(float *)(*(char **)(self + 0x15C) + 0x254) += h;
+            }
+        }
+        debug_PrintfDummy(10, 185, 0xFFFFFF00u, (int)D_00621CF0);
+        debug_PrintfDummy(20, 195, 0xFFFFFF00u, (int)D_00621D00, -pos[0], -pos[1], -pos[2]);
+        {
+            ActClipWork w3;
+            Vec4 col2;
+            float q1[4];
+            float q2[4];
+            float q3[4];
+            float q4[4];
+
+            sceVu0CopyVector(w3.a, pos);
+            sceVu0CopyVector(w3.b, pos);
+            w3.a[1] -= 200.0f;
+            w3.b[1] += 200.0f;
+            ClipFloor(&w3);
+            gif_StartPacketPri(11);
+            gif_SetAlpha(1, 5, 128);
+            gif_SetZWrite(0);
+            gif_SetZTest(1);
+            MatrixDrive_PushMatrix();
+            sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+            col2 = D_00621D20;
+            CopyVector(q1, pos);
+            CopyVector(q2, pos);
+            CopyVector(q3, pos);
+            CopyVector(q4, pos);
+            q1[0] -= 200.0f;
+            q2[0] += 200.0f;
+            q3[2] -= 200.0f;
+            q4[2] += 200.0f;
+            DrawLineG(w3.a, &col2, w3.b, &col2, 0);
+            DrawLineG(q1, &col2, q2, &col2, 0);
+            DrawLineG(q3, &col2, q4, &col2, 0);
+            MatrixDrive_PopMatrix();
+            gif_EndPacket();
+            /* Local debug switch, off. What the bytes pin: ACTDebugMove reached
+               gcse with 448..451, 456..459 or 464..479 real insns (476 with
+               this arm, 455 without it): the expression table size orders
+               PRE's reaching registers, whose order is the order of the seven
+               spill slots at 0x334..0x34C. Also pinned: a loop inside this
+               window (the loop test's label is aligned), the arm's block
+               locals (0x120 bytes of the frame) and an expanded colour
+               initializer {0, 64, 255, 128} the ROM keeps unreferenced at
+               0x621D30. cse cannot carry dbg's 0 across the loop label, gcse's
+               constant propagation folds the test and the next jump pass
+               deletes the arm; the listing leaves rows 1599 to 1692 code-free.
+               What the bytes cannot pin: the arm's text. */
+            if (dbg) {
+                ActClipWork w4;
+                Vec4 col;
+                Vec4 pt[5];
+                int i;
+
+                col = ((Vec4 *)&D_00621D20)[1]; /* {0, 64, 255, 128}, after D_00621D20 */
+                for (i = 0; i < 5; i++) {
+                    DrawLineG(w4.a, &col, pt[i].f, &col, 0);
+                }
+            }
+        }
+    }
+    {
+        ActClipWork w3;
+
+        sceVu0CopyVector(w3.a, pos);
+        sceVu0CopyVector(w3.b, pos);
+        w3.a[1] -= 10.0f;
+        w3.b[1] += 10000.0f;
+        ClipFloor(&w3);
+        if (w3.f_94 != 0 && CompareAttribute(w3.f_98, 0x800) == 0 &&
+            CompareAttribute(w3.f_98, 0x900) == 0) {
+            pos[1] = w3.pos[1] - h;
+            SetDirectRootPositionNoFitting(self, pos);
+            EnableChangeRootUpdateMode(self);
+            AdjustMotionHeightToNearestField(self);
+        }
+    }
+    EnableChangeRootUpdateMode(self);
+}

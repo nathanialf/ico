@@ -711,6 +711,8 @@ segments:
       - [0x45146C, rodata, cod/45146C]   # .rodata blob resume (one zero pad word, then the rest of the run)
       - [0x451A60, .rodata, ico2/fumi/ios/message]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x551A60..0x552080, 1568 B
       - [0x451AF0, rodata, cod/451AF0]     # rodata blob resume
+      - [0x451BF0, .rodata, ico2/fumi/ios/pad]  # controler_stable_check's jump table (77 entries on phase, section .rodata.0x00551BF0, anonymous), VMA 0x551BF0..0x551D24, 308 B; arms checked against the ROM words
+      - [0x451D24, rodata, cod/451D24]     # .rodata blob resume
       - [0x451DB0, .rodata, ico2/fumi/ios/thread]  # the TU's whole .rodata run as source (data pass 2): seventeen string literals at their use sites, __FILE__ for "ios/thread.c", assert/malloc line arguments in decimal; VMA 0x551DB0..0x551F2E + 2 B link pad
       - [0x451F30, .rodata, ico2/fumi/isys/gobj]  # the TU's whole .rodata run as source (data pass 2): __FILE__ plus the two isys messages; VMA 0x551F30..0x551F71 + 7 B link pad
       - [0x451F78, .rodata, ico2/fumi/isys/gobj_dl]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x551F78..0x552080, 264 B
@@ -1094,7 +1096,7 @@ segments:
       - [0x5397E8, .lit4, ico2/fumi/src/act-env]  # carved D_006397E8..D_00639834 (20 words: -3000.0f and pi as literals in the matched environment test, then eighteen slots beside the still-asm ACTGetEnvironment, one per use site in ROM order 4900 pi/2 40000 3000 3000 355 455 10000 -pi/2 pi/2 -pi/2 pi/2 10000 40000 pi/2 4900 22500 12100; the TU's whole pool), VMA 0x6397E8..0x639838, 80 B
       - [0x539838, lit4, cod/539838]     # .lit4 blob resume (DetourCheck's pi, one word)
       - [0x53983C, .lit4, ico2/fumi/src/act-way]  # 40000.0f, 10000.0f, 40000.0f, 40000.0f from ACTWayMove_BeginDetail and NextDetail, VMA 0x63983C..0x63984C
-      - [0x53984C, lit4, cod/53984C]     # .lit4 blob resume (words before way_kidnap's carve)
+      - [0x53984C, .lit4, ico2/fumi/src/act]  # ACTDebugMove's five words (0.001f, then 10000.0f four times; the TU's whole pool, anonymous), VMA 0x63984C..0x639860, 20 B; way_kidnap's carve follows
       - [0x539860, .lit4, ico2/fumi/src/way_kidnap]  # carved D_00639860 (1.0e10f, NearestEnemyFromGirl's initial minimum, written as a literal), the TU's whole .lit4 run, VMA 0x639860..0x639864; 0x63985C is act's, 0x639864 way_tool's
       - [0x539864, .lit4, ico2/fumi/src/way_tool]  # carved D_00639864..D_00639868 (2 slots, both 0.116355285f: draw_way_group's own literal and one slot for the still-asm way_toolDL; the TU's whole pool), VMA 0x639864..0x63986C, 8 B
       - [0x53986C, .lit4, ico2/script/src/deja]  # carved D_0063986C (1 word, 0.025f, the stage-change fade rate actDejaChk passes, written as a literal; the TU's whole pool, between way_tool's carve and e3's), VMA 0x63986C..0x639870, 4 B

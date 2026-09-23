@@ -1,4 +1,5 @@
 #include "common.h"
+#include "debug.h"
 #include "pad.h"
 #include "message.h"
 #include "shockdriver.h"
@@ -96,8 +97,241 @@ typedef struct {
 } PadAct;
 
 extern int Shock_Request(int box, int player, ShockPrm prm, int key, int a4);
+extern char D_00551B10[];
+extern char D_00551B28[];
+extern char D_00551B38[];
+extern char D_00551B48[];
+extern char D_00551B58[];
+extern char D_00551B68[];
+extern char D_00551B80[];
+extern char D_00551B90[];
+extern char D_00551BB0[];
+extern char D_0063A568[];
+extern char D_0063A570[];
+extern char D_0063A578[];
+extern char D_0063A580[];
+extern char D_0063A588[];
+extern char D_0063A590[];
+extern char D_0063A598[];
+extern char D_0063A5A0[];
+extern char D_0063A5A8[];
+extern char D_0063A5B0[];
+extern int D_0063C198;
+extern int scePadInfoMode(int port, int slot, int term, int offs);
+extern int scePadSetMainMode(int port, int slot, int offs, int lock);
+extern int scePadGetReqState(int port, int slot);
+extern int scePadInfoPressMode(int port, int slot);
+extern int scePadEnterPressMode(int port, int slot);
+extern int scePadInfoAct(int port, int slot, int actno, int term);
+extern int scePadSetActAlign(int port, int slot, void *align);
+extern int scePadGetState(int port, int slot);
+extern void debug_assert(char *file, int line);
+extern void __assert(char *file, int line, char *msg);
+extern char *D_0029BB30[];
+extern char D_00551BD8[];
+extern char D_0063A5B8[];
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/ios/pad", controler_stable_check);
+int controler_stable_check(void *a0)
+{
+    IosPadDevRec *dev = (IosPadDevRec *)a0;
+    int port = dev->port;
+    int slot = dev->slot;
+    int prev = dev->f180;
+    int phase = dev->f184;
+    int cnt = dev->f188;
+    int id = dev->f18C;
+    int state;
+    int mode;
+    int orig;
+    int exid;
+    int i;
+
+    state = scePadGetState(port, slot);
+    if ((unsigned int)state < 8) {
+        if (state != prev) {
+            debug_StdPrintfDummy(D_00551B10, port, slot, D_0029BB30[state]);
+        }
+    } else {
+        debug_StdPrintfDummy(D_00551B28, state);
+    }
+    if (state == 0) {
+        cnt = 0;
+        phase = 0;
+    }
+    if (port == 0 && slot == 0) {
+        debug_StdPrintfDummy(D_00551B38, phase);
+    }
+    switch (phase) {
+    case 0:
+        dev->f1C0 &= ~0x40000;
+        phase++;
+    case 1:
+        if (state == 0) {
+            dev->f1C0 |= 0x10000;
+        }
+        if (state != 6 && state != 2) {
+            dev->error = 1;
+            break;
+        }
+        dev->f1C0 &= ~0x10000;
+        mode = scePadInfoMode(port, slot, 1, 0);
+        orig = mode;
+        debug_StdPrintfDummy(D_00551B48, mode);
+        debug_StdPrintfDummy(D_00551B48, mode);
+        if (mode == 0) {
+            break;
+        }
+        exid = scePadInfoMode(port, slot, 2, 0);
+        debug_StdPrintfDummy(D_00551B58, exid);
+        debug_StdPrintfDummy(D_00551B58, exid);
+        if (exid >= 1) {
+            mode = exid;
+        }
+        switch (mode) {
+        default:
+            debug_StdPrintfDummy(D_00551B68, mode);
+            phase = 99;
+            break;
+        case 4:
+            debug_StdPrintfDummy(D_0063A568);
+            phase = 40;
+            if (orig != mode) {
+                phase = 30;
+            } else {
+                dev->f1C0 |= 0x40000;
+            }
+            break;
+        case 7:
+            debug_StdPrintfDummy(D_0063A570);
+            phase = 70;
+            if (((int)(dev->f1C0 >> 18) & 1) == 0) {
+                phase = 0;
+            }
+            break;
+        }
+        debug_StdPrintfDummy(D_00551B80, mode);
+        break;
+    case 30:
+        if (scePadSetMainMode(port, slot, 0, 2) == 1) {
+            phase++;
+        }
+        break;
+    case 31:
+        debug_StdPrintfDummy(D_0063A578);
+        if (scePadGetReqState(port, slot) == 1) {
+            phase--;
+        }
+        if (scePadGetReqState(port, slot) != 0) {
+            break;
+        }
+        phase = 0;
+        debug_StdPrintfDummy(D_00551B90);
+        break;
+    case 40:
+        if (scePadInfoMode(port, slot, 4, -1) == 0) {
+            phase = 99;
+            break;
+        }
+        phase++;
+    case 41:
+        debug_StdPrintfDummy(D_0063A580);
+        if (scePadSetMainMode(port, slot, 1, 3) == 1) {
+            phase++;
+        }
+        break;
+    case 42:
+        debug_StdPrintfDummy(D_0063A588);
+        if (scePadGetReqState(port, slot) == 1) {
+            phase--;
+        }
+        if (scePadGetReqState(port, slot) != 0) {
+            break;
+        }
+        phase = 1;
+        debug_StdPrintfDummy(D_00551B90);
+        break;
+    case 70:
+        debug_StdPrintfDummy(D_0063A590);
+        if (scePadInfoPressMode(port, slot) == 1) {
+            phase++;
+        } else {
+            phase = 75;
+        }
+        break;
+    case 71:
+        debug_StdPrintfDummy(D_0063A598);
+        if (scePadEnterPressMode(port, slot) == 1) {
+            phase++;
+        }
+        break;
+    case 72:
+        debug_StdPrintfDummy(D_0063A5A0);
+        if (scePadGetReqState(port, slot) == 1) {
+            phase--;
+        }
+        if (scePadGetReqState(port, slot) != 0) {
+            break;
+        }
+        phase = 75;
+        debug_StdPrintfDummy(D_00551BB0);
+        break;
+    case 75:
+        debug_StdPrintfDummy(D_0063A5A8);
+        if (scePadInfoAct(port, slot, -1, 0) == 0) {
+            phase = 99;
+        }
+        dev->act[0] = 0;
+        dev->act[1] = 1;
+        for (i = 2; i < 6; i++) {
+            dev->act[i] = 255;
+        }
+        if (scePadSetActAlign(port, slot, dev->act) != 0) {
+            phase++;
+        }
+        break;
+    case 76:
+        debug_StdPrintfDummy(D_0063A5B0);
+        if (scePadGetState(port, slot) != 5) {
+            phase = 99;
+        }
+        break;
+    default:
+        if (state == 7) {
+            cnt++;
+            dev->f180 = prev;
+            dev->f184 = -1;
+            dev->f188 = cnt;
+            dev->f18C = id;
+            debug_assert(D_00551BD8, 468);
+            __assert(D_00551BD8, 468, D_0063A5B8);
+            return -1;
+        }
+        if (state == 6 || state == 2) {
+            /* RULING-VESTIGIAL-EXCEPTION (supervisor 2026-09-23, under the user's
+               standing instruction of 2026-09-23): the `id = D_0063C198;` inside
+               the if is dead, the line after reassigns id. What the bytes pin: listing row 477 carries the
+               reset arm's split-edge `b` with no instruction of its own, so
+               a statement sits there; an arm holding only `phase = 0;` is
+               if-converted by jump.c to xor/movn where the ROM keeps the
+               bnel; and id reaches allocation with seven references, which
+               orders orig ($23) before id ($30). The two-arm live forms
+               (the seed's `else { id = D; }` with f8 = D or f8 = id, the
+               `||` and local-copy forms) each miss the ROM (ledger c2p65).
+               What they cannot pin: the dead line's exact text. */
+            if (id != 0 && D_0063C198 != id) {
+                phase = 0;
+                id = D_0063C198;
+            }
+            dev->f8 = id = D_0063C198;
+        }
+        break;
+    }
+    dev->f180 = state;
+    dev->f184 = phase;
+    dev->f188 = cnt;
+    dev->f18C = id;
+    return phase;
+}
 
 /* The pad configuration record: 60 words, the same PadConf src/act.c copies
    into the actor work block. */
@@ -119,8 +353,6 @@ extern int iosThreadCreateS(void *th, int prio, void *func, int arg, int stack, 
 extern void iosThreadStart(void *th);
 extern int scePadInit(int mode);
 extern int scePadPortOpen(int port, int slot, void *buf);
-extern void debug_assert(char *file, int line);
-extern void __assert(char *file, int line, char *msg);
 void iosPadDevManager(void);
 
 int iosPadDevInit(void *a0)
@@ -160,7 +392,6 @@ extern char D_00551D60[];
 extern char D_00551D80[];
 extern char D_0063A5C0[];
 extern int scePadRead(int port, int slot, void *buf);
-extern int scePadGetState(int port, int slot);
 extern void Shock_Decode(void *box, unsigned char *pFlags, unsigned char *pLevel);
 extern void Shock_SetMotor(int flags, int level, void *box, int port, int slot);
 extern int controler_stable_check(void *dev);
