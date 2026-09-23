@@ -3,7 +3,6 @@
 #include "debug.h"
 #include "Shadow.h"
 
-extern char D_0054FD50[];
 extern char *matrixptr;
 /* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
 extern void _CopyVector(void *a0, void *a1);
@@ -380,7 +379,7 @@ void shadow_Render(void)
        still reserves 16 bytes of vars, so the vector the stub printed was a
        local here. Deleting it changes the object. See docs/crutch_ledger.md. */
     float buf[4];
-    debug_StdPrintfDummy(D_0054FD50);
+    debug_StdPrintfDummy("shadow_Render called\n");
 }
 
 void shadow_getShadowVectorAverage(void *a0, char *a1)
@@ -589,6 +588,370 @@ void shadow_EntryNormalShadow(char *a0, int a1, float a2)
     }
 }
 
+/* The volume renderers below are line-for-line twins in the listing and share
+ * one set of static helpers, written here because the listing puts their rows
+ * (844 to 1259) above __GetCameraPos and below shadow_EntryNormalShadow.
+ * None of them has a symbol of its own: every row run appears only inside
+ * shadow_RenderVolume and shadow_RenderVolumeMulti. */
+
+/* the screen-space origin every projected point is measured from */
+extern VECTOR D_00290B40;
+/* the face normal z of each strip position, read back by the position that
+ * shares the face with the one that computed it */
+extern float D_0067D070[];
+
+/* rows 844-845: the projection matrix and the shadow direction into the VU0
+ * register file, where the edge projector below leaves them for the whole
+ * mesh walk */
+static inline void loadVolumeMatrix(void *dir)
+{
+    char *m = matrixptr + 0xC0;
+
+    __asm__ __volatile__("lqc2 $vf4, 0x0(%0)\n\t"
+                         "lqc2 $vf5, 0x10(%0)\n\t"
+                         "lqc2 $vf6, 0x20(%0)\n\t"
+                         "lqc2 $vf7, 0x30(%0)\n\t"
+                         "lqc2 $vf1, 0x0(%1)"
+                         :
+                         : "r"(m), "r"(dir));
+}
+
+/* row 867: the six strip vertices out of the VU register file as integer
+ * screen coordinates */
+static inline void storeVolumeVerts(void *dst)
+{
+    __asm__ __volatile__("vftoi4.xyzw $vf26, $vf20\n\t"
+                         "vftoi4.xyzw $vf27, $vf21\n\t"
+                         "vftoi4.xyzw $vf28, $vf22\n\t"
+                         "vftoi4.xyzw $vf29, $vf23\n\t"
+                         "vftoi4.xyzw $vf30, $vf24\n\t"
+                         "vftoi4.xyzw $vf31, $vf25\n\t"
+                         "sqc2 $vf26, 0x0(%0)\n\t"
+                         "sqc2 $vf27, 0x10(%0)\n\t"
+                         "sqc2 $vf28, 0x20(%0)\n\t"
+                         "sqc2 $vf29, 0x30(%0)\n\t"
+                         "sqc2 $vf30, 0x40(%0)\n\t"
+                         "sqc2 $vf31, 0x50(%0)"
+                         :
+                         : "r"(dst));
+}
+
+/* rows 896-1080: project one silhouette edge and clip the projected segment
+ * to the screen rectangle. Returns the facing dot times the winding sign, or
+ * -1.0f when the edge is wholly off screen, which is also how the caller
+ * learns that both ends were marked away.
+ * The projection is one hand scheduled block written straight into this body
+ * (row 901, five rows below the definition's 896, where the loop's call
+ * copies its two vertex addresses). It rolls the six vertex registers of the
+ * strip down by one, projects the edge's two ends, divides both by w, takes
+ * the facing dot of the new triangle and leaves the two screen points both in
+ * the VU registers the emitter reads and in oa/ob for the clipper. Because
+ * &oa is this body's own frame address, the block's operand is the frame
+ * register itself, which is why the ROM keeps the opening helper's frame copy
+ * (`daddu $11,$16,$0`) as the second opening edge's store base. The GPR the
+ * dot product passes through is a named $7 (and the slides' is $8), declared
+ * clobbered, as Matrix.c and BgAnimation.c write theirs: the ROM keeps $7 and
+ * $8 in every copy and allocates round them. The frame vectors precede the
+ * origin table in the operand list, which is the order the loop hoists them. */
+static inline float clipVolumeEdge(VECTOR *pa, VECTOR *pb, float sgn)
+{
+    VECTOR oa;
+    VECTOR ob;
+    float rate[2];
+    float dot;
+    float fw, fh, t0, t1, t;
+
+    __asm__ __volatile__("vmove.xyzw $vf10, $vf11\n\t"
+                         "vmove.xyzw $vf13, $vf14\n\t"
+                         "vmove.xyzw $vf20, $vf21\n\t"
+                         "vmove.xyzw $vf23, $vf24\n\t"
+                         "vmove.xyzw $vf11, $vf12\n\t"
+                         "vmove.xyzw $vf14, $vf15\n\t"
+                         "vmove.xyzw $vf21, $vf22\n\t"
+                         "vmove.xyzw $vf24, $vf25\n\t"
+                         "lqc2 $vf12, 0x0(%1)\n\t"
+                         "lqc2 $vf15, 0x0(%2)\n\t"
+                         "vnop\n\t"
+                         "vsub.xyz $vf8, $vf10, $vf11\n\t"
+                         "vsub.xyz $vf9, $vf12, $vf11\n\t"
+                         "vmulax.xyzw ACC, $vf4, $vf12x\n\t"
+                         "vmadday.xyzw ACC, $vf5, $vf12y\n\t"
+                         "vmaddaz.xyzw ACC, $vf6, $vf12z\n\t"
+                         "vmaddw.xyzw $vf22, $vf7, $vf0w\n\t"
+                         "vdiv Q, $vf0w, $vf22w\n\t"
+                         "vwaitq\n\t"
+                         "vmulq.xyzw $vf22, $vf22, Q\n\t"
+                         "vopmula.xyz ACC, $vf8, $vf9\n\t"
+                         "vopmsub.xyz $vf2, $vf9, $vf8\n\t"
+                         "vaddw.x $vf3, $vf0, $vf0w\n\t"
+                         "vmulax.xyzw ACC, $vf4, $vf15x\n\t"
+                         "vmadday.xyzw ACC, $vf5, $vf15y\n\t"
+                         "vmaddaz.xyzw ACC, $vf6, $vf15z\n\t"
+                         "vmaddw.xyzw $vf25, $vf7, $vf0w\n\t"
+                         "vdiv Q, $vf0w, $vf25w\n\t"
+                         "vwaitq\n\t"
+                         "vmulq.xyzw $vf25, $vf25, Q\n\t"
+                         "vmul.xyz $vf2, $vf1, $vf2\n\t"
+                         "vmove.w $vf12, $vf0\n\t"
+                         "vmove.w $vf15, $vf0\n\t"
+                         "vnop\n\t"
+                         "vaddax.x ACC, $vf0, $vf2x\n\t"
+                         "vmadday.x ACC, $vf3, $vf2y\n\t"
+                         "vmaddz.x $vf2, $vf3, $vf2z\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "qmfc2.ni $7, $vf2\n\t"
+                         "mtc1 $7, %0\n\t"
+                         "lqc2 $vf8, 0x0(%5)\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "vsub.xyzw $vf18, $vf22, $vf8\n\t"
+                         "vsub.xyzw $vf19, $vf25, $vf8\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "sqc2 $vf18, 0x0(%3)\n\t"
+                         "sqc2 $vf19, 0x0(%4)"
+                         : "=f"(dot)
+                         : "r"(pa), "r"(pb), "r"(&oa), "r"(&ob), "r"(&D_00290B40)
+                         : "$7");
+
+    rate[0] = rate[1] = 1.0f;
+    /* rows 977 and 981: a wholly visible edge returns at once */
+    if (-ScreenWidth < oa.x && oa.x < ScreenWidth && -ScreenWidth < ob.x && ob.x < ScreenWidth &&
+        -ScreenHeight < oa.y && oa.y < ScreenHeight && -ScreenHeight < ob.y &&
+        ob.y < ScreenHeight) {
+        return dot * sgn;
+    }
+    if ((oa.x <= -ScreenWidth && ob.x <= -ScreenWidth) ||
+        (ScreenWidth <= oa.x && ScreenWidth <= ob.x) ||
+        (oa.y <= -ScreenHeight && ob.y <= -ScreenHeight) ||
+        (ScreenHeight <= oa.y && ScreenHeight <= ob.y)) {
+        pb->w = -1.0f;
+        pa->w = -1.0f;
+        return -1.0f;
+    }
+    fw = ScreenWidth;
+    fh = ScreenHeight;
+    t0 = t1 = 1.0f;
+    if (fw < oa.x && ob.x <= fw) {
+        t = (ob.x - fw) / (ob.x - oa.x);
+        if (t < t0 && t < 1.0f && 0.0f < t) {
+            t0 = t;
+        }
+    } else if (fw < ob.x && oa.x <= fw) {
+        t = (oa.x - fw) / (oa.x - ob.x);
+        if (t < t1 && t < 1.0f && 0.0f < t) {
+            t1 = t;
+        }
+    }
+    if (oa.x < -fw && -fw <= ob.x) {
+        t = (ob.x + fw) / (ob.x - oa.x);
+        if (t < t0 && t < 1.0f && 0.0f < t) {
+            t0 = t;
+        }
+    } else if (ob.x < -fw && -fw <= oa.x) {
+        t = (oa.x + fw) / (oa.x - ob.x);
+        if (t < t1 && t < 1.0f && 0.0f < t) {
+            t1 = t;
+        }
+    }
+    if (fh < oa.y && ob.y <= fh) {
+        t = (ob.y - fh) / (ob.y - oa.y);
+        if (t < t0 && t < 1.0f && 0.0f < t) {
+            t0 = t;
+        }
+    } else if (fh < ob.y && oa.y <= fh) {
+        t = (oa.y - fh) / (oa.y - ob.y);
+        if (t < t1 && t < 1.0f && 0.0f < t) {
+            t1 = t;
+        }
+    }
+    if (oa.y < -fh && -fh <= ob.y) {
+        t = (ob.y + fh) / (ob.y - oa.y);
+        if (t < t0 && t < 1.0f && 0.0f < t) {
+            t0 = t;
+        }
+    } else if (ob.y < -fh && -fh <= oa.y) {
+        t = (oa.y + fh) / (oa.y - ob.y);
+        if (t < t1 && t < 1.0f && 0.0f < t) {
+            t1 = t;
+        }
+    }
+    rate[0] = t0;
+    rate[1] = t1;
+    t0 = 1.0f - t0;
+    t1 = 1.0f - t1;
+    if (1.0f <= t0 + t1 || t0 + t1 <= 0.0f) {
+        pb->w = -1.0f;
+        pa->w = -1.0f;
+        return -1.0f;
+    }
+    /* rows 1040 and 1060: slide each end of the projected edge to the clip
+     * parameter found for it, both blocks inside this body */
+    if (0.0f < rate[0] && rate[0] < 1.0f) {
+        __asm__ __volatile__("mfc1 $8, %0\n\t"
+                             "qmtc2.ni $8, $vf8\n\t"
+                             "vsubx.w $vf8, $vf0, $vf8x\n\t"
+                             "vnop\n\t"
+                             "vnop\n\t"
+                             "vnop\n\t"
+                             "vmulaw.xyz ACC, $vf19, $vf8w\n\t"
+                             "vmaddx.xyz $vf22, $vf18, $vf8x\n\t"
+                             "lqc2 $vf8, 0x0(%1)\n\t"
+                             "vnop\n\t"
+                             "vnop\n\t"
+                             "vnop\n\t"
+                             "vadd.xyzw $vf22, $vf22, $vf8"
+                             :
+                             : "f"(rate[0]), "r"(&D_00290B40)
+                             : "$8");
+    }
+    if (0.0f < rate[1] && rate[1] < 1.0f) {
+        __asm__ __volatile__("mfc1 $8, %0\n\t"
+                             "qmtc2.ni $8, $vf8\n\t"
+                             "vsubx.w $vf8, $vf0, $vf8x\n\t"
+                             "vnop\n\t"
+                             "vnop\n\t"
+                             "vnop\n\t"
+                             "vmulaw.xyz ACC, $vf18, $vf8w\n\t"
+                             "vmaddx.xyz $vf25, $vf19, $vf8x\n\t"
+                             "lqc2 $vf8, 0x0(%1)\n\t"
+                             "vnop\n\t"
+                             "vnop\n\t"
+                             "vnop\n\t"
+                             "vadd.xyzw $vf25, $vf25, $vf8"
+                             :
+                             : "f"(rate[1]), "r"(&D_00290B40)
+                             : "$8");
+    }
+    return dot * sgn;
+}
+
+/* rows 1092-1098: the first two edges of a strip, which open it. Returns the
+ * number of strip positions still to skip because an opening vertex was
+ * marked away. */
+static inline int clipVolumeHead(VECTOR *ta, VECTOR *ba, VECTOR *tb, VECTOR *bb, float sgn)
+{
+    int state = 0;
+
+    if (clipVolumeEdge(ta, ba, sgn) == -1.0f && ta->w == -1.0f) {
+        state = 1;
+    }
+    if (clipVolumeEdge(tb, bb, -sgn) == -1.0f && tb->w == -1.0f) {
+        state = 2;
+    }
+    return state;
+}
+
+#define VOLUME_EDGE(a, b, c)                                                                       \
+    VU0_REG("vsub.xy $vf8, $vf" #a ", $vf" #b "\n\t"                                               \
+            "vsub.xy $vf9, $vf" #c ", $vf" #b)
+
+/* the facing z of the strip position i. The three positions that share a face
+ * with the position two before them read the facing that one measured back
+ * out of D_0067D070 instead of taking the cross product again. The cross
+ * product of the two edges left in vf8 and vf9 is written straight into the
+ * table (row 1124 carries both the block and the store; row 1134 only the
+ * return). */
+static inline float volumeStripFaceZ(int i)
+{
+    switch (i) {
+    case 0:
+    case 1:
+        return 1.0f;
+    case 2:
+        VOLUME_EDGE(20, 21, 23);
+        break;
+    case 3:
+        return -D_0067D070[2];
+    case 4:
+        VOLUME_EDGE(23, 24, 25);
+        break;
+    case 5:
+        VOLUME_EDGE(24, 25, 21);
+        break;
+    case 6:
+        return -D_0067D070[5];
+    case 7:
+        VOLUME_EDGE(21, 22, 20);
+        break;
+    case 8:
+        VOLUME_EDGE(22, 20, 25);
+        break;
+    case 9:
+        return -D_0067D070[8];
+    }
+    __asm__ __volatile__("vopmula.xyz ACC, $vf8, $vf9\n\t"
+                         "vopmsub.xyz $vf2, $vf9, $vf8\n\t"
+                         "vaddz.x $vf2, $vf0, $vf2z\n\t"
+                         "qmfc2.ni $7, $vf2\n\t"
+                         "mtc1 $7, %0"
+                         : "=f"(D_0067D070[i])
+                         :
+                         : "$7");
+    return D_0067D070[i];
+}
+
+/* rows 1197-1202: the strip is dropped whole if any of its six vertices left
+ * the guard band or went behind the eye */
+static inline int volumeVertsOutOfRange(int *vi)
+{
+    int n;
+    int *v;
+
+    /* row 1198 carries both the count and the cursor, so the cursor is set
+     * in the for and the parameter itself is never stepped */
+    for (n = 0, v = vi; n < 6; n++, v += 4) {
+        if (v[0] < 0x11 || 0xFFEF < v[0] || v[1] < 0x11 || 0xFFEF < v[1] || v[2] < 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* rows 1210-1259: one shadow volume strip. Ten positions of a triangle strip
+ * over the six projected vertices, each position carrying the front or the
+ * back stencil colour its facing picks. */
+static inline unsigned long long *emitVolumeStrip(unsigned long long *p, float sign)
+{
+    int order[20] = {0, 1, 3, 4, 5, 1, 2, 0, 5, 3, 3, 4, 0, 1, 2, 4, 5, 3, 2, 0};
+    int vi[6][4];
+    int i;
+    int k;
+    int *v;
+    /* row 1221, six rows below the table's 1215: the running sign is a local
+     * copy, so the caller's winding sign is never written */
+    float sgn = sign;
+
+    storeVolumeVerts(vi);
+    if (volumeVertsOutOfRange(&vi[0][0])) {
+        return p;
+    }
+    p[0] = 0x1000000000008001LL;
+    p[1] = 0xE;
+    p[2] = 0x144;
+    p[3] = 0;
+    p[4] = 0x240000000000800ALL;
+    p[5] = 0x51;
+    p += 6;
+    /* rows 1238-1251: the for line carries the index step, the sign flip and
+     * the vertex word's pointer step; the colour word steps its own pointer
+     * in each arm (row 1245 keeps the merged step) */
+    for (i = 0; i < 10; i++, sgn = -sgn, p++) {
+        k = order[i];
+        if (volumeStripFaceZ(i) * sgn < 0.0f) {
+            *p++ = 0x3F80000080040404LL;
+        } else {
+            *p++ = 0x3F80000080FCFCFCLL;
+        }
+        v = vi[k];
+        *p = (long long)v[0] | ((long long)v[1] << 16) | ((long long)v[2] << 32);
+    }
+    return p;
+}
+
 void __GetCameraPos(void *a0)
 {
     _PushCurrentMatrix(a0);
@@ -601,8 +964,224 @@ void __GetCameraPos(void *a0)
     _PopCurrentMatrix();
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Shadow", shadow_RenderVolume);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Shadow", shadow_RenderVolumeMulti);
+/* kept local: this TU's uses of these do not fit the prototypes in the headers */
+extern int dl_GetPri(void);
+extern void GetRootPositionByDObj(void *v, char *o);
+extern float _GetLength(void *a, void *b);
+
+/* One sixteen-byte record of a part's silhouette strip list. A strip opens
+ * with a record whose count is its vertex count (0 ends the list); each
+ * vertex record that follows carries its facing flag in the same short and
+ * its vertex index at +4. Only two-byte aligned, which is why
+ * shadow_MakeObjectData copies it with ldl/ldr. */
+typedef struct ShadowRun {
+    short count;
+    short _2;
+    short vtx;
+    char _6[0xA];
+} ShadowRun;
+
+void shadow_RenderVolume(char *o)
+{
+    VECTOR pos;
+    VECTOR cam;
+    char *x = *(char **)(o + 0x858);
+    float len = *(float *)(*(char **)(o + 0x854) + 0x3C);
+    unsigned long long *p;
+    unsigned long long *start;
+    char *c;
+    char *q;
+    char *part;
+    ShadowRun *e;
+    VECTOR *top;
+    VECTOR *bot;
+    int i;
+    unsigned int j;
+    int k;
+    int n;
+    int state;
+    float sgn;
+    float r;
+
+    if (*(long long *)(x + 0x30) & 0x04000000) {
+        return;
+    }
+    if (len != *(float *)(x + 0x3C) && 0.0f < *(float *)(x + 0x3C)) {
+        len = *(float *)(x + 0x3C);
+    }
+    __GetCameraPos(&cam);
+    GetRootPositionByDObj(&pos, o);
+    _GetLength(&pos, &cam);
+    if (*(unsigned short *)(o + 0x84C) == 1) {
+        shadow_EntryClusterShadow(o, len);
+    } else {
+        shadow_EntryNormalShadow(o, 0, len);
+    }
+    dl_SetDLPriority(3);
+    shadow_getShadowVectorAverage(&pos, o);
+    loadVolumeMatrix(&pos);
+    c = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.gif.c = 0;
+    PacketBufferStruct.dma.c = c;
+    PacketBufferStruct.end.c = 0;
+    PacketBufferStruct.tail.c = c;
+    PacketBufferStruct.ptr.c = (c + 8);
+    ((GifPkWord *)(c + 8))->w[0] = 0x11000000;
+    PacketBufferStruct.gif.c = c + 0xC;
+    PacketBufferStruct.ptr.c = (c + 0x10);
+    p = PacketBufferStruct.ptr.d;
+    start = p;
+    for (i = 0; i < *(char *)(x + 0x2E); i++) {
+        part = *(char **)(x + 0x40) + i * 0x180;
+        top = (VECTOR *)*(char **)(part + 0x174);
+        bot = (VECTOR *)*(char **)(part + 0x178);
+        for (j = 0; j < *(unsigned int *)(part + 0x104); j++) {
+            e = (*(ShadowRun ***)(part + 0x100))[j];
+            while ((n = (e++)->count) != 0) {
+                sgn = e->count != 0 ? 1.0f : -1.0f;
+                state = clipVolumeHead(&top[e[0].vtx], &bot[e[0].vtx], &top[e[1].vtx],
+                                       &bot[e[1].vtx], sgn);
+                e += 2;
+                for (k = 2; k < n; k++) {
+                    if (top[e->vtx].w == -1.0f) {
+                        state = 3;
+                    } else if (state) {
+                        state--;
+                    }
+                    r = clipVolumeEdge(&top[e->vtx], &bot[e->vtx], sgn);
+                    if (0.0f <= r) {
+                        if (state == 0) {
+                            p = emitVolumeStrip(p, sgn);
+                        }
+                    } else if (top[e->vtx].w == -1.0f) {
+                        state = 3;
+                    }
+                    sgn = -sgn;
+                    e++;
+                }
+            }
+        }
+    }
+    PacketBufferStruct.ptr.d = p;
+    ((GifPkWord *)PacketBufferStruct.tail.c)->d =
+        (unsigned int)((((unsigned int)((char *)p - PacketBufferStruct.tail.c) >> 4) - 1) |
+                       0x10000000);
+    ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
+        ((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) | 0x50000000;
+    q = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.tail.c = q;
+    ((GifPkWord *)q)->d = 0x60000000;
+    PacketBufferStruct.ptr.c = (q + 8);
+    ((GifPkWord *)(q + 8))->w[0] = 0;
+    PacketBufferStruct.ptr.c = (q + 0xC);
+    ((GifPkWord *)(q + 8))->w[1] = 0;
+    PacketBufferStruct.ptr.c = (q + 0x10);
+    if (p - start > 0) {
+        dl_SetDLPriority(dl_GetPri());
+        dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
+        dl_CloseDma();
+    }
+    dl_SetDLPriority(0);
+}
+
+void shadow_RenderVolumeMulti(char *o, int idx)
+{
+    VECTOR pos;
+    VECTOR cam;
+    char *x = *(char **)(o + 0x858);
+    float len = *(float *)(*(char **)(o + 0x854) + 0x3C);
+    unsigned long long *p;
+    unsigned long long *start;
+    char *c;
+    char *q;
+    char *part;
+    ShadowRun *e;
+    VECTOR *top;
+    VECTOR *bot;
+    int i;
+    unsigned int j;
+    int k;
+    int n;
+    int state;
+    float sgn;
+    float r;
+
+    if (*(long long *)(x + 0x30) & 0x04000000) {
+        return;
+    }
+    if (len != *(float *)(x + 0x3C) && 0.0f < *(float *)(x + 0x3C)) {
+        len = *(float *)(x + 0x3C);
+    }
+    __GetCameraPos(&cam);
+    GetRootPositionByDObj(&pos, o);
+    _GetLength(&pos, &cam);
+    shadow_EntryNormalShadow(o, idx, len);
+    dl_SetDLPriority(3);
+    shadow_getShadowVectorAverage(&pos, o);
+    loadVolumeMatrix(&pos);
+    c = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.gif.c = 0;
+    PacketBufferStruct.dma.c = c;
+    PacketBufferStruct.end.c = 0;
+    PacketBufferStruct.tail.c = c;
+    PacketBufferStruct.ptr.c = (c + 8);
+    ((GifPkWord *)(c + 8))->w[0] = 0x11000000;
+    PacketBufferStruct.gif.c = c + 0xC;
+    PacketBufferStruct.ptr.c = (c + 0x10);
+    p = PacketBufferStruct.ptr.d;
+    start = p;
+    for (i = 0; i < *(char *)(x + 0x2E); i++) {
+        part = *(char **)(x + 0x40) + i * 0x180;
+        top = (VECTOR *)*(char **)(part + 0x174);
+        bot = (VECTOR *)*(char **)(part + 0x178);
+        for (j = 0; j < *(unsigned int *)(part + 0x104); j++) {
+            e = (*(ShadowRun ***)(part + 0x100))[j];
+            while ((n = (e++)->count) != 0) {
+                sgn = e->count != 0 ? 1.0f : -1.0f;
+                state = clipVolumeHead(&top[e[0].vtx], &bot[e[0].vtx], &top[e[1].vtx],
+                                       &bot[e[1].vtx], sgn);
+                e += 2;
+                for (k = 2; k < n; k++) {
+                    if (top[e->vtx].w == -1.0f) {
+                        state = 3;
+                    } else if (state) {
+                        state--;
+                    }
+                    r = clipVolumeEdge(&top[e->vtx], &bot[e->vtx], sgn);
+                    if (0.0f <= r) {
+                        if (state == 0) {
+                            p = emitVolumeStrip(p, sgn);
+                        }
+                    } else if (top[e->vtx].w == -1.0f) {
+                        state = 3;
+                    }
+                    sgn = -sgn;
+                    e++;
+                }
+            }
+        }
+    }
+    PacketBufferStruct.ptr.d = p;
+    ((GifPkWord *)PacketBufferStruct.tail.c)->d =
+        (unsigned int)((((unsigned int)((char *)p - PacketBufferStruct.tail.c) >> 4) - 1) |
+                       0x10000000);
+    ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
+        ((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) | 0x50000000;
+    q = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.tail.c = q;
+    ((GifPkWord *)q)->d = 0x60000000;
+    PacketBufferStruct.ptr.c = (q + 8);
+    ((GifPkWord *)(q + 8))->w[0] = 0;
+    PacketBufferStruct.ptr.c = (q + 0xC);
+    ((GifPkWord *)(q + 8))->w[1] = 0;
+    PacketBufferStruct.ptr.c = (q + 0x10);
+    if (p - start > 0) {
+        dl_SetDLPriority(dl_GetPri());
+        dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
+        dl_CloseDma();
+    }
+    dl_SetDLPriority(0);
+}
 
 extern void *mallocseki(int size);
 
@@ -623,11 +1202,6 @@ typedef struct ShadowPoly {
     int _8;
     int _C;
 } __attribute__((aligned(16))) ShadowPoly;
-
-typedef struct ShadowRun {
-    short count;
-    char _2[0xE];
-} ShadowRun;
 
 void shadow_MakeObjectData(char *a0)
 {
