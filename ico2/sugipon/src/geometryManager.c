@@ -87,24 +87,18 @@ extern void MatrixDrive_PushMatrix();
 /* kept local: this TU's uses of MatrixDrive_TransMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_TransMatrix(float a, float b, float c);
 
-void SetRootMatrixWithTransOffsetByDObj(void *a0)
+void SetRootMatrixWithTransOffsetByDObj(void *dobj, float x, float y, float z)
 {
-    register float rf12 __asm__("$f12");
-    register float rf13 __asm__("$f13");
-    register float rf14 __asm__("$f14");
-    float a = rf12;
-    float b = rf13;
-    float c = rf14;
     MatrixDrive_PushMatrix();
-    CopyMatrix(MatrixDrive_GetMatrix(), (void *)((char *)a0 + 0x20));
-    MatrixDrive_TransMatrix(a, b, c);
-    CopyMatrix((void *)*(int *)((char *)a0 + 0xC), MatrixDrive_GetMatrix());
+    CopyMatrix(MatrixDrive_GetMatrix(), (char *)dobj + 0x20);
+    MatrixDrive_TransMatrix(x, y, z);
+    CopyMatrix(*(void **)((char *)dobj + 0xC), MatrixDrive_GetMatrix());
     MatrixDrive_PopMatrix();
 }
 
-void SetRootMatrixWithTransOffset(int a0)
+void SetRootMatrixWithTransOffset(void *obj, float x, float y, float z)
 {
-    SetRootMatrixWithTransOffsetByDObj((int)((GObj *)(a0))->p_15C);
+    SetRootMatrixWithTransOffsetByDObj(GOBJ_SUB(obj), x, y, z);
 }
 
 /* kept local: this TU's uses of GetInverseQuaternion do not fit the prototype in quaternion.h */

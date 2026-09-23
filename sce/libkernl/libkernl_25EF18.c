@@ -393,7 +393,81 @@ int sceTtyInit(void)
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifInitRpc);
+extern int D_0054A3E8[];
+
+/* RECONSTRUCTION: sifrpc.o's RPC state record (the .bss object at
+   0x0072C1C0).  Field names follow the public SDK naming of this record;
+   the types are what the ROM needs: the ten stores in sceSifInitRpc only
+   schedule as the ROM has them when the packet table (void *), the two
+   byte tables (unsigned char *) and the int fields sit in three different
+   alias sets, and active_queue keeps the `int *` the queue walkers below
+   read it as. */
+typedef struct {
+    int pid;
+    void *pkt_table;
+    int pkt_table_len;
+    int unused1;
+    int unused2;
+    unsigned char *rdata_table;
+    int rdata_table_len;
+    unsigned char *client_table;
+    int client_table_len;
+    int rdata_table_idx;
+    int *active_queue;
+} SifRpcData;
+
+extern SifRpcData D_0072C1C0;
+extern int D_0072A9C0[];
+extern int D_0072B1C0[];
+extern int D_0072B9C0[];
+extern void _request_end();
+extern void _request_bind();
+extern void _request_call();
+extern void _request_rdata();
+extern int sceSifAddCmdHandler(int a0, int a1, int a2);
+extern void sceSifInitCmd(void);
+extern int sceSifGetSreg(int reg);
+extern int sceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1);
+
+void sceSifInitRpc(int mode)
+{
+    int *hdr;
+    char *pkt;
+
+    DIntr();
+    if (D_0054A3E8[0] != 0) {
+        EIntr();
+        return;
+    }
+    D_0054A3E8[0] = 1;
+    EIntr();
+    sceSifInitCmd();
+    DIntr();
+    pkt = (char *)D_0072A9C0;
+    D_0072C1C0.pkt_table = (void *)((unsigned int)pkt | 0x20000000);
+    D_0072C1C0.pkt_table_len = 32;
+    D_0072C1C0.unused1 = 0;
+    D_0072C1C0.unused2 = 0;
+    D_0072C1C0.rdata_table = (unsigned char *)((unsigned int)D_0072B1C0 | 0x20000000);
+    D_0072C1C0.rdata_table_len = 32;
+    D_0072C1C0.client_table = (unsigned char *)((unsigned int)D_0072B9C0 | 0x20000000);
+    D_0072C1C0.client_table_len = 32;
+    D_0072C1C0.rdata_table_idx = 0;
+    D_0072C1C0.pid = 1;
+    sceSifAddCmdHandler(0x80000008, (int)_request_end, (int)&D_0072C1C0);
+    sceSifAddCmdHandler(0x80000009, (int)_request_bind, (int)&D_0072C1C0);
+    sceSifAddCmdHandler(0x8000000A, (int)_request_call, (int)&D_0072C1C0);
+    sceSifAddCmdHandler(0x8000000C, (int)_request_rdata, (int)&D_0072C1C0);
+    EIntr();
+    if (sceSifGetReg(0x80000002) != 0) {
+        return;
+    }
+    hdr = (int *)(pkt + 0x40);
+    hdr[3] = 1;
+    sceSifSendCmd(0x80000002, (int)hdr, 0x10, 0, 0, 0);
+    while (sceSifGetSreg(0) == 0) {}
+    sceSifSetReg(0x80000002, 1);
+}
 
 extern int D_0054A3E8[];
 
@@ -513,7 +587,6 @@ void _request_rdata(int *a0, int *a1)
 }
 
 /* the RPC server's own record: the queue list head is the word at +0x28 */
-extern int *D_0072C1C0[];
 extern int CreateSema(int *self);
 extern int WaitSema(int a0);
 extern int DeleteSema(int a0);
@@ -530,7 +603,7 @@ int sceSifGetOtherData(void *cd, void *src, void *dest, int size, int mode)
     int buf[8];
     int pid;
 
-    pkt = _sceRpcGetPacket((int *)D_0072C1C0);
+    pkt = _sceRpcGetPacket((int *)&D_0072C1C0);
     if (pkt == 0) {
         return -1;
     }
@@ -604,7 +677,6 @@ void _request_bind(int *req, int *q)
 }
 
 /* the RPC server's own record: the queue list head is the word at +0x28 */
-extern int *D_0072C1C0[];
 extern int CreateSema(int *self);
 extern int WaitSema(int a0);
 extern int DeleteSema(int a0);
@@ -623,7 +695,7 @@ int sceSifBindRpc(void *cd, unsigned int sid, int mode)
 
     c[4] = 0;
     c[9] = 0;
-    pkt = _sceRpcGetPacket((int *)D_0072C1C0);
+    pkt = _sceRpcGetPacket((int *)&D_0072C1C0);
     if (pkt == 0) {
         return -1;
     }
@@ -707,7 +779,7 @@ int sceSifCallRpc(void *cd, unsigned int rpc_number, unsigned int mode, void *se
     int buf[8];
     int pid;
 
-    pkt = _sceRpcGetPacket((int *)D_0072C1C0);
+    pkt = _sceRpcGetPacket((int *)&D_0072C1C0);
     if (pkt == 0) {
         return -1;
     }
@@ -792,8 +864,8 @@ extern int DIntr();
    born right after it out of $2 and puts it in $3 beside the client pointer
    in $4, the ROM's pair. */
 extern int EIntr();
+
 /* the RPC server's own record: the queue list head is the word at +0x28 */
-extern int *D_0072C1C0[];
 
 void sceSifSetRpcQueue(int *qd, int key)
 {
@@ -806,10 +878,10 @@ void sceSifSetRpcQueue(int *qd, int key)
     qd[0xC / 4] = 0;
     qd[0x10 / 4] = 0;
     qd[0x14 / 4] = 0;
-    if (D_0072C1C0[0x28 / 4] == 0) {
-        D_0072C1C0[0x28 / 4] = qd;
+    if (D_0072C1C0.active_queue == 0) {
+        D_0072C1C0.active_queue = qd;
     } else {
-        for (q = D_0072C1C0[0x28 / 4]; q[0x14 / 4] != 0; q = (int *)q[0x14 / 4]) {
+        for (q = D_0072C1C0.active_queue; q[0x14 / 4] != 0; q = (int *)q[0x14 / 4]) {
             ;
         }
         q[0x14 / 4] = (int)qd;
@@ -871,9 +943,9 @@ int *sceSifRemoveRpcQueue(int *qd)
 {
     int *q;
     DIntr();
-    q = D_0072C1C0[0x28 / 4];
+    q = D_0072C1C0.active_queue;
     if (q == qd) {
-        D_0072C1C0[0x28 / 4] = (int *)qd[0x14 / 4];
+        D_0072C1C0.active_queue = (int *)qd[0x14 / 4];
     } else {
         while (q != 0) {
             if ((int *)q[0x14 / 4] == qd) {
@@ -986,9 +1058,10 @@ void sceSifExecRequest(int *sd)
     }
     DIntr();
     if (sd[0x34 / 4] & 4) {
-        pkt = (int *)_sceRpcGetFPacket2((int *)D_0072C1C0, (int)((unsigned int)sd[0x34 / 4] >> 16));
+        pkt =
+            (int *)_sceRpcGetFPacket2((int *)&D_0072C1C0, (int)((unsigned int)sd[0x34 / 4] >> 16));
     } else {
-        pkt = (int *)_sceRpcGetFPacket((int *)D_0072C1C0);
+        pkt = (int *)_sceRpcGetFPacket((int *)&D_0072C1C0);
     }
     EIntr();
     pkt[0x20 / 4] = 0x8000000A;
@@ -2262,7 +2335,70 @@ int sceUmount(void *a0)
     return _sceCallCode(a0, 0x15);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceLseek64);
+long long sceLseek64(int fd, long long offset, int whence)
+{
+    int *g = D_0072C240;
+    SceIob *iob;
+    int f4;
+    int uv;
+    int h;
+    int rc;
+    int i;
+    long long result;
+    int buf[8];
+
+    iob = (SceIob *)get_iob(fd);
+    _sceFsWaitS(0x16);
+    if (D_0054A470[0] == 0) {
+        _sceFsSigSema();
+        return -1;
+    }
+    if (iob == 0 || (f4 = iob->inuse) == 0) {
+        _sceFsSigSema();
+        return -9;
+    }
+    *(long long *)(g + 4) = offset;
+    g[3] = iob->fd;
+    g[6] = whence;
+    g[7] = iob - (SceIob *)D_0072D300;
+    buf[1] = 1;
+    buf[2] = 0;
+    buf[5] = 0;
+    h = CreateSema(buf);
+    *(void **)(g + 1) = &result;
+    g[2] = 8;
+    D_0072C240[0] = h;
+    if (f4 & 0x8000) {
+        WaitSema(D_0054A47C[0]);
+        for (i = 0; i < 0x20; i++) {
+            if (D_0054A3F0[i] == -1) {
+                D_0054A3F0[i] = g[0];
+                g[0] = -g[0];
+                break;
+            }
+        }
+        SignalSema(D_0054A47C[0]);
+    }
+    rc = sceSifCallRpc(D_0072D500, 0x16, 0, D_0072C240, 0x20, D_0072CE80, 4, 0, 0);
+    if (rc < 0) {
+        DeleteSema(h);
+        _sceFsSigSema();
+        return -0xB;
+    }
+    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    _sceFsSigSema();
+    if (uv == 0) {
+        DeleteSema(h);
+        return -0xB;
+    }
+    if (isNowait(f4)) {
+        DeleteSema(h);
+        return 0;
+    }
+    WaitSema(h);
+    DeleteSema(h);
+    return result;
+}
 
 int sceDevctl(unsigned char *name, int cmd, unsigned char *arg, unsigned int arglen, void *bufp,
               unsigned int buflen)

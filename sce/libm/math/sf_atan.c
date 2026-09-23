@@ -46,6 +46,8 @@ static const float aT[] = {
     0.049768779426813126f, -0.03653157129883766f, 0.016285819932818413f,
 };
 
+static const float one = 1.0, huge = 1.0e30;
+
 float atanf(float x)
 {
     float w, s1, s2, z;
@@ -65,7 +67,7 @@ float atanf(float x)
     }
     if (ix < 0x3ee00000) {
         if (ix < 0x31000000) {
-            if (1.0e30f + x > 1.0f) {
+            if (huge + x > one) {
                 return x;
             }
         }
@@ -75,18 +77,18 @@ float atanf(float x)
         if (ix < 0x3f980000) {
             if (ix < 0x3f300000) {
                 id = 0;
-                x = (2.0f * x - 1.0f) / (2.0f + x);
+                x = ((float)2.0 * x - one) / ((float)2.0 + x);
             } else {
                 id = 1;
-                x = (x - 1.0f) / (x + 1.0f);
+                x = (x - one) / (x + one);
             }
         } else {
             if (ix < 0x401c0000) {
                 id = 2;
-                x = (x - 1.5f) / (1.0f + 1.5f * x);
+                x = (x - (float)1.5) / (one + (float)1.5 * x);
             } else {
                 id = 3;
-                x = -1.0f / x;
+                x = -(float)1.0 / x;
             }
         }
     }

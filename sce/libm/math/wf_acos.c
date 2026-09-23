@@ -18,7 +18,6 @@ struct exception {
     int err;       /* 0x20 */
 };
 
-extern const int D_006379C8[]; /* _LIB_VERSION */
 extern float __ieee754_acosf(float x);
 extern int isnanf(float x);
 extern int matherr(struct exception *e);
@@ -30,7 +29,7 @@ float acosf(float x)
     struct exception exc;
 
     z = __ieee754_acosf(x);
-    if (D_006379C8[0] == -1 || isnanf(x))
+    if (_LIB_VERSION == _IEEE_ || isnanf(x))
         return z;
     if (fabsf(x) > 1.0f) {
         exc.type = 1;
@@ -38,7 +37,7 @@ float acosf(float x)
         exc.err = 0;
         exc.arg1 = exc.arg2 = x;
         exc.retval = 0.0;
-        if (D_006379C8[0] == 2)
+        if (_LIB_VERSION == _POSIX_)
             *__errno() = 33;
         else if (!matherr(&exc))
             *__errno() = 33;

@@ -25,76 +25,41 @@ extern int __ieee754_rem_pio2f(float x, float *y);
 extern float __kernel_cosf(float x, float y);
 extern float __kernel_sinf(float x, float y, int iy);
 
+/* fdlibm's coefficient table: the member's whole .rodata (MAIN.MAP kf_cos.o
+ * .rodata 0x1c, seven words in declaration order).  The code loads every one
+ * of them as an immediate, so the table is referenced by nothing. */
+static const float one = 1.0000000000e+00, /* 0x3f800000 */
+    C1 = 4.1666667908e-02,                 /* 0x3d2aaaab */
+    C2 = -1.3888889225e-03,                /* 0xbab60b61 */
+    C3 = 2.4801587642e-05,                 /* 0x37d00d01 */
+    C4 = -2.7557314297e-07,                /* 0xb493f27c */
+    C5 = 2.0875723372e-09,                 /* 0x310f74f6 */
+    C6 = -1.1359647598e-11;                /* 0xad47d74e */
+
 float __kernel_cosf(float x, float y)
 {
-    float a, hz, qx, z;
+    float a, hz, z, r, qx;
     int ix;
-    register int cmp __asm__("$2");
-    register float acc __asm__("$f0");
-    register float c2 __asm__("$f2");
-    register float c3 __asm__("$f3");
-    register float c1 __asm__("$f1");
-    register float c4 __asm__("$f4");
-    register float c5 __asm__("$f5");
 
     GET_FLOAT_WORD(ix, x);
     ix &= 0x7fffffff;
     if (ix < 0x32000000) {
-        if (((int)x) == 0) {
-            return 1.0f;
+        if ((int)x == 0) {
+            return one;
         }
     }
     z = x * x;
-    /* Emit the six polynomial coefficient loads (into $f0/$f2/$f3/$f1/$f4/$f5),
-     * the first Horner multiply (acc = z*c0), and the |x|<0.3 comparison
-     * (cmp = 0x3e999999 < ix) in the exact ROM instruction order, the EE
-     * scheduler will not interleave GPR comparison ops among asm-opaque coeff
-     * loads, so the interleave is hand-placed here. */
-    __asm__("lui   $1,0xad47\n\t"
-            "ori   $1,$1,0xd74e\n\t"
-            "mtc1  $1,%0\n\t"
-            "lui   $1,0x310f\n\t"
-            "ori   $1,$1,0x74f6\n\t"
-            "mtc1  $1,%1\n\t"
-            "lui   %6,0x3e99\n\t"
-            "lui   $1,0xb493\n\t"
-            "ori   $1,$1,0xf27c\n\t"
-            "mtc1  $1,%2\n\t"
-            "ori   %6,%6,0x9999\n\t"
-            "mul.s %0,%7,%0\n\t"
-            "lui   $1,0x37d0\n\t"
-            "ori   $1,$1,0x0d01\n\t"
-            "mtc1  $1,%3\n\t"
-            "lui   $1,0xbab6\n\t"
-            "ori   $1,$1,0x0b61\n\t"
-            "mtc1  $1,%4\n\t"
-            "slt   %6,%6,%8\n\t"
-            "lui   $1,0x3d2a\n\t"
-            "ori   $1,$1,0xaaab\n\t"
-            "mtc1  $1,%5"
-            : "=f"(acc), "=f"(c2), "=f"(c3), "=f"(c1), "=f"(c4), "=f"(c5), "=r"(cmp)
-            : "f"(z), "r"(ix));
-    acc = acc + c2;
-    acc = z * acc + c3;
-    acc = z * acc + c1;
-    acc = z * acc + c4;
-    acc = z * acc + c5;
-    /* r = z*acc: reuse c1 (dead since the a3 step) so r lands in $f1, leaving
-     * $f0 free for the 0.5 constant the tail branches load, matches ROM. */
-    c1 = z * acc;
-    if (!cmp) {
-        return 1.0f - (0.5f * z - (z * c1 - x * y));
+    r = z * (C1 + z * (C2 + z * (C3 + z * (C4 + z * (C5 + z * C6)))));
+    if (ix < 0x3e99999a) {
+        return one - ((float)0.5 * z - (z * r - x * y));
     } else {
         if (ix > 0x3f480000) {
-            qx = 0.28125f;
+            qx = (float)0.28125;
         } else {
             SET_FLOAT_WORD(qx, ix - 0x01000000);
         }
-        /* else-branch z*r lands in $f2 (ROM), not the just-freed $f1: reuse
-         * dead c2 ($f2) to force it, leaving $f1 for a = 1.0 - qx. */
-        c2 = z * c1;
-        hz = 0.5f * z - qx;
-        a = 1.0f - qx;
-        return a - (hz - (c2 - x * y));
+        hz = (float)0.5 * z - qx;
+        a = one - qx;
+        return a - (hz - (z * r - x * y));
     }
 }

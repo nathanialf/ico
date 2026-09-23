@@ -1,6 +1,7 @@
 /* libm.a member wf_fmod.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include "common.h"
+#include <math.h>
 
 extern int __ieee754_rem_pio2f(float x, float *y);
 extern float __kernel_cosf(float x, float y);
@@ -16,12 +17,8 @@ struct exception {
 };
 
 #define DOMAIN 1
-#define _IEEE_ (-1)
-#define _SVID_ 0
-#define _POSIX_ 2
 #define EDOM 33
 
-extern const int D_006379C8[]; /* _LIB_VERSION */
 extern float __ieee754_fmodf(float x, float y);
 extern int isnanf(float x);
 extern int matherr(struct exception *e);
@@ -33,7 +30,7 @@ float fmodf(float x, float y)
     struct exception exc;
 
     z = __ieee754_fmodf(x, y);
-    if (D_006379C8[0] == _IEEE_ || isnanf(y) || isnanf(x)) {
+    if (_LIB_VERSION == _IEEE_ || isnanf(y) || isnanf(x)) {
         return z;
     }
     if (y == (float)0.0) {
@@ -42,12 +39,12 @@ float fmodf(float x, float y)
         exc.err = 0;
         exc.arg1 = (double)x;
         exc.arg2 = (double)y;
-        if (D_006379C8[0] == _SVID_) {
+        if (_LIB_VERSION == _SVID_) {
             exc.retval = (double)x;
         } else {
             exc.retval = 0.0 / 0.0;
         }
-        if (D_006379C8[0] == _POSIX_) {
+        if (_LIB_VERSION == _POSIX_) {
             *__errno() = EDOM;
         } else if (!matherr(&exc)) {
             *__errno() = EDOM;

@@ -49,11 +49,24 @@ typedef struct SHOCKREQUEST {
     /* 0x39 */ unsigned char pad39[7];
 } SHOCKREQUEST;
 
-typedef struct ShockVoiceSet {
-    /* 0x0 */ int unk0;
+/* A voice-set file as ReadShockFile loads it: this 16-byte record, then the
+ * file image (charFileManager.c:788-792 in the listing allocate size + 16 and
+ * read to p + 16).  The image's halfwords at +2, +6 and +10 are the word
+ * offsets of the wave, shot and voice tables, and +8 is the voice count
+ * ShockDriver_GetShockVoice bounds by.  Field names are ours.  The image start
+ * is a union of views: ROM stores it (shockdriver.c:114) ahead of the three
+ * header loads, which needs that store to alias them, and a union member is
+ * the alias-set-0 access that gives it (c-common.c:3172-3176). */
+struct ShockVoiceSet {
+    /* 0x0 */ union {
+        int *word;
+        unsigned short *half;
+    } top;
+
     /* 0x4 */ int *wave;
     /* 0x8 */ int *shot;
-} ShockVoiceSet;
+    /* 0xC */ int *voice;
+};
 
 typedef struct ShockParam {
     /* 0x0 */ unsigned char voice;
@@ -317,23 +330,12 @@ Ltail:
     }
 }
 
-void Init_ShockVoiceSet(int **a0, int *a1)
+void Init_ShockVoiceSet(ShockVoiceSet *set, int *data)
 {
-    /* The empty loop is a basic-block boundary, and it is the only thing found
-     * that keeps `sw a1,0(a0)` in ROM's first slot: the store has no successors
-     * so sched2 gives it priority 0 and sinks it to slot 9 behind the three
-     * `lhu` latencies.  Making the loads and the store conflict would also pin
-     * it, but no typing does: the store's access type is a pointer and the
-     * loads' is `unsigned short`, and every combination measured (short/char/int
-     * store types, volatile loads, struct-typed header, four statement orders)
-     * leaves them in different alias sets, or regresses.  Not retired. */
-    do {
-    } while (0);
-    a0[0] = a1;
-    a0[3] = a1 + *(unsigned short *)((char *)a1 + 0xA);
-    a0[1] = a1 + *(unsigned short *)((char *)a1 + 0x2);
-    a1 = a1 + *(unsigned short *)((char *)a1 + 0x6);
-    a0[2] = a1;
+    set->top.word = data;
+    set->voice = data + ((unsigned short *)data)[5];
+    set->wave = data + ((unsigned short *)data)[1];
+    set->shot = data + ((unsigned short *)data)[3];
 }
 
 void Vibration_SetDecodeData(void *a0, int a1, int a2, unsigned char a3, unsigned char a4)

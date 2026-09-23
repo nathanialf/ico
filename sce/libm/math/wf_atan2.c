@@ -1,6 +1,7 @@
 /* libm.a member wf_atan2.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include "common.h"
+#include <math.h>
 
 extern int __ieee754_rem_pio2f(float x, float *y);
 extern float __kernel_cosf(float x, float y);
@@ -17,7 +18,6 @@ struct exception {
     int err;       /* 0x20 */
 };
 
-extern const int D_006379C8[]; /* _LIB_VERSION */
 extern float __ieee754_atan2f(float y, float x);
 extern int isnanf(float x);
 extern int matherr(struct exception *e);
@@ -29,7 +29,7 @@ float atan2f(float y, float x)
     struct exception exc;
 
     z = __ieee754_atan2f(y, x);
-    if (D_006379C8[0] == -1 || isnanf(x) || isnanf(y))
+    if (_LIB_VERSION == _IEEE_ || isnanf(x) || isnanf(y))
         return z;
     if (x == 0.0f && y == 0.0f) {
         exc.arg1 = y;
@@ -38,7 +38,7 @@ float atan2f(float y, float x)
         exc.name = "atan2f";
         exc.err = 0;
         exc.retval = 0.0;
-        if (D_006379C8[0] == 2)
+        if (_LIB_VERSION == _POSIX_)
             *__errno() = 33;
         else if (!matherr(&exc))
             *__errno() = 33;

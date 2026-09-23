@@ -2830,7 +2830,6 @@ extern int GetFlyLimitHeight(void *info, void *pos);
    labels until the run's other owners are C and it can be carved whole */
 extern char D_0063A750[];
 extern char D_0063A758[];
-extern int fptodp(float v);
 
 /* reconstruction: GetFlyLimitHeight's result, as flyManager.c fills it */
 typedef struct {
@@ -3100,15 +3099,14 @@ void flyCoreLoop(char *a0, char *target, int a2)
            the switch's name and what the guarded line printed; the print
            follows emergencyCheck's own "%1.1f " distance print. */
         if (dbg) {
-            debug_StdPrintfDummy(D_0063A758, fptodp(lenSq));
+            debug_StdPrintfDummy(D_0063A758, lenSq);
         }
         if (stuck) {
             int completeEmergency(void)
             {
                 if (D_0063B234) {
                     debug_StdPrintfDummy("EMERGENCY COMPLETE CHECK : SPEEDSQ:%f LENSQ:%f\n",
-                                         fptodp(VectorLengthSquare((char *)GOBJ_SUB(a0) + 0x130)),
-                                         fptodp(spd));
+                                         VectorLengthSquare((char *)GOBJ_SUB(a0) + 0x130), spd);
                 }
                 if (stage_no != 86 && stage_no != 3 && stage_no != 46) {
                     if (VectorLengthSquare((char *)GOBJ_SUB(a0) + 0x130) < 50.0f && spd < 1000.0f) {
@@ -3165,7 +3163,7 @@ void flyCoreLoop(char *a0, char *target, int a2)
                         for (i = 0; i < 5; i++) {
                             d = distance_squared(prev, ring[i]);
                             if (D_0063B234) {
-                                debug_StdPrintfDummy(D_0063A758, fptodp(d));
+                                debug_StdPrintfDummy(D_0063A758, d);
                             }
                             if (mx < d) {
                                 mx = d;
@@ -3179,7 +3177,7 @@ void flyCoreLoop(char *a0, char *target, int a2)
                     }
                     if (D_0063B234) {
                         debug_StdPrintfDummy("EMERGENCY CHECK %d(%d): MAX: %f\n", cnt114, ringcnt,
-                                             fptodp(mx));
+                                             mx);
                     }
                     if (ringcnt >= 5 && mx < 10000.0f) {
                         debug_StdPrintfDummy("\x1b[36mEMERGENCY WITH NO MOVE\x1b[m\n");
@@ -3660,7 +3658,6 @@ extern char D_005577F4[];
 extern char D_005D1278[];
 extern char D_0055FF18[];
 extern void *D_00639EA0;
-extern int fptodp(float v);
 
 typedef struct {
     char _0[0xC2];
@@ -3697,7 +3694,7 @@ void _ACTDebugPrint(char *a0)
                 debug_Printf(30, 110, 0xFFFFFFF, " mode = [%s]\n",
                              D_005577F4 + *(int *)(sub + 0x34) * 0x50);
                 if (D_0063B13C & 1) {
-                    debug_Printf(30, 120, 0xFFFFFFF, "frame = [%f]\n", fptodp(GOBJ_SUB(a0)->f_4AC));
+                    debug_Printf(30, 120, 0xFFFFFFF, "frame = [%f]\n", GOBJ_SUB(a0)->f_4AC);
                     if (D_0063B13C & 1) {
                         debug_Printf(
                             30, 130, 0xFFFFFFF, "maxry = [%d]\n",

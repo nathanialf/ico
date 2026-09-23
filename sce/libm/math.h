@@ -17,6 +17,20 @@
 #ifndef SCE_LIBM_MATH_H
 #define SCE_LIBM_MATH_H
 
+/* newlib's library-version switch (its math.h names): s_lib_ver.c defines
+   the one word, the float wrappers test it. */
+enum __fdlibm_version { __fdlibm_ieee = -1, __fdlibm_svid, __fdlibm_xopen, __fdlibm_posix };
+
+#define _LIB_VERSION_TYPE enum __fdlibm_version
+#define _LIB_VERSION __fdlib_version
+
+extern const _LIB_VERSION_TYPE _LIB_VERSION; /* definition in sce/ */
+
+#define _IEEE_ __fdlibm_ieee
+#define _SVID_ __fdlibm_svid
+#define _XOPEN_ __fdlibm_xopen
+#define _POSIX_ __fdlibm_posix
+
 float acosf(float x);                                                  /* definition in sce/ */
 float asinf(float x);                                                  /* definition in sce/ */
 float atan2f(float y, float x);                                        /* definition in sce/ */

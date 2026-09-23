@@ -7,9 +7,9 @@ extern int __ieee754_rem_pio2f(float x, float *y);
 extern float __kernel_cosf(float x, float y);
 extern float __kernel_sinf(float x, float y, int iy);
 
-/* The member's own static tables.  They live in the shipped data blob, so the
-   member reaches them by name rather than re-emitting them: init_jk is
-   fdlibm's `init_jk` (three ints) and PIo2 its `PIo2` (eleven floats). */
+/* The member's own static tables, fdlibm's init_jk (three ints), PIo2 (eleven
+   floats) and its four scalar constants, in declaration order: the member's
+   whole .rodata (MAIN.MAP kf_rem_pio2.o .rodata 0x4c). */
 static const int init_jk[] = {
     4,
     7,
@@ -29,6 +29,9 @@ static const float PIo2[] = {
     3.2756352257099896e-22f,
     6.333101564859118e-25f,
 };
+
+static const float zero = 0.0, one = 1.0, two8 = 2.5600000000e+02, /* 0x43800000 */
+    twon8 = 3.9062500000e-03;                                      /* 0x3b800000 */
 
 extern float scalbnf(float x, int n);
 
@@ -52,7 +55,7 @@ int __kernel_rem_pio2f(float *x, float *y, int e0, int nx, int prec, const int *
     j = jv - jx;
     m = jx + jk;
     for (i = 0; i <= m; i++, j++)
-        f[i] = (j < 0) ? 0.0f : (float)ipio2[j];
+        f[i] = (j < 0) ? zero : (float)ipio2[j];
 
     /* compute q[0],q[1],...q[jk] */
     for (i = 0; i <= jk; i++) {
@@ -65,8 +68,8 @@ int __kernel_rem_pio2f(float *x, float *y, int e0, int nx, int prec, const int *
 recompute:
     /* distill q[] into iq[] reversingly */
     for (i = 0, j = jz, z = q[jz]; j > 0; i++, j--) {
-        fw = (float)((int)(3.90625e-03f * z));
-        iq[i] = (int)(z - 2.56e+02f * fw);
+        fw = (float)((int)(twon8 * z));
+        iq[i] = (int)(z - two8 * fw);
         z = q[j - 1] + fw;
     }
 
@@ -110,14 +113,14 @@ recompute:
             }
         }
         if (ih == 2) {
-            z = 1.0f - z;
+            z = one - z;
             if (carry != 0)
-                z -= scalbnf(1.0f, q0);
+                z -= scalbnf(one, q0);
         }
     }
 
     /* check if recomputation is needed */
-    if (z == 0.0f) {
+    if (z == zero) {
         j = 0;
         for (i = jz - 1; i >= jk; i--)
             j |= iq[i];
@@ -137,7 +140,7 @@ recompute:
     }
 
     /* chop off zero terms */
-    if (z == 0.0f) {
+    if (z == zero) {
         jz -= 1;
         q0 -= 8;
         while (iq[jz] == 0) {
@@ -146,9 +149,9 @@ recompute:
         }
     } else { /* break z into 8-bit if necessary */
         z = scalbnf(z, -q0);
-        if (z >= 2.56e+02f) {
-            fw = (float)((int)(3.90625e-03f * z));
-            iq[jz] = (int)(z - 2.56e+02f * fw);
+        if (z >= two8) {
+            fw = (float)((int)(twon8 * z));
+            iq[jz] = (int)(z - two8 * fw);
             jz += 1;
             q0 += 8;
             iq[jz] = (int)fw;
@@ -157,10 +160,10 @@ recompute:
     }
 
     /* convert integer "bit" chunk to floating-point value */
-    fw = scalbnf(1.0f, q0);
+    fw = scalbnf(one, q0);
     for (i = jz; i >= 0; i--) {
         q[i] = fw * (float)iq[i];
-        fw *= 3.90625e-03f;
+        fw *= twon8;
     }
 
     /* compute PIo2[0,...,jp]*q[jz,...,0] */

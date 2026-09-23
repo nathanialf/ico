@@ -25,6 +25,8 @@ extern int __ieee754_rem_pio2f(float x, float *y);
 extern float __kernel_cosf(float x, float y);
 extern float __kernel_sinf(float x, float y, int iy);
 
+static const float one = 1.0, tiny = 1.0e-30;
+
 float __ieee754_sqrtf(float x)
 {
     int ix, s, q, m, t, i;
@@ -67,8 +69,16 @@ float __ieee754_sqrtf(float x)
         r >>= 1;
         ix <<= 1;
     } while (r != 0);
+    /* use floating add to find out rounding direction */
     if (ix != 0) {
-        q += q & 1;
+        z = one - tiny; /* trigger inexact flag */
+        if (z >= one) {
+            z = one + tiny;
+            if (z > one)
+                q += 2;
+            else
+                q += (q & 1);
+        }
     }
     ix = (q >> 1) + 0x3F000000;
     ix += m << 23;

@@ -32,7 +32,7 @@ int sceSifFreeIopHeap(int a0);                                         /* defini
 unsigned int sceSifGetReg(unsigned int a0);                             /* dominant spelling at 1 sites; the argument's
                                                                           unsignedness is ROM-proven, see sceSifResetIop */
 int sceSifInitIopHeap(void);                                           /* definition in sce/ */
-int sceSifInitRpc(int mode);                                           /* dominant spelling at 2 sites */
+void sceSifInitRpc(int mode);                                          /* definition in sce/ */
 int sceSifLoadFileReset(void);                                         /* definition in sce/ */
 void sceSifLoadModule(void *a0, int a1, int a2);                       /* definition in sce/ */
 int sceSifRebootIop(const char *img);                                  /* dominant spelling at 1 sites */

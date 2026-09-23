@@ -473,6 +473,21 @@ ret0:
     return 0;
 }
 
+/* The listing gives WayPointList_next's body to lines 507 to 512, a helper
+ * defined ahead of WayPointList_begin (517) and never emitted out of line, so
+ * a static inline; its name is ours.  The group record is read before the null
+ * test, as the ROM's row order (507 then 509) has it. */
+static inline int wayPointListNext(int *wp)
+{
+    WayRec *grp = &D_004F1EC0[wp[8]];
+
+    if (wp == 0)
+        return 0;
+    if (wp[3] == grp->w[2])
+        return 0;
+    return wp[3];
+}
+
 inline int WayPointList_begin(int a0)
 {
     return D_004F1EC0[a0].w[2];
@@ -480,27 +495,7 @@ inline int WayPointList_begin(int a0)
 
 inline int WayPointList_next(int *a0)
 {
-    register int v __asm__("$4") = (int)a0;
-    __asm__(".set noreorder\n\t"
-            "daddu  $5, $4, $0\n\t"
-            "lui    $2, %%hi(D_004F1EC0)\n\t"
-            "lw     $3, 0x20($5)\n\t"
-            "addiu  $4, $0, 0x34\n\t"
-            "addiu  $2, $2, %%lo(D_004F1EC0)\n\t"
-            "mult   $3, $3, $4\n\t"
-            "addu   $3, $3, $2\n\t"
-            "beqz   $5, 1f\n\t"
-            " daddu $4, $0, $0\n\t"
-            "lw     $4, 0xC($5)\n\t"
-            "lw     $2, 0x8($3)\n\t"
-            "xor    $2, $4, $2\n\t"
-            "movz   $4, $0, $2\n\t"
-            "1:\n\t"
-            ".set reorder\n\t"
-            : "+r"(v)
-            :
-            : "$2", "$3", "$5");
-    return v;
+    return wayPointListNext(a0);
 }
 
 inline int waypoint_bidirectional_list(int *self, int which)

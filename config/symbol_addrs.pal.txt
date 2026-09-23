@@ -6338,3 +6338,4 @@ D_0063BDE0 = 0x0063BDE0; // type:asciz size:0x8  // ico2/fumi/src/way_tool  // t
 D_00726574 = 0x00726574; // ignore:true  // ico2/sugipon/src/windField  // packed bytes 74 65 72 00 inside the 0x4D3CE8 rodata blob, not an address into the wind field arrays
 D_00726F6F = 0x00726F6F; // ignore:true  // ico2/sugipon/src/windField  // packed bytes 6F 6F 72 00 inside the 0x4D3CE8 rodata blob, not an address into the wind field arrays
 D_00726165 = 0x00726165; // ignore:true  // ico2/sugipon/src/windField  // packed bytes 65 61 72 00 inside the 0x4D3CE8 rodata blob, not an address into the wind field arrays
+__fdlib_version = 0x006379C8; // size:0x4  // sce/libm/common/s_lib_ver  // MAIN.MAP line 6754, the member's one word (math.h _LIB_VERSION)

@@ -232,7 +232,7 @@ void scpPlayEnd(int a0)
     SetLodLevel(a0, 2);
 }
 
-/* kept local: this TU's uses of SetRootMatrixWithTransOffset do not fit the prototype in geometryManager.h */
+/* as geometryManager.h declares it; this TU does not include that header */
 extern void SetRootMatrixWithTransOffset(void *a0, float x, float y, float z);
 
 void scpTrans(void *a0, float *rot)

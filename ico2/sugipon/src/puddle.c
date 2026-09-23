@@ -78,8 +78,15 @@ extern float D_00723760[];
 extern float D_00723880[];
 extern char D_004ECEC0[];
 extern char D_004ECED0[];
-/* kept local: this TU's uses of gif_DrawStripFST do not fit the prototype in GifPacket.h */
-extern void gif_DrawStripFST(void *a, void *b, unsigned long long col, int n, int e);
+
+typedef struct {
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+    unsigned char a;
+} GifColor;
+
+extern void gif_DrawStripFST(void *a, void *b, GifColor col, int n, int e);
 extern int stage_no;
 extern int D_0028F4C0[];
 void PuddleGeo(char *a0);
@@ -264,7 +271,75 @@ void copy(int pri)
     gif_EndPacket();
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/puddle", drawRipple);
+void drawRipple(float t, void *pos)
+{
+    GifColor col;
+    float v[4];
+    float age;
+    float sx;
+    float sy;
+    float s2;
+    int c;
+    int i;
+    float *p0;
+    float *p1;
+    float *q0;
+    float *q1;
+    float *r0;
+    float *r1;
+
+    age = 200.0f - t;
+    col.a = 0x80;
+    c = (int)(age * 0.635f + 128.0f);
+    col.r = c;
+    col.g = c;
+    col.b = c;
+    sx = 0.9f / (float)D_0063A064;
+    sy = 0.9f / (float)D_0063A068;
+    _UnitMatrix(MatrixDrive_GetMatrix());
+    MatrixDrive_RotMatrixY((short)(int)(age * 10.24f));
+
+    p1 = D_00723910;
+    p0 = D_00723880;
+    for (i = 8; i >= 0; i--) {
+        _ApplyMatrix(p0, MatrixDrive_GetMatrix(), p1);
+        p0 += 4;
+        p1 += 4;
+    }
+
+    _SetCurrentMatrix(matrixptr + 0x100);
+
+    for (i = 0; i < 9; i++) {
+        float *m = &D_00723910[i * 4];
+
+        q0 = &D_00723640[i * 8];
+        r0 = &D_00723640[i * 8 + 4];
+        q1 = &D_00723760[i * 8];
+        r1 = &D_00723760[i * 8 + 4];
+
+        _ScaleVectorXYZ(q0, m, t);
+        s2 = t + 5.0f;
+        _ScaleVectorXYZ(r0, m, s2);
+        _AddVectorXYZ(q0, q0, pos);
+        _AddVectorXYZ(r0, r0, pos);
+        _ScaleVectorXYZ(v, &D_00723880[i * 4], s2);
+        _AddVectorXYZ(v, v, pos);
+        _ApplyCurrentMatrix(q1, q0);
+        _ApplyCurrentMatrix(r1, v);
+        _ScaleVector(q1, q1, 1.0f / q1[3]);
+        _ScaleVector(r1, r1, 1.0f / r1[3]);
+        _SubVector(q1, q1, D_004ECEC0);
+        _SubVector(r1, r1, D_004ECEC0);
+        q1[0] = q1[0] * sx;
+        q1[1] = q1[1] * sy;
+        r1[0] = r1[0] * sx;
+        r1[1] = r1[1] * sy;
+        _AddVector(q1, q1, D_004ECED0);
+        _AddVector(r1, r1, D_004ECED0);
+    }
+
+    gif_DrawStripFST(D_00723640, D_00723760, col, 0x12, 1);
+}
 
 void drawRipples(char *a0, int pri)
 {

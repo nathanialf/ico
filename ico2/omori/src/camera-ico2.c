@@ -116,8 +116,7 @@ static unsigned char cameraGroupChanged;
 
 static int pluralCameraSetNum;
 
-/* kept local: this TU's uses of SetMonitorCameraInitializeFlag do not fit the prototype in camera-root.h */
-extern void SetMonitorCameraInitializeFlag();
+extern void SetMonitorCameraInitializeFlag(void);
 extern int D_0063AB9C;
 /* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
 extern void _ApplyRyGV(void *a0, float v);
@@ -359,26 +358,11 @@ int ico2camera_GetGroupNearest(float *query)
     return result;
 }
 
-void initMonitorCamera(int a0)
+void initMonitorCamera(unsigned char init)
 {
-    /* The two block-local quantities here are the %hi address of the active flag
-     * at monitorCamera+0x44 and
-     * the constant 1.  local-alloc orders them by QTY_CMP_PRI =
-     * floor_log2(n_refs)*n_refs*size / (death-birth); both have 2 refs and one
-     * word, so it reduces to 1/lifetime, and whichever is born LAST wins $2.
-     * The ROM has the address in $2 AND emits its `lui` first, which the two
-     * orderings cannot both give: writing the constant into a local before the
-     * store (`char flag = 1; *p = flag;`) fixes the registers but
-     * then emits `li` first (2 diffs), and the plain `*p = 1;` emits
-     * `lui` first but puts the constant in $2 (3 diffs).  Not retired. */
-    register char *p = (char *)&monitorCamera.active;
-    register int one __asm__("$3") = 1;
-    int masked = a0 & 0xFF;
-    *p = (char)one;
-    if (masked == 0) {
-        return;
-    }
-    SetMonitorCameraInitializeFlag(masked);
+    monitorCamera.active = 1;
+    if (init)
+        SetMonitorCameraInitializeFlag();
 }
 
 extern int D_0063ABA8;

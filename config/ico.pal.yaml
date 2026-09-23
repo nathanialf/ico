@@ -964,12 +964,15 @@ segments:
       - [0x5374D8, rodata, cod/5374D8]   # .rodata blob resume
       - [0x53754C, .rodata, sce/libm/math/ef_atan2]  # syms: tiny zero pi_o_4 pi_o_2 pi pi_lo  fdlibm's six float constants of __ieee754_atan2f plus the compiler's -0.0f literal (libm compiles at -G 0, so its literals go to .rodata, not .lit4), seven words in object order, VMA 0x63754C..0x637568
       - [0x537568, rodata, cod/537568]   # .rodata blob resume
-      - [0x537578, .rodata, sce/libm/math/ef_rem_pio2]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x637578..0x638B00, 5512 B
-      - [0x537910, rodata, cod/537910]     # rodata blob resume
-      - [0x537960, .rodata, sce/libm/math/kf_rem_pio2]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x637960..0x638B00, 4512 B
-      - [0x53799C, rodata, cod/53799C]     # rodata blob resume
-      - [0x5379D0, .rodata, sce/libm/math/sf_atan]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x6379D0..0x638B00, 4400 B
-      - [0x537A1C, rodata, cod/537A1C]     # rodata blob resume
+      - [0x537578, .rodata, sce/libm/math/ef_rem_pio2]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x637578..0x638B00, 5512 B; now 0x637578..0x637938, 960 B (completeness pass 59: fdlibm tables), MAIN.MAP 0x3c0
+      - [0x537938, .rodata, sce/libm/math/ef_sqrt]  # fdlibm's own static const table as source (completeness pass 59), VMA 0x637938..0x637940, 8 B
+      - [0x537940, .rodata, sce/libm/math/kf_cos]  # fdlibm's own static const table (one, C1..C6) as source (completeness pass 59), VMA 0x637940..0x63795C, 28 B; MAIN.MAP kf_cos.o .rodata 0x1c; the 4 B to 0x637960 is kf_rem_pio2's 16-byte alignment pad
+      - [0x537960, .rodata, sce/libm/math/kf_rem_pio2]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x637960..0x638B00, 4512 B; now to 0x6379AC, 0x4c (completeness pass 59)
+      - [0x5379AC, .rodata, sce/libm/math/kf_sin]  # fdlibm's own static const table as source (completeness pass 59), VMA 0x6379AC..0x6379C8, 28 B
+      - [0x5379C8, .rodata, sce/libm/common/s_lib_ver]  # libm.a member s_lib_ver.o: no code, the one read-only word __fdlib_version (MAIN.MAP lines 504, 6753-6754), VMA 0x6379C8..0x6379CC, 4 B; the pad to 0x6379D0 is sf_atan's alignment
+      - [0x5379D0, .rodata, sce/libm/math/sf_atan]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x6379D0..0x638B00, 4400 B; now to 0x637A24, 0x54 (completeness pass 59)
+      - [0x537A24, .rodata, sce/libm/math/sf_floor]  # fdlibm's own static const huge as source (completeness pass 59), VMA 0x637A24..0x637A28, 4 B
+      - [0x537A28, .rodata, sce/libm/common/sf_scalbn]  # fdlibm's own static const table (two25, twom25, huge, tiny) as source (completeness pass 59), VMA 0x637A28..0x637A38, 16 B, abutting _divdi3's row
       - [0x537A38, .rodata, sce/libgcc/_divdi3]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x637A38..0x638B00, 4296 B
       - [0x537B38, .rodata, sce/libgcc/_moddi3]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x637B38..0x638B00, 4040 B
       - [0x537C38, .rodata, sce/libgcc/_udivdi3]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x637C38..0x638B00, 3784 B

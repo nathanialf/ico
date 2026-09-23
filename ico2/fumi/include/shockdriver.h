@@ -15,7 +15,9 @@
 void Init_Controler(short *a0);
 void Init_Player(int *box);
 void Init_Shock();
-void Init_ShockVoiceSet(int **a0, int *a1);
+typedef struct ShockVoiceSet ShockVoiceSet;
+
+void Init_ShockVoiceSet(ShockVoiceSet *set, int *data);
 int *ShockRequestBox_EndRequestFree(int **a0);
 int *ShockRequestBox_GetRequest(int **head_ptr, int key);
 int ShockRequestBox_RequestCancel(int a0_, int a1);

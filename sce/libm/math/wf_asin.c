@@ -8,8 +8,7 @@ extern float __kernel_cosf(float x, float y);
 extern float __kernel_sinf(float x, float y, int iy);
 
 /* newlib's math wrapper machinery.  The listing attributes no row to a header,
-   so the shapes are kept per member.  D_006379C8 is _LIB_VERSION (a plain
-   extern int here: naming it would need a symbol alias, which is banned). */
+   so the shapes are kept per member; _LIB_VERSION comes from math.h. */
 struct exception {
     int type;      /* 0x00 */
     char *name;    /* 0x04 */
@@ -20,11 +19,8 @@ struct exception {
 };
 
 #define DOMAIN 1
-#define _IEEE_ (-1)
-#define _POSIX_ 2
 #define EDOM 33
 
-extern const int D_006379C8[];
 extern float __ieee754_asinf(float x);
 extern int isnanf(float x);
 extern int matherr(void *a0);
@@ -36,7 +32,7 @@ float asinf(float x)
     struct exception exc;
 
     z = __ieee754_asinf(x);
-    if (D_006379C8[0] == _IEEE_ || isnanf(x))
+    if (_LIB_VERSION == _IEEE_ || isnanf(x))
         return z;
     if (fabsf(x) > (float)1.0) {
         /* asinf(|x|>1) */
@@ -45,7 +41,7 @@ float asinf(float x)
         exc.err = 0;
         exc.arg1 = exc.arg2 = (double)x;
         exc.retval = 0.0;
-        if (D_006379C8[0] == _POSIX_)
+        if (_LIB_VERSION == _POSIX_)
             *__errno() = EDOM;
         else if (!matherr(&exc)) {
             *__errno() = EDOM;

@@ -6,7 +6,7 @@
 
 extern char D_00639F48[];
 extern int D_0063A370;
-extern int sceSifInitRpc(int mode);
+extern void sceSifInitRpc(int mode);
 extern int sceCdInit(int mode);
 extern int sceCdMmode(int media);
 extern int sceCdDiskReady(int mode);

@@ -12,16 +12,16 @@
 #include <eekernel.h>
 
 typedef struct SqEntry {
-    unsigned short num;  /* 0x0 */
-    short bank;          /* 0x2 */
-    unsigned short unk4; /* 0x4 */
-    unsigned short unk6; /* 0x6 */
-    int unk8;            /* 0x8 */
-    int unkC;            /* 0xC */
-    int unk10[2];        /* 0x10 */
-    long long chMask;    /* 0x18 */
-    long long seMask;    /* 0x20 */
-    int unk28;           /* 0x28 */
+    unsigned short num;        /* 0x0 */
+    short bank;                /* 0x2 */
+    unsigned short unk4;       /* 0x4 */
+    unsigned short unk6;       /* 0x6 */
+    int unk8;                  /* 0x8 */
+    int unkC;                  /* 0xC */
+    int unk10[2];              /* 0x10 */
+    long long chMask;          /* 0x18 */
+    unsigned long long seMask; /* 0x20 */
+    int unk28;                 /* 0x28 */
 } SqEntry;
 
 typedef struct SeReqRec {
@@ -233,6 +233,32 @@ extern int SgBgmOpen(int vab, int a1);
 extern void SgSetBgmVol(int h, int vol, int pan);
 extern void SgBgmPlay(int h);
 
+/* A slot's request release, which the listing gives to lines 291 to 306 in all
+   three of its users (soundDataOpenChk, soundDataClose, _soundSeDefStop): two
+   helpers defined there and never emitted out of line, so static inlines (the
+   names are ours).  seReqRelease takes the channel, not the slot, because
+   _soundSeDefStop's copy recomputes the request word's address from it. */
+static inline void seReqChClear(SeReqRec *req, int ch, char **rp)
+{
+    long long bit = (long long)1 << ch;
+
+    if ((req->chMask & bit) != 0) {
+        req->chMask &= ~bit;
+        D_0063C1E8 &= ~bit;
+        *(unsigned short *)&D_006BF870[ch * 64] = *(unsigned short *)&D_006BF870[ch * 64] + 1;
+        *rp = 0;
+    }
+}
+
+static inline void seReqRelease(int ch)
+{
+    char **rp = (char **)&D_006BF870[ch * 64 + 0x30];
+    SeReqRec *req = *(SeReqRec **)rp;
+
+    if (req != 0)
+        seReqChClear(req, ch, rp);
+}
+
 void soundDataOpenChk(char *self)
 {
     int ok = 0;
@@ -242,8 +268,6 @@ void soundDataOpenChk(char *self)
     int off;
     char *slot;
     char *sl;
-    char **rp;
-    SeReqRec *req;
     short h;
     int hr;
     long long one;
@@ -302,18 +326,7 @@ void soundDataOpenChk(char *self)
         *(short *)(slot + 0x10) = hr;
         h = hr;
         if (h < 0) {
-            rp = (char **)&D_006BF870[off + 0x30];
-            req = *(SeReqRec **)rp;
-            if (req != 0) {
-                long long b2 = (long long)1 << ch;
-                long long m = req->chMask;
-                if ((m & b2) != 0) {
-                    req->chMask = m & ~b2;
-                    D_0063C1E8 &= ~b2;
-                    *(unsigned short *)slot = *(unsigned short *)slot + 1;
-                    *rp = 0;
-                }
-            }
+            seReqRelease(ch);
             debug_StdPrintfDummy(D_00552260);
             return;
         }
@@ -548,7 +561,46 @@ int *soundDataOpenSync(int *work)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", soundDataClose);
+extern int SgVabClose(int vab);
+extern void SgBgmStop(unsigned int h, int mode);
+extern int SgBgmClose(int h);
+extern void AdpcmClose(char *self);
+
+void soundDataClose(int *obj)
+{
+    SqEntry *self = (SqEntry *)obj;
+    int i;
+    char *slot;
+    short h;
+
+    switch (self->unk4) {
+    case 0:
+        SgVabClose(self->unk28);
+        break;
+    case 1:
+        i = 0;
+        while (self->seMask != 0) {
+            if ((int)((self->seMask >> i) & 1)) {
+                slot = &D_006BF870[i * 64];
+                h = *(short *)(slot + 0x10);
+                SgBgmStop(h, 1);
+                SgBgmClose(h);
+                seReqRelease(i);
+            }
+            i++;
+        }
+        SgVabClose(self->unk28);
+        iosFree((void *)self->unkC);
+        if (self->unk10[0] != 0) {
+            iosFree((void *)self->unk10[0]);
+        }
+        break;
+    case 2:
+        AdpcmClose((char *)self);
+        break;
+    }
+    *(int *)self = 0;
+}
 
 void soundDataSegAllClose(int a0, int a1)
 {
@@ -753,8 +805,6 @@ void _soundSeDefStop(int a0, int a1)
     int ch = a0 & 0xFF;
     char *self = &D_006BF870[ch * 64];
     short h;
-    char **rp;
-    SeReqRec *req;
     SeSrcDef *src;
 
     h = *(short *)(self + 0x10);
@@ -763,18 +813,7 @@ void _soundSeDefStop(int a0, int a1)
     a0 = a0 >> 8;
     if (a0 != *(unsigned short *)self)
         return;
-    rp = (char **)&D_006BF870[ch * 64 + 0x30];
-    req = *(SeReqRec **)rp;
-    if (req != 0) {
-        long long bit = (long long)1 << ch;
-        long long m = req->chMask;
-        if ((m & bit) != 0) {
-            req->chMask = m & ~bit;
-            D_0063C1E8 &= ~bit;
-            *(unsigned short *)self = *(unsigned short *)self + 1;
-            *rp = 0;
-        }
-    }
+    seReqRelease(ch);
     if (a1 == 0) {
         SgSeStop(h);
     } else {

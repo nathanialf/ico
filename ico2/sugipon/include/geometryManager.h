@@ -42,7 +42,7 @@ void SetDirectRootPositionNoFittingWithNodePoint(char *gobj, int node, float *po
 void SetDirectRootPositionNoFittingWithNodePointXZ(char *gobj, int node, float *pos, float t);
 void SetDirectRootPositionWithNodePoint(char *gobj, int node, float *pos, float t);
 void SetRootMatrixRotOffset(int a0, void *a1);
-void SetRootMatrixWithTransOffset(int a0);
+void SetRootMatrixWithTransOffset(void *obj, float x, float y, float z);
 void SetRootPosition(char *a0, void *a1);
 void SetRootQuaternion(char *a0, void *a1);
 void UpdateRootMatrix(int a0);

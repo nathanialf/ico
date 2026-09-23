@@ -53,16 +53,16 @@ static const int npio2_hw[] = {
 
 extern int __kernel_rem_pio2f(float *x, float *y, int e0, int nx, int prec, const int *ipio2);
 
-#define zero 0.0000000000e+00f
-#define half 5.0000000000e-01f
-#define two8 2.5600000000e+02f    /* 0x43800000 */
-#define invpio2 6.3661980629e-01f /* 0x3F22F984 */
-#define pio2_1 1.5707855225e+00f  /* 0x3FC90F80 */
-#define pio2_1t 1.0804334124e-05f /* 0x37354443 */
-#define pio2_2 1.0804273188e-05f  /* 0x37354400 */
-#define pio2_2t 6.0770999344e-11f /* 0x2E85A308 */
-#define pio2_3 6.0770943833e-11f  /* 0x2E85A300 */
-#define pio2_3t 6.1232342629e-17f /* 0x248D3132 */
+static const float zero = 0.0000000000e+00, /* 0x00000000 */
+    half = 5.0000000000e-01,                /* 0x3F000000 */
+    two8 = 2.5600000000e+02,                /* 0x43800000 */
+    invpio2 = 6.3661980629e-01,             /* 0x3F22F984 */
+    pio2_1 = 1.5707855225e+00,              /* 0x3FC90F80 */
+    pio2_1t = 1.0804334124e-05,             /* 0x37354443 */
+    pio2_2 = 1.0804273188e-05,              /* 0x37354400 */
+    pio2_2t = 6.0770999344e-11,             /* 0x2E85A308 */
+    pio2_3 = 6.0770943833e-11,              /* 0x2E85A300 */
+    pio2_3t = 6.1232342629e-17;             /* 0x248D3132 */
 
 int __ieee754_rem_pio2f(float x, float *y)
 {
