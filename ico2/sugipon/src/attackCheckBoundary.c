@@ -180,7 +180,7 @@ void AttackCheckBoundaryBeforeFunc(char *self)
                             b[1] = 2;
                             *(int *)b[0] = 2;
                             /* " - cut by the sword" */
-                            debug_StdPrintfDummy(" - ∑ı§«¿⁄§È§Ï§ø\n");
+                            debug_StdPrintfDummy(" - Ââ£„ÅßÂàá„Çâ„Çå„Åü\n");
                         }
                         goto done;
                     }
@@ -190,7 +190,7 @@ void AttackCheckBoundaryBeforeFunc(char *self)
                     b[1] = 1;
                     *(int *)b[0] = 1;
                     /* " - cannot cut" */
-                    debug_StdPrintfDummy(" - §≠§Ï§ §§\n");
+                    debug_StdPrintfDummy(" - „Åç„Çå„Å™„ÅÑ\n");
                 }
             }
         done:
