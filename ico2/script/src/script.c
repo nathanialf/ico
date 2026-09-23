@@ -841,7 +841,7 @@ inline int scpTriggerPosBall(float *pos, float *target, float r)
         gif_StartPacketPri(0xB);
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
         MatrixDrive_TransMatrixV(pos);
-        prim_DispWireSphere(&col, 0x10, 8, r);
+        prim_DispWireSphere(r, &col, 16, 8);
         gif_EndPacket();
         MatrixDrive_PopMatrix();
     }
@@ -1933,7 +1933,7 @@ inline void scpWakeupItemWithBoundary(float x, float y, float z, float r)
         gif_StartPacketPri(0xB);
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
         MatrixDrive_TransMatrixV(pos);
-        prim_DispWireSphere(&col, 0x10, 8, r);
+        prim_DispWireSphere(r, &col, 16, 8);
         gif_EndPacket();
         MatrixDrive_PopMatrix();
     }

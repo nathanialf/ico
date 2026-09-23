@@ -111,6 +111,7 @@ void afterCommonTruckLever(volatile int a0);
 #include "mail-add-data.h"
 #include "gflag.h"
 #include "Matrix.h"
+#include "Primitive.h"
 #include "boy.h"
 #include "cage.h"
 #include "darkVolume.h"
@@ -2754,8 +2755,6 @@ static inline float calcFlyAccel(float *a, float *b)
 extern void gif_StartPacketPri(int pri);
 /* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
-/* kept local: this TU's uses of prim_DispWireSphere do not fit the prototype in Primitive.h */
-extern void prim_DispWireSphere(float a3, void *a0, int a1, int a2);
 
 /* reconstruction: the flight-limit marker colour (R, G, B, A), the first of
    the four colour records at the head of commonact's .data colour run */

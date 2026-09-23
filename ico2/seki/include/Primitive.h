@@ -17,7 +17,10 @@ void prim_DispFan2D(int handle, int a);
 void prim_DispMesh3D(int a0, void *a1, void *a2, int a3);
 void prim_DispParticle(int prim, void *m);
 void prim_DispWireBox(float *sz, void *col);
-void prim_DispWireSphere(void *col, int nu, int nv, float r);
+/* radius first: the calls in box, boy and commonact set $f12 ahead of the
+   colour and the counts, which only this order gives; every other caller
+   compiles the same under either order */
+void prim_DispWireSphere(float r, void *col, int nu, int nv);
 int prim_InitFan2D(int a, float e, int *b, unsigned int c, int d);
 char *prim_InitMesh3D(int a0, int a1, int a2, int a3, unsigned int a4, int a5);
 int prim_InitParticle(int a0, int a1, int a2, int a3);

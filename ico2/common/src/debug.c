@@ -2063,7 +2063,7 @@ extern void MatrixDrive_PushMatrix(void);
 extern void MatrixDrive_PopMatrix(void);
 extern void MatrixDrive_TransMatrixV(void *a0);
 extern void sceVu0UnitMatrix(void *m);
-extern void prim_DispWireSphere(void *col, int nu, int nv, float r);
+extern void prim_DispWireSphere(float r, void *col, int nu, int nv);
 extern int scpTriggerPosBall(float *pos, float *target, float r);
 
 int debug_DispBall(int on)
@@ -2140,7 +2140,7 @@ int debug_DispBall(int on)
     gif_StartPacketPri(11);
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     MatrixDrive_TransMatrixV(D_00704900);
-    prim_DispWireSphere(&col, 16, 8, D_0063B0C8);
+    prim_DispWireSphere(D_0063B0C8, &col, 16, 8);
     gif_EndPacket();
     MatrixDrive_PopMatrix();
     return (D_0028F8F0[0].hold & 0x40) ? -1 : 0;
@@ -2263,7 +2263,7 @@ int debug_CollisionTest(int reset)
         gif_SetAlpha(1, 0, 0x80);
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
         MatrixDrive_TransMatrixV(D_00704910.hit);
-        prim_DispWireSphere((void *)&D_004D9D70, 8, 4, 5.0f);
+        prim_DispWireSphere(5.0f, (void *)&D_004D9D70, 8, 4);
         gif_EndPacket();
         DebugDisp1Collision(&mv);
         debug_PrintfDummy(80, 180, 0xFFFFFF00u, (int)D_0061C310, (int)D_00704910.wall.ref.poly,
@@ -2278,7 +2278,7 @@ int debug_CollisionTest(int reset)
         gif_SetAlpha(1, 0, 0x80);
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
         MatrixDrive_TransMatrixV(D_00704910.hit);
-        prim_DispWireSphere((void *)&D_004D9D80, 8, 4, 5.0f);
+        prim_DispWireSphere(5.0f, (void *)&D_004D9D80, 8, 4);
         gif_EndPacket();
     }
     debug_PrintfDummy(80, 160, 0xFFFFFF00u, (int)D_0061C330, D_00704910.src[0], D_00704910.src[1],

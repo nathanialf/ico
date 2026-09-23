@@ -1562,7 +1562,7 @@ extern void MatrixDrive_TransMatrixV(char *a0);
 extern void _UnitMatrix(void *p0);
 extern void gif_StartPacketPri(int pri);
 extern void gif_EndPacket(void);
-extern void prim_DispWireSphere(void *col, int nu, int nv, float r);
+extern void prim_DispWireSphere(float r, void *col, int nu, int nv);
 extern unsigned char D_0029D1C0[];
 extern int D_0063B234;
 
@@ -1666,7 +1666,7 @@ int _ApproachTarget_Way(char *self, void *tgt, void *pos, void *fn, float range,
                 _UnitMatrix(MatrixDrive_GetMatrix());
                 MatrixDrive_TransMatrixV((char *)rp);
                 gif_StartPacketPri(11);
-                prim_DispWireSphere(D_0029D1C0, 4, 4, 100.0f);
+                prim_DispWireSphere(100.0f, D_0029D1C0, 4, 4);
                 gif_EndPacket();
                 MatrixDrive_PopMatrix();
             }
@@ -1714,7 +1714,170 @@ int _ApproachTarget_Way(char *self, void *tgt, void *pos, void *fn, float range,
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", actEnemyStart);
+extern char D_00553738[];
+extern char D_00553500[];
+/* the three actor sub-threads this function starts; their bodies are below */
+extern void subEnemyControl(volatile int a0);
+extern void subEnemyCollision(volatile int a0);
+extern void subEnemyBrainMain(volatile int a0);
+extern char D_002A84F8[];
+extern int D_0063B1EC;
+extern int D_0063B180;
+extern float entesty[];
+extern int InitMultiBgaManager(int a0);
+extern int GetMotherGenerator(int label);
+
+/* INTERIM stand-in: the 2001 source declares actEnemyFlagCheckDead `inline` --
+   the disc listing attributes rows 2077-2078 to a body inside actEnemyStart --
+   while its out-of-line copy keeps its own ROM slot below. */
+static inline int actEnemyFlagCheckDead_INTERIM(int *a0)
+{
+    int *p = (int *)(D_002C2DC8 + a0[2] * 0x4C);
+    return ((unsigned int)p[0x48 / 4] >> 18) & 1;
+}
+
+/* INTERIM stand-in: actEnemyHyde is `inline` in the 2001 source -- the listing
+   attributes rows 2033-2037 to a body inside actEnemyStart -- while its
+   out-of-line copy keeps its own ROM slot below. */
+static inline void actEnemyHyde_INTERIM(int *self)
+{
+    char spill[16];
+    *(long long *)(spill + 0) = *(long long *)((char *)D_00553500 + 0);
+    *(long long *)(spill + 8) = *(long long *)((char *)D_00553500 + 8);
+    SetDirectRootPositionNoFitting(self, spill);
+    ResetEnemyPositionInfo(self);
+    actEnemyFlagOnFree(self);
+}
+
+/* One start record per motion phase; the four of them are the actor's whole
+   start parameter block. */
+typedef struct {
+    int mode;
+    int f04;
+    int f08;
+    int f0C;
+    int f10;
+    float f14;
+    float f18;
+    unsigned int f1C;
+} EnemyStartRec;
+
+/* The gobj's sub-object slot at +0x15C, an int handle the engine also reads
+   as the sub record's address (see GOBJ_SUB in typedef.h). Reconstruction:
+   ROM re-reads the slot before each of actEnemyStart's four float stores
+   through it while the int chase through gobj+0x164 survives them, which
+   is what a union view of the slot gives (alias set 0 on the slot, float
+   on the stores); the union's name and members are ours. */
+typedef union {
+    int handle;
+    char *p;
+} EnemySubSlot;
+
+/* The actor's character kind at act+0x48, the index act.c's after_func_exec
+   and BeforeFunc read into the status table's six-entry rows; actInitialize
+   sets it to -1, actGirlStart to 1 and actEnemyStart to 2. Reconstruction:
+   an enumerated type, as the ROM proves here (only a store of a type other
+   than int lets the D_0063AA00 load below issue ahead of it); the names are
+   ours, the values the ROM's. */
+typedef enum { ACT_KIND_NONE = -1, ACT_KIND_GIRL = 1, ACT_KIND_ENEMY = 2 } ActKind;
+
+#define ENEMY_START_WORK(self) (*(int *)(*(int *)((self) + 0x164) + 0x680))
+
+/* Listing rows 5128-5301. What the bytes pin, each read off the scheduler's
+ * dependences: the bit-51 store to the actor word is a union access (the
+ * gobj+0x164 chase for the ==3 test waits for it); the four 0.05f stores are
+ * float stores through a union view of the gobj+0x15C slot (the slot is
+ * re-read before each, the int gobj+0x164 load before them survives and
+ * gcse reuses it after the if); the character-kind store at act+0x48 is not
+ * int-typed (the D_0063AA00 load issues ahead of it); each life pair is one
+ * chained assignment (rows 5286 and 5288). What they cannot pin: the names of
+ * the union and enum types and their other members. */
+void actEnemyStart(char *self)
+{
+    char *act;
+    int alive;
+    float life;
+
+    debug_StdPrintfDummy(D_00553738, self);
+    act = actInitialize(self);
+    actInitialize_ext_charcter(self);
+    actInitialize_only_charcter(self);
+    actInitialize_geo(self);
+    if (*(int *)(self + 8) == 3757) {
+        *(long long *)(act + 0x20) = *(long long *)(act + 0x20) | 0x40000000;
+    }
+    ACTGame_LwsEffectInit(self);
+    ACTParaStatus_Init(self);
+    _ACTCharStatus_Init((int **)self);
+    *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x378) = InitMultiBgaManager(1);
+    {
+        EnemyStartRec p[4] = {
+            {0, 35, 18, 90, 0, _ACTGame_GetParamF(20), 369.0f, 1},
+            {1, 0, 18, 50, 0, _ACTGame_GetParamF(21), 369.0f, 0},
+            {2, 34, 22, 25, 50, _ACTGame_GetParamF(22), 369.0f, 0},
+            {2, 33, 22, 0, 100, entesty[0], 370.0f, 1},
+        };
+        unsigned long long bit;
+
+        *(float *)(ENEMY_START_WORK(self) + 0x1E0) =
+            *(float *)(*(int *)(*(int *)(self + 0x15C) + 0x870) + 0x20);
+        *(int *)(ENEMY_START_WORK(self) + 0x1E4) = 1;
+        *(int *)(ENEMY_START_WORK(self) + 0x1E8) = p[1].mode;
+        *(int *)(ENEMY_START_WORK(self) + 0x1F0) = p[1].f04;
+        *(int *)(ENEMY_START_WORK(self) + 0x1F4) = p[1].f08;
+        *(int *)(ENEMY_START_WORK(self) + 0x1F8) = p[1].f0C;
+        *(int *)(ENEMY_START_WORK(self) + 0x1FC) = p[1].f10;
+        *(float *)(act + 0x1E4) = p[1].f14;
+        *(int *)(ENEMY_START_WORK(self) + 0x200) = (int)p[1].f18;
+        *(int *)(ENEMY_START_WORK(self) + 0x20C) = 3;
+        bit = p[1].f1C;
+        ((ActStatusWord *)(act + 0x18))->q =
+            (((ActStatusWord *)(act + 0x18))->q & ~(1ULL << 51)) | ((bit & 1) << 51);
+    }
+    if (*(int *)(ENEMY_START_WORK(self) + 0x1E4) == 3) {
+        *(float *)(((EnemySubSlot *)(self + 0x15C))->p + 0x45C) = 0.05f;
+        *(float *)(((EnemySubSlot *)(self + 0x15C))->p + 0x460) = 0.05f;
+        *(float *)(((EnemySubSlot *)(self + 0x15C))->p + 0x464) = 0.05f;
+        *(float *)(((EnemySubSlot *)(self + 0x15C))->p + 0x468) = 0.05f;
+    }
+    *(int *)(ENEMY_START_WORK(self) + 0x1EC) = D_0063B1EC;
+    setBattleStatus((EnemyBattleGObj *)self);
+    alive = 0;
+    if (actEnemyFlagCheckDead_INTERIM((int *)self) != 0) {
+        alive = 1;
+    }
+    if (alive != 0) {
+        *(long long *)(act + 0x18) = *(long long *)(act + 0x18) & ~(1LL << 32);
+        *(long long *)(act + 0x18) = *(long long *)(act + 0x18) & ~(1LL << 33);
+    }
+    _ACTWait(1);
+    *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x464) =
+        GetMotherGenerator(*(int *)(self + 8));
+    if (*(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x464) != -1) {
+        *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x468) = isysGObjSearchFromObjLayoutID(
+            *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x464));
+    }
+    *(char **)(act + 0xD0) = D_002A84F8;
+    if (D_0063B180 != 0) {
+        actCreateSubThread((void *)subEnemyBrainMain, (void *)20);
+    }
+    actCreateSubThread((void *)subEnemyControl, (void *)21);
+    actCreateSubThread((void *)subEnemyCollision, (void *)21);
+    actCreateSubThread((void *)subCommonIdle, (void *)21);
+    *(char **)(act + 0xD4) = D_002A84F8 + 0x78;
+    *(ActKind *)(act + 0x48) = ACT_KIND_ENEMY;
+    life = getEnemyRestartLife(self);
+    *(float *)(act + 0x1E0) = *(float *)(act + 0x1E4) = life;
+    if (life < 10.0f) {
+        *(float *)(act + 0x1E0) = *(float *)(act + 0x1E4) = 10.0f;
+    }
+    *(int *)(act + 0x350) = 0;
+    ACTSendMailCorrect(self, 199);
+    if (alive != 0) {
+        actEnemyHyde_INTERIM((int *)self);
+    }
+    _ACTWait(0);
+}
 
 void subEnemyBrain_Attack(volatile int a0)
 {

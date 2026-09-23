@@ -318,7 +318,7 @@ void DispAllMemberOfSpider(char *self, int *col)
             gif_StartPacketPri(11);
             gif_SetZTest(1);
             gif_SetAlpha(1, 5, 128);
-            prim_DispWireSphere(col, 4, 4, 50.0f);
+            prim_DispWireSphere(50.0f, col, 4, 4);
             gif_EndPacket();
             debug_PrintfDummy(400, D_0063BADC * 10 + 50,
                               (col[0] << 24) | (col[1] << 16) | (col[2] << 8) | 0xFF,
@@ -328,7 +328,7 @@ void DispAllMemberOfSpider(char *self, int *col)
                 gif_StartPacketPri(11);
                 gif_SetZTest(1);
                 gif_SetAlpha(1, 5, 128);
-                prim_DispWireSphere(spiderWireColor, 4, 4, 100.0f);
+                prim_DispWireSphere(100.0f, spiderWireColor, 4, 4);
                 gif_EndPacket();
             }
             D_0063BADC++;
@@ -345,7 +345,7 @@ void DispAllMemberOfSpider(char *self, int *col)
         gif_StartPacketPri(11);
         gif_SetZTest(1);
         gif_SetAlpha(1, 5, 128);
-        prim_DispWireSphere(col, 4, 4, 100.0f);
+        prim_DispWireSphere(100.0f, col, 4, 4);
         gif_EndPacket();
     }
 }

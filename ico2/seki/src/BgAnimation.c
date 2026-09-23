@@ -1527,9 +1527,9 @@ typedef struct BgaSdfKey {
 } BgaSdfKey;
 
 /* The SDF camera record bga_InitSdfCamera checks and bga_SetCamFrame starts:
- * the key count, the running frame, the play mode and the keys. */
+ * the "SDF" tag, the key count, the running frame, the play mode and the keys. */
 typedef struct BgaSdfCam {
-    /* 0x00 */ int f00;
+    /* 0x00 */ char id[4];
     /* 0x04 */ int num;
     /* 0x08 */ float frame;
     /* 0x0C */ int mode;
@@ -1946,7 +1946,9 @@ extern char D_006215D8[];
 
 char *bga_InitSdfCamera(char *a0)
 {
-    if (strncmp(a0, D_0063BCE0, 3) != 0) {
+    BgaSdfCam *p = (BgaSdfCam *)a0;
+
+    if (strncmp(p->id, D_0063BCE0, 3) != 0) {
         debug_StdPrintfDummy(D_006215D8);
         debug_assert(D_00621598, 0x415);
         __assert(D_00621598, 0x415, D_0063BCD8);
@@ -1961,9 +1963,11 @@ extern float D_00728220[];
 /* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
 extern void _CopyVector(void *dst, void *src);
 
-void bga_SetCamFrame(char *p, int frame, int mode)
+void bga_SetCamFrame(char *data, int frame, int mode)
 {
-    *(int *)(p + 0xC) = mode;
+    BgaSdfCam *p = (BgaSdfCam *)data;
+
+    p->mode = mode;
     D_0063C4B4 = 1;
     if (mode == 1) {
         GlobalTimer = mode;
@@ -1971,9 +1975,9 @@ void bga_SetCamFrame(char *p, int frame, int mode)
         _CopyVector(D_00728230, D_00728220);
     }
     if (frame == -1) {
-        *(float *)(p + 8) = bga_palFrame(*(int *)(p + 4));
+        p->frame = bga_palFrame(p->num);
     } else {
-        *(float *)(p + 8) = bga_palFrame(frame);
+        p->frame = bga_palFrame(frame);
     }
 }
 
@@ -2032,10 +2036,11 @@ int bga_CheckAnimationFrameIn(char *p, int in, int out)
     return r;
 }
 
-int bga_CheckSdfCameraFinish(char *p)
+int bga_CheckSdfCameraFinish(char *data)
 {
-    float f = *(int *)(p + 4);
-    float t = *(float *)(p + 8);
+    BgaSdfCam *p = (BgaSdfCam *)data;
+    float f = p->num;
+    float t = p->frame;
 
     if (D_0028F4C0[0]) {
         return f * 0.82812935f <= t;
@@ -2043,10 +2048,11 @@ int bga_CheckSdfCameraFinish(char *p)
     return f <= t;
 }
 
-int bga_CheckSdfCameraFrame(char *p, int frame, int reset)
+int bga_CheckSdfCameraFrame(char *data, int frame, int reset)
 {
+    BgaSdfCam *p = (BgaSdfCam *)data;
     float f = frame;
-    float t = *(float *)(p + 8);
+    float t = p->frame;
     int r;
 
     if (D_0028F4C0[0]) {
@@ -2055,14 +2061,15 @@ int bga_CheckSdfCameraFrame(char *p, int frame, int reset)
         r = f <= t;
     }
     if (r && reset) {
-        *(int *)(p + 0xC) = 0;
+        p->mode = 0;
     }
     return r;
 }
 
-int bga_CheckSdfCameraFrameIn(char *p, int in, int out)
+int bga_CheckSdfCameraFrameIn(char *data, int in, int out)
 {
-    float t = *(float *)(p + 8);
+    BgaSdfCam *p = (BgaSdfCam *)data;
+    float t = p->frame;
     float a = in;
     int r = 0;
 

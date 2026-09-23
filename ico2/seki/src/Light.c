@@ -582,7 +582,7 @@ extern void _GetCurrentMatrix(void *m);
 extern void _ScaleCurrentMatrix(float x, float y, float z);
 extern void *MatrixDrive_GetMatrix(void);
 extern void DispWireString(char *s);
-extern void prim_DispWireSphere(void *col, int nu, int nv, float r);
+extern void prim_DispWireSphere(float r, void *col, int nu, int nv);
 extern void prim_DispWireBox(float *sz, void *col);
 extern void gif_StartPacketPri(int pri);
 extern void gif_SetZTest(int on);
@@ -645,7 +645,7 @@ void light_DispVolume(void)
                 _CopyVector((char *)MatrixDrive_GetMatrix() + 0x30, lp);
                 gif_SetZTest(1);
                 gif_SetAlpha(1, 2, 64);
-                prim_DispWireSphere(col, 6, 6, lp->f_34 * 0.1f);
+                prim_DispWireSphere(lp->f_34 * 0.1f, col, 6, 6);
                 if (i != 0) {
                     GetRootPosition(pos, D_00639EA4);
                     _SubVector(pos, pos, lp);
@@ -696,8 +696,8 @@ void light_DispVolume(void)
                 gif_StartPacketPri(11);
                 gif_SetZTest(1);
                 gif_SetAlpha(1, 2, 64);
-                prim_DispWireSphere(&col, 6, 6, 1.0f / av->f_60[0]);
-                prim_DispWireSphere(&col, 6, 6, 1.0f / av->f_50[0]);
+                prim_DispWireSphere(1.0f / av->f_60[0], &col, 6, 6);
+                prim_DispWireSphere(1.0f / av->f_50[0], &col, 6, 6);
                 gif_EndPacket();
                 break;
             case 1:

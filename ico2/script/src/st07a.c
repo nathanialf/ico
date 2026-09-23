@@ -24,8 +24,9 @@
 #include "typedef.h"
 #include "e3.h"
 
-/* kept local: this TU's uses of scpTorchLightOff do not fit the prototype in script.h */
-extern void scpTorchLightOff(int a0);
+/* declared as script.h declares it; this TU does not include script.h, whose
+   pointer-typed prototypes its other script calls (int handles) do not fit */
+extern void scpTorchLightOff(int id);
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
 /* kept local: this TU's uses of scpLinkBGAtoLayoutedTarget do not fit the prototype in script.h */
@@ -109,8 +110,9 @@ extern void scpPlayMot(int a0, int mot);
 extern void scpPlayMotDir(int a0, void *dir);
 extern int D_00639EAC;
 extern int D_0028F4C0[];
-/* kept local: this TU's uses of scpTorchLightOn do not fit the prototype in script.h */
-extern void scpTorchLightOn(int a0);
+/* declared as script.h declares it; this TU does not include script.h, whose
+   pointer-typed prototypes its other script calls (int handles) do not fit */
+extern void scpTorchLightOn(int id);
 
 /* A 16-byte constant vector: the float view carries the values, the long
    long view is the one the whole-object copy reads. */

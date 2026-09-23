@@ -973,8 +973,7 @@ void prim_DispWireYCylinder(void *col, int n, int flag, float r, float y0, float
 /* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
 extern void _ScaleVectorXYZ(void *dst, void *src, float s);
 
-void prim_DispWireSphere(void *col, int nu, int nv, float r)
-/* kept local: this TU's uses of prim_InitParticleByPartition do not fit the prototype in Primitive.h */
+void prim_DispWireSphere(float r, void *col, int nu, int nv)
 {
     float us = 65536.0f / (float)nu;
     float vs = 32768.0f / (float)nv;

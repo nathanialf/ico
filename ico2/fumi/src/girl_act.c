@@ -2221,7 +2221,7 @@ static inline void dispEscortSphere(void *pos, float r, unsigned char in)
         gif_SetZTest(1);
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
         MatrixDrive_TransMatrixV(pos);
-        prim_DispWireSphere(&col, 0x10, 8, r);
+        prim_DispWireSphere(r, &col, 16, 8);
         gif_EndPacket();
         MatrixDrive_PopMatrix();
     }

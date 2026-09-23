@@ -109,8 +109,9 @@ extern void jimakuUndisp(int a0);
 extern int scpEffectStart(void *a0, int a1);
 /* kept local: this TU's uses of scpKillEnemyAll do not fit the prototype in script.h */
 extern void scpKillEnemyAll(void);
-/* kept local: this TU's uses of scpTorchLightOn do not fit the prototype in script.h */
-extern void scpTorchLightOn(int a0);
+/* declared as script.h declares it; this TU does not include script.h, whose
+   pointer-typed prototypes its other script calls (int handles) do not fit */
+extern void scpTorchLightOn(int id);
 /* kept local: this TU's uses of scpActStatusDeathFall do not fit the prototype in script.h */
 extern int scpActStatusDeathFall(int a0);
 /* kept local: this TU's uses of scpLockMaxRotate do not fit the prototype in script.h */
@@ -121,8 +122,9 @@ extern void scpUnLockMaxRotate(int a0);
 extern void _SCPMoveByWay_ToChar(int a0, int a1, int a2, int a3, float f0, float f1);
 /* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
 extern void scpWakeupEnemyAll(void);
-/* kept local: this TU's uses of scpTorchLightOff do not fit the prototype in script.h */
-extern void scpTorchLightOff(int a0);
+/* declared as script.h declares it; this TU does not include script.h, whose
+   pointer-typed prototypes its other script calls (int handles) do not fit */
+extern void scpTorchLightOff(int id);
 /* kept local: this TU's uses of scpMaskGeneratorAll do not fit the prototype in script.h */
 extern void scpMaskGeneratorAll(void);
 /* kept local: this TU's uses of scpSekizouCheckPoint do not fit the prototype in script.h */

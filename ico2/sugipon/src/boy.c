@@ -5,6 +5,7 @@
 #include "obj_manager.h"
 #include "act-game.h"
 #include "DisplayP2O.h"
+#include "Primitive.h"
 #include "RegistPacket.h"
 #include "actressLight.h"
 #include "clothAnimation.h"
@@ -368,7 +369,42 @@ void dispClothes(char *gobj)
     DispCloth4D(*(void **)(w + 0x30), x + 0x40, x);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/boy", execClothes);
+/* census execClothes, a file static: girl.c has its own static twin of this name.
+ * Listing rows 103-126. The five else-arm calls are one nested inline helper
+ * (row 116 is its body, rows 118-122 its code-free calls), the construct this
+ * programmer's clothAnimation.c uses for interHalf: each inlined copy
+ * rematerialises the 0.98f literal at its own call, which is why the ROM loads
+ * that constant five times, and the two arm-scoped values the helper reads are
+ * homed in the frame and reloaded after every call. The helper's name and the
+ * two locals' names are ours (a nested inline leaves no symbol). */
+static void execClothes(char *gobj)
+{
+    char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
+
+    if (*(int *)(w + 0x58) != 0) {
+        GetCloth4DWithDetail(*(void **)(w + 0x20), 0.0f, 0.5f, 1.0f, 0.0f);
+        GetCloth4DWithDetail(*(void **)(w + 0x24), 0.0f, 0.5f, 1.0f, 0.0f);
+        GetCloth4D(*(void **)(w + 0x2C), 5.0f, 0.98f);
+        GetCloth4D(*(void **)(w + 0x28), 5.0f, 0.98f);
+        GetCloth4D(*(void **)(w + 0x30), 5.0f, 0.98f);
+        *(float *)(w + 0x64) = 1.0f;
+    } else {
+        float f = *(float *)(w + 0x64);
+        float x = f * 5.0f + 3.0f;
+        float wt = 1.0f - f;
+        __inline__ void setClothDetail(void *cloth)
+        {
+            GetCloth4DWithDetail(cloth, x, 0.98f, 1.0f, wt);
+        }
+
+        setClothDetail(*(void **)(w + 0x20));
+        setClothDetail(*(void **)(w + 0x24));
+        setClothDetail(*(void **)(w + 0x2C));
+        setClothDetail(*(void **)(w + 0x28));
+        setClothDetail(*(void **)(w + 0x30));
+        *(float *)(w + 0x64) *= 0.999f;
+    }
+}
 
 extern void *D_0063A438;
 extern char D_004E6E10[];
@@ -628,8 +664,6 @@ extern void _SubVectorXYZ(void *dst, void *a, void *b);
 extern void _AddVectorXYZ(void *dst, void *a, void *b);
 /* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
 extern void _UnitMatrix(void *p);
-/* kept local: this TU's uses of prim_DispWireSphere do not fit the prototype in Primitive.h */
-extern void prim_DispWireSphere(float r, void *a0, int a1, int a2);
 
 void synchronizeMotionOutputOriginForGirl(char *gobj)
 {
@@ -664,10 +698,10 @@ void synchronizeMotionOutputOriginForGirl(char *gobj)
                 gif_SetAlpha(1, 5, 0x80);
                 _UnitMatrix(MatrixDrive_GetMatrix());
                 MatrixDrive_TransMatrixV((char *)GOBJ_SUB(D_00639EA8) + 0x100);
-                prim_DispWireSphere(10.0f, girlSyncMarkerColor, 0x10, 8);
+                prim_DispWireSphere(10.0f, girlSyncMarkerColor, 16, 8);
                 _UnitMatrix(MatrixDrive_GetMatrix());
                 MatrixDrive_TransMatrixV((char *)GOBJ_SUB(gobj) + 0x100);
-                prim_DispWireSphere(10.0f, boySyncMarkerColor, 0x10, 8);
+                prim_DispWireSphere(10.0f, boySyncMarkerColor, 16, 8);
                 gif_EndPacket();
             }
         }
@@ -705,7 +739,6 @@ void actionOfWater(char *gobj)
 }
 
 void synchronizeMotionOutputOriginForGirl(char *gobj);
-void execClothes(char *gobj);
 void actionOfWater(char *gobj);
 
 void BoyGeo(char *gobj)

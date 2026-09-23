@@ -858,9 +858,9 @@ void execPositionReserver(char *self, MotShift m)
                 MatrixDrive_TransMatrixV(buf2);
                 gif_StartPacketPri(0xB);
                 if (GOBJ_SUB(self)->f_4EC == 1) {
-                    prim_DispWireSphere(D_004ECB50, 0x10, 8, 50.0f);
+                    prim_DispWireSphere(50.0f, D_004ECB50, 0x10, 8);
                 } else {
-                    prim_DispWireSphere(D_004ECB60, 0x10, 8, 50.0f);
+                    prim_DispWireSphere(50.0f, D_004ECB60, 0x10, 8);
                 }
                 gif_EndPacket();
             }

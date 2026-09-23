@@ -3,6 +3,7 @@
 #include "sugiCommon.h"
 #include "switch.c.inc"
 #include "DObj.h"
+#include "Primitive.h"
 #include "debug.h"
 #include "gamesys.h"
 #include "generator.h"
@@ -638,11 +639,15 @@ extern char D_0061EFA8[];
 
 void onPathInitialize(char *a0)
 {
+    char *p = (char *)GOBJ_SUB(a0)->f_830;
     float front[4];
     float rear[4];
-    char *p = (char *)GOBJ_SUB(a0)->f_830;
-    /* one offset variable for both wheels: the ROM loads 50.0f and -50.0f
-       into the same register, each on its own vector's line */
+    /* The wheel offset is one variable assigned on each wheel's line. What the
+       bytes pin: 50.0f and -50.0f share one register, the -50.0f load waits
+       for the front multiply (listing rows 680 and 681), which two separate
+       constants never give (measured: 50.0f in $f1, 1.0f in $f2, -50.0f
+       hoisted into $f3; `-ofs` gives a neg.s). What they cannot pin: the
+       variable's name and the row its declaration sat on. */
     float ofs;
     Vec16 fv = {{0.0f, 0.0f, *(float *)(p + 0x28) * (ofs = 50.0f), 1.0f}};
     Vec16 rv = {{0.0f, 0.0f, *(float *)(p + 0x28) * (ofs = -50.0f), 1.0f}};
@@ -677,10 +682,6 @@ extern void gif_SetZWrite(int on);
 extern void gif_SetZTest(int on);
 extern void gif_EndPacket(void);
 extern void DrawLineG(void *p0, void *c0, void *p1, void *c1, int z);
-/* kept local: this TU's uses of prim_DispWireSphere do not fit the prototype in
-   Primitive.h (the ROM moves the radius before the colour at both calls, as
-   boy.c and commonact.c declare it) */
-extern void prim_DispWireSphere(float r, void *colour, int slices, int stacks);
 /* the debug switch the wall-fit trace is printed under */
 extern int D_0063B148;
 /* the four trace lines, rodata VMA 0x61EFC0, 0x61EFD0, 0x61EFE0 and 0x61EFF0 */

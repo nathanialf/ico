@@ -109,7 +109,7 @@ inline void AttackCheckBoundaryDL(char *obj)
     CopyVector((char *)MatrixDrive_GetMatrix() + 0x30,
                *(char **)(*(char **)(obj + 0x15C) + 0xC) + 0x30);
     r = GetAttackCheckBoundaryRadius(obj);
-    prim_DispWireSphere(D_004E5A90, 4, 4, r);
+    prim_DispWireSphere(r, D_004E5A90, 4, 4);
     do {
         gif_EndPacket();
     } while (0);

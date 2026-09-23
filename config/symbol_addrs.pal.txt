@@ -3306,7 +3306,7 @@ BoxRideFunc = 0x001CB250; // type:func  // ico2/sugipon/src/box
 
 // ---- ico2/sugipon/src/boy
 dispClothes = 0x001CB2E0; // type:func allow_duplicated:True  // ico2/sugipon/src/boy
-execClothes = 0x001CB380; // type:func allow_duplicated:True  // ico2/sugipon/src/boy
+execClothes = 0x001CB380; // type:func allow_duplicated:True  // ico2/sugipon/src/boy  // census execClothes, a file static of boy.c (landed as static), the twin of ico2/sugipon/src/girl's file static of the same name, and nobody makes either global
 InitLightLineGeo = 0x001CB510; // type:func  // ico2/sugipon/src/boy
 LightLineDL = 0x001CB838; // type:func  // ico2/sugipon/src/boy
 InitBoyGeo = 0x001CBC28; // type:func  // ico2/sugipon/src/boy
