@@ -14,6 +14,9 @@
 #include <libvu0.h>
 #include <string.h>
 
+/* kept local: this TU's uses of UpdateRootMatrix do not fit the prototype in geometryManager.h */
+extern void UpdateRootMatrix(void *a0);
+
 void landingSE(int a0)
 {
     ExecuteSEPackage(a0, 0x2);
@@ -660,7 +663,134 @@ void onPathInitialize(char *a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/box", onPath);
+/* kept local: this TU's uses of these do not fit the prototypes in the headers
+   that declare them */
+extern float atan2f(float y, float x);
+extern void GetMatrixFromQuaternion(void *m, void *q);
+extern void _SubVectorXYZ(void *dst, void *a, void *b);
+extern float _InnerProduct(void *a, void *b);
+extern void sceVu0AddVector(void *dst, void *a, void *b);
+extern void sceVu0ScaleVector(void *dst, void *src, float k);
+extern void CopyMatrix(void *dst, void *src);
+extern void gif_StartPacketPri(int pri);
+extern void gif_SetZWrite(int on);
+extern void gif_SetZTest(int on);
+extern void gif_EndPacket(void);
+extern void DrawLineG(void *p0, void *c0, void *p1, void *c1, int z);
+/* kept local: this TU's uses of prim_DispWireSphere do not fit the prototype in
+   Primitive.h (the ROM moves the radius before the colour at both calls, as
+   boy.c and commonact.c declare it) */
+extern void prim_DispWireSphere(float r, void *colour, int slices, int stacks);
+/* the debug switch the wall-fit trace is printed under */
+extern int D_0063B148;
+/* the four trace lines, rodata VMA 0x61EFC0, 0x61EFD0, 0x61EFE0 and 0x61EFF0 */
+extern char D_0061EFC0[];
+extern char D_0061EFD0[];
+extern char D_0061EFE0[];
+extern char D_0061EFF0[];
+/* the two route colours, data VMA 0x4E61E0 and 0x4E61F0, four words each */
+extern char D_004E61E0[];
+extern char D_004E61F0[];
+
+/* box.c:710-813 in the listing.  10430.378 is 32768 / pi, the repo's spelling
+   of the radian-to-angle-table factor.  Rows 718, 720 and 721 are the three
+   initialised declarations: the quaternion's mostly-zero initialiser clears
+   with memset and stores w, and each wheel offset is built in a temporary and
+   block-copied, as onPathInitialize's are; the offsets are VECTOR records, whose
+   one clobber (a union initialiser emits two) lets the stores clear early
+   enough for the ROM's schedule. */
+int onPath(char *self)
+{
+    char *p = *(char **)((char *)GOBJ_SUB(self) + 0x830);
+    Vec4 front;
+    Vec4 rear;
+    float q[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+    VECTOR fwd = {0.0f, 0.0f, *(float *)(p + 0x28) * 50.0f, 1.0f};
+    VECTOR bwd = {0.0f, 0.0f, *(float *)(p + 0x28) * -50.0f, 1.0f};
+    PathPt *pts = (PathPt *)D_004E5F30[*(int *)(p + 0x58)];
+    Vec4 mid;
+    Vec4 ofs;
+    float m[16];
+    Vec4 dir;
+    int hitFront;
+    int hitRear;
+    int i;
+
+    sceVu0ApplyMatrix(&front, (void *)GOBJ_SUB(self)->f_C, &fwd);
+    sceVu0ApplyMatrix(&rear, (void *)GOBJ_SUB(self)->f_C, &bwd);
+
+    hitFront = getNearestPosition(front.f, (int *)(p + 0x50), (int *)(p + 0x58));
+    hitRear = getNearestPosition(rear.f, (int *)(p + 0x54), (int *)(p + 0x58));
+
+    RotQuaternionY(q, (short)(atan2f(front.f[0] - rear.f[0], front.f[2] - rear.f[2]) * 10430.378f));
+    SetRootQuaternion(self, q);
+
+    if (hitFront != 0 || hitRear != 0) {
+        if (hitFront != 0) {
+            GetMatrixFromQuaternion(m, q);
+            CopyVector(&ofs, &bwd);
+            ofs.f[2] -= 1.0f;
+            sceVu0ApplyMatrix(&ofs, m, &ofs);
+            AddVectorXYZ(&mid, &front, &ofs);
+        } else {
+            GetMatrixFromQuaternion(m, q);
+            CopyVector(&ofs, &fwd);
+            ofs.f[2] += 1.0f;
+            sceVu0ApplyMatrix(&ofs, m, &ofs);
+            AddVectorXYZ(&mid, &rear, &ofs);
+        }
+
+        if (2.0f < (*(float *)(p + 0x48) < 0.0f ? -*(float *)(p + 0x48) : *(float *)(p + 0x48))) {
+            *(int *)(p + 0x140) = 1;
+        }
+
+        if (hitFront != 0) {
+            _SubVectorXYZ(&dir, &front, (char *)GOBJ_SUB(self)->f_C + 0x30);
+            debug_StdPrintfDummy(D_0061EFC0);
+        }
+        if (hitRear != 0) {
+            _SubVectorXYZ(&dir, &rear, (char *)GOBJ_SUB(self)->f_C + 0x30);
+            debug_StdPrintfDummy(D_0061EFD0);
+        }
+        _NormalizeVector(&dir, &dir);
+        if (0.0f < _InnerProduct(&dir, p + 0x190)) {
+            debug_StdPrintfDummy(D_0061EFE0);
+            stopBoxMoveSE(self);
+            *(int *)(p + 0x114) = 1;
+        } else {
+            debug_StdPrintfDummy(D_0061EFF0);
+        }
+
+        mid.f[1] = front.f[1];
+    } else {
+        sceVu0AddVector(&mid, &front, &rear);
+        sceVu0ScaleVector(&mid, &mid, 0.5f);
+    }
+
+    mid.f[3] = 1.0f;
+    SetDirectRootPosition(self, &mid);
+
+    UpdateRootMatrix(self);
+
+    if (D_0063B148 != 0) {
+        gif_StartPacketPri(11);
+        gif_SetZWrite(0);
+        gif_SetZTest(1);
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        for (i = 1; pts[i][3] < 10.0f; i++) {
+            DrawLineG(pts[i - 1], D_004E61E0, pts[i], D_004E61E0, -1);
+        }
+        CopyMatrix(MatrixDrive_GetMatrix(), (void *)GOBJ_SUB(self)->f_C);
+        MatrixDrive_TransMatrix(0.0f, 0.0f, *(float *)(p + 0x28) * 50.0f);
+        prim_DispWireSphere(10.0f, D_004E61E0, 4, 4);
+        CopyMatrix(MatrixDrive_GetMatrix(), (void *)GOBJ_SUB(self)->f_C);
+        MatrixDrive_TransMatrix(0.0f, 0.0f, *(float *)(p + 0x28) * -50.0f);
+        prim_DispWireSphere(10.0f, D_004E61F0, 4, 4);
+        gif_EndPacket();
+    }
+
+    return hitFront | hitRear;
+}
 
 /* kept local: this TU's uses of FSqrt do not fit the prototype in matrixDrive.h */
 extern float FSqrt(float f);
@@ -1053,8 +1183,6 @@ extern char **GetCharGObjList(void);
 /* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
 extern void ClipWall(void *a0);
 extern char D_0061F048[];
-/* kept local: this TU's uses of UpdateRootMatrix do not fit the prototype in geometryManager.h */
-extern void UpdateRootMatrix(void *a0);
 extern int moveXPlus(float *a0, float f12, float f13, float f14);
 extern int moveXMinus(float *a0, float f12, float f13, float f14);
 extern int moveZPlus(float *a0, float f12, float f13, float f14);

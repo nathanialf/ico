@@ -453,10 +453,10 @@ inline MotionOrientEntry *getMotionOrient(int i, int n, int id, int kind)
 {
     MotionOrientEntry *p = GetMotionOrient(i, n, id, kind);
 
-    if (p == 0) {
-        p = &D_002BC4A8;
+    if (p != 0) {
+        return p;
     }
-    return p;
+    return &D_002BC4A8;
 }
 
 extern int D_0063B188;
@@ -558,6 +558,28 @@ void sendStateMail(void *self)
     if (D_0063B188 != 0) {
         MatrixDrive_PopMatrix();
     }
+}
+
+/* Listing lines 413-425: a static inline both shift functions absorb, with no
+ * symbol and no census row, so its name is not on the disc; searchMotionShift
+ * is this repo's spelling. It walks the request table at the work area's 0x1C
+ * and returns the paired entry from the table at 0x20. */
+static inline int searchMotionShift(void *self, int id, int cur)
+{
+    char *m = MOWORK(self) + 0x470;
+    int i;
+
+    if (*(int **)(m + 0x1C) != 0 && *(int **)(m + 0x20) != 0) {
+        for (i = 0; (*(int **)(m + 0x1C))[i] != -1; i++) {
+            if ((*(int **)(m + 0x1C))[i] == id) {
+                if ((*(int **)(m + 0x20))[i] == cur) {
+                    return 0x479;
+                }
+                return (*(int **)(m + 0x20))[i];
+            }
+        }
+    }
+    return -1;
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", shiftMotionData);
@@ -678,8 +700,140 @@ void ForTest_ForceShiftMotion(int a0, int a1)
     shiftMotionData(a0, a1, a1, 0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", normalMotionShift);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", parallelMotionShift);
+/* Listing lines 877-920: a static inline with no symbol and no census row, so
+ * its name is not on the disc; checkMotionShiftReady is this repo's spelling.
+ * It clears the pending-shift words and reports whether the entry may start.
+ * The 0x479 arm's refusal jumps back to the guard's `return 0` (listing 886):
+ * the ROM keeps that block and branches to it backward, where a second
+ * `return 0` in the arm is the copy jump2's cross-jumping keeps instead (it
+ * deletes the first identical block it reaches, jump.c find_cross_jump). */
+static inline int checkMotionShiftReady(char *m, MotionOrientEntry *p)
+{
+    int kind;
+
+    *(int *)(m + 0x10) = 0;
+    *(int *)(m + 0xC) = 0;
+    if (*(int *)(m + 0x74) != 0 || p->kind == -1) {
+    fail:
+        return 0;
+    }
+    kind = p->nextId;
+    *(int *)(m + 0x90) = kind;
+    if (kind == 0x479) {
+        if (*(int *)(m + 0x5C) == 0) {
+            goto fail;
+        }
+        *(int *)(m + 0x10) = 4;
+        return 1;
+    }
+    if (*(int *)(m + 0x5C) != 0) {
+        *(float *)(m + 0x3C) = (float)(GetNbMotionFrames(*(int *)(m + 0x30)) - 1) - 1.0e-6f;
+        *(int *)(m + 0x10) |= 0x10;
+        return 1;
+    }
+    return p->fC != -1 && (float)p->fC < *(float *)(m + 0x3C);
+}
+
+int normalMotionShift(void *self, int force)
+{
+    char *w = MOWORK(self) + 0x470;
+    MotionOrientEntry *p = getMotionOrient(*(int *)(w + 0x4), *(int *)(w + 0x8), *(int *)(w + 0x2C),
+                                           *(int *)(w + 0xD0));
+
+    if (force == 0) {
+        if (p->id == 0x47A) {
+            return 0;
+        }
+    }
+    if (checkMotionShiftReady(MOWORK(self) + 0x470, p) != 0) {
+        int kind = p->nextId;
+        int mode = p->f10;
+        int next;
+        int r = -1; /* no pairing found; the else arm searches with it as cur */
+
+        if (kind == 0x479) {
+            kind = p->id;
+            mode = 5;
+            r = searchMotionShift(self, kind, *(int *)(w + 0x30));
+            if (r == -1 || r == 0x479) {
+                return 0;
+            }
+            next = r;
+        } else {
+            r = searchMotionShift(self, kind, r);
+            next = (r == -1) ? kind : r;
+        }
+        shiftMotionOrientEndFunc(self);
+        shiftMotionOrientBeginFunc(self, next, kind, mode);
+        return 1;
+    }
+    return 0;
+}
+
+/* Listing lines 432-441: a static inline with no symbol and no census row, so
+ * its name is not on the disc; findParallelMotion is this repo's spelling.
+ * The table at D_00629E40 is 54 rows of five words, keyed on the current and
+ * the requested motion. */
+typedef struct {
+    /* 0x00 */ int id;
+    /* 0x04 */ int kind;
+    /* 0x08 */ int nextId;
+    /* 0x0C */ int fC;
+    /* 0x10 */ int f10;
+} MotOriParallelEnt;
+
+extern MotOriParallelEnt D_00629E40[];
+
+static inline MotionOrientEntry *findParallelMotion(int cur, int next)
+{
+    int i;
+
+    if (cur == next) {
+        return &D_002BC4A8;
+    }
+    for (i = 0; i < 54; i++) {
+        if (D_00629E40[i].id == cur) {
+            if (D_00629E40[i].kind == next) {
+                return (MotionOrientEntry *)&D_00629E40[i];
+            }
+        }
+    }
+    return 0;
+}
+
+/* Listing 998 to 1032: the -1 test encloses the body and every refusal falls
+ * to the one `return 0` at the end.  loop.c (find_and_verify_loops) moves the
+ * inlined search's found-block to the first barrier after its loop, which the
+ * ROM has after findParallelMotion's cur == next return; an early
+ * `return 0` for -1 would put a barrier ahead of it. */
+int parallelMotionShift(void *self)
+{
+    char *m = MOWORK(self) + 0x470;
+    int next = searchMotionShift(self, *(int *)(m + 0x2C), *(int *)(m + 0x30));
+    MotionOrientEntry *p;
+
+    if (next != -1) {
+        p = findParallelMotion(*(int *)(m + 0x30), next);
+
+        if (p != 0) {
+            if (checkMotionShiftReady(MOWORK(self) + 0x470, p) != 0) {
+                shiftMotionOrientEndFunc(self);
+                shiftMotionOrientBeginFunc(self, p->nextId, *(int *)(m + 0x2C), p->f10);
+                return 1;
+            }
+        } else if (next != 0x479) {
+            MotionOrientEntry e = {*(int *)(m + 0x30), *(int *)(m + 0xD0), next, *(int *)(m + 0x24),
+                                   *(int *)(m + 0x28)};
+
+            if (checkMotionShiftReady(MOWORK(self) + 0x470, &e) != 0) {
+                shiftMotionOrientEndFunc(self);
+                shiftMotionOrientBeginFunc(self, next, *(int *)(m + 0x2C), *(int *)(m + 0x28));
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
 
 extern char D_0063B9D0[];
 extern int D_0063B194;

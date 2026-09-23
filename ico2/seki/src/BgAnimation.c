@@ -1503,7 +1503,142 @@ void bga_CalcAnimation(char *p, int a1, int a2)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_CalcSdfCamera);
+extern int D_0063BCC0;
+extern int D_007281F0[];
+extern int D_0063A06C;
+/* kept local: this TU's uses of the matrix and vector entry points do not fit
+   the prototypes in Matrix.h (the interpolator takes its weight as a float,
+   the length returns one and both take two vectors). */
+extern void _RotCurrentMatrixZ(short a);
+extern void _ApplyCurrentMatrix(void *dst, void *src);
+extern void _SetCameraMatrix(void *m, void *pos, void *dir, void *up);
+extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
+extern void _NormalizeVector(void *dst, void *src);
+extern float _GetLength(void *a, void *b);
+extern float GetTableSin(short a);
+extern float GetTableCos(short a);
+
+typedef struct BgaSdfKey {
+    /* 0x00 */ int f00;
+    /* 0x04 */ float pos[3];
+    /* 0x10 */ float at[3];
+    /* 0x1C */ float roll;
+    /* 0x20 */ float fov;
+} BgaSdfKey;
+
+/* The SDF camera record bga_InitSdfCamera checks and bga_SetCamFrame starts:
+ * the key count, the running frame, the play mode and the keys. */
+typedef struct BgaSdfCam {
+    /* 0x00 */ int f00;
+    /* 0x04 */ int num;
+    /* 0x08 */ float frame;
+    /* 0x0C */ int mode;
+    /* 0x10 */ BgaSdfKey key[1];
+} BgaSdfCam;
+
+/* the PAL frame counter read back on the 60 Hz timeline: the reciprocal of
+   bga_palFrame's 0.82812935f. */
+static inline float bga_ntscFrame(float f)
+{
+    if (D_0028F4C0[0]) {
+        f *= 1.2075409f;
+    }
+    return f;
+}
+
+/* Listing rows 2794-2871.  The record is read through its fields: a field
+ * read at a varying address is exempt from the fixed-address D_0063C4B4 store
+ * (alias.c fixed_scalar_and_varying_struct_p), which is what lets the count
+ * load issue ahead of that store as the ROM has it.  Both frame-rate scales are
+ * `x * (PAL ? k : 1.0f)`: fold distributes the product over the condition and
+ * evaluates x once before the branch (the ROM's shared frame load and the
+ * mov.s it copies into the PAL arm).  Rows 2836/2837 read each key's two
+ * values into locals of their own, fov first as rows 2841/2842 use them. */
+void bga_CalcSdfCamera(char *data, int loop)
+{
+    BgaSdfCam *p = (BgaSdfCam *)data;
+    BgaSdfKey *k0;
+    BgaSdfKey *k1;
+    float fr;
+    float t;
+    int i;
+    int i1;
+
+    if (p->mode == -1) {
+        return;
+    }
+    D_0063C4B4 = 1;
+    if ((float)p->num * (D_0028F4C0[0] ? 0.82812935f : 1.0f) < p->frame) {
+        if (loop == 0) {
+            p->frame = bga_palFrame((float)p->num);
+            p->mode = 0;
+            return;
+        }
+        p->frame = 0.0f;
+    }
+
+    D_0063BCBC = (int)(p->frame * (D_0028F4C0[0] ? 1.2075409f : 1.0f));
+    _PushCurrentMatrix();
+    fr = bga_ntscFrame(p->frame);
+    i = (int)fr;
+    i1 = i + 1;
+    if (i > p->num - 1) {
+        i = p->num - 1;
+    }
+    if (i1 > p->num - 1) {
+        i1 = p->num - 1;
+    }
+    k0 = &p->key[i];
+    k1 = &p->key[i1];
+    t = fr - (float)i;
+    {
+        VECTOR at;
+        VECTOR pos;
+        VECTOR pos0 = {k0->pos[0], k0->pos[1], k0->pos[2], 1.0f};
+        VECTOR at0 = {k0->at[0], k0->at[1], k0->at[2], 1.0f};
+        VECTOR pos1 = {k1->pos[0], k1->pos[1], k1->pos[2], 1.0f};
+        VECTOR at1 = {k1->at[0], k1->at[1], k1->at[2], 1.0f};
+        VECTOR up;
+        VECTOR dir;
+        float roll0;
+        float fov0;
+        float roll1;
+        float fov1;
+        float roll;
+        float fov;
+        short a;
+
+        memset(&up, 0, sizeof(up));
+        up.y = 1.0f;
+        fov0 = k0->fov;
+        roll0 = k0->roll;
+        fov1 = k1->fov;
+        roll1 = k1->roll;
+        _InterVectorXYZ(&pos, &pos0, &pos1, 1.0f - t);
+        _InterVectorXYZ(&at, &at0, &at1, 1.0f - t);
+        fov = fov0 * (1.0f - t) + fov1 * t;
+        roll = roll0 * (1.0f - t) + roll1 * t;
+        dir.x = at.x - pos.x;
+        dir.y = at.y - pos.y;
+        dir.z = at.z - pos.z;
+        dir.w = 0.0f;
+        _NormalizeVector(&dir, &dir);
+        _InitCurrentMatrix();
+        _RotCurrentMatrixZ((short)(roll * 182.04445f));
+        _ApplyCurrentMatrix(&up, &up);
+        _SetCameraMatrix(D_007281F0, &pos, &dir, &up);
+        if (GlobalTimer != 0) {
+            if (_GetLength(&D_007281F0[12], D_00728230) < 100.0f) {
+                GlobalTimer = 0;
+                D_0063A06C = 0;
+            }
+        }
+        a = (short)(fov * 3.1415927f / 360.0f * 10430.378f);
+        *(float *)&D_0063BCC0 = 224.0f / (GetTableSin(a) / GetTableCos(a));
+        _PopCurrentMatrix();
+    }
+    p->frame += 1.0f;
+}
 
 extern char *D_0063BCCC;
 extern char D_006217E0[];
@@ -1790,9 +1925,7 @@ void bga_ResetCamera(void)
     D_0063C4B4 = 0;
 }
 
-extern int D_0063BCC0;
 extern int D_0063BCC8;
-extern int D_007281F0[];
 /* kept local: this TU's uses of _CopyMatrix do not fit the prototype in Matrix.h */
 extern void _CopyMatrix(void *dst, void *src);
 

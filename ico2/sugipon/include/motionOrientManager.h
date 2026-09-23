@@ -16,7 +16,9 @@ typedef struct {
     int id;
     int kind;
     int nextId; /* 0x08, the motion this row chains to */
-    int pad[3];
+    int fC;     /* 0x0C, the frame the shift may start from, -1 for none */
+    int f10;    /* 0x10, the shift mode handed to shiftMotionOrientBeginFunc */
+    int f14;
 } MotionOrientEntry;
 
 /* Reconstruction: the 32-byte orient record an actor hands to

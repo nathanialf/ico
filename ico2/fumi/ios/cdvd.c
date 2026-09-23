@@ -310,6 +310,17 @@ void iosCdvdMgrStStop(char *self)
 
 extern char D_00637E69[];
 extern char D_0063A3A0[];
+
+/* newlib <ctype.h> (reconstruction): D_00637E69 is `_ctype_ + 1`, bit 0x02 is
+ * _L (lower); the GNU C toupper macro reads its argument once. */
+#define _L 0x02
+#define islower(c) (D_00637E69[(int)(c)] & _L)
+#define toupper(c)                                                                                 \
+    ({                                                                                             \
+        int __x = (c);                                                                             \
+        islower(__x) ? (__x - 'a' + 'A') : __x;                                                    \
+    })
+
 extern int strcpy();
 
 /* INTERIM: the January-2002 listing expands iosCdvdChgFileName (cdvd.c rows
@@ -321,28 +332,20 @@ extern int strcpy();
  * definition `inline`.  */
 static inline int chgFileNameInlined(int a0)
 {
-    unsigned char buf[0x100];
-    unsigned char *p = buf;
-    unsigned char c;
-    unsigned char nc;
+    char buf[256];
+    char *p = buf;
+    char c;
+
     sprintf(buf, D_0063A3A0, a0);
-    c = buf[0];
+
     do {
-        int t = ((int)c) << (nc = 24);
-        int sc = t >> 24;
-        if (sc == '/') {
+        if ((c = *p) == '/') {
             *p = '\\';
         } else {
-            int r = sc - 0x20;
-            if ((D_00637E69[sc] & 2) == 0) {
-                r = sc;
-            }
-            *p = r;
+            *p = toupper(c);
         }
         p++;
-        nc = *p;
-        c = nc;
-    } while (nc != 0);
+    } while (*p != 0);
     return strcpy(a0, buf);
 }
 
@@ -943,7 +946,40 @@ int iosCdvdBackGroundReadIOPm(char *self, void *buf, int size)
     return !(*(int *)(self + 0x110) < *(int *)(self + 0x10C));
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/ios/cdvd", iosCdvdDirectStOpen);
+extern int iosSifAllocIopHeapDebug(int size, char *file, int line);
+extern void sceCdStInit(int bufmax, int bansu, void *buf);
+extern void sceCdStStart(int lsn, void *mode);
+
+void iosCdvdDirectStOpen(char *self)
+{
+    char buf[256];
+    char *name;
+    int mem;
+
+    name = strrchr(self + 0x38, '/');
+    if (name == 0) {
+        name = self + 0x38;
+    } else {
+        name = name + 1;
+    }
+    sprintf(buf, D_00550ED8, name);
+    strcpy(self + 0x38, buf);
+    chgFileNameInlined((int)(self + 0x38));
+    *(char *)(self + 0x15C) = 0;
+    *(char *)(self + 0x15D) = 0;
+    *(char *)(self + 0x15E) = 0;
+    *(int *)(self + 0x28) = 0;
+    diskReadyBlockInlined();
+    *(int *)(self + 0xC) = 0;
+    iosCdvdMgrSearchFile(self);
+    *(int *)(self + 0x30) = ((unsigned int)(*(int *)(self + 0x13C) - 1) >> 11) + 1;
+    mem = iosSifAllocIopHeapDebug(576 * 2048 + 16, D_00550C58, 2472);
+    *(int *)(self + 0x164) = mem;
+    *(int *)(self + 0x168) = (mem + 15) & 0xFFFFFFF0;
+    sceCdStInit(576, 36, (void *)((mem + 15) & 0xFFFFFFF0));
+    sceCdStStart(*(int *)(self + 0x138), self + 0x15C);
+    *(int *)(self + 0x8180) = *(int *)(self + 0x13C);
+}
 
 void iosCdvdDirectStClose(int *self)
 {
@@ -956,33 +992,31 @@ void iosCdvdDirectStClose(int *self)
     sceSifFreeIopHeap(self[0x164 / 4]);
 }
 
+/* Listing rows 953-967: the first character load sits on the sprintf row and
+ * the loop carries the next character in a register (gcse PRE of `*p` across
+ * the back edge, the copy in the bnez delay slot), so the loop reads `*p`
+ * directly.  WHAT THE BYTES PIN: this body is the same with `*p` read three
+ * times; the inlined copy in iosCdvdMgrPackLoad is not, since three more
+ * pseudos move two of that function's gcse pseudos across a hash bucket and
+ * swap their spill slots (268/272), which the one `c` the test assigns and
+ * toupper reads removes.  WHAT THEY CANNOT PIN: whether `c` was declared
+ * here or at the test's line.  */
 int iosCdvdChgFileName(int a0)
 {
-    unsigned char buf[0x100];
-    unsigned char *p = buf;
-    unsigned char c;
-    unsigned char nc;
+    char buf[256];
+    char *p = buf;
+    char c;
+
     sprintf(buf, D_0063A3A0, a0);
-    c = buf[0];
+
     do {
-        /* `nc = 24` (the sign-extend shift count) writes the next-char temp at
-         * the loop top, splitting its live range from `c` so the carried byte
-         * keeps its own register with the copy in the bnez delay slot. */
-        int t = ((int)c) << (nc = 24);
-        int sc = t >> 24;
-        if (sc == '/') {
+        if ((c = *p) == '/') {
             *p = '\\';
         } else {
-            int r = sc - 0x20;
-            if ((D_00637E69[sc] & 2) == 0) {
-                r = sc;
-            }
-            *p = r;
+            *p = toupper(c);
         }
         p++;
-        nc = *p;
-        c = nc;
-    } while (nc != 0);
+    } while (*p != 0);
     return strcpy(a0, buf);
 }
 
