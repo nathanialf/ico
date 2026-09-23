@@ -762,8 +762,8 @@ segments:
       - [0x455798, .rodata, ico2/ito/src/gather_effect]  # the TU's whole .rodata run as source: GatherEffect_Proc's end message as a literal at its debug_StdPrintfDummy site (completeness pass 42), VMA 0x555798..0x5557AB, 19 B plus 5 B of link pad; MAIN.MAP line 6385 gives the member 0x13
       - [0x4557B0, rodata, cod/4557B0]   # .rodata blob resume (itou_boss.o's rodata head, the twelve identity-matrix words at 0x5557B0, until itou_boss lands; MAIN.MAP line 6387)
       - [0x456890, .rodata, ico2/ito/src/itou_sub]  # plain-rodata: m33_to_quat's `int nxt[3] = {1,2,0}` initialiser template (12 B, 8-aligned), VMA 0x556890..0x55689C
-      - [0x45689C, rodata, cod/45689C]   # .rodata blob resume (the zero pad word, then lightning's "lightning_test" string at 0x5568A0)
-      - [0x4568B0, .rodata, ico2/ito/src/lightning]  # carved $LC0/$LC1 of lightning_test (VMA 0x5568B0..0x556900, 80 B): the colour quad and the four vertices, local brace initialisers in the source; the "lightning_test" string before them belongs to the still-asm DrawLightning2 and stays in the blob
+      - [0x45689C, rodata, cod/45689C]   # .rodata blob resume (one zero pad word, 4 B, before lightning's run)
+      - [0x4568A0, .rodata, ico2/ito/src/lightning]  # the TU's whole .rodata run as source: DrawLightning2's "lightning_test" string (anonymous literal, 16 B) then lightning_test's local brace initialisers $LC0/$LC1 (the colour quad and the four vertices, 80 B), VMA 0x5568A0..0x556900, 96 B
       - [0x456900, .rodata, ico2/ito/src/queen]  # plain-rodata: the TU's whole .rodata run as source (completeness pass 7 widened it to the run head: the mesh texture name as a named static const string, then strings, rate tables and jump tables), VMA 0x556900..0x556E00
       - [0x456E00, rodata, cod/456E00]     # rodata blob resume
       - [0x456E50, .rodata, ico2/ito/src/stage_orient]  # the TU's whole .rodata run as source (data pass 3): the 41-entry orientation table, VMA 0x556E50..0x55755C, 1804 B
