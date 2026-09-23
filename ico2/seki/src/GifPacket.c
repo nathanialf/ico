@@ -434,18 +434,25 @@ static inline int isInScreen(volatile int *p)
 
 /* One vertex through the VU0 macro-mode pipeline: transform by the current
    matrix in vf4..vf7, perspective-divide by w and convert to the GS's 12.4
-   fixed-point screen coordinates. */
-static inline void rotTransPers(void *src)
+   fixed-point screen coordinates, stored to dst.  One asm statement: the
+   listing gives lqc2 through sqc2 the single line 831 at every call site. */
+static inline void rotTransPers(volatile int *dst, void *src)
 {
-    VU0_LSV_R(lqc2, 8, 0x0, src);
-    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 8, x);
-    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 8, y);
-    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 8, z);
-    VU0_V3OP_BC(vmaddw.xyzw, 10, 7, 8, w);
-    VU0_REG("vdiv Q, $vf0w, $vf10w");
-    VU0_WAIT();
-    VU0_REG("vmulq.xyz $vf10, $vf10, Q");
-    VU0_V2OP(vftoi4.xyz, 11, 10);
+    __asm__ __volatile__(".set noreorder\n\t"
+                         "lqc2 $vf8, 0x0(%1)\n\t"
+                         "vmulax.xyzw ACC, $vf4, $vf8x\n\t"
+                         "vmadday.xyzw ACC, $vf5, $vf8y\n\t"
+                         "vmaddaz.xyzw ACC, $vf6, $vf8z\n\t"
+                         "vmaddw.xyzw $vf10, $vf7, $vf8w\n\t"
+                         "vdiv Q, $vf0w, $vf10w\n\t"
+                         "vwaitq\n\t"
+                         "vmulq.xyz $vf10, $vf10, Q\n\t"
+                         "vftoi4.xyz $vf11, $vf10\n\t"
+                         "sqc2 $vf11, 0x0(%0)\n\t"
+                         ".set reorder"
+                         :
+                         : "r"(dst), "r"(src)
+                         : "memory");
 }
 
 /* One vertex through the VU0 pipeline into a caller-supplied projected-vertex
@@ -456,8 +463,7 @@ static inline void rotTransPers(void *src)
    itself and no address register is needed, so it is written out here. */
 static inline int projectVertex(int *d, void *src)
 {
-    rotTransPers(src);
-    VU0_LSV_R(sqc2, 11, 0x0, d);
+    rotTransPers(d, src);
     return isInScreen(d);
 }
 
@@ -469,8 +475,7 @@ void gif_DrawPolyF4(void *p0, void *p1, void *p2, void *p3, int r, int g, int b,
     setGsReg(0x00, ((long long)prim << 6) | 0x104);
     setGsReg(0x01, (long long)r | ((long long)g << 8) | ((long long)b << 16) |
                        ((long long)a << 24) | (0xFE00LL << 46));
-    rotTransPers(p0);
-    VU0_LSV_R(sqc2, 11, 0x0, q[0]);
+    rotTransPers(q[0], p0);
     if (!isInScreen(q[0]))
         return;
     if (!projectVertex(q[1], p1))
@@ -486,8 +491,51 @@ void gif_DrawPolyF4(void *p0, void *p1, void *p2, void *p3, int r, int g, int b,
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GifPacket", gif_DrawStripF);
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GifPacket", gif_DrawStripFST);
+void gif_DrawStripF(void *v, GifColor col, int n, int prim)
+{
+    char *p = v;
+    int i;
+
+    D_00639F68[0] = D_00639F68[1] = 0;
+    setGsReg(0x00, ((long long)prim << 6) | 0x104);
+    D_00639F70 = 0;
+    setGsReg(0x01, GIF_RGBA((unsigned char *)&col) | (0xFE00LL << 46));
+    for (i = 0; i < n; i++, p += 16) {
+        volatile int q[4];
+        int t;
+
+        rotTransPers(q, p);
+        t = isInScreen(q);
+        setGsReg(t && D_00639F68[0] && D_00639F68[1] ? 0x05 : 0x0D,
+                 GIF_XY0(q[0], q[1], (long long)q[2]));
+        D_00639F68[D_00639F70++] = t;
+        D_00639F70 &= 1;
+    }
+}
+
+void gif_DrawStripFST(void *v, void *uv, GifColor col, int n, int prim)
+{
+    char *p = v;
+    int *s = uv;
+    int i;
+
+    D_00639F68[0] = D_00639F68[1] = 0;
+    setGsReg(0x00, ((long long)prim << 6) | 0x94);
+    D_00639F70 = 0;
+    setGsReg(0x01, GIF_RGBA((unsigned char *)&col) | (0xFE00LL << 46));
+    for (i = 0; i < n; i++, p += 16, s += 4) {
+        volatile int q[4];
+        int t;
+
+        rotTransPers(q, p);
+        t = isInScreen(q);
+        setGsReg(0x02, (long long)s[0] | ((long long)s[1] << 32));
+        setGsReg(t && D_00639F68[0] && D_00639F68[1] ? 0x05 : 0x0D,
+                 GIF_XY0(q[0], q[1], (long long)q[2]));
+        D_00639F68[D_00639F70++] = t;
+        D_00639F70 &= 1;
+    }
+}
 
 void gif_DrawStripG(void *v, void *col, int n, int prim)
 {
@@ -502,8 +550,7 @@ void gif_DrawStripG(void *v, void *col, int n, int prim)
         volatile int q[4];
         int t;
 
-        rotTransPers(p);
-        VU0_LSV_R(sqc2, 11, 0x0, q);
+        rotTransPers(q, p);
         t = isInScreen(q);
         setGsReg(0x01, GIF_RGBA(c) | (0xFE00LL << 46));
         if (t && D_00639F68[0] && D_00639F68[1]) {
