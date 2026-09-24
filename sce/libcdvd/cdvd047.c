@@ -66,7 +66,55 @@ int sceCdStStop(void)
     return sceCdStream(0, 0, 0, 3, D_0072F1D8);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/cdvd047", sceCdStRead);
+extern char D_00636A18[];
+extern char D_00636A48[];
+extern char D_00636A90[];
+extern void sceCdDelayThread(unsigned short a0);
+
+int sceCdStRead(int sectors, void *buf, int mode, int *err)
+{
+    int got;
+    unsigned int r;
+    unsigned int n;
+    int e;
+    int rerr;
+
+    if (SCE_CD_debug[0] > 0) {
+        scePrintf(D_00636A18, sectors);
+    }
+    if (D_0054BFB0[0] == 0) {
+        return 0;
+    }
+    rerr = 0;
+    got = 0;
+    sceSifWriteBackDCache(buf, sectors << 11);
+    if (mode != 0) {
+        do {
+            r = sceCdStream(0, sectors - got, (char *)buf + (got << 11), 2, D_0072F1D8);
+            n = r & 0xFFFF;
+            e = r >> 16;
+            got += n;
+            if (e != 0) {
+                rerr = e;
+                if (SCE_CD_debug[0] > 0) {
+                    scePrintf(D_00636A48, got, n, sectors, e);
+                }
+            } else if (n == 0) {
+                sceCdDelayThread(8);
+            }
+        } while (got != sectors && (e == 0 || n != 0));
+        if (SCE_CD_debug[0] > 0) {
+            scePrintf(D_00636A90);
+        }
+        *err = rerr;
+    } else {
+        r = sceCdStream(0, sectors, buf, 2, D_0072F1D8);
+        e = r >> 16;
+        got = r & 0xFFFF;
+        *err = e;
+    }
+    return got;
+}
 
 extern char D_00636AB0[];
 

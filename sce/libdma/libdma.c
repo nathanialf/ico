@@ -16,7 +16,16 @@ int sceDmaGetChan(unsigned int a0)
 }
 
 typedef struct {
-    int w[5];
+    unsigned char chan; /* 0x00 channel number */
+    unsigned char b01;  /* 0x01 */
+    unsigned char b02;  /* 0x02 */
+    unsigned char b03;  /* 0x03 release level, 0 = off */
+    unsigned short h04; /* 0x04 */
+    unsigned short h06; /* 0x06 */
+    unsigned short h08; /* 0x08 */
+    unsigned short h0A; /* 0x0A */
+    void *rbadr;        /* 0x0C ring buffer address, to D_RBOR */
+    int rbsize;         /* 0x10 ring buffer size, to D_RBSR */
 } DmaEnv;
 
 extern int D_0054A360[];
@@ -60,9 +69,52 @@ int sceDmaDebug(int a0)
     return old;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libdma/libdma", sceDmaPutEnv);
-
+extern unsigned char D_0054A388[];
+extern unsigned char D_0054A398[];
+extern unsigned char D_0054A3A8[];
 extern DmaEnv D_0054A3B8;
+
+int sceDmaPutEnv(DmaEnv *env)
+{
+    int ctrl = *(volatile int *)0x1000E000;
+    int pcr = *(volatile int *)0x1000E020;
+    int sqwc = *(volatile int *)0x1000E030;
+    int rbor = *(volatile int *)0x1000E050;
+    int rbsr = *(volatile int *)0x1000E040;
+
+    if (env->chan >= 10) {
+        return -1;
+    }
+    if (env->b01 >= 10) {
+        return -2;
+    }
+    if (env->b02 >= 10) {
+        return -3;
+    }
+    if (env->b03 >= 7) {
+        return -4;
+    }
+    ctrl = (ctrl & 0xFFFFFFCF) | (D_0054A388[env->chan] << 4);
+    ctrl = (ctrl & 0xFFFFFF3F) | (D_0054A398[env->b01] << 6);
+    ctrl = (ctrl & 0xFFFFFFF3) | (D_0054A3A8[env->b02] << 2);
+    if (env->b03 != 0) {
+        ctrl |= 2;
+        ctrl = (ctrl & 0xFFFFFCFF) | ((env->b03 - 1) << 8);
+    } else {
+        ctrl &= 0xFFFFFFFD;
+    }
+    pcr = (env->h04 << 16) | env->h06;
+    sqwc = (env->h0A << 16) | env->h08;
+    rbor = (int)env->rbadr;
+    rbsr = env->rbsize;
+    *(volatile int *)0x1000E000 = ctrl;
+    *(volatile int *)0x1000E020 = pcr;
+    *(volatile int *)0x1000E030 = sqwc;
+    *(volatile int *)0x1000E050 = rbor;
+    *(volatile int *)0x1000E040 = rbsr;
+    D_0054A3B8 = *env;
+    return 0;
+}
 
 DmaEnv *sceDmaGetEnv(DmaEnv *a0)
 {
@@ -70,7 +122,16 @@ DmaEnv *sceDmaGetEnv(DmaEnv *a0)
     return a0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libdma/libdma", sceDmaPutStallAddr);
+/* 0x1000E060 is the DMAC stall address register (D_STADR). */
+int sceDmaPutStallAddr(unsigned int addr)
+{
+    int old = *(volatile int *)0x1000E060;
+
+    if (addr != 0xFFFFFFFF) {
+        *(volatile int *)0x1000E060 = addr;
+    }
+    return old;
+}
 
 typedef struct DmaChan {
     volatile int chcr; /* 0x00 */

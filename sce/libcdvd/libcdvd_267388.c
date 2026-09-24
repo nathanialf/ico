@@ -13,7 +13,11 @@
 extern int SCE_CD_debug[];
 extern char _sceCd_cd_scmd[];
 extern int _sceCd_scmdrdata[];
-extern int _sceCd_scmd_semid[];
+/* volatile: the S-command semaphore handle cmd_sem_init creates at run time;
+ * sceCdBreak's two SignalSema reads are volatile loads in the ROM (neither is
+ * moved into a delay slot by the compiler, and the success-path read waits on
+ * the store to sceCdCbfunc_num). */
+extern volatile int _sceCd_scmd_semid[];
 extern int _sceCd_scmd_prechk(int a0);
 extern int sceSifCallRpc();
 extern char D_006369C8[];
@@ -38,7 +42,29 @@ int sceCdStatus(void)
     return v;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/libcdvd_267388", sceCdBreak);
+/* volatile: the pending-callback id the callback thread polls and clears, as
+ * cdvd000.c declares it. */
+extern volatile int sceCdCbfunc_num;
+
+int sceCdBreak(void)
+{
+    int *p;
+    int v;
+    if (_sceCd_scmd_prechk(0x1E) == 0) {
+        return 0;
+    }
+    p = _sceCd_scmdrdata;
+    sceCdCbfunc_num = 8;
+    if (sceSifCallRpc(_sceCd_cd_scmd, 0x16, 0, 0, 0, p, 4, 0, 0) < 0) {
+        SignalSema(_sceCd_scmd_semid[0]);
+        sceCdCbfunc_num = 0;
+        return 0;
+    }
+    sceCdCbfunc_num = 0;
+    v = *(int *)((int)p | 0x20000000);
+    SignalSema(_sceCd_scmd_semid[0]);
+    return v;
+}
 
 extern char D_006369D8[];
 extern char D_006369F8[];

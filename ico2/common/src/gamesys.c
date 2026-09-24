@@ -91,7 +91,60 @@ void gamesysObjInfoLoad(void *h)
     gamesysMemoryHandlerRead(h, D_004DA7D0, 0x1A8);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/gamesys", gamesysObjInfoEmptyAreaSearch);
+/* unsigned: the ROM reads it with lhu (0x1B6928). */
+extern unsigned short D_0063B418;
+extern char D_0061D2D0[];
+
+/* RECONSTRUCTION: the January listing's whole gamesysObjInfoEmptyAreaSearch
+ * (gamesys.c:356-413: search for an empty record, else the oldest one, clear
+ * flag bit 1, return it).  The retail function calls it after a search by
+ * number, and its two exits are the ones an inlined return leaves in the ROM
+ * (the k < 0 arm's `move $5,$0` then the caller's test at 0x1B6988, and the
+ * copy at 0x1B697C).  The ROM carries no name for it; this one is descriptive. */
+static inline GamesysObjInfo *gamesysObjInfoOldestSearch(GamesysObjInfoReq *req)
+{
+    GamesysObjInfo *p;
+    int i;
+    int k;
+    unsigned int t;
+
+    p = gamesysObjInfoSearch(req, 0);
+    if (p == 0) {
+        k = -1;
+        t = 0xFFFFFFFF;
+        for (i = req->start; i < req->end; i++) {
+            p = &((GamesysObjInfo *)D_004DA980)[i];
+            if ((unsigned int)p->time < t && p->stage != stage_no && p->stage != D_0063B418) {
+                t = p->time;
+                k = i;
+            }
+        }
+        if (k < 0) {
+            debug_StdPrintfDummy(D_0061D2D0);
+            return 0;
+        }
+        p = &((GamesysObjInfo *)D_004DA980)[k];
+    }
+    ((GamesysObjInfoFlag *)p)->flag &= ~2;
+    return p;
+}
+
+GamesysObjInfo *gamesysObjInfoEmptyAreaSearch(GamesysObjInfoReq *req)
+{
+    GamesysObjInfo *p;
+
+    p = gamesysObjInfoSearch(req, req->no);
+    if (p == 0) {
+        p = gamesysObjInfoOldestSearch(req);
+        if (p == 0) {
+            return 0;
+        }
+        p->no = req->no;
+        p->stage = req->stage;
+        p->time = gamesysTimeCount;
+    }
+    return p;
+}
 
 extern GamesysObjInfo *gamesysObjInfoEmptyAreaSearch(GamesysObjInfoReq *req);
 /* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
@@ -163,8 +216,6 @@ int *gamesysObjInfoBaseSet(int *self, int stage)
     }
     return (int *)p;
 }
-
-extern short D_0063B418;
 
 void gamesysBackStageProcess(void)
 {

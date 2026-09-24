@@ -668,7 +668,8 @@ segments:
       - [0x44A2F0, .data, sce/libvu0/libvu0]  # the member's .data (data pass 3): the sine coefficients and the packet, VMA 0x54A2F0..0x54A320, 48 B
       - [0x44A320, data, cod/44A320]     # data blob resume
       - [0x44CAD0, .data, sce/libipu/ipuinit]  # the member's .data (data pass 3): the version stamp and the quantiser and colour tables, VMA 0x54CAD0..0x54CB50, 128 B
-      - [0x44CB50, data, cod/44CB50]     # data blob resume
+      - [0x44CB50, .data, sce/libscf/libscf]  # the member's whole .data as three named statics in VMA order (chain 1 pass 106): the build stamp "PsIIlibscf  2200" (16 B), the T10K OSD config shadow (timezone 540, 8 B) and the 16-byte rom0:ROMVER cache with its explicit zero initialiser (ee-gcc keeps it in .data), VMA 0x54CB50..0x54CB78, 40 B
+      - [0x44CB78, data, cod/44CB78]     # data blob resume (D_0054CB78 onward belongs to libsndn2/sg)
       - [0x44CEC8, .data, sce/libc/stdlib/mallocr]  # syms: __malloc_av_ __malloc_trim_threshold __malloc_top_pad __malloc_sbrk_base __malloc_max_sbrked_mem __malloc_max_total_mem __malloc_current_mallinfo  the member's whole .data (data pass 4; = MAIN.MAP mallocr.o .data 0x458, names from map lines 6258 to 6264), VMA 0x54CEC8..0x54D320, 1112 B
       - [0x44D320, data, cod/44D320]     # data blob resume
       - [0x44D380, .rodata, sce/libkernl/thread]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x54D380..0x54D850, 1232 B
@@ -974,7 +975,7 @@ segments:
       - [0x535FC0, .rodata, ico2/common/src/PObj]  # the TU's whole .rodata run as source (completeness pass 65; MAIN.MAP line 6686), VMA 0x635FC0..0x6360E5
       - [0x5360E8, rodata, cod/5360E8]     # .rodata blob resume
       - [0x536120, .rodata, sce/libgraph/graph008]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x636120..0x636610, 1264 B
-      - [0x536150, rodata, cod/536150]     # rodata blob resume
+      - [0x536150, .rodata, sce/libgraph/graph012]  # the member's whole .rodata (= MAIN.MAP graph012.o .rodata 0x190): sceGsSyncPath's fifteen printf strings as anonymous literals at their use sites (chain 1 pass 106), VMA 0x636150..0x6362E0, 400 B; graph015's carve follows directly
       - [0x5362E0, .rodata, sce/libgraph/graph015]  # the member's whole .rodata (= MAIN.MAP graph015.o .rodata 0x11C): sceGsSetDefLoadImage's format string as an anonymous literal (zero-padded to 0x636310) and its 59-entry jump table on dpsm (section .rodata.0x00636310, 0xEC B), VMA 0x6362E0..0x6363FC
       - [0x5363FC, rodata, cod/5363FC]     # .rodata blob resume
       - [0x536400, .rodata, sce/libgraph/graph017]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x636400..0x636610, 528 B

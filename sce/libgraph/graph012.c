@@ -3,33 +3,18 @@
 #include "common.h"
 
 extern int printf(const char *fmt, ...);
-extern char D_00636150[];
-extern char D_00636180[];
-extern char D_00636190[];
-extern char D_006361A0[];
-extern char D_006361B0[];
-extern char D_006361C0[];
-extern char D_006361D0[];
-extern char D_006361E0[];
-extern char D_006361F0[];
-extern char D_00636200[];
-extern char D_00636218[];
-extern char D_00636230[];
-extern char D_00636260[];
-extern char D_00636290[];
-extern char D_006362B8[];
 
 #define GS_SYNCPATH_DUMP()                                                                         \
-    printf(D_00636180, *(volatile int *)0x10009000);                                               \
-    printf(D_00636190, *(volatile int *)0x10009030);                                               \
-    printf(D_006361A0, *(volatile int *)0x10009010);                                               \
-    printf(D_006361B0, *(volatile int *)0x10009020);                                               \
-    printf(D_006361C0, *(volatile int *)0x1000A000);                                               \
-    printf(D_006361D0, *(volatile int *)0x1000A030);                                               \
-    printf(D_006361E0, *(volatile int *)0x1000A010);                                               \
-    printf(D_006361F0, *(volatile int *)0x1000A020);                                               \
-    printf(D_00636200, *(volatile int *)0x10003C00);                                               \
-    printf(D_00636218, *(volatile int *)0x10003020);                                               \
+    printf("\t<D1_CHCR=%08x:", *(volatile int *)0x10009000);                                       \
+    printf("D1_TADR=%08x:", *(volatile int *)0x10009030);                                          \
+    printf("D1_MADR=%08x:", *(volatile int *)0x10009010);                                          \
+    printf("D1_QWC=%08x>\r\n", *(volatile int *)0x10009020);                                       \
+    printf("\t<D2_CHCR=%08x:", *(volatile int *)0x1000A000);                                       \
+    printf("D2_TADR=%08x:", *(volatile int *)0x1000A030);                                          \
+    printf("D2_MADR=%08x:", *(volatile int *)0x1000A010);                                          \
+    printf("D2_QWC=%08x>\r\n", *(volatile int *)0x1000A020);                                       \
+    printf("\t<VIF1_STAT=%08x:", *(volatile int *)0x10003C00);                                     \
+    printf("GIF_STAT=%08x>\r\n", *(volatile int *)0x10003020);                                     \
     return -1
 
 int sceGsSyncPath(int mode)
@@ -41,33 +26,33 @@ int sceGsSyncPath(int mode)
     if (mode == 0) {
         while (*(volatile int *)0x10009000 & 0x100) {
             if (i++ > 0x1000000) {
-                printf(D_00636150);
+                printf("sceGsSyncPath: DMA Ch.1 does not terminate\r\n");
                 GS_SYNCPATH_DUMP();
             }
         }
         while (*(volatile int *)0x1000A000 & 0x100) {
             if (i++ > 0x1000000) {
-                printf(D_00636230);
+                printf("sceGsSyncPath: DMA Ch.2 does not terminate\r\n");
                 GS_SYNCPATH_DUMP();
             }
         }
         while (*(volatile int *)0x10003C00 & 0x1F000003) {
             if (i++ > 0x1000000) {
-                printf(D_00636260);
+                printf("sceGsSyncPath: VIF1 does not terminate\r\n");
                 GS_SYNCPATH_DUMP();
             }
         }
         __asm__ __volatile__("cfc2.ni %0, $vi29" : "=r"(v));
         while (v & 0x100) {
             if (i++ > 0x1000000) {
-                printf(D_00636290);
+                printf("sceGsSyncPath: VU1 does not terminate\r\n");
                 GS_SYNCPATH_DUMP();
             }
             __asm__ __volatile__("cfc2.ni %0, $vi29" : "=r"(v));
         }
         while (*(volatile int *)0x10003020 & 0xC00) {
             if (i++ > 0x1000000) {
-                printf(D_006362B8);
+                printf("sceGsSyncPath: GIF does not terminate\r\n");
                 GS_SYNCPATH_DUMP();
             }
         }

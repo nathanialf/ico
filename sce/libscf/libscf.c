@@ -12,9 +12,8 @@
 #include <libscf.h>
 #include <sifdev.h>
 
-/* The T10K (DTL-T10000 kit) OSD configuration shadow the sceScfSet/Get pair reads: the
- * file's own static in 2001, here blob .data at VMA 0x54CB60..0x54CB68 (extern, size open,
- * as in sce/libgraph/graph001.c); offsets off the ROM: +0 short, +2..+7 unsigned char. */
+/* The member's .data, VMA 0x54CB50..0x54CB78: the build stamp, the T10K (DTL-T10000 kit)
+ * OSD config shadow (timezone 540 minutes, JST) and the rom0:ROMVER cache GetRomName fills. */
 typedef struct {
     short timezone;
     unsigned char aspect;
@@ -25,10 +24,11 @@ typedef struct {
     unsigned char timeNotation;
 } sceScfT10KConfig;
 
-extern sceScfT10KConfig D_0054CB60[];
-/* The 16-byte rom0:ROMVER record GetRomName reads once and caches; blob .data
- * at VMA 0x54CB68.  Byte 4 is the region letter (T = DTL-T10000). */
-extern char D_0054CB68[];
+static char sceScfVersion[16] = "PsIIlibscf  2200";
+
+static sceScfT10KConfig t10kConfig = {540, 0, 0, 0, 0, 0, 0};
+
+static char romName[16] = {0};
 
 /* The OSD configuration word the kernel's GetOsdConfigParam syscall returns.
  * Every bit position below is read straight off the ROM's shift/mask pairs in
@@ -122,25 +122,25 @@ char *GetRomName(void)
 {
     int fd;
 
-    if (D_0054CB68[0] == 0) {
+    if (romName[0] == 0) {
         fd = sceOpen("rom0:ROMVER", 1);
         if (fd == -1) {
             printf("Can't open rom0:ROMVER\n");
         }
-        if (sceRead(fd, D_0054CB68, 14) == -1) {
+        if (sceRead(fd, romName, 14) == -1) {
             printf("Can't read rom error\n");
         }
         sceClose(fd);
     }
-    return D_0054CB68;
+    return romName;
 }
 
 int IsT10K(void)
 {
-    if (D_0054CB68[0] == 0) {
+    if (romName[0] == 0) {
         GetRomName();
     }
-    return D_0054CB68[4] == 'T';
+    return romName[4] == 'T';
 }
 
 int sceScfGetLanguage(void)
@@ -151,7 +151,7 @@ int sceScfGetLanguage(void)
 
     GetOsdConfigParam(&param);
     if (IsT10K()) {
-        lang = D_0054CB60[0].language;
+        lang = t10kConfig.language;
     } else {
         GetOsdConfigParam(&param);
         if (param.version == 0) {
@@ -165,7 +165,7 @@ int sceScfGetLanguage(void)
 
 void sceScfSetT10kConfig(sceScfT10KConfig *param)
 {
-    D_0054CB60[0] = *param;
+    t10kConfig = *param;
 }
 
 int sceScfGetAspect(void)
@@ -173,7 +173,7 @@ int sceScfGetAspect(void)
     ConfigParam param;
 
     if (IsT10K()) {
-        return D_0054CB60[0].aspect;
+        return t10kConfig.aspect;
     }
     GetOsdConfigParam(&param);
     return param.aspect;
@@ -184,7 +184,7 @@ int sceScfGetSpdif(void)
     ConfigParam param;
 
     if (IsT10K()) {
-        return D_0054CB60[0].spdif;
+        return t10kConfig.spdif;
     }
     GetOsdConfigParam(&param);
     return param.spdif;
@@ -196,7 +196,7 @@ int sceScfGetTimeZone(void)
     int tz;
 
     if (IsT10K()) {
-        tz = D_0054CB60[0].timezone;
+        tz = t10kConfig.timezone;
     } else {
         tz = 540;
         GetOsdConfigParam(&param);
@@ -215,7 +215,7 @@ int sceScfGetDateNotation(void)
     int v;
 
     if (IsT10K()) {
-        v = D_0054CB60[0].dateNotation;
+        v = t10kConfig.dateNotation;
     } else {
         GetOsdConfigParam(&param);
         if (param.version == 0) {
@@ -236,7 +236,7 @@ int sceScfGetSummerTime(void)
     int v;
 
     if (IsT10K()) {
-        v = D_0054CB60[0].summerTime;
+        v = t10kConfig.summerTime;
     } else {
         GetOsdConfigParam(&param);
         if (param.version == 0) {
@@ -257,7 +257,7 @@ int sceScfGetTimeNotation(void)
     int v;
 
     if (IsT10K()) {
-        v = D_0054CB60[0].timeNotation;
+        v = t10kConfig.timeNotation;
     } else {
         GetOsdConfigParam(&param);
         if (param.version == 0) {
