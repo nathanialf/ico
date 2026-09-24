@@ -40,7 +40,6 @@ extern int SCE_CD_debug[];
    for the two clears and leaves the jal slot to the assembler). */
 extern volatile int sceCdCbfunc_num;
 extern volatile int _sceCd_c_cb_sem;
-extern char D_006369B8[];
 extern void _sceCd_cd_callback(void);
 extern int sceCdNcmdDiskReady(void);
 extern int _sceCd_ncmd_prechk(int a0);
@@ -76,7 +75,7 @@ int sceCdReadIOPm(int lsn, int sectors, void *buf, CdRMode *mode)
         return 0;
     }
     if (SCE_CD_debug[0] > 0) {
-        scePrintf(D_006369B8);
+        scePrintf("cdread end\n");
     }
     return 1;
 }

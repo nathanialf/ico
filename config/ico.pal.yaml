@@ -668,6 +668,7 @@ segments:
       - [0x44A2F0, .data, sce/libvu0/libvu0]  # the member's .data (data pass 3): the sine coefficients and the packet, VMA 0x54A2F0..0x54A320, 48 B
       - [0x44A320, .data, sce/libdma/libdma]  # the member's whole .data (chain 1 pass 107): dch, sceDmaDebugMode and sceDmaCurrentEnv named from MAIN.MAP, the build stamp "PsIIlibdma  2200" and the four channel code tables as statics, VMA 0x54A320..0x54A3CC, 172 B
       - [0x44A3CC, data, cod/44A3CC]     # data blob resume
+      - [0x44A540, .data, sce/libcdvd/cdvd000]  # the member's whole .data (= MAIN.MAP cdvd000.o .data 0x1A70, chain 3 pass 109): the 15 MAIN.MAP-named globals (SCE_CD_debug, the semaphore ids, the callback words, the 64-aligned RPC buffers, the client records) and the role-named statics (build stamp "PsIIlibcdvd 2240", keep_cmd words, bind words at -1, init count), VMA 0x54A540..0x54BFB0; cdvd047's carve follows directly
       - [0x44BFB0, .data, sce/libcdvd/cdvd047]  # the member's .data (chain 1 pass 107): the stream-started flag as a static int, VMA 0x54BFB0, 4 B
       - [0x44BFB4, data, cod/44BFB4]     # data blob resume
       - [0x44CAD0, .data, sce/libipu/ipuinit]  # the member's .data (data pass 3): the version stamp and the quantiser and colour tables, VMA 0x54CAD0..0x54CB50, 128 B
@@ -988,6 +989,9 @@ segments:
       - [0x536610, .rodata, sce/libdma/libdma]  # the wait loops' one string literal "libdma: sync timeout\n" (0x16 B, = MAIN.MAP libdma.o .rodata 0x16), VMA 0x636610..0x636626, padded to 0x636628 where tty.o's strings begin
       - [0x536628, .rodata, sce/libkernl/libkernl_25EF18]  # the member's rodata as source (completeness pass 65): its strings then _sceFs_Rcv_Intr's 25-entry jump table (section .rodata.0x006366A0), one run, VMA 0x636628..0x636704
       - [0x536704, rodata, cod/536704]  # .rodata blob resume
+      - [0x5367C0, .rodata, sce/libcdvd/cdvd000]  # the member's whole .rodata (= MAIN.MAP cdvd000.o .rodata 0x1C9, chain 3 pass 109): 18 strings as anonymous literals at their uses, VMA 0x6367C0..0x636989, 7 B of link fill before cdvd005's strings
+      - [0x536990, rodata, cod/536990]  # .rodata blob resume (cdvd005's strings)
+      - [0x5369B8, .rodata, sce/libcdvd/cdvd006]  # the member's one string "cdread end\n" as a literal (chain 3 pass 109), anonymous, VMA 0x6369B8..0x6369C4, 12 B, 4 B of fill before libcdvd_267388's strings
       - [0x5369C8, .rodata, sce/libcdvd/libcdvd_267388]  # the member's three strings as literals (chain 1 pass 107), anonymous, VMA 0x6369C8..0x636A13, 75 B, padded to cdvd047's strings at 0x636A18
       - [0x536A18, .rodata, sce/libcdvd/cdvd047]  # the member's whole .rodata (= MAIN.MAP cdvd047.o .rodata 0x11C): its nine strings as literals (chain 1 pass 107), anonymous, VMA 0x636A18..0x636B34, 284 B
       - [0x536B34, rodata, cod/536B34]  # .rodata blob resume (libpad.o's strings begin at 0x636B38)
@@ -1373,6 +1377,8 @@ segments:
       - { type: .bss, vram: 0x0072A040, name: ico2/ito/mpeg/mv_disp }  # the TU's own .bss, 0x280 B, VMA 0x72A040..0x72A2C0; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x0072A2C0, name: ico2/common/src/GobjProc }  # the TU's own .bss, 0x340 B, VMA 0x72A2C0..0x72A600; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x0072A600, name: cod/0072A600 }  # .bss blob resume
+      - { type: .bss, vram: 0x0072EF00, name: sce/libcdvd/cdvd000 }  # the member's whole .bss (= MAIN.MAP cdvd000.o .bss 0x2D4, chain 3 pass 109): 16 role-named statics in address order (callback and power-off state, thread records, the search request and reply buffers, the client records), VMA 0x72EF00..0x72F1D4
+      - { type: bss, vram: 0x0072F1D4, name: cod/0072F1D4 }  # .bss blob resume (4 B of fill before cdvd047's record)
       - { type: .bss, vram: 0x0072F1D8, name: sce/libcdvd/cdvd047 }  # the member's .bss (chain 1 pass 107): the stream read mode record as a static, VMA 0x72F1D8, 4 B
       - { type: bss, vram: 0x0072F1DC, name: cod/0072F1DC }  # .bss blob resume
   - [0x53C0F6]
