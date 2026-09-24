@@ -8,15 +8,20 @@
 #include "matrixDrive.h"
 #include "tableSin.h"
 
-extern int D_004E7470[];
 extern float D_0063B7D4;
-extern int D_004E7460[];
 extern int D_00639EA8;
 extern int D_0063B7BC;
 extern float D_0063B7C0;
 extern int D_0063B7C4;
 extern int D_0063B7C8;
 extern float D_0063B7CC;
+
+/* The TU's .data, in ROM run order (names ours): the centre the game-over
+   dark volume and its shock ring spread from, and the position of the
+   ordinary dark volume, both homogeneous points. */
+static float gameOverCenter[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+
+static float darkVolumeCenter[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 
 /* The colour draw and drawHT take by value: four bytes in one register, which
    is why every call site masks the parameter home to 32 bits. */
@@ -152,7 +157,7 @@ static inline void setGameOverEffect(int a0, float t)
     D_0063B7C0 = 0;
     D_0063B7C4 = 1;
     D_0063B7C8 = 0;
-    CopyVector((int)D_004E7460, a0);
+    CopyVector(gameOverCenter, a0);
     D_0063B7CC = t;
 }
 
@@ -184,7 +189,7 @@ inline void ResetGameOverEffect(void)
 void SetDarkVolumeEffect(int a0, float a1)
 {
     D_0063B7D4 = a1;
-    CopyVector(D_004E7470, (void *)a0);
+    CopyVector(darkVolumeCenter, (void *)a0);
 }
 
 extern float D_0063B7D0;
@@ -197,7 +202,7 @@ static inline void sendGameOverMail(void *gobj, float r2)
     float pos[4];
 
     GetRootPosition(pos, gobj);
-    if (distance_squared(pos, D_004E7460) < r2) {
+    if (distance_squared(pos, gameOverCenter) < r2) {
         iosOmSendMail(gobj, 0x22, gobj);
     }
 }
@@ -207,8 +212,8 @@ void DispGameOverEffect(void)
     void *g;
 
     if (D_0063B7BC != 0) {
-        sonic(D_004E7460, D_0063B7C0);
-        darkVolume(D_004E7460, D_0063B7C0, 1.0f, 30.0f);
+        sonic(gameOverCenter, D_0063B7C0);
+        darkVolume(gameOverCenter, D_0063B7C0, 1.0f, 30.0f);
         if (D_0063B7C4 != 0) {
             float r2 = D_0063B7C0 * D_0063B7C0;
 
@@ -232,7 +237,7 @@ void DispGameOverEffect(void)
         if (D_0063B7D4 < 0.001f && D_0063B7D0 < 1.0f) {
             return;
         }
-        darkVolume(D_004E7470, D_0063B7D0, 0.96f, 0.0f);
+        darkVolume(darkVolumeCenter, D_0063B7D0, 0.96f, 0.0f);
         if (D_0028F4D4[0] != 0) {
             return;
         }
@@ -243,7 +248,7 @@ void DispGameOverEffect(void)
 
 void GetGameOverEffectCenterPosition(int a0)
 {
-    CopyVector(a0, D_004E7460);
+    CopyVector(a0, gameOverCenter);
 }
 
 /* listing lines 647-676: build the 8 by 17 sphere vertex table renderViewCoordZSphere
@@ -292,7 +297,7 @@ void InitGameOverEffect(void)
     ResetGameOverEffect();
     D_0063B7D0 = 0;
     D_0063B7D4 = 0;
-    CopyVector(D_004E7470, ZeroPoint);
+    CopyVector(darkVolumeCenter, ZeroPoint);
 }
 
 inline int InitDarkVolumeGeo(char *a0)

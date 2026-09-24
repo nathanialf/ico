@@ -36,7 +36,7 @@ typedef struct AnimNode {
     struct AnimNode *next; /* 0x14 */
 } AnimNode;
 
-/* RECONSTRUCTION: the 0x290-byte animation record D_0067D098 holds, laid out
+/* RECONSTRUCTION: the 0x290-byte animation record stageAnimTable holds, laid out
    from the offsets this TU reads (kind, object and data tables, the three
    entry pointers, the packed count/mode word). stage_SetScale and
    stage_SetAnimation read the object table as a member of this record:
@@ -54,7 +54,7 @@ typedef struct {
 } StageAnim;
 
 /* RECONSTRUCTION: the play node stage_MakePlayBgAnimation links into
-   D_0063C15C and stage_DispBgAnimation walks. The ROM reads its first word as
+   bgaPlayList and stage_DispBgAnimation walks. The ROM reads its first word as
    int bit-fields in a doubleword unit (ld, then andi 0xFFFF/sll 18/sra 18 for
    the 14-bit animation number, andi 0x8000 for the kill flag, and 0xFFFFBFFF
    for the play flag), which is what gcc 2.9 emits for int bit-fields in a
@@ -77,11 +77,19 @@ typedef struct {
 extern int D_0028F4D4[];
 /* kept local: this TU's uses of bga_ResetAnimation do not fit the prototype in BgAnimation.h */
 extern void bga_ResetAnimation();
-extern int *D_0063C15C;
 /* kept local: this TU's uses of bga_SetCameraForceOff do not fit the prototype in BgAnimation.h */
 extern void bga_SetCameraForceOff();
-extern int D_0063C158;
-extern StageAnim D_0067D098[];
+
+/* The TU's own .sbss and .bss, in ROM run order (names ours): the number of
+   loaded animation records, the head of the play-node list, and the record
+   table stage_Init fills, 87 records of 0x290 bytes (0xDEF0, the whole run
+   from Shadow's .bss to Texture's). */
+static int stageAnimCount;
+
+static int *bgaPlayList;
+
+static StageAnim stageAnimTable[87];
+
 extern char D_005501A8[];
 extern char D_005501E0[];
 extern char D_00550028[];
@@ -153,7 +161,7 @@ void stage_MakeGObj(int *dat, int no)
     int w;
     int kind = dat[0];
     int aux = dat[1];
-    char *e = (char *)D_0067D098 + no * 0x290;
+    char *e = (char *)stageAnimTable + no * 0x290;
 
     for (i = 0; i < ((*(int *)(e + 0x28C) << 22) >> 22); i++) {
         if (((short *)e)[i] == kind) {
@@ -241,7 +249,7 @@ typedef struct {
     AnimWord flags;  /* 0x28C: count 0 to 9, node count 10 to 19, play 20 to 29, mode 30 to 31 */
 } StageEnt;
 
-#define STG ((StageEnt *)D_0067D098)
+#define STG ((StageEnt *)stageAnimTable)
 
 typedef struct {
     int kind; /* 0x00 */
@@ -320,7 +328,7 @@ int stage_Init(void)
             STG[i].kinds[k] = -1;
         }
     }
-    D_0063C158 = 0;
+    stageAnimCount = 0;
     for (i = 0; i < 87; i++) {
         STG[i].flags.i &= ~0x3FF;
     }
@@ -336,7 +344,7 @@ int stage_Init(void)
     stageAnimDebugHook();
     stageAnimDebugHook();
     stageAnimDebugHook();
-    D_0063C15C = 0;
+    bgaPlayList = 0;
     bga_ResetCamera();
     for (m = 0; m < 2; m++) {
         for (i = ((int *)tbl[m])[0]; i < ((int *)tbl[m])[1]; i++) {
@@ -351,41 +359,44 @@ int stage_Init(void)
                     if (id != 972) {
                         if (strncmp(*(char **)(obj + 0x54), D_0063A1B0, 3) == 0) {
                             /* Listing row 679, code-free. WHAT THE BYTES PIN: one
-                           insn between the D_0063C158 load and the 0x284 store
+                           insn between the stageAnimCount load and the 0x284 store
                            at local-alloc, gone by final; without it the flags
                            address takes $4 and the 0x284 address $3, the
                            ROM's are the other way round. WHAT THEY CANNOT
                            PIN: the statement's text. */
                             stageAnimDebugHook();
-                            STG[D_0063C158].flags.i &= 0x3FFFFFFF;
-                            *(int *)((char *)D_0067D098 + D_0063C158 * 0x290 + 0x284) =
+                            STG[stageAnimCount].flags.i &= 0x3FFFFFFF;
+                            *(int *)((char *)stageAnimTable + stageAnimCount * 0x290 + 0x284) =
                                 (int)*(char **)(obj + 0x54);
                             *(int *)(*(char **)(obj + 0x54) + 0x4) = *(int *)(obj + 0x48);
                             (*(char **)(obj + 0x54))[0xB] = obj[0x4C];
-                            *(char *)(*(int *)((char *)D_0067D098 + D_0063C158 * 0x290 + 0x284) +
+                            *(char *)(*(int *)((char *)stageAnimTable + stageAnimCount * 0x290 +
+                                               0x284) +
                                       0xA) = -1;
-                            *(int *)((char *)D_0067D098 + D_0063C158 * 0x290 + 0x280) = (int)obj;
-                            STG[D_0063C158].flags.i &= 0xC00FFFFF;
+                            *(int *)((char *)stageAnimTable + stageAnimCount * 0x290 + 0x280) =
+                                (int)obj;
+                            STG[stageAnimCount].flags.i &= 0xC00FFFFF;
                             p = &D_00600498[*(int *)(obj + 0x40)];
                             q = &D_00600498[*(int *)(obj + 0x44)];
                             for (; p != q; p++) {
-                                stage_MakeGObj((int *)p, D_0063C158);
+                                stage_MakeGObj((int *)p, stageAnimCount);
                             }
                         } else {
                             /* listing row 692, code-free: counted in the gcse
                            window above */
                             stageAnimDebugHook();
-                            STG[D_0063C158].flags.i =
-                                (STG[D_0063C158].flags.i & 0x3FFFFFFF) | 0x40000000;
-                            D_0067D098[D_0063C158].entry3 = *(int **)(obj + 0x54);
-                            *(int *)((char *)D_0067D098 + D_0063C158 * 0x290 + 0x280) = (int)obj;
+                            STG[stageAnimCount].flags.i =
+                                (STG[stageAnimCount].flags.i & 0x3FFFFFFF) | 0x40000000;
+                            stageAnimTable[stageAnimCount].entry3 = *(int **)(obj + 0x54);
+                            *(int *)((char *)stageAnimTable + stageAnimCount * 0x290 + 0x280) =
+                                (int)obj;
                         }
                         /* listing row 697, code-free: counted in the gcse window
                        above */
                         stageAnimDebugHook();
-                        D_0063C158++;
-                        if (D_0063C158 >= 88) {
-                            debug_StdPrintfDummy(D_00550098, D_0063C158, 87);
+                        stageAnimCount++;
+                        if (stageAnimCount >= 88) {
+                            debug_StdPrintfDummy(D_00550098, stageAnimCount, 87);
                             debug_StdPrintfDummy(D_005500C8);
                             debug_assert(D_00550028, 0x2BE);
                             __assert(D_00550028, 0x2BE, D_0063A1A8);
@@ -395,7 +406,7 @@ int stage_Init(void)
             }
         }
     }
-    for (i = 0; i < D_0063C158; i++) {
+    for (i = 0; i < stageAnimCount; i++) {
         if (((STG[i].flags.i << 22) >> 22) >= 64) {
             debug_StdPrintfDummy(D_005500F8, ((STG[i].flags.i << 22) >> 22), 64);
             debug_assert(D_00550028, 0x2C8);
@@ -403,10 +414,10 @@ int stage_Init(void)
         }
         max = max < ((STG[i].flags.i << 22) >> 22) ? ((STG[i].flags.i << 22) >> 22) : max;
     }
-    debug_StdPrintfDummy(D_00550128, D_0063C158, max);
+    debug_StdPrintfDummy(D_00550128, stageAnimCount, max);
     if (p != 0) {
         e = STG;
-        for (i = 0; i < D_0063C158; i++, e++) {
+        for (i = 0; i < stageAnimCount; i++, e++) {
             if ((e->flags.i >> 30) == 1) {
                 continue;
             }
@@ -481,7 +492,7 @@ int stage_Init(void)
             }
         }
         e = STG;
-        for (i = 0; i < D_0063C158; i++, e++) {
+        for (i = 0; i < stageAnimCount; i++, e++) {
             if ((e->flags.i >> 30) == 1) {
                 continue;
             }
@@ -503,12 +514,12 @@ int stage_Init(void)
         }
     }
     e = STG;
-    for (i = 0; i < D_0063C158; i++, e++) {
+    for (i = 0; i < stageAnimCount; i++, e++) {
         if (*(int *)(e->p280 + 0x50) != 0) {
             stage_SetAnimation(*(int *)(e->p280 + 0x58), 1, 0);
         }
     }
-    return D_0063C158;
+    return stageAnimCount;
 }
 
 void stage_SetAnimation(int key, int p1, int p2)
@@ -519,7 +530,7 @@ void stage_SetAnimation(int key, int p1, int p2)
     int dbg = 0; /* local debug switch, see the test in case 0 below */
     StageAnim *e;
 
-    for (i = 0, e = (StageAnim *)D_0067D098; i < D_0063C158; i++, e++) {
+    for (i = 0, e = stageAnimTable; i < stageAnimCount; i++, e++) {
         if (key != e->entry1[0x58 / 4]) {
             continue;
         }
@@ -557,7 +568,7 @@ void stage_SetAnimation(int key, int p1, int p2)
     }
 
     if (uid != -1) {
-        for (i = 0, e = (StageAnim *)D_0067D098; i < D_0063C158; i++, e++) {
+        for (i = 0, e = stageAnimTable; i < stageAnimCount; i++, e++) {
             if ((e->flags.i >> 30) != 0) {
                 continue;
             }
@@ -576,8 +587,8 @@ void stage_SetAnimation(int key, int p1, int p2)
 inline int stage_CheckAnimationFinish(int a0)
 {
     int i;
-    char *e = (char *)D_0067D098;
-    for (i = 0; i < D_0063C158; i++, e += 0x290) {
+    char *e = (char *)stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e += 0x290) {
         int *entry1 = *(int **)(e + 0x280);
         if (a0 == entry1[0x58 / 4]) {
             int mode = *(int *)(e + 0x28C) >> 30;
@@ -598,8 +609,8 @@ inline int stage_CheckAnimationFinish(int a0)
 int stage_ContinueAnimation(int a0, int a1)
 {
     int i;
-    char *e = (char *)D_0067D098;
-    for (i = 0; i < D_0063C158; i++, e += 0x290) {
+    char *e = (char *)stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e += 0x290) {
         int *entry1 = *(int **)(e + 0x280);
         if (a0 == entry1[0x58 / 4]) {
             int mode = *(int *)(e + 0x28C) >> 30;
@@ -630,8 +641,8 @@ int stage_ContinueAnimation(int a0, int a1)
 inline int stage_CheckAnimationFrame(int a0, int a1, int a2)
 {
     int i;
-    char *e = (char *)D_0067D098;
-    for (i = 0; i < D_0063C158; i++, e += 0x290) {
+    char *e = (char *)stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e += 0x290) {
         int *entry1 = *(int **)(e + 0x280);
         if (a0 == entry1[0x58 / 4]) {
             int mode = *(int *)(e + 0x28C) >> 30;
@@ -649,8 +660,8 @@ inline int stage_CheckAnimationFrame(int a0, int a1, int a2)
 inline int stage_CheckAnimationFrameIn(int a0, int a1, int a2)
 {
     int i;
-    char *e = (char *)D_0067D098;
-    for (i = 0; i < D_0063C158; i++, e += 0x290) {
+    char *e = (char *)stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e += 0x290) {
         int *entry1 = *(int **)(e + 0x280);
         if (a0 == entry1[0x58 / 4]) {
             int mode = *(int *)(e + 0x28C) >> 30;
@@ -681,13 +692,13 @@ void stage_CalcAnimationNoParent(void)
     if (graphics_ready != 0) {
         return;
     }
-    if (D_0063C158 == 0) {
+    if (stageAnimCount == 0) {
         return;
     }
     bga_SetUniqAnimationFlag(1);
     _InitCurrentMatrix();
-    e = (char *)D_0067D098;
-    for (i = 0; i < D_0063C158; i++, e += 0x290) {
+    e = (char *)stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e += 0x290) {
         switch (*(int *)(e + 0x28C) >> 30) {
         case 0: {
             char *entry2 = *(char **)(e + 0x284);
@@ -755,12 +766,12 @@ void stage_CalcAnimationParent(void)
     if (graphics_ready != 0) {
         return;
     }
-    if (D_0063C158 == 0) {
+    if (stageAnimCount == 0) {
         return;
     }
     bga_SetUniqAnimationFlag(1);
-    e = (char *)D_0067D098;
-    for (i = 0; i < D_0063C158; i++, e += 0x290) {
+    e = (char *)stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e += 0x290) {
         if ((*(int *)(e + 0x28C) >> 30) != 0) {
             continue;
         }
@@ -806,12 +817,12 @@ void stage_DispAnimation(void)
     int i;
     char *e;
 
-    if (D_0063C158 == 0) {
+    if (stageAnimCount == 0) {
         return;
     }
 
-    e = (char *)D_0067D098;
-    for (i = 0; i < D_0063C158; i++, e += 0x290) {
+    e = (char *)stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e += 0x290) {
         int *entry1 = *(int **)(e + 0x280);
         signed char lv;
         int k;
@@ -846,14 +857,14 @@ void stage_DispAnimation(void)
 
 inline void stage_SetLoopFlag(int key, int a1)
 {
-    int count = *(volatile int *)&D_0063C158;
+    int count = *(volatile int *)&stageAnimCount;
     int i;
-    char *e = (char *)D_0067D098;
+    char *e = (char *)stageAnimTable;
     for (i = 0; i < count; i++, e += 0x290) {
         int *p = *(int **)(e + 0x280);
         if (key == p[0x58 / 4]) {
             p[0x50 / 4] = a1;
-            p = &(*((volatile int *)(&D_0063C158)));
+            p = &(*((volatile int *)(&stageAnimCount)));
             count = *p;
         }
     }
@@ -861,8 +872,8 @@ inline void stage_SetLoopFlag(int key, int a1)
 
 inline void stage_SetFrameStep(int target, int val)
 {
-    int n = D_0063C158;
-    char *p = (char *)D_0067D098;
+    int n = stageAnimCount;
+    char *p = (char *)stageAnimTable;
     int i;
     if (n <= 0)
         return;
@@ -881,8 +892,8 @@ inline void stage_SetParentOfGObj(int a0, void *a1)
 {
     int i;
     int one = 1;
-    char *e = D_0067D098;
-    for (i = 0; i < D_0063C158; i++) {
+    char *e = stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++) {
         if (a0 == *(int *)(*(char **)(e + 0x280) + 0x58)) {
             *(struct B8 *)(*(char **)(*(char **)(e + 0x284) + 0x24) + 0x20) = *(struct B8 *)a1;
             *(int *)(*(char **)(*(char **)(e + 0x284) + 0x24) + 0x28) = one;
@@ -894,8 +905,8 @@ inline void stage_SetParentOfGObj(int a0, void *a1)
 inline void stage_SetParentOfGObjWithLocalRotationFlag(int a0, void *a1, int a2)
 {
     int i;
-    char *e = D_0067D098;
-    for (i = 0; i < D_0063C158; i++) {
+    char *e = stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++) {
         if (a0 == *(int *)(*(char **)(e + 0x280) + 0x58)) {
             *(Blob8 *)(*(char **)(*(char **)(e + 0x284) + 0x24) + 0x20) = *(Blob8 *)a1;
             *(int *)(*(char **)(*(char **)(e + 0x284) + 0x24) + 0x28) = a2;
@@ -906,9 +917,9 @@ inline void stage_SetParentOfGObjWithLocalRotationFlag(int a0, void *a1, int a2)
 
 inline void stage_SetLocalizeGeometry(int key, int arg1, int arg2)
 {
-    int count = *(volatile int *)&D_0063C158;
+    int count = *(volatile int *)&stageAnimCount;
     int i = 0;
-    char *e = (char *)D_0067D098;
+    char *e = (char *)stageAnimTable;
     if (count <= 0)
         return;
     do {
@@ -922,7 +933,7 @@ inline void stage_SetLocalizeGeometry(int key, int arg1, int arg2)
             entry2 = *(int **)(e + 0x284);
             target = *(char **)((char *)entry2 + 0x24);
             CopyQuaternion(target + 0x10, arg2);
-            count = *(volatile int *)&D_0063C158;
+            count = *(volatile int *)&stageAnimCount;
         }
         i++;
         e += 0x290;
@@ -934,9 +945,9 @@ void stage_SetScale(int key, float scale)
     int i;
     int j;
     int k;
-    StageAnim *e = (StageAnim *)D_0067D098;
+    StageAnim *e = stageAnimTable;
 
-    for (i = 0; i < D_0063C158; i++, e++) {
+    for (i = 0; i < stageAnimCount; i++, e++) {
         if (key == e->entry1[0x58 / 4]) {
             if ((e->flags.i >> 30) == 0) {
                 for (j = 0; j < ((e->flags.i << 22) >> 22); j++) {
@@ -962,7 +973,7 @@ float stage_PlayBgAnimation(int key, float t, void *v, void *q)
 {
     int i;
     int k;
-    int n = D_0063C158;
+    int n = stageAnimCount;
     float r = t;
     float f;
     char *e;
@@ -970,7 +981,7 @@ float stage_PlayBgAnimation(int key, float t, void *v, void *q)
     if (n == 0) {
         return 0.0f;
     }
-    e = (char *)D_0067D098;
+    e = (char *)stageAnimTable;
     for (i = 0; i < n; i++, e += 0x290) {
         char *entry2;
 
@@ -1004,8 +1015,8 @@ float stage_PlayBgAnimation(int key, float t, void *v, void *q)
         }
         break;
     }
-    e = (char *)D_0067D098;
-    for (i = 0; i < D_0063C158; i++, e += 0x290) {
+    e = (char *)stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e += 0x290) {
         if (key != *(int *)(*(char **)(e + 0x280) + 0x58)) {
             continue;
         }
@@ -1036,10 +1047,10 @@ float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv
     float f;
     StageAnim *e;
 
-    if (D_0063C158 == 0) {
+    if (stageAnimCount == 0) {
         return 0.0f;
     }
-    for (i = 0, e = (StageAnim *)D_0067D098; i < D_0063C158; i++, e++) {
+    for (i = 0, e = stageAnimTable; i < stageAnimCount; i++, e++) {
         if (key != e->entry1[0x58 / 4]) {
             continue;
         }
@@ -1066,7 +1077,7 @@ float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv
         }
         break;
     }
-    for (i = 0, e = (StageAnim *)D_0067D098; i < D_0063C158; i++, e++) {
+    for (i = 0, e = stageAnimTable; i < stageAnimCount; i++, e++) {
         if (key != e->entry1[0x58 / 4]) {
             continue;
         }
@@ -1096,10 +1107,10 @@ int *stage_MakePlayBgAnimation(int key)
     int found = -1;
     float f = 1.0f;
     short num = 0;
-    char *e = (char *)D_0067D098;
+    char *e = (char *)stageAnimTable;
     int *p;
 
-    for (i = 0; i < D_0063C158; i++, e += 0x290) {
+    for (i = 0; i < stageAnimCount; i++, e += 0x290) {
         int *entry1 = *(int **)(e + 0x280);
 
         if (key == entry1[0x58 / 4]) {
@@ -1133,12 +1144,12 @@ int *stage_MakePlayBgAnimation(int key)
     *(float *)((char *)p + 4) = f;
     *(float *)((char *)p + 8) = 1.0f;
     *(float *)((char *)p + 0xC) = 1.0f;
-    if (D_0063C15C != 0) {
-        D_0063C15C[0x10 / 4] = (int)p;
+    if (bgaPlayList != 0) {
+        bgaPlayList[0x10 / 4] = (int)p;
     }
     p[0x10 / 4] = 0;
-    p[0x14 / 4] = (int)D_0063C15C;
-    D_0063C15C = p;
+    p[0x14 / 4] = (int)bgaPlayList;
+    bgaPlayList = p;
     return p;
 }
 
@@ -1153,22 +1164,22 @@ void stage_KillPlayBgAnimation(int **self)
     if (next != 0) {
         next[0x14 / 4] = node[0x14 / 4];
     } else {
-        D_0063C15C = (int *)node[0x14 / 4];
+        bgaPlayList = (int *)node[0x14 / 4];
         node = *self;
     }
     prev = (int *)node[0x14 / 4];
     if (prev != 0) {
         prev[0x10 / 4] = node[0x10 / 4];
     }
-    if (D_0063C15C != 0) {
-        D_0063C15C[0x10 / 4] = 0;
+    if (bgaPlayList != 0) {
+        bgaPlayList[0x10 / 4] = 0;
     }
     freeseki(*self);
 }
 
 inline void stage_KillPlayBgAnimationIfOverMaxCount(int a0, int a1)
 {
-    AnimNode *p = (AnimNode *)D_0063C15C;
+    AnimNode *p = (AnimNode *)bgaPlayList;
     int count = 0;
     while (p != 0) {
         long v = p->field0;
@@ -1194,7 +1205,7 @@ static inline void stage_SetBgAnimationPlayNode(BgaPlayNode *node, int key)
     int k;
     StageAnim *e;
 
-    for (i = 0, e = (StageAnim *)D_0067D098; i < D_0063C158; i++, e++) {
+    for (i = 0, e = stageAnimTable; i < stageAnimCount; i++, e++) {
         if (key == e->entry1[0x58 / 4]) {
             if ((e->flags.i >> 30) == 0) {
                 for (k = 0; k < ((e->flags.i << 22) >> 22); k++) {
@@ -1266,7 +1277,7 @@ int stage_DispBgAnimationNoFinish(char **slot)
     }
     (*self)->play = 0;
     if ((*self)->frame == -1.0f) {
-        for (i = 0, e = (StageAnim *)D_0067D098; i < D_0063C158; i++, e++) {
+        for (i = 0, e = stageAnimTable; i < stageAnimCount; i++, e++) {
             if ((*self)->no == e->entry1[0x58 / 4]) {
                 if ((e->flags.i >> 30) == 0) {
                     /* A jump to the function's exit, the way Light.c leaves

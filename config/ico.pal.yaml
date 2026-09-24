@@ -584,6 +584,7 @@ segments:
       - [0x3E6E10, data, cod/3E6E10]     # .data blob resume
       - [0x3E7060, .data, ico2/sugipon/src/clothTest]  # the TU's whole .data run as source (data pass 3): twenty anchors and the two cloth configurations, VMA 0x4E7060..0x4E7458, 1016 B
       - [0x3E7458, data, cod/3E7458]     # data blob resume
+      - [0x3E7460, .data, ico2/sugipon/src/darkVolume]  # the TU's .data as source (chain 1 pass 74): two homogeneous centre points, gameOverCenter and darkVolumeCenter, named statics as .data.<name> sections 16 B each in ROM order, VMA 0x4E7460..0x4E7480, 32 B, bytes equal to the ROM run; effectTool's .data follows with no resume blob
       - [0x3E7480, .data, ico2/sugipon/src/effectTool]  # the TU's whole .data run as source (data pass 6): the parameter table its rodata names are reached through, VMA 0x4E7480..0x4E78A0, 1056 B
       - [0x3E78A0, .data, ico2/sugipon/src/enemy]  # the TU's whole .data run as source (completeness pass 5), VMA 0x4E78A0..0x4E78E0, 64 B emitted
       - [0x3E78E0, .data, ico2/sugipon/src/enemyParts]  # the TU's whole .data run as source (data pass 3): eight part templates, VMA 0x4E78E0..0x4E7A20, 320 B
@@ -1197,6 +1198,7 @@ segments:
       - { type: .sbss, vram: 0x0063C12C, name: ico2/seki/src/Light }  # the TU's .sbss as source (completeness pass 65)
       - { type: .sbss, vram: 0x0063C140, name: ico2/seki/src/MicroCode }  # the TU's own .sbss, 0x4 B, VMA 0x63C140..0x63C144; static definitions in ROM run order (completeness pass)
       - { type: sbss, vram: 0x0063C144, name: cod/0063C144 }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C158, name: ico2/seki/src/StageAnimation }  # the TU's .sbss as source (chain 1 pass 74): stageAnimCount and bgaPlayList in ROM run order, VMA 0x63C158..0x63C160, 8 B; Texture's .sbss follows with no resume blob
       - { type: .sbss, vram: 0x0063C160, name: ico2/seki/src/Texture }  # the TU's .sbss as source (completeness pass 65)
       - { type: .sbss, vram: 0x0063C168, name: ico2/fumi/ios/cdvd }  # the TU's .sbss as source (completeness pass 69), the message and load-end rings, the preload count, the running flag and the request and ack rings, VMA 0x63C168..0x63C18C, mcdata abuts
       - { type: .sbss, vram: 0x0063C18C, name: ico2/fumi/ios/mcdata }  # the TU's own .sbss, 0x4 B, VMA 0x63C18C..0x63C190; static definitions in ROM run order (completeness pass)
@@ -1292,7 +1294,7 @@ segments:
       - { type: .bss, vram: 0x0067BFD0, name: ico2/seki/src/MicroCode }  # the TU's own .bss, 0x40 B, VMA 0x67BFD0..0x67C010; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x0067C010, name: cod/0067C010 }  # .bss blob resume
       - { type: .bss, vram: 0x0067C070, name: ico2/seki/src/Shadow }  # the TU's .bss as source (completeness pass 65)
-      - { type: bss, vram: 0x0067D098, name: cod/0067D098 }  # .bss blob resume (StageAnimation's run)
+      - { type: .bss, vram: 0x0067D098, name: ico2/seki/src/StageAnimation }  # the TU's .bss as source (chain 1 pass 74): stageAnimTable[87], 87 records of 0x290 B = 0xDEF0 B, VMA 0x67D098..0x68AF88, the count from stage_Init's own loop bounds; Texture's .bss follows with no resume blob (the queue's 0x680017 end was an address-shaped text word, not a reference)
       - { type: .bss, vram: 0x0068AF88, name: ico2/seki/src/Texture }  # the TU's .bss run as source (completeness pass 66), 0x24608 B, the 200-slot texture record table and three role-named statics
       - { type: bss, vram: 0x006AF590, name: cod/006AF590 }  # .bss blob resume (ZFog's 0x430 B)
       - { type: .bss, vram: 0x006AF9C0, name: ico2/fumi/ios/cdvd }  # the TU's .bss as source (completeness pass 69), the file-handle table, the background request table, the skip buffer, the stream thread and its stack and the request queue, VMA 0x6AF9C0..0x6BC860, ios abuts
