@@ -730,8 +730,7 @@ segments:
       - [0x452094, rodata, cod/452094]   # .rodata blob resume (the zero pad word before the 8-aligned string at 0x552098 is the blob's first word: the compiled table is 0x14 B and blob sections align at most to 8)
       - [0x452098, .rodata, ico2/fumi/sound/adpcm_init]  # the TU's whole .rodata run as source (data pass 5), EUC-JP strings with glosses, VMA 0x552098..0x552164, 204 B
       - [0x452164, rodata, cod/452164]     # rodata blob resume
-      - [0x4522A0, .rodata, ico2/fumi/sound/s_init]  # the TU's .rodata as source (chain 1 pass 72, debug_DispSEInfo): the nine row labels ("center x" shared) and three format strings in first-use order, VMA 0x5522A0..0x55235C, 0xBC B; the object's .rodata is byte-identical to the ROM run
-      - [0x45235C, rodata, cod/45235C]     # rodata blob resume (the zero pad word before the 8-aligned Col4 template at 0x552360 is the blob's first word, as at cod/452094)
+      - [0x452170, .rodata, ico2/fumi/sound/s_init]  # the TU's whole .rodata as source (chain 1 pass 78, completeness): every string literal at its use in the listing's source order with the inline tail rebuilt, the Col4 wire colour as an anonymous constant at 0x552360, VMA 0x552170..0x5523A3, 0x233 B = MAIN.MAP's size, byte-identical to the ROM run; the cod/452164 row before it is the 12-byte zero pad (the object aligns to 8, the ROM run to 16) and soundManager's row follows
       - [0x4523A8, .rodata, ico2/fumi/sound/soundManager]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x5523A8..0x552430, 136 B
       - [0x4523F0, rodata, cod/4523F0]     # rodata blob resume
       - [0x452430, .rodata, ico2/fumi/src/act-game]  # syms: 0x00552430  carved jtbl_00552430 (ACTGameView_Loop's 8-arm table), VMA 0x552430..0x552450
@@ -1208,6 +1207,8 @@ segments:
       - { type: .sbss, vram: 0x0063C1A8, name: ico2/fumi/isys/gobj }  # the TU's own .sbss, 0x8 B, VMA 0x63C1A8..0x63C1B0; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C1B0, name: ico2/fumi/isys/gobj_process }  # the TU's own .sbss, 0x8 B, VMA 0x63C1B0..0x63C1B8; static definitions in ROM run order (completeness pass)
       - { type: sbss, vram: 0x0063C1B8, name: cod/0063C1B8 }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C1D0, name: ico2/fumi/sound/s_init }  # the TU's .sbss as source (chain 1 pass 78): debug_DispSEInfo's local statics first (written at parse time) then the file statics, VMA 0x63C1D0..0x63C1F0, 0x20 B = MAIN.MAP; the blob before it keeps adpcm_init's 0x63C1B8..0x63C1D0
+      - { type: sbss, vram: 0x0063C1F0, name: cod/0063C1F0 }  # .sbss blob resume
       - { type: .sbss, vram: 0x0063C20C, name: ico2/fumi/src/fieldCollision }  # the TU's .sbss as source (completeness pass 65)
       - { type: .sbss, vram: 0x0063C244, name: ico2/fumi/src/girl_act }  # the TU's first .sbss word as source (completeness pass 66), 4 of the run's 8 B, the second word D_0063C248 stays a blob while the .c.inc stub subGirlBrain_Attract names it
       - { type: sbss, vram: 0x0063C248, name: cod/0063C248 }  # .sbss blob resume
@@ -1307,6 +1308,7 @@ segments:
       - { type: .bss, vram: 0x006BCEE0, name: ico2/fumi/ios/thread }  # the TU's own .bss, 0x24A0 B, VMA 0x6BCEE0..0x6BF380; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006BF380, name: ico2/fumi/isys/gobj }  # the TU's own .bss, 0x118 B, VMA 0x6BF380..0x6BF498; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x006BF498, name: cod/006BF498 }  # .bss blob resume
+      - { type: .bss, vram: 0x006BF560, name: ico2/fumi/sound/s_init }  # the TU's .bss as source (chain 1 pass 78): the sound-data table, the 48 SE slots and the play centre as named statics in ROM run order, VMA 0x6BF560..0x6C0470, 0xF10 B = MAIN.MAP; act-game's .bss follows with no resume
       - { type: .bss, vram: 0x006C0470, name: ico2/fumi/src/act-game }  # the TU's own .bss, 0x4B8 B, VMA 0x6C0470..0x6C0928; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006C0928, name: ico2/fumi/src/act-parallel-control }  # the TU's own .bss, 0x158 B, VMA 0x6C0928..0x6C0A80; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x006C0A80, name: cod/006C0A80 }  # .bss blob resume

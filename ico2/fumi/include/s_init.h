@@ -12,36 +12,47 @@
 #ifndef S_INIT_H
 #define S_INIT_H
 
+/* s_init.c defines these `inline`, and ee-gcc 2.9 emits a file's inline
+   functions after all of its other functions, in the order their names were
+   first declared. That order is the ROM's (Ee2Iop at 0x145EB8 through
+   soundSeSemiCommonLoadChk; the file static soundSeEnvDefaultSet and
+   debug_req, first declared in s_init.c, follow), so this block keeps it. */
 int Ee2Iop(int a0, int a1, int a2);
+int soundOutputModeGet(void);
+int soundReverbDepthGet(void);
+int soundBufAdpcmChAlloc(); /* (entry, int *ch): adpcm_init.c sees the entry as its
+                               AdpcmObj and s_init.c as its SqEntry, so the shared
+                               declaration carries no parameter list */
+void soundBufAdpcmFree(char *self);
+char *soundDataAreaSearch(int *a0);
+char *soundDataAreaGet(int a0, int a1, int a2, int a3);
+char *soundHDDataSet(int a0, int a1, int a2, int a3, int a4);
+char *soundSQDataSet(int a0, int a1, int a2, int a3, int a4);
+int soundSeDefPlay(int a0, int a1, int a2, int a3);
+int soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
+float soundSeDefVolumeRateGet(int a0);
+void soundSeDefVolumeRateSet(int a0, float f);
+void soundSeGroupStop(int arg);
+int soundSeGroupGet(void);
+void soundSePlayModeStop(int arg);
+void soundReqTickProc(void);
+void soundVBlank(void);
+void soundSeKindBuild(void);
+int soundSeSemiCommonLoadChk(void);
 void _soundSeDefStop(int a0, int a1);
 void soundAllocIopHeap(void);
 char *soundBDDataSet(int a0, int a1, int a2, int a3, int a4, int a5);
-void soundBufAdpcmFree(char *self);
 void soundBufSegFree(int a0, int a1);
-char *soundDataAreaGet(int a0, int a1, int a2, int a3);
-char *soundDataAreaSearch(int *a0);
 void soundDataClose(int *obj);
 void soundDataOpen(int *work, int mode, int a2, int a3, int a4);
-void soundDataOpenChk(char *e);
 int *soundDataOpenSync(int *work);
 void soundDataSegAllClose(int a0, int a1);
 void soundDataSegNextStageNotUseClose();
-char *soundHDDataSet(int a0, int a1, int a2, int a3, int a4);
 int soundInit(void);
-int soundOutputModeGet(void);
 void soundOutputModeSet(int a0);
-int soundReverbDepthGet(void);
 void soundReverbDepthSet(int a0);
-char *soundSQDataSet(int a0, int a1, int a2, int a3, int a4);
-int soundSeDefPlay(int a0, int a1, int a2, int a3);
 void soundSeDefStop(int a0);
 void soundSeDefStopNoRelease(int a0);
 void soundSeEnvNotUseClose();
-int soundSeGroupGet(void);
-void soundSeGroupStop(int arg);
-void soundSeKindBuild(void);
-void soundSePlayModeStop(int arg);
-int soundSeSemiCommonLoadChk(void);
-void soundVBlank(void);
 
 #endif /* S_INIT_H */
