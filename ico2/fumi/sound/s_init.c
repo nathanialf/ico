@@ -7,7 +7,10 @@
 #include "pad.h"
 #include "adpcm_init.h"
 #include "camera-root.h"
+#include "matrixDrive.h"
+#include "Primitive.h"
 #include <sifrpc.h>
+#include <string.h>
 #include <libvu0.h>
 #include <eekernel.h>
 
@@ -667,7 +670,197 @@ void soundSeVolSet(SeSlot *self)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", debug_DispSEInfo);
+/* The debug SE-info page: one row per editable field of the slot the pad is
+   parked on, walked with the D-pad and nudged by `step`.
+   RECONSTRUCTION (names are the repo's): the row is a label followed by a
+   nested value record. The offsets are the ROM's; the nesting is what the
+   bytes pin. store_constructor emits a CLOBBER for the value record after
+   each row's label store, so the label store sits ahead of a barrier that
+   the step store follows. That issues the 0.1f load between the
+   "max volume range" and "attenuator" label addresses and puts 10.0f, 0.1f,
+   1.0f and 0.05f in $f0..$f3 as the ROM has them; a flat five-field row
+   misses 14 words. */
+typedef struct DbgVal {
+    int ptr;    /* 0x04 */
+    int type;   /* 0x08 : 0 = int cell, 1 = float cell */
+    int mode;   /* 0x0C : 1 = colour the row when the value is past `dist` */
+    float step; /* 0x10 */
+} DbgVal;
+
+typedef struct DbgRow {
+    char *label; /* 0x00 */
+    DbgVal v;    /* 0x04 */
+} DbgRow;
+
+extern Col4 D_00552360; /* { 0, 0x10, 0x20, 0x80 } : wire sphere colour */
+
+/* the pad record the debug pages read: held buttons at +4, triggered at +0xC */
+typedef struct DbgPad {
+    int _0;
+    int hold;
+    int _8;
+    int trg;
+} DbgPad;
+
+extern DbgPad D_0028F8F0[];
+extern float D_006BF560[];
+extern int D_0063A664;
+extern int D_0063A668;
+extern int D_0063C1D0;
+extern int D_0063C1D4;
+extern void soundSeEnvDefaultSet(SeSlot *self);
+extern void gif_StartPacketPri(int pri);
+extern void gif_EndPacket(void);
+
+void debug_DispSEInfo(void)
+{
+    /* step's initialiser is live (listing row 778). The four on dist, p, i
+       and num are dead: each variable is assigned again before it is read,
+       so flow deletes them and they emit no bytes. What the bytes pin: this
+       function reached gcse with 404..407 (or 388..395) real insns. The
+       expression table size (203 buckets here, 201 without the four) orders
+       PRE's reaching registers, and that order is the order of the five
+       spill slots at 0x194..0x1A4 (&sel, the constructor temp, self+0x1C,
+       self+0x20, self+0x28); at 201 buckets the slots come out permuted.
+       The live spellings measured first (the pad word read at each test,
+       the libcall promotion of the %f arguments, the f29 bitfield store,
+       the flag loop through p, a per-row y local, list[i].label) either
+       keep the count or change the code. What the bytes cannot pin: which
+       declarations carried the initialisers. */
+    float v[4];
+    float step = 0.0f;
+    float dist = 0.0f;
+    float *cam;
+    SeSlot *self;
+    SeSlot *p = 0;
+    int i = 0;
+    int num = 0;
+
+    cam = GetCameraPos();
+    if (D_0028F8F0[0].hold & 0x400) {
+        D_0063A668 ^= 1;
+    }
+    if (D_0063A668 == 0) {
+        return;
+    }
+    if (D_0028F8F0[0].trg & 0x20) {
+        D_0063A664 = D_0063A664 + 1;
+    }
+    for (i = D_0063A664;; i++) {
+        if (i >= 48) {
+            D_0063A664 = 0;
+            return;
+        }
+        if (((SeSlot *)D_006BF870)[i].unk30 != 0) {
+            break;
+        }
+    }
+    self = &((SeSlot *)D_006BF870)[i];
+    D_0063A664 = i;
+    if (D_0028F8F0[0].hold & 0x40) {
+        D_0063C1D4 ^= 1;
+    }
+    for (i = 0; i < 48; i++) {
+        if (*(int *)&D_006BF870[i * 64 + 0x30] == 0) {
+            continue;
+        }
+        p = (SeSlot *)&D_006BF870[i * 64];
+        if (self == p) {
+            self->flag.bit.f29 = 0;
+        } else {
+            p->flag.bit.f29 = D_0063C1D4;
+        }
+    }
+    if (D_0028F8F0[0].hold & 0x80) {
+        soundSeEnvDefaultSet(self);
+    }
+    if (self->unk34 != 0) {
+        sceVu0CopyVector(D_006BF560, (float *)self->unk34);
+        if (self->flag.bit.f26 == 1) {
+            D_006BF560[1] = cam[1];
+        }
+        sceVu0SubVector(v, cam, D_006BF560);
+        dist = FSqrt(sceVu0InnerProduct(v, v));
+    } else {
+        dist = D_006BF560[0] = D_006BF560[1] = D_006BF560[2] = 0.0f;
+    }
+    {
+        int sel = self->flag.bit.f30;
+        DbgRow *row;
+        DbgRow *cur;
+        DbgRow list[9] = {
+            {"center x", {(int)&D_006BF560[0], 1, 0, 10.0f}},
+            {"center y", {(int)&D_006BF560[1], 1, 0, 10.0f}},
+            {"center x", {(int)&D_006BF560[2], 1, 0, 10.0f}},
+            {"volumeRate", {(int)&self->unk18, 1, 1, 0.1f}},
+            {"max volume range", {(int)&self->unk24, 1, 1, 10.0f}},
+            {"attenuator", {(int)&self->unk20, 1, 1, 10.0f}},
+            {"volume length", {(int)&self->unk28, 1, 1, 10.0f}},
+            {"max volume type", {(int)&sel, 0, 0, 1.0f}},
+            {"stereo rate", {(int)&self->unk1C, 1, 0, 0.05f}},
+        };
+
+        num = 9;
+
+        if (D_0028F8F0[0].trg & 0x1000) {
+            D_0063C1D0 = D_0063C1D0 - 1;
+        }
+        if (D_0028F8F0[0].trg & 0x4000) {
+            D_0063C1D0 = D_0063C1D0 + 1;
+        }
+        D_0063C1D0 = (D_0063C1D0 + num) % num;
+        cur = &list[D_0063C1D0];
+        if (D_0028F8F0[0].trg & 0x2000) {
+            step = cur->v.step;
+        }
+        if (D_0028F8F0[0].trg & 0x8000) {
+            step = -cur->v.step;
+        }
+        debug_PrintfDummy(10, 70, 0xFFFFFF00u, (int)"req no %d %s %f\n", D_0063A664, self->unk38,
+                          dist);
+        for (i = 0, row = list; i < num; i++, row++) {
+            int col = 0xFFFFFF00;
+
+            if (D_0063C1D0 == i)
+                strcpy((char *)v, ">");
+            else
+                strcpy((char *)v, " ");
+            switch (row->v.type) {
+            case 0:
+                if (D_0063C1D0 == i) {
+                    *(int *)row->v.ptr = (int)((float)*(int *)row->v.ptr + step);
+                }
+                debug_PrintfDummy(10, i * 10 + 80, col, (int)"%s%8s = %d\n", v, row->label,
+                                  *(int *)list[i].v.ptr);
+                break;
+            case 1:
+                if (D_0063C1D0 == i) {
+                    *(float *)row->v.ptr += step;
+                }
+                if (row->v.mode && dist != 0.0f && dist < *(float *)row->v.ptr) {
+                    col = 0xFF000000;
+                }
+                debug_PrintfDummy(10, i * 10 + 80, col, (int)"%s%8s = %f\n", v, row->label,
+                                  *(float *)list[i].v.ptr);
+                break;
+            }
+        }
+        self->flag.bit.f30 = sel;
+        if (self->unk34 != 0) {
+            Col4 col;
+
+            sceVu0CopyVector((float *)self->unk34, D_006BF560);
+            MatrixDrive_PushMatrix();
+            col = D_00552360;
+            gif_StartPacketPri(11);
+            sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+            MatrixDrive_TransMatrixV((char *)D_006BF560);
+            prim_DispWireSphere(100.0f, &col, 16, 8);
+            gif_EndPacket();
+            MatrixDrive_PopMatrix();
+        }
+    }
+}
 
 extern void soundSeVolSet(SeSlot *self);
 

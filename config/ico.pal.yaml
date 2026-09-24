@@ -729,6 +729,8 @@ segments:
       - [0x452094, rodata, cod/452094]   # .rodata blob resume (the zero pad word before the 8-aligned string at 0x552098 is the blob's first word: the compiled table is 0x14 B and blob sections align at most to 8)
       - [0x452098, .rodata, ico2/fumi/sound/adpcm_init]  # the TU's whole .rodata run as source (data pass 5), EUC-JP strings with glosses, VMA 0x552098..0x552164, 204 B
       - [0x452164, rodata, cod/452164]     # rodata blob resume
+      - [0x4522A0, .rodata, ico2/fumi/sound/s_init]  # the TU's .rodata as source (chain 1 pass 72, debug_DispSEInfo): the nine row labels ("center x" shared) and three format strings in first-use order, VMA 0x5522A0..0x55235C, 0xBC B; the object's .rodata is byte-identical to the ROM run
+      - [0x45235C, rodata, cod/45235C]     # rodata blob resume (the zero pad word before the 8-aligned Col4 template at 0x552360 is the blob's first word, as at cod/452094)
       - [0x4523A8, .rodata, ico2/fumi/sound/soundManager]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x5523A8..0x552430, 136 B
       - [0x4523F0, rodata, cod/4523F0]     # rodata blob resume
       - [0x452430, .rodata, ico2/fumi/src/act-game]  # syms: 0x00552430  carved jtbl_00552430 (ACTGameView_Loop's 8-arm table), VMA 0x552430..0x552450
@@ -1165,6 +1167,8 @@ segments:
       - [0x53A2C8, sdata, cod/53A2C8]     # .sdata blob resume
       - [0x53A348, .sdata, ico2/seki/src/ZFog]  # the TU's whole .sdata run as source (completeness pass 6), VMA 0x63A348..0x63A354, 12 B emitted
       - [0x53A354, sdata, cod/53A354]     # .sdata blob resume
+      - [0x53A670, .sdata, ico2/fumi/sound/s_init]  # the TU's .sdata as source (chain 1 pass 72): debug_DispSEInfo's cursor strings ">" (padded to 8) and " ", anonymous, VMA 0x63A670..0x63A67A, 0xA B
+      - [0x53A67A, sdata, cod/53A67A]     # .sdata blob resume
       # --- per-TU .sdata carves ---
       # gcc routes a <=8-byte string constant to .sdata (mips_select_section) and
       # never gp-addresses it, so the ROM reaches it with a %hi/%lo pair.  The
