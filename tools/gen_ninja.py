@@ -394,13 +394,14 @@ def emit_header(out, prefix: str) -> None:
     out.write("builddir = build\n\n")
     out.write(f"mips_ld = {prefix}ld\n")
     out.write(f"mips_objcopy = {prefix}objcopy\n")
-    # ONE ASSEMBLER. The period ee-as 2.9-991111 bundled with the compiler this
-    # build uses assembles every object: the C TUs through tools/compile_c.sh,
-    # and (since 2026-09-15) the splat data blobs and the hand-written VU1
-    # microprogram `.s` too. Modern gas assembled those two classes until then,
-    # which meant the build carried a second assembler with its own delay-slot
-    # and encoding behaviour for no reason the ROM attests. Only `ld` and
-    # `objcopy` stay on modern binutils: the period toolchain ships no linker.
+    # The period ee-as 2.9-991111 bundled with the compiler assembles every
+    # object here: the splat data blobs and the hand-written VU1 microprogram
+    # `.s` (since 2026-09-15; modern gas assembled those two classes until then).
+    # C TUs go through tools/compile_c.sh, which selects the assembler PER
+    # ARCHIVE by the disc's link (user ruling 2026-09-27, docs/NOTES.md
+    # "Assembler per archive"): the SDK-install sce/ archives on SCE's 2.10-ee
+    # assembler, everything else on ee-as 2.9-991111. Only `ld` and `objcopy`
+    # stay on modern binutils: the period toolchain ships no linker.
     # Flags mirror compile_c.sh's EE_ASFLAGS; ee-as 2.9 has no -march/-mabi/
     # -no-pad-sections, it takes -mcpu and pads nothing on its own.
     out.write("ee_as = tools/cc/ee-gcc2.9-991111/bin/as\n")

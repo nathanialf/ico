@@ -252,12 +252,18 @@ python3 "$ROOT/tools/postprocess_split_jtbls.py" "$ASM_OUT" || true
 # `move` expansion (modern gas expands `move rd,rs` to `or`, ee-as to `daddu`)
 # or on delay-slot filling. There is no fallback: an ee-as rejection is a defect
 # in the .s to fix.
-EE_AS="$ROOT/tools/cc/ee-gcc2.9-991111/bin/as"
+# Per ARCHIVE, exactly as compile_c.sh selects it (its EE_AS_OLD paragraph and
+# docs/NOTES.md "Assembler per archive"): the game and the compiler-install
+# libraries on the assembler bundled with the compiler, the SDK-install archives
+# on SCE's 2.10-ee assembler. Keep this case identical to compile_c.sh's or
+# quick_diff and the ninja build disagree on delay-slot filling. No per-TU and
+# no per-function selection; config/use_old_as.txt was retired 2026-09-04.
+case "$NAME" in
+    sce/libc/*|sce/libm/*|sce/libgcc/*) EE_AS="$ROOT/tools/cc/ee-gcc2.9-991111/bin/as" ;;
+    sce/*) EE_AS="$ROOT/tools/cc/ee-gcc2.96/bin/as" ;;
+    *) EE_AS="$ROOT/tools/cc/ee-gcc2.9-991111/bin/as" ;;
+esac
 EE_ASFLAGS="-EL -mcpu=5900 -G ${GNUM:-8} -I$ROOT/include"
-# There is no per-TU assembler selection: EE_AS above IS the assembler for
-# every TU, exactly as compile_c.sh does it, so quick_diff and the ninja build
-# can never disagree on delay-slot filling. config/use_old_as.txt (a per-TU
-# opt-in to the assembler that was already the default) was retired 2026-09-04.
 # NO MODERN-GAS PATH. config/use_modern_as.txt and the silent failure fallback
 # were both retired 2026-08-05 (see compile_c.sh for the full rationale): modern
 # gas fills delay slots ee-as 2.9-991111 leaves bare, so anything reaching it can

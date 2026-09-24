@@ -22,9 +22,12 @@ pins are fine only where the developers' own source was assembly).
      those; a function attributed to one or two lines was a hand asm
      statement; a function the listing does not carry (an archive member
      without line info) is reported as unverified, not refused.
-  5. tools/compile_c.sh names exactly one assembler, ee-as 2.9-991111, and
-     SELECTED_EE_AS is only ever EE_AS_OLD: one assembler for every TU, no
-     selection by archive or by TU (user ruling 2026-09-23).
+  5. tools/compile_c.sh names exactly two assemblers, ee-as 2.9-991111
+     (EE_AS_OLD, the game and the compiler-install libc/libm/libgcc) and SCE's
+     2.10-ee-001003-1 (EE_AS_SDK, the SDK-install archives), and SELECTED_EE_AS
+     is only ever one of those two, chosen by archive: no selection by TU or by
+     function and no config opt-in (user ruling 2026-09-27, replacing the
+     one-assembler ruling of 2026-09-23 after the disc's link was measured).
   6. A file-scope `__asm__(...)` block that defines (`.global NAME`) a function
      the listing attributes to three or more source lines of a .c file: that is
      a compiled-C function typed out as asm, a stub hidden from the
@@ -133,17 +136,20 @@ def asm_block_text(L, i):
 
 
 def check_one_assembler(bad):
-    """user ruling 2026-09-23: one assembler for every TU, no selection by archive or TU."""
+    """user ruling 2026-09-27: two assemblers selected per archive by the disc's link,
+    never per TU, never per function, never by a config file."""
     path = os.path.join(ROOT, 'tools', 'compile_c.sh')
     if not os.path.exists(path):
         return
-    ok = 'tools/cc/ee-gcc2.9-991111/bin/as'
+    ok = ('tools/cc/ee-gcc2.9-991111/bin/as', 'tools/cc/ee-gcc2.96/bin/as')
     for i, l in enumerate(open(path, errors='replace').read().split('\n')):
         code = l.split('#', 1)[0]
-        if re.search(r'/bin/as\b|\bmips[\w-]*-as\b', code) and ok not in code:
-            bad.append(f'tools/compile_c.sh:{i+1}: an assembler other than ee-as 2.9-991111 is named in code (one assembler for every TU, no exceptions)')
-        if re.search(r'SELECTED_EE_AS=', code) and 'EE_AS_OLD' not in code:
-            bad.append(f'tools/compile_c.sh:{i+1}: SELECTED_EE_AS is set to something other than EE_AS_OLD (no per-archive or per-TU assembler)')
+        if re.search(r'/bin/as\b|\bmips[\w-]*-as\b', code) and not any(o in code for o in ok):
+            bad.append(f'tools/compile_c.sh:{i+1}: an assembler other than ee-as 2.9-991111 or SCE 2.10-ee is named in code')
+        if re.search(r'SELECTED_EE_AS=', code) and 'EE_AS_OLD' not in code and 'EE_AS_SDK' not in code:
+            bad.append(f'tools/compile_c.sh:{i+1}: SELECTED_EE_AS is set to something other than EE_AS_OLD or EE_AS_SDK')
+        if re.search(r'config/use_\w*as', code):
+            bad.append(f'tools/compile_c.sh:{i+1}: a config opt-in selects the assembler (selection is by archive only)')
 
 
 def main(argv):

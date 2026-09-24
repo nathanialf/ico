@@ -1,23 +1,20 @@
 /* Vendor SCE library run, attribution INFERRED: libscf.a.  Neither disc map names an
  * archive for these 21 functions (MAIN.MAP is an older link whose .text ends before
- * them; SRCFILE.TXT carries them with symbols but no source paths).  The sceScf
- * family is the public SDK's libscf, GetRomName and IsT10K feed
- * sceScfSetT10kConfig, and the BCD date helpers feed sceScfGetGMTfromRTC and
- * sceScfGetLocalTimefromRTC, so the run is treated as one library.  VMA
- * 0x272878..0x273228.  The FILE name is no longer inferred: the run's own
- * __assert file string is "libscf.c" at 0x637260 (evidence rung: ROM bytes);
- * only the archive it was linked from stays an inference. */
+ * them; SRCFILE.TXT carries them with symbols but no source paths).  The sceScf family
+ * is the public SDK's libscf, GetRomName and IsT10K feed sceScfSetT10kConfig, and the
+ * BCD date helpers feed the RTC readers, so the run is one library, VMA 0x272878..0x273228.
+ * The FILE name is the run's own __assert string "libscf.c" at 0x637260 (ROM bytes), and
+ * the asserts carry __LINE__ (tobcd's is 281), so the line layout above them is pinned.
+ * sceScfSetT10kConfig's `sdr` sits in the return's delay slot by the SDK archive
+ * assembler's reorder-mode swap (docs/NOTES.md "Assembler per archive"). */
 #include "common.h"
 #include <stdio.h>
 #include <libscf.h>
 #include <sifdev.h>
 
-/* The T10K (DTL-T10000 development kit) OSD configuration shadow the
- * sceScfSet/Get pair reads.  In the 2001 source this is the file's own static;
- * here the record is still blob .data at VMA 0x54CB60..0x54CB68, so the TU
- * declares it extern with the size left open (the repo's spelling for a blob
- * symbol, as in sce/libgraph/graph001.c).  Field offsets are read off the ROM:
- * +0 short (lh), +2..+7 unsigned char (lbu).  Evidence rung: ROM bytes. */
+/* The T10K (DTL-T10000 kit) OSD configuration shadow the sceScfSet/Get pair reads: the
+ * file's own static in 2001, here blob .data at VMA 0x54CB60..0x54CB68 (extern, size open,
+ * as in sce/libgraph/graph001.c); offsets off the ROM: +0 short, +2..+7 unsigned char. */
 typedef struct {
     short timezone;
     unsigned char aspect;
@@ -166,7 +163,10 @@ int sceScfGetLanguage(void)
     return lang;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libscf/libscf", sceScfSetT10kConfig);
+void sceScfSetT10kConfig(sceScfT10KConfig *param)
+{
+    D_0054CB60[0] = *param;
+}
 
 int sceScfGetAspect(void)
 {

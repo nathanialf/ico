@@ -176,9 +176,31 @@ void _sceCd_cd_read_intr(void *pkt)
     _sceCd_cd_callback((int *)&sceCdCbfunc_num);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/cdvd000", cmd_sem_init);
-
 extern int _sceCd_scmd_semid[];
+
+void cmd_sem_init(void)
+{
+    int buf[8];
+
+    if (_sceCd_ncmd_semid[0] == -1 || _sceCd_scmd_semid[0] == -1) {
+        buf[5] = 0;
+        buf[2] = 1;
+        buf[1] = 1;
+        /* The handle stores are the member's per-access volatile spelling (the
+           form the semaphore reads at the wait sites above use). WHAT THE BYTES
+           PIN: with the ncmd store volatile, reorg refuses it for the second
+           CreateSema's delay slot (resource.c 708-713, reorg.c 268-271) and
+           gcc emits the call in reorder mode; the ROM carries the store in
+           that slot, which is the archive assembler's reorder-mode swap of
+           the compiler's own output (docs/NOTES.md "Assembler per archive"). */
+        *(volatile int *)&_sceCd_ncmd_semid[0] = CreateSema(buf);
+        _sceCd_scmd_semid[0] = CreateSema(buf);
+        buf[2] = 0;
+        *(volatile int *)&D_0054A560 = CreateSema(buf);
+        *(volatile int *)&_sceCd_c_cb_sem = 0;
+    }
+}
+
 extern void sceSifRemoveCmdHandler(unsigned int cid);
 
 void cdvd_exit(void)

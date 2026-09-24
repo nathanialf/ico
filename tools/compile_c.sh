@@ -27,17 +27,30 @@ else
 fi
 OBJCOPY="${MIPS_PREFIX}objcopy"
 
-# NOTE: neither modern gas (${MIPS_PREFIX}as) nor the 2.10-ee-001003-1 assembler
-# under tools/cc/ee-gcc2.96/bin/as is reachable from this script any more, and
-# neither is bound to a variable — a spare handle on another assembler is the
-# first thing a stuck matching run reaches for. THE assembler is EE_AS_OLD below:
-# the one bundled with the compiler this build uses. See docs/NOTES.md.
-# Period assembler whose delay-slot reorder is LESS aggressive than 2.96: it
+# TWO ASSEMBLERS, SELECTED PER ARCHIVE BY THE DISC'S LINK (user ruling 2026-09-27,
+# docs/NOTES.md "Assembler per archive"). MAIN.MAP takes libc.a, libm.a and
+# libgcc.a from the studio's ee-gcc 2.9-991111-01 install and every other archive
+# from Sony's SDK install (/usr/local/sce/ee/lib, version strings PsIIlib* 2200
+# and 2240 in the ELF). The game and the compiler-install libraries were
+# assembled by the assembler bundled with that compiler, EE_AS_OLD: 142 game TUs
+# and 12 libc/libm TUs only match under it. The SDK-install archives were
+# compiled by a compiler code-identical to it (SCE's later 2.96 is ruled out by
+# size) but assembled by a later gas that fills reorder-mode branch delay slots:
+# sceGsSyncPath, sceScfSetT10kConfig and cmd_sem_init are the compiler's own
+# output plus that swap, and all 58 matched archive TUs are byte-identical under
+# both. EE_AS_SDK is SCE's own 2.10-ee-001003-1 assembler (tools/setup.sh
+# fetches it), which reproduces all three; the bytes prove the behaviour, not
+# which gas binary Sony's library build ran. The selection is by ARCHIVE only:
+# never per TU, never per function, never a config opt-in (config/use_as296.txt,
+# a per-TU opt-in, was tried and reverted 2026-08-05 for exactly that reason).
+# Compiler-install assembler, whose delay-slot reorder is LESS aggressive than 2.10: it
 # does not hoist a preceding unaligned store (sdl/sdr/...) into a `j <func>`
 # tail-call delay slot, matching the original ICO toolchain (verified universal:
 # 0 of 783 ROM tail-calls carry an unaligned store in the delay). It is THE
 # assembler for every C TU — there is no per-TU selection and no fallback.
 EE_AS_OLD="${ROOT}/tools/cc/ee-gcc2.9-991111/bin/as"
+# SDK-install archive assembler (see the paragraph above).
+EE_AS_SDK="${ROOT}/tools/cc/ee-gcc2.96/bin/as"
 
 INCLUDE_DIR="${ROOT}/include"
 # include/ holds stub scaffolding only (the fdlibm two-word idiom now lives in the libm members that use it): the libm
@@ -209,35 +222,27 @@ sed -i -E \
     -e 's/\$fp\b/$30/g'   -e 's/\$ra\b/$31/g' \
     "${S}"
 
-# Assembler. There is exactly ONE, for every C TU: the period ee-as 2.9-991111.
-# It is the ROM's contemporary assembler and leaves a jal/jr delay as `nop`
-# where 2.96 / modern-as over-fill it with a preceding store. It rejects splat's
-# `%gp_rel(SYM)($28)` spelling, so a MIXED TU (C + INCLUDE_ASM siblings) is first
-# flattened + gp_rel-translated by preprocess_old_as.py (byte-identical GPREL16).
+# Assembler, selected per ARCHIVE by the disc's link (the paragraph at EE_AS_OLD
+# and docs/NOTES.md "Assembler per archive"): the game and the compiler-install
+# libraries (libc, libm, libgcc) on the assembler bundled with the compiler, the
+# SDK-install archives on SCE's 2.10-ee assembler that fills reorder-mode delay
+# slots as Sony's library build did. Both reject splat's `%gp_rel(SYM)($28)`
+# spelling, so a MIXED TU (C + INCLUDE_ASM siblings) is first flattened +
+# gp_rel-translated by preprocess_old_as.py (byte-identical GPREL16).
+# There is no per-TU and no per-function selection and no config opt-in
+# (config/use_as296.txt was tried and reverted 2026-08-05; config/use_old_as.txt
+# retired 2026-09-04), and no modern-gas path at all (retired 2026-08-05: it
+# manufactured 8 false delay-slot matches in GAME code, where the ROM proves the
+# slots bare).
 ASM_INPUT="${S}"
-# ASSEMBLER DEFAULT = the period assembler EE_AS_OLD (ee-gcc 2.9-991111's `as`).
-# This is the ROM's CONTEMPORARY assembler: it pairs with the 2.9-991111 COMPILER
-# (EEGCC_DIR above) and leaves the jal/jr delay-slot NOPs that the later 2.96 and
-# modern gas wrongly OVER-FILL with a preceding store. The whole aug6 ELF verifies
-# byte-identical under it (proven 2026-06-04 — a full rebuild kept sha1 2b4d7de4).
-# Do NOT reintroduce the 2.96/2.10 assembler as a default OR as a per-TU opt-in
-# (config/use_as296.txt, tried and reverted 2026-08-05): it was a stale mismatch that
-# forced per-func assembler bandaids and faked phantom jr-delay fills. The per-TU
-# opt-in config/use_old_as.txt was retired 2026-09-04 — it selected the assembler
-# that was already the default, so every entry was a no-op. There is NO modern-gas
-# escape hatch: a TU that "genuinely needs modern gas" is a TU whose .s needs
-# fixing, or a match that is really the assembler's delay-slot scheduling wearing
-# a source's clothes. See docs/NOTES.md "Assembler" section.
-SELECTED_EE_AS="${EE_AS_OLD}"
-# ONE ASSEMBLER, NO EXCEPTIONS. ee-as 2.9-991111 is the assembler BUNDLED WITH
-# the compiler this build uses (EEGCC_DIR above is ee-gcc 2.9-991111), and that
-# pairing is the whole argument for it. config/use_as296.txt — a per-TU opt-in to
-# the 2.10-ee-001003-1 assembler bundled with the "2.96" toolchain — was tried on
-# 2026-08-05 and REVERTED the same day: feeding one compiler's output to a
-# different toolchain's assembler is a mismatched pairing, and "this TU used a
-# different assembler than its own compiler" is far too weak a claim to hang a
-# match on. Modern gas is likewise gone (see below). If a delay slot will not
-# fill, that is a SOURCE-SHAPE problem to solve in C.
+case "${SRC}" in
+    sce/libc/*|*/sce/libc/*|sce/libm/*|*/sce/libm/*|sce/libgcc/*|*/sce/libgcc/*)
+        SELECTED_EE_AS="${EE_AS_OLD}" ;;   # compiler-install archives (MAIN.MAP)
+    sce/*|*/sce/*)
+        SELECTED_EE_AS="${EE_AS_SDK}" ;;   # SDK-install archives (/usr/local/sce/ee/lib)
+    *)
+        SELECTED_EE_AS="${EE_AS_OLD}" ;;   # the game
+esac
 # Flatten INCLUDE_ASM siblings + translate splat's gp_rel spellings to the bare
 # gp-addressable form the PERIOD assembler accepts, so the ROM's contemporary
 # assembler (ee-as 2.9-991111) assembles mixed C+asm TUs
@@ -250,20 +255,19 @@ if "${PYTHON}" "${ROOT}/tools/preprocess_old_as.py" "${S}" "${S}.pp"; then
     ASM_INPUT="${S}.pp"
 fi
 
-# THE PERIOD ASSEMBLER IS THE ONLY ASSEMBLER FOR C TUs. There is no modern-gas
+# THE SELECTED ASSEMBLER IS THE ONLY ASSEMBLER FOR THIS TU. There is no modern-gas
 # path here any more — no allowlist, no failure fallback. Retired 2026-08-05.
 #
 # WHY (do not reinstate either one):
-#   Modern gas fills delay slots that ee-as 2.9-991111 leaves bare, so a TU that
-#   reached it could "match" on the ASSEMBLER's scheduling rather than on source
-#   shape. That produced 8 false matches (1 enemy, 2 Packet, 5 vendor_2418A0),
-#   every one of which had to be reverted to INCLUDE_ASM on 2026-08-01 and
-#   re-derived in C. A matching source shape provably exists for every ROM
-#   function — the ROM was built by this toolchain — so an assembler swap is
-#   never the answer, and having the path available at all makes it the first
-#   thing a stuck matching run reaches for.
+#   Modern gas fills delay slots that ee-as 2.9-991111 leaves bare, so a GAME TU
+#   that reached it could "match" on the ASSEMBLER's scheduling rather than on
+#   source shape. That produced 8 false matches (1 enemy, 2 Packet, 5
+#   vendor_2418A0), every one of which had to be reverted to INCLUDE_ASM on
+#   2026-08-01 and re-derived in C. The game's slots are bare in the ROM; only the
+#   SDK-install archives carry the fill, and those get it by the archive rule
+#   above, never by a fallback.
 #
-# If the period assembler rejects this TU, that is a REAL defect in the .s to be
+# If the selected assembler rejects this TU, that is a REAL defect in the .s to be
 # fixed at the source (past causes: splat's `enddlabel` leaving an `.ent`
 # unclosed — fixed in include/labels.inc; the $ACC/$Q/$R sigil dialect, which
 # preprocess_old_as.py now translates to the bare spelling). Hard-fail so ninja
@@ -273,7 +277,7 @@ if "${SELECTED_EE_AS}" ${EE_ASFLAGS} -I"${INCLUDE_DIR}" -o "${OUT}" "${ASM_INPUT
     rm -f "${OUT}.aserr"
     "${OBJCOPY}" "${OUT}" "${OUT}"
 else
-    echo "compile_c.sh: period assembler (ee-as 2.9-991111) REJECTED ${ASM_INPUT}" >&2
+    echo "compile_c.sh: assembler ${SELECTED_EE_AS} REJECTED ${ASM_INPUT}" >&2
     grep -iE 'error' "${OUT}.aserr" | head -20 >&2 || head -20 "${OUT}.aserr" >&2
     rm -f "${OUT}.aserr" "${OUT}"
     echo "  This is a source defect to FIX, not an assembler to swap: there is no" >&2
