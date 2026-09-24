@@ -112,7 +112,40 @@ void _sceCd_cd_callback(int *data)
     sceCdCbfunc_num = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/cdvd000", _Cdvd_cbLoop);
+extern int D_0072EF0C;
+extern int SCE_CD_debug[];
+extern char D_006367C0[];
+extern void ExitDeleteThread(void);
+
+/* The callback number is written by the interrupt-side _sceCd_cd_callback and
+ * the loop reads it per access at the guard and again for the argument; the
+ * loop-closing release of _sceCd_c_cb_sem is a per-access store as in the
+ * callback. WHAT THE BYTES PIN: the guard and argument loads are separate
+ * words (not CSE'd), both beqz slots are bare, and the argument load and the
+ * release store sit in the jalr and b slots, which this archive's assembler
+ * fills in reorder mode from a volatile access gcc's reorg leaves in place
+ * (the plain store is stolen into beqzl slots instead). WHAT THEY CANNOT PIN:
+ * how the volatile accesses were spelled. */
+void _Cdvd_cbLoop(void)
+{
+    while (1) {
+        WaitSema(D_0054A560);
+        if (sceCdCbfunc_num == -1) {
+            _sceCd_c_cb_sem = 0;
+            sceCdCbfunc_num = 0;
+            D_0054A554 = 0;
+            D_0072EF0C = 0;
+            ExitDeleteThread();
+        }
+        if (SCE_CD_debug[0] > 0) {
+            scePrintf(D_006367C0, D_0072EF00[0], sceCdCbfunc_number);
+        }
+        if (D_0072EF00[0] != 0 && *(volatile int *)&sceCdCbfunc_number != 0) {
+            ((void (*)(int))D_0072EF00[0])(*(volatile int *)&sceCdCbfunc_number);
+        }
+        *(volatile int *)&_sceCd_c_cb_sem = 0;
+    }
+}
 
 extern int D_0054A554;
 extern int D_0072EF10;
@@ -571,7 +604,63 @@ int _sceCd_scmd_prechk(int cmd)
 }
 
 INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/cdvd000", sceCdInit);
-INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/cdvd000", sceCdDiskReady);
+
+extern int D_0072F190[];
+extern int D_0072F1D0;
+extern int D_0054A584;
+extern char D_00636948[];
+extern char D_00636958[];
+extern char D_00636978[];
+extern int _sceCd_scmdrdata[];
+
+int sceCdDiskReady(int mode)
+{
+    int v;
+    int w;
+
+    if (SCE_CD_debug[0] > 0) {
+        scePrintf(D_00636948);
+    }
+    cmd_sem_init();
+    if (_sceCd_scmd_semid[0] != PollSema(*(volatile int *)&_sceCd_scmd_semid[0])) {
+        return 6;
+    }
+    if (sceCdSyncS(1) != 0) {
+        SignalSema(*(volatile int *)&_sceCd_scmd_semid[0]);
+        return (mode != 8) ? 6 : -1;
+    }
+    sceSifInitRpc(0);
+    if (D_0054A584 < 0) {
+        while (1) {
+            if (sceSifBindRpc(D_0072F190, 0x8000059A, 0) < 0) {
+                if (SCE_CD_debug[0] > 0) {
+                    scePrintf(D_00636958);
+                }
+                w = 0x100000;
+                while (w--) {}
+                continue;
+            }
+            if (D_0072F190[9] != 0) {
+                D_0054A584 = 0;
+                break;
+            }
+            w = 0x100000;
+            while (w--) {}
+        }
+    }
+    D_0072F1D0 = mode;
+    sceSifWriteBackDCache(&D_0072F1D0, 4);
+    if (sceSifCallRpc(D_0072F190, 0, 0, &D_0072F1D0, 4, _sceCd_scmdrdata, 4, 0, 0) < 0) {
+        SignalSema(*(volatile int *)&_sceCd_scmd_semid[0]);
+        return (mode != 8) ? 6 : -1;
+    }
+    if (SCE_CD_debug[0] > 0) {
+        scePrintf(D_00636978);
+    }
+    v = *(int *)((int)_sceCd_scmdrdata | 0x20000000);
+    SignalSema(_sceCd_scmd_semid[0]);
+    return v;
+}
 
 extern int _sceCd_scmdsdata[];
 extern int _sceCd_scmdrdata[];
