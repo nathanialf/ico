@@ -4,7 +4,7 @@
 ![.text progress](https://img.shields.io/badge/text-86.52%20%25-green.svg)
 ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg)
 ![.data progress](https://img.shields.io/badge/data-2.17%20%25-orange.svg)
-![.rodata progress](https://img.shields.io/badge/rodata-4.52%20%25-orange.svg)
+![.rodata progress](https://img.shields.io/badge/rodata-4.62%20%25-orange.svg)
 ![.lit4 progress](https://img.shields.io/badge/lit4-99.82%20%25-green.svg)
 ![.sdata progress](https://img.shields.io/badge/sdata-2.51%20%25-orange.svg)
 ![.sbss progress](https://img.shields.io/badge/sbss-74.84%20%25-yellowgreen.svg)
