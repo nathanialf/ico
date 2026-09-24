@@ -177,7 +177,35 @@ void _sceCd_cd_read_intr(void *pkt)
 }
 
 INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/cdvd000", cmd_sem_init);
-INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/cdvd000", cdvd_exit);
+
+extern int _sceCd_scmd_semid[];
+extern void sceSifRemoveCmdHandler(unsigned int cid);
+
+void cdvd_exit(void)
+{
+    if (D_0054A554 != 0) {
+        sceCdCbfunc_num = -1;
+        /* The wake-up is written as a do/while(0) statement, the form Sony's
+           libmpeg member carries around sceMpegDemuxPss's call. WHAT THE
+           BYTES PIN: the ROM stores the -1 (0x265F58-0x265F64) before the
+           semaphore handle's lui and loads the handle in SignalSema's delay
+           slot; sched2 gives that order only when a loop-note pair sits
+           between the store and the handle's set-up (haifa-sched.c
+           3702-3724), since no register or alias dependence links two
+           distinct symbols (alias.c base_alias_check) and a volatile handle
+           load would keep reorg out of the slot. WHAT THEY CANNOT PIN: the
+           macro the statement stood for (this member has no listing rows). */
+        do {
+            SignalSema(D_0054A560);
+        } while (0);
+    }
+    DeleteSema(_sceCd_ncmd_semid[0]);
+    DeleteSema(_sceCd_scmd_semid[0]);
+    DeleteSema(D_0054A560);
+    (*(int (*)(void))DIntr)();
+    sceSifRemoveCmdHandler(0x80000012);
+    EIntr();
+}
 
 extern int D_0054A57C[];
 extern void (*D_0072EF04[])(int);
