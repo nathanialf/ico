@@ -13,11 +13,15 @@
 extern int SCE_CD_debug;
 extern char _sceCd_cd_scmd[];
 extern int _sceCd_scmdrdata[];
-/* volatile: the S-command semaphore handle cmd_sem_init creates at run time;
+/* The S-command semaphore handle cmd_sem_init creates at run time (cdvd000
+ * defines it), read through a volatile cast as cdvd000's own sites read it.
  * sceCdBreak's two SignalSema reads are volatile loads in the ROM (neither is
  * moved into a delay slot by the compiler, and the success-path read waits on
- * the store to sceCdCbfunc_num). */
-extern volatile int _sceCd_scmd_semid[];
+ * the store to sceCdCbfunc_num). In sceCdStatus and sceCdReadClock a plain
+ * read gives the same text (the compiler fills the call's delay slot where
+ * the SDK assembler otherwise does) but a different relocation order, so the
+ * member keeps every read volatile, as it was. */
+extern int _sceCd_scmd_semid;
 extern int _sceCd_scmd_prechk(int a0);
 extern int sceSifCallRpc();
 
@@ -30,11 +34,11 @@ int sceCdStatus(void)
     }
     p = _sceCd_scmdrdata;
     if (sceSifCallRpc(_sceCd_cd_scmd, 0xC, 0, 0, 0, p, 4, 0, 0) < 0) {
-        SignalSema(_sceCd_scmd_semid[0]);
+        SignalSema(*(volatile int *)&_sceCd_scmd_semid);
         return -1;
     }
     v = *(int *)((int)p | 0x20000000);
-    SignalSema(_sceCd_scmd_semid[0]);
+    SignalSema(*(volatile int *)&_sceCd_scmd_semid);
     if (SCE_CD_debug > 1) {
         scePrintf("status called\n");
     }
@@ -55,13 +59,13 @@ int sceCdBreak(void)
     p = _sceCd_scmdrdata;
     sceCdCbfunc_num = 8;
     if (sceSifCallRpc(_sceCd_cd_scmd, 0x16, 0, 0, 0, p, 4, 0, 0) < 0) {
-        SignalSema(_sceCd_scmd_semid[0]);
+        SignalSema(*(volatile int *)&_sceCd_scmd_semid);
         sceCdCbfunc_num = 0;
         return 0;
     }
     sceCdCbfunc_num = 0;
     v = *(int *)((int)p | 0x20000000);
-    SignalSema(_sceCd_scmd_semid[0]);
+    SignalSema(*(volatile int *)&_sceCd_scmd_semid);
     return v;
 }
 
@@ -81,7 +85,7 @@ int sceCdReadClock(CdClock *clock)
     }
     p = _sceCd_scmdrdata;
     if (sceSifCallRpc(_sceCd_cd_scmd, 1, 0, 0, 0, p, 0x10, 0, 0) < 0) {
-        SignalSema(_sceCd_scmd_semid[0]);
+        SignalSema(*(volatile int *)&_sceCd_scmd_semid);
         return 0;
     }
     *clock = *(CdClock *)((int)(p + 1) | 0x20000000);
@@ -89,6 +93,6 @@ int sceCdReadClock(CdClock *clock)
         scePrintf("Libcdvd call Clock read 2\n");
     }
     v = *(int *)((int)p | 0x20000000);
-    SignalSema(_sceCd_scmd_semid[0]);
+    SignalSema(*(volatile int *)&_sceCd_scmd_semid);
     return v;
 }
