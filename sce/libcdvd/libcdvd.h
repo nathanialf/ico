@@ -20,7 +20,7 @@
 int _sceCd_cd_ncmd[];                                                  /* dominant spelling at 1 sites */
 char _sceCd_cd_scmd[];                                                 /* dominant spelling at 1 sites */
 int _sceCd_ncmd_prechk(int a0);                                        /* dominant spelling at 1 sites */
-int _sceCd_ncmd_semid[];                                               /* dominant spelling at 1 sites */
+extern int _sceCd_ncmd_semid;                                          /* definition in sce/ */
 int _sceCd_ncmdrdata[];                                                /* dominant spelling at 1 sites */
 void _sceFsSigSema(void);                                              /* definition in sce/ */
 int sceCdBreak(void);                                                  /* dominant spelling at 1 sites */

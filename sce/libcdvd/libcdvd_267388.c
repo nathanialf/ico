@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <sifrpc.h>
 
-extern int SCE_CD_debug[];
+extern int SCE_CD_debug;
 extern char _sceCd_cd_scmd[];
 extern int _sceCd_scmdrdata[];
 /* volatile: the S-command semaphore handle cmd_sem_init creates at run time;
@@ -35,7 +35,7 @@ int sceCdStatus(void)
     }
     v = *(int *)((int)p | 0x20000000);
     SignalSema(_sceCd_scmd_semid[0]);
-    if (SCE_CD_debug[0] > 1) {
+    if (SCE_CD_debug > 1) {
         scePrintf("status called\n");
     }
     return v;
@@ -76,7 +76,7 @@ int sceCdReadClock(CdClock *clock)
     if (_sceCd_scmd_prechk(0xF) == 0) {
         return 0;
     }
-    if (SCE_CD_debug[0] > 0) {
+    if (SCE_CD_debug > 0) {
         scePrintf("Libcdvd call Clock read 1\n");
     }
     p = _sceCd_scmdrdata;
@@ -85,7 +85,7 @@ int sceCdReadClock(CdClock *clock)
         return 0;
     }
     *clock = *(CdClock *)((int)(p + 1) | 0x20000000);
-    if (SCE_CD_debug[0] > 0) {
+    if (SCE_CD_debug > 0) {
         scePrintf("Libcdvd call Clock read 2\n");
     }
     v = *(int *)((int)p | 0x20000000);

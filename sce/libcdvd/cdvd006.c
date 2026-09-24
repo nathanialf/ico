@@ -31,8 +31,8 @@ extern CdReadCmd _sceCd_ncmdsdata[];
 extern int _sceCd_rd_intr_data[];
 extern int _sceCd_Read_cur_pos[];
 extern int _sceCd_cd_ncmd[];
-extern int _sceCd_ncmd_semid[];
-extern int SCE_CD_debug[];
+extern int _sceCd_ncmd_semid;
+extern int SCE_CD_debug;
 /* The callback number and the callback-busy word are shared with the SIF RPC
    end interrupt and the callback thread (cdvd000): volatile. WHAT THE BYTES
    PIN: both stores volatile (their output dependence orders the set-up
@@ -71,10 +71,10 @@ int sceCdReadIOPm(int lsn, int sectors, void *buf, CdRMode *mode)
         0) {
         sceCdCbfunc_num = 0;
         _sceCd_c_cb_sem = 0;
-        SignalSema(*(volatile int *)&_sceCd_ncmd_semid[0]);
+        SignalSema(*(volatile int *)&_sceCd_ncmd_semid);
         return 0;
     }
-    if (SCE_CD_debug[0] > 0) {
+    if (SCE_CD_debug > 0) {
         scePrintf("cdread end\n");
     }
     return 1;

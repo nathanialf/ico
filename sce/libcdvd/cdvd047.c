@@ -19,9 +19,9 @@ typedef struct {
     char pad14[0x8];
 } PObjA8B8Ent;
 
-extern int SCE_CD_debug[];
+extern int SCE_CD_debug;
 extern int _sceCd_cd_ncmd[];
-extern int _sceCd_ncmd_semid[];
+extern int _sceCd_ncmd_semid;
 extern int _sceCd_ncmdrdata[];
 extern int _sceCd_ncmd_prechk(int a0);
 extern int sceSifCallRpc();
@@ -82,7 +82,7 @@ int sceCdStRead(int sectors, void *buf, int mode, int *err)
     int e;
     int rerr;
 
-    if (SCE_CD_debug[0] > 0) {
+    if (SCE_CD_debug > 0) {
         scePrintf("sceCdStRead call read size= %d mode= %d\n", sectors);
     }
     if (stStarted == 0) {
@@ -99,7 +99,7 @@ int sceCdStRead(int sectors, void *buf, int mode, int *err)
             got += n;
             if (e != 0) {
                 rerr = e;
-                if (SCE_CD_debug[0] > 0) {
+                if (SCE_CD_debug > 0) {
                     scePrintf(
                         "sceCdStRead BLK Read cur_size= %d read_size= %d req_size= %d err 0x%x\n",
                         got, n, sectors, e);
@@ -108,7 +108,7 @@ int sceCdStRead(int sectors, void *buf, int mode, int *err)
                 sceCdDelayThread(8);
             }
         } while (got != sectors && (e == 0 || n != 0));
-        if (SCE_CD_debug[0] > 0) {
+        if (SCE_CD_debug > 0) {
             scePrintf("sceCdStRead BLK Read Ended\n");
         }
         *err = rerr;
@@ -124,7 +124,7 @@ int sceCdStRead(int sectors, void *buf, int mode, int *err)
 int sceCdStPause(void)
 {
     stStarted = 0;
-    if (SCE_CD_debug[0] > 0) {
+    if (SCE_CD_debug > 0) {
         scePrintf("sceCdStPause call\n");
     }
     return sceCdStream(0, 0, 0, 7, &stMode);
@@ -133,7 +133,7 @@ int sceCdStPause(void)
 int sceCdStResume(void)
 {
     stStarted = 1;
-    if (SCE_CD_debug[0] > 0) {
+    if (SCE_CD_debug > 0) {
         scePrintf("sceCdStResume call\n");
     }
     return sceCdStream(0, 0, 0, 8, &stMode);
@@ -141,7 +141,7 @@ int sceCdStResume(void)
 
 int sceCdStStat(void)
 {
-    if (SCE_CD_debug[0] > 0) {
+    if (SCE_CD_debug > 0) {
         scePrintf("sceCdStStat call\n");
     }
     return sceCdStream(0, 0, 0, 6, &stMode);
@@ -169,7 +169,7 @@ int sceCdStream(int a0, int a1, int a2, int cmd, CdRMode *mode)
     if (_sceCd_ncmd_prechk(0xF) == 0) {
         return 0;
     }
-    if (SCE_CD_debug[0] > 0) {
+    if (SCE_CD_debug > 0) {
         scePrintf("call cdreadstm call\n");
     }
     sd->f0 = a0;
@@ -181,19 +181,19 @@ int sceCdStream(int a0, int a1, int a2, int cmd, CdRMode *mode)
         sd->spindlctrl = mode->spindlctrl;
         sd->datapattern = mode->datapattern;
     }
-    if (SCE_CD_debug[0] > 0) {
+    if (SCE_CD_debug > 0) {
         scePrintf("call cdreadstm cmd\n");
     }
     sceSifWriteBackDCache(sd, 0x14);
     p = _sceCd_ncmdrdata;
     if (sceSifCallRpc(_sceCd_cd_ncmd, 9, 0, sd, 0x14, p, 4, 0, 0) < 0) {
-        SignalSema(_sceCd_ncmd_semid[0]);
+        SignalSema(_sceCd_ncmd_semid);
         return 0;
     }
-    if (SCE_CD_debug[0] > 0) {
+    if (SCE_CD_debug > 0) {
         scePrintf("cdread end\n");
     }
     v = *(int *)((int)p | 0x20000000);
-    SignalSema(_sceCd_ncmd_semid[0]);
+    SignalSema(_sceCd_ncmd_semid);
     return v;
 }
