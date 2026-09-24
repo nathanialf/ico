@@ -797,7 +797,7 @@ segments:
       - [0x4D3B58, .rodata, ico2/fumi/src/act-parallel-control]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x5D3B58..0x61BAE0, 294792 B
       - [0x4D3CE8, rodata, cod/4D3CE8]     # rodata blob resume
       - [0x518F30, .rodata, ico2/common/src/DObj]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x618F30..0x61BAE0, 11184 B
-      - [0x518FF8, rodata, cod/518FF8]     # rodata blob resume
+      - [0x518FF8, .rodata, ico2/common/src/StageManager]  # the TU's .rodata as source (chain 3 pass 91, completeness): its nineteen strings as literals at their uses in the listing's source order, the last one the unreachable 'stage manager() out' print after the message loop, VMA 0x618FF8..0x6191CD, 0x1D5 B = MAIN.MAP, byte-identical to the ROM run; backStage's row follows with no resume
       - [0x5191D0, .rodata, ico2/common/src/backStage]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP backStage.o .rodata 0x172), EUC-JP strings with glosses, VMA 0x6191D0..0x619342, 370 B
       - [0x519342, rodata, cod/519342]     # rodata blob resume
       - [0x519348, .rodata, ico2/common/src/charFileManager]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP charFileManager.o .rodata 0x861), in census function order with the deferred inline setters, VMA 0x619348..0x619BA9, 2145 B
@@ -1229,7 +1229,7 @@ segments:
       - { type: .sbss, vram: 0x0063C300, name: ico2/ito/src/queen }  # the TU's own .sbss, 0x4 B, VMA 0x63C300..0x63C304; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C304, name: ico2/ito/src/queen_barrier_disp }  # the TU's .sbss as source (completeness pass 65)
       - { type: .sbss, vram: 0x0063C310, name: ico2/ito/mpeg/mv_main }  # the TU's own .sbss, 0x38 B, VMA 0x63C310..0x63C348; static definitions in ROM run order (completeness pass)
-      - { type: sbss, vram: 0x0063C348, name: cod/0063C348 }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C348, name: ico2/common/src/StageManager }  # the TU's .sbss as source (chain 3 pass 91): the message buffer word and the forced preload stage number, named statics in ROM run order, VMA 0x63C348..0x63C350, 8 B; backStage's .sbss follows with no resume
       - { type: .sbss, vram: 0x0063C350, name: ico2/common/src/backStage }  # the TU's own .sbss, 0x28 B, VMA 0x63C350..0x63C378; static definitions in ROM run order (completeness pass)
       - { type: sbss, vram: 0x0063C378, name: cod/0063C378 }  # .sbss blob resume
       - { type: .sbss, vram: 0x0063C388, name: ico2/common/src/debug_menu }  # the TU's own .sbss, 0xC B, VMA 0x63C388..0x63C394; static definitions in ROM run order (completeness pass)

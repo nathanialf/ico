@@ -50,7 +50,6 @@ extern int stage_no;
 extern StgSlot stageExitData[];
 extern StgFile D_0055C53C[];
 extern const StgPre D_005F5D50[];
-extern char D_00619128[];
 extern int stagePreLoadStageNo;
 extern int stagePreLoadReadOffset;
 extern int stagePreLoad2ndReadOffset;
@@ -65,7 +64,15 @@ extern int stgmgrNextStagePreLoad(CdvdBgReq *bg);
 extern void stgmgrForceSwitchWithFadeColor(int stage, float fadeIn, float fadeOut, unsigned char r,
                                            unsigned char g, unsigned char b);
 extern int D_0063ACCC;
-extern int D_0063C34C;
+
+/* .sbss, owned by StageManager.o (VMA 0x63C348..0x63C350, no MAIN.MAP symbol,
+   so file statics; names ours): the one-entry buffer of the stage manager's
+   message queue, and the stage stgmgrNextStagePreLoadForceStageSet asks the
+   preloader for. */
+static int stageMgrMsgBuf;
+
+static int stagePreLoadForceStageNo;
+
 extern int D_0028F4C0[];
 extern int D_004DA788[];
 extern int D_004DD700[];
@@ -98,17 +105,13 @@ extern int D_00639ED4;
 extern int mpegPlay;
 extern int mpegInitDone;
 extern int stageManagerFreeResourceFlag;
-extern char D_006190D0[];
-extern char D_006190E0[];
 extern char stagePreLoadBuff[];
-extern char D_00619100[];
 extern char D_0063ACE0[];
 extern void WaitSema(int s);
 extern void DeleteSema(int s);
 extern void SignalSema(int s);
 extern int IosSndLock;
 extern int systemFault;
-extern int D_0063C348;
 extern int fadeStatus;
 extern float fadeSpeed;
 extern int fadeContinue;
@@ -119,11 +122,6 @@ extern unsigned char D_0063BCB3;
 extern float mpegPlayFadeInSpeed;
 extern int fbKeep;
 extern int stgMgrWakeupRequest;
-extern char D_00619140[];
-extern char D_00619158[];
-extern char D_00619168[];
-extern char D_00619180[];
-extern char D_00619198[];
 /* kept local: this TU's uses of jimakuEnd do not fit the prototype in jimaku.h */
 extern void jimakuEnd();
 extern int game_pause;
@@ -138,18 +136,8 @@ extern void *D_0063A458;
 extern void *D_00639EA4;
 extern void *D_00639EA8;
 extern int jimaku_msg[];
-extern char D_00618FF8[];
-extern char D_00619010[];
-extern char D_00619028[];
 extern char D_0063ACB0[];
 extern void EnableIntc(int ch);
-extern char D_00619048[];
-extern char D_00619058[];
-extern char D_00619070[];
-extern char D_00619080[];
-extern char D_00619098[];
-extern char D_006190A8[];
-extern char D_006190C0[];
 
 #include "StageManager.h"
 #include <libgraph.h>
@@ -165,7 +153,7 @@ void stop_free_resources(void)
 {
     int i;
 
-    debug_StdPrintfDummy(D_00618FF8);
+    debug_StdPrintfDummy("----- MASK LINK -----\n");
     game_pause = 0;
     for (i = 0; i < 8; i++) {
         isysGObjActiveLink(i, 0);
@@ -182,10 +170,10 @@ void stop_free_resources(void)
         D_0028F4C0[10] = 0;
     }
     if (D_0063A684 == 0) {
-        debug_StdPrintfDummy(D_00619010);
+        debug_StdPrintfDummy("sound partition reset\n");
         iosMallocResetPartition(D_0063A458);
     } else {
-        debug_StdPrintfDummy(D_00619028);
+        debug_StdPrintfDummy("sound partition not reset\n");
     }
     iosMallocResetPartition(D_0063A44C);
     iosMallocResetPartition(D_0063A438);
@@ -204,20 +192,20 @@ void stop_free_resources(void)
 void stage_initialize(void)
 {
     isysInitialize();
-    debug_StdPrintfDummy(D_00619048);
+    debug_StdPrintfDummy("InitTableSin\n");
     InitTableSin();
-    debug_StdPrintfDummy(D_00619058);
+    debug_StdPrintfDummy("InitMatrixDrive\n");
     InitMatrixDrive();
     InitGameOverEffect();
-    debug_StdPrintfDummy(D_00619070);
+    debug_StdPrintfDummy("debug_Init\n");
     gsb_InitGSSystem();
-    debug_StdPrintfDummy(D_00619080);
+    debug_StdPrintfDummy("p2o transMicroProgram\n");
     p2o_TransMicroProgram();
-    debug_StdPrintfDummy(D_00619098);
+    debug_StdPrintfDummy("InitGSSystem\n");
     debug_Init();
-    debug_StdPrintfDummy(D_006190A8);
+    debug_StdPrintfDummy("init debug menu\n");
     init_debug_menu();
-    debug_StdPrintfDummy(D_006190C0);
+    debug_StdPrintfDummy("enable vsync\n");
     EnableIntc(2);
 }
 
@@ -261,9 +249,9 @@ void start_stage_Load_thread(int stage)
                          27);
         iosThreadStart(initIcoMiscThread);
         flags = initIcoMiscThread[15];
-        debug_StdPrintfDummy(D_006190D0, (int)flags & 1);
+        debug_StdPrintfDummy("auto stack %d\n", (int)flags & 1);
         game_pause = 1;
-        debug_StdPrintfDummy(D_006190E0);
+        debug_StdPrintfDummy("-----------------Enable VSync\n");
     } else {
         isysInitialize();
         sceGsResetPath();
@@ -334,7 +322,7 @@ int stgmgrNextStagePreLoad(CdvdBgReq *bg)
         break;
     }
     case 1:
-        stage = D_0063C34C;
+        stage = stagePreLoadForceStageNo;
         break;
     }
     if (stage != 0 && stage != stagePreLoadStageNo && D_005F5D50[stage].mpegNo == 0) {
@@ -351,7 +339,8 @@ int stgmgrNextStagePreLoad(CdvdBgReq *bg)
         stagePreLoadLsn = bg->lsn = iosCdvdGetFileLsn(bg, &size);
         size = (size + 0x7FF) / 0x800 * 0x800;
         readSize = size > 0x1C0000 ? 0x1C0000 : size;
-        debug_StdPrintfDummy(D_00619100, bg, readSize, size, size - readSize);
+        debug_StdPrintfDummy("preload %s move %d total %d reset %d\n", bg, readSize, size,
+                             size - readSize);
         bg->f110 = 0;
         ret = iosCdvdBackGroundRead(bg, stagePreLoadBuff, readSize);
         debug_StdPrintfDummy(D_0063ACE0);
@@ -385,7 +374,7 @@ void stgmgrNextStagePreLoadEntry(int stage)
             }
         }
     }
-    ret = iosCdvdBackGroundMgrAdd(D_00619128, stgmgrNextStagePreLoad, 0,
+    ret = iosCdvdBackGroundMgrAdd("DFDATAS/COMMON.DF", stgmgrNextStagePreLoad, 0,
                                   stgmgrNextStagePreLoadDiskNotReady, 0, 0, 0, 0);
     D_0063ACD0 = ret;
     iosCdvdBackGroundMgrNotDiskReadyPauseSet(ret, 1);
@@ -406,7 +395,7 @@ inline void stgmgrNextStagePreLoadDistBoyMode(void)
 
 inline void stgmgrNextStagePreLoadForceStageSet(int val)
 {
-    D_0063C34C = val;
+    stagePreLoadForceStageNo = val;
     D_0063ACC8 = 1;
     D_0063ACCC = 0;
 }
@@ -420,13 +409,13 @@ void StageManager(void)
 {
     StgMgrMsg *msg;
 
-    debug_StdPrintfDummy(D_00619140);
-    iosMsgQueueCreate(stageMgrMsgQ, &D_0063C348, 1);
-    debug_StdPrintfDummy(D_00619158, IosSndLock);
+    debug_StdPrintfDummy("stage manager() in\n");
+    iosMsgQueueCreate(stageMgrMsgQ, &stageMgrMsgBuf, 1);
+    debug_StdPrintfDummy("IosCdLock %d\n", IosSndLock);
     WaitSema(IosSndLock);
     DeleteSema(IosSndLock);
     SignalSema(systemFault);
-    debug_StdPrintfDummy(D_00619168);
+    debug_StdPrintfDummy("STAGE MANAGER START\n");
     while (1) {
         iosMsgRecv(stageMgrMsgQ, &msg, 1);
         mpegPlayFadeInSpeed = 128.0f;
@@ -476,7 +465,7 @@ void StageManager(void)
             mpegPlay = D_005F5D50[msg->stage].mpegNo;
             start_stage_Load_thread(msg->stage);
         } else {
-            debug_StdPrintfDummy(D_00619180, msg->stage);
+            debug_StdPrintfDummy("out of stage %d\n", msg->stage);
         }
         if (msg->fC == 0.0f) {
             fadeStatus = 0;
@@ -505,8 +494,12 @@ void StageManager(void)
         }
         continue;
     badCmd:
-        debug_StdPrintfDummy(D_00619198);
+        debug_StdPrintfDummy("StageManager:unknown msg\n");
     }
+    /* Unreachable after the loop (the listing has no row between the loop's
+       909 and the closing 911), but its string is the TU's last .rodata entry
+       at 0x6191B8. */
+    debug_StdPrintfDummy("stage manager() out\n");
 }
 
 inline void CheckPoint(void)
