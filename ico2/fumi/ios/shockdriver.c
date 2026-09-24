@@ -267,7 +267,6 @@ int Vibration_WaveDecode(SHOCKREQUEST *p, int level)
     return ret;
 }
 
-extern char D_00551D98[]; /* "voice error? %d\n" */
 /* Declared void ahead of their definitions: Shock_Request's inlined call sets
  * no return value (local-alloc then gives the next byte load $2, as the ROM). */
 extern void Vibration_SetDecodeData(void *a0, int a1, int a2, unsigned char a3, unsigned char a4);
@@ -348,7 +347,7 @@ SHOCKREQUEST *Shock_Request(ShockRequestBox *box, int level, ShockParam v, int k
 
     p = (ShockParam *)getShockVoice(v.voice, level);
     if (p == 0) {
-        debug_StdPrintfDummy(D_00551D98, v.voice);
+        debug_StdPrintfDummy("voice error? %d\n", v.voice);
         return 0;
     }
     req = requestBoxRequest(box, p, v, key, arg);
