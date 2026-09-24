@@ -49,7 +49,7 @@ typedef struct {
 extern int stage_no;
 extern StgSlot stageExitData[];
 extern StgFile D_0055C53C[];
-extern StgPre D_005F5D50[];
+extern const StgPre D_005F5D50[];
 extern char D_00619128[];
 extern int stagePreLoadStageNo;
 extern int stagePreLoadReadOffset;
@@ -278,10 +278,88 @@ void start_stage_Load_thread(int stage)
     }
 }
 
-/*SW*/
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/StageManager", stgmgrNextStagePreLoad);
+/* Compiled-out debug hook (our name), the construct main.c's mainDebugBar and
+   debug_exception.c's debugExcDebugDisp carry: the inlined empty body emits no
+   byte but leaves one (use (const_int 0)) insn. WHAT THE BYTES PIN: the ROM
+   puts the -1 in GetDataFileName's delay slot, after both argument moves
+   (listing row 656, 0x1ab29c-0x1ab2a8). sched2 gives that order only when the
+   first argument move carries a loop-note barrier (haifa-sched.c 3677-3724):
+   it holds the second move and the -1 back one cycle, so both issue before
+   the call. The note has to sit mid-block behind a zero-code insn, which the
+   debug macro's do/while(0) block around this hook gives, and the -1 has to
+   be set after the move. Rows 654 and 655 carry no code. WHAT THEY CANNOT
+   PIN: the macro's text, what it printed, or where `ret = -1` sat between the
+   GetDataFileName call and row 659. */
+static __inline__ void stgPreLoadDebugHook(void) {}
 
-/*SW-END*/
+int stgmgrNextStagePreLoad(CdvdBgReq *bg)
+{
+    float root[4];
+    float d[4];
+    int size;
+    int stage = 0;
+    int i;
+    float dist;
+
+    if (D_0063ACC4++ < 15) {
+        return 0;
+    }
+    D_0063ACC4 = 0;
+    if (iosCdvdBackGroundMgrEntryNum() >= 3 && D_0063ACCC == 0) {
+        return 0;
+    }
+    switch (D_0063ACC8) {
+    case 0: {
+        int best = -1;
+
+        if (D_00639EA4 == 0) {
+            return 0;
+        }
+        GetRootPosition(root, D_00639EA4);
+        for (i = 0; i < stageExitDataCnt; i++) {
+            StgSlot *e;
+
+            _SubVector(d, root, stageExitData[i].pos);
+            dist = _InnerProduct(d, d);
+            e = &stageExitData[i];
+            e->dist = dist;
+            if (best == -1) {
+                best = i;
+                stage = e->stage;
+            } else if (dist < (&stageExitData[best])->dist) {
+                best = i;
+                stage = e->stage;
+            }
+        }
+        break;
+    }
+    case 1:
+        stage = D_0063C34C;
+        break;
+    }
+    if (stage != 0 && stage != stagePreLoadStageNo && D_005F5D50[stage].mpegNo == 0) {
+        int readSize;
+        int ret;
+
+        /* The debug macro's do/while(0) block, see stgPreLoadDebugHook. */
+        do {
+            stgPreLoadDebugHook();
+        } while (0);
+        strcpy(bg->name, GetDataFileName(stage, 1));
+        ret = -1;
+        iosCdvdChgFileName(bg);
+        stagePreLoadLsn = bg->lsn = iosCdvdGetFileLsn(bg, &size);
+        size = (size + 0x7FF) / 0x800 * 0x800;
+        readSize = size > 0x1C0000 ? 0x1C0000 : size;
+        debug_StdPrintfDummy(D_00619100, bg, readSize, size, size - readSize);
+        bg->f110 = 0;
+        ret = iosCdvdBackGroundRead(bg, stagePreLoadBuff, readSize);
+        debug_StdPrintfDummy(D_0063ACE0);
+        stagePreLoadSectorCnt = readSize >> 11;
+        stagePreLoadStageNo = stage;
+    }
+    return 0;
+}
 
 static inline void stgmgrNextStagePreLoadDiskNotReady(void)
 {
@@ -292,7 +370,7 @@ static inline void stgmgrNextStagePreLoadDiskNotReady(void)
 
 void stgmgrNextStagePreLoadEntry(int stage)
 {
-    StgPre *pre = &D_005F5D50[stage];
+    const StgPre *pre = &D_005F5D50[stage];
     int i;
     int ret;
 
@@ -338,10 +416,98 @@ inline void stgmgrNextStagePreLoadForceNoCancel(int val)
     D_0063ACCC = val;
 }
 
-/*SW*/
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/StageManager", StageManager);
+void StageManager(void)
+{
+    StgMgrMsg *msg;
 
-/*SW-END*/
+    debug_StdPrintfDummy(D_00619140);
+    iosMsgQueueCreate(stageMgrMsgQ, &D_0063C348, 1);
+    debug_StdPrintfDummy(D_00619158, IosSndLock);
+    WaitSema(IosSndLock);
+    DeleteSema(IosSndLock);
+    SignalSema(systemFault);
+    debug_StdPrintfDummy(D_00619168);
+    while (1) {
+        iosMsgRecv(stageMgrMsgQ, &msg, 1);
+        mpegPlayFadeInSpeed = 128.0f;
+        fadeSpeed = 0;
+        switch (msg->cmd) {
+        case 0:
+            break;
+        case 1:
+            fadeStatus = 1;
+            fadeSpeed = msg->f10;
+            fadeColor = msg->r;
+            D_0063BCB1 = msg->g;
+            D_0063BCB2 = msg->b;
+            D_0063BCB3 = 0;
+            fadeContinue = 1;
+            fbKeep = 1;
+            if (D_005F5D50[msg->stage].mpegNo != 0) {
+                stgMgrWakeupRequest = 1;
+                mpegPlayFadeInSpeed = msg->fC;
+                do {
+                    iosThreadSleep();
+                } while (fadeStatus != 3);
+            }
+            break;
+        default:
+            goto badCmd;
+        }
+        if (D_005F5D50[msg->stage].mpegNo != 0) {
+            mpegInitDone = 0;
+            fightSoundClose();
+            soundDataSegAllClose(0, 2);
+        }
+        if (D_0063ACD0 != 0) {
+            iosCdvdBackGroundMgrDelete(D_0063ACD0);
+        }
+        D_0063ACD0 = 0;
+        if (msg->stage <= 0xFFFF) {
+            exit_stage((int *)msg->stage);
+            lt_switch_layout(0x35);
+            D_0028F4C0[6] = 1;
+            D_0028F4C0[5] = 1;
+            stgMgrWakeupRequest = 1;
+            while (iosCdvdBackGroundMgrDeleteRequestGet() != 0) {
+                iosThreadSleep();
+            }
+            stgMgrWakeupRequest = 0;
+            mpegPlay = D_005F5D50[msg->stage].mpegNo;
+            start_stage_Load_thread(msg->stage);
+        } else {
+            debug_StdPrintfDummy(D_00619180, msg->stage);
+        }
+        if (msg->fC == 0.0f) {
+            fadeStatus = 0;
+            stgMgrWakeupRequest = 1;
+            while (D_0028F4C0[6] != 0) {
+                iosThreadSleep();
+            }
+            if (mpegPlay == 0) {
+                stgmgrNextStagePreLoadEntry(msg->stage);
+            }
+            fbKeep = 0;
+            stgMgrWakeupRequest = 0;
+        } else {
+            stgMgrWakeupRequest = 1;
+            while (D_0028F4C0[6] != 0) {
+                iosThreadSleep();
+            }
+            if (mpegPlay == 0) {
+                stgmgrNextStagePreLoadEntry(msg->stage);
+            }
+            fadeContinue = 0;
+            fadeStatus = 1;
+            fbKeep = 0;
+            stgMgrWakeupRequest = 0;
+            fadeSpeed = -msg->fC;
+        }
+        continue;
+    badCmd:
+        debug_StdPrintfDummy(D_00619198);
+    }
+}
 
 inline void CheckPoint(void)
 {

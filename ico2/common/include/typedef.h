@@ -717,7 +717,16 @@ typedef struct {
     float handCameraRate; /* 0x184 */
     short f188;           /* 0x188 */
     unsigned char _18a[0x2];
-    unsigned int attr; /* 0x18C, flag word whose low half is the reverb depth */
+    /* 0x18C, flag word whose low half is the reverb depth (soundManager reads
+     * that half at this offset).  RECONSTRUCTION: bits 25-30 are a bitfield,
+     * the stage's movie number StageManager copies into mpegPlay, because the
+     * ROM reads it as one: a whole-word field makes expand_expr fold the 0x18C
+     * into a constant table base (expr.c 6464-6482), where StageManager's three
+     * reads keep the table base, add the index product and load at 0x18C,
+     * with the const table's unchanging flag on the load. */
+    unsigned int attrLow : 25;
+    unsigned int mpegNo : 6;
+    unsigned int attrTop : 1;
     /* 0x190, a word of one-bit stage switches.  They are bitfields because the
      * ROM reads them as bitfields: a read off the record itself keeps the
      * const table's unchanging flag on the load and emits the index product
