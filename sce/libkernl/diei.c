@@ -12,8 +12,26 @@
    in a different register than the read. */
 #define MFC0_STATUS(dst) __asm__ __volatile__("mfc0 %0, $12" : "=r"(dst))
 #define COP0_STATUS_EIE 0x10000
+#define DI() __asm__ __volatile__(".word 0x42000039" : : : "memory")
+#define SYNCP() __asm__ __volatile__("sync.p" : : : "memory")
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/diei", DIntr);
+int DIntr(void)
+{
+    int eie;
+    int st;
+
+    MFC0_STATUS(eie);
+    eie &= COP0_STATUS_EIE;
+    if (eie) {
+        do {
+            DI();
+            SYNCP();
+            MFC0_STATUS(st);
+            st &= COP0_STATUS_EIE;
+        } while (st);
+    }
+    return eie != 0;
+}
 
 int EIntr(void)
 {

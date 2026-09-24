@@ -603,7 +603,106 @@ int _sceCd_scmd_prechk(int cmd)
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libcdvd/cdvd000", sceCdInit);
+extern int D_0072F168[];
+extern int _sceCd_ee_read_mode;
+extern int _sceCd_scmdrdata[];
+extern int D_0072F1C0;
+extern int D_0054A584;
+extern int D_0054A590;
+extern int D_0054A58C;
+extern char D_00636918[];
+extern char D_00636938[];
+extern void cdvd_exit(void);
+
+/* Binds the init RPC and reads the IOP module's version reply. The busy flag
+ * set and the ee_read_mode reset are volatile accesses: the busy word is read
+ * by _sceCd_Poff_Intr from the SIF command interrupt (its clears here and in
+ * PowerOffCB are volatile too) and ee_read_mode is shared with sceCdRead and
+ * sceCdReadIOPm. WHAT THE BYTES PIN: the busy store has a later volatile
+ * dependent in its block (a plain pair swaps the s4/s5 %hi values), and the
+ * reset order: the D_0054A57C reset is the last -1 store and the D_0054A58C
+ * reset sits between the D_0054A584 and D_0054A57C resets (sched1 ranks a
+ * store that kills the shared -1 ahead of the others, and the order fixes
+ * every %hi register of the entry). NOT PINNED: which later access is the
+ * busy store's volatile partner. */
+int sceCdInit(int mode)
+{
+    int *p;
+    int ver;
+    int r;
+    int w;
+    int type;
+    int v1;
+    int v2;
+
+    if (sceCdSyncS(1) != 0) {
+        return 0;
+    }
+    sceSifInitRpc(0);
+    D_0072EF10 = GetThreadId();
+    *(volatile int *)&D_0054A564[0] = 1;
+    D_0054A580 = -1;
+    D_0054A578 = -1;
+    D_0054A588 = -1;
+    D_0054A584 = -1;
+    D_0054A58C = -1;
+    D_0054A57C[0] = -1;
+    *(volatile int *)&_sceCd_ee_read_mode = 0;
+    D_0054A590++;
+    while (1) {
+        r = sceSifBindRpc(D_0072F168, 0x80000592, 0);
+        if (r < 0) {
+            if (SCE_CD_debug[0] > 0) {
+                scePrintf(D_00636918, r, D_0054A590);
+            }
+            w = 0x100000;
+            while (w--) {}
+            continue;
+        }
+        if (D_0072F168[9] != 0) {
+            D_0072F1C0 = mode;
+            D_0054A58C = 0;
+            sceSifWriteBackDCache(&D_0072F1C0, 4);
+            p = _sceCd_scmdrdata;
+            if (sceSifCallRpc(D_0072F168, 0, 0, &D_0072F1C0, 4, p, 16, 0, 0) < 0) {
+                *(volatile int *)&D_0054A564[0] = 0;
+                return 0;
+            }
+            break;
+        }
+        w = 0x100000;
+        while (w--) {}
+    }
+    v1 = *(int *)((int)(p + 1) | 0x20000000);
+    v2 = *(int *)((int)(p + 2) | 0x20000000);
+    type = *(int *)((int)(p + 3) | 0x20000000);
+    ver = 1;
+    if (type == 0xFF) {
+    } else if (type == 0xFE) {
+        SCE_CD_debug[0] = 1;
+    } else if (v1 / 256 < 2 || v2 / 256 < 2) {
+        ver = 2;
+    }
+    *(volatile int *)&D_0054A564[0] = 0;
+    switch (mode) {
+    case 5:
+        if (SCE_CD_debug[0] > 0) {
+            scePrintf(D_00636938);
+        }
+        cdvd_exit();
+        *(volatile int *)&_sceCd_ncmd_semid[0] = -1;
+        *(volatile int *)&_sceCd_scmd_semid[0] = -1;
+        *(volatile int *)&D_0054A560 = -1;
+        break;
+    case 0:
+    case 1:
+    default:
+        cmd_sem_init();
+        PowerOffCB();
+        break;
+    }
+    return ver;
+}
 
 extern int D_0072F190[];
 extern int D_0072F1D0;
