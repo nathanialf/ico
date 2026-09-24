@@ -1202,7 +1202,9 @@ void soundSeDefPitchSet(int a0)
 }
 
 extern char D_005D3F30[];
-extern StgPre D_005F5D50[];
+/* The stage table sits in .rodata, so it is declared const: its loads are then
+   unchanging and do not order against soundSeEnvNotUseClose's `p = 0` store. */
+extern const StgPre D_005F5D50[];
 extern int D_0063A458;
 extern int _soundSeDefPlay(int kind, unsigned int a1, float *a2, int a3, SeEnvDef *env,
                            SeSlot **out, float vol);
@@ -1258,7 +1260,120 @@ void soundSeEnvPlay(void)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/sound/s_init", soundSeEnvNotUseClose);
+/* One 100-byte entry of the SE bank table: the name strcmp compares and the
+   "in use" flag the stage lists are filtered on. */
+typedef struct SeBank {
+    char name[0x60];     /* 0x00 */
+    unsigned int b0 : 1; /* 0x60 bit 0 */
+    unsigned int b1 : 31;
+} SeBank;
+
+extern SeBank D_005EBBE8[];
+extern SeSrcDef D_005DCEF4[];
+extern char D_005F5E60[];
+extern int D_0063A658;
+
+void soundSeEnvNotUseClose(int a, int b)
+{
+    SeBank *p = 0;
+    SeSlot *e;
+    char *q;
+    int ok;
+    int i;
+    int n;
+    int k;
+    int idx;
+    int m;
+    int j;
+    int x;
+    int *first;
+    SqEntry *req;
+
+    ok = 1;
+    for (i = D_005F5D50[a].seSegFirst; i < D_005F5D50[a].seSegLast; i++) {
+        if (D_005EBBE8[i].b0 == 1) {
+            p = &D_005EBBE8[i];
+            break;
+        }
+    }
+    n = i;
+    if (p != 0) {
+        for (i = D_005F5D50[b].seSegFirst; i < D_005F5D50[b].seSegLast; i++) {
+            if (D_005EBBE8[i].b0 == 1) {
+                if (strcmp(p->name, D_005EBBE8[i].name) == 0) {
+                    ok = 0;
+                }
+                break;
+            }
+        }
+    }
+    if (ok == 0) {
+        idx = -1;
+        for (k = 0; k < 16; k++) {
+            q = &D_006BF570[k * 0x30];
+            if (*(unsigned short *)(q + 2) == 11) {
+                if (*(unsigned short *)q == i) {
+                    idx = k;
+                    break;
+                }
+            }
+        }
+        if (idx >= 0) {
+            *(unsigned short *)&D_006BF570[idx * 0x30] = n;
+        }
+    }
+    if (D_0063A650 != 0) {
+        ok = 1;
+    }
+    for (m = 0; m < 48; m++) {
+        e = (SeSlot *)&D_006BF870[m * 64];
+        req = e->unk30;
+        first = (int *)&D_005F5E60[a * 404];
+        if (req != 0 && req->unk4 == 0 && e->unk8 == 0xFFFFFFFF) {
+            for (j = *first; j < *(int *)&D_005F5E60[a * 404 + 4]; j++) {
+                if (e->unk38 == (SeSrcDef *)&D_005D6DB0[*(int *)&D_005D3F30[j * 0x1C] * 60]) {
+                    if (ok == 0 ||
+                        D_005EBBE8[D_005EE488[D_0030C4E0[e->unk38->unk20]].num].b0 != 1) {
+                        goto next;
+                    }
+                }
+            }
+            if (ok != 0 && D_005EE488[D_0030C4E0[e->unk38->unk20]].num >= 7 && a != 10) {
+                soundSeDefStopNoRelease((e->num << 8) | m);
+            } else if (e->unk38 != D_005DCEF4 && e->unk38 != D_005DCEF4 - 1) {
+                soundSeDefStop((e->num << 8) | m);
+            }
+        }
+    next:;
+    }
+    if (D_0063A658 == 0) {
+        soundDataSegAllClose(2, 0);
+    }
+    if (ok != 0) {
+        if (p != 0 || D_0063A650 != 0) {
+            soundDataSegAllClose(2, 0);
+            D_0063A658 = 2;
+        } else {
+            D_0063A658 = 0;
+        }
+    } else {
+        D_0063A658 = 1;
+    }
+    D_0063A650 = 0;
+    for (m = 0; m < 48; m++) {
+        SeSlot *s = (SeSlot *)&D_006BF870[m * 64];
+        SqEntry *r = s->unk30;
+
+        if (r != 0 && r->unk4 == 0 && s->unk3C != 0) {
+            x = *(int *)s->unk3C;
+            if (x < 430) {
+                if (x >= 426) {
+                    soundSeDefStop((s->num << 8) | m);
+                }
+            }
+        }
+    }
+}
 
 void soundDataSegNextStageNotUseClose(int a0, int a1)
 {
@@ -1609,8 +1724,6 @@ void soundSeKindBuild(void)
     }
 }
 
-extern int D_0063A658;
-
 int soundSeSemiCommonLoadChk(void)
 {
     return D_0063A658;
@@ -1647,7 +1760,6 @@ void soundSeEnvDefaultSet(SeSlot *self)
 }
 
 extern const char D_00552398[];
-extern SeSrcDef D_005DCEF4[];
 
 int debug_req(void)
 {
