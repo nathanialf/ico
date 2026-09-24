@@ -37,6 +37,47 @@ extern int D_0054BFCC[];
 extern int D_0072F200[];
 extern char D_00636B80[];
 extern char D_00636BA8[];
+extern PObjA8B8Ent D_0072F250[][4];
+/* The IOP send helper, the member's first function (MAIN.MAP libpad.o .text
+   begins here, the string below is its first .rodata entry). */
+extern char D_00636B38[];
+
+void _send_to_iop(int a0, int a1)
+{
+    struct {
+        int *f0;
+        int f4;
+        int f8;
+        int fC;
+        char rest[0xF0];
+    } buf;
+
+    int *p17 = D_0072F250[a0][a1].f4;
+    int ret = sceSifDmaStat(D_0072F250[a0][a1].fC);
+
+    if (ret >= 0) {
+        if (D_0054BFCC[0] != 0) {
+            printf(D_00636B38);
+        }
+    } else {
+        int n = *p17 + 1;
+        int *v = D_0072F250[a0][a1].f8 + ((n & 1) << 3); /* the 32-byte half, f8 is int * */
+        int r;
+        *p17 = n;
+        SyncDCache(p17, (char *)p17 + 0x20);
+        buf.f0 = p17;
+        buf.f4 = (int)v;
+        buf.f8 = 0x20;
+        buf.fC = 0;
+        r = sceSifSetDma(&buf, 1);
+        if (r == 0) {
+            if (D_0054BFCC[0] != 0) {
+                printf(D_00636B38);
+            }
+        }
+        D_0072F250[a0][a1].fC = r;
+    }
+}
 
 int scePadInit(int a0)
 {
@@ -71,7 +112,6 @@ int scePadInit(int a0)
     return scePadInit2(a0);
 }
 
-extern PObjA8B8Ent D_0072F250[][4];
 extern int D_0072F200[];
 extern int D_0072F540[];
 
@@ -448,8 +488,6 @@ int scePadSetMainMode(int a0, int a1, int a2, int a3)
     }
     return s;
 }
-
-extern void _send_to_iop(int a0, int a1);
 
 int scePadSetActDirect(int a0, int a1, unsigned char *a2)
 {

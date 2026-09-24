@@ -5,16 +5,6 @@
 #include "common.h"
 #include <stdio.h>
 
-extern int D_0054A320[];
-
-int sceDmaGetChan(unsigned int a0)
-{
-    if (a0 < 0xA) {
-        return D_0054A320[a0];
-    }
-    return 0;
-}
-
 typedef struct {
     unsigned char chan; /* 0x00 channel number */
     unsigned char b01;  /* 0x01 */
@@ -28,7 +18,40 @@ typedef struct {
     int rbsize;         /* 0x10 ring buffer size, to D_RBSR */
 } DmaEnv;
 
-extern int D_0054A360[];
+/* The member's .data in ROM order (= MAIN.MAP libdma.o .data 0xAC, which
+ * names the three globals dch, sceDmaDebugMode and sceDmaCurrentEnv). */
+/* The ten channel register blocks, VIF0 to toSPR. */
+int dch[10] = {
+    0x10008000, 0x10009000, 0x1000A000, 0x1000B000, 0x1000B400,
+    0x1000C000, 0x1000C400, 0x1000C800, 0x1000D000, 0x1000D400,
+};
+
+int sceDmaDebugMode = 0;
+
+/* libdma.a's build stamp, exactly sixteen characters with no terminator. */
+static char sceDmaVersion[16] = "PsIIlibdma  2200";
+
+/* Which channels sceDmaReset clears: all but the three SIF channels. */
+static int resetChan[10] = {1, 1, 1, 1, 1, 0, 0, 0, 1, 1};
+
+/* sceDmaPutEnv's lookups from the DmaEnv's first three bytes to the D_CTRL
+ * MFD, STS and STD field codes. */
+static unsigned char mfdCode[16] = {0, 0, 0, 3, 0, 1, 0, 0, 2};
+
+static unsigned char stsCode[16] = {0, 1, 2, 0, 0, 0, 3};
+
+static unsigned char stdCode[16] = {0, 2, 3};
+
+DmaEnv sceDmaCurrentEnv = {0};
+
+int sceDmaGetChan(unsigned int a0)
+{
+    if (a0 < 0xA) {
+        return dch[a0];
+    }
+    return 0;
+}
+
 extern void memclr(void *p, int n);
 extern int sceDmaPutEnv(DmaEnv *env);
 
@@ -40,8 +63,8 @@ int sceDmaReset(int mode)
 
     old = *(volatile int *)0x1000E000 & 1;
     for (i = 0; i < 10; i++) {
-        if (D_0054A360[i] != 0) {
-            int *ch = (int *)D_0054A320[i];
+        if (resetChan[i] != 0) {
+            int *ch = (int *)dch[i];
             ch[0x00 / 4] = 0;
             ch[0x30 / 4] = 0;
             ch[0x10 / 4] = 0;
@@ -60,19 +83,12 @@ int sceDmaReset(int mode)
     return old;
 }
 
-extern int D_0054A348[];
-
 int sceDmaDebug(int a0)
 {
-    int old = D_0054A348[0];
-    D_0054A348[0] = a0;
+    int old = sceDmaDebugMode;
+    sceDmaDebugMode = a0;
     return old;
 }
-
-extern unsigned char D_0054A388[];
-extern unsigned char D_0054A398[];
-extern unsigned char D_0054A3A8[];
-extern DmaEnv D_0054A3B8;
 
 int sceDmaPutEnv(DmaEnv *env)
 {
@@ -94,9 +110,9 @@ int sceDmaPutEnv(DmaEnv *env)
     if (env->b03 >= 7) {
         return -4;
     }
-    ctrl = (ctrl & 0xFFFFFFCF) | (D_0054A388[env->chan] << 4);
-    ctrl = (ctrl & 0xFFFFFF3F) | (D_0054A398[env->b01] << 6);
-    ctrl = (ctrl & 0xFFFFFFF3) | (D_0054A3A8[env->b02] << 2);
+    ctrl = (ctrl & 0xFFFFFFCF) | (mfdCode[env->chan] << 4);
+    ctrl = (ctrl & 0xFFFFFF3F) | (stsCode[env->b01] << 6);
+    ctrl = (ctrl & 0xFFFFFFF3) | (stdCode[env->b02] << 2);
     if (env->b03 != 0) {
         ctrl |= 2;
         ctrl = (ctrl & 0xFFFFFCFF) | ((env->b03 - 1) << 8);
@@ -112,13 +128,13 @@ int sceDmaPutEnv(DmaEnv *env)
     *(volatile int *)0x1000E030 = sqwc;
     *(volatile int *)0x1000E050 = rbor;
     *(volatile int *)0x1000E040 = rbsr;
-    D_0054A3B8 = *env;
+    sceDmaCurrentEnv = *env;
     return 0;
 }
 
 DmaEnv *sceDmaGetEnv(DmaEnv *a0)
 {
-    *a0 = D_0054A3B8;
+    *a0 = sceDmaCurrentEnv;
     return a0;
 }
 

@@ -20,7 +20,6 @@ extern int _sceCd_scmdrdata[];
 extern volatile int _sceCd_scmd_semid[];
 extern int _sceCd_scmd_prechk(int a0);
 extern int sceSifCallRpc();
-extern char D_006369C8[];
 
 int sceCdStatus(void)
 {
@@ -37,7 +36,7 @@ int sceCdStatus(void)
     v = *(int *)((int)p | 0x20000000);
     SignalSema(_sceCd_scmd_semid[0]);
     if (SCE_CD_debug[0] > 1) {
-        scePrintf(D_006369C8);
+        scePrintf("status called\n");
     }
     return v;
 }
@@ -66,9 +65,6 @@ int sceCdBreak(void)
     return v;
 }
 
-extern char D_006369D8[];
-extern char D_006369F8[];
-
 typedef struct {
     unsigned char b[8];
 } CdClock;
@@ -81,7 +77,7 @@ int sceCdReadClock(CdClock *clock)
         return 0;
     }
     if (SCE_CD_debug[0] > 0) {
-        scePrintf(D_006369D8);
+        scePrintf("Libcdvd call Clock read 1\n");
     }
     p = _sceCd_scmdrdata;
     if (sceSifCallRpc(_sceCd_cd_scmd, 1, 0, 0, 0, p, 0x10, 0, 0) < 0) {
@@ -90,7 +86,7 @@ int sceCdReadClock(CdClock *clock)
     }
     *clock = *(CdClock *)((int)(p + 1) | 0x20000000);
     if (SCE_CD_debug[0] > 0) {
-        scePrintf(D_006369F8);
+        scePrintf("Libcdvd call Clock read 2\n");
     }
     v = *(int *)((int)p | 0x20000000);
     SignalSema(_sceCd_scmd_semid[0]);

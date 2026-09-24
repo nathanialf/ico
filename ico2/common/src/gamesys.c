@@ -93,7 +93,6 @@ void gamesysObjInfoLoad(void *h)
 
 /* unsigned: the ROM reads it with lhu (0x1B6928). */
 extern unsigned short D_0063B418;
-extern char D_0061D2D0[];
 
 /* RECONSTRUCTION: the January listing's whole gamesysObjInfoEmptyAreaSearch
  * (gamesys.c:356-413: search for an empty record, else the oldest one, clear
@@ -120,7 +119,7 @@ static inline GamesysObjInfo *gamesysObjInfoOldestSearch(GamesysObjInfoReq *req)
             }
         }
         if (k < 0) {
-            debug_StdPrintfDummy(D_0061D2D0);
+            debug_StdPrintfDummy("gamesysObjInfoEmptyAreaSearch not area found");
             return 0;
         }
         p = &((GamesysObjInfo *)D_004DA980)[k];
@@ -149,7 +148,6 @@ GamesysObjInfo *gamesysObjInfoEmptyAreaSearch(GamesysObjInfoReq *req)
 extern GamesysObjInfo *gamesysObjInfoEmptyAreaSearch(GamesysObjInfoReq *req);
 /* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
 extern float _Sqrt(float x);
-extern char D_0061D300[];
 
 int *gamesysObjInfoBaseSet(int *self, int stage)
 {
@@ -212,7 +210,7 @@ int *gamesysObjInfoBaseSet(int *self, int stage)
             p->rot[0] = -atan2f(v[1], _Sqrt(1.0f - v[1] * v[1]));
         }
     } else {
-        debug_StdPrintfDummy(D_0061D300, req.start, req.end);
+        debug_StdPrintfDummy("gamesys: gamesysObjInfoPosSet:%d - %d \n", req.start, req.end);
     }
     return (int *)p;
 }
@@ -227,7 +225,6 @@ void gamesysBackStageProcess(void)
     backStageProcessMain();
 }
 
-extern char D_0061D328[];
 extern void memcpy();
 
 void gamesysMemoryHandlerWrite(int *self, int n, int a2)
@@ -236,7 +233,7 @@ void gamesysMemoryHandlerWrite(int *self, int n, int a2)
         memcpy(self[0] + self[1], n);
     }
     self[1] += a2;
-    debug_StdPrintfDummy(D_0061D328, self[1]);
+    debug_StdPrintfDummy("write size %d\n", self[1]);
 }
 
 void gamesysGeneratorInfoSave(int *self)

@@ -10,6 +10,7 @@
 #include "gflag.h"
 #include "StageAnimation.h"
 #include "act.h"
+#include "e3.h"
 #include "typedef.h"
 
 extern ActMail D_004FAF30[];
@@ -252,7 +253,59 @@ void actSt17aHasiChk(volatile int a0)
     _ACTWait(1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st17a", actSt17aHasiEffect);
+/* The seven spawn positions are initialised block locals, as in e3.c's
+ * actE3CageFallEffect: their templates are this TU's anonymous .rodata
+ * (VMA 0x622FB0..0x623020), and loop.c hoists each template's first
+ * doubleword out of the frame loop because the constant cannot change. */
+void actSt17aHasiEffect(volatile int a0)
+{
+    float t;
+    int n;
+
+    t = 0.0f;
+    do {
+        switch ((int)t) {
+        case 0: {
+            EffectArg b1 = {{3645.0f, -1966.0f, 1122.0f, 1.0f}};
+            scpEffectStart(&b1, 15);
+        } break;
+        case 15: {
+            EffectArg b2 = {{3753.0f, -1936.0f, 1090.0f, 1.0f}};
+            scpEffectStart(&b2, 0);
+        }
+            {
+                EffectArg b3 = {{3605.0f, -1866.0f, 1150.0f, 1.0f}};
+                scpEffectStart(&b3, 15);
+            }
+            break;
+        case 60: {
+            EffectArg b4 = {{3759.0f, -1666.0f, 1152.0f, 1.0f}};
+            scpEffectStart(&b4, 15);
+        }
+            {
+                EffectArg b5 = {{3305.0f, -1566.0f, 1082.0f, 1.0f}};
+                scpEffectStart(&b5, 0);
+            }
+            break;
+        case 120: {
+            EffectArg b6 = {{3545.0f, -1466.0f, 1120.0f, 1.0f}};
+            scpEffectStart(&b6, 0);
+        }
+            {
+                EffectArg b7 = {{3655.0f, -1066.0f, 1477.0f, 1.0f}};
+                scpEffectStart(&b7, 0);
+            }
+            break;
+        }
+        n = (int)t;
+        t += (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f;
+        if (n != (int)t) {
+            _ACTWait(1);
+        } else {
+            t += 1.0f;
+        }
+    } while (t < 1000.0f);
+}
 
 extern PadState D_0028F8F0[];
 /* as script.h declares it; this TU does not include that header */

@@ -418,8 +418,8 @@ segments:
       - [0x167258, c, sce/libcdvd/cdvd014]  # 1 funcs, vendor libcdvd.a member cdvd014.o (sceCdGetDiskType, MAIN.MAP 0x98)
       - [0x1672F0, c, sce/libcdvd/cdvd015]  # 1 funcs, vendor libcdvd.a member cdvd015.o (sceCdGetError, MAIN.MAP 0x98)
       - [0x167388, c, sce/libcdvd/libcdvd_267388]  # 3 funcs, sceCdStatus sceCdBreak sceCdReadClock: libcdvd.a members absent from the January MAIN.MAP link (SRCFILE.TXT carries them, retail revision), member names unknown, one row named by its address until the ROM forces a split
-      - [0x1675F0, c, sce/libcdvd/cdvd047]  # 11 funcs, vendor libcdvd.a member cdvd047.o: MAIN.MAP 0x4E0 covers sceCdStInit..sceCdStream; _send_to_iop after it is unreferenced (no jal, no address word) so it rides the member linked for the others, the retail revision
-      - [0x167C00, c, sce/libpad/libpad]  # 29 funcs, vendor libpad.a whole run (29/29 MAIN.MAP)
+      - [0x1675F0, c, sce/libcdvd/cdvd047]  # 10 funcs, vendor libcdvd.a member cdvd047.o: MAIN.MAP 0x4E0 covers sceCdStInit..sceCdStream exactly (chain 1 pass 107 corrected the earlier claim that _send_to_iop after it was unreferenced word) so it rides the member linked for the others, the retail revision
+      - [0x167AD0, c, sce/libpad/libpad]  # 30 funcs, vendor libpad.a whole run: _send_to_iop first (MAIN.MAP libpad.o .text begins where cdvd047.o's 0x4E0 ends, the listing has libpad's jal to it at 0x26C754, and its string is libpad.o's first .rodata entry), then the 29 scePad entry points
       - [0x168E78, c, sce/libmc/libmc]  # 26 funcs, vendor libmc.a member libmc.o (26/26 MAIN.MAP)
       - [0x16A630, c, sce/libmpeg/libmpeg]  # 141 funcs, vendor libmpeg.a whole run (140/141 MAIN.MAP)
       - [0x172338, c, sce/libipu/libipu]  # 3 funcs, vendor libipu.a member libipu.o (spans 0xE8, 0x150, 0x68 tile the retail run)
@@ -666,7 +666,10 @@ segments:
       - [0x44A2C0, .data, sce/libgraph/graph002]  # the member's .data (data pass 3): the VIF1 reset packet, VMA 0x54A2C0..0x54A2E0, 32 B
       - [0x44A2E0, data, cod/44A2E0]     # data blob resume
       - [0x44A2F0, .data, sce/libvu0/libvu0]  # the member's .data (data pass 3): the sine coefficients and the packet, VMA 0x54A2F0..0x54A320, 48 B
-      - [0x44A320, data, cod/44A320]     # data blob resume
+      - [0x44A320, .data, sce/libdma/libdma]  # the member's whole .data (chain 1 pass 107): dch, sceDmaDebugMode and sceDmaCurrentEnv named from MAIN.MAP, the build stamp "PsIIlibdma  2200" and the four channel code tables as statics, VMA 0x54A320..0x54A3CC, 172 B
+      - [0x44A3CC, data, cod/44A3CC]     # data blob resume
+      - [0x44BFB0, .data, sce/libcdvd/cdvd047]  # the member's .data (chain 1 pass 107): the stream-started flag as a static int, VMA 0x54BFB0, 4 B
+      - [0x44BFB4, data, cod/44BFB4]     # data blob resume
       - [0x44CAD0, .data, sce/libipu/ipuinit]  # the member's .data (data pass 3): the version stamp and the quantiser and colour tables, VMA 0x54CAD0..0x54CB50, 128 B
       - [0x44CB50, .data, sce/libscf/libscf]  # the member's whole .data as three named statics in VMA order (chain 1 pass 106): the build stamp "PsIIlibscf  2200" (16 B), the T10K OSD config shadow (timezone 540, 8 B) and the 16-byte rom0:ROMVER cache with its explicit zero initialiser (ee-gcc keeps it in .data), VMA 0x54CB50..0x54CB78, 40 B
       - [0x44CB78, data, cod/44CB78]     # data blob resume (D_0054CB78 onward belongs to libsndn2/sg)
@@ -826,7 +829,7 @@ segments:
       - [0x51CFF8, .rodata, ico2/common/src/debug_exception]  # plain-rodata: traceLine's SrcRef initialiser template (anonymous, so the TU's unnamed .rodata lands here), 4 words of 0xFFFFFFFF, VMA 0x61CFF8..0x61D008
       - [0x51D008, rodata, cod/51D008]   # .rodata blob resume (strings)
       - [0x51D2B0, .rodata, ico2/common/src/debug_menu]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x61D2B0..0x61D6F0, 1088 B
-      - [0x51D2D0, rodata, cod/51D2D0]     # rodata blob resume
+      - [0x51D2D0, .rodata, ico2/common/src/gamesys]  # the TU's whole .rodata (chain 1 pass 107): its three strings as literals at the use sites, VMA 0x61D2D0..0x61D337, 103 B, padded to icoMisc's row at 0x61D340
       - [0x51D340, .rodata, ico2/common/src/icoMisc]  # the TU's .rodata run as source (completeness pass 66), VMA 0x61D340, 0x32A B, the compiled-out white template among its strings, kanban's row follows
       - [0x51D670, .rodata, ico2/common/src/kanban]  # the TU's whole .rodata run as source (data pass 5), abutting kanbanBoot's switch table, VMA 0x61D670..0x61D6EF, 127 B
       - [0x51D6F0, .rodata, ico2/common/src/kanbanBoot]  # syms: 0x0061D6F0  carved jtbl_0061D6F0 (kanbanBootMcCheck's first 5-arm table, 0x14 B, 16-aligned), VMA 0x61D6F0..0x61D710
@@ -958,6 +961,8 @@ segments:
       - [0x522E10, .rodata, ico2/script/src/st13c]  # the TU's whole .rodata run as source (data pass 2): "BackStageOff\n", two animation-id tables, the sleep face vector and nine cage-fall effect positions; VMA 0x622E10..0x622F20, 272 B, no pad
       - [0x522F20, .rodata, ico2/script/src/st13d]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x622F20..0x623428, 1288 B
       - [0x522F60, rodata, cod/522F60]     # rodata blob resume
+      - [0x522FB0, .rodata, ico2/script/src/st17a]  # actSt17aHasiEffect's seven EffectArg block initialisers (chain 1 pass 107, the e3.c twin's form), anonymous, VMA 0x622FB0..0x623020, 112 B
+      - [0x523020, rodata, cod/523020]     # rodata blob resume
       - [0x523060, .rodata, ico2/script/src/st19a]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x623060..0x623428, 968 B
       - [0x523070, .rodata, ico2/script/src/st20a]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x623070..0x623428, 952 B
       - [0x523090, rodata, cod/523090]     # rodata blob resume
@@ -983,6 +988,9 @@ segments:
       - [0x536610, .rodata, sce/libdma/libdma]  # the wait loops' one string literal "libdma: sync timeout\n" (0x16 B, = MAIN.MAP libdma.o .rodata 0x16), VMA 0x636610..0x636626, padded to 0x636628 where tty.o's strings begin
       - [0x536628, .rodata, sce/libkernl/libkernl_25EF18]  # the member's rodata as source (completeness pass 65): its strings then _sceFs_Rcv_Intr's 25-entry jump table (section .rodata.0x006366A0), one run, VMA 0x636628..0x636704
       - [0x536704, rodata, cod/536704]  # .rodata blob resume
+      - [0x5369C8, .rodata, sce/libcdvd/libcdvd_267388]  # the member's three strings as literals (chain 1 pass 107), anonymous, VMA 0x6369C8..0x636A13, 75 B, padded to cdvd047's strings at 0x636A18
+      - [0x536A18, .rodata, sce/libcdvd/cdvd047]  # the member's whole .rodata (= MAIN.MAP cdvd047.o .rodata 0x11C): its nine strings as literals (chain 1 pass 107), anonymous, VMA 0x636A18..0x636B34, 284 B
+      - [0x536B34, rodata, cod/536B34]  # .rodata blob resume (libpad.o's strings begin at 0x636B38)
       - [0x536DC0, .rodata, sce/libmpeg/libmpeg]  # _getpic's jump table jtbl_00636DC0 (5 words, section .rodata.0x00636DC0), VMA 0x636DC0..0x636DD4; cases 3 and 4 share a block
       - [0x536DD4, rodata, cod/536DD4]   # .rodata blob resume
       - [0x5371D0, .rodata, sce/libscf/libscf]  # the member's whole .rodata run (0xF6 B + 2 B link pad): its twelve string literals in order of first use (rom0:ROMVER, the two ROM errors, the four OSD printf formats, libscf.c from __FILE__, the assert texts) with the month table between the assert groups because adddate precedes AdjustTime, VMA 0x6371D0..0x6372C8; libscf builds at -G 0 so its 7-byte string stays out of .sdata
@@ -1365,4 +1373,6 @@ segments:
       - { type: .bss, vram: 0x0072A040, name: ico2/ito/mpeg/mv_disp }  # the TU's own .bss, 0x280 B, VMA 0x72A040..0x72A2C0; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x0072A2C0, name: ico2/common/src/GobjProc }  # the TU's own .bss, 0x340 B, VMA 0x72A2C0..0x72A600; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x0072A600, name: cod/0072A600 }  # .bss blob resume
+      - { type: .bss, vram: 0x0072F1D8, name: sce/libcdvd/cdvd047 }  # the member's .bss (chain 1 pass 107): the stream read mode record as a static, VMA 0x72F1D8, 4 B
+      - { type: bss, vram: 0x0072F1DC, name: cod/0072F1DC }  # .bss blob resume
   - [0x53C0F6]

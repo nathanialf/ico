@@ -267,7 +267,96 @@ int Vibration_WaveDecode(SHOCKREQUEST *p, int level)
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/ios/shockdriver", Shock_Request);
+extern char D_00551D98[]; /* "voice error? %d\n" */
+/* Declared void ahead of their definitions: Shock_Request's inlined call sets
+ * no return value (local-alloc then gives the next byte load $2, as the ROM). */
+extern void Vibration_SetDecodeData(void *a0, int a1, int a2, unsigned char a3, unsigned char a4);
+extern void ShockRequestBox_Regst(struct PadNode **head, struct PadNode *new_node);
+
+/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
+ * ShockDriver_GetShockVoice (row 88), with ShockDriver_GetShockVoiceSet (rows 77-79)
+ * inlined inside it, and ShockRequestBox_Request into Shock_Request; each keeps its
+ * plain definition at its own ROM position and the caller inlines these static
+ * stand-ins, which collapse at layout. */
+static inline int getShockVoiceSet(unsigned idx)
+{
+    if (idx >= (unsigned)System_shock_driver->count)
+        return 0;
+    return System_shock_driver->arr[idx];
+}
+
+static inline int getShockVoice(int voice, int n)
+{
+    int set = getShockVoiceSet(voice);
+    return (set != 0 && (unsigned)n < *(unsigned short *)(*(int *)set + 8))
+               ? *(int *)(set + 0xC) + n * 4
+               : 0;
+}
+
+static inline SHOCKREQUEST *requestBoxRequest(ShockRequestBox *box, ShockParam *p, ShockParam v,
+                                              int key, int arg)
+{
+    ShockVoiceSet *vs;
+    SHOCKREQUEST *req;
+    int wave;
+    int shot;
+    int t;
+
+    if (System_shock_driver == 0)
+        return 0;
+    if (box == 0)
+        return 0;
+
+    vs = (ShockVoiceSet *)System_shock_driver->arr[v.voice];
+    if (vs == 0)
+        return 0;
+
+    req = box->alloc(box->arg, arg);
+    if (req == 0)
+        return 0;
+
+    req->voice = v.voice;
+    req->arg = arg;
+    req->key = key;
+
+    if (p->voice != 0xFF) {
+        wave = (int)vs->wave + vs->wave[p->voice];
+    } else {
+        wave = 0;
+    }
+    if (p->b1 != 0xFF) {
+        shot = (int)vs->shot + vs->shot[p->b1];
+    } else {
+        shot = 0;
+    }
+    Vibration_SetDecodeData(req, wave, shot, 0xFF, 0x40);
+    req->b1 = v.b1;
+    t = p->b2 * v.b2 / 0xFF;
+    req->b2 = (t < 0x100) ? t : 0xFF;
+    t = p->b3 * v.b3 / 0x40;
+    if (t >= 0x100)
+        t = 0xFF;
+    req->b3 = t;
+    ShockRequestBox_Regst((struct PadNode **)box, (struct PadNode *)req);
+    return req;
+}
+
+SHOCKREQUEST *Shock_Request(ShockRequestBox *box, int level, ShockParam v, int key, int arg)
+{
+    ShockParam *p;
+    SHOCKREQUEST *req;
+
+    p = (ShockParam *)getShockVoice(v.voice, level);
+    if (p == 0) {
+        debug_StdPrintfDummy(D_00551D98, v.voice);
+        return 0;
+    }
+    req = requestBoxRequest(box, p, v, key, arg);
+    if (req != 0) {
+        *(ShockParam **)((char *)req + 0x3C) = p;
+    }
+    return req;
+}
 
 void Shock_SetMotor(int a0, int a1, ShockReq *box, int a3, int a4)
 {
