@@ -633,7 +633,95 @@ void GetSkeltonOrient(float *out, void *obj, int node)
     sceVu0ApplyMatrix(out, (char *)(GOBJ_SUB(obj)->f_C + (n << 6)), out);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/act-game", ACTGame_InnerVelocityUpdate);
+/* listing rows fumi/src/act-game.c:2619-2674.  Line 2626 carries the FSqrt
+   call, the speed's copy, both loads of the parameter-block pointer and the
+   store of the speed, and line 2627 the three stores of pos.  WHAT THE BYTES
+   PIN: the speed is computed before the block pointer is fetched (the chase
+   follows the call), and both hops of that fetch go through one pointer
+   variable (a single pseudo set twice, global because the stores and the
+   2649 counter use it, which is the ROM's `lw $3,0x164($16)` then
+   `lw $3,0x688($3)`; the one-assignment spelling gives $2 then $3); the pos
+   stores go through it and the two thresholds test the speed itself.  WHAT
+   THEY CANNOT PIN: whether the 2001 source wrote those steps as separate
+   statements on that one line or through a macro. */
+void ACTGame_InnerVelocityUpdate(char *self)
+{
+    float pos[4];
+    int slow;
+    int stop;
+    int nomove;
+    char *p;
+    float speed;
+
+    slow = 0;
+    stop = 0;
+    pos[0] = ((float *)test_CURRENTROOT((int *)self))[0];
+    pos[1] = ((float *)test_CURRENTROOT((int *)self))[1];
+    pos[2] = ((float *)test_CURRENTROOT((int *)self))[2];
+    sceVu0SubVector((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x430, pos,
+                    (char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x420);
+    speed = FSqrt(*(float *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x430) *
+                      *(float *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x430) +
+                  *(float *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x434) *
+                      *(float *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x434) +
+                  *(float *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x438) *
+                      *(float *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x438));
+    p = (char *)*(int *)(self + 0x164);
+    p = (char *)*(int *)(p + 0x688);
+    *(float *)(p + 0x440) = speed;
+    *(float *)(p + 0x420) = pos[0];
+    *(float *)(p + 0x424) = pos[1];
+    *(float *)(p + 0x428) = pos[2];
+    if (speed < 6.0f) {
+        slow = 1;
+    }
+    if (speed < 2.0f) {
+        stop = 1;
+    }
+    if (slow != 0) {
+        *(int *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x444) += 1;
+    } else {
+        *(int *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x444) = 0;
+    }
+    if (stop != 0) {
+        *(int *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x448) += 1;
+    } else {
+        *(int *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x448) = 0;
+    }
+    if (4 <= *(int *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x444)) {
+        ((ActStatusWord *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x448))->q |=
+            1ULL << 32;
+    } else {
+        ((ActStatusWord *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x448))->q &=
+            ~(1ULL << 32);
+    }
+    if (4 <= *(int *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x448)) {
+        ((ActStatusWord *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x448))->q |=
+            1ULL << 33;
+    } else {
+        ((ActStatusWord *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x448))->q &=
+            ~(1ULL << 33);
+    }
+    nomove = 0;
+    if (((&D_0055FE58[*(int *)(*(char **)(self + 0x15C) + 0x4A0)])->f_18C >> 10) & 1) {
+        if (*(float *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x440) < 4.0f) {
+            nomove = 1;
+        }
+    }
+    if (nomove != 0) {
+        *(int *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x450) += 1;
+    } else {
+        *(int *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x450) = 0;
+    }
+    if (*(int *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x450) >
+        (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 5) {
+        ((ActStatusWord *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x450))->q |=
+            1ULL << 32;
+    } else {
+        ((ActStatusWord *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x450))->q &=
+            ~(1ULL << 32);
+    }
+}
 
 extern char D_005577D0[];
 

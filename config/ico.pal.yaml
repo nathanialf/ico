@@ -582,6 +582,8 @@ segments:
       - [0x3E5AA0, .data, ico2/sugipon/src/box]  # the TU's .data run as source (completeness pass 68): leverGeoInit, the 29 routes and their table, the hold points, the BoxWork record and its init, seven constants, 0x810 B, VMA 0x4E5AA0..0x4E62B0, boy's row follows
       - [0x3E62B0, .data, ico2/sugipon/src/boy]  # the TU's whole .data run as source (completeness pass 7): the cloth mesh then the earlier tables, VMA 0x4E62B0..0x4E6E10
       - [0x3E6E10, data, cod/3E6E10]     # .data blob resume
+      - [0x3E6E20, .data, ico2/sugipon/src/cage]  # the TU's whole .data (chain 1 pass 110): cageChainParam[2] (a typed 80-byte record with a sceVu0FVECTOR root) and cageDown as named statics, VMA 0x4E6E20..0x4E6ED0, 0xB0 B
+      - [0x3E6ED0, data, cod/3E6ED0]     # .data blob resume
       - [0x3E7060, .data, ico2/sugipon/src/clothTest]  # the TU's whole .data run as source (data pass 3): twenty anchors and the two cloth configurations, VMA 0x4E7060..0x4E7458, 1016 B
       - [0x3E7458, data, cod/3E7458]     # data blob resume
       - [0x3E7460, .data, ico2/sugipon/src/darkVolume]  # the TU's .data as source (chain 1 pass 74): two homogeneous centre points, gameOverCenter and darkVolumeCenter, named statics as .data.<name> sections 16 B each in ROM order, VMA 0x4E7460..0x4E7480, 32 B, bytes equal to the ROM run; effectTool's .data follows with no resume blob
@@ -668,6 +670,8 @@ segments:
       - [0x44A540, .data, sce/libcdvd/cdvd000]  # the member's whole .data (= MAIN.MAP cdvd000.o .data 0x1A70, chain 3 pass 109): the 15 MAIN.MAP-named globals (SCE_CD_debug, the semaphore ids, the callback words, the 64-aligned RPC buffers, the client records) and the role-named statics (build stamp "PsIIlibcdvd 2240", keep_cmd words, bind words at -1, init count), VMA 0x54A540..0x54BFB0; cdvd047's carve follows directly
       - [0x44BFB0, .data, sce/libcdvd/cdvd047]  # the member's .data (chain 1 pass 107): the stream-started flag as a static int, VMA 0x54BFB0, 4 B
       - [0x44BFB4, data, cod/44BFB4]     # data blob resume
+      - [0x44C000, .data, sce/libmc/libmc]  # the member's .data (chain 1 pass 110, MAIN.MAP names nothing): sceMcVersion, mcFunc and mcSema as statics, VMA 0x54C000..0x54C018, 24 B
+      - [0x44C018, data, cod/44C018]     # data blob resume
       - [0x44CAD0, .data, sce/libipu/ipuinit]  # the member's .data (data pass 3): the version stamp and the quantiser and colour tables, VMA 0x54CAD0..0x54CB50, 128 B
       - [0x44CB50, .data, sce/libscf/libscf]  # the member's whole .data as three named statics in VMA order (chain 1 pass 106): the build stamp "PsIIlibscf  2200" (16 B), the T10K OSD config shadow (timezone 540, 8 B) and the 16-byte rom0:ROMVER cache with its explicit zero initialiser (ee-gcc keeps it in .data), VMA 0x54CB50..0x54CB78, 40 B
       - [0x44CB78, data, cod/44CB78]     # data blob resume (D_0054CB78 onward belongs to libsndn2/sg)
@@ -858,7 +862,8 @@ segments:
       - [0x51F060, .rodata, ico2/sugipon/src/box]  # carved jtbl_0061F060 (action, section .rodata.0x0061F060), VMA 0x61F060..0x61F080
       - [0x51F080, rodata, cod/51F080]     # .rodata blob resume
       - [0x51F158, .rodata, ico2/sugipon/src/boy]  # the TU's whole .rodata run as source (completeness pass 7): the mesh texture name and strings, VMA 0x61F158..0x61F182
-      - [0x51F182, rodata, cod/51F182]     # .rodata blob resume
+      - [0x51F182, rodata, cod/51F182]     # .rodata blob resume (6 B)
+      - [0x51F188, .rodata, ico2/sugipon/src/cage]  # the TU's .rodata (chain 1 pass 110): "src/cage.c" from __FILE__, anonymous, VMA 0x61F188..0x61F193, padded to candle's row at 0x61F198
       - [0x51F198, .rodata, ico2/sugipon/src/candle]  # the TU's whole .rodata run as source (completeness pass 5), VMA 0x61F198..0x61F1D0, 55 B emitted
       - [0x51F1D0, .rodata, ico2/sugipon/src/clipCollisionManager]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP clipCollisionManager.o .rodata 0x48), VMA 0x61F1D0..0x61F218, 72 B
       - [0x51F218, rodata, cod/51F218]     # rodata blob resume
@@ -922,8 +927,7 @@ segments:
       - [0x521960, .rodata, ico2/seki/src/EnemyInit]  # the TU's .rodata (chain 1 pass 108, = MAIN.MAP 0x10): iosMallocDebug's "src/EnemyInit.c" file literal, VMA 0x621960..0x621970; gobj_cam_dl follows directly
       - [0x521970, .rodata, ico2/fumi/isys/gobj_cam_dl]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x621970..0x6229B0, 4160 B
       - [0x521A00, rodata, cod/521A00]     # rodata blob resume
-      - [0x521B50, .rodata, ico2/fumi/src/act-way]  # ACTWayMove_NextDetail's EUC-JP "no route" trace string (20 B), VMA 0x621B50..0x621B64; DetourCheck's four strings after it stay in the blob
-      - [0x521B64, rodata, cod/521B64]     # rodata blob resume
+      - [0x521B50, .rodata, ico2/fumi/src/act-way]  # the TU's whole .rodata (chain 1 pass 110): ACTWayMove_NextDetail's EUC-JP "no route" trace string, DetourCheck's format and the three disabled WBP prints' strings as literals, VMA 0x621B50..0x621BAB, padded to act's row at 0x621BB0
       - [0x521BB0, .rodata, ico2/fumi/src/act]  # the TU's whole .rodata run as source (completeness pass 65; MAIN.MAP line 6585), 400 B; the blob before it holds act-way's strings, seMail's run follows
       - [0x521D40, .rodata, ico2/fumi/src/seMail]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x621D40..0x6229B0, 3184 B
       - [0x521D58, .rodata, ico2/fumi/src/way_kidnap]  # the TU's whole .rodata run as source (completeness pass 69), eight literals, 0x125 B as MAIN.MAP line 6587 gives, VMA 0x621D58..0x621E7D, anonymous, way_llf's row follows
@@ -982,6 +986,8 @@ segments:
       - [0x5363FC, rodata, cod/5363FC]     # .rodata blob resume
       - [0x536400, .rodata, sce/libgraph/graph017]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x636400..0x636610, 528 B
       - [0x536440, rodata, cod/536440]     # rodata blob resume
+      - [0x536520, .rodata, sce/libgraph/graph018]  # sceGsExecStoreImage's 59-entry jump table on psm (section .rodata.0x00636520, 0xEC B, chain 1 pass 110), anonymous, VMA 0x636520..0x63660C
+      - [0x53660C, rodata, cod/53660C]     # rodata blob resume (4 B before libdma's string)
       - [0x536610, .rodata, sce/libdma/libdma]  # the wait loops' one string literal "libdma: sync timeout\n" (0x16 B, = MAIN.MAP libdma.o .rodata 0x16), VMA 0x636610..0x636626, padded to 0x636628 where tty.o's strings begin
       - [0x536628, .rodata, sce/libkernl/libkernl_25EF18]  # the member's rodata as source (completeness pass 65): its strings then _sceFs_Rcv_Intr's 25-entry jump table (section .rodata.0x006366A0), one run, VMA 0x636628..0x636704
       - [0x536704, rodata, cod/536704]  # .rodata blob resume
@@ -1379,4 +1385,6 @@ segments:
       - { type: bss, vram: 0x0072F1D4, name: cod/0072F1D4 }  # .bss blob resume (4 B of fill before cdvd047's record)
       - { type: .bss, vram: 0x0072F1D8, name: sce/libcdvd/cdvd047 }  # the member's .bss (chain 1 pass 107): the stream read mode record as a static, VMA 0x72F1D8, 4 B
       - { type: bss, vram: 0x0072F1DC, name: cod/0072F1DC }  # .bss blob resume
+      - { type: .bss, vram: 0x0072F5C0, name: sce/libmc/libmc }  # the member's whole .bss (chain 1 pass 110, 0x1600 B): ten role-named statics in ROM order, VMA 0x72F5C0..0x730BC0
+      - { type: bss, vram: 0x00730BC0, name: cod/00730BC0 }  # .bss blob resume
   - [0x53C0F6]

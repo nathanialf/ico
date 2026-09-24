@@ -70,19 +70,31 @@ extern void iosFree(void *p);
 /* the game heap handles, declared int as sugipon's other TUs do
    (girlForceField.c, candle.c) and cast at the allocator calls */
 extern int D_0063A438;
-/* the "src/cage.c" path string the debug allocator logs; it still lives in the
- * blob, so the TU reaches it by symbol rather than emitting its own D_0061F188 */
-extern char D_0061F188[];
 extern int D_0063A44C;
 
-/* RECONSTRUCTION: the pair of 80-byte chain-parameter records this TU copies
- * into the request block it hands to InitChains.  The record is 8-aligned,
- * which is what gives the ROM's ld/sd block copy. */
+/* RECONSTRUCTION: one 80-byte chain-parameter record per chain, the list
+ * InitChains walks until num is -1.  The fields are the ones clothAnimation.c
+ * reads (count 0x0, focus node 0x10, node spacing 0x14, root 0x20, the length
+ * weight 0x40); the root is a homogeneous vector, which makes the record
+ * 16-aligned and gives the ROM's doubleword block copy. */
 typedef struct {
-    long long d[10];
+    int num;
+    int pad04[3];
+    int node;
+    float step;
+    int pad18[2];
+    sceVu0FVECTOR root;
+    int pad30[4];
+    float length;
+    int pad44[3];
 } CageChainParam;
 
-extern CageChainParam D_004E6E20[];
+/* the cage's one chain, 2 nodes 500 apart hanging from the cage root */
+static CageChainParam cageChainParam[2] = {
+    {2, {0, 0, 0}, -1, 500.0f, {0, 0}, {0.0f, 0.0f, 0.0f, 1.0f}, {0, 0, 0, 0}, 100.0f},
+    {-1},
+};
+
 /* the object-kind table, one 40-byte row per cage kind, the first two words of
  * the row being the two display-list ids the cage builds its DObjs from */
 extern char D_002A79B8[];
@@ -108,8 +120,8 @@ char *InitCageGeo(char *self, char *lay)
     int i;
     float one;
 
-    w = (char *)iosMallocDebug((void *)D_0063A438, 80, D_0061F188, 97);
-    ch = (char *)iosMallocDebug((void *)D_0063A438, 160, D_0061F188, 98);
+    w = (char *)iosMallocDebug((void *)D_0063A438, 80, __FILE__, 97);
+    ch = (char *)iosMallocDebug((void *)D_0063A438, 160, __FILE__, 98);
     *(char **)w = CSVSYSTEM_InitDObj(
         *(int *)(D_002A79B8 + *(int *)(((GObjSubSlot *)(self + 0x15C))->handle + 0x844) * 40),
         (float *)lay);
@@ -118,8 +130,8 @@ char *InitCageGeo(char *self, char *lay)
         (float *)lay);
     *(float *)(w + 0x3C) = 0.995f;
     *(float *)(w + 0x38) = *(float *)(lay + 0x20);
-    ((CageChainParam *)ch)[0] = D_004E6E20[0];
-    ((CageChainParam *)ch)[1] = D_004E6E20[1];
+    ((CageChainParam *)ch)[0] = cageChainParam[0];
+    ((CageChainParam *)ch)[1] = cageChainParam[1];
     *(float *)(ch + 0x20) = *(float *)lay;
     *(float *)(ch + 0x24) = *(float *)(lay + 4);
     *(float *)(ch + 0x28) = *(float *)(lay + 8);
@@ -157,15 +169,15 @@ char *InitCageGeo(char *self, char *lay)
     }
     *(char **)(*(char **)w + 0x10) = *(char **)(*(char **)w + 0xC) = 0;
     *(void **)(*(char **)w + 0xC) =
-        iosMallocDebug((void *)D_0063A44C, *(int *)(w + 0x2C) << 6, D_0061F188, 128);
+        iosMallocDebug((void *)D_0063A44C, *(int *)(w + 0x2C) << 6, __FILE__, 128);
     *(void **)(*(char **)w + 0x10) =
-        iosMallocDebug((void *)D_0063A44C, *(int *)(w + 0x2C) << 4, D_0061F188, 128);
+        iosMallocDebug((void *)D_0063A44C, *(int *)(w + 0x2C) << 4, __FILE__, 128);
     *(int *)(*(char **)w + 0x8) = *(int *)(w + 0x2C);
     if (*(void **)(*(char **)w + 0x870) != 0) {
         iosFree((void *)((int)*(void **)(*(char **)w + 0x870) & 0x0FFFFFFF));
     }
     *(void **)(*(char **)w + 0x870) =
-        iosMallocDebug((void *)D_0063A44C, *(int *)(w + 0x2C) * 80, D_0061F188, 128);
+        iosMallocDebug((void *)D_0063A44C, *(int *)(w + 0x2C) * 80, __FILE__, 128);
     for (i = 0; i < *(int *)(w + 0x2C); i++) {
         {
             char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
@@ -287,7 +299,9 @@ extern void *GetWindVector(int kind, void *pos);
 extern void _ScaleVector(void *dst, void *src, float k);
 /* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
 extern void _AddVector(void *dst, void *a, void *b);
-extern char D_004E6EC0[];
+
+/* the world down axis the chain's swing axis is taken against */
+static sceVu0FVECTOR cageDown = {0.0f, -1.0f, 0.0f, 0.0f};
 
 static inline void SetCageChainQuaternion(void *q, void *a, void *b)
 {
@@ -299,7 +313,7 @@ static inline void SetCageChainQuaternion(void *q, void *a, void *b)
     sceVu0Normalize(d, d);
     CopyVector(n, d);
     n[1] = 0.0f;
-    sceVu0OuterProduct(axis, D_004E6EC0, n);
+    sceVu0OuterProduct(axis, cageDown, n);
     SetQuaternionByAxisRotateV(
         q, (short)(atan2f(FSqrt(d[0] * d[0] + d[2] * d[2]), d[1]) * 10430.378f), axis);
 }

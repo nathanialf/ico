@@ -6149,3 +6149,6 @@ D_00687461 = 0x00687461; // ignore:true  // ico2/seki/src/StageAnimation  // pac
 D_006C006B = 0x006C006B; // ignore:true  // ico2/fumi/sound/s_init  // blob word at ROM 0x4F740C reading as an address into the carved SE slot table .bss run, not a reference (chain 1 pass 78)
 D_006C0159 = 0x006C0159; // ignore:true  // ico2/fumi/sound/s_init  // blob word at ROM 0x1A83D0 reading as an address into the carved SE slot table .bss run, not a reference (chain 1 pass 78)
 D_006C015A = 0x006C015A; // ignore:true  // ico2/fumi/sound/s_init  // blob word at ROM 0x1A83E8 reading as an address into the carved SE slot table .bss run, not a reference (chain 1 pass 78)
+D_0073002E = 0x0073002E; // ignore:true  // cod/1A79B8  // a blob word that reads as an address into libmc's .bss run (0x72F5C0..0x730BC0), not a reference
+D_00730072 = 0x00730072; // ignore:true  // cod/4D3CE8  // a blob word that reads as an address into libmc's .bss run, not a reference
+D_00730063 = 0x00730063; // ignore:true  // ico2/fumi/ios/inflate .data  // a blob word that reads as an address into libmc's .bss run, not a reference

@@ -346,6 +346,15 @@ int ACTWayMove_NextDetail(char *self, float *node, float *goal, unsigned char d,
     GetRootProjectionPosOfGObj(pos, self);
     dy = pos[1] - *(float *)(act + 0x434);
     if (dy < 0.0f ? -dy > 120.0f : dy > 120.0f) {
+        /* WHAT THE BYTES PIN: retail keeps this string and the two recheck
+           strings below in the member's .rodata right after the EUC-JP trace
+           above, in this order, and no instruction reads any of them: disabled
+           prints, expanded here and deleted as dead code, as fumi's cdvd.c
+           keeps its two.  WHAT THEY CANNOT PIN: where in this function the
+           prints stood or how they were switched off. */
+        if (0) {
+            debug_StdPrintfDummy("WBP set [height]\n");
+        }
         ACTWay_SetBeginPositionIllegal(self);
     }
     *(float *)(act + 0x434) = pos[1];
@@ -354,6 +363,9 @@ int ACTWayMove_NextDetail(char *self, float *node, float *goal, unsigned char d,
             ((WayState *)(act + 0x438))->flags &= ~0x200000;
             DeleteGuideWay((WVTObj *)(act + 0x360));
             *(WayWork *)(act + 0x360) = wayWorkClear;
+            if (0) {
+                debug_StdPrintfDummy("WBP recheck first");
+            }
             again = 1;
         }
     }
@@ -361,6 +373,9 @@ int ACTWayMove_NextDetail(char *self, float *node, float *goal, unsigned char d,
         if (_DistGV(goal, act + 0x410) > 300.0f) {
             if (((int)(((WayState *)(act + 0x438))->flags >> 17) & 0xF) == 0) {
                 if (*(int *)(act + 0x34) != 0x26) {
+                    if (0) {
+                        debug_StdPrintfDummy("WBP recheck second");
+                    }
                     again = 1;
                 }
             }
