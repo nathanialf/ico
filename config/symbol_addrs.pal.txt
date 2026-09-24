@@ -6378,3 +6378,7 @@ D_0069006A = 0x0069006A; // ignore:true  // ico2/seki/src/Texture  // packed byt
 D_006A017C = 0x006A017C; // ignore:true  // ico2/seki/src/Texture  // packed bytes inside the 1A79B8.data.s blob that read as an address into the Texture .bss run, not a pointer
 D_006A017F = 0x006A017F; // ignore:true  // ico2/seki/src/Texture  // packed bytes inside the 1A79B8.data.s blob that read as an address into the Texture .bss run, not a pointer
 debug_bar_flag = 0x0063B130; // size:0x4  // ico2/common/src/debug  // MAIN.MAP line 7189 by position in debug.o's .sbss run (the offset checks against debug_brain_bar_flag at 0x63B138), read by debug.c and motionOrientManager.c (completeness pass 67)
+D_00550E88 = 0x00550E88; // type:asciz size:0x38  // ico2/fumi/ios/cdvd  // the empty-buffer assert format iosCdvdHandlerReadNoInflate hands sprintf, in the rodata blob cod/450C10, reached only from C now (completeness pass 69)
+D_006B0181 = 0x006B0181; // ignore:true  // ico2/fumi/ios/cdvd  // packed bytes 81 01 6B 00 at ROM 0x2A7E90 in the 0x2A79B8 data blob, not an address into the cdvd .bss run
+D_006B0182 = 0x006B0182; // ignore:true  // ico2/fumi/ios/cdvd  // packed bytes 82 01 6B 00 at ROM 0x2A7EA8 in the 0x2A79B8 data blob, not an address into the cdvd .bss run
+D_006B6165 = 0x006B6165; // ignore:true  // ico2/fumi/ios/cdvd  // packed bytes 65 61 6B 00 at ROM 0x5E806C in the 0x5D3CE8 rodata blob, not an address into the cdvd .bss run

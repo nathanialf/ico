@@ -19,7 +19,21 @@
    above their definitions */
 extern int D_0063ABA8;
 extern void *D_0063BE6C;
-extern int D_0063C4E8;
+
+/* .sbss, owned by op.o and reached only from this file, in the ROM's run order
+   0x63C4E8..0x63C4F8 (MAIN.MAP has no .sbss for op.o, the January object; the
+   run sits between e3's and st00a's in the alphabetical link order).  The
+   names are ours: titleSubEnd and demoSubEnd are the flags a title or demo
+   sub-thread raises when it is done and its parent waits on, titleAdpcm and
+   demoAdpcm the stream handles scpAdpcmPlayRequestFunc fills. */
+static int titleSubEnd;
+
+static int titleAdpcm;
+
+static int demoSubEnd;
+
+static int demoAdpcm;
+
 extern char *D_00639EA4;
 /* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(char *gobj);
@@ -94,7 +108,6 @@ extern char D_0063BE50[];
 extern char D_0063BE58[];
 extern int D_0063B60C;
 extern int D_0063B5F8;
-extern int D_0063C4EC;
 extern int mpegPlayReturnStage;
 /* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
@@ -166,7 +179,7 @@ void actOpDemo01(volatile int a0)
     D_0063BE6C = 0;
 
     while (1) {
-        D_0063C4E8 = 0;
+        titleSubEnd = 0;
         while (scpFadeChk() != 0) {
             _ACTWait(1);
         }
@@ -189,18 +202,18 @@ void actOpDemo01(volatile int a0)
                 scpAdpcmFadeCloseFunc(&D_0063BE6C, 288);
             }
             D_0063BE6C = 0;
-            D_0063C4EC = 0;
+            titleAdpcm = 0;
             th = actCreateSubThread(actTitleReadTimeDemo0, 21);
 
             t = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 10;
-            while (D_0063C4EC == 0) {
+            while (titleAdpcm == 0) {
                 _ACTWait(1);
             }
             _ACTWait(30);
 
             while (1) {
                 _ACTWait(1);
-                if (D_0063C4E8 == 0) {
+                if (titleSubEnd == 0) {
                     if (D_0028F8F0[0].flags & 0x800) {
                         D_0063BE40 = 1;
                         D_0063BE44 = 2;
@@ -212,8 +225,8 @@ void actOpDemo01(volatile int a0)
                 }
             }
 
-            if (D_0063C4EC != 0) {
-                scpAdpcmCloseFunc(&D_0063C4EC);
+            if (titleAdpcm != 0) {
+                scpAdpcmCloseFunc(&titleAdpcm);
             }
             iosThreadSetPri((int *)(th + 0x24), 34);
             scpFadeOut(0, 0, 0, 16.0f);
@@ -229,7 +242,7 @@ void actOpDemo01(volatile int a0)
 
             while (1) {
                 _ACTWait(1);
-                if (D_0063C4E8 != 0 && tick()) {
+                if (titleSubEnd != 0 && tick()) {
                     lt_switch_layout(55);
                     D_0063BE40 = D_0063BE44;
                     break;
@@ -297,7 +310,7 @@ void actTitleShortCut(volatile int a0)
     }
     _ACTWait(1);
 
-    D_0063C4E8 = 1;
+    titleSubEnd = 1;
     _ACTWait(0);
 }
 
@@ -335,8 +348,6 @@ extern int RequestStageChangeWithColor(int a0, char *a1, int a2, float a3, float
 extern int D_0063BE64;
 /* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
 extern int scpAdpcmPlayRequestNum(void);
-extern int D_0063C4F0;
-extern int D_0063C4F4;
 extern int D_0063BE60;
 extern JimakuArg jimaku_msg;
 extern int jimakuOn;
@@ -371,8 +382,8 @@ void actTitleReadTimeDemo0(volatile int a0)
 
     *(int *)(scpSearchGobj(46) + 0x16C) = 1;
 
-    scpAdpcmPlayRequestFunc(6, &D_0063C4EC, 1, 1, 1);
-    while (D_0063C4EC == 0) {
+    scpAdpcmPlayRequestFunc(6, &titleAdpcm, 1, 1, 1);
+    while (titleAdpcm == 0) {
         _ACTWait(1);
     }
 
@@ -534,7 +545,7 @@ void actTitleReadTimeDemo0(volatile int a0)
     if (D_0063BE6C == 0) {
         scpAdpcmPlayRequestFunc(56, &D_0063BE6C, 0, 0, 1);
     }
-    D_0063C4E8 = 1;
+    titleSubEnd = 1;
 
     _ACTWait(0);
 }
@@ -578,8 +589,8 @@ void actOpDemo01_2(volatile int a0)
 
     actCreateSubThread(actOpDemo01_2Chk, 21);
 
-    D_0063C4F0 = 0;
-    while (D_0063C4F0 == 0) {
+    demoSubEnd = 0;
+    while (demoSubEnd == 0) {
         if ((D_0028F8F0[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
             break;
         }
@@ -667,7 +678,7 @@ void actOpDemo01_2Chk(volatile int a0)
     }
     _ACTWait(1);
 
-    D_0063C4F0 = 1;
+    demoSubEnd = 1;
 }
 
 void actOpDemo02(volatile int a0)
@@ -685,8 +696,8 @@ void actOpDemo02(volatile int a0)
 
     stage_SetAnimation(151, 0, 0);
 
-    scpAdpcmPlayRequestFunc(8, &D_0063C4F4, 0, 1, 1);
-    while (D_0063C4F4 == 0) {
+    scpAdpcmPlayRequestFunc(8, &demoAdpcm, 0, 1, 1);
+    while (demoAdpcm == 0) {
         _ACTWait(1);
     }
 
@@ -708,17 +719,17 @@ inline void actOpDemo02Chk(volatile int a0)
 
     actCreateSubThread(actSt24aConte01_2_Jimaku, 21);
 
-    D_0063C4F0 = 0;
-    while (D_0063C4F0 == 0) {
+    demoSubEnd = 0;
+    while (demoSubEnd == 0) {
         if ((D_0028F8F0[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
             break;
         }
         _ACTWait(1);
     }
 
-    if (D_0063C4F0 == 0) {
-        if (D_0063C4F4 != 0) {
-            scpAdpcmFadeCloseFunc(&D_0063C4F4, 0x200);
+    if (demoSubEnd == 0) {
+        if (demoAdpcm != 0) {
+            scpAdpcmFadeCloseFunc(&demoAdpcm, 0x200);
         }
         if (D_0063BE60 != 0) {
             scpAdpcmFadeCloseFunc(&D_0063BE60, 0x40);
@@ -814,7 +825,7 @@ void actSt24aConte01_2(volatile int a0)
     }
     _ACTWait(1);
 
-    D_0063C4F0 = 1;
+    demoSubEnd = 1;
 }
 
 inline void actSt24aConte01_2_Jimaku(volatile int a0)
@@ -882,15 +893,15 @@ void actOpDemo03Chk(volatile int a0)
 
     actCreateSubThread(actSt13aConte01_3, 21);
 
-    D_0063C4F0 = 0;
-    while (D_0063C4F0 == 0) {
+    demoSubEnd = 0;
+    while (demoSubEnd == 0) {
         if ((D_0028F8F0[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
             break;
         }
         _ACTWait(1);
     }
 
-    if (D_0063C4F0 == 0) {
+    if (demoSubEnd == 0) {
         if (D_0063BE60 != 0) {
             scpAdpcmFadeCloseFunc(&D_0063BE60, 0x80);
             t = 16.0f;
@@ -976,6 +987,6 @@ void actSt13aConte01_3(volatile int a0)
 
     _ACTWait((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 8);
 
-    D_0063C4F0 = 1;
+    demoSubEnd = 1;
     _ACTWait(0);
 }

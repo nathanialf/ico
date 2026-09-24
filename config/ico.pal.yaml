@@ -598,7 +598,7 @@ segments:
       - [0x3ECF90, .data, ico2/sugipon/src/rotObject]  # the TU's whole .data run as source (completeness pass 5), VMA 0x4ECF90..0x4ECFA0, 16 B emitted
       - [0x3ECFA0, .data, ico2/sugipon/src/spider]  # the TU's .data (data pass 5), abutting spiderGroupManager's run, VMA 0x4ECFA0..0x4ECFB0, 16 B
       - [0x3ECFB0, .data, ico2/sugipon/src/spiderGroupManager]  # the TU's whole .data run as source (data pass 3): seven RGBA tints, VMA 0x4ECFB0..0x4ED020, 112 B
-      - [0x3ED020, data, cod/3ED020]     # data blob resume
+      - [0x3ED020, .data, ico2/sugipon/src/staticBlur]  # the TU's .data run as source (completeness pass 69), thirteen statics in ROM order, 208 B, VMA 0x4ED020..0x4ED0F0, stormTest's row abuts
       - [0x3ED0F0, .data, ico2/sugipon/src/stormTest]  # the TU's whole .data run as source (data pass 3): the clip plane, VMA 0x4ED0F0..0x4ED100, 16 B
       - [0x3ED100, .data, ico2/sugipon/src/streamMotionManager]  # the TU's whole .data run as source (completeness pass 5), VMA 0x4ED100..0x4ED120, 28 B emitted
       - [0x3ED120, .data, ico2/sugipon/src/torch]  # the TU's whole .data run as source (data pass 5), VMA 0x4ED120..0x4ED170, 80 B
@@ -837,7 +837,8 @@ segments:
       - [0x51DD30, .rodata, ico2/common/src/layout_action]  # carved jtbl_0061DD30 (5 arms, 0x14): la_format_processing's switch table, emitted by the compiled function; VMA 0x61DD30..0x61DD44
       - [0x51DD44, rodata, cod/51DD44]   # .rodata blob resume (three pad words)
       - [0x51DD60, .rodata, ico2/common/src/layout_texture]  # texture_fading's jump table (9 entries on the state word, section .rodata.0x0061DD60, 36 B), the linker's pad word, then display_texture's double pool (pi and 10430.3779296875 twice, plain rodata, 32 B); anonymous, VMA 0x61DD60..0x61DDA8
-      - [0x51DDA8, rodata, cod/51DDA8]     # .rodata blob resume
+      - [0x51DDA8, rodata, cod/51DDA8]     # .rodata blob resume (layout_texture's two strings)
+      - [0x51DDD8, .rodata, ico2/common/src/sceneManager]  # the TU's whole .rodata run as source (completeness pass 69), seven literals at their use sites, 0x12F B as MAIN.MAP line 6494 gives, VMA 0x61DDD8..0x61DF07, anonymous, staffroll's row follows after its 16-byte alignment pad
       - [0x51DF10, .rodata, ico2/common/src/staffroll]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP staffroll.o .rodata 0x4C), the switch table included, VMA 0x61DF10..0x61DF5C, 76 B
       - [0x51DF5C, rodata, cod/51DF5C]     # rodata blob resume
       - [0x51EE30, .rodata, ico2/sugipon/src/a_p_1]  # the TU's whole .rodata run as source (completeness pass 6), VMA 0x61EE30..0x61EE98, 98 B emitted
@@ -918,7 +919,7 @@ segments:
       - [0x521B64, rodata, cod/521B64]     # rodata blob resume
       - [0x521BB0, .rodata, ico2/fumi/src/act]  # the TU's whole .rodata run as source (completeness pass 65; MAIN.MAP line 6585), 400 B; the blob before it holds act-way's strings, seMail's run follows
       - [0x521D40, .rodata, ico2/fumi/src/seMail]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x621D40..0x6229B0, 3184 B
-      - [0x521D58, rodata, cod/521D58]     # rodata blob resume
+      - [0x521D58, .rodata, ico2/fumi/src/way_kidnap]  # the TU's whole .rodata run as source (completeness pass 69), eight literals, 0x125 B as MAIN.MAP line 6587 gives, VMA 0x621D58..0x621E7D, anonymous, way_llf's row follows
       - [0x521E80, .rodata, ico2/fumi/src/way_llf]  # the TU's two debug strings (completeness pass 28; the pool is numbered in source order, so CreateBridge sits at its listing position), 0x3D B, VMA 0x621E80..0x621EBD, abutting way_tool's row
       - [0x521EC0, .rodata, ico2/fumi/src/way_tool]  # the TU's whole .rodata run as source (data pass 2): 92 string literals, including the 64 way-group selector lines that gcc flushes LIFO out of debugWayGroupSelect's initialiser; VMA 0x621EC0..0x6224D9 + 7 B link pad
       - [0x5224E0, .rodata, ico2/script/src/deja]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x6224E0..0x6229B0, 1232 B
@@ -1191,7 +1192,7 @@ segments:
       - { type: .sbss, vram: 0x0063C140, name: ico2/seki/src/MicroCode }  # the TU's own .sbss, 0x4 B, VMA 0x63C140..0x63C144; static definitions in ROM run order (completeness pass)
       - { type: sbss, vram: 0x0063C144, name: cod/0063C144 }  # .sbss blob resume
       - { type: .sbss, vram: 0x0063C160, name: ico2/seki/src/Texture }  # the TU's .sbss as source (completeness pass 65)
-      - { type: sbss, vram: 0x0063C168, name: cod/0063C168 }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C168, name: ico2/fumi/ios/cdvd }  # the TU's .sbss as source (completeness pass 69), the message and load-end rings, the preload count, the running flag and the request and ack rings, VMA 0x63C168..0x63C18C, mcdata abuts
       - { type: .sbss, vram: 0x0063C18C, name: ico2/fumi/ios/mcdata }  # the TU's own .sbss, 0x4 B, VMA 0x63C18C..0x63C190; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C190, name: ico2/fumi/ios/memory }  # the TU's .sbss as source (completeness pass 65)
       - { type: .sbss, vram: 0x0063C198, name: ico2/fumi/ios/pad }  # the TU's .sbss as source (completeness pass 65)
@@ -1242,7 +1243,7 @@ segments:
       - { type: .sbss, vram: 0x0063C4CC, name: ico2/fumi/src/way_tool }  # the TU's own .sbss, 0x10 B, VMA 0x63C4CC..0x63C4DC; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C4DC, name: ico2/script/src/deja }  # the TU's own .sbss, 0x4 B, VMA 0x63C4DC..0x63C4E0; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C4E0, name: ico2/script/src/e3 }  # the TU's own .sbss, 0x8 B, VMA 0x63C4E0..0x63C4E8; static definitions in ROM run order (completeness pass)
-      - { type: sbss, vram: 0x0063C4E8, name: cod/0063C4E8 }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C4E8, name: ico2/script/src/op }  # the TU's .sbss as source (completeness pass 69), the title and demo sub-thread ends and adpcm handles, VMA 0x63C4E8..0x63C4F8, st00a abuts
       - { type: .sbss, vram: 0x0063C4F8, name: ico2/script/src/st00a }  # the TU's own .sbss, 0x4 B, VMA 0x63C4F8..0x63C4FC; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C4FC, name: ico2/script/src/st01b }  # the TU's own .sbss, 0x8 B, VMA 0x63C4FC..0x63C504; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C504, name: ico2/script/src/st02a }  # the TU's own .sbss, 0x4 B, VMA 0x63C504..0x63C508; static definitions in ROM run order (completeness pass)
@@ -1287,7 +1288,8 @@ segments:
       - { type: .bss, vram: 0x0067C070, name: ico2/seki/src/Shadow }  # the TU's .bss as source (completeness pass 65)
       - { type: bss, vram: 0x0067D098, name: cod/0067D098 }  # .bss blob resume (StageAnimation's run)
       - { type: .bss, vram: 0x0068AF88, name: ico2/seki/src/Texture }  # the TU's .bss run as source (completeness pass 66), 0x24608 B, the 200-slot texture record table and three role-named statics
-      - { type: bss, vram: 0x006AF590, name: cod/006AF590 }  # .bss blob resume
+      - { type: bss, vram: 0x006AF590, name: cod/006AF590 }  # .bss blob resume (ZFog's 0x430 B)
+      - { type: .bss, vram: 0x006AF9C0, name: ico2/fumi/ios/cdvd }  # the TU's .bss as source (completeness pass 69), the file-handle table, the background request table, the skip buffer, the stream thread and its stack and the request queue, VMA 0x6AF9C0..0x6BC860, ios abuts
       - { type: .bss, vram: 0x006BC860, name: ico2/fumi/ios/ios }  # the TU's own .bss, 0x60 B, VMA 0x6BC860..0x6BC8C0; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006BC8C0, name: ico2/fumi/ios/mcard }  # the TU's own .bss, 0x58 B, VMA 0x6BC8C0..0x6BC918; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006BC918, name: ico2/fumi/ios/memory }  # the TU's own .bss, 0x20 B, VMA 0x6BC918..0x6BC938; static definitions in ROM run order (completeness pass)
@@ -1344,7 +1346,8 @@ segments:
       - { type: .bss, vram: 0x00724BE0, name: ico2/sugipon/src/windField }  # windVector, windStrength[256], windCell[20][20] (0x20 stride), 0x3610 B = MAIN.MAP's windField.o .bss; the queue's 0x726165 bound was a false pointer into a string (completeness pass 25)
       - { type: bss, vram: 0x007281F0, name: cod/007281F0 }
       - { type: .bss, vram: 0x00728310, name: ico2/seki/src/DisplayList }  # the TU's own .bss, 0x290 B, VMA 0x728310..0x7285A0; static definitions in ROM run order (completeness pass)
-      - { type: bss, vram: 0x007285A0, name: cod/007285A0 }  # .bss blob resume
+      - { type: bss, vram: 0x007285A0, name: cod/007285A0 }  # .bss blob resume (0x70 B)
+      - { type: .bss, vram: 0x00728610, name: ico2/fumi/src/way_kidnap }  # the TU's .bss as source (completeness pass 69), the search nodes, the edge-done table, the position vectors and the position info, VMA 0x728610..0x729B58, way_tool's row follows after its 16-byte alignment
       - { type: .bss, vram: 0x00729B60, name: ico2/fumi/src/way_tool }  # the TU's own .bss, 0xB0 B, VMA 0x729B60..0x729C10; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x00729C10, name: cod/00729C10 }  # .bss blob resume
       - { type: .bss, vram: 0x00729E30, name: ico2/omori/src/access }  # the TU's own .bss, 0x210 B, VMA 0x729E30..0x72A040; static definitions in ROM run order (completeness pass)

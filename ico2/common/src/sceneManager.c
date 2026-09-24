@@ -234,7 +234,6 @@ typedef struct StageSettingScenemanager {
 
 extern StageSettingScenemanager D_0028F720;
 extern int D_0028F4F0[];
-extern char D_0061DDD8[];
 /* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector(float *dst, float *src);
 /* kept local: this TU's uses of tex_RemakeRegistersSampleMin do not fit the prototype in Texture.h */
@@ -244,7 +243,8 @@ void InitStageLight(int stage)
 {
     int i;
 
-    debug_StdPrintfDummy(D_0061DDD8);
+    /* using the Excel data for the stage information */
+    debug_StdPrintfDummy("ステージ情報にエクセルのデータを使用します.\n");
 
     for (i = 0; i < 3; i++) {
         D_0028F720.flatLightDir[0][i] = -D_005F5D50[stage].flatLightDir[i];
@@ -397,7 +397,6 @@ static inline void MoveNextStage_Get(ActInit *a, int kind)
 }
 
 extern int gamesysGirlStageGet(void);
-extern char D_0061DE08[];
 extern char D_002A5580[];
 extern void *D_00639EA8;
 extern void MakeCollisionDependGObjList(void);
@@ -441,7 +440,7 @@ void initSceneGObj(int stage, int no)
         }
     }
 
-    debug_StdPrintfDummy(D_0061DE08, no, mdl);
+    debug_StdPrintfDummy("try layout index=[%d] model_id=[%d]------------\n", no, mdl);
 
     st = 0;
 
@@ -524,10 +523,6 @@ void initSceneGObj(int stage, int no)
     MakeCollisionDependGObjList();
 }
 
-extern char D_0061DE40[];
-extern char D_0061DE88[];
-extern char D_0061DEA0[];
-extern char D_0061DEB0[];
 extern char D_0063B648[];
 extern void __assert(char *file, int line, char *expr);
 
@@ -554,17 +549,23 @@ void initParentLink(int id)
         parent = (int)isysGObjSearchFromObjLayoutID(parentId);
         if (parent != 0) {
             if (parent == self) {
-                debug_StdPrintfDummy(D_0061DE40, lay);
-                debug_assert(D_0061DE88, 502);
-                __assert(D_0061DE88, 502, D_0063B648);
+                /* tried to make "%s" a parent-child link, but it is trying to be its own
+                   parent */
+                debug_StdPrintfDummy(
+                    "\"%s\"の親子関係づけをしようとしましたが、自分を親にしようとしています。\n",
+                    lay);
+                debug_assert(__FILE__, 502);
+                __assert(__FILE__, 502, D_0063B648);
             }
-            debug_StdPrintfDummy(D_0061DEA0, lay);
+            debug_StdPrintfDummy("Parentize \"%s\"\n", lay);
             *(int *)(*(int *)(self + 0x15C)) = parent;
             *(int *)(*(int *)(self + 0x15C) + 4) = 0;
         } else {
-            debug_StdPrintfDummy(D_0061DEB0, lay);
-            debug_assert(D_0061DE88, 511);
-            __assert(D_0061DE88, 511, D_0063B648);
+            /* tried to make "%s" a parent-child link, but the parent cannot be found */
+            debug_StdPrintfDummy("\"%s\"の親子関係づけをしようとしましたが、親が見つかりません。\n",
+                                 lay);
+            debug_assert(__FILE__, 511);
+            __assert(__FILE__, 511, D_0063B648);
         }
     }
 }
@@ -628,7 +629,6 @@ extern void *D_00639EB0;
 extern void *D_00639EB4;
 extern void *D_00639EB8;
 extern void *D_00639EBC;
-extern char D_0061DEF0[];
 /* kept local: this TU's uses of isysGObjMoveAfterGObj do not fit the prototype in gobj.h */
 extern void isysGObjMoveAfterGObj(void *gobj, int *after);
 
@@ -644,7 +644,7 @@ void InitSceneObjects(int stage)
     D_00639EB8 = 0;
     D_00639EBC = 0;
 
-    debug_StdPrintfDummy(D_0061DEF0, stage);
+    debug_StdPrintfDummy("[\033[42m scene %d \033[m ]\n", stage);
 
     gsb_SetZoom(1.0f, 1000.0f);
     brainInit();

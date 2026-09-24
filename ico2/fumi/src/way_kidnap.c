@@ -34,8 +34,27 @@ typedef struct WpPosEntry {
     float len;
 } WpPosEntry;
 
-extern WpPosEntry D_007292C0[];
-extern float D_00728AC0[][4];
+/* .bss, owned by way_kidnap.o and reached only from this file (MAIN.MAP line
+   7761 gives the member, 0x11E8 in its January link, and names no symbol in
+   it), in the ROM's run order 0x728610..0x729B60.  The names are ours.
+   searchNodes is the node list WayPointWithRangeFromPos2 grows while it walks
+   the way graph and edgeDone its per-edge visited flags, each sized by the
+   count the search clears; wpPosVec and wpPosInfo are the positions and the
+   (waypoint, length) pairs add_wp_pos appends, CopyWpPos reading at most 128.
+   WHAT THE BYTES PIN: the four start offsets (0x0, 0x450, 0x4B0, 0xCB0) and
+   the run's end to 8 bytes; 275 or 276 node slots and 94 or 96 flags lay
+   out the same, but the entry table's count is pinned by the run's end (see
+   its own comment). */
+static struct WpNode *searchNodes[275];
+
+static char edgeDone[94];
+
+static float wpPosVec[128][4];
+
+/* 276 entries, not the loops' 275: the ROM's run ends at 0x729B60 where
+   way_tool's .bss begins, and 275 leaves it 8 bytes early (measured at the
+   SHA-1 gate, 2026-09-25). */
+static WpPosEntry wpPosInfo[276];
 
 void add_wp_pos(WayPoint *wp, float *pos, float len)
 {
@@ -44,9 +63,33 @@ void add_wp_pos(WayPoint *wp, float *pos, float len)
     }
     fzShowV(pos);
 
-    D_007292C0[D_0063BD60].wp = wp;
-    D_007292C0[D_0063BD60].len = len;
-    sceVu0CopyVector(D_00728AC0[D_0063BD60++], pos);
+    wpPosInfo[D_0063BD60].wp = wp;
+    wpPosInfo[D_0063BD60].len = len;
+    sceVu0CopyVector(wpPosVec[D_0063BD60++], pos);
+}
+
+/* way_kidnap.c:109 and 117-127 in the listing: public inlines, so gcc defers
+   their bodies to the end of the object (the ROM has them after
+   NearestEnemyFromGirl, in the order way_kidnap.h declares them) while the
+   string CopyWpPos prints is entered here, first in the TU's .rodata. */
+inline int NumOfWpPos(void)
+{
+    return D_0063BD60;
+}
+
+inline int CopyWpPos(float dst[][4], int from, int to)
+{
+    int j = 0;
+    if (from < 0) {
+        return 1;
+    }
+
+    for (; from <= to && from < 128; from++, j++) {
+        debug_StdPrintfDummy("index %d\n", j);
+        sceVu0CopyVector(dst[j], wpPosVec[from]);
+    }
+
+    return 0;
 }
 
 typedef struct WpNode {
@@ -159,15 +202,39 @@ found:
     return len;
 }
 
-static int wpsort_compfnc(float *a, float *b);
-
-/* INTERIM: the PAL listing inlines the public NumOfWpPos into
- * WayPointWithRangeFromPos.  Its out-of-line definition keeps its own ROM slot
- * further down this TU (the tail still has asm members), so the call sites here
- * go through a stand-in with the identical body. */
-static inline int numOfWpPos(void)
+/* way_kidnap.c:207-212 and 215-219: public inlines, deferred to the end of the
+   object like NumOfWpPos; NearestEnemyFromGirl inlines the pair. */
+inline float WayLengthOfGObj_Pos(void *obj, float *pos)
 {
-    return D_0063BD60;
+    float buf[4];
+    if (obj == 0) {
+        return -1.0f;
+    }
+    GetRootPosition(buf, obj);
+    return WayLengthOfPos_Pos(buf, pos);
+}
+
+inline float WayLengthOfGObj_GObj(void *obj0, void *obj1)
+{
+    float pos[4];
+    if (obj1 == 0) {
+        return -1.0f;
+    }
+    GetRootPosition(pos, obj1);
+    return WayLengthOfGObj_Pos(obj0, pos);
+}
+
+/* census wpsort_compfnc (way_kidnap.c:226-228), a file static: `static` keeps
+   its ELF symbol local so it cannot collide with the ico2/fumi/src/way_util
+   global of the same name.  Only qsort takes its address, so gcc defers the
+   inline body and emits it last, after the header's public inlines. */
+static inline int wpsort_compfnc(float *a, float *b)
+{
+    if (a[1] < b[1])
+        return -1;
+    if (b[1] < a[1])
+        return 1;
+    return 0;
 }
 
 static inline void WayRangeSearch(float *pos, float range, WpPosEntry *e, int limit, int chk)
@@ -208,10 +275,10 @@ int WayPointWithRangeFromPos(float *pos, int mode, float range)
     case 1:
         WayRangeSearch(pos, range, &e, 0, 1);
 
-        n = numOfWpPos();
-        qsort(D_007292C0, n, 8, wpsort_compfnc);
+        n = NumOfWpPos();
+        qsort(wpPosInfo, n, 8, wpsort_compfnc);
         for (i = 0; i < n; i++) {
-            sceVu0CopyVector(D_00728AC0[i], D_007292C0[i].wp->pos);
+            sceVu0CopyVector(wpPosVec[i], wpPosInfo[i].wp->pos);
         }
         break;
 
@@ -222,15 +289,15 @@ int WayPointWithRangeFromPos(float *pos, int mode, float range)
     case 3:
         WayRangeSearch(pos, range, &e, 1, 1);
 
-        n = numOfWpPos();
-        qsort(D_007292C0, n, 8, wpsort_compfnc);
+        n = NumOfWpPos();
+        qsort(wpPosInfo, n, 8, wpsort_compfnc);
         for (i = 0; i < n; i++) {
-            sceVu0CopyVector(D_00728AC0[i], D_007292C0[i].wp->pos);
+            sceVu0CopyVector(wpPosVec[i], wpPosInfo[i].wp->pos);
         }
         break;
     }
 
-    return numOfWpPos();
+    return NumOfWpPos();
 }
 
 extern WpNode D_004F31E0[];
@@ -251,16 +318,7 @@ typedef struct WayEdge {
 } WayEdge;
 
 extern WayEdge D_004F1EC0[];
-extern WpNode *D_00728610[];
-extern char D_00728A60[];
 extern float D_0063BD6C[];
-extern char D_00621D68[];
-extern char D_00621D88[];
-extern char D_00621DA8[];
-extern char D_00621DB8[];
-extern char D_00621DD8[];
-extern char D_00621DF0[];
-extern char D_00621E48[];
 /* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
 extern void _SubVector(float *dst, float *a, float *b);
 /* kept local: this TU's uses of _InnerProduct do not fit the prototype in Matrix.h */
@@ -317,7 +375,7 @@ int WayPointWithRangeFromPos2(float *pos, WayWork *w, float *dst, int chk)
        initialiser is dead (edge is set at the top of every pass of the
        loop before any read) and flow deletes it. What the bytes pin: a
        second set of edge before cse1, since alias.c record_set then
-       forgets edge's base and the char store D_00728A60[k] = 1 kills the
+       forgets edge's base and the char store edgeDone[k] = 1 kills the
        edge->f20[j] load, which the bridge arm reloads at 0x2157E0; without
        it the function is 354 words. What they cannot pin: the statement.
        The declaration form follows this programmer's pointer locals
@@ -334,34 +392,35 @@ int WayPointWithRangeFromPos2(float *pos, WayWork *w, float *dst, int chk)
     int k;
 
     for (i = 0; i < 275; i++) {
-        D_00728610[i] = 0;
+        searchNodes[i] = 0;
     }
     for (k = 0; k < 94; k++) {
-        D_00728A60[k] = 0;
+        edgeDone[k] = 0;
     }
     GetWay_begin(pos, w, pos);
     found = 0;
     cur = w->f2C;
     if (cur == 0) {
-        debug_StdPrintfDummy(D_00621D68);
+        /* my own WAY was not found */
+        debug_StdPrintfDummy("自分のWAYが見付からなかった");
         goto ret;
     }
-    D_00728A60[cur->f20] = 1;
-    D_00728610[n++] = cur;
+    edgeDone[cur->f20] = 1;
+    searchNodes[n++] = cur;
 
     while (1) {
         for (i = 0; i < n; i++) {
-            if (D_00728610[i] != 0) {
+            if (searchNodes[i] != 0) {
                 goto found;
             }
         }
         break;
     found:
-        cur = D_00728610[i];
+        cur = searchNodes[i];
         edge = &D_004F1EC0[cur->f20];
-        debug_StdPrintfDummy(D_00621D88, cur, cur->f20, i);
-        D_00728610[i] = 0;
-        debug_StdPrintfDummy(D_00621DA8, edge->f28);
+        debug_StdPrintfDummy("srh wp %p group id %d %d\n", cur, cur->f20, i);
+        searchNodes[i] = 0;
+        debug_StdPrintfDummy("active %d\n", edge->f28);
         if (edge->f28 != 0) {
             /* RULING-VESTIGIAL-EXCEPTION (supervisor 2026-09-24, under the
                user's 2026-09-21 standard for dead assignments the ROM proves).
@@ -395,33 +454,33 @@ int WayPointWithRangeFromPos2(float *pos, WayWork *w, float *dst, int chk)
                     if (cur->f20 != ((WpNode *)D_004F31E0)[D_004F1EC0[k].f20[j]].f20) {
                         continue;
                     }
-                    if (D_00728A60[k] != 0) {
+                    if (edgeDone[k] != 0) {
                         continue;
                     }
-                    D_00728A60[k] = 1;
+                    edgeDone[k] = 1;
                     if (chk && D_004F1EC0[k].f28 == 0) {
                         continue;
                     }
                     if (j == 0) {
-                        D_00728610[n++] = D_004F1EC0[k].f8;
+                        searchNodes[n++] = D_004F1EC0[k].f8;
                     } else {
-                        D_00728610[n++] = D_004F1EC0[k].fC;
+                        searchNodes[n++] = D_004F1EC0[k].fC;
                     }
-                    debug_StdPrintfDummy(D_00621DB8, D_00728610[n - 1], j, k);
+                    debug_StdPrintfDummy("add no bridge wp %p %d %d\n", searchNodes[n - 1], j, k);
                 }
             }
         } else {
             for (j = 0; j < 2; j++) {
                 k = ((WpNode *)D_004F31E0)[edge->f20[j]].f20;
-                if (D_00728A60[k] != 0) {
+                if (edgeDone[k] != 0) {
                     continue;
                 }
-                D_00728A60[k] = 1;
+                edgeDone[k] = 1;
                 if (chk && D_004F1EC0[k].f28 == 0) {
                     continue;
                 }
-                D_00728610[n++] = &D_004F31E0[edge->f20[j]];
-                debug_StdPrintfDummy(D_00621DD8, D_00728610[n - 1], j, k);
+                searchNodes[n++] = &D_004F31E0[edge->f20[j]];
+                debug_StdPrintfDummy("add bridge wp %p %d %d\n", searchNodes[n - 1], j, k);
             }
         }
     }
@@ -433,7 +492,10 @@ ret:
     if (found == 0) {
         nearest = 0;
         best = D_0063BD6C[0];
-        debug_StdPrintfDummy(D_00621DF0);
+        /* not found, so search every WAYPOOINT for the nearest point of the
+           active group that allows a nest */
+        debug_StdPrintfDummy(
+            "見付からないので全WAYPOOINTから アクティブグループで巣許可の一番近いポイントを検索");
         for (i = 0; i < 275; i++) {
             cur = &D_004F31E0[i];
             if (cur->f0 == 0 || cur->f30 != 0 || D_004F1EC0[cur->f20].f28 == 0) {
@@ -450,39 +512,26 @@ ret:
             sceVu0CopyVector(dst, cur->pos);
             return 1;
         }
-        debug_StdPrintfDummy(D_00621E48);
+        /* no point of the active group allows a nest */
+        debug_StdPrintfDummy("アクティブグループの巣許可のポイントがみつかりません");
         return 0;
     }
     sceVu0CopyVector(dst, found->pos);
     return 1;
 }
 
-extern char D_00621D58[];
-extern void *D_00639EA8;
-
-static inline float wayLengthOfGObj_Pos(void *obj, float *pos)
-{
-    float buf[4];
-    if (obj == 0) {
-        return -1.0f;
-    }
-    GetRootPosition(buf, obj);
-    return WayLengthOfPos_Pos(buf, pos);
-}
-
-/* INTERIM: the listing inlines WayLengthOfGObj_GObj (and through it
- * WayLengthOfGObj_Pos) into NearestEnemyFromGirl.  Both are public functions of
- * the TU's deferred-`inline` tail, so their plain definitions stay at their ROM
- * slots below and these static stand-ins carry the inlined copies. */
-static inline float wayLengthOfGObj_GObj(void *obj0, void *obj1)
+/* way_kidnap.c:522-526: a public inline, deferred like the others. */
+inline int WayPointWithRangeFromGObj(void *obj, float f)
 {
     float pos[4];
-    if (obj1 == 0) {
-        return -1.0f;
+    if (obj == 0) {
+        return -1;
     }
-    GetRootPosition(pos, obj1);
-    return wayLengthOfGObj_Pos(obj0, pos);
+    GetRootPosition(pos, obj);
+    return WayPointWithRangeFromPos(pos, 0, f);
 }
+
+extern void *D_00639EA8;
 
 void *NearestEnemyFromGirl(float *len)
 {
@@ -498,7 +547,7 @@ void *NearestEnemyFromGirl(float *len)
         obj = isysGObjSearchFromObjKindID_next(obj);
 
     while (obj != 0) {
-        d = wayLengthOfGObj_GObj(D_00639EA8, obj);
+        d = WayLengthOfGObj_GObj(D_00639EA8, obj);
 
         if (d >= 0.0f && d < min) {
             min = d;
@@ -511,70 +560,4 @@ void *NearestEnemyFromGirl(float *len)
     }
     *len = min;
     return nearest;
-}
-
-int NumOfWpPos(void)
-{
-    return D_0063BD60;
-}
-
-int CopyWpPos(float dst[][4], int from, int to)
-{
-    int j = 0;
-    if (from < 0) {
-        return 1;
-    }
-
-    for (; from <= to && from < 128; from++, j++) {
-        debug_StdPrintfDummy(D_00621D58, j);
-        sceVu0CopyVector(dst[j], D_00728AC0[from]);
-    }
-
-    return 0;
-}
-
-/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
- * WayLengthOfGObj_Pos into WayLengthOfGObj_GObj, so it is a public `inline` of
- * the deferred tail; until the tail's asm members are C the copy is emitted
- * here as a plain function at its ROM position and the caller inlines the
- * static stand-in wayLengthOfGObj_Pos, which collapses at layout. */
-float WayLengthOfGObj_Pos(void *obj, float *pos)
-{
-    float buf[4];
-    if (obj == 0) {
-        return -1.0f;
-    }
-    GetRootPosition(buf, obj);
-    return WayLengthOfPos_Pos(buf, pos);
-}
-
-float WayLengthOfGObj_GObj(void *obj0, void *obj1)
-{
-    float pos[4];
-    if (obj1 == 0) {
-        return -1.0f;
-    }
-    GetRootPosition(pos, obj1);
-    return wayLengthOfGObj_Pos(obj0, pos);
-}
-
-int WayPointWithRangeFromGObj(void *obj, float f)
-{
-    float pos[4];
-    if (obj == 0) {
-        return -1;
-    }
-    GetRootPosition(pos, obj);
-    return WayPointWithRangeFromPos(pos, 0, f);
-}
-
-/* census wpsort_compfnc, a file static, `static` keeps its ELF symbol local so it
-   cannot collide with the ico2/fumi/src/way_util global of the same name */
-static int wpsort_compfnc(float *a, float *b)
-{
-    if (a[1] < b[1])
-        return -1;
-    if (b[1] < a[1])
-        return 1;
-    return 0;
 }
