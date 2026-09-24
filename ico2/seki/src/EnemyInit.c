@@ -1,7 +1,12 @@
 #include "common.h"
 
 extern char D_0063BD38[8];
-extern int D_007285A0[];
+
+/* .bss, owned by EnemyInit.o and reached only from this file (MAIN.MAP names
+   no symbol in the run, 0x6C bytes): one slot per enemy kind, each holding the
+   position table enemy_Initialize allocates for that kind, or 0. */
+static int enemyPositionTable[27];
+
 typedef int Qw128 __attribute__((mode(TI)));
 
 /* RECONSTRUCTION from the ROM's own addressing: the stage table is a record of
@@ -61,13 +66,13 @@ void enemy_Initialize(void)
         }
         for (k = 0; k < kindNum; k++) {
             if (cnt[k] > 0) {
-                *(int *)((char *)D_007285A0 + k * 4 + e * 0x6C) =
+                *(int *)((char *)enemyPositionTable + k * 4 + e * 0x6C) =
                     (int)iosMallocDebug(D_0063A44C, (cnt[k] + 1) << 4, "src/EnemyInit.c", 124);
             } else {
-                *(int *)((char *)D_007285A0 + k * 4 + e * 0x6C) = 0;
+                *(int *)((char *)enemyPositionTable + k * 4 + e * 0x6C) = 0;
                 continue;
             }
-            dst = (float (*)[4]) * (int *)((char *)D_007285A0 + k * 4 + e * 0x6C);
+            dst = (float (*)[4]) * (int *)((char *)enemyPositionTable + k * 4 + e * 0x6C);
             for (i = 0; i < D_004F1D58[e].n; i++) {
                 for (j = 0; j < tbl[i][1]; j++) {
                     int *rec = (int *)(j * 8 + *(int *)tbl[i]);
@@ -95,5 +100,5 @@ int enemy_GetPositionTable(int idx, int sub_idx)
     if (idx < 0 || idx >= *(int *)D_0063BD38)
         return 0;
     factor = 0x6C;
-    return *(int *)((char *)D_007285A0 + idx * factor + sub_idx * 4);
+    return *(int *)((char *)enemyPositionTable + idx * factor + sub_idx * 4);
 }

@@ -151,7 +151,93 @@ void ACTGame_StageChangeGObj(char *self, int idx)
                                  D_0055C518[idx].f_24, tmp_a, tmp_b);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/act-game", ACTGame_SetActors_Debug);
+extern char *D_00639EA4;
+extern char D_0063A688[];
+extern char D_0063A690[];
+extern void gflagOn(int id);
+extern void SetBoyInfo(int *a0, int *a1);
+extern void BoyInfoUpdate_StageChange(void);
+extern void debug_StdPrintfDummy();
+extern const StgPre D_005F5D50[];
+
+/* act-game.c:1069-1075 -- the exit whose f_24 names this stage. */
+static inline int getExitIndexOfStage(int stage)
+{
+    int i;
+
+    for (i = 0; i < 261; i++) {
+        if (D_0055C518[i].f_24 == stage) {
+            return i;
+        }
+    }
+    return 0;
+}
+
+void ACTGame_SetActors_Debug(int stage, unsigned char flag)
+{
+    char *boy;
+    char *girl;
+    int idx;
+
+    boy = 0;
+    girl = 0;
+    idx = getExitIndexOfStage(stage);
+    gflagOn(394);
+    if (flag != 0) {
+        if (D_00639EA4 != 0) {
+            char *s = *(char **)(D_00639EA4 + 0x164);
+            boy = *(char **)(s + 0x150);
+            girl = *(char **)(s + 0x154);
+            SetBoyInfo((int *)boy, (int *)girl);
+            BoyInfoUpdate_StageChange();
+        }
+    }
+    {
+        int hasBoy = D_005F5D50[stage].attrTop;
+        int hasGirl = D_005F5D50[stage].flag0;
+        int tbl[4][3] = {
+            {54, 1, hasBoy},
+            {148, 2, hasGirl},
+            {55, 14, hasBoy},
+            {-1, -1},
+        };
+        float pos[4];
+        float rot[4];
+        int n;
+        int cur;
+        int obj;
+        int chk;
+
+        EXITDATA_GetNextPosition(idx, pos, rot);
+        for (n = 0; tbl[n][0] != -1; n++) {
+            cur = tbl[n][0];
+            obj = tbl[n][1];
+            chk = tbl[n][2];
+            if (n == 2 && boy != 0) {
+                break;
+            }
+            if (chk != 0) {
+                if (!(cur < D_005F5D50[stage].labelTop) && cur < D_005F5D50[stage].labelEnd &&
+                    gamesysObjInfoGet(obj, cur) == 0) {
+                    debug_StdPrintfDummy(D_0063A688);
+                } else {
+                    debug_StdPrintfDummy(D_0063A690);
+                    gamesysObjInfoPosNewStageSet((char *)cur, (char *)obj, stage, pos, rot);
+                }
+                if (cur == 54) {
+                    if (boy != 0) {
+                        gamesysObjInfoPosNewStageSet((char *)*(int *)(boy + 8),
+                                                     (char *)*(int *)(boy + 0xC), stage, pos, rot);
+                    }
+                    if (girl != 0) {
+                        gamesysObjInfoPosNewStageSet((char *)*(int *)(girl + 8),
+                                                     (char *)*(int *)(girl + 0xC), stage, pos, rot);
+                    }
+                }
+            }
+        }
+    }
+}
 
 extern char *D_00639EA4;
 

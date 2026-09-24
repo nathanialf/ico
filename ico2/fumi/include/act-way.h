@@ -17,7 +17,7 @@
  * first-declaration order, so this is the order act-way.c's inline tail has. */
 unsigned char WayMove_CheckCollis(float *p0, float *p1, void *a2, void *a3);
 
-int ACTWayExec_Position(char *self, int a1, int a2, float speed, int a3);
+int ACTWayExec_Position(char *self, int a1, float *dir, float speed, int a3);
 int ACTWayMove_BeginDetail(char *self, float *goal, float *from, void *tgt,
                            void *e, unsigned char sub);
 int ACTWayMove_NextDetail(char *self, float *node, float *goal, unsigned char d,

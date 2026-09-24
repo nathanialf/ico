@@ -64,7 +64,166 @@ inline int GetCageChainPoint(char *a0, char *a1, char *a2)
     return *(int *)(w + 0x40);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/cage", InitCageGeo);
+/* kept local: this TU's uses of these do not fit the prototypes in memory.h */
+extern void *iosMallocDebug(void *part, int size, char *file, int line);
+extern void iosFree(void *p);
+/* the game heap handles, declared int as sugipon's other TUs do
+   (girlForceField.c, candle.c) and cast at the allocator calls */
+extern int D_0063A438;
+/* the "src/cage.c" path string the debug allocator logs; it still lives in the
+ * blob, so the TU reaches it by symbol rather than emitting its own D_0061F188 */
+extern char D_0061F188[];
+extern int D_0063A44C;
+
+/* RECONSTRUCTION: the pair of 80-byte chain-parameter records this TU copies
+ * into the request block it hands to InitChains.  The record is 8-aligned,
+ * which is what gives the ROM's ld/sd block copy. */
+typedef struct {
+    long long d[10];
+} CageChainParam;
+
+extern CageChainParam D_004E6E20[];
+/* the object-kind table, one 40-byte row per cage kind, the first two words of
+ * the row being the two display-list ids the cage builds its DObjs from */
+extern char D_002A79B8[];
+
+typedef union {
+    long long ll;
+    int i[2];
+} CageNodeFlags;
+
+/* The 0x15C sub-object slot is a word the engine reads either as an int handle
+   or as a pointer; read as a union member (alias set 0), as girlForceField.c
+   and box.c read it, so any store in between forces the reload the ROM does. */
+typedef union GObjSubSlot {
+    int handle;
+    void *p;
+} GObjSubSlot;
+
+/* listing rows sugipon/src/cage.c:96-132 */
+char *InitCageGeo(char *self, char *lay)
+{
+    char *w;
+    char *ch;
+    int i;
+    float one;
+
+    w = (char *)iosMallocDebug((void *)D_0063A438, 80, D_0061F188, 97);
+    ch = (char *)iosMallocDebug((void *)D_0063A438, 160, D_0061F188, 98);
+    *(char **)w = CSVSYSTEM_InitDObj(
+        *(int *)(D_002A79B8 + *(int *)(((GObjSubSlot *)(self + 0x15C))->handle + 0x844) * 40),
+        (float *)lay);
+    *(char **)(w + 4) = CSVSYSTEM_InitDObj(
+        *(int *)(D_002A79B8 + *(int *)(((GObjSubSlot *)(self + 0x15C))->handle + 0x844) * 40 + 4),
+        (float *)lay);
+    *(float *)(w + 0x3C) = 0.995f;
+    *(float *)(w + 0x38) = *(float *)(lay + 0x20);
+    ((CageChainParam *)ch)[0] = D_004E6E20[0];
+    ((CageChainParam *)ch)[1] = D_004E6E20[1];
+    *(float *)(ch + 0x20) = *(float *)lay;
+    *(float *)(ch + 0x24) = *(float *)(lay + 4);
+    *(float *)(ch + 0x28) = *(float *)(lay + 8);
+    *(float *)(ch + 0x14) = *(float *)(lay + 0x24);
+    SetIdentityQuaternion(w + 0x10);
+    *(char **)(w + 0x20) = (char *)InitChains(ch);
+    *(int *)(w + 0x24) =
+        SetChainExtendedWeight(*(int **)(*(char **)(w + 0x20) + 8), 1, 0.0f, 600.0f);
+    *(int *)(w + 0x28) =
+        SetChainExtendedWeight(*(int **)(*(char **)(w + 0x20) + 8), 1, 500.0f, 1400.0f);
+    *(short *)(w + 0x34) = (short)(-*(float *)(lay + 0x14) * 10430.378f);
+    *(int *)(w + 0x40) = 1;
+    one = 1.0f;
+    {
+        char *e = *(char **)(((GObjSubSlot *)(self + 0x15C))->handle + 0x870);
+
+        *(float *)(e + 0x20) = *(float *)(e + 0x24) = *(float *)(e + 0x28) = one;
+    }
+    {
+        char *e = *(char **)(((GObjSubSlot *)(self + 0x15C))->handle + 0x870);
+
+        *(int *)(e + 0x0) = *(int *)(e + 0x4) = *(int *)(e + 0x8) = 0;
+    }
+    *(float *)(w + 0x30) = *(float *)(lay + 0x28);
+    *(int *)(w + 0x2C) = (int)(*(float *)(lay + 0x24) / *(float *)(w + 0x30));
+
+    /* listing line 128 carries everything from here to the 0x84C store: one
+       macro, the DObj buffer reallocation box.c, boy.c and omori's chain.c
+       expand in the same statement order */
+    if (*(void **)(*(char **)w + 0xC) != 0) {
+        iosFree((void *)((int)*(void **)(*(char **)w + 0xC) & 0x0FFFFFFF));
+    }
+    if (*(void **)(*(char **)w + 0x10) != 0) {
+        iosFree((void *)((int)*(void **)(*(char **)w + 0x10) & 0x0FFFFFFF));
+    }
+    *(char **)(*(char **)w + 0x10) = *(char **)(*(char **)w + 0xC) = 0;
+    *(void **)(*(char **)w + 0xC) =
+        iosMallocDebug((void *)D_0063A44C, *(int *)(w + 0x2C) << 6, D_0061F188, 128);
+    *(void **)(*(char **)w + 0x10) =
+        iosMallocDebug((void *)D_0063A44C, *(int *)(w + 0x2C) << 4, D_0061F188, 128);
+    *(int *)(*(char **)w + 0x8) = *(int *)(w + 0x2C);
+    if (*(void **)(*(char **)w + 0x870) != 0) {
+        iosFree((void *)((int)*(void **)(*(char **)w + 0x870) & 0x0FFFFFFF));
+    }
+    *(void **)(*(char **)w + 0x870) =
+        iosMallocDebug((void *)D_0063A44C, *(int *)(w + 0x2C) * 80, D_0061F188, 128);
+    for (i = 0; i < *(int *)(w + 0x2C); i++) {
+        {
+            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            ((CageNodeFlags *)(e + 0x38))->ll &= ~1;
+        }
+        {
+            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            ((CageNodeFlags *)(e + 0x38))->ll &= ~2;
+        }
+        {
+            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            *(float *)(e + 0x40) = 0.0f;
+        }
+        {
+            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            *(float *)(e + 0x44) = 0.0f;
+        }
+        {
+            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            *(float *)(e + 0x48) = 0.0f;
+        }
+        {
+            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            *(float *)(e + 0x4C) = 1.0f;
+        }
+        {
+            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            ((CageNodeFlags *)(e + 0x38))->ll &= ~4;
+        }
+        {
+            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            *(float *)(e + 0x30) = 0.0f;
+        }
+        {
+            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            *(float *)(e + 0x34) = 1.0f;
+        }
+        {
+            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            *(short *)(e + 0x3A) = 0;
+        }
+        {
+            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            *(float *)(e + 0x20) = 1.0f;
+        }
+        {
+            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            *(float *)(e + 0x24) = 1.0f;
+        }
+        {
+            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            *(float *)(e + 0x28) = 1.0f;
+        }
+    }
+    *(short *)(*(char **)w + 0x84C) = 2;
+    *(int *)(((GObjSubSlot *)(self + 0x15C))->handle + 0x81C) = (int)CageRideFunc;
+    return w;
+}
 
 inline void SetCageChainHangableFlag(char *a0, int a1)
 {

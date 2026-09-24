@@ -611,8 +611,7 @@ segments:
       - [0x3EE5F0, .data, ico2/seki/src/DisplayFont]  # carved D_004EE5F0 (VMA 0x4EE5F0..0x4EE6F0, 256 B, 1 sym): font kerning table, referenced only by still-asm font_Print via %hi/%lo
       - [0x3EE6F0, data, cod/3EE6F0]     # .data blob resume
       - [0x3F1D60, .data, ico2/fumi/src/act-env]  # carved D_004F1D60..D_004F1E00 (VMA 0x4F1D60..0x4F1E10, 176 B, 11 float[4] tables), all referenced only by still-asm getDitchDistTbl via %hi/%lo
-      - [0x3F1E10, data, cod/3F1E10]     # .data blob resume (DetourCheck's angle table {75, -75, 0, 0}, 16 B, until it lands)
-      - [0x3F1E20, .data, ico2/fumi/src/act-way]  # syms: wayWorkClear,wayStepClear  the two clear templates (128 B + 32 B) ACTWayMove_BeginDetail copies from, VMA 0x4F1E20..0x4F1EC0
+      - [0x3F1E10, .data, ico2/fumi/src/act-way]  # syms: wayWorkClear,wayStepClear DetourCheck's angle table {75, -75, 0, 0} as the named static detourAngle first (chain 1 pass 109, VMA 0x4F1E10), then  the two clear templates (128 B + 32 B) ACTWayMove_BeginDetail copies from, VMA 0x4F1E20..0x4F1EC0
       - [0x3F1EC0, data, cod/3F1EC0]     # .data blob resume
       - [0x3F76A0, .data, ico2/fumi/src/way_tool]  # syms: wayWorkPos,debugWayGroupSelect,wayColorSelected,wayColorLinked,wayColorBlink,wayColorCursor,wayColorOpenCurrent,wayColorOpenOther,wayColorClosedCurrent,wayColorClosedOther,wayColorBridge,debugWayMenu  the whole way_tool.o .data run (MAIN.MAP 0x2E8, retail 0x2E8): the work vector, the 64 group-select menu lines, nine colour packets and the nine-entry way menu whose function pointers include this TU's static group_select, VMA 0x4F76A0..0x4F7988, 744 B
       - [0x3F7988, .data, ico2/script/src/deja]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4F7988..0x4F7FB0, 1576 B
@@ -992,6 +991,8 @@ segments:
       - [0x5369C8, .rodata, sce/libcdvd/libcdvd_267388]  # the member's three strings as literals (chain 1 pass 107), anonymous, VMA 0x6369C8..0x636A13, 75 B, padded to cdvd047's strings at 0x636A18
       - [0x536A18, .rodata, sce/libcdvd/cdvd047]  # the member's whole .rodata (= MAIN.MAP cdvd047.o .rodata 0x11C): its nine strings as literals (chain 1 pass 107), anonymous, VMA 0x636A18..0x636B34, 284 B
       - [0x536B34, rodata, cod/536B34]  # .rodata blob resume (libpad.o's strings begin at 0x636B38)
+      - [0x536C90, .rodata, sce/libmc/libmc]  # the member's whole .rodata (= MAIN.MAP libmc.o .rodata 0x65, chain 1 pass 109): its three printf strings as anonymous literals, VMA 0x636C90..0x636CF5
+      - [0x536CF8, rodata, cod/536CF8]  # .rodata blob resume (D_00636CF8, named, referenced by libmpeg)
       - [0x536DC0, .rodata, sce/libmpeg/libmpeg]  # _getpic's jump table jtbl_00636DC0 (5 words, section .rodata.0x00636DC0), VMA 0x636DC0..0x636DD4; cases 3 and 4 share a block
       - [0x536DD4, rodata, cod/536DD4]   # .rodata blob resume
       - [0x5371D0, .rodata, sce/libscf/libscf]  # the member's whole .rodata run (0xF6 B + 2 B link pad): its twelve string literals in order of first use (rom0:ROMVER, the two ROM errors, the four OSD printf formats, libscf.c from __FILE__, the assert texts) with the month table between the assert groups because adddate precedes AdjustTime, VMA 0x6371D0..0x6372C8; libscf builds at -G 0 so its 7-byte string stays out of .sdata
@@ -1129,8 +1130,7 @@ segments:
       - [0x539710, .lit4, ico2/sugipon/src/worm]  # carved D_00639710..D_00639720 (5 slots: getAnimation 0.8f, disp 0.02f, WormGeo 0.05f + 8.99999f, TraceWormRoute 8.99999f), VMA 0x639710..0x639724, 20 B; the TU's whole pool
       - [0x539724, .lit4, ico2/seki/src/BgAnimation]  # carved D_00639724..D_006397E4 (49 slots, bga_GetMotion..bga_CheckSdfCameraFrameIn; the TU's whole pool, right after worm's), VMA 0x639724..0x6397E8
       - [0x5397E8, .lit4, ico2/fumi/src/act-env]  # carved D_006397E8..D_00639834 (20 words: -3000.0f and pi as literals in the matched environment test, then eighteen slots beside the still-asm ACTGetEnvironment, one per use site in ROM order 4900 pi/2 40000 3000 3000 355 455 10000 -pi/2 pi/2 -pi/2 pi/2 10000 40000 pi/2 4900 22500 12100; the TU's whole pool), VMA 0x6397E8..0x639838, 80 B
-      - [0x539838, lit4, cod/539838]     # .lit4 blob resume (DetourCheck's pi, one word)
-      - [0x53983C, .lit4, ico2/fumi/src/act-way]  # 40000.0f, 10000.0f, 40000.0f, 40000.0f from ACTWayMove_BeginDetail and NextDetail, VMA 0x63983C..0x63984C
+      - [0x539838, .lit4, ico2/fumi/src/act-way]  # the TU's whole .lit4 pool, anonymous (chain 1 pass 109): DetourCheck's pi, then 40000.0f, 10000.0f, 40000.0f, 40000.0f from ACTWayMove_BeginDetail and NextDetail, VMA 0x639838..0x63984C
       - [0x53984C, .lit4, ico2/fumi/src/act]  # ACTDebugMove's five words (0.001f, then 10000.0f four times; the TU's whole pool, anonymous), VMA 0x63984C..0x639860, 20 B; way_kidnap's carve follows
       - [0x539860, .lit4, ico2/fumi/src/way_kidnap]  # carved D_00639860 (1.0e10f, NearestEnemyFromGirl's initial minimum, written as a literal), the TU's whole .lit4 run, VMA 0x639860..0x639864; 0x63985C is act's, 0x639864 way_tool's
       - [0x539864, .lit4, ico2/fumi/src/way_tool]  # carved D_00639864..D_00639868 (2 slots, both 0.116355285f: draw_way_group's own literal and one slot for the still-asm way_toolDL; the TU's whole pool), VMA 0x639864..0x63986C, 8 B
@@ -1366,7 +1366,8 @@ segments:
       - { type: .bss, vram: 0x00724BE0, name: ico2/sugipon/src/windField }  # windVector, windStrength[256], windCell[20][20] (0x20 stride), 0x3610 B = MAIN.MAP's windField.o .bss; the queue's 0x726165 bound was a false pointer into a string (completeness pass 25)
       - { type: bss, vram: 0x007281F0, name: cod/007281F0 }
       - { type: .bss, vram: 0x00728310, name: ico2/seki/src/DisplayList }  # the TU's own .bss, 0x290 B, VMA 0x728310..0x7285A0; static definitions in ROM run order (completeness pass)
-      - { type: bss, vram: 0x007285A0, name: cod/007285A0 }  # .bss blob resume (0x70 B)
+      - { type: .bss, vram: 0x007285A0, name: ico2/seki/src/EnemyInit }  # the TU's .bss (chain 1 pass 109, = MAIN.MAP 0x6C): the per-stage enemy position slot table as a named static, VMA 0x7285A0..0x72860C, 4 B of link fill before way_kidnap
+      - { type: bss, vram: 0x0072860C, name: cod/0072860C }  # .bss blob resume (4 B of link fill before way_kidnap)
       - { type: .bss, vram: 0x00728610, name: ico2/fumi/src/way_kidnap }  # the TU's .bss as source (completeness pass 69), the search nodes, the edge-done table, the position vectors and the position info, VMA 0x728610..0x729B58, way_tool's row follows after its 16-byte alignment
       - { type: .bss, vram: 0x00729B60, name: ico2/fumi/src/way_tool }  # the TU's own .bss, 0xB0 B, VMA 0x729B60..0x729C10; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x00729C10, name: cod/00729C10 }  # .bss blob resume

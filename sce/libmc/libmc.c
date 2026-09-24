@@ -25,12 +25,73 @@ typedef struct {
     char name[0x400];
 } NameReq;
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmc/libmc", sceMcInit);
+typedef struct {
+    int count;
+    int max_count;
+    int init_count;
+    int wait_threads;
+    unsigned int attr;
+    unsigned int option;
+} SemaParam;
 
 extern char D_0054C010[];
 extern int D_0054C014[];
 extern char D_0072F5C0[];
 extern char D_00730B80[];
+extern char D_0072F640[];
+extern int CreateSema(SemaParam *param);
+extern int WaitSema(int sema);
+extern void SignalSema(int sema);
+extern int sceMcSync();
+extern int printf(const char *fmt, ...);
+
+int sceMcInit(void)
+{
+    SemaParam sema;
+    char *cd;
+    char *dev;
+    int i;
+    int r;
+
+    if (D_0054C014[0] < 0) {
+        sema.init_count = 1;
+        sema.max_count = 1;
+        sema.option = 0;
+        D_0054C014[0] = CreateSema(&sema);
+    }
+    sceMcSync(0, 0, 0);
+    WaitSema(D_0054C014[0]);
+    sceSifInitRpc(0);
+    while (1) {
+        if (sceSifBindRpc(D_0072F5C0, 0x80000400, 0) < 0) {
+            printf("bind error libmc \n");
+            for (;;) {}
+        }
+        cd = D_0072F5C0;
+        if (*(int *)(cd + 0x24) != 0) {
+            break;
+        }
+        for (i = 0x100000; i != 0; i--) {}
+    }
+    dev = D_0072F5C0;
+    r = sceSifCallRpc(dev, 0xFE, 0, D_0072F640, 0x30, D_00730B80, 0xC, 0, 0);
+    SignalSema(D_0054C014[0]);
+    if (r < 0) {
+        *(int *)(dev + 0x24) = 0;
+        return r - 0x64;
+    }
+    if (((int *)D_00730B80)[1] < 0x20A) {
+        printf("libmc: too old release of mcserv.irx\n");
+        *(int *)(dev + 0x24) = 0;
+        return -0x78;
+    }
+    if (((int *)D_00730B80)[2] < 0x20E) {
+        printf("libmc: too old release of mcman.irx\n");
+        *(int *)(dev + 0x24) = 0;
+        return -0x79;
+    }
+    return *(int *)D_00730B80;
+}
 
 void *_lmcGetClientPtr(int *a0, int *a1)
 {
@@ -40,9 +101,7 @@ void *_lmcGetClientPtr(int *a0, int *a1)
     return D_0072F5C0;
 }
 
-extern char D_0072F640[];
 extern int PollSema(int sema);
-extern void SignalSema(int sema);
 
 int sceMcChangeThreadPriority(int arg)
 {
@@ -260,7 +319,63 @@ done:
     return r;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmc/libmc", sceMcWrite);
+extern void FlushCache(int a0);
+
+/* RECONSTRUCTION: the 0x30-byte RPC command block sceMcWrite sends, as the
+   ROM's offsets use it: the unaligned head of the caller's buffer travels in
+   the block itself, the 16-byte aligned rest by address. */
+typedef struct {
+    int fd;               /* 0x00 */
+    int f4;               /* 0x04 */
+    int f8;               /* 0x08 */
+    int size;             /* 0x0C */
+    int f10;              /* 0x10 */
+    unsigned int headLen; /* 0x14 */
+    void *addr;           /* 0x18 */
+    int f1C;              /* 0x1C */
+    char head[16];        /* 0x20 */
+} McCmd;
+
+int sceMcWrite(int fd, void *buf, int len)
+{
+    char *dev;
+    int n;
+    unsigned int i;
+    int r;
+    if (PollSema(D_0054C014[0]) < 0) {
+        return -0xC8;
+    }
+    dev = D_0072F5C0;
+    if (*(int *)(dev + 0x24) == 0) {
+        SignalSema(D_0054C014[0]);
+        return -0x64;
+    }
+    ((McCmd *)D_0072F640)->fd = fd;
+    if (len < 0x11) {
+        ((McCmd *)D_0072F640)->headLen = len;
+        ((McCmd *)D_0072F640)->size = 0;
+        ((McCmd *)D_0072F640)->addr = 0;
+    } else {
+        n = (int)(((((unsigned int)buf - 1) & 0xFFFFFFF0) + 0x10) - (unsigned int)buf);
+        ((McCmd *)D_0072F640)->headLen = n;
+        ((McCmd *)D_0072F640)->size = len - n;
+        ((McCmd *)D_0072F640)->addr = (char *)buf + n;
+    }
+    for (i = 0; i < ((McCmd *)D_0072F640)->headLen; i++) {
+        ((McCmd *)D_0072F640)->head[i] = ((char *)buf)[i];
+    }
+    FlushCache(0);
+    r = sceSifCallRpc(D_0072F5C0, 6, 1, D_0072F640, 0x30, D_00730B80, 4, 0, 0);
+    if (r != 0) {
+        goto unlock;
+    }
+    *(int *)D_0054C010 = 6;
+    goto done;
+unlock:
+    SignalSema(D_0054C014[0]);
+done:
+    return r;
+}
 
 extern void iWakeupThread(int a0);
 
@@ -329,7 +444,63 @@ void mceGetInfoApdx(int a0)
         *D_0072F5F0[0] = *(int *)(a0 + 0x90);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmc/libmc", sceMcGetInfo);
+/* RECONSTRUCTION: sceMcGetInfo's view of the same 0x30-byte command block:
+   the card to ask, a flag per answer wanted, and the result buffer. */
+typedef struct {
+    int f0;         /* 0x00 */
+    int port;       /* 0x04 */
+    int slot;       /* 0x08 */
+    int wantFormat; /* 0x0C */
+    int wantFree;   /* 0x10 */
+    int wantType;   /* 0x14 */
+    int f18;        /* 0x18 */
+    char *result;   /* 0x1C */
+} McInfoCmd;
+
+int sceMcGetInfo(int port, int slot, int *type, int *free, int *format)
+{
+    char *dev;
+    int r;
+
+    if (PollSema(D_0054C014[0]) < 0) {
+        return -0xC8;
+    }
+    dev = D_0072F5C0;
+    if (*(int *)(dev + 0x24) == 0) {
+        SignalSema(D_0054C014[0]);
+        return -0x64;
+    }
+    ((McInfoCmd *)D_0072F640)->port = port;
+    ((McInfoCmd *)D_0072F640)->slot = slot;
+    ((McInfoCmd *)D_0072F640)->result = D_0072FAC0;
+    if (type != 0) {
+        ((McInfoCmd *)D_0072F640)->wantType = 1;
+    } else {
+        ((McInfoCmd *)D_0072F640)->wantType = 0;
+    }
+    if (free != 0) {
+        ((McInfoCmd *)D_0072F640)->wantFree = 1;
+    } else {
+        ((McInfoCmd *)D_0072F640)->wantFree = 0;
+    }
+    if (format != 0) {
+        ((McInfoCmd *)D_0072F640)->wantFormat = 1;
+    } else {
+        ((McInfoCmd *)D_0072F640)->wantFormat = 0;
+    }
+    D_0072F5E8[0] = type;
+    D_0072F5EC[0] = free;
+    D_0072F5F0[0] = format;
+    sceSifWriteBackDCache(D_0072FAC0, 0xC0);
+    r = sceSifCallRpc(D_0072F5C0, 1, 1, D_0072F640, 0x30, D_00730B80, 4, mceGetInfoApdx,
+                      D_0072FAC0);
+    if (r == 0) {
+        *(int *)D_0054C010 = 1;
+    } else {
+        SignalSema(D_0054C014[0]);
+    }
+    return r;
+}
 
 int sceMcGetDir(int a0, int a1, char *name, int a3, int nblk, void *buf)
 {
@@ -524,7 +695,6 @@ done:
 }
 
 extern AuxReq D_0072F600;
-extern void FlushCache(int a0);
 
 int sceMcSetFileInfo(int a0, int a1, char *name, void *src, int flags)
 {

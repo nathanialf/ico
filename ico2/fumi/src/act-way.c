@@ -37,7 +37,77 @@ extern float *test_CURRENTROOT();
 /* the two-word playback-rate pair the wait counters are scaled by */
 extern int D_0028F4C0[];
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/act-way", DetourCheck);
+/* the three detour angles DetourCheck sweeps, in degrees, zero-terminated */
+static int detourAngle[4] = {75, -75, 0, 0};
+
+extern int D_0063B22C;
+/* kept local: this TU's uses of GetSkeltonOrient do not fit the prototype in act-game.h */
+extern void GetSkeltonOrient(float *dst, char *self, int node);
+/* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
+extern void _ApplyRyGV(float *v, float ry);
+
+void DetourCheck(char *self, float *out)
+{
+    float orient[4];
+    float cur[4];
+    float o2[4];
+    float tmp[4];
+    float dir[4];
+    char *act = *(char **)(self + 0x164);
+    int i;
+    int wait = 0;
+    int ok = 0;
+
+    if (D_0063B22C == 0) {
+        return;
+    }
+    GetSkeltonOrient(orient, self, 0x2C);
+    if (*(int *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x8E0) != 0) {
+        out[0] = *(float *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x8F0);
+        out[1] = *(float *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x8F4);
+        out[2] = *(float *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x8F8);
+        *(int *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x8E0) -= 1;
+        return;
+    }
+    /* two identical case bodies (listing 133-134 is the one jump2's cross
+       jumping keeps); a shared `case 2: case 3:` body is a range test */
+    switch (*(int *)(act + 0x34)) {
+    case 2:
+        ok = 1;
+        wait = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 40 / 60;
+        break;
+    case 3:
+        ok = 1;
+        wait = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 40 / 60;
+        break;
+    }
+    /* listing line 139: the four tests are one statement */
+    if (ok == 0 || *(float *)(act + 0x34C) == 0.0f ||
+        (*(int *)(*(char **)(self + 0x15C) + 0x484) & 2) == 0 ||
+        ((*(unsigned long long *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x448) >> 33) &
+         1) == 0) {
+        return;
+    }
+    cur[0] = test_CURRENTROOT(self)[0];
+    cur[1] = test_CURRENTROOT(self)[1];
+    cur[2] = test_CURRENTROOT(self)[2];
+    GetSkeltonOrient(o2, self, 0x2C);
+    for (i = 0; detourAngle[i] != 0; i++) {
+        dir[0] = o2[0];
+        dir[1] = o2[1];
+        dir[2] = o2[2];
+        _ApplyRyGV(dir, (float)detourAngle[i] * 3.1415927f / 180.0f);
+        sceVu0ScaleVector(tmp, dir, 100.0f);
+        sceVu0AddVector(tmp, cur, tmp);
+        if (ACTCheckCollis_WAY(cur, tmp, 10.0f, 0, 0) == 0) {
+            *(float *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x8F0) = dir[0];
+            *(float *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x8F4) = dir[1];
+            *(float *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x8F8) = dir[2];
+            *(int *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x8E0) = wait;
+            return;
+        }
+    }
+}
 
 /* the 0x194-byte enemy parameter rows, the same record ico2/fumi/src/enemy_act
    reads the 0x18C flag word out of */
@@ -469,7 +539,75 @@ done:
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/act-way", ACTWayExec_Position);
+int ACTWayExec_Position(char *self, int a1, float *dir, float speed, int a3)
+{
+    /* listing lines 677/678 carry every flag test inside this function's own
+       span: an inline function nested in the body, reading the enclosing a3
+       (which is what gives a3 its frame home at sp+0 and the two reloads) */
+    inline unsigned char way_flag(int mask)
+    {
+        if (a3 & mask) {
+            return 1;
+        }
+        return 0;
+    }
+
+    char *w = *(char **)(self + 0x164);
+    char *node;
+    float d2[4];
+    float p2[4];
+    float v[4];
+    float pos[4];
+    float f;
+
+    if (way_flag(1)) {
+        sceVu0ScaleVector(v, dir, -1.0f);
+    } else {
+        v[0] = dir[0];
+        v[1] = dir[1];
+        v[2] = dir[2];
+    }
+    if (way_flag(4)) {
+        GetRootProjectionPosOfGObj(pos, (void *)a1);
+        if (WayMove_CheckCollis(pos, v, 0, 0)) {
+            v[0] = pos[0];
+            v[1] = pos[1];
+            v[2] = pos[2];
+        }
+    }
+    d2[0] = v[0];
+    d2[1] = v[1];
+    d2[2] = v[2];
+    GetRootProjectionPosOfGObj(p2, self);
+    if (ACTWayMove_BeginDetail(self, p2, d2, (void *)a1, 0, 0) == 0) {
+        return 0;
+    }
+    node = w + 0x120;
+    for (;;) {
+        d2[0] = v[0];
+        d2[1] = v[1];
+        d2[2] = v[2];
+        GetRootProjectionPosOfGObj(p2, self);
+        if (ACTWayMove_NextDetail(self, (float *)node, d2, 0, 0) == 0) {
+            return 0;
+        }
+        f = *(float *)(w + 0x3F8);
+        *(float *)(w + 0x120) = *(float *)(w + 0x3E0);
+        *(float *)(w + 0x124) = *(float *)(w + 0x3E4);
+        *(float *)(w + 0x128) = *(float *)(w + 0x3E8);
+        if (f < speed) {
+            if (*(float *)(w + 0x3FC) < 100.0f) {
+                return 1;
+            }
+        }
+        if (f < 200.0f || way_flag(2)) {
+            *(float *)(w + 0x34C) = 0.5f;
+        } else {
+            *(float *)(w + 0x34C) = 1.0f;
+        }
+        _ACTWait(1);
+    }
+}
 
 int ACTWay_IsMustWalkFromWay(char *a0)
 {
