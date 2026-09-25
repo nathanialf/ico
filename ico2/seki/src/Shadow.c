@@ -133,7 +133,7 @@ extern void dl_CloseDma(void);
     ((long long)((x) + 0x8000) | ((long long)((y) + 0x8000) << 16) | ((z) << 32))
 /* The untextured sprite: PRIM, RGBAQ and the two XYZ2 corners of the rect r
  * (x, y, w, h in sixteenths). The far corner is x + fx with fx = w + 0x8000,
- * as GsBase.c's gsbSpriteNoTexture holds it: the ROM adds 0x8000 to w and h
+ * as GsBase.c's GsBase.c's spriteRect holds it: the ROM adds 0x8000 to w and h
  * first (`addu a2,a2,t3`, `addu a3,a3,t3`) and x and y to those sums, where
  * a textual x + w + 0x8000 is reassociated by fold. A MACRO: the listing puts
  * the whole sprite on the line of the use (340, 345) and shows no rows of a

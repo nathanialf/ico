@@ -1328,7 +1328,7 @@ segments:
       - { type: .bss, vram: 0x0067C070, name: ico2/seki/src/Shadow }  # the TU's .bss as source (completeness pass 65)
       - { type: .bss, vram: 0x0067D098, name: ico2/seki/src/StageAnimation }  # the TU's .bss as source (chain 1 pass 74): stageAnimTable[87], 87 records of 0x290 B = 0xDEF0 B, VMA 0x67D098..0x68AF88, the count from stage_Init's own loop bounds; Texture's .bss follows with no resume blob (the queue's 0x680017 end was an address-shaped text word, not a reference)
       - { type: .bss, vram: 0x0068AF88, name: ico2/seki/src/Texture }  # the TU's .bss run as source (completeness pass 66), 0x24608 B, the 200-slot texture record table and three role-named statics
-      - { type: .bss, vram: 0x006AF590, name: ico2/seki/src/ZFog }  # the TU's whole .bss (VMA 0x6AF590..0x6AF9C0, 0x430 B: the fog CLUT packet, non-static while fog_DrawFog's stub references it; chain 3 pass 136)
+      - { type: .bss, vram: 0x006AF590, name: ico2/seki/src/ZFog }  # the TU's whole .bss (VMA 0x6AF590..0x6AF9C0, 0x430 B: the fog CLUT packet, static; chain 3 pass 136, fog_DrawFog landed pass 139)
       - { type: .bss, vram: 0x006AF9C0, name: ico2/fumi/ios/cdvd }  # the TU's .bss as source (completeness pass 69), the file-handle table, the background request table, the skip buffer, the stream thread and its stack and the request queue, VMA 0x6AF9C0..0x6BC860, ios abuts
       - { type: .bss, vram: 0x006BC860, name: ico2/fumi/ios/ios }  # the TU's own .bss, 0x60 B, VMA 0x6BC860..0x6BC8C0; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006BC8C0, name: ico2/fumi/ios/mcard }  # the TU's own .bss, 0x58 B, VMA 0x6BC8C0..0x6BC918; static definitions in ROM run order (completeness pass)

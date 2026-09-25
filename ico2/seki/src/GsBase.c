@@ -10,9 +10,14 @@
 #include <libvu0.h>
 #include <sifdev.h>
 #include <stdio.h>
-#include <string.h>
 #include "typedef.h"
 
+/* Declared here, not through string.h: with newlib's prototype in scope gcc
+   expands gsb_scissorOnDemo's four-byte zero fill as one store, and the ROM
+   calls memset there.  The int count disagrees with the builtin's size_t,
+   which is what keeps the builtin off in this file, as in layout_action.c
+   and puddle.c. */
+extern void *memset(void *p, int c, int n);
 extern int ScreenWidth;
 extern int ScreenHeight;
 extern void sceGsSetDefDispEnv(int *env, int psm, short w, short h, short dx, short dy);
@@ -245,6 +250,23 @@ typedef struct {
             setGsReg(0x05, (long long)((r)[0] + fx) | ((long long)((r)[1] + fy) << 16));           \
         }                                                                                          \
     }
+/* The untextured sprite at depth z: PRIM, RGBAQ and the two XYZ2 corners of
+ * the rect x, y, w, h, the far corner as x + fx with fx = w + 0x8000.
+ * Shadow.c's spriteRect with gif_MakeSpriteNoTexture's parameters; a MACRO
+ * for the same reason. */
+#define spriteRect(x, y, w, h, z, col, prim)                                                       \
+    {                                                                                              \
+        setGsReg(0x00, prim);                                                                      \
+        setGsReg(0x01, GIF_RGBA(col));                                                             \
+        setGsReg(0x05,                                                                             \
+                 (long long)((x) + 0x8000) | ((long long)((y) + 0x8000) << 16) | ((z) << 32));     \
+        {                                                                                          \
+            int fx = (w) + 0x8000;                                                                 \
+            int fy = (h) + 0x8000;                                                                 \
+                                                                                                   \
+            setGsReg(0x05, (long long)((x) + fx) | ((long long)((y) + fy) << 16) | ((z) << 32));   \
+        }                                                                                          \
+    }
 
 /* GsBase.c:942-958 in the listing: the two rect initialisers (942, 946), the
  * packet open and the five register writes (948-953), the whole textured
@@ -287,28 +309,6 @@ extern int fadeContinue;
 extern char D_00639FA0[];
 /* kept local: this TU's uses of gif_SetDrawEnviroment do not fit the prototype in GifPacket.h */
 extern void gif_SetDrawEnviroment(int a0, int a1, int w, int h, int a4, int a5);
-
-/* INTERIM, the same construct ico2/seki/src/GifPacket.c carries for its own
- * callers: the untextured sprite is inline, and the January-2002 listing
- * expands it into this TU (GsBase.c:1026 the whole four pair sprite), so
- * while GifPacket.c still has assembled members the inline body lives here
- * as a static stand-in.  gsb_controlBrightness's own call to the sprite
- * stays a `jal` in the ROM, which is what this TU's `unsigned int z`
- * declaration of it says: an argument whose mode does not match the
- * formal's makes gcc 2.9 fall back from expand_inline_function to a real
- * call. */
-static inline void gsbSpriteNoTexture(int x, int y, int w, int h, long long z, unsigned char *col,
-                                      int prim)
-{
-    int fx = w + 0x8000;
-    int fy = h + 0x8000;
-
-    setGsReg(0x00, (prim << 6) | 0x406);
-    setGsReg(0x01, (long long)col[0] | ((long long)col[1] << 8) | ((long long)col[2] << 16) |
-                       ((long long)col[3] << 24));
-    setGsReg(0x05, (long long)(x + 0x8000) | ((long long)(y + 0x8000) << 16) | (z << 32));
-    setGsReg(0x05, (long long)(x + fx) | ((long long)(y + fy) << 16) | (z << 32));
-}
 
 /* The fade overlay: step the fade level by half the speed each frame, clamp
  * it to 0 to 128, stop or hand over to the continue state at the ends, and
@@ -366,7 +366,7 @@ void gsb_fade(void)
     gif_SetGsReg(0x4E, 0x1300000C0LL);
     setGsReg(0x49, 0);
     setGsReg(0x42, 0x44);
-    gsbSpriteNoTexture(r.x, r.y, r.w, r.h, -1, fadeColor, 1);
+    spriteRect(r.x, r.y, r.w, r.h, -1LL, fadeColor, 0x446);
     gif_EndPacket();
     if (D_0063B13C & 1) {
         debug_Printf(0x208, ScreenHeight / 2 - 8, 0xCCCCCC00, D_00639FA0);
@@ -396,31 +396,68 @@ extern int D_00639FA4;
 extern float D_00639FA8;
 extern float D_00639FAC;
 extern char D_00639FB0[];
-extern int D_0028F814;
 extern void SetMotionBlur(int on);
 extern void gif_EndPacketPath1(void);
+/* kept local: this TU's uses of dl_GetPri do not fit the prototype in DisplayList.h */
+extern int dl_GetPri(void);
+/* kept local: this TU's uses of dl_SetDLPriority do not fit the prototype in DisplayList.h */
+extern void dl_SetDLPriority();
 
-/* Reverted to asm 2026-09-21 (chain 3 pass 43, was pass 16): 221 instructions
- * against ROM's 226 and the first 82 word for word.  The shape is derived and
- * the listing agrees with it (SRCFILE.TXT GsBase.c:1067 is the two bar
- * `GsbRect r[2]` initialiser, 1092 to 1119 the ease and the two clamps, 1120
- * the two-iteration `for` and 1121 its whole body, one untextured sprite).
- * The alpha window is an `&&` chain like gsb_fade's, which is what gives the
- * else arm its two entries.
- *
- * MEASURED RESIDUAL, five instructions: ROM's `SetMotionBlur` call is
- * entered twice and reorg fills the first entry's branch delay slot FROM THE
- * TARGET THREAD, copying `lui $2, %hi(D_0028F814)` out of .L0011367C into the
- * `bc1f` at 0x00113478 and retargeting that branch one instruction past it to
- * .L00113680, so ROM carries the `lui` twice and a `nop` the built code does
- * not have; the built code's two branches share one entry and leave the slot
- * empty.  ROM also parks the sprite's PRIM word 0x446 in a callee-saved
- * register across the loop (`addiu $22, $0, 0x446`) where the built code
- * parks 0x8000 there instead.  Seed:
- * tails/seeds/GsBase.c3p43_gsb_scissorOnDemo_221of226_strict137_TU.c (the
- * pass 16 seed is superseded: its sprite is now the shared
- * `gsbSpriteNoTexture` stand-in that landed gsb_fade). */
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_scissorOnDemo);
+/* The letterbox the demo scenes fade in: two black bars, top and bottom,
+ * whose alpha eases to 128 while the scene is state 55 and back to 0
+ * otherwise.  While the bars are visible they are drawn and the motion blur
+ * is left alone; once they are gone the stage record's blur setting is
+ * restored.  The listing (GsBase.c:1067-1126) puts the two-bar initialiser on
+ * 1067, the two state tests on 1092, the ease and the two clamps on 1097 to
+ * 1106, the `&&` window on 1109, and the whole sprite on 1121 inside the
+ * two-iteration loop of 1120: a macro, with its first corner written before
+ * fx and fy are formed, which is the order the loop's invariants come out
+ * in. */
+void gsb_scissorOnDemo(void)
+{
+    GsbRect r[2] = {
+        {-(ScreenWidth >> 1) * 16, -(ScreenHeight >> 1) * 16 - 4, ScreenWidth * 16, 58 * 16},
+        {-(ScreenWidth >> 1) * 16, ((ScreenHeight >> 1) - 58) * 16 + 4, ScreenWidth * 16, 58 * 16}};
+    unsigned char col[4];
+    int i;
+
+    if (D_0063B60C == 55 && D_00639FA4 != D_0063B60C) {
+        D_00639FAC = 2.5f;
+    } else if (D_00639FA4 != D_0063B60C) {
+        D_00639FAC = -2.5f;
+    }
+    D_00639FA4 = D_0063B60C;
+
+    D_00639FA8 = D_00639FA8 + D_00639FAC;
+    if (D_00639FA8 <= 0.0f) {
+        D_00639FA8 = 0.0f;
+        D_00639FAC = 0.0f;
+    }
+    if (128.0f <= D_00639FA8) {
+        D_00639FA8 = 128.0f;
+        D_00639FAC = 0.0f;
+    }
+    if (0.0f < D_00639FA8 && D_00639FA8 <= 128.0f) {
+        if (D_0063B13C & 1) {
+            debug_Printf(0x21C, ScreenHeight / 2 - 8, 0xCCCCCC00, D_00639FB0);
+        }
+        dl_SetDLPriority(11);
+        gif_StartPacketPriPath1(dl_GetPri());
+        memset(col, 0, 4);
+        col[3] = 0x80;
+        gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
+        gif_SetGsReg(0x47, 0x30000);
+        gif_SetGsReg(0x4E, 0x300000C0);
+        gif_SetGsReg(0x49, 0);
+        gif_SetGsReg(0x42, ((long long)(int)D_00639FA8 << 32) | 0x64);
+        for (i = 0; i < 2; i++) {
+            spriteRect(r[i].x, r[i].y, r[i].w, r[i].h, -1LL, col, 0x446);
+        }
+        gif_EndPacketPath1();
+    } else {
+        SetMotionBlur(D_0028F720.motionBlur);
+    }
+}
 
 extern int D_0028F4C0[];
 extern char D_00639FB8[];
@@ -492,10 +529,6 @@ void gsb_controlBrightness(void)
  * tails/seeds/GsBase.c3p43_gsb_antiAlias_239of233_strict212_TU.c. */
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_antiAlias);
 
-/* kept local: this TU's uses of dl_GetPri do not fit the prototype in DisplayList.h */
-extern int dl_GetPri(void);
-/* kept local: this TU's uses of dl_SetDLPriority do not fit the prototype in DisplayList.h */
-extern void dl_SetDLPriority();
 /* kept local: this TU's uses of gif_EndPacketPath1 do not fit the prototype in GifPacket.h */
 extern void gif_EndPacketPath1(void);
 /* kept local: this TU's uses of gif_SetGsReg do not fit the prototype in GifPacket.h */
