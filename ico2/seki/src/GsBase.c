@@ -504,30 +504,97 @@ void gsb_controlBrightness(void)
     }
 }
 
-/* Reverted to asm 2026-09-21 (chain 3 pass 43, was pass 16).  CORRECTION to
- * the pass 16 row: this body is 239 instructions, not 233.  `nm -S` gives
- * 0x3BC against the ROM span's 0x3A4 and the strict comparator truncates to
- * the ROM's length, which is what made the earlier row read 233 of 233.
- * STRICT 212.  The shape and the .rodata are unchanged and still derived:
- * six 16-byte source and destination rectangles as local initialisers, the
- * 0x80808080 colour copied out of D_00639FC0 (an incomplete array so the
- * address is absolute, not gp-relative), the stage record's two anti-alias
- * levels in an `int lv[2]`, and up to four sensitive-sprite blends whose
- * TEX0 is written as two groups so the 0x400000000 TCC bit stays a separate
- * hoisted constant.  DATA the landing would emit: .rodata 96 bytes,
- * byte-identical to D_0054E310..D_0054E36F (VMA 0x0054E310, ROM offset
- * 0x0044E310), six records {4,4,0x2000,0x2000} {4,4,0x1000,0x1000}
- * {4,4,0x800,0x800} {-0x1004,-0x1004,0x2000,0x2000} {-0x804,-0x804,0x1000,
- * 0x1000} {-0x404,-0x404,0x800,0x800}.
- *
- * MEASURED RESIDUAL: whole-function allocation.  ROM reserves 0xB0 and saves
- * TWO callee-saved registers ($16 and $17, holding the first tex_GetTWTH
- * result and the TCC constant); the built code reserves 0xA0, saves only
- * $16, and pays for it with six more instructions of reload traffic.  The
- * divergence starts at the prologue, so this is the convergence class that
- * wants the whole body driven at once, not a local tie.  Seed:
- * tails/seeds/GsBase.c3p43_gsb_antiAlias_239of233_strict212_TU.c. */
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_antiAlias);
+/* A colour as the sprite family takes it, four bytes in RGBA order; the same
+   record as Texture.c's TexColor. */
+typedef struct {
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+    unsigned char a;
+} GsbColor;
+
+/* The anti-alias pass's initialiser data, placeholders for GsBase.o's own
+   constants: the grey {128, 128, 128, 128} in the TU's .sdata at VMA 0x639FC0,
+   and the six rectangles in its .rodata at VMA 0x54E310..0x54E370, in order
+   the three sources {4, 4, 0x2000, 0x2000}, {4, 4, 0x1000, 0x1000},
+   {4, 4, 0x800, 0x800} and the three destinations {-0x1004, -0x1004, 0x2000,
+   0x2000}, {-0x804, -0x804, 0x1000, 0x1000}, {-0x404, -0x404, 0x800, 0x800}.
+   The .rodata run interleaves anonymous strings with named tables, which the
+   build cannot emit as one run from C, so they stay extern here. */
+extern const GsbColor D_00639FC0[];
+extern const GsbRect D_0054E310;
+extern const GsbRect D_0054E320;
+extern const GsbRect D_0054E330;
+extern const GsbRect D_0054E340;
+extern const GsbRect D_0054E350;
+extern const GsbRect D_0054E360;
+extern void gif_SetZTest(int on);
+extern void gif_SetZWrite(int on);
+extern int tex_GetTWTH(int size);
+extern void gif_SpriteSensitiveOrg(int *r, long long z, int *uv, unsigned char *col, int prim);
+
+/* Soften the frame's edges: the frame is reduced to a 256 square copy and,
+ * when the second level is on, a 128 square one, and each level the stage
+ * record (or the current sub target's row) turns on is blended back over the
+ * 512 square buffer through the sensitive sprite.  The listing
+ * (GsBase.c:1181-1247) puts the colour and each rectangle on its own line,
+ * the two level reads on two lines per arm, and every TEX0 write on one line
+ * in field order, as Texture.c spells it: fold pairs that chain into
+ * (TW | TCC) | (TH | TBP and TBW), which leaves the TCC bit a constant of its
+ * own that the four writes share in $s1. */
+void gsb_antiAlias(void)
+{
+    GsbColor col = D_00639FC0[0];
+    GsbRect s0 = D_0054E310;
+    GsbRect s1 = D_0054E320;
+    GsbRect s2 = D_0054E330;
+    GsbRect d0 = D_0054E340;
+    GsbRect d1 = D_0054E350;
+    GsbRect d2 = D_0054E360;
+    int lv[2];
+
+    if (CurrentTargetGObjSub == 0) {
+        lv[0] = D_0028F720.f0FC;
+        lv[1] = D_0028F720.f100;
+    } else {
+        lv[0] = D_0028F720.f19C[CurrentTargetGObjSub].a;
+        lv[1] = D_0028F720.f19C[CurrentTargetGObjSub].b;
+    }
+    if (lv[0] == 0 && lv[1] == 0) {
+        return;
+    }
+    gif_StartPacketPri(10);
+    gif_SetZTest(0);
+    gif_SetZWrite(0);
+    gif_SetDrawEnviroment(0x2800, 0, 256, 256, 0, 0);
+    gif_SetGsReg(6, 0x800 | ((long long)8 << 14) | ((long long)tex_GetTWTH(512) << 26) |
+                        ((long long)tex_GetTWTH(512) << 30) | ((long long)1 << 34));
+    gif_SetAlpha(0, 2, 128);
+    gif_SpriteSensitiveOrg(&d1.x, 0, &s0.x, (unsigned char *)&col, 0);
+    if (lv[1] != 0) {
+        gif_SetGsReg(6, 0x2800 | ((long long)4 << 14) | ((long long)tex_GetTWTH(256) << 26) |
+                            ((long long)tex_GetTWTH(256) << 30) | ((long long)1 << 34));
+        gif_SetDrawEnviroment(0x2C00, 0, 128, 128, 0, 0);
+        gif_SpriteSensitiveOrg(&d2.x, 0, &s1.x, (unsigned char *)&col, 0);
+    }
+    gif_SetDrawEnviroment(0x800, 0, 512, 512, 1, 0);
+    if (lv[1] != 0) {
+        gif_SetAlpha(1, 2, lv[1]);
+        gif_SetGsReg(6, 0x2C00 | ((long long)2 << 14) | ((long long)tex_GetTWTH(128) << 26) |
+                            ((long long)tex_GetTWTH(128) << 30) | ((long long)1 << 34));
+        gif_SpriteSensitiveOrg(&d0.x, 0, &s2.x, (unsigned char *)&col, 1);
+    }
+    if (lv[0] != 0) {
+        gif_SetAlpha(1, 2, lv[0]);
+        gif_SetGsReg(6, 0x2800 | ((long long)4 << 14) | ((long long)tex_GetTWTH(256) << 26) |
+                            ((long long)tex_GetTWTH(256) << 30) | ((long long)1 << 34));
+        gif_SpriteSensitiveOrg(&d0.x, 0, &s1.x, (unsigned char *)&col, 1);
+    }
+    gif_SetZWrite(1);
+    gif_SetZTest(1);
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
+    gif_EndPacket();
+}
 
 /* kept local: this TU's uses of gif_EndPacketPath1 do not fit the prototype in GifPacket.h */
 extern void gif_EndPacketPath1(void);
@@ -928,37 +995,112 @@ void gsb_ResetGSSystem(void)
 }
 
 extern void _UnitMatrix(float *m);
+/* The 1500 unit screen the projection b is scaled to, {1500, 1500, 0, 0}:
+   a placeholder for GsBase.o's own 16 bytes in its .rodata at VMA 0x54E478,
+   a run the build cannot emit from C (it interleaves anonymous strings with
+   named tables), so it stays extern here. */
+extern const float D_0054E478[];
 
-/* Reverted to asm 2026-09-21 (chain 3 pass 43, re-measured from pass 16):
- * 313 of 313 instructions, `nm -S` 0x4E4 equal to the ROM span (the count
- * and the size are both confirmed this pass, unlike gsb_antiAlias's), STRICT
- * 129.  The body is derived: the screen half size pair, the projection rows
- * (a unit matrix with the w row swapped in), the perspective projection for
- * the main view, the half scale projection for the reduction buffer, and the
- * 1500 unit orthographic pair for the reflection, multiplying two of them
- * into matrixptr+0x640 and +0x680.  LEVERS ALREADY MEASURED: the two range
- * terms are written `-vs[5] + vs[6]` and `-vs[7] + vs[8]` (ROM's neg.s plus
- * add.s, not sub.s); the screen half size pair is a `union { float f[4];
- * long long d[2]; }` initialiser, which is what makes ROM copy it with ld/sd
- * rather than lwl/lwr.
- *
- * DATA the landing would emit, verified against the ROM this pass: one
- * `.rodata.scr` section, 16 bytes, contents 0x0080BB44 0x0080BB44 0x00000000
- * 0x00000000 (1500.0f, 1500.0f, 0.0f, 0.0f), byte-identical to the ROM run
- * at VMA 0x0054E478..0x0054E488 (ROM offset 0x0044E478); the carve row is a
- * plain `[0x44E478, .rodata, ico2/seki/src/GsBase]` and the object is NAMED
- * (a file-scope `static const float scr[4]`), not anonymous.
- *
- * MEASURED RESIDUAL: whole-function FLOATING POINT register assignment and
- * the load order that follows it.  The first divergence is row 14, where ROM
- * converts the frame width into $f1 and the built code into $f0, and it runs
- * through the callee-saved block (ROM holds the far and near terms in $f26
- * and $f25 and the four scale terms in $f21 $f22 $f23 $f20, the built code
- * puts the same values one register across and saves $f22 before $f21).
- * Every mnemonic class and the instruction count already match, so this is
- * the convergence class that wants the whole body driven at once.  Seed:
- * tails/seeds/GsBase.c3p43_gsb_SetVSMatrixSub_313of313_strict129_TU.c. */
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/GsBase", gsb_SetVSMatrixSub);
+/* Build the view matrices from the record gsb_SetVSMatrix fills (vs[0] the
+ * zoom, vs[1] and vs[2] the aspect terms, vs[3] and vs[4] the centre, vs[5]
+ * and vs[6] the depth range, vs[7] and vs[8] the near and far planes): the
+ * screen matrix a, the perspective projection b for the 1500 unit screen,
+ * the one c for the half size screen, the viewport d, and the pair built on
+ * a 500 unit screen at matrixptr+0x640 and +0x680.  The listing
+ * (GsBase.c:2009-2134) gives each assignment its own line in this order,
+ * except the two rows of three that fill the scale, depth and centre terms;
+ * the 500 unit pair's scale terms at 2125-2126 are locals of their own, which
+ * is what keeps sx and sy short enough to take $f21 and $f22. */
+void gsb_SetVSMatrixSub(float *a, float *b, float *c, float *d, float *vs)
+{
+    sceVu0FVECTOR v = {ScreenWidth / 2, ScreenHeight / 2, 0.0f, 0.0f};
+    float m0[16];
+    float m1[16];
+    float sx;
+    float sy;
+    float cx;
+    float cy;
+    float zn;
+    float zf;
+    float rx;
+    float ry;
+
+    sx = vs[7] * D_0054E478[0] / vs[0];
+    sy = vs[7] * D_0054E478[1] / vs[0];
+
+    cx = vs[7] * v[0] / vs[0];
+    cy = vs[7] * v[1] / vs[0];
+
+    zn = (-vs[6] * vs[7] + vs[5] * vs[8]) / (-vs[7] + vs[8]);
+
+    zf = vs[8] * vs[7] * (-vs[5] + vs[6]) / (-vs[7] + vs[8]);
+
+    _UnitMatrix(a);
+    a[0] = vs[0];
+    a[5] = vs[0];
+    a[10] = 0.0f;
+    a[15] = 0.0f;
+    a[14] = 1.0f;
+    a[11] = 1.0f;
+
+    _UnitMatrix(m0);
+    /* clang-format off */
+    m0[0] = vs[1]; m0[5] = vs[2]; m0[10] = zf;
+    m0[12] = vs[3]; m0[13] = vs[4]; m0[14] = zn;
+    /* clang-format on */
+    _MulMatrix(a, m0, a);
+
+    _UnitMatrix(b);
+    b[0] = (vs[7] + vs[7]) / (sx + sx);
+    b[5] = (vs[7] + vs[7]) / (sy + sy);
+    b[10] = (vs[8] + vs[7]) / (vs[8] - vs[7]);
+    b[14] = vs[8] * vs[7] * -2.0f / (vs[8] - vs[7]);
+    b[11] = 1.0f;
+    b[15] = 0.0f;
+
+    _UnitMatrix(d);
+    d[0] = vs[0] * vs[1] * sx / vs[7];
+    d[5] = vs[0] * vs[2] * sy / vs[7];
+    d[10] = (-vs[6] + vs[5]) * 0.5f;
+    d[12] = vs[3];
+    d[13] = vs[4];
+    d[14] = (vs[6] + vs[5]) * 0.5f;
+    d[15] = 1.0f;
+
+    _UnitMatrix(c);
+    c[0] = (vs[7] + vs[7]) / (cx + cx);
+    c[5] = (vs[7] + vs[7]) / (cy + cy);
+    c[10] = (vs[8] + vs[7]) / (vs[8] - vs[7]);
+    c[14] = vs[8] * vs[7] * -2.0f / (vs[8] - vs[7]);
+    c[11] = 1.0f;
+    c[15] = 0.0f;
+
+    _UnitMatrix(m1);
+    m1[0] = 500.0f;
+    m1[5] = 500.0f;
+    m1[10] = 0.0f;
+    m1[15] = 0.0f;
+    m1[14] = 1.0f;
+    m1[11] = 1.0f;
+
+    _UnitMatrix(m0);
+    /* clang-format off */
+    m0[0] = vs[1]; m0[5] = vs[2]; m0[10] = zf;
+    m0[12] = vs[3]; m0[13] = vs[4]; m0[14] = zn;
+    /* clang-format on */
+    _MulMatrix(matrixptr + 0x640, m0, m1);
+
+    rx = vs[7] * v[0] / 500.0f;
+    ry = vs[7] * v[1] / 500.0f;
+    _UnitMatrix(m1);
+    m1[0] = (vs[7] + vs[7]) / (rx + rx);
+    m1[5] = (vs[7] + vs[7]) / (ry + ry);
+    m1[10] = (vs[8] + vs[7]) / (vs[8] - vs[7]);
+    m1[14] = vs[8] * vs[7] * -2.0f / (vs[8] - vs[7]);
+    m1[11] = 1.0f;
+    m1[15] = 0.0f;
+    _CopyMatrix(matrixptr + 0x680, m1);
+}
 
 extern int D_0063A07C;
 extern int D_0063A080;
@@ -978,7 +1120,7 @@ extern int D_00639F94;
 static float vsParam[10];
 
 extern void tex_UpdateMipMapLevel(float lv);
-extern void gsb_SetVSMatrixSub(void *a, void *b, void *c, void *d, float *vs);
+extern void gsb_SetVSMatrixSub(float *a, float *b, float *c, float *d, float *vs);
 
 /* Set the view and screen matrices for a frame of w by h at depth d: the
  * centre is the screen middle less the staff roll offset, the zoom eases

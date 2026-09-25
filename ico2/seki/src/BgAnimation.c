@@ -1142,7 +1142,158 @@ void bga_GetGizmoMotion(BgaMotion *m, float *dst)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_calcEnvelope);
+extern int D_0063C4B4;
+extern int ScreenWidth;
+extern int D_0063BCC0;
+
+/* RECONSTRUCTION: a word read either as an int or as a float, the form this
+   programmer gives such words (StageAnimation.c's AnimWord, Packet.c's
+   PacketFloat).  What the bytes pin: the store of the light-vector flag goes
+   through a union (alias set 0, an aggregate reference), which is what keeps
+   it behind the vector's source loads in bga_calcEnvelope as the ROM has it.
+   What they cannot pin: the other member or the name. */
+typedef union {
+    int i;
+    float f;
+} BgaWord;
+
+/* Placeholders for this TU's own data: the flag in its .sdata that
+   bga_CalcObject tests before translating by the light vector, the vector
+   itself (four floats in .bss at VMA 0x728240), and the message
+   "Illegal Envelope Type : %p(%d)\n" in the .rodata run at VMA 0x6216B8. */
+extern BgaWord D_0063BCF4;
+extern float D_00728240[];
+extern char D_006216B8[];
+
+static inline float bga_palFrame(float f)
+{
+    if (D_0028F4C0[0]) {
+        f *= 0.82812935f;
+    }
+    return f;
+}
+
+/* The 0x50-byte per-node work record the object keeps at +0x870: the
+   envelope writes one float into it and sets the low bit of the flag word,
+   which is the union ico2/common/src/DObj.c reads and writes it through
+   (DObjFlags).  Field names are ours. */
+typedef struct BgaNodeWork {
+    /* 0x00 */ char pad00[0x30];
+    /* 0x30 */ float f30;
+    /* 0x34 */ int f34;
+    /* 0x38 */ union {
+        long long ll;
+        int i[2];
+    } f38;
+
+    /* 0x40 */ char pad40[0x10];
+} BgaNodeWork;
+
+/* Listing rows 1991-2001: step an envelope's motion by dt and, once it runs
+   past its length (scaled for PAL, as bga_CalcSdfCamera scales it), wrap it
+   to 0 when looping or hold it at the end.  The helper reads the entry's data
+   word itself (row 1991).  The name is ours. */
+static inline void bga_stepEnvelope(BgaEnvEnt *e, float dt, int loop)
+{
+    BgaExtMotion *m = (BgaExtMotion *)e->data;
+
+    m->frame += dt;
+    if ((float)m->len * (D_0028F4C0[0] ? 0.82812935f : 1.0f) < m->frame) {
+        if (loop) {
+            m->frame = 0.0f;
+        } else {
+            m->frame = bga_palFrame((float)m->len);
+        }
+    }
+}
+
+/* Apply a node's envelopes (listing rows 2034-2121): each entry's type says
+ * what its motion drives, the node work record's float for the object, the
+ * SDF camera zoom, a light's two parameters, the gizmo, the light vector or
+ * the node's object pointer; types 4 and 5 (the colour envelopes
+ * bga_initLightEnvelope reads) are skipped, and any other type is reported
+ * with its entry and type and asserted. */
+void bga_calcEnvelope(BgaDObjEnt *p, int a1, int a2, float dt)
+{
+    BgaEnvEnt *e;
+    float v;
+
+    e = (BgaEnvEnt *)p->env;
+    if (e == 0) {
+        return;
+    }
+    for (; e->data != 0; e++) {
+        switch (e->type) {
+        case 0:
+            if (p->u.obj != 0) {
+                ((BgaNodeWork *)*(int *)((char *)p->u.obj + 0x870))[p->num].f30 =
+                    bga_GetExtMotion((BgaExtMotion *)e->data);
+                ((BgaNodeWork *)*(int *)((char *)p->u.obj + 0x870))[p->num].f38.ll |= 1;
+                bga_stepEnvelope(e, dt, a2);
+            }
+            break;
+        case 1:
+            if (D_0063C4B4 != 0) {
+                if (a1 != 0) {
+                    *(float *)&D_0063BCC0 =
+                        bga_GetExtMotion((BgaExtMotion *)e->data) * (float)ScreenWidth / 2.66f;
+                }
+            }
+            bga_stepEnvelope(e, dt, a2);
+            break;
+        case 2:
+            v = bga_GetExtMotion((BgaExtMotion *)e->data);
+            switch (p->type) {
+            case 6:
+            case 11:
+                *(float *)((char *)p->u.obj + 0x30) = v;
+                bga_stepEnvelope(e, dt, a2);
+                break;
+            case 8:
+            case 9:
+                *(float *)((char *)p->u.obj + 0x80) = v;
+                bga_stepEnvelope(e, dt, a2);
+                break;
+            }
+            break;
+        case 3:
+            v = bga_GetExtMotion((BgaExtMotion *)e->data);
+            switch (p->type) {
+            case 6:
+            case 11:
+                *(float *)((char *)p->u.obj + 0x34) = v;
+                bga_stepEnvelope(e, dt, a2);
+                break;
+            }
+            break;
+        case 4:
+        case 5:
+            break;
+        case 6:
+            if (p->u.obj != 0) {
+                bga_GetGizmoMotion((BgaMotion *)e->data, *(float **)((char *)p->u.obj + 0x838));
+                bga_stepEnvelope(e, dt, a2);
+            }
+            break;
+        case 7:
+            D_00728240[0] = ((float *)e->data)[0];
+            D_00728240[1] = -((float *)e->data)[1];
+            D_00728240[2] = ((float *)e->data)[2];
+            D_00728240[3] = 1.0f;
+            D_0063BCF4.i = 1;
+            break;
+        case 8:
+        case 9:
+            p->u.obj = e->data;
+            break;
+        default:
+            debug_StdPrintfDummy(D_006216B8, e, e->type);
+            debug_assert(D_00621598, 2116);
+            __assert(D_00621598, 2116, D_0063BCE8);
+            break;
+        }
+    }
+}
 
 /* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
 extern float _Sqrt(float x);
@@ -1269,14 +1420,6 @@ void _RotTransCurrentMatrixYXZ(void *t, int *rot)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_CalcObject);
-
-static inline float bga_palFrame(float f)
-{
-    if (D_0028F4C0[0]) {
-        f *= 0.82812935f;
-    }
-    return f;
-}
 
 typedef struct {
     /* 0x00 */ int f00;
