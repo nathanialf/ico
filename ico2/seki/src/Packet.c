@@ -1,4 +1,5 @@
 #include "common.h"
+#include <libvu0.h>
 #include "debug.h"
 #include "Basic.h"
 #include "Matrix.h"
@@ -23,9 +24,8 @@ extern char D_0063A118[];
  * at 0x20..0x2C, the element count at 0x30, the state bits at 0x38, the
  * bounding box minimum at 0x40 and maximum at 0x50.  Every function reaches it
  * as raw storage through a char pointer, so it is kept as the byte array the
- * TU reads.  Not static: the assembled stubs still name it. */
-static char pacWork
-    [0x60]; /* static: the remaining stubs are assembled into this object and reach it as a local symbol */
+ * TU reads. */
+static char pacWork[0x60];
 
 void pac_DispQW(void *p, int size)
 {
@@ -832,7 +832,7 @@ static inline int pac_moveToSeki(int src, int size)
     return p;
 }
 
-int pac_makeStrip(int *out, char *obj, char **tbl, int shpno, int matno, int line)
+int pac_makeStrip(char **out, char *obj, char **tbl, int shpno, int matno, int line)
 {
     char buf[1024];
     int num;
@@ -917,7 +917,7 @@ int pac_makeStrip(int *out, char *obj, char **tbl, int shpno, int matno, int lin
     } else {
         iosFree(pkt & 0x0FFFFFFF);
     }
-    *out = dst;
+    *out = (char *)dst;
     return size;
 }
 
@@ -1223,7 +1223,277 @@ void pac_makeShapeTable(int a0, char *obj)
     *(int *)(obj + 0x120) = (int)ntbl;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/Packet", pac_makePacket);
+extern char D_0054F850[];
+extern char D_0054F888[];
+extern char D_0054F8A0[];
+
+/* RECONSTRUCTION (names ours): the views pac_makePacket writes through.
+   PacObjMode is the model object's head as far as the builder reads it: the
+   sub-object count at 0x2E, the display flag at 0x2F and the 64-bit mode word
+   at 0x30 as unsigned short bitfields (every extraction is `andi 0xFFFF`, and
+   the leading vectors give the view the 16-byte alignment that makes the word
+   a doubleword access). PacLine is a 192-byte line record, PacStrip the
+   160-byte strip node (bounding box, ids, counts, the 24-bit packet size with
+   the lod byte after it, the chain link and the packet address). Bitfield
+   accesses carry alias set 0 (change_address drops it), member stores are
+   in-struct: both are what the ROM's instruction order needs. */
+typedef struct {
+    sceVu0FVECTOR pad0[2];
+    char pad1[0xE];
+    char nsub;
+    signed char disp;
+    unsigned short : 16;
+    unsigned short type : 2;
+    unsigned short shade : 4;
+    unsigned short lod : 4;
+} PacObjMode;
+
+typedef struct {
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+    unsigned char a;
+} PacColor;
+
+typedef struct {
+    sceVu0FVECTOR pad[11];
+    PacColor col0;
+    PacColor col1;
+    unsigned short tex : 11;
+    unsigned short blend : 2;
+    short type : 3;
+} PacLine;
+
+typedef struct PacStrip {
+    sceVu0FVECTOR box[8];
+    short shape;
+    short mat;
+    short tex0;
+    short tex1;
+    short tex2;
+    short ntag;
+    int npoly;
+    unsigned int size : 24;
+    unsigned char lod;
+    struct PacStrip *next;
+    int packet;
+} PacStrip;
+
+/* listing row 1679: clears the running packet byte counter before a build */
+static inline void pac_resetPacketCount(void)
+{
+    pacPacketBytes = 0;
+}
+
+/* listing rows 1578-1582: allocates and fills a material's texture-info table
+   for the strip path */
+static inline void pac_makeTextureTable(char *dst, char *src)
+{
+    char *tex;
+    unsigned int i;
+
+    tex = (char *)mallocseki(*(int *)(src + 0xE4) * 80);
+    for (i = 0; i < *(unsigned int *)(src + 0xE4); i++)
+        pac_getTextureInfo(i * 80 + tex, src, i);
+    *(char **)(dst + 4) = tex;
+    *(short *)(dst + 0x12) = *(int *)(src + 0xE4);
+}
+
+/* listing rows 1597-1601: the line-primitive twin; it writes the count into
+   the line header's own halfword at +0xE */
+static inline void pac_makeTextureTableLine(char *dst, char *src)
+{
+    char *tex;
+    unsigned int i;
+
+    tex = (char *)mallocseki(*(int *)(src + 0xE4) * 80);
+    for (i = 0; i < *(unsigned int *)(src + 0xE4); i++)
+        pac_getTextureInfo(i * 80 + tex, src, i);
+    *(char **)(dst + 4) = tex;
+    *(short *)(dst + 0xE) = *(int *)(src + 0xE4);
+}
+
+/* One variable per role across the arms, as the ROM's registers show: prev
+   builds the strip chain and then walks it for the clone ($20 for both), j
+   counts the shapes and then the line records ($19 in both arms); out is the
+   packet address pac_makeStrip returns, a pointer (its read may pass the
+   int npoly store, word 192 before 196). */
+void pac_makePacket(void *a0, int a1, int a2)
+{
+    char *out;
+    int lod;
+    char *tbl;
+    char *mtbl;
+    int nshape;
+    char *src;
+    char *node;
+    char *prev;
+    char *p;
+    char *last;
+    char *top;
+    char *line;
+    char *vtx;
+    char *uv;
+    char *idx;
+    char *obj;
+    int i;
+    int j;
+    int m;
+    int nmat;
+    int sz;
+
+    obj = a0;
+    lod = ((PacObjMode *)obj)->lod;
+    pac_resetPacketCount();
+    tbl = 0;
+    mtbl = 0;
+    ((PacObjMode *)obj)->type = 0 < ((PacObjMode *)obj)->disp;
+    if (*(int *)(*(char **)(obj + 0x40) + 0x114) != 0)
+        ((PacObjMode *)obj)->type = 2;
+    /* The ROM extracts the field here (dsrl 16, andi 0xFFFF, andi 3) where a
+       `->type == 2` would fold to the masked compare row 1714 has: the bytes
+       pin an extraction, not which expression the developer wrote. */
+    if (((unsigned short)(*(unsigned long long *)(obj + 0x30) >> 16) & 3) == 2) {
+        mtbl = (char *)mallocseki(*(char *)(obj + 0x2E) * 16);
+        *(int *)(obj + 0x48) = (int)mtbl;
+    } else {
+        tbl = (char *)mallocseki(*(char *)(obj + 0x2E) * 48);
+        *(int *)(obj + 0x48) = (int)tbl;
+        sprintf(tbl + 20, D_0063A138, obj);
+    }
+    sprintf(pacWork, D_0063A138, obj);
+    if (((PacObjMode *)obj)->type != 2) {
+        for (i = 0; i < *(char *)(obj + 0x2E); i++) {
+            prev = 0;
+            src = *(char **)(obj + 0x40) + i * 384;
+            nmat = *(int *)(src + 0xE4);
+            nshape = *(int *)(src + 0xD4);
+            pac_makeMaterialTable((MatTab *)tbl, (MatObj *)src, a1, lod, a2);
+            pac_makeTextureTable(tbl, src);
+            if (*(int *)(src + 0x124) != 0)
+                pac_makeShapeTable((int)tbl, src);
+            if (*(int *)(src + 0xD0) == 0) {
+                debug_StdPrintfDummy(D_0054F850, obj, src);
+                debug_assert(D_0054F400, 1732);
+                __assert(D_0054F400, 1732, D_0063A120);
+            }
+            for (j = 0; j < nshape; j++) {
+                for (m = -1; m < nmat; m++) {
+                    out = 0;
+                    pacTagCount = 0;
+                    pacPolyCount = 0;
+                    sz = pac_makeStrip(&out, src, (char **)tbl, j, m, (int)obj);
+                    if (sz > 0) {
+                        node = (char *)mallocseki(160);
+                        ((PacStrip *)node)->shape = j;
+                        ((PacStrip *)node)->mat = m;
+                        ((PacStrip *)node)->tex0 =
+                            *(unsigned short *)(m * 80 + *(char **)(tbl + 4) + 0x48);
+                        ((PacStrip *)node)->tex1 =
+                            *(unsigned short *)(m * 80 + *(char **)(tbl + 4) + 0x4A);
+                        ((PacStrip *)node)->tex2 =
+                            *(unsigned short *)(m * 80 + *(char **)(tbl + 4) + 0x4C);
+                        ((PacStrip *)node)->npoly = pacPolyCount;
+                        ((PacStrip *)node)->ntag = (unsigned short)pacTagCount;
+                        ((PacStrip *)node)->packet = (int)out;
+                        ((PacStrip *)node)->size = sz;
+                        ((PacStrip *)node)->lod = ((PacObjMode *)obj)->shade;
+                        ((PacStrip *)node)->next = (PacStrip *)prev;
+                        pac_makeBoundingBox((float (*)[4])node, ((PacObjMode *)obj)->type == 1);
+                        prev = node;
+                    } else if (sz < 0) {
+                        debug_StdPrintfDummy(D_0054F888, sz);
+                        debug_assert(D_0054F400, 1762);
+                        __assert(D_0054F400, 1762, D_0063A120);
+                    }
+                }
+            }
+            *(char **)(tbl + 8) = prev;
+            if (*(int *)(src + 0x124) != 0) {
+                p = (char *)mallocseki(160);
+                ((PacStrip *)p)->next = 0;
+                prev = *(char **)(tbl + 8);
+                *(int *)(tbl + 0xC) = (int)p;
+                do {
+                    malloc_MemCpy((int)p, (int)prev, 160);
+                    ((PacStrip *)p)->packet = mallocseki(((PacStrip *)prev)->size);
+                    ((PacStrip *)p)->size = ((PacStrip *)prev)->size;
+                    malloc_MemCpy(((PacStrip *)p)->packet, ((PacStrip *)prev)->packet,
+                                  ((PacStrip *)prev)->size);
+                    prev = (char *)((PacStrip *)prev)->next;
+                    if (prev != 0) {
+                        last = p;
+                        p = (char *)mallocseki(160);
+                        ((PacStrip *)p)->next = 0;
+                        ((PacStrip *)last)->next = (PacStrip *)p;
+                    }
+                } while (prev != 0);
+            } else {
+                *(int *)(tbl + 0xC) = 0;
+            }
+            tbl += 48;
+        }
+    } else {
+        char *src;
+        char *p;
+
+        for (i = 0; i < *(char *)(obj + 0x2E); i++) {
+            src = *(char **)(obj + 0x40) + i * 384;
+            line = *(char **)(src + 0x110);
+            p = (char *)mallocseki((*(int *)(src + 0x114) + 1) * 192);
+            vtx = *(char **)(src + 0x90);
+            uv = *(char **)(src + 0xB0);
+            idx = *(char **)(src + 0xC0);
+            pac_makeMaterialTableLine((MatLine *)mtbl, (MatObj *)src, a1, lod, a2);
+            pac_makeTextureTableLine(mtbl, src);
+            ((PacObjMode *)obj)->type = 2;
+            top = p;
+            for (j = 0; j < *(unsigned int *)(src + 0x114); j++) {
+                ((PacLine *)p)->type = *(unsigned short *)(line + 0x40);
+                switch (((PacLine *)p)->type) {
+                case 1:
+                    _CopyVector(p, vtx + *(int *)line * 16);
+                    ((PacLine *)p)->col0 = ((PacColor *)idx)[*(int *)(line + 0x30)];
+                    ((PacLine *)p)->blend =
+                        0.5019608f <=
+                        *(float *)(*(int *)(src + 0xD0) + *(int *)(line + 0x48) * 16 + 12);
+                    break;
+                case 2:
+                    _CopyVector(p, vtx + *(int *)line * 16);
+                    _CopyVector(p + 16, vtx + *(int *)(line + 4) * 16);
+                    *(float *)(p + 0x30) = *(float *)(uv + *(int *)(line + 0x20) * 16);
+                    *(float *)(p + 0x34) = *(float *)(uv + *(int *)(line + 0x20) * 16 + 4);
+                    *(float *)(p + 0x40) = *(float *)(uv + *(int *)(line + 0x24) * 16);
+                    *(float *)(p + 0x44) = *(float *)(uv + *(int *)(line + 0x24) * 16 + 4);
+                    *(float *)(p + 0x38) = 1.0f;
+                    *(float *)(p + 0x4C) = 0.0f;
+                    ((PacLine *)p)->col0 = ((PacColor *)idx)[*(int *)(line + 0x30)];
+                    ((PacLine *)p)->col1 = ((PacColor *)idx)[*(int *)(line + 0x34)];
+                    ((PacLine *)p)->blend =
+                        0.5019608f <=
+                        *(float *)(*(int *)(src + 0xD0) + *(int *)(line + 0x48) * 16 + 12);
+                    if (*(int *)(line + 0x4C) >= 0)
+                        ((PacLine *)p)->tex = *(unsigned short *)(*(int *)(line + 0x4C) * 80 +
+                                                                  *(char **)(mtbl + 4) + 0x48);
+                    else
+                        ((PacLine *)p)->tex = -1;
+                    break;
+                default:
+                    debug_StdPrintfDummy(D_0054F8A0, *(int *)(line + 0x40));
+                    debug_assert(D_0054F400, 1845);
+                    __assert(D_0054F400, 1845, D_0063A120);
+                    break;
+                }
+                line += 80;
+                p += 192;
+            }
+            ((PacLine *)(p + *(int *)(src + 0x114) * 192))->type = 0;
+            *(char **)(mtbl + 8) = (char *)mallocseki(144);
+            *(int *)(*(char **)(mtbl + 8) + 0xC) = (int)top;
+            mtbl += 16;
+        }
+    }
+}
 
 void pac_MakePacket(char *a0)
 {
