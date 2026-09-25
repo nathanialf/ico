@@ -6168,3 +6168,7 @@ D_0071001A = 0x0071001A; // ignore:true  // no referrer in any .s and reads as a
 D_00621014 = 0x00621014; // ignore:true  // cod/18ED00 data (main's .data image of instruction words) word 0x00621014 at VMA 0x28EED0 which reads as an address into streamMotionManager's carved .rodata run 0x620FB0..0x621228, not a reference
 fogClutPacket = 0x006AF590; // size:0x430  // ZFog.c's fog CLUT packet, non-static while fog_DrawFog's stub references it (chain 3 pass 136)
 pacWork = 0x0067C010; // size:0x60  // Packet.c's work buffer, a static the TU's remaining stubs reach as a local symbol (chain 1 pass 123)
+pacPacketBytes = 0x0063C144; // size:0x4  // Packet.c's counter, a static the pac_makePacket stub reaches as a local symbol (chain 1 pass 124)
+pacPolyCount = 0x0063C148; // size:0x4  // Packet.c's counter, a static the pac_makePacket stub reaches as a local symbol (chain 1 pass 124)
+pacTagCount = 0x0063C14C; // size:0x4  // Packet.c's counter, a static the pac_makePacket stub reaches as a local symbol (chain 1 pass 124)
+pacStripCount = 0x0063C150; // size:0x4  // Packet.c's counter, a static the pac_makePacket stub reaches as a local symbol (chain 1 pass 124)

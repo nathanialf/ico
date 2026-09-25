@@ -1227,7 +1227,7 @@ segments:
       - { type: .sbss, vram: 0x0063C118, name: ico2/seki/src/GsBase }  # the TU's own .sbss as source (completeness pass 57): reductionRed, reductionGreen, reductionBlue, fadeLevel, gsbUnusedWord in ROM run order, VMA 0x63C118..0x63C12C, 0x14 B; MAIN.MAP line 7575 (the January object is 0x10)
       - { type: .sbss, vram: 0x0063C12C, name: ico2/seki/src/Light }  # the TU's .sbss as source (completeness pass 65)
       - { type: .sbss, vram: 0x0063C140, name: ico2/seki/src/MicroCode }  # the TU's own .sbss, 0x4 B, VMA 0x63C140..0x63C144; static definitions in ROM run order (completeness pass)
-      - { type: sbss, vram: 0x0063C144, name: cod/0063C144 }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C144, name: ico2/seki/src/Packet }  # the TU's whole .sbss (VMA 0x63C144..0x63C158, 0x14 B: the packet byte, polygon, tag and strip counters and one unused word, static; chain 1 pass 124), StageAnimation's row follows directly
       - { type: .sbss, vram: 0x0063C158, name: ico2/seki/src/StageAnimation }  # the TU's .sbss as source (chain 1 pass 74): stageAnimCount and bgaPlayList in ROM run order, VMA 0x63C158..0x63C160, 8 B; Texture's .sbss follows with no resume blob
       - { type: .sbss, vram: 0x0063C160, name: ico2/seki/src/Texture }  # the TU's .sbss as source (completeness pass 65)
       - { type: .sbss, vram: 0x0063C168, name: ico2/fumi/ios/cdvd }  # the TU's .sbss as source (completeness pass 69), the message and load-end rings, the preload count, the running flag and the request and ack rings, VMA 0x63C168..0x63C18C, mcdata abuts

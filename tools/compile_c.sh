@@ -104,6 +104,18 @@ if [ -n "${DUMP_DIR:-}" ]; then
         esac
     done
     CFLAGS="${CFLAGS} -da ${DUMP_FLAGS:-}"
+    # gcc 2.9 writes <basename>.c.<pass> in the compile's working directory (the programmer
+    # directory for ico2/, ito/ for ito, the member's directory for sce/): move them into
+    # DUMP_DIR on exit, success or failure, so nothing is ever left under ico2/ or sce/.
+    _collect_dumps() {
+        [ -n "${DUMP_CWD:-}" ] && [ -n "${SRC_ABS:-}" ] || return 0
+        _base="$(basename "${SRC_ABS}")"
+        for _d in "${DUMP_CWD}/${_base}."*; do
+            [ -f "${_d}" ] || continue
+            case "${_d}" in *.c.[a-z0-9]*) mv -f "${_d}" "${DUMP_DIR}/" ;; esac
+        done
+    }
+    trap _collect_dumps EXIT
 fi
 ASFLAGS="-EL -march=r5900 -mabi=eabi -G ${GNUM} -no-pad-sections -I${INCLUDE_DIR}"
 EE_ASFLAGS="-EL -mcpu=5900 -G ${GNUM}"
@@ -159,6 +171,7 @@ INCLUDE_ITO_TXT="${ROOT}/config/include_ito.txt"
 # the repo-root include/ and are reached by an absolute -I.
 ICO2_PROG=""
 case "${SRC}" in
+    /*) echo "compile_c.sh: give the source as a repo-relative path (ico2/..., sce/...), run from the tree root; got '${SRC}'" >&2; exit 2 ;;
     ico2/*/*) ICO2_PROG="${SRC#ico2/}"; ICO2_PROG="${ICO2_PROG%%/*}" ;;
 esac
 if [ -n "${ICO2_PROG}" ]; then
@@ -195,14 +208,10 @@ else
     ( cd "$(dirname "${SRC_ABS}")" && "${CC}" -B "${EEGCC_LIB}" ${CFLAGS} -o "${S_ABS}" "$(basename "${SRC_ABS}")" )
 fi
 
-# Dump mode: gcc 2.9 writes <basename>.c.<pass> in the compile's working directory (the
-# programmer directory for ico2/, ito/ for ito, the member's directory for sce/); move them out.
+# Dump mode: the dumps were moved out by the EXIT trap armed below (it runs whether or not the
+# compile or the assembly succeeded, so a failed run never leaves <basename>.c.<pass> files in
+# the tree).
 if [ -n "${DUMP_DIR:-}" ]; then
-    _base="$(basename "${SRC_ABS}")"
-    for _d in "${DUMP_CWD}/${_base}."*; do
-        [ -f "${_d}" ] || continue
-        case "${_d}" in *.c.[a-z0-9]*) mv -f "${_d}" "${DUMP_DIR}/" ;; esac
-    done
     echo "compile_c.sh: dumps in ${DUMP_DIR}" >&2
 fi
 
