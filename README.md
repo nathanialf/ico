@@ -7,8 +7,8 @@
 ![.rodata progress](https://img.shields.io/badge/rodata-5.15%20%25-orange.svg)
 ![.lit4 progress](https://img.shields.io/badge/lit4-99.91%20%25-green.svg)
 ![.sdata progress](https://img.shields.io/badge/sdata-2.61%20%25-orange.svg)
-![.sbss progress](https://img.shields.io/badge/sbss-80.63%20%25-green.svg)
-![.bss progress](https://img.shields.io/badge/bss-73.75%20%25-yellowgreen.svg)
+![.sbss progress](https://img.shields.io/badge/sbss-81.27%20%25-green.svg)
+![.bss progress](https://img.shields.io/badge/bss-73.78%20%25-yellowgreen.svg)
 <!-- progress:end -->
 
 **[Live progress dashboard](https://nathanialf.github.io/ico/#pal)**: decomp status per directory, TU and function for this branch's target (PAL retail, SCES-50760), updated on every push. The dashboard covers all three targets; switch with the picker at the top.

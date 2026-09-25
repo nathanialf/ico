@@ -1279,7 +1279,7 @@ segments:
       - { type: sbss, vram: 0x0063C474, name: cod/0063C474 }  # .sbss blob resume
       - { type: .sbss, vram: 0x0063C4AC, name: ico2/sugipon/src/motionViewer }  # the TU's own .sbss, 0x4 B, VMA 0x63C4AC..0x63C4B0 (the motion-kind row count, a file static); static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C4B0, name: ico2/sugipon/src/staticBlur }  # the TU's own .sbss, 0x4 B, VMA 0x63C4B0..0x63C4B4; static definitions in ROM run order (completeness pass)
-      - { type: sbss, vram: 0x0063C4B4, name: cod/0063C4B4 }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C4B4, name: ico2/seki/src/BgAnimation }  # the TU's own .sbss as static objects, 6 B plus 2 B of link fill before DisplayList (chain 3 pass 141)
       - { type: .sbss, vram: 0x0063C4BC, name: ico2/seki/src/DisplayList }  # the TU's own .sbss, 0x8 B, VMA 0x63C4BC..0x63C4C4; static definitions in ROM run order (completeness pass)
       - { type: sbss, vram: 0x0063C4C4, name: cod/0063C4C4 }  # .sbss blob resume
       - { type: .sbss, vram: 0x0063C4CC, name: ico2/fumi/src/way_tool }  # the TU's own .sbss, 0x10 B, VMA 0x63C4CC..0x63C4DC; static definitions in ROM run order (completeness pass)
@@ -1390,7 +1390,7 @@ segments:
       - { type: .bss, vram: 0x00724BC0, name: ico2/sugipon/src/waterDot }  # the TU's own .bss, 0x14 B, VMA 0x724BC0..0x724BD4; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x00724BD4, name: cod/00724BD4 }  # .bss blob resume
       - { type: .bss, vram: 0x00724BE0, name: ico2/sugipon/src/windField }  # windVector, windStrength[256], windCell[20][20] (0x20 stride), 0x3610 B = MAIN.MAP's windField.o .bss; the queue's 0x726165 bound was a false pointer into a string (completeness pass 25)
-      - { type: bss, vram: 0x007281F0, name: cod/007281F0 }
+      - { type: .bss, vram: 0x007281F0, name: ico2/seki/src/BgAnimation }  # the TU's own .bss as static objects, 0x120 B, camera matrices, pivot, pos, scale, rot and a dummy light record (chain 3 pass 141)
       - { type: .bss, vram: 0x00728310, name: ico2/seki/src/DisplayList }  # the TU's own .bss, 0x290 B, VMA 0x728310..0x7285A0; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x007285A0, name: ico2/seki/src/EnemyInit }  # the TU's .bss (chain 1 pass 113, = MAIN.MAP 0x6C): the per-stage enemy position slot table as a named static, VMA 0x7285A0..0x72860C, 4 B of link fill before way_kidnap
       - { type: bss, vram: 0x0072860C, name: cod/0072860C }  # .bss blob resume (4 B of link fill before way_kidnap)

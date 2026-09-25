@@ -1142,7 +1142,44 @@ void bga_GetGizmoMotion(BgaMotion *m, float *dst)
     }
 }
 
-extern int D_0063C4B4;
+/* Light.c's 0x50-byte light record as this file uses it: bga_CalcObject
+   hands its own instance to the light objects when the stage is not lit
+   through Light.c, and bga_initLightEnvelope writes only the colour at 0x20.
+   The size is the record's (light_AddLight allocates 0x50). */
+typedef struct BgaLight {
+    /* 0x00 */ char pad00[0x20];
+    /* 0x20 */ float col[4];
+    /* 0x30 */ char pad30[0x20];
+} BgaLight;
+
+/* .sbss and .bss, owned by BgAnimation.o and reached only from this file
+   (MAIN.MAP names no symbol in either run), each in the ROM's run order:
+   whether an SDF camera is running and the Z roll the object walk has
+   accumulated; then the camera matrix, the camera position at the last
+   frame jump, the pivot the light-vector objects rotate about and the
+   matrix built around it, the position, scale and rotation the motion
+   readers fill for the object being walked, and the light record the
+   light objects use when the stage has none. */
+static int bgaCameraActive;
+
+static short bgaRollZ;
+
+static float bgaCameraMatrix[4][4];
+
+static float bgaLastCameraPos[4];
+
+static float bgaPivot[4];
+
+static float bgaPivotMatrix[4][4];
+
+static float bgaPos[4];
+
+static float bgaScale[4];
+
+static int bgaRot[4];
+
+static BgaLight bgaDummyLight;
+
 extern int ScreenWidth;
 extern int D_0063BCC0;
 
@@ -1158,11 +1195,9 @@ typedef union {
 } BgaWord;
 
 /* Placeholders for this TU's own data: the flag in its .sdata that
-   bga_CalcObject tests before translating by the light vector, the vector
-   itself (four floats in .bss at VMA 0x728240), and the message
+   bga_CalcObject tests before translating by the pivot, and the message
    "Illegal Envelope Type : %p(%d)\n" in the .rodata run at VMA 0x6216B8. */
 extern BgaWord D_0063BCF4;
-extern float D_00728240[];
 extern char D_006216B8[];
 
 static inline float bga_palFrame(float f)
@@ -1233,7 +1268,7 @@ void bga_calcEnvelope(BgaDObjEnt *p, int a1, int a2, float dt)
             }
             break;
         case 1:
-            if (D_0063C4B4 != 0) {
+            if (bgaCameraActive != 0) {
                 if (a1 != 0) {
                     *(float *)&D_0063BCC0 =
                         bga_GetExtMotion((BgaExtMotion *)e->data) * (float)ScreenWidth / 2.66f;
@@ -1276,10 +1311,10 @@ void bga_calcEnvelope(BgaDObjEnt *p, int a1, int a2, float dt)
             }
             break;
         case 7:
-            D_00728240[0] = ((float *)e->data)[0];
-            D_00728240[1] = -((float *)e->data)[1];
-            D_00728240[2] = ((float *)e->data)[2];
-            D_00728240[3] = 1.0f;
+            bgaPivot[0] = ((float *)e->data)[0];
+            bgaPivot[1] = -((float *)e->data)[1];
+            bgaPivot[2] = ((float *)e->data)[2];
+            bgaPivot[3] = 1.0f;
             D_0063BCF4.i = 1;
             break;
         case 8:
@@ -1485,8 +1520,6 @@ void bga_resetObjectCounter(BgaCntNode *o, float f, int a1)
 
 extern int D_0063BCB8;
 extern int GlobalTimer;
-extern float D_00728230[];
-extern float D_00728220[];
 /* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
 extern void _CopyVector(void *dst, void *src);
 extern char D_006217B0[];
@@ -1500,7 +1533,7 @@ void bga_SetFrame(char *p, int frame, int mode, int a3)
     if (p[0xB]) {
         GlobalTimer = 1;
         D_0063BCB8 = 1;
-        _CopyVector(D_00728230, D_00728220);
+        _CopyVector(bgaLastCameraPos, bgaCameraMatrix[3]);
     }
     switch (frame) {
     case 0:
@@ -1531,7 +1564,6 @@ void bga_SetFrame(char *p, int frame, int mode, int a3)
     bga_CalcAnimation(p, a3, 1);
 }
 
-extern int D_0063C4B4;
 extern int D_0063BCBC;
 /* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _SetCurrentMatrix(void *m);
@@ -1580,7 +1612,7 @@ void bga_CalcAnimation(char *p, int a1, int a2)
     }
 
     if (p[0xB]) {
-        D_0063C4B4 = 1;
+        bgaCameraActive = 1;
     }
 
     GetMatrixFromQuaternionPos(m, BGA_ANIM_ENT(p)->quat, BGA_ANIM_ENT(p));
@@ -1647,7 +1679,6 @@ void bga_CalcAnimation(char *p, int a1, int a2)
 }
 
 extern int D_0063BCC0;
-extern int D_007281F0[];
 extern int currentScreenWidth;
 /* kept local: this TU's uses of the matrix and vector entry points do not fit
    the prototypes in Matrix.h (the interpolator takes its weight as a float,
@@ -1690,7 +1721,7 @@ static inline float bga_ntscFrame(float f)
 }
 
 /* Listing rows 2794-2871.  The record is read through its fields: a field
- * read at a varying address is exempt from the fixed-address D_0063C4B4 store
+ * read at a varying address is exempt from the fixed-address bgaCameraActive store
  * (alias.c fixed_scalar_and_varying_struct_p), which is what lets the count
  * load issue ahead of that store as the ROM has it.  Both frame-rate scales are
  * `x * (PAL ? k : 1.0f)`: fold distributes the product over the condition and
@@ -1710,7 +1741,7 @@ void bga_CalcSdfCamera(char *data, int loop)
     if (p->mode == -1) {
         return;
     }
-    D_0063C4B4 = 1;
+    bgaCameraActive = 1;
     if ((float)p->num * (D_0028F4C0[0] ? 0.82812935f : 1.0f) < p->frame) {
         if (loop == 0) {
             p->frame = bga_palFrame((float)p->num);
@@ -1769,9 +1800,9 @@ void bga_CalcSdfCamera(char *data, int loop)
         _InitCurrentMatrix();
         _RotCurrentMatrixZ((short)(roll * 182.04445f));
         _ApplyCurrentMatrix(&up, &up);
-        _SetCameraMatrix(D_007281F0, &pos, &dir, &up);
+        _SetCameraMatrix(bgaCameraMatrix, &pos, &dir, &up);
         if (GlobalTimer != 0) {
-            if (_GetLength(&D_007281F0[12], D_00728230) < 100.0f) {
+            if (_GetLength(bgaCameraMatrix[3], bgaLastCameraPos) < 100.0f) {
                 GlobalTimer = 0;
                 currentScreenWidth = 0;
             }
@@ -2065,7 +2096,7 @@ void bga_DispLightning(void)
 
 void bga_ResetCamera(void)
 {
-    D_0063C4B4 = 0;
+    bgaCameraActive = 0;
 }
 
 extern int D_0063BCC8;
@@ -2074,10 +2105,10 @@ extern void _CopyMatrix(void *dst, void *src);
 
 int bga_GetCameraMatrix(void *p)
 {
-    int v = D_0063C4B4;
+    int v = bgaCameraActive;
     if (v != 0) {
-        _CopyMatrix(p, D_007281F0);
-        v = D_0063C4B4;
+        _CopyMatrix(p, bgaCameraMatrix);
+        v = bgaCameraActive;
     } else {
         D_0063BCC0 = 0;
     }
@@ -2101,8 +2132,6 @@ char *bga_InitSdfCamera(char *a0)
 
 extern int D_0063BCB8;
 extern int GlobalTimer;
-extern float D_00728230[];
-extern float D_00728220[];
 /* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
 extern void _CopyVector(void *dst, void *src);
 
@@ -2111,11 +2140,11 @@ void bga_SetCamFrame(char *data, int frame, int mode)
     BgaSdfCam *p = (BgaSdfCam *)data;
 
     p->mode = mode;
-    D_0063C4B4 = 1;
+    bgaCameraActive = 1;
     if (mode == 1) {
         GlobalTimer = mode;
         D_0063BCB8 = mode;
-        _CopyVector(D_00728230, D_00728220);
+        _CopyVector(bgaLastCameraPos, bgaCameraMatrix[3]);
     }
     if (frame == -1) {
         p->frame = bga_palFrame(p->num);
@@ -2249,7 +2278,7 @@ extern int D_0028F4D4[];
 void bga_ResetAnimation(void)
 {
     void *p;
-    D_0063C4B4 = 0;
+    bgaCameraActive = 0;
     if (D_0028F4D4[0] != 0) {
         return;
     }
