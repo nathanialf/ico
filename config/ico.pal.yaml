@@ -781,14 +781,16 @@ segments:
       - [0x45516A, rodata, cod/45516A]     # rodata blob resume
       - [0x4551A0, .rodata, ico2/omori/src/camera-root]  # SetCameraMatrix's jump table jtbl_005551A0 (5 words, section .rodata.0x005551A0, selector D_0063C2A0, anonymous), VMA 0x5551A0..0x5551B4; arms verified against the ROM words (chain 2 pass 52)
       - [0x4551B4, rodata, cod/4551B4]   # .rodata blob resume
-      - [0x455270, .rodata, ico2/omori/src/chain]  # plain-rodata: chain_simulate_term_swingstart's doubles 0.3 and 21.5, then chain_simulate_term_moveup's trace string (32 B) and its two doubles (2 pi, pi), then chain_simulate_term_down's trace string (32 B) and its own two doubles (gcc 2.9 flushes the constant pool per function, strings dedupe file-wide); VMA 0x555270..0x5552E0, 112 B; the rest of chain.c's run (the other functions' strings and doubles) stays in the blob until they land
-      - [0x4552E0, rodata, cod/4552E0]   # .rodata blob resume (chain.c's strings and doubles, still D_ externs)
+      - [0x4551C0, .rodata, ico2/omori/src/chain]  # the TU's whole plain .rodata as source (VMA 0x5551C0..0x555493, 0x2D3 B: __FILE__, the assert text, the trace strings and formats, two EUC-JP messages, the doubles and the probe templates; chain 1 pass 123)
+      - [0x455494, rodata, cod/455494]     # rodata blob resume (12 zero bytes of alignment before ChainGeo's first jump table)
       - [0x4554A0, .rodata, ico2/omori/src/chain]  # ChainGeo's jump table jtbl_005554A0 (0x58 B; chain 1 pass 122)
       - [0x4554F8, rodata, cod/4554F8]     # rodata blob resume
       - [0x455500, .rodata, ico2/omori/src/chain]  # ChainGeo's jump table jtbl_00555500 (0x2C B)
       - [0x45552C, rodata, cod/45552C]     # rodata blob resume
       - [0x455530, .rodata, ico2/omori/src/chain]  # ChainGeo's jump table jtbl_00555530 (0x24 B)
-      - [0x455554, rodata, cod/455554]     # rodata blob resume (TestChainUpDown's jtbl_00555560 stays here while it is a stub)
+      - [0x455554, rodata, cod/455554]     # rodata blob resume (12 zero bytes of alignment)
+      - [0x455560, .rodata, ico2/omori/src/chain]  # TestChainUpDown's jump table jtbl_00555560 (0x14 B; chain 1 pass 123)
+      - [0x455574, rodata, cod/455574]     # rodata blob resume (12 zero bytes before ebrain's run)
       - [0x455580, .rodata, ico2/omori/src/ebrain]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x555580..0x556890, 4880 B
       - [0x455628, .rodata, ico2/omori/src/fightSound]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x555628..0x556890, 4712 B
       - [0x455640, .rodata, ico2/omori/src/generator]  # the TU's whole .rodata run as source (data pass 2): five string literals in first-use order, __FILE__ and decimal line arguments; VMA 0x555640..0x5556A6 + 2 B link pad
@@ -1322,7 +1324,7 @@ segments:
       - { type: .bss, vram: 0x0067BCE0, name: ico2/seki/src/Light }  # the TU's own .bss, 0xF0 B, VMA 0x67BCE0..0x67BDD0; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x0067BDD0, name: cod/0067BDD0 }  # .bss blob resume
       - { type: .bss, vram: 0x0067BFD0, name: ico2/seki/src/MicroCode }  # the TU's own .bss, 0x40 B, VMA 0x67BFD0..0x67C010; static definitions in ROM run order (completeness pass)
-      - { type: bss, vram: 0x0067C010, name: cod/0067C010 }  # .bss blob resume
+      - { type: .bss, vram: 0x0067C010, name: ico2/seki/src/Packet }  # the TU's whole .bss (VMA 0x67C010..0x67C070, 0x60 B: the packet work buffer, static, the +0x40 bounding box inside it; chain 1 pass 123), Shadow's row follows directly
       - { type: .bss, vram: 0x0067C070, name: ico2/seki/src/Shadow }  # the TU's .bss as source (completeness pass 65)
       - { type: .bss, vram: 0x0067D098, name: ico2/seki/src/StageAnimation }  # the TU's .bss as source (chain 1 pass 74): stageAnimTable[87], 87 records of 0x290 B = 0xDEF0 B, VMA 0x67D098..0x68AF88, the count from stage_Init's own loop bounds; Texture's .bss follows with no resume blob (the queue's 0x680017 end was an address-shaped text word, not a reference)
       - { type: .bss, vram: 0x0068AF88, name: ico2/seki/src/Texture }  # the TU's .bss run as source (completeness pass 66), 0x24608 B, the 200-slot texture record table and three role-named statics
