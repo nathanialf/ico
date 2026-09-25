@@ -681,7 +681,8 @@ segments:
       - [0x44CEC8, .data, sce/libc/stdlib/mallocr]  # syms: __malloc_av_ __malloc_trim_threshold __malloc_top_pad __malloc_sbrk_base __malloc_max_sbrked_mem __malloc_max_total_mem __malloc_current_mallinfo  the member's whole .data (data pass 4; = MAIN.MAP mallocr.o .data 0x458, names from map lines 6258 to 6264), VMA 0x54CEC8..0x54D320, 1112 B
       - [0x44D320, data, cod/44D320]     # data blob resume
       - [0x44D380, .rodata, sce/libkernl/thread]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x54D380..0x54D850, 1232 B
-      - [0x44D3B0, rodata, cod/44D3B0]     # rodata blob resume
+      - [0x44D3B0, .rodata, sce/libkernl/kprintf]  # printfloat's own .rodata as source (VMA 0x54D3B0..0x54D3E0, 0x30 B: the three format strings and the doubles 0.1, 0.1, 1e6 the compiler emits as li.d; chain 3 pass 134)
+      - [0x44D3E0, rodata, cod/44D3E0]     # rodata blob resume (_printf's jtbl_0054D3E0 onward)
       - [0x44D6F8, .rodata, ico2/sugipon/src/delayFreeManager]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x54D6F8..0x54D850, 344 B
       - [0x44D750, .rodata, ico2/sugipon/src/geometryManager]  # the TU's whole .rodata run as source (completeness pass 5), VMA 0x54D750..0x54D7F8, 166 B emitted
       - [0x44D7F8, .rodata, ico2/sugipon/src/keyInput]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x54D7F8..0x54D850, 88 B

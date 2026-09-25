@@ -55,6 +55,6 @@ void _iEnableDmac();                                                   /* domina
 void _iEnableIntc();                                                   /* dominant spelling at 1 sites */
 int iSignalSema(int handle);                                           /* definition in sce/ */
 int iWakeupThread(int id);                                             /* definition in sce/ */
-void scePrintf(int a0, ...);                                           /* definition in sce/ */
+void scePrintf(char *fmt, ...);                                           /* definition in sce/ */
 
 #endif /* SCE_LIBKERNL_EEKERNEL_H */

@@ -53,24 +53,92 @@ void serialPutchar(int c)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/kprintf", ftoi);
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/kprintf", printfloat);
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/kprintf", _printf);
-
-extern int _printf(int a0, void *va);
-
-void kprintf(int a0, ...)
+int ftoi(unsigned long long a)
 {
-    void *va = (char *)__builtin_next_arg(a0) - 0x38;
-    _printf(a0, va);
+    unsigned long long m = a;
+    long long e;
+
+    e = (long long)((m << 1) >> 53);
+    e -= 1075;
+    if (e < -53) {
+        return 0;
+    }
+    if (e >= 13) {
+        return 9999;
+    }
+    m = (m << 12) >> 12;
+    m |= (unsigned long long)1 << 52;
+    if (e < 0) {
+        int s;
+
+        e = -e;
+        s = e - 2;
+        m >>= s;
+        if ((m & 3) == 3) {
+            m = (m >> 2) + 1;
+        } else {
+            m >>= 2;
+        }
+    } else {
+        m <<= e;
+    }
+    return (int)m;
 }
 
-void scePrintf(int a0, ...)
+extern int dpcmp(double a, double b);
+extern double dpsub(double a, double b);
+extern double dpmul(double a, double b);
+extern double dpdiv(double a, double b);
+extern unsigned long long __fixunsdfdi(double a);
+extern void kprintf(char *fmt, ...);
+
+void printfloat(double v)
 {
-    void *va = (char *)__builtin_next_arg(a0) - 0x38;
+    double zero = 0.0;
+    int e = 0;
+    int n;
+
+    if (dpcmp(v, zero) < 0) {
+        v = dpsub(zero, v);
+        D_0028F4B8[0]('-');
+    }
+    if (dpcmp(v, 0.1) < 0) {
+        while (dpcmp(v, 0.1) < 0) {
+            v = dpmul(v, 10.0);
+            e--;
+        }
+    } else if (dpcmp(v, 1.0) >= 0) {
+        while (dpcmp(v, 1.0) >= 0) {
+            v = dpdiv(v, 10.0);
+            e++;
+        }
+    }
+    v = dpmul(v, 1000000.0);
+    n = ftoi(__fixunsdfdi(v));
+    kprintf("0.%d", n);
+    if (e >= 0) {
+        kprintf("e+%d", e);
+    } else {
+        kprintf("e%d", e);
+    }
+}
+
+INCLUDE_ASM("asm/nonmatchings/sce/libkernl/kprintf", _printf);
+
+extern int _printf(char *fmt, void *va);
+
+void kprintf(char *fmt, ...)
+{
+    void *va = (char *)__builtin_next_arg(fmt) - 0x38;
+    _printf(fmt, va);
+}
+
+void scePrintf(char *fmt, ...)
+{
+    void *va = (char *)__builtin_next_arg(fmt) - 0x38;
     PutcharFn save = D_0028F4B8[0];
 
     D_0028F4B8[0] = deci2Putchar;
-    _printf(a0, va);
+    _printf(fmt, va);
     D_0028F4B8[0] = save;
 }
