@@ -146,13 +146,55 @@ void iosCdvdBackGroundReadJimaku(int self, int a1, int size)
     iosCdvdBackGroundMgrSeek(self, *(int *)((char *)self + 0x110) + size);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/jimaku", jimakuHandler);
-
 extern char D_006C1F00[][0x8C40];
+
+int jimakuHandler(int self, struct jArg *p)
+{
+    struct jSub *sub = &p->sub;
+    struct jWayGroup *g;
+    int size = 0x8440;
+    int left;
+    int n;
+
+    while (sub->field34 != (sub->n + 3) % 4) {
+        g = &D_006C1E80[sub->field34];
+        if (g->f4 == 2) {
+            g->f4 = 3;
+            break;
+        }
+        /* WHAT THE BYTES PIN: the read loop tests before its first pass and
+           takes its byte count by copy from a variable set outside the
+           outer loop. cse1 cannot see that value where the entry test
+           stands, so the test's edge past the loop lives through gcse and
+           is folded only after it: gcse then puts %hi(D_006C1F00) in the
+           loop's preheader once per record (0x0017CC0C) and reloads field34
+           on both exits of the loop, as ROM does. What they cannot pin is
+           the variable's name. */
+        left = size;
+        while (left > 0) {
+            n = (0x8C40 < left) ? 0x8C40 : left;
+            D_006C1F00[sub->field34][0] = -1;
+            D_006C1F00[sub->field34][1] = -1;
+            iosCdvdBackGroundReadJimaku(self, (int)D_006C1F00[sub->field34], n);
+            left -= n;
+        }
+        D_006C1E80[sub->field34].f0 = sub->field2C++;
+        D_006C1E80[sub->field34].f4 = 4;
+        iosCdvdBackGroundMgrSeek(sub->field40, sub->field2C * 0x8800);
+        sub->field34 = (sub->field34 + 1) % 4;
+    }
+    if (D_0028F4C0[10] != 0) {
+        iosSemaReferStatus(D_006E5000);
+        if (((int *)D_006E5000)[9] > 0) {
+            iosSemaSignal(D_006E5000);
+        }
+    }
+    return 0;
+}
+
 extern int NonLinearCameraMove;
 extern int D_0063AA00;
 extern char D_0055FBD0[][32];
-extern int jimakuHandler(int self, struct jArg *p);
 
 void jimakuMgrBegin(struct jArg *p)
 {

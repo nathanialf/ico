@@ -43,8 +43,6 @@ extern int SCE_CD_debug;
    semaphore id per access. */
 extern volatile int sceCdCbfunc_num;
 extern volatile int _sceCd_c_cb_sem;
-extern char D_00636990[];
-extern char D_006369A8[];
 extern void _sceCd_cd_read_intr(void);
 extern int sceCdNcmdDiskReady(void);
 extern int _sceCd_ncmd_prechk(int a0);
@@ -90,7 +88,7 @@ int sceCdRead(int lsn, int sectors, void *buf, CdRMode *mode)
     sceSifWriteBackDCache(sd, 24);
     sceSifWriteBackDCache(_sceCd_Read_cur_pos, 4);
     if (SCE_CD_debug > 0) {
-        scePrintf(D_00636990);
+        scePrintf("call cdread cmd\n");
     }
     sceCdCbfunc_num = 1;
     _sceCd_c_cb_sem = 1;
@@ -102,7 +100,7 @@ int sceCdRead(int lsn, int sectors, void *buf, CdRMode *mode)
         return 0;
     }
     if (SCE_CD_debug > 0) {
-        scePrintf(D_006369A8);
+        scePrintf("cdread end\n");
     }
     return 1;
 }

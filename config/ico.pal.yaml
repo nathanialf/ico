@@ -994,7 +994,7 @@ segments:
       - [0x536628, .rodata, sce/libkernl/libkernl_25EF18]  # the member's rodata as source (completeness pass 65): its strings then _sceFs_Rcv_Intr's 25-entry jump table (section .rodata.0x006366A0), one run, VMA 0x636628..0x636704
       - [0x536704, rodata, cod/536704]  # .rodata blob resume
       - [0x5367C0, .rodata, sce/libcdvd/cdvd000]  # the member's whole .rodata (= MAIN.MAP cdvd000.o .rodata 0x1C9, chain 3 pass 109): 18 strings as anonymous literals at their uses, VMA 0x6367C0..0x636989, 7 B of link fill before cdvd005's strings
-      - [0x536990, rodata, cod/536990]  # .rodata blob resume (cdvd005's strings)
+      - [0x536990, .rodata, sce/libcdvd/cdvd005]  # the member's two strings "call cdread cmd\n" and "cdread end\n" as literals (chain 3 pass 123), anonymous, VMA 0x636990..0x6369B4, 4 B of link fill before cdvd006's row
       - [0x5369B8, .rodata, sce/libcdvd/cdvd006]  # the member's one string "cdread end\n" as a literal (chain 3 pass 109), anonymous, VMA 0x6369B8..0x6369C4, 12 B, 4 B of fill before libcdvd_267388's strings
       - [0x5369C8, .rodata, sce/libcdvd/libcdvd_267388]  # the member's three strings as literals (chain 1 pass 107), anonymous, VMA 0x6369C8..0x636A13, 75 B, padded to cdvd047's strings at 0x636A18
       - [0x536A18, .rodata, sce/libcdvd/cdvd047]  # the member's whole .rodata (= MAIN.MAP cdvd047.o .rodata 0x11C): its nine strings as literals (chain 1 pass 107), anonymous, VMA 0x636A18..0x636B34, 284 B
