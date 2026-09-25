@@ -1,15 +1,16 @@
 # tools/ index
 
-One line per tool, and every tool in the directory is listed. Everything here
-works on the branch's target as reported by `tools/ico_version.py` (`main` =
-PAL retail).
+One line per tool; every tool in the directory is listed. Every tool works on
+the branch's target as reported by `tools/ico_version.py` (`main` = PAL
+retail).
 
 The sweep harness, the loop drivers (`match_drive.py`, `match_loop.py`,
 `decomp_chain.py`), the permuter wrappers, the shape classifiers and the
-one-off analysis scripts were deleted: this branch runs the loop by hand
+one-off analysis scripts were deleted. This branch runs the loop by hand
 against `quick_diff.sh` and `match_diff.py`. Per-function compiler flags and
-per-func `.s` postprocess allowlists are a retired, banned matching lever, see
-CLAUDE.md "Crutches are BANNED" before reintroducing that shape of tool.
+per-func `.s` postprocess allowlists are a retired, banned matching lever;
+read CLAUDE.md "Crutches are BANNED" before reintroducing a tool of that
+shape.
 
 ## Build + gate chain
 
@@ -17,7 +18,7 @@ CLAUDE.md "Crutches are BANNED" before reintroducing that shape of tool.
 |---|---|
 | `setup.sh` | idempotent bootstrap: venv, submodules, EE toolchain, ghidra, git hooks |
 | `install_hooks.sh` | installs the pre-commit and pre-push hooks (`ninja` SHA-1 gate + `check_no_rom.sh`) |
-| `extract_elf.sh` / `extract_elf.py` | disc → `baserom/<ver>/baseelf.{elf,rom}` + SHA-1 check + reference maps |
+| `extract_elf.sh` / `extract_elf.py` | disc -> `baserom/<ver>/baseelf.{elf,rom}` + SHA-1 check + reference maps |
 | `ico_version.py` / `ico_version.sh` | the single source of truth for the branch's target slug and paths |
 | `build.sh` | `setup` (verify ELF, run splat, emit build.ninja) / `progress` (rewrite tables) |
 | `patch_splat.py` | applies this repo's local splat patches |
@@ -42,9 +43,9 @@ CLAUDE.md "Crutches are BANNED" before reintroducing that shape of tool.
 | `mask_gp_rel.py` | reloc-normalizes `$gp`-relative operands so diffs aren't noise (called by `quick_diff.sh`) |
 | `tu_check.py` | re-diffs EVERY matched function in a TU so an edit can't silently break a sibling |
 
-The 30-iteration stall gate is kept by hand: 30 consecutive distinct
-hypotheses with no `real_count` improvement, any improvement resetting the
-count. There is no driver that tracks it for you.
+There is no stall gate and no iteration budget: a function stays with its
+chain until it is byte-identical, and a pass that ends before that records
+the function's exact state for the next pass.
 
 ## Data carving
 
@@ -56,8 +57,8 @@ count. There is no driver that tracks it for you.
 
 | tool | what it does |
 |---|---|
-| `gen_pal_symbol_addrs.py` | correlates the disc's `SRCFILE.TXT` listing to the shipped ELF → `config/symbol_addrs.pal.txt` + per-TU `.text` spans |
-| `gen_pal_data_symbols.py` | names data symbols from the disc's `MAIN.MAP` → `config/symbol_addrs.pal.data.txt` |
+| `gen_pal_symbol_addrs.py` | correlates the disc's `SRCFILE.TXT` listing to the shipped ELF -> `config/symbol_addrs.pal.txt` + per-TU `.text` spans |
+| `gen_pal_data_symbols.py` | names data symbols from the disc's `MAIN.MAP` -> `config/symbol_addrs.pal.data.txt` |
 | `gen_pal_source_tree.py` | writes the local-only `docs/pal_source_tree.{md,json}` census |
 
 ## Tests
