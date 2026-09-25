@@ -22,6 +22,7 @@ extern EnemyDef D_00624880[];
 #include "debug_exception.h"
 #include "memory.h"
 #include "gobj.h"
+#include "GifPacket.h"
 #include "enemy_act.h"
 #include "EnemyInit.h"
 #include "Matrix.h"
@@ -34,6 +35,7 @@ extern EnemyDef D_00624880[];
 #include "motionOrientManager.h"
 #include "particleEffect.h"
 #include "quaternion.h"
+#include <libvu0.h>
 #include <stdlib.h>
 
 /* kept local: this TU's uses of prim_InitParticle do not fit the prototype in Primitive.h */
@@ -211,7 +213,115 @@ retry:
     return kind;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/enemy", dispEnemyObject);
+extern char *matrixptr;
+
+typedef struct {
+    int idx;
+    int _4;
+    int z;
+    int _C;
+} EnemyDispEntry;
+
+/* dispEnemyObject sits on the January listing's lines (SRCFILE.TXT 295 to 373):
+ * every row of code is at the listing's offset from the opening brace, and the
+ * lines the listing shows without code hold declarations, braces and comments.
+ * WHAT THE BYTES PIN: the first loop's condition reads the sub-object handle
+ * through a volatile int view. The ROM keeps the body's own read of the handle
+ * at the loop top (line 314, `lw $3,348($20)`, run on entry only because reorg
+ * skips it on the back edge), which happens only when neither cse1 nor gcse
+ * records the condition's read: cse's HASH and gcse's hash_expr_1 both refuse
+ * a volatile MEM, so cse_around_loop finds nothing to copy into the top and PRE
+ * finds no available computation to delete it with. The plain int view gives
+ * the copy and a strict count of 12 (measured). The int view itself is the
+ * file's own (GOBJ_SUB): it shares the idx store's alias set, which holds the
+ * latch's read behind that store, so i++ issues first as in the ROM.
+ * WHAT THEY CANNOT PIN: why the developer's accessor was volatile there, and
+ * the text of the lines without code. */
+void dispEnemyObject(void *self)
+{
+    float m[16];
+    EnemyDispEntry *tmp;
+    int i, j;
+    int n = *(int *)(*(char **)(self + 0x15C) + 0x88);
+    char *tbl = *(char **)(*(char **)(self + 0x15C) + 0x8C);
+    char *w = *(char **)(*(char **)(self + 0x15C) + 0x830);
+    int *pl = *(int **)(w + 0x10);
+    EnemyDispEntry buf[n];
+    EnemyDispEntry *ptr[n];
+    _SetCurrentMatrix(*(char **)(*(char **)(self + 0x15C) + 0xC));
+    _MulCurrentMatrixL(matrixptr + 0x100);
+
+    _InitCurrentMatrix();
+
+    /* clang-format off */
+    for (i = 0; i < *(int *)(*(volatile int *)(self + 0x15C) + 0x88); i++) {
+        /* project each part's origin: z goes into buf[i].z for the sort */
+        ptr[i] = &buf[i];
+        _SetCurrentMatrix(*(char **)(*(char **)(self + 0x15C) + 0xC) + i * 0x40);
+        _MulCurrentMatrixL(matrixptr + 0x100);
+        __asm__ __volatile__("lqc2 $vf8, 0x0(%0)\n\t"
+                             "vmulax.xyzw ACC, $vf4, $vf8x\n\t"
+                             "vmadday.xyzw ACC, $vf5, $vf8y\n\t"
+                             "vmaddaz.xyzw ACC, $vf6, $vf8z\n\t"
+                             "vmaddw.xyzw $vf10, $vf7, $vf8w\n\t"
+                             "vdiv Q, $vf0w, $vf10w\n\t"
+                             "vwaitq\n\t"
+                             "vmulq.xyz $vf10, $vf10, Q\n\t"
+                             "vftoi0.z $vf13, $vf10\n\t"
+                             "sqc2 $vf13, 0x0(%1)"
+                             :
+                             : "r"(ZeroPoint), "r"(&buf[i])
+                             : "memory");
+        buf[i].idx = i;
+    }
+
+    /* sort far to near */
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < n; j++) {
+            if (i != j) {
+                if (ptr[j]->z > ptr[i]->z) {
+                    tmp = ptr[j];
+                    ptr[j] = ptr[i];
+                    ptr[i] = tmp;
+                }
+            }
+        }
+    }
+    sceVu0UnitMatrix(m);
+
+    for (j = 0; j < n; j++) {
+        /* draw the parts still alive, far to near */
+        i = ptr[j]->idx;
+        if ((*(int **)(w + 0x14))[i] != 0) continue;
+        if ((*(int **)(w + 0x30))[i] == 0) continue;
+
+        switch (*(int *)(tbl + i * 0x40 + 4)) {
+        case 37:
+            if (*(float *)(*(char **)(*(char **)(self + 0x15C) + 0x870) + 0x30) == 0.0f)
+                DispEnemyEye(*(char **)(w + 0x18));
+            break;
+        case 36:
+            if (*(float *)(*(char **)(*(char **)(self + 0x15C) + 0x870) + 0x30) == 0.0f)
+                DispEnemyEye(*(char **)(w + 0x20));
+            break;
+        default:
+            /* every other part is a particle */
+            gif_StartPacketPri(6);
+            gif_SetAlpha(1, 4, 128);
+            gif_EndPacket();
+
+            /* The particle is drawn in view space: m is the view matrix
+               times the part's own matrix, the same product the first loop
+               made on the current-matrix stack, rebuilt here because the
+               stack no longer holds it. */
+
+            sceVu0MulMatrix(m, matrixptr + 0x100, *(char **)(*(char **)(self + 0x15C) + 0xC) + i * 0x40);
+            prim_DispParticle(pl[i], m);
+            break;
+        }
+    }
+    /* clang-format on */
+}
 
 /* static helper the listing places at enemy.c lines 382-392, expanded into
  * EnemyCheckHit, enemySetParticleDie, EnemySetfDisappear and EnemyDeleteParticle;
@@ -283,7 +393,68 @@ int EnemyCheckHit(char *self, float *pos, float *dir)
     return flags;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/enemy", CheckEnemyHit);
+/* CheckEnemyHit sits on the January listing's lines (SRCFILE.TXT 531 to 572):
+ * every row of code is at the listing's offset from the opening brace, and the
+ * lines the listing shows without code hold declarations, braces and comments.
+ * WHAT THE BYTES PIN: the counter starts at 0 in a statement of its own ahead of
+ * a test on n alone, and the for has no initialiser. The ROM's blez is that
+ * test and `move $9,$0` fills its delay slot; i is coloured after pos, the list
+ * pointer and the entity pointer ($9), which only a first set of i that keeps
+ * cse1's REG_EQUAL 0 through combine gives (update_equiv_regs doubles its live
+ * length), and it keeps it only when nothing in its block reads i: gcse folds
+ * the for's copied entry test from the `i = 0` and cse2 drops it under the
+ * `n > 0` test. The listing prints the blez, its slot, the list load and the
+ * latch on one line (548), so the test and the for share it. The particle
+ * calls sit under a test of a local constant only gcse resolves: the store's
+ * list reload after them is a PRE insertion at the end of the call block (line
+ * 563), which needs the store's block to be a join when PRE runs.
+ * WHAT THEY CANNOT PIN: how the test on n and the flag were spelled, and the
+ * text of the lines without code. */
+int CheckEnemyHit(char *self, float *pos, float *a, float *b)
+{
+    int eff = 1;
+    char *sub = *(char **)(self + 0x15C);
+    char *w = *(char **)(sub + 0x830);
+    int i;
+    int n = *(int *)(sub + 0x88);
+
+    if (2500.0f < distance_squared(pos, a)) {
+        /* Walk the parts still alive and take the first one within reach
+           of all three points: mark it hit, spawn the hit effect facing
+           along a - pos, and report the hit.  The counter is cleared
+           before the test on n, which shares its line with the for (see
+           the comment above the function); the fence keeps that line, the
+           braceless for and the condition below as the listing has them,
+           one row of code per line. */
+        /* clang-format off */
+        i = 0;
+        if (n > 0) for (; i < n; i++)
+            if ((*(int **)(w + 0x14))[i] == 0) {
+                if (distance_squared(*(char **)(sub + 0xC) + i * 0x40 + 0x30, pos) < 10000.0f &&
+                    distance_squared(*(char **)(sub + 0xC) + i * 0x40 + 0x30, a) < 10000.0f &&
+                    distance_squared(*(char **)(sub + 0xC) + i * 0x40 + 0x30, b) < 10000.0f) {
+                    float q[4];
+                    unsigned short ax, ay;
+                    if (eff) {
+                        MatrixDrive_GetTurnZAngleXY(&ax, &ay,
+                                                    -(pos[0] - a[0]),
+                                                    -(pos[1] - a[1]),
+                                                    -(pos[2] - a[2]));
+                        SetIdentityQuaternion(q);
+                        RotQuaternionX(q, (short)-ax);
+                        RotQuaternionY(q, (short)-ay);
+                        SetParticleEffect(8, *(char **)(sub + 0xC) + i * 0x40 + 0x30, q);
+                    }
+
+                    (*(int **)(w + 0x14))[i] = 1;
+
+                    return 1;
+                }
+            }
+    }
+    return 0;
+    /* clang-format on */
+}
 
 /* The 0x15C slot is the engine's sub-object HANDLE: the code stores an int and
  * reads it back as a pointer, so every read of it is a union view, the same

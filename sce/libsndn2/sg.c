@@ -1071,18 +1071,51 @@ void _SgContModLoop(int *a0)
     }
 }
 
-/* Reverted to asm 2026-09-15, re-measured 2026-09-17 (chain 3 pass 16):
- * 84 of 84 instructions, one instruction out of place.  ROM puts
- * `cvt.s.w $f1,$f1` in the delay slot of the `b` that joins the two arms of
- * the float divide.  gcc cannot put it there: `mtc1;cvt.s.w` is ONE insn
- * (floatsisf2, length 3) and mips.md's define_delay only accepts a length 1
- * insn, so gcc leaves the `b` inside `.set reorder` with an empty slot for
- * the assembler to fill.  ee-as 2.9-991111 never fills a delay slot by
- * moving an instruction, integer or COP1, under any -mcpu, -mips or -O
- * setting (re-probed 2026-09-17).  It matched only through the retired
- * compile_c.sh `mtc1;cvt;b` reorder rewrite.  Seed:
- * tails/seeds/sg.c3p16_SgContPolta_84of84_strict24_TU.c. */
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContPolta);
+/* Portamento controller: every keyed voice (state 2) of the event's channel
+ * whose program, note and track match takes a glide time of the common tempo
+ * times the event's rate over 15 at 0x4C and a per-tick pitch step of the
+ * signed or unsigned depth byte over that time at 0x44.  The state and the
+ * divisor sit in locals: the ROM loads 2 before 15 ahead of the loop and keeps
+ * the divide's zero trap, which a literal divisor would drop (measured). */
+void _SgContPolta(char *a0)
+{
+    char *p;
+    char *mgr;
+    char *ctx;
+    char *s;
+    int i;
+    int n;
+    int v;
+    int two;
+
+    p = (char *)_SgGetSlotContext(0);
+    mgr = (char *)_SgGetComContext();
+    ctx = (char *)_SgGetHeadContext();
+    two = 2;
+    n = 15;
+    i = 47;
+    do {
+        if (*(unsigned char *)(p + 0x51) == two &&
+            *(unsigned char *)(p + 0x54) == *(unsigned short *)(a0 + 0x18)) {
+            s = *(char **)(ctx + 0x10);
+            if (*(unsigned short *)(p + 0x2C) == *(unsigned char *)(s + 0x4) &&
+                *(unsigned char *)(p + 0x4E) == *(unsigned char *)(s + 0x5) &&
+                *(unsigned char *)(p + 0x50) == *(unsigned short *)(a0 + 0x4C)) {
+                *(int *)p |= 0x20;
+                v = (*(unsigned short *)(mgr + 0x3A) * *(unsigned char *)(s + 0x2)) / n;
+                *(short *)(p + 0x4C) = (short)v;
+                if (*(unsigned char *)(s + 0x3) & 0x80) {
+                    *(float *)(p + 0x44) = (float)*(signed char *)(s + 0x3) / (float)(short)v;
+                } else {
+                    *(float *)(p + 0x44) = (float)*(unsigned char *)(s + 0x3) / (float)(short)v;
+                }
+            }
+        }
+        i -= 1;
+        p += 0x58;
+    } while (i >= 0);
+    *(int *)(a0 + 0x4) += 6;
+}
 
 /* Volume controller: with bit 8 of the status word set the event keys the
  * voices itself and their 0x34 target, 0x36 current and 0x38/0x3A step are
@@ -1130,11 +1163,63 @@ void _SgContVol(int *a0)
     }
 }
 
-/* Reverted to asm (chain 3 pass 14, re-measured pass 42): 133 of 135
- * instructions; the two missing words are one address materialisation.
- * Derived body and mechanism:
- * tails/seeds/sg.c3p42_SgContPan_133of135_TU.c. */
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgContPan);
+/* Pan controller, the pattern of _SgContVol: with bit 8 of the status word set
+ * the event keys the voices itself and their 0x3C target, 0x3E current and
+ * 0x40/0x42 step are refreshed from the event and the common tempo; otherwise
+ * the value lands in the program record at 0x14 and every matching voice is
+ * panned through _SgPan and the pan curve.  The voice's own pan byte pair at
+ * 0xC is read through the slot table entry for the voice's index, not through
+ * the walker: the ROM keeps that table pointer apart from the 0xC offset. */
+void _SgContPan(int *a0)
+{
+    unsigned char *s = _SgGetSlotContext(0);
+    char *com = _SgGetComContext();
+    int *head = _SgGetHeadContext();
+    int i;
+
+    if (a0[0] & 8) {
+        if (*(unsigned short *)(com + 0x38) != 1) {
+            for (i = 0; i < 48; i++, s += 0x58) {
+                if (s[0x51] == 2 && s[0x54] == *(unsigned short *)((char *)a0 + 0x18)) {
+                    unsigned char *e = (unsigned char *)head[4];
+
+                    if (*(unsigned short *)(s + 0x2C) == e[4] && s[0x4E] == e[5] &&
+                        s[0x50] == *(unsigned short *)((char *)a0 + 0x4C)) {
+                        int v;
+
+                        *(int *)s |= 0x80;
+                        *(short *)(s + 0x3C) = e[3];
+                        *(short *)(s + 0x3E) = *(unsigned short *)(s + 0x30);
+                        v = (e[2] << 2) * *(unsigned short *)(com + 0x3A) / 60;
+                        *(short *)(s + 0x40) = v;
+                        *(short *)(s + 0x42) = v;
+                    }
+                }
+            }
+        }
+        a0[1] += 6;
+    } else {
+        *(char *)(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x14) =
+            *(unsigned char *)(head[4] + 2);
+        if (*(unsigned short *)(com + 0x38) != 1) {
+            for (i = 0; i < 48; i++, s += 0x58) {
+                if (s[0x4F] == *(unsigned short *)((char *)a0 + 0x4E) &&
+                    s[0x54] == *(unsigned short *)((char *)a0 + 0x18) &&
+                    s[0x50] == *(unsigned short *)((char *)a0 + 0x4C) && s[0x51] == 1) {
+                    unsigned char *p = &D_00731C00[i * 0x58];
+
+                    *(short *)(s + 0x30) = *(unsigned char *)(head[4] + 2);
+                    *(short *)(s + 0x20) =
+                        D_0054CB78[_SgPan(*(unsigned short *)(p + 0xC),
+                                          *(unsigned short *)((char *)a0 + 0x4E)) >>
+                                   2];
+                    _SgSeqSeVolume(i, a0);
+                }
+            }
+        }
+        a0[1] += 3;
+    }
+}
 
 /* Dump (damper) controller: the program record's 0x1B byte takes the event's
  * value, and when it goes to zero every voice the sequence holds either gets
@@ -1467,11 +1552,51 @@ void _SgDeltaTime(char *s)
     }
 }
 
-/* Reverted to asm (chain 3 pass 14, re-measured pass 42): 108 of 112
- * instructions; the ROM splits the pass-two walker across two callee-saved
- * registers.  Derived body and mechanism:
- * tails/seeds/sg.c3p42_SgSeqSeRrEnd_108of112_TU.c. */
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgSeqSeRrEnd);
+/* Release pass: a slot that is not held (0x100), whose IOP mailbox word (24
+ * words to a row) says the voice is done and whose 0x8 counter has run two
+ * ticks is cleared and its keys marked free; every keyed slot's counter then
+ * advances.  Then every sequence context that is live and keyed (0x44) but has
+ * no slot left playing it is cleared.  The status word is read through the
+ * file's volatile view at both tests; the slot search reuses s, and the
+ * sequence walker is the argument itself, stepped in place. */
+void _SgSeqSeRrEnd(int *a0)
+{
+    char *q = (char *)a0;
+    int iop = _SgGetIop2EeContext();
+    unsigned char *s = _SgGetSlotContext(0);
+    int i;
+    int j;
+
+    for (i = 0; i < 48; i++, s += 0x58) {
+        if ((*(int *)s & 0x100) == 0) {
+            if (*(int *)(iop + ((i / 24) * 0x60 + (i % 24) * 4)) < 2 && s[0x51] != 3 &&
+                (unsigned int)*(int *)(s + 8) >= 2) {
+                memset(s, 0, 0x58);
+                s[0x50] = 0xFF;
+                s[0x56] = 0xFF;
+                s[0x55] = 0xFF;
+                s[0x54] = 0xFF;
+            }
+            if (s[0x51] != 0) {
+                *(int *)(s + 8) = *(int *)(s + 8) + 1;
+            }
+        }
+    }
+    for (i = 0; i < 48; i++, q += 0x54) {
+        if ((*(volatile int *)q & 0x2000) == 0) {
+            if ((*(volatile int *)q & 0x44) == 0x44) {
+                s = _SgGetSlotContext(0);
+                for (j = 0; j < 48; j++, s += 0x58) {
+                    if (s[0x50] == i) {
+                        goto next;
+                    }
+                }
+                memset(_SgGetSeqContext(i), 0, 0x54);
+            }
+        }
+    next:;
+    }
+}
 
 int _SgfadeParam(int a0, int a1, int a2, int a3)
 {
