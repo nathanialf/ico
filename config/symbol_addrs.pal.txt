@@ -6165,3 +6165,4 @@ D_006D015C = 0x006D015C; // ignore:true  // cod/1A79B8 data  // packed bytes tha
 D_006E015D = 0x006E015D; // ignore:true  // cod/1A79B8 data  // packed bytes that read as an address into jimaku's .bss run (0x6C1E80..0x6E50A4), not a reference
 D_00710033 = 0x00710033; // ignore:true  // cod/1A79B8 data packed word 0x33 0x71 at VMA 0x2A85C8 which reads as an address into debug_exception's carved .bss (0x70FA80..0x71CA90), not a reference
 D_0071001A = 0x0071001A; // ignore:true  // no referrer in any .s and reads as an address into debug_exception's carved .bss (0x70FA80..0x71CA90), not a reference
+D_00621014 = 0x00621014; // ignore:true  // cod/18ED00 data (main's .data image of instruction words) word 0x00621014 at VMA 0x28EED0 which reads as an address into streamMotionManager's carved .rodata run 0x620FB0..0x621228, not a reference

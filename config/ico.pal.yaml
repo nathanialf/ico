@@ -910,7 +910,8 @@ segments:
       - [0x520F48, rodata, cod/520F48]   # .rodata blob resume (the "FEED: %s" string dispFeedInfo reads as an extern, and its pad)
       - [0x520F60, .rodata, ico2/sugipon/src/staticBlur]  # syms: 0x00620F60,0x00620F80  carved jtbl_00620F60 + jtbl_00620F80 (FullScreenEffectBefore/After's 8-arm tables, 16-aligned), VMA 0x620F60..0x620FA0
       - [0x520FA0, .rodata, ico2/sugipon/src/stormTest]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x620FA0..0x621680, 1760 B
-      - [0x520FB0, rodata, cod/520FB0]     # rodata blob resume
+      - [0x520FB0, .rodata, ico2/sugipon/src/streamMotionManager]  # the TU's .rodata head as source (VMA 0x620FB0..0x621228, 0x278 B: the anonymous message strings of _infoUpdate, PlayStreamMotion, ClearStreamMotionEntry's compiled-out debug arm and three more functions, EUC-JP kept; chain 3 pass 133)
+      - [0x521228, rodata, cod/521228]     # rodata blob resume: streamMotionManager's remaining 0x100 (the 8-byte header constant that -G 8 sends to .sdata as any spelling of 8 bytes or less, and five more strings still read as D_ externs), sugiTree's row follows at 0x521328
       - [0x521328, .rodata, ico2/sugipon/src/sugiTree]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x621328..0x621680, 856 B
       - [0x521338, .rodata, ico2/sugipon/src/torch]  # the TU's whole .rodata run as source (data pass 5), VMA 0x621338..0x621384, 76 B
       - [0x521384, rodata, cod/521384]     # rodata blob resume
@@ -1372,7 +1373,7 @@ segments:
       - { type: bss, vram: 0x00724098, name: cod/00724098 }  # .bss blob resume
       - { type: .bss, vram: 0x007240A0, name: ico2/sugipon/src/stageMultiBgaManager }  # the TU's own .bss, 0x9D8 B, VMA 0x7240A0..0x724A78; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x00724A78, name: ico2/sugipon/src/staticBlur }  # the TU's own .bss, 0x30 B, VMA 0x724A78..0x724AA8; static definitions in ROM run order (completeness pass)
-      - { type: bss, vram: 0x00724AA8, name: cod/00724AA8 }  # .bss blob resume
+      - { type: .bss, vram: 0x00724AA8, name: ico2/sugipon/src/streamMotionManager }  # the TU's whole .bss (VMA 0x724AA8..0x724BC0, 0x118 B: the ten-slot stream entry table as one named static; MAIN.MAP's January member is 0xF0 with 0x18 slots; chain 3 pass 133), waterDot's row follows directly
       - { type: .bss, vram: 0x00724BC0, name: ico2/sugipon/src/waterDot }  # the TU's own .bss, 0x14 B, VMA 0x724BC0..0x724BD4; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x00724BD4, name: cod/00724BD4 }  # .bss blob resume
       - { type: .bss, vram: 0x00724BE0, name: ico2/sugipon/src/windField }  # windVector, windStrength[256], windCell[20][20] (0x20 stride), 0x3610 B = MAIN.MAP's windField.o .bss; the queue's 0x726165 bound was a false pointer into a string (completeness pass 25)

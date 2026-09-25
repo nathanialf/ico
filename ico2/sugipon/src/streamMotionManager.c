@@ -9,7 +9,11 @@ typedef struct {
     int w[7];
 } SMotion;
 
-extern SMotion D_00724AA8[];
+/* .bss, the whole of streamMotionManager.o's run: the ten stream-motion slots
+   _deleteStreamMotionManager resets to emptyEntry.  0x118 bytes, ten 0x1C-byte
+   entries; MAIN.MAP's January member has 0xF0, ten entries of 0x18. */
+static SMotion streamEntry[10];
+
 extern int D_0028F4C0[];
 extern int frame_count;
 extern int ScreenHeight;
@@ -28,14 +32,6 @@ extern int D_0063BC2C;
 extern int D_0063BC30;
 extern char D_0063BC38[]; /* "S:%d", the stream counter D_0063BC30 its argument */
 extern int D_0063BCB8;
-extern char D_00620FB0[];
-extern char D_00620FF8[];
-extern char D_00621030[];
-extern char D_00621070[];
-extern char D_006210B0[];
-extern char D_006210D0[];
-extern char D_00621100[];
-extern char D_00621130[];
 
 /* The ring is 0x28000 bytes; the check asks whether the write pointer has run
  * far enough ahead of the read pointer for `room` more bytes to be there. */
@@ -62,8 +58,8 @@ static inline void _setEntryOffsets(void)
     int i;
 
     for (i = 0; i < D_0063BBF0; i++) {
-        D_00724AA8[i].w[3] = D_00724AA8[i].w[4] = (D_0063BC00 + off) % 0x28000;
-        off += D_00724AA8[i].w[2];
+        streamEntry[i].w[3] = streamEntry[i].w[4] = (D_0063BC00 + off) % 0x28000;
+        off += streamEntry[i].w[2];
     }
 }
 
@@ -73,8 +69,8 @@ static inline void _setNextEntryOffsets(unsigned int base)
     int i;
 
     for (i = 0; i < D_0063BBF0; i++) {
-        D_00724AA8[i].w[4] = (base + off) % 0x28000;
-        off += D_00724AA8[i].w[2];
+        streamEntry[i].w[4] = (base + off) % 0x28000;
+        off += streamEntry[i].w[2];
     }
 }
 
@@ -99,10 +95,10 @@ int _infoUpdate(void)
             for (i = 0; i < D_0063BBF0; i++) {
                 int a = D_0063BC00 + D_0063BC18;
 
-                D_00724AA8[i].w[0] = *(unsigned char *)(D_0063BC08 + (a + 2) % 0x28000);
-                D_00724AA8[i].w[1] = *(unsigned char *)(D_0063BC08 + (a + 3) % 0x28000);
-                D_00724AA8[i].w[2] = 16 + D_00724AA8[i].w[0] * 8 + D_00724AA8[i].w[1] * 4;
-                D_0063BC18 += D_00724AA8[i].w[2];
+                streamEntry[i].w[0] = *(unsigned char *)(D_0063BC08 + (a + 2) % 0x28000);
+                streamEntry[i].w[1] = *(unsigned char *)(D_0063BC08 + (a + 3) % 0x28000);
+                streamEntry[i].w[2] = 16 + streamEntry[i].w[0] * 8 + streamEntry[i].w[1] * 4;
+                D_0063BC18 += streamEntry[i].w[2];
             }
             n = 0xE23;
             if (D_0028F4C0[0] == 0) {
@@ -111,7 +107,9 @@ int _infoUpdate(void)
             D_0063BC14 = 1;
             D_0063BC2C = n;
         } else {
-            debug_StdPrintfDummy(D_00620FB0);
+            /* the data had not arrived in time when the stream motion started */
+            debug_StdPrintfDummy(
+                "ストリームモーション開始時にデータの転送が間に合っていませんでした。\n");
             D_0063A3D8++;
             return 0;
         }
@@ -120,7 +118,8 @@ int _infoUpdate(void)
     D_0063BC28 = 0;
     while (D_0063BC2C >= 2997) {
         if (!_checkRing(D_0063BC18)) {
-            debug_StdPrintfDummy(D_00620FF8);
+            /* the stream motion data transfer is not keeping up */
+            debug_StdPrintfDummy("ストリームモーションのデータ転送が間に合っていません。\n");
             D_0063A3D8++;
             return 0;
         } else {
@@ -140,24 +139,29 @@ int _infoUpdate(void)
             }
             if (*(unsigned char *)(D_0063BC08 + top) == 1) {
                 if (D_0063BC2C == 2997) {
-                    debug_StdPrintfDummy(D_00621030);
+                    /* the motion divided evenly and the cut switched over */
+                    debug_StdPrintfDummy(
+                        "\033[33mキリ良くモーションが割り切れてカットが切り替わり\033[m\n");
                 } else {
-                    debug_StdPrintfDummy(D_00621070, (float)D_0063BC2C / 2997.0f);
+                    /* the next cut's data arrived, so a forced switch (remainder: %f) */
+                    debug_StdPrintfDummy(
+                        "\033[33m次のカットデータ来たので強制切り替わり(余り：%f)\033[m\n",
+                        (float)D_0063BC2C / 2997.0f);
                 }
                 break;
             }
         }
     }
     if (*(unsigned char *)(D_0063BC08 + top) == 1) {
-        debug_StdPrintfDummy(D_006210B0);
+        debug_StdPrintfDummy("\033[33mFIND HEADER FLAG\033[m\n");
         if (D_0063BCB8 != 0) {
-            debug_StdPrintfDummy(D_006210D0, frame_count);
+            debug_StdPrintfDummy("\033[36mSTREAM MOTION SYNCHRONIZE OK(%d)\033[m\n", frame_count);
         } else {
-            debug_StdPrintfDummy(D_00621100);
+            debug_StdPrintfDummy("\033[33mSTREAM MOTION SYNCHRONIZE NG(%d)\033[m\n");
         }
     }
     if (D_0063BCB8 != 0) {
-        debug_StdPrintfDummy(D_00621130);
+        debug_StdPrintfDummy("\033[33mCLEAR FRAME MOD\033[m\n");
         D_0063BC30 = 0;
         D_0063BC2C = 0;
         D_0063BCB8 = 0;
@@ -167,33 +171,40 @@ int _infoUpdate(void)
     return 0;
 }
 
-extern char D_00621150[];
 extern int D_0063BBF4;
 extern int D_0063BBFC;
 
 void PlayStreamMotion(void)
 {
     if (D_0063BBFC == 0) {
-        return debug_StdPrintfDummy(D_00621150);
+        /* StandbyStreamMotion has not been called; nothing was played */
+        return debug_StdPrintfDummy(
+            "StandbyStreamMotionが呼ばれてません。再生はされませんでした。\n");
     }
     D_0063BBF4 = 1;
     return 1;
 }
 
-/* The 0x10 bytes of frame at sp+0 belong to a declaration that emits no code in
- * this build: SRCFILE.TXT's rows for this function run 285, 286, 287, 288, 289
- * and then jump straight to 308, while the census gives the function lines
- * 285-308, so lines 290 to 307 are inside the body and carry no instructions at
- * all (a debug arm the retail build compiles out). Without the vector the body
- * is byte-identical except for the frame size, 0x30 against ROM's 0x40. */
+/* SRCFILE.TXT's rows for this function run 285 to 289 and then jump straight to
+ * the closing brace at 308: lines 290 to 307 are a debug arm the retail build
+ * compiles to nothing.  The ROM keeps two traces of it, the 0x10 bytes of frame
+ * at sp+0 (a vector the arm declares; the frame is 0x30 without it) and the
+ * "ADJUST %08x(%f)\n" string, which sits in .rodata between PlayStreamMotion's
+ * and _deleteStreamMotionManager's with no reference to it: the arm is expanded
+ * and its string output, then the dead code is deleted.  The bytes pin the
+ * vector and the string; the arm's other statements are not recoverable. */
 void ClearStreamMotionEntry(char *gobj)
 {
-    float v[4];
-
     *(int *)(*(int *)(gobj + 0x15C) + 0x470) = -1;
     *(int *)(*(int *)(gobj + 0x15C) + 0x660) = 1;
     CopyVector((char *)*(int *)(gobj + 0x15C) + 0x670, ZeroVector);
     *(int *)(*(int *)(gobj + 0x15C) + 0x550) = 1;
+    if (0) {
+        float v[4];
+
+        CopyVector((char *)v, (char *)*(int *)(gobj + 0x15C) + 0x670);
+        debug_StdPrintfDummy("ADJUST %08x(%f)\n", gobj, v[0]);
+    }
 }
 
 /* .data, the whole of streamMotionManager.o's run: the cleared entry every
@@ -210,7 +221,6 @@ extern int D_0063BC20;
 extern unsigned int D_0063BC24;
 extern int D_0063BC28;
 extern int D_0063BC2C;
-extern char D_006211A8[];
 
 void _deleteStreamMotionManager(void)
 {
@@ -218,15 +228,15 @@ void _deleteStreamMotionManager(void)
 
     if (D_0063BBF0 != 0) {
         for (i = 0; i < D_0063BBF0; i++) {
-            ClearStreamMotionEntry((char *)D_00724AA8[i].w[5]);
-            if (D_00724AA8[i].w[6] != 0) {
-                ((void (*)())D_00724AA8[i].w[6])(D_00724AA8[i].w[5]);
+            ClearStreamMotionEntry((char *)streamEntry[i].w[5]);
+            if (streamEntry[i].w[6] != 0) {
+                ((void (*)())streamEntry[i].w[6])(streamEntry[i].w[5]);
             }
         }
         D_0063BBF0 = 0;
     }
     for (i = 0; i < 10; i++) {
-        D_00724AA8[i] = emptyEntry;
+        streamEntry[i] = emptyEntry;
     }
     D_0063BBF4 = 0;
     D_0063BBF8 = 0;
@@ -241,15 +251,13 @@ void _deleteStreamMotionManager(void)
     if (D_0063BBFC != 0) {
         D_0063BBFC = 0;
     }
-    debug_StdPrintfDummy(D_006211A8);
+    debug_StdPrintfDummy("delete stream motion manager\n");
 }
-
-extern int D_006211C8[];
 
 void DisableStreamMotionManagerAutomaticDelete(void)
 {
     D_0063BC24 = 0;
-    debug_StdPrintfDummy(D_006211C8);
+    debug_StdPrintfDummy("disable automatic delete\n");
 }
 
 extern int D_0063BC08;
@@ -257,7 +265,7 @@ extern void memcpy();
 
 void getStreamMotionData(char *dst, int off, int no)
 {
-    int size = D_00724AA8[no].w[2];
+    int size = streamEntry[no].w[2];
     int over = off + size - 0x28000;
 
     if (over > 0) {
@@ -271,13 +279,13 @@ void getStreamMotionData(char *dst, int off, int no)
 
 void getStreamMotionBlendData(char *dst, int no)
 {
-    int size = D_00724AA8[no].w[2];
+    int size = streamEntry[no].w[2];
     char a[size];
     char b[size];
     int i;
 
-    getStreamMotionData(a, D_00724AA8[no].w[3], no);
-    getStreamMotionData(b, D_00724AA8[no].w[4], no);
+    getStreamMotionData(a, streamEntry[no].w[3], no);
+    getStreamMotionData(b, streamEntry[no].w[4], no);
     for (i = 0; i < 4; i++) {
         dst[i] = a[i];
     }
@@ -285,7 +293,7 @@ void getStreamMotionBlendData(char *dst, int no)
 
 void GetStreamMotionDataNext(int a0, int a1)
 {
-    getStreamMotionData(a0, D_00724AA8[a1].w[4], a1);
+    getStreamMotionData(a0, streamEntry[a1].w[4], a1);
 }
 
 void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
@@ -331,9 +339,9 @@ void ExecStreamMotionManager(void)
                 }
                 if (D_0063BBF0 != 0) {
                     for (i = 0; i < D_0063BBF0; i++) {
-                        ClearStreamMotionEntry((char *)D_00724AA8[i].w[5]);
-                        if (D_00724AA8[i].w[6] != 0) {
-                            ((void (*)())D_00724AA8[i].w[6])(D_00724AA8[i].w[5]);
+                        ClearStreamMotionEntry((char *)streamEntry[i].w[5]);
+                        if (streamEntry[i].w[6] != 0) {
+                            ((void (*)())streamEntry[i].w[6])(streamEntry[i].w[5]);
                         }
                     }
                     D_0063BBF0 = 0;
@@ -385,9 +393,9 @@ inline void ClearAllStreamMotionEntry(void)
         return;
     }
     for (i = 0; i < D_0063BBF0; i++) {
-        ClearStreamMotionEntry((char *)D_00724AA8[i].w[5]);
-        if (D_00724AA8[i].w[6] != 0) {
-            ((void (*)())D_00724AA8[i].w[6])(D_00724AA8[i].w[5]);
+        ClearStreamMotionEntry((char *)streamEntry[i].w[5]);
+        if (streamEntry[i].w[6] != 0) {
+            ((void (*)())streamEntry[i].w[6])(streamEntry[i].w[5]);
         }
     }
     D_0063BBF0 = 0;
@@ -427,7 +435,7 @@ inline int EntryStreamMotion(char *a0)
 {
     int no = D_0063BBF0;
 
-    D_00724AA8[no].w[5] = (int)a0;
+    streamEntry[no].w[5] = (int)a0;
 
     *(int *)(*(int *)(a0 + 0x15C) + 0x470) = no;
     *(int *)(*(int *)(a0 + 0x15C) + 0x4F0) = 0;
@@ -437,15 +445,14 @@ inline int EntryStreamMotion(char *a0)
     return no;
 }
 
-extern char D_006211E8[];
-
 inline int GetDataSizeOfStreamMotion(int no)
 {
-    if (D_00724AA8[no].w[3] < 0) {
-        debug_StdPrintfDummy(D_006211E8);
+    if (streamEntry[no].w[3] < 0) {
+        /* tried to get the work size before the data has arrived */
+        debug_StdPrintfDummy("データがまだ来ていないのにワークサイズの取得をしようとしました\n");
         return 4;
     }
-    return D_00724AA8[no].w[2];
+    return streamEntry[no].w[2];
 }
 
 extern char D_00621228[];
@@ -457,12 +464,12 @@ typedef struct {
 
 inline float GetStreamMotionData(char *dst, int no)
 {
-    if (D_00724AA8[no].w[3] < 0) {
+    if (streamEntry[no].w[3] < 0) {
         *(StreamMotionHead *)dst = *(StreamMotionHead *)D_00621228;
         debug_StdPrintfDummy(D_00621230);
         return -1.0f;
     }
-    getStreamMotionData(dst, D_00724AA8[no].w[3], no);
+    getStreamMotionData(dst, streamEntry[no].w[3], no);
     return (float)D_0063BC28 / 2997.0f;
 }
 
@@ -489,7 +496,7 @@ inline int CheckReadyStreamMotion(void)
 
 inline void SetStreamMotionFinishCallBackFunc(int a0, int a1)
 {
-    D_00724AA8[a0].w[6] = a1;
+    streamEntry[a0].w[6] = a1;
 }
 
 inline void FreeStreamMotionBuffer(void)

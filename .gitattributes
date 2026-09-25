@@ -51,3 +51,4 @@ ico2/common/src/icoMisc.c working-tree-encoding=EUC-JP
 ico2/sugipon/src/rope.c working-tree-encoding=EUC-JP
 ico2/common/src/sceneManager.c working-tree-encoding=EUC-JP
 ico2/fumi/src/way_kidnap.c working-tree-encoding=EUC-JP
+ico2/sugipon/src/streamMotionManager.c working-tree-encoding=EUC-JP
