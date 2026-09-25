@@ -89,6 +89,22 @@ for _a in libc libm libvu0 libkernl libpkt libgraph libdma libpad libscf libmpeg
     SCE_INCS="${SCE_INCS} -I${ROOT}/sce/${_a}"
 done
 CFLAGS="-S ${DBG} -G ${GNUM} -O2 -mips3 -EL ${BUILTIN} -nostdinc -fdata-sections -I${INCLUDE_DIR}${SCE_INCS}"
+# DUMP MODE (2026-09-27): `DUMP_DIR=<dir> tools/compile_c.sh <src> <obj>` adds -da (every RTL
+# pass dump) under the SAME per-origin flags and assembler, then moves the dumps gcc wrote
+# beside the source into DUMP_DIR so nothing lands under ico2/ or sce/. DUMP_FLAGS may add
+# further dump-only options (-d<letters> or -fsched-verbose-N); anything else is refused
+# because it would change the code. The object is still produced and is a real measurement.
+# This replaces running cc1 or ee-gcc by hand, which lost the harness's flags.
+if [ -n "${DUMP_DIR:-}" ]; then
+    mkdir -p "${DUMP_DIR}"
+    for _f in ${DUMP_FLAGS:-}; do
+        case "${_f}" in
+            -d[a-zA-Z]*|-fsched-verbose-[0-9]*) ;;
+            *) echo "compile_c.sh: DUMP_FLAGS may only carry dump options (-d<letters>, -fsched-verbose-N), not '${_f}'" >&2; exit 2 ;;
+        esac
+    done
+    CFLAGS="${CFLAGS} -da ${DUMP_FLAGS:-}"
+fi
 ASFLAGS="-EL -march=r5900 -mabi=eabi -G ${GNUM} -no-pad-sections -I${INCLUDE_DIR}"
 EE_ASFLAGS="-EL -mcpu=5900 -G ${GNUM}"
 
@@ -147,6 +163,7 @@ case "${SRC}" in
 esac
 if [ -n "${ICO2_PROG}" ]; then
     SRC_REL="${SRC#ico2/${ICO2_PROG}/}"
+    SRC_ABS="${SRC}"; case "${SRC_ABS}" in /*) ;; *) SRC_ABS="${ROOT}/${SRC_ABS}";; esac
     S_ABS="${S}"; case "${S_ABS}" in /*) ;; *) S_ABS="${ROOT}/${S_ABS}";; esac
     # Search order: the programmer's own include dir first, then the
     # cross-programmer dirs the listing shows their TUs reaching into, then
@@ -158,12 +175,14 @@ if [ -n "${ICO2_PROG}" ]; then
         ICO2_INCS="${ICO2_INCS} -I../${_p}/include"
     done
     # shellcheck disable=SC2086
+    DUMP_CWD="${ROOT}/ico2/${ICO2_PROG}"
     ( cd "${ROOT}/ico2/${ICO2_PROG}" \
       && "${CC}" -B "${EEGCC_LIB}" ${ICO2_INCS} ${CFLAGS} -o "${S_ABS}" "${SRC_REL}" )
 elif listed "${INCLUDE_ITO_TXT}"; then
     SRC_ABS="${SRC}"; case "${SRC_ABS}" in /*) ;; *) SRC_ABS="${ROOT}/${SRC_ABS}";; esac
     S_ABS="${S}";    case "${S_ABS}"   in /*) ;; *) S_ABS="${ROOT}/${S_ABS}";; esac
     # shellcheck disable=SC2086
+    DUMP_CWD="${ROOT}/ito"
     ( cd "${ROOT}/ito" && "${CC}" -B "${EEGCC_LIB}" ${CFLAGS} -I../ito/include -o "${S_ABS}" "${SRC_ABS}" )
 else
     # sce/<archive>/<member>.c : the vendor archives were built member by member
@@ -172,7 +191,19 @@ else
     SRC_ABS="${SRC}"; case "${SRC_ABS}" in /*) ;; *) SRC_ABS="${ROOT}/${SRC_ABS}";; esac
     S_ABS="${S}";    case "${S_ABS}"   in /*) ;; *) S_ABS="${ROOT}/${S_ABS}";; esac
     # shellcheck disable=SC2086
+    DUMP_CWD="$(dirname "${SRC_ABS}")"
     ( cd "$(dirname "${SRC_ABS}")" && "${CC}" -B "${EEGCC_LIB}" ${CFLAGS} -o "${S_ABS}" "$(basename "${SRC_ABS}")" )
+fi
+
+# Dump mode: gcc 2.9 writes <basename>.c.<pass> in the compile's working directory (the
+# programmer directory for ico2/, ito/ for ito, the member's directory for sce/); move them out.
+if [ -n "${DUMP_DIR:-}" ]; then
+    _base="$(basename "${SRC_ABS}")"
+    for _d in "${DUMP_CWD}/${_base}."*; do
+        [ -f "${_d}" ] || continue
+        case "${_d}" in *.c.[a-z0-9]*) mv -f "${_d}" "${DUMP_DIR}/" ;; esac
+    done
+    echo "compile_c.sh: dumps in ${DUMP_DIR}" >&2
 fi
 
 # Split each gcc-emitted switch jtbl onto its own .rodata.0x<VMA>
