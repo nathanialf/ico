@@ -21,16 +21,24 @@ typedef struct {
     int f4;
     char *f8;
     char *fC;
-    char buf[1];
+    char buf[256];
 } PrintSink;
 
-extern int D_0054A3E0[];
+/* glue.o's .data: whether the tty is open (write and read open it on first
+   use), then sbrk's current break, which starts at the end of the program's
+   bss (the linker's _end).  MAIN.MAP names neither, so both are statics. */
+extern char _end[];
+
+static int tty_opened = 0;
+
+static char *heap_ptr = _end;
+
 /* unprototyped: sceResetttyinit passes the port, write and read call it bare */
 extern int sceTtyInit();
 
 void sceResetttyinit(int a0)
 {
-    D_0054A3E0[0] = 0;
+    tty_opened = 0;
     sceTtyInit(a0);
 }
 
@@ -94,11 +102,11 @@ extern int sceTtyRead(void *buf, int size);
 int write(int fd, void *buf, int size)
 {
     if (fd - 1 < 2U) {
-        if (D_0054A3E0[0] == 0) {
+        if (tty_opened == 0) {
             if (sceTtyInit() == 0) {
                 return -1;
             }
-            D_0054A3E0[0] = 1;
+            tty_opened = 1;
         }
         return sceTtyWrite(buf, size);
     }
@@ -108,11 +116,11 @@ int write(int fd, void *buf, int size)
 int read(int fd, void *buf, int size)
 {
     if (fd == 0) {
-        if (D_0054A3E0[0] == 0) {
+        if (tty_opened == 0) {
             if (sceTtyInit() == 0) {
                 return -1;
             }
-            D_0054A3E0[0] = 1;
+            tty_opened = 1;
         }
         return sceTtyRead(buf, size);
     }
@@ -158,7 +166,7 @@ __asm__(".section .text\n"
         "    lui $2, (0x10000 >> 16)\n"
         "    and $17, $17, $2\n"
         "    beqz $17, .Lsbrk00241B14\n"
-        "    lui $18, %hi(D_0054A3E4)\n"
+        "    lui $18, %hi(heap_ptr)\n"
         ".Lsbrk00241AF0:\n"
         "    di\n"
         "    sync.p\n"
@@ -168,15 +176,15 @@ __asm__(".section .text\n"
         "    bnez $2, .Lsbrk00241AF0\n"
         "    nop\n"
         "    b .Lsbrk00241B18\n"
-        "    lw $2, %lo(D_0054A3E4)($18)\n"
+        "    lw $2, %lo(heap_ptr)($18)\n"
         ".Lsbrk00241B14:\n"
-        "    lw $2, %lo(D_0054A3E4)($18)\n"
+        "    lw $2, %lo(heap_ptr)($18)\n"
         ".Lsbrk00241B18:\n"
         "    jal EndOfHeap\n"
         "    addu $16, $2, $4\n"
         "    sltu $2, $2, $16\n"
         "    beqz $2, .Lsbrk00241B50\n"
-        "    lw $2, %lo(D_0054A3E4)($18)\n"
+        "    lw $2, %lo(heap_ptr)($18)\n"
         "    jal __errno\n"
         "    nop\n"
         "    addiu $3, $0, 0xC\n"
@@ -189,7 +197,7 @@ __asm__(".section .text\n"
         "    ori $2, $2, (0xFFFFFFFF & 0xFFFF)\n"
         ".Lsbrk00241B50:\n"
         "    beqz $17, .Lsbrk00241B5C\n"
-        "    sw $16, %lo(D_0054A3E4)($18)\n"
+        "    sw $16, %lo(heap_ptr)($18)\n"
         "    ei\n"
         ".Lsbrk00241B5C:\n"
         "    ld $31, 0x30($29)\n"
@@ -242,15 +250,24 @@ int unlink(void)
     return -1;
 }
 
-extern PrintSink D_0072A600;
+/* tty.o's .bss, in the ROM's order: the receive queue QueueInit sets up (a
+   16-byte header and a 256-byte ring), the DECI2 socket record, then the send
+   and receive packets (320 bytes each, 64-aligned for the DECI2 transfer). */
+static PrintSink tty_queue;
+
+static int tty_rec[7];
+
+static char tty_sbuf[320] __attribute__((aligned(64)));
+
+static char tty_rbuf[320] __attribute__((aligned(64)));
 
 void *QueueInit(int a0)
 {
-    D_0072A600.f0 = a0;
-    D_0072A600.f4 = 0;
-    D_0072A600.fC = D_0072A600.buf;
-    D_0072A600.f8 = D_0072A600.buf;
-    return &D_0072A600;
+    tty_queue.f0 = a0;
+    tty_queue.f4 = 0;
+    tty_queue.fC = tty_queue.buf;
+    tty_queue.f8 = tty_queue.buf;
+    return &tty_queue;
 }
 
 void QueuePeekWriteDone(int *q)
@@ -284,7 +301,7 @@ extern void kprintf();
 extern int sceDeci2ExRecv(int s, int buf, unsigned short len);
 extern int sceDeci2ExSend(int s, int buf, unsigned short len);
 
-/* RECONSTRUCTION: the tty socket record at D_0072A710 as the handler sees it.
+/* RECONSTRUCTION: the tty socket record at tty_rec as the handler sees it.
    The four header words are volatile, the view sceTtyInit and sceTtyWrite
    already take (the handler writes them from interrupt level while the
    callers poll them); the buffer and queue pointers below them are plain.
@@ -350,8 +367,6 @@ void sceTtyHandler(int event, int param, void *opt)
     tty->busy = 0;
 }
 
-extern int D_0072A710[];
-extern char D_0072A740[];
 extern int DIntr();
 extern int EIntr();
 extern int sceDeci2ReqSend(int s, int c);
@@ -363,7 +378,7 @@ int sceTtyWrite(char *buf, int len)
        busy flag at +0xC when the send completes and writes the length at
        +0x4, so every read of it in this function is a volatile read.  The
        stores run with interrupts disabled and are plain. */
-    volatile int *rec = D_0072A710;
+    volatile int *rec = tty_rec;
     char *hdr;
     char *out;
     int n = 0;
@@ -373,10 +388,10 @@ int sceTtyWrite(char *buf, int len)
         return -1;
     }
     DIntr();
-    D_0072A710[3] = 1;
+    tty_rec[3] = 1;
     /* the send buffer is addressed through the uncached accelerated window */
-    hdr = (char *)((unsigned int)D_0072A740 | 0x20000000);
-    D_0072A710[4] = (int)hdr;
+    hdr = (char *)((unsigned int)tty_sbuf | 0x20000000);
+    tty_rec[4] = (int)hdr;
     out = hdr + 12;
     while (len-- != 0) {
         if (*buf == '\n') {
@@ -396,23 +411,19 @@ int sceTtyWrite(char *buf, int len)
             break;
         }
     }
-    D_0072A710[1] = n + 12;
-    *(short *)hdr = *(volatile int *)&D_0072A710[1];
-    if (sceDeci2ReqSend(*(volatile int *)&D_0072A710[0], hdr[7]) < 0) {
-        D_0072A710[3] = 0;
+    tty_rec[1] = n + 12;
+    *(short *)hdr = *(volatile int *)&tty_rec[1];
+    if (sceDeci2ReqSend(*(volatile int *)&tty_rec[0], hdr[7]) < 0) {
+        tty_rec[3] = 0;
         EIntr();
         return -1;
     }
-    while (*(volatile int *)&D_0072A710[3] != 0) {
-        sceDeci2Poll(*(volatile int *)&D_0072A710[0]);
+    while (*(volatile int *)&tty_rec[3] != 0) {
+        sceDeci2Poll(*(volatile int *)&tty_rec[0]);
     }
     EIntr();
     return i;
 }
-
-extern int D_0072A710[];
-/* the DECI2 receive flag the tty handler sets from interrupt level */
-extern volatile int *D_0072A728;
 
 int sceTtyRead(void *buf, int size)
 {
@@ -421,9 +432,11 @@ int sceTtyRead(void *buf, int size)
 
     for (i = 0; i < size; i++) {
         p = (char *)buf + i;
-        while (D_0072A728[1] == 0) {}
-        *p = *((RingBuf_241C80 *)D_0072A710[6])->f8;
-        QueuePeekReadDone((RingBuf_241C80 *)D_0072A710[6]);
+        /* the queue's count, which the tty handler raises from interrupt
+           level */
+        while (((volatile int *)tty_rec[6])[1] == 0) {}
+        *p = *((RingBuf_241C80 *)tty_rec[6])->f8;
+        QueuePeekReadDone((RingBuf_241C80 *)tty_rec[6]);
         if (*p == '\n' || *p == '\r') {
             return i + 1;
         }
@@ -433,8 +446,6 @@ int sceTtyRead(void *buf, int size)
 
 extern int sceDeci2Open(unsigned short protocol, void *opt, void *handler);
 extern void sceTtyHandler(int event, int param, void *opt);
-/* the DECI2 receive packet, reached through the uncached accelerated window */
-extern char D_0072A880[];
 
 int sceTtyInit(void)
 {
@@ -442,32 +453,33 @@ int sceTtyInit(void)
        flag from interrupt level (its stores at +0x4, +0x8 and +0xC), so the
        record's four header words are volatile; the buffer and queue pointers
        below them are plain */
-    volatile int *rec = D_0072A710;
+    volatile int *rec = tty_rec;
     char *snd;
     char *rcv;
 
     FlushCache(0);
-    rec[0] = sceDeci2Open(0x210, D_0072A710, sceTtyHandler);
+    rec[0] = sceDeci2Open(0x210, tty_rec, sceTtyHandler);
     if (rec[0] < 0) {
         return 0;
     }
     rec[3] = 0;
-    rcv = (char *)((unsigned int)D_0072A880 | 0x20000000);
-    snd = (char *)((unsigned int)D_0072A740 | 0x20000000);
+    rcv = (char *)((unsigned int)tty_rbuf | 0x20000000);
+    snd = (char *)((unsigned int)tty_sbuf | 0x20000000);
     rec[1] = 0;
     rec[2] = 0;
-    D_0072A710[5] = (int)rcv;
-    D_0072A710[4] = (int)snd;
+    tty_rec[5] = (int)rcv;
+    tty_rec[4] = (int)snd;
     *(short *)(snd + 4) = 0x210;
     snd[6] = 'E';
     snd[7] = 'H';
     *(short *)(snd + 2) = 0;
     *(int *)(snd + 8) = 0;
-    D_0072A710[6] = (int)QueueInit(256);
+    tty_rec[6] = (int)QueueInit(256);
     return 1;
 }
 
-extern int D_0054A3E8[];
+/* sifrpc.o's .data: set once sceSifInitRpc has run, cleared by sceSifExitRpc */
+static int rpc_inited = 0;
 
 /* RECONSTRUCTION: sifrpc.o's RPC state record (the .bss object at
    0x0072C1C0).  Field names follow the public SDK naming of this record;
@@ -490,10 +502,18 @@ typedef struct {
     int *active_queue;
 } SifRpcData;
 
-extern SifRpcData D_0072C1C0;
-extern int D_0072A9C0[];
-extern int D_0072B1C0[];
-extern int D_0072B9C0[];
+/* sifrpc.o's .bss, in the ROM's order: the 32 64-byte command packets, the
+   32 receive-data slots and the 32 client slots sceSifInitRpc hands the
+   record (each table a cache line per entry, and 64-aligned for the SIF DMA),
+   then the record itself. */
+static int rpc_pkt_table[512] __attribute__((aligned(64)));
+
+static int rpc_rdata_table[512] __attribute__((aligned(64)));
+
+static int rpc_client_table[512] __attribute__((aligned(64)));
+
+static SifRpcData rpc_data;
+
 extern void _request_end();
 extern void _request_bind();
 extern void _request_call();
@@ -509,29 +529,29 @@ void sceSifInitRpc(int mode)
     char *pkt;
 
     DIntr();
-    if (D_0054A3E8[0] != 0) {
+    if (rpc_inited != 0) {
         EIntr();
         return;
     }
-    D_0054A3E8[0] = 1;
+    rpc_inited = 1;
     EIntr();
     sceSifInitCmd();
     DIntr();
-    pkt = (char *)D_0072A9C0;
-    D_0072C1C0.pkt_table = (void *)((unsigned int)pkt | 0x20000000);
-    D_0072C1C0.pkt_table_len = 32;
-    D_0072C1C0.unused1 = 0;
-    D_0072C1C0.unused2 = 0;
-    D_0072C1C0.rdata_table = (unsigned char *)((unsigned int)D_0072B1C0 | 0x20000000);
-    D_0072C1C0.rdata_table_len = 32;
-    D_0072C1C0.client_table = (unsigned char *)((unsigned int)D_0072B9C0 | 0x20000000);
-    D_0072C1C0.client_table_len = 32;
-    D_0072C1C0.rdata_table_idx = 0;
-    D_0072C1C0.pid = 1;
-    sceSifAddCmdHandler(0x80000008, (int)_request_end, (int)&D_0072C1C0);
-    sceSifAddCmdHandler(0x80000009, (int)_request_bind, (int)&D_0072C1C0);
-    sceSifAddCmdHandler(0x8000000A, (int)_request_call, (int)&D_0072C1C0);
-    sceSifAddCmdHandler(0x8000000C, (int)_request_rdata, (int)&D_0072C1C0);
+    pkt = (char *)rpc_pkt_table;
+    rpc_data.pkt_table = (void *)((unsigned int)pkt | 0x20000000);
+    rpc_data.pkt_table_len = 32;
+    rpc_data.unused1 = 0;
+    rpc_data.unused2 = 0;
+    rpc_data.rdata_table = (unsigned char *)((unsigned int)rpc_rdata_table | 0x20000000);
+    rpc_data.rdata_table_len = 32;
+    rpc_data.client_table = (unsigned char *)((unsigned int)rpc_client_table | 0x20000000);
+    rpc_data.client_table_len = 32;
+    rpc_data.rdata_table_idx = 0;
+    rpc_data.pid = 1;
+    sceSifAddCmdHandler(0x80000008, (int)_request_end, (int)&rpc_data);
+    sceSifAddCmdHandler(0x80000009, (int)_request_bind, (int)&rpc_data);
+    sceSifAddCmdHandler(0x8000000A, (int)_request_call, (int)&rpc_data);
+    sceSifAddCmdHandler(0x8000000C, (int)_request_rdata, (int)&rpc_data);
     EIntr();
     if (sceSifGetReg(0x80000002) != 0) {
         return;
@@ -543,12 +563,10 @@ void sceSifInitRpc(int mode)
     sceSifSetReg(0x80000002, 1);
 }
 
-extern int D_0054A3E8[];
-
 void sceSifExitRpc(void)
 {
     sceSifExitCmd();
-    D_0054A3E8[0] = 0;
+    rpc_inited = 0;
 }
 
 extern int DIntr();
@@ -677,7 +695,7 @@ int sceSifGetOtherData(void *cd, void *src, void *dest, int size, int mode)
     int buf[8];
     int pid;
 
-    pkt = _sceRpcGetPacket((int *)&D_0072C1C0);
+    pkt = _sceRpcGetPacket((int *)&rpc_data);
     if (pkt == 0) {
         return -1;
     }
@@ -769,7 +787,7 @@ int sceSifBindRpc(void *cd, unsigned int sid, int mode)
 
     c[4] = 0;
     c[9] = 0;
-    pkt = _sceRpcGetPacket((int *)&D_0072C1C0);
+    pkt = _sceRpcGetPacket((int *)&rpc_data);
     if (pkt == 0) {
         return -1;
     }
@@ -853,7 +871,7 @@ int sceSifCallRpc(void *cd, unsigned int rpc_number, unsigned int mode, void *se
     int buf[8];
     int pid;
 
-    pkt = _sceRpcGetPacket((int *)&D_0072C1C0);
+    pkt = _sceRpcGetPacket((int *)&rpc_data);
     if (pkt == 0) {
         return -1;
     }
@@ -930,7 +948,7 @@ ret1:
 /* Unprototyped in the K&R sense, so DIntr returns int: sceSifGetNextRequest
    passes its record and the queue routines call it bare.  The implicit int
    return is load bearing, not cosmetic: the call sets $2, which keeps the
-   %hi address pseudo of D_0072C1C0 out of $2 in local-alloc and lets it tie
+   %hi address pseudo of rpc_data out of $2 in local-alloc and lets it tie
    with the lo_sum in $3, which is the ROM's `lui $3 / addiu $3,$3` pair. */
 extern int DIntr();
 /* EIntr is unprototyped for the same reason DIntr is, and it is load bearing
@@ -952,10 +970,10 @@ void sceSifSetRpcQueue(int *qd, int key)
     qd[0xC / 4] = 0;
     qd[0x10 / 4] = 0;
     qd[0x14 / 4] = 0;
-    if (D_0072C1C0.active_queue == 0) {
-        D_0072C1C0.active_queue = qd;
+    if (rpc_data.active_queue == 0) {
+        rpc_data.active_queue = qd;
     } else {
-        for (q = D_0072C1C0.active_queue; q[0x14 / 4] != 0; q = (int *)q[0x14 / 4]) {
+        for (q = rpc_data.active_queue; q[0x14 / 4] != 0; q = (int *)q[0x14 / 4]) {
             ;
         }
         q[0x14 / 4] = (int)qd;
@@ -1017,9 +1035,9 @@ int *sceSifRemoveRpcQueue(int *qd)
 {
     int *q;
     DIntr();
-    q = D_0072C1C0.active_queue;
+    q = rpc_data.active_queue;
     if (q == qd) {
-        D_0072C1C0.active_queue = (int *)qd[0x14 / 4];
+        rpc_data.active_queue = (int *)qd[0x14 / 4];
     } else {
         while (q != 0) {
             if ((int *)q[0x14 / 4] == qd) {
@@ -1132,10 +1150,9 @@ void sceSifExecRequest(int *sd)
     }
     DIntr();
     if (sd[0x34 / 4] & 4) {
-        pkt =
-            (int *)_sceRpcGetFPacket2((int *)&D_0072C1C0, (int)((unsigned int)sd[0x34 / 4] >> 16));
+        pkt = (int *)_sceRpcGetFPacket2((int *)&rpc_data, (int)((unsigned int)sd[0x34 / 4] >> 16));
     } else {
-        pkt = (int *)_sceRpcGetFPacket((int *)&D_0072C1C0);
+        pkt = (int *)_sceRpcGetFPacket((int *)&rpc_data);
     }
     EIntr();
     pkt[0x20 / 4] = 0x8000000A;
@@ -1186,19 +1203,44 @@ void sceSifRpcLoop(int *self)
 }
 
 extern int CreateSema(int *self);
-extern int D_0054A478;
-extern int D_0054A47C[];
+/* filestub.o's .data, in the ROM's order.  _sceFs_q is MAIN.MAP's name: the
+   async request slot table _sceFs_Rcv_Intr matches a reply against, read and
+   written under q_sema; an entry of -1 is free.  The table is written by the
+   SIF receive interrupt, so every access to it is volatile (C volatile ruling
+   2026-09-07).  Then whether sceFsInit has bound the server, the FS call
+   semaphore, the iob table's semaphore, the slot table's guard semaphore
+   (each -1 until created), and the stamp _fs_version accepts besides the
+   library's own.  The stamp's four dots stay in the .rodata blob under their
+   splat label: the ROM has them after _sceFs_Rcv_Intr's jump table, which the
+   build moves to a section of its own, so a literal here would land before
+   the table. */
+extern char D_00636708[];
+
+volatile int _sceFs_q[32] = {
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+};
+
+static int fs_inited = 0;
+
+static int fs_sema = -1;
+
+static int iob_sema = -1;
+
+static int q_sema = -1;
+
+static char *fs_stamp = D_00636708;
 
 void _sceFsIobSemaMK(void)
 {
     extern int CreateSema(int *a0);
     int args[8];
-    if (D_0054A478 == -1) {
+    if (iob_sema == -1) {
         args[5] = 0;
         args[2] = 1;
         args[1] = 1;
-        D_0054A478 = CreateSema(args);
-        D_0054A47C[0] = CreateSema(args);
+        iob_sema = CreateSema(args);
+        q_sema = CreateSema(args);
     }
 }
 
@@ -1211,18 +1253,18 @@ int new_iob(void)
     char *p;
     char *end;
     _sceFsIobSemaMK();
-    WaitSema(D_0054A478);
+    WaitSema(iob_sema);
     p = D_0072D300;
     end = p + 0x200;
     while (p < end) {
         if (*(int *)(p + 4) == 0) {
             *(int *)(p + 4) = 0x10000000;
-            SignalSema(D_0054A478);
+            SignalSema(iob_sema);
             return (int)p;
         }
         p += 0x10;
     }
-    SignalSema(D_0054A478);
+    SignalSema(iob_sema);
     return 0;
 }
 
@@ -1230,15 +1272,15 @@ void *get_iob(unsigned int i)
 {
     char *p;
     _sceFsIobSemaMK();
-    WaitSema(D_0054A478);
+    WaitSema(iob_sema);
     if (i < 0x20) {
         goto ok;
     }
-    SignalSema(D_0054A478);
+    SignalSema(iob_sema);
     return 0;
 ok:
     p = &D_0072D300[i * 16];
-    SignalSema(D_0054A478);
+    SignalSema(iob_sema);
     return p;
 }
 
@@ -1250,11 +1292,6 @@ typedef struct {
 } SceFsVersion;
 
 extern char D_0072CEC0[];
-/* the async request slot table _sceFs_Rcv_Intr matches a reply against, read
-   and written here under the D_0054A47C guard semaphore; an entry of -1 is
-   free.  The table is written by the SIF receive interrupt, so every access
-   to it is volatile (C volatile ruling 2026-09-07). */
-extern volatile int D_0054A3F0[];
 
 /* the FS reply packet the IOP leaves in D_0072CEC0; the handler reads it
    through the uncached accelerated window, so every record copy below is a
@@ -1346,8 +1383,8 @@ void _sceFs_Rcv_Intr(void)
     if (id < 0) {
         id = -id;
         for (i = 0; i < 32; i++) {
-            if (D_0054A3F0[i] == id) {
-                D_0054A3F0[i] = -1;
+            if (_sceFs_q[i] == id) {
+                _sceFs_q[i] = -1;
                 break;
             }
         }
@@ -1356,29 +1393,27 @@ void _sceFs_Rcv_Intr(void)
     }
 }
 
-extern int D_0054A474[];
-
 void _sceFsSemInit(void)
 {
     int self[8];
-    if (D_0054A474[0] == -1) {
+    if (fs_sema == -1) {
         self[0x8 / 4] = 1;
         self[0x4 / 4] = 1;
         self[0x14 / 4] = 0;
-        D_0054A474[0] = CreateSema(self);
+        fs_sema = CreateSema(self);
     }
 }
 
 int _sceFsWaitS(int arg)
 {
     _sceFsSemInit();
-    WaitSema(D_0054A474[0]);
+    WaitSema(fs_sema);
     return 0;
 }
 
 void _sceFsSigSema(void)
 {
-    SignalSema(D_0054A474[0]);
+    SignalSema(fs_sema);
 }
 
 extern char D_0072D300[];
@@ -1386,7 +1421,6 @@ extern int D_0072D500[];
 extern char D_0072D528[];
 extern char D_0072D530[];
 extern int D_0072CE80[];
-extern int D_0054A470[];
 extern void _sceFsIobSemaMK(void);
 extern int SignalSema(int a0);
 extern int sceSifAddCmdHandler(int a0, int a1, int a2);
@@ -1415,25 +1449,24 @@ int sceFsInit(void)
         }
     }
     _sceFsIobSemaMK();
-    WaitSema(D_0054A478);
+    WaitSema(iob_sema);
     p = D_0072D300;
     end = D_0072D300 + 0x200;
     while (p < end) {
         ((int *)p)[1] = 0;
         p += 0x10;
     }
-    SignalSema(D_0054A478);
+    SignalSema(iob_sema);
     buf[0] = (int)D_0072CEC0;
     if (sceSifCallRpc(D_0072D500, 0xFF, 0, buf, 4, D_0072CE80, 4, 0, 0) < 0) {
         return 0xFFFEFFFF;
     }
     *(SceFsVersion *)D_0072D528 = *(SceFsVersion *)((int)D_0072CE80 | 0x20000000);
-    D_0054A470[0] = 1;
+    fs_inited = 1;
     return 0;
 }
 
 extern char D_0028ED0C[];
-extern int D_0054A480[];
 extern char D_0072D528[];
 extern int memcmp();
 
@@ -1446,21 +1479,20 @@ int _fs_version(void)
     v0 = memcmp(s1, s3, 4);
     if (v0 == 0)
         goto done;
-    v0 = memcmp(s1, (char *)D_0054A480[0], 4);
+    v0 = memcmp(s1, fs_stamp, 4);
     if (v0 == 0)
         goto done;
-    v0 = memcmp(s3, (char *)D_0054A480[0], 4);
+    v0 = memcmp(s3, fs_stamp, 4);
     s2 = (unsigned)0 < (unsigned)v0;
 done:
     return s2;
 }
 
-extern int D_0054A470[];
 extern char D_0072D528[];
 
 int sceFsReset(void)
 {
-    D_0054A470[0] = 0;
+    fs_inited = 0;
     memset(D_0072D528, 0, 4);
     return 0;
 }
@@ -1505,7 +1537,7 @@ int sceOpen(unsigned char *name, int flags, ...)
     int buf[8];
 
     _sceFsWaitS(0);
-    if (D_0054A470[0] == 0)
+    if (fs_inited == 0)
         sceFsInit();
     if (_fs_version() != 0) {
         _sceFsSigSema();
@@ -1551,16 +1583,16 @@ int sceOpen(unsigned char *name, int flags, ...)
     WaitSema(h);
     DeleteSema(h);
     if (result < 0) {
-        WaitSema(D_0054A478);
+        WaitSema(iob_sema);
         iob->inuse = 0;
-        SignalSema(D_0054A478);
+        SignalSema(iob_sema);
         return result;
     }
     rc = idx;
-    WaitSema(D_0054A478);
+    WaitSema(iob_sema);
     iob->fd = result;
     iob->inuse |= flags;
-    SignalSema(D_0054A478);
+    SignalSema(iob_sema);
     return rc;
 }
 
@@ -1577,7 +1609,7 @@ int sceClose(unsigned int fd)
 
     iob = (SceIob *)get_iob(fd);
     _sceFsWaitS(1);
-    if (D_0054A470[0] == 0) {
+    if (fs_inited == 0) {
         _sceFsSigSema();
         return -1;
     }
@@ -1644,7 +1676,7 @@ int sceLseek(unsigned int fd, int offset, int whence)
 
     iob = (SceIob *)get_iob(fd);
     _sceFsWaitS(4);
-    if (D_0054A470[0] == 0) {
+    if (fs_inited == 0) {
         _sceFsSigSema();
         return -1;
     }
@@ -1663,15 +1695,15 @@ int sceLseek(unsigned int fd, int offset, int whence)
     *(void **)(g + 1) = &result;
     g[2] = 4;
     if (inuse & 0x8000) {
-        WaitSema(D_0054A47C[0]);
+        WaitSema(q_sema);
         for (i = 0; i < 0x20; i++) {
-            if (D_0054A3F0[i] == -1) {
-                D_0054A3F0[i] = g[0];
+            if (_sceFs_q[i] == -1) {
+                _sceFs_q[i] = g[0];
                 g[0] = -g[0];
                 break;
             }
         }
-        SignalSema(D_0054A47C[0]);
+        SignalSema(q_sema);
     }
     rc = sceSifCallRpc(D_0072D500, 4, 0, D_0072C240, 0x1C, D_0072CE80, 4, 0, 0);
     if (rc < 0) {
@@ -1708,7 +1740,7 @@ int sceRead(int fd, void *buf, int nbyte)
 
     iob = (SceIob *)get_iob(fd);
     _sceFsWaitS(2);
-    if (D_0054A470[0] == 0) {
+    if (fs_inited == 0) {
         _sceFsSigSema();
         return -1;
     }
@@ -1727,15 +1759,15 @@ int sceRead(int fd, void *buf, int nbyte)
     *(void **)(g + 1) = &result;
     g[2] = 4;
     if (inuse & 0x8000) {
-        WaitSema(D_0054A47C[0]);
+        WaitSema(q_sema);
         for (i = 0; i < 0x20; i++) {
-            if (D_0054A3F0[i] == -1) {
-                D_0054A3F0[i] = g[0];
+            if (_sceFs_q[i] == -1) {
+                _sceFs_q[i] = g[0];
                 g[0] = -g[0];
                 break;
             }
         }
-        SignalSema(D_0054A47C[0]);
+        SignalSema(q_sema);
     }
     if ((inuse & 0x20000000) == 0) {
         sceSifWriteBackDCache(buf, nbyte);
@@ -1783,7 +1815,7 @@ int sceWrite(int fd, void *buf, int nbyte)
 
     iob = (SceIob *)get_iob(fd);
     _sceFsWaitS(3);
-    if (D_0054A470[0] == 0) {
+    if (fs_inited == 0) {
         _sceFsSigSema();
         return -1;
     }
@@ -1802,15 +1834,15 @@ int sceWrite(int fd, void *buf, int nbyte)
     *(void **)(g + 1) = &result;
     g[2] = 4;
     if (inuse & 0x8000) {
-        WaitSema(D_0054A47C[0]);
+        WaitSema(q_sema);
         for (i = 0; i < 0x20; i++) {
-            if (D_0054A3F0[i] == -1) {
-                D_0054A3F0[i] = g[0];
+            if (_sceFs_q[i] == -1) {
+                _sceFs_q[i] = g[0];
                 g[0] = -g[0];
                 break;
             }
         }
-        SignalSema(D_0054A47C[0]);
+        SignalSema(q_sema);
     }
     if (((unsigned int)buf & 0xF) == 0) {
         nb = 0;
@@ -1897,7 +1929,7 @@ int sceIoctl(unsigned int fd, int request, void *argp)
     iob = (SceIob *)get_iob(fd);
     _sceFsWaitS(5);
     D_0072C200 = argp;
-    if (D_0054A470[0] == 0) {
+    if (fs_inited == 0) {
         sceFsInit();
     }
     if (iob == 0 || iob->inuse == 0) {
@@ -1908,9 +1940,9 @@ int sceIoctl(unsigned int fd, int request, void *argp)
     g[0x106] = 0;
     switch (request) {
     case 1:
-        WaitSema(D_0054A47C[0]);
+        WaitSema(q_sema);
         for (i = 0; i < 0x20; i++) {
-            if (D_0054A3F0[i] != -1) {
+            if (_sceFs_q[i] != -1) {
                 break;
             }
         }
@@ -1919,7 +1951,7 @@ int sceIoctl(unsigned int fd, int request, void *argp)
         } else {
             *(int *)D_0072C200 = 1;
         }
-        SignalSema(D_0054A47C[0]);
+        SignalSema(q_sema);
         _sceFsSigSema();
         return 0;
     case 2:
@@ -1977,7 +2009,7 @@ int sceIoctl2(unsigned int fd, int request, void *argp, unsigned int arglen, voi
 
     iob = (SceIob *)get_iob(fd);
     _sceFsWaitS(0x1A);
-    if (D_0054A470[0] == 0) {
+    if (fs_inited == 0) {
         sceFsInit();
     }
     if (iob == 0 || iob->inuse == 0) {
@@ -2033,7 +2065,7 @@ int _sceCallCode(void *name, int code)
     int buf[8];
 
     _sceFsWaitS(code);
-    if (D_0054A470[0] == 0) {
+    if (fs_inited == 0) {
         sceFsInit();
     }
     for (i = 0; i < 0x400; i++) {
@@ -2087,7 +2119,7 @@ int sceMkdir(char *name, int mode)
     int buf[8];
 
     _sceFsWaitS(7);
-    if (D_0054A470[0] == 0) {
+    if (fs_inited == 0) {
         sceFsInit();
     }
     for (i = 0; i < 0x400; i++) {
@@ -2140,7 +2172,7 @@ int sceFormat(unsigned char *dev, unsigned char *blockdev, unsigned char *arg, i
     int buf[8];
 
     _sceFsWaitS(0xE);
-    if (D_0054A470[0] == 0) {
+    if (fs_inited == 0) {
         sceFsInit();
     }
     for (i = 0; i < 0x400; i++) {
@@ -2218,7 +2250,7 @@ int sceAddDrv(void *a0)
     int buf[8];
 
     _sceFsWaitS(0xF);
-    if (D_0054A470[0] == 0) {
+    if (fs_inited == 0) {
         sceFsInit();
     }
     g[3] = (int)a0;
@@ -2261,15 +2293,15 @@ int sceDopen(void *name)
     }
     rc = _sceCallCode(name, 9);
     if (rc < 0) {
-        WaitSema(D_0054A478);
+        WaitSema(iob_sema);
         iob->inuse = 0;
-        SignalSema(D_0054A478);
+        SignalSema(iob_sema);
         return rc;
     }
-    WaitSema(D_0054A478);
+    WaitSema(iob_sema);
     iob->fd = rc;
     rc = iob - (SceIob *)D_0072D300;
-    SignalSema(D_0054A478);
+    SignalSema(iob_sema);
     return rc;
 }
 
@@ -2295,7 +2327,7 @@ int sceDclose(unsigned int a0)
 
     obj = get_iob(a0);
     _sceFsWaitS(0xA);
-    if (D_0054A470[0] == 0) {
+    if (fs_inited == 0) {
         _sceFsSigSema();
         return -1;
     }
@@ -2346,7 +2378,7 @@ int sceDread(unsigned int a0, int a1)
 
     obj = get_iob(a0);
     _sceFsWaitS(0xB);
-    if (D_0054A470[0] == 0) {
+    if (fs_inited == 0) {
         _sceFsSigSema();
         return -1;
     }
@@ -2391,7 +2423,7 @@ int sceGetstat(unsigned char *name, void *stat)
     int buf[8];
 
     _sceFsWaitS(0xC);
-    if (D_0054A470[0] == 0) {
+    if (fs_inited == 0) {
         sceFsInit();
     }
     for (i = 0; i < 0x400; i++) {
@@ -2446,7 +2478,7 @@ int sceChstat(unsigned char *name, void *stat, int mask)
     int buf[8];
 
     _sceFsWaitS(0xD);
-    if (D_0054A470[0] == 0) {
+    if (fs_inited == 0) {
         sceFsInit();
     }
     for (i = 0; i < 0x400; i++) {
@@ -2496,7 +2528,7 @@ int sceRename(unsigned char *oldname, unsigned char *newname)
     int buf[8];
 
     _sceFsWaitS(0x11);
-    if (D_0054A470[0] == 0) {
+    if (fs_inited == 0) {
         sceFsInit();
     }
     for (i = 0; i < 0x400; i++) {
@@ -2558,7 +2590,7 @@ int sceSync(unsigned char *name, int flag)
     int buf[8];
 
     _sceFsWaitS(0x13);
-    if (D_0054A470[0] == 0) {
+    if (fs_inited == 0) {
         sceFsInit();
     }
     for (i = 0; i < 0x400; i++) {
@@ -2606,7 +2638,7 @@ int sceMount(unsigned char *fsname, unsigned char *devname, int flag, unsigned c
     int buf[8];
 
     _sceFsWaitS(0x14);
-    if (D_0054A470[0] == 0) {
+    if (fs_inited == 0) {
         sceFsInit();
     }
     for (i = 0; i < 0x400; i++) {
@@ -2681,7 +2713,7 @@ long long sceLseek64(int fd, long long offset, int whence)
 
     iob = (SceIob *)get_iob(fd);
     _sceFsWaitS(0x16);
-    if (D_0054A470[0] == 0) {
+    if (fs_inited == 0) {
         _sceFsSigSema();
         return -1;
     }
@@ -2701,15 +2733,15 @@ long long sceLseek64(int fd, long long offset, int whence)
     g[2] = 8;
     D_0072C240[0] = h;
     if (f4 & 0x8000) {
-        WaitSema(D_0054A47C[0]);
+        WaitSema(q_sema);
         for (i = 0; i < 0x20; i++) {
-            if (D_0054A3F0[i] == -1) {
-                D_0054A3F0[i] = g[0];
+            if (_sceFs_q[i] == -1) {
+                _sceFs_q[i] = g[0];
                 g[0] = -g[0];
                 break;
             }
         }
-        SignalSema(D_0054A47C[0]);
+        SignalSema(q_sema);
     }
     rc = sceSifCallRpc(D_0072D500, 0x16, 0, D_0072C240, 0x20, D_0072CE80, 4, 0, 0);
     if (rc < 0) {
@@ -2744,7 +2776,7 @@ int sceDevctl(unsigned char *name, int cmd, unsigned char *arg, unsigned int arg
     int buf[8];
 
     _sceFsWaitS(0x17);
-    if (D_0054A470[0] == 0) {
+    if (fs_inited == 0) {
         sceFsInit();
     }
     for (i = 0; i < 0x400; i++) {
@@ -2803,7 +2835,7 @@ int sceSymlink(unsigned char *existing, unsigned char *newpath)
     int buf[8];
 
     _sceFsWaitS(0x11);
-    if (D_0054A470[0] == 0) {
+    if (fs_inited == 0) {
         sceFsInit();
     }
     for (i = 0; i < 0x400; i++) {
@@ -2859,7 +2891,7 @@ int sceReadlink(unsigned char *name, void *buf, unsigned int len)
     int sema[8];
 
     _sceFsWaitS(0x11);
-    if (D_0054A470[0] == 0) {
+    if (fs_inited == 0) {
         sceFsInit();
     }
     for (i = 0; i < 0x400; i++) {
@@ -2900,7 +2932,9 @@ int sceReadlink(unsigned char *name, void *buf, unsigned int len)
     return result;
 }
 
-extern int D_0054A484[];
+/* iopheap.o's .data: -1 until sceSifInitIopHeap has bound the server */
+static int iopheap_bind = -1;
+
 extern int D_0072D580[];
 extern char D_FFFFF[];
 
@@ -2915,7 +2949,7 @@ int sceSifInitIopHeap(void)
             return -1;
         val = D_0072D580[0x24 / 4];
         if (val != 0) {
-            D_0054A484[0] = 0;
+            iopheap_bind = 0;
             break;
         }
         /* IOP-side retry back-off: spin 0x100000 times, no memory touched. */
@@ -2932,7 +2966,7 @@ extern int D_0072D600[];
 
 int sceSifAllocIopHeap(int a0)
 {
-    int ret = D_0054A484[0];
+    int ret = iopheap_bind;
     if (ret < 0)
         return 0;
     D_0072D600[0] = a0;
@@ -2946,7 +2980,7 @@ extern int D_0072D640[];
 
 int sceSifFreeIopHeap(int a0)
 {
-    int v2 = D_0054A484[0];
+    int v2 = iopheap_bind;
     if (v2 < 0)
         return 0;
     D_0072D640[0] = a0;
@@ -2977,7 +3011,7 @@ int sceSifLoadIopHeap(char *name, void *addr)
 {
     int i;
 
-    if (D_0054A484[0] < 0) {
+    if (iopheap_bind < 0) {
         return 0;
     }
     /* the terminator test reads the byte back out of the DESTINATION, which is
@@ -3002,7 +3036,16 @@ int sceSifLoadIopHeap(char *name, void *addr)
     return -1;
 }
 
-extern int D_0054A488[];
+/* eeloadfile.o's .data: -1 until _lf_bind has bound the loadfile server, then
+   the stamp _lf_version accepts besides the library's own.  Its four dots
+   stay in the .rodata blob under their splat label for the reason filestub's
+   do: the ROM has them after _sceFs_Rcv_Intr's jump table. */
+extern char D_00636710[];
+
+static int lf_bind_state = -1;
+
+static char *lf_stamp = D_00636710;
+
 extern char D_0072D780[];
 extern char D_0072D980[];
 extern char D_0072D9A8[];
@@ -3012,7 +3055,7 @@ int _lf_bind(void)
     int i;
     int r;
     int val;
-    if (D_0054A488[0] >= 0)
+    if (lf_bind_state >= 0)
         goto ret0;
 loop:
     r = sceSifBindRpc(D_0072D980, 0x80000006, 0);
@@ -3021,7 +3064,7 @@ loop:
     val = *(int *)(D_0072D980 + 0x24);
     if (val == 0)
         goto delay;
-    D_0054A488[0] = 0;
+    lf_bind_state = 0;
     r = sceSifCallRpc(D_0072D980, 0xFF, 0, 0, 0, D_0072D780, 4, 0, 0);
     if (r < 0)
         return 0xFFFEFFFF;
@@ -3038,20 +3081,18 @@ ret0:
     return 0;
 }
 
-extern int D_0054A48C[];
-
 int _lf_version(void)
 {
     void *s3 = D_0028ED0C;
     void *s1 = D_0072D9A8;
     int s2 = 0;
-    int v;
+    char *v;
     if (memcmp(s1, (int)s3, 4) == 0)
         goto done;
-    v = D_0054A48C[0];
+    v = lf_stamp;
     if (memcmp(s1, v, 4) == 0)
         goto done;
-    v = D_0054A48C[0];
+    v = lf_stamp;
     s2 = (0 < (unsigned int)memcmp(s3, v, 4));
 done:
     return s2;
@@ -3059,7 +3100,7 @@ done:
 
 int sceSifLoadFileReset(void)
 {
-    D_0054A488[0] = -1;
+    lf_bind_state = -1;
     memset(D_0072D9A8, 0, 4);
     return 0;
 }
@@ -3656,13 +3697,32 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 
-extern int D_0054A490[];
+/* tlbfunc.o's .data, in the ROM's order: the two handler globals MAIN.MAP
+   names (the TLB exception entry calls _kTLBRefillHandler, the debug
+   exception entry calls _kDebugHandler by cause code), then the six kernel
+   calls InitTLBFunctions installs, each a syscall number and its handler. */
+extern void _kExitTLBHandler(void);
+extern void kPutTLBEntry(void);
+extern void kSetTLBEntry(void);
+extern void kGetTLBEntry(void);
+extern void kProbeTLBEntry(void);
+extern void kExpandScratchPad(void);
+
+int _kTLBRefillHandler = 0;
+
+int _kDebugHandler[16] = {0};
+
+static int tlb_syscalls[12] = {
+    84, (int)_kExitTLBHandler, 85, (int)kPutTLBEntry,   86, (int)kSetTLBEntry,
+    87, (int)kGetTLBEntry,     88, (int)kProbeTLBEntry, 89, (int)kExpandScratchPad,
+};
+
 extern void SetVTLBRefillHandler();
 extern void _kTLBException(void);
 
 void *SetTLBHandler(void *a0)
 {
-    D_0054A490[0] = (int)a0;
+    _kTLBRefillHandler = (int)a0;
     SetVTLBRefillHandler(1, _kTLBException);
     SetVTLBRefillHandler(2, _kTLBException);
     SetVTLBRefillHandler(3, _kTLBException);
@@ -3670,7 +3730,6 @@ void *SetTLBHandler(void *a0)
 }
 
 extern char _kDebugException[];
-extern int D_0054A498[];
 extern void SetVCommonHandler();
 
 int SetDebugHandler(int a0, int a1)
@@ -3681,8 +3740,8 @@ int SetDebugHandler(int a0, int a1)
     if ((unsigned)(a0 - 1) >= 13) {
         return (int)err;
     }
-    old = D_0054A498[orig];
-    D_0054A498[orig] = a1;
+    old = _kDebugHandler[orig];
+    _kDebugHandler[orig] = a1;
     if ((unsigned)(a0 - 1) < 3) {
         SetVTLBRefillHandler(orig, (void *)_kDebugException);
     } else {
@@ -3706,12 +3765,11 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 
-extern int D_0054A4D8[];
 static void setup(int x, int y);
 
 void InitTLBFunctions(void)
 {
-    int *p = D_0054A4D8;
+    int *p = tlb_syscalls;
     unsigned int i = 0;
     do {
         i++;
@@ -3923,8 +3981,8 @@ __asm__(".section .text\n"
         "    .set noreorder\n"
         "    .align 3\n"
         "glabel _xlaunch\n"
-        "    lui        $1, %hi(D_0054A490)\n"
-        "    lw         $1, %lo(D_0054A490)($1)\n"
+        "    lui        $1, %hi(_kTLBRefillHandler)\n"
+        "    lw         $1, %lo(_kTLBRefillHandler)($1)\n"
         "    lui        $29, %hi(D_0072EA40)\n"
         "    jalr       $1\n"
         "    addiu     $29, $29, %lo(D_0072EA40)\n"
@@ -4094,9 +4152,9 @@ __asm__(".section .text\n"
         ".align 2\n"
         "alabel D_0026537C\n"
         "    andi       $2, $5, 0x7C\n"
-        "    lui        $1, %hi(D_0054A498)\n"
+        "    lui        $1, %hi(_kDebugHandler)\n"
         "    addu       $1, $1, $2\n"
-        "    lw         $1, %lo(D_0054A498)($1)\n"
+        "    lw         $1, %lo(_kDebugHandler)($1)\n"
         "    lui        $29, %hi(D_0072EA40)\n"
         "    jalr       $1\n"
         "    addiu     $29, $29, %lo(D_0072EA40)\n"
@@ -4158,7 +4216,9 @@ void *sceSifGetDataTable(void)
     return &D_0072ED58;
 }
 
-extern int D_0054A508[];
+/* sifcmd.o's .data: set once sceSifInitCmd has run, cleared by sceSifExitCmd */
+static int cmd_inited = 0;
+
 extern int D_0072EC80[];
 extern int D_0072ED00[];
 extern int D_0072ED40[];
@@ -4176,11 +4236,11 @@ void sceSifInitCmd(void)
     int i;
 
     DIntr();
-    if (D_0054A508[0] != 0) {
+    if (cmd_inited != 0) {
         EIntr();
         return;
     }
-    D_0054A508[0] = 1;
+    cmd_inited = 1;
     D_0072ED58.sendbuf = (int)D_0072EC80 | 0x20000000;
     D_0072ED58.ackbuf = (int)D_0072ED00 | 0x20000000;
     D_0072ED58.iopbuf = 0;
@@ -4232,7 +4292,6 @@ void sceSifInitCmd(void)
     sceSifSendCmd(0x80000002, (int)D_0072ED40, 0x14, 0, 0, 0);
 }
 
-extern int D_0054A508[];
 extern int D_0072ED54[];
 extern int DisableDmac(int a0);
 extern int RemoveDmacHandler(int a0, int a1);
@@ -4241,7 +4300,7 @@ void sceSifExitCmd(void)
 {
     DisableDmac(5);
     RemoveDmacHandler(5, D_0072ED54[0]);
-    D_0054A508[0] = 0;
+    cmd_inited = 0;
 }
 
 SifCmdEntry *sceSifSetCmdBuffer(SifCmdEntry *tbl, int n)

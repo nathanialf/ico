@@ -667,6 +667,8 @@ segments:
       - [0x44A2F0, .data, sce/libvu0/libvu0]  # the member's .data (data pass 3): the sine coefficients and the packet, VMA 0x54A2F0..0x54A320, 48 B
       - [0x44A320, .data, sce/libdma/libdma]  # the member's whole .data (chain 1 pass 107): dch, sceDmaDebugMode and sceDmaCurrentEnv named from MAIN.MAP, the build stamp "PsIIlibdma  2200" and the four channel code tables as statics, VMA 0x54A320..0x54A3CC, 172 B
       - [0x44A3CC, data, cod/44A3CC]     # data blob resume
+      - [0x44A3E0, .data, sce/libkernl/libkernl_25EF18]  # the member's .data (chain 1 pass 112): _sceFs_q, _kTLBRefillHandler and _kDebugHandler under their MAIN.MAP names, the tty, rpc, fs and loadfile state words and the TLB syscall table as statics, VMA 0x54A3E0..0x54A50C, 0x12C B
+      - [0x44A50C, data, cod/44A50C]     # data blob resume
       - [0x44A540, .data, sce/libcdvd/cdvd000]  # the member's whole .data (= MAIN.MAP cdvd000.o .data 0x1A70, chain 3 pass 109): the 15 MAIN.MAP-named globals (SCE_CD_debug, the semaphore ids, the callback words, the 64-aligned RPC buffers, the client records) and the role-named statics (build stamp "PsIIlibcdvd 2240", keep_cmd words, bind words at -1, init count), VMA 0x54A540..0x54BFB0; cdvd047's carve follows directly
       - [0x44BFB0, .data, sce/libcdvd/cdvd047]  # the member's .data (chain 1 pass 107): the stream-started flag as a static int, VMA 0x54BFB0, 4 B
       - [0x44BFB4, data, cod/44BFB4]     # data blob resume
@@ -1380,7 +1382,8 @@ segments:
       - { type: .bss, vram: 0x00729E30, name: ico2/omori/src/access }  # the TU's own .bss, 0x210 B, VMA 0x729E30..0x72A040; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x0072A040, name: ico2/ito/mpeg/mv_disp }  # the TU's own .bss, 0x280 B, VMA 0x72A040..0x72A2C0; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x0072A2C0, name: ico2/common/src/GobjProc }  # the TU's own .bss, 0x340 B, VMA 0x72A2C0..0x72A600; static definitions in ROM run order (completeness pass)
-      - { type: bss, vram: 0x0072A600, name: cod/0072A600 }  # .bss blob resume
+      - { type: .bss, vram: 0x0072A600, name: sce/libkernl/libkernl_25EF18 }  # the member's tty and sifrpc .bss (chain 1 pass 112): the tty queue, record and buffers, three 64-aligned 0x800-byte RPC tables and the rpc data, VMA 0x72A600..0x72C1EC, 0x1BEC B; filestub's objects from 0x72C1EC stay in the blob (a 64-byte member boundary)
+      - { type: bss, vram: 0x0072C1EC, name: cod/0072C1EC }  # .bss blob resume
       - { type: .bss, vram: 0x0072EF00, name: sce/libcdvd/cdvd000 }  # the member's whole .bss (= MAIN.MAP cdvd000.o .bss 0x2D4, chain 3 pass 109): 16 role-named statics in address order (callback and power-off state, thread records, the search request and reply buffers, the client records), VMA 0x72EF00..0x72F1D4
       - { type: bss, vram: 0x0072F1D4, name: cod/0072F1D4 }  # .bss blob resume (4 B of fill before cdvd047's record)
       - { type: .bss, vram: 0x0072F1D8, name: sce/libcdvd/cdvd047 }  # the member's .bss (chain 1 pass 107): the stream read mode record as a static, VMA 0x72F1D8, 4 B
