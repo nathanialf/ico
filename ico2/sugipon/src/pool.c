@@ -120,21 +120,16 @@ extern void _ScaleVectorXYZ(void *dst, void *src, float k);
    the compiler inlines into each of them and it has no symbol of its own.  It
    plants one cell of the pool's ripple grid at a world position: the grid
    index and the in-cell remainder on each of the two horizontal axes, then
-   the amplitude the caller asks for and a zero age. */
-static inline void setWaveCell(char *w, float *pos, int idx, float amp)
+   the amplitude the caller asks for and a zero age.  The cell address, the
+   cell step and the two grid counts arrive as parameters: in both callers
+   the listing puts their loads and the cell arithmetic on row 178 with the
+   amplitude, the row integrate.c gives an inline's parameter set-up. */
+static inline void setWaveCell(char *w, float *pos, char *cell, float step, int nx, int ny,
+                               float amp)
 {
-    float step = *(float *)(w + 0x3C);
-    int nx = *(int *)(w + 0x34);
-    int ny = *(int *)(w + 0x38);
-    char *cell = (char *)(idx * 24 + (int)w);
     float d[4];
 
     _SubVector(d, pos, w);
-    /* The step to the record is its own statement: written into the
-       initialiser the record address becomes cell = base + 0x50 with base
-       still live, and cse's find_best_addr then spells the first store as
-       0x50(base) instead of 0x0(cell). */
-    cell += 0x50;
     *(int *)(cell + 0x0) = (int)(d[0] / step) + (nx >> 1);
     *(float *)(cell + 0x4) = d[0] - (float)(int)(d[0] / step) * step;
     *(int *)(cell + 0x8) = (int)(d[2] / step) + (ny >> 1);
@@ -177,7 +172,8 @@ void SetFallDownSplash(char *pool, char *self)
     *(int *)(w + 0x20) = (*(int *)(w + 0x20) + 1) % 2;
 
     if (*(int *)(w + 0x30) != 0) {
-        setWaveCell(w, pos, *(int *)(w + 0xC8), 0.5f);
+        setWaveCell(w, pos, w + 0x50 + *(int *)(w + 0xC8) * 24, *(float *)(w + 0x3C),
+                    *(int *)(w + 0x34), *(int *)(w + 0x38), 0.5f);
         *(int *)(w + 0xC8) = *(int *)(w + 0xC8) + 1;
         if (*(int *)(w + 0xC8) == 5) {
             *(int *)(w + 0xC8) = 0;
@@ -192,7 +188,149 @@ void GetPoolGlobalDrainVector(void *dst, char *a0)
     CopyVector(dst, *(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x10);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/pool", InitPoolGeo);
+/* RECONSTRUCTION, read from the ROM.  The 64-byte record CSVSYSTEM_InitDObj
+   takes as its layout: the position at 0x00, the rotation at 0x10, the scale
+   at 0x20 and the object word at 0x30.  The copy out of D_004E45C0 is ld/sd
+   pairs, so the record is 8-aligned; ico2/sugipon/src/attackCheckBoundary.c
+   carries the same record under its own name. */
+typedef struct {
+    float x;           /* 0x00 */
+    float y;           /* 0x04 */
+    float z;           /* 0x08 */
+    float w;           /* 0x0C */
+    long long f_10[6]; /* 0x10, the rest of the record this TU copies out of
+                          the template and does not touch */
+} PoolLayout;
+
+typedef union {
+    int i[4];
+    float f[4];
+} PoolQuad;
+
+typedef struct {
+    PoolQuad pos;   /* 0x00 */
+    PoolQuad rot;   /* 0x10 */
+    PoolQuad scale; /* 0x20 */
+} PoolDisp;
+
+extern PoolLayout D_004E45C0;
+
+/* RECONSTRUCTION, read from the ROM.  The stage's CSV object table, one
+   40-byte record per stage entry: the object id at 0x00 and the three
+   placement angles at 0x0C.  ico2/sugipon/src/puddle.c reaches the same
+   table for the same id. */
+typedef struct {
+    int id;      /* 0x00 */
+    int f_4;     /* 0x04 */
+    int f_8;     /* 0x08 */
+    float f_C;   /* 0x0C */
+    float f_10;  /* 0x10 */
+    float f_14;  /* 0x14 */
+    int f_18[4]; /* 0x18 */
+} StgCsvEnt;
+
+extern StgCsvEnt D_002A79B8[];
+extern char D_0054DA60[];
+extern IosMemPart *D_0063A438;
+/* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
+extern void _UnitMatrix(void *m);
+int poolRideFunc(char **a0, char *a1);
+
+char *InitPoolGeo(char *self, char *lay)
+{
+    char *w = iosMallocDebug(D_0063A438, 224, D_0054DA60, 316);
+    char *rip;
+    int i;
+    int j;
+    int k;
+
+    CopyVector(w, lay);
+    *(float *)(w + 0xC) = 1.0f;
+    CopyVector(w + 0x10, ZeroVector);
+    *(float *)(w + 0x10) = -*(float *)(lay + 0x10) * 180.0f / 3.1415927f;
+    *(float *)(w + 0x18) = -*(float *)(lay + 0x18) * 180.0f / 3.1415927f;
+
+    if (*(int *)(lay + 0x30) != 0) {
+        *(int *)(w + 0x30) = 1;
+        *(int *)(w + 0x34) = (int)*(float *)(lay + 0x20);
+        *(int *)(w + 0x38) = (int)*(float *)(lay + 0x28);
+        *(float *)(w + 0x3C) = *(float *)(lay + 0x24);
+
+        *(char **)(w + 0x4C) = iosMallocDebug(D_0063A438, *(int *)(w + 0x34) * 4, D_0054DA60, 330);
+
+        for (i = 0; i < *(int *)(w + 0x34); i++) {
+            *(char **)(*(char **)(w + 0x4C) + i * 4) =
+                iosMallocDebug(D_0063A438, *(int *)(w + 0x38) * 4, D_0054DA60, 334);
+        }
+
+        *(char **)(w + 0x44) = prim_InitMesh3D(*(int *)(w + 0x38), *(int *)(w + 0x34), 1, 0x1C,
+                                               (*(int *)(lay + 0x30) & 0xFFFFFF00) | 0x80, 1);
+
+        *(char **)(w + 0x40) =
+            prim_InitMesh3D(*(int *)(w + 0x38), *(int *)(w + 0x34), 1, 0x5C, 0x80808080, 1);
+
+        *(short *)(w + 0xCC) = 0;
+        *(char **)(w + 0x48) = iosMallocDebug(D_0063A438, *(int *)(w + 0x34) * 4, D_0054DA60, 357);
+
+        for (j = 0; j < *(int *)(w + 0x34); j++) {
+            (*(float ***)(w + 0x48))[j] =
+                *(float **)(*(char **)(w + 0x40) + 0x6C) + j * *(int *)(w + 0x38) * 4;
+        }
+
+        rip = w + 0x60;
+        for (k = 0; k < 5; k++) {
+            setWaveCell(w, (float *)w, w + 0x50 + k * 24, *(float *)(w + 0x3C), *(int *)(w + 0x34),
+                        *(int *)(w + 0x38), 1.0f);
+            *(float *)(rip + k * 24) = -1.0f;
+        }
+
+        *(int *)(w + 0xC8) = 0;
+
+        if (*(int *)(*(char **)(self + 0x15C) + 0x844) != 26) {
+            PoolLayout obj = D_004E45C0;
+
+            obj.x = -D_002A79B8[*(int *)(*(char **)(self + 0x15C) + 0x844)].f_C;
+            obj.y = -D_002A79B8[*(int *)(*(char **)(self + 0x15C) + 0x844)].f_10;
+            obj.z = -D_002A79B8[*(int *)(*(char **)(self + 0x15C) + 0x844)].f_14;
+            *(char **)(w + 0xD0) = CSVSYSTEM_InitDObj(
+                D_002A79B8[*(int *)(*(char **)(self + 0x15C) + 0x844)].id, (float *)&obj);
+
+            *(int *)(w + 0xD4) = 0;
+        } else {
+            *(char **)(w + 0xD0) = 0;
+
+            *(int *)(w + 0xD4) = 0;
+        }
+    } else {
+        *(int *)(w + 0x30) = 0;
+    }
+
+    {
+        PoolDisp *q = (PoolDisp *)(*(char **)(*(char **)(self + 0x15C) + 0x870));
+        q->pos.i[0] = q->pos.i[1] = q->pos.i[2] = 0;
+    }
+    {
+        PoolDisp *q = (PoolDisp *)(*(char **)(*(char **)(self + 0x15C) + 0x870));
+        q->scale.f[0] = q->scale.f[1] = q->scale.f[2] = 1.0f;
+    }
+    {
+        PoolDisp *q = (PoolDisp *)(*(char **)(*(char **)(self + 0x15C) + 0x870));
+        q->rot.f[0] = q->rot.f[1] = q->rot.f[2] = 0.0f;
+    }
+
+    _UnitMatrix(*(char **)(self + 0x15C) + 0x20);
+    _UnitMatrix(*(char **)(*(char **)(self + 0x15C) + 0xC));
+
+    *(int *)(w + 0x28) = 0;
+    *(char **)(w + 0x2C) = InitMultiBgaManager(10);
+
+    *(int *)(w + 0x20) = 0;
+    *(char **)(w + 0x24) = InitMultiBgaManager(2);
+
+    *(int *)(*(char **)(self + 0x15C) + 0x81C) = (int)poolRideFunc;
+
+    return w;
+}
 
 extern int D_0028F4C0[];
 
@@ -496,8 +634,6 @@ extern int D_0063A07C;
 extern int D_0063A080;
 extern int D_0063B148;
 extern int stage_no;
-/* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
-extern void _UnitMatrix(void *m);
 /* kept local: this TU's uses of _MulMatrix do not fit the prototype in Matrix.h */
 extern void _MulMatrix(void *dst, void *a, void *b);
 /* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
@@ -640,9 +776,6 @@ void PoolDL(char *self)
         p2o_DispVU1(self);
     }
 }
-
-extern char D_0054DA60[];
-extern int D_0063A438;
 
 void InitLimitedPoolReflactionMesh(char *a0)
 {

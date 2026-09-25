@@ -14,6 +14,55 @@
 #include "item.h"
 #include "typedef.h"
 
+/* st00a.o's whole .rodata run: six 16-byte constant vectors in ROM order, each
+   named for the first actor that copies it. The float view carries the values,
+   the long long view is the one the copies read, which is what makes gcc emit
+   the ld/sd pairs the ROM has. */
+
+static const ConstVec door2UpChkPos = {{0.0f, -422.0f, 1630.0f, 0.0f}};
+
+static const ConstVec door2UpEffectPos = {{0.0f, -150.0f, 1640.0f, 1.0f}};
+
+static const ConstVec door2UpEffect2Pos = {{0.0f, -450.0f, 1640.0f, 1.0f}};
+
+static const ConstVec door1UpChkPos = {{-1.0f, -184.0f, -57.0f, 0.0f}};
+
+static const ConstVec door1UpEffectPos = {{-505.0f, -1200.0f, -5671.0f, 1.0f}};
+
+static const ConstVec door1UpEffect2Pos = {{-505.0f, -1447.0f, -5671.0f, 1.0f}};
+
+/* st00a.o's whole .data run: eleven actor mail records in ROM order, each the
+   usual pair, the 430 entry whose handler the sender fills in and the 429
+   terminator, named for the actor that installs it. */
+static ActMail atr2_mes[2] = {{430}, {429}};
+
+static ActMail ene_mes[2] = {{430}, {429}};
+
+static ActMail stair_mes[2] = {{430}, {429}};
+
+static ActMail door2Down_mes[2] = {{430}, {429}};
+
+static ActMail door2Up_mes[2] = {{430}, {429}};
+
+/* The four check records' names are ours and not settled. Each check actor hoists the
+   record's %hi and its handler's %hi out of its trigger loop, and which of the two takes
+   $20 falls to the order of their gcse hash buckets, i.e. to the record's NAME: st05d's
+   spelling door2UpChk_mes (bucket 34 of 43, handler 30) gives actSt00aDoor2UpChk the
+   other register order and door1UpChk_mes (37 of 41, handler 2) does the same to
+   actSt00aDoor1UpChk, while the lower-case chk that st05d and st08b first carried fits
+   all four. The bytes pin the buckets, not the text. */
+static ActMail door2Upchk_mes[2] = {{430}, {429}};
+
+static ActMail door2Downchk_mes[2] = {{430}, {429}};
+
+static ActMail door1Down_mes[2] = {{430}, {429}};
+
+static ActMail door1Up_mes[2] = {{430}, {429}};
+
+static ActMail door1Upchk_mes[2] = {{430}, {429}};
+
+static ActMail door1Downchk_mes[2] = {{430}, {429}};
+
 void actSt00aInit(void)
 {
     if (gflagChk(41) == 0) {
@@ -181,9 +230,6 @@ void actSt00aStairChk(volatile int a0)
 }
 
 extern int D_00639EA4;
-extern ActMail D_004F7F10[];
-extern ActMail D_004F7EB0[];
-extern ActMail D_004F7ED0[];
 void actSt00aDoor2DownChk(int a0);
 void actSt00aDoor2UpChk(int a0);
 
@@ -197,21 +243,19 @@ void actSt00aDoor2(volatile int a0)
         (D_00639EA8 != 0 && scpTriggerBall(a0, (int)D_00639EA8, 400.0f) != 0)) {
         stage_SetAnimation(94, 0, 0);
         _ACTWait(60);
-        D_004F7EB0[0].func = actSt00aDoor2DownChk;
-        self->mail = D_004F7EB0;
+        door2Down_mes[0].func = actSt00aDoor2DownChk;
+        self->mail = door2Down_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(93, 0, 0);
-        D_004F7ED0[0].func = actSt00aDoor2UpChk;
-        self->mail = D_004F7ED0;
+        door2Up_mes[0].func = actSt00aDoor2UpChk;
+        self->mail = door2Up_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
 
-extern long long D_006226A0[];
-extern ActMail D_004F7EF0[];
 /* kept local: this TU's uses of scpTriggerFloorAttrTargetMan do not fit the prototype in script.h */
 extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
 /* kept local: this TU's uses of scpWakeupItemWithBoundary do not fit the prototype in script.h */
@@ -237,8 +281,8 @@ void actSt00aDoor2UpChk(volatile int a0)
 
     _ACTWait(1);
 
-    buf[0] = D_006226A0[0];
-    buf[1] = D_006226A0[1];
+    buf[0] = door2UpChkPos.d[0];
+    buf[1] = door2UpChkPos.d[1];
     soundSeDefPlay(1220, 0, (float *)buf, 1);
     _ACTWait(30);
     h = soundSeDefPlay(1221, 0, (float *)buf, 1);
@@ -251,18 +295,54 @@ void actSt00aDoor2UpChk(volatile int a0)
     }
     _ACTWait(1);
 
-    D_004F7EF0[0].func = actSt00aDoor2DownChk;
-    sub->mail = D_004F7EF0;
+    door2Upchk_mes[0].func = actSt00aDoor2DownChk;
+    sub->mail = door2Upchk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
 void actSt00aDoor2DownEffect(volatile int a0);
 
-INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st00a", actSt00aDoor2DownChk);
+void actSt00aDoor2DownChk(volatile int a0)
+{
+    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    ConstVec pos;
+    int h;
 
-extern ActMail D_004F7F30[];
-extern ActMail D_004F7F50[];
+    while (1) {
+        if (scpTriggerFloorAttrTargetMan(a0, 0x3000000) == 0)
+            break;
+        _ACTWait(1);
+    }
+    _ACTWait(15);
+
+    actCreateSubThread(actSt00aDoor2DownEffect, 21);
+
+    stage_SetAnimation(94, 1, 0);
+
+    scpWakeupItemWithBoundary(-6.0f, -221.0f, 1504.0f, 100.0f);
+
+    _ACTWait(1);
+
+    pos = door2UpChkPos;
+    soundSeDefPlay(1220, 0, pos.f, 1);
+    _ACTWait(30);
+    h = soundSeDefPlay(1221, 0, pos.f, 1);
+    _ACTWait(37);
+    soundSeDefStop(h);
+    soundSeDefPlay(1222, 0, pos.f, 1);
+
+    while (stage_CheckAnimationFinish(94) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    door2Downchk_mes[0].func = actSt00aDoor2UpChk;
+    sub->mail = door2Downchk_mes;
+    ACTSendMailCorrect(a0, 430);
+    _ACTWait(0);
+}
+
 void actSt00aDoor1DownChk(int a0);
 void actSt00aDoor1UpChk(int a0);
 
@@ -276,26 +356,59 @@ void actSt00aDoor1(volatile int a0)
         (D_00639EA8 != 0 && scpTriggerBall(a0, (int)D_00639EA8, 400.0f) != 0)) {
         stage_SetAnimation(92, 0, 0);
         _ACTWait(60);
-        D_004F7F30[0].func = actSt00aDoor1DownChk;
-        self->mail = D_004F7F30;
+        door1Down_mes[0].func = actSt00aDoor1DownChk;
+        self->mail = door1Down_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(91, 0, 0);
-        D_004F7F50[0].func = actSt00aDoor1UpChk;
-        self->mail = D_004F7F50;
+        door1Up_mes[0].func = actSt00aDoor1UpChk;
+        self->mail = door1Up_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
 
-extern long long D_006226D0[];
-extern ActMail D_004F7F70[];
 void actSt00aDoor1UpEffect(volatile int a0);
 
-INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st00a", actSt00aDoor1UpChk);
+void actSt00aDoor1UpChk(volatile int a0)
+{
+    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    ConstVec pos;
+    int h;
 
-extern ActMail D_004F7F90[];
+    while (1) {
+        if (scpTriggerFloorAttrTargetMan(a0, 0x4000000) != 0)
+            break;
+        _ACTWait(1);
+    }
+    _ACTWait(15);
+
+    actCreateSubThread(actSt00aDoor1UpEffect, 21);
+
+    scpWakeupItemWithBoundary(-8.0f, -73.0f, 64.0f, 100.0f);
+
+    stage_SetAnimation(91, 1, 0);
+
+    pos = door1UpChkPos;
+    soundSeDefPlay(1220, 0, pos.f, 1);
+    _ACTWait(30);
+    h = soundSeDefPlay(1221, 0, pos.f, 1);
+    _ACTWait(30);
+    soundSeDefStop(h);
+    soundSeDefPlay(1222, 0, pos.f, 1);
+
+    while (stage_CheckAnimationFinish(91) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    door1Upchk_mes[0].func = actSt00aDoor1DownChk;
+    sub->mail = door1Upchk_mes;
+    ACTSendMailCorrect(a0, 430);
+    _ACTWait(0);
+}
+
 void actSt00aDoor1DownEffect(volatile int a0);
 
 void actSt00aDoor1DownChk(volatile int a0)
@@ -315,8 +428,8 @@ void actSt00aDoor1DownChk(volatile int a0)
 
     stage_SetAnimation(92, 1, 0);
 
-    buf[0] = D_006226D0[0];
-    buf[1] = D_006226D0[1];
+    buf[0] = door1UpChkPos.d[0];
+    buf[1] = door1UpChkPos.d[1];
     soundSeDefPlay(1220, 0, (float *)buf, 1);
     _ACTWait(30);
     h = soundSeDefPlay(1221, 0, (float *)buf, 1);
@@ -329,13 +442,12 @@ void actSt00aDoor1DownChk(volatile int a0)
     }
     _ACTWait(1);
 
-    D_004F7F90[0].func = actSt00aDoor1UpChk;
-    sub->mail = D_004F7F90;
+    door1Downchk_mes[0].func = actSt00aDoor1UpChk;
+    sub->mail = door1Downchk_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
-extern ActMail D_004F7E70[];
 void actSt00aEneChk(int a0);
 
 void actSt00aEne(volatile int a0)
@@ -345,8 +457,8 @@ void actSt00aEne(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(42) == 0) {
-        D_004F7E70[0].func = actSt00aEneChk;
-        self->mail = D_004F7E70;
+        ene_mes[0].func = actSt00aEneChk;
+        self->mail = ene_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -386,7 +498,6 @@ void actSt00aEnemy2(volatile int a0)
     Generator_Call(a0);
 }
 
-extern ActMail D_004F7E90[];
 void actSt00aStairChk(int a0);
 
 void actSt00aStair(volatile int a0)
@@ -397,8 +508,8 @@ void actSt00aStair(volatile int a0)
 
     if (gflagChk(41) == 0) {
         scpSearchGobj(272)->f16C = 0;
-        D_004F7E90[0].func = actSt00aStairChk;
-        self->mail = D_004F7E90;
+        stair_mes[0].func = actSt00aStairChk;
+        self->mail = stair_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -406,7 +517,6 @@ void actSt00aStair(volatile int a0)
     }
 }
 
-extern ActMail D_004F7E50[];
 void actSt00aAtr2Chk(volatile int a0);
 
 void actSt00aAtr2(volatile int a0)
@@ -416,8 +526,8 @@ void actSt00aAtr2(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(42) == 0) {
-        D_004F7E50[0].func = actSt00aAtr2Chk;
-        self->mail = D_004F7E50;
+        atr2_mes[0].func = actSt00aAtr2Chk;
+        self->mail = atr2_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -463,8 +573,6 @@ void actSt00aDoor2Event(int x)
     volatile int local = x;
 }
 
-extern long long D_006226B0[];
-extern long long D_006226C0[];
 /* kept local: this TU's uses of scpEffectStart do not fit the prototype in script.h */
 extern void scpEffectStart(int *buf, int a1);
 
@@ -472,19 +580,19 @@ void actSt00aDoor2UpEffect(volatile int a0)
 {
     long long b1[2];
     long long b2[2];
-    long long v0a = D_006226B0[0];
-    long long v0b = D_006226C0[0];
+    long long v0a = door2UpEffectPos.d[0];
+    long long v0b = door2UpEffect2Pos.d[0];
     int i;
     for (i = 0; i < 50; i++) {
         switch (i) {
         case 0:
             b1[0] = v0a;
-            b1[1] = D_006226B0[1];
+            b1[1] = door2UpEffectPos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
         case 0x1E:
             b2[0] = v0b;
-            b2[1] = D_006226C0[1];
+            b2[1] = door2UpEffect2Pos.d[1];
             scpEffectStart((int *)b2, 0);
             break;
         }
@@ -496,19 +604,19 @@ void actSt00aDoor2DownEffect(volatile int a0)
 {
     long long b1[2];
     long long b2[2];
-    long long v0a = D_006226C0[0];
-    long long v0b = D_006226B0[0];
+    long long v0a = door2UpEffect2Pos.d[0];
+    long long v0b = door2UpEffectPos.d[0];
     int i;
     for (i = 0; i < 50; i++) {
         switch (i) {
         case 0:
             b1[0] = v0a;
-            b1[1] = D_006226C0[1];
+            b1[1] = door2UpEffect2Pos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
         case 0x1E:
             b2[0] = v0b;
-            b2[1] = D_006226B0[1];
+            b2[1] = door2UpEffectPos.d[1];
             scpEffectStart((int *)b2, 0);
             break;
         }
@@ -521,26 +629,23 @@ void actSt00aDoor1Event(int x)
     volatile int local = x;
 }
 
-extern long long D_006226E0[];
-extern long long D_006226F0[];
-
 void actSt00aDoor1UpEffect(volatile int a0)
 {
     long long b1[2];
     long long b2[2];
-    long long v0a = D_006226E0[0];
-    long long v0b = D_006226F0[0];
+    long long v0a = door1UpEffectPos.d[0];
+    long long v0b = door1UpEffect2Pos.d[0];
     int i;
     for (i = 0; i < 50; i++) {
         switch (i) {
         case 0:
             b1[0] = v0a;
-            b1[1] = D_006226E0[1];
+            b1[1] = door1UpEffectPos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
         case 0x1E:
             b2[0] = v0b;
-            b2[1] = D_006226F0[1];
+            b2[1] = door1UpEffect2Pos.d[1];
             scpEffectStart((int *)b2, 0);
             break;
         }
@@ -552,19 +657,19 @@ void actSt00aDoor1DownEffect(volatile int a0)
 {
     long long b1[2];
     long long b2[2];
-    long long v0a = D_006226F0[0];
-    long long v0b = D_006226E0[0];
+    long long v0a = door1UpEffect2Pos.d[0];
+    long long v0b = door1UpEffectPos.d[0];
     int i;
     for (i = 0; i < 50; i++) {
         switch (i) {
         case 0:
             b1[0] = v0a;
-            b1[1] = D_006226F0[1];
+            b1[1] = door1UpEffect2Pos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
         case 0x1E:
             b2[0] = v0b;
-            b2[1] = D_006226E0[1];
+            b2[1] = door1UpEffectPos.d[1];
             scpEffectStart((int *)b2, 0);
             break;
         }

@@ -620,7 +620,7 @@ segments:
       - [0x3F79D0, .data, ico2/script/src/e3]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4F79D0..0x4F7FB0, 1504 B
       - [0x3F7BD0, .data, ico2/script/src/end]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4F7BD0..0x4F7FB0, 992 B
       - [0x3F7E10, .data, ico2/script/src/op]  # the TU's whole .data run as source (completeness pass 5), VMA 0x4F7E10..0x4F7E50, 64 B emitted
-      - [0x3F7E50, data, cod/3F7E50]     # .data blob resume
+      - [0x3F7E50, .data, ico2/script/src/st00a]  # syms: atr2_mes,ene_mes,stair_mes,door2Down_mes,door2Up_mes,door2Upchk_mes,door2Downchk_mes,door1Down_mes,door1Up_mes,door1Upchk_mes,door1Downchk_mes  the TU's whole .data run (VMA 0x4F7E50..0x4F7FB0, 0x160 = MAIN.MAP st00a.o .data): eleven mail records static ActMail[2] {{430},{429}} named for the actor that installs each, ROM order (chain 3 pass 131); the four check records' spellings are pinned by their gcse hash buckets (site comment), st01b's row follows directly
       - [0x3F7FB0, .data, ico2/script/src/st01b]  # syms: ene_mes,floor_mes,way_mes,way_on_mes,way_off_mes  the TU's whole .data run, five mail records (VMA 0x4F7FB0..0x4F8050, 0xA0 = MAIN.MAP st01b.o .data); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
       - [0x3F8050, data, cod/3F8050]     # .data blob resume
       - [0x3F8270, .data, ico2/script/src/st02a]  # syms: way_on_mail  actSt02aWayOnChk mail record (VMA 0x4F8270..0x4F8290); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
@@ -940,7 +940,7 @@ segments:
       - [0x5225F4, rodata, cod/5225F4]     # rodata blob resume
       - [0x522600, .rodata, ico2/script/src/end]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x622600..0x6229B0, 944 B
       - [0x522630, .rodata, ico2/script/src/op]  # the TU's whole .rodata run as source (completeness pass 5), VMA 0x622630..0x6226A0, 109 B emitted
-      - [0x5226A0, rodata, cod/5226A0]     # .rodata blob resume
+      - [0x5226A0, .rodata, ico2/script/src/st00a]  # the TU's whole .rodata run (VMA 0x6226A0..0x622700, 0x60 = MAIN.MAP st00a.o .rodata): six static const ConstVec positions in the st05d idiom, copied as two long longs (chain 3 pass 131); st01b's row follows directly
       - [0x522700, .rodata, ico2/script/src/st01b]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x622700..0x6229B0, 688 B
       - [0x522710, .rodata, ico2/script/src/st02a]  # the TU's whole .rodata run as source (completeness pass 28): three position vectors, the two splash positions, the fall and pool reflection meshes and quads, eight named objects, 272 B, VMA 0x622710..0x622820 up to st03t's row; the January link's 0xB0 is not the retail member's size
       - [0x522820, .rodata, ico2/script/src/st03t]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x622820..0x6229B0, 400 B

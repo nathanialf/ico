@@ -274,8 +274,6 @@ void dispSource(SrcRef ref, int lines)
     waitCd();
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug_exception", display);
-
 /* The EE exceptions the debug monitor traps: {cause code, printable name}.
  * The table is this TU's own .data -- it heads the 0x800-byte debug_exception
  * .data run at 0x004D9F70 -- and stays an extern until that run is carved. */
@@ -283,6 +281,132 @@ typedef struct {
     int code;   /* 0x0 */
     char *name; /* 0x4 */
 } DebugExcEntry;
+
+extern DebugExcEntry D_004D9F70[11];
+/* The 0x200-byte message buffer the exception screen prints back; it heads the
+   debug_exception .data run just past the cause table. */
+extern char D_004DA0C8[];
+extern char D_0061D0A0[];          /* the eight-word register row format */
+extern char D_0061D108[];          /* "page %d\n" */
+extern char D_0061D120[];          /* the coloured exception banner */
+extern char D_0061D148[];          /* "EPC %8.8x BADV %8.8x SR %8.8x\n" */
+extern char D_0061D160[];          /* "sp %8.8x stack %d ra %d\n" */
+extern char D_0061D188[];          /* "%s=%8.8x_%8.8x_%8.8x_%8.8x\n" */
+extern char D_0063B3C0[];          /* "%s\n" for the saved message -- this TU's .sdata */
+extern char D_0063B3C8[];          /* the coloured source-line header -- .sdata */
+extern char D_0063B3D0[];          /* the first unwind row format -- .sdata */
+extern char D_0063B3D8[];          /* the second unwind row format -- .sdata */
+extern char D_0063B3E0[];          /* the third unwind row format -- .sdata */
+extern char D_0063B3E8[];          /* the fourth unwind row format -- .sdata */
+extern unsigned int D_0070FA80[4]; /* the 16-byte staging quadword */
+
+/* debug_exception.c:398-399, inlined into display: eight rows of four
+   {name, value} register pairs.  The array is indexed by the counter, not
+   walked by a pointer: the listing puts the pointer copy and its 32-byte step
+   on the for line, which is loop.c's reduced giv, and only that giv's late
+   preheader copy gives display the ROM's jal slot and register choice. */
+static inline void dispRegs(unsigned int *regs)
+{
+    int i;
+
+    for (i = 0; i < 8; i++) {
+        putString(0xFFFFFF00, D_0061D0A0, regs[i * 8 + 1], regs[i * 8], regs[i * 8 + 3],
+                  regs[i * 8 + 2], regs[i * 8 + 5], regs[i * 8 + 4], regs[i * 8 + 7],
+                  regs[i * 8 + 6]);
+    }
+}
+
+/* debug_exception.c:473-581.  One page of the exception screen.  Seven word
+   arguments, so a0 to a3 then t0 to t3 under the EABI; the second (cause) is
+   never read, which is why nothing is copied out of a1.  `regs` is the flat
+   {value, name} pair array at D_004D9FC8, two words per EE register, so
+   regs[62] is the saved ra and regs[58] the saved sp. */
+void display(int code, unsigned int cause, unsigned int epc, unsigned int badvaddr,
+             unsigned int status, unsigned int *regs, int page)
+{
+    unsigned char buf[1024];
+    unsigned char buf2[1024];
+    SrcRef info;
+    SrcRef cur;
+    unsigned int *p;
+    unsigned int ra;
+    unsigned int sp;
+    int i;
+
+    scePrintf(D_0061D108, page);
+    debug_ClearFontWindow();
+
+    putString(0xFFFFFF00, D_0061D120);
+    putString(0xFFFFFF00, D_0063B3C0, D_004DA0C8);
+
+    switch (page) {
+    case 0:
+        putString(0x40C0FF00, D_0063B3B8, D_004D9F70[code].name);
+
+        putString(0x40C0FF00, D_0061D148, epc, badvaddr, status);
+
+        dispRegs(regs);
+
+        ra = regs[62] - 1;
+        sp = regs[58];
+        info = traceLine((char *)buf, epc);
+        cur = info;
+        scePrintf(D_0061D160, sp, info.stack, info.ra);
+
+        putString(0xFFFFFF00, D_0063B3C8, buf);
+        putString(0xFFFFFF00, D_0063B3B8, buf);
+
+        if (cur.stack >= 0 && cur.ra >= 0) {
+            unsigned int r = *(unsigned int *)(sp + cur.ra);
+            sp += cur.stack;
+            cur = traceLine((char *)buf2, r - 1);
+            putString(0xE0F0FF00, D_0063B3D0, buf2);
+        } else {
+            cur = traceLine((char *)buf2, ra);
+            putString(0xE0F0FF00, D_0063B3D0, buf2);
+        }
+
+        if (cur.stack >= 0 && cur.ra >= 0) {
+            unsigned int r = *(unsigned int *)(sp + cur.ra);
+            sp += cur.stack;
+            cur = traceLine((char *)buf2, r - 1);
+            putString(0xB0D0F000, D_0063B3D8, buf2);
+        }
+
+        if (cur.stack >= 0 && cur.ra >= 0) {
+            unsigned int r = *(unsigned int *)(sp + cur.ra);
+            sp += cur.stack;
+            cur = traceLine((char *)buf2, r - 1);
+            putString(0x80B0E000, D_0063B3E0, buf2);
+        }
+
+        if (cur.stack >= 0 && cur.ra >= 0) {
+            unsigned int r = *(unsigned int *)(sp + cur.ra);
+            sp += cur.stack;
+            cur = traceLine((char *)buf2, r - 1);
+            putString(0x5090D000, D_0063B3E8, buf2);
+        }
+
+        dispSource(info, 5);
+        break;
+
+    case 1:
+        for (i = 0, p = regs; i < 16; i++, p += 2) {
+            D_0070FA80[0] = p[0];
+            putString(0xFFFFFF00, D_0061D188, p[1], D_0070FA80[3], D_0070FA80[2], D_0070FA80[1],
+                      D_0070FA80[0]);
+        }
+        break;
+
+    case 2:
+        for (i = 0, p = regs + 32; i < 16; i++, p += 2) {
+            D_0070FA80[0] = p[0];
+            putString(0xFFFFFF00, D_0061D188, p[1], D_0070FA80[3], D_0070FA80[2], D_0070FA80[1],
+                      D_0070FA80[0]);
+        }
+        break;
+    }
+}
 
 /* One saved EE general register: the whole 128-bit quadword the exception
    entry hands over, of which only the low word is reported. */
