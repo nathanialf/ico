@@ -719,7 +719,7 @@ segments:
       - [0x450AE8, .rodata, ico2/seki/src/ZFog]  # the TU's whole .rodata run as source (completeness pass 6), VMA 0x550AE8..0x550C10, 296 B emitted
       - [0x450C10, rodata, cod/450C10]     # .rodata blob resume
       - [0x450C40, .rodata, ico2/fumi/ios/cdvd]  # the TU's whole .rodata run as source (completeness pass 70), 31 anonymous string literals, VMA 0x550C40..0x550FEA, 938 B, the last 6 B before 0x550FF0 inflate's alignment pad
-      - [0x450FF0, rodata, cod/450FF0]     # .rodata blob resume (inflate's run, then ios at 0x451058)
+      - [0x450FF0, .rodata, ico2/fumi/ios/inflate]  # the TU's whole .rodata (chain 1 pass 114, = MAIN.MAP 0x65): __FILE__ and three message strings as anonymous literals at their use sites, VMA 0x550FF0..0x551055, 3 B of pad before ios's row
       - [0x451058, .rodata, ico2/fumi/ios/ios]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x551058..0x551430, 984 B
       - [0x4510F8, .rodata, ico2/fumi/ios/mblock]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x5510F8..0x551430, 824 B
       - [0x451110, rodata, cod/451110]     # rodata blob resume

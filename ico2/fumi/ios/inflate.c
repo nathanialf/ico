@@ -90,7 +90,6 @@ static unsigned short cpdext[30] = {0, 0, 0, 0, 1, 1, 2, 2,  3,  3,  4,  4,  5, 
 #define N_MAX 288
 
 extern int D_0063A464;
-extern char D_00550FF0[];
 
 int huft_build(unsigned int *b, unsigned int n, unsigned int s, unsigned short *d,
                unsigned short *e, struct huft **t, int *m, void *mb)
@@ -209,7 +208,7 @@ int huft_build(unsigned int *b, unsigned int n, unsigned int s, unsigned short *
                 /* allocate and link in new table */
                 if (mb == 0)
                     q = (struct huft *)iosMallocDebug(D_0063A464, (z + 1) * sizeof(struct huft),
-                                                      D_00550FF0, 241);
+                                                      __FILE__, 241);
                 else
                     q = (struct huft *)new_segment(mb, (z + 1) * sizeof(struct huft));
                 if (q == (struct huft *)0) {
@@ -482,9 +481,6 @@ long long inflate_fixed(void *w, unsigned char *out, long long outlen)
    lengths arrive in. */
 static int border[19] = {16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
 
-extern char D_00551000[];
-extern char D_00551020[];
-
 #define IMB(w) ((void *)((char *)(w) + 0x18098))
 
 int inflate_dynamic(void *w, unsigned char *out, long long outlen)
@@ -597,7 +593,7 @@ int inflate_dynamic(void *w, unsigned char *out, long long outlen)
         i = 1;
     if (i != 0) {
         if (i == 1)
-            debug_StdPrintfDummy(D_00551000);
+            debug_StdPrintfDummy(" incomplete literal tree\n");
         reuse_mblock(IMB(w));
         return -1;
     }
@@ -605,12 +601,12 @@ int inflate_dynamic(void *w, unsigned char *out, long long outlen)
     bd = 6;
     i = huft_build(ll + nl, nd, 0, cpdist, cpdext, &td, &bd, IMB(w));
     if (bd == 0 && nl > 257) {
-        debug_StdPrintfDummy(D_00551020);
+        debug_StdPrintfDummy(" incomplete distance tree\n");
         reuse_mblock(IMB(w));
         return -1;
     }
     if (i == 1)
-        debug_StdPrintfDummy(D_00551020);
+        debug_StdPrintfDummy(" incomplete distance tree\n");
     if (i != 0) {
         reuse_mblock(IMB(w));
         return -1;
@@ -783,7 +779,6 @@ long long inflate(void *w, unsigned char *out, long long outlen)
     return total;
 }
 
-extern char D_00551040[];
 extern int D_0063A450;
 extern int D_0063A470;
 
@@ -793,11 +788,11 @@ int open_inflate_handler(int a0, int a1)
     int *s1;
     D_0063A464 = g;
     D_0063A470 = 0;
-    s1 = (int *)iosMallocDebug(g, 0x180A8, D_00550FF0, 0x2E3);
+    s1 = (int *)iosMallocDebug(g, 0x180A8, __FILE__, 739);
     inflate_start(s1);
     s1[0] = a1;
     if (a0 == 0) {
-        debug_StdPrintfDummy(D_00551040);
+        debug_StdPrintfDummy("read func not entry\n");
     } else {
         s1[0x4 / 4] = a0;
     }

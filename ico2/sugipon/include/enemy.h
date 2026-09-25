@@ -13,7 +13,7 @@
 #define ENEMY_H
 
 int CanThisEnemyFly(char *a0);
-void CheckEnemyHit(void *a0, void *a1, void *a2, void *a3);
+int CheckEnemyHit(char *self, float *pos, float *a, float *b);
 void EnemyDeleteParticle(char *self, float *dir, short *list);
 void EnemySetfAppearAll(char *self);
 int GetEnemyBattleType(char *a0);

@@ -16,6 +16,7 @@ extern EnemyDef D_00624880[];
 
 #include "typedef.h"
 #include "enemy.h"
+#include "sugiCommon.h"
 #include "charFileManager.h"
 #include "debug.h"
 #include "debug_exception.h"
@@ -211,7 +212,77 @@ retry:
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/enemy", dispEnemyObject);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/enemy", EnemyCheckHit);
+
+/* static helper the listing places at enemy.c lines 382-392, expanded into
+ * EnemyCheckHit, enemySetParticleDie, EnemySetfDisappear and EnemyDeleteParticle;
+ * never emitted out of line, so it has no MAIN.MAP symbol and this name is ours.
+ * It returns SetParticleEffect's result: the discarded value register is what
+ * EnemyCheckHit's allocation after the call shows (chain 2 pass 8). */
+static inline int enemySetParticle(int kind, void *obj, float *dir)
+{
+    char buf[0x20];
+    MatrixDrive_GetTurnZAngleXY(buf + 0x10, buf + 0x12, dir[0], dir[1], -dir[2]);
+    SetIdentityQuaternion(buf);
+    RotQuaternionX(buf, (short)(-*(unsigned short *)(buf + 0x10)));
+    RotQuaternionY(buf, (short)(-*(unsigned short *)(buf + 0x12)));
+    return SetParticleEffect(kind, obj, buf);
+}
+
+int EnemyCheckHit(char *self, float *pos, float *dir)
+{
+    char *sub;
+    char *w;
+    int n;
+    int i;
+    int cnt;
+    int flags;
+
+    sub = *(char **)(self + 0x15C);
+    w = *(char **)(sub + 0x830);
+    n = *(int *)(sub + 0x88);
+    cnt = 0;
+    flags = 0;
+    for (i = 0; i < n; i++) {
+        if ((*(int **)(w + 0x14))[i] == 0) {
+            if (distance_squared(*(char **)(sub + 0xC) + i * 0x40 + 0x30, pos) < 10000.0f) {
+                enemySetParticle(8, *(char **)(sub + 0xC) + i * 0x40 + 0x30, dir);
+                /* The hand-written form the helper call replaced, the way
+                   CheckEnemyHit still spells it, disabled after the call.
+                   WHAT THE BYTES PIN: a 4-byte stack object at sp+0x20 that
+                   nothing reads, above the helper's freed 0x20 block and below
+                   the pos/n/cnt spills; only promoted locals whose address is
+                   taken after the call give it (put_var_into_stack runs when
+                   the `&` is parsed, and q reuses the helper's block), and the
+                   listing's lines 497-512 emit nothing.  WHAT THEY CANNOT PIN:
+                   this text, or how the developer disabled it. */
+                if (0) {
+                    float q[4];
+                    short rx;
+                    short ry;
+
+                    MatrixDrive_GetTurnZAngleXY(&rx, &ry, dir[0], dir[1], -dir[2]);
+                    SetIdentityQuaternion(q);
+                    RotQuaternionX(q, -rx);
+                    RotQuaternionY(q, -ry);
+                    SetParticleEffect(8, *(char **)(sub + 0xC) + i * 0x40 + 0x30, q);
+                }
+                flags |= 1;
+                (*(int **)(w + 0x14))[i] = 1;
+                cnt++;
+                GetSkeltonFocusNode(self, 34);
+                if (i == GetSkeltonFocusNode(self, 35)) {
+                    (*(int **)(w + 0x14))[GetSkeltonFocusNode(self, 36)] = 1;
+                    (*(int **)(w + 0x14))[GetSkeltonFocusNode(self, 37)] = 1;
+                }
+                if (cnt >= 4) {
+                    break;
+                }
+            }
+        }
+    }
+    return flags;
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/enemy", CheckEnemyHit);
 
 /* The 0x15C slot is the engine's sub-object HANDLE: the code stores an int and
@@ -433,19 +504,6 @@ void EnemySetfDisappearAll(char *self)
 
     for (i = 0; i < n; i++)
         ((int *)*(int *)(GOBJ_SUB(self)->f_830 + 0x14))[i] = 1;
-}
-
-/* static helper the listing places at enemy.c lines 382-392, expanded into
- * enemySetParticleDie, EnemySetfDisappear and EnemyDeleteParticle; never emitted
- * out of line, so it has no MAIN.MAP symbol and this name is ours. */
-static inline void enemySetParticle(int kind, void *obj, float *dir)
-{
-    char buf[0x20];
-    MatrixDrive_GetTurnZAngleXY(buf + 0x10, buf + 0x12, dir[0], dir[1], -dir[2]);
-    SetIdentityQuaternion(buf);
-    RotQuaternionX(buf, (short)(-*(unsigned short *)(buf + 0x10)));
-    RotQuaternionY(buf, (short)(-*(unsigned short *)(buf + 0x12)));
-    SetParticleEffect(kind, obj, buf);
 }
 
 void EnemySetfDisappear(char *self, float *dir)
