@@ -329,7 +329,39 @@ void SgSetTickMode(int a0)
     *(short *)((char *)r + 0x3A) = a0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sound", SgGetSlotStatus);
+int SgGetSlotStatus(int kind, int slot)
+{
+    int ret = 0;
+    char *sc = (char *)_SgGetSlotContext(slot);
+    char *sq = (char *)_SgGetSeqContext(0);
+
+    switch (kind) {
+    case 0:
+        switch (*(unsigned char *)(sc + 0x51)) {
+        case 1:
+            ret = 1;
+            break;
+        case 2:
+            ret = 2;
+            break;
+        case 3:
+            ret = 4;
+            break;
+        }
+        break;
+    case 1:
+        sq += slot * 0x54;
+        /* the sequencer writes this word from the IOP side */
+        if ((*(volatile int *)sq & 5) == 1) {
+            ret = 1;
+        }
+        if ((*(volatile int *)sq & 5) == 4) {
+            ret = 2;
+        }
+        break;
+    }
+    return ret;
+}
 
 void SgSetMasterVol(int a0, int a1, int a2)
 {
