@@ -30,7 +30,7 @@ struct jNode {
     int field14;
 };
 
-struct jWayGroup { /* D_006C1E80 element, stride 0x18 */
+struct jWayGroup { /* jimakuRing element, stride 0x18 */
     int f0;
     int f4;
     int f8;
@@ -39,11 +39,23 @@ struct jWayGroup { /* D_006C1E80 element, stride 0x18 */
     char *buf;              /* 0x14 its 0x8C40 read buffer */
 };
 
-extern struct jWayGroup D_006C1E80[];
+/* The TU's .bss, in ROM run order (VMA 0x6C1E80..0x6E50A4): the four-group
+   read ring, the groups' read buffers (64-byte aligned, which puts them at
+   +0x80 past the 0x60-byte ring; MAIN.MAP pads the object's .bss to a
+   64-byte boundary) and three semaphore records of iosSemaCreate's 13 words:
+   read done (signalled by jimakuHandler), shown five frames (jimakuDisp) and
+   one per frame (jimakuDisp). */
+static struct jWayGroup jimakuRing[4];
+
+static char jimakuBuf[4][0x8C40] __attribute__((aligned(64)));
+
+static int jimakuReadSema[13];
+
+static int jimakuShownSema[13];
+
+static int jimakuFrameSema[13];
+
 extern void jimakuMgrNext(struct jArg *p);
-extern char D_006E5000[];
-extern char D_006E5038[];
-extern char D_006E5070[];
 extern int jimakuMsgQ[];
 extern int D_0028F4E8[];
 extern int D_0028F4C0[];
@@ -146,8 +158,6 @@ void iosCdvdBackGroundReadJimaku(int self, int a1, int size)
     iosCdvdBackGroundMgrSeek(self, *(int *)((char *)self + 0x110) + size);
 }
 
-extern char D_006C1F00[][0x8C40];
-
 int jimakuHandler(int self, struct jArg *p)
 {
     struct jSub *sub = &p->sub;
@@ -157,7 +167,7 @@ int jimakuHandler(int self, struct jArg *p)
     int n;
 
     while (sub->field34 != (sub->n + 3) % 4) {
-        g = &D_006C1E80[sub->field34];
+        g = &jimakuRing[sub->field34];
         if (g->f4 == 2) {
             g->f4 = 3;
             break;
@@ -166,27 +176,27 @@ int jimakuHandler(int self, struct jArg *p)
            takes its byte count by copy from a variable set outside the
            outer loop. cse1 cannot see that value where the entry test
            stands, so the test's edge past the loop lives through gcse and
-           is folded only after it: gcse then puts %hi(D_006C1F00) in the
+           is folded only after it: gcse then puts %hi(jimakuBuf) in the
            loop's preheader once per record (0x0017CC0C) and reloads field34
            on both exits of the loop, as ROM does. What they cannot pin is
            the variable's name. */
         left = size;
         while (left > 0) {
             n = (0x8C40 < left) ? 0x8C40 : left;
-            D_006C1F00[sub->field34][0] = -1;
-            D_006C1F00[sub->field34][1] = -1;
-            iosCdvdBackGroundReadJimaku(self, (int)D_006C1F00[sub->field34], n);
+            jimakuBuf[sub->field34][0] = -1;
+            jimakuBuf[sub->field34][1] = -1;
+            iosCdvdBackGroundReadJimaku(self, (int)jimakuBuf[sub->field34], n);
             left -= n;
         }
-        D_006C1E80[sub->field34].f0 = sub->field2C++;
-        D_006C1E80[sub->field34].f4 = 4;
+        jimakuRing[sub->field34].f0 = sub->field2C++;
+        jimakuRing[sub->field34].f4 = 4;
         iosCdvdBackGroundMgrSeek(sub->field40, sub->field2C * 0x8800);
         sub->field34 = (sub->field34 + 1) % 4;
     }
     if (D_0028F4C0[10] != 0) {
-        iosSemaReferStatus(D_006E5000);
-        if (((int *)D_006E5000)[9] > 0) {
-            iosSemaSignal(D_006E5000);
+        iosSemaReferStatus(jimakuReadSema);
+        if (jimakuReadSema[9] > 0) {
+            iosSemaSignal(jimakuReadSema);
         }
     }
     return 0;
@@ -207,18 +217,18 @@ void jimakuMgrBegin(struct jArg *p)
         return;
     }
     D_0028F4C0[10] = 1;
-    iosSemaCreate(D_006E5000, 0, 1, 0);
-    iosSemaCreate(D_006E5038, 0, 1, 0);
-    iosSemaCreate(D_006E5070, 0, 1, 0);
+    iosSemaCreate(jimakuReadSema, 0, 1, 0);
+    iosSemaCreate(jimakuShownSema, 0, 1, 0);
+    iosSemaCreate(jimakuFrameSema, 0, 1, 0);
     for (i = 0; i < 4; i++) {
-        g = &D_006C1E80[i];
-        g->node = &D_006C1E80[(i + 1) % 4];
-        g->buf = D_006C1F00[i];
+        g = &jimakuRing[i];
+        g->node = &jimakuRing[(i + 1) % 4];
+        g->buf = jimakuBuf[i];
     }
     sub->n = 0;
-    D_006C1E80[0].f0 = -1;
-    D_006C1E80[0].f4 = 3;
-    D_006C1E80[0].f8 = -1;
+    jimakuRing[0].f0 = -1;
+    jimakuRing[0].f4 = 3;
+    jimakuRing[0].f8 = -1;
     sub->field34 = 1;
     switch (NonLinearCameraMove) {
     case 2:
@@ -248,9 +258,9 @@ void jimakuMgrBegin(struct jArg *p)
         iosCdvdBackGroundMgrSeek(q->field40, q->field2C * 0x8800);
         m = (q->field34 = (q->n + 1) % 4);
         while (m != q->n) {
-            D_006C1E80[m].f0 = -1;
-            D_006C1E80[m].f4 = 3;
-            D_006C1E80[m].f8 = -1;
+            jimakuRing[m].f0 = -1;
+            jimakuRing[m].f4 = 3;
+            jimakuRing[m].f8 = -1;
             m = (m + 1) % 4;
         }
     }
@@ -267,14 +277,14 @@ void jimakuMgrNext(struct jArg *p)
 {
     char buf[16];
     struct jSub *sub = &p->sub;
-    struct jWayGroup *g = &D_006C1E80[sub->n];
+    struct jWayGroup *g = &jimakuRing[sub->n];
 
     while (g->node->f4 != 4) {
-        if (iosSemaWait(D_006E5000) < 0) {
+        if (iosSemaWait(jimakuReadSema) < 0) {
             return;
         }
     }
-    if (iosSemaWait(D_006E5000) < 0) {
+    if (iosSemaWait(jimakuReadSema) < 0) {
         return;
     }
     g->node->f4 = 1;
@@ -288,14 +298,14 @@ void jimakuMgrNext(struct jArg *p)
         __assert(D_005540E8, 688, D_0063A978);
     }
     sub->n = (sub->n + 1) % 4;
-    if (iosSemaWait(D_006E5038) < 0) {
+    if (iosSemaWait(jimakuShownSema) < 0) {
         return;
     }
     g->f4 = 2;
     if (g->f8 >= 0) {
         tex_FreeTexture(g->f8);
     }
-    sub->field3C = D_006C1F00[sub->n];
+    sub->field3C = jimakuBuf[sub->n];
     D_0063A964 = 1;
     /* The listing's rows 705 to 714 carry no code, and the ROM's second and
      * third returns take `ld $31` from the epilogue where the build without
@@ -310,7 +320,7 @@ void jimakuMgrNext(struct jArg *p)
         int m;
 
         for (m = 0; m < 4; m++) {
-            D_006C1E80[m].f4 = 3;
+            jimakuRing[m].f4 = 3;
         }
     }
 }
@@ -323,9 +333,9 @@ void jimakuMgrJump(struct jArg *p)
     iosCdvdBackGroundMgrSeek(q->field40, q->field2C * 0x8800);
     m = (q->field34 = (q->n + 1) % 4);
     while (m != q->n) {
-        D_006C1E80[m].f0 = -1;
-        D_006C1E80[m].f4 = 3;
-        D_006C1E80[m].f8 = -1;
+        jimakuRing[m].f0 = -1;
+        jimakuRing[m].f4 = 3;
+        jimakuRing[m].f8 = -1;
         m = (m + 1) % 4;
     }
     jimakuMgrNext(p);
@@ -340,9 +350,9 @@ void jimakuMgrEnd(p) int *p;
     if (val != 0) {
         iosCdvdBackGroundMgrDelete(val);
     }
-    iosSemaDelete(D_006E5070);
-    iosSemaDelete(D_006E5038);
-    iosSemaDelete(D_006E5000);
+    iosSemaDelete(jimakuFrameSema);
+    iosSemaDelete(jimakuShownSema);
+    iosSemaDelete(jimakuReadSema);
 }
 
 inline void jimakuManager(void)
@@ -428,7 +438,7 @@ extern void display_texture(JimTex *t);
 
 void jimakuDisp(char *self)
 {
-    struct jWayGroup *g = &D_006C1E80[*(int *)(self + 0x3C)];
+    struct jWayGroup *g = &jimakuRing[*(int *)(self + 0x3C)];
     int c;
 
     if (D_0028F4C0[10] == 0) {
@@ -439,15 +449,15 @@ void jimakuDisp(char *self)
         D_0063A964 = 0;
     }
     if ((unsigned int)(c + 5) < (unsigned int)lock_execIcoMisc) {
-        iosSemaReferStatus(D_006E5038);
-        if (((int *)D_006E5038)[9] > 0) {
-            iosSemaSignal(D_006E5038);
+        iosSemaReferStatus(jimakuShownSema);
+        if (jimakuShownSema[9] > 0) {
+            iosSemaSignal(jimakuShownSema);
         }
     }
     if (D_0028F4C0[10] != 0) {
-        iosSemaReferStatus(D_006E5070);
-        if (((int *)D_006E5070)[9] > 0) {
-            iosSemaSignal(D_006E5070);
+        iosSemaReferStatus(jimakuFrameSema);
+        if (jimakuFrameSema[9] > 0) {
+            iosSemaSignal(jimakuFrameSema);
         }
     }
     if (D_0063A964 != 0) {
