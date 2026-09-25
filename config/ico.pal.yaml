@@ -592,7 +592,7 @@ segments:
       - [0x3E7480, .data, ico2/sugipon/src/effectTool]  # the TU's whole .data run as source (data pass 6): the parameter table its rodata names are reached through, VMA 0x4E7480..0x4E78A0, 1056 B
       - [0x3E78A0, .data, ico2/sugipon/src/enemy]  # the TU's whole .data run as source (completeness pass 5), VMA 0x4E78A0..0x4E78E0, 64 B emitted
       - [0x3E78E0, .data, ico2/sugipon/src/enemyParts]  # the TU's whole .data run as source (data pass 3): eight part templates, VMA 0x4E78E0..0x4E7A20, 320 B
-      - [0x3E7A20, data, cod/3E7A20]     # data blob resume
+      - [0x3E7A20, .data, ico2/sugipon/src/flag]  # the TU's whole .data run as source (VMA 0x4E7A20..0x4E7AC0, 0xA0 B: the four-point corner table and the cloth config record, MAIN.MAP's 0x1C; 4 B of alignment before girl's run; chain 3 pass 136), girl's row follows directly
       - [0x3E7AC0, .data, ico2/sugipon/src/girl]  # the TU's whole .data run as source (completeness pass 7): the cloth mesh then the earlier tables, VMA 0x4E7AC0..0x4EB430
       - [0x3EB430, data, cod/3EB430]     # .data blob resume
       - [0x3EB440, .data, ico2/sugipon/src/item]  # the TU's whole .data run as source (data pass 5), abutting lodManager's, VMA 0x4EB440..0x4EB5E0, 416 B
@@ -883,7 +883,8 @@ segments:
       - [0x51F2B0, .rodata, ico2/sugipon/src/effectTool]  # the TU's whole .rodata run as source (data pass 6); the last string carries one byte 0x82 that is not EUC-JP, written as an octal escape, VMA 0x61F2B0..0x61F650, 928 B
       - [0x51F650, .rodata, ico2/sugipon/src/enemy]  # the TU's whole .rodata run as source (completeness pass 5), VMA 0x61F650..0x61F710, 189 B emitted
       - [0x51F710, .rodata, ico2/sugipon/src/enemyParts]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x61F710..0x61F7D0, 192 B
-      - [0x51F728, rodata, cod/51F728]     # rodata blob resume
+      - [0x51F728, .rodata, ico2/sugipon/src/flag]  # the TU's __FILE__ literal "src/flag.c" (VMA 0x61F728, 11 B; chain 3 pass 136)
+      - [0x51F740, rodata, cod/51F740]     # rodata blob resume (13 B of alignment before frameDependSequence's 16-aligned run)
       - [0x51F7D0, .rodata, ico2/sugipon/src/frameDependSequence]  # carved jtbl_0061F7D0 (VMA 0x61F7D0..0x61F7E4, 20 B, 5 arms): playSEConditionID's switch table, emitted by the compiled function
       - [0x51F7E4, rodata, cod/51F7E4]   # .rodata blob resume
       - [0x51F8A0, .rodata, ico2/sugipon/src/girl]  # the TU's whole .rodata run as source (completeness pass 7 widened it to the run head), VMA 0x61F8A0..0x61F9DB
@@ -1325,7 +1326,7 @@ segments:
       - { type: .bss, vram: 0x0067C070, name: ico2/seki/src/Shadow }  # the TU's .bss as source (completeness pass 65)
       - { type: .bss, vram: 0x0067D098, name: ico2/seki/src/StageAnimation }  # the TU's .bss as source (chain 1 pass 74): stageAnimTable[87], 87 records of 0x290 B = 0xDEF0 B, VMA 0x67D098..0x68AF88, the count from stage_Init's own loop bounds; Texture's .bss follows with no resume blob (the queue's 0x680017 end was an address-shaped text word, not a reference)
       - { type: .bss, vram: 0x0068AF88, name: ico2/seki/src/Texture }  # the TU's .bss run as source (completeness pass 66), 0x24608 B, the 200-slot texture record table and three role-named statics
-      - { type: bss, vram: 0x006AF590, name: cod/006AF590 }  # .bss blob resume (ZFog's 0x430 B)
+      - { type: .bss, vram: 0x006AF590, name: ico2/seki/src/ZFog }  # the TU's whole .bss (VMA 0x6AF590..0x6AF9C0, 0x430 B: the fog CLUT packet, non-static while fog_DrawFog's stub references it; chain 3 pass 136)
       - { type: .bss, vram: 0x006AF9C0, name: ico2/fumi/ios/cdvd }  # the TU's .bss as source (completeness pass 69), the file-handle table, the background request table, the skip buffer, the stream thread and its stack and the request queue, VMA 0x6AF9C0..0x6BC860, ios abuts
       - { type: .bss, vram: 0x006BC860, name: ico2/fumi/ios/ios }  # the TU's own .bss, 0x60 B, VMA 0x6BC860..0x6BC8C0; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006BC8C0, name: ico2/fumi/ios/mcard }  # the TU's own .bss, 0x58 B, VMA 0x6BC8C0..0x6BC918; static definitions in ROM run order (completeness pass)

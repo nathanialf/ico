@@ -5,8 +5,7 @@
 
 /* The fog CLUT upload packet: a VIF code quad (nop, nop, FLUSHA, DIRECT 65),
  * a GIFtag (EOP, NLOOP=64, FLG=IMAGE), the 256-entry 32-bit CLUT itself and a
- * trailing FLUSHA quad.  splat names the header D_006AF590 and the CLUT
- * D_006AF5B0 (= D_006AF590 + 0x20); they are one object. */
+ * trailing FLUSHA quad: ZFog.o's whole .bss (VMA 0x6AF590..0x6AF9C0). */
 typedef struct FogClutPacket {
     unsigned int vif[4];    /* 0x000 */
     long long gif[2];       /* 0x010 */
@@ -14,13 +13,15 @@ typedef struct FogClutPacket {
     unsigned int vifEnd[4]; /* 0x420 */
 } FogClutPacket;
 
-extern FogClutPacket D_006AF590;
+static FogClutPacket
+    fogClutPacket; /* static: the fog_DrawFog stub is assembled into this object and reaches it as a local symbol */
+
 extern int D_0028F720[]; /* stage settings; fog fields at 0x90..0xA8 */
 
 void fog_MakeFogClut(void)
 {
     unsigned int buf[8][2][2][8];
-    unsigned int *clut = D_006AF590.clut;
+    unsigned int *clut = fogClutPacket.clut;
     int i;
     int j;
     int k;
@@ -41,16 +42,16 @@ void fog_MakeFogClut(void)
     b = D_0028F720[0x98 / 4];
     a = D_0028F720[0x9C / 4];
 
-    D_006AF590.vif[0] = 0;
-    D_006AF590.vif[1] = 0;
-    D_006AF590.vif[2] = 0x13000000;
-    D_006AF590.vif[3] = 0x50000041;
-    D_006AF590.gif[0] = 0x0800000000008040;
-    D_006AF590.gif[1] = 0;
-    D_006AF590.vifEnd[0] = 0x13000000;
-    D_006AF590.vifEnd[1] = 0;
-    D_006AF590.vifEnd[2] = 0;
-    D_006AF590.vifEnd[3] = 0;
+    fogClutPacket.vif[0] = 0;
+    fogClutPacket.vif[1] = 0;
+    fogClutPacket.vif[2] = 0x13000000;
+    fogClutPacket.vif[3] = 0x50000041;
+    fogClutPacket.gif[0] = 0x0800000000008040;
+    fogClutPacket.gif[1] = 0;
+    fogClutPacket.vifEnd[0] = 0x13000000;
+    fogClutPacket.vifEnd[1] = 0;
+    fogClutPacket.vifEnd[2] = 0;
+    fogClutPacket.vifEnd[3] = 0;
 
     for (i = 0; i < 256; i++) {
         if (i <= near) {
@@ -76,7 +77,7 @@ void fog_MakeFogClut(void)
     }
 
     for (i = 0; i < 256; i++) {
-        D_006AF590.clut[i] = ((unsigned int *)buf)[i];
+        fogClutPacket.clut[i] = ((unsigned int *)buf)[i];
     }
 
     FlushCache(0);

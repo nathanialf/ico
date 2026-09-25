@@ -6167,3 +6167,4 @@ D_00710033 = 0x00710033; // ignore:true  // cod/1A79B8 data packed word 0x33 0x7
 D_0071001A = 0x0071001A; // ignore:true  // no referrer in any .s and reads as an address into debug_exception's carved .bss (0x70FA80..0x71CA90), not a reference
 D_00621014 = 0x00621014; // ignore:true  // cod/18ED00 data (main's .data image of instruction words) word 0x00621014 at VMA 0x28EED0 which reads as an address into streamMotionManager's carved .rodata run 0x620FB0..0x621228, not a reference
 chainClimb = 0x002A5FF0; // size:0x30  // chain.c's climb table, non-static while TestChainUpDown's stub references it (chain 1 pass 122)
+fogClutPacket = 0x006AF590; // size:0x430  // ZFog.c's fog CLUT packet, non-static while fog_DrawFog's stub references it (chain 3 pass 136)
