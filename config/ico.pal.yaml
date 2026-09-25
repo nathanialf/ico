@@ -926,7 +926,7 @@ segments:
       - [0x5216B8, rodata, cod/5216B8]   # .rodata blob resume (the strings after the table)
       - [0x521930, .rodata, ico2/seki/src/DisplayList]  # carved jtbl_00621930 (VMA 0x621930..0x621950, 32 B, 8 arms): dl_CloseDma's switch table, emitted by the compiled function; the three zero words before it are the blob's pad
       - [0x521950, .rodata, ico2/seki/src/DmaPacket]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x621950..0x6229B0, 4192 B
-      - [0x521960, rodata, cod/521960]     # rodata blob resume (EnemyInit's file literal returns to source with enemy_Initialize)
+      - [0x521960, .rodata, ico2/seki/src/EnemyInit]  # the TU's .rodata (chain 1 pass 113, = MAIN.MAP 0x10): iosMallocDebug's "src/EnemyInit.c" file literal, VMA 0x621960..0x621970; gobj_cam_dl follows directly
       - [0x521970, .rodata, ico2/fumi/isys/gobj_cam_dl]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x621970..0x6229B0, 4160 B
       - [0x521A00, rodata, cod/521A00]     # rodata blob resume
       - [0x521B50, .rodata, ico2/fumi/src/act-way]  # the TU's whole .rodata (chain 1 pass 110): ACTWayMove_NextDetail's EUC-JP "no route" trace string, DetourCheck's format and the three disabled WBP prints' strings as literals, VMA 0x621B50..0x621BAB, padded to act's row at 0x621BB0
@@ -1374,7 +1374,8 @@ segments:
       - { type: .bss, vram: 0x00724BE0, name: ico2/sugipon/src/windField }  # windVector, windStrength[256], windCell[20][20] (0x20 stride), 0x3610 B = MAIN.MAP's windField.o .bss; the queue's 0x726165 bound was a false pointer into a string (completeness pass 25)
       - { type: bss, vram: 0x007281F0, name: cod/007281F0 }
       - { type: .bss, vram: 0x00728310, name: ico2/seki/src/DisplayList }  # the TU's own .bss, 0x290 B, VMA 0x728310..0x7285A0; static definitions in ROM run order (completeness pass)
-      - { type: bss, vram: 0x007285A0, name: cod/007285A0 }  # .bss blob resume (0x70 B; EnemyInit's slot table returns to source with enemy_Initialize)
+      - { type: .bss, vram: 0x007285A0, name: ico2/seki/src/EnemyInit }  # the TU's .bss (chain 1 pass 113, = MAIN.MAP 0x6C): the per-stage enemy position slot table as a named static, VMA 0x7285A0..0x72860C, 4 B of link fill before way_kidnap
+      - { type: bss, vram: 0x0072860C, name: cod/0072860C }  # .bss blob resume (4 B of link fill before way_kidnap)
       - { type: .bss, vram: 0x00728610, name: ico2/fumi/src/way_kidnap }  # the TU's .bss as source (completeness pass 69), the search nodes, the edge-done table, the position vectors and the position info, VMA 0x728610..0x729B58, way_tool's row follows after its 16-byte alignment
       - { type: .bss, vram: 0x00729B60, name: ico2/fumi/src/way_tool }  # the TU's own .bss, 0xB0 B, VMA 0x729B60..0x729C10; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x00729C10, name: cod/00729C10 }  # .bss blob resume

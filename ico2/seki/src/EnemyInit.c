@@ -1,9 +1,106 @@
 #include "common.h"
 
 extern char D_0063BD38[8];
-extern int D_007285A0[];
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/EnemyInit", enemy_Initialize);
+/* .bss, owned by EnemyInit.o and reached only from this file (MAIN.MAP names
+   no symbol in the run, 0x6C bytes): one slot per enemy kind, each holding the
+   position table enemy_Initialize allocates for that kind, or 0. */
+static int enemyPositionTable[27];
+
+typedef int Qw128 __attribute__((mode(TI)));
+
+/* RECONSTRUCTION from the ROM's own addressing: the stage table is a record of
+   a pointer and a count, reached with one e<<3 index off two bases (the ROM
+   keeps `table + 4` in $s7 for the count). */
+typedef struct EnemySet {
+    int **list; /* 0x0 */
+    int n;      /* 0x4 */
+} EnemySet;
+
+extern EnemySet D_004F1D58[];
+extern void *D_0063A44C;
+extern void *iosMallocDebug(void *heap, int size, char *file, int line);
+
+void enemy_Initialize(void)
+{
+    int cnt[27];
+    int e;
+    int k;
+    int i;
+    int j;
+    int **tbl;
+    int *q;
+    float (*dst)[4];
+    /* The slot count lives in a local, not in a literal bound: with 27 written
+       into the tests cse folds the duplicated k tests before gcse, the count
+       loop is then processed by loop.c and its count read is hoisted, which
+       the ROM does not do (listing line 104, between the set store and the
+       e loop, carries no code). */
+    int kindNum = 27;
+    /* RULING-VESTIGIAL-EXCEPTION candidate (chain 1 pass 113, for the
+       supervisor's audit): counted once per copied quadword and never read.
+       The ROM pins a real statement after the copy loop's exit test: stmt.c
+       expand_end_loop rolls the test to the bottom only when real code
+       follows it (line notes do not count: jump.c tests prev_active_insn),
+       and jump.c duplicate_loop_exit_test then gives the peeled first copy at
+       0x20BDFC..0x20BE24; cse deletes the statement as dead. The bytes pin
+       that such a statement existed, not its text. */
+    int copyNum = 0;
+
+    *(int *)D_0063BD38 = 1;
+    for (e = 0; e < *(int *)D_0063BD38; e++) {
+        tbl = D_004F1D58[e].list;
+        for (k = 0; k < kindNum; k++) {
+            cnt[k] = 0;
+            for (i = 0; i < D_004F1D58[e].n; i++) {
+                for (j = 0; j < tbl[i][1]; j++) {
+                    int *rec = (int *)(j * 8 + *(int *)tbl[i]);
+
+                    if (rec[1] == k) {
+                        q = (int *)rec[0];
+                        do {
+                            cnt[k]++;
+                        } while (*++q != -1);
+                    }
+                }
+            }
+        }
+        for (k = 0; k < kindNum; k++) {
+            if (cnt[k] > 0) {
+                *(int *)((char *)enemyPositionTable + k * 4 + e * 0x6C) =
+                    (int)iosMallocDebug(D_0063A44C, (cnt[k] + 1) << 4, __FILE__, 124);
+            } else {
+                *(int *)((char *)enemyPositionTable + k * 4 + e * 0x6C) = 0;
+                continue;
+            }
+            dst = (float (*)[4]) * (int *)((char *)enemyPositionTable + k * 4 + e * 0x6C);
+            for (i = 0; i < D_004F1D58[e].n; i++) {
+                for (j = 0; j < tbl[i][1]; j++) {
+                    int *rec = (int *)(j * 8 + *(int *)tbl[i]);
+
+                    if (rec[1] == k) {
+                        q = (int *)rec[0];
+                        for (;;) {
+                            *(Qw128 *)dst++ = ((Qw128 *)tbl[i][2])[*q];
+                            /* The break shares the if's line, as the listing
+                               shows (line 138 carries the q++, the load and
+                               the branch): under -g a break on its own line
+                               leaves its line note between the loop's jump
+                               and its end note, which keeps cse.c
+                               cse_around_loop off and the ROM's index carry
+                               from forming. */
+                            /* clang-format off */
+                            if (*++q == -1) break;
+                            /* clang-format on */
+                            copyNum++;
+                        }
+                    }
+                }
+            }
+            (*dst)[0] = (*dst)[1] = (*dst)[2] = (*dst)[3] = -1.0f;
+        }
+    }
+}
 
 int enemy_GetPositionTable(int idx, int sub_idx)
 {
@@ -11,5 +108,5 @@ int enemy_GetPositionTable(int idx, int sub_idx)
     if (idx < 0 || idx >= *(int *)D_0063BD38)
         return 0;
     factor = 0x6C;
-    return *(int *)((char *)D_007285A0 + idx * factor + sub_idx * 4);
+    return *(int *)((char *)enemyPositionTable + idx * factor + sub_idx * 4);
 }
