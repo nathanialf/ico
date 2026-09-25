@@ -57,8 +57,16 @@ split() {
     # rewrite if present. The patches die on every `pip install`, so
     # re-apply (idempotent) here.
     "${VENV_PY}" tools/patch_splat.py
+    # Remove the previous run's linker script and build graph first: if splat
+    # fails (a malformed symbol row, a bad yaml row) nothing stale is left for
+    # ninja to link, so the failure cannot masquerade as a placement mismatch
+    # (2026-09-27: a colon in a symbol_addrs comment did exactly that).
+    rm -f "${LDSCRIPT}" build.ninja
     echo "==> running splat against ${SPLAT_YAML}"
-    "${SPLAT}" split "${SPLAT_YAML}"
+    if ! "${SPLAT}" split "${SPLAT_YAML}"; then
+        echo "build.sh: splat FAILED; ${LDSCRIPT} and build.ninja removed, fix config/ and re-run setup" >&2
+        exit 2
+    fi
     # This target is a clean, raw round-trip: splat reproduces the original layout
     # byte-for-byte via config (align: 0x80, .reginfo subseg) + the
     # patch_splat.py aug6 layout/sub-word-tail patches. There is deliberately
