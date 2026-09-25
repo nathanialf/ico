@@ -137,7 +137,12 @@ float *pos;
 }
 
 extern int D_0063B13C;
-extern int D_0063C2C0;
+
+/* the debug trace line: every chain trace steps it by 10 and ChainGeo resets
+ * it; chain.o's one .sbss word, MAIN.MAP names nothing there, so the name is
+ * ours */
+static int chainDebugY;
+
 /* kept local: this TU's uses of debug_Arrow do not fit the prototype in camera-editor.h */
 extern void debug_Arrow(float len, void *from, void *to, int r, int g, int b);
 /* kept local: the declaration in fieldCollision.h changes this TU codegen */
@@ -182,8 +187,8 @@ int collisionCheck(char *gobj)
     ClipWall(&w);
     if (w.hit) {
         if (D_0063B13C & 1) {
-            D_0063C2C0 = D_0063C2C0 + 10;
-            debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_005551E0);
+            chainDebugY = chainDebugY + 10;
+            debug_Printf(10, chainDebugY, 0x0FFFFFFF, D_005551E0);
         }
         return 1;
     }
@@ -245,8 +250,8 @@ void chain_simulate_term_ropeturn(int a0)
     char *cw = (char *)GOBJ_SUB(a0)->f_830;
 
     if (D_0063B13C & 1) {
-        D_0063C2C0 = D_0063C2C0 + 10;
-        debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_005551F0);
+        chainDebugY = chainDebugY + 10;
+        debug_Printf(10, chainDebugY, 0x0FFFFFFF, D_005551F0);
     }
     *(float *)(cw + 0x44) = -0.4f;
     chain_simulate_term_simple(a0);
@@ -259,8 +264,8 @@ void chain_simulate_term_loop(int a0)
     char *cw = (char *)GOBJ_SUB(a0)->f_830;
 
     if (D_0063B13C & 1) {
-        D_0063C2C0 = D_0063C2C0 + 10;
-        debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_00555210);
+        chainDebugY = chainDebugY + 10;
+        debug_Printf(10, chainDebugY, 0x0FFFFFFF, D_00555210);
     }
     if (*(float *)(cw + 0x34) < 0.5) {
         *(float *)(cw + 0x44) = -0.01f;
@@ -280,8 +285,8 @@ void chain_simulate_term_swingready(int a0)
     char *cw = (char *)GOBJ_SUB(a0)->f_830;
 
     if (D_0063B13C & 1) {
-        D_0063C2C0 = D_0063C2C0 + 10;
-        debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_00555230);
+        chainDebugY = chainDebugY + 10;
+        debug_Printf(10, chainDebugY, 0x0FFFFFFF, D_00555230);
     }
     if (*(float *)(cw + 0x34) < 0.5) {
         *(float *)(cw + 0x44) = -0.29999998f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
@@ -302,8 +307,8 @@ void chain_simulate_term_swingstart(int a0)
     float h;
 
     if (D_0063B13C & 1) {
-        D_0063C2C0 = D_0063C2C0 + 10;
-        debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_00555250);
+        chainDebugY = chainDebugY + 10;
+        debug_Printf(10, chainDebugY, 0x0FFFFFFF, D_00555250);
     }
 
     h = GOBJ_SUB(D_00639EA4)->f_4AC;
@@ -343,8 +348,8 @@ void chain_simulate_term_moveup(int a0)
     float h;
 
     if (D_0063B13C & 1) {
-        D_0063C2C0 = D_0063C2C0 + 10;
-        debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, "chain_simulate_term_moveup\n");
+        chainDebugY = chainDebugY + 10;
+        debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_term_moveup\n");
     }
     if (*(float *)(cw + 0x34) < 1.0f) {
         *(float *)(cw + 0x34) = 1.0f;
@@ -371,8 +376,8 @@ void chain_simulate_term_free(int a0)
     char *cw = (char *)GOBJ_SUB(a0)->f_830;
 
     if (D_0063B13C & 1) {
-        D_0063C2C0 = D_0063C2C0 + 10;
-        debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, "chain_simulate_term_free\n");
+        chainDebugY = chainDebugY + 10;
+        debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_term_free\n");
     }
     if (*(float *)(cw + 0x34) < 0.5) {
         *(float *)(cw + 0x44) = -0.01f;
@@ -394,9 +399,9 @@ void chain_simulate_term_down(int a0)
     float h;
 
     if (D_0063B13C & 1) {
-        D_0063C2C0 = D_0063C2C0 + 10;
+        chainDebugY = chainDebugY + 10;
         /* a 2001 copy and paste: this arm prints the sibling term's name */
-        debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, "chain_simulate_term_free\n");
+        debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_term_free\n");
     }
     if (*(float *)(cw + 0x34) < 0.5) {
         *(float *)(cw + 0x44) = -0.01f;
@@ -431,8 +436,8 @@ void chain_simulate_hangstart(int a0)
     char *cw = (char *)GOBJ_SUB(a0)->f_830;
 
     if (D_0063B13C & 1) {
-        D_0063C2C0 = D_0063C2C0 + 10;
-        debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_005552E0);
+        chainDebugY = chainDebugY + 10;
+        debug_Printf(10, chainDebugY, 0x0FFFFFFF, D_005552E0);
     }
     *(float *)(cw + 0x44) = -1.5f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
     chain_simulate_term_simple(a0);
@@ -443,8 +448,8 @@ extern char D_00555300[];
 void chain_simulate_term(int a0)
 {
     if (D_0063B13C & 1) {
-        D_0063C2C0 = D_0063C2C0 + 10;
-        debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_00555300);
+        chainDebugY = chainDebugY + 10;
+        debug_Printf(10, chainDebugY, 0x0FFFFFFF, D_00555300);
     }
     chain_simulate_term_simple(a0);
 }
@@ -473,8 +478,8 @@ void chain_simulate_stop(int a0)
 
     ResetChainNodes(cw, (float *)(cw + 0x10));
     if (D_0063B13C & 1) {
-        D_0063C2C0 = D_0063C2C0 + 10;
-        debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_00555318);
+        chainDebugY = chainDebugY + 10;
+        debug_Printf(10, chainDebugY, 0x0FFFFFFF, D_00555318);
     }
 }
 
@@ -486,8 +491,8 @@ void chain_simulate_free(int a0)
     int i;
 
     if (D_0063B13C & 1) {
-        D_0063C2C0 = D_0063C2C0 + 10;
-        debug_Printf(10, D_0063C2C0, 0x0FFFFFFF, D_00555330);
+        chainDebugY = chainDebugY + 10;
+        debug_Printf(10, chainDebugY, 0x0FFFFFFF, D_00555330);
     }
     chain_sub_simulate(a0, *(ChainNode **)(cw + 0xD0), 0, *(int *)(cw + 0x74), 1, 0, 10.0f, 50.0f,
                        0.675f);
@@ -572,19 +577,19 @@ unsigned char flag;
     up = w->f24 > 0.0f ? 1 : 0;
 
     if (D_0063B13C & 1) {
-        debug_Printf(10, D_0063C2C0 += 10, 0x0FFFFFFF, D_00555348, w->f18);
+        debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, D_00555348, w->f18);
         if (D_0063B13C & 1) {
-            debug_Printf(10, D_0063C2C0 += 10, 0x0FFFFFFF, D_00555358, w->f10);
+            debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, D_00555358, w->f10);
             if (D_0063B13C & 1) {
-                debug_Printf(10, D_0063C2C0 += 10, 0x0FFFFFFF, D_00555368, w->f14);
+                debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, D_00555368, w->f14);
                 if (D_0063B13C & 1) {
-                    debug_Printf(10, D_0063C2C0 += 10, 0x0FFFFFFF, D_00555378, w->f28);
+                    debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, D_00555378, w->f28);
                     if (D_0063B13C & 1) {
-                        debug_Printf(10, D_0063C2C0 += 10, 0x0FFFFFFF, D_00555388, w->f20);
+                        debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, D_00555388, w->f20);
                         if (D_0063B13C & 1) {
-                            debug_Printf(10, D_0063C2C0 += 10, 0x0FFFFFFF, D_00555398, w->f1C);
+                            debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, D_00555398, w->f1C);
                             if (D_0063B13C & 1) {
-                                debug_Printf(10, D_0063C2C0 += 10, 0x0FFFFFFF, D_005553A8, up);
+                                debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, D_005553A8, up);
                             }
                         }
                     }
@@ -632,10 +637,81 @@ extern void GetOrientOfWall(void *out, int wall, float *pos);
  * not the plain partition word the chain code hands over */
 extern void *iosMallocDebug(void *part, int size, char *file, int line);
 extern void *iosFree(void *p);
-/* the two carved chain records the new geometry starts from: 224 bytes over the
- * head of the record and 64 bytes over the pendulum block at 0x20 */
-extern char D_002A5ED0[];
-extern char D_002A5F10[];
+
+/* The pendulum block at 0x20 of a chain record: the swing orientation, the
+ * swing state, the swing period at 0x48 (360 at every restart), the swing
+ * limit at 0x4C and the swinging flag at 0x50.  Reconstructed from the offsets
+ * the chain code uses; the vector makes it 16-aligned and 0x40 long. */
+typedef struct {
+    /* 0x20 */ sceVu0FVECTOR orient;
+    /* 0x30 */ float f30;
+    /* 0x34 */ float f34;
+    /* 0x38 */ float f38;
+    /* 0x3C */ float f3C;
+    /* 0x40 */ float f40;
+    /* 0x44 */ float f44;
+    /* 0x48 */ float period;
+    /* 0x4C */ float limit;
+    /* 0x50 */ unsigned char swing;
+} ChainPendulum;
+
+/* The head of a chain record, 0xE0 bytes, the node array following it.
+ * Reconstructed from the offsets the chain code uses. */
+typedef struct {
+    /* 0x00 */ int root;
+    /* 0x04 */ int rootNode;
+    /* 0x10 */ sceVu0FVECTOR rootPos;
+    /* 0x20 */ ChainPendulum pdl;
+    /* 0x60 */ unsigned char hold;
+    /* 0x64 */ char *owner;
+    /* 0x68 */ int holdNode;
+    /* 0x6C */ unsigned char f6C;
+    /* 0x70 */ float f70;
+    /* 0x74 */ int nodes;
+    /* 0x80 */ sceVu0FVECTOR f80;
+    /* 0x90 */ sceVu0FVECTOR f90;
+    /* 0xA0 */ unsigned char wallHit;
+    /* 0xA4 */ float wallPos[2];
+    /* 0xAC */ char *wall;
+    /* 0xB0 */ sceVu0FVECTOR wallOrient;
+    /* 0xC0 */ unsigned char fC0;
+    /* 0xC4 */ int count;
+    /* 0xC8 */ float angle;
+    /* 0xCC */ unsigned char fCC;
+    /* 0xCD */ unsigned char fCD;
+    /* 0xD0 */ ChainNode *node;
+} ChainRecord;
+
+/* the two templates a new chain geometry starts from, the pendulum block and
+ * the record head; MAIN.MAP names nothing in chain.o's .data, so both names
+ * are ours */
+static ChainPendulum chainPendulumDefault = {
+    {0.0f, 0.0f, 0.0f, 0.0f}, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 360.0f, 45.0f, 1};
+
+static ChainRecord chainRecordDefault = {
+    0,
+    0,
+    {0.0f, 0.0f, 0.0f, 0.0f},
+    {{0.0f, 0.0f, 0.0f, 0.0f}, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0},
+    0,
+    0,
+    -1,
+    0,
+    0.0f,
+    0,
+    {0.0f, 0.0f, 0.0f, 0.0f},
+    {0.0f, 0.0f, 0.0f, 0.0f},
+    0,
+    {0.0f, 0.0f},
+    0,
+    {0.0f, 0.0f, 0.0f, 0.0f},
+    1,
+    0,
+    70.0f,
+    0,
+    1,
+    0};
+
 extern char D_005553B8[];
 extern char D_00555410[];
 extern char D_0063ABC8[];
@@ -714,7 +790,7 @@ char *InitChainGeo(char *gobj, ChainGeoReq *req)
 
     cw = (char *)iosMallocDebug((void *)D_0063A438, (n << 5) + 0xE0, D_005551C0, 1181);
 
-    *(ChainRecTemplate *)cw = *(ChainRecTemplate *)D_002A5F10;
+    *(ChainRecTemplate *)cw = *(ChainRecTemplate *)&chainRecordDefault;
 
     *(int *)(cw + 0x74) = n;
     *(char **)(cw + 0xD0) = cw + 0xE0;
@@ -723,7 +799,7 @@ char *InitChainGeo(char *gobj, ChainGeoReq *req)
         *(float *)(cw + 0xC8) = req->f20;
     }
 
-    *(ChainPendTemplate *)(cw + 0x20) = *(ChainPendTemplate *)D_002A5ED0;
+    *(ChainPendTemplate *)(cw + 0x20) = *(ChainPendTemplate *)&chainPendulumDefault;
 
     *(float *)(cw + 0x4C) = req->f28;
     *(float *)(cw + 0x4C) = *(float *)(cw + 0x4C) < 5.0f
@@ -890,7 +966,306 @@ void chain_set_charachara(char *gobj, float amp)
     *(int *)(cw + 0xC4) = *(int *)(cw + 0xC4) + 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", ChainGeo);
+/* kept local: this TU's uses of iosOmSendMail do not fit the prototype in obj_manager.h */
+extern int iosOmSendMail(void *to, int msg, void *from);
+extern char D_00555478[];
+extern char D_00555488[];
+extern char D_0063ABD0[];
+
+/* The enemy parameter table, one 404-byte row per motion id; ChainGeo reads
+ * only the flag word at 0x18C.  Same record enemy_act.c reads as EnemyParaRow. */
+typedef struct {
+    char pad00[0x18C];
+    unsigned int flags18C;
+    char pad190[4];
+} ChainParaRow;
+
+extern ChainParaRow D_0055FE58[];
+extern float D_0063B940;
+void SetChainRootUpdateMode(char *gobj, int mode, float *pos);
+void TestChainUpDown(char *gobj, char *boy);
+
+/* chain.c lines 342-390: the motion-to-simulation-mode selector, inlined into
+ * ChainGeo by its single call site. */
+static inline int GetChainSimulateMode(char *gobj)
+{
+    char *cw = (char *)GOBJ_SUB(gobj)->f_830;
+    int mode = 1;
+
+    if (*(unsigned char *)(cw + 0x60) != 0) {
+        char *holder = *(char **)(cw + 0x64);
+        int st = *(int *)(*(int *)(holder + 0x164) + 0x34);
+
+        mode = 6;
+        if (st != 58) {
+            mode = st == 59 ? 9 : 3;
+        }
+
+        switch (*(int *)(*(int *)(holder + 0x15C) + 0x4A0)) {
+        case 136:
+        case 137:
+            if (mode == 3) {
+                mode = 11;
+            }
+            break;
+        case 140:
+            mode = 11;
+            break;
+        case 123:
+        case 124:
+            mode = 4;
+            break;
+        case 120:
+            mode = 10;
+            break;
+        case 119:
+            mode = 7;
+            break;
+        case 121:
+        case 122:
+            mode = 8;
+            break;
+        case 128:
+            mode = 2;
+            break;
+        case 134:
+            mode = 5;
+            break;
+        }
+    }
+    return mode;
+}
+
+/* chain.c lines 441-487: the hand-proximity probe down the chain, inlined into
+ * ChainGeo by its single call site; the caller reads the result as one byte. */
+static inline unsigned char isChainHitByHand(char *gobj, float *p, float *v, float *o, float lim)
+{
+    char *cw = (char *)GOBJ_SUB(gobj)->f_830;
+    float d[4];
+    int i;
+    int ilim = (int)lim;
+
+    /* clang-format off */
+    v[0] = o[0]; v[1] = o[1]; v[2] = o[2];
+    /* clang-format on */
+    v[1] = 0.0f;
+
+    for (i = 2; i <= *(int *)(cw + 0x74) - 1; i++) {
+        ChainNode *nd = (ChainNode *)((i << 5) + *(int *)(cw + 0xD0));
+
+        if (nd->y < p[1] && p[1] < nd->y + 50.0f) {
+            float t;
+            float r;
+
+            sceVu0SubVector(d, nd, p);
+            d[1] = 0.0f;
+            t = sceVu0InnerProduct(d, v);
+            r = FSqrt(d[0] * d[0] + d[1] * d[1] + d[2] * d[2] - t * t);
+            if (-50.0f < t && t < 50.0f && r < (float)ilim) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+void ChainGeo(char *gobj)
+{
+    float p[4];
+    float v[4];
+    char *cw = *(char **)(*(int *)(gobj + 0x15C) + 0x830);
+    char *sub;
+    int mode;
+    int moved;
+    int i;
+
+    chainDebugY = 250;
+
+    if (*(unsigned char *)(cw + 0xCC) != 0) {
+        return;
+    }
+
+    moved = UpdateRootPosition(gobj);
+
+    mode = GetChainSimulateMode(gobj);
+
+    if (D_00639EA4 != 0) {
+        float lim;
+
+        lim = *(float *)(cw + 0xC8);
+        if (*(int *)(*(int *)((char *)D_00639EA4 + 0x164) + 0x34) == 5 ||
+            (((D_0055FE58 + *(int *)(*(int *)((char *)D_00639EA4 + 0x15C) + 0x4A0))->flags18C >>
+              11) &
+             1)) {
+            lim = 70.0f;
+        }
+
+        GetRootPositionHandExtra(D_00639EA4, p);
+        if (isChainHitByHand(gobj, p, v, (float *)test_CURRENTORIENT(D_00639EA4), lim)) {
+            iosOmSendMail(D_00639EA4, 21, gobj);
+        }
+        if (_DistSqGV(p, cw + 0x10) < 900.0f) {
+            iosOmSendMail(D_00639EA4, 166, gobj);
+        }
+    }
+
+    if (mode != *(int *)(cw + 0x78)) {
+        switch (mode) {
+        case 2:
+            initPendulum(gobj);
+            *(float *)(cw + 0x34) = 10.0f;
+            break;
+        case 6:
+            initPendulum(gobj);
+            *(float *)(cw + 0x34) = 5.0f;
+            break;
+        }
+        *(int *)(cw + 0x78) = mode;
+    }
+
+    if (D_0063B13C & 1) {
+        debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, D_0063ABD0, mode);
+    }
+    /* the plumb index is read as the record's member: ROM loads it ahead of
+     * the counter store, which alias.c allows only for a struct member
+     * against a fixed scalar */
+    if (D_0063B13C & 1) {
+        debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, D_00555478, ((ChainRecord *)cw)->holdNode);
+    }
+
+    switch (mode) {
+    case 1:
+        if (*(unsigned char *)(cw + 0x60) == 0 && *(unsigned char *)(cw + 0xC0) != 0) {
+            chain_simulate_stop((int)gobj);
+        } else {
+            chain_simulate_free((int)gobj);
+        }
+        break;
+    case 2:
+        chain_simulate_hangstart(gobj);
+        break;
+    case 3:
+    case 11:
+        chain_simulate_term_loop(gobj);
+        break;
+    case 9:
+        chain_simulate_term_ropeturn(gobj);
+        break;
+    case 4:
+        chain_set_charachara(gobj, 20.0f);
+        chain_simulate_term_swingready(gobj);
+        break;
+    case 5:
+        chain_simulate_term_swingstart(gobj);
+        break;
+    case 6:
+        chain_simulate_term(gobj);
+        break;
+    case 8:
+        chain_set_charachara(gobj, 10.0f);
+        chain_simulate_term_down(gobj);
+        break;
+    case 7:
+        chain_set_charachara(gobj, 20.0f);
+        chain_simulate_term_moveup(gobj);
+        break;
+    default:
+        chain_simulate_term_free(gobj);
+        break;
+    }
+
+    if (*(unsigned char *)(cw + 0x60) != 0) {
+        sub = *(char **)((char *)D_00639EA4 + 0x164);
+        *(int *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x420) = 0;
+        TestChainUpDown(gobj, *(char **)(cw + 0x64));
+
+        /* 0x130..0x138 of the extension is a float vector (cleared here and in
+         * case 2 beside the float stores at 0x410..0x418) */
+        switch (mode) {
+        case 8:
+            *(float *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x130) = 0.0f;
+            *(float *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x134) = 0.0f;
+            *(float *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x138) = 0.0f;
+            SetChainRootUpdateMode((char *)D_00639EA4, 2,
+                                   (float *)(*(char **)(cw + 0xD0) + (*(int *)(cw + 0x68) << 5)));
+            break;
+        case 7:
+        case 10:
+            SetChainRootUpdateMode((char *)D_00639EA4, 2,
+                                   (float *)(*(char **)(cw + 0xD0) + (*(int *)(cw + 0x68) << 5)));
+            break;
+        case 3:
+        case 9:
+            SetChainRootUpdateMode((char *)D_00639EA4, 3,
+                                   (float *)(*(char **)(cw + 0xD0) + (*(int *)(cw + 0x68) << 5)));
+            break;
+        case 2:
+            if (sub != 0) {
+                float *nd = (float *)((*(int *)(cw + 0x68) << 5) + *(int *)(cw + 0xD0));
+                float h;
+
+                *(float *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x130) = 0.0f;
+                *(float *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x134) = 0.0f;
+                *(float *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x138) = 0.0f;
+                *(float *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x410) = nd[0];
+                *(float *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x414) = nd[1];
+                *(float *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x418) = nd[2];
+                h = *(float *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x4AC);
+                if (h < 3.0f) {
+                    *(int *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x420) = -1;
+                    D_0063B940 = 0.5f;
+                } else if (h < 10.0f) {
+                    *(int *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x420) = -1;
+                    D_0063B940 = 1.0f;
+                } else {
+                    *(int *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x420) = 1;
+                }
+            }
+            break;
+        default:
+            if (sub != 0) {
+                CopyVector((char *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x410),
+                           *(char **)(cw + 0xD0) + (*(int *)(cw + 0x68) << 5));
+                *(int *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x420) = 1;
+            }
+            break;
+        }
+    }
+
+    /* no node-pointer local: ROM re-reads cw->0xD0 after the first fptodp */
+    if (*(unsigned char *)(cw + 0x60) != 0) {
+        if (D_0063B13C & 1) {
+            debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, D_00555488, *(float *)(cw + 0x3C),
+                         (*(ChainNode **)(cw + 0xD0))[0].y -
+                             ((ChainNode *)((*(int *)(cw + 0x68) << 5) + *(int *)(cw + 0xD0)))->y,
+                         *(int *)(cw + 0x68));
+        }
+    }
+
+    *(char *)(cw + 0xC0) = 0;
+
+    if (moved == 0 && *(float *)(cw + 0x34) < 5.0f) {
+        *(char *)(cw + 0xC0) = 1;
+        for (i = 0; i < *(int *)(cw + 0x74); i++) {
+            /* clang-format off */
+            v[0] = *(float *)(cw + 0x10); v[1] = *(float *)(cw + 0x14); v[2] = *(float *)(cw + 0x18);
+            /* clang-format on */
+            v[1] = v[1] + (float)i * 50.0f;
+            if (!(_DistSqGV(v, &(*(ChainNode **)(cw + 0xD0))[i]) < 9.0f)) {
+                *(char *)(cw + 0xC0) = 0;
+                break;
+            }
+
+            if (1.0f <
+                (*(ChainNode **)(cw + 0xD0))[i].vx * (*(ChainNode **)(cw + 0xD0))[i].vx +
+                    (*(ChainNode **)(cw + 0xD0))[i].vy * (*(ChainNode **)(cw + 0xD0))[i].vy +
+                    (*(ChainNode **)(cw + 0xD0))[i].vz * (*(ChainNode **)(cw + 0xD0))[i].vz) {
+                *(char *)(cw + 0xC0) = 0;
+                break;
+            }
+        }
+    }
+}
 
 /* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
 extern void _SubVector(void *d, void *a, void *b);
@@ -1010,6 +1385,39 @@ void PlumbPointUpdateChain(char *gobj, float *pos)
     ((ChainVal *)(cw + 0x3C))->f = (float)*(int *)(cw + 0x68) * 50.0f;
 }
 
+/* the climb work the chain-climb modes share: the focus node point, the target
+ * point the root is interpolated towards, the interpolation phase, the
+ * motion's frame count and the mode the previous call left behind.
+ * Reconstructed from the offsets TestChainUpDown uses. */
+typedef struct {
+    /* 0x00 */ sceVu0FVECTOR node;
+    /* 0x10 */ sceVu0FVECTOR target;
+    /* 0x20 */ float phase;
+    /* 0x24 */ int frames;
+    /* 0x28 */ int prev;
+} ChainClimbWork;
+
+/* the climb work's storage, twelve words reached through ChainClimbWork
+ * casts (the phase updates and the mode store in TestChainUpDown rebuild the
+ * pointer from the symbol each time, which a cast of storage of another type
+ * gives and a ChainClimbWork object would fold away); the mode word at 0x28
+ * starts at -1.  MAIN.MAP names nothing in chain.o's .data, so the name is
+ * ours */
+/* not static while TestChainUpDown's assembled stub still references it by name; static once it lands */
+int chainClimb[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0};
+
+/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
+extern float *test_CURRENTROOT(void *a0);
+/* the per-motion frame-count records, indexed by the motion id at ext + 0x4A0 */
+extern int *D_004EB758[];
+/* kept local: this TU's uses of these do not fit the prototypes their own
+ * headers carry */
+extern int GetSkeltonFocusNode(char *gobj, int node);
+extern void debug_NMarker(float size, void *pos, int r, int g, int b);
+
+/* TestChainUpDown was refused at harvest 2026-09-27 (chain 1 pass 122): its two helpers were spelled
+   as nested functions, while the listing puts their lines (1784-1809, 1826-1846) BEFORE the
+   function's own first line (1852), i.e. at file scope; pass 123 lands the file-scope form. */
 INCLUDE_ASM("asm/nonmatchings/ico2/omori/src/chain", TestChainUpDown);
 
 void SetChainRootUpdateMode(char *gobj, int mode, float *pos)
