@@ -820,7 +820,41 @@ void SgStAdpcmQuit(void)
     _SgSetPkAdd(0x3D, 0, 0, 0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sound", SgStAdpcmOpen);
+int SgStAdpcmOpen(void *a0)
+{
+    char *p = (char *)a0;
+    int c;
+    int b0;
+    int v4;
+    int v10;
+    int v14;
+    int v8;
+    unsigned int w1;
+    unsigned int w2;
+    unsigned int w3;
+
+    _SgGetComContext();
+    c = *(int *)(p + 0xC);
+    /* RECONSTRUCTION: the ROM schedules `lui $4,0xff; lui $8,0xff` ahead of
+     * `lbu $5,0($16)` (words 6-8), which the compiler gives only when one
+     * zero-byte instruction that writes the record at p sits between the 0xC
+     * read and the other five reads, in both schedulers; no C construct this
+     * compiler emits yields such an instruction (the port's zero-byte emitters
+     * were enumerated, rows c3p110 and c3p121). The empty asm with the record
+     * as its memory output stands in for Sony's text, which the bytes cannot
+     * show; the reads themselves are plain. */
+    __asm__("" : "=m"(*(struct { int w[6]; } *)p));
+    b0 = *(unsigned char *)p;
+    v4 = *(int *)(p + 4);
+    v10 = *(int *)(p + 0x10);
+    v14 = *(int *)(p + 0x14);
+    v8 = *(int *)(p + 8);
+    w3 = (c << 24) | (v8 & 0xFFFFFF);
+    w2 = (v10 << 16) | (((unsigned int)c >> 8) & 0xFFFF);
+    w1 = (b0 << 24) | (v4 & 0xFF0000) | (v14 & 0xFF00) | (((unsigned int)v10 & 0xFF0000) >> 16);
+    _SgSetPkAdd(0x3E, w1, w2, w3);
+    return 0;
+}
 
 int SgStAdpcmClose(unsigned int a0)
 {

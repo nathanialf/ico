@@ -187,7 +187,17 @@ def main(argv):
             if re.match(r'^\s*do\s*\{\s*$', l) and i + 1 < len(L) and re.match(r'^\s*\}\s*while\s*\(0\)\s*;', L[i+1]):
                 bad.append(f'{f}:{i+1}: empty do {{ }} while (0); (a loop note with no code)')
             if EMPTY_ASM.search(l):
-                bad.append(f'{f}:{i+1}: empty inline asm')
+                # USER RULING 2026-09-27 (CLAUDE.md 'the sce/ archive asm exception'): a member of
+                # an SDK archive under sce/ (never ico2/, never the public libc/libm/libgcc
+                # sources) may keep an empty asm statement standing in for Sony's own text when
+                # the site is allowlisted as `path:asm:function | reason` AND a RECONSTRUCTION
+                # comment sits within the twelve lines above it; the supervisor adds the row at
+                # harvest after the five-pass rule and the fact checklist.
+                fn = enclosing_function(L, i)
+                sdk = f.startswith('sce/') and not f.startswith(('sce/libc/', 'sce/libm/', 'sce/libgcc/'))
+                marked = any('RECONSTRUCTION' in L[k] for k in range(max(0, i - 12), i))
+                if not (sdk and fn and marked and f'{f}:asm:{fn}' in allow):
+                    bad.append(f'{f}:{i+1}: empty inline asm')
             if PIN_MACRO.search(l):
                 bad.append(f'{f}:{i+1}: retired pin macro')
             if PIN.search(l) or (ASM_OPEN.search(l) and not EMPTY_ASM.search(l)):
