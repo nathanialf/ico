@@ -1,5 +1,68 @@
 #include "common.h"
 #include "debug_exception.h"
+
+/* The EE exceptions the debug monitor traps: {cause code, printable name}. */
+typedef struct {
+    int code;   /* 0x0 */
+    char *name; /* 0x4 */
+} DebugExcEntry;
+
+/* The cause names, this TU's .rodata (not yet carved). */
+extern char D_0061CD90[]; /* "TRAP exception" */
+extern char D_0061CDA0[]; /* "ARITHMETIC OVERFLOW exception" */
+extern char D_0061CDC0[]; /* "COPROCESSOR UNUSABLE exception" */
+extern char D_0061CDE0[]; /* "RESERVE OPERATION exception" */
+extern char D_0061CE00[]; /* "BUS ERROR exception LOAD OR STORE" */
+extern char D_0061CE28[]; /* "BUS ERROR exception OPERATION" */
+extern char D_0061CE48[]; /* "ADDRESS ERROR exception STORE" */
+extern char D_0061CE68[]; /* "ADDRESS ERROR exception LOAD or OPERATION" */
+extern char D_0061CE98[]; /* "TLB NOT MATCH exception STORE" */
+extern char D_0061CEB8[]; /* "TLB NOT MATCH exception LOAD or OPERATION" */
+extern char D_0061CEE8[]; /* "TLB MOD exception" */
+/* The register names, this TU's .sdata (not yet carved), r0 to r31. */
+extern char D_0063B368[], D_0063B360[], D_0063B358[], D_0063B350[]; /* " 0" at v0 v1 */
+extern char D_0063B348[], D_0063B340[], D_0063B338[], D_0063B330[]; /* a0 a1 a2 a3 */
+extern char D_0063B328[], D_0063B320[], D_0063B318[], D_0063B310[]; /* t0 t1 t2 t3 */
+extern char D_0063B308[], D_0063B300[], D_0063B2F8[], D_0063B2F0[]; /* t4 t5 t6 t7 */
+extern char D_0063B2E8[], D_0063B2E0[], D_0063B2D8[], D_0063B2D0[]; /* s0 s1 s2 s3 */
+extern char D_0063B2C8[], D_0063B2C0[], D_0063B2B8[], D_0063B2B0[]; /* s4 s5 s6 s7 */
+extern char D_0063B2A8[], D_0063B2A0[], D_0063B298[], D_0063B290[]; /* t8 t9 k0 k1 */
+extern char D_0063B288[], D_0063B280[], D_0063B278[], D_0063B270[]; /* gp sp s8 ra */
+
+/* This file's .data (VMA 0x4D9F70..0x4DA4C8), ahead of the screen include's.
+   The monitor installs debugEEExceptionMain for every cause in the table. */
+static DebugExcEntry excTable[11] = {
+    {1, D_0061CEE8},  {2, D_0061CEB8},  {3, D_0061CE98},  {4, D_0061CE68},
+    {5, D_0061CE48},  {6, D_0061CE28},  {7, D_0061CE00},  {10, D_0061CDE0},
+    {11, D_0061CDC0}, {12, D_0061CDA0}, {13, D_0061CD90},
+};
+
+/* The report window: {value, name} word pairs, one pair per EE register,
+   the values written at exception time and read back flat by display. */
+static unsigned int regInfo[64] = {
+    0, (unsigned int)D_0063B368, 0, (unsigned int)D_0063B360, 0, (unsigned int)D_0063B358,
+    0, (unsigned int)D_0063B350, 0, (unsigned int)D_0063B348, 0, (unsigned int)D_0063B340,
+    0, (unsigned int)D_0063B338, 0, (unsigned int)D_0063B330, 0, (unsigned int)D_0063B328,
+    0, (unsigned int)D_0063B320, 0, (unsigned int)D_0063B318, 0, (unsigned int)D_0063B310,
+    0, (unsigned int)D_0063B308, 0, (unsigned int)D_0063B300, 0, (unsigned int)D_0063B2F8,
+    0, (unsigned int)D_0063B2F0, 0, (unsigned int)D_0063B2E8, 0, (unsigned int)D_0063B2E0,
+    0, (unsigned int)D_0063B2D8, 0, (unsigned int)D_0063B2D0, 0, (unsigned int)D_0063B2C8,
+    0, (unsigned int)D_0063B2C0, 0, (unsigned int)D_0063B2B8, 0, (unsigned int)D_0063B2B0,
+    0, (unsigned int)D_0063B2A8, 0, (unsigned int)D_0063B2A0, 0, (unsigned int)D_0063B298,
+    0, (unsigned int)D_0063B290, 0, (unsigned int)D_0063B288, 0, (unsigned int)D_0063B280,
+    0, (unsigned int)D_0063B278, 0, (unsigned int)D_0063B270,
+};
+
+/* The message debug_SetExceptionMessage saves and the report prints back.
+   The bytes pin 1025 to 1032 bytes before the next object's 16-byte
+   alignment; the round kilobyte is ours. */
+static char exceptionMessage[1024] = "";
+
+/* This file's .bss (VMA 0x70FA80..0x70FA90), ahead of the screen include's:
+   the quadword display stages one saved register in to print it as four
+   words. */
+static unsigned int regQuad[4];
+
 #include "debug_exception_screen.c.inc"
 #include "debug.h"
 #include "GsBase.h"
@@ -274,31 +337,18 @@ void dispSource(SrcRef ref, int lines)
     waitCd();
 }
 
-/* The EE exceptions the debug monitor traps: {cause code, printable name}.
- * The table is this TU's own .data -- it heads the 0x800-byte debug_exception
- * .data run at 0x004D9F70 -- and stays an extern until that run is carved. */
-typedef struct {
-    int code;   /* 0x0 */
-    char *name; /* 0x4 */
-} DebugExcEntry;
-
-extern DebugExcEntry D_004D9F70[11];
-/* The 0x200-byte message buffer the exception screen prints back; it heads the
-   debug_exception .data run just past the cause table. */
-extern char D_004DA0C8[];
-extern char D_0061D0A0[];          /* the eight-word register row format */
-extern char D_0061D108[];          /* "page %d\n" */
-extern char D_0061D120[];          /* the coloured exception banner */
-extern char D_0061D148[];          /* "EPC %8.8x BADV %8.8x SR %8.8x\n" */
-extern char D_0061D160[];          /* "sp %8.8x stack %d ra %d\n" */
-extern char D_0061D188[];          /* "%s=%8.8x_%8.8x_%8.8x_%8.8x\n" */
-extern char D_0063B3C0[];          /* "%s\n" for the saved message -- this TU's .sdata */
-extern char D_0063B3C8[];          /* the coloured source-line header -- .sdata */
-extern char D_0063B3D0[];          /* the first unwind row format -- .sdata */
-extern char D_0063B3D8[];          /* the second unwind row format -- .sdata */
-extern char D_0063B3E0[];          /* the third unwind row format -- .sdata */
-extern char D_0063B3E8[];          /* the fourth unwind row format -- .sdata */
-extern unsigned int D_0070FA80[4]; /* the 16-byte staging quadword */
+extern char D_0061D0A0[]; /* the eight-word register row format */
+extern char D_0061D108[]; /* "page %d\n" */
+extern char D_0061D120[]; /* the coloured exception banner */
+extern char D_0061D148[]; /* "EPC %8.8x BADV %8.8x SR %8.8x\n" */
+extern char D_0061D160[]; /* "sp %8.8x stack %d ra %d\n" */
+extern char D_0061D188[]; /* "%s=%8.8x_%8.8x_%8.8x_%8.8x\n" */
+extern char D_0063B3C0[]; /* "%s\n" for the saved message -- this TU's .sdata */
+extern char D_0063B3C8[]; /* the coloured source-line header -- .sdata */
+extern char D_0063B3D0[]; /* the first unwind row format -- .sdata */
+extern char D_0063B3D8[]; /* the second unwind row format -- .sdata */
+extern char D_0063B3E0[]; /* the third unwind row format -- .sdata */
+extern char D_0063B3E8[]; /* the fourth unwind row format -- .sdata */
 
 /* debug_exception.c:398-399, inlined into display: eight rows of four
    {name, value} register pairs.  The array is indexed by the counter, not
@@ -319,7 +369,7 @@ static inline void dispRegs(unsigned int *regs)
 /* debug_exception.c:473-581.  One page of the exception screen.  Seven word
    arguments, so a0 to a3 then t0 to t3 under the EABI; the second (cause) is
    never read, which is why nothing is copied out of a1.  `regs` is the flat
-   {value, name} pair array at D_004D9FC8, two words per EE register, so
+   {value, name} pair array regInfo, two words per EE register, so
    regs[62] is the saved ra and regs[58] the saved sp. */
 void display(int code, unsigned int cause, unsigned int epc, unsigned int badvaddr,
              unsigned int status, unsigned int *regs, int page)
@@ -337,11 +387,11 @@ void display(int code, unsigned int cause, unsigned int epc, unsigned int badvad
     debug_ClearFontWindow();
 
     putString(0xFFFFFF00, D_0061D120);
-    putString(0xFFFFFF00, D_0063B3C0, D_004DA0C8);
+    putString(0xFFFFFF00, D_0063B3C0, exceptionMessage);
 
     switch (page) {
     case 0:
-        putString(0x40C0FF00, D_0063B3B8, D_004D9F70[code].name);
+        putString(0x40C0FF00, D_0063B3B8, excTable[code].name);
 
         putString(0x40C0FF00, D_0061D148, epc, badvaddr, status);
 
@@ -392,17 +442,15 @@ void display(int code, unsigned int cause, unsigned int epc, unsigned int badvad
 
     case 1:
         for (i = 0, p = regs; i < 16; i++, p += 2) {
-            D_0070FA80[0] = p[0];
-            putString(0xFFFFFF00, D_0061D188, p[1], D_0070FA80[3], D_0070FA80[2], D_0070FA80[1],
-                      D_0070FA80[0]);
+            regQuad[0] = p[0];
+            putString(0xFFFFFF00, D_0061D188, p[1], regQuad[3], regQuad[2], regQuad[1], regQuad[0]);
         }
         break;
 
     case 2:
         for (i = 0, p = regs + 32; i < 16; i++, p += 2) {
-            D_0070FA80[0] = p[0];
-            putString(0xFFFFFF00, D_0061D188, p[1], D_0070FA80[3], D_0070FA80[2], D_0070FA80[1],
-                      D_0070FA80[0]);
+            regQuad[0] = p[0];
+            putString(0xFFFFFF00, D_0061D188, p[1], regQuad[3], regQuad[2], regQuad[1], regQuad[0]);
         }
         break;
     }
@@ -414,10 +462,6 @@ typedef struct {
     unsigned int w[4];
 } EeReg128;
 
-extern DebugExcEntry D_004D9F70[11];
-/* The report window: {value, name} word pairs, one pair per EE register, with
-   the names filled in from .data and the values written at exception time. */
-extern unsigned int D_004D9FC8[64];
 extern int D_0063B36C;    /* set once an exception is already being reported */
 extern int D_0063AE74;    /* the "stop the game" flag the rest of the EE polls */
 extern char D_0061D1A8[]; /* "called exception\n" */
@@ -443,7 +487,7 @@ static inline void clearDbgScreen(void)
 
     for (i = 0; i < 26; i++) {
         for (j = 0; j < 256; j++) {
-            D_0070FA90[i][j] = D_0063B388;
+            charScreen[i][j] = D_0063B388;
         }
     }
     D_0063B394 = 0;
@@ -510,7 +554,7 @@ void debugEEExceptionMain(int arg0, unsigned int cause, unsigned int epc, unsign
        the slot between Emergency_DestroyAllThread and scePrintf, and the two
        values and their frame slots come out swapped against ROM. */
     for (i = 0; i < 32; i++) {
-        D_004D9FC8[i * 2] = regs[i].w[0];
+        regInfo[i * 2] = regs[i].w[0];
         page = 1;
     }
 
@@ -529,12 +573,12 @@ void debugEEExceptionMain(int arg0, unsigned int cause, unsigned int epc, unsign
 
     initLineTraceTable();
 
-    scePrintf(D_0061D1C0, D_004D9F70[code].name, code);
+    scePrintf(D_0061D1C0, excTable[code].name, code);
     scePrintf(D_0061D1D8, cause);
     scePrintf(D_0063B3F0, epc);
 
     for (k = 0; k < 11; k++) {
-        SetDebugHandler(D_004D9F70[k].code, 0);
+        SetDebugHandler(excTable[k].code, 0);
     }
 
     iosPadEnable();
@@ -544,7 +588,7 @@ void debugEEExceptionMain(int arg0, unsigned int cause, unsigned int epc, unsign
 
     clearDbgScreen();
 
-    display(code, cause, epc, badvaddr, status, D_004D9FC8, 0);
+    display(code, cause, epc, badvaddr, status, regInfo, 0);
     debugExcDebugDisp();
 
     tex = 1;
@@ -560,7 +604,7 @@ void debugEEExceptionMain(int arg0, unsigned int cause, unsigned int epc, unsign
             if (sel != 0) {
                 putString(0xFFFFFF00, D_0061D1E8, sel - 1);
             } else {
-                display(code, cause, epc, badvaddr, status, D_004D9FC8, 0);
+                display(code, cause, epc, badvaddr, status, regInfo, 0);
             }
         }
 
@@ -577,7 +621,6 @@ void debugEEExceptionMain(int arg0, unsigned int cause, unsigned int epc, unsign
     }
 }
 
-extern DebugExcEntry D_004D9F70[11];
 /* The source-listing work buffer handed in at init; initLineTraceTable and
  * traceLine read it back and pass it to sceRead as the read buffer. It sits in
  * src/debug's .sdata run, hence the gp-relative store. */
@@ -589,9 +632,9 @@ inline void debugExceptionInit(void *workBuf)
     int i;
 
     D_0063B268 = workBuf;
-    scePrintf(D_0063B3F8, sizeof(D_004D9F70) / sizeof(D_004D9F70[0]));
-    for (i = 0; i < sizeof(D_004D9F70) / sizeof(D_004D9F70[0]); i++) {
-        SetDebugHandler(D_004D9F70[i].code, debugEEExceptionMain);
+    scePrintf(D_0063B3F8, sizeof(excTable) / sizeof(excTable[0]));
+    for (i = 0; i < sizeof(excTable) / sizeof(excTable[0]); i++) {
+        SetDebugHandler(excTable[i].code, debugEEExceptionMain);
     }
 }
 
@@ -606,7 +649,7 @@ void debugIOPExceptionMain(void)
     resetGS();
     for (i = 0; i < 26; i++) {
         for (j = 0; j < 256; j++) {
-            D_0070FA90[i][j] = D_0063B388;
+            charScreen[i][j] = D_0063B388;
         }
     }
     D_0063B394 = 0;
@@ -620,9 +663,6 @@ void debugIOPExceptionMain(void)
     }
 }
 
-/* The 0x200-byte message buffer the exception screen prints back; it heads the
- * debug_exception .data run just past the cause table. */
-extern char D_004DA0C8[];
 extern char D_0061D210[]; /* the coloured EUC-JP banner */
 extern char D_0061D248[]; /* a rule of dashes */
 extern char D_0061D278[]; /* the same rule, then the ANSI colour reset */
@@ -630,7 +670,7 @@ extern char D_0063B3B8[]; /* "%s\n" -- this TU's own .sdata, uncarved */
 
 void debug_SetExceptionMessage(char *mes)
 {
-    strcpy(D_004DA0C8, mes);
+    strcpy(exceptionMessage, mes);
     debug_StdPrintfDummy(D_0061D210);
     debug_StdPrintfDummy(D_0061D248);
     debug_StdPrintfDummy(D_0063B3B8, mes);

@@ -573,6 +573,7 @@ segments:
       - [0x219A00, data, cod/219A00]     # data blob resume
       - [0x3D9C10, .data, ico2/common/src/charFileManager]  # the TU's .data (data pass 6), VMA 0x4D9C10..0x4D9C28, 24 B
       - [0x3D9C28, data, cod/3D9C28]     # data blob resume
+      - [0x3D9F70, .data, ico2/common/src/debug_exception]  # the TU's whole .data run as source (VMA 0x4D9F70..0x4DA770, 0x800 = MAIN.MAP debug_exception.o .data; chain 3 pass 132), gamesys's row follows directly
       - [0x3DA770, .data, ico2/common/src/gamesys]  # the TU's whole .data run as source (completeness pass 5), VMA 0x4DA770..0x4DA788, 18 B emitted
       - [0x3DA788, data, cod/3DA788]     # .data blob resume
       - [0x3E4600, .data, ico2/common/src/staffroll]  # the TU's .data (data pass 5; = MAIN.MAP staffroll.o .data 0x10), VMA 0x4E4600..0x4E4610, 16 B
@@ -686,7 +687,7 @@ segments:
       - [0x44D7F8, .rodata, ico2/sugipon/src/keyInput]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x54D7F8..0x54D850, 88 B
       # --- per-TU .rodata carves (PAL phase 2; see docs/carve_ledger.md).
       - [0x44D850, .rodata, ico2/sugipon/src/motionManager2]  # the TU's whole .rodata run as source (data pass 5): the constant run, the EUC-JP strings and the switch table in one row, VMA 0x54D850..0x54DA48, VMA 0x54D850..0x54DA48, 504 B
-      - [0x44DA48, rodata, cod/44DA48]     # rodata blob resume
+      - [0x44DA48, .rodata, ico2/sugipon/src/pool]  # the TU's whole .rodata run as source (VMA 0x54DA48..0x54DA80, 0x38 B: 8 B of alignment fill as MAIN.MAP shows before pool.o's 16-aligned .rodata, then the work rect, the file-name literal and the screen origin; chain 3 pass 132), quaternion's row follows directly
       - [0x44DA80, .rodata, ico2/sugipon/src/quaternion]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x54DA80..0x54DB10, 144 B
       - [0x44DB0C, rodata, cod/44DB0C]     # rodata blob resume
       - [0x44DB10, .rodata, ico2/seki/src/DisplayP2O]  # syms: dispObjFormat  the member's one string, `static const char dispObjFormat[32]` = "display object = %d" (data pass 2), VMA 0x54DB10..0x54DB30, 32 B
@@ -1353,6 +1354,7 @@ segments:
       - { type: .bss, vram: 0x006FACF0, name: ico2/common/src/backStage }  # the TU's own .bss, 0x10 B, VMA 0x6FACF0..0x6FAD00; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006FAD00, name: ico2/common/src/charFileManager }  # the TU's own .bss, 0x9978 B, VMA 0x6FAD00..0x704678; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x00704678, name: cod/00704678 }  # .bss blob resume
+      - { type: .bss, vram: 0x0070FA80, name: ico2/common/src/debug_exception }  # the TU's whole .bss (VMA 0x70FA80..0x71CA90, 0xD010 = MAIN.MAP debug_exception.o .bss: the display's staging quadword and the 26x256 character screen; chain 3 pass 132), icoMisc's row follows directly
       - { type: .bss, vram: 0x0071CA90, name: ico2/common/src/icoMisc }  # the TU's own .bss, 0x80 B, VMA 0x71CA90..0x71CB10; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x0071CB10, name: ico2/common/src/kanban }  # the TU's own .bss, 0x3C0 B, VMA 0x71CB10..0x71CED0; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x0071CED0, name: cod/0071CED0 }  # .bss blob resume

@@ -17,11 +17,22 @@ extern void sceVif1PkTerminate();
 extern void sceGsSyncPath();
 extern int sceGsSetDefTexEnv();
 extern int sceGsSetDefAlphaEnv();
-extern unsigned long long D_004DA4D0[];
 extern int sceGsSetDefDrawEnv();
-extern unsigned long long D_004DA570[];
-extern unsigned long long D_004DA600[];
-extern unsigned long long D_004DA6A0[];
+
+/* The four GS environment packets the screen sends with sceGsPutDrawEnv: a
+   GIF tag (NLOOP registers in PACKED A+D, EOP) and the register writes after
+   it, qword aligned for the DMA.  Each Set...Environment function fills its
+   own packet's registers through the uncached mirror before sending it. */
+static unsigned long long texFrameEnv[20]
+    __attribute__((aligned(16))) = {0x1000000000008009LL, 0xE};
+
+static unsigned long long texDrawEnv[18] __attribute__((aligned(16))) = {0x1000000000008008LL, 0xE};
+
+static unsigned long long drawnTexEnv[20]
+    __attribute__((aligned(16))) = {0x1000000000008009LL, 0xE};
+
+static unsigned long long drawEnv[20] __attribute__((aligned(16))) = {0x1000000000008002LL, 0xE};
+
 typedef unsigned int u128_dbgscr __attribute__((mode(TI)));
 
 /* sceVif1Packet: 0x20 bytes (two per drawSprite frame at sp+0x00 / sp+0x20).
@@ -50,13 +61,23 @@ extern int ScreenWidth;
 extern int ScreenHeight;
 extern u128_dbgscr D_0061CF20[];
 extern u128_dbgscr D_0061CF30[];
-extern u128_dbgscr D_004DA740[];
-extern u128_dbgscr D_004DA750[];
+
+/* GIF tags for the sprite packets, PACKED with EOP and NLOOP left for
+   sceVif1PkCloseGifTag: UV and XYZ2 for a textured sprite, XYZ2 alone for a
+   flat one. */
+static unsigned long long spriteTexTag[2]
+    __attribute__((aligned(16))) = {0x2400000000008000LL, 0x43};
+
+static unsigned long long spriteTag[2] __attribute__((aligned(16))) = {0x1400000000008000LL, 0x4};
+
 extern int D_0063B37C;
 extern int D_0063B380;
 extern int D_0063B384;
 extern const unsigned char D_0061C590[];
-extern u128_dbgscr D_004DA760[];
+
+/* The font's tag: XYZ2 pairs, one sprite per lit pixel. */
+static unsigned long long fontTag[2] __attribute__((aligned(16))) = {0x1400000000008000LL, 0x4};
+
 extern void sceGsResetPath(void);
 
 typedef struct {
@@ -64,7 +85,9 @@ typedef struct {
     char ch;
 } DbgChar;
 
-extern DbgChar D_0070FA90[26][256];
+/* The 26-line, 256-column character screen the report is printed into. */
+static DbgChar charScreen[26][256];
+
 extern DbgChar D_0063B388;
 extern int D_0063B394;
 extern int D_0063B398;
@@ -127,7 +150,7 @@ void SetTextureWithFrameBuffer(int x)
 {
     unsigned long long *env;
 
-    env = (unsigned long long *)((unsigned int)D_004DA4D0 | 0x20000000);
+    env = (unsigned long long *)((unsigned int)texFrameEnv | 0x20000000);
     sceGsSetDefTexEnv(&env[12], 0, (short)x, (short)(ScreenWidth / 64), 1, 10, 8, 0, 0, 0, 0, 1);
     sceGsSetDefAlphaEnv(&env[4], 0);
     env[4] = 0x44;
@@ -143,7 +166,7 @@ void SetTexDrawEnvironment(int addr)
 {
     unsigned long long *env;
 
-    env = (unsigned long long *)((unsigned int)D_004DA570 | 0x20000000);
+    env = (unsigned long long *)((unsigned int)texDrawEnv | 0x20000000);
     sceGsSetDefDrawEnv(&env[2], 0, (short)ScreenWidth, (short)ScreenHeight, 1, 0x31);
     env[2] = (env[2] & ~0x1FF) | ((addr / 32) & 0x1FF);
     env[4] |= 0x100000000;
@@ -155,7 +178,7 @@ void SetDrawnTextureEnvironment(int x)
 {
     unsigned long long *env;
 
-    env = (unsigned long long *)((unsigned int)D_004DA600 | 0x20000000);
+    env = (unsigned long long *)((unsigned int)drawnTexEnv | 0x20000000);
     sceGsSetDefTexEnv(&env[12], 0, (short)x, (short)(ScreenWidth / 64), 0, 10, 8, 0, 0, 0, 0, 1);
     sceGsSetDefAlphaEnv(&env[4], 0);
     env[4] = 0x44;
@@ -172,7 +195,7 @@ void SetDrawEnvironment(int mode)
 {
     unsigned long long *env;
 
-    env = (unsigned long long *)((unsigned int)D_004DA6A0 | 0x20000000);
+    env = (unsigned long long *)((unsigned int)drawEnv | 0x20000000);
     sceGsSetDefAlphaEnv(&env[4], 0);
     switch (mode) {
     case 0:
@@ -235,7 +258,7 @@ void drawSprite(int r, int g, int b, int a, int x0, int y0, int x1, int y1, int 
     if (tex != 0) {
         SetPrimColorTex(6, r, g, b, a, 1);
         OpenVif1DirectPacket(&packet);
-        sceVif1PkOpenGifTag(&packet, D_004DA740[0]);
+        sceVif1PkOpenGifTag(&packet, *(u128_dbgscr *)spriteTexTag);
         sceVif1PkAddGsData(&packet, 0);
         sceVif1PkAddGsData(&packet, (unsigned long long)((x0 + 0x800) << 4) |
                                         ((unsigned long long)((y0 + 0x800) << 4) << 16) |
@@ -250,7 +273,7 @@ void drawSprite(int r, int g, int b, int a, int x0, int y0, int x1, int y1, int 
     } else {
         SetPrimColor(6, r, g, b, a);
         OpenVif1DirectPacket(&packet);
-        sceVif1PkOpenGifTag(&packet, D_004DA750[0]);
+        sceVif1PkOpenGifTag(&packet, *(u128_dbgscr *)spriteTag);
         sceVif1PkAddGsData(&packet, (unsigned long long)((x0 + 0x800) << 4) |
                                         ((unsigned long long)((y0 + 0x800) << 4) << 16) |
                                         0x0080000000000000ULL);
@@ -270,7 +293,7 @@ void PutFont(int c, int x, int y)
 
     SetPrimColor(6, D_0063B37C >> 2, D_0063B380 >> 2, D_0063B384 >> 2, 0x40);
     OpenVif1DirectPacket(&packet);
-    sceVif1PkOpenGifTag(&packet, D_004DA760[0]);
+    sceVif1PkOpenGifTag(&packet, *(u128_dbgscr *)fontTag);
     for (j = 0; j < 8; j++) {
         int oy = j * 2 + 0x800;
         for (i = 0; i < 8; i++) {
@@ -289,7 +312,7 @@ void PutFont(int c, int x, int y)
 
     SetPrimColor(0, D_0063B37C, D_0063B380, D_0063B384, 0x80);
     OpenVif1DirectPacket(&packet);
-    sceVif1PkOpenGifTag(&packet, D_004DA760[0]);
+    sceVif1PkOpenGifTag(&packet, *(u128_dbgscr *)fontTag);
     for (j = 0; j < 8; j++) {
         int oy = j * 2 + 0x800;
         for (i = 0; i < 8; i++) {
@@ -331,11 +354,11 @@ static inline void scrollDbgScreen(void)
 
     for (i = 1; i < 26; i++) {
         for (j = 0; j < 256; j++) {
-            D_0070FA90[i - 1][j] = D_0070FA90[i][j];
+            charScreen[i - 1][j] = charScreen[i][j];
         }
     }
     for (j = 0; j < 256; j++) {
-        D_0070FA90[25][j] = D_0063B388;
+        charScreen[25][j] = D_0063B388;
     }
 }
 
@@ -353,8 +376,8 @@ void putString(unsigned int color, char *fmt, ...)
             D_0063B398++;
             D_0063B394 = 0;
         } else {
-            D_0070FA90[D_0063B398][D_0063B394].col = color;
-            D_0070FA90[D_0063B398][D_0063B394].ch = str[i];
+            charScreen[D_0063B398][D_0063B394].col = color;
+            charScreen[D_0063B398][D_0063B394].ch = str[i];
             D_0063B394++;
         }
         if (D_0063B394 >= 256) {
@@ -374,7 +397,7 @@ void drawWin(void)
     int st;
 
     for (i = 0; i < 26; i++) {
-        for (j = 255; D_0070FA90[i][j].ch == ' ' && j >= 0; j--) {}
+        for (j = 255; charScreen[i][j].ch == ' ' && j >= 0; j--) {}
         j++;
         if (len < j)
             len = j;
@@ -387,7 +410,7 @@ void drawWin(void)
             st = j - 50;
         }
         for (k = 0; k < 50; k++) {
-            DbgChar *p = &D_0070FA90[i][st + k];
+            DbgChar *p = &charScreen[i][st + k];
             if (p->ch != ' ') {
                 D_0063B37C = ((p->col >> 24) & 0xFF) * 0.8f;
                 D_0063B380 = ((p->col >> 16) & 0xFF) * 0.8f;
@@ -411,8 +434,8 @@ void saveBack(void)
 static inline void putBaseChar(int c)
 {
     unsigned int col = 0xFFFFFF00;
-    D_0070FA90[D_0063B398][D_0063B394].col = col;
-    D_0070FA90[D_0063B398][D_0063B394].ch = c;
+    charScreen[D_0063B398][D_0063B394].col = col;
+    charScreen[D_0063B398][D_0063B394].ch = c;
 }
 
 static inline void dispBase(void)

@@ -5,7 +5,167 @@
 #include "matrixDrive.h"
 #include "streamMotionManager.h"
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/streamMotionManager", _infoUpdate);
+typedef struct {
+    int w[7];
+} SMotion;
+
+extern SMotion D_00724AA8[];
+extern int D_0028F4C0[];
+extern int frame_count;
+extern int ScreenHeight;
+extern int D_0063A3D8;
+extern int D_0063B13C;
+extern int D_0063B144;
+extern int D_0063BBF0;
+extern int D_0063BC00;
+extern int D_0063BC04;
+extern int D_0063BC08;
+extern int D_0063BC14;
+extern int D_0063BC18;
+extern int D_0063BC20;
+extern int D_0063BC28;
+extern int D_0063BC2C;
+extern int D_0063BC30;
+extern char D_0063BC38[]; /* "S:%d", the stream counter D_0063BC30 its argument */
+extern int D_0063BCB8;
+extern char D_00620FB0[];
+extern char D_00620FF8[];
+extern char D_00621030[];
+extern char D_00621070[];
+extern char D_006210B0[];
+extern char D_006210D0[];
+extern char D_00621100[];
+extern char D_00621130[];
+
+/* The ring is 0x28000 bytes; the check asks whether the write pointer has run
+ * far enough ahead of the read pointer for `room` more bytes to be there. */
+static inline int _checkRing(int room)
+{
+    unsigned int p = D_0063BC00;
+    unsigned int end = p + room;
+    unsigned int q = D_0063BC04;
+    int r;
+
+    if (q < p) {
+        q += 0x28000;
+    }
+    r = 1;
+    if (!(q < p) && (int)q < (int)end) {
+        r = 0;
+    }
+    return r;
+}
+
+static inline void _setEntryOffsets(void)
+{
+    unsigned int off = 0;
+    int i;
+
+    for (i = 0; i < D_0063BBF0; i++) {
+        D_00724AA8[i].w[3] = D_00724AA8[i].w[4] = (D_0063BC00 + off) % 0x28000;
+        off += D_00724AA8[i].w[2];
+    }
+}
+
+static inline void _setNextEntryOffsets(unsigned int base)
+{
+    unsigned int off = 0;
+    int i;
+
+    for (i = 0; i < D_0063BBF0; i++) {
+        D_00724AA8[i].w[4] = (base + off) % 0x28000;
+        off += D_00724AA8[i].w[2];
+    }
+}
+
+static inline void _advanceRing(int amt)
+{
+    D_0063BC20 += amt;
+    D_0063BC00 += amt;
+    if ((unsigned int)D_0063BC00 > 0x27FFF) {
+        D_0063BC00 -= 0x28000;
+    }
+}
+
+int _infoUpdate(void)
+{
+    int top;
+    int n;
+    int i;
+
+    if (D_0063BC14 == 0) {
+        if (_checkRing(0x1000)) {
+            D_0063BC18 = 0;
+            for (i = 0; i < D_0063BBF0; i++) {
+                int a = D_0063BC00 + D_0063BC18;
+
+                D_00724AA8[i].w[0] = *(unsigned char *)(D_0063BC08 + (a + 2) % 0x28000);
+                D_00724AA8[i].w[1] = *(unsigned char *)(D_0063BC08 + (a + 3) % 0x28000);
+                D_00724AA8[i].w[2] = 16 + D_00724AA8[i].w[0] * 8 + D_00724AA8[i].w[1] * 4;
+                D_0063BC18 += D_00724AA8[i].w[2];
+            }
+            n = 0xE23;
+            if (D_0028F4C0[0] == 0) {
+                n = 0xBB5;
+            }
+            D_0063BC14 = 1;
+            D_0063BC2C = n;
+        } else {
+            debug_StdPrintfDummy(D_00620FB0);
+            D_0063A3D8++;
+            return 0;
+        }
+    }
+    top = D_0063BC00;
+    D_0063BC28 = 0;
+    while (D_0063BC2C >= 2997) {
+        if (!_checkRing(D_0063BC18)) {
+            debug_StdPrintfDummy(D_00620FF8);
+            D_0063A3D8++;
+            return 0;
+        } else {
+            if (*(unsigned char *)(D_0063BC08 + D_0063BC00) == 0xFF) {
+                return 1;
+            }
+            top = D_0063BC00;
+            _setEntryOffsets();
+            _advanceRing(D_0063BC18);
+            if (_checkRing(D_0063BC18) && *(unsigned char *)(D_0063BC08 + D_0063BC00) == 0) {
+                _setNextEntryOffsets(D_0063BC00);
+            }
+            D_0063BC2C -= 2997;
+            D_0063BC30++;
+            if (D_0063B144 != 0 || (D_0063B13C & 1)) {
+                debug_Printf(500, ScreenHeight / 2 - 48, 0xCCCCCC00, D_0063BC38, D_0063BC30);
+            }
+            if (*(unsigned char *)(D_0063BC08 + top) == 1) {
+                if (D_0063BC2C == 2997) {
+                    debug_StdPrintfDummy(D_00621030);
+                } else {
+                    debug_StdPrintfDummy(D_00621070, (float)D_0063BC2C / 2997.0f);
+                }
+                break;
+            }
+        }
+    }
+    if (*(unsigned char *)(D_0063BC08 + top) == 1) {
+        debug_StdPrintfDummy(D_006210B0);
+        if (D_0063BCB8 != 0) {
+            debug_StdPrintfDummy(D_006210D0, frame_count);
+        } else {
+            debug_StdPrintfDummy(D_00621100);
+        }
+    }
+    if (D_0063BCB8 != 0) {
+        debug_StdPrintfDummy(D_00621130);
+        D_0063BC30 = 0;
+        D_0063BC2C = 0;
+        D_0063BCB8 = 0;
+    }
+    D_0063BC28 = D_0063BC2C;
+    D_0063BC2C += D_0028F4C0[0] == 0 ? 0xBB5 : 0xE23;
+    return 0;
+}
 
 extern char D_00621150[];
 extern int D_0063BBF4;
@@ -35,12 +195,6 @@ void ClearStreamMotionEntry(char *gobj)
     CopyVector((char *)*(int *)(gobj + 0x15C) + 0x670, ZeroVector);
     *(int *)(*(int *)(gobj + 0x15C) + 0x550) = 1;
 }
-
-typedef struct {
-    int w[7];
-} SMotion;
-
-extern SMotion D_00724AA8[];
 
 /* .data, the whole of streamMotionManager.o's run: the cleared entry every
    slot is reset to. */

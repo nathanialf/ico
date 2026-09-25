@@ -26,16 +26,17 @@ typedef struct {
     char c[4];
 } Blob4;
 
-typedef struct {
-    long long c[2];
-} Blob16L;
-
 void falldownSE(int a0)
 {
     ExecuteSEPackage(a0, 0x56);
 }
 
-extern char D_0054DA50[];
+/* The whole drawing area as a sprite rectangle in GS primitive coordinates,
+   {x0, y0, x1, y1}: copyToWork and flushWork blit the frame through it.  A
+   quadword: the member's .rodata starts on a 16-byte boundary in both the
+   retail link (8 bytes of fill after motionManager2's run) and MAIN.MAP. */
+static const int workRect[4] __attribute__((aligned(16))) = {-2048, -2048, 4096, 4096};
+
 extern int D_00639F28;
 extern char D_00639F30[];
 extern int ScreenWidth;
@@ -72,7 +73,7 @@ void copyToWork(int pri)
     gif_SetAlpha(0, 4, 0);
     gif_SetGsReg(0x47, 0x30000);
     gif_SetGsReg(0x14, 0x60);
-    *(Blob16 *)rect = *(Blob16 *)D_0054DA50;
+    *(Blob16 *)rect = *(Blob16 *)workRect;
     /* The inner block is what the frame proves.  uv's initialiser is built in
        a 16-byte stack temp and block-copied into uv (safe_from_p rejects the
        array as the constructor target once its address is live), and col is
@@ -102,7 +103,7 @@ void flushWork(int pri)
     gif_SetZTest(0);
     gif_SetGsReg(0x4E, 0x30000000 | (D_00639F2C / 32));
     gif_SetAlpha(0, 4, 0);
-    *(Blob16 *)buf = *(Blob16 *)D_0054DA50;
+    *(Blob16 *)buf = *(Blob16 *)workRect;
     *(Blob4 *)(buf + 0x10) = *(Blob4 *)D_00639F38;
     gif_SpriteSensitiveOrg(buf, 0, 0, buf + 0x10, 0);
     gif_SetZTest(1);
@@ -230,7 +231,6 @@ typedef struct {
 } StgCsvEnt;
 
 extern StgCsvEnt D_002A79B8[];
-extern char D_0054DA60[];
 extern IosMemPart *D_0063A438;
 /* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
 extern void _UnitMatrix(void *m);
@@ -238,7 +238,7 @@ int poolRideFunc(char **a0, char *a1);
 
 char *InitPoolGeo(char *self, char *lay)
 {
-    char *w = iosMallocDebug(D_0063A438, 224, D_0054DA60, 316);
+    char *w = iosMallocDebug(D_0063A438, 224, "src/pool.c", 316);
     char *rip;
     int i;
     int j;
@@ -256,11 +256,12 @@ char *InitPoolGeo(char *self, char *lay)
         *(int *)(w + 0x38) = (int)*(float *)(lay + 0x28);
         *(float *)(w + 0x3C) = *(float *)(lay + 0x24);
 
-        *(char **)(w + 0x4C) = iosMallocDebug(D_0063A438, *(int *)(w + 0x34) * 4, D_0054DA60, 330);
+        *(char **)(w + 0x4C) =
+            iosMallocDebug(D_0063A438, *(int *)(w + 0x34) * 4, "src/pool.c", 330);
 
         for (i = 0; i < *(int *)(w + 0x34); i++) {
             *(char **)(*(char **)(w + 0x4C) + i * 4) =
-                iosMallocDebug(D_0063A438, *(int *)(w + 0x38) * 4, D_0054DA60, 334);
+                iosMallocDebug(D_0063A438, *(int *)(w + 0x38) * 4, "src/pool.c", 334);
         }
 
         *(char **)(w + 0x44) = prim_InitMesh3D(*(int *)(w + 0x38), *(int *)(w + 0x34), 1, 0x1C,
@@ -270,7 +271,8 @@ char *InitPoolGeo(char *self, char *lay)
             prim_InitMesh3D(*(int *)(w + 0x38), *(int *)(w + 0x34), 1, 0x5C, 0x80808080, 1);
 
         *(short *)(w + 0xCC) = 0;
-        *(char **)(w + 0x48) = iosMallocDebug(D_0063A438, *(int *)(w + 0x34) * 4, D_0054DA60, 357);
+        *(char **)(w + 0x48) =
+            iosMallocDebug(D_0063A438, *(int *)(w + 0x34) * 4, "src/pool.c", 357);
 
         for (j = 0; j < *(int *)(w + 0x34); j++) {
             (*(float ***)(w + 0x48))[j] =
@@ -429,7 +431,9 @@ static inline void makeWaveGrid(char *w, float **grid, int ang)
     }
 }
 
-extern const Blob16L D_0054DA70;
+/* The GS drawing-area origin, the centre of the 4096-unit primitive space. */
+static const ConstVec screenOrigin = {{2048.0f, 2048.0f, 0.0f, 0.0f}};
+
 extern int buffer_ID;
 extern int matrixptr;
 /* kept local: this TU's uses of _InnerProduct do not fit the prototype in Matrix.h */
@@ -449,7 +453,7 @@ extern void _SetCurrentMatrix(int m);
 
 void updatePoolGeo(char *self)
 {
-    Blob16L org;
+    ConstVec org;
     float out[4];
     float nrm[4];
     float eye[4];
@@ -486,7 +490,7 @@ void updatePoolGeo(char *self)
     int i;
     int j;
 
-    org = D_0054DA70;
+    org = screenOrigin;
     sx = 1.0f / (float)ScreenWidth;
     sy = 1.0f / (float)ScreenHeight;
 
@@ -785,13 +789,13 @@ void InitLimitedPoolReflactionMesh(char *a0)
     *(char **)(a0 + 0x10) = prim_InitMesh3D(*(int *)(a0 + 0x4), *(int *)(a0 + 0x0), 1, 0x1C,
                                             *(unsigned int *)(a0 + 0x1C), 1);
     *(char ****)(a0 + 0x14) =
-        (char ***)iosMallocDebug(D_0063A438, *(int *)(a0 + 0x0) * 4, D_0054DA60, 884);
-    *(char **)(a0 + 0x18) = iosMallocDebug(D_0063A438, *(int *)(a0 + 0x0) * 4, D_0054DA60, 885);
+        (char ***)iosMallocDebug(D_0063A438, *(int *)(a0 + 0x0) * 4, "src/pool.c", 884);
+    *(char **)(a0 + 0x18) = iosMallocDebug(D_0063A438, *(int *)(a0 + 0x0) * 4, "src/pool.c", 885);
     for (i = 0; i < *(int *)(a0 + 0x0); i++) {
         *(char **)(*(char **)(a0 + 0x18) + i * 4) =
             *(char **)(*(char **)(a0 + 0x10) + 0x6C) + i * *(int *)(a0 + 0x4) * 16;
         (*(char ****)(a0 + 0x14))[i] =
-            (char **)iosMallocDebug(D_0063A438, *(int *)(a0 + 0x4) * 4, D_0054DA60, 890);
+            (char **)iosMallocDebug(D_0063A438, *(int *)(a0 + 0x4) * 4, "src/pool.c", 890);
         for (j = 0; j < *(int *)(a0 + 0x4); j++) {
             (*(char ****)(a0 + 0x14))[i][j] = 0;
         }
@@ -800,7 +804,7 @@ void InitLimitedPoolReflactionMesh(char *a0)
 
 void SetLayoutedPoolReflactionMesh(char *a0)
 {
-    Blob16L vec;
+    ConstVec vec;
     float out[4];
     char *mesh;
     char *tmp;
@@ -828,7 +832,7 @@ void SetLayoutedPoolReflactionMesh(char *a0)
     }
 
     mesh = *(char **)(a0 + 0x10);
-    vec = D_0054DA70;
+    vec = screenOrigin;
     sx = 1.0f / (float)ScreenWidth;
     sy = 1.0f / (float)ScreenHeight;
     tmp = (char *)(matrixptr + 0x4C0);
@@ -868,7 +872,7 @@ void SetLimitedPoolReflactionMesh(char *a0, char *a1, char *a2)
     float pos[4];
     float v1[4];
     float v2[4];
-    Blob16L vec;
+    ConstVec vec;
     float out[4];
     char *mesh;
     char *tmp;
@@ -911,7 +915,7 @@ void SetLimitedPoolReflactionMesh(char *a0, char *a1, char *a2)
     pos[2] -= dist * 0.5f;
 
     mesh = *(char **)(a0 + 0x10);
-    vec = D_0054DA70;
+    vec = screenOrigin;
     sx = 1.0f / (float)ScreenWidth;
     sy = 1.0f / (float)ScreenHeight;
     tmp = (char *)(matrixptr + 0x4C0);
