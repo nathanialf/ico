@@ -37,7 +37,8 @@ int sceSifLoadFileReset(void);                                         /* defini
 void sceSifLoadModule(void *a0, int a1, int a2);                       /* definition in sce/ */
 int sceSifRebootIop(const char *img);                                  /* dominant spelling at 1 sites */
 int sceSifSetDma(int p, int a);                                        /* dominant spelling at 3 sites */
-void sceSifSetReg(int a0, int a1);                                     /* dominant spelling at 1 sites */
+unsigned int sceSifSetReg(int a0, int a1);                             /* returns a value: sceSifInitCmd's allocation
+                                                                          after its last call proves a call_value */
 int sceSifSyncIop(void);                                               /* definition in sce/ */
 void sceSifWriteBackDCache(void *addr, int len);                       /* dominant spelling at 2 sites */
 

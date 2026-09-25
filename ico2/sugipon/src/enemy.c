@@ -499,7 +499,17 @@ int EnemyGetNSafeParts(char *self)
     return cnt;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/enemy", EnemyDeleteParticle);
+void EnemyDeleteParticle(char *self, float *dir, short *list)
+{
+    char *sub = *(char **)(self + 0x15C);
+    int i;
+    int n;
+
+    n = 2;
+    for (i = 0; list[i] >= 0 && n > 0; i++, n--) {
+        enemySetParticle(8, *(char **)(sub + 0xC) + list[i] * 0x40 + 0x30, dir);
+    }
+}
 
 void SetEnemyHitGeometryAction(char *a0, int a1)
 {

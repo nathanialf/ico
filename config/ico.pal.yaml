@@ -985,7 +985,7 @@ segments:
       - [0x5362E0, .rodata, sce/libgraph/graph015]  # the member's whole .rodata (= MAIN.MAP graph015.o .rodata 0x11C): sceGsSetDefLoadImage's format string as an anonymous literal (zero-padded to 0x636310) and its 59-entry jump table on dpsm (section .rodata.0x00636310, 0xEC B), VMA 0x6362E0..0x6363FC
       - [0x5363FC, rodata, cod/5363FC]     # .rodata blob resume
       - [0x536400, .rodata, sce/libgraph/graph017]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x636400..0x636610, 528 B
-      - [0x536440, rodata, cod/536440]     # rodata blob resume
+      - [0x536440, .rodata, sce/libgraph/graph018]  # the member's plain .rodata (chain 1 pass 111): sceGsExecStoreImage's four printf strings as anonymous literals, VMA 0x636440..0x63651E, 0xDE B, then its jump table in the selector section at 0x636520
       - [0x536520, .rodata, sce/libgraph/graph018]  # sceGsExecStoreImage's 59-entry jump table on psm (section .rodata.0x00636520, 0xEC B, chain 1 pass 110), anonymous, VMA 0x636520..0x63660C
       - [0x53660C, rodata, cod/53660C]     # rodata blob resume (4 B before libdma's string)
       - [0x536610, .rodata, sce/libdma/libdma]  # the wait loops' one string literal "libdma: sync timeout\n" (0x16 B, = MAIN.MAP libdma.o .rodata 0x16), VMA 0x636610..0x636626, padded to 0x636628 where tty.o's strings begin

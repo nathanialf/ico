@@ -14,7 +14,7 @@
 
 int CanThisEnemyFly(char *a0);
 void CheckEnemyHit(void *a0, void *a1, void *a2, void *a3);
-void EnemyDeleteParticle(void *a0, void *a1, void *a2);
+void EnemyDeleteParticle(char *self, float *dir, short *list);
 void EnemySetfAppearAll(char *self);
 int GetEnemyBattleType(char *a0);
 float GetEnemyDefDodgeRange(char *a0);

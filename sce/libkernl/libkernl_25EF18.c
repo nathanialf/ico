@@ -6,6 +6,10 @@
 #include <sifrpc.h>
 #include <string.h>
 
+/* eekernel.h's spelling: a void call leaves no value register set after it,
+   which sceSifInitCmd's allocation after its FlushCache call shows. */
+extern void FlushCache(int a0);
+
 typedef struct {
     int f0;
     int f4;
@@ -1762,7 +1766,97 @@ int sceRead(int fd, void *buf, int nbyte)
     return result;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceWrite);
+int sceWrite(int fd, void *buf, int nbyte)
+{
+    int *g = D_0072C240;
+    SceIob *iob;
+    int inuse;
+    int uv;
+    int h;
+    int rc;
+    int i;
+    int j;
+    char *dst;
+    int nb;
+    int result;
+    int sema[8];
+
+    iob = (SceIob *)get_iob(fd);
+    _sceFsWaitS(3);
+    if (D_0054A470[0] == 0) {
+        _sceFsSigSema();
+        return -1;
+    }
+    if (iob == 0 || (inuse = iob->inuse) == 0) {
+        _sceFsSigSema();
+        return -9;
+    }
+    g[3] = iob->fd;
+    g[11] = iob - (SceIob *)D_0072D300;
+    g[5] = nbyte;
+    g[4] = (int)buf;
+    sema[1] = 1;
+    sema[2] = 0;
+    sema[5] = 0;
+    D_0072C240[0] = h = CreateSema(sema);
+    *(void **)(g + 1) = &result;
+    g[2] = 4;
+    if (inuse & 0x8000) {
+        WaitSema(D_0054A47C[0]);
+        for (i = 0; i < 0x20; i++) {
+            if (D_0054A3F0[i] == -1) {
+                D_0054A3F0[i] = g[0];
+                g[0] = -g[0];
+                break;
+            }
+        }
+        SignalSema(D_0054A47C[0]);
+    }
+    if (((unsigned int)buf & 0xF) == 0) {
+        nb = 0;
+    } else {
+        nb = (unsigned int)buf / 16 * 16 + 16 - (unsigned int)buf;
+    }
+    if (nb > nbyte) {
+        nb = nbyte;
+    }
+    if ((inuse & 0x20000000) == 0) {
+        sceSifWriteBackDCache(buf, nbyte);
+    }
+    buf = (char *)((unsigned int)buf | 0x20000000);
+    g[6] = nb;
+    /* What the bytes pin: the head-byte address g + 0x1C is its own insn in the
+       copy loop's preheader, after the loop's test (addiu $6,$18,0x1C), and the
+       store has displacement 0.  A constant-offset index (((char *)g)[0x1C + j])
+       folds the 0x1C into the sb displacement (fold-const.c associate), and a
+       pointer set before the loop is hoisted by gcse PRE above the async block;
+       a set inside the body is what loop.c moves to that preheader.  The copy
+       counter is its own variable: the ROM keeps it in $5, apart from the slot
+       search's i in $6. */
+    for (j = 0; j < nb; j++) {
+        dst = (char *)g + 0x1C;
+        dst[j] = ((char *)buf)[j];
+    }
+    rc = sceSifCallRpc(D_0072D500, 3, 0, D_0072C240, 0x30, D_0072CE80, 4, 0, 0);
+    if (rc < 0) {
+        DeleteSema(h);
+        _sceFsSigSema();
+        return -0xB;
+    }
+    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    _sceFsSigSema();
+    if (uv == 0) {
+        DeleteSema(h);
+        return -0xB;
+    }
+    if (isNowait(inuse)) {
+        DeleteSema(h);
+        return 0;
+    }
+    WaitSema(h);
+    DeleteSema(h);
+    return result;
+}
 
 /* the ioctl argument pointer the request-0x1 arm reads back */
 extern void *D_0072C200;
@@ -2970,7 +3064,58 @@ int sceSifLoadFileReset(void)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", _sceSifLoadModuleBuffer);
+/* The request's 0xFC-byte argument block.  The oversize copy below is a record
+   assignment, which gcc expands inline through movstrsi; memcpy stays a call at
+   -fno-builtin, so the inline ldl/ldr run can only come from a record. */
+typedef struct {
+    char v[0xFC];
+} SceLfArgBuf;
+
+/* The loadfile RPC send buffer at D_0072D780 (0x200 bytes sent, 8 read back). */
+typedef struct {
+    int addr;
+    int arglen;
+    char name[0xFC];
+    SceLfArgBuf args;
+} SceLfRpcBuf;
+
+int _sceSifLoadModuleBuffer(void *addr, int arglen, int args, void *ret)
+{
+    SceLfRpcBuf *p;
+    int r;
+
+    if (_lf_bind() < 0) {
+        return 0xFFFF0000;
+    }
+    if (_lf_version() != 0) {
+        return 0xFFFEFFFC;
+    }
+    p = (SceLfRpcBuf *)D_0072D780;
+    ((SceLfRpcBuf *)D_0072D780)->addr = (int)addr;
+    if (args != 0) {
+        if (arglen >= 0xFD) {
+            p->args = *(SceLfArgBuf *)args;
+            /* What the bytes pin: this store goes through the buffer itself,
+               not p; the ROM re-forms its address after the copy loop
+               (addiu $3,%lo(D_0072D780) then sw 4($3)), where p's register
+               serves the other two arms.  A member of the record gives that
+               (explow.c memory_address copies the lo_sum base to a register);
+               a byte-offset constant would give %lo(D_0072D780+4). */
+            ((SceLfRpcBuf *)D_0072D780)->arglen = 0xFC;
+        } else {
+            memcpy(&p->args, (char *)args, arglen);
+            p->arglen = arglen;
+        }
+    } else {
+        p->arglen = 0;
+    }
+    if (sceSifCallRpc(D_0072D980, 6, 0, D_0072D780, 0x200, D_0072D780, 8, 0, 0) < 0) {
+        return 0xFFFEFFFF;
+    }
+    r = ((SceLfRpcBuf *)D_0072D780)->addr;
+    *(int *)ret = ((SceLfRpcBuf *)D_0072D780)->arglen;
+    return r;
+}
 
 void sceSifLoadModuleBuffer(void *a0, int a1, int a2)
 {
@@ -2984,13 +3129,6 @@ int sceSifLoadStartModuleBuffer(void *a0, int a1, int a2, void *a3)
 }
 
 extern char D_0072D788[];
-
-/* The request's 0xFC-byte argument block.  The oversize copy below is a record
-   assignment, which gcc expands inline through movstrsi; memcpy stays a call at
-   -fno-builtin, so the inline ldl/ldr run can only come from a record. */
-typedef struct {
-    char v[0xFC];
-} SceLfArgBuf;
 
 int _sceSifLoadModule(void *name, int arglen, int args, int ret, int rpcno)
 {
@@ -3993,14 +4131,106 @@ int sceSifSetSreg(int a0, int a1)
     return a1;
 }
 
-extern int D_0072ED58[];
+/* Reconstruction: the 32-entry SIF command handler table at D_0072ED80, a
+   handler function and the data pointer handed to it. */
+typedef struct {
+    void (*fn)();
+    void *data;
+} SifCmdEntry;
+
+/* Reconstruction: the SIF command data record at D_0072ED58 (fields 3/4 and 5/6
+   are what sceSifSetSysCmdBuffer and sceSifSetCmdBuffer swap). */
+typedef struct {
+    int sendbuf;
+    int ackbuf;
+    int iopbuf;
+    SifCmdEntry *systbl;
+    int nsys;
+    SifCmdEntry *usrtbl;
+    int nusr;
+    int *sreg;
+} SifCmdData;
+
+extern SifCmdData D_0072ED58;
 
 void *sceSifGetDataTable(void)
 {
-    return D_0072ED58;
+    return &D_0072ED58;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/libkernl_25EF18", sceSifInitCmd);
+extern int D_0054A508[];
+extern int D_0072EC80[];
+extern int D_0072ED00[];
+extern int D_0072ED40[];
+extern int D_0072ED54[];
+extern int D_0072ED80[];
+extern void sceSifSetDChain(void);
+extern void _sceSifCmdIntrHdlr();
+extern void _change_addr(int *a0, int *a1);
+extern void _set_sreg(int *a0, int *a1);
+extern int sceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1);
+
+void sceSifInitCmd(void)
+{
+    SifCmdEntry *h;
+    int i;
+
+    DIntr();
+    if (D_0054A508[0] != 0) {
+        EIntr();
+        return;
+    }
+    D_0054A508[0] = 1;
+    D_0072ED58.sendbuf = (int)D_0072EC80 | 0x20000000;
+    D_0072ED58.ackbuf = (int)D_0072ED00 | 0x20000000;
+    D_0072ED58.iopbuf = 0;
+    D_0072ED58.systbl = (SifCmdEntry *)D_0072ED80;
+    D_0072ED58.nsys = 0x20;
+    D_0072ED58.usrtbl = 0;
+    D_0072ED58.nusr = 0;
+    D_0072ED58.sreg = D_0072EE80;
+    /* Both loops count up with the one i: loop.c reverses each counter and,
+       since i is shared, sets i = 32 after the second, which is the register
+       the DMAC status write below stores (the ROM keeps i in $16). */
+    h = (SifCmdEntry *)D_0072ED80;
+    for (i = 0; i < 32; i++) {
+        h->fn = 0;
+        h->data = 0;
+        h++;
+    }
+    for (i = 0; i < 32; i++) {
+        D_0072EE80[i] = 0;
+    }
+    ((SifCmdEntry *)D_0072ED80)[0].fn = _change_addr;
+    ((SifCmdEntry *)D_0072ED80)[0].data = &D_0072ED58;
+    ((SifCmdEntry *)D_0072ED80)[1].fn = _set_sreg;
+    ((SifCmdEntry *)D_0072ED80)[1].data = &D_0072ED58;
+    EIntr();
+    FlushCache(0);
+    if (*(volatile int *)0x1000E010 & 0x20) {
+        *(volatile int *)0x1000E010 = 0x20;
+    }
+    if ((*(volatile int *)0x1000C000 & 0x100) == 0) {
+        sceSifSetDChain();
+    }
+    D_0072ED54[0] = AddDmacHandler(5, _sceSifCmdIntrHdlr, 0);
+    EnableDmac(5);
+    D_0072ED58.iopbuf = sceSifGetReg(0x80000000);
+    if (D_0072ED58.iopbuf != 0) {
+        D_0072ED40[4] = (int)D_0072EC80;
+        sceSifSendCmd(0x80000000, (int)D_0072ED40, 0x14, 0, 0, 0);
+        return;
+    }
+    while ((sceSifGetReg(4) & 0x20000) == 0) {
+        ;
+    }
+    D_0072ED58.iopbuf = sceSifGetReg(2);
+    sceSifSetReg(0x80000000, D_0072ED58.iopbuf);
+    sceSifSetReg(0x80000001, (int)&D_0072ED58);
+    D_0072ED40[4] = (int)D_0072EC80;
+    D_0072ED40[3] = 0;
+    sceSifSendCmd(0x80000002, (int)D_0072ED40, 0x14, 0, 0, 0);
+}
 
 extern int D_0054A508[];
 extern int D_0072ED54[];
@@ -4014,21 +4244,19 @@ void sceSifExitCmd(void)
     D_0054A508[0] = 0;
 }
 
-extern int D_0072ED58[];
-
-int sceSifSetCmdBuffer(int a0, int a1)
+SifCmdEntry *sceSifSetCmdBuffer(SifCmdEntry *tbl, int n)
 {
-    int old = D_0072ED58[5];
-    D_0072ED58[5] = a0;
-    D_0072ED58[6] = a1;
+    SifCmdEntry *old = D_0072ED58.usrtbl;
+    D_0072ED58.usrtbl = tbl;
+    D_0072ED58.nusr = n;
     return old;
 }
 
-int sceSifSetSysCmdBuffer(int a0, int a1)
+SifCmdEntry *sceSifSetSysCmdBuffer(SifCmdEntry *tbl, int n)
 {
-    int old = D_0072ED58[3];
-    D_0072ED58[3] = a0;
-    D_0072ED58[4] = a1;
+    SifCmdEntry *old = D_0072ED58.systbl;
+    D_0072ED58.systbl = tbl;
+    D_0072ED58.nsys = n;
     return old;
 }
 

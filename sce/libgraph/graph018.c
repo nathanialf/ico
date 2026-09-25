@@ -3,10 +3,6 @@
 #include "common.h"
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
-extern char D_00636440[];
-extern char D_00636478[];
-extern char D_006364A8[];
-extern char D_006364E8[];
 /* The GIF FIFO's reset value.  Read-only: its load is hoisted above the
    0x12001000 store at the end, which alias.c's true_dependence allows only for
    an unchanging MEM. */
@@ -143,7 +139,7 @@ int sceGsExecStoreImage(void *pkt, void *img)
 
     while (*(volatile int *)0x10009000 & 0x100) {
         if (i++ > 0x1000000) {
-            printf(D_00636440);
+            printf("sceGsExecStoreImage: DMA Ch.1 does not terminate\r\n");
             return -1;
         }
     }
@@ -160,14 +156,14 @@ int sceGsExecStoreImage(void *pkt, void *img)
     *(volatile int *)0x10009000 = 0x101;
     while (*(volatile int *)0x10009000 & 0x100) {
         if (i++ > 0x1000000) {
-            printf(D_00636440);
+            printf("sceGsExecStoreImage: DMA Ch.1 does not terminate\r\n");
             return -1;
         }
     }
 
     while ((*(volatile unsigned long *)0x12001000 & 2) == 0) {
         if (i++ > 0x1000000) {
-            printf(D_00636478);
+            printf("sceGsExecStoreImage: GS does not terminate\r\n");
             *(volatile u_long128 *)0x10005000 = D_0054A2E0;
             return -1;
         }
@@ -186,7 +182,7 @@ int sceGsExecStoreImage(void *pkt, void *img)
         *(volatile int *)0x10009000 = 0x100;
         while (*(volatile int *)0x10009000 & 0x100) {
             if (i++ > 0x1000000) {
-                printf(D_006364A8);
+                printf("sceGsExecStoreImage: DMA Ch.1 (GS->MEM) does not terminate\r\n");
                 *(volatile unsigned long *)0x12001000 = 0x100;
                 *(volatile unsigned long *)0x12001040 = 0;
                 *(volatile int *)0x10003000 = 1;
@@ -199,7 +195,7 @@ int sceGsExecStoreImage(void *pkt, void *img)
     for (j = 0; j < n1; j++) {
         while ((*(volatile int *)0x10003C00 & 0x1F000000) == 0) {
             if (i++ > 0x1000000) {
-                printf(D_006364E8);
+                printf("sceGsExecStoreImage: Enough data does not reach VIF1\n");
                 *(volatile unsigned long *)0x12001000 = 0x100;
                 *(volatile unsigned long *)0x12001040 = 0;
                 *(volatile int *)0x10003000 = 1;
@@ -213,7 +209,7 @@ int sceGsExecStoreImage(void *pkt, void *img)
     if (rem != 0) {
         while ((*(volatile int *)0x10003C00 & 0x1F000000) == 0) {
             if (i++ > 0x1000000) {
-                printf(D_006364E8);
+                printf("sceGsExecStoreImage: Enough data does not reach VIF1\n");
                 *(volatile unsigned long *)0x12001000 = 0x100;
                 *(volatile unsigned long *)0x12001040 = 0;
                 *(volatile int *)0x10003000 = 1;
@@ -228,7 +224,7 @@ int sceGsExecStoreImage(void *pkt, void *img)
         for (j = 0; j < extra; j++) {
             while ((*(volatile int *)0x10003C00 & 0x1F000000) == 0) {
                 if (i++ > 0x1000000) {
-                    printf(D_006364E8);
+                    printf("sceGsExecStoreImage: Enough data does not reach VIF1\n");
                     *(volatile unsigned long *)0x12001000 = 0x100;
                     *(volatile unsigned long *)0x12001040 = 0;
                     *(volatile int *)0x10003000 = 1;
