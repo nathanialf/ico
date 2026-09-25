@@ -92,7 +92,183 @@ static unsigned short cpdext[30] = {0, 0, 0, 0, 1, 1, 2, 2,  3,  3,  4,  4,  5, 
 extern int D_0063A464;
 extern char D_00550FF0[];
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/ios/inflate", huft_build);
+int huft_build(unsigned int *b, unsigned int n, unsigned int s, unsigned short *d,
+               unsigned short *e, struct huft **t, int *m, void *mb)
+{
+    unsigned int a;           /* counter for codes of length k */
+    unsigned int c[BMAX + 1]; /* bit length count table */
+    unsigned int el;          /* length of EOB code (value 256) */
+    unsigned int f;           /* i repeats in table every f entries */
+    int g;                    /* maximum code length */
+    int h;                    /* table level */
+    register unsigned int i;  /* counter, current code */
+    register unsigned int j;  /* counter */
+    register int k;           /* number of bits in current code */
+    int lx[BMAX + 1];         /* memory for l[-1..BMAX-1] */
+    int *l = lx + 1;          /* stack of bits per table */
+    register unsigned int *p; /* pointer into c[], b[], or v[] */
+    register struct huft *q;  /* points to current table */
+    struct huft r;            /* table entry for structure assignment */
+    struct huft *u[BMAX];     /* table stack */
+    unsigned int v[N_MAX];    /* values in order of bit length */
+    register int w;           /* bits before this table == (l * h) */
+    unsigned int x[BMAX + 1]; /* bit offsets, then code stack */
+    unsigned int *xp;         /* pointer into x */
+    int y;                    /* number of dummy codes added */
+    unsigned int z;           /* number of entries in current table */
+
+    /* Generate counts for each bit length */
+    el = n > 256 ? b[256] : BMAX; /* set length of EOB code, if any */
+    memset((char *)c, 0, sizeof(c));
+    p = b;
+    i = n;
+    do {
+        c[*p]++; /* assume all entries <= BMAX */
+        p++;
+    } while (--i);
+    if (c[0] == n) { /* null input, all zero length codes */
+        *t = (struct huft *)0;
+        *m = 0;
+        return 0;
+    }
+
+    /* Find minimum and maximum length, bound *m by those */
+    for (j = 1; j <= BMAX; j++)
+        if (c[j])
+            break;
+    k = j; /* minimum code length */
+    if ((unsigned int)*m < j)
+        *m = j;
+    for (i = BMAX; i; i--)
+        if (c[i])
+            break;
+    g = i; /* maximum code length */
+    if ((unsigned int)*m > i)
+        *m = i;
+
+    /* Adjust last length count to fill out codes, if needed */
+    for (y = 1 << j; j < i; j++, y <<= 1)
+        if ((y -= c[j]) < 0)
+            return 2; /* bad input: more codes than bits */
+    if ((y -= c[i]) < 0)
+        return 2;
+    c[i] += y;
+
+    /* Generate starting offsets into the value table for each length */
+    x[1] = j = 0;
+    p = c + 1;
+    xp = x + 2;
+    while (--i) { /* note that i == g from above */
+        *xp++ = (j += *p++);
+    }
+
+    /* Make a table of values in order of bit lengths */
+    memset((char *)v, 0, sizeof(v));
+    p = b;
+    i = 0;
+    do {
+        if ((j = *p++) != 0)
+            v[x[j]++] = i;
+    } while (++i < n);
+    n = x[g]; /* set n to length of v */
+
+    /* Generate the Huffman codes and for each, make the table entries */
+    x[0] = i = 0;            /* first Huffman code is zero */
+    p = v;                   /* grab values in bit order */
+    h = -1;                  /* no tables yet, level -1 */
+    w = l[-1] = 0;           /* no bits decoded yet */
+    u[0] = (struct huft *)0; /* just to keep compilers happy */
+    q = (struct huft *)0;    /* ditto */
+    z = 0;                   /* ditto */
+
+    /* go through the bit lengths (k already is bits in shortest code) */
+    for (; k <= g; k++) {
+        a = c[k];
+        while (a--) {
+            /* here i is the Huffman code of length k bits for value *p */
+            /* make tables up to required level */
+            while (k > w + l[h]) {
+                w += l[h++]; /* add bits already decoded */
+
+                /* compute minimum size table less than or equal to *m bits */
+                z = (z = g - w) > (unsigned int)*m ? (unsigned int)*m : z;
+                if ((f = 1 << (j = k - w)) > a + 1) { /* try a k-w bit table */
+                    f -= a + 1;                       /* deduct codes from patterns left */
+                    xp = c + k;
+                    while (++j < z) { /* try smaller tables up to z bits */
+                        if ((f <<= 1) <= *++xp)
+                            break; /* enough codes to use up j bits */
+                        f -= *xp;  /* else deduct codes from patterns */
+                    }
+                }
+                if (w + j > el && w < el) /* here j == the table size in bits */
+                    j = el - w;           /* make EOB code end at table */
+                z = 1 << j;               /* table entries for j-bit table */
+                l[h] = j;                 /* set table size in stack */
+
+                /* allocate and link in new table */
+                if (mb == 0)
+                    q = (struct huft *)iosMallocDebug(D_0063A464, (z + 1) * sizeof(struct huft),
+                                                      D_00550FF0, 241);
+                else
+                    q = (struct huft *)new_segment(mb, (z + 1) * sizeof(struct huft));
+                if (q == (struct huft *)0) {
+                    if (h && mb == 0)
+                        huft_free((char *)u[0]);
+                    return 3; /* not enough memory */
+                }
+                *t = q + 1; /* link to list for huft_free() */
+                *(t = &(q->v.t)) = (struct huft *)0;
+                u[h] = ++q; /* table starts after link */
+
+                /* connect to last table, if there is one */
+                if (h) {
+                    x[h] = i;                      /* save pattern for backing up */
+                    r.b = (unsigned char)l[h - 1]; /* bits to dump before this table */
+                    r.e = (unsigned char)(16 + j); /* bits in this table */
+                    r.v.t = q;                     /* pointer to this table */
+                    j = (i & ((1 << w) - 1)) >> (w - l[h - 1]);
+                    u[h - 1][j] = r; /* connect to last table */
+                }
+            }
+
+            /* set up table entry in r */
+            r.b = (unsigned char)(k - w);
+            if (p >= v + n)
+                r.e = 99; /* out of values, invalid code */
+            else if (*p < s) {
+                r.e = (unsigned char)(*p < 256 ? 16 : 15); /* 256 is end-of-block code */
+                r.v.n = (unsigned short)*p;                /* simple code is just the value */
+                p++;
+            } else {
+                r.e = (unsigned char)e[*p - s]; /* non-simple, look up in lists */
+                r.v.n = d[*p++ - s];
+            }
+
+            /* fill code-like entries with r */
+            f = 1 << (k - w);
+            for (j = i >> w; j < z; j += f)
+                q[j] = r;
+
+            /* backwards increment the k-bit code i */
+            for (j = 1 << (k - 1); i & j; j >>= 1)
+                i ^= j;
+            i ^= j;
+
+            /* backup over finished tables */
+            while ((i & ((1 << w) - 1)) != x[h]) {
+                h--; /* don't need to update q */
+                w -= l[h];
+            }
+        }
+    }
+
+    /* return actual size of base table */
+    *m = l[0];
+
+    /* Return true (1) if we were given an incomplete table */
+    return y != 0 && g != 1;
+}
 
 extern int huft_build(unsigned int *b, unsigned int n, unsigned int s, unsigned short *d,
                       unsigned short *e, struct huft **t, int *m, void *mb);

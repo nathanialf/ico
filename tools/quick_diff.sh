@@ -170,12 +170,12 @@ fi
 # accept -fno-optimize-sibling-calls (sibling-call defeat is per-function
 # via __asm__ volatile("") barriers in src/cod/). -S because the bundled
 # 2.9-era `as` chokes on modern flags — we re-assemble with ee-as 2.10.
-case "$NAME" in sce/*) GNUM=0; BUILTIN="-fno-builtin" ;; *) GNUM=8; BUILTIN="" ;; esac  # every SDK archive was built at -G 0 with newlib's -fno-builtin; the game compiled plain, see compile_c.sh
+case "$NAME" in sce/*) GNUM=0; BUILTIN="-fno-builtin"; DBG="" ;; *) GNUM=8; BUILTIN=""; DBG="-g" ;; esac  # every SDK archive was built at -G 0 with newlib's -fno-builtin and no line information; the game compiled with -g and builtins live (user ruling 2026-09-27), see compile_c.sh; keep this line identical to compile_c.sh's
 SCE_INCS=""
 for _a in libc libm libvu0 libkernl libpkt libgraph libdma libpad libscf libmpeg libmc libipu libcdvd; do
     SCE_INCS="$SCE_INCS -I$ROOT/sce/$_a"
 done
-CFLAGS="${CFLAGS:--S -G ${GNUM} -O2 -mips3 -EL ${BUILTIN} -nostdinc -fdata-sections -Iinclude$SCE_INCS}"
+CFLAGS="${CFLAGS:--S ${DBG} -G ${GNUM} -O2 -mips3 -EL ${BUILTIN} -nostdinc -fdata-sections -Iinclude$SCE_INCS}"
 
 # ee-gcc looks for cc1 at the path it was built against (typically
 # ${PS2DEV}/ee/gcc-lib/...). Pass -B so it finds the bundled cc1 in our tree.
