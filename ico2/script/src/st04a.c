@@ -1759,7 +1759,76 @@ void actSt04aTorch1Chk(volatile int a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/script/src/st04a", actSt04aTorchAllFlagfChk);
+extern int D_0063BEB8;
+
+void actSt04aTorchAllFlagfChk(volatile int a0)
+{
+    int i;
+    int skip = 0;
+
+    while (gflagChk(145) == 0 || gflagChk(146) == 0 || gflagChk(147) == 0 || gflagChk(148) == 0 ||
+           gflagChk(149) == 0 || gflagChk(150) == 0 || gflagChk(151) == 0 || gflagChk(152) == 0) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(55);
+    D_0063AA08 = 1;
+    scpSleepEnemyAll();
+    gflagOn(153);
+    WakeupHint(6);
+    WakeupHint(4);
+    scpAdpcmPlayRequestFunc(85, &D_0063BEB8, 1, 1, 1);
+    while (D_0063BEB8 == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(282, 1, 0);
+    while (stage_CheckAnimationFrame(282, 60, 0) == 0 && skip == 0) {
+        if ((D_0028F8F0[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+            skip = 1;
+        }
+        _ACTWait(1);
+    }
+
+    scpTorchLightOn(571);
+    scpTorchLightOn(572);
+    scpTorchLightOn(573);
+    scpTorchLightOn(574);
+    scpTorchLightOn(575);
+    scpTorchLightOn(576);
+    scpTorchLightOn(577);
+    scpTorchLightOn(578);
+    scpTorchLightOn(579);
+    scpTorchLightOn(580);
+
+    while (stage_CheckAnimationFinish(282) == 0 && skip == 0) {
+        if ((D_0028F8F0[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+            skip = 1;
+        }
+        _ACTWait(1);
+    }
+
+    for (i = 60; i-- > 0 && skip == 0;) {
+        if ((D_0028F8F0[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+            skip = 1;
+        }
+        _ACTWait(1);
+    }
+
+    if (skip != 0) {
+        scpAdpcmFadeCloseFunc(&D_0063BEB8, 0xC0);
+        scpFadeOut(16.0f, 0, 0, 0);
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+        stage_SetAnimation(282, 0, -1);
+        SetCameraFlag_LwsCutBack();
+        scpFadeIn(3.0f);
+    }
+    D_0063AA08 = 0;
+    lt_switch_layout(54);
+    scpWakeupEnemyAll();
+}
 
 extern int D_002A5580[];
 
