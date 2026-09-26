@@ -570,7 +570,39 @@ MotShift rootUpdateXZ_MotPos(int kind, int no)
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", adjustSideWall);
+/* kept local: this TU's uses of GetDistanceFromPlane do not fit the prototype
+ * in fieldCollision.h */
+extern float GetDistanceFromPlane(void *a0, void *a1);
+extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float s);
+
+int adjustSideWall(char *w, int a1, int a2)
+{
+    WallCfg cfg = {((WallCfg *)(w + 0x80))->o, ((WallCfg *)(w + 0x80))->n};
+    Vec16 pl0;
+    Vec16 pl1;
+    float pts[16];
+    Vec16 push;
+    float d;
+    float t;
+
+    GetPureVerticalPlane(&pl0, &pl1, pts, (int *)&cfg, 0);
+    d = (GetDistanceFromPlane(&pl0, w + 0x20) < 0.0f ? -GetDistanceFromPlane(&pl0, w + 0x20)
+                                                     : GetDistanceFromPlane(&pl0, w + 0x20)) -
+        30.0f;
+    if (a1 != 0) {
+        if ((d < 0.0f ? -d : d) < 30.0f) {
+            return 1;
+        }
+    }
+    t = sceVu0InnerProduct((void *)a2, &pl1);
+    if ((t < 0.0f ? -t : t) < 0.8f) {
+        CopyVector(&push, &pl1);
+        push.f[3] = 0.0f;
+        sceVu0ScaleVectorXYZ(&push, &push, GetDistanceFromPlane(&pl1, D_0063C490) - 30.0f);
+        SubVectorXYZ(D_0063C490, D_0063C490, &push);
+    }
+    return 0;
+}
 
 int checkSideWall(int a0, int a1, int p, int a3, int a4)
 {
@@ -963,4 +995,32 @@ MotShift rootUpdateFly(void)
     return shift;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", rootUpdateEnemyFly);
+MotShift rootUpdateEnemyFly(void)
+{
+    MotShift shift = D_0063B930[0];
+    char w[0xC0] __attribute__((aligned(16)));
+    int contact;
+
+    AddVectorXYZ(D_0063C490, D_0063C490, D_0063C490 + 0x90);
+    if (*(int *)((int)GOBJ_SUB(D_0063B93C) + 0x654) == 0) {
+        wallCollisionAndReact(0.0f);
+        contact = getFlyFieldCollision(w);
+        switch (contact) {
+        case 1:
+            CopyVector(D_0063C490 + 0x1B0, D_0063C490);
+            *(float *)(D_0063C494 + 0xEC) = 0.0f;
+            CopyVector(D_0063C490 + 0x130, w + 0xA0);
+            *(int *)(D_0063C494 + 0x14) |= 8;
+            break;
+        case 2:
+            markPoolContact(w);
+            break;
+        }
+    }
+    *(int *)(D_0063C490 + 0xC0) = 0;
+    SubVectorXYZ(D_0063C490 + 0x90, D_0063C490, D_0063C490 + 0x150);
+    CopyVector(D_0063C490 + 0x10, ZeroPoint);
+    CopyVector(D_0063C490 + 0x150, D_0063C490);
+    *(int *)(D_0063C490 + 0x180) = -1;
+    return shift;
+}

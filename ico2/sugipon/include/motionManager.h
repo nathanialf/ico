@@ -21,7 +21,7 @@ int SetDirectMotionProgramInterpInfo(char *a0, int a1, float f);
 void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, char *tbl, int k);
 void _checkCliffAndWall(void);
 void _getFinalMatrix(int id);
-int adjustSideWall(int a0, int a1, int a2);
+int adjustSideWall(char *w, int a1, int a2);
 int checkActPointWithHeight(int kind, float h);
 void checkCliffState(int a0);
 void checkWallSideState(void);
