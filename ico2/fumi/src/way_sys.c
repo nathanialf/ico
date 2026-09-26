@@ -539,7 +539,10 @@ typedef struct NigeEnt {
     float d;
 } NigeEnt;
 
-extern NigeEnt D_006E50A8[];
+/* The TU's whole .bss: one entry per way point (way_llf's 275), which
+   GetNearNigePointN fills and sorts by path length. */
+static NigeEnt nigePointTbl[275];
+
 extern Nd D_004F31F0[];
 extern WayGroup *WayBridge_begin(void);
 extern WayGroup *WayBridge_next(WayGroup *g);
@@ -598,7 +601,7 @@ int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)
 
         m = &D_004F31E0[gb->f20];
         d += _GetLength((char *)gb->f8 + 0x10, m->pos);
-        cnt = nige_add(D_006E50A8, cnt, m, d);
+        cnt = nige_add(nigePointTbl, cnt, m, d);
 
         n = base;
         bp = base->pos;
@@ -615,14 +618,14 @@ int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)
 
         m = &D_004F31E0[gb->f24];
         d += _GetLength((char *)gb->fC + 0x10, m->pos);
-        cnt = nige_add(D_006E50A8, cnt, m, d);
+        cnt = nige_add(nigePointTbl, cnt, m, d);
     } else {
         switch (ga->f14) {
         case 0:
             n = base;
             d = _GetLength(pos, base->pos);
             while (n != 0) {
-                cnt = nige_add(D_006E50A8, cnt, n, d);
+                cnt = nige_add(nigePointTbl, cnt, n, d);
                 if (n->f8 != 0) {
                     d += _GetLength(n->pos, n->f8->pos);
                 }
@@ -638,7 +641,7 @@ int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)
             }
             n = base->fC;
             while (n != 0) {
-                cnt = nige_add(D_006E50A8, cnt, n, d);
+                cnt = nige_add(nigePointTbl, cnt, n, d);
                 if (n->fC != 0) {
                     d += _GetLength(n->pos, n->fC->pos);
                 }
@@ -655,11 +658,11 @@ int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)
                 if (da <= d) {
                     da += _GetLength(a->pos, a->f8->pos);
                     a = a->f8;
-                    cnt = nige_add(D_006E50A8, cnt, a, da);
+                    cnt = nige_add(nigePointTbl, cnt, a, da);
                 } else {
                     d += _GetLength(n->pos, n->fC->pos);
                     n = n->fC;
-                    cnt = nige_add(D_006E50A8, cnt, n, d);
+                    cnt = nige_add(nigePointTbl, cnt, n, d);
                 }
             } while (a != n);
             break;
@@ -675,24 +678,24 @@ int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)
                 }
                 d += _GetLength(gb->fC + 0x10, (float *)&D_004F31F0[gb->f24]);
                 if (gb->f20 == base->f4) {
-                    cnt = nige_add(D_006E50A8, cnt, &D_004F31E0[gb->f24], d);
+                    cnt = nige_add(nigePointTbl, cnt, &D_004F31E0[gb->f24], d);
                 } else {
-                    cnt = nige_add(D_006E50A8, cnt, &D_004F31E0[gb->f20], d);
+                    cnt = nige_add(nigePointTbl, cnt, &D_004F31E0[gb->f20], d);
                 }
                 w->w68 = 1;
             }
         }
 
-        cnt = nige_add(D_006E50A8, cnt, base, 0.0f);
+        cnt = nige_add(nigePointTbl, cnt, base, 0.0f);
     }
 
     for (i = 0; i < num; i++) {
         for (j = cnt - 1; j > i; j--) {
-            if (D_006E50A8[j].d < D_006E50A8[j - 1].d) {
-                nige_swap(D_006E50A8, j, j - 1);
+            if (nigePointTbl[j].d < nigePointTbl[j - 1].d) {
+                nige_swap(nigePointTbl, j, j - 1);
             }
         }
-        CopyVector((char *)out + i * 16, (float *)&D_004F31F0[D_006E50A8[i].id]);
+        CopyVector((char *)out + i * 16, (float *)&D_004F31F0[nigePointTbl[i].id]);
     }
     return cnt;
 }

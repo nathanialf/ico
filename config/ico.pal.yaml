@@ -1352,6 +1352,7 @@ segments:
       - { type: bss, vram: 0x006C1180, name: cod/006C1180 }  # .bss blob resume
       - { type: .bss, vram: 0x006C1E80, name: ico2/fumi/src/jimaku }  # the TU's whole .bss (= MAIN.MAP jimaku.o .bss 0x23224, chain 3 pass 124): the four-entry ring, the four 64-aligned subtitle buffers and three semaphore records as named statics in ROM order, VMA 0x6C1E80..0x6E50A4
       - { type: bss, vram: 0x006E50A4, name: cod/006E50A4 }  # .bss blob resume (4 B of pad before way_sys's run)
+      - { type: .bss, vram: 0x006E50A8, name: ico2/fumi/src/way_sys }  # the TU's own .bss as source, nigePointTbl[275] of 8-byte records, 0x898 B to script's .bss at 0x6E5940 (chain 1 pass 128); MAIN.MAP's 0x668 is the January link's count
       - { type: .bss, vram: 0x006E5940, name: ico2/script/src/script }  # the TU's own .bss, 0x50 B, VMA 0x6E5940..0x6E5990; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006E5990, name: ico2/omori/src/camera-editor }  # the member's one static, the 2048-byte dump line saveEditedData formats (completeness pass 29; MAIN.MAP camera-editor.o .bss 0x800, no map symbol), abutting camera-ico2's row
       - { type: .bss, vram: 0x006E6190, name: ico2/omori/src/camera-ico2 }  # the TU's own .bss, 0x500 B = MAIN.MAP camera-ico2.o .bss, VMA 0x6E6190..0x6E6690; static definitions in ROM run order (completeness pass; the run-bounds file credits the next 0x10 to this TU, but the map's sizes put camera-root.o's 0xC0 .bss at 0x6E6690)

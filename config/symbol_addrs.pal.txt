@@ -6184,3 +6184,4 @@ bgaRot = 0x007282B0; // size:0x10  // BgAnimation.c static int vector (chain 3 p
 bgaDummyLight = 0x007282C0; // size:0x50  // BgAnimation.c static, a Light.c-shaped record of which only the colour is written (chain 3 pass 141)
 blendMotionKind = 0x00623470; // MAIN.MAP blend-motion-def.o's rodata table, referenced by motionOrientManager.o (chain 3 pass 143)
 motionLimitDef = 0x00626628; // MAIN.MAP motion-limit-def.o's rodata table, 48-byte rows, referenced by motionOrientManager.o (chain 3 pass 143)
+nigePointTbl = 0x006E50A8; // size:0x898  // way_sys.c static, the escape-point table of 275 eight-byte records (chain 1 pass 128)
