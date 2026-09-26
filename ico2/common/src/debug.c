@@ -19,6 +19,7 @@
 #include <eekernel.h>
 #include "gamesys.h"
 #include "typedef.h"
+#include "DisplayList.h"
 
 /* debug_exception_screen.c.inc (compiled into debug_exception.o) */
 
@@ -544,7 +545,84 @@ static DebugBar debugBars[1024];
 /* two pages of 26 {count, mark} pairs */
 static int loadInfoSeg[2][26][2];
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_MakeFont);
+extern float D_0063AEA4[];
+extern float D_0063AEA8[];
+extern unsigned long long debugFontTag[2];
+
+/* one 64-bit packet slot, written whole or as its two 32-bit halves */
+typedef union {
+    long long d;
+    int w[2];
+    float f[2];
+} DbgPkWord;
+
+/* a whole quadword, for the vertex copies */
+typedef int Qw128 __attribute__((mode(TI)));
+
+/* clang-format off */
+void debug_MakeFont(void)
+{
+    int on = 1, off = 0;
+    struct { float v[4]; char *volatile ptr; } w; /* the cursor is re-read from the frame at every push */
+    char *base;
+    unsigned short *a, *b; unsigned short m0, m1; int i, j, k, n;
+    base = iosMallocDebug(D_0063A44C, 1, D_0061B440, 2069); w.ptr = base;
+    *((int *)w.ptr)++ = 0x1400000C;
+    *((int *)w.ptr)++ = 0;
+    *((long long *)w.ptr)++ = 0;
+
+    for (i = 0; i < 256; i++) {
+        a = &fontOutline[i * 16]; b = &fontGlyph[i * 8];
+
+        for (j = 0, n = 0; j < 9; j++) {
+            m1 = a[j];
+            m0 = b[j];
+            for (k = 0; k < 10; k++, m0 >>= 1, m1 >>= 1)
+                if ((m0 & 1) || (m1 & 1)) n++;
+        }
+        if (n == 0) {
+            fontPacket[i].qwc = 1;
+            fontPacket[i].packet = base;
+        } else {
+
+
+            fontPacket[i].qwc = n + 3;
+            w.ptr = fontPacket[i].packet = iosMallocDebug(D_0063A44C, (n + 3) * 16, D_0061B440, 2090);
+            *((long long *)w.ptr)++ = 0;
+            *((int *)w.ptr)++ = 0;
+            *((int *)w.ptr)++ = ((n + 1) << 16) | 0x6C008000;
+
+            *((long long *)w.ptr)++ = n | ((long long)0x8000 << 38) | debugFontTag[0];
+            *((long long *)w.ptr)++ = debugFontTag[1];
+            for (j = 0; j < 9; j++) {
+                m0 = b[j];
+                m1 = a[j];
+                for (k = 0; k < 10; k++, m0 >>= 1, m1 >>= 1) {
+                    w.v[0] = (float)k;
+
+                    w.v[1] = (float)(j * 2);
+
+
+
+                    if (m0 & 1) {
+                        w.v[2] = D_0063AEA4[0];
+                        w.v[3] = *(float *)&off;
+                        *((Qw128 *)w.ptr)++ = *(Qw128 *)w.v;
+                    } else if (m1 & 1) {
+                        w.v[2] = D_0063AEA8[0];
+                        w.v[3] = *(float *)&on;
+                        *((Qw128 *)w.ptr)++ = *(Qw128 *)w.v;
+                    }
+                }
+            }
+            *((int *)w.ptr)++ = 0x1400000A;
+            *((int *)w.ptr)++ = 0;
+            *((long long *)w.ptr)++ = 0;
+        }
+    }
+}
+
+/* clang-format on */
 
 /* D_00619BB0 = the 8x8 1bpp font bitmap (8 bytes per glyph);
    fontGlyph = the glyph re-expanded to 8 shorts (shifted left one column);
@@ -581,7 +659,71 @@ void debug_makeBackImage(void)
     debug_MakeFont();
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_PrintCharacter);
+/* the display-list packet record (DmaPacket.o's .data): the open DMA tag at
+   +0x0C, the write pointer at +0x10 */
+typedef struct {
+    /* 0x00 */ int cur;
+    /* 0x04 */ int *buf[2];
+    /* 0x0C */ char *dma;
+    /* 0x10 */ char *ptr;
+    /* 0x14 */ char *tail;
+    /* 0x18 */ char *gif;
+    /* 0x1C */ char *end;
+} DbgDpk;
+
+extern DbgDpk PacketBufferStruct;
+extern int ScreenWidth;
+extern int ScreenHeight;
+extern void _CopyIVector(void *dst, void *src);
+
+void debug_PrintCharacter(char *str, int x, int y, int r, int g, int b, int sz)
+{
+    char *p;
+    char *q;
+    int px, py;
+    int v[4] = {0, 0, 0, 0x60};
+    int c;
+    int col[4] = {r, g, b, sz};
+
+    /* one packet word and its cursor advance per line, as the listing has
+       them; the DMA tag's line also opens the tail */
+    /* clang-format off */
+    p = PacketBufferStruct.ptr; PacketBufferStruct.dma = p; PacketBufferStruct.gif = 0; PacketBufferStruct.end = 0;
+
+    PacketBufferStruct.tail = p; ((DbgPkWord *)p)->d = 0x10000006; PacketBufferStruct.ptr = p + 8;
+    ((DbgPkWord *)(p + 8))->w[0] = 0x11000000; PacketBufferStruct.ptr = p + 0xC;
+    ((DbgPkWord *)(p + 0xC))->w[0] = 0x3000104; PacketBufferStruct.ptr = p + 0x10;
+    ((DbgPkWord *)(p + 0x10))->d = 0; PacketBufferStruct.ptr = p + 0x18;
+    ((DbgPkWord *)(p + 0x18))->w[0] = 0x200017E; PacketBufferStruct.ptr = p + 0x1C;
+    ((DbgPkWord *)(p + 0x1C))->w[0] = 0x6C048000; PacketBufferStruct.ptr = p + 0x20;
+
+    _CopyIVector(((sceVu0IVECTOR *)PacketBufferStruct.ptr)++, col);
+    _CopyIVector(((sceVu0IVECTOR *)PacketBufferStruct.ptr)++, v);
+
+    q = PacketBufferStruct.ptr; px = x * ScreenWidth / 640 + 2048; px -= ScreenWidth / 2; ((DbgPkWord *)q)->f[0] = (float)px; q += 4; PacketBufferStruct.ptr = q;
+    py = y * ScreenHeight / 224 + 2048; py -= ScreenHeight / 2; py--; ((DbgPkWord *)q)->f[0] = (float)py; PacketBufferStruct.ptr = q + 4;
+    ((DbgPkWord *)(q + 4))->d = 0; PacketBufferStruct.ptr = q + 0xC;
+    ((DbgPkWord *)(q + 0xC))->f[0] = (float)ScreenWidth * 12.0f / 640.0f; PacketBufferStruct.ptr = q + 0x10;
+    ((DbgPkWord *)(q + 0x10))->w[0] = 0; PacketBufferStruct.ptr = q + 0x14;
+    ((DbgPkWord *)(q + 0x14))->d = 0; PacketBufferStruct.ptr = q + 0x1C;
+
+    ((DbgPkWord *)(q + 0x1C))->w[0] = 0x14000008; PacketBufferStruct.ptr = q + 0x20;
+    ((DbgPkWord *)(q + 0x20))->w[0] = 0; PacketBufferStruct.ptr = q + 0x24;
+    ((DbgPkWord *)(q + 0x24))->d = 0; PacketBufferStruct.ptr = q + 0x2C;
+
+    PacketBufferStruct.tail = q + 0x2C; ((DbgPkWord *)(q + 0x2C))->d = 0x60000000; PacketBufferStruct.ptr = q + 0x34; ((DbgPkWord *)(q + 0x34))->w[0] = 0; PacketBufferStruct.ptr = q + 0x38; ((DbgPkWord *)(q + 0x38))->w[0] = 0; PacketBufferStruct.ptr = q + 0x3C;
+
+    dl_SetDLPriority(12); dl_OpenDma(5, (int)PacketBufferStruct.dma, 0); dl_CloseDma();
+
+    dl_SetDLPriority(12);
+    while ((c = (unsigned char)*str++) != 0) {
+        /* clang-format on */
+        if (fontPacket[c].packet != 0) {
+            dl_OpenDma(2, (int)fontPacket[c].packet, fontPacket[c].qwc);
+            dl_CloseDma();
+        }
+    }
+}
 
 extern int D_0063AEB0;
 /* kept local: this TU's uses of gif_CheckOpen do not fit the prototype in GifPacket.h */
@@ -907,8 +1049,6 @@ void debug_DispBar(void)
     }
 }
 
-extern int ScreenWidth;
-
 /* Halves a 32-bit snapshot with a 2x2 box filter.  The listing (debug.c
    2937-2972) puts the clamp and the destination helper on rows of their own
    inside the function, so they are nested functions, which is also what homes
@@ -959,6 +1099,72 @@ void debug_ResizeSnapShot(int dst, int src, int w, int h)
         }
     }
     FlushCache(0);
+}
+
+/* TIM2 image file: a 16-byte file header followed by one 48-byte picture
+   header and the raw 32-bit image, one row per write */
+typedef struct {
+    char id[4]; /* "TIM2" */
+    unsigned char ver;
+    unsigned char fmt;
+    short nPictures;
+    long long pad;
+} Tim2FileHdr;
+
+typedef struct {
+    int totalSize;                /* 0x00 */
+    int clutSize;                 /* 0x04 */
+    int imageSize;                /* 0x08 */
+    short headerSize;             /* 0x0C */
+    short clutColors;             /* 0x0E */
+    unsigned char imageType;      /* 0x10 */
+    unsigned char mipMapTextures; /* 0x11 */
+    unsigned char clutType;       /* 0x12 */
+    unsigned char imageColorType; /* 0x13 */
+    short imageWidth;             /* 0x14 */
+    short imageHeight;            /* 0x16 */
+    long long gsTex0;             /* 0x18 */
+    long long gsTex1;             /* 0x20 */
+    int gsRegs;                   /* 0x28 */
+    int gsTexClut;                /* 0x2C */
+} Tim2PicHdr;
+
+static inline void debug_WriteTim2(int fd, int *img, int w, int h)
+{
+    Tim2FileHdr fh;
+    Tim2PicHdr ph;
+    int y;
+
+    fh.id[0] = 'T';
+    fh.id[1] = 'I';
+    fh.id[2] = 'M';
+    fh.id[3] = '2';
+    fh.ver = 4;
+    fh.fmt = 0;
+    fh.nPictures = 1;
+    fh.pad = 0;
+    ph.imageSize = (w * h) * 4;
+    ph.clutSize = 0;
+    ph.headerSize = 48;
+    ph.clutColors = 0;
+    ph.imageType = 0;
+    ph.mipMapTextures = 1;
+    ph.clutType = 0;
+    ph.imageColorType = 3;
+    ph.gsTex0 = 0;
+    ph.gsTex1 = 0;
+    ph.gsRegs = 0;
+    ph.gsTexClut = 0;
+    ph.totalSize = ph.imageSize + ph.clutSize + (unsigned short)ph.headerSize;
+    ph.imageWidth = w;
+    ph.imageHeight = h;
+
+    sceWrite(fd, &fh, 16);
+    sceWrite(fd, &ph, 48);
+
+    for (y = 0; y < h; y++) {
+        sceWrite(fd, img + y * w, w * 4);
+    }
 }
 
 /* 24-bit BMP file header, offset by two pad bytes so the 32-bit fields land
@@ -1021,7 +1227,100 @@ void debug_WriteBMP(int fd, int w, int h, unsigned int *src)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_SnapShot);
+extern int D_0063AF34;
+extern int D_0063A3B8;
+extern int D_0063AE74;
+extern char D_0061BA40[];
+extern char D_0061BA50[];
+extern char D_0061BA68[];
+extern char D_0061BA80[];
+/* kept local: the store-image entry points are not declared in libgraph.h */
+extern void sceGsSetDefStoreImage(void *si, short fbp, short fbw, short psm, short x, short y,
+                                  short w, short h);
+extern void sceGsExecStoreImage(void *si, unsigned int addr);
+extern void dma_init(void);
+
+int debug_SnapShot(int idx)
+{
+    int si[28];
+    char name[0x100];
+    int size;
+    int mask;
+    unsigned int i;
+    int fd;
+    int *src;
+    int *dst;
+    int *buf;
+    unsigned int w;
+    int h;
+    unsigned int y;
+
+    size = ScreenWidth * ScreenHeight * 4;
+    if (D_0063B1BC == 0) {
+        return -1;
+    }
+    mask = 1 << (D_0063B1BC - 1);
+    D_0063AE74 = 1;
+    if (D_0063AF34 != 0) {
+        if (D_0063A3B8 != 0) {
+            return -1;
+        }
+        D_0063AF34 = 0;
+    }
+    sceGsSyncPath(0, 0);
+    debug_StdPrintfDummy(D_0061BA40, idx, 0x2000000);
+    sceGsSetDefStoreImage(si, 0x800, ScreenWidth / 64, 0, 0, 0, ScreenWidth, ScreenHeight);
+    FlushCache(0);
+    sceGsExecStoreImage(si, 0x2000000);
+    sceGsSyncPath(0, 0);
+    src = (int *)0x2000000;
+    FlushCache(0);
+    if (D_0063B1BC < 5) {
+        if (D_0063B1BC > 0) {
+            w = ScreenWidth;
+            h = ScreenHeight;
+            buf = (int *)(0x2000000 + size);
+            dst = buf + ((idx / mask) * (w * mask) + idx % mask);
+            for (y = 0; y < h; y++) {
+                for (i = 0; i < w; i++) {
+                    *dst = *src++;
+                    dst += mask;
+                }
+                dst += (mask - 1) * (mask * w);
+            }
+            if (idx == mask * mask - 1) {
+                for (i = 0;; i++) {
+                    if (D_0063B1C0 == 0) {
+                        sprintf(name, D_0061BA50, i);
+                    } else {
+                        sprintf(name, D_0061BA68, i);
+                    }
+                    fd = debugSceOpen((int)name, 1);
+                    debugSceClose(fd);
+                    if (fd < 0) {
+                        break;
+                    }
+                }
+                if (D_0063B1C0 == 0) {
+                    sprintf(name, D_0061BA50, i);
+                } else {
+                    sprintf(name, D_0061BA68, i);
+                }
+                fd = debugSceOpen((int)name, 0x602);
+                if (D_0063B1C0 == 0) {
+                    debug_WriteTim2(fd, buf, w * mask, h * mask);
+                } else {
+                    debug_WriteBMP(fd, w * mask, h * mask, (unsigned int *)buf);
+                }
+                if (debugSceClose(fd) < 0) {
+                    debug_StdPrintfDummy(D_0061BA80);
+                }
+            }
+        }
+    }
+    dma_init();
+    return 1;
+}
 
 extern char D_0061BAA8[];
 extern char D_0061BAC0[];
