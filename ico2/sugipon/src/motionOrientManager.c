@@ -30,7 +30,20 @@ struct MotOriFloat {
     float frame;
 };
 
-#define MOWORK(self) (*(char **)((char *)(self) + 0x15C))
+/* RECONSTRUCTION, the type and member names are ours: the object's work
+   pointer at 0x15C is read through a union member, so the read has alias set
+   0 and every store orders against it.  getMotionGeometry's bytes pin that:
+   the ROM keeps the else arm's 0x338 float store ahead of the next work
+   pointer read, which a plain char * read is scheduled past (chain 3 pass
+   144, measured both ways).  Every other function of the TU is
+   byte-identical either way (chain 3 pass 144).  The bytes cannot show the
+   union's other members. */
+typedef union MotWorkRef {
+    char *p;
+    int i;
+} MotWorkRef;
+
+#define MOWORK(self) (((MotWorkRef *)((char *)(self) + 0x15C))->p)
 
 typedef struct MotOriTrigEnt {
     /* 0x000 */ char pad000[0xC0];
@@ -42,7 +55,8 @@ typedef struct MotOriTrigEnt {
     /* 0x110 */ int f110;
     /* 0x114 */ int f114;
     /* 0x118 */ int f118;
-    /* 0x11C */ char pad11C[0x14];
+    /* 0x11C */ int f11C;
+    /* 0x120 */ char pad120[0x10];
     /* 0x130 */ int f130;
     /* 0x134 */ char pad134[0x8];
     /* 0x13C */ int f13C;
@@ -1125,11 +1139,261 @@ void getNodeBlendedFloatingMotion(void *dst, float *root, int id, int n, int a4,
 }
 
 /* The slope vector getMotionGeometry normalises for its pitch angle: an
- * initialised object, so it lives in .data; non-static until the function's
- * stub lands. */
-sceVu0FVECTOR slopeVector = {0.0f, 0.0f, 0.0f, 0.0f};
+ * initialised object, so it lives in .data. */
+static sceVu0FVECTOR slopeVector = {0.0f, 0.0f, 0.0f, 0.0f};
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", getMotionGeometry);
+/* kept local: this TU's uses of DispSkelton do not fit the prototype in motionManager2.h */
+extern void DispSkelton(void *self, void *m);
+/* kept local: this TU's uses of GetBlendedMotion do not fit the prototype in motionManager2.h */
+extern void GetBlendedMotion(void *dst, float *dv, void *m1, float *v1, void *m0, float *v0,
+                             float t, int tbl, int n);
+/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
+extern void _ApplyMatrix(void *dst, void *m, void *v);
+extern float GetYDistanceFromPlane(float *a0, float *a1);
+extern float acosf(float x);
+extern void GetFloatingMotionRootPos(float *v, int *md, float f);
+extern void MakeMirrorMotion(void *dst, int *p);
+extern void SlopeIKControl(void *self, void *m, float *v, float *r, int n);
+extern void ExecFrameDependSequence(void *self);
+extern char D_006204C8[];
+extern char D_00620510[];
+extern const float D_0063B9F4[];
+extern int D_0063B16C;
+extern int D_0063B198;
+extern int stage_no;
+
+/* Listing lines 1150 to 1160: a static inline with no symbol and no census row,
+ * between SetParallelMotionTable (last line 1145) and getNodeBlendedFloatingMotion
+ * (def line 1172).  getMotionGeometry is its only caller here; the name is this
+ * repo's spelling. */
+static inline void getMotionRootPos(char *w, float *v)
+{
+    int m = blendMotionKind[D_0055FE58[*(int *)(w + 0x30)].f178].f0;
+    float t = *(float *)(w + 0x40);
+
+    checkMotionKind(m, *(int *)(w + 0x30));
+    GetFloatingMotionRootPos(v, D_004EB758[m], t);
+}
+
+/* Listing lines 1266 to 1288, inside getMotionGeometry's span: the motion-loaded
+ * assert and the node-count assert.  Each 1024-byte message buffer lands at frame
+ * offset 0, so each is an inlined body of its own (a block-scoped array of the
+ * function's own body is promoted out of its level the moment its address is
+ * passed to a call, and is then never reused, and two buffers inside one inlined
+ * body cannot share either); the names are this repo's spelling. */
+static inline void assertMotionLoaded(char *w, int *md)
+{
+    if (md == 0) {
+        char buf[1024];
+
+        sprintf(buf, D_006204C8, D_0055FE58[*(int *)(w + 0x30)].name, *(int *)(w + 0x30));
+        debug_assertMessage(D_006202D0, 1275, buf);
+        __assert(D_006202D0, 1275, D_0063B988);
+    }
+}
+
+static inline void assertMotionNodeCount(char *w, int *md, int n)
+{
+    int *e = (int *)md[3];
+    int i = 0;
+
+    do {
+        i++;
+    } while (*e++ != 0);
+    if (i - 1 != n) {
+        char buf[1024];
+
+        sprintf(buf, D_00620510, D_0055FE58[*(int *)(w + 0x30)].name, i - 1, n);
+        debug_assertMessage(D_006202D0, 1287, buf);
+        __assert(D_006202D0, 1287, D_0063B988);
+    }
+}
+
+void getMotionGeometry(void *self)
+{
+    int *p = *(int **)(MOWORK(self) + 0x8C);
+    char *mo = MOWORK(self) + 0xA0;
+    char *w = MOWORK(self) + 0x470;
+    int n = *(int *)(MOWORK(self) + 0x88);
+    int tbl = *(int *)(MOWORK(self) + 0x820);
+    char mot[n * 0x20];
+    float scale = *(float *)(*(char **)(MOWORK(self) + 0x870) + 0x20);
+    int *md = D_004EB758[*(int *)(w + 0x30)];
+
+    if (D_0055FE58[*(int *)(w + 0x30)].f178 == 0x140) {
+        assertMotionLoaded(w, md);
+        assertMotionNodeCount(w, md, n);
+    }
+    RegularizeQuaternion(MOWORK(self) + 0xD0);
+    MatrixDrive_PushMatrix();
+    {
+        Vec16 v;
+        Vec16 rv;
+
+        if (D_0055FE58[*(int *)(w + 0x30)].f178 == 0x140) {
+            GetFloatingMotion(mot, *(float *)(w + 0x3C), v.f, md, n, tbl, p);
+            GetFloatingMotionRootPos(rv.f, md, *(float *)(w + 0x40));
+        } else {
+            getNodeBlendedFloatingMotion(mot, v.f, *(int *)(w + 0x30), n, tbl, self,
+                                         *(float *)(w + 0x3C));
+            getMotionRootPos(w, rv.f);
+        }
+        if (*(int *)(w + 0x30) == 102) {
+            v.f[0] = v.f[0] + 1.0f;
+        }
+        sceVu0ScaleVector(&v, &v, scale);
+        if (*(float *)(w + 0x3C) < *(float *)(w + 0x40)) {
+            CopyVector(mo + 0xA0, ZeroVector);
+        } else {
+            sceVu0ScaleVector(&rv, &rv, scale);
+            sceVu0SubVector(mo + 0xA0, &v, &rv);
+        }
+        if (*(int *)(w + 0x34) != 0) {
+            MakeMirrorMotion(mot, p);
+        }
+        if (*(int *)(w + 0xE0) != 0) {
+            SlopeIKControl(self, mot, v.f, (float *)(mo + 0xA0), n);
+        }
+        {
+            Vec16 fv;
+            Vec16 tv;
+            Vec16 tmp;
+            float len;
+            float c;
+            float ang;
+            float d;
+            float r;
+            int flag;
+            int k;
+
+            /* The listing places this at lines 1407-1411, inside
+             * getMotionGeometry's span and ahead of the arm that uses it:
+             * a nested function, always inlined (no ROM slot of its own). */
+            inline void rotateNodes(char *m, int *s, void *q)
+            {
+                int i = 0;
+
+                do {
+                    MultiQuaternion(m + i * 0x20 + 0x10, q, m + i * 0x20 + 0x10);
+                    i = *(int *)((char *)s + i * 0x40 + 0x34);
+                } while (i != -1);
+            }
+
+            len = VectorLength(mo + 0x90) *
+                  ((float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 60.0f);
+            CopyVector(&fv, w + 0xB0);
+            CopyVector(&tv, w + 0xC0);
+            if (*(void **)MOWORK(self) != 0) {
+                sceVu0ApplyMatrix(&fv,
+                                  *(char **)(MOWORK(*(void **)MOWORK(self)) + 0xC) +
+                                      *(int *)(MOWORK(self) + 0x4) * 0x40,
+                                  &fv);
+                sceVu0ApplyMatrix(&tv,
+                                  *(char **)(MOWORK(*(void **)MOWORK(self)) + 0xC) +
+                                      *(int *)(MOWORK(self) + 0x4) * 0x40,
+                                  &tv);
+            }
+            d = tv.f[0] * fv.f[0] + tv.f[2] * fv.f[2];
+            if (1.0f < d) {
+                d = 1.0f;
+            }
+            c = d < -1.0f ? -1.0f : d;
+            ang = acosf(c) *
+                  ((float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 60.0f * 10430.378f);
+            if (0.0f < tv.f[0] * fv.f[2] - tv.f[2] * fv.f[0]) {
+                ang = -ang;
+            }
+            r = ang * 0.1f * len * len;
+            if (6144.0f < r) {
+                r = 6144.0f;
+            }
+            if (r < -6144.0f) {
+                r = -6144.0f;
+            }
+            if (D_0063B198 == 0) {
+                float t = 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.2f;
+
+                *(short *)(mo + 0x50) = (short)((float)*(short *)(mo + 0x50) * (1.0f - t)) + r * t;
+            }
+            if (*(int *)(w + 0x68) == 20) {
+                Vec16 up;
+                float mtx[4][4];
+                Vec16 rot;
+                short a;
+
+                tmp = *(Vec16 *)(mo + 0x130);
+                GetMatrixFromQuaternion((char *)mtx, mo + 0x30);
+                _ApplyMatrix(&up, mtx, ZUnitVector);
+                tmp.f[3] = 0.0f;
+                slopeVector[1] = GetYDistanceFromPlane(tmp.f, up.f);
+                slopeVector[2] = 1.0f;
+                _NormalizeVector(slopeVector, slopeVector);
+                a = GetTableArcTan2(slopeVector[1], slopeVector[2]);
+                SetIdentityQuaternion(&rot);
+                RotQuaternionX(&rot, a);
+                rotateNodes(mot, p, &rot);
+            }
+            flag = 0;
+            if (D_0063B16C != 0) {
+                flag = *(int *)(w + 0xA4) >= *(int *)(w + 0xA0);
+            }
+            k = D_0055FE58[*(int *)(w + 0x30)].f11C;
+            if (flag != 0) {
+                float s = (float)*(int *)(w + 0xA0) / (float)*(int *)(w + 0xA4);
+
+                GetBlendedMotion(*(void **)(MOWORK(self) + 0x7B4), tmp.f, mot, v.f,
+                                 *(void **)(MOWORK(self) + 0x7D0), (float *)(MOWORK(self) + 0x7E0),
+                                 s, tbl, n);
+                *(float *)(mo + 0x338) =
+                    *(float *)(mo + 0x340) * (1.0f - s) + *(float *)(mo + 0x33C) * s;
+                GetGeometryOfMotion(self, mot, *(void **)(MOWORK(self) + 0x7B4), v.f, s, mo + 0xA0,
+                                    k);
+            } else {
+                CopyMotion(*(void **)(MOWORK(self) + 0x7B4), mot, n);
+                *(float *)(mo + 0x338) = *(float *)(mo + 0x33C);
+                GetGeometryOfMotion(self, mot, *(void **)(MOWORK(self) + 0x7B4), v.f, 1.0f,
+                                    mo + 0xA0, *(int *)(w + 0x58) ? k : -1);
+            }
+            SetIdentityQuaternion(&tmp);
+            RotQuaternionX(&tmp, -32768);
+            RotQuaternionY(&tmp, -32768);
+            MultiQuaternion(&tmp, &tmp, (char *)p + 0x20);
+            GetInverseQuaternion(&tmp, &tmp);
+            MultiQuaternion(mo + 0x40, mot + 0x10, &tmp);
+            CopyVector(w + 0xC0, w + 0xB0);
+        }
+    }
+    MatrixDrive_PopMatrix();
+    if (*(int *)(w + 0x1E0) <= 0) {
+        *(int *)(w + 0x1E0) = *(int *)(w + 0x1E0) + 1;
+    } else {
+        sendStateMail(self);
+    }
+    DispSkelton(self, mot);
+    ExecFrameDependSequence(self);
+    execFrameTrigger(self);
+    UpdateFrameCounter(self);
+    if (stage_no == 16 && *(int *)(MOWORK(self) + 0x564) != 0) {
+        void *g = isysGObjSearchFromObjLayoutID(865);
+
+        if (g != 0) {
+            void *o;
+            void *t;
+
+            if (*(void **)(MOWORK(self) + 0x180) == g) {
+                g = isysGObjSearchFromObjLayoutID(866);
+            }
+            o = *(void **)MOWORK(g);
+            t = *(void **)(MOWORK(self) + 0x180);
+            if (*(int *)((char *)o + 0xC) == 17) {
+                if (o == t) {
+                    ((Vec16 *)(MOWORK(self) + 0x5A0))->f[0] = D_0063B9F4[0];
+                    ((Vec16 *)(MOWORK(self) + 0x5A0))->f[1] = D_0063B9F4[0];
+                }
+            }
+        }
+    }
+}
 
 extern char D_00620580[];
 extern char D_006205D8[];
