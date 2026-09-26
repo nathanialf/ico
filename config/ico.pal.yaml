@@ -861,6 +861,12 @@ segments:
       - [0x51D8D0, .rodata, ico2/common/src/layout_action]  # carved jtbl_0061D8D0 (_la_memory_card_check, 24 arms over the step argument, section .rodata.0x0061D8D0), VMA 0x61D8D0..0x61D930
       - [0x51D930, .rodata, ico2/common/src/layout_action]  # _la_set_current_port_new's jump table jtbl_0061D930 (20 B, five arms verified against the ROM words; chain 3 pass 146)
       - [0x51D944, rodata, cod/51D944]   # .rodata blob resume
+      - [0x51DA40, .rodata, ico2/common/src/layout_action]  # jtbl_0061DA40, la_load_processing's 21-arm switch table (0x54 B, arms verified against the ROM words; chain 3 pass 147)
+      - [0x51DA94, rodata, cod/51DA94]   # .rodata blob resume (the zero fill word after the table)
+      - [0x51DBD0, .rodata, ico2/common/src/layout_action]  # jtbl_0061DBD0, la_system_save_processing's 11-arm switch table (0x2C B, arms verified; chain 3 pass 147)
+      - [0x51DBFC, rodata, cod/51DBFC]   # .rodata blob resume (the zero fill word after the table)
+      - [0x51DC10, .rodata, ico2/common/src/layout_action]  # jtbl_0061DC10, la_save_processing's 11-arm switch table (0x2C B, arms verified; chain 3 pass 147)
+      - [0x51DC3C, rodata, cod/51DC3C]   # .rodata blob resume (the zero fill word after the table)
       - [0x51DCC0, .rodata, ico2/common/src/layout_action]  # carved jtbl_0061DCC0 (la_game_option, 26 arms over the property item minus 300, section .rodata.0x0061DCC0), VMA 0x61DCC0..0x61DD28
       - [0x51DD28, rodata, cod/51DD28]   # .rodata blob resume (two pad words)
       - [0x51DD30, .rodata, ico2/common/src/layout_action]  # carved jtbl_0061DD30 (5 arms, 0x14): la_format_processing's switch table, emitted by the compiled function; VMA 0x61DD30..0x61DD44
@@ -1224,6 +1230,8 @@ segments:
       - [0x53AC58, sdata, cod/53AC58]     # .sdata blob resume
       - [0x53B008, .sdata, ico2/common/src/debug]  # carved debug_MemoryCard's short menu labels ("LOAD".."MENU", -G 8 puts them in small data), VMA 0x63B008..0x63B040
       - [0x53B040, sdata, cod/53B040]    # .sdata blob resume
+      - [0x53B510, .sdata, ico2/common/src/layout_action]  # the TU's one anonymous "game." literal, 6 B plus 2 B of fill (VMA 0x63B510; chain 3 pass 147)
+      - [0x53B518, sdata, cod/53B518]    # .sdata blob resume
       - [0x53B8B8, .sdata, ico2/sugipon/src/girl]  # the TU's .sdata literals (completeness pass 7 widened it to the run head), VMA 0x63B8B8..0x63B8D9
       - [0x53B8D9, sdata, cod/53B8D9]     # .sdata blob resume
       - [0x53BAA8, .sdata, ico2/sugipon/src/rope]  # the TU's .sdata as source (chain 3 pass 74), the anonymous string "0", 2 B as MAIN.MAP gives, VMA 0x63BAA8, the linker pads to the next 8-aligned string

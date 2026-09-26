@@ -163,17 +163,20 @@ extern int D_0028F4C0[];
 extern int D_0028F8F4[];
 
 typedef struct {
-    int _0;
+    unsigned int _0;
     char _4[0x10];
 } R14;
 
+/* one card's save record; the bytes pin an alignment above 32 bits (the
+   serial store keeps 0x1E4 out of the base), as the 16-aligned array at
+   0x29B5F0 and its 0x1F0 stride do: a SIF DMA buffer for the card code */
 typedef struct {
     R14 f[20];
     char _190[0x50];
     int _1E0;
     int _1E4;
     char _1E8[0x8];
-} R1F0;
+} R1F0 __attribute__((aligned(16)));
 
 extern R1F0 D_0029B5F0[];
 extern int D_005343C8[];
@@ -269,13 +272,11 @@ extern int D_0063B51C;
 extern int D_0063B520;
 extern int D_0063B524;
 
-/* the product-block file-name stem, VMA 0x63B510, "game." in .sdata; declared
-   as an array of unknown length so it stays off gp-relative, as the ROM has it */
+/* the product-block file-name field, six bytes; every writer copies the
+   TU's one "game." literal into it (VMA 0x63B510 in .sdata) */
 typedef struct {
     char b[6];
 } McName;
-
-extern McName D_0063B510[];
 
 /* the memory-card work area the layout actions pass around; the ROM reorders a
    load of _8 across a store to the int mcLastResult, which only a typed
@@ -302,8 +303,11 @@ int _la_memory_card_check(McWork *p, int a1);
 extern char D_0061D888[];
 extern void *memset(void *a0, int a1, int a2);
 extern int iosMcGetInfo(void *a0);
-extern int iosMcLoadProductBlock(void *a0);
-extern int iosMcGetBlockSaveInfo(void *a0);
+/* kept local: this TU's uses of these two do not fit the prototypes in
+   mcard.h (no caller reads a result; la_load_processing's registers after
+   both calls are those of a void call) */
+extern void iosMcLoadProductBlock(void *a0);
+extern void iosMcGetBlockSaveInfo(void *a0);
 
 /* layout_action.c:853-1006 in the listing.  The switch table is jtbl_0061D8D0
    (24 arms over the memory-card step, cases 0..23; VMA 0x61D8D0..0x61D930). */
@@ -332,7 +336,7 @@ int _la_memory_card_check(McWork *p, int a1)
         a1++;
         break;
     case 20:
-        p->_47C = D_0063B510[0];
+        strcpy((char *)p + 0x47C, "game.");
         iosMcGetBlockSaveInfo(p);
         a1++;
         break;
@@ -1266,7 +1270,179 @@ int la_load_start_check(int a0)
     return -1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", la_load_processing);
+extern int D_0063B580;
+/* the load-phase messages in .rodata, VMA 0x61D9A8..0x61DA30 */
+extern int D_0061D9A8[];
+extern int D_0061D9C0[];
+extern int D_0061D9D0[];
+extern int D_0061D9E8[];
+extern int D_0061D9F8[];
+extern int D_0061DA08[];
+extern int D_0061DA20[];
+extern int D_0061DA30[];
+/* "chk:%d\n" and "case 4\n", short strings in this TU's .sdata at VMA
+   0x63B588 and 0x63B590 */
+extern int D_0063B588[];
+extern int D_0063B590[];
+/* the twenty game-flag ids the load carries across gflagInit */
+extern int D_004E3B40[];
+extern char D_004DA788[];
+extern char D_004DD700[];
+extern int D_0063A650;
+extern int D_0063AA04;
+/* the current game's save record, as in la_system_save_processing */
+extern int D_0029B9D0[];
+/* kept local with gamesys.h's prototype, which this TU does not include */
+extern void gamesysMemoryLoad(void **tbl, int a1, void *a2);
+/* kept local: this TU's uses of iosMcLoadGameBlock do not fit the prototype
+   in mcard.h, exactly as in common/src/debug.c */
+extern void iosMcLoadGameBlock(void *a0, void *buf);
+extern void ACTGame_SetActors_Debug(int a0, int a1);
+
+/* layout_action.c:1796-1800 in the listing: the saved file's serial read
+   from the port's record, with the file number kept beside it; inlined into
+   la_load_processing directly and into la_save_processing through
+   mcSetSavedFile, with no symbol of its own in the ROM (the name is ours). */
+static inline int mcSetFileNo(int port, int no)
+{
+    int serial = (D_0029B5F0 + port)->_1E4;
+
+    D_0063B55C = no;
+    return serial;
+}
+
+/* layout_action.c:2370-2371 in the listing: the game flags the load carries
+   across gflagInit, parked in keepFlags; inlined into la_load_processing, with
+   no symbol of its own in the ROM (the name is ours).  The counter is
+   unsigned: the ROM's guard is sltiu. */
+static inline void gflagKeepState(void)
+{
+    unsigned int i;
+
+    for (i = 0; i < 20; i++) {
+        keepFlags[i] = gflagChk(D_004E3B40[i]);
+    }
+}
+
+/* layout_action.c:2378-2382 in the listing, the other half of the pair. */
+static inline void gflagRestoreState(void)
+{
+    unsigned int i;
+
+    for (i = 0; i < 20; i++) {
+        if (keepFlags[i]) {
+            gflagOn(D_004E3B40[i]);
+        } else {
+            gflagOff(D_004E3B40[i]);
+        }
+    }
+}
+
+/* layout_action.c:2393-2536 in the listing, with the menu-close pair of lines
+   707-708, the play time of lines 829-832, the flag-keeping pair of lines
+   2370-2382 and the serial readback of lines 1798-1799 inlined into it.  The
+   switch table is jtbl_0061DA40 (21 arms, selector D_0063B580, cases 0-10 and
+   20). */
+int la_load_processing(int a0)
+{
+    int err;
+    int hour;
+    int min;
+    int sec;
+
+    debug_StdPrintfDummy(D_0061D9A8);
+    if (a0) {
+        D_0063B580 = 0;
+    }
+
+    switch (D_0063B580) {
+    case 0:
+        strcpy((char *)mc + 0x47C, "game.");
+        mc[16] = D_0063B4E8;
+        mc[2] = D_0063B4E0;
+        mc[3] = 0;
+        iosMcGetBlockSaveInfo(mc);
+        D_0063B580++;
+        break;
+    case 1:
+    case 3:
+        if (iosMcSync((unsigned long *)mc) != 0) {
+            D_0063B580++;
+        }
+        break;
+    case 2:
+        D_0063B580++;
+        break;
+    case 6:
+    case 9:
+        debug_StdPrintfDummy(D_0061D9C0, D_0063B580);
+        err = _la_mcard_error_check(mc);
+        if (err > 0) {
+            D_0063B580++;
+            debug_StdPrintfDummy(D_0061D9D0, D_0063B580, err);
+            debug_StdPrintfDummy(D_0061D9E8);
+            return -1;
+        }
+        debug_StdPrintfDummy(D_0061D9F8);
+        debug_StdPrintfDummy(D_0063B588, err);
+        lt_set_item_select_func(0);
+        D_0063B4F4 = 0;
+        return 46;
+    case 4:
+        debug_StdPrintfDummy(D_0063B590);
+        if (((1 << mc[16]) & ((McWork *)mc)->_9C0) == 0) {
+            D_0063B580 = 20;
+        } else {
+            iosMcLoadProductBlock(mc);
+            D_0063B580++;
+        }
+        break;
+    case 5:
+    case 8:
+        debug_StdPrintfDummy(D_0061D9C0, D_0063B580);
+        if (iosMcSync((unsigned long *)mc) != 0) {
+            D_0063B580++;
+        }
+        break;
+    case 7:
+        debug_StdPrintfDummy(D_0061D9C0, D_0063B580);
+        debug_StdPrintfDummy(D_0061DA08);
+        iosMcLoadGameBlock(mc, D_004DD700);
+        D_0063B580++;
+        break;
+    case 10:
+        gflagKeepState();
+        gflagInit();
+        gamesysMemoryLoad(D_004DA788, D_004DD700, 0);
+        gflagRestoreState();
+        D_0028F4C0[3] = 1;
+        D_0028F4C0[4] = 1;
+        debug_StdPrintfDummy(D_0061DA20);
+        D_0063B580 = 0;
+        *(struct S14 *)D_0029B9D0 = *(struct S14 *)&D_0029B5F0[mc[2]].f[mc[16]];
+        playTime((struct S14 *)D_0029B9D0, &hour, &min, &sec);
+        D_0063B558 = mcSetFileNo(mc[2], mc[16]);
+        debug_StdPrintfDummy(D_0061DA30, D_0063AA04);
+        D_0063A650 = 1;
+        if (D_0063BE6C != 0) {
+            *(short *)(*(int *)(D_0063BE6C + 0x2C) + 0x44) = 0x40;
+        }
+        D_0063BE6C = 0;
+        if (gflagChk(395)) {
+            lt_set_item_select_func(0);
+            D_0063B4F4 = 0;
+            return 9;
+        }
+        stgmgrForceSwitchWithFade(0.05f, 4.0f, D_0063AA04);
+        ACTGame_SetActors_Debug(D_0063AA04, 0);
+        return -1;
+    case 20:
+        lt_set_item_select_func(0);
+        D_0063B4F4 = 0;
+        return 20;
+    }
+    return -1;
+}
 
 extern int fadeStatus;
 extern void scpFadeIn(float sec);
@@ -1789,8 +1965,247 @@ int la_format_confirm(int a0, int a1)
     return -1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", la_system_save_processing);
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", la_save_processing);
+extern int D_0063B5CC;
+/* the system-save error message, VMA 0x61DBB8 */
+extern int D_0061DBB8[];
+/* kept local: this TU's uses of the block calls do not fit the prototypes in
+   mcard.h, exactly as in common/src/debug.c */
+extern void iosMcSaveIconBlock(void *a0);
+extern void iosMcSaveProductBlock(void *a0);
+extern void iosMcSaveGameBlock(void *a0, void *buf);
+extern char D_004DD700[];
+/* the current game's save record (la_save_confirm_complete copies the
+   preview from it) */
+extern int D_0029B9D0[];
+/* kept local: this TU's spelling predates sce/libc/string.h; the game compiled
+   with builtins live, so a copy of a constant string is the builtin block
+   move */
+extern char *strcpy(char *dst, const char *src);
+
+/* the CD real-time clock record sceCdReadClock fills in; kept local because
+   the disc records no declaration-only header and seki/src/GsBase.c carries
+   the same pair for the same reason. */
+typedef struct {
+    unsigned char stat;
+    unsigned char second;
+    unsigned char minute;
+    unsigned char hour;
+    unsigned char pad;
+    unsigned char day;
+    unsigned char month;
+    unsigned char year;
+} sceCdCLOCK;
+
+extern int sceCdReadClock(sceCdCLOCK *clock);
+extern int rand(void);
+
+/* layout_action.c:1766-1776 in the listing: the save serial, the clock
+   packed into one word or a random number when the clock cannot be read;
+   inlined into la_system_save_processing, with no symbol of its own in the
+   ROM (the name is ours). */
+static inline int mcMakeSerial(void)
+{
+    sceCdCLOCK clock;
+
+    sceCdReadClock(&clock);
+    if (clock.stat != 0) {
+        return rand();
+    }
+    return ((clock.year & 7) << 26) + (clock.day << 20) + (clock.hour << 14) + (clock.minute << 7) +
+           clock.second;
+}
+
+/* layout_action.c:3203-3294 in the listing, with the serial builder of lines
+   1768-1775 and the play time of lines 826-841 inlined into it (its results
+   are unused here, so the record passed is not visible in the bytes).  The
+   switch table is jtbl_0061DBD0 (11 arms, selector D_0063B5CC, cases 0-10). */
+int la_system_save_processing(int a0)
+{
+    int err;
+    int i;
+    int hour;
+    int min;
+    int sec;
+
+    D_0063B4D8 = &D_0071D900[mc[2]];
+    if (a0) {
+        D_0063B5CC = 0;
+        systemSaveRetry = 0;
+        barTotal = 14;
+    }
+
+    progressive_bar();
+
+    switch (D_0063B5CC) {
+    case 0:
+        strcpy((char *)mc + 0x47C, "game.");
+        mc[16] = systemSaveRetry;
+        mc[2] = D_0063B4E0;
+        mc[3] = 0;
+        iosMcGetBlockSaveInfo(mc);
+        D_0063B5CC++;
+        D_0063B4D8->_0.w = (int)D_0063B4D8->_0.w & ~0x80;
+        D_0063B5B0++;
+        break;
+    case 2:
+        iosMcSaveIconBlock(mc);
+        D_0063B5CC++;
+        break;
+    case 6:
+    case 9:
+        err = _la_mcard_error_check(mc);
+        if (err > 0) {
+            D_0063B5CC++;
+            debug_StdPrintfDummy(D_0061DBB8, D_0063B5CC, err);
+            return -1;
+        }
+        D_0063B4D8->_0.w |= 0x80;
+        lt_set_item_select_func(0);
+        D_0063B4F4 = 0;
+        return 44;
+    case 4:
+        for (i = 0; i < 10; i++) {
+            D_0029B5F0[mc[2]].f[i]._0 = 0xFFFFFFFF;
+        }
+        while ((D_0029B5F0[mc[2]]._1E4 = mcMakeSerial()) == 0)
+            ;
+        playTime((struct S14 *)D_0029B9D0, &hour, &min, &sec);
+        iosMcSaveProductBlock(mc);
+        D_0063B5CC++;
+        D_0063B5B0++;
+        break;
+    case 1:
+    case 3:
+    case 5:
+    case 8:
+        if (iosMcSync((unsigned long *)mc) != 0) {
+            D_0063B5CC++;
+        }
+        break;
+    case 7:
+        iosMcSaveGameBlock(mc, D_004DD700);
+        D_0063B5CC++;
+        D_0063B5B0++;
+        break;
+    case 10:
+        D_0063B5CC = 7;
+        systemSaveRetry++;
+        mc[16] = systemSaveRetry;
+        if (systemSaveRetry >= 10) {
+            lt_set_item_select_func(0);
+            D_0063B4F4 = 0;
+            return 38;
+        }
+        break;
+    }
+    return -1;
+}
+
+extern int D_0063B5D0;
+/* the second save-phase message, VMA 0x61DC00 */
+extern int D_0061DC00[];
+extern int GetSaveSofaLayoutID(void);
+
+/* layout_action.c:1802-1805 in the listing: the save side's readback, the
+   serial kept as both the saved and the current one; inlined into
+   la_save_processing (the name is ours). */
+static inline void mcSetSavedFile(void)
+{
+    int serial = mcSetFileNo(mc[2], mc[16]);
+
+    D_0063B558 = serial;
+    D_0063B554 = serial;
+}
+
+/* layout_action.c:3309-3410 in the listing, with the menu-close pair of lines
+   707-708, the play time of lines 829-832, the serial builder of lines
+   1768-1775 and the readback of lines 1798-1804 inlined into it.  The switch
+   table is jtbl_0061DC10 (11 arms, selector D_0063B5D0, cases 0-10). */
+int la_save_processing(int a0)
+{
+    int err;
+    int hour;
+    int min;
+    int sec;
+
+    D_0063B4D8 = &D_0071D900[mc[2]];
+    if (a0) {
+        D_0063B4F0 = 0;
+        D_0063B5D0 = 0;
+    }
+
+    progressive_bar();
+
+    switch (D_0063B5D0) {
+    case 0:
+        strcpy((char *)mc + 0x47C, "game.");
+        mc[16] = D_0063B4E8;
+        mc[2] = D_0063B4E0;
+        mc[3] = 0;
+        iosMcGetBlockSaveInfo(mc);
+        D_0063B5D0++;
+        D_0063B4D8->_0.w = (int)D_0063B4D8->_0.w & ~0x80;
+        break;
+    case 1:
+        if (iosMcSync((unsigned long *)mc) != 0) {
+            D_0063B5D0 = 4;
+        }
+        break;
+    case 2:
+        iosMcSaveIconBlock(mc);
+        D_0063B5D0++;
+        break;
+    case 6:
+    case 9:
+        err = _la_mcard_error_check(mc);
+        if (err > 0) {
+            D_0063B5D0++;
+            debug_StdPrintfDummy(D_0061DBB8, D_0063B5D0, err);
+            return -1;
+        }
+        D_0063B4D8->_0.w |= 0x80;
+        debug_StdPrintfDummy(D_0061DC00, D_0063B5D0);
+        lt_set_item_select_func(0);
+        D_0063B4F4 = 0;
+        return 44;
+    case 4:
+        D_0029B9D0[0] = stage_no;
+        D_0029B9D0[3] = GetSaveSofaLayoutID();
+        D_0029B9D0[1] = D_0063AA00;
+        *(struct S14 *)&D_0029B5F0[mc[2]].f[mc[16]] = *(struct S14 *)D_0029B9D0;
+        playTime((struct S14 *)D_0029B9D0, &hour, &min, &sec);
+        (D_0029B5F0 + mc[2])->_1E0 = mc[16];
+        if ((D_0029B5F0 + mc[2])->_1E4 == (D_0029B5F0 + (mc[2] ^ 1))->_1E4) {
+            do {
+                while ((D_0029B5F0[mc[2]]._1E4 = mcMakeSerial()) == 0)
+                    ;
+            } while ((D_0029B5F0 + mc[2])->_1E4 == (D_0029B5F0 + (mc[2] ^ 1))->_1E4);
+        }
+        mcSetSavedFile();
+        iosMcSaveProductBlock(mc);
+        D_0063B5D0++;
+        break;
+    case 3:
+    case 5:
+    case 8:
+        if (iosMcSync((unsigned long *)mc) != 0) {
+            D_0063B5D0++;
+            D_0063B5B0++;
+        }
+        break;
+    case 7:
+        CheckPoint();
+        iosMcSaveGameBlock(mc, D_004DD700);
+        D_0063B5D0++;
+        break;
+    case 10:
+        D_0063B5D0 = 0;
+        lt_set_item_select_func(0);
+        D_0063B4F4 = 0;
+        return 41;
+    }
+    return -1;
+}
 
 extern char stage_after_skipping_demo[];
 extern int CurrentTargetGObjSub;
@@ -1853,7 +2268,6 @@ int la_end_confirm(void)
 extern int layoutActPushStartNew;
 /* kept local: this TU's uses of iosMcDelete do not fit the prototype in mcard.h */
 extern void iosMcDelete(void *a0);
-extern char *strcpy(char *dst, char *src);
 
 /* layout_action.c:3601-3642 in the listing. */
 int la_delete_processing(int a0)
