@@ -1016,12 +1016,46 @@ void GetMatrixOfMotion(char *self, char *tbl, void *ofs)
     }
 }
 
-/* census dispSkeltonHierarchy, def line 1592, a file static (MAIN.MAP carries no
-   global of that name; its span of 180 insns matches the listing exactly).  It
-   takes the name as static dispSkeltonHierarchy once this body is C: the stub
-   assembles a glabel that would emit a global dispSkeltonHierarchy against
-   ico2/sugipon/src/motionManager2's stub at 0x001072E8 */
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", func_001ECE40);
+/* census file static (def line 1592); ico2/sugipon/src/motionManager2 holds the
+   other static of that name. */
+static void dispSkeltonHierarchy(int node)
+{
+    if (*(int *)(D_0063B938 + node * 64 + 0x38) != -1) {
+        float o[3] = {0.0f, 0.0f, 0.0f};
+        float p[3] = {*(float *)(D_0063B938 + node * 64 + 0x10),
+                      *(float *)(D_0063B938 + node * 64 + 0x14),
+                      *(float *)(D_0063B938 + node * 64 + 0x18)};
+        float ax[3] = {0.0f, 5.0f, 0.0f};
+        float ay[3] = {0.0f, 0.0f, 5.0f};
+        float az[3] = {5.0f, 0.0f, 0.0f};
+        sceVu0IVECTOR c0 = {0x40, 0x40, 0x40, 0x80};
+        sceVu0IVECTOR c1 = {0x00, 0xFF, 0x00, 0x80};
+        sceVu0IVECTOR c2 = {0x00, 0x80, 0xFF, 0x80};
+        sceVu0IVECTOR c3 = {0xFF, 0x00, 0x00, 0x80};
+
+        DrawLineG(o, c0, p, c0, -1);
+        DrawLineG(o, c0, ax, c1, -1);
+        DrawLineG(o, c0, ay, c2, -1);
+        DrawLineG(o, c0, az, c3, -1);
+    }
+    MatrixDrive_PushMatrix();
+    CopyMatrix(MatrixDrive_GetMatrix(),
+               *(char **)(*(char **)(D_0063B93C + 0x15C) + 0xC) + node * 64);
+    if (*(int *)(D_0063B938 + node * 64 + 0x30) == -1) {
+        float o2[3] = {0.0f, 0.0f, 0.0f};
+        float e[3] = {10.0f, 0.0f, 0.0f};
+        sceVu0IVECTOR c = {0xFF, 0xFF, 0xFF, 0x80};
+
+        DrawLineG(o2, c, e, c, -1);
+    }
+    if (*(int *)(D_0063B938 + node * 64 + 0x30) != -1) {
+        dispSkeltonHierarchy(*(int *)(D_0063B938 + node * 64 + 0x30));
+    }
+    MatrixDrive_PopMatrix();
+    if (*(int *)(D_0063B938 + node * 64 + 0x34) != -1) {
+        dispSkeltonHierarchy(*(int *)(D_0063B938 + node * 64 + 0x34));
+    }
+}
 
 /* census sugipon/src/motionManager.c getInitialMatrix, def line 1625 (1625-1647),
    a file static: MAIN.MAP carries no global of that name, so the twin in
@@ -1069,7 +1103,7 @@ void dispSkelton()
     MatrixDrive_PushMatrix();
     v = MatrixDrive_GetMatrix();
     sceVu0UnitMatrix(v);
-    func_001ECE40(0);
+    dispSkeltonHierarchy(0);
     MatrixDrive_PopMatrix();
     gif_EndPacket();
 }

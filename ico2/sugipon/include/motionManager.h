@@ -28,7 +28,6 @@ void checkWallSideState(void);
 void checkWallState(int flag);
 void clearCollisionStatus(void);
 int findActPoint(int *list);
-void func_001ECE40();
 void getFinalMatrixWithNaturalGeometry(int id);
 
 #endif /* MOTIONMANAGER_H */

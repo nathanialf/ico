@@ -959,7 +959,91 @@ void PrivInsCamProcess(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", subBoyCollision);
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", actBoySwim);
+
+void afterBoySwim(volatile int a0);
+extern S12 InitialColInfo;
+extern int D_00639EAC;
+extern int iosPadActRequest(int port, int id);
+extern int GetSkeltonFocusNode(char *a0, int a1);
+/* kept local: this TU's uses of debug_NMarker do not fit the prototype in camera-editor.h */
+extern void debug_NMarker(float *pos, int r, int g, int b, float size);
+extern void MoveFloatingBox(void *box, int self, void *m, void *p, float d);
+/* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
+extern float _DistSqGV(void *a, void *b);
+
+/* the record Act+0x680 points at, with the fields actBoySwim touches: the
+   floating-box flag, the box GObj and the grip point, a four-float vector
+   sceVu0ApplyMatrix takes whole (its w set to 1 before the apply) */
+typedef struct {
+    char _pad0[0x2C0];
+    int f_2C0;   /* 0x2C0 */
+    char *f_2C4; /* 0x2C4 */
+    char _pad2C8[0x8];
+    float f_2D0[4]; /* 0x2D0 */
+} BoyExt;
+
+#define BOY_EXT(o) (*(BoyExt **)(*(char **)((char *)(o) + 0x164) + 0x680))
+
+/* RECONSTRUCTION: GObj's 0x15C slot read through a union (typedef.h 98-104: an
+   int handle the engine casts to a pointer).  Proof, sched1 dump of this TU
+   (-fsched-verbose-5): the ROM's row 3900 order needs the box slot read to
+   depend on the float store to the grip point's w while the 0x164 and 0x680
+   pointer reads do not, and row 3913 needs each slot read to follow the col-info
+   int store before it; under this compiler's TBAA only an alias-set-0 read
+   (a union member) conflicts with both the float and the int store.  Only the
+   pointer member is attested. */
+typedef union {
+    char *sub;
+} GObjSubSlot;
+
+#define GOBJ_SUBSLOT(o) (((GObjSubSlot *)((char *)(o) + 0x15C))->sub)
+
+void actBoySwim(volatile int a0)
+{
+    float pos[4];
+    char *sub = *(char **)((char *)a0 + 0x164);
+    int padReq = 0;
+
+    BOY_EXT(a0)->f_2C0 = 0;
+    *(void **)(sub + 0x14) = (void *)afterBoySwim;
+    while (1) {
+        char *box = BOY_EXT(a0)->f_2C4;
+
+        if (*(int *)(sub + 0x40) == 0xAD) {
+            *(unsigned long long *)(sub + 0x20) |= 0x800000000ULL;
+        }
+        if (BOY_EXT(a0)->f_2C0) {
+            RequestChangeHandMode((char *)a0, 0, 3, 1, (int)box, 0, BOY_EXT(a0)->f_2D0);
+            BOY_EXT(a0)->f_2D0[3] = 1.0f;
+            sceVu0ApplyMatrix(pos, *(void **)(GOBJ_SUBSLOT(box) + 0xC), BOY_EXT(a0)->f_2D0);
+            debug_NMarker(pos, 0xFF, 0, 0, 100.0f);
+            MoveFloatingBox(box, a0,
+                            *(char **)(GOBJ_SUBSLOT(a0) + 0xC) +
+                                GetSkeltonFocusNode((char *)a0, 0x13) * 0x40 + 0x30,
+                            BOY_EXT(a0)->f_2D0, 30.0f);
+            if (!(_DistSqGV(test_CURRENTROOT((void *)a0), pos) < 4e+04f)) {
+                BOY_EXT(a0)->f_2C0 = 0;
+            }
+            ((S12 *)(GOBJ_SUBSLOT(a0) + 0x1C0))->a = (int)box;
+            ((S12 *)(GOBJ_SUBSLOT(a0) + 0x1C0))->b = -1;
+            ((S12 *)(GOBJ_SUBSLOT(a0) + 0x1C0))->c = 0;
+            if (!padReq) {
+                iosPadActRequest(D_00639EAC, 6);
+                padReq = 1;
+            }
+            if ((int)(*(unsigned long long *)(sub + 0x20) >> 35) & 1) {
+                if (*(int *)(GOBJ_SUBSLOT(a0) + 0x4CC) || *(int *)(GOBJ_SUBSLOT(a0) + 0x4C8)) {
+                    iosPadActRequest(D_00639EAC, 7);
+                }
+            }
+        } else {
+            RequestChangeHandMode((char *)a0, 0, 3, 0, 0, 0, 0);
+            padReq = 0;
+            *(S12 *)(GOBJ_SUBSLOT(a0) + 0x1C0) = InitialColInfo;
+        }
+        _ACTWait(1);
+    }
+}
 
 /* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
 extern float _DistGV(CCPResult *a, CCPResult *b);
@@ -1018,7 +1102,83 @@ void actBoyRun(volatile int a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", actBoyAttack);
+extern char D_00552BA8[];
+extern char D_00552BC0[];
+extern void BoyAttackCenter(int a0);
+/* kept local: this TU's uses of SetMotionDirectionWithLimit do not fit the prototype in motionManager2.h */
+extern void SetMotionDirectionWithLimit(void *self, float *dir, float lo, float hi);
+
+/* INTERIM: ACTSearchGObj and ACTSearchEnemy are file-scope `inline`s in the
+   original TU: the listing expands both here (ACTSearchEnemy's rows 1671/1674
+   around ACTSearchGObj's 1644-1661) and their out-of-line copies sit in the
+   TU's inline tail, where the plain definitions stay.  These stand-ins carry
+   the bodies actBoyAttack inlines; fold them back when the tail is C. */
+static inline void ACTSearchGObj_inl(void *a0, int a1, int a2, int *out_id, float *out_vec,
+                                     float thresh)
+{
+    float buf[4];
+    void *node;
+    int best;
+
+    node = isysGObjSearchFromObjKindID_begin(a1);
+    *out_id = 0;
+    best = a2;
+    for (; node != 0; node = isysGObjSearchFromObjKindID_next(node)) {
+        if (*(int *)((char *)node + 0x16C) != 0) {
+            CCPResult *r1 = test_CURRENTROOT(a0);
+            if (_DistGV(r1, test_CURRENTROOT(node)) < thresh) {
+                int sign;
+                int dist;
+                CCPResult *r4 = test_CURRENTROOT(node);
+                sceVu0SubVector(buf, r4, test_CURRENTROOT(a0));
+                sign = ((int (*)(void *, void *))_RotyGV)(buf, test_CURRENTORIENT(a0));
+                if (sign < 0) {
+                    dist = -((int (*)(void *, void *))_RotyGV)(buf, test_CURRENTORIENT(a0));
+                } else {
+                    dist = ((int (*)(void *, void *))_RotyGV)(buf, test_CURRENTORIENT(a0));
+                }
+                if (dist < best) {
+                    best = dist;
+                    out_vec[0] = buf[0];
+                    out_vec[1] = buf[1];
+                    out_vec[2] = buf[2];
+                    *out_id = (int)node;
+                }
+            }
+        }
+    }
+}
+
+static inline void ACTSearchEnemy_inl(void *a0, int *out_id, float *out_vec)
+{
+    ACTSearchGObj_inl(a0, (*(int *)((char *)a0 + 0xC) ^ 1) ? 1 : 4, 0x5A, out_id, out_vec, 300.0f);
+}
+
+void actBoyAttack(volatile int a0)
+{
+    char *sub = *(char **)((char *)a0 + 0x164);
+    int mot = *(int *)(sub + 0x10);
+    float vec[4];
+
+    *(unsigned long long *)(sub + 0x20) |= 0x100000000ULL;
+    *(int *)(sub + 0x450) = mot;
+    debug_StdPrintfDummy(D_00552BA8, mot);
+    debug_StdPrintfDummy(D_00552BC0);
+    _ACTWait(2);
+    ACTSearchEnemy_inl((void *)a0, (int *)(sub + 0x188), vec);
+    while (1) {
+        if (*(int *)(sub + 0x188)) {
+            if (ACTGame_NoWeapon((char *)a0)) {
+                SetMotionDirectionWithLimit((void *)a0, vec, 5.0f, 45.0f);
+            } else {
+                SetMotionDirectionWithLimit((void *)a0, vec, 10.0f, 90.0f);
+            }
+        }
+        ACTSendMailCorrect(a0, 0xC7);
+        BoyAttackCenter(a0);
+        _ACTWait(1);
+    }
+}
 
 /* kept local: this TU's uses of SetMotionDirection do not fit the prototype in motionManager2.h */
 extern void SetMotionDirection(void *self, float *dir);
@@ -1180,6 +1340,35 @@ void ACTSendMail_PULLUP_GO(void)
     }
 }
 
+/* boyact.c:4386-4398 in the listing: the pull-up start mail, inlined into
+   actBoyPullupGo; it has no symbol of its own and no census row, so the name is
+   descriptive. */
+static inline void ACTSendMail_PULLUP_START(void)
+{
+    Act *sub = GOBJ_ACT(D_00639EA4);
+
+    switch (*(int *)((char *)sub + 0x5E4)) {
+    case 0x64:
+        if (D_00639EA8 != 0) {
+            iosOmSendMail(D_00639EA8, 0x51, D_0063A61C);
+        }
+        GOBJ_ACT(D_00639EA8)->f_44 = 0x65;
+        break;
+    case 0xC8:
+        if (D_00639EA8 != 0) {
+            iosOmSendMail(D_00639EA8, 0x51, D_0063A61C);
+        }
+        GOBJ_ACT(D_00639EA8)->f_44 = 0x66;
+        break;
+    case 0x12C:
+        if (D_00639EA8 != 0) {
+            iosOmSendMail(D_00639EA8, 0x51, D_0063A61C);
+        }
+        GOBJ_ACT(D_00639EA8)->f_44 = 0x67;
+        break;
+    }
+}
+
 extern void *D_00639EA0;
 extern void sceVu0SubVector(void *, CCPResult *, CCPResult *);
 extern float sceVu0InnerProduct(void *a, void *b);
@@ -1240,8 +1429,87 @@ int ditch_check_heroin_position(void)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", actBoyPullupReady);
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", actBoyPullupGo);
+extern char D_0055FFA8[];
+/* kept local: this TU's uses of _MoveGV do not fit the prototype in gv.h */
+extern void _MoveGV(float *dst, float *from, float *to, float d);
+extern int IsCorrectPosition(char *a0);
+
+void actBoyPullupReady(volatile int a0)
+{
+    float mv[4];
+
+    /* boyact.c:4478-4483 in the listing, inside this function's own span: the
+       helper is defined here and inlined at the pull-up test; it has no symbol
+       of its own, so the name is descriptive. */
+    inline unsigned char isGirlWithinPullupHeight(void)
+    {
+        float boy[4];
+        float girl[4];
+
+        GetRootProjectionPosOfGObj(boy, D_00639EA4);
+        GetRootProjectionPosOfGObj(girl, D_00639EA8);
+        if (GOBJ_ACT(D_00639EA8)->unk34 == 0x26 ||
+            (boy[1] - girl[1] < 0.0f ? -(boy[1] - girl[1]) : boy[1] - girl[1]) < 50.0f) {
+            return 1;
+        }
+        return 0;
+    }
+    Act *sub = GOBJ_ACT(a0);
+
+    ACTAdjustPlane(a0, BOY_WALL(a0) + 0x8C0);
+    while (1) {
+        if (*(unsigned char *)(BOY_WALL(a0) + 0x4F0) &&
+            *(int *)(GOBJ_SUB(a0)->f_4A0 * 0x194 + D_0055FFA8) != 1) {
+            _MoveGV(mv, (float *)test_CURRENTROOT((void *)a0), (float *)(BOY_WALL(a0) + 0x500),
+                    3.0f);
+            SetRootPosition((char *)a0, mv);
+        }
+        _ACTCharStatus_Set((char *)a0, 0x1C, -1.0f, 0);
+        if ((*(int *)((char *)sub + 0x2E0) & 8) == 0 || isGirlWithinPullupHeight()) {
+            ACTSendMailCorrect(a0, 0x49);
+        } else if (pullup_check_heroin_position()) {
+            if (PAIR_IsStatus_GIRL_PULL() == 0) {
+                if (!(300.0f < (BOY_GIRL_DY() < 0.0f ? -BOY_GIRL_DY() : BOY_GIRL_DY()) &&
+                      *(int *)(BOY_WALL(D_00639EA8) + 0x3B4))) {
+                    if (D_00639EA8 != 0) {
+                        iosOmSendMail(D_00639EA8, 0x4F, D_0063A61C);
+                    }
+                }
+            } else if (IsCorrectPosition(D_00639EA8) == 0) {
+                ACTSendMail_PULLUP_GO();
+            }
+        }
+        _ACTWait(1);
+    }
+}
+
+/* the boy is hauling the girl up: moving while the grip ratio is between 0.1
+   and 0.99 or the hold flag is set */
+#define BOY_PULLUP_MOVING(sub)                                                                     \
+    (0.1f < *(float *)((char *)(sub) + 0x34C) &&                                                   \
+     (*(float *)((char *)(sub) + 0x34C) < 0.99f || (*(int *)((char *)(sub) + 0x2E0) & 0x20)))
+
+void actBoyPullupGo(volatile int a0)
+{
+    Act *sub = GOBJ_ACT(a0);
+
+    ACTSendMail_PULLUP_START();
+    while (1) {
+        if (PAIR_IsStatus_GIRL_PULL() == 0) {
+            ACTSendMailCorrect(a0, 0x4B);
+        } else {
+            if (0.1f < *(float *)((char *)sub + 0x34C) && !BOY_PULLUP_MOVING(sub)) {
+                ACTSendMailCorrect(a0, 0x4C);
+            } else if (BOY_PULLUP_MOVING(sub)) {
+                ACTSendMailCorrect(a0, 0x4D);
+            } else {
+                ACTSendMailCorrect(a0, 0x4E);
+            }
+        }
+        _ACTWait(1);
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", actBoyBelift);
 
 extern char D_0055FE58[];

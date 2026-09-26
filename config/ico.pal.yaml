@@ -913,8 +913,8 @@ segments:
       - [0x51FB51, rodata, cod/51FB51]     # rodata blob resume
       - [0x51FBC0, .rodata, ico2/sugipon/src/motionFileManager]  # carved jtbl_0061FBC0 (VMA 0x61FBC0..0x61FBD8, 24 B, 6 arms): pursueNodeList's switch table, emitted by the compiled function
       - [0x51FBD8, rodata, cod/51FBD8]   # .rodata blob resume (two zero pad words)
-      - [0x520030, .rodata, ico2/sugipon/src/motionManager]  # carved jtbl_00620030 (VMA 0x620030..0x620088, 88 B, 22 arms): _getGeometryOfMotion's switch table, emitted by the compiled function once matched (splat migrate_rodata_to_functions); the blob keeps every other motionManager string
-      - [0x520088, rodata, cod/520088]   # .rodata blob resume
+      - [0x520030, .rodata, ico2/sugipon/src/motionManager]  # the TU's whole .rodata run as source (chain 2 pass 86): _getGeometryOfMotion's 21-arm switch table (0x54 B), a 4 B zero pad, then dispSkeltonHierarchy's nine initialiser templates (0x98 B), all anonymous, VMA 0x620030..0x620120; the compiler's one section, kept unsplit by tools/postprocess_split_jtbls.py's single-table rule
+      - [0x520120, rodata, cod/520120]   # .rodata blob resume (XZ_MOTPOS)
       - [0x5201E0, .rodata, ico2/sugipon/src/motionOrientManager]  # orientDebug's jump table jtbl_006201E0 (21 words, section .rodata.0x006201E0), VMA 0x6201E0..0x620233
       - [0x520234, rodata, cod/520234]   # .rodata blob resume
       - [0x520460, .rodata, ico2/sugipon/src/motionOrientManager]  # SetMotionRequest's jump table jtbl_00620460 (14 words, section .rodata.0x00620460), VMA 0x620460..0x620498
