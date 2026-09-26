@@ -340,7 +340,10 @@ void gif_EndPacket(void);
    deleted by cse1 (cse.c 8739-8761 flushes its table every 1000 insns, and only
    a flush between that write's cursor load and the next write's address puts
    the tail on the ROM's c + 288 base); two insns per GS write (the argument's
-   high/load pair, dead once cse1 forwards the cursor) is 64 there. WHAT THEY
+   high/load pair, dead once cse1 forwards the cursor) is 64 there, and the
+   check at the head of each packet open and close adds 8, 72 in all. In sonic
+   the same check at the open and the close is what puts cse1's flush on the
+   ROM's insn (UV1's cursor store in the second packet). WHAT THEY
    CANNOT PIN: that the developer's writer carried this check, its name or its
    argument; any straight-line code of that size that cse1 deletes before that
    write, and that gives no load an earlier equivalent, gives the same bytes. */
@@ -368,6 +371,7 @@ static __inline__ void dvCheckPacket(char *p) {}
     {                                                                                              \
         char *c;                                                                                   \
                                                                                                    \
+        dvCheckPacket(PacketBufferStruct.ptr.c);                                                   \
         c = PacketBufferStruct.ptr.c;                                                              \
         PacketBufferStruct.gif.c = 0;                                                              \
         PacketBufferStruct.end.c = 0;                                                              \
@@ -382,7 +386,225 @@ static __inline__ void dvCheckPacket(char *p) {}
         PacketBufferStruct.ptr.c = c + 0x20;                                                       \
     }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/darkVolume", sonic);
+/* sonic's three colours, one record each. The packet colours are const like
+   darkVolume's: the ROM issues their byte loads above the packet stores through
+   the cursor, which only an unchanging read allows (a char read aliases every
+   store otherwise). The sphere colour is not: the ROM loads it again for the
+   second renderViewCoordZSphere call, where a const load would be kept across
+   the first call. */
+extern const DVColor D_0063B788;
+extern DVColor D_0063B790;
+extern const DVColor D_0063B798;
+
+void sonic(void *pos, float t)
+{
+    int rect[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
+                   ScreenHeight * 16};
+    int rect2[4] = {4, 4, ScreenWidth * 16, ScreenHeight * 16};
+
+    dl_SetDLPriority(10);
+    dvOpenPacket();
+    dvSetFrame(0x140, ScreenWidth, ScreenHeight, 0, 0);
+    dvSetGsReg(0x4E, 0x1300000C0LL);
+    dvSetGsReg(0x47, 0x30000);
+    dvSetGsReg(0x49, 0);
+    dvSetGsReg(0x42, 0x8000000044LL);
+    dvSetGsReg(0x00, 0x406);
+    dvSetGsReg(0x01, (long)D_0063B788.r | ((long)D_0063B788.g << 8) | ((long)D_0063B788.b << 16) |
+                         ((long)D_0063B788.a << 24));
+    dvSetGsReg(0x05,
+               (long)(rect[0] + 0x8000) | ((long)(rect[1] + 0x8000) << 16) | 0xFFFFFFFF00000000LL);
+    dvSetGsReg(0x05, (long)(rect[0] + 0x8000 + rect[2]) |
+                         ((long)(rect[1] + 0x8000 + rect[3]) << 16) | 0xFFFFFFFF00000000LL);
+    dvSetGsReg(0x4A, 0);
+    dvSetGsReg(0x3B, 0x8000000080LL);
+    dvSetGsReg(0x47, 0x50000);
+    dvSetGsReg(0x42, 0x8000000068LL);
+    dvSetGsReg(0x46, 0);
+    {
+        char *p;
+        char *q;
+
+        dvCheckPacket(PacketBufferStruct.ptr.c);
+        ((GifPkWord *)PacketBufferStruct.end.c)->d =
+            (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >>
+                            4) -
+                           1) |
+            0x1000000000008000LL;
+        ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
+            (((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) << 16) |
+            0x6C008000;
+        p = PacketBufferStruct.ptr.c;
+        ((GifPkWord *)p)->w[0] = 0x15000000;
+        p += 4;
+        PacketBufferStruct.ptr.c = p;
+        ((GifPkWord *)p)->w[0] = 0;
+        PacketBufferStruct.ptr.c = p + 4;
+        ((GifPkWord *)(p + 4))->w[0] = 0;
+        PacketBufferStruct.ptr.c = p + 8;
+        ((GifPkWord *)(p + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = p + 0xC;
+        ((GifPkWord *)PacketBufferStruct.tail.c)->d =
+            (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
+                             4) -
+                            1) |
+                           0x10000000);
+        q = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.tail.c = q;
+        ((GifPkWord *)q)->d = 0x60000000;
+        PacketBufferStruct.ptr.c = q + 8;
+        ((GifPkWord *)(q + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = q + 0xC;
+        ((GifPkWord *)(q + 8))->w[1] = 0;
+        PacketBufferStruct.ptr.c = q + 0x10;
+        dl_OpenDma(5, (int)PacketBufferStruct.dma.c, 0);
+        dl_CloseDma();
+    }
+    gif_StartPacketPri(10);
+    renderViewCoordZSphere(pos, D_0063B790, 1, (t + 50.0f) * 3.0f);
+    renderViewCoordZSphere(pos, D_0063B790, 0, t * 2.5f);
+    gif_EndPacket();
+    dl_SetDLPriority(10);
+    dvOpenPacket();
+    dvSetGsReg(0x47, 0x30000);
+    dvSetGsReg(0x4E, 0x1300000C0LL);
+    dvSetGsReg(0x46, 1);
+    dvSetGsReg(0x4A, 0);
+    dvSetGsReg(0x3B, 0x8000008080LL);
+    dvSetGsReg(0x14, 0x60);
+    dvSetFrame(0x40, ScreenWidth, ScreenHeight, D_0063A074, D_0063A078);
+    dvSetGsReg(0x42, 0x44);
+    dvSetGsReg(0x47, 0x30000);
+    dvSetGsReg(0x06, 0x664122800LL);
+    {
+        int rect3[4] = {-ScreenWidth / 2 * 16 + 500, -ScreenHeight / 2 * 16 + 500,
+                        ScreenWidth * 16 - 500, ScreenHeight * 16 - 500};
+
+        dvSetGsReg(0x42, 0x8000000068LL);
+        dvSetGsReg(0x00, 0x156);
+        dvSetGsReg(0x01, (long)D_0063B798.r | ((long)D_0063B798.g << 8) |
+                             ((long)D_0063B798.b << 16) | ((long)D_0063B798.a << 24));
+        dvSetGsReg(0x03, (long)rect2[0] | ((long)rect2[1] << 16));
+        dvSetGsReg(0x05, (long)(rect3[0] + 0x8000) | ((long)(rect3[1] + 0x8000) << 16) |
+                             0xFFFFFFFF00000000LL);
+        dvSetGsReg(0x03, (long)(rect2[0] + rect2[2]) | ((long)(rect2[1] + rect2[3]) << 16));
+        dvSetGsReg(0x05, (long)(rect3[0] + 0x8000 + rect3[2]) |
+                             ((long)(rect3[1] + 0x8000 + rect3[3]) << 16) | 0xFFFFFFFF00000000LL);
+        dvSetGsReg(0x4E, 0x300000C0);
+        dvSetGsReg(0x47, 0x50000);
+    }
+    {
+        char *p;
+        char *q;
+
+        dvCheckPacket(PacketBufferStruct.ptr.c);
+        ((GifPkWord *)PacketBufferStruct.end.c)->d =
+            (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >>
+                            4) -
+                           1) |
+            0x1000000000008000LL;
+        ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
+            (((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) << 16) |
+            0x6C008000;
+        p = PacketBufferStruct.ptr.c;
+        ((GifPkWord *)p)->w[0] = 0x15000000;
+        p += 4;
+        PacketBufferStruct.ptr.c = p;
+        ((GifPkWord *)p)->w[0] = 0;
+        PacketBufferStruct.ptr.c = p + 4;
+        ((GifPkWord *)(p + 4))->w[0] = 0;
+        PacketBufferStruct.ptr.c = p + 8;
+        ((GifPkWord *)(p + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = p + 0xC;
+        ((GifPkWord *)PacketBufferStruct.tail.c)->d =
+            (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
+                             4) -
+                            1) |
+                           0x10000000);
+        q = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.tail.c = q;
+        ((GifPkWord *)q)->d = 0x60000000;
+        PacketBufferStruct.ptr.c = q + 8;
+        ((GifPkWord *)(q + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = q + 0xC;
+        ((GifPkWord *)(q + 8))->w[1] = 0;
+        PacketBufferStruct.ptr.c = q + 0x10;
+        dl_OpenDma(5, (int)PacketBufferStruct.dma.c, 0);
+        dl_CloseDma();
+    }
+    dl_SetDLPriority(10);
+    dvOpenPacket();
+    {
+        int rect4[4] = {504, 504, ScreenWidth * 16 - 500, ScreenHeight * 16 - 500};
+        unsigned char v;
+        float s = t * 3.0f;
+
+        if (1000.0f < s) {
+            v = 138;
+        } else {
+            v = s * -107.0f * 0.001f + 245.0f;
+        }
+        {
+            DVColor c = {v, v + 10, v, 128};
+
+            dvSetGsReg(0x46, 1);
+            dvSetGsReg(0x4A, 0);
+            dvSetFrame(0x40, ScreenWidth, ScreenHeight, D_0063A074, D_0063A078);
+            dvSetGsReg(0x06, 0x664020800LL);
+            dvSetGsReg(0x14, 0x60);
+            dvSetGsReg(0x47, 0x33001);
+            dvSetGsReg(0x4E, 0x1300000C0LL);
+            dvSetGsReg(0x42, 0x44);
+            dvSetGsReg(0x00, 0x156);
+            dvSetGsReg(0x01, (long)c.r | ((long)c.g << 8) | ((long)c.b << 16) | ((long)c.a << 24));
+            dvSetGsReg(0x03, (long)rect4[0] | ((long)rect4[1] << 16));
+            dvSetGsReg(0x05, (long)(rect[0] + 0x8000) | ((long)(rect[1] + 0x8000) << 16) |
+                                 0xFFFFFFFF00000000LL);
+            dvSetGsReg(0x03, (long)(rect4[0] + rect4[2]) | ((long)(rect4[1] + rect4[3]) << 16));
+            dvSetGsReg(0x05, (long)(rect[0] + 0x8000 + rect[2]) |
+                                 ((long)(rect[1] + 0x8000 + rect[3]) << 16) | 0xFFFFFFFF00000000LL);
+        }
+    }
+    {
+        char *p;
+        char *q;
+
+        dvCheckPacket(PacketBufferStruct.ptr.c);
+        ((GifPkWord *)PacketBufferStruct.end.c)->d =
+            (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >>
+                            4) -
+                           1) |
+            0x1000000000008000LL;
+        ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
+            (((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) << 16) |
+            0x6C008000;
+        p = PacketBufferStruct.ptr.c;
+        ((GifPkWord *)p)->w[0] = 0x15000000;
+        p += 4;
+        PacketBufferStruct.ptr.c = p;
+        ((GifPkWord *)p)->w[0] = 0;
+        PacketBufferStruct.ptr.c = p + 4;
+        ((GifPkWord *)(p + 4))->w[0] = 0;
+        PacketBufferStruct.ptr.c = p + 8;
+        ((GifPkWord *)(p + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = p + 0xC;
+        ((GifPkWord *)PacketBufferStruct.tail.c)->d =
+            (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
+                             4) -
+                            1) |
+                           0x10000000);
+        q = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.tail.c = q;
+        ((GifPkWord *)q)->d = 0x60000000;
+        PacketBufferStruct.ptr.c = q + 8;
+        ((GifPkWord *)(q + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = q + 0xC;
+        ((GifPkWord *)(q + 8))->w[1] = 0;
+        PacketBufferStruct.ptr.c = q + 0x10;
+        dl_OpenDma(5, (int)PacketBufferStruct.dma.c, 0);
+        dl_CloseDma();
+    }
+}
 
 void darkVolume(void *pos, float a1, float a2, float a3)
 {
@@ -413,6 +635,7 @@ void darkVolume(void *pos, float a1, float a2, float a3)
         char *p;
         char *q;
 
+        dvCheckPacket(PacketBufferStruct.ptr.c);
         ((GifPkWord *)PacketBufferStruct.end.c)->d =
             (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >>
                             4) -
@@ -484,6 +707,7 @@ void darkVolume(void *pos, float a1, float a2, float a3)
         char *p;
         char *q;
 
+        dvCheckPacket(PacketBufferStruct.ptr.c);
         ((GifPkWord *)PacketBufferStruct.end.c)->d =
             (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >>
                             4) -
