@@ -11,10 +11,15 @@ typedef struct {
 } WVTElem;
 
 typedef struct Nd {
-    int pad[2];
-    struct Nd *f8;
-    struct Nd *fC;
-    char pad2[0x40 - 16];
+    /* 0x00 */ int _0;
+    /* 0x04 */ int f4;
+    /* 0x08 */ struct Nd *f8;
+    /* 0x0C */ struct Nd *fC;
+    /* 0x10 */ float pos[4];
+    /* 0x20 */ int f20;
+    /* 0x24 */ int f24;
+    /* 0x28 */ int f28;
+    /* 0x2C */ char pad2C[0x14];
 } Nd;
 
 /* One way group record, 52 bytes; only the words this TU reads or writes are
@@ -528,4 +533,166 @@ int GetWay_next(WVTObj *w, float *pos)
     return (int)w->w2C;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/way_sys", GetNearNigePointN);
+/* One candidate escape point: the way point id and the path length to it. */
+typedef struct NigeEnt {
+    int id;
+    float d;
+} NigeEnt;
+
+extern NigeEnt D_006E50A8[];
+extern Nd D_004F31F0[];
+extern WayGroup *WayBridge_begin(void);
+extern WayGroup *WayBridge_next(WayGroup *g);
+extern float _GetLength(void *a, void *b);
+extern void CopyVector(void *dst, void *src);
+
+int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)
+{
+    Nd *n;
+    WayGroup *gb;
+    Nd *m;
+    Nd *a;
+    float *bp;
+    float d;
+    float da;
+    int i;
+    int j;
+
+    int cnt = 0;
+
+    Nd *base = (Nd *)visible_waypoint_of_all_except_temp(pos, -1);
+    WayGroup *ga = &D_004F1EC0[base->f20];
+
+    /* census rows 1146-1150 */
+    __inline__ void nige_swap(NigeEnt * tbl, int a, int b)
+    {
+        NigeEnt t = tbl[a];
+
+        tbl[a] = tbl[b];
+        tbl[b] = t;
+    }
+
+    /* census rows 1152-1160 */
+    __inline__ int nige_add(NigeEnt * tbl, int n, Nd *e, float d)
+    {
+        if (e->f28 != 0) {
+            tbl[n].id = e->f4;
+            tbl[n].d = d;
+            n++;
+        }
+        return n;
+    }
+
+    w->w68 = 0;
+
+    gb = &D_004F1EC0[base->f20];
+    if (gb->f18 != 0) {
+        n = base;
+        d = _GetLength(pos, base->pos);
+        while (n != 0) {
+            if (n->f8 != 0) {
+                d += _GetLength(n->pos, n->f8->pos);
+            }
+            n = n->f8;
+        }
+
+        m = &D_004F31E0[gb->f20];
+        d += _GetLength((char *)gb->f8 + 0x10, m->pos);
+        cnt = nige_add(D_006E50A8, cnt, m, d);
+
+        n = base;
+        bp = base->pos;
+        d = _GetLength(pos, bp);
+        if (n != 0) {
+            d += _GetLength(pos, base->pos);
+        }
+        while (n != 0) {
+            if (n->fC != 0) {
+                d += _GetLength(n->pos, n->fC->pos);
+            }
+            n = n->fC;
+        }
+
+        m = &D_004F31E0[gb->f24];
+        d += _GetLength((char *)gb->fC + 0x10, m->pos);
+        cnt = nige_add(D_006E50A8, cnt, m, d);
+    } else {
+        switch (ga->f14) {
+        case 0:
+            n = base;
+            d = _GetLength(pos, base->pos);
+            while (n != 0) {
+                cnt = nige_add(D_006E50A8, cnt, n, d);
+                if (n->f8 != 0) {
+                    d += _GetLength(n->pos, n->f8->pos);
+                }
+                n = n->f8;
+            }
+
+            bp = base->pos;
+            d = _GetLength(pos, bp);
+            if (base != 0) {
+                if (base->fC != 0) {
+                    d += _GetLength(base->pos, base->fC->pos);
+                }
+            }
+            n = base->fC;
+            while (n != 0) {
+                cnt = nige_add(D_006E50A8, cnt, n, d);
+                if (n->fC != 0) {
+                    d += _GetLength(n->pos, n->fC->pos);
+                }
+                n = n->fC;
+            }
+            break;
+
+        case 1:
+            a = base;
+            n = base;
+            da = _GetLength(pos, base->pos);
+            d = da;
+            do {
+                if (da <= d) {
+                    da += _GetLength(a->pos, a->f8->pos);
+                    a = a->f8;
+                    cnt = nige_add(D_006E50A8, cnt, a, da);
+                } else {
+                    d += _GetLength(n->pos, n->fC->pos);
+                    n = n->fC;
+                    cnt = nige_add(D_006E50A8, cnt, n, d);
+                }
+            } while (a != n);
+            break;
+        }
+
+        for (gb = WayBridge_begin(); gb != 0; gb = WayBridge_next(gb)) {
+            if (gb->f20 == base->f4 || gb->f24 == base->f4) {
+                d = _GetLength(base->pos, gb->f8 + 0x10);
+                m = (Nd *)gb->f8;
+                while (m->fC != 0) {
+                    d += _GetLength(m->pos, m->fC->pos);
+                    m = m->fC;
+                }
+                d += _GetLength(gb->fC + 0x10, (float *)&D_004F31F0[gb->f24]);
+                if (gb->f20 == base->f4) {
+                    cnt = nige_add(D_006E50A8, cnt, &D_004F31E0[gb->f24], d);
+                } else {
+                    cnt = nige_add(D_006E50A8, cnt, &D_004F31E0[gb->f20], d);
+                }
+                w->w68 = 1;
+            }
+        }
+
+        cnt = nige_add(D_006E50A8, cnt, base, 0.0f);
+    }
+
+    for (i = 0; i < num; i++) {
+        for (j = cnt - 1; j > i; j--) {
+            if (D_006E50A8[j].d < D_006E50A8[j - 1].d) {
+                nige_swap(D_006E50A8, j, j - 1);
+            }
+        }
+        CopyVector((char *)out + i * 16, (float *)&D_004F31F0[D_006E50A8[i].id]);
+    }
+    return cnt;
+}
