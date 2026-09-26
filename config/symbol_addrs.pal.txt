@@ -6186,3 +6186,7 @@ blendMotionKind = 0x00623470; // MAIN.MAP blend-motion-def.o's rodata table, ref
 motionLimitDef = 0x00626628; // MAIN.MAP motion-limit-def.o's rodata table, 48-byte rows, referenced by motionOrientManager.o (chain 3 pass 143)
 nigePointTbl = 0x006E50A8; // size:0x898  // way_sys.c static, the escape-point table of 275 eight-byte records (chain 1 pass 128)
 slopeVector = 0x004ECBE0; // size:0x10  // motionOrientManager.c static data, a zero vector, the name is ours (chain 3 pass 144, static since pass 145)
+debugFontTag = 0x004D9D40; // size:0x10  // debug.c data, the font GIF tag (chain 1 pass 130)
+debugSelectName = 0x004D9D50; // size:0x18  // debug.c data, the select-name table (chain 1 pass 130)
+debugBarMarkPos = 0x004D9EE8; // size:0x88  // debug.c data, the bar mark positions (chain 1 pass 130)
+debugBarCount = 0x0063C384; // size:0x4  // debug.c static the debug_DrawBar stub reaches (chain 1 pass 130)

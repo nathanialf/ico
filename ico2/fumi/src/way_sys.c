@@ -3,6 +3,7 @@
 #include "way_llf.h"
 #include "way_sys.h"
 #include <libvu0.h>
+#include "typedef.h"
 
 typedef struct {
     int pad[8];
@@ -40,7 +41,6 @@ typedef struct {
 
 extern WayGroup D_004F1EC0[];
 extern Nd D_004F31E0[];
-extern char D_00554220[];
 
 typedef struct WgAll2 {
     int f0, f4, f8, fC, f10, f14, f18;
@@ -60,13 +60,6 @@ extern void set_check_wp(void *out, int wp, int gid);
 extern int short_direction_between_wp(char *from, char *to);
 extern void *WayUtilWorkAlloc(void);
 extern void WayUtilWorkFree(void *self);
-extern char D_00554120[];
-extern char D_00554130[];
-extern char D_00554140[];
-extern char D_00554150[];
-extern char D_00554190[];
-extern char D_005541A0[];
-extern char D_005541B0[];
 
 int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
 {
@@ -133,8 +126,8 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
     w->w74 = wp0;
     w->w30 = lock_execIcoMisc;
     DeleteGuideWay(w);
-    debug_StdPrintfDummy(D_00554120);
-    debug_StdPrintfDummy(D_00554130, *(int *)(wp0 + 0x20), *(int *)(wp + 0x20));
+    debug_StdPrintfDummy("GetWay_begin\n");
+    debug_StdPrintfDummy("gid t:%d m:%d\n", *(int *)(wp0 + 0x20), *(int *)(wp + 0x20));
 
     w->w60 = *(int *)(wp + 0x20);
     sceVu0CopyVector(w->pos, a0);
@@ -147,7 +140,7 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
     w->w6C = 0;
     w->w70 = 0;
     if (g0 == g1) {
-        debug_StdPrintfDummy(D_00554140);
+        debug_StdPrintfDummy("same_group\n");
         w->w38 = 0;
         w->w3C = 0;
         w->w34 = short_direction_between_wp(wp0, wp);
@@ -162,7 +155,7 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
         goto out;
     }
 
-    debug_StdPrintfDummy(D_00554150);
+    debug_StdPrintfDummy("other_group\n");
     r = findPath(g0, g1, work);
     if (r == -1) {
         w->w70 = 1;
@@ -175,13 +168,18 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
             w->w70 = 2;
         } else {
             gid = NearestWgFromTarget(g0, g1, work);
+            /* RECONSTRUCTION: a compiled-out print, see the note at the
+               `r < 0` test below. */
+            if (0) {
+                debug_StdPrintfDummy("gid:%d = tgid:%d, mgid:%d\n", gid, g1, g0);
+            }
             wpn = nearest_waypoint_of_group(a0, gid);
 
             g0 = gid;
             wp0 = wpn;
             sceVu0CopyVector(w->pos, wp0 + 0x10);
             if (g0 == g1) {
-                debug_StdPrintfDummy(D_00554140);
+                debug_StdPrintfDummy("same_group\n");
                 w->w38 = 0;
                 w->w3C = 0;
                 w->w34 = short_direction_between_wp(wp0, wp);
@@ -230,15 +228,28 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
     }
 
     if (r < 0) {
+        /* RECONSTRUCTION: two strings of the ROM's pool, "gid:%d = tgid:%d,
+           mgid:%d\n" and "!!cant reach!!\n", sit between "other_group\n" and
+           "wp:%p %p\n" with no word of the ROM referencing them: prints the
+           build compiled out, whose literals gcc 2.95 still emitted when it
+           expanded the call.  What the bytes pin: the two strings and their
+           order in the pool.  What they cannot pin: the statements' text,
+           their condition and their arguments; an if (0) arm, as
+           src/fieldCollision.c's compiled-out dump, is the form measured to
+           give the literal and no code, and its place here is the one the
+           format reads as. */
+        if (0) {
+            debug_StdPrintfDummy("!!cant reach!!\n");
+        }
         goto out;
     }
     set_check_wp(&w->w20, r, g1);
     w->w20 = wp;
 
-    debug_StdPrintfDummy(D_00554190, w->w24, wp);
-    debug_StdPrintfDummy(D_005541A0, *(int *)(w->w24 + 0x20), *(int *)(wp + 0x20));
+    debug_StdPrintfDummy("wp:%p %p\n", w->w24, wp);
+    debug_StdPrintfDummy("gid:%d %d\n", *(int *)(w->w24 + 0x20), *(int *)(wp + 0x20));
     w->w34 = short_direction_between_wp(w->w24, wp);
-    debug_StdPrintfDummy(D_005541B0, w->w34);
+    debug_StdPrintfDummy("direction:%d\n", w->w34);
     ret = w->w20;
 
 out:
@@ -251,10 +262,9 @@ inline int GetWay_begin(void *a0, int a1, int a2)
     return _FUNC_GetWay_begin(a0, a1, a2, 0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/way_sys", avoid_obstacle2);
-
 /* The collision query ClipWall / ClipFloorR fill in: 192 bytes, 16-aligned. */
-/* kept local: this TU's bytes only come out with its own view of ClipWork. */
+/* kept local: this TU's bytes only come out with its own view of the record,
+   named apart from typedef.h's ClipWork as act.c names its ActClipWork. */
 typedef struct {
     float p0[4];      /* 0x00 segment start */
     float p1[4];      /* 0x10 segment end */
@@ -268,7 +278,7 @@ typedef struct {
     char pad8C[0x8];  /* 0x8C */
     int floor;        /* 0x94 */
     char pad98[0x28]; /* 0x98 */
-} __attribute__((aligned(16))) ClipWork;
+} __attribute__((aligned(16))) WayClipWork;
 
 typedef float WayVec[4] __attribute__((aligned(16)));
 
@@ -279,9 +289,187 @@ extern void ClipWall(void *cc);
 extern void ClipFloorR(void *cc);
 extern void set_bridge(int group);
 
+/* The scene's generated-geometry record, 0x4C bytes; this TU reads only the
+   kind byte at 0x46 (the same record ico2/common/src/sceneManager.c carves). */
+typedef struct {
+    char pad00[0x46];   /* 0x00 */
+    unsigned char kind; /* 0x46 */
+    char pad47[0x5];    /* 0x47 */
+} GenGeoKind;
+
+extern GenGeoKind D_002C2DC8[];
+extern int CreateTempWayGroup(void);
+extern float _GetLength(void *a, void *b);
+
+/* census rows 582-593: a wall probe between two points, both lifted 75 units. */
+static inline int way_probe(float *a, float *b)
+{
+    WayClipWork cc;
+    WayVec off;
+
+    off[0] = 0.0f;
+    off[1] = -75.0f;
+    off[2] = 0.0f;
+    off[3] = 0.0f;
+
+    cc.f70 = 0;
+    sceVu0AddVector(cc.p0, a, off);
+    sceVu0AddVector(cc.p1, b, off);
+    ClipWall(&cc);
+    return cc.wall;
+}
+
+int avoid_obstacle2(float *pos, float *wp, WVTObj *w)
+{
+    WayClipWork cc;
+    WayVec box[4];
+    WayVec rp;
+    WayVec off;
+    int ids[3];
+    int hold;
+    char *obj;
+    int g;
+    int i;
+    int k;
+    int ofs = 0;
+    float best;
+    float d;
+
+    hold = 0;
+    sceVu0CopyVector(cc.p0, pos);
+    sceVu0CopyVector(cc.p1, w->w20 + 0x10);
+    cc.f70 = 20.0f;
+    ClipWall(&cc);
+    if (cc.wall == 0) {
+        return 0;
+    }
+    obj = cc.f80;
+    if (((GenGeoKind *)D_002C2DC8)[*(int *)(obj + 8)].kind != 0x11) {
+        return 0;
+    }
+
+    GetRootPosition(rp, obj);
+
+    if (absf(rp[0] - wp[0]) <= 100.0f) {
+        if (absf(rp[2] - wp[2]) <= 100.0f) {
+            if (rp[1] + 50.0f - wp[1] > 95.0f) {
+                return 0;
+            }
+            debug_StdPrintfDummy("skip wp\n");
+
+            if (w->w20 != w->w24 || w->w38 != 0) {
+                return 1;
+            }
+
+            hold = 1;
+        }
+    }
+
+    if (w->w64 >= 0) {
+        debug_StdPrintfDummy("delete guide point at avoid\n");
+
+        DeleteWayGroup(((WVTElem *)D_004F31E0)[w->w64].f20);
+        w->w64 = -1;
+    }
+
+    best = 10000.0f;
+    GetRootPosition(rp, obj);
+    k = 0;
+    off[0] = 100.0f;
+    off[1] = 50.0f;
+    off[2] = 100.0f;
+    off[3] = 0.0f;
+    sceVu0AddVector(box[0], rp, off);
+    off[0] = 100.0f;
+    off[1] = 50.0f;
+    off[2] = -100.0f;
+    off[3] = 0.0f;
+    sceVu0AddVector(box[1], rp, off);
+    off[0] = -100.0f;
+    off[1] = 50.0f;
+    off[2] = -100.0f;
+    off[3] = 0.0f;
+    sceVu0AddVector(box[2], rp, off);
+    off[0] = -100.0f;
+    off[1] = 50.0f;
+    off[2] = 100.0f;
+    off[3] = 0.0f;
+    sceVu0AddVector(box[3], rp, off);
+
+    for (i = 0; i < 4; i++) {
+        d = _GetLength(box[i], pos);
+        if (d < best) {
+            best = d;
+
+            k = i;
+        }
+    }
+
+    /* RECONSTRUCTION: the right-hand chain's first probe reads its second
+       corner as box[k += ofs], ofs a zero corner offset.  What the bytes pin:
+       in gcse's RTL a set of k's own pseudo between that probe's first-corner
+       index and its second-corner address, in this chain only (the same set in
+       every probe breaks the left chain's corner reuse), not a register copy
+       (cprop would rewrite it away) and not a self-copy cse1 can see; gcse's
+       constant propagation turns it into k = k, delete_trivially_dead_insns
+       removes it and no instruction is left, while gcse's PRE no longer
+       shares k + 1 and k + 4 into this chain.  What they cannot pin: the text,
+       the variable's role and its name, which are ours. */
+    if (way_probe(box[(k + 3) % 4], box[k]) == 0 && way_probe(box[k], box[(k + 1) % 4]) == 0 &&
+        way_probe(box[(k + 1) % 4], box[(k + 2) % 4]) == 0) {
+        int j;
+
+        g = CreateTempWayGroup();
+        for (j = 0; j < 3; j++) {
+            ids[j] = CreateWayPoint((int)box[(k + j) % 4]);
+            AddWayPoint(g, ids[j]);
+        }
+        debug_StdPrintfDummy("left way %d\n", g);
+
+    } else if (way_probe(box[(k + 1) % 4], box[k += ofs]) == 0 &&
+               way_probe(box[k], box[(k + 3) % 4]) == 0 &&
+               way_probe(box[(k + 3) % 4], box[(k + 2) % 4]) == 0) {
+        int j;
+
+        g = CreateTempWayGroup();
+        for (j = 0; j < 3; j++) {
+            ids[j] = CreateWayPoint((int)box[(k + 4 - j) % 4]);
+            AddWayPoint(g, ids[j]);
+        }
+        debug_StdPrintfDummy("right way %d\n", g);
+
+    } else {
+        off[0] = 0.0f;
+        off[1] = -50.0f;
+        off[2] = 0.0f;
+        off[3] = 0.0f;
+        sceVu0AddVector(off, off, rp);
+        g = CreateTempWayGroup();
+        ids[0] = CreateWayPoint((int)off);
+        AddWayPoint(g, ids[0]);
+        ids[2] = ids[0];
+        debug_StdPrintfDummy("up way %d\n", g);
+    }
+
+    w->w64 = ids[0];
+    w->w28 = w->w20;
+    w->w24 = (char *)&D_004F31E0[ids[2]];
+    w->w20 = (char *)&D_004F31E0[ids[0]];
+
+    w->w38 = 1;
+    w->w34 = 1;
+
+    if (hold == 1) {
+        w->w28 = 0;
+        w->w38 = 0;
+    }
+
+    return 0;
+}
+
 void create_box_bridge(char *g)
 {
-    ClipWork cc;
+    WayClipWork cc;
     WayVec pos;
     WayVec start;
     WayVec end;
@@ -355,7 +543,7 @@ extern void ClipWallField(void *cc);
    symbol and the name is ours. */
 static __inline__ int way_wall_between(float *pos, char *wp)
 {
-    ClipWork cc;
+    WayClipWork cc;
     WayVec off;
     float *p = (float *)(wp + 0x10);
 
@@ -376,7 +564,7 @@ static __inline__ int way_wall_between(float *pos, char *wp)
 inline void DeleteGuideWay(WVTObj *o)
 {
     if (o->w64 >= 0) {
-        debug_StdPrintfDummy(D_00554220, o->w64);
+        debug_StdPrintfDummy("delete guide point group:%d\n", o->w64);
         {
             WVTElem *e = &((WVTElem *)D_004F31E0)[o->w64];
             DeleteWayGroup(e->f20);
@@ -391,12 +579,6 @@ extern void DrawGObjWallCollision(void *gobj, int col);
 extern char *waypoint_bidirectional_list(char *wp, int dir);
 extern float fzMagnitudefv(void *v);
 extern void *D_0063A9A0;
-extern char D_00554240[];
-extern char D_00554268[];
-extern char D_00554278[];
-extern char D_00554290[];
-extern char D_005542E0[];
-extern char D_005542F0[];
 
 int GetWay_next(WVTObj *w, float *pos)
 {
@@ -409,7 +591,7 @@ int GetWay_next(WVTObj *w, float *pos)
 
     w->w30 = lock_execIcoMisc;
     if (w->w20 == 0 || *(int *)w->w20 == 0) {
-        debug_StdPrintfDummy(D_00554240);
+        debug_StdPrintfDummy("illigal way ");
         return 0;
     }
     ez_circle(w->w2C + 0x10, pos, 0x80800000, 30.0f);
@@ -437,13 +619,18 @@ int GetWay_next(WVTObj *w, float *pos)
 
     switch (w->w38) {
     case 1:
+        /* RECONSTRUCTION: compiled-out prints, see the note before the second
+           switch below. */
+        if (0) {
+            debug_StdPrintfDummy("WGROUP STAT OTHER\n");
+        }
         if (w->w20 != w->w28 && D_004F1EC0[*(int *)(w->w20 + 0x20)].f18 == 0) {
             if (way_wall_between(pos, w->w28) == 0) {
                 w->w20 = w->w28;
                 blocked = 0;
-                debug_StdPrintfDummy(D_00554268, w->w20);
+                debug_StdPrintfDummy("short cut 2:%p\n", w->w20);
                 if (w->w64 >= 0) {
-                    debug_StdPrintfDummy(D_00554278);
+                    debug_StdPrintfDummy("delete guide point\n");
                     DeleteWayGroup(((WVTElem *)D_004F31E0)[w->w64].f20);
                     w->w64 = -1;
                 }
@@ -454,7 +641,7 @@ int GetWay_next(WVTObj *w, float *pos)
                 if (way_wall_between(pos, nxt) == 0) {
                     w->w20 = nxt;
                     blocked = 0;
-                    debug_StdPrintfDummy(D_00554290, nxt);
+                    debug_StdPrintfDummy("short cut 1:%p\n", nxt);
                     break;
                 }
                 nxt = waypoint_bidirectional_list(nxt, w->w34 ^ 1);
@@ -463,12 +650,15 @@ int GetWay_next(WVTObj *w, float *pos)
         break;
 
     case 0:
+        if (0) {
+            debug_StdPrintfDummy("WGROUP STAT SAME\n");
+        }
         nxt = w->w24;
         while (nxt != w->w20) {
             if (way_wall_between(pos, nxt) == 0) {
                 w->w20 = nxt;
                 blocked = 0;
-                debug_StdPrintfDummy(D_00554290, nxt);
+                debug_StdPrintfDummy("short cut 1:%p\n", nxt);
                 break;
             }
             nxt = waypoint_bidirectional_list(nxt, w->w34 ^ 1);
@@ -497,6 +687,20 @@ int GetWay_next(WVTObj *w, float *pos)
         return (int)cur;
     }
 
+    /* RECONSTRUCTION: four strings of the ROM's pool have no word of the ROM
+       referencing them: "WGROUP STAT OTHER\n" between "illigal way " and
+       "short cut 2:%p\n", "WGROUP STAT SAME\n", "wp %p myway %p pos %p\n"
+       and "wgroup stat:%d\n" between "short cut 1:%p\n" and "goal wp1\n".
+       They are prints the build compiled out, whose literals gcc 2.95 still
+       emitted when it expanded the calls.  What the bytes pin: the strings
+       and their order in the pool.  What they cannot pin: the statements'
+       text, their condition and their arguments; the two state prints open
+       the first switch's arms (w38 1 is the other-group state, 0 the
+       same-group one), and the if (0) form is src/fieldCollision.c's. */
+    if (0) {
+        debug_StdPrintfDummy("wp %p myway %p pos %p\n", cur, w->w24, pos);
+        debug_StdPrintfDummy("wgroup stat:%d\n", w->w38);
+    }
     switch (w->w38) {
     case 0:
         if (cur == w->w24) {
@@ -514,10 +718,10 @@ int GetWay_next(WVTObj *w, float *pos)
             return (int)cur;
         }
         if (cur == w->w24) {
-            debug_StdPrintfDummy(D_005542E0);
+            debug_StdPrintfDummy("goal wp1\n");
             w->w20 = w->w28;
             if (w->w64 >= 0) {
-                debug_StdPrintfDummy(D_00554278);
+                debug_StdPrintfDummy("delete guide point\n");
                 DeleteWayGroup(((WVTElem *)D_004F31E0)[w->w64].f20);
                 w->w64 = -1;
             }
@@ -528,7 +732,7 @@ int GetWay_next(WVTObj *w, float *pos)
     }
 
     w->w20 = waypoint_bidirectional_list(cur, w->w34);
-    debug_StdPrintfDummy(D_005542F0, w->w20);
+    debug_StdPrintfDummy("bilist:%p\n", w->w20);
     w->w2C = w->w20;
     return (int)w->w2C;
 }

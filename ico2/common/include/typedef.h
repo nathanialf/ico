@@ -14,8 +14,8 @@
  *
  * WHAT IS IN HERE AND ON WHAT EVIDENCE.  Three classes, marked individually:
  *
- *   (a) the line-74 helper slot, fixed by the listing.  Reserved below and
- *       still empty; see the TODO there.
+ *   (a) the line-74 helper, fixed by the listing: the float absolute value
+ *       avoid_obstacle2 inlines twice; see section (a) below.
  *
  *   (b) the cross-programmer engine object shapes (GObj, Sub15C, Obj7F0,
  *       GeoNode, GeoSub) and the GOBJ_SUB accessor.  PLACEMENT BY INCLUDE
@@ -50,19 +50,28 @@
 #define TYPEDEF_H
 
 /* ------------------------------------------------------------------ *
- * (a) line-74 helper slot.
+ * (a) the line-74 helper, a float absolute value.
  *
- * TODO(line 74), a float absolute value.  Both expansions in the ROM are
+ * Both of its expansions in the ROM, avoid_obstacle2's |dx| and |dz|
+ * tests (the listing's rows inside way_sys.c 633 and 634), are
  * `mtc1 $zero,$fN; c.lt.s $f1,$fN; bc1tl <skip>; neg.s $f1,$f1`, i.e.
- * `x < 0.0f ? -x : x`.  It is NOT written: the rule for defining a
- * census-only helper is >= 2 HOSTS with the same sequence, and this has one
- * host (twice).  Its host is still INCLUDE_ASM; write the helper when
- * avoid_obstacle2 is matched, and name it then, the helper is never emitted
- * out of line, so it has no symbol in baserom/pal/MAIN.MAP and no name.
+ * `x < 0.0f ? -x : x`, and SRCFILE.TXT attributes their three rows to
+ * this file's line 74 alone.  A macro expansion would carry the caller's
+ * line, so the helper is a function whose whole body is on that line.
+ * It is never emitted out of line, so it has no symbol in
+ * baserom/pal/MAIN.MAP and no disc name: `absf` is ours.  Unreferenced,
+ * a static inline function emits nothing, so every other includer's
+ * object is unchanged (each compared by whole object when it landed,
+ * chain 1 pass 130).
  *
- * The line below is line 74 and is kept free for that body.  DO NOT REFLOW
- * ANYTHING ABOVE IT.
+ * One host uses it (twice); the listing, not a second host, is what
+ * places it here.
+ *
+ * The helper below is line 74.  DO NOT REFLOW ANYTHING ABOVE IT, and
+ * keep it on one line: the listing puts every instruction of both
+ * expansions on that line.
  * ------------------------------------------------------------------ */
+static inline float absf(float x) { return x < 0.0f ? -x : x; }
 
 /*
  * RECONSTRUCTION.  Every shape below was read back out of the binary's own

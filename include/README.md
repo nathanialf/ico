@@ -91,9 +91,9 @@ expansion is attributed to the line that invokes it. The listing does rule
 out a home in the SDK tree, since it attributes zero rows to
 `/usr/local/sce/ee/include`.
 
-Line 74 of `typedef.h` is still reserved and empty. The listing puts
-`avoid_obstacle2`'s inlined float absolute value there, and that host is
-still `INCLUDE_ASM`. Nothing above that line may be reflowed.
+Line 74 of `typedef.h` holds the float absolute value helper the listing
+attributes there; `avoid_obstacle2` matched with it in chain 1 pass 130.
+Nothing above that line may be reflowed.
 
 The macro names are ours throughout. None of them is a disc fact, and none
 was renamed to an SDK spelling.

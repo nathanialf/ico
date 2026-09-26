@@ -539,7 +539,47 @@ void debug_PrintFont(int a0, int a1, int a2, char *a3)
                          ((unsigned)a2 >> 8) & 0xFF, 0x70);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_FlushFontWindow);
+/* the on-screen font window's line table: 27 records of 0x38 bytes, the colour
+   word at +0 and the text at +4 (the strncpy below bounds it at 50) */
+typedef struct {
+    int col;
+    char text[52];
+} DbgFontLine;
+
+extern DbgFontLine D_007082D0[];
+extern int D_0063AEB4;
+
+void debug_FlushFontWindow(void)
+{
+    FR r = {16, (int)(224.0f - ((float)D_0063AEB4 + 0.5f) * 8.0f), 50, D_0063AEB4};
+    FR rect;
+    FR tmp;
+    char *col;
+    int i;
+
+    tmp.x = r.x - 0x144;
+    tmp.y = r.y - 0x72;
+    tmp.w = r.w * 0xC + 8;
+    tmp.h = r.h * 8 + 4;
+    rect = tmp;
+    col = (char *)&tmp;
+    memset(col, 0, 4);
+    ((char *)&tmp)[3] = 0x20;
+    if (D_0063B160 != 0) {
+        gif_StartPacketPri(0xB);
+        gif_SetZWrite(0);
+        gif_SetZTest(0);
+        gif_SetAlpha(1, 2, 0x20);
+        gif_Sprite(&rect, 0xFFFFFFFDU, 0, col, 1);
+        gif_SetZWrite(1);
+        gif_SetZTest(1);
+        gif_EndPacket();
+        for (i = 0; i <= D_0063AE64; i++) {
+            debug_PrintFont(r.x, r.y + i * 8, *(int *)((char *)D_007082D0 + i * 0x38),
+                            (char *)D_007082D0 + i * 0x38 + 4);
+        }
+    }
+}
 
 void debug_FlushFont(void)
 {
@@ -749,7 +789,21 @@ typedef struct {
 } DebugBar;
 
 extern DebugBar D_00708880[];
-extern int D_0063C384;
+
+/* .sbss, owned by debug.o (MAIN.MAP debug.o .sbss 0x10; it names no symbol,
+   so the names are ours), in the ROM's run order: the rows debug_DispBox,
+   debug_DispBall and debug_CollisionTest select, and the profiler's bar
+   count.  All four are static: a global initialised to zero is emitted as
+   small data and an uninitialised one as common, neither in debug.o's own
+   .sbss; the debug_DrawBar stub reaches the bar count by its address. */
+static int dispBoxRow;
+
+static int dispBallRow;
+
+static int collisionTestRow;
+
+static int debugBarCount;
+
 extern int D_0063AE68;
 extern int D_0028F4C0[];
 extern int frame_count;
@@ -763,7 +817,7 @@ void debug_DispBar(void)
     int vb;
     int n;
     inv = 1.0f / (270000.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
-    vb = (float)(D_00708880[D_0063C384 - 1].count * 100) * inv;
+    vb = (float)(D_00708880[debugBarCount - 1].count * 100) * inv;
     va = (float)(D_0063AE68 * 100) * inv;
 
     if (D_0063B140 != 0 || (D_0063B13C & 1) != 0)
@@ -903,16 +957,6 @@ void debug_Printf2(int a, int b, unsigned int c, int x, ...)
     vsprintf(buf, x, args);
     debug_PrintFont(a, b, c, buf);
 }
-
-/* the on-screen font window's line table: 27 records of 0x38 bytes, the colour
-   word at +0 and the text at +4 (the strncpy below bounds it at 50) */
-typedef struct {
-    int col;
-    char text[52];
-} DbgFontLine;
-
-extern DbgFontLine D_007082D0[];
-extern int D_0063AEB4;
 
 void debug_PrintFontWindow(int col, char *fmt, ...)
 {
@@ -1941,7 +1985,6 @@ typedef struct {
 
 extern float D_007048E0[]; /* the box centre */
 extern float D_007048F0[]; /* its half extents */
-extern int D_0063C378;     /* the selected row */
 extern void DebugDispBox(float *centre, float *width);
 /* The literals these two functions read stay blob-owned by address until the
    stubs between them land and the TU's plain .rodata and .sdata runs close
@@ -1976,21 +2019,21 @@ int debug_DispBox(int on)
         D_007048F0[0] = 100.0f;
         D_007048F0[1] = 100.0f;
         D_007048F0[2] = 100.0f;
-        D_0063C378 = 0;
+        dispBoxRow = 0;
     }
     if (D_0028F8F0[0].trg & 0x1000) {
-        D_0063C378--;
+        dispBoxRow--;
     }
     if (D_0028F8F0[0].trg & 0x4000) {
-        D_0063C378++;
+        dispBoxRow++;
     }
     num = 6;
-    D_0063C378 = (D_0063C378 + num) % num;
+    dispBoxRow = (dispBoxRow + num) % num;
     step = (D_0028F8F0[0].trg & 0x2000) ? 100 : 0;
     if (D_0028F8F0[0].trg & 0x8000) {
         step = -100;
     }
-    switch (D_0063C378) {
+    switch (dispBoxRow) {
     case 0:
         D_007048E0[0] += (float)step;
         break;
@@ -2018,7 +2061,7 @@ int debug_DispBox(int on)
         };
 
         for (i = 0; i < 6; i++) {
-            if (i == D_0063C378) {
+            if (i == dispBoxRow) {
                 debug_PrintfDummy(10, i * 10 + 80, 0xFFFFFF00u, (int)D_0061C240, (int)list[i].name,
                                   list[i].val);
             } else {
@@ -2056,7 +2099,6 @@ extern const DbgBallList D_0061C298;
 extern Col4 D_0061C2C0;    /* { 0, 0x10, 0x20, 0x80 } : wire sphere colour */
 extern float D_00704900[]; /* the ball's centre */
 extern float D_0063B0C8;   /* its radius */
-extern int D_0063C37C;     /* the selected row */
 extern void GetRootPosition(void *a0, char *outer);
 extern void *MatrixDrive_GetMatrix(void);
 extern void MatrixDrive_PushMatrix(void);
@@ -2087,20 +2129,20 @@ int debug_DispBall(int on)
             D_00704900[2] = 0.0f;
         }
         D_0063B0C8 = 100.0f;
-        D_0063C37C = 0;
+        dispBallRow = 0;
     }
     if (D_0028F8F0[0].trg & 0x1000) {
-        D_0063C37C--;
+        dispBallRow--;
     }
     if (D_0028F8F0[0].trg & 0x4000) {
-        D_0063C37C++;
+        dispBallRow++;
     }
-    D_0063C37C = (D_0063C37C + num) % num;
+    dispBallRow = (dispBallRow + num) % num;
     step = (D_0028F8F0[0].trg & 0x2000) ? 10 : 0;
     if (D_0028F8F0[0].trg & 0x8000) {
         step = -10;
     }
-    switch (D_0063C37C) {
+    switch (dispBallRow) {
     case 0:
         D_00704900[0] += (float)step;
         break;
@@ -2115,7 +2157,7 @@ int debug_DispBall(int on)
         break;
     }
     for (i = 0; i < num; i++) {
-        if (i == D_0063C37C) {
+        if (i == dispBallRow) {
             if (D_0063B13C & 1) {
                 debug_Printf(10, i * 10 + 80, 0xFFFFFF00u, (int)D_0061C240, (int)list.v[i].name,
                              (int)*list.v[i].val);
@@ -2186,16 +2228,136 @@ typedef struct {
     int floorHit;    /* 0x94 */
 } DbgRay;
 
-extern char D_0061C300[];     /* "Collision Test" */
-extern char *D_004D9D58[];    /* the three row labels: move all, move src, move dst */
-extern int D_0063C380;        /* the selected row */
-extern DbgRay D_00704910;     /* the ray the test drives */
-extern char D_0061C310[];     /* "HIT: %p,%d" */
-extern char D_0061C320[];     /* "ATTR: %x" */
-extern char D_0061C330[];     /* "SRC: %f, %f, %f" */
-extern char D_0061C340[];     /* "DST: %f, %f, %f" */
-extern const Col4 D_004D9D70; /* the wall hit sphere colour */
-extern const Col4 D_004D9D80; /* the floor hit sphere colour */
+extern char D_0061C300[]; /* "Collision Test" */
+extern DbgRay D_00704910; /* the ray the test drives */
+extern char D_0061C310[]; /* "HIT: %p,%d" */
+extern char D_0061C320[]; /* "ATTR: %x" */
+extern char D_0061C330[]; /* "SRC: %f, %f, %f" */
+extern char D_0061C340[]; /* "DST: %f, %f, %f" */
+
+/* one debug-menu entry: the label the selector prints, the handler, and a
+   "stay in the menu" flag */
+typedef struct {
+    char *label;
+    int (*fn)(int);
+    int stay;
+} DbgMenuItem;
+
+/* The strings these tables point at stay blob-owned by address until the
+   TU's plain .rodata and .sdata runs close up. */
+extern char D_0063AD58[]; /* "Off" */
+extern char D_0063AD50[]; /* "On" */
+extern char D_0061C2F0[]; /* "move all" */
+extern char D_0061C2E0[]; /* "move src" */
+extern char D_0061C2D0[]; /* "move dst" */
+extern char D_0061C4C8[]; /* "Debug Mode" */
+extern char D_0061C4B8[]; /* "Free Camera" */
+extern char D_0061C4A8[]; /* "Stage Select" */
+extern char D_0061C498[]; /* "Target Object" */
+extern char D_0061C488[]; /* "Stage Setting" */
+extern char D_0061C478[]; /* "Way Test" */
+extern char D_0061C468[]; /* "Camera Editor" */
+extern char D_0061C458[]; /* "Motion Viewer" */
+extern char D_0061C448[]; /* "Effect Tool" */
+extern char D_0061C438[]; /* "TextureList" */
+extern char D_0061C428[]; /* "Snap Shot" */
+extern char D_0061C418[]; /* "Memory Card" */
+extern char D_0061C408[]; /* "STAFF ROLL TEST" */
+extern char D_0061C3F8[]; /* "ADPCM TEST" */
+extern char D_0063B0E8[]; /* "SE TEST" */
+extern char D_0061C3E8[]; /* "REVERB TEST" */
+extern char D_0061C3D8[]; /* "Game Over" */
+extern char D_0061C3C8[]; /* "Ending Demo" */
+extern char D_0061C3B8[]; /* "BackStage Test" */
+extern char D_0061C3A8[]; /* "LoadINFO" */
+extern char D_0061C398[]; /* "Chara Info" */
+extern char D_0061C388[]; /* "Pad2 Control" */
+extern char D_0063B0E0[]; /* "DispBox" */
+extern char D_0061C378[]; /* "DispBall" */
+extern char D_0061C368[]; /* "Hint Start" */
+extern char D_0061C350[]; /* "Tsuresari Time Zero" */
+extern char D_0061C500[]; /* "B2850  TOO HARD TO PICK UP LASER..." */
+extern char D_0061C4D8[]; /* "B2890  ILLEGAL CAGE CHAIN DYNAMICS" */
+/* the menu's handlers defined further down this file or in other TUs */
+extern int debug_Mode(void);
+extern int debug_FreeCamera(int a0);
+extern int debug_TargetGObj(int reset);
+extern int gsb_StageSetting(void);
+extern int debug_WayTool(void);
+extern int debug_CameraEditor(void);
+extern int MotionViewer(void);
+extern int EffectTool(void);
+extern int tex_ListTool(void);
+extern int debug_SnapShot(int idx);
+extern int debug_STAFFROLLTest(void);
+extern int debug_AdpcmTest(int a0);
+extern int debug_reverbTest(void);
+extern int debug_GameOver(void);
+extern int debug_EndingDemo(void);
+extern int debug_BackStageTest(void);
+extern int debugCdvdLoadInfoSegDisp(void);
+extern int debug_SelectPad2ControlGobj(int reset);
+extern int debug_CollisionTest(int reset);
+extern int debug_hintStart(void);
+extern int debug_tsuresariTimeZero(void);
+
+/* The TU's .data from 0x4D9D40 (the tail of debug.o's run, which starts with
+   the option value-name lists at 0x4D9C30), in the ROM's order.  The GIF tag
+   debug_MakeFont copies ahead of each font packet, as debug_exception's
+   fontTag. */
+unsigned long long debugFontTag[2] __attribute__((aligned(16))) = {0x2000400000008000LL, 0x51};
+
+/* RECONSTRUCTION: debug_Mode's "Off"/"On" pair and debug_CollisionTest's row
+   labels as one table.  What the bytes pin: the two pointers directly before
+   the three labels, in .data; under -G 8 an object of eight bytes or less
+   goes to .sdata (mips_select_section), so the pair is one object with its
+   neighbour.  What they cannot pin: whether that neighbour is this table or
+   a record holding both, and the text. */
+char *debugSelectName[] = {D_0063AD58, D_0063AD50, D_0061C2F0, D_0061C2E0, D_0061C2D0, 0};
+
+/* the wall hit sphere colour */
+static Col4 collisionWallCol __attribute__((aligned(16))) = {{0, 0x80, 0xFF, 0x80}};
+
+/* the floor hit sphere colour */
+static Col4 collisionFloorCol __attribute__((aligned(16))) = {{0, 0x80, 0xFF, 0x80}};
+
+static DbgMenuItem debugMenu[27] = {
+    {D_0061C4C8, (int (*)(int))debug_Mode, 0},
+    {D_0061C4B8, debug_FreeCamera, 0},
+    {D_0061C4A8, (int (*)(int))debug_SelectStage, 1},
+    {D_0061C498, debug_TargetGObj, 0},
+    {D_0061C488, (int (*)(int))gsb_StageSetting, 0},
+    {D_0061C478, (int (*)(int))debug_WayTool, 0},
+    {D_0061C468, (int (*)(int))debug_CameraEditor, 0},
+    {D_0061C458, (int (*)(int))MotionViewer, 0},
+    {D_0061C448, (int (*)(int))EffectTool, 0},
+    {D_0061C438, (int (*)(int))tex_ListTool, 0},
+    {D_0061C428, debug_SnapShot, 0},
+    {D_0061C418, (int (*)(int))debug_MemoryCard, 0},
+    {D_0061C408, (int (*)(int))debug_STAFFROLLTest, 0},
+    {D_0061C3F8, debug_AdpcmTest, 0},
+    {D_0063B0E8, debug_SETest, 0},
+    {D_0061C3E8, (int (*)(int))debug_reverbTest, 0},
+    {D_0061C3D8, (int (*)(int))debug_GameOver, 0},
+    {D_0061C3C8, (int (*)(int))debug_EndingDemo, 0},
+    {D_0061C3B8, (int (*)(int))debug_BackStageTest, 0},
+    {D_0061C3A8, (int (*)(int))debugCdvdLoadInfoSegDisp, 0},
+    {D_0061C398, debug_SelectActGobj, 0},
+    {D_0061C388, debug_SelectPad2ControlGobj, 0},
+    {D_0063B0E0, debug_DispBox, 0},
+    {D_0061C378, debug_DispBall, 0},
+    {D_0061C300, debug_CollisionTest, 0},
+    {D_0061C368, (int (*)(int))debug_hintStart, 1},
+    {D_0061C350, (int (*)(int))debug_tsuresariTimeZero, 1},
+};
+
+/* the open bug list debug_MenuHelp prints beside the menu */
+static char *debugMenuHelp[] = {D_0061C500, D_0061C4D8, 0};
+
+/* the profiler's frame-marker positions, in percent of a frame, that the
+   debug_DrawBar stub reads */
+int debugBarMarkPos[34] = {0};
+
 extern char iosPadConfDefault[];
 extern int iosPadConnect(void *dev, int a1, int a2, void *conf);
 extern int iosPadRead(void *dev);
@@ -2216,7 +2378,8 @@ int debug_CollisionTest(int reset)
     DbgWallHit wall;
     int r;
 
-    r = debug_SelectCsvWindow(D_0061C300, 10, 50, 11, D_004D9D58, 4, 0, 1, 3, &D_0063C380);
+    r = debug_SelectCsvWindow(D_0061C300, 10, 50, 11, &debugSelectName[2], 4, 0, 1, 3,
+                              &collisionTestRow);
     if (reset != 0) {
         GetRootPosition(D_00704910.src, D_00639EA4);
         CopyVector(D_00704910.dst, D_00704910.src);
@@ -2239,7 +2402,7 @@ int debug_CollisionTest(int reset)
             mv.z = v[2] * st1.mag * 16.0f;
         }
     }
-    switch (D_0063C380) {
+    switch (collisionTestRow) {
     case 1:
         _AddVector(D_00704910.src, D_00704910.src, &mv);
         break;
@@ -2263,7 +2426,7 @@ int debug_CollisionTest(int reset)
         gif_SetAlpha(1, 0, 0x80);
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
         MatrixDrive_TransMatrixV(D_00704910.hit);
-        prim_DispWireSphere(5.0f, (void *)&D_004D9D70, 8, 4);
+        prim_DispWireSphere(5.0f, (void *)&collisionWallCol, 8, 4);
         gif_EndPacket();
         DebugDisp1Collision(&mv);
         debug_PrintfDummy(80, 180, 0xFFFFFF00u, (int)D_0061C310, (int)D_00704910.wall.ref.poly,
@@ -2278,7 +2441,7 @@ int debug_CollisionTest(int reset)
         gif_SetAlpha(1, 0, 0x80);
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
         MatrixDrive_TransMatrixV(D_00704910.hit);
-        prim_DispWireSphere(5.0f, (void *)&D_004D9D80, 8, 4);
+        prim_DispWireSphere(5.0f, (void *)&collisionFloorCol, 8, 4);
         gif_EndPacket();
     }
     debug_PrintfDummy(80, 160, 0xFFFFFF00u, (int)D_0061C330, D_00704910.src[0], D_00704910.src[1],
@@ -2291,16 +2454,6 @@ int debug_CollisionTest(int reset)
     return r;
 }
 
-/* one debug-menu entry: the label the selector prints, the handler, and a
-   "stay in the menu" flag */
-typedef struct {
-    char *label;
-    int (*fn)(int);
-    int stay;
-} DbgMenuItem;
-
-extern DbgMenuItem D_004D9D90[];
-extern char *D_004D9ED8[];
 extern int D_0063B0F0;
 extern int D_0063B0F4;
 extern int D_0063B0F8;
@@ -2322,8 +2475,8 @@ static inline void debug_MenuHelp(void)
     x = 0xF0;
     y = 0x50;
     i = 0;
-    while (D_004D9ED8[i] != 0) {
-        debug_PrintfDummy(x, y, 0x80808080u, (int)D_0063AF80, (int)D_004D9ED8[i]);
+    while (debugMenuHelp[i] != 0) {
+        debug_PrintfDummy(x, y, 0x80808080u, (int)D_0063AF80, (int)debugMenuHelp[i]);
         y += 10;
         if (y >= 301) {
             y = 0x50;
@@ -2362,7 +2515,7 @@ void debug_Menu(void)
     }
     state = D_0063B0F4;
     if (state == 1) {
-        r = debug_SelectCsvWindow(D_0061C570, 0xA, 0x32, 0xB, D_004D9D90, 0xC, 0, 1, 0x1B,
+        r = debug_SelectCsvWindow(D_0061C570, 0xA, 0x32, 0xB, debugMenu, 0xC, 0, 1, 0x1B,
                                   &D_0063B0F8);
         switch (r) {
         case 0:
@@ -2379,7 +2532,7 @@ void debug_Menu(void)
         debug_MenuHelp();
         debug_MenuBlink();
     } else if (state == 2) {
-        fn = D_004D9D90[D_0063B0F8].fn;
+        fn = debugMenu[D_0063B0F8].fn;
         if (fn == 0) {
             D_0063B0F4 = 0;
             D_0063AE74 = 0;
@@ -2389,7 +2542,7 @@ void debug_Menu(void)
             if (r == -1) {
                 D_0063B0F4 = 1;
             } else if (r != 0) {
-                if (D_004D9D90[D_0063B0F8].stay == 0) {
+                if (debugMenu[D_0063B0F8].stay == 0) {
                     D_0063B0F4 = 1;
                 } else {
                     D_0063B0F4 = 0;
@@ -2453,7 +2606,7 @@ void debug_ResizeFontWindowHeight(int val)
     D_0063AEB4 = val;
 }
 
-/* Profiler bar table: 0x400 entries of 0x1C bytes; D_0063C384 = live count.
+/* Profiler bar table: 0x400 entries of 0x1C bytes; debugBarCount = live count.
    Callers pass (label, colour, __FILE__, __LINE__) -- see the call sites in
    main.c and motionManager2.c, where a3 is literally the caller's line number.
    +0x14 samples the EE timer T0_COUNT at 0x10000000; volatile because it is a
@@ -2463,8 +2616,8 @@ extern char D_0063AF30[];
 
 void debug_SetBar(char *name, unsigned int col, char *file, int line)
 {
-    DebugBar *p = &D_00708880[D_0063C384];
-    if (D_0063B1D4 == 0 && D_0063C384 != 0x400) {
+    DebugBar *p = &D_00708880[debugBarCount];
+    if (D_0063B1D4 == 0 && debugBarCount != 0x400) {
         sprintf(p->name, D_0063AF30, name);
         p->count = *(volatile int *)0x10000000;
         p->col[0] = col >> 24;
@@ -2473,7 +2626,7 @@ void debug_SetBar(char *name, unsigned int col, char *file, int line)
         p->col[3] = col;
         p->file = file;
         p->line = line;
-        D_0063C384++;
+        debugBarCount++;
     }
 }
 
@@ -2481,8 +2634,8 @@ void debug_SetBar(char *name, unsigned int col, char *file, int line)
    profiler flag is set). */
 void debug_SetBar2(char *name, unsigned int col, char *file, int line)
 {
-    DebugBar *p = &D_00708880[D_0063C384];
-    if (D_0063B1D4 != 0 && D_0063C384 != 0x400) {
+    DebugBar *p = &D_00708880[debugBarCount];
+    if (D_0063B1D4 != 0 && debugBarCount != 0x400) {
         sprintf(p->name, D_0063AF30, name);
         p->count = *(volatile int *)0x10000000;
         p->col[0] = col >> 24;
@@ -2491,7 +2644,7 @@ void debug_SetBar2(char *name, unsigned int col, char *file, int line)
         p->col[3] = col;
         p->file = file;
         p->line = line;
-        D_0063C384++;
+        debugBarCount++;
     }
 }
 
@@ -2504,7 +2657,7 @@ void debug_ResetBar(void)
     D_0063B114 = 0;
     D_0063B110 = 0;
     D_0063B124 = 0;
-    D_0063C384 = 0;
+    debugBarCount = 0;
 }
 
 extern char D_0061BB80[];
