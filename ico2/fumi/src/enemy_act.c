@@ -4,6 +4,7 @@
 #include "gamesys.h"
 #include "gobj.h"
 #include "obj_manager.h"
+#include "gobj_process.h"
 #include "act-game.h"
 #include "act.h"
 #include "boyact.h"
@@ -118,33 +119,60 @@ extern char D_0063A7E8[];
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
-/* The enemy work's status word at +0x210 is a 64-bit flag set with a byte
-   view; the union is what makes a write to it alias the pointer chase that
-   reaches it, which is why ROM re-walks self->sub->enemy for the second
-   assignment of every arm below. */
+/* A 64-bit flag word with a byte view (the enemy work's +0x210 status word and
+   the sub record's +0x20 word); the union is what makes a write to it alias
+   the pointer chase that reaches it, which is why ROM re-walks
+   self->sub->enemy for the second assignment of every arm below.  The two-word
+   view is the enemy work's: the ROM reads and writes +0x210 as one 64-bit word
+   and +0x214, the requested brain target, as an int inside it.  The member
+   names are ours. */
 typedef union {
     char c[8];
     long long ll;
+
+    struct {
+        int bits;
+        int reqTarget;
+    } w;
 } EnemyStatusFlags;
 
+/* The enemy work at sub+0x680: the running brain mode (+0x204) and the one
+   _BrainMode_SetDirect requests (+0x208), the requested target inside the
+   status word and the running target (+0x218), a countdown (+0x224).  The
+   field names are ours. */
 typedef struct {
     char pad000[0x1E0];
     float bodySize;
     int liftKind;
     char pad1E8[0x1EC - 0x1E8];
     int battleType;
-    char pad1F0[0x210 - 0x1F0];
+    char pad1F0[0x204 - 0x1F0];
+    int mode;
+    int reqMode;
+    char pad20C[0x210 - 0x20C];
     EnemyStatusFlags flags;
-    char pad218[0x228 - 0x218];
+    int target;
+    char pad21C[0x224 - 0x21C];
+    int waitCount;
     int slowTimer;
 } EnemyBattleWork;
 
+/* The enemy's sub record; target (+0x14C) is read as a `char *` elsewhere in
+   this TU, brainParam and stageKind (+0x440, +0x444) are the running mode's
+   table entries f0C and f18. */
 typedef struct {
     char pad000[0x14];
     void *after;
-    char pad018[0x120 - 0x18];
+    char pad018[0x20 - 0x18];
+    EnemyStatusFlags flags;
+    char pad028[0x120 - 0x28];
     float dir[4];
-    char pad130[0x680 - 0x130];
+    char pad130[0x14C - 0x130];
+    char *target;
+    char pad150[0x440 - 0x150];
+    int brainParam;
+    int stageKind;
+    char pad448[0x680 - 0x448];
     EnemyBattleWork *enemy;
 } EnemyActSub;
 
@@ -354,7 +382,128 @@ end:
     return rv;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", subEnemyControl);
+extern char *D_00639EC0;
+extern char *D_00639ED0;
+/* kept local: this TU's uses of _GetMotionDirection do not fit the prototype in
+   motionManager2.h */
+extern void _GetMotionDirection(void *dir, int self);
+extern int CheckFloorAttribute(char *self, int attr);
+extern void _ACTCommonMailTest(int self, int a1, int a2, int a3);
+
+/* Static inline of the 2001 source, listing rows 908-915: the rows sit between
+   setBattleStatus and boss_effect_callback, the body has no ROM slot of its own
+   and subEnemyControl is the only place it is expanded, so this name is ours. */
+static inline void enemyPollHitNodes(int self)
+{
+    int n = *(int *)(*(char **)(self + 0x15C) + 0x88);
+    int i;
+
+    for (i = 0; i < n; i++) {
+        GetEnemyHitNodeFlag((char *)self);
+    }
+}
+
+void subEnemyControl(volatile int a0)
+{
+    char *sub = *(char **)(a0 + 0x164);
+    float pos[4];
+    float dir[4];
+    int runCnt = 0;
+    int walkCnt = 0;
+    int stopCnt = 0;
+
+    iosPadConnect(sub + 0x2D8, 0, 1, (int)(sub + 0x1E8));
+    while (1) {
+        enemyPollHitNodes(a0);
+        /* RECONSTRUCTION: the once-run loop around the flag test is what the
+           ROM shows: an 8-aligned loop label at the test's shift, and the
+           D_00639ED0 arm moved by loop.c into the hole after the hit-node
+           loop, which loop.c does only for an arm whose jump leaves a loop. */
+        do {
+            if (((int)(*(unsigned long long *)(sub + 0x18) >> 48)) & 1) {
+                if (a0 == (int)D_00639EC0) {
+                    iosPadConnect(sub + 0x2D8, 0, 0, (int)(sub + 0x1E8));
+                    iosPadRead(sub + 0x2D8);
+                    iosPadGetStick(sub + 0x2D8, sub + 0x338, 0, 2, 2, 0);
+                    _GetMotionDirection(dir, a0);
+                    *(int *)(sub + 0x340) = CorrectStickInfo(dir, sub + 0x338);
+                    if (0.001f < *(float *)(sub + 0x34C)) {
+                        ConvertStickToAbsCoord(pos, sub + 0x338);
+                        *(float *)(sub + 0x120) = pos[0];
+                        *(float *)(sub + 0x124) = pos[1];
+                        *(float *)(sub + 0x128) = pos[2];
+                    }
+                } else if (a0 == (int)D_00639ED0) {
+                    iosPadConnect(sub + 0x2D8, 0, 1, (int)(sub + 0x1E8));
+                } else {
+                    iosPadConnect(sub + 0x2D8, 0, 1, (int)(sub + 0x1E8));
+                }
+            }
+        } while (0);
+        /* The listing gives the whole counter update one row (1580); gcse
+           moves this increment up to both exits of the hit-node test. */
+        stopCnt++;
+        if (0.1f < *(float *)(sub + 0x34C)) {
+            stopCnt = 0;
+        }
+        if (0.1f < *(float *)(sub + 0x34C) &&
+            (*(float *)(sub + 0x34C) < 0.99f || (*(int *)(sub + 0x2E0) & 0x20))) {
+            walkCnt++;
+        } else {
+            walkCnt = 0;
+        }
+        /* moving and not walking, with the walking predicate repeated whole
+           inside the negation, as commonact.c's _ACTCommonMailTest writes it;
+           the repeated conjunct is the ROM's dead second branch. */
+        if (0.1f < *(float *)(sub + 0x34C) &&
+            !(0.1f < *(float *)(sub + 0x34C) &&
+              (*(float *)(sub + 0x34C) < 0.99f || (*(int *)(sub + 0x2E0) & 0x20)))) {
+            runCnt++;
+        } else {
+            runCnt = 0;
+        }
+        pos[0] = *(float *)(sub + 0x120);
+        pos[1] = *(float *)(sub + 0x124);
+        pos[2] = *(float *)(sub + 0x128);
+        _ACTCommonMailTest(a0, stopCnt, walkCnt, runCnt);
+        switch (*(int *)(sub + 0x34)) {
+        case 1:
+            ACTSendMailCorrect((void *)a0, 0xC7);
+            break;
+        case 2:
+            if (0.1f < *(float *)(sub + 0x34C) &&
+                (*(float *)(sub + 0x34C) < 0.99f || (*(int *)(sub + 0x2E0) & 0x20)) &&
+                !(walkCnt < 4)) {
+                if (CheckFloorAttribute((char *)a0, 0x200)) {
+                    ACTSendMailCorrect((void *)a0, 0xB6);
+                } else {
+                    ACTSendMailCorrect((void *)a0, 0xB5);
+                }
+            }
+            break;
+        case 3:
+            ACTSendMailCorrect((void *)a0, 0xBA);
+            break;
+        /* RECONSTRUCTION: the ROM dispatches this switch through a 38-entry
+           table (jtbl_005533A0), and ee-gcc builds a table only from five or
+           more case labels, so a fifth label stands here.  Its value is not
+           recoverable: every index from 4 to 37 points at the break label and
+           listing rows 1603-1617 emit no instruction. */
+        case 4:
+            break;
+        case 38:
+            if (100 < *(int *)(sub + 0x33C) - 128) {
+                ACTSendMailCorrect((void *)a0, 0x14B);
+            } else if (*(int *)(sub + 0x33C) - 128 < -100) {
+                ACTSendMailCorrect((void *)a0, 0x14A);
+            } else {
+                ACTSendMailCorrect((void *)a0, 0x150);
+            }
+            break;
+        }
+        _ACTWait(1);
+    }
+}
 
 extern int stage_no;
 extern int D_00639EA0;
@@ -1123,10 +1272,225 @@ store:
     *outMode = mode;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", BrainMode_Requset);
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", subEnemyBrainMain);
+extern char *D_0063A61C;
+extern char D_00553550[]; /* "undefined mode [%d]\n" */
+extern char D_005577D0[];
+/* FLT_MAX word in .sdata; the incomplete array type is what keeps the ROM's
+   %hi/%lo pair instead of a gp-relative load. */
+extern float D_0063A7F0[];
+extern void SetEnemyStonizedVisual(void *self);
+extern void BossEnemyFunc(void *self);
 
-extern char D_005535A0[];
+/* Static inline of the 2001 source: the listing puts its body at rows 3064-3065
+   between _BrainMode_SetDirect (3056-3060) and subEnemyBrainMain (3074), and no
+   ROM slot carries it, so it is inline-only. */
+static inline void _BrainMode_Set(char *a0, int mode, int *tgt)
+{
+    if (brainModeTable[mode].pri <
+        brainModeTable[*(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x208)].pri) {
+        return;
+    }
+    _BrainMode_SetDirect_INTERIM(a0, mode, tgt);
+}
+
+/* RECONSTRUCTION: the listing puts the whole row-3197 test on its own row with
+   no helper rows, and the bytes (lwu, dsll32/dsra32, andi) are a 64-bit
+   shift-and-mask of a 32-bit word, the TU's flag-test shape: a function-like
+   macro.  The name is ours. */
+#define EA_CHKBIT(f, n) (((int)((long long)(f) >> (n))) & 1)
+
+void subEnemyBrainMain(volatile int a0)
+{
+    char *sub = *(char **)(a0 + 0x164);
+    int mode;
+    int data;
+    int i;
+
+    /* BrainMode_Requset is a nested function in the ROM: subEnemyBrainMain
+       passes it a static chain in $2 (STATIC_CHAIN_REGNUM) which it spills to
+       0(sp) and reads a0 out of the parent frame through.  The listing names it
+       BrainMode_Requset.299 and puts its body at lines 3083-3104. */
+    void BrainMode_Requset(int req, int arg)
+    {
+        switch (req) {
+        case 0:
+            _BrainMode_Set((char *)a0, 1, 0);
+            break;
+        case -2:
+            _BrainMode_Set((char *)a0, 1, 0);
+            break;
+        case 1:
+            _BrainMode_Set((char *)a0, 3, 0);
+            break;
+        case 2:
+            _BrainMode_Set((char *)a0, 4, 0);
+            break;
+        case 3:
+            _BrainMode_Set((char *)a0, 6, 0);
+            break;
+        case -3:
+        case -1:
+        case 7:
+            _BrainMode_Set((char *)a0, 13, 0);
+            break;
+        case 5:
+            _BrainMode_Set((char *)a0, 7, &arg);
+            break;
+        case 4:
+        case 6:
+            _BrainMode_Set((char *)a0, 5, &arg);
+            break;
+        case 8:
+            _BrainMode_SetDirect_INTERIM((char *)a0, 2, &arg);
+            break;
+        default:
+            debug_StdPrintfDummy(D_00553550, req);
+            debug_assert(D_00553370, 3102);
+            __assert(D_00553370, 3102, D_0063A7E8);
+            break;
+        }
+    }
+
+    ((EnemyActSub *)*(int *)(a0 + 0x164))->enemy->reqMode =
+        ((EnemyActSub *)*(int *)(a0 + 0x164))->enemy->mode = 0;
+    ((EnemyActSub *)*(int *)(a0 + 0x164))->enemy->waitCount = 2;
+    _ACTWait(1);
+    _ACTWait(1);
+    _ACTWait(1);
+    switch (*(int *)(sub + 0x448)) {
+    case 4:
+        if (D_00639EA8 != 0) {
+            eBrainSendMes(a0, 9);
+            i = 0;
+            eBrainSendMes(a0, 7);
+            actEnemyForceSwitchToCarry((void *)a0);
+            for (; i < 5; i++) {
+                if (*(int *)(sub + 0x34) == 5) {
+                    ACTReserveTarget(D_00639EA8, (void *)a0, 0xFF);
+                    *(char **)(sub + 0x130) =
+                        SetMotionRequest(a0, 0x109, *(MotOriReq *)(sub + 0x620));
+                } else {
+                    *(char **)(sub + 0x130) =
+                        SetMotionRequest(a0, 0x107, *(MotOriReq *)(sub + 0x620));
+                }
+                if (*(int *)(*(char **)(sub + 0x130) + 0xC) != 0) {
+                    break;
+                }
+                _ACTWait(1);
+            }
+            if (gflagChk(0x189) != 0) {
+                *(char **)(sub + 0x130) = SetMotionRequest(a0, 0x108, *(MotOriReq *)(sub + 0x620));
+            }
+        }
+        break;
+    case 1:
+        if (D_00639EA8 != 0 &&
+            ACTCheckViewCl((void *)a0, D_00639EA8, test_CURRENTROOT((int)D_00639EA8), 0x168,
+                           D_0063A7F0[0]) != 0) {
+            eBrainSendMes(a0, 2);
+        } else {
+            eBrainSendMes(a0, 1);
+        }
+        break;
+    case 2:
+        if (D_00639EA8 != 0) {
+            eBrainSendMes(a0, 2);
+        }
+        break;
+    case 5:
+        eBrainSendMes(a0, 3);
+        break;
+    }
+    while (1) {
+        if (D_00639EA8 != 0 && *(int *)(*(char **)(D_00639EA8 + 0x164) + 0x34) == 0x6F &&
+            *(int *)(*(char **)(D_00639EA8 + 0x164) + 0x144) == (int)a0 &&
+            EA_CHKBIT(*(unsigned int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x454), 0)) {
+            ACTSendMailCorrect((void *)a0, 0x1E);
+            ACTSendMailCorrect((void *)a0, 0x1D);
+        }
+        CheckEnemyBrainMode((char *)a0, &mode, &data);
+        BrainMode_Requset(mode, data);
+        if (*(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x208) !=
+                *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x204) ||
+            (((int)(((EnemyActSub *)sub)->flags.ll >> 9)) & 1) != 0) {
+            ((EnemyActSub *)sub)->flags.ll &= ~0x200LL;
+            ((EnemyActSub *)*(int *)(a0 + 0x164))->enemy->mode =
+                ((EnemyActSub *)*(int *)(a0 + 0x164))->enemy->reqMode;
+            ((EnemyActSub *)*(int *)(a0 + 0x164))->enemy->target =
+                ((EnemyActSub *)*(int *)(a0 + 0x164))->enemy->flags.w.reqTarget;
+            ((EnemyActSub *)sub)->target =
+                (char *)((EnemyActSub *)*(int *)(a0 + 0x164))->enemy->target;
+            ((EnemyActSub *)sub)->brainParam =
+                brainModeTable[((EnemyActSub *)*(int *)(a0 + 0x164))->enemy->mode].f0C;
+            ((EnemyActSub *)sub)->stageKind =
+                brainModeTable[((EnemyActSub *)*(int *)(a0 + 0x164))->enemy->mode].f18;
+            if (((EnemyActSub *)sub)->stageKind == 4) {
+                gamesysObjInfoPosSetStage((int *)a0, 4, 0, stage_no);
+            }
+            actChangeActBrain(
+                D_0063A61C,
+                (void *)brainModeTable[((EnemyActSub *)*(int *)(a0 + 0x164))->enemy->mode].brain,
+                sub);
+        }
+        if (*(int *)(sub + 0x148) != 0) {
+            _ACTCharStatus_Set((void *)a0, 0x10, -1.0f, 0);
+        }
+        if (*(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x224) != 0) {
+            *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x224) -= 1;
+        }
+        if ((((int)(*(long long *)(sub + 0x20) >> 6)) & 1) != 0) {
+            char *g = *(char **)sub;
+
+            if (*(int *)(sub + 0x34) != 0x67) {
+                SetEnemyStonizedVisual((void *)a0);
+            }
+            *(long long *)(sub + 0x20) |= 0x200000LL;
+            *(int *)(sub + 0x34C) = 0;
+            *(int *)(sub + 0x120) = 0;
+            *(int *)(sub + 0x124) = 0;
+            *(int *)(sub + 0x128) = 0;
+            *(int *)(sub + 0x33C) = 127;
+            *(int *)(sub + 0x338) = 127;
+            isysGObjProcPause(g);
+            while (1) {
+                _ACTWait(1);
+            }
+        }
+        if (brainModeTable[*(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x204)].f14 != 0 &&
+            (((int)(*(long long *)(sub + 0x20) >> 5)) & 1) != 0) {
+            char *g = *(char **)sub;
+
+            isysGObjProcPause(g);
+            *(long long *)(sub + 0x20) |= 0x200000LL;
+            *(int *)(sub + 0x34C) = 0;
+            *(int *)(sub + 0x120) = 0;
+            *(int *)(sub + 0x124) = 0;
+            *(int *)(sub + 0x128) = 0;
+            *(int *)(sub + 0x33C) = 127;
+            *(int *)(sub + 0x338) = 127;
+            while (1) {
+                if (D_00639EA8 == 0 || *(int *)(*(char **)(D_00639EA8 + 0x164) + 0x34) != 0x6F ||
+                    *(int *)(*(char **)(D_00639EA8 + 0x164) + 0x144) != (int)a0) {
+                    if ((((StatusAttr *)(D_005577D0 +
+                                         *(int *)(*(char **)(a0 + 0x164) + 0x34) * 0x50))
+                             ->f_4C >>
+                         5) &
+                        1) {
+                        ACTSendMailCorrect((void *)a0, 0x102);
+                    }
+                }
+                if ((((int)(*(long long *)(sub + 0x20) >> 4)) & 1) != 0) {
+                    isysGObjProcActive(g);
+                    *(long long *)(sub + 0x20) &= ~0x200000LL;
+                    break;
+                }
+                _ACTWait(1);
+            }
+        }
+        BossEnemyFunc((void *)a0);
+        _ACTWait(1);
+    }
+}
 
 void subEnemyBrain_ToGenerator(int self)
 {
@@ -1163,7 +1527,7 @@ void subEnemyBrain_ToGenerator(int self)
     if ((unsigned char)_ApproachTarget(
             (char *)a0, target, sub + 0x120, 0, 50.0f,
             *(unsigned char *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x224)) == 0) {
-        debug_StdPrintfDummy(D_005535A0);
+        debug_StdPrintfDummy("to generator way error!");
         *(int *)(sub + 0x34C) = 0;
         *(int *)(sub + 0x120) = 0;
         *(int *)(sub + 0x124) = 0;

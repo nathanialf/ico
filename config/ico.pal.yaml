@@ -763,7 +763,9 @@ segments:
       - [0x452B90, rodata, cod/452B90]   # .rodata blob resume (boyact's strings)
       - [0x452EE8, .rodata, ico2/fumi/src/commonact]  # the TU's whole .rodata run as source (chain 3 pass 62, commonact entirely C): the 0.8 double, twenty-four anonymous string literals in listing definition order (the 96 end-of-file inline definitions emit their strings at definition and their code at the end), then WithMailFunc_FallDead's 0.3 last; VMA 0x552EE8..0x553320, 0x438 B, anonymous
       - [0x453320, rodata, cod/453320]   # .rodata blob resume (strings)
-      - [0x4535B8, .rodata, ico2/fumi/src/enemy_act]  # plain-rodata: NakaBoss's and Battle_isCurrentStatus's doubles (1.2 x2, 360, 270) and the "not found" string, 0x30 B 8-aligned, VMA 0x5535B8..0x5535E8; the TU's four jump tables stay in the blob until their owners land
+      - [0x4533A0, .rodata, ico2/fumi/src/enemy_act]  # jtbl_005533A0, subEnemyControl's 38-arm switch table (0x98 B, arms verified against the ROM words; chain 3 pass 150)
+      - [0x453438, rodata, cod/453438]   # .rodata blob resume (strings)
+      - [0x453570, .rodata, ico2/fumi/src/enemy_act]  # plain-rodata: the TU's .rodata run 0x553570..0x5535E8, jtbl_00553570 (subEnemyBrainMain's twelve arms, verified) then the generator-way error string, NakaBoss's and Battle_isCurrentStatus's doubles (1.2 x2, 360, 270) and the not-found string (chain 3 pass 150)
       - [0x4535E8, rodata, cod/4535E8]   # .rodata blob resume ("**toboy " strings)
       - [0x453750, .rodata, ico2/fumi/src/fieldCollision]  # the TU's .rodata run as source (completeness pass 66), VMA 0x553750, 0x23E B, anonymous strings in the listing's source order with the compiled-out "%s%d(%d)\n" among them
       - [0x453990, rodata, cod/453990]   # .rodata blob resume
