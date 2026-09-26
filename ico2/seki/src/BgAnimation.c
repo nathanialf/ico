@@ -267,7 +267,8 @@ typedef union BgaParticleBits {
 } BgaParticleBits;
 
 typedef struct BgaParticleEnt {
-    /* 0x00 */ char pad00[0x20];
+    /* 0x00 */ float pos[4];
+    /* 0x10 */ int quat[4];
     /* 0x20 */ BgaParticleBits u;
 } BgaParticleEnt;
 
@@ -1248,7 +1249,7 @@ static inline void bga_stepEnvelope(BgaEnvEnt *e, float dt, int loop)
  * the node's object pointer; types 4 and 5 (the colour envelopes
  * bga_initLightEnvelope reads) are skipped, and any other type is reported
  * with its entry and type and asserted. */
-void bga_calcEnvelope(BgaDObjEnt *p, int a1, int a2, float dt)
+void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int a1, int a2)
 {
     BgaEnvEnt *e;
     float v;
@@ -1454,7 +1455,260 @@ void _RotTransCurrentMatrixYXZ(void *t, int *rot)
     VU0_V2OP(vmove.xyzw, 7, 13);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/seki/src/BgAnimation", bga_CalcObject);
+/* Externs and record views bga_CalcObject uses (field names are ours). */
+extern int GlobalTimer;
+extern void _CopyVector(void *dst, void *src);
+extern void _PushCurrentMatrix(void);
+extern void _PopCurrentMatrix(void);
+extern void _CopyMatrix(void *dst, void *src);
+extern float _GetLength(void *a, void *b);
+extern int D_0063BCC4;
+extern int D_0063B13C;
+extern int ScreenHeight;
+extern int currentScreenWidth;
+extern char D_0063BCF8[];
+extern char D_00621708[];
+extern char D_00621720[];
+
+typedef struct BgaNodeBits {
+    /* 0x00 */ char pad00[0x30];
+    /* 0x30 */ float f30;
+    /* 0x34 */ int f34;
+    /* 0x38 */ union {
+        struct {
+            int b0 : 1;
+            int b1 : 1;
+            int b2 : 1;
+            short f3A;
+        } b;
+
+        long long w;
+    } f38;
+
+    /* 0x40 */ float f40[4];
+} BgaNodeBits;
+
+typedef struct BgaObj {
+    /* 0x00 */ short id;
+    /* 0x02 */ char pad02[0xA];
+    /* 0x0C */ float (*mtx)[16];
+    /* 0x10 */ float (*quat)[4];
+    /* 0x14 */ char pad14[0xC];
+    /* 0x20 */ char pad20[0x8];
+    /* 0x28 */ char pad28[0x48];
+    /* 0x70 */ float rscale[3];
+    /* 0x7C */ char pad7C[0x7F4];
+    /* 0x870 */ BgaNodeBits *work;
+} BgaObj;
+
+extern void SetParamKyomiGObj(void *o, float *pos, float *scale);
+extern void RotCurrentQuaternionX(int a);
+extern void RotCurrentQuaternionY(int a);
+extern void RotCurrentQuaternionZ(int a);
+extern void PopQuaternion(void);
+extern void _TransCurrentMatrix(void *v);
+extern void _ScaleVectorXYZ(float s, void *d, void *v);
+extern void _ScaleCurrentMatrix(float x, float y, float z);
+extern void _GetCurrentMatrix(void *m);
+extern void _GetCurrentMatrixTrans(void *v);
+extern void _InverseCurrentMatrix(void);
+extern void bga_addLightning(int kind, char *a1, float *vec, int id, int t0, float f);
+
+static inline void bga_checkCameraDistance(void)
+{
+    if (bgaCameraActive != 0) {
+        _InverseCurrentMatrix();
+        _GetCurrentMatrix(bgaCameraMatrix);
+        if (GlobalTimer != 0) {
+            if (_GetLength(bgaCameraMatrix[3], bgaLastCameraPos) < 100.0f) {
+                GlobalTimer = 0;
+                currentScreenWidth = 0;
+            }
+        }
+    }
+}
+
+static inline void bga_stepMotion(BgaExtMotion *m, float dt, int reset)
+{
+    m->frame += dt;
+    if ((float)m->len * (D_0028F4C0[0] ? 0.82812935f : 1.0f) < m->frame) {
+        if (reset) {
+            m->frame = 0.0f;
+        } else {
+            m->frame = bga_palFrame((float)m->len);
+        }
+    }
+}
+
+void bga_CalcObject(BgaDObjEnt *d, float dt, float f13, int a1, int a2, int a3)
+{
+    int save;
+    float *pos;
+
+    switch (d->type) {
+    case 13:
+        bga_GetMotionParticle(bgaPos, bgaRot, bgaScale, (BgaPtMotion *)&d->f34);
+        break;
+    case 14:
+    case 15:
+    case 16:
+        bga_GetMotionLightning(bgaPos, bgaRot, bgaScale, (BgaPtMotion *)&d->f34);
+        break;
+    default:
+        bga_GetMotion(bgaPos, bgaRot, bgaScale, (BgaPtMotion *)&d->f34);
+        break;
+    }
+
+    switch (d->type) {
+    case 6:
+        d->u.obj = (D_0028F4C0[5] == 0) ? (void *)light_AddLight(0, 0, 2) : (void *)&bgaDummyLight;
+        bga_initLightEnvelope(d);
+        break;
+    case 11:
+        d->u.obj = (D_0028F4C0[5] == 0) ? (void *)light_AddLight(0, 0, 3) : (void *)&bgaDummyLight;
+        bga_initLightEnvelope(d);
+        break;
+    }
+    D_0063BCF4.i = 0;
+
+    bga_calcEnvelope(d, dt, f13, a1, a3);
+    PushQuaternion();
+    _PushCurrentMatrix();
+    save = bgaRollZ;
+    if (D_0063BCF4.i != 0) {
+        _PushCurrentMatrix();
+        _TransCurrentMatrix(bgaPivot);
+        _RotTransCurrentMatrixYXZ(bgaPos, bgaRot);
+        _ScaleVectorXYZ(-1.0f, bgaPivot, bgaPivot);
+        _TransCurrentMatrix(bgaPivot);
+        _ScaleCurrentMatrix(bgaScale[0], bgaScale[1], bgaScale[2]);
+        _GetCurrentMatrix(bgaPivotMatrix);
+        _PopCurrentMatrix();
+    }
+    _RotTransCurrentMatrixYXZ(bgaPos, bgaRot);
+    RotCurrentQuaternionY((short)bgaRot[1]);
+    RotCurrentQuaternionX((short)bgaRot[0]);
+    RotCurrentQuaternionZ((short)bgaRot[2]);
+    bgaRollZ -= (unsigned short)bgaRot[2];
+
+    switch (d->type) {
+    case 8:
+    case 9:
+        if (d->u.obj != 0) {
+            ((BgaObj *)d->u.obj)->rscale[0] = 1.0f / bgaScale[0];
+            ((BgaObj *)d->u.obj)->rscale[1] = 1.0f / bgaScale[1];
+            ((BgaObj *)d->u.obj)->rscale[2] = 1.0f / bgaScale[2];
+            _GetCurrentMatrix(d->u.obj);
+        }
+        break;
+    case 6:
+    case 11:
+        if (d->u.obj != 0) {
+            _GetCurrentMatrixTrans(d->u.obj);
+        }
+        break;
+    case 12:
+        _GetCurrentMatrixTrans(bgaPos);
+        SetParamKyomiGObj(d->u.obj, bgaPos, bgaScale);
+        break;
+    case 13:
+        if (d->u.obj == 0) {
+            debug_StdPrintfDummy(D_00621708);
+            break;
+        }
+        /* RECONSTRUCTION: the bytes pin one register holding &bgaPos, set before
+           the loop test's join and read by GetCurrentMatrixTrans, _CopyVector and
+           the NTSC SetParticleEffect, while the PAL SetParticleEffect computes the
+           address itself (cse cannot see the value across that join); a local set
+           here and the static spelled in the PAL call is the text that gives it.
+           The local's name is ours. */
+        pos = bgaPos;
+        if (D_0063BCC4 == 0 && ((BgaParticleEnt *)d->u.obj)->u.b.loop) {
+            debug_StdPrintfDummy(D_00621720);
+            break;
+        }
+        _GetCurrentMatrixTrans(pos);
+        if (D_0028F4C0[5] != 0) {
+            break;
+        }
+        CopyQuaternion(((BgaParticleEnt *)d->u.obj)->quat, GetCurrentQuaternion());
+        _CopyVector(((BgaParticleEnt *)d->u.obj)->pos, pos);
+        if (D_0028F4C0[0] == 0) {
+            if (0.0f < bgaScale[1]) {
+                ((BgaParticleEnt *)d->u.obj)->u.b.eff = SetParticleEffectActiveSensing(
+                    ((BgaParticleEnt *)d->u.obj)->u.b.id, ((BgaParticleEnt *)d->u.obj)->pos,
+                    ((BgaParticleEnt *)d->u.obj)->quat);
+            } else if (0.0f < bgaScale[0]) {
+                ((BgaParticleEnt *)d->u.obj)->u.b.eff = SetParticleEffect(
+                    ((BgaParticleEnt *)d->u.obj)->u.b.id, pos, GetCurrentQuaternion());
+            }
+        } else {
+            if (0.41406468f <= bgaScale[1]) {
+                ((BgaParticleEnt *)d->u.obj)->u.b.eff = SetParticleEffectActiveSensing(
+                    ((BgaParticleEnt *)d->u.obj)->u.b.id, ((BgaParticleEnt *)d->u.obj)->pos,
+                    ((BgaParticleEnt *)d->u.obj)->quat);
+            } else if (0.41406468f <= bgaScale[0]) {
+                ((BgaParticleEnt *)d->u.obj)->u.b.eff = SetParticleEffect(
+                    ((BgaParticleEnt *)d->u.obj)->u.b.id, bgaPos, GetCurrentQuaternion());
+            }
+        }
+        break;
+    case 14:
+    case 15:
+        if (a2 != 0 && D_0028F4C0[5] == 0) {
+            _GetCurrentMatrixTrans(bgaPos);
+            bga_addLightning(d->type, d->u.obj, bgaPos, ((BgaObj *)d->u.obj)->id,
+                             bgaScale[1] == 0.0f, bgaScale[0]);
+        }
+        break;
+    case 16:
+        if (a2 != 0 && D_0028F4C0[5] == 0) {
+            _GetCurrentMatrixTrans(bgaPos);
+            bga_addLightning(d->type, d->u.obj, bgaPos, ((BgaObj *)d->u.obj)->id, 0, 0.0f);
+        }
+        break;
+    case 1:
+        _ScaleCurrentMatrix(bgaScale[0], bgaScale[1], bgaScale[2]);
+        break;
+    case 7:
+        break;
+    default:
+        _ScaleCurrentMatrix(bgaScale[0], bgaScale[1], bgaScale[2]);
+        if (d->u.obj != 0) {
+            RegularizeQuaternion(GetCurrentQuaternion());
+            CopyQuaternion(((BgaObj *)d->u.obj)->quat[d->num], GetCurrentQuaternion());
+            if (D_0063BCF4.i != 0) {
+                _CopyMatrix(&((BgaObj *)d->u.obj)->mtx[d->num], bgaPivotMatrix);
+            } else {
+                _GetCurrentMatrix(&((BgaObj *)d->u.obj)->mtx[d->num]);
+            }
+            ((BgaObj *)d->u.obj)->work[d->num].f38.b.b1 = (d->type == 10);
+            if (((BgaObj *)d->u.obj)->work[d->num].f38.b.b1) {
+                _CopyVector(((BgaObj *)d->u.obj)->work[d->num].f40, bgaPos);
+            }
+            ((BgaObj *)d->u.obj)->work[d->num].f38.b.b2 = (d->type == 4);
+            ((BgaObj *)d->u.obj)->work[d->num].f38.b.f3A = bgaRollZ;
+        }
+        if (a1 != 0 && d->type == 2) {
+            if (D_0063B13C & 1) {
+                debug_Printf(600, ScreenHeight / 2 - 8, 0xCCCCCC00, (int)D_0063BCF8);
+            }
+            bga_checkCameraDistance();
+        }
+        break;
+    }
+
+    if (d->f2C != 0) {
+        bga_CalcObject(d->f2C, dt, f13, a1, a2, a3);
+    }
+    bgaRollZ = save;
+    _PopCurrentMatrix();
+    PopQuaternion();
+    if (d->f30 != 0) {
+        bga_CalcObject(d->f30, dt, f13, a1, a2, a3);
+    }
+    bga_stepMotion((BgaExtMotion *)&d->f34, dt, a3);
+}
 
 typedef struct {
     /* 0x00 */ int f00;
@@ -1575,7 +1829,6 @@ extern void _MulCurrentMatrixR(void *m);
 extern void _PushCurrentMatrix(void);
 /* kept local: this TU's uses of _PopCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _PopCurrentMatrix(void);
-extern void bga_CalcObject(BgaCntNode *o, int a1, int a2, int a3, float frame, float end);
 
 typedef struct BgaAnimGeom {
     /* 0x000 */ char pad00[0xC];
@@ -1653,7 +1906,7 @@ void bga_CalcAnimation(char *p, int a1, int a2)
         if (a2 == 1) {
             bga_resetObjectCounter(o, *(float *)(p + 0x20), a1);
         }
-        bga_CalcObject(o, f1, f2, a1, *(float *)(p + 0x1C), *(float *)(p + 0x20));
+        bga_CalcObject((BgaDObjEnt *)o, *(float *)(p + 0x1C), *(float *)(p + 0x20), f1, f2, a1);
         _PopCurrentMatrix();
         PopQuaternion();
     }

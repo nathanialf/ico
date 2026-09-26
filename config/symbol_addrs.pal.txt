@@ -6182,3 +6182,5 @@ bgaPos = 0x00728290; // size:0x10  // BgAnimation.c static vector (chain 3 pass 
 bgaScale = 0x007282A0; // size:0x10  // BgAnimation.c static vector (chain 3 pass 141)
 bgaRot = 0x007282B0; // size:0x10  // BgAnimation.c static int vector (chain 3 pass 141)
 bgaDummyLight = 0x007282C0; // size:0x50  // BgAnimation.c static, a Light.c-shaped record of which only the colour is written (chain 3 pass 141)
+blendMotionKind = 0x00623470; // MAIN.MAP blend-motion-def.o's rodata table, referenced by motionOrientManager.o (chain 3 pass 143)
+motionLimitDef = 0x00626628; // MAIN.MAP motion-limit-def.o's rodata table, 48-byte rows, referenced by motionOrientManager.o (chain 3 pass 143)

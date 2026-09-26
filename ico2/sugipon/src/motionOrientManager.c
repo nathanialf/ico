@@ -212,11 +212,11 @@ extern char D_0063B988[];
 typedef struct MotOriSub {
     /* 0x0 */ int f0;
     /* 0x4 */ int f4;
-    /* 0x8 */ int f8;
+    /* 0x8 */ float f8;
     /* 0xC */ int fC;
 } MotOriSub;
 
-extern MotOriSub D_00623470[];
+extern const MotOriSub blendMotionKind[];
 
 static inline void checkMotionKind(int i, int j)
 {
@@ -240,8 +240,8 @@ int GetNbMotionFrames(int id)
     if (D_0055FE58[id].f178 == 0x140) {
         return *D_004EB758[id];
     }
-    m = D_00623470[D_0055FE58[id].f178].f0;
-    n = D_00623470[D_0055FE58[id].f178].fC;
+    m = blendMotionKind[D_0055FE58[id].f178].f0;
+    n = blendMotionKind[D_0055FE58[id].f178].fC;
     checkMotionKind(m, id);
     if (n != -1) {
         return n;
@@ -256,7 +256,7 @@ float GetMotionPlaySpeedRatio(int id)
     if (D_0055FE58[id].f178 == 0x140) {
         return D_0055FE58[id].f174;
     }
-    m = D_00623470[D_0055FE58[id].f178].f0;
+    m = blendMotionKind[D_0055FE58[id].f178].f0;
     checkMotionKind(m, id);
     return D_0055FE58[m].f174;
 }
@@ -941,7 +941,51 @@ inline void SetParallelMotionTable(void *self, int a1, int a2, int a3, int a4)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", getNodeBlendedFloatingMotion);
+extern char D_00620498[];
+/* kept local: this TU's uses of GetFloatingMotion do not fit the prototype in motionManager2.h */
+extern void GetFloatingMotion(void *dst, float t, float *v, int *mot, int n, int a5, void *skel);
+/* kept local: this TU's uses of CopyMotionWithNodeHrc do not fit the prototype in
+ * motionManager2.h */
+extern void CopyMotionWithNodeHrc(void *dst, void *src, void *skel, int node, int a4);
+
+void getNodeBlendedFloatingMotion(void *dst, float *root, int id, int n, int a4, void *self,
+                                  float t)
+{
+    float v[4];
+    char mot[n * 0x20];
+    int i;
+    int j;
+    int prev = -1;
+    void *skel = *(void **)(MOWORK(self) + 0x8C);
+
+    for (i = 0, j = D_0055FE58[id].f178; blendMotionKind[j].f0 != 0x47B; i++, j++) {
+        int node = blendMotionKind[j].f0;
+
+        checkMotionKind(node, id);
+        if (i == 0) {
+            GetFloatingMotion(dst, t, root, D_004EB758[node], n, a4, skel);
+            CopyMotion(mot, dst, n);
+            prev = node;
+        } else {
+            int fn;
+
+            if (prev != node) {
+                GetFloatingMotion(mot, t * blendMotionKind[j].f8, v, D_004EB758[node], n, a4, skel);
+                prev = node;
+            }
+            fn = GetSkeltonFocusNode(self, blendMotionKind[j].f4);
+            if (fn != -1) {
+                CopyMotionWithNodeHrc(dst, mot, skel, fn, 0);
+            }
+        }
+    }
+    if (i == 0) {
+        debug_StdPrintfDummy(D_00620498, D_0055FE58[id].name);
+        debug_assert(D_006202D0, 1228);
+        __assert(D_006202D0, 1228, D_0063B9B8);
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", getMotionGeometry);
 
 extern char D_00620580[];
@@ -1272,7 +1316,59 @@ void ExecMotionOrient(void *self)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", SetNodeRotationLimitDataTable);
+extern char D_00620668[];
+
+/* The node rotation limit table: three float triples (the lower, the middle and
+ * the upper limit), the skeleton node name id and two unused words.  Read from
+ * the ROM's own records at motionLimitDef, whose rows carry -70/-40/5, 0/-60/0,
+ * 70/-40/-5 and the node id 35. */
+typedef struct {
+    float x, y, z;
+} MotOriLimit3;
+
+typedef struct {
+    /* 0x00 */ MotOriLimit3 lo;
+    /* 0x0C */ MotOriLimit3 mid;
+    /* 0x18 */ MotOriLimit3 hi;
+    /* 0x24 */ int node;
+    /* 0x28 */ int f28;
+    /* 0x2C */ int f2C;
+} MotOriLimit;
+
+extern const MotOriLimit motionLimitDef[];
+
+void SetNodeRotationLimitDataTable(void *self, int a1, int a2)
+{
+    int i;
+
+    for (i = a1; i < a2;) {
+        MotOriLimit tmp;
+        int node = GetSkeltonFocusNode(self, motionLimitDef[i].node);
+
+        if (node < 0) {
+            debug_StdPrintfDummy(D_00620668);
+            debug_assert(D_006202D0, 1838);
+            __assert(D_006202D0, 1838, D_0063B9B8);
+        }
+        *(int *)(*(int *)(MOWORK(self) + 0x810) + node * 4) = (int)&motionLimitDef[i];
+        if (motionLimitDef[i].mid.y < motionLimitDef[i + 2].mid.y) {
+            tmp = motionLimitDef[i];
+            *(MotOriLimit *)&motionLimitDef[i] = motionLimitDef[i + 2];
+            *(MotOriLimit *)&motionLimitDef[i + 2] = tmp;
+        }
+        if (motionLimitDef[i + 1].hi.x < motionLimitDef[i + 1].lo.x) {
+            int j;
+
+            for (j = 0; j < 3; j++) {
+                tmp.lo = motionLimitDef[i + j].hi;
+                tmp.mid = motionLimitDef[i + j].mid;
+                tmp.hi = motionLimitDef[i + j].lo;
+                *(MotOriLimit *)&motionLimitDef[i + j] = tmp;
+            }
+        }
+        i += 3;
+    }
+}
 
 inline void InitMotionOrient(void *self, int a1, int a2, int a3, int a4, int a5)
 {
