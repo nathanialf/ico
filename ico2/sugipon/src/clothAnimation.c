@@ -587,8 +587,17 @@ void GetClothAnimationFix4Points(VECTOR **pa, VECTOR **pv, ClothFixCfg *cfg, voi
     }
 }
 
-extern char D_004E6ED0[];
-extern char D_004E6EF0[];
+/* The TU's .data run (VMA 0x4E6ED0..0x4E7060, 0x190 B) as source, defined in
+   the ROM's order down to the getCloth4D data below.  The two cap planes of
+   the unit cylinder clipCylinderCollision clips against, each followed in the
+   ROM by sixteen zero bytes: whether the zero vector is the second element of
+   the plane's own object, as spelled here, or a separate unreferenced vector
+   the bytes cannot tell (RECONSTRUCTION).  clipPlaneLow is also reached by
+   the getCloth4D stub, so it stays non-static until that stub lands. */
+sceVu0FVECTOR clipPlaneLow[2] = {{0.0f, -1.0f, 0.0f, -1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}};
+
+static sceVu0FVECTOR clipPlaneHigh[2] = {{0.0f, 1.0f, 0.0f, -1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}};
+
 extern float D_0063B758;
 
 /* INTERIM (same shape as GetSkeltonFocusNode in src/motionManager2.c): the
@@ -661,10 +670,10 @@ int clipCylinderCollision(char *p)
     }
     float d[4];
 
-    if (bothOverThePlane(D_004E6ED0)) {
+    if (bothOverThePlane(clipPlaneLow)) {
         return -1;
     }
-    if (bothOverThePlane(D_004E6EF0)) {
+    if (bothOverThePlane(clipPlaneHigh)) {
         return -1;
     }
     sceVu0SubVector(d, p, p + 0x10);
@@ -886,9 +895,15 @@ void DispClothMesh(int *a0, void *a1, void *a2)
 extern void gif_SetZTest(int a0);
 /* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
 extern void gif_SetZWrite(int a0);
-extern char D_004E6F10[];
-extern char D_004E6F20[];
-extern char D_004E6F30[];
+
+/* the wire mesh's three line colours, one word per channel, RGBA: the cross
+   links between rows, the general line, and the seam columns (i == 0 and the
+   middle column) */
+static int wireCrossColor[4] = {0, 32, 128, 128};
+
+static int wireColor[4] = {128, 64, 0, 128};
+
+static int wireSeamColor[4] = {0, 128, 0, 128};
 
 void DispMeshWire(int *rows, int nx, int ny)
 {
@@ -903,24 +918,24 @@ void DispMeshWire(int *rows, int nx, int ny)
     for (i = 0; i < nx; i++) {
         for (j = 1; j < ny; j++) {
             if (i == 0 || i == nx / 2 - 1) {
-                DrawLineG((char *)rows[i] + j * 16, D_004E6F30, (char *)rows[i] + (j * 16 - 16),
-                          D_004E6F30, 0);
+                DrawLineG((char *)rows[i] + j * 16, wireSeamColor, (char *)rows[i] + (j * 16 - 16),
+                          wireSeamColor, 0);
             } else {
-                DrawLineG((char *)rows[i] + j * 16, D_004E6F20, (char *)rows[i] + (j * 16 - 16),
-                          D_004E6F20, 0);
+                DrawLineG((char *)rows[i] + j * 16, wireColor, (char *)rows[i] + (j * 16 - 16),
+                          wireColor, 0);
             }
         }
     }
     for (j = 0; j < ny; j++) {
         if (j == ny - 1) {
             for (i = 1; i < nx; i++) {
-                DrawLineG((char *)rows[i] + j * 16, D_004E6F20, (char *)rows[i - 1] + j * 16,
-                          D_004E6F20, 0);
+                DrawLineG((char *)rows[i] + j * 16, wireColor, (char *)rows[i - 1] + j * 16,
+                          wireColor, 0);
             }
         } else {
             for (i = 1; i < nx; i++) {
-                DrawLineG((char *)rows[i] + j * 16, D_004E6F20, (char *)rows[i - 1] + j * 16,
-                          D_004E6F10, 0);
+                DrawLineG((char *)rows[i] + j * 16, wireColor, (char *)rows[i - 1] + j * 16,
+                          wireCrossColor, 0);
             }
         }
     }
@@ -976,6 +991,30 @@ void DispCloth4DWithAdd(int *a0, void *a1, void *a2)
         DispMeshWire((int *)a0[2], m[0], m[1]);
     }
 }
+
+/* The rest of the TU's .data run, reached only by the three stubs below and
+   so non-static under these names until they land (the stubs' placeholders:
+   windNoise D_004E6F40, clothUpVector D_004E6FF0, clothDownVector D_004E7000,
+   cylinderColor D_004E7010, procMatrix D_004E7020).  windNoise is the ring of
+   eleven random wind vectors getCloth4D_preProcess fills and cycles through
+   (its wrap is `== 11`), explicitly zeroed so it lives in .data; the up and
+   down vectors are what getCloth4D applies the node matrix to; cylinderColor
+   is its debug wire cylinder's colour; procMatrix is the matrix the nested
+   proc applies (what it means is not read off the bytes: the name is ours). */
+sceVu0FVECTOR windNoise[11] = {{0.0f, 0.0f, 0.0f, 0.0f}};
+
+sceVu0FVECTOR clothUpVector = {0.0f, 1.0f, 0.0f, 0.0f};
+
+sceVu0FVECTOR clothDownVector = {0.0f, -1.0f, 0.0f, 0.0f};
+
+int cylinderColor[4] = {32, 64, 128, 128};
+
+sceVu0FMATRIX procMatrix = {
+    {1.0f, 0.0f, 1.0f, 0.0f},
+    {0.0f, 1.0f, 0.0f, 0.0f},
+    {1.0f, 0.0f, 1.0f, 0.0f},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+};
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/clothAnimation", getCloth4D_preProcess);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/clothAnimation", proc);

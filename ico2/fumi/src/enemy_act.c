@@ -24,8 +24,18 @@
 #include "matrixDrive.h"
 #include "StageAnimation.h"
 #include "darkVolume.h"
+#include "sugiCommon.h"
 
-extern int D_0063A7E0;
+/* The brain-mode default target: the first word of this TU's .sdata, value 0,
+   still a placeholder while that run is in the blob.  Read-only to every reader
+   here: _BrainMode_SetDirect's else arm reads it, and the two nested
+   brain-change children read it on their target statement, where cse carries
+   the unchanging read over the mode store (and over _GetRandom) into the
+   inlined else arm; a plain int read there stays behind the mode store, which
+   is the six a2 == 0 sites' order (chain 3 passes 148 to 160).  The definition's
+   2001 form is not pinned: a `const int x = 0` visible ahead of its readers
+   folds to 0 (decl_constant_value) and the ROM loads it. */
+extern const int D_0063A7E0;
 /* INTERIM stand-in: the 2001 source declares _BrainMode_SetDirect `inline` -- the
    disc listing attributes the call sites below (subEnemyBrain_Shoulder, _Pickup,
    _Bodyslam, ...) to its body lines 3055-3060 -- but its out-of-line copy must
@@ -2084,10 +2094,123 @@ void NakaBoss(char *self, void *tgt, float dist)
    functions of two parents, so file scope (the TU's whole .sbss). */
 static char *brainTarget;
 
+extern float D_0063A7F8[];
+extern int isLiftBoyEnable(void);
+
+/* Listing rows 3965-3981: a file-scope helper with no ROM slot of its own,
+   expanded once inside subEnemyBrain_ToBoy.  The name is ours. */
+static inline int isNearestEnemyToBoy(int self, char *boy, float *pos)
+{
+    char *found = 0;
+    float best = D_0063A7F8[0];
+    char *g;
+    float d;
+
+    pos[0] = ((float *)test_CURRENTROOT(boy))[0];
+    pos[1] = ((float *)test_CURRENTROOT(boy))[1];
+    pos[2] = ((float *)test_CURRENTROOT(boy))[2];
+    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
+        d = _DistSqGV(pos, (float *)test_CURRENTROOT(g));
+        if (d < best) {
+            best = d;
+            found = g;
+        }
+    }
+    return (char *)self == found;
+}
+
+/* INTERIM stand-in: EnemyUtil_isOtherStatus is `inline` in the 2001 source --
+   the disc listing attributes three expansions inside subEnemyBrain_ToBoy to
+   its body lines 3990-4003 -- while its out-of-line copy keeps its own ROM slot
+   below.  Same deal as _BrainMode_SetDirect_INTERIM. */
+static inline int EnemyUtil_isOtherStatus_INTERIM(char *self, int mode)
+{
+    char *g;
+    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
+        if (g != self) {
+            char *sub = *(char **)(g + 0x164);
+            if (*(int *)(sub + 0x34) == 0xF) {
+                return (int)g;
+            }
+            if ((int)(*(long long *)(sub + 0x20) >> 10) & 1) {
+                return (int)g;
+            }
+        }
+    }
+    return 0;
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", ChangeBrain_ToAttack);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", subEnemyBrain_ToBoy);
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", ChangeBrain_ToKidnap);
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", subEnemyBrain_ToGirl);
+
+extern char D_005536C8[];
+
+void subEnemyBrain_ToGirl(volatile int a0)
+{
+    char *sub = *(char **)(a0 + 0x164);
+    float p0[4];
+    float p1[4];
+    int i;
+    int found;
+
+    void ChangeBrain_ToKidnap(void)
+    {
+        switch (*(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1E8)) {
+        case 0:
+            /* RECONSTRUCTION: the default read on the statement's line (the
+               listing's 4476, 4480 and 4484), see ChangeBrain_ToAttack. */
+            brainTarget = (char *)D_0063A7E0;
+            brainTarget = D_00639EA8;
+            _BrainMode_SetDirect_INTERIM((char *)a0, 8, (int *)&brainTarget);
+            break;
+        case 2:
+            brainTarget = (char *)D_0063A7E0;
+            brainTarget = D_00639EA8;
+            _BrainMode_SetDirect_INTERIM((char *)a0, 11, (int *)&brainTarget);
+            break;
+        default:
+            brainTarget = (char *)D_0063A7E0;
+            brainTarget = D_00639EA8;
+            _BrainMode_SetDirect_INTERIM((char *)a0, 10, (int *)&brainTarget);
+            break;
+        }
+    }
+
+    char *girl = D_00639EA8;
+
+    *(float *)(sub + 0x34C) = 0.0f;
+    *(float *)(sub + 0x120) = 0.0f;
+    *(float *)(sub + 0x124) = 0.0f;
+    *(float *)(sub + 0x128) = 0.0f;
+    for (i = 0; i < (0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1]; i++) {
+        _DoAwaitGirl((char *)a0);
+        _ACTWait(1);
+    }
+    found = (unsigned char)_ApproachTarget((char *)a0, girl, sub + 0x120, (void *)enemy_dodge,
+                                           130.0f, 0);
+    GetRootProjectionPosOfGObj(p0, girl);
+    GetRootProjectionPosOfGObj(p1, (char *)a0);
+    if (50.0f < (p0[1] - p1[1] < 0.0f ? -(p0[1] - p1[1]) : p0[1] - p1[1])) {
+        found = 0;
+    }
+    if (found == 0) {
+        *(float *)(sub + 0x34C) = 0.0f;
+        *(float *)(sub + 0x120) = 0.0f;
+        *(float *)(sub + 0x124) = 0.0f;
+        *(float *)(sub + 0x128) = 0.0f;
+        _ACTWait(30);
+        eBrainSendMes((void *)a0, 5);
+        ACTSendMailCorrect((char *)a0, 0x100);
+        _ACTWait(0);
+    }
+    while (1) {
+        debug_StdPrintfDummy(D_005536C8);
+        ChangeBrain_ToKidnap();
+        _ACTWait(1);
+    }
+}
 
 int _ApproachTarget_Boss(char *self, void *tgt, void *pos, void *fn, float range,
                          unsigned char flag)

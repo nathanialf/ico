@@ -589,7 +589,7 @@ segments:
       - [0x3E62B0, .data, ico2/sugipon/src/boy]  # the TU's whole .data run as source (completeness pass 7): the cloth mesh then the earlier tables, VMA 0x4E62B0..0x4E6E10
       - [0x3E6E10, data, cod/3E6E10]     # .data blob resume
       - [0x3E6E20, .data, ico2/sugipon/src/cage]  # the TU's whole .data (chain 1 pass 110): cageChainParam[2] (a typed 80-byte record with a sceVu0FVECTOR root) and cageDown as named statics, VMA 0x4E6E20..0x4E6ED0, 0xB0 B
-      - [0x3E6ED0, data, cod/3E6ED0]     # .data blob resume
+      - [0x3E6ED0, .data, ico2/sugipon/src/clothAnimation]  # the TU's whole .data run as source (chain 3 pass 160): clipPlaneLow and clipPlaneHigh, three wire colours, the windNoise ring of eleven, the cloth up and down vectors, cylinderColor and procMatrix, VMA 0x4E6ED0..0x4E7060, 0x190 B, no fill; clothTest's row follows directly
       - [0x3E7060, .data, ico2/sugipon/src/clothTest]  # the TU's whole .data run as source (data pass 3): twenty anchors and the two cloth configurations, VMA 0x4E7060..0x4E7458, 1016 B
       - [0x3E7458, data, cod/3E7458]     # data blob resume
       - [0x3E7460, .data, ico2/sugipon/src/darkVolume]  # the TU's .data as source (chain 1 pass 74): two homogeneous centre points, gameOverCenter and darkVolumeCenter, named statics as .data.<name> sections 16 B each in ROM order, VMA 0x4E7460..0x4E7480, 32 B, bytes equal to the ROM run; effectTool's .data follows with no resume blob

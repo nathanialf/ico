@@ -5,8 +5,11 @@ Usage: .venv/bin/python tools/strict_cmp.py <tu path> <func>   (run tools/quick_
 
 Reads asm/nonmatchings/<tu path>/<func>.s and the newest quick_diff object for the TU, masks
 relocation words (gp-relative loads and stores among them, so gp store ORDER is not checked
-here) and scores two branch words equal regardless of offset. It does not mask R_MIPS_LITERAL
-words, so a function's own pool literals show as diffs. Every landing is also compared against
+here). A branch whose OFFSET differs from the ROM's is a real diff and is printed as BRANCH
+(until 2026-09-27 two branch words were scored equal regardless of offset, which let a
+subEnemyBrain_ToBoy landing with one branch to the wrong label read as strict 30 relocation-only;
+the SHA gate caught the one byte). It does not mask R_MIPS_LITERAL words, so a function's own
+pool literals show as diffs. Every landing is also compared against
 the object built from `git show HEAD:<path>` before it is recorded.
 """
 import re,subprocess,sys
@@ -66,8 +69,8 @@ for i in range(max(len(rom),len(built))):
             sym=re.search(r'%\w+\(([^)]*)\)',rt)
             r=rel.get(i*4)
             if sym and r and r[1]==sym.group(1) and (rw>>16)==(bw>>16): ok=True
-        elif rm.startswith('b'):
-            ok=((rw>>16)==(bw>>16))
+        elif rm.startswith('b') and (rw>>16)==(bw>>16):
+            print("BRANCH %2d rom %08x %-38s built %08x %s  (same branch, different offset)"%(i,rw,rt,bw,bt)); bad+=1; continue
     if not ok:
         print("DIFF %4d rom %08x %-38s built %08x %s"%(i,rw,rt,bw,bt)); bad+=1
 print("insns rom %d built %d | STRICT diffs: %d"%(len(rom),len(built),bad))
