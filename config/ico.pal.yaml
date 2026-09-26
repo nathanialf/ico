@@ -1383,7 +1383,9 @@ segments:
       - { type: .bss, vram: 0x006FAC80, name: ico2/common/src/StageManager }  # the TU's own .bss, 0x70 B, VMA 0x6FAC80..0x6FACF0; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006FACF0, name: ico2/common/src/backStage }  # the TU's own .bss, 0x10 B, VMA 0x6FACF0..0x6FAD00; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006FAD00, name: ico2/common/src/charFileManager }  # the TU's own .bss, 0x9978 B, VMA 0x6FAD00..0x704678; static definitions in ROM run order (completeness pass)
-      - { type: bss, vram: 0x00704678, name: cod/00704678 }  # .bss blob resume
+      - { type: bss, vram: 0x00704678, name: cod/00704678 }  # .bss blob, 8 B of link fill before debug's run
+      - { type: .bss, vram: 0x00704680, name: ico2/common/src/debug }  # the TU's own .bss as fourteen statics, 0xB3A0 B = MAIN.MAP's debug.o .bss, VMA 0x704680..0x70FA20 (chain 1 pass 132)
+      - { type: bss, vram: 0x0070FA20, name: cod/0070FA20 }  # .bss blob, 0x60 B of link fill before debug_exception's 16-aligned run
       - { type: .bss, vram: 0x0070FA80, name: ico2/common/src/debug_exception }  # the TU's whole .bss (VMA 0x70FA80..0x71CA90, 0xD010 = MAIN.MAP debug_exception.o .bss: the display's staging quadword and the 26x256 character screen; chain 3 pass 132), icoMisc's row follows directly
       - { type: .bss, vram: 0x0071CA90, name: ico2/common/src/icoMisc }  # the TU's own .bss, 0x80 B, VMA 0x71CA90..0x71CB10; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x0071CB10, name: ico2/common/src/kanban }  # the TU's own .bss, 0x3C0 B, VMA 0x71CB10..0x71CED0; static definitions in ROM run order (completeness pass)

@@ -450,14 +450,106 @@ int debug_Load(char **dst, char *name, int kind)
     return size;
 }
 
+/* one glyph's image packet, built by debug_MakeFont and sent by
+   debug_PrintCharacter: its size in quadwords and its address */
+typedef struct {
+    int qwc;
+    void *packet;
+} DbgGlyphPacket;
+
+/* the on-screen font window's line table: 26 records of 0x38 bytes, the colour
+   word at +0 and the text at +4 (the strncpy below bounds it at 50) */
+typedef struct {
+    int col;
+    char text[52];
+} DbgFontLine;
+
+/* the profiler ring: 0x400 entries of 28 bytes, filled by debug_SetBar. */
+typedef struct {
+    char name[12];        /* 0x00 */
+    unsigned char col[4]; /* 0x0C */
+    char *file;           /* 0x10 */
+    short count;          /* 0x14 */
+    short pad16;          /* 0x16 */
+    int line;             /* 0x18 */
+} DebugBar;
+
+/* the wall record ClipCollision leaves at +0x80 of the ray: the polygon it hit,
+   the triangle within it and the hit flag, exactly the three words
+   DebugDisp1Collision reads back */
+typedef struct {
+    void *poly;
+    int tri;
+} DbgWallRef;
+
+typedef struct {
+    DbgWallRef ref;
+    int hit;
+} DbgWallHit;
+
+/* the ray debug_CollisionTest drives through ClipCollision: the two end points,
+   the hit point it fills in, and the wall and floor results it reports; the
+   whole 0xC0 work record ClipCollision takes (ClipWork in typedef.h) */
+typedef struct {
+    float src[4];    /* 0x00 */
+    float dst[4];    /* 0x10 */
+    float hit[4];    /* 0x20 */
+    char _30[64];    /* 0x30 */
+    int f70;         /* 0x70 */
+    char _74[12];    /* 0x74 */
+    DbgWallHit wall; /* 0x80 */
+    char _8C[8];     /* 0x8C */
+    int floorHit;    /* 0x94 */
+    char _98[40];    /* 0x98 */
+} DbgRay;
+
+/* .bss, owned by debug.o (MAIN.MAP debug.o .bss 0xB3A0, VMA 0x704680..0x70FA20
+   in retail; it names no symbol, so the names are ours), in the ROM's run
+   order: debug_MakeBarString's string, debug_PrintFontf's line, the load
+   info line, the debug box and ball, the collision ray, debugSceOpen's path,
+   the font images and packets, the font window, the profiler ring and the
+   load info table.  The font packets and the profiler ring are also reached
+   by the debug_MakeFont, debug_PrintCharacter and debug_DrawBar stubs. */
+static char barString[64];
+
+static char fontfLine[512];
+
+static char loadInfoLine[32];
+
+/* the debug box's centre and half extents */
+static float boxCentre[4];
+
+static float boxWidth[4];
+
+/* the debug ball's centre */
+static float ballCentre[4];
+
+/* the ray the collision test drives */
+static DbgRay collisionRay;
+
+static char sceOpenPath[256];
+
+/* the 3x3-dilated outline, 16 shorts per glyph */
+static unsigned short fontOutline[256 * 16];
+
+/* the glyph re-expanded to 8 shorts */
+static unsigned short fontGlyph[256 * 8];
+
+static DbgGlyphPacket fontPacket[256];
+
+static DbgFontLine fontLines[26];
+
+static DebugBar debugBars[1024];
+
+/* two pages of 26 {count, mark} pairs */
+static int loadInfoSeg[2][26][2];
+
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_MakeFont);
 
 /* D_00619BB0 = the 8x8 1bpp font bitmap (8 bytes per glyph);
-   D_00706AD0 = the glyph re-expanded to 8 shorts (shifted left one column);
-   D_00704AD0 = the 3x3-dilated outline, 16 shorts per glyph. */
+   fontGlyph = the glyph re-expanded to 8 shorts (shifted left one column);
+   fontOutline = the 3x3-dilated outline, 16 shorts per glyph. */
 extern unsigned char D_00619BB0[];
-extern unsigned short D_00704AD0[];
-extern unsigned short D_00706AD0[];
 
 void debug_makeBackImage(void)
 {
@@ -468,8 +560,8 @@ void debug_makeBackImage(void)
     unsigned short *b;
     for (i = 0; i < 256; i++) {
         src = &D_00619BB0[i * 8];
-        a = &D_00704AD0[i * 16];
-        b = &D_00706AD0[i * 8];
+        a = &fontOutline[i * 16];
+        b = &fontGlyph[i * 8];
 
         for (j = 0; j < 16; j++) {
             a[j] = 0;
@@ -539,14 +631,6 @@ void debug_PrintFont(int a0, int a1, int a2, char *a3)
                          ((unsigned)a2 >> 8) & 0xFF, 0x70);
 }
 
-/* the on-screen font window's line table: 27 records of 0x38 bytes, the colour
-   word at +0 and the text at +4 (the strncpy below bounds it at 50) */
-typedef struct {
-    int col;
-    char text[52];
-} DbgFontLine;
-
-extern DbgFontLine D_007082D0[];
 extern int D_0063AEB4;
 
 void debug_FlushFontWindow(void)
@@ -575,8 +659,8 @@ void debug_FlushFontWindow(void)
         gif_SetZTest(1);
         gif_EndPacket();
         for (i = 0; i <= D_0063AE64; i++) {
-            debug_PrintFont(r.x, r.y + i * 8, *(int *)((char *)D_007082D0 + i * 0x38),
-                            (char *)D_007082D0 + i * 0x38 + 4);
+            debug_PrintFont(r.x, r.y + i * 8, *(int *)((char *)fontLines + i * 0x38),
+                            (char *)fontLines + i * 0x38 + 4);
         }
     }
 }
@@ -735,7 +819,6 @@ void debug_brainBar(void)
     gif_EndPacket();
 }
 
-extern char D_00704680[];
 extern char D_0063AE90[];
 
 int debug_MakeBarString(char *p, int a, int b, FR fr, long long x, int line)
@@ -748,17 +831,17 @@ int debug_MakeBarString(char *p, int a, int b, FR fr, long long x, int line)
     if (len == 0) {
         return 0;
     }
-    D_00704680[0] = 0;
+    barString[0] = 0;
     for (i = 0; i < len; i++, p++) {
         if (*p == '$') {
             switch (p[1]) {
             case 'P':
                 sprintf(buf, D_0063AE90, a);
-                strcat(D_00704680, buf);
+                strcat(barString, buf);
                 break;
             case 'T':
                 sprintf(buf, D_0063AE90, b);
-                strcat(D_00704680, buf);
+                strcat(barString, buf);
                 break;
             }
             p++;
@@ -766,29 +849,17 @@ int debug_MakeBarString(char *p, int a, int b, FR fr, long long x, int line)
         } else {
             buf[0] = *p;
             buf[1] = 0;
-            strcat(D_00704680, buf);
+            strcat(barString, buf);
         }
     }
-    if (strlen(D_00704680) != 0 && (D_0063B13C & 1)) {
+    if (strlen(barString) != 0 && (D_0063B13C & 1)) {
         debug_Printf((int)(x + 0x148), fr.y + line * 7 + (fr.h + 0x71), 0xFFFFFF00u,
-                     (int)D_00704680);
+                     (int)barString);
     }
-    return strlen(D_00704680);
+    return strlen(barString);
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_DrawBar);
-
-/* the profiler ring: 0x400 entries of 28 bytes, filled by debug_SetBar. */
-typedef struct {
-    char name[12];        /* 0x00 */
-    unsigned char col[4]; /* 0x0C */
-    char *file;           /* 0x10 */
-    short count;          /* 0x14 */
-    short pad16;          /* 0x16 */
-    int line;             /* 0x18 */
-} DebugBar;
-
-extern DebugBar D_00708880[];
 
 /* .sbss, owned by debug.o (MAIN.MAP debug.o .sbss 0x10; it names no symbol,
    so the names are ours), in the ROM's run order: the rows debug_DispBox,
@@ -817,7 +888,7 @@ void debug_DispBar(void)
     int vb;
     int n;
     inv = 1.0f / (270000.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
-    vb = (float)(D_00708880[debugBarCount - 1].count * 100) * inv;
+    vb = (float)(debugBars[debugBarCount - 1].count * 100) * inv;
     va = (float)(D_0063AE68 * 100) * inv;
 
     if (D_0063B140 != 0 || (D_0063B13C & 1) != 0)
@@ -836,7 +907,59 @@ void debug_DispBar(void)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_ResizeSnapShot);
+extern int ScreenWidth;
+
+/* Halves a 32-bit snapshot with a 2x2 box filter.  The listing (debug.c
+   2937-2972) puts the clamp and the destination helper on rows of their own
+   inside the function, so they are nested functions, which is also what homes
+   dst and src in the frame; it puts the four accumulator zeros on one row
+   and the row offset, the pixel pointer and the j loop on another, which the
+   fenced one-liners keep. */
+void debug_ResizeSnapShot(int dst, int src, int w, int h)
+{
+    int r, g, b, a;
+    int x, y, i, j;
+    int row;
+    unsigned char *p;
+
+    inline unsigned int *spix(int px)
+    {
+        return (unsigned int *)(px * 4 + src);
+    }
+    inline int clip(int v)
+    {
+        return v < 256 ? (v > -1 ? v : 0) : 255;
+    }
+    inline unsigned int *dpix(int px, int py)
+    {
+        return (unsigned int *)((py * ScreenWidth / 2 + px) * 4 + dst);
+    }
+
+    for (y = 0; y < h; y += 2) {
+        for (x = 0; x < w; x += 2) {
+            /* clang-format off */
+            r = 0; g = 0; b = 0; a = 0;
+            /* clang-format on */
+            for (i = 0; i < 2; i++) {
+                /* clang-format off */
+                for (j = 0, row = (y + i) * ScreenWidth, p = (unsigned char *)(spix(x) + row); j < 2; j++) {
+                    /* clang-format on */
+                    r = r + p[0] * 0.25f;
+                    g = g + p[1] * 0.25f;
+                    b = b + p[2] * 0.25f;
+                    a = a + p[3] * 0.25f;
+                    p += 4;
+                }
+            }
+            r = clip(r);
+            g = clip(g);
+            b = clip(b);
+            a = clip(a);
+            *dpix(x / 2, y / 2) = (a << 24) | (b << 16) | (g << 8) | r;
+        }
+    }
+    FlushCache(0);
+}
 
 /* 24-bit BMP file header, offset by two pad bytes so the 32-bit fields land
    4-aligned on the stack; the file image starts at &hdr.bfType. */
@@ -972,26 +1095,26 @@ void debug_PrintFontWindow(int col, char *fmt, ...)
     }
     if (D_0063AE64 == D_0063AEB4) {
         for (i = 0; i < D_0063AEB4 - 1; i++) {
-            D_007082D0[i] = D_007082D0[i + 1];
+            fontLines[i] = fontLines[i + 1];
         }
         D_0063AE64--;
-        D_007082D0[D_0063AEB4 - 1].text[0] = 0;
+        fontLines[D_0063AEB4 - 1].text[0] = 0;
     }
     if (p[strlen(p) - 1] == '\n') {
         p[strlen(p) - 1] = 0;
         nl = 1;
     }
-    strncpy(D_007082D0[D_0063AE64].text, p, 50);
-    D_007082D0[D_0063AE64].col = col;
+    strncpy(fontLines[D_0063AE64].text, p, 50);
+    fontLines[D_0063AE64].col = col;
     if (nl) {
         D_0063AE64++;
     }
     if (D_0063AE64 == D_0063AEB4) {
         for (i = 0; i < D_0063AEB4 - 1; i++) {
-            D_007082D0[i] = D_007082D0[i + 1];
+            fontLines[i] = fontLines[i + 1];
         }
         D_0063AE64--;
-        D_007082D0[D_0063AEB4 - 1].text[0] = 0;
+        fontLines[D_0063AEB4 - 1].text[0] = 0;
     }
 }
 
@@ -1004,7 +1127,6 @@ void debug_StdPrintfDummy(char *fmt, ...)
     (void)fmt;
 }
 
-extern char D_007046C0[];
 extern char D_0063AF58[];
 extern char D_0063AF60[];
 extern char D_0061BB28[];
@@ -1017,7 +1139,7 @@ void debug_PrintFontf(int x, int y, char *p, ...)
     char *f;
     char c;
     float v;
-    d = D_007046C0;
+    d = fontfLine;
     va = (char *)__builtin_next_arg(p) - 0x28;
     if (*p == 0) {
         *d = 0;
@@ -1028,9 +1150,9 @@ void debug_PrintFontf(int x, int y, char *p, ...)
         if (c == '\n') {
             *d = 0;
             if (D_0063B13C & 1) {
-                debug_Printf(x, y, 0xFFFFFF00u, (int)D_007046C0);
+                debug_Printf(x, y, 0xFFFFFF00u, (int)fontfLine);
             }
-            d = D_007046C0;
+            d = fontfLine;
             y += 8;
         } else if (c != '%') {
             *d = *p;
@@ -1906,28 +2028,26 @@ void debug_SESlotDisp(void)
     }
 }
 
-extern int D_0070F880[];
 extern char D_0063B068[];
 extern char D_0063B070[];
 extern char D_0055F828[];
 extern char D_0061C1D0[];
-extern char D_007048C0[];
 
 char *debugCdvdLoadInfoSegDispFunc(int idx, int page)
 {
     char buf[0x10];
     int d;
-    d = *(int *)((char *)D_0070F880 + (page * 0xD0 + idx * 8)) -
-        *(int *)((char *)D_0070F880 + (page * 0xD0 + idx * 8) + 4);
+    d = *(int *)((char *)loadInfoSeg + (page * 0xD0 + idx * 8)) -
+        *(int *)((char *)loadInfoSeg + (page * 0xD0 + idx * 8) + 4);
     if (d < 0) {
         sprintf(buf, D_0063B068, -d);
     } else {
         sprintf(buf, D_0063B070, d);
     }
-    sprintf(D_007048C0, D_0061C1D0, D_0055F828 + idx * 0x24,
-            *(int *)((char *)D_0070F880 + (page * 0xD0 + idx * 8)),
-            *(int *)((char *)D_0070F880 + (page * 0xD0 + idx * 8) + 4), buf);
-    return D_007048C0;
+    sprintf(loadInfoLine, D_0061C1D0, D_0055F828 + idx * 0x24,
+            *(int *)((char *)loadInfoSeg + (page * 0xD0 + idx * 8)),
+            *(int *)((char *)loadInfoSeg + (page * 0xD0 + idx * 8) + 4), buf);
+    return loadInfoLine;
 }
 
 /* src/debug.c:5364-5376 in the listing: the sibling of debug_ListPadControlGobj
@@ -1983,8 +2103,6 @@ typedef struct {
     int val;
 } DbgBoxVal;
 
-extern float D_007048E0[]; /* the box centre */
-extern float D_007048F0[]; /* its half extents */
 extern void DebugDispBox(float *centre, float *width);
 /* The literals these two functions read stay blob-owned by address until the
    stubs between them land and the TU's plain .rodata and .sdata runs close
@@ -2010,15 +2128,15 @@ int debug_DispBox(int on)
 
     if (on) {
         if (D_00639EA4 != 0) {
-            GetRootPosition(D_007048E0, D_00639EA4);
+            GetRootPosition(boxCentre, D_00639EA4);
         } else {
-            D_007048E0[0] = 0.0f;
-            D_007048E0[1] = 0.0f;
-            D_007048E0[2] = 0.0f;
+            boxCentre[0] = 0.0f;
+            boxCentre[1] = 0.0f;
+            boxCentre[2] = 0.0f;
         }
-        D_007048F0[0] = 100.0f;
-        D_007048F0[1] = 100.0f;
-        D_007048F0[2] = 100.0f;
+        boxWidth[0] = 100.0f;
+        boxWidth[1] = 100.0f;
+        boxWidth[2] = 100.0f;
         dispBoxRow = 0;
     }
     if (D_0028F8F0[0].trg & 0x1000) {
@@ -2035,29 +2153,29 @@ int debug_DispBox(int on)
     }
     switch (dispBoxRow) {
     case 0:
-        D_007048E0[0] += (float)step;
+        boxCentre[0] += (float)step;
         break;
     case 1:
-        D_007048E0[1] += (float)step;
+        boxCentre[1] += (float)step;
         break;
     case 2:
-        D_007048E0[2] += (float)step;
+        boxCentre[2] += (float)step;
         break;
     case 3:
-        D_007048F0[0] += (float)step;
+        boxWidth[0] += (float)step;
         break;
     case 4:
-        D_007048F0[1] += (float)step;
+        boxWidth[1] += (float)step;
         break;
     case 5:
-        D_007048F0[2] += (float)step;
+        boxWidth[2] += (float)step;
         break;
     }
     {
         DbgBoxVal list[6] = {
-            {D_0063B088, (int)D_007048E0[0]}, {D_0063B090, (int)D_007048E0[1]},
-            {D_0063B098, (int)D_007048E0[2]}, {D_0063B0A0, (int)D_007048F0[0]},
-            {D_0063B0A8, (int)D_007048F0[1]}, {D_0063B0B0, (int)D_007048F0[2]},
+            {D_0063B088, (int)boxCentre[0]}, {D_0063B090, (int)boxCentre[1]},
+            {D_0063B098, (int)boxCentre[2]}, {D_0063B0A0, (int)boxWidth[0]},
+            {D_0063B0A8, (int)boxWidth[1]},  {D_0063B0B0, (int)boxWidth[2]},
         };
 
         for (i = 0; i < 6; i++) {
@@ -2071,14 +2189,14 @@ int debug_DispBox(int on)
         }
     }
     CameraSetMode(1);
-    DebugDispBox(D_007048E0, D_007048F0);
+    DebugDispBox(boxCentre, boxWidth);
     if (D_0063B13C & 1) {
-        debug_Printf(10, 150, 0xFFFFFF00u, (int)D_0061C260, (int)D_0063B0B8, (int)D_007048E0[0],
-                     (int)D_007048E0[1], (int)D_007048E0[2]);
+        debug_Printf(10, 150, 0xFFFFFF00u, (int)D_0061C260, (int)D_0063B0B8, (int)boxCentre[0],
+                     (int)boxCentre[1], (int)boxCentre[2]);
     }
     if (D_0063B13C & 1) {
-        debug_Printf(10, 160, 0xFFFFFF00u, (int)D_0061C260, (int)D_0063B0C0, (int)D_007048F0[0],
-                     (int)D_007048F0[1], (int)D_007048F0[2]);
+        debug_Printf(10, 160, 0xFFFFFF00u, (int)D_0061C260, (int)D_0063B0C0, (int)boxWidth[0],
+                     (int)boxWidth[1], (int)boxWidth[2]);
     }
     return (D_0028F8F0[0].hold & 0x40) ? -1 : 0;
 }
@@ -2096,9 +2214,8 @@ typedef struct {
 /* the four-row initialiser template (centerX, centerY, centerZ, radius), blob-owned
    by address until the TU's plain .rodata run closes up */
 extern const DbgBallList D_0061C298;
-extern Col4 D_0061C2C0;    /* { 0, 0x10, 0x20, 0x80 } : wire sphere colour */
-extern float D_00704900[]; /* the ball's centre */
-extern float D_0063B0C8;   /* its radius */
+extern Col4 D_0061C2C0;  /* { 0, 0x10, 0x20, 0x80 } : wire sphere colour */
+extern float D_0063B0C8; /* the ball's radius */
 extern void GetRootPosition(void *a0, char *outer);
 extern void *MatrixDrive_GetMatrix(void);
 extern void MatrixDrive_PushMatrix(void);
@@ -2122,11 +2239,11 @@ int debug_DispBall(int on)
     hit = 0;
     if (on) {
         if (D_00639EA4 != 0) {
-            GetRootPosition(D_00704900, D_00639EA4);
+            GetRootPosition(ballCentre, D_00639EA4);
         } else {
-            D_00704900[0] = 0.0f;
-            D_00704900[1] = 0.0f;
-            D_00704900[2] = 0.0f;
+            ballCentre[0] = 0.0f;
+            ballCentre[1] = 0.0f;
+            ballCentre[2] = 0.0f;
         }
         D_0063B0C8 = 100.0f;
         dispBallRow = 0;
@@ -2144,13 +2261,13 @@ int debug_DispBall(int on)
     }
     switch (dispBallRow) {
     case 0:
-        D_00704900[0] += (float)step;
+        ballCentre[0] += (float)step;
         break;
     case 1:
-        D_00704900[1] += (float)step;
+        ballCentre[1] += (float)step;
         break;
     case 2:
-        D_00704900[2] += (float)step;
+        ballCentre[2] += (float)step;
         break;
     case 3:
         D_0063B0C8 += (float)step;
@@ -2172,7 +2289,7 @@ int debug_DispBall(int on)
     CameraSetMode(1);
     if (D_00639EA4 != 0) {
         GetRootPosition(pos, D_00639EA4);
-        hit = scpTriggerPosBall(pos, D_00704900, D_0063B0C8);
+        hit = scpTriggerPosBall(pos, ballCentre, D_0063B0C8);
     }
     MatrixDrive_PushMatrix();
     col = D_0061C2C0;
@@ -2181,7 +2298,7 @@ int debug_DispBall(int on)
     }
     gif_StartPacketPri(11);
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-    MatrixDrive_TransMatrixV(D_00704900);
+    MatrixDrive_TransMatrixV(ballCentre);
     prim_DispWireSphere(D_0063B0C8, &col, 16, 8);
     gif_EndPacket();
     MatrixDrive_PopMatrix();
@@ -2201,35 +2318,7 @@ typedef struct {
     char unk18[8]; /* 0x18 */
 } DbgPadStick;
 
-/* the wall record ClipCollision leaves at +0x80 of the ray: the polygon it hit,
-   the triangle within it and the hit flag, exactly the three words
-   DebugDisp1Collision reads back */
-typedef struct {
-    void *poly;
-    int tri;
-} DbgWallRef;
-
-typedef struct {
-    DbgWallRef ref;
-    int hit;
-} DbgWallHit;
-
-/* the ray debug_CollisionTest drives through ClipCollision: the two end points,
-   the hit point it fills in, and the wall and floor results it reports */
-typedef struct {
-    float src[4];    /* 0x00 */
-    float dst[4];    /* 0x10 */
-    float hit[4];    /* 0x20 */
-    char _30[64];    /* 0x30 */
-    int f70;         /* 0x70 */
-    char _74[12];    /* 0x74 */
-    DbgWallHit wall; /* 0x80 */
-    char _8C[8];     /* 0x8C */
-    int floorHit;    /* 0x94 */
-} DbgRay;
-
 extern char D_0061C300[]; /* "Collision Test" */
-extern DbgRay D_00704910; /* the ray the test drives */
 extern char D_0061C310[]; /* "HIT: %p,%d" */
 extern char D_0061C320[]; /* "ATTR: %x" */
 extern char D_0061C330[]; /* "SRC: %f, %f, %f" */
@@ -2381,10 +2470,10 @@ int debug_CollisionTest(int reset)
     r = debug_SelectCsvWindow(D_0061C300, 10, 50, 11, &debugSelectName[2], 4, 0, 1, 3,
                               &collisionTestRow);
     if (reset != 0) {
-        GetRootPosition(D_00704910.src, D_00639EA4);
-        CopyVector(D_00704910.dst, D_00704910.src);
-        D_00704910.f70 = 0;
-        D_00704910.dst[2] += 100.0f;
+        GetRootPosition(collisionRay.src, D_00639EA4);
+        CopyVector(collisionRay.dst, collisionRay.src);
+        collisionRay.f70 = 0;
+        collisionRay.dst[2] += 100.0f;
     }
     memset(&mv, 0, sizeof(mv));
     iosPadConnect(padCtx, 0, 0, iosPadConfDefault);
@@ -2404,52 +2493,52 @@ int debug_CollisionTest(int reset)
     }
     switch (collisionTestRow) {
     case 1:
-        _AddVector(D_00704910.src, D_00704910.src, &mv);
+        _AddVector(collisionRay.src, collisionRay.src, &mv);
         break;
     case 2:
-        _AddVector(D_00704910.dst, D_00704910.dst, &mv);
+        _AddVector(collisionRay.dst, collisionRay.dst, &mv);
         break;
     case 0:
     default:
-        _AddVector(D_00704910.src, D_00704910.src, &mv);
-        _AddVector(D_00704910.dst, D_00704910.dst, &mv);
+        _AddVector(collisionRay.src, collisionRay.src, &mv);
+        _AddVector(collisionRay.dst, collisionRay.dst, &mv);
         break;
     }
-    ClipCollision((int *)&D_00704910);
-    if (D_00704910.wall.hit != 0) {
-        wall.ref = D_00704910.wall.ref;
-        wall.hit = D_00704910.wall.hit;
+    ClipCollision((int *)&collisionRay);
+    if (collisionRay.wall.hit != 0) {
+        wall.ref = collisionRay.wall.ref;
+        wall.hit = collisionRay.wall.hit;
         *(DbgWallHit *)&mv = wall;
         gif_StartPacketPri(11);
         gif_SetZWrite(0);
         gif_SetZTest(0);
         gif_SetAlpha(1, 0, 0x80);
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-        MatrixDrive_TransMatrixV(D_00704910.hit);
+        MatrixDrive_TransMatrixV(collisionRay.hit);
         prim_DispWireSphere(5.0f, (void *)&collisionWallCol, 8, 4);
         gif_EndPacket();
         DebugDisp1Collision(&mv);
-        debug_PrintfDummy(80, 180, 0xFFFFFF00u, (int)D_0061C310, (int)D_00704910.wall.ref.poly,
-                          D_00704910.wall.ref.tri);
+        debug_PrintfDummy(80, 180, 0xFFFFFF00u, (int)D_0061C310, (int)collisionRay.wall.ref.poly,
+                          collisionRay.wall.ref.tri);
         debug_PrintfDummy(80, 190, 0xFFFFFF00u, (int)D_0061C320,
-                          GetWallAttribute((int)&D_00704910));
+                          GetWallAttribute((int)&collisionRay));
     }
-    if (D_00704910.floorHit != 0) {
+    if (collisionRay.floorHit != 0) {
         gif_StartPacketPri(11);
         gif_SetZWrite(0);
         gif_SetZTest(0);
         gif_SetAlpha(1, 0, 0x80);
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-        MatrixDrive_TransMatrixV(D_00704910.hit);
+        MatrixDrive_TransMatrixV(collisionRay.hit);
         prim_DispWireSphere(5.0f, (void *)&collisionFloorCol, 8, 4);
         gif_EndPacket();
     }
-    debug_PrintfDummy(80, 160, 0xFFFFFF00u, (int)D_0061C330, D_00704910.src[0], D_00704910.src[1],
-                      D_00704910.src[2]);
-    debug_PrintfDummy(80, 170, 0xFFFFFF00u, (int)D_0061C340, D_00704910.dst[0], D_00704910.dst[1],
-                      D_00704910.dst[2]);
+    debug_PrintfDummy(80, 160, 0xFFFFFF00u, (int)D_0061C330, collisionRay.src[0],
+                      collisionRay.src[1], collisionRay.src[2]);
+    debug_PrintfDummy(80, 170, 0xFFFFFF00u, (int)D_0061C340, collisionRay.dst[0],
+                      collisionRay.dst[1], collisionRay.dst[2]);
     CameraSetMode(1);
-    DrawCollisionRay((char *)&D_00704910);
+    DrawCollisionRay((char *)&collisionRay);
     DrawCollision(0);
     return r;
 }
@@ -2591,7 +2680,7 @@ float debug_GetTimerCount(void)
 
 void debug_ClearFontWindow(void)
 {
-    char *p = (char *)D_007082D0;
+    char *p = (char *)fontLines;
     int i;
     p += 0x5B4;
     for (i = 0x1A; i >= 0; i--) {
@@ -2616,7 +2705,7 @@ extern char D_0063AF30[];
 
 void debug_SetBar(char *name, unsigned int col, char *file, int line)
 {
-    DebugBar *p = &D_00708880[debugBarCount];
+    DebugBar *p = &debugBars[debugBarCount];
     if (D_0063B1D4 == 0 && debugBarCount != 0x400) {
         sprintf(p->name, D_0063AF30, name);
         p->count = *(volatile int *)0x10000000;
@@ -2634,7 +2723,7 @@ void debug_SetBar(char *name, unsigned int col, char *file, int line)
    profiler flag is set). */
 void debug_SetBar2(char *name, unsigned int col, char *file, int line)
 {
-    DebugBar *p = &D_00708880[debugBarCount];
+    DebugBar *p = &debugBars[debugBarCount];
     if (D_0063B1D4 != 0 && debugBarCount != 0x400) {
         sprintf(p->name, D_0063AF30, name);
         p->count = *(volatile int *)0x10000000;
@@ -2729,13 +2818,12 @@ int debug_TryToGetStartStage(void)
 extern int D_0061C580[];
 extern int D_0063B100;
 extern int D_0063B108[];
-extern int D_007049D0[];
 extern int sceOpen(void *a0, int a1);
 
 int debugSceOpen(int a0, int a1)
 {
-    sprintf(D_007049D0, D_0063B108, D_0061C580, a0);
-    return D_0063B100 = sceOpen(D_007049D0, a1);
+    sprintf(sceOpenPath, D_0063B108, D_0061C580, a0);
+    return D_0063B100 = sceOpen(sceOpenPath, a1);
 }
 
 extern int sceClose();
@@ -2768,7 +2856,7 @@ void debugCdvdLoadInfoSegInit(int idx)
     char *new_var2;
     int new_var;
     int i;
-    new_var2 = (char *)D_0070F880;
+    new_var2 = (char *)loadInfoSeg;
     p = (int *)((new_var2 + (idx * 0xD0)) + 0xC8);
     if (1) {
         for (i = 0x19; i >= 0; i--) {
@@ -2780,12 +2868,12 @@ void debugCdvdLoadInfoSegInit(int idx)
 
 void debugCdvdLoadInfoSegAdd(int page, int idx, int delta)
 {
-    *(int *)((char *)D_0070F880 + (page * 0xD0 + idx * 8)) += delta;
+    *(int *)((char *)loadInfoSeg + (page * 0xD0 + idx * 8)) += delta;
 }
 
 void debugCdvdLoadInfoSegCls(int page, int idx)
 {
-    *(int *)((char *)D_0070F880 + (page * 0xD0 + idx * 8)) = 0;
+    *(int *)((char *)loadInfoSeg + (page * 0xD0 + idx * 8)) = 0;
 }
 
 extern int D_0028F4F0[];
@@ -3112,7 +3200,7 @@ int debugCdvdLoadInfoSegDisp(void)
                                  (int (*)(int, int))debugCdvdLoadInfoSegDispFunc, D_0063B078);
     if (D_0028F8F4[0] & 0x10) {
         int i;
-        int *p = (int *)((char *)D_0070F880 + D_0063B078 * 0xD0);
+        int *p = (int *)((char *)loadInfoSeg + D_0063B078 * 0xD0);
         for (i = 0x19; i >= 0; i--) {
             p[1] = p[0];
             p += 2;
