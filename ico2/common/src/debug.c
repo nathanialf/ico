@@ -1545,8 +1545,76 @@ typedef struct {
 } DbgReverbPad;
 
 extern DbgReverbPad D_0028F8F0[];
+extern int D_0063AF64;           /* the selected option */
+extern unsigned char D_0063AF68; /* the blink counter */
+extern unsigned int D_0061BBC0[];
+extern char D_0061BBC8[];
+extern char D_0061BBD8[];
+extern char D_0061BBF8[];
+extern char D_0061BC08[];
+extern char D_0061BC18[];
+extern char D_0061BC28[];
+extern char *debugSelectName[];
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_Mode);
+/* clang-format off */
+int debug_Mode(void)
+{
+    int i, end, j;
+    int ret = 0;
+
+    D_0063AF68++;
+
+    debug_PrintfDummy(10, 50, 0xFFFFFF00u, (int)D_0061BBC8);
+    debug_PrintfDummy(138, 50, 0x00FFFF00u, (int)D_0061BBD8);
+
+    i = (D_0063AF64 + 70) % 76;
+    end = (D_0063AF64 + 83) % 76;
+    j = 1;
+    while (i != end) {
+        if (D_0061A4D0[i].strs != 0) {
+            debug_PrintfDummy(18, j * 8 + 50, D_0063AF64 == i ? (((D_0063AF68 >> 3) & 1) ? D_0061BBC0[0] : D_0061A4D0[i].col) : D_0061A4D0[i].col, (int)D_0061BBF8, D_0063AF64 == i ? 62 : 32, (int)D_0061A4D0[i].name, (int)D_0061A4D0[i].strs[*D_0061A4D0[i].val - D_0061A4D0[i].min], *D_0061A4D0[i].val);
+        } else {
+            debug_PrintfDummy(18, j * 8 + 50, D_0063AF64 == i ? (((D_0063AF68 >> 3) & 1) ? D_0061BBC0[0] : D_0061A4D0[i].col) : D_0061A4D0[i].col, (int)D_0061BC08, D_0063AF64 == i ? 62 : 32, (int)D_0061A4D0[i].name, *D_0061A4D0[i].val);
+        }
+        if (++i == 76) i = 0;
+        j++;
+    }
+
+    if (D_0028F8F0[0].trg & 0x4000) {
+        if (++D_0063AF64 >= 76) D_0063AF64 = 0;
+    }
+    if (D_0028F8F0[0].trg & 0x1000) {
+        if (--D_0063AF64 < 0) D_0063AF64 = 75;
+    }
+    if (D_0028F8F0[0].trg & 0x2000) {
+        if (++*D_0061A4D0[D_0063AF64].val > D_0061A4D0[D_0063AF64].max)
+            *D_0061A4D0[D_0063AF64].val = D_0061A4D0[D_0063AF64].min;
+        if (D_0061A4D0[D_0063AF64].func != 0)
+            D_0061A4D0[D_0063AF64].func(*D_0061A4D0[D_0063AF64].val);
+    }
+    if (D_0028F8F0[0].trg & 0x8000) {
+        if (--*D_0061A4D0[D_0063AF64].val < D_0061A4D0[D_0063AF64].min)
+            *D_0061A4D0[D_0063AF64].val = D_0061A4D0[D_0063AF64].max;
+        if (D_0061A4D0[D_0063AF64].func != 0)
+            D_0061A4D0[D_0063AF64].func(*D_0061A4D0[D_0063AF64].val);
+    }
+    if (D_0028F8F0[0].hold & 0x20) {
+        for (i = 0; i < 76; i++) {
+            if (D_0061A4D0[i].min == 0 && D_0061A4D0[i].max == 1)
+                debug_StdPrintfDummy(D_0061BC18, D_0061A4D0[i].name, debugSelectName[*D_0061A4D0[i].val]);
+            else
+                debug_StdPrintfDummy(D_0061BC28, D_0061A4D0[i].name, *D_0061A4D0[i].val);
+        }
+        ret = 1;
+    }
+    if (D_0028F8F0[0].hold & 0x40) ret = -1;
+    if (D_0028F8F0[0].hold & 0x10) debug_SaveDebugOptionFile();
+    if (ret != 0) D_0063AF64 = 0;
+
+    return ret;
+}
+
+/* clang-format on */
 
 extern char D_0061BC38[];
 extern char D_0063AF70[];
