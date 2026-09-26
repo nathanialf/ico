@@ -11,6 +11,37 @@ typedef struct {
     char b[0x20];
 } ShiftBlk;
 
+/* .sbss, owned by motionManager.o (0x38, the run and MAIN.MAP's own size; MAIN.MAP
+   names no symbol in it, so all fourteen words are file statics), in the ROM's run
+   order. The still-asm functions reach them by these symbol names. */
+static float D_0063C474;
+
+static char *D_0063C478;
+
+static char *D_0063C47C;
+
+static char *D_0063C480;
+
+static char *D_0063C484;
+
+static char *D_0063C488;
+
+static int D_0063C48C;
+
+static char *D_0063C490;
+
+static char *D_0063C494;
+
+static int D_0063C498;
+
+static int D_0063C49C;
+
+static char *D_0063C4A0;
+
+static char *D_0063C4A4;
+
+static char *D_0063C4A8;
+
 extern char D_004EC950[];
 extern char D_004EC960[];
 extern char D_004EC970[];
@@ -21,7 +52,6 @@ extern char D_004EC9B0[];
 extern char D_004EC9C0[];
 extern char D_004EC9D0[];
 extern char *D_0063B938;
-extern char *D_0063C480;
 extern int D_0063B93C;
 /* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
 extern int MatrixDrive_GetMatrix(void);
@@ -40,7 +70,6 @@ extern char ZUnitVector[];
 extern char D_004EC9E0[];
 extern char D_004EC9F0[];
 extern char D_004ECA00[];
-extern char *D_0063C490;
 /* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_PushMatrix(void);
 /* kept local: this TU's uses of SetQuaternionByAxisRotateV do not fit the prototype in quaternion.h */
@@ -51,7 +80,6 @@ extern void _ApplyMatrix(void *a0, int a1, char *a2);
  * D_0063C490 and the ROM does not reload it, which only holds if the object
  * is unchanging; every other member of the TU re-verifies with the qualifier. */
 extern const float D_0063B900;
-extern char *D_0063C4A4;
 extern char D_007201A0[];
 extern char D_007201E0[];
 /* kept local: this TU's uses of GetMatrixFromQuaternion do not fit the prototype in quaternion.h */
@@ -70,7 +98,6 @@ extern void ClipWall(void *a0);
 extern void CopyVector(void *dst, void *src);
 extern char D_004ECA10[];
 extern char D_004ECA20[];
-extern char *D_0063C494;
 /* kept local: this TU's uses of GetPointDistance do not fit the prototype in matrixDrive.h */
 extern float GetPointDistance(void *a0, void *a1);
 /* kept local: this TU's uses of MatrixDrive_TransMatrixV do not fit the prototype in matrixDrive.h */
@@ -93,7 +120,6 @@ extern int GetWallAttribute(void *a0);
 extern void _AddVectorXYZ(int a0, int a1, void *a2);
 extern float D_007201F4[];
 extern void sceVu0UnitMatrix(int);
-extern char *D_0063C4A0;
 
 typedef struct {
     int a;
@@ -105,12 +131,6 @@ extern int D_004ECB28[];
 extern char D_0061FDC0[];
 extern char D_0061FFD8[];
 extern char D_0063B920[];
-extern char *D_0063C478;
-extern char *D_0063C47C;
-extern char *D_0063C484;
-extern char *D_0063C488;
-extern int D_0063C48C;
-extern char *D_0063C4A8;
 /* kept local: this TU's uses of PushQuaternion do not fit the prototype in quaternion.h */
 extern void PushQuaternion(void);
 /* kept local: this TU's uses of PopQuaternion do not fit the prototype in quaternion.h */
@@ -156,10 +176,11 @@ extern float _Sqrt(float x);
 extern void DrawGObjWallCollision(int a0, int a1);
 extern char D_0061FDD8[];
 
-/* FLT_MAX word in .sdata (D_0063B91C/24 both hold 0x7F7FFFFF). Only an alias-set-0
+/* FLT_MAX word in .sdata (D_0063B924 holds 0x7F7FFFFF). Only an alias-set-0
    (union member) read reproduces ROM's hoist of this load above the four int
-   stores in _checkCliffAndWall; the object's real type is unresolved until the
-   data-name pass. */
+   stores in _checkCliffAndWall. clearCollisionStatus's own word at D_0063B91C
+   is the constant pool of its float literal (see clearCliffStatus), which is
+   what this one likely is too. */
 typedef union {
     float f;
     int i;
@@ -167,7 +188,6 @@ typedef union {
 
 extern FltWord D_0063B924[];
 extern unsigned char D_002C2DC8[];
-extern int D_0063C498;
 extern int D_0063B158;
 extern float D_004ECB70[];
 extern float D_004ECB80[];
@@ -213,7 +233,6 @@ extern float sceVu0InnerProduct(void *a, void *b);
 extern float FSqrt(float x);
 /* kept local: this TU's uses of MatrixDrive_ScaleMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_ScaleMatrix(float, float, float);
-extern const float D_0063B91C[];
 extern int D_0063B148;
 /* kept local: this TU's uses of p2o_DispVU1 do not fit the prototype in DisplayP2O.h */
 extern void p2o_DispVU1();
@@ -345,10 +364,46 @@ inline void GetWallVector(int a0, int a1)
     *(int *)(a0 + 0xC) = 0;
 }
 
-/*SWEEPclearCollisionStatus*/
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", clearCollisionStatus);
+/* listing lines 203-209: inlined here and into _checkCliffAndWall, never emitted out of
+   line (name ours). The float limit is a literal: ee-gcc keeps a single-precision
+   constant above 1.0e38 in the function's .sdata constant pool. */
+static inline void clearCliffStatus(void)
+{
+    *(unsigned int *)(D_0063C494 + 0x14) &= ~0x10;
+    *(int *)(D_0063C494 + 0x104) = 0;
+    *(int *)(D_0063C494 + 0xF8) = 0;
+    *(int *)(D_0063C494 + 0xFC) = 0;
+    *(int *)(D_0063C494 + 0x100) = 0;
+    *(float *)(D_0063C494 + 0x110) = 3.40282347e+38f;
+    *(float *)(D_0063C494 + 0x114) = 3.40282347e+38f;
+}
 
-/*SWEEP-ENDclearCollisionStatus*/
+void clearCollisionStatus(void)
+{
+    clearCliffStatus();
+
+    *(unsigned int *)(D_0063C494 + 0x14) &= ~0x20;
+    *(int *)(D_0063C494 + 0xF4) = 0;
+    *(float *)(D_0063C494 + 0x138) = 3.40282347e+38f;
+    *(float *)(D_0063C494 + 0x130) = 3.40282347e+38f;
+    *(float *)(D_0063C494 + 0x134) = 3.40282347e+38f;
+    *(void **)(D_0063C490 + 0x144) = 0;
+
+    *(int *)(D_0063C494 + 0x10C) = 0;
+    *(float *)(D_0063C494 + 0x174) = 3.40282347e+38f;
+    *(int *)(D_0063C494 + 0x178) = 0;
+
+    *(unsigned int *)(D_0063C494 + 0x14) &= ~0x1000;
+    *(int *)(D_0063C494 + 0x108) = 0;
+    *(float *)(D_0063C494 + 0x170) = 3.40282347e+38f;
+
+    *(int *)(D_0063C494 + 0x1B8) = *(int *)(D_0063C494 + 0x1B4);
+    *(int *)(D_0063C494 + 0x1B4) = 0;
+    *(int *)(D_0063C494 + 0x1D4) = 0;
+
+    *(int *)(D_0063C494 + 0x1CC) = 0;
+}
+
 void checkUpperWallState(void)
 {
     char buf[0xC0];

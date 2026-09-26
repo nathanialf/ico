@@ -223,7 +223,54 @@ int avoidReverseInterpOnCurrentMatrix(char *q, char *info, void *out)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", avoidReverseInterpOnCurrentMatrixWithLimit);
+/* RECONSTRUCTED NAME: rows 296-306, inlined only into
+ * avoidReverseInterpOnCurrentMatrixWithLimit (def line 314), no MAIN.MAP
+ * symbol.  0 = inside the range, 1 = outside the plain range, 2 = outside the
+ * range scaled by the limit factor. */
+static inline short classifyInterpAngle(char *info, short ang, float k)
+{
+    float lo;
+    float hi;
+    float a;
+    float b;
+
+    if (info != 0) {
+        lo = *(float *)(info + 0x30) * 32768.0f / 180.0f;
+        hi = *(float *)(info + 0x48) * 32768.0f / 180.0f;
+        a = lo * k;
+        b = hi * k;
+        if ((float)ang < a || b < (float)ang)
+            return 2;
+        if ((float)ang < lo || hi < (float)ang)
+            return 1;
+    }
+    return 0;
+}
+
+void avoidReverseInterpOnCurrentMatrixWithLimit(char *q, char *info, void *outA, void *outB,
+                                                float k)
+{
+    float mtx[16];
+    Vec16 up;
+    Vec16 dir;
+    short ang;
+    short ang2;
+
+    GetMatrixFromQuaternion(mtx, q);
+    _ApplyMatrix(&up, (int)mtx, YUnitVector);
+    MatrixDrive_SetTransposeMatrix(mtx, MatrixDrive_GetMatrix());
+    _ApplyMatrix(&dir, (int)mtx, (char *)&up);
+    MatrixDrive_GetTurnYAngleXZ(&ang, &ang2, dir.f[0], dir.f[1], dir.f[2]);
+    switch (classifyInterpAngle(info, ang, k)) {
+    case 1:
+        MultiQuaternion(q, GetCurrentQuaternion(), outA);
+        break;
+    case 2:
+        MultiQuaternion(q, GetCurrentQuaternion(), outB);
+        break;
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", _getFinalMatrix);
 
 /* kept local: this TU's uses of these do not fit the prototypes in debug.h. */

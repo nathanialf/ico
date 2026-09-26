@@ -1238,6 +1238,8 @@ segments:
       - [0x53B518, sdata, cod/53B518]    # .sdata blob resume
       - [0x53B8B8, .sdata, ico2/sugipon/src/girl]  # the TU's .sdata literals (completeness pass 7 widened it to the run head), VMA 0x63B8B8..0x63B8D9
       - [0x53B8D9, sdata, cod/53B8D9]     # .sdata blob resume
+      - [0x53B91C, .sdata, ico2/sugipon/src/motionManager]  # clearCollisionStatus's anonymous constant-pool literal 3.40282347e+38f (mips.c refuses SF constants at or above 1.0e38 as immediates), 4 B, VMA 0x63B91C..0x63B920 (chain 2 pass 84); the TU's other pool words stay in the blob
+      - [0x53B920, sdata, cod/53B920]     # .sdata blob resume
       - [0x53BAA8, .sdata, ico2/sugipon/src/rope]  # the TU's .sdata as source (chain 3 pass 74), the anonymous string "0", 2 B as MAIN.MAP gives, VMA 0x63BAA8, the linker pads to the next 8-aligned string
       - [0x53BAB0, sdata, cod/53BAB0]     # .sdata blob resume
       - [0x53C0D0, .sdata, ico2/common/src/GobjProc]  # the TU's .sdata: one anonymous string literal ("%d\n", 4 B), VMA 0x63C0D0..0x63C0D4; completeness pass 1
@@ -1297,7 +1299,7 @@ segments:
       - { type: sbss, vram: 0x0063C456, name: cod/0063C456 }  # .sbss blob, 2 B of link fill before darkVolume's run
       - { type: .sbss, vram: 0x0063C458, name: ico2/sugipon/src/darkVolume }  # the TU's own .sbss as five static ints (stripCount, prevX, prevY, edgeX, edgeY), 0x14 B (chain 3 pass 151); motionFileManager follows
       - { type: .sbss, vram: 0x0063C46C, name: ico2/sugipon/src/motionFileManager }  # the TU's own .sbss, 0x8 B, VMA 0x63C46C..0x63C474; static definitions in ROM run order (completeness pass)
-      - { type: sbss, vram: 0x0063C474, name: cod/0063C474 }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C474, name: ico2/sugipon/src/motionManager }  # the TU's own .sbss, 0x38 B, VMA 0x63C474..0x63C4AC, fourteen file statics in ROM run order, MAIN.MAP names none of them (chain 2 pass 84); motionViewer's row follows directly
       - { type: .sbss, vram: 0x0063C4AC, name: ico2/sugipon/src/motionViewer }  # the TU's own .sbss, 0x4 B, VMA 0x63C4AC..0x63C4B0 (the motion-kind row count, a file static); static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C4B0, name: ico2/sugipon/src/staticBlur }  # the TU's own .sbss, 0x4 B, VMA 0x63C4B0..0x63C4B4; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C4B4, name: ico2/seki/src/BgAnimation }  # the TU's own .sbss as static objects, 6 B plus 2 B of link fill before DisplayList (chain 3 pass 141)
