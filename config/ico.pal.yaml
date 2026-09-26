@@ -859,7 +859,8 @@ segments:
       - [0x51D840, .rodata, ico2/common/src/layout_action]  # carved jtbl_0061D840 (_la_mcard_error_check, 17 arms over the card result, section .rodata.0x0061D840), VMA 0x61D840..0x61D884
       - [0x51D884, rodata, cod/51D884]     # .rodata blob resume
       - [0x51D8D0, .rodata, ico2/common/src/layout_action]  # carved jtbl_0061D8D0 (_la_memory_card_check, 24 arms over the step argument, section .rodata.0x0061D8D0), VMA 0x61D8D0..0x61D930
-      - [0x51D930, rodata, cod/51D930]   # .rodata blob resume
+      - [0x51D930, .rodata, ico2/common/src/layout_action]  # _la_set_current_port_new's jump table jtbl_0061D930 (20 B, five arms verified against the ROM words; chain 3 pass 146)
+      - [0x51D944, rodata, cod/51D944]   # .rodata blob resume
       - [0x51DCC0, .rodata, ico2/common/src/layout_action]  # carved jtbl_0061DCC0 (la_game_option, 26 arms over the property item minus 300, section .rodata.0x0061DCC0), VMA 0x61DCC0..0x61DD28
       - [0x51DD28, rodata, cod/51DD28]   # .rodata blob resume (two pad words)
       - [0x51DD30, .rodata, ico2/common/src/layout_action]  # carved jtbl_0061DD30 (5 arms, 0x14): la_format_processing's switch table, emitted by the compiled function; VMA 0x61DD30..0x61DD44
@@ -1275,7 +1276,7 @@ segments:
       - { type: .sbss, vram: 0x0063C394, name: ico2/common/src/icoMisc }  # the TU's own .sbss, 0x4 B, VMA 0x63C394..0x63C398; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C398, name: ico2/common/src/kanban }  # the TU's own .sbss, 0x8 B, VMA 0x63C398..0x63C3A0; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C3A0, name: ico2/common/src/kanbanBoot }  # the TU's own .sbss, 0x1C B, VMA 0x63C3A0..0x63C3BC; static definitions in ROM run order (completeness pass)
-      - { type: sbss, vram: 0x0063C3BC, name: cod/0063C3BC }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C3BC, name: ico2/common/src/layout_action }  # the TU's own .sbss as thirteen static ints, 0x34 B, no fill, layout_texture follows (chain 3 pass 146)
       - { type: .sbss, vram: 0x0063C3F0, name: ico2/common/src/layout_texture }  # the TU's .sbss as source (completeness pass 65)
       - { type: .sbss, vram: 0x0063C414, name: ico2/common/src/sceneManager }  # the TU's own .sbss, 0xC B, VMA 0x63C414..0x63C420; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C420, name: ico2/common/src/staffroll }  # the TU's own .sbss, 0x20 B, VMA 0x63C420..0x63C440; static definitions in ROM run order (completeness pass)
@@ -1380,7 +1381,9 @@ segments:
       - { type: .bss, vram: 0x0071CB10, name: ico2/common/src/kanban }  # the TU's own .bss, 0x3C0 B, VMA 0x71CB10..0x71CED0; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x0071CED0, name: cod/0071CED0 }  # .bss blob resume
       - { type: .bss, vram: 0x0071CF00, name: ico2/common/src/kanbanBoot }  # the TU's own .bss, 0xA00 B, VMA 0x71CF00..0x71D900; static definitions in ROM run order (completeness pass)
-      - { type: bss, vram: 0x0071D900, name: cod/0071D900 }  # .bss blob resume
+      - { type: bss, vram: 0x0071D900, name: cod/0071D900 }  # .bss blob, the two port records (0x10 B) that layout_action's own .sdata pointer word still relocates against; a named .sdata static is not gp-relative under -fdata-sections (chain 3 pass 146)
+      - { type: .bss, vram: 0x0071D910, name: ico2/common/src/layout_action }  # the TU's .bss tail as three statics, 0x44 B plus 0xC of fill before sceneManager (chain 3 pass 146)
+      - { type: bss, vram: 0x0071D954, name: cod/0071D954 }  # 0xC B of link fill before sceneManager's 16-aligned .bss (MAIN.MAP places sceneManager.o 16-aligned; compile_c.sh sets every object's .bss alignment to 1, so the fill is a row)
       - { type: .bss, vram: 0x0071D960, name: ico2/common/src/sceneManager }  # the TU's own .bss as source (completeness pass 67), 0x20 B, VMA 0x71D960..0x71D980, nextStagePos and nextStageRot in ROM run order (MAIN.MAP line 7741), staffroll's row abuts
       - { type: .bss, vram: 0x0071D980, name: ico2/common/src/staffroll }  # the TU's own .bss, 0x12C0 B, VMA 0x71D980..0x71EC40; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x0071EC40, name: ico2/sugipon/src/act_a_p_1 }  # the TU's own .bss, 0x90 B, VMA 0x71EC40..0x71ECD0; static definitions in ROM run order (completeness pass)

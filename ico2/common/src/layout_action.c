@@ -21,21 +21,89 @@ typedef struct {
 /* The port record's flag word is reached through a union member: the ROM's
    codegen at layout_action.c:1128 proves that store is an alias-set-0 access
    (it kills the cached D_0063B4D8 load, which a plain scalar field store does
-   not).  RECONSTRUCTION: only the word member is attested by the bytes; the
-   developer's union may have carried a bit-field view beside it.  Re-audit
-   (completeness pass 57): a plain struct member changes the object, a second
-   bit-field member beside the word leaves it byte-identical (the bytes cannot
-   count members), and reading bits 1 and 3..5 through such a bit-field view
-   in currentPortLockState's test changes the object, so the one member the
-   bytes attest stays alone. */
+   not).  RECONSTRUCTION: the word member and a one-bit view of the low bits,
+   the names ours.  Re-audit (completeness pass 57): a plain struct member
+   changes the object, and reading bits 1 and 3..5 through a bit-field view in
+   currentPortLockState's test changes the object, so that test reads the
+   word.  The bit view is attested by _la_set_current_port_new (chain 3 pass
+   145): its last test compares bit 1 against a register holding 1, which a
+   shift-and-mask compare cannot give (fold rewrites (x & 1) != 1 as
+   (x & 1) == 0), and it stores bits 2 and 6 of both ports with port 1 first
+   on one listing line, the chained bit-field assignment.  The bytes show
+   bits 1, 2, 5 and 6 used this way; the other fields fill the low byte. */
 typedef union {
     unsigned int w;
+
+    struct {
+        unsigned int f0 : 1;
+        unsigned int f1 : 1;
+        unsigned int f2 : 1;
+        unsigned int f3 : 1;
+        unsigned int f4 : 1;
+        unsigned int f5 : 1;
+        unsigned int f6 : 1;
+    } bit;
 } R8Flags;
 
 typedef struct {
     R8Flags _0;
     int _4;
 } R8;
+
+/* the five-word save preview record */
+struct S14 {
+    int w[5];
+};
+
+/* .sbss, layout_action.o's thirteen words in the ROM's order (MAIN.MAP line
+   7618 gives the January object's 0x30 bytes and no symbol, so the names are
+   ours): the port-0 lock state _la_set_current_port_2 records and the one
+   _la_set_current_port_lock_2 records, the lock results for port 0 and port 1
+   of _la_set_current_port_new, the icoMisc lock saved by the logo, the title
+   continue and the title new game actions, the progress bar's last step, the
+   save select's ready flag, the system save's retry count, the last card
+   result, the load (1) or save (0) mode of the file select, and the progress
+   bar's total. */
+static int portLockState;
+
+static int lock2PortState;
+
+static int port0LockResult;
+
+static int port1LockResult;
+
+static int logoIcoMiscLock;
+
+static int continueIcoMiscLock;
+
+static int newGameIcoMiscLock;
+
+static int barLastStep;
+
+static int saveSelectReady;
+
+static int systemSaveRetry;
+
+static int mcLastResult;
+
+static int mcLoadMode;
+
+static int barTotal;
+
+/* .bss, layout_action.o's objects in the ROM's order (MAIN.MAP line 7739, no
+   symbol; the names are ours): the preview record of the save being
+   confirmed, the open request of the layout voice and the twenty game flags
+   kept across a load.  The two card ports' records in front of them
+   (0x71D900, 0x10 bytes) are the run's first object but stay the extern
+   D_0071D900 for now: the first word of this object's .sdata run (0x63B4D8)
+   is a pointer initialised to them, and that word cannot be this file's own
+   object while the harness puts a named small object in .sdata.<name>
+   (chain 3 pass 146). */
+static struct S14 previewInfo;
+
+static AdpcmOpenReq voiceOpenReq;
+
+static signed char keepFlags[20];
 
 void POSITIVE_SE(void)
 {
@@ -89,7 +157,6 @@ extern int D_0063B4F0;
 extern int D_0063B4E0;
 extern R8 *D_0063B4D8;
 extern int D_0063B550;
-extern int D_0063C3E4;
 extern int D_0063B528;
 extern int D_00534CC0[];
 extern int D_0028F4C0[];
@@ -112,14 +179,12 @@ extern R1F0 D_0029B5F0[];
 extern int D_005343C8[];
 extern int D_0063B554;
 extern int D_0063B558;
-extern int D_0063C3E8;
 extern int D_0063B4EC;
 extern void stgmgrForceSwitchWithFade(float a0, float a1, int a2);
 extern int D_0063B5C4;
 extern int lock_execIcoMisc;
 extern int D_0063B4DC;
 extern int D_0063BE68;
-extern int D_0063C3D4;
 extern int D_0063B54C;
 extern int D_0063B5F8;
 extern int D_0063B620;
@@ -128,16 +193,12 @@ extern int D_0028F4D4[];
 extern R8 D_0071D900[];
 extern int D_0063B53C;
 extern int D_0063B540;
-extern int D_0063C3C4;
-extern int D_0063C3C8;
 extern int D_0063B530;
 extern int D_0063B534;
 extern int D_0063B538;
-extern int D_0063C3C0;
 extern int D_0063B52C;
 extern int D_00534400[];
 extern char D_0063B5A8[];
-extern int D_0063C3D0;
 extern int D_0063B548;
 extern int D_0029BC00[];
 extern struct S40 D_0061D968;
@@ -207,7 +268,6 @@ extern int D_0063B518;
 extern int D_0063B51C;
 extern int D_0063B520;
 extern int D_0063B524;
-extern int D_0063C3BC;
 
 /* the product-block file-name stem, VMA 0x63B510, "game." in .sdata; declared
    as an array of unknown length so it stays off gp-relative, as the ROM has it */
@@ -218,7 +278,7 @@ typedef struct {
 extern McName D_0063B510[];
 
 /* the memory-card work area the layout actions pass around; the ROM reorders a
-   load of _8 across a store to the extern int D_0063C3E4, which only a typed
+   load of _8 across a store to the int mcLastResult, which only a typed
    struct field reference is free to do */
 typedef struct {
     char _0[8];
@@ -260,7 +320,7 @@ int _la_memory_card_check(McWork *p, int a1)
         memset(&D_0071D900[p->_8], 0, 8);
         p->_10 = 0;
         iosMcGetInfo(p);
-        D_0063C3E4 = 0;
+        mcLastResult = 0;
         /* the pointer form, not D_0029B5F0[p->_8]: the ROM's addu takes the
            scaled index first, which the subscript spelling does not give */
         (D_0029B5F0 + p->_8)->_1E4 = 0;
@@ -301,7 +361,7 @@ int _la_memory_card_check(McWork *p, int a1)
         if (r >= 0) {
             return a1;
         }
-        D_0063C3E4 = p->_10;
+        mcLastResult = p->_10;
         if (p->_10 == -9 || r == -2) {
             D_0063B4D8->_0.w = (int)D_0063B4D8->_0.w & ~0x20;
             D_0063B4D8->_0.w = (int)D_0063B4D8->_0.w & ~2;
@@ -398,7 +458,7 @@ int _la_set_current_port_2(void *p, int a1)
     if (D_0063B518 == 99) {
         switch (*(int *)((char *)p + 8)) {
         case 0:
-            D_0063C3BC = currentPortLockState();
+            portLockState = currentPortLockState();
             D_0063B520 = (D_0063B4D8->_0.w >> 5) & 1;
             D_0063B524 = ((D_0063B4D8->_0.w >> 1) & 1) && (D_0063B4D8->_0.w & 0x38) != 8;
             /* listing line 1069: the whole 8-byte record is copied to the frame
@@ -409,7 +469,7 @@ int _la_set_current_port_2(void *p, int a1)
             break;
         case 1:
             D_0063B518 = 100;
-            switch (D_0063C3BC) {
+            switch (portLockState) {
             case 1:
                 r = currentPortLockState();
                 switch (r) {
@@ -479,8 +539,124 @@ int _la_set_current_port_2(void *p, int a1)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", _la_set_current_port_lock_2);
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", _la_set_current_port_new);
+/* layout_action.c:1157-1218 in the listing. */
+int _la_set_current_port_lock_2(void *p, int a1)
+{
+    R8 tmp;
+    int r;
+    int a;
+    int q;
+
+    if (a1 != 0 || D_0063B528 != 0) {
+        *(int *)((char *)p + 8) = D_0063B4E0;
+        D_0063B52C = 0;
+        D_0063B528 = 0;
+        D_0063B530 = 0;
+        D_0063B4F0 = 0;
+        return 0;
+    }
+    D_0063B4D8 = &D_0071D900[*(int *)((char *)p + 8)];
+    D_0063B52C = _la_memory_card_check(p, D_0063B52C);
+    if (D_0063B52C != 99) {
+        return 0;
+    }
+    r = currentPortLockState();
+    lock2PortState = r;
+    D_0063B534 = (D_0063B4D8->_0.w >> 5) & 1;
+    D_0063B538 = ((D_0063B4D8->_0.w >> 1) & 1) && (D_0063B4D8->_0.w & 0x38) != 8;
+    tmp = *D_0063B4D8;
+    switch (lock2PortState) {
+    case 1:
+        a = D_0063B4D8->_0.w >> 5;
+        a &= 1;
+        q = 0;
+        if ((D_0063B4D8->_0.w >> 1) & 1) {
+            if ((D_0063B4D8->_0.w & 0x38) != 8) {
+                q = 1;
+            }
+        }
+        if (D_0063B538 != 0 && q != 0) {
+            D_0071D900[*(int *)((char *)p + 8)]._0.w |= 4;
+        }
+        if (D_0063B534 != 0 && a != 0) {
+            D_0071D900[*(int *)((char *)p + 8)]._0.w |= 0x40;
+        }
+        _la_set_current_port_lock_2(p, 1);
+        return 1;
+    case -1:
+        D_0063B4D8 = &D_0071D900[D_0063B4E0];
+        D_0063B4D8->_0.w = (int)D_0063B4D8->_0.w & ~4;
+        D_0063B4D8->_0.w = (int)D_0063B4D8->_0.w & ~0x40;
+        return -1;
+    }
+    return 0;
+}
+
+/* layout_action.c:1222-1288 in the listing.  The switch table is jtbl_0061D930
+   (5 arms, selector D_0063B53C, cases 0..4). */
+int _la_set_current_port_new(McWork *p, int a1)
+{
+    int r = 0;
+    int v;
+
+    if (a1) {
+        D_0063B53C = 0;
+        D_0063B4E0 = -1;
+    }
+    switch (D_0063B53C) {
+    case 0:
+    case 2:
+        D_0063B4E0++;
+        D_0063B540 = 1;
+        D_0063B53C++;
+        break;
+    case 1:
+        port0LockResult = _la_set_current_port_lock_2(p, D_0063B540);
+        D_0063B540 = 0;
+        if (port0LockResult == 0) {
+            break;
+        }
+        D_0063B53C++;
+        break;
+    case 3:
+        port1LockResult = _la_set_current_port_lock_2(p, D_0063B540);
+        D_0063B540 = 0;
+        if (port1LockResult == 0) {
+            break;
+        }
+        D_0063B53C++;
+        break;
+    case 4:
+        if (((D_0071D900[0]._0.w >> 1) & 1) && ((D_0071D900[1]._0.w >> 1) & 1))
+            v = 1;
+        else
+            v = 0;
+        D_0071D900[0]._0.bit.f2 = D_0071D900[1]._0.bit.f2 = v;
+        if (((D_0071D900[0]._0.w >> 5) & 1) && ((D_0071D900[1]._0.w >> 5) & 1))
+            v = 1;
+        else
+            v = 0;
+        D_0071D900[0]._0.bit.f6 = D_0071D900[1]._0.bit.f6 = v;
+        if (port0LockResult == 1) {
+            D_0063B4E0 = 0;
+            r = 1;
+        } else if (port1LockResult == 1) {
+            D_0063B4E0 = 1;
+            r = 1;
+        } else {
+            if (((D_0071D900[0]._0.w >> 1) & 1) == 0 && D_0071D900[1]._0.bit.f1 == 1) {
+                D_0063B4E0 = 1;
+            } else {
+                D_0063B4E0 = 0;
+            }
+            r = -1;
+        }
+        p->_8 = D_0063B4E0;
+        D_0063B4D8 = &D_0071D900[D_0063B4E0];
+        break;
+    }
+    return r;
+}
 
 /* INTERIM (see the PSH_POSITIVE_OR_NEGATIVE note at the head of this file): the
  * listing inlines keyconfig_reset (line 1438) into la_vibe_select, so it is a
@@ -536,7 +712,7 @@ int la_title_continue_or_new(int a0)
 {
     if (a0) {
         D_0063BE68 = 1;
-        D_0063C3D0 = lock_execIcoMisc;
+        continueIcoMiscLock = lock_execIcoMisc;
         iosPadEnable();
         isysGObjActiveLink(0, 1);
         D_0028F4D4[0] = 0;
@@ -597,7 +773,7 @@ int la_title_new_game_only(int a0)
 {
     if (a0) {
         D_0063BE68 = 1;
-        D_0063C3D4 = lock_execIcoMisc;
+        newGameIcoMiscLock = lock_execIcoMisc;
         iosPadEnable();
         isysGObjActiveLink(0, 1);
         D_0028F4D4[0] = 0;
@@ -643,10 +819,81 @@ int la_title_new_game_only(int a0)
     return -1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", la_mc_file_select);
-
 extern int D_0063B4E4;
-extern int D_0071D910[];
+extern int D_0063B55C;
+extern int D_0063B560;
+extern int D_0063B564;
+extern int D_00534324[];
+
+/* layout_action.c:1780-1786 in the listing: inlined into la_mc_file_select
+   both directly and through mcFileNoOfPort below, so it is a static inline here; it
+   has no symbol of its own in the ROM and no census row, and the name is
+   descriptive.  The test is an `||` returning 0 (listing 1784/1785, the
+   `return no;` on 1786 only ever lands in a delay slot): its drop-through
+   label keeps jump.c from hoisting the zero, so both copies keep the ROM's
+   branches and share one zero block. */
+static inline int mcCurrentFileNo(void)
+{
+    int port = D_0063B550;
+    int no = (D_0029B5F0 + port)->_1E0;
+    if (D_0071D900[port]._4 == 0 || D_0029B5F0[port].f[no]._0 == 0xFFFFFFFF)
+        return 0;
+    return no;
+}
+
+/* layout_action.c:1789-1794 in the listing: inlined once, into
+   la_mc_file_select, so it is a static inline here too. */
+static inline int mcFileNoOfPort(void)
+{
+    int port = D_0063B550;
+
+    if (D_0063B558 == (D_0029B5F0 + port)->_1E4)
+        return D_0063B55C;
+    return mcCurrentFileNo();
+}
+
+/* layout_action.c:1836-1912 in the listing. */
+int la_mc_file_select(int a0)
+{
+    int i;
+
+    D_0063B4E4 = lt_current_property_item() - 62;
+
+    if (a0) {
+        D_0063B564 = 1;
+        D_0063B560 = 0;
+    }
+
+    if (D_0063B4F4 == 0) {
+        D_0063B620 = 1;
+        return -1;
+    }
+
+    if (D_0063B564 != 0) {
+        D_0063B564 = 0;
+        if (mcLoadMode != 0) {
+            D_0063B4E4 = mcCurrentFileNo();
+        } else {
+            D_0063B4E4 = mcFileNoOfPort();
+        }
+        D_00534324[0] = D_0063B4E4 + 62;
+        D_0063B560 = 1;
+    }
+
+    for (i = 0; i < 10; i++) {
+        if (((D_0063B4F0 >> i) & 1) && D_0029B5F0[D_0063B550].f[i]._0 != 0xFFFFFFFF) {
+            lt_mask_property(i + 62, 0);
+            lt_mask_property(i + 52, 1);
+        } else {
+            lt_mask_property(i + 62, 1);
+            lt_mask_property(i + 52, 0);
+        }
+    }
+
+    previewInfo = *(struct S14 *)&D_0029B5F0[D_0063B550].f[D_0063B4E4];
+
+    return (D_0028F8F0[0].flags & 0x50) ? D_0063B4E4 : -1;
+}
 
 /* layout_action.c:1924-1942 in the listing. */
 void _la_mask_preview_info(void)
@@ -669,7 +916,80 @@ void _la_mask_preview_info(void)
     lt_mask_property(136, 1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", _la_set_preview_info);
+/* layout_action.c:826-841 in the listing: the play time of a save record
+   split into hours, minutes and seconds and clamped to 99:59:59, inlined into
+   _la_set_preview_info, la_load_processing and la_system_save_processing; it
+   has no symbol of its own in the ROM and the name is ours.  Where the
+   results are unused (the other two sites) only the frame rate and the
+   divide checks survive, which is why their rows show 829-832 without the
+   frame read (827) or the clamp (840). */
+static inline void playTime(struct S14 *p, int *hour, int *min, int *sec)
+{
+    int frames = p->w[2];
+    int fps = ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * D_0028F4C0[1];
+
+    *sec = (frames / fps) % 60;
+    *min = (frames / (fps * 60)) % 60;
+    *hour = frames / (fps * 3600);
+    if (*hour >= 100) {
+        *hour = 99;
+        *min = 59;
+        *sec = 59;
+    }
+}
+
+/* layout_action.c:1946-2012 in the listing, with the play-time split of lines
+   827-840 inlined into it. */
+void _la_set_preview_info(void)
+{
+    int hour;
+    int min;
+    int sec;
+    int n;
+
+    _la_mask_preview_info();
+
+    if (((D_0063B4F0 >> D_0063B4E4) & 1) == 0) {
+        return;
+    }
+    if (D_0029B5F0[D_0063B550].f[D_0063B4E4]._0 == 0xFFFFFFFF) {
+        return;
+    }
+
+    playTime(&previewInfo, &hour, &min, &sec);
+
+    hour = ((hour / 10 + 9) % 10) * 10 + (hour % 10 + 9) % 10;
+    min = ((min / 10 + 9) % 10) * 10 + (min % 10 + 9) % 10;
+    sec = ((sec / 10 + 9) % 10) * 10 + (sec % 10 + 9) % 10;
+
+    lt_mask_property(76 + hour / 10, 0);
+    lt_mask_property(86 + hour % 10, 0);
+    lt_mask_property(96 + min / 10, 0);
+    lt_mask_property(106 + min % 10, 0);
+    lt_mask_property(116 + sec / 10, 0);
+    lt_mask_property(126 + sec % 10, 0);
+    lt_mask_property(74, 0);
+    lt_mask_property(75, 0);
+
+    n = previewInfo.w[0];
+    if (n == 0x3F) {
+        n = 38;
+    }
+    if (n >= 3 && n < 56) {
+        switch (previewInfo.w[3]) {
+        case 329:
+            n = 39;
+            break;
+        case 331:
+            n = 40;
+            break;
+        }
+        lt_mask_property(n + 134, 0);
+        if (previewInfo.w[1] != 0) {
+            lt_mask_property(136, 0);
+        }
+    }
+}
 
 /* layout_action.c:1808-1814 in the listing: inlined once, into
    la_load_game_memory_card_check, so it is a static inline here; it has no
@@ -687,12 +1007,12 @@ static inline void setLoadGameStartItem(void)
 int la_load_game_memory_card_check(int a0)
 {
     _la_mask_preview_info();
-    D_0063C3E8 = 1;
+    mcLoadMode = 1;
     lt_mask_property(0xB0, 1);
     lt_mask_property(0xB1, 1);
     switch (_la_set_current_port_2(mc, a0)) {
     case 0:
-        if (D_0063C3E4 == 0 || D_0063C3E4 == -14) {
+        if (mcLastResult == 0 || mcLastResult == -14) {
             return -1;
         }
         lt_set_item_select_func(0);
@@ -912,7 +1232,7 @@ int la_load_start_check(int a0)
     switch (_la_set_current_port_lock_2(mc, a0)) {
     case 0:
         D_0063B4F0 = 0x3FF;
-        if (D_0063C3E4 == 0 || D_0063C3E4 == -14) {
+        if (mcLastResult == 0 || mcLastResult == -14) {
             return -1;
         }
         lt_set_item_select_func(0);
@@ -955,7 +1275,6 @@ extern void soundSePlayModeStop(int a0);
 extern void iosPadActStopAll(void);
 extern int D_0063B5E4;
 extern int D_0063B5E8;
-extern char D_0071D928[];
 extern void soundDataOpen(void *p, int a1, int a2, int a3, int t0);
 extern char *soundDataOpenSync(void *p);
 extern int D_0063AA04;
@@ -969,11 +1288,95 @@ static inline int openLayoutVoice(int no)
     if (D_0063B4FC != 0) {
         return 0;
     }
-    soundDataOpen(D_0071D928, 2, no, 1, 0);
+    soundDataOpen(&voiceOpenReq, 2, no, 1, 0);
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/layout_action", la_mc_confirm_save_file);
+/* layout_action.c:2591-2678 in the listing. */
+int la_mc_confirm_save_file(int a0, int a1)
+{
+    _la_mask_preview_info();
+    lt_mask_property(0xB0, 1);
+    lt_mask_property(0xB1, 1);
+    if (a0) {
+        D_0028F4D4[0] = 1;
+        fightSoundProcessRequestPause();
+        D_0063B4F8 = 1;
+        CheckPoint();
+        D_0063B59C = 0;
+        D_0063B5A0 = 0;
+    }
+    if (D_0063B59C == 0) {
+        if (AdpcmFreeAreaGet() != 0) {
+            D_0063B598 = openLayoutVoice(0x16);
+            D_0063B59C = 1;
+        } else {
+            debug_StdPrintfDummy(D_0061DA98);
+            if (AdpcmNotUseIopAreaFree() != 0) {
+                debug_StdPrintfDummy(D_0061DAB8);
+                return -1;
+            }
+            if (D_0063B5A0-- < 0) {
+                AdpcmFadeCloseAll(0x3FFF);
+                return -1;
+            }
+        }
+    } else {
+        /* RECONSTRUCTION: the ROM pads 0x1BBF5C with a nop so that the label
+           at 0x1BBF60 (listing line 2663) is 8-aligned, the alignment final.c
+           gives the first label after a loop-begin note, so a once-run loop
+           began in the window between the else label and the voice-open test
+           (a loop there that holds any of the test's exits reorders it; chain 3
+           pass 145 measured each).  The call on line 2637 is the only code in
+           that window and the listing's lines 2638-2639 carry none; the bytes
+           pin the loop, not the wrapper's spelling. */
+        do {
+            _la_mask_preview_info();
+        } while (0);
+        if (D_0063B598 != 0) {
+            D_0063B4FC = soundDataOpenSync(&voiceOpenReq);
+            if (D_0063B4FC != (char *)0xFFFFFFFF) {
+                D_0063B598 = 0;
+                if (D_0063B4FC != 0) {
+                    AdpcmPlay(*(void **)(D_0063B4FC + 0x2C));
+                    return -1;
+                }
+            }
+            return -1;
+        }
+        {
+            if (lt_fade_status() == 2) {
+                switch (a1) {
+                case 214:
+                    POSITIVE_SE();
+                    lt_set_item_select_func(0);
+                    D_0063B4F4 = 0;
+                    return 0x1E;
+                case 215:
+                    NEGATIVE_SE();
+                    D_0028F4D4[0] = 0;
+                    lt_set_item_select_func(0);
+                    D_0063B4F4 = 0;
+                    return 0x36;
+                }
+            }
+            if (lt_fade_status() != 2) {
+                return -1;
+            }
+            if ((D_0028F8F4[0] & 0x10) == 0) {
+                return -1;
+            }
+            if (stage_no == 0x3F) {
+                return -1;
+            }
+            NEGATIVE_SE();
+            lt_set_item_select_func(0);
+            D_0063B4F4 = 0;
+            return 0x36;
+        }
+    }
+    return -1;
+}
 
 /* the save-slot report strings, VMA 0x61DB00 and 0x61DB20 */
 extern char D_0061DB00[];
@@ -996,7 +1399,7 @@ static inline void setSaveGameStartItem(void)
 int la_save_game_memory_card_check(int a0)
 {
     _la_mask_preview_info();
-    D_0063C3E8 = 0;
+    mcLoadMode = 0;
     lt_mask_property(0xB0, 1);
     lt_mask_property(0xB1, 1);
     debug_StdPrintfDummy(D_0061DB00, D_0063B4E0);
@@ -1064,10 +1467,8 @@ extern SprRect D_0061DB48;
 extern SprCol D_0063B5B8[];
 extern SprCol D_0063B5C0[];
 extern int fbKeep;
-extern int D_0063C3EC;
 extern int D_0063B5B0;
 extern int D_0063B5B4;
-extern int D_0063C3D8;
 /* kept local: this TU's uses of these do not fit the prototypes in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
 extern void gif_SetZTest(int on);
@@ -1106,7 +1507,7 @@ void progressive_bar(void)
     memset(&backCol, 0, 4);
     backCol.a = 0x20;
     gif_Sprite(&back, 0xFFFFFFFF, 0, &backCol, 1);
-    w = (float)D_0063B5B0 / (float)D_0063C3EC * -160.0f;
+    w = (float)D_0063B5B0 / (float)barTotal * -160.0f;
     bar.x = -80 - w;
     bar.y = 13;
     bar.w = w;
@@ -1117,13 +1518,12 @@ void progressive_bar(void)
     gif_SetZWrite(1);
     gif_SetAlpha(1, 4, 128);
     gif_EndPacket();
-    if (n != D_0063C3D8) {
-        D_0063C3D8 = n;
+    if (n != barLastStep) {
+        barLastStep = n;
         D_0063B5B4++;
     }
 }
 
-extern int D_0063C3DC;
 /* the two save-select trace messages, VMA 0x61DB58 and 0x61DB68 */
 extern char D_0061DB58[];
 extern char D_0061DB68[];
@@ -1136,8 +1536,8 @@ int la_mc_save_file_select(int a0, int a1)
     if (a0) {
         D_0063B4F0 = 0;
         D_0063B4DC = D_0063B550 = D_0063B4E0;
-        D_0063C3DC = 0;
-        D_0063C3EC = 2;
+        saveSelectReady = 0;
+        barTotal = 2;
         D_0063B5B0 = 0;
     }
 
@@ -1163,7 +1563,7 @@ int la_mc_save_file_select(int a0, int a1)
         }
     }
 
-    if ((D_0063B4F0 != 0 || D_0063C3DC != 0) && (D_0028F8F4[0] & 0x40)) {
+    if ((D_0063B4F0 != 0 || saveSelectReady != 0) && (D_0028F8F4[0] & 0x40)) {
         POSITIVE_SE();
         D_0063B4E8 = a1;
         lt_set_item_select_func(0);
@@ -1202,13 +1602,13 @@ int la_mc_save_file_select(int a0, int a1)
             D_0063B5C4 = (D_0063B4D8->_0.w >> 2) & 1;
             if ((D_0063B4D8->_0.w >> 3) & 1) {
                 debug_StdPrintfDummy(D_0061DB58);
-                D_0063C3DC = r;
+                saveSelectReady = r;
             } else if ((D_0063B4D8->_0.w & 0xA) == 2) {
                 debug_StdPrintfDummy(D_0061DB68);
                 if (D_0063B550 == D_0063B4E0) {
                     D_0063B4F4 = r;
                 }
-                D_0063C3DC = r;
+                saveSelectReady = r;
                 return -1;
             }
         }
@@ -1566,7 +1966,7 @@ int la_game_over_continue(int a0)
             D_0063B5E8 = 1;
         }
     } else if (D_0063B5E4 != 0) {
-        D_0063B4FC = soundDataOpenSync(D_0071D928);
+        D_0063B4FC = soundDataOpenSync(&voiceOpenReq);
         if (D_0063B4FC != (char *)0xFFFFFFFF) {
             D_0063B5E4 = 0;
             if (D_0063B4FC != 0) {
@@ -1946,7 +2346,6 @@ int la_boot_confirm_memory_card(void)
 }
 
 extern int D_0028F4D4[];
-extern int D_0063C3CC;
 /* kept local: this TU's uses of stgmgrNextStagePreLoadForceStageSet do not fit the prototype in StageManager.h */
 extern void stgmgrNextStagePreLoadForceStageSet(int val);
 
@@ -1954,7 +2353,7 @@ int la_scei_logo(int a0)
 {
     if (a0) {
         stgmgrNextStagePreLoadForceStageSet(0);
-        D_0063C3CC = lock_execIcoMisc;
+        logoIcoMiscLock = lock_execIcoMisc;
         D_0028F4D4[0] = 1;
         iosPadEnable();
         isysGObjActiveLink(0, 0);
@@ -2138,10 +2537,6 @@ int la_format_processing(int a0)
     return -1;
 }
 
-struct S14 {
-    int w[5];
-};
-
 extern int D_0029B9D0[];
 extern int D_0061DC40[];
 extern int D_0061DC58[];
@@ -2149,7 +2544,7 @@ extern int D_0061DC58[];
 int la_save_confirm_complete(int a0, int a1)
 {
     if (a0) {
-        *(struct S14 *)D_0071D910 = *(struct S14 *)D_0029B9D0;
+        previewInfo = *(struct S14 *)D_0029B9D0;
         D_0063B4F0 = 0x3FF;
         _la_set_preview_info();
         debug_StdPrintfDummy(D_0061DC40, D_0063B4F0, D_0063B4E4);

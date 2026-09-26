@@ -36,10 +36,12 @@ extern int D_0063B644;
 
 /* .bss, owned by sceneManager.o (MAIN.MAP line 7741, 0x20 bytes, no symbol
    named): the position and rotation MoveNextStage_Set keeps for the next
-   stage and MoveNextStage_Get restores, in the ROM's run order. */
-static float nextStagePos[4];
+   stage and MoveNextStage_Get restores, in the ROM's run order.  Both are
+   16-byte vectors: the object's .bss is 16-aligned in the ROM and in
+   MAIN.MAP, which a plain float[4] (8-aligned) does not give. */
+static sceVu0FVECTOR nextStagePos;
 
-static float nextStageRot[4];
+static sceVu0FVECTOR nextStageRot;
 
 extern int exit_no;
 
