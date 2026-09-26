@@ -6218,3 +6218,7 @@ fontGlyph = 0x00706AD0; // size:0x1000  // debug.c static, the 256 glyph images 
 D_00704900 = 0x00704900; // ignore:true  // a rodata blob word pointing at debug.c's static ballCentre, raw until that rodata is carved (chain 1 pass 132)
 brainTarget = 0x0063C208; // size:0x4  // enemy_act.c static pointer the two nested brain-change children share (chain 3 pass 148)
 brainModeTable = 0x0029CF70; // size:0x188  // enemy_act.c data, fourteen 28-byte brain-mode records the BrainMode_Requset and subEnemyBrainMain stubs reach (chain 3 pass 148)
+sofaSeatOffset = 0x00621A00; // size:0x10  // act-env.c rodata, the sofa seat offset float quad (chain 1 pass 140)
+actEnvSrcFile = 0x00621B10; // size:0x10 force_not_migration:True // act-env.c rodata, the src/act-env.c file literal (chain 1 pass 140)
+enterWaterMsg = 0x00621B20; // size:0x10 force_not_migration:True // act-env.c rodata, the enter water trace string (chain 1 pass 140)
+exitWaterMsg = 0x00621B30; // size:0x10 force_not_migration:True // act-env.c rodata, the exit water trace string (chain 1 pass 140)

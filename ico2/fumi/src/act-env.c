@@ -39,10 +39,11 @@ typedef struct {
     float x, y, z, w;
 } Vec4 __attribute__((aligned(16)));
 
-/* {30, 0, -50, 0}: the sofa seat offset in the room's local space.  Lives in
-   act-env's own .rodata run at 0x621A00 (only this TU's code references
-   0x621A00..0x621A3F); extern until that run is carved. */
-extern Vec4 D_00621A00;
+/* The sofa seat offset in the room's local space, the first object of the
+   TU's .rodata run (VMA 0x621A00).  Global while the still-asm
+   ACTGetEnvironment, which inlines GetSofaPosition, reaches it by name. */
+const Vec4 sofaSeatOffset = {30.0f, 0.0f, -50.0f, 0.0f};
+
 extern char *D_00639EA4;
 extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
 extern void sceVu0AddVector(float *a0, float *a1, float *a2);
@@ -58,7 +59,7 @@ extern int stage_no;
 inline void GetSofaPosition(char *a0, char *a1)
 {
     char *w = *(char **)(a0 + 0x164);
-    Vec4 v = D_00621A00;
+    Vec4 v = sofaSeatOffset;
     *(float *)(w + 0x560) = *(float *)(w + 0x4B0);
     *(float *)(w + 0x564) = *(float *)(w + 0x4B4);
     *(float *)(w + 0x568) = *(float *)(w + 0x4B8);
@@ -70,7 +71,11 @@ inline void GetSofaPosition(char *a0, char *a1)
 }
 
 extern char *D_00639EA8;
-extern Vec4 D_00621A10;
+
+/* Where the first carrier stands in the stage 8 ditch below the -3000 line
+   (VMA 0x621A10, the run's second object). */
+static const Vec4 ditchCarryPos = {767.0f, -3775.0f, 2621.0f, 1.0f};
+
 /* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
 extern float *test_CURRENTROOT(void *a0);
 extern void sceVu0SubVector(void *out, void *a, void *b);
@@ -148,7 +153,7 @@ void getDitchDistTbl(float **tbl, float *range, int *sofa, float *pos, void *obj
             }
         } else {
             if (mode == 1) {
-                v = D_00621A10;
+                v = ditchCarryPos;
 
                 *tbl = D_004F1D90;
                 pos[0] = v.x;
@@ -237,21 +242,6 @@ inline void GetCollisCenterPositionSimple(void *a0, void *a1, void *a2)
     }
 }
 
-extern char D_00621A20[];
-extern char D_00621A30[];
-extern char D_00621A40[];
-extern char D_00621A50[];
-extern char D_00621A60[];
-extern char D_00621A70[];
-extern char D_00621A80[];
-extern char D_00621A90[];
-extern char D_00621AA0[];
-extern char D_00621AB0[];
-extern char D_00621AC0[];
-extern char D_00621AD0[];
-extern char D_00621AE0[];
-extern char D_00621AF0[];
-extern char D_00621B00[];
 extern char D_0063BD40[];
 extern char D_0063BD48[];
 extern int D_0063B13C;
@@ -264,14 +254,14 @@ typedef struct {
 void DebugActOrientFlag(unsigned int *f)
 {
     OrientFlagRow tbl[16] = {
-        {(f[1] >> 18) & 1, D_00621A20}, {(f[1] >> 19) & 1, D_00621A30},
-        {(f[1] >> 20) & 1, D_00621A40}, {(f[1] >> 21) & 1, D_00621A50},
-        {(f[2] >> 4) & 1, D_00621A60},  {(f[2] >> 13) & 1, D_00621A70},
-        {(f[2] >> 14) & 1, D_00621A80}, {(f[2] >> 24) & 1, D_00621A90},
-        {(f[2] >> 25) & 1, D_00621AA0}, {(f[3] >> 1) & 1, D_00621AB0},
-        {(f[3] >> 3) & 1, D_00621AC0},  {(f[3] >> 5) & 1, D_00621AD0},
-        {(f[3] >> 6) & 1, D_00621AE0},  {(f[3] >> 7) & 1, D_00621AF0},
-        {(f[3] >> 8) & 1, D_00621B00},  {-1},
+        {(f[1] >> 18) & 1, "climb_50  "},  {(f[1] >> 19) & 1, "climb_100 "},
+        {(f[1] >> 20) & 1, "climb_200 "},  {(f[1] >> 21) & 1, "climb_300 "},
+        {(f[2] >> 4) & 1, "hold_box  "},   {(f[2] >> 13) & 1, "hang_hand "},
+        {(f[2] >> 14) & 1, "hang_breas"},  {(f[2] >> 24) & 1, "ladder_up "},
+        {(f[2] >> 25) & 1, "ladder_dow"},  {(f[3] >> 1) & 1, "down_cliff"},
+        {(f[3] >> 3) & 1, "walk_wall"},    {(f[3] >> 5) & 1, "walk_stair"},
+        {(f[3] >> 6) & 1, "pulledup_50 "}, {(f[3] >> 7) & 1, "pulledup_100"},
+        {(f[3] >> 8) & 1, "pulledup_200"}, {-1},
     };
     int y = 40;
     int i;
@@ -321,5 +311,14 @@ inline int CheckWallAttributeEdegWall(int a0)
     }
     return (unsigned char)CheckWallAttribute(a0, 0x1000);
 }
+
+/* ACTGetEnvironment's three strings, the tail of the TU's .rodata run
+   (VMA 0x621B10..0x621B3C): global while the still-asm body reaches them by
+   name. */
+const char actEnvSrcFile[] = "src/act-env.c";
+
+const char enterWaterMsg[] = "enter water\n";
+
+const char exitWaterMsg[] = "exit water\n";
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/act-env", ACTGetEnvironment);

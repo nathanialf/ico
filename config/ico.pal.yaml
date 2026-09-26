@@ -959,7 +959,8 @@ segments:
       - [0x521950, .rodata, ico2/seki/src/DmaPacket]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x621950..0x6229B0, 4192 B
       - [0x521960, .rodata, ico2/seki/src/EnemyInit]  # the TU's .rodata (chain 1 pass 113, = MAIN.MAP 0x10): iosMallocDebug's "src/EnemyInit.c" file literal, VMA 0x621960..0x621970; gobj_cam_dl follows directly
       - [0x521970, .rodata, ico2/fumi/isys/gobj_cam_dl]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x621970..0x6229B0, 4160 B
-      - [0x521A00, rodata, cod/521A00]     # rodata blob resume
+      - [0x521A00, .rodata, ico2/fumi/src/act-env]  # the TU's whole .rodata (chain 1 pass 140): sofaSeatOffset and the static ditchCarryPos float quads, DebugActOrientFlag's fifteen inline literals, actEnvSrcFile and the two water trace strings, VMA 0x621A00..0x621B3C plus 4 B pad; MAIN.MAP says 0x12C, a different link
+      - [0x521B40, rodata, cod/521B40]     # rodata blob resume, the unreferenced WBP begin literal that MAIN.MAP's sizes place with act-way (0x5B + 0x10 = its January 0x6B), left in the blob
       - [0x521B50, .rodata, ico2/fumi/src/act-way]  # the TU's whole .rodata (chain 1 pass 110): ACTWayMove_NextDetail's EUC-JP "no route" trace string, DetourCheck's format and the three disabled WBP prints' strings as literals, VMA 0x621B50..0x621BAB, padded to act's row at 0x621BB0
       - [0x521BB0, .rodata, ico2/fumi/src/act]  # the TU's whole .rodata run as source (completeness pass 65; MAIN.MAP line 6585), 400 B; the blob before it holds act-way's strings, seMail's run follows
       - [0x521D40, .rodata, ico2/fumi/src/seMail]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x621D40..0x6229B0, 3184 B
