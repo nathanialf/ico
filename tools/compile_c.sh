@@ -216,9 +216,12 @@ if [ -n "${DUMP_DIR:-}" ]; then
 fi
 
 # Split each gcc-emitted switch jtbl onto its own .rodata.0x<VMA>
-# section so the linker can place multi-jtbl TUs correctly. No-op on
-# single-jtbl TUs and on .s files with no `.rdata`/jtbl blocks.
-"${PYTHON}" "${ROOT}/tools/postprocess_split_jtbls.py" "${S}"
+# section so the linker can place multi-jtbl TUs correctly. No-op on .s
+# files with no `.rdata`/jtbl blocks, and (2026-09-27) on a single-row TU
+# whose only table is its first rodata block and which has no named rodata
+# section, where the compiler's one section is the ROM's layout; the tool
+# reads the yaml for the TU named by SRC.
+"${PYTHON}" "${ROOT}/tools/postprocess_split_jtbls.py" "${S}" "${SRC}"
 
 # No rewrite of compiler output is left. The last one was the inline-asm return
 # wrap: ee-as 2.9-991111 swaps the final instruction of a gcc inline-asm block

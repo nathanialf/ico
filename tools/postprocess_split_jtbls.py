@@ -29,6 +29,24 @@ no jtbl references, the block is left as `.rdata` — matches the
 single-jtbl-per-TU behavior the per-TU section glob in the linker
 script already handles.
 
+One case is left entirely unsplit (2026-09-27, chain 2 pass 85): a TU
+with a single `.rodata` carve row in config/ico.<ver>.yaml, a single jtbl
+block that is the FIRST `.rdata` block gcc emits, and NO named
+`-fdata-sections` rodata section (`.section .rodata.<name>`) anywhere in
+the file. Such a TU gets one `(.rodata*)` glob, and the compiler's single
+`.rdata` section is the ROM's layout: the table, its pad and the anonymous
+constants after it (initialiser templates, doubles, strings) sit where
+gcc's own `.align` directives put them. Splitting the table out leaves
+those constants in a second section whose own alignment (16 when it holds
+a 16-byte object) moves them off their ROM address (motionManager's
+dispSkeltonHierarchy templates: the ROM has them 8-aligned right after the
+table). The three conditions are exactly what keeps the merged section
+equal to the ROM: with named sections between the blocks (queen, four
+anonymous blocks before the table in motionManager2) the split stays, as
+measured on the whole tree the same day. The driver passes the TU's
+repo-relative source path as the second argument; with no second argument
+the split runs as before.
+
 Idempotent: re-applies harmlessly because any block already on a
 `.rodata.0x<VMA>` section is left alone.
 """
@@ -189,12 +207,57 @@ def transform(text: str) -> str:
     return "".join(out)
 
 
+def _rodata_row_count(tu_src: str) -> int:
+    """Number of `.rodata` carve rows the version yaml gives the TU named by
+    its repo-relative source path (`ico2/sugipon/src/motionManager.c`)."""
+    tu = re.sub(r"\.c$", "", tu_src.replace("\\", "/"))
+    if tu.startswith(str(ROOT) + "/"):
+        tu = tu[len(str(ROOT)) + 1:]
+    yamls = sorted((ROOT / "config").glob("ico.*.yaml"))
+    if not yamls:
+        return 0
+    n = 0
+    for line in yamls[0].read_text().splitlines():
+        m = re.match(r"\s*-\s*\[0x[0-9A-Fa-f]+,\s*\.rodata,\s*(\S+?)\]", line)
+        if m and m.group(1) == tu:
+            n += 1
+    return n
+
+
+def _keep_compiler_section(text: str) -> bool:
+    """True when the file has exactly one jtbl block, it is the first `.rdata`
+    block, and no named `.section .rodata.<name>` appears anywhere."""
+    lines = text.splitlines()
+    if any(re.match(r"^\s*\.section\s+\.rodata\.", l) for l in lines):
+        return False
+    jtbl_blocks = 0
+    first_is_jtbl = None
+    for k, l in enumerate(lines):
+        if not RDATA_RE.match(l):
+            continue
+        j = k + 1
+        is_jtbl = False
+        while j < len(lines):
+            if SECTION_END_RE.match(lines[j]) and not RDATA_RE.match(lines[j]):
+                break
+            if WORD_LABEL_RE.match(lines[j]):
+                is_jtbl = True
+                break
+            j += 1
+        if first_is_jtbl is None:
+            first_is_jtbl = is_jtbl
+        jtbl_blocks += is_jtbl
+    return jtbl_blocks == 1 and bool(first_is_jtbl)
+
+
 def main(argv: list[str]) -> int:
-    if len(argv) != 2:
-        print("usage: postprocess_split_jtbls.py <path.s>", file=sys.stderr)
+    if len(argv) not in (2, 3):
+        print("usage: postprocess_split_jtbls.py <path.s> [<tu source .c>]", file=sys.stderr)
         return 2
     p = Path(argv[1])
     src = p.read_text()
+    if len(argv) == 3 and _rodata_row_count(argv[2]) < 2 and _keep_compiler_section(src):
+        return 0
     out = transform(src)
     if out != src:
         p.write_text(out)

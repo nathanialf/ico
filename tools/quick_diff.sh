@@ -239,7 +239,7 @@ CC_RC=$?
 # hand-written blocks of ico2/seki/src/Matrix.c, which spell `.set noreorder` /
 # `.set reorder` around the body. Keep this file and compile_c.sh identical or
 # quick_diff lies.
-python3 "$ROOT/tools/postprocess_split_jtbls.py" "$ASM_OUT" || true
+python3 "$ROOT/tools/postprocess_split_jtbls.py" "$ASM_OUT" "$CSRC" || true
 # `cvt.w.s` is assembled by the period assembler itself: ee-as 2.9-991111 emits the
 # ROM's COP1 word (function 0x24, which modern objdump prints as trunc.w.s). The
 # former `.word` rewrite (a modern-gas parity shim, retired with that fallback)
