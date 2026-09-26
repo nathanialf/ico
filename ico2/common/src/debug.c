@@ -28,7 +28,8 @@ typedef struct {
 } __attribute__((packed)) Blk16;
 
 typedef struct {
-    int x, y, w, h;
+    int x, y;
+    unsigned int w, h;
 } FR;
 
 extern char D_0061B440[];
@@ -465,14 +466,21 @@ typedef struct {
     char text[52];
 } DbgFontLine;
 
+/* The bar colours are 4-byte GS colour records this TU only sees as far
+   (incomplete-array) symbols; their byte alignment is what makes every copy
+   an lwl/lwr pair. */
+typedef struct {
+    unsigned char r, g, b, a;
+} DbgCol;
+
 /* the profiler ring: 0x400 entries of 28 bytes, filled by debug_SetBar. */
 typedef struct {
-    char name[12];        /* 0x00 */
-    unsigned char col[4]; /* 0x0C */
-    char *file;           /* 0x10 */
-    short count;          /* 0x14 */
-    short pad16;          /* 0x16 */
-    int line;             /* 0x18 */
+    char name[12]; /* 0x00 */
+    DbgCol col;    /* 0x0C */
+    char *file;    /* 0x10 */
+    short count;   /* 0x14 */
+    short pad16;   /* 0x16 */
+    int line;      /* 0x18 */
 } DebugBar;
 
 /* the wall record ClipCollision leaves at +0x80 of the ray: the polygon it hit,
@@ -730,8 +738,8 @@ extern int D_0063AEB0;
 extern int gif_CheckOpen(void);
 /* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
-extern void gif_SetAlpha(int a0, int a1, int a2);
+/* GifPacket.h's parameter list: debug_DrawBar passes its 64-bit alpha untruncated */
+extern void gif_SetAlpha(long long a0, long long a1, long long a2);
 /* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int a0);
 /* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
@@ -811,13 +819,6 @@ void debug_FlushFont(void)
 {
     debug_FlushFontWindow();
 }
-
-/* The bar colours are 4-byte GS colour records this TU only sees as far
-   (incomplete-array) symbols; their byte alignment is what makes every copy
-   an lwl/lwr pair. */
-typedef struct {
-    unsigned char r, g, b, a;
-} DbgCol;
 
 extern DbgCol D_0063AEB8[];
 extern DbgCol D_0063AEC0[];
@@ -1001,14 +1002,12 @@ int debug_MakeBarString(char *p, int a, int b, FR fr, long long x, int line)
     return strlen(barString);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_DrawBar);
-
 /* .sbss, owned by debug.o (MAIN.MAP debug.o .sbss 0x10; it names no symbol,
    so the names are ours), in the ROM's run order: the rows debug_DispBox,
    debug_DispBall and debug_CollisionTest select, and the profiler's bar
    count.  All four are static: a global initialised to zero is emitted as
    small data and an uninitialised one as common, neither in debug.o's own
-   .sbss; the debug_DrawBar stub reaches the bar count by its address. */
+   .sbss. */
 static int dispBoxRow;
 
 static int dispBallRow;
@@ -1017,8 +1016,249 @@ static int collisionTestRow;
 
 static int debugBarCount;
 
+/* the two sprite rectangles and the three line colours the bar display
+   starts from */
+extern FR D_0061B9D0;
+extern FR D_0061B9E0;
+extern DbgCol D_0063AEE0[];
+extern DbgCol D_0063AEE8[];
+extern DbgCol D_0063AEF0[];
+extern char D_0063AEF8[]; /* "draw" */
+extern char D_0063AF00[]; /* "cpu" */
+extern char D_0063AF18[]; /* "/%d" */
+extern char D_0063AF20[]; /* "x%d" */
+extern char D_0063AF28[]; /* "%.2f%%" */
+extern char D_0061B9F0[]; /* "A:%p W:%1.2f%% W~%1.2f%% W_:%1.2f%%" */
+extern int debugBarMarkPos[];
+extern unsigned char D_0063AF04;
+extern float D_0063AF08;
+extern float D_0063AF0C;
+extern int D_0063AF10;
+extern int D_0063AF14;
+extern int D_0063B128;
+extern int D_0063B12C;
+extern int D_0063BD34;
 extern int D_0063AE68;
 extern int D_0028F4C0[];
+
+/* clang-format off */
+void debug_DrawBar(void)
+{
+    long long sh;
+    long long x = -256;
+    FR rect0;
+    DbgCol col1;
+    DbgCol col2;
+    DbgCol col3;
+    FR rect1;
+    DbgVtx v0, v1;
+    int flip;
+    float scale;
+    int i;
+    int w;
+    int len;
+    inline int barTime(void) { return debugBars[i].count; } /* RECONSTRUCTION (landing decision (2), c1p135-c1p144): never called; the bytes pin i as a memory-resident local (its frame slot at 0x70 and a load or store at every use in the three loops), which a nested function naming i gives, but not how the source made i addressable. */
+    rect0 = D_0061B9D0;
+    col1 = D_0063AEE0[0];
+    col2 = D_0063AEE8[0];
+    col3 = D_0063AEF0[0];
+    rect1 = D_0061B9E0;
+
+
+    flip = 0;
+    scale = 1.0f / (270000.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+
+
+
+
+
+
+
+
+
+    if (D_0063B13C & 1) debug_Printf(ScreenWidth / 2 - 298, ScreenHeight / 2 + 92, 0xFFFFFF00u, (int)D_0063AEF8);
+    if (D_0063B13C & 1) { debug_Printf(ScreenWidth / 2 - 282, ScreenHeight / 2 + 102, 0xFFFFFF00u, (int)D_0063AF00); debugBars[D_0063B1A0].count = debugBars[D_0063B1A0].count; }
+    /* RULING-VESTIGIAL-EXCEPTION (supervisor, c1p137-harvest): the first set of sh on the next line is dead and flow deletes it, so it emits nothing; the bytes pin a dead set of sh reading a debugBars element here (without it gcse has no debugBars base before the second bar loop, which then stays phony) and the listing's no-code rows 2610-2611 place it, but neither pins its text. RECONSTRUCTION (c1p144): the store-back of debugBars[D_0063B1A0].count after the "cpu" print is a no-op the compiler deletes after reload (reload_cse removes the store, flow2 the load); its only trace is the one reload register its address takes for gcse's (high debugBars), which shifts every later reload by one register as in the ROM, so the bytes pin a load and store of one debugBars field in that branch after the call, not its text. */
+    sh = debugBars[D_0063B1A0].count;
+    sh = D_0063B19C;
+
+    gif_StartPacketPri(12);
+    gif_SetDrawEnviroment(2048, 0, ScreenWidth, ScreenHeight, 1, 0);
+
+    gif_SetZWrite(0);
+    gif_SetZTest(0);
+
+
+    gif_SetAlpha(1, 2, 64);
+    gif_Sprite(&rect0, 0xFFFFFFFFU, 0, &col1, 1);
+    v0.x = v1.x = -257;
+    v0.y = 92;
+    v1.y = 104;
+    gif_Line(&v0, &v1, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
+    v0.x = v1.x = 257;
+    v0.y = 92;
+    v1.y = 104;
+    gif_Line(&v0, &v1, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
+    if (sh > 0) {
+        gif_SetAlpha(1, 4, 64);
+        v0.y = 91;
+        v1.y = 105;
+        for (i = 0; i < (1 << sh) - 1; i++) {
+            v0.x = v1.x = (i + 1) * (512 / (1 << sh)) - 256;
+            gif_Line(&v0, &v1, 0xFFFFFFFFU, 0xFFFFFFFFU, &col2, 1);
+        }
+    }
+
+    for (i = D_0063B1A0; i < debugBarCount && x < 320; i++) {
+
+        int t = debugBars[i].count - (D_0063B1A0 != 0 ? debugBars[D_0063B1A0 - 1].count : 0);
+
+        long long alpha;
+
+        DbgCol c0, c1;
+        if (sh > 0)
+            w = -256 + ((int)((float)(t << 9) * scale) >> sh);
+        else
+            w = -256 + (float)((t << -sh) << 9) * scale;
+        if (w > 320) w = 320;
+        alpha = (signed char)debugBars[i].col.a >= 0;
+        rect1.x = x;
+        rect1.w = w - x;
+        gif_SetAlpha(alpha, 2, debugBars[i].col.a);
+        if (i == D_0063B1A0) {
+
+            c0 = debugBars[i].col;
+
+
+
+
+
+
+            c1 = (DbgCol){(c0.r + 255) >> 1, (c0.g + 255) >> 1, (c0.b + 255) >> 1, 0};
+            c0 = c1;
+            c0.r >>= 1;
+            c0.g >>= 1;
+            c0.b >>= 1;
+            gif_Sprite(&rect1, 0xFFFFFFFFU, 0, (D_0063AF04 & 1) ? &c1 : &c0, alpha);
+
+            D_0063AF04++;
+        } else {
+            gif_Sprite(&rect1, 0xFFFFFFFFU, 0, &debugBars[i].col, alpha);
+        }
+        if (debug_bar_flag == 2) {
+            v0.x = w; v0.y = rect0.y;
+            v1.x = w; v1.y = rect0.y + rect0.h + 6;
+            gif_Line(&v0, &v1, 0xFFFFFFFFU, 0xFFFFFFFFU, &debugBars[i].col, alpha);
+        }
+
+        if (D_0063B13C & 1) {
+            len = strlen(debugBars[i].name);
+            if (len != 0) {
+                if (debug_bar_flag == 1) {
+                    v0.x = w; v0.y = rect0.y;
+                    v1.x = w; v1.y = rect0.y + rect0.h + 6;
+                    gif_Line(&v0, &v1, 0xFFFFFFFFU, 0xFFFFFFFFU, &debugBars[i].col, alpha);
+                }
+                v0.x = w; v0.y = rect0.y + rect0.h + 7;
+                v1.x = w + 7; v1.y = rect0.y + (flip * 7 + 1) + 8 + rect0.h - 1;
+                gif_Line(&v0, &v1, 0xFFFFFFFFU, 0xFFFFFFFFU, &col3, alpha);
+                v0.x = w + 7; v0.y = rect0.y + (flip * 7 + 1) + 8 + rect0.h - 1;
+                v1.x = w + 8 + len * 8; v1.y = rect0.y + (flip * 7 + 1) + 8 + rect0.h - 1;
+                gif_Line(&v0, &v1, 0xFFFFFFFFU, 0xFFFFFFFFU, &col3, alpha);
+                flip ^= 1;
+            }
+        }
+
+        x = w;
+    }
+
+    gif_SetAlpha(1, 4, 64);
+    v0.x = -256; v0.y = 98;
+    if (sh > 0) {
+        v1.x = ((int)((float)(D_0063AE68 << 9) * scale) >> sh) - 256;
+    } else {
+        v1.x = ((int)((float)(D_0063AE68 << 9) * scale) << -sh) - 256;
+    }
+    v1.y = 98;
+    if (v1.x > 320) v1.x = 320;
+    col1.r = col1.g = col1.b = col1.a = 164;
+    gif_Line(&v0, &v1, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
+
+
+    v0.x = -256; v0.y = 94;
+    v1.x = (D_0063BD34 << 9) / 100 - 256; v1.y = 94;
+    col1.r = 0;
+    col1.g = col1.b = col1.a = 164;
+    gif_Line(&v0, &v1, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
+
+
+    v0.x = -256; v0.y = 96;
+    v1.x = (D_0063B128 << 9) / 100 - 256; v1.y = 96;
+    col1.b = 0; col1.r = col1.g = col1.a = 164;
+    gif_Line(&v0, &v1, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
+
+    gif_SetZTest(1);
+    gif_SetZWrite(1);
+    gif_EndPacket();
+
+    flip = 0;
+    for (i = D_0063B1A0; i < debugBarCount && x < 320; i++) {
+        int t = debugBars[i].count - (D_0063B1A0 != 0 ? debugBars[D_0063B1A0 - 1].count : 0);
+
+        int dpct;
+        int pct;
+        if (sh > 0)
+            w = -256 + ((int)((float)(t << 9) * scale) >> sh);
+        else
+            w = -256 + (float)((t << -sh) << 9) * scale;
+        if (w > 320) w = 320;
+        if (i > 0)
+            dpct = (float)((debugBars[i].count - debugBars[i - 1].count) * 10000) * scale;
+        else dpct = 0;
+        pct = (float)(t * 10000) * scale;
+        len = debug_MakeBarString((char *)&debugBars[i], dpct, pct, rect0, w, flip);
+        if (len != 0) flip ^= 1;
+    }
+
+    for (i = 0; i < D_0063B12C; i++) {
+        char buf[16];
+        sprintf(buf, D_0063AE90, i);
+        v0.x = (debugBarMarkPos[i] << 9) / 100 - 256 + ScreenWidth / 2;
+        v0.y = ScreenHeight / 2 + 88;
+        if (D_0063B13C & 1) debug_Printf(v0.x, v0.y, 0xFFFFFF00u, (int)buf);
+    }
+
+    if (D_0063B1A0 < debugBarCount) {
+        float val;
+        int line;
+
+
+        val = (float)(debugBars[D_0063B1A0].count - (D_0063B1A0 != 0 ? debugBars[D_0063B1A0 - 1].count : 0)) * 100.0f * scale;
+
+
+        line = debugBars[D_0063B1A0].line;
+        if (D_0063AF10 != D_0063B1A0 || line != D_0063AF14)
+            D_0063AF08 = D_0063AF0C = val;
+        else {
+            if (D_0063AF08 < val) D_0063AF08 = val;
+            if (val < D_0063AF0C) D_0063AF0C = val;
+        }
+        if (D_0063B13C & 1) debug_Printf(10, ScreenHeight / 2 - 28, 0xFFFFFF00u, (int)D_0061B9F0,
+                         debugBars[D_0063B1A0].line, val, D_0063AF08, D_0063AF0C);
+
+
+        D_0063AF10 = D_0063B1A0;
+        D_0063AF14 = line;
+    }
+
+    if (D_0063B13C & 1) debug_Printf(ScreenWidth + 70, ScreenHeight / 2 - 14, 0xFFFFFF00u,
+                         (int)(sh > 0 ? D_0063AF18 : D_0063AF20), sh > 0 ? (1 << sh) : (1 << -sh));
+    if (D_0063B13C & 1) debug_Printf(ScreenWidth + 30, ScreenHeight / 2 - 24, 0xFFFFFF00u, (int)D_0063AF28,
+                         sh > 0 ? (float)(100 << sh) : (float)(10000 >> -sh) * 0.01f);
+}
+
+/* clang-format on */
+
 extern int frame_count;
 extern char D_0061BA18[];
 extern char D_0061BA28[];
@@ -3076,10 +3316,10 @@ void debug_SetBar(char *name, unsigned int col, char *file, int line)
     if (D_0063B1D4 == 0 && debugBarCount != 0x400) {
         sprintf(p->name, D_0063AF30, name);
         p->count = *(volatile int *)0x10000000;
-        p->col[0] = col >> 24;
-        p->col[1] = col >> 16;
-        p->col[2] = col >> 8;
-        p->col[3] = col;
+        p->col.r = col >> 24;
+        p->col.g = col >> 16;
+        p->col.b = col >> 8;
+        p->col.a = col;
         p->file = file;
         p->line = line;
         debugBarCount++;
@@ -3094,10 +3334,10 @@ void debug_SetBar2(char *name, unsigned int col, char *file, int line)
     if (D_0063B1D4 != 0 && debugBarCount != 0x400) {
         sprintf(p->name, D_0063AF30, name);
         p->count = *(volatile int *)0x10000000;
-        p->col[0] = col >> 24;
-        p->col[1] = col >> 16;
-        p->col[2] = col >> 8;
-        p->col[3] = col;
+        p->col.r = col >> 24;
+        p->col.g = col >> 16;
+        p->col.b = col >> 8;
+        p->col.a = col;
         p->file = file;
         p->line = line;
         debugBarCount++;
