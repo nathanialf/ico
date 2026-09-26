@@ -598,6 +598,8 @@ segments:
       - [0x3EB440, .data, ico2/sugipon/src/item]  # the TU's whole .data run as source (data pass 5), abutting lodManager's, VMA 0x4EB440..0x4EB5E0, 416 B
       - [0x3EB5E0, .data, ico2/sugipon/src/lodManager]  # the TU's whole .data run as source (data pass 5; = MAIN.MAP lodManager.o .data 0x178), VMA 0x4EB5E0..0x4EB758, 376 B
       - [0x3EB758, data, cod/3EB758]     # data blob resume
+      - [0x3ECBE0, .data, ico2/sugipon/src/motionOrientManager]  # the TU's whole .data as source: slopeVector, a zero sceVu0FVECTOR (16 B, VMA 0x4ECBE0; chain 3 pass 144); non-static while the getMotionGeometry stub reaches it
+      - [0x3ECBF0, data, cod/3ECBF0]     # data blob resume
       - [0x3ECCF0, .data, ico2/sugipon/src/particleEffect]  # the TU's whole .data run as source (completeness pass 5), VMA 0x4ECCF0..0x4ECDEC, 252 B emitted
       - [0x3ECDEC, data, cod/3ECDEC]     # .data blob resume
       - [0x3ECF90, .data, ico2/sugipon/src/rotObject]  # the TU's whole .data run as source (completeness pass 5), VMA 0x4ECF90..0x4ECFA0, 16 B emitted

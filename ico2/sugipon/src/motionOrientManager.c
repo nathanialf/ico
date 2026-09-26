@@ -63,9 +63,24 @@ typedef struct MotOriTrigEnt {
     /* 0x178 */ int f178;
     /* 0x17C */ int f17C;
     /* 0x180 */ char pad180[0x8];
-    /* 0x188 */ unsigned int f188;
-    /* 0x18C */ unsigned int f18C;
-    /* 0x190 */ unsigned int f190;
+    /* 0x188 */ unsigned int : 26;
+    unsigned int f188_26 : 2;
+    unsigned int f188_28 : 2;
+    unsigned int f188_30 : 2;
+    /* 0x18C */ unsigned int : 17;
+    unsigned int f18C_17 : 1;
+    unsigned int : 1;
+    unsigned int f18C_19 : 1;
+    unsigned int f18C_20 : 1;
+    unsigned int : 1;
+    unsigned int f18C_22 : 1;
+    unsigned int f18C_23 : 1;
+    unsigned int : 3;
+    unsigned int f18C_27 : 1;
+    unsigned int : 4;
+    /* 0x190 */ unsigned int : 9;
+    unsigned int f190_9 : 1;
+    unsigned int : 22;
 } MotOriTrigEnt;
 
 /* The 0x470 motion work area, reconstructed from the ROM's own displacements.
@@ -73,10 +88,21 @@ typedef struct MotOriTrigEnt {
    form because a field reference and an `extern int` are in different alias
    sets, which is what lets the ROM's motionFrameUpdate load schedule above the
    two preceding work-area stores. */
+
+/* RECONSTRUCTION, the type name is ours: the 0x08C counter (cleared by
+   shiftMotionData, stepped by UpdateFrameCounter) is not an int to the
+   scheduler: in shiftMotionData its store does not precede the inlined int
+   table read the other int stores do, so its lvalue has an alias set of its
+   own, which a 32-bit enumerated type gives. */
+enum MotOriStep { MOTORI_STEP_0 };
+
 typedef struct MotOriWork {
-    /* 0x000 */ char pad000[0x30];
+    /* 0x000 */ char pad000[0xC];
+    /* 0x00C */ int fC;
+    /* 0x010 */ char pad010[0x1C];
+    /* 0x02C */ int f2C;
     /* 0x030 */ int f30;
-    /* 0x034 */ char pad034[0x4];
+    /* 0x034 */ int f34;
     /* 0x038 */ int f38;
     /* 0x03C */ float f3C;
     /* 0x040 */ float f40;
@@ -87,18 +113,27 @@ typedef struct MotOriWork {
     /* 0x054 */ int f54;
     /* 0x058 */ int f58;
     /* 0x05C */ int f5C;
-    /* 0x060 */ char pad060[0x8];
+    /* 0x060 */ int f60;
+    /* 0x064 */ int f64;
     /* 0x068 */ int f68;
-    /* 0x06C */ char pad06C[0x14];
+    /* 0x06C */ int f6C;
+    /* 0x070 */ int f70;
+    /* 0x074 */ char pad074[0x8];
+    /* 0x07C */ int f7C;
     /* 0x080 */ int f80;
     /* 0x084 */ char pad084[0x8];
-    /* 0x08C */ int f8C;
-    /* 0x090 */ char pad090[0x10];
+    /* 0x08C */ enum MotOriStep f8C;
+    /* 0x090 */ char pad090[0x4];
+    /* 0x094 */ int f94;
+    /* 0x098 */ int f98;
+    /* 0x09C */ int f9C;
     /* 0x0A0 */ int fA0;
     /* 0x0A4 */ int fA4;
     /* 0x0A8 */ char pad0A8[0xE8];
     /* 0x190 */ int f190;
     /* 0x194 */ int f194;
+    /* 0x198 */ char pad198[0x44];
+    /* 0x1DC */ int f1DC;
 } MotOriWork;
 
 /* .rodata at 0x55FE58 in the ROM: the trigger definition table is read-only. */
@@ -331,7 +366,7 @@ static __inline__ int checkMotionShiftRange(int mot, float t, float t2)
     if (a < 0.0f || b < 0.0f) {
         return 0;
     }
-    if ((e->f18C >> 19) & 1) {
+    if (e->f18C_19) {
         if (a < t2 && t < ab) {
             return 1;
         }
@@ -396,7 +431,7 @@ int UpdateFrameCounter(void *self)
                 w->f5C = D_0055FE58[w->f30].f150;
                 InitFrameDependSequence(m + 0x740);
                 clearFrameTriggerState(self);
-                if (((D_0055FE58[w->f30].f18C >> 20) & 1) != 0) {
+                if (D_0055FE58[w->f30].f18C_20 != 0) {
                     w->f80 = 1;
                 }
             }
@@ -583,7 +618,110 @@ static inline int searchMotionShift(void *self, int id, int cur)
     return -1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", shiftMotionData);
+/* No symbol and no census row: the listing gives it lines 563 to 566, above
+ * shiftMotionData's own first line. The table is six {request, substitute}
+ * pairs. */
+typedef struct MotOriAlt {
+    int req;
+    int alt;
+} MotOriAlt;
+
+extern MotOriAlt D_004FBA50[];
+
+static __inline__ int searchAltMotion(int req)
+{
+    int i;
+
+    for (i = 0; i < 6; i++) {
+        if (D_004FBA50[i].req == req) {
+            return D_004FBA50[i].alt;
+        }
+    }
+    return req;
+}
+
+/* RECONSTRUCTION, the type and enumerator names are ours: the 0x360 word of the
+ * motion block holds the table's 2-bit mode (bits 26-27 of the 0x188 word).
+ * The ROM stores it ahead of the int store to w->fA4 while every int store to
+ * the block stays behind that one, so its lvalue has an alias set of its own:
+ * an enumerated mode, as debug_bar_flag below. */
+enum MotOriShiftMode { MOTORI_SHIFT_0, MOTORI_SHIFT_1, MOTORI_SHIFT_2, MOTORI_SHIFT_3 };
+
+void shiftMotionData(int a0, int a1, int a2, int a3)
+{
+    char *m = (char *)*(int *)(a0 + 0x15C);
+    MotOriWork *w = (MotOriWork *)(m + 0x470);
+    char *mw = m + 0xA0;
+    int mot;
+    float frame;
+
+    if (w->f38 != 0) {
+        mot = searchAltMotion(a1);
+    } else {
+        mot = a1;
+    }
+    w->f98 = w->f34;
+    w->f34 = 0;
+    if (mot == -1) {
+        w->f34 = 1;
+        mot = a1;
+    }
+    w->f94 = w->f30;
+    w->f9C = (int)w->f3C;
+    w->fA4 = (int)((float)a3 * ((float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 60.0f));
+    *(int *)(mw + 0x180) = -1;
+    *(int *)(mw + 0x310) = D_0055FE58[mot].f10C;
+    *(int *)(mw + 0x308) = D_0055FE58[mot].f114;
+    *(int *)(mw + 0x30C) = D_0055FE58[mot].f110;
+    *(enum MotOriShiftMode *)(mw + 0x360) = D_0055FE58[mot].f188_26;
+    *(int *)(mw + 0x314) = D_0055FE58[mot].f18C_23;
+    *(float *)(mw + 0x340) = *(float *)(mw + 0x338);
+    *(float *)(mw + 0x33C) = D_0055FE58[mot].f164 < 5.0f ? 5.0f : D_0055FE58[mot].f164;
+    *(int *)(mw + 0x318) = D_0055FE58[mot].f170;
+    *(int *)(mw + 0x31C) = D_0055FE58[mot].f17C;
+    *(int *)(mw + 0x324) = D_0055FE58[mot].f188_28;
+    *(int *)(mw + 0x320) = D_0055FE58[mot].f16C;
+    *(int *)(mw + 0x328) = D_0055FE58[mot].f104;
+    *(int *)(mw + 0x32C) = D_0055FE58[mot].f18C_22;
+    *(int *)(mw + 0x330) = D_0055FE58[mot].f190_9;
+    w->f64 = 0;
+    if (w->f60 == 0) {
+        if (w->f68 != D_0055FE58[mot].f118) {
+            w->f64 = 1;
+            w->f68 = D_0055FE58[mot].f118;
+        }
+    }
+    w->f6C = 0;
+    if (w->f70 != 0) {
+        if (D_0055FE58[mot].f18C_17 == 0) {
+            w->f6C = 1;
+        }
+    }
+    w->f70 = D_0055FE58[mot].f18C_17;
+    w->f30 = mot;
+    w->f2C = a2;
+    w->fA0 = 1;
+    w->f8C = 0;
+    w->f3C = 0.0f;
+    w->f40 = w->f3C;
+    w->f58 = 1;
+    frame = w->f3C;
+    w->f190 = checkFrameInRange(mot, w->f3C);
+    w->f194 = checkFrameInRange2(w->f30, w->f3C, frame);
+    w->f38 = checkMotionShiftRange(w->f30, w->f3C, frame);
+    w->fC = 1;
+    w->f5C = 0;
+    w->f1DC = 0;
+    if (D_0055FE58[mot].f18C_20 != 0) {
+        w->f80 = 1;
+        if (D_0055FE58[w->f94].f18C_20 == 0) {
+            w->f7C = 0;
+        }
+    } else {
+        w->f80 = 0;
+        w->f7C = 0;
+    }
+}
 
 extern char D_00620300[];
 extern char D_0063B9B8[];
@@ -669,7 +807,7 @@ void shiftMotionOrientBeginFunc(void *self, int a1, int a2, int a3)
     if (*(int *)(w + 0x68) != 0 && *(int *)(w + 0x68) != 6) {
         int kind = D_0055FE58[*(int *)(w + 0x94)].f108;
 
-        if (((unsigned int)D_0055FE58[*(int *)(w + 0x30)].f18C >> 27) & 1 || kind != 0) {
+        if (D_0055FE58[*(int *)(w + 0x30)].f18C_27 || kind != 0) {
             sceVu0UnitMatrix(MatrixDrive_GetMatrix());
             if (kind != 0 && kind != 1) {
                 ang = (short)(kind * 32768 / 180);
@@ -985,6 +1123,11 @@ void getNodeBlendedFloatingMotion(void *dst, float *root, int id, int n, int a4,
         __assert(D_006202D0, 1228, D_0063B9B8);
     }
 }
+
+/* The slope vector getMotionGeometry normalises for its pitch angle: an
+ * initialised object, so it lives in .data; non-static until the function's
+ * stub lands. */
+sceVu0FVECTOR slopeVector = {0.0f, 0.0f, 0.0f, 0.0f};
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionOrientManager", getMotionGeometry);
 
