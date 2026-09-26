@@ -553,7 +553,8 @@ segments:
       - [0x19B430, .data, ico2/fumi/ios/inflate]  # the TU's whole .data run as source (completeness pass 5), VMA 0x29B430..0x29B57C, 332 B emitted
       - [0x19B57C, data, cod/19B57C]     # .data blob resume
       - [0x19C840, .data, ico2/fumi/src/commonact]  # the TU's whole .data run as source (chain 3 pass 62): intrMotion (432 ints, the motion id per interrupt kind), cageUpDown (CageUD, 0x2C plus 4 pad), flyLimitCol and the three block-scope col[4] colour quads (anonymous col.N), VMA 0x29C840..0x29CF70, 0x730 B; MAIN.MAP commonact.o .data 0x680 is the January link
-      - [0x19CF70, data, cod/19CF70]     # .data blob resume (enemy_act's record D_0029CF70)
+      - [0x19CF70, .data, ico2/fumi/src/enemy_act]  # the TU's whole .data run as source: fourteen 28-byte brain-mode records, 8 B of fill, three 16-aligned float tables and a colour quad, VMA 0x29CF70..0x29D1D0 (chain 3 pass 148); the record names stay placeholders until the string runs are carved
+      - [0x19D1D0, data, cod/19D1D0]     # data blob resume
       - [0x1A50C0, .data, ico2/script/src/gflag]  # the story flag bitmap (data pass 3), VMA 0x2A50C0..0x2A50F2, 50 B; the 14 zero bytes to 0x2A5100 are the next input's alignment pad
       - [0x1A5100, .data, ico2/script/src/script]  # the TU's whole .data run as source (completeness pass 5), VMA 0x2A5100..0x2A5400, 768 B emitted
       - [0x1A5400, data, cod/1A5400]     # .data blob resume
@@ -1257,6 +1258,7 @@ segments:
       - { type: sbss, vram: 0x0063C1B8, name: cod/0063C1B8 }  # .sbss blob resume
       - { type: .sbss, vram: 0x0063C1D0, name: ico2/fumi/sound/s_init }  # the TU's .sbss as source (chain 1 pass 78): debug_DispSEInfo's local statics first (written at parse time) then the file statics, VMA 0x63C1D0..0x63C1F0, 0x20 B = MAIN.MAP; the blob before it keeps adpcm_init's 0x63C1B8..0x63C1D0
       - { type: sbss, vram: 0x0063C1F0, name: cod/0063C1F0 }  # .sbss blob resume
+      - { type: .sbss, vram: 0x0063C208, name: ico2/fumi/src/enemy_act }  # the TU's own .sbss, one static pointer shared by two nested brain-change children (chain 3 pass 148)
       - { type: .sbss, vram: 0x0063C20C, name: ico2/fumi/src/fieldCollision }  # the TU's .sbss as source (completeness pass 65)
       - { type: .sbss, vram: 0x0063C244, name: ico2/fumi/src/girl_act }  # the TU's first .sbss word as source (completeness pass 66), 4 of the run's 8 B, the second word D_0063C248 stays a blob while the .c.inc stub subGirlBrain_Attract names it
       - { type: sbss, vram: 0x0063C248, name: cod/0063C248 }  # .sbss blob resume

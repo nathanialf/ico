@@ -54,6 +54,65 @@ static inline void _BrainMode_SetDirect_INTERIM(char *a0, int a1, int *a2)
     }
 }
 
+/* The brain-mode table, one 28-byte record per mode: its name, its priority
+   against the running mode, the brain function and four parameters
+   (subEnemyBrainMain and BrainMode_Requset read them).  The names are this
+   TU's own string literals ("START" .. "IRREGULAR"), still placeholders here
+   because the .sdata run that holds nine of them is not carved yet. */
+typedef struct {
+    char *name;
+    int pri;
+    void (*brain)(int);
+    int f0C;
+    int f10;
+    int f14;
+    int f18;
+} EnemyBrainMode;
+
+extern char D_0063A7D8[]; /* "START" */
+extern char D_0063A7D0[]; /* "IDLE" */
+extern char D_0063A7C8[]; /* "AWAIT" */
+extern char D_0063A7C0[]; /* "TO_BOY" */
+extern char D_0063A7B8[]; /* "TO_GIRL" */
+extern char D_0063A7B0[]; /* "TO_GENE" */
+extern char D_00553360[]; /* "FIND_GIRL" */
+extern char D_00553350[]; /* "BODYGUARD" */
+extern char D_0063A7A8[]; /* "CLING" */
+extern char D_0063A7A0[]; /* "ATTACK" */
+extern char D_00553340[]; /* "SHOULDER" */
+extern char D_0063A798[]; /* "PICKUP" */
+extern char D_00553330[]; /* "BODYSLAM" */
+extern char D_00553320[]; /* "IRREGULAR" */
+void subEnemyBrain_Await(volatile int a0);
+void subEnemyBrain_ToBoy(volatile int a0);
+void subEnemyBrain_ToGirl(volatile int a0);
+void subEnemyBrain_ToGenerator(int self);
+void subEnemyBrain_FindGirl(volatile int a0);
+void subEnemyBrain_BodyGuard(volatile int a0);
+void subEnemyBrain_Cling(volatile int a0);
+void subEnemyBrain_Attack(volatile int a0);
+void subEnemyBrain_Shoulder(volatile int a0);
+void subEnemyBrain_Pickup(volatile int a0);
+void subEnemyBrain_Bodyslam(volatile int a0);
+void subEnemyBrain_Irregular(volatile int a0);
+
+EnemyBrainMode brainModeTable[] = {
+    {D_0063A7D8, 0, subEnemyBrain_Idle, 0, 0, 1, 0},
+    {D_0063A7D0, 1, subEnemyBrain_Idle, 0, 0, 1, 0},
+    {D_0063A7C8, 2, subEnemyBrain_Await, 2, 2, 1, 1},
+    {D_0063A7C0, 2, subEnemyBrain_ToBoy, 2, 2, 1, 1},
+    {D_0063A7B8, 2, subEnemyBrain_ToGirl, 1, 3, 1, 2},
+    {D_0063A7B0, 2, subEnemyBrain_ToGenerator, 0, 1, 1, 4},
+    {D_00553360, 2, subEnemyBrain_FindGirl, 0, 0, 1, 0},
+    {D_00553350, 2, subEnemyBrain_BodyGuard, 0, 4, 1, 5},
+    {D_0063A7A8, 3, subEnemyBrain_Cling, 0, 0, 1, 0},
+    {D_0063A7A0, 3, subEnemyBrain_Attack, 0, 0, 1, 0},
+    {D_00553340, 3, subEnemyBrain_Shoulder, 0, 3, 1, 2},
+    {D_0063A798, 3, subEnemyBrain_Pickup, 0, 1, 1, 4},
+    {D_00553330, 3, subEnemyBrain_Bodyslam, 0, 0, 1, 0},
+    {D_00553320, 4, subEnemyBrain_Irregular, 0, 0, 1, 0},
+};
+
 extern char D_00553370[];
 extern char D_0063A7E8[];
 extern void debug_assert(char *file, int line);
@@ -819,7 +878,17 @@ extern void sceVu0SubVector(float *dst, float *a, float *b);
 extern float _DistSqGV(float *a, float *b);
 /* kept local: this TU's uses of GetMotionFrameFlag1 do not fit the prototype in motionManager2.h */
 extern int GetMotionFrameFlag1(void *self);
-extern float D_0029D100[];
+
+/* The point the lifting enemy turns to.  RECONSTRUCTION: the ROM holds three
+   vectors here (0x30 bytes, the first two equal) and only the first is ever
+   addressed, so the bytes cannot say whether the developer wrote one table or
+   three objects; the 8 bytes of fill after brainModeTable prove the 16-byte
+   alignment. */
+static float bodyliftTarget[3][4] __attribute__((aligned(16))) = {
+    {-311.0f, -89.0f, -147.0f, 0.0f},
+    {-311.0f, -89.0f, -147.0f, 0.0f},
+    {-770.0f, -1445.0f, -749.0f, 0.0f},
+};
 
 /* listing rows 2655-2657: a `static inline` outside this function's span. */
 static inline void enemyBodyliftClearBoy(char *self)
@@ -841,7 +910,7 @@ void actEnemyBodylift(volatile int a0)
     sub = ((EnemyBattleGObj *)a0)->sub;
     hit = 0;
     ((EnemyBattleGObj *)a0)->sub->enemy->flags.ll &= ~4LL;
-    _OrientXZGV(dir, D_0029D100, (float *)test_CURRENTROOT((int)a0));
+    _OrientXZGV(dir, bodyliftTarget[0], (float *)test_CURRENTROOT((int)a0));
     sub->after = (void *)afterEnemyBodylift;
     if (((EnemyBattleGObj *)a0)->sub->enemy->liftKind != 3) {
         _OrientXZGV(sub->dir, (float *)test_CURRENTROOT((int)D_00639EA4),
@@ -1294,9 +1363,24 @@ int Battle_isCurrentStatus(char *self, char *tgt, float *pos)
 }
 
 extern float D_0063A7F4[];
-extern float D_0029D130[4][4];
-extern float D_0029D170[4][4];
-extern float D_0029D1B0[];
+
+/* GetFlyPosition's points: the four the enemy measures against, the four it
+   flies to (paired by index, 200 below), and the one it escapes to. */
+static float flyCheckPos[4][4] __attribute__((aligned(16))) = {
+    {760.0f, 0.0f, 766.0f, 1.0f},
+    {708.0f, 0.0f, -806.0f, 1.0f},
+    {-1394.0f, 0.0f, -858.0f, 1.0f},
+    {-1383.0f, 0.0f, 645.0f, 1.0f},
+};
+
+static float flyDestPos[4][4] __attribute__((aligned(16))) = {
+    {842.0f, -200.0f, 1278.0f, 1.0f},
+    {734.0f, -200.0f, -1273.0f, 1.0f},
+    {-1394.0f, -200.0f, -1291.0f, 1.0f},
+    {-1383.0f, -200.0f, 1291.0f, 1.0f},
+};
+
+static float flyEscapePos[4] __attribute__((aligned(16))) = {1712.0f, -600.0f, 0.0f, 1.0f};
 
 int GetFlyPosition(float *out, float *me, float *tgt)
 {
@@ -1304,16 +1388,16 @@ int GetFlyPosition(float *out, float *me, float *tgt)
 
     ret = 0;
     if (tgt[1] < -500.0f && 1000.0f < ((tgt[2] < 0.0f) ? -tgt[2] : tgt[2]) && -500.0f < me[1]) {
-        out[0] = D_0029D1B0[0];
-        out[1] = D_0029D1B0[1];
-        out[2] = D_0029D1B0[2];
+        out[0] = flyEscapePos[0];
+        out[1] = flyEscapePos[1];
+        out[2] = flyEscapePos[2];
         return 2;
     }
     if (tgt[1] < -500.0f && 1000.0f < ((tgt[2] < 0.0f) ? -tgt[2] : tgt[2]) &&
         _DistSqGV(me, tgt) < 160000.0f) {
-        out[0] = D_0029D1B0[0];
-        out[1] = D_0029D1B0[1];
-        out[2] = D_0029D1B0[2];
+        out[0] = flyEscapePos[0];
+        out[1] = flyEscapePos[1];
+        out[2] = flyEscapePos[2];
         return 2;
     }
     if (-150.0f < me[1]) {
@@ -1322,7 +1406,7 @@ int GetFlyPosition(float *out, float *me, float *tgt)
         int i;
 
         for (i = 0; i < 4; i++) {
-            float d = _DistSqGV(me, D_0029D130[i]);
+            float d = _DistSqGV(me, flyCheckPos[i]);
 
             if (d < best) {
                 best = d;
@@ -1330,7 +1414,7 @@ int GetFlyPosition(float *out, float *me, float *tgt)
             }
         }
         if (besti != -1) {
-            float *p = D_0029D170[besti];
+            float *p = flyDestPos[besti];
 
             ret = 1;
             out[0] = p[0];
@@ -1343,7 +1427,7 @@ int GetFlyPosition(float *out, float *me, float *tgt)
         int i;
 
         for (i = 0; i < 4; i++) {
-            float d = _DistSqGV(tgt, D_0029D130[i]);
+            float d = _DistSqGV(tgt, flyCheckPos[i]);
 
             if (best < d) {
                 best = d;
@@ -1353,22 +1437,22 @@ int GetFlyPosition(float *out, float *me, float *tgt)
         if (besti != -1) {
             ret = 1;
             if (((int)(_GetRandom() * 10.0f)) & 1) {
-                out[0] = D_0029D1B0[0];
-                out[1] = D_0029D1B0[1];
-                out[2] = D_0029D1B0[2];
+                out[0] = flyEscapePos[0];
+                out[1] = flyEscapePos[1];
+                out[2] = flyEscapePos[2];
             } else {
                 /* The table base is its OWN statement: ROM computes
-                   `addiu $v1,$s5,%lo(D_0029D130)` BEFORE `sll $v0,$s4,4`, which
+                   `addiu $v1,$s5,%lo(flyCheckPos)` BEFORE `sll $v0,$s4,4`, which
                    only happens when the address is op0 of the PLUS.  Written as
                    one expression, `fold` sinks the (constant) address to op1 in
-                   every spelling measured -- `D_0029D130[besti]`,
-                   `(float *)D_0029D130 + besti*4`, `D_0029D130[0] + besti*4`,
-                   `&D_0029D130[besti][0]`, `&D_0029D130[0][besti*4]`,
-                   `besti*4 + D_0029D130[0]`, a struct-typed row, and `p = base;
+                   every spelling measured -- `flyCheckPos[besti]`,
+                   `(float *)flyCheckPos + besti*4`, `flyCheckPos[0] + besti*4`,
+                   `&flyCheckPos[besti][0]`, `&flyCheckPos[0][besti*4]`,
+                   `besti*4 + flyCheckPos[0]`, a struct-typed row, and `p = base;
                    p += besti*4;` -- so `sll` is emitted first, both arms' copy
                    blocks end up in the same registers and jump2 cross-jumps
                    them into one (6 insns short). */
-                float *tbl = D_0029D130[0];
+                float *tbl = flyCheckPos[0];
                 float *p = tbl + besti * 4;
 
                 out[0] = p[0];
@@ -1446,6 +1530,11 @@ void NakaBoss(char *self, void *tgt, float dist)
         }
     }
 }
+
+/* The brain-mode target the ChangeBrain_ToAttack and ChangeBrain_ToKidnap
+   children hand to _BrainMode_SetDirect: one word shared by the nested
+   functions of two parents, so file scope (the TU's whole .sbss). */
+static char *brainTarget;
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", ChangeBrain_ToAttack);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", subEnemyBrain_ToBoy);
@@ -1563,7 +1652,6 @@ extern void _UnitMatrix(void *p0);
 extern void gif_StartPacketPri(int pri);
 extern void gif_EndPacket(void);
 extern void prim_DispWireSphere(float r, void *col, int nu, int nv);
-extern unsigned char D_0029D1C0[];
 extern int D_0063B234;
 
 /* static inline of the 2001 source, listing rows 4654-4660: FlyMail is `inline`
@@ -1661,12 +1749,14 @@ int _ApproachTarget_Way(char *self, void *tgt, void *pos, void *fn, float range,
         *(float *)((char *)pos + 8) = *(float *)(sub + 0x3E8);
         if (((int)(((ActStatusWord *)(sub + 0x3F0))->q >> 17)) & 1) {
             if (D_0063B234 != 0) {
+                static int col[4] = {255, 100, 0, 128};
+
                 MatrixDrive_PushMatrix();
                 GetRootPosition(rp, self);
                 _UnitMatrix(MatrixDrive_GetMatrix());
                 MatrixDrive_TransMatrixV((char *)rp);
                 gif_StartPacketPri(11);
-                prim_DispWireSphere(100.0f, D_0029D1C0, 4, 4);
+                prim_DispWireSphere(100.0f, col, 4, 4);
                 gif_EndPacket();
                 MatrixDrive_PopMatrix();
             }

@@ -6216,3 +6216,5 @@ D_00707530 = 0x00707530; // ignore:true  // packed bytes in cod/4D3CE8 that spla
 fontOutline = 0x00704AD0; // size:0x2000  // debug.c static, the 256 glyph outlines the MakeFont stub reaches (chain 1 pass 132)
 fontGlyph = 0x00706AD0; // size:0x1000  // debug.c static, the 256 glyph images the MakeFont stub reaches (chain 1 pass 132)
 D_00704900 = 0x00704900; // ignore:true  // a rodata blob word pointing at debug.c's static ballCentre, raw until that rodata is carved (chain 1 pass 132)
+brainTarget = 0x0063C208; // size:0x4  // enemy_act.c static pointer the two nested brain-change children share (chain 3 pass 148)
+brainModeTable = 0x0029CF70; // size:0x188  // enemy_act.c data, fourteen 28-byte brain-mode records the BrainMode_Requset and subEnemyBrainMain stubs reach (chain 3 pass 148)
