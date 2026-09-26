@@ -115,7 +115,83 @@ void debug_SaveDebugOptionFile(void)
     debug_openLog();
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/common/src/debug", debug_GetDebugOption);
+extern char D_0061B660[];
+extern char D_0061B6A0[];
+extern char D_0061B6E0[];
+extern char D_0061B718[];
+extern char D_0061B758[];
+extern char D_0061B798[];
+extern char D_0061B7B8[];
+extern int sceLseek(int fd, int off, int whence);
+extern int sceRead(int fd, void *buf, int size);
+extern int atoi(char *s);
+extern int strcmp();
+
+int debug_GetDebugOption(void)
+{
+    char buf[0x100];
+    int fd;
+    int size;
+    int i;
+    int n;
+    int cnt;
+    DbgOpt *o;
+    DbgOpt *p;
+
+    debug_StdPrintfDummy(D_0061B660);
+    fd = debugSceOpen((int)D_0061B5F0, 1);
+    if (fd < 0) {
+        debug_StdPrintfDummy(D_0061B6A0);
+        fd = -1;
+    } else {
+        cnt = 0;
+        size = sceLseek(fd, 0, 2);
+        sceLseek(fd, 0, 0);
+        /* clang-format off */
+        n = 0; i = 0;
+        p = o = D_0061A4D0; do {
+            /* clang-format on */
+            sceRead(fd, &buf[n], 1);
+            if (buf[n++] == '\n') {
+                switch (buf[0]) {
+                default:
+                    if (buf[0] != '\n') {
+                        /* clang-format off */
+                        *o->val = atoi(buf); o++; p++; cnt++;
+                        /* clang-format on */
+                    } else {
+                        debug_StdPrintfDummy(D_0061B6E0);
+                        cnt = -1;
+                        goto done;
+                    }
+                    break;
+                case '#':
+                    buf[strlen(buf) - 1] = 0;
+                    if (strcmp(o->name, &buf[1]) != 0) {
+                        debug_StdPrintfDummy(D_0061B718, p->name, &buf[1]);
+                        cnt = -1;
+                        goto done;
+                    }
+                }
+                n = 0;
+            }
+        } while (++i < size);
+    done:
+        debugSceClose(fd);
+        if (cnt != 76) {
+            fd = -1;
+            debug_StdPrintfDummy(D_0061B758);
+        } else {
+            debug_StdPrintfDummy(D_0061B798);
+            for (i = 0; i < 76; i++) {
+                debug_StdPrintfDummy(D_0061B7B8, D_0061A4D0[i].name, *D_0061A4D0[i].val);
+            }
+        }
+    }
+    debug_StdPrintfDummy(D_0061B570);
+    debug_openLog();
+    return fd;
+}
 
 extern unsigned int D_0063AE8C;
 
