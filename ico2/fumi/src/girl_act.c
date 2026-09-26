@@ -288,6 +288,131 @@ typedef struct {
 
 extern char D_0029D650[];
 
+/* The head of the TU's .data, in ROM run order (VMA 0x29D420..0x29D64C; the
+   brain work record at 0x29D650 and the hand manager follow and stay in the
+   blob while the TU spells them through casts): the danger-environment
+   initial value, the
+   brain mode table (the mode's routine and its flag byte), the object kinds
+   the others list gathers (-1 ends it) and their debug names, the run-mode
+   rows ChangeRunMode indexes, the three attract parameter sets, the
+   debug names of the move states, the three escape angles and the debug
+   names of the attract states.  Every array and record is placed on an
+   8-byte boundary, which is where the zero words between them come from. */
+typedef struct {
+    int kind;
+    void *obj;
+    void *save;
+    int count;
+} GirlDangerEnv;
+
+typedef struct {
+    void (*proc)(int a0);
+    unsigned char flag;
+} GirlBrainMode;
+
+typedef struct {
+    float _00[4];
+    float _10[4];
+    int kind; /* 0x20 */
+    int mail; /* 0x24 */
+    float f_28;
+    float f_2C;
+    unsigned char f_30;
+    char _31[0x0F];
+    float pos[4]; /* 0x40 */
+    unsigned char f_50;
+    char _51[3];
+    float f_54;
+    char _58[8];
+} GirlAttractParam;
+
+void subGirlBrain_Idle(volatile int a0);
+void subGirlBrain_Attract(volatile int a0);
+void subGirlBrain_Escape(volatile int a0);
+void subGirlBrain_Hide(volatile int a0);
+void subGirlBrain_Hesitate(volatile int a0);
+void subGirlBrain_Becarry(volatile int a0);
+void subGirlBrain_Busy(volatile int a0);
+void subGirlBrain_Pulledup(volatile int a0);
+void subGirlBrain_DangerEnv(volatile int a0);
+void subGirlBrain_HideAdvance(volatile int a0);
+extern char D_0063A8B0[];
+extern char D_0063A8B8[];
+extern char D_0063A8C8[];
+extern char D_0063A8D0[];
+extern char D_0063A8D8[];
+extern char D_0063A8F0[];
+extern char D_0063A8F8[];
+extern char D_0063A900[];
+extern char D_00553AA8[];
+extern char D_00553AB8[];
+extern char D_00553C10[];
+extern char D_00553C20[];
+extern char D_00553C88[];
+extern char D_00553C98[];
+extern char D_00553CA8[];
+extern char D_00553CB8[];
+extern char D_00553CC8[];
+
+GirlDangerEnv D_0029D420 = {0};
+
+GirlBrainMode D_0029D430[10] = {
+    {subGirlBrain_Idle, 0},        {subGirlBrain_Attract, 0},  {subGirlBrain_Escape, 1},
+    {subGirlBrain_Hide, 1},        {subGirlBrain_Hesitate, 1}, {subGirlBrain_Becarry, 0},
+    {subGirlBrain_Busy, 0},        {subGirlBrain_Pulledup, 0}, {subGirlBrain_DangerEnv, 0},
+    {subGirlBrain_HideAdvance, 1},
+};
+
+int D_0029D480[3] = {4, 62, -1};
+
+static char *D_0029D490[4] = {D_0063A8B8, D_00553AB8, D_00553AA8, D_0063A8B0};
+
+static int D_0029D4A0[4][4] = {
+    {0, 0, 0, 0},
+    {1, 1, 0, 0},
+    {2, 1, 1, 0},
+    {3, 2, 1, 1},
+};
+
+GirlAttractParam D_0029D4E0 = {{0}, {0}, 0, 338, 100.0f, 100.0f};
+
+GirlAttractParam D_0029D540 = {{0}, {0}, 68, 267, 50.0f, 100.0f, 1, {0}, {0}, 0, {0}, 200.0f};
+
+GirlAttractParam D_0029D5A0 = {{0}, {0}, 0, 338, 100.0f, 70.0f};
+
+char *D_0029D600[5] = {D_0063A8D8, D_00553C20, D_00553C10, D_0063A8D0, D_0063A8C8};
+
+static int D_0029D618[3] = {0, -90, 90};
+
+static char *D_0029D628[9] = {D_0063A8D8, D_00553CC8, D_00553CB8, D_00553CA8, D_0063A900,
+                              D_0063A8F8, D_00553C98, D_00553C88, D_0063A8F0};
+
+/* The TU's .bss, in ROM run order (VMA 0x6C1180..0x6C1E50): sort_list's
+   index/distance pairs and its copy of the sorted positions, CorrectList's
+   compaction scratch and the runaway candidate list (ten positions each),
+   subGirlBrain_Escape's debug string buffer, subGirlCollision's direction
+   request (priority, direction, the vector at +0x10) and the current danger
+   environment (VMA 0x6C1E40..0x6C1E50; subGirlBrainMain copies D_0029D420
+   into it and the Danger_* routines read its object). */
+typedef struct {
+    int idx;
+    float dist;
+} GirlSortEnt;
+
+static GirlSortEnt D_006C1180[100];
+
+static float D_006C14A0[100][4];
+
+static float D_006C1AE0[10][4];
+
+static float D_006C1B80[10][4];
+
+static char D_006C1C20[512];
+
+static int D_006C1E20[8];
+
+static GirlDangerEnv D_006C1E40;
+
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", sort_list);
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", girlBrainMain_MakeOthersList);
 
@@ -480,7 +605,6 @@ void girlBrainMain_Init(void)
 }
 
 extern float D_002A5594[];
-extern char D_0029D4A0[];
 extern char D_005D3EF0[];
 
 void ChangeRunMode(int mode)
@@ -509,7 +633,7 @@ void ChangeRunMode(int mode)
     n = (int)D_002A5594[0];
     n = n / 3;
     n = (n < 0) ? 0 : ((n < 4) ? n : 3);
-    t = *(int *)(D_0029D4A0 + n * 16);
+    t = D_0029D4A0[n][0];
     lo = *(int *)(t * 16 + mode * 8 + D_005D3EF0);
     hi = *(int *)(D_005D3EF0 + (t * 16 + mode * 8) + 4);
     ((GirlBrainWork *)D_0029D650)->limit = lo + rand() % (hi - lo);
@@ -538,7 +662,6 @@ extern void sceVu0AddVector(float *dst, float *a, float *b);
 extern int ACTCheckCollis_WELL(void *p0, void *p1, void *actor, void *posout, float f);
 extern void *D_0063A6B0;
 extern void *D_00639EA0;
-extern int D_006C1E20[];
 
 /* girl_brain_main.c.inc:2-8 -- a file-scope static helper with no out-of-line
  * ROM copy (no MAIN.MAP symbol); the listing attributes lines 3/4/5/7 of the
@@ -1099,7 +1222,6 @@ no_wall:
 
 /* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
 extern void _ApplyRyGV(float *v, float ang);
-extern void *D_006C1E44[];
 
 static void Danger_Bomb(void *self)
 {
@@ -1161,7 +1283,7 @@ static void Danger_Bomb(void *self)
     int turn;
 
     sub = *(char **)((char *)self + 0x164);
-    bomb = D_006C1E44[0];
+    bomb = D_006C1E40.obj;
 retry:
     {
         GetRootProjectionPosOfGObj(goal, bomb);
@@ -1244,7 +1366,6 @@ static inline unsigned char isBoyPushBoxTruck(void)
 /* kept local: this TU's uses of _GetDirection do not fit the prototype in gv.h */
 extern float _GetDirection(void *orient);
 extern char D_00553C58[];
-extern int D_0029D618[];
 
 static void Danger_Box(void *self)
 {
@@ -1340,7 +1461,7 @@ static void Danger_Box(void *self)
 
     sub = *(char **)((char *)self + 0x164);
     rad = isBoyPushBoxTruck() ? 400.0f : 200.0f;
-    box = D_006C1E44[0];
+    box = D_006C1E40.obj;
     GetRootProjectionPosOfGObj(goal, box);
     GetRootProjectionPosOfGObj(girl, self);
     objp[0] = ((float *)test_CURRENTROOT(box))[0];
@@ -1478,7 +1599,7 @@ static void Danger_Rotobject(void *self)
     int turn;
 
     sub = *(char **)((char *)self + 0x164);
-    obj = D_006C1E44[0];
+    obj = D_006C1E40.obj;
     GetRootProjectionPosOfGObj(goal, obj);
     GetRootProjectionPosOfGObj(girl, self);
     objp[0] = ((float *)test_CURRENTROOT(obj))[0];
@@ -2772,14 +2893,13 @@ void subGirlBrain_Busy(volatile int a0)
     }
 }
 
-extern int D_006C1E40[];
 extern void Danger_Bomb(void *self);
 extern void Danger_Box(void *self);
 extern void Danger_Rotobject(void *self);
 
 void subGirlBrain_DangerEnv(volatile int a0)
 {
-    switch (D_006C1E40[0]) {
+    switch (D_006C1E40.kind) {
     case 1:
         Danger_Bomb((void *)a0);
         break;

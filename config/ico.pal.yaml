@@ -555,6 +555,8 @@ segments:
       - [0x19C840, .data, ico2/fumi/src/commonact]  # the TU's whole .data run as source (chain 3 pass 62): intrMotion (432 ints, the motion id per interrupt kind), cageUpDown (CageUD, 0x2C plus 4 pad), flyLimitCol and the three block-scope col[4] colour quads (anonymous col.N), VMA 0x29C840..0x29CF70, 0x730 B; MAIN.MAP commonact.o .data 0x680 is the January link
       - [0x19CF70, .data, ico2/fumi/src/enemy_act]  # the TU's whole .data run as source: fourteen 28-byte brain-mode records, 8 B of fill, three 16-aligned float tables and a colour quad, VMA 0x29CF70..0x29D1D0 (chain 3 pass 148); the record names stay placeholders until the string runs are carved
       - [0x19D1D0, data, cod/19D1D0]     # data blob resume
+      - [0x19D420, .data, ico2/fumi/src/girl_act]  # the head of the TU's .data run as source (chain 2 pass 87): the danger-env initial value, the ten-entry brain-mode table, the kinds triple, four group-name strings, the run-mode rows, three attract parameter sets, five move-state names, the angles triple and nine attract-state names, VMA 0x29D420..0x29D64C, 0x22C B; the rest of the run (brain_val 0x29D650, 0x5920 B, and handmgr 0x2A2F70) stays in the blob until its readers are retyped and actGirlHand lands
+      - [0x19D64C, data, cod/19D64C]     # data blob resume (a pad word, then brain_val and handmgr)
       - [0x1A50C0, .data, ico2/script/src/gflag]  # the story flag bitmap (data pass 3), VMA 0x2A50C0..0x2A50F2, 50 B; the 14 zero bytes to 0x2A5100 are the next input's alignment pad
       - [0x1A5100, .data, ico2/script/src/script]  # the TU's whole .data run as source (completeness pass 5), VMA 0x2A5100..0x2A5400, 768 B emitted
       - [0x1A5400, data, cod/1A5400]     # .data blob resume
@@ -1370,7 +1372,8 @@ segments:
       - { type: bss, vram: 0x006C0A80, name: cod/006C0A80 }  # .bss blob resume
       - { type: .bss, vram: 0x006C0BA0, name: ico2/fumi/src/commonact }  # the TU's own .bss, 0x20 B, VMA 0x6C0BA0..0x6C0BC0; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006C0BC0, name: ico2/fumi/src/fieldCollision }  # the TU's .bss as source (completeness pass 65)
-      - { type: bss, vram: 0x006C1180, name: cod/006C1180 }  # .bss blob resume
+      - { type: .bss, vram: 0x006C1180, name: ico2/fumi/src/girl_act }  # the TU's own .bss, 0xCD0 B = MAIN.MAP girl_act.o .bss, VMA 0x6C1180..0x6C1E50, seven file statics in ROM run order (chain 2 pass 87)
+      - { type: bss, vram: 0x006C1E50, name: cod/006C1E50 }  # 0x30 B of fill before jimaku's 64-aligned .bss (MAIN.MAP shows the fill), kept as a blob row so the link does not depend on an ALIGN
       - { type: .bss, vram: 0x006C1E80, name: ico2/fumi/src/jimaku }  # the TU's whole .bss (= MAIN.MAP jimaku.o .bss 0x23224, chain 3 pass 124): the four-entry ring, the four 64-aligned subtitle buffers and three semaphore records as named statics in ROM order, VMA 0x6C1E80..0x6E50A4
       - { type: bss, vram: 0x006E50A4, name: cod/006E50A4 }  # .bss blob resume (4 B of pad before way_sys's run)
       - { type: .bss, vram: 0x006E50A8, name: ico2/fumi/src/way_sys }  # the TU's own .bss as source, nigePointTbl[275] of 8-byte records, 0x898 B to script's .bss at 0x6E5940 (chain 1 pass 128); MAIN.MAP's 0x668 is the January link's count
