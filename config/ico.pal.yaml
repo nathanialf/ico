@@ -765,7 +765,7 @@ segments:
       - [0x453320, rodata, cod/453320]   # .rodata blob resume (strings)
       - [0x4533A0, .rodata, ico2/fumi/src/enemy_act]  # jtbl_005533A0, subEnemyControl's 38-arm switch table (0x98 B, arms verified against the ROM words; chain 3 pass 150)
       - [0x453438, rodata, cod/453438]   # .rodata blob resume (strings)
-      - [0x453570, .rodata, ico2/fumi/src/enemy_act]  # plain-rodata: the TU's .rodata run 0x553570..0x5535E8, jtbl_00553570 (subEnemyBrainMain's twelve arms, verified) then the generator-way error string, NakaBoss's and Battle_isCurrentStatus's doubles (1.2 x2, 360, 270) and the not-found string (chain 3 pass 150)
+      - [0x453510, .rodata, ico2/fumi/src/enemy_act]  # plain-rodata: the TU's .rodata run 0x553510..0x5535E8 (0xD8 B, all anonymous): the isEnemyActive assert string, jtbl_00553570 (subEnemyBrainMain's twelve arms), the generator-way error string, the doubles 1.2 x2 and 0.01, 360 and 270, the radius and undefined-mode strings and the not-found string (chain 3 passes 150 and 151)
       - [0x4535E8, rodata, cod/4535E8]   # .rodata blob resume ("**toboy " strings)
       - [0x453750, .rodata, ico2/fumi/src/fieldCollision]  # the TU's .rodata run as source (completeness pass 66), VMA 0x553750, 0x23E B, anonymous strings in the listing's source order with the compiled-out "%s%d(%d)\n" among them
       - [0x453990, rodata, cod/453990]   # .rodata blob resume
@@ -1293,7 +1293,8 @@ segments:
       - { type: .sbss, vram: 0x0063C414, name: ico2/common/src/sceneManager }  # the TU's own .sbss, 0xC B, VMA 0x63C414..0x63C420; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C420, name: ico2/common/src/staffroll }  # the TU's own .sbss, 0x20 B, VMA 0x63C420..0x63C440; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C440, name: ico2/sugipon/src/act_a_p_1 }  # the TU's own .sbss, 0x16 B, VMA 0x63C440..0x63C456; static definitions in ROM run order (completeness pass)
-      - { type: sbss, vram: 0x0063C456, name: cod/0063C456 }  # .sbss blob resume
+      - { type: sbss, vram: 0x0063C456, name: cod/0063C456 }  # .sbss blob, 2 B of link fill before darkVolume's run
+      - { type: .sbss, vram: 0x0063C458, name: ico2/sugipon/src/darkVolume }  # the TU's own .sbss as five static ints (stripCount, prevX, prevY, edgeX, edgeY), 0x14 B (chain 3 pass 151); motionFileManager follows
       - { type: .sbss, vram: 0x0063C46C, name: ico2/sugipon/src/motionFileManager }  # the TU's own .sbss, 0x8 B, VMA 0x63C46C..0x63C474; static definitions in ROM run order (completeness pass)
       - { type: sbss, vram: 0x0063C474, name: cod/0063C474 }  # .sbss blob resume
       - { type: .sbss, vram: 0x0063C4AC, name: ico2/sugipon/src/motionViewer }  # the TU's own .sbss, 0x4 B, VMA 0x63C4AC..0x63C4B0 (the motion-kind row count, a file static); static definitions in ROM run order (completeness pass)

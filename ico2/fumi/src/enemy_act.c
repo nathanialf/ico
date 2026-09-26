@@ -18,6 +18,12 @@
 #include "quaternion.h"
 #include <string.h>
 #include "commonact.h"
+#include "gflag.h"
+#include "StageManager.h"
+#include "backStage.h"
+#include "matrixDrive.h"
+#include "StageAnimation.h"
+#include "darkVolume.h"
 
 extern int D_0063A7E0;
 /* INTERIM stand-in: the 2001 source declares _BrainMode_SetDirect `inline` -- the
@@ -725,6 +731,21 @@ extern void InitMotionGeoInfo(char *p, float x, float y, float z, float a, float
 extern int D_0063AA00;
 extern char D_002A8570[];
 
+/* INTERIM stand-in for isEnemyActive (listing lines 2086-2088), `inline` in
+   the 2001 source and defined here, above actEnemyRestart (2151): an inline
+   emits its string at its definition, so the assert text is the first object
+   of the TU's .rodata run (VMA 0x553510), ahead of actEnemyKidnapEnd's.  Its
+   out-of-line copy keeps its own ROM slot further down while this TU's tail
+   is asm.  See the note on _BrainMode_SetDirect_INTERIM. */
+static inline int isEnemyActive_INTERIM(int *self)
+{
+    if (self == 0 || *(int *)((char *)self + 0xC) != 4) {
+        debug_assert(D_00553370, 0x827);
+        __assert(D_00553370, 0x827, "ASSERTMSG__GOP_IS_NOT_ENEMY(gop)");
+    }
+    return actEnemyFlagCheckActive(self);
+}
+
 /* The disc listing attributes rows 2138-2143 -- which lie ABOVE this function's
    own def line 2151 -- to bodies inside both actEnemyRestart and actEnemyStart,
    so the 2001 source has a `static inline` here.  `max` really is a local (line
@@ -894,7 +915,171 @@ int actEnemyForceSwitchToCarry(void *a0)
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", actEnemyKidnapEnd);
+extern int D_0063A7EC;
+extern int D_0063AA04;
+extern int D_00639EB4;
+extern void _InterGV(float *dst, float *a, float *b, float t, float u);
+extern void EntryMultiBgaManager(void *bga, int no, int kind, void *pos, void *rot);
+extern float _DistGV(void *a, void *b);
+
+void actEnemyKidnapEnd(volatile int a0)
+{
+    char *sub = *(char **)(a0 + 0x164);
+    float mypos[4];
+    float gpos[4];
+
+    union {
+        float f[4];
+        int i[4];
+    } q;
+
+    float pos[4];
+    float tmp[4];
+    int sent = 0;
+    float *p;
+    int cnt = 0;
+    char *target = 0;
+    char *g;
+    float best;
+    float d;
+    float dist = 0.0f;
+    float ratio;
+    int n;
+    int r;
+
+    if (gflagChk(393) == 0) {
+        ACTGame_InsertCamera_GirlIsPinch();
+    }
+    g = isysGObjSearchFromObjKindID_begin(33);
+    best = 10000.0f;
+    mypos[0] = ((float *)test_CURRENTROOT((void *)a0))[0];
+    mypos[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
+    mypos[2] = ((float *)test_CURRENTROOT((void *)a0))[2];
+    while (g != 0) {
+        GetRootPosition(gpos, g);
+        d = _DistGV(mypos, gpos);
+        if (d < best) {
+            best = d;
+            target = g;
+        }
+        g = isysGObjSearchFromObjKindID_next(g);
+    }
+    p = pos;
+    if (target != 0) {
+        memset(&q, 0, 0x10);
+        q.f[3] = 1.0f;
+        EntryMultiBgaManager(*(void **)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x378), 0, -1,
+                             test_CURRENTROOT(target), q.f);
+    }
+    gflagOn(393);
+    D_0063A7EC = 0;
+    while (1) {
+        if (((int)(*(long long *)(sub + 0x20) >> 21)) & 1) {
+            ACTGame_SetMotionPlaySpeedRatio_Reserve((char *)a0, 0.0001f, 9);
+        }
+        if (gflagChk(392) != 0) {
+            stgmgrNextStagePreLoadForceStageSet(D_0063AA04);
+            if ((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 3 < *(int *)(sub + 0x4C)) {
+                backStageTsuresariReturn();
+                _ACTWait(0);
+            }
+        }
+        if (5 <= *(int *)(sub + 0x4C)) {
+            if (*(int *)(*(char **)(D_00639EA8 + 0x164) + 0x34) != 0x6F ||
+                *(int *)(*(char **)(D_00639EA8 + 0x164) + 0x144) != a0) {
+                ((EnemyActSub *)sub)->stageKind = 0;
+                gamesysObjInfoPosSetStage((int *)a0, 0, 0, stage_no);
+            }
+        }
+        if (GetEfStageCameraTargetID() != 0) {
+            ACTGame_SetMotionPlaySpeedRatio_Reserve((char *)a0, 2.0f, 0);
+            if ((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 5 < *(int *)(sub + 0x4C)) {
+                goto gameover;
+            }
+        }
+        if (*(int *)(*(char **)(a0 + 0x15C) + 0x4A0) == 952) {
+            /* RECONSTRUCTION (listing row 2486): the girl's record and her
+               action are read before the null test, and the ROM loads 0x6F
+               into a register of its own in that same block and compares the
+               register in the if (a literal is re-materialised in the
+               compare's block, as at this function's four other 0x6F sites).
+               The bytes pin a local holding the value, set with the record;
+               not its name or its declaration layout. */
+            char *gsub = *(char **)(D_00639EA8 + 0x164);
+            int act = *(int *)(gsub + 0x34);
+            int carriedAct = 0x6F;
+
+            if (D_00639EA8 == 0 || act != carriedAct || *(int *)(gsub + 0x144) != a0) {
+                ratio = dist / (float)((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+                SetEnemyDissolve((char *)a0,
+                                 (ratio < 0.01) ? 0.01f : ((1.0f < ratio) ? 1.0f : ratio));
+                dist = dist + 1.0f;
+            }
+            if (50.0f < *(float *)(*(char **)(a0 + 0x15C) + 0x4AC)) {
+                if ((((int)(*(long long *)(sub + 0x20) >> 21)) & 1) == 0) {
+                gameover:
+                    if (*(int *)(*(char **)(D_00639EA8 + 0x164) + 0x34) == 0x6F &&
+                        *(int *)(*(char **)(D_00639EA8 + 0x164) + 0x144) == a0) {
+                        if (target != 0) {
+                            q.i[0] = (int)target;
+                            best = 0.0f;
+                            q.i[1] = 0;
+                            if (D_00639EA4 != 0 && D_00639EA8 != 0) {
+                                GetRootPosition(pos, D_00639EA4);
+                                GetRootPosition(tmp, D_00639EA8);
+                                best = GetPointDistance(pos, tmp) + 1000.0f;
+                                debug_StdPrintfDummy("radius: %f\n", best);
+                            }
+                            D_00639EB4 = 1;
+                            if (D_00639EA8 != 0) {
+                                *(int *)(D_00639EA8 + 0x16C) = 0;
+                            }
+                            stage_SetParentOfGObj(502, &q);
+                            n = (GetEfStageCameraTargetID() != 0) ? 120 : 300;
+                            r = n * ((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 60;
+                            StartGameOverEffect((int)test_CURRENTROOT(target),
+                                                (best < (float)(r * 50)) ? 50.0f : best / (float)r);
+                            _ACTRun(r);
+                        }
+                        ACT_LAYOUT_GAMEOVER();
+                        _ACTWait(0);
+                    } else {
+                        ACTSendMailCorrect((char *)a0, 353);
+                    }
+                }
+            }
+        }
+        if (D_00639EA4 != 0) {
+            if (*(int *)(*(char **)(D_00639EA4 + 0x164) + 0x34) == 0x6D) {
+                _OrientXZGV(q.f, (float *)test_CURRENTROOT(D_00639EA4),
+                            (float *)test_CURRENTROOT((void *)a0));
+                sceVu0ScaleVector(q.f, q.f, -1.0f);
+                SetMotionDirectionSmooze(a0, q.f, 3.0f);
+                ACTSendMailCorrect((char *)a0, 0x167);
+                ACTSendMailCorrect((char *)a0, 0x168);
+                ACTSendMailCorrect((char *)a0, 0x169);
+                ACTSendMailCorrect((char *)a0, 0x16A);
+            }
+        }
+        if (target != 0) {
+            pos[0] = ((float *)test_CURRENTROOT(target))[0];
+            pos[1] = ((float *)test_CURRENTROOT(target))[1];
+            pos[2] = ((float *)test_CURRENTROOT(target))[2];
+            pos[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
+            _InterGV(tmp, p, (float *)test_CURRENTROOT((void *)a0), 5.0f, 1.0f);
+            SetRootPosition((char *)a0, tmp);
+        }
+        ACTSendMailCorrect((char *)a0, 0x16B);
+        if (D_00639EA8 == 0 || *(int *)(*(char **)(D_00639EA8 + 0x164) + 0x34) != 0x6F ||
+            *(int *)(*(char **)(D_00639EA8 + 0x164) + 0x144) != a0) {
+            if ((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 6 < ++cnt && sent == 0) {
+                eBrainSendMes(a0, 10);
+                sent = 1;
+            }
+        }
+        _ACTWait(1);
+    }
+}
 
 /* kept local: this TU's uses of GetRootProjectionPosOfGObj do not fit the prototype in motionManager2.h */
 extern void GetRootProjectionPosOfGObj(float *dst, char *gobj);
@@ -1273,7 +1458,6 @@ store:
 }
 
 extern char *D_0063A61C;
-extern char D_00553550[]; /* "undefined mode [%d]\n" */
 extern char D_005577D0[];
 /* FLT_MAX word in .sdata; the incomplete array type is what keeps the ROM's
    %hi/%lo pair instead of a gp-relative load. */
@@ -1344,7 +1528,7 @@ void subEnemyBrainMain(volatile int a0)
             _BrainMode_SetDirect_INTERIM((char *)a0, 2, &arg);
             break;
         default:
-            debug_StdPrintfDummy(D_00553550, req);
+            debug_StdPrintfDummy("undefined mode [%d]\n", req);
             debug_assert(D_00553370, 3102);
             __assert(D_00553370, 3102, D_0063A7E8);
             break;
@@ -1931,22 +2115,13 @@ int _ApproachTarget_Boss(char *self, void *tgt, void *pos, void *fn, float range
 }
 
 extern char D_00553380[];
-extern char D_00553510[];
 extern int D_0063B220;
 
-/* INTERIM stand-ins: isEnemyActive (listing lines 2087-2088) and
-   IsEnemyBrainToGenerator (831-834) are `inline` in the 2001 source; their
-   out-of-line copies keep their own ROM slots further down while this TU's tail
-   is asm.  See the note on _BrainMode_SetDirect_INTERIM. */
-static inline int isEnemyActive_INTERIM(int *self)
-{
-    if (self == 0 || *(int *)((char *)self + 0xC) != 4) {
-        debug_assert(D_00553370, 0x827);
-        __assert(D_00553370, 0x827, D_00553510);
-    }
-    return actEnemyFlagCheckActive(self);
-}
-
+/* INTERIM stand-in: IsEnemyBrainToGenerator (listing lines 831-834) is
+   `inline` in the 2001 source; its out-of-line copy keeps its own ROM slot
+   further down while this TU's tail is asm (isEnemyActive's stand-in is
+   defined at its listing position, before actEnemyRestart).  See the note
+   on _BrainMode_SetDirect_INTERIM. */
 static inline int IsEnemyBrainToGenerator_INTERIM(char *a0)
 {
     char *b = *(char **)(a0 + 0x164);
@@ -2649,7 +2824,7 @@ int isEnemyActive(int *self)
 {
     if (self == 0 || *(int *)((char *)self + 0xC) != 4) {
         debug_assert(D_00553370, 0x827);
-        __assert(D_00553370, 0x827, D_00553510);
+        __assert(D_00553370, 0x827, "ASSERTMSG__GOP_IS_NOT_ENEMY(gop)");
     }
     return actEnemyFlagCheckActive(self);
 }

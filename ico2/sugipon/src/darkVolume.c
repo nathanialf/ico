@@ -33,10 +33,159 @@ typedef struct {
 } DVColor;
 
 void draw(void *v, int n, DVColor col, int neg);
-void drawHT(void *v, int n, DVColor col, int neg);
+void drawHT(float *v, int n, DVColor col, int neg);
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/darkVolume", draw);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/darkVolume", drawHT);
+/* .sbss, owned by darkVolume.o (0x14, the run and MAIN.MAP's own size; MAIN.MAP
+   names no symbol in it), in the ROM's run order, all drawHT's: the strip's
+   vertex count, whose parity flips the edge, the previous vertex and the edge
+   vector the next vertex is tested against (names ours). */
+static int stripCount;
+
+static float prevX;
+
+static float prevY;
+
+static float edgeX;
+
+static float edgeY;
+
+/* kept local: this TU's uses of gif_SetGsReg do not fit the prototype in GifPacket.h */
+extern void gif_SetGsReg(int code, long data);
+extern long D_0063B780;
+extern int D_0063B770[2];
+extern int D_0063B778;
+
+/* listing line 80: project one object-space vertex through the VU0 matrix in
+   vf4 to vf7, clamp it to the screen limits vf12 and vf13 carry and store the
+   12.4 fixed point result. */
+static __inline__ void projectVertex(void *dst, const void *src)
+{
+    __asm__ __volatile__("lqc2 $vf8, 0x0(%1)\n\t"
+                         "vmulax.xyzw ACC, $vf4, $vf8x\n\t"
+                         "vmadday.xyzw ACC, $vf5, $vf8y\n\t"
+                         "vmaddaz.xyzw ACC, $vf6, $vf8z\n\t"
+                         "vmaddw.xyzw $vf10, $vf7, $vf8w\n\t"
+                         "vdiv Q, $vf0w, $vf10w\n\t"
+                         "vwaitq\n\t"
+                         "vmulq.xyz $vf10, $vf10, Q\n\t"
+                         "vmaxx.xy $vf10, $vf10, $vf13x\n\t"
+                         "vminix.xy $vf10, $vf10, $vf12x\n\t"
+                         "vftoi4.xyzw $vf11, $vf10\n\t"
+                         "sqc2 $vf11, 0x0(%0)"
+                         :
+                         : "r"(dst), "r"(src));
+}
+
+/* listing lines 153-173: emit one triangle strip of n projected vertices. */
+static __inline__ void drawStrip(int *v, int n, DVColor col)
+{
+    int xy[4];
+    int idx;
+
+    gif_SetGsReg(0, D_0063B780);
+    gif_SetGsReg(1, (long)col.r | ((long)col.g << 8) | ((long)col.b << 16) | ((long)col.a << 24) |
+                        ((long)0xFE00 << 46));
+    D_0063B770[1] = 0;
+    D_0063B770[0] = 0;
+    D_0063B778 = 0;
+    while (n-- != 0) {
+        projectVertex(xy, v);
+        if (D_0063B770[0] != 0 && D_0063B770[1] != 0) {
+            gif_SetGsReg(5, (long)xy[0] | ((long)xy[1] << 16) | ((long)xy[2] << 32));
+        } else {
+            gif_SetGsReg(13, (long)xy[0] | ((long)xy[1] << 16) | ((long)xy[2] << 32));
+        }
+        idx = D_0063B778;
+        D_0063B770[idx] = 1;
+        D_0063B778 = ++idx & 1;
+        v += 4;
+    }
+}
+
+/* listing lines 176-182 */
+void draw(void *v, int n, DVColor col, int neg)
+{
+    if (neg != 0) {
+        drawStrip(v, n, col);
+    } else {
+        DVColor c = {-col.r, -col.g, -col.b, 128};
+
+        drawStrip(v, n, c);
+    }
+}
+
+/* one screen-space segment of the half-tone pass */
+typedef struct {
+    int on;
+    int side;
+    long long xy;
+} DVSeg;
+
+/* listing lines 190-203: one pass over the prepared segments, emitting the
+   segments whose side flag is not the one this pass draws. */
+static __inline__ void drawHalfStrip(DVSeg *b, unsigned int n, DVColor col, int side)
+{
+    gif_SetGsReg(0, D_0063B780);
+    gif_SetGsReg(1, (long)col.r | ((long)col.g << 8) | ((long)col.b << 16) | ((long)col.a << 24) |
+                        ((long)0xFE00 << 46));
+    while (n-- > 0) {
+        if (b->on != 0 && b->side != side) {
+            gif_SetGsReg(5, b->xy);
+        } else {
+            gif_SetGsReg(13, b->xy);
+        }
+        b++;
+    }
+}
+
+/* listing lines 206-239 */
+void drawHT(float *v, int n, DVColor col, int neg)
+{
+    DVSeg buf[n];
+    DVSeg *p = buf;
+    int xy[4];
+    int i;
+    int idx;
+
+    D_0063B770[1] = 0;
+    D_0063B770[0] = 0;
+    D_0063B778 = 0;
+    stripCount = 0;
+    for (i = 0; i < n; i++, v += 4, p++) {
+        projectVertex(xy, v);
+        if (D_0063B770[0] != 0 && D_0063B770[1] != 0) {
+            p->on = 1;
+            p->side = 0.0f < edgeX * ((float)xy[1] - prevY) - edgeY * ((float)xy[0] - prevX);
+        } else {
+            p->on = 0;
+            p->side = 0;
+        }
+        idx = D_0063B778;
+        D_0063B770[idx] = 1;
+        D_0063B778 = ++idx & 1;
+        edgeX = (float)xy[0] - prevX;
+        edgeY = (float)xy[1] - prevY;
+        if (stripCount & 1) {
+            edgeX = -edgeX;
+            edgeY = -edgeY;
+        }
+        prevX = (float)xy[0];
+        prevY = (float)xy[1];
+        stripCount = stripCount + 1;
+        p->xy = (long)xy[0] | ((long)xy[1] << 16) | ((long)xy[2] << 32);
+    }
+    {
+        DVColor c = {-col.r, -col.g, -col.b, 128};
+
+        if (neg != 0) {
+            drawHalfStrip(buf, n, col, 1);
+            drawHalfStrip(buf, n, c, 0);
+        } else {
+            drawHalfStrip(buf, n, c, 1);
+            drawHalfStrip(buf, n, col, 0);
+        }
+    }
+}
 
 /* .bss, owned by darkVolume.o (0x13A0, the run and MAIN.MAP's own size,
    tiled exactly by these six), in the ROM's run order: one 136-float hatch row,
