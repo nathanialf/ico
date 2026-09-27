@@ -2142,9 +2142,183 @@ static inline int EnemyUtil_isOtherStatus_INTERIM(char *self, int mode)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", ChangeBrain_ToAttack);
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/enemy_act", subEnemyBrain_ToBoy);
+void subEnemyBrain_ToBoy(volatile int a0)
+{
+    float v[4];
+    float w[4];
+    char *sub = *(char **)(a0 + 0x164);
+    char *boy = D_00639EA4;
+    int cnt = 0;
+    int i, j;
+    int mode;
+    int r;
+    unsigned char ret;
 
+    void ChangeBrain_ToAttack(void)
+    {
+        if (isLiftBoyEnable() != 0) {
+            if (*(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x1E8) == 2) {
+                char **tgt = &brainTarget;
+
+                /* RECONSTRUCTION (chain 3 passes 148 to 160): the bytes pin a
+                   read of the default D_0063A7E0 on this statement's line (the
+                   listing's 4224: the load sits with the boy load and the slot
+                   store, and is held in $s1 across _GetRandom for both
+                   expansions' else arms) that is used when jump1 runs and
+                   leaves no code of its own: this store to the slot, which the
+                   next store overwrites and flow deletes.  What the bytes
+                   cannot pin is the text of that read; the same shape sits in
+                   the other four arms (here and in ChangeBrain_ToKidnap).  The
+                   listing also puts the slot address (`la &brainTarget`) on
+                   that one line in all five arms, i.e. one statement did the
+                   three things; this text spreads them over three lines and
+                   the words are the same. */
+                brainTarget = (char *)D_0063A7E0;
+                brainTarget = D_00639EA4;
+                if ((int)(random_unit() * 10.0f) % 100 <
+                    *(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x1FC)) {
+                    _BrainMode_SetDirect_INTERIM((char *)a0, 12, (int *)tgt);
+                } else {
+                    _BrainMode_SetDirect_INTERIM((char *)a0, 9, (int *)tgt);
+                }
+            } else {
+                /* RECONSTRUCTION: the default read on the statement's line (the
+                   listing's 4235), see the kind == 2 arm above. */
+                brainTarget = (char *)D_0063A7E0;
+                brainTarget = D_00639EA4;
+                _BrainMode_SetDirect_INTERIM((char *)a0, 9, (int *)&brainTarget);
+            }
+        }
+    }
+
+    while (1) {
+        mode = 0;
+        r = (int)(random_unit() * 10.0f) % 100;
+        debug_StdPrintfDummy("**toboy function start :: count=[%d]\n", cnt++);
+        ret = _ApproachTarget((char *)a0, boy, sub + 0x120, NakaBoss, 200.0f, 0);
+        v[0] = ((float *)test_CURRENTROOT((void *)a0))[0];
+        v[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
+        v[2] = ((float *)test_CURRENTROOT((void *)a0))[2];
+        if (ret != 0) {
+            debug_StdPrintfDummy("await start\n");
+            for (i = 0; i < (0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 75 / 60; i++) {
+                mode = 0;
+                switch (Battle_isCurrentStatus((char *)a0, boy, v)) {
+                case 0:
+                    break;
+                case 1:
+                    mode = 4;
+                    if (r < *(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x1F8)) {
+                        mode = 3;
+                    }
+                    if (((int)(*(long long *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x210) >>
+                               1)) &
+                        1) {
+                        mode = 3;
+                    }
+                    if (D_0063B240 != 0) {
+                        mode = 4;
+                    }
+                    if (mode != 3) {
+                        if (!(_DistSqGV((float *)test_CURRENTROOT((void *)a0),
+                                        (float *)test_CURRENTROOT(D_00639EA4)) < 22500.0f)) {
+                            mode = 0;
+                        }
+                    }
+                    break;
+                case 2:
+                    mode = 2;
+                    break;
+                case 3:
+                    mode = 3;
+                    if (*(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x1E4) == 3) {
+                        mode = 4;
+                    }
+                    if (D_0063B240 != 0) {
+                        mode = 4;
+                    }
+                    debug_StdPrintfDummy("!!! wwarning !!!\n");
+                    break;
+                case 4:
+                    mode = 5;
+                    break;
+                default:
+                    debug_StdPrintfDummy("return value error :: [Battle_isCurrentStatus]\n");
+                    break;
+                }
+                if (mode != 0) {
+                    goto result;
+                }
+                *(float *)(sub + 0x34C) = 0.0f;
+                *(float *)(sub + 0x120) = 0.0f;
+                *(float *)(sub + 0x124) = 0.0f;
+                *(float *)(sub + 0x128) = 0.0f;
+                _DoAwait((char *)a0);
+                NakaBoss((char *)a0, 0, 0.0f);
+                _ACTWait(1);
+            }
+            debug_StdPrintfDummy("await end\n");
+            if ((((int)(*(long long *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x210) >> 1)) &
+                 1) == 0) {
+                mode = 4;
+            }
+        } else {
+            mode = 1;
+        }
+    result:
+        debug_StdPrintfDummy("toboy ra is [%d]\n", mode);
+        if (stage_no == 86 || stage_no == 3 || stage_no == 46) {
+            if (mode == 4 || mode == 5) {
+                mode = 3;
+            }
+        }
+        switch (mode - 1) {
+        case 0:
+            ACTSendMailCorrect((char *)a0, 0x100);
+            break;
+        case 1:
+            break;
+        case 2:
+            if (IsBoyStatus_NotDanger() != 0) {
+                if (D_00639EA8 != 0) {
+                    if (*(int *)(*(char **)(D_00639EA8 + 0x164) + 0x34) != 0x6F) {
+                        break;
+                    }
+                }
+            }
+            ACTSendMailCorrect((char *)a0, 0x113);
+            break;
+        case 3:
+            if (isNearestEnemyToBoy(a0, D_00639EA4, w) &&
+                EnemyUtil_isOtherStatus_INTERIM((char *)a0, 0) == 0) {
+                ChangeBrain_ToAttack();
+            }
+            break;
+        case 4:
+            if (EnemyUtil_isOtherStatus_INTERIM((char *)a0, 0) == 0) {
+                ChangeBrain_ToAttack();
+            }
+        }
+        *(float *)(sub + 0x34C) = 0.0f;
+        *(float *)(sub + 0x120) = 0.0f;
+        *(float *)(sub + 0x124) = 0.0f;
+        *(float *)(sub + 0x128) = 0.0f;
+        for (j = 0; j < (0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 90 / 60; j++) {
+            if (mode == 5) {
+                if (EnemyUtil_isOtherStatus_INTERIM((char *)a0, 0) == 0) {
+                    ChangeBrain_ToAttack();
+                }
+            }
+            _DoAwait((char *)a0);
+            NakaBoss((char *)a0, 0, 0.0f);
+            _ACTWait(1);
+        }
+    }
+}
+
+/* "change to kidnap": the string follows subEnemyBrain_ToBoy's two jump tables
+   in the ROM's .rodata (0x5536C8), so it stays in the blob while the TU's own
+   .rodata run ends at the tables. */
 extern char D_005536C8[];
 
 void subEnemyBrain_ToGirl(volatile int a0)

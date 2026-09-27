@@ -767,8 +767,10 @@ segments:
       - [0x453320, rodata, cod/453320]   # .rodata blob resume (strings)
       - [0x4533A0, .rodata, ico2/fumi/src/enemy_act]  # jtbl_005533A0, subEnemyControl's 38-arm switch table (0x98 B, arms verified against the ROM words; chain 3 pass 150)
       - [0x453438, rodata, cod/453438]   # .rodata blob resume (strings)
-      - [0x453510, .rodata, ico2/fumi/src/enemy_act]  # plain-rodata: the TU's .rodata run 0x553510..0x5535E8 (0xD8 B, all anonymous): the isEnemyActive assert string, jtbl_00553570 (subEnemyBrainMain's twelve arms), the generator-way error string, the doubles 1.2 x2 and 0.01, 360 and 270, the radius and undefined-mode strings and the not-found string (chain 3 passes 150 and 151)
-      - [0x4535E8, rodata, cod/4535E8]   # .rodata blob resume ("**toboy " strings)
+      - [0x453510, .rodata, ico2/fumi/src/enemy_act]  # plain-rodata: the TU's anonymous .rodata run 0x553510..0x553690 (0x180 B): the isEnemy strings and rate tables, then subEnemyBrain_ToBoy's six trace strings from 0x5535E8 and 6 B of pad (chain 3 pass 161)
+      - [0x453690, .rodata, ico2/fumi/src/enemy_act]  # carved jtbl_00553690 (VMA 0x553690..0x5536A4, 5 arms, 0xC fill): subEnemyBrain_ToBoy's first switch table, emitted by the compiled function (chain 3 pass 161)
+      - [0x4536B0, .rodata, ico2/fumi/src/enemy_act]  # carved jtbl_005536B0 (VMA 0x5536B0..0x5536C4, 5 arms, 4 fill): subEnemyBrain_ToBoy's second switch table, emitted by the compiled function (chain 3 pass 161)
+      - [0x4536C8, rodata, cod/4536C8]   # .rodata blob resume (subEnemyBrain_ToGirl's change-to-kidnap string, kept a placeholder since it follows the tables)
       - [0x453750, .rodata, ico2/fumi/src/fieldCollision]  # the TU's .rodata run as source (completeness pass 66), VMA 0x553750, 0x23E B, anonymous strings in the listing's source order with the compiled-out "%s%d(%d)\n" among them
       - [0x453990, rodata, cod/453990]   # .rodata blob resume
       - [0x453EB0, .rodata, ico2/fumi/src/girl_act]  # carved jtbl_00553EB0 (VMA 0x553EB0..0x553FBC, 67 arms, 268 B): GetBoyMode's switch table, emitted by the compiled function; girl_act owns 7 more jtbls (0x553AD0..0x553D30) interleaved with its strings, so this stays a single-table carve until a spanning one is byte-neutral
