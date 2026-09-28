@@ -46,6 +46,15 @@ extern WallCfg D_0061FF80;
 /* EUC-JP: "hit an extension wall\n". */
 extern char D_0061FF90[];
 extern WallCfg InitialColInfo;
+/* kept local, as ico2/sugipon/src/box.c declares them: fieldCollision.h is
+ * not included here. */
+extern void GetLowerPlaneCollision(void *work, void *pos);
+extern int GetWaterReaction(void *w, int *hit, void *plane, void *pos, void *vel, float low,
+                            float mid, float high, float k, float acc);
+/* kept local: void like this TU's other clip entries (the result is never read). */
+extern void ClipWallWaveForce(void *a0);
+/* EUC-JP: rootUpdateSwim's message when the DWATER probe finds no water. */
+extern char D_0061FF20[];
 
 /* 12-byte plane record copied out of the motion work block. */
 typedef struct {
@@ -339,6 +348,46 @@ static inline void wallCollisionAndReact(float dy)
     _wallCollisionPreProcess((char *)&w, g, last, dy);
     if (*(int *)((char *)&w + 0x88) != 0) {
         _wallHitReaction((char *)&w, g, last, 0);
+    }
+}
+
+/* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into
+ * rootUpdateSwim (rows 342-363, between wallCollisionAndReact's 331-335 and
+ * upperFieldCheck's 370), so it carries no symbol in MAIN.MAP.  It is the
+ * wave-force twin of _wallCollisionPreProcess: the same work-block head, then
+ * ClipWallWaveForce and the horizontal push it reports.  Row 342 holds the
+ * copy of dy, the caller's constant. */
+static inline void waveForceReaction(char *cur, char *last, float dy)
+{
+    ClipBuf w;
+    float d;
+    float k;
+
+    if (D_0063B230 != 0) {
+        CopyVector(&w, last);
+    } else {
+        CopyVector(&w, cur + 0x160);
+    }
+    CopyVector((char *)&w + 0x10, cur);
+    *(FieldBlk12 *)((char *)&w + 0x74) = *(FieldBlk12 *)(D_0063C490 + 0x120);
+    *(float *)((char *)&w + 4) = *(float *)((char *)&w + 4) + dy;
+    *(float *)((char *)&w + 0x14) = *(float *)((char *)&w + 0x14) + dy;
+    w.rad = *(float *)(D_0063C490 + 0x338) + 200.0f;
+    CopyVector((char *)&w + 0x10, &w);
+    ClipWallWaveForce(&w);
+    if (*(int *)((char *)&w + 0x88) != 0) {
+        d = GetDistanceFromPlane((char *)&w + 0xA0, &w);
+        d = d + w.rad;
+        if (d > 0.0f) {
+            k = 1.0f / (d + 50.0f);
+            /* the wall normal read through Vec16, as sugipon's motionOrientManager
+             * writes vector components: the ROM schedules the flag store after the
+             * second normal load, which only a union access orders. */
+            *(float *)cur = *(float *)cur + ((Vec16 *)((char *)&w + 0xA0))->f[0] * 100.0f * k;
+            *(float *)(cur + 8) =
+                *(float *)(cur + 8) + ((Vec16 *)((char *)&w + 0xA0))->f[2] * 100.0f * k;
+            *(int *)(D_0063C494 + 0x14) |= 0x2000;
+        }
     }
 }
 
@@ -1106,7 +1155,60 @@ out:
     return *(MotShift *)(D_0063C490 + 0xE0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", rootUpdateSwim);
+MotShift rootUpdateSwim(void)
+{
+    ClipBuf w;
+    Vec16 v;
+    MotShift shift = D_0063B930[0];
+    float mtx[16];
+    int node;
+
+    node = GetSkeltonFocusNode((char *)D_0063B93C, 34);
+    GetMatrixFromQuaternion(mtx, D_0063C490 + 0x30);
+    sceVu0ApplyMatrix((int *)&v, (int)mtx, D_00720200);
+    v.f[0] = v.f[0] * 0.2f;
+    v.f[1] = v.f[1] * 0.2f;
+    v.f[2] = v.f[2] * 0.2f;
+    sceVu0AddVector(D_0063C490 + 0x90, D_0063C490 + 0x90, &v);
+    GetLowerPlaneCollision(&w, D_0063C490);
+    if (GetWaterReaction(0, 0, &w, D_0063C490, D_0063C490 + 0x90,
+                         *(float *)(D_0063C490 + 4) - 80.0f,
+                         *(float *)(D_0063C490 + 4) + *(float *)(D_0063C484 + node * 0x10 + 4),
+                         *(float *)(D_0063C490 + 4) + 80.0f, 0.9f,
+                         60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * -0.1f *
+                             (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]))) != 0) {
+        /* listing row 1884 holds only the load of this constant; the
+         * subtractions are on the rows that use it. */
+        float depth = 10.0f;
+
+        if (*(float *)((char *)&w + 0x24) - depth < *(float *)(D_0063C490 + 4)) {
+            *(float *)(D_0063C490 + 4) = *(float *)((char *)&w + 0x24) - depth;
+            *(float *)(D_0063C490 + 0x154) = *(float *)((char *)&w + 0x24) - depth;
+        }
+        setPoolHeightOfFloor((char *)&w);
+    } else {
+        *(int *)(D_0063C494 + 0x14) |= 0x800;
+        /* retail links debug_StdPrintfDummy in place of the listing's printf. */
+        debug_StdPrintfDummy(D_0061FF20);
+    }
+    if (*(int *)((char *)&w + 0x94) != 0) {
+        *(int *)(D_0063C494 + 0x188) = GetFloorAttribute(&w);
+        CopyVector(D_0063C490 + 0x130, (char *)&w + 0xA0);
+    }
+    wallCollisionAndFloorFit(D_0063C490, D_0063C490 + 0x150, 0.0f);
+    if (*(int *)(D_0063C494 + 0xD8) != 0) {
+        waveForceReaction(D_0063C490, D_0063C490 + 0x150, 0.0f);
+    }
+    checkCliffAndWallStateAtJump();
+    SubVectorXYZ(D_0063C490 + 0x90, D_0063C490, D_0063C490 + 0x150);
+    CopyVector(D_0063C490 + 0x1B0, D_0063C490);
+    CopyVector(D_0063C490 + 0x150, D_0063C490);
+    CopyVector(D_0063C490 + 0x10, ZeroPoint);
+    CopyVector(D_0063C490 + 0xD0, D_00720210);
+    *(int *)(D_0063C490 + 0xC0) = 0;
+    *(int *)(D_0063C490 + 0x180) = -1;
+    return shift;
+}
 
 /* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into
  * rootUpdateStepSolution and rootUpdateY (rows 1936-1942, between
