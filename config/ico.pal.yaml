@@ -763,6 +763,7 @@ segments:
       - [0x4526C4, rodata, cod/4526C4]   # .rodata blob resume (zero pad word, then the 8-aligned strings at 0x5526C8)
       - [0x452710, .rodata, ico2/fumi/src/act-wish]  # plain-rodata: ACTGetWish_FromPad's "orient null" string + pad + the double 0.9 (0x18 B, 8-aligned), VMA 0x552710..0x552728
       - [0x452728, rodata, cod/452728]   # .rodata blob resume (the 8 zero bytes ROM keeps after the double, then the rest of the run)
+      - [0x452A48, .rodata, ico2/fumi/src/boyact]  # syms: collisionKinds,0x00552A60  subBoyCollision's kind list {4, 47, 62, -1} (VMA 0x552A48, 0x10 B, anonymous in the ROM) and its 68-arm jump table jtbl_00552A60 (VMA 0x552A60..0x552B70, 0x110 B) after an 8-byte pad (chain 3 pass 167); the plain row follows
       - [0x452B70, .rodata, ico2/fumi/src/boyact]  # plain-rodata: the four li.d doubles of actBoyWalk/actBoyRun (0.2, 0.9, 0.2, 0.7; ee-as interns them into the object's own .rodata), VMA 0x552B70..0x552B90; the TU's strings and its three jump tables stay in the blob until their owners land
       - [0x452B90, rodata, cod/452B90]   # .rodata blob resume (boyact's strings)
       - [0x452EE8, .rodata, ico2/fumi/src/commonact]  # the TU's whole .rodata run as source (chain 3 pass 62, commonact entirely C): the 0.8 double, twenty-four anonymous string literals in listing definition order (the 96 end-of-file inline definitions emit their strings at definition and their code at the end), then WithMailFunc_FallDead's 0.3 last; VMA 0x552EE8..0x553320, 0x438 B, anonymous

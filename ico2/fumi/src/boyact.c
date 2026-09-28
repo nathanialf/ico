@@ -51,9 +51,16 @@ extern int GetCageChainPoint(float *a, float *b, void *obj);
 extern void GetRootPositionHandExtra(void *self, float *out);
 extern void ACTSendMailCorrect(int a0, int mail);
 
-/* one 0x194-byte motion row per motion id; 0x190 carries the jump-chain flags */
+/* one 0x194-byte motion row per motion id; 0x182/0x186 are the halfwords
+   subBoyCollision hands SetMotionDirectionSmooze (with and without the girl
+   held), 0x18C and 0x190 flag words (0x190 the jump-chain flags) */
 typedef struct {
-    char _000[0x190];
+    char _000[0x182];
+    short f_182;
+    char _184[0x2];
+    short f_186;
+    char _188[0x4];
+    unsigned int f_18C;
     unsigned int f_190;
 } ChainMotRow;
 
@@ -214,7 +221,9 @@ extern float _DistxzSqGV(void *a, void *b);
 /* kept local: this TU's uses of _AbsRotyGV do not fit the prototype in gv.h */
 extern int _AbsRotyGV(void *a, void *b);
 
-int CorrectOrient_RopeCliff(float *out, void *gobj)
+/* dir: subBoyCollision passes the motion direction (sub + 0x120) in $6; this
+   body never reads it */
+int CorrectOrient_RopeCliff(float *out, void *gobj, float *dir)
 {
     float pos[4];
     float rpos[4];
@@ -599,6 +608,10 @@ typedef struct {
     int w[8];
 } BoyKidnapWork;
 
+/* the private insert-camera record.  16-aligned as the programmer's other
+   vector records (act-game.c Vec4S, way_sys.c WayClipWork): subBoyCollision's
+   whole-record copy is the ROM's doubleword ld/sd loop, which needs a record
+   alignment of at least 8. */
 typedef struct {
     float pos[3]; /* 0x00 */
     float unk0C;
@@ -614,7 +627,7 @@ typedef struct {
     int cnt;      /* 0x38 */
     int on;       /* 0x3C */
     float cur[4]; /* 0x40 */
-} PrivInsCam;
+} __attribute__((aligned(16))) PrivInsCam;
 
 static BoyWork D_0029C610 = {{0, 0, 0xFFFFFFFF}};
 
@@ -1021,15 +1034,613 @@ void PrivInsCamProcess(void)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", subBoyCollision);
+/* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
+extern float _DistGV(CCPResult *a, CCPResult *b);
+/* kept local: poly-flat.h declares IsPointIsInScreen void, the callers here
+   read the float it returns */
+extern float IsPointIsInScreen(void *dst, void *pos);
+extern void lt_switch_layout(int no);
+extern void ACTGame_CommonLoop(void *self);
+extern void ACTParaStatus_Exec(void *self);
+extern void ACTLookTargetSystem_Exec(void *self);
+extern int _ACTParaStatus_Check(void *self, int bit);
+extern void CommonAttackCenter(void *self);
+extern float GetDifferenceFromLowerField(int self, int a1);
+extern int NotNeedBackHand(void);
+extern int isBottomOfChain(void *chain);
+extern void GetCorrectOrientOfChain(void *buf, void *obj);
+/* kept local: this TU's uses of SetMotionDirectionSmooze do not fit the prototype in commonact.h */
+extern void SetMotionDirectionSmooze(void *self, float *dir, float t);
+extern int ActSendMail_WithAdditionalData(void *gop, int msg, void *sender, void *data);
+extern void Camctrl_SetTarget(int self, int obj, int a2);
+extern void ScpCallCameraGetTarget(float *dst);
+extern void ScpCallCameraSetTarget(float x, float y, float z);
+/* kept local: this TU's uses of debug_NMarker do not fit the prototype in camera-editor.h */
+extern void debug_NMarker(float *pos, int r, int g, int b, float size);
+extern void *D_00639EA0;
+extern float D_0063A6F8[];
+extern float D_0063A6D8;
+
+/* the boy's work record at Act+0x688.  subBoyCollision's stores through it are
+   member accesses: the ROM moves its a0 reloads ahead of them (the 0x4B0
+   decrement, the 0x33C store), which it may only do past a MEM_IN_STRUCT_P
+   store (girl_act.c's ActPara is the girl's view of the same record). */
+typedef struct {
+    char pad000[0x33C];
+    float f33C; /* 0x33C */
+    char pad340[0x3C0 - 0x340];
+    int f3C0; /* 0x3C0 */
+    char pad3C4[0x470 - 0x3C4];
+    float f470; /* 0x470 */
+    float f474;
+    float f478;
+    char pad47C[0x480 - 0x47C];
+    S12 f480; /* 0x480 */
+    char pad48C[0x4B0 - 0x48C];
+    int f4B0; /* 0x4B0 */
+} HangTarget;
+
+#define HANG_TARGET(o) ((HangTarget *)*(char **)(*(char **)((char *)(o) + 0x164) + 0x688))
+
+/* the object kinds the proximity scan below walks, terminated by -1 */
+typedef struct {
+    int id[4];
+} ObjKindList;
+
+static const ObjKindList collisionKinds = {{4, 47, 62, -1}};
+
+/* The listing gives this one lines 3173-3177 of boyact.c with its whole body
+   on 3175 and no out-of-line copy: it was `inline` in the original and only
+   subBoyCollision calls it.  The name is this repository's. */
+static inline void PrivInsCamInit(void)
+{
+    D_006C0B50 = D_0029C7D0;
+}
+
+/* Same shape at lines 2066-2072: an inline-only static that snapshots the
+   boy's orient where the script side reads it.  Name is this repository's. */
+static inline void SaveBoyOrientForScript(void)
+{
+    void *boy = D_00639EA4;
+
+    D_0029C830[0] = ((float *)test_CURRENTORIENT(boy))[0];
+    D_0029C830[1] = ((float *)test_CURRENTORIENT(boy))[1];
+    D_0029C830[2] = ((float *)test_CURRENTORIENT(boy))[2];
+}
+
+/* INTERIM: ACTSearchGObj is a file-scope `inline` in the original TU: the
+   listing expands it into subBoyCollision and actBoyAttack (rows 1644-1661)
+   and its out-of-line copy sits in the TU's inline tail, where the plain
+   definition stays.  This stand-in carries the body both inline; fold it back
+   when the tail is C. */
+static inline void ACTSearchGObj_inl(void *a0, int a1, int a2, int *out_id, float *out_vec,
+                                     float thresh)
+{
+    float buf[4];
+    void *node;
+    int best;
+
+    node = isysGObjSearchFromObjKindID_begin(a1);
+    best = a2;
+    *out_id = 0;
+    for (; node != 0; node = isysGObjSearchFromObjKindID_next(node)) {
+        if (*(int *)((char *)node + 0x16C) != 0) {
+            CCPResult *r1 = test_CURRENTROOT(a0);
+            if (_DistGV(r1, test_CURRENTROOT(node)) < thresh) {
+                int sign;
+                int dist;
+                CCPResult *r4 = test_CURRENTROOT(node);
+                sceVu0SubVector(buf, r4, test_CURRENTROOT(a0));
+                sign = ((int (*)(void *, void *))_RotyGV)(buf, test_CURRENTORIENT(a0));
+                if (sign < 0) {
+                    dist = -((int (*)(void *, void *))_RotyGV)(buf, test_CURRENTORIENT(a0));
+                } else {
+                    dist = ((int (*)(void *, void *))_RotyGV)(buf, test_CURRENTORIENT(a0));
+                }
+                if (dist < best) {
+                    best = dist;
+                    out_vec[0] = buf[0];
+                    out_vec[1] = buf[1];
+                    out_vec[2] = buf[2];
+                    *out_id = (int)node;
+                }
+            }
+        }
+    }
+}
+
+void subBoyCollision(volatile int a0)
+{
+    char *sub = *(char **)((char *)a0 + 0x164);
+    int camOn;
+    int looking;
+    int hang;
+    int hangBit;
+    int hold;
+    int dbg = 0; /* local debug switch, see the test after the helper's SetRootPosition */
+
+    PrivInsCamInit();
+
+    while (*(int *)(sub + 0x130) == 0) {
+        _ACTWait(1);
+    }
+    if (200.0f < GetDifferenceFromLowerField(a0, 0x2C)) {
+        ACTSendMailCorrect(a0, 0x7);
+    }
+    while (1) {
+        float vec[4];
+
+        camOn = 0;
+        if (0 < HANG_TARGET(a0)->f4B0) {
+            HANG_TARGET(a0)->f4B0 -= 1;
+            _ACTCharStatus_Set((void *)a0, 0x20, -1.0f, 0);
+            OtherStageGirlPinchCamera_After((float)HANG_TARGET(a0)->f4B0);
+        }
+        PrivInsCamProcess();
+        findChainInJump((void *)a0);
+        CheckCollisionAttr((void *)a0);
+        ACTGame_CommonLoop((void *)a0);
+
+        hangBit = ((int)(*(unsigned long long *)(sub + 0x18) >> 50) & 1);
+        hang = 1;
+        if (((int)(*(unsigned long long *)(sub + 0x20) >> 18) & 1) == 0) {
+            hang = hangBit;
+        }
+        if (hang == 0) {
+            if (*(float *)(sub + 0x34C) != 0.0f &&
+                CorrectOrient_RopeCliff(vec, (void *)a0, (float *)(sub + 0x120)) != 0) {
+                *(float *)(sub + 0x120) = vec[0];
+                *(float *)(sub + 0x124) = vec[1];
+                *(float *)(sub + 0x128) = vec[2];
+            }
+            if (0.1f < *(float *)(sub + 0x34C) && *(int *)(sub + 0x34) != 0x73) {
+                SetMotionDirectionSmooze((void *)a0, (float *)(sub + 0x120),
+                                         (float)(((void *)a0 == D_00639EA8 && D_00639EA0 != 0)
+                                                     ? CHAINROW(a0)->f_182
+                                                     : CHAINROW(a0)->f_186));
+            }
+        }
+        CommonAttackCenter((void *)a0);
+        ACTGame_SaveActorInformation((void *)a0);
+        if (*(unsigned int *)(sub + 0x34) < 4 && *(int *)(sub + 0x34) != 0) {
+            if (*(int *)(sub + 0x2E4) & 0x20) {
+                int hit;
+
+                ACTSearchGObj_inl((void *)a0, 0x13, 0x2D, &hit, vec, 100.0f);
+            }
+        }
+        switch (*(int *)(sub + 0x34)) {
+        case 0x1C:
+            if (((int)(*(unsigned long long *)(sub + 0x480) >> 10) & 1) &&
+                ((int)(*(unsigned long long *)(sub + 0x490) >> 10) & 1)) {
+                ACTSendMailCorrect(a0, 0xC7);
+            }
+            break;
+        case 0x20:
+        case 0x26:
+            if (*(int *)(sub + 0x2E4) & 0x40) {
+                ACTSendMailCorrect(a0, 0x13C);
+            }
+            break;
+        case 0x39:
+            SaveBoyOrientForScript();
+            D_0063A6D8 = 0.0f;
+            if (*(int *)(sub + 0x2E4) & 0x10) {
+                ACTSendMailCorrect(a0, 0xC3);
+            }
+            if (*(int *)(sub + 0x2E4) & 0x40) {
+                HANG_TARGET(a0)->f33C = ((float *)test_CURRENTROOT(*(void **)(sub + 0x190)))[1] +
+                                        GetChainLength(*(void **)(sub + 0x190)) -
+                                        ((float *)test_CURRENTROOT((void *)a0))[1];
+                ActSendMail_WithAdditionalData((void *)a0, 0x13C, (void *)a0,
+                                               &HANG_TARGET(a0)->f33C);
+            }
+            if (*(int *)(sub + 0x2E0) & 0x20) {
+                ACTSendMailCorrect(a0, 0xA2);
+                ACTSendMailCorrect(a0, 0xE3);
+            } else {
+                if (*(int *)(sub + 0x33C) - 0x80 < -100) {
+                    ACTSendMailCorrect(a0, 0x14A);
+                } else if (100 < *(int *)(sub + 0x33C) - 0x80) {
+                    ACTSendMailCorrect(a0, 0x14B);
+                    if (isBottomOfChain(*(void **)(sub + 0x190))) {
+                        ACTSendMailCorrect(a0, 0x9D);
+                    }
+                } else if (GOBJ_SUB(a0)->f_4A0 == 0x76) {
+                    float bodyori[4];
+                    int cor;
+                    int ry;
+
+                    GetCorrectOrientOfChain(vec, (void *)a0);
+                    SetMotionDirection((void *)a0, vec);
+                    if (GetChainDirCorrectVal(*(void **)(sub + 0x190), &cor) != 0) {
+                        if (*(int *)(sub + 0x338) - 0x80 < -100) {
+                            ACTSendMailCorrect(a0, 0xA0);
+                        }
+                        if (100 < *(int *)(sub + 0x338) - 0x80) {
+                            ACTSendMailCorrect(a0, 0xA1);
+                        }
+                    } else {
+                        if (*(int *)(sub + 0x338) - 0x80 < -100) {
+                            ry = 5;
+                        } else {
+                            ry = 0;
+                        }
+                        if (100 < *(int *)(sub + 0x338) - 0x80) {
+                            ry = -5;
+                        }
+                        bodyori[0] = ((float *)test_CURRENTORIENT((void *)a0))[0];
+                        bodyori[1] = ((float *)test_CURRENTORIENT((void *)a0))[1];
+                        bodyori[2] = ((float *)test_CURRENTORIENT((void *)a0))[2];
+                        _ApplyRyGV(bodyori, (float)ry * 3.1415927f / 180.0f);
+                        SetMotionDirection((void *)a0, bodyori);
+                    }
+                }
+                ACTSendMailCorrect(a0, 0x150);
+            }
+            break;
+        case 0x42:
+            if (((int)(*(unsigned long long *)(sub + 0x20) >> 11) & 1) == 0) {
+                if (*(int *)(sub + 0x33C) - 0x80 < -100) {
+                    ACTSendMailCorrect(a0, 0x14A);
+                }
+                if (100 < *(int *)(sub + 0x33C) - 0x80) {
+                    ACTSendMailCorrect(a0, 0x14B);
+                }
+            }
+            if (GOBJ_SUB(a0)->f_4A0 == 0x76) {
+                if (*(int *)(sub + 0x338) - 0x80 < -100) {
+                    ACTSendMailCorrect(a0, 0xA0);
+                }
+                if (100 < *(int *)(sub + 0x338) - 0x80) {
+                    ACTSendMailCorrect(a0, 0xA1);
+                }
+            }
+            ACTSendMailCorrect(a0, 0x150);
+            if (*(int *)(sub + 0x2E4) & 0x40) {
+                ACTSendMailCorrect(a0, 0x13C);
+            }
+            break;
+        case 0x37:
+            if (D_00639EA8 != 0 &&
+                *(int *)(*(char **)((char *)D_00639EA8 + 0x164) + 0x40) != 0x5E &&
+                *(int *)(*(char **)((char *)D_00639EA8 + 0x164) + 0x40) != 0x65 &&
+                (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] < *(int *)(sub + 0x4C)) {
+                if (((int)(*(unsigned long long *)(sub + 0x478) >> 49) & 1) == 0 ||
+                    ((int)(*(unsigned long long *)(sub + 0x488) >> 49) & 1) == 0) {
+                    ACTSendMailCorrect(a0, 0xF9);
+                } else {
+                    ACTSendMailCorrect(a0, 0xFA);
+                }
+            }
+            /* falls through into the next arm */
+        case 0x44:
+            if (((int)(*(unsigned long long *)(sub + 0x478) >> 48) & 1) &&
+                ((int)(*(unsigned long long *)(sub + 0x488) >> 48) & 1)) {
+                if (D_00639EA8 != 0) {
+                    iosOmSendMail(D_00639EA8, 0x3E, D_0063A61C);
+                }
+                ACTSendMailCorrect(a0, 0xFA);
+            } else if (NotNeedBackHand() ||
+                       (*(int *)(*(char **)((char *)D_00639EA8 + 0x164) + 0x3C) != 0x5E &&
+                        *(int *)(*(char **)((char *)D_00639EA8 + 0x164) + 0x3C) != 0x65 &&
+                        (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 2 < *(int *)(sub + 0x4C))) {
+                if (((int)(*(unsigned long long *)(sub + 0x478) >> 49) & 1) &&
+                    ((int)(*(unsigned long long *)(sub + 0x488) >> 49) & 1)) {
+                    ACTSendMailCorrect(a0, 0xFA);
+                } else {
+                    ACTSendMailCorrect(a0, 0xF9);
+                }
+            }
+            break;
+        /* the listing's table runs from 1, with this arm empty */
+        case 0x1:
+            break;
+        }
+        {
+            int tgt2[4];
+            int scr2[4];
+            int work[4];
+            int cam[4];
+            int broot[4];
+            int ofs[4];
+            int cpos[4];
+
+            looking = 0;
+            if (((int)(*(unsigned long long *)(sub + 0x478) >> 46) & 1) == 0 ||
+                ((int)(*(unsigned long long *)(sub + 0x488) >> 46) & 1) == 0) {
+                D_0063C1F0 = 0;
+                D_0063C1F1 = 0;
+            }
+            if (D_00639EA8 != 0 &&
+                *(int *)(*(char **)((char *)D_00639EA8 + 0x164) + 0x34) == 0x45) {
+                sceVu0ScaleVector(vec, test_CURRENTORIENT((void *)a0), 200.0f);
+                vec[1] = 0.0f;
+                sceVu0AddVector(vec, test_CURRENTROOT((void *)a0), vec);
+                _ACTLookTarget_Set((void *)a0, 0, vec, 1, 1);
+            }
+            if (((int)(*(unsigned long long *)(sub + 0x478) >> 46) & 1) &&
+                ((int)(*(unsigned long long *)(sub + 0x488) >> 46) & 1)) {
+                int see = 0;
+                int onGirl = 0;
+
+                if (D_0063C1F0 == 0) {
+                    D_0063C1F0 = 1;
+                    if (D_00639EA8 != 0) {
+                        D_0063C1F1 =
+                            (0.0f < IsPointIsInScreen(scr2, test_CURRENTROOT(D_00639EA8))) ? 1 : 0;
+                    }
+                }
+                if (D_00639EA8 != 0) {
+                    ((float *)tgt2)[0] = ((float *)test_CURRENTROOT(D_00639EA8))[0];
+                    ((float *)tgt2)[1] = ((float *)test_CURRENTROOT(D_00639EA8))[1];
+                    ((float *)tgt2)[2] = ((float *)test_CURRENTROOT(D_00639EA8))[2];
+                    see = 1;
+                    onGirl = 1;
+                } else if ((stage_no == 0x56 || stage_no == 0x3 || stage_no == 0x2E) &&
+                           ((int)(*(unsigned long long *)(sub + 0x20) >> 24) & 3)) {
+                    see = 1;
+                    onGirl = 0;
+                    ScpCallCameraGetTarget((float *)tgt2);
+                }
+                if (see) {
+                    float d = _DistGV(test_CURRENTROOT((void *)a0), (CCPResult *)tgt2);
+
+                    if (d < _ACTGame_GetParamF(3) && onGirl) {
+                        _ACTParaStatus_Set((void *)a0, 0x15);
+                        _ACTCharStatus_Set((void *)a0, 0x21, -1.0f, 0);
+                    } else if (d < _ACTGame_GetParamF(4)) {
+                        _ACTParaStatus_Set((void *)a0, 0x14);
+                        _ACTCharStatus_Set((void *)a0, 0x23, -1.0f, 0);
+                        _ACTParaStatus_Set((void *)a0, 0x13);
+                        _ACTCharStatus_Set((void *)a0, 0x22, -1.0f, 0);
+                    } else {
+                        _ACTParaStatus_Set((void *)a0, 0x13);
+                        _ACTCharStatus_Set((void *)a0, 0x22, -1.0f, 0);
+                    }
+                } else {
+                    _ACTParaStatus_Set((void *)a0, 0x13);
+                    _ACTCharStatus_Set((void *)a0, 0x22, -1.0f, 0);
+                }
+                hold = *(int *)(sub + 0x2E0) & 0x8;
+                looking = hold != 0;
+            }
+            if (D_00639EA8 != 0 &&
+                (looking ||
+                 ((int)(*(unsigned long long *)(*(char **)((char *)D_00639EA8 + 0x164) + 0x20) >>
+                        26) &
+                  1))) {
+                _ACTLookTarget_Set((void *)a0, (int)D_00639EA8, 0, 4, 2);
+                if (D_0063C1F1 == 0 && ((int)(*(unsigned long long *)(sub + 0x20) >> 23) & 1)) {
+                    if (((int)(*(unsigned long long *)(sub + 0x20) >> 24) & 3) != 0) {
+                        void *lo = isysGObjSearchFromObjLayoutID(0x4);
+
+                        if (lo != 0) {
+                            ScpCallCameraGetTarget((float *)work);
+                            SetRootPosition(lo, work);
+                            Camctrl_SetTarget(a0, (int)lo, 1);
+                        }
+                    } else {
+                        Camctrl_SetTarget(a0, (int)D_00639EA8, 1);
+                    }
+                }
+            }
+            {
+                int i;
+                float near = D_0063A6F8[0];
+
+                *(ObjKindList *)work = collisionKinds;
+                for (i = 0; work[i] != -1; i++) {
+                    void *g;
+
+                    for (g = isysGObjSearchFromObjKindID_begin(work[i]); g != 0;
+                         g = isysGObjSearchFromObjKindID_next(g)) {
+                        if ((int)(*(unsigned long long *)(*(char **)((char *)g + 0x164) + 0x18) >>
+                                  32) &
+                            1) {
+                            float d = _DistGV(test_CURRENTROOT((void *)a0), test_CURRENTROOT(g));
+
+                            if (work[i] == 47) {
+                                if (*(int *)((char *)g + 0x16C) == 0) {
+                                    continue;
+                                }
+                                d = 1.0f;
+                            }
+                            if (d < near) {
+                                near = d;
+                            }
+                        }
+                    }
+                }
+                if (ACTGame_NoWeapon((void *)a0) == 0) {
+                    if (near < 1000.0f) {
+                        _ACTParaStatus_Set((void *)a0, 0x2);
+                    }
+                    if (near < 300.0f) {
+                        _ACTParaStatus_Set((void *)a0, 0x3);
+                    }
+                }
+                if (near < 1000.0f) {
+                    _ACTCharStatus_Set((void *)a0, 0x11, near, 0);
+                }
+            }
+            if (_ACTParaStatus_Check((void *)a0, 0x3) || _ACTParaStatus_Check((void *)a0, 0x2)) {
+                if (_ACTParaStatus_Check((void *)a0, 0x14)) {
+                    _ACTParaStatus_Set((void *)a0, 0x17);
+                }
+                if (_ACTParaStatus_Check((void *)a0, 0x13)) {
+                    _ACTParaStatus_Set((void *)a0, 0x16);
+                }
+            }
+            if (ACTGame_NoWeapon((void *)a0)) {
+                _ACTParaStatus_Set((void *)a0, 0x4);
+            }
+            ACTParaStatus_Exec((void *)a0);
+            {
+                /* boyact.c:3689-3699 in the listing, inside this function's own
+                   span: the weapon search is defined here and inlined into the
+                   test below; it has no symbol of its own, so the name is
+                   descriptive. */
+                inline void *searchWeapon(void)
+                {
+                    void *g;
+
+                    for (g = isysGObjSearchFromObjKindID_begin(0xE); g != 0;
+                         g = isysGObjSearchFromObjKindID_next(g)) {
+                        if (CheckWeaponKind(g) == 5) {
+                            return g;
+                        }
+                    }
+                    return 0;
+                }
+                void *w;
+
+                if (D_00639EA8 == 0 && (w = searchWeapon()) != 0) {
+                    if ((*(int *)(sub + 0x2E0) & 0x8) == 0) {
+                        D_0063C1F3 = 0;
+                        D_0063C1F2 = 0;
+                    } else {
+                        int mode;
+                        int ok;
+
+                        if (D_0063C1F2 == 0) {
+                            D_0063C1F3 =
+                                (0.0f < IsPointIsInScreen(work, test_CURRENTROOT(w))) ? 1 : 0;
+                        }
+                        D_0063C1F2 = 1;
+                        mode = (int)(*(unsigned long long *)(sub + 0x20) >> 24) & 3;
+                        ok = mode == 0;
+                        if (stage_no == 0x25 && mode == 2) {
+                            ok = 1;
+                        }
+                        if (((int)(*(unsigned long long *)(sub + 0x20) >> 23) & 1) && ok) {
+                            Camctrl_SetTarget(a0, (int)w, 1);
+                            camOn = 1;
+                            if (stage_no == 0x25) {
+                                ((float *)cam)[0] = ((float *)test_CURRENTROOT(w))[0];
+                                ((float *)cam)[1] = ((float *)test_CURRENTROOT(w))[1];
+                                ((float *)cam)[2] = ((float *)test_CURRENTROOT(w))[2];
+                                ScpCallCameraSetTarget(-((float *)cam)[0], -((float *)cam)[1],
+                                                       -((float *)cam)[2]);
+                                *(unsigned long long *)(sub + 0x20) =
+                                    (*(unsigned long long *)(sub + 0x20) & ~0x3000000) | 0x2000000;
+                            }
+                        }
+                    }
+                }
+            }
+            if (camOn == 0 && D_00639EA8 == 0) {
+                void *lo = isysGObjSearchFromObjLayoutID(0x4);
+
+                /* RECONSTRUCTION, a deleted-code window (listing row 3748,
+                   code-free between the 3747 lookup and the 3749 tests).  What
+                   the bytes pin: the ROM issues the lookup's result copy before
+                   the 0x2E0 load, which sched1 does only across a block boundary,
+                   so a conditional jump on lo alone sits here over a body that
+                   flow deletes and that jump.c cannot turn into a store-flag (more
+                   than one set); the jump to the next insn then goes in the pass
+                   after sched2.  What they cannot pin: the text.  camOn and
+                   looking are both dead from here on. */
+                if (lo == 0) {
+                    camOn = 1;
+                    looking = 0;
+                }
+                if ((*(int *)(sub + 0x2E0) & 0x8) && lo != 0) {
+                    ((float *)broot)[0] = ((float *)test_CURRENTROOT(D_00639EA4))[0];
+                    ((float *)broot)[1] = ((float *)test_CURRENTROOT(D_00639EA4))[1];
+                    ((float *)broot)[2] = ((float *)test_CURRENTROOT(D_00639EA4))[2];
+                    ((float *)cam)[0] = ((float *)GetCurrentCameraSet2())[0];
+                    ((float *)cam)[1] = ((float *)GetCurrentCameraSet2())[1];
+                    ((float *)cam)[2] = ((float *)GetCurrentCameraSet2())[2];
+                    GetOtherStageGirlOrient((float *)ofs, (float *)cam);
+                    sceVu0ScaleVector(ofs, ofs, _DistGV((CCPResult *)cam, (CCPResult *)broot));
+                    sceVu0AddVector(work, cam, ofs);
+                    SetRootPosition(lo, work);
+                    /* Local debug switch, off (see dbg in the declarations).
+                       What the bytes pin: subBoyCollision reached gcse with 1228
+                       to 1231 real insns (the order of the seven spilled frame
+                       addresses is pre_delete's hash-bucket walk with 615
+                       buckets; the January build's order and its one extra call
+                       make it 1231), all of them gone from the final words.  A
+                       switch set to 0 outside the loop is that: cse cannot carry
+                       the constant across the loop label, gcse's constant
+                       propagation folds the test and the next jump pass deletes
+                       the guarded call.  With the window above and the two dead
+                       camOn stores below it gives 1229.  What they cannot pin:
+                       the text; the marker is actBoySwim's own debug_NMarker
+                       call on the helper position just set (rows 3769-3771 are
+                       code-free). */
+                    if (dbg) {
+                        debug_NMarker((float *)work, 0xFF, 0, 0, 100.0f);
+                    }
+                    if ((int)(*(unsigned long long *)(sub + 0x20) >> 23) & 1) {
+                        if (((int)(*(unsigned long long *)(sub + 0x20) >> 24) & 3) != 0) {
+                            lo = isysGObjSearchFromObjLayoutID(0x4);
+                            if (lo != 0) {
+                                ScpCallCameraGetTarget((float *)cpos);
+                                SetRootPosition(lo, cpos);
+                                Camctrl_SetTarget(a0, (int)lo, 1);
+                                /* as in the weapon block; dead here (camOn is
+                                   not read after the test above), rows 3780
+                                   and 3784 are code-free */
+                                camOn = 1;
+                            }
+                        } else {
+                            Camctrl_SetTarget(a0, (int)lo, 1);
+                            camOn = 1;
+                        }
+                    }
+                }
+            }
+            ACTLookTargetSystem_Exec((void *)a0);
+            if (D_00639EA4 != 0 && D_00639EA8 != 0 &&
+                *(int *)(*(char **)((char *)D_00639EA4 + 0x164) + 0x34) == 0x2D &&
+                *(int *)(*(char **)((char *)D_00639EA8 + 0x164) + 0x34) ==
+                    *(int *)(*(char **)((char *)D_00639EA4 + 0x164) + 0x34)) {
+                if (0x3C < D_0063C1FC++) {
+                    if (D_0063C1F9 == 0) {
+                        lt_switch_layout(0x1C);
+                        D_0063C1F9 = 1;
+                    }
+                }
+            } else {
+                D_0063C1F9 = 0;
+                D_0063C1FC = 0;
+            }
+            if ((_ACTCharStatus_Check((void *)a0, 0x22) ||
+                 _ACTCharStatus_Check((void *)a0, 0x23)) &&
+                D_00639EA8 != 0) {
+                iosOmSendMail(D_00639EA8, 0x3D, D_0063A61C);
+            }
+            ((ActStatusWord *)(sub + 0x18))->q =
+                (((ActStatusWord *)(sub + 0x18))->q & ~0x20000000000LL) |
+                ((unsigned long long)(ACTGame_FLAG_TETSUNAGI() & 1) << 41);
+            if (((CHAINROW(a0)->f_18C >> 13) & 1) && ACTGame_FLAG_TETSUNAGI() == 0) {
+                ACTSendMailCorrect(a0, 0x1AA);
+            }
+            if ((int)(*(unsigned long long *)(sub + 0x18) >> 38) & 1) {
+                int life = HANG_TARGET(a0)->f3C0;
+
+                if (life < 60) {
+                    if (D_00639EA8 != 0) {
+                        iosOmSendMail(D_00639EA8, 0xB4, D_0063A61C);
+                    }
+                } else if (life < 70) {
+                    brainAddLevelGirl(20.0f);
+                } else {
+                    brainAddLevelGirl(10.0f);
+                }
+            }
+        }
+        _ACTWait(1);
+    }
+}
 
 void afterBoySwim(volatile int a0);
 extern S12 InitialColInfo;
 extern int D_00639EAC;
 extern int iosPadActRequest(int port, int id);
 extern int GetSkeltonFocusNode(char *a0, int a1);
-/* kept local: this TU's uses of debug_NMarker do not fit the prototype in camera-editor.h */
-extern void debug_NMarker(float *pos, int r, int g, int b, float size);
 extern void MoveFloatingBox(void *box, int self, void *m, void *p, float d);
 /* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
 extern float _DistSqGV(void *a, void *b);
@@ -1108,9 +1719,6 @@ void actBoySwim(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
-extern float _DistGV(CCPResult *a, CCPResult *b);
-
 void actBoyWalk(volatile int a0)
 {
     Act *sub = GOBJ_ACT(a0);
@@ -1171,47 +1779,10 @@ extern void BoyAttackCenter(int a0);
 /* kept local: this TU's uses of SetMotionDirectionWithLimit do not fit the prototype in motionManager2.h */
 extern void SetMotionDirectionWithLimit(void *self, float *dir, float lo, float hi);
 
-/* INTERIM: ACTSearchGObj and ACTSearchEnemy are file-scope `inline`s in the
-   original TU: the listing expands both here (ACTSearchEnemy's rows 1671/1674
-   around ACTSearchGObj's 1644-1661) and their out-of-line copies sit in the
-   TU's inline tail, where the plain definitions stay.  These stand-ins carry
-   the bodies actBoyAttack inlines; fold them back when the tail is C. */
-static inline void ACTSearchGObj_inl(void *a0, int a1, int a2, int *out_id, float *out_vec,
-                                     float thresh)
-{
-    float buf[4];
-    void *node;
-    int best;
-
-    node = isysGObjSearchFromObjKindID_begin(a1);
-    *out_id = 0;
-    best = a2;
-    for (; node != 0; node = isysGObjSearchFromObjKindID_next(node)) {
-        if (*(int *)((char *)node + 0x16C) != 0) {
-            CCPResult *r1 = test_CURRENTROOT(a0);
-            if (_DistGV(r1, test_CURRENTROOT(node)) < thresh) {
-                int sign;
-                int dist;
-                CCPResult *r4 = test_CURRENTROOT(node);
-                sceVu0SubVector(buf, r4, test_CURRENTROOT(a0));
-                sign = ((int (*)(void *, void *))_RotyGV)(buf, test_CURRENTORIENT(a0));
-                if (sign < 0) {
-                    dist = -((int (*)(void *, void *))_RotyGV)(buf, test_CURRENTORIENT(a0));
-                } else {
-                    dist = ((int (*)(void *, void *))_RotyGV)(buf, test_CURRENTORIENT(a0));
-                }
-                if (dist < best) {
-                    best = dist;
-                    out_vec[0] = buf[0];
-                    out_vec[1] = buf[1];
-                    out_vec[2] = buf[2];
-                    *out_id = (int)node;
-                }
-            }
-        }
-    }
-}
-
+/* INTERIM: ACTSearchEnemy is a file-scope `inline` in the original TU (rows
+   1671/1674, around ACTSearchGObj's 1644-1661; see ACTSearchGObj_inl above
+   subBoyCollision); its out-of-line copy sits in the TU's inline tail, where
+   the plain definition stays.  Fold it back when the tail is C. */
 static inline void ACTSearchEnemy_inl(void *a0, int *out_id, float *out_vec)
 {
     ACTSearchGObj_inl(a0, (*(int *)((char *)a0 + 0xC) ^ 1) ? 1 : 4, 0x5A, out_id, out_vec, 300.0f);
@@ -1432,7 +2003,6 @@ static inline void ACTSendMail_PULLUP_START(void)
     }
 }
 
-extern void *D_00639EA0;
 extern void sceVu0SubVector(void *, CCPResult *, CCPResult *);
 extern float sceVu0InnerProduct(void *a, void *b);
 /* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
@@ -1576,8 +2146,6 @@ void actBoyPullupGo(volatile int a0)
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", actBoyBelift);
 
 extern char D_0055FE58[];
-/* kept local: this TU's uses of SetMotionDirectionSmooze do not fit the prototype in commonact.h */
-extern void SetMotionDirectionSmooze(void *self, float *dir, float t);
 
 /* The walk order the boy is executing: sub->0x30 points at the request record
    the caller filled in, and actBoyReadyMove works on a private copy of it. */
@@ -1829,17 +2397,6 @@ void actBoyCall(volatile int a0)
         _ACTWait(1);
     }
 }
-
-typedef struct {
-    char pad000[0x470];
-    float f470; /* 0x470 */
-    float f474;
-    float f478;
-    char pad47C[0x480 - 0x47C];
-    S12 f480; /* 0x480 */
-} HangTarget;
-
-#define HANG_TARGET(o) ((HangTarget *)*(char **)(*(char **)((char *)(o) + 0x164) + 0x688))
 
 void actBoyHangBefore(volatile int a0)
 {
