@@ -1829,7 +1829,94 @@ MotShift rootUpdateNodeFix(void)
     return D_0063A810;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", rootUpdateY);
+MotShift rootUpdateY(void)
+{
+    Vec16 mv;
+    Vec16 mv2;
+    float mtx[16];
+    float plane[4];
+    float vp[4];
+    Vec16 corner[4];
+    Vec16 center;
+    Vec16 pos;
+    Vec16 push;
+    ClipBuf w;
+    ClipBuf cw;
+    float d;
+    int i;
+
+    GetMatrixFromQuaternion(mtx, D_0063C490 + 0x30);
+    sceVu0ApplyMatrix((int *)&mv, (int)mtx, (char *)D_007201F0);
+    sceVu0ApplyMatrix((int *)&mv2, (int)mtx, (char *)D_00720200);
+
+    CopyVector(D_0063C490 + 0x90, &mv2);
+    sceVu0AddVector(D_0063C490, D_0063C490, D_0063C490 + 0x90);
+    CopyVector(D_0063C490 + 0x1B0, D_0063C490);
+
+    GetPureVerticalPlane(0, vp, (float *)corner, (int *)(D_0063C490 + 0xE0), 0);
+    CopyVector(plane, vp);
+    plane[3] = 0.0f;
+
+    memset(&center, 0, 16);
+    center.f[3] = 1.0f;
+    for (i = 0; i < 4; i++) {
+        AddVectorXYZ(&center, &center, &corner[i]);
+    }
+    sceVu0ScaleVector(&center, &center, 0.25f);
+    *(float *)(D_0063C490 + 0) = center.f[0];
+    *(float *)(D_0063C490 + 8) = center.f[2];
+    *(float *)(D_0063C490 + 0) = *(float *)(D_0063C490 + 0) + mv.f[0];
+    *(float *)(D_0063C490 + 8) = *(float *)(D_0063C490 + 8) + mv.f[2];
+
+    CopyVector(&pos, D_0063C490);
+    pos.f[1] = pos.f[1] - D_007201F0[1];
+    d = GetDistanceFromPlane(vp, &pos);
+    sceVu0ScaleVector(&push, vp, -d - D_007201F0[2]);
+    AddVectorXYZ(&pos, &pos, &push);
+    pos.f[3] = 1.0f;
+    CopyVector(D_0063C490, &pos);
+    *(float *)(D_0063C490 + 4) = *(float *)(D_0063C490 + 4) + D_007201F0[1];
+    sceVu0ScaleVectorXYZ(D_0063C494 + 0xB0, plane, -1.0f);
+
+    if (*(int *)(D_0063C490 + 0x314) != 0) {
+        float t = *(float *)(D_0063C490 + 4) - mv.f[1];
+        float e;
+
+        t = t - (float)((int)(t / 50.0f) * 50);
+        if (t < 0.0f) {
+            t = t + 50.0f;
+        }
+        if (t > 25.0f) {
+            e = 50.0f - t;
+            *(float *)(D_0063C490 + 4) = *(float *)(D_0063C490 + 4) + e;
+        } else {
+            *(float *)(D_0063C490 + 4) = *(float *)(D_0063C490 + 4) - t;
+        }
+    }
+
+    getFieldCollision((char *)&w);
+    CopyVector(D_0063C490 + 0x130, (char *)&w + 0xA0);
+    clipWallAhead(&cw);
+    if (*(int *)((char *)&cw + 0x88) != 0) {
+        WallCfg rec = {((WallCfg *)((char *)&cw + 0x80))->o, ((WallCfg *)((char *)&cw + 0x80))->n};
+
+        *(WallCfg *)(D_0063C490 + 0x100) = rec;
+    }
+
+    MatrixDrive_PushMatrix();
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    MatrixDrive_TransMatrix(*(float *)(D_0063C490 + 0), *(float *)(D_0063C490 + 4) + 100.0f,
+                            *(float *)(D_0063C490 + 8));
+    MultiMatrixByQuaternion(D_0063C490 + 0x30);
+    checkWallState(2);
+    MatrixDrive_PopMatrix();
+
+    CopyVector(D_0063C490 + 0x150, D_0063C490);
+    CopyVector(D_0063C490 + 0xD0, D_00720210);
+    CopyVector(D_0063C490 + 0x10, ZeroVector);
+    *(int *)(D_0063C490 + 0x180) = -1;
+    return *(MotShift *)(D_0063C490 + 0xE0);
+}
 
 /* The parameter is unused: the ROM overwrites $4 with the first load. */
 MotShift rootUpdateY_Rope(int a0)
