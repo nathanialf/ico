@@ -20,7 +20,7 @@ extern float D_0063B940;
 extern void sceVu0AddVector(void *a0, void *a1, void *a2);
 /* kept local: this TU's uses of _InterGV do not fit the prototype in gv.h */
 extern void _InterGV(void *elem, void *base, void *v, float a, float b);
-extern void _wallHitReaction(void *w, void *p, void *q, int flag);
+extern void _wallHitReaction(char *w, void *p, void *q, int flag);
 /* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
 extern char ZeroVector[];
 /* kept local: this TU's uses of MultiQuaternion do not fit the prototype in quaternion.h */
@@ -39,7 +39,142 @@ typedef struct {
     int b[3];
 } FieldBlk12;
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", _wallHitReaction);
+extern int D_0063B154;
+extern int ClipWallEField(void *a0);
+/* kept local: this TU's uses of these do not fit the prototypes in
+ * fieldCollision.h / geometryManager.h. */
+extern float GetDistanceFromPlane(void *plane, void *pos);
+extern float GetProjectionOfPlane(void *out, void *plane, void *pos);
+/* motionManager2's debug draws read the three words of a WallCfg through
+ * their first argument. */
+extern void DebugDisp1Collision(void *hit);
+extern void DebugDisp1CollisionWithColor(void *hit, void *colour);
+
+/* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into
+ * _wallHitReaction (rows 31-41, above its def line 51), so it carries no
+ * symbol in MAIN.MAP. */
+static inline int getWallSlideDirection(void *dir, void *hit, void *wall)
+{
+    Vec16 t;
+
+    if (_InnerProduct(hit, wall) < -0.99f) {
+        return 0;
+    }
+
+    CopyVector(&t, hit);
+    t.f[3] = 0.0f;
+    GetProjectionOfPlane(dir, &t, wall);
+    ((Vec16 *)dir)->f[3] = 0.0f;
+    _NormalizeVector(dir, dir);
+
+    return 1;
+}
+
+void _wallHitReaction(char *w, void *pos, void *last, int noSlide)
+{
+    Vec16 mv;
+    Vec16 nrm;
+    Vec16 pen;
+    Vec16 pl;
+    Vec16 slide;
+    float d;
+
+    SubVectorXYZ(&mv, w + 0x10, w + 0x20);
+    SubVectorXYZ(pos, pos, &mv);
+    GetOrientOfWall(&nrm, *(void **)(w + 0x88), w + 0x80);
+    *(int *)(D_0063C494 + 0x14) = *(int *)(D_0063C494 + 0x14) | 2;
+
+    CopyVector(&pl, &nrm);
+    pl.f[3] = -sceVu0InnerProduct(pos, &nrm);
+    d = GetDistanceFromPlane(&pl, last);
+    sceVu0ScaleVector(&pen, &nrm, d);
+    sceVu0SubVector(last, last, &pen);
+
+    d = GetDistanceFromPlane(w + 0xA0, w + 0x10);
+    sceVu0ScaleVector(&pen, &nrm, d);
+    sceVu0SubVector(&slide, &mv, &pen);
+
+    if (noSlide == 0) {
+        ClipBuf cw = {{0}, *(float *)(w + 0x70)};
+
+        CopyVector(&cw, pos);
+        _AddVectorXYZ((int)&cw + 0x10, (int)pos, &slide);
+
+        *(WallObj *)((char *)&cw + 0x74) = *(WallObj *)(w + 0x80);
+        *(void **)((char *)&cw + 0x7C) = *(void **)(w + 0x88);
+        if (*(int *)(D_0063C490 + 0x320) != 0) {
+            ClipWallEField(&cw);
+        } else {
+            ClipWallE(&cw);
+        }
+        if (D_0063B154 != 0) {
+            /* An initialised record whose address is taken: gcc fills a
+               temporary a member at a time and copies it whole, the two
+               copies the listing puts on this one row. */
+            WallCfg disp = {((WallCfg *)(w + 0x80))->o, ((WallCfg *)(w + 0x80))->n};
+
+            DebugDisp1Collision(&disp);
+        }
+        if (*(int *)((char *)&cw + 0x88) != 0) {
+            Vec16 prj;
+
+            GetProjectionOfPlane(&prj, (char *)&cw + 0xA0, (char *)&cw + 0x10);
+            d = GetDistanceFromPlane(w + 0xA0, &prj);
+            if (d < 0.0f) {
+                Vec16 dir;
+
+                if (getWallSlideDirection(&dir, w + 0xA0, (char *)&cw + 0xA0) != 0) {
+                    Vec16 step;
+
+                    _SubVectorXYZ(&step, (char *)&cw + 0x10, (char *)&cw + 0x20);
+                    GetProjectionOfPlane(&step, &dir, &step);
+                    _AddVectorXYZ((int)pos, (int)&cw + 0x20, &step);
+                } else {
+                    ClipBuf cw2;
+                    Vec16 push;
+
+                    memset(&cw2, 0, 0xC0);
+                    _NormalizeVector(&push, &slide);
+                    _ScaleVectorXYZ(&push, &push, 100.0f);
+                    CopyVector(&cw2, pos);
+                    _AddVectorXYZ((int)&cw2 + 0x10, (int)pos, &push);
+                    ClipWall(&cw2);
+                    _AddVectorXYZ((int)pos, (int)pos, &slide);
+                    if (D_0063B154 != 0) {
+                        DrawCollisionRay(&cw2);
+                    }
+                    if (*(int *)((char *)&cw2 + 0x88) != 0) {
+                        Vec16 hp;
+
+                        *(float *)((char *)&cw2 + 0xAC) =
+                            *(float *)((char *)&cw2 + 0xAC) - (*(float *)(w + 0x70) + 1.0f);
+                        if (GetProjectionOfPlane(&hp, (char *)&cw2 + 0xA0, pos) < 0.0f) {
+                            CopyVector(pos, &hp);
+                            if (D_0063B154 != 0) {
+                                WallCfg disp = {((WallCfg *)((char *)&cw2 + 0x80))->o,
+                                                ((WallCfg *)((char *)&cw2 + 0x80))->n};
+
+                                DebugDisp1CollisionWithColor(&disp, D_004ECA50);
+                            }
+                        }
+                    }
+                }
+            } else {
+                CopyVector(pos, &prj);
+            }
+            if (D_0063B154 != 0) {
+                WallCfg disp = {((WallCfg *)((char *)&cw + 0x80))->o,
+                                ((WallCfg *)((char *)&cw + 0x80))->n};
+
+                DebugDisp1CollisionWithColor(&disp, D_004ECA60);
+            }
+        } else {
+            _AddVectorXYZ((int)pos, (int)pos, &slide);
+        }
+    } else {
+        _AddVectorXYZ((int)pos, (int)pos, &slide);
+    }
+}
 
 void _wallCollisionPreProcess(char *w, void *p, void *q, float dy)
 {
@@ -87,7 +222,7 @@ static inline int wallCollisionAndFloorFit(char *cur, char *last, float dy)
 
     _wallCollisionPreProcess((char *)&w, cur, last, dy);
     if (*(int *)((char *)&w + 0x88) != 0) {
-        _wallHitReaction(&w, cur, last, 0);
+        _wallHitReaction((char *)&w, cur, last, 0);
         return 1;
     } else if (*(int *)((char *)&w + 0x94) != 0) {
         CopyVector(&t, (char *)&w + 0x20);
@@ -111,7 +246,7 @@ static inline void wallCollisionAndReact(float dy)
 
     _wallCollisionPreProcess((char *)&w, g, last, dy);
     if (*(int *)((char *)&w + 0x88) != 0) {
-        _wallHitReaction(&w, g, last, 0);
+        _wallHitReaction((char *)&w, g, last, 0);
     }
 }
 

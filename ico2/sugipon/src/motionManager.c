@@ -286,8 +286,30 @@ extern int D_00639EA4;
 /* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
 extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
 
+/* The wall-hit record at ClipBuf+0x80: the object and its node, then the hit
+   count.  GetPureVerticalPlane reads it as its `int *cfg` argument (see
+   getVerticalElementOfWallNormal in src/motionManager2) and the character
+   record keeps a copy at +0xE0.  The object/node pair is its own member: the
+   ROM copies it as an eight-byte block and the count as a separate word. */
 typedef struct {
-    long long b[0x18];
+    int obj;
+    int node;
+} WallObj;
+
+typedef struct {
+    WallObj o;
+    int n;
+} WallCfg;
+
+/* RECONSTRUCTION: the 0xC0-byte field/wall clip request block.  The sweep
+   radius at +0x70 is broken out because _wallHitReaction builds one with an
+   initialiser whose single non-zero element is that field; +0x74 is the
+   12-byte wall filter _wallCollisionPreProcess copies in (its FieldBlk12). */
+typedef struct {
+    long long b[14]; /* 0x00 */
+    float rad;       /* 0x70 */
+    WallCfg filter;  /* 0x74 */
+    long long c[8];  /* 0x80 */
 } ClipBuf;
 
 extern char D_0061FD00[];
@@ -531,21 +553,6 @@ extern void SetSimplePlane(void *plane, float x, float y, float z, float d);
 extern void ClipFloorR(void *a0);
 /* kept local: this TU's uses of GetOrientOfWall do not fit the prototype in fieldCollision.h */
 extern void GetOrientOfWall(void *out, void *wall, void *vec);
-
-/* The wall-hit record at ClipBuf+0x80: the object and its node, then the hit
-   count.  GetPureVerticalPlane reads it as its `int *cfg` argument (see
-   getVerticalElementOfWallNormal in src/motionManager2) and the character
-   record keeps a copy at +0xE0.  The object/node pair is its own member: the
-   ROM copies it as an eight-byte block and the count as a separate word. */
-typedef struct {
-    int obj;
-    int node;
-} WallObj;
-
-typedef struct {
-    WallObj o;
-    int n;
-} WallCfg;
 
 void checkWallState(int flag)
 {
