@@ -19,7 +19,27 @@ typedef struct {
 
 extern StrDesc D_0054C018[];
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _type2id);
+long long _type2id(int a0, int a1)
+{
+    long long id = 0;
+    int sh = 0;
+
+    if ((unsigned int)a0 < 10) {
+        switch (D_0054C018[a0].mask) {
+        case 0xFFFFFFFFFFULL:
+            sh = 0;
+            break;
+        case 0xFFFF000000ULL:
+            sh = 24;
+            break;
+        case 0xFF00000000ULL:
+            sh = 32;
+            break;
+        }
+        id = D_0054C018[a0].id | ((long long)a1 << sh);
+    }
+    return id;
+}
 
 int _id2type(int *type, int *num, unsigned long long id)
 {
@@ -105,9 +125,9 @@ typedef struct {
     int arg;
 } StrCb;
 
-extern long long _type2id(int a0, long long a1);
+extern long long _type2id(int a0, int a1);
 
-int sceMpegAddStrCallback(int *a0, int a1, long long a2, int a3, int a4)
+int sceMpegAddStrCallback(int *a0, int a1, int a2, int a3, int a4)
 {
     int ret = 0;
     int *p = (int *)a0[0x40 / 4];
