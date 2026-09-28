@@ -2298,14 +2298,14 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 
-extern int D_0026E920;
+extern int _maxval; /* the clamp mask at the end of _copyRefImage, named as the listing names it */
 
 void _copyAddRefImage(void *a0, void *a1, void *a2)
 {
     __asm__ __volatile__(".set noreorder\n"
                          "addiu $12, $0, 0x18\n"
-                         "lui $10, %%hi(D_0026E920)\n"
-                         "addiu $10, $10, %%lo(D_0026E920)\n"
+                         "lui $10, %%hi(_maxval)\n"
+                         "addiu $10, $10, %%lo(_maxval)\n"
                          "lq $11, 0x0($10)\n"
                          "1:\n"
                          "lq $8, 0x0($5)\n"
@@ -2332,15 +2332,15 @@ void _copyAddRefImage(void *a0, void *a1, void *a2)
 /* The saturating pack _copyAddRefImage does without the add: 24 rounds of two
  * quadwords of signed halfword samples clamped into 0..255 and packed down to
  * bytes. Whole-function assembly under the MMI exception, and the 16 byte
- * clamp mask its sibling reads as D_0026E920 lives in this function's own
+ * clamp mask its sibling reads as _maxval lives in this function's own
  * text, aligned to a quadword, with the two pad instructions the alignment
  * leaves behind. */
 void _copyRefImage(void *a0, void *a1)
 {
     __asm__ __volatile__(".set noreorder\n"
                          "addiu $12, $0, 0x18\n"
-                         "lui $10, %%hi(D_0026E920)\n"
-                         "addiu $10, $10, %%lo(D_0026E920)\n"
+                         "lui $10, %%hi(_maxval)\n"
+                         "addiu $10, $10, %%lo(_maxval)\n"
                          "lq $11, 0x0($10)\n"
                          "1:\n"
                          "lq $8, 0x0($5)\n"
@@ -2356,7 +2356,7 @@ void _copyRefImage(void *a0, void *a1)
                          "bnez $12, 1b\n"
                          "sq $10, -0x10($4)\n"
                          ".align 4\n"
-                         "D_0026E920:\n"
+                         "_maxval:\n"
                          ".word 0x00FF00FF\n"
                          ".word 0x00FF00FF\n"
                          ".word 0x00FF00FF\n"

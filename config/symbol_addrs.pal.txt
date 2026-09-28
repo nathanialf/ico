@@ -167,7 +167,7 @@ actSt04aModelOnChk = 0x0022AF58; // type:func  // ico2/script/src/st04a
 actSt04eWaterMain = 0x0022D520; // type:func  // ico2/script/src/st04e
 actSt04eWaterSwitch = 0x0022D550; // type:func  // ico2/script/src/st04e
 actSt04eSeChk = 0x0022D9E0; // type:func  // ico2/script/src/st04e
-actSt04eHint1WakeUpChk = 0x0022DAE4; // type:func  // ico2/script/src/st04e  (census st04e.c 504-513, 20 rows, sat inside the actSt04eSeChk stub until both landed as C)
+actSt04eHint1WakeUpChk = 0x0022DAE8; // type:func  // ico2/script/src/st04e  (census st04e.c 504-513, 20 rows, sat inside the actSt04eSeChk stub until both landed as C, it starts at 0x0022DAE8 after the zero padding word at 0x0022DAE4)
 actSt04lC1BallMain = 0x00232EC0; // type:func  // ico2/script/src/st04l
 actSt04lC1BallSwitch = 0x00232EF0; // type:func  // ico2/script/src/st04l
 actSt04lC2BallMain = 0x00232FD0; // type:func  // ico2/script/src/st04l
@@ -269,7 +269,7 @@ afterGirlHand100 = 0x0017C250; // type:func  // ico2/fumi/src/girl_act
 afterGirlHand200 = 0x0017C310; // type:func  // ico2/fumi/src/girl_act
 subGirlBrain_Becarry = 0x0017C4C8; // type:func  // ico2/fumi/src/girl_act
 subGirlBrain_DangerEnv = 0x0017C600; // type:func  // ico2/fumi/src/girl_act
-// girl_act func_00174CE8 / func_001762A0 / func_00176838 / func_00177098 are gcc local copies (CorrectList.331, GetSafePosition.364/.371/.379) of nested functions, named in C only when their parents land. The two that are still INCLUDE_ASM stubs, func_00174CE8 and func_001762A0, carry their own rows below so progress sizes them (without a row their bytes were counted inside the matched subGirlBrain_Hide and Danger_Bomb). func_00176838 and func_00177098 sit inside their parents' ranges and need none
+// girl_act nested functions. gcc emits a nested child just before its parent and names it <name>.<n> (the listing has CorrectList.331 and GetSafePosition.357/.364/.371/.379). Every child needs its own row here, or progress counts its bytes inside the function before it. The two still in INCLUDE_ASM stubs keep func_ placeholders until their parents land (func_00174CE8 = CorrectList.331 in girlBrainRunawaySearchPoint, func_001762A0 = GetSafePosition.364 in Danger_Gondola); the landed ones take the plain C name (GetSafePosition at 0x00175D80, 0x00176838 and 0x00177098 for .357 in Danger_Bomb, .371 in Danger_Box, .379 in Danger_Rotobject)
 // script: actSubSekizoSe is MAIN.MAP script.o's last symbol (no census row), inside the former func_00185CA0 stub after scpDoorTypeUpMain
 actSubSekizoSe = 0x00185CD0; // type:func  // ico2/script/src/script
 // boyact: census names for the splat placeholders (listing table aligned by ROM order, 93 = 60 named + 33 covered; every start is its own prologue)
@@ -1987,11 +1987,13 @@ func_00174CE8 = 0x00174CE8; // type:func  // ico2/fumi/src/girl_act  // census C
 girlBrainRunawaySearchPoint = 0x00174E50; // type:func  // ico2/fumi/src/girl_act
 girlBrainRunawayMoveByWay = 0x001753E8; // type:func  // ico2/fumi/src/girl_act
 subGirlBrain_Escape = 0x00175688; // type:func  // ico2/fumi/src/girl_act
-GetSafePosition = 0x00175D80; // type:func  // ico2/fumi/src/girl_act
+GetSafePosition = 0x00175D80; // type:func allow_duplicated:True  // ico2/fumi/src/girl_act
 Danger_Bomb = 0x00176028; // type:func  // ico2/fumi/src/girl_act
 func_001762A0 = 0x001762A0; // type:func  // ico2/fumi/src/girl_act  // census GetSafePosition.364, the nested copy in the Danger_Gondola unit (rename when that unit lands)
 Danger_Gondola = 0x00176570; // type:func  // ico2/fumi/src/girl_act
+GetSafePosition = 0x00176838; // type:func allow_duplicated:True  // ico2/fumi/src/girl_act  // census GetSafePosition.371, the nested child of Danger_Box (matched C emits it before its parent)
 Danger_Box = 0x00176C28; // type:func  // ico2/fumi/src/girl_act
+GetSafePosition = 0x00177098; // type:func allow_duplicated:True  // ico2/fumi/src/girl_act  // census GetSafePosition.379, the nested child of Danger_Rotobject (matched C emits it before its parent)
 Danger_Rotobject = 0x00177340; // type:func  // ico2/fumi/src/girl_act
 isEnterHideadv = 0x00177898; // type:func  // ico2/fumi/src/girl_act
 WayTest = 0x001779B0; // type:func  // ico2/fumi/src/girl_act
