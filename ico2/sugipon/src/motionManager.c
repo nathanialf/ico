@@ -648,7 +648,146 @@ void checkWallState(int flag)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", checkCliffState);
+extern void sceVu0AddVector(void *a0, void *a1, void *a2);
+extern float GetDistanceFromPlane(void *plane, void *pos);
+extern void ClipWallR(void *a0);
+extern void ClipFloorIH(void *a0);
+
+void checkCliffState(int a0)
+{
+    char buf[0xC0];
+    float mv[4];
+    char *p;
+    float k;
+
+    memset(buf, 0, 0xC0);
+    p = buf;
+    k = (D_0063B93C == D_00639EA4) ? -20.0f : 0.0f;
+    D_004ECA30[2] = k;
+    MatrixDrive_PushMatrix();
+    MatrixDrive_TransMatrixV(D_004ECA30);
+    CopyVector(p, (void *)(MatrixDrive_GetMatrix() + 0x30));
+    sceVu0ApplyMatrix((int *)(p + 0x10), MatrixDrive_GetMatrix(), D_004ECA40);
+    _ApplyMatrix(mv, MatrixDrive_GetMatrix(), ZUnitVector);
+    MatrixDrive_PopMatrix();
+    if (D_0063B8FC != 0) {
+        DrawCollisionRay(p);
+    }
+    ClipWallR(p);
+    if (*(int *)(p + 0x88) != 0) {
+        float wv[4];
+        float sc[4];
+        float hit[4];
+        char fp[0xC0];
+        float plane[4];
+        WallCfg pl;
+        WallCfg t;
+        float d;
+        float dd;
+
+        GetWallVector((int)wv, (int)p);
+        sceVu0ScaleVector(sc, wv, 300.0f);
+        AddVectorXYZ(p + 0x10, p, sc);
+        ClipWallR(p);
+        if (D_0063B8FC != 0) {
+            DrawCollisionRay(p);
+        }
+        if (*(int *)(p + 0x88) != 0) {
+            sceVu0ScaleVector(sc, wv, 10.0f);
+            sceVu0AddVector(fp + 0x10, p + 0x20, sc);
+            CopyVector(fp, fp + 0x10);
+            pl = (t.o = ((WallCfg *)(p + 0x80))->o, t.n = ((WallCfg *)(p + 0x80))->n, t);
+            GetPureVerticalPlane(plane, 0, 0, (int *)&pl, 0);
+            d = GetDistanceFromPlane(plane, p + 0x20);
+            *(float *)(fp + 4) += d - 10.0f;
+            ClipFloor(fp);
+            if (D_0063B8FC != 0) {
+                DrawCollisionRay(fp);
+            }
+            CopyVector(hit, p + 0x20);
+            if (*(int *)(fp + 0x94) == 0) {
+                float dv[4];
+                float nv[4];
+                ClipBuf w2;
+                float ip;
+
+                CopyVector(dv, wv);
+                sc[1] = 0.0f;
+                _NormalizeVector(nv, dv);
+                ip = _InnerProduct(nv, mv);
+                *(float *)(D_0063C494 + 0x114) = GetPointDistance(p + 0x20, p) + k * ip;
+                *(int *)(D_0063C494 + 0xFC) = 1;
+                /* The wall-hit word is copied as the pointer it is (checkWallState
+                   reads it the same way): its load issues ahead of the int store
+                   above it, as in the ROM. */
+                *(void **)(D_0063C490 + 0xF8) = *(void **)(p + 0x88);
+                *(WallObj *)(D_0063C490 + 0xF0) = *(WallObj *)(p + 0x80);
+                *(int *)(D_0063C490 + 0xFC) = -1;
+                w2 = *(ClipBuf *)p;
+                d = GetPointDistance(p + 0x20, p);
+                _ScaleVector(sc, wv, d + 10.0f);
+                _AddVectorXYZ((int)((char *)&w2 + 0x10), (int)&w2, sc);
+                *(float *)((char *)&w2 + 4) = *(float *)((char *)&w2 + 4) - 30.0f;
+                *(float *)((char *)&w2 + 0x14) = *(float *)((char *)&w2 + 0x14) - 30.0f;
+                ClipWall(&w2);
+                if (D_0063B8FC != 0) {
+                    DrawCollisionRay(&w2);
+                }
+                if (*(int *)((char *)&w2 + 0x88) == 0) {
+                    *(int *)(D_0063C494 + 0xF8) = 1;
+                    *(int *)(D_0063C494 + 0x14) |= 0x10;
+                }
+            }
+            *(int *)(D_0063C494 + 0x180) = *(int *)(D_0063C494 + 0x184) = GetWallAttribute(p);
+            GetOrientOfWall(D_0063C494 + 0x120, *(void **)(p + 0x88), p + 0x80);
+            if (*(float *)(D_0063C494 + 0x114) < 30.0f) {
+                sceVu0ScaleVector(sc, wv, 10.0f);
+                SubVectorXYZ(p, hit, sc);
+                sceVu0ScaleVector(sc, wv, 300.0f);
+                AddVectorXYZ(p + 0x10, p, sc);
+                ClipWall(p);
+                if (D_0063B8FC != 0) {
+                    DrawCollisionRay(p);
+                }
+                if (*(int *)(p + 0x88) != 0) {
+                    dd = distance_squared(p + 0x20, p);
+                    *(int *)(D_0063C494 + 0x100) = 1;
+                    d = FSqrt(dd);
+                    if (a0 == 0) {
+                        if (d < *(float *)(D_0063C494 + 0x138)) {
+                            *(float *)(D_0063C494 + 0x138) = d;
+                        }
+                    } else {
+                        *(float *)(D_0063C494 + 0x138) = d;
+                    }
+                    sceVu0ScaleVector(sc, wv, 10.0f);
+                    AddVectorXYZ(p, p + 0x20, sc);
+                    CopyVector(p + 0x10, p);
+                    *(float *)(p + 0x14) = *(float *)(p + 0x14) - 10000.0f;
+                    ClipFloorR(p);
+                    if (D_0063B8FC != 0) {
+                        DrawCollisionRay(p);
+                    }
+                    if (*(int *)(p + 0x94) != 0) {
+                        *(float *)(D_0063C494 + 0x130) =
+                            (*(float *)(p + 0x24) - *(float *)(p + 4)) + 10.0f;
+                    }
+                }
+            }
+            sceVu0ScaleVector(sc, wv, 10.0f);
+            AddVectorXYZ(p, hit, sc);
+            CopyVector(p + 0x10, p);
+            *(float *)(p + 0x14) = *(float *)(p + 0x14) + 10000.0f;
+            ClipFloorIH(p);
+            if (D_0063B8FC != 0) {
+                DrawCollisionRay(p);
+            }
+            if (*(int *)(p + 0x94) != 0) {
+                *(float *)(D_0063C494 + 0x110) = (*(float *)(p + 0x24) - *(float *)(p + 4)) + 10.0f;
+            }
+        }
+    }
+}
 
 void _checkCliffAndWall(void)
 {
