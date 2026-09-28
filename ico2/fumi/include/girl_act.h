@@ -32,6 +32,6 @@ int isEnterHideadv_EnemyLocation(float *bpos, float *gpos);
 int isMustCheckCylinder(void *a, void *b);
 void subGirlBrainMain(void);
 void subGirlCollision(void);
-void subGirlControl(void);
+void subGirlControl(volatile int a0);
 
 #endif /* GIRL_ACT_H */

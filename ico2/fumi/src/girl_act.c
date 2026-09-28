@@ -2569,12 +2569,288 @@ void WayTest(void)
     dispWayMarker((float *)(*(char **)(s + 0x384) + 0x10));
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", subGirlControl);
+/* kept local: this TU's uses of CorrectStickInfo do not fit the prototype in boyact.h */
+extern int CorrectStickInfo(void *dir, void *stick);
+extern float GetDifferenceFromLowerField(void *obj, int node);
+/* kept local: this TU's uses of _GetMotionDirection do not fit the prototype in motionManager2.h */
+extern void _GetMotionDirection(float *dir, void *g);
+/* kept local: this TU's uses of SetMotionDirectionSmooze do not fit the prototype in commonact.h */
+extern void SetMotionDirectionSmooze(void *self, float *dir, float t);
+extern void _ACTCommonMailTest(void *self, int a1, int a2, int a3);
+extern char D_00553CD8[];
+extern char D_0055FE58[];
+extern void *D_00639EB0;
+extern void *D_00639EC0;
+extern void *D_00639ED0;
+extern int D_0063AA08;
+extern int D_0063B20C;
+extern int padtimer_stand;
+extern int padtimer_walk;
+extern int padtimer_run;
+
+/* one 0x194-byte motion row per motion id: 0x182 and 0x186 are the turn
+   rates handed to SetMotionDirectionSmooze (boyact.c reads the same row
+   through its CHAINROW macro) */
+typedef struct {
+    char _000[0x182];
+    short f_182;
+    char _184[0x2];
+    short f_186;
+    char _188[0xC];
+} MotDirRow;
+
+#define MOTDIRROW(self)                                                                            \
+    ((MotDirRow *)(*(int *)(*(char **)((char *)(self) + 0x15C) + 0x4A0) * sizeof(MotDirRow) +      \
+                   D_0055FE58))
+
+/* girl_act.c:1533-2539 in the listing.  Lines 1654-2362 carry no instruction
+   in the January link or in retail: that block is compiled-out debug code,
+   and the strings it printed ("src/girl_act.c", "NOTARGET",
+   "[%s] %4d %4d %4d", "delete wg 2\n") still sit in .rodata between this
+   function's "girl no!!\n" and its jump table. */
+void subGirlControl(volatile int a0)
+{
+    float dir[4];
+    /* Unused here: a vector of the compiled-out block.  What the bytes pin:
+       a 16-byte local between dir (0x10) and target (0x30).  What they
+       cannot: its name or type. */
+    float vec[4];
+
+    /* The target and the actor pointer as one frame record: its members
+       take their slots in declaration order (target 0x30, p 0x34), which
+       keeps target's zero store and reloads p after every call, as the ROM
+       does. */
+    struct {
+        void *target;
+        char *p;
+    } w;
+
+    float mdir[4];
+    /* Unused here: the locals of the compiled-out block.  What the bytes
+       pin: 496 bytes after mdir that set the 0x2E0 frame.  What they cannot:
+       how the block declared them. */
+    float work[124];
+    int hold;
+    int push;
+    int lim;
+
+    w.p = (char *)GOBJ_ACT(a0);
+    w.target = 0;
+    while (*(int *)(w.p + 0x130) == 0) {
+        debug_StdPrintfDummy(D_00553CD8);
+        _ACTWait(1);
+    }
+    iosPadConnect(w.p + 0x2D8, 0, 1, w.p + 0x1E8);
+    D_00639EB0 = w.p + 0x2D8;
+    /* The listing gives the back branch its own line 2539: a goto, not a
+       for or while, whose end carries no line note.  Without the loop notes
+       the in-loop references weigh 1, which is what orders the allocation of
+       mdir, dir and D_0028F4C0's high part ($20, $21, $22). */
+loop:
+    if ((int)(*(unsigned long long *)(w.p + 0x18) >> 48) & 1) {
+        if (D_0063AA08 == 0 && ((void *)a0 == D_00639EC0 || D_00639EA0 != 0)) {
+            /* The listing gives the jump out of this arm its own line
+                   1639 after the last store (1637): the do-while's closing
+                   line.  What the bytes pin: the arm's loop notes, which
+                   weigh mdir's two uses and dir's first so that mdir is
+                   allocated first ($20) and dir second ($21); the
+                   declaration-block reading of 1639 leaves them swapped.
+                   What they cannot: what the January code broke out of. */
+            do {
+                iosPadConnect(w.p + 0x2D8, 0, D_00639EA0 != 0, w.p + 0x1E8);
+                iosPadRead(w.p + 0x2D8);
+                iosPadGetStick(w.p + 0x2D8, w.p + 0x338, 0, 2, 2, D_0063B20C);
+                _GetMotionDirection(mdir, (void *)a0);
+                *(int *)(w.p + 0x340) = CorrectStickInfo(mdir, w.p + 0x338);
+                if (*(float *)(w.p + 0x34C) > 0.001f) {
+                    ConvertStickToAbsCoord(dir, w.p + 0x338);
+                    *(float *)(w.p + 0x120) = dir[0];
+                    *(float *)(w.p + 0x124) = dir[1];
+                    *(float *)(w.p + 0x128) = dir[2];
+                }
+            } while (0);
+        } else if ((void *)a0 == D_00639ED0) {
+            iosPadConnect(w.p + 0x2D8, 0, 1, w.p + 0x1E8);
+        } else {
+            iosPadConnect(w.p + 0x2D8, 0, 1, w.p + 0x1E8);
+        }
+        if (D_00639EA0 == 0 && ((*(unsigned long long *)(w.p + 0x18) & 0x3000000000000000) != 0 ||
+                                ((int)(*(unsigned long long *)(w.p + 0x20) >> 7) & 1))) {
+            if (*(float *)(w.p + 0x34C) != 0.0f) {
+                *(float *)(w.p + 0x34C) = 0.5f;
+            }
+        }
+    }
+    if (!(*(float *)(w.p + 0x34C) > 0.1f)) {
+        padtimer_stand = padtimer_stand + 1;
+    } else {
+        padtimer_stand = 0;
+    }
+    if (*(float *)(w.p + 0x34C) > 0.1f &&
+        (*(float *)(w.p + 0x34C) < 0.99f || (*(int *)(w.p + 0x2E0) & 0x20))) {
+        padtimer_walk = padtimer_walk + 1;
+    } else {
+        padtimer_walk = 0;
+    }
+    if (0.1f < *(float *)(w.p + 0x34C) &&
+        !(0.1f < *(float *)(w.p + 0x34C) &&
+          (*(float *)(w.p + 0x34C) < 0.99f || (*(int *)(w.p + 0x2E0) & 0x20)))) {
+        padtimer_run = padtimer_run + 1;
+    } else {
+        padtimer_run = 0;
+    }
+    dir[0] = *(float *)(w.p + 0x120);
+    dir[1] = *(float *)(w.p + 0x124);
+    dir[2] = *(float *)(w.p + 0x128);
+    switch (*(unsigned int *)(w.p + 0x34)) {
+    case 0x45:
+    case 0x50:
+    case 0x73:
+        break;
+    default:
+        if (*(float *)(w.p + 0x34C) > 0.1f && *(int *)(w.p + 0x34) != 0x73) {
+            SetMotionDirectionSmooze((void *)a0, dir,
+                                     (float)(((void *)a0 == D_00639EA8 && D_00639EA0 != 0)
+                                                 ? MOTDIRROW(a0)->f_182
+                                                 : MOTDIRROW(a0)->f_186));
+        }
+        break;
+    }
+    _ACTCommonMailTest((void *)a0, padtimer_stand, padtimer_walk, padtimer_run);
+    switch (*(int *)(w.p + 0x34)) {
+    case 1:
+        ACTSendMailCorrect((char *)a0, 0xC7);
+        break;
+    case 2:
+        ACTSendMailCorrect((char *)a0, 0xB5);
+        break;
+    case 3:
+        ACTSendMailCorrect((char *)a0, 0xBA);
+        break;
+    case 29:
+        if (!(D_00639EA0 != 0 &&
+              *(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x900) == 4 &&
+              ((int)(*(unsigned long long *)(w.p + 0x18) >> 56) & 1))) {
+            if ((*(float *)(w.p + 0x34C) > 0.1f &&
+                 (*(int *)(w.p + 0x340) < -134 || 134 < *(int *)(w.p + 0x340))) ||
+                (*(int *)(w.p + 0x2E4) & 0x40)) {
+                if (100.0f < GetDifferenceFromLowerField((void *)a0, 0x2C)) {
+                    ACTSendMailCorrect((char *)a0, 0x127);
+                } else {
+                    ACTSendMailCorrect((char *)a0, 0xE2);
+                }
+            }
+        }
+        if ((*(float *)(w.p + 0x34C) > 0.1f &&
+             (*(int *)(w.p + 0x340) >= -45 && *(int *)(w.p + 0x340) <= 45)) ||
+            (*(int *)(w.p + 0x2E4) & 0x10)) {
+            ACTSendMailCorrect((char *)a0, 0xC7);
+        }
+        if (*(float *)(w.p + 0x34C) > 0.1f &&
+            (*(int *)(w.p + 0x340) >= 46 && *(int *)(w.p + 0x340) <= 134)) {
+            ACTSendMailCorrect((char *)a0, 0x14E);
+        }
+        if (*(float *)(w.p + 0x34C) > 0.1f) {
+            if (-134 <= *(int *)(w.p + 0x340)) {
+                if (*(int *)(w.p + 0x340) < -45) {
+                    ACTSendMailCorrect((char *)a0, 0x14F);
+                }
+            }
+        }
+        break;
+    case 28:
+        if (!(D_00639EA0 != 0 &&
+              *(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x900) == 4 &&
+              ((int)(*(unsigned long long *)(w.p + 0x18) >> 56) & 1)) &&
+            ((*(float *)(w.p + 0x34C) > 0.1f &&
+              (*(int *)(w.p + 0x340) < -134 || 134 < *(int *)(w.p + 0x340))) ||
+             (*(int *)(w.p + 0x2E4) & 0x40))) {
+            ACTSendMailCorrect((char *)a0, 0xE2);
+        } else {
+            if (D_00639EA0 != 0 ||
+                (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 5 < *(int *)(w.p + 0x4C)) {
+                if (*(float *)(w.p + 0x34C) > 0.1f &&
+                    (*(int *)(w.p + 0x340) >= -45 && *(int *)(w.p + 0x340) <= 45)) {
+                    ACTSendMailCorrect((char *)a0, 0xC7);
+                }
+            }
+        }
+        ACTSendMailCorrect((char *)a0, 0x150);
+        break;
+    case 15:
+        if (*(int *)(w.p + 0x2E4) & 0x20) {
+            ACTSendMailCorrect((char *)a0, 0xC7);
+        }
+        break;
+    case 38:
+        if (D_00639EA4 != 0) {
+            if (((int *)((int *)D_00639EA4[0x59])[0x1A2])[0xEE] >
+                (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 3) {
+                ACTSendMailCorrect((char *)a0, 0x14A);
+            }
+            if (((int *)((int *)D_00639EA4[0x59])[0x1A2])[0xEF] >
+                (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 3) {
+                ACTSendMailCorrect((char *)a0, 0x14B);
+            }
+        }
+        lim = *(int *)(w.p + 0x33C) - 128;
+        if (100 < lim) {
+            ACTSendMailCorrect((char *)a0, 0x14B);
+        } else if (lim < -100) {
+            ACTSendMailCorrect((char *)a0, 0x14A);
+        } else {
+            ACTSendMailCorrect((char *)a0, 0x150);
+        }
+        break;
+    case 45:
+        if ((D_00639EA0 != 0 ? (*(float *)(w.p + 0x34C) > 0.1f &&
+                                (*(int *)(w.p + 0x340) >= -45 && *(int *)(w.p + 0x340) <= 45))
+                             : (*(float *)(w.p + 0x34C) > 0.1f)) ||
+            ((int)(*(unsigned long long *)(w.p + 0x20) >> 12) & 1)) {
+            ACTSendMailCorrect((char *)a0, 0x75);
+            ACTSendMailCorrect((char *)a0, 0x74);
+        }
+        hold = 0;
+        push = 0;
+        if (D_00639EA4 != 0 && D_00639EA0 == 0) {
+            if (*(int *)(*(char **)((char *)D_00639EA4 + 0x164) + 0x34) == 0x2D) {
+                push = *(int *)(*(char **)((char *)D_00639EA4 + 0x164) + 0x3C) != 0x45;
+            } else {
+                hold = 1;
+            }
+        }
+        if (hold) {
+            (*(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x258))++;
+        } else {
+            *(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x258) = 0;
+        }
+        if (push) {
+            (*(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x25C))++;
+        } else {
+            *(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x25C) = 0;
+        }
+        if (*(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x258) >
+            (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 2) {
+            ACTSendMailCorrect((char *)a0, 0x75);
+            ACTSendMailCorrect((char *)a0, 0x74);
+        }
+        if (*(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x25C) >
+            (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 2) {
+            ACTSendMailCorrect((char *)a0, 0x74);
+        }
+        break;
+    }
+    *(unsigned long long *)(w.p + 0x20) = *(unsigned long long *)(w.p + 0x20) & ~0x4000000ULL;
+    if (D_00639EA0 != 0 && (*(int *)(w.p + 0x2E0) & 8)) {
+        *(unsigned long long *)(w.p + 0x20) = *(unsigned long long *)(w.p + 0x20) | 0x4000000ULL;
+    }
+    _ACTWait(1);
+    goto loop;
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", subGirlCollision);
 
 #include "girl_act_hand.c.inc"
-
-extern char D_0055FE58[];
 
 void GetBoyMode(int *mode, int *p1, int *p2, int *p3)
 {
