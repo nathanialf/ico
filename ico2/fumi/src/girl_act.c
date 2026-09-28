@@ -221,7 +221,7 @@ held:
     }
 }
 
-extern int D_002A5580[];
+extern Brain D_002A5580[];
 
 void GirlBrainClearTarget(void)
 {
@@ -267,9 +267,10 @@ typedef struct {
     GirlList listB;  /* 0x1F60 */
     GirlList hide;   /* 0x3230 */
     GirlList listD;  /* 0x4500 */
-    char _57D0[0x30];
+    char _57D0[0x20];
+    float f_57F0[4]; /* 0x57F0 the runaway goal            */
     float f_5800[4]; /* 0x5800 last accepted hide point    */
-    char _5810[0x10];
+    float f_5810[4]; /* 0x5810 */
     float f_5820[4]; /* 0x5820 */
     float f_5830[4]; /* 0x5830 the girl's own position     */
     float f_5840[4]; /* 0x5840 */
@@ -277,7 +278,8 @@ typedef struct {
     int f_5860;      /* 0x5860 */
     char _5864[0x8C];
     unsigned char f_58F0; /* 0x58F0 */
-    char _58F1[0x07];
+    char _58F1[0x03];
+    int f_58F4;  /* 0x58F4 */
     int runMode; /* 0x58F8 */
     int wait;
     int timer;
@@ -1251,7 +1253,183 @@ int girlBrainRunawayMoveByWay(char *self, float *out, float *tgt)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", subGirlBrain_Escape);
+/* kept local: this TU's uses of sceVu0TransposeMatrix do not fit the prototype in vu0.h */
+extern void sceVu0TransposeMatrix(float *dst, float *src);
+/* kept local: this TU's uses of sceVu0MulMatrix do not fit the prototype in vu0.h */
+extern void sceVu0MulMatrix(void *dst, void *a, void *b);
+extern void sceVu0UnitMatrix(void *m);
+extern void DispWireString(char *s);
+extern int sprintf(char *buf, const char *fmt, ...);
+/* kept local: this TU's uses of _RotGV do not fit the prototype in gv.h */
+extern int _RotGV(void *a, void *b);
+extern float *matrixptr;
+
+/* girl_brain_main.c.inc:2239-2249 (rows outside its caller's span => static
+   inline).  Points `v` at the first listB entry within 300 units of `p` whose
+   bearing from `dir` is under 45 degrees. */
+static inline void girlBrainEscapeFaceCheck(float *p, float *dir, Vec4u *v)
+{
+    int i;
+
+    memset(v, 0, 16);
+    v->f[3] = 1.0f;
+    for (i = 0; i < ((GirlBrainWork *)D_0029D650)->listB.num; i++) {
+        if (_DistSqGV(p, ((GirlBrainWork *)D_0029D650)->listB.ent[i].pos) < 90000.0f) {
+            sceVu0SubVector(v->f, ((GirlBrainWork *)D_0029D650)->listB.ent[i].pos, p);
+            if ((_RotGV(dir, v) < 0 ? -_RotGV(dir, v) : _RotGV(dir, v)) < 45) {
+                break;
+            }
+        }
+    }
+}
+
+/* A compiled-out print, in cdvd.c's stDebugPrint form: each inlined call of
+   the empty body emits no instruction but leaves one (use (const_int 0))
+   insn that gcse counts and sched2 issues.
+   WHAT THE BYTES PIN, site by site in subGirlBrain_Escape (each measured
+   necessary: the function differs from the ROM without it):
+   - arm 1 after `mode = 2`: one more insn in gcse's table, which decides the
+     frame-address homes at 0xA4..0xB4;
+   - arm 1 after `mode = 3`: a second insn in the failed search's branch, so
+     jump1 keeps it a branch (beql) instead of a conditional move;
+   - cases 1 and 2 after girlBrainRunawayMoveByWay: the zero-code insn takes
+     the issue slot ahead of each vector copy.
+   And none at the other mode changes, which the ROM proves: `mode = 4` on
+   the unk34 test and arm 4's `mode = 0` are movz/movn, which a second
+   statement in the if would block; arm 0's `mode = 1` fills its jal slot
+   with the li of mode*4, which a zero-code insn there reorders.
+   WHAT THEY CANNOT PIN: the text of the prints, or whether they were one
+   macro or several.  The name is ours: an inlined empty body leaves no
+   symbol and no listing row. */
+static __inline__ void escapeDebugPrint(void) {}
+
+/* girl_brain_main.c.inc:2621-2846 */
+void subGirlBrain_Escape(volatile int a0)
+{
+    float pos[4];
+    float ppos[4];
+    float rp[4];
+    Vec4u v;
+    float mk[4];
+    float mtx[16];
+    Act *sub;
+    int cnt;
+    int mode;
+    int i;
+    int ret;
+
+    cnt = 1;
+    sub = GOBJ_ACT(a0);
+    mode = 0;
+    for (i = 0; i < (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 2; i++) {
+        sub->f_34C = 0;
+        _ACTWait(1);
+    }
+    for (;;) {
+        if (sub->unk34 == 0x6F) {
+            mode = 4;
+        }
+        if (((GirlBrainWork *)D_0029D650)->listB.num == 0 ||
+            cnt++ % ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 2) == 0) {
+            ((GirlBrainWork *)D_0029D650)->f_58F0 = 1;
+        }
+        GetRootPosition(pos, (void *)a0);
+        GetRootProjectionPosOfGObj(ppos, (void *)a0);
+        switch (mode) {
+        case 0:
+            mode = 1;
+            GetRootProjectionPosOfGObj(rp, (void *)a0);
+            ((GirlBrainWork *)D_0029D650)->f_5810[0] = rp[0];
+            ((GirlBrainWork *)D_0029D650)->f_5810[1] = rp[1];
+            ((GirlBrainWork *)D_0029D650)->f_5810[2] = rp[2];
+            sub->f_34C = 0;
+            break;
+        case 1:
+            mode = 2;
+            escapeDebugPrint();
+            GetRootProjectionPosOfGObj(rp, (void *)a0);
+            if (girlBrainRunawaySearchPoint(rp, ((GirlBrainWork *)D_0029D650)->f_57F0,
+                                            ((GirlBrainWork *)D_0029D650)->f_5810) == 0) {
+                mode = 3;
+                escapeDebugPrint();
+            }
+            sub->f_34C = 0;
+            break;
+        case 2:
+            ret = girlBrainRunawayMoveByWay((char *)a0, (float *)&sub->f_120,
+                                            ((GirlBrainWork *)D_0029D650)->f_57F0);
+            switch (ret) {
+            case 0:
+                break;
+            case 1:
+                escapeDebugPrint();
+                ((GirlBrainWork *)D_0029D650)->f_5810[0] = ((GirlBrainWork *)D_0029D650)->f_57F0[0];
+                ((GirlBrainWork *)D_0029D650)->f_5810[1] = ((GirlBrainWork *)D_0029D650)->f_57F0[1];
+                ((GirlBrainWork *)D_0029D650)->f_5810[2] = ((GirlBrainWork *)D_0029D650)->f_57F0[2];
+                mode = 1;
+                break;
+            case 2:
+                escapeDebugPrint();
+                ((GirlBrainWork *)D_0029D650)->f_5810[0] = ppos[0];
+                ((GirlBrainWork *)D_0029D650)->f_5810[1] = ppos[1];
+                ((GirlBrainWork *)D_0029D650)->f_5810[2] = ppos[2];
+                mode = 1;
+                break;
+            }
+            girlBrainEscapeFaceCheck(pos, (float *)&sub->f_120, &v);
+            switch (((GirlBrainWork *)D_0029D650)->runMode) {
+            case 0:
+                girlBrainSetWalkRatio((void *)a0);
+                break;
+            case 1:
+                *(float *)&sub->f_34C = 0.5f;
+                break;
+            }
+            if (*(float *)&sub->f_34C != 0.0f) {
+                sceVu0ScaleVector(v.f, (float *)&sub->f_120, 300.0f);
+                sceVu0AddVector(v.f, ((GirlBrainWork *)D_0029D650)->f_5830, v.f);
+                if (girlBrainHideCheckIntercept(((GirlBrainWork *)D_0029D650)->f_5830, v.f,
+                                                (char *)((GirlBrainWork *)D_0029D650)->hide.ent,
+                                                ((GirlBrainWork *)D_0029D650)->hide.num)) {
+                    *(float *)&sub->f_34C = 0.0f;
+                    ((GirlBrainWork *)D_0029D650)->f_58F0 = 1;
+                }
+            }
+            sceVu0ScaleVector(mk, ((GirlBrainWork *)D_0029D650)->f_57F0, -1.0f);
+            debug_Marker(mk, 0xFF, 0, 0, 200.0f, (float)((GirlBrainWork *)D_0029D650)->f_58F4);
+            ((GirlBrainWork *)D_0029D650)->f_58F4 = ((GirlBrainWork *)D_0029D650)->f_58F4 + 5;
+            break;
+        case 3:
+            sub->f_34C = 0;
+            ACTSendMailCorrect((void *)a0, 0xE5);
+            D_002A5580[0].f18 = 9.0f;
+            if ((((int)(((ActStatus *)((char *)sub + 0x18))->ll >> 63)) & 1) ||
+                (sub->flags20.i[0] & 1)) {
+                sub->flags20.ll = sub->flags20.ll | 4;
+            }
+            break;
+        case 4:
+            sub->f_34C = 0;
+            if (sub->unk34 != 0x6F) {
+                mode = 0;
+            }
+            break;
+        }
+        MatrixDrive_PushMatrix();
+        sceVu0TransposeMatrix(mtx, matrixptr + 32);
+        mtx[3] = mtx[7] = mtx[11] = 0.0f;
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        MatrixDrive_TransMatrix(pos[0], pos[1], pos[2]);
+        sceVu0MulMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix(), mtx);
+        MatrixDrive_PushMatrix();
+        MatrixDrive_TransMatrix(0.0f, -50.0f, 0.0f);
+        sprintf(D_006C1C20, "%s", D_0029D600[mode]);
+        DispWireString(D_006C1C20);
+        MatrixDrive_PopMatrix();
+        MatrixDrive_PopMatrix();
+        _ACTWait(1);
+    }
+}
 
 /* kept local: this TU's uses of _InterGV do not fit the prototype in gv.h */
 extern void _InterGV(float *dst, float *a, float *b, float t0, float t1);

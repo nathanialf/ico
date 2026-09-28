@@ -6243,3 +6243,7 @@ clothUpVector = 0x004E6FF0; // size:0x10  // clothAnimation.c data (chain 3 pass
 clothDownVector = 0x004E7000; // size:0x10  // clothAnimation.c data (chain 3 pass 160)
 cylinderColor = 0x004E7010; // size:0x10  // clothAnimation.c data (chain 3 pass 160)
 procMatrix = 0x004E7020; // size:0x40  // clothAnimation.c data, the process matrix, reached by the getCloth4D and proc stubs (chain 3 pass 160)
+D_0063A8E8 = 0x0063A8E8; // type:asciz  // ico2/fumi/src/girl_act  // "begin", WayTest's begin print
+D_0063A8F0 = 0x0063A8F0; // type:asciz  // ico2/fumi/src/girl_act  // "FINISH", an entry of the mode-name table D_0029D628
+D_0063A8F8 = 0x0063A8F8; // type:asciz  // ico2/fumi/src/girl_act  // "ATTRACT", an entry of D_0029D628
+D_0063A900 = 0x0063A900; // type:asciz  // ico2/fumi/src/girl_act  // "GOAL", an entry of D_0029D628
