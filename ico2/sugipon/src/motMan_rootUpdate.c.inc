@@ -41,6 +41,11 @@ extern char D_0061FEB0[];
 extern char D_0061FEC8[];
 extern char D_0061FED8[];
 extern char D_0061FF00[];
+/* the {{0, -1}, 0} wall record rootUpdateStepSolution starts from. */
+extern WallCfg D_0061FF80;
+/* EUC-JP: "hit an extension wall\n". */
+extern char D_0061FF90[];
+extern WallCfg InitialColInfo;
 
 /* 12-byte plane record copied out of the motion work block. */
 typedef struct {
@@ -182,6 +187,85 @@ void _wallHitReaction(char *w, void *pos, void *last, int noSlide)
     } else {
         _AddVectorXYZ((int)pos, (int)pos, &slide);
     }
+}
+
+/* RECONSTRUCTED NAMES: the PAL listing shows these three bodies only inlined
+ * into rootUpdateStepSolution (rows 163-205, 213-241 and 247-258, between
+ * _wallHitReaction and _wallCollisionPreProcess), so none of them carries a
+ * symbol in MAIN.MAP.  The caller passes the position, the last position, the
+ * radius and the fuchi mode: rows 163 and 213 hold their copies, as row 306
+ * holds wallCollisionAndFloorFit's. */
+static inline void clipStepWallAndReact(char *cur, char *last, float rad, WallCfg *col)
+{
+    ClipBuf w;
+
+    if (D_0063B230 != 0) {
+        CopyVector(&w, last);
+    } else {
+        CopyVector(&w, cur + 0x160);
+    }
+    CopyVector((char *)&w + 0x10, cur);
+    w.rad = rad * D_0063B900;
+    w.filter = *col;
+    ClipWallE(&w);
+    if (*(int *)((char *)&w + 0x88) != 0) {
+        _wallHitReaction((char *)&w, cur, last, 1);
+    }
+}
+
+static inline int clipFuchiWallAndReact(char *cur, char *last, int mode, float rad)
+{
+    ClipBuf w;
+
+    if (D_0063B230 != 0) {
+        CopyVector(&w, last);
+    } else {
+        CopyVector(&w, cur + 0x160);
+    }
+    CopyVector((char *)&w + 0x10, cur);
+    w.rad = rad * D_0063B900;
+    ClipWallFuchiHangWalkStop(&w);
+    if (*(int *)((char *)&w + 0x88) != 0) {
+        int attr = GetWallAttribute(&w);
+
+        switch (mode) {
+        default:
+            return 0;
+        case 1:
+            if ((attr & 0x20000000) != 0) {
+                _wallHitReaction((char *)&w, cur, last, 0);
+                return 1;
+            }
+            break;
+        case 2:
+            if ((attr & 0x10000000) != 0) {
+                _wallHitReaction((char *)&w, cur, last, 0);
+                return 1;
+            }
+            break;
+        }
+    }
+    return 0;
+}
+
+static inline int clipFieldWallAndReset(char *cur, char *last)
+{
+    ClipBuf w;
+
+    if (D_0063B230 != 0) {
+        CopyVector(&w, last);
+    } else {
+        CopyVector(&w, cur + 0x160);
+    }
+    CopyVector((char *)&w + 0x10, cur);
+    w.filter = InitialColInfo;
+    ClipWallField(&w);
+    if (*(int *)((char *)&w + 0x88) != 0 &&
+        CompareAttribute(*(int *)((char *)&w + 0x98), 0x10000) != 0) {
+        _wallHitReaction((char *)&w, cur, last, 0);
+        return 1;
+    }
+    return 0;
 }
 
 void _wallCollisionPreProcess(char *w, void *p, void *q, float dy)
@@ -1024,6 +1108,21 @@ out:
 
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", rootUpdateSwim);
 
+/* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into
+ * rootUpdateStepSolution and rootUpdateY (rows 1936-1942, between
+ * rootUpdateSwim and avoidSideAdjustWall), so it carries no symbol in
+ * MAIN.MAP. */
+static inline void clipWallAhead(ClipBuf *w)
+{
+    float mtx[16];
+
+    GetMatrixFromQuaternionPos(mtx, D_0063C490 + 0x30, D_0063C490);
+    sceVu0ApplyMatrix((int *)w, (int)mtx, (char *)D_004ECAD0);
+    sceVu0ApplyMatrix((int *)((char *)w + 0x10), (int)mtx, (char *)D_004ECAE0);
+    w->rad = 0.0f;
+    ClipWall(w);
+}
+
 /* RECONSTRUCTED NAMES: both bodies appear in the PAL listing only inlined into
  * avoidSideAdjustWall (rows 1950-1952 and 1983-1987, above its def line 1993),
  * so neither carries a symbol in MAIN.MAP. */
@@ -1067,7 +1166,182 @@ int avoidSideAdjustWall(void)
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", rootUpdateStepSolution);
+MotShift rootUpdateStepSolution(int kind)
+{
+    Vec16 mv;
+    Vec16 up;
+    /* every arm of the switch below reassigns it, but the ROM copies the
+       initial record (listing row 2025) all the same. */
+    WallCfg cfg = D_0061FF80;
+    float mtx[16];
+    Vec16 d1;
+    Vec16 d2;
+    float pl[4];
+    float pl2[4];
+    Vec16 corner[4];
+    Vec16 avg;
+    Vec16 pos;
+    Vec16 adj;
+    ClipBuf w;
+    float dir;
+    float d;
+    int node;
+    int i;
+
+    GetMatrixFromQuaternion(mtx, D_0063C490 + 0x30);
+    sceVu0ApplyMatrix((int *)&mv, (int)mtx, (char *)D_00720200);
+    sceVu0ApplyMatrix((int *)&up, (int)mtx, (char *)D_007201F0);
+    if (D_0063C49C != -1) {
+        node = GetSkeltonFocusNode((char *)D_0063B93C, D_0063C49C);
+        _SubVectorXYZ(&d2, *(char **)(*(char **)(D_0063B93C + 0x15C) + 0xC) + node * 0x40 + 0x30,
+                      *(char **)(*(char **)(D_0063B93C + 0x15C) + 0xC) + 0x30);
+        _SubVectorXYZ(&d1, D_0063C488 + node * 0x10, &d2);
+        _SubVectorXYZ(D_0063C490, D_0063C490, &d1);
+    } else {
+        AddVectorXYZ(D_0063C490, D_0063C490, &mv);
+    }
+    *(float *)(D_0063C490 + 0xC0) = D_007201F0[1];
+
+    switch (kind) {
+    case 9:
+        cfg = *(WallCfg *)(D_0063C490 + 0xF0);
+        dir = 1.0f;
+        GetPureVerticalPlane(D_0063C490 + 0x130, pl, (float *)corner, (int *)&cfg, 0);
+        break;
+    case 13:
+        cfg = *(WallCfg *)(D_0063C490 + 0xF0);
+        dir = 1.0f;
+        GetPureVerticalPlane(D_0063C490 + 0x130, pl, (float *)corner, (int *)&cfg, 1);
+        break;
+    case 7:
+    case 16:
+    default:
+        cfg = *(WallCfg *)(D_0063C490 + 0xE0);
+        dir = -1.0f;
+        GetPureVerticalPlane(D_0063C490 + 0x130, pl, (float *)corner, (int *)&cfg, 0);
+        break;
+    case 8:
+        cfg = *(WallCfg *)(D_0063C490 + 0xE0);
+        dir = -1.0f;
+        GetPureVerticalPlane(D_0063C490 + 0x130, pl, (float *)corner, (int *)&cfg, 1);
+        break;
+    }
+
+    CopyVector(pl2, pl);
+    pl2[3] = 0.0f;
+    if (*(int *)(D_0063C490 + 0x32C) != 0) {
+        memset(&avg, 0, 16);
+        avg.f[3] = 1.0f;
+        for (i = 0; i < 4; i++) {
+            AddVectorXYZ(&avg, &avg, &corner[i]);
+        }
+        sceVu0ScaleVector(&avg, &avg, 0.25f);
+        *(float *)(D_0063C490 + 0) =
+            *(float *)(D_0063C490 + 0) + (avg.f[0] - *(float *)(D_0063C490 + 0)) * 0.2f;
+        *(float *)(D_0063C490 + 8) =
+            *(float *)(D_0063C490 + 8) + (avg.f[2] - *(float *)(D_0063C490 + 8)) * 0.2f;
+    }
+
+    CopyVector(&pos, D_0063C490);
+    pos.f[1] = pos.f[1] - D_007201F0[1];
+    d = GetDistanceFromPlane(D_0063C490 + 0x130, &pos);
+    sceVu0ScaleVector(&adj, D_0063C490 + 0x130, -d);
+    AddVectorXYZ(&pos, &pos, &adj);
+    d = GetDistanceFromPlane(pl, &pos);
+    sceVu0ScaleVector(&adj, pl, -d + D_007201F0[2] * dir);
+    AddVectorXYZ(&pos, &pos, &adj);
+    CopyVector(D_0063C490, &pos);
+    *(float *)(D_0063C490 + 4) = *(float *)(D_0063C490 + 4) + D_007201F0[1];
+    sceVu0ScaleVectorXYZ(D_0063C494 + 0xB0, pl2, dir);
+
+    CopyVector(&w, D_0063C490);
+    CopyVector((char *)&w + 0x10, &w);
+    *(float *)((char *)&w + 0x14) =
+        *(float *)((char *)&w + 0x14) + (*(float *)(D_0063C490 + 0x1D0) + 10.0f);
+    ClipFloor(&w);
+    if (*(int *)((char *)&w + 0x94) != 0) {
+        *(int *)(D_0063C494 + 0x188) = GetFloorAttribute(&w) & 0xF0;
+    }
+
+    if (*(int *)(D_0063C490 + 0x324) != 0) {
+        avoidSideAdjustWall();
+    }
+
+    if (kind >= 7 && (kind < 9 || kind == 16)) {
+        if (*(int *)(D_0063C494 + 0xD8) != 0) {
+            if (*(int *)(D_0063C4A8 + 0x130) == 0) {
+                clipStepWallAndReact(D_0063C490, D_0063C490 + 0x150, *(float *)(D_0063C490 + 0x338),
+                                     &cfg);
+            }
+            if (upperFieldCheck(D_0063C490, -50.0f) != 0) {
+                forceFallDown();
+            }
+        }
+        checkWallUpperWall();
+        if (*(int *)(D_0063C494 + 0x30) == 85) {
+            MatrixDrive_PushMatrix();
+            _UnitMatrix(MatrixDrive_GetMatrix());
+            MatrixDrive_TransMatrix(
+                *(float *)(D_0063C490 + 0),
+                GetYProjectionOfPlane((int)(D_0063C490 + 0x130), (int)D_0063C490),
+                *(float *)(D_0063C490 + 8));
+            MultiMatrixByQuaternion(D_0063C490 + 0x30);
+            checkCliffState(1);
+            MatrixDrive_PopMatrix();
+        }
+    } else {
+        clipStepWallAndReact(D_0063C490, D_0063C490 + 0x150, *(float *)(D_0063C490 + 0x338), &cfg);
+    }
+
+    if (clipFuchiWallAndReact(D_0063C490, D_0063C490 + 0x150, *(int *)(D_0063C490 + 0x324),
+                              *(float *)(D_0063C490 + 0x338)) != 0) {
+        debug_StdPrintfDummy(D_0061FF90);
+    }
+    if (*(int *)(D_0063C490 + 0x320) != 0) {
+        if (clipFieldWallAndReset(D_0063C490, D_0063C490 + 0x150) != 0) {
+            forceReset();
+        }
+    }
+
+    CopyVector(D_0063C490 + 0x10, ZeroPoint);
+    switch (kind) {
+    case 16:
+        calcWallFittingGeometry();
+        /* falls through: the ROM runs the kind-7/8 wall probe after it. */
+    case 7:
+    case 8: {
+        ClipBuf cw;
+
+        clipWallAhead(&cw);
+        {
+            WallCfg rec = {((WallCfg *)((char *)&cw + 0x80))->o,
+                           ((WallCfg *)((char *)&cw + 0x80))->n};
+            Vec16 wp;
+
+            if (*(int *)((char *)&cw + 0x88) != 0) {
+                *(WallCfg *)(D_0063C490 + 0x100) = rec;
+                GetPureVerticalPlane(&wp, 0, 0, (int *)&rec, 0);
+                *(float *)(D_0063C494 + 0x178) =
+                    GetDistanceFromPlane(&wp, D_0063C490) - D_007201F0[1];
+            }
+        }
+    } break;
+    case 9:
+        dropWhenFloorTooFar();
+        break;
+    }
+
+    SubVectorXYZ(D_0063C490 + 0x60, D_0063C490, &up);
+    SubVectorXYZ(D_0063C490 + 0x90, D_0063C490, D_0063C490 + 0x150);
+    CopyVector(D_0063C490 + 0x90, ZeroVector);
+    CopyVector(D_0063C490 + 0x1B0, D_0063C490);
+    *(float *)(D_0063C490 + 0x1B4) = *(float *)(D_0063C490 + 0x1B4) - D_007201F0[1];
+    CopyVector(D_0063C490 + 0x150, D_0063C490);
+    CopyVector(D_0063C490 + 0xD0, D_00720210);
+    *(int *)(D_0063C490 + 0x180) = -1;
+    *(WallCfg *)(D_0063C490 + 0xE0) = cfg;
+    return *(MotShift *)&cfg;
+}
 
 MotShift rootUpdateTrueMotion(int a0)
 {
