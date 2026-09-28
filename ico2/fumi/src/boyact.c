@@ -1565,8 +1565,7 @@ void subBoyCollision(volatile int a0)
                        switch set to 0 outside the loop is that: cse cannot carry
                        the constant across the loop label, gcse's constant
                        propagation folds the test and the next jump pass deletes
-                       the guarded call.  With the window above and the two dead
-                       camOn stores below it gives 1229.  What they cannot pin:
+                       the guarded call.  What they cannot pin:
                        the text; the marker is actBoySwim's own debug_NMarker
                        call on the helper position just set (rows 3769-3771 are
                        code-free). */
@@ -1580,14 +1579,9 @@ void subBoyCollision(volatile int a0)
                                 ScpCallCameraGetTarget((float *)cpos);
                                 SetRootPosition(lo, cpos);
                                 Camctrl_SetTarget(a0, (int)lo, 1);
-                                /* as in the weapon block; dead here (camOn is
-                                   not read after the test above), rows 3780
-                                   and 3784 are code-free */
-                                camOn = 1;
                             }
                         } else {
                             Camctrl_SetTarget(a0, (int)lo, 1);
-                            camOn = 1;
                         }
                     }
                 }
