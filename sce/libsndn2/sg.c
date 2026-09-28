@@ -493,11 +493,246 @@ int _SgBgmMain(int *a0)
     return 0;
 }
 
-/* Reverted to asm (chain 3 pass 16, re-measured pass 42): 450 of 450
- * instructions, the whole shape derived and every block in ROM's order; the
- * residual is one whole-function allocation class.  Derived body and
- * mechanism: tails/seeds/sg.c3p16_SgSetRealtimeTickProc_450of450_strict355_TU.c. */
-INCLUDE_ASM("asm/nonmatchings/sce/libsndn2/sg", _SgSetRealtimeTickProc);
+/* One realtime tick over the 48 voice slots: the vibrato curve, the portamento
+ * ramp and the two 16-bit fades, then the per sequence realtime flags and the
+ * 127 SE volume entries.  The vibrato curve is the vab header's table at 0x38,
+ * read as 16-bit start offsets and as 8-bit samples. */
+void _SgSetRealtimeTickProc(void)
+{
+    int step;
+    int range;
+    unsigned char *s = _SgGetSlotContext(0);
+    unsigned char *curve = 0;
+    unsigned short *curve_ofs = 0;
+    int *com = _SgGetComContext();
+    int *q;
+    unsigned int i;
+    int one = 1;
+
+    for (i = 0; i < 0x30; i++, s += 0x58) {
+        unsigned short note;
+        unsigned short bend;
+        short fine;
+        unsigned char porta;
+        int ok;
+        unsigned char rt;
+        int upd;
+        unsigned int tick;
+        int *hd;
+
+        if (*(volatile int *)s & 0x100) {
+            continue;
+        }
+        if (s[0x51] == 0 || s[0x51] == 3) {
+            continue;
+        }
+        if (s[0x50] >= 0x30) {
+            continue;
+        }
+        q = _SgGetSeqContext(s[0x50]);
+        if ((*(volatile int *)q & 5) == 0) {
+            continue;
+        }
+        porta = 0;
+        ok = 0;
+        note = s[0x4E];
+        fine = *(short *)(s + 0x24);
+        bend = *(unsigned short *)(s + 0x26);
+        range = *(unsigned short *)(s + 0x28);
+        step = *(unsigned short *)(s + 0x2A);
+        if (*(volatile int *)s & 0x10) {
+            if ((unsigned int)(*(volatile unsigned short *)((char *)q + 0x18) - 1) < 0x7F) {
+                int *vab = _SgGetVabContext(*(unsigned short *)((char *)q + 0x18));
+                int t = vab[0];
+
+                /* t holds the header word, then the tag, then the table id:
+                 * reusing it in the block that copies it to hd is what keeps
+                 * the ROM's separate test register ($3) and base ($4). */
+                if (t != 0 && vab[2] != 0) {
+                    hd = (int *)t;
+                    t = hd[3];
+                    if (t == 0x64685353) {
+                        t = hd[6];
+                        if (t != 0xFFFFFFFF) {
+                            if (hd[0xE] == 0) {
+                                *(volatile int *)s = *(volatile int *)s & 0xFFFFFFEF;
+                            } else {
+                                curve = (unsigned char *)hd[0xE];
+                                curve_ofs = (unsigned short *)hd[0xE];
+                                ok = 1;
+                            }
+                        }
+                    }
+                }
+            }
+            if (ok != one) {
+                *(volatile int *)s = *(volatile int *)s & 0xFFFFFFEF;
+            }
+        }
+        if ((*(volatile int *)s & 0x20) && s[0x51] == 2) {
+            porta = one;
+            /* RECONSTRUCTION: the bytes pin, between this flag's preload and
+             * its test, a conditional statement whose body is dead (flow
+             * deletes it, so combine never folds the preload into the test's
+             * conditional move, and the empty branch is gone before the
+             * final schedule); they do not pin its text.  The condition and
+             * the dead fetch of the vibrato tick are ours. */
+            if (i) {
+                tick = *(unsigned short *)(s + 0x10);
+            }
+            if (*(short *)(s + 0x4C) < one) {
+                porta = 0;
+            }
+        }
+        rt = one;
+        /* RECONSTRUCTION: the same dead window between the realtime flag's
+         * preload and its test.  Its read through hd is also pinned: a
+         * mention of hd after the header block makes hd, not t, the head of
+         * their register class, so the tag load keeps hd as its base.  The
+         * condition and the field read are ours. */
+        if (i) {
+            tick = hd[4];
+        }
+        if ((*(volatile int *)q & 0x400) == 0) {
+            rt = 0;
+        }
+        if (ok) {
+            int depth;
+
+            if (*(unsigned short *)((char *)com + 0x3A) == 0x3C &&
+                (*(unsigned short *)(s + 0x14) & 0xFFF) == 0x78) {
+                if (*(unsigned short *)(s + 0x14) & 0xF000) {
+                    unsigned short left = (*(unsigned short *)(s + 0x14) >> 12) - 1;
+
+                    *(short *)(s + 0x14) = (*(unsigned short *)(s + 0x14) & 0xFFF) | (left << 12);
+                    *(short *)(s + 0x10) =
+                        *(unsigned short *)(s + 0x10) + (*(unsigned short *)(s + 0x14) & 0xFFF);
+                } else {
+                    *(short *)(s + 0x14) = *(unsigned short *)(s + 0x14) | 0x6000;
+                }
+            } else {
+                *(short *)(s + 0x10) =
+                    *(unsigned short *)(s + 0x10) + (*(unsigned short *)(s + 0x14) & 0xFFF);
+            }
+            tick = *(unsigned short *)(s + 0x10);
+            if (tick >= 0xF0) {
+                tick = *(short *)(s + 0x10) = (*(unsigned short *)(s + 0x14) & 0xFFF) >> 1;
+            }
+            depth = *(unsigned short *)(s + 0x12);
+            bend = curve[curve_ofs[*(unsigned short *)(s + 0xE) + 1] + (tick >> 2)] * depth / 255 -
+                   (((depth + 1) >> 1) - 0x40);
+            if (s[0x51] == one) {
+                if (*(unsigned short *)(s + 0x26) >= 0x40) {
+                    int d = (*(unsigned short *)(s + 0x26) - 0x40) * *(unsigned short *)(s + 0x28);
+
+                    note = note + d / 64;
+                    fine = fine + (d / 4 - d / 64 * 16);
+                } else {
+                    int d = (0x40 - *(unsigned short *)(s + 0x26)) * *(unsigned short *)(s + 0x28);
+
+                    note = note - d / 64;
+                    fine = fine + (d / 64 * 16 - d / 4);
+                }
+                range = 1;
+            }
+        }
+        if (porta) {
+            float v;
+
+            *(unsigned short *)(s + 0x4C) -= 1;
+            *(float *)(s + 0x48) = *(float *)(s + 0x48) + *(float *)(s + 0x44);
+            if (*(float *)(s + 0x48) > 480.0) {
+                *(float *)(s + 0x48) = 480.0;
+            }
+            if (*(float *)(s + 0x48) < -480.0) {
+                *(float *)(s + 0x48) = -480.0;
+            }
+            v = *(float *)(s + 0x48);
+            note = note + (int)(v / 12.0f);
+            fine = fine + (int)v % 12 * 4 / 3;
+            if (*(short *)(s + 0x4C) <= 0) {
+                *(volatile int *)s = *(volatile int *)s & 0xFFFFFFDF;
+            }
+        }
+        if (rt || ok || porta) {
+            _SgPitchTableVag(i, step, note, fine, bend, range, q[0x10]);
+        }
+        upd = one;
+        if (s[0x51] != 2) {
+            continue;
+        }
+        if ((*(volatile int *)q & 0x800) == 0) {
+            upd = 0;
+        }
+        if (*(volatile int *)s & 0x40) {
+            if (*(unsigned short *)(s + 0x34) == *(unsigned short *)(s + 0x36)) {
+                *(volatile int *)s = *(volatile int *)s & 0xFFFFFFBF;
+            } else {
+                unsigned short n = *(unsigned short *)(s + 0x38) & 0x7FFF;
+
+                *(short *)(s + 0x38) = n;
+                if (n != 0) {
+                    *(short *)(s + 0x1A) = _SgfadeParam(s[0x34], s[0x36], s[0x3A], s[0x38]);
+                    *(short *)(s + 0x38) = *(unsigned short *)(s + 0x38) - 1;
+                } else {
+                    *(short *)(s + 0x1A) = *(unsigned short *)(s + 0x34);
+                    *(volatile int *)s = *(volatile int *)s & 0xFFFFFFBF;
+                }
+                upd = 1;
+            }
+        }
+        if (*(volatile int *)s & 0x80) {
+            if (*(unsigned short *)(s + 0x3C) == *(unsigned short *)(s + 0x3E)) {
+                *(volatile int *)s = *(volatile int *)s & 0xFFFFFF7F;
+            } else {
+                unsigned short n = *(unsigned short *)(s + 0x40) & 0x7FFF;
+
+                *(short *)(s + 0x40) = n;
+                if (n != 0) {
+                    *(short *)(s + 0x30) = _SgfadeParam(s[0x3C], s[0x3E], s[0x42], s[0x40]);
+                    *(short *)(s + 0x40) = *(unsigned short *)(s + 0x40) - 1;
+                } else {
+                    *(short *)(s + 0x30) = *(unsigned short *)(s + 0x3C);
+                    *(volatile int *)s = *(volatile int *)s & 0xFFFFFF7F;
+                }
+                *(short *)(s + 0x20) = D_0054CB78[*(unsigned short *)(s + 0x30) >> 2];
+                upd = 1;
+            }
+        }
+        if (upd) {
+            _SgSeqSeVolume(i, q);
+        }
+    }
+    q = _SgGetSeqContext(0);
+    for (i = 0; i < 0x30; i++, q = (int *)((char *)q + 0x54)) {
+        if (*(volatile int *)q & 0x400) {
+            *q = *(volatile int *)q & 0xFFFFFBFF;
+        }
+        if (*(volatile int *)q & 0x800) {
+            *q = *(volatile int *)q & 0xFFFFF7FF;
+        }
+    }
+    for (i = 1; i < 0x80; i++) {
+        int v = _SgGetSeVolValue(i);
+
+        if (v & 0x80) {
+            int *vab = _SgGetVabContext(i);
+            int *hd = (int *)vab[0];
+
+            if (hd != 0 && vab[2] != 0) {
+                unsigned char *p = (unsigned char *)hd[0x10];
+
+                /* The level goes back to the volume table as the byte just
+                 * stored: the ROM's `andi $5,$6,0xFF` is that read, which the
+                 * compiler turns into a register copy after allocation. */
+                if (p != 0 && hd[3] == 0x64685353) {
+                    *p = v & 0x7F;
+                    _SgSetSeVolValue(i, *p);
+                }
+            }
+        }
+    }
+}
 
 /* Realtime volume: mode 1 takes the SE volume table's value for the vab and
  * writes it at the head of the vab's 0x40 block, mode 2 takes the sequence's
