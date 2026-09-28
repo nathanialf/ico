@@ -500,10 +500,20 @@ def build_tree() -> dict:
             "matched": matched,
         })
 
-    # INCLUDE_ASM stubs whose name has no symbol row (splat's auto names for
-    # gcc local copies of nested functions): still unmatched functions of
-    # their TU, with size 0 since their bytes sit inside the parent's delta.
+    # An INCLUDE_ASM stub whose name has no symbol row cannot be sized: sizes
+    # are next-row deltas, so its bytes would be counted inside the row before
+    # it (girl_act's func_00174CE8 and func_001762A0 read 0 B that way, and
+    # their 1080 bytes were counted as matched inside subGirlBrain_Hide and
+    # Danger_Bomb). Refuse instead: every stub needs its own row in
+    # config/symbol_addrs.<ver>.txt.
     rowed = {s["name"] for s in syms}
+    missing = sorted((tu, name) for tu, stubs in tu_unmatched.items()
+                     for name in (stubs or set()) - rowed)
+    if missing:
+        raise SystemExit(
+            "progress_tree: INCLUDE_ASM stubs without a symbol row (add a "
+            "`<name> = 0x<addr>; // type:func` row for each):\n  "
+            + "\n  ".join(f"{tu} {name}" for tu, name in missing))
     for tu, stubs in tu_unmatched.items():
         if not stubs:
             continue

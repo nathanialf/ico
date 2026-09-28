@@ -269,7 +269,7 @@ afterGirlHand100 = 0x0017C250; // type:func  // ico2/fumi/src/girl_act
 afterGirlHand200 = 0x0017C310; // type:func  // ico2/fumi/src/girl_act
 subGirlBrain_Becarry = 0x0017C4C8; // type:func  // ico2/fumi/src/girl_act
 subGirlBrain_DangerEnv = 0x0017C600; // type:func  // ico2/fumi/src/girl_act
-// girl_act func_00174CE8 / func_001762A0 / func_00176838 / func_00177098 are gcc local copies (CorrectList.331, GetSafePosition.364/.371/.379) of nested functions, named in C only when their parents land
+// girl_act func_00174CE8 / func_001762A0 / func_00176838 / func_00177098 are gcc local copies (CorrectList.331, GetSafePosition.364/.371/.379) of nested functions, named in C only when their parents land. The two that are still INCLUDE_ASM stubs, func_00174CE8 and func_001762A0, carry their own rows below so progress sizes them (without a row their bytes were counted inside the matched subGirlBrain_Hide and Danger_Bomb). func_00176838 and func_00177098 sit inside their parents' ranges and need none
 // script: actSubSekizoSe is MAIN.MAP script.o's last symbol (no census row), inside the former func_00185CA0 stub after scpDoorTypeUpMain
 actSubSekizoSe = 0x00185CD0; // type:func  // ico2/script/src/script
 // boyact: census names for the splat placeholders (listing table aligned by ROM order, 93 = 60 named + 33 covered; every start is its own prologue)
@@ -1983,11 +1983,13 @@ subGirlBrain_Attract = 0x00172D00; // type:func  // ico2/fumi/src/girl_act
 girlBrainHide_GoalTurn = 0x001746F8; // type:func  // ico2/fumi/src/girl_act  // provisional-ordinal
 isHideRecheck = 0x00174808; // type:func  // ico2/fumi/src/girl_act
 subGirlBrain_Hide = 0x00174998; // type:func  // ico2/fumi/src/girl_act
+func_00174CE8 = 0x00174CE8; // type:func  // ico2/fumi/src/girl_act  // census CorrectList.331, the nested child of girlBrainRunawaySearchPoint (rename when that unit lands)
 girlBrainRunawaySearchPoint = 0x00174E50; // type:func  // ico2/fumi/src/girl_act
 girlBrainRunawayMoveByWay = 0x001753E8; // type:func  // ico2/fumi/src/girl_act
 subGirlBrain_Escape = 0x00175688; // type:func  // ico2/fumi/src/girl_act
 GetSafePosition = 0x00175D80; // type:func  // ico2/fumi/src/girl_act
 Danger_Bomb = 0x00176028; // type:func  // ico2/fumi/src/girl_act
+func_001762A0 = 0x001762A0; // type:func  // ico2/fumi/src/girl_act  // census GetSafePosition.364, the nested copy in the Danger_Gondola unit (rename when that unit lands)
 Danger_Gondola = 0x00176570; // type:func  // ico2/fumi/src/girl_act
 Danger_Box = 0x00176C28; // type:func  // ico2/fumi/src/girl_act
 Danger_Rotobject = 0x00177340; // type:func  // ico2/fumi/src/girl_act
