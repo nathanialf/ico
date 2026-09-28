@@ -15,7 +15,7 @@ extern int _curTop[];
 extern int _curBot[];
 extern int D_0054C0DC[];
 extern int D_00636F20[];
-extern void _getAllRefs(int a0, int a1, int a2);
+extern void _getAllRefs();
 
 int _motionComp0(int a0, int a1, int a2, int a3, int *a4, int *a5, int *a6)
 {
@@ -82,7 +82,114 @@ int _motionComp0(int a0, int a1, int a2, int a3, int *a4, int *a5, int *a6)
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/mpc", _getAllRefs);
+extern int _picture_coding_type[];
+extern void _getRef0();
+extern void _dualPrimeVector(int *DMV, int *dmvector, int mvx, int mvy);
+extern int D_00636F48[];
+extern int D_00636F68[];
+extern int D_00636F88[];
+
+void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_field_sel,
+                 int *dmvector)
+{
+    int DMV[4];
+    int fields[2][2];
+    int fld = 1;
+    int avg = 0;
+
+    *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x12C) = 0;
+    if ((mbflags & 8) || _picture_coding_type[0] == 2) {
+        if (_picture_structure == 3) {
+            if (motion_type == 2 || (mbflags & 8) == 0) {
+                _getRef0(_forwFrame[0], 0, 0, 0, 16, x, y, PMV[0], PMV[1], 0, 0);
+            } else if (motion_type == 1) {
+                _getRef0(_forwFrame[0], mv_field_sel[0], 0, 0, 8, x, y, PMV[0], PMV[1] >> 1, fld,
+                         0);
+                _getRef0(_forwFrame[0], mv_field_sel[2], 1, 0, 8, x, y, PMV[4], PMV[5] >> 1, fld,
+                         0);
+            } else if (motion_type == 3) {
+                _dualPrimeVector(DMV, dmvector, PMV[0], PMV[1] >> 1);
+                _getRef0(_forwFrame[0], 0, 0, 0, 8, x, y, PMV[0], PMV[1] >> 1, fld, 0);
+                _getRef0(_forwFrame[0], 1, 0, 0, 8, x, y, DMV[0], DMV[1], fld, 1);
+                _getRef0(_forwFrame[0], 1, 1, 0, 8, x, y, PMV[0], PMV[1] >> 1, fld, 0);
+                _getRef0(_forwFrame[0], 0, 1, 0, 8, x, y, DMV[2], DMV[3], fld, 1);
+            } else {
+                _Error1((int)D_00636F48, motion_type);
+            }
+        } else {
+            int sel;
+
+            fields[0][0] = _forwTop[0];
+            fields[0][1] = _forwBot[0];
+            fields[1][0] = _backTop[0];
+            fields[1][1] = _backBot[0];
+            /* On a field picture the frame flag is reused for the current
+               field's parity (1 = bottom): the ROM keeps both in $23, and
+               this set is what stops cse carrying the entry 1 into the
+               selection below, whose conditional move combine then folds to
+               the ROM's xor/sltu. */
+            fld = _picture_structure == 2;
+            /* The else arm's set is hoisted by jump in front of the first
+               test, after its li 2, which is where the ROM schedules it. */
+            if (_picture_coding_type[0] == 2 && _isSecondField[0] != 0 && fld != mv_field_sel[0]) {
+                sel = 1;
+            } else {
+                sel = 0;
+            }
+            if (motion_type == 1 || (mbflags & 8) == 0) {
+                _getRef0(fields[sel][mv_field_sel[0]], 0, 0, 0, 16, x, y, PMV[0], PMV[1], 0, 0);
+            } else if (motion_type == 2) {
+                _getRef0(fields[sel][mv_field_sel[0]], 0, 0, 0, 8, x, y, PMV[0], PMV[1], 0, 0);
+                sel = 0;
+                if (_picture_coding_type[0] == motion_type && _isSecondField[0] != 0 &&
+                    fld != mv_field_sel[2]) {
+                    sel = 1;
+                }
+                _getRef0(fields[sel][mv_field_sel[2]], 0, 0, 8, 8, x, y, PMV[4], PMV[5], 0, 0);
+            } else if (motion_type == 3) {
+                sel = 0;
+                if (_isSecondField[0] != 0) {
+                    sel = 1;
+                }
+                _dualPrimeVector(DMV, dmvector, PMV[0], PMV[1]);
+                _getRef0(fields[0][fld], 0, 0, 0, 16, x, y, PMV[0], PMV[1], 0, 0);
+                _getRef0(fields[sel][fld ? 0 : 1], 0, 0, 0, 16, x, y, DMV[0], DMV[1], 0, 1);
+            } else {
+                _Error1((int)D_00636F68, motion_type);
+            }
+        }
+        avg = 1;
+    }
+    if (mbflags & 4) {
+        if (_picture_structure == 3) {
+            /* The backward frame's own field flag (ROM `addiu $23,$0,1`
+               before the motion_type test): fld may hold the field parity
+               here, and as one variable with fld the allocation would rank
+               it above mv_field_sel, where the ROM has the reverse. */
+            int bfld = 1;
+
+            if (motion_type == 2) {
+                _getRef0(_backFrame[0], 0, 0, 0, 16, x, y, PMV[2], PMV[3], 0, avg);
+            } else {
+                _getRef0(_backFrame[0], mv_field_sel[1], 0, 0, 8, x, y, PMV[2], PMV[3] >> 1, bfld,
+                         avg);
+                _getRef0(_backFrame[0], mv_field_sel[3], 1, 0, 8, x, y, PMV[6], PMV[7] >> 1, bfld,
+                         avg);
+            }
+        } else if (motion_type == 1) {
+            _getRef0(mv_field_sel[1] ? _backBot[0] : _backTop[0], 0, 0, 0, 16, x, y, PMV[2], PMV[3],
+                     0, avg);
+        } else if (motion_type == 2) {
+            _getRef0(mv_field_sel[1] ? _backBot[0] : _backTop[0], 0, 0, 0, 8, x, y, PMV[2], PMV[3],
+                     0, avg);
+            _getRef0(mv_field_sel[3] ? _backBot[0] : _backTop[0], 0, 0, 8, 8, x, y, PMV[6], PMV[7],
+                     0, avg);
+        } else {
+            _Error1((int)D_00636F88, motion_type);
+        }
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/mpc", _getRef0);
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/mpc", _doMC);
 
