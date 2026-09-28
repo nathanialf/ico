@@ -263,11 +263,15 @@ typedef struct {
     unsigned char f_0; /* 0x00 */
     unsigned char f_1; /* 0x01 */
     char _2[0xC8E];
-    GirlList others; /* 0x0C90 */
-    GirlList listB;  /* 0x1F60 */
-    GirlList hide;   /* 0x3230 */
-    GirlList listD;  /* 0x4500 */
-    char _57D0[0x20];
+    GirlList others;  /* 0x0C90 */
+    GirlList listB;   /* 0x1F60 */
+    GirlList hide;    /* 0x3230 */
+    GirlList listD;   /* 0x4500 */
+    void *target;     /* 0x57D0 the brain's current target gobj             */
+    void *lastTarget; /* 0x57D4 the target the last DecideMode pass saw      */
+    char _57D8[0x08];
+    int targetFlag; /* 0x57E0 bit 16 of the winning BrainTarget's b18 word */
+    char _57E4[0x0C];
     float f_57F0[4]; /* 0x57F0 the runaway goal            */
     float f_5800[4]; /* 0x5800 last accepted hide point    */
     float f_5810[4]; /* 0x5810 */
@@ -284,7 +288,8 @@ typedef struct {
     int wait;
     int timer;
     int limit;
-    char _5908[0x08];
+    int f_5908; /* 0x5908 */
+    char _590C[0x04];
     int f_5910; /* 0x5910 */
     int f_5914; /* 0x5914 */
 } GirlBrainWork;
@@ -586,7 +591,224 @@ out:
     return mode;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", girlBrainMain_DecideMode);
+/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
+extern void *test_CURRENTROOT(void *a0);
+extern void *D_00639EA0;
+extern void _ACTCharStatus_Set(void *obj, int id, float v, int flag);
+/* kept local: this TU's uses of _DistxzSqGV do not fit the prototype in gv.h */
+extern float _DistxzSqGV(void *a, void *b);
+/* kept local: this TU's uses of ACTCheckView do not fit the prototype in act-game.h */
+extern int ACTCheckView(void *self, void *obj, float *pos, float margin, int range);
+/* kept local: this TU's uses of isysGObjSearchFromObjKindID_begin do not fit the prototype in gobj.h */
+extern void *isysGObjSearchFromObjKindID_begin(int kind);
+/* kept local: this TU's uses of isysGObjSearchFromObjKindID_next do not fit the prototype in gobj.h */
+extern void *isysGObjSearchFromObjKindID_next(void *gobj);
+/* kept local: this TU's uses of PAIR_IsStatus_BOY_WAIT do not fit the prototype in act-game.h */
+extern int PAIR_IsStatus_BOY_WAIT(void);
+extern void brainGetTarget(Brain *b);
+extern int isEnterHideadv(void);
+/* the pad record: the button word at +0 */
+extern int D_0028F8F0[];
+
+/* girl_act.c:558-573 in the listing: the brain target pass, inlined into
+   girlBrainMain_DecideMode and into subGirlBrainMain. */
+static inline void *girlBrainGetTarget(void)
+{
+    int *flag = &((GirlBrainWork *)D_0029D650)->targetFlag;
+    Brain *b = D_002A5580;
+    void *obj = 0;
+
+    brainGetTarget(b);
+    *flag = 0;
+    if (b->idx != -1) {
+        obj = (void *)b->tgt[b->idx].gobj;
+        *flag = *(unsigned short *)&b->tgt[b->idx].b1A & 1;
+    }
+    return obj;
+}
+
+/* The TU's compiled-out debug print, in cdvd.c's stDebugPrint form: each
+   inlined call of the empty body emits no instruction but leaves one
+   (use (const_int 0)) insn that gcse and the live-length counts see.  The
+   name is ours: an inlined empty body leaves no symbol and no listing row.
+   subGirlBrain_Escape's four calls are commented at that function.
+   WHAT THE BYTES PIN in girlBrainMain_DecideMode: one zero-code insn inside
+   the live range of `near`, the boy-proximity flag the ROM spills to 0x30.
+   Without it sched1 leaves the three flags at lengths 315/325/319, which
+   local-alloc doubles, and global's priorities (warned 47, changed 46,
+   near 47) give $30 to near and spill changed, where the ROM keeps changed
+   in $30 and spills near; with it near reaches 640 and ties changed, which
+   wins on its lower allocno.  Measured necessary at this site; a second
+   print at either sibling flag set (`changed = 1`, `warned = 1`), or one
+   at every mode change inside setNext, moves changed below near again,
+   which the ROM rules out.
+   WHAT THEY CANNOT PIN: the text of the print, or its exact statement
+   inside near's range. */
+static __inline__ void girlBrainDebugPrint(void) {}
+
+/* girl_act.c:577-585 in the listing. */
+static inline float girlBrainGetTargetLevel(void)
+{
+    if (D_002A5580->idx == -1) {
+        return 0.0f;
+    }
+    return D_002A5580->f20;
+}
+
+int girlBrainMain_DecideMode(int mode, int *next)
+{
+    /* girl_brain_main.c.inc:848-856: two nested helpers; their reference to
+       `next` is what homes the parameter at 0($sp) and reloads it per use. */
+    __inline void setNext(int m)
+    {
+        if (D_00639EA0 != 0 && D_0029D430[m].flag != 0) {
+            return;
+        }
+        *next = m;
+    }
+    __inline void checkWarning(unsigned char c)
+    {
+        int m = girlBrainMain_CheckWarningMode(c);
+
+        if (0 <= m) {
+            setNext(m);
+        }
+    }
+    float gpos[4];
+    float opos[4];
+    void *o;
+    float lv;
+    int seen;
+    int i;
+    void *self = D_00639EA8;
+    Act *sub = GOBJ_ACT(self);
+    int warned = 0;
+    int changed = 0;
+    int near = 0;
+
+    gpos[0] = ((float *)test_CURRENTROOT(self))[0];
+    gpos[1] = ((float *)test_CURRENTROOT(self))[1];
+    gpos[2] = ((float *)test_CURRENTROOT(self))[2];
+
+    if (sub->unk34 == 0x6F) {
+        setNext(5);
+        return 0;
+    }
+    ((GirlBrainWork *)D_0029D650)->target = girlBrainGetTarget();
+
+    lv = girlBrainGetTargetLevel() * 10.0f;
+    if (3.0f <= lv) {
+        sub->flags20.ll |= 0x100000000000;
+    }
+    if (2.0f <= lv) {
+        sub->flags20.ll |= 0x200000000000;
+    }
+    if (((GirlBrainWork *)D_0029D650)->target != ((GirlBrainWork *)D_0029D650)->lastTarget) {
+        ((GirlBrainWork *)D_0029D650)->lastTarget = ((GirlBrainWork *)D_0029D650)->target;
+        changed = 1;
+    }
+    if (((GirlBrainWork *)D_0029D650)->target != 0) {
+        _ACTCharStatus_Set(self, 10, -1.0f, (int)((GirlBrainWork *)D_0029D650)->target);
+    }
+    switch (mode) {
+    case 0:
+    case 1:
+    case 7:
+        if (((GirlBrainWork *)D_0029D650)->lastTarget != 0) {
+            setNext(1);
+        } else {
+            setNext(0);
+        }
+        if (((GirlBrainWork *)D_0029D650)->hide.num == 0) {
+            break;
+        }
+        for (i = 0; D_0029D480[i] != -1; i++) {
+            for (o = isysGObjSearchFromObjKindID_begin(D_0029D480[i]); o != 0;
+                 o = isysGObjSearchFromObjKindID_next(o)) {
+                seen = 0;
+                opos[0] = ((float *)test_CURRENTROOT(o))[0];
+                opos[1] = ((float *)test_CURRENTROOT(o))[1];
+                opos[2] = ((float *)test_CURRENTROOT(o))[2];
+                if (ACTCheckView(self, o, opos, 0.0f, 160) != 0 &&
+                    _DistSqGV(gpos, opos) < 160000.0f) {
+                    seen = 1;
+                }
+                if (ACTGameView_Check(self, o) != 0 || seen != 0) {
+                    checkWarning(0);
+                    break;
+                }
+            }
+        }
+        break;
+
+    case 2:
+        if (((GirlBrainWork *)D_0029D650)->f_58F0 != 0) {
+            checkWarning(1);
+            ((GirlBrainWork *)D_0029D650)->f_58F0 = 0;
+        }
+        if (D_0028F8F0[0] & 8) {
+            ACTSendMailCorrect(self, 251);
+        }
+        break;
+
+    case 3:
+        if (((GirlBrainWork *)D_0029D650)->f_5914 == 0 && isEnterHideadv() != 0) {
+            setNext(9);
+            break;
+        }
+        if ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 10 <
+                ((GirlBrainWork *)D_0029D650)->f_5910 &&
+            (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 10 <
+                ((GirlBrainWork *)D_0029D650)->f_5908) {
+            setNext(0);
+            break;
+        }
+        /* fall through */
+
+    case 4:
+        if (((GirlBrainWork *)D_0029D650)->f_58F0 != 0) {
+            checkWarning(0);
+
+            warned = 1;
+            ((GirlBrainWork *)D_0029D650)->f_58F0 = 0;
+        }
+        break;
+
+    case 5:
+        setNext(6);
+        break;
+
+    case 6:
+        if (((GirlBrainWork *)D_0029D650)->f_58F0 == 0) {
+            break;
+        }
+        /* fall through */
+
+    case 8:
+        setNext(0);
+        ((GirlBrainWork *)D_0029D650)->f_58F0 = 0;
+        break;
+
+    case 9:
+        if (isEnterHideadv() != 0) {
+            break;
+        }
+        setNext(3);
+        break;
+    }
+    if (PAIR_IsStatus_BOY_WAIT() != 0 &&
+        _DistxzSqGV(test_CURRENTROOT(D_00639EA4), test_CURRENTROOT(D_00639EA8)) < 40000.0f) {
+        near = 1;
+        girlBrainDebugPrint();
+    }
+    if (*next != 2 && PAIR_IsStatus_BOY_WAIT() != 0) {
+        if (*next != 4 || near != 0) {
+            setNext(7);
+            return 0;
+        }
+    }
+    return *next == 1 ? changed : warned;
+}
 
 extern char D_002A2E70[];
 /* kept local: this TU's uses of GetRootProjectionPosOfGObj do not fit the prototype in motionManager2.h */
@@ -646,8 +868,6 @@ INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", subGirlBrainMain);
 
 /* kept local: this TU's uses of debug_NMarker do not fit the prototype in camera-editor.h */
 extern void debug_NMarker(void *pos, int r, int g, int b, float size);
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
-extern void *test_CURRENTROOT(void *a0);
 /* kept local: this TU's uses of test_CURRENTORIENT do not fit the prototype in commonact.h */
 extern void *test_CURRENTORIENT(void *a0);
 /* kept local: this TU's uses of _DistxzGV do not fit the prototype in gv.h */
@@ -660,11 +880,9 @@ extern void _OrientXZGV(void *out, void *a, void *b);
 extern int _RotyGV(void *buf, void *vec);
 /* kept local: this TU's uses of GetSkeltonOrient do not fit the prototype in act-game.h */
 extern void GetSkeltonOrient(float *out, void *obj, int node);
-extern void _ACTCharStatus_Set(void *obj, int id, float v, int flag);
 extern void sceVu0AddVector(float *dst, float *a, float *b);
 extern int ACTCheckCollis_WELL(void *p0, void *p1, void *actor, void *posout, float f);
 extern void *D_0063A6B0;
-extern void *D_00639EA0;
 
 /* girl_brain_main.c.inc:2-8 -- a file-scope static helper with no out-of-line
  * ROM copy (no MAIN.MAP symbol); the listing attributes lines 3/4/5/7 of the
@@ -1283,10 +1501,9 @@ static inline void girlBrainEscapeFaceCheck(float *p, float *dir, Vec4u *v)
     }
 }
 
-/* A compiled-out print, in cdvd.c's stDebugPrint form: each inlined call of
-   the empty body emits no instruction but leaves one (use (const_int 0))
+/* girlBrainDebugPrint in subGirlBrain_Escape: each call leaves one zero-code
    insn that gcse counts and sched2 issues.
-   WHAT THE BYTES PIN, site by site in subGirlBrain_Escape (each measured
+   WHAT THE BYTES PIN, site by site (each measured
    necessary: the function differs from the ROM without it):
    - arm 1 after `mode = 2`: one more insn in gcse's table, which decides the
      frame-address homes at 0xA4..0xB4;
@@ -1299,9 +1516,7 @@ static inline void girlBrainEscapeFaceCheck(float *p, float *dir, Vec4u *v)
    statement in the if would block; arm 0's `mode = 1` fills its jal slot
    with the li of mode*4, which a zero-code insn there reorders.
    WHAT THEY CANNOT PIN: the text of the prints, or whether they were one
-   macro or several.  The name is ours: an inlined empty body leaves no
-   symbol and no listing row. */
-static __inline__ void escapeDebugPrint(void) {}
+   macro or several. */
 
 /* girl_brain_main.c.inc:2621-2846 */
 void subGirlBrain_Escape(volatile int a0)
@@ -1346,12 +1561,12 @@ void subGirlBrain_Escape(volatile int a0)
             break;
         case 1:
             mode = 2;
-            escapeDebugPrint();
+            girlBrainDebugPrint();
             GetRootProjectionPosOfGObj(rp, (void *)a0);
             if (girlBrainRunawaySearchPoint(rp, ((GirlBrainWork *)D_0029D650)->f_57F0,
                                             ((GirlBrainWork *)D_0029D650)->f_5810) == 0) {
                 mode = 3;
-                escapeDebugPrint();
+                girlBrainDebugPrint();
             }
             sub->f_34C = 0;
             break;
@@ -1362,14 +1577,14 @@ void subGirlBrain_Escape(volatile int a0)
             case 0:
                 break;
             case 1:
-                escapeDebugPrint();
+                girlBrainDebugPrint();
                 ((GirlBrainWork *)D_0029D650)->f_5810[0] = ((GirlBrainWork *)D_0029D650)->f_57F0[0];
                 ((GirlBrainWork *)D_0029D650)->f_5810[1] = ((GirlBrainWork *)D_0029D650)->f_57F0[1];
                 ((GirlBrainWork *)D_0029D650)->f_5810[2] = ((GirlBrainWork *)D_0029D650)->f_57F0[2];
                 mode = 1;
                 break;
             case 2:
-                escapeDebugPrint();
+                girlBrainDebugPrint();
                 ((GirlBrainWork *)D_0029D650)->f_5810[0] = ppos[0];
                 ((GirlBrainWork *)D_0029D650)->f_5810[1] = ppos[1];
                 ((GirlBrainWork *)D_0029D650)->f_5810[2] = ppos[2];

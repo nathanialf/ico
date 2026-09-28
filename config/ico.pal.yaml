@@ -784,6 +784,8 @@ segments:
       - [0x4536C8, rodata, cod/4536C8]   # .rodata blob resume (subEnemyBrain_ToGirl's change-to-kidnap string, kept a placeholder since it follows the tables)
       - [0x453750, .rodata, ico2/fumi/src/fieldCollision]  # the TU's .rodata run as source (completeness pass 66), VMA 0x553750, 0x23E B, anonymous strings in the listing's source order with the compiled-out "%s%d(%d)\n" among them
       - [0x453990, rodata, cod/453990]   # .rodata blob resume
+      - [0x453AD0, .rodata, ico2/fumi/src/girl_act]  # syms: 0x00553AD0  girlBrainMain_DecideMode's 10-arm switch table jtbl_00553AD0, VMA 0x553AD0..0x553AF8, 0x28 B, every arm checked against the ROM (chain 3 pass 183)
+      - [0x453AF8, rodata, cod/453AF8]   # .rodata blob resume
       - [0x453C30, .rodata, ico2/fumi/src/girl_act]  # syms: 0x00553C30  subGirlBrain_Escape's 5-arm switch table jtbl_00553C30, VMA 0x553C30..0x553C44, 0x14 B, every arm checked against the ROM (chain 3 pass 182)
       - [0x453C44, rodata, cod/453C44]   # .rodata blob resume (the zero pad word before Danger_Gondola's "goal[%d]\n" at 0x553C48)
       - [0x453EB0, .rodata, ico2/fumi/src/girl_act]  # syms: 0x00553EB0  carved jtbl_00553EB0 (VMA 0x553EB0..0x553FBC, 67 arms, 268 B): GetBoyMode's switch table, emitted by the compiled function; girl_act owns 7 more jtbls (0x553AD0..0x553D30) interleaved with its strings, so this stays a single-table carve until a spanning one is byte-neutral
