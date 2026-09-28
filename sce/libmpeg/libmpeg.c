@@ -1326,7 +1326,32 @@ void _initSeq(void *a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _initRefImages);
+/* The uncached-accelerated alias of a frame buffer address. RECONSTRUCTION:
+ * the ROM computes `size / 512 * 384` three times (three `mult` into fresh
+ * scratch registers), which is an inline call per store: gcc expands each
+ * inline argument with EXPAND_SUM and computes its product into the argument
+ * copy, so cse can not share it; the helper's name stands in for Sony's. */
+static inline int _uncachedAddr(int addr)
+{
+    return (addr & 0x0FFFFFFF) | 0x20000000;
+}
+
+void _initRefImages(int *frame0, int *frame1, int *frame2, int *top0, int *top1, int *top2,
+                    int *bot0, int *bot1, int *bot2, int y, int cb, int cr)
+{
+    int size = _picWidth * _picHeight;
+
+    *frame0 = _uncachedAddr(y);
+    *frame1 = _uncachedAddr(cb);
+    *frame2 = _uncachedAddr(cr);
+    *top0 = _uncachedAddr(y);
+    *top1 = _uncachedAddr(cb);
+    *top2 = _uncachedAddr(cr);
+    *bot0 = _uncachedAddr(y + size / 512 * 384);
+    *bot1 = _uncachedAddr(cb + size / 512 * 384);
+    *bot2 = _uncachedAddr(cr + size / 512 * 384);
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _setDefaultQM);
 
 extern int _chroma_format;
