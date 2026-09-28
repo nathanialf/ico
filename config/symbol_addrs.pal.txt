@@ -269,7 +269,7 @@ afterGirlHand100 = 0x0017C250; // type:func  // ico2/fumi/src/girl_act
 afterGirlHand200 = 0x0017C310; // type:func  // ico2/fumi/src/girl_act
 subGirlBrain_Becarry = 0x0017C4C8; // type:func  // ico2/fumi/src/girl_act
 subGirlBrain_DangerEnv = 0x0017C600; // type:func  // ico2/fumi/src/girl_act
-// girl_act nested functions. gcc emits a nested child just before its parent and names it <name>.<n> (the listing has CorrectList.331 and GetSafePosition.357/.364/.371/.379). Every child needs its own row here, or progress counts its bytes inside the function before it. The two still in INCLUDE_ASM stubs keep func_ placeholders until their parents land (func_00174CE8 = CorrectList.331 in girlBrainRunawaySearchPoint, func_001762A0 = GetSafePosition.364 in Danger_Gondola); the landed ones take the plain C name (GetSafePosition at 0x00175D80, 0x00176838 and 0x00177098 for .357 in Danger_Bomb, .371 in Danger_Box, .379 in Danger_Rotobject)
+// girl_act nested functions. gcc emits a nested child just before its parent and names it <name>.<n> (the listing has CorrectList.331 and GetSafePosition.357/.364/.371/.379). Every child needs its own row here, or progress counts its bytes inside the function before it. The one still in an INCLUDE_ASM stub keeps a func_ placeholder until its parent lands (func_001762A0 = GetSafePosition.364 in Danger_Gondola); the landed ones take the plain C name (CorrectList at 0x00174CE8 for .331 in girlBrainRunawaySearchPoint; GetSafePosition at 0x00175D80, 0x00176838 and 0x00177098 for .357 in Danger_Bomb, .371 in Danger_Box, .379 in Danger_Rotobject)
 // script: actSubSekizoSe is MAIN.MAP script.o's last symbol (no census row), inside the former func_00185CA0 stub after scpDoorTypeUpMain
 actSubSekizoSe = 0x00185CD0; // type:func  // ico2/script/src/script
 // boyact: census names for the splat placeholders (listing table aligned by ROM order, 93 = 60 named + 33 covered; every start is its own prologue)
@@ -1983,7 +1983,7 @@ subGirlBrain_Attract = 0x00172D00; // type:func  // ico2/fumi/src/girl_act
 girlBrainHide_GoalTurn = 0x001746F8; // type:func  // ico2/fumi/src/girl_act  // provisional-ordinal
 isHideRecheck = 0x00174808; // type:func  // ico2/fumi/src/girl_act
 subGirlBrain_Hide = 0x00174998; // type:func  // ico2/fumi/src/girl_act
-func_00174CE8 = 0x00174CE8; // type:func  // ico2/fumi/src/girl_act  // census CorrectList.331, the nested child of girlBrainRunawaySearchPoint (rename when that unit lands)
+CorrectList = 0x00174CE8; // type:func  // ico2/fumi/src/girl_act  // census CorrectList.331, the GNU nested child of girlBrainRunawaySearchPoint (chain 3 pass 176)
 girlBrainRunawaySearchPoint = 0x00174E50; // type:func  // ico2/fumi/src/girl_act
 girlBrainRunawayMoveByWay = 0x001753E8; // type:func  // ico2/fumi/src/girl_act
 subGirlBrain_Escape = 0x00175688; // type:func  // ico2/fumi/src/girl_act

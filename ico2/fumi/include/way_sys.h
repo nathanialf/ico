@@ -46,5 +46,6 @@ void BridgeBox(void);
 void DeleteGuideWay(WVTObj *o);
 int GetWay_next(WVTObj *w, float *pos);
 int _FUNC_GetWay_begin(void *a0, WVTObj *a1, int a2, int a3);
+int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos);
 
 #endif /* WAY_SYS_H */

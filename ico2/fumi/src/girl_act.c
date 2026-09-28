@@ -274,7 +274,8 @@ typedef struct {
     float f_5830[4]; /* 0x5830 the girl's own position     */
     float f_5840[4]; /* 0x5840 */
     float f_5850[4]; /* 0x5850 */
-    char _5860[0x90];
+    int f_5860;      /* 0x5860 */
+    char _5864[0x8C];
     unsigned char f_58F0; /* 0x58F0 */
     char _58F1[0x07];
     int runMode; /* 0x58F8 */
@@ -479,10 +480,10 @@ extern void sceVu0ScaleVector(float *dst, float *src, float scale);
 extern void debug_Marker(void *buf, int a1, int a2, int a3, float f12, float f13);
 
 /* girl_brain_main.c.inc:313-317 (rows outside WayTest's span => static inline) */
-static inline void dispWayMarker(char *p)
+static inline void dispWayMarker(float *p)
 {
     float buf[4];
-    sceVu0ScaleVector(buf, (float *)(p + 0x10), -1.0f);
+    sceVu0ScaleVector(buf, p, -1.0f);
     debug_Marker(buf, 0xFF, 0, 0, 70.0f, 0.0f);
 }
 
@@ -561,7 +562,7 @@ int girlBrainMain_CheckWarningMode(unsigned char check)
             goto out;
         }
         _girlBrainHide_MakeHidePoint((float *)(g + 0x5800), 200.0f);
-        dispWayMarker(g + 0x57F0);
+        dispWayMarker((float *)(g + 0x5800));
         if (girlBrainHide_TryWay((float *)(g + 0x5800), g + 0x5870, (float *)(g + 0x5830), hit) !=
             3) {
             goto out;
@@ -1022,12 +1023,6 @@ void subGirlBrain_Hide(volatile int a0)
     }
 }
 
-/* census CorrectList.331, the GNU nested child of girlBrainRunawaySearchPoint;
-   gcc names it with the discriminator, so it has no symbol of its own and lands
-   inside its parent (rc0 as a nested function in chain G pass 13). */
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", func_00174CE8);
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", girlBrainRunawaySearchPoint);
-
 /* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
 extern void ClipWall(void *);
 /* kept local: this TU's uses of ClipWallField do not fit the prototype in fieldCollision.h */
@@ -1062,6 +1057,130 @@ static inline unsigned char isNearPoint(float *a, float *b)
 {
     if ((a[1] - b[1] < 0.0f ? -(a[1] - b[1]) : a[1] - b[1]) < 100.0f) {
         if (_DistSqGV(a, b) < 10000.0f) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* girl_brain_main.c.inc:2300-2327 (rows outside every caller's span => static
+   inline; the listing inlines it twice inside girlBrainRunawaySearchPoint).
+   True when no listB entry lies closer to `p` than the girl does, and no
+   listB entry lies closer to `p` than it lies to the girl. */
+static inline unsigned char isRunawayPointClear(float *p, float *girl)
+{
+    int i;
+    float d;
+
+    d = _DistSqGV(p, girl);
+    for (i = 0; i < ((GirlBrainWork *)D_0029D650)->listB.num; i++) {
+        if (_DistSqGV(p, ((GirlBrainWork *)D_0029D650)->listB.ent[i].pos) < d) {
+            return 0;
+        }
+    }
+    for (i = 0; i < ((GirlBrainWork *)D_0029D650)->listB.num; i++) {
+        float dg = _DistSqGV(girl, ((GirlBrainWork *)D_0029D650)->listB.ent[i].pos);
+        float dp = _DistSqGV(p, ((GirlBrainWork *)D_0029D650)->listB.ent[i].pos);
+
+        if (dp < dg) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+int girlBrainRunawaySearchPoint(float *goal, float *out, float *p)
+{
+    /* girl_brain_main.c.inc:2429-2443, a GNU nested function: the listing
+       places it inside its parent's body and names it CorrectList.331.  It
+       reads nothing of the parent's frame (its scratch list is a file static),
+       but gcc homes the static chain in every nested function's prologue,
+       which is ROM's `sw $2,0($sp)`. */
+    int CorrectList(float (*list)[4], float *p, int n)
+    {
+        int i;
+        int num;
+
+        num = 0;
+        for (i = 0; i < n; i++) {
+            if (!isNearPoint(p, list[i])) {
+                float *d = D_006C1AE0[num];
+
+                d[0] = list[i][0];
+                d[1] = list[i][1];
+                d[2] = list[i][2];
+                num++;
+            }
+        }
+        for (i = 0; i < num; i++) {
+            float *s = D_006C1AE0[i];
+
+            list[i][0] = s[0];
+            list[i][1] = s[1];
+            list[i][2] = s[2];
+        }
+        return num;
+    }
+
+    char *g;
+    char *sub;
+    int n;
+    int i;
+    int correct = 1;
+
+    g = D_00639EA8;
+    sub = *(char **)(g + 0x164);
+    n = GetNearNigePointN(D_006C1B80, 10, sub + 0x360, p);
+    for (i = n - 1; i >= 0; i--) {
+        float (*list)[4] = D_006C1B80;
+
+        if (isNearPoint(p, list[i])) {
+            p[0] = list[i][0];
+            p[1] = list[i][1];
+            p[2] = list[i][2];
+            n = GetNearNigePointN(list, 10, sub + 0x360, p);
+            break;
+        }
+    }
+    /* RECONSTRUCTION: what the bytes pin is a jump over this call to a label
+       right after it, alive through the minimal jump pass of the sibcall
+       stage (so a (use (const_int 0)) is left behind the call) and gone by
+       gcse's constant propagation, which is what keeps `i = 0` below behind
+       the call in the blez slot.  A test of a local holding a constant is the
+       spelling that does that; its name and role are ours, not the disc's. */
+    if (correct) {
+        n = CorrectList(D_006C1B80, p, n);
+    }
+    for (i = 0; i < n; i++) {
+        _DistGV(p, D_006C1B80[i]);
+        _DistGV(((GirlBrainWork *)D_0029D650)->listB.ent[0].pos, D_006C1B80[i]);
+        if (isNearPoint(p, D_006C1B80[i])) {}
+    }
+    for (i = 0; i < n; i++) {
+        if (isRunawayPointClear(D_006C1B80[i], p)) {
+            dispWayMarker(D_006C1B80[i]);
+        }
+    }
+    for (i = 0; i < n; i++) {
+        if (isRunawayPointClear(D_006C1B80[i], p)) {
+            float pos[4];
+            float *s;
+
+            GetWay_begin(D_006C1B80[i], sub + 0x360, goal);
+            *(int *)(sub + 0x3A4) = 0;
+            pos[0] = goal[0];
+            pos[1] = goal[1];
+            pos[2] = goal[2];
+            pos[1] -= 50.0f;
+            if (isNoWallBetween(pos, D_006C1B80[i])) {
+                *(int *)(sub + 0x3A4) = 1;
+                DeleteGuideWay(sub + 0x360);
+            }
+            s = D_006C1B80[i];
+            out[0] = s[0];
+            out[1] = s[1];
+            out[2] = s[2];
+            ((GirlBrainWork *)D_0029D650)->f_5860 = 0;
             return 1;
         }
     }
@@ -1792,7 +1911,7 @@ void WayTest(void)
         if (!ACTWayMove_NextDetail(g, s + 0x120, a, 0, 0)) {
             debug_StdPrintfDummy(D_00553C78);
         }
-        dispWayMarker(s + 0x400);
+        dispWayMarker((float *)(s + 0x410));
     }
     if (*(float *)(s + 0x3F8) < 100.0f) {
         *(float *)(s + 0x34C) = 0.0f;
@@ -1812,8 +1931,8 @@ void WayTest(void)
         *(float *)(s + 0x128) = *(float *)(s + 0x3E8);
         wayTurnFrames = 0;
     }
-    dispWayMarker(*(char **)(s + 0x380));
-    dispWayMarker(*(char **)(s + 0x384));
+    dispWayMarker((float *)(*(char **)(s + 0x380) + 0x10));
+    dispWayMarker((float *)(*(char **)(s + 0x384) + 0x10));
 }
 
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", subGirlControl);
