@@ -913,7 +913,54 @@ int _getpic(int a0)
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _decodeOrSkipFrame);
+extern int _isSecondField[];
+extern int _updateRefImage(int a0);
+extern int _decPicture(int a0, int a1);
+extern void _outputFrame(int a0, int a1);
+
+int _decodeOrSkipFrame(int a0, int a1, int a2)
+{
+    int skip = 0;
+    int ret;
+    int t;
+    int second;
+    int *self = (int *)a0;
+    int *p = (int *)self[0x40 / 4];
+
+    if (a2 == -1 || a1 < a2) {
+        int ok;
+        int decoded;
+
+        if (p[2] == 0) {
+            self[2] = 0;
+            p[2] = 1;
+        }
+        ok = _updateRefImage(0);
+        decoded = 0;
+        if (ok != 0) {
+            decoded = _decPicture(_totalFrames[0], p[1]) != 0;
+        }
+        ret = decoded;
+    } else {
+        ret = _updateRefImage(0);
+        _dispatchMpegCbNodata(self);
+        skip = 1;
+    }
+    _outputFrame(_totalFrames[0], p[1]);
+    if (_picture_structure != 3 && skip == 0) {
+        _isSecondField[0] = _isSecondField[0] == 0;
+    }
+    t = _totalFrames[0];
+    second = _isSecondField[0];
+    self[2] = t - p[0xAC / 4];
+    if (second == 0) {
+        int f = p[1];
+
+        _totalFrames[0] = t + 1;
+        p[1] = f + 1;
+    }
+    return ret;
+}
 
 extern int _picture_structure;
 extern int _decodeOrSkipField(int a0, int a1, int a2);
