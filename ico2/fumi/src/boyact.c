@@ -839,7 +839,811 @@ int GetChainSlope(void)
     return down;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", subBoyControl);
+/* kept local: this TU's uses of these do not fit the prototypes in the headers
+   the rest of the file reaches. */
+extern void ConvertStickToAbsCoord();
+extern void GetWay_next(void *way, void *pos);
+extern int GetWay_begin(void *a, void *way, void *b);
+extern void sceVu0CopyVector(void *dst, void *src);
+extern float fzMagnitude2fv(void *a, void *b);
+extern float _DistSqGV(void *a, void *b);
+extern float sceVu0InnerProduct(void *a, void *b);
+extern void ClipWall(void *w);
+extern void BridgeBox(void);
+extern int PrivInsCamChk(void);
+extern unsigned char PrivInsCamChk_Control(void);
+extern float IsPointIsInScreen(void *dst, void *pos);
+extern int iosPadConnect(void *pad, int a, int b, void *conf);
+extern int iosPadRead(void *pad);
+extern int iosPadGetStick(void *pad, void *out, int a, int b, int c, int d);
+extern void _GetMotionDirection(void *dst, void *g);
+extern void _ACTCommonMailTest(int a0, int a, int b, int c);
+extern float GetDifferenceFromLowerField(int self, int a1);
+extern int GetMotionFrameFlag1(void *self);
+extern void ACTDebugMove(int a0, int a1);
+extern void IncreasePdlChain(int id);
+extern void DecreasePdlChain(int id);
+
+/* the pad configuration record, as fumi's ios/pad.c and src/act.c type it */
+typedef struct {
+    int w[60];
+} PadConf;
+
+extern PadConf iosPadConfCustom;
+extern int D_00639EAC;
+extern void *D_00639EC0;
+extern void *CurrentTargetGObj;
+extern int D_0063ABA0;
+extern int D_0063ABA4;
+extern int D_0063B1E8;
+extern int D_0063B5F4;
+extern int D_0063A6E8;
+extern float D_0063A6D8;
+extern unsigned char D_0063B20C;
+extern char D_0063A6E0[];
+
+/* the ClipWall work record as this function uses it: the two segment
+   endpoints, the radius at 0x70 and the hit flag at 0x88 (commonact.c's
+   RopeWallWork is the same 0xC0-byte record). */
+typedef struct {
+    char _00[0x70];
+    float f70;
+    char _74[0x14];
+    int f88;
+    char _8C[0x34];
+} BoyWallWork;
+
+/* The listing gives this one lines 2066-2072 of boyact.c: an inline-only
+   static that snapshots the boy's orient where the script side reads it,
+   inlined into subBoyControl and subBoyCollision.  Name is this
+   repository's. */
+static inline void SaveBoyOrientForScript(void)
+{
+    void *boy = D_00639EA4;
+
+    D_0029C830[0] = ((float *)test_CURRENTORIENT(boy))[0];
+    D_0029C830[1] = ((float *)test_CURRENTORIENT(boy))[1];
+    D_0029C830[2] = ((float *)test_CURRENTORIENT(boy))[2];
+}
+
+/* INTERIM: CorrectStickInfo is a file-scope `inline` in the original TU
+   (rows 1634-1638): the listing expands it into subBoyControl (rows
+   1636-1637) and its out-of-line copy sits in the TU's inline tail, where the
+   plain definition stays.  This stand-in carries the body inline; fold it
+   back when the tail is C. */
+static inline int CorrectStickInfo_inl(void *dir, void *stick)
+{
+    int buf[4];
+
+    ConvertStickToAbsCoord(buf, stick);
+    return _RotyGV(buf, dir);
+}
+
+/* boyact.c:2082-2092: the private-camera gate. */
+static __inline__ unsigned char boyPrivInsCamInScreen(void)
+{
+    float scr[4];
+
+    if (PrivInsCamChk_Control() == 0) {
+        return 0;
+    }
+    if (0.0f < IsPointIsInScreen(scr, test_CURRENTROOT(D_00639EA4))) {
+        return 1;
+    }
+    return 0;
+}
+
+/* boyact.c:1980-2010: the stick snap the boy's walk control applies when the
+   camera-relative wish and the stick agree closely enough. */
+static __inline__ int snapStickToCamera(float *stick, float *wish, float *sabs, float *cam)
+{
+    int rc;
+    int rs;
+    int d;
+
+    rc = _RotyGV(cam, wish);
+    rs = _RotyGV(stick, sabs);
+    if (sabs[0] == 0.0f && sabs[1] == 0.0f && sabs[2] == 0.0f) {
+        return 0;
+    }
+    if (!((rc < 0 ? -rc : rc) < 20)) {
+        return 0;
+    }
+    if ((rs < 0 ? -rs : rs) < 46) {
+        return 0;
+    }
+    d = ((rs < 0 ? -rs : rs) > 90) ? 2 : 4;
+    if (rs < 0) {
+        d = -d;
+    }
+    if ((rs < 0 ? -rs : rs) < (d < 0 ? -d : d)) {
+        d = rs;
+    }
+    stick[0] = sabs[0];
+    stick[1] = sabs[1];
+    stick[2] = sabs[2];
+    _ApplyRyGV(stick, (float)d * 3.1415927f / 180.0f);
+    return d;
+}
+
+void subBoyControl(volatile int a0)
+{
+    float stick[4];
+    float wish[4];
+    float sabs[4];
+    float dir[4];
+    int c0;
+    int c1;
+    int c2;
+    char *s = *(char **)((char *)a0 + 0x164);
+    void *g;
+    int n;
+    int sw;
+    int slow;
+    float d;
+    float dist;
+    int dbg = 0; /* local debug switch, see the test after the stick loop */
+
+    memset(stick, 0, 16);
+    c0 = 0;
+    c1 = 0;
+    c2 = 0;
+    memset(wish, 0, 16);
+    n = 0;
+    iosPadConnect(s + 0x2D8, 0, 0, &iosPadConfCustom);
+    D_00639EAC = (int)(s + 0x2D8);
+    E3_StageStartBoy((void *)a0);
+    D_0063B5F4 = 0;
+    while (1) {
+        if (D_0063ABA4) {
+            n = 3;
+        }
+        if (D_0063ABA0) {
+            n = 3;
+        }
+        if ((int)(*(unsigned long long *)(s + 0x20) >> 31) & 1) {
+            n = 3;
+        }
+        sw = 0;
+        if (n) {
+            n--;
+            sw = 1;
+        }
+        for (;;) {
+            if (((int)(*(unsigned long long *)(s + 0x18) >> 48) & 1) == 0) {
+                goto noStick;
+            }
+            *(unsigned long long *)(s + 0x18) &= ~0x800000000;
+            if (D_0063AA08 == 0 &&
+                *(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x4B0) == 0 &&
+                (PrivInsCamChk() == 0 || boyPrivInsCamInScreen())) {
+                iosPadRead(s + 0x2D8);
+                if (*(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x3C8) != 0) {
+                    *(unsigned int *)(s + 0x2E0) &= ~8;
+                }
+                *(unsigned long long *)(s + 0x18) |= 0x800000000;
+                if ((int)(*(unsigned long long *)(*(char **)(s + 0x2D8) + 0x1C0) >> 16) & 1) {
+                    D_0063B5F4 = 1;
+                } else {
+                    D_0063B5F4 = 0;
+                }
+                iosPadGetStick(s + 0x2D8, s + 0x338, 0, 2, 2, D_0063B20C);
+                if (D_0063B1E8) {
+                    if (D_0063B13C & 1) {
+                        debug_Printf(10, 170, 0x0FFFFFFF, (int)D_0063A6E0,
+                                     fptodp(*(float *)(s + 0x34C)));
+                    }
+                }
+                D_0063C1F5 = 1;
+            } else {
+                *(int *)(s + 0x2E8) = 0;
+                *(int *)(s + 0x338) = *(int *)(s + 0x33C) = 127;
+                *(int *)(s + 0x2E4) = 0;
+                *(int *)(s + 0x2E0) = 0;
+                *(float *)(s + 0x34C) = 0.0f;
+                D_0063C1F5 = 0;
+            }
+            _GetMotionDirection(dir, (void *)a0);
+            CorrectStickInfo_inl(dir, s + 0x338);
+            if (*(int *)(s + 0x2E4) & 1) {
+                BridgeBox();
+            }
+            g = isysGObjSearchFromObjLayoutID(2);
+            if (*(int *)(s + 0x350) == 1) {
+                float tgt[4];
+                float pos[4];
+
+                GetRootPosition(tgt, g);
+                GetRootPosition(pos, (void *)a0);
+                if (GetWay_begin(tgt, s + 0x360, pos) == 0) {
+                    *(int *)(s + 0x350) = 0;
+                } else {
+                    *(int *)(s + 0x350) = 2;
+                }
+                break;
+            }
+            if (*(int *)(s + 0x350) == 2) {
+                switch (*(int *)(s + 0x3A4)) {
+                case 0: {
+                    float root[4];
+
+                    GetRootPosition(root, (void *)a0);
+                    GetWay_next(s + 0x360, root);
+                    sceVu0CopyVector(stick, s + 0x3B0);
+                    *(float *)(s + 0x34C) = 1.0f;
+                    break;
+                }
+                case 1: {
+                    float p0[4];
+                    float p1[4];
+                    BoyWallWork work;
+
+                    GetRootPosition(p0, (void *)a0);
+                    GetRootPosition(p1, g);
+                    work.f70 = 10.0f;
+                    sceVu0CopyVector(&work, p0);
+                    sceVu0CopyVector((char *)&work + 0x10, p1);
+                    ClipWall(&work);
+                    if (work.f88 != 0) {
+                        *(int *)(s + 0x350) = 1;
+                    }
+                    dist = fzMagnitude2fv(p1, p0);
+                    p1[0] = p1[0] - p0[0];
+                    p1[1] = 0.0f;
+                    p1[2] = p1[2] - p0[2];
+                    sceVu0Normalize(stick, p1);
+                    if (dist < 120.0f) {
+                        ACTSendMailCorrect(a0, 0xC7);
+                        *(int *)(s + 0x350) = 0;
+                    } else if (dist < 850.0f) {
+                        *(float *)(s + 0x34C) = (dist - 100.0f) / 750.0f;
+                    } else {
+                        *(float *)(s + 0x34C) = 1.0f;
+                    }
+                    break;
+                }
+                }
+                break;
+            }
+            if (0.1f < *(float *)(s + 0x34C)) {
+                float cam[4];
+
+                sabs[0] = stick[0];
+                sabs[1] = stick[1];
+                sabs[2] = stick[2];
+                ConvertStickToAbsCoord(stick, s + 0x338);
+                cam[0] = (float)(*(int *)(s + 0x338) - 128);
+                cam[1] = 0.0f;
+                cam[2] = (float)(*(int *)(s + 0x33C) - 128);
+                if (sw == 0) {
+                    snapStickToCamera(stick, wish, sabs, cam);
+                }
+                wish[0] = cam[0];
+                wish[1] = cam[1];
+                wish[2] = cam[2];
+                {
+                    float ori[4];
+
+                    GetRootMotionOrient(ori, (void *)a0);
+                    *(int *)(s + 0x340) = _RotyGV(stick, ori);
+                }
+            } else {
+                *(int *)(s + 0x340) = 0;
+                *(float *)(s + 0x34C) = 0.0f;
+            }
+            if ((void *)a0 == D_00639EC0) {
+                break;
+            }
+            _ACTWait(1);
+        }
+        /* Local debug switch, off.  What the bytes pin: the function reaches
+           gcse with 1548..1567 real insns (1537 without this arm): the
+           expression table size orders PRE's reaching registers, whose order
+           is the order of the spill slots at 0x170..0x18C (s + 0x360 before
+           the 0xB0 vector).  cse cannot carry dbg's 0 across the loop labels,
+           gcse's constant propagation folds the test and the next jump pass
+           deletes the arm.  What they cannot pin: the arm's text, which is
+           the January build's live arm at this spot (listing rows 2328-2330),
+           way_tool.c's cursor_control idiom. */
+        if (dbg) {
+            if ((void *)a0 == D_00639EC0 && (*(int *)(s + 0x2E4) & 1)) {
+                if (*(int *)(s + 0x34) != 1) {
+                    ACTSendMailCorrect(a0, 258);
+                }
+                ACTDebugMove(a0, 1);
+            }
+        }
+        *(float *)(s + 0x120) = stick[0];
+        *(float *)(s + 0x124) = stick[1];
+        *(float *)(s + 0x128) = stick[2];
+    noStick:
+        *(float *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x340) =
+            *(float *)(s + 0x34C);
+        slow = 0;
+        if (*(int *)(s + 0x34) == 1) {
+            if (GOBJ_SUB(a0)->f_4A0 == 0 || GOBJ_SUB(a0)->f_4A0 == 1) {
+                if (0.5f < *(float *)(s + 0x34C)) {
+                    D_0063A6E8 = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 5;
+                }
+            }
+        }
+        if (0 < D_0063A6E8) {
+            D_0063A6E8--;
+            slow = 1;
+        }
+        if (slow && 0.5f < *(float *)(s + 0x34C)) {
+            *(float *)(s + 0x34C) = 0.5f;
+        }
+        c0++;
+        if (0.1f < *(float *)(s + 0x34C)) {
+            c0 = 0;
+        }
+        if (0.1f < *(float *)(s + 0x34C) &&
+            (*(float *)(s + 0x34C) < 0.99f || (*(int *)(s + 0x2E0) & 0x20))) {
+            c1++;
+        } else {
+            c1 = 0;
+        }
+        if (0.1f < *(float *)(s + 0x34C) &&
+            !(0.1f < *(float *)(s + 0x34C) &&
+              (*(float *)(s + 0x34C) < 0.99f || (*(int *)(s + 0x2E0) & 0x20)))) {
+            c2++;
+        } else {
+            c2 = 0;
+        }
+        _ACTCommonMailTest(a0, c0, c1, c2);
+        switch (*(int *)(s + 0x34)) {
+        case 1:
+            ACTSendMailCorrect(a0, 0xC7);
+            break;
+        case 2:
+            ACTSendMailCorrect(a0, 0xB5);
+            break;
+        case 3:
+            ACTSendMailCorrect(a0, 0xBA);
+            break;
+        case 41:
+            if (0.1f < *(float *)(s + 0x34C) &&
+                !((unsigned int)(*(int *)(s + 0x340) + 134) < 269)) {
+                ACTSendMailCorrect(a0, 0x149);
+            }
+            break;
+        case 29:
+            if (*(int *)(s + 0x2E4) & 0x40) {
+                if (100.0f < GetDifferenceFromLowerField(a0, 44)) {
+                    ACTSendMailCorrect(a0, 0x127);
+                } else {
+                    ACTSendMailCorrect(a0, 0xE2);
+                }
+            }
+            if (*(int *)(s + 0x2E0) & 0x10) {
+                ACTSendMailCorrect(a0, 0xC7);
+            }
+            if (0.1f < *(float *)(s + 0x34C) && (unsigned int)(*(int *)(s + 0x340) - 46) < 89) {
+                ACTSendMailCorrect(a0, 0x14E);
+            }
+            if (0.1f < *(float *)(s + 0x34C) && !(*(int *)(s + 0x340) < -134) &&
+                *(int *)(s + 0x340) < -45) {
+                ACTSendMailCorrect(a0, 0x14F);
+            }
+            ACTSendMailCorrect(a0, 0x150);
+            break;
+        case 26:
+            if (0.1f < *(float *)(s + 0x34C) &&
+                !((unsigned int)(*(int *)(s + 0x340) + 134) < 269)) {
+                sceVu0ScaleVector(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x360,
+                                  *(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x8D0,
+                                  -1.0f);
+                ACTSendMailCorrect(a0, 0x139);
+            }
+            break;
+        case 27:
+            if (0.1f < *(float *)(s + 0x34C) &&
+                _AbsRotyGV(stick, *(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x470) >=
+                    136 &&
+                GetMotionFrameFlag1((void *)a0)) {
+                ACTSendMailCorrect(a0, 0x131);
+            }
+            if ((*(int *)(s + 0x2E0) & 0x10) && GetMotionFrameFlag1((void *)a0)) {
+                ACTSendMailCorrect(a0, 0x131);
+            }
+            if (0.1f < *(float *)(s + 0x34C) &&
+                !((unsigned int)(*(int *)(s + 0x340) + 134) < 269)) {
+                ACTSendMailCorrect(a0, 0x130);
+            }
+            if (*(int *)(s + 0x2E4) & 0x40) {
+                ACTSendMailCorrect(a0, 0xE2);
+            }
+            if (*(int *)(s + 0x2E0) & 0x10) {
+                ACTSendMailCorrect(a0, 0xC7);
+            }
+            if (0.1f < *(float *)(s + 0x34C) && (unsigned int)(*(int *)(s + 0x340) - 46) < 89) {
+                ACTSendMailCorrect(a0, 0x14E);
+            }
+            if (0.1f < *(float *)(s + 0x34C) && !(*(int *)(s + 0x340) < -134) &&
+                *(int *)(s + 0x340) < -45) {
+                ACTSendMailCorrect(a0, 0x14F);
+            }
+            ACTSendMailCorrect(a0, 0x127);
+            break;
+        case 28:
+            if (*(int *)(s + 0x2E4) & 0x40) {
+                ACTSendMailCorrect(a0, 0xE2);
+            }
+            if (0.1f < *(float *)(s + 0x34C) && (unsigned int)(*(int *)(s + 0x340) - 46) < 89) {
+                ACTSendMailCorrect(a0, 0x14E);
+            }
+            if (0.1f < *(float *)(s + 0x34C) && !(*(int *)(s + 0x340) < -134) &&
+                *(int *)(s + 0x340) < -45) {
+                ACTSendMailCorrect(a0, 0x14F);
+            }
+            ACTSendMailCorrect(a0, 0x150);
+            break;
+        case 30:
+            if (*(int *)(s + 0x2E4) & 0x40) {
+                ACTSendMailCorrect(a0, 0xE2);
+            } else if (*(int *)(s + 0x2E4) & 0x10) {
+                ACTSendMailCorrect(a0, 0xC7);
+            }
+            if (0.1f < *(float *)(s + 0x34C) && (unsigned int)(*(int *)(s + 0x340) - 46) < 89) {
+                ACTSendMailCorrect(a0, 0x14E);
+            }
+            if (0.1f < *(float *)(s + 0x34C) && !(*(int *)(s + 0x340) < -134) &&
+                *(int *)(s + 0x340) < -45) {
+                ACTSendMailCorrect(a0, 0x14F);
+            }
+            ACTSendMailCorrect(a0, 0x150);
+            break;
+        case 31:
+            if (0.1f < *(float *)(s + 0x34C) && (unsigned int)(*(int *)(s + 0x340) - 46) < 89) {
+                ACTSendMailCorrect(a0, 0x14E);
+            }
+            if (0.1f < *(float *)(s + 0x34C) && !(*(int *)(s + 0x340) < -134) &&
+                *(int *)(s + 0x340) < -45) {
+                ACTSendMailCorrect(a0, 0x14F);
+            }
+            ACTSendMailCorrect(a0, 0x150);
+            break;
+        case 33:
+            if (*(int *)(s + 0x2E4) & 0x40) {
+                ACTSendMailCorrect(a0, 0xE2);
+            }
+            break;
+        case 40:
+            if ((*(int *)(s + 0x2E4) & 0x10) || *(int *)(s + 0x33C) - 128 < -100) {
+                ACTSendMailCorrect(a0, 0x12F);
+            }
+            if (*(int *)(s + 0x2E4) & 0x40) {
+                ACTSendMailCorrect(a0, 0xE2);
+            }
+            break;
+        case 34:
+            if (*(int *)(s + 0x2E4) & 0x40) {
+                ACTSendMailCorrect(a0, 0xE2);
+            } else if (*(int *)(s + 0x2E0) & 0x10) {
+                ACTSendMailCorrect(a0, 0x12E);
+            }
+            if (0.1f < *(float *)(s + 0x34C) && (unsigned int)(*(int *)(s + 0x340) - 46) < 89) {
+                ACTSendMailCorrect(a0, 0x14E);
+            }
+            if (0.1f < *(float *)(s + 0x34C) && !(*(int *)(s + 0x340) < -134) &&
+                *(int *)(s + 0x340) < -45) {
+                ACTSendMailCorrect(a0, 0x14F);
+            }
+            ACTSendMailCorrect(a0, 0x150);
+            break;
+        case 35:
+            if (*(int *)(s + 0x2E4) & 0x40) {
+                ACTSendMailCorrect(a0, 0xE2);
+            }
+            if (*(int *)(s + 0x2E4) & 0x10) {
+                ACTSendMailCorrect(a0, 0xBD);
+            }
+            if (0.1f < *(float *)(s + 0x34C) && (unsigned int)(*(int *)(s + 0x340) - 46) < 89) {
+                ACTSendMailCorrect(a0, 0x14E);
+            }
+            if (0.1f < *(float *)(s + 0x34C) && !(*(int *)(s + 0x340) < -134) &&
+                *(int *)(s + 0x340) < -45) {
+                ACTSendMailCorrect(a0, 0x14F);
+            }
+            break;
+        case 52: {
+            int near = 1;
+            int front = 1;
+            float gpos[4];
+            float tpos[4];
+            float ori[4];
+            float vec[4];
+            void *obj = *(void **)(s + 0x600);
+
+            if (obj != 0 && D_00639EA8 != 0) {
+                gpos[0] = ((float *)test_CURRENTROOT(D_00639EA8))[0];
+                gpos[1] = ((float *)test_CURRENTROOT(D_00639EA8))[1];
+                gpos[2] = ((float *)test_CURRENTROOT(D_00639EA8))[2];
+                GetRootPosition(tpos, obj);
+                ori[0] = ((float *)test_CURRENTORIENT((void *)a0))[0];
+                ori[1] = ((float *)test_CURRENTORIENT((void *)a0))[1];
+                ori[2] = ((float *)test_CURRENTORIENT((void *)a0))[2];
+                _OrientXZGV(vec, gpos, tpos);
+                if (_DistSqGV(tpos, gpos) < 250000.0f &&
+                    CheckFloorAttribute(D_00639EA8, 0xA000000) != 0) {
+                    if (0.0f < sceVu0InnerProduct(ori, vec)) {
+                        near = 0;
+                    } else {
+                        front = 0;
+                    }
+                }
+            }
+            if (*(int *)(s + 0x2E0) & 0x20) {
+                if (near && 0.1f < *(float *)(s + 0x34C) &&
+                    (unsigned int)(*(int *)(s + 0x340) + 90) < 181) {
+                    ACTSendMailCorrect(a0, 0x81);
+                    break;
+                }
+                if (front && 0.1f < *(float *)(s + 0x34C) &&
+                    !((unsigned int)(*(int *)(s + 0x340) + 89) < 179)) {
+                    ACTSendMailCorrect(a0, 0x80);
+                    break;
+                }
+                ACTSendMailCorrect(a0, 0x150);
+                break;
+            }
+            ACTSendMailCorrect(a0, 0x150);
+            ACTSendMailCorrect(a0, 0xC7);
+            break;
+        }
+        case 53:
+            if ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 90 / 60 > *(int *)(s + 0x4C)) {
+                ACTSendMailCorrect(a0, 0x86);
+                break;
+            }
+            ACTSendMailCorrect(a0, 0x150);
+            ACTSendMailCorrect(a0, 0xC7);
+            break;
+        case 54:
+            if (*(int *)(s + 0x2E0) & 0x20) {
+                if (0.1f < *(float *)(s + 0x34C)) {
+                    ACTSendMailCorrect(a0, 0x86);
+                    if (*(int *)(s + 0x2E0) & 8) {
+                        ACTSendMailCorrect(a0, 0x42);
+                    }
+                } else {
+                    ACTSendMailCorrect(a0, 0x150);
+                }
+            } else {
+                ACTSendMailCorrect(a0, 0xC7);
+            }
+            break;
+        case 32:
+        case 38: {
+            /* RECONSTRUCTION: the bytes pin a volatile read of a0 opening
+               this arm (listing row 2676, its value unused in the retail
+               text) and 39 code-free rows 2689-2727 before the arm's break;
+               this local is the form that read takes in fumi's actor code,
+               its use lay in that window.  The name and type are ours. */
+            int self = a0;
+
+            if (((int)(*(unsigned long long *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) +
+                                               0x298) >>
+                       1) &
+                 1) &&
+                !(*(int *)(s + 0x33C) - 128 < 101)) {
+                ACTSendMailCorrect(a0, 0x14B);
+            } else if ((*(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x298) & 1) &&
+                       *(int *)(s + 0x33C) - 128 < -100) {
+                ACTSendMailCorrect(a0, 0x14A);
+            } else {
+                ACTSendMailCorrect(a0, 0x150);
+            }
+            if ((CurrentTargetGObj == (void *)1 ? *(int *)(s + 0x2E4) : *(int *)(s + 0x2E0)) & 8) {
+                ACTSendMailCorrect(a0, 0x42);
+            }
+            break;
+        }
+        case 43:
+            if (0.95f < *(float *)(s + 0x34C)) {
+                ACTSendMailCorrect(a0, 0xDE);
+                break;
+            }
+            ACTSendMailCorrect(a0, 0x150);
+            break;
+        case 44:
+            if (0.95f < *(float *)(s + 0x34C)) {
+                ACTSendMailCorrect(a0, 0xDD);
+                break;
+            }
+            ACTSendMailCorrect(a0, 0x150);
+            break;
+        case 49:
+            if (*(int *)(s + 0x2E0) & 0x20) {
+                switch (*(unsigned int *)(s + 0x38)) {
+                case 1:
+                    if (0.1f < *(float *)(s + 0x34C) &&
+                        (unsigned int)(*(int *)(s + 0x340) + 90) < 181) {
+                        ACTSendMailCorrect(a0, 0x14C);
+                    } else {
+                        ACTSendMailCorrect(a0, 0x150);
+                    }
+                    break;
+                case -1:
+                    if (0.1f < *(float *)(s + 0x34C) &&
+                        !((unsigned int)(*(int *)(s + 0x340) + 89) < 179)) {
+                        ACTSendMailCorrect(a0, 0x14D);
+                    } else {
+                        ACTSendMailCorrect(a0, 0x150);
+                    }
+                    break;
+                default:
+                    if (0.1f < *(float *)(s + 0x34C) &&
+                        (unsigned int)(*(int *)(s + 0x340) + 90) < 181) {
+                        ACTSendMailCorrect(a0, 0x14C);
+                    } else if (0.1f < *(float *)(s + 0x34C) &&
+                               !((unsigned int)(*(int *)(s + 0x340) + 89) < 179)) {
+                        ACTSendMailCorrect(a0, 0x14D);
+                    } else {
+                        ACTSendMailCorrect(a0, 0x150);
+                    }
+                    break;
+                }
+            } else {
+                ACTSendMailCorrect(a0, 0x150);
+                ACTSendMailCorrect(a0, 0xC7);
+            }
+            break;
+        case 51:
+            if (*(int *)(s + 0x2E0) & 0x20) {
+                if (0.1f < *(float *)(s + 0x34C) &&
+                    (unsigned int)(*(int *)(s + 0x340) + 90) < 181) {
+                    ACTSendMailCorrect(a0, 0x14C);
+                } else if (0.1f < *(float *)(s + 0x34C) &&
+                           !((unsigned int)(*(int *)(s + 0x340) + 89) < 179)) {
+                    ACTSendMailCorrect(a0, 0x14D);
+                } else {
+                    ACTSendMailCorrect(a0, 0x150);
+                }
+            } else {
+                ACTSendMailCorrect(a0, 0xC7);
+            }
+            break;
+        case 118:
+            if (*(int *)(s + 0x2E4) & 0x20) {
+                ACTSendMailCorrect(a0, 0xC8);
+                break;
+            }
+            if (0.1f < *(float *)(s + 0x34C) &&
+                !(0.1f < *(float *)(s + 0x34C) &&
+                  (*(float *)(s + 0x34C) < 0.99f || (*(int *)(s + 0x2E0) & 0x20)))) {
+                ACTSendMailCorrect(a0, 0xBA);
+                break;
+            }
+            if (0.1f < *(float *)(s + 0x34C) &&
+                (*(float *)(s + 0x34C) < 0.99f || (*(int *)(s + 0x2E0) & 0x20))) {
+                ACTSendMailCorrect(a0, 0xB5);
+                break;
+            }
+            ACTSendMailCorrect(a0, 0x150);
+            break;
+        case 58:
+            switch (GetChainSlope()) {
+            case 0:
+                ACTSendMailCorrect(a0, 0xA3);
+                if (GOBJ_SUB(a0)->f_4A0 == 137 && GOBJ_SUB(a0)->f_4AC < 50.0f) {
+                    ACTSendMailCorrect(a0, 0xA4);
+                }
+                break;
+            case 1:
+                ACTSendMailCorrect(a0, 0x94);
+                break;
+            case 2:
+                ACTSendMailCorrect(a0, 0x95);
+                break;
+            case 3:
+                ACTSendMailCorrect(a0, 0x96);
+                break;
+            case 4:
+                ACTSendMailCorrect(a0, 0x97);
+                break;
+            }
+            if (GOBJ_SUB(a0)->f_4A0 == 135) {
+                d = 1.0f;
+            } else if (*(int *)(s + 0x2E0) & 0x20) {
+                d = 1.0f;
+            } else {
+                d = 0.0f;
+            }
+            SaveBoyOrientForScript();
+            D_0063A6D8 = d;
+            if (*(int *)(s + 0x2E0) & 0x20) {
+                IncreasePdlChain(*(int *)(s + 0x190));
+            } else {
+                DecreasePdlChain(*(int *)(s + 0x190));
+            }
+            if (*(int *)(s + 0x2E4) & 0x10) {
+                ACTSendMailCorrect(a0, 0xBE);
+                ACTSendMailCorrect(a0, 0xC4);
+            }
+            if (*(int *)(s + 0x2E4) & 0x40) {
+                ACTSendMailCorrect(a0, 0x13C);
+            }
+            break;
+        case 60:
+            if (!(*(int *)(s + 0x33C) - 128 < 101)) {
+                ACTSendMailCorrect(a0, 0x13C);
+            }
+            if (*(int *)(s + 0x33C) - 128 < -100) {
+                ACTSendMailCorrect(a0, 0x9E);
+            }
+            if (*(int *)(s + 0x2E0) & 0x20) {
+                ACTSendMailCorrect(a0, 0x9F);
+            }
+            if (*(int *)(s + 0x2E4) & 0x40) {
+                ACTSendMailCorrect(a0, 0x13C);
+            }
+            break;
+        case 20:
+        case 21:
+            if (D_00639EA8 != 0) {
+                iosOmSendMail(D_00639EA8, 0x3E, D_0063A61C);
+            }
+            break;
+        case 109:
+            if (*(int *)(s + 0x2E0) & 8) {
+                break;
+            }
+            ACTSendMailCorrect(a0, 0xC7);
+            break;
+        case 105:
+            if (0.1f < *(float *)(s + 0x34C) && (unsigned int)(*(int *)(s + 0x340) + 45) < 91) {
+                ACTSendMailCorrect(a0, 0x17C);
+            }
+            if (0.1f < *(float *)(s + 0x34C) &&
+                !((unsigned int)(*(int *)(s + 0x340) + 134) < 269)) {
+                ACTSendMailCorrect(a0, 0xE2);
+            }
+            break;
+        case 45:
+            if (0.1f < *(float *)(s + 0x34C) && (unsigned int)(*(int *)(s + 0x340) + 45) < 91) {
+                ACTSendMailCorrect(a0, 0x75);
+                ACTSendMailCorrect(a0, 0x74);
+            }
+            if (*(int *)(s + 0x2E0) & 8) {
+                ACTSendMailCorrect(a0, 0x74);
+                brainAddLevelGirl(10.0f);
+            }
+            if (*(int *)(s + 0x4C) == 0 && ((int)(*(unsigned long long *)(s + 0x18) >> 41) & 1)) {
+                brainAddLevelGirl(1000.0f);
+            }
+            break;
+        case 23:
+            if (0.1f < *(float *)(s + 0x34C) && (unsigned int)(*(int *)(s + 0x340) + 45) < 91) {
+                ACTSendMailCorrect(a0, 0x14C);
+                break;
+            }
+            if (0.1f < *(float *)(s + 0x34C) &&
+                !((unsigned int)(*(int *)(s + 0x340) + 134) < 269)) {
+                ACTSendMailCorrect(a0, 0x14D);
+                break;
+            }
+            if (0.1f < *(float *)(s + 0x34C) && (unsigned int)(*(int *)(s + 0x340) - 46) < 89) {
+                ACTSendMailCorrect(a0, 0x14E);
+                break;
+            }
+            if (0.1f < *(float *)(s + 0x34C) && !(*(int *)(s + 0x340) < -134) &&
+                *(int *)(s + 0x340) < -45) {
+                ACTSendMailCorrect(a0, 0x14F);
+            }
+            break;
+        case 94:
+            if (*(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0xD0) != 0) {
+                ACTSendMailCorrect(a0, 0x16F);
+                break;
+            }
+            ACTSendMailCorrect(a0, 0x150);
+            break;
+        }
+        _ACTWait(1);
+    }
+}
 
 typedef struct {
     int a;
@@ -1095,17 +1899,6 @@ static const ObjKindList collisionKinds = {{4, 47, 62, -1}};
 static inline void PrivInsCamInit(void)
 {
     D_006C0B50 = D_0029C7D0;
-}
-
-/* Same shape at lines 2066-2072: an inline-only static that snapshots the
-   boy's orient where the script side reads it.  Name is this repository's. */
-static inline void SaveBoyOrientForScript(void)
-{
-    void *boy = D_00639EA4;
-
-    D_0029C830[0] = ((float *)test_CURRENTORIENT(boy))[0];
-    D_0029C830[1] = ((float *)test_CURRENTORIENT(boy))[1];
-    D_0029C830[2] = ((float *)test_CURRENTORIENT(boy))[2];
 }
 
 /* INTERIM: ACTSearchGObj is a file-scope `inline` in the original TU: the

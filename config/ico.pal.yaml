@@ -763,6 +763,8 @@ segments:
       - [0x4526C4, rodata, cod/4526C4]   # .rodata blob resume (zero pad word, then the 8-aligned strings at 0x5526C8)
       - [0x452710, .rodata, ico2/fumi/src/act-wish]  # plain-rodata: ACTGetWish_FromPad's "orient null" string + pad + the double 0.9 (0x18 B, 8-aligned), VMA 0x552710..0x552728
       - [0x452728, rodata, cod/452728]   # .rodata blob resume (the 8 zero bytes ROM keeps after the double, then the rest of the run)
+      - [0x452840, .rodata, ico2/fumi/src/boyact]  # syms: 0x00552840,0x00552A20  subBoyControl's two jump tables, jtbl_00552840 (118 arms, VMA 0x552840..0x552A18) and after an 8-byte pad jtbl_00552A20 (5 arms, ..0x552A34) (chain 3 pass 168)
+      - [0x452A34, rodata, cod/452A34]   # .rodata blob resume (a zero pad word and "%d -> %d\n", a still-asm boyact function's string)
       - [0x452A48, .rodata, ico2/fumi/src/boyact]  # syms: collisionKinds,0x00552A60  subBoyCollision's kind list {4, 47, 62, -1} (VMA 0x552A48, 0x10 B, anonymous in the ROM) and its 68-arm jump table jtbl_00552A60 (VMA 0x552A60..0x552B70, 0x110 B) after an 8-byte pad (chain 3 pass 167); the plain row follows
       - [0x452B70, .rodata, ico2/fumi/src/boyact]  # plain-rodata: the four li.d doubles of actBoyWalk/actBoyRun (0.2, 0.9, 0.2, 0.7; ee-as interns them into the object's own .rodata), VMA 0x552B70..0x552B90; the TU's strings and its three jump tables stay in the blob until their owners land
       - [0x452B90, rodata, cod/452B90]   # .rodata blob resume (boyact's strings)
