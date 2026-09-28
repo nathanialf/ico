@@ -20,6 +20,49 @@ void GetSofaPosition(char *a0, char *a1);
 void GetCollisCenterPositionSimple(void *a0, void *a1, void *a2);
 int CheckWallAttributeEdegWall(int a0);
 
-void ACTGetEnvironment(char *self, void *a1, float *orient, void *a3, void *a4);
+/* RECONSTRUCTION: ACTGetEnvironment's flag words (the caller passes the
+ * actor's status block + 0x47C), read both as whole words and as single-bit
+ * fields; the ROM proves the one-bit field stores (and/shift/or sequences)
+ * and the word ORs.  The b0..b31 names are placeholders, not the developers'. */
+typedef union {
+    int w;
+
+    struct {
+        unsigned int b0 : 1;
+        unsigned int b1 : 1;
+        unsigned int b2 : 1;
+        unsigned int b3 : 1;
+        unsigned int b4 : 1;
+        unsigned int b5 : 1;
+        unsigned int b6 : 1;
+        unsigned int b7 : 1;
+        unsigned int b8 : 1;
+        unsigned int b9 : 1;
+        unsigned int b10 : 1;
+        unsigned int b11 : 1;
+        unsigned int b12 : 1;
+        unsigned int b13 : 1;
+        unsigned int b14 : 1;
+        unsigned int b15 : 1;
+        unsigned int b16 : 1;
+        unsigned int b17 : 1;
+        unsigned int b18 : 1;
+        unsigned int b19 : 1;
+        unsigned int b20 : 1;
+        unsigned int b21 : 1;
+        unsigned int b22 : 1;
+        unsigned int b23 : 1;
+        unsigned int b24 : 1;
+        unsigned int b25 : 1;
+        unsigned int b26 : 1;
+        unsigned int b27 : 1;
+        unsigned int b28 : 1;
+        unsigned int b29 : 1;
+        unsigned int b30 : 1;
+        unsigned int b31 : 1;
+    } bit;
+} EnvFlag;
+
+void ACTGetEnvironment(void *self, void *a1, float *orient, EnvFlag *flags, char *env);
 
 #endif /* ACT_ENV_H */
