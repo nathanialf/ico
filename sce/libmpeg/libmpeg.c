@@ -1165,7 +1165,31 @@ void _Error(void *a0)
     _ErrMessage(a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _sendDataToIPU);
+extern int D_00730DC0[];
+
+void _sendDataToIPU(int a0, int a1)
+{
+    long long *tag = (long long *)((((unsigned int)D_00730DC0) & 0x0FFFFFFF) | 0x20000000);
+    int p = a0;
+    int n = a1;
+
+    while (n > 0) {
+        int len = n > 0xFFF40 ? 0xFFF40 : n;
+        int addr = p & 0x0FFFFFFF;
+        int id;
+        int qwc;
+
+        n -= len;
+        id = n != 0 ? 3 : 0;
+        qwc = (len + 15) / 16;
+        *tag = ((long long)addr << 32) | ((long long)id << 28) | (unsigned int)qwc;
+        p += len;
+        tag += 2;
+    }
+    *(volatile int *)0x1000B430 = (int)D_00730DC0 & 0x0FFFFFFF;
+    *(volatile int *)0x1000B420 = 0;
+    *(volatile int *)0x1000B400 = 0x105;
+}
 
 int _RefImageInit(int *a0, int a1, int a2)
 {
