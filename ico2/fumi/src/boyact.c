@@ -655,13 +655,14 @@ static BgaEntry D_0029C690[] = {
 
 /* PrivInsCam's initial value: subBoyCollision's line 3175 copies it whole into
    D_006C0B50 (the prologue forms &D_0029C7D0 and &D_0029C7D0 + 0x40 for it). */
-PrivInsCam D_0029C7D0 = {{0.0f, 0.0f, 0.0f}, 0.0f, {0.0f, 0.0f, 0.0f}, 0.0f, 0, 0, 0, 0.5f, 0.2f};
+static PrivInsCam D_0029C7D0 = {
+    {0.0f, 0.0f, 0.0f}, 0.0f, {0.0f, 0.0f, 0.0f}, 0.0f, 0, 0, 0, 0.5f, 0.2f};
 
 /* 16 zero bytes between the PrivInsCam value and D_0029C830 that no code in
    the ROM names; kept so the run keeps its layout. */
 static float D_0029C820[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
-float D_0029C830[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+static float D_0029C830[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 /* kept local: this TU's uses of test_CURRENTORIENT do not fit the prototype in commonact.h */
 extern void *test_CURRENTORIENT(void *a0);
