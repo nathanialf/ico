@@ -1883,11 +1883,15 @@ extern float D_0063A6D8;
 /* the boy's work record at Act+0x688.  subBoyCollision's stores through it are
    member accesses: the ROM moves its a0 reloads ahead of them (the 0x4B0
    decrement, the 0x33C store), which it may only do past a MEM_IN_STRUCT_P
-   store (girl_act.c's ActPara is the girl's view of the same record). */
+   store (girl_act.c's ActPara is the girl's view of the same record).
+   actBoyDitch3mReady's 0x348 store is the same case: the mail's a0 reload
+   goes ahead of it and the store lands in the call's delay slot. */
 typedef struct {
     char pad000[0x33C];
     float f33C; /* 0x33C */
-    char pad340[0x3C0 - 0x340];
+    char pad340[0x348 - 0x340];
+    float f348; /* 0x348 */
+    char pad34C[0x3C0 - 0x34C];
     int f3C0; /* 0x3C0 */
     char pad3C4[0x470 - 0x3C4];
     float f470; /* 0x470 */
@@ -3214,7 +3218,124 @@ void actBoyRescueReady(volatile int a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", actBoyDitch3mReady);
+extern int ResetMotionProgramInterpInfo(char *a0, int a1);
+
+void actBoyDitch3mReady(volatile int a0)
+{
+    Act *sub = GOBJ_ACT(a0);
+    float p[4];
+    float q[4];
+    int c = 0;
+    int a;
+    int b;
+
+    ACTAdjustPlane(a0, BOY_WALL(a0) + 0x8C0);
+    _ACTWait(1);
+    ResetMotionProgramInterpInfo((char *)a0, 35);
+    ResetMotionProgramInterpInfo((char *)a0, 1);
+
+    while (1) {
+        a = 1;
+        b = 0;
+        switch (*(unsigned int *)(*(char **)((char *)D_00639EA8 + 0x164) + 0x34)) {
+        case 4:
+        case 90:
+            p[0] = ((float *)test_CURRENTROOT(D_00639EA4))[0];
+            p[1] = ((float *)test_CURRENTROOT(D_00639EA4))[1];
+            p[2] = ((float *)test_CURRENTROOT(D_00639EA4))[2];
+            q[0] = ((float *)test_CURRENTROOT(D_00639EA8))[0];
+            q[1] = ((float *)test_CURRENTROOT(D_00639EA8))[1];
+            q[2] = ((float *)test_CURRENTROOT(D_00639EA8))[2];
+            if (_DistxzSqGV(p, q) < 250000.0f) {
+                if (p[1] + 300.0f < q[1]) {
+                } else {
+                    a = 0;
+                }
+            }
+            break;
+        case 28:
+        case 29:
+            b = 1;
+            break;
+        }
+
+        if (GOBJ_ACT(D_00639EA8)->unk34 != 4 &&
+            _DistSqGV(test_CURRENTROOT(D_00639EA4), (char *)sub + 0x510) < 90000.0f &&
+            _DistSqGV(test_CURRENTROOT(D_00639EA8), (char *)sub + 0x510) < 90000.0f) {
+            c = 1;
+        }
+
+        if (c != 0) {
+            if (GOBJ_ACT(D_00639EA8)->unk34 == 4) {
+                *(int *)(BOY_WALL(a0) + 0x3C8) = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 3;
+            }
+            _ACTParaStatus_Set((void *)a0, 40);
+            _ACTCharStatus_Set((void *)a0, 29, -1.0f, 0);
+            HANG_TARGET(a0)->f348 = 30.0f;
+            ACTSendMailCorrect(a0, 0x187);
+        }
+
+        /* Two branches with one body: the listing gives the b test a row of
+           its own (4992) and keeps only the second copy (4993-4994); the
+           post-reload cross-jump merges the first into it, after the
+           allocator has counted c's test in both (which puts c in s2). */
+        if (a != 0 && (*(int *)((char *)sub + 0x2E0) & 8) == 0) {
+            ACTSendMailCorrect(a0, 0x189);
+            if (c != 0) {
+                ACTSendMailCorrect(a0, 0x18A);
+            }
+        } else if (b != 0) {
+            ACTSendMailCorrect(a0, 0x189);
+            if (c != 0) {
+                ACTSendMailCorrect(a0, 0x18A);
+            }
+        } else {
+            if (D_00639EA0 == 0) {
+                if (ditch_check_heroin_position() != 0) {
+                    if (D_00639EA8 != 0) {
+                        iosOmSendMail(D_00639EA8, 0x18C, D_0063A61C);
+                    }
+                }
+                if (IsCorrectPosition(D_00639EA8) == 0) {
+                    if (D_00639EA8 != 0) {
+                        iosOmSendMail(D_00639EA8, 0x18D, D_0063A61C);
+                    }
+                }
+            }
+            if (GOBJ_ACT(D_00639EA8)->unk34 == 4 && c == 0) {
+                float dy;
+
+                b = 0;
+                dy = test_CURRENTROOT(D_00639EA8)->f4 - test_CURRENTROOT(D_00639EA4)->f4;
+                if (_DistxzSqGV(test_CURRENTROOT(D_00639EA4), test_CURRENTROOT(D_00639EA8)) <
+                        10000.0f &&
+                    ABSF(BOYGIRL_DY()) < 100.0f) {
+                    b = 1;
+                }
+                if (_DistxzSqGV(test_CURRENTROOT(D_00639EA4), test_CURRENTROOT(D_00639EA8)) <
+                        78400.0f &&
+                    ABSF(BOYGIRL_DY()) < 200.0f && 50.0f < dy && dy < 200.0f) {
+                    b = 1;
+                }
+                GetSkeltonPosition(p, D_00639EA8, 22);
+                GetSkeltonPosition(q, D_00639EA4, 6);
+                if (_DistSqGV(p, q) < 3600.0f) {
+                    b = 1;
+                }
+                if (*(unsigned char *)((char *)sub + 0x530) != 0) {
+                    b = 0;
+                }
+                if (b != 0) {
+                    if (D_00639EA8 != 0) {
+                        iosOmSendMail(D_00639EA8, 0x18F, D_0063A61C);
+                    }
+                    ACTSendMailCorrect(a0, 0x18B);
+                }
+            }
+        }
+        _ACTWait(1);
+    }
+}
 
 extern char D_0055FFA8[];
 /* kept local: this TU's uses of _MoveGV do not fit the prototype in gv.h */
