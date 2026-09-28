@@ -687,7 +687,7 @@ static inline int getFlyFieldCollision(char *w)
  * landingFieldAction (rows 787-801, above its def line 809), so it carries no
  * symbol in MAIN.MAP.  Row 787 is the declaration line, which is where the
  * caller's `w + 0xA0` address arithmetic is attributed. */
-static inline void adjustRootByLandingPlane(char *plane)
+static inline void adjustRootByLandingPlane(char *plane, float rate)
 {
     Vec16 push;
     Vec16 half;
@@ -703,7 +703,7 @@ static inline void adjustRootByLandingPlane(char *plane)
         _SubVector(&half, D_0063C490 + 0x90, &push);
         half.f[3] = 0.0f;
         half.f[1] = 0.0f;
-        _ScaleVectorXYZ(&half, &half, 0.5f);
+        _ScaleVectorXYZ(&half, &half, rate);
         _SubVectorXYZ(D_0063C490 + 0x150, D_0063C490, &half);
     }
 }
@@ -713,7 +713,7 @@ void landingFieldAction(char *w)
     float h;
 
     *(float *)(D_0063C490 + 4) = *(float *)(w + 0x24) - *(float *)(D_0063C490 + 0x1D0);
-    adjustRootByLandingPlane(w + 0xA0);
+    adjustRootByLandingPlane(w + 0xA0, 0.5f);
     h = *(float *)(D_0063C490 + 0x1B4);
     CopyVector(D_0063C490 + 0x130, w + 0xA0);
     *(float *)(D_0063C494 + 0xEC) = GetYProjectionOfPlane((int)(w + 0xA0), (int)D_0063C490) - h;
@@ -753,7 +753,243 @@ void floorFitting(int kind)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", rootUpdateXZ);
+/* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into
+ * rootUpdateXZ (rows 889-899, between floorFitting's def line 861 and
+ * rootUpdateXZ's 905), so it carries no symbol in MAIN.MAP. */
+static inline int getFloorAttributeUnderNode(void)
+{
+    ClipBuf w;
+    int node;
+
+    memset(&w, 0, 0xC0);
+    node = GetSkeltonFocusNode((char *)D_0063B93C, 51);
+    _AddVectorXYZ((int)&w, (int)D_0063C490, D_0063C488 + node * 0x10);
+    CopyVector((char *)&w + 0x10, &w);
+    *(float *)((char *)&w + 4) = *(float *)((char *)&w + 4) - 50.0f;
+    *(float *)((char *)&w + 0x14) = *(float *)((char *)&w + 0x14) + 50.0f;
+    ClipFloor(&w);
+    if (*(int *)((char *)&w + 0x94) != 0) {
+        return GetFloorAttribute(&w);
+    }
+    return -1;
+}
+
+extern void sceVu0CopyVector(void *dst, void *src);
+extern void sceVu0SubVector(void *dst, void *a, void *b);
+
+/* The wall pass after a horizontal move: the listing gives the two
+ * wallCollisionAndFloorFit expansions, both 0xD8 tests and the
+ * waveForceReaction expansion ONE row at each of rootUpdateXZ's three uses
+ * (1037, 1120, 1133), where rootUpdateXZ_MotPos's written-out copy has three. */
+#define WALL_COLLISION_AND_WAVE_FORCE()                                                            \
+    if (wallCollisionAndFloorFit(D_0063C490, D_0063C490 + 0x150,                                   \
+                                 *(float *)(D_0063C490 + 0x1D0) + -30.0f) == 0) {                  \
+        if (*(int *)(D_0063C494 + 0xD8) != 0) {                                                    \
+            wallCollisionAndFloorFit(D_0063C490, D_0063C490 + 0x150, 5.0f);                        \
+        }                                                                                          \
+    }                                                                                              \
+    if (*(int *)(D_0063C494 + 0xD8) != 0) {                                                        \
+        waveForceReaction(D_0063C490, D_0063C490 + 0x150, 0.0f);                                   \
+    }
+
+MotShift rootUpdateXZ(int kind, int no)
+{
+    Vec16 mv;
+    Vec16 step;
+    MotShift ret = D_0063B930[0];
+    float mtx[16];
+
+    GetMatrixFromQuaternion(mtx, D_0063C490 + 0x30);
+    sceVu0ApplyMatrix((int *)&mv, (int)mtx, (char *)D_007201F0);
+    sceVu0ApplyMatrix((int *)&step, (int)mtx, D_0063C490 + 0x170);
+    AddVectorXYZ(D_0063C490, D_0063C490, D_0063C490 + 0x10);
+    AddVectorXYZ(D_0063C490 + 0x150, D_0063C490 + 0x150, D_0063C490 + 0x10);
+
+    if (no != -1) {
+        Vec16 focus;
+
+        *(int *)(D_0063C490 + 0x364) = no;
+        CopyVector(&focus, D_0063C484 + no * 0x10);
+        switch (*(int *)(D_0063B938 + no * 0x40 + 4)) {
+        case 47:
+            *(int *)(D_0063C490 + 0x364) = GetSkeltonFocusNode((char *)D_0063B93C, 48);
+            break;
+        case 51:
+            *(int *)(D_0063C490 + 0x364) = GetSkeltonFocusNode((char *)D_0063B93C, 52);
+            break;
+        }
+        if (*(int *)(D_0063C490 + 0x180) == no) {
+            Vec16 dir;
+            float keep = 1.0f;
+            float give = 0.0f;
+
+            /* The slope work is a block of its own: the ROM frees pos, fall
+             * and n (sp+0xB0..0xE0) before the wall pass reuses that space,
+             * which needs their block to close with the slope test as its
+             * last statement; dir (sp+0x80, read below) sits one level out. */
+            {
+                Vec16 nodePos, pl, pos, fall, n;
+                float rate, d;
+
+                MatrixDrive_PushMatrix();
+                sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+                MultiMatrixByQuaternion(D_0063C490 + 0x30);
+                sceVu0ApplyMatrix((int *)&nodePos, MatrixDrive_GetMatrix(), D_0063C490 + 0x1A0);
+                SubVectorXYZ(&dir, &nodePos, &focus);
+                MatrixDrive_PopMatrix();
+                CopyVector(&pl, D_0063C490 + 0x130);
+                pl.f[3] = 0.0f;
+                if (*(int *)(D_0063C494 + 0x1BC) != 0 &&
+                    (*(int *)(D_0063C494 + 0x188) & 0xF00000) != 0) {
+                    memset(&fall, 0, 16);
+                    fall.f[1] = 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f *
+                                (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+                    pos = fall;
+                    rate = 0.0f;
+                    d = GetDistanceFromPlane(&pl, &pos);
+                    sceVu0ScaleVector(&n, &pl, -d);
+                    sceVu0SubVector(&fall, &n, &pos);
+                    AddVectorXYZ(D_0063C490 + 0x90, D_0063C490 + 0x90, &fall);
+                    if (*(int *)(D_0063C494 + 0x1BC) != 0 &&
+                        (*(int *)(D_0063C494 + 0x188) & 0x100000) != 0) {
+                        rate = 0.5f;
+                    }
+                    if (*(int *)(D_0063C494 + 0x1BC) != 0 &&
+                        (*(int *)(D_0063C494 + 0x188) & 0x200000) != 0) {
+                        rate = 0.7f;
+                    }
+                    if (*(int *)(D_0063C494 + 0x1BC) != 0 &&
+                        (*(int *)(D_0063C494 + 0x188) & 0x400000) != 0) {
+                        rate = 0.8f;
+                    }
+                    if (*(int *)(D_0063C494 + 0x1BC) != 0 &&
+                        (*(int *)(D_0063C494 + 0x188) & 0x800000) != 0) {
+                        rate = 0.95f;
+                    }
+                    keep = 1.0f - rate;
+                    give = rate;
+                    *(int *)(D_0063C494 + 0x1B4) = *(int *)(D_0063C494 + 0x188);
+                }
+            }
+            sceVu0ScaleVector(&dir, &dir, keep);
+            sceVu0ScaleVector(D_0063C490 + 0x90, D_0063C490 + 0x90, give);
+            AddVectorXYZ(D_0063C490 + 0x90, D_0063C490 + 0x90, &dir);
+            {
+                Vec16 t;
+
+                CopyVector(&t, D_0063C490 + 0x90);
+                t.f[1] = 0.0f;
+                AddVectorXYZ(D_0063C490, D_0063C490, &t);
+            }
+        } else {
+            AddVectorXYZ(D_0063C490, D_0063C490, &step);
+            CopyVector(D_0063C490 + 0x90, &step);
+        }
+        WALL_COLLISION_AND_WAVE_FORCE();
+        /* The ROM keeps this work block (sp+0xB0) out of reach of the else
+         * arm, whose own block is fresh at sp+0x1B0: the block closes after
+         * setIKAndAdjustRootHeight and before the arm's next statement. */
+        {
+            ClipBuf w;
+            int attr;
+
+            if (getFieldCollision((char *)&w) != 0) {
+                CopyVector(D_0063C490 + 0x130, (char *)&w + 0xA0);
+                *(int *)(D_0063C494 + 0x188) = attr = GetFloorAttribute(&w);
+                if (*(int *)(D_0063C490 + 0x180) == -1) {
+                    *(int *)(D_0063C494 + 0xEC) = 0;
+                    adjustRootByLandingPlane(
+                        D_0063C490 + 0x130,
+                        (*(int *)(D_0063C494 + 0x1BC) != 0 && (attr & 0xF00000) != 0) ? 0.5f
+                                                                                      : 1.0f);
+                }
+                ret = *(MotShift *)((char *)&w + 0x8C);
+            } else {
+                *(int *)(D_0063C494 + 0x14) |= 4;
+            }
+            setIKAndAdjustRootHeight((char *)&mv);
+        }
+        checkCliffAndWallStateOfLastPlane();
+        MatrixDrive_PushMatrix();
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        MultiMatrixByQuaternion(D_0063C490 + 0x30);
+        CopyVector((void *)(MatrixDrive_GetMatrix() + 0x30), ZeroPoint);
+        sceVu0TransposeMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix());
+        sceVu0ApplyMatrix((int *)(D_0063C490 + 0x1A0), MatrixDrive_GetMatrix(), (char *)&focus);
+        MatrixDrive_PopMatrix();
+        *(float *)(D_0063C490 + 0xC0) = GetYDistanceFromPlane(D_0063C490 + 0x130, D_0063C490);
+        {
+            Vec16 sum;
+            float proj, gap;
+
+            AddVectorXYZ(&sum, D_0063C488 + no * 0x10, D_0063C490);
+            sceVu0CopyVector(D_0063C490 + 0x1B0, &sum);
+            *(float *)(D_0063C490 + 0x1BC) = 1.0f;
+            proj = GetYProjectionOfPlane((int)(D_0063C490 + 0x130), (int)&sum);
+            gap = proj - *(float *)(D_0063C490 + 0x1B4);
+            if ((gap < 0.0f ? -gap : gap) < *(float *)(D_0063B938 + 0x14) * D_0063B900) {
+                *(float *)(D_0063C490 + 0x1B4) = proj;
+            }
+        }
+        CopyVector(D_0063C490 + 0x190, &focus);
+    } else {
+        ClipBuf w;
+
+        if (*(int *)(D_0063C490 + 0x30C) != 0) {
+            *(float *)(D_0063C490 + 0x94) +=
+                60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f *
+                (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1])) *
+                (D_0028F4C0[0] != 0 ? 0.7f : 1.0f);
+            AddVectorXYZ(D_0063C490, D_0063C490, D_0063C490 + 0x90);
+            WALL_COLLISION_AND_WAVE_FORCE();
+        } else {
+            if (*(int *)(D_0063C490 + 0x180) != no) {
+                CopyVector(D_0063C490 + 0x90, &step);
+            }
+            *(float *)(D_0063C490 + 0x94) = 0.0f;
+            AddVectorXYZ(D_0063C490, D_0063C490, D_0063C490 + 0x90);
+            WALL_COLLISION_AND_WAVE_FORCE();
+            if (*(int *)(D_0063C490 + 0x310) != 0) {
+                if (getFieldCollision((char *)&w) != 0) {
+                    CopyVector(D_0063C490 + 0x130, (char *)&w + 0xA0);
+                    ret = *(MotShift *)((char *)&w + 0x8C);
+                    setIKAndAdjustRootHeight((char *)&mv);
+                } else {
+                    *(int *)(D_0063C494 + 0x14) |= 4;
+                }
+            } else {
+                *(float *)(D_0063C490 + 4) = mv.f[1] + *(float *)(D_0063C490 + 0x1B4);
+            }
+        }
+        checkCliffAndWallStateAtJump();
+        switch (getFlyFieldCollision((char *)&w)) {
+        case 1:
+            landingFieldAction((char *)&w);
+            break;
+        case 2:
+            markPoolContact((char *)&w);
+            break;
+        }
+    }
+    if (*(int *)(D_0063C494 + 0x100) != 0) {
+        if (*(float *)(D_0063C494 + 0x138) < 20.0f && -10.0f < *(float *)(D_0063C494 + 0x130)) {
+            *(unsigned int *)(D_0063C494 + 0x14) &= ~4;
+        }
+    }
+    if (kind == 20) {
+        int attr = getFloorAttributeUnderNode();
+
+        if (attr != -1) {
+            *(int *)(D_0063C494 + 0x188) = attr;
+        }
+    }
+    SubVectorXYZ(D_0063C490 + 0x90, D_0063C490, D_0063C490 + 0x150);
+    CopyVector(D_0063C490 + 0x150, D_0063C490);
+    *(int *)(D_0063C490 + 0x180) = no;
+    CopyVector(D_0063C490 + 0x10, ZeroPoint);
+    CopyVector(D_0063C490 + 0xD0, D_00720210);
+    return ret;
+}
 
 MotShift rootUpdateXZ_MotPos(int kind, int no)
 {
