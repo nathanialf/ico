@@ -33,6 +33,14 @@ extern void GetRootQuaternion(void *q, void *obj);
 /* the two ints the demo timer keeps: the elapsed count and its divisor. */
 extern int D_0028F4C0[];
 extern char D_0061FE80[];
+extern int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *ptsIn, int *cfg,
+                                                 int flip, char *self);
+extern void sceVu0OuterProduct(void *dst, void *a, void *b);
+extern char D_0061FE98[];
+extern char D_0061FEB0[];
+extern char D_0061FEC8[];
+extern char D_0061FED8[];
+extern char D_0061FF00[];
 
 /* 12-byte plane record copied out of the motion work block. */
 typedef struct {
@@ -819,6 +827,28 @@ void checkWallUpperWall(void)
     MatrixDrive_PopMatrix();
 }
 
+/* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into
+ * rootUpdateHang (rows 1553-1573, between checkWallUpperWall's 1536 and
+ * calcWallFittingGeometry's 1581), so it carries no symbol in MAIN.MAP. */
+static inline void dropWhenFloorTooFar(void)
+{
+    ClipBuf w;
+
+    if (0.0f <= plane_distance(D_0063C490, D_0063C490 + 0x130)) {
+        return;
+    }
+    CopyVector(&w, D_0063C490);
+    CopyVector((char *)&w + 0x10, &w);
+    *(float *)((char *)&w + 0x14) = *(float *)((char *)&w + 0x14) + 50.0f;
+    ClipFloor(&w);
+    if (*(int *)((char *)&w + 0x94) != 0) {
+        if ((GetFloorAttribute(&w) & 0x800000) == 0 &&
+            *(float *)((char *)&w + 0x24) - *(float *)((char *)&w + 4) < 50.0f) {
+            forceFallDown();
+        }
+    }
+}
+
 void calcWallFittingGeometry(void)
 {
     Vec16 v;
@@ -846,7 +876,152 @@ void calcWallFittingGeometry(void)
     *(int *)(D_0063C490 + 0xC0) = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", rootUpdateHang);
+MotShift rootUpdateHang(int kind, int a1, int a2)
+{
+    Vec16 mv;
+    Vec16 up;
+    float mtx[16];
+    Vec16 pl;
+    Vec16 pl2;
+    ClipBuf w;
+    float mtx2[16];
+    Vec16 pos;
+    int hit;
+
+    GetMatrixFromQuaternion(mtx, D_0063C490 + 0x30);
+    sceVu0ApplyMatrix((int *)&up, (int)mtx, (char *)D_007201F0);
+    sceVu0ApplyMatrix((int *)&mv, (int)mtx, (char *)D_00720200);
+    AddVectorXYZ(D_0063C490, D_0063C490, &mv);
+    *(float *)(D_0063C490 + 0xC0) = D_007201F0[1];
+    hit = 0;
+    CopyVector(&pos, D_0063C490);
+    pos.f[1] = pos.f[1] - (D_007201F0[1] - 30.0f);
+    MatrixDrive_PushMatrix();
+    GetMatrixFromQuaternionPos((void *)MatrixDrive_GetMatrix(), D_0063C490 + 0x30, &pos);
+    MatrixDrive_TransMatrix(0.0f, 0.0f, -D_007201F0[2] - 10.0f);
+    CopyMatrix(mtx2, (void *)MatrixDrive_GetMatrix());
+    MatrixDrive_PopMatrix();
+    sceVu0ApplyMatrix((int *)&w, (int)mtx2, (char *)D_004ECA90);
+    sceVu0ApplyMatrix((int *)((char *)&w + 0x10), (int)mtx2, (char *)D_004ECAA0);
+    w.rad = 0.0f;
+
+    /* The frame pins two block levels around the work records (not their
+       text): a block local whose address a statement of its own block takes
+       is released only when the enclosing block ends, and the ROM gives
+       sp+0x190..0x350 back to both inlined helpers below. */
+    {
+        int n;
+        int attr;
+
+        if (*(int *)(D_0063C494 + 0x64) == 0) {
+            ClipWall(&w);
+            if (*(int *)((char *)&w + 0x88) != 0) {
+                WallCfg rec = {((WallCfg *)((char *)&w + 0x80))->o,
+                               ((WallCfg *)((char *)&w + 0x80))->n};
+
+                n = GetPureVerticalPlaneOfCurrentPosition(D_0063C490 + 0x130, &pl, 0, (int *)&rec,
+                                                          0, D_0063C490);
+                if (-0.25f < *(float *)(D_0063C490 + 0x134)) {
+                    debug_StdPrintfDummy(D_0061FE98);
+                    forceFallDown();
+                    goto out;
+                }
+                CopyVector(&pl2, &pl);
+                if (*(int *)(D_0063C490 + 0xE0) == rec.o.obj &&
+                    *(int *)(D_0063C490 + 0xE4) == rec.o.node &&
+                    *(int *)(D_0063C490 + 0xE8) == rec.n) {
+                    hit = *(int *)(D_0063C490 + 0xEC) == n;
+                }
+                *(WallCfg *)(D_0063C490 + 0xE0) = rec;
+                *(int *)(D_0063C490 + 0xEC) = n;
+                *(int *)(D_0063C494 + 0x17C) = *(int *)(D_0063C494 + 0x184) = attr =
+                    GetWallAttribute(&w);
+                if (attr == 768) {
+                    forceFallDown();
+                    debug_StdPrintfDummy(D_0061FEB0);
+                    goto out;
+                }
+            } else {
+                debug_StdPrintfDummy(D_0061FEC8);
+                forceFallDown();
+                goto out;
+            }
+        } else {
+            *(int *)(D_0063C494 + 0x64) = 0;
+            GetPureVerticalPlane(D_0063C490 + 0x130, &pl, 0, (int *)(D_0063C490 + 0xE0), 0);
+            hit = 1;
+            CopyVector(&pl2, &pl);
+        }
+
+        {
+            Vec16 v;
+            Vec16 sc;
+            ClipBuf sw1;
+            ClipBuf sw2;
+            Vec16 dv;
+            int r1;
+            int r2;
+            float d;
+            float dd;
+
+            pl2.f[3] = 0.0f;
+            CopyVector(&v, D_0063C490);
+            v.f[1] = v.f[1] - D_007201F0[1];
+            d = GetDistanceFromPlane(D_0063C490 + 0x130, &v);
+            if (hit == 0) {
+                if (d < 0.0f ? 30.0f < -d : 30.0f < d) {
+                    debug_StdPrintfDummy(D_0061FED8, fptodp(d));
+                    forceFallDown();
+                    goto out;
+                }
+            }
+            dd = -d;
+            sceVu0ScaleVector(&sc, D_0063C490 + 0x130, dd);
+            AddVectorXYZ(&v, &v, &sc);
+            d = GetDistanceFromPlane(&pl, &v);
+            sceVu0ScaleVector(&sc, &pl, -d - D_007201F0[2]);
+            AddVectorXYZ(&v, &v, &sc);
+            CopyVector(D_0063C490, &v);
+            CopyVector(D_0063C490 + 0x1B0, D_0063C490);
+            *(float *)(D_0063C490 + 4) = *(float *)(D_0063C490 + 4) + D_007201F0[1];
+
+            r1 = checkSideWall((int)D_004ECAB0, (int)mtx2, (int)&sw1, (int)&w, (int)&pl2);
+            r2 = checkSideWall((int)D_004ECAC0, (int)mtx2, (int)&sw2, (int)&w, (int)&pl2);
+            if (r1 == -1 || r2 == -1) {
+                debug_StdPrintfDummy(D_0061FF00);
+                forceFallDown();
+                goto out;
+            }
+            if (r1 != 0 && r2 != 0) {
+                sceVu0SubVector(&dv, (char *)&sw2 + 0x20, (char *)&sw1 + 0x20);
+                sceVu0OuterProduct(D_0063C494 + 0xB0, &dv, YUnitVector);
+                *(int *)(D_0063C494 + 0xB4) = 0;
+                sceVu0Normalize(D_0063C494 + 0xB0, D_0063C494 + 0xB0);
+            } else {
+                CopyVector(D_0063C494 + 0xB0, &pl2);
+                *(float *)(D_0063C494 + 0xB0) = -*(float *)(D_0063C494 + 0xB0);
+                *(float *)(D_0063C494 + 0xB8) = -*(float *)(D_0063C494 + 0xB8);
+            }
+        }
+    }
+
+    checkWallUpperWall();
+    dropWhenFloorTooFar();
+    wallCollisionAndFloorFit(D_0063C490, D_0063C490 + 0x150, 0.0f);
+
+out:
+    CopyVector(D_0063C490 + 0x10, ZeroPoint);
+    if (kind == 15) {
+        calcWallFittingGeometry();
+    }
+    SubVectorXYZ(D_0063C490 + 0x60, D_0063C490, &up);
+    SubVectorXYZ(D_0063C490 + 0x90, D_0063C490, D_0063C490 + 0x150);
+    CopyVector(D_0063C490 + 0x150, D_0063C490);
+    CopyVector(D_0063C490 + 0xD0, D_00720210);
+    *(int *)(D_0063C490 + 0x180) = -1;
+    return *(MotShift *)(D_0063C490 + 0xE0);
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", rootUpdateSwim);
 
 /* RECONSTRUCTED NAMES: both bodies appear in the PAL listing only inlined into
