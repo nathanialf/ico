@@ -1352,7 +1352,24 @@ void _initRefImages(int *frame0, int *frame1, int *frame2, int *top0, int *top1,
     *bot2 = _uncachedAddr(cr + size / 512 * 384);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", _setDefaultQM);
+void _setDefaultQM(int a0, int *a1)
+{
+    int buf[8];
+
+    buf[0] = 2;
+    _dispatchMpegCallback(D_0054C0E4[0], buf);
+    _waitIpuIdle();
+    *(volatile int *)0x10002000 = 0;
+    _waitIpuIdle();
+    /* channel 4 (to IPU) sends the four quadwords of the matrix */
+    *(volatile int *)0x1000B410 = (int)a1 & 0x0FFFFFFF;
+    *(volatile int *)0x1000B420 = 4;
+    *(volatile int *)0x1000B400 = 0x101;
+    _sendIpuCommand(a0);
+    _waitIpuIdle();
+    buf[0] = 3;
+    _dispatchMpegCallback(D_0054C0E4[0], buf);
+}
 
 extern int _chroma_format;
 extern int _progressive_sequence;
