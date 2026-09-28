@@ -436,8 +436,6 @@ int SetChainExtendedWeight(int *a0, int idx, float w0, float w1)
     return -1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/clothAnimation", GetClothAnimation);
-
 /* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
 extern void _ScaleVector(void *dst, void *src, float k);
 /* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
@@ -448,6 +446,286 @@ extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
 extern void _ApplyMatrix(void *dst, void *m, void *src);
 /* kept local: this TU's uses of GetWindVector do not fit the prototype in windField.h */
 extern void *GetWindVector(void *out, void *pos);
+/* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
+extern void _SubVector(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _OuterProduct do not fit the prototype in Matrix.h */
+extern void _OuterProduct(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _SubVectorXYZ do not fit the prototype in Matrix.h */
+extern void _SubVectorXYZ(void *dst, void *a, void *b);
+/* kept local: this TU's uses of VectorLength do not fit the prototype in matrixDrive.h */
+extern float VectorLength(void *v);
+/* kept local: tableSin.h is not one of this TU's includes */
+extern int GetTableArcCos(float x);
+/* kept local: fieldCollision.h is not one of this TU's includes */
+extern void GetGlobalWallPlane(void *plane, void *query);
+
+/* clothAnimation.c:22-30 in the listing: push a point back to the inner side
+   of a wall plane.  Only ever inlined; its VECTOR temp is the caller's. */
+static __inline__ void pushInsidePlane(void *p, const void *plane)
+{
+    VECTOR tv;
+    float d = plane_distance(p, plane);
+
+    if (d < 0.0f) {
+        _ScaleVector(&tv, plane, d);
+        _SubVectorXYZ(p, p, &tv);
+    }
+}
+
+/* The cloth config record, the 0x1C-byte layout clothTest.c and flag.h carry
+   (rows, spacing, columns, anchors, texture, weight). */
+typedef struct ClothCfg {
+    int num;       /* 0x00  rows, and -1 ends the array */
+    float f04;     /* 0x04 */
+    int div;       /* 0x08  columns */
+    int f0C;       /* 0x0C */
+    void *anchors; /* 0x10 */
+    void *tex;     /* 0x14  null means the untextured mesh */
+    float f18;     /* 0x18 */
+} ClothCfg;
+
+/* The sixth parameter is the wall count, which the function recomputes from
+   the wall owner before any use: the incoming value is dead (the ROM never
+   stores $t1) and its pseudo, the sixth parameter's, is what sits between a2's
+   and a6's spill slots.  a6, the wall owner, is an object handle passed as an
+   int, as a2 is. */
+void GetClothAnimation(int a0, void *a1, int a2, void *m, ClothCfg *cfg, int nwall, int a6, int a7)
+{
+    VECTOR dv;
+    float pw;
+    float len;
+    float d2;
+    void *wind;
+    int i;
+    int j;
+    int n;
+    int node;
+    int focus;
+    char **rowsB = (char **)a1;
+    int n0 = cfg->num;
+    float seg = cfg->f04;
+    int nx = cfg->div - (a7 != 0);
+    float rnx = 1.0f / (float)nx;
+    char *pts = (char *)cfg->anchors;
+    int wrap = cfg->f0C;
+
+    focus = 0;
+    if (a6 != 0) {
+        nwall = *(int *)(*(int *)(*(int *)((char *)a6 + 0x15C) + 0x70) + 8);
+    } else {
+        nwall = 0;
+    }
+    if (a2 != 0) {
+        focus = *(int *)(*(int *)((char *)a2 + 0x15C) + 0x8C);
+    }
+    for (i = 0; i < n0; i++) {
+        float damp = 0.8f;
+
+        for (j = 1; j < nx; j++) {
+            sceVu0ScaleVector(&dv, rowsB[i] + j * 16, damp);
+            damp = damp * 0.98f;
+            sceVu0ScaleVector(rowsB[i] + j * 16, ((char **)a0)[i] + j * 16, -1.0f);
+            AddVectorXYZ(((char **)a0)[i] + j * 16, ((char **)a0)[i] + j * 16, &dv);
+        }
+    }
+    for (i = 0; i < n0; i++) {
+        if (focus != 0) {
+            node = GetSkeltonFocusNode((char *)a2, *(int *)(pts + i * 48));
+            sceVu0ApplyMatrix(((char **)a0)[i],
+                              (char *)*(int *)(*(int *)((char *)a2 + 0x15C) + 0xC) + node * 64,
+                              pts + i * 48 + 16);
+        } else {
+            if (m != 0) {
+                _ApplyMatrix(((char **)a0)[i], m, pts + i * 48 + 16);
+                if (a7 != 0) {
+                    _ApplyMatrix(((char **)a0)[i] + nx * 16, m, pts + i * 48 + 32);
+                }
+            }
+        }
+        for (j = 1; j < nx; j++) {
+            char *p = ((char **)a0)[i] + j * 16;
+            /* VESTIGIAL, ROM-proven: besides the gravity add, the listing's
+               row 760 is this block's one instruction, `sw $zero,0x34($sp)`,
+               and rows 752-759 and 761-767 carry none, so the 2001 source
+               stored a zero into a block-scoped object here that nothing
+               reads.  The bytes pin a union-typed object (alias set 0: the
+               store follows the row's load and holds the gravity loads behind
+               it) at the block's first free slot, sp+0x10, covering at least
+               0x10-0x37, and one store into its word at +0x24; without the
+               store the function is two words short and every later row
+               moves.  Its type, its size past 0x38 and its purpose are not in
+               the bytes: the union quadword box.c uses for scratch stands in. */
+            Vec4u work[3];
+
+            work[2].f[1] = 0.0f;
+            *(float *)(p + 4) = *(float *)(p + 4) + cfg->f18;
+        }
+    }
+    for (j = 1; j < nx; j++) {
+        float t = ((float)nx + (float)j * 0.5f) * rnx;
+        float lim = t * t * seg * seg;
+
+        for (i = 1; i < n0 / 2; i++) {
+            SubVectorXYZ(&dv, ((char **)a0)[i] + j * 16, ((char **)a0)[i - 1] + j * 16);
+            len = VectorLengthSquare(&dv);
+            if (lim < len) {
+                sceVu0ScaleVectorXYZ(&dv, &dv, t * seg / _Sqrt(len));
+                AddVectorXYZ(((char **)a0)[i] + j * 16, ((char **)a0)[i - 1] + j * 16, &dv);
+            }
+        }
+        if (n0 != 1) {
+            for (i = wrap ? n0 - 1 : n0 - 2; i >= n0 / 2 - 1; i--) {
+                int q;
+
+                if (wrap != 0) {
+                    q = (i + 1) % n0;
+                } else {
+                    q = i + 1;
+                }
+                SubVectorXYZ(&dv, ((char **)a0)[i] + j * 16, ((char **)a0)[q] + j * 16);
+                len = VectorLengthSquare(&dv);
+                if (lim < len) {
+                    sceVu0ScaleVectorXYZ(&dv, &dv, t * seg / _Sqrt(len));
+                    AddVectorXYZ(((char **)a0)[i] + j * 16, ((char **)a0)[q] + j * 16, &dv);
+                }
+            }
+        }
+    }
+    if (a7 == 0) {
+        for (i = 0; i < n0; i++) {
+            float len = *(float *)(pts + i * 48 + 4);
+            float lim = len * len;
+
+            for (j = 1; j < nx; j++) {
+                SubVectorXYZ(&dv, ((char **)a0)[i] + j * 16, ((char **)a0)[i] + (j * 16 - 16));
+                d2 = VectorLengthSquare(&dv);
+                if (lim < d2) {
+                    sceVu0ScaleVectorXYZ(&dv, &dv, len / _Sqrt(d2));
+                    AddVectorXYZ(((char **)a0)[i] + j * 16, ((char **)a0)[i] + (j * 16 - 16), &dv);
+                }
+            }
+        }
+    } else {
+        /* clothAnimation.c:810-816: the law of cosines on a triangle whose
+           sides are a, b and c, handed straight to the arc-cosine table.  A
+           nested inline, as the listing puts its rows inside this function. */
+        __inline__ int arcCosOfTriangle(float a, float b, float c)
+        {
+            float aa = a * a;
+            float bb = b * b;
+            float cc = c * c;
+
+            return GetTableArcCos((aa + bb - cc) / ((a + a) * b));
+        }
+        for (i = 0; i < n0; i++) {
+            float len = *(float *)(pts + i * 48 + 4);
+            float lim = len * len;
+
+            for (j = nx - 1; j > 0; j--) {
+                SubVectorXYZ(&dv, ((char **)a0)[i] + j * 16, ((char **)a0)[i] + (j * 16 + 16));
+                d2 = VectorLengthSquare(&dv);
+                if (lim < d2) {
+                    sceVu0ScaleVectorXYZ(&dv, &dv, len / _Sqrt(d2));
+                    AddVectorXYZ(((char **)a0)[i] + j * 16, ((char **)a0)[i] + (j * 16 + 16), &dv);
+                }
+            }
+            for (j = 1; j < nx; j++) {
+                SubVectorXYZ(&dv, ((char **)a0)[i] + j * 16, ((char **)a0)[i] + (j * 16 - 16));
+                d2 = VectorLengthSquare(&dv);
+                if (lim < d2) {
+                    sceVu0ScaleVectorXYZ(&dv, &dv, len / _Sqrt(d2));
+                    AddVectorXYZ(((char **)a0)[i] + j * 16, ((char **)a0)[i] + (j * 16 - 16), &dv);
+                }
+            }
+            /* The vectors of the row's rotation live in a block of their own
+               inside the row loop: that is what hands their slots back before
+               the wall and wind loops below, which the ROM's frame shows
+               reusing them (declared in the row loop's body or the else block
+               they would stay alive to the function's end, since taking their
+               addresses in a statement at their own level, the loop increment
+               included, moves them one level out). */
+            {
+                VECTOR va;
+                VECTOR vb;
+                VECTOR vc;
+                VECTOR vd;
+                float qt[4];
+                float mx[16];
+                /* VESTIGIAL, ROM-proven: 48 bytes of this block's stack that
+                   no instruction touches.  The frame (0x1F0), pw's address
+                   (0xD0, an immediate the ROM carries twice) and every spill
+                   slot above them pin the allocation after mx; without it the
+                   frame is 0x1C0 and 151 of the 754 words change.  Nothing
+                   live in the block takes untouched stack (the inlined
+                   arcCosOfTriangle uses no frame slot, and no call here passes
+                   or returns an aggregate), so the 2001 source declared these
+                   bytes and never used them, on the code-free rows 833-838;
+                   three vectors, one 48-byte record or a wider work array
+                   cannot be told apart. */
+                VECTOR ve;
+                VECTOR vf;
+                VECTOR vg;
+                float total;
+                float rtotal;
+                int angle;
+
+                _SubVector(&va, ((char **)a0)[i] + nx * 16, ((char **)a0)[i]);
+                total = VectorLength(&va);
+                rtotal = 1.0f / total;
+                for (j = 1; j < nx; j++) {
+                    float l0;
+                    float l1;
+
+                    _SubVector(&vb, ((char **)a0)[i] + j * 16, ((char **)a0)[i]);
+                    _SubVector(&vc, ((char **)a0)[i] + j * 16, ((char **)a0)[i] + nx * 16);
+                    l0 = VectorLengthSquare(&vb);
+                    l1 = VectorLengthSquare(&vc);
+                    if (lim * (float)j * (float)j < l0 ||
+                        lim * (float)(nx - j) * (float)(nx - j) < l1) {
+                        _OuterProduct(&vd, &vb, &va);
+                        angle = arcCosOfTriangle(total, len * (float)j, len * (float)(nx - j));
+                        SetQuaternionByAxisRotateV((int *)qt, angle, (int *)&vd);
+                        GetMatrixFromQuaternion((char *)mx, (char *)qt);
+                        _ApplyMatrix(&vb, mx, &va);
+                        _ScaleVector(&vb, &vb, len * (float)j * rtotal);
+                        _AddVectorXYZ(((char **)a0)[i] + j * 16, ((char **)a0)[i], &vb);
+                    }
+                }
+            }
+        }
+    }
+    for (n = 0; n < nwall; n++) {
+        /* The listing gives the sub-record read and the query one row (881);
+           the read comes first, and through the int handle its address has
+           no known base, so the query's build waits for it: the order the
+           ROM's registers here follow. */
+        int sub = *(int *)(a6 + 0x15C),
+            q[3] = {a6, 0, *(int *)(*(int *)(sub + 0x70) + 0x10) + n * 80};
+        VECTOR pl;
+
+        GetGlobalWallPlane(&pl, q);
+        for (i = 0; i < n0; i++) {
+            for (j = 1; j < nx; j++) {
+                pushInsidePlane(((char **)a0)[i] + j * 16, &pl);
+            }
+        }
+    }
+    wind = GetWindVector(&pw, ((char **)a0)[0]);
+    pw = pw / 40960.0f;
+    for (i = 0; i < n0; i++) {
+        for (j = 1; j < nx; j++) {
+            AddVectorXYZ(rowsB[i] + j * 16, rowsB[i] + j * 16, ((char **)a0)[i] + j * 16);
+            AddVectorXYZ(rowsB[i] + j * 16, rowsB[i] + j * 16, wind);
+            {
+                VECTOR r = {pw * (float)((rand() & 0x7FFF) - 16383),
+                            pw * (float)((rand() & 0x7FFF) - 16383),
+                            pw * (float)((rand() & 0x7FFF) - 16383), 0.0f};
+
+                AddVectorXYZ(rowsB[i] + j * 16, rowsB[i] + j * 16, &r);
+            }
+        }
+    }
+}
 
 /* One entry of the four-corner anchor table the cloth is pinned to: the
    middle vector is the local-space anchor position _ApplyMatrix transforms
