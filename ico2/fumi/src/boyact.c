@@ -3102,7 +3102,118 @@ void actBoyReadyMove(volatile int a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", actBoyRescueReady);
+void actBoyRescueReady(volatile int a0)
+{
+    char *g = *(char **)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x2E0);
+    float p[4];
+    float q[4];
+    float step[4];
+    float dir[4];
+    float tmp[4];
+    float np[4];
+
+    union {
+        float f[4];
+        long long ll[2];
+    } pts[2];
+
+    int cnt = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 3;
+    int rest, hp, r;
+    int n1, n2;
+    char *hold;
+    int u = 0;
+    int gm = *(int *)(*(char **)((char *)D_00639EA8 + 0x15C) + 0x4A0);
+    int t;
+
+    p[0] = ((float *)test_CURRENTROOT((void *)a0))[0];
+    p[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
+    p[2] = ((float *)test_CURRENTROOT((void *)a0))[2];
+    q[0] = ((float *)test_CURRENTROOT(g))[0];
+    q[1] = ((float *)test_CURRENTROOT(g))[1];
+    q[2] = ((float *)test_CURRENTROOT(g))[2];
+    _OrientXZGV(dir, q, p);
+    sceVu0ScaleVector(tmp, dir, -60.0f);
+    sceVu0AddVector(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x2F0, q, tmp);
+    sceVu0ScaleVector(tmp, dir, 0.0f);
+    sceVu0AddVector(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x300, q, tmp);
+    ((float *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x300))[1] += 50.0f;
+    SetMotionDirection((void *)a0, dir);
+    sceVu0SubVector(step, (CCPResult *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x2F0),
+                    (CCPResult *)p);
+    sceVu0ScaleVector(step, step, 1.0f / (float)cnt);
+    t = 1;
+    rest = cnt;
+    while (1) {
+        if (0 < rest) {
+            sceVu0AddVector(np, test_CURRENTROOT((void *)a0), step);
+            np[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
+            SetDirectRootPositionNoFitting((void *)a0, np);
+        }
+        rest--;
+        if (*(int *)(*(int *)(*(char **)((char *)a0 + 0x15C) + 0x4A0) * 0x194 + D_0055FFA8) == 1 ||
+            (*(int *)(*(char **)((char *)a0 + 0x15C) + 0x480) & 0x16) ||
+            *(void **)(*(char **)((char *)a0 + 0x15C) + 0x4CC) != 0) {
+            hold = *(char **)(*(char **)((char *)D_00639EA8 + 0x164) + 0x144);
+            hp = *(int *)(*(char **)(hold + 0x164) + 0x4C);
+            r = 0;
+            /* ROM-proven vestigial read (listing rows 4809-4810 carry no code):
+               the bytes pin a load of D_0028F4C0 here, before the call, into a
+               variable live code reads elsewhere, with no division by
+               D_0028F4C0[1] (a dead divide keeps its trap). Its high part is
+               what loop.c hoists, and that pre-header copy is what gives the
+               entry block the ROM's `li v1,10`. The statement text is not
+               pinned; n1 stands in for the developer's variable. */
+            n1 = D_0028F4C0[0];
+            ACTGame_ConnectHand();
+            if ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 100 / 60 <= hp) {
+                r = hp * ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 3) /
+                    ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 10);
+            }
+            /* ROM-proven vestigial (listing row 4819): only the bltz on r and
+               the divide-by-zero trap on D_0028F4C0[1] survive of this
+               statement; the quotient itself is never read. */
+            if (0 <= r) {
+                r = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1];
+            }
+            if (D_00639EB4 == 0) {
+                if (D_00639EA8 != 0) {
+                    iosOmSendMail(D_00639EA8, 0x15D, D_0063A61C);
+                }
+            }
+            n1 = GetSkeltonFocusNode(D_00639EA8, 0x16);
+            n2 = GetSkeltonFocusNode(D_00639EA4, 6);
+            pts[0].f[0] = *(float *)(*(char **)(*(char **)((char *)D_00639EA8 + 0x15C) + 0xC) +
+                                     n1 * 0x40 + 0x30);
+            pts[0].f[1] = *(float *)(*(char **)(*(char **)((char *)D_00639EA8 + 0x15C) + 0xC) +
+                                     n1 * 0x40 + 0x34);
+            pts[0].f[2] = *(float *)(*(char **)(*(char **)((char *)D_00639EA8 + 0x15C) + 0xC) +
+                                     n1 * 0x40 + 0x38);
+            pts[1].f[0] = *(float *)(*(char **)(*(char **)((char *)D_00639EA4 + 0x15C) + 0xC) +
+                                     n2 * 0x40 + 0x30);
+            pts[1].f[1] = *(float *)(*(char **)(*(char **)((char *)D_00639EA4 + 0x15C) + 0xC) +
+                                     n2 * 0x40 + 0x34);
+            pts[1].f[2] = *(float *)(*(char **)(*(char **)((char *)D_00639EA4 + 0x15C) + 0xC) +
+                                     n2 * 0x40 + 0x38);
+            SetDirectRootPositionNoFittingWithNodePoint((void *)a0, 6, pts[0].f, 0.05f);
+            u = t++;
+        }
+        if (gm == 641) {
+            if ((u / 30) & 1) {
+                ACTSendMailCorrect(a0, 0x160);
+            } else {
+                ACTSendMailCorrect(a0, 0x15F);
+            }
+        } else {
+            if ((u / 15) & 1) {
+                ACTSendMailCorrect(a0, 0x160);
+            } else {
+                ACTSendMailCorrect(a0, 0x15F);
+            }
+        }
+        _ACTWait(1);
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", actBoyDitch3mReady);
 
 extern char D_0055FFA8[];
