@@ -2432,11 +2432,16 @@ extern void MoveFloatingBox(void *box, int self, void *m, void *p, float d);
 /* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
 extern float _DistSqGV(void *a, void *b);
 
-/* the record Act+0x680 points at, with the fields actBoySwim touches: the
-   floating-box flag, the box GObj and the grip point, a four-float vector
-   sceVu0ApplyMatrix takes whole (its w set to 1 before the apply) */
+/* the record Act+0x680 points at, with the fields actBoyBelift and actBoySwim
+   touch: the lift level and the lifted object, then the floating-box flag, the
+   box GObj and the grip point, a four-float vector sceVu0ApplyMatrix takes
+   whole (its w set to 1 before the apply) */
 typedef struct {
-    char _pad0[0x2C0];
+    char _pad0[0xCC];
+    int f_CC; /* 0xCC, the lift level actBoyBelift sets to 10 and clamps */
+    char _padD0[0x15C];
+    void *f_22C; /* 0x22C, the object the boy lifts (actBoyBelift stores the girl) */
+    char _pad230[0x90];
     int f_2C0;   /* 0x2C0 */
     char *f_2C4; /* 0x2C4 */
     char _pad2C8[0x8];
@@ -2930,7 +2935,102 @@ void actBoyPullupGo(volatile int a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", actBoyBelift);
+/* kept local: this TU's uses of RotQuaternionX do not fit the prototype in quaternion.h */
+extern void RotQuaternionX(float *q, short a);
+/* kept local: this TU's uses of SetMotionNodeFixModeParameter do not fit the prototype in motionManager2.h */
+extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float *q, float x,
+                                          float y, float z, float w);
+extern int ACTCheckCollis_WF(float f, void *p0, void *p1, void *actor, void *posout);
+extern void InsertCamera_Set(float *pos, float *tgt, int frames);
+extern char D_00552BF0[];
+extern char D_005577F4[];
+
+void actBoyBelift(volatile int a0)
+{
+    /* RECONSTRUCTION: the quaternion is reached through a union, the form
+       actEnemyKidnapEnd (enemy_act.c) gives the same memset-and-w=1 idiom.
+       Proof, sched1 dump of this TU: the ROM stores q's w before it loads
+       girl->0x164 for line 4603, a true dependence, and under this compiler's
+       TBAA only an alias-set-0 access (a union member) makes a float store to
+       the stack conflict with that load.  Only the float member is attested. */
+    union {
+        float f[4];
+    } q;
+
+    float cam[4];
+    float boypos[4];
+    float p[4];
+    float girlpos[4];
+    float dir[4];
+    float ofs[4];
+    float hit[4];
+    char *girl = *(char **)(*(char **)((char *)a0 + 0x164) + 0x2C);
+    float ratio;
+    int mode;
+    int lv;
+    float dist;
+
+    memset(&q, 0, 0x10);
+    q.f[3] = 1.0f;
+    ratio = 1.0f;
+    if (*(int *)(*(int *)(*(int *)(girl + 0x164) + 0x680) + 0x1E4) == 3) {
+        ratio = 0.2f;
+    }
+    mode = *(int *)(*(int *)(*(int *)(girl + 0x164) + 0x680) + 0x1E4) == 3 ? 0 : 2;
+    BOY_EXT(a0)->f_22C = girl;
+    D_0063C200 = girl;
+    BOY_EXT(a0)->f_CC = 10;
+    if (*(int *)(*(int *)(*(int *)(girl + 0x164) + 0x680) + 0x1E4) == 3) {
+        RotQuaternionX(q.f, 0x4000);
+    }
+    SetMotionNodeFixModeParameter((void *)a0, girl, mode, 0x16, q.f, 0.0f, 0.0f, 0.0f, ratio);
+    cam[0] = GetCurrentCameraSet2()[0];
+    cam[1] = GetCurrentCameraSet2()[1];
+    cam[2] = GetCurrentCameraSet2()[2];
+    _ACTWait(1);
+    while (1) {
+        if (*(int *)(*(char **)(*(char **)(girl + 0x164) + 0x680) + 0x1E4) == 3 &&
+            *(unsigned int *)(*(char **)(girl + 0x164) + 0x34) == 0x61) {
+            lv = BOY_EXT(a0)->f_CC;
+            lv = lv < 0 ? 0 : (10.0f < lv ? 10.0f : lv);
+            lv = lv * 0.5f;
+            dist = lv * 100.0f + 500.0f;
+            GetSkeltonPosition(boypos, D_00639EA4, 0x23);
+            GetSkeltonPosition(girlpos, girl, 0x23);
+            _OrientXZGV(dir, girlpos, boypos);
+            sceVu0ScaleVector(ofs, dir, -dist);
+            sceVu0AddVector(p, ofs, boypos);
+            if (_DistSqGV(p, cam) < 2500.0f) {
+                _InterGV(p, cam, p, 1.0f, 1.0f);
+            } else {
+                _MoveGV(p, cam, p, 50.0f);
+            }
+            if (ACTCheckCollis_WF(50.0f, girlpos, p, 0, hit)) {
+                p[0] = hit[0];
+                p[1] = hit[1];
+                p[2] = hit[2];
+            }
+            cam[0] = p[0];
+            cam[1] = p[1];
+            cam[2] = p[2];
+            GetSkeltonPosition(girlpos, D_00639EA4, 0x2C);
+            sceVu0ScaleVector(p, p, -1.0f);
+            sceVu0ScaleVector(girlpos, girlpos, -1.0f);
+            InsertCamera_Set(p, girlpos, (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 6);
+        }
+        switch (*(unsigned int *)(*(char **)(girl + 0x164) + 0x34)) {
+        case 0x61:
+        case 0x62:
+            break;
+        default:
+            ACTSendMailCorrect(a0, 0xE2);
+            debug_StdPrintfDummy(
+                D_00552BF0, D_005577F4 + *(unsigned int *)(*(char **)(girl + 0x164) + 0x34) * 0x50);
+            break;
+        }
+        _ACTWait(1);
+    }
+}
 
 extern char D_0055FE58[];
 
