@@ -872,9 +872,10 @@ void GetClothAnimationFix4Points(VECTOR **pa, VECTOR **pv, ClothFixCfg *cfg, voi
    the plane's own object, as spelled here, or a separate unreferenced vector
    the bytes cannot tell (RECONSTRUCTION).  clipPlaneLow is also reached by
    the getCloth4D stub, so it stays non-static until that stub lands. */
-sceVu0FVECTOR clipPlaneLow[2] = {{0.0f, -1.0f, 0.0f, -1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}};
-
-static sceVu0FVECTOR clipPlaneHigh[2] = {{0.0f, 1.0f, 0.0f, -1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}};
+static sceVu0FVECTOR clipPlane[2][2] = {
+    {{0.0f, -1.0f, 0.0f, -1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}},
+    {{0.0f, 1.0f, 0.0f, -1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}},
+};
 
 extern float D_0063B758;
 
@@ -938,7 +939,7 @@ static __inline__ float xzLengthSquare(const void *p)
    value), and referencing `p` from a nested body is what makes the parameter
    memory-resident with its home at frame offset 0, ahead of `d`@0x10 and
    getCrossPoint's `v`@0x20, which is ROM's frame layout. */
-int clipCylinderCollision(char *p)
+int clipCylinderCollision(char *p, void *pt)
 {
     __inline__ int bothOverThePlane(const void *pl)
     {
@@ -948,10 +949,10 @@ int clipCylinderCollision(char *p)
     }
     float d[4];
 
-    if (bothOverThePlane(clipPlaneLow)) {
+    if (bothOverThePlane(clipPlane[0])) {
         return -1;
     }
-    if (bothOverThePlane(clipPlaneHigh)) {
+    if (bothOverThePlane(clipPlane[1])) {
         return -1;
     }
     sceVu0SubVector(d, p, p + 0x10);
@@ -1436,13 +1437,494 @@ void getCloth4D_preProcess(void *a0, float g, float damp, float z, float w, int 
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/clothAnimation", proc);
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/clothAnimation", getCloth4D);
-
 /* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
 extern void CopyMatrix(void *dst, void *src);
 /* kept local: this TU's uses of SubVectorXYZ do not fit the prototype in matrixDrive.h */
 extern void SubVectorXYZ(void *a0, void *a1, void *a2);
+extern float FSqrt(float a0);
+extern float _InnerProduct(void *a, void *b);
+extern void _UnitMatrix(void *p0);
+extern void MatrixDrive_RotMatrixZ(short a0);
+extern void MatrixDrive_ScaleMatrix(float x, float y, float z);
+extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
+extern void prim_DispWireYCylinder(void *col, int n, int flag, float r, float y0, float y1);
+extern float *D_0063B75C;
+extern float *D_0063B760;
+extern float *D_0063B764;
+extern float *D_0063B768;
+
+typedef struct {
+    float x;
+    float y;
+    float z;
+    float r;
+    char pad10[0x20 - 0x10];
+    float v20[4];
+    float f30;
+    float f34;
+    char pad38[0x40 - 0x38];
+} ClothPoint;
+
+static __inline__ float fSqrtInv_i(float x)
+{
+    float r;
+
+    __asm__ __volatile__("mfc1 $8, %1\n\t"
+                         "qmtc2.ni $8, $vf4\n\t"
+                         "vrsqrt Q, $vf0w, $vf4x\n\t"
+                         "vwaitq\n\t"
+                         "cfc2.ni $2, $vi22\n\t"
+                         "mtc1 $2, %0"
+                         : "=f"(r)
+                         : "f"(x)
+                         : "$2", "$8");
+    return r;
+}
+
+static __inline__ float xzInvLength_i(const void *v)
+{
+    float r;
+
+    __asm__ __volatile__("lqc2 $vf4, 0x0(%1)\n\t"
+                         "vmul.xz $vf4, $vf4, $vf4\n\t"
+                         "vaddz.x $vf4, $vf4, $vf4z\n\t"
+                         "vrsqrt Q, $vf0w, $vf4x\n\t"
+                         "vwaitq\n\t"
+                         "cfc2.ni $2, $vi22\n\t"
+                         "mtc1 $2, %0"
+                         : "=f"(r)
+                         : "r"(v)
+                         : "$2");
+    return r;
+}
+
+static __inline__ void scaleVectorXZ_i(void *d, const void *s, float k)
+{
+    __asm__ __volatile__("lqc2 $vf4, 0x0(%1)\n\t"
+                         "mfc1 $8, %2\n\t"
+                         "qmtc2.ni $8, $vf5\n\t"
+                         "vmulx.xz $vf4, $vf4, $vf5x\n\t"
+                         "sqc2 $vf4, 0x0(%0)"
+                         :
+                         : "r"(d), "r"(s), "f"(k)
+                         : "$8");
+}
+
+static __inline__ float subAndGetInvLength_i(void *d, const void *a, const void *b)
+{
+    float inv;
+
+    __asm__ __volatile__("lqc2 $vf1, 0x0(%1)\n\t"
+                         "lqc2 $vf2, 0x0(%2)\n\t"
+                         "vsub.xyzw $vf4, $vf1, $vf2\n\t"
+                         "vmul.xyz $vf3, $vf4, $vf4\n\t"
+                         "vaddy.x $vf3, $vf3, $vf3y\n\t"
+                         "vaddz.x $vf3, $vf3, $vf3z\n\t"
+                         "vrsqrt Q, $vf0w, $vf3x\n\t"
+                         "sqc2 $vf4, 0x0(%3)\n\t"
+                         "vwaitq\n\t"
+                         "cfc2.ni $2, $vi22\n\t"
+                         "mtc1 $2, %0"
+                         : "=f"(inv)
+                         : "r"(a), "r"(b), "r"(d)
+                         : "$2");
+    return inv;
+}
+
+static __inline__ void scaleAndAddVectorXYZ_i(void *d, const void *a, const void *b, float k)
+{
+    __asm__ __volatile__("lqc2 $vf4, 0x0(%1)\n\t"
+                         "lqc2 $vf5, 0x0(%2)\n\t"
+                         "mfc1 $8, %3\n\t"
+                         "qmtc2.ni $8, $vf6\n\t"
+                         "vmulx.xyz $vf5, $vf5, $vf6x\n\t"
+                         "vadd.xyz $vf4, $vf4, $vf5\n\t"
+                         "sqc2 $vf4, 0x0(%0)"
+                         :
+                         : "r"(d), "r"(a), "r"(b), "f"(k)
+                         : "$8");
+}
+
+static __inline__ void tensionMove_i(void *out, const void *a, const void *b, float k, float lim)
+{
+    VECTOR buf;
+    float inv = subAndGetInvLength_i(&buf, a, b);
+
+    if (inv < lim) {
+        scaleAndAddVectorXYZ_i(out, b, &buf, k * inv);
+    }
+}
+
+/* clothAnimation.c:1102-1108 in the listing: the cylinder's two cap planes
+   and squared radius set from one collision point, only ever inlined. */
+static __inline__ void setClipCylinder(ClothPoint *pt)
+{
+    clipPlane[0][0][3] = pt->y;
+    clipPlane[1][0][3] = -pt->z;
+    D_0063B758 = pt->r * pt->r;
+}
+
+void getCloth4D(void *a0, int **rows)
+{
+    char **rowsB = (char **)((int *)a0)[2];
+    char **rowsC = (char **)((int *)a0)[3];
+    int *cfg = (int *)((int *)a0)[184];
+    int wrap = cfg[2];
+    int nx = cfg[0] - (wrap != 0);
+    int ny = cfg[1];
+    int cnt = ((int *)a0)[190] ? ((int *)a0)[185] : 0;
+    ClothPoint *pts = (ClothPoint *)((int *)a0)[188];
+    float scale = *(float *)(*(int *)(*(int *)(*(int *)a0 + 0x15C) + 0x870) + 0x20);
+    float inv = 1.0f / scale;
+    float tbase = *(float *)&cfg[10] * scale;
+    int nyArr[ny];
+    int nxArr[nx];
+    sceVu0FMATRIX mC[cnt];
+    sceVu0FMATRIX mD[cnt];
+    sceVu0FMATRIX mE[cnt];
+    sceVu0FMATRIX mF[cnt];
+    VECTOR vG[cnt];
+    VECTOR vH[cnt];
+    sceVu0FMATRIX *pD;
+    sceVu0FMATRIX *pC;
+    sceVu0FMATRIX *pF;
+    sceVu0FMATRIX *pE;
+    sceVu0FMATRIX mtx;
+    VECTOR clip[3];
+    /* VESTIGIAL, ROM-proven: 144 bytes of the outermost block's stack that
+       no instruction touches, in the retail ROM or in the Jan-2002 listing.
+       The frame (0x290) and every slot above them pin the allocation after
+       clip and before the collision block's tbuf (0x100), which the tail's
+       tensionMove frames reuse by exact size: a freed region here would have
+       been split for tbuf, so it is held for the whole function.  Without it
+       the frame is 0x200 and 259 of the 1147 words change.  Nothing live
+       takes it (no call passes or returns an aggregate, and every inlined
+       helper here frees its frame when its expansion ends), so the 2001
+       source declared these bytes and never used them, on the code-free
+       declaration rows 1712-1723; nine vectors, a matrix and five vectors
+       or any other 144-byte work area cannot be told apart. */
+    VECTOR work[9];
+    float t1;
+    float tk;
+    float tlim;
+    int i;
+    int j;
+    int n;
+
+    pD = mD;
+    pC = mC;
+    pF = mF;
+    pE = mE;
+    _UnitMatrix(MatrixDrive_GetMatrix());
+    MatrixDrive_RotMatrixZ(-0x4000);
+    MatrixDrive_ScaleMatrix(inv, inv, inv);
+    CopyMatrix(mtx, MatrixDrive_GetMatrix());
+    for (i = 0; i < cnt; i++, pD++, pC++, pF++, pE++) {
+        CopyVector(mtx[3], pts[i].v20);
+        _MulMatrix(
+            pD, *(char **)(*(int *)(*(int *)a0 + 0x15C) + 0xC) + ((int *)((int *)a0)[186])[i] * 64,
+            mtx);
+        _MulMatrix(pC, (char *)((int *)a0)[187] + i * 64, mtx);
+        MatrixDrive_SetTransposeMatrix(pE, pC);
+        MatrixDrive_SetTransposeMatrix(pF, pD);
+        _ApplyMatrix(&vG[i], pD, clothUpVector);
+        vG[i].w = -pts[i].z - _InnerProduct(&vG[i], (*pD)[3]);
+        _ApplyMatrix(&vH[i], pD, clothDownVector);
+        vH[i].w = pts[i].y - _InnerProduct(&vH[i], (*pD)[3]);
+    }
+    if (D_0063B1D8) {
+        gif_StartPacketPri(11);
+        gif_SetAlpha(1, 5, 0x80);
+        gif_SetZWrite(0);
+        gif_SetZTest(1);
+        for (i = 0; i < cnt; i++) {
+            CopyMatrix(MatrixDrive_GetMatrix(), mD[i]);
+            prim_DispWireYCylinder(cylinderColor, 16, 0, pts[i].r, pts[i].y, pts[i].z);
+        }
+        gif_EndPacket();
+    }
+    gif_StartPacketPri(11);
+    gif_SetAlpha(1, 5, 0x80);
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    {
+        sceVu0FMATRIX *qF = mF;
+        sceVu0FMATRIX *qE = mE;
+        sceVu0FMATRIX *qD = mD;
+
+        for (i = 0; i < nx; i++) {
+            nxArr[i] = -1;
+        }
+        for (j = 1; j < ny; j++) {
+            nyArr[j] = 0;
+        }
+        for (n = 0; n < cnt; n++, qF++, qE++, qD++) {
+            setClipCylinder(&pts[n]);
+            for (i = 0; i < nx; i++) {
+                char *pb = rowsB[i] + 16;
+                char *pc = rowsC[i] + 16;
+
+                for (j = 1; j < ny; j++, pb += 16, pc += 16) {
+                    _ApplyMatrix(&clip[0], qE, pc);
+                    _ApplyMatrix(&clip[1], qF, pb);
+                    if (clipCylinderCollision((char *)clip, &pts[n]) != -1) {
+                        VECTOR tbuf;
+
+                        scaleVectorXZ_i(&tbuf, &clip[2], pts[n].r * xzInvLength_i(&clip[2]));
+                        _ApplyMatrix(pb, qD, &tbuf);
+                        nyArr[j] = i;
+                        nxArr[i] = j;
+                        rows[i][j] = n;
+                    }
+                }
+            }
+        }
+    }
+    gif_EndPacket();
+    {
+        /* proc reads only p, q and k (its prologue homes $4, $5 and $f12 with
+           the static chain).  Each caller also passes the owner of q's point,
+           the value its test has just loaded: that sixth argument travels in
+           $8, where every one of the eight call sites keeps the loaded value
+           with no move, and it is why j * 16 takes $9 there; the name is ours. */
+        int proc(VECTOR * p, VECTOR * q, VECTOR * qa, VECTOR * qb, float k, int own)
+        {
+            __inline__ int hit(int i)
+            {
+                VECTOR a;
+                VECTOR b;
+                float r2;
+                float r;
+
+                if (checkOverThePlane_i(p, &vG[i]))
+                    return 0;
+                if (checkOverThePlane_i(p, &vH[i]))
+                    return 0;
+                r = pts[i].r;
+                r2 = r * r;
+                if (t1 < distance_squared(p, q)) {
+                    tensionMove_i(p, p, q, tk, tlim);
+                    _ApplyMatrix(&a, mF[i], p);
+                    if (xzLengthSquare(&a) < r2) {
+                        float rr = (r + tk) * (r + tk);
+                        float len;
+
+                        _ApplyMatrix(&b, mF[i], q);
+                        len = xzLengthSquare(&b);
+                        if (len < rr) {
+                            float d = r2 - t1;
+                            float inv;
+                            float e;
+                            float s;
+                            float ir;
+                            float sy;
+                            float sn;
+
+                            inv = fSqrtInv_i(len);
+                            e = (len + d) * pts[i].f34 * inv;
+                            s = FSqrt(1.0f - e * e);
+                            ir = r * inv;
+                            sy = a.y;
+                            *D_0063B75C = *D_0063B760 = e * ir;
+                            sn = k * pts[i].f30 * s * ir;
+                            *D_0063B764 = sn;
+                            *D_0063B768 = -sn;
+                            _ApplyMatrix(&a, procMatrix, &b);
+                            a.y = sy;
+                            _ApplyMatrix(p, mD[i], &a);
+                            return 1;
+                        }
+                    }
+                } else {
+                    float len;
+
+                    _ApplyMatrix(&a, mF[i], p);
+                    len = xzLengthSquare(&a);
+                    if (len < r2) {
+                        VECTOR v;
+
+                        scaleVectorXZ_i(&v, &a, r * fSqrtInv_i(len));
+                        _ApplyMatrix(p, mD[i], &v);
+                        return 1;
+                    }
+                }
+                return 0;
+            }
+            int i;
+            int ret = -1;
+
+            for (i = 0; i < cnt; i++) {
+                if (hit(i))
+                    ret = i;
+            }
+            if (ret != -1)
+                return ret;
+            tensionMove_i(p, p, q, tk, tlim);
+            return -1;
+        }
+
+        if (wrap) {
+            if (((int *)a0)[189]) {
+                for (j = 1; j < ny; j++) {
+                    int s = nyArr[j];
+                    tk = tbase * ((float)j * 0.2f / (float)ny + 1.0f);
+                    t1 = tk * tk;
+                    tlim = 1.0f / tk;
+                    for (i = 1; i < nx + 2; i++) {
+                        int x;
+                        int y;
+                        int xm;
+                        int x0;
+                        int xp;
+
+                        x = s + i + nx;
+                        y = s + nx * 3 - i;
+                        xm = (x - 1) % nx;
+                        x0 = x % nx;
+                        xp = (x + 1) % nx;
+                        if (rows[xm][j] != -1 || rows[x0][j] == -1) {
+                            rows[x0][j] =
+                                proc((VECTOR *)(rowsB[x0] + j * 16), (VECTOR *)(rowsB[xm] + j * 16),
+                                     (VECTOR *)(rowsB[xp] + j * 16),
+                                     (VECTOR *)(rowsB[x0] + (j * 16 - 16)), -1.0f, rows[xm][j]);
+                        }
+                        xm = (y + 1) % nx;
+                        x0 = y % nx;
+                        xp = (y - 1) % nx;
+                        if (rows[xm][j] != -1 || rows[x0][j] == -1) {
+                            rows[x0][j] =
+                                proc((VECTOR *)(rowsB[x0] + j * 16), (VECTOR *)(rowsB[xm] + j * 16),
+                                     (VECTOR *)(rowsB[xp] + j * 16),
+                                     (VECTOR *)(rowsB[x0] + (j * 16 - 16)), 1.0f, rows[xm][j]);
+                        }
+                    }
+                }
+            } else {
+                for (j = 1; j < ny; j++) {
+                    int s = nyArr[j];
+                    tk = tbase * ((float)j * 0.2f / (float)ny + 1.0f);
+                    t1 = tk * tk;
+                    tlim = 1.0f / tk;
+                    for (i = 1; i < nx + 2; i++) {
+                        int x;
+                        int y;
+                        int ym;
+                        int y0;
+                        int yp;
+
+                        x = s + i + nx;
+                        y = s + nx * 3 - i;
+                        yp = (y + 1) % nx;
+                        y0 = y % nx;
+                        ym = (y - 1) % nx;
+                        if (rows[yp][j] != -1 || rows[y0][j] == -1) {
+                            rows[y0][j] =
+                                proc((VECTOR *)(rowsB[y0] + j * 16), (VECTOR *)(rowsB[yp] + j * 16),
+                                     (VECTOR *)(rowsB[ym] + j * 16),
+                                     (VECTOR *)(rowsB[y0] + (j * 16 - 16)), 1.0f, rows[yp][j]);
+                        }
+                        yp = (x - 1) % nx;
+                        y0 = x % nx;
+                        ym = (x + 1) % nx;
+                        if (rows[yp][j] != -1 || rows[y0][j] == -1) {
+                            rows[y0][j] =
+                                proc((VECTOR *)(rowsB[y0] + j * 16), (VECTOR *)(rowsB[yp] + j * 16),
+                                     (VECTOR *)(rowsB[ym] + j * 16),
+                                     (VECTOR *)(rowsB[y0] + (j * 16 - 16)), -1.0f, rows[yp][j]);
+                        }
+                    }
+                }
+            }
+        } else {
+            tk = tbase;
+            t1 = tbase * tbase;
+            tlim = 1.0f / tbase;
+            if (((int *)a0)[189]) {
+                for (j = 1; j < ny; j++) {
+                    for (i = 1; i < nx; i++) {
+                        int x;
+                        int y;
+                        int ym;
+                        int y0;
+                        int yp;
+
+                        x = i;
+                        y = nx - 1 - i;
+                        yp = y + 1;
+                        y0 = y;
+                        ym = y - 1;
+                        if (rows[yp][j] != -1 || rows[y0][j] == -1) {
+                            rows[y0][j] =
+                                proc((VECTOR *)(rowsB[y0] + j * 16), (VECTOR *)(rowsB[yp] + j * 16),
+                                     (VECTOR *)(rowsB[ym] + j * 16),
+                                     (VECTOR *)(rowsB[y0] + (j * 16 - 16)), 1.0f, rows[yp][j]);
+                        }
+                        yp = x - 1;
+                        y0 = x;
+                        ym = x + 1;
+                        if (rows[yp][j] != -1 || rows[y0][j] == -1) {
+                            rows[y0][j] =
+                                proc((VECTOR *)(rowsB[y0] + j * 16), (VECTOR *)(rowsB[yp] + j * 16),
+                                     (VECTOR *)(rowsB[ym] + j * 16),
+                                     (VECTOR *)(rowsB[y0] + (j * 16 - 16)), -1.0f, rows[yp][j]);
+                        }
+                    }
+                }
+            } else {
+                for (j = 1; j < ny; j++) {
+                    for (i = 1; i < nx; i++) {
+                        int x;
+                        int y;
+                        int xm;
+                        int x0;
+                        int xp;
+
+                        x = i;
+                        y = nx - 1 - i;
+                        xm = x - 1;
+                        x0 = x;
+                        xp = x + 1;
+                        if (rows[xm][j] != -1 || rows[x0][j] == -1) {
+                            rows[x0][j] =
+                                proc((VECTOR *)(rowsB[x0] + j * 16), (VECTOR *)(rowsB[xm] + j * 16),
+                                     (VECTOR *)(rowsB[xp] + j * 16),
+                                     (VECTOR *)(rowsB[x0] + (j * 16 - 16)), -1.0f, rows[xm][j]);
+                        }
+                        xm = y + 1;
+                        x0 = y;
+                        xp = y - 1;
+                        if (rows[xm][j] != -1 || rows[x0][j] == -1) {
+                            rows[x0][j] =
+                                proc((VECTOR *)(rowsB[x0] + j * 16), (VECTOR *)(rowsB[xm] + j * 16),
+                                     (VECTOR *)(rowsB[xp] + j * 16),
+                                     (VECTOR *)(rowsB[x0] + (j * 16 - 16)), 1.0f, rows[xm][j]);
+                        }
+                    }
+                }
+            }
+        }
+        for (i = 0; i < nx; i++) {
+            float len = ((Cloth4DCol *)cfg[9])[i].f00 * scale;
+            float linv = 1.0f / len;
+            int last = nxArr[i];
+
+            for (j = 1; j < ny; j++) {
+                tensionMove_i(rowsB[i] + j * 16, rowsB[i] + j * 16, rowsB[i] + j * 16 - 16, len,
+                              linv);
+            }
+            if (last < 0) {
+                for (j = ny - 2; j > 0; j--) {
+                    tensionMove_i(rowsB[i] + j * 16, rowsB[i] + j * 16, rowsB[i] + j * 16 + 16, len,
+                                  linv);
+                }
+            } else {
+                for (j = last - 1; j > 0; j--) {
+                    tensionMove_i(rowsB[i] + j * 16, rowsB[i] + j * 16, rowsB[i] + j * 16 + 16, len,
+                                  linv);
+                }
+            }
+        }
+    }
+}
 
 void getCloth4D_postProcess(int *a0, int **a1)
 {

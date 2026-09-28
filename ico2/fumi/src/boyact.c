@@ -505,7 +505,18 @@ void handoff_heroin(void)
     }
 }
 
-extern long long D_006C0AD0[];
+static float D_006C0A80[4];
+
+static float D_006C0A90[4];
+
+static float D_006C0AA0[4];
+
+static int D_006C0AB0[3];
+
+static int D_006C0AC0[3];
+
+static long long D_006C0AD0[12];
+
 /* kept local: this TU's uses of CheckFloorAttribute do not fit the prototype in motionManager2.h */
 extern int CheckFloorAttribute(void *self, int id);
 /* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
@@ -514,7 +525,6 @@ extern int stage_no;
 extern int D_00639EB4;
 extern int D_0063AA08;
 extern int D_00639EBC;
-extern int D_006C0AE0[];
 
 void CheckCollisionAttr(void *self)
 {
@@ -563,7 +573,7 @@ void CheckCollisionAttr(void *self)
         }
     }
     if (flag) {
-        D_006C0AE0[0] = 0xFF;
+        ((int *)D_006C0AD0)[4] = 0xFF;
     }
 }
 
@@ -581,7 +591,53 @@ typedef struct {
     float f30[4]; /* 0x30 */
 } BgaEntry;
 
-extern BgaEntry D_0029C690[];
+typedef struct {
+    long long w[12];
+} BoyWork;
+
+typedef struct {
+    int w[8];
+} BoyKidnapWork;
+
+typedef struct {
+    float pos[3]; /* 0x00 */
+    float unk0C;
+    float tgt[3]; /* 0x10 */
+    float unk1C;
+    int unk20; /* 0x20 */
+    int unk24;
+    int unk28;
+    float unk2C;
+    float unk30;         /* 0x30 */
+    unsigned char unk34; /* 0x34 */
+    unsigned char pad35[3];
+    int cnt;      /* 0x38 */
+    int on;       /* 0x3C */
+    float cur[4]; /* 0x40 */
+} PrivInsCam;
+
+static BoyWork D_0029C610 = {{0, 0, 0xFFFFFFFF}};
+
+static BoyKidnapWork D_0029C670 = {{0, 0, 0, 0, 0, -1, -1}};
+
+static BgaEntry D_0029C690[] = {
+    {480, 0.0f, 7.0f, 1, 70, 1, 1, 1.0f},
+    {481, 0.0f, 0.0f, 0, 70, 0, 1, 1.0f},
+    {485, 0.0f, 0.0f, 0, 0, 0, 0, -1.0f},
+    {486, -10.0f, 23.0f, 1, 70, 1, 1, -1.0f},
+    {-1},
+};
+
+/* PrivInsCam's initial value: subBoyCollision's line 3175 copies it whole into
+   D_006C0B50 (the prologue forms &D_0029C7D0 and &D_0029C7D0 + 0x40 for it). */
+PrivInsCam D_0029C7D0 = {{0.0f, 0.0f, 0.0f}, 0.0f, {0.0f, 0.0f, 0.0f}, 0.0f, 0, 0, 0, 0.5f, 0.2f};
+
+/* 16 zero bytes between the PrivInsCam value and D_0029C830 that no code in
+   the ROM names; kept so the run keeps its layout. */
+static float D_0029C820[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+
+float D_0029C830[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+
 /* kept local: this TU's uses of test_CURRENTORIENT do not fit the prototype in commonact.h */
 extern void *test_CURRENTORIENT(void *a0);
 extern void sceVu0ScaleVector(void *dst, void *src, float s);
@@ -660,9 +716,30 @@ found:
     }
 }
 
-extern unsigned char D_0063C1F6;
-extern unsigned char D_0063C1F7;
-extern unsigned char D_0063C1F8;
+static unsigned char D_0063C1F0;
+
+static unsigned char D_0063C1F1;
+
+static unsigned char D_0063C1F2;
+
+static unsigned char D_0063C1F3;
+
+static unsigned char D_0063C1F4;
+
+static unsigned char D_0063C1F5;
+
+static unsigned char D_0063C1F6;
+
+static unsigned char D_0063C1F7;
+
+static unsigned char D_0063C1F8;
+
+static unsigned char D_0063C1F9;
+
+static int D_0063C1FC;
+
+static void *D_0063C200;
+
 /* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(void *a0);
 /* kept local: this TU's uses of scpPlayMotReq do not fit the prototype in script.h */
@@ -780,6 +857,9 @@ typedef struct {
 } BoyInfo;
 
 #define BOYINFO (*(BoyInfo *)D_006C0AD0)
+/* BoyInfo's +0x50 record as the ef-stage return reads it: a flag byte and the
+   camera target id at +4 (BoyInfoUpdate_StageChange copies it whole as f50). */
+#define BOYEFSTAGE ((unsigned char *)D_006C0AD0 + 0x50)
 
 typedef struct {
     char pad00[0x0C];
@@ -849,9 +929,6 @@ void PutWeapon(void)
     }
 }
 
-extern float D_006C0A80[];
-extern float D_006C0A90[];
-extern float D_006C0AA0[];
 /* kept local: the declaration in camera-root.h changes this TU codegen */
 extern float *GetCurrentCameraSet2(void);
 
@@ -887,24 +964,10 @@ void ACTDispLwsBoyStonize_InQueenStage(void *self)
     BoyBgaManager(self, 0x1E6, *(char **)(*(char **)((char *)self + 0x164) + 0x680) + 0x2A8);
 }
 
-typedef struct {
-    float pos[3]; /* 0x00 */
-    float unk0C;
-    float tgt[3]; /* 0x10 */
-    float unk1C;
-    int unk20; /* 0x20 */
-    int unk24;
-    int unk28;
-    float unk2C;
-    float unk30;         /* 0x30 */
-    unsigned char unk34; /* 0x34 */
-    unsigned char pad35[3];
-    int cnt;      /* 0x38 */
-    int on;       /* 0x3C */
-    float cur[4]; /* 0x40 */
-} PrivInsCam;
+static int D_006C0B30[8];
 
-extern PrivInsCam D_006C0B50;
+static PrivInsCam D_006C0B50;
+
 /* kept local: this TU's uses of _InterGV do not fit the prototype in gv.h */
 extern void _InterGV(void *dst, void *a, void *b, float t, float u);
 /* kept local: this TU's uses of InsertCamera_SetDetail do not fit the prototype in camera-root.h */
@@ -1793,8 +1856,6 @@ void actBoyHangBefore(volatile int a0)
     }
 }
 
-extern void *D_0063C200;
-
 void actBoyBeslam(volatile int a0)
 {
     char *p = (char *)GOBJ_SUB(a0) + 0x130;
@@ -1888,8 +1949,6 @@ void actBoyHangG3M(volatile int a0)
         _ACTWait(1);
     }
 }
-
-extern unsigned char D_0063C1F5;
 
 unsigned char IsAbleBoyControl(void)
 {
@@ -2023,8 +2082,6 @@ void ACTSearchEnemy(void *a0, int *out_id, float *out_vec)
     }
 }
 
-extern int D_006C0B38[];
-
 void DeleteBoyWeapon(void)
 {
     union {
@@ -2044,7 +2101,7 @@ void DeleteBoyWeapon(void)
             gamesysObjInfoPosSetStage(*(int **)(sub + 0x150), 0, 0, stage_no);
             *(int *)(*(char **)(sub + 0x150) + 0x16C) = 0;
         }
-        D_006C0B38[0] = 0;
+        D_006C0B30[2] = 0;
         ((int *)D_006C0AD0)[0] = 0;
         *(void **)(sub + 0x150) = 0;
     }
@@ -2061,8 +2118,6 @@ int isLiftBoyEnable(void)
     }
     return 0;
 }
-
-extern int D_006C0B30[];
 
 void SetKidnapInfo(int a0, int a1)
 {
@@ -2144,14 +2199,10 @@ int IsBoyStatus_EnemyMustWait(void)
     return 0;
 }
 
-extern long long D_006C0AD8[];
-
 int IsGirlEscortedInNextStage(void)
 {
-    return (int)((unsigned char)((unsigned long long)D_006C0AD8[0] >> 35)) & 1;
+    return (int)((unsigned char)((unsigned long long)D_006C0AD0[1] >> 35)) & 1;
 }
-
-extern unsigned char D_0063C1F4;
 
 unsigned char IsGirlEscortedInCurrentStage(void)
 {
@@ -2237,7 +2288,6 @@ int IsBoyStatus_NotDanger(void)
 }
 
 extern char D_00552C10[];
-extern unsigned char D_006C0B20[];
 /* kept local: this TU's uses of RequestStageChangeSimple do not fit the prototype in script.h */
 extern int RequestStageChangeSimple(void *a0, int a1, int a2, int a3, float a4, float a5);
 
@@ -2248,8 +2298,8 @@ int RequestStageChangeKidnapEnd(void *a0, int a1)
     if (D_00639EA4 != 0) {
         rv = RequestStageChangeSimple(a0, 0, 0, 0, 0.25f, 4.0f) & 0xFF;
         if (rv != 0) {
-            D_006C0B20[0] = 1;
-            *(int *)(D_006C0B20 + 4) = a1;
+            BOYEFSTAGE[0] = 1;
+            *(int *)(BOYEFSTAGE + 4) = a1;
             *(long *)buf = *(long *)D_00552C10;
             *(long *)(buf + 8) = *(long *)(D_00552C10 + 8);
             ACTGame_StageChangeGObjDirect(D_00639EA4, a0, buf, 0);
@@ -2260,29 +2310,25 @@ int RequestStageChangeKidnapEnd(void *a0, int a1)
 
 int GetEfStageCameraTargetID(void)
 {
-    if (D_006C0B20[0]) {
-        return *(int *)(D_006C0B20 + 4);
+    if (BOYEFSTAGE[0]) {
+        return *(int *)(BOYEFSTAGE + 4);
     }
     return 0;
 }
 
 int IsBackFromEfStage(void)
 {
-    return D_006C0B20[0];
+    return BOYEFSTAGE[0];
 }
-
-extern int D_006C0B8C[];
 
 int PrivInsCamChk(void)
 {
-    return D_006C0B8C[0] != 0;
+    return D_006C0B50.on != 0;
 }
-
-extern unsigned char D_006C0B84[];
 
 unsigned char PrivInsCamChk_Control(void)
 {
-    return D_006C0B84[0];
+    return D_006C0B50.unk34;
 }
 
 int *GetbufpCharacterPacket(void)
@@ -2294,12 +2340,6 @@ int GetsizeCharacterPacket(void)
 {
     return 32;
 }
-
-typedef struct {
-    int w[8];
-} BoyKidnapWork;
-
-extern BoyKidnapWork D_0029C670;
 
 void MakeCharacterPacket(void)
 {
@@ -2480,12 +2520,6 @@ void GetBoyRootPositionForCamera(float *out)
         out[2] = buf[2];
     }
 }
-
-typedef struct {
-    long long w[12];
-} BoyWork;
-
-extern BoyWork D_0029C610;
 
 void Boy_Init(void)
 {
