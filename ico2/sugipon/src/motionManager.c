@@ -42,15 +42,101 @@ static char *D_0063C4A4;
 
 static char *D_0063C4A8;
 
-extern char D_004EC950[];
-extern char D_004EC960[];
-extern char D_004EC970[];
-extern char D_004EC980[];
-extern char D_004EC990[];
-extern char D_004EC9A0[];
-extern char D_004EC9B0[];
-extern char D_004EC9C0[];
-extern char D_004EC9D0[];
+/* .data, owned by motionManager.o (VMA 0x4EC950..0x4ECBE0), in the ROM's run
+   order, which is the source order of each object's first user. MAIN.MAP names
+   none of them; the ones a still-asm function reaches are not static until it
+   lands. */
+static float D_004EC950[4] = {-3.0f, 0.0f, -3.0f, 0.0f};
+
+static float D_004EC960[4] = {3.0f, 0.0f, 3.0f, 0.0f};
+
+static float D_004EC970[4] = {-3.0f, 0.0f, 3.0f, 0.0f};
+
+static float D_004EC980[4] = {3.0f, 0.0f, -3.0f, 0.0f};
+
+static sceVu0IVECTOR D_004EC990 = {0xFF, 0x80, 0x00, 0x80};
+
+static float D_004EC9A0[4] = {-4.0f, 0.0f, -4.0f, 0.0f};
+
+static float D_004EC9B0[4] = {4.0f, 0.0f, 4.0f, 0.0f};
+
+static float D_004EC9C0[4] = {-4.0f, 0.0f, 4.0f, 0.0f};
+
+static float D_004EC9D0[4] = {4.0f, 0.0f, -4.0f, 0.0f};
+
+float D_004EC9E0[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+
+float D_004EC9F0[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+
+float D_004ECA00[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+
+static float D_004ECA10[4] = {0.0f, -40.0f, 0.0f, 1.0f};
+
+static float D_004ECA20[4] = {0.0f, 0.0f, 300.0f, 1.0f};
+
+float D_004ECA30[4] = {0.0f, 10.0f, 0.0f, 1.0f};
+
+float D_004ECA40[4] = {0.0f, 0.0f, 300.0f, 1.0f};
+
+sceVu0IVECTOR D_004ECA50 = {0xFF, 0x80, 0x00, 0x80};
+
+sceVu0IVECTOR D_004ECA60 = {0x00, 0x80, 0xFF, 0x80};
+
+static float D_004ECA70[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+
+static float D_004ECA80[4] = {0.0f, 0.0f, 10.0f, 0.0f};
+
+float D_004ECA90[4] = {0.0f, 0.0f, -50.0f, 1.0f};
+
+float D_004ECAA0[4] = {0.0f, 0.0f, 50.0f, 1.0f};
+
+float D_004ECAB0[4] = {-30.0f, 0.0f, 0.0f, 1.0f};
+
+float D_004ECAC0[4] = {30.0f, 0.0f, 0.0f, 1.0f};
+
+float D_004ECAD0[4] = {0.0f, 0.0f, -50.0f, 1.0f};
+
+float D_004ECAE0[4] = {0.0f, 0.0f, 50.0f, 1.0f};
+
+static float D_004ECAF0[4] = {-40.0f, 0.0f, 0.0f, 1.0f};
+
+static float D_004ECB00[4] = {40.0f, 0.0f, 0.0f, 1.0f};
+
+static int D_004ECB10[] = {51, 47, 52, 48, -1};
+
+static int D_004ECB28[] = {51, 47, 52, 48, 22, 6, 11, 27, -1};
+
+static sceVu0IVECTOR D_004ECB50 = {0x40, 0x60, 0x80, 0x80};
+
+static sceVu0IVECTOR D_004ECB60 = {0xFF, 0x60, 0x40, 0x80};
+
+static float D_004ECB70[4] = {0.0f, 1.0f, 0.0f, 0.0f};
+
+static float D_004ECB80[16] = {
+    1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+};
+
+static sceVu0IVECTOR D_004ECBC0 = {0xFF, 0x60, 0x40, 0x80};
+
+static sceVu0IVECTOR D_004ECBD0 = {0x00, 0x60, 0xFF, 0x80};
+
+/* .bss, owned by motionManager.o (0xA0 = MAIN.MAP's), in the ROM's run order;
+   MAIN.MAP names none of them, so they are file statics the stubs reach by
+   these names. */
+static float D_00720180[4];
+
+static float D_00720190[4];
+
+static float D_007201A0[16];
+
+static float D_007201E0[4];
+
+static float D_007201F0[4];
+
+static float D_00720200[4];
+
+static float D_00720210[4];
+
 extern char *D_0063B938;
 extern int D_0063B93C;
 /* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
@@ -67,9 +153,6 @@ extern void MatrixDrive_PushMatrixWithNoCopy(void);
 extern void PushQuaternionWithNoCopy(void);
 /* kept local: this TU's uses of ZUnitVector do not fit the prototype in matrixDrive.h */
 extern char ZUnitVector[];
-extern char D_004EC9E0[];
-extern char D_004EC9F0[];
-extern char D_004ECA00[];
 /* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_PushMatrix(void);
 /* kept local: this TU's uses of SetQuaternionByAxisRotateV do not fit the prototype in quaternion.h */
@@ -80,8 +163,6 @@ extern void _ApplyMatrix(void *a0, int a1, char *a2);
  * D_0063C490 and the ROM does not reload it, which only holds if the object
  * is unchanging; every other member of the TU re-verifies with the qualifier. */
 extern const float D_0063B900;
-extern char D_007201A0[];
-extern char D_007201E0[];
 /* kept local: this TU's uses of GetMatrixFromQuaternion do not fit the prototype in quaternion.h */
 extern void GetMatrixFromQuaternion(void *a0, void *a1);
 /* kept local: this TU's uses of GetMatrixFromQuaternionPos do not fit the prototype in quaternion.h */
@@ -96,8 +177,6 @@ extern void _ScaleVectorXYZ(void *buf, void *p1, float f);
 extern void ClipWall(void *a0);
 /* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
-extern char D_004ECA10[];
-extern char D_004ECA20[];
 /* kept local: this TU's uses of GetPointDistance do not fit the prototype in matrixDrive.h */
 extern float GetPointDistance(void *a0, void *a1);
 /* kept local: this TU's uses of MatrixDrive_TransMatrixV do not fit the prototype in matrixDrive.h */
@@ -113,12 +192,10 @@ extern void MultiMatrixByQuaternion(char *p);
 extern void _UnitMatrix(int a0);
 /* kept local: this TU's uses of ClipWallFuchiHangWalkStop do not fit the prototype in fieldCollision.h */
 extern void ClipWallFuchiHangWalkStop(void *a0);
-extern char D_004ECA80[];
 /* kept local: this TU's uses of GetWallAttribute do not fit the prototype in fieldCollision.h */
 extern int GetWallAttribute(void *a0);
 /* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(int a0, int a1, void *a2);
-extern float D_007201F4[];
 extern void sceVu0UnitMatrix(int);
 
 typedef struct {
@@ -126,8 +203,6 @@ typedef struct {
     int b;
 } MotShift;
 
-extern int D_004ECB10[];
-extern int D_004ECB28[];
 extern char D_0061FDC0[];
 extern char D_0061FFD8[];
 extern char D_0063B920[];
@@ -189,10 +264,6 @@ typedef union {
 extern FltWord D_0063B924[];
 extern unsigned char D_002C2DC8[];
 extern int D_0063B158;
-extern float D_004ECB70[];
-extern float D_004ECB80[];
-extern char D_004ECBC0[];
-extern char D_004ECBD0[];
 /* kept local: this TU's uses of MatrixDrive_RotMatrixZ do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_RotMatrixZ(int a0);
 /* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
@@ -212,8 +283,6 @@ typedef struct {
 } ActPt;
 
 extern int D_00639EA4;
-extern char D_004ECB50[];
-extern char D_004ECB60[];
 /* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
 extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
 
@@ -348,7 +417,7 @@ int checkActPointWithHeight(int kind, float h)
             if (*(int *)(D_0063C478 + i * 0x20) >= 249) {
                 return -1;
             }
-            d = *(float *)(D_0063C484 + i * 0x10 + 4) + D_007201F4[0];
+            d = *(float *)(D_0063C484 + i * 0x10 + 4) + D_007201F0[1];
             if ((d < 0.0f ? -d : d) < h) {
                 return kind;
             }
@@ -841,14 +910,13 @@ void _getGeometryOfMotion(MotShift *out, int second)
     }
 }
 
-inline void getGeometryOfMotion(void)
+inline void getGeometryOfMotion(MotShift *out, int second)
 {
     ShiftBlk buf;
-    int x, y;
     char *p;
-    buf = *(ShiftBlk *)((char *)GOBJ_SUB(D_0063B93C) + 0x180);
-    _getGeometryOfMotion((MotShift *)x, y);
-    p = (char *)GOBJ_SUB(D_0063B93C);
+    buf = *(ShiftBlk *)(*(char **)((char *)D_0063B93C + 0x15C) + 0x180);
+    _getGeometryOfMotion(out, second);
+    p = *(char **)((char *)D_0063B93C + 0x15C);
     if (*(int *)(p + 0x634) != 0) {
         *(ShiftBlk *)(p + 0x180) = buf;
     }
@@ -923,7 +991,125 @@ void execPositionReserver(char *self, MotShift m)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", GetGeometryOfMotion);
+extern void UnlinkParentOfDObj(void *a0);
+extern void LinkParentOfDObj(void *a0, MotShift *a1);
+extern void sceVu0SubVector(void *dst, void *a, void *b);
+extern void dispPlane(void *plane, void *pos);
+extern void gif_SetZTest(int a0);
+extern char D_0055FE58[];
+extern MotShift D_0063A810;
+extern int D_0063B150;
+void GetMatrixOfMotion(char *self, char *tbl, void *ofs);
+
+typedef enum { MOTIONNO_0 = 0 } MotionNo;
+
+typedef struct MotNodeTag MotNode;
+
+typedef struct MotHdrTag MotHdr;
+
+/* RECONSTRUCTION, the type and macro names are ours (motionOrientManager.c
+   spells the same work-pointer read this way): the object's work pointer at
+   0x15C is read through a union member, so the read has alias set 0 and every
+   float store through it orders against it, while a store to a work field
+   leaves the loads of the D_ pointer globals alone. */
+typedef union MotWorkRef {
+    char *p;
+    int i;
+} MotWorkRef;
+
+#define MOWORK(self) (((MotWorkRef *)((char *)(self) + 0x15C))->p)
+
+void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, char *tbl, int k)
+{
+    MotShift sh;
+    float v2[4];
+
+    sh = *(MotShift *)MOWORK(self);
+    D_0063C49C = k;
+    if (*(char **)(MOWORK(self) + 0x800) != 0) {
+        *(float *)(MOWORK(self) + 0x7EC) = 1.0f;
+        CopyVector(v2, MOWORK(self) + 0x7E0);
+        sceVu0ApplyMatrix((int *)v2,
+                          *(int *)(*(int *)(*(char **)(MOWORK(self) + 0x800) + 0x15C) + 0xC) +
+                              *(int *)(MOWORK(self) + 0x804) * 0x40,
+                          (char *)v2);
+    } else {
+        AddVectorXYZ(MOWORK(self) + 0x7E0, MOWORK(self) + 0x7E0, MOWORK(self) + 0x7F0);
+        CopyVector(v2, MOWORK(self) + 0x7E0);
+    }
+    v2[1] = v2[1] + *(float *)(MOWORK(self) + 0x808);
+    v2[3] = 1.0f;
+    UnlinkParentOfDObj(self);
+
+    D_0063C48C = *(int *)(MOWORK(self) + 0x88);
+    {
+        float wk0[D_0063C48C][4], wk1[D_0063C48C][4];
+
+        D_0063B93C = (int)self;
+        D_0063C484 = (char *)wk0;
+        D_0063C488 = (char *)wk1;
+        D_0063C478 = m0;
+        D_0063C47C = m1;
+        D_0063B900 = *(float *)((char *)*(MotHdr **)(MOWORK(self) + 0x870) + 0x20);
+        D_0063C490 = MOWORK(self) + 0xA0;
+        D_0063C494 = MOWORK(self) + 0x470;
+        D_0063B938 = (char *)*(MotNode **)(MOWORK(self) + 0x8C);
+        D_0063C4A8 = D_0055FE58 + *(MotionNo *)(D_0063C494 + 0x30) * 404;
+        CopyVector(D_007201F0, v);
+        CopyVector(D_00720200, tbl);
+        *(int *)(D_0063C494 + 0x14) = 0;
+        sceVu0SubVector(D_00720210, D_0063C490 + 0x150, D_0063C490 + 0x160);
+        if (*(int *)(MOWORK(self) + 0x638) != 0) {
+            MotShift tmp;
+            getGeometryOfMotion(&tmp, r != 1.0f);
+        } else {
+            getGeometryOfMotion(&sh, r != 1.0f);
+        }
+        CopyVector(D_0063C490 + 0x160, D_0063C490 + 0x150);
+        if (*(int *)(MOWORK(self) + 0x4E8) == 1) {
+            sh = D_0063A810;
+        }
+        AddVectorXYZ(MOWORK(self) + 0x7C0, D_0063C490, D_0063C490 + 0x10);
+        *(float *)(MOWORK(self) + 0x7CC) = 1.0f;
+        *(float *)(MOWORK(self) + 0x7C4) =
+            *(float *)(MOWORK(self) + 0x7C4) * r + v2[1] * (1.0f - r);
+        GetMatrixOfMotion(self, m1, MOWORK(self) + 0x7C0);
+    }
+    if (D_0063B150 != 0) {
+        gif_StartPacketPri(0xB);
+        gif_SetAlpha(1, 5, 0x80);
+        gif_SetZTest(0);
+        gif_EndPacket();
+        dispPlane(MOWORK(self) + 0x1D0, MOWORK(self) + 0xA0);
+        gif_StartPacketPri(0xB);
+        gif_SetZTest(1);
+        gif_EndPacket();
+    }
+    *(float *)(D_0063C490 + 0x15C) = 1.0f;
+    *(float *)(D_0063C490 + 0x16C) = 1.0f;
+    *(float *)(D_0063C490 + 0xC) = 1.0f;
+    *(float *)(D_0063C490 + 0x9C) = 0.0f;
+    if (sh.a != 0) {
+        LinkParentOfDObj(self, &sh);
+        if (*(int *)(*(int *)(sh.a + 0x15C) + 0x81C) != 0) {
+            (*(void (**)(MotShift *, char *))(*(int *)(sh.a + 0x15C) + 0x81C))(&sh, self);
+        }
+    } else {
+        *(float *)(MOWORK(self) + 0xA4) =
+            *(float *)(MOWORK(self) + 0xA4) - *(float *)(MOWORK(self) + 0x160);
+        *(float *)(MOWORK(self) + 0x1F4) =
+            *(float *)(MOWORK(self) + 0x1F4) - *(float *)(MOWORK(self) + 0x160);
+    }
+    *(float *)(MOWORK(self) + 0x7C4) =
+        *(float *)(MOWORK(self) + 0x7C4) - *(float *)(D_0063C490 + 0xC0);
+    if (sh.a != 0) {
+        float m[0x10];
+        MatrixDrive_SetTransposeMatrix((void *)m,
+                                       *(int *)(*(int *)(sh.a + 0x15C) + 0xC) + sh.b * 0x40);
+        sceVu0ApplyMatrix((int *)(MOWORK(self) + 0x7C0), (int)m, MOWORK(self) + 0x7C0);
+    }
+    execPositionReserver(self, sh);
+}
 
 /* GObj+8 is the index into D_002C2DC8, the 0x4C-byte GenGeo table (ebrain.c
    types that array `GenGeo D_002C2DC8[]`; enemy_act.c indexes it with the same

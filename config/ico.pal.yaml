@@ -602,7 +602,8 @@ segments:
       - [0x3EB430, data, cod/3EB430]     # .data blob resume
       - [0x3EB440, .data, ico2/sugipon/src/item]  # the TU's whole .data run as source (data pass 5), abutting lodManager's, VMA 0x4EB440..0x4EB5E0, 416 B
       - [0x3EB5E0, .data, ico2/sugipon/src/lodManager]  # the TU's whole .data run as source (data pass 5; = MAIN.MAP lodManager.o .data 0x178), VMA 0x4EB5E0..0x4EB758, 376 B
-      - [0x3EB758, data, cod/3EB758]     # data blob resume
+      - [0x3EB758, data, cod/3EB758]     # data blob resume: motionFileManager.o's zero motionTable (VMA 0x4EB758..0x4EC950, 0x11F8 B, MAIN.MAP), read by other TUs
+      - [0x3EC950, .data, ico2/sugipon/src/motionManager]  # the TU's whole .data run as source (chain 1 pass 153): 36 objects in ROM order, VMA 0x4EC950..0x4ECBE0, 0x290 B, up to motionOrientManager's row; the 13 a stub still reaches are non-static
       - [0x3ECBE0, .data, ico2/sugipon/src/motionOrientManager]  # the TU's whole .data as source: slopeVector, a zero sceVu0FVECTOR (16 B, VMA 0x4ECBE0; chain 3 pass 144); non-static while the getMotionGeometry stub reaches it
       - [0x3ECBF0, data, cod/3ECBF0]     # data blob resume
       - [0x3ECCF0, .data, ico2/sugipon/src/particleEffect]  # the TU's whole .data run as source (completeness pass 5), VMA 0x4ECCF0..0x4ECDEC, 252 B emitted
@@ -1414,7 +1415,7 @@ segments:
       - { type: .bss, vram: 0x0071EC40, name: ico2/sugipon/src/act_a_p_1 }  # the TU's own .bss, 0x90 B, VMA 0x71EC40..0x71ECD0; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x0071ECD0, name: ico2/sugipon/src/darkVolume }  # the TU's own .bss, 0x13A0 B, VMA 0x71ECD0..0x720070; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x00720070, name: ico2/sugipon/src/effectTool }  # the TU's own .bss, 0x110 B, VMA 0x720070..0x720180; static definitions in ROM run order (completeness pass)
-      - { type: bss, vram: 0x00720180, name: cod/00720180 }  # .bss blob resume
+      - { type: .bss, vram: 0x00720180, name: ico2/sugipon/src/motionManager }  # the TU's own .bss as source (chain 1 pass 153): seven statics in VMA order, VMA 0x720180..0x720220, 0xA0 B = MAIN.MAP, up to particleEffect's row
       - { type: .bss, vram: 0x00720220, name: ico2/sugipon/src/particleEffect }  # the TU's own .bss, 0x3420 B, VMA 0x720220..0x723640; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x00723640, name: cod/00723640 }  # .bss blob resume
       - { type: .bss, vram: 0x00723AE0, name: ico2/sugipon/src/spiderGroupManager }  # the TU's own .bss, 0x5B8 B, VMA 0x723AE0..0x724098; static definitions in ROM run order (completeness pass)

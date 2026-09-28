@@ -8,15 +8,12 @@ extern float GetPoolGlobalHeight(char *obj);
 /* kept local: this TU's uses of GetTableArcTan2 do not fit the prototype in tableSin.h */
 extern short GetTableArcTan2(float f12, float f13);
 extern void RotQuaternionX(void *q, short ang);
-extern float D_004ECA70[];
 /* kept local: this TU's uses of these do not fit the prototypes in
  * fieldCollision.h / math.h. */
 extern void GetWallGlobalInfo(int a0, void *v, int a2, char *node);
 extern float atan2f(float y, float x);
 /* kept local: this TU's uses of ZeroPoint do not fit the prototype in matrixDrive.h */
 extern char ZeroPoint[];
-extern float D_007201F0[];
-extern char D_00720210[];
 extern MotShift D_0063A810;
 extern MotShift D_0063B930[];
 extern float D_0063B940;
@@ -31,11 +28,8 @@ extern void MultiQuaternion(void *p0, void *p1, void *p2);
 extern void ClipWallAdjustPos(void *a0);
 extern void ClipWallE(void *a0);
 extern int D_0063B230;
-extern char D_004ECAF0[];
-extern char D_004ECB00[];
 extern void CopyQuaternion(void *a0, void *a1);
 extern void GetRootQuaternion(void *q, void *obj);
-extern char D_00720200[];
 /* the two ints the demo timer keeps: the elapsed count and its divisor. */
 extern int D_0028F4C0[];
 extern char D_0061FE80[];
@@ -683,7 +677,7 @@ void checkWallUpperWall(void)
     sceVu0UnitMatrix(v);
     {
         register float *p = (float *)D_0063C490;
-        MatrixDrive_TransMatrix(p[0], p[1] - D_007201F4[0], p[2]);
+        MatrixDrive_TransMatrix(p[0], p[1] - D_007201F0[1], p[2]);
     }
     MultiMatrixByQuaternion((char *)D_0063C490 + 0x30);
     checkUpperWallState();
