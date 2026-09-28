@@ -421,8 +421,268 @@ static int D_006C1E20[8];
 
 static GirlDangerEnv D_006C1E40;
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", sort_list);
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", girlBrainMain_MakeOthersList);
+extern void *D_00639EA8;
+extern char D_002A2E70[];
+/* kept local: this TU's uses of ACTGameView_Check do not fit the prototype in act-game.h */
+extern int ACTGameView_Check(void *self, void *target);
+/* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
+extern float _DistSqGV(void *a, void *b);
+/* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
+extern float _DistGV(void *a, void *b);
+/* kept local: this TU's uses of GetRootProjectionPosOfGObj do not fit the prototype in motionManager2.h */
+extern void GetRootProjectionPosOfGObj(void *out, void *obj);
+/* kept local: this TU's uses of isysGObjSearchFromObjKindID_begin do not fit the prototype in gobj.h */
+extern void *isysGObjSearchFromObjKindID_begin(int kind);
+/* kept local: this TU's uses of isysGObjSearchFromObjKindID_next do not fit the prototype in gobj.h */
+extern void *isysGObjSearchFromObjKindID_next(void *gobj);
+extern int EnemyBrainStatus_Boy(void *gobj);
+int enemy_list_compare(int a0, int a1);
+extern void debug_assert(char *file, int line);
+extern void __assert(char *file, int line, char *expr);
+extern char D_00553A70[];
+extern char D_00553A88[];
+extern char D_0063A8A0[];
+/* the marker text "III", the anonymous literal after the assert's "0" */
+extern char D_0063A8A8[];
+
+/* girl_brain_main.c.inc:279-293: the wire-string marker (colour, a
+   MatrixDrive transform of the position, DispWireString, colour reset),
+   compiled out in this build: an empty debug inline.  The name is ours.
+   WHAT THE BYTES PIN: the ROM keeps the loop at 559 with no body and the
+   "III" literal at 0x63A8A8 that only this chain loads, and its register
+   allocation needs the chain at cse1/gcse: the switch in
+   girlDispHidePoint keeps a label in that loop's body through cse1, jump2
+   then merges the emptied body into the loop test's block, and gcse finds
+   two (high D_0029D650) there; the copy it inserts after the second
+   re-sets its reaching register inside the loop, which gives the ROM's
+   `daddu $30,$22,$0` before the countdown, the $30/$22 pair from the
+   prologue on and the base copy before the last loop.  With the loop
+   empty, or with the colour code alone (jump1 turns it into conditional
+   moves), those words are lost.
+   WHAT THEY CANNOT PIN: the switch and colour text beyond the listing's
+   lines, the helpers' parameter order, their names. */
+static inline void girlDispWire(int r, int g, int b, float *pos, char *str) {}
+
+/* girl_brain_main.c.inc:297-304: the marker colour for a hide point. */
+static inline void girlDispHidePoint(float *pos, int c)
+{
+    int r = 0;
+    int g = 0;
+    int b = 0;
+
+    switch (c) {
+    case 'R':
+        r = 255;
+        break;
+    case 'B':
+        b = 255;
+        break;
+    case 'W':
+        r = 255;
+        g = 255;
+        b = 255;
+        break;
+    case 'Y':
+        g = 255;
+        b = 255;
+        break;
+    }
+    girlDispWire(r, g, b, pos, D_0063A8A8);
+}
+
+/* girl_brain_main.c.inc:366-369 */
+static inline int girlListIsOnBoy(void *gobj)
+{
+    if (*(int *)((char *)gobj + 0xC) != 4) {
+        return 1;
+    }
+    return EnemyBrainStatus_Boy(gobj);
+}
+
+/* girl_brain_main.c.inc:375-378 */
+static inline int girlListIsAlive(void *gobj)
+{
+    return (int)(*(unsigned long long *)((char *)GOBJ_ACT(gobj) + 0x18) >> 32) & 1;
+}
+
+/* girl_brain_main.c.inc:408-420: the flag-masked record copy the three
+   sub-lists share */
+static inline int girlListPick(GirlListEnt *src, GirlListEnt *dst, int n, int mask)
+{
+    int cnt = 0;
+    int i;
+
+    for (i = 0; i < n; i++) {
+        if (src[i].flags & mask) {
+            dst[cnt] = src[i];
+            cnt++;
+        }
+    }
+    return cnt;
+}
+
+void girlBrainMain_MakeOthersList(void)
+{
+    /* girl_brain_main.c.inc:428-456, a GNU nested function: the ROM homes the
+       incoming static chain with `sw $2,0($sp)` and both call sites load it
+       with `daddu $2,$29,$0`. */
+    void sort_list(float *list, int n)
+    {
+        GirlSortEnt t;
+        int i;
+        int j;
+
+        for (i = 0; i < n; i++) {
+            D_006C1180[i].idx = i;
+            D_006C1180[i].dist = _DistSqGV(list + i * 4, D_002A2E70);
+        }
+        for (i = 0; i < n; i++) {
+            for (j = n - 1; i < j; j--) {
+                if (D_006C1180[j].dist < D_006C1180[j - 1].dist) {
+                    t = D_006C1180[j];
+                    D_006C1180[j] = D_006C1180[j - 1];
+                    D_006C1180[j - 1] = t;
+                }
+            }
+        }
+        for (i = 0; i < n; i++) {
+            float *d = D_006C14A0[i];
+
+            d[0] = list[i * 4 + 0];
+            d[1] = list[i * 4 + 1];
+            d[2] = list[i * 4 + 2];
+        }
+        for (i = 0; i < n; i++) {
+            float *e = D_006C14A0[D_006C1180[i].idx];
+
+            list[i * 4 + 0] = e[0];
+            list[i * 4 + 1] = e[1];
+            list[i * 4 + 2] = e[2];
+        }
+    }
+    float d;
+    int seen;
+    int i;
+    int j;
+    int k;
+
+    ((GirlBrainWork *)D_0029D650)->hide.num = ((GirlBrainWork *)D_0029D650)->listB.num = 0;
+    for (i = 0; D_0029D480[i] != -1; i++) {
+        void *o;
+
+        for (o = isysGObjSearchFromObjKindID_begin(D_0029D480[i]); o != 0;
+             o = isysGObjSearchFromObjKindID_next(o)) {
+            if (girlListIsAlive(o) && girlListIsOnBoy(o)) {
+                if (!(((GirlBrainWork *)D_0029D650)->hide.num < 100)) {
+                    debug_StdPrintfDummy(D_00553A70);
+                    debug_assert(D_00553A88, 485);
+                    __assert(D_00553A88, 485, D_0063A8A0);
+                }
+                GetRootPosition(((GirlBrainWork *)D_0029D650)
+                                    ->hide.ent[((GirlBrainWork *)D_0029D650)->hide.num]
+                                    .pos,
+                                o);
+                ((GirlBrainWork *)D_0029D650)->hide.num++;
+            }
+        }
+    }
+    sort_list(((GirlBrainWork *)D_0029D650)->listB.ent[0].pos,
+              ((GirlBrainWork *)D_0029D650)->listB.num);
+    sort_list(((GirlBrainWork *)D_0029D650)->hide.ent[0].pos,
+              ((GirlBrainWork *)D_0029D650)->hide.num);
+    ((GirlBrainWork *)D_0029D650)->others.num = 0;
+    for (i = 0; D_0029D480[i] != -1; i++) {
+        void *o;
+
+        for (o = isysGObjSearchFromObjKindID_begin(D_0029D480[i]); o != 0;
+             o = isysGObjSearchFromObjKindID_next(o)) {
+            if (girlListIsAlive(o)) {
+                int n = ((GirlBrainWork *)D_0029D650)->others.num;
+
+                ((GirlBrainWork *)D_0029D650)->others.ent[n].obj = o;
+                GetRootProjectionPosOfGObj(((GirlBrainWork *)D_0029D650)->others.ent[n].pos, o);
+                ((GirlBrainWork *)D_0029D650)->others.ent[n].dist =
+                    _DistGV(((GirlBrainWork *)D_0029D650)->others.ent[n].pos,
+                            ((GirlBrainWork *)D_0029D650)->f_5830);
+                ((GirlBrainWork *)D_0029D650)->others.ent[n].flags = 1;
+                if (girlListIsOnBoy(o)) {
+                    ((GirlBrainWork *)D_0029D650)->others.ent[n].flags |= 2;
+                }
+                ((GirlBrainWork *)D_0029D650)->others.num++;
+            }
+        }
+    }
+    qsort(((GirlBrainWork *)D_0029D650)->others.ent, ((GirlBrainWork *)D_0029D650)->others.num,
+          sizeof(GirlListEnt), enemy_list_compare);
+    ((GirlBrainWork *)D_0029D650)->listB.num = girlListPick(
+        ((GirlBrainWork *)D_0029D650)->others.ent, ((GirlBrainWork *)D_0029D650)->listB.ent,
+        ((GirlBrainWork *)D_0029D650)->others.num, 0xC);
+    ((GirlBrainWork *)D_0029D650)->hide.num = girlListPick(
+        ((GirlBrainWork *)D_0029D650)->others.ent, ((GirlBrainWork *)D_0029D650)->hide.ent,
+        ((GirlBrainWork *)D_0029D650)->others.num, 0xF);
+    ((GirlBrainWork *)D_0029D650)->listD.num = girlListPick(
+        ((GirlBrainWork *)D_0029D650)->others.ent, ((GirlBrainWork *)D_0029D650)->listD.ent,
+        ((GirlBrainWork *)D_0029D650)->others.num, 0xE);
+    ((GirlBrainWork *)D_0029D650)->f_0 = 0;
+    if (((GirlBrainWork *)D_0029D650)->listB.num != 0 &&
+        ((GirlBrainWork *)D_0029D650)->listB.ent[0].dist < 300.0f) {
+        ((GirlBrainWork *)D_0029D650)->f_0 = 1;
+    }
+    ((GirlBrainWork *)D_0029D650)->f_1 = 0;
+    if (((GirlBrainWork *)D_0029D650)->listD.num != 0) {
+        ((GirlBrainWork *)D_0029D650)->f_1 = 1;
+    }
+    /* girl_brain_main.c.inc:559-568: a marker at each hide point, coloured
+       by the others entry's flags; only its drawing is compiled out (see
+       girlDispWire), so the loop stays and counts down empty. */
+    for (k = 0; k < ((GirlBrainWork *)D_0029D650)->hide.num; k++) {
+        int c = ((GirlBrainWork *)D_0029D650)->others.ent[k].flags & 2 ? 'B' : 'W';
+
+        if (((GirlBrainWork *)D_0029D650)->others.ent[k].flags & 4) {
+            c = 'Y';
+        }
+        if (((GirlBrainWork *)D_0029D650)->others.ent[k].flags & 8) {
+            c = 'R';
+        }
+        girlDispHidePoint(((GirlBrainWork *)D_0029D650)->hide.ent[k].pos, c);
+    }
+    seen = 0;
+    for (i = 0; i < ((GirlBrainWork *)D_0029D650)->hide.num; i++) {
+        if (ACTGameView_Check(D_00639EA8, ((GirlBrainWork *)D_0029D650)->hide.ent[i].obj) != 0) {
+            seen = 1;
+            break;
+        }
+    }
+    if (seen != 0) {
+        ((GirlBrainWork *)D_0029D650)->f_5910 = 0;
+    } else {
+        ((GirlBrainWork *)D_0029D650)->f_5910++;
+    }
+    if (((GirlBrainWork *)D_0029D650)->others.num != 0 &&
+        ((GirlBrainWork *)D_0029D650)->others.ent[0].dist < 600.0f) {
+        GOBJ_ACT(D_00639EA8)->flags20.ll |= 0x1000;
+    }
+    GOBJ_ACT(D_00639EA8)->flags20.ll &= ~0x2000;
+    if (((GirlBrainWork *)D_0029D650)->others.num != 0 &&
+        ((GirlBrainWork *)D_0029D650)->others.ent[0].dist < 1000.0f) {
+        GOBJ_ACT(D_00639EA8)->flags20.ll |= 0x2000;
+    }
+    GOBJ_ACT(D_00639EA8)->flags20.ll |= 0x400000000000;
+    if (((GirlBrainWork *)D_0029D650)->others.num != 0) {
+        if (((GirlBrainWork *)D_0029D650)->others.ent[0].dist < 200.0f) {
+            GOBJ_ACT(D_00639EA8)->flags20.ll &= ~0x400000000000;
+            return;
+        }
+        d = _DistGV(((GirlBrainWork *)D_0029D650)->f_5830, ((GirlBrainWork *)D_0029D650)->f_5850);
+        for (j = 0; j < ((GirlBrainWork *)D_0029D650)->others.num; j++) {
+            if (_DistSqGV(((GirlBrainWork *)D_0029D650)->others.ent[j].pos,
+                          ((GirlBrainWork *)D_0029D650)->f_5850) < d * d) {
+                GOBJ_ACT(D_00639EA8)->flags20.ll &= ~0x400000000000;
+                break;
+            }
+        }
+    }
+}
 
 /* kept local: this TU's uses of GetMatrixDirectionToZ do not fit the prototype in gv.h */
 extern void GetMatrixDirectionToZ(void *m, void *dir);
@@ -475,13 +735,8 @@ int girlBrainHideCheckIntercept(float *from, float *to, char *list, int n)
 }
 
 extern int stage_no;
-extern void *D_00639EA8;
-/* kept local: this TU's uses of ACTGameView_Check do not fit the prototype in act-game.h */
-extern int ACTGameView_Check(void *self, void *target);
 /* kept local: this TU's uses of ACTCheckCollis_WAY do not fit the prototype in act-game.h */
 extern int ACTCheckCollis_WAY(void *a0, void *a1, float a2, void *a3, void *a4);
-/* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
-extern float _DistSqGV(void *a, void *b);
 extern void sceVu0ScaleVector(float *dst, float *src, float scale);
 /* kept local: this TU's uses of debug_Marker do not fit the prototype in camera-editor.h */
 extern void debug_Marker(void *buf, int a1, int a2, int a3, float f12, float f13);
@@ -599,10 +854,6 @@ extern void _ACTCharStatus_Set(void *obj, int id, float v, int flag);
 extern float _DistxzSqGV(void *a, void *b);
 /* kept local: this TU's uses of ACTCheckView do not fit the prototype in act-game.h */
 extern int ACTCheckView(void *self, void *obj, float *pos, float margin, int range);
-/* kept local: this TU's uses of isysGObjSearchFromObjKindID_begin do not fit the prototype in gobj.h */
-extern void *isysGObjSearchFromObjKindID_begin(int kind);
-/* kept local: this TU's uses of isysGObjSearchFromObjKindID_next do not fit the prototype in gobj.h */
-extern void *isysGObjSearchFromObjKindID_next(void *gobj);
 /* kept local: this TU's uses of PAIR_IsStatus_BOY_WAIT do not fit the prototype in act-game.h */
 extern int PAIR_IsStatus_BOY_WAIT(void);
 extern void brainGetTarget(Brain *b);
@@ -810,10 +1061,6 @@ int girlBrainMain_DecideMode(int mode, int *next)
     return *next == 1 ? changed : warned;
 }
 
-extern char D_002A2E70[];
-/* kept local: this TU's uses of GetRootProjectionPosOfGObj do not fit the prototype in motionManager2.h */
-extern void GetRootProjectionPosOfGObj(void *out, void *obj);
-
 void girlBrainMain_PositionUpdate(void)
 {
     GetRootPosition(D_002A2E70 + 0x00, D_00639EA8);
@@ -872,8 +1119,6 @@ extern void debug_NMarker(void *pos, int r, int g, int b, float size);
 extern void *test_CURRENTORIENT(void *a0);
 /* kept local: this TU's uses of _DistxzGV do not fit the prototype in gv.h */
 extern float _DistxzGV(void *a, void *b);
-/* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
-extern float _DistGV(void *a, void *b);
 /* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
 extern void _OrientXZGV(void *out, void *a, void *b);
 /* kept local: this TU's uses of _RotyGV do not fit the prototype in gv.h */
@@ -1017,12 +1262,8 @@ void subGirlBrain_Pulledup(volatile int a0)
 extern void ClipWall(void *w);
 /* kept local: this TU's uses of ClipFloor do not fit the prototype in fieldCollision.h */
 extern void ClipFloor(void *w);
-extern char D_00553A88[];
-extern char D_0063A8A0[];
 extern void sceVu0Normalize(void *dst, void *src);
 extern void sceVu0CopyVector(void *dst, void *src);
-extern void debug_assert(char *file, int line);
-extern void __assert(char *file, int line, char *expr);
 
 void _girlBrainHide_MakeHidePoint(float *p, float dist)
 {
