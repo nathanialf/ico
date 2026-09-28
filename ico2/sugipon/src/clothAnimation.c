@@ -1294,7 +1294,148 @@ sceVu0FMATRIX procMatrix = {
     {0.0f, 0.0f, 0.0f, 1.0f},
 };
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/clothAnimation", getCloth4D_preProcess);
+/* kept local: this TU's uses of _MulMatrix do not fit the prototype in Matrix.h */
+extern void _MulMatrix(void *dst, void *a, void *b);
+/* kept local: this TU's uses of _ApplyCurrentMatrix do not fit the prototype in Matrix.h */
+extern void _ApplyCurrentMatrix(void *dst, void *src);
+/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
+extern void _ScaleVectorXYZ(void *dst, void *src, float k);
+
+/* clothAnimation.c:1522-1528 and 1531-1536 in the listing: the two point
+   writers, only ever inlined, sharing one VECTOR temp at frame 0x50. */
+static __inline__ void clothAddPoint(void *dst, const void *src, float f)
+{
+    VECTOR tv;
+
+    _ApplyCurrentMatrix(&tv, src);
+    _ScaleVector(&tv, &tv, f);
+    _AddVectorXYZ(dst, dst, &tv);
+}
+
+static __inline__ void clothSetPoint(void *dst, const void *src, float f)
+{
+    VECTOR tv;
+
+    _ApplyCurrentMatrix(&tv, src);
+    _ScaleVectorXYZ(dst, &tv, f);
+}
+
+/* One entry of the Cloth4DCfg point table (clothAnimation.h spells the same
+   96 bytes with the two links as named fields): the column loop reads the
+   links by index, and the ROM forms their address as (table + i * 96) + j * 8,
+   an element reference into this record, not folded pointer arithmetic. */
+typedef struct {
+    int node;
+    float weight;
+} Cloth4DLink;
+
+typedef struct {
+    float f00;
+    char pad04[0x10 - 0x04];
+    float pos[4];
+    float dir[4];
+    Cloth4DLink link[2]; /* 0x30 */
+    float (*uv)[2];
+    char pad44[0x50 - 0x44];
+    float f50[4];
+} Cloth4DCol;
+
+void getCloth4D_preProcess(void *a0, float g, float damp, float z, float w, int tight, void *qa,
+                           void *qb)
+{
+    VECTOR dv;
+    float work[4][4];
+    int i;
+    int j;
+    char **rowsB = (char **)((int *)a0)[2];
+    char **rowsD = (char **)((int *)a0)[4];
+    char **rowsC = (char **)((int *)a0)[3];
+    int *cfg = (int *)((int *)a0)[184];
+    int nx = cfg[0] - (cfg[2] != 0);
+    int ny = cfg[1];
+    VECTOR va[nx];
+    float rz;
+    float t;
+
+    for (i = 0; i < nx; i++) {
+        for (j = 1; j < ny; j++) {
+            sceVu0ScaleVector(&dv, rowsC[i] + j * 16, damp);
+            CopyVector(rowsC[i] + j * 16, rowsB[i] + j * 16);
+            AddVectorXYZ(rowsB[i] + j * 16, rowsB[i] + j * 16, &dv);
+        }
+    }
+    for (i = 0; i < nx; i++) {
+        for (j = 0; j < 2; j++) {
+            int n = ((Cloth4DCol *)cfg[9])[i].link[j].node;
+            Cloth4DCol *pt;
+            float f;
+            void *sk;
+
+            if (n == -1) {
+                break;
+            }
+            pt = &((Cloth4DCol *)cfg[9])[i];
+            f = pt->link[j].weight;
+            sk = *(void **)(*(int *)a0 + 0x15C);
+            _MulMatrix(work, *(char **)((char *)sk + 0xC) + n * 64,
+                       *(char **)((char *)sk + 0x90) + n * 64);
+            _SetCurrentMatrix((int)work);
+            if (j == 0) {
+                clothSetPoint(rowsB[i], pt->pos, f);
+                clothSetPoint(rowsD[i], pt->dir, f);
+                clothSetPoint(&va[i], pt->f50, f);
+            } else {
+                clothAddPoint(rowsB[i], pt->pos, f);
+                clothAddPoint(rowsD[i], pt->dir, f);
+                clothAddPoint(&va[i], pt->f50, f);
+            }
+        }
+        ((VECTOR *)rowsB[i])->w = 1.0f;
+        ((VECTOR *)rowsD[i])->w = 1.0f;
+        va[i].w = 0.0f;
+    }
+    {
+        float mx[16];
+        float wpow;
+        int c;
+
+        c = 0;
+        _ScaleVectorXYZ(&work[0], GetWindVector(&wpow, rowsB[0]), w);
+        wpow = wpow * (w * 2.44140625e-05f);
+        for (i = 0; i < 11; i++) {
+            for (j = 0; j < 3; j++) {
+                windNoise[i][j] = wpow * (float)((rand() & 0x7FFF) - 16383);
+            }
+        }
+        rz = 1.0f / (float)(ny - 1);
+        GetInverseQuaternion((int)&work[2], (int)qa);
+        MultiQuaternion(&work[1], qa, qb);
+        MultiQuaternion(&work[1], &work[1], &work[2]);
+        GetMatrixFromQuaternion((char *)mx, (char *)&work[1]);
+        for (j = 1; j < ny; j++) {
+            t = (float)(ny - j) * rz * z + (1.0f - z);
+            t = t * t;
+            if (tight) {
+                for (i = 0; i < nx; i++) {
+                    _ApplyMatrix(&va[i], mx, &va[i]);
+                }
+            }
+            for (i = 0; i < nx; i++) {
+                SubVectorXYZ(&work[3], rowsB[i] + j * 16, rowsB[i] + (j * 16 - 16));
+                AddVectorXYZ(&work[3], &work[3], &work[0]);
+                AddVectorXYZ(&work[3], &work[3], windNoise[c]);
+                c = c + 1;
+                if (c == 11) {
+                    c = 0;
+                }
+                _InterVectorXYZ(&work[3], &va[i], &work[3], t);
+                work[3][1] = work[3][1] + g;
+                AddVectorXYZ(rowsB[i] + j * 16, rowsB[i] + (j * 16 - 16), &work[3]);
+            }
+        }
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/clothAnimation", proc);
 INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/clothAnimation", getCloth4D);
 
@@ -1344,9 +1485,6 @@ void getCloth4D_postProcess(int *a0, int **a1)
     }
 }
 
-/* kept local: this TU's uses of getCloth4D_preProcess do not fit the prototype in clothAnimation.h */
-extern void getCloth4D_preProcess(void *a0, int tight, void *a6, void *a7, float x, float y,
-                                  float z, float w);
 /* kept local: this TU's uses of getCloth4D do not fit the prototype in clothAnimation.h */
 extern void getCloth4D(void *a0, int **rows);
 extern char D_0055FE58[];
@@ -1378,7 +1516,7 @@ void _getCloth4D(int *a0, float x, float y, float z, float w, int tight, void *a
             rows[i][j] = -1;
         }
     }
-    getCloth4D_preProcess(a0, tight, a6, a7, x, y, z, w);
+    getCloth4D_preProcess(a0, x, y, z, w, tight, a6, a7);
     getCloth4D(a0, rows);
     obj = (int *)*(int *)((char *)a0[0] + 0x15C);
     ent = D_0055FE58 + obj[296] * 0x194;

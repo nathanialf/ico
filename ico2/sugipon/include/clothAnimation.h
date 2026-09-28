@@ -92,7 +92,7 @@ int SetChainExtendedWeight(int *a0, int idx, float w0, float w1);
 void TestDispChainAnimation(int *a0);
 void getCloth4D(void *a0, int **rows);
 
-void getCloth4D_preProcess(void *a0, int tight, void *a6, void *a7, float x, float y, float z,
-                           float w);
+void getCloth4D_preProcess(void *a0, float x, float y, float z, float w, int tight, void *a6,
+                           void *a7);
 
 #endif /* CLOTHANIMATION_H */
