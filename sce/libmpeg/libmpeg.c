@@ -107,7 +107,144 @@ int _id2type(int *type, int *num, unsigned long long id)
     return found;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/libmpeg", sceMpegDemuxPssRing);
+/* one PES packet header: the 64-bit stream id the demux matches against, the
+ * packet and payload lengths, the two timestamps and the bit positions the
+ * ring buffer is rewound to */
+typedef struct {
+    long long id;
+    int length;
+    int scramble;
+    long long pts;
+    long long dts;
+    int pos;
+    int datalen;
+    int startpos;
+} PesPkt;
+
+/* the packet the demuxer walks: the pack header _pack_header fills, then the
+ * PES packet header _PES_packet fills */
+typedef struct {
+    P24D418 pack;
+    int unk10;
+    int unk14;
+    PesPkt pes;
+    int unk48;
+    int unk4C;
+} PssPkt;
+
+/* the kinds of callback the decoder makes; a demuxed stream packet is the last */
+typedef enum {
+    MPEG_CB_ERROR,
+    MPEG_CB_NODATA,
+    MPEG_CB_STOPDMA,
+    MPEG_CB_RESTARTDMA,
+    MPEG_CB_BACKGROUND,
+    MPEG_CB_TIMESTAMP,
+    MPEG_CB_STR
+} MpegCbType;
+
+/* what a stream callback is handed (sceMpegCbDataStr): the callback type, the
+ * ring addresses of the packet header and payload, the payload length and the
+ * two time stamps */
+typedef struct {
+    MpegCbType type;
+    unsigned char *header;
+    unsigned char *data;
+    unsigned int len;
+    long long pts;
+    long long dts;
+} DemuxRec;
+
+/* a stream callback: the decoder, the packet record and the user argument */
+typedef int (*MpegStrCallback)(int *dec, DemuxRec *cbdata, void *arg);
+
+/* one demux callback: the stream id it matches, the mask of the id bits that
+ * take part in the match, and the handler with its user argument */
+typedef struct {
+    long long id;
+    unsigned long long mask;
+    MpegStrCallback func;
+    void *arg;
+} StrCb;
+
+extern void _sysbitInit(int *a0, int a1, int a2, int a3);
+extern int _sysbitNext(void *a0, int a1);
+extern int _sysbitPtr(int *a0, int a1);
+extern int _pack_header(int *bs, P24D418 *pkt);
+extern int _PES_packet(int *bs, PesPkt *pkt);
+
+int sceMpegDemuxPssRing(int *dec, void *p4, int size, int a3, int a4)
+{
+    int bsbuf[12];
+    PssPkt pktbuf;
+    int *bs;
+    PssPkt *pkt = &pktbuf;
+    DemuxRec rec;
+    int *p = (int *)dec[0x40 / 4];
+    MpegStrCallback func = 0;
+    void *arg = 0;
+    StrCb *tbl = (StrCb *)p[0x44 / 4];
+    int ret = 0;
+    int i;
+    int cont = 1;
+
+    _sysbitInit(bsbuf, (int)p4, a3, a4);
+    bs = bsbuf;
+    i = 0;
+    if (p[0x48 / 4] > 0) {
+        do {
+            if (tbl[i].id == 0xBDFF000000LL) {
+                func = tbl[i].func;
+                arg = tbl[i].arg;
+            }
+            if (func != 0) {
+                break;
+            }
+            i++;
+        } while (i < p[0x48 / 4]);
+    }
+    do {
+        if (_sysbitNext(bs, 32) == 0x1BA) {
+            _pack_header(bs, &pkt->pack);
+        }
+        while (_sysbitNext(bs, 24) == 1 && _sysbitNext(bs, 32) != 0x1BA &&
+               _sysbitNext(bs, 32) != 0x1B9 && *(unsigned long long *)(bs + 6) < size * 8 &&
+               cont != 0) {
+            _PES_packet(bs, &pkt->pes);
+            if (*(unsigned long long *)(bs + 6) > size * 8) {
+                continue;
+            }
+            for (i = 0; i < p[0x48 / 4]; i++) {
+                if (tbl[i].id == (pkt->pes.id & tbl[i].mask)) {
+                    rec.type = MPEG_CB_STR;
+                    rec.header = (unsigned char *)_sysbitPtr(bs, pkt->pes.startpos);
+                    rec.data = (unsigned char *)_sysbitPtr(bs, pkt->pes.pos);
+                    rec.len = pkt->pes.datalen;
+                    rec.pts = pkt->pes.pts;
+                    rec.dts = pkt->pes.dts;
+                    cont = tbl[i].func(dec, &rec, tbl[i].arg);
+                    break;
+                }
+            }
+            if (i == p[0x48 / 4] && func != 0) {
+                rec.type = MPEG_CB_STR;
+                rec.header = (unsigned char *)_sysbitPtr(bs, pkt->pes.startpos);
+                rec.data = (unsigned char *)_sysbitPtr(bs, pkt->pes.pos);
+                rec.len = pkt->pes.datalen;
+                rec.pts = pkt->pes.pts;
+                rec.dts = pkt->pes.dts;
+                cont = func(dec, &rec, arg);
+            }
+            if (cont != 0) {
+                ret = (int)(*(unsigned long long *)(bs + 6) >> 3);
+            }
+        }
+        if (size * 8 < *(unsigned long long *)(bs + 6)) {
+            break;
+        }
+    } while (_sysbitNext(bs, 32) == 0x1BA);
+    return ret;
+}
 
 void sceMpegDemuxPss(void *a0, int a1, int a2)
 {
@@ -116,18 +253,9 @@ void sceMpegDemuxPss(void *a0, int a1, int a2)
     } while (0);
 }
 
-/* one demux callback: the stream id it matches, the mask of the id bits that
- * take part in the match, and the handler with its user argument */
-typedef struct {
-    long long id;
-    unsigned long long mask;
-    int func;
-    int arg;
-} StrCb;
-
 extern long long _type2id(int a0, int a1);
 
-int sceMpegAddStrCallback(int *a0, int a1, int a2, int a3, int a4)
+int sceMpegAddStrCallback(int *a0, int a1, int a2, MpegStrCallback a3, void *a4)
 {
     int ret = 0;
     int *p = (int *)a0[0x40 / 4];
@@ -138,7 +266,7 @@ int sceMpegAddStrCallback(int *a0, int a1, int a2, int a3, int a4)
 
     for (i = 0; i < n; i++) {
         if (id == tbl[i].id) {
-            ret = tbl[i].func;
+            ret = (int)tbl[i].func;
             break;
         }
     }
@@ -199,20 +327,6 @@ int _system_header(int *a0)
     }
     return 1;
 }
-
-/* one PES packet header: the 64-bit stream id the demux matches against, the
- * packet and payload lengths, the two timestamps and the bit positions the
- * ring buffer is rewound to */
-typedef struct {
-    long long id;
-    int length;
-    int scramble;
-    long long pts;
-    long long dts;
-    int pos;
-    int datalen;
-    int startpos;
-} PesPkt;
 
 extern int _sysbitGet(int *bs, int nbits);
 extern int _sysbitMarker(int *bs);
