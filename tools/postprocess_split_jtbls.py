@@ -47,6 +47,16 @@ measured on the whole tree the same day. The driver passes the TU's
 repo-relative source path as the second argument; with no second argument
 the split runs as before.
 
+A second case keeps ONE table in the compiler's section (2026-09-28, chain 1
+pass 155): in a TU with several `.rodata` rows, the unnamed `.rodata` goes to
+the row marked `plain-rodata` (tools/gen_ninja.py). When a jtbl's VMA is the
+start of that plain row and the row's `syms:` list does not name it, the
+table stays in the unnamed section, with the pad and the anonymous constants
+gcc emits after it, exactly as the ROM lays them out (motionManager: once
+_getFinalMatrix's table at 0x61FBE0 is compiled, _getGeometryOfMotion's table
+at 0x620030 must stay with dispSkeltonHierarchy's 8-aligned templates). Every
+other table is still split.
+
 Idempotent: re-applies harmlessly because any block already on a
 `.rodata.0x<VMA>` section is left alone.
 """
@@ -140,7 +150,7 @@ def _map_labels_to_functions(lines: list[str]) -> dict[str, str]:
     return label_to_func
 
 
-def transform(text: str) -> str:
+def transform(text: str, keep: frozenset[str] = frozenset()) -> str:
     lines = text.splitlines(keepends=True)
     label_to_func = _map_labels_to_functions(lines)
     # Per-function index into its jtbl ref list.
@@ -197,6 +207,11 @@ def transform(text: str) -> str:
 
         vma = refs[cursor]
         func_jtbl_cursor[func] = cursor + 1
+        if vma in keep:
+            # the table heads its TU's plain-rodata row: it stays in `.rdata`
+            out.append(ln)
+            i += 1
+            continue
 
         # Replace .rdata with .rodata.0x<VMA>.
         # Preserve leading whitespace of the original directive.
@@ -222,6 +237,28 @@ def _rodata_row_count(tu_src: str) -> int:
         if m and m.group(1) == tu:
             n += 1
     return n
+
+
+def _plain_row_tables(tu_src: str) -> frozenset[str]:
+    """VMAs (8 hex digits, upper case) of the TU's `plain-rodata` rows whose
+    `syms:` list does not name that VMA: a jtbl there stays unsplit."""
+    tu = re.sub(r"\.c$", "", tu_src.replace("\\", "/"))
+    if tu.startswith(str(ROOT) + "/"):
+        tu = tu[len(str(ROOT)) + 1:]
+    yamls = sorted((ROOT / "config").glob("ico.*.yaml"))
+    if not yamls:
+        return frozenset()
+    keep = set()
+    for line in yamls[0].read_text().splitlines():
+        m = re.match(r"\s*-\s*\[0x([0-9A-Fa-f]+),\s*\.rodata,\s*(\S+?)\]\s*(#.*)?$", line)
+        if not m or m.group(2) != tu or "plain-rodata" not in (m.group(3) or ""):
+            continue
+        vma = "%08X" % (int(m.group(1), 16) + 0x100000)
+        sm = re.search(r"syms:\s*([\w,\s]+?)(?:\s{2,}|;|$)", m.group(3))
+        named = {x.upper().replace("0X", "") for x in re.split(r"[,\s]+", sm.group(1)) if x} if sm else set()
+        if vma not in named:
+            keep.add(vma)
+    return frozenset(keep)
 
 
 def _keep_compiler_section(text: str) -> bool:
@@ -258,7 +295,8 @@ def main(argv: list[str]) -> int:
     src = p.read_text()
     if len(argv) == 3 and _rodata_row_count(argv[2]) < 2 and _keep_compiler_section(src):
         return 0
-    out = transform(src)
+    keep = _plain_row_tables(argv[2]) if len(argv) == 3 else frozenset()
+    out = transform(src, keep)
     if out != src:
         p.write_text(out)
     return 0

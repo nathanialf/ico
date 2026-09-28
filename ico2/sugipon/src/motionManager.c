@@ -159,10 +159,10 @@ extern void MatrixDrive_PushMatrix(void);
 extern void SetQuaternionByAxisRotateV(void *dst, short ang, void *v);
 /* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyMatrix(void *a0, int a1, char *a2);
-/* const: setIKAndAdjustRootHeight reads this between two stores through
- * D_0063C490 and the ROM does not reload it, which only holds if the object
- * is unchanging; every other member of the TU re-verifies with the qualifier. */
-extern const float D_0063B900;
+/* a plain float (GetGeometryOfMotion and GetMatrixOfMotion write it):
+ * _getFinalMatrix reloads it after calls; setIKAndAdjustRootHeight keeps it
+ * across its stores to the geo block because those are structure members. */
+extern float D_0063B900;
 /* kept local: this TU's uses of GetMatrixFromQuaternion do not fit the prototype in quaternion.h */
 extern void GetMatrixFromQuaternion(void *a0, void *a1);
 /* kept local: this TU's uses of GetMatrixFromQuaternionPos do not fit the prototype in quaternion.h */

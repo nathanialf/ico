@@ -355,29 +355,29 @@ static void setIKAndAdjustRootHeight(char *mv)
             *(int *)(D_0063C490 + 0x204) = 1;
             if (*(int *)(D_0063B938 + *(int *)(D_0063C490 + 0x364) * 0x40 + 4) == 0x30) {
                 if (0.0f < d1) {
-                    *(float *)(D_0063C490 + 0x208) = 0.0f;
-                    *(float *)(D_0063C490 + 0x20C) = -d1;
+                    ((MotGeoTurn *)D_0063C490)->lift[0] = 0.0f;
+                    ((MotGeoTurn *)D_0063C490)->lift[1] = -d1;
                 } else {
-                    *(float *)(D_0063C490 + 0x208) = d1;
-                    *(float *)(D_0063C490 + 0x20C) = 0.0f;
+                    ((MotGeoTurn *)D_0063C490)->lift[0] = d1;
+                    ((MotGeoTurn *)D_0063C490)->lift[1] = 0.0f;
                 }
             } else {
                 if (0.0f < d1) {
-                    *(float *)(D_0063C490 + 0x208) = -d1;
-                    *(float *)(D_0063C490 + 0x20C) = 0.0f;
+                    ((MotGeoTurn *)D_0063C490)->lift[0] = -d1;
+                    ((MotGeoTurn *)D_0063C490)->lift[1] = 0.0f;
                 } else {
-                    *(float *)(D_0063C490 + 0x208) = 0.0f;
-                    *(float *)(D_0063C490 + 0x20C) = d1;
+                    ((MotGeoTurn *)D_0063C490)->lift[0] = 0.0f;
+                    ((MotGeoTurn *)D_0063C490)->lift[1] = d1;
                 }
             }
-            if (*(float *)(D_0063C490 + 0x208) <
+            if (((MotGeoTurn *)D_0063C490)->lift[0] <
                 -(*(float *)(D_0063B938 + 0x14) * D_0063B900 * 0.5f)) {
-                *(float *)(D_0063C490 + 0x208) =
+                ((MotGeoTurn *)D_0063C490)->lift[0] =
                     -(*(float *)(D_0063B938 + 0x14) * D_0063B900 * 0.5f);
             }
-            if (*(float *)(D_0063C490 + 0x20C) <
+            if (((MotGeoTurn *)D_0063C490)->lift[1] <
                 -(*(float *)(D_0063B938 + 0x14) * D_0063B900 * 0.5f)) {
-                *(float *)(D_0063C490 + 0x20C) =
+                ((MotGeoTurn *)D_0063C490)->lift[1] =
                     -(*(float *)(D_0063B938 + 0x14) * D_0063B900 * 0.5f);
             }
         }

@@ -23,6 +23,31 @@ inline int ResetMotionProgramInterpInfo(char *a0, int a1)
     return 1;
 }
 
+/* RECONSTRUCTED NAMES: listing rows 62-71 and 76-82, only ever inlined into
+ * _getFinalMatrix.  The first gives a point relative to the root placed at
+ * the matrix's translation, the second the same vector in the current
+ * matrix's local axes. */
+static inline void getRootRelativePos(float *out, int mtx, float *pos)
+{
+    float w[4];
+
+    AddVectorXYZ(w, (void *)(mtx + 0x30), D_0063C490);
+    SubVectorXYZ(out, pos, w);
+    out[3] = 0.0f;
+}
+
+static inline void getLocalTargetDir(float *out, float *pos)
+{
+    float tmp[4];
+
+    getRootRelativePos(tmp, MatrixDrive_GetMatrix(), pos);
+    MatrixDrive_PushMatrixWithNoCopy();
+    MatrixDrive_SetTransposeMatrix((void *)MatrixDrive_GetMatrix(),
+                                   (int)MatrixDrive_GetLastMatrix());
+    sceVu0ApplyMatrix((int *)out, MatrixDrive_GetMatrix(), (char *)tmp);
+    MatrixDrive_PopMatrix();
+}
+
 /* RECONSTRUCTED spellings.  The PAL listing gives every instruction of
    limitHPAngleAndSetB the line of its call site, so the repeated degree
    conversion and the repeated clamped ratio are macros in the 2001 source and
@@ -36,7 +61,7 @@ inline int ResetMotionProgramInterpInfo(char *a0, int a1)
    reads at +0x30 and +0x48.  hp and pp are the heading and pitch of the turn
    being limited, bp the bank the record's tables interpolate from them. */
 static void limitHPAngleAndSetB(short *hp, short *pp, short *bp, char *lim, short h, short kind,
-                                short p, int unused, int setb, int setflag, float rate)
+                                short p, short unused, int setb, int setflag, float rate)
 {
     *hp = h;
     *pp = p;
@@ -271,7 +296,823 @@ void avoidReverseInterpOnCurrentMatrixWithLimit(char *q, char *info, void *outA,
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/sugipon/src/motionManager", _getFinalMatrix);
+extern void *GetLastQuaternion(void);
+extern void GetMatrixFromQuaternionRotElem(char *a0, char *a1);
+extern void DivQuaternion(void *dst, void *a, void *b);
+extern void GetSlerpQuaternion(void *dst, void *a, void *b, float t);
+extern void MultiCurrentQuaternion(void *q);
+extern void GetInverseQuaternion(void *dst, void *q);
+extern void RegularizeQuaternion(void *q);
+extern void RotQuaternionX(void *q, short ang);
+extern void RotQuaternionZ(void *q, short ang);
+extern void MatrixDrive_RotMatrixX(int a0);
+extern void MatrixDrive_GetTurnMinusZAngleXY(short *a0, short *a1, float x, float y, float z);
+extern void MatrixDrive_GetTurnZAngleXY(short *a0, short *a1, float x, float y, float z);
+extern void MatrixDrive_GetTurnXAngleZY(short *a0, short *a1, float x, float y, float z);
+extern void SetQuaternionByAxisRotateWithNoRegularize(void *q, short ang, float x, float y,
+                                                      float z);
+extern float GetTableCos(short a);
+extern float GetTableSin(short a);
+extern short GetTableArcCos(float c);
+extern float _InnerProduct(void *a, void *b);
+extern void _OuterProduct(void *dst, void *a, void *b);
+extern float VectorLength(void *v);
+extern float GetWeaponWeight(int w);
+extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float s);
+extern void sceVu0TransposeMatrix(int dst, int src);
+extern void _AddVector(void *dst, void *a, void *b);
+extern char XUnitVector[];
+extern char ZeroPoint[];
+extern int D_0028F4C0[];
+extern int D_0063B198;
+extern int D_0063B1E0;
+extern short D_0063B904;
+extern short D_0063B906;
+extern short D_0063B908;
+extern short D_0063B90A;
+extern char D_0055FE58[];
+
+/* RECONSTRUCTION, names ours: members of the geo block (D_0063C490).  The
+ * two lifts at +0x208 are the arm-target height offsets cases 45 and 49 add;
+ * the look-at turn sits at +0x300.  The ROM's stores to them do not order
+ * against the stack shorts and do not invalidate D_0063B900, which holds
+ * for structure members (alias.c fixed_scalar_and_varying_struct_p) and not
+ * for plain pointer casts. */
+typedef struct {
+    char pad000[0x208];
+    float lift[2];
+    char pad210[0x300 - 0x210];
+    short h;
+    short p;
+    short b;
+} MotGeoTurn;
+
+/* RECONSTRUCTION, names ours: the 0x194-byte motion-table record of
+ * D_0055FE58 (motionViewer.c's MotRec); only the flag word this file reads
+ * is named.  The ROM loads it with a 0x190 displacement from the record, the
+ * shape of a structure member. */
+typedef struct {
+    char pad[0x190];
+    unsigned int flags;
+} MotTblRec;
+
+/* The frame-rate factors every blend in _getFinalMatrix scales by: the
+ * frame counter pair gives the frames per second of the current mode. */
+#define MOT_FPS ((float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]))
+#define MOT_SPEED (D_0063B198 != 0 ? (float)D_0063B1E0 * 0.01f : *(float *)(D_0063C4A8 + 0x158))
+#define MOT_RATE(off) (*(float *)(D_0063C490 + (off)) * (60.0f / MOT_FPS))
+#define MOT_BLEND(off) (MOT_RATE(off) + (1.0f - MOT_RATE(off)) * MOT_SPEED)
+
+/* RECONSTRUCTED NAMES: listing rows 370-376 and 380-385, only ever inlined
+ * into _getFinalMatrix.  A unit direction from a heading and a pitch, and
+ * the rotation that turns the x axis onto a direction. */
+static inline void getDirOfAngle(float *v, short h, short p)
+{
+    float c = GetTableCos(p);
+
+    v[0] = GetTableCos(h) * c;
+    v[1] = GetTableSin(h) * c;
+    v[2] = -GetTableSin(p);
+    v[3] = 0.0f;
+}
+
+static inline void getRotOfDir(float *q, float *v)
+{
+    float axis[4];
+    short ang = GetTableArcCos(_InnerProduct(v, XUnitVector));
+
+    _OuterProduct(axis, v, XUnitVector);
+    SetQuaternionByAxisRotateV(q, ang, axis);
+}
+
+/* The motion's own rotation for the node, the matrix rebuilt from it, and
+ * the stream's offset from the skeleton's rest rotation. */
+#define GET_NODE_ROT(q, dq)                                                                        \
+    MultiQuaternion(GetCurrentQuaternion(), GetLastQuaternion(), node + 0x20);                     \
+    GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion());               \
+    CopyQuaternion(q, IdentityQuaternion);                                                         \
+    DivQuaternion(dq, elem + 0x10, node + 0x20)
+#define APPLY_ROT(q)                                                                               \
+    MultiCurrentQuaternion(q);                                                                     \
+    GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion())
+
+void _getFinalMatrix(int id)
+{
+    char *node = D_0063B938 + id * 0x40;
+    char *elem = D_0063C478 + id * 0x20;
+    char *geo = (char *)GOBJ_SUB(D_0063B93C) + 0xA0;
+    char *ik = *(char **)(geo + 0x76C) + id * 0x40;
+    char *lim = ((char **)*(char **)(geo + 0x770))[id];
+    float v[4];
+    float dq[4];
+    float q[4];
+
+    if (*(int *)(node + 0x38) != -1) {
+        sceVu0ScaleVectorXYZ(v, node + 0x10, D_0063B900);
+        sceVu0ApplyMatrix((int *)(MatrixDrive_GetMatrix() + 0x30), (int)MatrixDrive_GetLastMatrix(),
+                          (char *)v);
+    } else {
+        D_0063B904 = D_0063B906 = D_0063B908 = D_0063B90A = 0;
+    }
+
+    switch (*(int *)(node + 4)) {
+    case 0:
+        MultiQuaternion(GetCurrentQuaternion(), GetLastQuaternion(), elem + 0x10);
+        MultiQuaternion(GetCurrentQuaternion(), D_004EC9F0, GetCurrentQuaternion());
+        GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion());
+        break;
+
+    case 44:
+        MultiQuaternion(GetCurrentQuaternion(), GetLastQuaternion(), elem + 0x10);
+        DivQuaternion(GetCurrentQuaternion(), GetCurrentQuaternion(), D_004EC9E0);
+        GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion());
+        break;
+
+    case 34: {
+        GET_NODE_ROT(q, dq);
+        if (*(int *)(D_0063C490 + 0x318) != 0 && *(int *)(D_0063C490 + 0x2E0) != 0) {
+            *(float *)ik = *(float *)ik + (1.0f - *(float *)ik) * MOT_BLEND(0x3BC);
+        } else {
+            *(float *)ik = *(float *)ik * (1.0f - MOT_BLEND(0x3BC));
+        }
+        {
+            float q3[4];
+            float q2[4];
+
+            memset(q2, 0, 16);
+            q2[3] = 1.0f;
+            if (D_0063C498 == 2) {
+                RotQuaternionZ(q2, 1820);
+            }
+            GetSlerpQuaternion(q3, q2, dq, *(float *)ik);
+            MultiQuaternion(q, q, q3);
+            APPLY_ROT(q);
+            GetInverseQuaternion(q3, D_0063C490 + 0x2D0);
+            MultiQuaternion(GetCurrentQuaternion(), q3, GetCurrentQuaternion());
+            GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion());
+        }
+        break;
+    }
+
+    case 35: {
+        /* VESTIGIAL, ROM-proven: an unreferenced 16-byte block array.  The
+           bytes pin its frame slot (without it strict 2511 of 2835 words
+           change, the frame and every later slot moving); they cannot pin its
+           name, type or the use the 2001 source once had for it. */
+        float work[4];
+
+        GET_NODE_ROT(q, dq);
+        RotQuaternionZ(GetCurrentQuaternion(), *(short *)(D_0063C490 + 0x304));
+        GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion());
+        if (*(int *)(D_0063C490 + 0x318) != 0 && *(int *)(D_0063C490 + 0x2E0) != 0) {
+            *(float *)ik = *(float *)ik + (1.0f - *(float *)ik) *
+                                              (*(float *)(D_0063C490 + 0x3BC) * (60.0f / MOT_FPS));
+        } else {
+            *(float *)ik =
+                *(float *)ik * (1.0f - *(float *)(D_0063C490 + 0x3BC) * (60.0f / MOT_FPS));
+        }
+        if (*(float *)ik < 0.01f) {
+            CopyQuaternion(ik + 0x10, GetCurrentQuaternion());
+            SetIdentityQuaternion(ik + 0x30);
+            CopyQuaternion(ik + 0x20, ik + 0x30);
+        } else {
+            float out[4];
+            short h;
+            short p;
+            short ha;
+            short pa;
+            short ba;
+
+            if (D_0063C498 == 4) {
+                MatrixDrive_RotMatrixX(-0x8000);
+            }
+            getLocalTargetDir(out, (float *)(D_0063C490 + 0x2F0));
+            MatrixDrive_GetTurnYAngleXZ(&h, &p, out[0], out[1], out[2]);
+            limitHPAngleAndSetB(&ha, &pa, &ba, lim, h, 0, -p, 0, 0, 1, 1.0f);
+            pa *= -1;
+            if (D_0063C498 == 4) {
+                pa *= -1;
+            }
+            ((MotGeoTurn *)D_0063C490)->h = h - ha;
+            ((MotGeoTurn *)D_0063C490)->p = p - pa;
+            {
+                float rq[4];
+                float t[4];
+                float t2[4];
+                float t3[4];
+
+                SetIdentityQuaternion(rq);
+                RotQuaternionX(rq, -ha);
+                RotQuaternionZ(rq, -pa);
+                RotQuaternionY(rq, -ba);
+                avoidReverseInterpOnCurrentMatrixWithLimit(ik + 0x10, lim, ik + 0x30, rq, 1.2f);
+                MultiQuaternion(t, GetCurrentQuaternion(), rq);
+                DivQuaternion(t2, t, ik + 0x10);
+                GetSlerpQuaternion(t3, t2, IdentityQuaternion,
+                                   *(float *)(D_0063C490 + 0x3C4) * 30.0f / MOT_FPS);
+                GetSlerpQuaternion(ik + 0x20, t3, ik + 0x20,
+                                   *(float *)(D_0063C490 + 0x3C8) * 30.0f / MOT_FPS);
+                MultiQuaternion(ik + 0x10, ik + 0x10, ik + 0x20);
+                RegularizeQuaternion(ik + 0x10);
+                DivQuaternion(ik + 0x30, ik + 0x10, GetCurrentQuaternion());
+            }
+        }
+        {
+            float r[4];
+
+            RotQuaternionX(GetCurrentQuaternion(), -*(short *)(D_0063C490 + 0x50) * 2.5f);
+            MultiQuaternion(r, GetCurrentQuaternion(), dq);
+            GetSlerpQuaternion(GetCurrentQuaternion(), ik + 0x10, r, *(float *)ik);
+            MultiQuaternion(GetCurrentQuaternion(), D_004ECA00, GetCurrentQuaternion());
+            GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion());
+        }
+        break;
+    }
+
+    case 1: {
+        GET_NODE_ROT(q, dq);
+        MultiQuaternion(GetCurrentQuaternion(), GetCurrentQuaternion(), dq);
+        GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion());
+        if (*(int *)(D_0063C490 + 0x31C) != 0 &&
+            ((*(int *)(D_0063C490 + 0x318) != 0 && *(int *)(D_0063C490 + 0x2E0) != 0) ||
+             *(int *)(D_0063C490 + 0x230) != 0 || *(int *)(D_0063C490 + 0x290) != 0)) {
+            *(float *)ik = *(float *)ik + (1.0f - *(float *)ik) * MOT_BLEND(0x3BC);
+        } else {
+            *(float *)ik = *(float *)ik * (1.0f - MOT_BLEND(0x3BC));
+        }
+        if (*(float *)ik < 0.01f) {
+            CopyQuaternion(ik + 0x10, GetCurrentQuaternion());
+            SetIdentityQuaternion(ik + 0x30);
+            CopyQuaternion(ik + 0x20, ik + 0x30);
+        } else {
+            /* VESTIGIAL, ROM-proven: work0 and work1 are never referenced.
+               The bytes pin their two 16-byte frame slots around out (without
+               them 393 words change); they cannot pin the names, types or the
+               use the 2001 source once had for them. */
+            float work0[4];
+            float out[4];
+            float work1[4];
+            int h;
+            int p;
+            int n;
+            int hv;
+            short a0, a1;
+            short b0, b1;
+            short c0, c1;
+            short ha, pa, ba;
+            short hb, pb, bb;
+            float rate = 1.0f;
+
+            avoidReverseInterpOnCurrentMatrix(ik + 0x10, lim, ik + 0x30);
+            p = h = 0;
+            n = 0;
+            if (*(int *)(D_0063C490 + 0x31C) == 1 && *(int *)(D_0063C490 + 0x290) != 0) {
+                n++;
+                getLocalTargetDir(out, (float *)(D_0063C490 + 0x2A0));
+                MatrixDrive_GetTurnMinusZAngleXY(&a0, &a1, out[0], out[1], out[2]);
+                h = a0;
+            }
+            if (*(int *)(D_0063C490 + 0x31C) == 1 && *(int *)(D_0063C490 + 0x230) != 0) {
+                float out2[4];
+
+                n++;
+                getLocalTargetDir(out2, (float *)(D_0063C490 + 0x240));
+                MatrixDrive_GetTurnZAngleXY(&b0, &b1, out2[0], out2[1], out2[2]);
+                h -= b0;
+            }
+            hv = h;
+            if (*(int *)(D_0063C490 + 0x318) != 0 && *(int *)(D_0063C490 + 0x2E0) != 0) {
+                float out3[4];
+
+                getLocalTargetDir(out3, (float *)(D_0063C490 + 0x2F0));
+                MatrixDrive_GetTurnYAngleXZ(&c0, &c1, out3[0], out3[1], out3[2]);
+                if (*(int *)(D_0063C490 + 0x2E0) == 2) {
+                    h = hv + c0;
+                    p = c1;
+                    hv = h;
+                } else {
+                    h = hv + *(short *)(D_0063C490 + 0x300);
+                    p = *(short *)(D_0063C490 + 0x302);
+                    hv += c0 / 2;
+                }
+                n++;
+            }
+            if (n != 0) {
+                h /= n;
+                hv /= n;
+            }
+            limitHPAngleAndSetB(&ha, &pa, &ba, lim, h, *(short *)(ik + 4), -p, -*(short *)(ik + 8),
+                                0, 0, rate);
+            limitHPAngleAndSetB(&hb, &pb, &bb, lim, hv, *(short *)(ik + 4), -p, -*(short *)(ik + 8),
+                                0, 0, rate);
+            pb *= -1;
+            {
+                float r[4];
+                float t[4];
+                float t2[4];
+                float t3[4];
+
+                SetIdentityQuaternion(r);
+                RotQuaternionX(r, -ha);
+                RotQuaternionZ(r, -pb);
+                RotQuaternionY(r, -ba);
+                MultiQuaternion(t, GetCurrentQuaternion(), r);
+                DivQuaternion(t2, t, ik + 0x10);
+                GetSlerpQuaternion(t3, t2, IdentityQuaternion,
+                                   *(float *)(D_0063C490 + 0x3C4) * 30.0f / MOT_FPS);
+                GetSlerpQuaternion(ik + 0x20, t3, ik + 0x20,
+                                   *(float *)(D_0063C490 + 0x3C8) * 30.0f / MOT_FPS);
+                MultiQuaternion(ik + 0x10, ik + 0x10, ik + 0x20);
+                RegularizeQuaternion(ik + 0x10);
+                DivQuaternion(ik + 0x30, ik + 0x10, GetCurrentQuaternion());
+            }
+            *(short *)(ik + 0xE) =
+                *(short *)(ik + 0xE) +
+                ((pb - *(short *)(ik + 8)) * (*(float *)(D_0063C490 + 0x3C4) * 30.0f / MOT_FPS) -
+                 *(short *)(ik + 0xE)) *
+                    (*(float *)(D_0063C490 + 0x3C8) * 30.0f / MOT_FPS);
+            *(short *)(ik + 8) += *(short *)(ik + 0xE);
+            *(short *)(D_0063C490 + 0x304) = *(short *)(ik + 8) * *(float *)ik;
+        }
+        {
+            RotQuaternionX(GetCurrentQuaternion(), *(short *)(D_0063C490 + 0x50) * 2.5f);
+            GetSlerpQuaternion(GetCurrentQuaternion(), ik + 0x10, GetCurrentQuaternion(),
+                               *(float *)ik);
+            MultiQuaternion(GetCurrentQuaternion(), D_0063C490 + 0x2D0, GetCurrentQuaternion());
+            GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion());
+            _ApplyMatrix(D_00720180, MatrixDrive_GetMatrix(), XUnitVector);
+        }
+        break;
+    }
+
+    case 18:
+        GET_NODE_ROT(q, dq);
+        MultiQuaternion(q, q, dq);
+        APPLY_ROT(q);
+        break;
+
+    case 19: {
+        float s[4];
+        int flag;
+
+        GET_NODE_ROT(q, dq);
+        {
+            float out[4], r[4], work0[4], qa[4], work1[4], dv[4];
+            short a0, a1;
+            short ha, pa, ba;
+
+            memset(qa, 0, 16);
+            qa[3] = 1.0f;
+            /* RECONSTRUCTION: listing lines 727-734 carry no word, yet the
+             * frame holds two 16-byte vectors whose address escapes (work0,
+             * work1: they stay live to the end of the block, function.c's
+             * temp-slot rules) and a 4-byte permanent slot of address-taken
+             * scalars at sp+0x100, allocated ahead of a0/a1 and never read
+             * or written by the ROM.  What the bytes pin: those two vectors
+             * and those four bytes, made in that window.  What they cannot
+             * pin: the window's text and condition; a turn computed from the
+             * work vectors, as the next line computes it from out, is ours
+             * (case 3 has the same window with one vector). */
+            if (0) {
+                short w0, w1;
+
+                CopyVector(work0, work1);
+                MatrixDrive_GetTurnXAngleZY(&w0, &w1, work0[0], work0[1], work0[2]);
+            }
+            getLocalTargetDir(out, (float *)(D_0063C490 + 0x2A0));
+            MatrixDrive_GetTurnXAngleZY(&a0, &a1, out[0], out[1], out[2]);
+            limitHPAngleAndSetB(&ha, &pa, &ba, lim, a0, 0, a1, 0, 1, 0, 1.0f);
+            if (*(int *)(D_0063C490 + 0x294) != 0) {
+                _NormalizeVector(dv, out);
+            } else {
+                getDirOfAngle(dv, ha, pa);
+            }
+            getRotOfDir(r, dv);
+            MultiQuaternion(qa, qa, r);
+            switch (*(int *)(D_0063C490 + 0x290)) {
+            case 1: {
+                float len[4], t[4], p[4];
+                float d;
+                float l;
+                float dd;
+                int i;
+                int ci;
+                char *cn;
+
+                d = VectorLength(out);
+                for (i = 0, cn = node; i < 2; i++) {
+                    ci = *(int *)(cn + 0x30);
+                    if (ci == -1) {
+                        break;
+                    }
+                    cn = D_0063B938 + ci * 0x40;
+                    len[i] = D_0063B900 * VectorLength(cn + 0x10);
+                }
+                len[1] += D_0063B900 *
+                          VectorLength(D_0063B938 +
+                                       GetSkeltonFocusNode((char *)D_0063B93C, 32) * 0x40 + 0x10);
+                {
+                    float ax[4], w[4];
+                    short ang;
+                    int n;
+
+                    {
+                        MatrixDrive_PushMatrixWithNoCopy();
+                        n = GetSkeltonFocusNode((char *)D_0063B93C, 22);
+                        GetMatrixFromQuaternion((void *)MatrixDrive_GetMatrix(),
+                                                D_0063C478 + n * 0x20 + 0x10);
+                        MatrixDrive_TransMatrix(5.0f, -3.0f, 0.0f);
+                        CopyVector(p, (void *)(MatrixDrive_GetMatrix() + 0x30));
+                        _AddVector(t, D_0063B938 + *(int *)(node + 0x30) * 0x40 + 0x10, p);
+                        l = D_0063B900 * VectorLength(t);
+                        w[0] = l;
+                        w[1] = 0.0f;
+                        w[2] = 0.0f;
+                        w[3] = 1.0f;
+                        _SubVectorXYZ(w, w, p);
+                        _NormalizeVector(w, w);
+                        _OuterProduct(ax, w, XUnitVector);
+                        ang = GetTableArcCos(_InnerProduct(XUnitVector, w));
+
+                        SetQuaternionByAxisRotateV(D_00720190, ang, ax);
+                        len[1] = l;
+                        MatrixDrive_PopMatrix();
+                    }
+                }
+                if (*(int *)(D_0063C490 + 0x2C4) == 0) {
+                    if (len[0] + len[1] < d) {
+                        d = len[0] + len[1];
+                    }
+                }
+                dd = d * d;
+                D_0063B908 =
+                    GetTableArcCos((dd + len[0] * len[0] - len[1] * len[1]) / (2.0f * len[0] * d));
+                D_0063B90A =
+                    GetTableArcCos((dd + len[1] * len[1] - len[0] * len[0]) / (2.0f * len[1] * d));
+                RotQuaternionX(qa, ba);
+                RotQuaternionZ(qa, D_0063B908);
+                CopyQuaternion(s, qa);
+                getRootRelativePos(t, MatrixDrive_GetMatrix(), (float *)(D_0063C490 + 0x2A0));
+                _NormalizeVector(t, t);
+                _OuterProduct(p, t, D_00720180);
+                if (*(int *)(D_0063C490 + 0x360) == 2 && d + 0.0f > len[0] + len[1]) {
+                    float rq[4];
+
+                    SetQuaternionByAxisRotateV(rq, (d + 0.0f - (len[0] + len[1])) * 208.60756f, p);
+                    GetSlerpQuaternion(D_0063C490 + 0x2D0, D_0063C490 + 0x2D0, rq, 0.6f);
+                } else {
+                    GetSlerpQuaternion(D_0063C490 + 0x2D0, D_0063C490 + 0x2D0, IdentityQuaternion,
+                                       0.9f);
+                }
+                break;
+            }
+            case 2:
+                MultiQuaternion(s, qa, D_0063C490 + 0x2B0);
+                MultiQuaternion(s, s, dq);
+                GetSlerpQuaternion(D_0063C490 + 0x2D0, D_0063C490 + 0x2D0, IdentityQuaternion,
+                                   0.9f);
+                break;
+            default:
+                CopyQuaternion(s, dq);
+                GetSlerpQuaternion(D_0063C490 + 0x2D0, D_0063C490 + 0x2D0, IdentityQuaternion,
+                                   0.9f);
+                break;
+            }
+        }
+        GetSlerpQuaternion(ik + 0x10, s, ik + 0x10,
+                           *(float *)(D_0063C490 + 0x2C0) * (60.0f / MOT_FPS));
+        if (*(int *)(D_0063C490 + 0x290) != 0) {
+            *(float *)ik = *(float *)ik + (1.0f - *(float *)ik) *
+                                              (*(float *)(D_0063C490 + 0x3C0) * (60.0f / MOT_FPS));
+        } else {
+            *(float *)ik =
+                *(float *)ik * (1.0f - *(float *)(D_0063C490 + 0x3C0) * (60.0f / MOT_FPS));
+        }
+        {
+            float r2[4];
+
+            GetSlerpQuaternion(r2, ik + 0x10, dq, *(float *)ik);
+            MultiQuaternion(q, q, r2);
+            APPLY_ROT(q);
+            D_0063C474 = *(float *)ik;
+            flag = D_0063C474 > 0.99f;
+            if (flag && *(int *)(D_0063C490 + 0x2C8) == 0) {
+                *(int *)(D_0063C490 + 0x2C4) = 1;
+            } else {
+                *(int *)(D_0063C490 + 0x2C4) = 0;
+            }
+            *(int *)(D_0063C490 + 0x2C8) = flag;
+        }
+        break;
+    }
+
+    case 20: {
+        GET_NODE_ROT(q, dq);
+        {
+            float t[4];
+            float r[4];
+
+            CopyQuaternion(t, dq);
+            if (*(int *)(D_0063C490 + 0x290) == 1) {
+                SetQuaternionByAxisRotateWithNoRegularize(t, -(D_0063B908 + D_0063B90A), 0.0f, 0.0f,
+                                                          -1.0f);
+                MultiQuaternion(t, t, D_00720190);
+            }
+            GetSlerpQuaternion(ik + 0x10, t, ik + 0x10,
+                               *(float *)(D_0063C490 + 0x2C0) * (60.0f / MOT_FPS));
+            GetSlerpQuaternion(r, ik + 0x10, dq, D_0063C474);
+            MultiQuaternion(q, q, r);
+            APPLY_ROT(q);
+        }
+        break;
+    }
+
+    case 22: {
+        float t[4];
+        float w;
+
+        GET_NODE_ROT(q, dq);
+        if (*(int *)(D_0063C490 + 0x330) != 0)
+            CopyQuaternion(t, IdentityQuaternion);
+        else
+            CopyQuaternion(t, dq);
+        {
+            float r[4];
+
+            GetSlerpQuaternion(r, t, dq, D_0063C474);
+            MultiQuaternion(q, q, r);
+            APPLY_ROT(q);
+            if (*(int *)(D_0063C494 + 0x1C0) != 0 &&
+                !(((MotTblRec *)(D_0055FE58 + *(int *)(D_0063C494 + 0x30) * 404))->flags >> 4 &
+                  1)) {
+                switch (*(int *)(D_0063C494 + 0x68)) {
+                case 0:
+                case 6:
+                case 14:
+                case 19:
+                    break;
+                default:
+                    w = GetWeaponWeight(*(int *)(D_0063C494 + 0x1C0)) * 0.00016666666f;
+                    w = 0.8f < w ? 0.8f : w;
+                    GetSlerpQuaternion(ik + 0x10, ik + 0x10, GetCurrentQuaternion(), w);
+                    CopyQuaternion(GetCurrentQuaternion(), ik + 0x10);
+                    GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion());
+                    return;
+                }
+            }
+            CopyQuaternion(ik + 0x10, GetCurrentQuaternion());
+        }
+        break;
+    }
+
+    case 21:
+        CopyQuaternion(GetCurrentQuaternion(), GetLastQuaternion());
+        MultiQuaternion(GetCurrentQuaternion(), GetCurrentQuaternion(), elem + 0x10);
+        GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion());
+        break;
+
+    case 2:
+        GET_NODE_ROT(q, dq);
+        MultiQuaternion(q, q, dq);
+        APPLY_ROT(q);
+        break;
+
+    case 3: {
+        float t[4];
+
+        GET_NODE_ROT(q, dq);
+        {
+            float qa[4], out[4], r[4], work[4], dv[4];
+            short a0, a1;
+            short ha, pa, ba;
+
+            memset(qa, 0, 16);
+            qa[3] = 1.0f;
+            /* RECONSTRUCTION: listing lines 1020-1027, case 19's window
+             * (727-734) again, carry no word; the frame holds one escaping
+             * 16-byte vector (work) there.  What the bytes pin: that vector.
+             * What they cannot pin: the window's text and condition, ours
+             * here. */
+            if (0) {
+                CopyVector(work, out);
+            }
+            getLocalTargetDir(out, (float *)(D_0063C490 + 0x240));
+            MatrixDrive_GetTurnXAngleZY(&a0, &a1, out[0], out[1], out[2]);
+            limitHPAngleAndSetB(&ha, &pa, &ba, lim, a0, 0, a1, 0, 1, 0, 1.0f);
+            if (*(int *)(D_0063C490 + 0x234) != 0) {
+                _NormalizeVector(dv, out);
+            } else {
+                getDirOfAngle(dv, ha, pa);
+            }
+            getRotOfDir(r, dv);
+            MultiQuaternion(qa, qa, r);
+            switch (*(int *)(D_0063C490 + 0x230)) {
+            case 1: {
+                float len[4];
+                float d;
+                int i;
+                int ci;
+                char *cn;
+
+                d = VectorLength(out);
+                for (i = 0, cn = node; i < 2; i++) {
+                    ci = *(int *)(cn + 0x30);
+                    if (ci == -1) {
+                        break;
+                    }
+                    cn = D_0063B938 + ci * 0x40;
+                    len[i] = D_0063B900 * VectorLength(cn + 0x10);
+                }
+                len[1] += D_0063B900 *
+                          VectorLength(D_0063B938 +
+                                       GetSkeltonFocusNode((char *)D_0063B93C, 16) * 0x40 + 0x10);
+                D_0063B908 = GetTableArcCos((d * d + len[0] * len[0] - len[1] * len[1]) /
+                                            (2.0f * len[0] * d));
+                D_0063B90A = GetTableArcCos((d * d + len[1] * len[1] - len[0] * len[0]) /
+                                            (2.0f * len[1] * d));
+                RotQuaternionX(qa, ba);
+                RotQuaternionZ(qa, D_0063B908);
+                CopyQuaternion(t, qa);
+                break;
+            }
+            case 2:
+                MultiQuaternion(t, qa, D_0063C490 + 0x250);
+                MultiQuaternion(t, t, dq);
+                break;
+            default:
+                CopyQuaternion(t, dq);
+                break;
+            }
+        }
+        GetSlerpQuaternion(ik + 0x10, t, ik + 0x10,
+                           *(float *)(D_0063C490 + 0x3C0) * (60.0f / MOT_FPS));
+        if (*(int *)(D_0063C490 + 0x230) != 0) {
+            *(float *)ik = *(float *)ik + (1.0f - *(float *)ik) *
+                                              (*(float *)(D_0063C490 + 0x3C0) * (60.0f / MOT_FPS));
+        } else {
+            *(float *)ik =
+                *(float *)ik * (1.0f - *(float *)(D_0063C490 + 0x3C0) * (60.0f / MOT_FPS));
+        }
+        {
+            float r2[4];
+
+            GetSlerpQuaternion(r2, ik + 0x10, dq, *(float *)ik);
+            MultiQuaternion(q, q, r2);
+            APPLY_ROT(q);
+            D_0063C474 = *(float *)ik;
+        }
+        break;
+    }
+
+    case 4: {
+        GET_NODE_ROT(q, dq);
+        {
+            float t[4];
+            float r[4];
+
+            CopyQuaternion(t, dq);
+            if (*(int *)(D_0063C490 + 0x230) == 1) {
+                SetQuaternionByAxisRotateWithNoRegularize(t, -(D_0063B908 + D_0063B90A), 0.0f, 0.0f,
+                                                          -1.0f);
+            }
+            GetSlerpQuaternion(ik + 0x10, t, ik + 0x10,
+                               *(float *)(D_0063C490 + 0x3C0) * (60.0f / MOT_FPS));
+            GetSlerpQuaternion(r, ik + 0x10, dq, D_0063C474);
+            MultiQuaternion(q, q, r);
+            APPLY_ROT(q);
+        }
+        break;
+    }
+
+    case 6: {
+        GET_NODE_ROT(q, dq);
+        if (*(int *)(D_0063C490 + 0x334) != 0) {
+            CopyQuaternion(ik + 0x10, IdentityQuaternion);
+        } else {
+            CopyQuaternion(ik + 0x10, dq);
+        }
+        {
+            float r[4];
+
+            GetSlerpQuaternion(r, ik + 0x10, dq, D_0063C474);
+            MultiQuaternion(q, q, r);
+            APPLY_ROT(q);
+        }
+        break;
+    }
+
+    case 5:
+        GET_NODE_ROT(q, dq);
+        if (*(int *)(D_0063C490 + 0x230) != 0) {
+            if (*(int *)(D_0063C490 + 0x230) != 1) {
+                MultiQuaternion(q, q, dq);
+            }
+        } else {
+            MultiQuaternion(q, q, dq);
+        }
+        APPLY_ROT(q);
+        break;
+
+    case 45:
+    case 49:
+        if (*(int *)(D_0063C490 + 0x204) != 0) {
+            int i;
+            int flag;
+            char *cn;
+            int ci;
+            float len[2];
+            float p[4];
+            float sv[4];
+            float d;
+            float dd;
+            float d2;
+            float aa;
+            float bb;
+            int m;
+
+            GET_NODE_ROT(q, dq);
+            flag = 0;
+            MatrixDrive_PushMatrix();
+            CopyVector((void *)(MatrixDrive_GetMatrix() + 0x30), ZeroPoint);
+            MultiMatrixByQuaternion(dq);
+            MatrixDrive_PushMatrix();
+            for (i = 0, cn = node; i < 2; i++) {
+                ci = *(int *)(cn + 0x30);
+                if (ci == -1) {
+                    flag = 1;
+                    break;
+                }
+                cn = D_0063B938 + ci * 0x40;
+                sceVu0ScaleVectorXYZ(sv, cn + 0x10, D_0063B900);
+                MatrixDrive_TransMatrixV(sv);
+                MultiMatrixByQuaternion(D_0063C478 + ci * 0x20 + 0x10);
+                len[i] = D_0063B900 * VectorLength(cn + 0x10);
+            }
+            CopyVector(p, (void *)(MatrixDrive_GetMatrix() + 0x30));
+            switch (*(int *)(node + 4)) {
+            case 45:
+                p[1] += *(float *)(D_0063C490 + 0x208);
+                break;
+            case 49:
+                p[1] += *(float *)(D_0063C490 + 0x20C);
+                break;
+            }
+            d = VectorLength(p);
+            MatrixDrive_PopMatrix();
+            dd = d * d;
+            m = MatrixDrive_GetMatrix();
+            sceVu0TransposeMatrix(m, m);
+            sceVu0ApplyMatrix((int *)p, m, (char *)p);
+            sceVu0Normalize(p, p);
+            D_0063B904 = asinf(p[1]) * 10430.378f;
+            D_0063B906 = -asinf(p[2]) * 10430.378f;
+            aa = len[0] * len[0];
+            bb = len[1] * len[1];
+            d2 = d + d;
+            D_0063B908 = acosf((dd + aa - bb) / (d2 * len[0])) * 10430.378f;
+            D_0063B90A = acosf((dd + bb - aa) / (d2 * len[1])) * 10430.378f;
+            MatrixDrive_PopMatrix();
+            if (flag == 0) {
+                MultiQuaternion(q, q, dq);
+                RotQuaternionZ(q, D_0063B904);
+                RotQuaternionY(q, D_0063B906);
+                RotQuaternionZ(q, -D_0063B908);
+            } else {
+                MultiQuaternion(q, q, dq);
+            }
+            APPLY_ROT(q);
+            break;
+        }
+    case 46:
+    case 50:
+        if (*(int *)(D_0063C490 + 0x204) != 0) {
+            GET_NODE_ROT(q, dq);
+            RotQuaternionZ(q, D_0063B908 + D_0063B90A);
+            APPLY_ROT(q);
+            break;
+        }
+    case 47:
+    case 51:
+        if (*(int *)(D_0063C490 + 0x204) != 0) {
+            GET_NODE_ROT(q, dq);
+            RotQuaternionZ(q, -D_0063B90A);
+            RotQuaternionY(q, -D_0063B906);
+            RotQuaternionZ(q, -D_0063B904);
+            MultiQuaternion(q, q, D_0063C478 + *(int *)(node + 0x38) * 0x20 + 0x10);
+            MultiQuaternion(q, q, dq);
+            APPLY_ROT(q);
+            break;
+        }
+        MultiQuaternion(GetCurrentQuaternion(), GetLastQuaternion(), elem + 0x10);
+        GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion());
+        break;
+
+    default:
+        MultiQuaternion(GetCurrentQuaternion(), GetLastQuaternion(), elem + 0x10);
+        GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion());
+        break;
+    }
+}
 
 /* kept local: this TU's uses of these do not fit the prototypes in debug.h. */
 extern void debug_Printf(int a, int b, unsigned int c, int x, ...);
