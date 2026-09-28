@@ -64,39 +64,39 @@ static float D_004EC9C0[4] = {-4.0f, 0.0f, 4.0f, 0.0f};
 
 static float D_004EC9D0[4] = {4.0f, 0.0f, -4.0f, 0.0f};
 
-float D_004EC9E0[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+static float D_004EC9E0[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 
-float D_004EC9F0[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+static float D_004EC9F0[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 
-float D_004ECA00[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+static float D_004ECA00[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 
 static float D_004ECA10[4] = {0.0f, -40.0f, 0.0f, 1.0f};
 
 static float D_004ECA20[4] = {0.0f, 0.0f, 300.0f, 1.0f};
 
-float D_004ECA30[4] = {0.0f, 10.0f, 0.0f, 1.0f};
+static float D_004ECA30[4] = {0.0f, 10.0f, 0.0f, 1.0f};
 
-float D_004ECA40[4] = {0.0f, 0.0f, 300.0f, 1.0f};
+static float D_004ECA40[4] = {0.0f, 0.0f, 300.0f, 1.0f};
 
-sceVu0IVECTOR D_004ECA50 = {0xFF, 0x80, 0x00, 0x80};
+static sceVu0IVECTOR D_004ECA50 = {0xFF, 0x80, 0x00, 0x80};
 
-sceVu0IVECTOR D_004ECA60 = {0x00, 0x80, 0xFF, 0x80};
+static sceVu0IVECTOR D_004ECA60 = {0x00, 0x80, 0xFF, 0x80};
 
 static float D_004ECA70[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 static float D_004ECA80[4] = {0.0f, 0.0f, 10.0f, 0.0f};
 
-float D_004ECA90[4] = {0.0f, 0.0f, -50.0f, 1.0f};
+static float D_004ECA90[4] = {0.0f, 0.0f, -50.0f, 1.0f};
 
-float D_004ECAA0[4] = {0.0f, 0.0f, 50.0f, 1.0f};
+static float D_004ECAA0[4] = {0.0f, 0.0f, 50.0f, 1.0f};
 
-float D_004ECAB0[4] = {-30.0f, 0.0f, 0.0f, 1.0f};
+static float D_004ECAB0[4] = {-30.0f, 0.0f, 0.0f, 1.0f};
 
-float D_004ECAC0[4] = {30.0f, 0.0f, 0.0f, 1.0f};
+static float D_004ECAC0[4] = {30.0f, 0.0f, 0.0f, 1.0f};
 
-float D_004ECAD0[4] = {0.0f, 0.0f, -50.0f, 1.0f};
+static float D_004ECAD0[4] = {0.0f, 0.0f, -50.0f, 1.0f};
 
-float D_004ECAE0[4] = {0.0f, 0.0f, 50.0f, 1.0f};
+static float D_004ECAE0[4] = {0.0f, 0.0f, 50.0f, 1.0f};
 
 static float D_004ECAF0[4] = {-40.0f, 0.0f, 0.0f, 1.0f};
 
