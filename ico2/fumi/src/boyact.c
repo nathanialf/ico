@@ -520,7 +520,19 @@ static float D_006C0A90[4];
 
 static float D_006C0AA0[4];
 
-static int D_006C0AB0[3];
+typedef struct {
+    int a;
+    int b;
+} CharPos;
+
+/* the wall hit actBoyStart hands the boy and the girl with mail 0x36: the
+   ClipWall work record's 0x80 pair and its hit flag at 0x88 */
+typedef struct {
+    CharPos pos; /* 0x00 */
+    int hit;     /* 0x08 */
+} BoyWallHit;
+
+static BoyWallHit D_006C0AB0;
 
 static int D_006C0AC0[3];
 
@@ -888,7 +900,8 @@ extern char D_0063A6E0[];
 typedef struct {
     char _00[0x70];
     float f70;
-    char _74[0x14];
+    char _74[0x0C];
+    CharPos f80;
     int f88;
     char _8C[0x34];
 } BoyWallWork;
@@ -1646,18 +1659,20 @@ void subBoyControl(volatile int a0)
 }
 
 typedef struct {
-    int a;
-    int b;
-} CharPos;
-
-typedef struct {
-    int boyID;                    /* 0x00 */
-    int girlID;                   /* 0x04 */
-    unsigned long long pad0 : 32; /* 0x08 */
-    unsigned long long bit32 : 1;
-    unsigned long long fire : 1;
-    unsigned long long torch : 1;
-    unsigned long long escort : 1;
+    int boyID;                        /* 0x00 */
+    int girlID;                       /* 0x04 */
+    unsigned long long layoutID : 32; /* 0x08 */
+    /* The one-bit flags are declared no wider than short: actBoyStart's truth
+       tests of torch, bit32 and fire are the ROM's ld/mask/and form, which
+       shorten_compare hands to fold's bit-field compare only for a field
+       narrower than int, and its escort read truncates to char before the
+       mask as a char field's extraction does.  torch is a short because
+       ReadCharacterPacket's lhu of its 16-bit packet field survives only a
+       conversion to a type of at least 16 bits. */
+    unsigned char bit32 : 1;
+    unsigned char fire : 1;
+    unsigned short torch : 1;
+    unsigned char escort : 1;
     char pad10[0x10];        /* 0x10 */
     void *weapon;            /* 0x20 */
     void *nextWeapon;        /* 0x24 */
@@ -3194,7 +3209,156 @@ void SetStatusBoy_OtherStageGirlPinch(void)
     InsertCamera_SetNoraml(cam, pos, frames, 0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/boyact", actBoyStart);
+extern char D_00552C20[];
+extern char D_00552C50[];
+extern char D_00552C88[];
+/* the two segment ends actBoyStart runs through the layout object's matrix,
+   {0, 0, -50, 1} and {0, 0, 50, 1}; they sit in the .rodata blob between the
+   function's strings, and `const` is what keeps the second copy's two loads in
+   the ROM's order (no anti-dependence on the stack stores) */
+extern const Vec16 D_00552C30;
+extern const Vec16 D_00552C40;
+extern char D_002A84F8[];
+extern void *D_0063A70C;
+/* not declared by the headers this TU includes; the act.c entry points as
+   girl_act.c declares them for actGirlStart */
+extern char *actInitialize(void *self);
+extern void actInitialize_ext_charcter(void *self);
+extern void actInitialize_only_charcter(void *self);
+extern void actInitialize_geo(void *self);
+extern int actCreateSubThread(void *entry, int prio);
+extern void subCommonIdle(void);
+extern void subBoyBrainMain(int a0);
+extern void *MatrixDrive_GetMatrix(void);
+extern void CopyMatrix(void *dst, void *src);
+extern void MatrixDrive_TransMatrix(float x, float y, float z);
+extern void LightTorchOnOfWeaponWithNoSE(void *w);
+
+void actBoyStart(int a0)
+{
+    char *work;
+    void *g;
+
+    D_0063C1F4 = BOYINFO.escort;
+    BOYINFO.escort = 0;
+
+    ((int *)D_006C0AD0)[4] = -1;
+
+    D_0063C1F5 = 0;
+    D_0063C1F6 = 0;
+    D_0063C1F7 = 0;
+    D_0063C1F8 = 0;
+    D_0063C1F9 = 0;
+
+    D_0063C1FC = 0;
+    debug_StdPrintfDummy(D_00552C20, a0);
+
+    work = actInitialize(a0);
+    *(void **)(work + 0x68C) = D_006C0AC0;
+
+    GetRootPosition(work + 0x110, (void *)a0);
+
+    actInitialize_ext_charcter(a0);
+    actInitialize_only_charcter(a0);
+    actInitialize_geo(a0);
+
+    *(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x254) =
+        (int)(_ACTGame_GetParamF(0x21) * (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) /
+              60.0f);
+    ACTGame_LwsEffectInit(a0);
+
+    *(int *)(work + 0x180) = 0;
+    *(int *)(work + 0x184) = 0;
+
+    D_0063A70C = 0;
+    ACTParaStatus_Init(a0);
+    _ACTCharStatus_Init(a0);
+
+    _ACTWait(1);
+
+    D_00639EC0 = (void *)a0;
+
+    *(float *)(work + 0x1E0) = _ACTGame_GetParamF(0x13);
+    *(int *)(work + 0x48) = 0;
+
+    if (BOYINFO.boyID != 0) {
+        g = isysGObjSearchFromObjLayoutID(BOYINFO.boyID);
+        if (g != 0) {
+            PickupWeapon(g, (void *)a0, 0x16);
+            *(void **)(work + 0x150) = g;
+            if (BOYINFO.torch) {
+                LightTorchOnOfWeaponWithNoSE(g);
+            }
+        } else {
+            BOYINFO.boyID = 0;
+        }
+    }
+
+    if (BOYINFO.girlID != 0) {
+        g = isysGObjSearchFromObjLayoutID(BOYINFO.girlID);
+        if (g != 0) {
+            ACTSendMailCorrect(a0, 0x35);
+            *(void **)(work + 0x184) = *(void **)(work + 0x154) = g;
+        } else {
+            BOYINFO.girlID = 0;
+        }
+        D_0063C1F6 = 1;
+    }
+
+    if (BOYINFO.layoutID != 0) {
+        g = isysGObjSearchFromObjLayoutID(BOYINFO.layoutID);
+        if (g != 0) {
+            Vec16 p0;
+            Vec16 p1;
+            BoyWallWork cw;
+
+            p0 = D_00552C30;
+            p1 = D_00552C40;
+
+            CopyMatrix(MatrixDrive_GetMatrix(), *(void **)(*(char **)((char *)g + 0x15C) + 0xC));
+            MatrixDrive_TransMatrix(0.0f, -50.0f, 0.0f);
+            sceVu0ApplyMatrix(&cw, MatrixDrive_GetMatrix(), &p0);
+            sceVu0ApplyMatrix((char *)&cw + 0x10, MatrixDrive_GetMatrix(), &p1);
+            cw.f70 = 0.0f;
+            ClipWall(&cw);
+            if (cw.f88 == 0) {
+                debug_StdPrintfDummy(D_00552C50);
+            } else {
+                D_0063C1F8 = 1;
+                D_0063C1F9 = 1;
+                D_006C0AB0.pos = cw.f80;
+                D_006C0AB0.hit = cw.f88;
+                D_0063AA08 = 0;
+                ActSendMail_WithAdditionalData((void *)a0, 0x36, (void *)a0, &D_006C0AB0);
+                if (BOYINFO.bit32 && D_00639EA8 != 0) {
+                    ActSendMail_WithAdditionalData(D_00639EA8, 0x36, D_00639EA8, &D_006C0AB0);
+                }
+            }
+        } else {
+            BOYINFO.layoutID = 0;
+        }
+    }
+
+    D_0063C1F7 = 0;
+
+    *(void **)(work + 0xD0) = D_002A84F8;
+
+    actCreateSubThread(subBoyBrainMain, 20);
+    D_0063A70C = (void *)actCreateSubThread(subBoyControl, 21);
+    actCreateSubThread(subBoyCollision, 21);
+    actCreateSubThread(subCommonIdle, 21);
+
+    *(void **)(work + 0xD4) = D_002A84F8 + 0x78;
+    ACTSendMailCorrect(a0, 0xC7);
+
+    _ACTWait(1);
+
+    if (BOYINFO.fire && D_00639EA8 != 0) {
+        iosOmSendMail(D_00639EA8, 0x3F, (void *)a0);
+        debug_StdPrintfDummy(D_00552C88);
+    }
+    _ACTWait(0);
+}
 
 /* kept local: this TU's uses of ConvertStickToAbsCoord do not fit the prototype in act.h */
 extern void ConvertStickToAbsCoord();
@@ -3835,7 +3999,7 @@ void ReadCharacterPacket(void)
 
     BOYINFO.boyID = p->boyID;
     BOYINFO.girlID = p->girlID;
-    BOYINFO.pad0 = p->f10;
+    BOYINFO.layoutID = p->f10;
     BOYINFO.bit32 = p->b1C;
     BOYINFO.fire = p->b1D;
     BOYINFO.torch = p->h1E;
