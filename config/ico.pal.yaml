@@ -421,7 +421,13 @@ segments:
       - [0x1675F0, c, sce/libcdvd/cdvd047]  # 10 funcs, vendor libcdvd.a member cdvd047.o: MAIN.MAP 0x4E0 covers sceCdStInit..sceCdStream exactly (chain 1 pass 107 corrected the earlier claim that _send_to_iop after it was unreferenced word) so it rides the member linked for the others, the retail revision
       - [0x167AD0, c, sce/libpad/libpad]  # 30 funcs, vendor libpad.a whole run: _send_to_iop first (MAIN.MAP libpad.o .text begins where cdvd047.o's 0x4E0 ends, the listing has libpad's jal to it at 0x26C754, and its string is libpad.o's first .rodata entry), then the 29 scePad entry points
       - [0x168E78, c, sce/libmc/libmc]  # 26 funcs, vendor libmc.a member libmc.o (26/26 MAIN.MAP)
-      - [0x16A630, c, sce/libmpeg/libmpeg]  # 141 funcs, vendor libmpeg.a whole run (140/141 MAIN.MAP)
+      - [0x16A630, c, sce/libmpeg/pack]  # 8 funcs, vendor libmpeg.a member pack.o (MAIN.MAP .text 0xDD8 tiles _type2id.._PES_packet)
+      - [0x16B408, c, sce/libmpeg/mpeg]  # 35 funcs, vendor libmpeg.a member mpeg.o (MAIN.MAP .text 0xBD0 tiles sceMpegInit.._sceMpegFlush)
+      - [0x16BFD8, c, sce/libmpeg/init]  # 19 funcs, vendor libmpeg.a member init.o (MAIN.MAP .text 0xBCC, then 4 B of fill to defhandler.o's 8-aligned start)
+      - [0x16CBA8, c, sce/libmpeg/defhandler]  # 2 funcs, vendor libmpeg.a member defhandler.o (MAIN.MAP .text 0x1C, then 12 B of fill to mpc.o's 16-aligned start); var.o is data only
+      - [0x16CBD0, c, sce/libmpeg/mpc]  # 63 funcs, vendor libmpeg.a member mpc.o (MAIN.MAP .text 0x4D68 tiles _motionComp0.._dispRefImageField; 16-aligned by _copyRefImage's .align 4)
+      - [0x171938, c, sce/libmpeg/csc]  # 5 funcs, vendor libmpeg.a member csc.o (MAIN.MAP .text 0x71C, then 4 B of fill to bit.o)
+      - [0x172058, c, sce/libmpeg/bit]  # 9 funcs, vendor libmpeg.a member bit.o (MAIN.MAP .text 0x20C covers the seven _sysbit functions) plus setD3_CHCR and setD4_CHCR, which the listing places in libipu.o (they sit after bit.o's 4 B of fill) and which stay here until libipu's row is moved
       - [0x172338, c, sce/libipu/libipu]  # 3 funcs, vendor libipu.a member libipu.o (spans 0xE8, 0x150, 0x68 tile the retail run)
       - [0x1725D8, c, sce/libipu/ipuinit]  # 2 funcs, vendor libipu.a member ipuinit.o (0x2A0 exactly); holds its own static setD4_CHCR
       - [0x172878, c, sce/libscf/libscf]  # 21 funcs, attribution INFERRED (public SDK libscf: the sceScf family plus the ROM-name and BCD date helpers they use); no disc map names an archive, MAIN.MAP is an older link whose .text ends before them
@@ -1046,7 +1052,7 @@ segments:
       - [0x536B34, rodata, cod/536B34]  # .rodata blob resume (libpad.o's strings begin at 0x636B38)
       - [0x536C90, .rodata, sce/libmc/libmc]  # the member's whole .rodata (= MAIN.MAP libmc.o .rodata 0x65, chain 1 pass 109): its three printf strings as anonymous literals, VMA 0x636C90..0x636CF5
       - [0x536CF8, rodata, cod/536CF8]  # .rodata blob resume (D_00636CF8, named, referenced by libmpeg)
-      - [0x536DC0, .rodata, sce/libmpeg/libmpeg]  # _getpic's jump table jtbl_00636DC0 (5 words, section .rodata.0x00636DC0), VMA 0x636DC0..0x636DD4; cases 3 and 4 share a block
+      - [0x536DC0, .rodata, sce/libmpeg/mpeg]  # _getpic's jump table jtbl_00636DC0 (5 words, section .rodata.0x00636DC0), VMA 0x636DC0..0x636DD4; cases 3 and 4 share a block
       - [0x536DD4, rodata, cod/536DD4]   # .rodata blob resume
       - [0x5371D0, .rodata, sce/libscf/libscf]  # the member's whole .rodata run (0xF6 B + 2 B link pad): its twelve string literals in order of first use (rom0:ROMVER, the two ROM errors, the four OSD printf formats, libscf.c from __FILE__, the assert texts) with the month table between the assert groups because adddate precedes AdjustTime, VMA 0x6371D0..0x6372C8; libscf builds at -G 0 so its 7-byte string stays out of .sdata
       - [0x5372C8, rodata, cod/5372C8]   # .rodata blob resume

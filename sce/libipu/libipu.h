@@ -18,5 +18,6 @@
 #define SCE_LIBIPU_LIBIPU_H
 
 void sceIpuStopDMA(void *a0);                                          /* definition in sce/ */
+void sceIpuRestartDMA(void *a0);                                       /* definition in sce/ */
 
 #endif /* SCE_LIBIPU_LIBIPU_H */
