@@ -123,9 +123,253 @@ void printfloat(double v)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libkernl/kprintf", _printf);
+void _printf(char *fmt, char *ap)
+{
+    char buf[32];
+    char *s;
+    char *p;
+    char *pad;
+    char *t;
+    char *q;
+    char c;
+    int sz;
+    int n;
+    int m;
+    long long val;
+    unsigned long long uval;
+    unsigned long long d;
+    float f;
 
-extern int _printf(char *fmt, void *va);
+    s = fmt;
+    while (*s) {
+        c = *s;
+        pad = 0;
+        sz = 0;
+        if (c == '%') {
+            p = s + 1;
+        next:
+            s = p;
+            switch (*s) {
+            case '0':
+                n = p[1] - '0';
+                m = p[2];
+                if ((unsigned char)n < 10) {
+                    if ((unsigned int)(m - '0') < 10) {
+                        n = n * 10 + (m - '0');
+                        if (n >= 32) {
+                            n = 31;
+                        }
+                        s = p + 2;
+                    } else {
+                        s = p + 1;
+                    }
+                    pad = &buf[31 - n];
+                    if (n > 0) {
+                        p = s + 1;
+                    fill:
+                        buf[31 - n] = '0';
+                        n--;
+                        if (n > 0) {
+                            goto fill;
+                        }
+                        goto next;
+                    }
+                    p = s + 1;
+                    goto next;
+                }
+                p++;
+                goto next;
+            case 'l':
+                sz = 'l';
+                p++;
+                goto next;
+            case 'h':
+                sz = 'h';
+                p++;
+                goto next;
+            case 'o':
+                if (sz == 'l') {
+                    ap += 8;
+                    uval = *(unsigned long long *)(ap - 8);
+                } else if (sz == 'h') {
+                    ap += 8;
+                    uval = *(unsigned short *)(ap - 8);
+                } else {
+                    ap += 8;
+                    uval = *(unsigned int *)(ap - 8);
+                }
+                s = &buf[31];
+                *s = 0;
+                if (uval == 0) {
+                    *--s = '0';
+                    p++;
+                } else {
+                    p++;
+                    do {
+                        *--s = (uval & 7) + '0';
+                        uval >>= 3;
+                    } while (uval != 0);
+                }
+                if (pad != 0 && pad < s) {
+                    s = pad;
+                }
+                while (*s) {
+                    (*D_0028F4B8[0])(*s++);
+                }
+                break;
+            case 'x':
+                if (sz == 'l') {
+                    ap += 8;
+                    uval = *(unsigned long long *)(ap - 8);
+                } else if (sz == 'h') {
+                    ap += 8;
+                    uval = *(unsigned short *)(ap - 8);
+                } else {
+                    ap += 8;
+                    uval = *(unsigned int *)(ap - 8);
+                }
+                s = &buf[31];
+                *s = 0;
+                if (uval == 0) {
+                    *--s = '0';
+                    p++;
+                } else {
+                    p++;
+                    do {
+                        d = uval & 0xF;
+                        if (d < 10) {
+                            *--s = d + '0';
+                        } else {
+                            *--s = d + 'a' - 10;
+                        }
+                        uval >>= 4;
+                    } while (uval != 0);
+                }
+                if (pad != 0 && pad < s) {
+                    s = pad;
+                }
+                while (*s) {
+                    (*D_0028F4B8[0])(*s++);
+                }
+                break;
+            case 'd':
+                if (sz == 'l') {
+                    ap += 8;
+                    val = *(long long *)(ap - 8);
+                } else if (sz == 'h') {
+                    ap += 8;
+                    val = *(short *)(ap - 8);
+                } else {
+                    ap += 8;
+                    val = *(int *)(ap - 8);
+                }
+                s = &buf[31];
+                *s = 0;
+                if (val == 0) {
+                    *--s = '0';
+                    p++;
+                } else {
+                    if (val < 0) {
+                        val = -val;
+                        (*D_0028F4B8[0])('-');
+                    }
+                    while (val != 0) {
+                        *--s = val % 10 + '0';
+                        val /= 10;
+                    }
+                    p++;
+                }
+                if (pad != 0 && pad < s) {
+                    s = pad;
+                }
+                while (*s) {
+                    (*D_0028F4B8[0])(*s++);
+                }
+                break;
+            case 'u':
+                if (sz == 'l') {
+                    ap += 8;
+                    uval = *(unsigned long long *)(ap - 8);
+                } else if (sz == 'h') {
+                    ap += 8;
+                    uval = *(unsigned short *)(ap - 8);
+                } else {
+                    ap += 8;
+                    uval = *(unsigned int *)(ap - 8);
+                }
+                s = &buf[31];
+                *s = 0;
+                if (uval == 0) {
+                    *--s = '0';
+                    p++;
+                } else {
+                    p++;
+                    while (uval != 0) {
+                        *--s = uval % 10 + '0';
+                        uval /= 10;
+                    }
+                }
+                if (pad != 0 && pad < s) {
+                    s = pad;
+                }
+                while (*s) {
+                    (*D_0028F4B8[0])(*s++);
+                }
+                break;
+            case 'e':
+            case 'f': {
+                /* CRUTCH (user-approved 2026-09-29, finisher to fix): the ROM has a nop
+                 * between c.eq.s and bc1f here, which no ee-gcc 2.9-991111 template and no
+                 * SCE 2.10 assembler option emits. The $f12 register variable x and the nop
+                 * asm stand in for whatever produced it. */
+                register float x __asm__("$f12");
+
+                ap += 8;
+                f = *(float *)(ap - 8);
+                x = f;
+                __asm__("nop" : "=f"(x) : "0"(x));
+                if (f == 0.0f) {
+                    (*D_0028F4B8[0])('0');
+                } else {
+                    printfloat(x);
+                }
+                goto skip;
+            }
+            case 's':
+                ap += 8;
+                t = *(char **)(ap - 8);
+                if (*t == 0) {
+                    (*D_0028F4B8[0])('(');
+                    (*D_0028F4B8[0])('n');
+                    (*D_0028F4B8[0])('u');
+                    (*D_0028F4B8[0])('l');
+                    (*D_0028F4B8[0])('l');
+                    (*D_0028F4B8[0])(')');
+                } else {
+                    q = t;
+                    while (*q) {
+                        (*D_0028F4B8[0])(*q);
+                        q++;
+                    }
+                }
+                goto skip;
+            case 'c':
+                ap += 8;
+                val = *(char *)(ap - 8);
+                (*D_0028F4B8[0])(val);
+                goto skip;
+            default:
+                goto skip;
+            }
+        } else {
+            p = s;
+            (*D_0028F4B8[0])(c);
+        skip:
+            p++;
+        }
+        s = p;
+    }
+}
 
 void kprintf(char *fmt, ...)
 {
