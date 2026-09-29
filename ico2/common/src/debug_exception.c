@@ -90,8 +90,11 @@ typedef struct {
 extern TraceEntry *D_0063B268;
 
 /* The disc settle the debug monitor does around every raw file operation: wait
- * out the outstanding sceCdSync, then spin. The spin body is four nops so the
- * loop is real work rather than something the optimiser can drop. */
+ * out the outstanding sceCdSync, then spin.  The listing puts the whole
+ * countdown on one line (295).  The zero words inside every countdown loop are
+ * not source: the spin body is empty and ee-gcc's machine reorg pads any loop
+ * too short for the R5900 short-loop erratum with nops
+ * (mips.c:mips_r5900_lengthen_loops). */
 static inline void waitCd(void)
 {
     int i;
@@ -99,13 +102,8 @@ static inline void waitCd(void)
     while (sceCdSync(1) != 0)
         ;
     i = 2000000;
-    do {
-        i--;
-        __asm__ __volatile__("nop");
-        __asm__ __volatile__("nop");
-        __asm__ __volatile__("nop");
-        __asm__ __volatile__("nop");
-    } while (i != -1);
+    while (i--)
+        ;
 }
 
 void initLineTraceTable(void)
@@ -132,20 +130,11 @@ void initLineTraceTable(void)
 }
 
 /* Compiled-out debug hook, the same construct icoMisc.c carries
-   (partitionBarDebugDisp).  The Jan-2002 listing emits NO instruction for
-   debug_exception.c:381, :382 and :384 inside traceLine, and the function
-   needs exactly the zero-byte insns those inlined empty bodies leave
-   behind: ee-gcc emits `(use (const_int 0))`
-   for an inlined call, an insn that takes a scheduling slot and a place in
-   the live-range count while emitting nothing.  In traceLine the three of
-   them carry the &buf[30] address's live range from 77 insns to 82, so
-   global.c:allocno_compare scores it floor_log2(3)*3/82*10000 = 365 against
-   the three &info.<field> addresses' floor_log2(2)*2/54*10000 = 370 and ranks
-   those first, which is ROM's $s5/$s6/$s7/$s8; at 77 the buffer address
-   scores 389, wins the rank and takes $s5, the four-register renaming that
-   was the whole residual.  The name is ours: the listing records no symbol
-   for an inlined empty body.  Evidence rung: ROM bytes
-   (0x001B5170..0x001B5510) plus the listing's line map. */
+   (partitionBarDebugDisp).  One call is left, in dispSource (its note says
+   what the bytes pin there).  An inlined empty body leaves one
+   `(use (const_int 0))` insn, which takes an issue slot in both scheduling
+   passes and emits nothing.  The name is ours: the listing records no symbol
+   for an inlined empty body. */
 static __inline__ void debugExcDebugDisp(void) {}
 
 /* What traceLine parses out of one TRFILE.TXT line and hands to dispSource:
@@ -228,10 +217,7 @@ SrcRef traceLine(char *out, unsigned int addr)
     info.stack = (short)info.stack;
     info.ra = (short)info.ra;
     scePrintf(D_0061D068, info.addr, info.offset, info.stack, info.ra);
-    debugExcDebugDisp();
-    debugExcDebugDisp();
     scePrintf(D_0061D090, info.addr, src);
-    debugExcDebugDisp();
 
     if (out != 0) {
         sprintf(out, D_0063B3A0, src);
@@ -256,18 +242,14 @@ extern char D_0063B3B8[]; /* "%s\n" -- this TU's own .sdata, uncarved */
    over by invisible reference and the callee copies it into its own frame,
    which is the unaligned 16-byte copy at the head.
 
-   The four debugExcDebugDisp() calls are the TU's compiled-out debug hook
-   (see its definition above), one in the listing's code-free run 431-435
-   and three in 444-449.  WHAT THE BYTES PIN: the hook in 431-435 is a
-   zero-byte insn that sched2 ranks ahead of `n = 0` by LUID, so it takes
-   the free issue slot beside the sceRead call and `n = 0` falls into the
-   putString delay slot with the loop constants after the call, the ROM's
-   order; the three in 444-449 lengthen every loop-wide live range by
-   three, which global.c's allocno_compare needs for the ROM's s0-s8
-   assignment (fd 12/90 against the "%s\n" high part 10/75 ties and fd,
-   the lower allocno, takes $s4; the frame reference against &buf[1024]
-   needs two or more).  WHAT THEY CANNOT PIN: that the developer's
-   compiled-out debug code was this construct, or its exact lines. */
+   The debugExcDebugDisp() call is the TU's compiled-out debug hook (see its
+   definition above), in the listing's code-free run 431-435.  WHAT THE
+   BYTES PIN: sched1 and sched2 both need a zero-byte insn ranked ahead of
+   `n = 0` in the cycle of the sceRead call.  Without it `n = 0` issues
+   beside that call, the loop's -121 constant takes the free slot before
+   putString, and dbr moves it into putString's delay slot, where the ROM
+   has `n = 0`.  WHAT IT CANNOT PIN: that the developer's compiled-out debug
+   code was this construct, or its exact line. */
 
 void dispSource(SrcRef ref, int lines)
 {
@@ -302,19 +284,15 @@ void dispSource(SrcRef ref, int lines)
 
     line = (char *)buf;
     debugExcDebugDisp();
-
-    putString(0xFFFFFF00, D_0063B3A8);
     n = 0;
 
+    putString(0xFFFFFF00, D_0063B3A8);
     for (i = 0; i < 1024; i++) {
         if (buf[i] == 0xA) {
             num = 0;
 
             buf[i] = 0;
             sscanf(line, D_0063B3B0, &num);
-            debugExcDebugDisp();
-            debugExcDebugDisp();
-            debugExcDebugDisp();
 
             if (ref.addr == num) {
                 *line = 0x87;
@@ -555,14 +533,11 @@ void debugEEExceptionMain(int arg0, unsigned int cause, unsigned int epc, unsign
         page = 1;
     }
 
+    /* One listing line (619), an empty body: the zero words are the R5900
+       short-loop padding, as in waitCd. */
     spin = 1000000000;
-    do {
-        spin--;
-        __asm__ __volatile__("nop");
-        __asm__ __volatile__("nop");
-        __asm__ __volatile__("nop");
-        __asm__ __volatile__("nop");
-    } while (spin != -1);
+    while (spin--)
+        ;
 
     restoreSavedFrame();
 
