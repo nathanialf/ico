@@ -314,7 +314,62 @@ void _getRef0(int *img, int lineOff, int predIdx, int yoff, int h, int x, int y,
     *(int *)((char *)_mbcont + idx * 0x140 + 0x12C) += 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/mpc", _doMC);
+extern void _copyRefImage(void *a0, void *a1);
+extern void _copyAddRefImage(void *a0, void *a1, void *a2);
+extern int D_00636FA8[]; /* "intra && skip MB" */
+
+/* One macroblock's motion-compensation record, 0x140 bytes, as the members of
+ * this file fill it: _motionComp0 sets the IPU output base, the destination and
+ * the flags, _getRef0 appends one reference per call (source addresses, copy
+ * routines, a seven-int luma and a seven-int chroma descriptor). */
+typedef struct {
+    void *ipuOut;
+    void *src;
+    void *refAddr[2][4];
+    void (*lumaFn[4])();
+    void (*chromaFn[4])();
+    int luma[4][7];
+    int chroma[4][7];
+    void *dst;
+    int count;
+    int intra;
+    int _134;
+    int busy;
+    int skip;
+} MCRecord;
+
+/* _mbcont: two records, double-buffered, and the index of the current one
+ * (the `_mbcont[0x280 / 4]` the other members read). */
+typedef struct {
+    MCRecord rec[2];
+    int cur;
+} MCState;
+
+/* Finish record a0: run each reference's luma and chroma copy routines into
+ * the prediction buffer, then copy the intra block, the prediction (skipped
+ * macroblock) or the prediction plus the residual to the destination. */
+void _doMC(int a0)
+{
+    int i;
+
+    if (((MCState *)_mbcont)->rec[a0].busy != 0) {
+        for (i = 0; i < ((MCState *)_mbcont)->rec[a0].count; i++) {
+            ((MCState *)_mbcont)->rec[a0].lumaFn[i](((MCState *)_mbcont)->rec[a0].luma[i]);
+            ((MCState *)_mbcont)->rec[a0].chromaFn[i](((MCState *)_mbcont)->rec[a0].chroma[i]);
+        }
+    }
+    if (((MCState *)_mbcont)->rec[a0].intra != 0 && ((MCState *)_mbcont)->rec[a0].skip != 0) {
+        _Error(D_00636FA8);
+    }
+    if (((MCState *)_mbcont)->rec[a0].intra != 0) {
+        _copyRefImage(((MCState *)_mbcont)->rec[a0].dst, ((MCState *)_mbcont)->rec[a0].src);
+    } else if (((MCState *)_mbcont)->rec[a0].skip != 0) {
+        _copyRefImage(((MCState *)_mbcont)->rec[a0].dst, (void *)D_0054C0E0);
+    } else {
+        _copyAddRefImage(((MCState *)_mbcont)->rec[a0].dst, (void *)D_0054C0E0,
+                         ((MCState *)_mbcont)->rec[a0].src);
+    }
+}
 
 __asm__(".section .text\n"
         "    .set noat\n"
