@@ -1469,8 +1469,13 @@ static inline int openLayoutVoice(int no)
 }
 
 /* layout_action.c:2591-2678 in the listing. */
+/* extra preview pages to re-mask; none in the release build */
+#define LA_EXTRA_PREVIEW_PAGES 0
+
 int la_mc_confirm_save_file(int a0, int a1)
 {
+    int i;
+
     _la_mask_preview_info();
     lt_mask_property(0xB0, 1);
     lt_mask_property(0xB1, 1);
@@ -1506,9 +1511,16 @@ int la_mc_confirm_save_file(int a0, int a1)
            pass 145 measured each).  The call on line 2637 is the only code in
            that window and the listing's lines 2638-2639 carry none; the bytes
            pin the loop, not the wrapper's spelling. */
-        do {
+        _la_mask_preview_info();
+        /* A loop over extra preview pages, built with a count of 0 in the
+           release build.  WHAT THE BYTES PIN: the loop-begin note of a loop
+           here, which aligns the label after it (the ROM's pad nop); its body
+           never runs, so it leaves no code (listing rows 2638-2639 are
+           code-free).  WHAT THEY CANNOT PIN: what the loop counted or did;
+           the count's name and the body are ours. */
+        for (i = 0; i < LA_EXTRA_PREVIEW_PAGES; i++) {
             _la_mask_preview_info();
-        } while (0);
+        }
         if (D_0063B598 != 0) {
             D_0063B4FC = soundDataOpenSync(&voiceOpenReq);
             if (D_0063B4FC != (char *)0xFFFFFFFF) {

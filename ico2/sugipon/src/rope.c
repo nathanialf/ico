@@ -286,20 +286,31 @@ void ropeGeo(void *a0)
 /* The listing inlines rope.c:215-221 into RopeGeo: the chain-length update
    is a static helper defined above it (its name is not recoverable). */
 
+/* extra chains hung from the rope; none in the release build */
+#define ROPE_EXTRA_CHAINS 0
+
 static inline void ropeChainCollision(void *a0)
 {
     void *g = D_00639EA4;
     void **obj = *(void ***)((char *)*(void **)((char *)a0 + 0x15C) + 0x830);
     float m[4];
     float w;
+    int i;
 
     GetRootPosition(m, g);
     w = GetChainCollision(obj[0], m, 200.0f);
-    do {
-        if (0.0f < w) {
-            *(float *)((char *)*(void **)((char *)g + 0x15C) + 0x618) = w;
+    if (0.0f < w) {
+        *(float *)((char *)*(void **)((char *)g + 0x15C) + 0x618) = w;
+        /* A loop over the rope's extra chains, built with a count of 0 in
+           the release build.  WHAT THE BYTES PIN: the loop-begin note of a
+           loop at the end of this block; its body never runs, so it leaves
+           no code (listing rows 222-250 are code-free).  WHAT THEY CANNOT
+           PIN: what the loop counted or did; the count's name and the body
+           are ours. */
+        for (i = 0; i < ROPE_EXTRA_CHAINS; i++) {
+            w = GetChainCollision(obj[i + 1], m, w);
         }
-    } while (0);
+    }
 }
 
 inline void RopeGeo(void *a0)
