@@ -2262,7 +2262,30 @@ void _pictureHeader(void)
     _updateTempTackData();
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/mpc", _extensionAndUserData);
+/* the extension dispatch table, one entry per extension id, entry 0 is the
+ * unknown-extension handler every id past the last known one falls back to */
+extern void (*D_0054CA40[])(void);
+
+void _extensionAndUserData(void)
+{
+    int code;
+
+    _nextStartCode();
+    while ((code = _peepBit(32)) == 0x1B5 || code == 0x1B2) {
+        if (code == 0x1B5) {
+            unsigned int id;
+
+            _flushBuf(32);
+            id = _nextBit(4);
+            id = id > 10 ? 0 : id;
+            D_0054CA40[id]();
+            _nextStartCode();
+        } else {
+            _flushBuf(32);
+            _nextStartCode();
+        }
+    }
+}
 
 extern int _f_code[];
 extern int _intra_dc_precision;
