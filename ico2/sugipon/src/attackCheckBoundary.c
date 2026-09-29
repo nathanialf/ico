@@ -57,25 +57,26 @@ static inline char *createAttackCheckBoundaryGObj(AcbLayout *lay)
     return CreateLayoutedGObj(63, 0x4B, -1, 0, lay, -1, 7, 1);
 }
 
+/* The 12-byte work record this function allocates and the other members
+   reach through the sub-object's 0x830: 0x4 is the flag AttackCheckBoundaryDL
+   tests, 0x8 the attribute SetAttackCheckBoundaryAttribute stores, and 0x0
+   the caller's int that CreateAttackCheckBoundary passed in the layout's
+   handle, cleared again through it here. */
+typedef struct {
+    int *handle; /* 0x0 */
+    int f4;      /* 0x4 */
+    int attr;    /* 0x8 */
+} AcbWork;
+
 inline int InitAttackCheckBoundaryGeo(int unused, void *obj)
 {
-    int buf = iosMallocDebug(D_0063A438, 0xC, __FILE__, 27);
-    int *p = *((int **)(((char *)obj) + 0x30));
-    int new_var4;
-    int *new_var2;
-    int *new_var3;
-    int new_var;
-    new_var2 = p;
-    do {
-        new_var4 = (int)p;
-        ;
-    } while (0);
-    *((int *)(buf + 4)) = 0;
-    new_var3 = (int *)buf;
-    *new_var2 = 0;
-    *new_var3 = new_var4;
-    *((int *)(buf + 8)) = 0;
-    return buf;
+    AcbWork *w = (AcbWork *)iosMallocDebug(D_0063A438, 0xC, __FILE__, 27);
+
+    w->handle = (int *)((AcbLayout *)obj)->obj;
+    w->f4 = 0;
+    *w->handle = 0;
+    w->attr = 0;
+    return (int)w;
 }
 
 inline void AttackCheckBoundaryGeo(void *a0)

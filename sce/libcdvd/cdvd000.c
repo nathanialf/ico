@@ -182,7 +182,7 @@ int sceCdCallback(int a0)
  * resource_conflicts_p; alias.c true_dependence orders two distinct globals
  * only when both are volatile). The same words are plain elsewhere in the
  * member (cbLoop's number argument loads and flag store, cmd_sem_init's and
- * cdvd_exit's handle accesses and sceCdNcmdDiskReady's fill delay slots), and a
+ * cdvd_exit's DeleteSema handle loads and sceCdNcmdDiskReady's fill delay slots), and a
  * volatile declaration of any of them, at file or block scope, makes every
  * later access volatile. Sony's member reads these words the same way at its
  * other synchronisation points: _Cdvd_cbLoop's guard read of the number (not
@@ -327,20 +327,13 @@ void cdvd_exit(void)
 {
     if (cb_thread_id != 0) {
         sceCdCbfunc_num = -1;
-        /* OPEN crutch (the user's ruling of 2026-09-28 bans every
-           do/while(0)): the wake-up is still wrapped until its live form is
-           found. WHAT THE
-           BYTES PIN: the ROM stores the -1 (0x265F58-0x265F64) before the
-           semaphore handle's lui and loads the handle in SignalSema's delay
-           slot; sched2 gives that order only when a loop-note pair sits
-           between the store and the handle's set-up (haifa-sched.c
-           3702-3724), since no register or alias dependence links two
-           distinct symbols (alias.c base_alias_check) and a volatile handle
-           load would keep reorg out of the slot. WHAT THEY CANNOT PIN: the
-           macro the statement stood for (this member has no listing rows). */
-        do {
-            SignalSema(cb_semid);
-        } while (0);
+        /* The handle read volatile, as _sceCd_cd_callback's iSignalSema and
+           cmd_sem_init's store access it: the callback thread waits on it.
+           Both accesses volatile, the load stays behind the -1 store
+           (alias.c true_dependence) and out of the call's slot at reorg;
+           SCE's 2.10 assembler fills the slot with it (docs/NOTES.md
+           "Assembler per archive"). */
+        SignalSema(*(volatile int *)&cb_semid);
     }
     DeleteSema(_sceCd_ncmd_semid);
     DeleteSema(_sceCd_scmd_semid);
