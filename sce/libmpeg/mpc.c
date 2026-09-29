@@ -2375,7 +2375,34 @@ void _updateTempTackData(void)
     _trFrameNumberA = _trFrameNumberA < _trFrameNumber ? _trFrameNumber : _trFrameNumberA;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/mpc", _groupOfPicturesHeader);
+extern int _drop_frame_flag;
+extern int _time_code_hours;
+extern int _time_code_minutes;
+extern int _time_code_seconds;
+extern int _time_code_pictures;
+extern int _closed_gop;
+extern int _broken_link;
+
+/* The handle is read as an int here: the ROM issues its load ahead of the
+ * register saves, which sched2 does only when that load shares int's alias
+ * set with the +0xE8 store (the store's anti dependence breaks the tie). */
+void _groupOfPicturesHeader(void)
+{
+    int *p = *(int **)(*(int *)D_0054C0E4 + 0x40);
+
+    p[0xE8 / 4] = 0;
+    _tmpRefBase = _trFrameNumberA + 1;
+    _tmpRefGOPreset = 1;
+    _drop_frame_flag = _nextBit(1);
+    _time_code_hours = _nextBit(5);
+    _time_code_minutes = _nextBit(6);
+    _nextBit(1);
+    _time_code_seconds = _nextBit(6);
+    _time_code_pictures = _nextBit(6);
+    _closed_gop = _nextBit(1);
+    _broken_link = _nextBit(1);
+    _extensionAndUserData();
+}
 
 extern int _load_intra_quantizer_matrix;
 extern int _load_non_intra_quantizer_matrix;
