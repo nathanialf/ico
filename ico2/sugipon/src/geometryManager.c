@@ -724,6 +724,10 @@ static __inline__ void GetRootPosition_ic(void *a0, char *outer)
     *(float *)((char *)a0 + 0xC) = 1.0f;
 }
 
+/* kept local: girl_act.c defines it inline just before its own user, with no
+   earlier declaration there, so girl_act.h does not carry it */
+extern int isMustCheckCylinder(void *a, void *b);
+
 int GetCylinderCollision(char *self, int target, float r, float h, float s, int ctrl)
 {
     float pos[4];

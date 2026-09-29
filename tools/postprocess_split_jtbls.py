@@ -47,6 +47,22 @@ measured on the whole tree the same day. The driver passes the TU's
 repo-relative source path as the second argument; with no second argument
 the split runs as before.
 
+Since 2026-09-29 (girl_act, pass sgw2) the one-row case is general: a TU
+with exactly ONE `.rodata` carve row and no named `.rodata.<name>` object
+keeps every jump table in the compiler's section unsplit whenever that
+section carries data after a table. The row owns the TU's whole .rodata run, so the section as gcc and
+the assembler lay it out (strings, tables, anonymous constants, interned
+doubles, in emission order) is the ROM's layout, and splitting would pull
+the tables out from between the data (girl_act: eight tables among its
+strings). Where every table comes after the section's data the split stays,
+since it only moves the tables' 16-byte alignment off the section: measured
+the same day, unsplitting libkernl_25EF18 (strings, then one table) moved
+its run from 0x636628 to 0x636630. Named sections keep the split too, as
+the first case above says: unsplitting motionManager2 (a table after four
+named sections) and queen (27 named sections, data after its table) broke
+both layouts. The three conditions above still decide a TU that has no
+`.rodata` row at all.
+
 A second case keeps ONE table in the compiler's section (2026-09-28, chain 1
 pass 155): in a TU with several `.rodata` rows, the unnamed `.rodata` goes to
 the row marked `plain-rodata` (tools/gen_ninja.py). When a jtbl's VMA is the
@@ -261,6 +277,41 @@ def _plain_row_tables(tu_src: str) -> frozenset[str]:
     return frozenset(keep)
 
 
+def _has_named_rodata(text: str) -> bool:
+    """True when -fdata-sections gave a named rodata object its own
+    `.section .rodata.<name>`."""
+    return any(re.match(r"^\s*\.section\s+\.rodata\.", l) for l in text.splitlines())
+
+
+DATA_DIRECTIVE_RE = re.compile(r"^\s*\.(ascii|asciz|byte|half|short|word|dword|float|double|space)\b")
+
+
+def _tables_interleave(text: str) -> bool:
+    """True when the compiler's `.rdata` carries data after a jump table:
+    splitting the tables out would then reorder the section."""
+    lines = text.splitlines()
+    seen_table = False
+    for k, l in enumerate(lines):
+        if not RDATA_RE.match(l):
+            continue
+        is_jtbl = False
+        has_data = False
+        j = k + 1
+        while j < len(lines):
+            if SECTION_END_RE.match(lines[j]) and not RDATA_RE.match(lines[j]):
+                break
+            if WORD_LABEL_RE.match(lines[j]):
+                is_jtbl = True
+            elif DATA_DIRECTIVE_RE.match(lines[j]):
+                has_data = True
+            j += 1
+        if is_jtbl:
+            seen_table = True
+        elif has_data and seen_table:
+            return True
+    return False
+
+
 def _keep_compiler_section(text: str) -> bool:
     """True when the file has exactly one jtbl block, it is the first `.rdata`
     block, and no named `.section .rodata.<name>` appears anywhere."""
@@ -293,8 +344,15 @@ def main(argv: list[str]) -> int:
         return 2
     p = Path(argv[1])
     src = p.read_text()
-    if len(argv) == 3 and _rodata_row_count(argv[2]) < 2 and _keep_compiler_section(src):
-        return 0
+    if len(argv) == 3:
+        rows = _rodata_row_count(argv[2])
+        # one `.rodata` row owns the TU's whole run: when the compiler's
+        # section carries data after a table and no named rodata object
+        # sits beside it, the tables stay where gcc put them
+        if (rows == 1 and _tables_interleave(src) and not _has_named_rodata(src)) or (
+            rows < 2 and _keep_compiler_section(src)
+        ):
+            return 0
     keep = _plain_row_tables(argv[2]) if len(argv) == 3 else frozenset()
     out = transform(src, keep)
     if out != src:

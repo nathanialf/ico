@@ -7,6 +7,42 @@
  * INCLUDE_ASM paths name the INCLUDER's asm directory because splat splits by the
  * translation unit, not by the included file. */
 
+int ATGoalTurnMail(void *actor, float *dir, int node);
+extern void ActSendMail_WithAdditionalData(void *gop, int msg, void *sender, void *data);
+extern void *D_0063C248;
+
+/* girl_brain_attract.c.inc:9-20 in the listing, expanded twice in
+   subGirlBrain_Attract: turn toward the target, and when already facing it
+   send the attract mail with the target attached.  The result (whether a turn
+   was started) is dropped by both callers; it keeps the mail out of tail
+   position, and integrate.c does not inline a body carrying a sibling call. */
+static inline int girlAttractTurnMailL(void *actor, void *obj, float *from, float *to)
+{
+    float dir[4];
+
+    _OrientXZGV(dir, from, to);
+    if (ATGoalTurnMail(actor, dir, 0x2C)) {
+        return 1;
+    }
+    D_0063C248 = obj;
+    ActSendMail_WithAdditionalData(actor, 0x156, actor, &D_0063C248);
+    return 0;
+}
+
+/* girl_brain_attract.c.inc:33-41: the same turn toward the boy, then the
+   plain mail. */
+static inline int girlAttractTurnMailR(void *actor, float *from, float *to)
+{
+    float dir[4];
+
+    _OrientXZGV(dir, from, to);
+    if (!ATGoalTurnMail(actor, dir, 0x2C)) {
+        ACTSendMailCorrect(actor, 0x158);
+        return 0;
+    }
+    return 1;
+}
+
 /* kept local: this TU's uses of GetSkeltonOrient do not fit the prototype in act-game.h */
 extern void GetSkeltonOrient(float *out, void *obj, int node);
 /* kept local: this TU's uses of _RotyGV do not fit the prototype in gv.h */
@@ -137,4 +173,501 @@ int checkWaterfallResult(float *out)
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ico2/fumi/src/girl_act", subGirlBrain_Attract);
+/* kept local: this TU's uses of IsTopHint do not fit the prototype in lws_kyomi.h */
+extern int IsTopHint(void *gobj);
+/* kept local: brain.h has no row for the target timer; the ROM passes the target object. */
+extern int brainDecTargetTimer(void *gobj);
+extern void _GetRootObjectOrient(void *out, int gobj);
+
+/* One 0x50-byte record per act status, indexed by the actor's status at
+   0x34 (act.c reads the same table).  The flags word at 0x4C is a bitfield:
+   the ROM keeps 0x4C as the load displacement at all three sites here, which
+   only a bitfield reference produces.  The field names are ours. */
+typedef struct {
+    struct {
+        int f0;
+        int f4;
+        int f8;
+    } ent[6];
+
+    int f48;
+
+    unsigned int _b0 : 3;
+    unsigned int b3 : 1;
+    unsigned int b4 : 1;
+    unsigned int _b5 : 27;
+} GirlStatusAttr;
+
+extern char D_005577D0[];
+
+/* The record Act.f_680 points at, as far as this file uses it: the sofa
+   position the attract state hands over (copied from the actor's 0x5B0) and
+   the facing _GetRootObjectOrient fills for it.  The ROM's schedule proves
+   these are field references (in-struct MEMs), not casts off an int. */
+typedef struct {
+    char _000[0x230];
+    sceVu0FVECTOR pos; /* 0x230 */
+    sceVu0FVECTOR dir; /* 0x240 */
+} GirlSofaWork;
+
+/* The actor's status word at 0x438 as one-bit fields; the attract state sets
+   bit 16 when its target record asks for the detailed way search. */
+typedef struct {
+    unsigned long long : 16;
+    unsigned long long wayDetail : 1;
+} GirlActFlag438;
+
+/* the three attract parameter sets */
+GirlAttractParam D_0029D4E0 = {0, {0}, {0}, 0, 338, 100.0f, 100.0f};
+
+GirlAttractParam D_0029D540 = {0, {0}, {0}, 68, 267, 50.0f, 100.0f, 1, {0}, {0}, 0, {0}, 200.0f};
+
+GirlAttractParam D_0029D5A0 = {0, {0}, {0}, 0, 338, 100.0f, 70.0f};
+
+/* The actor entry parameter is volatile: the actor scheduler writes the
+ * caller's home slot while this thread is parked in _ACTWait. */
+void subGirlBrain_Attract(volatile int a0)
+{
+    Act *sub = GOBJ_ACT(a0);
+    float mypos[4];
+    float last[4];
+    GirlAttractParam tgt;
+    int cnt;
+    void *cur = ((GirlBrainWork *)D_0029D650)->lastTarget;
+    int type = 0;
+    int kind;
+    int param = 0;
+    int dbg = 0; /* local debug switch, see the rate block below */
+    int fr = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1];
+    int fr3 = fr + (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 2;
+    int turnCnt = 0;
+    int hintCnt = 0;
+
+    /* girl_brain_attract.c.inc:257-259 and 261-271 in the listing: two
+       nested helpers.  Their references to cnt, sub and cur are what give
+       those three their frame slots at 0x90/0x94/0x98, between the target
+       record and the vectors declared after them, and the kind test reads
+       cur through the static chain (`move $a1,$sp; lw 0x98($a1)`). */
+    __inline__ void setMode(int mode)
+    {
+        cnt = 0;
+        sub->f_350 = mode;
+    }
+    __inline__ int getKind(void)
+    {
+        if (cur == (void *)D_00639EA4 && GOBJ_ACT(D_00639EA4)->unk34 == 45) {
+            return 0;
+        } else if (*(int *)((char *)cur + 0xC) == 16) {
+            return 1;
+        } else if (GOBJ_ACT(D_00639EA4)->unk34 == 49 &&
+                   *(int *)GOBJ_SUB(D_00639EA8) == *(int *)((char *)GOBJ_ACT(D_00639EA4) + 0x158)) {
+            return 2;
+        }
+        return 3;
+    }
+    float root[4];
+
+restart:
+    setMode(0);
+    if (cur == 0) {
+        debug_assert(__FILE__, 279);
+        __assert(__FILE__, 279, "0");
+    }
+    kind = getKind();
+    switch (kind) {
+    case 0:
+        type = 1;
+        param = *(int *)((char *)GOBJ_ACT(D_00639EA4) + 0x61C);
+        break;
+    case 1:
+        type = 1;
+        param = (int)cur;
+        break;
+    case 2:
+        type = 2;
+        param = 0;
+        break;
+    case 3:
+        type = 0;
+        param = 0;
+        break;
+    }
+    switch (type) {
+    case 0:
+        tgt = D_0029D4E0;
+        tgt.obj = cur;
+        GetRootProjectionPosOfGObj(tgt.pos, cur);
+        break;
+    case 1:
+        tgt = D_0029D540;
+        tgt.obj = cur;
+        GetSofaPosition(D_00639EA8, (char *)param);
+        tgt.pos[0] = *(float *)((char *)sub + 0x5B0);
+        tgt.pos[1] = *(float *)((char *)sub + 0x5B4);
+        tgt.pos[2] = *(float *)((char *)sub + 0x5B8);
+        ((GirlSofaWork *)GOBJ_ACT(a0)->f_680)->pos[0] = *(float *)((char *)sub + 0x5B0);
+        ((GirlSofaWork *)GOBJ_ACT(a0)->f_680)->pos[1] = *(float *)((char *)sub + 0x5B4);
+        ((GirlSofaWork *)GOBJ_ACT(a0)->f_680)->pos[2] = *(float *)((char *)sub + 0x5B8);
+        _GetRootObjectOrient(((GirlSofaWork *)GOBJ_ACT(a0)->f_680)->dir, param);
+        tgt.dir[0] = ((GirlSofaWork *)GOBJ_ACT(a0)->f_680)->dir[0];
+        tgt.dir[1] = ((GirlSofaWork *)GOBJ_ACT(a0)->f_680)->dir[1];
+        tgt.dir[2] = ((GirlSofaWork *)GOBJ_ACT(a0)->f_680)->dir[2];
+        tgt.f_50 = 1;
+        break;
+    case 2:
+        tgt = D_0029D5A0;
+        tgt.obj = D_00639EA4;
+        GetRootProjectionPosOfGObj(tgt.pos, D_00639EA4);
+        break;
+    }
+    for (;;) {
+        int noTurn = 1;
+        int waterHit = 0;
+        int hint = 0;
+        int escape = 0;
+        int far = 0;
+        int type2;
+        float margin;
+        float ratio;
+
+        root[0] = ((float *)test_CURRENTROOT((void *)a0))[0];
+        root[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
+        root[2] = ((float *)test_CURRENTROOT((void *)a0))[2];
+        if (tgt.obj != 0 && *(int *)((char *)tgt.obj + 0xC) == 32 &&
+            !(_DistSqGV(root, test_CURRENTROOT(tgt.obj)) < 90000.0f)) {
+            far = 1;
+        }
+        if (!ACTGame_FLAG_TETSUNAGI()) {
+            *(unsigned long long *)((char *)sub + 0x20) |= 0x2000000000ULL;
+        }
+        if (type == 0 && tgt.obj == (void *)D_00639EA4 &&
+            *(int *)(GOBJ_ACT(a0)->f_688 + 0x380) != 0) {
+            noTurn = 0;
+        }
+        if (*(int *)GOBJ_SUB(a0) != 0 && *(int *)(*(int *)GOBJ_SUB(a0) + 0xC) == 17 &&
+            D_00639EA4 != 0 && type == 0 && tgt.obj == (void *)D_00639EA4 &&
+            root[1] < ((float *)test_CURRENTROOT(D_00639EA4))[1] &&
+            _DistSqGV(test_CURRENTROOT((void *)a0), test_CURRENTROOT(D_00639EA4)) <
+                _ACTGame_GetParamF(30) * _ACTGame_GetParamF(30)) {
+            hint = 1;
+            escape = 1;
+        }
+        if ((int)(*(unsigned long long *)((char *)sub + 0x20) >> 38) & 1) {
+            hint = 1;
+        }
+        if (0 < ((GirlBrainWork *)D_0029D650)->f_590C) {
+            _ACTCharStatus_Set((void *)a0, 31, -1.0f, 0);
+        }
+        if (kind != getKind()) {
+            goto restart;
+        }
+        type2 = girlBrainGetTargetType((void *)a0);
+        GetRootProjectionPosOfGObj(mypos, (void *)a0);
+        if (tgt.f_30 == 0) {
+            int onSofa = 0;
+            float dir[4];
+            float ofs[4];
+
+            if (tgt.obj == (void *)D_00639EA4 && GOBJ_ACT(tgt.obj)->unk34 == 28) {
+                onSofa = 1;
+                dir[0] = ((float *)test_CURRENTORIENT(D_00639EA4))[0];
+                dir[1] = ((float *)test_CURRENTORIENT(D_00639EA4))[1];
+                dir[2] = ((float *)test_CURRENTORIENT(D_00639EA4))[2];
+            }
+            if (onSofa) {
+                sceVu0ScaleVector(ofs, dir, 50.0f);
+                GetSkeltonPosition(tgt.pos, D_00639EA4, 22);
+                sceVu0AddVector(tgt.pos, tgt.pos, ofs);
+                tgt.pos[1] = tgt.pos[1] - 10.0f;
+            } else {
+                GetRootProjectionPosOfGObj(tgt.pos, tgt.obj);
+            }
+            if ((int)(*(unsigned long long *)((char *)GOBJ_ACT(D_00639EA4) + 0x20) >> 43) & 1) {
+                float wp[4];
+
+                switch (checkWaterfallResult(wp)) {
+                case 1:
+                    tgt.pos[0] = mypos[0];
+                    tgt.pos[1] = mypos[1];
+                    tgt.pos[2] = mypos[2];
+                    if (tgt.obj != 0) {
+                        GirlBrainClearTarget((void *)a0, &tgt);
+                    }
+                    break;
+                case 2:
+                    tgt.pos[0] = wp[0];
+                    tgt.pos[1] = wp[1];
+                    tgt.pos[2] = wp[2];
+                    waterHit = 1;
+                    break;
+                }
+            }
+        }
+        dispWayMarker(tgt.pos);
+        if (tgt.obj != 0) {
+            if (brainDecTargetTimer(tgt.obj)) {
+                GirlBrainClearTarget((void *)a0, &tgt);
+            }
+        }
+        if (D_00639EA4 != 0 && GOBJ_ACT(D_00639EA4)->unk34 == 49) {
+            if (tgt.obj == (void *)D_00639EA4 ||
+                tgt.obj == *(void **)((char *)GOBJ_ACT(D_00639EA4) + 0x158)) {
+                GirlBrainClearTarget((void *)a0, &tgt);
+            }
+        }
+        if (sub->unk34 == 81) {
+            if (tgt.obj == (void *)D_00639EA4) {
+                GirlBrainClearTarget((void *)a0, &tgt);
+            }
+        }
+        if (sub->f_350 == 3) {
+            if (girlBrainGetTypeRatio(type2) == 0.0f) {
+                setMode(0);
+            }
+        }
+        {
+            float level = girlBrainGetTargetLevel();
+            float speed = _ACTGame_GetParamF(29) + level * (1.0f - _ACTGame_GetParamF(29));
+            float clamped;
+
+            clamped = (speed < _ACTGame_GetParamF(29)) ? _ACTGame_GetParamF(29)
+                                                       : ((1.0f < speed) ? 1.0f : speed);
+            ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)a0, clamped, 1);
+        }
+        {
+            float rate = girlBrainGetTargetLevel() * 4.0f;
+            float lo = _ACTGame_GetParamF(27);
+            float hi = _ACTGame_GetParamF(28);
+            float v = lo + rate * (hi - lo);
+
+            v = (v < lo) ? lo : ((hi < v) ? hi : v);
+            /* A second speed, computed and clamped like the one above and
+               applied only with the debug switch set.  What the bytes pin:
+               the ROM keeps this clamp's compares with nothing reading v
+               (listing rows 497-503, rows 504-507 code-free), and gcse's
+               table size (the spill slots at 0x104..0x11C) counts the
+               switched-off arm.  What they cannot pin: the switch's name or
+               the arm's exact call. */
+            if (dbg) {
+                ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)a0, v, 1);
+            }
+        }
+        if (((int)(*(unsigned long long *)((char *)sub + 0x18) >> 62) & 1) && type == 0 &&
+            tgt.obj == (void *)D_00639EA4) {
+            if (sub->f_350 == 7) {
+                if (!(_DistSqGV(test_CURRENTROOT(D_00639EA4), test_CURRENTROOT(D_00639EA8)) <
+                      10000.0f)) {
+                    setMode(1);
+                }
+            }
+        }
+        switch (sub->f_350) {
+        case 0:
+            _ACTLookTarget_Set((void *)a0, 0, 0, 6, 1);
+            *(float *)((char *)sub + 0x34C) = 0.0f;
+            setMode(6);
+            break;
+        case 1: {
+            int p = ACTWayMove_BeginDetail((void *)a0, mypos, tgt.pos, tgt.obj, 0, 0);
+
+            if (tgt.f_30 != 0) {
+                ((GirlActFlag438 *)((char *)sub + 0x438))->wayDetail = 1;
+            }
+            if (p != 0) {
+                setMode(3);
+                last[0] = tgt.pos[0];
+                last[1] = tgt.pos[1];
+                last[2] = tgt.pos[2];
+                turnCnt = 0;
+                hintCnt = 0;
+            } else {
+                setMode(2);
+            }
+            break;
+        }
+        case 3: {
+            int p = ACTWayMove_NextDetail((void *)a0, (char *)sub + 0x120, tgt.pos, 0,
+                                          tgt.obj != 0 && IsTopHint(tgt.obj));
+
+            if (GOBJ_ACT(a0)->unk34 == 45) {
+                if (type == 1) {
+                    setMode(4);
+                    break;
+                }
+            } else if (type == 1) {
+                if (tgt.obj != (void *)D_00639EA4 && *(int *)(GOBJ_ACT(a0)->f_688 + 0x3A4) != 0) {
+                    setMode(8);
+                    *(float *)((char *)sub + 0x34C) = 0.0f;
+                    break;
+                }
+                if (type == 1 && ((int)(*(unsigned long long *)((char *)sub + 0x20) >> 12) & 1) &&
+                    _DistSqGV(test_CURRENTROOT((void *)a0), tgt.pos) < 40000.0f) {
+                    setMode(2);
+                    break;
+                }
+            }
+            if (p == 0) {
+                setMode(2);
+            } else if ((int)(*(unsigned long long *)((char *)sub + 0x3F0) >> 17) & 1) {
+                setMode(2);
+            } else if (hint) {
+                setMode(2);
+            } else {
+                if (!noTurn) {
+                    margin = 100.0f;
+                } else if (sub->unk34 == 3 && (double)girlBrainGetTypeRatio(type2) > 0.8) {
+                    margin = 100.0f;
+                } else {
+                    margin = 0.0f;
+                }
+                sub->f_120 = *(float *)((char *)sub + 0x3E0);
+                sub->f_124 = *(float *)((char *)sub + 0x3E4);
+                sub->f_128 = *(float *)((char *)sub + 0x3E8);
+                if (waterHit) {
+                    if (*(float *)((char *)sub + 0x3F8) < 50.0f &&
+                        *(float *)((char *)sub + 0x3FC) < tgt.f_2C) {
+                        setMode(4);
+                        *(float *)((char *)sub + 0x34C) = 0.0f;
+                    } else if (*(float *)((char *)sub + 0x3F8) < 300.0f) {
+                        girlBrainSetWalkRatio((void *)a0, 0.5f);
+                    } else {
+                        ratio = far ? 1.0f : girlBrainGetTypeRatio(type2);
+                        girlBrainSetWalkRatio((void *)a0, ratio);
+                    }
+                } else {
+                    if (*(float *)((char *)sub + 0x3F8) < tgt.f_28 + margin &&
+                        ((*(float *)((char *)sub + 0x3FC) < 0.0f)
+                             ? -*(float *)((char *)sub + 0x3FC)
+                             : *(float *)((char *)sub + 0x3FC)) < tgt.f_2C) {
+                        if (tgt.f_50) {
+                            if (ATGoalTurnMail((void *)a0, tgt.dir, 0x23)) {
+                                noTurn = 0;
+                            }
+                        }
+                        if (noTurn) {
+                            setMode(4);
+                        } else {
+                            *(float *)((char *)sub + 0x34C) = 0.0f;
+                        }
+                    } else {
+                        ratio = far ? 1.0f : girlBrainGetTypeRatio(type2);
+                        girlBrainSetWalkRatio((void *)a0, ratio);
+                        if (*(float *)((char *)sub + 0x3F8) < tgt.f_54) {
+                            *(float *)((char *)sub + 0x34C) =
+                                (0.5f < *(float *)((char *)sub + 0x34C))
+                                    ? 0.5f
+                                    : *(float *)((char *)sub + 0x34C);
+                        }
+                    }
+                }
+            }
+            if (!(_DistSqGV(last, tgt.pos) < 90000.0f)) {
+                if (_DistSqGV(mypos, tgt.pos) > _DistSqGV(mypos, last)) {
+                    brainSubLevelGop(tgt.obj, 0.5f);
+                }
+                last[0] = tgt.pos[0];
+                last[1] = tgt.pos[1];
+                last[2] = tgt.pos[2];
+            }
+            if (tgt.obj != (void *)D_00639EA4 && !(tgt.obj != 0 && IsTopHint(tgt.obj)) &&
+                !ACTGameViewSimple_Check((void *)a0, tgt.obj)) {
+                switch (sub->unk34) {
+                case 2:
+                    turnCnt = turnCnt + 1;
+                    break;
+                case 3:
+                    turnCnt = turnCnt + 2;
+                    break;
+                }
+                if ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 15 < turnCnt) {
+                    setMode(2);
+                }
+            }
+            if (tgt.obj != 0 && IsTopHint(tgt.obj) &&
+                ((int)(*(unsigned long long *)((char *)sub + 0x3F0) >> 18) & 1)) {
+                hintCnt = hintCnt + ((GirlStatusAttr *)D_005577D0)[GOBJ_ACT(a0)->unk34].b4;
+                if ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 4 < hintCnt) {
+                    *(float *)((char *)sub + 0x34C) = 0.0f;
+                }
+                if ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 5 < hintCnt) {
+                    setMode(2);
+                }
+            }
+            break;
+        }
+        case 6:
+            if (fr < cnt || ((GirlBrainWork *)D_0029D650)->f_58F3 != 0) {
+                if (girlBrainGetTypeRatio(type2) != 0.0f) {
+                    setMode(1);
+                }
+            }
+            /* fallthrough */
+        case 2:
+        case 7:
+            if (cnt++ < fr3 + ((tgt.obj != 0 && IsTopHint(tgt.obj))
+                                   ? (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 2
+                                   : 0)) {
+                sub->f_34C = 0;
+                _ACTLookTarget_Set((void *)a0, tgt.obj, 0, 2, 1);
+                if (tgt.obj != 0 && IsTopHint(tgt.obj) && sub->f_350 == 2 && D_00639EA0 == 0) {
+                    girlAttractTurnMailL((void *)a0, tgt.obj, tgt.pos, mypos);
+                    if (((GirlStatusAttr *)D_005577D0)[GOBJ_ACT(a0)->unk34].b3) {
+                        cnt = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 10;
+                    }
+                }
+                if (tgt.obj == (void *)D_00639EA4 && sub->f_350 == 2 && escape == 0 &&
+                    *(int *)(GOBJ_ACT(a0)->f_688 + 0x3B0) == 0 && D_00639EA0 == 0 &&
+                    ((GirlBrainWork *)D_0029D650)->targetFlag != 0) {
+                    girlAttractTurnMailR((void *)a0, tgt.pos, mypos);
+                    if (sub->unk34 == 77) {
+                        cnt = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 10;
+                    }
+                }
+            } else {
+                _ACTLookTarget_Set((void *)a0, 0, 0, 6, 1);
+                setMode(8);
+            }
+            if (((int)(*(unsigned long long *)((char *)sub + 0x18) >> 63) & 1) ||
+                (*(int *)((char *)sub + 0x20) & 1)) {
+                *(unsigned long long *)((char *)sub + 0x20) |= 2;
+            }
+            break;
+        case 4:
+            if (tgt.kind == 0 && (tgt.obj == 0 || !IsTopHint(tgt.obj))) {
+                setMode(7);
+            } else {
+                setMode(5);
+            }
+            break;
+        case 5:
+            if (cnt++ < (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 200 / 60 +
+                            ((tgt.obj != 0 && IsTopHint(tgt.obj))
+                                 ? (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 2
+                                 : 0)) {
+                *(float *)((char *)sub + 0x34C) = 0.0f;
+                if (tgt.obj != 0 && IsTopHint(tgt.obj) && D_00639EA0 == 0) {
+                    girlAttractTurnMailL((void *)a0, tgt.obj, tgt.pos, mypos);
+                    if (((GirlStatusAttr *)D_005577D0)[GOBJ_ACT(a0)->unk34].b3) {
+                        cnt = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 10;
+                    }
+                } else {
+                    sub->f_44 = tgt.kind;
+                    ACTSendMailCorrect((void *)a0, tgt.mail);
+                }
+            } else {
+                setMode(8);
+            }
+            break;
+        case 8:
+            cnt = cnt + 1;
+            if (cnt == 2) {
+                GirlBrainClearTarget((void *)a0, &tgt);
+            }
+            if ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] < cnt) {
+                setMode(0);
+            }
+            break;
+        }
+        _ACTWait(1);
+    }
+}
