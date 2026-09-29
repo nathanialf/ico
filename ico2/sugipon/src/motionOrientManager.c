@@ -1571,23 +1571,21 @@ void getStreamBlendMotionGeometry(void *self, void *sm0, void *sm1, float t)
 /* Reconstruction, this repo's name: the listing gives the whole clamp AND its own
  * `int *p` declaration on one physical source line, at 1711 in
  * getStreamBlendShapeGeometry and again at 1729 in getStreamShapeGeometry, so the
- * developer's source held a macro with a block body shared by both functions. */
+ * developer's source held a macro with a block body shared by both functions. The test
+ * is this programmer's absolute-value idiom (box.c, geometryManager.c, motionManager.c):
+ * fold moves the compare into both arms of the ?:, so the ROM's two compares and four
+ * stores come from one store per value (reorg copies them into the delay slots), and
+ * the shorter pre-reload loop keeps `n`'s live length low enough for global.c's
+ * allocno_compare to give it $s0 ahead of the alloca size in
+ * getStreamBlendShapeGeometry. */
 #define SET_SHAPE_VALUE(self, i, x)                                                                \
     {                                                                                              \
         int *p = (int *)((i) * 4 + *(int *)((char *)*(int *)((char *)(self) + 0x15C) + 0x838));    \
                                                                                                    \
-        if ((x) < 0.0f) {                                                                          \
-            if (0.0001f < -(x)) {                                                                  \
-                *(float *)p = (x);                                                                 \
-            } else {                                                                               \
-                *p = 0;                                                                            \
-            }                                                                                      \
+        if (0.0001f < ((x) < 0.0f ? -(x) : (x))) {                                                 \
+            *(float *)p = (x);                                                                     \
         } else {                                                                                   \
-            if (0.0001f < (x)) {                                                                   \
-                *(float *)p = (x);                                                                 \
-            } else {                                                                               \
-                *p = 0;                                                                            \
-            }                                                                                      \
+            *p = 0;                                                                                \
         }                                                                                          \
     }
 
@@ -1596,14 +1594,6 @@ void getStreamBlendMotionGeometry(void *self, void *sm0, void *sm1, float t)
  * FeedbackWallWorkInfoToBrainSystem uses still need declarations of their own. */
 extern int GetStreamShapeMotion(float *dst, void *sm);
 
-/* The else arm is a developer wrapper macro that expanded to a do/while(0) block,
- * the same shape this tree already carries in ico2/sugipon/src/rope.c,
- * ico2/common/src/PObj.c and ico2/fumi/src/act-game.c. The back edge costs no
- * instructions, and the listing proves it two ways: the loop note raises the else
- * arm one loop level, which is what puts `n` ahead of the alloca size in
- * global.c's allocno_compare and hands `n` $s0 the way the ROM has it, and the
- * -g line notes then reproduce the listing's own attribution row for row over
- * 1714 to 1718, with the epilogue on the same line as the closing brace. */
 void getStreamBlendShapeGeometry(void *self, void *sm0, void *sm1, float t)
 {
     int i;
@@ -1621,10 +1611,8 @@ void getStreamBlendShapeGeometry(void *self, void *sm0, void *sm1, float t)
             }
 
         } else
-            do {
-                for (i = 0; i < n; i++)
-                    *(int *)(*(int *)((char *)*(int *)((char *)self + 0x15C) + 0x838) + i * 4) = 0;
-            } while (0);
+            for (i = 0; i < n; i++)
+                *(int *)(*(int *)((char *)*(int *)((char *)self + 0x15C) + 0x838) + i * 4) = 0;
     }
 }
 
@@ -1639,21 +1627,7 @@ void getStreamShapeGeometry(void *self, void *sm)
         if (GetStreamShapeMotion(buf, sm) != 0) {
             for (i = 0; i < n; i++) {
                 float x = buf[i] * 0.01f;
-                int *p = (int *)(i * 4 + *(int *)((char *)*(int *)((char *)self + 0x15C) + 0x838));
-
-                if (x < 0.0f) {
-                    if (0.0001f < -x) {
-                        *(float *)p = x;
-                    } else {
-                        *p = 0;
-                    }
-                } else {
-                    if (0.0001f < x) {
-                        *(float *)p = x;
-                    } else {
-                        *p = 0;
-                    }
-                }
+                SET_SHAPE_VALUE(self, i, x);
             }
         } else {
             for (i = 0; i < n; i++) {

@@ -405,9 +405,21 @@ PObj *InitPObj(int a0, int a1, int n)
     return p;
 }
 
-void FreePObj(void)
+/* The DEBUG build's report of the model file image FreePObj releases, in
+   AllocPObj's terms; built only under DEBUG. The name and the text are ours.
+   What the bytes pin: the print is a jal with a frame, not a sibling call, so
+   an insn followed it when the sibcall pass ran (sibcall.c 421-470); here that
+   is the report's argument load, which cse1 then deletes. What they cannot
+   pin: FreePObj's parameter (no caller in either build) or the report. */
+static __inline__ void FreePObjDebugInfo(ObjHdr *h)
 {
-    do {
-        debug_StdPrintfDummy("free object\n");
-    } while (0);
+#ifdef DEBUG
+    debug_StdPrintfDummy("            : adrs(%p)\n", h);
+#endif
+}
+
+void FreePObj(PObj *p)
+{
+    debug_StdPrintfDummy("free object\n");
+    FreePObjDebugInfo((ObjHdr *)p->f24);
 }

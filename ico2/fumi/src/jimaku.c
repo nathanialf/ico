@@ -273,6 +273,14 @@ extern char D_005540E8[];
 extern char D_0063A978[];
 extern void __assert(char *file, int line, char *expr);
 
+/* The DEBUG build's switch to free every way group again after each Next
+   (name ours); retail builds it as 0. */
+#ifdef DEBUG
+#define JIMAKU_DEBUG_RESET (D_0063B13C & 0x400)
+#else
+#define JIMAKU_DEBUG_RESET 0
+#endif
+
 void jimakuMgrNext(struct jArg *p)
 {
     char buf[16];
@@ -312,11 +320,12 @@ void jimakuMgrNext(struct jArg *p)
      * this block takes the next statement's constant into the second one's
      * slot: reorg predicts a branch to the epilogue taken when a loop-begin
      * note stands just before it (mostly_true_jump), so a loop compiled out
-     * at the end of the function is what the bytes pin. What they cannot
+     * at the end of the function is what the bytes pin: here the DEBUG
+     * build's reset, whose switch retail builds as 0. What they cannot
      * pin: the block's contents (no string of it reached the .rodata); the
      * walk over the four way groups here is ours, in jimakuMgrBegin's
      * terms. */
-    if (0) {
+    if (JIMAKU_DEBUG_RESET) {
         int m;
 
         for (m = 0; m < 4; m++) {

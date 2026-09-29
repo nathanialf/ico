@@ -1962,6 +1962,15 @@ static inline void ACTSearchGObj_inl(void *a0, int a1, int a2, int *out_id, floa
     }
 }
 
+/* The DEBUG build's report of subBoyCollision's camera state, built only under
+   DEBUG (name and text ours); its register arguments leave nothing in retail. */
+static __inline__ void boyCamDebugDisp(int camOn, int looking)
+{
+#ifdef DEBUG
+    scePrintf("boy camera on %d looking %d\n", camOn, looking);
+#endif
+}
+
 void subBoyCollision(volatile int a0)
 {
     char *sub = *(char **)((char *)a0 + 0x164);
@@ -2352,8 +2361,9 @@ void subBoyCollision(volatile int a0)
                    so a conditional jump on lo alone sits here over a body that
                    flow deletes and that jump.c cannot turn into a store-flag (more
                    than one set); the jump to the next insn then goes in the pass
-                   after sched2.  What they cannot pin: the text.  camOn and
-                   looking are both dead from here on. */
+                   after sched2.  What they cannot pin: the text.  In retail
+                   camOn and looking are dead from here on; the DEBUG build's
+                   camera report at the end of this block reads them. */
                 if (lo == 0) {
                     camOn = 1;
                     looking = 0;
@@ -2398,6 +2408,7 @@ void subBoyCollision(volatile int a0)
                         }
                     }
                 }
+                boyCamDebugDisp(camOn, looking);
             }
             ACTLookTargetSystem_Exec((void *)a0);
             if (D_00639EA4 != 0 && D_00639EA8 != 0 &&

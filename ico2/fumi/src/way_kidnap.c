@@ -364,6 +364,16 @@ static inline WpNode *SearchOpenNode(WpNode *start)
     return p;
 }
 
+/* The DEBUG build's trace of the edge the search opens, by its table index
+   (name and text ours); built only under DEBUG, its register argument
+   leaves nothing in retail. */
+static __inline__ void wayKidnapDebugEdge(int k)
+{
+#ifdef DEBUG
+    scePrintf("open edge %d\n", k);
+#endif
+}
+
 int WayPointWithRangeFromPos2(float *pos, WayWork *w, float *dst, int chk)
 {
     float v[4];
@@ -426,8 +436,9 @@ int WayPointWithRangeFromPos2(float *pos, WayWork *w, float *dst, int chk)
                user's 2026-09-21 standard for dead assignments the ROM proves).
                Deleted-code window (c3p76): k is the
                index of this edge in the table, as everywhere below, and the
-               value is dead (the next read of k follows its reassignment in
-               both loops) so flow deletes it; listing rows 427-429 carry no
+               DEBUG build's trace reads it; in retail the value is dead (the
+               next read of k follows its reassignment in both loops) so flow
+               deletes it; listing rows 427-429 carry no
                code. What the bytes pin: a read of the table base in this arm,
                on cse1's path from the found block, so the base register row
                419 builds is used outside its block when loop.c runs; the
@@ -437,6 +448,7 @@ int WayPointWithRangeFromPos2(float *pos, WayWork *w, float *dst, int chk)
                hoisted base gives an EE madd (r5900_madd_profitable_p). What
                they cannot pin: the statement's text. */
             k = edge - D_004F1EC0;
+            wayKidnapDebugEdge(k);
             found = SearchOpenNode(cur);
         }
         if (found != 0) {

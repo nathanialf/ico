@@ -1133,7 +1133,7 @@ void debug_DrawBar(void)
     int i;
     int w;
     int len;
-    inline int barTime(void) { return debugBars[i].count; } /* RECONSTRUCTION (landing decision (2), c1p135-c1p144): never called; the bytes pin i as a memory-resident local (its frame slot at 0x70 and a load or store at every use in the three loops), which a nested function naming i gives, but not how the source made i addressable. */
+    inline int barTime(void) { return debugBars[i].count; } /* the time stamp of bar i, read by both bar loops; the name is ours. RECONSTRUCTION (c1p134, cf11): naming i from a nested function keeps i in its frame slot (0x70, a load or store at every use in the three loops), which is what the ROM has; gcc inlines both calls. */
     rect0 = D_0061B9D0;
     col1 = D_0063AEE0[0];
     col2 = D_0063AEE8[0];
@@ -1187,7 +1187,7 @@ void debug_DrawBar(void)
 
     for (i = D_0063B1A0; i < debugBarCount && x < 320; i++) {
 
-        int t = debugBars[i].count - (D_0063B1A0 != 0 ? debugBars[D_0063B1A0 - 1].count : 0);
+        int t = barTime() - (D_0063B1A0 != 0 ? debugBars[D_0063B1A0 - 1].count : 0);
 
         long long alpha;
 
@@ -1279,7 +1279,7 @@ void debug_DrawBar(void)
 
     flip = 0;
     for (i = D_0063B1A0; i < debugBarCount && x < 320; i++) {
-        int t = debugBars[i].count - (D_0063B1A0 != 0 ? debugBars[D_0063B1A0 - 1].count : 0);
+        int t = barTime() - (D_0063B1A0 != 0 ? debugBars[D_0063B1A0 - 1].count : 0);
 
         int dpct;
         int pct;

@@ -266,19 +266,35 @@ void start_stage_Load_thread(int stage)
     }
 }
 
-/* Compiled-out debug hook (our name), the construct main.c's mainDebugBar and
-   debug_exception.c's debugExcDebugDisp carry: the inlined empty body emits no
-   byte but leaves one (use (const_int 0)) insn. WHAT THE BYTES PIN: the ROM
-   puts the -1 in GetDataFileName's delay slot, after both argument moves
-   (listing row 656, 0x1ab29c-0x1ab2a8). sched2 gives that order only when the
-   first argument move carries a loop-note barrier (haifa-sched.c 3677-3724):
-   it holds the second move and the -1 back one cycle, so both issue before
-   the call. The note has to sit mid-block behind a zero-code insn, which the
-   debug macro's do/while(0) block around this hook gives, and the -1 has to
-   be set after the move. Rows 654 and 655 carry no code. WHAT THEY CANNOT
-   PIN: the macro's text, what it printed, or where `ret = -1` sat between the
-   GetDataFileName call and row 659. */
-static __inline__ void stgPreLoadDebugHook(void) {}
+/* The DEBUG build's preload report and hold (names and texts ours): a debug
+   build reports the stage it is about to preload and, while the debug flag
+   word's hold bit is set, repeats the report instead of reading. Both build
+   only under DEBUG; the retail report inlines to one (use (const_int 0)) and
+   the retail hold test to 0, which cse folds, so the loop runs once. WHAT THE
+   BYTES PIN: the ROM puts the -1 in GetDataFileName's delay slot, after both
+   argument moves (listing row 656, 0x1ab29c-0x1ab2a8). sched2 gives that order
+   only when the first argument move carries a loop-note barrier
+   (haifa-sched.c 3677-3724): it holds the second move and the -1 back one
+   cycle, so both issue before the call. The notes have to sit mid-block
+   behind a zero-code insn, which this loop with the report as its body
+   gives, and the -1 has to be set after the move. Rows 654 and 655 carry no
+   code. WHAT THEY CANNOT PIN: what the debug build printed or tested, or
+   where `ret = -1` sat between the GetDataFileName call and row 659. */
+static __inline__ void stgPreLoadDebugHook(void)
+{
+#ifdef DEBUG
+    scePrintf("preload: leaving stage %d's data\n", stagePreLoadStageNo);
+#endif
+}
+
+static __inline__ int stgPreLoadDebugHold(void)
+{
+#ifdef DEBUG
+    return D_0063B13C & 0x100;
+#else
+    return 0;
+#endif
+}
 
 int stgmgrNextStagePreLoad(CdvdBgReq *bg)
 {
@@ -329,10 +345,10 @@ int stgmgrNextStagePreLoad(CdvdBgReq *bg)
         int readSize;
         int ret;
 
-        /* The debug macro's do/while(0) block, see stgPreLoadDebugHook. */
+        /* The DEBUG build's report and hold, see stgPreLoadDebugHook. */
         do {
             stgPreLoadDebugHook();
-        } while (0);
+        } while (stgPreLoadDebugHold());
         strcpy(bg->name, GetDataFileName(stage, 1));
         ret = -1;
         iosCdvdChgFileName(bg);

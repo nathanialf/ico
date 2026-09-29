@@ -21,6 +21,15 @@ extern EnemySet D_004F1D58[];
 extern void *D_0063A44C;
 extern void *iosMallocDebug(void *heap, int size, char *file, int line);
 
+/* Debug report of the number of positions enemy_Initialize copied, built only
+   under DEBUG; the name and the text are ours. */
+static __inline__ void enemyInitDebugPrint(int copyNum)
+{
+#ifdef DEBUG
+    scePrintf("enemy positions copied %d\n", copyNum);
+#endif
+}
+
 void enemy_Initialize(void)
 {
     int cnt[27];
@@ -37,8 +46,8 @@ void enemy_Initialize(void)
        the ROM does not do (listing line 104, between the set store and the
        e loop, carries no code). */
     int kindNum = 27;
-    /* RULING-VESTIGIAL-EXCEPTION candidate (chain 1 pass 113, for the
-       supervisor's audit): counted once per copied quadword and never read.
+    /* Counted once per copied quadword for the DEBUG report at the end (the
+       report builds only under DEBUG, so the retail build never reads it).
        The ROM pins a real statement after the copy loop's exit test: stmt.c
        expand_end_loop rolls the test to the bottom only when real code
        follows it (line notes do not count: jump.c tests prev_active_insn),
@@ -100,6 +109,7 @@ void enemy_Initialize(void)
             (*dst)[0] = (*dst)[1] = (*dst)[2] = (*dst)[3] = -1.0f;
         }
     }
+    enemyInitDebugPrint(copyNum);
 }
 
 int enemy_GetPositionTable(int idx, int sub_idx)

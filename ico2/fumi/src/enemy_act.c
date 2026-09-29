@@ -419,6 +419,15 @@ static inline void enemyPollHitNodes(int self)
     }
 }
 
+/* The DEBUG build holds the enemy's stick poll while the debug flag word's
+   hold bit is set, a frame at a time, the way boyact.c's subBoyControl repeats
+   its stick loop with _ACTWait; retail builds it as 0. Name and bit ours. */
+#ifdef DEBUG
+#define ENEMY_DEBUG_HOLD (D_0063B13C & 0x200)
+#else
+#define ENEMY_DEBUG_HOLD 0
+#endif
+
 void subEnemyControl(volatile int a0)
 {
     char *sub = *(char **)(a0 + 0x164);
@@ -431,11 +440,15 @@ void subEnemyControl(volatile int a0)
     iosPadConnect(sub + 0x2D8, 0, 1, (int)(sub + 0x1E8));
     while (1) {
         enemyPollHitNodes(a0);
-        /* RECONSTRUCTION: the once-run loop around the flag test is what the
-           ROM shows: an 8-aligned loop label at the test's shift, and the
-           D_00639ED0 arm moved by loop.c into the hole after the hit-node
-           loop, which loop.c does only for an arm whose jump leaves a loop. */
-        do {
+        /* The stick poll loop, subBoyControl's shape, repeating only under the
+           DEBUG hold (retail breaks after one pass). What the bytes pin: a loop
+           at the flag test (an 8-aligned loop label at the test's shift, and
+           the D_00639ED0 arm moved by loop.c into the hole after the hit-node
+           loop, which loop.c does only for an arm whose jump leaves a loop)
+           whose exit is unconditional when jump.c first sees it (a condition
+           cse folds later does not thread the arm's jump out, measured). What
+           they cannot pin: the debug build's condition. */
+        for (;;) {
             if (((int)(*(unsigned long long *)(sub + 0x18) >> 48)) & 1) {
                 if (a0 == (int)D_00639EC0) {
                     iosPadConnect(sub + 0x2D8, 0, 0, (int)(sub + 0x1E8));
@@ -455,7 +468,11 @@ void subEnemyControl(volatile int a0)
                     iosPadConnect(sub + 0x2D8, 0, 1, (int)(sub + 0x1E8));
                 }
             }
-        } while (0);
+            if (!ENEMY_DEBUG_HOLD) {
+                break;
+            }
+            _ACTWait(1);
+        }
         /* The listing gives the whole counter update one row (1580); gcse
            moves this increment up to both exits of the hit-node test. */
         stopCnt++;
