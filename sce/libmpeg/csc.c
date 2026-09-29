@@ -83,4 +83,62 @@ int _ch4dma(void)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/csc", _csc_storeRefImage);
+extern void _doCSC2(int a0, int a1);
+extern int AddDmacHandler(int a0, int (*a1)(void), int a2);
+extern int EnableDmac(int a0);
+extern int DisableDmac(int a0);
+extern int RemoveDmacHandler(int a0, int a1);
+
+void _csc_storeRefImage(char *p)
+{
+    int buf[8];
+    void *self = _theSceMpeg[0];
+    char *r = (char *)*(int *)((char *)self + 0x40);
+    int n;
+    int addr;
+    int qwc;
+    int hid;
+
+    buf[0] = 2;
+    n = *(int *)(p + 0xC) * *(int *)(p + 0x10);
+    _dispatchMpegCallback(self, buf);
+    if (*(volatile int *)0x10002010 & 0x4000) {
+        *(int *)0x10002010 = 0x40000000;
+    }
+    while (*(volatile int *)0x10002010 < 0) {}
+    _sendIpuCommand(0);
+    while (*(volatile int *)0x10002010 < 0) {}
+    addr = *(int *)p & 0x0FFFFFFF;
+    qwc = n * 24;
+    D_007315E0[0] = qwc;
+    D_007315E4[0] = addr;
+    if ((unsigned int)qwc > 0xFFFF) {
+        hid = AddDmacHandler(4, _ch4dma, 0);
+        *(volatile int *)0x1000E010 = 0x10;
+        EnableDmac(4);
+        *(volatile int *)0x1000B410 = D_007315E4[0];
+        *(volatile int *)0x1000B420 = 0xFFFF;
+        *(volatile int *)0x1000B400 = 0x101;
+        D_007315E4[0] = (D_007315E4[0] + 0xFFFF0) & 0x0FFFFFFF;
+        D_007315E0[0] -= 0xFFFF;
+        if (n < 1024) {
+            _doCSC(*(int *)(r + 0xD8), n);
+        } else {
+            _doCSC2(*(int *)(r + 0xD8), n);
+        }
+        DisableDmac(4);
+        RemoveDmacHandler(4, hid);
+    } else {
+        *(volatile int *)0x1000B410 = D_007315E4[0];
+        *(volatile int *)0x1000B420 = D_007315E0[0];
+        *(volatile int *)0x1000B400 = 0x101;
+        D_007315E0[0] = 0;
+        if (n < 1024) {
+            _doCSC(*(int *)(r + 0xD8), n);
+        } else {
+            _doCSC2(*(int *)(r + 0xD8), n);
+        }
+    }
+    buf[0] = 3;
+    _dispatchMpegCallback(_theSceMpeg[0], buf);
+}
