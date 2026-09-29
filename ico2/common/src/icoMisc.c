@@ -57,20 +57,29 @@ typedef struct {
     int w;
 } D2Pos;
 
-/* Compiled-out debug hook, the same construct clothAnimation.c carries: the
-   Jan-2002 listing emits nothing for icoMisc.c:636-647, twelve source lines
-   between the last gif_SetAlpha (line 635) and gif_EndPacket (line 648), and
-   the ROM's schedule for that basic block needs exactly the one zero-byte
-   insn an inlined empty body leaves behind.  ee-gcc emits `(use (const_int
-   0))` for an inlined call; with two issue slots per clock it takes the free
-   second slot at clock 2, which pushes the third loop's `i = 0` out to clock
-   3, so `addiu $a2,$0,0x80` stays adjacent to the first call and reorg fills
-   gif_SetAlpha's delay slot with it and gif_EndPacket's with `daddu
-   $s5,$0,$0`.  Without the hook the init takes that free slot and the two
-   delay slots come out swapped, with a nop in the second.  The name is ours:
-   the listing records no symbol for an inlined empty body.  Evidence rung:
-   ROM bytes (0x1B7AF0..0x1B7B1C) plus the listing's line map. */
-static __inline__ void partitionBarDebugDisp(void) {}
+/* The partition bar's TTY trace, built only when DEBUG is defined; the
+   retail build does not define it, so the preprocessor leaves the helper
+   without a body.  The Jan-2002 listing emits nothing for icoMisc.c:636-647,
+   twelve source lines between the last gif_SetAlpha (line 635) and
+   gif_EndPacket (line 648), and the ROM's schedule for that basic block needs
+   exactly the one zero-byte insn this call leaves: a parameterless inline
+   whose body is empty is saved as the single `(use (const_int 0))`
+   flow.c:count_basic_blocks gives a function with no insns, and the inliner
+   copies it into the caller.  With two issue slots per clock it takes the
+   free second slot at clock 2, which pushes the third loop's `i = 0` out to
+   clock 3, so `addiu $a2,$0,0x80` stays adjacent to the first call and reorg
+   fills gif_SetAlpha's delay slot with it and gif_EndPacket's with `daddu
+   $s5,$0,$0`.  Without the call the init takes that free slot and the two
+   delay slots come out swapped, with a nop in the second.  A helper with a
+   parameter would not do it (its parameter move is an insn, so no USE is
+   saved).  The name and the trace text are ours.  Evidence rung: ROM bytes
+   (0x1B7AF0..0x1B7B1C) plus the listing's line map. */
+static __inline__ void partitionBarDebugDisp(void)
+{
+#ifdef DEBUG
+    scePrintf("disp_memory_partition_bar\n");
+#endif
+}
 
 void disp_memory_partition_bar(void)
 {

@@ -129,13 +129,22 @@ void initLineTraceTable(void)
     waitCd();
 }
 
-/* Compiled-out debug hook, the same construct icoMisc.c carries
-   (partitionBarDebugDisp).  One call is left, in dispSource (its note says
-   what the bytes pin there).  An inlined empty body leaves one
-   `(use (const_int 0))` insn, which takes an issue slot in both scheduling
-   passes and emits nothing.  The name is ours: the listing records no symbol
-   for an inlined empty body. */
-static __inline__ void debugExcDebugDisp(void) {}
+/* dispSource's TTY trace, built only when DEBUG is defined; the retail build
+   does not define it, so the preprocessor leaves this helper without a body.
+   A parameterless inline whose body is empty after preprocessing is saved as
+   the single `(use (const_int 0))` flow.c:count_basic_blocks gives a function
+   with no insns, and inlining copies that USE into the caller, where it takes
+   an issue slot in both scheduling passes and emits nothing (dispSource's
+   note says what that pins).  A helper with a parameter would not do it: its
+   parameter move is an insn, so no USE is saved.  The name and the trace text
+   are ours: the listing records no symbol or row for an inlined empty body,
+   and the preprocessor leaves no string in the object. */
+static __inline__ void debugExcDebugDisp(void)
+{
+#ifdef DEBUG
+    scePrintf("dispSource\n");
+#endif
+}
 
 /* What traceLine parses out of one TRFILE.TXT line and hands to dispSource:
    the code address, the byte offset of the source line, the frame size and
@@ -242,14 +251,15 @@ extern char D_0063B3B8[]; /* "%s\n" -- this TU's own .sdata, uncarved */
    over by invisible reference and the callee copies it into its own frame,
    which is the unaligned 16-byte copy at the head.
 
-   The debugExcDebugDisp() call is the TU's compiled-out debug hook (see its
+   The debugExcDebugDisp() call is the DEBUG-build TTY trace (see its
    definition above), in the listing's code-free run 431-435.  WHAT THE
    BYTES PIN: sched1 and sched2 both need a zero-byte insn ranked ahead of
    `n = 0` in the cycle of the sceRead call.  Without it `n = 0` issues
    beside that call, the loop's -121 constant takes the free slot before
    putString, and dbr moves it into putString's delay slot, where the ROM
-   has `n = 0`.  WHAT IT CANNOT PIN: that the developer's compiled-out debug
-   code was this construct, or its exact line. */
+   has `n = 0`.  The helper's saved USE is that insn.  WHAT IT CANNOT PIN:
+   the trace's text or its exact line; it pins only a helper without
+   parameters whose release body is empty (see the definition). */
 
 void dispSource(SrcRef ref, int lines)
 {

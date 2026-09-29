@@ -346,17 +346,26 @@ extern void _InterVector(void *dst, void *a, void *b, float t);
 extern void _NormalizeVector(void *dst, void *src);
 extern void _OuterProduct(void *dst, void *a, void *b);
 
-/* Compiled-out debug hook (our name), the construct sugipon's own
-   clothAnimation.c carries as chainDebugOld and clothFixDebug: it inlines to
-   nothing and emits no byte, but each call leaves one real insn until flow.
+/* calcDynamicGeometry's TTY trace, built only when DEBUG is defined; the
+   retail build does not define it, so the preprocessor leaves the helper
+   without a body.  A parameterless inline whose body is empty is saved as the
+   single (use (const_int 0)) flow.c:count_basic_blocks gives a function with
+   no insns, so each call emits no byte but leaves that insn until flow (a
+   helper with a parameter saves no USE; its parameter move is an insn).  The
+   name and the trace text are ours.
    WHAT THE BYTES PIN: the three spill slots at sp+0x23C..0x248 hold gcse PRE
    reaching registers in expression-hash bucket order, which puts gcse's
    max_cuid in a window this body reaches only with three to four more insns
    than its statements give (complete56: none 18 words, three or four hooks
    byte-identical, a hook between 536 and 557 six words); the calls sit in the
    listing's code-free runs 499-516, 580-585 and 590-597.  WHAT THEY CANNOT
-   PIN: that the developer's debug code was this construct, or its lines. */
-static __inline__ void dynGeoDebugHook(void) {}
+   PIN: the trace's text, or its lines inside those runs. */
+static __inline__ void dynGeoDebugHook(void)
+{
+#ifdef DEBUG
+    scePrintf("calcDynamicGeometry\n");
+#endif
+}
 
 void calcDynamicGeometry(char *g)
 {

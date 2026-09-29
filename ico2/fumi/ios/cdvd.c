@@ -96,22 +96,48 @@ extern int sceCdInit(int mode);
 extern int sceCdMmode(int media);
 extern void iosCdvdDiskReadyBlock(void);
 
-/* Compiled-out debug print (our name), the empty-body construct main.c's
-   mainDebugBar and debug_exception.c's debugExcDebugDisp carry: it inlines to
-   nothing and emits no byte, but each call leaves one (use (const_int 0))
-   until flow.  WHAT THE BYTES PIN: the January listing prints at rows 577
-   (puts, in the err == -1 block) and 582 (printf of err), and retail keeps
-   both strings ("get error fail", "st cd read error %d\n") in this member's
-   .rodata, right after the assert texts, but has no call: the two prints
-   stand below as disabled blocks, which expand the strings at their rows and
-   leave no insn (the object is the same with and without them, measured);
-   retail's n in $s0 and err in $s1, the reverse of January's, need err's
-   live length at 9 or more, which three such hooks in the err == -1 block
-   give and two do not (complete56: deleted lines, if (0), a string-argument
-   or an err-argument empty inline all 16 words, a do-while(0) 63).  WHAT
-   THEY CANNOT PIN: the construct the retail source used for those prints,
-   or why it left three zero-code insns here. */
-static __inline__ void stDebugPrint(void) {}
+/* The stream's TTY traces of a drive recovery (our names and text), built
+   only when DEBUG is defined; the retail build does not define it, so the
+   preprocessor leaves each helper without a body.  A parameterless inline
+   whose body is empty is saved as the single (use (const_int 0))
+   flow.c:count_basic_blocks gives a function with no insns, so each call
+   emits no byte but leaves that insn for flow's live lengths to count; a
+   helper with a parameter would leave nothing (its parameter move is an
+   insn, so no USE is saved).  The traces read the drive's own state, which
+   is why they take no argument.
+   WHAT THE BYTES PIN: the January listing prints at rows 577 (puts, in the
+   err == -1 block) and 582 (printf of err), and retail keeps both strings
+   ("get error fail", "st cd read error %d\n") in this member's .rodata,
+   right after the assert texts, but has no call: the two prints stand below
+   as disabled blocks, which expand the strings at their rows and leave no
+   insn (the object is the same with and without them, measured); retail's
+   n in $s0 and err in $s1, the reverse of January's, need err's live length
+   at 9 or more, which three such calls after sceCdMmode give and two do not
+   (complete56: deleted lines, if (0), a string-argument or an err-argument
+   empty inline all 16 words, a do-while(0) 63; cf6: one before sceCdInit,
+   one between the calls and one after gives the $s0/$s1 swap back).  WHAT
+   THEY CANNOT PIN: what the three traces printed, or why the retail source
+   has three zero-code insns where January printed once. */
+static __inline__ void stDebugPrintError(void)
+{
+#ifdef DEBUG
+    scePrintf("cd error %d\n", sceCdGetError());
+#endif
+}
+
+static __inline__ void stDebugPrintStatus(void)
+{
+#ifdef DEBUG
+    scePrintf("cd status %d\n", sceCdStatus());
+#endif
+}
+
+static __inline__ void stDebugPrintMode(void)
+{
+#ifdef DEBUG
+    scePrintf("cd media mode %d\n", D_0063A370);
+#endif
+}
 
 void iosCdvdStManager(void)
 {
@@ -170,9 +196,9 @@ void iosCdvdStManager(void)
                 if ((int)err == -1) {
                     sceCdInit(0);
                     sceCdMmode(D_0063A370);
-                    stDebugPrint();
-                    stDebugPrint();
-                    stDebugPrint();
+                    stDebugPrintError();
+                    stDebugPrintStatus();
+                    stDebugPrintMode();
                     if (0) {
                         debug_StdPrintfDummy("get error fail");
                     }

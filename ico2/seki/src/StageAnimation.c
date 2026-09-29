@@ -275,28 +275,37 @@ extern void bga_ApplyDObject(char *a0, char **a1, int a2, int a3);
 #define STG_DAT(o) ((char *)((AnimWord *)((char *)(o) + 0x15C))->i)
 #define STG_NODE(o, t) ((char *)((AnimWord *)(STG_DAT(o) + 0x870))->i + (t) * 0x50)
 
-/* Compiled-out debug hook (our name), the construct main.c's mainDebugBar,
-   icoMisc.c's partitionBarDebugDisp and weapon.c's dynGeoDebugHook carry: it
-   inlines to nothing and emits no byte, but each call leaves one
-   (use (const_int 0)) insn that loop.c counts and flow never deletes.
-   WHAT THE BYTES PIN: the ROM keeps the m loop's `li 80` and the
-   `li -1` of the entry2 store inside the second loop, and loop.c's
-   move_movables (threshold 64 with a call in the loop) hoists both into
-   two more callee-saved registers (frame 0xC0 against the ROM's 0xA0)
-   unless that loop counts at least 65 real insns at both loop passes. Its
-   statements give 63 and 62, so three or more insns that emit no byte sat
-   in the loop after the m loop: three or four hooks are byte-identical, two
-   let the second pass hoist the stride, and one between d and the m loop
-   changes five words. The January listing has the gp display counter
-   (lw, lw, addu, sw) at line 1453 and no code at 1452, 1454 and 1455, and the
-   retail .sbss has no counter word. WHAT THEY CANNOT PIN: that the
-   developer's code was this construct, its lines, or the count beyond three.
+/* The stage animation TTY trace (our name and text), built only when DEBUG is
+   defined; the retail build does not define it, so the preprocessor leaves
+   the helper without a body.  A parameterless inline whose body is empty is
+   saved as the single (use (const_int 0)) flow.c:count_basic_blocks gives a
+   function with no insns, so each call emits no byte but leaves that insn,
+   which loop.c and gcse count and flow never deletes (a helper with a
+   parameter saves no USE; its parameter move is an insn).
+   WHAT THE BYTES PIN in stage_PlayBgAnimationDissolve: the ROM keeps the m
+   loop's `li 80` and the `li -1` of the entry2 store inside the second loop,
+   and loop.c's move_movables (threshold 64 with a call in the loop) hoists
+   both into two more callee-saved registers (frame 0xC0 against the ROM's
+   0xA0) unless that loop counts at least 65 real insns at both loop passes.
+   Its statements give 63 and 62, so three or more insns that emit no byte sat
+   in that loop: three or four calls are byte-identical (before the k loop,
+   after the 0x74 store, after the k loop, or two after the store), two let
+   the second pass hoist the stride, and one between d and the m loop changes
+   five words. The January listing has the gp display counter (lw, lw, addu,
+   sw) at line 1453 and no code at 1445, 1452, 1454 and 1455, and the retail
+   .sbss has no counter word. WHAT THEY CANNOT PIN: the trace's text, its
+   lines, or the count beyond three.
    The same hook at stage_PlayBgAnimation's counter (listing line 1380)
    changes six words there, so these are not that counter's remnant.
    stage_Init's uses carry their own pinned/not-pinned comments; the
    definition sits above stage_Init because gcc 2.9 inlines only a body it
    has already read. */
-static __inline__ void stageAnimDebugHook(void) {}
+static __inline__ void stageAnimDebugHook(void)
+{
+#ifdef DEBUG
+    scePrintf("stage anim %d\n", stageAnimCount);
+#endif
+}
 
 int stage_Init(void)
 {
@@ -332,21 +341,24 @@ int stage_Init(void)
     for (i = 0; i < 87; i++) {
         STG[i].flags.i &= ~0x3FF;
     }
-    /* Compiled-out debug hooks (see stageAnimDebugHook). The January listing
-       zeroes a gp counter at line 650 (rows 649 and 651 to 654 code-free) and
-       the retail build has neither that code nor the .sbss word. WHAT THE
-       BYTES PIN: stage_Init reaches gcse with 656 to 659 insns, six to nine
-       more than its statements give, so the expression table has 329 buckets
-       and puts e + 0x180 ahead of m + 1, which is the ROM's spill slot order
+    /* The DEBUG-build trace (see stageAnimDebugHook), here and at the next two
+       code-free runs. The January listing zeroes a gp counter at line 650
+       (rows 649, 651 to 654, 656 to 660 and 662 to 666 code-free) and the
+       retail build has neither that code nor the .sbss word. WHAT THE BYTES
+       PIN: stage_Init reaches gcse with 656 to 659 insns, six to nine more
+       than its statements give, so the expression table has 329 buckets and
+       puts e + 0x180 ahead of m + 1, which is the ROM's spill slot order
        (dats base 0x78, m + 1 at 0x7C); at 325 buckets the two slots swap.
-       WHAT THEY CANNOT PIN: how many of those insns sat here and how many at
-       the code-free rows 679, 692 and 697 below, or the statements' text. */
-    stageAnimDebugHook();
-    stageAnimDebugHook();
+       Three calls here in a row and one in each of these three runs are the
+       same object (cf6, measured). WHAT THEY CANNOT PIN: how many of those
+       insns sat in these runs and how many at the code-free rows 679, 692 and
+       697 below, or the trace's text. */
     stageAnimDebugHook();
     bgaPlayList = 0;
     bga_ResetCamera();
+    stageAnimDebugHook();
     for (m = 0; m < 2; m++) {
+        stageAnimDebugHook();
         for (i = ((int *)tbl[m])[0]; i < ((int *)tbl[m])[1]; i++) {
             rec = D_002C2DC8 + i * 0x4C;
             n = *(int *)(rec + 0x34);
@@ -1084,6 +1096,7 @@ float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv
         if ((e->flags.i >> 30) != 0) {
             continue;
         }
+        stageAnimDebugHook();
         for (k = 0; k < ((e->flags.i << 22) >> 22); k++) {
             char *d = *(char **)(e->obj[k] + 0x15C);
 
@@ -1092,7 +1105,6 @@ float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv
             }
             reg_DispObj(d);
             *(int *)(d + 0x74) = 0;
-            stageAnimDebugHook();
             stageAnimDebugHook();
         }
         stageAnimDebugHook();

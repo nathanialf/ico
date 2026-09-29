@@ -115,17 +115,25 @@ extern float VectorLengthSquare(void *v);
 /* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
 extern float _Sqrt(float x);
 
-/* Compiled-out debug hook: the Jan-2002 listing emits nothing for the dev's
-   clothAnimation.c:573-574 (calc2's next-to-last statement), which is what an
-   empty-bodied display hook looks like in a shipping build -- the TU carries the
-   live half of the same debug path in TestDispChainAnimation.  Naming `old` here
+/* The chain's debug draw of its previous segment, built only when DEBUG is
+   defined (the retail build does not define it, so the preprocessor leaves
+   the helper without a body): the Jan-2002 listing emits nothing for the dev's
+   clothAnimation.c:573-574 (calc2's next-to-last statement), which is what a
+   compiled-out display call looks like in a shipping build -- the TU carries the
+   live half of the same debug path in TestDispChainAnimation, whose red colour
+   and DrawLine call the body uses.  The body is ours.  Naming `old` here
    is also what puts the parent's VLA into the frame at 0xCC: ee-gcc spills a
    variable-sized object's address pseudo only for a DECL_NONLOCAL decl, i.e. one
    a NESTED function names, and the parent's slot order (sys 0xB0 .. n 0xC8, then
    old 0xCC, then the reload spills obj/pm/stack-save) proves the naming is the
    LAST nested reference, after calc2's use of `n`.  Measured: at calc2's head the
    slot lands at 0xBC instead. */
-static __inline__ void chainDebugOld(VECTOR *old) {}
+static __inline__ void chainDebugOld(VECTOR *old)
+{
+#ifdef DEBUG
+    DrawLine((char *)old[0], (char *)old[1], (LineColor *)&chainLineColor1, 0);
+#endif
+}
 
 void GetChainAnimation(ChainSet *sys, int obj, char *mtx)
 {
@@ -744,7 +752,8 @@ typedef struct {
     ClothFixPoint *fix;
 } ClothFixCfg;
 
-/* Compiled-out debug hook, the same construct as chainDebugOld above: naming
+/* The cloth's debug draw of a fix point's anchor, built only when DEBUG is
+   defined, the same form as chainDebugOld above (the body is ours): naming
    `fix` inside yTension is what puts GetClothAnimationFix4Points' own `q` into
    its frame.  ee-gcc marks a parent local DECL_NONLOCAL at PARSE time, when a
    nested function's body names it, and put_var_into_stack then allocates the
@@ -752,7 +761,12 @@ typedef struct {
    then q 0x14, ny 0x18, nx 0x1C) proves `q` is named after `pa` and before
    yTension's first use of `ny`.  The hook inlines to nothing: no clothFixDebug
    symbol is emitted and the argument is dead-code-eliminated. */
-static __inline__ void clothFixDebug(ClothFixPoint *fix) {}
+static __inline__ void clothFixDebug(ClothFixPoint *fix)
+{
+#ifdef DEBUG
+    DrawLine((char *)fix->v0, (char *)fix->v1, (LineColor *)&chainLineColor0, 0);
+#endif
+}
 
 void GetClothAnimationFix4Points(VECTOR **pa, VECTOR **pv, ClothFixCfg *cfg, void *mtx)
 {

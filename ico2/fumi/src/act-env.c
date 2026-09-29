@@ -533,11 +533,23 @@ static inline void H1379(void *o, float *v, float top, float *out)
     sceVu0AddVector(out, p, t);
 }
 
-/* A compiled-out print, in cdvd.c's stDebugPrint form: the inlined empty
-   body emits no instruction and leaves one zero-code insn until flow, which
-   is what keeps the ROM's bare c.lt.s under the girl-climb bit-20 test.  The
-   name is ours: an inlined empty body leaves no symbol and no listing row. */
-static __inline__ void envDebugPrint(void) {}
+/* The environment check's TTY trace, built only when DEBUG is defined; the
+   retail build does not define it, so the preprocessor leaves the helper
+   without a body.  A parameterless inline whose body is empty is saved as the
+   single (use (const_int 0)) flow.c:count_basic_blocks gives a function with
+   no insns, and each call copies it into the caller: it emits no instruction
+   and keeps the if's branch alive past flow, which is what leaves the ROM's
+   bare c.lt.s under the girl-climb bit-20 test (reorg later deletes the
+   branch to the next active insn and keeps the compare).  A helper with a
+   parameter would leave nothing (its parameter move is an insn, so no USE is
+   saved).  The name and the trace text are ours: an inlined empty body
+   leaves no symbol and no listing row. */
+static __inline__ void envDebugPrint(void)
+{
+#ifdef DEBUG
+    scePrintf("env: girl climb height over 195\n");
+#endif
+}
 
 /* ACTGetEnvironment is laid out on the listing's rows, and under -g its line
    breaks are part of the bytes (docs/NOTES.md "-g for the game"), so the

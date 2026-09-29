@@ -881,10 +881,15 @@ static inline void *girlBrainGetTarget(void)
     return obj;
 }
 
-/* The TU's compiled-out debug print, in cdvd.c's stDebugPrint form: each
-   inlined call of the empty body emits no instruction but leaves one
-   (use (const_int 0)) insn that gcse and the live-length counts see.  The
-   name is ours: an inlined empty body leaves no symbol and no listing row.
+/* The girl brain's TTY trace of its escape target, built only when DEBUG is
+   defined; the retail build does not define it, so the preprocessor leaves
+   the helper without a body.  A parameterless inline whose body is empty is
+   saved as the single (use (const_int 0)) flow.c:count_basic_blocks gives a
+   function with no insns, so each inlined call emits no instruction but
+   leaves that insn for gcse and the live-length counts to see; a helper with
+   a parameter would leave nothing (its parameter move is an insn, so no USE
+   is saved).  The name and the trace text are ours: an inlined empty body
+   leaves no symbol and no listing row.
    subGirlBrain_Escape's four calls are commented at that function.
    WHAT THE BYTES PIN in girlBrainMain_DecideMode: one zero-code insn inside
    the live range of `near`, the boy-proximity flag the ROM spills to 0x30.
@@ -898,7 +903,14 @@ static inline void *girlBrainGetTarget(void)
    which the ROM rules out.
    WHAT THEY CANNOT PIN: the text of the print, or its exact statement
    inside near's range. */
-static __inline__ void girlBrainDebugPrint(void) {}
+static __inline__ void girlBrainDebugPrint(void)
+{
+#ifdef DEBUG
+    float *t = ((GirlBrainWork *)D_0029D650)->f_5810;
+
+    scePrintf("girl brain target %f %f %f\n", t[0], t[1], t[2]);
+#endif
+}
 
 /* girl_act.c:577-585 in the listing. */
 static inline float girlBrainGetTargetLevel(void)

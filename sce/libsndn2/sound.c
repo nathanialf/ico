@@ -29,10 +29,12 @@ int SgSndn2RemoteInit(void)
         if (sceSifBindRpc(D_00736140, 0x736E646E, 0) < 0) {
             return -1;
         }
+        /* The spin's zero words are not source: ee-gcc pads any loop too
+           short for the R5900 short-loop erratum with nops
+           (mips.c:mips_r5900_lengthen_loops). */
         i = 10000;
         do {
             i--;
-            __asm__("nop");
         } while (i > 0);
     } while (cd[0x24 / 4] == 0);
     return 0;

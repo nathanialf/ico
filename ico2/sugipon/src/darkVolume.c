@@ -332,9 +332,11 @@ void dl_CloseDma(void);
 extern void gif_StartPacketPri(int pri);
 void gif_EndPacket(void);
 
-/* Compiled-out packet check (our name), the construct this programmer's
-   clothAnimation.c (chainDebugOld, clothFixDebug) and weapon.c (dynGeoDebugHook)
-   carry: an empty inline whose call emits no byte. RECONSTRUCTION. WHAT THE
+/* The packet writer's cursor check (our name and test), built only when
+   DEBUG is defined; the retail build does not define it, so the preprocessor
+   leaves the helper without a body, and each call still evaluates its
+   argument into the parameter's copy, which is dead and emits no byte.
+   RECONSTRUCTION. WHAT THE
    BYTES PIN: darkVolume's RTL at cse1's input is 57 to 74 insns longer, before
    the second packet's XYZ2 write at +272, than its statements give, all of it
    deleted by cse1 (cse.c 8739-8761 flushes its table every 1000 insns, and only
@@ -344,10 +346,18 @@ void gif_EndPacket(void);
    check at the head of each packet open and close adds 8, 72 in all. In sonic
    the same check at the open and the close is what puts cse1's flush on the
    ROM's insn (UV1's cursor store in the second packet). WHAT THEY
-   CANNOT PIN: that the developer's writer carried this check, its name or its
-   argument; any straight-line code of that size that cse1 deletes before that
-   write, and that gives no load an earlier equivalent, gives the same bytes. */
-static __inline__ void dvCheckPacket(char *p) {}
+   CANNOT PIN: that the developer's writer carried this check, its name, test
+   or argument; any straight-line code of that size that cse1 deletes before
+   that write, and that gives no load an earlier equivalent, gives the same
+   bytes. */
+static __inline__ void dvCheckPacket(char *p)
+{
+#ifdef DEBUG
+    if (p < (char *)PacketBufferStruct.buf[PacketBufferStruct.cur]) {
+        scePrintf("dark volume: packet cursor %p below its buffer\n", p);
+    }
+#endif
+}
 
 /* the GS-register writer: the listing gives each write the row of its call
    (sonic's rows 313, 314, 331 ...), not rows of its own, so it is a macro */

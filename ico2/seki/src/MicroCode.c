@@ -123,8 +123,10 @@ inline void mc_TransMicroCode(int a0, int a1)
 }
 
 extern int D_0063B1AC;
-/* A compiled-out trace (our name) in the empty-hook form other TUs carry
-   (cdvd.c's stDebugPrint, main.c's mainDebugBar).  WHAT THE BYTES PIN: a
+/* A compiled-out trace (our name), a parameterless helper whose body is
+   switched off, the form cdvd.c's stDebugPrint* and debug_exception.c's
+   debugExcDebugDisp carry; here the switch is a constant `if (0)` rather than
+   `#ifdef DEBUG`, because the call has to be expanded.  WHAT THE BYTES PIN: a
    call with nine or more integer arguments that emits nothing, since the
    ROM's 0x30 frame keeps sixteen bytes of outgoing argument space below its
    two saves (a declared local would cost the `j dl_CloseDma` sibling call),
