@@ -244,11 +244,9 @@ int sceMpegDemuxPssRing(int *dec, void *p4, int size, int a3, int a4)
     return ret;
 }
 
-void sceMpegDemuxPss(void *a0, int a1, int a2)
+int sceMpegDemuxPss(void *a0, int a1, int a2)
 {
-    do {
-        sceMpegDemuxPssRing(a0, a1, a2, 0, -1);
-    } while (0);
+    return sceMpegDemuxPssRing(a0, a1, a2, 0, -1);
 }
 
 extern long long _type2id(int a0, int a1);

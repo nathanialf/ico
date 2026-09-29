@@ -515,31 +515,19 @@ int stageSE06astrong(char *a0)
 int stageSE06abirdIn(int *self)
 {
     float *p = (float *)GetCameraPos((int)self);
-    int v0 = 0;
-    if (p[0] < 300.0f) {
-        if (848.0f < p[2]) {
-            v0 = -1;
-        }
+    if (p[0] < 300.0f && 848.0f < p[2]) {
+        return -1;
     }
-    do {
-        return v0;
-    } while (0);
+    return 0;
 }
 
 int stageSE06abirdOut(int *self)
 {
-    int new_var;
     float *p = (float *)GetCameraPos((int)self);
-    int v0 = -1;
-    if (p[0] < 300.0f) {
-        new_var = 2;
-        if (848.0f < p[new_var]) {
-            v0 = 0;
-        }
+    if (p[0] < 300.0f && 848.0f < p[2]) {
+        return 0;
     }
-    do {
-        return v0;
-    } while (0);
+    return -1;
 }
 
 extern int stageSEtaimatsu(SEObj *a0);

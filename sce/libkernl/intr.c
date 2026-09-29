@@ -19,14 +19,14 @@
    result; a plain "=r" output would let gcc pick a register the kernel
    never writes.  Operand binding, not a scheduling pin. */
 #define SYSCALL_INLINE(num, dst)                                                                   \
-    do {                                                                                           \
+    {                                                                                              \
         register int __sc_ret __asm__("$2");                                                       \
         __asm__ __volatile__("addiu $3, $zero, " #num "\n\tsyscall 0"                              \
                              : "=r"(__sc_ret)                                                      \
                              :                                                                     \
                              : "$3", "memory");                                                    \
         (dst) = __sc_ret;                                                                          \
-    } while (0)
+    }
 /* R5900 opcodes with no C spelling.  This member's uses stand for a
    Sony-internal header this tree cannot name: MAIN.MAP attests archives and
    their members, never a header, so the definition is kept per member. */

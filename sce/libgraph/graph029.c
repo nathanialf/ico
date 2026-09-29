@@ -4,9 +4,7 @@
 
 extern int GsGetIMR(void);
 
-void sceGsGetIMR(void)
+int sceGsGetIMR(void)
 {
-    do {
-        GsGetIMR();
-    } while (0);
+    return GsGetIMR();
 }

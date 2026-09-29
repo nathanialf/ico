@@ -4014,12 +4014,10 @@ extern char D_00553E50[];
 void afterGirlHand(unsigned int a0)
 {
     volatile unsigned int local = a0;
-    do {
-        ACTGame_DisconnectHand();
-        debug_StdPrintfDummy(D_00553E50);
-        iosPadActStop(7);
-        ACTWay_SetBeginPositionIllegal(local);
-    } while (0);
+    ACTGame_DisconnectHand();
+    debug_StdPrintfDummy(D_00553E50);
+    iosPadActStop(7);
+    ACTWay_SetBeginPositionIllegal(local);
 }
 
 void afterGirlPulledGo(void *a0)

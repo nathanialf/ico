@@ -3211,11 +3211,9 @@ void sceSifLoadModule(void *a0, int a1, int a2)
     _sceSifLoadModule(a0, a1, a2, (int)&local, 0);
 }
 
-void sceSifLoadStartModule(void *a0, int a1, int a2, int a3)
+int sceSifLoadStartModule(void *a0, int a1, int a2, int a3)
 {
-    do {
-        _sceSifLoadModule(a0, a1, a2, a3, 0);
-    } while (0);
+    return _sceSifLoadModule(a0, a1, a2, a3, 0);
 }
 
 extern char D_0072D788[];

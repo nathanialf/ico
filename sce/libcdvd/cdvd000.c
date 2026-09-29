@@ -327,8 +327,9 @@ void cdvd_exit(void)
 {
     if (cb_thread_id != 0) {
         sceCdCbfunc_num = -1;
-        /* The wake-up is written as a do/while(0) statement, the form Sony's
-           libmpeg member carries around sceMpegDemuxPss's call. WHAT THE
+        /* OPEN crutch (the user's ruling of 2026-09-28 bans every
+           do/while(0)): the wake-up is still wrapped until its live form is
+           found. WHAT THE
            BYTES PIN: the ROM stores the -1 (0x265F58-0x265F64) before the
            semaphore handle's lui and loads the handle in SignalSema's delay
            slot; sched2 gives that order only when a loop-note pair sits

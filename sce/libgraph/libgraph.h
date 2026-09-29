@@ -18,7 +18,7 @@
 #define SCE_LIBGRAPH_LIBGRAPH_H
 
 void *sceGsGetGParam(void);                                            /* definition in sce/ */
-void sceGsGetIMR(void);                                                /* definition in sce/ */
+int sceGsGetIMR(void);                                             /* definition in sce/ */
 void sceGsPutDispEnv(void *a0);                                        /* definition in sce/ */
 int sceGsPutDrawEnv(void *a0);                                         /* definition in sce/ */
 int sceGsPutIMR(void *a0);                                             /* definition in sce/ */
