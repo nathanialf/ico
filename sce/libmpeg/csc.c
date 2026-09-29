@@ -53,7 +53,50 @@ int _ch3dmaCSC(void)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/csc", _doCSC2);
+extern char D_006371B8[];
+extern int AddDmacHandler(int a0, int (*a1)(void), int a2);
+extern int EnableDmac(int a0);
+extern int DisableDmac(int a0);
+extern int RemoveDmacHandler(int a0, int a1);
+
+/* More than 1023 macroblocks: the conversion runs in 1023-macroblock chunks,
+ * the first kicked here and the rest by _ch3dmaCSC.  The first chunk's
+ * quadword count is named once at the top; the compiler re-materialises it
+ * just before its store, after the first scheduling pass, and that pass's
+ * order is what puts the callback kind in $a0 ahead of the IPU command write
+ * (the bytes pin the moved constant, not the variable's name). */
+void _doCSC2(int a0, int a1)
+{
+    int buf[8];
+    int id;
+    int qwc = 0xFFC0;
+
+    D_007315D8[0] = a1 / 1023 + 1;
+    D_007315D0[0] = a1;
+    D_007315D4[0] = (a0 + 0xFFC00) & 0x0FFFFFFF;
+    D_0054CAB8[0] = 0;
+    _cscDma[0] = 0;
+    while (*(volatile int *)0x10002010 < 0) {}
+    id = AddDmacHandler(3, _ch3dmaCSC, 0);
+    *(volatile int *)0x1000E010 = 8;
+    EnableDmac(3);
+    *(volatile int *)0x1000B010 = a0 & 0x0FFFFFFF;
+    *(volatile int *)0x1000B020 = qwc;
+    *(volatile int *)0x1000B000 = 0x100;
+    *(volatile int *)0x10002000 = 0x700003FF;
+    buf[0] = 4;
+    /* the handle read in int's alias set, as mpc.c's _groupOfPicturesHeader
+     * reads it: the load then waits for the register writes, after the
+     * record store */
+    _dispatchMpegCallback((void *)((int *)_theSceMpeg)[0], buf);
+    while (_cscDma[0] < D_007315D8[0]) {}
+    if (*(volatile int *)D_0054CAB8 != 0) {
+        _Error(D_006371B8);
+    }
+    while (*(volatile int *)0x10002010 < 0) {}
+    DisableDmac(3);
+    RemoveDmacHandler(3, id);
+}
 
 extern int D_007315DC[];
 extern int D_007315E0[];
