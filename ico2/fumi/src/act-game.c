@@ -1904,6 +1904,28 @@ static inline int actGame_GetCurrentCallStatus(char *a0)
     return 0;
 }
 
+/* The play-speed ratio's debug override, built only when DEBUG is defined:
+   the debug build can pin the ratio from the debugger before it is applied;
+   the retail build does not define DEBUG, so the helper has no body.  The
+   January link runs its own debug check at the same place (listing rows
+   2532-2537: the motion viewer's mode word, which sets the viewed object's
+   speed itself, guards the call).  WHAT THE BYTES PIN: the Exec's text takes
+   one of its locals' address, so the function uses ADDRESSOF and
+   sibcall.c:404-419 keeps the final call a jal with a frame (the plain call
+   is a `j`, and a body with a sibling call is never inlined, integrate.c
+   226-232, where the ROM inlines it into ACTGame_CommonLoop);
+   purge_addressof then returns ratio to its register, so nothing is stored.
+   WHAT THEY CANNOT PIN: which local, the helper's name or its debug body,
+   which are ours. */
+static __inline__ void speedRatioDebugOverride(float *ratio)
+{
+#ifdef DEBUG
+    if (dbgSpeedRatioFix) {
+        *ratio = dbgSpeedRatio;
+    }
+#endif
+}
+
 static inline void actGame_SetMotionPlaySpeedRatio_Exec(char *a0)
 {
     float ratio;
@@ -1925,10 +1947,8 @@ static inline void actGame_SetMotionPlaySpeedRatio_Exec(char *a0)
     if (keep) {
         ratio = 1.0f;
     }
-    /* The wrapper macro's do/while(0) block, as in the public body below. */
-    do {
-        SetMotionPlaySpeedRatio(a0, ratio);
-    } while (0);
+    speedRatioDebugOverride(&ratio);
+    SetMotionPlaySpeedRatio(a0, ratio);
 }
 
 /* The bird broadcast the listing keeps at lines 2603-2614, between
@@ -3873,13 +3893,8 @@ void ACTGame_SetMotionPlaySpeedRatio_Exec(char *a0)
     if (keep) {
         ratio = 1.0f;
     }
-    /* The dev's wrapper macro expanded to a do/while(0) block; the back-edge
-       is what keeps this a real `jal` with a frame instead of the tail call
-       ee-gcc makes of a trailing void call (docs/NOTES.md, "Defeating an
-       over-eager sibling-call"). It emits no instructions of its own. */
-    do {
-        SetMotionPlaySpeedRatio(a0, ratio);
-    } while (0);
+    speedRatioDebugOverride(&ratio);
+    SetMotionPlaySpeedRatio(a0, ratio);
 }
 
 void GetGirlPositionAtThisStage(float *a0)
