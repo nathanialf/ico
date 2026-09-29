@@ -1695,7 +1695,7 @@ int _sliceA0(int a0, int *a1, int *a2, int *a3)
 
 extern int _sliceA0(int a0, int *a1, int *a2, int *a3);
 extern int _mbAddressIncrement(void);
-extern int _decMB0(int *a0, int *a1, int *a2, int *a3, int *a4, int *a5);
+extern int _decMB0(int *a0, int *a1, int *a2, int a3[2][2][2], int *a4, int *a5);
 extern int _skipMB0(int *a0, int *a1, int *a2, int *a3);
 extern int _motionComp0(int a0, int a1, int a2, int a3, int *a4, int *a5, int *a6);
 extern char D_00637080[];
@@ -1794,7 +1794,131 @@ int _skipMB0(int *a0, int *a1, int *a2, int *a3)
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/mpc", _decMB0);
+extern int _frame_pred_frame_dct;
+extern int _concealment_motion_vectors;
+extern int _f_code[];
+extern int _forward_f_code;
+extern int _backward_f_code;
+extern int _full_pel_forward_vector;
+extern int _full_pel_backward_vector;
+extern int _qscqsc;
+extern unsigned int _nextBit(int a0);
+extern void _motionVectors();
+extern void _motionVector();
+extern char D_006370D0[];
+
+/* Decode one macroblock's header: the macroblock type, the motion and DCT
+ * types, the quantiser scale and the motion vectors, then either start the
+ * IPU block decode (the fromIPU channel writing into the current record) or
+ * mark the record skipped, and reset the motion vector predictors. PMV is the
+ * [r][s][t] predictor array _motionVectors takes. */
+int _decMB0(int *mb_type, int *motion_type, int *dct_type, int PMV[2][2][2], int *mv_field_sel,
+            int *dmvector)
+{
+    int mv_count;
+    int mv_format;
+    int dmv;
+    int mvscale;
+    int *p;
+    int cmd;
+    int cmd2;
+
+    *(volatile int *)0x10002010 =
+        (*(volatile int *)0x10002010 & 0xF8FFFFFF) | (_picture_coding_type[0] << 24);
+    mb_type[0] = _ipuVdec(1);
+    if (mb_type[0] == 0) {
+        _Error(D_006370D0);
+        _isError[0] = 1;
+        return 0;
+    }
+    if (mb_type[0] & 0xC) {
+        if (_picture_structure == 3 && _frame_pred_frame_dct != 0) {
+            motion_type[0] = 2;
+        } else {
+            motion_type[0] = _nextBit(2);
+        }
+    } else if ((mb_type[0] & 1) && _concealment_motion_vectors != 0) {
+        motion_type[0] = _picture_structure == 3 ? 2 : 1;
+    }
+    if (_picture_structure == 3) {
+        mv_count = motion_type[0] == 1 ? 2 : 1;
+        mv_format = motion_type[0] == 2;
+    } else {
+        mv_count = motion_type[0] == 2 ? 2 : 1;
+        mv_format = 0;
+    }
+    dmv = motion_type[0] == 3;
+    mvscale = 0;
+    if (mv_format == 0) {
+        mvscale = _picture_structure == 3;
+    }
+    dct_type[0] = _picture_structure == 3 && _frame_pred_frame_dct == 0 && (mb_type[0] & 3) != 0
+                      ? _nextBit(1)
+                      : 0;
+    if (mb_type[0] & 0x10) {
+        _qscqsc = _nextBit(5);
+    }
+    if ((mb_type[0] & 8) || ((mb_type[0] & 1) && _concealment_motion_vectors != 0)) {
+        if (_isMpeg2[0]) {
+            _motionVectors(PMV, dmvector, mv_field_sel, 0, mv_count, mv_format, _f_code[0] - 1,
+                           _f_code[1] - 1, dmv, mvscale);
+        } else {
+            _motionVector(PMV[0][0], dmvector, _forward_f_code - 1, _forward_f_code - 1, 0, 0,
+                          _full_pel_forward_vector);
+        }
+    }
+    if (_isError[0]) {
+        return 0;
+    }
+    if (mb_type[0] & 4) {
+        if (_isMpeg2[0]) {
+            _motionVectors(PMV, dmvector, mv_field_sel, 1, mv_count, mv_format, _f_code[2] - 1,
+                           _f_code[3] - 1, 0, mvscale);
+        } else {
+            _motionVector(PMV[0][1], dmvector, _backward_f_code - 1, _backward_f_code - 1, 0, 0,
+                          _full_pel_backward_vector);
+        }
+    }
+    if (_isError[0]) {
+        return 0;
+    }
+    if ((mb_type[0] & 1) && _concealment_motion_vectors != 0) {
+        _flushBuf(1);
+    }
+    if (mb_type[0] & 3) {
+        p = (int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140);
+        *(volatile int *)0x1000B010 = (p[1] & 0x0FFFFFFF) | 0x80000000;
+        *(volatile int *)0x1000B020 = 0x30;
+        *(volatile int *)0x1000B000 = 0x100;
+        _waitIpuIdle();
+        cmd = ((mb_type[0] & 1) << 27) | (_qscqsc << 16);
+        cmd2 = (_sp_dcr[0] << 26) | 0x20000000;
+        _sendIpuCommand(cmd | cmd2 | (dct_type[0] << 25));
+    } else {
+        *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x13C) = 1;
+    }
+    _sp_dcr[0] = 0;
+    if (_isError[0]) {
+        return 0;
+    }
+    if ((mb_type[0] & 1) == 0) {
+        _sp_dcr[0] = 1;
+    }
+    if ((mb_type[0] & 1) && _concealment_motion_vectors == 0) {
+        PMV[0][0][0] = PMV[0][0][1] = PMV[1][0][0] = PMV[1][0][1] = 0;
+        PMV[0][1][0] = PMV[0][1][1] = PMV[1][1][0] = PMV[1][1][1] = 0;
+    }
+    if (_picture_coding_type[0] == 2 && (mb_type[0] & 9) == 0) {
+        PMV[0][0][0] = PMV[0][0][1] = PMV[1][0][0] = PMV[1][0][1] = 0;
+        if (_picture_structure == 3) {
+            motion_type[0] = 2;
+        } else {
+            motion_type[0] = 1;
+            mv_field_sel[0] = _picture_structure == 2;
+        }
+    }
+    return 1;
+}
 
 void _decode_motion_vector(int *pred, int r_size, int motion_code, int motion_r, int full_pel)
 {
