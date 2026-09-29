@@ -98,21 +98,22 @@ inline void AttackCheckBoundaryDL(char *obj)
     if (D_0063B148 == 0) {
         return;
     }
-    if (*(int *)(m + 4) != 0) {
-        return;
-    }
-    gif_StartPacketPri(0xB);
+    /* The drawing is the body of this if (listing line 57 is its brace), so the
+       if's join label and the early return's label both follow gif_EndPacket:
+       its block does not fall straight into the exit block, and sibcall.c keeps
+       the jal and the frame the ROM has. */
+    if (*(int *)(m + 4) == 0) {
+        gif_StartPacketPri(0xB);
 
-    gif_SetZTest(1);
-    gif_SetAlpha(1, 5, 0x80);
-    _UnitMatrix(MatrixDrive_GetMatrix());
-    CopyVector((char *)MatrixDrive_GetMatrix() + 0x30,
-               *(char **)(*(char **)(obj + 0x15C) + 0xC) + 0x30);
-    r = GetAttackCheckBoundaryRadius(obj);
-    prim_DispWireSphere(r, D_004E5A90, 4, 4);
-    do {
+        gif_SetZTest(1);
+        gif_SetAlpha(1, 5, 0x80);
+        _UnitMatrix(MatrixDrive_GetMatrix());
+        CopyVector((char *)MatrixDrive_GetMatrix() + 0x30,
+                   *(char **)(*(char **)(obj + 0x15C) + 0xC) + 0x30);
+        r = GetAttackCheckBoundaryRadius(obj);
+        prim_DispWireSphere(r, D_004E5A90, 4, 4);
         gif_EndPacket();
-    } while (0);
+    }
 }
 
 inline void SetAttackCheckBoundaryAttribute(char *a0, int a1)
