@@ -190,7 +190,130 @@ void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_f
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/mpc", _getRef0);
+/* the prediction buffer the IPU reads the two reference blocks out of */
+extern int D_0054C0E0;
+/* the eight luma (_rix_*) and the eight chroma (_ri0_*) prediction copy
+ * routines, picked by the half-pel bits of the vector and by whether this
+ * reference is averaged; _doMC calls them with the descriptor */
+extern void (*D_0054C9C8[])();
+extern void (*D_0054C9E8[])();
+
+/* Append one reference block to the current macroblock record: the luma
+ * descriptor at +0x48 and the chroma descriptor at +0xB8 (seven ints each,
+ * one per reference), then the two source addresses and the two copy
+ * routines in the record's four parallel arrays at +8, +0x18, +0x28 and +0x38.
+ * fld is 1 when the reference is read field-organised out of a frame buffer,
+ * which doubles every vertical step and halves every vertical extent. The
+ * chroma half reuses the luma half's position, fraction and half-pel
+ * variables. */
+void _getRef0(int *img, int lineOff, int predIdx, int yoff, int h, int x, int y, int mvx, int mvy,
+              int fld, int avg)
+{
+    int n = *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x12C);
+    int *luma = (int *)((char *)_mbcont + 0x48 + _mbcont[0x280 / 4] * 0x140 + n * 0x1C);
+    int *chroma = (int *)((char *)_mbcont + 0xB8 + _mbcont[0x280 / 4] * 0x140 + n * 0x1C);
+    int dst;
+    int lumaCmd, chromaCmd;
+    int ix, rx, ry, px, py, fy, blk, t, xh, yh;
+    int cmvx, cmvy, cpx, cpy, cyoff, ch;
+    int base, idx, lrow, lrow2, cbase, crow, crow2;
+
+    ix = mvx >> 1;
+    dst = D_0054C0E0;
+    rx = ix + x;
+    if (fld) {
+        ry = (mvy >> 1) * 2 + lineOff + yoff + y;
+    } else {
+        ry = (mvy >> 1) + lineOff + yoff + y;
+    }
+    px = rx >> 4;
+    py = ry >> 4;
+    blk = px * img[0x10 / 4] + py;
+    fy = ry - py * 16;
+    xh = mvx & 1;
+    yh = mvy & 1;
+    luma[1] = rx - px * 16;
+    ((void **)luma)[0] = (void *)(dst + (predIdx + yoff) * 32);
+    if (yh) {
+        if (fy + (h << fld) >= 16) {
+            t = (16 >> fld) - (fy >> fld) - 1;
+            luma[2] = t;
+            luma[3] = h - t;
+        } else {
+            luma[2] = h;
+            luma[3] = 0;
+        }
+    } else {
+        if (fy + (h << fld) >= 17) {
+            t = (16 >> fld) - (fy >> fld);
+            luma[2] = t;
+            luma[3] = h - t;
+        } else {
+            luma[2] = h;
+            luma[3] = 0;
+        }
+    }
+    base = *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140) + n * 0x600;
+    lrow = fy * 16;
+    ((void **)luma)[5] = (void *)(base + lrow);
+    lrow2 = lrow + 0x300;
+    ((void **)luma)[6] = (void *)(base + lrow2);
+    luma[4] = 16 << fld;
+    lumaCmd = (avg << 2) | (xh << 1) | yh;
+
+    cmvx = mvx / 2;
+    cmvy = mvy / 2;
+    rx = (cmvx >> 1) + (x >> 1);
+    cyoff = yoff >> 1;
+    ch = h >> 1;
+    if (fld) {
+        ry = (cmvy >> 1) * 2 + lineOff + cyoff + (y >> 1);
+    } else {
+        ry = (cmvy >> 1) + lineOff + cyoff + (y >> 1);
+    }
+    cpx = rx >> 3;
+    cpy = ry >> 3;
+    fy = ry - cpy * 8;
+    xh = cmvx & 1;
+    yh = cmvy & 1;
+    chroma[1] = rx - cpx * 8;
+    ((void **)chroma)[0] = (void *)(dst + 0x200 + (predIdx + cyoff) * 16);
+    if (yh) {
+        if (fy + (ch << fld) >= 8) {
+            t = (8 >> fld) - (fy >> fld) - 1;
+            chroma[2] = t;
+            chroma[3] = ch - t;
+        } else {
+            chroma[2] = ch;
+            chroma[3] = 0;
+        }
+    } else {
+        if (fy + (ch << fld) >= 9) {
+            t = (8 >> fld) - (fy >> fld);
+            chroma[2] = t;
+            chroma[3] = ch - t;
+        } else {
+            chroma[2] = ch;
+            chroma[3] = 0;
+        }
+    }
+    cbase = ((cpx - px) * 2 + (cpy - py)) * 0x180 + base;
+    crow = fy * 8 + 0x100;
+    crow2 = fy * 8 + 0x400;
+    ((void **)chroma)[5] = (void *)(cbase + crow);
+    ((void **)chroma)[6] = (void *)(cbase + crow2);
+    chroma[4] = 8 << fld;
+    chromaCmd = (avg << 2) | (xh << 1) | yh;
+
+    idx = _mbcont[0x280 / 4];
+    ((void **)((char *)_mbcont + n * 4 + idx * 0x140))[2] = (void *)(img[0] + blk * 0x180);
+    ((void **)((char *)_mbcont + n * 4 + idx * 0x140))[6] =
+        (void *)(img[0] + (blk + img[0x10 / 4]) * 0x180);
+    ((void (**)())((char *)_mbcont + n * 4 + idx * 0x140))[10] = D_0054C9C8[lumaCmd];
+    ((void (**)())((char *)_mbcont + n * 4 + idx * 0x140))[14] = D_0054C9E8[chromaCmd];
+    *(int *)((char *)_mbcont + idx * 0x140 + 0x12C) += 1;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/mpc", _doMC);
 
 __asm__(".section .text\n"
