@@ -790,8 +790,8 @@ segments:
       - [0x453C44, rodata, cod/453C44]   # .rodata blob resume (the zero pad word before Danger_Gondola's "goal[%d]\n" at 0x553C48)
       - [0x453D30, .rodata, ico2/fumi/src/girl_act]  # syms: 0x00553D30  subGirlControl's 45-arm switch table jtbl_00553D30, VMA 0x553D30..0x553DE4, 0xB4 B, every arm checked against the ROM (chain 3 pass 185)
       - [0x453DE4, rodata, cod/453DE4]   # .rodata blob resume (the zero pad word before D_00553DE8)
-      - [0x453EB0, .rodata, ico2/fumi/src/girl_act]  # syms: 0x00553EB0  carved jtbl_00553EB0 (VMA 0x553EB0..0x553FBC, 67 arms, 268 B): GetBoyMode's switch table, emitted by the compiled function; girl_act owns 7 more jtbls (0x553AD0..0x553D30) interleaved with its strings, so this stays a single-table carve until a spanning one is byte-neutral
-      - [0x453FBC, rodata, cod/453FBC]   # .rodata blob resume (the zero pad word before the .align 3 D_00553FC0 is the blob's first word)
+      - [0x453E60, .rodata, ico2/fumi/src/girl_act]  # plain-rodata: the actGirlHand unit's run as source (chain 3 pass 188): "[%d] [%d]", "gv[%d] mo[%d] hd[%d] hd2[%d]\n", "\tgv[%d] mo[%d] hd[%d]\n", HandMgr_Speed's 1.4 double at 0x553EA8, the nested GetBoyMode's 67-arm jump table 0x553EB0..0x553FBC (every arm checked against the ROM) and "dist error\n" at 0x553FC0, VMA 0x553E60..0x553FCC, 0x16C B
+      - [0x453FCC, rodata, cod/453FCC]   # .rodata blob resume
       - [0x4540B0, .rodata, ico2/fumi/src/jimaku]  # carved jtbl_005540B0 (VMA 0x5540B0..0x5540C4, 20 B, 5 arms): jimakuMgrBegin's switch table, selector NonLinearCameraMove - 2, emitted by the compiled function
       - [0x4540C4, rodata, cod/4540C4]   # .rodata blob resume (the pad word before D_005540C8)
       - [0x454120, .rodata, ico2/fumi/src/way_sys]  # the TU's whole .rodata run as source, 25 format strings, VMA 0x554120..0x5542FB plus 5 B of pad to way_util (chain 1 pass 130); the TU entirely C
