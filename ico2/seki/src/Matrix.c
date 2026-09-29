@@ -14,8 +14,7 @@
     __asm__ __volatile__("sq " s0 ", 0($a0)" : : : "memory");                                      \
     __asm__ __volatile__("sq " s1 ", 0x10($a0)" : : : "memory");                                   \
     __asm__ __volatile__("sq " s2 ", 0x20($a0)" : : : "memory");                                   \
-    __asm__ __volatile__("sq " s3 ", 0x30($a0)" : : : "memory");                                   \
-    __asm__ __volatile__("nop")
+    __asm__ __volatile__("sq " s3 ", 0x30($a0)" : : : "memory")
 
 /* the scratch matrix _ScaleMatrixV fills in and multiplies through */
 static float scaleWorkMatrix[4][4] = {{1.0f, 0.0f, 0.0f, 0.0f},

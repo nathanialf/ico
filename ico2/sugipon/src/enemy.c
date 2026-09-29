@@ -340,6 +340,7 @@ static inline int enemySetParticle(int kind, void *obj, float *dir)
 
 int EnemyCheckHit(char *self, float *pos, float *dir)
 {
+    int eff = 0;
     char *sub;
     char *w;
     int n;
@@ -357,15 +358,16 @@ int EnemyCheckHit(char *self, float *pos, float *dir)
             if (distance_squared(*(char **)(sub + 0xC) + i * 0x40 + 0x30, pos) < 10000.0f) {
                 enemySetParticle(8, *(char **)(sub + 0xC) + i * 0x40 + 0x30, dir);
                 /* The hand-written form the helper call replaced, the way
-                   CheckEnemyHit still spells it, disabled after the call.
+                   CheckEnemyHit still spells it, switched off by a local effect
+                   switch, CheckEnemyHit's own `eff` with the other value.
                    WHAT THE BYTES PIN: a 4-byte stack object at sp+0x20 that
                    nothing reads, above the helper's freed 0x20 block and below
                    the pos/n/cnt spills; only promoted locals whose address is
                    taken after the call give it (put_var_into_stack runs when
                    the `&` is parsed, and q reuses the helper's block), and the
                    listing's lines 497-512 emit nothing.  WHAT THEY CANNOT PIN:
-                   this text, or how the developer disabled it. */
-                if (0) {
+                   this text. */
+                if (eff) {
                     float q[4];
                     short rx;
                     short ry;

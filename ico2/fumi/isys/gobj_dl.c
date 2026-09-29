@@ -143,22 +143,16 @@ static void add_gobj_to_head(int a0, int a1, int a2)
     self->next->prev = self;
 }
 
-void isysGObjMoveObjDL(int a0, int a1, int a2)
+void isysGObjMoveObjDL(int a0, unsigned char a1, int a2)
 {
-    int s1 = a1 & 0xFF;
-    int new_var;
-    new_var = a2;
     cut_gobj_dl_link(a0);
-    return add_gobj_to_tail(a0, s1, new_var);
+    return add_gobj_to_tail(a0, a1, a2);
 }
 
-void isysGObjMoveObjDLHead(int a0, int a1, int a2)
+void isysGObjMoveObjDLHead(int a0, unsigned char a1, int a2)
 {
-    int s1 = a1 & 0xFF;
-    int new_var;
-    new_var = a2;
     cut_gobj_dl_link(a0);
-    return add_gobj_to_head(a0, s1, new_var);
+    return add_gobj_to_head(a0, a1, a2);
 }
 
 inline void isysGObjMoveObjDLAfterGObj(DLN *self, DLN *obj)

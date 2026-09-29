@@ -305,11 +305,9 @@ extern void SubVectorXYZ();
 
 void GetRootPosOfNextFrame(int a0, int *a1)
 {
-    int *p = (int *)((GObj *)(a1))->p_15C;
-    char *new_var;
-    new_var = ((char *)p) + 0xA0;
-    CopyVector(a0, (int)(((char *)p) + 0x130));
-    SubVectorXYZ(a0, a0, (int)new_var);
+    char *sub = (char *)((GObj *)(a1))->p_15C + 0xA0;
+    CopyVector(a0, (int)(sub + 0x90));
+    SubVectorXYZ(a0, a0, (int)sub);
 }
 
 /* kept local: this TU's uses of GetYProjectionOfPlane do not fit the prototype in fieldCollision.h */

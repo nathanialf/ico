@@ -264,25 +264,19 @@ extern void add_gobj_to_tail(int a0, int a1, int a2);
 /* kept local: this TU's uses of cut_gobj_link do not fit the prototype in gobj.h */
 extern void cut_gobj_link(int a0);
 
-void isysGObjMove(int a0, int a1, int a2)
+void isysGObjMove(int a0, unsigned char a1, int a2)
 {
-    int s1 = a1 & 0xFF;
-    int new_var;
-    new_var = a2;
     cut_gobj_link(a0);
-    return add_gobj_to_tail(a0, s1, new_var);
+    return add_gobj_to_tail(a0, a1, a2);
 }
 
 /* kept local: this TU's uses of add_gobj_to_head do not fit the prototype in gobj.h */
 extern void add_gobj_to_head(char *a0, int a1, int a2);
 
-void isysGObjMoveHead(int a0, int a1, int a2)
+void isysGObjMoveHead(int a0, unsigned char a1, int a2)
 {
-    int s1 = a1 & 0xFF;
-    int new_var;
-    new_var = a2;
     cut_gobj_link(a0);
-    return add_gobj_to_head(a0, s1, new_var);
+    return add_gobj_to_head(a0, a1, a2);
 }
 
 /* static helper the listing places at gobj.c lines 360-369; never emitted out

@@ -2363,7 +2363,7 @@ void scaleVectorXZ(void *p0, void *p1, void *p2)
 
 void tensionMoveNoReduce(void *a0, void *a1, void *a2, float f12)
 {
-    int sp_buf[4];
+    int buf[4];
     VU0_LSV(lqc2, 1, 0x0, a1);
     VU0_LSV(lqc2, 2, 0x0, a2);
     VU0_REG("vsub.xyzw $vf4, $vf1, $vf2");
@@ -2371,7 +2371,10 @@ void tensionMoveNoReduce(void *a0, void *a1, void *a2, float f12)
     VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
     VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
     VU0_REG("vrsqrt Q, $vf0w, $vf3x");
-    VU0_LSV(sqc2, 4, 0x0, sp);
+    __asm__ __volatile__(".set noreorder\n\tsqc2 $vf4, %0\n\t.set reorder"
+                         : "=m"(buf)
+                         :
+                         : "memory");
     VU0_WAIT();
     VU0_NOREORDER_BEGIN();
     VU0_CFC2_NI(v0, 22);
@@ -2380,7 +2383,10 @@ void tensionMoveNoReduce(void *a0, void *a1, void *a2, float f12)
     VU0_NOREORDER_END();
 
     VU0_LSV(lqc2, 4, 0x0, a2);
-    VU0_LSV(lqc2, 5, 0x0, sp);
+    __asm__ __volatile__(".set noreorder\n\tlqc2 $vf5, %0\n\t.set reorder"
+                         :
+                         : "m"(buf[0])
+                         : "memory");
     VU0_NOREORDER_BEGIN();
     VU0_MFC1(t0, 12);
     VU0_QMTC2_NI(t0, 6);
@@ -2392,7 +2398,7 @@ void tensionMoveNoReduce(void *a0, void *a1, void *a2, float f12)
 
 void tensionMove(void *a0, void *a1, void *a2, float f12, float f13)
 {
-    int sp_buf[4];
+    int buf[4];
     float inv;
     float scale;
     VU0_LSV(lqc2, 1, 0x0, a1);
@@ -2402,7 +2408,10 @@ void tensionMove(void *a0, void *a1, void *a2, float f12, float f13)
     VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
     VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
     VU0_REG("vrsqrt Q, $vf0w, $vf3x");
-    VU0_LSV(sqc2, 4, 0x0, sp);
+    __asm__ __volatile__(".set noreorder\n\tsqc2 $vf4, %0\n\t.set reorder"
+                         : "=m"(buf)
+                         :
+                         : "memory");
     VU0_WAIT();
     __asm__ __volatile__(".set noreorder\n"
                          "cfc2.ni $2, $vi22\n"
@@ -2412,7 +2421,10 @@ void tensionMove(void *a0, void *a1, void *a2, float f12, float f13)
     if (inv < f13) {
         scale = f12 * inv;
         VU0_LSV(lqc2, 4, 0x0, a2);
-        VU0_LSV(lqc2, 5, 0x0, sp);
+        __asm__ __volatile__(".set noreorder\n\tlqc2 $vf5, %0\n\t.set reorder"
+                             :
+                             : "m"(buf[0])
+                             : "memory");
         __asm__ __volatile__(".set noreorder\n"
                              "mfc1 $8, %0\n"
                              "qmtc2.ni $8, $vf6\n"

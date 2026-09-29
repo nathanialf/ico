@@ -346,9 +346,7 @@ inline void ChangeColorWireString(int a0, int a1, int a2)
 
 void DefaultColorWireString(void)
 {
-    int new_var;
-    new_var = wireStringColorDefault[1];
     wireStringColor[0] = wireStringColorDefault[0];
-    wireStringColor[1] = new_var;
+    wireStringColor[1] = wireStringColorDefault[1];
     wireStringColor[2] = wireStringColorDefault[2];
 }

@@ -511,28 +511,26 @@ int scePadSetActDirect(int a0, int a1, unsigned char *a2)
 
 int scePadSetActAlign(int a0, int a1, char *a2)
 {
-    int *s0 = D_0072F540;
+    int *buf = D_0072F540;
     int i;
     int val;
-    int *new_var;
     int ret;
     char *dst;
     D_0072F540[0] = 8;
-    new_var = D_0072F540;
-    s0[1] = a0;
-    s0[2] = a1;
-    dst = (char *)s0 + 0xC;
+    buf[1] = a0;
+    buf[2] = a1;
+    dst = (char *)buf + 0xC;
     for (i = 0; i < 6; i++) {
         dst[i] = a2[i];
     }
-    ret = sceSifCallRpc(D_0072F200, 1, 0, new_var, 0x80, new_var, 0x80, 0, 0);
+    ret = sceSifCallRpc(D_0072F200, 1, 0, buf, 0x80, buf, 0x80, 0, 0);
     if (ret < 0) {
         return 0;
     }
-    val = s0[5];
+    val = buf[5];
     if (val == 1) {
         scePadSetReqState(a0, a1, 2);
-        val = s0[5];
+        val = buf[5];
     }
     return val;
 }

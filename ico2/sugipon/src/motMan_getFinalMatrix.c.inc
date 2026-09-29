@@ -406,6 +406,7 @@ void _getFinalMatrix(int id)
     float v[4];
     float dq[4];
     float q[4];
+    int dbg = 0;
 
     if (*(int *)(node + 0x38) != -1) {
         sceVu0ScaleVectorXYZ(v, node + 0x10, D_0063B900);
@@ -671,9 +672,10 @@ void _getFinalMatrix(int id)
              * or written by the ROM.  What the bytes pin: those two vectors
              * and those four bytes, made in that window.  What they cannot
              * pin: the window's text and condition; a turn computed from the
-             * work vectors, as the next line computes it from out, is ours
-             * (case 3 has the same window with one vector). */
-            if (0) {
+             * work vectors, as the next line computes it from out, under the
+             * function's local debug switch, is ours (case 3 has the same
+             * window with one vector). */
+            if (dbg) {
                 short w0, w1;
 
                 CopyVector(work0, work1);
@@ -893,7 +895,7 @@ void _getFinalMatrix(int id)
              * 16-byte vector (work) there.  What the bytes pin: that vector.
              * What they cannot pin: the window's text and condition, ours
              * here. */
-            if (0) {
+            if (dbg) {
                 CopyVector(work, out);
             }
             getLocalTargetDir(out, (float *)(D_0063C490 + 0x240));

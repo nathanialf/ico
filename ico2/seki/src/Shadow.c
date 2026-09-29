@@ -378,13 +378,27 @@ void shadow_Draw(void)
     tex_UnlockHeadTBP(3);
 }
 
-void shadow_Render(void)
+#ifdef DEBUG
+
+void shadow_getShadowVectorAverage(void *a0, char *a1);
+
+#endif
+
+/* The object's shadow render retired to shadow_RenderVolume; this entry only
+   reports that it was reached (p2o_DispShadowVolume still passes the object),
+   and the DEBUG build adds the object's shadow direction through dir.  Retail
+   keeps dir's declaration, the ROM's 16 bytes of vars under the saved $ra; the
+   listing's rows 525-599 after the print carry no code.  The DEBUG report is
+   ours. */
+void shadow_Render(char *o)
 {
-    /* CRUTCH: zero-code frame reservation. The body is one printf stub and ROM
-       still reserves 16 bytes of vars, so the vector the stub printed was a
-       local here. Deleting it changes the object. See docs/crutch_ledger.md. */
-    float buf[4];
+    float dir[4];
+
     debug_StdPrintfDummy("shadow_Render called\n");
+#ifdef DEBUG
+    shadow_getShadowVectorAverage(dir, o);
+    printf("  shadow dir %f %f %f\n", dir[0], dir[1], dir[2]);
+#endif
 }
 
 void shadow_getShadowVectorAverage(void *a0, char *a1)

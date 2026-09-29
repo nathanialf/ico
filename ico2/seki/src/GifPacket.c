@@ -760,45 +760,18 @@ void gif_MoveImage(long long sbp, long long sbw, long long psm, int *rect, long 
 
 void gif_SetZTest(int a0)
 {
-    int new_var;
-    unsigned long long *p, *q;
-    if (a0) {
-        a0 = 0x50000;
-        new_var = 0;
-        do {
-        } while (new_var);
-    } else {
-        a0 = 0x30000;
-    }
-    p = PacketBufferStruct.ptr;
-    *(volatile unsigned long long *)p = a0;
-    p++;
-    *(unsigned long long *volatile *)&PacketBufferStruct.ptr = p;
-    q = p + 1;
-    *(volatile unsigned long long *)p = 0x47;
-    PacketBufferStruct.ptr = q;
+    if (a0)
+        setGsReg(0x47, 0x50000);
+    else
+        setGsReg(0x47, 0x30000);
 }
 
 void gif_SetZWrite(int a0)
 {
-    unsigned long long *p, *q;
-    int new_var;
-    unsigned long long tag;
-    if (a0) {
-        tag = 0x300000C0;
-        new_var = 0;
-        do {
-        } while (new_var);
-    } else {
-        tag = 0x1300000C0;
-    }
-    p = PacketBufferStruct.ptr;
-    *(volatile unsigned long long *)p = tag;
-    p++;
-    *(unsigned long long *volatile *)&PacketBufferStruct.ptr = p;
-    q = p + 1;
-    *(volatile unsigned long long *)p = 0x4E;
-    PacketBufferStruct.ptr = q;
+    if (a0)
+        setGsReg(0x4E, 0x300000C0);
+    else
+        setGsReg(0x4E, 0x1300000C0LL);
 }
 
 void gif_SetHalfOffset(void)

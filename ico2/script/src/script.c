@@ -446,11 +446,9 @@ inline void scpDispOffAllWithKind(void)
 
 inline void scpDispOnAllWithKind(int x)
 {
-    unsigned int new_var;
     int *p = isysGObjSearchFromObjKindID_begin(x);
     while (p != 0) {
-        new_var = (int)0xFFFFFFFFU;
-        p[0x50 / 4] = new_var;
+        ((unsigned int *)p)[0x50 / 4] = 0xFFFFFFFF;
         p = isysGObjSearchFromObjKindID_next(p);
     }
 }
@@ -722,11 +720,9 @@ void scpPlayJump(char *a0, int a1)
 
 void scpPlayStart(int a0)
 {
-    int new_var;
     ACTItemForceDrop(a0);
     iosOmSendMail(a0, 0x2E, a0);
-    new_var = SetLodLevel(a0, 0);
-    return new_var;
+    SetLodLevel(a0, 0);
 }
 
 void scpPlayEnd(int a0)
@@ -1849,12 +1845,10 @@ inline void scpSleepEnemyAll(void)
 
 inline void scpKillEnemyOne(int id)
 {
-    char *new_var;
     int *p = isysGObjSearchFromObjLayoutID(id);
     if (p != 0) {
         iosOmSendMail((int)p, 0x26, (int)p);
-        new_var = (char *)D_002C2DC8;
-        *((unsigned short *)((new_var + (p[0x8 / 4] * 0x4C)) + 0x42)) = 0;
+        ((struct EnemyEnt *)(p[0x8 / 4] * 0x4C + (char *)D_002C2DC8))->f42 = 0;
     }
 }
 

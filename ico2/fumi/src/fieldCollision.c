@@ -1378,13 +1378,11 @@ inline void MapCollisionData(void *a0)
 
 inline void LoadCollision(int *self, int a1)
 {
-    int new_var;
     int *p;
     file_LoadFile((int)self, a1, 0);
     p = (int *)self[0];
-    new_var = 0x14 / 4;
-    p[0x10 / 4] = (int)(((char *)p) + p[0x10 / 4]);
-    p[0x14 / 4] = (int)(((char *)p) + p[new_var]);
+    p[4] = (int)p + p[4];
+    p[5] = (int)p + p[5];
 }
 
 extern int D_0063A848;
@@ -1653,33 +1651,36 @@ int GetEdgeOfFloor(float *out, FcFloorEnt *e, float *p1, float *p2)
 inline void GetOrientOfWall(void *a0, void *a1, int *a2)
 {
     float buf[4];
-    int *var_19;
+    /* NULL on the no-wall path, where the ROM stores 0 through it
+       (sw $0,0($s3) at 0x16f3fc, listing row 2036): a deliberate fault after
+       the message, as far as the bytes show. */
+    int *trap;
     void *obj = (void *)a2[0];
 
     if (a1 == 0) {
         buf[1] = 0.0f;
         buf[2] = 1.0f;
-        var_19 = 0;
+        trap = 0;
         buf[0] = 0.0f;
         /* "GetOrientOfWall was called with no wall" */
         debug_StdPrintfDummy("壁が無いのにGetOrientOfWallが呼ばれました\n");
     } else {
-        var_19 = (int *)1;
+        trap = (int *)1;
         buf[0] = -GetTableSin((short)-*(unsigned short *)((char *)a1 + 0x44));
         buf[1] = 0.0f;
         buf[2] = GetTableCos((short)-*(unsigned short *)((char *)a1 + 0x44));
         buf[3] = 1.0f;
     }
-    if (var_19 == 0) {
+    if (trap == 0) {
         CopyVector((void *)a0, (void *)buf);
-        *var_19 = 0;
+        *trap = 0;
         return;
     }
     *(int *)&buf[3] = 0;
     {
-        int *temp_3 = (int *)(int)GOBJ_SUB(obj);
-        if (temp_3 != 0 && *(int *)((char *)temp_3 + 0xC) != 0) {
-            if (*(int *)((char *)temp_3 + 0x78) != 0) {
+        int *sub = (int *)(int)GOBJ_SUB(obj);
+        if (sub != 0 && *(int *)((char *)sub + 0xC) != 0) {
+            if (*(int *)((char *)sub + 0x78) != 0) {
                 int *p5 = (int *)a2[0];
                 int idx = a2[1];
                 int *o3 = (int *)(int)GOBJ_SUB(p5);

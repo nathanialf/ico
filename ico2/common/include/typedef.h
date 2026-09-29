@@ -375,15 +375,14 @@ typedef int sceVu0IVECTOR[4] __attribute__((aligned(16)));
  * ito/mpeg/mv_vobuf. */
 #define DI() __asm__ __volatile__(".word 0x42000039" : : : "memory")
 #define EI() __asm__ __volatile__(".word 0x42000038" : : : "memory")
-/* Quadword copy, one 128-bit lq/sq pair through a scratch GPR, with the
- * trailing nop the ROM's lq+sq+nop shape carries.  The scratch register
+/* Quadword copy, one 128-bit lq/sq pair through a scratch GPR (the nop in
+ * the return slot after it is the toolchain's own).  The scratch register
  * differs per call site ($t0 in seki/src/Matrix, $a2 in
  * sugipon/src/matrixDrive), so it is a macro argument.  dst/src are
  * implicit in $a0/$a1: the macro is the BODY of a two-pointer wrapper. */
 #define QCOPY16(scratch)                                                                           \
     __asm__ __volatile__("lq " scratch ", 0($a1)" : : : "memory");                                 \
-    __asm__ __volatile__("sq " scratch ", 0($a0)" : : : "memory");                                 \
-    __asm__ __volatile__("nop")
+    __asm__ __volatile__("sq " scratch ", 0($a0)" : : : "memory")
 
 /* ------------------------------------------------------------------ *
  * (c) VU0 / COP2 macro-mode opcodes.

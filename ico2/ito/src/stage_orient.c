@@ -94,20 +94,25 @@ inline void StageOrientInit(void)
    listing, so the listing carries no name for it. */
 static inline void MakeStageOrientMatrix(float *m, StageOrientDef *p)
 {
-    /* CRUTCH: zero-code frame-slot reservation (an unused local). ROM's frame
-       carries 240 bytes of vars where the three matrices, `v` and the aggregate
-       temp account for only 224, and the extra 16-byte slot below `v` is never
-       written; gcc materialises its address (sp+0xC0 in
-       GetStageDifferenceMatrix) as the base register for the temp's `w` store.
-       Deleting the declaration drops the frame to 224 and shifts every slot.
-       Measured: a nested static inline whose own VECTOR initialiser supplies
-       the third 16-byte object reproduces the frame size (vars 240) but puts
-       v at sp+192 and the temp at sp+208 where ROM has the unwritten slot at
-       sp+192, so the object must be declared before v; writing v field by
-       field removes the ld/sd pair ROM has. Open axis: a 16-byte object
-       declared before v that the body uses somewhere gcc drops. */
-    VECTOR unused;
+    /* The DEBUG build reports how far the stage's second anchor (pos2) sits
+       from the one the matrix is built on, through ofs; retail keeps only the
+       declaration (report and names ours).  WHAT THE BYTES PIN: ROM's frame
+       carries 240 bytes of vars where the three matrices, `v` and the
+       aggregate temp account for only 224; the inlined body's frame block
+       starts at sp+0xC0 with an unwritten 16-byte object, then v (0xD0) and the
+       temp (0xE0), and gcc keeps the block's base in $s2 (listing row 84) as
+       the base of the temp's `w` store, so the object is this function's first
+       local.  Measured earlier: a nested inline's VECTOR in its place puts v
+       at 0xC0; writing v field by field loses ROM's ld/sd copy. */
+    VECTOR ofs;
     VECTOR v = {p->pos[0], p->pos[1], p->pos[2], 1.0f};
+
+#ifdef DEBUG
+    ofs.x = p->pos2[0] - p->pos[0];
+    ofs.y = p->pos2[1] - p->pos[1];
+    ofs.z = p->pos2[2] - p->pos[2];
+    printf("%s: pos2 - pos = %f %f %f\n", p->name, ofs.x, ofs.y, ofs.z);
+#endif
 
     MatrixDrive_PushMatrix();
     _UnitMatrix(MatrixDrive_GetMatrix());

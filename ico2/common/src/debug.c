@@ -48,15 +48,20 @@ void debug_Assert(char *fmt, ...)
 
 extern int D_0063AE84;
 
+/* The log goes to a file on the host only in the DEBUG build; retail leaves
+   the handle at -1 and the path buffer unused, which is the ROM's 256-byte
+   frame around a lone store (the listing's rows 1411-1428 carry no code, and
+   debug_closeLog is empty in retail for the same reason).  Path and flags are
+   ours. */
 void debug_openLog(void)
 {
-    /* CRUTCH: zero-code frame reservation. ROM's frame holds 256 bytes of vars
-       that nothing in the emitted body writes; the compiled-out log-open block
-       (an sceOpen path behind the printf stubs) is where the buffer was used.
-       Deleting the declaration shrinks the frame and changes the object. See
-       docs/crutch_ledger.md. */
-    volatile char buf[256];
+    char buf[256];
+
     D_0063AE84 = -1;
+#ifdef DEBUG
+    sprintf(buf, "host0:%s", "debug.log");
+    D_0063AE84 = sceOpen(buf, SCE_WRONLY | SCE_CREAT | SCE_TRUNC);
+#endif
 }
 
 /* sceWrite returns the byte count (SCE sifdev); the unused return value is
@@ -3533,20 +3538,11 @@ int debugSceCloseFdNew(void)
 
 void debug_closeLog(void) {}
 
-void debugCdvdLoadInfoSegInit(int idx)
+void debugCdvdLoadInfoSegInit(int page)
 {
-    int *p;
-    char *new_var2;
-    int new_var;
     int i;
-    new_var2 = (char *)loadInfoSeg;
-    p = (int *)((new_var2 + (idx * 0xD0)) + 0xC8);
-    if (1) {
-        for (i = 0x19; i >= 0; i--) {
-            new_var = (*p = 0);
-            p = (p = (int *)(((char *)p) - 8));
-        }
-    }
+    for (i = 25; i >= 0; i--)
+        loadInfoSeg[page][i][0] = 0;
 }
 
 void debugCdvdLoadInfoSegAdd(int page, int idx, int delta)
@@ -3801,15 +3797,7 @@ extern unsigned short D_0030C4E0[];
 
 int debug_SETest_color(int idx)
 {
-    int new_var;
-    int v3 = D_005D6DB0[idx].f_20;
-    unsigned short a4 = *((unsigned short *)(((char *)D_0030C4E0) + (v3 * 2)));
-    int v0 = 0x80808000;
-    int a3 = -0x100;
-    if (new_var = a4 != 0) {
-        v0 = a3;
-    }
-    return v0;
+    return D_0030C4E0[D_005D6DB0[idx].f_20] != 0 ? 0xFFFFFF00 : 0x80808000;
 }
 
 /* pad state block: +0x4 held buttons, +0xC newly-pressed (trigger) buttons */

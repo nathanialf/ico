@@ -3103,10 +3103,9 @@ extern int GetTorchGObjOfWeapon(int *self);
 
 int ACTGame_isWeaponEnableCatchfire(int *self)
 {
-    unsigned long new_var;
     int ret = 0;
-    new_var = ACTGame_isWeaponCombustible();
-    if (new_var != 0) {
+    unsigned long combustible = ACTGame_isWeaponCombustible();
+    if (combustible) {
         ret = GetTorchGObjOfWeapon(self);
     }
     return ret;

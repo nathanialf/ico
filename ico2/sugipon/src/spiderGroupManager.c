@@ -120,17 +120,8 @@ void EntrySpiderGroupManager(int gobj)
 
 inline void EntryToSpiderGroupManagerForReviveMaster(int a0, int a1)
 {
-    int idx = D_0063BAEC;
-    int *p;
-    int new_var;
-    int *new_var2;
-    new_var2 = &a1;
-    D_0063BAF4 = *new_var2;
-    p = reviveGroupIds + idx;
-    new_var = idx;
-    idx = new_var + 1;
-    *p = a0;
-    D_0063BAEC = idx;
+    reviveGroupIds[D_0063BAEC++] = a0;
+    D_0063BAF4 = a1;
 }
 
 /* listing lines 124-171 */

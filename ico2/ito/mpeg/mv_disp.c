@@ -240,19 +240,12 @@ void dispSetTags(int *self, int src, int a2, int a3, int p4, int p5, int p6, int
 void dispSwitch(int *a0, int flag)
 {
     int src;
-    int new_var;
-    new_var = flag;
-    if (new_var != 0) {
+    if (flag != 0) {
         src = a0[0x2C / 4];
     } else {
         src = a0[0x28 / 4];
     }
-    {
-        int cur = a0[0x10 / 4];
-        cur = cur & (~0x1FF);
-        cur = cur | (src & 0x1FF);
-        a0[0x10 / 4] = cur;
-    }
+    a0[0x10 / 4] = (a0[0x10 / 4] & ~0x1FF) | (src & 0x1FF);
     return sceGsPutDispEnv(a0);
 }
 
@@ -481,11 +474,9 @@ inline void *setSCISSOR_1(int *a0, int a1, int a2, int a3, int p4)
 
 inline void *setXYOFFSET_1(int *a0, unsigned int a1, unsigned int a2)
 {
-    unsigned long long v = (unsigned int)a1 | ((unsigned long long)a2 << 32);
-    int new_var;
-    a0[0] = (int)(v << 32 >> 32);
-    new_var = (int)(v >> 32);
-    a0[1] = new_var;
+    long long t = (unsigned int)a1 | ((unsigned long long)a2 << 32);
+    a0[0] = (int)(t & 0xFFFFFFFFLL);
+    a0[1] = (int)(t >> 32);
     a0[2] = 0x18;
     a0[3] = 0;
     return (char *)a0 + 0x10;

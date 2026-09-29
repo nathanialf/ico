@@ -804,22 +804,17 @@ inline int GetSizeOfCameraSetBinary(S4C *p, int n)
 
 inline void MakeCameraSetBinary(S4C *src, int count, S4C *dst)
 {
-    S4C **new_var;
     int total = 0;
-    S4C *sEnd = src + count;
     S5C *out = (S5C *)(dst + count);
     int outBase = (int)out;
-    new_var = &sEnd;
-    if (src == (*new_var)) {
-        return;
-    }
-    do {
+    S4C *s;
+    for (s = src; s != src + count; dst++, s++) {
         S5C *is;
-        *dst = *src;
+        *dst = *s;
         dst->w[14] = total;
         dst->w[18] = outBase;
-        is = ((S5C *)src->w[18]) + src->w[14];
-        while (is != (((S5C *)src->w[18]) + src->w[15])) {
+        is = ((S5C *)s->w[18]) + s->w[14];
+        while (is != (((S5C *)s->w[18]) + s->w[15])) {
             *out = *is;
             out++;
             total++;
@@ -827,9 +822,7 @@ inline void MakeCameraSetBinary(S4C *src, int count, S4C *dst)
         }
 
         dst->w[15] = total;
-        dst++;
-        src++;
-    } while (src != sEnd);
+    }
 }
 
 extern int D_0063A450;

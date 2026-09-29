@@ -13,8 +13,6 @@
 #include <libvu0.h>
 #include <math.h>
 
-typedef void (*func_001AE8F0_FnPtr)(int *buf, int a2);
-
 typedef struct {
     int start;
     int end;
@@ -473,24 +471,16 @@ void gamesysMemoryHandlerRead(int *self, int a1, int a2)
     self[0x4 / 4] = self[0x4 / 4] + a2;
 }
 
-void gamesysMemorySave(int *self, int a1, int a2)
+/* The same table gamesysMemoryLoad walks (both are called with D_004DA788):
+   each entry is a load handler and a save handler. */
+void gamesysMemorySave(void **tbl, int a1, void *a2)
 {
-    func_001AE8F0_FnPtr new_var;
     int buf[2];
-    int new_var2;
-    func_001AE8F0_FnPtr fn;
     buf[0] = a1;
     buf[1] = 0;
-    fn = (func_001AE8F0_FnPtr)self[1];
-    new_var2 = fn != 0;
-    if (new_var2) {
-        do {
-            fn(buf, a2);
-            self += 2;
-            new_var2 = self[1];
-            new_var = (func_001AE8F0_FnPtr)new_var2;
-            fn = new_var;
-        } while (new_var2);
+    while (tbl[1] != 0) {
+        ((void (*)(void *, void *))tbl[1])(buf, a2);
+        tbl += 2;
     }
 }
 

@@ -123,26 +123,39 @@ inline void mc_TransMicroCode(int a0, int a1)
 }
 
 extern int D_0063B1AC;
-/* A compiled-out trace (our name), a parameterless helper whose body is
-   switched off, the form cdvd.c's stDebugPrint* and debug_exception.c's
-   debugExcDebugDisp carry; here the switch is a constant `if (0)` rather than
-   `#ifdef DEBUG`, because the call has to be expanded.  WHAT THE BYTES PIN: a
-   call with nine or more integer arguments that emits nothing, since the
+
+/* The DEBUG build's trace of the microcode residency on the mode 1, a1 == 0
+   path (names ours), switched by seki's debug-display bit; retail builds the
+   switch as 0, jimaku.c's form.  It takes no argument because it reads the
+   module's own state, which is also what leaves its retail body empty.  WHAT
+   THE BYTES PIN: the listing's rows 212-220 inside that arm carry no code; the
    ROM's 0x30 frame keeps sixteen bytes of outgoing argument space below its
-   two saves (a declared local would cost the `j dl_CloseDma` sibling call),
-   inlining carries the callee's argument space into mc_SetMicroCode, and no
-   string reaches MicroCode.o's .rodata (the jump table fills it); and a
-   zero-code insn left by the inlined body in the mode 1, a1 == 0 arm, which
-   keeps jump2 from cross-jumping that arm's `code = 20` into mode 2's (the
-   ROM keeps both, rows 221 and 258; the listing's rows 212-220 are
-   code-free).  WHAT THEY CANNOT PIN: the callee, its arguments, or how the
-   developers switched it off; mcTracePut and its argument list are ours. */
-extern void mcTracePut(int mode, int a1, int a2, int a3, int pri, int x, int y, int w, int h);
+   two saves, the trace of a call with nine or ten integer arguments that is
+   expanded and then deleted (inlining carries its argument space into
+   mc_SetMicroCode; a declared local would cost the `j dl_CloseDma` sibling
+   call); no string reaches MicroCode.o's .rodata (the jump table fills it);
+   and the empty body's lone (use (const_int 0)) keeps jump2 from
+   cross-jumping this arm's `code = 20` into mode 2's (the ROM keeps both,
+   rows 221 and 258).  Measured: the block written in the arm itself, or a
+   helper that takes the selection's arguments, has insns at save time, no
+   use, and the arms merge.  WHAT THEY CANNOT PIN: the callee and what it
+   printed; mcTracePut and its arguments are ours. */
+#ifdef DEBUG
+
+extern int D_0063B13C;
+
+#define MC_DEBUG_TRACE (D_0063B13C & 1)
+#else
+#define MC_DEBUG_TRACE 0
+#endif
+
+extern void mcTracePut(int uploads, int r0, int r1, int r2, int r3, int r4, int r5, int r6, int r7);
 
 static inline void mcTrace(void)
 {
-    if (0) {
-        mcTracePut(0, 0, 0, 0, 0, 0, 0, 0, 0);
+    if (MC_DEBUG_TRACE) {
+        mcTracePut(mcUploadCount, mcResident[0], mcResident[1], mcResident[2], mcResident[3],
+                   mcResident[4], mcResident[5], mcResident[6], mcResident[7]);
     }
 }
 

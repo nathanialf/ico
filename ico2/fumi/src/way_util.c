@@ -1070,68 +1070,42 @@ extern Nd D_004F31E0[];
 
 inline void *get_wp_nearest_bridge_side_me(int arg0, int arg1)
 {
-    unsigned char *base = (unsigned char *)D_004F1EC0;
-    char *b = (char *)D_004F31E0;
-    int va, vb, new_var, i;
-    char *bA, *bB, *a;
-    for (i = 0; i < 4888; i += 0x34) {
-        a = (char *)base + i;
-        if (*(int *)(a + 0x0) == 0)
+    int i;
+    for (i = 0; i < 94; i++) {
+        WayGrp *g = &D_004F1EC0[i];
+        WPElem *a;
+        WPElem *b;
+        if (g->f0 == 0)
             continue;
-        if (*(int *)(a + 0x18) == 0)
+        if (g->f18 == 0)
             continue;
-        bA = (char *)(*(int *)(a + 0x20) * 0x40 + (int)b);
-        new_var = *(int *)(a + 0x24) * 0x40;
-        va = *(int *)(bA + 0x20);
-        bB = (char *)(new_var + (int)b);
-        if (va != arg0)
-            goto skipA;
-        vb = *(int *)(bB + 0x20);
-        if (vb != arg1)
-            goto chkB;
-        return bB;
-    skipA:
-        vb = *(int *)(bB + 0x20);
-    chkB:
-        if (vb != arg0)
-            continue;
-        if (va != arg1)
-            continue;
-        return bA;
+        a = (WPElem *)&D_004F31E0[g->f20];
+        b = (WPElem *)&D_004F31E0[g->f24];
+        if (a->f20 == arg0 && b->f20 == arg1)
+            return b;
+        if (b->f20 == arg0 && a->f20 == arg1)
+            return a;
     }
     return 0;
 }
 
 inline int get_wp_nearest_bridge_side_bridge(int arg0, int arg1)
 {
-    unsigned char *base = (unsigned char *)D_004F1EC0;
-    char *b = (char *)D_004F31E0;
-    int va, vb, new_var, i;
-    char *bA, *bB, *a;
-    for (i = 0; i < 4888; i += 0x34) {
-        a = (char *)base + i;
-        if (*(int *)(a + 0x0) == 0)
+    int i;
+    for (i = 0; i < 94; i++) {
+        WayGrp *g = &D_004F1EC0[i];
+        WPElem *a;
+        WPElem *b;
+        if (g->f0 == 0)
             continue;
-        if (*(int *)(a + 0x18) == 0)
+        if (g->f18 == 0)
             continue;
-        bA = (char *)(*(int *)(a + 0x20) * 0x40 + (int)b);
-        new_var = *(int *)(a + 0x24) * 0x40;
-        va = *(int *)(bA + 0x20);
-        bB = (char *)(new_var + (int)b);
-        if (va != arg0)
-            goto skipA;
-        vb = *(int *)(bB + 0x20);
-        if (vb != arg1)
-            goto chkB;
-        return *(int *)(a + 0xC);
-    skipA:
-        vb = *(int *)(bB + 0x20);
-    chkB:
-        if (vb != arg0)
-            continue;
-        if (va != arg1)
-            continue;
-        return *(int *)(a + 0x8);
+        a = (WPElem *)&D_004F31E0[g->f20];
+        b = (WPElem *)&D_004F31E0[g->f24];
+        if (a->f20 == arg0 && b->f20 == arg1)
+            return (int)g->fC;
+        if (b->f20 == arg0 && a->f20 == arg1)
+            return (int)g->f8;
     }
     return 0;
 }

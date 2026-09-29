@@ -696,10 +696,10 @@ inline void ResetReviveCountEnemy(int a0)
 
 inline void SetInfoSpKidnapEnemy(void)
 {
-    int new_var;
-    new_var = 0x42;
-    *((short *)(D_00308924 + new_var)) = 0;
-    *((int *)(D_00308924 + 0x48)) = ((*((int *)(D_00308924 + 0x48))) | 0x200000) & (~0x40000);
+    char *info = D_00308924;
+    *(int *)(info + 0x48) |= 0x200000;
+    *(int *)(info + 0x48) &= ~0x40000;
+    *(short *)(info + 0x42) = 0;
 }
 
 inline void SetInfoSpKidnapGenerator(short *a0)

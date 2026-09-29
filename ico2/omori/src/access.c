@@ -15,20 +15,28 @@ extern char D_0063C0B0[]; /* "BIN" */
    symbol in the run): the path sprintf builds and this file hands back. */
 static char accessPath[528];
 
-int GetDataFileName(int a0)
+/* Callers pass the stage and the DF flag (StageManager.c, icoMisc.c), which
+   goes straight through to GetDataFileName2 in $a1.  The DEBUG build reads the
+   data from the host instead and builds that path in buf; retail keeps only
+   the declaration, which is the ROM's 256-byte frame (the listing's return is
+   row 16 and rows 17-30 carry no code).  The host prefix is ours. */
+char *GetDataFileName(int no, int isDF)
 {
-    /* CRUTCH: zero-code frame reservation. Nothing in the emitted body touches
-       these 256 bytes, but ROM's frame carries them; the name-building debug
-       block that used them compiled out. Deleting it changes the object. See
-       docs/crutch_ledger.md. */
-    int buf[0x40];
-    void *p;
-    if (a0 == -1) {
-        p = D_0063C090;
+    char buf[256];
+    char *name;
+
+    if (no == -1) {
+        name = D_0063C090;
     } else {
-        p = (void *)D_005F5D50[a0].dataFile;
+        name = D_005F5D50[no].dataFile;
     }
-    return GetDataFileName2(p);
+#ifndef DEBUG
+    return GetDataFileName2(name, isDF);
+#else
+    sprintf(buf, "host0:%s", GetDataFileName2(name, isDF));
+    sprintf(accessPath, "%s", buf);
+    return accessPath;
+#endif
 }
 
 char *GetDataFileName2(char *name, int isDF)

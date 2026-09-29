@@ -9,7 +9,7 @@
    implicit in $a0/$a1: each macro is the BODY of a two-pointer wrapper. */
 
 /* 64 bytes, serial form: every lq immediately followed by its sq through one
-   scratch GPR.  Trailing nop fills the jr-ra delay slot. */
+   scratch GPR. */
 #define QCOPY64_SERIAL(scratch)                                                                    \
     __asm__ __volatile__("lq " scratch ", 0($a1)" : : : "memory");                                 \
     __asm__ __volatile__("sq " scratch ", 0($a0)" : : : "memory");                                 \
@@ -18,8 +18,7 @@
     __asm__ __volatile__("lq " scratch ", 0x20($a1)" : : : "memory");                              \
     __asm__ __volatile__("sq " scratch ", 0x20($a0)" : : : "memory");                              \
     __asm__ __volatile__("lq " scratch ", 0x30($a1)" : : : "memory");                              \
-    __asm__ __volatile__("sq " scratch ", 0x30($a0)" : : : "memory");                              \
-    __asm__ __volatile__("nop")
+    __asm__ __volatile__("sq " scratch ", 0x30($a0)" : : : "memory")
 /* Map $a0 into EE scratchpad (SPR) addressing by OR-ing 0x20000000, through
    $a3.  Prelude to QCOPY64_SERIAL in CopyMatrixUncached. */
 #define MAP_A0_TO_SPR()                                                                            \

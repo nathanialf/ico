@@ -16,7 +16,7 @@ int gamesysGetGirlStageIDAndPosition(int a0);
 void gamesysMemoryHandlerRead(int *self, int a1, int a2);
 void gamesysMemoryHandlerWrite(int *self, int n, int a2);
 void gamesysMemoryLoad(void **tbl, int a1, void *a2);
-void gamesysMemorySave(int *self, int a1, int a2);
+void gamesysMemorySave(void **tbl, int a1, void *a2);
 int *gamesysObjInfoBaseSet(int *self, int stage);
 void gamesysObjInfoCls(int kind, int no);
 void *gamesysObjInfoGet(int a0, int a1);
