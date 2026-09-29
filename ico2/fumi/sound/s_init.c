@@ -785,19 +785,22 @@ extern void gif_EndPacket(void);
 
 static void debug_DispSEInfo(void)
 {
-    /* step's initialiser is live (listing row 778). The four on dist, p, i
-       and num are dead: each variable is assigned again before it is read,
-       so flow deletes them and they emit no bytes. What the bytes pin: this
-       function reached gcse with 404..407 (or 388..395) real insns. The
-       expression table size (203 buckets here, 201 without the four) orders
-       PRE's reaching registers, and that order is the order of the five
-       spill slots at 0x194..0x1A4 (&sel, the constructor temp, self+0x1C,
+    /* step's initialiser is live (listing row 778). dbg is fumi's local
+       debug switch (boyact.c, commonact.c), set from the debugger to keep
+       the selected slot soloed. cse cannot carry its 0 past the slot search
+       loop's label, gcse's constant propagation folds the test and the next
+       jump pass deletes the arm, so neither emits bytes. What the bytes
+       pin: this function reached gcse with 404..407 (or 388..395) real
+       insns (the switch's set, test and store bring 401 to 405). The
+       expression table size (203 buckets here, 201 at 401) orders PRE's
+       reaching registers, and that order is the order of the five spill
+       slots at 0x194..0x1A4 (&sel, the constructor temp, self+0x1C,
        self+0x20, self+0x28); at 201 buckets the slots come out permuted.
        The live spellings measured first (the pad word read at each test,
        the libcall promotion of the %f arguments, the f29 bitfield store,
        the flag loop through p, a per-row y local, list[i].label) either
-       keep the count or change the code. What the bytes cannot pin: which
-       declarations carried the initialisers.
+       keep the count or change the code. What the bytes cannot pin: the
+       switch, its name, what its arm did or where it sat.
        The page's own state is local static (names ours): the selected row
        and the solo flag in .sbss, the edited centre in .bss, written out as
        this function is compiled and so ahead of the file's tentative
@@ -807,12 +810,13 @@ static void debug_DispSEInfo(void)
     static int solo;
     float v[4];
     float step = 0.0f;
-    float dist = 0.0f;
+    float dist;
     float *cam;
     SeSlot *self;
-    SeSlot *p = 0;
-    int i = 0;
-    int num = 0;
+    SeSlot *p;
+    int i;
+    int num;
+    int dbg = 0; /* local debug switch, see the test after the solo toggle */
 
     cam = GetCameraPos();
     if (D_0028F8F0[0].hold & 0x400) {
@@ -837,6 +841,9 @@ static void debug_DispSEInfo(void)
     D_0063A664 = i;
     if (D_0028F8F0[0].hold & 0x40) {
         solo ^= 1;
+    }
+    if (dbg) {
+        solo = 1;
     }
     for (i = 0; i < 48; i++) {
         if (*(int *)&((char *)seSlotTbl)[i * 64 + 0x30] == 0) {

@@ -496,7 +496,32 @@ int _SgBgmMain(int *a0)
 /* One realtime tick over the 48 voice slots: the vibrato curve, the portamento
  * ramp and the two 16-bit fades, then the per sequence realtime flags and the
  * 127 SE volume entries.  The vibrato curve is the vab header's table at 0x38,
- * read as 16-bit start offsets and as 8-bit samples. */
+ * read as 16-bit start offsets and as 8-bit samples.
+ *
+ * The DEBUG build traces one voice (the one a debugger sets in sgTraceVoice):
+ * when its portamento or its realtime pitch request is looked at, it prints
+ * the voice's tick counter (0x10, cleared at key-on) and the last vab header
+ * this tick has read.  Retail builds the voice as 0 and the trace as nothing,
+ * so the tick fetched for it is dead and flow deletes it.  What the bytes pin:
+ * between each of the two flags' preloads and its test, a conditional on a
+ * register-held value whose body flow deletes (so combine never folds the
+ * preload into the test's conditional move, and the empty branch is gone
+ * before the final schedule), and a mention of hd before the loop (hd, not
+ * the vab word it copies, then heads their register class and the tag load
+ * keeps hd as its base).  What they cannot pin: the trace, its voice test and
+ * the field it fetches; those and the names are ours. */
+#ifdef DEBUG
+
+extern int sgTraceVoice;
+
+#define SG_TRACE_VOICE sgTraceVoice
+#define SG_TRACE(what, v, t, h)                                                                    \
+    printf("sg voice %2d %s tick %3d hd %08x\n", (v), (what), (t), (int)(h))
+#else
+#define SG_TRACE_VOICE 0
+#define SG_TRACE(what, v, t, h)
+#endif
+
 void _SgSetRealtimeTickProc(void)
 {
     int step;
@@ -504,6 +529,7 @@ void _SgSetRealtimeTickProc(void)
     unsigned char *s = _SgGetSlotContext(0);
     unsigned char *curve = 0;
     unsigned short *curve_ofs = 0;
+    int *hd = 0; /* the last vab header read, NULL until one is */
     int *com = _SgGetComContext();
     int *q;
     unsigned int i;
@@ -518,7 +544,6 @@ void _SgSetRealtimeTickProc(void)
         unsigned char rt;
         int upd;
         unsigned int tick;
-        int *hd;
 
         if (*(volatile int *)s & 0x100) {
             continue;
@@ -571,27 +596,18 @@ void _SgSetRealtimeTickProc(void)
         }
         if ((*(volatile int *)s & 0x20) && s[0x51] == 2) {
             porta = one;
-            /* RECONSTRUCTION: the bytes pin, between this flag's preload and
-             * its test, a conditional statement whose body is dead (flow
-             * deletes it, so combine never folds the preload into the test's
-             * conditional move, and the empty branch is gone before the
-             * final schedule); they do not pin its text.  The condition and
-             * the dead fetch of the vibrato tick are ours. */
-            if (i) {
+            if (i == SG_TRACE_VOICE) {
                 tick = *(unsigned short *)(s + 0x10);
+                SG_TRACE("porta", i, tick, hd);
             }
             if (*(short *)(s + 0x4C) < one) {
                 porta = 0;
             }
         }
         rt = one;
-        /* RECONSTRUCTION: the same dead window between the realtime flag's
-         * preload and its test.  Its read through hd is also pinned: a
-         * mention of hd after the header block makes hd, not t, the head of
-         * their register class, so the tag load keeps hd as its base.  The
-         * condition and the field read are ours. */
-        if (i) {
-            tick = hd[4];
+        if (i == SG_TRACE_VOICE) {
+            tick = *(unsigned short *)(s + 0x10);
+            SG_TRACE("pitch", i, tick, hd);
         }
         if ((*(volatile int *)q & 0x400) == 0) {
             rt = 0;

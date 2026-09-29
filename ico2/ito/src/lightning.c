@@ -157,7 +157,8 @@ void set_vertex(LightningVtx *dir, LightningVtx *pos, float u, int *col, float h
     LightningVtx xyz;
     LightningVtx clip;
     float q;
-    int i = 0; /* dead initialiser: see the note after close_strip() below */
+    int i;
+    int restrip = 1; /* local debug switch, see the reopen below */
 
     apply_matrix_w1(&v, matrixptr + 0x80, pos);
     sceVu0OuterProduct(&n, &v, dir);
@@ -178,36 +179,42 @@ void set_vertex(LightningVtx *dir, LightningVtx *pos, float u, int *col, float h
             stripOn = 0;
         } else if (stripOn == 0 && vtxCount >= 2) {
             close_strip();
-            /* The strip-state reset DrawLightning2 opens with, left dead here:
-               close_strip() has already used the tag pointer and this block
-               reopens the strip at the two stores below, so flow deletes both
-               and they emit no bytes (with the `i = 0` initialiser above).
-               What the bytes pin: 248 to 259 real insns at gcse entry, which
-               gives a 125 to 129 bucket expression table and orders the PRE
-               reaching registers of &t and &xyz into the ROM's spill slots
-               0xA0 and 0xA4; at 245 insns the two slots swap. What they cannot
-               pin: the text, the number or the lines of the dead statements
-               (SRCFILE.TXT line 168 is code-free, as any deleted one is). */
+            /* The strip-state reset DrawLightning2 opens with, then the
+               reopened strip unless restrip was cleared from the debugger
+               (the strip then stays closed: close_strip() finds no tag and
+               nothing more is written).  restrip is never cleared by the
+               code, so gcse's constant propagation folds the test and flow
+               deletes the reset, which the reopen overwrites; neither emits
+               bytes. What the bytes pin: 248 to 259 real insns at gcse entry
+               (the switch's set and test and the two stores bring 245 to
+               249), which gives a 125 to 129 bucket expression table and
+               orders the PRE reaching registers of &t and &xyz into the ROM's
+               spill slots 0xA0 and 0xA4; at 245 insns the two slots swap.
+               What they cannot pin: the switch, its name or the lines
+               (SRCFILE.TXT line 168 is code-free, as a deleted statement's
+               or a folded test's is). */
             stripOn = 0;
             stripTag = 0;
-            *PacketBufferStruct.ptr.d++ = 0x1400000000008001LL;
-            *PacketBufferStruct.ptr.d++ = 0;
-            *PacketBufferStruct.ptr.d++ = 84;
+            if (restrip) {
+                *PacketBufferStruct.ptr.d++ = 0x1400000000008001LL;
+                *PacketBufferStruct.ptr.d++ = 0;
+                *PacketBufferStruct.ptr.d++ = 84;
 
-            *PacketBufferStruct.ptr.d++ = 0;
+                *PacketBufferStruct.ptr.d++ = 0;
 
-            stripTag = PacketBufferStruct.ptr.c;
-            *PacketBufferStruct.ptr.d++ = 0x3400000000008000LL;
-            *PacketBufferStruct.ptr.d++ = 1313;
+                stripTag = PacketBufferStruct.ptr.c;
+                *PacketBufferStruct.ptr.d++ = 0x3400000000008000LL;
+                *PacketBufferStruct.ptr.d++ = 1313;
 
-            *PacketBufferStruct.ptr.d++ = lastVtx[0].rgbaq;
-            *PacketBufferStruct.ptr.d++ = lastVtx[0].uv;
-            *PacketBufferStruct.ptr.d++ = lastVtx[0].xyz;
-            *PacketBufferStruct.ptr.d++ = lastVtx[1].rgbaq;
-            *PacketBufferStruct.ptr.d++ = lastVtx[1].uv;
-            *PacketBufferStruct.ptr.d++ = lastVtx[1].xyz;
+                *PacketBufferStruct.ptr.d++ = lastVtx[0].rgbaq;
+                *PacketBufferStruct.ptr.d++ = lastVtx[0].uv;
+                *PacketBufferStruct.ptr.d++ = lastVtx[0].xyz;
+                *PacketBufferStruct.ptr.d++ = lastVtx[1].rgbaq;
+                *PacketBufferStruct.ptr.d++ = lastVtx[1].uv;
+                *PacketBufferStruct.ptr.d++ = lastVtx[1].xyz;
 
-            stripOn = 1;
+                stripOn = 1;
+            }
         }
 
         lastVtx[0] = lastVtx[1];

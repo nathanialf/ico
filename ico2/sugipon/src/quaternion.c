@@ -198,7 +198,7 @@ extern void _ScaleVector(void *a, void *b, float c);
 
 void RegularizeQuaternion(void *a0)
 {
-    register float d __asm__("$f12");
+    float d;
     __asm__ __volatile__(".set noreorder\n"
                          "lqc2 $vf14, 0x0(%1)\n"
                          "lqc2 $vf15, 0x0(%1)\n"
@@ -207,7 +207,7 @@ void RegularizeQuaternion(void *a0)
                          "vaddz.x $vf15, $vf15, $vf15z\n"
                          "vaddw.x $vf15, $vf15, $vf15w\n"
                          "qmfc2.ni $2, $vf15\n"
-                         "mtc1 $2, $f12\n"
+                         "mtc1 $2, %0\n"
                          ".set reorder\n"
                          : "=f"(d)
                          : "r"(a0)

@@ -2364,8 +2364,6 @@ void scaleVectorXZ(void *p0, void *p1, void *p2)
 void tensionMoveNoReduce(void *a0, void *a1, void *a2, float f12)
 {
     int sp_buf[4];
-    register float q __asm__("$f0");
-    register float scaled __asm__("$f12") = f12;
     VU0_LSV(lqc2, 1, 0x0, a1);
     VU0_LSV(lqc2, 2, 0x0, a2);
     VU0_REG("vsub.xyzw $vf4, $vf1, $vf2");
