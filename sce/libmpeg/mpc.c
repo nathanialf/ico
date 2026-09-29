@@ -2138,7 +2138,31 @@ void _flushBuf(int a0)
     _top32len = 32;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/mpc", _nextBit);
+unsigned int _nextBit(int a0)
+{
+    int n = 0;
+    int cmd;
+    unsigned int r;
+
+    while ((*(volatile int *)0x10002010 & 0x80004000) == 0x80000000) {
+        if (n++ >= 5001) {
+            _dispatchMpegCbNodata(D_0054C0E4[0]);
+            n = 0;
+        }
+    }
+    if (_isTop32dirty[0] != 0 || _top32len < a0) {
+        *(volatile unsigned int *)0x10002000 = 0x40000000;
+        _isTop32dirty[0] = D_0054CA08[4];
+        _top32 = _waitIpuIdle64();
+    }
+    _top32len = 32;
+    r = (unsigned int)_top32 >> (32 - a0);
+    cmd = a0 | 0x40000000;
+    *(volatile unsigned int *)0x10002000 = cmd;
+    _isTop32dirty[0] = D_0054CA08[(unsigned int)cmd >> 28];
+    _top32 = _waitIpuIdle64();
+    return r;
+}
 
 extern void _waitIpuIdle(void);
 
