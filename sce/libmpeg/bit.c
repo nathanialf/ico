@@ -22,7 +22,11 @@ void _sysbitInit(int *a0, int a1, int a2, int a3)
     _sysbitFlush(a0, 0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/bit", _sysbitNext);
+int _sysbitNext(void *a0, int a1)
+{
+    return *(unsigned long long *)a0 >> (64 - a1);
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/bit", _sysbitFlush);
 
 int _sysbitGet(int *self, int a1)
