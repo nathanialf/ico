@@ -101,7 +101,7 @@ extern void _ErrMessage(int a0);
 
 void _Error(void *a0)
 {
-    char *p = D_0054C0E4[0];
+    char *p = _theSceMpeg[0];
     if (p != 0) {
         register int q = *(int *)(p + 0x40);
         if (q != 0) {
@@ -176,7 +176,7 @@ void _sequenceHeader(void)
 {
     unsigned int v;
 
-    *(int *)(*(int *)((char *)D_0054C0E4[0] + 0x40) + 0xD4) = 0;
+    *(int *)(*(int *)((char *)_theSceMpeg[0] + 0x40) + 0xD4) = 0;
     v = _nextBit(32);
     _frame_rate_code = v & 0xF;
     _aspect_ratio_information = (v >> 4) & 0xF;
@@ -204,7 +204,7 @@ void _sequenceHeader(void)
         _setDefaultQM(0x58000000, _defNIQM);
     }
     _extensionAndUserData();
-    _initSeq(D_0054C0E4[0]);
+    _initSeq(_theSceMpeg[0]);
 }
 
 extern int _isMpeg2[];
@@ -310,7 +310,7 @@ void _setDefaultQM(int a0, int *a1)
     int buf[8];
 
     buf[0] = 2;
-    _dispatchMpegCallback(D_0054C0E4[0], buf);
+    _dispatchMpegCallback(_theSceMpeg[0], buf);
     _waitIpuIdle();
     *(volatile int *)0x10002000 = 0;
     _waitIpuIdle();
@@ -321,7 +321,7 @@ void _setDefaultQM(int a0, int *a1)
     _sendIpuCommand(a0);
     _waitIpuIdle();
     buf[0] = 3;
-    _dispatchMpegCallback(D_0054C0E4[0], buf);
+    _dispatchMpegCallback(_theSceMpeg[0], buf);
 }
 
 extern int _chroma_format;

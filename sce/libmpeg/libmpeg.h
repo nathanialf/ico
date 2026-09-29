@@ -49,7 +49,7 @@ int _sysbitNext(void *a0, int a1);                      /* bit.o */
 /* the decoder state more than one member reads, spelled as the members that
  * first declared it spell it (the objects themselves are still in the data
  * blob) */
-extern void *D_0054C0E4[];
+extern void *_theSceMpeg[];
 extern int _picture_structure;
 extern int _isMpeg2[];
 extern int _isSecondField[];

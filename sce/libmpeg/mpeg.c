@@ -26,7 +26,7 @@ void sceMpegInit(void)
     sceIpuInit();
 }
 
-extern void *D_0054C0E4[];
+extern void *_theSceMpeg[];
 extern void _Error(void *a0);
 extern void _alalcInit(int *a0, int a1, int a2);
 extern int _alalcAlloc(unsigned int *a0, int a1, unsigned int a2);
@@ -110,7 +110,7 @@ int sceMpegCreate(void *self, void *buf, int size)
     *(int *)(p + 0xAC) = 0;
     *(int *)(p + 0x80) = -1;
     *(int *)(p + 0xB0) = 1;
-    D_0054C0E4[0] = self;
+    _theSceMpeg[0] = self;
     *(int *)(p + 0x94) = -1;
     *(int *)(p + 0x98) = -1;
     *(int *)(p + 0x9C) = -1;
@@ -305,11 +305,11 @@ void sceMpegResetDefaultPtsGap(void *a0)
     *(long long *)((char *)p + 0x78) = 0;
 }
 
-extern void *D_0054C0E4[];
+extern void *_theSceMpeg[];
 
 void sceMpegSetImageBuff(int a0)
 {
-    int *q = *(int **)((char *)D_0054C0E4[0] + 0x40);
+    int *q = *(int **)((char *)_theSceMpeg[0] + 0x40);
     q[0x36] = a0;
 }
 

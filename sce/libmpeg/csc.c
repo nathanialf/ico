@@ -14,7 +14,7 @@ void _doCSC(int a0, int a1)
     *(volatile int *)0x1000B000 = 0x100;
     _sendIpuCommand(a1 | 0x70000000);
     buf[0] = 4;
-    _dispatchMpegCallback(D_0054C0E4[0], buf);
+    _dispatchMpegCallback(_theSceMpeg[0], buf);
     while (((*(volatile unsigned int *)0x1000B000) >> 8) & 1) {}
     while (*(volatile int *)0x10002010 < 0) {}
 }

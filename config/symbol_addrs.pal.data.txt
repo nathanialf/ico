@@ -84,6 +84,7 @@ _sceCd_cd_ncmd = 0x0054B710; // size:0x30  // (vendor)  // map-anchor 15of15 fro
 _sceCd_scmdrdata = 0x0054B740; // size:0x440  // (vendor)  // map-anchor 15of15 from cdvd000.o
 _sceCd_scmdsdata = 0x0054BB80; // size:0x408  // (vendor)  // map-anchor 15of15 from cdvd000.o
 _sceCd_cd_scmd = 0x0054BF88; // size:0x28  // (vendor)  // map-anchor 15of15 from cdvd000.o
+_theSceMpeg = 0x0054C0E4; // size:0x4  // (vendor)  // MAIN.MAP init.o .data +0xC, init.o sitting 0x28 before var.o, whose _forwFrame anchors at 0x0054C100 (supervisor 2026-09-29, the handle libmpeg members read)
 _forwFrame = 0x0054C100; // size:0x4  // (vendor)  // map-anchor 107of122 from var.o
 _backFrame = 0x0054C104; // size:0x4  // (vendor)  // map-anchor 107of122 from var.o
 _zFrame = 0x0054C108; // size:0x4  // (vendor)  // map-anchor 107of122 from var.o
