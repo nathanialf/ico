@@ -133,9 +133,9 @@ void initLineTraceTable(void)
 
 /* Compiled-out debug hook, the same construct icoMisc.c carries
    (partitionBarDebugDisp).  The Jan-2002 listing emits NO instruction for
-   debug_exception.c:381, :382, :384 inside traceLine and :642 inside
-   debugEEExceptionMain, and both functions need exactly the zero-byte insns
-   those inlined empty bodies leave behind: ee-gcc emits `(use (const_int 0))`
+   debug_exception.c:381, :382 and :384 inside traceLine, and the function
+   needs exactly the zero-byte insns those inlined empty bodies leave
+   behind: ee-gcc emits `(use (const_int 0))`
    for an inlined call, an insn that takes a scheduling slot and a place in
    the live-range count while emitting nothing.  In traceLine the three of
    them carry the &buf[30] address's live range from 77 insns to 82, so
@@ -143,12 +143,9 @@ void initLineTraceTable(void)
    the three &info.<field> addresses' floor_log2(2)*2/54*10000 = 370 and ranks
    those first, which is ROM's $s5/$s6/$s7/$s8; at 77 the buffer address
    scores 389, wins the rank and takes $s5, the four-register renaming that
-   was the whole residual.  In debugEEExceptionMain the single one keeps
-   `tex = 1` after the first display call, where ROM fills the jal delay slot
-   with the page argument instead.  The name is ours: the listing records no
-   symbol for an inlined empty body.  Evidence rung: ROM bytes
-   (0x001B5170..0x001B5510 and 0x001B87C0..0x001B8C10) plus the listing's
-   line map. */
+   was the whole residual.  The name is ours: the listing records no symbol
+   for an inlined empty body.  Evidence rung: ROM bytes
+   (0x001B5170..0x001B5510) plus the listing's line map. */
 static __inline__ void debugExcDebugDisp(void) {}
 
 /* What traceLine parses out of one TRFILE.TXT line and hands to dispSource:
@@ -589,11 +586,14 @@ void debugEEExceptionMain(int arg0, unsigned int cause, unsigned int epc, unsign
     clearDbgScreen();
 
     display(code, cause, epc, badvaddr, status, regInfo, 0);
-    debugExcDebugDisp();
 
-    tex = 1;
-
+    /* tex is set at the top of every pass, as page is inside the copy loop
+       above (the listing's rows are 641 for display, 643 for the store and
+       644 for the pad test, so the loop head fits the code-free 642).  loop.c
+       lifts the invariant store in front of the loop, where it follows the
+       display call instead of filling its delay slot. */
     for (;;) {
+        tex = 1;
         if (D_0028F8F0[0]._4 & 0x20) {
             sel = page;
             if (sel >= 3) {

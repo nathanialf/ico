@@ -132,17 +132,10 @@ extern void ExecDelayFree(void);
 extern int gsb_TakeSnap(void);
 int movie_abort_check(void);
 
-/* The frame profiler's bar mark, compiled out of this build. SRCFILE.TXT's own
-   Main carries debug_SetBar2(name, colour, __FILE__, __LINE__) calls at
-   main.c:1110, 1176, 1179 and 1182, between exactly the statements this one
-   sits between, and the retail ELF has no call there: the build ships the
-   empty body. ee-gcc leaves one (use (const_int 0)) plus its two block notes
-   for an inlined empty body, three pre-reload insns that emit no byte, and
-   that is what keeps this loop over haifa-sched.c's MAX_RGN_INSNS of 100 so
-   find_rgns refuses the interblock region (see the landing note). The name is
-   ours: an inlined empty body leaves no symbol and no listing row. */
-static __inline__ void mainDebugBar(void) {}
-
+/* SRCFILE.TXT's Main also calls debug_Menu, debug_SetBar and debug_SetBar2
+   (main.c:1110, 1176-1182, 1206-1209, 1250) and carries a frame-step block at
+   1160-1167; the retail ELF has none of that code, so this build compiled it
+   out and it is not spelled here. */
 void Main(void)
 {
     int ret;
@@ -184,7 +177,6 @@ void Main(void)
         iosThreadCancelWakeup(0);
         iosThreadSleep();
         gsb_ResetSnap();
-        mainDebugBar();
         if (mpegPlay != 0) {
             if (mpegInitDone == 0) {
                 continue;
@@ -215,11 +207,8 @@ void Main(void)
         debug_ResetBar();
         MakeCollisionDependGObjList();
         MakeCharGObjList();
-        mainDebugBar();
         ExecKeyInput();
-        mainDebugBar();
         ExecIcoMisc();
-        mainDebugBar();
         if (graphics_ready == 0) {
             stage_ResetAnimation();
             stage_CalcAnimationNoParent();
