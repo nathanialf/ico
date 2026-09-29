@@ -10,9 +10,9 @@
 extern int _widthMB[];
 extern int _isError[];
 extern int _picture_structure;
-extern int _curFrame[];
-extern int _curTop[];
-extern int _curBot[];
+extern int *_curFrame;
+extern int *_curTop;
+extern int *_curBot;
 extern int D_0054C0DC[];
 extern int D_00636F20[];
 extern void _getAllRefs();
@@ -71,18 +71,18 @@ int _motionComp0(int a0, int a1, int a2, int a3, int *a4, int *a5, int *a6)
     }
     ((int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140))[0x130 / 4] = intra;
     if (_picture_structure == 3) {
-        int *p = (int *)_curFrame[0];
+        int *p = _curFrame;
         *(void **)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x128) =
             (void *)(p[0] + (col * p[4] + row) * 0x180);
     } else {
-        int *p = (int *)(_picture_structure == 2 ? _curBot[0] : _curTop[0]);
+        int *p = _picture_structure == 2 ? _curBot : _curTop;
         *(void **)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x128) =
             (void *)(p[0] + (col * p[4] + row) * 0x180);
     }
     return 1;
 }
 
-extern int _picture_coding_type[];
+extern int _picture_coding_type;
 extern void _getRef0();
 extern void _dualPrimeVector(int *DMV, int *dmvector, int mvx, int mvy);
 extern int D_00636F48[];
@@ -98,31 +98,29 @@ void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_f
     int avg = 0;
 
     *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x12C) = 0;
-    if ((mbflags & 8) || _picture_coding_type[0] == 2) {
+    if ((mbflags & 8) || _picture_coding_type == 2) {
         if (_picture_structure == 3) {
             if (motion_type == 2 || (mbflags & 8) == 0) {
-                _getRef0(_forwFrame[0], 0, 0, 0, 16, x, y, PMV[0], PMV[1], 0, 0);
+                _getRef0(_forwFrame, 0, 0, 0, 16, x, y, PMV[0], PMV[1], 0, 0);
             } else if (motion_type == 1) {
-                _getRef0(_forwFrame[0], mv_field_sel[0], 0, 0, 8, x, y, PMV[0], PMV[1] >> 1, fld,
-                         0);
-                _getRef0(_forwFrame[0], mv_field_sel[2], 1, 0, 8, x, y, PMV[4], PMV[5] >> 1, fld,
-                         0);
+                _getRef0(_forwFrame, mv_field_sel[0], 0, 0, 8, x, y, PMV[0], PMV[1] >> 1, fld, 0);
+                _getRef0(_forwFrame, mv_field_sel[2], 1, 0, 8, x, y, PMV[4], PMV[5] >> 1, fld, 0);
             } else if (motion_type == 3) {
                 _dualPrimeVector(DMV, dmvector, PMV[0], PMV[1] >> 1);
-                _getRef0(_forwFrame[0], 0, 0, 0, 8, x, y, PMV[0], PMV[1] >> 1, fld, 0);
-                _getRef0(_forwFrame[0], 1, 0, 0, 8, x, y, DMV[0], DMV[1], fld, 1);
-                _getRef0(_forwFrame[0], 1, 1, 0, 8, x, y, PMV[0], PMV[1] >> 1, fld, 0);
-                _getRef0(_forwFrame[0], 0, 1, 0, 8, x, y, DMV[2], DMV[3], fld, 1);
+                _getRef0(_forwFrame, 0, 0, 0, 8, x, y, PMV[0], PMV[1] >> 1, fld, 0);
+                _getRef0(_forwFrame, 1, 0, 0, 8, x, y, DMV[0], DMV[1], fld, 1);
+                _getRef0(_forwFrame, 1, 1, 0, 8, x, y, PMV[0], PMV[1] >> 1, fld, 0);
+                _getRef0(_forwFrame, 0, 1, 0, 8, x, y, DMV[2], DMV[3], fld, 1);
             } else {
                 _Error1((int)D_00636F48, motion_type);
             }
         } else {
             int sel;
 
-            fields[0][0] = _forwTop[0];
-            fields[0][1] = _forwBot[0];
-            fields[1][0] = _backTop[0];
-            fields[1][1] = _backBot[0];
+            fields[0][0] = (int)_forwTop;
+            fields[0][1] = (int)_forwBot;
+            fields[1][0] = (int)_backTop;
+            fields[1][1] = (int)_backBot;
             /* On a field picture the frame flag is reused for the current
                field's parity (1 = bottom): the ROM keeps both in $23, and
                this set is what stops cse carrying the entry 1 into the
@@ -131,7 +129,7 @@ void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_f
             fld = _picture_structure == 2;
             /* The else arm's set is hoisted by jump in front of the first
                test, after its li 2, which is where the ROM schedules it. */
-            if (_picture_coding_type[0] == 2 && _isSecondField[0] != 0 && fld != mv_field_sel[0]) {
+            if (_picture_coding_type == 2 && _isSecondField[0] != 0 && fld != mv_field_sel[0]) {
                 sel = 1;
             } else {
                 sel = 0;
@@ -141,7 +139,7 @@ void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_f
             } else if (motion_type == 2) {
                 _getRef0(fields[sel][mv_field_sel[0]], 0, 0, 0, 8, x, y, PMV[0], PMV[1], 0, 0);
                 sel = 0;
-                if (_picture_coding_type[0] == motion_type && _isSecondField[0] != 0 &&
+                if (_picture_coding_type == motion_type && _isSecondField[0] != 0 &&
                     fld != mv_field_sel[2]) {
                     sel = 1;
                 }
@@ -169,21 +167,21 @@ void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_f
             int bfld = 1;
 
             if (motion_type == 2) {
-                _getRef0(_backFrame[0], 0, 0, 0, 16, x, y, PMV[2], PMV[3], 0, avg);
+                _getRef0(_backFrame, 0, 0, 0, 16, x, y, PMV[2], PMV[3], 0, avg);
             } else {
-                _getRef0(_backFrame[0], mv_field_sel[1], 0, 0, 8, x, y, PMV[2], PMV[3] >> 1, bfld,
+                _getRef0(_backFrame, mv_field_sel[1], 0, 0, 8, x, y, PMV[2], PMV[3] >> 1, bfld,
                          avg);
-                _getRef0(_backFrame[0], mv_field_sel[3], 1, 0, 8, x, y, PMV[6], PMV[7] >> 1, bfld,
+                _getRef0(_backFrame, mv_field_sel[3], 1, 0, 8, x, y, PMV[6], PMV[7] >> 1, bfld,
                          avg);
             }
         } else if (motion_type == 1) {
-            _getRef0(mv_field_sel[1] ? _backBot[0] : _backTop[0], 0, 0, 0, 16, x, y, PMV[2], PMV[3],
-                     0, avg);
+            _getRef0(mv_field_sel[1] ? _backBot : _backTop, 0, 0, 0, 16, x, y, PMV[2], PMV[3], 0,
+                     avg);
         } else if (motion_type == 2) {
-            _getRef0(mv_field_sel[1] ? _backBot[0] : _backTop[0], 0, 0, 0, 8, x, y, PMV[2], PMV[3],
-                     0, avg);
-            _getRef0(mv_field_sel[3] ? _backBot[0] : _backTop[0], 0, 0, 8, 8, x, y, PMV[6], PMV[7],
-                     0, avg);
+            _getRef0(mv_field_sel[1] ? _backBot : _backTop, 0, 0, 0, 8, x, y, PMV[2], PMV[3], 0,
+                     avg);
+            _getRef0(mv_field_sel[3] ? _backBot : _backTop, 0, 0, 8, 8, x, y, PMV[6], PMV[7], 0,
+                     avg);
         } else {
             _Error1((int)D_00636F88, motion_type);
         }
@@ -1767,7 +1765,7 @@ int _slice0(int a0, int a1)
 }
 
 extern int D_006370A0[];
-extern int _picture_coding_type[];
+extern int _picture_coding_type;
 
 int _skipMB0(int *a0, int *a1, int *a2, int *a3)
 {
@@ -1777,7 +1775,7 @@ int _skipMB0(int *a0, int *a1, int *a2, int *a3)
     _sp_dcr[0] = 1;
     p = (char *)_mbcont + _mbcont[0xA0] * 0x140;
     *(int *)(p + 0x13C) = 1;
-    if (_picture_coding_type[0] == 2) {
+    if (_picture_coding_type == 2) {
         a0[0] = a0[1] = a0[4] = a0[5] = 0;
     }
     if (_picture_structure == 3) {
@@ -1786,7 +1784,7 @@ int _skipMB0(int *a0, int *a1, int *a2, int *a3)
         a1[0] = 1;
         a2[0] = a2[1] = _picture_structure == 2;
     }
-    if (_picture_coding_type[0] == 1) {
+    if (_picture_coding_type == 1) {
         _Error(D_006370A0);
         ret = 0;
     }
@@ -1824,7 +1822,7 @@ int _decMB0(int *mb_type, int *motion_type, int *dct_type, int PMV[2][2][2], int
     int cmd2;
 
     *(volatile int *)0x10002010 =
-        (*(volatile int *)0x10002010 & 0xF8FFFFFF) | (_picture_coding_type[0] << 24);
+        (*(volatile int *)0x10002010 & 0xF8FFFFFF) | (_picture_coding_type << 24);
     mb_type[0] = _ipuVdec(1);
     if (mb_type[0] == 0) {
         _Error(D_006370D0);
@@ -1908,7 +1906,7 @@ int _decMB0(int *mb_type, int *motion_type, int *dct_type, int PMV[2][2][2], int
         PMV[0][0][0] = PMV[0][0][1] = PMV[1][0][0] = PMV[1][0][1] = 0;
         PMV[0][1][0] = PMV[0][1][1] = PMV[1][1][0] = PMV[1][1][1] = 0;
     }
-    if (_picture_coding_type[0] == 2 && (mb_type[0] & 9) == 0) {
+    if (_picture_coding_type == 2 && (mb_type[0] & 9) == 0) {
         PMV[0][0][0] = PMV[0][0][1] = PMV[1][0][0] = PMV[1][0][1] = 0;
         if (_picture_structure == 3) {
             motion_type[0] = 2;
@@ -2228,7 +2226,7 @@ int _nextHeader(void)
             _dispatchMpegCallback(_theSceMpeg[0], buf);
             _headerPts = *(long long *)&buf[2];
             _headerDts = *(long long *)&buf[4];
-            return _picture_coding_type[0];
+            return _picture_coding_type;
         case 0x1B7:
             return 0;
         }
@@ -2247,13 +2245,13 @@ extern void _updateTempTackData(void);
 void _pictureHeader(void)
 {
     _temporal_reference = _nextBit(10);
-    _picture_coding_type[0] = _nextBit(3);
+    _picture_coding_type = _nextBit(3);
     _vbv_delay = _nextBit(16);
-    if (_picture_coding_type[0] == 2 || _picture_coding_type[0] == 3) {
+    if (_picture_coding_type == 2 || _picture_coding_type == 3) {
         _full_pel_forward_vector = _nextBit(1);
         _forward_f_code = _nextBit(3);
     }
-    if (_picture_coding_type[0] == 3) {
+    if (_picture_coding_type == 3) {
         _full_pel_backward_vector = _nextBit(1);
         _backward_f_code = _nextBit(3);
     }
@@ -2357,7 +2355,7 @@ extern int _trFrameNumberA;
 
 void _updateTempTackData(void)
 {
-    if (_picture_coding_type[0] != 3 && _temporal_reference != D_0054CA70) {
+    if (_picture_coding_type != 3 && _temporal_reference != D_0054CA70) {
         if (D_0054CA6C != 0) {
             D_0054CA6C = 0;
             _tmpRefBase += 0x400;
@@ -2483,9 +2481,9 @@ void _copyrightExtension(void)
     _copyright_number_3 = _nextBit(22);
 }
 
-extern int _curFrame[];
-extern int _curTop[];
-extern int _curBot[];
+extern int *_curFrame;
+extern int *_curTop;
+extern int *_curBot;
 extern int D_00637148[];
 extern int D_00637168[];
 extern int _pictureData0(int a0);
@@ -2501,16 +2499,16 @@ int _decPicture(int a0, int a1)
     }
     switch (_picture_structure) {
     case 3:
-        p = _curFrame[0];
+        p = (int)_curFrame;
         break;
     case 1:
-        p = _curTop[0];
+        p = (int)_curTop;
         break;
     case 2:
-        p = _curBot[0];
+        p = (int)_curBot;
         break;
     default:
-        p = _curFrame[0];
+        p = (int)_curFrame;
         _Error(D_00637168);
         break;
     }
@@ -2521,7 +2519,7 @@ int _decPicture(int a0, int a1)
     return r;
 }
 
-extern int _picture_coding_type[];
+extern int _picture_coding_type;
 extern int _zFrame[];
 extern int _zTop[];
 extern int _zBot[];
@@ -2535,19 +2533,19 @@ void _outputFrame(int a0, int a1)
         int bot;
 
         if (_picture_structure == 3) {
-            if (_picture_coding_type[0] == 3) {
+            if (_picture_coding_type == 3) {
                 top = _zFrame[0];
             } else {
-                top = _forwFrame[0];
+                top = (int)_forwFrame;
             }
             _dispRefImage(top, a0 - 1);
         } else {
-            if (_picture_coding_type[0] == 3) {
+            if (_picture_coding_type == 3) {
                 top = _zTop[0];
                 bot = _zBot[0];
             } else {
-                top = _forwTop[0];
-                bot = _forwBot[0];
+                top = (int)_forwTop;
+                bot = (int)_forwBot;
             }
             _dispRefImageField(top, bot, a0 - 1);
         }
@@ -2557,7 +2555,106 @@ void _outputFrame(int a0, int a1)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/mpc", _updateRefImage);
+extern int _display_horizontal_size;
+extern int _display_vertical_size;
+
+/* The reference images are record pointers: their loads and stores sit in
+   their own alias set, apart from the int fields read and written through
+   them, which is what lets the ROM hoist the decoder-field and _forwTop loads
+   over those stores. The two 64-bit stamps are written through the record
+   seen as long longs (an in-struct reference), so the display-size loads may
+   pass them, as the ROM's tail order shows. */
+int _updateRefImage(int a0)
+{
+    int *r = (int *)((int *)_theSceMpeg[0])[0x40 / 4];
+    int *out = 0;
+    int n = _picture_structure == 3 ? 2 : 4;
+    int ret = 0;
+
+    if (_picture_coding_type == 3) {
+        _curFrame = (int *)_zFrame[0];
+        _curTop = (int *)_zTop[0];
+        _curBot = (int *)_zBot[0];
+        if (r[0xA0 / 4] + r[0xA4 / 4] >= n) {
+            r[0xE8 / 4] = 0;
+            _broken_link = 0;
+            _closed_gop = 0;
+        }
+        if ((r[0xE8 / 4] != 0 || _broken_link != 0) && _closed_gop == 0) {
+            _forwFrame[0x28 / 4] = 0;
+            _forwTop[0x28 / 4] = 0;
+            _forwBot[0x28 / 4] = 0;
+        }
+        r[0xE8 / 4] = 0;
+        _broken_link = 0;
+        if (_picture_structure == 3) {
+            if ((_forwFrame[0x28 / 4] == 1 || _closed_gop != 0) && _backFrame[0x28 / 4] == 1) {
+                ret = 1;
+            }
+        } else {
+            if (((_forwTop[0x28 / 4] == 1 && _forwBot[0x28 / 4] == 1) || _closed_gop != 0) &&
+                _backTop[0x28 / 4] == 1 && _backBot[0x28 / 4] == 1) {
+                ret = 1;
+            }
+        }
+    } else {
+        if (a0 == 0) {
+            int *t;
+            t = _forwFrame;
+            _forwFrame = _backFrame;
+            _backFrame = t;
+            t = _forwTop;
+            _forwTop = _backTop;
+            _backTop = t;
+            t = _forwBot;
+            _forwBot = _backBot;
+            _backBot = t;
+        }
+        _curFrame = _backFrame;
+        _curTop = _backTop;
+        _curBot = _backBot;
+        if (_picture_structure == 3) {
+            if (_picture_coding_type != 2 || _forwFrame[0x28 / 4] == 1) {
+                ret = 1;
+            }
+        } else {
+            int *q = _picture_structure == 1 ? _backBot : _backTop;
+            if (_picture_coding_type != 2 || (a0 != 0 && q[0x28 / 4] == 1) ||
+                (_forwTop[0x28 / 4] == 1 && _forwBot[0x28 / 4] == 1)) {
+                ret = 1;
+            }
+        }
+    }
+    switch (_picture_structure) {
+    case 3:
+        out = _curFrame;
+        break;
+    case 1:
+        out = _curTop;
+        break;
+    case 2:
+        out = _curBot;
+        break;
+    }
+    ((long long *)out)[0x18 / 8] = _headerPts;
+    ((long long *)out)[0x20 / 8] = _headerDts;
+    out[0x2C / 4] = _picture_coding_type;
+    out[0x30 / 4] = _picture_structure;
+    out[0x34 / 4] = _progressive_sequence;
+    out[0x38 / 4] = _progressive_frame;
+    out[0x3C / 4] = _top_field_first;
+    out[0x40 / 4] = _repeat_first_field;
+    out[0x28 / 4] = 0;
+    out[0x44 / 4] = _frame_center_horizontal_offset[0];
+    out[0x48 / 4] = _frame_center_horizontal_offset[1];
+    out[0x4C / 4] = _frame_center_horizontal_offset[2];
+    out[0x50 / 4] = _frame_center_vertical_offset[0];
+    out[0x54 / 4] = _frame_center_vertical_offset[1];
+    out[0x58 / 4] = _frame_center_vertical_offset[2];
+    out[0x5C / 4] = _display_horizontal_size;
+    out[0x60 / 4] = _display_vertical_size;
+    return ret;
+}
 
 extern char D_00637188[];
 extern void sprintf();

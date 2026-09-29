@@ -33,9 +33,9 @@ void _lastFrame(int a0)
     }
     t = _picture_structure;
     if (t == 3) {
-        _dispRefImage(_backFrame[0], a0 - 1);
+        _dispRefImage(_backFrame, a0 - 1);
     } else {
-        _dispRefImageField(_backTop[0], _backBot[0], a0 - 1);
+        _dispRefImageField(_backTop, _backBot, a0 - 1);
     }
     _isSecondField[0] = 0;
 }

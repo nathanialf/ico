@@ -45,14 +45,14 @@ extern int _refTop2[];
 extern int _refBot0[];
 extern int _refBot1[];
 extern int _refBot2[];
-extern int _forwFrame[];
-extern int _backFrame[];
+extern int *_forwFrame;
+extern int *_backFrame;
 extern int _zFrame[];
-extern int _forwTop[];
-extern int _backTop[];
+extern int *_forwTop;
+extern int *_backTop;
 extern int _zTop[];
-extern int _forwBot[];
-extern int _backBot[];
+extern int *_forwBot;
+extern int *_backBot;
 extern int _zBot[];
 
 int sceMpegCreate(void *self, void *buf, int size)
@@ -117,14 +117,14 @@ int sceMpegCreate(void *self, void *buf, int size)
     _clearOnce();
     sceMpegReset(self);
     sceMpegClearRefBuff(self);
-    _forwFrame[0] = (int)_refFrame0;
-    _backFrame[0] = (int)_refFrame1;
+    _forwFrame = _refFrame0;
+    _backFrame = _refFrame1;
     _zFrame[0] = (int)_refFrame2;
-    _forwTop[0] = (int)_refTop0;
-    _backTop[0] = (int)_refTop1;
+    _forwTop = _refTop0;
+    _backTop = _refTop1;
     _zTop[0] = (int)_refTop2;
-    _forwBot[0] = (int)_refBot0;
-    _backBot[0] = (int)_refBot1;
+    _forwBot = _refBot0;
+    _backBot = _refBot1;
     _zBot[0] = (int)_refBot2;
     _alalcSetDynamic((int *)(p + 0x108));
 }
@@ -229,27 +229,27 @@ void sceMpegReset(int *a0)
     _initSeqAgain();
 }
 
-extern int _forwFrame[];
-extern int _backFrame[];
-extern int _forwTop[];
-extern int _backTop[];
-extern int _forwBot[];
-extern int _backBot[];
+extern int *_forwFrame;
+extern int *_backFrame;
+extern int *_forwTop;
+extern int *_backTop;
+extern int *_forwBot;
+extern int *_backBot;
 
 int sceMpegClearRefBuff(void)
 {
-    if (_forwFrame[0] != 0)
-        *(int *)(_forwFrame[0] + 0x28) = 0;
-    if (_forwTop[0] != 0)
-        *(int *)(_forwTop[0] + 0x28) = 0;
-    if (_forwBot[0] != 0)
-        *(int *)(_forwBot[0] + 0x28) = 0;
-    if (_backFrame[0] != 0)
-        *(int *)(_backFrame[0] + 0x28) = 0;
-    if (_backTop[0] != 0)
-        *(int *)(_backTop[0] + 0x28) = 0;
-    if (_backBot[0] != 0)
-        *(int *)(_backBot[0] + 0x28) = 0;
+    if (_forwFrame != 0)
+        *(int *)((char *)_forwFrame + 0x28) = 0;
+    if (_forwTop != 0)
+        *(int *)((char *)_forwTop + 0x28) = 0;
+    if (_forwBot != 0)
+        *(int *)((char *)_forwBot + 0x28) = 0;
+    if (_backFrame != 0)
+        *(int *)((char *)_backFrame + 0x28) = 0;
+    if (_backTop != 0)
+        *(int *)((char *)_backTop + 0x28) = 0;
+    if (_backBot != 0)
+        *(int *)((char *)_backBot + 0x28) = 0;
     return 1;
 }
 

@@ -64,11 +64,11 @@ extern int _refTop2[];
 extern int _refBot0[];
 extern int _refBot1[];
 extern int _refBot2[];
-extern int _forwFrame[];
-extern int _backFrame[];
-extern int _forwTop[];
-extern int _backTop[];
-extern int _forwBot[];
-extern int _backBot[];
+extern int *_forwFrame;
+extern int *_backFrame;
+extern int *_forwTop;
+extern int *_backTop;
+extern int *_forwBot;
+extern int *_backBot;
 
 #endif /* SCE_LIBMPEG_LIBMPEG_H */
