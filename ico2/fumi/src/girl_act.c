@@ -581,8 +581,10 @@ extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
 /* girl_brain_main.c.inc:279-293: the wire-string marker (colour, a
-   MatrixDrive transform of the position, DispWireString, colour reset),
-   compiled out in this build: an empty debug inline.  The name is ours.
+   MatrixDrive transform of the position, DispWireString, colour reset).
+   The January listing has the body line by line (0x171E04..0x171EA8, the
+   same draw as the escape-mode label below); retail compiles it out, so it
+   builds only under DEBUG, as girlBrainDebugPrint does.  The name is ours.
    WHAT THE BYTES PIN: the ROM keeps the loop at 559 with no body and the
    "III" literal at 0x63A8A8 that no retail word loads (the hide-point call
    passes it; it is emitted after the assert's "0"), and its register
@@ -597,7 +599,35 @@ extern void __assert(char *file, int line, char *expr);
    moves), those words are lost.
    WHAT THEY CANNOT PIN: the switch and colour text beyond the listing's
    lines, the helpers' parameter order, their names. */
-static inline void girlDispWire(int r, int g, int b, float *pos, char *str) {}
+#ifdef DEBUG
+
+extern void ChangeColorWireString(int r, int g, int b);
+extern void DefaultColorWireString(void);
+extern void DispWireString(char *s);
+extern float *matrixptr;
+
+#endif
+
+static inline void girlDispWire(int r, int g, int b, float *pos, char *str)
+{
+#ifdef DEBUG
+    float mtx[16];
+
+    ChangeColorWireString(r, g, b);
+    MatrixDrive_PushMatrix();
+    sceVu0TransposeMatrix(mtx, matrixptr + 32);
+    mtx[3] = mtx[7] = mtx[11] = 0.0f;
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    MatrixDrive_TransMatrix(pos[0], pos[1], pos[2]);
+    sceVu0MulMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix(), mtx);
+    MatrixDrive_PushMatrix();
+    MatrixDrive_TransMatrix(0.0f, -50.0f, 0.0f);
+    DispWireString(str);
+    MatrixDrive_PopMatrix();
+    MatrixDrive_PopMatrix();
+    DefaultColorWireString();
+#endif
+}
 
 /* girl_brain_main.c.inc:297-304: the marker colour for a hide point.  The
    January listing loads the marker text on line 297 beside the position, as
@@ -3542,223 +3572,225 @@ void subGirlControl(volatile int a0)
     }
     iosPadConnect(w.p + 0x2D8, 0, 1, w.p + 0x1E8);
     D_00639EB0 = w.p + 0x2D8;
-    /* The listing gives the back branch its own line 2539: a goto, not a
-       for or while, whose end carries no line note.  Without the loop notes
-       the in-loop references weigh 1, which is what orders the allocation of
-       mdir, dir and D_0028F4C0's high part ($20, $21, $22). */
-loop:
-    if ((int)(*(unsigned long long *)(w.p + 0x18) >> 48) & 1) {
-        if (D_0063AA08 == 0 && ((void *)a0 == D_00639EC0 || D_00639EA0 != 0)) {
-            /* The listing gives the jump out of this arm its own line
+    /* A C loop: the January listing pads the loop top (0x179998) to an
+       8-byte boundary with a nop, which final.c does only after a loop-begin
+       note; retail's loop top is already aligned.  The back branch is the
+       closing brace's line 2539. */
+    for (;;) {
+        if ((int)(*(unsigned long long *)(w.p + 0x18) >> 48) & 1) {
+            if (D_0063AA08 == 0 && ((void *)a0 == D_00639EC0 || D_00639EA0 != 0)) {
+                /* The listing gives the jump out of this arm its own line
                    1639 after the last store (1637): the do-while's closing
                    line.  What the bytes pin: the arm's loop notes, which
                    weigh mdir's two uses and dir's first so that mdir is
                    allocated first ($20) and dir second ($21); the
                    declaration-block reading of 1639 leaves them swapped.
                    What they cannot: what the January code broke out of. */
-            do {
-                iosPadConnect(w.p + 0x2D8, 0, D_00639EA0 != 0, w.p + 0x1E8);
-                iosPadRead(w.p + 0x2D8);
-                iosPadGetStick(w.p + 0x2D8, w.p + 0x338, 0, 2, 2, D_0063B20C);
-                _GetMotionDirection(mdir, (void *)a0);
-                *(int *)(w.p + 0x340) = CorrectStickInfo(mdir, w.p + 0x338);
-                if (*(float *)(w.p + 0x34C) > 0.001f) {
-                    ConvertStickToAbsCoord(dir, w.p + 0x338);
-                    *(float *)(w.p + 0x120) = dir[0];
-                    *(float *)(w.p + 0x124) = dir[1];
-                    *(float *)(w.p + 0x128) = dir[2];
-                }
-            } while (0);
-        } else if ((void *)a0 == D_00639ED0) {
-            iosPadConnect(w.p + 0x2D8, 0, 1, w.p + 0x1E8);
-        } else {
-            iosPadConnect(w.p + 0x2D8, 0, 1, w.p + 0x1E8);
-        }
-        /* The compiled-out block of the listing's lines 1654-2362.  What the
+                do {
+                    iosPadConnect(w.p + 0x2D8, 0, D_00639EA0 != 0, w.p + 0x1E8);
+                    iosPadRead(w.p + 0x2D8);
+                    iosPadGetStick(w.p + 0x2D8, w.p + 0x338, 0, 2, 2, D_0063B20C);
+                    _GetMotionDirection(mdir, (void *)a0);
+                    *(int *)(w.p + 0x340) = CorrectStickInfo(mdir, w.p + 0x338);
+                    if (*(float *)(w.p + 0x34C) > 0.001f) {
+                        ConvertStickToAbsCoord(dir, w.p + 0x338);
+                        *(float *)(w.p + 0x120) = dir[0];
+                        *(float *)(w.p + 0x124) = dir[1];
+                        *(float *)(w.p + 0x128) = dir[2];
+                    }
+                } while (0);
+            } else if ((void *)a0 == D_00639ED0) {
+                iosPadConnect(w.p + 0x2D8, 0, 1, w.p + 0x1E8);
+            } else {
+                iosPadConnect(w.p + 0x2D8, 0, 1, w.p + 0x1E8);
+            }
+            /* The compiled-out block of the listing's lines 1654-2362.  What the
            bytes pin: its four texts in .rodata, in this order, after
            "girl no!!\n" and before this function's jump table, and no
            instruction.  What they cannot: the code around them, which also
            used vec and work, or the assert's own line (1654 is the block's
            first). */
-        if (0) {
-            debug_assert("src/girl_act.c", 1654);
-            __assert("src/girl_act.c", 1654, "0");
-            debug_StdPrintfDummy("NOTARGET");
-            debug_StdPrintfDummy("[%s] %4d %4d %4d");
-            debug_StdPrintfDummy("delete wg 2\n");
-        }
-        if (D_00639EA0 == 0 && ((*(unsigned long long *)(w.p + 0x18) & 0x3000000000000000) != 0 ||
-                                ((int)(*(unsigned long long *)(w.p + 0x20) >> 7) & 1))) {
-            if (*(float *)(w.p + 0x34C) != 0.0f) {
-                *(float *)(w.p + 0x34C) = 0.5f;
+            if (0) {
+                debug_assert("src/girl_act.c", 1654);
+                __assert("src/girl_act.c", 1654, "0");
+                debug_StdPrintfDummy("NOTARGET");
+                debug_StdPrintfDummy("[%s] %4d %4d %4d");
+                debug_StdPrintfDummy("delete wg 2\n");
             }
-        }
-    }
-    if (!(*(float *)(w.p + 0x34C) > 0.1f)) {
-        padtimer_stand = padtimer_stand + 1;
-    } else {
-        padtimer_stand = 0;
-    }
-    if (*(float *)(w.p + 0x34C) > 0.1f &&
-        (*(float *)(w.p + 0x34C) < 0.99f || (*(int *)(w.p + 0x2E0) & 0x20))) {
-        padtimer_walk = padtimer_walk + 1;
-    } else {
-        padtimer_walk = 0;
-    }
-    if (0.1f < *(float *)(w.p + 0x34C) &&
-        !(0.1f < *(float *)(w.p + 0x34C) &&
-          (*(float *)(w.p + 0x34C) < 0.99f || (*(int *)(w.p + 0x2E0) & 0x20)))) {
-        padtimer_run = padtimer_run + 1;
-    } else {
-        padtimer_run = 0;
-    }
-    dir[0] = *(float *)(w.p + 0x120);
-    dir[1] = *(float *)(w.p + 0x124);
-    dir[2] = *(float *)(w.p + 0x128);
-    switch (*(unsigned int *)(w.p + 0x34)) {
-    case 0x45:
-    case 0x50:
-    case 0x73:
-        break;
-    default:
-        if (*(float *)(w.p + 0x34C) > 0.1f && *(int *)(w.p + 0x34) != 0x73) {
-            SetMotionDirectionSmooze((void *)a0, dir,
-                                     (float)(((void *)a0 == D_00639EA8 && D_00639EA0 != 0)
-                                                 ? MOTDIRROW(a0)->f_182
-                                                 : MOTDIRROW(a0)->f_186));
-        }
-        break;
-    }
-    _ACTCommonMailTest((void *)a0, padtimer_stand, padtimer_walk, padtimer_run);
-    switch (*(int *)(w.p + 0x34)) {
-    case 1:
-        ACTSendMailCorrect((char *)a0, 0xC7);
-        break;
-    case 2:
-        ACTSendMailCorrect((char *)a0, 0xB5);
-        break;
-    case 3:
-        ACTSendMailCorrect((char *)a0, 0xBA);
-        break;
-    case 29:
-        if (!(D_00639EA0 != 0 &&
-              *(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x900) == 4 &&
-              ((int)(*(unsigned long long *)(w.p + 0x18) >> 56) & 1))) {
-            if ((*(float *)(w.p + 0x34C) > 0.1f &&
-                 (*(int *)(w.p + 0x340) < -134 || 134 < *(int *)(w.p + 0x340))) ||
-                (*(int *)(w.p + 0x2E4) & 0x40)) {
-                if (100.0f < GetDifferenceFromLowerField((void *)a0, 0x2C)) {
-                    ACTSendMailCorrect((char *)a0, 0x127);
-                } else {
-                    ACTSendMailCorrect((char *)a0, 0xE2);
+            if (D_00639EA0 == 0 &&
+                ((*(unsigned long long *)(w.p + 0x18) & 0x3000000000000000) != 0 ||
+                 ((int)(*(unsigned long long *)(w.p + 0x20) >> 7) & 1))) {
+                if (*(float *)(w.p + 0x34C) != 0.0f) {
+                    *(float *)(w.p + 0x34C) = 0.5f;
                 }
             }
         }
-        if ((*(float *)(w.p + 0x34C) > 0.1f &&
-             (*(int *)(w.p + 0x340) >= -45 && *(int *)(w.p + 0x340) <= 45)) ||
-            (*(int *)(w.p + 0x2E4) & 0x10)) {
-            ACTSendMailCorrect((char *)a0, 0xC7);
+        if (!(*(float *)(w.p + 0x34C) > 0.1f)) {
+            padtimer_stand = padtimer_stand + 1;
+        } else {
+            padtimer_stand = 0;
         }
         if (*(float *)(w.p + 0x34C) > 0.1f &&
-            (*(int *)(w.p + 0x340) >= 46 && *(int *)(w.p + 0x340) <= 134)) {
-            ACTSendMailCorrect((char *)a0, 0x14E);
-        }
-        if (*(float *)(w.p + 0x34C) > 0.1f) {
-            if (-134 <= *(int *)(w.p + 0x340)) {
-                if (*(int *)(w.p + 0x340) < -45) {
-                    ACTSendMailCorrect((char *)a0, 0x14F);
-                }
-            }
-        }
-        break;
-    case 28:
-        if (!(D_00639EA0 != 0 &&
-              *(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x900) == 4 &&
-              ((int)(*(unsigned long long *)(w.p + 0x18) >> 56) & 1)) &&
-            ((*(float *)(w.p + 0x34C) > 0.1f &&
-              (*(int *)(w.p + 0x340) < -134 || 134 < *(int *)(w.p + 0x340))) ||
-             (*(int *)(w.p + 0x2E4) & 0x40))) {
-            ACTSendMailCorrect((char *)a0, 0xE2);
+            (*(float *)(w.p + 0x34C) < 0.99f || (*(int *)(w.p + 0x2E0) & 0x20))) {
+            padtimer_walk = padtimer_walk + 1;
         } else {
-            if (D_00639EA0 != 0 ||
-                (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 5 < *(int *)(w.p + 0x4C)) {
-                if (*(float *)(w.p + 0x34C) > 0.1f &&
-                    (*(int *)(w.p + 0x340) >= -45 && *(int *)(w.p + 0x340) <= 45)) {
-                    ACTSendMailCorrect((char *)a0, 0xC7);
-                }
-            }
+            padtimer_walk = 0;
         }
-        ACTSendMailCorrect((char *)a0, 0x150);
-        break;
-    case 15:
-        if (*(int *)(w.p + 0x2E4) & 0x20) {
+        if (0.1f < *(float *)(w.p + 0x34C) &&
+            !(0.1f < *(float *)(w.p + 0x34C) &&
+              (*(float *)(w.p + 0x34C) < 0.99f || (*(int *)(w.p + 0x2E0) & 0x20)))) {
+            padtimer_run = padtimer_run + 1;
+        } else {
+            padtimer_run = 0;
+        }
+        dir[0] = *(float *)(w.p + 0x120);
+        dir[1] = *(float *)(w.p + 0x124);
+        dir[2] = *(float *)(w.p + 0x128);
+        switch (*(unsigned int *)(w.p + 0x34)) {
+        case 0x45:
+        case 0x50:
+        case 0x73:
+            break;
+        default:
+            if (*(float *)(w.p + 0x34C) > 0.1f && *(int *)(w.p + 0x34) != 0x73) {
+                SetMotionDirectionSmooze((void *)a0, dir,
+                                         (float)(((void *)a0 == D_00639EA8 && D_00639EA0 != 0)
+                                                     ? MOTDIRROW(a0)->f_182
+                                                     : MOTDIRROW(a0)->f_186));
+            }
+            break;
+        }
+        _ACTCommonMailTest((void *)a0, padtimer_stand, padtimer_walk, padtimer_run);
+        switch (*(int *)(w.p + 0x34)) {
+        case 1:
             ACTSendMailCorrect((char *)a0, 0xC7);
-        }
-        break;
-    case 38:
-        if (D_00639EA4 != 0) {
-            if (((int *)((int *)D_00639EA4[0x59])[0x1A2])[0xEE] >
-                (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 3) {
-                ACTSendMailCorrect((char *)a0, 0x14A);
+            break;
+        case 2:
+            ACTSendMailCorrect((char *)a0, 0xB5);
+            break;
+        case 3:
+            ACTSendMailCorrect((char *)a0, 0xBA);
+            break;
+        case 29:
+            if (!(D_00639EA0 != 0 &&
+                  *(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x900) == 4 &&
+                  ((int)(*(unsigned long long *)(w.p + 0x18) >> 56) & 1))) {
+                if ((*(float *)(w.p + 0x34C) > 0.1f &&
+                     (*(int *)(w.p + 0x340) < -134 || 134 < *(int *)(w.p + 0x340))) ||
+                    (*(int *)(w.p + 0x2E4) & 0x40)) {
+                    if (100.0f < GetDifferenceFromLowerField((void *)a0, 0x2C)) {
+                        ACTSendMailCorrect((char *)a0, 0x127);
+                    } else {
+                        ACTSendMailCorrect((char *)a0, 0xE2);
+                    }
+                }
             }
-            if (((int *)((int *)D_00639EA4[0x59])[0x1A2])[0xEF] >
-                (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 3) {
-                ACTSendMailCorrect((char *)a0, 0x14B);
+            if ((*(float *)(w.p + 0x34C) > 0.1f &&
+                 (*(int *)(w.p + 0x340) >= -45 && *(int *)(w.p + 0x340) <= 45)) ||
+                (*(int *)(w.p + 0x2E4) & 0x10)) {
+                ACTSendMailCorrect((char *)a0, 0xC7);
             }
-        }
-        lim = *(int *)(w.p + 0x33C) - 128;
-        if (100 < lim) {
-            ACTSendMailCorrect((char *)a0, 0x14B);
-        } else if (lim < -100) {
-            ACTSendMailCorrect((char *)a0, 0x14A);
-        } else {
-            ACTSendMailCorrect((char *)a0, 0x150);
-        }
-        break;
-    case 45:
-        if ((D_00639EA0 != 0 ? (*(float *)(w.p + 0x34C) > 0.1f &&
-                                (*(int *)(w.p + 0x340) >= -45 && *(int *)(w.p + 0x340) <= 45))
-                             : (*(float *)(w.p + 0x34C) > 0.1f)) ||
-            ((int)(*(unsigned long long *)(w.p + 0x20) >> 12) & 1)) {
-            ACTSendMailCorrect((char *)a0, 0x75);
-            ACTSendMailCorrect((char *)a0, 0x74);
-        }
-        hold = 0;
-        push = 0;
-        if (D_00639EA4 != 0 && D_00639EA0 == 0) {
-            if (*(int *)(*(char **)((char *)D_00639EA4 + 0x164) + 0x34) == 0x2D) {
-                push = *(int *)(*(char **)((char *)D_00639EA4 + 0x164) + 0x3C) != 0x45;
+            if (*(float *)(w.p + 0x34C) > 0.1f &&
+                (*(int *)(w.p + 0x340) >= 46 && *(int *)(w.p + 0x340) <= 134)) {
+                ACTSendMailCorrect((char *)a0, 0x14E);
+            }
+            if (*(float *)(w.p + 0x34C) > 0.1f) {
+                if (-134 <= *(int *)(w.p + 0x340)) {
+                    if (*(int *)(w.p + 0x340) < -45) {
+                        ACTSendMailCorrect((char *)a0, 0x14F);
+                    }
+                }
+            }
+            break;
+        case 28:
+            if (!(D_00639EA0 != 0 &&
+                  *(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x900) == 4 &&
+                  ((int)(*(unsigned long long *)(w.p + 0x18) >> 56) & 1)) &&
+                ((*(float *)(w.p + 0x34C) > 0.1f &&
+                  (*(int *)(w.p + 0x340) < -134 || 134 < *(int *)(w.p + 0x340))) ||
+                 (*(int *)(w.p + 0x2E4) & 0x40))) {
+                ACTSendMailCorrect((char *)a0, 0xE2);
             } else {
-                hold = 1;
+                if (D_00639EA0 != 0 ||
+                    (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 5 < *(int *)(w.p + 0x4C)) {
+                    if (*(float *)(w.p + 0x34C) > 0.1f &&
+                        (*(int *)(w.p + 0x340) >= -45 && *(int *)(w.p + 0x340) <= 45)) {
+                        ACTSendMailCorrect((char *)a0, 0xC7);
+                    }
+                }
             }
+            ACTSendMailCorrect((char *)a0, 0x150);
+            break;
+        case 15:
+            if (*(int *)(w.p + 0x2E4) & 0x20) {
+                ACTSendMailCorrect((char *)a0, 0xC7);
+            }
+            break;
+        case 38:
+            if (D_00639EA4 != 0) {
+                if (((int *)((int *)D_00639EA4[0x59])[0x1A2])[0xEE] >
+                    (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 3) {
+                    ACTSendMailCorrect((char *)a0, 0x14A);
+                }
+                if (((int *)((int *)D_00639EA4[0x59])[0x1A2])[0xEF] >
+                    (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 3) {
+                    ACTSendMailCorrect((char *)a0, 0x14B);
+                }
+            }
+            lim = *(int *)(w.p + 0x33C) - 128;
+            if (100 < lim) {
+                ACTSendMailCorrect((char *)a0, 0x14B);
+            } else if (lim < -100) {
+                ACTSendMailCorrect((char *)a0, 0x14A);
+            } else {
+                ACTSendMailCorrect((char *)a0, 0x150);
+            }
+            break;
+        case 45:
+            if ((D_00639EA0 != 0 ? (*(float *)(w.p + 0x34C) > 0.1f &&
+                                    (*(int *)(w.p + 0x340) >= -45 && *(int *)(w.p + 0x340) <= 45))
+                                 : (*(float *)(w.p + 0x34C) > 0.1f)) ||
+                ((int)(*(unsigned long long *)(w.p + 0x20) >> 12) & 1)) {
+                ACTSendMailCorrect((char *)a0, 0x75);
+                ACTSendMailCorrect((char *)a0, 0x74);
+            }
+            hold = 0;
+            push = 0;
+            if (D_00639EA4 != 0 && D_00639EA0 == 0) {
+                if (*(int *)(*(char **)((char *)D_00639EA4 + 0x164) + 0x34) == 0x2D) {
+                    push = *(int *)(*(char **)((char *)D_00639EA4 + 0x164) + 0x3C) != 0x45;
+                } else {
+                    hold = 1;
+                }
+            }
+            if (hold) {
+                (*(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x258))++;
+            } else {
+                *(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x258) = 0;
+            }
+            if (push) {
+                (*(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x25C))++;
+            } else {
+                *(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x25C) = 0;
+            }
+            if (*(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x258) >
+                (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 2) {
+                ACTSendMailCorrect((char *)a0, 0x75);
+                ACTSendMailCorrect((char *)a0, 0x74);
+            }
+            if (*(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x25C) >
+                (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 2) {
+                ACTSendMailCorrect((char *)a0, 0x74);
+            }
+            break;
         }
-        if (hold) {
-            (*(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x258))++;
-        } else {
-            *(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x258) = 0;
+        *(unsigned long long *)(w.p + 0x20) = *(unsigned long long *)(w.p + 0x20) & ~0x4000000ULL;
+        if (D_00639EA0 != 0 && (*(int *)(w.p + 0x2E0) & 8)) {
+            *(unsigned long long *)(w.p + 0x20) =
+                *(unsigned long long *)(w.p + 0x20) | 0x4000000ULL;
         }
-        if (push) {
-            (*(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x25C))++;
-        } else {
-            *(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x25C) = 0;
-        }
-        if (*(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x258) >
-            (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 2) {
-            ACTSendMailCorrect((char *)a0, 0x75);
-            ACTSendMailCorrect((char *)a0, 0x74);
-        }
-        if (*(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x25C) >
-            (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 2) {
-            ACTSendMailCorrect((char *)a0, 0x74);
-        }
-        break;
+        _ACTWait(1);
     }
-    *(unsigned long long *)(w.p + 0x20) = *(unsigned long long *)(w.p + 0x20) & ~0x4000000ULL;
-    if (D_00639EA0 != 0 && (*(int *)(w.p + 0x2E0) & 8)) {
-        *(unsigned long long *)(w.p + 0x20) = *(unsigned long long *)(w.p + 0x20) | 0x4000000ULL;
-    }
-    _ACTWait(1);
-    goto loop;
 }
 
 extern void ACTGame_CommonLoop(void *self);
@@ -4690,7 +4722,6 @@ void actGirlReadyMove(volatile int a0)
 {
     float dst[4];
     float dir[4];
-    char *p;
     int n;
 
     n = (int)((float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 80.0f / 60.0f);
