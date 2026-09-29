@@ -1682,7 +1682,6 @@ void _SgContLoopCount(void *a0)
     void *p = _SgGetHeadContext();
     int t = *(unsigned short *)((char *)s0 + 0x28);
     int val;
-    int pval;
     if (t == 1)
         goto case1;
     if (t >= 2)

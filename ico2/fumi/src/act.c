@@ -157,7 +157,6 @@ inline void ConvertStickToAbsCoord(void *a0, float *a1)
 inline void _ACTRun(int n)
 {
     int i;
-    int id;
     if (n == 0) {
         for (;;) {
             iosThreadSleep();

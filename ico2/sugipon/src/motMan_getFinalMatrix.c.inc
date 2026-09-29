@@ -234,7 +234,6 @@ int avoidReverseInterpOnCurrentMatrix(char *q, char *info, void *out)
     Vec16 dir;
     short ang;
     short ang2;
-    unsigned int n;
 
     GetMatrixFromQuaternion(mtx, q);
     _ApplyMatrix(&up, (int)mtx, YUnitVector);
@@ -456,15 +455,19 @@ void _getFinalMatrix(int id)
     }
 
     case 35: {
-        /* VESTIGIAL, ROM-proven: an unreferenced 16-byte block array.  The
-           bytes pin its frame slot (without it strict 2511 of 2835 words
-           change, the frame and every later slot moving); they cannot pin its
-           name, type or the use the 2001 source once had for it. */
+        /* A 16-byte block array no retail instruction references.  The bytes
+           pin its frame slot (without it strict 2511 of 2835 words change,
+           the frame and every later slot moving); its reader is the DEBUG
+           build's report of the rolled quaternion (report ours). */
         float work[4];
 
         GET_NODE_ROT(q, dq);
         RotQuaternionZ(GetCurrentQuaternion(), *(short *)(D_0063C490 + 0x304));
         GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion());
+#ifdef DEBUG
+        CopyQuaternion(work, GetCurrentQuaternion());
+        scePrintf("node roll %f %f %f %f\n", work[0], work[1], work[2], work[3]);
+#endif
         if (*(int *)(D_0063C490 + 0x318) != 0 && *(int *)(D_0063C490 + 0x2E0) != 0) {
             *(float *)ik = *(float *)ik + (1.0f - *(float *)ik) *
                                               (*(float *)(D_0063C490 + 0x3BC) * (60.0f / MOT_FPS));
@@ -546,10 +549,10 @@ void _getFinalMatrix(int id)
             SetIdentityQuaternion(ik + 0x30);
             CopyQuaternion(ik + 0x20, ik + 0x30);
         } else {
-            /* VESTIGIAL, ROM-proven: work0 and work1 are never referenced.
-               The bytes pin their two 16-byte frame slots around out (without
-               them 393 words change); they cannot pin the names, types or the
-               use the 2001 source once had for them. */
+            /* work0 and work1 are referenced by no retail instruction.  The
+               bytes pin their two 16-byte frame slots around out (without them
+               393 words change); their reader is the DEBUG build's report of
+               the interpolation's two quaternions (report ours). */
             float work0[4];
             float out[4];
             float work1[4];
@@ -565,6 +568,12 @@ void _getFinalMatrix(int id)
             float rate = 1.0f;
 
             avoidReverseInterpOnCurrentMatrix(ik + 0x10, lim, ik + 0x30);
+#ifdef DEBUG
+            CopyQuaternion(work0, ik + 0x10);
+            CopyQuaternion(work1, ik + 0x30);
+            scePrintf("interp %f %f %f %f -> %f %f %f %f\n", work0[0], work0[1], work0[2], work0[3],
+                      work1[0], work1[1], work1[2], work1[3]);
+#endif
             p = h = 0;
             n = 0;
             if (*(int *)(D_0063C490 + 0x31C) == 1 && *(int *)(D_0063C490 + 0x290) != 0) {

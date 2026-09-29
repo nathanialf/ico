@@ -571,7 +571,6 @@ int GetMotherGenerator(int label)
 inline void SetMotherGenerator(int no, int label)
 {
     int i;
-    int j;
     int cnt;
 
     if (no == 0xEAD) {
@@ -594,7 +593,6 @@ inline void SetMotherGenerator(int no, int label)
 inline void Generator_Init(void)
 {
     int i;
-    int j;
 
     for (i = 0; i < 3759; i++) {
         GVGeo2 *g = &D_002C2DC8[i];
@@ -644,7 +642,6 @@ void ReadGeneratorPacket(void)
 {
     unsigned char *p = (unsigned char *)GetbufpGeneratorPacket();
     int i;
-    int j;
 
     for (i = 0; i < 3759; i++) {
         GVGeo2 *g = &D_002C2DC8[i];
@@ -672,7 +669,6 @@ void MakeGeneratorPacket(void)
 {
     char *p = (char *)GetbufpGeneratorPacket();
     int i;
-    int j;
 
     for (i = 0; i < 3759; i++) {
         *p++ = (((int)(D_002C2DC8[i].f48 << 18) >> 28) << 4) | ((D_002C2DC8[i].f48 >> 21) & 1);
@@ -790,7 +786,6 @@ inline char *InitGeneratorGeo(char *gobj, char *src)
 {
     char *p = iosMallocDebug(D_0063A438, 0x70, __FILE__, 1230);
     int i;
-    int j;
 
     *(int *)(p + 0x0) = 0;
     *(int *)(p + 0x4) = 0;
@@ -1021,7 +1016,6 @@ static inline void SetGeneratorBgaRootPosition(char *gobj, GenBga *tbl)
 {
     float pos[3];
     int i;
-    int j;
 
     /* test_CURRENTROOT is unprototyped in this TU (C89 default int), as its
        earlier call sites need; the root matrix is read through a float view. */

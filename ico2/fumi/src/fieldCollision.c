@@ -1772,7 +1772,6 @@ void MakeExitAttributeIndex(void)
     int i;
     char *entry;
     int j;
-    int n;
     int *p70;
     void *obj;
     int slot;

@@ -180,6 +180,9 @@ extern void _ApplyMatrix(void *a0, int a1, void *a2);
 
 void auraInspireAfter(int mode)
 {
+    /* halfRect and halfUv (rows 245 and 254, both initialised in the ROM) are
+       read only by the DEBUG build's half-height preview of work buffer 1 in
+       the code-free rows 542-619 ahead of the switch (preview ours). */
     int halfRect[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 4 * 16, ScreenWidth * 16,
                        ScreenHeight / 2 * 16};
     int uv[4] = {8, 8, ScreenWidth * 16, ScreenHeight * 16};
@@ -397,6 +400,14 @@ void auraInspireAfter(int mode)
     gif_SetZTest(0);
     gif_SetZWrite(0);
 
+#ifdef DEBUG
+    if (mode == 4) {
+        gif_SetGsReg(6, workBase[1] | ((long long)(ScreenWidth / 64) << 14) | 0x664000000LL);
+        gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+        gif_SetAlpha(0, 2, 0);
+        gif_SpriteSensitiveOrg(halfRect, 0, halfUv, &D_0063BB58, 0);
+    }
+#endif
     switch (mode) {
     case 2:
         reduceCopyAlphaChannelOfWork1ToWork0();

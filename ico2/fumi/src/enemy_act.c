@@ -668,8 +668,12 @@ void subEnemyCollision(volatile int a0)
         if (*(int *)(sub + 0x34) != 0x70) {
             /* The January listing's rows 1761-1770 emit no instruction at all;
                the only word left of this block is the volatile reload of the
-               actor-entry parameter that its dropped body read. */
+               actor-entry parameter, whose reader is the DEBUG build's state
+               report (report ours). */
             int self = a0;
+#ifdef DEBUG
+            scePrintf("enemy %08x state %x\n", self, *(int *)(sub + 0x34));
+#endif
         }
         if (*(int *)(sub + 0x34) != 0x16) {
             if (0x16 < *(unsigned int *)(sub + 0x34)) {
@@ -1117,8 +1121,10 @@ extern void sceVu0ScaleVector(float *dst, float *src, float s);
 /* Static inline of the 2001 source: the listing attributes rows 2609-2614 to a
    body inside actEnemyKidnapBegin's ROM range but above its own lines, the same
    construction as enemyPickupCheckGirl above.  Rows 2605-2608 emit nothing and
-   ROM's frame is 0xB0 with a 16-byte slot at sp+0x10 that nothing reads, so a
-   second vector is declared ahead of buf: drop it and the frame is 0xA0. */
+   ROM's frame is 0xB0 with a 16-byte slot at sp+0x10 that no retail code
+   reads, so a second vector is declared ahead of buf (drop it and the frame is
+   0xA0); its reader is the DEBUG build's report of the girl's position (report
+   ours). */
 static inline int enemyKidnapCheckGirl(int self)
 {
     float pos[4];
@@ -1136,6 +1142,10 @@ static inline int enemyKidnapCheckGirl(int self)
     } else {
         mode = 0;
     }
+#ifdef DEBUG
+    GetRootProjectionPosOfGObj(pos, (char *)D_00639EA8);
+    scePrintf("kidnap check %d girl %f %f %f\n", mode, pos[0], pos[1], pos[2]);
+#endif
     return mode;
 }
 
@@ -1198,7 +1208,6 @@ void MoveChestForCatchBoy(char *self)
     float b;
     float a;
     int ang;
-    int far;
     int ang2;
 
     *(int *)(*(int *)(self + 0x15C) + 0x550) = 1;
@@ -1344,8 +1353,10 @@ void actEnemyBodylift(volatile int a0)
 
 /* Static inline of the 2001 source (listing lines 2889-2892 sit inside
    actEnemyPickupBegin's ROM range but above its own body lines).  ROM's frame
-   is 0x80 with the 16-byte slot at sp+0x10 never referenced and buf at sp+0x20,
-   so a second 16-byte vector was declared here ahead of buf and left unused. */
+   is 0x80 with the 16-byte slot at sp+0x10 no retail code references and buf
+   at sp+0x20, so a second 16-byte vector is declared here ahead of buf; its
+   reader is the DEBUG build's report of the girl's position, as in
+   enemyKidnapCheckGirl (report ours). */
 static inline int enemyPickupCheckGirl(int self)
 {
     float pos[4];
@@ -1363,6 +1374,10 @@ static inline int enemyPickupCheckGirl(int self)
     } else {
         mode = 0;
     }
+#ifdef DEBUG
+    GetRootProjectionPosOfGObj(pos, (char *)D_00639EA8);
+    scePrintf("pickup check %d girl %f %f %f\n", mode, pos[0], pos[1], pos[2]);
+#endif
     return mode;
 }
 

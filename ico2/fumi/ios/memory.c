@@ -225,10 +225,11 @@ extern unsigned int strlen(char *s);
 void *_iosMallocDebug(IosMemPart *part, int size, char *file, int line)
 {
     char buf[1024];
-    /* the 16 bytes between buf and the register saves: SRCFILE.TXT gives
-       memory.c rows 529-539 no instructions at all, and the ROM's frame is
-       0x4B0 where buf plus the ten saved doublewords account for only 0x4A0 */
-    char tag[16];
+    /* read only by the DEBUG build's free-list trace at the loop's end, in
+       the listing's code-free rows 705-742 (trace ours); the ROM's frame
+       (0x4B0, where buf and the ten saved doublewords take 0x4A0) keeps its
+       slot after buf */
+    IosMemTag tag;
     IosMemNode *node;
     IosMemNode *best;
     IosMemNode *newnode;
@@ -343,6 +344,11 @@ void *_iosMallocDebug(IosMemPart *part, int size, char *file, int line)
             D_0063A4D8 = 0;
             return (char *)best + 0x40;
         }
+#ifdef DEBUG
+        tag = *(IosMemTag *)node;
+        tag.c[15] = 0;
+        debug_StdPrintfDummy("mem:skip %s size %d need %d\n", tag.c, node->size, need);
+#endif
     }
     D_0063A4D8 = 0;
     return 0;

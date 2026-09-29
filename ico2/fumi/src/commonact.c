@@ -3848,7 +3848,6 @@ void _ACTCommonMailTest(char *self, int a1, int a2, int a3)
 int E3_LeverCheck(char *a0)
 {
     float buf[3];
-    int v;
     buf[0] = *(float *)((char *)test_CURRENTORIENT(*(char **)((char *)GOBJ_SUB(a0) + 0x180)) + 0x0);
     buf[1] = *(float *)((char *)test_CURRENTORIENT(*(char **)((char *)GOBJ_SUB(a0) + 0x180)) + 0x4);
     buf[2] = *(float *)((char *)test_CURRENTORIENT(*(char **)((char *)GOBJ_SUB(a0) + 0x180)) + 0x8);

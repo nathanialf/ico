@@ -921,19 +921,22 @@ extern float brainGetLevel(Brain *b, BrainTarget *t);
 extern void gif_Line(void *v0, void *v1, unsigned int z0, unsigned int z1, void *col, int prim);
 
 /* The four corners of a marker box, shared by draw_batsu and draw_shikaku
-   (the listing inlines lines 2379-2393 into both).  `q` carries no traffic in
-   the shipped build, but the ROM's inlined frame proves the slot: the offsets
-   table is addressed as <inline frame base>+0x10, i.e. 16 bytes of this
-   function's locals sit in front of it.  The table is built element by element
-   (not copied from .rodata) because `r` makes the initialiser non-constant. */
+   (the listing inlines lines 2379-2393 into both).  The ROM's inlined frame
+   keeps a 16-byte slot for `q` (listing row 2381, one declaration line) ahead
+   of the offsets table at <inline frame base>+0x10; its reader is the
+   DEBUG-build report in the code-free rows 2384-2388 (report ours).  The table
+   is built element by element (not copied from .rodata) because `r` makes the
+   initialiser non-constant. */
 static inline void make_mark_points(DbgVtx *v, DbgPos *p, int r)
 {
-    DbgPos q; /* unused in the 2001 source too: ROM's frame keeps its 16-byte slot
-                   ahead of the offsets table (0xD0, not 0xC0), and the listing
-                   has exactly one declaration line here (2381). */
+    DbgPos q;
     int ofs[4][2] = {{-r, -r}, {r, -r}, {-r, r}, {r, r}};
     int i;
 
+#ifdef DEBUG
+    q = *p;
+    printf("mark %d %d %d (%d)\n", q.x, q.y, q.z, r);
+#endif
     for (i = 0; i < 4; i++) {
         v[i].x = p->x;
         v[i].y = p->y;
@@ -1996,7 +1999,6 @@ static inline int _debug_SelectCsvWindow_inl(char *title, int x, int y, int rows
     int half;
     int k;
     int top;
-    int end;
     int yy;
     int len;
     int v;
@@ -3606,7 +3608,6 @@ int _debug_SelectCsvWindow(char *title, int x, int y, int rows, int base, int st
     int half;
     int k;
     int top;
-    int end;
     int yy;
     int len;
     int v;

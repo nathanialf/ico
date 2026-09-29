@@ -71,13 +71,18 @@ static inline int inner_check_sub(float *p, float *o, float *a, float *b)
     float d0[4];
     float d1[4];
     float d2[4];
-    /* the 0x40 frame slot the ROM reserves and never reads: the listing's
-       fourth difference vector, whose line compiled out */
+    /* the 0x40 frame slot no retail code reads: the fourth difference vector,
+       computed and reported only by the DEBUG build in the listing's
+       code-free rows 193-201 (report ours) */
     float d3[4];
 
     sceVu0SubVector(d0, p, o);
     sceVu0SubVector(d1, a, o);
     sceVu0SubVector(d2, b, o);
+#ifdef DEBUG
+    sceVu0SubVector(d3, b, a);
+    scePrintf("inner check edge %f %f %f\n", d3[0], d3[1], d3[2]);
+#endif
     return inner_check_core(d0, d1, d2);
 }
 
@@ -158,7 +163,6 @@ static inline int GetAttackKindIndex(char *p)
 {
     int id = *(int *)(p + 0x4A0);
     int i;
-    int m;
 
     for (i = 0; i < 20; i++) {
         if (id == attackData[i].f10) {
@@ -316,7 +320,6 @@ int AttackCheckSameGroup(char *self, char *other, char *third)
     unsigned int g0 = 2;
     unsigned int g1 = 2;
     int i;
-    int m;
     int k;
 
     if (other == self || other == third) {

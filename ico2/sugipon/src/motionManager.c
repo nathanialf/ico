@@ -793,7 +793,6 @@ void _checkCliffAndWall(void)
 {
     float v[4];
     float d;
-    float d2;
     float t;
 
     if (*(int *)(D_0063C494 + 0xDC) == 1 ||

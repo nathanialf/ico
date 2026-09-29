@@ -662,17 +662,15 @@ void GetClothAnimation(int a0, void *a1, int a2, void *m, ClothCfg *cfg, int nwa
                 VECTOR vd;
                 float qt[4];
                 float mx[16];
-                /* VESTIGIAL, ROM-proven: 48 bytes of this block's stack that
-                   no instruction touches.  The frame (0x1F0), pw's address
-                   (0xD0, an immediate the ROM carries twice) and every spill
-                   slot above them pin the allocation after mx; without it the
-                   frame is 0x1C0 and 151 of the 754 words change.  Nothing
-                   live in the block takes untouched stack (the inlined
-                   arcCosOfTriangle uses no frame slot, and no call here passes
-                   or returns an aggregate), so the 2001 source declared these
-                   bytes and never used them, on the code-free rows 833-838;
-                   three vectors, one 48-byte record or a wider work array
-                   cannot be told apart. */
+                /* 48 bytes of this block's stack that no retail instruction
+                   touches.  The frame (0x1F0), pw's address (0xD0, an
+                   immediate the ROM carries twice) and every spill slot above
+                   them pin the allocation after mx; without it the frame is
+                   0x1C0 and 151 of the 754 words change.  The declarations sit
+                   on the code-free rows 833-838 and their reader is the DEBUG
+                   build's drawing of the row's axis after the correction loop,
+                   sugipon's DrawLine idiom (chainDebugOld, clothFixDebug);
+                   the drawing is ours. */
                 VECTOR ve;
                 VECTOR vf;
                 VECTOR vg;
@@ -702,6 +700,13 @@ void GetClothAnimation(int a0, void *a1, int a2, void *m, ClothCfg *cfg, int nwa
                         _AddVectorXYZ(((char **)a0)[i] + j * 16, ((char **)a0)[i], &vb);
                     }
                 }
+#ifdef DEBUG
+                _ScaleVector(&ve, &va, 0.5f);
+                _AddVectorXYZ(&vf, ((char **)a0)[i], &ve);
+                _AddVectorXYZ(&vg, ((char **)a0)[i], &va);
+                DrawLine(((char **)a0)[i], (char *)&vf, (LineColor *)&chainLineColor0, 0);
+                DrawLine((char *)&vf, (char *)&vg, (LineColor *)&chainLineColor1, 0);
+#endif
             }
         }
     }
@@ -1608,18 +1613,16 @@ void getCloth4D(void *a0, int **rows)
     sceVu0FMATRIX *pE;
     sceVu0FMATRIX mtx;
     VECTOR clip[3];
-    /* VESTIGIAL, ROM-proven: 144 bytes of the outermost block's stack that
-       no instruction touches, in the retail ROM or in the Jan-2002 listing.
-       The frame (0x290) and every slot above them pin the allocation after
-       clip and before the collision block's tbuf (0x100), which the tail's
-       tensionMove frames reuse by exact size: a freed region here would have
-       been split for tbuf, so it is held for the whole function.  Without it
-       the frame is 0x200 and 259 of the 1147 words change.  Nothing live
-       takes it (no call passes or returns an aggregate, and every inlined
-       helper here frees its frame when its expansion ends), so the 2001
-       source declared these bytes and never used them, on the code-free
-       declaration rows 1712-1723; nine vectors, a matrix and five vectors
-       or any other 144-byte work area cannot be told apart. */
+    /* 144 bytes of the outermost block's stack that no retail instruction
+       touches, in the retail ROM or in the Jan-2002 listing.  The frame
+       (0x290) and every slot above them pin the allocation after clip and
+       before the collision block's tbuf (0x100), which the tail's tensionMove
+       frames reuse by exact size, so it is held for the whole function;
+       without it the frame is 0x200 and 264 words of the object change.  The
+       declaration sits on the code-free rows 1712-1723 and its reader is the
+       DEBUG build's drawing of each cylinder's clip planes after the
+       collision pass (rows 1815-1833 carry no code), sugipon's DrawLine idiom
+       (clothFixDebug); the drawing is ours. */
     VECTOR work[9];
     float t1;
     float tk;
@@ -1697,6 +1700,16 @@ void getCloth4D(void *a0, int **rows)
         }
     }
     gif_EndPacket();
+#ifdef DEBUG
+    for (i = 0; i < cnt; i++) {
+        _ScaleVector(&work[0], &vG[i], 100.0f);
+        _AddVectorXYZ(&work[1], mD[i][3], &work[0]);
+        _ScaleVector(&work[2], &vH[i], 100.0f);
+        _AddVectorXYZ(&work[3], mD[i][3], &work[2]);
+        DrawLine((char *)mD[i][3], (char *)&work[1], (LineColor *)&chainLineColor0, 0);
+        DrawLine((char *)mD[i][3], (char *)&work[3], (LineColor *)&chainLineColor1, 0);
+    }
+#endif
     {
         /* proc reads only p, q and k (its prologue homes $4, $5 and $f12 with
            the static chain).  Each caller also passes the owner of q's point,

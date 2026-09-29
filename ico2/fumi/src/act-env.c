@@ -202,10 +202,11 @@ int GetDitchPosition(float *out, float *org, float *dir, float d0, float d1, flo
     ClipWork work;
     float tmp[4];
     /* The ROM frame is 0x1F0 = 0xC0 (work) + 0x10 (tmp) + 0xD0 more of
-       aggregate locals under the register saves, and act-env.c:1175-1195 emit
-       no instructions anywhere in the listing: the dev's second probe was
-       disabled while its locals stayed declared.  Their sizes are what the
-       frame proves. */
+       aggregate locals under the register saves; act-env.c:1175-1195, inside
+       the hit branch between the test (1174) and the copy out (1196), emit no
+       instructions in either listing.  work2 and tmp2 are read by the DEBUG
+       build's second probe there (probe and report ours); their sizes are
+       what the frame proves. */
     ClipWork work2;
     float tmp2[4];
 
@@ -218,6 +219,19 @@ int GetDitchPosition(float *out, float *org, float *dir, float d0, float d1, flo
     work.b[1] += h + 100.0f;
     ClipFloor(&work);
     if (work.f_94 != 0) {
+#ifdef DEBUG
+        sceVu0ScaleVector(tmp2, dir, d0);
+        sceVu0AddVector(work2.a, org, tmp2);
+        work2.b[0] = work2.a[0];
+        work2.b[1] = work2.a[1];
+        work2.b[2] = work2.a[2];
+        work2.a[1] -= 100.0f;
+        work2.b[1] += h + 100.0f;
+        ClipFloor(&work2);
+        if (work2.f_94 == 0) {
+            scePrintf("env: ditch without floor at its near edge\n");
+        }
+#endif
         out[0] = work.pos[0];
         out[1] = work.pos[1];
         out[2] = work.pos[2];
@@ -1036,7 +1050,6 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
         }
     }
     if (hh != D_0063BD54[0] && *(int *)(*(char **)(a0 + 0x15C) + 0x568) && v1DC) {
-        int rr2;
         float rr;
         int r;
 

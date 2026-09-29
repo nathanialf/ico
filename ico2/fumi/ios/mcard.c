@@ -828,11 +828,22 @@ extern char D_0063A4C8[];
 extern char D_0063A4D0[];
 
 /* ios/mcard.c:1042-1053, 1109-1115 and 1127-1133: the three file-static block
-   helpers the manager dispatch inlines. None has a ROM symbol of its own. */
+   helpers the manager dispatch inlines. None has a ROM symbol of its own.
+   The icon save ends with a DEBUG-build report of the card result (name and
+   text ours). What the bytes pin: the helper is inlined, so its final
+   iosMcMgrSaveSeg call was not a sibling call at its own compile (integrate.c
+   refuses to inline a function with one); the report's argument load after
+   the call is what refuses it, and cse deletes the load. The listing (rows
+   1043 '{', 1044 the first store) leaves no line for a local declaration. */
+static __inline__ void iosMcMgrSaveIconDebugResult(int result)
+{
+#ifdef DEBUG
+    debug_StdPrintfDummy("icon save result %d\n", result);
+#endif
+}
+
 static inline void iosMcMgrSaveIcon(McMgr *mp)
 {
-    char buf[16];
-
     mp->f24 = 1;
     mp->f48 = (int)D_0055F70C;
     iosMcMgrSaveSeg(mp, 0);
@@ -844,6 +855,7 @@ static inline void iosMcMgrSaveIcon(McMgr *mp)
     mp->f24 = 2;
     mp->f48 = (int)D_0055F70C + 0x24;
     iosMcMgrSaveSeg(mp, 0);
+    iosMcMgrSaveIconDebugResult(mp->f10);
 }
 
 static inline void iosMcMgrSaveGame(McMgr *mp)

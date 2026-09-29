@@ -995,8 +995,6 @@ float stage_PlayBgAnimation(int key, float t, void *v, void *q)
     }
     e = (char *)stageAnimTable;
     for (i = 0; i < n; i++, e += 0x290) {
-        char *entry2;
-
         if (key != *(int *)(*(char **)(e + 0x280) + 0x58)) {
             continue;
         }

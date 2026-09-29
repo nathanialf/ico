@@ -24,8 +24,6 @@ extern void _dispRefImageField();
 void _lastFrame(int a0)
 {
     int t;
-    int d;
-    int c;
     if (_isSecondField[0]) {
         _Error(D_00636DD8);
         _isSecondField[0] = 0;

@@ -1434,7 +1434,8 @@ void subBoyControl(volatile int a0)
                this arm (listing row 2676, its value unused in the retail
                text) and 39 code-free rows 2689-2727 before the arm's break;
                this local is the form that read takes in fumi's actor code,
-               its use lay in that window.  The name and type are ours. */
+               and its reader is the DEBUG build's report in that window.
+               The name, type and report are ours. */
             int self = a0;
 
             if (((int)(*(unsigned long long *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) +
@@ -1452,6 +1453,9 @@ void subBoyControl(volatile int a0)
             if ((CurrentTargetGObj == (void *)1 ? *(int *)(s + 0x2E4) : *(int *)(s + 0x2E0)) & 8) {
                 ACTSendMailCorrect(a0, 0x42);
             }
+#ifdef DEBUG
+            scePrintf("boy %08x stick %d\n", self, *(int *)(s + 0x33C) - 128);
+#endif
             break;
         }
         case 43:

@@ -116,10 +116,10 @@ static inline void writeCameraSetFile(int no, void *buf, int size)
 
 void saveEditedDataBinary(int no, int a1, int a2)
 {
-    /* the header record the 2001 source still declared: the body writes the
-       four words straight into buf at rows 407-410 and never reads it, but it
-       still sets the frame (SRCFILE.TXT rows 364-368, 370, 374, 376, 379, 382
-       and 386-387 carry no instructions) */
+    /* the header record: the body writes the four words straight into buf at
+       rows 407-410, and only the DEBUG build reads them back through it, in
+       the code-free rows after the file write (report ours); retail keeps its
+       16-byte slot in the frame (0xF0; 0xE0 without it) */
     CamSetBinHdr hdr;
     int size;
     int *buf;
@@ -134,6 +134,10 @@ void saveEditedDataBinary(int no, int a1, int a2)
     buf[3] = CameraEdit_PIN_NUMBER_ALL((int *)a1, a2);
     MakeCameraSetBinary((S4C *)a1, a2, data);
     writeCameraSetFile(no, buf, size);
+#ifdef DEBUG
+    hdr = *(CamSetBinHdr *)buf;
+    scePrintf("camera set %x v%d num %d pins %d\n", hdr.magic, hdr.version, hdr.num, hdr.pins);
+#endif
     iosFree(buf);
 }
 
@@ -1370,7 +1374,6 @@ inline int _CameraEdit_BOX(int *a0, int a1)
 
 inline int _CameraEdit_PIN(int *a0, int a1, int a2)
 {
-    int *p;
     return ((int *)(a0[1] + (a1 * 0x4C)))[0x48 / 4] + (a2 * 0x5C);
 }
 

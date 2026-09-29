@@ -374,8 +374,9 @@ extern float _DistGV(void *a0, void *a1);
 /* The retail build compiles out this function's debug arms (listing lines
  * 1033-1063 and 1109-1131 carry no instructions), which is why `vDbg` is read
  * at the writeback with nothing having written it, `vDiff` is written and never
- * read, `vSpare` survives only as a frame slot, and the 1098 loop keeps its
- * counter with an empty body. */
+ * read, `vSpare` is read only by the DEBUG build's report in the second arm
+ * (report ours; retail keeps its frame slot, 0x130 against 0x120 without it),
+ * and the 1098 loop keeps its counter with an empty body. */
 void monitorMonitorCamera(CamWork *cam, CamWork *out)
 {
     float vDiff[4];
@@ -460,6 +461,10 @@ void monitorMonitorCamera(CamWork *cam, CamWork *out)
     sceVu0SubVector(vOut, out, &monitorCamera.work);
     t = FSqrt(vOut[0] * vOut[0] + vOut[1] * vOut[1] + vOut[2] * vOut[2]);
     monitorCamera.moveDist = t;
+#ifdef DEBUG
+    sceVu0SubVector(vSpare, &cam->at, &monitorCamera.work.at);
+    scePrintf("monitor camera move %f at %f %f %f\n", t, vSpare[0], vSpare[1], vSpare[2]);
+#endif
     held = 0;
     d = handCameraAtRate * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
     if (d < 0.0f) {
@@ -641,7 +646,6 @@ void CameraMove(int group, float *pos, float *out, float *ofsA, float *ofsB)
     float w;
     float u;
     float d;
-    float t;
     float rate;
     float e0;
     float e1;

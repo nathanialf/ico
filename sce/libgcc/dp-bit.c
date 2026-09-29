@@ -426,7 +426,6 @@ void dpdiv(long a0, long a1)
 
     void *r;
     unsigned long long m1, m2, bit, q;
-    int exp;
 
     __unpack_d(&a0, &x);
     __unpack_d(&a1, &y);
