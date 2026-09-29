@@ -404,7 +404,7 @@ def emit_header(out, prefix: str) -> None:
     # stay on modern binutils: the period toolchain ships no linker.
     # Flags mirror compile_c.sh's EE_ASFLAGS; ee-as 2.9 has no -march/-mabi/
     # -no-pad-sections, it takes -mcpu and pads nothing on its own.
-    out.write("ee_as = tools/cc/ee-gcc2.9-991111/bin/as\n")
+    out.write("ee_as = tools/period_env.sh tools/cc/ee-gcc2.9-991111/bin/as\n")
     out.write("asflags = -EL -mcpu=5900 -G 8 -Iinclude\n\n")
 
 

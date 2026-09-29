@@ -190,13 +190,13 @@ if [ -n "${ICO2_PROG}" ]; then
     # shellcheck disable=SC2086
     DUMP_CWD="${ROOT}/ico2/${ICO2_PROG}"
     ( cd "${ROOT}/ico2/${ICO2_PROG}" \
-      && "${CC}" -B "${EEGCC_LIB}" ${ICO2_INCS} ${CFLAGS} -o "${S_ABS}" "${SRC_REL}" )
+      && "${ROOT}/tools/period_env.sh" "${CC}" -B "${EEGCC_LIB}" ${ICO2_INCS} ${CFLAGS} -o "${S_ABS}" "${SRC_REL}" )
 elif listed "${INCLUDE_ITO_TXT}"; then
     SRC_ABS="${SRC}"; case "${SRC_ABS}" in /*) ;; *) SRC_ABS="${ROOT}/${SRC_ABS}";; esac
     S_ABS="${S}";    case "${S_ABS}"   in /*) ;; *) S_ABS="${ROOT}/${S_ABS}";; esac
     # shellcheck disable=SC2086
     DUMP_CWD="${ROOT}/ito"
-    ( cd "${ROOT}/ito" && "${CC}" -B "${EEGCC_LIB}" ${CFLAGS} -I../ito/include -o "${S_ABS}" "${SRC_ABS}" )
+    ( cd "${ROOT}/ito" && "${ROOT}/tools/period_env.sh" "${CC}" -B "${EEGCC_LIB}" ${CFLAGS} -I../ito/include -o "${S_ABS}" "${SRC_ABS}" )
 else
     # sce/<archive>/<member>.c : the vendor archives were built member by member
     # from inside the member's own directory, so __FILE__ is the bare name
@@ -205,7 +205,7 @@ else
     S_ABS="${S}";    case "${S_ABS}"   in /*) ;; *) S_ABS="${ROOT}/${S_ABS}";; esac
     # shellcheck disable=SC2086
     DUMP_CWD="$(dirname "${SRC_ABS}")"
-    ( cd "$(dirname "${SRC_ABS}")" && "${CC}" -B "${EEGCC_LIB}" ${CFLAGS} -o "${S_ABS}" "$(basename "${SRC_ABS}")" )
+    ( cd "$(dirname "${SRC_ABS}")" && "${ROOT}/tools/period_env.sh" "${CC}" -B "${EEGCC_LIB}" ${CFLAGS} -o "${S_ABS}" "$(basename "${SRC_ABS}")" )
 fi
 
 # Dump mode: the dumps were moved out by the EXIT trap armed below (it runs whether or not the
@@ -326,7 +326,7 @@ fi
 # preprocess_old_as.py now translates to the bare spelling). Hard-fail so ninja
 # stops on it instead of silently producing an object from a different assembler.
 # shellcheck disable=SC2086
-if "${SELECTED_EE_AS}" ${EE_ASFLAGS} -I"${INCLUDE_DIR}" -o "${OUT}" "${ASM_INPUT}" 2>"${OUT}.aserr"; then
+if "${ROOT}/tools/period_env.sh" "${SELECTED_EE_AS}" ${EE_ASFLAGS} -I"${INCLUDE_DIR}" -o "${OUT}" "${ASM_INPUT}" 2>"${OUT}.aserr"; then
     rm -f "${OUT}.aserr"
     "${OBJCOPY}" "${OUT}" "${OUT}"
 else

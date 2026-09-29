@@ -214,17 +214,17 @@ if [[ -n "$ICO2_PROG" ]]; then
     done
     # shellcheck disable=SC2086
     ( cd "$ROOT/ico2/$ICO2_PROG" \
-      && $CC $ICO2_INCS $CFLAGS -I"$ROOT/include" \
+      && "$ROOT/tools/period_env.sh" $CC $ICO2_INCS $CFLAGS -I"$ROOT/include" \
            -o "$ASM_ABS" "$SRC_REL" )
 elif grep -qxF "$NAME" "$ROOT/config/include_ito.txt" 2>/dev/null; then
     CSRC_ABS="$CSRC"; case "$CSRC_ABS" in /*) ;; *) CSRC_ABS="$ROOT/$CSRC_ABS";; esac
     ASM_ABS="$ASM_OUT"; case "$ASM_ABS" in /*) ;; *) ASM_ABS="$ROOT/$ASM_ABS";; esac
-    ( cd "$ROOT/ito" && $CC $CFLAGS -I"$ROOT/include" -I../ito/include -o "$ASM_ABS" "$CSRC_ABS" )
+    ( cd "$ROOT/ito" && "$ROOT/tools/period_env.sh" $CC $CFLAGS -I"$ROOT/include" -I../ito/include -o "$ASM_ABS" "$CSRC_ABS" )
 else
     # sce members compile from their own directory by bare name (__FILE__), see compile_c.sh
     CSRC_ABS="$CSRC"; case "$CSRC_ABS" in /*) ;; *) CSRC_ABS="$ROOT/$CSRC_ABS";; esac
     ASM_ABS="$ASM_OUT"; case "$ASM_ABS" in /*) ;; *) ASM_ABS="$ROOT/$ASM_ABS";; esac
-    ( cd "$(dirname "$CSRC_ABS")" && $CC $CFLAGS -I"$ROOT/include" -o "$ASM_ABS" "$(basename "$CSRC_ABS")" )
+    ( cd "$(dirname "$CSRC_ABS")" && "$ROOT/tools/period_env.sh" $CC $CFLAGS -I"$ROOT/include" -o "$ASM_ABS" "$(basename "$CSRC_ABS")" )
 fi
 CC_RC=$?
 # ee-gcc writes the functions it compiled before an error, so a non-empty .s is
@@ -317,7 +317,7 @@ assemble() {
     fi
     python3 "$ROOT/tools/preprocess_old_as.py" "$in" "$in.oldas" \
         && canon_regnames "$in.oldas" \
-        && "$EE_AS" $EE_ASFLAGS -o "$out" "$in.oldas" && return 0
+        && "$ROOT/tools/period_env.sh" "$EE_AS" $EE_ASFLAGS -o "$out" "$in.oldas" && return 0
     echo "quick_diff: period assembler (ee-as 2.9-991111) REJECTED $in.oldas" >&2
     echo "  Fix the source/.s — there is no modern-gas fallback (retired" >&2
     echo "  2026-08-05; it manufactured 8 false delay-slot matches)." >&2
