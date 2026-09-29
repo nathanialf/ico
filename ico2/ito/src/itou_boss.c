@@ -380,6 +380,17 @@ static inline void putEnemyAt(char *o, float *pos)
     *(int *)(*(char **)(o + 0x15C) + 0x74) = 1;
 }
 
+/* The DEBUG build's switch to release the enemies without their gather
+   effect (name ours); retail builds it as 0. */
+#ifdef DEBUG
+
+extern int geneDebugNoEffect;
+
+#define GENE_DEBUG_NO_EFFECT geneDebugNoEffect
+#else
+#define GENE_DEBUG_NO_EFFECT 0
+#endif
+
 /* census gene_enemy, a file static (MAIN.MAP puts the only global gene_enemy in
    queen.o), so it is spelled `static gene_enemy` here; the global of that name
    lives in ico2/ito/src/queen at 0x001A2A10. Do not make it global. */
@@ -448,32 +459,33 @@ static void gene_enemy(volatile int a0)
                 float dir[4];
                 float m[4][4];
                 signed char *sel;
-                /* RULING-VESTIGIAL-EXCEPTION (supervisor 2026-09-24, under the user's
-                   2026-09-21 standard for dead assignments the ROM proves).
-                   The initialiser is dead (r is set from GatherEffect_Set below
-                   before any read) and flow deletes it after loop, so it emits
-                   no bytes; the declaration form follows this TU's own
-                   `int r = 0;` in InqCapsuleGhostBossStage. What the bytes pin:
-                   the outer loop reached loop.c's first pass with 231 or more
-                   real insns (230 without this line). The threshold is
-                   1 + 63 non-fixed registers = 64, less 3 per move, so after
-                   six moves the q copy (life 5) needs 46 * 5 >= insns; at 230
-                   it moves in the first pass ahead of the inline pos copy and
-                   the preheader reads `daddu $30,$17` before `daddu $21,$16`,
-                   at 231 or more it is left for the second pass and follows
-                   it as in the ROM. What they cannot pin: which dead
-                   statement it was, its text or its line (SRCFILE.TXT rows
-                   240 to 245 above the first statement are code-free, as a
-                   deleted initialiser's row is). */
-                int r = 0;
+                /* r starts as "no effect" (-1): the DEBUG build can release the
+                   enemy without its gather effect, and then the r >= 0 block is
+                   skipped. Retail builds the switch as 0, so the call always
+                   sets r and flow deletes the -1 after loop (no bytes). What
+                   the bytes pin: the outer loop reached loop.c's first pass
+                   with 231 or more real insns (230 without the -1). The
+                   threshold is 1 + 63 non-fixed registers = 64, less 3 per
+                   move, so after six moves the q copy (life 5) needs
+                   46 * 5 >= insns; at 230 it moves in the first pass ahead of
+                   the inline pos copy and the preheader reads `daddu $30,$17`
+                   before `daddu $21,$16`, at 231 or more it is left for the
+                   second pass and follows it as in the ROM. What they cannot
+                   pin: the switch itself (SRCFILE.TXT rows 240 to 245 are
+                   code-free declarations and the call starts at row 253 right
+                   after `*flag = 0;` at 252, so January's test, if any, shares
+                   the call's first row); the switch's name is ours. */
+                int r = -1;
 
                 sel = buf[(int)(random_unit() * num)];
                 sceVu0CopyVector(pos, *(char **)(sel + 0x30));
                 geneReleasing++;
                 sel[0x34] = 1;
                 *flag = 0;
-                r = GatherEffect_Set(12, sel + 0x20, sel + 0x10, pos, (void *)gene_eff_end_func,
-                                     1.0f);
+                if (!GENE_DEBUG_NO_EFFECT) {
+                    r = GatherEffect_Set(12, sel + 0x20, sel + 0x10, pos, (void *)gene_eff_end_func,
+                                         1.0f);
+                }
                 if (r >= 0) {
                     *(volatile int **)(GetParticleEffectData(r) + 0x70) = flag;
                     SetParticleEffectClipEnableFlag(r, 0);

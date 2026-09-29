@@ -166,24 +166,27 @@ void GetChainAnimation(ChainSet *sys, int obj, char *mtx)
             no = 0;
         }
 
-        /* Vestigial loop: the listing (SRCFILE.TXT, clothAnimation.c:343) emits an
-           EMPTY up-counting loop here, and lines 344-354 of the dev's file emit
-           nothing at all.  ee-gcc's check_dbra_loop reverses every empty counting
-           loop into a countdown (COOKBOOK 3.22); the only source class that leaves
-           ROM's `addiu/slt/bnez` up-count is a use of the counter inside the body
-           whose result dies before reload -- i.e. a dead register assignment.  All
-           six empty-body spellings measured reverse; this one is byte-exact.
-           RULING-VESTIGIAL-EXCEPTION instance (2026-09-07): the listing shows
-           source lines 344-354 here that emit nothing, an empty debug-hook call
-           is deleted before the loop pass (measured), and only a store to a
-           variable the function reassigns survives -- the 2001 source held such
-           a line. Re-verified on the final frame.  Re-audit (completeness
-           pass 57): no live spelling exists, since both j and k are
-           reassigned by the next two loops before any read and a read of the
-           loop's result would emit code; the empty body and the TU's own empty
-           hook `chainDebugOld(&old[j])` were measured and both reverse the
-           loop into a countdown (7 words differ). */
+        /* The DEBUG build draws the chain as it stands before this frame's
+           step, one red segment from the node drawn last (k) to each next one,
+           as TestDispChainAnimation draws it live; the draw is ours (DrawLine
+           and the red colour are the TU's own).  Retail keeps only `k = j`.
+           What the bytes pin: the listing (SRCFILE.TXT, clothAnimation.c:343)
+           emits an up-counting loop here whose body, rows 344-354, emits
+           nothing.  ee-gcc's check_dbra_loop reverses a counting loop whose
+           counter has no other use into a countdown (COOKBOOK 3.22); the
+           ROM's `addiu/slt/bnez` up-count needs a use of j in the body that
+           survives cse1 (its destination has other uses) and is gone by
+           final, which the assignment to k is (flow deletes it: the next two
+           loops reassign both j and k before any read).  Measured: an empty
+           body, and the TU's own `chainDebugOld(&old[j])` hook alone, both
+           reverse the loop (7 words differ).  What they cannot pin: the DEBUG
+           body's text. */
         for (j = 0; j < n; j++) {
+#ifdef DEBUG
+            if (j > 0) {
+                DrawLine(pts + k * 16, pts + j * 16, (LineColor *)&chainLineColor1, 0);
+            }
+#endif
             k = j;
         }
 

@@ -1087,27 +1087,39 @@ extern char D_0063AB20[];
    the name is ours): the pin the pin editor was opened on. */
 static int editPinNo;
 
+/* The DEBUG build's trace of the pin window the list shows (name and text
+   ours); retail builds it empty. */
+#ifdef DEBUG
+#define PIN_WINDOW_TRACE(from, to) scePrintf("pin window %d..%d\n", (from), (to))
+#else
+#define PIN_WINDOW_TRACE(from, to)
+#endif
+
 void menuPinSelect(char *m)
 {
     int no = *(int *)(m + 0x74);
     int cur = ((BoxPins *)(D_0063AA7C[1] + no * 0x4C))->first;
     int min;
     int max;
-    /* Both initialisers are dead (the loop assigns i and n before any read)
-       and flow deletes them; they emit no bytes.  What the bytes pin: 284 to
-       287 real insns at gcse entry, a 143-bucket expression table, which
-       orders the PRE reaching registers of the four hoisted frame addresses
-       (sp+16, sp+32, sp+64, sp+80) into the ROM's spill slots; without them
-       the count is 282, the table 141 buckets, and the slots rotate.  What
-       they cannot pin: which locals, how many (two to five), or the text. */
-    int i = 0;
-    int n = 0;
-    int start;
-    int end;
+    int i;
+    int n;
+    /* start and end are the window the list shows; the DEBUG build traces
+       it at the top of every pass, so the first pass reads these zeros.
+       Retail builds the trace empty and flow deletes the two initialisers
+       (no bytes).  What the bytes pin: 284 to 287 real insns at gcse entry,
+       a 143-bucket expression table, which orders the PRE reaching
+       registers of the four hoisted frame addresses (sp+16, sp+32, sp+64,
+       sp+80) into the ROM's spill slots; without two such initialisers the
+       count is 282, the table 141 buckets, and the slots rotate.  What they
+       cannot pin: which locals carry them or the trace's text (SRCFILE.TXT
+       has code-free rows 1272-1273 at the top of the loop). */
+    int start = 0;
+    int end = 0;
 
     iosThreadSleep(m);
 
     while (1) {
+        PIN_WINDOW_TRACE(start, end);
         min = ((BoxPins *)(D_0063AA7C[1] + no * 0x4C))->first;
         max = ((BoxPins *)(D_0063AA7C[1] + no * 0x4C))->last;
         if (D_0028F8F0[1].trg & 0x1000) {

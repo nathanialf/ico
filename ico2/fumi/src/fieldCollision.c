@@ -1835,19 +1835,26 @@ void ClipFloorByGObj(char *p, char *gobj)
     ep = pos;
     CopyVector(&keep, ep);
     CopyVector(p, buf0);
-    /* Dead reset of the scratch pointer (flow deletes it; SRCFILE.TXT line
-     * 2244 has no instructions). What the bytes pin: some set of pos after
-     * the ep copy and before the clip call, because otherwise gcse records
-     * `ep = pos` as an available copy and propagates pos into the if arms.
-     * pos then lives past block 0 and local-alloc no longer puts it in $16
-     * ahead of gobj ($17) and clip ($18). What they cannot pin: the value,
-     * the spelling or the line of that set. */
-    pos = 0;
+    /* pos now names the start point: the DEBUG build traces the segment
+     * (pos to ep) once it is in the object's space.  Retail builds the
+     * trace out and flow deletes this set (SRCFILE.TXT row 2244 has no
+     * instructions, rows 2252-2255 after the two transforms none either).
+     * What the bytes pin: some set of pos after the ep copy and before the
+     * clip call, because otherwise gcse records `ep = pos` as an available
+     * copy and propagates pos into the if arms; pos then lives past block 0
+     * and local-alloc no longer puts it in $16 ahead of gobj ($17) and clip
+     * ($18). What they cannot pin: the value, the spelling or the line of
+     * that set, or the trace's text (ours, in DBG_VECTOR's terms). */
+    pos = p;
     m = *(char **)(((FcSubSlot *)(gobj + 0x15C))->sub + 0xC);
     MatrixDrive_SetTransposeMatrix(mtx, (float *)m);
     *(float *)(p + 0xC) = *(float *)(p + 0x2C) = 1.0f;
     _ApplyMatrix(p, mtx, p);
     _ApplyMatrix(ep, mtx, ep);
+#ifdef DEBUG
+    DBG_VECTOR((float *)pos);
+    DBG_VECTOR((float *)ep);
+#endif
     makeCollisionBlockTable((float *)p);
     if (clip(p, gobj, 0)) {
         *(float *)(p + 0x2C) = 1.0f;
