@@ -19,7 +19,40 @@ void _doCSC(int a0, int a1)
     while (*(volatile int *)0x10002010 < 0) {}
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/csc", _ch3dmaCSC);
+extern int D_0054CAB8[];
+/* the chunk count (MAIN.MAP's _cscDma): this channel-3 handler bumps it while
+ * _doCSC2 polls it, so every read is fresh */
+extern volatile int _cscDma[];
+extern int D_007315D0[];
+extern int D_007315D4[];
+extern int D_007315D8[];
+
+int _ch3dmaCSC(void)
+{
+    *(volatile int *)0x1000E010 = 8;
+    _cscDma[0]++;
+    if (*(volatile int *)0x1000B020 != 0 || (*(volatile int *)0x1000B000 & 0x100) != 0) {
+        D_0054CAB8[0] = 1;
+        return 0;
+    }
+    if (_cscDma[0] < D_007315D8[0] - 1) {
+        *(volatile int *)0x1000B010 = D_007315D4[0];
+        *(volatile int *)0x1000B020 = 0xFFC0;
+        *(volatile int *)0x1000B000 = 0x100;
+        *(volatile int *)0x10002000 = 0x700003FF;
+        D_007315D4[0] = (D_007315D4[0] + 0xFFC00) & 0x0FFFFFFF;
+    } else if (_cscDma[0] == D_007315D8[0] - 1) {
+        D_007315D0[0] -= _cscDma[0] * 1023;
+        *(volatile int *)0x1000B010 = D_007315D4[0];
+        *(volatile int *)0x1000B020 = D_007315D0[0] << 6;
+        *(volatile int *)0x1000B000 = 0x100;
+        *(volatile int *)0x10002000 = D_007315D0[0] | 0x70000000;
+    }
+    __asm__ __volatile__("sync");
+    __asm__ __volatile__("ei");
+    return 0;
+}
+
 INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/csc", _doCSC2);
 
 extern int D_007315DC[];
