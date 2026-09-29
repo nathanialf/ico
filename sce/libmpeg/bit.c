@@ -7,7 +7,20 @@
 #include "common.h"
 #include <libmpeg.h>
 
-extern void _sysbitFlush(int *a0, int a1);
+/* the bitstream reader state: the 64 bit accumulator this file shifts bits out
+ * of, the ring of bytes the IPU feeds it from, and the bit position */
+typedef struct {
+    long long buf;       /* 0x00 */
+    unsigned char *base; /* 0x08 */
+    unsigned char *p;    /* 0x0C */
+    unsigned int cnt;    /* 0x10 */
+    long long pos;       /* 0x18 */
+    unsigned char *wrap; /* 0x20 */
+    unsigned char *end;  /* 0x24 */
+    int size;            /* 0x28 */
+} SysBit;
+
+extern void _sysbitFlush(SysBit *bs, int n);
 
 void _sysbitInit(int *a0, int a1, int a2, int a3)
 {
@@ -19,7 +32,7 @@ void _sysbitInit(int *a0, int a1, int a2, int a3)
     a0[8] = a2;
     a0[9] = a2 + a3;
     a0[0xA] = a3;
-    _sysbitFlush(a0, 0);
+    _sysbitFlush((SysBit *)a0, 0);
 }
 
 int _sysbitNext(void *a0, int a1)
@@ -27,19 +40,31 @@ int _sysbitNext(void *a0, int a1)
     return *(unsigned long long *)a0 >> (64 - a1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sce/libmpeg/bit", _sysbitFlush);
+void _sysbitFlush(SysBit *bs, int n)
+{
+    bs->buf <<= n;
+    bs->cnt -= n;
+    while (bs->cnt < 57) {
+        bs->buf |= (long long)*bs->p++ << (56 - bs->cnt);
+        if (bs->p >= bs->end) {
+            bs->p = bs->wrap;
+        }
+        bs->cnt += 8;
+    }
+    bs->pos += n;
+}
 
 int _sysbitGet(int *self, int a1)
 {
     int ret = _sysbitNext(self, a1);
-    _sysbitFlush(self, a1);
+    _sysbitFlush((SysBit *)self, a1);
     return ret;
 }
 
 int _sysbitMarker(int *self)
 {
     int ret = _sysbitNext(self, 1);
-    _sysbitFlush(self, 1);
+    _sysbitFlush((SysBit *)self, 1);
     return ret;
 }
 
@@ -55,7 +80,7 @@ void _sysbitJump(int *a0, int a1)
     if ((unsigned int)v >= (unsigned int)a0[9]) {
         a0[3] = v - a0[10];
     }
-    _sysbitFlush(a0, 0);
+    _sysbitFlush((SysBit *)a0, 0);
 }
 
 int _sysbitPtr(int *a0, int a1)
