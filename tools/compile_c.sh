@@ -59,12 +59,19 @@ EE_AS_SDK="${ROOT}/tools/cc/ee-gcc2.96/bin/as"
 # in .rodata rather than .sdata), and the whole tree is byte-identical with
 # every sce/ member at -G 0 (measured 2026-09-16). A library's own build
 # setting is a fact of that archive, not a per-function lever.
-# The same split decides -fno-builtin. MAIN.MAP's LOAD list shows the game
-# linked against Sony's prebuilt archives (libc.a, libm.a, libgcc.a and the
-# /usr/local/sce/ee/lib archives), never compiling them: the archives carry
-# newlib's own build flag, which keeps libm calling fabsf where a builtin
-# would inline it, while the game compiled plain, which is what expands the
-# aligned six-byte memcpy in layout_action (measured 2026-09-18).
+# -fno-builtin follows the install, as the assembler does. MAIN.MAP's LOAD
+# list shows the game linked against prebuilt archives, never compiling them.
+# The compiler-install libc.a, libm.a and libgcc.a carry newlib's own build
+# flag: it keeps libm calling fabsf where a builtin would inline it, and six
+# libm members (ef_asin, ef_atan2, ef_rem_pio2, sf_atan, wf_acos, wf_asin)
+# change with builtins live. The SDK-install archives (/usr/local/sce/ee/lib)
+# were built with builtins live: libpad's scePadStateIntToStr and
+# scePadReqIntToStr copy "" with the lbu/sb pair that is gcc's inline
+# strcpy of a constant string, which no -fno-builtin spelling emits (a
+# constant-string read folds to a zero store), and every other SDK member
+# (72 .c files, measured 2026-09-30 with objdump -dr) is byte-identical
+# either way. The game compiled plain, which is what expands the aligned
+# six-byte memcpy in layout_action (measured 2026-09-18).
 # The same split decides -g (user ruling 2026-09-27, docs/NOTES.md "-g for the
 # game"): the studio compiled the game with line information and Sony's
 # archives were built without it. Measured: Info-ZIP's plain huft_build text,
@@ -88,7 +95,9 @@ EE_AS_SDK="${ROOT}/tools/cc/ee-gcc2.96/bin/as"
 # static that a redundant later extern declaration turned from .bss into
 # .data, and that declaration is gone).
 case "${1:-}" in
-    sce/*|*/sce/*) GNUM=0; BUILTIN="-fno-builtin"; DBG=""; COMMON="" ;;
+    sce/libc/*|*/sce/libc/*|sce/libm/*|*/sce/libm/*|sce/libgcc/*|*/sce/libgcc/*)
+        GNUM=0; BUILTIN="-fno-builtin"; DBG=""; COMMON="" ;;   # compiler-install archives
+    sce/*|*/sce/*) GNUM=0; BUILTIN=""; DBG=""; COMMON="" ;;    # SDK-install archives
     *) GNUM=8; BUILTIN=""; DBG="-g"; COMMON="-fno-common" ;;
 esac
 # The SDK's and newlib's own public headers, reconstructed under sce/<archive>/

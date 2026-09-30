@@ -442,8 +442,7 @@ segments:
       - [0x172338, c, sce/libipu/libipu]  # 3 funcs, vendor libipu.a member libipu.o (spans 0xE8, 0x150, 0x68 tile the retail run)
       - [0x1725D8, c, sce/libipu/ipuinit]  # 2 funcs, vendor libipu.a member ipuinit.o (0x2A0 exactly); holds its own static setD4_CHCR
       - [0x172878, c, sce/libscf/libscf]  # 21 funcs, attribution INFERRED (public SDK libscf: the sceScf family plus the ROM-name and BCD date helpers they use); no disc map names an archive, MAIN.MAP is an older link whose .text ends before them
-      - [0x173228, c, sce/libsndn2/sg]  # 44 funcs, attribution INFERRED (libsndn2.a: sound.o calls every _Sg function, _SgSndn2Remote names the library, retail links the block directly before sound.o); member name unknown, no disc map names it
-      - [0x176AD0, c, sce/libsndn2/sound]  # 61 funcs, vendor libsndn2.a whole run (61/61 MAIN.MAP)
+      - [0x173228, c, sce/libsndn2/sound]  # 105 funcs, vendor libsndn2.a(sound.o): the 44 _Sg functions no map names, then the 61 Sg entry points MAIN.MAP lists (the member's .text 0x56AC, .rodata, .data and .bss are both runs', see the file header)
       - [0x1788D8, c, sce/libm/math/sf_sin]  # 1 funcs, vendor libm.a member sf_sin.o (1/1 MAIN.MAP)
       - [0x1789C8, c, sce/libm/math/wf_acos]  # 1 funcs, vendor libm.a member wf_acos.o (1/1 MAIN.MAP)
       - [0x178AC8, c, sce/libm/math/wf_asin]  # 1 funcs, vendor libm.a member wf_asin.o (1/1 MAIN.MAP)
@@ -708,7 +707,7 @@ segments:
       - [0x44A508, .data, sce/libkernl/sifcmd]  # sifcmd.o's .data (= MAIN.MAP 0x4): the init flag, VMA 0x54A508..0x54A50C
       - [0x44A540, .data, sce/libcdvd/cdvd000]  # the member's whole .data (= MAIN.MAP cdvd000.o .data 0x1A70, chain 3 pass 109): the 15 MAIN.MAP-named globals (SCE_CD_debug, the semaphore ids, the callback words, the 64-aligned RPC buffers, the client records) and the role-named statics (build stamp "PsIIlibcdvd 2240", keep_cmd words, bind words at -1, init count), VMA 0x54A540..0x54BFB0; cdvd047's carve follows directly
       - [0x44BFB0, .data, sce/libcdvd/cdvd047]  # the member's .data (chain 1 pass 107): the stream-started flag as a static int, VMA 0x54BFB0, 4 B
-      - [0x44BFB4, data, cod/44BFB4]     # data blob resume
+      - [0x44BFB8, .data, sce/libpad/libpad]  # the member's whole .data (= MAIN.MAP libpad.o .data 0x44): the build stamp "PsIIlibpad  2200", the init and diagnostic flags and the state and request name tables as statics, VMA 0x54BFB8..0x54BFFC, the 4 B either side being the 8-aligned section's link fill
       - [0x44C000, .data, sce/libmc/libmc]  # the member's .data (chain 1 pass 110, MAIN.MAP names nothing): sceMcVersion, mcFunc and mcSema as statics, VMA 0x54C000..0x54C018, 24 B
       - [0x44C018, .data, sce/libmpeg/pack]  # the member's whole .data (= MAIN.MAP pack.o .data 0xB0): the ten PSS stream descriptors and _PES_packet's header-flag bit counts as statics, VMA 0x54C018..0x54C0C8
       - [0x44C0C8, .data, sce/libmpeg/mpeg]  # the member's whole .data (= MAIN.MAP mpeg.o .data 0x10): the build stamp "PsIIlibmpeg 2200" as a static, VMA 0x54C0C8..0x54C0D8
@@ -718,7 +717,7 @@ segments:
       - [0x44CAB8, .data, sce/libmpeg/csc]  # the member's whole .data (= MAIN.MAP csc.o .data 0x18): the conversion's error flag, then _cscDma (global, map line 6248) on its 8-aligned start, VMA 0x54CAB8..0x54CAD0
       - [0x44CAD0, .data, sce/libipu/ipuinit]  # the member's .data (data pass 3): the version stamp and the quantiser and colour tables, VMA 0x54CAD0..0x54CB50, 128 B
       - [0x44CB50, .data, sce/libscf/libscf]  # the member's whole .data as three named statics in VMA order (chain 1 pass 106): the build stamp "PsIIlibscf  2200" (16 B), the T10K OSD config shadow (timezone 540, 8 B) and the 16-byte rom0:ROMVER cache with its explicit zero initialiser (ee-gcc keeps it in .data), VMA 0x54CB50..0x54CB78, 40 B
-      - [0x44CB78, .data, sce/libsndn2/sg]  # sound.o's .data (= MAIN.MAP 0x40): the pan table sg.c's voice code reads, as a static, VMA 0x54CB78..0x54CBB8
+      - [0x44CB78, .data, sce/libsndn2/sound]  # sound.o's .data (= MAIN.MAP 0x40): the pan table sg.c's voice code reads, as a static, VMA 0x54CB78..0x54CBB8
       - [0x44CBB8, .data, sce/libgcc/__main]  # the member's .data (= MAIN.MAP __main.o .data 0x4): __do_global_dtors' static cursor p, libgcc2.c's __DTOR_LIST__ + 1, VMA 0x54CBB8..0x54CBBC
       - [0x44CBC0, .data, sce/libc/reent/impure]  # the member's whole .data (= MAIN.MAP impure.o .data 0x2F0): newlib's static impure_data (the _REENT_INIT record, 0x2EC) then _impure_ptr (global, map line 6254), VMA 0x54CBC0..0x54CEB0
       - [0x44CEB0, .data, sce/libc/locale/locale]  # syms: __mb_cur_max  the member's whole .data (= MAIN.MAP locale.o .data 0x18): newlib's __mb_cur_max (global, map line 6256) and _setlocale_r's two static "C" buffers, VMA 0x54CEB0..0x54CEC8
@@ -955,7 +954,7 @@ segments:
       - [0x5369B8, .rodata, sce/libcdvd/cdvd006]  # the member's one string "cdread end\n" as a literal (chain 3 pass 109), anonymous, VMA 0x6369B8..0x6369C4, 12 B, 4 B of fill before libcdvd_267388's strings
       - [0x5369C8, .rodata, sce/libcdvd/libcdvd_267388]  # the member's three strings as literals (chain 1 pass 107), anonymous, VMA 0x6369C8..0x636A13, 75 B, padded to cdvd047's strings at 0x636A18
       - [0x536A18, .rodata, sce/libcdvd/cdvd047]  # the member's whole .rodata (= MAIN.MAP cdvd047.o .rodata 0x11C): its nine strings as literals (chain 1 pass 107), anonymous, VMA 0x636A18..0x636B34, 284 B
-      - [0x536B34, rodata, cod/536B34]  # .rodata blob resume (libpad.o's strings begin at 0x636B38)
+      - [0x536B38, .rodata, sce/libpad/libpad]  # the member's whole .rodata (= MAIN.MAP libpad.o .rodata 0x151): its diagnostic strings and the name tables' strings as literals at their uses, the compiled-out "tPadDma Structure Invalid" print included, VMA 0x636B38..0x636C89
       - [0x536C90, .rodata, sce/libmc/libmc]  # the member's whole .rodata (= MAIN.MAP libmc.o .rodata 0x65, chain 1 pass 109): its three printf strings as anonymous literals, VMA 0x636C90..0x636CF5
       - [0x536CF8, .rodata, sce/libmpeg/pack]  # the member's whole .rodata (= MAIN.MAP pack.o .rodata 0x2E): _PES_packet's one error string as a literal, VMA 0x636CF8..0x636D26, then 10 B of fill to mpeg.o's run
       - [0x536D30, .rodata, sce/libmpeg/mpeg]  # the member's whole .rodata (= MAIN.MAP mpeg.o .rodata 0xA4): its three error strings as literals, then _getpic's jump table (5 words at 0x636DC0; cases 3 and 4 share), VMA 0x636D30..0x636DD4, then 4 B of fill to init.o
@@ -963,8 +962,8 @@ segments:
       - [0x536F20, .rodata, sce/libmpeg/mpc]  # the member's whole .rodata (= MAIN.MAP mpc.o .rodata 0x291): its eighteen strings as literals in first-use order, VMA 0x636F20..0x6371B1
       - [0x5371B8, .rodata, sce/libmpeg/csc]  # the member's whole .rodata (= MAIN.MAP csc.o .rodata 0x13): the CSC handler's error string as a literal, VMA 0x6371B8..0x6371CB
       - [0x5371D0, .rodata, sce/libscf/libscf]  # the member's whole .rodata run (0xF6 B + 2 B link pad): its twelve string literals in order of first use (rom0:ROMVER, the two ROM errors, the four OSD printf formats, libscf.c from __FILE__, the assert texts) with the month table between the assert groups because adddate precedes AdjustTime, VMA 0x6371D0..0x6372C8; libscf builds at -G 0 so its 7-byte string stays out of .sdata
-      - [0x5372D0, .rodata, sce/libsndn2/sg]  # _SgCalledTickProc's controller jump table jtbl_006372D0 (99 words, section .rodata.0x006372D0, selector head[4][1] - 1 under 0x63), VMA 0x6372D0..0x63745C
-      - [0x537460, .rodata, sce/libsndn2/sg]  # _SgContParam's jump table jtbl_00637460 (20 words, section .rodata.0x00637460), VMA 0x637460..0x6374B0, abutting wf_acos; _SgCalledTickProc's table carved at 0x5372D0
+      - [0x5372D0, .rodata, sce/libsndn2/sound]  # _SgCalledTickProc's controller jump table jtbl_006372D0 (99 words, section .rodata.0x006372D0, selector head[4][1] - 1 under 0x63), VMA 0x6372D0..0x63745C
+      - [0x537460, .rodata, sce/libsndn2/sound]  # _SgContParam's jump table jtbl_00637460 (20 words, section .rodata.0x00637460), VMA 0x637460..0x6374B0, abutting wf_acos; _SgCalledTickProc's table carved at 0x5372D0
       - [0x5374B0, .rodata, sce/libm/math/wf_acos]  # the wrapper's own name string "acosf" (8 B with pad), VMA 0x6374B0..0x6374B8; the four libm wrappers' strings sit in object order acos, asin, atan2, fmod
       - [0x5374B8, .rodata, sce/libm/math/wf_asin]  # "asinf" (8 B), VMA 0x6374B8..0x6374C0
       - [0x5374C0, .rodata, sce/libm/math/wf_atan2]  # "atan2f" (8 B), VMA 0x6374C0..0x6374C8
@@ -1446,11 +1445,11 @@ segments:
       - { type: .bss, vram: 0x0072EC80, name: sce/libkernl/sifcmd }  # sifcmd.o's .bss (= MAIN.MAP 0x280): the send/ack buffers, init packet, DMAC handler id, command data record, system handler table and software registers as statics, VMA 0x72EC80..0x72EF00
       - { type: .bss, vram: 0x0072EF00, name: sce/libcdvd/cdvd000 }  # the member's whole .bss (= MAIN.MAP cdvd000.o .bss 0x2D4, chain 3 pass 109): 16 role-named statics in address order (callback and power-off state, thread records, the search request and reply buffers, the client records), VMA 0x72EF00..0x72F1D4
       - { type: .bss, vram: 0x0072F1D8, name: sce/libcdvd/cdvd047 }  # the member's .bss (chain 1 pass 107): the stream read mode record as a static, VMA 0x72F1D8, 4 B
-      - { type: bss, vram: 0x0072F1DC, name: cod/0072F1DC }  # .bss blob resume
+      - { type: .bss, vram: 0x0072F200, name: sce/libpad/libpad }  # the member's whole .bss (= MAIN.MAP libpad.o .bss 0x3C0): the two RPC clients, the slot records, the 64-aligned command buffers and RPC buffer as statics, VMA 0x72F200..0x72F5C0
       - { type: .bss, vram: 0x0072F5C0, name: sce/libmc/libmc }  # the member's whole .bss (chain 1 pass 110, 0x1600 B): ten role-named statics in ROM order, VMA 0x72F5C0..0x730BC0
       - { type: .bss, vram: 0x00730BC0, name: sce/libmpeg/init }  # the member's whole .bss (= MAIN.MAP init.o .bss 0xA10): the scratchpad tag buffer _sprtag points at (0x200) and _sendDataToIPU's DMA tag chain (0x810), VMA 0x730BC0..0x7315D0
       - { type: .bss, vram: 0x007315D0, name: sce/libmpeg/csc }  # the member's whole .bss (= MAIN.MAP csc.o .bss 0x18): the conversion's and the reference-image store's six counters, VMA 0x7315D0..0x7315E8
-      - { type: bss, vram: 0x007315E8, name: cod/007315E8 }  # .bss blob resume: fill to sound.o's 64-aligned .bss
+      - { type: .bss, vram: 0x00731600, name: sce/libsndn2/sound }  # the member's whole .bss (= MAIN.MAP sound.o .bss 0x4B68): the vab, slot, sequence and common contexts, the 64-aligned packet pages, the IOP to EE mailbox and its pointer, the 64-aligned SE volumes, the head block and the RPC client as statics, VMA 0x731600..0x736168, after 24 B of link fill
       - { type: .bss, vram: 0x00736168, name: sce/libgcc/__main }  # the member's whole .bss (= MAIN.MAP __main.o .bss 0x4): __main's `initialized` flag, libgcc2.c's own static, VMA 0x736168..0x73616C
       - { type: .bss, vram: 0x00736170, name: sce/libgcc/dp-bit }  # the member's whole .bss (= MAIN.MAP dp-bit.o .bss 0x18): nan()'s `thenan`, fp-bit.c's own static, VMA 0x736170..0x736188
       - { type: .bss, vram: 0x00736188, name: sce/libgcc/fp-bit }  # the member's whole .bss (= MAIN.MAP fp-bit.o .bss 0x10): nan()'s `thenan`, fp-bit.c's own static, VMA 0x736188..0x736198

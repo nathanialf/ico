@@ -518,9 +518,6 @@ sce/libcdvd/cdvd015.c
 sce/libcdvd/libcdvd_267388.c
 sce/libcdvd/cdvd047.c
 sce/libpad/libpad.c
-blob:cod/0072F1DC.bss
-blob:cod/536B34.rodata
-blob:cod/44BFB4.data
 sce/libmc/libmc.c
 sce/libmpeg/pack.c
 blob:cod/536CF8.rodata
@@ -536,9 +533,8 @@ blob:cod/44C018.data
 sce/libipu/ipuinit.c
 blob:cod/536DD4.rodata
 sce/libscf/libscf.c
-sce/libsndn2/sg.c rodata=.rodata,.rodata.0x006372D0,.rodata.[A-Za-z_]*
-part:sce/libsndn2/sg.c rodata=.rodata.0x00637460
-sce/libsndn2/sound.c
+sce/libsndn2/sound.c rodata=.rodata,.rodata.0x006372D0,.rodata.[A-Za-z_]*
+part:sce/libsndn2/sound.c rodata=.rodata.0x00637460
 sce/libm/math/sf_sin.c
 sce/libm/math/wf_acos.c
 sce/libm/math/wf_asin.c
@@ -563,7 +559,6 @@ sce/libm/math/sf_floor.c
 sce/libm/math/sf_isnan.c
 sce/libm/common/sf_scalbn.c
 sce/libm/common/sf_copysign.c
-blob:cod/007315E8.bss
 sce/libgcc/__main.c
 sce/libgcc/_ctors.c
 sce/libgcc/_divdi3.c
