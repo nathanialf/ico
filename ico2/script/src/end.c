@@ -18,6 +18,7 @@
 #include "e3.h"
 #include "typedef.h"
 #include "layout_action.h"
+#include "GsBase.h"
 
 /* kept local: this TU's bytes only come out with its own view of PObjGObj, so it
    keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
@@ -949,7 +950,6 @@ extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
    this TU's own terse snake_case house style (its MAIN.MAP globals are
    ed1..ed6, sea, happy_end) for the ending demo it belongs to. */
 
-extern int fbKeep;
 extern int D_0063BE34;
 
 void actEndDemo14(volatile int a0)

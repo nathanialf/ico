@@ -9,6 +9,7 @@
 #include "sugiCommon.h"
 #include <stdio.h>
 #include <string.h>
+#include "GsBase.h"
 
 typedef struct {
     char _0[0x10];
@@ -465,8 +466,6 @@ inline void ResetCollisionPC(void)
 }
 
 extern int game_pause;
-extern int ScreenWidth;
-extern int ScreenHeight;
 
 void DispCollisionPC(void)
 {

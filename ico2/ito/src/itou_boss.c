@@ -304,10 +304,7 @@ void bossCtrlBeforeFunc(char *self)
 extern unsigned char D_006E9A30[];
 extern int stage_no;
 
-/* INTERIM: the January listing inlines InqCapsuleGhostBossStage into
-   BossEnemyFunc, but this TU's own out-of-line copy has to stay at its ROM
-   slot, so the caller uses this stand-in until the tail is all C. */
-static inline int InqCapsuleGhostBossStage_stand_in(void)
+inline int InqCapsuleGhostBossStage(void)
 {
     int r = 0;
     if (stage_no == 0x56 || stage_no == 3 || stage_no == 0x2E)
@@ -317,7 +314,7 @@ static inline int InqCapsuleGhostBossStage_stand_in(void)
 
 void BossEnemyFunc(void *self)
 {
-    if (*(signed char *)D_006E9A30 != 0 && InqCapsuleGhostBossStage_stand_in() != 0) {
+    if (*(signed char *)D_006E9A30 != 0 && InqCapsuleGhostBossStage() != 0) {
         _ACTSetEnemyDisappearSpeed(self, 6.0f);
 
         switch (*(int *)(*(char **)((char *)self + 0x15C) + 0x4A0)) {
@@ -343,7 +340,6 @@ void BossEnemyFunc(void *self)
 extern volatile int D_006EA780[];
 extern int D_0028F8F0[];
 extern int D_0028F4C0[];
-extern char D_00556840[];
 extern char *D_00639EA4;
 
 /* The TU's .sbss (VMA 0x63C2EC, 8 B, MAIN.MAP itou_boss.o .sbss 0x8): the
@@ -435,7 +431,7 @@ static void gene_enemy(volatile int a0)
                 c = isysGObjSearchFromObjKindID_next(c);
             }
             if ((debug_font_flag & 1) != 0) {
-                debug_Printf(10, 90, 0xFFFFFFFF, D_00556840, alive, total);
+                debug_Printf(10, 90, 0xFFFFFFFF, "enemy %d/%d\n", alive, total);
             }
             num = 0;
             freen = 0;
@@ -531,50 +527,6 @@ void BossCtrlGeo(void *self)
         scpSleepEnemyAll();
 }
 
-void itou_boss_gflag_init(void)
-{
-    memset(D_006E9A30, 0, 0xD50);
-}
-
-extern char D_00556880[];
-
-void BossCtrlDL(void)
-{
-    signed char *base;
-    signed char *e;
-    unsigned int k;
-    int n;
-
-    n = 0;
-    base = D_006E9A40;
-    for (k = 0; k < 53; k++) {
-        e = base + k * 0x40;
-        if (e[4] >= 2) {
-            if (stage_DispBgAnimation(e) != 0) {
-                pbga_start(e, 0x229);
-                _CopyVector(*(char **)e + 0x20, e + 0x20);
-                CopyQuaternion(*(char **)e + 0x30, e + 0x10);
-            }
-        }
-        if (e[4] != 0) {
-            n++;
-        }
-    }
-    if ((debug_font_flag & 1) != 0) {
-        debug_Printf(10, 60, 0xFFFFFFFF, D_00556880, n, 53);
-    }
-}
-
-int InqCapsuleGhostBossStage(void)
-{
-    int r = 0;
-    if (stage_no == 0x56 || stage_no == 3 || stage_no == 0x2E)
-        r = 1;
-    return r;
-}
-
-extern char D_00556850[];
-
 /* listing lines 327-333: the boss controller's actor start */
 static inline void bossCtrlInit(void *a0)
 {
@@ -583,7 +535,7 @@ static inline void bossCtrlInit(void *a0)
     geneReleasing = 0;
 }
 
-void actBossCtrlStart(void *a0)
+inline void actBossCtrlStart(void *a0)
 {
     int no;
     char *o;
@@ -598,24 +550,17 @@ void actBossCtrlStart(void *a0)
         no++;
         o = (char *)isysGObjSearchFromObjKindID_next(o);
     }
-    debug_StdPrintfDummy(D_00556850, no);
+    debug_StdPrintfDummy("n generator %d\n", no);
     for (i = 0; i < no; i++) {
         actCreateSubThread(gene_enemy, 21);
     }
 }
 
-/* the TU's five strings stay in the rodata blob after the two tables (VMA
-   0x556840..0x55688E): their ROM order is the January listing's parse order
-   (gene_enemy, actBossCtrlStart, InitBossCtrlGeo twice, BossCtrlDL) while
-   this file keeps the retail text order, BossCtrlDL ahead of
-   actBossCtrlStart, and a literal is emitted when its function is parsed */
-extern char D_00556860[];
-extern char D_00556870[];
 extern void *D_0063A438;
 /* kept local: this TU's uses of ico_m33_to_quat do not fit the prototype in itou_sub.h */
 extern void ico_m33_to_quat(void *a0, void *a1);
 
-int InitBossCtrlGeo(void *a0)
+inline int InitBossCtrlGeo(void *a0)
 {
     int ret;
     unsigned int k;
@@ -626,10 +571,10 @@ int InitBossCtrlGeo(void *a0)
     char *q;
     char *r;
 
-    ret = iosMallocDebug(D_0063A438, 0, D_00556860, 350);
+    ret = iosMallocDebug(D_0063A438, 0, __FILE__, 350);
     actInitialize(a0);
     actInitialize_ext_charcter(a0);
-    debug_StdPrintfDummy(D_00556870, 53);
+    debug_StdPrintfDummy("N_CAPSULE %d\n", 53);
 
     base = D_006E9A40;
     m = (char *)base + 0x20;
@@ -654,12 +599,44 @@ int InitBossCtrlGeo(void *a0)
     return ret;
 }
 
-void CapsuleGhostBossStart(void)
+void itou_boss_gflag_init(void)
+{
+    memset(D_006E9A30, 0, 0xD50);
+}
+
+void BossCtrlDL(void)
+{
+    signed char *base;
+    signed char *e;
+    unsigned int k;
+    int n;
+
+    n = 0;
+    base = D_006E9A40;
+    for (k = 0; k < 53; k++) {
+        e = base + k * 0x40;
+        if (e[4] >= 2) {
+            if (stage_DispBgAnimation(e) != 0) {
+                pbga_start(e, 0x229);
+                _CopyVector(*(char **)e + 0x20, e + 0x20);
+                CopyQuaternion(*(char **)e + 0x30, e + 0x10);
+            }
+        }
+        if (e[4] != 0) {
+            n++;
+        }
+    }
+    if ((debug_font_flag & 1) != 0) {
+        debug_Printf(10, 60, 0xFFFFFFFF, "capsule %d/%d", n, 53);
+    }
+}
+
+inline void CapsuleGhostBossStart(void)
 {
     D_006E9A30[0] = 1;
 }
 
-int InqCapsuleGhostBossEnd(void)
+inline int InqCapsuleGhostBossEnd(void)
 {
     int no = 0;
     unsigned int cnt = 0;
@@ -688,7 +665,7 @@ int InqCapsuleGhostBossEnd(void)
 /* kept local: this TU's uses of GetParticleEffectData do not fit the prototype in particleEffect.h */
 extern char *GetParticleEffectData(void);
 
-void gene_eff_end_func(void)
+inline void gene_eff_end_func(void)
 {
     **(int **)(GetParticleEffectData() + 0x70) = 1;
 }

@@ -63,7 +63,6 @@ extern void *test_CURRENTORIENT(void *a0);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 void _GetCorrectOrientOfChain(float *out, char *gobj, float *dir);
-extern float D_0063ABC0[];
 
 /* INTERIM (same shape as GetChainDirCorrectVal below): the listing inlines
  * InitPendulum's lines 517-538 into StartPendulum, so InitPendulum is a public
@@ -101,7 +100,7 @@ float *pos;
     float d[4];
     char *cw = (char *)GOBJ_SUB(gobj)->f_830;
     int best = -1;
-    float min = D_0063ABC0[0];
+    float min = 3.40282347e+38f; /* FLT_MAX, a constant-pool word */
     int i;
 
     sceVu0SubVector(d, pos, *(void **)(cw + 0xD0));
@@ -685,7 +684,6 @@ static ChainRecord chainRecordDefault = {
     1,
     0};
 
-extern char D_0063ABC8[];
 extern void *D_0063A438;
 extern void *D_0063A44C;
 
@@ -743,7 +741,7 @@ char *InitChainGeo(char *gobj, ChainGeoReq *req)
         /* "the chain is too short (set it with the Y-scale of the placement table)" */
         debug_StdPrintfDummy("鎖の長さが短かすぎます(配置表のY-scaleで指定します)");
         debug_assert(__FILE__, 1178);
-        __assert(__FILE__, 1178, D_0063ABC8);
+        __assert(__FILE__, 1178, "0");
     }
 
     cw = (char *)iosMallocDebug((void *)D_0063A438, (n << 5) + 0xE0, __FILE__, 1181);
@@ -929,7 +927,6 @@ void chain_set_charachara(char *gobj, float amp)
 
 /* kept local: this TU's uses of iosOmSendMail do not fit the prototype in obj_manager.h */
 extern int iosOmSendMail(void *to, int msg, void *from);
-extern char D_0063ABD0[];
 
 /* The enemy parameter table, one 404-byte row per motion id; ChainGeo reads
  * only the flag word at 0x18C.  Same record enemy_act.c reads as EnemyParaRow. */
@@ -1082,7 +1079,7 @@ void ChainGeo(char *gobj)
     }
 
     if (debug_font_flag & 1) {
-        debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, D_0063ABD0, mode);
+        debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, "%d\n", mode);
     }
     /* the plumb index is read as the record's member: ROM loads it ahead of
      * the counter store, which alias.c allows only for a struct member
@@ -1305,15 +1302,13 @@ void GetPositionOnTheChain(float *out, char *gobj, float *pos)
     }
 }
 
-extern float D_0063ABD4[];
-
 void PlumbPointUpdateChain(char *gobj, float *pos)
 {
     float d[4];
     char *cw = (char *)GOBJ_SUB(gobj)->f_830;
     char *owner;
     int best = -1;
-    float min = D_0063ABD4[0];
+    float min = 3.40282347e+38f; /* FLT_MAX, a constant-pool word */
     int i;
 
     owner = *(char **)(cw + 0x64);
@@ -1864,13 +1859,11 @@ void chain_sub_pendulum(char *base, int n, void *a2)
     } while (i <= n);
 }
 
-extern float D_0063ABD8[];
-
 int GetChainNearestNodePosition(float *out, char *gobj, float *p)
 {
     char *cw = (char *)GOBJ_SUB(gobj)->f_830;
 
-    float best = D_0063ABD8[0];
+    float best = 3.40282347e+38f; /* FLT_MAX, a constant-pool word */
     int ret = 0;
     int i;
 

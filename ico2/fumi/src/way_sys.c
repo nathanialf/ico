@@ -577,7 +577,9 @@ extern void ez_circle(void *pos, void *base, unsigned int col, float r);
 extern void DrawGObjWallCollision(void *gobj, int col);
 extern char *waypoint_bidirectional_list(char *wp, int dir);
 extern float fzMagnitudefv(void *v);
-extern void *D_0063A9A0;
+
+/* the object whose wall collision GetWay_next draws, for debugging */
+static void *wayDebugWallGObj = 0; /* derived name */
 
 int GetWay_next(WVTObj *w, float *pos)
 {
@@ -595,8 +597,8 @@ int GetWay_next(WVTObj *w, float *pos)
     }
     ez_circle(w->w2C + 0x10, pos, 0x80800000, 30.0f);
 
-    if (D_0063A9A0 != 0) {
-        DrawGObjWallCollision(D_0063A9A0, 0x800000);
+    if (wayDebugWallGObj != 0) {
+        DrawGObjWallCollision(wayDebugWallGObj, 0x800000);
     }
 
     if (w->w20 != 0) {
@@ -731,6 +733,23 @@ int GetWay_next(WVTObj *w, float *pos)
     }
 
     w->w20 = waypoint_bidirectional_list(cur, w->w34);
+    /* RECONSTRUCTION: seven short strings of the ROM's small-data pool,
+       "reset\n", "hit\n", "free\n", "fail\n", "ev:%f\n", "dst %p\n" and
+       "->%p\n", follow this TU's wall-debug pointer with no word of the ROM
+       referencing them, and the listing has no code on rows 1082-1117 between
+       this assignment and the "bilist" print: prints the build compiled out.
+       What the bytes pin: the strings and their order.  What they cannot pin:
+       the statements' text, their condition and their arguments; the if (0)
+       form is the one this file's other compiled-out prints use. */
+    if (0) {
+        debug_StdPrintfDummy("reset\n");
+        debug_StdPrintfDummy("hit\n");
+        debug_StdPrintfDummy("free\n");
+        debug_StdPrintfDummy("fail\n");
+        debug_StdPrintfDummy("ev:%f\n", lim);
+        debug_StdPrintfDummy("dst %p\n", w->w20);
+        debug_StdPrintfDummy("->%p\n", cur);
+    }
     debug_StdPrintfDummy("bilist:%p\n", w->w20);
     w->w2C = w->w20;
     return (int)w->w2C;

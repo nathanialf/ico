@@ -2,6 +2,7 @@
 #include "DisplayFont.h"
 #include "debug.h"
 #include <string.h>
+#include "GsBase.h"
 
 unsigned int D_004EE5F0[64] = {
     0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
@@ -14,7 +15,6 @@ unsigned int D_004EE5F0[64] = {
     0x0E050E05, 0x0E060D06, 0x0E050D06, 0x11020E04, 0x0E040F04, 0x0C060E05, 0x0D070B08, 0x10020F05,
 };
 
-extern int ScreenWidth;
 extern int D_0063BD00;
 extern int D_0063BD04;
 extern int D_0063BD08;
@@ -105,7 +105,6 @@ typedef struct {
     unsigned char f[4];
 } SprCol;
 
-extern int ScreenHeight;
 extern char D_0063BD18[];
 extern int tex_GetTextureNo(void *name);
 extern int tex_TransTexture(int no, int pri);

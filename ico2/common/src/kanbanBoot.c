@@ -4,6 +4,7 @@
 #include "kanbanBoot.h"
 #include <libscf.h>
 #include "kanban.h"
+#include "GsBase.h"
 
 extern int D_0028F4EC[];
 
@@ -80,7 +81,6 @@ extern KanbanStageRec IosMcProductFile[];
 extern int D_00534010[];
 extern int D_0028F4C0[];
 extern int D_0028F4D8[];
-extern int fbKeep;
 
 /* .sbss, owned by kanbanBoot.o and reached only from this file (MAIN.MAP names
    no symbol in the run), in the ROM's run order. */

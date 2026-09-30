@@ -12,7 +12,12 @@
 #ifndef BRAIN_H
 #define BRAIN_H
 
-void OverrideBrainStatusByGObj(int *b, void *gobj, float f8, float f10, float fC);
+#include "typedef.h"
+
+/* the girl's brain record (MAIN.MAP global) */
+extern Brain brainGirl;
+
+void OverrideBrainStatusByGObj(Brain *b, void *gobj, float f8, float f10, float fC);
 void brainAddLevelGirl(float lv);
 int brainCheckView(int *a0, int *a1);
 void brainClsTargetLevel();

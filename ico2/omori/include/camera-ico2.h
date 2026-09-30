@@ -12,6 +12,9 @@
 #ifndef CAMERA_ICO2_H
 #define CAMERA_ICO2_H
 
+/* MAIN.MAP global */
+extern int current_group;
+
 void AddPluralCameraSet(int id, char *name);
 void CameraMove(int group, float *pos, float *out, float *ofsA, float *ofsB);
 void CameraSetCameraSet(int id);

@@ -9,8 +9,9 @@
 #include <string.h>
 #include "typedef.h"
 
-extern int eBrainBoyChaseCount;
-extern int eBrainGirlChaseCount;
+int eBrainBoyChaseCount;
+
+int eBrainGirlChaseCount;
 
 /* .sbss and .bss, owned by ebrain.o and reached only from this file (MAIN.MAP
    names no symbol in either run), each in the ROM's run order: how many

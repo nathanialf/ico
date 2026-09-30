@@ -12,6 +12,7 @@
 #include "tableSin.h"
 #include <stdio.h>
 #include <string.h>
+#include "GsBase.h"
 
 /* .data, carved VMA 0x4EE5B0..0x4EE5F0, bytes verified against
    baserom/pal/baseelf.rom.  D_004EE5B0 is the 0x30-byte default record
@@ -1180,7 +1181,6 @@ static int bgaRot[4];
 
 static BgaLight bgaDummyLight;
 
-extern int ScreenWidth;
 extern int D_0063BCC0;
 
 /* RECONSTRUCTION: a word read either as an int or as a float, the form this
@@ -1462,8 +1462,6 @@ extern void _PopCurrentMatrix(void);
 extern void _CopyMatrix(void *dst, void *src);
 extern float _GetLength(void *a, void *b);
 extern int D_0063BCC4;
-extern int ScreenHeight;
-extern int currentScreenWidth;
 extern char D_0063BCF8[];
 extern char D_00621708[];
 extern char D_00621720[];
@@ -1930,7 +1928,6 @@ void bga_CalcAnimation(char *p, int a1, int a2)
 }
 
 extern int D_0063BCC0;
-extern int currentScreenWidth;
 /* kept local: this TU's uses of the matrix and vector entry points do not fit
    the prototypes in Matrix.h (the interpolator takes its weight as a float,
    the length returns one and both take two vectors). */

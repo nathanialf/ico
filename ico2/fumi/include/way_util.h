@@ -12,6 +12,9 @@
 #ifndef WAY_UTIL_H
 #define WAY_UTIL_H
 
+/* MAIN.MAP global */
+extern int load_save_flag;
+
 void ez_circle(void);
 char *nearest_waypoint_by_lineseg(void *arg0);
 int set_bridge(int gid);

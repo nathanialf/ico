@@ -5,12 +5,11 @@
 #include "matrixDrive.h"
 
 extern void sceVu0InterVector(float *dst, float *a, float *b, float t);
-extern char D_0063AC10[];
 
 void _InterGV(float *dst, float *a, float *b, float ta, float tb)
 {
     if (dst == 0 || a == 0 || b == 0) {
-        debug_StdPrintfDummy(D_0063AC10);
+        debug_StdPrintfDummy("error!");
     }
     sceVu0InterVector(dst, a, b, tb / (ta + tb));
 }
@@ -239,13 +238,11 @@ inline void SwapGV(float *a, float *b)
     b[2] = tmp[2];
 }
 
-extern unsigned int D_0063AC18[];
-
 inline float GetCorrectDistance(int a0, float a1)
 {
     float r = GetTableCos((short)((a0 << 15) / 0xB4));
     if (r == 0.0f)
-        return *(float *)D_0063AC18;
+        return 3.40282347e+38f; /* FLT_MAX, a constant-pool word */
     return a1 / r;
 }
 

@@ -5,6 +5,7 @@
 #include <string.h>
 #include <libvu0.h>
 #include <stdio.h>
+#include "GsBase.h"
 
 struct D275 {
     char pad[0xE8];
@@ -164,9 +165,6 @@ void blur(int n, void *col)
     blurPass(workBase[1], workBase[0], n + 6, 0, &blurPassCol);
     blurPass(workBase[0], workBase[1], 0, n + 6, col);
 }
-
-extern int ScreenWidth;
-extern int ScreenHeight;
 
 void auraInspireBefore(void)
 {
@@ -986,8 +984,6 @@ void GetSunWorldPos(int a0)
 {
     _NormalizeVector(a0, sunDir);
 }
-
-extern int currentScreenWidth;
 
 static int motionBlurAlpha = 0; /* derived name */
 

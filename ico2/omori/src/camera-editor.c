@@ -20,7 +20,8 @@ typedef struct CamMgr {
 } CamMgr;
 
 extern int D_0063A450;
-extern int curmenu;
+
+int curmenu;
 
 void EnterMenu(void *a0, int a1, void *a2)
 {
@@ -140,34 +141,11 @@ void saveEditedDataBinary(int no, int a1, int a2)
     iosFree(buf);
 }
 
-/* the camera box record: centre and half-size at 0x20 and 0x2C, the pin range
- * at 0x38 and the kind word at 0x44; the 0x4C stride is the TU's */
-typedef struct {
-    char pad00[0x20];
-    float cx, cy, cz; /* 0x20 */
-    float sx, sy, sz; /* 0x2C */
-    int pinFirst;     /* 0x38 */
-    int pinLast;      /* 0x3C */
-    char pad40[0x44 - 0x40];
-    int kind; /* 0x44 */
-    char pad48[0x4C - 0x48];
-} BoxRec;
+/* the camera set the stage plays and the copy the editor edits: two fixed
+   buffers in the development kit's extra memory */
+static int *cameraSetOrg = (int *)0x3000000; /* derived name */
 
-/* the camera pin record the pin editor edits in place: the two vec3s the
- * editor's rows step, the type word at 0x24 and the marker size at 0x28 */
-typedef struct {
-    float pos[3];  /* 0x00 */
-    float look[3]; /* 0x0C */
-    char pad18[0x24 - 0x18];
-    int type;   /* 0x24 */
-    float size; /* 0x28 */
-} PinRec;
-
-extern int *D_0063AA7C;
-extern char D_0063AA80[]; /* the output file name */
-extern char D_0063AA88[]; /* the assert expression text */
-extern char D_0063AA90[]; /* the EUC-JP maru the pin flag prints when set */
-extern char D_0063AA98[]; /* and the batsu when clear */
+static int *cameraSetEdit = (int *)0x30E27E0; /* derived name */
 
 /* .bss, owned by camera-editor.o (MAIN.MAP line 7711 gives the member 0x800
    and names no symbol in the run, so the name is this pass's), in the ROM at
@@ -189,32 +167,33 @@ void saveEditedData(int *range)
     int j;
     int fd;
 
-    sprintf(path, D_0063AA80);
+    sprintf(path, "a.txt");
     fd = debugSceOpen(path, 0x202);
     if (fd < 0) {
         debug_StdPrintfDummy("error---cannot open save camera data");
         debug_assert(__FILE__, 435);
-        __assert(__FILE__, 435, D_0063AA88);
+        __assert(__FILE__, 435, "0");
     }
     for (i = from; i < to; i++) {
-        BoxRec *b = (BoxRec *)(D_0063AA7C[1] + i * 0x4C);
+        BoxRec *b = (BoxRec *)(cameraSetEdit[1] + i * 0x4C);
 
         sprintf(dumpLine, "group[%s]\n%d\t\t%d\t%d\t%d\t\t\t%d\t%d\t%d\n", b, b->kind, (int)b->cx,
                 (int)b->cy, (int)b->cz, (int)b->sx, (int)b->sy,
-                (int)((BoxRec *)(i * 0x4C + D_0063AA7C[1]))->sz);
+                (int)((BoxRec *)(i * 0x4C + cameraSetEdit[1]))->sz);
         sceWrite(fd, dumpLine, strlen(dumpLine));
         debug_StdPrintfDummy(dumpLine);
     }
     for (i = from; i < to; i++) {
-        sprintf(dumpLine, "group[%s]'s pin\n", (BoxRec *)(D_0063AA7C[1] + i * 0x4C));
+        sprintf(dumpLine, "group[%s]'s pin\n", (BoxRec *)(cameraSetEdit[1] + i * 0x4C));
         sceWrite(fd, dumpLine, strlen(dumpLine));
-        for (j = ((BoxRec *)(i * 0x4C + D_0063AA7C[1]))->pinFirst;
-             j < ((BoxRec *)(i * 0x4C + D_0063AA7C[1]))->pinLast; j++) {
+        for (j = ((BoxRec *)(i * 0x4C + cameraSetEdit[1]))->pinFirst;
+             j < ((BoxRec *)(i * 0x4C + cameraSetEdit[1]))->pinLast; j++) {
             PinRec *p = (PinRec *)CameraEdit_PIN(i, j);
 
-            sprintf(dumpLine, "%s\t%d\t\t%d\t%d\t%d\t\t\t%d\t%d\t%d\n",
-                    p->type ? D_0063AA90 : D_0063AA98, (int)p->size, (int)p->pos[0], (int)p->pos[1],
-                    (int)p->pos[2], (int)p->look[0], (int)p->look[1], (int)p->look[2]);
+            /* the pin flag prints as a maru when set and a batsu when clear */
+            sprintf(dumpLine, "%s\t%d\t\t%d\t%d\t%d\t\t\t%d\t%d\t%d\n", p->type ? "○" : "×",
+                    (int)p->size, (int)p->pos[0], (int)p->pos[1], (int)p->pos[2], (int)p->look[0],
+                    (int)p->look[1], (int)p->look[2]);
             sceWrite(fd, dumpLine, strlen(dumpLine));
         }
     }
@@ -297,7 +276,6 @@ typedef union {
     unsigned long long w[2];
 } BoxCol4;
 
-extern BoxCol D_0063AAA0[];
 extern char *matrixptr;
 extern void sceVu0MulMatrix(void *dst, void *a, void *b);
 /* kept local: this TU's uses of before_DrawPolygon do not fit the prototype in poly-flat.h */
@@ -348,7 +326,7 @@ void DebugDispBox(BoxVec *c, BoxVec *s)
     sceVu0MulMatrix(m, matrixptr + 0xC0, m);
     before_DrawPolygon();
     for (n = 0; n < 6; n++) {
-        col = D_0063AAA0[0];
+        col = (BoxCol){128, 64, 64, 64};
         col.r = 64;
         col.g = 64;
         col.b = 64;
@@ -396,7 +374,7 @@ void DispCameraGroup(int box, unsigned char sel)
     int j;
     int k;
     int i;
-    BoxRec *b = (BoxRec *)(D_0063AA7C[1] + box * 0x4C);
+    BoxRec *b = (BoxRec *)(cameraSetEdit[1] + box * 0x4C);
     BoxVtx v[8] = {{b->cx - b->sx, b->cy - b->sy, b->cz - b->sz, 1.0f},
                    {b->cx - b->sx, b->cy - b->sy, b->cz + b->sz, 1.0f},
                    {b->cx + b->sx, b->cy - b->sy, b->cz - b->sz, 1.0f},
@@ -427,7 +405,7 @@ void DispCameraGroup(int box, unsigned char sel)
     sceVu0MulMatrix(m, matrixptr + 0xC0, m);
     before_DrawPolygon();
     for (n = 0; n < 6; n++) {
-        col = D_0063AAA0[0];
+        col = (BoxCol){128, 64, 64, 64};
         if (sel == 0) {
             col.r = 64;
             col.g = 64;
@@ -662,8 +640,9 @@ void CameraEdit_DispPinType2(int a0, int a1, int a2)
     dispCameraPinType2(a0, a1, a1 + 1, a2);
 }
 
-extern unsigned char D_0063AAA8[4];
-extern unsigned char D_0063AAB0[4];
+static unsigned char boxFaceColorSel[4] = {128, 64, 64, 64}; /* derived name */
+
+static unsigned char boxFaceColor[4] = {32, 32, 32, 64}; /* derived name */
 
 /* the eight box corners in face order: each row is the two corner pairs the
    face is interpolated between */
@@ -695,7 +674,7 @@ void dispCameraGroupType2(int box, unsigned char sel)
     unsigned char *col;
     unsigned int *c0;
     unsigned int *c1;
-    BoxRec *b = (BoxRec *)(D_0063AA7C[1] + box * 0x4C);
+    BoxRec *b = (BoxRec *)(cameraSetEdit[1] + box * 0x4C);
     BoxVtx v[8] = {{b->cx - b->sx, b->cy - b->sy, b->cz - b->sz, 1.0f},
                    {b->cx - b->sx, b->cy - b->sy, b->cz + b->sz, 1.0f},
                    {b->cx + b->sx, b->cy - b->sy, b->cz - b->sz, 1.0f},
@@ -723,7 +702,7 @@ void dispCameraGroupType2(int box, unsigned char sel)
     gif_SetZWrite(0);
     gif_SetZTest(1);
     for (n = 0; n < 6; n++) {
-        col = sel == 0 ? D_0063AAB0 : D_0063AAA8;
+        col = sel == 0 ? boxFaceColor : boxFaceColorSel;
         for (j = 0; j < 3; j++) {
             _InterGV(e0, &v[boxFaceCorner[n][0]], &v[boxFaceCorner[n][1]], (float)j,
                      (float)(3 - j));
@@ -801,15 +780,18 @@ static unsigned int planeEdgeColor[4] = {64, 64, 64, 128};
 
 static unsigned int planeHiddenEdgeColor[4] = {16, 16, 16, 128};
 
-extern unsigned char D_0063AAB8[4];
-extern unsigned char D_0063AAC0[4];
-extern unsigned char D_0063AAC8[4];
-extern unsigned char D_0063AAD0[4];
+static unsigned char planeFaceColorSel[4] = {128, 64, 64, 64}; /* derived name */
+
+static unsigned char planeHiddenFaceColorSel[4] = {32, 8, 8, 64}; /* derived name */
+
+static unsigned char planeFaceColor[4] = {32, 32, 32, 64}; /* derived name */
+
+static unsigned char planeHiddenFaceColor[4] = {2, 2, 2, 64}; /* derived name */
 
 void CameraEdit_DispBoxType2_Plane(int box, int sel)
 {
     int n;
-    CamBoxF *b = (CamBoxF *)(D_0063AA7C[1] + box * 0x4C);
+    CamBoxF *b = (CamBoxF *)(cameraSetEdit[1] + box * 0x4C);
     CamVtx v[8] = {{b->cx - b->sx, b->cy - b->sy, b->cz - b->sz, 1.0f},
                    {b->cx - b->sx, b->cy - b->sy, b->cz + b->sz, 1.0f},
                    {b->cx + b->sx, b->cy - b->sy, b->cz - b->sz, 1.0f},
@@ -865,9 +847,9 @@ void CameraEdit_DispBoxType2_Plane(int box, int sel)
         gif_SetAlpha(1, 5, 0);
         gif_SetZWrite(0);
         gif_SetZTest(1);
-        dispBox(D_0063AAB8, D_0063AAC8);
+        dispBox(planeFaceColorSel, planeFaceColor);
         gif_SetZTest(0);
-        dispBox(D_0063AAC0, D_0063AAD0);
+        dispBox(planeHiddenFaceColorSel, planeHiddenFaceColor);
         after_DrawPolygon();
         c0 = planeEdgeColorSel;
         c1 = planeHiddenEdgeColorSel;
@@ -897,10 +879,11 @@ void CameraEdit_DispBoxType2(int a0, int a1)
    pad, trg at 0x4 */
 
 extern Pad D_0028F8F0[];
-extern char D_0063AAD8[];
-extern char D_0063AAE0[];
-extern int print_y;
-extern unsigned char exit_f;
+
+int print_y;
+
+unsigned char exit_f;
+
 /* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
 extern void iosThreadSleep(void *th);
 
@@ -936,12 +919,12 @@ void menuGroupSelect(char *m)
             if (i == *box) {
                 if (debug_font_flag & 1) {
                     print_y += 10;
-                    debug_Printf(40, print_y, 0xFFFFFF00, D_0063AAD8, D_0063AA7C[1] + i * 0x4C);
+                    debug_Printf(40, print_y, 0xFFFFFF00, ">> %s", cameraSetEdit[1] + i * 0x4C);
                 }
             } else {
                 if (debug_font_flag & 1) {
                     print_y += 10;
-                    debug_Printf(40, print_y, 0xFFFFFF00, D_0063AAE0, D_0063AA7C[1] + i * 0x4C);
+                    debug_Printf(40, print_y, 0xFFFFFF00, "   %s", cameraSetEdit[1] + i * 0x4C);
                 }
             }
         }
@@ -976,16 +959,12 @@ typedef struct {
     char pad48[0x4C - 0x48];
 } EditRec;
 
-extern char D_0063AAE8[];
-extern char D_0063AAF0[];
-extern char D_0063AAF8[];
-extern char D_0063AB00[];
 /* kept local: this TU's uses of iosThreadDestroy do not fit the prototype in thread.h */
 extern void iosThreadDestroy(void *th);
 
 void menuGroupEdit(char *m)
 {
-    EditRec *rec = (EditRec *)(D_0063AA7C[1] + *(int *)(m + 0x74) * 0x4C);
+    EditRec *rec = (EditRec *)(cameraSetEdit[1] + *(int *)(m + 0x74) * 0x4C);
     int cur = 0;
     int i;
 
@@ -1005,10 +984,10 @@ void menuGroupEdit(char *m)
         }
         {
             EditItem item[7] = {
-                {rec->type, 1, 1, D_0063AAE8},     {(int)rec->cx, 10, 0, "center-x"},
+                {rec->type, 1, 1, "group"},        {(int)rec->cx, 10, 0, "center-x"},
                 {(int)rec->cy, 10, 0, "center-y"}, {(int)rec->cz, 10, 0, "center-z"},
-                {(int)rec->sx, 10, 0, D_0063AAF0}, {(int)rec->sy, 10, 0, D_0063AAF8},
-                {(int)rec->sz, 10, 0, D_0063AB00}};
+                {(int)rec->sx, 10, 0, "width-x"},  {(int)rec->sy, 10, 0, "width-y"},
+                {(int)rec->sz, 10, 0, "width-z"}};
             int d = 0;
 
             if (item[cur].mode) {
@@ -1080,11 +1059,6 @@ typedef struct BoxPins {
     int last;  /* 0x3C */
 } BoxPins;
 
-extern char D_0063AB08[];
-extern char D_0063AB10[];
-extern char D_0063AB18[];
-extern char D_0063AB20[];
-
 /* .sbss, camera-editor.o's one word (MAIN.MAP line 7598, no symbol named, so
    the name is ours): the pin the pin editor was opened on. */
 static int editPinNo;
@@ -1100,7 +1074,7 @@ static int editPinNo;
 void menuPinSelect(char *m)
 {
     int no = *(int *)(m + 0x74);
-    int cur = ((BoxPins *)(D_0063AA7C[1] + no * 0x4C))->first;
+    int cur = ((BoxPins *)(cameraSetEdit[1] + no * 0x4C))->first;
     int min;
     int max;
     int i;
@@ -1122,8 +1096,8 @@ void menuPinSelect(char *m)
 
     while (1) {
         PIN_WINDOW_TRACE(start, end);
-        min = ((BoxPins *)(D_0063AA7C[1] + no * 0x4C))->first;
-        max = ((BoxPins *)(D_0063AA7C[1] + no * 0x4C))->last;
+        min = ((BoxPins *)(cameraSetEdit[1] + no * 0x4C))->first;
+        max = ((BoxPins *)(cameraSetEdit[1] + no * 0x4C))->last;
         if (D_0028F8F0[1].trg & 0x1000) {
             cur--;
         }
@@ -1143,15 +1117,13 @@ void menuPinSelect(char *m)
 
             if (i == cur) {
                 if (debug_font_flag & 1) {
-                    debug_Printf(40, print_y += 10, 0xFFFFFF00, D_0063AB08,
-                                 *(int *)(CameraEdit_PIN(no, cur) + 0x24) ? D_0063AB10 : D_0063AB18,
-                                 k);
+                    debug_Printf(40, print_y += 10, 0xFFFFFF00, ">>%s %d",
+                                 *(int *)(CameraEdit_PIN(no, cur) + 0x24) ? "ON " : "OFF", k);
                 }
             } else {
                 if (debug_font_flag & 1) {
-                    debug_Printf(40, print_y += 10, 0xFFFFFF00, D_0063AB20,
-                                 *(int *)(CameraEdit_PIN(no, i) + 0x24) ? D_0063AB10 : D_0063AB18,
-                                 k);
+                    debug_Printf(40, print_y += 10, 0xFFFFFF00, "  %s %d",
+                                 *(int *)(CameraEdit_PIN(no, i) + 0x24) ? "ON " : "OFF", k);
                 }
             }
         }
@@ -1180,8 +1152,6 @@ void menuPinSelect(char *m)
     }
 }
 
-extern char D_0063AB28[];
-extern char D_0063AB30[];
 extern void sceVu0SubVector(void *dst, void *a, void *b);
 extern void sceVu0Normalize(void *dst, void *src);
 extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
@@ -1221,11 +1191,14 @@ void menuPinEdit(char *m)
         }
         cur = (cur < 0) ? 7 : ((cur > 7) ? 0 : cur);
         {
-            EditItem item[8] = {
-                {pin->type, 1, 1, D_0063AB28},          {(int)pin->size, 1, 1, D_0063AB30},
-                {(int)pin->pos[0], 10, 0, "camera-x"},  {(int)pin->pos[1], 10, 0, "camera-y"},
-                {(int)pin->pos[2], 10, 0, "camera-z"},  {(int)pin->look[0], 10, 0, "target-x"},
-                {(int)pin->look[1], 10, 0, "target-y"}, {(int)pin->look[2], 10, 0, "target-z"}};
+            EditItem item[8] = {{pin->type, 1, 1, "onoff"},
+                                {(int)pin->size, 1, 1, "view"},
+                                {(int)pin->pos[0], 10, 0, "camera-x"},
+                                {(int)pin->pos[1], 10, 0, "camera-y"},
+                                {(int)pin->pos[2], 10, 0, "camera-z"},
+                                {(int)pin->look[0], 10, 0, "target-x"},
+                                {(int)pin->look[1], 10, 0, "target-y"},
+                                {(int)pin->look[2], 10, 0, "target-z"}};
             int d = 0;
 
             if (item[cur].mode) {
@@ -1355,7 +1328,7 @@ void wakeup_cameraedit(void)
         iosThreadWakeup((void *)curmenu);
         if (D_0028F94C[0] & 0x400) {
             saveEditedDataBinary((int)&D_002AD010[D_005F5D50[stage_no].camSetId * 0x20],
-                                 D_0063AA7C[1], D_0063AA7C[0]);
+                                 cameraSetEdit[1], cameraSetEdit[0]);
         }
     }
 }
@@ -1374,8 +1347,6 @@ inline int _CameraEdit_PIN(int *a0, int a1, int a2)
 {
     return ((int *)(a0[1] + (a1 * 0x4C)))[0x48 / 4] + (a2 * 0x5C);
 }
-
-extern int *D_0063AA78;
 
 static inline char *_CameraEdit_alloc_pool(CamMgr *mgr)
 {
@@ -1485,30 +1456,30 @@ void _CameraEdit_del_pin(CamMgr *mgr, int box, int pin)
 
 int CameraEdit_add_box(S4C *src)
 {
-    _CameraEdit_add_box((CamMgr *)D_0063AA78, src);
-    return _CameraEdit_add_box((CamMgr *)D_0063AA7C, src);
+    _CameraEdit_add_box((CamMgr *)cameraSetOrg, src);
+    return _CameraEdit_add_box((CamMgr *)cameraSetEdit, src);
 }
 
 int CameraEdit_add_pin(int box, char *src)
 {
-    _CameraEdit_add_pin(D_0063AA78, box, (S5C *)src);
-    return _CameraEdit_add_pin(D_0063AA7C, box, (S5C *)src);
+    _CameraEdit_add_pin(cameraSetOrg, box, (S5C *)src);
+    return _CameraEdit_add_pin(cameraSetEdit, box, (S5C *)src);
 }
 
 extern void _CameraEdit_del_box(CamMgr *mgr, int idx);
 
 void CameraEdit_del_box(int a0)
 {
-    _CameraEdit_del_box((CamMgr *)D_0063AA78, a0);
-    _CameraEdit_del_box((CamMgr *)D_0063AA7C, a0);
+    _CameraEdit_del_box((CamMgr *)cameraSetOrg, a0);
+    _CameraEdit_del_box((CamMgr *)cameraSetEdit, a0);
 }
 
 extern void _CameraEdit_del_pin(CamMgr *mgr, int box, int pin);
 
 void CameraEdit_del_pin(int a0, int a1)
 {
-    _CameraEdit_del_pin((CamMgr *)D_0063AA78, a0, a1);
-    _CameraEdit_del_pin((CamMgr *)D_0063AA7C, a0, a1);
+    _CameraEdit_del_pin((CamMgr *)cameraSetOrg, a0, a1);
+    _CameraEdit_del_pin((CamMgr *)cameraSetEdit, a0, a1);
 }
 
 void CameraEdit_DispBox(int a0, unsigned char a1)
@@ -1518,13 +1489,13 @@ void CameraEdit_DispBox(int a0, unsigned char a1)
 
 void CameraEdit_Reflect(void)
 {
-    int *p = D_0063AA78;
+    int *p = cameraSetOrg;
     ReflectCameraSetBinary(p[1], p[0]);
 }
 
 void CameraEdit_Save(int a0)
 {
-    int *p = D_0063AA78;
+    int *p = cameraSetOrg;
     saveEditedDataBinary(a0, p[1], p[0]);
 }
 
@@ -1558,8 +1529,8 @@ inline void CameraEdit_reset_box(int a0)
     struct S4Cx *dst;
     void *saved;
     int i;
-    src = (struct S4Cx *)(D_0063AA78[1] + a0 * 0x4C);
-    dst = (struct S4Cx *)(D_0063AA7C[1] + a0 * 0x4C);
+    src = (struct S4Cx *)(cameraSetOrg[1] + a0 * 0x4C);
+    dst = (struct S4Cx *)(cameraSetEdit[1] + a0 * 0x4C);
     saved = *(void **)((char *)dst + 0x48);
     *dst = *src;
     *(void **)((char *)dst + 0x48) = saved;
@@ -1572,15 +1543,15 @@ inline void CameraEdit_reset_box(int a0)
 
 inline void CameraEdit_reset_pin(int a0, int a1)
 {
-    S5C *dst = (S5C *)(*(int *)(D_0063AA7C[1] + a0 * 0x4C + 0x48) + a1 * 0x5C);
-    S5C *src = (S5C *)(*(int *)(D_0063AA78[1] + a0 * 0x4C + 0x48) + a1 * 0x5C);
+    S5C *dst = (S5C *)(*(int *)(cameraSetEdit[1] + a0 * 0x4C + 0x48) + a1 * 0x5C);
+    S5C *src = (S5C *)(*(int *)(cameraSetOrg[1] + a0 * 0x4C + 0x48) + a1 * 0x5C);
     *dst = *src;
 }
 
 inline void CameraEdit_reflect_box(int a0)
 {
-    S4C *dst = (S4C *)(D_0063AA78[1] + a0 * 0x4C);
-    S4C *src = (S4C *)(D_0063AA7C[1] + a0 * 0x4C);
+    S4C *dst = (S4C *)(cameraSetOrg[1] + a0 * 0x4C);
+    S4C *src = (S4C *)(cameraSetEdit[1] + a0 * 0x4C);
     void *saved = *(void **)((char *)dst + 0x48);
     int i;
     *dst = *src;
@@ -1594,14 +1565,14 @@ inline void CameraEdit_reflect_box(int a0)
 
 inline void CameraEdit_reflect_pin(int a0, int a1)
 {
-    S5C *dst = (S5C *)(*(int *)(D_0063AA78[1] + a0 * 0x4C + 0x48) + a1 * 0x5C);
-    S5C *src = (S5C *)(*(int *)(D_0063AA7C[1] + a0 * 0x4C + 0x48) + a1 * 0x5C);
+    S5C *dst = (S5C *)(*(int *)(cameraSetOrg[1] + a0 * 0x4C + 0x48) + a1 * 0x5C);
+    S5C *src = (S5C *)(*(int *)(cameraSetEdit[1] + a0 * 0x4C + 0x48) + a1 * 0x5C);
     *dst = *src;
 }
 
 inline int CameraEdit_BOX_NUMBER(void)
 {
-    return *D_0063AA7C;
+    return *cameraSetEdit;
 }
 
 inline int CameraEdit_PIN_NUMBER(int a0)
@@ -1623,12 +1594,12 @@ inline int CameraEdit_PIN_NUMBER_ALL(int *a0, int a1)
 
 inline int CameraEdit_BOX(int a0)
 {
-    return D_0063AA7C[1] + a0 * 0x4C;
+    return cameraSetEdit[1] + a0 * 0x4C;
 }
 
 inline int CameraEdit_PIN(int a0, int a1)
 {
-    return *(int *)(D_0063AA7C[1] + a0 * 0x4C + 0x48) + a1 * 0x5C;
+    return *(int *)(cameraSetEdit[1] + a0 * 0x4C + 0x48) + a1 * 0x5C;
 }
 
 inline void CameraEdit_DispPin(int box, int pin)
@@ -1637,7 +1608,47 @@ inline void CameraEdit_DispPin(int box, int pin)
 }
 
 extern int CameraEdit_add_box(S4C *a0);
-extern float D_002A5D68[];
+
+/* the pin a new pin starts from; ConvertCameraSetBuffer gives it the stage's
+   hand-camera rate (MAIN.MAP global) */
+PinRec cameraPinDefault = {{0.0f, -500.0f, 0.0f},
+                           {0.0f, 300.0f, 300.0f},
+                           300.0f,
+                           {0},
+                           0,
+                           0.0f,
+                           {0},
+                           1,
+                           60.0f,
+                           0.0f,
+                           0.0f,
+                           0.0f,
+                           10.0f,
+                           10.0f,
+                           120.0f,
+                           80.0f};
+
+/* Nothing in the ROM reads the next object. The bytes pin its size (16), its
+   place (8-aligned, between the two defaults) and its contents (zero); they
+   pin neither its type nor its role. */
+static float cameraEditVec[4] = {0.0f}; /* derived name */
+
+/* the group a new group starts from: named "0", a 100-unit box at the origin
+   (MAIN.MAP global) */
+BoxRec cameraGroupDefault = {"0", 0.0f, 0.0f, 0.0f, 100.0f, 100.0f, 100.0f};
+
+/* Nothing in the ROM reads the next object either. The bytes pin its size
+   (0x80), its 8-byte alignment after the group default and its contents
+   (-1 at 0x40, 50.0 at 0x64, 1 at 0x68, zero elsewhere); the field types
+   are read off those values, and the role is not pinned. */
+static struct {
+    int w00[16];
+    int w40;
+    int w44[8];
+    float w64;
+    int w68;
+    int w6C[5];
+} cameraEditRec = {{0}, -1, {0}, 50.0f, 1}; /* derived name */
 
 inline void ConvertCameraSetBuffer(int n, S4C *item, char *groups)
 {
@@ -1648,8 +1659,8 @@ inline void ConvertCameraSetBuffer(int n, S4C *item, char *groups)
     int a;
     int b;
     char *f;
-    D_002A5D68[0] = D_005F5D50[stage_no].handCameraRate;
-    m1 = (CamMgr *)D_0063AA78;
+    cameraPinDefault.handCameraRate = D_005F5D50[stage_no].handCameraRate;
+    m1 = (CamMgr *)cameraSetOrg;
     m1->items = (char *)m1 + 0x70;
     m1->pool = (char *)m1 + 0x1E20;
     m1->count = 0;
@@ -1657,7 +1668,7 @@ inline void ConvertCameraSetBuffer(int n, S4C *item, char *groups)
     for (a = 0x63; a >= 0; a--) {
         *f-- = 0;
     }
-    m2 = (CamMgr *)D_0063AA7C;
+    m2 = (CamMgr *)cameraSetEdit;
     m2->items = (char *)m2 + 0x70;
     m2->pool = (char *)m2 + 0x1E20;
     m2->count = 0;

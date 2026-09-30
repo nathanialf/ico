@@ -18,7 +18,7 @@
 
 /* the three functions at the head of the TU need their callees declared here,
    above their definitions */
-extern int D_0063ABA8;
+
 extern void *D_0063BE6C;
 
 /* .sbss, owned by op.o and reached only from this file, in the ROM's run order
@@ -275,7 +275,7 @@ void actTitleShortCut(volatile int a0)
 {
     int x = a0;
 
-    D_0063ABA8 = 1;
+    monitorCameraHold = 1;
     actInitialize(a0);
     _ACTWait(1);
 
@@ -364,7 +364,7 @@ void actTitleReadTimeDemo0(volatile int a0)
 
     stage_SetAnimation(2, 0, -1);
 
-    D_0063ABA8 = 0;
+    monitorCameraHold = 0;
 
     _ACTWait(1);
     lt_switch_layout(55);
@@ -535,7 +535,7 @@ void actTitleReadTimeDemo0(volatile int a0)
     }
     _ACTWait(1);
 
-    D_0063ABA8 = 1;
+    monitorCameraHold = 1;
 
     debug_StdPrintfDummy("game mode %d %d\n", frame_count, gflagChk(386));
 

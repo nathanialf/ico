@@ -3,6 +3,7 @@
 #include "StageAnimation.h"
 #include "debug.h"
 #include <string.h>
+#include "typedef.h"
 
 struct HintInfo {
     int _0;
@@ -26,7 +27,8 @@ extern char D_006E99B0[];
 extern char D_006E99B4[];
 extern int D_0028F4C0[];
 extern int D_0063A438;
-extern int D_002A5580[];
+/* kept local: brain.h is not in this TU's include list (its prototypes do not fit this TU's uses) */
+extern Brain brainGirl;
 /* kept local: this TU's uses of brainStatusDefaultSet do not fit the prototype in brain.h */
 extern void brainStatusDefaultSet(void *b, int gobj, int idx);
 extern int stage_no;
@@ -58,7 +60,7 @@ char *CreateKyomiGObj(int no)
                                (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 60.0f);
         }
     }
-    brainStatusDefaultSet(D_002A5580, (int)gobj, 1);
+    brainStatusDefaultSet(&brainGirl, (int)gobj, 1);
     return gobj;
 }
 

@@ -37,7 +37,6 @@ extern int stage_no;
 /* */
 static int generatorPacket[2820];
 
-extern char D_0063AC08[];
 extern char D_00308924[];
 
 #include "generator.h"
@@ -213,7 +212,6 @@ void switch_MainStatus(char *gobj, unsigned char st)
 
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
-extern char D_0063AC00[];
 
 typedef struct GenBga {
     char *p;
@@ -277,7 +275,7 @@ void endfunc_BGA(char *gobj)
 
     default:
         debug_assert(__FILE__, 504);
-        __assert(__FILE__, 504, D_0063AC00);
+        __assert(__FILE__, 504, "0");
         break;
     }
 }
@@ -429,7 +427,7 @@ inline char *DirectCallEnemy(char *gobj, char *mother, float *pos, float *dir, i
 
     debug_StdPrintfDummy("call enemy! = %d (%p : %d)\n", *(int *)(gobj + 8), mother,
                          (mother != 0) ? *(int *)(mother + 8) : -1);
-    debug_StdPrintfDummy("[%8s] %8f %8f %8f %8f\n", D_0063AC08, pos[0], pos[1], pos[2], pos[3]);
+    debug_StdPrintfDummy("[%8s] %8f %8f %8f %8f\n", "revive", pos[0], pos[1], pos[2], pos[3]);
     if (mother != 0) {
         SetMotherGenerator(*(int *)(gobj + 8), *(int *)(mother + 8));
     }
@@ -959,7 +957,7 @@ void GeneratorGeo(char *gobj)
 
         default:
             debug_assert(__FILE__, 1371);
-            __assert(__FILE__, 1371, D_0063AC00);
+            __assert(__FILE__, 1371, "0");
             break;
         }
 

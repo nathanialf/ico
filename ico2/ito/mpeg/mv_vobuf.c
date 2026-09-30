@@ -1,5 +1,3 @@
-#define MV_DEFS_WANT_ALLOC
-
 #include "mv_defs.h"
 #include "typedef.h"
 #include "memory.h"

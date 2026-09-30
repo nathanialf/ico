@@ -60,7 +60,6 @@ static const StageOrientDef stageOrientDefs[41] = {
    where the stage has none. */
 static short stageOrientIdx[128];
 
-extern char D_0063AC68[];
 extern void sceVu0Normalize(VECTOR *out, VECTOR *in);
 extern void sceVu0UnitMatrix(float *m);
 extern void sceVu0RotMatrixY(float *m0, float *m1, float rot); /* sceVu0RotMatrixY */
@@ -77,7 +76,7 @@ inline void StageOrientInit(void)
     char buf[64];
 
     for (i = 0; i < 106; i++) {
-        sscanf(D_005F5D70[i], D_0063AC68, buf);
+        sscanf(D_005F5D70[i], "%s", buf);
         stageOrientIdx[i] = -1;
         for (j = 0; j < sizeof(stageOrientDefs) / sizeof(stageOrientDefs[0]); j++) {
             if (strcmp(buf, stageOrientDefs[j].name) == 0) {

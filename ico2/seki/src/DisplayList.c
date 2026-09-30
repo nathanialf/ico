@@ -6,6 +6,7 @@
 #include "DisplayList.h"
 #include <eekernel.h>
 #include <libdma.h>
+#include "GsBase.h"
 
 typedef struct {
     int f_0;                 /* 0x00 */
@@ -31,7 +32,6 @@ static DlEntry dlEntries[13];
 
 static int dlBufferHead[2][13];
 
-extern int fbKeep;
 extern int dmaVif;
 extern int D_006218E0[];
 extern int D_00621840[];

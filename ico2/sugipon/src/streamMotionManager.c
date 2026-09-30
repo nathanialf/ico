@@ -3,6 +3,7 @@
 #include "memory.h"
 #include "matrixDrive.h"
 #include "streamMotionManager.h"
+#include "GsBase.h"
 
 /* The TU's .sdata (MAIN.MAP names nothing in it), in ROM order: the stream
    entry count and state, the background reader's state and id, the ring
@@ -54,7 +55,6 @@ static SMotion streamEntry[10];
 
 extern int D_0028F4C0[];
 extern int frame_count;
-extern int ScreenHeight;
 extern int D_0063BCB8;
 
 /* The ring is 0x28000 bytes; the check asks whether the write pointer has run
@@ -352,8 +352,6 @@ void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
     }
     memcpy(dst + old_idx, src, amt);
 }
-
-extern int ScreenHeight;
 
 void ExecStreamMotionManager(void)
 {

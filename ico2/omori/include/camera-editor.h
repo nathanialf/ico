@@ -22,6 +22,46 @@ typedef struct {
     int w[23];
 } S5C;
 
+/* the camera box (group) record: the name, centre and half-size at 0x20 and
+ * 0x2C, the pin range at 0x38 and the kind word at 0x44; the 0x4C stride is
+ * camera-editor.c's */
+typedef struct {
+    char name[0x20];
+    float cx, cy, cz; /* 0x20 */
+    float sx, sy, sz; /* 0x2C */
+    int pinFirst;     /* 0x38 */
+    int pinLast;      /* 0x3C */
+    char pad40[0x44 - 0x40];
+    int kind; /* 0x44 */
+    char pad48[0x4C - 0x48];
+} BoxRec;
+
+/* the camera pin record the pin editor edits in place: the two vec3s the
+ * editor's rows step, the type word at 0x24, the marker size at 0x28, and
+ * the hand-camera rate at 0x48; the other words are named by offset, the
+ * values the pin default gives them */
+typedef struct {
+    float pos[3];  /* 0x00 */
+    float look[3]; /* 0x0C */
+    float f18;     /* 0x18 */
+    int w1C[2];    /* 0x1C */
+    int type;      /* 0x24 */
+    float size;    /* 0x28 */
+    int w2C[2];    /* 0x2C */
+    int w34;       /* 0x34 */
+    float f38, f3C, f40, f44; /* 0x38 */
+    float handCameraRate;     /* 0x48 */
+    float f4C;                /* 0x4C */
+    float f50, f54, f58;      /* 0x50 */
+} PinRec;
+
+/* MAIN.MAP globals */
+extern PinRec cameraPinDefault;
+extern BoxRec cameraGroupDefault;
+extern int curmenu;
+extern int print_y;
+extern unsigned char exit_f;
+
 /* The functions camera-editor.c defines `inline`, in the order the ROM emits
  * their out-of-line copies: gcc 2.9 writes deferred functions at the end of
  * the file in the order of their first declaration, so this block is that

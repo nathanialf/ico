@@ -1532,7 +1532,6 @@ void reg_dispLine(char *node, float alpha)
     }
 }
 
-extern int currentScreenWidth;
 extern int GlobalTimer;
 /* kept local: this TU's uses of _MulCurrentMatrixL do not fit the prototype in Matrix.h */
 extern void _MulCurrentMatrixL(void *m);

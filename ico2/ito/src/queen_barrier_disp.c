@@ -4,10 +4,6 @@
 #include "GsBase.h"
 #include "Primitive.h"
 #include "tableSin.h"
-
-/* header prototypes (order fixes the inline tail) */
-extern unsigned short D_0063AC64;
-
 #include "queen_barrier_disp.h"
 #include <string.h>
 #include <libvu0.h>
@@ -62,7 +58,6 @@ typedef struct {
     unsigned char c[4];
 } GifCol;
 
-extern GifCol D_0063AC60[];
 extern GifDpk PacketBufferStruct;
 
 /* INTERIM: the listing inlines gif_SetGsReg here the same way it does across
@@ -76,7 +71,7 @@ static inline void setGsReg(long long a0, long long a1)
 
 void MakeRefractTexture(int frame)
 {
-    GifCol col = D_0063AC60[0];
+    GifCol col = {{128, 128, 128, 128}};
     GifRect r = {-4096, -2048, 8192, 4096};
     GifUvRect uv = {8, 8, ScreenWidth * 16, ScreenHeight * 16};
     int fx;
@@ -109,9 +104,12 @@ void queen_barrier_set_damage(void)
     debug_StdPrintfDummy("queen barrier damaged\n");
 }
 
+/* the barrier's refraction phase, stepped each frame */
+static unsigned short barrierAnimAngle = 0; /* derived name */
+
 inline void queen_barrier_anim(void)
 {
-    D_0063AC64 += 0x7D0;
+    barrierAnimAngle += 0x7D0;
     ripplePhase += 0x1000;
     if (damageTimer > 0) {
         if (--damageTimer < 0) {
@@ -143,7 +141,7 @@ void makeRefractST(float k)
 
     t = (float)damageTimer / 60.0f;
 
-    ang = (short)D_0063AC64;
+    ang = (short)barrierAnimAngle;
 
     for (i = 0; i < 15; i++) {
         for (j = 0; j < 15; j++) {

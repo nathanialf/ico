@@ -12,10 +12,16 @@
 #ifndef ITOU_BOSS_H
 #define ITOU_BOSS_H
 
-void BossCtrlGeo(void *self);
+/* the functions itou_boss.c defines `inline`, in the order the ROM emits
+   their out-of-line copies (gcc 2.9 writes deferred functions at the end of
+   the file in the order of their first declaration) */
+int InqCapsuleGhostBossStage(void);
+void actBossCtrlStart(void *a0);
+int InitBossCtrlGeo(void *a0);
 void CapsuleGhostBossStart(void);
 int InqCapsuleGhostBossEnd(void);
-int InqCapsuleGhostBossStage(void);
+
+void BossCtrlGeo(void *self);
 void itou_boss_gflag_init(void);
 
 #endif /* ITOU_BOSS_H */

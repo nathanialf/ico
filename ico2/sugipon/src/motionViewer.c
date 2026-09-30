@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <libpad.h>
 #include <string.h>
+#include "GsBase.h"
 
 struct MvObj;
 
@@ -134,8 +135,6 @@ typedef struct {
 } MotRec;
 
 extern MotRec D_0055FE58[];
-extern int ScreenWidth;
-extern int ScreenHeight;
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
 /* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */

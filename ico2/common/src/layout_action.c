@@ -8,6 +8,7 @@
 #include "gflag.h"
 #include "kanbanBoot.h"
 #include "script.h"
+#include "GsBase.h"
 
 /* the custom key map's sixteen pad button codes (iosPadConfCustom[44..59]),
    the default one bit per button */
@@ -1810,7 +1811,6 @@ typedef struct {
     unsigned char a;
 } SprCol;
 
-extern int fbKeep;
 /* kept local: this TU's uses of these do not fit the prototypes in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
 extern void gif_SetZTest(int on);

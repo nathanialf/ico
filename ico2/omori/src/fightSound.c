@@ -3,16 +3,22 @@
 #include "s_init.h"
 #include "act-game.h"
 
-extern int D_0063ABE8;
+/* set while the fight music is paused */
+static int fightSoundPause = 0; /* derived name */
 
 /* .bss, owned by fightSound.o and reached only from this file (MAIN.MAP names
    no symbol in the run): the fight loop's ADPCM handle at [0], its volume at
    [1] and the open request at [2]. */
 static int fightSnd[8];
 
-extern int D_0063ABEC;
+/* the fight music's step: 1 once the open is requested, 2 after it */
+static int fightSoundState = 0; /* derived name */
+
 extern int D_0028F4C0[];
-extern int D_0063ABF0;
+
+/* set while the girl is held (status 9) or taken off the stage */
+static int fightSoundGirlTaken = 0; /* derived name */
+
 extern int D_00639EA4;
 extern int D_00639EA8;
 extern int gamesysAnotherStageTsuresari;
@@ -27,14 +33,14 @@ void fightSoundProcessMain(void)
     fightSnd[0] = soundDataAreaSearch(&req);
     if (fightSnd[0] == 0) {
         fightSnd[1] = 0;
-        if (D_0063ABE8 == 1) {
+        if (fightSoundPause == 1) {
             return;
         }
     }
     if (D_0028F4C0[6] != 0) {
         return;
     }
-    if (D_0028F4C0[5] == 0 && D_0063ABE8 != 1) {
+    if (D_0028F4C0[5] == 0 && fightSoundPause != 1) {
         if (D_00639EA4 != 0) {
             cond = 0;
             if (_ACTCharStatus_Check(D_00639EA4, 17) != 0) {
@@ -42,22 +48,22 @@ void fightSoundProcessMain(void)
             }
         }
         if (D_0028F4C0[6] == 0) {
-            D_0063ABF0 = 0;
+            fightSoundGirlTaken = 0;
             if ((D_00639EA8 != 0 && _ACTCharStatus_Check(D_00639EA8, 9) != 0) ||
                 gamesysAnotherStageTsuresari != 0) {
-                D_0063ABF0 = 1;
+                fightSoundGirlTaken = 1;
             }
         }
     } else {
-        D_0063ABF0 = 0;
+        fightSoundGirlTaken = 0;
         cond = 0;
     }
     if (fightSnd[0] == 0) {
-        if (cond != 0 || D_0063ABF0 != 0) {
+        if (cond != 0 || fightSoundGirlTaken != 0) {
             if (D_0028F4C0[6] == 0) {
                 soundDataOpen(&fightSnd[2], 2, 1, 2, 0);
                 if (fightSnd[5] != 0) {
-                    D_0063ABEC = 1;
+                    fightSoundState = 1;
                 }
             }
         }
@@ -66,10 +72,10 @@ void fightSoundProcessMain(void)
         return;
     }
     step = 96;
-    if (D_0063ABE8 == 1) {
+    if (fightSoundPause == 1) {
         step = 1024;
     }
-    if (cond == 0 && D_0063ABF0 == 0) {
+    if (cond == 0 && fightSoundGirlTaken == 0) {
         fightSnd[1] -= step;
         if (fightSnd[1] < 0) {
             fightSnd[1] = 0;
@@ -82,11 +88,10 @@ void fightSoundProcessMain(void)
     }
     AdpcmVolumeSet(fightSnd[0], fightSnd[1]);
     if (fightSnd[1] == 0) {
-        D_0063ABEC = 2;
+        fightSoundState = 2;
     }
 }
 
-extern char D_0063ABF8[];
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
@@ -94,7 +99,7 @@ void fightSoundProcess(void)
 {
     int *h;
 
-    switch (D_0063ABEC) {
+    switch (fightSoundState) {
     case 0:
         fightSoundProcessMain();
         break;
@@ -105,7 +110,7 @@ void fightSoundProcess(void)
             if (h != 0) {
                 AdpcmPlay(h[0x2C / 4]);
             }
-            D_0063ABEC = 0;
+            fightSoundState = 0;
         }
         break;
     case 2:
@@ -113,17 +118,17 @@ void fightSoundProcess(void)
             soundDataClose(fightSnd[0]);
         }
         fightSnd[0] = 0;
-        D_0063ABEC = 0;
+        fightSoundState = 0;
         break;
     default:
         debug_assert("src/fightSound.c", 255);
-        __assert("src/fightSound.c", 255, D_0063ABF8);
+        __assert("src/fightSound.c", 255, "0");
     }
 }
 
 void fightSoundProcessRequestPause(void)
 {
-    D_0063ABE8 = 1;
+    fightSoundPause = 1;
 }
 
 void fightSoundClose(void)
@@ -136,12 +141,12 @@ void fightSoundClose(void)
 
 void fightSoundProcessRequestStart(void)
 {
-    D_0063ABE8 = 0;
+    fightSoundPause = 0;
 }
 
 int fightSoundProcessRequestStatus(void)
 {
-    return D_0063ABE8;
+    return fightSoundPause;
 }
 
 int fightSoundPlayChk(void)

@@ -300,13 +300,11 @@ held:
     }
 }
 
-extern Brain D_002A5580[];
-
 /* The ROM's actGirlHand passes two arguments here, so the definition is the
    unprototyped 2001 form and not `(void)`. */
 void GirlBrainClearTarget()
 {
-    brainClsTargetLevel(D_002A5580);
+    brainClsTargetLevel(&brainGirl);
 }
 
 /* The hide/others/listB/listD object lists.  Layout derived from the ROM:
@@ -1056,7 +1054,7 @@ extern int D_0028F8F0[];
 static inline void *girlBrainGetTarget(void)
 {
     int *flag = &brain_val.targetFlag;
-    Brain *b = D_002A5580;
+    Brain *b = &brainGirl;
     void *obj = 0;
 
     brainGetTarget(b);
@@ -1102,10 +1100,10 @@ static __inline__ void girlBrainDebugPrint(void)
 /* girl_act.c:577-585 in the listing. */
 static inline float girlBrainGetTargetLevel(void)
 {
-    if (D_002A5580->idx == -1) {
+    if (brainGirl.idx == -1) {
         return 0.0f;
     }
-    return D_002A5580->f20;
+    return brainGirl.f20;
 }
 
 /* girl_act.c:588-598 in the listing: the kind of the held target, 0 while
@@ -1113,7 +1111,7 @@ static inline float girlBrainGetTargetLevel(void)
    of the caller's volatile entry parameter at the site. */
 static inline int girlBrainGetTargetType(void *g)
 {
-    Brain *b = D_002A5580;
+    Brain *b = &brainGirl;
 
     if (b->idx == -1) {
         return 0;
@@ -1317,7 +1315,6 @@ static int D_0029D4A0[4][4] = {
     {3, 2, 1, 1},
 };
 
-extern float D_002A5594[];
 extern char D_005D3EF0[];
 extern char D_0055FE58[];
 
@@ -1391,7 +1388,7 @@ void subGirlBrainMain(volatile int a0)
         brain_val.runMode = mode;
         brain_val.timer = 0;
         brain_val.wait = rand() % 3;
-        n = (int)D_002A5594[0];
+        n = (int)brainGirl.f14;
         n = n / 3;
         n = (n < 0) ? 0 : ((n < 4) ? n : 3);
         t = D_0029D4A0[n][0];
@@ -1691,7 +1688,7 @@ void subGirlBrainMain(volatile int a0)
         switch (mode) {
         case 0:
         case 1:
-            D_002A5580[0].f18 = 0.0f;
+            brainGirl.f18 = 0.0f;
             break;
         case 4:
             if ((((int)(((ActStatus *)((char *)act + 0x18))->ll >> 63)) & 1) ||
@@ -1699,7 +1696,7 @@ void subGirlBrainMain(volatile int a0)
                 act->flags20.ll |= 4;
             }
             ACTSendMailCorrect((void *)a0, 0x155);
-            D_002A5580[0].f18 = 3.0f;
+            brainGirl.f18 = 3.0f;
             if (brain_val.timer++ >
                 brain_val.limit * ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 60) {
                 ChangeRunMode(brain_val.runMode == 0);
@@ -1710,7 +1707,7 @@ void subGirlBrainMain(volatile int a0)
             break;
         case 2:
             ACTSendMailCorrect((void *)a0, 0x155);
-            D_002A5580[0].f18 = 6.0f;
+            brainGirl.f18 = 6.0f;
             if (brain_val.timer++ >
                 brain_val.limit * ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 60) {
                 ChangeRunMode(brain_val.runMode == 0);
@@ -1721,7 +1718,7 @@ void subGirlBrainMain(volatile int a0)
             break;
         case 3:
         case 9:
-            D_002A5580[0].f18 = 3.0f;
+            brainGirl.f18 = 3.0f;
             ACTSendMailCorrect((void *)a0, 0x155);
             if (brain_val.timer++ >
                 brain_val.limit * ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 60) {
@@ -1734,7 +1731,7 @@ void subGirlBrainMain(volatile int a0)
         case 6: {
             void *look_at = 0;
 
-            D_002A5580[0].f18 = 3.0f;
+            brainGirl.f18 = 3.0f;
             if (brain_val.f_5908 / ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 2) & 1) {
                 look_at = D_00639EA4;
             } else if (brain_val.others.num != 0) {
@@ -1759,7 +1756,7 @@ void subGirlBrainMain(volatile int a0)
             } else {
                 c = v;
             }
-            if (D_002A5580[0].f14 > 1.0f) {
+            if (brainGirl.f14 > 1.0f) {
                 v = 0.1f;
             } else {
                 v = c;
@@ -2616,7 +2613,7 @@ void subGirlBrain_Escape(volatile int a0)
         case 3:
             sub->f_34C = 0;
             ACTSendMailCorrect((void *)a0, 0xE5);
-            D_002A5580[0].f18 = 9.0f;
+            brainGirl.f18 = 9.0f;
             if ((((int)(((ActStatus *)((char *)sub + 0x18))->ll >> 63)) & 1) ||
                 (sub->flags20.i[0] & 1)) {
                 sub->flags20.ll = sub->flags20.ll | 4;
@@ -3817,7 +3814,7 @@ void subGirlCollision(volatile int a0)
     for (;;) {
         flag = 0;
         ACTGame_CommonLoop((void *)a0);
-        brainLevelProcess(D_002A5580);
+        brainLevelProcess(&brainGirl);
         ACTLookTargetSystem_Exec((void *)a0);
         ACTParaStatus_Exec((void *)a0);
         if (*(float *)((char *)sub + 0x34C) != 0.0f) {

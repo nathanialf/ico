@@ -398,7 +398,6 @@ static inline void MoveNextStage_Get(ActInit *a, int kind)
 }
 
 extern int gamesysGirlStageGet(void);
-extern char D_002A5580[];
 extern void *D_00639EA8;
 extern void MakeCollisionDependGObjList(void);
 /* kept local: this TU passes a 64-bit process priority where the prototype in
@@ -514,7 +513,7 @@ void initSceneGObj(int stage, int no)
             *gen->f28 = (int)gobj;
         }
 
-        brainStatusDefaultSet(D_002A5580, (int)gobj, no);
+        brainStatusDefaultSet(&brainGirl, (int)gobj, no);
 
         eBrainStatusSet(gobj, gen->kind);
 

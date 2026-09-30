@@ -9,6 +9,7 @@
 #include "tableSin.h"
 #include <string.h>
 #include <stdio.h>
+#include "GsBase.h"
 
 typedef struct {
     /* 0x00 */ int cr;
@@ -28,10 +29,6 @@ typedef struct {
 } Fan2D;
 
 extern void *D_0063A44C;
-extern float center_X;
-extern float center_Y;
-extern int ScreenWidth;
-extern int ScreenHeight;
 
 Fan2D *prim_InitFan2D(int n, float *pos, unsigned int cc, unsigned int rc, float r)
 {

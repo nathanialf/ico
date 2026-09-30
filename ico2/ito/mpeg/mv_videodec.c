@@ -8,6 +8,42 @@
 #include "mv_vobuf.h"
 #include "typedef.h"
 
+/* the MPEG library's callbacks; their out-of-line copies are deferred to the
+   end of the file */
+inline int mpegError(int a0, int *self)
+{
+    debug_StdPrintfDummy("%s\n", self[1]);
+    return 1;
+}
+
+inline int mpegNodata(int a0, int a1, int a2)
+{
+    switchThread(a0, a1);
+    viBufAddDMA(a2 + 0x50);
+    return 1;
+}
+
+inline int mpegStopDMA(int a0_unused, int a1_unused, char *p)
+{
+    viBufStopDMA((int)(p + 0x50));
+    return 1;
+}
+
+inline int mpegRestartDMA(int a0_unused, int a1_unused, char *p)
+{
+    viBufRestartDMA((int)(p + 0x50));
+    return 1;
+}
+
+inline int mpegTS(int a0_unused, int *a1, char *a2)
+{
+    long long buf[4];
+    viBufGetTs((int *)(a2 + 0x50), (int *)buf);
+    *(long long *)((char *)a1 + 0x8) = buf[0];
+    *(long long *)((char *)a1 + 0x10) = buf[1];
+    return 1;
+}
+
 void free_buf(int a0)
 {
     Free(*(int *)(a0 + 0x48));
@@ -19,11 +55,6 @@ extern void *memset(void *p, int c, int n);
 extern int D_0063A468;
 extern int sceMpegCreate(void *self, void *buf, int size);
 extern int sceMpegAddCallback(void *self, int id, void *fn, void *arg);
-int mpegError(int a0, int *self);
-int mpegNodata(int a0, int a1, int a2);
-int mpegStopDMA(int a0_unused, int a1_unused, char *p);
-int mpegRestartDMA(int a0_unused, int a1_unused, char *p);
-int mpegTS(int a0_unused, int *a1, char *a2);
 
 int videoDecCreate(int self)
 {
@@ -63,17 +94,14 @@ typedef struct Code4 {
     char b[4];
 } Code4;
 
-extern Code4 D_0063AC90[];
-
 int videoDecFlush(int a0)
 {
-    Code4 code;
+    Code4 code = {{0x00, 0x00, 0x01, 0xB7}}; /* the MPEG sequence end code */
     void *p0;
     int n0;
     void *p1;
     int n1;
 
-    code = D_0063AC90[0];
     videoDecBeginPut(a0, &p0, &n0, &p1, &n1);
     if (n0 + n1 < 4) {
         return 0;
@@ -230,40 +258,4 @@ void videoDecMain(int *self)
     voBufReset(self[2]);
     decBitStrm0((int *)self[0], (int *)self[1], (int *)self[2]);
     *(int *)(self[0] + 0xB8) = 3;
-}
-
-extern const char D_0063AC88[];
-
-int mpegError(int a0, int *self)
-{
-    debug_StdPrintfDummy(D_0063AC88, self[1]);
-    return 1;
-}
-
-int mpegNodata(int a0, int a1, int a2)
-{
-    switchThread(a0, a1);
-    viBufAddDMA(a2 + 0x50);
-    return 1;
-}
-
-int mpegStopDMA(int a0_unused, int a1_unused, char *p)
-{
-    viBufStopDMA((int)(p + 0x50));
-    return 1;
-}
-
-int mpegRestartDMA(int a0_unused, int a1_unused, char *p)
-{
-    viBufRestartDMA((int)(p + 0x50));
-    return 1;
-}
-
-int mpegTS(int a0_unused, int *a1, char *a2)
-{
-    long long buf[4];
-    viBufGetTs((int *)(a2 + 0x50), (int *)buf);
-    *(long long *)((char *)a1 + 0x8) = buf[0];
-    *(long long *)((char *)a1 + 0x10) = buf[1];
-    return 1;
 }

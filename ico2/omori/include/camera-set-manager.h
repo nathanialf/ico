@@ -12,6 +12,13 @@
 #ifndef CAMERA_SET_MANAGER_H
 #define CAMERA_SET_MANAGER_H
 
+/* MAIN.MAP globals: the current stage's camera set, its group count, and its
+   group and pin tables */
+extern void *TopCameraSetDataOfCurrentStage;
+extern int NumOfGroup;
+extern void *TopOfCameraGroup;
+extern void *TopOfCameraPin;
+
 void InitCameraSetManager(void);
 
 #endif /* CAMERA_SET_MANAGER_H */

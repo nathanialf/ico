@@ -4,6 +4,7 @@
 #include "DisplayList.h"
 #include "debug.h"
 #include <string.h>
+#include "GsBase.h"
 
 /* One mipmap level of a texture record: the ROM reads addr with lw at +0, dbw
  * and vramSize with lh at +4 and +6, and indexes a 13-entry short table at +8
@@ -1290,8 +1291,6 @@ typedef struct TexColor {
     unsigned char a;
 } TexColor;
 
-extern int ScreenWidth;
-extern int ScreenHeight;
 extern void gif_StartPacketPri(int pri);
 extern void gif_SetGsReg(long long reg, long long val);
 extern void gif_EndPacket(void);

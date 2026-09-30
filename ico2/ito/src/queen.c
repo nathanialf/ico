@@ -1080,8 +1080,6 @@ static const char queenDeadMsg[] = "queen dead\n";
 
 static const char queenBallScrTexture[] = "queen_ball_scr";
 
-extern char D_0063AC58[];
-
 /* The queen's per-frame motion-status record, refreshed from the actor
  * extension at gobj->x15C every tick. */
 /* One status slot: the motion-parameter words the actor extension keeps are
@@ -1216,7 +1214,7 @@ void subQueenBrainMain(volatile int g)
         ball = isysGObjSearchFromObjKindID_begin(54);
         QueenStatusUpdate((char *)g, &st);
         if (debug_font_flag & 1) {
-            debug_Printf(10, 80, -1, D_0063AC58, InqQueenBarrierExist());
+            debug_Printf(10, 80, -1, "barr %d", InqQueenBarrierExist());
         }
         if ((*(int *)w & 0xFF0000FF) == 0 && *(signed char *)(w + 1) != 0 && bar != 0 &&
             ball != 0) {

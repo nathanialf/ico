@@ -1,5 +1,6 @@
 #include "Matrix.h"
 #include "matrixDrive.h"
+#include "GsBase.h"
 
 /* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha();
@@ -26,8 +27,6 @@ extern int _IsInScreen(int *p);
 /* kept local: this TU's uses of gif_MakeLine2D do not fit the prototype in GifPacket.h */
 extern void gif_MakeLine2D(int *v0, int *v1, int z0, int z1, unsigned char *col, int n);
 extern char *matrixptr;
-extern int ScreenWidth;  /* screen width  */
-extern int ScreenHeight; /* screen height */
 
 #include "poly-flat.h"
 #include <libvu0.h>

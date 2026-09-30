@@ -12,6 +12,10 @@
 #ifndef EBRAIN_H
 #define EBRAIN_H
 
+/* MAIN.MAP globals: how many enemies chase the boy and the girl */
+extern int eBrainBoyChaseCount;
+extern int eBrainGirlChaseCount;
+
 typedef struct EBSlot {
     unsigned short f0; /* 0x00 status */
     char pad2[2];

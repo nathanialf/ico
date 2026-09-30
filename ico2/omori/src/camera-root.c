@@ -166,8 +166,6 @@ void MakeMatrixFromCameraSet2(void *dst, CameraSet2 *cs)
 }
 
 extern char *matrixptr;
-extern int ScreenWidth;
-extern int ScreenHeight;
 
 void MakeCameraMatrix(CameraSet2 *cs)
 {
@@ -194,7 +192,9 @@ typedef struct EditPad {
 } EditPad;
 
 extern EditPad D_0028F8F0;
-extern int D_0063AB68;
+
+/* the manual camera's speed, 1 to 4 on the pad's buttons */
+static int manualCameraSpeed = 2; /* derived name */
 
 void CameraEditManual(CameraSet2 *set, int noLock)
 {
@@ -205,16 +205,16 @@ void CameraEditManual(CameraSet2 *set, int noLock)
     float out[4];
 
     if (D_0028F8F0.trg & 0x1000) {
-        D_0063AB68 = 1;
+        manualCameraSpeed = 1;
     }
     if (D_0028F8F0.trg & 0x2000) {
-        D_0063AB68 = 2;
+        manualCameraSpeed = 2;
     }
     if (D_0028F8F0.trg & 0x4000) {
-        D_0063AB68 = 3;
+        manualCameraSpeed = 3;
     }
     if (D_0028F8F0.trg & 0x8000) {
-        D_0063AB68 = 4;
+        manualCameraSpeed = 4;
     }
 
     d = 0x80 - D_0028F8F0.stick[1];
@@ -225,11 +225,11 @@ void CameraEditManual(CameraSet2 *set, int noLock)
         if ((d < 0 ? -d : d) >= 0x33) {
             if (d < 0x32) {
                 t = (d + 0x32) * 10;
-                set->pos[1] -= (float)(D_0063AB68 * t) / 78.0f;
+                set->pos[1] -= (float)(manualCameraSpeed * t) / 78.0f;
             }
             if (d >= 0x33) {
                 t = (d - 0x32) * 10;
-                set->pos[1] -= (float)(D_0063AB68 * t) / 78.0f;
+                set->pos[1] -= (float)(manualCameraSpeed * t) / 78.0f;
             }
         }
     } else {
@@ -264,11 +264,11 @@ void CameraEditManual(CameraSet2 *set, int noLock)
         if (noLock || (D_0028F8F0.flags & 1) == 0) {
             if (d < 0x32) {
                 t = (d + 0x32) * 10;
-                mz = (float)(D_0063AB68 * t) / 78.0f;
+                mz = (float)(manualCameraSpeed * t) / 78.0f;
             }
             if (d >= 0x33) {
                 t = (d - 0x32) * 10;
-                mz = (float)(D_0063AB68 * t) / 78.0f;
+                mz = (float)(manualCameraSpeed * t) / 78.0f;
             }
         }
     }
@@ -281,11 +281,11 @@ void CameraEditManual(CameraSet2 *set, int noLock)
         if ((D_0028F8F0.flags & 0x200) == 0) {
             if (d < 0x32) {
                 t = (d + 0x32) * 10;
-                mx = (float)(D_0063AB68 * t) / 78.0f;
+                mx = (float)(manualCameraSpeed * t) / 78.0f;
             }
             if (d >= 0x33) {
                 t = (d - 0x32) * 10;
-                mx = (float)(D_0063AB68 * t) / 78.0f;
+                mx = (float)(manualCameraSpeed * t) / 78.0f;
             }
         }
     }
@@ -332,7 +332,6 @@ void DebugCameraSemiAuto(void)
     MakeCameraMatrix(&cameraSet);
 }
 
-extern int D_0063AB9C;
 /* kept local: this TU's uses of SetCameraTargetPosition do not fit the prototype in camera-ico2.h */
 extern void SetCameraTargetPosition(void *, void *, float);
 /* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
@@ -349,7 +348,7 @@ void BackToGameCamera(void)
     *(int *)(buf + 0x7C) = 0;
     sceVu0ApplyMatrix(buf + 0x10, buf + 0x20, buf + 0x70);
     sceVu0ScaleVector(buf + 0x10, buf + 0x10, -1.0f);
-    GetRootPosition(buf + 0x60, D_0063AB9C);
+    GetRootPosition(buf + 0x60, default_cameratarget_gobj);
     f20v = _DistGV(buf + 0x10, buf + 0x60);
     *(int *)(buf + 0xC) = 0;
     sceVu0ApplyMatrix(buf, buf + 0x20, buf);
@@ -417,16 +416,24 @@ static inline void InsertCamera_Clear(void)
 /* kept local: this TU's uses of InitIco2Camera do not fit the prototype in camera-ico2.h */
 extern void InitIco2Camera(void);
 extern int D_0028F720[];
-extern int D_0063AB98;
-extern int D_0063ABA0;
-extern int D_0063ABA4;
-extern int D_0063ABA8;
+
+int CameraCalclated_f;
+
+int default_cameratarget_gobj;
+
+int InsertCameraWorkingFlag;
+
+int FixViewInGameCameraFlag;
+
+int monitorCameraHold; /* derived name */
+
+int insertCameraBlendTimer; /* derived name */
 
 void InitCamera(void)
 {
     int gobj = getCameraDefaultTargetGObj();
     InsertCamera_Clear();
-    D_0063AB9C = gobj;
+    default_cameratarget_gobj = gobj;
     cameraMode = 3;
     *(CamTgt *)&targetCameraSet = *(CamTgt *)&cameraSet = cameraTargetDefault;
     Camctrl_Init(gobj);
@@ -436,10 +443,10 @@ void InitCamera(void)
     gamecamCutBack = 0;
     zoomRequest = 0;
     lwsCutBack = 0;
-    D_0063AB98 = 0;
-    D_0063ABA4 = 0;
-    D_0063ABA0 = 0;
-    D_0063ABA8 = 0;
+    CameraCalclated_f = 0;
+    FixViewInGameCameraFlag = 0;
+    InsertCameraWorkingFlag = 0;
+    monitorCameraHold = 0;
     debug_zoom_per = 100;
     handCameraLimitP = D_0028F720[0x180 / 4];
     handCameraLimitV = D_0028F720[0x184 / 4];
@@ -476,13 +483,8 @@ union CamWork {
 };
 
 extern int D_0028F4C0[];
-extern int D_0063AB98;
 extern char *matrixptr;
 extern void BackToGameCamera(void);
-extern int D_0063ABA0;
-extern int D_0063ABA4;
-extern int D_0063ABAC;
-extern int D_0063AB9C;
 extern float IsPointIsInScreen();
 /* same prototype as commonact.h's, kept local: this TU includes no commonact.h */
 extern void *test_CURRENTROOT(void *gobj);
@@ -495,15 +497,15 @@ static inline void Camctrl_Exec(void)
     int last;
 
     if (camctrl.pri != 0) {
-        D_0063ABAC = 0;
+        insertCameraBlendTimer = 0;
     }
-    if (D_0063ABAC != 0) {
-        D_0063ABAC = D_0063ABAC - 1;
+    if (insertCameraBlendTimer != 0) {
+        insertCameraBlendTimer = insertCameraBlendTimer - 1;
     }
-    if ((last = camctrl.lastPri) == 1 && camctrl.pri == 0 && D_0063AB9C != 0 &&
-        IsPointIsInScreen(pos, test_CURRENTROOT((void *)D_0063AB9C)) < 0.0f) {
-        D_0063ABAC = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1];
-        D_0063ABA0 = last;
+    if ((last = camctrl.lastPri) == 1 && camctrl.pri == 0 && default_cameratarget_gobj != 0 &&
+        IsPointIsInScreen(pos, test_CURRENTROOT((void *)default_cameratarget_gobj)) < 0.0f) {
+        insertCameraBlendTimer = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1];
+        InsertCameraWorkingFlag = last;
     }
     CameraSetTargetGObj(camctrl.gobj, camctrl.subGObj);
     camctrl.lastPri = camctrl.pri;
@@ -514,7 +516,7 @@ static inline void Camctrl_Exec(void)
 static inline void Camctrl_ExitNormal(void)
 {
     if (camctrl.pri < 3) {
-        Camctrl_ForceTarget(D_0063AB9C);
+        Camctrl_ForceTarget(default_cameratarget_gobj);
     }
 }
 
@@ -555,15 +557,9 @@ static inline void cameraSetMode(int x)
 
 #define CAM_ABS(x) ((x) < 0 ? -(x) : (x))
 
-extern int ScreenWidth;
-extern int ScreenHeight;
-extern char D_0063AB70[]; /* "FREECAM" */
-extern char D_0063AB78[]; /* "GAMECAM" */
-extern char D_0063AB80[]; /* "HANDCAM" */
-extern char D_0063AB88[]; /* "PATHCAM" */
-extern unsigned char D_0063AB90;
-extern int D_0063AB94;
-extern int D_0063AB6C;
+/* set when the monitor camera must start over */
+static int monitorCameraInit = 0; /* derived name */
+
 extern int debug_ignore_demo_camera;
 extern int debug_font_flag;
 extern int debug_font_flag3;
@@ -616,10 +612,10 @@ void SetCameraMatrix(void)
 
     useDemo = 0;
     gobj = getCameraDefaultTargetGObj();
-    D_0063AB9C = gobj;
-    D_0063AB98 = 1;
-    D_0063ABA0 = 0;
-    D_0063ABA4 = 0;
+    default_cameratarget_gobj = gobj;
+    CameraCalclated_f = 1;
+    InsertCameraWorkingFlag = 0;
+    FixViewInGameCameraFlag = 0;
     zoomBlend = -1.0f;
     Camctrl_Exec();
     cameraZoom = 0.0f;
@@ -640,7 +636,7 @@ void SetCameraMatrix(void)
     case 2:
         DebugCameraSemiAuto();
         if (debug_font_flag3 != 0 || (debug_font_flag & 1) != 0) {
-            debug_Printf(220, 30, 0xFFFFFF00, D_0063AB70);
+            debug_Printf(220, 30, 0xFFFFFF00, "FREECAM");
         }
         if ((D_0028F8F0.flags & 2) != 0 && (D_0028F8F0.trg04 & 0x100) != 0) {
             cameraSetMode(3);
@@ -653,14 +649,14 @@ void SetCameraMatrix(void)
         SetCameraMatrix_Ico2(gamecamCutBack);
         gamecamCutBack = 0;
         if (debug_font_flag3 != 0 || (debug_font_flag & 1) != 0) {
-            debug_Printf(220, 30, 0xFFFFFF00, D_0063AB78);
+            debug_Printf(220, 30, 0xFFFFFF00, "GAMECAM");
         }
         break;
     case 1:
     handCamera:
         DebugCameraManual();
         if (debug_font_flag3 != 0 || (debug_font_flag & 1) != 0) {
-            debug_Printf(220, 30, 0xFFFFFF00, D_0063AB80);
+            debug_Printf(220, 30, 0xFFFFFF00, "HANDCAM");
         }
         if ((D_0028F8F0.trg04 & 0x100) != 0) {
             cameraSetMode(3);
@@ -677,7 +673,7 @@ void SetCameraMatrix(void)
         }
         SetLimitHandCameraCorrect((float)handCameraLimitP, (float)handCameraLimitV);
         if (debug_font_flag3 != 0 || (debug_font_flag & 1) != 0) {
-            debug_Printf(220, 30, 0xFFFFFF00, D_0063AB88);
+            debug_Printf(220, 30, 0xFFFFFF00, "PATHCAM");
         }
         if (debug_font_flag3 != 0 || (debug_font_flag & 1) != 0) {
             debug_Printf(310, 30, 0xFFFFFF00, "%d,%d,%d %d", (int)m[12], (int)m[13], (int)m[14],
@@ -745,7 +741,7 @@ void SetCameraMatrix(void)
         union CamQuad ofs;
         float ry;
 
-        root = D_0063AB9C;
+        root = default_cameratarget_gobj;
         GetRootPosition(rootPos, root);
         ofs = (union CamQuad){{0.0f, -200.0f, -500.0f, 0.0f}};
         ry = (float)(int)(_GetDirection(test_CURRENTORIENT(root)) / 3.14159265f * 180.0f) *
@@ -762,6 +758,7 @@ void SetCameraMatrix(void)
     }
     Camctrl_ExitNormal();
     {
+        static unsigned char zoomBaseInit = 1; /* derived name */
         CamZoomStep zp[3] = {
             {10, 200}, {10, 200}, {(int)_ACTGame_GetParamF(12), (int)_ACTGame_GetParamF(11)}};
         int padCtx[0x30 / 4];
@@ -773,8 +770,8 @@ void SetCameraMatrix(void)
             zoomMax = zp[0].max;
         }
         iosPadConnect(padCtx, 0, 0, iosPadConfCustom);
-        if (D_0063AB90 != 0) {
-            D_0063AB90 = 0;
+        if (zoomBaseInit != 0) {
+            zoomBaseInit = 0;
             zoomBase = debug_zoom_per;
         }
         iosPadRead(padCtx);
@@ -813,18 +810,24 @@ void SetCameraMatrix(void)
         SetCameraZoomOffsetRatio(1.0f - (float)(debug_zoom_per - zoomRangeMin) /
                                             (float)(zoomRangeMax - zoomRangeMin));
     }
-    GlobalTimer = 0;
-    if (D_0063AB94 != cameraMode || D_0063AB6C != 0) {
-        GlobalTimer = 1;
+    /* the ROM holds this word after the mode names above, so it is declared
+       here, in the block that uses it, and not at the top of the function */
+    {
+        static int lastCameraMode = 3; /* derived name */
+
+        GlobalTimer = 0;
+        if (lastCameraMode != cameraMode || monitorCameraInit != 0) {
+            GlobalTimer = 1;
+        }
+        lastCameraMode = cameraMode;
+        monitorCameraInit = 0;
     }
-    D_0063AB94 = cameraMode;
-    D_0063AB6C = 0;
 }
 
 void Camctrl_ExitEveRock(void)
 {
     if (camctrl.pri < 4) {
-        Camctrl_ForceTarget(D_0063AB9C);
+        Camctrl_ForceTarget(default_cameratarget_gobj);
     }
 }
 
@@ -1078,7 +1081,7 @@ void CameraSetTargetPos(void) {}
 
 void *GetCameraPos(void)
 {
-    if (D_0063AB98 == 0) {
+    if (CameraCalclated_f == 0) {
         return 0;
     }
     return &cameraSet;
@@ -1100,9 +1103,7 @@ void testcamerazoom(void)
     zoomRequest = 1;
 }
 
-extern int D_0063AB6C;
-
 void SetMonitorCameraInitializeFlag(void)
 {
-    D_0063AB6C = 1;
+    monitorCameraInit = 1;
 }

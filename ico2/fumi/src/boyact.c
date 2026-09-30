@@ -959,8 +959,9 @@ extern PadConf iosPadConfCustom;
 extern int D_00639EAC;
 extern void *D_00639EC0;
 extern void *optionControlType;
-extern int D_0063ABA0;
-extern int D_0063ABA4;
+/* kept local: camera-root.h's GetCurrentCameraSet2 does not fit this TU's uses */
+extern int InsertCameraWorkingFlag;
+extern int FixViewInGameCameraFlag;
 
 /* the ClipWall work record as this function uses it: the two segment
    endpoints, the radius at 0x70 and the hit flag at 0x88 (commonact.c's
@@ -1080,10 +1081,10 @@ void subBoyControl(volatile int a0)
     E3_StageStartBoy((void *)a0);
     layoutActPushStartNew = 0;
     while (1) {
-        if (D_0063ABA4) {
+        if (FixViewInGameCameraFlag) {
             n = 3;
         }
-        if (D_0063ABA0) {
+        if (InsertCameraWorkingFlag) {
             n = 3;
         }
         if ((int)(*(unsigned long long *)(s + 0x20) >> 31) & 1) {

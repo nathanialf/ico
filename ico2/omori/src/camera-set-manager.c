@@ -1,6 +1,14 @@
-extern int D_0063ABB0;
+#include "camera-set-manager.h"
+
+void *TopCameraSetDataOfCurrentStage;
+
+int NumOfGroup;
+
+void *TopOfCameraGroup;
+
+void *TopOfCameraPin;
 
 void InitCameraSetManager(void)
 {
-    D_0063ABB0 = 0;
+    TopCameraSetDataOfCurrentStage = 0;
 }

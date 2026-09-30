@@ -626,8 +626,6 @@ typedef struct {
 } DbgDpk;
 
 extern DbgDpk PacketBufferStruct;
-extern int ScreenWidth;
-extern int ScreenHeight;
 extern void _CopyIVector(void *dst, void *src);
 /* kept local: this TU's uses of gif_CheckOpen do not fit the prototype in GifPacket.h */
 extern int gif_CheckOpen(void);
@@ -652,7 +650,6 @@ typedef struct {
     int x, y, z, w;
 } DbgVtx;
 
-extern Brain D_002A5580[];
 extern float brainGetLevel(Brain *b, BrainTarget *t);
 /* kept local: this TU's uses of gif_Line do not fit the prototype in GifPacket.h */
 extern void gif_Line(void *v0, void *v1, unsigned int z0, unsigned int z1, void *col, int prim);
@@ -1691,7 +1688,7 @@ void debug_brainBar(void)
     y = ytop;
     gif_StartPacketPri(0xB);
     gif_SetAlpha(1, 2, c3.a);
-    brain = &D_002A5580[0];
+    brain = &brainGirl;
     for (i = 0; i < 40; i++) {
         b.x = 300;
         a.y = b.y = y;

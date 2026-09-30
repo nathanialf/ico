@@ -22,21 +22,21 @@ static inline void brainSetTargetTimer(BrainTarget *t)
     t->timer = n;
 }
 
-extern int D_002A5580[];
-extern int D_002A5584[];
+Brain brainGirl = {0};
+
 void brainAddLevel(BrainTarget *t, float lv);
 void brainSetLevel(int *b, BrainTarget *t, float lv);
 
 void brainAddLevelGirl(float lv)
 {
-    if (D_002A5584[0] != 0) {
-        brainAddLevel((BrainTarget *)D_002A5584[0], lv);
+    if (brainGirl.cur != 0) {
+        brainAddLevel(brainGirl.cur, lv);
     }
 }
 
 void brainInit(void)
 {
-    Brain *b = (Brain *)D_002A5580;
+    Brain *b = &brainGirl;
     int i;
 
     b->girl = 0;
@@ -354,11 +354,11 @@ void brainClsTargetLevel(Brain *b)
 
 void brainInitGirlSet(void *a0, int a1)
 {
-    int *base = D_002A5580;
+    int *base = (int *)&brainGirl;
     int *p = (int *)((char *)base + 0x28);
     int key;
     int t;
-    D_002A5580[0] = (int)a0;
+    brainGirl.girl = (int)a0;
     key = *p;
     if (key == 0) {
         return;
@@ -376,7 +376,7 @@ void brainInitGirlSet(void *a0, int a1)
 
 void brainAddLevelGirlDetail(int flag, float lv)
 {
-    Brain *b = (Brain *)D_002A5580;
+    Brain *b = &brainGirl;
 
     if (b->cur != 0) {
         brainAddLevel(b->cur, lv);
@@ -388,7 +388,7 @@ void brainAddLevelGirlDetail(int flag, float lv)
 
 void brainAddLevelGop(int gobj, float lv)
 {
-    int brain = (int)D_002A5580;
+    int brain = (int)&brainGirl;
     int tgt = brain + 0x28;
     int i;
 
@@ -401,7 +401,7 @@ void brainAddLevelGop(int gobj, float lv)
 
 void brainSubLevelGop(int gobj, float lv)
 {
-    int brain = (int)D_002A5580;
+    int brain = (int)&brainGirl;
     int tgt = brain + 0x28;
     int i;
 
@@ -424,7 +424,7 @@ void brainSubLevelGop(int gobj, float lv)
 
 void brainSetLevelGop(int gobj, int a1, int a2, float lv)
 {
-    int brain = (int)D_002A5580;
+    int brain = (int)&brainGirl;
     int tgt = brain + 0x28;
     int i;
 
@@ -459,7 +459,7 @@ static inline int brainDecTimer(BrainTarget *e)
 
 int brainDecTargetTimer(int gobj)
 {
-    int brain = (int)D_002A5580;
+    int brain = (int)&brainGirl;
     int tgt = brain + 0x28;
     BrainTarget *e;
     int i;
@@ -475,23 +475,19 @@ found:
     return brainDecTimer(e);
 }
 
-extern int D_002A558C[];
-
 void brainSetSpMode(void)
 {
-    D_002A558C[0] = 1;
+    brainGirl.wC = 1;
 }
-
-extern int D_002A5588[];
 
 void brainLockGirl(void)
 {
-    D_002A5588[0] = 1;
+    brainGirl.w8 = 1;
 }
 
 void brainUnlockGirl(void)
 {
-    D_002A5588[0] = 0;
+    brainGirl.w8 = 0;
 }
 
 void brainAddLevel(BrainTarget *t, float lv)

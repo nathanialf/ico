@@ -5,6 +5,7 @@
 #include "quaternion.h"
 #include <stdlib.h>
 #include "sugiCommon.h"
+#include "GsBase.h"
 
 /* The packed colour word.  ROM copies it with lwl/lwr + swl/swr, which is
    gcc's unaligned block move: the type is a four-byte record of chars, so
@@ -28,7 +29,6 @@ typedef struct PointBlur {
     /* 0x38 */ char _pad38[8];
 } PointBlur;
 
-extern int currentScreenWidth;
 extern int GlobalTimer;
 extern char *matrixptr;
 /* kept local: this TU's uses of ZUnitVector do not fit the prototype in matrixDrive.h */

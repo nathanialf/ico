@@ -9,7 +9,9 @@
 #include <string.h>
 #include <libvu0.h>
 
-extern int warpGirlId;
+int warpGirlInStageSet = 0;
+
+int warpGirlId;
 
 inline void warpGirlInit(void)
 {
@@ -57,8 +59,6 @@ extern int stage_no;
 static int warpFound;
 
 extern int D_00639EA8;
-extern char D_0063AA58[];
-extern char D_0063AA60[];
 
 /* warpGirl.c:75-81 in the listing: the "this record wins" setter.  No MAIN.MAP
    symbol (the listing inlines it), so the name is ours. */
@@ -87,13 +87,13 @@ void warpGirlOutStage(int stage, int noSet)
     if (D_00639EA8 == 0) {
         int n = 10;
 
-        debug_StdPrintfDummy(D_0063AA58);
+        debug_StdPrintfDummy("\x1b[36m");
         while (n-- != 0) {
             /* warpGirl.c: odd to come through here outside DEBUG STAGE SELECT */
             debug_StdPrintfDummy(
                 "warpGirl.c:もしDEBUG STAGE SELECTでなくてここを通ったら おかしい！");
         }
-        debug_StdPrintfDummy(D_0063AA60);
+        debug_StdPrintfDummy("\x1b[0m");
         return;
     }
     warpGirlId = 0;
@@ -145,8 +145,6 @@ void warpGirlOutStage(int stage, int noSet)
         }
     }
 }
-
-extern int warpGirlInStageSet;
 
 void warpGirlInStage(int stageNo)
 {

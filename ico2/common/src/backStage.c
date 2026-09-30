@@ -125,6 +125,7 @@ extern int D_0028F4C0[];
 extern int D_004DA7D0[];
 extern unsigned int gamesysTimeCount;
 extern int D_00639EA8;
+/* kept local: warpGirl.h is not in this TU's include list */
 extern int warpGirlInStageSet;
 extern char D_0063ACF8[];
 /* kept local: this TU's uses of WayPointWithRangeFromPos do not fit the prototype in way_kidnap.h */

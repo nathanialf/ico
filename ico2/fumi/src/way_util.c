@@ -79,6 +79,9 @@ extern int D_0063A438;
 /* the name every iosMallocDebug and assert in this file reports itself under */
 static const char wayUtilFile[] = "src/way_util.c";
 
+/* set while the way tool loads or saves (MAIN.MAP global) */
+int load_save_flag = 0;
+
 /* the red, green and blue the waypoint debug draw uses for the three axes.
    No instruction in the retail ELF reaches the table; it sits between the file
    name above and this file's format strings, which is how its extent is known.
@@ -325,8 +328,47 @@ int short_direction_between_wp(char *from, char *to)
 extern WNODE *WayBridge_begin(void);
 extern WNODE *WayBridge_next(WNODE *);
 extern Nd D_004F31E0[];
-extern char D_0063A9F0[];
 extern char D_00554390[];
+/* The functions this file defines `inline` whose out-of-line copies the ROM
+   emits before direction_across_bridge's: gcc 2.9 writes deferred functions
+   at the end of the file in the order of their first declaration, and
+   direction_across_bridge is defined here, at its listing row, ahead of them. */
+char *nearest_waypoint_of_group(int *arg0, int handle);
+char *nearest_waypoint(int *a0);
+char *nearest_waypoint_from_gobj(void *dobj);
+char *nearest_waypoint_by_lineseg_of_group(void *arg0, int gid);
+char *nearest_waypoint_by_lineseg(void *arg0);
+char *nearest_waypoint_by_lineseg_of_group_from_gobj(void *dobj, int gid);
+char *nearest_waypoint_by_lineseg_from_gobj(void *dobj);
+char *waypoint_with_range(int *arg0, float thresh);
+char *nearest_waypoint_of_all_except_group(int *arg0, int a1);
+char *nearest_waypoint_of_all_not_bridge_except_group(int *arg0, int gid);
+char *nearest_waypoint_of_all(int *a0);
+int visible_waypoint_of_all(void *a0);
+void visible_waypoint_of_all_from_gobj(void *a0);
+char *visible_waypoint(int *arg0, int handle);
+char *visible_waypoint_from_gobj(void *dobj, int handle);
+void *get_wp_nearest_bridge_side_me(int arg0, int arg1);
+int get_wp_nearest_bridge_side_bridge(int arg0, int arg1);
+extern char D_00554378[];
+extern void __assert(void *a0, int a1, void *a2);
+extern void debug_assert(void *a0, int a1);
+
+inline int direction_across_bridge(void *a0, int a1)
+{
+    char *e1 = (char *)D_004F31E0 + *(int *)((char *)a0 + 0x20) * 0x40;
+    char *e2;
+    if (*(int *)(e1 + 0x20) == a1) {
+        return 1;
+    }
+    e2 = (char *)D_004F31E0 + *(int *)((char *)a0 + 0x24) * 0x40;
+    if (*(int *)(e2 + 0x20) != a1) {
+        debug_StdPrintfDummy(D_00554378);
+        debug_assert(wayUtilFile, 706);
+        __assert(wayUtilFile, 706, "0");
+    }
+    return 0;
+}
 
 /* INTERIM stand-in: waybridge_between_group is a real function of this TU whose
    out-of-line copy sits in the tail at its ROM slot; the compiler inlines it
@@ -362,12 +404,12 @@ int wgid_next(int me, int target)
 
             if (p->f4 == me) {
                 int g = ((WPElem *)D_004F31E0)[p->i20].f20;
-                debug_StdPrintfDummy(D_0063A9F0, g);
+                debug_StdPrintfDummy("gid:%d\n", g);
                 if (g == target) {
                     return me;
                 }
                 g = ((WPElem *)D_004F31E0)[p->i24].f20;
-                debug_StdPrintfDummy(D_0063A9F0, g);
+                debug_StdPrintfDummy("gid:%d\n", g);
                 if (g == target) {
                     return me;
                 }
@@ -647,11 +689,6 @@ typedef struct WayDist {
     float d1;
 } WayDist;
 
-/* gcc's anonymous 8-byte constant for the two {100000.0f, 100000.0f}
-   initialisers, declared as an array so the reference is %hi/%lo and not
-   gp-relative. */
-extern WayDist D_0063A9F8[];
-
 int set_bridge(int gid)
 {
     char *wpA[2];
@@ -666,8 +703,8 @@ int set_bridge(int gid)
 
     memset(wpA, 0, 8);
     memset(wpB, 0, 8);
-    dA = D_0063A9F8[0];
-    dB = D_0063A9F8[0];
+    dA = (WayDist){100000.0f, 100000.0f};
+    dB = (WayDist){100000.0f, 100000.0f};
 
     if (g->f14 == 1) {
         g->f18 = 0;
@@ -1101,27 +1138,6 @@ inline int get_wp_nearest_bridge_side_bridge(int arg0, int arg1)
             return (int)g->fC;
         if (b->f20 == arg0 && a->f20 == arg1)
             return (int)g->f8;
-    }
-    return 0;
-}
-
-extern char D_00554378[];
-extern char D_0063A9E8[];
-extern void __assert(void *a0, int a1, void *a2);
-extern void debug_assert(void *a0, int a1);
-
-inline int direction_across_bridge(void *a0, int a1)
-{
-    char *e1 = (char *)D_004F31E0 + *(int *)((char *)a0 + 0x20) * 0x40;
-    char *e2;
-    if (*(int *)(e1 + 0x20) == a1) {
-        return 1;
-    }
-    e2 = (char *)D_004F31E0 + *(int *)((char *)a0 + 0x24) * 0x40;
-    if (*(int *)(e2 + 0x20) != a1) {
-        debug_StdPrintfDummy(D_00554378);
-        debug_assert(wayUtilFile, 0x2C2);
-        __assert(wayUtilFile, 0x2C2, D_0063A9E8);
     }
     return 0;
 }

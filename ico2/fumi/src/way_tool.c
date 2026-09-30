@@ -351,6 +351,7 @@ inline int point_nige(void)
     return 0;
 }
 
+/* kept local: way_util.h's prototypes do not fit this TU's uses */
 extern int load_save_flag;
 extern void sceWrite(int a0, void *a1, int a2);
 

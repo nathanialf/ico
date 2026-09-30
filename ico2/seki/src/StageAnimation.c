@@ -10,6 +10,7 @@
 #include "Matrix.h"
 #include "RegistPacket.h"
 #include "quaternion.h"
+#include "GsBase.h"
 
 typedef union {
     int i;
@@ -102,7 +103,6 @@ extern int bga_CheckAnimationFrame(int a0, int a1, int a2);
 /* kept local: this TU's uses of bga_CheckSdfCameraFrame do not fit the prototype in BgAnimation.h */
 extern int bga_CheckSdfCameraFrame(int a0, int a1, int a2);
 extern char D_00550210[];
-extern int ScreenHeight;
 /* kept local: this TU's uses of bga_CalcSdfCamera do not fit the prototype in BgAnimation.h */
 extern void bga_CalcSdfCamera(char *p, int a1);
 extern char D_005F5E70[];

@@ -127,7 +127,6 @@ extern unsigned char D_0063BCB1;
 extern unsigned char D_0063BCB2;
 extern unsigned char D_0063BCB3;
 extern float mpegPlayFadeInSpeed;
-extern int fbKeep;
 extern int stgMgrWakeupRequest;
 /* kept local: this TU's uses of jimakuEnd do not fit the prototype in jimaku.h */
 extern void jimakuEnd();

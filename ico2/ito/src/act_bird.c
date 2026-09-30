@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "typedef.h"
+#include "GsBase.h"
 
 /* kept local: this TU's uses of ExecMotionOrient do not fit the prototype in motionOrientManager.h */
 extern void ExecMotionOrient();
@@ -254,8 +255,6 @@ extern int IdentityQuaternion[];
 extern int D_0028F4C0[];
 extern int matrixptr;
 extern char *D_00639EC0;
-extern int ScreenWidth;
-extern int ScreenHeight;
 extern void Debug_WireString_Bird(float *pos, char *fmt, ...);
 
 /* rows 256-263: point the bird `ang` radians round from where it faces. */

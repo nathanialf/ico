@@ -15,11 +15,9 @@
 #include "s_init.h"
 #include "script.h"
 #include <stdio.h>
+#include "GsBase.h"
 
 extern void *D_0063A428;
-extern int fbKeep;
-extern int ScreenWidth;
-extern int ScreenHeight;
 extern int debug_bar_flag;
 extern void *D_0063A430;
 extern void *D_0063A43C;

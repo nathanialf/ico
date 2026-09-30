@@ -5,6 +5,7 @@
 #include "act-game.h"
 #include "commonact.h"
 #include "camera-editor.h"
+#include "camera-set-manager.h"
 #include "hand-camera.h"
 #include "geometryManager.h"
 #include "matrixDrive.h"
@@ -23,8 +24,6 @@ typedef struct CamSetHdr {
     CamSetItem items[1]; /* 0x10 */
 } CamSetHdr;
 
-extern void *D_0063ABB0;
-extern int D_0063ABB4;
 /* kept local: this TU's uses of ReflectCameraSetBinary do not fit the prototype in camera-ico2.h */
 extern void ReflectCameraSetBinary(S4C *src, int count);
 extern const StgPre D_005F5D50[];
@@ -87,8 +86,6 @@ static float targetBPrev[3];
 static PluralCameraSet pluralCameraSet
     [10]; /* ten sets, the AddPluralCameraSet limit; MAIN.MAP camera-ico2.o .bss 0x500 ends here */
 
-extern float D_0063AB4C[];
-
 /* .sbss, owned by camera-ico2.o (MAIN.MAP names no symbol in the run), in the
    ROM's run order: the camera-set binary this file reads in and the group
    window into it, the frame counter the warp guard tests, the current group,
@@ -116,7 +113,8 @@ static unsigned char cameraGroupChanged;
 static int pluralCameraSetNum;
 
 extern void SetMonitorCameraInitializeFlag(void);
-extern int D_0063AB9C;
+/* kept local: camera-root.h's prototypes do not fit this TU's uses */
+extern int default_cameratarget_gobj;
 /* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
 extern void _ApplyRyGV(void *a0, float v);
 /* kept local: this TU's uses of _GetDirection do not fit the prototype in gv.h */
@@ -133,8 +131,9 @@ typedef struct IosPadStick {
 } IosPadStick;
 
 extern char iosPadConfDefault[];
-extern float D_0063AB48;
-extern char D_0063AB58[];
+
+static float zoomOffsetRatio = 1.0f; /* derived name */
+
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
@@ -197,7 +196,7 @@ void SetCameraTargetPosition(void *a0, float a1);
 
 inline void SetCameraZoomOffsetRatio(float val)
 {
-    D_0063AB48 = val;
+    zoomOffsetRatio = val;
 }
 
 void CameraSetCameraSet(int id)
@@ -207,9 +206,9 @@ void CameraSetCameraSet(int id)
     int n;
     int i;
 
-    D_0063ABB0 = GetPluralCameraSet(id);
-    D_0063ABB4 = n = *(int *)((char *)D_0063ABB0 + 8);
-    p = (CamSetItem *)((char *)D_0063ABB0 + 0x10);
+    TopCameraSetDataOfCurrentStage = GetPluralCameraSet(id);
+    NumOfGroup = n = *(int *)((char *)TopCameraSetDataOfCurrentStage + 8);
+    p = (CamSetItem *)((char *)TopCameraSetDataOfCurrentStage + 0x10);
     end = &p[n];
     for (i = 0; i < n; i++) {
         p[i].end = end;
@@ -320,7 +319,7 @@ void ico2camera_GetTargetPos(int a0)
 int ico2camera_GetGroupNearest(float *query)
 {
     int result = -1;
-    float min = D_0063AB4C[0];
+    float min = 3.40282347e+38f; /* FLT_MAX, a constant-pool word */
     int i;
     for (i = 0; i < cameraSetGroupNum; i++) {
         float buf[4];
@@ -364,8 +363,9 @@ void initMonitorCamera(unsigned char init)
         SetMonitorCameraInitializeFlag();
 }
 
-extern int D_0063ABA8;
-extern int D_0063ABAC;
+/* kept local: camera-root.h's prototypes do not fit this TU's uses */
+extern int monitorCameraHold;
+extern int insertCameraBlendTimer;
 extern int D_0028F4C0[];
 /* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
 extern float _DistGV(void *a0, void *a1);
@@ -424,7 +424,7 @@ void monitorMonitorCamera(CamWork *cam, CamWork *out)
         *out = *cam;
         return;
     }
-    if (D_0063ABA8 != 0) {
+    if (monitorCameraHold != 0) {
         *cam = monitorCamera.work;
     }
     *out = *cam;
@@ -522,7 +522,7 @@ void monitorMonitorCamera(CamWork *cam, CamWork *out)
             out->ext.f[0] = (out->ext.f[0] * d2 + monitorCamera.work.ext.f[0] * d1) / (d1 + d2);
         }
     }
-    if (D_0063ABAC != 0) {
+    if (insertCameraBlendTimer != 0) {
         r1 = (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 30.0;
         r2 = 3.0 / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
         _InterGV(out, cam, &monitorCamera.work, r1, r2);
@@ -545,7 +545,7 @@ void ChaseCamera(float *a0, float *a1)
     Mat4 mat = {{0.0f, 200.0f, 500.0f, 0.0f}};
     Mat4 v3;
     float t;
-    t = _GetDirection(test_CURRENTORIENT(D_0063AB9C));
+    t = _GetDirection(test_CURRENTORIENT(default_cameratarget_gobj));
     _ApplyRyGV(&mat, (float)(int)(t / 3.1415927f * 180.0f) * 3.1415927f / 180.0f);
     sceVu0AddVector(&v0, a0, &mat);
     sceVu0SubVector(&v3, a1, a0);
@@ -606,7 +606,8 @@ typedef struct CamSetGroup { /* 0x4C */
 
 #define CAMSET_GROUP(n) ((CamSetGroup *)(cameraSetGroups + (n) * 0x4C))
 
-extern int D_0063AB50;
+/* the debug markers' pulse, two steps a frame */
+static int markerPulse = 0; /* derived name */
 
 /* camera-ico2.c lines 362-380 of the listing: the mean and the standard
  * deviation of the first `n` weights, written back through two pointers. */
@@ -772,15 +773,15 @@ void CameraMove(int group, float *pos, float *out, float *ofsA, float *ofsB)
             ofsB[2] = ofsB[2] + p->z[2] * w;
             if (debug_camera_flag != 0) {
                 if (0.0f < p->range) {
-                    debug_Marker(p->pos, (int)(w * 255.0f), 0, 0, p->range, (float)D_0063AB50);
+                    debug_Marker(p->pos, (int)(w * 255.0f), 0, 0, p->range, (float)markerPulse);
                 } else {
-                    debug_Marker(p->pos, 0, (int)(w * 255.0f), 0, 100.0f, (float)D_0063AB50);
+                    debug_Marker(p->pos, 0, (int)(w * 255.0f), 0, 100.0f, (float)markerPulse);
                 }
             }
             i++;
         }
     }
-    D_0063AB50 = D_0063AB50 + 2;
+    markerPulse = markerPulse + 2;
     out[0] = acc[0];
     out[1] = acc[1];
     out[2] = acc[2];
@@ -866,7 +867,7 @@ void GetTargetOffset(char *gobj, float *v, unsigned char flag)
     int n;
     int need;
 
-    if ((int)gobj == D_0063AB9C && gobj != 0) {
+    if ((int)gobj == default_cameratarget_gobj && gobj != 0) {
         n = (int)(_GetDirection(test_CURRENTORIENT((int)gobj)) / 3.1415927f * 180.0f);
         ofs[0] = v[0];
         ofs[1] = v[1];
@@ -916,7 +917,8 @@ inline void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag)
     }
 }
 
-extern int D_0063ABA4;
+/* kept local: camera-root.h's prototypes do not fit this TU's uses */
+extern int FixViewInGameCameraFlag;
 /* kept local: this TU's uses of CameraMove do not fit the prototype in camera-ico2.h */
 extern void CameraMove(int group, float *pos, float *out, float *ofsA, float *ofsB);
 /* kept local: this TU's uses of InsertCamera_Exec do not fit the prototype in camera-root.h */
@@ -992,8 +994,8 @@ void SetCameraMatrix_Ico2(int flag)
         cw.at.f[1] = targetASmooth[1];
         cw.at.f[2] = targetASmooth[2];
         memset(vA, 0, 0x10);
-        GetTargetOffset((char *)D_0063AB9C, vA, 0);
-        sceVu0ScaleVector(vA, vA, D_0063AB48);
+        GetTargetOffset((char *)default_cameratarget_gobj, vA, 0);
+        sceVu0ScaleVector(vA, vA, zoomOffsetRatio);
         sceVu0AddVector(cw.at.f, cw.at.f, vA);
     } else {
         if (flag != 0 || (cameraGroupCurrent != -1 &&
@@ -1008,9 +1010,9 @@ void SetCameraMatrix_Ico2(int flag)
         cw.at.f[0] = targetASmooth[0];
         cw.at.f[1] = targetASmooth[1];
         cw.at.f[2] = targetASmooth[2];
-        GetTargetOffset((char *)D_0063AB9C, vA, f8);
-        sceVu0ScaleVector(vA, vA, D_0063AB48);
-        sceVu0ScaleVector(vB, vB, D_0063AB48);
+        GetTargetOffset((char *)default_cameratarget_gobj, vA, f8);
+        sceVu0ScaleVector(vA, vA, zoomOffsetRatio);
+        sceVu0ScaleVector(vB, vB, zoomOffsetRatio);
         sceVu0AddVector(cw.at.f, cw.at.f, vA);
         sceVu0AddVector(cw.at.f, cw.at.f, vB);
         cameraGroupCurrent = group;
@@ -1021,7 +1023,7 @@ void SetCameraMatrix_Ico2(int flag)
     }
     if (enable != 0) {
         mode = 0;
-        D_0063ABA4 = 1;
+        FixViewInGameCameraFlag = 1;
     }
     monitorMonitorCamera(&cw, &cw2);
     cw = cw2;
@@ -1059,7 +1061,7 @@ inline void *GetPluralCameraSet(int id)
     /* EUC-JP: "[%s] was not found\n" */
     debug_StdPrintfDummy("[%s]が見つかりません\n", D_002AD010[id]);
     debug_assert(__FILE__, 2036);
-    __assert(__FILE__, 2036, D_0063AB58);
+    __assert(__FILE__, 2036, "0");
     return 0;
 }
 
@@ -1071,7 +1073,7 @@ inline void AddPluralCameraSet(int id, char *name)
         /* EUC-JP: "at most [%d] camera sets can be registered in one stage." */
         debug_StdPrintfDummy("１ステージに登録できるカメラセットは、最大[%d]個です。", 10);
         debug_assert(__FILE__, 2045);
-        __assert(__FILE__, 2045, D_0063AB58);
+        __assert(__FILE__, 2045, "0");
     }
     p = &pluralCameraSet[pluralCameraSetNum];
     p->id = id;
@@ -1228,7 +1230,7 @@ void *ReadCameraSet(CamSetFile *f, int stage)
             "カメラデータのバージョンに異常があります。大森まで知らせてください\n");
         debug_StdPrintfDummy("illegal camera data version [%d]\n", f->ver);
         debug_assert(__FILE__, 2355);
-        __assert(__FILE__, 2355, D_0063AB58);
+        __assert(__FILE__, 2355, "0");
         break;
     }
     return p;
@@ -1307,3 +1309,12 @@ inline int GetCameraGroupFromPosition(float *pos)
     }
     return result;
 }
+
+/* Nothing in the ROM reads the three words below. The bytes pin their size
+   (a word each), their place (after the inline tail's "0") and their value
+   (zero); MAIN.MAP names the middle one. */
+static int cameraIco2Word0 = 0; /* derived name */
+
+int current_group = 0;
+
+static int cameraIco2Word1 = 0; /* derived name */

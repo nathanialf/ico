@@ -1830,37 +1830,35 @@ void actSt04aTorchAllFlagfChk(volatile int a0)
     scpWakeupEnemyAll();
 }
 
-extern int D_002A5580[];
-
 void actSt04aTorchHintChk(volatile int a0)
 {
     while (gflagChk(155) == 0) {
         _ACTWait(1);
     }
 
-    OverrideBrainStatusByGObj(D_002A5580, scpSearchGobj(563), 1.0f, 0.001f, 1.0f);
-    OverrideBrainStatusByGObj(D_002A5580, scpSearchGobj(564), 1.0f, 0.001f, 1.0f);
-    OverrideBrainStatusByGObj(D_002A5580, scpSearchGobj(565), 1.0f, 0.001f, 1.0f);
-    OverrideBrainStatusByGObj(D_002A5580, scpSearchGobj(566), 1.0f, 0.001f, 1.0f);
-    OverrideBrainStatusByGObj(D_002A5580, scpSearchGobj(567), 1.0f, 0.001f, 1.0f);
-    OverrideBrainStatusByGObj(D_002A5580, scpSearchGobj(568), 1.0f, 0.001f, 1.0f);
-    OverrideBrainStatusByGObj(D_002A5580, scpSearchGobj(569), 1.0f, 0.001f, 1.0f);
-    OverrideBrainStatusByGObj(D_002A5580, scpSearchGobj(570), 1.0f, 0.001f, 1.0f);
-    OverrideBrainStatusByGObj(D_002A5580, scpSearchGobj(591), 1.0f, 0.001f, 1.0f);
+    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(563), 1.0f, 0.001f, 1.0f);
+    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(564), 1.0f, 0.001f, 1.0f);
+    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(565), 1.0f, 0.001f, 1.0f);
+    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(566), 1.0f, 0.001f, 1.0f);
+    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(567), 1.0f, 0.001f, 1.0f);
+    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(568), 1.0f, 0.001f, 1.0f);
+    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(569), 1.0f, 0.001f, 1.0f);
+    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(570), 1.0f, 0.001f, 1.0f);
+    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(591), 1.0f, 0.001f, 1.0f);
 
     if (gflagChk(156) == 0) {
         _ACTWait((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 0x14);
     }
 
-    OverrideBrainStatusByGObj(D_002A5580, scpSearchGobj(563), 10.0f, 0.01f, 1.0f);
-    OverrideBrainStatusByGObj(D_002A5580, scpSearchGobj(564), 10.0f, 0.01f, 1.0f);
-    OverrideBrainStatusByGObj(D_002A5580, scpSearchGobj(565), 10.0f, 0.01f, 1.0f);
-    OverrideBrainStatusByGObj(D_002A5580, scpSearchGobj(566), 10.0f, 0.01f, 1.0f);
-    OverrideBrainStatusByGObj(D_002A5580, scpSearchGobj(567), 10.0f, 0.01f, 1.0f);
-    OverrideBrainStatusByGObj(D_002A5580, scpSearchGobj(568), 10.0f, 0.01f, 1.0f);
-    OverrideBrainStatusByGObj(D_002A5580, scpSearchGobj(569), 10.0f, 0.01f, 1.0f);
-    OverrideBrainStatusByGObj(D_002A5580, scpSearchGobj(570), 10.0f, 0.01f, 1.0f);
-    OverrideBrainStatusByGObj(D_002A5580, scpSearchGobj(591), 2.0f, 0.01f, 1.0f);
+    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(563), 10.0f, 0.01f, 1.0f);
+    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(564), 10.0f, 0.01f, 1.0f);
+    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(565), 10.0f, 0.01f, 1.0f);
+    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(566), 10.0f, 0.01f, 1.0f);
+    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(567), 10.0f, 0.01f, 1.0f);
+    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(568), 10.0f, 0.01f, 1.0f);
+    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(569), 10.0f, 0.01f, 1.0f);
+    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(570), 10.0f, 0.01f, 1.0f);
+    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(591), 2.0f, 0.01f, 1.0f);
 
     gflagOn(156);
 }

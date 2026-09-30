@@ -1,3 +1,4 @@
+#include "mv_defs.h"
 #include "mv_main.h"
 #include "debug.h"
 #include "GsBase.h"
@@ -81,8 +82,15 @@ static int callerPri;
 
 static long long savedIMR;
 
-extern int D_0063AC78;
-extern char D_0063AC80[];
+/* set once the movie has an audio stream */
+static int movieHasAudio = 1; /* derived name */
+
+/* frames left of a read-starved pause */
+static int moviePauseCount = 0; /* derived name */
+
+/* the debug frame counter */
+static int movieFrameNo = 0; /* derived name */
+
 /* kept local: this TU's uses of strFileClose do not fit the prototype in mv_strfile.h */
 extern void strFileClose(char *self);
 extern int DIntr(void);
@@ -100,7 +108,6 @@ extern void dispClear(MvDispEnv *self, unsigned int col);
 extern int sceGsGetIMR(void);
 extern void sceGsPutIMR(long long imr);
 extern void sceGsSyncPath(int a0, int a1);
-extern int D_0063AC70;
 void movie_end(void);
 extern int sceCdStStat(void);
 /* kept local: this TU's uses of startDisplay do not fit the prototype in mv_disp.h */
@@ -127,7 +134,6 @@ extern int readBufEndGet(int *self, int n);
 extern int strFileRead(char *self, void *buf, int n, int *eof);
 /* kept local: this TU's uses of voBufIsFull do not fit the prototype in mv_vobuf.h */
 extern int voBufIsFull(MvVoBuf *self);
-extern int D_0063AC74;
 /* kept local: this TU's uses of dispCreate do not fit the prototype in mv_disp.h */
 extern void dispCreate(MvDispEnv *self, int a1, int a2, int a3, int a4);
 /* kept local: this TU's uses of strFileOpen do not fit the prototype in mv_strfile.h */
@@ -210,7 +216,7 @@ void proceedAudio(void)
 /* mv_main.c:55-57 */
 static inline int audioIsPreset(void)
 {
-    return D_0063AC70 ? audioDecIsPreset(&audioDec) : 1;
+    return movieHasAudio ? audioDecIsPreset(&audioDec) : 1;
 }
 
 int readMpeg(int *dec, int *rb, char *strf, int (*poll)(void))
@@ -229,25 +235,25 @@ int readMpeg(int *dec, int *rb, char *strf, int (*poll)(void))
     left = *(int *)(strf + 0x8180);
     n = left;
 
-    while (D_0063AC74 != 0 || (left >= 5 && videoDecGetState(dec) != 3)) {
-        if (sceCdStStat() < 0x20 && D_0063AC74 == 0) {
+    while (moviePauseCount != 0 || (left >= 5 && videoDecGetState(dec) != 3)) {
+        if (sceCdStStat() < 0x20 && moviePauseCount == 0) {
             debug_StdPrintfDummy("movie pause\n");
-            D_0063AC74 = 30;
+            moviePauseCount = 30;
         }
         if (dec[2] >= 11) {
-            if (D_0063AC74 == 1) {
+            if (moviePauseCount == 1) {
                 startDisplay(1);
-                if (D_0063AC70 != 0) {
+                if (movieHasAudio != 0) {
                     audioDecResume(&audioDec);
                 }
-            } else if (D_0063AC74 == 30) {
+            } else if (moviePauseCount == 30) {
                 endDisplay();
-                if (D_0063AC70 != 0) {
+                if (movieHasAudio != 0) {
                     audioDecPause(&audioDec);
                 }
             }
-            if (D_0063AC74 > 0) {
-                D_0063AC74--;
+            if (moviePauseCount > 0) {
+                moviePauseCount--;
             }
             if (poll() != 0) {
                 abort = 1;
@@ -273,7 +279,7 @@ int readMpeg(int *dec, int *rb, char *strf, int (*poll)(void))
         proceedAudio();
         if (started == 0 && voBufIsFull(&voBuf) && audioIsPreset()) {
             startDisplay(1);
-            if (D_0063AC70 != 0) {
+            if (movieHasAudio != 0) {
                 audioDecStart(&audioDec);
             }
             started = 1;
@@ -290,7 +296,7 @@ int readMpeg(int *dec, int *rb, char *strf, int (*poll)(void))
 term:
     gsb_ClearFrameBuffer();
     endDisplay();
-    if (D_0063AC70 != 0) {
+    if (movieHasAudio != 0) {
         audioDecReset(&audioDec);
     }
     return abort;
@@ -301,7 +307,7 @@ int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
     ThreadParam th;
     int ret = 0;
 
-    D_0063AC74 = 0;
+    moviePauseCount = 0;
     videoDec[0xC4 / 4] = -1;
     videoDec[0xC0 / 4] = -1;
     decThreadStarted = 0;
@@ -325,7 +331,7 @@ int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
     if (videoDecCreate(videoDec) != 0) {
         return -1;
     }
-    if (D_0063AC70 != 0) {
+    if (movieHasAudio != 0) {
         if (audioDecCreate(&audioDec, p5, p6) != 0) {
             return -1;
         }
@@ -334,7 +340,7 @@ int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
     videoCbMgr = (int)mpegReadBuf;
     videoCbStream = (int)videoDec;
     videoDecSetStream(videoDec, 0, 0, videoCallback, &videoCbMgr);
-    if (D_0063AC70 != 0) {
+    if (movieHasAudio != 0) {
         pcmCbMgr = (int)mpegReadBuf;
         pcmCbStream = (int)&audioDec;
         videoDecSetStream(videoDec, 2, 0, pcmCallback, &pcmCbMgr);
@@ -446,7 +452,7 @@ int movie_init(int a0, int a1, int a2, int a3, int p4, int p5, int p6)
     }
     EIntr();
 
-    D_0063AC70 = 1;
+    movieHasAudio = 1;
     if (initAll(a0, a1, a2, a3, p4, p5, 0x3FFF, p6) != 0) {
         debug_StdPrintfDummy("movie init failed\n");
         movie_end();
@@ -483,7 +489,7 @@ void movie_end(void)
 int movie_proc(int (*poll)(void))
 {
     int r;
-    debug_StdPrintfDummy(D_0063AC80, D_0063AC78++);
+    debug_StdPrintfDummy("= %d =\n", movieFrameNo++);
     r = readMpeg(videoDec, mpegReadBuf, mpegStrFile, poll);
     movie_end();
     return r;

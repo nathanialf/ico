@@ -57,8 +57,6 @@ extern void sceVif1PkAddGsData(void *packet, unsigned long long data);
 extern int D_0063B370;
 extern unsigned int D_0063B374;
 extern unsigned int D_0063B378;
-extern int ScreenWidth;
-extern int ScreenHeight;
 extern u128_dbgscr D_0061CF20[];
 extern u128_dbgscr D_0061CF30[];
 

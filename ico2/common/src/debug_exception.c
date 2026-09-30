@@ -65,9 +65,9 @@ static char exceptionMessage[1024] = "";
    0x70FA80, 0x60 bytes after debug.o's run ends). */
 static unsigned int regQuad[4] __attribute__((aligned(128)));
 
+#include "GsBase.h"
 #include "debug_exception_screen.c.inc"
 #include "debug.h"
-#include "GsBase.h"
 #include <eekernel.h>
 #include <sifdev.h>
 #include <string.h>

@@ -13,6 +13,7 @@
 #include "typedef.h"
 #include "GifPacket.h"
 #include <libvu0.h>
+#include "GsBase.h"
 
 /* The rope's interpolation rate: the chain's geometry sets it from the hang
    height and rootUpdateY_Rope moves the root by it.  The first word of the
@@ -1378,9 +1379,6 @@ typedef union {
     unsigned int c[4];
     unsigned long long w[2];
 } MotOriCol4;
-
-extern int ScreenWidth;
-extern int ScreenHeight;
 
 /* RECONSTRUCTION, the type and enumerator names are ours: debug_bar_flag is debug.o's
  * debug bar mode (MAIN.MAP line 7189 names the word debug_bar_flag by position),

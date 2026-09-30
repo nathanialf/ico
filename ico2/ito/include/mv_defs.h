@@ -37,19 +37,19 @@ static __inline__ int uncached_accel_addr(int p)
 extern int D_0063A468;   /* movie heap handle; gp-relative in the ROM */
 int iosMallocAlignDebug(int heap, int size, int align, const char *file, int line);
 void debug_assert(const char *file, int line);   /* assert reporter */
-void __assert(const char *file, int line, const char *expr);  extern void *memset(void *p, int c, int n);
-#ifdef MV_DEFS_WANT_ALLOC   /* opt-in: see the note below line 46 */
+void __assert(const char *file, int line, const char *expr);
+#include <string.h>
 static __inline__ int alloc_zeroed(int size, int align)  /* RECONSTRUCTION; 5 census hosts; align = 0x40 at four sites, 4 at viBufCreate's third */
 { int p = iosMallocAlignDebug(D_0063A468, size, align, __FILE__, __LINE__);
   if (p == 0) { debug_assert(__FILE__, __LINE__); __assert(__FILE__, __LINE__, "p != NULL"); }
   memset((void *)p, 0, size); return p; }
-#endif
-/* The line-42 helper is behind MV_DEFS_WANT_ALLOC because ee-gcc 2.9 emits
-   the two string literals into .rodata even when the unused static itself is
-   dropped, which would grow every consuming .o. Define the macro before the
-   include in the TU that actually calls it. Lines 46..82 of the developer's
-   header carry no census rows at all, so nothing is known about them; they
-   are left blank so `Free` below lands on its recorded line 83. */
+
+/* ee-gcc 2.9 emits the line-42 helper's two string literals into .rodata
+   even where the unused static itself is dropped: every ito/mpeg TU of the
+   ROM carries its own copy at the head of its run, the ones that never call
+   the helper included. Lines 46..82 of the developer's header carry no
+   census rows at all, so nothing is known about them; they are left blank
+   so `Free` below lands on its recorded line 83. */
 
 
 

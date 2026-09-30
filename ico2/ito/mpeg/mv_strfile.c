@@ -1,3 +1,5 @@
+#include "mv_defs.h"
+
 /* kept local: this TU's uses of iosCdvdDirectStClose do not fit the prototype in cdvd.h */
 extern void iosCdvdDirectStClose();
 /* kept local: this TU's uses of iosCdvdDirectStRead do not fit the prototype in cdvd.h */
