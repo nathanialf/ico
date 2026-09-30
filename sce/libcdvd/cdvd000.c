@@ -239,7 +239,7 @@ void _Cdvd_cbLoop(void)
     }
 }
 
-extern char D_00640AF0[];
+extern char _gp[];
 extern void _Cdvd_cbLoop(void);
 extern int CreateThread(int *param);
 
@@ -251,7 +251,7 @@ int sceCdInitEeCB(int priority, void *stack, int stackSize)
         cd_thread_id = GetThreadId();
         ReferThreadStatus(cd_thread_id, cd_thread_stat);
         cb_thread_param[3] = stackSize;
-        cb_thread_param[4] = (int)D_00640AF0;
+        cb_thread_param[4] = (int)_gp;
         cb_thread_param[1] = (int)_Cdvd_cbLoop;
         cb_thread_param[2] = (int)stack;
         cb_thread_param[5] = priority;

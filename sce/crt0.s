@@ -36,12 +36,12 @@ _start:
     nop
     bnez $1, .L1
     addiu $2, $2, 0x10
-    lui $4, %hi(D_00640AF0)
+    lui $4, %hi(_gp)
     lui $5, %hi(D_1FF0000)
     lui $6, %hi(D_10000)
     lui $7, %hi(D_0063C600)
     lui $8, %hi(_root)
-    addiu $4, $4, %lo(D_00640AF0)
+    addiu $4, $4, %lo(_gp)
     addiu $5, $5, %lo(D_1FF0000)
     addiu $6, $6, %lo(D_10000)
     addiu $7, $7, %lo(D_0063C600)

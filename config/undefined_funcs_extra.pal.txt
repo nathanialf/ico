@@ -8,3 +8,30 @@
  * being fixed numbers when the linker script defines them (splat exit). */
 _fbss = 0x0063C100;
 _end = 0x00736198;
+
+/* TRANSITIONAL (finishing pass P1-3): main.c now defines its six .data globals under their
+ * MAIN.MAP names; the consumer TUs still spell them, and addresses inside them, as the old
+ * blob placeholders. These bind those placeholders to the definitions until the consumers
+ * take main.h (phase P3), then they go. */
+D_0028F4C0 = systemStatus;
+D_0028F4C4 = systemStatus + 0x4;
+D_0028F4CC = systemStatus + 0xC;
+D_0028F4D0 = systemStatus + 0x10;
+D_0028F4D4 = systemStatus + 0x14;
+D_0028F4D8 = systemStatus + 0x18;
+D_0028F4E8 = systemStatus + 0x28;
+D_0028F4EC = systemStatus + 0x2C;
+D_0028F4F0 = db;
+D_0028F720 = GlobalStageSetting;
+D_0028F780 = GlobalStageSetting + 0x60;
+D_0028F804 = GlobalStageSetting + 0xE4;
+D_0028F808 = GlobalStageSetting + 0xE8;
+D_0028F8A0 = GlobalStageSetting + 0x180;
+D_0028F8A4 = GlobalStageSetting + 0x184;
+D_0028F8B0 = GlobalStageSetting + 0x190;
+D_0028F8F0 = pad;
+D_0028F8F4 = pad + 0x4;
+D_0028F948 = pad + 0x58;
+D_0028F94C = pad + 0x5C;
+D_0028F954 = pad + 0x64;
+D_0028FE70 = stageMgrMsg;

@@ -10,8 +10,28 @@
 #include "Matrix.h"
 #include "keyInput.h"
 #include <eekernel.h>
+#include "main.h"
 
-extern int D_0028F8F4[];
+/* main.c's own .data, VMA 0x0028F4C0..0x0028FEB8 (0x9F8 B), the six globals
+   MAIN.MAP lists for main.o in ROM order. Each has an initialiser: the ROM
+   holds them in .data, not .bss. systemStatus starts in PAL mode (word 0)
+   at a frame step of 2 (word 1). db is the GS double buffer (libgraph's
+   sceGsDBuff, 0x230 B), stageMgrMsg the stage manager's message
+   (StageManager.c's StgMgrMsg, 0x18 B) and SchedulerMsgQ the scheduler's
+   queue (message.c's IosMsgQueue, 0x30 B); those three records are still
+   local to the TUs that read their fields, so this file holds them as words. */
+int systemStatus[12] = {1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7};
+
+int db[140] = {0};
+
+StageSetting GlobalStageSetting = {{{0}}};
+
+PadState pad[16] = {{0}};
+
+int stageMgrMsg[6] = {0};
+
+int SchedulerMsgQ[12] = {0};
+
 extern int D_00639C80;
 extern int D_00639C94;
 
@@ -19,17 +39,48 @@ typedef struct {
     int *th[6];
 } ThreadTbl;
 
+/* main.c's own .bss, VMA 0x0063D010..0x00667340 (0x2A330 B, MAIN.MAP main.o
+   .bss), in ROM order: the record and the stack of every thread this file
+   starts, then the scheduler's message buffer. The map names none of them, so
+   they are file statics; the names are ours, after jimaku.c's jimakuThread and
+   jimakuThreadStack. A thread record is the ios thread object, 0x70 bytes, of
+   which this file reads only the kernel id word at +0x30. */
+static int idleThread[28]; /* derived name */
+
+static char idleThreadStack[8192]; /* derived name */
+
+static int mainThread[28]; /* derived name */
+
+static char mainThreadStack[24576]; /* derived name */
+
+static int schedulerThread[28]; /* derived name */
+
+static char schedulerThreadStack[4096]; /* derived name */
+
+static int mcThread[28]; /* derived name */
+
+static char mcThreadStack[8192]; /* derived name */
+
+static int cdvdThread[28]; /* derived name */
+
+static char cdvdThreadStack[110592]; /* derived name */
+
+static int stageManagerThread[28]; /* derived name */
+
+static char stageManagerThreadStack[8192]; /* derived name */
+
+static int soundThread[28]; /* derived name */
+
+static char soundThreadStack[8192]; /* derived name */
+
+static int schedulerMsgBuff[8]; /* derived name */
+
 /* Main, idle, scheduler and boot open the object at VMA 0x00101C80. The
    listing records all four in main.c (lines 1011 to 1502); splat had left
    them inside the libkernl run that precedes them. */
 extern char D_00639CA8[];
 extern char D_0054D6D8[];
 extern char D_0054D6E8[];
-extern char D_0063D010[];
-extern char D_0063D080[];
-extern char D_006450F0[];
-extern char D_00645160[];
-extern int D_0028F4C8[];
 extern int stage_no;
 /* kept local: this TU's uses of iosThreadCreate do not fit the prototype in thread.h, but the
  * stack size is that header's `long stackSize` and the ROM proves it: idle's first call passes
@@ -47,13 +98,6 @@ void scheduler(void);
 extern char D_0054D650[];
 extern char D_0054D660[];
 extern char D_0054D688[];
-extern int D_0028F4C0[];
-extern char D_0028FE88[];
-extern char D_00667320[];
-extern char D_0063F080[];
-extern char D_006652B0[];
-extern char D_006481D0[];
-extern char D_00663240[];
 extern int D_00639C90;
 extern int D_00639CA4;
 extern int mpegPlay;
@@ -78,7 +122,6 @@ extern char D_0054D5A0[];
 extern char D_0054D5B8[];
 extern char D_00639C98[];
 extern char D_00639CA0[];
-extern char D_0028F4F0[];
 extern char D_005D3CE8[];
 extern int NonLinearCameraMove;
 extern int exit_no;
@@ -140,9 +183,9 @@ void Main(void)
     int ret;
     int n;
 
-    debug_StdPrintfDummy(D_0054D520, D_0028F4C0[0] == 0 ? D_00639C98 : D_00639CA0);
-    debug_StdPrintfDummy(D_0054D540, D_0028F4C0[1]);
-    debug_StdPrintfDummy(D_0054D560, (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+    debug_StdPrintfDummy(D_0054D520, systemStatus[0] == 0 ? D_00639C98 : D_00639CA0);
+    debug_StdPrintfDummy(D_0054D540, systemStatus[1]);
+    debug_StdPrintfDummy(D_0054D560, (60 - systemStatus[0] * 10) / systemStatus[1]);
     *(volatile int *)0x10000000 = 0;
     NonLinearCameraMove = 3;
     stage_no = 0;
@@ -168,7 +211,7 @@ void Main(void)
     DeleteSema(systemFault);
     stgmgrForceSwitchWithFade(thisIsYourStartStage < 0 ? 1 : thisIsYourStartStage, 255.0f, 0.0f);
     iosThreadCancelWakeup(0);
-    D_0028F4C0[5] = 0;
+    systemStatus[5] = 0;
     _InitRandom(1.2345678f);
     gsb_InitGSSystem();
     debug_StdPrintfDummy(D_0054D5B8);
@@ -186,7 +229,7 @@ void Main(void)
             D_0063A468 = D_0063A430;
             AdpcmStreamFree();
             soundAllocIopFree();
-            movie_init(&D_005D3CE8[mpegPlay * 0x20], 720, D_0028F4C0[0] ? 576 : 480, 36, 12,
+            movie_init(&D_005D3CE8[mpegPlay * 0x20], 720, systemStatus[0] ? 576 : 480, 36, 12,
                        soundOutputModeGet() == 1, mpegPlayInitColor);
             ret = movie_proc(movie_abort_check);
             sceGsSyncV(0);
@@ -195,7 +238,7 @@ void Main(void)
             ACTGame_SetActors_Debug(mpegPlayReturnStage, 1);
             gsb_UpdateGSSystem(1);
             gsb_UpdateGSSystem(1);
-            gsb_Init(D_0028F4F0);
+            gsb_Init(db);
             mpegPlay = 0;
             stgmgrForceSwitchWithFade(mpegPlayReturnStage, 255.0f, mpegPlayFadeInSpeed);
             if (ret == 1) {
@@ -233,12 +276,6 @@ extern char D_0054D5C8[];
 extern char D_0054D5D8[];
 extern char D_0054D618[];
 extern char D_0054D640[];
-extern char D_00648240[];
-extern char D_00646160[];
-extern char D_006461D0[];
-extern char D_006632B0[];
-extern char D_00665320[];
-extern char D_0063F0F0[];
 extern char jimakuThread[];
 extern char jimakuThreadStack[];
 extern void iosCdvdManager(void);
@@ -258,18 +295,21 @@ void idle(void)
 {
     debug_StdPrintfDummy(D_0054D5C8);
     debug_StdPrintfDummy(D_0054D5D8);
-    iosThreadCreate(D_006481D0, 6, iosCdvdManager, 0, D_00648240, 0x1B000, 0x1C);
-    iosThreadStart(D_006481D0);
-    iosThreadCreate(D_00663240, 7, StageManager, 0, D_006632B0, 0x2000, 0x1B);
-    iosThreadStart(D_00663240);
-    iosThreadCreate(D_00646160, 5, iosMcManager, 0, D_006461D0, 0x2000, 0x1B);
-    iosThreadStart(D_00646160);
+    iosThreadCreate(cdvdThread, 6, iosCdvdManager, 0, cdvdThreadStack, sizeof(cdvdThreadStack),
+                    0x1C);
+    iosThreadStart(cdvdThread);
+    iosThreadCreate(stageManagerThread, 7, StageManager, 0, stageManagerThreadStack,
+                    sizeof(stageManagerThreadStack), 0x1B);
+    iosThreadStart(stageManagerThread);
+    iosThreadCreate(mcThread, 5, iosMcManager, 0, mcThreadStack, sizeof(mcThreadStack), 0x1B);
+    iosThreadStart(mcThread);
     iosThreadCreate(jimakuThread, 9, jimakuManager, 0, jimakuThreadStack, 0x2000, 0x1B);
     iosThreadStart(jimakuThread);
-    iosThreadCreate(D_006652B0, 8, sndManager, 0, D_00665320, 0x2000, 0x10);
-    iosThreadStart(D_006652B0);
-    iosThreadCreate(D_0063F080, 3, Main, 0, D_0063F0F0, 0x6000, 0x1B);
-    iosThreadStart(D_0063F080);
+    iosThreadCreate(soundThread, 8, sndManager, 0, soundThreadStack, sizeof(soundThreadStack),
+                    0x10);
+    iosThreadStart(soundThread);
+    iosThreadCreate(mainThread, 3, Main, 0, mainThreadStack, sizeof(mainThreadStack), 0x1B);
+    iosThreadStart(mainThread);
     debug_StdPrintfDummy(D_0054D618);
     iosThreadSetPri(0, 0x20);
     while (1) {
@@ -289,14 +329,14 @@ void scheduler(void)
 
     debug_StdPrintfDummy(D_0054D650);
     sceGsSyncV(0);
-    iosMsgQueueCreate(D_0028FE88, D_00667320, 8);
-    iosMsgSetEvent(2, D_0028FE88, 2);
+    iosMsgQueueCreate(SchedulerMsgQ, schedulerMsgBuff, 8);
+    iosMsgSetEvent(2, SchedulerMsgQ, 2);
     while (1) {
-        iosMsgRecv(D_0028FE88, msg, 1);
+        iosMsgRecv(SchedulerMsgQ, msg, 1);
         if (msg[0] == 2) {
             D_00639C80++;
             D_00639CA4++;
-            if (D_00639CA4 >= D_0028F4C0[1] && stageManagerFreeResourceFlag == 0) {
+            if (D_00639CA4 >= systemStatus[1] && stageManagerFreeResourceFlag == 0) {
                 if (D_00639C90 > 0) {
                     if (mpegPlay != 0) {
                         D_00639C90 = 0;
@@ -308,7 +348,7 @@ void scheduler(void)
                     _PushVu0Registers();
                     gsb_UpdateGSSystem(0);
                     _PopVu0Registers();
-                    if (D_0028F4C0[5] != 0) {
+                    if (systemStatus[5] != 0) {
                         if (iosCdvdDiskStatusGet() != 0) {
                             D_00639C90 = 0;
                             goto wake;
@@ -318,23 +358,23 @@ void scheduler(void)
                 }
                 D_00639C90 = 0;
             wake:
-                iosThreadCancelWakeup(D_0063F080);
+                iosThreadCancelWakeup(mainThread);
                 startStagePauseDisableTimer++;
-                if (iosThreadWakeup(D_0063F080) < 0) {
+                if (iosThreadWakeup(mainThread) < 0) {
                     debug_StdPrintfDummy(D_0054D660);
                 }
                 D_00639CA4 = 0;
             }
         skip:
-            iosThreadWakeup(D_006652B0);
+            iosThreadWakeup(soundThread);
             if (D_0063A47C >= 0) {
                 SignalSema(D_0063A47C);
             }
             if (D_0063A368 != 0 && (mpegPlay == 0 || D_0063A3B8 != 0)) {
-                iosThreadWakeup(D_006481D0);
+                iosThreadWakeup(cdvdThread);
             }
             if (stgMgrWakeupRequest != 0) {
-                iosThreadWakeup(D_00663240);
+                iosThreadWakeup(stageManagerThread);
             }
             la_playtime_count();
         } else {
@@ -351,13 +391,14 @@ void boot(void)
     debug_StdPrintfDummy(D_0054D6E8);
     iosInitialize();
     gflagInit();
-    D_0028F4C8[0] = 1;
+    systemStatus[2] = 1;
     stage_no = 1;
     CheckPoint();
-    iosThreadCreate(D_0063D010, 1, idle, 0, D_0063D080, 0x2000, 0x1B);
-    iosThreadStart(D_0063D010);
-    iosThreadCreate(D_006450F0, 1, scheduler, 0, D_00645160, 0x1000, 0xF);
-    iosThreadStart(D_006450F0);
+    iosThreadCreate(idleThread, 1, idle, 0, idleThreadStack, sizeof(idleThreadStack), 0x1B);
+    iosThreadStart(idleThread);
+    iosThreadCreate(schedulerThread, 1, scheduler, 0, schedulerThreadStack,
+                    sizeof(schedulerThreadStack), 0xF);
+    iosThreadStart(schedulerThread);
     iosThreadSleep();
 }
 
@@ -385,7 +426,7 @@ int movie_abort_check(void)
         D_00639C94 = D_00639C80;
         ExecKeyInput();
         ret = 0;
-        ret = (D_0028F8F4[0] & 0x800) != ret;
+        ret = (pad[0].flags & 0x800) != ret;
     }
     return ret;
 }

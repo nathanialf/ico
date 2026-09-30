@@ -100,7 +100,7 @@ static int kernEventThreadId = 0;
 extern int D_0063CB50[];
 extern KernEventRing D_0063CB58;
 extern char D_0063C750[];
-extern char D_00640AF0[];
+extern char _gp[];
 extern void topThread(void *arg);
 extern int CreateSema(ee_sema_t *param);
 extern void DeleteSema(int id);
@@ -129,7 +129,7 @@ int InitThread(void)
     th.func = topThread;
     th.stack = D_0063C750;
     th.stack_size = 0x400;
-    th.gp_reg = D_00640AF0;
+    th.gp_reg = _gp;
     th.initial_priority = 0;
     tid = CreateThread(&th);
     kernEventThreadId = tid;

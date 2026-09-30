@@ -537,7 +537,8 @@ segments:
       - [0x18ED00, data, cod/18ED00]     # .data blob (to be carved per TU)
       # --- per-TU .data carves (PAL phase 2; see docs/carve_ledger.md).
       - [0x18F4B0, .data, sce/libkernl/thread]  # syms: kernEventThreadId  the member's one .data word (data pass 3), VMA 0x28F4B0..0x28F4B4, 4 B
-      - [0x18F4B4, data, cod/18F4B4]     # data blob resume
+      - [0x18F4B4, data, cod/18F4B4]     # data blob resume: libkernl kprintf.o's 8 B .data (MAIN.MAP) and the 4 B fill to main.o
+      - [0x18F4C0, .data, ico2/common/src/main]  # syms: systemStatus db GlobalStageSetting pad stageMgrMsg SchedulerMsgQ  the TU's whole .data run as source (finishing pass P1-3), VMA 0x28F4C0..0x28FEB8, 0x9F8 B: the six MAIN.MAP main.o .data globals in map order (GlobalStageSetting is 0x1D0 here against the January map's 0x130), global per the map
       - [0x18FEB8, .data, ico2/sugipon/src/geometryManager]  # the TU's whole .data run as source (completeness pass 5), VMA 0x28FEB8..0x28FED0, 20 B emitted
       - [0x18FED0, .data, ico2/sugipon/src/keyInput]  # the TU's whole .data run as source (data pass 3): the pad device descriptor, VMA 0x28FED0..0x28FEE8, 24 B
       - [0x18FEE8, data, cod/18FEE8]     # data blob resume
@@ -1348,7 +1349,8 @@ segments:
       - { type: .sbss, vram: 0x0063C5B8, name: ico2/script/src/stageSEProc }  # the TU's own .sbss, 0xC B, VMA 0x63C5B8..0x63C5C4; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C5C4, name: ico2/ito/mpeg/mv_disp }  # the TU's own .sbss, 0x4 B, VMA 0x63C5C4..0x63C5C8; static definitions in ROM run order (completeness pass)
       - { type: sbss, vram: 0x0063C5C8, name: cod/0063C5C8 }  # .sbss blob resume
-      - { type: bss,  vram: 0x0063C600, name: cod/0063C600, align: 0x80 }   # .bss — sh_addralign=0x80 in baseelf
+      - { type: bss,  vram: 0x0063C600, name: cod/0063C600, align: 0x80 }   # .bss head, sh_addralign=0x80 in baseelf: crt0 (0x144), libkernl thread (0x810 at 0x63C750), kprintf (0x80 at 0x63CF60) and deci2 (0x24 at 0x63CFE0) .bss by MAIN.MAP's member order, then the 0xC fill to main.o
+      - { type: .bss, vram: 0x0063D010, name: ico2/common/src/main }  # the TU's whole .bss as source (finishing pass P1-3), VMA 0x63D010..0x667340, 0x2A330 B = MAIN.MAP main.o .bss: the idle, Main, scheduler, memory-card, cdvd, stage-manager and sound thread records (0x70 B) each followed by its stack, then the scheduler's message buffer; static (the map names no main.o .bss symbol), derived names; delayFreeManager abuts
       - { type: .bss, vram: 0x00667340, name: ico2/sugipon/src/delayFreeManager }  # the TU's own .bss, 0x1200 B, VMA 0x667340..0x668540; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x00668540, name: ico2/sugipon/src/geometryManager }  # the TU's own .bss, 0x100 B, VMA 0x668540..0x668640; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x00668640, name: ico2/sugipon/src/matrixDrive }  # the TU's own .bss, 0x1000 B, VMA 0x668640..0x669640; static definitions in ROM run order (completeness pass)
