@@ -53,7 +53,10 @@ typedef struct {
    cdvd handle (33216 bytes, as unifileHandle), the two queues take the
    48-byte message queue record, iosCdvdSrhBuff is the 200-entry directory
    cache. */
-char iosCdvd[33216] = {0};
+/* the handle's 32 KB sector buffer at 0x180 is a DMA target, so the handle
+   is 64-byte aligned (as jimaku's buffers are); that alignment is the
+   48 bytes of fill before this TU's .data */
+char iosCdvd[33216] __attribute__((aligned(64))) = {0};
 
 unsigned char CdvdMsgQ[48] = {0};
 

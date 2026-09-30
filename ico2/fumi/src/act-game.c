@@ -1680,8 +1680,8 @@ void ActOrientTest(char *self)
 }
 
 /* The pair of hand-link wall probes the debug overlay draws, mirrored into
-   the actor work area at +0x540; D_0029C5D0 is the cleared template each
-   frame starts from. */
+   the actor work area at +0x540; handClInfoClear is the cleared template
+   each frame starts from. */
 typedef struct {
     unsigned char on;   /* 0x00 */
     unsigned char hit;  /* 0x01 */
@@ -1694,7 +1694,8 @@ typedef struct {
     long long orient2[2]; /* 0x30 */
 } HandClInfo;
 
-extern HandClInfo D_0029C5D0;
+static HandClInfo handClInfoClear = {0}; /* derived name */
+
 /* kept local: this TU's uses of debug_Arrow do not fit the prototype in camera-editor.h */
 extern void debug_Arrow(void *root, void *vec, float len, int r, int g, int b);
 extern void sceVu0CopyVector(void *buf, int x);
@@ -1773,7 +1774,7 @@ void GetGirlHandlinkClInfo(void)
     int ok;
     float dy;
 
-    *(HandClInfo *)(*(char **)(*(char **)(D_00639EA8 + 0x164) + 0x688) + 0x540) = D_0029C5D0;
+    *(HandClInfo *)(*(char **)(*(char **)(D_00639EA8 + 0x164) + 0x688) + 0x540) = handClInfoClear;
     if (D_00639EA4 == 0 || D_00639EA8 == 0) {
         return;
     }

@@ -12,6 +12,7 @@
 #include "spiderGroupManager.h"
 #include "stageMultiBgaManager.h"
 #include "icoMisc.h"
+#include "s_init.h"
 #include <stdio.h>
 
 extern void *D_0063A428;
@@ -231,7 +232,6 @@ extern int graphics_ready;
 extern int kanbanCommonRead;
 extern int stage_no;
 extern int fall_death_active;
-extern float D_0063A64C;
 extern float D_0063AA0C;
 extern char *D_00639EA4;
 extern char *D_00639EA8;
@@ -310,7 +310,7 @@ void ExecIcoMisc(void)
         ExecParticleEffects();
         ExecStreamMotionManager();
         ExecWindManager();
-        D_0063A64C = D_0063AA0C;
+        soundSeEnvMasterVolRate = D_0063AA0C;
         ExecSpiderGroupManager();
         ExecGameOverEffect();
         D_0063B444 = 0;
@@ -319,9 +319,9 @@ void ExecIcoMisc(void)
             D_0063B444 = 1;
         }
         if (D_0063B444 != 0) {
-            D_0063A64C = 0.0f;
+            soundSeEnvMasterVolRate = 0.0f;
         } else if (D_0063AA0C > 0.5f) {
-            D_0063A64C = 0.5f;
+            soundSeEnvMasterVolRate = 0.5f;
         }
     }
     if (D_0028F4C0[6] == 0) {

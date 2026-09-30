@@ -37,7 +37,11 @@ typedef struct {
     int f8;           /* 0x08 */
     int idx;          /* 0x0C */
     IosPadBuf buf[2]; /* 0x10 */
-    char _50[0x130];
+    char _50[0x30];
+    /* 0x80, scePadPortOpen's DMA buffer, which the library requires
+       64-byte aligned: the record's stride of 0x200 and the 64-aligned
+       start of pad.o's .data follow from it */
+    unsigned char dmaBuf[256] __attribute__((aligned(64)));
     int f180; /* 0x180 */
     int f184; /* 0x184 */
     int f188; /* 0x188 */
@@ -167,7 +171,7 @@ static char *padStateName[8] = {/* derived name */
 
 PadConf iosPadConfCustom = {0};
 
-unsigned char iosPadDev[1024] = {0};
+IosPadDevRec iosPadDev[2] = {0};
 
 char th_iosPadDevManager[112] = {0};
 
@@ -408,14 +412,14 @@ int iosPadDevInit(void *a0)
         return 0;
     }
     for (i = 0; i < 2; i++) {
-        IosPadDevRec *dev = (IosPadDevRec *)&iosPadDev[i * 0x200];
+        IosPadDevRec *dev = &iosPadDev[i];
 
         dev->port = i;
         dev->slot = 0;
         dev->f184 = 0;
         dev->error = 0xFFFFFFFFu;
         dev->f180 = 0xFFFF;
-        if (scePadPortOpen(i, 0, (char *)dev + 128) == 0) {
+        if (scePadPortOpen(i, 0, dev->dmaBuf) == 0) {
             debug_StdPrintfDummy("ERROR: scePadPortOpen port%d slot%d\n", i, 0);
             debug_assert(__FILE__, 569);
             __assert(__FILE__, 569, "0");
@@ -438,7 +442,7 @@ int iosPadDevReadFunc(void)
     int i;
 
     for (i = 0; i < 2; i++) {
-        IosPadDevRec *dev = (IosPadDevRec *)&iosPadDev[i * 0x200];
+        IosPadDevRec *dev = &iosPadDev[i];
         IosPadShock *sh;
         int port;
 
@@ -720,18 +724,17 @@ int iosPadDevRead(void)
 
 int iosPadGetPort(int a0, int a1)
 {
-    return *(int *)&iosPadDev[a1 * 0x200];
+    return iosPadDev[a1].port;
 }
 
 int iosPadGetSlot(int a0, int a1)
 {
-    int *base = (int *)&iosPadDev[a1 * 0x200];
-    return base[1];
+    return iosPadDev[a1].slot;
 }
 
 int iosPadGetDevice(int a, int b)
 {
-    int *p = iosPadDev;
+    int *p = (int *)iosPadDev;
     int count = 0;
     do {
         count++;
@@ -749,7 +752,7 @@ int iosPadConnect(void *a0, int a1, int a2, int a3)
 {
     int *p = (int *)a0;
     p[1] = a3;
-    p[0] = (int)&iosPadDev[a2 * 0x200];
+    p[0] = (int)&iosPadDev[a2];
     return 0;
 }
 
@@ -795,7 +798,7 @@ void iosPadActInit(void)
     memset(padActs, 0, sizeof(padActs));
     Init_Shock();
     Shock_SetShockVoiceSet(0, (int)ShockVoiceSetCommon);
-    base = iosPadDev;
+    base = (unsigned char *)iosPadDev;
     p = base + 0x1B8;
     i = 1;
     do {

@@ -122,6 +122,25 @@ static SqEntry soundDataTbl[16];
 
 static SeSlot seSlotTbl[48];
 
+/* The TU's .sdata objects ahead of its first short literal, in the ROM's
+   order: the SPU buffer's segment-0 allocation pointer and the top of
+   segment 1 (soundBufAlloc), the reverb depth and output mode the Set/Get
+   pairs keep, the master SE volume rate, the environment-close request and
+   the semi-common load flag. */
+static int bufSeg0Next = 0x5010; /* derived name */
+
+static int bufSeg1Top = 0x1D9020; /* derived name */
+
+static int reverbDepth = 10; /* derived name */
+
+float soundSeEnvMasterVolRate = 1.0f;
+
+int seEnvForceClose = 0;
+
+static int outputMode = 0; /* derived name */
+
+static int seSemiCommonLoaded = 0; /* derived name */
+
 extern void FlushCache(int a);
 extern int sceSifDmaStat(int h);
 extern int sceSifSetDma(int p, int a);
@@ -145,7 +164,6 @@ inline int Ee2Iop(int a0, int a1, int a2)
     return (x >= 0) ? 0 : -1;
 }
 
-extern int D_0063A650;
 extern void SgInit(void);
 extern void SgSetDigitalOutputMode(int a0);
 extern void SgSetTickMode(int a0);
@@ -188,30 +206,27 @@ int soundInit(void)
         *(int *)&p[i * 64 + 0x30] = 0;
     }
     AdpcmStreamInit();
-    D_0063A650 = 0;
+    seEnvForceClose = 0;
     return 0;
 }
 
-extern int D_0063A654;
 extern void SgSetOutputMode();
 
 void soundOutputModeSet(int a0)
 {
-    D_0063A654 = a0;
+    outputMode = a0;
     SgSetOutputMode(a0);
 }
 
 inline int soundOutputModeGet(void)
 {
-    return D_0063A654;
+    return outputMode;
 }
-
-extern int D_0063A648;
 
 void soundReverbDepthSet(int a0)
 {
     int val;
-    D_0063A648 = a0;
+    reverbDepth = a0;
     val = (a0 * 32767) / 100;
     SgSetReverbDepth(0, val, val);
     SgSetReverbDepth(1, val, val);
@@ -221,17 +236,16 @@ void soundReverbDepthSet(int a0)
 
 inline int soundReverbDepthGet(void)
 {
-    return D_0063A648;
+    return reverbDepth;
 }
 
-extern int D_0063A680;
 extern char D_005F5EB8[];
 extern int D_0063A684;
 
 void soundAllocIopHeap(void)
 {
     int r = iosSifAllocIopHeapDebug(0x78000, __FILE__, 254);
-    D_0063A680 = r;
+    soundIopHeapAddrs = r;
     if (r < 0) {
         debug_StdPrintfDummy("\nCan't alloc heap \n");
     } else {
@@ -241,10 +255,9 @@ void soundAllocIopHeap(void)
 
 void soundAllocIopFree(void)
 {
-    sceSifFreeIopHeap(D_0063A680);
+    sceSifFreeIopHeap(soundIopHeapAddrs);
 }
 
-extern char D_0063A660[];
 extern void __assert(char *file, int line, char *msg);
 extern void debug_assert(char *file, int line);
 extern int SgVabOpenFakeBody(int a0, int a1);
@@ -331,7 +344,7 @@ inline char *soundDataAreaGet(int a0, int a1, int a2, int a3)
         e = (SqEntry *)soundDataAreaSearch(&key);
         if (e == 0) {
             debug_assert(__FILE__, 334);
-            __assert(__FILE__, 334, D_0063A660);
+            __assert(__FILE__, 334, "0");
         }
         memset(e, 0, 0x30);
         e->num = a0;
@@ -366,7 +379,7 @@ static void soundDataOpenChk(char *self)
         break;
     default:
         debug_assert(__FILE__, 358);
-        __assert(__FILE__, 358, D_0063A660);
+        __assert(__FILE__, 358, "0");
         break;
     }
     if (ok == 0) {
@@ -406,9 +419,6 @@ static void soundDataOpenChk(char *self)
     }
 }
 
-extern int D_0063A640;
-extern int D_0063A644;
-
 /* The SPU-buffer view of a sound data area: at 0x18 the same bytes are the
    adpcm channel mask (long long, see soundBufAdpcmChAlloc) in the SqEntry
    view and an (addr, size) pair here, so this role gets its own record. */
@@ -428,13 +438,13 @@ void soundBufAlloc(SoundBufReq *self, int size)
 {
     switch (self->unk6) {
     case 0:
-        self->addr = D_0063A640;
-        D_0063A640 = D_0063A640 + size;
-        bufSeg1Next = D_0063A640;
-        bufSeg2Next = D_0063A640;
-        if (D_0063A640 > 0x1D901F) {
+        self->addr = bufSeg0Next;
+        bufSeg0Next = bufSeg0Next + size;
+        bufSeg1Next = bufSeg0Next;
+        bufSeg2Next = bufSeg0Next;
+        if (bufSeg0Next > 0x1D901F) {
             debug_assert(__FILE__, 412);
-            __assert(__FILE__, 412, D_0063A660);
+            __assert(__FILE__, 412, "0");
         }
         break;
     case 1:
@@ -442,22 +452,22 @@ void soundBufAlloc(SoundBufReq *self, int size)
         case 1:
             self->addr = bufSeg1Next;
             bufSeg1Next = bufSeg1Next + size;
-            if (bufSeg1Next > D_0063A644) {
+            if (bufSeg1Next > bufSeg1Top) {
                 debug_assert(__FILE__, 420);
-                __assert(__FILE__, 420, D_0063A660);
+                __assert(__FILE__, 420, "0");
             }
             break;
         case 0:
-            D_0063A644 = D_0063A644 - size;
-            self->addr = D_0063A644;
-            if (D_0063A644 < bufSeg1Next) {
+            bufSeg1Top = bufSeg1Top - size;
+            self->addr = bufSeg1Top;
+            if (bufSeg1Top < bufSeg1Next) {
                 debug_assert(__FILE__, 424);
-                __assert(__FILE__, 424, D_0063A660);
+                __assert(__FILE__, 424, "0");
             }
             break;
         default:
             debug_assert(__FILE__, 428);
-            __assert(__FILE__, 428, D_0063A660);
+            __assert(__FILE__, 428, "0");
         }
         break;
     case 2:
@@ -468,12 +478,12 @@ void soundBufAlloc(SoundBufReq *self, int size)
             break;
         default:
             debug_assert(__FILE__, 443);
-            __assert(__FILE__, 443, D_0063A660);
+            __assert(__FILE__, 443, "0");
         }
         break;
     default:
         debug_assert(__FILE__, 448);
-        __assert(__FILE__, 448, D_0063A660);
+        __assert(__FILE__, 448, "0");
     }
     self->size = size;
 }
@@ -484,28 +494,28 @@ void soundBufSegFree(int a0, int a1)
     case 1:
         switch (a1) {
         case 1:
-            bufSeg1Next = D_0063A640;
+            bufSeg1Next = bufSeg0Next;
             return;
         case 0:
-            D_0063A644 = 0x1D9020;
+            bufSeg1Top = 0x1D9020;
             return;
         case 2:
             return;
         }
         debug_assert(__FILE__, 472);
-        __assert(__FILE__, 472, D_0063A660);
+        __assert(__FILE__, 472, "0");
         return;
     case 2:
         if (a1 == 0) {
-            bufSeg2Next = D_0063A640;
+            bufSeg2Next = bufSeg0Next;
             return;
         }
         debug_assert(__FILE__, 482);
-        __assert(__FILE__, 482, D_0063A660);
+        __assert(__FILE__, 482, "0");
         return;
     }
     debug_assert(__FILE__, 487);
-    __assert(__FILE__, 487, D_0063A660);
+    __assert(__FILE__, 487, "0");
 }
 
 inline int soundBufAdpcmChAlloc(SqEntry *self, int *chp)
@@ -518,14 +528,14 @@ inline int soundBufAdpcmChAlloc(SqEntry *self, int *chp)
             goto found;
     }
     debug_assert(__FILE__, 500);
-    __assert(__FILE__, 500, D_0063A660);
+    __assert(__FILE__, 500, "0");
 found:
     self->chMask |= bit << ch;
     adpcmChMask |= bit << ch;
     if (ch >= 5) {
         debug_StdPrintfDummy("soundBufAdpcmChAlloc over\n");
         debug_assert(__FILE__, 504);
-        __assert(__FILE__, 504, D_0063A660);
+        __assert(__FILE__, 504, "0");
     }
     *chp = ch;
     if (ch < 0) {
@@ -558,11 +568,11 @@ char *soundBDDataSet(int a0, int a1, int a2, int a3, int a4, int a5)
     while (a5 > 0) {
         chunk = (a5 > 0x78000) ? 0x78000 : a5;
         SgGetDmaTransferStatus(1);
-        Ee2Iop(a0 + off, D_0063A680, chunk);
+        Ee2Iop(a0 + off, soundIopHeapAddrs, chunk);
         if (chunk >= 65) {
-            SgDmaWrite(D_0063A680, ((SoundBufReq *)e)->addr + off, chunk);
+            SgDmaWrite(soundIopHeapAddrs, ((SoundBufReq *)e)->addr + off, chunk);
         } else {
-            SgDmaWrite(D_0063A680, ((SoundBufReq *)e)->addr + off, 0x50);
+            SgDmaWrite(soundIopHeapAddrs, ((SoundBufReq *)e)->addr + off, 0x50);
         }
         if (e->unk4 == 1) {
             SgGetDmaTransferStatus(1);
@@ -596,18 +606,18 @@ void soundDataOpen(int *work, int mode, int a2, int a3, int a4)
     switch (mode) {
     case 0:
         debug_assert(__FILE__, 614);
-        __assert(__FILE__, 614, D_0063A660);
+        __assert(__FILE__, 614, "0");
         break;
     case 1:
         debug_assert(__FILE__, 617);
-        __assert(__FILE__, 617, D_0063A660);
+        __assert(__FILE__, 617, "0");
         break;
     case 2:
         AdpcmOpen(work, a2, a3, a4);
         break;
     default:
         debug_assert(__FILE__, 623);
-        __assert(__FILE__, 623, D_0063A660);
+        __assert(__FILE__, 623, "0");
     }
 }
 
@@ -616,17 +626,17 @@ int *soundDataOpenSync(int *work)
     switch (work[0]) {
     case 0:
         debug_assert(__FILE__, 631);
-        __assert(__FILE__, 631, D_0063A660);
+        __assert(__FILE__, 631, "0");
         break;
     case 1:
         debug_assert(__FILE__, 634);
-        __assert(__FILE__, 634, D_0063A660);
+        __assert(__FILE__, 634, "0");
         break;
     case 2:
         return AdpcmOpenSync(work);
     default:
         debug_assert(__FILE__, 640);
-        __assert(__FILE__, 640, D_0063A660);
+        __assert(__FILE__, 640, "0");
     }
     return 0;
 }
@@ -691,7 +701,6 @@ void soundDataSegAllClose(int a0, int a1)
     soundBufSegFree(a0, a1);
 }
 
-extern float D_0063A64C;
 extern void SgSetSeVolDirect(int id, int l, int r);
 
 static void soundSeVolSet(SeSlot *self)
@@ -710,8 +719,8 @@ static void soundSeVolSet(SeSlot *self)
         r = (int)((float)self->unk14 * self->unk18);
     }
     if (self->unk8 == 0xFFFFFFFF && self->unk3C != 0) {
-        l = (int)((float)l * D_0063A64C);
-        r = (int)((float)r * D_0063A64C);
+        l = (int)((float)l * soundSeEnvMasterVolRate);
+        r = (int)((float)r * soundSeEnvMasterVolRate);
     }
     if (l < 0) {
         l = 0;
@@ -776,8 +785,6 @@ typedef struct DbgPad {
 } DbgPad;
 
 extern DbgPad D_0028F8F0[];
-extern int D_0063A664;
-extern int D_0063A668;
 static inline void soundSeEnvDefaultSet(SeSlot *self);
 extern void gif_StartPacketPri(int pri);
 extern void gif_EndPacket(void);
@@ -807,6 +814,8 @@ static void debug_DispSEInfo(void)
     static sceVu0FVECTOR center;
     static int curRow;
     static int solo;
+    static int page = 0; /* derived name */
+    static int show = 1; /* derived name */
     float v[4];
     float step = 0.0f;
     float dist;
@@ -819,17 +828,17 @@ static void debug_DispSEInfo(void)
 
     cam = GetCameraPos();
     if (D_0028F8F0[0].hold & 0x400) {
-        D_0063A668 ^= 1;
+        show ^= 1;
     }
-    if (D_0063A668 == 0) {
+    if (show == 0) {
         return;
     }
     if (D_0028F8F0[0].trg & 0x20) {
-        D_0063A664 = D_0063A664 + 1;
+        page = page + 1;
     }
-    for (i = D_0063A664;; i++) {
+    for (i = page;; i++) {
         if (i >= 48) {
-            D_0063A664 = 0;
+            page = 0;
             return;
         }
         if (seSlotTbl[i].unk30 != 0) {
@@ -837,7 +846,7 @@ static void debug_DispSEInfo(void)
         }
     }
     self = &seSlotTbl[i];
-    D_0063A664 = i;
+    page = i;
     if (D_0028F8F0[0].hold & 0x40) {
         solo ^= 1;
     }
@@ -900,8 +909,7 @@ static void debug_DispSEInfo(void)
         if (D_0028F8F0[0].trg & 0x8000) {
             step = -cur->v.step;
         }
-        debug_PrintfDummy(10, 70, 0xFFFFFF00u, (int)"req no %d %s %f\n", D_0063A664, self->unk38,
-                          dist);
+        debug_PrintfDummy(10, 70, 0xFFFFFF00u, (int)"req no %d %s %f\n", page, self->unk38, dist);
         for (i = 0, row = list; i < num; i++, row++) {
             int col = 0xFFFFFF00;
 
@@ -934,12 +942,12 @@ static void debug_DispSEInfo(void)
             sceVu0CopyVector(self->unk34, center);
             MatrixDrive_PushMatrix();
             {
-                Col4 col = {{0x00, 0x10, 0x20, 0x80}};
+                sceVu0IVECTOR col = {0x00, 0x10, 0x20, 0x80};
 
                 gif_StartPacketPri(11);
                 sceVu0UnitMatrix(MatrixDrive_GetMatrix());
                 MatrixDrive_TransMatrixV((char *)center);
-                prim_DispWireSphere(100.0f, &col, 16, 8);
+                prim_DispWireSphere(100.0f, col, 16, 8);
                 gif_EndPacket();
             }
             MatrixDrive_PopMatrix();
@@ -1117,12 +1125,17 @@ found:
     return i;
 }
 
-extern int D_0063A67C;
+static int seGroupSerial = 0; /* derived name */
+
+/* soundIopHeapAddrs is the last object of the TU's .sdata, after the group
+   serial above, so its definition sits here although soundAllocIopHeap
+   (declared through s_init.h) fills it first. */
+int soundIopHeapAddrs = 0;
 
 inline int soundSeGroupGet(void)
 {
-    int next = ((D_0063A67C + 1) & 0x0FFFFFFF) | 0x10000000;
-    D_0063A67C = next;
+    int next = ((seGroupSerial + 1) & 0x0FFFFFFF) | 0x10000000;
+    seGroupSerial = next;
     return next;
 }
 
@@ -1443,11 +1456,9 @@ inline void soundSeKindBuild(void)
     }
 }
 
-extern int D_0063A658;
-
 inline int soundSeSemiCommonLoadChk(void)
 {
-    return D_0063A658;
+    return seSemiCommonLoaded;
 }
 
 static inline void soundSeEnvDefaultSet(SeSlot *self)
@@ -1559,7 +1570,7 @@ void soundSeEnvNotUseClose(int a, int b)
             soundDataTbl[idx].num = n;
         }
     }
-    if (D_0063A650 != 0) {
+    if (seEnvForceClose != 0) {
         ok = 1;
     }
     for (m = 0; m < 48; m++) {
@@ -1583,20 +1594,20 @@ void soundSeEnvNotUseClose(int a, int b)
         }
     next:;
     }
-    if (D_0063A658 == 0) {
+    if (seSemiCommonLoaded == 0) {
         soundDataSegAllClose(2, 0);
     }
     if (ok != 0) {
-        if (p != 0 || D_0063A650 != 0) {
+        if (p != 0 || seEnvForceClose != 0) {
             soundDataSegAllClose(2, 0);
-            D_0063A658 = 2;
+            seSemiCommonLoaded = 2;
         } else {
-            D_0063A658 = 0;
+            seSemiCommonLoaded = 0;
         }
     } else {
-        D_0063A658 = 1;
+        seSemiCommonLoaded = 1;
     }
-    D_0063A650 = 0;
+    seEnvForceClose = 0;
     for (m = 0; m < 48; m++) {
         SeSlot *s = &seSlotTbl[m];
         SqEntry *r = s->unk30;
@@ -1641,7 +1652,7 @@ void soundDataSegNextStageNotUseClose(int a0, int a1)
                 break;
             default:
                 debug_assert(__FILE__, 1741);
-                __assert(__FILE__, 1741, D_0063A660);
+                __assert(__FILE__, 1741, "0");
                 break;
             }
         }

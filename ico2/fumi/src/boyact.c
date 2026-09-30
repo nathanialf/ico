@@ -3745,15 +3745,6 @@ void actBoyStart(int a0)
     if (BOYINFO.fire && D_00639EA8 != 0) {
         iosOmSendMail(D_00639EA8, 0x3F, (void *)a0);
         debug_StdPrintfDummy("hand connect start\n");
-        /* Disabled in retail: the way-begin report of the landing.  What the
-           bytes pin: its text in .rodata right after "hand connect start\n",
-           with no instruction; the listing's lines 5749-5750, empty between
-           this print (5748) and the final wait (5751), are where it fits.
-           What they cannot: the condition that disabled it.  girl_act.c's
-           actGirlDitch3mExec carries the same pair. */
-        if (0) {
-            debug_StdPrintfDummy("WBP set [landing]\n");
-        }
     }
     _ACTWait(0);
 }

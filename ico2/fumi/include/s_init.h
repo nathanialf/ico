@@ -55,4 +55,9 @@ void soundSeDefStop(int a0);
 void soundSeDefStopNoRelease(int a0);
 void soundSeEnvNotUseClose();
 
+/* s_init.o's .sdata globals (MAIN.MAP) */
+extern float soundSeEnvMasterVolRate;
+extern int seEnvForceClose;
+extern int soundIopHeapAddrs;
+
 #endif /* S_INIT_H */

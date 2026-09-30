@@ -2092,7 +2092,6 @@ extern char D_0061BC78[];
 extern int stage_no;
 extern int mpegPlayReturnStage;
 extern int enable_game_pause;
-extern int D_0063A650;
 extern int D_0063AA08;
 
 int debug_SelectStageMain(int ret, int stage)
@@ -2107,7 +2106,7 @@ int debug_SelectStageMain(int ret, int stage)
             if (strstr(D_005F5D50[stage].dataFile, D_0063AF98) == 0) {
                 mpegPlayReturnStage = stage_no;
                 soundDataSegAllClose(0, 2);
-                D_0063A650 = on;
+                seEnvForceClose = on;
                 enable_game_pause = on;
                 kanbanInit(0);
                 gflagOn(394);

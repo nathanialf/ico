@@ -1291,7 +1291,8 @@ extern int D_0063B590[];
 extern int D_004E3B40[];
 extern char D_004DA788[];
 extern char D_004DD700[];
-extern int D_0063A650;
+/* kept local: s_init.h's soundDataOpen and soundDataOpenSync prototypes do not fit this TU's uses */
+extern int seEnvForceClose;
 extern int D_0063AA04;
 /* the current game's save record, as in la_system_save_processing */
 /* kept local with gamesys.h's prototype, which this TU does not include */
@@ -1425,7 +1426,7 @@ int la_load_processing(int a0)
         playTime((struct S14 *)IosMcPreviewInfo, &hour, &min, &sec);
         D_0063B558 = mcSetFileNo(mc[2], mc[16]);
         debug_StdPrintfDummy(D_0061DA30, D_0063AA04);
-        D_0063A650 = 1;
+        seEnvForceClose = 1;
         if (D_0063BE6C != 0) {
             *(short *)(*(int *)(D_0063BE6C + 0x2C) + 0x44) = 0x40;
         }

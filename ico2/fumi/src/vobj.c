@@ -9,12 +9,12 @@ extern void gif_EndPacket(void);
 
 /* one 4-float vertex per entry; [3] is the run flag: 0 = keep drawing,
  * 2 = break the run and skip a vertex, anything else = end of list. */
-static float vobjArrow[5][4] = {
+static sceVu0FVECTOR vobjArrow[5] = {
     {-10.0f, -75.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, {10.0f, -75.0f, 0.0f, 0.0f},
     {-10.0f, -75.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 1.0f},
 };
 
-static float *vobjList[] = {&vobjArrow[0][0]};
+static float *vobjList[] = {vobjArrow[0]};
 
 void DrawVObj(int no, int color)
 {

@@ -21,12 +21,14 @@
    at; the fourth word is the homogeneous 1.0f. */
 static float wayWorkPos[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 
+/* the way point the tool has picked, -1 for none: point_delete sets it,
+   point_nige moves it and set_way_point_color highlights it */
+static int wayPointSel = -1; /* derived name */
+
 extern WayRec D_004F1EC0[];
 extern int D_00639EA4;
 extern int D_0063B13C;
 extern int D_0063BD78;
-extern int D_0063BD84;
-extern char D_0063BD88[];
 
 /* .sbss, owned by way_tool.o (MAIN.MAP names no symbol in the run), in the ROM's run order: the way
    record the tool is showing, the group the selection window is on, the camera
@@ -66,25 +68,26 @@ inline void cursor_control(volatile int a0);
 
 int group_create(void)
 {
+    static int createState = 0; /* derived name */
     int f;
 
     if (D_0063B13C & 1) {
         debug_Printf(18, 54, 0xFF000000, "group + create");
     }
-    if (D_0063BD84 == 0) {
+    if (createState == 0) {
         int g = CreateWayGroup();
 
-        D_0063BD84 = 1;
+        createState = 1;
         D_0063BD78 = g;
         selectedWay = &D_004F1EC0[g];
         debug_StdPrintfDummy("search:%p %p\n", isysGObjSearchFromObjKindID_begin(0), D_00639EA4);
         return 0;
     }
-    if (D_0063BD84 != 1) {
+    if (createState != 1) {
         return 0;
     }
     if (D_0063B13C & 1) {
-        debug_Printf(26, 66, 0xFF808000, D_0063BD88, selectedWay->w[4]);
+        debug_Printf(26, 66, 0xFF808000, "pt.%d", selectedWay->w[4]);
     }
     f = *(int *)&wayToolPad[12];
     if (f & 0x20) {
@@ -98,12 +101,12 @@ int group_create(void)
         if (selectedWay->w[4] == 0) {
             DeleteWayGroup(D_0063BD78);
         }
-        D_0063BD84 = 0;
+        createState = 0;
         return -1;
     }
     if (f & 0x80) {
         CloseWayGroup(D_0063BD78);
-        D_0063BD84 = 0;
+        createState = 0;
         return -1;
     }
     return 0;
@@ -136,9 +139,7 @@ WayMenuLine debugWayGroupSelect[64] = {
     {"55 ( -)  ", 0}, {"56 ( -)  ", 0}, {"57 ( -)  ", 0}, {"58 ( -)  ", 0}, {"59 ( -)  ", 0},
     {"60 ( -)  ", 0}, {"61 ( -)  ", 0}, {"62 ( -)  ", 0}, {"63 ( -)  ", 0}};
 
-extern char D_0063BD90[];
 extern int D_0063BD74;
-extern int D_0063BD94;
 extern char *strcat(char *d, char *s);
 /* kept local: this TU's uses of set_bridge do not fit the prototype in way_util.h */
 extern int set_bridge(int gid);
@@ -155,7 +156,7 @@ static inline void relabel_way_groups(void)
         if (D_004F1EC0[i].w[0] == 1) {
             sprintf(debugWayGroupSelect[n].s, "% 2d (% 2d) ", n, D_004F1EC0[i].w[4]);
             if (D_004F1EC0[i].w[6] == 1) {
-                strcat(debugWayGroupSelect[n].s, D_0063BD90);
+                strcat(debugWayGroupSelect[n].s, "b");
             }
             n++;
         }
@@ -168,12 +169,13 @@ static inline void relabel_way_groups(void)
    became C. */
 static int group_select(void)
 {
+    static int selectState = 0; /* derived name */
     WayRec *e;
     int state;
     int i;
     int r;
 
-    state = D_0063BD94;
+    state = selectState;
     if (state == 0) {
         relabel_way_groups();
         for (i = 0; i < 94; i++) {
@@ -185,7 +187,7 @@ static int group_select(void)
                 }
             }
         }
-        D_0063BD94 = 1;
+        selectState = 1;
     } else if (state == 1) {
         if ((*(int *)&wayToolPad[12]) & 0x2000) {
             set_bridge(D_0063BD78);
@@ -201,21 +203,20 @@ static int group_select(void)
             D_0063BD78 = wayGroupSel;
             return 0;
         case -1:
-            D_0063BD94 = 0;
+            selectState = 0;
             return -1;
         default:
-            D_0063BD94 = 2;
+            selectState = 2;
             break;
         }
     } else if (state == 2) {
         D_0063BD78 = wayGroupSel;
-        D_0063BD94 = 0;
+        selectState = 0;
         return -1;
     }
     return 0;
 }
 
-extern int D_0063BD80;
 /* kept local: this TU's uses of waypoint_with_range do not fit the prototype in way_util.h */
 extern char *waypoint_with_range(int *, float);
 
@@ -227,7 +228,7 @@ int point_delete(void)
     if (D_0063B13C & 1) {
         debug_Printf(18, 54, 0xFF000000, "point + delete\n");
         if (D_0063B13C & 1) {
-            debug_Printf(26, 66, 0xFF808000, D_0063BD88, entry->w[4]);
+            debug_Printf(26, 66, 0xFF808000, "pt.%d", entry->w[4]);
         }
     }
     f = *(int *)&wayToolPad[12];
@@ -240,13 +241,13 @@ int point_delete(void)
         {
             int n = *(int *)(res + 4);
 
-            D_0063BD80 = n;
+            wayPointSel = n;
             if (n >= 0) {
                 DeleteWayPoint(n);
                 if (entry->w[4] == 0) {
                     DeleteWayGroup(D_0063BD78);
                 }
-                debug_StdPrintfDummy("delete waypoint %d\n", D_0063BD80);
+                debug_StdPrintfDummy("delete waypoint %d\n", wayPointSel);
                 return 0;
             }
         }
@@ -256,26 +257,26 @@ int point_delete(void)
     return 0;
 }
 
-extern int D_0063BD98;
 /* kept local: this TU's uses of nearest_waypoint_by_lineseg do not fit the prototype in way_util.h */
 extern void *nearest_waypoint_by_lineseg(void *a0);
 
 int point_insert(void)
 {
+    static int insertState = 0; /* derived name */
     WayRec *entry = &D_004F1EC0[D_0063BD78];
     int f;
 
     if (D_0063B13C & 1) {
         debug_Printf(18, 54, 0xFF000000, "point + insert\n");
         if (D_0063B13C & 1) {
-            debug_Printf(26, 66, 0xFF808000, D_0063BD88, entry->w[4]);
+            debug_Printf(26, 66, 0xFF808000, "pt.%d", entry->w[4]);
         }
     }
-    D_0063BD98 = 1;
+    insertState = 1;
     f = *(int *)&wayToolPad[12];
     if (!(f & 0x20)) {
         if (f & 0x40) {
-            D_0063BD98 = 0;
+            insertState = 0;
             return -1;
         }
         return 0;
@@ -295,21 +296,19 @@ int point_insert(void)
     return 0;
 }
 
-extern char D_0063BDA0[];
-extern int D_0063BD9C;
-
 inline int play_way(void)
 {
+    static int playMode = 0; /* derived name */
     char *g;
     int f;
 
     if (D_0063B13C & 1) {
-        debug_Printf(18, 54, 0xFF000000, D_0063BDA0);
+        debug_Printf(18, 54, 0xFF000000, "to boy\n");
     }
     f = *(int *)&wayToolPad[12];
     if (f & 0x20) {
         g = isysGObjSearchFromObjKindID_begin(2);
-        switch (D_0063BD9C) {
+        switch (playMode) {
         case 0:
             while (g != 0) {
                 GOBJ_ACT(g)->f_350 = 1;
@@ -323,7 +322,7 @@ inline int play_way(void)
             }
             break;
         }
-        D_0063BD9C ^= 1;
+        playMode ^= 1;
     } else if (f & 0x40) {
         return -1;
     }
@@ -345,7 +344,7 @@ inline int point_nige(void)
         if (p == 0) {
             return 0;
         }
-        D_0063BD80 = p[1];
+        wayPointSel = p[1];
         if (p[1] >= 0) {
             p[10] ^= 1;
         }
@@ -356,8 +355,6 @@ inline int point_nige(void)
 }
 
 extern int load_save_flag;
-extern char D_0063BDA8[];
-extern char D_0063BDB0[];
 extern void sceWrite(int a0, void *a1, int a2);
 
 inline int quick_save_wpfile(void)
@@ -367,7 +364,7 @@ inline int quick_save_wpfile(void)
     int i;
     unsigned char *p;
     load_save_flag = 1;
-    sprintf(buf, D_0063BDA8);
+    sprintf(buf, "test.wp");
     s0 = debugSceOpen(buf, 0x202);
     if (s0 < 0) {
         debug_StdPrintfDummy("cannot save wp file");
@@ -383,14 +380,11 @@ inline int quick_save_wpfile(void)
     } while (i >= 0);
     sceWrite(s0, wpBuf, 0x10);
     debugSceClose(s0);
-    debug_StdPrintfDummy(D_0063BDB0);
+    debug_StdPrintfDummy("saved\n");
     load_save_flag = 0;
     return 1;
 }
 
-extern char D_0063BDB8[];
-extern char D_0063BDC0[];
-extern char D_0063BDC8[];
 extern void sceRead(int a0, void *a1, int a2);
 
 int quick_load_wpfile(void)
@@ -401,7 +395,7 @@ int quick_load_wpfile(void)
     char *p;
 
     load_save_flag = 1;
-    sprintf(buf, D_0063BDA8);
+    sprintf(buf, "test.wp");
     s0 = debugSceOpen(buf, 1);
     if (s0 < 0) {
         debug_StdPrintfDummy("cannot load wp file\n");
@@ -419,10 +413,10 @@ int quick_load_wpfile(void)
     sceRead(s0, &wpBuf[15], 0x10);
     debugSceClose(s0);
     for (i = -15; i < 17; i++) {
-        debug_StdPrintfDummy(D_0063BDB8, ((char *)wpBuf)[i + 15]);
+        debug_StdPrintfDummy("%d ", ((char *)wpBuf)[i + 15]);
     }
-    debug_StdPrintfDummy(D_0063BDC0);
-    debug_StdPrintfDummy(D_0063BDC8);
+    debug_StdPrintfDummy("\n");
+    debug_StdPrintfDummy("loaded\n");
     load_save_flag = 0;
     return 1;
 }
@@ -541,8 +535,6 @@ typedef struct {
     char s[8];
 } WpName;
 
-extern WpName D_0063BDD0[];
-extern char D_0063BDD8[];
 extern int strlen(char *s);
 extern void sceWrite(int fd, void *buf, int n);
 extern WayRec *WayGroup_begin(void);
@@ -550,7 +542,7 @@ extern WayRec *WayGroup_next(WayRec *p);
 
 int wp_print_out(void)
 {
-    WpName name = D_0063BDD0[0];
+    WpName name = {"way0000"};
     char line[0x100];
     char fname[0x70];
     WayRec *g;
@@ -559,7 +551,7 @@ int wp_print_out(void)
     int n;
 
     load_save_flag = 1;
-    sprintf(fname, D_0063BDD8, name.s);
+    sprintf(fname, "%s.txt", name.s);
     fd = debugSceOpen(fname, 0x602);
     if (fd < 0) {
         debug_StdPrintfDummy("cannot open file");
@@ -632,7 +624,7 @@ static inline void set_way_point_color(char *p, WayCol *col)
 
     if (*(int *)(p + 0x28) != 0) {
         *d = wayColorLinked;
-    } else if (*(int *)(p + 0x4) == D_0063BD80) {
+    } else if (*(int *)(p + 0x4) == wayPointSel) {
         *d = wayColorSelected;
     } else {
         *d = *col;
@@ -760,7 +752,6 @@ typedef struct {
 
 /* way_tool.o .data +0x2A0: the way-tool menu, nine {label, action} lines.
    Line 5's label is the play/stop text the tool rewrites at runtime. */
-extern char D_0063BDE0[];
 /* kept local: the declaration in way_tool.h changes this TU codegen */
 extern int group_create(void);
 /* kept local: the declaration in way_tool.h changes this TU codegen */
@@ -780,21 +771,21 @@ extern int wp_print_out(void);
 
 WayMenu debugWayMenu[9] = {{"group + create", group_create},  {"      + select", group_select},
                            {"point + delete", point_delete},  {"      + insert", point_insert},
-                           {"      + nige", point_nige},      {D_0063BDE0, play_way},
+                           {"      + nige", point_nige},      {"play", play_way},
                            {"quick save", quick_save_wpfile}, {"quick load", quick_load_wpfile},
                            {"save text", wp_print_out}};
 
 extern int D_0063A44C;
 extern int D_00639EC0;
 extern int D_0063BD70;
-extern int D_0063BDE8;
-extern int D_0063BDEC;
 extern char iosPadConfDefault[];
 /* kept local: the declaration in way_tool.h changes this TU codegen */
 extern void cursor_control(volatile int a0);
 
 int debug_WayTool(void)
 {
+    static int menuState = 1; /* derived name */
+    static int menuSel = 0;   /* derived name */
     float pos[4];
     int r;
     int (*f)(int);
@@ -823,34 +814,33 @@ int debug_WayTool(void)
     iosPadRead(wayToolPad);
     iosPadGetStick(wayToolPad, wayToolStick, 1, 0, 0, 0);
 
-    state = D_0063BDE8;
+    state = menuState;
     if (state == 1) {
-        r = debug_SelectCsvWindow("Way Tool", 0x12, 0x36, 0xB, debugWayMenu, 8, 0, 1, 9,
-                                  &D_0063BDEC);
+        r = debug_SelectCsvWindow("Way Tool", 0x12, 0x36, 0xB, debugWayMenu, 8, 0, 1, 9, &menuSel);
         switch (r) {
         case 0:
             return 0;
         case -1:
             D_0063BD70 = 1;
-            D_0063BDE8 = 1;
+            menuState = 1;
             D_00639EC0 = savedCamTarget;
             Camctrl_SetTarget(D_00639EC0, 0, 3);
             return -1;
         default:
             D_0063BD70 = 1;
-            D_0063BDE8 = 2;
+            menuState = 2;
             break;
         }
     } else if (state == 2) {
-        f = debugWayMenu[D_0063BDEC].fn;
+        f = debugWayMenu[menuSel].fn;
         if (f == 0) {
-            D_0063BDE8 = 1;
+            menuState = 1;
         } else {
             r = f(D_0063BD70);
             if (r == -1) {
-                D_0063BDE8 = 1;
+                menuState = 1;
             } else if (r != 0) {
-                D_0063BDE8 = 1;
+                menuState = 1;
             }
         }
     }

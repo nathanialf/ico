@@ -222,28 +222,6 @@ typedef struct {
     char _190[4];
 } CorrMotRec;
 
-/* The TU's .rodata run is VMA 0x00552CB8..0x00553320. The object emits the
- * part from actCommonFall's 0.8 at 0x00552EE8 to WithMailFunc_FallDead's 0.3
- * at 0x00553318, strings as literals; the head 0x00552CB8..0x00552EE8 stays in
- * the blob behind these labels, since its owners include inline tail members
- * (funcCommonRopeBefore, SetCorrectOrientOfChain, actCommonPlay,
- * actCommonDamage, actCommonRevive) still defined at their text positions, and
- * a literal emits where its function is defined. Spell these as literals once
- * those members sit at their listing positions:
- *   D_00552CB8 critical hit to boss!!!
- *   D_00552CD0 !!! unable guard flag get\n
- *   D_00552CF0 guard mail\n
- *   D_00552D00 guard error=[%d][%d][%d][%d]\n
- *   D_00552D20 die!!!!!!!!!!!\n
- *   D_00552D30 down!!!!!!!!!!!\n
- *   D_00552D48 damage!!!!!!!!!!!  %d\n */
-extern char D_00552CB8[];
-extern char D_00552CD0[];
-extern char D_00552CF0[];
-extern char D_00552D00[];
-extern char D_00552D20[];
-extern char D_00552D30[];
-extern char D_00552D48[];
 extern int stage_no;
 extern int D_00639EAC;
 extern int D_00639EB4;
@@ -444,6 +422,15 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
 
         if (120.0f < *(float *)(*(char **)(self + 0x15C) + 0x55C)) {
             ACTWay_SetBeginPositionIllegal(self);
+            /* Disabled in retail: the way-begin-position (WBP) report of the
+               landing.  What the bytes pin: its text is the first item of
+               this object's .rodata, ahead of "critical hit to boss!!!", with
+               no instruction; the listing's lines 882-884, empty after this
+               call (881), are where it fits.  What they cannot: the condition
+               that disabled it. */
+            if (0) {
+                debug_StdPrintfDummy("WBP set [landing]\n");
+            }
         }
         if (!((((CorrMotRec *)(D_0055FE58 + *(int *)(*(char **)(self + 0x15C) + 0x4A0) * 0x194))
                    ->f18C >>
@@ -491,7 +478,7 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
         break;
     }
     case 14:
-        debug_StdPrintfDummy(D_00552CB8);
+        debug_StdPrintfDummy("critical hit to boss!!!");
         if (*(int *)(*(char **)(*(char **)(self + 0x164) + 0x680) + 0x20C) <= 1) {
             msg = 293;
         } else {
@@ -505,7 +492,7 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
             d = *(float *)(sk + 0x1E0) = 100.0f;
         }
         if (*(signed char *)(*(int *)(self + 0x164) + 0x1DB) != 0) {
-            debug_StdPrintfDummy(D_00552CD0);
+            debug_StdPrintfDummy("!!! unable guard flag get\n");
         }
         if (stage_no == 85 || D_0063B210 != 0) {
             if (*(signed char *)(*(int *)(self + 0x164) + 0x1D9) != 0) {
@@ -528,10 +515,10 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
             *(signed char *)(*(int *)(self + 0x164) + 0x1DB) == 0 &&
             !((int)(*(unsigned long long *)(sk + 0x18) >> 51) & 1)) {
             iosOmSendMail(self, 283, (int)param);
-            debug_StdPrintfDummy(D_00552CF0);
+            debug_StdPrintfDummy("guard mail\n");
         } else {
             debug_StdPrintfDummy(
-                D_00552D00,
+                "guard error=[%d][%d][%d][%d]\n",
                 _AbsRotyGV(test_CURRENTORIENT(self), (void *)(*(int *)(self + 0x164) + 0x1C0)),
                 *(int *)(sk + 0x34), 15, 20);
         }
@@ -566,7 +553,7 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
             *(int *)(*(int *)(*(int *)(self + 0x164) + 0x680) + 0x1E4) != 3 &&
             EnemyGetNSafeParts(self) < 8) {
             msg = 293;
-            debug_StdPrintfDummy(D_00552D20);
+            debug_StdPrintfDummy("die!!!!!!!!!!!\n");
             break;
         }
         if (d < 0.0f) {
@@ -575,20 +562,20 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
                 msg = 291;
                 *(float *)(sk + 0x1E0) = 100.0f;
             }
-            debug_StdPrintfDummy(D_00552D20);
+            debug_StdPrintfDummy("die!!!!!!!!!!!\n");
             break;
         }
         if (*(signed char *)(*(int *)(self + 0x164) + 0x1D8) != 0 ||
             _ACTCharStatus_Check(self, 16) != 0) {
             msg = 291;
-            debug_StdPrintfDummy(D_00552D30);
+            debug_StdPrintfDummy("down!!!!!!!!!!!\n");
             break;
         }
         {
             int dir = GetHitDirIdx(self);
 
             msg = dir + 287;
-            debug_StdPrintfDummy(D_00552D48, dir);
+            debug_StdPrintfDummy("damage!!!!!!!!!!!  %d\n", dir);
         }
         break;
     }
@@ -747,7 +734,6 @@ int ACTGetOrientFromIntrK(char *self, int k, void *buf, int arg)
 }
 
 extern char D_0055FE58[];
-extern char D_0063A710[];
 extern int D_0028F4C0[];
 
 /* The actor mail record ico2/fumi/src/act.c reconstructs as IntrMail: a
@@ -786,7 +772,7 @@ void ACTRunIntrCorrect(char *a0, IntrRec *a1, IntrRec *a2)
                 for (ip = a1; ip != 0 && (short)ip->kind != 429; ip++) {
                     if (ip->kind == q->kind) {
                         ip->f14 &= ~0x40000;
-                        debug_StdPrintfDummy(D_0063A710);
+                        debug_StdPrintfDummy("off!!\n");
                     }
                 }
             }
@@ -812,6 +798,14 @@ void ACTRunIntrCorrect(char *a0, IntrRec *a1, IntrRec *a2)
 
 void WithMailFunc_WayBeginPosError(void *a0)
 {
+    /* Disabled in retail: the way-begin-position (WBP) report.  What the
+       bytes pin: its text in .rodata after _ACTCorrectMsg's prints and before
+       afterCommonRope's, with no instruction; the listing gives this
+       function only its call's row (1317), and 1313-1316 are empty.  What
+       they cannot: the condition that disabled it. */
+    if (0) {
+        debug_StdPrintfDummy("WBP set [with mail]\n");
+    }
     ACTWay_SetBeginPositionIllegal(a0);
 }
 
@@ -981,7 +975,6 @@ extern void GetChainClimbOrient(void *out, int chain);
 extern void GetChainClimbCollision(void *out, int chain);
 /* kept local: this TU's uses of ClipFloor do not fit the prototype in fieldCollision.h */
 extern void ClipFloor(void *a0);
-extern char D_00552DB0[];
 extern char D_0055FE58[];
 extern int D_0028F4C0[];
 /* kept local: this TU's uses of _RotyGV do not fit the prototype in gv.h */
@@ -1020,6 +1013,31 @@ static inline int chainFloorHit(char *a0, void *w)
     return 0;
 }
 
+/* kept local: this TU's uses of ReleaseChain do not fit the prototype in chain.h */
+extern void ReleaseChain(int a0, int a1);
+
+inline void afterCommonRope(volatile int a0)
+{
+    int s = *(int *)(a0 + 0x164);
+    debug_StdPrintfDummy("common rope after func\n");
+    ReleaseChain(*(int *)(s + 0x190), a0);
+    {
+        int g = a0;
+        *(int *)(s + 0x194) = *(int *)(s + 0x190);
+        GOBJ_SUB(g)->f_420 = 0;
+    }
+}
+
+inline void actAfterForceRope(volatile int a0)
+{
+    int s = *(int *)(a0 + 0x164);
+    if (*(int *)(s + 0x190) == 0) {
+        debug_assert("src/commonact.c", 1531);
+        __assert("src/commonact.c", 1531, "ROPE_GOBJ!=NULL");
+    }
+    UnLockChainGeo(*(int *)(s + 0x190));
+}
+
 void actCommonRope(volatile int a0)
 {
     char *s;
@@ -1050,7 +1068,7 @@ void actCommonRope(volatile int a0)
     *(int *)(s + 0x18) = (int)actAfterForceRope;
     LockChainGeo(*(int *)(s + 0x190));
     _ACTWait(1);
-    debug_StdPrintfDummy(D_00552DB0);
+    debug_StdPrintfDummy("enter actCommonRope\n");
     while (1) {
         UnLockChainGeo(*(int *)(s + 0x190));
         ChainGeo(*(int *)(s + 0x190));
@@ -1455,9 +1473,6 @@ void TestCageUpDown(int cage, char *gobj)
 
 /* kept local: this TU's uses of GetOrientOfWall do not fit the prototype in fieldCollision.h */
 extern void GetOrientOfWall(void *out, void *obj, void *pos);
-extern char D_00552DD0[];
-extern char D_00552DE0[];
-extern char D_0063A718[];
 extern int D_0063B13C;
 
 typedef struct {
@@ -1494,19 +1509,17 @@ typedef struct {
 
 static inline unsigned char ropeSpecialWallHit(RsVec4 *p1, RsHit *hit)
 {
-    RsVec4 va;
-    RsVec4 vb;
+    sceVu0FVECTOR va = {0.0f, 0.0f, -20.0f, 1.0f};
+    sceVu0FVECTOR vb = {0.0f, 0.0f, 20.0f, 1.0f};
     RsWork work;
     int i;
 
-    va = *(RsVec4 *)D_00552DD0;
-    vb = *(RsVec4 *)D_00552DE0;
     for (i = 0; i < 4; i++) {
         sceVu0UnitMatrix((void *)MatrixDrive_GetMatrix());
         MatrixDrive_TransMatrix(p1->f[0], p1->f[1] + 0.0f, p1->f[2]);
         MatrixDrive_RotMatrixY((short)((float)i * 0.7853982f * 32768.0f / 3.1415927f));
-        sceVu0ApplyMatrix(&work, (void *)MatrixDrive_GetMatrix(), &va);
-        sceVu0ApplyMatrix((char *)&work + 0x10, (void *)MatrixDrive_GetMatrix(), &vb);
+        sceVu0ApplyMatrix(&work, (void *)MatrixDrive_GetMatrix(), va);
+        sceVu0ApplyMatrix((char *)&work + 0x10, (void *)MatrixDrive_GetMatrix(), vb);
         ClipWall(&work);
         if (work.f88 != 0) {
             hit->xy = work.h80;
@@ -1552,7 +1565,7 @@ void actCommonRopeSpecial(volatile int a0)
         GetSkeltonPosition(pos.f, (char *)a0, 35);
         GetCageChainPoint(p1.f, p2.f, (void *)cage);
         if (D_0063B13C & 1) {
-            debug_Printf(10, 120, 0xFFFFFFF, D_0063A718,
+            debug_Printf(10, 120, 0xFFFFFFF, "%d, %d\n",
                          (int)*(float *)((char *)test_CURRENTROOT((void *)a0) + 4), (int)p2.f[1]);
         }
         if (*(float *)((char *)test_CURRENTROOT((void *)a0) + 4) > p2.f[1] - 30.0f) {
@@ -1609,7 +1622,6 @@ typedef struct {
     int f394;
 } LeverAnim;
 
-extern char D_00552DF0[];
 /* kept local: this TU's uses of GetFloorLeverGlobalHoldPoint do not fit the prototype in box.h */
 extern void GetFloorLeverGlobalHoldPoint(void *out, void *lev);
 /* kept local: this TU's uses of GetWallLeverGlobalHoldPoint do not fit the prototype in box.h */
@@ -1636,7 +1648,7 @@ static inline void correctLeverHoldPoint(void *a0, char *lev)
             GetFloorLeverGlobalHoldPoint(w, lev);
         } else if (*(int *)(lev + 0xC) < 0x1A) {
             GetWallLeverGlobalHoldPoint(w, lev);
-            debug_StdPrintfDummy(D_00552DF0, w[0], w[1], w[2]);
+            debug_StdPrintfDummy("%f, %f, %f\n", w[0], w[1], w[2]);
         }
     }
     SetDirectRootPositionNoFittingWithNodePointXZ(a0, 0x16, w, 0.2f);
@@ -1678,14 +1690,19 @@ void EBRAIN_SEND_MES(void *a0, int a1)
         eBrainSendMes(a0);
 }
 
-extern char D_0063A720[];
+inline void actCommonPlay(volatile int a0)
+{
+    debug_StdPrintfDummy("enter actCommonPlay\n");
+    _ACTWait(0);
+}
+
 /* kept local: this TU's uses of EnemyDeleteParticle do not fit the prototype in enemy.h */
 extern void EnemyDeleteParticle(void *a0, void *a1, void *a2);
 
 void DamageFunc(char *a0)
 {
     int s = *(int *)(a0 + 0x164);
-    debug_StdPrintfDummy(D_0063A720);
+    debug_StdPrintfDummy("damage\n");
     if (a0 != D_00639EA8) {
         *(float *)(s + 0x1E0) -= (float)GOBJ_ACT(a0)->f_1D0;
     }
@@ -1705,7 +1722,19 @@ void DownFunc(char *a0)
     }
 }
 
-extern char D_00552E30[];
+inline void actCommonDamage(volatile int a0)
+{
+    debug_StdPrintfDummy("enter actCommonDamage\n");
+    SetMotionDirection(a0, *(char **)(a0 + 0x164) + 0x1C0);
+    DamageFunc((char *)a0);
+    if (*(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1E4) == 3) {
+        _ACTWait(360);
+    }
+    for (;;) {
+        ACTSendMailCorrect((char *)a0, 0xC7);
+        _ACTWait(1);
+    }
+}
 
 void actCommonDown(volatile int a0)
 {
@@ -1713,7 +1742,7 @@ void actCommonDown(volatile int a0)
     Act *s = GOBJ_ACT(a0);
     int notDamage = *(int *)((char *)s + 0xD8) != 0x37 && *(int *)((char *)s + 0xD8) != 0x38;
 
-    debug_StdPrintfDummy(D_00552E30);
+    debug_StdPrintfDummy("enter actCommonDown\n");
     *(int *)((char *)s + 0x18) = (int)actAfterDown;
     if (notDamage) {
         if ((char *)a0 == D_00639EA4) {
@@ -1740,7 +1769,6 @@ void actCommonDown(volatile int a0)
     }
 }
 
-extern char D_00552E48[];
 extern void debug_StdPrintfDummy();
 extern void DownFunc(char *a0);
 extern void gamesysObjInfoCls(int a0, int a1);
@@ -1784,7 +1812,7 @@ void actCommonDie(volatile int a0)
     } else {
         corpse = 0;
     }
-    debug_StdPrintfDummy(D_00552E48);
+    debug_StdPrintfDummy("enter actCommonDie\n");
     SetMotionDirection(a0, *(char **)(a0 + 0x164) + 0x1C0);
     DownFunc((char *)a0);
     *(char *)(*(char **)(a0 + 0x164) + 0x1DA) = 1;
@@ -1838,8 +1866,6 @@ extern void RotQuaternionZ(float *q, short a);
 /* kept local: this TU's uses of SetMotionNodeFixModeParameter do not fit the prototype in motionManager2.h */
 extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float *q, float x,
                                           float y, float z, float w);
-extern char D_00552D90[];
-extern char D_00552E60[];
 extern void debug_assert(char *a0, int a1);
 extern void __assert(char *a0, int a1, char *a2);
 
@@ -1877,8 +1903,9 @@ void actCommonCling(volatile int a0)
         memset(q, 0, 16);
         q[3] = 1.0f;
         if (!((unsigned int)idx < 15)) {
-            debug_assert(D_00552D90, 0xAAD);
-            __assert(D_00552D90, 0xAAD, D_00552E60);
+            debug_assert("src/commonact.c", 2733);
+            __assert("src/commonact.c", 2733,
+                     "index>=ClingDataID_cling_start && index<ClingDataID_cling_end");
         }
         for (i = 0; i < 3; i++) {
             v = (r->rot[i] << 15) / 180;
@@ -1963,8 +1990,31 @@ void actCommonStoneDead(volatile int a0)
     _ACTWait(0);
 }
 
-extern char D_00552EB8[];
-extern char D_00552EC8[];
+/* kept local: this TU's uses of EnemySetfAppearAll do not fit the prototype in enemy.h */
+extern void EnemySetfAppearAll(void *a0);
+/* kept local: this TU's uses of ResetEnemyPositionInfo do not fit the prototype in enemy.h */
+extern void ResetEnemyPositionInfo(void *a0);
+
+typedef struct {
+    char _0[0x14];
+    int f14;
+} ReviveSub;
+
+inline void actCommonRevive(volatile int a0)
+{
+    Act *s = GOBJ_ACT(a0);
+
+    debug_StdPrintfDummy("enter actCommonRevive\n");
+    ACTGameCollisionOff(a0);
+    ((ReviveSub *)s)->f14 = (int)afterCommonRevive;
+    SetDirectRootPositionNoFitting((void *)a0, (char *)s + 0x170);
+    EnemySetfAppearAll((void *)a0);
+    for (;;) {
+        ResetEnemyPositionInfo((void *)a0);
+        ACTSendMailCorrect((char *)a0, 0xC7);
+        _ACTWait(1);
+    }
+}
 
 typedef struct {
     char _0[0x14];
@@ -1981,11 +2031,11 @@ void actCommonStone(volatile int a0)
     *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x2A0) = 0;
     while (1) {
         if (D_0063B13C & 1) {
-            debug_Printf(10, 170, 0xFFFFFFF, D_00552EB8,
+            debug_Printf(10, 170, 0xFFFFFFF, "count =(%d)\n",
                          *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0xCC));
         }
         if (D_0063B13C & 1) {
-            debug_Printf(10, 180, 0xFFFFFFF, D_00552EC8,
+            debug_Printf(10, 180, 0xFFFFFFF, "level =(%d)\n",
                          *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x29C));
         }
         switch (*(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x29C)) {
@@ -2110,8 +2160,6 @@ extern void AlignBox(char *box, float f);
 extern int MoveBoxWithHoldPoint(char *box, void *hold, void *self, int node, void *dir);
 extern void GetBoxGlobalHoldPoint(void *out, char *box, void *hold);
 extern int GetBoxMode(char *box);
-extern char D_0063A728[];
-extern char D_0063A730[];
 
 /* reconstruction: the third view of the same 0xC0-byte ClipWall work buffer
    (RopeWallWork above and RsWork below are the other two). This one reads the
@@ -2218,7 +2266,7 @@ void actCommonBox(volatile int a0)
                     sceVu0ScaleVector(dir, s + 0x4B0, -1.0f);
                 }
                 if (!isTruck) {
-                    debug_StdPrintfDummy(D_0063A728);
+                    debug_StdPrintfDummy("A\n");
                     AlignBox(box, 100.0f);
                 }
                 ok = MoveBoxWithHoldPoint(box, hold, (void *)a0, 22, dir);
@@ -2238,7 +2286,7 @@ void actCommonBox(volatile int a0)
         if (!had) {
             _boxbar_set_sound(a0, 0);
             if (!isTruck) {
-                debug_StdPrintfDummy(D_0063A730);
+                debug_StdPrintfDummy("B\n");
             }
         } else if (f2) {
             _boxbar_set_sound(a0, 1);
@@ -2259,9 +2307,17 @@ void actCommonBox(volatile int a0)
 
 /* kept local: this TU's uses of GetMotionFrameFlag1 do not fit the prototype in motionManager2.h */
 extern int GetMotionFrameFlag1(void *a0);
+extern Blob12 InitialColInfo;
+
+inline void afterCommonBar(volatile int a0)
+{
+    debug_StdPrintfDummy("reset\n");
+    *(Blob12 *)((char *)GOBJ_SUB(a0) + 0x1C0) = InitialColInfo;
+    _boxbar_set_sound(a0, 0);
+}
+
 /* kept local: this TU's uses of GetMotionFrameFlag2 do not fit the prototype in motionManager2.h */
 extern int GetMotionFrameFlag2(void *a0);
-extern char D_0063A740[];
 
 typedef struct {
     char _0[0x1C0];
@@ -2291,7 +2347,7 @@ void actCommonBar(volatile int a0)
                           (void *)a0);
     (int)GOBJ_SUB(s) = (int)bar;
     s->f_14 = (int)afterCommonBar;
-    debug_StdPrintfDummy(D_0063A740, bar);
+    debug_StdPrintfDummy("set %p\n", bar);
     ((BarHold *)(int)GOBJ_SUB(a0))->f1C0 = (int)bar;
     ((BarHold *)(int)GOBJ_SUB(a0))->f1C4 = -1;
     ((BarHold *)(int)GOBJ_SUB(a0))->f1C8 = 0;
@@ -2351,7 +2407,6 @@ void funcCommonFallDircorrect(char *a0)
     SetMotionDirection(a0, *(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x360);
 }
 
-extern float D_0063A748[];
 /* kept local: this TU's uses of GetMatrixDirectionToZ do not fit the prototype in gv.h */
 extern void GetMatrixDirectionToZ(void *m, void *orient);
 /* kept local: this TU's uses of GetChainHangRange do not fit the prototype in chain.h */
@@ -2369,7 +2424,7 @@ void correctJumpOrientByChain(char *a0)
     float dir[4];
     char *o;
     float t;
-    float best = D_0063A748[0];
+    float best = 3.40282347e+38f; /* FLT_MAX */
     float ang = 0.0f;
 
     pos[0] = ((float *)test_CURRENTROOT((void *)a0))[0];
@@ -2406,7 +2461,7 @@ void correctJumpOrientByChain(char *a0)
         out[1] = p[1];
         out[2] = p[2];
     }
-    if (best == D_0063A748[0]) {
+    if (best == 3.40282347e+38f) {
         return;
     }
     _OrientXZGV(dir, out, test_CURRENTROOT((void *)a0));
@@ -2493,7 +2548,6 @@ extern char *D_00639EA8;
 extern void debug_StdPrintfDummy();
 extern void *test_CURRENTORIENT(char *a0);
 extern void _ACTWait(int a0);
-extern char D_00552ED8[];
 extern void actAfterFall(volatile int a0);
 extern int ACTCheckCollis_WELL(float *a0, float *a1, int a2, float *a3, float rad);
 extern float GetDifferenceFromLowerField(volatile int a0, int node);
@@ -2562,7 +2616,7 @@ void actCommonFall(volatile int a0)
     ((Act *)s)->afterProc = (void (*)(char *))actAfterFall;
     if (D_005F5D50[stage_no].flag3) {
         keep = FALL_SUB(a0)->f_5F8 & 0xF;
-        debug_StdPrintfDummy(D_00552ED8, FALL_SUB(a0)->f_5F8, keep);
+        debug_StdPrintfDummy("0x%8x -> 0x%8x\n", FALL_SUB(a0)->f_5F8, keep);
         FALL_SUB(a0)->f_5F8 = 0;
         FALL_SUB(a0)->f_5F8 = keep;
     } else {
@@ -2822,11 +2876,6 @@ extern float GetEnemyFlyXZAccel(int a0);
 extern void SetDarkVolumeEffect(float *pos, float size);
 /* kept local: flyManager.h leaves FlyLimitInfo to its includer */
 extern int GetFlyLimitHeight(void *info, void *pos);
-/* "limit" and "%1.1f ": commonact's .sdata run is carved only as far as
-   afterCommonBar's literal, so these two short strings stay on the blob's
-   labels until the run's other owners are C and it can be carved whole */
-extern char D_0063A750[];
-extern char D_0063A758[];
 
 /* reconstruction: GetFlyLimitHeight's result, as flyManager.c fills it */
 typedef struct {
@@ -2972,7 +3021,7 @@ void flyCoreLoop(char *a0, char *target, int a2)
 
                         debugDispFlyLimit(mat[3], info.limitY, info.floorY);
                         D_0063B13C = 1;
-                        debug_Printf(10, 160, 0xFFFFFF00, "[%s] %4d %4d %4d", D_0063A750,
+                        debug_Printf(10, 160, 0xFFFFFF00, "[%s] %4d %4d %4d", "limit",
                                      (int)info.floorY, (int)info.limitY, (int)info.limitOfs);
                         D_0063B13C = save;
                     }
@@ -3096,7 +3145,7 @@ void flyCoreLoop(char *a0, char *target, int a2)
            the switch's name and what the guarded line printed; the print
            follows emergencyCheck's own "%1.1f " distance print. */
         if (dbg) {
-            debug_StdPrintfDummy(D_0063A758, lenSq);
+            debug_StdPrintfDummy("%1.1f ", lenSq);
         }
         if (stuck) {
             int completeEmergency(void)
@@ -3160,7 +3209,7 @@ void flyCoreLoop(char *a0, char *target, int a2)
                         for (i = 0; i < 5; i++) {
                             d = distance_squared(prev, ring[i]);
                             if (D_0063B234) {
-                                debug_StdPrintfDummy(D_0063A758, d);
+                                debug_StdPrintfDummy("%1.1f ", d);
                             }
                             if (mx < d) {
                                 mx = d;
@@ -3574,35 +3623,32 @@ inline void motCommonNull(volatile int a0)
     }
 }
 
-extern char D_0063A760[];
-extern char D_0063A768[];
-
 void funcCommonBeginReady(char *a0, int a1, char *a2)
 {
     GOBJ_ACT(a0)->f_E0 |= 1;
-    debug_StdPrintfDummy("ready begin %s to %s\n", a2 == D_00639EA4 ? D_0063A760 : D_0063A768,
-                         a0 == D_00639EA4 ? D_0063A760 : D_0063A768);
+    debug_StdPrintfDummy("ready begin %s to %s\n", a2 == D_00639EA4 ? "boy" : "girl",
+                         a0 == D_00639EA4 ? "boy" : "girl");
 }
 
 void funcCommonEndReady(char *a0, int a1, char *a2)
 {
     GOBJ_ACT(a0)->f_E0 |= 2;
-    debug_StdPrintfDummy("ready end %s to %s\n", a2 == D_00639EA4 ? D_0063A760 : D_0063A768,
-                         a0 == D_00639EA4 ? D_0063A760 : D_0063A768);
+    debug_StdPrintfDummy("ready end %s to %s\n", a2 == D_00639EA4 ? "boy" : "girl",
+                         a0 == D_00639EA4 ? "boy" : "girl");
 }
 
 void funcCommonEndExec(char *a0, int a1, char *a2)
 {
     GOBJ_ACT(a0)->f_E0 |= 8;
-    debug_StdPrintfDummy("exec end %s to %s\n", a2 == D_00639EA4 ? D_0063A760 : D_0063A768,
-                         a0 == D_00639EA4 ? D_0063A760 : D_0063A768);
+    debug_StdPrintfDummy("exec end %s to %s\n", a2 == D_00639EA4 ? "boy" : "girl",
+                         a0 == D_00639EA4 ? "boy" : "girl");
 }
 
 void funcCommonError(char *a0, int a1, char *a2)
 {
     GOBJ_ACT(a0)->f_E0 |= 0x10;
-    debug_StdPrintfDummy("????error %s to %s\n", a2 == D_00639EA4 ? D_0063A760 : D_0063A768,
-                         a0 == D_00639EA4 ? D_0063A760 : D_0063A768);
+    debug_StdPrintfDummy("????error %s to %s\n", a2 == D_00639EA4 ? "boy" : "girl",
+                         a0 == D_00639EA4 ? "boy" : "girl");
 }
 
 typedef struct {
@@ -3856,7 +3902,6 @@ int E3_LeverCheck(char *a0)
 
 extern void afterCommonCarry(volatile int a0);
 extern SlowrunRec D_002ADD60[];
-extern char D_0063A770[];
 
 typedef struct {
     int _0[9];
@@ -3948,17 +3993,17 @@ void actCommonBecarry(volatile int a0)
             ACTGame_DisconnectHand();
         }
         if (D_0063B13C & 1) {
-            debug_Printf(100, 150, 0xFFFFFFF, (int)D_0063A770,
+            debug_Printf(100, 150, 0xFFFFFFF, "[%s]\n",
                          D_0055FF18 + *(int *)(*(char **)(D_00639EA8 + 0x15C) + 0x4A0) * 0x194);
         }
         if (D_0063B13C & 1) {
-            debug_Printf(100, 160, 0xFFFFFFF, (int)D_0063A770,
+            debug_Printf(100, 160, 0xFFFFFFF, "[%s]\n",
                          D_0055FF18 +
                              *(int *)(*(char **)(*(char **)(s + 0x144) + 0x15C) + 0x4A0) * 0x194);
         }
         if (D_0063B13C & 1) {
             debug_Printf(
-                100, 170, 0xFFFFFFF, (int)D_0063A770,
+                100, 170, 0xFFFFFFF, "[%s]\n",
                 D_005577D0[*(int *)(*(char **)(*(char **)(s + 0x144) + 0x164) + 0x34)].name);
         }
         _ACTWait(1);
@@ -4334,33 +4379,6 @@ inline void WithMailFunc_FallDead(char *a0)
     }
 }
 
-extern char D_00552EA0[];
-/* kept local: this TU's uses of EnemySetfAppearAll do not fit the prototype in enemy.h */
-extern void EnemySetfAppearAll(void *a0);
-/* kept local: this TU's uses of ResetEnemyPositionInfo do not fit the prototype in enemy.h */
-extern void ResetEnemyPositionInfo(void *a0);
-
-typedef struct {
-    char _0[0x14];
-    int f14;
-} ReviveSub;
-
-inline void actCommonRevive(volatile int a0)
-{
-    Act *s = GOBJ_ACT(a0);
-
-    debug_StdPrintfDummy(D_00552EA0);
-    ACTGameCollisionOff(a0);
-    ((ReviveSub *)s)->f14 = (int)afterCommonRevive;
-    SetDirectRootPositionNoFitting((void *)a0, (char *)s + 0x170);
-    EnemySetfAppearAll((void *)a0);
-    for (;;) {
-        ResetEnemyPositionInfo((void *)a0);
-        ACTSendMailCorrect((char *)a0, 0xC7);
-        _ACTWait(1);
-    }
-}
-
 inline void actCommonReviveAir(volatile int a0)
 {
     SetDirectRootPositionNoFitting((void *)a0, *(char **)(a0 + 0x164) + 0x170);
@@ -4369,14 +4387,6 @@ inline void actCommonReviveAir(volatile int a0)
         ACTSendMailCorrect((char *)a0, 0xE2);
         _ACTWait(1);
     }
-}
-
-extern char D_00552E00[];
-
-inline void actCommonPlay(volatile int a0)
-{
-    debug_StdPrintfDummy(D_00552E00);
-    _ACTWait(0);
 }
 
 inline void actCommonOne(volatile int a0)
@@ -4561,22 +4571,6 @@ inline void actCommonFallDamage(volatile int a0)
             brainSetSpMode();
             iosOmSendMail(D_00639EA8, 0x3D, a0);
         }
-        ACTSendMailCorrect((char *)a0, 0xC7);
-        _ACTWait(1);
-    }
-}
-
-extern char D_00552E18[];
-
-inline void actCommonDamage(volatile int a0)
-{
-    debug_StdPrintfDummy(D_00552E18);
-    SetMotionDirection(a0, *(char **)(a0 + 0x164) + 0x1C0);
-    DamageFunc((char *)a0);
-    if (*(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1E4) == 3) {
-        _ACTWait(360);
-    }
-    for (;;) {
         ACTSendMailCorrect((char *)a0, 0xC7);
         _ACTWait(1);
     }
@@ -5028,7 +5022,6 @@ inline void motCommonRopeTurnSpecialL(volatile int a0)
     }
 }
 
-extern char D_0063A778[];
 /* kept local: this TU's uses of SetSwitchState do not fit the prototype in box.h */
 extern void SetSwitchState(int a0, int a1);
 
@@ -5038,51 +5031,31 @@ inline void motCommonTruckLeverLoop(volatile int a0)
 
     _ACTWait(6);
     SetSwitchState(sw, 0);
-    debug_StdPrintfDummy(D_0063A778);
+    debug_StdPrintfDummy("loop");
     _ACTWait(0);
 }
-
-extern char D_0063A780[];
 
 inline void motCommonTruckLeverPull(volatile int a0)
 {
     int sw = *(int *)(*(int *)(a0 + 0x164) + 0x5FC);
     _ACTWait(30);
     SetSwitchState(sw, -1);
-    debug_StdPrintfDummy(D_0063A780);
+    debug_StdPrintfDummy("pull");
     _ACTWait(0);
 }
-
-extern char D_0063A788[];
 
 inline void motCommonTruckLeverPush(volatile int a0)
 {
     int sw = *(int *)(*(int *)(a0 + 0x164) + 0x5FC);
     _ACTWait(30);
     SetSwitchState(sw, 1);
-    debug_StdPrintfDummy(D_0063A788);
+    debug_StdPrintfDummy("push");
     _ACTWait(0);
 }
 
 inline void funcCommonRopeBefore(char *a0, int a1, int a2)
 {
     GOBJ_ACT(a0)->f_190 = a2;
-}
-
-extern char D_00552D78[];
-/* kept local: this TU's uses of ReleaseChain do not fit the prototype in chain.h */
-extern void ReleaseChain(int a0, int a1);
-
-inline void afterCommonRope(volatile int a0)
-{
-    int s = *(int *)(a0 + 0x164);
-    debug_StdPrintfDummy(D_00552D78);
-    ReleaseChain(*(int *)(s + 0x190), a0);
-    {
-        int g = a0;
-        *(int *)(s + 0x194) = *(int *)(s + 0x190);
-        GOBJ_SUB(g)->f_420 = 0;
-    }
 }
 
 inline void extraCommonNull(volatile int a0)
@@ -5191,8 +5164,6 @@ inline void *test_CURRENTORIENT(char *a0)
     }
 }
 
-extern float D_0063A790[];
-
 inline void *test_CURRENTROOT(void *a0)
 {
     float buf[4];
@@ -5209,7 +5180,7 @@ inline void *test_CURRENTROOT(void *a0)
         return p;
     case 0x2C:
         if (GetCageChainPoint(commonPos, buf, a0) == 0) {
-            v = D_0063A790[0];
+            v = 3.40282347e+38f; /* FLT_MAX */
             commonPos[0] = v;
             commonPos[1] = v;
             commonPos[2] = v;
@@ -5260,24 +5231,12 @@ inline void SetCorrectOrientOfChain(void *a0)
     SetMotionDirection(a0, local);
 }
 
-extern char D_00552DA0[];
-
-inline void actAfterForceRope(volatile int a0)
-{
-    int s = *(int *)(a0 + 0x164);
-    if (*(int *)(s + 0x190) == 0) {
-        debug_assert(D_00552D90, 0x5FB);
-        __assert(D_00552D90, 0x5FB, D_00552DA0);
-    }
-    UnLockChainGeo(*(int *)(s + 0x190));
-}
-
 inline void actAfterForceRopeSwing(volatile int a0)
 {
     int s = *(int *)(a0 + 0x164);
     if (*(int *)(s + 0x190) == 0) {
-        debug_assert(D_00552D90, 0x675);
-        __assert(D_00552D90, 0x675, D_00552DA0);
+        debug_assert("src/commonact.c", 1653);
+        __assert("src/commonact.c", 1653, "ROPE_GOBJ!=NULL");
     }
     UnLockChainGeo(*(int *)(s + 0x190));
 }
@@ -5332,15 +5291,6 @@ inline void afterCommonStone(volatile int a0)
 
 inline void afterCommonBox(volatile int a0)
 {
-    _boxbar_set_sound(a0, 0);
-}
-
-extern Blob12 InitialColInfo;
-
-inline void afterCommonBar(volatile int a0)
-{
-    debug_StdPrintfDummy("reset\n");
-    *(Blob12 *)((char *)GOBJ_SUB(a0) + 0x1C0) = InitialColInfo;
     _boxbar_set_sound(a0, 0);
 }
 
