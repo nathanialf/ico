@@ -56,7 +56,7 @@ ico2/sugipon/src/geometryManager.c
 ico2/sugipon/src/keyInput.c
 blob:cod/18FEE8.data
 ico2/sugipon/src/matrixDrive.c
-blob:cod/539C80.sdata
+blob:cod/539EE0.sdata
 # ico2/sugipon/src/motionManager2.c .rodata starts 16-aligned at 0x54D850, 8 B after its predecessor; the object's section is 8-aligned
 ico2/sugipon/src/motionManager2.c align.rodata=16
 ico2/sugipon/src/pool.c
@@ -101,21 +101,25 @@ blob:cod/4506FC.rodata
 part:ico2/seki/src/Texture.c rodata=.rodata.0x00550700
 blob:cod/4507EC.rodata
 ico2/seki/src/ZFog.c
+blob:cod/53A354.sdata
 blob:cod/450C10.rodata
-ico2/fumi/ios/cdvd.c
 blob:cod/190C10.data
+ico2/fumi/ios/cdvd.c
 ico2/fumi/ios/inflate.c
 ico2/fumi/ios/ios.c
 ico2/fumi/ios/mblock.c
-blob:cod/451110.rodata
-ico2/fumi/ios/mcard.c
+blob:cod/53A3E0.sdata
+blob:cod/19B57C.data
+# ico2/fumi/ios/mcard.c .rodata starts 16-aligned at 0x551110, 11 B after mblock.c; the object's section is 8-aligned
+ico2/fumi/ios/mcard.c rodata=.rodata,.rodata.0x00551110,.rodata.[A-Za-z_]* align.rodata=16
+part:ico2/fumi/ios/mcard.c rodata=.rodata.0x00551430
 ico2/fumi/ios/mcdata.c
 blob:cod/45146C.rodata
 ico2/fumi/ios/memory.c
 ico2/fumi/ios/message.c
-blob:cod/451AF0.rodata
+blob:cod/53A4D8.sdata
+blob:cod/19BA18.data
 ico2/fumi/ios/pad.c
-blob:cod/451D24.rodata
 ico2/fumi/ios/shockdriver.c
 blob:cod/006BCED8.bss
 ico2/fumi/ios/thread.c
@@ -128,7 +132,7 @@ blob:cod/452094.rodata
 ico2/fumi/sound/adpcm_init.c
 blob:cod/006BF498.bss
 blob:cod/0063C1B8.sbss
-blob:cod/53A354.sdata
+blob:cod/53A5F0.sdata
 blob:cod/452164.rodata
 ico2/fumi/sound/s_init.c
 ico2/fumi/sound/soundManager.c
@@ -144,7 +148,7 @@ blob:cod/4526C4.rodata
 # its .rodata is the data-only member motion-random-def, placed below
 ico2/fumi/src/act-parallel-control.c rodata=-
 ico2/fumi/src/act-wish.c
-blob:cod/19B57C.data
+blob:cod/19C4F0.data
 ico2/fumi/src/boyact.c
 blob:cod/53A67A.sdata
 blob:cod/452CB8.rodata
@@ -152,6 +156,7 @@ ico2/fumi/src/commonact.c
 blob:cod/0063C204.sbss
 blob:cod/453320.rodata
 ico2/fumi/src/enemy_act.c rodata=.rodata.0x005533A0
+blob:cod/53A740.sdata
 blob:cod/453438.rodata
 part:ico2/fumi/src/enemy_act.c rodata=.rodata,.rodata.0x00553510,.rodata.[A-Za-z_]*
 part:ico2/fumi/src/enemy_act.c rodata=.rodata.0x00553690
@@ -159,14 +164,13 @@ part:ico2/fumi/src/enemy_act.c rodata=.rodata.0x005536B0
 blob:cod/4536C8.rodata
 ico2/fumi/src/fieldCollision.c
 ico2/fumi/src/fuzio.c
-blob:cod/53A740.sdata
-blob:cod/19D1D0.data
+blob:cod/53A868.sdata
 ico2/fumi/src/girl_act.c
+blob:cod/53A8E3.sdata
+blob:cod/19D64C.data
 ico2/fumi/src/jimaku.c
-blob:cod/4540C4.rodata
 ico2/fumi/src/way_sys.c
 ico2/fumi/src/way_util.c
-blob:cod/19D64C.data
 ico2/script/src/gflag.c
 blob:cod/0063C248.sbss
 blob:cod/454372.rodata
@@ -178,7 +182,7 @@ ico2/script/src/st25a.c
 ico2/script/src/warpGirl.c
 blob:cod/454A39.rodata
 ico2/omori/src/attackhit.c
-blob:cod/53A8E3.sdata
+blob:cod/53A9A0.sdata
 ico2/omori/src/brain.c
 blob:cod/1A5580.data
 ico2/omori/src/camera-editor.c

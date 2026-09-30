@@ -1228,12 +1228,16 @@ def merge_raw(body: bytes, raw_blocks: list[tuple[int, list[int]]]) -> bytes:
 # Emission — generate a binutils-compatible .s file.
 # ============================================================================
 
-def emit_s_file(body: bytes, label: str, section: str) -> str:
+def emit_s_file(body: bytes, label: str, section: str, align: int | None = None) -> str:
     """Render body bytes as a `.word`-only `.s` file. The label/section
     mirror what splat's textbin emitter produced so the rest of the
-    build (ld, postprocess passes) doesn't need to change."""
-    lines = [
-        f'.section {section},"ax"',
+    build (ld, postprocess passes) doesn't need to change. `align`, when
+    given, is emitted as `.align <align>` (a power of two) after the section
+    line and sets the section's alignment."""
+    lines = [f'.section {section},"ax"']
+    if align is not None:
+        lines.append(f'.align {align}')
+    lines += [
         '',
         f'.global {label}',
         f'.type {label}, @function',
@@ -1268,6 +1272,8 @@ def main(argv: list[str] | None = None) -> int:
                     help="symbol name (default: __<dotted_input_path>)")
     ap.add_argument("--section", default=".text",
                     help='section name (default: .text — emitted as `.section <name>,"ax"`)')
+    ap.add_argument("--align", type=int, default=None,
+                    help="emit `.align N` after the section line (the section's alignment is 2**N)")
     args = ap.parse_args(argv)
 
     src = Path(args.input)
@@ -1305,7 +1311,7 @@ def main(argv: list[str] | None = None) -> int:
 
     out_path = Path(args.out) if args.out else src.with_suffix(".s")
     label = args.label or "__" + src.stem
-    s_text = emit_s_file(body, label, args.section)
+    s_text = emit_s_file(body, label, args.section, args.align)
     out_path.write_text(s_text)
     return 0
 

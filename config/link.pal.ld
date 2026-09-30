@@ -11,10 +11,17 @@
  * Transitional lines, gone at the cut-over:
  *  - the two INCLUDEs: while the order file still carries part:/<sec>= tokens,
  *    tools/gen_ninja_plain.py lists .data and .rodata input by input there;
- *    with none they are empty and the wildcard after them places everything;
- *  - the five VU objects named in .text and .vutext: tools/assemble_vu0.py
- *    still puts the microprograms in .text; once it emits .vutext the two
- *    statements become *(.text) and *(.vutext).
+ *    with none they are empty and the wildcard after them places everything.
+ *
+ * What this script cannot give the file, measured with tools/check_elf.py
+ * --full-diff against the base (report B-5): .vudata and .vubss keep their
+ * names and addresses but come out PROGBITS/W and at the end of the file,
+ * because no input carries them (the base's VU objects, from the DVP
+ * assembler, bring empty .vudata "aw" and .vubss "aw",@nobits sections);
+ * .reginfo's entsize 1 (ld writes 1 only for the IRIX-compatible
+ * elf32-littlemips output, which Debian's mips-linux-gnu-ld does not have);
+ * the .DVP.* overlay tables; the base linker's .shstrtab string order and
+ * its file offsets of NOBITS and non-ALLOC sections.
  */
 ENTRY(_start)
 
@@ -22,13 +29,8 @@ SECTIONS
 {
     _gp = 0x00640AF0;
 
-    .text 0x00100000 : {
-        *(EXCLUDE_FILE(*ico2/cluster.o *ico2/mesh.o *ico2/normal_c.o *ico2/normal_l.o *ico2/particle.o) .text)
-    }
-    .vutext 0x00289BD0 : {
-        *ico2/cluster.o(.text) *ico2/mesh.o(.text) *ico2/normal_c.o(.text)
-        *ico2/normal_l.o(.text) *ico2/particle.o(.text)
-    }
+    .text 0x00100000 : { *(.text) }
+    .vutext 0x00289BD0 : { *(.vutext) }
     /* Synthesised by ld's MIPS backend from the inputs' .reginfo; not ALLOC,
      * as in the base, so it takes no room in the image. */
     .reginfo 0x0028ECB0 : { *(.reginfo) }
@@ -36,7 +38,9 @@ SECTIONS
         INCLUDE build/plain/data.inputs.ld
         *(.data .data.*)
     }
-    .vudata 0x0054D320 : { *(.vudata) }
+    /* The assignment keeps the output section when its inputs are empty,
+     * as the base's .vudata and .vubss are. */
+    .vudata 0x0054D320 : { *(.vudata) . = .; }
     .rodata 0x0054D380 : {
         INCLUDE build/plain/rodata.inputs.ld
         *(.rodata .rodata.*)
@@ -45,7 +49,7 @@ SECTIONS
     .sdata 0x00639C80 : { *(.sdata .sdata.*) }
     .sbss 0x0063C100 (NOLOAD) : { *(.sbss) *(.scommon) }
     .bss 0x0063C600 (NOLOAD) : { *(.bss) *(COMMON) }
-    .vubss . (NOLOAD) : { *(.vubss) }
+    .vubss . (NOLOAD) : { *(.vubss) . = .; }
 
     /DISCARD/ : { *(.mdebug) *(.MIPS.abiflags) *(.pdr) *(.comment) *(.gnu.attributes) }
 }

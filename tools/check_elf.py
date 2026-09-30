@@ -26,6 +26,14 @@ derive progress from that comparison and the link map.
               linker padded for. Objects under build/data/ (extracted data
               tables, none today) are counted separately as `extracted`.
 
+  --full-diff The whole file, built vs base, for the ELF-identity work: ELF
+              header fields side by side, program headers, section headers
+              in file order (name type flags addr offset size align entsize),
+              the .shstrtab strings in file order, the .reginfo words, the
+              .DVP.ovlytab rows and .DVP.ovlystrtab names, and for every
+              section name present in both whether the bytes are equal. It
+              reports; it gates nothing and needs no map.
+
 Inputs: build/ico.elf, build/ico.<ver>.map (written by the link, see
 tools/gen_ninja.py emit_link), the base ELF and config/sha1sums.txt.
 """
@@ -225,6 +233,8 @@ def _rel(p: Path) -> str:
 def owner_class(obj: str | None) -> str:
     if obj is None:
         return "none"
+    if obj.startswith("build/plain/"):      # the plain link's objects
+        obj = "build/" + obj[len("build/plain/"):]
     if obj.startswith(OWNED_ROOTS):
         return "owned"
     if obj.startswith(EXTRACTED_ROOT):
@@ -437,6 +447,210 @@ def run_gate(args) -> int:
     print()
     print("check_elf: gate " + ("PASS" if ok else "FAIL"))
     return 0 if ok else 1
+
+
+# ----- --full-diff -----------------------------------------------------
+#
+# The whole-file comparison, read straight from the headers with struct so
+# that nothing a library normalises (unknown section types, string order) is
+# lost. It is the progress meter of the ELF-identity work: the gate above
+# compares addresses only, this compares the file.
+
+EHDR_FIELDS = ("e_ident", "e_type", "e_machine", "e_version", "e_entry",
+               "e_phoff", "e_shoff", "e_flags", "e_ehsize", "e_phentsize",
+               "e_phnum", "e_shentsize", "e_shnum", "e_shstrndx")
+PHDR_FIELDS = ("p_type", "p_offset", "p_vaddr", "p_paddr", "p_filesz",
+               "p_memsz", "p_flags", "p_align")
+SHDR_FIELDS = ("name", "type", "flags", "addr", "offset", "size", "align", "entsize")
+SHT_NAMES = {0: "NULL", 1: "PROGBITS", 2: "SYMTAB", 3: "STRTAB", 4: "RELA",
+             6: "DYNAMIC", 8: "NOBITS", 9: "REL", 0x70000006: "MIPS_REGINFO"}
+
+
+class RawElf:
+    """ELF32 little-endian headers and section bytes, as the file has them."""
+
+    def __init__(self, path: Path):
+        import struct
+        self.path = path
+        raw = self.raw = path.read_bytes()
+        self.sha1 = hashlib.sha1(raw).hexdigest()
+        if raw[:4] != b"\x7fELF" or raw[4] != 1 or raw[5] != 1:
+            sys.exit(f"check_elf: {path} is not an ELF32 little-endian file")
+        v = struct.unpack_from("<HHIIIIIHHHHHH", raw, 16)
+        self.ehdr = dict(zip(EHDR_FIELDS, (raw[:16].hex(),) + v))
+        e = self.ehdr
+        self.phdrs = [dict(zip(PHDR_FIELDS, struct.unpack_from(
+            "<8I", raw, e["e_phoff"] + i * e["e_phentsize"])))
+            for i in range(e["e_phnum"])]
+        shdrs = [struct.unpack_from("<10I", raw, e["e_shoff"] + i * e["e_shentsize"])
+                 for i in range(e["e_shnum"])]
+        strtab = shdrs[e["e_shstrndx"]] if e["e_shstrndx"] < len(shdrs) else None
+        self.shstrtab = raw[strtab[4]:strtab[4] + strtab[5]] if strtab else b""
+        self.sections = []
+        for n, t, f, a, o, s, lk, inf, al, es in shdrs:
+            name = self.shstrtab[n:self.shstrtab.index(b"\0", n)].decode("latin-1")
+            data = b"" if t == 8 else raw[o:o + s]
+            self.sections.append(dict(name=name, name_off=n, type=t, flags=f, addr=a,
+                                      offset=o, size=s, link=lk, info=inf, align=al,
+                                      entsize=es, data=data))
+
+    def section(self, name: str):
+        return next((s for s in self.sections if s["name"] == name), None)
+
+    def strings(self) -> list[tuple[int, str]]:
+        """.shstrtab's strings in file order, (offset, string), the leading
+        empty string left out."""
+        out, off = [], 1
+        while off < len(self.shstrtab):
+            end = self.shstrtab.index(b"\0", off)
+            out.append((off, self.shstrtab[off:end].decode("latin-1")))
+            off = end + 1
+        return out
+
+
+def _sht(t: int) -> str:
+    return SHT_NAMES.get(t, f"0x{t:08X}")
+
+
+def _shf(f: int) -> str:
+    s = "".join(c for bit, c in ((1, "W"), (2, "A"), (4, "X"), (0x10000000, "p")) if f & bit)
+    rest = f & ~0x10000007
+    return s + (f"+0x{rest:X}" if rest else "") or "-"
+
+
+def _shrow(s: dict | None) -> str:
+    if s is None:
+        return "-"
+    return (f"{s['name'][:38]:<38} {_sht(s['type']):<12} {_shf(s['flags']):<4} "
+            f"{s['addr']:08X} {s['offset']:06X} {s['size']:06X} {s['align']:>3} {s['entsize']:>2}")
+
+
+def _ovlytab(e: RawElf) -> list[str]:
+    """.DVP.ovlytab rows (name, lma, vu address), each name resolved through
+    .DVP.ovlystrtab by VMA as the rows address it."""
+    import struct
+    tab, st = e.section(".DVP.ovlytab"), e.section(".DVP.ovlystrtab")
+    if tab is None:
+        return []
+    rows = []
+    for i in range(0, len(tab["data"]) - 11, 12):
+        nm, lma, vu = struct.unpack_from("<3I", tab["data"], i)
+        name = "?"
+        if st is not None and st["addr"] <= nm < st["addr"] + st["size"]:
+            d, o = st["data"], nm - st["addr"]
+            name = d[o:d.index(b"\0", o)].decode("latin-1")
+        rows.append(f"name@0x{nm:08X} lma 0x{lma:08X} vu 0x{vu:04X}  {name}")
+    return rows
+
+
+def _side(label: str, a: list[str], b: list[str]) -> tuple[int, int]:
+    """Print two lists row by row, `=` where equal; returns (equal, rows)."""
+    n = max(len(a), len(b))
+    eq = 0
+    print(f"{label}: built {len(a)}, base {len(b)}")
+    for i in range(n):
+        x = a[i] if i < len(a) else "-"
+        y = b[i] if i < len(b) else "-"
+        same = x == y
+        eq += same
+        if same:
+            print(f"  = [{i:2}] {x}")
+        else:
+            print(f"  * [{i:2}] built {x}")
+            print(f"         base  {y}")
+    return eq, n
+
+
+def run_full_diff(args) -> int:
+    built, base = RawElf(BUILT_ELF), RawElf(BASE_ELF)
+    tally = {}
+    print(f"check_elf --full-diff: {_rel(BUILT_ELF)} vs {_rel(BASE_ELF)}")
+    print(f"  file size  built {len(built.raw)}  base {len(base.raw)}")
+    print(f"  sha1       built {built.sha1}  base {base.sha1}"
+          f"  {'equal' if built.sha1 == base.sha1 else 'differ'}")
+    print()
+
+    print("ELF header:")
+    eq = 0
+    for f in EHDR_FIELDS:
+        x, y = built.ehdr[f], base.ehdr[f]
+        fx = (lambda v: v) if f == "e_ident" else (lambda v: f"0x{v:X}")
+        eq += x == y
+        print(f"  {'=' if x == y else '*'} {f:<12} built {fx(x):<34} base {fx(y)}")
+    tally["ELF header fields"] = (eq, len(EHDR_FIELDS))
+    print()
+
+    def phs(e):
+        return [" ".join(f"{k[2:]}=0x{p[k]:X}" for k in PHDR_FIELDS) for p in e.phdrs]
+    tally["program headers"] = _side("program headers", phs(built), phs(base))
+    print()
+
+    print("  columns: name type flags addr offset size align entsize")
+    tally["section headers"] = _side("section headers (file order)",
+                                     [_shrow(s) for s in built.sections],
+                                     [_shrow(s) for s in base.sections])
+    bn = [s["name"] for s in built.sections]
+    print(f"  base names absent in built: "
+          f"{', '.join(s['name'] or '(null)' for s in base.sections if s['name'] not in bn) or 'none'}")
+    an = [s["name"] for s in base.sections]
+    print(f"  built names absent in base: "
+          f"{', '.join(n or '(null)' for n in bn if n not in an) or 'none'}")
+    print()
+
+    def strs(e):
+        return [f"0x{o:03X} {s}" for o, s in e.strings()]
+    tally[".shstrtab strings"] = _side(".shstrtab strings (offset, file order)",
+                                       strs(built), strs(base))
+    print(f"  .shstrtab bytes {'equal' if built.shstrtab == base.shstrtab else 'differ'}"
+          f" (built {len(built.shstrtab)} B, base {len(base.shstrtab)} B)")
+    print()
+
+    def reginfo(e):
+        import struct
+        s = e.section(".reginfo")
+        if s is None:
+            return []
+        names = ("ri_gprmask", "ri_cprmask[0]", "ri_cprmask[1]", "ri_cprmask[2]",
+                 "ri_cprmask[3]", "ri_gp_value")
+        return [f"{n:<14} 0x{w:08X}" for n, w in
+                zip(names, struct.unpack_from(f"<{len(s['data']) // 4}I", s["data"]))]
+    tally[".reginfo words"] = _side(".reginfo words", reginfo(built), reginfo(base))
+    print()
+
+    tally[".DVP.ovlytab rows"] = _side(".DVP.ovlytab rows", _ovlytab(built), _ovlytab(base))
+    print()
+
+    def ovlstr(e):
+        s = e.section(".DVP.ovlystrtab")
+        return [x.decode("latin-1") for x in s["data"].split(b"\0") if x] if s else []
+    tally[".DVP.ovlystrtab names"] = _side(".DVP.ovlystrtab names (file order)",
+                                           ovlstr(built), ovlstr(base))
+    print()
+
+    print("section bytes (every name in both; NOBITS compares sizes only):")
+    eq = n = 0
+    for s in base.sections:
+        u = built.section(s["name"])
+        if u is None or not s["name"]:
+            continue
+        n += 1
+        if s["type"] == 8 or u["type"] == 8:
+            same = s["type"] == u["type"] and s["size"] == u["size"]
+            what = "NOBITS size " + ("equal" if same else f"built {u['size']:#x} base {s['size']:#x}")
+        else:
+            same = u["data"] == s["data"]
+            what = ("equal" if same else
+                    f"differ (built {u['size']:#x} B, base {s['size']:#x} B)")
+        eq += same
+        print(f"  {'=' if same else '*'} {s['name']:<38} {what}")
+    tally["sections with equal bytes"] = (eq, n)
+    print()
+
+    print("summary (equal / compared):")
+    for k, (e_, t) in tally.items():
+        print(f"  {k:<28} {e_:>3} / {t}")
+    print(f"  {'file sha1':<28} {'equal' if built.sha1 == base.sha1 else 'differ'}")
+    return 0
 
 
 # ----- --progress ------------------------------------------------------
@@ -675,6 +889,7 @@ def main() -> int:
     mode = ap.add_mutually_exclusive_group(required=True)
     mode.add_argument("--gate", action="store_true")
     mode.add_argument("--progress", action="store_true")
+    mode.add_argument("--full-diff", action="store_true")
     ap.add_argument("--require-elf-sha", action="store_true",
                     help="--gate: also require the built ELF's SHA-1 to equal baseelf.elf's")
     ap.add_argument("--out-dir", help="--progress: write the three files here "
@@ -690,9 +905,11 @@ def main() -> int:
         LINK_MAP = Path(args.map).resolve()
     if args.rom:
         BUILT_ROM = Path(args.rom).resolve()
-    for p in (BASE_ELF, BUILT_ELF, LINK_MAP):
+    for p in (BASE_ELF, BUILT_ELF) + (() if args.full_diff else (LINK_MAP,)):
         if not p.exists():
             sys.exit(f"check_elf: {p} not found")
+    if args.full_diff:
+        return run_full_diff(args)
     return run_gate(args) if args.gate else run_progress(args)
 
 

@@ -8,9 +8,14 @@ build (objects under build/plain/) until the cut-over, where this file becomes
 tools/gen_ninja.py and OUT becomes build/.
 
 Rules: cc (tools/compile_c.sh), as (the .s sources, assembler and -G per
-archive as compile_c.sh chooses them for C), vu (tools/assemble_vu0.py, then the
-game's assembler), data (tools/extract_data.py per data-only member row), link,
-rom, verify (tools/check_elf.py --gate). Transitional: blob (a splat data blob
+archive as compile_c.sh chooses them for C), vu (tools/assemble_vu0.py into
+.vutext at the 16-byte alignment the base's .vutext has, then the game's
+assembler), data (tools/extract_data.py per data-only member row), link (to
+ico.syms.elf, which keeps the symbols; --hash-style=sysv because Debian's ld
+defaults to the GNU hash style and then marks e_ident[EI_ABIVERSION] 5, which
+the base does not have), strip (objcopy --strip-all to ico.elf:
+the base carries no .symtab/.strtab; ld -s writes the same bytes), rom, verify
+(tools/check_elf.py --gate). Transitional: blob (a splat data blob
 under asm/data/cod/, aligned to its own ROM address) and labels (the names the
 uncarved C still gives addresses inside the extracted tables, read from the
 splat blobs the data: lines replace).
@@ -196,7 +201,8 @@ def main():
              "rule cc\n  command = tools/compile_c.sh $in $out\n  description = CC $out\n\n")
     for r in ("as_old", "as_sdk"):
         w.append(f"rule {r}\n  command = ${r} $asflags -G $gnum -o $out $in\n  description = AS $out\n\n")
-    w.append("rule vu\n  command = $py tools/assemble_vu0.py $in --label $label --out $s"
+    w.append("rule vu\n  command = $py tools/assemble_vu0.py $in --label $label"
+             " --section .vutext --align 4 --out $s"
              " && $as_old $asflags -G 8 -o $out $s\n  description = VU $out\n\n"
              f"rule data\n  command = $py tools/extract_data.py --only $key --out-dir {OUT}/data"
              f" --extra-labels {LABELS} --assemble > /dev/null\n  description = DATA $out\n\n"
@@ -205,7 +211,8 @@ def main():
              "rule labels\n  command = $py tools/gen_ninja_plain.py --labels $out\n"
              "  description = LABELS $out\n\n"
              f"rule link\n  command = $ld -EL -T {SCRIPT} {' '.join('-T ' + u for u in undefined)}"
-             f" --no-warn-mismatch -z max-page-size=0x1000 -Map {OUT}/ico.pal.map -o $out $in\n  description = LD $out\n\n"
+             f" --no-warn-mismatch --hash-style=sysv -z max-page-size=0x1000 -Map {OUT}/ico.pal.map -o $out $in\n  description = LD $out\n\n"
+             "rule strip\n  command = $objcopy --strip-all $in $out\n  description = STRIP $out\n\n"
              "rule rom\n  command = $objcopy -O binary --gap-fill=0 $in $out\n  description = ROM $out\n\n"
              f"rule verify\n  command = $py tools/check_elf.py --gate --elf {OUT}/ico.elf"
              f" --map {OUT}/ico.pal.map --rom $in && touch $out\n  description = VERIFY $in\n\n")
@@ -234,8 +241,9 @@ def main():
     replaced = sorted(str(s.relative_to(ROOT)) for s in (ROOT / "asm/data/cod").glob("*.s")
                       if f"cod/{s.stem}" not in {e["name"] for e in blobs})
     w.append(f"build {LABELS}: labels {' '.join(replaced)} | {LIST} tools/gen_ninja_plain.py\n")
-    w.append(f"\nbuild {OUT}/ico.elf: link {' '.join(link)} | {SCRIPT} {' '.join(undefined)}"
+    w.append(f"\nbuild {OUT}/ico.syms.elf: link {' '.join(link)} | {SCRIPT} {' '.join(undefined)}"
              f" {OUT}/data.inputs.ld {OUT}/rodata.inputs.ld\n"
+             f"build {OUT}/ico.elf: strip {OUT}/ico.syms.elf\n"
              f"build {OUT}/ico.rom: rom {OUT}/ico.elf\n"
              f"build {OUT}/.verified: verify {OUT}/ico.rom | tools/check_elf.py\n"
              f"default {OUT}/.verified\n"
