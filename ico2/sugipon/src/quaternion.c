@@ -382,8 +382,8 @@ inline void SetQuaternionByAxisRotateEAngle(float *out, float *in, float x, floa
 
 inline void MultiQuaternion(void *p0, void *p1, void *p2)
 {
-    VU0_LSV(lqc2, 11, 0x0, a1);
-    VU0_LSV(lqc2, 12, 0x0, a2);
+    VU0_LSV(lqc2, 11, 0x0, 5);
+    VU0_LSV(lqc2, 12, 0x0, 6);
     VU0_V3OP(vmul.xyzw, 13, 11, 12);
     VU0_V3OP_BC(vaddy.x, 13, 13, 13, y);
     VU0_V3OP_BC(vaddz.x, 13, 13, 13, z);
@@ -394,7 +394,7 @@ inline void MultiQuaternion(void *p0, void *p1, void *p2)
     VU0_V3OP(vopmsub.xyz, 16, 11, 12);
     VU0_V3OP(vadd.xyz, 13, 14, 15);
     VU0_V3OP(vadd.xyz, 13, 13, 16);
-    VU0_LSV(sqc2, 13, 0x0, a0);
+    VU0_LSV(sqc2, 13, 0x0, 4);
 }
 
 inline void DivQuaternion(int self, int a1, int a2)

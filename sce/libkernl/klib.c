@@ -10,7 +10,7 @@
 #define SYSCALL_WRAPPER(name, num)                                                                 \
     void name(void)                                                                                \
     {                                                                                              \
-        __asm__ __volatile__("addiu $3, $zero, " #num "\n\tsyscall 0" : : : "$3", "memory");       \
+        __asm__ __volatile__("addiu $3, $0, " #num "\n\tsyscall 0" : : : "$3", "memory");          \
     }
 /* The same leaf issued INLINE, for the members that act on its result.
    `dst` is bound to $v0 because that is where the kernel ABI leaves the
@@ -19,7 +19,7 @@
 #define SYSCALL_INLINE(num, dst)                                                                   \
     {                                                                                              \
         register int __sc_ret __asm__("$2");                                                       \
-        __asm__ __volatile__("addiu $3, $zero, " #num "\n\tsyscall 0"                              \
+        __asm__ __volatile__("addiu $3, $0, " #num "\n\tsyscall 0"                                 \
                              : "=r"(__sc_ret)                                                      \
                              :                                                                     \
                              : "$3", "memory");                                                    \
@@ -50,22 +50,22 @@ SYSCALL_WRAPPER(RemoveDmacHandler, 19)
 
 int _EnableIntc()
 {
-    __asm__ __volatile__("addiu $3, $zero, 20\n\tsyscall 0" : : : "$3", "memory");
+    __asm__ __volatile__("addiu $3, $0, 20\n\tsyscall 0" : : : "$3", "memory");
 }
 
 int _DisableIntc(int a0)
 {
-    __asm__ __volatile__("addiu $3, $zero, 21\n\tsyscall 0" : : : "$3", "memory");
+    __asm__ __volatile__("addiu $3, $0, 21\n\tsyscall 0" : : : "$3", "memory");
 }
 
 int _EnableDmac(int a0)
 {
-    __asm__ __volatile__("addiu $3, $zero, 22\n\tsyscall 0" : : : "$3", "memory");
+    __asm__ __volatile__("addiu $3, $0, 22\n\tsyscall 0" : : : "$3", "memory");
 }
 
 int _DisableDmac(int a0)
 {
-    __asm__ __volatile__("addiu $3, $zero, 23\n\tsyscall 0" : : : "$3", "memory");
+    __asm__ __volatile__("addiu $3, $0, 23\n\tsyscall 0" : : : "$3", "memory");
 }
 
 SYSCALL_WRAPPER(SetAlarm, 252)
@@ -99,7 +99,7 @@ SYSCALL_WRAPPER(WakeupThread, 51)
 
 int _iWakeupThread(void)
 {
-    __asm__ __volatile__("addiu $3, $zero, -52\n\tsyscall 0" : : : "$3", "memory");
+    __asm__ __volatile__("addiu $3, $0, -52\n\tsyscall 0" : : : "$3", "memory");
 }
 
 SYSCALL_WRAPPER(CancelWakeupThread, 53)
@@ -108,7 +108,7 @@ SYSCALL_WRAPPER(SuspendThread, 55)
 
 int _iSuspendThread(void)
 {
-    __asm__ __volatile__("addiu $3, $zero, -56\n\tsyscall 0" : : : "$3", "memory");
+    __asm__ __volatile__("addiu $3, $0, -56\n\tsyscall 0" : : : "$3", "memory");
 }
 
 SYSCALL_WRAPPER(ResumeThread, 57)
@@ -124,7 +124,7 @@ SYSCALL_WRAPPER(SignalSema, 66)
 
 int iSignalSema(int handle)
 {
-    __asm__ __volatile__("addiu $3, $zero, -67\n\tsyscall 0" : : : "$3", "memory");
+    __asm__ __volatile__("addiu $3, $0, -67\n\tsyscall 0" : : : "$3", "memory");
 }
 
 SYSCALL_WRAPPER(WaitSema, 68)
@@ -193,7 +193,7 @@ SYSCALL_WRAPPER(ExecOSD, 123)
 
 void Deci2Call(int req, void *args)
 {
-    __asm__ __volatile__("addiu $3, $zero, 124\n\tsyscall 0" : : : "$3", "memory");
+    __asm__ __volatile__("addiu $3, $0, 124\n\tsyscall 0" : : : "$3", "memory");
 }
 
 SYSCALL_WRAPPER(PSMode, 125)

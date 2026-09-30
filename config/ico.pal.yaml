@@ -1289,7 +1289,6 @@ segments:
       - { type: .sbss, vram: 0x0063C2C4, name: ico2/omori/src/ebrain }  # the TU's own .sbss, 0x10 B, VMA 0x63C2C4..0x63C2D4; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C2D4, name: ico2/omori/src/enemy-control }  # the TU's own .sbss, 0xC B, VMA 0x63C2D4..0x63C2E0; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C2E0, name: ico2/omori/src/hand-camera }  # the TU's own .sbss, 0x5 B, VMA 0x63C2E0..0x63C2E5; static definitions in ROM run order (completeness pass)
-      - { type: sbss, vram: 0x0063C2E5, name: cod/0063C2E5 }  # .sbss blob resume
       - { type: .sbss, vram: 0x0063C2E8, name: ico2/omori/src/lws_kyomi }  # the TU's own .sbss, 0x4 B, VMA 0x63C2E8..0x63C2EC; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C2EC, name: ico2/ito/src/itou_boss }  # the TU's .sbss as source (completeness pass 68), 8 B, MAIN.MAP line 7606, lightning's row follows
       - { type: .sbss, vram: 0x0063C2F4, name: ico2/ito/src/lightning }  # the TU's .sbss as source (completeness pass 65)
@@ -1308,7 +1307,6 @@ segments:
       - { type: .sbss, vram: 0x0063C414, name: ico2/common/src/sceneManager }  # the TU's own .sbss, 0xC B, VMA 0x63C414..0x63C420; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C420, name: ico2/common/src/staffroll }  # the TU's own .sbss, 0x20 B, VMA 0x63C420..0x63C440; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C440, name: ico2/sugipon/src/act_a_p_1 }  # the TU's own .sbss, 0x16 B, VMA 0x63C440..0x63C456; static definitions in ROM run order (completeness pass)
-      - { type: sbss, vram: 0x0063C456, name: cod/0063C456 }  # .sbss blob, 2 B of link fill before darkVolume's run
       - { type: .sbss, vram: 0x0063C458, name: ico2/sugipon/src/darkVolume }  # the TU's own .sbss as five static ints (stripCount, prevX, prevY, edgeX, edgeY), 0x14 B (chain 3 pass 151); motionFileManager follows
       - { type: .sbss, vram: 0x0063C46C, name: ico2/sugipon/src/motionFileManager }  # the TU's own .sbss, 0x8 B, VMA 0x63C46C..0x63C474; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C474, name: ico2/sugipon/src/motionManager }  # the TU's own .sbss, 0x38 B, VMA 0x63C474..0x63C4AC, fourteen file statics in ROM run order, MAIN.MAP names none of them (chain 2 pass 84); motionViewer's row follows directly

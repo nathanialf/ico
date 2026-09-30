@@ -377,12 +377,12 @@ typedef int sceVu0IVECTOR[4] __attribute__((aligned(16)));
 #define EI() __asm__ __volatile__(".word 0x42000038" : : : "memory")
 /* Quadword copy, one 128-bit lq/sq pair through a scratch GPR (the nop in
  * the return slot after it is the toolchain's own).  The scratch register
- * differs per call site ($t0 in seki/src/Matrix, $a2 in
+ * differs per call site ($8 in seki/src/Matrix, $6 in
  * sugipon/src/matrixDrive), so it is a macro argument.  dst/src are
- * implicit in $a0/$a1: the macro is the BODY of a two-pointer wrapper. */
+ * implicit in $4/$5: the macro is the BODY of a two-pointer wrapper. */
 #define QCOPY16(scratch)                                                                           \
-    __asm__ __volatile__("lq " scratch ", 0($a1)" : : : "memory");                                 \
-    __asm__ __volatile__("sq " scratch ", 0($a0)" : : : "memory")
+    __asm__ __volatile__("lq " scratch ", 0($5)" : : : "memory");                                 \
+    __asm__ __volatile__("sq " scratch ", 0($4)" : : : "memory")
 
 /* ------------------------------------------------------------------ *
  * (c) VU0 / COP2 macro-mode opcodes.
@@ -406,7 +406,7 @@ typedef int sceVu0IVECTOR[4] __attribute__((aligned(16)));
  *  The mnemonic (including mask, e.g. `vmul.xyzw`, and any
  *  broadcast prefix in the mnemonic, e.g. `vaddz`) is passed as
  *  a SINGLE token; operands are unprefixed register numbers
- *  (e.g. `13` for `$vf13`, `t0` for `$t0`, `f12` for `$f12`).
+ *  (e.g. `13` for `$vf13`, `8` for `$8`, `f12` for `$f12`).
  *
  *  Memory loads/stores
  *  -------------------

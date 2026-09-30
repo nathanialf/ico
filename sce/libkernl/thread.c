@@ -10,7 +10,7 @@
 #define SYSCALL_WRAPPER(name, num)                                                                 \
     void name(void)                                                                                \
     {                                                                                              \
-        __asm__ __volatile__("addiu $3, $zero, " #num "\n\tsyscall 0" : : : "$3", "memory");       \
+        __asm__ __volatile__("addiu $3, $0, " #num "\n\tsyscall 0" : : : "$3", "memory");          \
     }
 /* The same leaf issued INLINE, for the members that act on its result.
    `dst` is bound to $v0 because that is where the kernel ABI leaves the
@@ -19,7 +19,7 @@
 #define SYSCALL_INLINE(num, dst)                                                                   \
     {                                                                                              \
         register int __sc_ret __asm__("$2");                                                       \
-        __asm__ __volatile__("addiu $3, $zero, " #num "\n\tsyscall 0"                              \
+        __asm__ __volatile__("addiu $3, $0, " #num "\n\tsyscall 0"                                 \
                              : "=r"(__sc_ret)                                                      \
                              :                                                                     \
                              : "$3", "memory");                                                    \

@@ -10,22 +10,22 @@
 /* 64 bytes, serial form: every lq immediately followed by its sq through one
    scratch GPR. */
 #define QCOPY64_SERIAL(scratch)                                                                    \
-    __asm__ __volatile__("lq " scratch ", 0($a1)" : : : "memory");                                 \
-    __asm__ __volatile__("sq " scratch ", 0($a0)" : : : "memory");                                 \
-    __asm__ __volatile__("lq " scratch ", 0x10($a1)" : : : "memory");                              \
-    __asm__ __volatile__("sq " scratch ", 0x10($a0)" : : : "memory");                              \
-    __asm__ __volatile__("lq " scratch ", 0x20($a1)" : : : "memory");                              \
-    __asm__ __volatile__("sq " scratch ", 0x20($a0)" : : : "memory");                              \
-    __asm__ __volatile__("lq " scratch ", 0x30($a1)" : : : "memory");                              \
-    __asm__ __volatile__("sq " scratch ", 0x30($a0)" : : : "memory")
+    __asm__ __volatile__("lq " scratch ", 0($5)" : : : "memory");                                  \
+    __asm__ __volatile__("sq " scratch ", 0($4)" : : : "memory");                                  \
+    __asm__ __volatile__("lq " scratch ", 0x10($5)" : : : "memory");                               \
+    __asm__ __volatile__("sq " scratch ", 0x10($4)" : : : "memory");                               \
+    __asm__ __volatile__("lq " scratch ", 0x20($5)" : : : "memory");                               \
+    __asm__ __volatile__("sq " scratch ", 0x20($4)" : : : "memory");                               \
+    __asm__ __volatile__("lq " scratch ", 0x30($5)" : : : "memory");                               \
+    __asm__ __volatile__("sq " scratch ", 0x30($4)" : : : "memory")
 /* Map $a0 into EE scratchpad (SPR) addressing by OR-ing 0x20000000, through
    $a3.  Prelude to QCOPY64_SERIAL in CopyMatrixUncached. */
 #define MAP_A0_TO_SPR()                                                                            \
-    __asm__ __volatile__("lui $a3, 0x2000");                                                       \
-    __asm__ __volatile__("or $a0, $a0, $a3")
+    __asm__ __volatile__("lui $7, 0x2000");                                                        \
+    __asm__ __volatile__("or $4, $4, $7")
 /* lq/sq of 16 bytes through $a2, with the base bound from a C pointer. */
-#define LQ16_FROM(p) __asm__ __volatile__("lq $a2, 0(%0)" : : "r"(p) : "memory")
-#define SQ16_TO(p) __asm__ __volatile__("sq $a2, 0(%0)" : : "r"(p) : "memory")
+#define LQ16_FROM(p) __asm__ __volatile__("lq $6, 0(%0)" : : "r"(p) : "memory")
+#define SQ16_TO(p) __asm__ __volatile__("sq $6, 0(%0)" : : "r"(p) : "memory")
 
 typedef int Qw128 __attribute__((mode(TI)));
 
@@ -516,39 +516,39 @@ void MatrixDrive_SetTransposeMatrix(float *dst, float *src)
 
 void CopyVector(void *dst, void *src)
 {
-    QCOPY16("$a2");
+    QCOPY16("$6");
 }
 
 void CopyIVector(void *dst, void *src)
 {
-    QCOPY16("$a2");
+    QCOPY16("$6");
 }
 
 void CopyMatrix(void *dst, void *src)
 {
-    QCOPY64_SERIAL("$a2");
+    QCOPY64_SERIAL("$6");
 }
 
 void CopyMatrixUncached(void *dst, void *src)
 {
     MAP_A0_TO_SPR();
-    QCOPY64_SERIAL("$a2");
+    QCOPY64_SERIAL("$6");
 }
 
 void AddVectorXYZ(void *p0, void *p1, void *p2, void *p3)
 {
-    VU0_LSV(lqc2, 4, 0x0, a1);
-    VU0_LSV(lqc2, 5, 0x0, a2);
+    VU0_LSV(lqc2, 4, 0x0, 5);
+    VU0_LSV(lqc2, 5, 0x0, 6);
     VU0_V3OP(vadd.xyz, 4, 4, 5);
-    VU0_LSV(sqc2, 4, 0x0, a0);
+    VU0_LSV(sqc2, 4, 0x0, 4);
 }
 
 void SubVectorXYZ(void *p0, void *p1, void *p2, void *p3)
 {
-    VU0_LSV(lqc2, 4, 0x0, a1);
-    VU0_LSV(lqc2, 5, 0x0, a2);
+    VU0_LSV(lqc2, 4, 0x0, 5);
+    VU0_LSV(lqc2, 5, 0x0, 6);
     VU0_V3OP(vsub.xyz, 4, 4, 5);
-    VU0_LSV(sqc2, 4, 0x0, a0);
+    VU0_LSV(sqc2, 4, 0x0, 4);
 }
 
 void UnitRotation(MatDrive *a0)
@@ -565,39 +565,39 @@ void UnitRotation(MatDrive *a0)
 float FSqrt(float a0)
 {
     VU0_NOREORDER_BEGIN();
-    VU0_MFC1(t0, 12);
-    VU0_QMTC2_NI(t0, 4);
+    VU0_MFC1(8, 12);
+    VU0_QMTC2_NI(8, 4);
     VU0_NOREORDER_END();
     VU0_WORD(0x4A0403BD);
     VU0_WAIT();
     VU0_NOREORDER_BEGIN();
-    VU0_CFC2_NI(v0, 22);
-    VU0_MTC1(v0, 0);
+    VU0_CFC2_NI(2, 22);
+    VU0_MTC1(2, 0);
     VU0_NOREORDER_END();
 }
 
 void VectorLength(void *p0)
 {
-    VU0_LSV(lqc2, 4, 0x0, a0);
+    VU0_LSV(lqc2, 4, 0x0, 4);
     VU0_V3OP(vmul.xyz, 4, 4, 4);
     VU0_V3OP_BC(vaddy.x, 4, 4, 4, y);
     VU0_V3OP_BC(vaddz.x, 4, 4, 4, z);
     VU0_WORD(0x4A0403BD);
     VU0_WAIT();
     VU0_NOREORDER_BEGIN();
-    VU0_CFC2_NI(v0, 22);
-    VU0_MTC1(v0, 0);
+    VU0_CFC2_NI(2, 22);
+    VU0_MTC1(2, 0);
     VU0_NOREORDER_END();
 }
 
 void VectorLengthSquare(void *p0)
 {
-    VU0_LSV(lqc2, 3, 0x0, a0);
+    VU0_LSV(lqc2, 3, 0x0, 4);
     VU0_V3OP(vmul.xyz, 3, 3, 3);
     VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
     VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
-    VU0_QMFC2_NI(v0, 3);
-    VU0_MTC1(v0, 0);
+    VU0_QMFC2_NI(2, 3);
+    VU0_MTC1(2, 0);
 }
 
 float GetPointDistance(void *a0, void *a1)

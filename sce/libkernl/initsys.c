@@ -4,7 +4,7 @@
 
 void setup(int a0, int a1)
 {
-    __asm__ __volatile__("addiu $3, $zero, 116\n\tsyscall 0" : : : "$3", "memory");
+    __asm__ __volatile__("addiu $3, $0, 116\n\tsyscall 0" : : : "$3", "memory");
 }
 
 extern void setup();

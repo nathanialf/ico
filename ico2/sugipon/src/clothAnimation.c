@@ -2286,98 +2286,98 @@ float GetChainCollision(int *a0, void *pos, float r)
 void FSqrtInv(void)
 {
     VU0_NOREORDER_BEGIN();
-    VU0_MFC1(t0, 12);
-    VU0_QMTC2_NI(t0, 4);
+    VU0_MFC1(8, 12);
+    VU0_QMTC2_NI(8, 4);
     VU0_NOREORDER_END();
     VU0_REG("vrsqrt Q, $vf0w, $vf4x");
     VU0_WAIT();
     VU0_NOREORDER_BEGIN();
-    VU0_CFC2_NI(v0, 22);
-    VU0_MTC1(v0, 0);
+    VU0_CFC2_NI(2, 22);
+    VU0_MTC1(2, 0);
     VU0_NOREORDER_END();
 }
 
 void getXZLength(void *p0)
 {
-    VU0_LSV(lqc2, 4, 0x0, a0);
+    VU0_LSV(lqc2, 4, 0x0, 4);
     VU0_V3OP(vmul.xz, 4, 4, 4);
     VU0_V3OP_BC(vaddz.x, 4, 4, 4, z);
     VU0_WORD(0x4A0403BD);
     VU0_WAIT();
     VU0_NOREORDER_BEGIN();
-    VU0_CFC2_NI(v0, 22);
-    VU0_MTC1(v0, 0);
+    VU0_CFC2_NI(2, 22);
+    VU0_MTC1(2, 0);
     VU0_NOREORDER_END();
 }
 
 void getXZInvLength(void *p0)
 {
-    VU0_LSV(lqc2, 4, 0x0, a0);
+    VU0_LSV(lqc2, 4, 0x0, 4);
     VU0_V3OP(vmul.xz, 4, 4, 4);
     VU0_V3OP_BC(vaddz.x, 4, 4, 4, z);
     VU0_REG("vrsqrt Q, $vf0w, $vf4x");
     VU0_WAIT();
     VU0_NOREORDER_BEGIN();
-    VU0_CFC2_NI(v0, 22);
-    VU0_MTC1(v0, 0);
+    VU0_CFC2_NI(2, 22);
+    VU0_MTC1(2, 0);
     VU0_NOREORDER_END();
 }
 
 void getXZLengthSquare(void *p0)
 {
-    VU0_LSV(lqc2, 4, 0x0, a0);
+    VU0_LSV(lqc2, 4, 0x0, 4);
     VU0_V3OP(vmul.xz, 4, 4, 4);
     VU0_V3OP_BC(vaddz.x, 4, 4, 4, z);
-    VU0_QMFC2_NI(v0, 4);
-    VU0_MTC1(v0, 0);
+    VU0_QMFC2_NI(2, 4);
+    VU0_MTC1(2, 0);
 }
 
 void subAndGetInvLength(void *p0, void *p1, void *p2, void *p3)
 {
-    VU0_LSV(lqc2, 1, 0x0, a1);
-    VU0_LSV(lqc2, 2, 0x0, a2);
+    VU0_LSV(lqc2, 1, 0x0, 5);
+    VU0_LSV(lqc2, 2, 0x0, 6);
     VU0_V3OP(vsub.xyzw, 4, 1, 2);
     VU0_V3OP(vmul.xyz, 3, 4, 4);
     VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
     VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
     VU0_REG("vrsqrt Q, $vf0w, $vf3x");
-    VU0_LSV(sqc2, 4, 0x0, a0);
+    VU0_LSV(sqc2, 4, 0x0, 4);
     VU0_WAIT();
     VU0_NOREORDER_BEGIN();
-    VU0_CFC2_NI(v0, 22);
-    VU0_MTC1(v0, 0);
+    VU0_CFC2_NI(2, 22);
+    VU0_MTC1(2, 0);
     VU0_NOREORDER_END();
 }
 
 void scaleAndAddVectorXYZ(void *p0, void *p1, void *p2, void *p3)
 {
-    VU0_LSV(lqc2, 4, 0x0, a1);
-    VU0_LSV(lqc2, 5, 0x0, a2);
+    VU0_LSV(lqc2, 4, 0x0, 5);
+    VU0_LSV(lqc2, 5, 0x0, 6);
     VU0_NOREORDER_BEGIN();
-    VU0_MFC1(t0, 12);
-    VU0_QMTC2_NI(t0, 6);
+    VU0_MFC1(8, 12);
+    VU0_QMTC2_NI(8, 6);
     VU0_NOREORDER_END();
     VU0_V3OP_BC(vmulx.xyz, 5, 5, 6, x);
     VU0_V3OP(vadd.xyz, 4, 4, 5);
-    VU0_LSV(sqc2, 4, 0x0, a0);
+    VU0_LSV(sqc2, 4, 0x0, 4);
 }
 
 void scaleVectorXZ(void *p0, void *p1, void *p2)
 {
-    VU0_LSV(lqc2, 4, 0x0, a1);
+    VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_NOREORDER_BEGIN();
-    VU0_MFC1(t0, 12);
-    VU0_QMTC2_NI(t0, 5);
+    VU0_MFC1(8, 12);
+    VU0_QMTC2_NI(8, 5);
     VU0_NOREORDER_END();
     VU0_V3OP_BC(vmulx.xz, 4, 4, 5, x);
-    VU0_LSV(sqc2, 4, 0x0, a0);
+    VU0_LSV(sqc2, 4, 0x0, 4);
 }
 
 void tensionMoveNoReduce(void *a0, void *a1, void *a2, float f12)
 {
     int buf[4];
-    VU0_LSV(lqc2, 1, 0x0, a1);
-    VU0_LSV(lqc2, 2, 0x0, a2);
+    VU0_LSV(lqc2, 1, 0x0, 5);
+    VU0_LSV(lqc2, 2, 0x0, 6);
     VU0_REG("vsub.xyzw $vf4, $vf1, $vf2");
     VU0_V3OP(vmul.xyz, 3, 4, 4);
     VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
@@ -2389,23 +2389,23 @@ void tensionMoveNoReduce(void *a0, void *a1, void *a2, float f12)
                          : "memory");
     VU0_WAIT();
     VU0_NOREORDER_BEGIN();
-    VU0_CFC2_NI(v0, 22);
-    VU0_MTC1(v0, 0);
+    VU0_CFC2_NI(2, 22);
+    VU0_MTC1(2, 0);
     VU0_REG("mul.s $f12, $f12, $f0");
     VU0_NOREORDER_END();
 
-    VU0_LSV(lqc2, 4, 0x0, a2);
+    VU0_LSV(lqc2, 4, 0x0, 6);
     __asm__ __volatile__(".set noreorder\n\tlqc2 $vf5, %0\n\t.set reorder"
                          :
                          : "m"(buf[0])
                          : "memory");
     VU0_NOREORDER_BEGIN();
-    VU0_MFC1(t0, 12);
-    VU0_QMTC2_NI(t0, 6);
+    VU0_MFC1(8, 12);
+    VU0_QMTC2_NI(8, 6);
     VU0_NOREORDER_END();
     VU0_REG("vmulx.xyz $vf5, $vf5, $vf6x");
     VU0_V3OP(vadd.xyz, 4, 4, 5);
-    VU0_LSV(sqc2, 4, 0x0, a0);
+    VU0_LSV(sqc2, 4, 0x0, 4);
 }
 
 void tensionMove(void *a0, void *a1, void *a2, float f12, float f13)
@@ -2413,8 +2413,8 @@ void tensionMove(void *a0, void *a1, void *a2, float f12, float f13)
     int buf[4];
     float inv;
     float scale;
-    VU0_LSV(lqc2, 1, 0x0, a1);
-    VU0_LSV(lqc2, 2, 0x0, a2);
+    VU0_LSV(lqc2, 1, 0x0, 5);
+    VU0_LSV(lqc2, 2, 0x0, 6);
     VU0_REG("vsub.xyzw $vf4, $vf1, $vf2");
     VU0_V3OP(vmul.xyz, 3, 4, 4);
     VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
@@ -2432,7 +2432,7 @@ void tensionMove(void *a0, void *a1, void *a2, float f12, float f13)
                          : "=f"(inv)::"$2");
     if (inv < f13) {
         scale = f12 * inv;
-        VU0_LSV(lqc2, 4, 0x0, a2);
+        VU0_LSV(lqc2, 4, 0x0, 6);
         __asm__ __volatile__(".set noreorder\n\tlqc2 $vf5, %0\n\t.set reorder"
                              :
                              : "m"(buf[0])
@@ -2444,7 +2444,7 @@ void tensionMove(void *a0, void *a1, void *a2, float f12, float f13)
                              : "$8");
         VU0_REG("vmulx.xyz $vf5, $vf5, $vf6x");
         VU0_V3OP(vadd.xyz, 4, 4, 5);
-        VU0_LSV(sqc2, 4, 0x0, a0);
+        VU0_LSV(sqc2, 4, 0x0, 4);
     }
 }
 

@@ -11,7 +11,7 @@
 #define SYSCALL_WRAPPER(name, num)                                                                 \
     void name(void)                                                                                \
     {                                                                                              \
-        __asm__ __volatile__("addiu $3, $zero, " #num "\n\tsyscall 0" : : : "$3", "memory");       \
+        __asm__ __volatile__("addiu $3, $0, " #num "\n\tsyscall 0" : : : "$3", "memory");          \
     }
 /* The same leaf issued INLINE, for the members that act on its result.
    `dst` is bound to $v0 because that is where the kernel ABI leaves the
@@ -20,7 +20,7 @@
 #define SYSCALL_INLINE(num, dst)                                                                   \
     {                                                                                              \
         register int __sc_ret __asm__("$2");                                                       \
-        __asm__ __volatile__("addiu $3, $zero, " #num "\n\tsyscall 0"                              \
+        __asm__ __volatile__("addiu $3, $0, " #num "\n\tsyscall 0"                                 \
                              : "=r"(__sc_ret)                                                      \
                              :                                                                     \
                              : "$3", "memory");                                                    \
@@ -136,14 +136,14 @@ void iDisableDmac(void)
    census names it and InitAlarm calls it. */
 static void setup(int num, int addr)
 {
-    __asm__ __volatile__("addiu $3, $zero, 116\n\tsyscall 0" : : : "$3", "memory");
+    __asm__ __volatile__("addiu $3, $0, 116\n\tsyscall 0" : : : "$3", "memory");
 }
 
 /* syscall 90 is Copy(dst, src, len); the leaf ignores its arguments, the
    kernel reads them out of $a0..$a2. */
 void Copy(char *dst, char *src, int len)
 {
-    __asm__ __volatile__("addiu $3, $zero, 90\n\tsyscall 0" : : : "$3", "memory");
+    __asm__ __volatile__("addiu $3, $0, 90\n\tsyscall 0" : : : "$3", "memory");
 }
 
 int kCopy(int *dst, int *src, unsigned int n)
@@ -160,7 +160,7 @@ int kCopy(int *dst, int *src, unsigned int n)
    argument and returns the kernel's $v0: syscall 91 is GetEntryAddress(num). */
 int GetEntryAddress(int num)
 {
-    __asm__ __volatile__("addiu $3, $zero, 91\n\tsyscall 0" : : : "$3", "memory");
+    __asm__ __volatile__("addiu $3, $0, 91\n\tsyscall 0" : : : "$3", "memory");
 }
 
 extern int D_0028F470[];

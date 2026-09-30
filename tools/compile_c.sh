@@ -2,7 +2,7 @@
 # tools/compile_c.sh <src.c> <out.o>
 #
 # Compile one C source for the ICO decomp: ee-gcc → .s → jtbl section split →
-# regname sed → ee-as (per archive) → objcopy.
+# ee-as (per archive) → objcopy.
 # Replaces the per-recipe body of the Makefile's $(BUILD_DIR)/src/%.o
 # rule so the same path is callable from both Make (Phase 1) and Ninja
 # (Phase 2). Running all the steps inside one shell invocation avoids
@@ -236,27 +236,6 @@ fi
 # them bare (patch_splat.py's sigil rewrite is retired) and our own inline asm
 # — include/vu0.h plus the literal VU0_REG strings — was converted to the bare
 # spelling at source on 2026-08-01.
-
-# ee-as 2.10 only accepts numbered MIPS registers; translate all aliases
-# (float regs $f0-$f31 and VU regs $vfN are already accepted as-is).
-sed -i -E \
-    -e 's/\$zero\b/$0/g'  -e 's/\$at\b/$1/g' \
-    -e 's/\$v0\b/$2/g'    -e 's/\$v1\b/$3/g' \
-    -e 's/\$a0\b/$4/g'    -e 's/\$a1\b/$5/g' \
-    -e 's/\$a2\b/$6/g'    -e 's/\$a3\b/$7/g' \
-    -e 's/\$t0\b/$8/g'    -e 's/\$t1\b/$9/g' \
-    -e 's/\$t2\b/$10/g'   -e 's/\$t3\b/$11/g' \
-    -e 's/\$t4\b/$12/g'   -e 's/\$t5\b/$13/g' \
-    -e 's/\$t6\b/$14/g'   -e 's/\$t7\b/$15/g' \
-    -e 's/\$s0\b/$16/g'   -e 's/\$s1\b/$17/g' \
-    -e 's/\$s2\b/$18/g'   -e 's/\$s3\b/$19/g' \
-    -e 's/\$s4\b/$20/g'   -e 's/\$s5\b/$21/g' \
-    -e 's/\$s6\b/$22/g'   -e 's/\$s7\b/$23/g' \
-    -e 's/\$t8\b/$24/g'   -e 's/\$t9\b/$25/g' \
-    -e 's/\$k0\b/$26/g'   -e 's/\$k1\b/$27/g' \
-    -e 's/\$gp\b/$28/g'   -e 's/\$sp\b/$29/g' \
-    -e 's/\$fp\b/$30/g'   -e 's/\$ra\b/$31/g' \
-    "${S}"
 
 # Assembler, selected per ARCHIVE by the disc's link (the paragraph at EE_AS_OLD
 # and docs/NOTES.md "Assembler per archive"): the game and the compiler-install

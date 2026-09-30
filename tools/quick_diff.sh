@@ -272,9 +272,10 @@ EE_ASFLAGS="-EL -mcpu=5900 -G ${GNUM:-8} -I$ROOT/include"
 # run hundreds of times per matching round, so a fallback here is the most
 # dangerous of all — it silently disagrees with the ninja build.
 
-# ee-as 2.10 doesn't accept register-name aliases ($zero, $sp, $ra, ...).
-# Translate any to numbered. ee-gcc-emitted output uses $N already, but
-# splat-generated target .s often has $sp/$ra/etc.
+# Neither period assembler accepts the ABI register names ($zero, $a0, $ra, ...).
+# The built side needs no translation: cc1 emits numbered registers and the
+# tree's inline asm spells them numbered too. Splat's target .s uses the ABI
+# names, so only the target side is translated.
 canon_regnames() {
     sed -i -E -e 's/\$zero\b/$0/g'  -e 's/\$at\b/$1/g' \
                -e 's/\$v0\b/$2/g'    -e 's/\$v1\b/$3/g' \
@@ -328,7 +329,6 @@ assemble() {
 # untranslated, it fails the period assembler, which now hard-errors instead of
 # silently falling back to modern gas and disagreeing with the ninja build.
 sed -i -E -e 's/\$ACC\b/ACC/g' -e 's/\$Q\b/Q/g' -e 's/\$R\b/R/g' "$ASM_OUT"
-canon_regnames "$ASM_OUT"
 # A failed assembly must never leave the previous object for strict_cmp to score.
 rm -f "$OBJ"
 assemble "$OBJ" "$ASM_OUT" || { rm -f "$OBJ"; exit 1; }
