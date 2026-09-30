@@ -547,8 +547,7 @@ segments:
       - [0x1907E0, .data, ico2/sugipon/src/quaternion]  # syms: IdentityQuaternion quatToMatrixScale nxt  the TU's whole .data run as source (data pass 4; = MAIN.MAP quaternion.o .data 0x2C), VMA 0x2907E0..0x29080C, 44 B
       - [0x190810, .data, ico2/seki/src/GsBase]  # the TU's whole .data run as source (completeness pass 8): the debug menu's Off/On pointer pairs and its two menu tables, 164 B, VMA 0x290810..0x2908B4, tail pad to Light
       - [0x1908B8, .data, ico2/seki/src/Light]  # the TU's whole .data run as source (completeness pass 5), VMA 0x2908B8..0x2908E0, 28 B emitted
-      - [0x1908E0, .data, ico2/seki/src/Matrix]  # syms: scaleWorkMatrix  the unit matrix the scale routines work in (data pass 3), VMA 0x2908E0..0x290920, 64 B
-      - [0x190920, data, cod/190920]     # data blob resume
+      - [0x1908E0, .data, ico2/seki/src/Matrix]  # the TU's whole .data run as source (finishing pass P1-7): scaleWorkMatrix, the unit matrix the scale routines work in, then the 0x200-byte zero-initialised VU0 register save area nothing in the ROM reads, VMA 0x2908E0..0x290B20, 0x240 B; MicroCode's row abuts
       - [0x190B20, .data, ico2/seki/src/MicroCode]  # the TU's whole .data run as source (completeness pass 5), VMA 0x290B20..0x290B3C, 28 B emitted
       - [0x190B40, .data, ico2/seki/src/Shadow]  # the TU's .data run as source (completeness pass 65; MAIN.MAP line 5806), VMA 0x290B40..0x290B58, 24 B
       - [0x190B58, .data, ico2/seki/src/Texture]  # the TU's .data run as source (completeness pass 66): mipmap_header_size, textype, psmTable, imageTypeName, clutTypeName, headerName in ROM order, VMA 0x290B58..0x290C08, 0xB0 B, ZFog's row follows
@@ -712,15 +711,12 @@ segments:
       - [0x44DB10, .rodata, ico2/seki/src/DisplayP2O]  # syms: dispObjFormat  the member's one string, `static const char dispObjFormat[32]` = "display object = %d" (data pass 2), VMA 0x54DB10..0x54DB30, 32 B
       - [0x44DB30, .rodata, ico2/seki/src/FileManager]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x54DB30..0x54E0B0, 1408 B
       - [0x44E0B0, .rodata, ico2/seki/src/GifPacket]  # carved D_0054E0B0 (VMA 0x54E0B0..0x54E170, 192 B, 1 sym): the 12 GS ALPHA blend quadruples gif_SetAlpha indexes; referenced only from matched C, so no stub emits it and the carve must define it
-      - [0x44E170, rodata, cod/44E170]   # .rodata blob resume
-      - [0x44F180, .rodata, ico2/seki/src/Light]  # carved D_0054F180 template (three char * to the r:, g:, b: labels, 12 B) + 4 pad bytes + the 0x32-byte light_Tool prompt string, VMA 0x54F180..0x54F1C2, 0x42 B, emitted by the compiled function; the tail of Light.o's rodata run
+      - [0x44E170, rodata, cod/44E170]   # .rodata blob resume: GsBase's run, VMA 0x54E170..0x54F0B0
+      - [0x44F0B0, .rodata, ico2/seki/src/Light]  # the TU's whole .rodata run as source (finishing pass P1-7): the two NULL messages (EUC-JP), the file name, the flat-light messages, light_DrawCursor's three vertex templates and colour template (16-aligned compound literals), light_Tool's label table and prompt, VMA 0x54F0B0..0x54F1C2, 0x112 B = MAIN.MAP; Matrix's row follows at 0x54F1C8
       - [0x44F1C8, .rodata, ico2/seki/src/Matrix]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x54F1C8..0x54F1E0, 24 B
       - [0x44F1E0, .rodata, ico2/seki/src/MicroCode]  # carved jtbl_0054F1E0 (5 arms, 0x14 B): mc_setBaseOffset's switch table, emitted by the compiled function, VMA 0x54F1E0..0x54F1F4
-      - [0x44F1F4, rodata, cod/44F1F4]   # .rodata blob resume (three zero pad words up to the 16-aligned string at 0x54F200, then the rest of the run)
-      - [0x44F230, .rodata, ico2/seki/src/Packet]  # syms: 0x0054F230  carved jtbl_0054F230 (VMA 0x54F230..0x54F274, 68 B, 17 arms): pac_DispQW's switch table, emitted by the compiled function
-      - [0x44F274, rodata, cod/44F274]   # .rodata blob resume (one zero pad word, then the rest of the run)
-      - [0x44F410, .rodata, ico2/seki/src/Packet]  # syms: 0x0054F410  carved jtbl_0054F410 (VMA 0x54F410..0x54F424, 20 B, 5 arms): pac_error's switch table, emitted by the compiled function; the pad word after it is the blob's
-      - [0x44F424, rodata, cod/44F424]   # .rodata blob resume
+      - [0x44F1F4, .rodata, ico2/seki/src/Packet]  # the TU's whole .rodata run as source (finishing pass P1-7): 12 B of link pad to the 16-aligned section, the dump and error strings as literals, pac_DispQW's table, the bounding-box margin template, the file name, pac_error's table, the GIF tag templates, VMA 0x54F200..0x54F8B7 in gcc's emission order; Primitive's head follows
+      - [0x44F8C0, rodata, cod/44F8C0]   # .rodata blob resume: Primitive's head (the file name, the mesh GIF tag prim_makePacketMesh3D reads without RTX_UNCHANGING_P, the messages and the particle templates)
       - [0x44F9E8, .rodata, ico2/seki/src/Primitive]  # carved D_0054F9E8 (VMA 0x54F9E8..0x54FA48, 96 B, align 8): prim_DispWireBox's twelve cube edges as int[12][2], emitted by the compiled function
       - [0x44FA48, rodata, cod/44FA48]   # .rodata blob resume (eight zero bytes before the next TU's string at 0x54FA50)
       - [0x44FCA0, .rodata, ico2/seki/src/RegistPacket]  # regEnemyEndTag, the named file static ending the enemy packet (0x15000010 then twelve zero bytes, 16 B, aligned 16), VMA 0x54FCA0..0x54FCB0; Shadow's tables follow
@@ -912,10 +908,7 @@ segments:
       - [0x520AE8, .rodata, ico2/sugipon/src/rotObject]  # the TU's whole .rodata run as source (completeness pass 6), VMA 0x620AE8..0x620B60, 119 B emitted
       - [0x520B60, .rodata, ico2/sugipon/src/spider]  # the TU's whole .rodata run as source (data pass 5), the switch table included, abutting spiderGroupManager's row, VMA 0x620B60..0x620CF7, 407 B
       - [0x520CF8, .rodata, ico2/sugipon/src/spiderGroupManager]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x620CF8..0x620F20, 552 B
-      - [0x520DE0, rodata, cod/520DE0]     # rodata blob resume
-      - [0x520F20, .rodata, ico2/sugipon/src/staticBlur]  # carved jtbl_00620F20 (dispPostInfo's 10-arm table), VMA 0x620F20..0x620F48
-      - [0x520F48, rodata, cod/520F48]   # .rodata blob resume (the "FEED: %s" string dispFeedInfo reads as an extern, and its pad)
-      - [0x520F60, .rodata, ico2/sugipon/src/staticBlur]  # syms: 0x00620F60,0x00620F80  carved jtbl_00620F60 + jtbl_00620F80 (FullScreenEffectBefore/After's 8-arm tables, 16-aligned), VMA 0x620F60..0x620FA0
+      - [0x520DE0, .rodata, ico2/sugipon/src/staticBlur]  # the TU's whole .rodata run as source (finishing pass P1-7): the nine sprite rectangle templates of the local initialisers and compound literals, the strings at their use sites, dispPostInfo's and the two FullScreenEffect tables where gcc emits them, VMA 0x620DE0..0x620FA0, 0x1C0 B; stormTest's row abuts
       - [0x520FA0, .rodata, ico2/sugipon/src/stormTest]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x620FA0..0x621680, 1760 B
       - [0x520FB0, .rodata, ico2/sugipon/src/streamMotionManager]  # the TU's .rodata head as source (VMA 0x620FB0..0x621228, 0x278 B: the anonymous message strings of _infoUpdate, PlayStreamMotion, ClearStreamMotionEntry's compiled-out debug arm and three more functions, EUC-JP kept; chain 3 pass 133)
       - [0x521228, rodata, cod/521228]     # rodata blob resume: streamMotionManager's remaining 0x100 (the 8-byte header constant that -G 8 sends to .sdata as any spelling of 8 bytes or less, and five more strings still read as D_ externs), sugiTree's row follows at 0x521328
@@ -1198,13 +1191,19 @@ segments:
       - [0x539F28, .sdata, ico2/sugipon/src/pool]  # the TU's whole .sdata run as source (finishing pass P1-6): the two work VRAM addresses, then copyToWork's and flushWork's colour initialisers (anonymous, 8-aligned), VMA 0x639F28..0x639F3C, 0x14 B; the fill before it is the section's own alignment
       - [0x539F3C, .sdata, ico2/sugipon/src/quaternion]  # the TU's whole .sdata run as source (finishing pass P1-6): the quaternion stack index, VMA 0x639F3C..0x639F40, 4 B = MAIN.MAP
       - [0x539F40, .sdata, ico2/sugipon/src/tableSin]  # the TU's whole .sdata run as source (finishing pass P1-6): the tables-built flag, VMA 0x639F40..0x639F44, 4 B = MAIN.MAP
-      - [0x539F44, sdata, cod/539F44]     # .sdata blob resume
-      - [0x53A188, .sdata, ico2/seki/src/Shadow]  # the TU's "On"/"Off" literals as source (completeness pass 65; narrow: the "S" word before it stays in the blob), 12 B
-      - [0x53A194, sdata, cod/53A194]     # .sdata blob resume
-      - [0x53A2C0, .sdata, ico2/seki/src/Texture]  # tex_Tool's anonymous 8-byte colour pair (00 ff ff ff / 00 c0 c0 ff), VMA 0x63A2C0..0x63A2C8; the blob before it keeps the other TUs' words
-      - [0x53A2C8, sdata, cod/53A2C8]     # .sdata blob resume
-      - [0x53A348, .sdata, ico2/seki/src/ZFog]  # the TU's whole .sdata run as source (completeness pass 6), VMA 0x63A348..0x63A354, 12 B emitted
-      - [0x53A354, sdata, cod/53A354]     # .sdata blob resume
+      - [0x539F44, .sdata, ico2/seki/src/DisplayP2O]  # the TU's whole .sdata run as source (finishing pass P1-7): the display-object count, VMA 0x639F44..0x639F48, 4 B = MAIN.MAP
+      - [0x539F48, .sdata, ico2/seki/src/FileManager]  # the TU's whole .sdata run as source (finishing pass P1-7): the "done.\n" trace, the ISO version suffix and the assert text as literals, VMA 0x639F48..0x639F5E, 0x16 B = MAIN.MAP
+      - [0x539F60, .sdata, ico2/seki/src/GifPacket]  # the TU's whole .sdata run as source (finishing pass P1-7): the open-packet flag and the strip drawers' on-screen flags and index, VMA 0x639F60..0x639F74, 0x14 B = MAIN.MAP
+      - [0x539F78, sdata, cod/539F78]     # .sdata blob resume: GsBase's run
+      - [0x53A088, .sdata, ico2/seki/src/Light]  # the TU's whole .sdata run as source (finishing pass P1-7): the registered flat-light count, the assert text, the object menu's OBJ/FIX, the flat-light editor's page, item and light, then its labels and format, VMA 0x63A088..0x63A0E5, 0x5D B = MAIN.MAP
+      - [0x53A0E8, .sdata, ico2/seki/src/Matrix]  # the TU's whole .sdata run as source (finishing pass P1-7): the VU0 register save depth and the assert text retail added, VMA 0x63A0E8..0x63A0F2 (MAIN.MAP's January Matrix.o has no .sdata)
+      - [0x53A0F8, .sdata, ico2/seki/src/Packet]  # the TU's whole .sdata run as source (finishing pass P1-7): the largest packet built, then the dump formats, assert texts and name formats as literals, VMA 0x63A0F8..0x63A14F, 0x57 B = MAIN.MAP
+      - [0x53A150, .sdata, ico2/seki/src/Primitive]  # the TU's whole .sdata run as source (finishing pass P1-7): the assert texts and the name format as literals, VMA 0x63A150..0x63A166, 0x16 B = MAIN.MAP
+      - [0x53A168, .sdata, ico2/seki/src/RegistPacket]  # the TU's whole .sdata run as source (finishing pass P1-7): the scissor switch and the assert text, VMA 0x63A168..0x63A172, 0xA B = MAIN.MAP
+      - [0x53A178, .sdata, ico2/seki/src/Shadow]  # the TU's whole .sdata run as source (finishing pass P1-7): the kill switch and its request, shadow_Draw's "S", an unread -1 word, the On/Off names, the tool's row and its two formats, VMA 0x63A178..0x63A1A8, 0x30 B
+      - [0x53A1A8, .sdata, ico2/seki/src/StageAnimation]  # the TU's whole .sdata run as source (finishing pass P1-7): the assert texts and the "BGA" name prefix as literals, VMA 0x63A1A8..0x63A1BA
+      - [0x53A1C0, .sdata, ico2/seki/src/Texture]  # the TU's whole .sdata run as source (finishing pass P1-7): textype's names, the assert texts and path formats as literals, the defocus colour template and tex_Init's table flag, tex_Tool's labels, step scale, colour pair and formats, then tex_ListTool's name tables' strings and its two words, VMA 0x63A1C0..0x63A33C
+      - [0x53A340, .sdata, ico2/seki/src/ZFog]  # the TU's whole .sdata run as source (finishing pass P1-7): zfog's "Z" trace, the On/Off names, the tool's row and its two formats, VMA 0x63A340..0x63A368
       - [0x53A368, .sdata, ico2/fumi/ios/cdvd]  # the TU's whole .sdata run as source (finishing pass P1-4), VMA 0x63A368..0x63A3E0, 0x78 B: the variables and the short literals in emission order, IosCdvdMgrSleep first and inflateSec last (MAIN.MAP cdvd.o .sdata 0x5C, the same first and last globals); ios.o's iopBuffOver follows
       - [0x53A3E0, sdata, cod/53A3E0]     # .sdata blob resume (ios.o, mblock.o)
       - [0x53A478, .sdata, ico2/fumi/ios/mcard]  # the TU's whole .sdata run as source (finishing pass P1-4), VMA 0x63A478..0x63A4D5, 0x5D B = MAIN.MAP mcard.o .sdata: IosMcMgrSleep, IosMcLock, "game.", the lock count and the literals in first-use order
@@ -1270,7 +1269,7 @@ segments:
       - [0x53BAC0, .sdata, ico2/sugipon/src/spider]  # syms: sgSelLine sgInfoLine  the TU's whole .sdata run as source (finishing pass P1-6): the entry count, sgSelLine, the three debug literals and sgInfoLine (MAIN.MAP, both global), VMA 0x63BAC0..0x63BAE0, 0x20 B = MAIN.MAP
       - [0x53BAE0, .sdata, ico2/sugipon/src/spiderGroupManager]  # the TU's whole .sdata run as source (finishing pass P1-6): eight counters and the revive state, then the assert literal "e", VMA 0x63BAE0..0x63BB02, 0x22 B = MAIN.MAP
       - [0x53BB04, .sdata, ico2/sugipon/src/stageMultiBgaManager]  # the TU's whole .sdata run as source (finishing pass P1-6): the stage animation count, VMA 0x63BB04..0x63BB08, 4 B = MAIN.MAP
-      - [0x53BB08, sdata, cod/53BB08]     # .sdata blob resume: staticBlur's run
+      - [0x53BB08, .sdata, ico2/sugipon/src/staticBlur]  # the TU's whole .sdata run as source (finishing pass P1-7): the effect state and colour statics in definition order, the white colour template of the initialisers and compound literals at its first use, the short mode names at their use sites, VMA 0x63BB08..0x63BBEC, 0xE4 B = MAIN.MAP
       - [0x53BBF0, .sdata, ico2/sugipon/src/streamMotionManager]  # the TU's whole .sdata run as source (finishing pass P1-6b), VMA 0x63BBF0..0x63BC46: the seventeen stream statics and the two debug formats
       - [0x53BC48, .sdata, ico2/sugipon/src/waterDot]  # the TU's whole .sdata run as source (finishing pass P1-6): the registered count and the splash PRIM word, VMA 0x63BC48..0x63BC50, 8 B
       - [0x53BC50, .sdata, ico2/sugipon/src/waySystemManager]  # the TU's whole .sdata run as source (finishing pass P1-6): the manager GObj word, VMA 0x63BC50..0x63BC54, 4 B = MAIN.MAP

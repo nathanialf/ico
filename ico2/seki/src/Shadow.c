@@ -36,8 +36,12 @@ extern void _GetCurrentMatrix(void *a0);
  * shadow_EntryClusterShadow. */
 static char clusterMatrix[4096];
 
-extern int D_0063A17C;
-extern int D_0063A178;
+/* .sdata, Shadow.o's run (MAIN.MAP gives 0x38 in January, no symbol named):
+   the shadow switch shadow_Reset applies and the request shadow_KillShadow
+   leaves for it, first in the run. */
+static int killShadow = 0; /* derived name */
+
+static int killShadowRequest = 0; /* derived name */
 
 /* The display-list packet builder state, the record src/GifPacket.c carries
  * as GifDpk; this function opens, fills and closes a PATH1 packet of its own.
@@ -156,8 +160,8 @@ void shadow_Reset(void)
     char *p;
     char *q;
 
-    if (D_0063A17C != D_0063A178) {
-        D_0063A178 = D_0063A17C;
+    if (killShadowRequest != killShadow) {
+        killShadow = killShadowRequest;
     }
     tex_LockHeadTBP(0x3D80, 3);
     dl_SetDLPriority(3);
@@ -242,7 +246,6 @@ extern int D_0063A078;
 /* the debug flag word: bit 0 turns the on-screen labels on */
 extern int D_0063B13C;
 /* "S", the one character label this pass prints */
-extern char D_0063A180[];
 /* kept local: this TU reads the stage setting record for its tint bytes only,
  * so it takes the byte view src/layout_texture.c also uses */
 extern unsigned char D_0028F720[];
@@ -252,7 +255,7 @@ extern void tex_UnlockHeadTBP(int pri);
 void shadow_Draw(void)
 {
     if (D_0063B13C & 1) {
-        debug_Printf(500, ScreenHeight / 2 - 8, 0xCCCCCC00u, (int)D_0063A180);
+        debug_Printf(500, ScreenHeight / 2 - 8, 0xCCCCCC00u, (int)"S");
     }
     {
         /* The four level tables are this block's statics: Shadow.o's .rodata
@@ -1302,7 +1305,7 @@ void shadow_MakeObjectData(char *a0)
 
 inline void shadow_KillShadow(int val)
 {
-    D_0063A17C = val;
+    killShadowRequest = val;
 }
 
 inline void shadow_DispCancel(int a0, int a1)
@@ -1341,8 +1344,8 @@ inline void shadow_SetLength(char *a0, float f)
 inline void shadow_Init(void)
 {
     char *obj;
-    D_0063A178 = 0;
-    D_0063A17C = 0;
+    killShadow = 0;
+    killShadowRequest = 0;
     for (obj = isysGObjGetExist_begin(); obj != 0; obj = isysGObjGetExist_next(obj)) {
         char *node = *(char **)(obj + 0x15C);
         if (node != 0) {
@@ -1371,14 +1374,15 @@ extern ShadowToolRow D_0054FE18[];
 extern unsigned int D_0054FF58[];
 /* "Shadow Tool" */
 extern char D_0054FF60[];
-/* "%s : %s" */
-extern char D_0063A198[];
-/* "%s : %d" */
-extern char D_0063A1A0[];
 /* "Shadow %s => %s\n" */
 extern char D_0054FF70[];
 /* "Shadow %s => %d\n" */
 extern char D_0054FF88[];
+
+/* A word of .sdata between shadow_Draw's "S" and this table's "On": the
+   bytes pin an initialised int of -1 defined after shadow_Draw; nothing in
+   the ROM reads it, so its role is not known. */
+static int shadowUnusedWord = -1; /* derived name */
 
 /* the names a 0/1 row prints instead of its number, ZFog's fogOnOffText
  * idiom; the unspecified bound keeps the 8-byte pointer array out of small data
@@ -1386,7 +1390,7 @@ extern char D_0054FF88[];
 static char *shadowOnOffText[] = {"Off", "On"};
 
 /* the row the tool has selected */
-extern int D_0063A194;
+static int toolRow = 0; /* derived name */
 
 /* the pad record this TU reads, the same one common/src/layout_action.c calls
  * R58: the flag word it tests for the two buttons at 4 and the auto-repeat
@@ -1409,33 +1413,33 @@ int shadow_Tool(void)
     debug_PrintfDummy(10, 50, 0xFF800000u, (int)D_0054FF60);
     for (i = 0; i < 8; i++) {
         if (D_0054FE18[i].min == 0 && D_0054FE18[i].max == 1) {
-            debug_PrintfDummy(0x12, (i + 1) * 8 + 50, D_0054FF58[D_0063A194 == i], (int)D_0063A198,
+            debug_PrintfDummy(0x12, (i + 1) * 8 + 50, D_0054FF58[toolRow == i], (int)"%s : %s",
                               (int)D_0054FE18[i].name, (int)shadowOnOffText[*D_0054FE18[i].val]);
         } else {
-            debug_PrintfDummy(0x12, (i + 1) * 8 + 50, D_0054FF58[D_0063A194 == i], (int)D_0063A1A0,
+            debug_PrintfDummy(0x12, (i + 1) * 8 + 50, D_0054FF58[toolRow == i], (int)"%s : %d",
                               (int)D_0054FE18[i].name, *D_0054FE18[i].val);
         }
     }
     if (D_0028F8F0[0].repeat & 0x4000) {
-        D_0063A194++;
-        if (8 <= D_0063A194) {
-            D_0063A194 = 0;
+        toolRow++;
+        if (8 <= toolRow) {
+            toolRow = 0;
         }
     }
     if (D_0028F8F0[0].repeat & 0x1000) {
-        D_0063A194--;
-        if (D_0063A194 < 0) {
-            D_0063A194 = 7;
+        toolRow--;
+        if (toolRow < 0) {
+            toolRow = 7;
         }
     }
     if (D_0028F8F0[0].repeat & 0x2000) {
-        if (++*D_0054FE18[D_0063A194].val > D_0054FE18[D_0063A194].max) {
-            *D_0054FE18[D_0063A194].val = D_0054FE18[D_0063A194].min;
+        if (++*D_0054FE18[toolRow].val > D_0054FE18[toolRow].max) {
+            *D_0054FE18[toolRow].val = D_0054FE18[toolRow].min;
         }
     }
     if (D_0028F8F0[0].repeat & 0x8000) {
-        if (--*D_0054FE18[D_0063A194].val < D_0054FE18[D_0063A194].min) {
-            *D_0054FE18[D_0063A194].val = D_0054FE18[D_0063A194].max;
+        if (--*D_0054FE18[toolRow].val < D_0054FE18[toolRow].min) {
+            *D_0054FE18[toolRow].val = D_0054FE18[toolRow].max;
         }
     }
     if (D_0028F8F0[0].flags & 0x20) {
@@ -1453,7 +1457,7 @@ int shadow_Tool(void)
         ret = -1;
     }
     if (ret != 0) {
-        D_0063A194 = 0;
+        toolRow = 0;
     }
     return ret;
 }

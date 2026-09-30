@@ -126,7 +126,6 @@ extern int D_0063A074;
 extern int D_0063A078;
 extern int D_0063B1F0;
 extern int D_0063B13C;
-extern char D_0063A340[];
 extern int tex_AllocVramAuto(int a0, int a1);
 extern void tex_ResetVramPri(int pri);
 extern void dl_OpenDma(int chan, void *dma, int flag);
@@ -263,7 +262,7 @@ void fog_DrawFog(void)
     if (D_0063B1F0 == 0) return;
     if (D_0028F720.fogOn == 0) return;
 
-    if (D_0063B13C & 1) debug_Printf(510, ScreenHeight / 2 - 8, 0xCCCCCC00, D_0063A340);
+    if (D_0063B13C & 1) debug_Printf(510, ScreenHeight / 2 - 8, 0xCCCCCC00, "Z");
 
     vram = tex_AllocVramAuto(1, 4);
 
@@ -378,9 +377,7 @@ static const FogToolItem fogToolItems[9] = {
    small data under -G 8, which is where the ROM has it. */
 static const unsigned int fogRowColor[] = {0xFFFFFF00, 0xFF000000};
 
-extern int D_0063A354;    /* highlighted row */
-extern char D_0063A358[]; /* "%s : %s" */
-extern char D_0063A360[]; /* "%s : %d" */
+static int toolRow = 0; /* derived name */ /* highlighted row */
 
 int fog_FogTool(void)
 {
@@ -393,36 +390,36 @@ int fog_FogTool(void)
 
     for (i = 0; i < 9; i++) {
         if (fogToolItems[i].min == 0 && fogToolItems[i].max == 1) {
-            debug_PrintfDummy(18, (i + 1) * 8 + 0x32, fogRowColor[(D_0063A354 == i) ? 1 : 0],
-                              D_0063A358, fogToolItems[i].name, fogOnOffText[*fogToolItems[i].val]);
+            debug_PrintfDummy(18, (i + 1) * 8 + 0x32, fogRowColor[(toolRow == i) ? 1 : 0],
+                              "%s : %s", fogToolItems[i].name, fogOnOffText[*fogToolItems[i].val]);
         } else {
-            debug_PrintfDummy(18, (i + 1) * 8 + 0x32, fogRowColor[(D_0063A354 == i) ? 1 : 0],
-                              D_0063A360, fogToolItems[i].name, *fogToolItems[i].val);
+            debug_PrintfDummy(18, (i + 1) * 8 + 0x32, fogRowColor[(toolRow == i) ? 1 : 0],
+                              "%s : %d", fogToolItems[i].name, *fogToolItems[i].val);
         }
     }
 
     if (D_0028F8F0[0].rep & 0x4000) {
-        D_0063A354++;
-        if (D_0063A354 >= 9) {
-            D_0063A354 = 0;
+        toolRow++;
+        if (toolRow >= 9) {
+            toolRow = 0;
         }
     }
     if (D_0028F8F0[0].rep & 0x1000) {
-        D_0063A354--;
-        if (D_0063A354 < 0) {
-            D_0063A354 = 8;
+        toolRow--;
+        if (toolRow < 0) {
+            toolRow = 8;
         }
     }
     if (D_0028F8F0[0].rep & 0x2000) {
-        v = ++*fogToolItems[D_0063A354].val;
-        if (fogToolItems[D_0063A354].max < v) {
-            *fogToolItems[D_0063A354].val = fogToolItems[D_0063A354].min;
+        v = ++*fogToolItems[toolRow].val;
+        if (fogToolItems[toolRow].max < v) {
+            *fogToolItems[toolRow].val = fogToolItems[toolRow].min;
         }
     }
     if (D_0028F8F0[0].rep & 0x8000) {
-        v = --*fogToolItems[D_0063A354].val;
-        if (v < fogToolItems[D_0063A354].min) {
-            *fogToolItems[D_0063A354].val = fogToolItems[D_0063A354].max;
+        v = --*fogToolItems[toolRow].val;
+        if (v < fogToolItems[toolRow].min) {
+            *fogToolItems[toolRow].val = fogToolItems[toolRow].max;
         }
     }
     if (D_0028F8F0[0].trg & 0x20) {
@@ -440,7 +437,7 @@ int fog_FogTool(void)
         ret = -1;
     }
     if (ret != 0) {
-        D_0063A354 = 0;
+        toolRow = 0;
     }
     fog_MakeFogClut();
     return ret;

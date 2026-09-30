@@ -9,10 +9,13 @@
 #include "lineManager.h"
 #include "matrixDrive.h"
 
+/* .sdata, RegistPacket.o's run (MAIN.MAP 0xA): the scissor switch
+   reg_SetScissorSw sets and reg_Init clears, then the assert text. */
+static int scissorSw = 0; /* derived name */
+
 extern char D_0054FA50[];
 extern char D_0054FA80[];
 extern char D_0054FA98[];
-extern char D_0063A170[];
 /* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
 extern void _CopyVector(void *dst, void *src);
 /* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
@@ -65,7 +68,7 @@ void reg_setShape(char *o, int idx, int flag, char *pkt, char *mat)
                             debug_StdPrintfDummy(D_0054FA50, *(unsigned int *)(m + 0x10),
                                                  *(unsigned int *)(s + 0x94));
                             debug_assert(D_0054FA80, 635);
-                            __assert(D_0054FA80, 635, D_0063A170);
+                            __assert(D_0054FA80, 635, "0");
                         }
                         t = *(char **)(s + 0x90);
                         t += *(int *)(m + 0x10) * 0x10;
@@ -83,14 +86,14 @@ void reg_setShape(char *o, int idx, int flag, char *pkt, char *mat)
                             debug_StdPrintfDummy(D_0054FA98, *(unsigned int *)(m + 0x10),
                                                  *(unsigned int *)(s + 0xA4));
                             debug_assert(D_0054FA80, 642);
-                            __assert(D_0054FA80, 642, D_0063A170);
+                            __assert(D_0054FA80, 642, "0");
                         }
                         t = *(char **)(s + 0xA0);
                         t += *(int *)(m + 0x10) * 0x10;
                         _AddVectorXYZ(t, t, vec);
                     } else {
                         debug_assert(D_0054FA80, 647);
-                        __assert(D_0054FA80, 647, D_0063A170);
+                        __assert(D_0054FA80, 647, "0");
                     }
                 nextbone:
                     m += 0x20;
@@ -222,7 +225,7 @@ int reg_clipPacketBoundingBox(char *pk)
     default:
         debug_StdPrintfDummy(D_0054FB40, type);
         debug_assert(D_0054FA80, 821);
-        __assert(D_0054FA80, 821, D_0063A170);
+        __assert(D_0054FA80, 821, "0");
         break;
     }
     if (D_0063B184 & 2) {
@@ -707,7 +710,7 @@ void reg_setCMatrixPacket(char *o, float alpha, int prilist)
     } else {
         debug_StdPrintfDummy(D_0054FB58, *(char **)(o + 0x854));
         debug_assert(D_0054FA80, 1238);
-        __assert(D_0054FA80, 1238, D_0063A170);
+        __assert(D_0054FA80, 1238, "0");
     }
     {
         char *c = PacketBufferStruct.ptr.c;
@@ -2044,11 +2047,9 @@ void reg_DispObj2(char *o, int idx)
     reg_dispSObj(o, idx);
 }
 
-extern int D_0063A168;
-
 void reg_SetScissorSw(int val)
 {
-    D_0063A168 = val;
+    scissorSw = val;
 }
 
 void reg_TransTexturePacket(int tex, int pri)
@@ -2060,7 +2061,7 @@ void reg_TransTexturePacket(int tex, int pri)
 
 void reg_Init(void)
 {
-    D_0063A168 = 0;
+    scissorSw = 0;
 }
 
 int reg_GetShinePri(int a0)

@@ -92,7 +92,6 @@ static StageAnim stageAnimTable[87];
 extern char D_005501A8[];
 extern char D_005501E0[];
 extern char D_00550028[];
-extern char D_0063A1A8[];
 extern void __assert(char *file, int line, char *expr);
 /* kept local: this TU's uses of bga_CheckAnimationFinish do not fit the prototype in BgAnimation.h */
 extern int bga_CheckAnimationFinish(int a0);
@@ -111,8 +110,6 @@ extern char D_005F5E70[];
 extern char D_002C2DC8[];
 extern char D_002BC6E0[];
 extern char D_00602FA0[];
-extern char D_0063A1B0[];
-extern char D_0063A1B8[];
 extern char D_00550068[];
 extern int stage_no;
 extern int strcmp(const char *a, const char *b);
@@ -171,8 +168,8 @@ void stage_MakeGObj(int *dat, int no)
     g = (char *)isysGObjAdd(0, 0, 0);
     if (g == 0) {
         debug_StdPrintfDummy(D_00550000, no);
-        debug_assert(D_00550028, 0x21D);
-        __assert(D_00550028, 0x21D, D_0063A1A8);
+        debug_assert(D_00550028, 541);
+        __assert(D_00550028, 541, "0");
     }
     *(short *)(e + (((*(int *)(e + 0x28C) << 22) >> 22) << 1)) = kind;
     *(int *)(g + 0x4) = 1;
@@ -192,8 +189,8 @@ void stage_MakeGObj(int *dat, int no)
     *(int *)(e + 0x28C) = w;
     if (((w << 22) >> 22) >= 64) {
         debug_Assert(D_00550040);
-        debug_assert(D_00550028, 0x232);
-        __assert(D_00550028, 0x232, D_0063A1A8);
+        debug_assert(D_00550028, 562);
+        __assert(D_00550028, 562, "0");
     }
 }
 
@@ -221,7 +218,7 @@ void stage_ApplyData(char *name, char *data)
                     obj = D_00602FA0 + id * 0x5C;
                     if (id != 0x3CC) {
                         if (strcmp(name, obj) == 0) {
-                            if (strncmp(data, D_0063A1B0, 3) == 0) {
+                            if (strncmp(data, "BGA", 3) == 0) {
                                 *(int *)(obj + 0x54) = bga_InitData(data);
                             } else {
                                 *(int *)(obj + 0x54) = (int)data;
@@ -235,7 +232,7 @@ void stage_ApplyData(char *name, char *data)
     }
     sprintf(buf, D_00550068, name);
     debug_assertMessage(D_00550028, 0x269, buf);
-    __assert(D_00550028, 0x269, D_0063A1B8);
+    __assert(D_00550028, 617, "e");
 }
 
 typedef struct {
@@ -368,7 +365,7 @@ int stage_Init(void)
                     id = ((StgBgaSet *)ent)->id[k];
                     obj = D_00602FA0 + id * 0x5C;
                     if (id != 972) {
-                        if (strncmp(*(char **)(obj + 0x54), D_0063A1B0, 3) == 0) {
+                        if (strncmp(*(char **)(obj + 0x54), "BGA", 3) == 0) {
                             /* Listing row 679, code-free. WHAT THE BYTES PIN: one
                            insn between the stageAnimCount load and the 0x284 store
                            at local-alloc, gone by final; without it the flags
@@ -409,8 +406,8 @@ int stage_Init(void)
                         if (stageAnimCount >= 88) {
                             debug_StdPrintfDummy(D_00550098, stageAnimCount, 87);
                             debug_StdPrintfDummy(D_005500C8);
-                            debug_assert(D_00550028, 0x2BE);
-                            __assert(D_00550028, 0x2BE, D_0063A1A8);
+                            debug_assert(D_00550028, 702);
+                            __assert(D_00550028, 702, "0");
                         }
                     }
                 }
@@ -420,8 +417,8 @@ int stage_Init(void)
     for (i = 0; i < stageAnimCount; i++) {
         if (((STG[i].flags.i << 22) >> 22) >= 64) {
             debug_StdPrintfDummy(D_005500F8, ((STG[i].flags.i << 22) >> 22), 64);
-            debug_assert(D_00550028, 0x2C8);
-            __assert(D_00550028, 0x2C8, D_0063A1A8);
+            debug_assert(D_00550028, 712);
+            __assert(D_00550028, 712, "0");
         }
         max = max < ((STG[i].flags.i << 22) >> 22) ? ((STG[i].flags.i << 22) >> 22) : max;
     }
@@ -612,8 +609,8 @@ inline int stage_CheckAnimationFinish(int a0)
         }
     }
     debug_StdPrintfDummy(D_005501A8);
-    debug_assert(D_00550028, 0x38D);
-    __assert(D_00550028, 0x38D, D_0063A1A8);
+    debug_assert(D_00550028, 909);
+    __assert(D_00550028, 909, "0");
     return 0;
 }
 
@@ -644,8 +641,8 @@ int stage_ContinueAnimation(int a0, int a1)
         }
     }
     debug_StdPrintfDummy(D_005501E0);
-    debug_assert(D_00550028, 0x3BA);
-    __assert(D_00550028, 0x3BA, D_0063A1A8);
+    debug_assert(D_00550028, 954);
+    __assert(D_00550028, 954, "0");
     return 0;
 }
 

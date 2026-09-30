@@ -38,11 +38,6 @@ typedef struct AmbientVolume {
     struct AmbientVolume *prev; /* 0x98 */
 } AmbientVolume;
 
-extern char D_0054F0B0[];
-extern char D_0054F0C8[];
-extern char D_0054F0D8[];
-extern char D_0063A090[];
-
 /* .sbss, Light.o's five words in the ROM's order (MAIN.MAP line 7576 sizes
    the run 0x14 and names no symbol in it, so the names are ours): the cursor
    debug view's two pad angles, the newest light and the newest ambient volume
@@ -58,6 +53,12 @@ static int lastAmbient;
 
 static int lightCount;
 
+/* .sdata, Light.o's run (MAIN.MAP line 6990, 0x5D, no symbol named): the
+   count of flat lights light_AddLight has registered, which light_resetFlatLight
+   clears; the assert text and the debug menu's labels follow as literals and
+   the flat-light editor's cursor after the object menu. */
+static int flatLightNum = 0; /* derived name */
+
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
@@ -66,9 +67,10 @@ void light_killLinkLight(char *node)
     Light *p = (Light *)node;
 
     if (p == 0) {
-        debug_StdPrintfDummy(D_0054F0B0);
-        debug_assert(D_0054F0C8, 0x1A8);
-        __assert(D_0054F0C8, 0x1A8, D_0063A090);
+        /* "the light is NULL" */
+        debug_StdPrintfDummy("Light:NULLになってんで\n");
+        debug_assert("src/Light.c", 424);
+        __assert("src/Light.c", 424, "0");
     }
     if (p->next != 0) {
         p->next->prev = p->prev;
@@ -87,9 +89,10 @@ void light_killLinkLight(char *node)
 void light_killLinkAmbient(AmbientVolume *p)
 {
     if (p == 0) {
-        debug_StdPrintfDummy(D_0054F0D8);
-        debug_assert(D_0054F0C8, 0x1C3);
-        __assert(D_0054F0C8, 0x1C3, D_0063A090);
+        /* "the ambient volume is NULL" */
+        debug_StdPrintfDummy("AmbientVolume:NULLになってんで\n");
+        debug_assert("src/Light.c", 451);
+        __assert("src/Light.c", 451, "0");
     }
     if (p->next != 0) {
         p->next->prev = p->prev;
@@ -123,9 +126,6 @@ static int flatLightSlot[3] = {0, 0, 0};
 extern void _CopyVector(void *dst, void *src);
 /* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector(void *dst, void *src);
-extern char D_0063A088[8];
-extern char D_0054F0F8[];
-extern char D_0054F118[];
 extern int D_0063A44C;
 /* kept local: this TU's uses of light_resetFlatLight do not fit the prototype in Light.h */
 extern void light_resetFlatLight(void);
@@ -160,8 +160,8 @@ Light *light_AddLight(char *self, int b, int kind)
     case 0: {
         Light *l;
 
-        if (*(int *)D_0063A088 != 0) {
-            debug_StdPrintfDummy(D_0054F0F8);
+        if (flatLightNum != 0) {
+            debug_StdPrintfDummy("Flat Lights already exist.\n");
             light_resetFlatLight();
             return 0;
         }
@@ -178,7 +178,7 @@ Light *light_AddLight(char *self, int b, int kind)
             }
             l->f_3C = d;
             light_setLinkLight(l);
-            flatLightSlot[(*(int *)D_0063A088)++] = (int)l;
+            flatLightSlot[(flatLightNum)++] = (int)l;
         }
         return 0;
     }
@@ -191,7 +191,7 @@ Light *light_AddLight(char *self, int b, int kind)
         if (*(int *)(self + 0x15C) == 0) {
             return 0;
         }
-        q = (Light *)iosMallocDebug(D_0063A44C, 0x50, D_0054F0C8, 620);
+        q = (Light *)iosMallocDebug(D_0063A44C, 0x50, "src/Light.c", 620);
         *(int *)(*(int *)(self + 0x15C) + 0x83C) = b;
         q->f_40 = self;
         q->f_44 = kind;
@@ -215,7 +215,7 @@ Light *light_AddLight(char *self, int b, int kind)
     case 3: {
         Light *r;
 
-        r = (Light *)iosMallocDebug(D_0063A44C, 0x50, D_0054F0C8, 685);
+        r = (Light *)iosMallocDebug(D_0063A44C, 0x50, "src/Light.c", 685);
         r->f_44 = kind;
         r->f_30 = 1.0f;
         r->f_34 = 32768.0f;
@@ -223,9 +223,9 @@ Light *light_AddLight(char *self, int b, int kind)
         return r;
     }
     default:
-        debug_StdPrintfDummy(D_0054F118);
-        debug_assert(D_0054F0C8, 705);
-        __assert(D_0054F0C8, 705, D_0063A090);
+        debug_StdPrintfDummy("Added Light is illegal.\n");
+        debug_assert("src/Light.c", 705);
+        __assert("src/Light.c", 705, "0");
     }
     return 0;
 }
@@ -583,8 +583,6 @@ typedef union {
 extern int D_0063B1CC; /* the debug display flags: 1 lights, 2 ambient volumes */
 extern char *D_00639EA4;
 extern char *matrixptr;
-extern char D_0063A098[]; /* "OBJ" */
-extern char D_0063A0A0[]; /* "FIX" */
 extern void _TransposeMatrix(void *dst, void *src);
 extern void _MulMatrix(void *dst, void *a, void *b);
 extern void _UnitMatrix(void *m);
@@ -641,9 +639,9 @@ void light_DispVolume(void)
                 m[0][3] = m[1][3] = m[2][3] = 0.0f;
                 _MulMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix(), m);
                 if (lp->f_44 == 1) {
-                    sprintf(buf, D_0063A098);
+                    sprintf(buf, "OBJ");
                 } else {
-                    sprintf(buf, D_0063A0A0);
+                    sprintf(buf, "FIX");
                 }
                 DispWireString(buf);
                 gif_StartPacketPri(11);
@@ -851,17 +849,12 @@ void light_GetColorAnalog(float *col)
     col[2] = b;
 }
 
+/* A cursor vertex or the cursor's RGBA colour, one quadword either way. */
 typedef union LtVec {
-    float f[4];
-    long long ll[2];
+    sceVu0FVECTOR f;
+    int i[4];
 } LtVec;
 
-/* .rodata cursor geometry: tip, and the two base corners; the cursor colour
-   is the four-byte RGBA word set at D_0054F170. */
-extern const LtVec D_0054F140;
-extern const LtVec D_0054F150;
-extern const LtVec D_0054F160;
-extern const LtVec D_0054F170;
 /* kept local: this TU's uses of _InitCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _InitCurrentMatrix(void);
 /* kept local: this TU's uses of _TransCurrentMatrix do not fit the prototype in Matrix.h */
@@ -895,10 +888,10 @@ void light_DrawCursor(float *dir, int mode)
     LtVec right;
     int i;
 
-    tip = D_0054F140;
+    tip = (LtVec){{0.0f, 0.0f, -100.0f, 1.0f}};
     memset(&base, 0, 16);
-    left = D_0054F150;
-    right = D_0054F160;
+    left = (LtVec){{10.0f, 0.0f, -25.0f, 1.0f}};
+    right = (LtVec){{-10.0f, 0.0f, -25.0f, 1.0f}};
     base.f[3] = 1.0f;
     GetRootMatrix(m, CameraGetTarget());
     if (mode == 0) {
@@ -924,7 +917,7 @@ void light_DrawCursor(float *dir, int mode)
         _ApplyCurrentMatrix(dir, dir);
         _NormalizeVector(dir, dir);
         gif_StartPacketPri(11);
-        col = D_0054F170;
+        col = (LtVec){.i = {255, 255, 255, 128}};
         MatrixDrive_PushMatrix();
         _UnitMatrix(MatrixDrive_GetMatrix());
         DrawLine(&tip, &base, &col, -1);
@@ -937,7 +930,7 @@ void light_DrawCursor(float *dir, int mode)
     {
         LtVec col;
 
-        col = D_0054F170;
+        col = (LtVec){.i = {255, 255, 255, 128}};
         for (i = 0; i < 3; i++) {
             _ScaleVector(&tip, D_0028F720.flatLightDir[i], -100.0f);
             _ScaleVector(&left, D_0028F720.flatLightDir[i], -200.0f);
@@ -953,8 +946,8 @@ void light_DrawCursor(float *dir, int mode)
 }
 
 /* Light.c lines 1535-1684, the flat-light editor page of the debug menu.
-   Three pages selected by D_0063A0A4 (colour, direction vector, ambient),
-   each editing light D_0063A0AC with component D_0063A0A8 (3 = all three at
+   Three pages selected by toolPage (colour, direction vector, ambient),
+   each editing light toolLight with component toolItem (3 = all three at
    once).  The retail build calls debug_PrintfDummy where the January-2002
    listing calls debug_Printf; everything else is instruction for instruction
    the same function, so the listing's per-instruction line map is the
@@ -967,17 +960,13 @@ void light_DrawCursor(float *dir, int mode)
    while the analog sticks are driving that page's values. */
 static int pageIdle[3] = {1, 1, 1};
 
-extern int D_0063A0A4; /* the editor page: 0 colour, 1 vector, 2 ambient */
-extern int D_0063A0A8; /* the selected component: 0 x/r, 1 y/g, 2 z/b, 3 all */
-extern int D_0063A0AC; /* the selected flat light: 0..2 */
+static int toolPage = 0; /* derived name */ /* the editor page: 0 colour, 1 vector, 2 ambient */
+
+static int toolItem = 0; /* derived name */ /* the selected component: 0 x/r, 1 y/g, 2 z/b, 3 all */
+
+static int toolLight = 0; /* derived name */ /* the selected flat light: 0..2 */
+
 extern int frame_count;
-extern char D_0063A0B0[]; /* "r:" */
-extern char D_0063A0B8[]; /* "g:" */
-extern char D_0063A0C0[]; /* "b:" */
-extern char D_0063A0C8[]; /* "COL " */
-extern char D_0063A0D0[]; /* "%s%11f" */
-extern char D_0063A0D8[]; /* "VEC " */
-extern char D_0063A0E0[]; /* "AMB " */
 /* kept local: this TU's uses of light_GetColorAnalog do not fit the prototype in Light.h */
 extern void light_GetColorAnalog(float *col);
 /* kept local: this TU's uses of light_DrawCursor do not fit the prototype in Light.h */
@@ -992,104 +981,104 @@ int light_Tool(void)
     float col2[4];
     int ret = 0;
     int i;
-    char *name[3] = {D_0063A0B0, D_0063A0B8, D_0063A0C0};
+    char *name[3] = {"r:", "g:", "b:"};
     unsigned int col;
     short rot;
     float (*c)[4];
 
     if (D_0028F8F0[0].trg & 0x4000) {
-        if (++D_0063A0A4 == 3) {
-            D_0063A0A4 = 0;
+        if (++toolPage == 3) {
+            toolPage = 0;
         }
     }
     if (D_0028F8F0[0].trg & 0x1000) {
-        if (--D_0063A0A4 == -1) {
-            D_0063A0A4 = 2;
+        if (--toolPage == -1) {
+            toolPage = 2;
         }
     }
     if (D_0028F8F0[0].trg & 0x1) {
-        if (++D_0063A0AC == 3) {
-            D_0063A0AC = 0;
+        if (++toolLight == 3) {
+            toolLight = 0;
         }
     }
     if (D_0028F8F0[0].trg & 0x100) {
         pageIdle[0] = pageIdle[1] = pageIdle[2] = 1;
         ret = -1;
     }
-    if (pageIdle[1] == 0 && D_0063A0A4 == 1) {
+    if (pageIdle[1] == 0 && toolPage == 1) {
         light_DrawCursor(dir, 0);
     } else {
         light_DrawCursor(dir, 1);
     }
-    switch (D_0063A0A4) {
+    switch (toolPage) {
     case 0:
         pageIdle[1] = pageIdle[2] = 1;
         light_GetColorAnalog(col1);
-        if ((D_0028F8F0[0].trg & 0x400) && D_0063A0A8 == 3) {
+        if ((D_0028F8F0[0].trg & 0x400) && toolItem == 3) {
             pageIdle[0] ^= 1;
         }
-        if (pageIdle[0] == 0 && D_0063A0A8 == 3) {
+        if (pageIdle[0] == 0 && toolItem == 3) {
             /* The row pointer is into flatLightDir, so the three stores keep
                the +0x30 to flatLightCol in the store displacement off one
                base; spelling the destination as flatLightCol[idx][n] at each
                of the three sites folds 0x30 onto the symbol and makes gcse PRE
                insert two reaching-register copies the ROM does not have. */
-            c = &D_0028F720.flatLightDir[D_0063A0AC];
+            c = &D_0028F720.flatLightDir[toolLight];
             c[3][0] = col1[0] / 128.0f;
             c[3][1] = col1[1] / 128.0f;
             c[3][2] = col1[2] / 128.0f;
             break;
         }
         if (D_0028F8F0[0].trg & 0x2000) {
-            if (++D_0063A0A8 == 4) {
-                D_0063A0A8 = 0;
+            if (++toolItem == 4) {
+                toolItem = 0;
             }
         }
         if (D_0028F8F0[0].trg & 0x8000) {
-            if (--D_0063A0A8 == -1) {
-                D_0063A0A8 = 3;
+            if (--toolItem == -1) {
+                toolItem = 3;
             }
         }
-        if (D_0063A0A8 != 3) {
+        if (toolItem != 3) {
             if (D_0028F8F0[0].rep & 0x20) {
-                D_0028F720.flatLightCol[D_0063A0AC][D_0063A0A8] += 0.01f;
+                D_0028F720.flatLightCol[toolLight][toolItem] += 0.01f;
             }
             if (D_0028F8F0[0].rep & 0x40) {
-                D_0028F720.flatLightCol[D_0063A0AC][D_0063A0A8] -= 0.01f;
+                D_0028F720.flatLightCol[toolLight][toolItem] -= 0.01f;
             }
             break;
         }
         if (D_0028F8F0[0].rep & 0x20) {
             for (i = 0; i < 3; i++) {
-                D_0028F720.flatLightCol[D_0063A0AC][i] *= 1.01f;
+                D_0028F720.flatLightCol[toolLight][i] *= 1.01f;
             }
         }
         if (D_0028F8F0[0].rep & 0x40) {
             for (i = 0; i < 3; i++) {
-                D_0028F720.flatLightCol[D_0063A0AC][i] *= 0.99f;
+                D_0028F720.flatLightCol[toolLight][i] *= 0.99f;
             }
         }
         break;
     case 1:
         pageIdle[0] = pageIdle[2] = 1;
-        if ((D_0028F8F0[0].trg & 0x400) && D_0063A0A8 == 3) {
+        if ((D_0028F8F0[0].trg & 0x400) && toolItem == 3) {
             pageIdle[1] ^= 1;
         }
-        if (pageIdle[1] == 0 && D_0063A0A8 == 3) {
-            _CopyVector(D_0028F720.flatLightDir[D_0063A0AC], dir);
+        if (pageIdle[1] == 0 && toolItem == 3) {
+            _CopyVector(D_0028F720.flatLightDir[toolLight], dir);
             break;
         }
         if (D_0028F8F0[0].trg & 0x2000) {
-            if (++D_0063A0A8 == 4) {
-                D_0063A0A8 = 0;
+            if (++toolItem == 4) {
+                toolItem = 0;
             }
         }
         if (D_0028F8F0[0].trg & 0x8000) {
-            if (--D_0063A0A8 == -1) {
-                D_0063A0A8 = 3;
+            if (--toolItem == -1) {
+                toolItem = 3;
             }
         }
-        if (D_0063A0A8 == 3) {
+        if (toolItem == 3) {
             break;
         }
         if (D_0028F8F0[0].rep & 0x20) {
@@ -1098,7 +1087,7 @@ int light_Tool(void)
             rot = (D_0028F8F0[0].rep & 0x40) ? -1024 : 0;
         }
         _InitCurrentMatrix();
-        switch (D_0063A0A8) {
+        switch (toolItem) {
         case 0:
             _RotCurrentMatrixX(rot);
             break;
@@ -1109,37 +1098,36 @@ int light_Tool(void)
             _RotCurrentMatrixZ(rot);
             break;
         }
-        _ApplyCurrentMatrix(D_0028F720.flatLightDir[D_0063A0AC],
-                            D_0028F720.flatLightDir[D_0063A0AC]);
+        _ApplyCurrentMatrix(D_0028F720.flatLightDir[toolLight], D_0028F720.flatLightDir[toolLight]);
         break;
     case 2:
         pageIdle[0] = pageIdle[1] = 1;
         light_GetColorAnalog(col2);
-        if ((D_0028F8F0[0].trg & 0x400) && D_0063A0A8 == 3) {
+        if ((D_0028F8F0[0].trg & 0x400) && toolItem == 3) {
             pageIdle[2] ^= 1;
         }
-        if (pageIdle[2] == 0 && D_0063A0A8 == 3) {
+        if (pageIdle[2] == 0 && toolItem == 3) {
             D_0028F720.ambientCol[0] = col2[0] / 255.0f;
             D_0028F720.ambientCol[1] = col2[1] / 255.0f;
             D_0028F720.ambientCol[2] = col2[2] / 255.0f;
             break;
         }
         if (D_0028F8F0[0].trg & 0x2000) {
-            if (++D_0063A0A8 == 4) {
-                D_0063A0A8 = 0;
+            if (++toolItem == 4) {
+                toolItem = 0;
             }
         }
         if (D_0028F8F0[0].trg & 0x8000) {
-            if (--D_0063A0A8 == -1) {
-                D_0063A0A8 = 3;
+            if (--toolItem == -1) {
+                toolItem = 3;
             }
         }
-        if (D_0063A0A8 != 3) {
+        if (toolItem != 3) {
             if (D_0028F8F0[0].rep & 0x20) {
-                D_0028F720.ambientCol[D_0063A0A8] += 0.01f;
+                D_0028F720.ambientCol[toolItem] += 0.01f;
             }
             if (D_0028F8F0[0].rep & 0x40) {
-                D_0028F720.ambientCol[D_0063A0A8] -= 0.01f;
+                D_0028F720.ambientCol[toolItem] -= 0.01f;
             }
             break;
         }
@@ -1156,37 +1144,37 @@ int light_Tool(void)
         break;
     }
     debug_PrintfDummy(10, 46, 0xFF800000, "PUSH R2 SELECT LIGHT (%d/3) ('SELECT'RETURN MENU)",
-                      D_0063A0AC + 1);
-    col = (D_0063A0A4 == 0) ? 0xFFC0C000 : 0xFFFFFF00;
+                      toolLight + 1);
+    col = (toolPage == 0) ? 0xFFC0C000 : 0xFFFFFF00;
     if (pageIdle[0] != 0 || (frame_count & 0x1FU) < 20) {
-        debug_PrintfDummy(10, 56, col, D_0063A0C8);
+        debug_PrintfDummy(10, 56, col, "COL ");
     }
     for (i = 0; i < 3; i++) {
-        if (pageIdle[0] == 0 || D_0063A0A4 != 0 || (D_0063A0A8 != i && D_0063A0A8 != 3) ||
+        if (pageIdle[0] == 0 || toolPage != 0 || (toolItem != i && toolItem != 3) ||
             (frame_count & 0x1FU) < 20) {
-            debug_PrintfDummy(46 + i * 168, 56, col, D_0063A0D0, name[i],
-                              D_0028F720.flatLightCol[D_0063A0AC][i] * 128.0f);
+            debug_PrintfDummy(46 + i * 168, 56, col, "%s%11f", name[i],
+                              D_0028F720.flatLightCol[toolLight][i] * 128.0f);
         }
     }
-    col = (D_0063A0A4 == 1) ? 0xFFC0C000 : 0xFFFFFF00;
+    col = (toolPage == 1) ? 0xFFC0C000 : 0xFFFFFF00;
     if (pageIdle[1] != 0 || (frame_count & 0x1FU) < 20) {
-        debug_PrintfDummy(10, 66, col, D_0063A0D8);
+        debug_PrintfDummy(10, 66, col, "VEC ");
     }
     for (i = 0; i < 3; i++) {
-        if (pageIdle[1] == 0 || D_0063A0A4 != 1 || (D_0063A0A8 != i && D_0063A0A8 != 3) ||
+        if (pageIdle[1] == 0 || toolPage != 1 || (toolItem != i && toolItem != 3) ||
             (frame_count & 0x1FU) < 20) {
-            debug_PrintfDummy(46 + i * 168, 66, col, D_0063A0D0, name[i],
-                              D_0028F720.flatLightDir[D_0063A0AC][i]);
+            debug_PrintfDummy(46 + i * 168, 66, col, "%s%11f", name[i],
+                              D_0028F720.flatLightDir[toolLight][i]);
         }
     }
-    col = (D_0063A0A4 == 2) ? 0xFFC0C000 : 0xFFFFFF00;
+    col = (toolPage == 2) ? 0xFFC0C000 : 0xFFFFFF00;
     if (pageIdle[2] != 0 || (frame_count & 0x1FU) < 20) {
-        debug_PrintfDummy(10, 76, col, D_0063A0E0);
+        debug_PrintfDummy(10, 76, col, "AMB ");
     }
     for (i = 0; i < 3; i++) {
-        if (pageIdle[2] == 0 || D_0063A0A4 != 2 || (D_0063A0A8 != i && D_0063A0A8 != 3) ||
+        if (pageIdle[2] == 0 || toolPage != 2 || (toolItem != i && toolItem != 3) ||
             (frame_count & 0x1FU) < 20) {
-            debug_PrintfDummy(46 + i * 168, 76, col, D_0063A0D0, name[i],
+            debug_PrintfDummy(46 + i * 168, 76, col, "%s%11f", name[i],
                               D_0028F720.ambientCol[i] * 255.0f);
         }
     }
@@ -1198,7 +1186,7 @@ void light_InitLight(void)
 {
     lastLight = 0;
     lastAmbient = 0;
-    *(int *)D_0063A088 = 0;
+    flatLightNum = 0;
 }
 
 void light_ResetLight(void) {}
@@ -1257,7 +1245,7 @@ AmbientVolume *light_AddAmbientObject(int obj)
 {
     AmbientVolume *p;
 
-    p = (AmbientVolume *)iosMallocDebug(D_0063A44C, 0xA0, D_0054F0C8, 723);
+    p = (AmbientVolume *)iosMallocDebug(D_0063A44C, 0xA0, "src/Light.c", 723);
     p->f_90 = obj;
     p->f_80 = 1.0f;
     light_setLinkAmbient(p);

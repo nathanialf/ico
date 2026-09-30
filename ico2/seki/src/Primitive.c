@@ -303,7 +303,6 @@ extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 extern long long D_0054F8D0[];
 extern char D_0054F8E0[];
-extern int D_0063A150[];
 
 void prim_makePacketMesh3D(Mesh3D *m, void *pkt, int uv)
 {
@@ -329,7 +328,7 @@ void prim_makePacketMesh3D(Mesh3D *m, void *pkt, int uv)
         if (n >= 0xFD) {
             debug_StdPrintfDummy(D_0054F8E0, w);
             debug_assert(D_0054F8C0, 0x1D9);
-            __assert(D_0054F8C0, 0x1D9, (char *)D_0063A150);
+            __assert(D_0054F8C0, 0x1D9, "0");
         }
         *(int *)(p + 0x0) = 0;
         *(int *)(p + 0x4) = 0;
@@ -792,7 +791,6 @@ typedef struct {
 
 extern char D_0054F9A8[];
 extern int D_0028F4D4[];
-extern int D_0063A160[];
 extern int D_0063B200;
 
 /* One 16-byte constant packet template, copied to the stack. */
@@ -805,7 +803,6 @@ extern const Prim3DVec D_0054F910;
 extern const Prim3DVec D_0054F920;
 extern char D_0054F930[];
 extern char D_0054F978[];
-extern char D_0063A158[];
 extern void _UnitMatrix(void *m);
 extern void malloc_MemCpy(void *dst, void *src, int n);
 
@@ -847,12 +844,12 @@ PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, i
     p->y = y;
     p->z = z;
     p->f158 = a1;
-    sprintf(p->name, D_0063A158, name);
+    sprintf(p->name, "%s", name);
     p->tex = tex_GetTextureNo(p->name);
     if (p->tex < 0 || p->tex >= tex_GetTextureNum()) {
         debug_StdPrintfDummy(D_0054F978, p->name, p->tex);
         debug_assert(D_0054F8C0, 0x3AA);
-        __assert(D_0054F8C0, 0x3AA, (char *)D_0063A160);
+        __assert(D_0054F8C0, 0x3AA, "FALSE");
     }
     p->f184 = num * 32 + 128;
     p->objs[0] = (char *)iosMallocDebugNoAssert(heap, p->f184, D_0054F8C0, 944);
@@ -906,7 +903,7 @@ void prim_DispParticle(PrimParticle *p, void *mtx)
         if (p->tex < 0 || p->tex >= tex_GetTextureNum()) {
             debug_StdPrintfDummy(D_0054F9A8, p->name, p->tex);
             debug_assert(D_0054F8C0, 0x3FC);
-            __assert(D_0054F8C0, 0x3FC, (char *)D_0063A160);
+            __assert(D_0054F8C0, 0x3FC, "FALSE");
             return;
         }
         if (p->num < 0x51) {

@@ -406,8 +406,18 @@ inline void _InverseCurrentMatrix(void)
     VU0_V3OP_BC(vmaddw.xyzw, 7, 0, 17, w);
 }
 
-extern int D_0063A0E8;
-extern char D_0063A0F0[];
+/* .data, 0x200 zero bytes after scaleWorkMatrix (0x290920..0x290B20), which
+   the retail link added to the 0x40 MAIN.MAP gives Matrix.o in January.
+   What the bytes pin: an initialised object of 32 quadwords, the size of
+   the VU0 register file these two routines save, in .data after the scale
+   matrix.  What they cannot: its type and its reader, since no word of the
+   ROM addresses it (the saves go to VU0 memory through vi15). */
+static float vu0RegisterSave[32][4] = {{0.0f}}; /* derived name */
+
+/* .sdata, the VU0 register save depth the push and pop check, then the
+   assert text: retail added both (MAIN.MAP gives Matrix.o no .sdata). */
+static int vu0PushDepth = 0; /* derived name */
+
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
@@ -447,9 +457,9 @@ void _PushVu0Registers(void)
     VU0_REG("vsqi.xyzw $vf31, ($vi15++)");
     EI();
 
-    if (++D_0063A0E8 >= 6) {
+    if (++vu0PushDepth >= 6) {
         debug_assert("src/Matrix.c", 1063);
-        __assert("src/Matrix.c", 1063, D_0063A0F0);
+        __assert("src/Matrix.c", 1063, "0");
     }
 }
 
@@ -489,9 +499,9 @@ void _PopVu0Registers(void)
     VU0_REG("vlqd.xyzw $vf1, (--$vi15)");
     EI();
 
-    if (--D_0063A0E8 < 0) {
+    if (--vu0PushDepth < 0) {
         debug_assert("src/Matrix.c", 1119);
-        __assert("src/Matrix.c", 1119, D_0063A0F0);
+        __assert("src/Matrix.c", 1119, "0");
     }
 }
 

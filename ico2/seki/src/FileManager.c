@@ -4,7 +4,6 @@
 #include <string.h>
 #include <eekernel.h>
 
-extern char D_00639F48[];
 extern void sceSifInitRpc(int mode);
 extern int sceCdInit(int mode);
 extern int sceCdMmode(int media);
@@ -38,8 +37,6 @@ typedef struct IosPartition {
 } IosPartition;
 
 extern unsigned char D_00637E69[];
-extern char D_00639F50[];
-extern char D_00639F58[];
 extern IosPartition *D_0063A434;
 extern IosPartition *D_0063A438;
 extern IosPartition *D_0063A440;
@@ -72,7 +69,7 @@ void file_Init(void)
     sceSifInitRpc(0);
     sceCdInit(0);
     sceCdMmode(iosCdvdMediaType);
-    debug_StdPrintfDummy(D_00639F48);
+    debug_StdPrintfDummy("done.\n");
     debug_StdPrintfDummy("load default module.\n");
     do
         file_WaitDisc();
@@ -84,7 +81,7 @@ void file_Init(void)
     sceFsReset();
     sceCdInit(0);
     sceCdMmode(iosCdvdMediaType);
-    debug_StdPrintfDummy(D_00639F48);
+    debug_StdPrintfDummy("done.\n");
     debug_StdPrintfDummy("loading iop modules.\n");
     do
         file_WaitDisc();
@@ -104,7 +101,7 @@ void file_Init(void)
     do
         file_WaitDisc();
     while (sceSifLoadModule("cdrom0:\\SNDN2DRV.IRX;1", 0, 0) < 0);
-    debug_StdPrintfDummy(D_00639F48);
+    debug_StdPrintfDummy("done.\n");
 }
 
 /* BSD <ctype.h> table: D_00637E69 is `_ctype_ + 1`, bit 0x02 is _L (lower). */
@@ -152,7 +149,7 @@ int file_LoadCDFile(void **adr, char *fname, int area)
         *d = t;
         d++;
     } while (*s++ != 0);
-    strcat(path, D_00639F50);
+    strcat(path, ";1");
 
     while (sceCdDiskReady(0) == 6)
         ;
@@ -276,7 +273,7 @@ int file_LoadCDFile(void **adr, char *fname, int area)
 
     if (err != 0) {
         debug_assert("src/FileManager.c", 440);
-        __assert("src/FileManager.c", 440, D_00639F58);
+        __assert("src/FileManager.c", 440, "FALSE");
     }
     return size;
 }

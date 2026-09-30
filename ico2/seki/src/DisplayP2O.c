@@ -14,7 +14,10 @@ extern void shadow_Render();
    object size, so its zero tail belongs to the array rather than to link pad. */
 static const char dispObjFormat[32] = "display object = %d";
 
-extern int D_00639F44;
+/* .sdata, DisplayP2O.o's one word (MAIN.MAP 0x4): the display-object count
+   p2o_HideDispVU1 records and reports, none yet. */
+static int dispObjCount = -1; /* derived name */
+
 extern int D_0063B160;
 extern int dmaVif;
 
@@ -33,7 +36,7 @@ void p2o_DispShadowVolume(int a0)
 
 void p2o_HideDispVU1(int a0)
 {
-    D_00639F44 = a0;
+    dispObjCount = a0;
     if (D_0063B160 != 0) {
         debug_PrintFontWindow(0xCCCCCC00, dispObjFormat, a0);
     }

@@ -78,7 +78,11 @@ void gif_StartPacket(void)
     PacketBufferStruct.ptr = (unsigned long long *)(c + 0x20);
 }
 
-extern int D_00639F60;
+/* .sdata, GifPacket.o's run (MAIN.MAP 0x14, no symbol named): the open-packet
+   flag gif_EndPacket clears, then the strip drawers' last two on-screen
+   flags and the index of the older one. */
+static int packetOpen = 0; /* derived name */
+
 /* kept local: this TU's uses of dl_OpenDma do not fit the prototype in DisplayList.h */
 extern void dl_OpenDma(int chan, void *dma, int flag);
 /* kept local: this TU's uses of dl_CloseDma do not fit the prototype in DisplayList.h */
@@ -110,7 +114,7 @@ void gif_EndPacket(void)
     PacketBufferStruct.ptr = (unsigned long long *)(p + 0x10);
     dl_OpenDma(5, PacketBufferStruct.dma, 0);
     dl_CloseDma();
-    D_00639F60 = 0;
+    packetOpen = 0;
 }
 
 void gif_StartPacketPath1(void)
@@ -169,7 +173,7 @@ void gif_EndPacketPath1(void)
     PacketBufferStruct.ptr = (unsigned long long *)(q + 0x10);
     dl_OpenDma(5, PacketBufferStruct.dma, 0);
     dl_CloseDma();
-    D_00639F60 = 0;
+    packetOpen = 0;
 }
 
 void gif_MakeLine2DOffset(int *v0, int *v1, long long z0, long long z1, unsigned char *col,
@@ -411,8 +415,9 @@ void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm, unsig
     }
 }
 
-extern int D_00639F68[2];
-extern int D_00639F70;
+static int stripVisible[2] = {0, 0}; /* derived name */
+
+static int stripIndex = 0; /* derived name */
 
 /* INTERIM stand-in for the `inline` _IsInScreen (its out-of-line copy sits at
    its own ROM slot further down this file); same construct as setGsReg. */
@@ -495,9 +500,9 @@ void gif_DrawStripF(void *v, GifColor col, int n, int prim)
     char *p = v;
     int i;
 
-    D_00639F68[0] = D_00639F68[1] = 0;
+    stripVisible[0] = stripVisible[1] = 0;
     setGsReg(0x00, ((long long)prim << 6) | 0x104);
-    D_00639F70 = 0;
+    stripIndex = 0;
     setGsReg(0x01, GIF_RGBA((unsigned char *)&col) | (0xFE00LL << 46));
     for (i = 0; i < n; i++, p += 16) {
         volatile int q[4];
@@ -505,10 +510,10 @@ void gif_DrawStripF(void *v, GifColor col, int n, int prim)
 
         rotTransPers(q, p);
         t = isInScreen(q);
-        setGsReg(t && D_00639F68[0] && D_00639F68[1] ? 0x05 : 0x0D,
+        setGsReg(t && stripVisible[0] && stripVisible[1] ? 0x05 : 0x0D,
                  GIF_XY0(q[0], q[1], (long long)q[2]));
-        D_00639F68[D_00639F70++] = t;
-        D_00639F70 &= 1;
+        stripVisible[stripIndex++] = t;
+        stripIndex &= 1;
     }
 }
 
@@ -518,9 +523,9 @@ void gif_DrawStripFST(void *v, void *uv, GifColor col, int n, int prim)
     int *s = uv;
     int i;
 
-    D_00639F68[0] = D_00639F68[1] = 0;
+    stripVisible[0] = stripVisible[1] = 0;
     setGsReg(0x00, ((long long)prim << 6) | 0x94);
-    D_00639F70 = 0;
+    stripIndex = 0;
     setGsReg(0x01, GIF_RGBA((unsigned char *)&col) | (0xFE00LL << 46));
     for (i = 0; i < n; i++, p += 16, s += 4) {
         volatile int q[4];
@@ -529,10 +534,10 @@ void gif_DrawStripFST(void *v, void *uv, GifColor col, int n, int prim)
         rotTransPers(q, p);
         t = isInScreen(q);
         setGsReg(0x02, (long long)s[0] | ((long long)s[1] << 32));
-        setGsReg(t && D_00639F68[0] && D_00639F68[1] ? 0x05 : 0x0D,
+        setGsReg(t && stripVisible[0] && stripVisible[1] ? 0x05 : 0x0D,
                  GIF_XY0(q[0], q[1], (long long)q[2]));
-        D_00639F68[D_00639F70++] = t;
-        D_00639F70 &= 1;
+        stripVisible[stripIndex++] = t;
+        stripIndex &= 1;
     }
 }
 
@@ -542,9 +547,9 @@ void gif_DrawStripG(void *v, void *col, int n, int prim)
     unsigned char *c = col;
     int i;
 
-    D_00639F68[0] = D_00639F68[1] = 0;
+    stripVisible[0] = stripVisible[1] = 0;
     setGsReg(0x00, ((long long)prim << 6) | 0x10C);
-    D_00639F70 = 0;
+    stripIndex = 0;
     for (i = 0; i < n; i++, c += 4, p += 16) {
         volatile int q[4];
         int t;
@@ -552,13 +557,13 @@ void gif_DrawStripG(void *v, void *col, int n, int prim)
         rotTransPers(q, p);
         t = isInScreen(q);
         setGsReg(0x01, GIF_RGBA(c) | (0xFE00LL << 46));
-        if (t && D_00639F68[0] && D_00639F68[1]) {
+        if (t && stripVisible[0] && stripVisible[1]) {
             setGsReg(0x05, GIF_XY0(q[0], q[1], (long long)q[2]));
         } else {
             setGsReg(0x0D, GIF_XY0(q[0], q[1], (long long)q[2]));
         }
-        D_00639F68[D_00639F70++] = t;
-        D_00639F70 &= 1;
+        stripVisible[stripIndex++] = t;
+        stripIndex &= 1;
     }
 }
 
@@ -566,21 +571,21 @@ void gif_Draw2DStripG(int *v, unsigned char *col, int n, int prim)
 {
     int i;
 
-    D_00639F68[0] = D_00639F68[1] = 0;
+    stripVisible[0] = stripVisible[1] = 0;
     setGsReg(0x00, ((long long)prim << 6) | 0x10C);
-    D_00639F70 = 0;
+    stripIndex = 0;
     for (i = 0; i < n; i++, col += 4, v += 4) {
         int c;
 
         c = isInScreen(v);
         setGsReg(0x01, GIF_RGBA(col) | (0xFE00LL << 46));
-        if (c && D_00639F68[0] && D_00639F68[1]) {
+        if (c && stripVisible[0] && stripVisible[1]) {
             setGsReg(0x05, GIF_XY0(v[0], v[1], (long long)v[2]));
         } else {
             setGsReg(0x0D, GIF_XY0(v[0], v[1], (long long)v[2]));
         }
-        D_00639F68[D_00639F70++] = c;
-        D_00639F70 &= 1;
+        stripVisible[stripIndex++] = c;
+        stripIndex &= 1;
     }
 }
 
@@ -588,28 +593,28 @@ void gif_Draw2DUVStripG(int *v, int *uv, unsigned char *col, int n, int prim)
 {
     int i;
 
-    D_00639F68[0] = D_00639F68[1] = 0;
+    stripVisible[0] = stripVisible[1] = 0;
     setGsReg(0x00, ((long long)prim << 6) | 0x11C);
-    D_00639F70 = 0;
+    stripIndex = 0;
     for (i = 0; i < n; i++, col += 4, v += 4, uv += 4) {
         int c;
 
         c = isInScreen(v);
         setGsReg(0x01, GIF_RGBA(col) | (0xFE00LL << 46));
         setGsReg(0x03, GIF_UV(uv[0], uv[1]));
-        if (c && D_00639F68[0] && D_00639F68[1]) {
+        if (c && stripVisible[0] && stripVisible[1]) {
             setGsReg(0x05, GIF_XY0(v[0], v[1], (long long)v[2]));
         } else {
             setGsReg(0x0D, GIF_XY0(v[0], v[1], (long long)v[2]));
         }
-        D_00639F68[D_00639F70++] = c;
-        D_00639F70 &= 1;
+        stripVisible[stripIndex++] = c;
+        stripIndex &= 1;
     }
 }
 
 void gif_Init(void)
 {
-    D_00639F60 = 0;
+    packetOpen = 0;
 }
 
 /* kept local: DisplayList.h is not included, since this TU's uses of dl_OpenDma
@@ -620,14 +625,14 @@ void gif_StartPacketPri(int pri)
 {
     dl_SetDLPriority(pri);
     gif_StartPacket();
-    D_00639F60 = 1;
+    packetOpen = 1;
 }
 
 void gif_StartPacketPriPath1(int pri)
 {
     dl_SetDLPriority(pri);
     gif_StartPacketPath1();
-    D_00639F60 = 1;
+    packetOpen = 1;
 }
 
 void gif_SetGsReg(long long a0, long long a1)
@@ -638,7 +643,7 @@ void gif_SetGsReg(long long a0, long long a1)
 
 int gif_CheckOpen(void)
 {
-    return D_00639F60;
+    return packetOpen;
 }
 
 /* gif_MakePoint2D is `inline` per the listing: its lines 318-320 appear inside
