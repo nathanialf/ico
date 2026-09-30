@@ -433,6 +433,10 @@ def emit_rules(out) -> None:
     )
     out.write("  description = AS $out\n\n")
 
+    out.write("rule as_src\n")
+    out.write("  command = $ee_as $asflags -o $out $in\n")
+    out.write("  description = AS $out\n\n")
+
     out.write("rule cc_src\n")
     out.write("  command = tools/compile_c.sh $in $out\n")
     out.write("  description = CC $out\n\n")
@@ -490,13 +494,14 @@ def emit_edges(out, objs: list[str]) -> None:
             # their input section carries that alignment itself; without it the
             # twelve bytes between .text's end (0x289BC4) and .vutext are lost as
             # soon as the last text function is C rather than a padded stub.
-            # Only the yaml's `hasm` rows get this: a `.s` beside a `c` row
-            # (crt0, the R5900 string members) is ordinary text and keeps
-            # align_for(), since five of those members start at ROM addresses
-            # that are 8- but not 16-aligned.
+            # A `.s` beside a `c` row (crt0, klib, the R5900 string members)
+            # is a developer's source and keeps the alignment its own `.align`
+            # directives give its sections, as a compiled object does.
             align = 16
         if rule == "cc_src":
             out.write(f"build {obj}: cc_src {src}\n")
+        elif rule == "as_hasm" and _stem_of(obj) not in hasm_names():
+            out.write(f"build {obj}: as_src {src}\n")
         else:
             # Own section: aligned to a divisor of its own ROM address (never a
             # source of padding). The other standard sections the assembler

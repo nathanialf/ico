@@ -5,8 +5,9 @@
 # stream (rungs: ROM bytes for the instructions, the listing rows for the
 # source file).  The eight zero bytes the listing labels <_start-0x8> are
 # crt0.s's pre-entry pad, not a function, and are emitted here as data so the
-# run starts at the same address.  The January 2002 link built a 0xC8-byte crt0
-# against this run of 0x110, so no size tiling is claimed.
+# run starts at the same address.  The module ends after _root's syscall at
+# 0x1000C8, as the listing shows; the zero fill to 0x100100 is klib.o's 64-byte
+# alignment (sce/libkernl/klib.s), not part of crt0.
     .section .text
     .set at
     .set noreorder
@@ -92,24 +93,6 @@ _exit:
 _root:
     addiu $3, $0, 0x23
     syscall 0
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    addiu $3, $0, 0x0
-    syscall 0
-    jr $31
-    nop
     .size _root, . - _root
     .set reorder
     .set at

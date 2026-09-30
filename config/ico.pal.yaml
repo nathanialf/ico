@@ -147,7 +147,7 @@ segments:
       # preserves the type and name of any subsegment whose start offset
       # survives, so a flipped TU is not clobbered.
       - [0x0, c, sce/crt0]  # 4 funcs, vendor crt0.s (1/4 MAIN.MAP)
-      - [0x110, c, sce/libkernl/klib]  # 136 funcs, vendor libkernl.a member klib.o; the seven members from here to main.c tile the run at MAIN.MAP's own addresses
+      - [0x100, c, sce/libkernl/klib]  # 137 funcs, vendor libkernl.a member klib.o, assembled from klib.s (the listing), its .text 64-aligned; the seven members from here to main.c tile the run at MAIN.MAP's own addresses
       - [0x990, c, sce/libkernl/initsys]  # 3 funcs, vendor libkernl.a member initsys.o (0x74 + pad)
       - [0xA08, c, sce/libkernl/intr]  # 13 funcs, vendor libkernl.a member intr.o (0x35C + pad); holds its own static setup
       - [0xD68, c, sce/libkernl/thread]  # 5 funcs, vendor libkernl.a member thread.o (0x360)

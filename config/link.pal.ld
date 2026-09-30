@@ -21,10 +21,9 @@
  * with build/plain/link.ld, this file with the INCLUDE lines expanded.
  *
  * What the link still does not give the file, measured with
- * tools/check_elf.py --full-diff (report B-6): .text's alignment 64 (no input
- * here carries it), .bss's 128 (debug_exception.c's .bss in the base), the
- * .sbss and .rodata sizes and so every file offset after .sbss (pad inside
- * the transitional blobs), the .DVP.overlay.* sections' addresses (the base
+ * tools/check_elf.py --full-diff (report B-6): .bss's 128 (debug_exception.c's
+ * .bss in the base), the .sbss and .rodata sizes and so every file offset
+ * after .sbss (pad inside the transitional blobs), the .DVP.overlay.* sections' addresses (the base
  * has them at 0) and the names of the seven overlays dvp-as starts by itself
  * every 256 instructions.
  */
