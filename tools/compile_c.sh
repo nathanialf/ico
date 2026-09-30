@@ -220,12 +220,11 @@ if [ -n "${DUMP_DIR:-}" ]; then
     echo "compile_c.sh: dumps in ${DUMP_DIR}" >&2
 fi
 
-# Split each gcc-emitted switch jtbl onto its own .rodata.0x<VMA>
-# section so the linker can place multi-jtbl TUs correctly. No-op on .s
-# files with no `.rdata`/jtbl blocks, and (2026-09-27) on a single-row TU
-# whose only table is its first rodata block and which has no named rodata
-# section, where the compiler's one section is the ROM's layout; the tool
-# reads the yaml for the TU named by SRC.
+# A TU with several `.rodata` carve rows (its run still has blob rows between
+# its C pieces; since B-12 only debug_exception) gets each gcc switch jtbl on
+# its own .rodata.0x<VMA> section so the linker can place it. Every other TU is
+# left as the compiler emitted it: the tool reads the yaml for the TU named by
+# SRC and does nothing for a single-row TU.
 "${PYTHON}" "${ROOT}/tools/postprocess_split_jtbls.py" "${S}" "${SRC}"
 
 # No rewrite of compiler output is left. The last one was the inline-asm return

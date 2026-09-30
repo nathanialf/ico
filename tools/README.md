@@ -28,7 +28,7 @@ shape.
 | `gen_ninja_plain.py` | generates `build.plain.ninja` from `config/link_order.pal.txt` + `config/link.pal.ld` (the build without splat's `.d`/`.ld`, objects under `build/plain/`); links with ld 2.10 (elf32-littlemips) and assembles `ico2/vusrc/*.dsm` with dvp-as; replaces `gen_ninja.py` at the cut-over |
 | `compile_c.sh` | THE C compile rule: ee-gcc 2.9-991111 + the period ee-as, plus always-on ROM parity |
 | `preprocess_old_as.py` | flattens INCLUDE_ASM siblings + translates `%gp_rel` for the period assembler |
-| `postprocess_split_jtbls.py` | puts each gcc switch jtbl on its own `.rodata.0x<VMA>` so the linker can place it |
+| `postprocess_split_jtbls.py` | in a TU with several `.rodata` carve rows (only debug_exception), puts each gcc switch jtbl on its own `.rodata.0x<VMA>` so the linker can place it between the blob rows; a no-op for every other TU |
 | `verify_elf.py` | SHA-1 of the base ROM against `config/sha1sums.txt` (`build.sh setup`) |
 | `check_elf.py` | the gate (`--gate`: every allocated section against the base ELF by address + the ROM SHA-1, the ninja verify step) and the progress tables (`--progress`: README.md / `docs/PROGRESS.md` / `docs/progress.json`) |
 | `check_no_rom.sh` | IP guard: refuses disc data / extracted assets in the tree |

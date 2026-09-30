@@ -177,22 +177,25 @@ def section_for(basename: str) -> str:
 def check_ld_carve_globs(ld_path: Path) -> None:
     """Resolve or reject a per-TU/per-section carve glob emitted more than once.
 
-    splat emits one whole-object selector — `build/src/<tu>.o(.data*)` — per
+    splat emits one whole-object selector, `build/src/<tu>.o(.data*)`, per
     dot-form carve subsegment. GNU ld assigns each input section to the FIRST
     output statement that matches it, so a TU with TWO disjoint carved runs in
     the SAME section produces two identical globs of which only the first is
     live: every carved section of that TU collapses into the first run's
     address and the link silently mislays the rest.
 
-    `.rodata` is the one section where the C build already names each run:
-    tools/postprocess_split_jtbls.py puts every switch jump table into its own
-    `.rodata.0x<VMA>` section. So for a TU with several `.rodata` carve rows
-    the k-th duplicate glob is rewritten to the typed selector of the k-th row
-    (rows in address order, VMA = ROM offset + 0x100000 on this target); the
-    first row also keeps the plain `.rodata` (strings, doubles) so nothing is
-    orphaned. Every other section keeps the hard constraint: one contiguous
-    carved run per (TU, section), or the build stops here instead of at the
-    SHA mismatch.
+    `.rodata` is the one section where the C build names each run: for a TU
+    with several `.rodata` carve rows tools/postprocess_split_jtbls.py puts
+    every switch jump table on its own `.rodata.0x<VMA>` section, and the k-th
+    duplicate glob is rewritten to the typed selector of the k-th row (rows in
+    address order, VMA = ROM offset + 0x100000 on this target). The unnamed
+    `.rodata` (strings, doubles, initialiser templates) and the named
+    `.rodata.<symbol>` objects go to the row marked `plain-rodata` in its yaml
+    comment, else to the first row. Since B-12 (2026-09-30) the only such TU is
+    ico2/common/src/debug_exception, whose run still has a blob row between its
+    jump table and its template. Every other section keeps the hard constraint:
+    one contiguous carved run per (TU, section), or the build stops here
+    instead of at the SHA mismatch.
     """
     if not ld_path.exists():
         return
@@ -203,9 +206,8 @@ def check_ld_carve_globs(ld_path: Path) -> None:
         if m:
             counts[(m.group(1), m.group(2))] = counts.get((m.group(1), m.group(2)), 0) + 1
     dup_rodata = {k[0] for k, n in counts.items() if n > 1 and k[1] == ".rodata*"}
-    dup_data = {k[0] for k, n in counts.items() if n > 1 and k[1] == ".data*"}
     dupes = [f"{k[0]}({k[1]})" for k, n in counts.items()
-             if n > 1 and k[1] not in (".rodata*", ".data*")]
+             if n > 1 and k[1] != ".rodata*"]
     if dupes:
         raise SystemExit(
             "gen_ninja: duplicate linker-script selector(s) — a TU may hold only "
@@ -215,67 +217,21 @@ def check_ld_carve_globs(ld_path: Path) -> None:
             + "\nMerge the runs into one contiguous carve (absorbing any "
             "verified in-between bytes) or leave the later run in the blob."
         )
-    if not dup_rodata and not dup_data:
+    if not dup_rodata:
         return
     yaml_path = ROOT / "config" / f"ico.{VERSION}.yaml"
     rows: dict[str, list[int]] = {}
     plain: dict[str, int] = {}
-    # A `.rodata` row holding MORE than one section (two adjacent jump tables,
-    # or named `static const` objects) lists them in a `syms:` token, each
-    # either a `0x<VMA>` jtbl name or an object name: `syms: 0x00620F60,0x00620F80`.
-    rsyms: dict[tuple[str, int], list[str]] = {}
     for line in yaml_path.read_text().splitlines():
         m = re.match(r"\s*-\s*\[0x([0-9A-Fa-f]+),\s*\.rodata,\s*(\S+?)\]\s*(#.*)?$", line)
         if m:
             off = int(m.group(1), 16)
             rows.setdefault(m.group(2), []).append(off)
-            comment = m.group(3) or ""
-            if "plain-rodata" in comment:
+            if "plain-rodata" in (m.group(3) or ""):
                 plain[m.group(2)] = off
-            sm = re.search(r"syms:\s*([\w,\s]+?)(?:\s{2,}|;|$)", comment)
-            if sm:
-                rsyms[(m.group(2), off)] = [s for s in re.split(r"[,\s]+", sm.group(1)) if s]
-    # `.data` has no VMA-named sections to key on, so a TU with several `.data`
-    # carve rows names the objects each row holds in its yaml comment:
-    #   - [0x3F7D90, .data, src/end]  # syms: ed_demo14_mes
-    # Under -fdata-sections each named object is its own `.data.<name>` section,
-    # so the k-th duplicate `(.data*)` glob becomes the k-th row's list of those
-    # sections (in one input-file spec, so the object's own order — the C
-    # definition order — is kept). The unnamed `.data` goes to the row marked
-    # `plain-data`, else to the first row. A row without `syms:` in such a TU is
-    # an error: its bytes would have no selector and the link would mislay them.
-    drows: dict[str, list[tuple[int, list[str], bool]]] = {}
-    for line in yaml_path.read_text().splitlines():
-        m = re.match(r"\s*-\s*\[0x([0-9A-Fa-f]+),\s*\.data,\s*(\S+?)\]\s*(#.*)?$", line)
-        if m:
-            comment = m.group(3) or ""
-            sm = re.search(r"syms:\s*([\w,\s]+?)(?:\s{2,}|;|$)", comment)
-            syms = [s for s in re.split(r"[,\s]+", sm.group(1)) if s] if sm else []
-            drows.setdefault(m.group(2), []).append(
-                (int(m.group(1), 16), syms, "plain-data" in comment))
-    dseen: dict[str, int] = {}
     seen: dict[str, int] = {}
     out = []
     for line in lines:
-        m = re.match(r"(\s*)(build/(\S+)\.o)\(\.data\*\);", line)
-        if m and m.group(2) in dup_data:
-            tu = m.group(3)
-            k = dseen.get(tu, 0); dseen[tu] = k + 1
-            rows_tu = sorted(drows.get(tu, []))
-            if k >= len(rows_tu):
-                raise SystemExit(f"gen_ninja: {tu}: more .data selectors than carve rows")
-            off, syms, plain_flag = rows_tu[k]
-            if not syms:
-                raise SystemExit(
-                    f"gen_ninja: {tu}: .data carve row 0x{off:X} has no `syms:` list; a TU "
-                    "with several .data rows must name the objects each row holds")
-            any_plain = any(r[2] for r in rows_tu)
-            plain_here = plain_flag if any_plain else (k == 0)
-            sel = " ".join(f".data.{s}" for s in syms)
-            if plain_here:
-                sel = ".data " + sel
-            out.append(f"{m.group(1)}{m.group(2)}({sel});")
-            continue
         m = re.match(r"(\s*)(build/(\S+)\.o)\(\.rodata\*\);", line)
         if m and m.group(2) in dup_rodata:
             tu = m.group(3)
@@ -284,18 +240,9 @@ def check_ld_carve_globs(ld_path: Path) -> None:
             if k >= len(offs):
                 raise SystemExit(f"gen_ninja: {tu}: more .rodata selectors than carve rows")
             vma = offs[k] + 0x100000
-            # the unnamed `.rodata` (strings, doubles, initialiser templates) goes to
-            # the row marked `plain-rodata` in its yaml comment, else to the first row.
-            # So do the NAMED runs: under -fdata-sections every `static const` /
-            # `const` object gets its own `.rodata.<symbol>` section, which the
-            # `0x`-prefixed jtbl selectors never match. Listing the patterns in one
-            # input-file spec keeps them in the object's own section order, i.e. the
-            # C definition order, so a carved run of named packets lays out as
-            # written. `[A-Za-z_]` excludes the `0x...` jump-table names.
+            # `[A-Za-z_]` keeps the named objects and excludes the `0x...` jump-table names
             plain_here = (plain.get(tu) == offs[k]) if tu in plain else (k == 0)
-            listed = rsyms.get((tu, offs[k]))
-            named = (" ".join(f".rodata.{s}" for s in listed) if listed
-                     else f".rodata.0x{vma:08X}")
+            named = f".rodata.0x{vma:08X}"
             sel = (f".rodata {named} .rodata.[A-Za-z_]*" if plain_here else named)
             line = f"{m.group(1)}{m.group(2)}({sel});"
         out.append(line)
