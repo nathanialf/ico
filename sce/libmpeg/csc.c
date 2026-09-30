@@ -52,7 +52,6 @@ int _ch3dmaCSC(void)
     return 0;
 }
 
-extern char D_006371B8[];
 extern int AddDmacHandler(int a0, int (*a1)(void), int a2);
 extern int EnableDmac(int a0);
 extern int DisableDmac(int a0);
@@ -90,7 +89,7 @@ void _doCSC2(int a0, int a1)
     _dispatchMpegCallback((void *)((int *)_theSceMpeg)[0], buf);
     while (_cscDma[0] < D_007315D8[0]) {}
     if (*(volatile int *)D_0054CAB8 != 0) {
-        _Error(D_006371B8);
+        _Error("CSC handler error\n");
     }
     while (*(volatile int *)0x10002010 < 0) {}
     DisableDmac(3);

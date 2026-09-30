@@ -248,7 +248,13 @@ int _SgSetPkAdd(int a0, int a1, int a2, int a3)
     return *n;
 }
 
-extern unsigned short D_0054CB78[];
+/* the pan table, 32 steps from hard left to hard right: each entry the
+   two 7-bit channel levels, one per byte, that a voice's +0x20 takes */
+static unsigned short panTable[32] /* derived name */ = {
+    0x7F00, 0x7F08, 0x7F10, 0x7F18, 0x7F20, 0x7F28, 0x7F30, 0x7F38, 0x7F40, 0x7F48, 0x7F50,
+    0x7F58, 0x7F60, 0x7F68, 0x7F70, 0x7878, 0x7878, 0x707F, 0x687F, 0x607F, 0x587F, 0x507F,
+    0x487F, 0x407F, 0x387F, 0x307F, 0x287F, 0x207F, 0x187F, 0x107F, 0x087F, 0x007F,
+};
 
 /* Sound-effect note event: the event's program byte picks a record in the
  * head context's SE table at head[1], _SgSeKeyOnSlot finds a voice for it and
@@ -310,7 +316,7 @@ int _SgSeMain(int *a0)
     *(short *)(s + 0x1A) = head[4][2];
     *(short *)(s + 0x1C) = head[1][0xB];
     *(short *)(s + 0x1E) = head[2][0];
-    *(short *)(s + 0x20) = D_0054CB78[head[1][0xC] >> 2];
+    *(short *)(s + 0x20) = panTable[head[1][0xC] >> 2];
     *(short *)(s + 0x22) = *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x13);
     *(short *)(s + 0x24) = *(char *)(head[1] + 3);
     *(short *)(s + 0x26) = *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1A);
@@ -442,7 +448,7 @@ int _SgBgmMain(int *a0)
         *(short *)(s + 0x1A) = head[4][2];
         *(short *)(s + 0x1C) = head[1][0xB];
         *(short *)(s + 0x1E) = head[2][0];
-        *(short *)(s + 0x20) = D_0054CB78[_SgPan(0, *(unsigned short *)((char *)a0 + 0x4E)) >> 2];
+        *(short *)(s + 0x20) = panTable[_SgPan(0, *(unsigned short *)((char *)a0 + 0x4E)) >> 2];
         *(short *)(s + 0x22) = *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x13);
         *(short *)(s + 0x24) = *(char *)(head[1] + 3);
         *(short *)(s + 0x26) = *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1A);
@@ -710,7 +716,7 @@ void _SgSetRealtimeTickProc(void)
                     *(short *)(s + 0x30) = *(unsigned short *)(s + 0x3C);
                     *(volatile int *)s = *(volatile int *)s & 0xFFFFFF7F;
                 }
-                *(short *)(s + 0x20) = D_0054CB78[*(unsigned short *)(s + 0x30) >> 2];
+                *(short *)(s + 0x20) = panTable[*(unsigned short *)(s + 0x30) >> 2];
                 upd = 1;
             }
         }
@@ -1460,9 +1466,9 @@ void _SgContPan(int *a0)
 
                     *(short *)(s + 0x30) = *(unsigned char *)(head[4] + 2);
                     *(short *)(s + 0x20) =
-                        D_0054CB78[_SgPan(*(unsigned short *)(p + 0xC),
-                                          *(unsigned short *)((char *)a0 + 0x4E)) >>
-                                   2];
+                        panTable[_SgPan(*(unsigned short *)(p + 0xC),
+                                        *(unsigned short *)((char *)a0 + 0x4E)) >>
+                                 2];
                     _SgSeqSeVolume(i, a0);
                 }
             }

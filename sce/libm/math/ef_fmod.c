@@ -24,7 +24,11 @@
 extern int __ieee754_rem_pio2f(float x, float *y);
 extern float __kernel_cosf(float x, float y);
 extern float __kernel_sinf(float x, float y, int iy);
-extern const float D_00637570[]; /* Zero[] = { 0.0f, -0.0f } */
+
+static const float one = 1.0, Zero[] = {
+                                  0.0,
+                                  -0.0,
+                              };
 
 float __ieee754_fmodf(float x, float y)
 {
@@ -44,7 +48,7 @@ float __ieee754_fmodf(float x, float y)
         return x;
     }
     if (hx == hy) {
-        return D_00637570[(unsigned int)sx >> 31];
+        return Zero[(unsigned int)sx >> 31];
     }
 
     if (hx < 0x00800000) {
@@ -90,7 +94,7 @@ float __ieee754_fmodf(float x, float y)
             hx = hx + hx;
         } else {
             if (hz == 0) {
-                return D_00637570[(unsigned int)sx >> 31];
+                return Zero[(unsigned int)sx >> 31];
             }
             hx = hz + hz;
         }
@@ -101,7 +105,7 @@ float __ieee754_fmodf(float x, float y)
     }
 
     if (hx == 0) {
-        return D_00637570[(unsigned int)sx >> 31];
+        return Zero[(unsigned int)sx >> 31];
     }
     while (hx < 0x00800000) {
         hx = hx + hx;

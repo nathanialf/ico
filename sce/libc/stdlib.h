@@ -24,4 +24,13 @@ int rand(void);                                                        /* defini
 double strtod(const char *s00, char **se);                             /* definition in sce/ */
 long long strtol(void *a0, int a1, int a2);                            /* definition in sce/ */
 
+extern int __mb_cur_max;                                               /* definition in sce/ (locale.c) */
+#define MB_CUR_MAX __mb_cur_max
+
+/* mprec.o's power-of-ten tables (newlib mprec.h names them tens, bigtens and
+   tinytens; MAIN.MAP lists the three globals). */
+extern const double __mprec_tens[];
+extern const double __mprec_bigtens[];
+extern const double __mprec_tinytens[];
+
 #endif /* SCE_LIBC_STDLIB_H */

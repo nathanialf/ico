@@ -1,5 +1,6 @@
 /* libc.a member dtoa.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
+#include <stdlib.h>
 #include <reent.h>
 
 struct D520 {
@@ -133,9 +134,6 @@ extern Bigint *__mdiff(void *ptr, Bigint *a, Bigint *b);
 extern Bigint *_multadd(void *ptr, Bigint *b, int m, int a);
 extern int _hi0bits(unsigned int x);
 extern void *memcpy(void *dst, const void *src, unsigned int n);
-/* mprec.o's tables: tens[23] and bigtens[5] */
-extern const double D_006388A0[];
-extern const double D_00638968[];
 
 /* the reentrancy record's cached result string */
 typedef struct {
@@ -216,7 +214,7 @@ char *_dtoa_r(DtoaReent *ptr, double _d, int mode, int ndigits, int *decpt, int 
     }
     k_check = 1;
     if (k >= 0 && k <= Ten_pmax) {
-        if (d.d < D_006388A0[k]) {
+        if (d.d < __mprec_tens[k]) {
             k--;
         }
         k_check = 0;
@@ -290,27 +288,27 @@ char *_dtoa_r(DtoaReent *ptr, double _d, int mode, int ndigits, int *decpt, int 
         ilim0 = ilim;
         ieps = 2; /* conservative */
         if (k > 0) {
-            ds = D_006388A0[k & 0xf];
+            ds = __mprec_tens[k & 0xf];
             j = k >> 4;
             if (j & Bletch) {
                 /* prevent overflows */
                 j &= Bletch - 1;
-                d.d /= D_00638968[n_bigtens - 1];
+                d.d /= __mprec_bigtens[n_bigtens - 1];
                 ieps++;
             }
             for (; j; j >>= 1, i++) {
                 if (j & 1) {
                     ieps++;
-                    ds *= D_00638968[i];
+                    ds *= __mprec_bigtens[i];
                 }
             }
             d.d /= ds;
         } else if ((j1 = -k) != 0) {
-            d.d *= D_006388A0[j1 & 0xf];
+            d.d *= __mprec_tens[j1 & 0xf];
             for (j = j1 >> 4; j; j >>= 1, i++) {
                 if (j & 1) {
                     ieps++;
-                    d.d *= D_00638968[i];
+                    d.d *= __mprec_bigtens[i];
                 }
             }
         }
@@ -340,7 +338,7 @@ char *_dtoa_r(DtoaReent *ptr, double _d, int mode, int ndigits, int *decpt, int 
             /* Use Steele & White method of only
              * generating digits needed.
              */
-            eps.d = 0.5 / D_006388A0[ilim - 1] - eps.d;
+            eps.d = 0.5 / __mprec_tens[ilim - 1] - eps.d;
             for (i = 0;;) {
                 L = d.d;
                 d.d -= L;
@@ -359,7 +357,7 @@ char *_dtoa_r(DtoaReent *ptr, double _d, int mode, int ndigits, int *decpt, int 
             }
         } else {
             /* Generate ilim digits, then fix them up. */
-            eps.d *= D_006388A0[ilim - 1];
+            eps.d *= __mprec_tens[ilim - 1];
             for (i = 1;; i++, d.d *= 10.) {
                 L = d.d;
                 d.d -= L;
@@ -388,7 +386,7 @@ char *_dtoa_r(DtoaReent *ptr, double _d, int mode, int ndigits, int *decpt, int 
 
     if (be >= 0 && k <= Int_max) {
         /* Yes. */
-        ds = D_006388A0[k];
+        ds = __mprec_tens[k];
         if (ndigits < 0 && ilim <= 0) {
             S = mhi = 0;
             if (ilim < 0 || d.d <= 5 * ds) {

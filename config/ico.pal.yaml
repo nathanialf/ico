@@ -550,10 +550,11 @@ segments:
       - [0x18CA60, hasm, ico2/normal_l]       # NormalLMicroProgram
       - [0x18E700, hasm, ico2/particle]       # ParticleMicroProgram
       - [0x18ECB0, textbin, cod/18ECB0]  # .reginfo + pad (all zeros in rom)
-      - [0x18ED00, data, cod/18ED00]     # .data blob (to be carved per TU)
+      - [0x18ED00, .data, sce/libkernl/klib]  # syms: __ps2_klibinfo__  klib.o's .data (= MAIN.MAP 0x10): the library stamp "PsIIlibkernl2240" in klib.s, VMA 0x28ED00..0x28ED10
+      - [0x18ED10, .data, sce/libkernl/intr]  # intr.o's .data (= MAIN.MAP 0x7A0): the alarm handler words, its entry stub and the syscall table as statics, VMA 0x28ED10..0x28F4B0
       # --- per-TU .data carves (PAL phase 2; see docs/carve_ledger.md).
       - [0x18F4B0, .data, sce/libkernl/thread]  # syms: kernEventThreadId  the member's one .data word (data pass 3), VMA 0x28F4B0..0x28F4B4, 4 B
-      - [0x18F4B4, data, cod/18F4B4]     # data blob resume: libkernl kprintf.o's 8 B .data (MAIN.MAP) and the 4 B fill to main.o
+      - [0x18F4B4, .data, sce/libkernl/kprintf]  # kprintf.o's .data (= MAIN.MAP 0x8): deci2Putchar's fill count and the character sink _printf writes through as statics, VMA 0x28F4B4..0x28F4BC, then 4 B of fill to main.o's 16-aligned run
       - [0x18F4C0, .data, ico2/common/src/main]  # syms: systemStatus db GlobalStageSetting pad stageMgrMsg SchedulerMsgQ  the TU's whole .data run as source (finishing pass P1-3), VMA 0x28F4C0..0x28FEB8, 0x9F8 B: the six MAIN.MAP main.o .data globals in map order (GlobalStageSetting is 0x1D0 here against the January map's 0x130), global per the map
       - [0x18FEB8, .data, ico2/sugipon/src/geometryManager]  # the TU's whole .data run as source (completeness pass 5), VMA 0x28FEB8..0x28FED0, 20 B emitted
       - [0x18FED0, .data, ico2/sugipon/src/keyInput]  # the TU's whole .data run as source (data pass 3): the pad device descriptor, VMA 0x28FED0..0x28FEE8, 24 B
@@ -692,12 +693,14 @@ segments:
       - [0x3FB890, .data, ico2/script/src/st99a]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4FB890..0x54D850, 335808 B
       - [0x3FB970, data, cod/3FB970]     # data blob resume
       - [0x44A240, .data, ico2/fumi/src/vobj]  # the TU's whole .data run as source (data pass 3): the wireframe and its table (= MAIN.MAP vobj.o .data 0x54), VMA 0x54A240..0x54A294, 84 B
-      - [0x44A294, data, cod/44A294]     # data blob resume
+      - [0x44A294, data, cod/44A294]     # .data fill: 0xC B to graph001.o's 16-aligned .data
+      - [0x44A2A0, .data, sce/libgraph/graph001]  # the member's .data (= MAIN.MAP graph001.o .data 0x20): the build stamp "PsIIlibgraph2200" and the record sceGsGetGParam returns as statics, VMA 0x54A2A0..0x54A2C0
       - [0x44A2C0, .data, sce/libgraph/graph002]  # the member's .data (data pass 3): the VIF1 reset packet, VMA 0x54A2C0..0x54A2E0, 32 B
       - [0x44A2E0, data, cod/44A2E0]     # data blob resume
       - [0x44A2F0, .data, sce/libvu0/libvu0]  # the member's .data (data pass 3): the sine coefficients and the packet, VMA 0x54A2F0..0x54A320, 48 B
       - [0x44A320, .data, sce/libdma/libdma]  # the member's whole .data (chain 1 pass 107): dch, sceDmaDebugMode and sceDmaCurrentEnv named from MAIN.MAP, the build stamp "PsIIlibdma  2200" and the four channel code tables as statics, VMA 0x54A320..0x54A3CC, 172 B
-      - [0x44A3CC, data, cod/44A3CC]     # data blob resume
+      - [0x44A3CC, data, cod/44A3CC]     # .data fill: 4 B to vifpk025.o's 16-aligned .data
+      - [0x44A3D0, .data, sce/libpkt/vifpk025]  # the member's .data (= MAIN.MAP vifpk025.o .data 0x10): the build stamp "PsIIlibpkt  2200" as a static, VMA 0x54A3D0..0x54A3E0
       - [0x44A3E0, .data, sce/libkernl/glue]  # glue.o's .data (= MAIN.MAP 0x8): the tty-open flag and sbrk's break as statics, VMA 0x54A3E0..0x54A3E8
       - [0x44A3E8, .data, sce/libkernl/sifrpc]  # sifrpc.o's .data (= MAIN.MAP 0x4): the init flag, VMA 0x54A3E8..0x54A3EC, then 4 B of fill to filestub's 8-aligned section
       - [0x44A3F0, .data, sce/libkernl/filestub]  # filestub.o's .data (MAIN.MAP 0x94): _sceFs_q under its MAIN.MAP name, the init flag, three semaphores and the version stamp pointer as statics, VMA 0x54A3F0..0x54A484
@@ -710,10 +713,15 @@ segments:
       - [0x44BFB0, .data, sce/libcdvd/cdvd047]  # the member's .data (chain 1 pass 107): the stream-started flag as a static int, VMA 0x54BFB0, 4 B
       - [0x44BFB4, data, cod/44BFB4]     # data blob resume
       - [0x44C000, .data, sce/libmc/libmc]  # the member's .data (chain 1 pass 110, MAIN.MAP names nothing): sceMcVersion, mcFunc and mcSema as statics, VMA 0x54C000..0x54C018, 24 B
-      - [0x44C018, data, cod/44C018]     # data blob resume
+      - [0x44C018, .data, sce/libmpeg/pack]  # the member's whole .data (= MAIN.MAP pack.o .data 0xB0): the ten PSS stream descriptors and _PES_packet's header-flag bit counts as statics, VMA 0x54C018..0x54C0C8
+      - [0x44C0C8, .data, sce/libmpeg/mpeg]  # the member's whole .data (= MAIN.MAP mpeg.o .data 0x10): the build stamp "PsIIlibmpeg 2200" as a static, VMA 0x54C0C8..0x54C0D8
+      - [0x44C0D8, data, cod/44C0D8]     # data blob resume: init.o (0x14), var.o (0x8C4 at 0x54C100), mpc.o (0xF0 at 0x54C9C8), csc.o (0x18 at 0x54CAB8)
       - [0x44CAD0, .data, sce/libipu/ipuinit]  # the member's .data (data pass 3): the version stamp and the quantiser and colour tables, VMA 0x54CAD0..0x54CB50, 128 B
       - [0x44CB50, .data, sce/libscf/libscf]  # the member's whole .data as three named statics in VMA order (chain 1 pass 106): the build stamp "PsIIlibscf  2200" (16 B), the T10K OSD config shadow (timezone 540, 8 B) and the 16-byte rom0:ROMVER cache with its explicit zero initialiser (ee-gcc keeps it in .data), VMA 0x54CB50..0x54CB78, 40 B
-      - [0x44CB78, data, cod/44CB78]     # data blob resume (D_0054CB78 onward belongs to libsndn2/sg)
+      - [0x44CB78, .data, sce/libsndn2/sg]  # sound.o's .data (= MAIN.MAP 0x40): the pan table sg.c's voice code reads, as a static, VMA 0x54CB78..0x54CBB8
+      - [0x44CBB8, .data, sce/libgcc/__main]  # the member's .data (= MAIN.MAP __main.o .data 0x4): __do_global_dtors' static cursor p, libgcc2.c's __DTOR_LIST__ + 1, VMA 0x54CBB8..0x54CBBC
+      - [0x44CBC0, data, cod/44CBC0]     # data blob resume: impure.o's .data (MAIN.MAP 0x2F0), VMA 0x54CBC0..0x54CEB0
+      - [0x44CEB0, .data, sce/libc/locale/locale]  # syms: __mb_cur_max  the member's whole .data (= MAIN.MAP locale.o .data 0x18): newlib's __mb_cur_max (global, map line 6256) and _setlocale_r's two static "C" buffers, VMA 0x54CEB0..0x54CEC8
       - [0x44CEC8, .data, sce/libc/stdlib/mallocr]  # syms: __malloc_av_ __malloc_trim_threshold __malloc_top_pad __malloc_sbrk_base __malloc_max_sbrked_mem __malloc_max_total_mem __malloc_current_mallinfo  the member's whole .data (data pass 4; = MAIN.MAP mallocr.o .data 0x458, names from map lines 6258 to 6264), VMA 0x54CEC8..0x54D320, 1112 B
       - [0x44D320, data, cod/44D320]     # data blob resume
       - [0x44D380, .rodata, sce/libkernl/thread]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x54D380..0x54D850, 1232 B
@@ -956,7 +964,7 @@ segments:
       - [0x529D08, rodata, cod/529D08]   # data-only members obj-trigger-def (objTriggerDef) and obj-trigger (objTrigger), MAIN.MAP; config/data_members.pal.txt; VMA 0x629D08..0x629E40; extracted, never C
       - [0x529E40, rodata, cod/529E40]     # rodata blob resume
       - [0x535FC0, .rodata, ico2/common/src/PObj]  # the TU's whole .rodata run as source (completeness pass 65; MAIN.MAP line 6686), VMA 0x635FC0..0x6360E5
-      - [0x5360E8, rodata, cod/5360E8]     # .rodata blob resume
+      - [0x5360E8, .rodata, sce/libgraph/graph003]  # the member's whole .rodata (= MAIN.MAP graph003.o .rodata 0x32): sceGsSetDefDispEnv's one format string as a literal, VMA 0x6360E8..0x63611A, then 6 B of fill to graph008's run
       - [0x536120, .rodata, sce/libgraph/graph008]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x636120..0x636610, 1264 B
       - [0x536150, .rodata, sce/libgraph/graph012]  # the member's whole .rodata (= MAIN.MAP graph012.o .rodata 0x190): sceGsSyncPath's fifteen printf strings as anonymous literals at their use sites (chain 1 pass 106), VMA 0x636150..0x6362E0, 400 B; graph015's carve follows directly
       - [0x5362E0, .rodata, sce/libgraph/graph015]  # the member's whole .rodata (= MAIN.MAP graph015.o .rodata 0x11C): sceGsSetDefLoadImage's format string as an anonymous literal (zero-padded to 0x636310) and its 59-entry jump table on dpsm (section .rodata.0x00636310, 0xEC B), VMA 0x6362E0..0x6363FC
@@ -970,7 +978,7 @@ segments:
       - [0x5366A0, .rodata, sce/libkernl/filestub]  # filestub.o's .rodata (= MAIN.MAP 0x6D): _sceFs_Rcv_Intr's 25-entry jump table, then _fs_version's stamp "...." as the literal fs_stamp points at, VMA 0x6366A0..0x63670D
       - [0x536710, .rodata, sce/libkernl/eeloadfile]  # eeloadfile.o's .rodata (= MAIN.MAP 0xC): the stamp "...." and sceSifLoadElf's "all" as literals, VMA 0x636710..0x63671C
       - [0x536720, .rodata, sce/libkernl/iopreset]  # iopreset.o's .rodata (= MAIN.MAP 0x29): sceSifRebootIop's two strings as literals, VMA 0x636720..0x636749
-      - [0x536750, rodata, cod/536750]  # .rodata blob resume: tlbfunc.o's two _DumpTLB format strings (MAIN.MAP 0x70), which the member's assembled _DumpTLB names by their splat labels
+      - [0x536750, .rodata, sce/libkernl/tlbfunc]  # tlbfunc.o's .rodata (= MAIN.MAP 0x70): _DumpTLB's two format strings as named statics the assembled function reaches, VMA 0x636750..0x6367C0
       - [0x5367C0, .rodata, sce/libcdvd/cdvd000]  # the member's whole .rodata (= MAIN.MAP cdvd000.o .rodata 0x1C9, chain 3 pass 109): 18 strings as anonymous literals at their uses, VMA 0x6367C0..0x636989, 7 B of link fill before cdvd005's strings
       - [0x536990, .rodata, sce/libcdvd/cdvd005]  # the member's two strings "call cdread cmd\n" and "cdread end\n" as literals (chain 3 pass 123), anonymous, VMA 0x636990..0x6369B4, 4 B of link fill before cdvd006's row
       - [0x5369B8, .rodata, sce/libcdvd/cdvd006]  # the member's one string "cdread end\n" as a literal (chain 3 pass 109), anonymous, VMA 0x6369B8..0x6369C4, 12 B, 4 B of fill before libcdvd_267388's strings
@@ -978,9 +986,11 @@ segments:
       - [0x536A18, .rodata, sce/libcdvd/cdvd047]  # the member's whole .rodata (= MAIN.MAP cdvd047.o .rodata 0x11C): its nine strings as literals (chain 1 pass 107), anonymous, VMA 0x636A18..0x636B34, 284 B
       - [0x536B34, rodata, cod/536B34]  # .rodata blob resume (libpad.o's strings begin at 0x636B38)
       - [0x536C90, .rodata, sce/libmc/libmc]  # the member's whole .rodata (= MAIN.MAP libmc.o .rodata 0x65, chain 1 pass 109): its three printf strings as anonymous literals, VMA 0x636C90..0x636CF5
-      - [0x536CF8, rodata, cod/536CF8]  # .rodata blob resume (D_00636CF8, named, referenced by libmpeg)
-      - [0x536DC0, .rodata, sce/libmpeg/mpeg]  # _getpic's jump table jtbl_00636DC0 (5 words, section .rodata.0x00636DC0), VMA 0x636DC0..0x636DD4; cases 3 and 4 share a block
-      - [0x536DD4, rodata, cod/536DD4]   # .rodata blob resume
+      - [0x536CF8, .rodata, sce/libmpeg/pack]  # the member's whole .rodata (= MAIN.MAP pack.o .rodata 0x2E): _PES_packet's one error string as a literal, VMA 0x636CF8..0x636D26, then 10 B of fill to mpeg.o's run
+      - [0x536D30, .rodata, sce/libmpeg/mpeg]  # the member's whole .rodata (= MAIN.MAP mpeg.o .rodata 0xA4): its three error strings as literals, then _getpic's jump table (5 words at 0x636DC0; cases 3 and 4 share), VMA 0x636D30..0x636DD4, then 4 B of fill to init.o
+      - [0x536DD8, .rodata, sce/libmpeg/init]  # the member's whole .rodata (= MAIN.MAP init.o .rodata 0x143): its nine strings as literals in first-use order, VMA 0x636DD8..0x636F1B
+      - [0x536F20, .rodata, sce/libmpeg/mpc]  # the member's whole .rodata (= MAIN.MAP mpc.o .rodata 0x291): its eighteen strings as literals in first-use order, VMA 0x636F20..0x6371B1
+      - [0x5371B8, .rodata, sce/libmpeg/csc]  # the member's whole .rodata (= MAIN.MAP csc.o .rodata 0x13): the CSC handler's error string as a literal, VMA 0x6371B8..0x6371CB
       - [0x5371D0, .rodata, sce/libscf/libscf]  # the member's whole .rodata run (0xF6 B + 2 B link pad): its twelve string literals in order of first use (rom0:ROMVER, the two ROM errors, the four OSD printf formats, libscf.c from __FILE__, the assert texts) with the month table between the assert groups because adddate precedes AdjustTime, VMA 0x6371D0..0x6372C8; libscf builds at -G 0 so its 7-byte string stays out of .sdata
       - [0x5372C8, rodata, cod/5372C8]   # .rodata blob resume
       - [0x5372D0, .rodata, sce/libsndn2/sg]  # _SgCalledTickProc's controller jump table jtbl_006372D0 (99 words, section .rodata.0x006372D0, selector head[4][1] - 1 under 0x63), VMA 0x6372D0..0x63745C
@@ -990,9 +1000,10 @@ segments:
       - [0x5374B8, .rodata, sce/libm/math/wf_asin]  # "asinf" (8 B), VMA 0x6374B8..0x6374C0
       - [0x5374C0, .rodata, sce/libm/math/wf_atan2]  # "atan2f" (8 B), VMA 0x6374C0..0x6374C8
       - [0x5374C8, .rodata, sce/libm/math/wf_fmod]  # "fmodf" (8 B) then the 0.0/0.0 NaN double 0x7FF8000000000000 fmodf returns, VMA 0x6374C8..0x6374D8, 16 B
-      - [0x5374D8, rodata, cod/5374D8]   # .rodata blob resume
+      - [0x5374D8, .rodata, sce/libm/math/ef_acos]  # the member's whole .rodata (= MAIN.MAP ef_acos.o 0x38): fdlibm's fourteen static const floats of __ieee754_acosf, VMA 0x6374D8..0x637510
+      - [0x537510, .rodata, sce/libm/math/ef_asin]  # the member's whole .rodata (= MAIN.MAP ef_asin.o 0x3C): fdlibm's fifteen static const floats of __ieee754_asinf, VMA 0x637510..0x63754C
       - [0x53754C, .rodata, sce/libm/math/ef_atan2]  # syms: tiny zero pi_o_4 pi_o_2 pi pi_lo  fdlibm's six float constants of __ieee754_atan2f plus the compiler's -0.0f literal (libm compiles at -G 0, so its literals go to .rodata, not .lit4), seven words in object order, VMA 0x63754C..0x637568
-      - [0x537568, rodata, cod/537568]   # .rodata blob resume
+      - [0x537568, .rodata, sce/libm/math/ef_fmod]  # the member's whole .rodata (= MAIN.MAP ef_fmod.o 0x10): fdlibm's static const one and Zero[] of __ieee754_fmodf, VMA 0x637568..0x637578
       - [0x537578, .rodata, sce/libm/math/ef_rem_pio2]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x637578..0x638B00, 5512 B; now 0x637578..0x637938, 960 B (completeness pass 59: fdlibm tables), MAIN.MAP 0x3c0
       - [0x537938, .rodata, sce/libm/math/ef_sqrt]  # fdlibm's own static const table as source (completeness pass 59), VMA 0x637938..0x637940, 8 B
       - [0x537940, .rodata, sce/libm/math/kf_cos]  # fdlibm's own static const table (one, C1..C6) as source (completeness pass 59), VMA 0x637940..0x63795C, 28 B; MAIN.MAP kf_cos.o .rodata 0x1c; the 4 B to 0x637960 is kf_rem_pio2's 16-byte alignment pad
@@ -1017,7 +1028,8 @@ segments:
       - [0x5387F0, .rodata, sce/libc/stdlib/dtoa]  # _dtoa_r's rodata: "Infinity", "NaN", "0" and three doubles (56 B), 8 B of alignment fill, then its jump table (6 entries on mode, section .rodata.0x00638830, 24 B); anonymous, VMA 0x6387F0..0x638848
       - [0x538848, rodata, cod/538848]     # .rodata blob resume
       - [0x538848, .rodata, sce/libc/locale/locale]  # the member's whole .rodata (data pass 5; = MAIN.MAP locale.o .rodata 0x42), VMA 0x638848..0x63888A, 66 B
-      - [0x53888A, rodata, cod/53888A]     # rodata blob resume
+      - [0x538890, .rodata, sce/libc/stdlib/mprec]  # syms: __mprec_tens __mprec_bigtens __mprec_tinytens  the member's whole .rodata (= MAIN.MAP mprec.o 0x128): _pow5mult's static p05[3], then newlib's three power-of-ten tables (global, map lines 6780-6782), VMA 0x638890..0x6389B8
+      - [0x5389B8, rodata, cod/5389B8]     # .rodata fill: 8 B to strtod.o's run
       - [0x5389C0, .rodata, sce/libc/stdlib/strtod]  # syms: 0x006389C0  _strtod_r's 46-arm jump table then its three rounding doubles; VMA 0x6389C0..0x638A90
       - [0x538A90, .rodata, sce/libc/s_infconst]  # libc.a member s_infconst.o: no code, the one double __infinity (MAIN.MAP line 6785, .rodata 0x8), VMA 0x638A90..0x638A98; .lit4 starts on main.o's 256-byte alignment at 0x638B00
       - [0x538B00, .lit4, ico2/common/src/main]  # the TU's one pool word, the random seed 1.2345678f Main passes (completeness pass 36), VMA 0x638B00, 256-aligned as the section head
@@ -1355,7 +1367,12 @@ segments:
       - { type: .sbss, vram: 0x0063C5B8, name: ico2/script/src/stageSEProc }  # the TU's own .sbss, 0xC B, VMA 0x63C5B8..0x63C5C4; static definitions in ROM run order (completeness pass)
       - { type: .sbss, vram: 0x0063C5C4, name: ico2/ito/mpeg/mv_disp }  # the TU's own .sbss, 0x4 B, VMA 0x63C5C4..0x63C5C8; static definitions in ROM run order (completeness pass)
       - { type: sbss, vram: 0x0063C5C8, name: cod/0063C5C8 }  # .sbss blob resume (libgcc _ctors.o's __CTOR_LIST__/__DTOR_LIST__ and sbrkr.o's errno, all common: the plain build links them from sce/libgcc/_ctors.c and sce/libc/reent/sbrkr.c; this build's linker allocates common symbols in hash-table order and puts __DTOR_LIST__ first)
-      - { type: bss,  vram: 0x0063C600, name: cod/0063C600, align: 0x80 }   # .bss head, sh_addralign=0x80 in baseelf: crt0 (0x144), libkernl thread (0x810 at 0x63C750), kprintf (0x80 at 0x63CF60) and deci2 (0x24 at 0x63CFE0) .bss by MAIN.MAP's member order, then the 0xC fill to main.o
+      - { type: .bss, vram: 0x0063C600, name: sce/crt0, align: 0x80 }   # .bss head, sh_addralign=0x80 in baseelf: crt0.o's .bss (= MAIN.MAP 0x144), the argument block _start passes main
+      - { type: bss, vram: 0x0063C748, name: cod/0063C748 }  # .bss fill: the retail thread.o .bss is 16-aligned (the assembler's section floor), ours is not, so 8 B here restore 0x63C750
+      - { type: .bss, vram: 0x0063C750, name: sce/libkernl/thread }  # thread.o's .bss (= MAIN.MAP 0x810): the kernel event thread's 0x400 B stack, its semaphore id and its 0x408 B event ring as statics, VMA 0x63C750..0x63CF60
+      - { type: .bss, vram: 0x0063CF60, name: sce/libkernl/kprintf }  # kprintf.o's .bss (= MAIN.MAP 0x80): deci2Putchar's line buffer as a static, VMA 0x63CF60..0x63CFE0
+      - { type: .bss, vram: 0x0063CFE0, name: sce/libkernl/deci2 }  # deci2.o's .bss (= MAIN.MAP 0x24): sceDeci2Open's work area as a static, VMA 0x63CFE0..0x63D004
+      - { type: bss, vram: 0x0063D008, name: cod/0063D008 }  # .bss fill to main.o's 16-aligned run (MAIN.MAP's 0xC)
       - { type: .bss, vram: 0x0063D010, name: ico2/common/src/main }  # the TU's whole .bss as source (finishing pass P1-3), VMA 0x63D010..0x667340, 0x2A330 B = MAIN.MAP main.o .bss: the idle, Main, scheduler, memory-card, cdvd, stage-manager and sound thread records (0x70 B) each followed by its stack, then the scheduler's message buffer; static (the map names no main.o .bss symbol), derived names; delayFreeManager abuts
       - { type: .bss, vram: 0x00667340, name: ico2/sugipon/src/delayFreeManager }  # the TU's own .bss, 0x1200 B, VMA 0x667340..0x668540; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x00668540, name: ico2/sugipon/src/geometryManager }  # the TU's own .bss, 0x100 B, VMA 0x668540..0x668640; static definitions in ROM run order (completeness pass)
@@ -1440,7 +1457,15 @@ segments:
       - { type: .bss, vram: 0x0072A2C0, name: ico2/common/src/GobjProc }  # the TU's own .bss, 0x340 B, VMA 0x72A2C0..0x72A600; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x0072A600, name: sce/libkernl/tty }  # tty.o's .bss (= MAIN.MAP 0x3C0): the tty queue, record and the two 64-aligned buffers, VMA 0x72A600..0x72A9C0
       - { type: .bss, vram: 0x0072A9C0, name: sce/libkernl/sifrpc }  # sifrpc.o's .bss (= MAIN.MAP 0x182C): three 64-aligned 0x800-byte RPC tables and the rpc data, VMA 0x72A9C0..0x72C1EC; filestub's objects from 0x72C200 stay in the blob
-      - { type: bss, vram: 0x0072C1EC, name: cod/0072C1EC }  # .bss blob resume
+      - { type: bss, vram: 0x0072C1EC, name: cod/0072C1EC }  # .bss blob resume: the fill to filestub.o and its .bss (MAIN.MAP 0x1370 at 0x72C200)
+      - { type: .bss, vram: 0x0072D580, name: sce/libkernl/iopheap }  # iopheap.o's .bss (= MAIN.MAP 0x200): the heap server's client record and four 64-aligned RPC buffers as statics, VMA 0x72D580..0x72D780
+      - { type: .bss, vram: 0x0072D780, name: sce/libkernl/eeloadfile }  # eeloadfile.o's .bss (= MAIN.MAP 0x22C): the 0x200 B loadfile RPC buffer, the client record and the IOP version stamp as statics, VMA 0x72D780..0x72D9AC
+      - { type: bss, vram: 0x0072D9B0, name: cod/0072D9B0 }  # .bss fill: 0x10 B to iopreset.o's 16-aligned .bss
+      - { type: .bss, vram: 0x0072D9C0, name: sce/libkernl/iopreset }  # iopreset.o's .bss (= MAIN.MAP 0x68): the reset command packet as a static, VMA 0x72D9C0..0x72DA28
+      - { type: bss, vram: 0x0072DA28, name: cod/0072DA28 }  # .bss fill: 0x18 B to tlbtrap.o's 64-aligned .bss
+      - { type: .bss, vram: 0x0072DA40, name: sce/libkernl/tlbtrap }  # tlbtrap.o's .bss (= MAIN.MAP 0x122C): the handlers' stack, the GPR save area at its top and the HI/HI1/LO/LO1/SA/EPC slots, in tlbtrap.s, VMA 0x72DA40..0x72EC6C
+      - { type: bss, vram: 0x0072EC70, name: cod/0072EC70 }  # .bss fill: 0x10 B to sifcmd.o
+      - { type: .bss, vram: 0x0072EC80, name: sce/libkernl/sifcmd }  # sifcmd.o's .bss (= MAIN.MAP 0x280): the send/ack buffers, init packet, DMAC handler id, command data record, system handler table and software registers as statics, VMA 0x72EC80..0x72EF00
       - { type: .bss, vram: 0x0072EF00, name: sce/libcdvd/cdvd000 }  # the member's whole .bss (= MAIN.MAP cdvd000.o .bss 0x2D4, chain 3 pass 109): 16 role-named statics in address order (callback and power-off state, thread records, the search request and reply buffers, the client records), VMA 0x72EF00..0x72F1D4
       - { type: .bss, vram: 0x0072F1D8, name: sce/libcdvd/cdvd047 }  # the member's .bss (chain 1 pass 107): the stream read mode record as a static, VMA 0x72F1D8, 4 B
       - { type: bss, vram: 0x0072F1DC, name: cod/0072F1DC }  # .bss blob resume

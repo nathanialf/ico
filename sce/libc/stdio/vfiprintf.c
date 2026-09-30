@@ -103,11 +103,9 @@ struct __suio {
 extern int __swsetup(Fil *fp);
 extern int _mbtowc_r(void *r, int *pwc, const char *s, int n, int *state);
 extern char *memchr(const char *s, int c, int n);
-extern int D_0054CEB0; /* __mb_cur_max */
 
 #define NULL 0
 #define _REENT ((void *)D_0054CEAC)
-#define MB_CUR_MAX D_0054CEB0
 
 /*
  * Actual printf innards.

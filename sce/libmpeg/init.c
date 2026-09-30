@@ -16,7 +16,6 @@ void _initSeqAgain(void)
 }
 
 extern int _isSecondField[];
-extern char D_00636DD8[];
 extern void _dispRefImage();
 extern void _dispRefImageField();
 
@@ -24,7 +23,7 @@ void _lastFrame(int a0)
 {
     int t;
     if (_isSecondField[0]) {
-        _Error(D_00636DD8);
+        _Error("the second field is missing");
         _isSecondField[0] = 0;
         return;
     }
@@ -77,12 +76,11 @@ void _clearEach(void)
     sceIpuSync(0, 0);
 }
 
-extern int D_00636DF8[];
 extern void printf(void *a0, ...);
 
 void _ErrMessage(int a0)
 {
-    printf(D_00636DF8, a0);
+    printf("[MPEG ERROR]%s\n", a0);
 }
 
 extern void sprintf(void *a0, int a1, ...);
@@ -162,7 +160,6 @@ extern int _load_intra_quantizer_matrix;
 extern int _load_non_intra_quantizer_matrix;
 extern int _defIQM[];
 extern int _defNIQM[];
-extern int D_00636E08[];
 extern void _setDefaultQM(int a0, int *a1);
 extern void _sendIpuCommand(unsigned int a0);
 extern void _waitIpuIdle(void);
@@ -180,7 +177,7 @@ void _sequenceHeader(void)
     _vertical_size = (v >> 8) & 0xFFF;
     _horizontal_size = v >> 20;
     if (_vertical_size >= 0xAF1) {
-        _Error(D_00636E08);
+        _Error("vertical size > 2800");
     }
     v = _nextBit(30);
     _constrained_parameters_flag = v & 1;
@@ -327,8 +324,6 @@ extern int _profile_and_level_indication;
 extern int _low_delay;
 extern int _frame_rate_extension_n;
 extern int _frame_rate_extension_d;
-extern int D_00636E20[];
-extern int D_00636E48[];
 extern void _ipuSetMPEG1(int a0);
 
 void _sequenceExtension(void)
@@ -347,7 +342,7 @@ void _sequenceExtension(void)
     vert_ext = (v >> 13) & 3;
     horiz_ext = (v >> 15) & 3;
     if (_chroma_format != 1) {
-        _Error(D_00636E20);
+        _Error("_chroma_format needs to be 1: 420");
     }
     _progressive_sequence = (v >> 19) & 1;
     _profile_and_level_indication = v >> 20;
@@ -357,7 +352,7 @@ void _sequenceExtension(void)
     _low_delay = (v >> 7) & 1;
     vbv_ext = v >> 8;
     if (_profile_and_level_indication != 0x48 && _profile_and_level_indication != 0x58) {
-        _Error(D_00636E48);
+        _Error("Unsupported profile/level");
     }
     _horizontal_size = (horiz_ext << 12) | (_horizontal_size & 0xFFF);
     _vertical_size = (vert_ext << 12) | (_vertical_size & 0xFFF);
@@ -389,30 +384,22 @@ void _sequenceDisplayExtension(void)
     _display_vertical_size = _nextBit(14);
 }
 
-extern int D_00636E68[];
-
 void _sequenceScalableExtension(void)
 {
-    _Error(D_00636E68);
+    _Error("_sequenceScalableExtension() is not implemented");
 }
-
-extern int D_00636E98[];
 
 void _unknown_extension(void)
 {
-    _Error(D_00636E98);
+    _Error("Unknown Extension");
 }
-
-extern int D_00636EB0[];
 
 void _pictureSpatialScalableExtension(void)
 {
-    _Error(D_00636EB0);
+    _Error("_pictureSpatialScalableExtension is not supported");
 }
-
-extern int D_00636EE8[];
 
 void _pictureTemporalScalableExtension(void)
 {
-    _Error(D_00636EE8);
+    _Error("_pictureTemporalScalableExtension is not supported");
 }

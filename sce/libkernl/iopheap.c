@@ -9,7 +9,13 @@
 /* iopheap.o's .data: -1 until sceSifInitIopHeap has bound the server */
 static int iopheap_bind = -1;
 
-extern int D_0072D580[];
+/* the member's .bss: the heap server's client record and the RPC buffers,
+   each on its own 64-byte DMA line */
+static int heapClient[10] __attribute__((aligned(64))); /* derived name */
+
+static int heapRecv __attribute__((aligned(64)));     /* derived name */
+static int heapAllocArg __attribute__((aligned(64))); /* derived name */
+static int heapFreeArg __attribute__((aligned(64)));  /* derived name */
 extern char D_FFFFF[];
 
 int sceSifInitIopHeap(void)
@@ -18,10 +24,10 @@ int sceSifInitIopHeap(void)
     int ret;
     int val;
     for (;;) {
-        ret = sceSifBindRpc(D_0072D580, 0x80000003, 0);
+        ret = sceSifBindRpc(heapClient, 0x80000003, 0);
         if (ret < 0)
             return -1;
-        val = D_0072D580[0x24 / 4];
+        val = heapClient[0x24 / 4];
         if (val != 0) {
             iopheap_bind = 0;
             break;
@@ -35,40 +41,35 @@ int sceSifInitIopHeap(void)
     return 0;
 }
 
-extern int D_0072D5C0[];
-extern int D_0072D600[];
-
 int sceSifAllocIopHeap(int a0)
 {
     int ret = iopheap_bind;
     if (ret < 0)
         return 0;
-    D_0072D600[0] = a0;
-    ret = sceSifCallRpc(D_0072D580, 1, 0, D_0072D600, 4, D_0072D5C0, 4, 0, 0);
+    heapAllocArg = a0;
+    ret = sceSifCallRpc(heapClient, 1, 0, &heapAllocArg, 4, &heapRecv, 4, 0, 0);
     if (ret >= 0)
-        return D_0072D5C0[0];
+        return heapRecv;
     return 0;
 }
-
-extern int D_0072D640[];
 
 int sceSifFreeIopHeap(int a0)
 {
     int v2 = iopheap_bind;
     if (v2 < 0)
         return 0;
-    D_0072D640[0] = a0;
-    v2 = sceSifCallRpc(D_0072D580, 2, 0, D_0072D640, 4, D_0072D5C0, 4, 0, 0);
+    heapFreeArg = a0;
+    v2 = sceSifCallRpc(heapClient, 2, 0, &heapFreeArg, 4, &heapRecv, 4, 0, 0);
     if (v2 < 0)
         return -1;
-    return D_0072D5C0[0];
+    return heapRecv;
 }
 
 /* The LoadIopHeap RPC request block, reconstructed: the ROM stores the address
  * argument at offset 0, copies the module name into offset 4 and sends
  * i + 5 bytes, so the record is one int followed by a 252-byte name and the
  * sent length is the name length plus the int plus the terminator.  It is
- * spelled as a struct rather than as `char D_0072D680[]` because the ROM's
+ * spelled as a struct rather than as `char heapLoadReq[]` because the ROM's
  * destination address is `addu $3,$3,$8`, base first: the C front end builds
  * `arr[j]` on an array object as PLUS_EXPR(ADDR_EXPR(arr), j), fold moves the
  * TREE_CONSTANT array address to the right and expand then emits
@@ -79,7 +80,7 @@ typedef struct {
     char name[252]; /* 0x04 */
 } SifHeapReq;
 
-extern SifHeapReq D_0072D680;
+static SifHeapReq heapLoadReq __attribute__((aligned(64))); /* derived name */
 
 int sceSifLoadIopHeap(char *name, void *addr)
 {
@@ -93,19 +94,19 @@ int sceSifLoadIopHeap(char *name, void *addr)
      * because the char store may alias the char load, and the ROM loads the
      * name byte once (lbu, then sll 24 and beqz on the same register) */
     for (i = 0; i < 252; i++) {
-        D_0072D680.name[i] = name[i];
-        if (D_0072D680.name[i] == 0) {
+        heapLoadReq.name[i] = name[i];
+        if (heapLoadReq.name[i] == 0) {
             break;
         }
     }
     if (i == 252) {
-        D_0072D680.name[251] = 0;
+        heapLoadReq.name[251] = 0;
         i = 251;
     }
-    D_0072D680.addr = (int)addr;
-    D_0072D680.name[251] = 0;
-    if (sceSifCallRpc(D_0072D580, 3, 0, &D_0072D680, i + 5, D_0072D5C0, 4, 0, 0) >= 0) {
-        return D_0072D5C0[0];
+    heapLoadReq.addr = (int)addr;
+    heapLoadReq.name[251] = 0;
+    if (sceSifCallRpc(heapClient, 3, 0, &heapLoadReq, i + 5, &heapRecv, 4, 0, 0) >= 0) {
+        return heapRecv;
     }
     return -1;
 }

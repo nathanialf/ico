@@ -15,6 +15,12 @@ typedef struct {
     int handler;   /* 0xC, the handler id RemoveIntcHandler takes */
 } sceGsGParam;
 
+/* the member's .data: its build stamp and the record, interlaced NTSC frame
+   mode until sceGsResetGraph sets it */
+static char sceGsVersion[16] = "PsIIlibgraph2200"; /* derived name */
+
+static sceGsGParam gsGParam = {1, 2, 1, 3, 0, 0}; /* derived name */
+
 /* syscall 113 (sce/libkernl/klib.c): it returns the previous IMR, which the
    ROM proves by keeping $2 live across the call here */
 extern int GsPutIMR(int a0);
@@ -49,9 +55,7 @@ void sceGsResetGraph(short mode, short inter, short omode, short ffmd)
     }
 }
 
-extern int D_0054A2B0[];
-
 void *sceGsGetGParam(void)
 {
-    return D_0054A2B0;
+    return &gsGParam;
 }

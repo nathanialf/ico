@@ -37,7 +37,14 @@ typedef struct {
     KernEvent ent[512];
 } KernEventRing;
 
-extern int D_0063CB50[];
+/* the kernel event thread's stack, the semaphore that wakes it and the ring
+   of events the interrupt-side calls post to it */
+static char kernEventStack[0x400]; /* derived name */
+
+static int kernEventSema; /* derived name */
+
+static KernEventRing kernEventRing; /* derived name */
+
 extern int WaitSema(int id);
 extern int WakeupThread(int id);
 extern int RotateThreadReadyQueue(int id);
@@ -50,7 +57,7 @@ void topThread(void *arg)
     int i;
 
     while (1) {
-        WaitSema(D_0063CB50[0]);
+        WaitSema(kernEventSema);
         i = ring->f0 & 0x1FF;
         ring->f0 = i + 1;
         switch (ring->ent[i].code) {
@@ -97,9 +104,6 @@ typedef struct {
 /* the kernel event thread's id, zero until InitKernEvent creates it */
 static int kernEventThreadId = 0;
 
-extern int D_0063CB50[];
-extern KernEventRing D_0063CB58;
-extern char D_0063C750[];
 extern char _gp[];
 extern void topThread(void *arg);
 extern int CreateSema(ee_sema_t *param);
@@ -121,31 +125,30 @@ int InitThread(void)
 
     sm.max_count = 0xFF;
     sm.init_count = 0;
-    D_0063CB50[0] = CreateSema(&sm);
-    if (D_0063CB50[0] < 0) {
+    kernEventSema = CreateSema(&sm);
+    if (kernEventSema < 0) {
         return -1;
     }
 
     th.func = topThread;
-    th.stack = D_0063C750;
+    th.stack = kernEventStack;
     th.stack_size = 0x400;
     th.gp_reg = _gp;
     th.initial_priority = 0;
     tid = CreateThread(&th);
     kernEventThreadId = tid;
     if (tid < 0) {
-        DeleteSema(D_0063CB50[0]);
+        DeleteSema(kernEventSema);
         return -1;
     }
 
-    D_0063CB58.f0 = 0;
-    D_0063CB58.widx = 0;
-    StartThread(tid, &D_0063CB58);
+    kernEventRing.f0 = 0;
+    kernEventRing.widx = 0;
+    StartThread(tid, &kernEventRing);
     ChangeThreadPriority(GetThreadId(), 1);
     return kernEventThreadId;
 }
 
-extern KernEventRing D_0063CB58;
 extern int _iWakeupThread(void);
 extern int iSignalSema(int handle);
 
@@ -166,11 +169,11 @@ int iWakeupThread(int id)
 fail:
     return -1;
 post:
-    i = D_0063CB58.widx & 0x1FF;
-    D_0063CB58.widx = i + 1;
-    D_0063CB58.ent[i].code = 0;
-    D_0063CB58.ent[i].id = r;
-    iSignalSema(D_0063CB50[0]);
+    i = kernEventRing.widx & 0x1FF;
+    kernEventRing.widx = i + 1;
+    kernEventRing.ent[i].code = 0;
+    kernEventRing.ent[i].id = r;
+    iSignalSema(kernEventSema);
     return r;
 }
 
@@ -186,11 +189,11 @@ int iRotateThreadReadyQueue(int id)
 fail:
     return -1;
 post:
-    i = D_0063CB58.widx & 0x1FF;
-    D_0063CB58.widx = i + 1;
-    D_0063CB58.ent[i].code = 1;
-    D_0063CB58.ent[i].id = id;
-    iSignalSema(D_0063CB50[0]);
+    i = kernEventRing.widx & 0x1FF;
+    kernEventRing.widx = i + 1;
+    kernEventRing.ent[i].code = 1;
+    kernEventRing.ent[i].id = id;
+    iSignalSema(kernEventSema);
     return id;
 }
 
@@ -213,10 +216,10 @@ int iSuspendThread(int id)
 fail:
     return -1;
 post:
-    i = D_0063CB58.widx & 0x1FF;
-    D_0063CB58.widx = i + 1;
-    D_0063CB58.ent[i].code = 2;
-    D_0063CB58.ent[i].id = r;
-    iSignalSema(D_0063CB50[0]);
+    i = kernEventRing.widx & 0x1FF;
+    kernEventRing.widx = i + 1;
+    kernEventRing.ent[i].code = 2;
+    kernEventRing.ent[i].id = r;
+    iSignalSema(kernEventSema);
     return r;
 }

@@ -19,20 +19,33 @@ extern int __ieee754_rem_pio2f(float x, float *y);
 extern float __kernel_cosf(float x, float y);
 extern float __kernel_sinf(float x, float y, int iy);
 
-#define one 1.0000000000e+00f
-#define pi 3.1415925026e+00f
-#define pio2_hi 1.5707962513e+00f
-#define pio2_lo 7.5497894159e-08f
-#define pS0 1.6666667163e-01f
-#define pS1 -3.2556581497e-01f
-#define pS2 2.0121252537e-01f
-#define pS3 -4.0055535734e-02f
-#define pS4 7.9153501429e-04f
-#define pS5 3.4793309169e-05f
-#define qS1 -2.4033949375e+00f
-#define qS2 2.0209457874e+00f
-#define qS3 -6.8828397989e-01f
-#define qS4 7.7038154006e-02f
+static const float one = 1.0000000000e+00;
+
+static const float pi = 3.1415925026e+00;
+
+static const float pio2_hi = 1.5707962513e+00;
+
+static const float pio2_lo = 7.5497894159e-08;
+
+static const float pS0 = 1.6666667163e-01;
+
+static const float pS1 = -3.2556581497e-01;
+
+static const float pS2 = 2.0121252537e-01;
+
+static const float pS3 = -4.0055535734e-02;
+
+static const float pS4 = 7.9153501429e-04;
+
+static const float pS5 = 3.4793309169e-05;
+
+static const float qS1 = -2.4033949375e+00;
+
+static const float qS2 = 2.0209457874e+00;
+
+static const float qS3 = -6.8828397989e-01;
+
+static const float qS4 = 7.7038154006e-02;
 
 extern float __ieee754_sqrtf(float x);
 

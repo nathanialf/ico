@@ -25,22 +25,36 @@ extern int __ieee754_rem_pio2f(float x, float *y);
 extern float __kernel_cosf(float x, float y);
 extern float __kernel_sinf(float x, float y, int iy);
 
-#define one 1.0000000000e+00f     /* 0x3F800000 */
-#define huge 1.0000000150e+30f    /* 0x7149F2CA */
-#define pio2_hi 1.5707962513e+00f /* 0x3FC90FDA */
-#define pio2_lo 7.5497894159e-08f /* 0x33A22168 */
-#define pio4_hi 7.8539818525e-01f /* 0x3F490FDB */
+static const float one = 1.0000000000e+00; /* 0x3F800000 */
+
+static const float huge = 1.0000000150e+30; /* 0x7149F2CA */
+
+static const float pio2_hi = 1.5707962513e+00; /* 0x3FC90FDA */
+
+static const float pio2_lo = 7.5497894159e-08; /* 0x33A22168 */
+
+static const float pio4_hi = 7.8539818525e-01; /* 0x3F490FDB */
+
 /* coefficients for R(x*x) */
-#define pS0 1.6666667163e-01f  /* 0x3E2AAAAB */
-#define pS1 -3.2556581497e-01f /* 0xBEA6B090 */
-#define pS2 2.0121252537e-01f  /* 0x3E4E0AA8 */
-#define pS3 -4.0055535734e-02f /* 0xBD241146 */
-#define pS4 7.9153501429e-04f  /* 0x3A4F7F04 */
-#define pS5 3.4793309169e-05f  /* 0x3811EF08 */
-#define qS1 -2.4033949375e+00f /* 0xC019D139 */
-#define qS2 2.0209457874e+00f  /* 0x4001572D */
-#define qS3 -6.8828397989e-01f /* 0xBF303361 */
-#define qS4 7.7038154006e-02f  /* 0x3D9DC62E */
+static const float pS0 = 1.6666667163e-01; /* 0x3E2AAAAB */
+
+static const float pS1 = -3.2556581497e-01; /* 0xBEA6B090 */
+
+static const float pS2 = 2.0121252537e-01; /* 0x3E4E0AA8 */
+
+static const float pS3 = -4.0055535734e-02; /* 0xBD241146 */
+
+static const float pS4 = 7.9153501429e-04; /* 0x3A4F7F04 */
+
+static const float pS5 = 3.4793309169e-05; /* 0x3811EF08 */
+
+static const float qS1 = -2.4033949375e+00; /* 0xC019D139 */
+
+static const float qS2 = 2.0209457874e+00; /* 0x4001572D */
+
+static const float qS3 = -6.8828397989e-01; /* 0xBF303361 */
+
+static const float qS4 = 7.7038154006e-02; /* 0x3D9DC62E */
 
 extern float __ieee754_sqrtf(float x);
 

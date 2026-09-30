@@ -44,12 +44,17 @@ struct lconv {
     char n_sign_posn;
 };
 
+int __mb_cur_max = 1;
+
 static const struct lconv lconv = {
     ".", "", "", "", "", "", "", "", "", "", 127, 127, 127, 127, 127, 127, 127, 127,
 };
 
 int _setlocale_r(void *a0, int a1, const char *a2)
 {
+    static char lc_ctype[8] = "C";
+    static char last_lc_ctype[8] = "C";
+
     if (a2 == 0)
         goto no_check;
     if (strcmp(a2, "C") == 0)

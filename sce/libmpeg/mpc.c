@@ -13,7 +13,6 @@ extern int *_curFrame;
 extern int *_curTop;
 extern int *_curBot;
 extern int D_0054C0DC[];
-extern int D_00636F20[];
 extern void _getAllRefs();
 
 int _motionComp0(int a0, int a1, int a2, int a3, int *a4, int *a5, int *a6)
@@ -33,7 +32,7 @@ int _motionComp0(int a0, int a1, int a2, int a3, int *a4, int *a5, int *a6)
         int i;
 
         if ((unsigned int)(a3 - 1) >= 3) {
-            _Error1((int)D_00636F20, a3);
+            _Error1((int)"Invalid modion type -- ignored(%d)", a3);
             _isError[0] = 1;
             return 0;
         }
@@ -84,9 +83,6 @@ int _motionComp0(int a0, int a1, int a2, int a3, int *a4, int *a5, int *a6)
 extern int _picture_coding_type;
 extern void _getRef0();
 extern void _dualPrimeVector(int *DMV, int *dmvector, int mvx, int mvy);
-extern int D_00636F48[];
-extern int D_00636F68[];
-extern int D_00636F88[];
 
 void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_field_sel,
                  int *dmvector)
@@ -111,7 +107,7 @@ void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_f
                 _getRef0(_forwFrame, 1, 1, 0, 8, x, y, PMV[0], PMV[1] >> 1, fld, 0);
                 _getRef0(_forwFrame, 0, 1, 0, 8, x, y, DMV[2], DMV[3], fld, 1);
             } else {
-                _Error1((int)D_00636F48, motion_type);
+                _Error1((int)"(a) invalid motion_type(%d)-0", motion_type);
             }
         } else {
             int sel;
@@ -152,7 +148,7 @@ void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_f
                 _getRef0(fields[0][fld], 0, 0, 0, 16, x, y, PMV[0], PMV[1], 0, 0);
                 _getRef0(fields[sel][fld ? 0 : 1], 0, 0, 0, 16, x, y, DMV[0], DMV[1], 0, 1);
             } else {
-                _Error1((int)D_00636F68, motion_type);
+                _Error1((int)"(b) invalid motion_type(%d)-1", motion_type);
             }
         }
         avg = 1;
@@ -182,7 +178,7 @@ void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_f
             _getRef0(mv_field_sel[3] ? _backBot : _backTop, 0, 0, 8, 8, x, y, PMV[6], PMV[7], 0,
                      avg);
         } else {
-            _Error1((int)D_00636F88, motion_type);
+            _Error1((int)"(c) invalid motion_type(%d)-2", motion_type);
         }
     }
 }
@@ -313,7 +309,6 @@ void _getRef0(int *img, int lineOff, int predIdx, int yoff, int h, int x, int y,
 
 extern void _copyRefImage(void *a0, void *a1);
 extern void _copyAddRefImage(void *a0, void *a1, void *a2);
-extern int D_00636FA8[]; /* "intra && skip MB" */
 
 /* One macroblock's motion-compensation record, 0x140 bytes, as the members of
  * this file fill it: _motionComp0 sets the IPU output base, the destination and
@@ -356,7 +351,7 @@ void _doMC(int a0)
         }
     }
     if (((MCState *)_mbcont)->rec[a0].intra != 0 && ((MCState *)_mbcont)->rec[a0].skip != 0) {
-        _Error(D_00636FA8);
+        _Error("intra && skip MB");
     }
     if (((MCState *)_mbcont)->rec[a0].intra != 0) {
         _copyRefImage(((MCState *)_mbcont)->rec[a0].dst, ((MCState *)_mbcont)->rec[a0].src);
@@ -1487,7 +1482,6 @@ void _ipuSetMPEG1(int a0)
 
 extern int _top32;
 extern int _top32len;
-extern char D_00636FC0[];
 extern void DIntr();
 extern int EIntr(void);
 
@@ -1516,7 +1510,7 @@ int _waitBdecOut(void)
     }
     if ((*(volatile int *)0x10002010 & 0x4000) != 0) {
         ret = 0;
-        _Error(D_00636FC0);
+        _Error("Error code detected(BDEC)");
         b[0] = 2;
         _dispatchMpegCallback(_theSceMpeg[0], b);
         *(int *)0x10002010 = 0x40000000;
@@ -1572,7 +1566,6 @@ void _dualPrimeVector(int *DMV, int *dmvector, int mvx, int mvy)
 }
 
 extern int _isError[];
-extern int D_00636FE0[];
 extern void _flushBuf(int a0);
 extern int _peepBit(int a0);
 
@@ -1599,7 +1592,7 @@ int _mbAddressIncrement(void)
                 _flushBuf(0xB);
                 cont = 1;
             } else {
-                _Error1((int)D_00636FE0, v);
+                _Error1((int)"Invalid macroblock_address_increment code(0x%08x)", v);
                 _isError[0] = 1;
                 return 1;
             }
@@ -1619,7 +1612,6 @@ extern void _waitIpuIdle(void);
 extern int _slice0(int a0, int a1);
 extern int _waitBdecOut(void);
 extern void _doMC(int a0);
-extern int D_00637018[];
 
 int _pictureData0(int a0)
 {
@@ -1643,15 +1635,13 @@ int _pictureData0(int a0)
         _doMC(_mbcont[0x280 / 4] == 0);
     }
     if (r == 1 || r == 2) {
-        _Error(D_00637018);
+        _Error("= Skip to the next picture =");
     }
     return r == 0;
 }
 
 extern int _widthMB[];
 extern int _sp_dcr[];
-extern int D_00637038[];
-extern int D_00637060[];
 extern void _nextStartCode(void);
 extern int _sliceB(void);
 
@@ -1665,7 +1655,7 @@ int _sliceA0(int a0, int *a1, int *a2, int *a3)
     _nextStartCode();
     id = _peepBit(0x20);
     if ((unsigned int)(id - 0x101) >= 0xAF) {
-        _Error1((int)D_00637038, id);
+        _Error1((int)"slice_start_code(0x%08x) out of range", id);
         return 2;
     }
     _flushBuf(0x20);
@@ -1673,7 +1663,7 @@ int _sliceA0(int a0, int *a1, int *a2, int *a3)
     n = _mbAddressIncrement();
     *a2 = n;
     if (_isError[0] != 0) {
-        _Error(D_00637060);
+        _Error("_sliceA0(): error happens");
         return 1;
     }
     *a1 = ((((m << 7) + (id & 0xFF)) - 1) * _widthMB[0] + n) - 1;
@@ -1695,7 +1685,6 @@ extern int _mbAddressIncrement(void);
 extern int _decMB0(int *a0, int *a1, int *a2, int a3[2][2][2], int *a4, int *a5);
 extern int _skipMB0(int *a0, int *a1, int *a2, int *a3);
 extern int _motionComp0(int a0, int a1, int a2, int a3, int *a4, int *a5, int *a6);
-extern char D_00637080[];
 
 int _slice0(int a0, int a1)
 {
@@ -1736,7 +1725,7 @@ int _slice0(int a0, int a1)
             }
         }
         if (mba >= a1) {
-            _Error(D_00637080);
+            _Error("Too many macroblocks in picture");
             return 2;
         }
         if (n == 1) {
@@ -1763,7 +1752,6 @@ int _slice0(int a0, int a1)
     }
 }
 
-extern int D_006370A0[];
 extern int _picture_coding_type;
 
 int _skipMB0(int *a0, int *a1, int *a2, int *a3)
@@ -1784,7 +1772,7 @@ int _skipMB0(int *a0, int *a1, int *a2, int *a3)
         a2[0] = a2[1] = _picture_structure == 2;
     }
     if (_picture_coding_type == 1) {
-        _Error(D_006370A0);
+        _Error("skiped macroblock in I picure is not allowed");
         ret = 0;
     }
     a3[0] = a3[0] & ~1;
@@ -1802,7 +1790,6 @@ extern int _qscqsc;
 extern unsigned int _nextBit(int a0);
 extern void _motionVectors();
 extern void _motionVector();
-extern char D_006370D0[];
 
 /* Decode one macroblock's header: the macroblock type, the motion and DCT
  * types, the quantiser scale and the motion vectors, then either start the
@@ -1824,7 +1811,7 @@ int _decMB0(int *mb_type, int *motion_type, int *dct_type, int PMV[2][2][2], int
         (*(volatile int *)0x10002010 & 0xF8FFFFFF) | (_picture_coding_type << 24);
     mb_type[0] = _ipuVdec(1);
     if (mb_type[0] == 0) {
-        _Error(D_006370D0);
+        _Error("Invalid macroblock_type code: 0");
         _isError[0] = 1;
         return 0;
     }
@@ -2403,8 +2390,6 @@ void _groupOfPicturesHeader(void)
 
 extern int _load_intra_quantizer_matrix;
 extern int _load_non_intra_quantizer_matrix;
-extern int D_006370F0[];
-extern int D_00637118[];
 
 void _quantMatrixExtension(void)
 {
@@ -2419,10 +2404,10 @@ void _quantMatrixExtension(void)
         _waitIpuIdle();
     }
     if (_nextBit(1) != 0) {
-        _Error(D_006370F0);
+        _Error("load_chroma_intra_quantizer_matrix == 1");
     }
     if (_nextBit(1) != 0) {
-        _Error(D_00637118);
+        _Error("load_chroma_non_intra_quantizer_matrix == 1");
     }
 }
 
@@ -2483,8 +2468,6 @@ void _copyrightExtension(void)
 extern int *_curFrame;
 extern int *_curTop;
 extern int *_curBot;
-extern int D_00637148[];
-extern int D_00637168[];
 extern int _pictureData0(int a0);
 
 int _decPicture(int a0, int a1)
@@ -2493,7 +2476,7 @@ int _decPicture(int a0, int a1)
     int r;
 
     if (_picture_structure == 3 && _isSecondField[0] != 0) {
-        _Error(D_00637148);
+        _Error("odd number of field pictures");
         _isSecondField[0] = 0;
     }
     switch (_picture_structure) {
@@ -2508,7 +2491,7 @@ int _decPicture(int a0, int a1)
         break;
     default:
         p = (int)_curFrame;
-        _Error(D_00637168);
+        _Error("unknown picture sutructure");
         break;
     }
     r = _pictureData0(a0);
@@ -2655,7 +2638,6 @@ int _updateRefImage(int a0)
     return ret;
 }
 
-extern char D_00637188[];
 extern void sprintf();
 
 int _isOutSizeOK(char *p)
@@ -2670,7 +2652,8 @@ int _isOutSizeOK(char *p)
     }
     if (flag == 0) {
         char buf[0x100];
-        sprintf(buf, (int)D_00637188, *(int *)(p + 0x4), *(int *)(p + 0x8));
+        sprintf(buf, (int)"Too small buffer size for %dx%d picture\n", *(int *)(p + 0x4),
+                *(int *)(p + 0x8));
         _Error(buf);
     }
     return flag;

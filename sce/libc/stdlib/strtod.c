@@ -1,5 +1,6 @@
 /* libc.a member strtod.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
+#include <stdlib.h>
 #include <reent.h>
 
 struct D520 {
@@ -97,17 +98,9 @@ union __dmath {
 extern const union __dmath __infinity[1];
 
 #define HUGE_VAL (__infinity[0].d)
-
-/* mprec.o's shared power-of-ten tables: tens[0..24], bigtens[0..4] and
-   tinytens[0..4] (evidence rung: ROM bytes, the three runs are contiguous
-   at 0x006388A0, 0x00638968 and 0x00638990). */
-extern const double D_006388A0[];
-extern const double D_00638968[];
-extern const double D_00638990[];
-
-#define tens D_006388A0
-#define bigtens D_00638968
-#define tinytens D_00638990
+#define tens __mprec_tens
+#define bigtens __mprec_bigtens
+#define tinytens __mprec_tinytens
 
 extern _Bigint *_Balloc(struct _reent *p, int k);
 extern void _Bfree(struct _reent *p, _Bigint *v);

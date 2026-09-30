@@ -17,6 +17,7 @@
 #ifndef SCE_LIBKERNL_SIFRPC_H
 #define SCE_LIBKERNL_SIFRPC_H
 
+extern char __ps2_klibinfo__[];                                       /* klib.s's library stamp; bytes 12..15 are the version */
 int _sceSifLoadElfPart(void *a0, int a1, int a2, int a3);              /* dominant spelling at 1 sites */
 int _sceSifLoadModule(void *a0, int a1, int a2, int a3, int a4);       /* dominant spelling at 1 sites; returns the module id or a negative error */
 int _sceSifLoadModuleBuffer(void *a0, int a1, int a2, void *a3);       /* dominant spelling at 1 sites */

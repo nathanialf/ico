@@ -9,7 +9,7 @@
 
 /* sifrpc.o's definition: a void call, no value register after it */
 extern void sceSifExitRpc(void);
-extern SifCmdResetData D_0072D9C0 __attribute__((aligned(16)));
+static SifCmdResetData resetData __attribute__((aligned(16))); /* derived name */
 extern void sceSifStopDma(void);
 
 int sceSifResetIop(char *arg, int mode)
@@ -20,20 +20,20 @@ int sceSifResetIop(char *arg, int mode)
 
     sceSifStopDma();
     addr = sceSifGetReg(0x80000000);
-    D_0072D9C0.mode = mode;
+    resetData.mode = mode;
     for (i = 0; arg[i] != 0; i++) {
-        D_0072D9C0.arg[i] = arg[i];
+        resetData.arg[i] = arg[i];
     }
-    D_0072D9C0.arglen = i;
-    D_0072D9C0.header.dest = 0;
-    D_0072D9C0.header.cid = 0x80000003;
-    D_0072D9C0.header.dsize = 0;
-    D_0072D9C0.header.psize = sizeof(D_0072D9C0);
-    dma.src = (int)&D_0072D9C0;
+    resetData.arglen = i;
+    resetData.header.dest = 0;
+    resetData.header.cid = 0x80000003;
+    resetData.header.dsize = 0;
+    resetData.header.psize = sizeof(resetData);
+    dma.src = (int)&resetData;
     dma.dest = addr;
-    dma.size = sizeof(D_0072D9C0);
+    dma.size = sizeof(resetData);
     dma.u.attr = 0x44;
-    sceSifWriteBackDCache(&D_0072D9C0, sizeof(D_0072D9C0));
+    sceSifWriteBackDCache(&resetData, sizeof(resetData));
     if (sceSifSetDma((int)&dma, 1) != 0) {
         sceSifSetReg(4, 0x10000);
         sceSifSetReg(4, 0x20000);

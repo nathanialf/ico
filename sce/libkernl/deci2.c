@@ -3,7 +3,9 @@
  * boundary a retail function start; VMA 0x101AA0..0x101C80, 10 functions. */
 
 extern int Deci2Call(int req, void *args);
-extern char D_0063CFE0[];
+
+/* the work area sceDeci2Open hands the kernel, through its uncached alias */
+static char deci2Buffer[36]; /* derived name */
 
 int sceDeci2Open(unsigned short protocol, void *opt, void *handler)
 {
@@ -11,7 +13,7 @@ int sceDeci2Open(unsigned short protocol, void *opt, void *handler)
     args[0] = protocol;
     args[1] = (int)opt;
     args[2] = (int)handler;
-    args[3] = (int)D_0063CFE0 | 0x20000000;
+    args[3] = (int)deci2Buffer | 0x20000000;
     return Deci2Call(1, args);
 }
 

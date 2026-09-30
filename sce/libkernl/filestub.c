@@ -268,7 +268,6 @@ int sceFsInit(void)
     return 0;
 }
 
-extern char D_0028ED0C[];
 extern char D_0072D528[];
 extern int memcmp();
 
@@ -280,7 +279,7 @@ static char *fs_stamp = "....";
 
 int _fs_version(void)
 {
-    char *s3 = D_0028ED0C;
+    char *s3 = __ps2_klibinfo__ + 12;
     char *s1 = D_0072D528;
     int s2 = 0;
     int v0;

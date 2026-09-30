@@ -3,19 +3,16 @@
 #include "libgcc2.h"
 
 typedef void (*func_ptr)(void);
-/* libgcc2.c's DO_GLOBAL_DTORS_BODY: the cursor is this member's own file
-   static, initialised to __DTOR_LIST__ + 1, and it lives at 0x0054CBB8. */
-extern func_ptr *D_0054CBB8[]; /* one pointer; spelled as an array so the
-                                  reference is not gp-relative, as in the
-                                  shipped member */
 /* libgcc.a(_ctors.o)'s common lists, MAIN.MAP line 7656. */
 extern func_ptr __CTOR_LIST__[];
+extern func_ptr __DTOR_LIST__[];
 
 void __do_global_dtors(void)
 {
-    while (*D_0054CBB8[0]) {
-        D_0054CBB8[0]++;
-        (*(D_0054CBB8[0] - 1))();
+    static func_ptr *p = __DTOR_LIST__ + 1;
+    while (*p) {
+        p++;
+        (*(p - 1))();
     }
 }
 

@@ -130,10 +130,7 @@ struct lconv {
 };
 
 extern struct lconv *localeconv(void);
-/* stdlib.h's MB_CUR_MAX is the library's own __mb_cur_max. */
-extern int D_0054CEB0;
 
-#define MB_CUR_MAX D_0054CEB0
 #define _REENT ((Reent *)D_0054CEAC[0])
 #define CHECK_INIT(fp)                                                                             \
     do {                                                                                           \

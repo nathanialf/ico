@@ -309,7 +309,6 @@ int *_multiply(void *ptr, Bigint *a, Bigint *b)
     return (int *)c;
 }
 
-extern const int D_00638890[];
 extern int *_multiply(void *ptr, Bigint *a, Bigint *b);
 
 int *_pow5mult(void *ptr, Bigint *b, int k)
@@ -319,10 +318,11 @@ int *_pow5mult(void *ptr, Bigint *b, int k)
     Bigint *p5;
     Bigint *p51;
     int i;
+    static const int p05[3] = {5, 25, 125};
 
     i = k & 3;
     if (i != 0) {
-        b = (Bigint *)_multadd(ptr, b, D_00638890[i - 1], 0);
+        b = (Bigint *)_multadd(ptr, b, p05[i - 1], 0);
     }
     k >>= 2;
     if (k == 0) {
@@ -593,14 +593,24 @@ double _ratio(Bigint *a, Bigint *b)
     return da.d / db.d;
 }
 
-extern const long D_006388A0[];
+const double __mprec_tens[] = {
+    1e0,  1e1,  1e2,  1e3,  1e4,  1e5,  1e6,  1e7,  1e8,  1e9,  1e10, 1e11, 1e12,
+    1e13, 1e14, 1e15, 1e16, 1e17, 1e18, 1e19, 1e20, 1e21, 1e22, 1e23, 1e24,
+};
+
+const double __mprec_bigtens[] = {1e16, 1e32, 1e64, 1e128, 1e256};
+
+const double __mprec_tinytens[] = {1e-16, 1e-32, 1e-64, 1e-128, 1e-256};
+
 extern long dpmul(long a, long b);
 
 long _mprec_log10(int n)
 {
     long acc = (long)0xFFC0 << 46;
     if (n < 0x18) {
-        return D_006388A0[n];
+        return (
+            (const long *)
+                __mprec_tens)[n]; /* the double's bits: the EE does double arithmetic in software */
     }
     while (n > 0) {
         acc = dpmul(acc, (long)0x8048 << 47);

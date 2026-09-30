@@ -21,8 +21,8 @@
 
 	.align	6
 _kTLBException:
-	lui	$26, %hi(D_0072EA40)
-	addiu	$26, $26, %lo(D_0072EA40)
+	lui	$26, %hi(_tlbSaveGpr)
+	addiu	$26, $26, %lo(_tlbSaveGpr)
 
 	sq	$1, 16($26)
 	sq	$2, 32($26)
@@ -56,24 +56,24 @@ _kTLBException:
 
 
 	mfhi	$2
-	sd	$2, D_0072EC40
+	sd	$2, _tlbSaveHi
 	mfhi1	$2
-	sd	$2, D_0072EC48
+	sd	$2, _tlbSaveHi1
 	mflo	$2
-	sd	$2, D_0072EC50
+	sd	$2, _tlbSaveLo
 	mflo1	$2
-	sd	$2, D_0072EC58
+	sd	$2, _tlbSaveLo1
 	mfsa	$2
-	sd	$2, D_0072EC60
+	sd	$2, _tlbSaveSa
 
 
 	mfc0	$4, $12
 	mfc0	$5, $13
 	mfc0	$6, $14
 	mfc0	$7, $8
-	la	$8, D_0072EA40
+	la	$8, _tlbSaveGpr
 
-	sw	$6, D_0072EC68
+	sw	$6, _tlbSaveEpc
 
 
 	lui	$1, %hi(_xlaunch)
@@ -90,10 +90,10 @@ _kTLBException:
 	eret
 _xlaunch:
 	lw	$1, _kTLBRefillHandler
-	lui	$29, %hi(D_0072EA40)
+	lui	$29, %hi(_tlbSaveGpr)
 	jalr	$1
 
-	addiu	$29, $29, %lo(D_0072EA40)
+	addiu	$29, $29, %lo(_tlbSaveGpr)
 	li	$3, -84
 	syscall
 
@@ -102,24 +102,24 @@ _xlaunch:
 _kExitTLBHandler:
 	mfc0	$1, $12 ; li $26, -28 ; and $1, $1, $26 ; mtc0 $1, $12 ; sync.p
 
-	lw	$2, D_0072EC68
+	lw	$2, _tlbSaveEpc
 	mtc0	$2, $14
 	sync.p
 
-	ld	$2, D_0072EC40
+	ld	$2, _tlbSaveHi
 	mthi	$2
-	ld	$2, D_0072EC48
+	ld	$2, _tlbSaveHi1
 	mthi1	$2
-	ld	$2, D_0072EC50
+	ld	$2, _tlbSaveLo
 	mtlo	$2
-	ld	$2, D_0072EC58
+	ld	$2, _tlbSaveLo1
 	mtlo1	$2
-	ld	$2, D_0072EC60
+	ld	$2, _tlbSaveSa
 	mtsa	$2
 	sync.p
 
-	lui	$26, %hi(D_0072EA40)
-	addiu	$26, $26, %lo(D_0072EA40)
+	lui	$26, %hi(_tlbSaveGpr)
+	addiu	$26, $26, %lo(_tlbSaveGpr)
 
 	lq	$1, 16($26)
 	lq	$2, 32($26)
@@ -159,8 +159,8 @@ _kExitTLBHandler:
 	.align	6
 
 _kDebugException:
-	lui	$26, %hi(D_0072EA40)
-	addiu	$26, $26, %lo(D_0072EA40)
+	lui	$26, %hi(_tlbSaveGpr)
+	addiu	$26, $26, %lo(_tlbSaveGpr)
 
 	sq	$1, 16($26)
 	sq	$2, 32($26)
@@ -194,15 +194,15 @@ _kDebugException:
 
 
 	mfhi	$2
-	sd	$2, D_0072EC40
+	sd	$2, _tlbSaveHi
 	mfhi1	$2
-	sd	$2, D_0072EC48
+	sd	$2, _tlbSaveHi1
 	mflo	$2
-	sd	$2, D_0072EC50
+	sd	$2, _tlbSaveLo
 	mflo1	$2
-	sd	$2, D_0072EC58
+	sd	$2, _tlbSaveLo1
 	mfsa	$2
-	sd	$2, D_0072EC60
+	sd	$2, _tlbSaveSa
 
 
 	mfc0	$4, $12
@@ -210,7 +210,7 @@ _kDebugException:
 	mfc0	$6, $14
 	mfc0	$7, $8
 	mfc0	$8, $23
-	la	$9, D_0072EA40
+	la	$9, _tlbSaveGpr
 
 	lui	$1, %hi(1f)
 	addiu	$1, $1, %lo(1f)
@@ -229,8 +229,38 @@ _kDebugException:
 	lui	$1, %hi(_kDebugHandler)
 	addu	$1, $1, $2
 	lw	$1, %lo(_kDebugHandler)($1)
-	lui	$29, %hi(D_0072EA40)
+	lui	$29, %hi(_tlbSaveGpr)
 	jalr	$1
-	addiu	$29, $29, %lo(D_0072EA40)
+	addiu	$29, $29, %lo(_tlbSaveGpr)
 
 	break	1023, 1023
+
+/* The member's .bss (MAIN.MAP tlbtrap.o 0x122C, 64-byte aligned there): the
+   handlers' 0x1000-byte stack, whose top is the register save area the
+   entries store the 32 GPRs into, then HI, HI1, LO, LO1, SA and the EPC.
+   Global: this tree's SDK assembler writes a .symtab whose sh_info omits any
+   local symbol that is not a section symbol, and ld refuses such an object. */
+	.bss
+	.align	6
+	.globl	_tlbSaveGpr
+	.globl	_tlbSaveHi
+	.globl	_tlbSaveHi1
+	.globl	_tlbSaveLo
+	.globl	_tlbSaveLo1
+	.globl	_tlbSaveSa
+	.globl	_tlbSaveEpc
+	.space	0x1000
+_tlbSaveGpr:	/* derived name */
+	.space	32 * 16
+_tlbSaveHi:	/* derived name */
+	.space	8
+_tlbSaveHi1:	/* derived name */
+	.space	8
+_tlbSaveLo:	/* derived name */
+	.space	8
+_tlbSaveLo1:	/* derived name */
+	.space	8
+_tlbSaveSa:	/* derived name */
+	.space	8
+_tlbSaveEpc:	/* derived name */
+	.space	4

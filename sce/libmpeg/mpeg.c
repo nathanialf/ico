@@ -4,6 +4,9 @@
  * picture loop. */
 #include <libmpeg.h>
 
+/* the library's build stamp, the member's first .data */
+static char sceMpegVersion[16] = "PsIIlibmpeg 2200"; /* derived name */
+
 extern void DIntr();
 extern int EIntr(void);
 extern int sceIpuInit();
@@ -34,7 +37,6 @@ extern void _clearOnce(void);
 extern int sceMpegClearRefBuff();
 extern void _defStopDMA();
 extern void _defRestartDMA();
-extern char D_00636D30[];
 extern int _refFrame0[];
 extern int _refFrame1[];
 extern int _refFrame2[];
@@ -60,7 +62,7 @@ int sceMpegCreate(void *self, void *buf, int size)
     unsigned int n = size - (p - (char *)buf);
 
     if (n < 0x118) {
-        _Error(D_00636D30);
+        _Error("The size of work area is too small");
         return 0;
     }
     *(int *)((char *)self + 0x40) = (int)p;
@@ -365,7 +367,6 @@ void _alalcFree(int *a0)
     a0[2] = a0[3];
 }
 
-extern int D_00636D58[];
 extern void _Error(void *a0);
 
 int _alalcAlloc(unsigned int *a0, int a1, unsigned int a2)
@@ -378,7 +379,7 @@ int _alalcAlloc(unsigned int *a0, int a1, unsigned int a2)
         a0[2] = total;
         return rounded;
     }
-    _Error(D_00636D58);
+    _Error("work area size is too small");
     return 0;
 }
 
@@ -390,7 +391,6 @@ int _alalcRest(int *a0)
 extern int _isOutputPicture[];
 extern int _picture_structure;
 extern int _isMpeg2[];
-extern int D_00636D78[];
 extern void _Error1(int a0, int a1);
 extern int _decodeOrSkip(int a0, int a1, int a2);
 extern int _nextHeader(void);
@@ -406,7 +406,7 @@ int _getpic(int a0)
 
     p[0] = 0;
     if ((v & 0x3F) != 0) {
-        _Error1((int)D_00636D78, v);
+        _Error1((int)"image buffer needs to be aligned to 64byte boundary(0x%08x)", v);
         return -1;
     }
     _isOutputPicture[0] = 0;

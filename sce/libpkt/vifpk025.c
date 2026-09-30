@@ -2,6 +2,9 @@
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <libpkt.h>
 
+/* the member's .data: the library's build stamp */
+static char scePktVersion[16] = "PsIIlibpkt  2200"; /* derived name */
+
 typedef unsigned int u128_241778 __attribute__((mode(TI)));
 
 typedef struct {

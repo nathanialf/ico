@@ -14,7 +14,13 @@ typedef struct {
     unsigned long long mask;
 } StrDesc;
 
-extern StrDesc D_0054C018[];
+static StrDesc streamDesc[10] /* derived name */ = {
+    {0xE000000000ULL, 0xFF00000000ULL}, {0xBDFFC00000ULL, 0xFFFFFFFFFFULL},
+    {0xBDFFA00000ULL, 0xFFFFFFFFFFULL}, {0xBDFFA10000ULL, 0xFFFFFFFFFFULL},
+    {0xBDFF900000ULL, 0xFFFFFFFFFFULL}, {0xC000000000ULL, 0xFF00000000ULL},
+    {0xBD80000000ULL, 0xFFFF000000ULL}, {0xBDA0000000ULL, 0xFFFF000000ULL},
+    {0xBD88000000ULL, 0xFFFF000000ULL}, {0xBD90000000ULL, 0xFFFF000000ULL},
+};
 
 long long _type2id(int a0, int a1)
 {
@@ -22,7 +28,7 @@ long long _type2id(int a0, int a1)
     int sh = 0;
 
     if ((unsigned int)a0 < 10) {
-        switch (D_0054C018[a0].mask) {
+        switch (streamDesc[a0].mask) {
         case 0xFFFFFFFFFFULL:
             sh = 0;
             break;
@@ -33,14 +39,14 @@ long long _type2id(int a0, int a1)
             sh = 32;
             break;
         }
-        id = D_0054C018[a0].id | ((long long)a1 << sh);
+        id = streamDesc[a0].id | ((long long)a1 << sh);
     }
     return id;
 }
 
 int _id2type(int *type, int *num, unsigned long long id)
 {
-    StrDesc *p = D_0054C018;
+    StrDesc *p = streamDesc;
     unsigned int i;
     int found = 0;
 
@@ -270,7 +276,7 @@ int sceMpegAddStrCallback(int *a0, int a1, int a2, MpegStrCallback a3, void *a4)
         tbl[i].id = id;
         tbl[i].arg = a4;
         tbl[i].func = a3;
-        tbl[i].mask = D_0054C018[a1].mask;
+        tbl[i].mask = streamDesc[a1].mask;
     }
     return ret;
 }
@@ -327,9 +333,11 @@ extern int _sysbitGet(int *bs, int nbits);
 extern int _sysbitMarker(int *bs);
 extern void _sysbitJump(int *bs, int n);
 extern void _Error(void *a0);
+
 /* the bit count each combination of the four header flags adds */
-extern unsigned char D_0054C0B8[];
-extern char D_00636CF8[];
+static unsigned char headerBits[16] /* derived name */ = {
+    0, 16, 8, 24, 8, 24, 16, 32, 24, 40, 32, 48, 32, 48, 40, 56,
+};
 
 int _PES_packet(int *bs, PesPkt *pkt)
 {
@@ -395,7 +403,7 @@ int _PES_packet(int *bs, PesPkt *pkt)
             _sysbitGet(bs, 0x30);
         }
         if (flags != 0) {
-            _sysbitGet(bs, D_0054C0B8[flags]);
+            _sysbitGet(bs, headerBits[flags]);
         }
         if (ext == 1) {
             int priv;
@@ -418,7 +426,7 @@ int _PES_packet(int *bs, PesPkt *pkt)
                 _sysbitGet(bs, 0x20);
             }
             if (pack == 1) {
-                _Error(D_00636CF8);
+                _Error("pack_header_field_flag needs to be '0' in PS\n");
                 return 0;
             }
             if (seq == 1) {

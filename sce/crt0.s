@@ -8,6 +8,14 @@
 # run starts at the same address.  The module ends after _root's syscall at
 # 0x1000C8, as the listing shows; the zero fill to 0x100100 is klib.o's 64-byte
 # alignment (sce/libkernl/klib.s), not part of crt0.
+# The module's .bss (MAIN.MAP crt0.o 0x144): the argument block _start hands
+# main, argc then argv's sixteen pointers and the 256 bytes they point into.
+# Global: this tree's SDK assembler writes a .symtab whose sh_info omits any
+# local symbol that is not a section symbol, and ld refuses such an object.
+    .section .bss
+    .globl _args
+_args: /* derived name */
+    .space 4 + 16 * 4 + 256
     .section .text
     .set at
     .set noreorder
@@ -40,12 +48,12 @@ _start:
     lui $4, %hi(_gp)
     lui $5, %hi(D_1FF0000)
     lui $6, %hi(D_10000)
-    lui $7, %hi(D_0063C600)
+    lui $7, %hi(_args)
     lui $8, %hi(_root)
     addiu $4, $4, %lo(_gp)
     addiu $5, $5, %lo(D_1FF0000)
     addiu $6, $6, %lo(D_10000)
-    addiu $7, $7, %lo(D_0063C600)
+    addiu $7, $7, %lo(_args)
     addiu $8, $8, %lo(_root)
     daddu $28, $4, $0
     addiu $3, $0, 0x3C
@@ -62,8 +70,8 @@ _start:
     jal FlushCache
     daddu $4, $0, $0
     ei
-    lui $2, %hi(D_0063C600)
-    addiu $2, $2, %lo(D_0063C600)
+    lui $2, %hi(_args)
+    addiu $2, $2, %lo(_args)
     lw $4, 0x0($2)
     jal main
     addiu $5, $2, 0x4

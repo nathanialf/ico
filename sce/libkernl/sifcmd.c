@@ -23,29 +23,14 @@ void _change_addr(int *a0, int *a1)
     a1[2] = a0[4];
 }
 
-extern int D_0072EE80[];
-
-int sceSifGetSreg(int a0)
-{
-    return D_0072EE80[a0];
-}
-
-extern int D_0072EE80[];
-
-int sceSifSetSreg(int a0, int a1)
-{
-    D_0072EE80[a0] = a1;
-    return a1;
-}
-
-/* Reconstruction: the 32-entry SIF command handler table at D_0072ED80, a
+/* Reconstruction: the 32-entry SIF command handler table, a
    handler function and the data pointer handed to it. */
 typedef struct {
     void (*fn)();
     void *data;
 } SifCmdEntry;
 
-/* Reconstruction: the SIF command data record at D_0072ED58 (fields 3/4 and 5/6
+/* Reconstruction: the SIF command data record (fields 3/4 and 5/6
    are what sceSifSetSysCmdBuffer and sceSifSetCmdBuffer swap). */
 typedef struct {
     int sendbuf;
@@ -58,21 +43,43 @@ typedef struct {
     int *sreg;
 } SifCmdData;
 
-extern SifCmdData D_0072ED58;
+/* the member's .bss: the uncached send and ack buffers and the init packet on
+   64-byte DMA lines, the DMAC handler id, the command data record, the system
+   handler table (the bytes pin at least 16-byte alignment) and the software
+   registers */
+static int cmdSendBuf[32] __attribute__((aligned(64))); /* derived name */
+
+static int cmdAckBuf[16] __attribute__((aligned(64))); /* derived name */
+
+static int cmdInitPkt[5] __attribute__((aligned(64))); /* derived name */
+
+static int cmdDmacId; /* derived name */
+
+static SifCmdData cmdData; /* derived name */
+
+static SifCmdEntry sysCmdTable[32] __attribute__((aligned(16))); /* derived name */
+
+static int cmdSreg[32]; /* derived name */
+
+int sceSifGetSreg(int a0)
+{
+    return cmdSreg[a0];
+}
+
+int sceSifSetSreg(int a0, int a1)
+{
+    cmdSreg[a0] = a1;
+    return a1;
+}
 
 void *sceSifGetDataTable(void)
 {
-    return &D_0072ED58;
+    return &cmdData;
 }
 
 /* sifcmd.o's .data: set once sceSifInitCmd has run, cleared by sceSifExitCmd */
 static int cmd_inited = 0;
 
-extern int D_0072EC80[];
-extern int D_0072ED00[];
-extern int D_0072ED40[];
-extern int D_0072ED54[];
-extern int D_0072ED80[];
 extern void sceSifSetDChain(void);
 extern void _sceSifCmdIntrHdlr();
 extern void _change_addr(int *a0, int *a1);
@@ -90,30 +97,30 @@ void sceSifInitCmd(void)
         return;
     }
     cmd_inited = 1;
-    D_0072ED58.sendbuf = (int)D_0072EC80 | 0x20000000;
-    D_0072ED58.ackbuf = (int)D_0072ED00 | 0x20000000;
-    D_0072ED58.iopbuf = 0;
-    D_0072ED58.systbl = (SifCmdEntry *)D_0072ED80;
-    D_0072ED58.nsys = 0x20;
-    D_0072ED58.usrtbl = 0;
-    D_0072ED58.nusr = 0;
-    D_0072ED58.sreg = D_0072EE80;
+    cmdData.sendbuf = (int)cmdSendBuf | 0x20000000;
+    cmdData.ackbuf = (int)cmdAckBuf | 0x20000000;
+    cmdData.iopbuf = 0;
+    cmdData.systbl = sysCmdTable;
+    cmdData.nsys = 0x20;
+    cmdData.usrtbl = 0;
+    cmdData.nusr = 0;
+    cmdData.sreg = cmdSreg;
     /* Both loops count up with the one i: loop.c reverses each counter and,
        since i is shared, sets i = 32 after the second, which is the register
        the DMAC status write below stores (the ROM keeps i in $16). */
-    h = (SifCmdEntry *)D_0072ED80;
+    h = sysCmdTable;
     for (i = 0; i < 32; i++) {
         h->fn = 0;
         h->data = 0;
         h++;
     }
     for (i = 0; i < 32; i++) {
-        D_0072EE80[i] = 0;
+        cmdSreg[i] = 0;
     }
-    ((SifCmdEntry *)D_0072ED80)[0].fn = _change_addr;
-    ((SifCmdEntry *)D_0072ED80)[0].data = &D_0072ED58;
-    ((SifCmdEntry *)D_0072ED80)[1].fn = _set_sreg;
-    ((SifCmdEntry *)D_0072ED80)[1].data = &D_0072ED58;
+    (sysCmdTable)[0].fn = _change_addr;
+    (sysCmdTable)[0].data = &cmdData;
+    (sysCmdTable)[1].fn = _set_sreg;
+    (sysCmdTable)[1].data = &cmdData;
     EIntr();
     FlushCache(0);
     if (*(volatile int *)0x1000E010 & 0x20) {
@@ -122,54 +129,50 @@ void sceSifInitCmd(void)
     if ((*(volatile int *)0x1000C000 & 0x100) == 0) {
         sceSifSetDChain();
     }
-    D_0072ED54[0] = AddDmacHandler(5, _sceSifCmdIntrHdlr, 0);
+    cmdDmacId = AddDmacHandler(5, _sceSifCmdIntrHdlr, 0);
     EnableDmac(5);
-    D_0072ED58.iopbuf = sceSifGetReg(0x80000000);
-    if (D_0072ED58.iopbuf != 0) {
-        D_0072ED40[4] = (int)D_0072EC80;
-        sceSifSendCmd(0x80000000, (int)D_0072ED40, 0x14, 0, 0, 0);
+    cmdData.iopbuf = sceSifGetReg(0x80000000);
+    if (cmdData.iopbuf != 0) {
+        cmdInitPkt[4] = (int)cmdSendBuf;
+        sceSifSendCmd(0x80000000, (int)cmdInitPkt, 0x14, 0, 0, 0);
         return;
     }
     while ((sceSifGetReg(4) & 0x20000) == 0) {
         ;
     }
-    D_0072ED58.iopbuf = sceSifGetReg(2);
-    sceSifSetReg(0x80000000, D_0072ED58.iopbuf);
-    sceSifSetReg(0x80000001, (int)&D_0072ED58);
-    D_0072ED40[4] = (int)D_0072EC80;
-    D_0072ED40[3] = 0;
-    sceSifSendCmd(0x80000002, (int)D_0072ED40, 0x14, 0, 0, 0);
+    cmdData.iopbuf = sceSifGetReg(2);
+    sceSifSetReg(0x80000000, cmdData.iopbuf);
+    sceSifSetReg(0x80000001, (int)&cmdData);
+    cmdInitPkt[4] = (int)cmdSendBuf;
+    cmdInitPkt[3] = 0;
+    sceSifSendCmd(0x80000002, (int)cmdInitPkt, 0x14, 0, 0, 0);
 }
 
-extern int D_0072ED54[];
 extern int DisableDmac(int a0);
 extern int RemoveDmacHandler(int a0, int a1);
 
 void sceSifExitCmd(void)
 {
     DisableDmac(5);
-    RemoveDmacHandler(5, D_0072ED54[0]);
+    RemoveDmacHandler(5, cmdDmacId);
     cmd_inited = 0;
 }
 
 SifCmdEntry *sceSifSetCmdBuffer(SifCmdEntry *tbl, int n)
 {
-    SifCmdEntry *old = D_0072ED58.usrtbl;
-    D_0072ED58.usrtbl = tbl;
-    D_0072ED58.nusr = n;
+    SifCmdEntry *old = cmdData.usrtbl;
+    cmdData.usrtbl = tbl;
+    cmdData.nusr = n;
     return old;
 }
 
 SifCmdEntry *sceSifSetSysCmdBuffer(SifCmdEntry *tbl, int n)
 {
-    SifCmdEntry *old = D_0072ED58.systbl;
-    D_0072ED58.systbl = tbl;
-    D_0072ED58.nsys = n;
+    SifCmdEntry *old = cmdData.systbl;
+    cmdData.systbl = tbl;
+    cmdData.nsys = n;
     return old;
 }
-
-extern int D_0072ED64[];
-extern int D_0072ED6C[];
 
 int sceSifAddCmdHandler(int a0, int a1, int a2)
 {
@@ -177,10 +180,10 @@ int sceSifAddCmdHandler(int a0, int a1, int a2)
     int *p;
     if (a0 >= 0)
         goto pos;
-    a0 = D_0072ED64[0];
+    a0 = (int)cmdData.systbl;
     goto done;
 pos:
-    a0 = D_0072ED6C[0];
+    a0 = (int)cmdData.usrtbl;
 done:
     off += a0;
     p = (int *)off;
@@ -192,15 +195,14 @@ void sceSifRemoveCmdHandler(int a0)
 {
     int off = a0 * 8;
     if (a0 < 0) {
-        a0 = D_0072ED64[0];
+        a0 = (int)cmdData.systbl;
     } else {
-        a0 = D_0072ED6C[0];
+        a0 = (int)cmdData.usrtbl;
     }
     off += a0;
     *(int *)off = 0;
 }
 
-extern int D_0072ED60;
 extern int isceSifSetDma(int p, int a);
 
 int _sceSifSendCmd(int cid, int mode, int pkt, int pktsize, int src, int dest, int size)
@@ -230,7 +232,7 @@ int _sceSifSendCmd(int cid, int mode, int pkt, int pktsize, int src, int dest, i
         header->dest = 0;
     }
     dmat[count].src = pkt;
-    dmat[count].dest = D_0072ED60;
+    dmat[count].dest = cmdData.iopbuf;
     dmat[count].size = pktsize;
     header->cid = cid;
     header->psize = pktsize;
@@ -265,9 +267,9 @@ __asm__(".section .text\n"
         "    sd $31, 0x80($29)\n"
         "    jal EIntr\n"
         "    nop\n"
-        "    lui $3, %hi(D_0072ED58)\n"
-        "    lw $7, %lo(D_0072ED58)($3)\n"
-        "    addiu $16, $3, %lo(D_0072ED58)\n"
+        "    lui $3, %hi(cmdData)\n"
+        "    lw $7, %lo(cmdData)($3)\n"
+        "    addiu $16, $3, %lo(cmdData)\n"
         "    lbu $2, 0x0($7)\n"
         "    andi $5, $2, 0xFF\n"
         "    beqz $5, .LIntrHdlr002483E8\n"

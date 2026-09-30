@@ -186,3 +186,10 @@
 	KCALL	GetMemorySize, 127
 
 	.set	reorder
+
+# The member's .data (MAIN.MAP klib.o 0x10): the library stamp.  Its last
+# four bytes are the version the SIF members compare against the IOP's.
+	.data
+	.globl	__ps2_klibinfo__
+__ps2_klibinfo__:
+	.ascii	"PsIIlibkernl2240"

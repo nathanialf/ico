@@ -20,7 +20,6 @@ typedef struct {
 
 extern GParam *sceGsGetGParam(void);
 extern void printf(const char *fmt, ...);
-extern char D_006360E8[];
 
 void sceGsSetDefDispEnv(sceGsDispEnv *disp, short psm, short w, short h, short dx, short dy)
 {
@@ -111,7 +110,7 @@ void sceGsSetDefDispEnv(sceGsDispEnv *disp, short psm, short w, short h, short d
                             (s_long128)((dy + 0x24) & 0xFFF) << 12;
         }
     } else {
-        printf(D_006360E8, gp->f2);
+        printf("sceGsDefDispEnv:Not support displaymode for %d!!\n", gp->f2);
     }
     disp->bgcolor = 0;
 }

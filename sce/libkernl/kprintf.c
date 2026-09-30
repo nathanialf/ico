@@ -15,30 +15,32 @@ int kputchar(int c)
 }
 
 typedef void (*PutcharFn)(int c);
-extern PutcharFn D_0028F4B8[];
 extern void deci2Putchar(int c);
-extern int D_0028F4B4[];
-extern char D_0063CF60[];
 extern void kputs(char *s);
+
+/* deci2Putchar's line buffer and its fill count; kputs sends a full line. */
+static int deci2_count = 0; /* derived name */
+
+static char deci2_line[128]; /* derived name */
 
 void deci2Putchar(int c)
 {
     int n;
 
-    if (D_0028F4B4[0] >= 0x7E) {
-        D_0028F4B4[0] = 0;
-        D_0063CF60[0x7F] = 0;
-        kputs(D_0063CF60);
+    if (deci2_count >= 0x7E) {
+        deci2_count = 0;
+        deci2_line[0x7F] = 0;
+        kputs(deci2_line);
     }
-    n = D_0028F4B4[0];
+    n = deci2_count;
     if (c == 0xA) {
-        D_0028F4B4[0] = 0;
-        D_0063CF60[n] = c;
-        D_0063CF60[n + 1] = 0;
-        kputs(D_0063CF60);
+        deci2_count = 0;
+        deci2_line[n] = c;
+        deci2_line[n + 1] = 0;
+        kputs(deci2_line);
     } else {
-        D_0028F4B4[0] = n + 1;
-        D_0063CF60[n] = c;
+        deci2_count = n + 1;
+        deci2_line[n] = c;
     }
 }
 
@@ -51,6 +53,9 @@ void serialPutchar(int c)
         kputchar(c);
     }
 }
+
+/* the character sink _printf writes through; scePrintf swaps in deci2Putchar */
+static PutcharFn putchar_fn = serialPutchar; /* derived name */
 
 int ftoi(unsigned long long a)
 {
@@ -99,7 +104,7 @@ void printfloat(double v)
 
     if (dpcmp(v, zero) < 0) {
         v = dpsub(zero, v);
-        D_0028F4B8[0]('-');
+        putchar_fn('-');
     }
     if (dpcmp(v, 0.1) < 0) {
         while (dpcmp(v, 0.1) < 0) {
@@ -213,7 +218,7 @@ void _printf(char *fmt, char *ap)
                     s = pad;
                 }
                 while (*s) {
-                    (*D_0028F4B8[0])(*s++);
+                    (*putchar_fn)(*s++);
                 }
                 break;
             case 'x':
@@ -248,7 +253,7 @@ void _printf(char *fmt, char *ap)
                     s = pad;
                 }
                 while (*s) {
-                    (*D_0028F4B8[0])(*s++);
+                    (*putchar_fn)(*s++);
                 }
                 break;
             case 'd':
@@ -270,7 +275,7 @@ void _printf(char *fmt, char *ap)
                 } else {
                     if (val < 0) {
                         val = -val;
-                        (*D_0028F4B8[0])('-');
+                        (*putchar_fn)('-');
                     }
                     while (val != 0) {
                         *--s = val % 10 + '0';
@@ -282,7 +287,7 @@ void _printf(char *fmt, char *ap)
                     s = pad;
                 }
                 while (*s) {
-                    (*D_0028F4B8[0])(*s++);
+                    (*putchar_fn)(*s++);
                 }
                 break;
             case 'u':
@@ -312,7 +317,7 @@ void _printf(char *fmt, char *ap)
                     s = pad;
                 }
                 while (*s) {
-                    (*D_0028F4B8[0])(*s++);
+                    (*putchar_fn)(*s++);
                 }
                 break;
             case 'e':
@@ -328,7 +333,7 @@ void _printf(char *fmt, char *ap)
                 x = f;
                 __asm__("nop" : "=f"(x) : "0"(x));
                 if (f == 0.0f) {
-                    (*D_0028F4B8[0])('0');
+                    (*putchar_fn)('0');
                 } else {
                     printfloat(x);
                 }
@@ -338,16 +343,16 @@ void _printf(char *fmt, char *ap)
                 ap += 8;
                 t = *(char **)(ap - 8);
                 if (*t == 0) {
-                    (*D_0028F4B8[0])('(');
-                    (*D_0028F4B8[0])('n');
-                    (*D_0028F4B8[0])('u');
-                    (*D_0028F4B8[0])('l');
-                    (*D_0028F4B8[0])('l');
-                    (*D_0028F4B8[0])(')');
+                    (*putchar_fn)('(');
+                    (*putchar_fn)('n');
+                    (*putchar_fn)('u');
+                    (*putchar_fn)('l');
+                    (*putchar_fn)('l');
+                    (*putchar_fn)(')');
                 } else {
                     q = t;
                     while (*q) {
-                        (*D_0028F4B8[0])(*q);
+                        (*putchar_fn)(*q);
                         q++;
                     }
                 }
@@ -355,14 +360,14 @@ void _printf(char *fmt, char *ap)
             case 'c':
                 ap += 8;
                 val = *(char *)(ap - 8);
-                (*D_0028F4B8[0])(val);
+                (*putchar_fn)(val);
                 goto skip;
             default:
                 goto skip;
             }
         } else {
             p = s;
-            (*D_0028F4B8[0])(c);
+            (*putchar_fn)(c);
         skip:
             p++;
         }
@@ -379,9 +384,9 @@ void kprintf(char *fmt, ...)
 void scePrintf(char *fmt, ...)
 {
     void *va = (char *)__builtin_next_arg(fmt) - 0x38;
-    PutcharFn save = D_0028F4B8[0];
+    PutcharFn save = putchar_fn;
 
-    D_0028F4B8[0] = deci2Putchar;
+    putchar_fn = deci2Putchar;
     _printf(fmt, va);
-    D_0028F4B8[0] = save;
+    putchar_fn = save;
 }

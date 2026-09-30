@@ -3,6 +3,14 @@
  * retail function start to the next; VMA 0x264AE8..0x265030,
  * 19 functions. */
 
+/* the member's .rodata (MAIN.MAP 0x70): _DumpTLB's two format strings, named
+   here because the function below is assembled and reaches them by name */
+static const char dumpTlbWired[] = /* derived name */
+    "=========================<wired=%02d>=========================\n";
+
+static const char dumpTlbEntry[] = /* derived name */
+    "idx=%02d: pm=%08x, hi=%08x, lo0=%08x, lo1=%08x\n";
+
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -17,10 +25,10 @@ __asm__(".section .text\n"
         "    sd $17, 0x10($29)\n"
         "    sd $16, 0x0($29)\n"
         "    mfc0 $17, $6\n"
-        "    lui $19, %hi(D_00636750)\n"
-        "    lui $18, %hi(D_00636790)\n"
+        "    lui $19, %hi(dumpTlbWired)\n"
+        "    lui $18, %hi(dumpTlbEntry)\n"
         "    daddu $16, $0, $0\n"
-        "    addiu $4, $19, %lo(D_00636750)\n"
+        "    addiu $4, $19, %lo(dumpTlbWired)\n"
         "    nop\n"
         ".L_DumpTLB002474E0:\n"
         "    bne $16, $17, .L_DumpTLB002474F0\n"
@@ -38,11 +46,11 @@ __asm__(".section .text\n"
         "    mfc0 $7, $10\n"
         "    daddu $5, $16, $0\n"
         "    jal scePrintf\n"
-        "    addiu $4, $18, %lo(D_00636790)\n"
+        "    addiu $4, $18, %lo(dumpTlbEntry)\n"
         "    addiu $16, $16, 0x1\n"
         "    slti $2, $16, 0x30\n"
         "    bnel $2, $0, .L_DumpTLB002474E0\n"
-        "    addiu $4, $19, %lo(D_00636750)\n"
+        "    addiu $4, $19, %lo(dumpTlbWired)\n"
         "    ld $31, 0x40($29)\n"
         "    ld $19, 0x30($29)\n"
         "    ld $18, 0x20($29)\n"
