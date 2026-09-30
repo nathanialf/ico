@@ -14,4 +14,16 @@
 
 void isysInitialize(void);
 
+/* MAIN.MAP globals of isys.o (defined in isys.c in this order) */
+extern int *gobj_link_head[8];
+extern int *gobj_link_tail[8];
+extern int *gobj_dl_link_head[8];
+extern int *gobj_dl_link_tail[8];
+extern int active_gobj_link;
+extern int active_gobj_dl_link;
+extern int *gobj_camera_dl_link_head;
+extern int *gobj_camera_dl_link_tail;
+extern char *isysCurrentGObj;
+extern void *isysCurrentGObjProcess;
+
 #endif /* ISYS_H */

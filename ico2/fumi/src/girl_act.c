@@ -69,7 +69,7 @@ void funcGirlHandDisconnect(void)
 }
 
 extern int *D_00639EA4;
-extern char *D_0063A61C;
+extern char *isysCurrentGObj;
 /* kept local: this TU's uses of ACTSendMailCorrect do not fit the prototype in commonact.h */
 extern void ACTSendMailCorrect(void *a0, int mail);
 /* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
@@ -85,7 +85,7 @@ extern void SetMotionDirection(void *a0, float *dir);
 inline void afterGirlHand50(volatile int a0)
 {
     debug_StdPrintfDummy("girl after func\n");
-    iosOmSendMail(D_00639EA4, 0x60, D_0063A61C);
+    iosOmSendMail(D_00639EA4, 0x60, isysCurrentGObj);
     ACTGame_DisconnectHand();
 }
 
@@ -116,7 +116,7 @@ void motGirlHand50(volatile int a0)
 
     debug_StdPrintfDummy("enter motGirlHand50\n");
     while (1) {
-        iosOmSendMail(D_00639EA4, 0x5C, D_0063A61C);
+        iosOmSendMail(D_00639EA4, 0x5C, isysCurrentGObj);
         if (sub->f_E0 & 1)
             break;
         _ACTWait(1);
@@ -128,16 +128,16 @@ void motGirlHand50(volatile int a0)
     }
     _ACTWait(1);
     while (1) {
-        iosOmSendMail(D_00639EA4, 0x5D, D_0063A61C);
+        iosOmSendMail(D_00639EA4, 0x5D, isysCurrentGObj);
         if (sub->f_E0 & 2)
             break;
         _ACTWait(1);
     }
     if ((((int)(*(unsigned long long *)((char *)sub + 0x18) >> 44)) & 1) == 0) {
-        iosOmSendMail(D_00639EA4, 0x10, D_0063A61C);
+        iosOmSendMail(D_00639EA4, 0x10, isysCurrentGObj);
         ACTSendMailCorrect((void *)a0, 7);
     }
-    iosOmSendMail(D_00639EA4, 0x5E, D_0063A61C);
+    iosOmSendMail(D_00639EA4, 0x5E, isysCurrentGObj);
     *(void **)((char *)sub + 0x130) =
         SetMotionRequest((void *)a0, 0x5E, *(MotOriReq *)((char *)sub + 0x620));
     while ((*(int *)(*(char **)((char *)sub + 0x130) + 0x5C) & 1) == 0) {
@@ -153,7 +153,7 @@ void motGirlHand50(volatile int a0)
 inline void afterGirlHand100(volatile int a0)
 {
     debug_StdPrintfDummy("girl after func\n");
-    iosOmSendMail(D_00639EA4, 0x65, D_0063A61C);
+    iosOmSendMail(D_00639EA4, 0x65, isysCurrentGObj);
     ACTGame_DisconnectHand();
 }
 
@@ -181,7 +181,7 @@ void motGirlHand100(volatile int a0)
 
     debug_StdPrintfDummy("enter motGirlHand100\n");
     while (1) {
-        iosOmSendMail(D_00639EA4, 0x61, D_0063A61C);
+        iosOmSendMail(D_00639EA4, 0x61, isysCurrentGObj);
         if (sub->f_E0 & 1)
             break;
         _ACTWait(1);
@@ -193,12 +193,12 @@ void motGirlHand100(volatile int a0)
     }
     _ACTWait(1);
     while (1) {
-        iosOmSendMail(D_00639EA4, 0x62, D_0063A61C);
+        iosOmSendMail(D_00639EA4, 0x62, isysCurrentGObj);
         if (sub->f_E0 & 2)
             break;
         _ACTWait(1);
     }
-    iosOmSendMail(D_00639EA4, 0x63, D_0063A61C);
+    iosOmSendMail(D_00639EA4, 0x63, isysCurrentGObj);
     *(void **)((char *)sub + 0x130) =
         SetMotionRequest((void *)a0, 0x65, *(MotOriReq *)((char *)sub + 0x620));
     while (GOBJ_SUB(a0)->f_4A0 < 0x214 || !(GOBJ_SUB(a0)->f_4A0 < 0x21B)) {
@@ -208,7 +208,7 @@ void motGirlHand100(volatile int a0)
     }
     _ACTWait(1);
     while (1) {
-        iosOmSendMail(D_00639EA4, 0x64, D_0063A61C);
+        iosOmSendMail(D_00639EA4, 0x64, isysCurrentGObj);
         if (sub->f_E0 & 8)
             break;
         _ACTWait(1);
@@ -223,7 +223,7 @@ void motGirlHand100(volatile int a0)
 inline void afterGirlHand200(volatile int a0)
 {
     debug_StdPrintfDummy("girl after func\n");
-    iosOmSendMail(D_00639EA4, 0x6A, D_0063A61C);
+    iosOmSendMail(D_00639EA4, 0x6A, isysCurrentGObj);
     ACTGame_DisconnectHand();
 }
 
@@ -258,7 +258,7 @@ void motGirlHand200(volatile int a0)
         if (n <= 0)
             goto expired;
         n--;
-        iosOmSendMail(D_00639EA4, 0x66, D_0063A61C);
+        iosOmSendMail(D_00639EA4, 0x66, isysCurrentGObj);
         if (sub->f_E0 & 1)
             break;
         _ACTWait(1);
@@ -275,19 +275,19 @@ held:
     }
     _ACTWait(1);
     while (1) {
-        iosOmSendMail(D_00639EA4, 0x67, D_0063A61C);
+        iosOmSendMail(D_00639EA4, 0x67, isysCurrentGObj);
         if (sub->f_E0 & 2)
             break;
         _ACTWait(1);
     }
-    iosOmSendMail(D_00639EA4, 0x68, D_0063A61C);
+    iosOmSendMail(D_00639EA4, 0x68, isysCurrentGObj);
     *(void **)((char *)sub + 0x130) =
         SetMotionRequest((void *)a0, 0x66, *(MotOriReq *)((char *)sub + 0x620));
     while ((*(int *)(*(char **)((char *)sub + 0x130) + 0x5C) & 1) == 0) {
         _ACTWait(1);
     }
     while (1) {
-        iosOmSendMail(D_00639EA4, 0x69, D_0063A61C);
+        iosOmSendMail(D_00639EA4, 0x69, isysCurrentGObj);
         if (sub->f_E0 & 8)
             break;
         _ACTWait(1);
@@ -1337,8 +1337,11 @@ static int D_0029D4A0[4][4] = {
 extern float D_002A5594[];
 extern char D_005D3EF0[];
 extern char D_0055FE58[];
-extern int GirlInfo;
-extern int D_0063A954;
+
+/* MAIN.MAP global (declared in girl_act.h): the girl's look timer and its state,
+   a tentative definition the compiler emits at the end of the .sdata run */
+int GirlInfo[2];
+
 /* kept local: this TU's uses of _ACTGame_GetParamF do not fit the prototype in act-game.h */
 extern float _ACTGame_GetParamF(int idx);
 extern void _ACTParaStatus_Set(void *self, int para);
@@ -1677,7 +1680,7 @@ void subGirlBrainMain(volatile int a0)
         }
         if (mode != prevMode) {
             ((GirlBrainWork *)D_0029D650)->f_5908 = 0;
-            actChangeActBrain((int)D_0063A61C, D_0029D430[mode].proc, (int *)act);
+            actChangeActBrain((int)isysCurrentGObj, D_0029D430[mode].proc, (int *)act);
             prevMode = mode;
             ((GirlBrainWork *)D_0029D650)->f_58F2 = 1;
             ((GirlBrainWork *)D_0029D650)->curMode = mode;
@@ -1809,12 +1812,12 @@ void subGirlBrainMain(volatile int a0)
             break;
         }
         {
-            switch (D_0063A954) {
+            switch (GirlInfo[1]) {
             case 0:
-                GirlInfo = GirlInfo + 1;
+                GirlInfo[0] = GirlInfo[0] + 1;
                 if (look) {
-                    D_0063A954 = 1;
-                    if ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 30 < GirlInfo) {
+                    GirlInfo[1] = 1;
+                    if ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 30 < GirlInfo[0]) {
                         fire = 1;
                     } else {
                         fire = 0;
@@ -1823,8 +1826,8 @@ void subGirlBrainMain(volatile int a0)
                 break;
             case 1:
                 if (!look) {
-                    GirlInfo = 0;
-                    D_0063A954 = 0;
+                    GirlInfo[0] = 0;
+                    GirlInfo[1] = 0;
                 }
                 break;
             }
@@ -3435,9 +3438,10 @@ inline void *FindGirlPullupFloorBoxGObj(void)
 }
 
 extern int D_0028F8F4[];
-extern unsigned char D_0063A8E0[4];
-extern unsigned char D_0063A8E4;
-extern char D_0063A8E8[];
+
+static unsigned char wayTestBegin = 1; /* derived name */
+
+static unsigned char wayTestMoving = 0; /* derived name */
 
 /* .sbss, girl_act.o's first word (MAIN.MAP line 7594 names no symbol, so the
    name is ours): how many frames in a row WayTest has seen the girl's heading
@@ -3457,12 +3461,12 @@ void WayTest(void)
     s = *(char **)((char *)g + 0x164);
     GetRootProjectionPosOfGObj(b, g);
     GetRootProjectionPosOfGObj(a, D_00639EA4);
-    if ((D_0028F8F4[0] & 8) || D_0063A8E0[3]) {
-        debug_StdPrintfDummy(D_0063A8E8);
-        D_0063A8E4 = ACTWayMove_BeginDetail(g, b, a, D_00639EA4, 0, 0);
-        D_0063A8E0[3] = 0;
+    if ((D_0028F8F4[0] & 8) || wayTestBegin) {
+        debug_StdPrintfDummy("begin");
+        wayTestMoving = ACTWayMove_BeginDetail(g, b, a, D_00639EA4, 0, 0);
+        wayTestBegin = 0;
     }
-    if (D_0063A8E4) {
+    if (wayTestMoving) {
         if (!ACTWayMove_NextDetail(g, s + 0x120, a, 0, 0)) {
             debug_StdPrintfDummy("next error");
         }
@@ -3495,12 +3499,8 @@ void WayTest(void)
    states' literal; the short names FINISH, ATTRACT and the one at 0x63A900
    follow WayTest's flag byte in .sdata, which stays a blob, so they keep
    the blob's labels. */
-extern char D_0063A8F0[];
-extern char D_0063A8F8[];
-extern char D_0063A900[];
-
-static char *D_0029D628[9] = {"IDLE",     "SEARCHWAY", "LOSTTWAY", "APPROACH", D_0063A900,
-                              D_0063A8F8, "LOOKONLY",  "ATTRLOOK", D_0063A8F0};
+static char *D_0029D628[9] = {"IDLE",    "SEARCHWAY", "LOSTTWAY", "APPROACH", "GOAL",
+                              "ATTRACT", "LOOKONLY",  "ATTRLOOK", "FINISH"};
 
 /* kept local: this TU's uses of CorrectStickInfo do not fit the prototype in boyact.h */
 extern int CorrectStickInfo(void *dir, void *stick);
@@ -3516,9 +3516,15 @@ extern void *D_00639EC0;
 extern void *D_00639ED0;
 extern int D_0063AA08;
 extern int D_0063B20C;
-extern int padtimer_stand;
-extern int padtimer_walk;
-extern int padtimer_run;
+
+/* MAIN.MAP globals of girl_act.o's .sdata (declared in girl_act.h) */
+int hyde_test = 0;
+
+int padtimer_stand = 0;
+
+int padtimer_walk = 0;
+
+int padtimer_run = 0;
 
 /* one 0x194-byte motion row per motion id: 0x182 and 0x186 are the turn
    rates handed to SetMotionDirectionSmooze (boyact.c reads the same row
@@ -3618,6 +3624,10 @@ void subGirlControl(volatile int a0)
                 debug_StdPrintfDummy("NOTARGET");
                 debug_StdPrintfDummy("[%s] %4d %4d %4d");
                 debug_StdPrintfDummy("delete wg 2\n");
+                debug_StdPrintfDummy("SLOW");
+                debug_StdPrintfDummy("HURRY");
+                debug_StdPrintfDummy("STOP");
+                debug_StdPrintfDummy("target");
             }
             if (D_00639EA0 == 0 &&
                 ((*(unsigned long long *)(w.p + 0x18) & 0x3000000000000000) != 0 ||
@@ -3802,7 +3812,6 @@ extern void ACTParaStatus_Exec(void *self);
 /* kept local: this TU's uses of _ACTGame_GetParamF do not fit the prototype in act-game.h */
 extern float _ACTGame_GetParamF(int idx);
 extern int D_0063B13C;
-extern char D_0063A938[];
 /* kept local: this TU's uses of debug_Arrow do not fit the prototype in camera-editor.h */
 extern void debug_Arrow(float len, void *from, void *to, int r, int g, int b);
 /* kept local: this TU's uses of ACTGame_FLAG_TETSUNAGI do not fit the prototype in act-game.h */
@@ -3907,7 +3916,7 @@ void subGirlCollision(volatile int a0)
             } else {
                 GetSkeltonOrient(sk, (void *)a0, 1);
                 if (D_0063B13C & 1) {
-                    debug_Printf(10, 100, 0x0FFFFFFF, (int)D_0063A938,
+                    debug_Printf(10, 100, 0x0FFFFFFF, (int)"[%d]\n",
                                  _AbsRotyGV((char *)sub + 0x120, sk));
                 }
                 if (_AbsRotyGV((char *)sub + 0x120, sk) < 60) {
@@ -4023,10 +4032,6 @@ void subGirlCollision(volatile int a0)
 }
 
 extern void *D_002A2E24[];
-extern char D_0063A940[];
-extern float D_0063A944;
-extern float D_0063A948;
-extern float D_0063A94C[];
 extern int D_0063B13C;
 extern GirlStand D_002A2F70;
 /* kept local: this TU's uses of GetHeightOfFieldPlaneDifference do not fit the
@@ -4190,7 +4195,7 @@ void actGirlHand(volatile int a0)
         _ACTLookTarget_Set((void *)a0, 0, look, 1, 1);
         if (ACTGame_FLAG_TETSUNAGI() == 0) {
             ACTSendMailCorrect((void *)a0, 0x3E);
-            debug_StdPrintfDummy(D_0063A940);
+            debug_StdPrintfDummy("?\n");
         }
         if (*(int *)((char *)GOBJ_SUB(a0) + 0x310) == 6) {
             HandMgr_Update();
@@ -4221,14 +4226,17 @@ void actGirlHand(volatile int a0)
                     _OrientXZGV(d, test_CURRENTROOT(D_00639EA4), test_CURRENTROOT((void *)a0));
                     if (((int)(*(unsigned long long *)((char *)sub + 0x18) >> 44) & 1) &&
                         _AbsRotyGV(d, (char *)sub + 0x4B0) >= 0x88) {
-                        iosOmSendMail(D_00639EA4, 0xF7, D_0063A61C);
+                        iosOmSendMail(D_00639EA4, 0xF7, isysCurrentGObj);
                     } else {
-                        iosOmSendMail(D_00639EA4, 0xF8, D_0063A61C);
+                        iosOmSendMail(D_00639EA4, 0xF8, isysCurrentGObj);
                     }
                 }
             }
         }
         if (*(int *)((char *)GOBJ_SUB(a0) + 0x310) == 6) {
+            static float pullLen = 0.0f;  /* derived name */
+            static float pullTurn = 0.0f; /* derived name */
+
             hand = (float)(((void *)a0 == D_00639EA8 && D_00639EA0 != 0) ? MOTDIRROW(a0)->f_182
                                                                          : MOTDIRROW(a0)->f_186);
             t = 200.0f;
@@ -4267,8 +4275,8 @@ void actGirlHand(volatile int a0)
                 rate = turn;
             }
             t = t * rate;
-            D_0063A944 = D_0063A944 + (t - D_0063A944) * 0.1f;
-            sceVu0ScaleVector(vA0, v80, D_0063A944);
+            pullLen = pullLen + (t - pullLen) * 0.1f;
+            sceVu0ScaleVector(vA0, v80, pullLen);
             _ApplyRyGV(vA0, -1.5707964f);
             sceVu0AddVector(v90, v60, vA0);
             {
@@ -4278,7 +4286,8 @@ void actGirlHand(volatile int a0)
                 sceVu0Normalize(dir, dir);
                 near = dist / 90.0f;
                 /* h, free since the height test, holds the clamped factor */
-                h = near < 1.0f ? 1.0f : (D_0063A94C[0] < near ? D_0063A94C[0] : near);
+                h = near < 1.0f ? 1.0f
+                                : (3.40282347e+38f /* FLT_MAX */ < near ? 3.40282347e+38f : near);
                 hand = hand * h;
             }
             sceVu0ScaleVector(v60, dir, 300.0f);
@@ -4287,18 +4296,18 @@ void actGirlHand(volatile int a0)
                 if (D_002A2F70.f_5A != 0) {
                     float goal = 30.0f;
 
-                    D_0063A948 =
-                        D_0063A948 +
-                        (goal - D_0063A948) *
+                    pullTurn =
+                        pullTurn +
+                        (goal - pullTurn) *
                             (((int)(*(unsigned long long *)((char *)sub + 0x18) >> 44) & 1) ? 0.7f
                                                                                             : 0.1f);
                 } else {
-                    D_0063A948 = hand;
+                    pullTurn = hand;
                 }
             } else {
-                D_0063A948 = hand;
+                pullTurn = hand;
             }
-            SetMotionDirectionSmooze((void *)a0, dir, D_0063A948);
+            SetMotionDirectionSmooze((void *)a0, dir, pullTurn);
             *(float *)((char *)sub + 0x120) = dir[0];
             *(float *)((char *)sub + 0x124) = dir[1];
             *(float *)((char *)sub + 0x128) = dir[2];
@@ -4799,7 +4808,7 @@ void actGirlRescueDst(volatile int a0)
             GetSkeltonPosition(p1, D_00639EA4, 6);
             GetSkeltonPosition(p2, D_00639EA8, 22);
             if (!(_DistSqGV(p1, p2) < 400.0f)) {
-                iosOmSendMail(D_00639EA4, 248, D_0063A61C);
+                iosOmSendMail(D_00639EA4, 248, isysCurrentGObj);
             }
             ACTSendMailCorrect((void *)a0, 198);
         }
@@ -4808,7 +4817,7 @@ void actGirlRescueDst(volatile int a0)
             dst[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
             ACTSetPositionWithFitting((void *)a0, dst);
         }
-        iosOmSendMail(D_00639EA4, 350, D_0063A61C);
+        iosOmSendMail(D_00639EA4, 350, isysCurrentGObj);
         n--;
         ACTSendMailCorrect((void *)a0, 199);
         _ACTWait(1);
@@ -4909,9 +4918,8 @@ void actGirlSupportBGBegin(volatile int a0)
     }
 }
 
-extern int girlcalled;
-extern int GirlInfo;
-extern int D_0063A954;
+int girlcalled;
+
 extern int D_0063B180;
 extern char D_002A84F8[];
 /* kept local: this TU's uses of subCommonIdle do not fit the prototype in commonact.h */
@@ -4944,8 +4952,8 @@ void actGirlStart(void *self)
     char *p;
 
     girlcalled = 0;
-    D_0063A954 = 0;
-    GirlInfo = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 30;
+    GirlInfo[1] = 0;
+    GirlInfo[0] = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 30;
     debug_StdPrintfDummy("actGirlStart:%p\n", self);
     p = actInitialize(self);
     actInitialize_ext_charcter(self);

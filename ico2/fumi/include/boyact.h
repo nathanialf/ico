@@ -78,4 +78,10 @@ void PutWeapon(void);
 void SetStatusBoy_OtherStageGirlPinch(void);
 void handoff_heroin(void);
 
+/* MAIN.MAP globals of boyact.o's .sdata: the two rope values in place and
+ * gopp_subBoyControl, the boy control thread, the run's last word. */
+extern int test_rope_slope;
+extern float add_rope_val;
+extern void *gopp_subBoyControl;
+
 #endif /* BOYACT_H */

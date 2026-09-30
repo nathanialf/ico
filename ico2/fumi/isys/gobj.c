@@ -44,10 +44,10 @@ void isysGObjKindTableInit(void)
     memset(gobjKindHead, 0, sizeof(gobjKindHead));
 }
 
-extern char D_0029C4F0[];
-extern char *D_0029C510[];
-extern int D_0063A60C;
-extern unsigned int D_0063A610;
+extern char gobj_link_head[];
+extern char *gobj_link_tail[];
+extern int active_gobj_link;
+extern unsigned int active_gobj_dl_link;
 /* kept local: this TU's uses of isysGObjAlloc do not fit the prototype in gobj.h */
 extern void isysGObjAlloc(int n);
 
@@ -56,12 +56,12 @@ void isysGObjInit(int n)
     int i;
 
     for (i = 0; i < 8; i++) {
-        *(int *)(D_0029C4F0 + i * 4) = 0;
-        D_0029C510[i] = 0;
+        *(int *)(gobj_link_head + i * 4) = 0;
+        gobj_link_tail[i] = 0;
     }
     isysGObjAlloc(n);
-    D_0063A60C = 0;
-    D_0063A610 = 0;
+    active_gobj_link = 0;
+    active_gobj_dl_link = 0;
     isysGObjKindTableInit();
 }
 
@@ -99,6 +99,8 @@ typedef struct GLNode {
     int key;
 } GLNode;
 
+int debugKindOld = 0;
+
 void cut_gobj_link(int a0)
 {
     GLNode *p = (GLNode *)a0;
@@ -119,15 +121,13 @@ void cut_gobj_link(int a0)
         }
     }
 
-    if (p == ((GLNode **)D_0029C4F0)[p->id]) {
-        ((GLNode **)D_0029C4F0)[p->id] = p->next;
+    if (p == ((GLNode **)gobj_link_head)[p->id]) {
+        ((GLNode **)gobj_link_head)[p->id] = p->next;
     }
-    if (p == ((GLNode **)D_0029C510)[p->id]) {
-        ((GLNode **)D_0029C510)[p->id] = p->prev;
+    if (p == ((GLNode **)gobj_link_tail)[p->id]) {
+        ((GLNode **)gobj_link_tail)[p->id] = p->prev;
     }
 }
-
-extern char D_0063A608[];
 
 /* INTERIM: the listing inlines isysGObjRemove here (its own lines 225-231 and,
  * through it, isysGObjKindTableRemove's 138-147, appear inside this function's
@@ -147,7 +147,7 @@ static __inline__ void removeGObjEntry(char *g)
             while (*(char **)(p + 0x3C) != g) {
                 if (p == 0) {
                     debug_assert(__FILE__, 0x92);
-                    __assert(__FILE__, 0x92, D_0063A608);
+                    __assert(__FILE__, 0x92, "0");
                 }
                 p = *(char **)(p + 0x3C);
             }
@@ -183,26 +183,26 @@ void add_gobj_to_tail(int a0, int a1, int a2)
     char *p;
     g[0x18] = kind;
     *(unsigned int *)(g + 0x1C) = val;
-    head = *(char **)(D_0029C4F0 + kind * 4);
+    head = *(char **)(gobj_link_head + kind * 4);
     if (head == 0) {
-        *(char **)(D_0029C4F0 + kind * 4) = g;
+        *(char **)(gobj_link_head + kind * 4) = g;
         *(char **)(g + 0x14) = 0;
         *(char **)(g + 0x10) = 0;
-        D_0029C510[kind] = g;
+        gobj_link_tail[kind] = g;
         return;
     }
     if (val < *(unsigned int *)(head + 0x1C)) {
         *(char **)(g + 0x14) = 0;
         *(char **)(g + 0x10) = head;
-        *(char **)(D_0029C4F0 + kind * 4) = g;
+        *(char **)(gobj_link_head + kind * 4) = g;
         *(char **)(head + 0x14) = g;
         return;
     }
-    tail = D_0029C510[kind];
+    tail = gobj_link_tail[kind];
     if (!(val < *(unsigned int *)(tail + 0x1C))) {
         *(char **)(g + 0x14) = tail;
         *(char **)(g + 0x10) = 0;
-        D_0029C510[kind] = g;
+        gobj_link_tail[kind] = g;
         *(char **)(tail + 0x10) = g;
         return;
     }
@@ -225,26 +225,26 @@ void add_gobj_to_head(char *g, int a1, int a2)
     char *p;
     g[0x18] = kind;
     *(unsigned int *)(g + 0x1C) = val;
-    head = *(char **)(D_0029C4F0 + kind * 4);
+    head = *(char **)(gobj_link_head + kind * 4);
     if (head == 0) {
-        *(char **)(D_0029C4F0 + kind * 4) = g;
+        *(char **)(gobj_link_head + kind * 4) = g;
         *(char **)(g + 0x14) = 0;
         *(char **)(g + 0x10) = 0;
-        D_0029C510[kind] = g;
+        gobj_link_tail[kind] = g;
         return;
     }
     if (!(*(unsigned int *)(head + 0x1C) < val)) {
         *(char **)(g + 0x14) = 0;
         *(char **)(g + 0x10) = head;
-        *(char **)(D_0029C4F0 + kind * 4) = g;
+        *(char **)(gobj_link_head + kind * 4) = g;
         *(char **)(head + 0x14) = g;
         return;
     }
-    tail = D_0029C510[kind];
+    tail = gobj_link_tail[kind];
     if (*(unsigned int *)(tail + 0x1C) < val) {
         *(char **)(g + 0x14) = tail;
         *(char **)(g + 0x10) = 0;
-        D_0029C510[kind] = g;
+        gobj_link_tail[kind] = g;
         *(char **)(tail + 0x10) = g;
         return;
     }
@@ -288,7 +288,7 @@ static __inline__ void linkGObjAfter(GLNode *g, GLNode *other)
     g->next = other->next;
     other->next = g;
     if (g->next == 0) {
-        ((GLNode **)D_0029C510)[g->id] = g;
+        ((GLNode **)gobj_link_tail)[g->id] = g;
     }
 }
 
@@ -362,7 +362,7 @@ char *isysGObjAddBeforeGObj(char *owner, char *other)
     *(int *)(other + 0x14) = (int)g;
     *(int *)(g + 0x1C) = *(int *)(other + 0x1C);
     if (*(int *)(g + 0x14) == 0) {
-        *(int *)(D_0029C4F0 + *(unsigned char *)(g + 0x18) * 4) = (int)g;
+        *(int *)(gobj_link_head + *(unsigned char *)(g + 0x18) * 4) = (int)g;
     }
     *(int *)(g + 0x15C) = 0;
     *(int *)(g + 0x8) = -1;
@@ -398,7 +398,7 @@ inline void isysGObjRemove(char *g)
             while (*(char **)(p + 0x3C) != g) {
                 if (p == 0) {
                     debug_assert(__FILE__, 0x92);
-                    __assert(__FILE__, 0x92, D_0063A608);
+                    __assert(__FILE__, 0x92, "0");
                 }
                 p = *(char **)(p + 0x3C);
             }
@@ -413,7 +413,6 @@ inline void isysGObjRemove(char *g)
     }
 }
 
-extern int D_0063A600;
 /* kept local: this TU's uses of isysGObjSearchFromObjKindID_begin do not fit the prototype in gobj.h */
 extern void *isysGObjSearchFromObjKindID_begin(int kind);
 /* kept local: this TU's uses of isysGObjSearchFromObjKindID_next do not fit the prototype in gobj.h */
@@ -425,7 +424,7 @@ inline void isysGObjKindTableAdd(char *g, int kind)
 {
     char *p;
 
-    if (D_0063A600 != 0) {
+    if (debugKindOld != 0) {
         *(int *)(g + 0xC) = kind;
         return;
     }
@@ -466,7 +465,7 @@ inline void isysGObjKindTableRemove(char *g)
         while (*(char **)(p + 0x3C) != g) {
             if (p == 0) {
                 debug_assert(__FILE__, 0x92);
-                __assert(__FILE__, 0x92, D_0063A608);
+                __assert(__FILE__, 0x92, "0");
             }
             p = *(char **)(p + 0x3C);
         }
@@ -483,7 +482,7 @@ inline void isysGObjMoveAfterGObj(char *self, char *other)
     *(char **)(other + 0x10) = self;
     *(int *)(self + 0x1C) = *(int *)(other + 0x1C);
     if (*(char **)(self + 0x10) == 0) {
-        D_0029C510[*(unsigned char *)(self + 0x18)] = self;
+        gobj_link_tail[*(unsigned char *)(self + 0x18)] = self;
     }
 }
 
@@ -500,7 +499,7 @@ inline void isysGObjMoveBeforeGObj(int self, int other)
     *(int *)(other + 0x14) = self;
     *(int *)(self + 0x1C) = *(int *)(other + 0x1C);
     if (*(int *)(self + 0x14) == 0) {
-        *(int *)(D_0029C4F0 + *(unsigned char *)(self + 0x18) * 4) = self;
+        *(int *)(gobj_link_head + *(unsigned char *)(self + 0x18) * 4) = self;
     }
 }
 
@@ -576,7 +575,7 @@ static __inline__ void *searchGObjOfObjKind(char *p, int kind)
 
 inline void *isysGObjSearchFromObjKindID_begin(int kind)
 {
-    if (D_0063A600 != 0) {
+    if (debugKindOld != 0) {
         return searchGObjOfObjKind((char *)gobjTable - 0x174, kind);
     }
     if ((unsigned int)(kind - 1) < 0x45) {
@@ -587,7 +586,7 @@ inline void *isysGObjSearchFromObjKindID_begin(int kind)
 
 inline void *isysGObjSearchFromObjKindID_next(char *g)
 {
-    if (D_0063A600 != 0) {
+    if (debugKindOld != 0) {
         return searchGObjOfObjKind(g, *(int *)(g + 0xC));
     }
     return *(char **)(g + 0x3C);
@@ -633,17 +632,17 @@ inline void isysGObjActiveLink(int bit, int set)
 {
     if (set != 0)
         goto set_path;
-    D_0063A60C &= ~(1 << bit);
+    active_gobj_link &= ~(1 << bit);
     return;
 set_path:
-    D_0063A60C |= (1 << bit);
+    active_gobj_link |= (1 << bit);
 }
 
 inline void isysGObjActiveDlLink(int a0, int a1)
 {
     if (a1 == 0) {
-        D_0063A610 &= ~(1 << a0);
+        active_gobj_dl_link &= ~(1 << a0);
     } else {
-        D_0063A610 |= (1 << a0);
+        active_gobj_dl_link |= (1 << a0);
     }
 }

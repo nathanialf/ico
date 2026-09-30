@@ -69,8 +69,15 @@ typedef struct WayGrp {
 
 extern WayRec D_004F1EC0[];
 extern Nd D_004F31E0[];
-extern int D_0063BD70;
-extern int D_0063BD74;
+
+/* MAIN.MAP globals of way_llf.o's .sdata (declared in way_llf.h), tentative
+   definitions the compiler emits at the end of the file in this order */
+int first_waytool;
+
+int n_way_group;
+
+int current_select_gid;
+
 /* gcc 2.9 emits a non-static `inline` function's out-of-line copy at the end of
  * the object, in first-declaration order, so the whole TU is declared here in
  * ROM order and every definition below is `inline`.  That reproduces the ROM's
@@ -122,7 +129,7 @@ inline int CreateWayGroup(void)
             wg->f20 = -1;
             wg->f24 = -1;
             wg->f2C = 0;
-            D_0063BD74++;
+            n_way_group++;
             return i;
         }
     }
@@ -154,7 +161,7 @@ inline int DeleteWayGroup(int gno)
         }
 
         wg->f0 = 0;
-        D_0063BD74--;
+        n_way_group--;
         return 0;
     }
     return 1;
@@ -539,8 +546,8 @@ void InitWayPointSystem(void)
         wg->f24 = -1;
     }
 
-    D_0063BD70 = 0;
-    D_0063BD74 = 0;
+    first_waytool = 0;
+    n_way_group = 0;
 }
 
 inline void SetWayGroupActive(int a0, int a1)

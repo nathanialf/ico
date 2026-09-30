@@ -3,10 +3,10 @@
 
 /* kept local: this TU's uses of isysGObjInit do not fit the prototype in gobj.h */
 extern void isysGObjInit();
-extern int *D_0029C4F0[];
+extern int *gobj_link_head[];
 /* kept local: this TU's uses of isysGetNbAllocedGObjs do not fit the prototype in gobj.h */
 extern int isysGetNbAllocedGObjs();
-extern char *D_0063A61C;
+extern char *isysCurrentGObj;
 /* kept local: this TU's uses of isysGObjRemove do not fit the prototype in gobj.h */
 extern void isysGObjRemove(char *g);
 
@@ -25,6 +25,15 @@ typedef struct {
 #include "gobj_process.h"
 #include "thread.h"
 
+/* A debug frame-rate selector that nothing reads any more: the selected entry
+   (.sdata), each entry's wait and its name (.data), in the ROM's order. */
+static int omSpeedSel = 0; /* derived name */
+
+static int omSpeedWait[8] = {9999, 60, 30, 20, 12, 8, 4, 2}; /* derived name */
+
+static char omSpeedName[8][8] = {"STOP", "1/1",   "1/2",  "1/3",
+                                 "1/5",  "1/7.5", "1/15", "1/30"}; /* derived name */
+
 void iosOmInit(void)
 {
     isysGObjInit(0x140);
@@ -41,7 +50,7 @@ inline void iosOmGetGObjStatus(int a0, int a1)
 
 inline void iosOmExeEachGObj(int idx, void (*fn)(int *, int), int arg)
 {
-    int *node = D_0029C4F0[idx];
+    int *node = gobj_link_head[idx];
     if (node != 0) {
         do {
             fn(node, arg);
@@ -54,7 +63,7 @@ inline void iosOmExeEachGObjAll(void (*fn)(int *, int), int arg)
 {
     int i = 0;
     do {
-        int *node = D_0029C4F0[i];
+        int *node = gobj_link_head[i];
         if (node != 0) {
             do {
                 fn(node, arg);
@@ -67,7 +76,7 @@ inline void iosOmExeEachGObjAll(void (*fn)(int *, int), int arg)
 
 inline int iosOmReturnExeEachGObj(int a0, int (*fn)(int *, int), int arg, int flag)
 {
-    int *node = D_0029C4F0[a0];
+    int *node = gobj_link_head[a0];
     int ret = 0;
     if (node != 0) {
         do {
@@ -85,7 +94,7 @@ inline int iosOmReturnExeEachGObj(int a0, int (*fn)(int *, int), int arg, int fl
 
 inline int *iosOmSearchGObjId(int idx, int target)
 {
-    int *p = D_0029C4F0[idx];
+    int *p = gobj_link_head[idx];
     if (p != 0) {
         do {
             if (p[0] == target) {
@@ -101,7 +110,7 @@ inline int *iosOmSearchGObjIdAll(int a0)
 {
     int i;
     for (i = 0; i < 8; i++) {
-        int *p = D_0029C4F0[i];
+        int *p = gobj_link_head[i];
         int *found;
         if (p != 0) {
             do {
@@ -144,7 +153,7 @@ inline int iosOmSendMail(char *self_arg, int val5, int val6)
 
 inline int iosOmSendMailLink(int a0, int val5, int val6)
 {
-    int *node = D_0029C4F0[a0];
+    int *node = gobj_link_head[a0];
     int ret = 0;
     if (node != 0) {
         do {
@@ -177,7 +186,7 @@ inline int iosOmSendMailLink(int a0, int val5, int val6)
 
 inline int iosOmExeMail(void (*func)(IosMail))
 {
-    char *g = D_0063A61C;
+    char *g = isysCurrentGObj;
     IosMailBox *mb = (IosMailBox *)(g + 0x54);
     int i;
     for (i = 0; i < mb->num; i++) {
@@ -226,8 +235,8 @@ typedef struct OmGObj {
 } OmGObj;
 
 extern int D_0028F4C0[];
-extern int D_0063A60C;
-extern OmProc *D_0063A620;
+extern int active_gobj_link;
+extern OmProc *isysCurrentGObjProcess;
 
 void _iosOmMain(int a0, int a1, int a2, int a3)
 {
@@ -238,10 +247,10 @@ void _iosOmMain(int a0, int a1, int a2, int a3)
     int pri;
 
     for (k = 0; k < 8; k++) {
-        g = (OmGObj *)D_0029C4F0[k];
-        if ((D_0063A60C >> k) & 1) {
+        g = (OmGObj *)gobj_link_head[k];
+        if ((active_gobj_link >> k) & 1) {
             for (; g != 0; g = g->next) {
-                D_0063A61C = (char *)g;
+                isysCurrentGObj = (char *)g;
                 if (D_0028F4C0[5] == 0 || g->pauseExempt != 0) {
                     if (g->active != 0) {
                         if (g->fn != 0) {
@@ -253,10 +262,10 @@ void _iosOmMain(int a0, int a1, int a2, int a3)
         }
     }
     for (k = 0; k < 8; k++) {
-        g2 = (OmGObj *)D_0029C4F0[k];
-        if ((D_0063A60C >> k) & 1) {
+        g2 = (OmGObj *)gobj_link_head[k];
+        if ((active_gobj_link >> k) & 1) {
             for (; g2 != 0; g2 = g2->next) {
-                D_0063A61C = (char *)g2;
+                isysCurrentGObj = (char *)g2;
                 if (D_0028F4C0[5] == 0 || g2->pauseExempt != 0) {
                     if (g2->active != 0) {
                         for (pri = 0x13; pri < 27; pri++) {
@@ -264,19 +273,19 @@ void _iosOmMain(int a0, int a1, int a2, int a3)
                             while (p != 0) {
                                 if (p->pri == pri) {
                                     if (p->enabled != 0) {
-                                        D_0063A620 = p;
+                                        isysCurrentGObjProcess = p;
                                         if (p->mode == 0) {
                                             if (iosThreadGetPri(p->thread) != 0x22) {
                                                 iosThreadWakeup(p->thread);
                                             } else {
                                                 isysGObjProcRemove(p);
                                             }
-                                            D_0063A620 = 0;
+                                            isysCurrentGObjProcess = 0;
                                         } else {
                                             if (p->fn != 0) {
                                                 p->fn(g2);
                                             }
-                                            D_0063A620 = 0;
+                                            isysCurrentGObjProcess = 0;
                                         }
                                     }
                                 }
@@ -295,8 +304,8 @@ void iosOmMain(int a0, int a1, int a2, int a3)
     _iosOmMain(a0, a1, a2, a3);
 }
 
-/* the camera list node the DL walk hangs off (D_0063A614) and the per-kind
-   GObj list heads (D_0029C530) */
+/* the camera list node the DL walk hangs off (gobj_camera_dl_link_head) and the per-kind
+   GObj list heads (gobj_dl_link_head) */
 typedef struct OmCam {
     char _p0[0x34];
     struct OmCam *next; /* 0x34 */
@@ -317,8 +326,8 @@ typedef struct OmObj {
     int active; /* 0x16C */
 } OmObj;
 
-extern OmCam *D_0063A614;
-extern OmObj *D_0029C530[];
+extern OmCam *gobj_camera_dl_link_head;
+extern OmObj *gobj_dl_link_head[];
 
 void iosOmCreateDL(void)
 {
@@ -326,16 +335,16 @@ void iosOmCreateDL(void)
     OmObj *g;
     int i;
 
-    for (c = D_0063A614; c != 0; c = c->next) {
-        if (D_0063A60C & 1) {
+    for (c = gobj_camera_dl_link_head; c != 0; c = c->next) {
+        if (active_gobj_link & 1) {
             if (c->dl != 0) {
                 c->dl(c);
             }
         }
         for (i = 0; i < 32; i++) {
-            if ((D_0063A60C >> i) & 1) {
+            if ((active_gobj_link >> i) & 1) {
                 if ((c->kindMask >> i) & 1) {
-                    for (g = D_0029C530[i]; g != 0; g = g->next) {
+                    for (g = gobj_dl_link_head[i]; g != 0; g = g->next) {
                         if (g->active != 0 && (c->drawMask & g->drawMask) != 0 && g->dl != 0) {
                             g->dl(g);
                         }

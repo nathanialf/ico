@@ -1105,8 +1105,6 @@ float GetProjectionOfPlaneWithKeepAway(void *a0, void *a1, void *a2, float f)
     return dot;
 }
 
-extern int charGObjList[];
-
 int *GetCharGObjList(void)
 {
     return charGObjList;

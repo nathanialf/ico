@@ -6,6 +6,7 @@
 #include "shockdriver.h"
 #include "adpcm_init.h"
 #include "s_init.h"
+#include "soundManager.h"
 #include "camera-ico2.h"
 #include "camera-set-manager.h"
 #include "Basic.h"
@@ -489,7 +490,6 @@ typedef struct {
 } SeRec;                     /* 0x64 */
 
 extern SeRec D_005EBBE8[];
-extern int D_0063A684;
 
 void ReadSoundBdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6)
 {
@@ -516,7 +516,7 @@ void ReadSoundBdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6
         }
     } break;
     case 10:
-        if (D_0063A684 == 0) {
+        if (sndInitBgmCancelFlag == 0) {
             soundBDDataSet(buf, a3, 10, 1, a6, size);
         }
         break;
@@ -555,7 +555,7 @@ void ReadSoundHdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6
         break;
     case 10:
         info.mode = 1;
-        info.bank = D_0063A684;
+        info.bank = sndInitBgmCancelFlag;
         break;
     default:
         debug_assert(__FILE__, 642);
@@ -621,7 +621,7 @@ inline void ReadSoundSqFile(void *h, int a1, int size, int a3, int kind, int a5,
         break;
     case 10:
         info.mode = 1;
-        info.bank = D_0063A684;
+        info.bank = sndInitBgmCancelFlag;
         break;
     default:
         debug_assert(__FILE__, 709);

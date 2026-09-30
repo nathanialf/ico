@@ -75,9 +75,21 @@ EE_AS_SDK="${ROOT}/tools/cc/ee-gcc2.96/bin/as"
 # with the retail words on that region where the no-g build does not; and with
 # -g the SDK archives lose the delay-slot fills their assembler gave them, so
 # they were built without it. Per origin only, never per TU.
+# The game also compiled -fno-common. MAIN.MAP's *(.scommon) rows come only
+# from SDK and newlib objects (libscedemo.o's argv_copy/argc_copy, libgcc's
+# _ctors.o, libc's sbrkr.o errno) and no game object sits in COMMON: the
+# game's zero-valued globals are in their own TU's .sdata or .data, emitted
+# after the rest of the file in first-declaration order, which is what a
+# tentative definition does when it cannot be common (act-game's
+# floorGObj_/wallGObj_ACTCheckCollis_*, isys's list heads, girl_act's GirlInfo
+# and girlcalled at the ends of their runs). No game .s carried a .comm before
+# the flag; with it every object kept its code and data bytes (measured
+# 2026-09-30; the one object it moved was geometryManager's charGObjList, a
+# static that a redundant later extern declaration turned from .bss into
+# .data, and that declaration is gone).
 case "${1:-}" in
-    sce/*|*/sce/*) GNUM=0; BUILTIN="-fno-builtin"; DBG="" ;;
-    *) GNUM=8; BUILTIN=""; DBG="-g" ;;
+    sce/*|*/sce/*) GNUM=0; BUILTIN="-fno-builtin"; DBG=""; COMMON="" ;;
+    *) GNUM=8; BUILTIN=""; DBG="-g"; COMMON="-fno-common" ;;
 esac
 # The SDK's and newlib's own public headers, reconstructed under sce/<archive>/
 # by public naming (the members and the game TUs include them as <libdma.h>).
@@ -85,7 +97,7 @@ SCE_INCS=""
 for _a in libc libm libvu0 libkernl libpkt libgraph libdma libpad libscf libmpeg libmc libipu libcdvd; do
     SCE_INCS="${SCE_INCS} -I${ROOT}/sce/${_a}"
 done
-CFLAGS="-S ${DBG} -G ${GNUM} -O2 -mips3 -EL ${BUILTIN} -nostdinc${SCE_INCS}"
+CFLAGS="-S ${DBG} ${COMMON} -G ${GNUM} -O2 -mips3 -EL ${BUILTIN} -nostdinc${SCE_INCS}"
 # DUMP MODE (2026-09-27): `DUMP_DIR=<dir> tools/compile_c.sh <src> <obj>` adds -da (every RTL
 # pass dump) under the SAME per-origin flags and assembler, then moves the dumps gcc wrote
 # beside the source into DUMP_DIR so nothing lands under ico2/ or sce/. DUMP_FLAGS may add

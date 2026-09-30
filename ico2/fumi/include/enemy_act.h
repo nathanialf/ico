@@ -75,4 +75,7 @@ void actEnemyRestart(char *self, float *pos, float *dir, int kind, int mot);
 void boss_effect_start(char *self, int id);
 int flyMailCore(void *self);
 
+/* MAIN.MAP global of enemy_act.o's .sdata, the run's last word (act.c sets it) */
+extern int entesty;
+
 #endif /* ENEMY_ACT_H */

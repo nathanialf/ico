@@ -139,11 +139,12 @@ typedef struct {
     char c[16];
 } IosStackMark;
 
-extern int _gp;                    /* linker-defined global pointer */
-extern int D_0063A5F0;             /* number of live IOS threads */
+extern int _gp; /* linker-defined global pointer */
+
+static int n_thread = 0; /* derived name: the number of live IOS threads */
+
 inline void iosThreadDestroyMgr(); /* deferred-tail member; see the emission-order note */
 extern int CreateThread(IOSThread *param);
-extern char D_0063A5F8[];
 extern void debug_assert(const char *file, int line);
 extern void __assert(const char *file, int line, const char *expr);
 
@@ -178,17 +179,17 @@ inline void iosThreadCreate(IOSThread *th, int no, void (*func)(), int arg, void
     if (th->id >= 0x100) {
         debug_StdPrintfDummy("thr:thread table over flow\n");
         debug_assert(__FILE__, 141);
-        __assert(__FILE__, 141, D_0063A5F8);
+        __assert(__FILE__, 141, "0");
     } else if (th->id <= 0) {
         debug_StdPrintfDummy("thr:can't create thread\n");
         debug_assert(__FILE__, 145);
-        __assert(__FILE__, 145, D_0063A5F8);
+        __assert(__FILE__, 145, "0");
     } else {
         iosThreadTable[th->id] = (int)th;
     }
 
-    D_0063A5F0++;
-    debug_StdPrintfDummy("n_thread %d\n", D_0063A5F0);
+    n_thread++;
+    debug_StdPrintfDummy("n_thread %d\n", n_thread);
     th->flags &= ~1;
 
     th->hasQueue = 0;
@@ -265,8 +266,8 @@ inline void iosThreadDestroyMgr(void)
         iosMsgRecv(iosThreadDestroyQueue, &th, 1);
 
         id = th->id;
-        D_0063A5F0--;
-        debug_StdPrintfDummy("1:n_thread %d\n", D_0063A5F0);
+        n_thread--;
+        debug_StdPrintfDummy("1:n_thread %d\n", n_thread);
         TerminateThread(id);
         DeleteThread(id);
         if ((th->flags & 1) == (unsigned)1)
@@ -409,7 +410,7 @@ inline int iosSemaCreate(int *self, int a1, int a2, int a3)
     if (rv < 0) {
         debug_StdPrintfDummy("sem: can't create %d\n", rv);
         debug_assert(__FILE__, 604);
-        __assert(__FILE__, 604, D_0063A5F8);
+        __assert(__FILE__, 604, "0");
         return self[0x30 / 4];
     }
     return 0;
@@ -423,7 +424,7 @@ inline int iosSemaDelete(int *self)
     if (rv < 0) {
         debug_StdPrintfDummy("sem: can't delete %d\n", self[0x30 / 4]);
         debug_assert(__FILE__, 624);
-        __assert(__FILE__, 624, D_0063A5F8);
+        __assert(__FILE__, 624, "0");
         return rv;
     }
     return 0;
@@ -464,7 +465,7 @@ inline int iosSemaReferStatus(int *self)
     if (rv < 0) {
         debug_StdPrintfDummy("sem: refer error? %d\n", self[0x30 / 4]);
         debug_assert(__FILE__, 688);
-        __assert(__FILE__, 688, D_0063A5F8);
+        __assert(__FILE__, 688, "0");
         return rv;
     }
     return 0;

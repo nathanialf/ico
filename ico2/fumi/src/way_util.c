@@ -768,18 +768,16 @@ inline char *nearest_waypoint_of_group(int *arg0, int handle)
     return best;
 }
 
-extern int D_0063BD78;
-
 inline char *nearest_waypoint(int *a0)
 {
-    return nearest_waypoint_of_group(a0, D_0063BD78);
+    return nearest_waypoint_of_group(a0, current_select_gid);
 }
 
 inline char *nearest_waypoint_from_gobj(void *dobj)
 {
     int mtx[4];
     GetRootPosition(mtx, dobj);
-    return nearest_waypoint_of_group(mtx, D_0063BD78);
+    return nearest_waypoint_of_group(mtx, current_select_gid);
 }
 
 extern WayGrp D_004F1EC0[];
@@ -814,7 +812,7 @@ out:
 
 inline char *nearest_waypoint_by_lineseg(void *arg0)
 {
-    WayGrp *g = &D_004F1EC0[D_0063BD78];
+    WayGrp *g = &D_004F1EC0[current_select_gid];
     char *cur = g->f8;
     float bestDist = 100000.0f;
     char *best = 0;
@@ -877,7 +875,7 @@ inline char *nearest_waypoint_by_lineseg_of_group_from_gobj(void *dobj, int gid)
 inline char *nearest_waypoint_by_lineseg_from_gobj(void *dobj)
 {
     int mtx[4];
-    int gid = D_0063BD78;
+    int gid = current_select_gid;
     int *pos;
     GetRootPosition(mtx, dobj);
     pos = mtx;
@@ -909,12 +907,10 @@ inline char *nearest_waypoint_by_lineseg_from_gobj(void *dobj)
     }
 }
 
-extern int D_0063BD78;
-
 inline char *waypoint_with_range(int *arg0, float thresh)
 {
     int buf[4];
-    char *node = WayPointList_begin(D_0063BD78);
+    char *node = WayPointList_begin(current_select_gid);
     if (node == 0)
         goto ret0;
     do {

@@ -70,6 +70,8 @@ void sndBgmReadyNextStage(int *a, int *b)
     soundSeEnvNotUseClose(a, b);
 }
 
+int sndInitBgmCancelFlag;
+
 void sndInit(int idx)
 {
     short attrOff;

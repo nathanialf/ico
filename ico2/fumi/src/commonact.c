@@ -105,6 +105,7 @@ void afterCommonTruckLever(volatile int a0);
 #include "act-env.h"
 #include "act.h"
 #include "boyact.h"
+#include "girl_act.h"
 #include "brain.h"
 #include "mail-add-data.h"
 #include "gflag.h"
@@ -5064,19 +5065,17 @@ inline void extraCommonNull(volatile int a0)
     }
 }
 
-extern int D_0063A61C;
+extern int isysCurrentGObj;
 
 inline void extraCommonCall(volatile int a0)
 {
     if (D_00639EA8) {
-        iosOmSendMail(D_00639EA8, 0x44, D_0063A61C);
+        iosOmSendMail(D_00639EA8, 0x44, isysCurrentGObj);
     }
     for (;;) {
         _ACTWait(1);
     }
 }
-
-extern int girlcalled;
 
 inline void funcCommonWayOn(void *a0)
 {

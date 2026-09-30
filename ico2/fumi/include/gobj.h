@@ -31,4 +31,7 @@ void *isysGObjSearchFromObjKindID_next(char *g);
 void *isysGObjSearchFromObjLayoutID(int a0);
 int isysGetNbAllocedGObjs(void);
 
+/* MAIN.MAP global of gobj.o's .sdata */
+extern int debugKindOld;
+
 #endif /* GOBJ_H */

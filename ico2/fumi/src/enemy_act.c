@@ -26,6 +26,8 @@
 #include "sugiCommon.h"
 #include <libvu0.h>
 
+int entesty;
+
 extern char *D_00639EA8;
 
 /* The brain-mode table, one 28-byte record per mode: its name, its priority
@@ -271,7 +273,7 @@ static float bodyliftTarget[3][4] __attribute__((aligned(16))) = {
 };
 
 extern char D_002C2DC8[];
-extern char *D_0063A61C;
+extern char *isysCurrentGObj;
 extern char D_005577D0[];
 /* FLT_MAX word in .sdata; the incomplete array type is what keeps the ROM's
    %hi/%lo pair instead of a gp-relative load. */
@@ -388,7 +390,7 @@ typedef enum { ACT_KIND_NONE = -1, ACT_KIND_GIRL = 1, ACT_KIND_ENEMY = 2 } ActKi
 
 #define ENEMY_START_WORK(self) (*(int *)(*(int *)((self) + 0x164) + 0x680))
 
-extern char *D_0063A61C;
+extern char *isysCurrentGObj;
 /* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
 extern void _OrientXZGV(float *out, float *a, float *b);
 
@@ -1255,7 +1257,7 @@ inline void actEnemyNest(volatile int a0)
     int x = a0;
     *(int *)(sub + 0x148) = 0;
     RestoreReviveCount(x);
-    actChangeActBrain(D_0063A61C, (void *)subEnemyBrain_Idle, sub);
+    actChangeActBrain(isysCurrentGObj, (void *)subEnemyBrain_Idle, sub);
     actEnemyHyde((int *)a0);
     eBrainSendMes(a0, 0xA);
     stg = stage_no;
@@ -1956,7 +1958,7 @@ void subEnemyBrainMain(volatile int a0)
                 gamesysObjInfoPosSetStage((int *)a0, 4, 0, stage_no);
             }
             actChangeActBrain(
-                D_0063A61C,
+                isysCurrentGObj,
                 (void *)brainModeTable[((EnemyActSub *)*(int *)(a0 + 0x164))->enemy->mode].brain,
                 sub);
         }

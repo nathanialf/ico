@@ -6,6 +6,7 @@
 #include "memory.h"
 #include "pad.h"
 #include "adpcm_init.h"
+#include "soundManager.h"
 #include "camera-root.h"
 #include "matrixDrive.h"
 #include "Primitive.h"
@@ -240,7 +241,6 @@ inline int soundReverbDepthGet(void)
 }
 
 extern char D_005F5EB8[];
-extern int D_0063A684;
 
 void soundAllocIopHeap(void)
 {
@@ -1658,9 +1658,9 @@ void soundDataSegNextStageNotUseClose(int a0, int a1)
         }
     }
     if (a0 == 1) {
-        D_0063A684 = 0;
+        sndInitBgmCancelFlag = 0;
         if (found != 0 && closed == 0) {
-            D_0063A684 = a0;
+            sndInitBgmCancelFlag = a0;
         }
     }
 }

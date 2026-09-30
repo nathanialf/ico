@@ -2,8 +2,8 @@
 #include "gobj_dl.h"
 
 static void add_gobj_to_head(int a0, int a1, int a2);
-extern int D_0029C530[];
-extern int D_0029C550[];
+extern int gobj_dl_link_head[];
+extern int gobj_dl_link_tail[];
 
 /* census add_gobj_to_head, a file static, every gobj list TU has its own copy and
    `static` keeps this one's ELF symbol local so it cannot collide with the
@@ -13,8 +13,8 @@ inline void isysGObjDlInit(void)
 {
     int i;
     for (i = 0; i < 8; i++) {
-        D_0029C530[i] = 0;
-        D_0029C550[i] = 0;
+        gobj_dl_link_head[i] = 0;
+        gobj_dl_link_tail[i] = 0;
     }
 }
 
@@ -38,11 +38,11 @@ void cut_gobj_dl_link(int *self)
         }
     }
 
-    if (p == ((DLN **)D_0029C530)[p->id]) {
-        ((DLN **)D_0029C530)[p->id] = p->next;
+    if (p == ((DLN **)gobj_dl_link_head)[p->id]) {
+        ((DLN **)gobj_dl_link_head)[p->id] = p->next;
     }
-    if (p == ((DLN **)D_0029C550)[p->id]) {
-        ((DLN **)D_0029C550)[p->id] = p->prev;
+    if (p == ((DLN **)gobj_dl_link_tail)[p->id]) {
+        ((DLN **)gobj_dl_link_tail)[p->id] = p->prev;
     }
 }
 
@@ -64,12 +64,12 @@ static void add_gobj_to_tail(int a0, int a1, int a2)
     debug_StdPrintfDummy("gobj dl added to tail\n");
     self->id = idx;
     self->key = a2;
-    head = ((DLN **)D_0029C530)[idx];
+    head = ((DLN **)gobj_dl_link_head)[idx];
     if (head == 0) {
-        ((DLN **)D_0029C530)[idx] = self;
+        ((DLN **)gobj_dl_link_head)[idx] = self;
         self->prev = 0;
         self->next = 0;
-        ((DLN **)D_0029C550)[idx] = self;
+        ((DLN **)gobj_dl_link_tail)[idx] = self;
         debug_StdPrintfDummy("no_entry %p\n", self->next);
         return;
     }
@@ -77,16 +77,16 @@ static void add_gobj_to_tail(int a0, int a1, int a2)
         self->prev = 0;
         self->next = head;
         head->prev = self;
-        ((DLN **)D_0029C530)[idx] = self;
+        ((DLN **)gobj_dl_link_head)[idx] = self;
         debug_StdPrintfDummy("add to head %p\n", self->next);
         return;
     }
-    tail = ((DLN **)D_0029C550)[idx];
+    tail = ((DLN **)gobj_dl_link_tail)[idx];
     if ((unsigned int)a2 >= (unsigned int)tail->key) {
         self->prev = tail;
         self->next = 0;
         tail->next = self;
-        ((DLN **)D_0029C550)[idx] = self;
+        ((DLN **)gobj_dl_link_tail)[idx] = self;
         debug_StdPrintfDummy("add to tail %p\n", self->next);
         return;
     }
@@ -109,27 +109,27 @@ static void add_gobj_to_head(int a0, int a1, int a2)
     DLN *cur;
     self->id = idx;
     self->key = a2;
-    head = ((DLN **)D_0029C530)[idx];
+    head = ((DLN **)gobj_dl_link_head)[idx];
     if (head == 0) {
-        ((DLN **)D_0029C530)[idx] = self;
+        ((DLN **)gobj_dl_link_head)[idx] = self;
         self->prev = 0;
         self->next = 0;
-        ((DLN **)D_0029C550)[idx] = self;
+        ((DLN **)gobj_dl_link_tail)[idx] = self;
         return;
     }
     if ((unsigned int)head->key >= (unsigned int)a2) {
         self->prev = 0;
         self->next = head;
         head->prev = self;
-        ((DLN **)D_0029C530)[idx] = self;
+        ((DLN **)gobj_dl_link_head)[idx] = self;
         return;
     }
-    tail = ((DLN **)D_0029C550)[idx];
+    tail = ((DLN **)gobj_dl_link_tail)[idx];
     if ((unsigned int)tail->key < (unsigned int)a2) {
         self->prev = tail;
         self->next = 0;
         tail->next = self;
-        ((DLN **)D_0029C550)[idx] = self;
+        ((DLN **)gobj_dl_link_tail)[idx] = self;
         return;
     }
     cur = head;
@@ -163,7 +163,7 @@ inline void isysGObjMoveObjDLAfterGObj(DLN *self, DLN *obj)
     obj->next = self;
     self->key = obj->key;
     if (self->next == 0) {
-        ((DLN **)D_0029C550)[self->id] = self;
+        ((DLN **)gobj_dl_link_tail)[self->id] = self;
     }
 }
 
@@ -176,7 +176,7 @@ inline void isysGObjMoveObjDLBeforeGObj(DLN *self, DLN *obj)
     obj->prev = self;
     self->key = obj->key;
     if (self->prev == 0) {
-        ((DLN **)D_0029C530)[self->id] = self;
+        ((DLN **)gobj_dl_link_head)[self->id] = self;
     }
 }
 
@@ -221,7 +221,7 @@ void isysGObjLinkObjDLAfterGObj(int *self, int *a1, int a2, int *a3)
     a3[0xD] = (int)t0;
     t0[0x11] = v44;
     if (t0[0xD] == 0) {
-        D_0029C550[*((unsigned char *)t0 + 0x40)] = (int)t0;
+        gobj_dl_link_tail[*((unsigned char *)t0 + 0x40)] = (int)t0;
     }
 }
 
@@ -246,6 +246,6 @@ void isysGObjLinkObjDLBeforeGObj(int *self, int *a1, int a2, int *a3)
     a3[0xD] = (int)t0;
     t0[0x11] = v44;
     if (t0[0xD] == 0) {
-        D_0029C550[*((unsigned char *)t0 + 0x40)] = (int)t0;
+        gobj_dl_link_tail[*((unsigned char *)t0 + 0x40)] = (int)t0;
     }
 }

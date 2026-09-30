@@ -781,6 +781,10 @@ inline int ACTCheckCollis_CI(int a0, int a1, int *a2, char *a3)
     return *(int *)(buf + 0x88) != 0;
 }
 
+void *floorGObj_ACTCheckCollis_WELL;
+
+void *wallGObj_ACTCheckCollis_WAY;
+
 /* the float is the LAST parameter, not the first: girl_act.c's
    subGirlBrain_Pulledup call site puts `mtc1 $0,$f12` after the fourth
    pointer's argument move, and load_register_parameters emits the moves in

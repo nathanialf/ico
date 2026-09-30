@@ -92,4 +92,7 @@ void AdpcmVolumeSet(int a0, int a1);
 int *adpcmDataSet(int a0, int no, int bank, int a3, int size, int a5, int a6);
 void adpcmTickProc2(int *a0);
 
+/* MAIN.MAP global of adpcm_init.o's .sdata */
+extern int debugAdpcmOn;
+
 #endif /* ADPCM_INIT_H */

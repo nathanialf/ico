@@ -28,7 +28,6 @@ static int wayPointSel = -1; /* derived name */
 extern WayRec D_004F1EC0[];
 extern int D_00639EA4;
 extern int D_0063B13C;
-extern int D_0063BD78;
 
 /* .sbss, owned by way_tool.o (MAIN.MAP names no symbol in the run), in the ROM's run order: the way
    record the tool is showing, the group the selection window is on, the camera
@@ -78,7 +77,7 @@ int group_create(void)
         int g = CreateWayGroup();
 
         createState = 1;
-        D_0063BD78 = g;
+        current_select_gid = g;
         selectedWay = &D_004F1EC0[g];
         debug_StdPrintfDummy("search:%p %p\n", isysGObjSearchFromObjKindID_begin(0), D_00639EA4);
         return 0;
@@ -93,19 +92,19 @@ int group_create(void)
     if (f & 0x20) {
         int p = CreateWayPoint(wayWorkPos);
 
-        AddWayPoint(D_0063BD78, p);
+        AddWayPoint(current_select_gid, p);
         debug_StdPrintfDummy("create waypoint %d\n", p);
         return 0;
     }
     if (f & 0x40) {
         if (selectedWay->w[4] == 0) {
-            DeleteWayGroup(D_0063BD78);
+            DeleteWayGroup(current_select_gid);
         }
         createState = 0;
         return -1;
     }
     if (f & 0x80) {
-        CloseWayGroup(D_0063BD78);
+        CloseWayGroup(current_select_gid);
         createState = 0;
         return -1;
     }
@@ -139,7 +138,6 @@ WayMenuLine debugWayGroupSelect[64] = {
     {"55 ( -)  ", 0}, {"56 ( -)  ", 0}, {"57 ( -)  ", 0}, {"58 ( -)  ", 0}, {"59 ( -)  ", 0},
     {"60 ( -)  ", 0}, {"61 ( -)  ", 0}, {"62 ( -)  ", 0}, {"63 ( -)  ", 0}};
 
-extern int D_0063BD74;
 extern char *strcat(char *d, char *s);
 /* kept local: this TU's uses of set_bridge do not fit the prototype in way_util.h */
 extern int set_bridge(int gid);
@@ -181,7 +179,7 @@ static int group_select(void)
         for (i = 0; i < 94; i++) {
             e = &D_004F1EC0[i];
             if (e->w[0] == 1) {
-                if (i == D_0063BD78) {
+                if (i == current_select_gid) {
                     wayGroupSel = i;
                     break;
                 }
@@ -190,17 +188,17 @@ static int group_select(void)
         selectState = 1;
     } else if (state == 1) {
         if ((*(int *)&wayToolPad[12]) & 0x2000) {
-            set_bridge(D_0063BD78);
+            set_bridge(current_select_gid);
             relabel_way_groups();
         } else if ((*(int *)&wayToolPad[12]) & 0x8000) {
-            D_004F1EC0[D_0063BD78].w[6] = 0;
+            D_004F1EC0[current_select_gid].w[6] = 0;
             relabel_way_groups();
         }
         r = debug_SelectCsvWindow("group + select", 0x12, 0x36, 0xB, debugWayGroupSelect, 8, 0, 1,
-                                  D_0063BD74, &wayGroupSel);
+                                  n_way_group, &wayGroupSel);
         switch (r) {
         case 0:
-            D_0063BD78 = wayGroupSel;
+            current_select_gid = wayGroupSel;
             return 0;
         case -1:
             selectState = 0;
@@ -210,7 +208,7 @@ static int group_select(void)
             break;
         }
     } else if (state == 2) {
-        D_0063BD78 = wayGroupSel;
+        current_select_gid = wayGroupSel;
         selectState = 0;
         return -1;
     }
@@ -222,7 +220,7 @@ extern char *waypoint_with_range(int *, float);
 
 int point_delete(void)
 {
-    WayRec *entry = &D_004F1EC0[D_0063BD78];
+    WayRec *entry = &D_004F1EC0[current_select_gid];
     int f;
 
     if (D_0063B13C & 1) {
@@ -245,7 +243,7 @@ int point_delete(void)
             if (n >= 0) {
                 DeleteWayPoint(n);
                 if (entry->w[4] == 0) {
-                    DeleteWayGroup(D_0063BD78);
+                    DeleteWayGroup(current_select_gid);
                 }
                 debug_StdPrintfDummy("delete waypoint %d\n", wayPointSel);
                 return 0;
@@ -263,7 +261,7 @@ extern void *nearest_waypoint_by_lineseg(void *a0);
 int point_insert(void)
 {
     static int insertState = 0; /* derived name */
-    WayRec *entry = &D_004F1EC0[D_0063BD78];
+    WayRec *entry = &D_004F1EC0[current_select_gid];
     int f;
 
     if (D_0063B13C & 1) {
@@ -288,7 +286,7 @@ int point_insert(void)
         }
         {
             int n = CreateWayPoint(wayWorkPos);
-            InsertWayPointAfter(D_0063BD78, *(int *)((char *)res + 4), n);
+            InsertWayPointAfter(current_select_gid, *(int *)((char *)res + 4), n);
             entry->w[4] = entry->w[4] + 1;
             debug_StdPrintfDummy("insert waypoint %d\n", n);
         }
@@ -526,8 +524,8 @@ void ExtractWayData(int stage_no)
         set_bridge(b->f4);
     }
 
-    D_0063BD74 = end - start;
-    D_0063BD78 = 0;
+    n_way_group = end - start;
+    current_select_gid = 0;
 }
 
 /* the editable way-file base name in .sdata */
@@ -710,13 +708,13 @@ void way_toolDL(int a0)
         e = &D_004F1EC0[i];
         if (e->w[0] == 1) {
             if (e->w[10] != 0) {
-                if (i == D_0063BD78) {
+                if (i == current_select_gid) {
                     draw_way_group(i, &wayColorOpenCurrent);
                 } else {
                     draw_way_group(i, &wayColorOpenOther);
                 }
             } else {
-                if (i == D_0063BD78) {
+                if (i == current_select_gid) {
                     draw_way_group(i, &wayColorClosedCurrent);
                 } else {
                     draw_way_group(i, &wayColorClosedOther);
@@ -777,7 +775,6 @@ WayMenu debugWayMenu[9] = {{"group + create", group_create},  {"      + select",
 
 extern int D_0063A44C;
 extern int D_00639EC0;
-extern int D_0063BD70;
 extern char iosPadConfDefault[];
 /* kept local: the declaration in way_tool.h changes this TU codegen */
 extern void cursor_control(volatile int a0);
@@ -793,21 +790,21 @@ int debug_WayTool(void)
 
     cursorGObj = isysGObjSearchFromObjLayoutID(2);
     if (cursorGObj != 0) {
-        if (D_0063BD70 == 0) {
+        if (first_waytool == 0) {
             *(void **)(cursorGObj + 0x164) = iosMallocDebug(D_0063A44C, 0x850, __FILE__, 0x4AA);
             isysGObjProcAdd(cursorGObj, cursor_control, 0, 0x13);
             isysGObjLinkObjDL(cursorGObj, way_toolDL, 0, 0, 0xFFFFFFFF);
-            D_0063BD70 = 1;
+            first_waytool = 1;
         }
     }
 
-    if (D_0063BD70 == 1) {
+    if (first_waytool == 1) {
         savedCamTarget = D_00639EC0;
         D_00639EC0 = (int)cursorGObj;
         GetRootPosition(pos, savedCamTarget);
         SetDirectRootPosition((void *)D_00639EC0, pos);
         Camctrl_SetTarget(D_00639EC0, 0, 3);
-        D_0063BD70 = 2;
+        first_waytool = 2;
     }
 
     iosPadConnect(wayToolPad, 0, 0, iosPadConfDefault);
@@ -821,13 +818,13 @@ int debug_WayTool(void)
         case 0:
             return 0;
         case -1:
-            D_0063BD70 = 1;
+            first_waytool = 1;
             menuState = 1;
             D_00639EC0 = savedCamTarget;
             Camctrl_SetTarget(D_00639EC0, 0, 3);
             return -1;
         default:
-            D_0063BD70 = 1;
+            first_waytool = 1;
             menuState = 2;
             break;
         }
@@ -836,7 +833,7 @@ int debug_WayTool(void)
         if (f == 0) {
             menuState = 1;
         } else {
-            r = f(D_0063BD70);
+            r = f(first_waytool);
             if (r == -1) {
                 menuState = 1;
             } else if (r != 0) {

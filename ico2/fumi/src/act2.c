@@ -1,6 +1,6 @@
 #include "act.h"
 
-extern void *D_0063A61C;
+extern void *isysCurrentGObj;
 
 /* One mail-table row: the message id the actor listens for and the three
    entry points it starts. 429 terminates a table. */
@@ -68,7 +68,7 @@ void BeforeFunc2(char *self)
         act->lastKey = mb->list[j].key;
         mb->count = 0;
         if (p->main != 0) {
-            actChangeActMain(D_0063A61C, p->main, &act->mainThread);
+            actChangeActMain(isysCurrentGObj, p->main, &act->mainThread);
         }
         if (p->sub != 0) {
             actCreateSubThread(p->sub, 20);

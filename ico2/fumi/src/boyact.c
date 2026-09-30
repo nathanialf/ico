@@ -276,7 +276,7 @@ extern void _ACTWait(int a0);
 /* kept local: this TU's uses of ACTSendMailCorrect do not fit the prototype in commonact.h */
 extern void ACTSendMailCorrect(int a0, int mail);
 extern void *D_00639EA8;
-extern void *D_0063A61C;
+extern void *isysCurrentGObj;
 
 /* The three climb headers (omori/include/b50climb.h, b100climb.h,
    b200climb.h in the listing) textually included here, as girl_act.c does
@@ -288,7 +288,7 @@ inline void afterBoyHand50(volatile int a0)
 {
     debug_StdPrintfDummy("boy after func\n");
     if (D_00639EA8 != 0) {
-        iosOmSendMail(D_00639EA8, 0x60, D_0063A61C);
+        iosOmSendMail(D_00639EA8, 0x60, isysCurrentGObj);
     }
 }
 
@@ -317,7 +317,7 @@ void motBoyHand50(volatile int a0)
     debug_StdPrintfDummy("enter motBoyHand50\n");
     while (1) {
         if (D_00639EA8 != 0) {
-            iosOmSendMail(D_00639EA8, 0x5C, D_0063A61C);
+            iosOmSendMail(D_00639EA8, 0x5C, isysCurrentGObj);
         }
         if (sub->f_E0 & 1) {
             break;
@@ -330,7 +330,7 @@ void motBoyHand50(volatile int a0)
     _ACTWait(1);
     while (1) {
         if (D_00639EA8 != 0) {
-            iosOmSendMail(D_00639EA8, 0x5D, D_0063A61C);
+            iosOmSendMail(D_00639EA8, 0x5D, isysCurrentGObj);
         }
         if (sub->f_E0 & 2) {
             break;
@@ -346,8 +346,6 @@ void motBoyHand50(volatile int a0)
 }
 
 extern void *D_00639EA4;
-extern char D_0063A6C0[];
-extern char D_0063A6C8[];
 extern int D_0028F4C0[];
 extern CCPResult *test_CURRENTROOT(void *a0);
 extern void sceVu0SubVector(void *, CCPResult *, CCPResult *);
@@ -371,7 +369,7 @@ inline void afterBoyHand100(volatile int a0)
 {
     debug_StdPrintfDummy("boy after func\n");
     if (D_00639EA8 != 0) {
-        iosOmSendMail(D_00639EA8, 0x65, D_0063A61C);
+        iosOmSendMail(D_00639EA8, 0x65, isysCurrentGObj);
     }
 }
 
@@ -405,7 +403,7 @@ void motBoyHand100(volatile int a0)
         if (0 < n) {
             n--;
             if (D_00639EA8 != 0) {
-                iosOmSendMail(D_00639EA8, 0x61, D_0063A61C);
+                iosOmSendMail(D_00639EA8, 0x61, isysCurrentGObj);
             }
             if ((sub->f_E0 & 1) == 0) {
                 goto cont;
@@ -417,7 +415,7 @@ void motBoyHand100(volatile int a0)
         _ACTWait(1);
     }
     ACTSendMailCorrect(a0, 0x65);
-    debug_StdPrintfDummy("%s sync error\n", (void *)a0 == D_00639EA4 ? D_0063A6C0 : D_0063A6C8);
+    debug_StdPrintfDummy("%s sync error\n", (void *)a0 == D_00639EA4 ? "boy" : "girl");
 done:
     while (GOBJ_SUB(a0)->f_4A0 < 0 || 2 <= GOBJ_SUB(a0)->f_4A0) {
         _ACTWait(1);
@@ -430,7 +428,7 @@ done:
     }
     while (1) {
         if (D_00639EA8 != 0) {
-            iosOmSendMail(D_00639EA8, 0x62, D_0063A61C);
+            iosOmSendMail(D_00639EA8, 0x62, isysCurrentGObj);
         }
         if (sub->f_E0 & 2) {
             break;
@@ -443,7 +441,7 @@ done:
     }
     while (1) {
         if (D_00639EA8 != 0) {
-            iosOmSendMail(D_00639EA8, 0x64, D_0063A61C);
+            iosOmSendMail(D_00639EA8, 0x64, isysCurrentGObj);
         }
         if (sub->f_E0 & 8) {
             break;
@@ -461,7 +459,7 @@ inline void afterBoyHand200(volatile int a0)
 {
     debug_StdPrintfDummy("boy after func\n");
     if (D_00639EA8 != 0) {
-        iosOmSendMail(D_00639EA8, 0x6A, D_0063A61C);
+        iosOmSendMail(D_00639EA8, 0x6A, isysCurrentGObj);
     }
 }
 
@@ -495,7 +493,7 @@ void motBoyHand200(volatile int a0)
         if (0 < n) {
             n--;
             if (D_00639EA8 != 0) {
-                iosOmSendMail(D_00639EA8, 0x66, D_0063A61C);
+                iosOmSendMail(D_00639EA8, 0x66, isysCurrentGObj);
             }
             if ((sub->f_E0 & 1) == 0) {
                 goto cont;
@@ -507,7 +505,7 @@ void motBoyHand200(volatile int a0)
         _ACTWait(1);
     }
     ACTSendMailCorrect(a0, 0x6A);
-    debug_StdPrintfDummy("%s sync error\n", (void *)a0 == D_00639EA4 ? D_0063A6C0 : D_0063A6C8);
+    debug_StdPrintfDummy("%s sync error\n", (void *)a0 == D_00639EA4 ? "boy" : "girl");
 done:
     while (GOBJ_SUB(a0)->f_4A0 < 0 || 2 <= GOBJ_SUB(a0)->f_4A0) {
         _ACTWait(1);
@@ -524,7 +522,7 @@ done:
     }
     while (1) {
         if (D_00639EA8 != 0) {
-            iosOmSendMail(D_00639EA8, 0x67, D_0063A61C);
+            iosOmSendMail(D_00639EA8, 0x67, isysCurrentGObj);
         }
         if (sub->f_E0 & 2) {
             break;
@@ -537,7 +535,7 @@ done:
     }
     while (1) {
         if (D_00639EA8 != 0) {
-            iosOmSendMail(D_00639EA8, 0x69, D_0063A61C);
+            iosOmSendMail(D_00639EA8, 0x69, isysCurrentGObj);
         }
         if (sub->f_E0 & 8) {
             break;
@@ -578,7 +576,7 @@ void handoff_heroin(void)
         if (GOBJ_SUB(D_00639EA8)->f_310 == 6) {
             if ((((StatusAttr *)(D_005577D0 + GOBJ_ACT(boy)->unk34 * 0x50))->f_4C >> 7) & 1) {
             } else {
-                iosOmSendMail(D_00639EA8, 0x3E, D_0063A61C);
+                iosOmSendMail(D_00639EA8, 0x3E, isysCurrentGObj);
             }
             ACTSendMailCorrect((int)boy, 0xFA);
         } else if (_DistxzGV(test_CURRENTROOT(boy), test_CURRENTROOT(D_00639EA8)) < 100.0f &&
@@ -752,7 +750,6 @@ extern void _ApplyRyGV(void *v, float ry);
 extern float stage_PlayBgAnimation(float frame, int id, void *a, void *b);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
-extern char D_0063A6D0[];
 
 void BoyBgaManager(void *self, int id, void *dst)
 {
@@ -795,7 +792,7 @@ void BoyBgaManager(void *self, int id, void *dst)
         }
     }
     debug_assert(__FILE__, 1731);
-    __assert(__FILE__, 1731, D_0063A6D0);
+    __assert(__FILE__, 1731, "0");
     p = 0;
 found:
     v = *(int *)dst;
@@ -965,10 +962,7 @@ extern int D_0063ABA0;
 extern int D_0063ABA4;
 extern int D_0063B1E8;
 extern int D_0063B5F4;
-extern int D_0063A6E8;
-extern float D_0063A6D8;
 extern unsigned char D_0063B20C;
-extern char D_0063A6E0[];
 
 /* the ClipWall work record as this function uses it: the two segment
    endpoints, the radius at 0x70 and the hit flag at 0x88 (commonact.c's
@@ -1055,6 +1049,10 @@ static __inline__ int snapStickToCamera(float *stick, float *wish, float *sabs, 
     return d;
 }
 
+int test_rope_slope = 0;
+
+float add_rope_val = 0.0f;
+
 void subBoyControl(volatile int a0)
 {
     float stick[4];
@@ -1119,7 +1117,7 @@ void subBoyControl(volatile int a0)
                 iosPadGetStick(s + 0x2D8, s + 0x338, 0, 2, 2, D_0063B20C);
                 if (D_0063B1E8) {
                     if (D_0063B13C & 1) {
-                        debug_Printf(10, 170, 0x0FFFFFFF, (int)D_0063A6E0,
+                        debug_Printf(10, 170, 0x0FFFFFFF, (int)"L = %f\n",
                                      fptodp(*(float *)(s + 0x34C)));
                     }
                 }
@@ -1248,17 +1246,21 @@ void subBoyControl(volatile int a0)
     noStick:
         *(float *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x340) =
             *(float *)(s + 0x34C);
-        slow = 0;
-        if (*(int *)(s + 0x34) == 1) {
-            if (GOBJ_SUB(a0)->f_4A0 == 0 || GOBJ_SUB(a0)->f_4A0 == 1) {
-                if (0.5f < *(float *)(s + 0x34C)) {
-                    D_0063A6E8 = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 5;
+        {
+            static int slowWalkTimer = 0; /* derived name */
+
+            slow = 0;
+            if (*(int *)(s + 0x34) == 1) {
+                if (GOBJ_SUB(a0)->f_4A0 == 0 || GOBJ_SUB(a0)->f_4A0 == 1) {
+                    if (0.5f < *(float *)(s + 0x34C)) {
+                        slowWalkTimer = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 5;
+                    }
                 }
             }
-        }
-        if (0 < D_0063A6E8) {
-            D_0063A6E8--;
-            slow = 1;
+            if (0 < slowWalkTimer) {
+                slowWalkTimer--;
+                slow = 1;
+            }
         }
         if (slow && 0.5f < *(float *)(s + 0x34C)) {
             *(float *)(s + 0x34C) = 0.5f;
@@ -1645,7 +1647,7 @@ void subBoyControl(volatile int a0)
                 d = 0.0f;
             }
             SaveBoyOrientForScript();
-            D_0063A6D8 = d;
+            add_rope_val = d;
             if (*(int *)(s + 0x2E0) & 0x20) {
                 IncreasePdlChain(*(int *)(s + 0x190));
             } else {
@@ -1676,7 +1678,7 @@ void subBoyControl(volatile int a0)
         case 20:
         case 21:
             if (D_00639EA8 != 0) {
-                iosOmSendMail(D_00639EA8, 0x3E, D_0063A61C);
+                iosOmSendMail(D_00639EA8, 0x3E, isysCurrentGObj);
             }
             break;
         case 109:
@@ -1845,7 +1847,6 @@ void PutWeapon(void)
 extern void PickupWeapon(void *w, void *boy, int kind);
 /* kept local: this TU's uses of ReleaseWeapon do not fit the prototype in weapon.h */
 extern void ReleaseWeapon(void *w);
-extern char D_0063A6F0[];
 
 /* boyact.c:3002-3021 in the PAL listing: a static helper with no out-of-line
    copy in ROM, inlined into SetBoyWeaponGObj and afterBoyTakeWeapon. */
@@ -1858,7 +1859,7 @@ static inline int SwapBoyWeapon(void *oldW, void *newW, void *boy)
     }
     if (newW == 0) {
         debug_assert(__FILE__, 3007);
-        __assert(__FILE__, 3007, D_0063A6F0);
+        __assert(__FILE__, 3007, "next");
         return 0;
     }
     PickupWeapon(newW, boy, 0x16);
@@ -1991,8 +1992,6 @@ extern void ScpCallCameraSetTarget(float x, float y, float z);
 /* kept local: this TU's uses of debug_NMarker do not fit the prototype in camera-editor.h */
 extern void debug_NMarker(float *pos, int r, int g, int b, float size);
 extern void *D_00639EA0;
-extern float D_0063A6F8[];
-extern float D_0063A6D8;
 
 /* the boy's work record at Act+0x688.  subBoyCollision's stores through it are
    member accesses: the ROM moves its a0 reloads ahead of them (the 0x4B0
@@ -2159,7 +2158,7 @@ void subBoyCollision(volatile int a0)
             break;
         case 0x39:
             SaveBoyOrientForScript();
-            D_0063A6D8 = 0.0f;
+            add_rope_val = 0.0f;
             if (*(int *)(sub + 0x2E4) & 0x10) {
                 ACTSendMailCorrect(a0, 0xC3);
             }
@@ -2253,7 +2252,7 @@ void subBoyCollision(volatile int a0)
             if (((int)(*(unsigned long long *)(sub + 0x478) >> 48) & 1) &&
                 ((int)(*(unsigned long long *)(sub + 0x488) >> 48) & 1)) {
                 if (D_00639EA8 != 0) {
-                    iosOmSendMail(D_00639EA8, 0x3E, D_0063A61C);
+                    iosOmSendMail(D_00639EA8, 0x3E, isysCurrentGObj);
                 }
                 ACTSendMailCorrect(a0, 0xFA);
             } else if (NotNeedBackHand() ||
@@ -2362,7 +2361,7 @@ void subBoyCollision(volatile int a0)
             }
             {
                 int i;
-                float near = D_0063A6F8[0];
+                float near = 3.40282347e+38f; /* FLT_MAX */
 
                 *(ObjKindList *)work = collisionKinds;
                 for (i = 0; work[i] != -1; i++) {
@@ -2541,7 +2540,7 @@ void subBoyCollision(volatile int a0)
             if ((_ACTCharStatus_Check((void *)a0, 0x22) ||
                  _ACTCharStatus_Check((void *)a0, 0x23)) &&
                 D_00639EA8 != 0) {
-                iosOmSendMail(D_00639EA8, 0x3D, D_0063A61C);
+                iosOmSendMail(D_00639EA8, 0x3D, isysCurrentGObj);
             }
             ((ActStatusWord *)(sub + 0x18))->q =
                 (((ActStatusWord *)(sub + 0x18))->q & ~0x20000000000LL) |
@@ -2554,7 +2553,7 @@ void subBoyCollision(volatile int a0)
 
                 if (life < 60) {
                     if (D_00639EA8 != 0) {
-                        iosOmSendMail(D_00639EA8, 0xB4, D_0063A61C);
+                        iosOmSendMail(D_00639EA8, 0xB4, isysCurrentGObj);
                     }
                 } else if (life < 70) {
                     brainAddLevelGirl(20.0f);
@@ -2876,7 +2875,7 @@ void actBoyCliffHesitate(volatile int a0)
         if (D_00639EA8 != 0) {
             brainSetSpMode();
             if (D_00639EA8 != 0) {
-                iosOmSendMail(D_00639EA8, 0x3D, D_0063A61C);
+                iosOmSendMail(D_00639EA8, 0x3D, isysCurrentGObj);
             }
         }
         ACTSendMailCorrect(a0, 0x128);
@@ -2892,7 +2891,7 @@ inline void actBoyCall(volatile int a0)
     sub->unk34 = 9;
     _ACTWait(2);
     if (D_00639EA8 != 0) {
-        iosOmSendMail(D_00639EA8, 0x41, D_0063A61C);
+        iosOmSendMail(D_00639EA8, 0x41, isysCurrentGObj);
     }
     while (1) {
         if ((*(int *)((char *)sub + 0x2E0) & 8) == 0) {
@@ -2927,7 +2926,7 @@ void ACTSendMail_PULLUP_GO(void)
             ACTSendMailCorrect((int)g, 0x4A);
             sub->f_44 = 0x6F;
         } else if (D_00639EA8 != 0) {
-            iosOmSendMail(D_00639EA8, 0x52, D_0063A61C);
+            iosOmSendMail(D_00639EA8, 0x52, isysCurrentGObj);
         }
         break;
     }
@@ -2943,19 +2942,19 @@ static inline void ACTSendMail_PULLUP_START(void)
     switch (*(int *)((char *)sub + 0x5E4)) {
     case 0x64:
         if (D_00639EA8 != 0) {
-            iosOmSendMail(D_00639EA8, 0x51, D_0063A61C);
+            iosOmSendMail(D_00639EA8, 0x51, isysCurrentGObj);
         }
         GOBJ_ACT(D_00639EA8)->f_44 = 0x65;
         break;
     case 0xC8:
         if (D_00639EA8 != 0) {
-            iosOmSendMail(D_00639EA8, 0x51, D_0063A61C);
+            iosOmSendMail(D_00639EA8, 0x51, isysCurrentGObj);
         }
         GOBJ_ACT(D_00639EA8)->f_44 = 0x66;
         break;
     case 0x12C:
         if (D_00639EA8 != 0) {
-            iosOmSendMail(D_00639EA8, 0x51, D_0063A61C);
+            iosOmSendMail(D_00639EA8, 0x51, isysCurrentGObj);
         }
         GOBJ_ACT(D_00639EA8)->f_44 = 0x67;
         break;
@@ -2982,7 +2981,7 @@ int pullup_check_heroin_position(void)
             GetSkeltonPosition(p2, D_00639EA4, 6);
             if (_DistSqGV(p1, p2) < 3600.0f) {
                 if (D_00639EA8 != 0) {
-                    iosOmSendMail(D_00639EA8, 0x59, D_0063A61C);
+                    iosOmSendMail(D_00639EA8, 0x59, isysCurrentGObj);
                 }
             }
             return 0;
@@ -3064,7 +3063,7 @@ void actBoyPullupReady(volatile int a0)
                 if (!(300.0f < (BOY_GIRL_DY() < 0.0f ? -BOY_GIRL_DY() : BOY_GIRL_DY()) &&
                       *(int *)(BOY_WALL(D_00639EA8) + 0x3B4))) {
                     if (D_00639EA8 != 0) {
-                        iosOmSendMail(D_00639EA8, 0x4F, D_0063A61C);
+                        iosOmSendMail(D_00639EA8, 0x4F, isysCurrentGObj);
                     }
                 }
             } else if (IsCorrectPosition(D_00639EA8) == 0) {
@@ -3329,7 +3328,7 @@ void actBoyRescueReady(volatile int a0)
             }
             if (D_00639EB4 == 0) {
                 if (D_00639EA8 != 0) {
-                    iosOmSendMail(D_00639EA8, 0x15D, D_0063A61C);
+                    iosOmSendMail(D_00639EA8, 0x15D, isysCurrentGObj);
                 }
             }
             n1 = GetSkeltonFocusNode(D_00639EA8, 0x16);
@@ -3441,12 +3440,12 @@ void actBoyDitch3mReady(volatile int a0)
             if (D_00639EA0 == 0) {
                 if (ditch_check_heroin_position() != 0) {
                     if (D_00639EA8 != 0) {
-                        iosOmSendMail(D_00639EA8, 0x18C, D_0063A61C);
+                        iosOmSendMail(D_00639EA8, 0x18C, isysCurrentGObj);
                     }
                 }
                 if (IsCorrectPosition(D_00639EA8) == 0) {
                     if (D_00639EA8 != 0) {
-                        iosOmSendMail(D_00639EA8, 0x18D, D_0063A61C);
+                        iosOmSendMail(D_00639EA8, 0x18D, isysCurrentGObj);
                     }
                 }
             }
@@ -3475,7 +3474,7 @@ void actBoyDitch3mReady(volatile int a0)
                 }
                 if (b != 0) {
                     if (D_00639EA8 != 0) {
-                        iosOmSendMail(D_00639EA8, 0x18F, D_0063A61C);
+                        iosOmSendMail(D_00639EA8, 0x18F, isysCurrentGObj);
                     }
                     ACTSendMailCorrect(a0, 0x18B);
                 }
@@ -3535,14 +3534,14 @@ void actBoyRescueGirlBhang(volatile int a0)
             if (mode == 1) {
                 ACTSendMailCorrect(a0, 0x15B);
                 if (D_00639EA8 != 0) {
-                    iosOmSendMail(D_00639EA8, 0x51, D_0063A61C);
+                    iosOmSendMail(D_00639EA8, 0x51, isysCurrentGObj);
                 }
                 GOBJ_ACT(D_00639EA8)->f_44 = 0x66;
             }
             if (mode == 2) {
                 ACTSendMailCorrect(a0, 0x15B);
                 if (D_00639EA8 != 0) {
-                    iosOmSendMail(D_00639EA8, 0x40, D_0063A61C);
+                    iosOmSendMail(D_00639EA8, 0x40, isysCurrentGObj);
                 }
             }
         }
@@ -3609,7 +3608,9 @@ void SetStatusBoy_OtherStageGirlPinch(void)
 }
 
 extern char D_002A84F8[];
-extern void *D_0063A70C;
+
+void *gopp_subBoyControl;
+
 /* not declared by the headers this TU includes; the act.c entry points as
    girl_act.c declares them for actGirlStart */
 extern char *actInitialize(void *self);
@@ -3660,7 +3661,7 @@ void actBoyStart(int a0)
     *(int *)(work + 0x180) = 0;
     *(int *)(work + 0x184) = 0;
 
-    D_0063A70C = 0;
+    gopp_subBoyControl = 0;
     ACTParaStatus_Init(a0);
     _ACTCharStatus_Init(a0);
 
@@ -3732,7 +3733,7 @@ void actBoyStart(int a0)
     *(void **)(work + 0xD0) = D_002A84F8;
 
     actCreateSubThread(subBoyBrainMain, 20);
-    D_0063A70C = (void *)actCreateSubThread(subBoyControl, 21);
+    gopp_subBoyControl = (void *)actCreateSubThread(subBoyControl, 21);
     actCreateSubThread(subBoyCollision, 21);
     actCreateSubThread(subCommonIdle, 21);
 
@@ -3842,7 +3843,7 @@ inline void actBoySupportGBBegin(volatile int a0)
 {
     while (1) {
         if (D_00639EA8 != 0) {
-            iosOmSendMail(D_00639EA8, 0x17D, D_0063A61C);
+            iosOmSendMail(D_00639EA8, 0x17D, isysCurrentGObj);
         }
         ACTSendMailCorrect(a0, 0x17B);
         _ACTWait(1);
@@ -3874,7 +3875,7 @@ inline void actBoySupportGBEnd(volatile int a0)
 {
     while (1) {
         if (D_00639EA8 != 0) {
-            iosOmSendMail(D_00639EA8, 0x17F, D_0063A61C);
+            iosOmSendMail(D_00639EA8, 0x17F, isysCurrentGObj);
         }
         ACTSendMailCorrect(a0, 0xC7);
         _ACTWait(1);
@@ -3906,7 +3907,7 @@ inline void actBoyHangG3M(volatile int a0)
         if (0.1f < *(float *)((char *)sub + 0x34C) || (*(int *)((char *)sub + 0x2E0) & 0x10)) {
             ACTSendMailCorrect(a0, 0x192);
             if (D_00639EA8 != 0) {
-                iosOmSendMail(D_00639EA8, 0x195, D_0063A61C);
+                iosOmSendMail(D_00639EA8, 0x195, isysCurrentGObj);
             }
         }
         _ACTWait(1);
@@ -4031,7 +4032,7 @@ inline int IsBoyStatus_EnemyMustWait(void)
 
     if (D_00639EA4 == 0) {
         debug_assert(__FILE__, 5795);
-        __assert(__FILE__, 5795, D_0063A6D0);
+        __assert(__FILE__, 5795, "0");
         return 0;
     }
     sub = *(char **)((char *)D_00639EA4 + 0x164);
@@ -4259,14 +4260,15 @@ inline void ACTSearchGObj(void *a0, int a1, int a2, int *out_id, float *out_vec,
 }
 
 extern S12 InitialColInfo;
-extern char D_0063A700[];
 
 inline void afterBoySwim(volatile int a0)
 {
     RequestChangeHandMode((void *)a0, 0, 3, 0, 0, 0, 0);
     *(S12 *)((char *)GOBJ_SUB(a0) + 0x1C0) = InitialColInfo;
-    debug_StdPrintfDummy(D_0063A700);
+    debug_StdPrintfDummy("after");
 }
+
+static int boyActUnusedWord = -1; /* derived name */
 
 inline void actBoyJump(volatile int a0)
 {

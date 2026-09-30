@@ -54,4 +54,14 @@ void subGirlBrainMain(volatile int a0);
 void subGirlCollision(volatile int a0);
 void subGirlControl(volatile int a0);
 
+/* MAIN.MAP globals of girl_act.o's .sdata: the debug flag and the three pad
+ * timers in place, then the look timer/state pair and girlcalled, which the
+ * compiler emits at the end of the run (tentative definitions). */
+extern int hyde_test;
+extern int padtimer_stand;
+extern int padtimer_walk;
+extern int padtimer_run;
+extern int GirlInfo[2];
+extern int girlcalled;
+
 #endif /* GIRL_ACT_H */

@@ -96,7 +96,6 @@ static const char adpcmNoAllocMsg[] = "AdpcmIopBuffAlloc not alloc\n";
 static const char adpcmFreeIopMsg[] =
     "IOP領域が確保されているのにもかかわらず,使われていなので解放します\n";
 
-extern char D_0063A630[];
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 extern int soundBufAdpcmChAlloc(AdpcmObj *self, int *chp);
@@ -107,6 +106,8 @@ extern int iosCdvdBackGroundMgrAdd(char *name, void *proc, void *self, void *not
                                    void *a5, int a6, int a7);
 /* kept local: this TU's uses of iosCdvdBackGroundMgrSeek do not fit the prototype in cdvd.h */
 extern void iosCdvdBackGroundMgrSeek(int a, int b);
+
+int debugAdpcmOn = 1;
 
 int *adpcmDataSet(int a0, int no, int bank, int a3, int size, int a5, int a6)
 {
@@ -127,7 +128,7 @@ int *adpcmDataSet(int a0, int no, int bank, int a3, int size, int a5, int a6)
         }
     }
     debug_assert(adpcmFile, 363);
-    __assert(adpcmFile, 363, D_0063A630);
+    __assert(adpcmFile, 363, "0");
 found:
     p = (AdpcmStream *)((char *)D_006BF498 + i * 0x58);
     p->used = 1;
@@ -145,7 +146,7 @@ found:
         break;
     default:
         debug_assert(adpcmFile, 381);
-        __assert(adpcmFile, 381, D_0063A630);
+        __assert(adpcmFile, 381, "0");
     }
     p->mask = 0;
     for (j = 0; j < p->n; j++) {
@@ -227,7 +228,6 @@ found:
     return D_0063C1B8 + i * 0x5C000;
 }
 
-extern char D_0063A638[];
 /* kept local: this TU's uses of iosCdvdBackGroundMgrAdd do not fit the prototype in cdvd.h */
 extern int iosCdvdBackGroundMgrAdd(char *name, void *proc, void *self, void *notready, int a4,
                                    void *a5, int a6, int a7);
@@ -250,7 +250,7 @@ void AdpcmOpen(AdpcmOpenReq *self, int no, int a2, int a3)
                                            adpcmOpenDiskNotReady, 0, self, 0, 0);
     } else {
         self->bg = 0;
-        debug_StdPrintfDummy(D_0063A638, (char *)&D_00559D50[no]);
+        debug_StdPrintfDummy("%s\n", (char *)&D_00559D50[no]);
     }
     self->f10 = a3;
 }
@@ -266,7 +266,7 @@ static inline void AdpcmIopBuffFree(AdpcmStream *self)
 
     if (no >= 3) {
         debug_assert(adpcmFile, 143);
-        __assert(adpcmFile, 143, D_0063A630);
+        __assert(adpcmFile, 143, "0");
     }
     D_0063C1C0[no] = 0;
 }
@@ -295,14 +295,12 @@ void AdpcmClose(int *a0)
             }
         }
         debug_assert(adpcmFile, 605);
-        __assert(adpcmFile, 605, D_0063A630);
+        __assert(adpcmFile, 605, "0");
     found:
         *(int *)((char *)D_006BF498 + j * 0x58) = 0;
         self->mask = 0;
     }
 }
-
-extern int D_0063A628;
 
 /* vol is in the ABI (AdpcmInterLeaveVolumeSet passes it) but the ROM never
    reads $6: the levels come back out of the record the caller just wrote. */
@@ -322,7 +320,7 @@ int vol;
     short lv = r[0x1E];
     short rv = q[0x20];
 
-    if (D_0063A628 == 0) {
+    if (debugAdpcmOn == 0) {
         rv = 0;
         lv = 0;
     }

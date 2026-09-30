@@ -41,7 +41,7 @@ typedef struct {
 } StatusAttrAct;
 
 extern const StatusAttrAct D_005577D0[];
-extern char *D_0063A61C;
+extern char *isysCurrentGObj;
 /* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
 extern void iosThreadSleep(void);
 extern int D_0028F4C0[];
@@ -50,6 +50,7 @@ extern int isysGObjProcAddGOppArg();
 extern int matrixptr;
 
 #include "act.h"
+#include "enemy_act.h"
 #include <libvu0.h>
 #include <string.h>
 #include "typedef.h"
@@ -98,7 +99,7 @@ void actChangeActMain(void *a0, void *a1, void **a2)
 void actCreateMotionThread(void *a0, void *a1, void **a2)
 {
     void *old = *a2;
-    int ret = isysGObjProcAdd(D_0063A61C, a0, 0, a1);
+    int ret = isysGObjProcAdd(isysCurrentGObj, a0, 0, a1);
     *a2 = (void *)ret;
     if (old != 0) {
         debug_StdPrintfDummy("--t-- %p:act mot del %p\n", *(int *)((char *)old + 4), ret);
@@ -115,21 +116,21 @@ int actCreateSubThread(void *a0, void *a1)
     char *p;
 
     if (D_0063B208) {
-        Act *lval = GOBJ_ACT(D_0063A61C);
-        debug_StdPrintfDummy("acst[%p]\n", D_0063A61C);
-        debug_StdPrintfDummy("    [%d]\n", *(int *)(D_0063A61C + 8));
-        debug_StdPrintfDummy("    [%d]\n", *(int *)(D_0063A61C + 0xC));
+        Act *lval = GOBJ_ACT(isysCurrentGObj);
+        debug_StdPrintfDummy("acst[%p]\n", isysCurrentGObj);
+        debug_StdPrintfDummy("    [%d]\n", *(int *)(isysCurrentGObj + 8));
+        debug_StdPrintfDummy("    [%d]\n", *(int *)(isysCurrentGObj + 0xC));
         if (lval != 0) {
             debug_StdPrintfDummy("lval[%p]\n", lval);
             debug_StdPrintfDummy("    [%d]\n", lval->unk34);
         }
     }
-    e = D_002C2DC8 + *(int *)(D_0063A61C + 8) * 0x4C;
+    e = D_002C2DC8 + *(int *)(isysCurrentGObj + 8) * 0x4C;
     fld = *(unsigned short *)(e + 0x40);
     if (((long long)fld << 10) == 0) {
-        p = (char *)isysGObjProcAdd(D_0063A61C, a0, 0, a1);
+        p = (char *)isysGObjProcAdd(isysCurrentGObj, a0, 0, a1);
     } else {
-        p = (char *)isysGObjProcAddS(D_0063A61C, a0, 0, a1, (long long)fld << 10);
+        p = (char *)isysGObjProcAddS(isysCurrentGObj, a0, 0, a1, (long long)fld << 10);
     }
     *(int *)(p + 0x64) = 1;
     return (int)p;
@@ -137,7 +138,7 @@ int actCreateSubThread(void *a0, void *a1)
 
 inline void actCreateSubThreadGOppArg(int a0, int a1)
 {
-    *(int *)((char *)isysGObjProcAddGOppArg(D_0063A61C, a0, 0, a1) + 0x64) = 1;
+    *(int *)((char *)isysGObjProcAddGOppArg(isysCurrentGObj, a0, 0, a1) + 0x64) = 1;
 }
 
 inline void actSetInterrupt(char *self, int val)
@@ -239,7 +240,7 @@ typedef struct {
 
 extern PadConf iosPadConfDefault;
 extern int D_0063A44C;
-extern void *D_0063A620;
+extern void *isysCurrentGObjProcess;
 
 void actInitialize_ext_charcter(char *self)
 {
@@ -308,7 +309,7 @@ char *actInitialize(char *self)
     *(char **)(self + 0x164) = w;
     memset(w, 0, 0x850);
 
-    *(void **)(w + 0x4) = D_0063A620;
+    *(void **)(w + 0x4) = isysCurrentGObjProcess;
     *(int *)(w + 0x0) = 0;
     *(int *)(w + 0x8) = 0;
     *(int *)(w + 0xC) = 0;
@@ -545,8 +546,6 @@ extern IntrMail D_002A7E08[];
 /* the boy object, typed as the work block object pointers it is compared and
    exchanged with (ActObjRefs below; void * as in boyact.c and chain.c) */
 extern void *D_00639EA4;
-/* enemy_act.c's MAIN.MAP global; kept local: no header carries it */
-extern int entesty;
 
 /* one flag per mail list: a list whose flag is set is not checked for an
    interrupt while the status record's b11 is set */
@@ -677,7 +676,7 @@ void BeforeFunc(char *self)
                 ((unsigned long long)D_005577D0[intr->f12].b12 << 50);
             ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 11);
             *(IntrMail **)(w + 0xD4) = &D_002A7E08[D_005577D0[*(int *)(w + 0x34)].ent[5].f8];
-            actChangeActMain(D_0063A61C, act, (void **)(w + 4));
+            actChangeActMain(isysCurrentGObj, act, (void **)(w + 4));
         }
         if (intr->f0 != 0) {
             *(int *)(w + 0x38) = 0;

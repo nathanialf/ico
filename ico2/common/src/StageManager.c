@@ -133,7 +133,6 @@ extern int stgMgrWakeupRequest;
 extern void jimakuEnd();
 extern int game_pause;
 extern int before_stage_no;
-extern int D_0063A684;
 extern void *D_0063A430;
 extern void *D_0063A438;
 extern void *D_0063A440;
@@ -176,7 +175,7 @@ void stop_free_resources(void)
         jimakuEnd(jimaku_msg);
         D_0028F4C0[10] = 0;
     }
-    if (D_0063A684 == 0) {
+    if (sndInitBgmCancelFlag == 0) {
         debug_StdPrintfDummy("sound partition reset\n");
         iosMallocResetPartition(D_0063A458);
     } else {

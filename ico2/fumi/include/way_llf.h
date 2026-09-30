@@ -26,4 +26,9 @@ int WayPointList_next(int *a0);
 void *WayPoint_begin(void);
 int WayPoint_next(int a0);
 
+/* MAIN.MAP globals of way_llf.o's .sdata */
+extern int first_waytool;
+extern int n_way_group;
+extern int current_select_gid;
+
 #endif /* WAY_LLF_H */
