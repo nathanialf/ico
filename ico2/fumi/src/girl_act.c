@@ -3399,14 +3399,14 @@ static unsigned char wayTestBegin = 1; /* derived name */
 
 static unsigned char wayTestMoving = 0; /* derived name */
 
-/* .sbss, girl_act.o's first word (MAIN.MAP line 7594 names no symbol, so the
-   name is ours): how many frames in a row WayTest has seen the girl's heading
-   swing by more than 90 units. The second word, 0x63C248, stays in the blob
-   while subGirlBrain_Attract's stub names it. */
-static int wayTurnFrames;
-
 void WayTest(void)
 {
+    /* .sbss, girl_act.o's first word (MAIN.MAP line 7594 names no symbol, so
+       the name is ours): how many frames in a row WayTest has seen the girl's
+       heading swing by more than 90 units.  A local static is written when
+       its function is parsed, ahead of the file's own statics, which is the
+       ROM's order: the attract state's mail datum follows it. */
+    static int wayTurnFrames;
     float a[4];
     float b[4];
     char *s;

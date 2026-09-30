@@ -52,7 +52,9 @@ extern int D_00639EA4;
 
 static ActMail intro_mes[2] = {{430}, {429}};
 
-extern StVec D_00623090;
+/* the point the boy turns to face when the intro is skipped */
+static const StVec introFacePos = {{-2000.0f, 0.0f, -1129.0f, 1.0f}}; /* derived name */
+
 /* no header declares it; gamesys.c defines it */
 extern void gamesysNObjInfoInit(void);
 void actSt22aIntroChk(volatile int a0);
@@ -91,7 +93,7 @@ void actSt22aIntro(volatile int a0)
         _ACTWait(0);
     } else {
         gflagOn(324);
-        pos = D_00623090;
+        pos = introFacePos;
         sceVu0SubVector(dir, &pos, test_CURRENTROOT(D_00639EA4));
         scpPlayMotDir(D_00639EA4, dir);
         _ACTWait(1);
@@ -153,7 +155,7 @@ void actSt22aIntroChk(volatile int a0)
         stage_SetAnimation(759, 1, -1);
         StabilizeAllLayoutedCage();
         scpPlayPosSet(D_00639EA4, -808.0f, 148.0f, -1053.0f);
-        pos = D_00623090;
+        pos = introFacePos;
         sceVu0SubVector(dir, &pos, test_CURRENTROOT(D_00639EA4));
         scpPlayMotDir(D_00639EA4, dir);
         scpPlayMot(D_00639EA4, 0);
@@ -182,7 +184,7 @@ void actSt22aIntroSub(volatile int a0)
         _ACTWait(1);
     }
     scpPlayPosSet(D_00639EA4, -707.0f, 148.0f, -1112.0f);
-    pos = D_00623090;
+    pos = introFacePos;
     sceVu0SubVector(dir, &pos, test_CURRENTROOT(D_00639EA4));
     scpPlayMotDir(D_00639EA4, dir);
     scpPlayMot(D_00639EA4, 398);

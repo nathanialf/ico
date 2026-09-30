@@ -2,26 +2,22 @@
 #include "matrixDrive.h"
 #include <libvu0.h>
 
-extern char D_0063A868[];
-extern char D_0063A870[];
-extern char D_0063A878[];
-
 void fzShowV(float *p)
 {
     int i = 3;
     do {
-        debug_StdPrintfDummy(D_0063A868, *p);
+        debug_StdPrintfDummy("%10.3f ", *p);
         p++;
         i--;
     } while (i >= 0);
-    debug_StdPrintfDummy(D_0063A870);
+    debug_StdPrintfDummy("\n");
 }
 
 void fzShowM(int *p)
 {
     int i = 0;
     do {
-        debug_StdPrintfDummy(D_0063A878, i);
+        debug_StdPrintfDummy("[%d]: ", i);
         i++;
         fzShowV(p);
         p = (int *)((char *)p + 0x10);

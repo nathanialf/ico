@@ -328,7 +328,6 @@ int short_direction_between_wp(char *from, char *to)
 extern WNODE *WayBridge_begin(void);
 extern WNODE *WayBridge_next(WNODE *);
 extern Nd D_004F31E0[];
-extern char D_00554390[];
 /* The functions this file defines `inline` whose out-of-line copies the ROM
    emits before direction_across_bridge's: gcc 2.9 writes deferred functions
    at the end of the file in the order of their first declaration, and
@@ -350,7 +349,6 @@ char *visible_waypoint(int *arg0, int handle);
 char *visible_waypoint_from_gobj(void *dobj, int handle);
 void *get_wp_nearest_bridge_side_me(int arg0, int arg1);
 int get_wp_nearest_bridge_side_bridge(int arg0, int arg1);
-extern char D_00554378[];
 extern void __assert(void *a0, int a1, void *a2);
 extern void debug_assert(void *a0, int a1);
 
@@ -363,7 +361,7 @@ inline int direction_across_bridge(void *a0, int a1)
     }
     e2 = (char *)D_004F31E0 + *(int *)((char *)a0 + 0x24) * 0x40;
     if (*(int *)(e2 + 0x20) != a1) {
-        debug_StdPrintfDummy(D_00554378);
+        debug_StdPrintfDummy("abnormal bridge\n");
         debug_assert(wayUtilFile, 706);
         __assert(wayUtilFile, 706, "0");
     }
@@ -417,7 +415,7 @@ int wgid_next(int me, int target)
 
             br = waybridge_between_groupInline(me, target);
             if (br != 0) {
-                debug_StdPrintfDummy(D_00554390);
+                debug_StdPrintfDummy("target is over bridge\n");
                 return br->f4;
             }
         }
@@ -629,7 +627,6 @@ int GetWgAll(int from, int to, WgAll *w)
 
 extern WayGrp D_004F1EC0[];
 extern Nd D_004F31E0[];
-extern char D_005543A8[];
 
 /* INTERIM stand-ins: waypoint_connect_group_side_me and
    waypoint_connect_group_side_bridge are real TU functions whose out-of-line
@@ -669,7 +666,7 @@ void set_check_wp(CheckWp *out, int wp, int gid)
 
         out->f4 = waypoint_connect_group_side_meInline((WPNode *)f, gid);
         out->f8 = (void *)waypoint_connect_group_side_bridgeInline((WPNode *)f, gid);
-        debug_StdPrintfDummy(D_005543A8, out->f4, out->f8);
+        debug_StdPrintfDummy("set_check_wp:%p %p\n", out->f4, out->f8);
         break;
     }
     case 1: {

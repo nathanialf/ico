@@ -108,6 +108,20 @@ extern char *strcpy(char *dst, const char *src);
 
 #include "Texture.h"
 
+/* The sprite rectangle the gif helpers take: origin and size, in 1/16 pixels. */
+typedef struct {
+    int x;
+    int y;
+    int w;
+    int h;
+} SprRect;
+
+/* the screen rectangle lt_draw_primary_sprite draws, in 1/16 pixels: 640 x 226
+   pixels centred on the origin; first in this object's .rodata and 16-aligned
+   as the ROM's 12 B of fill before it prove */
+static const SprRect primarySpriteRect
+    __attribute__((aligned(16))) = {-5120, -1808, 10240, 3616}; /* derived name */
+
 /* source lines 342-390 */
 void display_texture_fade_cancel_chk(int from, int to)
 {
@@ -468,14 +482,6 @@ extern void gif_SpriteSensitive(void *rect, unsigned int z, void *uv, void *col,
 extern void gif_EndPacket(void);
 extern void texture_fading(LtProp *p);
 
-/* The sprite rectangle the gif helpers take: origin and size, in 1/16 pixels. */
-typedef struct {
-    int x;
-    int y;
-    int w;
-    int h;
-} SprRect;
-
 typedef struct {
     unsigned char r;
     unsigned char g;
@@ -483,7 +489,6 @@ typedef struct {
     unsigned char a;
 } SprCol;
 
-extern SprRect D_0061DD50;
 /* The census display_texture body below reads these:
    D_0063B608 is the second highlight colour, D_0028F720 the system record whose
    bytes at 0xD0/0xD4/0xD8 it inverts, and GetTableSin/gif_SpriteSensitiveOffset/
@@ -644,7 +649,7 @@ static inline void lt_draw_primary_sprite(SprCol *col)
     gif_SetZTest(0);
     gif_SetZWrite(0);
     gif_SetAlpha(1, 7, 0);
-    r = D_0061DD50;
+    r = primarySpriteRect;
     gif_SpriteSensitive(&r, 0xFFFFFFFF, (void *)0, col, 1);
     gif_SetZWrite(1);
     gif_SetZTest(1);
@@ -759,8 +764,6 @@ void exec_layout_texture(void)
    `static` here keeps this one's ELF symbol local */
 extern char D_00535168[][0x34];
 extern char D_0030D014[];
-extern char D_0061DDA8[]; /* "no texture loaded.(%s)\n" */
-extern char D_0061DDC0[]; /* "src/layout_texture.c" */
 extern char D_0063B630[]; /* "/" */
 extern char D_0063B638[]; /* "0" */
 extern char *strtok(char *s, const char *sep);
@@ -807,9 +810,9 @@ static inline int lt_texture_no_of_property(int idx)
     no = tex_GetTextureNo(name);
 
     if (no < 0) {
-        debug_StdPrintfDummy(D_0061DDA8, src);
-        debug_assert(D_0061DDC0, 0x507);
-        __assert(D_0061DDC0, 0x507, D_0063B638);
+        debug_StdPrintfDummy("no texture loaded.(%s)\n", src);
+        debug_assert(__FILE__, 0x507);
+        __assert(__FILE__, 0x507, D_0063B638);
     }
     return no;
 }

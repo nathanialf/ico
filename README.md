@@ -4,11 +4,11 @@
 ![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg)
 ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg)
 ![.data progress](https://img.shields.io/badge/data-69.68%20%25-yellowgreen.svg)
-![.rodata progress](https://img.shields.io/badge/rodata-8.64%20%25-orange.svg)
+![.rodata progress](https://img.shields.io/badge/rodata-8.85%20%25-orange.svg)
 ![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25-brightgreen.svg)
-![.sdata progress](https://img.shields.io/badge/sdata-78.23%20%25-green.svg)
-![.sbss progress](https://img.shields.io/badge/sbss-95.18%20%25-green.svg)
-![.bss progress](https://img.shields.io/badge/bss-97.54%20%25-green.svg)
+![.sdata progress](https://img.shields.io/badge/sdata-78.59%20%25-green.svg)
+![.sbss progress](https://img.shields.io/badge/sbss-98.07%20%25-green.svg)
+![.bss progress](https://img.shields.io/badge/bss-97.56%20%25-green.svg)
 <!-- progress:end -->
 
 **[Live progress dashboard](https://nathanialf.github.io/ico/#pal)**: decomp status per directory, TU and function for this branch's target (PAL retail, SCES-50760), updated on every push. The dashboard covers all three targets; switch with the picker at the top.

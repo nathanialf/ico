@@ -4,11 +4,26 @@
 #include <sifrpc.h>
 #include "s_init.h"
 
-extern int D_0063C1CC;
+/* .sbss and .bss, owned by adpcm_init.o and reached only from this file
+   (MAIN.MAP names no symbol in either run), in the ROM's run order: the
+   2 KB-aligned base of the IOP stream buffers, the two buffers' in-use
+   flags, the pause request and the IOP heap block the base was cut from;
+   then the two stream records and the four SPU slots the streams play on. */
+static int adpcmIopBase; /* derived name */
+
+static int adpcmIopBuffUsed[2]; /* derived name */
+
+static int adpcmPause; /* derived name */
+
+static int adpcmIopHeap; /* derived name */
+
+static AdpcmStream adpcmStream[2]; /* derived name */
+
+static int adpcmSpuSlot[4]; /* derived name */
 
 void AdpcmStreamFree(void)
 {
-    sceSifFreeIopHeap(D_0063C1CC);
+    sceSifFreeIopHeap(adpcmIopHeap);
 }
 
 typedef struct {
@@ -21,7 +36,6 @@ typedef struct {
 
 /* kept local: this TU's uses of iosCdvdDiskStatusGet do not fit the prototype in cdvd.h */
 extern int iosCdvdDiskStatusGet(void);
-extern int D_0063C1C8;
 extern const AdpcmDataRec D_00559D50[];
 extern int SgStAdpcmChannelPitch(long long mask, int pitch);
 extern int SgStAdpcmIopReadAddr(int addr);
@@ -31,7 +45,7 @@ void adpcmTickProc2(int *a0)
     AdpcmStream *self = (AdpcmStream *)a0[11];
     int i;
 
-    if (iosCdvdDiskStatusGet() == 0 && D_0063C1C8 == 0) {
+    if (iosCdvdDiskStatusGet() == 0 && adpcmPause == 0) {
         for (i = 0; i < self->n; i++) {
             char *ch = (char *)self->ch;
             int ofs = i * 4;
@@ -82,9 +96,6 @@ void adpcmTickProc2(int *a0)
     }
 }
 
-extern int D_006BF498[];
-extern int D_006BF548[];
-
 /* adpcm_init.o's .rodata run opens with these three named objects: the two
    messages are printed further down the file than the strings that follow
    them in the ROM run. */
@@ -122,7 +133,7 @@ int *adpcmDataSet(int a0, int no, int bank, int a3, int size, int a5, int a6)
     }
     obj = soundDataAreaGet(no, bank, 2, a3);
     for (i = 0; i < 2; i++) {
-        int *q = (int *)((char *)D_006BF498 + i * 0x58);
+        int *q = (int *)((char *)adpcmStream + i * 0x58);
         if (q[0] == 0) {
             goto found;
         }
@@ -130,7 +141,7 @@ int *adpcmDataSet(int a0, int no, int bank, int a3, int size, int a5, int a6)
     debug_assert(adpcmFile, 363);
     __assert(adpcmFile, 363, "0");
 found:
-    p = (AdpcmStream *)((char *)D_006BF498 + i * 0x58);
+    p = (AdpcmStream *)((char *)adpcmStream + i * 0x58);
     p->used = 1;
     obj->stream = p;
     p->n = D_00559D50[no].f3C;
@@ -151,7 +162,7 @@ found:
     p->mask = 0;
     for (j = 0; j < p->n; j++) {
         req.f10 = soundBufAdpcmChAlloc(obj, &req.ch);
-        p->ch[j] = req.ch = D_006BF548[req.ch];
+        p->ch[j] = req.ch = adpcmSpuSlot[req.ch];
         req.f4 = p->f38 | 2;
         req.f8 = a5 + (0x800 / p->n) * j;
         req.fC = 0x5C000;
@@ -210,22 +221,19 @@ void AdpcmStop(int a0)
     SgStAdpcmStop(*(long long *)(a0 + 0x30));
 }
 
-extern int D_0063C1B8;
-extern int D_0063C1C0[2];
-
 inline int AdpcmIopBuffAlloc(void)
 {
     int i;
     for (i = 0; i < 2; i++) {
-        if (D_0063C1C0[i] == 0) {
+        if (adpcmIopBuffUsed[i] == 0) {
             goto found;
         }
     }
     debug_StdPrintfDummy(adpcmNoAllocMsg);
     return 0;
 found:
-    D_0063C1C0[i] = 1;
-    return D_0063C1B8 + i * 0x5C000;
+    adpcmIopBuffUsed[i] = 1;
+    return adpcmIopBase + i * 0x5C000;
 }
 
 /* kept local: this TU's uses of iosCdvdBackGroundMgrAdd do not fit the prototype in cdvd.h */
@@ -262,13 +270,13 @@ extern int SgStAdpcmClose(int ch);
 static inline void AdpcmIopBuffFree(AdpcmStream *self)
 {
     int adr = self->f18;
-    int no = (adr - D_0063C1B8) / 0x5C000;
+    int no = (adr - adpcmIopBase) / 0x5C000;
 
     if (no >= 3) {
         debug_assert(adpcmFile, 143);
         __assert(adpcmFile, 143, "0");
     }
-    D_0063C1C0[no] = 0;
+    adpcmIopBuffUsed[no] = 0;
 }
 
 void AdpcmClose(int *a0)
@@ -289,7 +297,7 @@ void AdpcmClose(int *a0)
         AdpcmIopBuffFree(self);
         soundBufAdpcmFree(a0);
         for (j = 0; j < 2; j++) {
-            int *p = (int *)((char *)D_006BF498 + j * 0x58);
+            int *p = (int *)((char *)adpcmStream + j * 0x58);
             if (p[0] != 0 && p == self) {
                 goto found;
             }
@@ -297,7 +305,7 @@ void AdpcmClose(int *a0)
         debug_assert(adpcmFile, 605);
         __assert(adpcmFile, 605, "0");
     found:
-        *(int *)((char *)D_006BF498 + j * 0x58) = 0;
+        *(int *)((char *)adpcmStream + j * 0x58) = 0;
         self->mask = 0;
     }
 }
@@ -359,17 +367,17 @@ void AdpcmVolumeSet(int a0, int a1)
 
 inline void adpcmPauseRequest(int val)
 {
-    D_0063C1C8 = val;
+    adpcmPause = val;
 }
 
 inline void AdpcmStreamHeap(void)
 {
     int r = iosSifAllocIopHeapDebug(0xB8800, adpcmFile, 68);
-    D_0063C1CC = r;
+    adpcmIopHeap = r;
     if (r & 0x7FF) {
-        D_0063C1B8 = (r / 0x800 + 1) * 0x800;
+        adpcmIopBase = (r / 0x800 + 1) * 0x800;
     } else {
-        D_0063C1B8 = r;
+        adpcmIopBase = r;
     }
 }
 
@@ -381,18 +389,18 @@ inline void AdpcmStreamInit(void)
     int i;
     int *p;
 
-    for (i = 0, p = D_006BF548; i < 4; i++, p++) {
+    for (i = 0, p = adpcmSpuSlot; i < 4; i++, p++) {
         *p = SgGetSpuSlotMalloc(1);
     }
     AdpcmStreamHeap();
     SgStAdpcmInit();
     for (i = 0; i < 2; i++) {
-        *(int *)((char *)D_006BF498 + i * 0x58) = 0;
+        *(int *)((char *)adpcmStream + i * 0x58) = 0;
     }
     for (i = 0; i < 2; i++) {
-        D_0063C1C0[i] = 0;
+        adpcmIopBuffUsed[i] = 0;
     }
-    D_0063C1C8 = 0;
+    adpcmPause = 0;
 }
 
 inline int AdpcmNotUseIopAreaFree(void)
@@ -400,14 +408,14 @@ inline int AdpcmNotUseIopAreaFree(void)
     int cnt = 0;
     int i;
     unsigned char buf[2];
-    int *p = D_006BF498;
+    int *p = adpcmStream;
     int *end = (int *)((char *)p + 0xB0);
 
     *(short *)buf = 0;
 
     do {
         if (*p != 0) {
-            int no = (*(int *)((char *)p + 0x18) - D_0063C1B8) / 0x5C000;
+            int no = (*(int *)((char *)p + 0x18) - adpcmIopBase) / 0x5C000;
             if (no < 3) {
                 buf[no] = 1;
             }
@@ -418,10 +426,10 @@ inline int AdpcmNotUseIopAreaFree(void)
     i = 0;
     do {
         if (buf[i] == 0) {
-            if (D_0063C1C0[i] != 0) {
+            if (adpcmIopBuffUsed[i] != 0) {
                 debug_StdPrintfDummy(adpcmFreeIopMsg);
                 cnt++;
-                D_0063C1C0[i] = 0;
+                adpcmIopBuffUsed[i] = 0;
             }
         }
         i++;
@@ -452,7 +460,7 @@ body:
 
 inline void AdpcmFadeCloseAll(short a0)
 {
-    int *p = D_006BF498;
+    int *p = adpcmStream;
     int *end = (int *)((char *)p + 0xB0);
     do {
         if (*p != 0) {
@@ -465,7 +473,7 @@ inline void AdpcmFadeCloseAll(short a0)
 inline int AdpcmUseAreaGet(void)
 {
     int count = 0;
-    int *p = D_0063C1C0;
+    int *p = adpcmIopBuffUsed;
     int n = 1;
     do {
         int v = *p;
@@ -481,7 +489,7 @@ inline int AdpcmUseAreaGet(void)
 inline int AdpcmFreeAreaGet(void)
 {
     int count = 0;
-    int *p = D_0063C1C0;
+    int *p = adpcmIopBuffUsed;
     int n = 1;
     do {
         int v = *p;
@@ -498,7 +506,7 @@ inline void AdpcmInterStereoVolumeSetAll(void)
 {
     int i;
     for (i = 0; i < 176; i += 0x58) {
-        int *p = (int *)((char *)D_006BF498 + i);
+        int *p = (int *)((char *)adpcmStream + i);
         if (*p != 0) {
             int v = *(int *)((char *)p + 0x38);
             if (v == 0x20000)

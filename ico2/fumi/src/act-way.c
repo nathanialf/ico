@@ -180,22 +180,27 @@ inline unsigned char WayMove_CheckCollis(float *p0, float *p1, void *a2, void *a
 /* kept local: girl_act defines this and no header of its own declares it */
 extern void *FindGirlPullupFloorBoxGObj(void);
 extern void *D_00639EA8;
-extern void *D_0063C4C8;
-extern int D_0063C4C4;
+
+/* .sbss, owned by act-way.o and reached only from these two helpers (MAIN.MAP
+   names no symbol in the run), in the ROM's run order: the pull-up floor box's
+   saved enable word and the box itself, held across the way search. */
+static int pullupBoxEnable; /* derived name */
+
+static void *pullupBox; /* derived name */
 
 static inline void SuspendGirlPullupFloorBox(void)
 {
-    D_0063C4C8 = FindGirlPullupFloorBoxGObj();
-    D_0063C4C4 = D_0063C4C8 != 0 ? *(int *)(*(char **)((char *)D_0063C4C8 + 0x15C) + 0x74) : 0;
-    if (D_0063C4C4 != 0) {
-        *(int *)(*(char **)((char *)D_0063C4C8 + 0x15C) + 0x74) = 0;
+    pullupBox = FindGirlPullupFloorBoxGObj();
+    pullupBoxEnable = pullupBox != 0 ? *(int *)(*(char **)((char *)pullupBox + 0x15C) + 0x74) : 0;
+    if (pullupBoxEnable != 0) {
+        *(int *)(*(char **)((char *)pullupBox + 0x15C) + 0x74) = 0;
     }
 }
 
 static inline void ResumeGirlPullupFloorBox(void)
 {
-    if (D_0063C4C4 != 0) {
-        *(int *)(*(char **)((char *)D_0063C4C8 + 0x15C) + 0x74) = 1;
+    if (pullupBoxEnable != 0) {
+        *(int *)(*(char **)((char *)pullupBox + 0x15C) + 0x74) = 1;
     }
 }
 
@@ -248,6 +253,15 @@ int ACTWayMove_BeginDetail(char *self, float *goal, float *from, void *tgt, void
     int ret = 0;
     int w;
 
+    /* Disabled in retail: the way-begin-position (WBP) report.  What the
+       bytes pin: its text is the first item of this object's .rodata, ahead
+       of ACTWayMove_NextDetail's "no route" trace, with no instruction; the
+       listing gives this function no rows between its declarations (308)
+       and the copy of the way work (313).  What they cannot: the condition
+       that disabled it. */
+    if (0) {
+        debug_StdPrintfDummy("WBP <<begin>>\n");
+    }
     home = (WayWork *)(act + 0x360);
     way = *home;
     wp = &way;

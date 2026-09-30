@@ -76,12 +76,6 @@ struct SVF {
     int b;
 };
 
-/* the 16-byte primitive colour record the debug wire-draws copy out of
-   .rodata before overriding the first word */
-typedef struct Blob16 {
-    long long a, b;
-} Blob16;
-
 /* the 16-byte work vector scpSekizou reuses for the motion direction and
    for the stone-statue SE position it copies out of .rodata */
 
@@ -130,7 +124,6 @@ struct S {
     int b;
 };
 
-extern const char D_005543C0[];
 /* kept local: this TU's uses of SetMotionDirection do not fit the prototype in motionManager2.h */
 extern void SetMotionDirection(char *self, float *dir);
 /* SCE VU0 library: sceVu0Normalize(dst, src) -- normalised in place here, so
@@ -155,8 +148,6 @@ extern void ACTItemForceDrop(int a0);
 extern int SetLodLevel();
 /* as geometryManager.h declares it; this TU does not include that header */
 extern void SetRootMatrixWithTransOffset(void *a0, float x, float y, float z);
-extern int D_00554560[];
-extern char D_00554550[];
 extern void sceVu0SubVector(float *d, float *a, float *b);
 extern float sceVu0InnerProduct(float *a, float *b);
 extern void sceVu0UnitMatrix(void *m);
@@ -166,7 +157,6 @@ extern void gif_StartPacketPri(int pri);
 extern void gif_EndPacket(void);
 /* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
 extern void GetRootPosition(void *dst, void *obj);
-extern const char D_00554590[];
 /* kept local: this TU's uses of GetRootMatrixTransOffset do not fit the prototype in geometryManager.h */
 extern void GetRootMatrixTransOffset(float *dst, void *obj);
 /* kept local: this TU's uses of ACTSendMailCorrect do not fit the prototype in commonact.h */
@@ -203,11 +193,6 @@ struct ScpAct {
     ActMail *mail;     /* 0xD4 */
 };
 
-extern const char D_005545A8[];
-extern const char D_005545C0[];
-extern const char D_005545E0[];
-extern const char D_00554628[];
-extern const char D_00554680[];
 /* kept local: this TU's uses of AdpcmFreeAreaGet do not fit the prototype in adpcm_init.h */
 extern int AdpcmFreeAreaGet(void);
 /* kept local: this TU's uses of AdpcmNotUseIopAreaFree do not fit the prototype in adpcm_init.h */
@@ -222,13 +207,10 @@ extern char *soundDataOpenSync(void *work);
 extern void AdpcmPlay(int a0);
 /* kept local: this TU's uses of soundDataClose do not fit the prototype in s_init.h */
 extern void soundDataClose(char *h);
-extern const char D_005546F0[];
-extern const char D_00554720[];
 /* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
 extern void _SubVector(float *dst, float *a, float *b);
 /* kept local: this TU's uses of _InnerProduct do not fit the prototype in Matrix.h */
 extern float _InnerProduct(float *a, float *b);
-extern char D_00554750[];
 /* kept local: this TU's uses of AdpcmInterStereoVolumeSet do not fit the
    prototype in adpcm_init.h */
 extern void AdpcmInterStereoVolumeSet(void *h, int a1);
@@ -247,8 +229,6 @@ struct WoodBoxEnt {
     float b3;       /* 0x2C */
 };
 
-extern const char D_00554790[];
-extern const char D_005547A0[];
 extern void sceVu0AddVector(float *dst, float *a, float *b);
 /* kept local: this TU's uses of ReviveAllCarryableItemsWithNonSleepFrame do not fit the prototype in item.h */
 extern void ReviveAllCarryableItemsWithNonSleepFrame(int frames);
@@ -263,14 +243,12 @@ extern int soundSeDefPlay(int no, int a1, void *pos, int a3);
 /* kept local: this TU's uses of soundSeDefStop do not fit the prototype in s_init.h */
 extern void soundSeDefStop(int h);
 extern char *D_00639EAC;
-extern char D_005547F0[];
 /* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
 extern float *test_CURRENTROOT(char *target);
 /* kept local: this TU's uses of ClearMotionGeometryInfo do not fit the prototype in motionManager2.h */
 extern void ClearMotionGeometryInfo(void *a0);
 /* kept local: this TU's uses of SetDirectRootPosition do not fit the prototype in geometryManager.h */
 extern void SetDirectRootPosition();
-extern const char D_005544E0[];
 /* kept local: the declaration in fieldCollision.h changes this TU codegen */
 extern void ClipWall(void *w);
 
@@ -304,10 +282,8 @@ extern void SetBoyWeaponGObj();
 extern int isysGObjSearchFromObjKindID_begin();
 /* kept local: this TU's uses of isysGObjSearchFromObjKindID_next do not fit the prototype in gobj.h */
 extern int isysGObjSearchFromObjKindID_next();
-extern char D_00554498[];
 /* kept local: this TU's uses of GetSkeltonFocusNode do not fit the prototype in motionManager2.h */
 extern int GetSkeltonFocusNode(int a0, int a1);
-extern char D_005546E0[];
 
 /* .data, last in script.o's run: the wood-bridge trigger table, one row per
    bridge object, walked by object id. */
@@ -327,10 +303,8 @@ static struct WoodBoxEnt woodBoxTbl[11] = {
 
 /* kept local: this TU's uses of IsBombExplode do not fit the prototype in item.h */
 extern int IsBombExplode(char *self);
-extern int D_00554408[];
 /* kept local: this TU's uses of GetRotObjectRotCount do not fit the prototype in rotObject.h */
 extern float GetRotObjectRotCount(int a0);
-extern char D_00554450[];
 /* kept local: this TU's uses of GetRotObjectZPlusDirection do not fit the prototype in rotObject.h */
 extern int GetRotObjectZPlusDirection(int a0);
 /* kept local: this TU's uses of GetRootMatrixRotOffset do not fit the prototype in geometryManager.h */
@@ -343,14 +317,12 @@ extern void RotQuaternionX(float *q, int step);
 extern void RotQuaternionY(float *q, int step);
 /* kept local: this TU's uses of RotQuaternionZ do not fit the prototype in quaternion.h */
 extern void RotQuaternionZ(float *q, int step);
-extern int D_00554570[];
 /* kept local: this TU's uses of _ACTGame_GetParamF do not fit the prototype in act-game.h */
 extern float _ACTGame_GetParamF(int idx);
 /* kept local: this TU's uses of CheckFloorAttribute do not fit the prototype in motionManager2.h */
 extern int CheckFloorAttribute(char *self, int attr);
 /* kept local: this TU's uses of CheckWallAttribute do not fit the prototype in motionManager2.h */
 extern int CheckWallAttribute(char *self, int attr);
-extern int D_00554580[];
 /* kept local: this TU's uses of SetIdentityQuaternion do not fit the prototype in quaternion.h */
 extern void SetIdentityQuaternion(int a0);
 extern char D_002C2DC8[];
@@ -381,7 +353,6 @@ extern void BoyInfoUpdate_StageChange(void);
 extern void ACTCharctrl_Lock(char *a0);
 /* kept local: this TU's uses of ACTGame_StageChangeGObjDirect do not fit the prototype in act-game.h */
 extern void ACTGame_StageChangeGObjDirect();
-extern long long D_00554800[];
 extern int fadeStatus;
 extern float fadeSpeed;
 extern int fadeContinue;
@@ -400,7 +371,6 @@ static struct DQW spiderLayout = {0, 0, 0, 0, 0, 0, {0}, {1.0f, 1.0f, 1.0f}}; /*
 
 /* kept local: this TU's uses of WakeUpAP1 do not fit the prototype in act_a_p_1.h */
 extern void WakeUpAP1(int a0);
-extern char D_00554810[];
 /* kept local: this TU's uses of ReviveCarryableItemsWithBoundary do not fit the prototype in item.h */
 extern int ReviveCarryableItemsWithBoundary(float *pos, float r);
 /* kept local: this TU's uses of CheckReadyAllSwitches do not fit the prototype in box.h */
@@ -415,10 +385,6 @@ extern void BreakItemFromOutside(void *o);
 extern int CheckItemDead(void *o);
 /* kept local: this TU's uses of GetItemKind do not fit the prototype in item.h */
 extern int GetItemKind(void *o);
-extern char D_00554820[];
-extern char D_00554850[];
-extern char D_00554888[];
-extern char D_005548B8[];
 /* kept local: this TU's uses of IsActCharDead do not fit the prototype in act_a_p_1.h */
 extern int IsActCharDead(char *g);
 /* kept local: this TU's uses of GetRotObjectGameSysObjInfoExtData do not fit the prototype in rotObject.h */
@@ -538,7 +504,8 @@ void scpSetCageVelocityFriction(int id, float f12)
     if (v) {
         SetCageVelocityFriction(v, f12);
     }
-    debug_StdPrintfDummy(D_005543C0);
+    /* no hanging object found */
+    debug_StdPrintfDummy("ぶら下がりオブジェクトが見つかりません。(scpSetCageVelocityFriction)\n");
 }
 
 inline float scpGetRotObjectRotCount(int id)
@@ -547,7 +514,8 @@ inline float scpGetRotObjectRotCount(int id)
     if (v != 0) {
         return GetRotObjectRotCount(v);
     }
-    debug_StdPrintfDummy(D_00554408);
+    /* no push-turn object found */
+    debug_StdPrintfDummy("押し回しオブジェクトが見つかりません。(scpGetRotObjectRotCount)\n");
     return 0.0f;
 }
 
@@ -579,7 +547,8 @@ inline int scpIsRotObjectZPlusDirInclude(int a0, int a1, int a2)
             return 1;
         return 0;
     }
-    debug_StdPrintfDummy(D_00554450);
+    /* no push-turn object found */
+    debug_StdPrintfDummy("押し回しオブジェクトが見つかりません。(scpGetRotObjectZDirInclude)\n");
     return 0;
 }
 
@@ -602,7 +571,9 @@ inline void scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(int a0, int a
         pair.b = GetSkeltonFocusNode(ret, a1);
         copy = pair;
         if (copy.b == -1)
-            debug_StdPrintfDummy(D_00554498);
+            /* LWS skeleton parenting: the node was not found */
+            debug_StdPrintfDummy(
+                "LWSのスケルトンペアレント処理において,ノードが見つかりませんでした\n");
         else
             stage_SetParentOfGObjWithLocalRotationFlag(a2, &copy, a3);
     }
@@ -618,7 +589,9 @@ inline void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, i
         pair.b = GetSkeltonFocusNode((int)ret, a1);
         copy = pair;
         if (copy.b == -1)
-            debug_StdPrintfDummy(D_00554498);
+            /* LWS skeleton parenting: the node was not found */
+            debug_StdPrintfDummy(
+                "LWSのスケルトンペアレント処理において,ノードが見つかりませんでした\n");
         else
             stage_SetParentOfGObjWithLocalRotationFlag(a2, &copy, a3);
     }
@@ -634,7 +607,9 @@ inline void scpLinkBGAtoLayoutedTargetSkelton(int a0, int a1, int a2)
         pair.b = GetSkeltonFocusNode(ret, a1);
         copy = pair;
         if (copy.b == -1)
-            debug_StdPrintfDummy(D_00554498);
+            /* LWS skeleton parenting: the node was not found */
+            debug_StdPrintfDummy(
+                "LWSのスケルトンペアレント処理において,ノードが見つかりませんでした\n");
         else
             stage_SetParentOfGObjWithLocalRotationFlag(a2, &copy, 1);
     }
@@ -658,7 +633,10 @@ inline struct WallCol *scpGetWallCollision(float x0, float y0, float z0, float x
     wallColResult.f08 = work.res.f08;
     wallColResult.pos = work.res.pos;
     if (work.res.f08 == 0) {
-        debug_StdPrintfDummy(D_005544E0, x0, y0, z0, x1, y1, z1);
+        /* no wall collision found */
+        debug_StdPrintfDummy(
+            "scpGetWallCollision: (%4.3f, %4.3f, %4.3f) => (%4.3f, %4.3f, %4.3f)\n\t壁コリジョンが見つかりません。\n",
+            x0, y0, z0, x1, y1, z1);
     }
     return &wallColResult;
 }
@@ -837,10 +815,14 @@ inline void scpRotateLinear(void *obj, int deg, short step, int axis)
     }
 }
 
+/* the colour a trigger ball's wire sphere is drawn in; red while it hits */
+static const Col4 triggerBallColor
+    __attribute__((aligned(16))) = {{0, 16, 32, 128}}; /* derived name */
+
 inline int scpTriggerPosBall(float *pos, float *target, float r)
 {
     float d[4];
-    Blob16 col;
+    Col4 col;
     float rr;
     int hit;
 
@@ -853,9 +835,9 @@ inline int scpTriggerPosBall(float *pos, float *target, float r)
     }
     if (debug_wallcheck_flag != 0) {
         MatrixDrive_PushMatrix();
-        col = *(Blob16 *)D_00554550;
+        col = triggerBallColor;
         if (hit != 0) {
-            *(int *)&col = 0xFF;
+            col.c[0] = 0xFF;
         }
         gif_StartPacketPri(0xB);
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
@@ -877,6 +859,9 @@ inline int scpTriggerBall(char *obj, char *target, float r)
     return scpTriggerPosBall(pos, tpos, r);
 }
 
+/* the object kinds a trigger ball tests */
+static const int targetManKind[] = {1, 2, 4}; /* derived name */
+
 int scpTriggerBallTargetMan(char *obj, float r)
 {
     char *g;
@@ -884,7 +869,7 @@ int scpTriggerBallTargetMan(char *obj, float r)
     int hit = 0;
 
     for (i = 0; i < 3 && hit == 0; i++) {
-        for (g = isysGObjSearchFromObjKindID_begin(D_00554560[i]); g != 0;
+        for (g = isysGObjSearchFromObjKindID_begin(targetManKind[i]); g != 0;
              g = isysGObjSearchFromObjKindID_next(g)) {
             if (scpTriggerBall(obj, g, r) != 0) {
                 hit = 1;
@@ -895,12 +880,15 @@ int scpTriggerBallTargetMan(char *obj, float r)
     return hit;
 }
 
+/* the object kinds a trigger may ignore, up to the -1 end marker */
+static const int ignoreKind[] = {1, 2, 4, -1}; /* derived name */
+
 inline int scpTriggerIgnore(char *self)
 {
     int i = 0;
 
-    while (D_00554570[i] != -1) {
-        if (*(int *)(self + 0xC) == D_00554570[i]) {
+    while (ignoreKind[i] != -1) {
+        if (*(int *)(self + 0xC) == ignoreKind[i]) {
             Sub15C *sub = GOBJ_SUB(self);
             if (_ACTGame_GetParamF(2) < *(float *)((char *)sub + 0x560) ||
                 GOBJ_ACT(self)->unk34 == 0x16) {
@@ -928,6 +916,9 @@ inline int scpTriggerWallAttr(char *self, int attr)
     return CheckWallAttribute(self, attr);
 }
 
+/* the object kinds a floor-attribute trigger tests */
+static const int floorTargetManKind[] = {1, 2, 4, 17}; /* derived name */
+
 inline int scpTriggerFloorAttrTargetMan(char *self, int attr)
 {
     char *g;
@@ -935,7 +926,7 @@ inline int scpTriggerFloorAttrTargetMan(char *self, int attr)
     int hit = 0;
 
     for (i = 0; i < 4 && hit == 0; i++) {
-        for (g = isysGObjSearchFromObjKindID_begin(D_00554580[i]); g != 0;
+        for (g = isysGObjSearchFromObjKindID_begin(floorTargetManKind[i]); g != 0;
              g = isysGObjSearchFromObjKindID_next(g)) {
             if (scpTriggerFloorAttr(g, attr) != 0) {
                 hit = 1;
@@ -1029,7 +1020,7 @@ void scpDoorTypeUpDown(volatile int a0)
             _ACTWait(*(int *)((char *)act + 0x464));
         }
     }
-    debug_StdPrintfDummy(D_00554590);
+    debug_StdPrintfDummy("start animation down\n");
     gflagOff(*(int *)((char *)act + 0x454));
     scpTransLinear((void *)a0, 1, *(float *)((char *)act + 0x458), *(float *)((char *)act + 0x45C));
     if (*(int *)((char *)act + 0x468) != 0) {
@@ -1052,7 +1043,7 @@ void scpDoorTypeUpUp(volatile int a0)
             _ACTWait(*(int *)((char *)act + 0x464));
         }
     }
-    debug_StdPrintfDummy(D_005545A8);
+    debug_StdPrintfDummy("start animation up\n");
     gflagOn(*(int *)((char *)act + 0x454));
     scpTransLinear((void *)a0, 1, -*(float *)((char *)act + 0x458),
                    *(float *)((char *)act + 0x45C));
@@ -1143,17 +1134,24 @@ void scpSubAdpcmPlay(volatile int a0)
                 AdpcmReq *p = &tbl[i];
 
                 while (AdpcmFreeAreaGet() == 0) {
-                    debug_StdPrintfDummy(D_005545C0);
+                    /* could not open: ADPCM is full */
+                    debug_StdPrintfDummy("ADPCM一杯で開けませんでした。\n");
                     if (AdpcmNotUseIopAreaFree() != 0) {
-                        debug_StdPrintfDummy(D_005545E0);
+                        /* an IOP area in use although nothing is open: found and forced free */
+                        debug_StdPrintfDummy(
+                            "オープンされていないのにも関わらず使われていないIOP領域発見&強制解放\n");
                     } else if (fightSoundPlayChk() != 0) {
-                        debug_StdPrintfDummy(D_00554628);
+                        /* stop the battle music and request instead; no battle music until the stage changes */
+                        debug_StdPrintfDummy(
+                            "戦闘曲を止めて,変わりにリクエストします。以降ステージ切り換えまで戦闘曲なりません。\n");
                         fightSoundProcessRequestPause();
                         while (fightSoundPlayChk() != 0) {
                             _ACTWait(1);
                         }
                     } else {
-                        debug_StdPrintfDummy(D_00554680);
+                        /* the battle music is not playing, so to keep the program running stop every tune and request instead */
+                        debug_StdPrintfDummy(
+                            "戦闘曲なっていないので,プログラムを止めないために\n全部曲を止めて,変わりにリクエストします。\n");
                         AdpcmFadeCloseAll(0x3FFF);
                         _ACTWait(1);
                     }
@@ -1232,7 +1230,7 @@ static inline int scpGirlHintVoiceChk(void)
 
 inline void scpDeamon(volatile int a0)
 {
-    debug_StdPrintfDummy(D_005546E0);
+    debug_StdPrintfDummy("deamon start");
     girlHintVoice = 0;
     startStagePauseDisableTimer = 0;
     if (stage_no == 0xB && gflagChk(137) == 0) {
@@ -1258,10 +1256,12 @@ void scpGirlHintVoiceReady(int kind)
     float dist;
 
     if (girlHintVoice != 0) {
-        debug_StdPrintfDummy(D_005546F0);
+        /* a hint voice is playing, so a new one cannot be READY */
+        debug_StdPrintfDummy("ヒントポイス再生中なので新にREADYできません\n");
     }
     if (AdpcmFreeAreaGet() == 0) {
-        debug_StdPrintfDummy(D_00554720);
+        /* hint voice: could not open, ADPCM is full */
+        debug_StdPrintfDummy("ヒントポイスADPCM一杯で開けませんでした。\n");
         return;
     }
     if (D_00639EA4 == 0) {
@@ -1294,7 +1294,8 @@ void scpGirlHintVoicePlay(void)
     if (p != 0) {
         AdpcmPlay(*(int *)(p + 0x2C));
     } else {
-        debug_StdPrintfDummy(D_00554750);
+        /* the hint voice is not prepared yet, so it could not play */
+        debug_StdPrintfDummy("ヒントポイスの準備未終了の状態なのでならせませんでした。\n");
     }
 }
 
@@ -1470,14 +1471,14 @@ void scpWoodSrh(char *self, struct WoodBoxEnt *w)
             if (way != 0) {
                 DeleteWayGroup(way);
             } else {
-                debug_StdPrintfDummy(D_00554790);
+                debug_StdPrintfDummy("bridge create");
             }
             sceVu0AddVector(dst, pos, w->ofs);
             way = CreateBridge(pos, dst);
             break;
         case 2:
             if (way != 0) {
-                debug_StdPrintfDummy(D_005547A0);
+                debug_StdPrintfDummy("bridge delete");
                 DeleteWayGroup(way);
                 way = 0;
             }
@@ -1504,6 +1505,10 @@ inline void scpWoodBox(volatile int a0)
 found:
     scpWoodSrh(a0, p);
 }
+
+/* where the stone statue's sound effects play */
+static const Vec16 sekizouSePos
+    __attribute__((aligned(16))) = {{6646.0f, -2157.0f, 1102.0f, 0.0f}}; /* derived name */
 
 void scpSekizou(char *self, int flag, int anim, int anim2, int kind, float bx, float by, float bz,
                 float gx, float gy, float gz)
@@ -1571,7 +1576,7 @@ void scpSekizou(char *self, int flag, int anim, int anim2, int kind, float bx, f
             int h;
 
             stage_SetAnimation(anim2, 1, 0);
-            v = *(Vec16 *)D_005547F0;
+            v = sekizouSePos;
             soundSeDefPlay(1220, 0, v.f, 1);
             _ACTWait(30);
             h = soundSeDefPlay(1221, 0, v.f, 1);
@@ -1651,14 +1656,17 @@ inline int RequestStageChangeSimple(int no, float speed, float wait, unsigned ch
     return ret;
 }
 
+/* the root position a direct stage change parks the actor at, far out of the map */
+static const Vec16 farRootPos
+    __attribute__((aligned(16))) = {{-1000000.0f, 0.0f, 0.0f, 0.0f}}; /* derived name */
+
 inline void RequestStageChangeDirect(int *self)
 {
-    long long buf[2];
+    Vec16 pos;
     ACTGame_StageChangeGObjDirect((int)self);
     ACTCharctrl_Lock((int)self);
-    buf[0] = D_00554800[0];
-    buf[1] = D_00554800[1];
-    SetDirectRootPosition(self, (int *)buf);
+    pos = farRootPos;
+    SetDirectRootPosition(self, &pos);
     iosOmSendMail((int)self, 0x27, (int)self);
 }
 
@@ -1934,10 +1942,14 @@ inline void scpSetStreamMotionRootOffset(int a0, float x, float y, float z)
     CopyVector((int)GOBJ_SUB(a0) + 0x670, &v);
 }
 
+/* the colour the item-revival boundary's wire sphere is drawn in */
+static const Col4 itemBoundaryColor
+    __attribute__((aligned(16))) = {{0, 32, 16, 128}}; /* derived name */
+
 inline void scpWakeupItemWithBoundary(float x, float y, float z, float r)
 {
     float pos[4];
-    Blob16 col;
+    Col4 col;
 
     pos[0] = x;
     pos[1] = y;
@@ -1946,7 +1958,7 @@ inline void scpWakeupItemWithBoundary(float x, float y, float z, float r)
     ReviveCarryableItemsWithBoundary(pos, r);
     if (debug_wallcheck_flag != 0) {
         MatrixDrive_PushMatrix();
-        col = *(Blob16 *)D_00554810;
+        col = itemBoundaryColor;
         gif_StartPacketPri(0xB);
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
         MatrixDrive_TransMatrixV(pos);
@@ -2084,11 +2096,13 @@ inline int scpCheckExistAliveEnemy(void)
     for (g = (char *)isysGObjSearchFromObjKindID_begin(4); g != 0;
          g = (char *)isysGObjSearchFromObjKindID_next(g)) {
         if (actEnemyFlagCheckDead(g) == 0) {
-            debug_StdPrintfDummy(D_00554820);
+            /* found a living enemy */
+            debug_StdPrintfDummy("scpCheckExistAliveEnemy: 生きている敵を発見\n");
             return 1;
         }
     }
-    debug_StdPrintfDummy(D_00554850);
+    /* no living enemy */
+    debug_StdPrintfDummy("scpCheckExistAliveEnemy: 生きている敵はいません\n");
     return 0;
 }
 
@@ -2098,11 +2112,13 @@ inline int scpCheckExistAliveSpider(void)
     for (g = (char *)isysGObjSearchFromObjKindID_begin(62); g != 0;
          g = (char *)isysGObjSearchFromObjKindID_next(g)) {
         if (IsActCharDead(g) == 0) {
-            debug_StdPrintfDummy(D_00554888);
+            /* found a living spider */
+            debug_StdPrintfDummy("scpCheckExistAliveSpider: 生きている蜘蛛を発見\n");
             return 1;
         }
     }
-    debug_StdPrintfDummy(D_005548B8);
+    /* no living spider */
+    debug_StdPrintfDummy("scpCheckExistAliveSpider: 生きている蜘蛛はいません\n");
     return 0;
 }
 

@@ -116,7 +116,10 @@ static char iosThreadDestroyQueue[48];
 
 static IOSThread iosBootThread;
 
-static char iosBootStack[8192];
+/* a thread stack, 16-byte aligned as the kernel's CreateThread requires; the
+   alignment is the ROM's, whose .bss puts 8 B of fill between pad.o's run and
+   this object's */
+static char iosBootStack[8192] __attribute__((aligned(16)));
 
 extern int GetThreadId();
 /* kept local: this TU's uses of iosThreadSetPri do not fit the prototype in thread.h */

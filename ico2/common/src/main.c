@@ -86,11 +86,15 @@ static char soundThreadStack[8192] __attribute__((aligned(16))); /* derived name
 
 static int schedulerMsgBuff[8]; /* derived name */
 
+/* the six threads Emergency_DestroyAllThread tears down, every thread boot
+   starts except idle; first in this object's .rodata, ahead of Main's
+   strings, so it is defined here with the records it points at */
+static const ThreadTbl allThreads = {{mainThread, schedulerThread, mcThread, cdvdThread,
+                                      stageManagerThread, soundThread}}; /* derived name */
+
 /* Main, idle, scheduler and boot open the object at VMA 0x00101C80. The
    listing records all four in main.c (lines 1011 to 1502); splat had left
    them inside the libkernl run that precedes them. */
-extern char D_0054D6D8[];
-extern char D_0054D6E8[];
 /* kept local: this TU's uses of iosThreadCreate do not fit the prototype in thread.h, but the
  * stack size is that header's `long stackSize` and the ROM proves it: idle's first call passes
  * 0x1B000, and as an `int` the SImode large_int splitter in mips.md cuts it into lui and ori
@@ -104,9 +108,6 @@ extern void iosThreadStart(void *th);
 extern void iosThreadSleep(void);
 void idle(void);
 void scheduler(void);
-extern char D_0054D650[];
-extern char D_0054D660[];
-extern char D_0054D688[];
 extern int mpegPlay;
 extern int stageManagerFreeResourceFlag;
 extern int stgMgrWakeupRequest;
@@ -115,13 +116,6 @@ extern void sceGsSyncV(int mode);
 extern int iosThreadCancelWakeup(void *th);
 /* kept local: this TU's uses of iosThreadWakeup do not fit the prototype in thread.h */
 extern int iosThreadWakeup(void *th);
-extern char D_0054D520[];
-extern char D_0054D540[];
-extern char D_0054D560[];
-extern char D_0054D580[];
-extern char D_0054D590[];
-extern char D_0054D5A0[];
-extern char D_0054D5B8[];
 extern char D_005D3CE8[];
 extern int mpegInitDone;
 extern int mpegPlayInitColor;
@@ -173,9 +167,11 @@ void Main(void)
     int ret;
     int n;
 
-    debug_StdPrintfDummy(D_0054D520, systemStatus[0] == 0 ? "NTSC" : "PAL");
-    debug_StdPrintfDummy(D_0054D540, systemStatus[1]);
-    debug_StdPrintfDummy(D_0054D560, (60 - systemStatus[0] * 10) / systemStatus[1]);
+    debug_StdPrintfDummy("VSYNC_TIMING    : \x1b[33m%s\x1b[m\n",
+                         systemStatus[0] == 0 ? "NTSC" : "PAL");
+    debug_StdPrintfDummy("FRAME_STEP      : \x1b[33m%d\x1b[m\n", systemStatus[1]);
+    debug_StdPrintfDummy("SYSTEM_FRAMERATE: \x1b[33m%d\x1b[m\n",
+                         (60 - systemStatus[0] * 10) / systemStatus[1]);
     *(volatile int *)0x10000000 = 0;
     NonLinearCameraMove = 3;
     stage_no = 0;
@@ -191,12 +187,12 @@ void Main(void)
     }
     debug_VariableInit();
     InitDelayFree();
-    debug_StdPrintfDummy(D_0054D580);
-    debug_StdPrintfDummy(D_0054D580);
-    debug_StdPrintfDummy(D_0054D590, IosPadLock);
+    debug_StdPrintfDummy("Main() in\n");
+    debug_StdPrintfDummy("Main() in\n");
+    debug_StdPrintfDummy("IosPadLock %d\n", IosPadLock);
     WaitSema(IosPadLock);
     DeleteSema(IosPadLock);
-    debug_StdPrintfDummy(D_0054D5A0, IosStgMgrLock);
+    debug_StdPrintfDummy("IosstgMgrLock %d\n", IosStgMgrLock);
     WaitSema(IosStgMgrLock);
     DeleteSema(IosStgMgrLock);
     stgmgrForceSwitchWithFade(thisIsYourStartStage < 0 ? 1 : thisIsYourStartStage, 255.0f, 0.0f);
@@ -204,7 +200,7 @@ void Main(void)
     systemStatus[5] = 0;
     _InitRandom(1.2345678f);
     gsb_InitGSSystem();
-    debug_StdPrintfDummy(D_0054D5B8);
+    debug_StdPrintfDummy("main start\n");
     while (1) {
         iosThreadCancelWakeup(0);
         iosThreadSleep();
@@ -262,10 +258,6 @@ void Main(void)
     }
 }
 
-extern char D_0054D5C8[];
-extern char D_0054D5D8[];
-extern char D_0054D618[];
-extern char D_0054D640[];
 extern char jimakuThread[];
 extern char jimakuThreadStack[];
 extern void iosCdvdManager(void);
@@ -283,8 +275,8 @@ static int idleLoop;
 
 void idle(void)
 {
-    debug_StdPrintfDummy(D_0054D5C8);
-    debug_StdPrintfDummy(D_0054D5D8);
+    debug_StdPrintfDummy("idle() in\n");
+    debug_StdPrintfDummy("--------------------------------------------------------------\n");
     iosThreadCreate(cdvdThread, 6, iosCdvdManager, 0, cdvdThreadStack, sizeof(cdvdThreadStack),
                     0x1C);
     iosThreadStart(cdvdThread);
@@ -300,7 +292,7 @@ void idle(void)
     iosThreadStart(soundThread);
     iosThreadCreate(mainThread, 3, Main, 0, mainThreadStack, sizeof(mainThreadStack), 0x1B);
     iosThreadStart(mainThread);
-    debug_StdPrintfDummy(D_0054D618);
+    debug_StdPrintfDummy("--- loop continues infinitely ... ---\n");
     iosThreadSetPri(0, 0x20);
     while (1) {
         idleCount++;
@@ -309,7 +301,7 @@ void idle(void)
         }
         idleCount = 0;
         idleLoop++;
-        debug_StdPrintfDummy(D_0054D640, idleLoop);
+        debug_StdPrintfDummy("idle time:%d\n", idleLoop);
     }
 }
 
@@ -320,7 +312,7 @@ void scheduler(void)
 {
     int msg[4];
 
-    debug_StdPrintfDummy(D_0054D650);
+    debug_StdPrintfDummy("scheduler() in\n");
     sceGsSyncV(0);
     iosMsgQueueCreate(SchedulerMsgQ, schedulerMsgBuff, 8);
     iosMsgSetEvent(2, SchedulerMsgQ, 2);
@@ -354,7 +346,8 @@ void scheduler(void)
                 iosThreadCancelWakeup(mainThread);
                 startStagePauseDisableTimer++;
                 if (iosThreadWakeup(mainThread) < 0) {
-                    debug_StdPrintfDummy(D_0054D660);
+                    /* failed to start the main thread */
+                    debug_StdPrintfDummy("メーンスレッドの起動失敗しました\n");
                 }
                 frameStepCount = 0;
             }
@@ -371,17 +364,21 @@ void scheduler(void)
             }
             la_playtime_count();
         } else {
-            debug_StdPrintfDummy(D_0054D688);
+            /* an unknown message arrived */
+            debug_StdPrintfDummy("不明なメッセージの着信を確認しました in Scheduler\n");
         }
     }
+    /* the loop never ends, so this report is dead code the compiler drops; its
+       text stays in .rodata (the listing's empty row 1416) */
+    debug_StdPrintfDummy("scheduler() out\n");
 }
 
 void boot(void)
 {
     debug_StdPrintfDummy("boot()\n");
-    debug_StdPrintfDummy(D_0054D6D8);
+    debug_StdPrintfDummy("file init\n");
     file_Init();
-    debug_StdPrintfDummy(D_0054D6E8);
+    debug_StdPrintfDummy("iosInit\n");
     iosInitialize();
     gflagInit();
     systemStatus[2] = 1;
@@ -395,14 +392,13 @@ void boot(void)
     iosThreadSleep();
 }
 
-extern ThreadTbl D_0054D508;
 /* kept local: this TU's uses of iosThreadDestroy do not fit the prototype in thread.h */
 extern void iosThreadDestroy(int *th);
 
 void Emergency_DestroyAllThread(void)
 {
     int me = GetThreadId();
-    ThreadTbl t = D_0054D508;
+    ThreadTbl t = allThreads;
     unsigned int i;
 
     for (i = 0; i < 6; i++) {

@@ -9,7 +9,8 @@
 
 int ATGoalTurnMail(void *actor, float *dir, int node);
 extern void ActSendMail_WithAdditionalData(void *gop, int msg, void *sender, void *data);
-extern void *D_0063C248;
+
+static void *attractMailData; /* derived name */
 
 /* girl_brain_attract.c.inc:9-20 in the listing, expanded twice in
    subGirlBrain_Attract: turn toward the target, and when already facing it
@@ -24,8 +25,8 @@ static inline int girlAttractTurnMailL(void *actor, void *obj, float *from, floa
     if (ATGoalTurnMail(actor, dir, 0x2C)) {
         return 1;
     }
-    D_0063C248 = obj;
-    ActSendMail_WithAdditionalData(actor, 0x156, actor, &D_0063C248);
+    attractMailData = obj;
+    ActSendMail_WithAdditionalData(actor, 0x156, actor, &attractMailData);
     return 0;
 }
 
