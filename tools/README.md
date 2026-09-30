@@ -24,7 +24,7 @@ shape.
 | `ico_version.py` / `ico_version.sh` | the single source of truth for the branch's target slug and paths |
 | `build.sh` | `setup` (verify ELF, assemble `ico2/vusrc/*.dsm` with dvp-as into the `ico2/*.s` splat's hasm rows read, run splat, emit build.ninja) / `progress` (rewrite tables) |
 | `patch_splat.py` | applies this repo's local splat patches |
-| `gen_ninja.py` | generates `build.ninja` from `config/ico.<ver>.d`; auto-regens on input change |
+| `gen_ninja.py` | generates `build.ninja` from `config/ico.<ver>.d`; auto-regens on input change; a developer's `.s` beside a `c` row (crt0, klib, tlbtrap, the R5900 string members) assembles with its archive's assembler and -G, as `compile_c.sh` picks them for C |
 | `gen_ninja_plain.py` | generates `build.plain.ninja` from `config/link_order.pal.txt` + `config/link.pal.ld` (the build without splat's `.d`/`.ld`, objects under `build/plain/`); links with ld 2.10 (elf32-littlemips) and assembles `ico2/vusrc/*.dsm` with dvp-as; replaces `gen_ninja.py` at the cut-over |
 | `compile_c.sh` | THE C compile rule: ee-gcc 2.9-991111 + the period ee-as, plus always-on ROM parity |
 | `preprocess_old_as.py` | flattens INCLUDE_ASM siblings + translates `%gp_rel` for the period assembler |

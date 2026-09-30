@@ -433,8 +433,18 @@ def emit_rules(out) -> None:
     )
     out.write("  description = AS $out\n\n")
 
+    # A developer's `.s` beside a `c` row takes its archive's assembler and -G,
+    # as compile_c.sh gives a C member (and tools/gen_ninja_plain.py a `.s`):
+    # the SDK-install sce/ archives on SCE's 2.10-ee assembler at -G 0, libc,
+    # libm and libgcc on ee-as 2.9-991111 at -G 0, the game on ee-as at -G 8.
     out.write("rule as_src\n")
     out.write("  command = $ee_as $asflags -o $out $in\n")
+    out.write("  description = AS $out\n\n")
+    out.write("rule as_src_lib\n")
+    out.write("  command = $ee_as -EL -mcpu=5900 -mabi=eabi -G 0 -o $out $in\n")
+    out.write("  description = AS $out\n\n")
+    out.write("rule as_src_sdk\n")
+    out.write("  command = tools/period_env.sh tools/cc/ee-gcc2.96/bin/as -EL -mcpu=5900 -mabi=eabi -G 0 -o $out $in\n")
     out.write("  description = AS $out\n\n")
 
     out.write("rule cc_src\n")
@@ -501,7 +511,13 @@ def emit_edges(out, objs: list[str]) -> None:
         if rule == "cc_src":
             out.write(f"build {obj}: cc_src {src}\n")
         elif rule == "as_hasm" and _stem_of(obj) not in hasm_names():
-            out.write(f"build {obj}: as_src {src}\n")
+            if re.match(r"sce/(libc|libm|libgcc)/", src):
+                rule = "as_src_lib"
+            elif src.startswith("sce/"):
+                rule = "as_src_sdk"
+            else:
+                rule = "as_src"
+            out.write(f"build {obj}: {rule} {src}\n")
         else:
             # Own section: aligned to a divisor of its own ROM address (never a
             # source of padding). The other standard sections the assembler

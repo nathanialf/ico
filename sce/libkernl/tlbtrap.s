@@ -1,0 +1,236 @@
+/* libkernl.a member tlbtrap.o: the TLB refill and debug exception entries,
+ * the launcher they eret into and the TLB handler's return syscall, each
+ * instruction on the line the January listing (SRCFILE.TXT) gives it. Every
+ * entry is 64-byte aligned: the ROM has _kTLBException, _xlaunch,
+ * _kExitTLBHandler and _kDebugException at 0x265040, 0x265140, 0x265180 and
+ * 0x265280. The listing dumps _xlaunch as data, so of its lines only 92 and
+ * 96 are pinned; the others are placed in order. */
+
+	.text
+	.set	noreorder
+	.set	noat
+	.globl	_kTLBException
+	.globl	_xlaunch
+	.globl	_kExitTLBHandler
+	.globl	_kDebugException
+
+
+
+
+
+
+	.align	6
+_kTLBException:
+	lui	$26, %hi(D_0072EA40)
+	addiu	$26, $26, %lo(D_0072EA40)
+
+	sq	$1, 16($26)
+	sq	$2, 32($26)
+	sq	$3, 48($26)
+	sq	$4, 64($26)
+	sq	$5, 80($26)
+	sq	$6, 96($26)
+	sq	$7, 112($26)
+	sq	$8, 128($26)
+	sq	$9, 144($26)
+	sq	$10, 160($26)
+	sq	$11, 176($26)
+	sq	$12, 192($26)
+	sq	$13, 208($26)
+	sq	$14, 224($26)
+	sq	$15, 240($26)
+	sq	$16, 256($26)
+	sq	$17, 272($26)
+	sq	$18, 288($26)
+	sq	$19, 304($26)
+	sq	$20, 320($26)
+	sq	$21, 336($26)
+	sq	$22, 352($26)
+	sq	$23, 368($26)
+	sq	$24, 384($26)
+	sq	$25, 400($26)
+	sq	$28, 448($26)
+	sq	$29, 464($26)
+	sq	$30, 480($26)
+	sq	$31, 496($26)
+
+
+	mfhi	$2
+	sd	$2, D_0072EC40
+	mfhi1	$2
+	sd	$2, D_0072EC48
+	mflo	$2
+	sd	$2, D_0072EC50
+	mflo1	$2
+	sd	$2, D_0072EC58
+	mfsa	$2
+	sd	$2, D_0072EC60
+
+
+	mfc0	$4, $12
+	mfc0	$5, $13
+	mfc0	$6, $14
+	mfc0	$7, $8
+	la	$8, D_0072EA40
+
+	sw	$6, D_0072EC68
+
+
+	lui	$1, %hi(_xlaunch)
+	addiu	$1, $1, %lo(_xlaunch)
+	mtc0	$1, $14
+	sync.p
+
+	mfc0	$1, $12
+	li	$2, -2
+	and	$1, $1, $2
+	mtc0	$1, $12
+	sync.p
+
+	eret
+_xlaunch:
+	lw	$1, _kTLBRefillHandler
+	lui	$29, %hi(D_0072EA40)
+	jalr	$1
+
+	addiu	$29, $29, %lo(D_0072EA40)
+	li	$3, -84
+	syscall
+
+	.align	6
+
+_kExitTLBHandler:
+	mfc0	$1, $12 ; li $26, -28 ; and $1, $1, $26 ; mtc0 $1, $12 ; sync.p
+
+	lw	$2, D_0072EC68
+	mtc0	$2, $14
+	sync.p
+
+	ld	$2, D_0072EC40
+	mthi	$2
+	ld	$2, D_0072EC48
+	mthi1	$2
+	ld	$2, D_0072EC50
+	mtlo	$2
+	ld	$2, D_0072EC58
+	mtlo1	$2
+	ld	$2, D_0072EC60
+	mtsa	$2
+	sync.p
+
+	lui	$26, %hi(D_0072EA40)
+	addiu	$26, $26, %lo(D_0072EA40)
+
+	lq	$1, 16($26)
+	lq	$2, 32($26)
+	lq	$3, 48($26)
+	lq	$4, 64($26)
+	lq	$5, 80($26)
+	lq	$6, 96($26)
+	lq	$7, 112($26)
+	lq	$8, 128($26)
+	lq	$9, 144($26)
+	lq	$10, 160($26)
+	lq	$11, 176($26)
+	lq	$12, 192($26)
+	lq	$13, 208($26)
+	lq	$14, 224($26)
+	lq	$15, 240($26)
+	lq	$16, 256($26)
+	lq	$17, 272($26)
+	lq	$18, 288($26)
+	lq	$19, 304($26)
+	lq	$20, 320($26)
+	lq	$21, 336($26)
+	lq	$22, 352($26)
+	lq	$23, 368($26)
+	lq	$24, 384($26)
+	lq	$25, 400($26)
+	lq	$28, 448($26)
+	lq	$29, 464($26)
+	lq	$30, 480($26)
+	lq	$31, 496($26)
+
+	mfc0	$26, $12 ; ori $26, $26, 0x13 ; mtc0 $26, $12 ; sync.p ; eret
+
+
+
+
+	.align	6
+
+_kDebugException:
+	lui	$26, %hi(D_0072EA40)
+	addiu	$26, $26, %lo(D_0072EA40)
+
+	sq	$1, 16($26)
+	sq	$2, 32($26)
+	sq	$3, 48($26)
+	sq	$4, 64($26)
+	sq	$5, 80($26)
+	sq	$6, 96($26)
+	sq	$7, 112($26)
+	sq	$8, 128($26)
+	sq	$9, 144($26)
+	sq	$10, 160($26)
+	sq	$11, 176($26)
+	sq	$12, 192($26)
+	sq	$13, 208($26)
+	sq	$14, 224($26)
+	sq	$15, 240($26)
+	sq	$16, 256($26)
+	sq	$17, 272($26)
+	sq	$18, 288($26)
+	sq	$19, 304($26)
+	sq	$20, 320($26)
+	sq	$21, 336($26)
+	sq	$22, 352($26)
+	sq	$23, 368($26)
+	sq	$24, 384($26)
+	sq	$25, 400($26)
+	sq	$28, 448($26)
+	sq	$29, 464($26)
+	sq	$30, 480($26)
+	sq	$31, 496($26)
+
+
+	mfhi	$2
+	sd	$2, D_0072EC40
+	mfhi1	$2
+	sd	$2, D_0072EC48
+	mflo	$2
+	sd	$2, D_0072EC50
+	mflo1	$2
+	sd	$2, D_0072EC58
+	mfsa	$2
+	sd	$2, D_0072EC60
+
+
+	mfc0	$4, $12
+	mfc0	$5, $13
+	mfc0	$6, $14
+	mfc0	$7, $8
+	mfc0	$8, $23
+	la	$9, D_0072EA40
+
+	lui	$1, %hi(1f)
+	addiu	$1, $1, %lo(1f)
+	mtc0	$1, $14
+	sync.p
+
+	mfc0	$1, $12
+	li	$2, -2
+	and	$1, $1, $2
+	mtc0	$1, $12
+	sync.p
+
+	eret
+1:
+	andi	$2, $5, 0x7c
+	lui	$1, %hi(_kDebugHandler)
+	addu	$1, $1, $2
+	lw	$1, %lo(_kDebugHandler)($1)
+	lui	$29, %hi(D_0072EA40)
+	jalr	$1
+	addiu	$29, $29, %lo(D_0072EA40)
+
+	break	1023, 1023
