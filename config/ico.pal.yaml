@@ -127,9 +127,11 @@ segments:
       #     libpkt, libgraph, libmc, libm, libgcc, libc and libkernl's
       #     0x2898E8 run.  libc and libm members sit under the newlib
       #     subdirectory SRCFILE.TXT names for them.  A member whose start is
-      #     not 8-aligned cannot open its own subsegment (the assembler would
-      #     pad and move the bytes), so it stays in the file of the member
-      #     before it and the trailing comment lists it.
+      #     only 4-aligned opens its own subsegment when its section is
+      #     word-aligned: libc's r5900 assembly members memcmp, strcmp,
+      #     strlen, memchr and memmove are `.s` files with `.align 2`, and the
+      #     linker places each at its ROM start with no fill (measured in both
+      #     builds).
       #   * Where the January link carried a different revision of the
       #     archive and the member spans do NOT tile, only the ARCHIVE
       #     attribution is verified: the whole run is one file named for the
@@ -476,7 +478,8 @@ segments:
       - [0x17E5E0, c, sce/libc/stdlib/assert]  # 1 funcs, vendor libc.a member assert.o (1/1 MAIN.MAP)
       - [0x17E618, c, sce/libc/stdlib/atoi]  # 1 funcs, vendor libc.a member atoi.o (1/1 MAIN.MAP)
       - [0x17E640, c, sce/libc/errno/errno]  # 1 funcs, vendor libc.a member errno.o (1/1 MAIN.MAP)
-      - [0x17E650, c, sce/libc/stdio/fiprintf]  # 2 funcs, vendor libc.a member fiprintf.o + memcmp.o (2/2 MAIN.MAP)
+      - [0x17E650, c, sce/libc/stdio/fiprintf]  # 1 funcs, vendor libc.a member fiprintf.o (1/1 MAIN.MAP)
+      - [0x17E684, c, sce/libc/machine/r5900/memcmp]  # 1 funcs, vendor libc.a member memcmp.o (1/1 MAIN.MAP), assembled from memcmp.s; its ROM start is 4-aligned and the .s section is word-aligned, so the linker places it with no fill
       - [0x17E718, c, sce/libc/machine/r5900/memcpy]  # 1 funcs, vendor libc.a member memcpy.o (1/1 MAIN.MAP)
       - [0x17E7C8, c, sce/libc/machine/r5900/memset]  # 1 funcs, vendor libc.a member memset.o (1/1 MAIN.MAP)
       - [0x17E888, c, sce/libc/stdio/printf]  # 2 funcs, vendor libc.a member printf.o (2/2 MAIN.MAP)
@@ -484,8 +487,10 @@ segments:
       - [0x17F340, c, sce/libc/stdlib/rand]  # 2 funcs, vendor libc.a member rand.o (2/2 MAIN.MAP)
       - [0x17F380, c, sce/libc/stdio/sprintf]  # 2 funcs, vendor libc.a member sprintf.o (2/2 MAIN.MAP)
       - [0x17F458, c, sce/libc/stdio/sscanf]  # 2 funcs, vendor libc.a member sscanf.o (2/2 MAIN.MAP)
-      - [0x17F4E8, c, sce/libc/machine/r5900/strcat]  # 2 funcs, vendor libc.a member strcat.o + strcmp.o (2/2 MAIN.MAP)
-      - [0x17F758, c, sce/libc/machine/r5900/strcpy]  # 2 funcs, vendor libc.a member strcpy.o + strlen.o (2/2 MAIN.MAP)
+      - [0x17F4E8, c, sce/libc/machine/r5900/strcat]  # 1 funcs, vendor libc.a member strcat.o (1/1 MAIN.MAP)
+      - [0x17F614, c, sce/libc/machine/r5900/strcmp]  # 1 funcs, vendor libc.a member strcmp.o (1/1 MAIN.MAP), assembled from strcmp.s, word-aligned as its 4-aligned ROM start proves
+      - [0x17F758, c, sce/libc/machine/r5900/strcpy]  # 1 funcs, vendor libc.a member strcpy.o (1/1 MAIN.MAP)
+      - [0x17F86C, c, sce/libc/machine/r5900/strlen]  # 1 funcs, vendor libc.a member strlen.o (1/1 MAIN.MAP), assembled from strlen.s, word-aligned as its 4-aligned ROM start proves; the word of fill after it is strncmp.o's 8-byte alignment
       - [0x17F9A8, c, sce/libc/machine/r5900/strncmp]  # 1 funcs, vendor libc.a member strncmp.o (1/1 MAIN.MAP)
       - [0x17FB60, c, sce/libc/machine/r5900/strncpy]  # 1 funcs, vendor libc.a member strncpy.o (1/1 MAIN.MAP)
       - [0x17FD20, c, sce/libc/string/strrchr]  # 1 funcs, vendor libc.a member strrchr.o (1/1 MAIN.MAP)
@@ -510,7 +515,9 @@ segments:
       - [0x1856A0, c, sce/libc/locale/locale]  # 4 funcs, vendor libc.a member locale.o (4/4 MAIN.MAP)
       - [0x185790, c, sce/libc/stdio/makebuf]  # 1 funcs, vendor libc.a member makebuf.o (1/1 MAIN.MAP)
       - [0x1858E0, c, sce/libc/stdlib/mallocr]  # 2 funcs, vendor libc.a member mallocr.o (2/2 MAIN.MAP)
-      - [0x1862B0, c, sce/libc/stdlib/mbtowc_r]  # 3 funcs, vendor libc.a member mbtowc_r.o + memchr.o, memmove.o (3/3 MAIN.MAP)
+      - [0x1862B0, c, sce/libc/stdlib/mbtowc_r]  # 1 funcs, vendor libc.a member mbtowc_r.o (1/1 MAIN.MAP)
+      - [0x1862EC, c, sce/libc/machine/r5900/memchr]  # 1 funcs, vendor libc.a member memchr.o (1/1 MAIN.MAP), assembled from memchr.s, word-aligned as its 4-aligned ROM start proves
+      - [0x1863CC, c, sce/libc/machine/r5900/memmove]  # 1 funcs, vendor libc.a member memmove.o (1/1 MAIN.MAP), assembled from memmove.s, word-aligned as its 4-aligned ROM start proves
       - [0x1864D0, c, sce/libc/stdlib/mlock]  # 2 funcs, vendor libc.a member mlock.o (2/2 MAIN.MAP)
       - [0x1864E0, c, sce/libc/stdlib/mprec]  # 17 funcs, vendor libc.a member mprec.o (17/17 MAIN.MAP)
       - [0x187500, c, sce/libc/stdio/refill]  # 2 funcs, vendor libc.a member refill.o (2/2 MAIN.MAP)
