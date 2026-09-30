@@ -140,6 +140,7 @@ docs/RUN_LOG.md
 # from config/ico.<ver>.d on every `tools/build.sh setup`. The .ninja_log
 # and .ninja_deps are runtime state.
 build.ninja
+build.plain.ninja
 .ninja_log
 .ninja_deps
 

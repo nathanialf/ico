@@ -15,7 +15,7 @@
 #   split       Just re-run splat (no baserom check, no build.ninja regen).
 #   clean       rm -rf build/.
 #   distclean   clean + remove splat-emitted asm and config artifacts.
-#   progress    Regenerate progress tables (README + docs/PROGRESS.md).
+#   progress    Regenerate progress tables (README, docs/PROGRESS.md, docs/progress.json).
 
 set -eu
 
@@ -120,9 +120,9 @@ do_distclean() {
 }
 
 do_progress() {
-    "${VENV_PY}" tools/progress.py
-    # Function-level tree JSON for the GitHub Pages site (docs/index.html).
-    "${VENV_PY}" tools/progress_tree.py
+    # README badges + table, docs/PROGRESS.md and the dashboard's
+    # docs/progress.json (docs/index.html), from the built ELF and its link map.
+    "${VENV_PY}" tools/check_elf.py --progress
 }
 
 cmd="${1:-help}"
@@ -142,7 +142,7 @@ usage: $0 <subcommand>
   regen       regenerate build.ninja from config/ico.${VERSION}.d
   clean       rm -rf build/
   distclean   clean + delete splat-emitted asm and config artifacts
-  progress    regenerate README + docs/PROGRESS.md tables
+  progress    regenerate README, docs/PROGRESS.md and docs/progress.json
 
 Build with: ninja
 EOF

@@ -29,8 +29,9 @@ cat > "$HOOK" <<'EOF'
 #   1. tools/check_no_rom.sh   : IP-safety scan on staged files
 #   2. tools/build.sh setup    : splat + migrator + ninja regen
 #   3. ninja                   : byte-identical-build gate (SHA-1 verify)
-#   4. tools/build.sh progress : refresh progress tables + docs/progress.json,
-#                                 then `git add` them into this commit
+#   4. tools/check_elf.py --progress : refresh the progress tables and
+#                                 docs/progress.json from the built ELF and its
+#                                 link map, then `git add` them into this commit
 #
 # The full-setup step matters: incremental ninja can be misleadingly
 # green if the per-TU data sidecars on disk happen to match a prior
@@ -117,12 +118,12 @@ fi
 # the commit (the SHA-1 gate above already passed). `git add` here re-stages the
 # regenerated files; for a normal `git commit`/`commit -a` they ride along in
 # this commit (a path-scoped `git commit <file>` won't pick them up).
-echo "pre-commit: tools/build.sh progress (refresh + stage progress) ..."
-if "$ROOT/tools/build.sh" progress >/dev/null 2>&1; then
+echo "pre-commit: tools/check_elf.py --progress (refresh + stage progress) ..."
+if "$ROOT/.venv/bin/python" "$ROOT/tools/check_elf.py" --progress >/dev/null 2>&1; then
     git add "$ROOT/README.md" "$ROOT/docs/PROGRESS.md" "$ROOT/docs/progress.json" 2>/dev/null || true
 else
     echo "pre-commit: progress regen failed (non-fatal): commit proceeds" >&2
-    echo "  without refreshed progress; run \`tools/build.sh progress\` manually." >&2
+    echo "  without refreshed progress; run \`tools/check_elf.py --progress\` manually." >&2
 fi
 EOF
 chmod +x "$HOOK"

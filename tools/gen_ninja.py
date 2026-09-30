@@ -446,12 +446,13 @@ def emit_rules(out) -> None:
     out.write("  description = OBJCOPY $out\n\n")
 
     out.write("rule verify_rom\n")
-    # config/sha1sums.txt is keyed by BASENAME on every branch (baseelf.elf /
-    # baseelf.rom), so the built rom is checked against this target's recorded
-    # rom hash without the version appearing in the lookup name.
+    # check_elf.py --gate: every allocated section of the built ELF against the
+    # base ELF by address (bytes for PROGBITS, address and size for NOBITS) and
+    # the ROM's SHA-1 against config/sha1sums.txt's baseelf.rom row. It reads
+    # build/ico.elf and the link map beside the ROM.
     out.write(
-        "  command = .venv/bin/python tools/verify_elf.py "
-        "--target $in --name baseelf.rom && touch $out\n"
+        "  command = .venv/bin/python tools/check_elf.py --gate "
+        f"--map build/ico.{VERSION}.map --rom $in && touch $out\n"
     )
     out.write("  description = VERIFY $in\n\n")
 

@@ -23,14 +23,15 @@ shape.
 | `build.sh` | `setup` (verify ELF, run splat, emit build.ninja) / `progress` (rewrite tables) |
 | `patch_splat.py` | applies this repo's local splat patches |
 | `gen_ninja.py` | generates `build.ninja` from `config/ico.<ver>.d`; auto-regens on input change |
+| `gen_ninja_plain.py` | generates `build.plain.ninja` from `config/link_order.pal.txt` + `config/link.pal.ld` (the build without splat's `.d`/`.ld`, objects under `build/plain/`); replaces `gen_ninja.py` at the cut-over |
 | `compile_c.sh` | THE C compile rule: ee-gcc 2.9-991111 + the period ee-as, plus always-on ROM parity |
 | `preprocess_old_as.py` | flattens INCLUDE_ASM siblings + translates `%gp_rel` for the period assembler |
 | `postprocess_split_jtbls.py` | puts each gcc switch jtbl on its own `.rodata.0x<VMA>` so the linker can place it |
 | `assemble_vu0.py` | `.vutext` assembler for the five hand-typed `ico2/*.S` microprograms |
-| `verify_elf.py` | the gate: SHA-1 of `build/ico.rom` against `config/sha1sums.txt` |
+| `verify_elf.py` | SHA-1 of the base ROM against `config/sha1sums.txt` (`build.sh setup`) |
+| `check_elf.py` | the gate (`--gate`: every allocated section against the base ELF by address + the ROM SHA-1, the ninja verify step) and the progress tables (`--progress`: README.md / `docs/PROGRESS.md` / `docs/progress.json`) |
 | `check_no_rom.sh` | IP guard: refuses disc data / extracted assets in the tree |
 | `format.sh` / `format_layout.py` | clang-format every tracked `.c` (whitespace only; the SHA gate proves it never changes the ROM) |
-| `progress.py` / `progress_tree.py` | regenerate README.md / `docs/PROGRESS.md` / `docs/progress.json` |
 | `requirements.txt` | the venv's pinned Python dependencies |
 
 ## Matching loop
