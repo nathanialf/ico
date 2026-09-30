@@ -7,13 +7,7 @@
 #include "matrixDrive.h"
 #include "tableSin.h"
 
-extern float D_0063B7D4;
 extern int D_00639EA8;
-extern int D_0063B7BC;
-extern float D_0063B7C0;
-extern int D_0063B7C4;
-extern int D_0063B7C8;
-extern float D_0063B7CC;
 
 /* The TU's .data, in ROM run order (names ours): the centre the game-over
    dark volume and its shock ring spread from, and the position of the
@@ -50,9 +44,15 @@ static float edgeY;
 
 /* kept local: this TU's uses of gif_SetGsReg do not fit the prototype in GifPacket.h */
 extern void gif_SetGsReg(int code, long data);
-extern long D_0063B780;
-extern int D_0063B770[2];
-extern int D_0063B778;
+
+/* The TU's .sdata opens with draw and drawHT's state (MAIN.MAP names nothing in
+   the run): the two strip halves' written flags, the half being filled, and the
+   GS PRIM value the strips are drawn with. */
+static int stripHalfDone[2] = {0, 0}; /* derived name */
+
+static int stripHalf = 0; /* derived name */
+
+static long stripPrim = 0x144; /* derived name */
 
 /* listing line 80: project one object-space vertex through the VU0 matrix in
    vf4 to vf7, clamp it to the screen limits vf12 and vf13 carry and store the
@@ -81,22 +81,22 @@ static __inline__ void drawStrip(int *v, int n, DVColor col)
     int xy[4];
     int idx;
 
-    gif_SetGsReg(0, D_0063B780);
+    gif_SetGsReg(0, stripPrim);
     gif_SetGsReg(1, (long)col.r | ((long)col.g << 8) | ((long)col.b << 16) | ((long)col.a << 24) |
                         ((long)0xFE00 << 46));
-    D_0063B770[1] = 0;
-    D_0063B770[0] = 0;
-    D_0063B778 = 0;
+    stripHalfDone[1] = 0;
+    stripHalfDone[0] = 0;
+    stripHalf = 0;
     while (n-- != 0) {
         projectVertex(xy, v);
-        if (D_0063B770[0] != 0 && D_0063B770[1] != 0) {
+        if (stripHalfDone[0] != 0 && stripHalfDone[1] != 0) {
             gif_SetGsReg(5, (long)xy[0] | ((long)xy[1] << 16) | ((long)xy[2] << 32));
         } else {
             gif_SetGsReg(13, (long)xy[0] | ((long)xy[1] << 16) | ((long)xy[2] << 32));
         }
-        idx = D_0063B778;
-        D_0063B770[idx] = 1;
-        D_0063B778 = ++idx & 1;
+        idx = stripHalf;
+        stripHalfDone[idx] = 1;
+        stripHalf = ++idx & 1;
         v += 4;
     }
 }
@@ -124,7 +124,7 @@ typedef struct {
    segments whose side flag is not the one this pass draws. */
 static __inline__ void drawHalfStrip(DVSeg *b, unsigned int n, DVColor col, int side)
 {
-    gif_SetGsReg(0, D_0063B780);
+    gif_SetGsReg(0, stripPrim);
     gif_SetGsReg(1, (long)col.r | ((long)col.g << 8) | ((long)col.b << 16) | ((long)col.a << 24) |
                         ((long)0xFE00 << 46));
     while (n-- > 0) {
@@ -146,22 +146,22 @@ void drawHT(float *v, int n, DVColor col, int neg)
     int i;
     int idx;
 
-    D_0063B770[1] = 0;
-    D_0063B770[0] = 0;
-    D_0063B778 = 0;
+    stripHalfDone[1] = 0;
+    stripHalfDone[0] = 0;
+    stripHalf = 0;
     stripCount = 0;
     for (i = 0; i < n; i++, v += 4, p++) {
         projectVertex(xy, v);
-        if (D_0063B770[0] != 0 && D_0063B770[1] != 0) {
+        if (stripHalfDone[0] != 0 && stripHalfDone[1] != 0) {
             p->on = 1;
             p->side = 0.0f < edgeX * ((float)xy[1] - prevY) - edgeY * ((float)xy[0] - prevX);
         } else {
             p->on = 0;
             p->side = 0;
         }
-        idx = D_0063B778;
-        D_0063B770[idx] = 1;
-        D_0063B778 = ++idx & 1;
+        idx = stripHalf;
+        stripHalfDone[idx] = 1;
+        stripHalf = ++idx & 1;
         edgeX = (float)xy[0] - prevX;
         edgeY = (float)xy[1] - prevY;
         if (stripCount & 1) {
@@ -320,10 +320,6 @@ extern int ScreenWidth;
 extern int ScreenHeight;
 extern int D_0063A074;
 extern int D_0063A078;
-extern const DVColor D_0063B7A0;
-extern const DVColor D_0063B7A8;
-extern const DVColor D_0063B7B0;
-extern const DVColor D_0063B7B8;
 void dl_SetDLPriority(int a0);
 void dl_OpenDma(int a0, int a1, int a2);
 void dl_CloseDma(void);
@@ -401,9 +397,20 @@ static __inline__ void dvCheckPacket(char *p)
    store otherwise). The sphere colour is not: the ROM loads it again for the
    second renderViewCoordZSphere call, where a const load would be kept across
    the first call. */
-extern const DVColor D_0063B788;
-extern DVColor D_0063B790;
-extern const DVColor D_0063B798;
+static const DVColor sonicPacketColor = {0, 0, 0, 0}; /* derived name */
+
+static DVColor sonicSphereColor = {255, 255, 255, 128}; /* derived name */
+
+static const DVColor sonicRingColor = {0, 0, 0, 128}; /* derived name */
+
+/* darkVolume's four colours, after sonic's in the TU's .sdata */
+static const DVColor volumePacketColor = {0, 0, 0, 0}; /* derived name */
+
+static const DVColor volumeEdgeColor = {128, 128, 128, 80}; /* derived name */
+
+static const DVColor volumeOuterColor = {255, 255, 255, 128}; /* derived name */
+
+static const DVColor volumeInnerColor = {127, 0, 98, 128}; /* derived name */
 
 void sonic(void *pos, float t)
 {
@@ -419,8 +426,8 @@ void sonic(void *pos, float t)
     dvSetGsReg(0x49, 0);
     dvSetGsReg(0x42, 0x8000000044LL);
     dvSetGsReg(0x00, 0x406);
-    dvSetGsReg(0x01, (long)D_0063B788.r | ((long)D_0063B788.g << 8) | ((long)D_0063B788.b << 16) |
-                         ((long)D_0063B788.a << 24));
+    dvSetGsReg(0x01, (long)sonicPacketColor.r | ((long)sonicPacketColor.g << 8) |
+                         ((long)sonicPacketColor.b << 16) | ((long)sonicPacketColor.a << 24));
     dvSetGsReg(0x05,
                (long)(rect[0] + 0x8000) | ((long)(rect[1] + 0x8000) << 16) | 0xFFFFFFFF00000000LL);
     dvSetGsReg(0x05, (long)(rect[0] + 0x8000 + rect[2]) |
@@ -470,8 +477,8 @@ void sonic(void *pos, float t)
         dl_CloseDma();
     }
     gif_StartPacketPri(10);
-    renderViewCoordZSphere(pos, D_0063B790, 1, (t + 50.0f) * 3.0f);
-    renderViewCoordZSphere(pos, D_0063B790, 0, t * 2.5f);
+    renderViewCoordZSphere(pos, sonicSphereColor, 1, (t + 50.0f) * 3.0f);
+    renderViewCoordZSphere(pos, sonicSphereColor, 0, t * 2.5f);
     gif_EndPacket();
     dl_SetDLPriority(10);
     dvOpenPacket();
@@ -491,8 +498,8 @@ void sonic(void *pos, float t)
 
         dvSetGsReg(0x42, 0x8000000068LL);
         dvSetGsReg(0x00, 0x156);
-        dvSetGsReg(0x01, (long)D_0063B798.r | ((long)D_0063B798.g << 8) |
-                             ((long)D_0063B798.b << 16) | ((long)D_0063B798.a << 24));
+        dvSetGsReg(0x01, (long)sonicRingColor.r | ((long)sonicRingColor.g << 8) |
+                             ((long)sonicRingColor.b << 16) | ((long)sonicRingColor.a << 24));
         dvSetGsReg(0x03, (long)rect2[0] | ((long)rect2[1] << 16));
         dvSetGsReg(0x05, (long)(rect3[0] + 0x8000) | ((long)(rect3[1] + 0x8000) << 16) |
                              0xFFFFFFFF00000000LL);
@@ -631,8 +638,8 @@ void darkVolume(void *pos, float a1, float a2, float a3)
     dvSetGsReg(0x49, 0);
     dvSetGsReg(0x42, 0x8000000044LL);
     dvSetGsReg(0x00, 0x406);
-    dvSetGsReg(0x01, (long)D_0063B7A0.r | ((long)D_0063B7A0.g << 8) | ((long)D_0063B7A0.b << 16) |
-                         ((long)D_0063B7A0.a << 24));
+    dvSetGsReg(0x01, (long)volumePacketColor.r | ((long)volumePacketColor.g << 8) |
+                         ((long)volumePacketColor.b << 16) | ((long)volumePacketColor.a << 24));
     dvSetGsReg(0x05,
                (long)(rect[0] + 0x8000) | ((long)(rect[1] + 0x8000) << 16) | 0xFFFFFFFF00000000LL);
     dvSetGsReg(0x05, (long)(rect[0] + 0x8000 + rect[2]) |
@@ -681,11 +688,12 @@ void darkVolume(void *pos, float a1, float a2, float a3)
     }
     gif_StartPacketPri(10);
     {
-        DVColor c = {D_0063B7B0.r - D_0063B7B8.r - 1, D_0063B7B0.g - D_0063B7B8.g - 1,
-                     D_0063B7B0.b - D_0063B7B8.b - 1, 128};
+        DVColor c = {volumeOuterColor.r - volumeInnerColor.r - 1,
+                     volumeOuterColor.g - volumeInnerColor.g - 1,
+                     volumeOuterColor.b - volumeInnerColor.b - 1, 128};
 
-        renderViewCoordZSphere(pos, D_0063B7B0, 1, a1 + a3);
-        renderViewCoordZSphere(pos, D_0063B7B8, 0, a1 * a2 + a3 * 0.6666667f);
+        renderViewCoordZSphere(pos, volumeOuterColor, 1, a1 + a3);
+        renderViewCoordZSphere(pos, volumeInnerColor, 0, a1 * a2 + a3 * 0.6666667f);
         renderViewCoordZSphere(pos, c, 0, a1 * a2 * a2);
         gif_EndPacket();
     }
@@ -702,8 +710,8 @@ void darkVolume(void *pos, float a1, float a2, float a3)
     dvSetGsReg(0x47, 0x30000);
     dvSetGsReg(0x06, 0x664122800LL);
     dvSetGsReg(0x00, 0x156);
-    dvSetGsReg(0x01, (long)D_0063B7A8.r | ((long)D_0063B7A8.g << 8) | ((long)D_0063B7A8.b << 16) |
-                         ((long)D_0063B7A8.a << 24));
+    dvSetGsReg(0x01, (long)volumeEdgeColor.r | ((long)volumeEdgeColor.g << 8) |
+                         ((long)volumeEdgeColor.b << 16) | ((long)volumeEdgeColor.a << 24));
     dvSetGsReg(0x03, (long)rect2[0] | ((long)rect2[1] << 16));
     dvSetGsReg(0x05,
                (long)(rect[0] + 0x8000) | ((long)(rect[1] + 0x8000) << 16) | 0xFFFFFFFF00000000LL);
@@ -753,16 +761,32 @@ void darkVolume(void *pos, float a1, float a2, float a3)
     }
 }
 
+/* The rest of the TU's .sdata: the game-over effect's state and the ordinary
+   dark volume's radius and target radius. */
+static int gameOverActive = 0; /* derived name */
+
+static float gameOverRadius = 0; /* derived name */
+
+static int gameOverRing = 0; /* derived name */
+
+static int gameOverQueen = 0; /* derived name */
+
+static float gameOverSpeed = 25.0f; /* derived name */
+
+static float darkVolumeRadius = 0; /* derived name */
+
+static float darkVolumeTarget = 0; /* derived name */
+
 /* listing lines 526-533: arm the game-over dark volume, shared by
    StartGameOverEffect and StartQueenAttackEffect */
 static inline void setGameOverEffect(int a0, float t)
 {
-    D_0063B7BC = 1;
-    D_0063B7C0 = 0;
-    D_0063B7C4 = 1;
-    D_0063B7C8 = 0;
+    gameOverActive = 1;
+    gameOverRadius = 0;
+    gameOverRing = 1;
+    gameOverQueen = 0;
     CopyVector(gameOverCenter, a0);
-    D_0063B7CC = t;
+    gameOverSpeed = t;
 }
 
 inline void StartGameOverEffect(int a0, float t)
@@ -780,23 +804,22 @@ inline void StartGameOverEffect(int a0, float t)
 inline void StartQueenAttackEffect(int a0, float t)
 {
     setGameOverEffect(a0, t);
-    D_0063B7C8 = 1;
-    D_0063B7C4 = 0;
+    gameOverQueen = 1;
+    gameOverRing = 0;
 }
 
 inline void ResetGameOverEffect(void)
 {
-    D_0063B7BC = 0;
-    D_0063B7C4 = 0;
+    gameOverActive = 0;
+    gameOverRing = 0;
 }
 
 void SetDarkVolumeEffect(int a0, float a1)
 {
-    D_0063B7D4 = a1;
+    darkVolumeTarget = a1;
     CopyVector(darkVolumeCenter, (void *)a0);
 }
 
-extern float D_0063B7D0;
 extern int D_0028F4D4[];
 extern int D_00639EA4;
 
@@ -815,11 +838,11 @@ void DispGameOverEffect(void)
 {
     void *g;
 
-    if (D_0063B7BC != 0) {
-        sonic(gameOverCenter, D_0063B7C0);
-        darkVolume(gameOverCenter, D_0063B7C0, 1.0f, 30.0f);
-        if (D_0063B7C4 != 0) {
-            float r2 = D_0063B7C0 * D_0063B7C0;
+    if (gameOverActive != 0) {
+        sonic(gameOverCenter, gameOverRadius);
+        darkVolume(gameOverCenter, gameOverRadius, 1.0f, 30.0f);
+        if (gameOverRing != 0) {
+            float r2 = gameOverRadius * gameOverRadius;
 
             g = (void *)D_00639EA4;
             if (g != 0) {
@@ -834,19 +857,19 @@ void DispGameOverEffect(void)
                 sendGameOverMail(g, r2);
             }
         }
-        if (D_0063B7C0 < 50000.0f && D_0028F4D4[0] == 0) {
-            D_0063B7C0 = D_0063B7C0 + D_0063B7CC;
+        if (gameOverRadius < 50000.0f && D_0028F4D4[0] == 0) {
+            gameOverRadius = gameOverRadius + gameOverSpeed;
         }
     } else {
-        if (D_0063B7D4 < 0.001f && D_0063B7D0 < 1.0f) {
+        if (darkVolumeTarget < 0.001f && darkVolumeRadius < 1.0f) {
             return;
         }
-        darkVolume(darkVolumeCenter, D_0063B7D0, 0.96f, 0.0f);
+        darkVolume(darkVolumeCenter, darkVolumeRadius, 0.96f, 0.0f);
         if (D_0028F4D4[0] != 0) {
             return;
         }
-        D_0063B7D0 = D_0063B7D0 + (D_0063B7D4 - D_0063B7D0) * 0.3f;
-        D_0063B7D4 = 0.0f;
+        darkVolumeRadius = darkVolumeRadius + (darkVolumeTarget - darkVolumeRadius) * 0.3f;
+        darkVolumeTarget = 0.0f;
     }
 }
 
@@ -899,8 +922,8 @@ void InitGameOverEffect(void)
         }
     }
     ResetGameOverEffect();
-    D_0063B7D0 = 0;
-    D_0063B7D4 = 0;
+    darkVolumeRadius = 0;
+    darkVolumeTarget = 0;
     CopyVector(darkVolumeCenter, ZeroPoint);
 }
 

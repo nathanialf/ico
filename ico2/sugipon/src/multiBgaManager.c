@@ -2,7 +2,16 @@
 #include "quaternion.h"
 #include "multiBgaManager.h"
 
-extern MultiBga D_004ECCA0;
+/* the TU's whole .data */
+BgaAnimeState InitialBgaMultiAnimeState = {
+    {-1.0f, 0.0f, 0.0f, 0.0f},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 0.0f},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+    -1,
+    0,
+};
+
 extern int D_0063A438;
 extern int D_0028F4C0[];
 /* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
@@ -27,7 +36,7 @@ void *InitMultiBgaManager(int n)
     MultiBga *base = (MultiBga *)iosMallocDebug(D_0063A438, n * 0x50, "src/multiBgaManager.c", 11);
     int i;
     for (i = 0; i < n; i++) {
-        base[i] = D_004ECCA0;
+        base[i] = *(MultiBga *)&InitialBgaMultiAnimeState;
     }
     return base;
 }

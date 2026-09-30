@@ -2,16 +2,22 @@
 #include "GifPacket.h"
 #include "typedef.h"
 
-extern int D_0063B8E8;
+/* the TU's .sdata (MAIN.MAP lineManager.o .sdata 0xC, no symbol): the GS PRIM
+   values the plain line, the line strip and the gouraud line are drawn with */
+static int linePrim = 0x142; /* derived name */
+
+static int lineStripPrim = 0x189; /* derived name */
+
+static int lineGouraudPrim = 0x18A; /* derived name */
+
 /* kept local: this TU's uses of _FTOI4Vector do not fit the prototype in Matrix.h */
 extern void _FTOI4Vector();
 /* kept local: this TU's uses of _InitCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _InitCurrentMatrix();
-extern int D_0063B8E4;
 
 void Draw2DLine(int *p1, int *p2, int *color, int z)
 {
-    gif_SetGsReg(0, D_0063B8E4);
+    gif_SetGsReg(0, linePrim);
     gif_SetGsReg(1, (long long)color[0] | ((long long)color[1] << 8) | ((long long)color[2] << 16) |
                         ((long long)color[3] << 24));
     if (z == 0) {
@@ -25,7 +31,7 @@ void Draw2DLine(int *p1, int *p2, int *color, int z)
 
 void Draw2DLineSeg_Start(void)
 {
-    gif_SetGsReg(0, D_0063B8E8);
+    gif_SetGsReg(0, lineStripPrim);
 }
 
 void Draw2DLineSeg_Loop(int *a0, int *a1, int *a2)
@@ -36,11 +42,9 @@ void Draw2DLineSeg_Loop(int *a0, int *a1, int *a2)
     gif_SetGsReg(5, (long long)a1[0] | ((long long)a1[1] << 16) | ((long long)a1[2] << 32));
 }
 
-extern int D_0063B8EC;
-
 void Draw2DLineG(int *p1, int *c1, int *p2, int *c2, int z)
 {
-    gif_SetGsReg(0, D_0063B8EC);
+    gif_SetGsReg(0, lineGouraudPrim);
     if (z == 0) {
         gif_SetGsReg(1, (long long)c1[0] | ((long long)c1[1] << 8) | ((long long)c1[2] << 16) |
                             ((long long)c1[3] << 24));

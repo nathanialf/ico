@@ -1006,7 +1006,8 @@ static void dispSkeltonHierarchy(int node)
     }
 }
 
-extern int D_00639F08;
+/* the TU's first .sdata word: SetSkeltonDispSwitch's switch for DispSkelton's debug draw */
+static int skeltonDispSwitch = 0; /* derived name */
 
 void DispSkelton(GObj *self, int a1)
 {
@@ -1014,7 +1015,7 @@ void DispSkelton(GObj *self, int a1)
     skelDispFlag = a1;
     skelGObj = self;
 
-    if (D_00639F08) {
+    if (skeltonDispSwitch) {
         gif_StartPacketPri(11);
         gif_SetAlpha(1, 5, 128);
         MatrixDrive_PushMatrix();
@@ -1142,8 +1143,6 @@ static const char adjustWallMidpointMsg[] =
 
 static const char illegalCompressMsg[] = "Illegal compress formatID(%d) appeard... ignore.\n";
 
-extern float D_00639F1C[];
-
 /* The five small objects at the tail of motionManager2.o's .data run, declared
    as one block in the ROM's run order.  MAIN.MAP names none of them, so the
    names are ours and read off what the code does with them. */
@@ -1192,7 +1191,7 @@ int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *pts
     pts = (ptsIn != 0) ? ptsIn : (float *)local;
     bestIdx = -1;
 
-    bestDist = D_00639F1C[0];
+    bestDist = 3.40282347e+38f;
 
     obj = (int *)cfg[0];
     sh = cfg[1] << 6;
@@ -2103,8 +2102,6 @@ float GetDifferenceFromLastField(char *a0, int a1)
     return GetYDistanceFromPlane(e + 0x1D0, *(char **)(e + 0xC) + idx * 0x40 + 0x30);
 }
 
-extern float D_00639F20[];
-
 float GetDifferenceFromLowerField(char *a0, int a1)
 {
     char buf[0xC0];
@@ -2114,7 +2111,7 @@ float GetDifferenceFromLowerField(char *a0, int a1)
     idx = (*(signed char **)(ctrl + 0x840))[a1];
     GetLowerPlaneCollision((int)buf, *(int *)(ctrl + 0xC) + (idx << 6) + 0x30);
     if (*(int *)(buf + 0x94) == 0) {
-        return D_00639F20[0];
+        return 3.40282347e+38f;
     }
     return *(float *)(buf + 0x24) - *(float *)(buf + 0x4);
 }
@@ -2262,7 +2259,7 @@ void ClearMotionGeometryInfo(int *self)
 
 void SetSkeltonDispSwitch(int val)
 {
-    D_00639F08 = val;
+    skeltonDispSwitch = val;
 }
 
 void CopyMotion(struct Pack32 *dst, struct Pack32 *src, int n)

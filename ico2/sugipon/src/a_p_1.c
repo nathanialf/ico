@@ -19,15 +19,130 @@ typedef struct {
     float m[4];
 } __attribute__((aligned(16))) Vec4A_P_1;
 
+typedef struct {
+    long long d[10];
+} AP1Part;
+
+typedef struct {
+    long long x;
+} __attribute__((packed, aligned(4))) AP1PackedLL;
+
+typedef struct {
+    AP1PackedLL p; /* 0x00 */
+    int attr;      /* 0x08 */
+} AP1ColHit;
+
+/* The clip table the two collision segments are read from: each entry is a
+ * pair of endpoints the root matrix is applied to. */
+typedef struct {
+    Vec4A_P_1 a; /* 0x00 */
+    Vec4A_P_1 b; /* 0x10 */
+} AP1ColSeg;
+
+/* ClipCollision's work record as this file reaches it: the segment to clip,
+ * the clipped point, the probe radius, the wall and floor hits and the hit
+ * normal (0xC0 bytes, the stride of the two records below). */
+typedef struct {
+    Vec4A_P_1 from; /* 0x00 */
+    Vec4A_P_1 to;   /* 0x10 */
+    Vec4A_P_1 pos;  /* 0x20 */
+    char pad30[0x40];
+    float radius; /* 0x70 */
+    char pad74[0xC];
+    AP1ColHit wall;  /* 0x80 */
+    AP1ColHit floor; /* 0x8C */
+    char pad98[0x8];
+    Vec4A_P_1 normal; /* 0xA0 */
+    char padB0[0x10];
+} AP1Clip;
+
+int standMot(char *a0);
+int walkMot(char *a0);
+int rollingMot(char *a0);
+void attackMotInit(char *a0);
+int attackMot(char *a0);
+
+/* The TU's .data, one block in the ROM's order (VMA 0x4E5520..0x4E5A30, 0x510 B
+ * = MAIN.MAP a_p_1.o .data); MAIN.MAP names only motFuncList, so every other
+ * name is ours. The mode names are the TU's .sdata strings. */
+static char *ap1ModeName[9] = {"ST", "WA", "RO", "AT", "DE",
+                               "D1", "D2", "TH", "SL"}; /* derived name */
+
+/* the part record every part slot starts from: three unit w components */
+static Vec4A_P_1 ap1PartInit[5] = {{{0.0f, 0.0f, 0.0f, 0.0f}}, /* derived name */
+                                   {{0.0f, 0.0f, 0.0f, 1.0f}},
+                                   {{0.0f, 0.0f, 0.0f, 1.0f}},
+                                   {{0.0f, 0.0f, 0.0f, 1.0f}},
+                                   {{0.0f, 0.0f, 0.0f, 0.0f}}};
+
+/* the skeleton nodes InitAP1 looks the nine focus points up by */
+static int ap1FocusNode[9] = {44, 3, 4, 19, 20, 45, 46, 49, 50}; /* derived name */
+
+static Vec4A_P_1 ap1DownVector = {{0.0f, -1.0f, 0.0f, 0.0f}}; /* derived name */
+
+static Vec4A_P_1 ap1AttackAxis = {{-1.0f, 0.0f, 0.0f, 0.0f}}; /* derived name */
+
+/* the two segment pairs fitToCol clips the body against */
+static AP1ColSeg ap1ColSegA[2] = {
+    {{{0.0f, -40.0f, 0.0f, 1.0f}}, {{0.0f, 0.0f, 40.0f, 1.0f}}}, /* derived name */
+    {{{0.0f, 0.0f, 40.0f, 1.0f}}, {{0.0f, 40.0f, 0.0f, 1.0f}}}};
+
+static AP1ColSeg ap1ColSegB[2] = {
+    {{{0.0f, -40.0f, 0.0f, 1.0f}}, {{0.0f, 0.0f, -40.0f, 1.0f}}}, /* derived name */
+    {{{0.0f, 0.0f, -40.0f, 1.0f}}, {{0.0f, 40.0f, 0.0f, 1.0f}}}};
+
+/* the part offsets in the body frame */
+static Vec4A_P_1 ap1PartOffset[6] = {{{20.0f, 0.0f, 80.0f, 1.0f}}, /* derived name */
+                                     {{-20.0f, 0.0f, 80.0f, 1.0f}},  {{50.0f, 0.0f, -20.0f, 1.0f}},
+                                     {{-50.0f, 0.0f, -20.0f, 1.0f}}, {{-50.0f, 0.0f, 0.0f, 1.0f}},
+                                     {{-50.0f, 0.0f, 0.0f, 1.0f}}};
+
+static float ap1LayoutUp[4] = {0.0f, 0.0f, 1.0f, 0.0f}; /* derived name */
+
+/* the clip records fitToCol and rolling fill */
+static AP1Clip ap1PartClip = {{{0.0f}}}; /* derived name */
+
+static AP1Clip ap1RollClip = {{{0.0f}}, {{0.0f}}, {{0.0f}}, {0}, 20.0f}; /* derived name */
+
+static float ap1ArmScale[16] = {2.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, /* derived name */
+                                0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+
+static float ap1ArmOffset[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f,  1.0f, 0.0f, 0.0f, /* derived name */
+                                 0.0f, 0.0f, 1.0f, 0.0f, 50.0f, 0.0f, 0.0f, 1.0f};
+
+static float ap1BodyPos[4] = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
+
+static float ap1BodyMatrix[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, /* derived name */
+                                  0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+
+/* per motion kind: the entry and the per-frame function (MAIN.MAP a_p_1.o) */
+int (*motFuncList[8][2])(char *) = {
+    {0, standMot},
+    {0, walkMot},
+    {0, rollingMot},
+    {(int (*)(char *))attackMotInit, attackMot},
+};
+
+/* the eye offset UpdateEnemyEye is handed, then an alternative nothing reads */
+static float ap1EyeMatrix[16] = {
+    1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,   0.0f,  0.0f, /* derived name */
+    0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -20.0f, 30.0f, 1.0f};
+
+static float ap1EyeMatrixAlt[16] = {
+    1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,   0.0f,  0.0f, /* derived name */
+    0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -10.0f, 35.0f, 1.0f};
+
+static float ap1HeadScale[16] = {2.0f, 0.0f, 0.0f, 0.0f, 0.0f, 2.0f, 0.0f, 0.0f, /* derived name */
+                                 0.0f, 0.0f, 2.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+
 /* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
 extern void _ApplyMatrix(int a, int b, int c);
-extern char D_004E5670[];
 
 /* static helper the listing places at a_p_1.c lines 156-165, above InitAP1's
  * def line 227, so the name is ours. */
 static inline void applyPartOrients(char *g)
 {
-    char *tbl = D_004E5670;
+    char *tbl = (char *)ap1PartOffset;
     Mtx44 m;
     char *q = *(char **)((char *)GOBJ_SUB(g) + 0x830);
     int i;
@@ -55,8 +170,6 @@ static const char a_p_1File[] = "src/a_p_1.c";
 /* the banner the failed-node assert prints above its message */
 static const char warningBanner[] = "--- WARNING!! ----\n";
 
-extern char D_0063B6C0[];
-
 typedef struct {
     int unk0;    /* 0x00 */
     int unk4;    /* 0x04 */
@@ -69,27 +182,11 @@ typedef struct {
 } AP1Layout;
 
 extern AP1Layout D_0062B588[];
-extern char D_004E5550[];
-extern char D_004E55A0[];
-extern float D_004E56D0[];
 
 typedef union {
     int i;
     long long ll;
 } AP1Flag;
-
-typedef struct {
-    long long d[10];
-} AP1Part;
-
-typedef struct {
-    long long x;
-} __attribute__((packed, aligned(4))) AP1PackedLL;
-
-typedef struct {
-    AP1PackedLL p; /* 0x00 */
-    int attr;      /* 0x08 */
-} AP1ColHit;
 
 char *InitAP1(char *self, char *arg)
 {
@@ -110,14 +207,14 @@ char *InitAP1(char *self, char *arg)
     *(int *)(p + 0x270) = rand() & 0x1F;
     *(int *)(p + 0x274) = 0;
     *(int *)(p + 0x278) = 1;
-    D_004E56D0[2] = D_0062B588[*(int *)p].unk18;
-    CopyVector(p + 0x1B0, D_004E56D0);
+    ap1LayoutUp[2] = D_0062B588[*(int *)p].unk18;
+    CopyVector(p + 0x1B0, ap1LayoutUp);
     _UnitMatrix(p + 0x1F0);
     _UnitMatrix(p + 0x230);
     GetRootQuaternion((int)(p + 0x1D0), (int *)self);
     GetRootPosition(p + 0x1E0, self);
     for (i = 0; i < 4; i++) {
-        *(AP1Part *)(p + 0x10 + i * 0x50) = *(AP1Part *)D_004E5550;
+        *(AP1Part *)(p + 0x10 + i * 0x50) = *(AP1Part *)ap1PartInit;
     }
     for (i = 0; i < 2; i++) {
         *(AP1ColHit *)(p + 0x150 + i * 0xC) = *(AP1ColHit *)&InitialColInfo;
@@ -212,10 +309,11 @@ char *InitAP1(char *self, char *arg)
         *(short *)(*(char **)(p + 0x198) + 0x84C) = 2;
     } else {
         for (i = 0; i < 9; i++) {
-            *(int *)(p + 0x170 + i * 4) = GetSkeltonFocusNode(self, *(int *)(D_004E55A0 + i * 4));
+            *(int *)(p + 0x170 + i * 4) =
+                GetSkeltonFocusNode(self, *(int *)((char *)ap1FocusNode + i * 4));
             if (*(int *)(p + 0x170 + i * 4) == -1) {
                 debug_assertMessage(a_p_1File, 0x10D, warningBanner);
-                __assert(a_p_1File, 0x10D, D_0063B6C0);
+                __assert(a_p_1File, 0x10D, "e");
             }
         }
         *(int *)(p + 0x198) = 0;
@@ -225,7 +323,6 @@ char *InitAP1(char *self, char *arg)
     return p;
 }
 
-extern char D_004E55D0[];
 /* kept local: this TU's uses of GetMatrixFromQuaternion do not fit the prototype in quaternion.h */
 extern void GetMatrixFromQuaternion(int dst, int src);
 /* kept local: this TU's uses of MultiQuaternion do not fit the prototype in quaternion.h */
@@ -251,7 +348,7 @@ void yAxisRotFitting(int *self, int arg2)
 
     GetRootQuaternion((int)&l70, self);
     GetMatrixFromQuaternion((int)&m20, (int)&l70);
-    _ApplyMatrix((int)&l0, (int)&m20, (int)D_004E55D0);
+    _ApplyMatrix((int)&l0, (int)&m20, (int)&ap1DownVector);
     f = _InnerProduct((int)&l0, arg2);
     r = GetTableArcCos(f);
     if (r != 0) {
@@ -308,17 +405,6 @@ static inline int clipAndTakeHit(AP1ColHit *dst, char *col)
     return 0;
 }
 
-/* The clip table the two collision segments are read from: each entry is a
- * pair of endpoints the root matrix is applied to. */
-typedef struct {
-    Vec4A_P_1 a; /* 0x00 */
-    Vec4A_P_1 b; /* 0x10 */
-} AP1ColSeg;
-
-extern AP1ColSeg D_004E55F0[];
-extern AP1ColSeg D_004E5630[];
-extern char D_004E56E0[];
-extern char D_004E5700[];
 /* kept local: this TU's uses of GetInverseQuaternion do not fit the prototype in matrixDrive.h */
 extern void GetInverseQuaternion(void *dst, void *src);
 /* kept local: this TU's uses of _SubVectorXYZ do not fit the prototype in Matrix.h */
@@ -354,11 +440,11 @@ static inline int clipPartPair(AP1ColHit *dst, Mtx44 *m, AP1ColSeg *tbl, Vec4A_P
     int i;
 
     for (i = 0; i < 2; i++) {
-        _ApplyMatrix((int)D_004E56E0, (int)m, (int)&tbl[i].a);
-        _ApplyMatrix((int)(D_004E56E0 + 0x10), (int)m, (int)&tbl[i].b);
-        if (clipAndTakeHit(dst, D_004E56E0)) {
-            CopyVector(pos, D_004E5700);
-            CopyVector(nrm, D_004E5700 + 0x80);
+        _ApplyMatrix((int)&ap1PartClip, (int)m, (int)&tbl[i].a);
+        _ApplyMatrix((int)&ap1PartClip.to, (int)m, (int)&tbl[i].b);
+        if (clipAndTakeHit(dst, (char *)&ap1PartClip)) {
+            CopyVector(pos, &ap1PartClip.pos);
+            CopyVector(nrm, &ap1PartClip.normal);
             return 1;
         }
     }
@@ -398,8 +484,8 @@ int fitToCol(char *self, int arg1)
 
     p = *(char **)((char *)GOBJ_SUB(self) + 0x830);
     GetRootMatrix(&m, self);
-    hit1 = clipPartPair((AP1ColHit *)(p + 0x150), &m, D_004E55F0, &posA, &nrmA);
-    hit2 = clipPartPair((AP1ColHit *)(p + 0x15C), &m, D_004E5630, &posB, &nrmB);
+    hit1 = clipPartPair((AP1ColHit *)(p + 0x150), &m, ap1ColSegA, &posA, &nrmA);
+    hit2 = clipPartPair((AP1ColHit *)(p + 0x15C), &m, ap1ColSegB, &posB, &nrmB);
     if (hit1) {
         if (hit2) {
             _SubVectorXYZ(&dir, &posA, &posB);
@@ -418,7 +504,7 @@ int fitToCol(char *self, int arg1)
                 char *tbl;
 
                 MatrixDrive_SetTransposeMatrix(&tm, &m);
-                tbl = D_004E5670;
+                tbl = (char *)ap1PartOffset;
                 /* part, tbl, lim and z are our names: the listing carries no
                    symbols for locals. ROM holds every bound of the test in one
                    FP scratch and the component under test in another, which is
@@ -548,8 +634,6 @@ extern int CheckFieldContact(void *col, void *gobj, void *pos, float r);
 extern int D_0028F4C0[];
 /* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
 extern char ZeroVector[];
-extern char D_004E57A0[];
-extern char D_004E57C0[];
 
 int rolling(char *a0)
 {
@@ -564,19 +648,19 @@ int rolling(char *a0)
     _AddVectorXYZ((char *)GOBJ_SUB(a0) + 0xA0, (char *)GOBJ_SUB(a0) + 0xA0,
                   (char *)GOBJ_SUB(a0) + 0x130);
     {
-        char *col = D_004E57A0;
+        char *col = (char *)&ap1RollClip;
         CopyVector(col, (char *)GOBJ_SUB(a0) + 0x1F0);
         CopyVector(col + 0x10, (char *)GOBJ_SUB(a0) + 0xA0);
         *(float *)(col + 4) -= 50.0f;
         if (clipAndTakeHit(&info, col)) {
-            CopyVector((char *)GOBJ_SUB(a0) + 0xA0, D_004E57C0);
+            CopyVector((char *)GOBJ_SUB(a0) + 0xA0, &ap1RollClip.pos);
             CopyVector((char *)GOBJ_SUB(a0) + 0x130, ZeroVector);
-            yAxisRotFitting((int *)a0, (int)(D_004E57C0 + 0x80));
+            yAxisRotFitting((int *)a0, (int)&ap1RollClip.normal);
             LinkParentOfDObj(a0, &info);
             UpdateRootMatrix(a0);
             applyPartOrients(a0);
             {
-                char *col = D_004E57A0;
+                char *col = (char *)&ap1RollClip;
                 if (*(int *)(col + 0x88) != 0) {
                     GOBJ_SUB(a0)->f_5F8 = GetWallAttribute(col);
                 }
@@ -587,7 +671,7 @@ int rolling(char *a0)
                 }
             }
             {
-                char *col = D_004E57A0;
+                char *col = (char *)&ap1RollClip;
                 if (*(int *)(col + 0x94) != 0) {
                     GOBJ_SUB(a0)->f_5F8 = GetFloorAttribute(col);
                     if (CheckFloorAttribute(a0, 0x50) != 0) {
@@ -602,7 +686,7 @@ int rolling(char *a0)
         }
     }
     {
-        char *col = D_004E57A0;
+        char *col = (char *)&ap1RollClip;
         *(float *)(col + 0x14) += 500.0f;
         ClipFloor(col);
         if (CheckFieldContact(col, a0, (char *)GOBJ_SUB(a0) + 0xA0, 50.0f) == 2) {
@@ -627,9 +711,6 @@ extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
 extern float _GetLength(void *a, void *b);
 extern void ExecuteSEPackage(void *self, int id);
 extern void _AttackCenter(void *self, int a1, void *v, int a3, float r, int a5);
-extern char D_004E55E0[];
-extern char D_004E5860[];
-extern char D_004E58A0[];
 
 /* the point the spider's bite attack is centred on, 50 units down its own arm */
 static const Vec4A_P_1 attackCenterOffset = {50.0f, 0.0f, 0.0f, 1.0f};
@@ -671,7 +752,7 @@ void calcSubMission(char *self)
     MatrixDrive_RotMatrixX(0x4000);
     CopyVector(&base, (char *)MatrixDrive_GetMatrix() + 0x30);
     GetRootQuaternion((int)&rq, (int *)self);
-    _ApplyMatrix((int)&axis, (int)MatrixDrive_GetMatrix(), (int)D_004E55E0);
+    _ApplyMatrix((int)&axis, (int)MatrixDrive_GetMatrix(), (int)&ap1AttackAxis);
     MatrixDrive_SetTransposeMatrix(&tm, MatrixDrive_GetMatrix());
 
     for (i = 0; i < 4; i++) {
@@ -708,7 +789,7 @@ void calcSubMission(char *self)
             MatrixDrive_PopMatrix();
             if ((*(int *)(part + 4) += 1) >= 10) {
                 ExecuteSEPackage(self, 0x68);
-                CopyVector(part + 0x20, D_004E5670 + i * 0x10);
+                CopyVector(part + 0x20, (char *)ap1PartOffset + i * 0x10);
                 *(int *)part = 1;
                 *(int *)(part + 4) = 0;
             }
@@ -744,10 +825,10 @@ void calcSubMission(char *self)
         if (*(int *)(p + 4) != 0) {
             _MulMatrix(*(char **)((char *)GOBJ_SUB(self) + 0xC) +
                            (*(int *)(p + 0x174 + i * 8) << 6),
-                       MatrixDrive_GetMatrix(), D_004E5860);
+                       MatrixDrive_GetMatrix(), ap1ArmScale);
         } else {
             _MulMatrix(*(char **)(*(char **)(p + 0x194) + 0xC) + (i << 6), MatrixDrive_GetMatrix(),
-                       D_004E5860);
+                       ap1ArmScale);
         }
 
         _ScaleVector(&v2, &dir, 50.0f);
@@ -756,7 +837,7 @@ void calcSubMission(char *self)
         _ApplyMatrix((int)&v2, (int)&rm, (int)&v2);
         _AddVectorXYZ(part + 0x40, part + 0x30, &v2);
 
-        _MulMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix(), D_004E58A0);
+        _MulMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix(), ap1ArmOffset);
 
         CopyVector(&save2, (char *)MatrixDrive_GetMatrix() + 0x30);
         _MulMatrix(MatrixDrive_GetMatrix(), &rm, MatrixDrive_GetMatrix());
@@ -772,10 +853,10 @@ void calcSubMission(char *self)
         if (*(int *)(p + 4) != 0) {
             _MulMatrix(*(char **)((char *)GOBJ_SUB(self) + 0xC) +
                            (*(int *)(p + 0x178 + i * 8) << 6),
-                       MatrixDrive_GetMatrix(), D_004E5860);
+                       MatrixDrive_GetMatrix(), ap1ArmScale);
         } else {
             _MulMatrix(*(char **)(*(char **)(p + 0x198) + 0xC) + (i << 6), MatrixDrive_GetMatrix(),
-                       D_004E5860);
+                       ap1ArmScale);
         }
 
         MatrixDrive_PopMatrix();
@@ -790,8 +871,6 @@ extern void RotQuaternionZ(void *q, short ang);
 extern void GetMatrixFromQuaternionPos(void *m, void *q, void *pos);
 /* kept local: this TU's uses of GetSlerpQuaternion do not fit the prototype in quaternion.h */
 extern void GetSlerpQuaternion(void *dst, void *a, void *b, float t);
-extern float D_004E58E0[];
-extern float D_004E58F0[];
 
 void updateMatrix(char *a0)
 {
@@ -804,11 +883,11 @@ void updateMatrix(char *a0)
     UpdateRootMatrix(a0);
     CopyMatrix(p + 0x230, *(void **)((char *)GOBJ_SUB(a0) + 0xC));
 
-    D_004E58E0[1] = ((float)*(int *)(p + 0x270) * 0.03125f < 0.5f)
+    ap1BodyPos[1] = ((float)*(int *)(p + 0x270) * 0.03125f < 0.5f)
                         ? ((float)*(int *)(p + 0x270) * 0.03125f) * 2.0f * 5.0f + -10.0f
                         : (1.0f - (float)*(int *)(p + 0x270) * 0.03125f) * 2.0f * 5.0f + -10.0f;
-    D_004E58E0[1] -= *(float *)(p + 0x1C8) * 25.0f;
-    D_004E58E0[2] = *(float *)(p + 0x1C8) * 50.0f;
+    ap1BodyPos[1] -= *(float *)(p + 0x1C8) * 25.0f;
+    ap1BodyPos[2] = *(float *)(p + 0x1C8) * 50.0f;
 
     GetRootPosition(pos, a0);
     GetRootQuaternion((int)quat, (int *)a0);
@@ -816,12 +895,12 @@ void updateMatrix(char *a0)
     RotQuaternionX(quat, (short)(*(float *)(p + 0x1C8) * 8192.0f));
     RotQuaternionX(quat, (short)(*(float *)(p + 0x1C0) * 4096.0f));
     GetMatrixFromQuaternionPos(mtx, quat, pos);
-    _ApplyMatrix((int)pos, (int)mtx, (int)D_004E58E0);
+    _ApplyMatrix((int)pos, (int)mtx, (int)ap1BodyPos);
     RotQuaternionZ(quat, (short)(-*(float *)(p + 0x1C4) * 2048.0f));
     _InterVectorXYZ(p + 0x1E0, pos, p + 0x1E0, 0.5f);
     GetSlerpQuaternion(p + 0x1D0, quat, p + 0x1D0, 0.1f);
     GetMatrixFromQuaternionPos(p + 0x1F0, p + 0x1D0, p + 0x1E0);
-    _MulMatrix(*(void **)((char *)GOBJ_SUB(a0) + 0xC), p + 0x1F0, D_004E58F0);
+    _MulMatrix(*(void **)((char *)GOBJ_SUB(a0) + 0xC), p + 0x1F0, ap1BodyMatrix);
 }
 
 void resetPositionInfo(char *a0)
@@ -831,10 +910,6 @@ void resetPositionInfo(char *a0)
     GetRootQuaternion(p + 0x1D0, a0);
     ResetEnemyEye(*(int *)(p + 0x19C));
 }
-
-extern int (*motFuncList[][2])(char *);
-extern char D_004E5970[];
-extern char D_004E59F0[];
 
 /* static helper the listing places at a_p_1.c lines 889-891, expanded only
  * into AP1Geo, so this name is ours. */
@@ -881,13 +956,13 @@ void AP1Geo(char *a0)
     }
     updateMatrix(a0);
     calcSubMission(a0);
-    _MulMatrix(MatrixDrive_GetMatrix(), *(void **)((char *)GOBJ_SUB(a0) + 0xC), D_004E5970);
+    _MulMatrix(MatrixDrive_GetMatrix(), *(void **)((char *)GOBJ_SUB(a0) + 0xC), ap1EyeMatrix);
     UpdateEnemyEye(*(int *)(p + 0x19C), MatrixDrive_GetMatrix(), 1.0f);
     if (*(int *)(p + 4) != 0) {
         CopyMatrix(MatrixDrive_GetMatrix(), *(void **)((char *)GOBJ_SUB(a0) + 0xC));
         MatrixDrive_RotMatrixZ(0x4000);
         MatrixDrive_RotMatrixX(0x4000);
-        _MulMatrix(*(void **)((char *)GOBJ_SUB(a0) + 0xC), MatrixDrive_GetMatrix(), D_004E59F0);
+        _MulMatrix(*(void **)((char *)GOBJ_SUB(a0) + 0xC), MatrixDrive_GetMatrix(), ap1HeadScale);
     }
     d = GOBJ_SUB(a0)->f_54 - *(float *)(*(char **)((char *)GOBJ_SUB(a0) + 0xC) + 0x34);
     if ((d < 0.0f) ? ((d = -d) > 10000.0f) : (d > 10000.0f)) {
@@ -997,11 +1072,9 @@ char *MakeAP1GObj(char *a0)
     return CreateLayoutedGObj(62, D_0062B588[*(int *)(a0 + 0x30)].unkC, -1, 0, a0, 0, 7, 1);
 }
 
-extern int D_004E5520[];
-
 int GetAP1Mode(char *a0)
 {
-    return D_004E5520[*(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 8)];
+    return (int)ap1ModeName[*(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 8)];
 }
 
 int standMot(char *a0)

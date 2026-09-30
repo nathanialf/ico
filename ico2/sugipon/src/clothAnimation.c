@@ -898,7 +898,9 @@ static sceVu0FVECTOR clipPlane[2][2] = {
     {{0.0f, 1.0f, 0.0f, -1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}},
 };
 
-extern float D_0063B758;
+/* the TU's .sdata opens with the squared radius of the cylinder the cloth is
+   clipped against (MAIN.MAP names nothing in the run) */
+static float cylinderRadiusSq = 1.0f; /* derived name */
 
 /* INTERIM (same shape as GetSkeltonFocusNode in src/motionManager2.c): the
    listing inlines checkOverThePlane (1085), checkFrontAcross (1126) and
@@ -981,7 +983,7 @@ int clipCylinderCollision(char *p, void *pt)
     if (checkFrontAcross_i(p, d)) {
         sceVu0Normalize(d, d);
         getCrossPoint_i(p + 0x20, p, d);
-        if (xzLengthSquare(p + 0x20) < D_0063B758) {
+        if (xzLengthSquare(p + 0x20) < cylinderRadiusSq) {
             AddVectorXYZ(p + 0x20, p + 0x20, d);
             return 1;
         }
@@ -1469,10 +1471,16 @@ extern void MatrixDrive_RotMatrixZ(short a0);
 extern void MatrixDrive_ScaleMatrix(float x, float y, float z);
 extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
 extern void prim_DispWireYCylinder(void *col, int n, int flag, float r, float y0, float y1);
-extern float *D_0063B75C;
-extern float *D_0063B760;
-extern float *D_0063B764;
-extern float *D_0063B768;
+
+/* the four procMatrix elements proc writes its Y rotation through, the rest of
+   the TU's .sdata */
+static float *procCosXX = &procMatrix[0][0]; /* derived name */
+
+static float *procCosZZ = &procMatrix[2][2]; /* derived name */
+
+static float *procSinXZ = &procMatrix[0][2]; /* derived name */
+
+static float *procSinZX = &procMatrix[2][0]; /* derived name */
 
 typedef struct {
     float x;
@@ -1582,7 +1590,7 @@ static __inline__ void setClipCylinder(ClothPoint *pt)
 {
     clipPlane[0][0][3] = pt->y;
     clipPlane[1][0][3] = -pt->z;
-    D_0063B758 = pt->r * pt->r;
+    cylinderRadiusSq = pt->r * pt->r;
 }
 
 void getCloth4D(void *a0, int **rows)
@@ -1753,10 +1761,10 @@ void getCloth4D(void *a0, int **rows)
                             s = FSqrt(1.0f - e * e);
                             ir = r * inv;
                             sy = a.y;
-                            *D_0063B75C = *D_0063B760 = e * ir;
+                            *procCosXX = *procCosZZ = e * ir;
                             sn = k * pts[i].f30 * s * ir;
-                            *D_0063B764 = sn;
-                            *D_0063B768 = -sn;
+                            *procSinXZ = sn;
+                            *procSinZX = -sn;
                             _ApplyMatrix(&a, procMatrix, &b);
                             a.y = sy;
                             _ApplyMatrix(p, mD[i], &a);

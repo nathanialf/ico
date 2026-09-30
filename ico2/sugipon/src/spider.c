@@ -171,7 +171,8 @@ int CallSpidersToReviveEnemy(char *self)
     return 1;
 }
 
-extern int D_0063BAC0;
+/* the TU's .sdata opens with the layout entry count SpiderLayoutGeo prints */
+static int spiderEntryCount = 0; /* derived name */
 
 /* listing lines 69-76 */
 static inline void setAllSpiderPositions(char *self, float *pos)
@@ -212,11 +213,11 @@ void SpiderLayoutGeo(char *self)
         }
         if ((*(unsigned int *)(w + 0x2C))++ >= 11) {
             if (*(int *)(w + 0x3C) == 0) {
-                debug_StdPrintfDummy("entry %d\n", D_0063BAC0++);
+                debug_StdPrintfDummy("entry %d\n", spiderEntryCount++);
                 EntrySpiderGroupManager(self);
                 *(int *)w = 0;
             } else {
-                debug_StdPrintfDummy("entry revived %d\n", D_0063BAC0++);
+                debug_StdPrintfDummy("entry revived %d\n", spiderEntryCount++);
                 EntryRevivedSpiderGroupManager(self);
                 *(int *)w = 0;
             }
@@ -267,8 +268,8 @@ void SpiderLayoutGeo(char *self)
     }
 }
 
-extern int D_0063BAC4;
-extern int D_0063BADC;
+/* the debug display's selected line (MAIN.MAP spider.o) */
+int sgSelLine = 0;
 
 /* spider.o's whole .data run: the white the debug wire sphere is drawn in. */
 static int spiderWireColor[4] = {0xFF, 0xFF, 0xFF, 0xFF};
@@ -319,18 +320,18 @@ void DispAllMemberOfSpider(char *self, int *col)
             gif_SetAlpha(1, 5, 128);
             prim_DispWireSphere(50.0f, col, 4, 4);
             gif_EndPacket();
-            debug_PrintfDummy(400, D_0063BADC * 10 + 50,
+            debug_PrintfDummy(400, sgInfoLine * 10 + 50,
                               (col[0] << 24) | (col[1] << 16) | (col[2] << 8) | 0xFF,
-                              spiderStatusFmt, D_0063BADC == D_0063BAC4 ? 62 : 32,
+                              spiderStatusFmt, sgInfoLine == sgSelLine ? 62 : 32,
                               GetAP1Mode(g->members[i]), GetAP1AIMode(g->members[i]));
-            if (D_0063BADC == D_0063BAC4) {
+            if (sgInfoLine == sgSelLine) {
                 gif_StartPacketPri(11);
                 gif_SetZTest(1);
                 gif_SetAlpha(1, 5, 128);
                 prim_DispWireSphere(100.0f, spiderWireColor, 4, 4);
                 gif_EndPacket();
             }
-            D_0063BADC++;
+            sgInfoLine++;
         }
     }
 
@@ -349,14 +350,12 @@ void DispAllMemberOfSpider(char *self, int *col)
     }
 }
 
-extern char D_0063BAC8[];
-
 void SetSpiderGroupReviveStatus(char *a0)
 {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
     *(int *)(p + 0x3C) = 1;
     gamesysObjInfoUniqDataSet(a0);
-    debug_StdPrintfDummy(D_0063BAC8, *(int *)(a0 + 8));
+    debug_StdPrintfDummy("SET %d\n", *(int *)(a0 + 8));
 }
 
 int DeadAllSpiders(char *gp)
@@ -481,9 +480,6 @@ int RestoreSpiderLayoutGeo(void)
     return 1;
 }
 
-extern char D_0063BAD0[];
-extern char D_0063BAD8[];
-
 int RestoreSpiderLayoutExtGeo(char *a0, char *a1)
 {
     char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
@@ -496,11 +492,15 @@ int RestoreSpiderLayoutExtGeo(char *a0, char *a1)
         *(int *)(p + 0x3C) = 1;
     }
     debug_StdPrintfDummy(spiderRestoreFmt, a0);
-    debug_StdPrintfDummy(spiderWakeFmt, *(int *)(a1 + 0x30) ? D_0063BAD0 : D_0063BAD8);
+    debug_StdPrintfDummy(spiderWakeFmt, *(int *)(a1 + 0x30) ? "YES" : "NO");
     debug_StdPrintfDummy(spiderAliveFmt, ex[1]);
     debug_StdPrintfDummy(spiderReviveFmt, ex[2]);
     return 1;
 }
+
+/* the debug display's line counter (MAIN.MAP spider.o), the last object of the
+   TU's .sdata, after RestoreSpiderLayoutExtGeo's two answers */
+int sgInfoLine = 0;
 
 int MemorySpiderLayout(char *dst, char *gp)
 {

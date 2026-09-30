@@ -41,9 +41,13 @@ typedef struct EditPad {
 } EditPad;
 
 extern EditPad D_0028F8F0;
-extern unsigned char D_0063BA78;
-extern int D_0063BA7C;
-extern char D_0063BA80[];
+
+/* the TU's .sdata (MAIN.MAP moveColTest.o .sdata 0xC, no symbol): the blink
+   counter and the test offset, then MoveColTestGeo's "%d\n" */
+static unsigned char blinkCount = 0; /* derived name */
+
+static int testOffset = 0; /* derived name */
+
 extern int D_00639EA4;
 
 void MoveColTestGeo(char *self)
@@ -72,7 +76,7 @@ void MoveColTestGeo(char *self)
             }
         }
     }
-    if ((D_0063BA78++ >> 5) & 1) {
+    if ((blinkCount++ >> 5) & 1) {
         debug_PrintfDummy(10, 60, 0x4080FF00, "PUSH R3 TO BORN SPIDER.");
     }
 
@@ -80,13 +84,13 @@ void MoveColTestGeo(char *self)
     pos[1] += -500.0f;
     if (D_0028F8F0.trg & 0x400) {
         scpBornSpider(0xA, pos[0], pos[1], pos[2], 300.0f);
-        D_0063BA7C += 0xA;
-        debug_StdPrintfDummy(D_0063BA80, D_0063BA7C);
+        testOffset += 0xA;
+        debug_StdPrintfDummy("%d\n", testOffset);
     }
     if (D_0028F8F0.trg & 0x200) {
         scpBornSpider(1, pos[0], pos[1], pos[2], 300.0f);
-        D_0063BA7C += 1;
-        debug_StdPrintfDummy(D_0063BA80, D_0063BA7C);
+        testOffset += 1;
+        debug_StdPrintfDummy("%d\n", testOffset);
     }
 }
 

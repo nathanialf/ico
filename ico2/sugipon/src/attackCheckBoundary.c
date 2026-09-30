@@ -13,13 +13,9 @@
 
 extern int D_0063A438;
 
-/* .data, carved VMA 0x4E5A90..0x4E5AA0; bytes verified against baserom/pal/baseelf.rom */
-unsigned int D_004E5A90[4] = {
-    0x00000000,
-    0x00000080,
-    0x000000FF,
-    0x00000080,
-};
+/* the TU's whole .data (MAIN.MAP attackCheckBoundary.o .data 0x10, no symbol):
+   the colour the debug display draws a boundary sphere in */
+static unsigned int acbSphereColor[4] = {0, 128, 255, 128}; /* derived name */
 
 extern int D_0063B148;
 /* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
@@ -110,7 +106,7 @@ inline void AttackCheckBoundaryDL(char *obj)
         CopyVector((char *)MatrixDrive_GetMatrix() + 0x30,
                    *(char **)(*(char **)(obj + 0x15C) + 0xC) + 0x30);
         r = GetAttackCheckBoundaryRadius(obj);
-        prim_DispWireSphere(r, D_004E5A90, 4, 4);
+        prim_DispWireSphere(r, acbSphereColor, 4, 4);
         gif_EndPacket();
     }
 }
@@ -247,9 +243,10 @@ typedef struct {
 } LayoutClothDef;
 
 extern const LayoutClothDef layoutClothDef[];
+
 /* attackCheckBoundary.o's own 8-byte .sdata (MAIN.MAP line 7305, unnamed
    there): the blank roster entry each slot starts from */
-extern AcbEntry D_0063B730;
+static AcbEntry acbBlankEntry = {0, 0}; /* derived name */
 
 AcbMgr *InitAttackCheckBoundaryManagerGeo(int a0, char *a1)
 {
@@ -284,7 +281,7 @@ AcbMgr *InitAttackCheckBoundaryManagerGeo(int a0, char *a1)
     len = VectorLength(v2);
     for (i = 0; i < mgr->count; i++) {
         _InterVector(p, v1, v0, (float)i / (float)(mgr->count - 1));
-        mgr->list[i] = D_0063B730;
+        mgr->list[i] = acbBlankEntry;
         g = CreateAttackCheckBoundary(&mgr->cur, p[0], p[1], p[2], len);
         mgr->list[i].obj = (int)g;
         SetAttackCheckBoundaryAttribute(g, rec->attr);

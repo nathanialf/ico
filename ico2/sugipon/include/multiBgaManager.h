@@ -40,4 +40,19 @@ typedef struct {
     long long w48;  /* 0x48 */
 } MultiBga;
 
+/* the state every animation slot starts from, as its fields read: the scale
+   word, the identity rotation, the position and the homogeneous offset, then
+   no object and not staying (MAIN.MAP multiBgaManager.o .data) */
+typedef struct {
+    float scale[4];  /* 0x00 */
+    float rot[4];    /* 0x10 */
+    float pos[4];    /* 0x20 */
+    float offset[4]; /* 0x30 */
+    int obj;         /* 0x40 */
+    int stay;        /* 0x44 */
+    int pad48[2];    /* 0x48 */
+} BgaAnimeState;
+
+extern BgaAnimeState InitialBgaMultiAnimeState;
+
 #endif /* MULTIBGAMANAGER_H */

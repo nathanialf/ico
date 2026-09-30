@@ -23,7 +23,7 @@ typedef struct { /* 0x10 */
     float x, y, z, w;
 } __attribute__((aligned(16))) LLVec;
 
-typedef struct {
+typedef struct LightLineExt {
     float *phase; /* 0x00 */
     float *speed; /* 0x04 */
     LLVec **line; /* 0x08 */
@@ -35,8 +35,6 @@ typedef struct { /* 0x10 */
     int r, g, b, a;
 } __attribute__((aligned(16))) LLColor;
 
-extern LightLineExt *llExtGeo;
-
 #include "boy.h"
 
 /* The boy's five generated cloth meshes, in the order InitBoyGeo hands them to
@@ -44,10 +42,6 @@ extern LightLineExt *llExtGeo;
    MAIN.MAP names no symbol in boy.o's .data, so these names are ours, taken
    from the texture each mesh is drawn with.  The floats are the generator's
    own three-decimal output, read back from the ROM. */
-
-/* boy.o's .sdata is not carved yet, so the third mesh's texture name is still
-   the blob's. */
-extern char D_0063B748[];
 
 static Cloth4DCol mantleMeshCols[5];
 
@@ -246,8 +240,12 @@ static Cloth4DCol tapeMeshCols[5] = {
 static Cloth4DCol tapeBMeshCols[2];
 
 static Cloth4DCfg tapeBMesh = {
-    2, 5, 0, 0, 0x59, 0x59, 0x59, 0x80, D_0063B748, tapeBMeshCols, 2.48f, 0,
+    2, 5, 0, 0, 0x59, 0x59, 0x59, 0x80, "tape_b", tapeBMeshCols, 2.48f, 0,
 };
+
+/* the light-line work LightLineGeo sets up (MAIN.MAP boy.o .sdata), after the
+   third mesh's texture name in the TU's .sdata */
+LightLineExt *llExtGeo = 0;
 
 static float tapeBMeshUv[2][5][2] = {
     {{0.005f, 0.992f}, {0.251f, 0.992f}, {0.497f, 0.991f}, {0.743f, 0.99f}, {0.99f, 0.99f}},

@@ -25,24 +25,13 @@ typedef struct {
 } EffParamDef;
 
 /* the three enum name tables the type-0 fields print through; the names
-   themselves are seven bytes or fewer, so the compiler puts them in .sdata,
-   which this pass does not carve: they stay extern into the .sdata blob. */
-extern char D_0063B7D8[]; /* "LOOP" */
-extern char D_0063B7E0[]; /* "RELEASE" */
-extern char D_0063B7E8[]; /* "SUB" */
-extern char D_0063B7F0[]; /* "ADD" */
-extern char D_0063B7F8[]; /* "BLEND" */
-extern char D_0063B800[]; /* "ON" */
-extern char D_0063B808[]; /* "OFF" */
-extern char D_0063B810[]; /* "COLOR B" */
-extern char D_0063B818[]; /* "COLOR G" */
-extern char D_0063B820[]; /* "COLOR R" */
+   themselves are seven bytes or fewer, so the compiler puts them in .sdata. */
 
-static char *drainTypeName[] = {D_0063B7E0, D_0063B7D8};
+static char *drainTypeName[] = {"RELEASE", "LOOP"};
 
-static char *alphaTypeName[] = {D_0063B7F8, D_0063B7F0, D_0063B7E8};
+static char *alphaTypeName[] = {"BLEND", "ADD", "SUB"};
 
-static char *upperLimitName[] = {D_0063B808, D_0063B800};
+static char *upperLimitName[] = {"OFF", "ON"};
 
 static EffParamDef effParam[] = {
     {"U OFFSET", 0x80, 0, 0, 0, 0, 3},
@@ -73,19 +62,14 @@ static EffParamDef effParam[] = {
     {"FADE BASE RND", 84, 0, 1, 0, 0, 1},
     {"FADE OUT", 88, 0, 0, 0, 0, 1000},
     {"FADE OUT RND", 92, 0, 1, 0, 0, 1},
-    {D_0063B820, 0x70, 0, 0, 0, 0, 255},
-    {D_0063B818, 0x74, 0, 0, 0, 0, 255},
-    {D_0063B810, 0x78, 0, 0, 0, 0, 255},
+    {"COLOR R", 0x70, 0, 0, 0, 0, 255},
+    {"COLOR G", 0x74, 0, 0, 0, 0, 255},
+    {"COLOR B", 0x78, 0, 0, 0, 0, 255},
     {"UPPER LIMIT", 0x94, upperLimitName, 0, 0, 0, 1},
     {"LIMIT HEIGHT", 0x98, 0, 0, 0, -100000, 100000},
     {0},
 };
 
-extern char D_0063B828[]; /* "%4.3f" */
-extern char D_0063B830[]; /* "(%d,%d)" */
-extern char D_0063B838[]; /* "%d" */
-extern char D_0063B840[]; /* "%s" */
-extern char D_0063B848[]; /* "%s%s" */
 /* kept local: this TU's uses of debug_PrintfDummy do not fit the prototype in debug.h */
 extern void debug_PrintfDummy(int x, int y, unsigned int col, char *fmt, ...);
 
@@ -99,31 +83,31 @@ void _dispParam(int *pkg, int idx, int x, int y, int col)
 
     switch (e->type) {
     case 1:
-        sprintf(val, D_0063B828, *(float *)p);
-        sprintf(rng, D_0063B830, e->min, e->max);
+        sprintf(val, "%4.3f", *(float *)p);
+        sprintf(rng, "(%d,%d)", e->min, e->max);
         break;
     case 0:
         if (e->enums == 0) {
-            sprintf(val, D_0063B838, *(int *)p);
-            sprintf(rng, D_0063B830, e->min, e->max);
+            sprintf(val, "%d", *(int *)p);
+            sprintf(rng, "(%d,%d)", e->min, e->max);
         } else {
-            sprintf(val, D_0063B840, e->enums[*(int *)p]);
+            sprintf(val, "%s", e->enums[*(int *)p]);
             rng[0] = 0;
         }
         break;
     case 2:
-        sprintf(val, D_0063B838, *(short *)p);
-        sprintf(rng, D_0063B830, e->min, e->max);
+        sprintf(val, "%d", *(short *)p);
+        sprintf(rng, "(%d,%d)", e->min, e->max);
         break;
     case 3:
-        sprintf(val, D_0063B838, *(unsigned short *)p);
-        sprintf(rng, D_0063B830, e->min, e->max);
+        sprintf(val, "%d", *(unsigned short *)p);
+        sprintf(rng, "(%d,%d)", e->min, e->max);
         break;
     default:
         sprintf(val, "Unknown Data Type \"%s\"\n", e->name);
         break;
     }
-    sprintf(lbl, D_0063B848, e->name, rng);
+    sprintf(lbl, "%s%s", e->name, rng);
     debug_PrintfDummy(x, y, col, "%-20s:%s", lbl, val);
 }
 
@@ -146,7 +130,9 @@ typedef union {
     unsigned short us;
 } EffVal;
 
-extern int D_0063B850;
+/* editParam's hold counter, the first named object of the TU's .sdata (after
+   _dispParam's formats) */
+static int holdCount = 0; /* derived name */
 
 /* .bss, owned by effectTool.o and reached only from this file (MAIN.MAP names
    no symbol in the run), in the ROM's run order: a change flag per tool row,
@@ -166,12 +152,12 @@ int editParam(int id, int sel)
 
     if ((D_0028F8F0[0].unk00 & 0x8000) || (D_0028F8F0[1].unk00 & 0x8000) ||
         (D_0028F8F0[0].unk00 & 0x2000) || (D_0028F8F0[1].unk00 & 0x2000)) {
-        D_0063B850++;
+        holdCount++;
     } else {
-        D_0063B850 = 0;
+        holdCount = 0;
     }
-    if (D_0063B850 > 30) {
-        step = (D_0063B850 - 10) / 10;
+    if (holdCount > 30) {
+        step = (holdCount - 10) / 10;
     } else {
         step = 1.0f;
     }
@@ -350,8 +336,28 @@ void dispCircle2(float rad, short elev, int step)
     }
 }
 
-extern short D_0063B858;
-extern short D_0063B85A;
+/* The tool's state, the rest of the TU's .sdata in ROM order: the particle
+   effect on show, the view rotation, the effect and parameter being edited,
+   the field display switch, the camera target to restore, and the tool's mode
+   (MAIN.MAP effectTool.o). */
+static int effectHandle = -1; /* derived name */
+
+static short viewRotY = 0; /* derived name */
+
+static short viewRotX = 0; /* derived name */
+
+static int effectId = 0; /* derived name */
+
+static int lastEffectId = -1; /* derived name */
+
+static int paramCursor = 0; /* derived name */
+
+static int fieldDisp = 0; /* derived name */
+
+static int savedTarget = 0; /* derived name */
+
+int targetMemo = 0;
+
 /* kept local: this TU's uses of RotQuaternionX do not fit the prototype in quaternion.h */
 extern void RotQuaternionX(int *self, short y);
 /* kept local: this TU's uses of RotQuaternionY do not fit the prototype in quaternion.h */
@@ -362,8 +368,8 @@ extern void SetIdentityQuaternion(int *self);
 void setQ(int *self)
 {
     SetIdentityQuaternion(self);
-    RotQuaternionY(self, -D_0063B858);
-    RotQuaternionX(self, -D_0063B85A);
+    RotQuaternionY(self, -viewRotY);
+    RotQuaternionX(self, -viewRotX);
 }
 
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
@@ -413,13 +419,9 @@ void dispEffectToolField(int idx)
     debug_PrintfDummy(450, 58, 0xFFFFFF00, "POS-X:%4.3f", -effectToolPos[0]);
     debug_PrintfDummy(450, 66, 0xFFFFFF00, "POS-Y:%4.3f", -effectToolPos[1]);
     debug_PrintfDummy(450, 74, 0xFFFFFF00, "POS-Z:%4.3f", -effectToolPos[2]);
-    debug_PrintfDummy(450, 88, 0xFFFFFF00, "ROT-Y:%4.3f", D_0063B858 * -180.0f / 32768.0f);
-    debug_PrintfDummy(450, 96, 0xFFFFFF00, "ROT-X:%4.3f", D_0063B85A * -180.0f / 32768.0f);
+    debug_PrintfDummy(450, 88, 0xFFFFFF00, "ROT-Y:%4.3f", viewRotY * -180.0f / 32768.0f);
+    debug_PrintfDummy(450, 96, 0xFFFFFF00, "ROT-X:%4.3f", viewRotX * -180.0f / 32768.0f);
 }
-
-extern int D_0063B854;
-extern int D_0063B85C;
-extern int D_0063B864;
 
 /* two static helpers the PAL listing places at effectTool.c lines 260 and
  * 266-275 and inlines into EditTarget; neither is emitted out of line, so
@@ -460,22 +462,22 @@ int EditTarget(int id)
 
     n = countEffectParams();
     setQ(q);
-    if (editParam(id, D_0063B864) != 0) {
+    if (editParam(id, paramCursor) != 0) {
         ResetParticleEffectPackages(GetParticleEffectPackage(id));
-        DeleteParticleEffect(D_0063B854);
-        D_0063B854 = SetParticleEffect(D_0063B85C, effectToolPos, q);
+        DeleteParticleEffect(effectHandle);
+        effectHandle = SetParticleEffect(effectId, effectToolPos, q);
     }
-    dispEffectParams(id, D_0063B864);
+    dispEffectParams(id, paramCursor);
     if ((D_0028F8F0[0].rep & 0x1000) || (D_0028F8F0[1].rep & 0x1000)) {
-        D_0063B864--;
-        if (D_0063B864 < 0) {
-            D_0063B864 = n - 1;
+        paramCursor--;
+        if (paramCursor < 0) {
+            paramCursor = n - 1;
         }
     }
     if ((D_0028F8F0[0].rep & 0x4000) || (D_0028F8F0[1].rep & 0x4000)) {
-        D_0063B864++;
-        if (D_0063B864 == n) {
-            D_0063B864 = 0;
+        paramCursor++;
+        if (paramCursor == n) {
+            paramCursor = 0;
         }
     }
     if ((D_0028F8F0[0].trg & 0x40) || (D_0028F8F0[1].trg & 0x40)) {
@@ -485,7 +487,6 @@ int EditTarget(int id)
 }
 
 extern int D_0063AA08;
-extern int D_0063B86C;
 /* kept local: this TU's uses of debug_StdPrintfDummy do not fit the prototype in debug.h */
 extern void debug_StdPrintfDummy(char *fmt, ...);
 
@@ -498,10 +499,10 @@ static inline void initEffectTool(void)
     int i;
 
     setQ(q);
-    D_0063B86C = CameraGetTarget();
-    GetRootPosition(effectToolPos, D_0063B86C);
+    savedTarget = CameraGetTarget();
+    GetRootPosition(effectToolPos, savedTarget);
     effectToolPos[3] = 1.0f;
-    GetRootQuaternion(q, D_0063B86C);
+    GetRootQuaternion(q, savedTarget);
     CameraSetMode(1);
     D_0063AA08 = 1;
     debug_StdPrintfDummy("initialize\n");
@@ -578,27 +579,24 @@ void moveEffectToolGeometry(int idx)
         if (padCtx[2] & 2) {
             effectToolPos[1] += st1.fz * st1.mag * 16.0f;
         } else {
-            D_0063B858 = D_0063B858 + st1.fx * 256.0f * st1.mag;
-            D_0063B85A = D_0063B85A + st1.fz * 256.0f * st1.mag;
-            if (D_0063B85A < -0x4000) {
-                D_0063B85A = -0x4000;
+            viewRotY = viewRotY + st1.fx * 256.0f * st1.mag;
+            viewRotX = viewRotX + st1.fz * 256.0f * st1.mag;
+            if (viewRotX < -0x4000) {
+                viewRotX = -0x4000;
             }
-            if (D_0063B85A > 0x4000) {
-                D_0063B85A = 0x4000;
+            if (viewRotX > 0x4000) {
+                viewRotX = 0x4000;
             }
         }
     }
     pkg = GetParticleEffectPackage(idx);
     if (pkg[1] != 0) {
         setQ(q);
-        SetParticleEffectGeometry(D_0063B854, effectToolPos, q);
+        SetParticleEffectGeometry(effectHandle, effectToolPos, q);
     }
 }
 
 extern char D_0062A278[];
-extern int targetMemo;
-extern int D_0063B860;
-extern int D_0063B868;
 /* kept local: this TU's uses of debug_SelectCsvWindow do not fit the prototype in debug.h */
 extern int debug_SelectCsvWindow(char *title, int a1, int a2, int a3, void *tbl, int stride, int a6,
                                  int a7, int count, int *cur);
@@ -612,32 +610,32 @@ int execEffectTool(void)
     default:
     case 0:
         r = debug_SelectCsvWindow("Effect Tools: PUSH 2-CON'\202' TO SAVE SELECTED DATA", 10, 0x32,
-                                  0xB, D_0062A278, 0x50, 0, 0, 0x3D, &D_0063B85C);
-        if (D_0063B85C != D_0063B860) {
+                                  0xB, D_0062A278, 0x50, 0, 0, 0x3D, &effectId);
+        if (effectId != lastEffectId) {
             setQ(q);
-            if (D_0063B854 != -1) {
-                DeleteParticleEffect(D_0063B854);
+            if (effectHandle != -1) {
+                DeleteParticleEffect(effectHandle);
             }
-            D_0063B854 = SetParticleEffect(D_0063B85C, effectToolPos, q);
-            D_0063B860 = D_0063B85C;
-            D_0063B864 = 0;
+            effectHandle = SetParticleEffect(effectId, effectToolPos, q);
+            lastEffectId = effectId;
+            paramCursor = 0;
         }
         if (D_0028F8F0[1].trg & 0x10) {
-            saveEffectData(D_0063B85C);
+            saveEffectData(effectId);
         }
         if (D_0028F8F0[1].trg & 0x20) {
             r = 1;
         }
         if (D_0028F8F0[1].rep & 0x1000) {
-            D_0063B85C--;
-            if (D_0063B85C < 0) {
-                D_0063B85C = 0x3C;
+            effectId--;
+            if (effectId < 0) {
+                effectId = 0x3C;
             }
         }
         if (D_0028F8F0[1].rep & 0x4000) {
-            D_0063B85C++;
-            if (D_0063B85C >= 0x3D) {
-                D_0063B85C = 0;
+            effectId++;
+            if (effectId >= 0x3D) {
+                effectId = 0;
             }
         }
         if (r == 1) {
@@ -646,51 +644,50 @@ int execEffectTool(void)
         }
         break;
     case 1:
-        r = EditTarget(D_0063B85C);
+        r = EditTarget(effectId);
         if (r == -1) {
             targetMemo--;
         }
         r = 0;
         break;
     }
-    moveEffectToolGeometry(D_0063B85C);
+    moveEffectToolGeometry(effectId);
     if ((D_0028F8F0[0].trg & 0x80) || (D_0028F8F0[1].trg & 0x80)) {
-        D_0063B868 = (D_0063B868 == 0);
+        fieldDisp = (fieldDisp == 0);
     }
-    if (D_0063B868) {
-        dispEffectToolField(D_0063B85C);
+    if (fieldDisp) {
+        dispEffectToolField(effectId);
     }
     return r;
 }
 
-extern char D_0063B878[];
-
 void exitEffectTool(void)
 {
-    DeleteParticleEffect(D_0063B854);
-    D_0063B854 = -1;
-    Camctrl_SetTarget(D_0063B86C, 0, 3);
+    DeleteParticleEffect(effectHandle);
+    effectHandle = -1;
+    Camctrl_SetTarget(savedTarget, 0, 3);
     D_0063AA08 = 0;
-    debug_StdPrintfDummy(D_0063B878);
+    debug_StdPrintfDummy("exit\n");
 }
 
-extern int D_0063B880;
+/* EffectTool's entered flag, the last object of the TU's .sdata */
+static int toolEntered = 0; /* derived name */
 
 int EffectTool(void)
 {
     int r;
 
-    if (D_0063B880 == 0) {
+    if (toolEntered == 0) {
         initEffectTool();
-        D_0063B880 = 1;
-        D_0063B868 = 1;
+        toolEntered = 1;
+        fieldDisp = 1;
     }
     r = execEffectTool();
     if (r == -1) {
         exitEffectTool();
-        D_0063B880 = 0;
-        D_0063B860 = r;
-        D_0063B864 = 0;
+        toolEntered = 0;
+        lastEffectId = r;
+        paramCursor = 0;
     }
     return r;
 }

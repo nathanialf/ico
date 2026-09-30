@@ -52,7 +52,6 @@ extern void SetIdentityQuaternion(void *q);
 extern void GetInverseQuaternion(void *dst, void *src);
 /* kept local: this TU's uses of MultiQuaternion do not fit the prototype in quaternion.h */
 extern void MultiQuaternion(void *dst, void *a, void *b);
-extern char D_0063B8E0[];
 /* kept local: this TU's uses of IdentityQuaternion do not fit the prototype in quaternion.h */
 extern float IdentityQuaternion[4];
 
@@ -66,7 +65,7 @@ void HoldItem(char *gobj, char *holder)
         /* lost sight of the small barrel but is still trying to grab it */
         debug_StdPrintfDummy("小樽を見失ったのにつかもうとしてます。\n");
         debug_assert(__FILE__, 0x164);
-        __assert(__FILE__, 0x164, D_0063B8E0);
+        __assert(__FILE__, 0x164, "0");
     }
     p = (char *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
     *(int *)(p + 8) = 0;

@@ -3,7 +3,10 @@
 #include "debug.h"
 #include "matrixDrive.h"
 
-extern int D_0063B754;
+/* the TU's one .sdata word (MAIN.MAP clipCollisionManager.o .sdata 0x4, no
+   symbol): the manager object CreateClipCollisionManagerGObj made */
+static int clipCollisionManagerGObj = 0; /* derived name */
+
 /* kept local: this TU's uses of actCreateSubThreadGOppArg do not fit the prototype in act.h */
 extern void *actCreateSubThreadGOppArg(void *entry, int arg);
 /* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
@@ -109,6 +112,6 @@ static inline void thStart(void)
 int CreateClipCollisionManagerGObj(void)
 {
     int v = CreateGObjByFuncSet(0, 0, 0, 0, thStart, 0, 0);
-    D_0063B754 = v;
+    clipCollisionManagerGObj = v;
     return v;
 }

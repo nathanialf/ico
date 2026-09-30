@@ -40,7 +40,6 @@ extern EnemyDef D_00624880[];
 extern int prim_InitParticle(float f12, float f13, float f14, int num, int a1, char *tag, int a3);
 extern void __assert(char *file, int line, char *mes);
 extern int D_0063A438;
-extern char D_0063B888[];
 
 typedef struct {
     float x;
@@ -118,7 +117,7 @@ void setEnemyParticleObject(char *self, int pid)
             /* EUC-JP: "cannot reserve the memory for the enemy soldier particles" */
             debug_StdPrintfDummy("敵兵のパーティクルのメモリを確保できません\n");
             debug_assertMessage("src/enemy.c", 177, "CAN'T ALLOCATE ENEMY'S PARTICLE MEMORY\n");
-            __assert("src/enemy.c", 177, D_0063B888);
+            __assert("src/enemy.c", 177, "e");
         }
         for (cnt = 0; q->w > -1.0f && cnt < 80; cnt++, q++) {
             n4 = rand() % 4;
@@ -155,7 +154,6 @@ typedef struct {
 
 extern EnemyKindRange D_00624F68[];
 extern int D_00625018[];
-extern char D_0063B890[];
 
 /* static helper the listing places at enemy.c lines 223-233, expanded only into
  * setEnemyObject; never emitted out of line, so it has no MAIN.MAP symbol and
@@ -200,7 +198,7 @@ retry:
     if (obj != 0x610) {
         *(int *)((int)GOBJ_SUB(self) + 0x854) = GetPObjAddress(obj);
         GOBJ_SUB(self)->f_84 = obj;
-        debug_StdPrintfDummy(D_0063B890, *(int *)((int)GOBJ_SUB(self) + 0x854));
+        debug_StdPrintfDummy("%p\n", *(int *)((int)GOBJ_SUB(self) + 0x854));
         *(int *)(w + 0x38) = 1;
     }
     pid = D_00624880[kind].b;
@@ -462,7 +460,9 @@ int CheckEnemyHit(char *self, float *pos, float *a, float *b)
 
 #define SUBOF(o) (((SubHandle *)((o) + 0x15C))->p)
 
-extern int D_0063B894;
+/* the TU's one named .sdata object (after the two literals): the variation
+   number the next enemy takes, stepped by two modulo ten */
+static int enemyVariation = 0; /* derived name */
 
 /* static helper the listing places at enemy.c lines 281-290, expanded only into
  * InitEnemyGeo; never emitted out of line, so it has no MAIN.MAP symbol and this
@@ -513,9 +513,9 @@ void *InitEnemyGeo(char *self, char *param)
     *(int *)(w + 0x8) = kind;
     *(float *)(w + 0x50) = D_00624880[kind].c;
     InitMotionOrient(self, 0x84A, 0x967, 0x18, 0x24, 0x342);
-    no = D_0063B894;
+    no = enemyVariation;
     *(int *)(SUBOF(self) + 0x558) = no;
-    D_0063B894 = (no + 2) % 10;
+    enemyVariation = (no + 2) % 10;
     *(int *)(SUBOF(self) + 0x550) = 0;
     SetLodLevel(self, 2);
     return w;

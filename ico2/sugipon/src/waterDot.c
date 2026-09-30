@@ -9,14 +9,16 @@
 /* 0x30 */
 
 /* The per-emitter work AllocWaterDot mallocs (0x1C bytes) and registers in
- * waterDots[D_0063BC48++]. */
+ * waterDots[waterDotCount++]. */
 /* 0x1C */
 
 /* .bss, owned by waterDot.o (InitializeWaterDot clears five slots): the
    registered emitters. */
 static WaterDotWork *waterDots[5];
 
-extern int D_0063BC48; /* how many are registered */
+/* the TU's .sdata (MAIN.MAP names nothing in it): how many are registered */
+static int waterDotCount = 0; /* derived name */
+
 /* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
 extern void _AddVectorXYZ(VECTOR *dst, VECTOR *a, VECTOR *b);
 extern void setWaterDot(WaterDot *dot, VECTOR *pos, VECTOR *vel);
@@ -25,7 +27,7 @@ inline void InitializeWaterDot(void)
 {
     int i;
 
-    D_0063BC48 = 0;
+    waterDotCount = 0;
     for (i = 4; i >= 0; i--) {
         waterDots[i] = 0;
     }
@@ -65,8 +67,8 @@ WaterDotWork *AllocWaterDot(int gobj, int num, int num2)
 
     w->gobj = gobj;
 
-    waterDots[D_0063BC48] = w;
-    D_0063BC48++;
+    waterDots[waterDotCount] = w;
+    waterDotCount++;
 
     return w;
 }
@@ -153,7 +155,11 @@ void ExecWaterDot(WaterDotWork *w)
 }
 
 extern int matrixptr;
-extern int D_0063BC4C; /* the PRIM register value the splash packet draws with */
+
+/* the PRIM register value the splash packet draws with, the TU's second
+   .sdata word */
+static int waterDotPrim = 0x1C0; /* derived name */
+
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int a0);
 /* kept local: this TU's uses of gif_SetGsReg do not fit the prototype in GifPacket.h */
@@ -196,7 +202,7 @@ void DispWaterDot(WaterDotWork *w)
     gif_StartPacketPri(0xB);
 
     p = w->dot;
-    gif_SetGsReg(0, D_0063BC4C);
+    gif_SetGsReg(0, waterDotPrim);
     gif_SetZTest(1);
     gif_SetZWrite(0);
     gif_SetAlpha(1, 5, 0x80);

@@ -818,10 +818,6 @@ static BoxWork boxWorkInit = {
 /* the Y axis the side plane is built from */
 static float yAxis[4] = {0.0f, 1.0f, 0.0f, 0.0f};
 
-/* the largest float, 0x7F7FFFFF, in the TU's .sdata at VMA 0x63B738; the
-   declaration withholds its size so the load keeps the ROM's %hi/%lo */
-extern float D_0063B738[];
-
 /* box.c:595-600 in the listing: inlined once, into InitBoxGeo, so it is a
    static inline here; it has no symbol of its own in the ROM and no census
    row, and the name is ours.  A route array ends at the first point whose
@@ -849,7 +845,7 @@ int getNearestPosition(float *out, int *pidx, int *path)
     float pl[4];
     float foot[4];
     PathPt *pts = routeTable[path[0]];
-    float best = D_0063B738[0];
+    float best = 3.40282347e+38f;
     int bi = -1;
     int start;
     int end;
@@ -2229,12 +2225,12 @@ void ReInitBoxGeo(char *a0)
     UpdateRootMatrix(a0);
 }
 
-/* the "%d\n" format the route point count is printed with (sdata VMA
-   0x63B740), the box serial counter (sdata VMA 0x63B73C) and the empty
-   layout record the effect DObj is built from (sceneManager's data at VMA
-   0x4E45C0) */
-extern char D_0063B740[];
-extern unsigned char D_0063B73C;
+/* the box serial counter, the TU's one named .sdata object (after
+   getNearestPosition's FLT_MAX pool word, before InitBoxGeo's "%d\n"), and the
+   empty layout record the effect DObj is built from (sceneManager's data at
+   VMA 0x4E45C0) */
+static unsigned char boxSerial = 0; /* derived name */
+
 extern char D_004E45C0[];
 
 /* The 64-byte layout record InitBoxGeo is handed; the word at 0x30 packs the
@@ -2265,8 +2261,8 @@ char *InitBoxGeo(char *self, BoxLayout *lay)
 
     *(BoxWork *)w = boxWorkInit;
 
-    *(int *)w = D_0063B73C;
-    D_0063B73C = (D_0063B73C + 1) % 30;
+    *(int *)w = boxSerial;
+    boxSerial = (boxSerial + 1) % 30;
 
     ((IntFloat *)(w + 0x24))->f = lay->scale[0];
     ((IntFloat *)(w + 0x28))->f = lay->scale[2];
@@ -2294,7 +2290,7 @@ char *InitBoxGeo(char *self, BoxLayout *lay)
         onPath(self);
         initWheels(self, (float *)lay);
         execNormalMove(self, 1);
-        debug_StdPrintfDummy(D_0063B740, *(int *)(w + 0x5C));
+        debug_StdPrintfDummy("%d\n", *(int *)(w + 0x5C));
 
         if ((lay->kind & 0xFFFF0000) != 0) {
             BoxLayout r = *lay;

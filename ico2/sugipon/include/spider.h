@@ -12,6 +12,9 @@
 #ifndef SPIDER_H
 #define SPIDER_H
 
+extern int sgSelLine;
+extern int sgInfoLine;
+
 int CheckSpidersInsideOfReviveRange(int *out, char *gp, void *center);
 int DeadAllSpiders(char *gp);
 void DeleteAllSpidersOfLayoutGroup(char *gp);

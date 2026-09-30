@@ -15,6 +15,9 @@
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order boy.c's inline tail has. */
+struct LightLineExt;
+extern struct LightLineExt *llExtGeo;
+
 void SelectBoyCrown(char *a0, int a1);
 void LightLineGeo(void);
 void SetBoyStonizedVisual(char *a0);

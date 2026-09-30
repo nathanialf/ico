@@ -18,7 +18,9 @@ extern float VectorLength(void *v);
 extern float _GetRandom(void);
 extern void *D_0063A438;
 extern void *D_0063A44C;
-extern int D_0063BC80;
+
+/* the TU's one .sdata word (MAIN.MAP worm.o .sdata 0x4, no symbol) */
+static int wormFirst = 1; /* derived name */
 
 typedef union {
     int i;
@@ -508,9 +510,9 @@ void WormGeo(int act)
 {
     WormWork *w = *(WormWork **)((int)GOBJ_SUB(act) + 0x830);
 
-    if (D_0063BC80 != 0) {
+    if (wormFirst != 0) {
         ResetWormRoute(act, w);
-        D_0063BC80 = 0;
+        wormFirst = 0;
     }
 
     outerProcess(act);

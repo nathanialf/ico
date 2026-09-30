@@ -15,17 +15,99 @@
 
 struct MvObj;
 
-extern struct MvObj *D_0063BA08;
-extern int D_0063BA10;
+typedef struct MvMenuEnt {
+    char *name;   /* 0x00, csv window title */
+    int kind;     /* 0x04, isys object kind */
+    int motFirst; /* 0x08, first motion id of this object's block */
+    int motLast;  /* 0x0C */
+    int oriFrom;  /* 0x10, first motionOrient row */
+    int oriTo;    /* 0x14, one past the last motionOrient row */
+} MvMenuEnt;
+
+/* one row of the orient csv the viewer browses: name + the kind it selects */
+typedef struct OriRow {
+    char *name; /* 0x00 */
+    int kind;   /* 0x04 */
+} OriRow;
+
+typedef struct OriCsv {
+    int sel;
+    OriRow *rows;
+} OriCsv;
+
+/* The TU's .data opens with objMenu (MAIN.MAP motionViewer.o), the five objects
+   the viewer can target; its names are the first strings of the TU's .rodata. */
+MvMenuEnt objMenu[] = {
+    {"BoyMotion", 1, 0, 532, 0, 1283},           {"GirlMotion", 2, 532, 834, 1283, 2122},
+    {"Enemy1Motion", 4, 834, 983, 2122, 2407},   {"BirdMotion", 32, 1134, 1143, 2421, 2467},
+    {"QueenMotion", 47, 1072, 1134, 2407, 2421},
+};
+
+/* The TU's .sdata head, in ROM order (MAIN.MAP names nothing in it). */
+static int objSel = 0; /* derived name */
+
+static int motSel = 0; /* derived name */
+
+static OriCsv oriCsv = {0, 0}; /* derived name */
+
+static struct MvObj *viewObj = 0; /* derived name */
+
+static int blinkCount = 0; /* derived name */
+
+static int rootUpdateMode = 0; /* derived name */
+
+static float motionSpeed = 1.0f; /* derived name */
+
+extern MotionOrientEntry D_002ADD60[];
+extern char D_005D1278[][0x20];
+extern int D_0063A438;
+
+static inline int countMotionKinds(int id, int from, int to)
+{
+    int n = 0;
+    int i;
+
+    for (i = from; i < to; i++) {
+        if (D_002ADD60[i].id == id || D_002ADD60[i].id == 0x47A) {
+            n++;
+        }
+    }
+    return n;
+}
+
+static inline int makeMotionKindList(MvMenuEnt *ent, int base)
+{
+    OriRow *list;
+    int id = ent->motFirst + base, from = ent->oriFrom, to = ent->oriTo;
+    int n = countMotionKinds(id, from, to);
+    int i;
+    int k;
+
+    list = iosMallocDebug(D_0063A438, n * 8, __FILE__, 93);
+    if (n) {
+        k = 0;
+        for (i = from; i < to; i++) {
+            if (D_002ADD60[i].id == id || D_002ADD60[i].id == 0x47A) {
+                int kind = D_002ADD60[i].kind;
+
+                list[k].kind = kind;
+                list[k].name = D_005D1278[kind];
+                k++;
+            }
+        }
+    }
+    oriCsv.rows = list;
+    return n;
+}
 
 void setRootUpdateMode(void)
 {
-    SetRootUpdateMode(D_0063BA08, D_0063BA10);
+    SetRootUpdateMode(viewObj, rootUpdateMode);
 }
 
 void setMotionSpeed(float ratio)
 {
-    SetMotionPlaySpeedRatio(D_0063BA08, ratio);
+    SetMotionPlaySpeedRatio(viewObj, ratio);
 }
 
 /* dispProgressBar is defined as a nested function inside dispMotFrameProgress
@@ -52,8 +134,6 @@ typedef struct {
 } MotRec;
 
 extern MotRec D_0055FE58[];
-extern BarCol D_0063BA18[];
-extern BarCol D_0063BA20[];
 extern int ScreenWidth;
 extern int ScreenHeight;
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
@@ -110,8 +190,8 @@ void dispMotFrameProgress(int obj, float cur)
         gif_SetZWrite(1);
         gif_EndPacket();
     }
-    BarCol colA = D_0063BA18[0];
-    BarCol colB = D_0063BA20[0];
+    BarCol colA = {52, 84, 192, 128};
+    BarCol colB = {192, 84, 52, 128};
     float f1 = D_0055FE58[obj].frameA;
     float f2 = D_0055FE58[obj].frameB;
 
@@ -151,7 +231,7 @@ typedef struct MvSub {
 
     /* 0x380. Reconstruction: an enumerated type, not int. MotionViewer's
        gcse needs this store outside int's alias set so the in-block read of
-       D_0063BA5C stays available and the join's reload moves onto the skip
+       testMode stays available and the join's reload moves onto the skip
        edge; typed int, the ROM's one-load modulus block is unreachable
        (measured 0x814 against 0x810). Enumerator names are ours. */
     enum { TEST_OFF, TEST_PAD, TEST_RANDOM } testMode;
@@ -169,60 +249,50 @@ typedef struct MvObj {
     MvSub *sub; /* 0x15C */
 } MvObj;
 
-typedef struct MvMenuEnt {
-    char *name;   /* 0x00, csv window title */
-    int kind;     /* 0x04, isys object kind */
-    int motFirst; /* 0x08, first motion id of this object's block */
-    int motLast;  /* 0x0C */
-    int oriFrom;  /* 0x10, first motionOrient row */
-    int oriTo;    /* 0x14, one past the last motionOrient row */
-} MvMenuEnt;
-
-extern MvMenuEnt objMenu[];
-extern char D_00620718[];
 extern MvObj *D_00639EC0;
-extern int D_0063B9F8;
-extern int D_0063B9FC;
-extern float D_0063BA14;
-extern int D_0063BA24;
-extern char *D_0063BA28;
+
+static int lastObjSel = -1; /* derived name */
+
+static char *savedMotTbl = 0; /* derived name */
+
 /* kept local: this TU's uses of debug_SelectCsvWindow do not fit the prototype in debug.h */
 extern int debug_SelectCsvWindow(char *title, int a1, int a2, int a3, void *tbl, int stride, int a6,
                                  int a7, int count, int *cur);
 
 int objMenuProc(void)
 {
-    int ret = debug_SelectCsvWindow(D_00620718, 10, 0x32, 0xB, objMenu, 0x18, 0, 1, 5, &D_0063B9F8);
+    int ret =
+        debug_SelectCsvWindow("Motion Viewer", 10, 0x32, 0xB, objMenu, 0x18, 0, 1, 5, &objSel);
 
-    if (D_0063BA24 != D_0063B9F8) {
-        if (D_0063BA08) {
-            D_0063BA08->motTbl = D_0063BA28;
-            D_0063BA08->sub->select = 0;
+    if (lastObjSel != objSel) {
+        if (viewObj) {
+            viewObj->motTbl = savedMotTbl;
+            viewObj->sub->select = 0;
         }
-        D_0063BA08 = isysGObjSearchFromObjKindID_begin(objMenu[D_0063B9F8].kind);
-        if (objMenu[D_0063B9F8].kind == 4) {
-            for (; D_0063BA08 != 0; D_0063BA08 = isysGObjSearchFromObjKindID_next(D_0063BA08)) {
-                if (isEnemyActive(D_0063BA08)) {
+        viewObj = isysGObjSearchFromObjKindID_begin(objMenu[objSel].kind);
+        if (objMenu[objSel].kind == 4) {
+            for (; viewObj != 0; viewObj = isysGObjSearchFromObjKindID_next(viewObj)) {
+                if (isEnemyActive(viewObj)) {
                     break;
                 }
             }
         }
-        if (D_0063BA08) {
-            D_00639EC0 = D_0063BA08;
-            Camctrl_SetTarget(D_0063BA08, 0, 3);
-            D_0063BA28 = D_0063BA08->motTbl;
-            D_0063BA08->motTbl = 0;
-            SetParallelMotionTableWithNoRequest(D_0063BA08, 0, 0);
-            D_0063BA08->sub->select = 1;
+        if (viewObj) {
+            D_00639EC0 = viewObj;
+            Camctrl_SetTarget(viewObj, 0, 3);
+            savedMotTbl = viewObj->motTbl;
+            viewObj->motTbl = 0;
+            SetParallelMotionTableWithNoRequest(viewObj, 0, 0);
+            viewObj->sub->select = 1;
         }
-        D_0063BA24 = D_0063B9F8;
+        lastObjSel = objSel;
         CameraSetMode(2);
     }
     if (ret == 1) {
-        D_0063BA14 = 1.0f;
-        setMotionSpeed(D_0063BA14);
-        if (D_0063BA08 != 0) {
-            D_0063B9FC = 0;
+        motionSpeed = 1.0f;
+        setMotionSpeed(motionSpeed);
+        if (viewObj != 0) {
+            motSel = 0;
         } else {
             ret = 0;
         }
@@ -230,13 +300,13 @@ int objMenuProc(void)
     if (ret == -1) {
         D_00639EC0 = isysGObjSearchFromObjKindID_begin(1);
         Camctrl_SetTarget(D_00639EC0, 0, 3);
-        if (D_0063BA08) {
-            D_0063BA08->motTbl = D_0063BA28;
-            D_0063BA08->sub->select = 0;
+        if (viewObj) {
+            viewObj->motTbl = savedMotTbl;
+            viewObj->sub->select = 0;
         }
-        D_0063BA08 = 0;
-        D_0063BA28 = 0;
-        D_0063BA24 = ret;
+        viewObj = 0;
+        savedMotTbl = 0;
+        lastObjSel = ret;
         CameraSetMode(3);
     }
     return ret;
@@ -253,30 +323,10 @@ typedef struct MvPad {
 
 /* motionOrientManager's table row (same object as src/motionOrientManager.c) */
 
-/* one row of the orient csv the viewer browses: name + the kind it selects */
-typedef struct OriRow {
-    char *name; /* 0x00 */
-    int kind;   /* 0x04 */
-} OriRow;
-
-extern MotionOrientEntry D_002ADD60[];
 extern MvPad D_0028F8F0[];
 extern int D_004EB758[];
-extern char D_005D1278[][0x20];
-extern char D_00620700[];
-extern char D_00620728[];
-extern char D_00620748[];
-extern char D_00620760[];
-extern int D_0063A438;
 
-typedef struct OriCsv {
-    int sel;
-    OriRow *rows;
-} OriCsv;
-
-extern OriCsv D_0063BA00;
-extern int D_0063BA0C;
-extern int D_0063BA2C;
+static int lastMotSel = -1; /* derived name */
 
 /* MAIN.MAP line 7628 gives motionViewer.o a 4-byte .sbss and names no symbol in it,
  * so this object is a file static and the role name is ours: it is the number of
@@ -290,108 +340,66 @@ extern void debug_PrintfDummy(int x, int y, unsigned int color, const char *fmt,
 extern int debug_SelectCsvWindowWithLine(char *title, int a1, int a2, int a3, void *tbl, int stride,
                                          int a6, int a7, int count, int *cur, int a10);
 
-static inline int countMotionKinds(int id, int from, int to)
-{
-    int n = 0;
-    int i;
-
-    for (i = from; i < to; i++) {
-        if (D_002ADD60[i].id == id || D_002ADD60[i].id == 0x47A) {
-            n++;
-        }
-    }
-    return n;
-}
-
-static inline int makeMotionKindList(MvMenuEnt *ent, int base)
-{
-    OriRow *list;
-    int id = ent->motFirst + base, from = ent->oriFrom, to = ent->oriTo;
-    int n = countMotionKinds(id, from, to);
-    int i;
-    int k;
-
-    list = iosMallocDebug(D_0063A438, n * 8, D_00620700, 93);
-    if (n) {
-        k = 0;
-        for (i = from; i < to; i++) {
-            if (D_002ADD60[i].id == id || D_002ADD60[i].id == 0x47A) {
-                int kind = D_002ADD60[i].kind;
-
-                list[k].kind = kind;
-                list[k].name = D_005D1278[kind];
-                k++;
-            }
-        }
-    }
-    D_0063BA00.rows = list;
-    return n;
-}
-
 int motKindMenuProc(void)
 {
-    MvMenuEnt *ent = &objMenu[D_0063B9F8];
-    int mot = ForMotionViewer_GetCurrentMotion(D_0063BA08);
+    MvMenuEnt *ent = &objMenu[objSel];
+    int mot = ForMotionViewer_GetCurrentMotion(viewObj);
     float speed = GetMotionPlaySpeedRatio(mot);
     int ret;
     int base;
     int cur;
 
-    dispMotFrameProgress(mot, ForMotionViewer_GetCurrentAnimationFrame(D_0063BA08));
+    dispMotFrameProgress(mot, ForMotionViewer_GetCurrentAnimationFrame(viewObj));
     ret = debug_SelectCsvWindowWithLine(ent->name, 10, 0x46, 6, &D_0055FE58[ent->motFirst], 0x194,
-                                        0xC0, 0, ent->motLast - ent->motFirst, &D_0063B9FC, 0);
-    base = D_0063B9FC;
+                                        0xC0, 0, ent->motLast - ent->motFirst, &motSel, 0);
+    base = motSel;
     cur = base + ent->motFirst;
     if (D_0055FE58[cur].unk134 != 0 && D_0055FE58[cur].unk178 == 0x140 && D_004EB758[cur] == 0) {
         base = 0;
-        if (((D_0063BA0C >> 4) & 3) != 0) {
-            debug_PrintfDummy(10, 60, 0x4080FF00, D_00620728);
+        if (((blinkCount >> 4) & 3) != 0) {
+            debug_PrintfDummy(10, 60, 0x4080FF00, "NO MOTION IN THIS STAGE.");
         }
     } else {
-        debug_PrintfDummy(10, 50, 0xC0FFFF00, D_00620748,
-                          ForMotionViewer_GetCurrentAnimationFrame(D_0063BA08),
+        debug_PrintfDummy(10, 50, 0xC0FFFF00, "Frame : %1.1f/%d",
+                          ForMotionViewer_GetCurrentAnimationFrame(viewObj),
                           GetNbMotionFrames(mot) - 1);
-        debug_PrintfDummy(10, 60, 0x80FFFF00, D_00620760, speed,
-                          ForMotionViewer_GetCurrentAnimationFrame(D_0063BA08) / speed,
+        debug_PrintfDummy(10, 60, 0x80FFFF00, "x%1.3f: %1.1f/%d", speed,
+                          ForMotionViewer_GetCurrentAnimationFrame(viewObj) / speed,
                           (int)((GetNbMotionFrames(mot) - 1) / speed));
     }
-    if (D_0063B9FC != D_0063BA2C) {
-        DisableChangeRootUpdateMode(D_0063BA08);
-        DisableMotionOrientUpdate(D_0063BA08);
-        InitMotionOrient(D_0063BA08, base + ent->oriFrom, base + ent->oriTo, -1, -1,
+    if (motSel != lastMotSel) {
+        DisableChangeRootUpdateMode(viewObj);
+        DisableMotionOrientUpdate(viewObj);
+        InitMotionOrient(viewObj, base + ent->oriFrom, base + ent->oriTo, -1, -1,
                          base + ent->motFirst);
-        D_0063BA2C = D_0063B9FC;
+        lastMotSel = motSel;
     }
     if (D_0028F8F0[0].trg & 0x10) {
-        InitMotionOrient(D_0063BA08, base + ent->oriFrom, base + ent->oriTo, -1, -1,
+        InitMotionOrient(viewObj, base + ent->oriFrom, base + ent->oriTo, -1, -1,
                          base + ent->motFirst);
     }
     if (ret == 1) {
         motionKindCount = makeMotionKindList(ent, base);
-        D_0063BA00.sel = 0;
+        oriCsv.sel = 0;
     }
     if (ret == -1) {
-        InitMotionOrient(D_0063BA08, ent->oriFrom, ent->oriTo, -1, -1, ent->motFirst);
-        EnableMotionOrientUpdate(D_0063BA08);
-        EnableChangeRootUpdateMode(D_0063BA08);
-        D_0063BA2C = ret;
+        InitMotionOrient(viewObj, ent->oriFrom, ent->oriTo, -1, -1, ent->motFirst);
+        EnableMotionOrientUpdate(viewObj);
+        EnableChangeRootUpdateMode(viewObj);
+        lastMotSel = ret;
     }
     return ret;
 }
 
 extern char D_0055FF18[];
-extern char D_00620778[];
-extern char D_00620798[];
-extern char D_006207A8[];
-extern char D_006207D0[];
-extern char D_0063BA38[];
-extern int D_0063BA30;
+
+static int lastOriSel = -1; /* derived name */
 
 int motOriMenuProc(void)
 {
-    MvMenuEnt *ent = &objMenu[D_0063B9F8];
-    int cur = D_0063B9FC + ent->motFirst;
-    int mot = ForMotionViewer_GetCurrentMotion(D_0063BA08);
+    MvMenuEnt *ent = &objMenu[objSel];
+    int cur = motSel + ent->motFirst;
+    int mot = ForMotionViewer_GetCurrentMotion(viewObj);
     char buf[256];
     int ret;
     int now;
@@ -404,130 +412,124 @@ int motOriMenuProc(void)
      * a nested function, always inlined (it has no ROM slot of its own). */
     inline void initOrient(void)
     {
-        DisableMotionOrientUpdate(D_0063BA08);
-        InitMotionOrient(D_0063BA08, D_0063B9FC + ent->oriFrom, D_0063B9FC + ent->oriTo, -1, -1,
-                         D_0063B9FC + ent->motFirst);
+        DisableMotionOrientUpdate(viewObj);
+        InitMotionOrient(viewObj, motSel + ent->oriFrom, motSel + ent->oriTo, -1, -1,
+                         motSel + ent->motFirst);
     }
 
-    dispMotFrameProgress(mot, ForMotionViewer_GetCurrentAnimationFrame(D_0063BA08));
+    dispMotFrameProgress(mot, ForMotionViewer_GetCurrentAnimationFrame(viewObj));
     if (motionKindCount != 0) {
-        sprintf(buf, D_00620778, &D_0055FF18[cur * 404],
-                ForMotionViewer_GetCurrentAnimationFrame(D_0063BA08), GetNbMotionFrames(mot));
-        ret = debug_SelectCsvWindow(buf, 10, 50, 11, D_0063BA00.rows, 8, 0, 1, motionKindCount,
-                                    &D_0063BA00.sel);
-        if (D_0063BA00.sel != D_0063BA30) {
+        sprintf(buf, "ORIENT for \"%s\" Frame: %1.1f/%d", &D_0055FF18[cur * 404],
+                ForMotionViewer_GetCurrentAnimationFrame(viewObj), GetNbMotionFrames(mot));
+        ret = debug_SelectCsvWindow(buf, 10, 50, 11, oriCsv.rows, 8, 0, 1, motionKindCount,
+                                    &oriCsv.sel);
+        if (oriCsv.sel != lastOriSel) {
             initOrient();
         }
-        D_0063BA30 = D_0063BA00.sel;
+        lastOriSel = oriCsv.sel;
         m = cur;
-        now = ForMotionViewer_GetCurrentMotion(D_0063BA08);
+        now = ForMotionViewer_GetCurrentMotion(viewObj);
         for (i = 0; i < 10; i++) {
-            ori =
-                GetMotionOrient(ent->oriFrom, ent->oriTo, m, D_0063BA00.rows[D_0063BA00.sel].kind);
+            ori = GetMotionOrient(ent->oriFrom, ent->oriTo, m, oriCsv.rows[oriCsv.sel].kind);
             debug_PrintfDummy(430, i * 8 + 90, (i == 0 || m == 1145) ? 0x00FFFF00 : 0xFFFFFF00,
-                              D_0063BA38, m == now ? 62 : 32, &D_0055FF18[m * 404]);
+                              "%c %s", m == now ? 62 : 32, &D_0055FF18[m * 404]);
             if (m == 1145) {
                 break;
             }
             if (ori == 0) {
                 i++;
-                if (((D_0063BA0C >> 4) & 3) != 0) {
-                    debug_PrintfDummy(430, i * 8 + 90, 0xFF000000, D_00620798);
+                if (((blinkCount >> 4) & 3) != 0) {
+                    debug_PrintfDummy(430, i * 8 + 90, 0xFF000000, "  NO ORIENT.");
                 }
                 break;
             }
             m = ori->nextId;
         }
     } else {
-        debug_PrintfDummy(10, 50, 0xFF000000, D_006207A8, &D_0055FF18[cur * 404]);
+        debug_PrintfDummy(10, 50, 0xFF000000, "NO ORIENT for \"%s\"", &D_0055FF18[cur * 404]);
         ret = (D_0028F8F0[0].trg & 0x40) ? -1 : 0;
     }
     if (D_0028F8F0[0].trg & 0x10) {
         initOrient();
     }
     if (ret == 1) {
-        EnableMotionOrientUpdate(D_0063BA08);
-        SetMotionRequest(D_0063BA08, D_0063BA00.rows[D_0063BA00.sel].kind,
-                         *(MotOriReq *)D_0063BA08->sub->motionRequest);
+        EnableMotionOrientUpdate(viewObj);
+        SetMotionRequest(viewObj, oriCsv.rows[oriCsv.sel].kind,
+                         *(MotOriReq *)viewObj->sub->motionRequest);
     }
     if (ret == -1) {
-        if (D_0063BA00.rows != 0) {
-            iosFree(D_0063BA00.rows);
+        if (oriCsv.rows != 0) {
+            iosFree(oriCsv.rows);
         }
     }
     return ret;
 }
-
-extern char D_006207C0[];
-extern char D_0063BA40[];
-extern char D_0063BA48[];
-extern char D_0063BA50[];
 
 void modeMessage(void)
 {
     char buf[256];
     unsigned char rdata[32];
 
-    debug_PrintfDummy(470, 58, 0xFFFFFF00, D_006207C0);
-    switch (D_0063BA10) {
+    debug_PrintfDummy(470, 58, 0xFFFFFF00, " \202: Restart");
+    switch (rootUpdateMode) {
     case 0:
     default:
-        sprintf(buf, D_0063BA40);
+        sprintf(buf, "Depend");
         break;
     case 19:
-        sprintf(buf, D_0063BA48);
+        sprintf(buf, "RotOnly");
         break;
     }
-    debug_PrintfDummy(470, 66, 0xFFFFFF00, D_0063BA50, buf);
+    debug_PrintfDummy(470, 66, 0xFFFFFF00, " \203: %s", buf);
     /* The speed goes to the variadic call as a plain float: the default
        argument promotion is the compiler's own fptodp libcall, whose load of
        the float sits ahead of the lui of the format address as the ROM has
        it.  This replaced the approved pointer carrier `float *pf` (re-audit,
        completeness pass 57), with the whole object byte-identical; an
        explicit fptodp call on the plain global reverses the pair. */
-    debug_PrintfDummy(470, 74, 0xFFFFFF00, D_006207D0, D_0063BA14);
+    debug_PrintfDummy(470, 74, 0xFFFFFF00, "\206\207: x%1.2f", motionSpeed);
     if (D_0028F8F0[0].trg & 0x80) {
-        switch (D_0063BA10) {
+        switch (rootUpdateMode) {
         case 0:
         default:
-            D_0063BA10 = 19;
+            rootUpdateMode = 19;
             break;
         case 19:
-            D_0063BA10 = 0;
+            rootUpdateMode = 0;
             break;
         }
         setRootUpdateMode();
     }
     if (D_0028F8F0[0].rep & 0x8000) {
-        D_0063BA14 -= 0.01f;
-        if (D_0063BA14 < 0.0f) {
-            D_0063BA14 = 0.0f;
+        motionSpeed -= 0.01f;
+        if (motionSpeed < 0.0f) {
+            motionSpeed = 0.0f;
         }
-        setMotionSpeed(D_0063BA14);
+        setMotionSpeed(motionSpeed);
     }
     if (D_0028F8F0[0].rep & 0x2000) {
-        D_0063BA14 += 0.01f;
-        if (D_0063BA14 > 2.0f) {
-            D_0063BA14 = 2.0f;
+        motionSpeed += 0.01f;
+        if (motionSpeed > 2.0f) {
+            motionSpeed = 2.0f;
         }
-        setMotionSpeed(D_0063BA14);
+        setMotionSpeed(motionSpeed);
     }
     scePadRead(0, 0, rdata);
     if (D_0028F8F0[0].now & 0x8) {
-        D_0063BA14 = 1.0f - rdata[17] / 255.0f;
-        setMotionSpeed(D_0063BA14);
+        motionSpeed = 1.0f - rdata[17] / 255.0f;
+        setMotionSpeed(motionSpeed);
     }
     if (D_0028F8F0[0].now & 0x2) {
-        D_0063BA08->sub->speed = 1.0f - rdata[19] * 0.0078125f;
+        viewObj->sub->speed = 1.0f - rdata[19] * 0.0078125f;
     } else {
-        D_0063BA08->sub->speed = 1.0f;
+        viewObj->sub->speed = 1.0f;
     }
     if (D_0028F8F0[0].now & 0x8000) {
-        D_0063BA08->sub->rot = rdata[9] / 255.0f * 8192.0f;
+        viewObj->sub->rot = rdata[9] / 255.0f * 8192.0f;
     } else if (D_0028F8F0[0].now & 0x2000) {
-        D_0063BA08->sub->rot = rdata[8] / 255.0f * -8192.0f;
+        viewObj->sub->rot = rdata[8] / 255.0f * -8192.0f;
     } else {
-        D_0063BA08->sub->rot = 0;
+        viewObj->sub->rot = 0;
     }
 }
 
@@ -550,7 +552,7 @@ void lookAtTest(MvVec *pos, float rad, void *colAxis, void *colRing, short dy, s
     float cx = rad * GetTableCos(ang);
     int a;
 
-    GetRootPosition(pos, D_0063BA08);
+    GetRootPosition(pos, viewObj);
     gif_StartPacketPri(0xB);
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     MatrixDrive_TransMatrixV(pos);
@@ -615,25 +617,47 @@ void lookAtTest(MvVec *pos, float rad, void *colAxis, void *colRing, short dy, s
     gif_EndPacket();
 }
 
-extern MvCol D_004ECC70;
-extern MvCol D_004ECC80;
-extern MvCol D_004ECC90;
-extern const MvVec D_006207E0;
-extern const MvVec D_006207F0;
-extern char D_00620800[];
-extern char D_00620820[];
-extern char D_00620840[];
-extern char D_00620860[];
+/* The rest of the TU's .data: the test lines' colours, after objMenu. */
+static MvCol testAxisColor = {128, 192, 255, 128}; /* derived name */
+
+static MvCol testRingColor = {0, 64, 128, 128}; /* derived name */
+
+static MvCol focusColor = {0, 0, 0, 128}; /* derived name */
+
+/* The look-at and head test colours. They are integer colours that MotionViewer
+   copies into its vector locals whole; the ROM's copy reads them as a const
+   object of the vector type (its loads carry the read-only flag a const decl
+   gives, which a cast of the address does not), hence the union. */
+typedef union MvColVec {
+    MvCol c;
+    MvVec v;
+} MvColVec;
+
+static const MvColVec lookAxisColor = {{128, 64, 32, 128}}; /* derived name */
+
+static const MvColVec lookRingColor = {{64, 16, 0, 128}}; /* derived name */
+
 extern int D_0063B198;
-extern int D_0063BA58;
-extern int D_0063BA5C;
-extern int D_0063BA60;
-extern short D_0063BA64;
-extern short D_0063BA66;
-extern int D_0063BA68;
-extern int D_0063BA6C;
-extern int D_0063BA70;
-extern float D_0063BA74;
+
+/* The TU's .sdata tail: MotionViewer's state, in ROM order. */
+static int menuLevel = 0; /* derived name */
+
+static int testMode = 0; /* derived name */
+
+static int testCount = 0; /* derived name */
+
+static short testDy = 0; /* derived name */
+
+static short testAng = 0; /* derived name */
+
+static int lookMode = 0; /* derived name */
+
+static int headMode = 0; /* derived name */
+
+static int lookHeadStep = 0; /* derived name */
+
+static float lookRadius = 100.0f; /* derived name */
+
 extern char *matrixptr;
 extern void dispPlane(MvVec *plane, MvVec *pos);
 extern void sceVu0ApplyMatrix(MvVec *dst, void *m, MvVec *src);
@@ -660,7 +684,7 @@ int MotionViewer(void)
     int mode;
 
     D_0063B198 = 1;
-    switch (D_0063BA58) {
+    switch (menuLevel) {
     default:
     case 0:
         ret = objMenuProc();
@@ -677,7 +701,7 @@ int MotionViewer(void)
         break;
     }
 
-    if (D_0063BA08 != 0) {
+    if (viewObj != 0) {
         memset(&dir, 0, sizeof(dir));
         dir.x = (D_0028F8F0[1].stick[2] - 128) * 0.0078125f;
         dir.z = (128 - D_0028F8F0[1].stick[3]) * 0.0078125f;
@@ -685,164 +709,164 @@ int MotionViewer(void)
         sceVu0TransposeMatrix(m, matrixptr + 128);
         sceVu0ApplyMatrix(&dir, m, &v);
         if (FSqrt(sceVu0InnerProduct(&dir, &dir)) > 0.5f && (D_0028F8F0[1].now & 0x200) == 0) {
-            SetMotionDirection(D_0063BA08, &dir);
+            SetMotionDirection(viewObj, &dir);
         }
         gif_StartPacketPri(0xB);
         gif_SetAlpha(1, 5, 0x80);
         gif_SetZTest(1);
         gif_EndPacket();
 
-        GetRootPosition(&pos, D_0063BA08);
+        GetRootPosition(&pos, viewObj);
         q.v.x = 0.0f;
         q.v.y = -1.0f;
         q.v.z = 0.0f;
-        q.v.w = pos.y + D_0063BA08->sub->ground[5];
+        q.v.w = pos.y + viewObj->sub->ground[5];
         p = q.v;
         dispPlane(&p, &pos);
 
         if (D_0028F8F0[1].trg & 0x8) {
-            mode = D_0063BA5C + 1;
+            mode = testMode + 1;
             mode %= 3;
-            D_0063BA08->sub->testMode = D_0063BA5C = mode;
+            viewObj->sub->testMode = testMode = mode;
         }
-        mode = D_0063BA5C;
+        mode = testMode;
         switch (mode) {
         case 0:
             break;
 
         case 1:
-            lookAtTest(&p, 50.0f, &D_004ECC70, &D_004ECC80, (D_0028F8F0[1].stick[1] - 128) * 2.0f,
-                       -D_0028F8F0[1].stick[0] * 256);
-            CopyVector(D_0063BA08->sub->testAt, &p);
-            mode = D_0063BA5C;
+            lookAtTest(&p, 50.0f, &testAxisColor, &testRingColor,
+                       (D_0028F8F0[1].stick[1] - 128) * 2.0f, -D_0028F8F0[1].stick[0] * 256);
+            CopyVector(viewObj->sub->testAt, &p);
+            mode = testMode;
             break;
 
         case 2:
-            D_0063BA60++;
-            lookAtTest(&p, 50.0f, &D_004ECC70, &D_004ECC80, D_0063BA64, D_0063BA66);
-            if (D_0063BA60 > 100) {
-                D_0063BA64 = random_signed() * 256.0f;
-                D_0063BA66 = random_signed() * 32768.0f;
-                lookAtTest(&p, 50.0f, &D_004ECC70, &D_004ECC80, D_0063BA64, D_0063BA66);
-                CopyVector(D_0063BA08->sub->testAt, &p);
-                D_0063BA60 = 0;
+            testCount++;
+            lookAtTest(&p, 50.0f, &testAxisColor, &testRingColor, testDy, testAng);
+            if (testCount > 100) {
+                testDy = random_signed() * 256.0f;
+                testAng = random_signed() * 32768.0f;
+                lookAtTest(&p, 50.0f, &testAxisColor, &testRingColor, testDy, testAng);
+                CopyVector(viewObj->sub->testAt, &p);
+                testCount = 0;
             }
-            mode = D_0063BA5C;
+            mode = testMode;
             break;
         }
         if (mode != 0) {
             int n;
             gif_StartPacketPri(0xB);
-            n = GetSkeltonFocusNode(D_0063BA08, 0x23);
+            n = GetSkeltonFocusNode(viewObj, 0x23);
             sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-            DrawLineG(&p, &D_004ECC90, D_0063BA08->sub->nodes + n * 64 + 0x30, &D_004ECC80, 0);
+            DrawLineG(&p, &focusColor, viewObj->sub->nodes + n * 64 + 0x30, &testRingColor, 0);
             gif_EndPacket();
         }
 
-        p = D_006207E0;
-        q.v = D_006207F0;
+        p = lookAxisColor.v;
+        q.v = lookRingColor.v;
         memset(&col, 0, sizeof(col));
         col.a = 128;
         if (D_0028F8F0[1].now & 0x200) {
-            D_0063BA74 = D_0028F8F0[1].stick[2] * 100.0f / 255.0f;
+            lookRadius = D_0028F8F0[1].stick[2] * 100.0f / 255.0f;
         }
         if (D_0028F8F0[1].trg & 0x2) {
-            switch (D_0063BA70) {
+            switch (lookHeadStep) {
             default:
             case 0:
-                D_0063BA68 = 1;
-                D_0063BA70 = D_0063BA70 + 1;
-                D_0063BA6C = 0;
+                lookMode = 1;
+                lookHeadStep = lookHeadStep + 1;
+                headMode = 0;
                 break;
 
             case 1:
-                D_0063BA68 = 2;
-                D_0063BA70 = D_0063BA70 + 1;
-                D_0063BA6C = 0;
+                lookMode = 2;
+                lookHeadStep = lookHeadStep + 1;
+                headMode = 0;
                 break;
 
             case 2:
-                D_0063BA6C = 1;
-                D_0063BA70 = D_0063BA70 + 1;
-                D_0063BA68 = 0;
+                headMode = 1;
+                lookHeadStep = lookHeadStep + 1;
+                lookMode = 0;
                 break;
 
             case 3:
-                D_0063BA6C = 2;
-                D_0063BA70 = D_0063BA70 + 1;
-                D_0063BA68 = 0;
+                headMode = 2;
+                lookHeadStep = lookHeadStep + 1;
+                lookMode = 0;
                 break;
 
             case 4:
-                D_0063BA6C = 0;
-                D_0063BA68 = 0;
-                D_0063BA70 = 0;
+                headMode = 0;
+                lookMode = 0;
+                lookHeadStep = 0;
                 break;
             }
         }
-        D_0063BA08->sub->lookMode = D_0063BA68;
-        if (D_0063BA68 != 0) {
+        viewObj->sub->lookMode = lookMode;
+        if (lookMode != 0) {
             int n;
-            lookAtTest(&look, D_0063BA74, &p, &q.v, (D_0028F8F0[1].stick[1] - 128) * 2.0f,
+            lookAtTest(&look, lookRadius, &p, &q.v, (D_0028F8F0[1].stick[1] - 128) * 2.0f,
                        -D_0028F8F0[1].stick[0] * 256);
-            CopyVector(D_0063BA08->sub->lookAt, &look);
+            CopyVector(viewObj->sub->lookAt, &look);
             gif_StartPacketPri(0xB);
-            n = GetSkeltonFocusNode(D_0063BA08, 3);
+            n = GetSkeltonFocusNode(viewObj, 3);
             sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-            DrawLineG(&look, &col, D_0063BA08->sub->nodes + n * 64 + 0x30, &q.v, 0);
+            DrawLineG(&look, &col, viewObj->sub->nodes + n * 64 + 0x30, &q.v, 0);
             gif_EndPacket();
         }
-        D_0063BA08->sub->headMode = D_0063BA6C;
-        if (D_0063BA6C != 0) {
+        viewObj->sub->headMode = headMode;
+        if (headMode != 0) {
             int n;
-            lookAtTest(&head, D_0063BA74, &p, &q.v, (D_0028F8F0[1].stick[1] - 128) * 2.0f,
+            lookAtTest(&head, lookRadius, &p, &q.v, (D_0028F8F0[1].stick[1] - 128) * 2.0f,
                        -D_0028F8F0[1].stick[0] * 256);
-            CopyVector(D_0063BA08->sub->headAt, &head);
+            CopyVector(viewObj->sub->headAt, &head);
             gif_StartPacketPri(0xB);
-            n = GetSkeltonFocusNode(D_0063BA08, 0x13);
+            n = GetSkeltonFocusNode(viewObj, 0x13);
             sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-            DrawLineG(&head, &col, D_0063BA08->sub->nodes + n * 64 + 0x30, &q.v, 0);
+            DrawLineG(&head, &col, viewObj->sub->nodes + n * 64 + 0x30, &q.v, 0);
             gif_EndPacket();
         }
-        switch (D_0063BA68) {
+        switch (lookMode) {
         default:
             break;
 
         case 1:
-            debug_PrintfDummy(300, 180, 0xFFFFFF00, D_00620800);
+            debug_PrintfDummy(300, 180, 0xFFFFFF00, "Left: Target direct orient.");
             break;
 
         case 2:
-            debug_PrintfDummy(300, 180, 0xFFFFFF00, D_00620820);
+            debug_PrintfDummy(300, 180, 0xFFFFFF00, "Left: Target with motion.");
             break;
         }
-        switch (D_0063BA6C) {
+        switch (headMode) {
         default:
             break;
 
         case 1:
-            debug_PrintfDummy(300, 180, 0xFFFFFF00, D_00620840);
+            debug_PrintfDummy(300, 180, 0xFFFFFF00, "Right: Target direct orient.");
             break;
 
         case 2:
-            debug_PrintfDummy(300, 180, 0xFFFFFF00, D_00620860);
+            debug_PrintfDummy(300, 180, 0xFFFFFF00, "Right: Target with motion.");
             break;
         }
     }
     if (ret == -1) {
-        D_0063BA58 = D_0063BA58 - 1;
-        if (D_0063BA58 < 0) {
-            D_0063BA58 = 0;
+        menuLevel = menuLevel - 1;
+        if (menuLevel < 0) {
+            menuLevel = 0;
             D_0063B198 = 0;
             return -1;
         }
     }
     if (ret == 1) {
-        D_0063BA58 = D_0063BA58 + 1;
-        if (D_0063BA58 == 3) {
-            D_0063BA58 = D_0063BA58 - 1;
+        menuLevel = menuLevel + 1;
+        if (menuLevel == 3) {
+            menuLevel = menuLevel - 1;
         }
     }
-    D_0063BA0C = (D_0063BA0C + 1) & 0x7F;
+    blinkCount = (blinkCount + 1) & 0x7F;
     return 0;
 }

@@ -1,7 +1,10 @@
 #include "GobjProc.h"
 #include "way_sys.h"
 
-extern int D_0063BC50;
+/* the TU's one .sdata word (MAIN.MAP waySystemManager.o .sdata 0x4, no symbol):
+   the manager object */
+static int waySystemManagerGObj = 0; /* derived name */
+
 /* kept local: this TU's uses of actCreateSubThreadGOppArg do not fit the prototype in act.h */
 extern void *actCreateSubThreadGOppArg(void *entry, int arg);
 /* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
@@ -41,6 +44,6 @@ static inline void thStart(void)
 int CreateWaySystemManagerGObj(void)
 {
     int v = CreateGObjByFuncSet(0, 0, 0, 0, (int)&thStart, 0, 0);
-    D_0063BC50 = v;
+    waySystemManagerGObj = v;
     return v;
 }

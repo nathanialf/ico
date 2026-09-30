@@ -36,12 +36,15 @@ void falldownSE(int a0)
    retail link (8 bytes of fill after motionManager2's run) and MAIN.MAP. */
 static const int workRect[4] __attribute__((aligned(16))) = {-2048, -2048, 4096, 4096};
 
-extern int D_00639F28;
-extern char D_00639F30[];
+/* The TU's .sdata opens with the two work-area VRAM addresses (MAIN.MAP names
+   nothing in the run); the two colour constants after them are copyToWork's and
+   flushWork's anonymous initialisers. */
+static int workVram = 0; /* derived name */
+
+static int work1Vram = 0; /* derived name */
+
 extern int ScreenWidth;
 extern int ScreenHeight;
-extern int D_00639F2C;
-extern char D_00639F38[];
 /* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
 /* kept local: this TU's uses of gif_SetDrawEnviroment do not fit the prototype in GifPacket.h */
@@ -64,9 +67,9 @@ void copyToWork(int pri)
     int rect[4];
 
     tex_ResetVramPri();
-    D_00639F28 = tex_AllocVramAuto(0, 0x400);
+    workVram = tex_AllocVramAuto(0, 0x400);
     gif_SetGsReg(6, ((long long)(ScreenWidth / 64) << 14) | 0x664000800LL);
-    gif_SetDrawEnviroment(D_00639F28, 0, 0x100, 0x100, 0, 0);
+    gif_SetDrawEnviroment(workVram, 0, 0x100, 0x100, 0, 0);
     gif_SetZTest(0);
     gif_SetZWrite(0);
     gif_SetAlpha(0, 4, 0);
@@ -82,7 +85,7 @@ void copyToWork(int pri)
        passes sp+0x20 as the colour pointer, all inside a 0x40 frame. */
     {
         int uv[4] = {8, 8, ScreenWidth * 16, ScreenHeight * 16};
-        Blob4 col = *(Blob4 *)D_00639F30;
+        Blob4 col = {128, 128, 128, 128};
 
         gif_SpriteSensitiveOrg(rect, 0, uv, &col, 0);
     }
@@ -96,14 +99,14 @@ void flushWork(int pri)
     char buf[0x20];
 
     tex_ResetVramPri();
-    D_00639F28 = tex_AllocVramAuto(0, 0x400);
-    D_00639F2C = tex_AllocVramAuto(0, 0x400);
-    gif_SetDrawEnviroment(D_00639F28, 0, 0x100, 0x100, 0, 0);
+    workVram = tex_AllocVramAuto(0, 0x400);
+    work1Vram = tex_AllocVramAuto(0, 0x400);
+    gif_SetDrawEnviroment(workVram, 0, 0x100, 0x100, 0, 0);
     gif_SetZTest(0);
-    gif_SetGsReg(0x4E, 0x30000000 | (D_00639F2C / 32));
+    gif_SetGsReg(0x4E, 0x30000000 | (work1Vram / 32));
     gif_SetAlpha(0, 4, 0);
     *(Blob16 *)buf = *(Blob16 *)workRect;
-    *(Blob4 *)(buf + 0x10) = *(Blob4 *)D_00639F38;
+    *(Blob4 *)(buf + 0x10) = (Blob4){255, 255, 255, 128};
     gif_SpriteSensitiveOrg(buf, 0, 0, buf + 0x10, 0);
     gif_SetZTest(1);
 }
@@ -655,7 +658,7 @@ void dispPool(char *self)
 
     gif_StartPacketPri(4);
     copyToWork(4);
-    gif_SetGsReg(6, D_00639F28 | 0x20010000 | 0x600000000LL);
+    gif_SetGsReg(6, workVram | 0x20010000 | 0x600000000LL);
 
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
 
@@ -731,7 +734,7 @@ void dispPool(char *self)
     D_0063A07C = ScreenWidth;
     D_0063A080 = ScreenHeight;
 
-    gif_SetGsReg(6, D_00639F28 | 0x20010000 | 0x600000000LL);
+    gif_SetGsReg(6, workVram | 0x20010000 | 0x600000000LL);
 
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
 
@@ -953,7 +956,7 @@ void DispLimitedPoolReflactionMesh(int *a0)
 {
     gif_StartPacketPri(4);
     copyToWork(4);
-    gif_SetGsReg(6, D_00639F28 | 0x20010000 | 0x600000000LL);
+    gif_SetGsReg(6, workVram | 0x20010000 | 0x600000000LL);
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
     gif_SetGsReg(0x14, 0x60);
     gif_SetZWrite(0);

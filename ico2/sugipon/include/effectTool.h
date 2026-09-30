@@ -12,6 +12,8 @@
 #ifndef EFFECTTOOL_H
 #define EFFECTTOOL_H
 
+extern int targetMemo;
+
 int EditTarget(int id);
 void dispCircle2(float rad, short elev, int step);
 void dispEffectToolField(int idx);

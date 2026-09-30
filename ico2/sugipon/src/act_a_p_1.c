@@ -23,24 +23,21 @@ typedef struct AP1Vec {
 
 /* --- the TU's whole .data run, VMA 0x4E5A30..0x4E5A90 (0x60), in emission
    order.  The six AI mode names are eight bytes or fewer, so the compiler
-   puts them in .sdata, which this pass does not carve: they stay extern into
-   the .sdata blob.  The modes are stand, walk, jump, attack, dead, sleep. */
-extern char D_0063B6C8[]; /* "SL" */
-extern char D_0063B6D0[]; /* "DE" */
-extern char D_0063B6D8[]; /* "AT" */
-extern char D_0063B6E0[]; /* "JM" */
-extern char D_0063B6E8[]; /* "WA" */
-extern char D_0063B6F0[]; /* "ST" */
-extern char D_0063B700[]; /* "SLEEP" */
-extern char D_0063B708[]; /* "DEAD" */
-extern char D_0063B710[]; /* "ATTACK" */
-extern char D_0063B718[]; /* "JUMP" */
-extern char D_0063B720[]; /* "WALK" */
-extern char D_0063B728[]; /* "STAND" */
+   puts them (and GetAP1AIMode's "--") in the TU's .sdata run, in this order.
+   The modes are stand, walk, jump, attack, dead, sleep. */
 
 /* the two-letter tag GetAP1AIMode hands the debug display. */
-static char *ap1ModeTag[] = {D_0063B6F0, D_0063B6E8, D_0063B6E0,
-                             D_0063B6D8, D_0063B6D0, D_0063B6C8};
+static char *ap1ModeTag[] = {"ST", "WA", "JM", "AT", "DE", "SL"};
+
+inline char *GetAP1AIMode(char *self)
+{
+    char *p = *(char **)(self + 0x164);
+
+    if (p == 0 || *(unsigned int *)(p + 0x34) >= 6) {
+        return "--";
+    }
+    return ap1ModeTag[*(int *)(p + 0x34)];
+}
 
 /* the fixed hop walkAI asks for when it is boxed in: straight down and
    two units forward. */
@@ -55,8 +52,7 @@ int attackAI();
 static int (*ap1ModeAI[])() = {standAI, walkAI, jumpAI, attackAI, 0, 0};
 
 /* the spelled-out mode name hehehe() prints. */
-static char *ap1ModeName[] = {D_0063B728, D_0063B720, D_0063B718,
-                              D_0063B710, D_0063B708, D_0063B700};
+static char *ap1ModeName[] = {"STAND", "WALK", "JUMP", "ATTACK", "DEAD", "SLEEP"};
 
 /* .sbss and .bss, owned by act_a_p_1.o and reached only from this file
    (MAIN.MAP names no symbol in either run), each in the ROM's run order.
@@ -678,29 +674,17 @@ void SetAP1PriorLevel(char *self, int val)
     *(int *)(*(char **)(self + 0x164) + 0xAC) = val;
 }
 
-extern char D_0063B6F8[];
-
-char *GetAP1AIMode(char *self)
-{
-    char *p = *(char **)(self + 0x164);
-
-    if (p == 0 || *(unsigned int *)(p + 0x34) >= 6) {
-        return D_0063B6F8;
-    }
-    return ap1ModeTag[*(int *)(p + 0x34)];
-}
-
-int jumpAI(int a0)
+inline int jumpAI(int a0)
 {
     return AP1MotReq(a0, 0) ? 0 : -1;
 }
 
-int attackAI(int a0)
+inline int attackAI(int a0)
 {
     return AP1MotReq(a0, 0) ? 0 : -1;
 }
 
-void subAP1Control(int x)
+inline void subAP1Control(int x)
 {
     volatile int local = x;
 }

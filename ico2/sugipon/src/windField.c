@@ -5,7 +5,9 @@
 #include "tableSin.h"
 #include <libvu0.h>
 
-extern int D_0063BC54;
+/* the TU's .sdata (MAIN.MAP names nothing in it), in ROM order: the field mode,
+   the wind vector function and the fan blade angle */
+static int windFieldMode = -1; /* derived name */
 
 /* This TU's .data run (VMA 0x4ED350..0x4ED760) and its .bss run (VMA
    0x724BE0..0x7281F0) are one file-static block each. MAIN.MAP records no
@@ -32,15 +34,16 @@ static float windStrength[256];
 static WindCell windCell[20][20];
 
 extern WindCell *getRadiateWindVector(float *power, float *pos);
-extern int (*D_0063BC58)(void);
+
+static int (*windVectorFunc)(void) = (int (*)(void))dummyGetWindVector; /* derived name */
 
 void InitWindField(int mode, float str, void *center, void *dir)
 {
     int i;
     int j;
 
-    D_0063BC58 = (int (*)(void))dummyGetWindVector;
-    D_0063BC54 = mode;
+    windVectorFunc = (int (*)(void))dummyGetWindVector;
+    windFieldMode = mode;
 
     for (i = 255; i >= 0; i--) {
         windStrength[i] = str;
@@ -54,18 +57,18 @@ void InitWindField(int mode, float str, void *center, void *dir)
             }
         }
         CopyVector(windCenter, center);
-        D_0063BC58 = (int (*)(void))getRadiateWindVector;
+        windVectorFunc = (int (*)(void))getRadiateWindVector;
     } else {
         CopyVector(windCenter, center);
         sceVu0Normalize(windDir, dir);
         windDir[3] = 0.0f;
         CopyVector(windPlane, windDir);
         windPlane[3] = -sceVu0InnerProduct(windPlane, windCenter);
-        D_0063BC58 = (int (*)(void))getParallelWindVector;
+        windVectorFunc = (int (*)(void))getParallelWindVector;
     }
 }
 
-extern short D_0063BC5C;
+static short fanAngle = 0; /* derived name */
 
 /* RGBA of every line this TU draws, in the int-per-channel form DrawLineG
    takes; colour bytes stay hex. */
@@ -118,14 +121,14 @@ void drawSenpuukiHaneUnit(float scale)
     MatrixDrive_PopMatrix();
 
     MatrixDrive_TransMatrix(0.0f, 0.0f, 10.0f);
-    MatrixDrive_RotMatrixZ(D_0063BC5C);
+    MatrixDrive_RotMatrixZ(fanAngle);
 
     for (i = 0; i < 3; i++) {
         MatrixDrive_RotMatrixZ(21845);
         drawLinesInline((char *)haneLines);
     }
 
-    D_0063BC5C = (short)(D_0063BC5C + scale * 4864.0f);
+    fanAngle = (short)(fanAngle + scale * 4864.0f);
 }
 
 /* The motor housing: two 20 by 40 rectangles 20 apart in Y, joined at the
@@ -203,7 +206,7 @@ void ExecWindField(float str)
     for (i = 255; i != 0; i--) {
         windStrength[i] = windStrength[i - 1];
     }
-    if (D_0063BC54 == 0) {
+    if (windFieldMode == 0) {
         for (i = 0; i < 20; i++) {
             samplePos[2] = ((float)i - 10.0f) * 100.0f;
             for (j = 0; j < 20; j++) {
@@ -232,7 +235,7 @@ void ExecWindField(float str)
 
 int GetWindVector(void)
 {
-    return D_0063BC58();
+    return windVectorFunc();
 }
 
 int *dummyGetWindVector(int *a0)
@@ -278,7 +281,7 @@ WindCell *getRadiateWindVector(float *power, float *pos)
 
 void StopWindField(void)
 {
-    D_0063BC58 = (int (*)(void))dummyGetWindVector;
+    windVectorFunc = (int (*)(void))dummyGetWindVector;
 }
 
 void drawLines(char *a0)

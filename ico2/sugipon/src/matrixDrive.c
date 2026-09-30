@@ -34,7 +34,9 @@ typedef struct {
     Qw128 q;
 } MatDrive;
 
-extern int D_00639F00;
+/* the TU's one .sdata word (MAIN.MAP matrixDrive.o .sdata 0x4, no symbol): the
+   current depth of the matrix stack below */
+static int matrixStackIndex = 0; /* derived name */
 
 /* .bss, owned by matrixDrive.o and reached only from this file (MAIN.MAP names
    no symbol in the run; its matrixDrive.o .bss size 0x1000 is what fixes the
@@ -45,7 +47,7 @@ static char matrixStack[64 * 64];
 
 void InitMatrixDrive(void)
 {
-    D_00639F00 = 0;
+    matrixStackIndex = 0;
     sceVu0UnitMatrix(matrixStack);
     InitTableSin();
     InitQuaternionDrive();
@@ -56,8 +58,8 @@ extern void CopyMatrix(void *dst, void *src);
 
 void MatrixDrive_PushMatrix(void)
 {
-    D_00639F00 += 1;
-    CopyMatrix(&matrixStack[D_00639F00 * 0x40], &matrixStack[D_00639F00 * 0x40 - 0x40]);
+    matrixStackIndex += 1;
+    CopyMatrix(&matrixStack[matrixStackIndex * 0x40], &matrixStack[matrixStackIndex * 0x40 - 0x40]);
 }
 
 /* matrixDrive.o's .data run, in source order.  The six leading objects are
@@ -90,7 +92,7 @@ void MatrixDrive_RotMatrixX(short a0)
     rotXWorkMatrix[9] = -s;
     rotXWorkMatrix[6] = s;
     rotXWorkMatrix[5] = c;
-    sceVu0MulMatrix(&matrixStack[D_00639F00 * 0x40], &matrixStack[D_00639F00 * 0x40],
+    sceVu0MulMatrix(&matrixStack[matrixStackIndex * 0x40], &matrixStack[matrixStackIndex * 0x40],
                     (int)rotXWorkMatrix);
 }
 
@@ -106,7 +108,7 @@ void MatrixDrive_RotMatrixY(short a0)
     rotYWorkMatrix[8] = s;
     rotYWorkMatrix[2] = -s;
     rotYWorkMatrix[0] = c;
-    sceVu0MulMatrix(&matrixStack[D_00639F00 * 0x40], &matrixStack[D_00639F00 * 0x40],
+    sceVu0MulMatrix(&matrixStack[matrixStackIndex * 0x40], &matrixStack[matrixStackIndex * 0x40],
                     (int)rotYWorkMatrix);
 }
 
@@ -122,7 +124,7 @@ void MatrixDrive_RotMatrixZ(short a0)
     rotZWorkMatrix[4] = -s;
     rotZWorkMatrix[1] = s;
     rotZWorkMatrix[0] = c;
-    sceVu0MulMatrix(&matrixStack[D_00639F00 * 0x40], &matrixStack[D_00639F00 * 0x40],
+    sceVu0MulMatrix(&matrixStack[matrixStackIndex * 0x40], &matrixStack[matrixStackIndex * 0x40],
                     (int)rotZWorkMatrix);
 }
 
@@ -135,7 +137,7 @@ void MatrixDrive_ScaleMatrix(float x, float y, float z)
     scaleWorkMatrix[0] = x;
     scaleWorkMatrix[5] = y;
     scaleWorkMatrix[10] = z;
-    sceVu0MulMatrix(&matrixStack[D_00639F00 * 0x40], &matrixStack[D_00639F00 * 0x40],
+    sceVu0MulMatrix(&matrixStack[matrixStackIndex * 0x40], &matrixStack[matrixStackIndex * 0x40],
                     (int)scaleWorkMatrix);
 }
 
@@ -156,7 +158,8 @@ void MatrixDrive_TurnViewMatrix(float x, float y, float z)
                          {0.0f, 1.0f, 0.0f, 0.0f},
                          {s, 0.0f, c, 0.0f},
                          {0.0f, 0.0f, 0.0f, 1.0f}};
-        sceVu0MulMatrix(&matrixStack[D_00639F00 * 0x40], (int)m, &matrixStack[D_00639F00 * 0x40]);
+        sceVu0MulMatrix(&matrixStack[matrixStackIndex * 0x40], (int)m,
+                        &matrixStack[matrixStackIndex * 0x40]);
     }
     {
         float len = FSqrt(v0[0] * v0[0] + v0[2] * v0[2]);
@@ -165,28 +168,29 @@ void MatrixDrive_TurnViewMatrix(float x, float y, float z)
                          {0.0f, len, t, 0.0f},
                          {0.0f, -t, len, 0.0f},
                          {0.0f, 0.0f, 0.0f, 1.0f}};
-        sceVu0MulMatrix(&matrixStack[D_00639F00 * 0x40], (int)m, &matrixStack[D_00639F00 * 0x40]);
+        sceVu0MulMatrix(&matrixStack[matrixStackIndex * 0x40], (int)m,
+                        &matrixStack[matrixStackIndex * 0x40]);
     }
 }
 
 void MatrixDrive_PushMatrixWithNoCopy(void)
 {
-    D_00639F00 += 1;
+    matrixStackIndex += 1;
 }
 
 void MatrixDrive_PopMatrix(void)
 {
-    D_00639F00 -= 1;
+    matrixStackIndex -= 1;
 }
 
 void *MatrixDrive_GetMatrix(void)
 {
-    return &matrixStack[D_00639F00 * 0x40];
+    return &matrixStack[matrixStackIndex * 0x40];
 }
 
 void *MatrixDrive_GetLastMatrix(void)
 {
-    return &matrixStack[D_00639F00 * 0x40 - 0x40];
+    return &matrixStack[matrixStackIndex * 0x40 - 0x40];
 }
 
 /* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
@@ -195,9 +199,9 @@ extern void CopyVector(void *dst, void *src);
 void MatrixDrive_TransMatrixV(char *a0)
 {
     float buf[4];
-    sceVu0ApplyMatrix((int *)buf, &matrixStack[D_00639F00 * 0x40], (int)a0);
+    sceVu0ApplyMatrix((int *)buf, &matrixStack[matrixStackIndex * 0x40], (int)a0);
     buf[3] = 1.0f;
-    CopyVector(&matrixStack[D_00639F00 * 0x40 + 0x30], buf);
+    CopyVector(&matrixStack[matrixStackIndex * 0x40 + 0x30], buf);
 }
 
 void MatrixDrive_TransMatrix(float x, float y, float z)
@@ -209,9 +213,9 @@ void MatrixDrive_TransMatrix(float x, float y, float z)
     v[1] = y;
     v[2] = z;
     v[3] = 1.0f;
-    sceVu0ApplyMatrix((int *)m, &matrixStack[D_00639F00 * 0x40], (int)v);
+    sceVu0ApplyMatrix((int *)m, &matrixStack[matrixStackIndex * 0x40], (int)v);
     m[3] = 1.0f;
-    CopyVector(&matrixStack[D_00639F00 * 0x40 + 0x30], m);
+    CopyVector(&matrixStack[matrixStackIndex * 0x40 + 0x30], m);
 }
 
 /* INTERIM stand-in: MatrixDrive_GetTurnZAngleYX is `inline` in the 2001 source, so its

@@ -2,7 +2,11 @@
 #include "matrixDrive.h"
 
 extern int D_0063B234;
-extern int D_0063B898;
+
+/* the TU's one .sdata word (MAIN.MAP flyManager.o .sdata 0x4, no symbol): the
+   flying object the manager tracks */
+static int flyGObj = 0; /* derived name */
+
 extern int stage_no;
 
 typedef struct {
@@ -33,14 +37,14 @@ static inline int clipFlyFloor(char *work, void *pos)
     CopyVector(work, pos);
     CopyVector(work + 0x10, pos);
     *(float *)(work + 0x14) += 100000.0f;
-    ClipFloorByGObj(work, D_0063B898);
+    ClipFloorByGObj(work, flyGObj);
     return *(int *)(work + 0x94);
 }
 
 inline int InitFlyInfo(int *self)
 {
     int *p = (int *)self[0x57];
-    D_0063B898 = self;
+    flyGObj = self;
     p[0x1D] = 0;
     return 0;
 }
@@ -48,7 +52,7 @@ inline int InitFlyInfo(int *self)
 void DispFlyInfo(void)
 {
     int v0 = D_0063B234;
-    int a0 = D_0063B898;
+    int a0 = flyGObj;
     if (v0 == 0) {
         return;
     }
@@ -60,14 +64,14 @@ void DispFlyInfo(void)
 
 inline void InitFlyManager(void)
 {
-    D_0063B898 = 0;
+    flyGObj = 0;
 }
 
 inline int GetFlyLimitClearance(void *pos)
 {
     char work[0xC0];
 
-    if (D_0063B898 != 0) {
+    if (flyGObj != 0) {
         memset(work, 0, 0xC0);
         if (clipFlyFloor(work, pos) != 0) {
             return -getFloorLimitValue(*(int *)(work + 0x98));
@@ -80,7 +84,7 @@ inline int GetFlyLimitHeight(FlyLimitInfo *info, void *pos)
 {
     char work[0xC0];
 
-    if (D_0063B898 != 0) {
+    if (flyGObj != 0) {
         memset(work, 0, 0xC0);
         if (clipFlyFloor(work, pos) != 0) {
             info->floorY = *(float *)(work + 0x24);

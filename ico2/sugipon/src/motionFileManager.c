@@ -50,7 +50,8 @@ inline void ResetStatic2MotionManager(int a0)
    type only through alias sets (see relocMotionFile): the set of the header's
    first pointer field, not int's and not the facial table's void * entries;
    char * is our choice within that. */
-extern char *D_0063B8F0;
+static char *motionFileBase = 0; /* derived name */
+
 extern char D_0061FB60[];
 extern char D_0061FB80[];
 
@@ -75,20 +76,20 @@ void pursueNodeList(void **node, unsigned char *type)
             break;
         case 1:
         case 4:
-            *node = (void *)(D_0063B8F0 + ofs);
+            *node = (void *)(motionFileBase + ofs);
             break;
         case 2:
         case 5: {
-            int *q = (int *)(D_0063B8F0 + ofs);
-            int r = (int)(D_0063B8F0 + *q);
+            int *q = (int *)(motionFileBase + ofs);
+            int r = (int)(motionFileBase + *q);
             *node = (void *)q;
             *q = r;
         } break;
         case 3:
         case 6: {
-            NodeRec *q = (NodeRec *)(D_0063B8F0 + ofs);
-            q->f0 = (int)(D_0063B8F0 + q->f0);
-            q->f4 = (int)(D_0063B8F0 + q->f4);
+            NodeRec *q = (NodeRec *)(motionFileBase + ofs);
+            q->f0 = (int)(motionFileBase + q->f0);
+            q->f4 = (int)(motionFileBase + q->f4);
             *node = (void *)q;
         } break;
         }
@@ -134,10 +135,10 @@ static inline void relocFacialTable(FacialRec *p)
     int i;
 
     if (p->tbl != 0) {
-        p->tbl = (void **)(D_0063B8F0 + (int)p->tbl);
+        p->tbl = (void **)(motionFileBase + (int)p->tbl);
         for (i = 0; i < p->count; i++) {
             if (p->tbl[i] != 0) {
-                p->tbl[i] = (void *)(D_0063B8F0 + (int)p->tbl[i]);
+                p->tbl[i] = (void *)(motionFileBase + (int)p->tbl[i]);
             }
         }
     }
@@ -147,7 +148,7 @@ static inline void relocFacialTable(FacialRec *p)
  * InitMotionFile and nowhere else.  Each offset is read through the file's
  * word view (the one CheckMotionIncludeFacialData reads) and the pointer
  * written through the typed header.  The bytes pin that split, not its
- * spelling: the loads must sit in another alias set from D_0063B8F0 so
+ * spelling: the loads must sit in another alias set from motionFileBase so
  * sched2 can issue the top's store ahead of them, while the f4 store must
  * share its set so sched1 keeps the store ahead of it (the order local-alloc
  * reads to give f4 $a1), and the facial load and store must differ so the
@@ -162,7 +163,7 @@ static inline int relocMotionFile(MotFileHdr *self)
     self->nodeList = (void **)((char *)self + ((unsigned int *)self)[3]);
     FlushCache(0);
     if (CheckMotionIncludeFacialData((unsigned int *)self) == 0) {
-        self->facial = (FacialRec *)(D_0063B8F0 + ((unsigned int *)self)[4]);
+        self->facial = (FacialRec *)(motionFileBase + ((unsigned int *)self)[4]);
         relocFacialTable(self->facial);
     }
     pursueNodeList(self->nodeList, self->typeList);
@@ -172,7 +173,7 @@ static inline int relocMotionFile(MotFileHdr *self)
 /* listing rows sugipon/src/motionFileManager.c:147-148 */
 void InitMotionFile(void *buf, int a1)
 {
-    D_0063B8F0 = (char *)buf;
+    motionFileBase = (char *)buf;
     relocMotionFile((MotFileHdr *)buf);
 }
 

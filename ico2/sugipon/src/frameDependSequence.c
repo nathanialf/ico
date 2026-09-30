@@ -20,10 +20,24 @@ extern char D_0061F878[];
 extern char D_0061F798[];
 /* kept local: the declaration in s_init.h changes this TU codegen */
 extern int soundSeDefPlay(int se, unsigned int a1, int a2, int a3);
-extern char *D_0063B8AC;
-extern void *D_0063B8A4;
-extern float D_0063B8B0;
-extern int D_0063B8B4;
+
+/* The TU's .sdata (MAIN.MAP names nothing in it), in ROM order: the sequence
+   being run's flag block, work, layout record and motion record, its owner, the
+   SE volume rate and the SE group. */
+static void *fdsFlags = 0; /* derived name */
+
+static void *fdsWork = 0; /* derived name */
+
+static void *fdsLayout = 0; /* derived name */
+
+static void *fdsRecord = 0; /* derived name */
+
+static char *fdsGObj = 0; /* derived name */
+
+static float fdsVolume = 1.0f; /* derived name */
+
+static int fdsGroup = 0; /* derived name */
+
 extern char D_0061F740[];
 extern char D_0061F770[];
 extern int soundSeDefPlayWithVolumeRate(int se, unsigned int a1, int a2, int a3, float rate);
@@ -36,20 +50,20 @@ int playSE(int no)
     int ret;
 
     if (no != 0) {
-        if (((GObj *)D_0063B8AC)->f50 != 0) {
-            if (D_0063B8A4 != 0 && ((int *)D_0063B8A4)[0x1E8 / 4] != 0) {
-                debug_StdPrintfDummy(D_0061F740, D_0063B8AC);
+        if (((GObj *)fdsGObj)->f50 != 0) {
+            if (fdsLayout != 0 && ((int *)fdsLayout)[0x1E8 / 4] != 0) {
+                debug_StdPrintfDummy(D_0061F740, fdsGObj);
                 return 1;
             }
 
-            if (D_0063B8B0 > 0.95f) {
-                ret = soundSeDefPlay(no, D_0063B8B4, GOBJ_SUB(D_0063B8AC)->f_C + 0x30, 1);
+            if (fdsVolume > 0.95f) {
+                ret = soundSeDefPlay(no, fdsGroup, GOBJ_SUB(fdsGObj)->f_C + 0x30, 1);
             } else {
-                ret = soundSeDefPlayWithVolumeRate(no, D_0063B8B4, GOBJ_SUB(D_0063B8AC)->f_C + 0x30,
-                                                   1, D_0063B8B0);
+                ret = soundSeDefPlayWithVolumeRate(no, fdsGroup, GOBJ_SUB(fdsGObj)->f_C + 0x30, 1,
+                                                   fdsVolume);
             }
 
-            seMail((int)D_0063B8AC, no);
+            seMail((int)fdsGObj, no);
             if (ret == -2) {
                 if (D_0063B14C != 0) {
                     debug_StdPrintfDummy(D_0061F770, &D_005D6DB0[no]);
@@ -60,7 +74,7 @@ int playSE(int no)
                 return 1;
             }
             if (D_0063B14C != 0) {
-                debug_StdPrintfDummy(D_0061F798, &D_005D6DB0[no], D_0063B8B4);
+                debug_StdPrintfDummy(D_0061F798, &D_005D6DB0[no], fdsGroup);
             }
         }
     }
@@ -160,7 +174,7 @@ int playSEConditionID(int no, void *entry)
     if (D_00626F28[no].kind != -1) {
         p = &D_00626F28[no];
         do {
-            if (p->cond == -1 || fn(D_0063B8AC, p->cond) != 0) {
+            if (p->cond == -1 || fn(fdsGObj, p->cond) != 0) {
                 if (execSE(p->se, entry) != 0) {
                     return 1;
                 }
@@ -204,18 +218,18 @@ void playEff(int no)
     unsigned int flags;
 
     if (D_00626278[no].node == -1) {
-        GetRootQuaternion(q, D_0063B8AC);
-        GetRootMatrix(MatrixDrive_GetMatrix(), D_0063B8AC);
+        GetRootQuaternion(q, fdsGObj);
+        GetRootMatrix(MatrixDrive_GetMatrix(), fdsGObj);
     } else {
-        node = GetSkeltonFocusNode(D_0063B8AC, D_00626278[no].node);
+        node = GetSkeltonFocusNode(fdsGObj, D_00626278[no].node);
         if (no == -1) {
-            GetRootQuaternion(q, D_0063B8AC);
-            GetRootMatrix(MatrixDrive_GetMatrix(), D_0063B8AC);
+            GetRootQuaternion(q, fdsGObj);
+            GetRootMatrix(MatrixDrive_GetMatrix(), fdsGObj);
             debug_StdPrintfDummy(D_0061F810);
         } else {
-            GetRootQuaternion(q, D_0063B8AC);
+            GetRootQuaternion(q, fdsGObj);
             CopyMatrix(MatrixDrive_GetMatrix(),
-                       *(char **)((char *)GOBJ_SUB(D_0063B8AC) + 0xC) + (node << 6));
+                       *(char **)((char *)GOBJ_SUB(fdsGObj) + 0xC) + (node << 6));
         }
     }
     MatrixDrive_TransMatrix(-D_00626278[no].x, -D_00626278[no].y, -D_00626278[no].z);
@@ -229,7 +243,7 @@ void playEff(int no)
     p = &D_00626278[no];
     flags = p->flags;
     if ((flags >> 1) & 1) {
-        pos[1] = GOBJ_SUB(D_0063B8AC)->f_640;
+        pos[1] = GOBJ_SUB(fdsGObj)->f_640;
     }
     if (flags & 1) {
         EntryStageMultiBgaManager(D_00626278[no].eff, pos, q);
@@ -297,7 +311,7 @@ int execEff(int no, void *entry)
     if (D_00626010[j].kind != -1) {
         p = &D_00626010[j];
         do {
-            if (p->cond == -1 || fn(D_0063B8AC, p->cond) != 0) {
+            if (p->cond == -1 || fn(fdsGObj, p->cond) != 0) {
                 eff = p->actId;
                 goto call;
             }
@@ -314,7 +328,6 @@ done:
 extern void *D_00639EA0;
 extern int D_00639EB0;
 extern char D_0061F858[];
-extern void *D_0063B89C;
 /* kept local: the declaration in frameDependSequence.h changes this TU codegen */
 extern void StopFDSVibration(void *a0);
 
@@ -323,8 +336,8 @@ void execVibCondition(int no, int *entry)
     if (D_00639EA0 != 0) {
         debug_StdPrintfDummy(D_0061F858);
         if (D_00626010[no].kind != 0) {
-            if (D_0063B89C != 0) {
-                StopFDSVibration(D_0063B89C);
+            if (fdsFlags != 0) {
+                StopFDSVibration(fdsFlags);
             }
         } else {
             *entry = iosPadActRequest(D_00639EB0, D_00626010[no].actId);
@@ -355,8 +368,6 @@ typedef struct FDSFlags { /* 0x74 */
 } FDSFlags;
 
 extern char D_0055FE58[];
-extern void *D_0063B8A0;
-extern void *D_0063B8A8;
 /* kept local: the declaration in frameDependSequence.h changes this TU codegen */
 extern int execVib(int a0, void *a1);
 /* kept local: the declaration in frameDependSequence.h changes this TU codegen */
@@ -369,7 +380,7 @@ static inline void fireFDSSlot(float t, int no, void *entry, int *done, int (*fn
     if (t < 0.0f) {
         return;
     }
-    if (t < *(float *)((char *)D_0063B8A4 + 0x3C)) {
+    if (t < *(float *)((char *)fdsLayout + 0x3C)) {
         fn(no, entry);
         *done = 1;
     }
@@ -383,39 +394,38 @@ void ExecFrameDependSequence(void *gobj)
 
     w = (char *)GOBJ_SUB(gobj);
     p = w + 0x470;
-    D_0063B8AC = gobj;
-    D_0063B8A4 = p;
-    D_0063B8A0 = w + 0xA0;
-    D_0063B89C = w + 0x740;
-    D_0063B8A8 = D_0055FE58 + *(int *)(p + 0x30) * 0x194;
-    D_0063B8B0 = 1.0f;
+    fdsGObj = gobj;
+    fdsLayout = p;
+    fdsWork = w + 0xA0;
+    fdsFlags = w + 0x740;
+    fdsRecord = D_0055FE58 + *(int *)(p + 0x30) * 0x194;
+    fdsVolume = 1.0f;
 
     for (i = 0; i < 12; i++) {
-        if (((FDSFlags *)D_0063B89C)->seDone[i] == 0) {
-            fireFDSSlot(((FDSRecord *)D_0063B8A8)->se[i].t, ((FDSRecord *)D_0063B8A8)->se[i].no, 0,
-                        &((FDSFlags *)D_0063B89C)->seDone[i], execSE);
+        if (((FDSFlags *)fdsFlags)->seDone[i] == 0) {
+            fireFDSSlot(((FDSRecord *)fdsRecord)->se[i].t, ((FDSRecord *)fdsRecord)->se[i].no, 0,
+                        &((FDSFlags *)fdsFlags)->seDone[i], execSE);
         }
     }
     for (i = 0; i < 2; i++) {
-        if (((FDSFlags *)D_0063B89C)->vibDone[i] == 0) {
-            fireFDSSlot(((FDSRecord *)D_0063B8A8)->vib[i].t, ((FDSRecord *)D_0063B8A8)->vib[i].no,
-                        &((FDSFlags *)D_0063B89C)->vibEntry[i],
-                        &((FDSFlags *)D_0063B89C)->vibDone[i], execVib);
+        if (((FDSFlags *)fdsFlags)->vibDone[i] == 0) {
+            fireFDSSlot(((FDSRecord *)fdsRecord)->vib[i].t, ((FDSRecord *)fdsRecord)->vib[i].no,
+                        &((FDSFlags *)fdsFlags)->vibEntry[i], &((FDSFlags *)fdsFlags)->vibDone[i],
+                        execVib);
         }
     }
-    if (CheckFloorAttribute(D_0063B8AC, 0x40000) == 0) {
+    if (CheckFloorAttribute(fdsGObj, 0x40000) == 0) {
         for (i = 0; i < 12; i++) {
-            if (((FDSFlags *)D_0063B89C)->effDone[i] == 0) {
-                fireFDSSlot(((FDSRecord *)D_0063B8A8)->eff[i].t,
-                            ((FDSRecord *)D_0063B8A8)->eff[i].no, 0,
-                            &((FDSFlags *)D_0063B89C)->effDone[i], execEff);
+            if (((FDSFlags *)fdsFlags)->effDone[i] == 0) {
+                fireFDSSlot(((FDSRecord *)fdsRecord)->eff[i].t, ((FDSRecord *)fdsRecord)->eff[i].no,
+                            0, &((FDSFlags *)fdsFlags)->effDone[i], execEff);
             }
         }
     }
     if (GOBJ_SUB(gobj)->f_630 != 0) {
-        if (((FDSFlags *)D_0063B89C)->weaponDone == 0) {
-            fireFDSSlot(((FDSRecord *)D_0063B8A8)->weapon.t, 0, 0,
-                        &((FDSFlags *)D_0063B89C)->weaponDone, execWeaponLightOff);
+        if (((FDSFlags *)fdsFlags)->weaponDone == 0) {
+            fireFDSSlot(((FDSRecord *)fdsRecord)->weapon.t, 0, 0,
+                        &((FDSFlags *)fdsFlags)->weaponDone, execWeaponLightOff);
         }
     }
 }
@@ -458,22 +468,22 @@ static inline int setSEEnvironment(void *gobj, int id)
     int no;
 
     w = *(char **)((char *)gobj + 0x15C);
-    D_0063B8AC = gobj;
+    fdsGObj = gobj;
     if (w != 0) {
         no = *(int *)(w + 0x84);
         p = w + 0x470;
-        D_0063B8A0 = w + 0xA0;
-        D_0063B89C = w + 0x740;
-        D_0063B8A8 = D_0055FE58 + *(int *)(p + 0x30) * 0x194;
-        D_0063B8B4 = *(int *)(w + (id << 2) + 0x61C);
-        D_0063B8A4 = p;
+        fdsWork = w + 0xA0;
+        fdsFlags = w + 0x740;
+        fdsRecord = D_0055FE58 + *(int *)(p + 0x30) * 0x194;
+        fdsGroup = *(int *)(w + (id << 2) + 0x61C);
+        fdsLayout = p;
     } else {
         no = -1;
-        D_0063B8A4 = 0;
-        D_0063B8A0 = 0;
-        D_0063B89C = 0;
-        D_0063B8A8 = 0;
-        D_0063B8B4 = no;
+        fdsLayout = 0;
+        fdsWork = 0;
+        fdsFlags = 0;
+        fdsRecord = 0;
+        fdsGroup = no;
     }
     return no;
 }
@@ -512,7 +522,7 @@ extern void executeSEPackageWithNoGObj(int a0);
 
 void ExecuteSEPackageWithGroupVariation(void *a0, int a1, int a2)
 {
-    D_0063B8B0 = 1.0f;
+    fdsVolume = 1.0f;
     if (a0 != 0) {
         executeSEPackageByGObj(a0, a1, a2);
     } else {
@@ -533,7 +543,7 @@ extern void executeSEPackageByGObj();
 
 void ExecuteSEPackageWithVolumeRate(int a0, int a1, float f)
 {
-    D_0063B8B0 = f;
+    fdsVolume = f;
     executeSEPackageByGObj(a0, a1, 0);
 }
 
@@ -640,11 +650,11 @@ inline int execWeaponLightOff(void)
 {
     int *p;
     int *q;
-    p = (int *)((int *)D_0063B8AC)[0x15C / 4];
+    p = (int *)((int *)fdsGObj)[0x15C / 4];
     q = (int *)p[0x630 / 4];
     if (q != 0) {
         if (CheckWeaponKind(q) == 1) {
-            int *r = (int *)((int *)D_0063B8AC)[0x15C / 4];
+            int *r = (int *)((int *)fdsGObj)[0x15C / 4];
             LightTorchOffOfWeapon((int *)r[0x630 / 4]);
         }
     }

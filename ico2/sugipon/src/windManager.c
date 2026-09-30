@@ -16,14 +16,25 @@ typedef struct WindParam {
 } WindParam;
 
 extern WindParam D_005F5E1C[];
-extern int D_0063BC60;
-extern float D_0063BC64;
-extern float D_0063BC68;
-extern float D_0063BC6C;
-extern float D_0063BC70;
-extern float D_0063BC74;
-extern float D_0063BC78;
-extern int D_0063BC7C;
+
+/* The TU's .sdata (MAIN.MAP names nothing in it), in ROM order: the wind kind,
+   the base speed and its variance with their reciprocals, and the gust state. */
+static int windKind = -1; /* derived name */
+
+static float windSpeed = 0; /* derived name */
+
+static float windSpeedInv = 0; /* derived name */
+
+static float windVariance = 0; /* derived name */
+
+static float windVarianceInv = 0; /* derived name */
+
+static float gustAim = 0; /* derived name */
+
+static float gustSpeed = 0; /* derived name */
+
+static int gustTimer = 0; /* derived name */
+
 extern int D_0028F4C0[];
 /* kept local: this TU's uses of InitWindField do not fit the prototype in windField.h */
 extern void InitWindField(int a0, float *a1, float *a2, float a3);
@@ -39,12 +50,12 @@ inline void SetWindManager(float a, float b, float c, float d, float e, float f,
     float buf1[4] = {a, b, c, 1.0f};
     float buf2[4] = {d, e, f, 0.0f};
 
-    D_0063BC64 = g;
-    D_0063BC68 = 1.0f / g;
-    D_0063BC6C = h;
-    D_0063BC70 = 1.0f / h;
-    D_0063BC74 = g;
-    D_0063BC78 = g;
+    windSpeed = g;
+    windSpeedInv = 1.0f / g;
+    windVariance = h;
+    windVarianceInv = 1.0f / h;
+    gustAim = g;
+    gustSpeed = g;
     InitWindField(1, buf1, buf2, g);
 }
 
@@ -55,35 +66,35 @@ inline void InitWindManager(int no)
 
     SetWindManager(pos[0], pos[1], pos[2], dir[0], dir[1], dir[2], D_005F5E1C[no].speed,
                    D_005F5E1C[no].amp);
-    D_0063BC60 = no;
+    windKind = no;
 }
 
 void ExecWindManager(void)
 {
-    D_0063BC7C++;
-    if (D_0063BC7C >= 0x33) {
+    gustTimer++;
+    if (gustTimer >= 0x33) {
         float r = random_unit();
-        D_0063BC7C = 0;
-        D_0063BC74 = D_0063BC64 * ((r + r - 1.0f) * D_0063BC6C + 1.0f);
+        gustTimer = 0;
+        gustAim = windSpeed * ((r + r - 1.0f) * windVariance + 1.0f);
     }
-    D_0063BC78 = D_0063BC78 + (D_0063BC74 - D_0063BC78) * 0.1f;
-    ExecWindField(D_0063BC78);
+    gustSpeed = gustSpeed + (gustAim - gustSpeed) * 0.1f;
+    ExecWindField(gustSpeed);
 }
 
 inline float GetRegularizedWindSpeed(void *pos)
 {
     float s;
 
-    if (D_0063BC64 == 0.0f || D_0063BC6C == 0.0f) {
+    if (windSpeed == 0.0f || windVariance == 0.0f) {
         return 1.0f;
     }
     GetWindVector(&s, pos);
-    return (s / (60.0f / (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1])) * D_0063BC68 -
-            (1.0f - D_0063BC6C)) *
-           0.5f * D_0063BC70;
+    return (s / (60.0f / (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1])) * windSpeedInv -
+            (1.0f - windVariance)) *
+           0.5f * windVarianceInv;
 }
 
 inline void ReinitWindManager(void)
 {
-    InitWindManager(D_0063BC60);
+    InitWindManager(windKind);
 }

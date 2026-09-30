@@ -2,7 +2,9 @@
 #include "debug.h"
 #include "quaternion.h"
 
-extern int D_00639F3C;
+/* the TU's one .sdata word (MAIN.MAP quaternion.o .sdata 0x4, no symbol): the
+   current depth of the quaternion stack below */
+static int quatStackIndex = -1; /* derived name */
 
 /* .bss, owned by quaternion.o and reached only from this file (MAIN.MAP names
    no symbol in the run; its quaternion.o .bss size 0x400 fixes the length).
@@ -12,60 +14,60 @@ static int quatStack[64 * 4];
 
 void MultiCurrentQuaternion(void *a0)
 {
-    int *q = &quatStack[D_00639F3C * 4];
+    int *q = &quatStack[quatStackIndex * 4];
     MultiQuaternion(q, q, a0);
 }
 
 void InvertCurrentQuaternion(void)
 {
-    int *p = &quatStack[D_00639F3C * 4];
+    int *p = &quatStack[quatStackIndex * 4];
     GetInverseQuaternion(p, p);
 }
 
 void SetCurrentQuaternion(int a0)
 {
-    CopyQuaternion(&quatStack[D_00639F3C * 4], a0);
+    CopyQuaternion(&quatStack[quatStackIndex * 4], a0);
 }
 
 void RotCurrentQuaternionX(short a0)
 {
-    RotQuaternionX(&quatStack[D_00639F3C * 4], a0);
+    RotQuaternionX(&quatStack[quatStackIndex * 4], a0);
 }
 
 void RotCurrentQuaternionY(short a0)
 {
-    RotQuaternionY(&quatStack[D_00639F3C * 4], a0);
+    RotQuaternionY(&quatStack[quatStackIndex * 4], a0);
 }
 
 void RotCurrentQuaternionZ(short a0)
 {
-    RotQuaternionZ(&quatStack[D_00639F3C * 4], a0);
+    RotQuaternionZ(&quatStack[quatStackIndex * 4], a0);
 }
 
 void PushQuaternion(void)
 {
-    int v = D_00639F3C;
+    int v = quatStackIndex;
     if (v < 0) {
         debug_StdPrintfDummy("Quaternion stack not initialized.\n");
         InitQuaternionDrive();
-        v = D_00639F3C;
+        v = quatStackIndex;
     }
     v++;
-    D_00639F3C = v;
+    quatStackIndex = v;
     if (v >= 0x40) {
         debug_StdPrintfDummy("Quaternion stack overflow!!\n");
         v = 0x3F;
-        D_00639F3C = v;
+        quatStackIndex = v;
     }
     {
-        int idx = *(volatile int *)&D_00639F3C;
+        int idx = *(volatile int *)&quatStackIndex;
         CopyQuaternion(&quatStack[idx * 4], &quatStack[idx * 4 - 4]);
     }
 }
 
 void InitQuaternionDrive(void)
 {
-    D_00639F3C = 0;
+    quatStackIndex = 0;
     SetIdentityQuaternion(quatStack);
 }
 
@@ -286,37 +288,37 @@ void GetSlerpQuaternion(void *out, void *qa, void *qb, float t)
 
 inline int *GetCurrentQuaternion(void)
 {
-    return &quatStack[D_00639F3C * 4];
+    return &quatStack[quatStackIndex * 4];
 }
 
 inline int *GetLastQuaternion(void)
 {
-    return &quatStack[D_00639F3C * 4 - 4];
+    return &quatStack[quatStackIndex * 4 - 4];
 }
 
 inline void PushQuaternionWithNoCopy(void)
 {
-    int v = D_00639F3C;
+    int v = quatStackIndex;
     if (v < 0) {
         debug_StdPrintfDummy("Quaternion stack not initialized.\n");
         InitQuaternionDrive();
-        v = D_00639F3C;
+        v = quatStackIndex;
     }
     v++;
-    D_00639F3C = v;
+    quatStackIndex = v;
     if (v >= 0x40) {
         debug_StdPrintfDummy("Quaternion stack overflow!!\n");
         v = 0x3F;
-        D_00639F3C = v;
+        quatStackIndex = v;
     }
 }
 
 inline void PopQuaternion(void)
 {
-    D_00639F3C -= 1;
-    if (D_00639F3C < 0) {
+    quatStackIndex -= 1;
+    if (quatStackIndex < 0) {
         debug_StdPrintfDummy("Quaternion stack underflow!!\n");
-        D_00639F3C = 0;
+        quatStackIndex = 0;
     }
 }
 

@@ -246,8 +246,6 @@ void SetDirectRootPositionWithNodePoint(char *gobj, int node, float *pos, float 
     AdjustMotionHeightToNearestField(gobj);
 }
 
-extern char D_00639EF0[];
-extern char D_00639EF8[];
 extern void __assert(char *file, int line, char *expr);
 
 /* The 0x15C slot is the engine's sub-object HANDLE: the code stores an int and
@@ -291,9 +289,9 @@ void LocalizeGeometry(char *gobj, int *dobj)
         debug_assertMessage(
             "src/geometryManager.c", 371,
             "Fatal error! Geometry localize function called with GObj\n    that already have parent.\nExit...\n");
-        __assert("src/geometryManager.c", 371, D_00639EF0);
+        __assert("src/geometryManager.c", 371, "e");
         debug_assert("src/geometryManager.c", 372);
-        __assert("src/geometryManager.c", 372, D_00639EF8);
+        __assert("src/geometryManager.c", 372, "0");
     }
 
     *(float *)(m + 0xC) = 1.0f;
@@ -458,7 +456,9 @@ static int charGObjKinds[5] = {1, 2, 4, 47, -1};
    region exactly).  The live character objects the cylinder check walks. */
 static int charGObjList[64];
 
-extern int D_00639EFC;
+/* the TU's .sdata word after the two assert literals (MAIN.MAP names nothing
+   in the run): the number of entries in charGObjList */
+static int charGObjCount = 0; /* derived name */
 
 /* listing lines 540-547: the kind test the list builder runs on every live
    object; inlined at its single call site. */
@@ -481,19 +481,19 @@ void MakeCharGObjList(void)
     char *o;
 
     o = isysGObjGetExist_begin();
-    D_00639EFC = 0;
+    charGObjCount = 0;
     while (o != 0) {
         if (isCharGObj(o) != 0) {
-            charGObjList[D_00639EFC++] = (int)o;
-            if (D_00639EFC >= 0x41) {
+            charGObjList[charGObjCount++] = (int)o;
+            if (charGObjCount >= 0x41) {
                 debug_assertMessage("src/geometryManager.c", 558,
                                     "TOO MANY CHARACTERS EXIST ON THIS STAGE(>64)\n");
-                __assert("src/geometryManager.c", 558, D_00639EF0);
+                __assert("src/geometryManager.c", 558, "e");
             }
         }
         o = isysGObjGetExist_next(o);
     }
-    charGObjList[D_00639EFC] = 0;
+    charGObjList[charGObjCount] = 0;
 }
 
 /* kept local: VectorLengthSquare and _Sqrt return float, where the prototypes in
@@ -760,7 +760,7 @@ static __inline__ int CylinderCollisionWithControlDynamics_i(char *self, int gro
     }
     GetRootPosition_ic(pos, self);
     rr = r * r;
-    for (i = 0, o = (char *)charGObjList[0]; i < D_00639EFC; i++, o = (char *)charGObjList[i]) {
+    for (i = 0, o = (char *)charGObjList[0]; i < charGObjCount; i++, o = (char *)charGObjList[i]) {
         if (*(int *)(o + 0xC) != group)
             continue;
         if (o == self)
@@ -797,7 +797,7 @@ int CylinderCollisionWithControlDynamics(char *self, int group, int ctrl, float 
     }
     GetRootPosition_ic(pos, self);
     rr = r * r;
-    for (i = 0, o = (char *)charGObjList[0]; i < D_00639EFC; i++, o = (char *)charGObjList[i]) {
+    for (i = 0, o = (char *)charGObjList[0]; i < charGObjCount; i++, o = (char *)charGObjList[i]) {
         if (*(int *)(o + 0xC) != group)
             continue;
         if (o == self)

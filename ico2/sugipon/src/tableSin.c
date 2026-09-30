@@ -27,7 +27,9 @@ static float sinTable[16388];
 
 static unsigned short arcSinTable[4097];
 
-extern int D_00639F40;
+/* the TU's one .sdata word (MAIN.MAP tableSin.o .sdata 0x4, no symbol): set once
+   InitTableSin has built the two tables */
+static int tableSinReady = 0; /* derived name */
 
 static inline void makeSinTable(void)
 {
@@ -51,12 +53,12 @@ static inline void makeArcSinTable(void)
 
 inline void InitTableSin(void)
 {
-    if (D_00639F40 != 0) {
+    if (tableSinReady != 0) {
         return;
     }
     makeSinTable();
     makeArcSinTable();
-    D_00639F40 = 1;
+    tableSinReady = 1;
 }
 
 /* Shared by GetTableArcSin and GetTableArcCos (listing lines 63-69):
