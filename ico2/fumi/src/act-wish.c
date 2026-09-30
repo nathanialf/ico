@@ -29,7 +29,7 @@ typedef union {
 extern char *D_00639EA4;
 extern char *D_00639EA8;
 extern void *D_00639EA0;
-extern int CurrentTargetGObj;
+extern int optionControlType;
 extern int D_0028F4C0[];
 /* kept local: this TU's uses of ACTSearchGObj do not fit the prototype in boyact.h */
 extern void ACTSearchGObj(char *a0, float a1, int a2, int a3, char **a4, float *a5);
@@ -281,11 +281,11 @@ void ACTGetWish_FromPad(char *a0, float *a1)
         WISH(s + 0x488) |= 1ULL << 46;
     }
 
-    if (CurrentTargetGObj == 1 ? (*(int *)(s + 0x2E4) & 8) != 0 : (*(int *)(s + 0x2E0) & 8) != 0) {
+    if (optionControlType == 1 ? (*(int *)(s + 0x2E4) & 8) != 0 : (*(int *)(s + 0x2E0) & 8) != 0) {
         WISH(s + 0x488) |= 1ULL << 47;
     }
 
-    if (CurrentTargetGObj == 1 ? (*(int *)(s + 0x2E4) & 8) != 0 : (*(int *)(s + 0x2E0) & 8) == 0) {
+    if (optionControlType == 1 ? (*(int *)(s + 0x2E4) & 8) != 0 : (*(int *)(s + 0x2E0) & 8) == 0) {
         WISH(s + 0x488) |= 1ULL << 48;
     }
 

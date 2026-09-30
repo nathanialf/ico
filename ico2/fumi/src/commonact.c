@@ -3744,7 +3744,7 @@ void ACTSendMailCorrect(char *a0, int a1)
     iosOmSendMail(a0, a1, (int)a0);
 }
 
-extern int CurrentTargetGObj;
+extern int optionControlType;
 
 typedef struct {
     char _0[0x190];
@@ -3760,7 +3760,7 @@ void _ACTCommonMailTest(char *self, int a1, int a2, int a3)
 
     s = *(char **)(self + 0x164);
     if (self == D_00639EA4) {
-        if (CurrentTargetGObj == 1 ? (*(int *)(s + 0x2E4) & 8) != 0
+        if (optionControlType == 1 ? (*(int *)(s + 0x2E4) & 8) != 0
                                    : (*(int *)(s + 0x2E0) & 8) == 0) {
             handoff_heroin();
         }

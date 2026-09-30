@@ -117,8 +117,8 @@ extern char D_0063ACE0[];
 extern void WaitSema(int s);
 extern void DeleteSema(int s);
 extern void SignalSema(int s);
-extern int IosSndLock;
-extern int systemFault;
+extern int IosCdLock;
+extern int IosStgMgrLock;
 extern int fadeStatus;
 extern float fadeSpeed;
 extern int fadeContinue;
@@ -434,10 +434,10 @@ void StageManager(void)
 
     debug_StdPrintfDummy("stage manager() in\n");
     iosMsgQueueCreate(stageMgrMsgQ, &stageMgrMsgBuf, 1);
-    debug_StdPrintfDummy("IosCdLock %d\n", IosSndLock);
-    WaitSema(IosSndLock);
-    DeleteSema(IosSndLock);
-    SignalSema(systemFault);
+    debug_StdPrintfDummy("IosCdLock %d\n", IosCdLock);
+    WaitSema(IosCdLock);
+    DeleteSema(IosCdLock);
+    SignalSema(IosStgMgrLock);
     debug_StdPrintfDummy("STAGE MANAGER START\n");
     while (1) {
         iosMsgRecv(stageMgrMsgQ, &msg, 1);

@@ -32,8 +32,17 @@ int stageMgrMsg[6] = {0};
 
 int SchedulerMsgQ[12] = {0};
 
-extern int D_00639C80;
-extern int D_00639C94;
+/* main.c's own .sdata head, VMA 0x00639C80..0x00639CA8, in ROM order (the
+   string literals Main, boot and main print land between these as the
+   compiler meets them). NetLoadTARGET is MAIN.MAP's; the three counters are
+   file statics, names ours. */
+static int vsyncCount = 0; /* derived name: the scheduler's vsync count */
+
+char NetLoadTARGET[] = "host0:";
+
+static int frameReady = -1; /* derived name: Main's frame-done flag, -1 before the first frame */
+
+static int lastVsyncCount = 0; /* derived name: movie_abort_check's last seen vsyncCount */
 
 typedef struct {
     int *th[6];
@@ -78,10 +87,8 @@ static int schedulerMsgBuff[8]; /* derived name */
 /* Main, idle, scheduler and boot open the object at VMA 0x00101C80. The
    listing records all four in main.c (lines 1011 to 1502); splat had left
    them inside the libkernl run that precedes them. */
-extern char D_00639CA8[];
 extern char D_0054D6D8[];
 extern char D_0054D6E8[];
-extern int stage_no;
 /* kept local: this TU's uses of iosThreadCreate do not fit the prototype in thread.h, but the
  * stack size is that header's `long stackSize` and the ROM proves it: idle's first call passes
  * 0x1B000, and as an `int` the SImode large_int splitter in mips.md cuts it into lui and ori
@@ -98,10 +105,7 @@ void scheduler(void);
 extern char D_0054D650[];
 extern char D_0054D660[];
 extern char D_0054D688[];
-extern int D_00639C90;
-extern int D_00639CA4;
 extern int mpegPlay;
-extern int lock_execIcoMisc;
 extern int stageManagerFreeResourceFlag;
 extern int startStagePauseDisableTimer;
 extern int stgMgrWakeupRequest;
@@ -120,22 +124,11 @@ extern char D_0054D580[];
 extern char D_0054D590[];
 extern char D_0054D5A0[];
 extern char D_0054D5B8[];
-extern char D_00639C98[];
-extern char D_00639CA0[];
 extern char D_005D3CE8[];
-extern int NonLinearCameraMove;
-extern int exit_no;
-extern int interlace;
-extern int GlobalTimer;
-extern int gameover_flag;
-extern int thisIsYourStartStage;
-extern int IosCdLock;
-extern int systemFault;
 extern int mpegInitDone;
 extern int mpegPlayInitColor;
 extern int mpegPlayReturnStage;
 extern float mpegPlayFadeInSpeed;
-extern int graphics_ready;
 extern int D_0063A430;
 extern int D_0063A468;
 extern unsigned int D_0063B5F0;
@@ -148,7 +141,7 @@ extern void gsb_InitGSSystem(void);
 /* gsb_ResetSnap and gsb_TakeSnap return a value the callers drop, and the ROM
    proves it here: the load that follows each of the two calls takes $3, not
    $2, because local-alloc still has $2 live over the load's birth index for
-   the call's unused result (mpegPlay after gsb_ResetSnap, gameover_flag after
+   the call's unused result (mpegPlay after gsb_ResetSnap, systemFault after
    gsb_TakeSnap). Their definitions in ico2/seki/src/GsBase.c are empty, so the
    declaration is the only evidence; GsBase.o is byte-identical either way. */
 extern int gsb_ResetSnap(void);
@@ -183,7 +176,7 @@ void Main(void)
     int ret;
     int n;
 
-    debug_StdPrintfDummy(D_0054D520, systemStatus[0] == 0 ? D_00639C98 : D_00639CA0);
+    debug_StdPrintfDummy(D_0054D520, systemStatus[0] == 0 ? "NTSC" : "PAL");
     debug_StdPrintfDummy(D_0054D540, systemStatus[1]);
     debug_StdPrintfDummy(D_0054D560, (60 - systemStatus[0] * 10) / systemStatus[1]);
     *(volatile int *)0x10000000 = 0;
@@ -192,7 +185,7 @@ void Main(void)
     exit_no = 0;
     interlace = 1;
     GlobalTimer = 0;
-    gameover_flag = 0;
+    systemFault = 0;
     lock_execIcoMisc = 0;
     n = debug_TryToGetStartStage();
     thisIsYourStartStage = n < 106 ? n : 105;
@@ -203,12 +196,12 @@ void Main(void)
     InitDelayFree();
     debug_StdPrintfDummy(D_0054D580);
     debug_StdPrintfDummy(D_0054D580);
-    debug_StdPrintfDummy(D_0054D590, IosCdLock);
-    WaitSema(IosCdLock);
-    DeleteSema(IosCdLock);
-    debug_StdPrintfDummy(D_0054D5A0, systemFault);
-    WaitSema(systemFault);
-    DeleteSema(systemFault);
+    debug_StdPrintfDummy(D_0054D590, IosPadLock);
+    WaitSema(IosPadLock);
+    DeleteSema(IosPadLock);
+    debug_StdPrintfDummy(D_0054D5A0, IosStgMgrLock);
+    WaitSema(IosStgMgrLock);
+    DeleteSema(IosStgMgrLock);
     stgmgrForceSwitchWithFade(thisIsYourStartStage < 0 ? 1 : thisIsYourStartStage, 255.0f, 0.0f);
     iosThreadCancelWakeup(0);
     systemStatus[5] = 0;
@@ -262,8 +255,8 @@ void Main(void)
         iosOmCreateDL();
         ExecDelayFree();
         gsb_TakeSnap();
-        D_00639C90 = 1;
-        if (gameover_flag != 0) {
+        frameReady = 1;
+        if (systemFault != 0) {
             break;
         }
     }
@@ -323,6 +316,9 @@ void idle(void)
     }
 }
 
+static int frameStepCount =
+    0; /* derived name: vsyncs counted toward systemStatus[1], the frame step */
+
 void scheduler(void)
 {
     int msg[4];
@@ -334,12 +330,12 @@ void scheduler(void)
     while (1) {
         iosMsgRecv(SchedulerMsgQ, msg, 1);
         if (msg[0] == 2) {
-            D_00639C80++;
-            D_00639CA4++;
-            if (D_00639CA4 >= systemStatus[1] && stageManagerFreeResourceFlag == 0) {
-                if (D_00639C90 > 0) {
+            vsyncCount++;
+            frameStepCount++;
+            if (frameStepCount >= systemStatus[1] && stageManagerFreeResourceFlag == 0) {
+                if (frameReady > 0) {
                     if (mpegPlay != 0) {
-                        D_00639C90 = 0;
+                        frameReady = 0;
                         goto wake;
                     }
                     if (gsb_SyncGSSystem() != 0) {
@@ -350,20 +346,20 @@ void scheduler(void)
                     _PopVu0Registers();
                     if (systemStatus[5] != 0) {
                         if (iosCdvdDiskStatusGet() != 0) {
-                            D_00639C90 = 0;
+                            frameReady = 0;
                             goto wake;
                         }
                     }
                     lock_execIcoMisc++;
                 }
-                D_00639C90 = 0;
+                frameReady = 0;
             wake:
                 iosThreadCancelWakeup(mainThread);
                 startStagePauseDisableTimer++;
                 if (iosThreadWakeup(mainThread) < 0) {
                     debug_StdPrintfDummy(D_0054D660);
                 }
-                D_00639CA4 = 0;
+                frameStepCount = 0;
             }
         skip:
             iosThreadWakeup(soundThread);
@@ -385,7 +381,7 @@ void scheduler(void)
 
 void boot(void)
 {
-    debug_StdPrintfDummy(D_00639CA8);
+    debug_StdPrintfDummy("boot()\n");
     debug_StdPrintfDummy(D_0054D6D8);
     file_Init();
     debug_StdPrintfDummy(D_0054D6E8);
@@ -422,8 +418,8 @@ void Emergency_DestroyAllThread(void)
 int movie_abort_check(void)
 {
     int ret = 0;
-    if (D_00639C94 != D_00639C80) {
-        D_00639C94 = D_00639C80;
+    if (lastVsyncCount != vsyncCount) {
+        lastVsyncCount = vsyncCount;
         ExecKeyInput();
         ret = 0;
         ret = (pad[0].flags & 0x800) != ret;
@@ -432,8 +428,6 @@ int movie_abort_check(void)
 }
 
 void demoEnd(void) {}
-
-extern char D_00639CB0[]; /* the "main\n" banner the blob already holds at 0x00639CB0 */
 
 /* main.c's own small-bss cell at 0x0063C108, the boot thread id. It has to be a
    DEFINITION in this TU rather than an extern off the sbss run base: gas emits a
@@ -444,10 +438,113 @@ static int bootThreadId;
 
 int main(void)
 {
-    debug_StdPrintfDummy(D_00639CB0);
-    debug_StdPrintfDummy(D_00639CB0);
+    debug_StdPrintfDummy("main\n");
+    debug_StdPrintfDummy("main\n");
     ChangeThreadPriority(GetThreadId(), 14);
     bootThreadId = GetThreadId();
     boot();
     return 0;
 }
+
+/* main.c's globals, VMA 0x00639CC0..0x00639EE0 in .sdata, in ROM order. They
+   follow main's literal in the section, so they are defined here, after main.
+   MAIN.MAP lists 38 of them. The PAL build adds six (marked derived), and its
+   layout is the January map's shifted by one inserted quadword after game_pause
+   and by the girl-control block before boyGObj; the ROM pins each placement by
+   its accessors and the strings the lock words are printed with ("IosPadLock %d"
+   in Main, "IosCdLock %d" in StageManager, "IosSndLock %d" in sndManager,
+   "IosstgMgrLock %d" in Main). Each word is a 4-byte scalar (every $gp access
+   is lw, sw or lwc1). The ones marked QWORD open a 16-byte quadword of their
+   own: the ROM leaves the rest of that quadword empty, which only an
+   alignment of 16 on the object produces. */
+#define QWORD __attribute__((aligned(16)))
+
+int buffer_ID QWORD = 0;
+
+int odd_even QWORD = 0;
+
+int frame_count QWORD = 0;
+
+char *matrixptr QWORD = 0;
+
+int debugMoveMode QWORD = 0;
+
+int stage_no QWORD = 0;
+
+int before_stage_no QWORD = 0;
+
+int exit_no QWORD = 0;
+
+int motionFrameUpdate QWORD = 0;
+
+int interlace QWORD = 0;
+
+int thisIsYourStartStage QWORD = 0;
+
+int NonLinearCameraMove QWORD = 0;
+
+int GlobalTimer QWORD = 0;
+
+int lock_execIcoMisc QWORD = 0;
+
+int graphics_ready QWORD = 0;
+
+int game_pause QWORD = 0;
+
+int data_loading QWORD = 0;
+
+static int reservedWord QWORD =
+    0; /* derived name: the PAL build's inserted, unreferenced quadword */
+
+int screen_offset_x QWORD = 0;
+
+int screen_offset_y QWORD = 0;
+
+int fall_death_active QWORD = 0;
+
+int title_fading_out QWORD = 0;
+
+int collis_flg_stock QWORD = 0;
+
+int IosPadLock QWORD = 0;
+
+int IosCdLock QWORD = 0;
+
+int IosSndLock QWORD = 0;
+
+int IosStgMgrLock QWORD = 0;
+
+int systemFault QWORD = 0;
+
+int optionControlType QWORD =
+    0; /* derived name: the 0/1 game option that selects the pad word +0x2E0 or +0x2E4 the actions read */
+
+int optionScreenMode QWORD =
+    0; /* derived name: the five-way game option GsBase indexes its per-mode tint and blur rows with */
+
+int girlControlMode QWORD =
+    0; /* derived name: ChangeGirlControlMode's flag, the game option that hands the girl to pad 2 */
+
+GObj *boyGObj = 0;
+
+GObj *girlGObj = 0;
+
+int boyPad = 0;
+
+int girlPad = 0; /* derived name: the girl's pad word, girl_act's +0x2D8, boyPad's twin */
+
+int gameover_flag = 0;
+
+int gameover_layout_flag = 0;
+
+int itemWatchOff = 0; /* derived name: ACTItemWatchMotion runs for the boy only while it is 0 */
+
+GObj *CurrentTargetGObj = 0;
+
+GObj *CurrentTargetGObjSub QWORD = 0;
+
+int current_stage_no = 0;
+
+void (*system_stage_func)(void) = 0;
+
+int InterStageSwitchLock = 0;

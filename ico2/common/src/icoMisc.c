@@ -230,7 +230,7 @@ extern int D_0063B150;
 extern int graphics_ready;
 extern int kanbanCommonRead;
 extern int stage_no;
-extern int title_fading_out;
+extern int fall_death_active;
 extern float D_0063A64C;
 extern float D_0063AA0C;
 extern char *D_00639EA4;
@@ -343,7 +343,7 @@ void ExecIcoMisc(void)
         fightSoundProcess();
     }
     eBrainProcess();
-    if (title_fading_out != 0) {
+    if (fall_death_active != 0) {
         if (D_00639EA4 != 0) {
             if (*(float *)(*(char **)(D_00639EA4 + 0x15C) + 0x55C) > 1000.0f) {
                 lt_switch_layout(62);

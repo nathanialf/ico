@@ -183,7 +183,7 @@ typedef struct {
 extern McSaveRec D_0029B5F0[];
 extern char D_0029BC00[];
 extern int D_0063A538;
-extern int CurrentTargetGObj;
+extern int optionControlType;
 extern int D_0028F4C0[];
 extern int NonLinearCameraMove;
 
@@ -192,7 +192,7 @@ inline int product_write(int *self)
     (D_0029B5F0 + self[2])->soundMode = D_0028F4C0[11];
     (D_0029B5F0 + self[2])->outputMode = soundOutputModeGet();
     (D_0029B5F0 + self[2])->unk198 = D_0063A538;
-    (D_0029B5F0 + self[2])->gobj = CurrentTargetGObj;
+    (D_0029B5F0 + self[2])->gobj = optionControlType;
     (D_0029B5F0 + self[2])->cameraMove = NonLinearCameraMove;
     (D_0029B5F0 + self[2])->unk1EC = D_0028F4C0[0];
     *(McBlk *)(D_0029B5F0 + self[2])->blk = *(McBlk *)D_0029BC00;
@@ -207,13 +207,13 @@ inline int product_read(int *self)
     return self[0x10 / 4];
 }
 
-extern int CurrentTargetGObjSub;
+extern int optionScreenMode;
 extern int D_00639EA0;
 
 inline int gameblock_write(int self, void *buf)
 {
     iosMcHandlerWrite(self, buf, 0x63F4);
-    iosMcHandlerWrite(self, &CurrentTargetGObjSub, 4);
+    iosMcHandlerWrite(self, &optionScreenMode, 4);
     iosMcHandlerWrite(self, &D_00639EA0, 4);
     return 0;
 }
@@ -226,9 +226,9 @@ inline int gameblock_read(int *self, void *buf)
     D_0028F4EC[0] = (D_0029B5F0 + self[2])->soundMode;
     soundOutputModeSet((D_0029B5F0 + self[2])->outputMode);
     D_0063A538 = (D_0029B5F0 + self[2])->unk198;
-    CurrentTargetGObj = (D_0029B5F0 + self[2])->gobj;
+    optionControlType = (D_0029B5F0 + self[2])->gobj;
     *(McBlk *)D_0029BC00 = *(McBlk *)(D_0029B5F0 + self[2])->blk;
-    iosMcHandlerRead((int)self, (int)&CurrentTargetGObjSub, 4);
+    iosMcHandlerRead((int)self, (int)&optionScreenMode, 4);
     iosMcHandlerRead((int)self, (int)&D_00639EA0, 4);
     return self[4];
 }

@@ -48,13 +48,13 @@ static SemaParam sndLockSemaParam;
 
 static SemaParam stgMgrLockSemaParam;
 
+extern int IosPadLock;
 extern int IosCdLock;
-extern int IosSndLock;
-extern int systemFault;
 extern int IosStgMgrLock;
+extern int IosSndLock;
 extern int D_00639ED8;
+extern int screen_offset_x;
 extern int screen_offset_y;
-extern int fall_death_active;
 /* kept local: this TU's uses of InitKeyInput do not fit the prototype in keyInput.h */
 extern void InitKeyInput();
 extern void SgSndn2RemoteInit(void);
@@ -64,19 +64,19 @@ void ios_init_plus(void)
     cdLockSemaParam.attr = 1;
     cdLockSemaParam.initCount = 1;
     cdLockSemaParam.maxCount = 0;
-    IosCdLock = CreateSema(&cdLockSemaParam);
+    IosPadLock = CreateSema(&cdLockSemaParam);
     sndLockSemaParam.attr = 1;
     sndLockSemaParam.initCount = 1;
     sndLockSemaParam.maxCount = 0;
-    IosSndLock = CreateSema(&sndLockSemaParam);
+    IosCdLock = CreateSema(&sndLockSemaParam);
     faultSemaParam.attr = 1;
     faultSemaParam.initCount = 1;
     faultSemaParam.maxCount = 0;
-    systemFault = CreateSema(&faultSemaParam);
+    IosStgMgrLock = CreateSema(&faultSemaParam);
     stgMgrLockSemaParam.attr = 1;
     stgMgrLockSemaParam.initCount = 1;
     stgMgrLockSemaParam.maxCount = 0;
-    IosStgMgrLock = CreateSema(&stgMgrLockSemaParam);
+    IosSndLock = CreateSema(&stgMgrLockSemaParam);
     D_00639ED8 = 0;
     InitKeyInput(0);
     debug_StdPrintfDummy("SgSndn2RemoteInit()\n");
@@ -85,8 +85,8 @@ void ios_init_plus(void)
     debug_StdPrintfDummy("allocate IOP heap memory - \n");
     soundAllocIopHeap();
     soundInit();
+    screen_offset_x = 0;
     screen_offset_y = 0;
-    fall_death_active = 0;
 }
 
 extern char D_0063A3E8[];

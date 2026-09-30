@@ -96,7 +96,7 @@ void actTitleCamera2(volatile int a0)
 extern PadState D_0028F8F0[];
 extern int D_0028F4C0[];
 extern int D_0063AA00;
-extern int CurrentTargetGObjSub;
+extern int optionScreenMode;
 extern int D_00639EA0;
 extern int D_0063AA08;
 extern int D_0063B4D0;
@@ -160,7 +160,7 @@ void actOpDemo01(volatile int a0)
     _ACTWait(1);
 
     D_0063AA00 = 0;
-    CurrentTargetGObjSub = 0;
+    optionScreenMode = 0;
     D_00639EA0 = 0;
     stgmgrNextStagePreLoadForceStageSet(0);
 

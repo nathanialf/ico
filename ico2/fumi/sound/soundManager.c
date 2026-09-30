@@ -20,7 +20,7 @@ extern StgPre D_005F5D50[];
 extern void soundReverbDepthSet(int a0);
 /* kept local: this TU's uses of soundSeKindBuild do not fit the prototype in s_init.h */
 extern void soundSeKindBuild(int idx);
-extern int IosStgMgrLock;
+extern int IosSndLock;
 extern int mpegPlay;
 /* kept local: this TU's uses of iosThreadCancelWakeup do not fit the prototype in thread.h */
 extern void iosThreadCancelWakeup(int mode);
@@ -41,7 +41,7 @@ inline void sndManager(void)
 
     mode = -1;
     debug_StdPrintfDummy("sound manager in\n");
-    debug_StdPrintfDummy("IosSndLock %d\n", IosStgMgrLock);
+    debug_StdPrintfDummy("IosSndLock %d\n", IosSndLock);
     debug_StdPrintfDummy("SOUND MANAGER START\n");
     while (1) {
         iosThreadCancelWakeup(0);

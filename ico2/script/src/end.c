@@ -1789,7 +1789,7 @@ void actEndDemo14Chk(volatile int a0)
 
 extern int D_0029B9D0[];
 extern int D_0063B60C;
-extern int CurrentTargetGObjSub;
+extern int optionScreenMode;
 
 void actEndingSave(volatile int a0)
 {
@@ -1816,6 +1816,6 @@ void actEndingSave(volatile int a0)
         _ACTWait(1);
     }
 
-    CurrentTargetGObjSub = 0;
+    optionScreenMode = 0;
     RequestStageChange(1, D_00639EA4, 0, 255.0f, 8.0f);
 }

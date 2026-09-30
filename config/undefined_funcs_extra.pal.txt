@@ -35,3 +35,18 @@ D_0028F948 = pad + 0x58;
 D_0028F94C = pad + 0x5C;
 D_0028F954 = pad + 0x64;
 D_0028FE70 = stageMgrMsg;
+
+/* TRANSITIONAL (finishing pass P1-3b): the .sdata words main.c now defines under their names,
+ * still spelled as blob placeholders by the consumer TUs until they take main.h (phase P3). */
+D_00639EA0 = girlControlMode;
+D_00639EA4 = boyGObj;
+D_00639EA8 = girlGObj;
+D_00639EAC = boyPad;
+D_00639EB0 = girlPad;
+D_00639EB4 = gameover_flag;
+D_00639EB8 = gameover_layout_flag;
+D_00639EBC = itemWatchOff;
+D_00639EC0 = CurrentTargetGObj;
+D_00639ED0 = CurrentTargetGObjSub;
+D_00639ED4 = current_stage_no;
+D_00639ED8 = system_stage_func;

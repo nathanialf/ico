@@ -109,7 +109,7 @@ static int reductionGreen;
 static int reductionBlue;
 
 extern int fbKeep;
-extern int CurrentTargetGObjSub;
+extern int optionScreenMode;
 extern char D_0054E300[];
 extern StageSetting D_0028F720;
 extern GsbPad D_0028F8F0[];
@@ -183,12 +183,12 @@ void gsb_Reduction(void)
     *(volatile int *)0x1000A000 = 0x101;
     sceGsSyncPath(0, 0);
     if (D_0028F8F0[0].trg & 0x20) {
-        debug_StdPrintfDummy(D_0054E300, CurrentTargetGObjSub);
+        debug_StdPrintfDummy(D_0054E300, optionScreenMode);
     }
-    if (CurrentTargetGObjSub) {
-        reductionRed = fbKeep ? 128 : D_0028F720.targetCol[CurrentTargetGObjSub - 1][0];
-        reductionGreen = fbKeep ? 128 : D_0028F720.targetCol[CurrentTargetGObjSub - 1][1];
-        reductionBlue = fbKeep ? 128 : D_0028F720.targetCol[CurrentTargetGObjSub - 1][2];
+    if (optionScreenMode) {
+        reductionRed = fbKeep ? 128 : D_0028F720.targetCol[optionScreenMode - 1][0];
+        reductionGreen = fbKeep ? 128 : D_0028F720.targetCol[optionScreenMode - 1][1];
+        reductionBlue = fbKeep ? 128 : D_0028F720.targetCol[optionScreenMode - 1][2];
     } else {
         reductionRed = fbKeep ? 128 : D_0028F720.reductionCol[0];
         reductionGreen = fbKeep ? 128 : D_0028F720.reductionCol[1];
@@ -376,12 +376,12 @@ clear:
     fadeStatus = 0;
 }
 
-extern int CurrentTargetGObjSub;
+extern int optionScreenMode;
 extern StageSetting D_0028F720;
 
 void gsb_SetMotionBlur(void)
 {
-    int i = CurrentTargetGObjSub;
+    int i = optionScreenMode;
 
     if (i == 0) {
         SetMotionBlur(D_0028F720.motionBlur);
@@ -552,12 +552,12 @@ void gsb_antiAlias(void)
     GsbRect d2 = D_0054E360;
     int lv[2];
 
-    if (CurrentTargetGObjSub == 0) {
+    if (optionScreenMode == 0) {
         lv[0] = D_0028F720.f0FC;
         lv[1] = D_0028F720.f100;
     } else {
-        lv[0] = D_0028F720.f19C[CurrentTargetGObjSub].a;
-        lv[1] = D_0028F720.f19C[CurrentTargetGObjSub].b;
+        lv[0] = D_0028F720.f19C[optionScreenMode].a;
+        lv[1] = D_0028F720.f19C[optionScreenMode].b;
     }
     if (lv[0] == 0 && lv[1] == 0) {
         return;
@@ -783,7 +783,7 @@ void gsb_filmNoise(void)
     gif_SetGsReg(0x49, 0);
     gif_SetGsReg(0x42, 0x44);
     gif_SetGsReg(0, 0x56);
-    gif_SetGsReg(1, ((long long)D_0028F720.targetCol[CurrentTargetGObjSub - 1][3] << 24) |
+    gif_SetGsReg(1, ((long long)D_0028F720.targetCol[optionScreenMode - 1][3] << 24) |
                         0x3F80000000808080LL);
     gif_SetGsReg(2, 0);
     gif_SetGsReg(5, 0xFFFFFFFF70007000LL);
@@ -836,7 +836,7 @@ int gsb_PostEffect(void)
     fog_DrawFog();
     MotionBlur();
     gsb_antiAlias();
-    if (D_0063AA00 > 0 && CurrentTargetGObjSub != 0) {
+    if (D_0063AA00 > 0 && optionScreenMode != 0) {
         gsb_filmNoise();
     }
     gsb_controlBrightness();
@@ -855,8 +855,8 @@ int gsb_PostEffect(void)
 }
 
 extern int D_00639FDC;
-extern int fall_death_active;
 extern int screen_offset_y;
+extern int screen_offset_x;
 extern int D_0063A074;
 extern int D_0063A078;
 extern int D_00639F84;
@@ -874,8 +874,8 @@ extern void dl_Init(void);
 
 void gsb_InitGSSystem(void)
 {
-    fall_death_active = 0;
     screen_offset_y = 0;
+    screen_offset_x = 0;
     if (D_00639FDC != 0) {
         sceGsResetPath();
         sceVpu0Reset();
@@ -943,8 +943,8 @@ void gsb_UpdateGSSystem(int keep)
     } else {
         draw = D_0028F4F0 + 0x60;
     }
-    sceGsSetHalfOffset(draw, (short)((float)screen_offset_y + 2048.0f),
-                       (short)((float)fall_death_active + 2048.0f), odd_even == 0);
+    sceGsSetHalfOffset(draw, (short)((float)screen_offset_x + 2048.0f),
+                       (short)((float)screen_offset_y + 2048.0f), odd_even == 0);
     tex_ResetVram();
     if (keep == 0) {
         dl_Swap();
@@ -986,8 +986,8 @@ void gsb_ResetGSSystem(void)
     } else {
         draw = D_0028F4F0 + 0x60;
     }
-    sceGsSetHalfOffset(draw, (short)((float)screen_offset_y + 2048.0f),
-                       (short)((float)fall_death_active + 2048.0f), odd_even == 0);
+    sceGsSetHalfOffset(draw, (short)((float)screen_offset_x + 2048.0f),
+                       (short)((float)screen_offset_y + 2048.0f), odd_even == 0);
     tex_ResetVram();
     dl_Swap();
     gsb_SetGsDefault();
@@ -1767,12 +1767,12 @@ inline void gsb_ResetFilmNoise(void)
     int i;
     for (i = 0; i < 5; i++) {
         if (D_0054E3C0[i] != -1) {
-            if (i == CurrentTargetGObjSub) {
+            if (i == optionScreenMode) {
                 stage_SetLoopFlag(D_0054E3C0[i], 1);
-                debug_StdPrintfDummy(D_0054E3D8, CurrentTargetGObjSub);
+                debug_StdPrintfDummy(D_0054E3D8, optionScreenMode);
             } else {
                 stage_SetLoopFlag(D_0054E3C0[i], 0);
-                debug_StdPrintfDummy(D_0054E3F0, CurrentTargetGObjSub);
+                debug_StdPrintfDummy(D_0054E3F0, optionScreenMode);
             }
         }
     }

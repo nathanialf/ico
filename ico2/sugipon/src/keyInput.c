@@ -21,7 +21,7 @@ extern Pad D_0028F8F0[];
 /* the pad device descriptor InitKeyInput hands to iosPadDevInit */
 static int keyInputPadDev[6] = {7, 2, 0, 0, 0, 0};
 
-extern int IosCdLock;
+extern int IosPadLock;
 /* kept local: this TU's uses of iosPadDevInit do not fit the prototype in pad.h */
 extern void iosPadDevInit(void *a0);
 
@@ -44,7 +44,7 @@ void InitKeyInput(void)
     }
     debug_StdPrintfDummy("InitKeyInput2() out\n");
     debug_StdPrintfDummy("signal to main\n");
-    SignalSema(IosCdLock);
+    SignalSema(IosPadLock);
 }
 
 typedef struct PadBuf {

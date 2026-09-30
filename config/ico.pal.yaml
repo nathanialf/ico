@@ -1218,7 +1218,8 @@ segments:
       - [0x539B18, .lit4, ico2/script/src/stageSEProc]  # carved D_00639B18..D_00639C40 (75 words: 20 slots beside the still-asm stageSE04eriver/06ariver/10lstrong2/19ataki, the rest literals in the C owners), VMA 0x639B18..0x639C44, 300 B; MAIN.MAP stageSEProc.o .lit4 is 0x138 (different link; PAL ELF is authoritative).  USA: no .lit4 carve for this TU.
       - [0x539C44, .lit4, ico2/common/src/PObj]  # the TU's whole pool (completeness pass 65; MAIN.MAP line 6917), 16 B
       - [0x539C54, lit4, cod/539C54]     # .lit4 blob resume (zero pad up to .sdata)
-      - [0x539C80, sdata, cod/539C80]    # .sdata
+      - [0x539C80, .sdata, ico2/common/src/main]  # the TU's whole .sdata run as source (finishing pass P1-3b), VMA 0x639C80..0x639EE0, 0x260 B (MAIN.MAP main.o .sdata 0x220 in the January link): three static counters and NetLoadTARGET, the literals of Main, boot and main, then 48 globals defined after main (38 MAIN.MAP names, 6 derived), the quadword-aligned ones by their ROM placement; global per the map except the counters and one unreferenced word
+      - [0x539EE0, sdata, cod/539EE0]    # .sdata blob resume: delayFreeManager's two words and literals, geometryManager, matrixDrive, up to motionManager2
       - [0x539F10, .sdata, ico2/sugipon/src/motionManager2]  # the TU's two anonymous assert literals (10 B), VMA 0x639F10..0x639F1A; named small objects stay blocked by -fdata-sections
       - [0x539F1C, sdata, cod/539F1C]     # .sdata blob resume
       - [0x53A188, .sdata, ico2/seki/src/Shadow]  # the TU's "On"/"Off" literals as source (completeness pass 65; narrow: the "S" word before it stays in the blob), 12 B

@@ -849,7 +849,7 @@ void iosCdvdUnifileInfoGet(void)
 
 extern unsigned char CdvdMsgQ[];
 extern int CdvdMsgQ_LoadEnd[];
-extern int IosSndLock;
+extern int IosCdLock;
 extern int D_0063A3B8;
 extern void sceFsReset(void);
 /* kept local: this TU does not include thread.h, whose iosThreadStart and
@@ -896,7 +896,7 @@ void iosCdvdManager(void)
 
     iosCdvdUnifileInfoGet();
 
-    SignalSema(IosSndLock);
+    SignalSema(IosCdLock);
 
     while (1) {
         while (iosMsgRecv(CdvdMsgQ, &msg, 0) == -1) {

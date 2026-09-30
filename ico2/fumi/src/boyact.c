@@ -960,7 +960,7 @@ typedef struct {
 extern PadConf iosPadConfCustom;
 extern int D_00639EAC;
 extern void *D_00639EC0;
-extern void *CurrentTargetGObj;
+extern void *optionControlType;
 extern int D_0063ABA0;
 extern int D_0063ABA4;
 extern int D_0063B1E8;
@@ -1525,7 +1525,7 @@ void subBoyControl(volatile int a0)
             } else {
                 ACTSendMailCorrect(a0, 0x150);
             }
-            if ((CurrentTargetGObj == (void *)1 ? *(int *)(s + 0x2E4) : *(int *)(s + 0x2E0)) & 8) {
+            if ((optionControlType == (void *)1 ? *(int *)(s + 0x2E4) : *(int *)(s + 0x2E0)) & 8) {
                 ACTSendMailCorrect(a0, 0x42);
             }
 #ifdef DEBUG

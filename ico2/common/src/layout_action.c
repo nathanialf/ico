@@ -2219,7 +2219,7 @@ int la_save_processing(int a0)
 }
 
 extern char stage_after_skipping_demo[];
-extern int CurrentTargetGObjSub;
+extern int optionScreenMode;
 extern void gflagInit(void);
 extern void fightSoundProcessRequestPause(void);
 /* kept local: this TU's uses of soundDataSegAllClose do not fit the prototype in s_init.h */
@@ -2254,7 +2254,7 @@ int la_end_confirm(void)
         case 270:
         case 424:
             POSITIVE_SE();
-            CurrentTargetGObjSub = 0;
+            optionScreenMode = 0;
             gflagInit();
             fightSoundProcessRequestPause();
             fightSoundClose();
@@ -2417,7 +2417,7 @@ int la_game_over_continue(int a0)
                 return -1;
             }
             POSITIVE_SE();
-            CurrentTargetGObjSub = 0;
+            optionScreenMode = 0;
             gflagInit();
             D_0063B4EC = 1;
             releaseGameLoopCursor();
@@ -2558,7 +2558,7 @@ int la_key_config(int a0)
     return -1;
 }
 
-extern int CurrentTargetGObj;
+extern int optionControlType;
 extern int D_00639EA0;
 /* the option screen's layout item id tables, VMA 0x61DC78, 0x61DC90, 0x61DCA8
    and 0x61DCB0, each 16-byte aligned in this TU's .rodata */
@@ -2584,8 +2584,8 @@ int la_game_option(void)
     mode = soundOutputModeGet();
     lt_analog2Pad();
     if ((D_0028F8F0[0]._0 & 0xA000) != 0) {
-        cur = CurrentTargetGObj;
-        sel = CurrentTargetGObjSub;
+        cur = optionControlType;
+        sel = optionScreenMode;
         switch (lt_current_property_item()) {
         case 300:
             if ((D_0028F8F0[0].flags & 0x8000) != 0) {
@@ -2632,28 +2632,28 @@ int la_game_option(void)
             }
             break;
         }
-        if (sel != CurrentTargetGObjSub) {
-            if (D_0061DC90[CurrentTargetGObjSub] != -1) {
-                stage_SetLoopFlag(D_0061DC90[CurrentTargetGObjSub], 0);
-                stage_SetAnimation(D_0061DC90[CurrentTargetGObjSub], -1, -2);
+        if (sel != optionScreenMode) {
+            if (D_0061DC90[optionScreenMode] != -1) {
+                stage_SetLoopFlag(D_0061DC90[optionScreenMode], 0);
+                stage_SetAnimation(D_0061DC90[optionScreenMode], -1, -2);
             }
             item = D_0061DC90[sel];
             if (item != -1) {
                 stage_SetLoopFlag(item, 1);
                 stage_SetAnimation(item, 1, 0);
             }
-            CurrentTargetGObjSub = sel;
+            optionScreenMode = sel;
         }
-        CurrentTargetGObj = cur;
+        optionControlType = cur;
     }
     for (sel = 0; sel < 5; sel++) {
         lt_default_mask_property(D_0061DC78[sel], 1);
     }
-    lt_default_mask_property(D_0061DC78[CurrentTargetGObjSub], 0);
+    lt_default_mask_property(D_0061DC78[optionScreenMode], 0);
     for (sel = 0; sel < 2; sel++) {
         lt_default_mask_property(D_0061DCA8[sel], 1);
     }
-    lt_default_mask_property(D_0061DCA8[CurrentTargetGObj], 0);
+    lt_default_mask_property(D_0061DCA8[optionControlType], 0);
     if ((D_0028F8F0[0].flags & 0x40) != 0) {
         if (lt_current_property_item() == 330) {
             NEGATIVE_SE();
