@@ -8,6 +8,7 @@
 #include <math.h>
 #include "geometryManager.h"
 #include "motionOrientManager.h"
+#include "motionFileManager.h"
 
 /* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
 extern float _DistSqGV(void *a, void *b);
@@ -1362,7 +1363,6 @@ static int chainClimb[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0};
 /* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
 extern float *test_CURRENTROOT(void *a0);
 /* the per-motion frame-count records, indexed by the motion id at ext + 0x4A0 */
-extern int *D_004EB758[];
 /* kept local: this TU's uses of these do not fit the prototypes their own
  * headers carry */
 extern int GetSkeltonFocusNode(char *gobj, int node);
@@ -1473,7 +1473,7 @@ void TestChainUpDown(char *gobj, char *boy)
 
         rec = (ChainClimbWork *)chainClimb; if (rec->prev != mode) {
             rec->phase = 0.0f;
-            rec->frames = (int)(float)*D_004EB758[*(int *)(((ChainExtPtr *)(boy + 0x15C))->i + 0x4A0)];
+            rec->frames = (int)(float)*motionTable[*(int *)(((ChainExtPtr *)(boy + 0x15C))->i + 0x4A0)];
             SetChainClimbNodePoint(boy, rec);
             rec->target[0] = rec->node[0]; rec->target[2] = rec->node[2];
             rec->target[1] = rec->node[1] - 100.0f;
@@ -1509,7 +1509,7 @@ void TestChainUpDown(char *gobj, char *boy)
 
         rec = (ChainClimbWork *)chainClimb; if (rec->prev != mode) {
             rec->phase = 0.0f;
-            rec->frames = (int)(float)*D_004EB758[*(int *)(((ChainExtPtr *)(boy + 0x15C))->i + 0x4A0)];
+            rec->frames = (int)(float)*motionTable[*(int *)(((ChainExtPtr *)(boy + 0x15C))->i + 0x4A0)];
             SetChainClimbNodePoint(boy, rec);
             rec->target[0] = rec->node[0]; rec->target[2] = rec->node[2];
             rec->target[1] = rec->node[1] - 100.0f;
@@ -1541,7 +1541,7 @@ void TestChainUpDown(char *gobj, char *boy)
         ChainClimbWork *rec;
         rec = (ChainClimbWork *)chainClimb; if (rec->prev != mode) {
             rec->phase = 0.0f;
-            rec->frames = (int)(float)*D_004EB758[*(int *)(((ChainExtPtr *)(boy + 0x15C))->i + 0x4A0)];
+            rec->frames = (int)(float)*motionTable[*(int *)(((ChainExtPtr *)(boy + 0x15C))->i + 0x4A0)];
             SetChainClimbNodePoint(boy, rec);
             rec->target[0] = rec->node[0]; rec->target[2] = rec->node[2];
             rec->target[1] = rec->node[1] + 200.0f;

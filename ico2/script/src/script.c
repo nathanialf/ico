@@ -356,9 +356,7 @@ extern void ACTGame_StageChangeGObjDirect();
 extern int fadeStatus;
 extern float fadeSpeed;
 extern int fadeContinue;
-extern unsigned char fadeColor;
-extern unsigned char D_0063BCB1;
-extern unsigned char D_0063BCB2;
+extern unsigned char fadeColor[4];
 /* kept local: this TU's uses of IsWallLeverStatus do not fit the prototype in box.h */
 extern int IsWallLeverStatus(void);
 /* kept local: this TU's uses of ACTGame_isHangChain do not fit the prototype in act-game.h */
@@ -1675,9 +1673,9 @@ inline void scpFadeOut(float a0, int a1, int a2, int a3)
     fadeStatus = 1;
     fadeSpeed = a0;
     fadeContinue = 1;
-    fadeColor = a1;
-    D_0063BCB1 = a2;
-    D_0063BCB2 = a3;
+    fadeColor[0] = a1;
+    fadeColor[1] = a2;
+    fadeColor[2] = a3;
 }
 
 inline void scpFadeIn(float f)

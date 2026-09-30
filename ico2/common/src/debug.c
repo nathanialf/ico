@@ -670,7 +670,8 @@ static int debugBarCount;
 
 /* the two sprite rectangles and the three line colours the bar display
    starts from */
-extern int D_0063BD34;
+/* kept local: DmaPacket.h's PacketBufferStruct record does not fit this TU's view of it */
+extern int used_dma_memory;
 extern int D_0028F4C0[];
 
 /* clang-format on */
@@ -1934,7 +1935,7 @@ void debug_DrawBar(void)
 
 
     v0.x = -256; v0.y = 94;
-    v1.x = (D_0063BD34 << 9) / 100 - 256; v1.y = 94;
+    v1.x = (used_dma_memory << 9) / 100 - 256; v1.y = 94;
     col1.r = 0;
     col1.g = col1.b = col1.a = 164;
     gif_Line(&v0, &v1, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);

@@ -16,6 +16,7 @@
 #include "chain.h"
 #include "act-game.h"
 #include "motionOrientManager.h"
+#include "motionFileManager.h"
 
 typedef struct {
     int a, b, c;
@@ -885,7 +886,6 @@ void E3_StageStartBoy(void *self)
 }
 
 extern int D_0028F4C0[];
-extern int *D_004EB758[];
 extern int fptodp(float v);
 
 int GetChainSlope(void)
@@ -902,7 +902,7 @@ int GetChainSlope(void)
     if (b < 5.0f) {
         return 0;
     }
-    ratio = (float)*D_004EB758[GOBJ_SUB(g)->f_4A0] / (c * 0.5f);
+    ratio = (float)*motionTable[GOBJ_SUB(g)->f_4A0] / (c * 0.5f);
     ACTGame_SetMotionPlaySpeedRatio_Reserve(
         g, ratio * (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 30.0f, 7);
     if (debug_font_flag & 1) {
@@ -910,7 +910,7 @@ int GetChainSlope(void)
     }
     if (debug_font_flag & 1) {
         debug_Printf(10, 150, 0x0FFFFFFF, "%f / %f\n", fptodp(GOBJ_SUB(g)->f_4AC),
-                     fptodp((float)*D_004EB758[GOBJ_SUB(g)->f_4A0]));
+                     fptodp((float)*motionTable[GOBJ_SUB(g)->f_4A0]));
     }
     if ((b < 0.0f ? -b : b) < 30.0f) {
         up = 1;

@@ -7,15 +7,16 @@
 #include "geometryManager.h"
 #include "matrixDrive.h"
 #include "tableSin.h"
+#include <libvu0.h>
 
 extern int D_00639EA8;
 
 /* The TU's .data, in ROM run order (names ours): the centre the game-over
    dark volume and its shock ring spread from, and the position of the
    ordinary dark volume, both homogeneous points. */
-static float gameOverCenter[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+static sceVu0FVECTOR gameOverCenter = {0.0f, 0.0f, 0.0f, 1.0f};
 
-static float darkVolumeCenter[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+static sceVu0FVECTOR darkVolumeCenter = {0.0f, 0.0f, 0.0f, 1.0f};
 
 /* The colour draw and drawHT take by value: four bytes in one register, which
    is why every call site masks the parameter home to 32 bits. */

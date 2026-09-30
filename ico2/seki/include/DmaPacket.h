@@ -12,6 +12,21 @@
 #ifndef DMAPACKET_H
 #define DMAPACKET_H
 
+/* the packet buffer control record: the current bank, the two banks, the
+   write pointer and three words dpk_SwapBuffer clears */
+typedef struct {
+    int cur;     /* 0x00 */
+    int *buf[2]; /* 0x04 0x08 */
+    int _0C;
+    int *ptr; /* 0x10 */
+    int *_14;
+    int *_18;
+    int *_1C;
+} DpkCtl;
+
+extern DpkCtl PacketBufferStruct;
+extern int used_dma_memory;
+
 void dpk_Init(void);
 void dpk_SwapBuffer(void);
 

@@ -28,7 +28,7 @@ typedef struct {
     float pad[3];
 } WindCell;
 
-static float windVector[4];
+static sceVu0FVECTOR windVector;
 
 static float windStrength[256];
 

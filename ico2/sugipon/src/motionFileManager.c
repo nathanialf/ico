@@ -18,14 +18,17 @@ typedef struct {
 } MotFileRec;
 
 extern MotFileRec D_0055FE58[];
-extern int D_004EB758[];
+
+/* every motion's loaded data, indexed by motion number (MAIN.MAP global);
+   charFileManager fills the entries, the resets clear them */
+int *motionTable[1150] = {0};
 
 inline void ResetDynamicMotionManager(void)
 {
     int i;
     for (i = 0; i <= 1146; i++) {
         if (D_0055FE58[i].node_id == 4) {
-            D_004EB758[i] = 0;
+            motionTable[i] = 0;
         }
     }
     motionMemorySizeStatic2 = 0;
@@ -36,7 +39,7 @@ inline void ResetStatic2MotionManager(int a0)
     int i;
     for (i = 0; i <= 1146; i++) {
         if (D_0055FE58[i].node_id == a0) {
-            D_004EB758[i] = 0;
+            motionTable[i] = 0;
         }
     }
 }

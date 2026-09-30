@@ -14,4 +14,10 @@
 
 int enemy_GetPositionTable(int idx, int sub_idx);
 
+extern int EnemyKindNum;
+
+struct EnemyModelSet;
+extern struct EnemyModelSet enemy_enemymodel01_enemymodel04;
+extern struct EnemyModelSet *enemymodel01[];
+
 #endif /* ENEMYINIT_H */

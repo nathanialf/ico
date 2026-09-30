@@ -349,13 +349,9 @@ extern GsbPad D_0028F8F0[];
    pointer array out of small data under -G 8, which is where the ROM has it */
 static char *fogOnOffText[] = {"Off", "On"};
 
-/* .rodata, the head of ZFog.o's run, VMA 0x550AE8..0x550C08: the
-   fog tool's nine rows and their names.  Each row names the stage
+/* .rodata: the fog tool's nine rows and their names.  Each row names the stage
    setting word it edits; the first row is the only 0/1 one, which is what the
    tool tests to decide between the text and the number format. */
-extern char D_00550C10[]; /* "Fog Tool" */
-extern char D_00550C20[]; /* "Fog %s => %s\n" */
-extern char D_00550C30[]; /* "Fog %s => %d\n" */
 
 static const FogToolItem fogToolItems[9] = {
     {" Fog On/Off   ", &D_0028F720.fogOn, 0, 1},
@@ -383,7 +379,7 @@ int fog_FogTool(void)
     int ret;
 
     ret = 0;
-    debug_PrintfDummy(10, 50, 0xFF800000, D_00550C10);
+    debug_PrintfDummy(10, 50, 0xFF800000, "Fog Tool");
 
     for (i = 0; i < 9; i++) {
         if (fogToolItems[i].min == 0 && fogToolItems[i].max == 1) {
@@ -422,10 +418,10 @@ int fog_FogTool(void)
     if (D_0028F8F0[0].trg & 0x20) {
         for (i = 0; i < 9; i++) {
             if (fogToolItems[i].min == 0 && fogToolItems[i].max == 1) {
-                debug_StdPrintfDummy(D_00550C20, fogToolItems[i].name,
+                debug_StdPrintfDummy("Fog %s => %s\n", fogToolItems[i].name,
                                      fogOnOffText[*fogToolItems[i].val]);
             } else {
-                debug_StdPrintfDummy(D_00550C30, fogToolItems[i].name, *fogToolItems[i].val);
+                debug_StdPrintfDummy("Fog %s => %d\n", fogToolItems[i].name, *fogToolItems[i].val);
             }
         }
         ret = 1;

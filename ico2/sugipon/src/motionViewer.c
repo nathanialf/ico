@@ -13,6 +13,7 @@
 #include <libpad.h>
 #include <string.h>
 #include "GsBase.h"
+#include "motionFileManager.h"
 
 struct MvObj;
 
@@ -323,7 +324,6 @@ typedef struct MvPad {
 /* motionOrientManager's table row (same object as src/motionOrientManager.c) */
 
 extern MvPad D_0028F8F0[];
-extern int D_004EB758[];
 
 static int lastMotSel = -1; /* derived name */
 
@@ -353,7 +353,7 @@ int motKindMenuProc(void)
                                         0xC0, 0, ent->motLast - ent->motFirst, &motSel, 0);
     base = motSel;
     cur = base + ent->motFirst;
-    if (D_0055FE58[cur].unk134 != 0 && D_0055FE58[cur].unk178 == 0x140 && D_004EB758[cur] == 0) {
+    if (D_0055FE58[cur].unk134 != 0 && D_0055FE58[cur].unk178 == 0x140 && motionTable[cur] == 0) {
         base = 0;
         if (((blinkCount >> 4) & 3) != 0) {
             debug_PrintfDummy(10, 60, 0x4080FF00, "NO MOTION IN THIS STAGE.");

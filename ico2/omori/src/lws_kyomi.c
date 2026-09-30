@@ -23,8 +23,14 @@ struct HintDef {
 };
 
 extern struct HintDef D_002ADBA0[];
-extern char D_006E99B0[];
-extern char D_006E99B4[];
+
+/* The TU's .bss: the two 4-byte hint flag sets the save block carries, then
+   one timer per hint; Hint_Init clears the whole record. */
+static struct {
+    char save[8];    /* 0x00 */
+    float timer[28]; /* 0x08 */
+} hintWork;          /* derived name */
+
 extern int D_0028F4C0[];
 extern int D_0063A438;
 /* kept local: brain.h is not in this TU's include list (its prototypes do not fit this TU's uses) */
@@ -110,7 +116,7 @@ void LwsKyomiGeo(void *gobj)
  * save block being packed and `off` its byte offset inside it. */
 #define MAKE_HINT_SAVE_BITS(buf, off, bit)                                                         \
     for (i = 0; i < 4; i++) {                                                                      \
-        D_006E99B0[(off) + i] = 0;                                                                 \
+        hintWork.save[(off) + i] = 0;                                                              \
     }                                                                                              \
     for (i = 0; i < 28; i++) {                                                                     \
         if (((unsigned int)D_002ADBA0[i].flags >> (bit)) & 1) {                                    \
@@ -123,8 +129,8 @@ void MakeHintSaveInfo(void)
 {
     int i;
 
-    MAKE_HINT_SAVE_BITS(D_006E99B0, 0, 0);
-    MAKE_HINT_SAVE_BITS(D_006E99B4, 4, 1);
+    MAKE_HINT_SAVE_BITS(hintWork.save, 0, 0);
+    MAKE_HINT_SAVE_BITS(hintWork.save + 4, 4, 1);
 }
 
 /* lws_kyomi.c:305 and :306 are one source line each: the inverse of
@@ -159,8 +165,8 @@ void ReadHintSaveInfo(void)
     int n;
     int end;
 
-    READ_HINT_SAVE_BITS(D_006E99B0, 0);
-    READ_HINT_SAVE_BITS(D_006E99B4, 1);
+    READ_HINT_SAVE_BITS(hintWork.save, 0);
+    READ_HINT_SAVE_BITS(hintWork.save + 4, 1);
 }
 
 /* kept local: this TU's uses of SetDirectRootPosition do not fit the prototype in geometryManager.h */
@@ -241,18 +247,16 @@ int GetSizeHintSaveInfo(void)
 
 char *GetBuffHintSaveInfo(void)
 {
-    return D_006E99B0;
+    return hintWork.save;
 }
-
-extern float D_006E99B8[];
 
 void Hint_Init(void)
 {
     struct HintInfo *p;
     int i;
 
-    hintTimers = D_006E99B8;
-    memset((char *)D_006E99B8 - 8, 0, 0x78);
+    hintTimers = hintWork.timer;
+    memset(&hintWork, 0, sizeof(hintWork));
     p = D_002ADBA0;
     for (i = 0; i < 28; i++) {
         p->flags &= ~2;

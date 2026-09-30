@@ -1,15 +1,13 @@
-typedef struct {
-    int cur;     /* 0x00 */
-    int *buf[2]; /* 0x04 0x08 */
-    int _0C;
-    int *ptr; /* 0x10 */
-    int *_14;
-    int *_18;
-    int *_1C;
-} DpkCtl;
+#include "DmaPacket.h"
 
-extern DpkCtl PacketBufferStruct;
+/* the double-buffered packet area every packet builder writes into (MAIN.MAP
+   global); each consumer keeps its own view of the record */
+DpkCtl PacketBufferStruct = {0};
+
 extern int D_0063A43C;
+
+/* the DMA memory use debug's meter draws (MAIN.MAP global, the TU's .sdata) */
+int used_dma_memory = 0;
 
 void dpk_Init(void)
 {

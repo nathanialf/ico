@@ -13,6 +13,7 @@
 #include "tableSin.h"
 #include <libvu0.h>
 #include <string.h>
+#include "motionFileManager.h"
 
 /* kept local: this TU's uses of UpdateRootMatrix do not fit the prototype in geometryManager.h */
 extern void UpdateRootMatrix(void *a0);
@@ -1073,7 +1074,6 @@ inline float GetDistanceOfGObj(void *a0, void *a1)
     return FSqrt(sceVu0InnerProduct(v, v));
 }
 
-extern int *D_004EB758[];
 extern void GetFloatingMotion(void *mot, void *dir, int *m, int a3, int t0, int t1, float t);
 
 int playAnimationCore(char *a0)
@@ -1085,7 +1085,7 @@ int playAnimationCore(char *a0)
     float q[4];
     char *p = (char *)GOBJ_SUB(a0)->f_830;
 
-    GetFloatingMotion(mot, dir, D_004EB758[GOBJ_SUB(a0)->f_4A0], 1, 0, 0, GOBJ_SUB(a0)->f_4AC);
+    GetFloatingMotion(mot, dir, motionTable[GOBJ_SUB(a0)->f_4A0], 1, 0, 0, GOBJ_SUB(a0)->f_4AC);
     dir[3] = 1.0f;
     sceVu0ApplyMatrix(pos, p + 0x70, dir);
     CopyQuaternion(q, (char *)GOBJ_SUB(a0) + 0xC0);

@@ -122,10 +122,7 @@ extern int IosStgMgrLock;
 extern int fadeStatus;
 extern float fadeSpeed;
 extern int fadeContinue;
-extern unsigned char fadeColor;
-extern unsigned char D_0063BCB1;
-extern unsigned char D_0063BCB2;
-extern unsigned char D_0063BCB3;
+extern unsigned char fadeColor[4];
 extern float mpegPlayFadeInSpeed;
 extern int stgMgrWakeupRequest;
 /* kept local: this TU's uses of jimakuEnd do not fit the prototype in jimaku.h */
@@ -447,10 +444,10 @@ void StageManager(void)
         case 1:
             fadeStatus = 1;
             fadeSpeed = msg->f10;
-            fadeColor = msg->r;
-            D_0063BCB1 = msg->g;
-            D_0063BCB2 = msg->b;
-            D_0063BCB3 = 0;
+            fadeColor[0] = msg->r;
+            fadeColor[1] = msg->g;
+            fadeColor[2] = msg->b;
+            fadeColor[3] = 0;
             fadeContinue = 1;
             fbKeep = 1;
             if (D_005F5D50[msg->stage].mpegNo != 0) {

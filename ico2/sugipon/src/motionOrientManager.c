@@ -14,6 +14,7 @@
 #include "GifPacket.h"
 #include <libvu0.h>
 #include "GsBase.h"
+#include "motionFileManager.h"
 
 /* The rope's interpolation rate: the chain's geometry sets it from the hang
    height and rootUpdateY_Rope moves the root by it.  The first word of the
@@ -265,15 +266,13 @@ static inline void checkMotionKind(int i, int j)
     }
 }
 
-extern int *D_004EB758[];
-
 int GetNbMotionFrames(int id)
 {
     int m;
     int n;
 
     if (D_0055FE58[id].f178 == 0x140) {
-        return *D_004EB758[id];
+        return *motionTable[id];
     }
     m = blendMotionKind[D_0055FE58[id].f178].f0;
     n = blendMotionKind[D_0055FE58[id].f178].fC;
@@ -281,7 +280,7 @@ int GetNbMotionFrames(int id)
     if (n != -1) {
         return n;
     }
-    return *D_004EB758[m];
+    return *motionTable[m];
 }
 
 float GetMotionPlaySpeedRatio(int id)
@@ -1092,14 +1091,15 @@ void getNodeBlendedFloatingMotion(void *dst, float *root, int id, int n, int a4,
 
         checkMotionKind(node, id);
         if (i == 0) {
-            GetFloatingMotion(dst, t, root, D_004EB758[node], n, a4, skel);
+            GetFloatingMotion(dst, t, root, motionTable[node], n, a4, skel);
             CopyMotion(mot, dst, n);
             prev = node;
         } else {
             int fn;
 
             if (prev != node) {
-                GetFloatingMotion(mot, t * blendMotionKind[j].f8, v, D_004EB758[node], n, a4, skel);
+                GetFloatingMotion(mot, t * blendMotionKind[j].f8, v, motionTable[node], n, a4,
+                                  skel);
                 prev = node;
             }
             fn = GetSkeltonFocusNode(self, blendMotionKind[j].f4);
@@ -1145,7 +1145,7 @@ static inline void getMotionRootPos(char *w, float *v)
     float t = *(float *)(w + 0x40);
 
     checkMotionKind(m, *(int *)(w + 0x30));
-    GetFloatingMotionRootPos(v, D_004EB758[m], t);
+    GetFloatingMotionRootPos(v, motionTable[m], t);
 }
 
 /* Listing lines 1266 to 1288, inside getMotionGeometry's span: the motion-loaded
@@ -1195,7 +1195,7 @@ void getMotionGeometry(void *self)
     int tbl = *(int *)(MOWORK(self) + 0x820);
     char mot[n * 0x20];
     float scale = *(float *)(*(char **)(MOWORK(self) + 0x870) + 0x20);
-    int *md = D_004EB758[*(int *)(w + 0x30)];
+    int *md = motionTable[*(int *)(w + 0x30)];
 
     if (D_0055FE58[*(int *)(w + 0x30)].f178 == 0x140) {
         assertMotionLoaded(w, md);
@@ -1393,8 +1393,6 @@ typedef union {
 enum DebugDisplayMode { DEBUG_DISPLAY_OFF, DEBUG_DISPLAY_ON, DEBUG_DISPLAY_FULL };
 
 extern enum DebugDisplayMode debug_bar_flag;
-/* kept local: motionFileManager.h types the argument unsigned int *, this TU's is the motion block */
-extern int CheckMotionIncludeFacialData(void *mot);
 /* kept local: no header declares it; the shape motion is written into the caller's buffer */
 extern void GetFloatingShapeMotion(float *dst, void *mot, int n, float frame);
 /* kept local: no header declares it (lineManager.h has only the segment calls) */
@@ -1405,7 +1403,7 @@ void getShapeGeometry(void *self)
     char *m = (char *)*(int *)((char *)self + 0x15C) + 0x470;
 
     if (D_0055FE58[*(int *)(m + 0x30)].f178 == 0x140) {
-        void *mot = D_004EB758[*(int *)(m + 0x30)];
+        void *mot = motionTable[*(int *)(m + 0x30)];
 
         if (CheckMotionIncludeFacialData(mot) == 0) {
             int n = **(int **)((char *)mot + 0x10);

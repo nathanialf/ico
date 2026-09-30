@@ -405,7 +405,10 @@ static void execClothes(char *gobj)
 }
 
 extern void *D_0063A438;
-extern char D_004E6E10[];
+
+/* the one LightLineExt InitLightLineGeo fills; its definition closes the
+   TU's .data, after the sync marker colours */
+static LightLineExt lightLineExt; /* derived name */
 
 LightLineExt *InitLightLineGeo(char *gobj, float *pos)
 {
@@ -415,7 +418,7 @@ LightLineExt *InitLightLineGeo(char *gobj, float *pos)
     int n;
     float f;
 
-    llExtGeo = (LightLineExt *)D_004E6E10;
+    llExtGeo = &lightLineExt;
     llExtGeo->phase = iosMallocDebug(D_0063A438, 0x190, "src/boy.c", 161);
     llExtGeo->speed = iosMallocDebug(D_0063A438, 0x190, "src/boy.c", 162);
     llExtGeo->line = iosMallocDebug(D_0063A438, 0x190, "src/boy.c", 163);
@@ -652,6 +655,8 @@ extern char *D_00639EA8;
 static int girlSyncMarkerColor[4] = {64, 96, 128, 128};
 
 static int boySyncMarkerColor[4] = {255, 96, 64, 128};
+
+static LightLineExt lightLineExt = {0, 0, 0};
 
 /* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
 extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);

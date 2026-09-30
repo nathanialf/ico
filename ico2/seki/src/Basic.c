@@ -1,16 +1,17 @@
 #include "debug.h"
 #include "Matrix.h"
 
-extern int *dmaVif;
-extern int *dmaGif;
-extern int *dmaFSp;
 extern int *sceDmaGetChan(int a0);
 extern void sceDmaReset(int a0);
 extern int matrixptr;
 extern void memcpy();
-extern int D_0063BC88;
-extern char D_0063BC90[];
-extern int D_0063BC8C;
+
+/* The TU's .sdata opens with the allocator's partition (none selected yet)
+   and the running total of what partition 0 has handed out. */
+static int mallocPartition = -1; /* derived name */
+
+static int mallocTotal = 0; /* derived name */
+
 extern int D_0063A43C;
 extern int D_0063A44C;
 extern void debug_assert(const char *file, int line);
@@ -51,12 +52,12 @@ void matrix_init(void)
 
 inline void malloc_SetPartition(int val)
 {
-    D_0063BC88 = val;
+    mallocPartition = val;
 }
 
 inline int malloc_GetPartition(void)
 {
-    return D_0063BC88;
+    return mallocPartition;
 }
 
 inline void resetmallocseki(void) {}
@@ -65,15 +66,15 @@ inline int mallocseki(int size)
 {
     int ptr = 0;
 
-    if (D_0063BC88 == -1) {
+    if (mallocPartition == -1) {
         debug_StdPrintfDummy("set partition first!\n");
         debug_assert("src/Basic.c", 372);
-        __assert("src/Basic.c", 372, D_0063BC90);
+        __assert("src/Basic.c", 372, "0");
     }
 
-    switch (D_0063BC88) {
+    switch (mallocPartition) {
     case 0:
-        D_0063BC8C += size + 0x30;
+        mallocTotal += size + 0x30;
         ptr = iosMallocDebug(D_0063A43C, size, "src/Basic.c", 379);
         break;
     case 1:
@@ -85,12 +86,12 @@ inline int mallocseki(int size)
 
 inline int mallocsekistage(int size)
 {
-    int save = D_0063BC88;
+    int save = mallocPartition;
     int r;
 
-    D_0063BC88 = 1;
+    mallocPartition = 1;
     r = mallocseki(size);
-    D_0063BC88 = save;
+    mallocPartition = save;
     return r;
 }
 
@@ -110,3 +111,20 @@ void malloc_MemCpy(int a0, int a1, int a2, int a3)
 {
     memcpy(a0, a1, a2, a3);
 }
+
+/* The DMA channel handles and the screen fade state (MAIN.MAP globals). The
+   ROM's .sdata has them after mallocseki's assert text, so they are defined
+   after the allocator. */
+int *dmaVif = 0;
+
+int *dmaGif = 0;
+
+int *dmaFSp = 0;
+
+int fadeStatus = 0;
+
+float fadeSpeed = 0.0f;
+
+int fadeContinue = 0;
+
+unsigned char fadeColor[4] = {0};

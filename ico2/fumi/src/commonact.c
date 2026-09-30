@@ -126,6 +126,7 @@ void afterCommonTruckLever(volatile int a0);
 #include "sugiCommon.h"
 #include "layout_action.h"
 #include "script.h"
+#include "motionFileManager.h"
 
 typedef struct {
     int a, b, c;
@@ -1337,7 +1338,6 @@ void actCommonRopeCliff(volatile int a0)
 }
 
 /* SU-E BEGIN TestCageUpDown */
-extern int *D_004EB758[];
 /* kept local: this TU's uses of _InterGV do not fit the prototype in gv.h */
 extern void _InterGV(void *dst, void *a, void *b, float ta, float tb);
 /* kept local: this TU's uses of GetSkeltonFocusNode do not fit the prototype in motionManager2.h */
@@ -1363,7 +1363,7 @@ void TestCageUpDown(int cage, char *gobj)
         int n;
 
         cageUpDown.cnt = 0;
-        cageUpDown.lim = (float)*D_004EB758[*(int *)(((CagePtr *)(o + 0x15C))->p + 0x4A0)];
+        cageUpDown.lim = (float)*motionTable[*(int *)(((CagePtr *)(o + 0x15C))->p + 0x4A0)];
         n = GetSkeltonFocusNode(o, (void *)0x23);
         cageUpDown.a[0] =
             *(float *)(*(char **)(((CagePtr *)(o + 0x15C))->p + 0xC) + n * 0x40 + 0x30);

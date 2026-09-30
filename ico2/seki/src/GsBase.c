@@ -407,8 +407,6 @@ void gsb_KeepFrameBuffer(void)
     gif_EndPacket();
 }
 
-extern int fadeStatus;
-
 /* The rest of GsBase.o's .sbss run, after the reduction tint: the fade level
    gsb_fade steps from 0 to 128 and gsb_PostEffect prints, then one word no
    instruction in the ROM reads or writes (checked over every gp-relative and
@@ -421,9 +419,6 @@ static int gsbUnusedWord;
 
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
-extern unsigned char fadeColor[4];
-extern float fadeSpeed;
-extern int fadeContinue;
 /* kept local: this TU's uses of gif_SetDrawEnviroment do not fit the prototype in GifPacket.h */
 extern void gif_SetDrawEnviroment(int a0, int a1, int w, int h, int a4, int a5);
 
@@ -928,8 +923,6 @@ inline void gsb_ResetFilmNoise(void)
 }
 
 extern int D_0063B60C;
-extern int fadeStatus;
-extern unsigned char D_0063BCB3;
 extern int staffRollStartFlag;
 extern void FullScreenEffectAfter(void);
 extern void shadow_Draw(void);
@@ -952,7 +945,7 @@ int gsb_PostEffect(void)
 {
     if (debug_font_flag & 1) {
         debug_Printf(0xA, ScreenHeight / 2 - 8, 0xCCCCCC00, "LID:%3d / FADE%d:%3.0f(%d)",
-                     D_0063B60C, fadeStatus, fadeLevel, D_0063BCB3);
+                     D_0063B60C, fadeStatus, fadeLevel, fadeColor[3]);
     }
     if (D_0028F4C0[0x18 / 4] != 0 && (debug_font_flag & 1)) {
         debug_Printf(0x230, ScreenHeight / 2 - 8, 0xCCCCCC00, "L");

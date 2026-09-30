@@ -29,7 +29,6 @@ extern void iosOmSendMail(void *a0);
    _ACTWait yield, so the entry GObj lives in its stack home, not a register. */
 /* kept local: this TU's uses of SetMotionRequest do not fit the prototype in motionOrientManager.h */
 extern int SetMotionRequest(void *a0, int id, void *work);
-extern char D_00555788[];
 extern void *D_0063A438;
 /* kept local: this TU's uses of InitMotionOrient do not fit the prototype in motionOrientManager.h */
 extern void InitMotionOrient(void *o, int a1, int a2, int a3, int a4, int a5);
@@ -918,7 +917,7 @@ inline char *InitBirdGeo(char *a0, void *a1)
 {
     char *w;
 
-    w = iosMallocDebug(D_0063A438, 0x40, D_00555788, 978);
+    w = iosMallocDebug(D_0063A438, 0x40, __FILE__, 978);
     memset(w, 0, 0x40);
     CopyVector(w, a1);
     w[0x10] = 0;

@@ -433,7 +433,6 @@ typedef struct {
 } MotEnt; /* 0x194 */
 
 extern MotEnt D_0055FE58[];
-extern char *D_004EB758[];
 extern void *D_0063A440;
 extern void *D_0063A444;
 extern void *D_0063A448;
@@ -446,11 +445,11 @@ void ReadMotionFile(void *h, int a1, int size, int id, int a4, int a5, int a6)
     }
     switch (D_0055FE58[id].unk_134) {
     case 0:
-        D_004EB758[id] = iosMallocDebug(D_0063A444, size, __FILE__, 515);
+        motionTable[id] = iosMallocDebug(D_0063A444, size, __FILE__, 515);
         break;
     case 4:
-        D_004EB758[id] = iosMallocDebug(D_0063A440, size, __FILE__, 518);
-        if (D_004EB758[id] == 0) {
+        motionTable[id] = iosMallocDebug(D_0063A440, size, __FILE__, 518);
+        if (motionTable[id] == 0) {
             /* not enough memory in the dynamic motion area */
             debug_StdPrintfDummy("ダイナミックモーション領域のメモリが足りません。\n");
             debug_assertMessage(__FILE__, 521, "LACK OF DYNAMIC MOTION MEMORY.\n");
@@ -458,8 +457,8 @@ void ReadMotionFile(void *h, int a1, int size, int id, int a4, int a5, int a6)
         }
         break;
     default:
-        D_004EB758[id] = iosMallocDebug(D_0063A448, size, __FILE__, 526);
-        if (D_004EB758[id] == 0) {
+        motionTable[id] = iosMallocDebug(D_0063A448, size, __FILE__, 526);
+        if (motionTable[id] == 0) {
             /* not enough memory in the motion swap area */
             debug_StdPrintfDummy("モーションスワップ領域のメモリが足りません。\n");
             debug_assertMessage(__FILE__, 529, "LACK OF SWAP MOTION MEMORY.\n");
@@ -467,8 +466,8 @@ void ReadMotionFile(void *h, int a1, int size, int id, int a4, int a5, int a6)
         }
         break;
     }
-    iosCdvdHandlerRead(h, D_004EB758[id], size);
-    InitMotionFile(D_004EB758[id], a1);
+    iosCdvdHandlerRead(h, motionTable[id], size);
+    InitMotionFile(motionTable[id], a1);
     AddMotionMemorySize(size, a6);
     debug_StdPrintfDummy("ReadMotionFile:[%d]%s (size:%d): \033[33m%1.2fMB\033[m\n", id, a1, size,
                          (float)GetMotionMemorySize(a6) / 1024.0f / 1024.0f);

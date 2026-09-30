@@ -76,8 +76,6 @@ typedef struct BgaMotion {
     /* 0x0C */ float frame;
 } BgaMotion;
 
-extern char D_00621580[];
-extern char D_00621598[];
 extern char D_0063BCD0[];
 extern char D_0063BCD8[];
 
@@ -157,6 +155,25 @@ static inline void bga_makeRootList(char *p)
     } while (1);
 }
 
+/* The functions the ROM places after bga_DispLightning, in that order: the
+   file defines them inline, so gcc defers each out-of-line copy to the end of
+   the file in first-declaration order, which these prototypes fix. */
+void bga_ResetCamera(void);
+int bga_GetCameraMatrix(void *p);
+char *bga_InitSdfCamera(char *a0);
+void bga_SetCamFrame(char *data, int frame, int mode);
+int bga_CheckAnimationFinish(char *p);
+int bga_CheckAnimationFrame(char *p, int frame, int reset);
+int bga_CheckAnimationFrameIn(char *p, int in, int out);
+int bga_CheckSdfCameraFinish(char *data);
+int bga_CheckSdfCameraFrame(char *data, int frame, int reset);
+int bga_CheckSdfCameraFrameIn(char *data, int in, int out);
+void bga_SetCameraForceOff(void);
+void bga_InitBGA(void);
+void bga_SetUniqAnimationFlag(int val);
+void bga_ResetAnimation(void);
+float bga_GetZoom(void);
+
 char *bga_InitData(char *p)
 {
     BgaDObjEnt *d;
@@ -165,9 +182,9 @@ char *bga_InitData(char *p)
     int k;
 
     if (strncmp(p, D_0063BCD0, 3) != 0) {
-        debug_StdPrintfDummy(D_00621580);
-        debug_assert(D_00621598, 952);
-        __assert(D_00621598, 952, D_0063BCD8);
+        debug_StdPrintfDummy("this is not bga file.\n");
+        debug_assert(__FILE__, 952);
+        __assert(__FILE__, 952, D_0063BCD8);
     }
     *(int *)(p + 0xC) += (int)p;
     p[0xA] = -1;
@@ -237,6 +254,38 @@ char *bga_InitData(char *p)
     return p;
 }
 
+typedef struct BgaSdfKey {
+    /* 0x00 */ int f00;
+    /* 0x04 */ float pos[3];
+    /* 0x10 */ float at[3];
+    /* 0x1C */ float roll;
+    /* 0x20 */ float fov;
+} BgaSdfKey;
+
+/* The SDF camera record bga_InitSdfCamera checks and bga_SetCamFrame starts:
+ * the "SDF" tag, the key count, the running frame, the play mode and the keys. */
+typedef struct BgaSdfCam {
+    /* 0x00 */ char id[4];
+    /* 0x04 */ int num;
+    /* 0x08 */ float frame;
+    /* 0x0C */ int mode;
+    /* 0x10 */ BgaSdfKey key[1];
+} BgaSdfCam;
+
+extern char D_0063BCE0[];
+
+inline char *bga_InitSdfCamera(char *a0)
+{
+    BgaSdfCam *p = (BgaSdfCam *)a0;
+
+    if (strncmp(p->id, D_0063BCE0, 3) != 0) {
+        debug_StdPrintfDummy("this is not sdf camera file.\n");
+        debug_assert(__FILE__, 1045);
+        __assert(__FILE__, 1045, D_0063BCD8);
+    }
+    return a0;
+}
+
 typedef struct BgaGeom {
     /* 0x000 */ int f00;
     /* 0x004 */ int f04;
@@ -273,8 +322,6 @@ typedef struct BgaParticleEnt {
 } BgaParticleEnt;
 
 extern int D_0063A44C;
-extern char D_00621638[];
-extern char D_00621658[];
 extern char D_0063BCF0[];
 extern char D_0063BCE8[];
 
@@ -291,9 +338,6 @@ typedef struct BgaLightEnv {
     /* 0x64 */ float f64;
     /* 0x68 */ float f68;
 } BgaLightEnv;
-
-extern char D_006215F8[];
-extern char D_00621618[];
 
 void bga_initLightEnvelope(BgaDObjEnt *p)
 {
@@ -316,9 +360,9 @@ void bga_initLightEnvelope(BgaDObjEnt *p)
                     p->u.light->col[2] = (float)d[2] / 255.0f;
                     p->u.light->col[3] = 1.0f;
                 } else {
-                    debug_Assert(D_006215F8);
-                    debug_assert(D_00621598, 1089);
-                    __assert(D_00621598, 1089, D_0063BCE8);
+                    debug_Assert("Light Object not exists.\n");
+                    debug_assert(__FILE__, 1089);
+                    __assert(__FILE__, 1089, D_0063BCE8);
                 }
                 break;
             case 7:
@@ -330,9 +374,9 @@ void bga_initLightEnvelope(BgaDObjEnt *p)
                     p->u.light->col2[2] = (float)d[2] / 255.0f;
                     p->u.light->col2[3] = 1.0f;
                 } else {
-                    debug_Assert(D_00621618);
-                    debug_assert(D_00621598, 1109);
-                    __assert(D_00621598, 1109, D_0063BCE8);
+                    debug_Assert("Shadow Object not exists.\n");
+                    debug_assert(__FILE__, 1109);
+                    __assert(__FILE__, 1109, D_0063BCE8);
                 }
                 break;
             }
@@ -349,8 +393,8 @@ void bga_initLightEnvelope(BgaDObjEnt *p)
                     p->u.light->f64 = 1.0f / (((float *)d)[4] * 50.0f);
                     p->u.light->f68 = 1.0f / (((float *)d)[5] * 50.0f);
                 } else {
-                    debug_assert(D_00621598, 1141);
-                    __assert(D_00621598, 1141, D_0063BCE8);
+                    debug_assert(__FILE__, 1141);
+                    __assert(__FILE__, 1141, D_0063BCE8);
                 }
                 break;
             }
@@ -377,7 +421,7 @@ void bga_ApplyDObject(BgaDObjEnt *p, void **objs, int n, int no)
     case 13:
         i = GetParticleIDWithName(p->name);
         if (i != -1) {
-            p->u.obj = iosMallocDebug(D_0063A44C, 0x30, D_00621598, 1177);
+            p->u.obj = iosMallocDebug(D_0063A44C, 0x30, __FILE__, 1177);
             ((BgaParticleEnt *)p->u.obj)->u.b.id = i;
             ((BgaParticleEnt *)p->u.obj)->u.b.loop =
                 GetParticleLoopFlag(((BgaParticleEnt *)p->u.obj)->u.b.id);
@@ -400,10 +444,11 @@ void bga_ApplyDObject(BgaDObjEnt *p, void **objs, int n, int no)
         p->u.obj = 0;
         for (i = 0; i < n; i++) {
             if (((BgaGeom *)((BgaGObj *)objs[i])->geom)->name == 0) {
-                sprintf(buf, D_00621638, p->name);
-                debug_StdPrintfDummy(D_00621658, p->name);
-                debug_assertMessage(D_00621598, 1201, buf);
-                __assert(D_00621598, 1201, D_0063BCF0);
+                sprintf(buf, "OBJECT FILE \"%s\" NOT EXISTS.\n", p->name);
+                /* "model data file [%s] does not exist" */
+                debug_StdPrintfDummy("モデルデータファイル[%s]がありません.\n\n", p->name);
+                debug_assertMessage(__FILE__, 1201, buf);
+                __assert(__FILE__, 1201, D_0063BCF0);
             }
             if (strcmp(((BgaGeom *)((BgaGObj *)objs[i])->geom)->name, p->name) == 0) {
                 p->u.obj = ((BgaGObj *)objs[i])->geom;
@@ -1198,7 +1243,6 @@ typedef union {
    bga_CalcObject tests before translating by the pivot, and the message
    "Illegal Envelope Type : %p(%d)\n" in the .rodata run at VMA 0x6216B8. */
 extern BgaWord D_0063BCF4;
-extern char D_006216B8[];
 
 static inline float bga_palFrame(float f)
 {
@@ -1322,9 +1366,9 @@ void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int a1, int a2)
             p->u.obj = e->data;
             break;
         default:
-            debug_StdPrintfDummy(D_006216B8, e, e->type);
-            debug_assert(D_00621598, 2116);
-            __assert(D_00621598, 2116, D_0063BCE8);
+            debug_StdPrintfDummy("Illegal Envelope Type : %p(%d)\n", e, e->type);
+            debug_assert(__FILE__, 2116);
+            __assert(__FILE__, 2116, D_0063BCE8);
             break;
         }
     }
@@ -1463,8 +1507,6 @@ extern void _CopyMatrix(void *dst, void *src);
 extern float _GetLength(void *a, void *b);
 extern int D_0063BCC4;
 extern char D_0063BCF8[];
-extern char D_00621708[];
-extern char D_00621720[];
 
 typedef struct BgaNodeBits {
     /* 0x00 */ char pad00[0x30];
@@ -1609,7 +1651,8 @@ void bga_CalcObject(BgaDObjEnt *d, float dt, float f13, int a1, int a2, int a3)
         break;
     case 13:
         if (d->u.obj == 0) {
-            debug_StdPrintfDummy(D_00621708);
+            /* "unknown particle" */
+            debug_StdPrintfDummy("不明なパーティクル\n");
             break;
         }
         /* RECONSTRUCTION: the bytes pin one register holding &bgaPos, set before
@@ -1620,7 +1663,9 @@ void bga_CalcObject(BgaDObjEnt *d, float dt, float f13, int a1, int a2, int a3)
            The local's name is ours. */
         pos = bgaPos;
         if (D_0063BCC4 == 0 && ((BgaParticleEnt *)d->u.obj)->u.b.loop) {
-            debug_StdPrintfDummy(D_00621720);
+            /* "a PBGA-type animation cannot use looping particles" */
+            debug_StdPrintfDummy(
+                "PBGAタイプのアニメーションではループのパーティクルは使用できません.\n");
             break;
         }
         _GetCurrentMatrixTrans(pos);
@@ -1772,8 +1817,6 @@ extern int D_0063BCB8;
 extern int GlobalTimer;
 /* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
 extern void _CopyVector(void *dst, void *src);
-extern char D_006217B0[];
-extern char D_006217C8[];
 extern void bga_CalcAnimation(char *p, int a1, int a2);
 
 void bga_SetFrame(char *p, int frame, int mode, int a3)
@@ -1791,12 +1834,12 @@ void bga_SetFrame(char *p, int frame, int mode, int a3)
         p[0xA] = mode;
         break;
     case -1:
-        debug_StdPrintfDummy(D_006217B0, *(char **)(p + 0xC) + 4);
+        debug_StdPrintfDummy("lws animation last %s\n", *(char **)(p + 0xC) + 4);
         *(float *)(p + 0x20) = bga_palFrame(*(float *)(p + 0x18));
         p[0xA] = mode;
         break;
     case -2:
-        debug_StdPrintfDummy(D_006217C8, *(char **)(p + 0xC) + 4);
+        debug_StdPrintfDummy("lws animation off %s\n", *(char **)(p + 0xC) + 4);
         *(float *)(p + 0x20) = bga_palFrame(*(float *)(p + 0x14));
         p[0xA] = -1;
         return;
@@ -1940,24 +1983,6 @@ extern float _GetLength(void *a, void *b);
 extern float GetTableSin(short a);
 extern float GetTableCos(short a);
 
-typedef struct BgaSdfKey {
-    /* 0x00 */ int f00;
-    /* 0x04 */ float pos[3];
-    /* 0x10 */ float at[3];
-    /* 0x1C */ float roll;
-    /* 0x20 */ float fov;
-} BgaSdfKey;
-
-/* The SDF camera record bga_InitSdfCamera checks and bga_SetCamFrame starts:
- * the "SDF" tag, the key count, the running frame, the play mode and the keys. */
-typedef struct BgaSdfCam {
-    /* 0x00 */ char id[4];
-    /* 0x04 */ int num;
-    /* 0x08 */ float frame;
-    /* 0x0C */ int mode;
-    /* 0x10 */ BgaSdfKey key[1];
-} BgaSdfCam;
-
 /* the PAL frame counter read back on the 60 Hz timeline: the reciprocal of
    bga_palFrame's 0.82812935f. */
 static inline float bga_ntscFrame(float f)
@@ -2063,7 +2088,6 @@ void bga_CalcSdfCamera(char *data, int loop)
 }
 
 extern char *D_0063BCCC;
-extern char D_006217E0[];
 /* kept local: this TU's uses of _UnitVector do not fit the prototype in
    Matrix.h (_CopyVector is declared above bga_SetFrame) */
 extern void _UnitVector(void *v);
@@ -2094,14 +2118,14 @@ void bga_addLightning(int kind, char *a1, float *vec, int id, int t0, float f)
                 return;
             }
             default:
-                debug_StdPrintfDummy(D_006217E0);
-                debug_assert(D_00621598, 2960);
-                __assert(D_00621598, 2960, D_0063BCE8);
+                debug_StdPrintfDummy("illegal lightning data set.\n");
+                debug_assert(__FILE__, 2960);
+                __assert(__FILE__, 2960, D_0063BCE8);
                 return;
             }
         }
     }
-    p = iosMallocDebug(D_0063A44C, 0x160, D_00621598, 2968);
+    p = iosMallocDebug(D_0063A44C, 0x160, __FILE__, 2968);
     *(char **)(p + 0x154) = D_0063BCCC;
     *(int *)(p + 0x144) = id;
     *(int *)(p + 0x140) = 1;
@@ -2127,9 +2151,9 @@ void bga_addLightning(int kind, char *a1, float *vec, int id, int t0, float f)
         break;
     }
     default:
-        debug_StdPrintfDummy(D_006217E0);
-        debug_assert(D_00621598, 2994);
-        __assert(D_00621598, 2994, D_0063BCE8);
+        debug_StdPrintfDummy("illegal lightning data set.\n");
+        debug_assert(__FILE__, 2994);
+        __assert(__FILE__, 2994, D_0063BCE8);
         break;
     }
 }
@@ -2189,7 +2213,6 @@ typedef struct BgaObjKind {
 } BgaObjKind;
 
 extern BgaObjKind D_002C2DF4[];
-extern char D_00621800[];
 /* kept local: this TU does not include gobj.h or enemy_act.h, and its use of
    DrawLightningN does not fit the prototype in lightning.h */
 extern void *isysGObjSearchFromObjKindID_begin(int kind);
@@ -2272,9 +2295,10 @@ void bga_DispLightning(void)
     for (p = (BgaLightning *)D_0063BCCC; p != 0; p = p->next) {
         g = p->def;
         if (g == 0) {
-            debug_StdPrintfDummy(D_00621800);
-            debug_assert(D_00621598, 3067);
-            __assert(D_00621598, 3067, D_0063BCE8);
+            debug_StdPrintfDummy(
+                "Lightning data does not found! maybe, start point < end point.\n");
+            debug_assert(__FILE__, 3067);
+            __assert(__FILE__, 3067, D_0063BCE8);
             continue;
         }
         col = bga_lightningColor(g);
@@ -2342,7 +2366,7 @@ void bga_DispLightning(void)
     }
 }
 
-void bga_ResetCamera(void)
+inline void bga_ResetCamera(void)
 {
     bgaCameraActive = 0;
 }
@@ -2351,7 +2375,7 @@ extern int D_0063BCC8;
 /* kept local: this TU's uses of _CopyMatrix do not fit the prototype in Matrix.h */
 extern void _CopyMatrix(void *dst, void *src);
 
-int bga_GetCameraMatrix(void *p)
+inline int bga_GetCameraMatrix(void *p)
 {
     int v = bgaCameraActive;
     if (v != 0) {
@@ -2363,27 +2387,12 @@ int bga_GetCameraMatrix(void *p)
     return v != 0 && D_0063BCC8 == 0;
 }
 
-extern char D_0063BCE0[];
-extern char D_006215D8[];
-
-char *bga_InitSdfCamera(char *a0)
-{
-    BgaSdfCam *p = (BgaSdfCam *)a0;
-
-    if (strncmp(p->id, D_0063BCE0, 3) != 0) {
-        debug_StdPrintfDummy(D_006215D8);
-        debug_assert(D_00621598, 0x415);
-        __assert(D_00621598, 0x415, D_0063BCD8);
-    }
-    return a0;
-}
-
 extern int D_0063BCB8;
 extern int GlobalTimer;
 /* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
 extern void _CopyVector(void *dst, void *src);
 
-void bga_SetCamFrame(char *data, int frame, int mode)
+inline void bga_SetCamFrame(char *data, int frame, int mode)
 {
     BgaSdfCam *p = (BgaSdfCam *)data;
 
@@ -2401,7 +2410,7 @@ void bga_SetCamFrame(char *data, int frame, int mode)
     }
 }
 
-int bga_CheckAnimationFinish(char *p)
+inline int bga_CheckAnimationFinish(char *p)
 {
     float f = *(float *)(p + 0x18);
     float t = *(float *)(p + 0x20);
@@ -2419,7 +2428,7 @@ int bga_CheckAnimationFinish(char *p)
     return r;
 }
 
-int bga_CheckAnimationFrame(char *p, int frame, int reset)
+inline int bga_CheckAnimationFrame(char *p, int frame, int reset)
 {
     float f = frame;
     float t = *(float *)(p + 0x20);
@@ -2440,7 +2449,7 @@ int bga_CheckAnimationFrame(char *p, int frame, int reset)
     return r;
 }
 
-int bga_CheckAnimationFrameIn(char *p, int in, int out)
+inline int bga_CheckAnimationFrameIn(char *p, int in, int out)
 {
     float a = in;
     float t = *(float *)(p + 0x20);
@@ -2456,7 +2465,7 @@ int bga_CheckAnimationFrameIn(char *p, int in, int out)
     return r;
 }
 
-int bga_CheckSdfCameraFinish(char *data)
+inline int bga_CheckSdfCameraFinish(char *data)
 {
     BgaSdfCam *p = (BgaSdfCam *)data;
     float f = p->num;
@@ -2468,7 +2477,7 @@ int bga_CheckSdfCameraFinish(char *data)
     return f <= t;
 }
 
-int bga_CheckSdfCameraFrame(char *data, int frame, int reset)
+inline int bga_CheckSdfCameraFrame(char *data, int frame, int reset)
 {
     BgaSdfCam *p = (BgaSdfCam *)data;
     float f = frame;
@@ -2486,7 +2495,7 @@ int bga_CheckSdfCameraFrame(char *data, int frame, int reset)
     return r;
 }
 
-int bga_CheckSdfCameraFrameIn(char *data, int in, int out)
+inline int bga_CheckSdfCameraFrameIn(char *data, int in, int out)
 {
     BgaSdfCam *p = (BgaSdfCam *)data;
     float t = p->frame;
@@ -2503,12 +2512,12 @@ int bga_CheckSdfCameraFrameIn(char *data, int in, int out)
     return r;
 }
 
-void bga_SetCameraForceOff(void)
+inline void bga_SetCameraForceOff(void)
 {
     D_0063BCC8 = 1;
 }
 
-void bga_InitBGA(void)
+inline void bga_InitBGA(void)
 {
     D_0063BCC8 = 0;
     D_0063BCCC = 0;
@@ -2516,14 +2525,14 @@ void bga_InitBGA(void)
 
 extern int D_0063BCC4;
 
-void bga_SetUniqAnimationFlag(int val)
+inline void bga_SetUniqAnimationFlag(int val)
 {
     D_0063BCC4 = val;
 }
 
 extern int D_0028F4D4[];
 
-void bga_ResetAnimation(void)
+inline void bga_ResetAnimation(void)
 {
     void *p;
     bgaCameraActive = 0;
@@ -2542,7 +2551,7 @@ void bga_ResetAnimation(void)
     } while (p != 0);
 }
 
-float bga_GetZoom(void)
+inline float bga_GetZoom(void)
 {
     return *(float *)&D_0063BCC0;
 }

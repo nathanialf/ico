@@ -34,6 +34,14 @@ void matrix_init(void);
  * 2137): fold pushes the product into the three arms, the neg.s, the plain
  * value and the times-zero the ROM carries.  Light.c's LIGHT_ABS is the
  * same text as ABSF. */
+extern int *dmaVif;
+extern int *dmaGif;
+extern int *dmaFSp;
+extern int fadeStatus;
+extern float fadeSpeed;
+extern int fadeContinue;
+extern unsigned char fadeColor[4];
+
 #define ABSF(x) ((x) < 0.0f ? -(x) : (x))
 #define SIGNF(x) ((x) < 0.0f ? -1.0f : ((x) > 0.0f ? 1.0f : 0.0f))
 

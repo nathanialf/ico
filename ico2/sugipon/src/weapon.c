@@ -101,8 +101,6 @@ typedef struct {
 } __attribute__((aligned(8))) FumbleVec;
 
 extern FumbleRow D_0054A040[][3];
-extern const char D_006213A0[];
-extern const char D_006213F0[];
 
 /* INTERIM NAME, chosen and not recovered: the PAL listing carries this file
    static at weapon.c:310-320 and inlines it here, so it has no census row and
@@ -142,10 +140,14 @@ int ReleaseWeaponWithFumbleSequential(char *g)
         if (!fumbleTargetBlocked(&a)) {
             break;
         }
-        debug_StdPrintfDummy(D_006213A0, *(int *)(w + 0xA0), i);
+        /* "point %d, candidate %d overlaps a box; checking the next candidate" */
+        debug_StdPrintfDummy(
+            "    第%dポイントの第%d候補は箱と重なっています。次の候補をチェックします\n",
+            *(int *)(w + 0xA0), i);
     }
-    debug_StdPrintfDummy(D_006213F0, *(int *)(w + 0xA0), i, FUMBLE_ROW(i, w)->x,
-                         FUMBLE_ROW(i, w)->y, FUMBLE_ROW(i, w)->z);
+    /* "decided: point %d, candidate %d" */
+    debug_StdPrintfDummy("決定: 第%dポイント 第%d候補 %f, %f, %f\n", *(int *)(w + 0xA0), i,
+                         FUMBLE_ROW(i, w)->x, FUMBLE_ROW(i, w)->y, FUMBLE_ROW(i, w)->z);
     {
         FumbleVec pos = {FUMBLE_ROW(i, w)->x, -FUMBLE_ROW(i, w)->y, FUMBLE_ROW(i, w)->z, 1.0f};
         float quat[4] = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -322,14 +324,17 @@ typedef struct {
     char pad40[0x10];  /* 0x40 */
     sceVu0FVECTOR hit; /* 0x50 */
     sceVu0FVECTOR dir; /* 0x60 */
-    char pad70[0x18];  /* 0x70 */
+    float f70;         /* 0x70 */
+    char pad74[0x14];  /* 0x74 */
     int wall;          /* 0x88 */
     char pad8C[0x8];   /* 0x8C */
     int hit94;         /* 0x94 */
     char pad98[0x28];  /* 0x98 */
 } CollWork;
 
-extern CollWork D_00621420;
+/* the query calcDynamicGeometry starts from: all clear but the 0x70 word */
+static const CollWork collWorkInit = /* derived name */
+    {{0.0f}, {0.0f}, {0}, {0.0f}, {0}, {0.0f}, {0.0f}, 10.0f};
 
 /* the offset the wall test pushes the blade tip along, its z set per test */
 static float hitOfs[4] = {0.0f, 0.0f, 1.0f, 1.0f};
@@ -373,7 +378,7 @@ void calcDynamicGeometry(char *g)
     char *rp = p + 0xA0;
     float d = D_00318EB8[*(int *)w].f04;
     float r = D_00318EB8[*(int *)w].f00 - d;
-    CollWork cc = D_00621420;
+    CollWork cc = collWorkInit;
     int hitA;
     int hitB;
 
@@ -651,7 +656,6 @@ typedef struct {
 } __attribute__((aligned(8))) QSwordLayout;
 
 extern void *D_0063A438;
-extern const char D_006214E0[];
 
 /* the queen's sword offset, its z set per sword */
 static float queenSwordOfs[4] = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -673,7 +677,7 @@ void initializeQueenzSword(char *g, int index, QSwordLayout *lay)
     r.kind = (lay->kind & 0xFF00) ? 5 : 4;
 
     *(int *)(w + 0x50) = 1;
-    *(int **)(w + 0x54) = iosMallocDebug(D_0063A438, 1 * 4, D_006214E0, 759);
+    *(int **)(w + 0x54) = iosMallocDebug(D_0063A438, 1 * 4, __FILE__, 759);
 
     for (i = 0; i < 1; i++) {
         queenSwordOfs[2] = D_00318EB8[*(int *)w].f00 * (float)i / 0.0f;
@@ -705,7 +709,7 @@ extern char *CSVSYSTEM_InitDObj(int modelId, void *lay);
 
 void *InitWeaponGeo(char *g, QSwordLayout *lay)
 {
-    char *w = iosMallocDebug(D_0063A438, 0xE0, D_006214E0, 820);
+    char *w = iosMallocDebug(D_0063A438, 0xE0, __FILE__, 820);
     int i;
 
     GOBJ_SUB(g)->f_830 = (int)w;
@@ -731,25 +735,25 @@ void *InitWeaponGeo(char *g, QSwordLayout *lay)
             SetTorchLife(o, (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 15,
                          (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 3);
             *(int *)(w + 0x50) = 1;
-            *(char ***)(w + 0x54) = iosMallocDebug(D_0063A438, 1 * 4, D_006214E0, 848);
+            *(char ***)(w + 0x54) = iosMallocDebug(D_0063A438, 1 * 4, __FILE__, 848);
             (*(char ***)(w + 0x54))[0] = o;
-            *(char **)(w + 0x58) = iosMallocDebug(D_0063A438, 0x160, D_006214E0, 856);
+            *(char **)(w + 0x58) = iosMallocDebug(D_0063A438, 0x160, __FILE__, 856);
             break;
         }
 
         case 5:
             initializeQueenzSword(g, i, lay);
-            *(char **)(w + 0x58) = iosMallocDebug(D_0063A438, 0x160, D_006214E0, 861);
+            *(char **)(w + 0x58) = iosMallocDebug(D_0063A438, 0x160, __FILE__, 861);
             break;
 
         case 7:
-            *(char **)(w + 0x58) = iosMallocDebug(D_0063A438, 0x160, D_006214E0, 865);
+            *(char **)(w + 0x58) = iosMallocDebug(D_0063A438, 0x160, __FILE__, 865);
             break;
 
         case 8:
         case 9:
-            *(char **)(w + 0x58) = iosMallocDebug(D_0063A438, 0x160, D_006214E0, 870);
-            *(char **)(w + 0xB0) = iosMallocDebug(D_0063A438, 8, D_006214E0, 871);
+            *(char **)(w + 0x58) = iosMallocDebug(D_0063A438, 0x160, __FILE__, 870);
+            *(char **)(w + 0xB0) = iosMallocDebug(D_0063A438, 8, __FILE__, 871);
             *(char **)(w + 0xB4) =
                 CSVSYSTEM_InitDObj(D_002A79B8[*(int *)(*(char **)(g + 0x15C) + 0x844)].model0, lay);
             *(char **)(w + 0xB8) =
@@ -760,7 +764,7 @@ void *InitWeaponGeo(char *g, QSwordLayout *lay)
             break;
 
         default:
-            *(char **)(w + 0x58) = iosMallocDebug(D_0063A438, 0x160, D_006214E0, 884);
+            *(char **)(w + 0x58) = iosMallocDebug(D_0063A438, 0x160, __FILE__, 884);
             break;
         }
     }
@@ -1266,7 +1270,7 @@ void *InitDemoQueensSword(char *a0, void *a1)
     DemoQueenSwordWork *w;
     int i;
 
-    w = (DemoQueenSwordWork *)iosMallocDebug(D_0063A438, 0xE0, D_006214E0, 802);
+    w = (DemoQueenSwordWork *)iosMallocDebug(D_0063A438, 0xE0, __FILE__, 802);
     *(DemoQueenSwordWork **)((char *)GOBJ_SUB(a0) + 0x830) = w;
     *w = swordWorkTemplate;
     for (i = 0; i < GOBJ_SUB(a0)->f_8; i++) {

@@ -33,8 +33,6 @@ static DlEntry dlEntries[13];
 static int dlBufferHead[2][13];
 
 extern int dmaVif;
-extern int D_006218E0[];
-extern int D_00621840[];
 extern int D_0063A43C;
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
@@ -42,9 +40,12 @@ extern int D_0063BD20;
 
 static int dlPriorityStack[8];
 
-extern char D_00621878[];
-extern char D_00621890[];
-extern char D_006218B8[];
+/* The size of each priority's list buffer, the TU's first .rodata object. */
+static const int dlBufferSize[13] = {
+    /* derived name */
+    81920, 14336, 30720, 4096, 16384, 65536, 40960, 12288, 26624, 14336, 4096, 28672, 86016,
+};
+
 extern char D_0063BD28[];
 void dl_Clear(void);
 
@@ -57,7 +58,7 @@ void dl_Init(void)
     for (i = 0; i < 2; i++) {
         for (j = 0; j < 13; j++) {
             dlBufferHead[i][j] =
-                (int)iosMallocDebug(D_0063A43C, D_00621840[j], D_00621878, 393) | 0x30000000;
+                (int)iosMallocDebug(D_0063A43C, dlBufferSize[j], __FILE__, 393) | 0x30000000;
         }
     }
     dlBank = 0;
@@ -147,9 +148,9 @@ void dl_PushPriority(void)
         D_0063BD20 = D_0063BD20 + 1;
         dlPriorityStack[D_0063BD20 - 1] = dlPriority;
     } else {
-        debug_StdPrintfDummy(D_00621890);
-        debug_assert(D_00621878, 0x216);
-        __assert(D_00621878, 0x216, D_0063BD28);
+        debug_StdPrintfDummy("dl_PushPriority:Stack Overflow.\n");
+        debug_assert(__FILE__, 534);
+        __assert(__FILE__, 534, D_0063BD28);
     }
 }
 
@@ -159,9 +160,9 @@ void dl_PopPriority(void)
         dlPriority = dlPriorityStack[D_0063BD20 - 1];
         D_0063BD20--;
     } else {
-        debug_StdPrintfDummy(D_006218B8);
-        debug_assert(D_00621878, 0x228);
-        __assert(D_00621878, 0x228, D_0063BD28);
+        debug_StdPrintfDummy("dl_PopPriority:Stack Underflow.\n");
+        debug_assert(__FILE__, 552);
+        __assert(__FILE__, 552, D_0063BD28);
     }
 }
 
@@ -176,13 +177,22 @@ void dl_Debug(void)
     unsigned int end = entry[9];
     unsigned int start = entry[1];
     unsigned int count = (end - start) >> 4;
-    return debug_StdPrintfDummy(D_006218E0, count - 1);
+    return debug_StdPrintfDummy("dldma %d\n", count - 1);
 }
 
 inline void dl_OpenDma(int a0, int a1, int a2)
 {
     int *entry = (int *)&dlEntries[dlPriority];
     int old;
+
+    /* Compiled out. What the bytes pin: the ROM keeps this message between
+       dl_Debug's format and dl_CloseDma's table with no reference anywhere,
+       and the listing leaves rows 612 and 613 of dl_OpenDma code-free before
+       the open-tag test.  What they cannot pin: the test the print sat
+       under, or its argument. */
+    if (0) {
+        debug_StdPrintfDummy("dl_CheckDLOverflow:Display List Buffer [%d] Full.\n", dlPriority);
+    }
     if (entry[0]) {
         dl_CloseDma();
     }

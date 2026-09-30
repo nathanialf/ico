@@ -90,9 +90,6 @@ static int *bgaPlayList;
 
 static StageAnim stageAnimTable[87];
 
-extern char D_005501A8[];
-extern char D_005501E0[];
-extern char D_00550028[];
 extern void __assert(char *file, int line, char *expr);
 /* kept local: this TU's uses of bga_CheckAnimationFinish do not fit the prototype in BgAnimation.h */
 extern int bga_CheckAnimationFinish(int a0);
@@ -102,14 +99,12 @@ extern int bga_CheckSdfCameraFinish(int a0);
 extern int bga_CheckAnimationFrame(int a0, int a1, int a2);
 /* kept local: this TU's uses of bga_CheckSdfCameraFrame do not fit the prototype in BgAnimation.h */
 extern int bga_CheckSdfCameraFrame(int a0, int a1, int a2);
-extern char D_00550210[];
 /* kept local: this TU's uses of bga_CalcSdfCamera do not fit the prototype in BgAnimation.h */
 extern void bga_CalcSdfCamera(char *p, int a1);
 extern char D_005F5E70[];
 extern char D_002C2DC8[];
 extern char D_002BC6E0[];
 extern char D_00602FA0[];
-extern char D_00550068[];
 extern int stage_no;
 extern int strcmp(const char *a, const char *b);
 extern int strncmp(const char *a, const char *b, int n);
@@ -125,8 +120,6 @@ extern int D_0028F4C0[];
 extern void bga_SetUniqAnimationFlag(int val);
 /* kept local: this TU's uses of bga_CalcAnimation do not fit the prototype in BgAnimation.h */
 extern void bga_CalcAnimation(void *a0, int a1, int a2);
-extern char D_00550230[];
-extern char D_00550278[];
 extern IosMemPart *D_0063A44C;
 /* kept local: this TU's uses of bga_DispLightning do not fit the prototype in BgAnimation.h */
 extern void bga_DispLightning(void);
@@ -135,21 +128,21 @@ extern int bga_CheckAnimationFrameIn(int a0, int a1, int a2);
 /* kept local: this TU's uses of bga_CheckSdfCameraFrameIn do not fit the prototype in BgAnimation.h */
 extern int bga_CheckSdfCameraFrameIn(int a0, int a1, int a2);
 
+/* The layout record a stage object is made with and handed to its init
+   function: position, rotation, scale and a flag word (names ours). */
 typedef struct {
-    long long w[8];
+    sceVu0FVECTOR pos;   /* 0x00 */
+    sceVu0FVECTOR rot;   /* 0x10 */
+    sceVu0FVECTOR scale; /* 0x20 */
+    int flag;            /* 0x30 */
 } StageGObjInit;
-
-extern StageGObjInit D_0054FFA0;
-extern char D_0054FFE0[];
-extern char D_00550000[];
-extern char D_00550040[];
 
 #include "StageAnimation.h"
 #include <stdio.h>
 
 void stage_MakeGObj(int *dat, int no)
 {
-    StageGObjInit init = D_0054FFA0;
+    StageGObjInit init = {{0.0f, 0.0f, 0.0f, 1.0f}, {0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}};
     int i;
     char *g;
     char *d;
@@ -160,15 +153,15 @@ void stage_MakeGObj(int *dat, int no)
 
     for (i = 0; i < ((*(int *)(e + 0x28C) << 22) >> 22); i++) {
         if (((short *)e)[i] == kind) {
-            debug_StdPrintfDummy(D_0054FFE0, kind, kind, no);
+            debug_StdPrintfDummy("Bga Object Already %d %d %d\n", kind, kind, no);
             return;
         }
     }
     g = (char *)isysGObjAdd(0, 0, 0);
     if (g == 0) {
-        debug_StdPrintfDummy(D_00550000, no);
-        debug_assert(D_00550028, 541);
-        __assert(D_00550028, 541, "0");
+        debug_StdPrintfDummy("stage_MakeGObj:can't alloc gobj %d\n", no);
+        debug_assert(__FILE__, 541);
+        __assert(__FILE__, 541, "0");
     }
     *(short *)(e + (((*(int *)(e + 0x28C) << 22) >> 22) << 1)) = kind;
     *(int *)(g + 0x4) = 1;
@@ -187,9 +180,9 @@ void stage_MakeGObj(int *dat, int no)
     w = (*(int *)(e + 0x28C) & ~0x3FF) | ((((*(int *)(e + 0x28C) << 22) >> 22) + 1) & 0x3FF);
     *(int *)(e + 0x28C) = w;
     if (((w << 22) >> 22) >= 64) {
-        debug_Assert(D_00550040);
-        debug_assert(D_00550028, 562);
-        __assert(D_00550028, 562, "0");
+        debug_Assert("Too much Stage Animation Objects.\n");
+        debug_assert(__FILE__, 562);
+        __assert(__FILE__, 562, "0");
     }
 }
 
@@ -229,9 +222,9 @@ void stage_ApplyData(char *name, char *data)
             }
         }
     }
-    sprintf(buf, D_00550068, name);
-    debug_assertMessage(D_00550028, 0x269, buf);
-    __assert(D_00550028, 617, "e");
+    sprintf(buf, "stage_ApplyData:Data is not registered. \n\n%s\n", name);
+    debug_assertMessage(__FILE__, 617, buf);
+    __assert(__FILE__, 617, "e");
 }
 
 typedef struct {
@@ -256,13 +249,8 @@ typedef struct {
     int _8[3];
 } StgBgaSet;
 
-extern const StageGObjInit D_00550150;
 extern StgObjDat D_00600498[];
 extern char D_002C1270[];
-extern char D_00550098[];
-extern char D_005500C8[];
-extern char D_005500F8[];
-extern char D_00550128[];
 extern void bga_InitBGA(void);
 extern void bga_ResetCamera(void);
 extern void bga_ApplyDObject(char *a0, char **a1, int a2, int a3);
@@ -403,10 +391,13 @@ int stage_Init(void)
                         stageAnimDebugHook();
                         stageAnimCount++;
                         if (stageAnimCount >= 88) {
-                            debug_StdPrintfDummy(D_00550098, stageAnimCount, 87);
-                            debug_StdPrintfDummy(D_005500C8);
-                            debug_assert(D_00550028, 702);
-                            __assert(D_00550028, 702, "0");
+                            /* "stgBgas has %d, over MAX_ANIM_KIND %d" */
+                            debug_StdPrintfDummy("stgBgas が%d有り MAX_ANIM_KIND %dを越えました\n",
+                                                 stageAnimCount, 87);
+                            /* "too many BgAnimation kinds in one stage" */
+                            debug_StdPrintfDummy("1ステージ中の BgAnimation の種類が多すぎます\n");
+                            debug_assert(__FILE__, 702);
+                            __assert(__FILE__, 702, "0");
                         }
                     }
                 }
@@ -415,13 +406,15 @@ int stage_Init(void)
     }
     for (i = 0; i < stageAnimCount; i++) {
         if (((STG[i].flags.i << 22) >> 22) >= 64) {
-            debug_StdPrintfDummy(D_005500F8, ((STG[i].flags.i << 22) >> 22), 64);
-            debug_assert(D_00550028, 712);
-            __assert(D_00550028, 712, "0");
+            /* "stgBgas has %d, over MAX_ANIM_GOBJ %d" */
+            debug_StdPrintfDummy("stgBgas が%d有り MAX_ANIM_GOBJ %dを越えました\n",
+                                 ((STG[i].flags.i << 22) >> 22), 64);
+            debug_assert(__FILE__, 712);
+            __assert(__FILE__, 712, "0");
         }
         max = max < ((STG[i].flags.i << 22) >> 22) ? ((STG[i].flags.i << 22) >> 22) : max;
     }
-    debug_StdPrintfDummy(D_00550128, stageAnimCount, max);
+    debug_StdPrintfDummy("Max Bga = %d // Max DObj %d\n", stageAnimCount, max);
     if (p != 0) {
         e = STG;
         for (i = 0; i < stageAnimCount; i++, e++) {
@@ -457,9 +450,9 @@ int stage_Init(void)
                 *(int *)(STG_DAT(e->objs[k]) + 0xC) = 0;
                 *(int *)(STG_DAT(e->objs[k]) + 0x10) = 0;
                 *(int *)(STG_DAT(e->objs[k]) + 0xC) = (int)iosMallocDebug(
-                    D_0063A44C, *(int *)(STG_DAT(e->objs[k]) + 0x8) << 6, D_00550028, 0x2F9);
+                    D_0063A44C, *(int *)(STG_DAT(e->objs[k]) + 0x8) << 6, __FILE__, 761);
                 *(int *)(STG_DAT(e->objs[k]) + 0x10) = (int)iosMallocDebug(
-                    D_0063A44C, *(int *)(STG_DAT(e->objs[k]) + 0x8) << 4, D_00550028, 0x2F9);
+                    D_0063A44C, *(int *)(STG_DAT(e->objs[k]) + 0x8) << 4, __FILE__, 761);
                 /* The reallocation block's own count line (`X->8 = N;`, as
                    chain.c, boy.c and box.c spell the same block), here passed
                    the count field itself (listing 762; all three allocations
@@ -471,7 +464,7 @@ int stage_Init(void)
                     iosFree((void *)(*(int *)(STG_DAT(e->objs[k]) + 0x870) & 0x0FFFFFFF));
                 }
                 *(int *)(STG_DAT(e->objs[k]) + 0x870) = (int)iosMallocDebug(
-                    D_0063A44C, *(int *)(STG_DAT(e->objs[k]) + 0x8) * 0x50, D_00550028, 0x2F9);
+                    D_0063A44C, *(int *)(STG_DAT(e->objs[k]) + 0x8) * 0x50, __FILE__, 761);
                 for (t = 0; t < *(int *)(STG_DAT(e->objs[k]) + 0x8); t++) {
                     ((PlayWord *)(STG_NODE(e->objs[k], t) + 0x38))->l &= ~1;
                     ((PlayWord *)(STG_NODE(e->objs[k], t) + 0x38))->l &= ~2;
@@ -504,8 +497,11 @@ int stage_Init(void)
                 continue;
             }
             for (k = 0; k < ((e->flags.i << 22) >> 22); k++) {
+                static const StageGObjInit stageGObjArg = /* derived name */
+                    {{0.0f, 0.0f, 0.0f, 1.0f}, {0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, 1};
+
                 g = e->objs[k];
-                arg = D_00550150;
+                arg = stageGObjArg;
                 tbl2 = D_002C1270 + *(int *)((char *)e->dats[k] + 4) * 100;
                 fn = *(int (**)(char *, StageGObjInit *))(tbl2 + 0x58);
                 if (fn != 0) {
@@ -607,9 +603,9 @@ inline int stage_CheckAnimationFinish(int a0)
             }
         }
     }
-    debug_StdPrintfDummy(D_005501A8);
-    debug_assert(D_00550028, 909);
-    __assert(D_00550028, 909, "0");
+    debug_StdPrintfDummy("stage_CheckAnimationFinish:illegal Animation No.\n");
+    debug_assert(__FILE__, 909);
+    __assert(__FILE__, 909, "0");
     return 0;
 }
 
@@ -639,9 +635,9 @@ int stage_ContinueAnimation(int a0, int a1)
             }
         }
     }
-    debug_StdPrintfDummy(D_005501E0);
-    debug_assert(D_00550028, 954);
-    __assert(D_00550028, 954, "0");
+    debug_StdPrintfDummy("stage_ContinueAnimation:illegal Animation No.\n");
+    debug_assert(__FILE__, 954);
+    __assert(__FILE__, 954, "0");
     return 0;
 }
 
@@ -739,8 +735,8 @@ void stage_CalcAnimationNoParent(void)
             case 1:
                 if (lock != 0) {
                     if (debug_font_flag & 1) {
-                        debug_Printf(0, ScreenHeight / 2 - 28, 0xCCCCCC00, D_00550210,
-                                     *(int *)(e + 0x280));
+                        debug_Printf(0, ScreenHeight / 2 - 28, 0xCCCCCC00,
+                                     "\033[32mCamera LWS : %s\033[0m\n", *(int *)(e + 0x280));
                     }
                 }
                 _InitCurrentMatrix();
@@ -1134,13 +1130,15 @@ int *stage_MakePlayBgAnimation(int key)
     }
 
     if (found == -1) {
-        debug_StdPrintfDummy(D_00550230);
+        /* "the given ID does not exist, or its animation is not loaded" */
+        debug_StdPrintfDummy("指定したIDが存在しないか、アニメーションが読み込まれていません.\n");
         return 0;
     }
 
-    p = (int *)iosMallocDebug(D_0063A44C, 0x40, D_00550028, 0x5D6);
+    p = (int *)iosMallocDebug(D_0063A44C, 0x40, __FILE__, 1494);
     if (p == 0) {
-        debug_StdPrintfDummy(D_00550278);
+        /* "cannot allocate memory for the stage segment (heap exhausted)" */
+        debug_StdPrintfDummy("ステージセグメントにメモリが確保できません.(ヒープメモリ不足)\n");
         return 0;
     }
 
