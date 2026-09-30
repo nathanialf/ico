@@ -18,17 +18,21 @@ extern long __swrite(void *a0, int a1, int a2);
 extern long __sseek(void *a0, int a1, int a2);
 extern int _sbrk_r(int *self, int a1);
 extern int *_multadd(void *a0, int *a1, int a2, int a3);
-extern int errno[];
+
+/* We use the errno variable used by the system dependent layer.  Common,
+ * so the linker puts it in the small common section (MAIN.MAP line 7658). */
+int errno;
+
 extern unsigned int sbrk(int a0);
 
 int _sbrk_r(int *self, int a1)
 {
     unsigned int ret;
-    errno[0] = 0;
+    errno = 0;
     ret = sbrk(a1);
     if (ret == 0xFFFFFFFF) {
-        if (errno[0] != 0) {
-            self[0] = errno[0];
+        if (errno != 0) {
+            self[0] = errno;
         }
     }
     return ret;

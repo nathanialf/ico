@@ -142,7 +142,11 @@ fi
 #                            tools/binutils-2.10-ee.patch applied (the R5900
 #                            machine and the DVP overlay section types,
 #                            backported from ps2dev's binutils-2.14-PS2.patch,
-#                            github.com/ps2dev/ps2toolchain commit aa984e7).
+#                            github.com/ps2dev/ps2toolchain commit aa984e7),
+#                            and tools/binutils-2.10-dvp-ld.patch (the Cygnus
+#                            "sky" ld's rule placing each .DVP.overlay.*
+#                            orphan at address 0, from the GPL ee-gcc
+#                            2.9-991111 combined tree).
 #                            Target mipsel-elf: its default output vector is
 #                            elf32-littlemips, the one MAIN.MAP names.
 #   dvp-as                   ps2dev's binutils-gdb, branch dvp-v2.45.1
@@ -165,6 +169,7 @@ fi
 BU210_URL="${BU210_URL:-https://ftp.gnu.org/gnu/binutils/binutils-2.10.tar.gz}"
 BU210_SHA256="fd7d227c0dd15cf5448385e56b8ad8313cd491839834b57c0c086ac7b7819a15"
 BU210_PATCH="$ROOT/tools/binutils-2.10-ee.patch"
+BU210_DVP_PATCH="$ROOT/tools/binutils-2.10-dvp-ld.patch"
 BU210_DIR="$ROOT/tools/cc/binutils-2.10-ee"
 DVP_REPO="${DVP_REPO:-https://github.com/ps2dev/binutils-gdb}"
 DVP_COMMIT="3eb45ea37f0efd498d1de3cf9562de07197aefa8"   # dvp-v2.45.1 "DVP changes"
@@ -198,7 +203,7 @@ build_dvp_as() {
 
 build_ld210() {
     local stamp="$BU210_DIR/.stamp" want
-    want="$BU210_SHA256 $(sha256sum "$BU210_PATCH" | cut -d' ' -f1)"
+    want="$BU210_SHA256 $(cat "$BU210_PATCH" "$BU210_DVP_PATCH" | sha256sum | cut -d' ' -f1)"
     if [[ -x "$BU210_DIR/bin/ld" && "$(cat "$stamp" 2>/dev/null)" == "$want" ]]; then
         echo "==> ld 2.10 already at $BU210_DIR"
         return 0
@@ -211,10 +216,11 @@ build_ld210() {
         echo "$BU210_SHA256  $tgz" | sha256sum -c --status ||
             { echo "==> binutils-2.10.tar.gz sha256 mismatch" >&2; return 1; }
     fi
-    echo "==> building ld 2.10 with tools/binutils-2.10-ee.patch"
+    echo "==> building ld 2.10 with tools/binutils-2.10-ee.patch and tools/binutils-2.10-dvp-ld.patch"
     rm -rf "$CCSRC/binutils-2.10" "$CCSRC/build-ld210"
     tar -xzf "$tgz" -C "$CCSRC"
-    ( cd "$CCSRC/binutils-2.10" && patch -s -p1 < "$BU210_PATCH" ) || return 1
+    ( cd "$CCSRC/binutils-2.10" && patch -s -p1 < "$BU210_PATCH" &&
+      patch -s -p1 < "$BU210_DVP_PATCH" ) || return 1
     cp "$CCSRC/dvp-binutils/config.sub" "$CCSRC/dvp-binutils/config.guess" "$CCSRC/binutils-2.10/"
     mkdir -p "$CCSRC/build-ld210"
     ( cd "$CCSRC/build-ld210" &&

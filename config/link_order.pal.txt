@@ -125,27 +125,22 @@ blob:cod/452094.rodata
 ico2/fumi/sound/adpcm_init.c
 blob:cod/006BF498.bss
 blob:cod/0063C1B8.sbss
-blob:cod/53A5F0.sdata
 ico2/fumi/sound/s_init.c
 ico2/fumi/sound/soundManager.c
-blob:cod/53A684.sdata
-blob:cod/19C4F0.data
 ico2/fumi/src/act-game.c
 blob:cod/4526C4.rodata
 # its .rodata is the data-only member motion-random-def, placed below
 ico2/fumi/src/act-parallel-control.c rodata=-
 ico2/fumi/src/act-wish.c
+blob:cod/53A6B8.sdata
 ico2/fumi/src/boyact.c
-blob:cod/53A6B0.sdata
 ico2/fumi/src/commonact.c
 blob:cod/0063C204.sbss
 ico2/fumi/src/enemy_act.c
-blob:cod/53A800.sdata
 ico2/fumi/src/fieldCollision.c
 ico2/fumi/src/fuzio.c
 blob:cod/53A868.sdata
 ico2/fumi/src/girl_act.c
-blob:cod/53A8E3.sdata
 blob:cod/19D64C.data
 ico2/fumi/src/jimaku.c
 ico2/fumi/src/way_sys.c
@@ -424,9 +419,9 @@ ico2/fumi/src/act.c
 ico2/fumi/src/act2.c
 ico2/fumi/src/seMail.c
 ico2/fumi/src/way_kidnap.c
+blob:cod/53BC88.sdata
 ico2/fumi/src/way_llf.c
 blob:cod/0063C4C4.sbss
-blob:cod/53BC88.sdata
 blob:cod/3F1EC0.data
 ico2/fumi/src/way_tool.c
 ico2/script/src/deja.c
@@ -621,6 +616,7 @@ sce/libm/common/sf_scalbn.c
 sce/libm/common/sf_copysign.c
 blob:cod/00730BC0.bss
 sce/libgcc/__main.c
+sce/libgcc/_ctors.c
 sce/libgcc/_divdi3.c
 sce/libgcc/_fixunsdfdi.c
 sce/libgcc/_floatdidf.c
@@ -694,6 +690,7 @@ sce/libc/reent/fstatr.c
 sce/libc/reent/lseekr.c
 sce/libc/reent/readr.c
 sce/libc/stdlib/reallocr.c
+sce/libc/s_infconst.c
 sce/libkernl/cache.c
 sce/libgcc/_fixdfdi.c
 ico2/vusrc/cluster.dsm
@@ -701,5 +698,3 @@ ico2/vusrc/mesh.dsm
 ico2/vusrc/normal_c.dsm
 ico2/vusrc/normal_l.dsm
 ico2/vusrc/particle.dsm
-blob:cod/0063C5C8.sbss
-blob:cod/538A90.rodata

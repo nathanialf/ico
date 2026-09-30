@@ -18,6 +18,7 @@ shape.
 |---|---|
 | `setup.sh` | idempotent bootstrap: venv, submodules, EE toolchain, ghidra, git hooks; builds the plain build's ld 2.10 and dvp-as from public source under `tools/cc/` |
 | `binutils-2.10-ee.patch` | the R5900 machine and DVP overlay section types for GNU ld 2.10, backported from ps2dev's binutils-2.14-PS2.patch; applied by `setup.sh` |
+| `binutils-2.10-dvp-ld.patch` | the Cygnus "sky" ld's DVP rule for GNU ld 2.10: each `.DVP.overlay.*` orphan gets its own output section at address 0 (from the GPL ee-gcc 2.9-991111 combined tree's `ld/emultempl/elf32.em`); applied by `setup.sh` after the first |
 | `install_hooks.sh` | installs the pre-commit and pre-push hooks (`ninja` SHA-1 gate + `check_no_rom.sh`) |
 | `extract_elf.sh` / `extract_elf.py` | disc -> `baserom/<ver>/baseelf.{elf,rom}` + SHA-1 check + reference maps |
 | `ico_version.py` / `ico_version.sh` | the single source of truth for the branch's target slug and paths |

@@ -22,10 +22,9 @@
  *
  * What the link still does not give the file, measured with
  * tools/check_elf.py --full-diff (report B-6): .bss's 128 (debug_exception.c's
- * .bss in the base), the .sbss and .rodata sizes and so every file offset
- * after .sbss (pad inside the transitional blobs), the .DVP.overlay.* sections' addresses (the base
- * has them at 0) and the names of the seven overlays dvp-as starts by itself
- * every 256 instructions.
+ * .bss in the base) and the names of the seven overlays dvp-as starts by
+ * itself every 256 instructions, and so the string tables' sizes and every
+ * file offset after .DVP.ovlystrtab.
  */
 ENTRY(_start)
 
@@ -56,7 +55,8 @@ SECTIONS
     .vubss . (NOLOAD) : { *(.vubss) . = .; }
     /* dvp-as's overlay table and its string table, not allocated: the base
      * has both at the end of .vubss. The .DVP.overlay.* sections follow as
-     * orphans, one output section per input section. */
+     * orphans, one output section per input section at address 0, by the
+     * linker's own DVP rule (tools/binutils-2.10-dvp-ld.patch). */
     .DVP.ovlytab 0x00736198 : { *(.DVP.ovlytab) }
     .DVP.ovlystrtab 0x00736198 : { *(.DVP.ovlystrtab) }
 
