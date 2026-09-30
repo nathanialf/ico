@@ -32,13 +32,17 @@ void DispMultiBgaManagerWithKind(int kind, BgaDisp *base, int n);
 void EntryMultiBgaManager(BgaDisp *bga, int no, int kind, void *pos, void *rot);
 void *InitMultiBgaManager(int n);
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 2 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 2 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them.
+   The record is a quadword-aligned one, as the vectors in its first 0x40
+   bytes are (BgaAnimeState's layout): stageMultiBgaManager.o's .bss, which
+   opens with an array of these, starts on 16 bytes after spiderGroupManager's
+   run ends 8 short of it, in retail as in MAIN.MAP. */
 typedef struct {
     long long w[8]; /* 0x00 */
     int obj;        /* 0x40 */
     int stay;       /* 0x44 */
     long long w48;  /* 0x48 */
-} MultiBga;
+} __attribute__((aligned(16))) MultiBga;
 
 /* the state every animation slot starts from, as its fields read: the scale
    word, the identity rotation, the position and the homogeneous offset, then

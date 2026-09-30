@@ -619,7 +619,7 @@ segments:
       - [0x3E78E0, .data, ico2/sugipon/src/enemyParts]  # the TU's whole .data run as source (data pass 3): eight part templates, VMA 0x4E78E0..0x4E7A20, 320 B
       - [0x3E7A20, .data, ico2/sugipon/src/flag]  # the TU's whole .data run as source (VMA 0x4E7A20..0x4E7AC0, 0xA0 B: the four-point corner table and the cloth config record, MAIN.MAP's 0x1C; 4 B of alignment before girl's run; chain 3 pass 136), girl's row follows directly
       - [0x3E7AC0, .data, ico2/sugipon/src/girl]  # the TU's whole .data run as source (completeness pass 7): the cloth mesh then the earlier tables, VMA 0x4E7AC0..0x4EB430
-      - [0x3EB430, data, cod/3EB430]     # .data blob resume
+      - [0x3EB430, .data, ico2/sugipon/src/girlForceField]  # the TU's whole .data run as source (finishing pass P1-11), VMA 0x4EB430..0x4EB440, 16 B = MAIN.MAP girlForceField.o .data: the girl's blue {64, 96, 128, 128}, unreferenced (its display compiled out); handManager's January 16 B ({-1.0f, 0, 0, 0} in the Aug-2001 prototype) is absent in retail
       - [0x3EB440, .data, ico2/sugipon/src/item]  # the TU's whole .data run as source (data pass 5), abutting lodManager's, VMA 0x4EB440..0x4EB5E0, 416 B
       - [0x3EB5E0, .data, ico2/sugipon/src/lodManager]  # the TU's whole .data run as source (data pass 5; = MAIN.MAP lodManager.o .data 0x178), VMA 0x4EB5E0..0x4EB758, 376 B
       - [0x3EB758, .data, ico2/sugipon/src/motionFileManager]  # the TU's whole .data run as source (finishing pass P1-7d): motionTable (MAIN.MAP global), 1150 zero motion pointers, VMA 0x4EB758..0x4EC950, 0x11F8 B; motionManager's row follows
@@ -1241,7 +1241,9 @@ segments:
       - [0x53BC60, .sdata, ico2/sugipon/src/windManager]  # the TU's whole .sdata run as source (finishing pass P1-6): the wind kind, speeds and gust state, VMA 0x63BC60..0x63BC80, 0x20 B = MAIN.MAP
       - [0x53BC80, .sdata, ico2/sugipon/src/worm]  # the TU's whole .sdata run as source (finishing pass P1-6): WormGeo's first-call flag, VMA 0x63BC80..0x63BC84, 4 B = MAIN.MAP
       - [0x53BC88, .sdata, ico2/seki/src/Basic]  # the TU's whole .sdata run as source (finishing pass P1-7d), VMA 0x63BC88..0x63BCB4, 0x2C B = MAIN.MAP Basic.o .sdata: the allocator's partition and total, mallocseki's assert text, then dmaVif, dmaGif, dmaFSp, fadeStatus, fadeSpeed, fadeContinue and fadeColor (MAIN.MAP globals, in Basic.h)
-      - [0x53BCB8, sdata, cod/53BCB8]     # .sdata blob resume (BgAnimation, DisplayFont and DisplayList)
+      - [0x53BCB8, .sdata, ico2/seki/src/BgAnimation]  # the TU's whole .sdata run as source (finishing pass P1-11), VMA 0x63BCB8..0x63BD00, 0x48 B (MAIN.MAP's January run is 0x50): bgaStreamSync (global, streamMotionManager clears it; BgAnimation.h), the frame, zoom, unique-animation, camera-force-off and lightning-list words, the short literals at their uses and the pivot flag
+      - [0x53BD00, .sdata, ico2/seki/src/DisplayFont]  # the TU's whole .sdata run as source (finishing pass P1-11), VMA 0x63BD00..0x63BD1D, 0x1D B = MAIN.MAP: the alignment and the four colour words, then "font"
+      - [0x53BD20, .sdata, ico2/seki/src/DisplayList]  # the TU's whole .sdata run as source (finishing pass P1-11), VMA 0x63BD20..0x63BD32, 0x12 B = MAIN.MAP: the priority stack depth, "FALSE" and the compiled-out assert's "e"
       - [0x53BD34, .sdata, ico2/seki/src/DmaPacket]  # the TU's whole .sdata run as source (finishing pass P1-7d): used_dma_memory (MAIN.MAP global), VMA 0x63BD34..0x63BD38, 4 B = MAIN.MAP
       - [0x53BD38, .sdata, ico2/seki/src/EnemyInit]  # the TU's whole .sdata run as source (finishing pass P1-7d): EnemyKindNum (MAIN.MAP global), VMA 0x63BD38..0x63BD3C, 4 B = MAIN.MAP; 4 B of pad to adpcm_init's 8-aligned run
       - [0x53BD40, sdata, cod/53BD40]     # .sdata blob resume (adpcm_init onward, up to way_llf)
@@ -1353,7 +1355,7 @@ segments:
       - { type: .bss, vram: 0x00669A40, name: ico2/sugipon/src/tableSin }  # the TU's own .bss, 0x12012 B, VMA 0x669A40..0x67BA52; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x0067BA60, name: ico2/seki/src/GsBase }  # the TU's own .bss, 0x280 B, VMA 0x67BA60..0x67BCE0, five statics in ROM run order (vsParam, logBuf, lockFileName, lockOwner, bgColor; completeness pass 46); MAIN.MAP line 7678 gives the owner, its 0x40 is the January object before the retail revision added the three character buffers; abuts Light
       - { type: .bss, vram: 0x0067BCE0, name: ico2/seki/src/Light }  # the TU's own .bss, 0xF0 B, VMA 0x67BCE0..0x67BDD0; static definitions in ROM run order (completeness pass)
-      - { type: bss, vram: 0x0067BDD0, name: cod/0067BDD0 }  # .bss blob resume
+      - { type: .bss, vram: 0x0067BDD0, name: ico2/seki/src/Matrix }  # the TU's whole .bss run as source (finishing pass P1-11), VMA 0x67BDD0..0x67BFD0, 0x200 B, unreferenced; retail-only (MAIN.MAP gives Matrix.o no .bss; Light.o's run is its January 0xF0), Matrix.o being the member between Light.o and MicroCode.o that grew in retail
       - { type: .bss, vram: 0x0067BFD0, name: ico2/seki/src/MicroCode }  # the TU's own .bss, 0x40 B, VMA 0x67BFD0..0x67C010; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x0067C010, name: ico2/seki/src/Packet }  # the TU's whole .bss (VMA 0x67C010..0x67C070, 0x60 B: the packet work buffer, static, the +0x40 bounding box inside it; chain 1 pass 123), Shadow's row follows directly
       - { type: .bss, vram: 0x0067C070, name: ico2/seki/src/Shadow }  # the TU's .bss as source (completeness pass 65)
@@ -1388,7 +1390,7 @@ segments:
       - { type: .bss, vram: 0x006E6D80, name: ico2/omori/src/generator }  # the TU's own .bss, 0x2C10 B, VMA 0x6E6D80..0x6E9990; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006E9990, name: ico2/omori/src/hand-camera }  # the TU's own .bss, 0x1C B, VMA 0x6E9990..0x6E99AC; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006E99B0, name: ico2/omori/src/lws_kyomi }  # the TU's own .bss as source (finishing pass P1-7d): the hint save flags and the per-hint timers as one static record Hint_Init clears, 0x78 B, VMA 0x6E99B0..0x6E9A28
-      - { type: bss, vram: 0x006E9A28, name: cod/006E9A28 }  # .bss blob resume (itou_boss's run, 0xD90 B from 0x6E9A30)
+      - { type: .bss, vram: 0x006E9A30, name: ico2/ito/src/itou_boss }  # the TU's whole .bss run as source (finishing pass P1-11), VMA 0x6E9A30..0x6EA7C0, 0xD90 B = MAIN.MAP: the capsule record (the stage flag and the fifty-three capsules, cleared as one by itou_boss_gflag_init), then the gene_enemy threads' done flags
       - { type: .bss, vram: 0x006EA7C0, name: ico2/ito/src/lightning }  # the TU's .bss as source (completeness pass 65)
       - { type: .bss, vram: 0x006EA7F0, name: ico2/ito/src/queen }  # the TU's own .bss, 0x10 B, VMA 0x6EA7F0..0x6EA800; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006EA800, name: ico2/ito/src/stage_orient }  # the TU's own .bss, 0x100 B, VMA 0x6EA800..0x6EA900; static definitions in ROM run order (completeness pass)
@@ -1411,8 +1413,7 @@ segments:
       - { type: .bss, vram: 0x00720220, name: ico2/sugipon/src/particleEffect }  # the TU's own .bss, 0x3420 B, VMA 0x720220..0x723640; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x00723640, name: ico2/sugipon/src/puddle }  # the TU's whole .bss as source (finishing pass P1-6): the two vertex strips, the spoke vectors and the five saved camera matrices, VMA 0x723640..0x723AE0, 0x4A0 B
       - { type: .bss, vram: 0x00723AE0, name: ico2/sugipon/src/spiderGroupManager }  # the TU's own .bss, 0x5B8 B, VMA 0x723AE0..0x724098; static definitions in ROM run order (completeness pass)
-      - { type: bss, vram: 0x00724098, name: cod/00724098 }  # .bss blob resume
-      - { type: .bss, vram: 0x007240A0, name: ico2/sugipon/src/stageMultiBgaManager }  # the TU's own .bss, 0x9D8 B, VMA 0x7240A0..0x724A78; static definitions in ROM run order (completeness pass)
+      - { type: .bss, vram: 0x007240A0, name: ico2/sugipon/src/stageMultiBgaManager }  # the TU's own .bss, 0x9D8 B, VMA 0x7240A0..0x724A78; static definitions in ROM run order (completeness pass); the 8 B before it are link fill from MultiBga's 16-byte alignment (finishing pass P1-11, was the pad row cod/00724098)
       - { type: .bss, vram: 0x00724A78, name: ico2/sugipon/src/staticBlur }  # the TU's own .bss, 0x30 B, VMA 0x724A78..0x724AA8; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x00724AA8, name: ico2/sugipon/src/streamMotionManager }  # the TU's whole .bss (VMA 0x724AA8..0x724BC0, 0x118 B: the ten-slot stream entry table as one named static; MAIN.MAP's January member is 0xF0 with 0x18 slots; chain 3 pass 133), waterDot's row follows directly
       - { type: .bss, vram: 0x00724BC0, name: ico2/sugipon/src/waterDot }  # the TU's own .bss, 0x14 B, VMA 0x724BC0..0x724BD4; static definitions in ROM run order (completeness pass)
@@ -1421,8 +1422,7 @@ segments:
       - { type: .bss, vram: 0x00728310, name: ico2/seki/src/DisplayList }  # the TU's own .bss, 0x290 B, VMA 0x728310..0x7285A0; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x007285A0, name: ico2/seki/src/EnemyInit }  # the TU's .bss (chain 1 pass 113, = MAIN.MAP 0x6C): the per-stage enemy position slot table as a named static, VMA 0x7285A0..0x72860C, 4 B of link fill before way_kidnap
       - { type: .bss, vram: 0x00728610, name: ico2/fumi/src/way_kidnap }  # the TU's .bss as source (completeness pass 69), the search nodes, the edge-done table, the position vectors and the position info, VMA 0x728610..0x729B58, way_tool's row follows after its 16-byte alignment
-      - { type: .bss, vram: 0x00729B60, name: ico2/fumi/src/way_tool }  # the TU's own .bss, 0xB0 B, VMA 0x729B60..0x729C10; static definitions in ROM run order (completeness pass)
-      - { type: bss, vram: 0x00729C10, name: cod/00729C10 }  # .bss blob resume
+      - { type: .bss, vram: 0x00729B60, name: ico2/fumi/src/way_tool }  # the TU's whole .bss run as source, VMA 0x729B60..0x729E30, 0x2D0 B: the seven live statics (completeness pass), then the unreferenced 0x220-byte buffer that was the blob row cod/00729C10 (finishing pass P1-11; MAIN.MAP's January 0xD0 is the live statics plus 0x20)
       - { type: .bss, vram: 0x00729E30, name: ico2/omori/src/access }  # the TU's own .bss, 0x210 B, VMA 0x729E30..0x72A040; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x0072A040, name: ico2/ito/mpeg/mv_disp }  # the TU's own .bss, 0x280 B, VMA 0x72A040..0x72A2C0; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x0072A2C0, name: ico2/common/src/GobjProc }  # the TU's own .bss, 0x340 B, VMA 0x72A2C0..0x72A600; static definitions in ROM run order (completeness pass)

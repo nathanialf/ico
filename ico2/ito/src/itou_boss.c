@@ -16,7 +16,36 @@
 #include <string.h>
 #include <libvu0.h>
 
-extern signed char D_006E9A40[];
+/* One capsule: its BGA, its state (0 closed, 1 gathering, 2 open), the
+   placement InitBossCtrlGeo gives it, its release point, and whether a
+   gene_enemy thread is releasing from it.  The record and field names are
+   ours; every width is the ROM's load or store at the field. */
+typedef struct {
+    char *bga;          /* 0x00 */
+    signed char state;  /* 0x04 */
+    sceVu0FVECTOR quat; /* 0x10 */
+    sceVu0FVECTOR pos;  /* 0x20 */
+    float *release;     /* 0x30, a row of capsuleRelease */
+    signed char busy;   /* 0x34 */
+} CapsuleRec;
+
+/* The TU's .bss (VMA 0x6E9A30, 0xD90 B = MAIN.MAP itou_boss.o .bss), in the
+   ROM's order: the boss flags, whose first byte is the capsule-ghost stage
+   flag, the fifty-three capsules, and the gene_enemy threads' done flags,
+   which each thread polls while its gather effect's end callback sets it.
+   RECONSTRUCTION: what the bytes pin: the flags are a run of more than 8
+   bytes (they are in .bss, not .sbss) and 16 long, the capsules are an
+   object of their own (every function addresses them from their own base
+   register, where a member of an enclosing record is folded into the
+   record's symbol offset), and itou_boss_gflag_init clears 0xD50 bytes from
+   the flags, i.e. the flags and the capsules together.  What they cannot
+   pin: the flag array's other bytes, or the names. */
+static signed char gflag[16]; /* derived name */
+
+static CapsuleRec capsule[53]; /* derived name */
+
+static volatile int geneDone[16]; /* derived name */
+
 /* kept local: this TU's uses of GetParticleEffectData do not fit the prototype in particleEffect.h */
 extern char *GetParticleEffectData();
 /* kept local: this TU's uses of pbga_start do not fit the prototype in itou_sub.h */
@@ -244,14 +273,14 @@ static const float capsuleRelease[53][4] = {
 
 void effect_end_func(void *a0)
 {
-    signed char *e;
+    CapsuleRec *e;
 
     if (isysGObjSearchFromObjKindID_begin(65) != 0) {
-        e = D_006E9A40 + *(int *)(GetParticleEffectData(a0) + 0x70) * 0x40;
+        e = &capsule[*(int *)(GetParticleEffectData(a0) + 0x70)];
         pbga_start(e, 0x228);
-        _CopyVector(*(char **)e + 0x20, e + 0x20);
-        CopyQuaternion(*(char **)e + 0x30, e + 0x10);
-        e[4] = 2;
+        _CopyVector(e->bga + 0x20, e->pos);
+        CopyQuaternion(e->bga + 0x30, e->quat);
+        e->state = 2;
         ExecuteSEPackage(0, 0x65);
     }
 }
@@ -266,7 +295,7 @@ void bossCtrlBeforeFunc(char *self)
     char *p;
     char *e;
     int idx;
-    signed char *e2;
+    CapsuleRec *e2;
     int i;
     unsigned int j;
     int cnt;
@@ -279,19 +308,19 @@ void bossCtrlBeforeFunc(char *self)
             if (*(int *)(e + 4) != 0) {
                 cnt = 0;
                 for (j = 0; j < 53; j++) {
-                    if (D_006E9A40[j * 0x40 + 4] == 0) {
+                    if (capsule[j].state == 0) {
                         buf[cnt++] = j;
                     }
                 }
                 if (cnt > 0) {
                     idx = buf[(int)(random_unit() * cnt)];
-                    e2 = D_006E9A40 + idx * 0x40;
+                    e2 = &capsule[idx];
                     GetRootPosition(pos, *(int *)(e + 4));
-                    r = GatherEffect_Set(12, pos, IdentityQuaternion, e2 + 0x20,
+                    r = GatherEffect_Set(12, pos, IdentityQuaternion, e2->pos,
                                          (void *)effect_end_func, 1.0f);
                     if (r >= 0) {
                         *(int *)(GetParticleEffectData(r) + 0x70) = idx;
-                        e2[4] = 1;
+                        e2->state = 1;
                     }
                 }
             }
@@ -301,7 +330,6 @@ void bossCtrlBeforeFunc(char *self)
     *(int *)(p + 4) = 0;
 }
 
-extern unsigned char D_006E9A30[];
 extern int stage_no;
 
 inline int InqCapsuleGhostBossStage(void)
@@ -314,7 +342,7 @@ inline int InqCapsuleGhostBossStage(void)
 
 void BossEnemyFunc(void *self)
 {
-    if (*(signed char *)D_006E9A30 != 0 && InqCapsuleGhostBossStage() != 0) {
+    if (gflag[0] != 0 && InqCapsuleGhostBossStage() != 0) {
         _ACTSetEnemyDisappearSpeed(self, 6.0f);
 
         switch (*(int *)(*(char **)((char *)self + 0x15C) + 0x4A0)) {
@@ -337,7 +365,6 @@ void BossEnemyFunc(void *self)
     }
 }
 
-extern volatile int D_006EA780[];
 extern int D_0028F8F0[];
 extern int D_0028F4C0[];
 extern char *D_00639EA4;
@@ -391,11 +418,11 @@ extern int geneDebugNoEffect;
 static void gene_enemy(volatile int a0)
 {
     int no = geneCount;
-    volatile int *flag = &D_006EA780[geneCount++];
-    signed char *buf[53];
+    volatile int *flag = &geneDone[geneCount++];
+    CapsuleRec *buf[53];
     char *o;
     void *c;
-    signed char *p;
+    CapsuleRec *p;
     int i;
     unsigned int j;
     int total;
@@ -418,10 +445,10 @@ static void gene_enemy(volatile int a0)
         alive = 0;
         if (stage_no == 0x56) {
             if ((D_0028F8F0[1] & 0x40) != 0) {
-                D_006E9A30[0] = 1;
+                gflag[0] = 1;
             }
         }
-        if (*(signed char *)D_006E9A30 != 0) {
+        if (gflag[0] != 0) {
             c = isysGObjSearchFromObjKindID_begin(4);
             while (c != 0) {
                 total++;
@@ -436,11 +463,11 @@ static void gene_enemy(volatile int a0)
             num = 0;
             freen = 0;
             for (j = 0; j < 53; j++) {
-                p = D_006E9A40 + j * 0x40;
-                if (p[4] <= 0 && p[0x34] == 0) {
+                p = &capsule[j];
+                if (p->state <= 0 && p->busy == 0) {
                     buf[num++] = p;
                 }
-                if (p[4] <= 0) {
+                if (p->state <= 0) {
                     freen++;
                 }
             }
@@ -452,7 +479,7 @@ static void gene_enemy(volatile int a0)
                 float pos[4];
                 float dir[4];
                 float m[4][4];
-                signed char *sel;
+                CapsuleRec *sel;
                 /* r starts as "no effect" (-1): the DEBUG build can release the
                    enemy without its gather effect, and then the r >= 0 block is
                    skipped. Retail builds the switch as 0, so the call always
@@ -472,12 +499,12 @@ static void gene_enemy(volatile int a0)
                 int r = -1;
 
                 sel = buf[(int)(random_unit() * num)];
-                sceVu0CopyVector(pos, *(char **)(sel + 0x30));
+                sceVu0CopyVector(pos, sel->release);
                 geneReleasing++;
-                sel[0x34] = 1;
+                sel->busy = 1;
                 *flag = 0;
                 if (!GENE_DEBUG_NO_EFFECT) {
-                    r = GatherEffect_Set(12, sel + 0x20, sel + 0x10, pos, (void *)gene_eff_end_func,
+                    r = GatherEffect_Set(12, sel->pos, sel->quat, pos, (void *)gene_eff_end_func,
                                          1.0f);
                 }
                 if (r >= 0) {
@@ -511,7 +538,7 @@ static void gene_enemy(volatile int a0)
                     _ACTWait(1);
                 }
                 geneReleasing--;
-                sel[0x34] = 0;
+                sel->busy = 0;
                 _ACTWait(((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 5);
                 sendEnemyAway(o);
             }
@@ -521,7 +548,7 @@ static void gene_enemy(volatile int a0)
 
 void BossCtrlGeo(void *self)
 {
-    if (*(signed char *)D_006E9A30 != 0)
+    if (gflag[0] != 0)
         scpWakeupEnemyAll();
     else
         scpSleepEnemyAll();
@@ -564,8 +591,8 @@ inline int InitBossCtrlGeo(void *a0)
 {
     int ret;
     unsigned int k;
-    signed char *base;
-    signed char *e;
+    CapsuleRec *base;
+    CapsuleRec *e;
     char *m;
     char (*q_arr)[];
     char *q;
@@ -576,21 +603,21 @@ inline int InitBossCtrlGeo(void *a0)
     actInitialize_ext_charcter(a0);
     debug_StdPrintfDummy("N_CAPSULE %d\n", 53);
 
-    base = D_006E9A40;
-    m = (char *)base + 0x20;
+    base = capsule;
+    m = (char *)base->pos;
     q_arr = (char (*)[])capsulePlace[0].pos;
     r = (char *)capsuleRelease;
     q = *q_arr;
     k = 0;
     do {
-        e = base + k * 0x40;
-        *(int *)e = 0;
-        if (e[4] == 1) {
-            e[4] = 2;
+        e = &base[k];
+        e->bga = 0;
+        if (e->state == 1) {
+            e->state = 2;
         }
         sceVu0CopyVector(m, q);
         ico_m33_to_quat(m - 0x10, q - 0x30);
-        *(char **)(e + 0x30) = r;
+        e->release = (float *)r;
         q += 0x40;
         m += 0x40;
         r += 0x10;
@@ -601,28 +628,28 @@ inline int InitBossCtrlGeo(void *a0)
 
 void itou_boss_gflag_init(void)
 {
-    memset(D_006E9A30, 0, 0xD50);
+    memset(gflag, 0, sizeof(gflag) + sizeof(capsule));
 }
 
 void BossCtrlDL(void)
 {
-    signed char *base;
-    signed char *e;
+    CapsuleRec *base;
+    CapsuleRec *e;
     unsigned int k;
     int n;
 
     n = 0;
-    base = D_006E9A40;
+    base = capsule;
     for (k = 0; k < 53; k++) {
-        e = base + k * 0x40;
-        if (e[4] >= 2) {
+        e = &base[k];
+        if (e->state >= 2) {
             if (stage_DispBgAnimation(e) != 0) {
                 pbga_start(e, 0x229);
-                _CopyVector(*(char **)e + 0x20, e + 0x20);
-                CopyQuaternion(*(char **)e + 0x30, e + 0x10);
+                _CopyVector(e->bga + 0x20, e->pos);
+                CopyQuaternion(e->bga + 0x30, e->quat);
             }
         }
-        if (e[4] != 0) {
+        if (e->state != 0) {
             n++;
         }
     }
@@ -633,7 +660,7 @@ void BossCtrlDL(void)
 
 inline void CapsuleGhostBossStart(void)
 {
-    D_006E9A30[0] = 1;
+    gflag[0] = 1;
 }
 
 inline int InqCapsuleGhostBossEnd(void)
@@ -643,10 +670,10 @@ inline int InqCapsuleGhostBossEnd(void)
     void *o;
 
     if (isysGObjSearchFromObjKindID_begin(65) != 0) {
-        signed char *base = D_006E9A40;
+        CapsuleRec *base = capsule;
         unsigned int i = 0;
         do {
-            if (base[i * 0x40 + 4] >= 2) {
+            if (base[i].state >= 2) {
                 cnt++;
             }
             i++;

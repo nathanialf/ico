@@ -414,6 +414,15 @@ inline void _InverseCurrentMatrix(void)
    ROM addresses it (the saves go to VU0 memory through vi15). */
 static float vu0RegisterSave[32][4] = {{0.0f}}; /* derived name */
 
+/* RECONSTRUCTION: .bss, 0x200 bytes (VMA 0x67BDD0..0x67BFD0) between Light.o's
+   and MicroCode.o's runs, where Matrix.o sits in the link.  MAIN.MAP gives
+   Matrix.o no .bss in January; retail's Matrix.o also gained the 0x200-byte
+   save area above and the push depth, and this is a second object of the
+   same 32 quadwords.  What the bytes pin: an uninitialised object of that
+   size in that place, with no reference in the ROM.  What they cannot pin:
+   its type, name or reader. */
+static float vu0RegisterSaveWork[32][4]; /* derived name */
+
 /* .sdata, the VU0 register save depth the push and pop check, then the
    assert text: retail added both (MAIN.MAP gives Matrix.o no .sdata). */
 static int vu0PushDepth = 0; /* derived name */

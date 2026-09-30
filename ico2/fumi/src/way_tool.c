@@ -56,6 +56,16 @@ static char wayToolStick[32];
 
 static unsigned char wpBuf[32];
 
+/* RECONSTRUCTION: the last 0x220 bytes of the TU's .bss (VMA 0x729C10..
+   0x729E30), which nothing in the retail ELF or the January listing reads.
+   What the bytes pin: an uninitialised object of 544 bytes after wpBuf and
+   before access.o's run; the January listing's link lays it out at the same
+   place, and MAIN.MAP sizes way_tool.o's .bss 0x20 above its seven live
+   statics, the same 32-byte buffer this file keeps elsewhere, grown by 0x200
+   in retail.  What they cannot pin: its type, name or the debug code that
+   used it. */
+static char wayToolBuf[544]; /* derived name */
+
 /* Deferred-`inline` tail members: a plain `inline` function's out-of-line copy
    is emitted at the END of the object in PROTOTYPE order, while its string
    literals are emitted where it is DEFINED. */

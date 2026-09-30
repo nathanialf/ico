@@ -36,7 +36,9 @@ extern int dmaVif;
 extern int D_0063A43C;
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
-extern int D_0063BD20;
+
+/* The depth of the priority stack below, the TU's first .sdata object. */
+static int dlStackDepth = 0; /* derived name */
 
 static int dlPriorityStack[8];
 
@@ -46,7 +48,6 @@ static const int dlBufferSize[13] = {
     81920, 14336, 30720, 4096, 16384, 65536, 40960, 12288, 26624, 14336, 4096, 28672, 86016,
 };
 
-extern char D_0063BD28[];
 void dl_Clear(void);
 
 void dl_Init(void)
@@ -54,7 +55,7 @@ void dl_Init(void)
     int i;
     int j;
     dlPriority = 0;
-    D_0063BD20 = 0;
+    dlStackDepth = 0;
     for (i = 0; i < 2; i++) {
         for (j = 0; j < 13; j++) {
             dlBufferHead[i][j] =
@@ -144,25 +145,25 @@ inline void dl_SetDLPriority(int a0)
 
 void dl_PushPriority(void)
 {
-    if (D_0063BD20 < 7) {
-        D_0063BD20 = D_0063BD20 + 1;
-        dlPriorityStack[D_0063BD20 - 1] = dlPriority;
+    if (dlStackDepth < 7) {
+        dlStackDepth = dlStackDepth + 1;
+        dlPriorityStack[dlStackDepth - 1] = dlPriority;
     } else {
         debug_StdPrintfDummy("dl_PushPriority:Stack Overflow.\n");
         debug_assert(__FILE__, 534);
-        __assert(__FILE__, 534, D_0063BD28);
+        __assert(__FILE__, 534, "FALSE");
     }
 }
 
 void dl_PopPriority(void)
 {
-    if (D_0063BD20 > 0) {
-        dlPriority = dlPriorityStack[D_0063BD20 - 1];
-        D_0063BD20--;
+    if (dlStackDepth > 0) {
+        dlPriority = dlPriorityStack[dlStackDepth - 1];
+        dlStackDepth--;
     } else {
         debug_StdPrintfDummy("dl_PopPriority:Stack Underflow.\n");
         debug_assert(__FILE__, 552);
-        __assert(__FILE__, 552, D_0063BD28);
+        __assert(__FILE__, 552, "FALSE");
     }
 }
 
@@ -188,10 +189,13 @@ inline void dl_OpenDma(int a0, int a1, int a2)
     /* Compiled out. What the bytes pin: the ROM keeps this message between
        dl_Debug's format and dl_CloseDma's table with no reference anywhere,
        and the listing leaves rows 612 and 613 of dl_OpenDma code-free before
-       the open-tag test.  What they cannot pin: the test the print sat
-       under, or its argument. */
+       the open-tag test, and the TU's .sdata ends in the "e" of the
+       message-assert form this programmer writes (Packet.c, BgAnimation.c)
+       with no reference either.  What they cannot pin: the test the print
+       sat under, its argument, or the assert's line. */
     if (0) {
         debug_StdPrintfDummy("dl_CheckDLOverflow:Display List Buffer [%d] Full.\n", dlPriority);
+        __assert(__FILE__, 613, "e");
     }
     if (entry[0]) {
         dl_CloseDma();

@@ -12,6 +12,10 @@
 #ifndef BGANIMATION_H
 #define BGANIMATION_H
 
+/* set when an animation's camera cut restarts the global timer; the stream
+   motion player resynchronises on it and clears it */
+extern int bgaStreamSync;
+
 void bga_CalcAnimation(char *p, int a1, int a2);
 void bga_CalcSdfCamera(char *p, int a1);
 int bga_CheckAnimationFinish(char *p);

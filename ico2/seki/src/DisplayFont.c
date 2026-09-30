@@ -15,11 +15,17 @@ unsigned int D_004EE5F0[64] = {
     0x0E050E05, 0x0E060D06, 0x0E050D06, 0x11020E04, 0x0E040F04, 0x0C060E05, 0x0D070B08, 0x10020F05,
 };
 
-extern int D_0063BD00;
-extern int D_0063BD04;
-extern int D_0063BD08;
-extern int D_0063BD0C;
-extern int D_0063BD10;
+/* The .sdata run: the alignment a "{L}", "{R}" or "{C}" escape selects and the
+   colour a "{#rrggbbaa}" escape sets, then the texture name at its use. */
+static int fontAlign = 0; /* derived name */
+
+static int fontColorR = 128; /* derived name */
+
+static int fontColorG = 128; /* derived name */
+
+static int fontColorB = 128; /* derived name */
+
+static int fontColorA = 128; /* derived name */
 
 inline int font_GetWidth(void)
 {
@@ -33,11 +39,11 @@ inline int font_GetHeight(void)
 
 inline void font_Init(void)
 {
-    D_0063BD00 = 0;
-    D_0063BD10 = 0x80;
-    D_0063BD0C = 0x80;
-    D_0063BD08 = 0x80;
-    D_0063BD04 = 0x80;
+    fontAlign = 0;
+    fontColorA = 128;
+    fontColorB = 128;
+    fontColorG = 128;
+    fontColorR = 128;
 }
 
 /* SRCFILE places this helper's rows (seki/src/DisplayFont.c:99-103) INSIDE
@@ -72,20 +78,20 @@ int font_CheckAlign(unsigned char *col, unsigned char *str)
             n = 0;
             switch (buf[0]) {
             case 'L':
-                D_0063BD00 = 1;
+                fontAlign = 1;
                 break;
             case 'R':
-                D_0063BD00 = 2;
+                fontAlign = 2;
                 break;
             case 'C':
-                D_0063BD00 = 0;
+                fontAlign = 0;
                 break;
             case '#':
                 if (strlen((const char *)buf) == 9) {
-                    D_0063BD04 = font_HexDigit(buf[1]) * 16 + font_HexDigit(buf[2]);
-                    D_0063BD08 = font_HexDigit(buf[3]) * 16 + font_HexDigit(buf[4]);
-                    D_0063BD0C = font_HexDigit(buf[5]) * 16 + font_HexDigit(buf[6]);
-                    D_0063BD10 = font_HexDigit(buf[7]) * 16 + font_HexDigit(buf[8]);
+                    fontColorR = font_HexDigit(buf[1]) * 16 + font_HexDigit(buf[2]);
+                    fontColorG = font_HexDigit(buf[3]) * 16 + font_HexDigit(buf[4]);
+                    fontColorB = font_HexDigit(buf[5]) * 16 + font_HexDigit(buf[6]);
+                    fontColorA = font_HexDigit(buf[7]) * 16 + font_HexDigit(buf[8]);
                 }
                 break;
             }
@@ -94,18 +100,17 @@ int font_CheckAlign(unsigned char *col, unsigned char *str)
             n++;
         }
     }
-    col[0] = D_0063BD04;
-    col[1] = D_0063BD08;
-    col[2] = D_0063BD0C;
-    col[3] = D_0063BD10;
-    return D_0063BD00;
+    col[0] = fontColorR;
+    col[1] = fontColorG;
+    col[2] = fontColorB;
+    col[3] = fontColorA;
+    return fontAlign;
 }
 
 typedef struct {
     unsigned char f[4];
 } SprCol;
 
-extern char D_0063BD18[];
 extern int tex_GetTextureNo(void *name);
 extern int tex_TransTexture(int no, int pri);
 extern void gif_StartPacketPriPath1(int pri);
@@ -177,7 +182,7 @@ void font_Print(unsigned int color, unsigned char *str, float x, float y, int al
         return width;
     }
 
-    texturetranssize += tex_TransTexture(tex_GetTextureNo(D_0063BD18), 12);
+    texturetranssize += tex_TransTexture(tex_GetTextureNo("font"), 12);
     gif_StartPacketPriPath1(12);
 
     cy = cx = 0.0f;

@@ -4,6 +4,7 @@
 #include "matrixDrive.h"
 #include "streamMotionManager.h"
 #include "GsBase.h"
+#include "BgAnimation.h"
 
 /* The TU's .sdata (MAIN.MAP names nothing in it), in ROM order: the stream
    entry count and state, the background reader's state and id, the ring
@@ -55,7 +56,6 @@ static SMotion streamEntry[10];
 
 extern int D_0028F4C0[];
 extern int frame_count;
-extern int D_0063BCB8;
 
 /* The ring is 0x28000 bytes; the check asks whether the write pointer has run
  * far enough ahead of the read pointer for `room` more bytes to be there. */
@@ -178,17 +178,17 @@ int _infoUpdate(void)
     }
     if (*(unsigned char *)(ringBuf + top) == 1) {
         debug_StdPrintfDummy("\033[33mFIND HEADER FLAG\033[m\n");
-        if (D_0063BCB8 != 0) {
+        if (bgaStreamSync != 0) {
             debug_StdPrintfDummy("\033[36mSTREAM MOTION SYNCHRONIZE OK(%d)\033[m\n", frame_count);
         } else {
             debug_StdPrintfDummy("\033[33mSTREAM MOTION SYNCHRONIZE NG(%d)\033[m\n");
         }
     }
-    if (D_0063BCB8 != 0) {
+    if (bgaStreamSync != 0) {
         debug_StdPrintfDummy("\033[33mCLEAR FRAME MOD\033[m\n");
         frameCount = 0;
         frameTime = 0;
-        D_0063BCB8 = 0;
+        bgaStreamSync = 0;
     }
     framePlayed = frameTime;
     frameTime += D_0028F4C0[0] == 0 ? 0xBB5 : 0xE23;

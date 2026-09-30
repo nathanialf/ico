@@ -23,6 +23,16 @@ typedef union GObjSubSlot {
 
 #include "girlForceField.h"
 
+/* The TU's .data (VMA 0x4EB430, 16 B = MAIN.MAP girlForceField.o .data): the
+   girl's blue, the colour boy.c's position-sync marker draws her sphere in.
+   RECONSTRUCTION: nothing references it in the retail ELF or in the January
+   listing, so its use (most likely a debug sphere at the field's radius) is
+   compiled out.  What the bytes pin: the four words and the owner (MAIN.MAP
+   and the Aug-2001 prototype both put this colour first of the two 16-byte
+   members between girl.o and item.o, and retail keeps only it).  What they
+   cannot pin: the name or the display it fed. */
+static int forceFieldColor[4] = {64, 96, 128, 128}; /* derived name */
+
 inline GirlForceFieldWork *InitGirlForceFieldGeo(char *self, char *param)
 {
     GirlForceFieldWork *w =
