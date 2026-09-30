@@ -5,6 +5,7 @@
 #include "memory.h"
 #include "message.h"
 #include "pad.h"
+#include "StageManager.h"
 
 union U001325D8 {
     long long ll;
@@ -327,7 +328,6 @@ void iosCdvdMgrSearchFile(char *self)
 
 extern int stagePreLoadSectorCnt;
 extern int stagePreLoadLsn;
-extern char stagePreLoadBuff[];
 
 void iosCdvdMgrStStart(char *self)
 {

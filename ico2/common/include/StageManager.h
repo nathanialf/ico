@@ -28,4 +28,7 @@ void stgmgrForceSwitchWithFadeColor(int stage, float fadeIn, float fadeOut, unsi
 /* The stage thread's entry point, the fifth thread main.c's idle creates. */
 void StageManager(void);
 
+/* The preload buffer cdvd.c's stream reads the next stage's file through. */
+extern char stagePreLoadBuff[];
+
 #endif /* STAGEMANAGER_H */

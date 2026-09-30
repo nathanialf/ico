@@ -45,8 +45,18 @@ typedef struct {
     float pos[4];
 } StgSlot;
 
+/* .data, owned by StageManager.o (VMA 0x319A00..0x4D9C10, 0x1C0210 B, all zero;
+   MAIN.MAP names all three as globals): the preload buffer, 896 sectors of 2048
+   bytes, the cap stgmgrNextStagePreLoad clamps a read to and the ring cdvd.c's
+   stream reads through; the stage manager's message queue record; and the exit
+   positions of the fifteen entrances stgmgrNextStagePreLoadEntry collects. */
+char stagePreLoadBuff[896 * 2048] = {0};
+
+int stageMgrMsgQ[12] = {0};
+
+StgSlot stageExitData[15] = {0};
+
 extern int stage_no;
-extern StgSlot stageExitData[];
 extern StgFile D_0055C53C[];
 extern const StgPre D_005F5D50[];
 extern int stagePreLoadStageNo;
@@ -88,7 +98,6 @@ typedef struct {
 } StgMgrMsg;
 
 extern StgMgrMsg D_0028FE70;
-extern int stageMgrMsgQ[];
 extern int graphics_ready;
 extern unsigned int mpegPlayInitColor;
 extern int D_0028F4F0[];
@@ -104,7 +113,6 @@ extern int D_00639ED4;
 extern int mpegPlay;
 extern int mpegInitDone;
 extern int stageManagerFreeResourceFlag;
-extern char stagePreLoadBuff[];
 extern char D_0063ACE0[];
 extern void WaitSema(int s);
 extern void DeleteSema(int s);

@@ -40,6 +40,50 @@
 // the entry is a pure rename.  `size:` is the rom-native delta to the next
 // label, i.e. what splat computes for the symbol anyway.
 
+// Words in the unsplit .data/.rodata blobs (cod/18ED00, cod/1A79B8, cod/4D3CE8) whose
+// values fall inside StageManager.o's all-zero .data (VMA 0x319A00..0x4D9C10) and
+// that splat read as pointers: integers such as 0x00370000 beside 0x0001FFFF and
+// 1.0f, and string bytes (0x004C5254 is "TRL\0" of "DEMOMOTCTRL"). Nothing points
+// into the preload buffer, so these addresses may not be referenced and the blobs
+// keep the raw words (finishing pass P1-1).
+
+D_00320000 = 0x00320000; // can_be_referenced:False
+D_00340000 = 0x00340000; // can_be_referenced:False
+D_00350000 = 0x00350000; // can_be_referenced:False
+D_00360000 = 0x00360000; // can_be_referenced:False
+D_00360084 = 0x00360084; // can_be_referenced:False
+D_00370000 = 0x00370000; // can_be_referenced:False
+D_003800A8 = 0x003800A8; // can_be_referenced:False
+D_003803A4 = 0x003803A4; // can_be_referenced:False
+D_0038069C = 0x0038069C; // can_be_referenced:False
+D_00380714 = 0x00380714; // can_be_referenced:False
+D_00380E88 = 0x00380E88; // can_be_referenced:False
+D_00390014 = 0x00390014; // can_be_referenced:False
+D_003900A4 = 0x003900A4; // can_be_referenced:False
+D_00390150 = 0x00390150; // can_be_referenced:False
+D_003A0824 = 0x003A0824; // can_be_referenced:False
+D_003B00A0 = 0x003B00A0; // can_be_referenced:False
+D_003C0000 = 0x003C0000; // can_be_referenced:False
+D_003C07E8 = 0x003C07E8; // can_be_referenced:False
+D_003D0000 = 0x003D0000; // can_be_referenced:False
+D_003D00C4 = 0x003D00C4; // can_be_referenced:False
+D_003F0098 = 0x003F0098; // can_be_referenced:False
+D_003F00B0 = 0x003F00B0; // can_be_referenced:False
+D_00400000 = 0x00400000; // can_be_referenced:False
+D_0040009C = 0x0040009C; // can_be_referenced:False
+D_00410000 = 0x00410000; // can_be_referenced:False
+D_00420000 = 0x00420000; // can_be_referenced:False
+D_004200AC = 0x004200AC; // can_be_referenced:False
+D_00430000 = 0x00430000; // can_be_referenced:False
+D_004300A0 = 0x004300A0; // can_be_referenced:False
+D_00440000 = 0x00440000; // can_be_referenced:False
+D_004400F8 = 0x004400F8; // can_be_referenced:False
+D_00441018 = 0x00441018; // can_be_referenced:False
+D_00450040 = 0x00450040; // can_be_referenced:False
+D_00450184 = 0x00450184; // can_be_referenced:False
+D_004C5254 = 0x004C5254; // can_be_referenced:False
+D_004D0158 = 0x004D0158; // can_be_referenced:False
+
 // ==== BEGIN GENERATED — tools/gen_pal_data_symbols.py ====
 
 __ps2_klibinfo__ = 0x0028ED00; // size:0xC  // (vendor)  // map-ordinal 1of1 from klib.o
@@ -63,7 +107,7 @@ jimakuMsgQ = 0x002A5040; // size:0x30  // ico2/fumi/src/jimaku  // map-anchor 4o
 jimaku_msg = 0x002A5070; // size:0x50  // ico2/fumi/src/jimaku  // map-anchor 4of4 from jimaku.o
 drawline_ws_matrix = 0x002A6030; // size:0x40  // ico2/omori/src/poly-flat  // map-size 1of1 from poly-flat.o
 voBuf = 0x002A7960; // size:0x18  // ico2/ito/mpeg/mv_main  // map-anchor 2of2 from mv_main.o
-stagePreLoadBuff = 0x00319A00; // size:0x6600  // ico2/common/src/StageManager  // map-anchor 3of3 from StageManager.o
+stagePreLoadBuff = 0x00319A00; // size:0x1C0000  // ico2/common/src/StageManager  // map-anchor 3of3 from StageManager.o
 stageMgrMsgQ = 0x004D9A00; // size:0x30  // ico2/common/src/StageManager  // map-anchor 3of3 from StageManager.o
 stageExitData = 0x004D9A30; // size:0x10  // ico2/common/src/StageManager  // map-anchor 3of3 from StageManager.o
 mc = 0x004E3BC0; // size:0x8  // ico2/common/src/layout_action  // map-size 1of1 from layout_action.o

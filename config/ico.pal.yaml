@@ -581,7 +581,7 @@ segments:
       - [0x1A7920, .data, ico2/ito/mpeg/mv_main]  # the TU's whole .data run as source (data pass 6; = MAIN.MAP mv_main.o .data 0x98 with voBuf at 0x40 and display at 0x58), VMA 0x2A7920..0x2A79B8, 152 B
       - [0x1A79B8, data, cod/1A79B8]     # data blob resume
       - [0x219020, .data, ico2/common/src/DObj]  # the TU's whole .data run as source (data pass 5), VMA 0x319020..0x319A00, 2528 B
-      - [0x219A00, data, cod/219A00]     # data blob resume
+      - [0x219A00, .data, ico2/common/src/StageManager]  # the TU's whole .data run as source (finishing pass P1-1), VMA 0x319A00..0x4D9C10, 0x1C0210 B = MAIN.MAP StageManager.o .data, all zero: stagePreLoadBuff (0x1C0000), stageMgrMsgQ (+0x1C0000, 0x30) and stageExitData (+0x1C0030, 0x1E0), all three globals in MAIN.MAP; charFileManager's row follows with no resume
       - [0x3D9C10, .data, ico2/common/src/charFileManager]  # the TU's .data (data pass 6), VMA 0x4D9C10..0x4D9C28, 24 B
       - [0x3D9C28, data, cod/3D9C28]     # data blob resume
       - [0x3D9D40, .data, ico2/common/src/debug]  # the tail of debug.o's .data as source (VMA 0x4D9D40..0x4D9F70, 0x230 B): the font GIF tag, the select-name table, the collision colours, the 27-entry debug menu and its help, the bar mark positions (chain 1 pass 130); debug_exception follows
