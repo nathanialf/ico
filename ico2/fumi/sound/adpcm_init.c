@@ -1,4 +1,3 @@
-#include "common.h"
 #include "debug.h"
 #include "ios.h"
 #include "adpcm_init.h"

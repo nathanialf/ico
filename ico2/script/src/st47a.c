@@ -1,4 +1,3 @@
-#include "common.h"
 #include "st47a.h"
 #include "layout_texture.h"
 #include "pad.h"

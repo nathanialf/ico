@@ -1,4 +1,3 @@
-#include "common.h"
 #include "cage.h"
 #include "gobj.h"
 #include "DisplayP2O.h"

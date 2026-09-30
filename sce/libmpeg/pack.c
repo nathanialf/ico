@@ -1,7 +1,6 @@
 /* Vendor SCE library member: libmpeg.a(pack.o).  MAIN.MAP's member size (0xDD8)
  * tiles the retail run exactly, VMA 0x26A630..0x26B408, 8 functions: the PSS
  * demultiplexer and its pack, system and PES header parsers. */
-#include "common.h"
 #include <libmpeg.h>
 
 typedef struct {

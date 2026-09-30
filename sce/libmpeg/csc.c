@@ -1,7 +1,6 @@
 /* Vendor SCE library member: libmpeg.a(csc.o).  MAIN.MAP's member size (0x71C)
  * tiles the retail run, VMA 0x271938..0x272054, 5 functions, then 4 bytes of
  * link fill to bit.o: the IPU colour space conversion and its DMA feeders. */
-#include "common.h"
 #include <libmpeg.h>
 
 void _doCSC(int a0, int a1)

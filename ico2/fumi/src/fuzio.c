@@ -1,4 +1,3 @@
-#include "common.h"
 #include "debug.h"
 #include "matrixDrive.h"
 #include <libvu0.h>

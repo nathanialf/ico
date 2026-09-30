@@ -1,4 +1,3 @@
-#include "common.h"
 #include "typedef.h"
 #include "queen.h"
 #include "debug.h"

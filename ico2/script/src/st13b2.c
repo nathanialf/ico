@@ -1,4 +1,3 @@
-#include "common.h"
 #include "generator.h"
 
 void actSt13b2Generator(volatile int a0)

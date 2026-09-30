@@ -1,4 +1,3 @@
-#include "common.h"
 #include "st17b.h"
 #include "act.h"
 #include "commonact.h"

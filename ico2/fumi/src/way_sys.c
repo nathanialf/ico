@@ -1,4 +1,3 @@
-#include "common.h"
 #include "debug.h"
 #include "way_llf.h"
 #include "way_sys.h"

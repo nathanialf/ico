@@ -104,7 +104,7 @@ segments:
     type: code
     start: 0x000000
     vram: 0x00100000
-    bss_size: 0xFA074   # .sbss 0x4DC + .bss 0xF9B98
+    bss_size: 0xFA0A2   # ROM end 0x63C0F6 to .bss end 0x736198: .sbss 0x4DC + .bss 0xF9B98 + the 0xA and 0x24 alignment gaps before .sbss and .bss
     subalign: null
     align: 0x80   # original linker 0x80-aligns every section start; splat default is 16
     subsegments:
@@ -1457,4 +1457,8 @@ segments:
       - { type: bss, vram: 0x0072F1DC, name: cod/0072F1DC }  # .bss blob resume
       - { type: .bss, vram: 0x0072F5C0, name: sce/libmc/libmc }  # the member's whole .bss (chain 1 pass 110, 0x1600 B): ten role-named statics in ROM order, VMA 0x72F5C0..0x730BC0
       - { type: bss, vram: 0x00730BC0, name: cod/00730BC0 }  # .bss blob resume
+      - { type: .bss, vram: 0x00736168, name: sce/libgcc/__main }  # the member's whole .bss (= MAIN.MAP __main.o .bss 0x4): __main's `initialized` flag, libgcc2.c's own static, VMA 0x736168..0x73616C
+      - { type: bss, vram: 0x0073616C, name: cod/0073616C }  # .bss blob resume (4 B of link fill before dp-bit's 8-aligned static)
+      - { type: .bss, vram: 0x00736170, name: sce/libgcc/dp-bit }  # the member's whole .bss (= MAIN.MAP dp-bit.o .bss 0x18): nan()'s `thenan`, fp-bit.c's own static, VMA 0x736170..0x736188
+      - { type: .bss, vram: 0x00736188, name: sce/libgcc/fp-bit }  # the member's whole .bss (= MAIN.MAP fp-bit.o .bss 0x10): nan()'s `thenan`, fp-bit.c's own static, VMA 0x736188..0x736198
   - [0x53C0F6]

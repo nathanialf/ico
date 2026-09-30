@@ -1,4 +1,3 @@
-#include "common.h"
 #include "StageAnimation.h"
 #include "multiBgaManager.h"
 #include "quaternion.h"

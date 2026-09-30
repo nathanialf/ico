@@ -1,4 +1,3 @@
-#include "common.h"
 #include "typedef.h"
 #include "Basic.h"
 #include "Texture.h"

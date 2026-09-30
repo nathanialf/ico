@@ -1,7 +1,6 @@
 /* Vendor SCE library member: libkernl.a(klib.o).  MAIN.MAP places this member at
  * the same address as the shipped ELF and its size tiles the run exactly, every
  * boundary a retail function start; VMA 0x100110..0x100990, 136 functions. */
-#include "common.h"
 
 /* EE syscall leaf wrappers.  This member's uses stand for a Sony-internal
    header this tree cannot name: MAIN.MAP attests archives and their members,

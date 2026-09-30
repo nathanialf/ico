@@ -1,4 +1,3 @@
-#include "common.h"
 #include "typedef.h"
 #include "act-game.h"
 #include "debug.h"

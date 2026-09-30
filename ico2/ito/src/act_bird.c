@@ -1,4 +1,3 @@
-#include "common.h"
 #include "itou_common.h"
 #include "sugiCommon.h"
 #include "act_bird.h"

@@ -1,6 +1,5 @@
 /* libgraph.a member graph018.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
-#include "common.h"
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 /* The GIF FIFO's reset value.  Read-only: its load is hoisted above the

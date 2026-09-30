@@ -1,4 +1,3 @@
-#include "common.h"
 #include "sugiCommon.h"
 
 /* PAL listing (windManager.c): SetWindManager (line 21) and InitWindManager

@@ -1,4 +1,3 @@
-#include "common.h"
 #include "charFileManager.h"
 #include "debug.h"
 #include "memory.h"

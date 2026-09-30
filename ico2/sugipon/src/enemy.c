@@ -1,5 +1,3 @@
-#include "common.h"
-
 typedef struct {
     int a;
     int b;

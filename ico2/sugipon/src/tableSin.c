@@ -1,4 +1,3 @@
-#include "common.h"
 #include <math.h>
 
 /* tableSin.h is not included here: it declares GetTableArcTan2 as returning

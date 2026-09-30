@@ -2,7 +2,6 @@
  * tiles the retail run, VMA 0x26BFD8..0x26CBA4, 19 functions, then 4 bytes of
  * link fill to defhandler.o's 8-aligned start: the decoder state resets, the
  * error reporting, the bitstream DMA and the sequence-level header parsers. */
-#include "common.h"
 #include <libmpeg.h>
 
 extern void DIntr();

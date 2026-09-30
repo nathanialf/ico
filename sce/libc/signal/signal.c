@@ -1,6 +1,5 @@
 /* libc.a member signal.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
-#include "common.h"
 #include <stdlib.h>
 #include <string.h>
 #include <reent.h>

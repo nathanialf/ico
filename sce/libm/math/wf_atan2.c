@@ -1,6 +1,5 @@
 /* libm.a member wf_atan2.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
-#include "common.h"
 #include <math.h>
 
 extern int __ieee754_rem_pio2f(float x, float *y);

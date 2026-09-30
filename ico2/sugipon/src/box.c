@@ -1,4 +1,3 @@
-#include "common.h"
 #include "box.h"
 #include "sugiCommon.h"
 #include "switch.c.inc"

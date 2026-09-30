@@ -1,4 +1,3 @@
-#include "common.h"
 #include "st04l.h"
 #include "layout_texture.h"
 #include "pad.h"

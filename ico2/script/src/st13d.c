@@ -1,4 +1,3 @@
-#include "common.h"
 #include "act.h"
 #include "gflag.h"
 #include "script.h"

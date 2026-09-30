@@ -1,4 +1,3 @@
-#include "common.h"
 #include "enemy_act.h"
 #include "debug.h"
 #include "gamesys.h"

@@ -1,4 +1,3 @@
-#include "common.h"
 #include "particleEffect.h"
 
 extern int D_0063A438;

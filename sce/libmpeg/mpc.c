@@ -4,7 +4,6 @@
  * reader layer, the picture-level header parsers and the output path.  The
  * member's .text is 16-aligned by _copyRefImage's `.align 4` before _maxval,
  * which is what places the 12 bytes of fill after defhandler.o. */
-#include "common.h"
 #include <libmpeg.h>
 
 extern int _widthMB[];

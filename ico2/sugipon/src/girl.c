@@ -1,4 +1,3 @@
-#include "common.h"
 #include "girl.h"
 #include "DObj.h"
 #include "debug.h"

@@ -1,6 +1,5 @@
 /* libgcc.a member dp-bit.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
-#include "common.h"
 #include "libgcc2.h"
 
 #define CLASS_SNAN 0
@@ -53,12 +52,13 @@ static __inline__ int iszero_d(fp_number_type_d *x)
     return x->class == CLASS_ZERO;
 }
 
-/* the quiet NaN this build hands back for inf - inf */
-extern char D_736170[];
-
+/* fp-bit.c's nan(): the NaN this build hands back for inf - inf; its static is the
+   member's whole .bss, VMA 0x736170, 0x18 B. */
 static __inline__ fp_number_type_d *nan_d(void)
 {
-    return (fp_number_type_d *)D_736170;
+    static fp_number_type_d thenan;
+
+    return &thenan;
 }
 
 typedef union {
@@ -415,8 +415,6 @@ long long dpmul(long a0, long a1)
     return __pack_d(_fpmul_parts(&x, &y, &z));
 }
 
-extern char D_736170[];
-
 void dpdiv(long a0, long a1)
 {
     struct {
@@ -448,7 +446,7 @@ chk_same:
     r = &x;
     if (x.a != y.a)
         goto pack;
-    r = D_736170;
+    r = nan_d();
     goto pack;
 op1_normal:
     if ((y.a ^ 4) != 0)

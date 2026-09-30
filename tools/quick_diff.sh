@@ -175,7 +175,7 @@ SCE_INCS=""
 for _a in libc libm libvu0 libkernl libpkt libgraph libdma libpad libscf libmpeg libmc libipu libcdvd; do
     SCE_INCS="$SCE_INCS -I$ROOT/sce/$_a"
 done
-CFLAGS="${CFLAGS:--S ${DBG} -G ${GNUM} -O2 -mips3 -EL ${BUILTIN} -nostdinc -fdata-sections -Iinclude$SCE_INCS}"
+CFLAGS="${CFLAGS:--S ${DBG} -G ${GNUM} -O2 -mips3 -EL ${BUILTIN} -nostdinc -fdata-sections$SCE_INCS}"
 
 # ee-gcc looks for cc1 at the path it was built against (typically
 # ${PS2DEV}/ee/gcc-lib/...). Pass -B so it finds the bundled cc1 in our tree.
@@ -214,17 +214,17 @@ if [[ -n "$ICO2_PROG" ]]; then
     done
     # shellcheck disable=SC2086
     ( cd "$ROOT/ico2/$ICO2_PROG" \
-      && "$ROOT/tools/period_env.sh" $CC $ICO2_INCS $CFLAGS -I"$ROOT/include" \
+      && "$ROOT/tools/period_env.sh" $CC $ICO2_INCS $CFLAGS \
            -o "$ASM_ABS" "$SRC_REL" )
 elif grep -qxF "$NAME" "$ROOT/config/include_ito.txt" 2>/dev/null; then
     CSRC_ABS="$CSRC"; case "$CSRC_ABS" in /*) ;; *) CSRC_ABS="$ROOT/$CSRC_ABS";; esac
     ASM_ABS="$ASM_OUT"; case "$ASM_ABS" in /*) ;; *) ASM_ABS="$ROOT/$ASM_ABS";; esac
-    ( cd "$ROOT/ito" && "$ROOT/tools/period_env.sh" $CC $CFLAGS -I"$ROOT/include" -I../ito/include -o "$ASM_ABS" "$CSRC_ABS" )
+    ( cd "$ROOT/ito" && "$ROOT/tools/period_env.sh" $CC $CFLAGS -I../ito/include -o "$ASM_ABS" "$CSRC_ABS" )
 else
     # sce members compile from their own directory by bare name (__FILE__), see compile_c.sh
     CSRC_ABS="$CSRC"; case "$CSRC_ABS" in /*) ;; *) CSRC_ABS="$ROOT/$CSRC_ABS";; esac
     ASM_ABS="$ASM_OUT"; case "$ASM_ABS" in /*) ;; *) ASM_ABS="$ROOT/$ASM_ABS";; esac
-    ( cd "$(dirname "$CSRC_ABS")" && "$ROOT/tools/period_env.sh" $CC $CFLAGS -I"$ROOT/include" -o "$ASM_ABS" "$(basename "$CSRC_ABS")" )
+    ( cd "$(dirname "$CSRC_ABS")" && "$ROOT/tools/period_env.sh" $CC $CFLAGS -o "$ASM_ABS" "$(basename "$CSRC_ABS")" )
 fi
 CC_RC=$?
 # ee-gcc writes the functions it compiled before an error, so a non-empty .s is

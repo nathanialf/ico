@@ -1,4 +1,3 @@
-#include "common.h"
 #include "sceneManager.h"
 
 extern int stage_no;

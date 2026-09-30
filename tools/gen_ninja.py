@@ -402,10 +402,13 @@ def emit_header(out, prefix: str) -> None:
     # "Assembler per archive"): the SDK-install sce/ archives on SCE's 2.10-ee
     # assembler, everything else on ee-as 2.9-991111. Only `ld` and `objcopy`
     # stay on modern binutils: the period toolchain ships no linker.
-    # Flags mirror compile_c.sh's EE_ASFLAGS; ee-as 2.9 has no -march/-mabi/
-    # -no-pad-sections, it takes -mcpu and pads nothing on its own.
+    # Flags mirror compile_c.sh's EE_ASFLAGS; ee-as 2.9 has no -march or
+    # -no-pad-sections, it takes -mcpu and pads nothing on its own. -mabi=eabi is
+    # the driver's default assembler option; ld takes the output's ABI bit from
+    # the first input, crt0.o, which this rule assembles. -Iinclude stays for
+    # the splat blobs' `.include "labels.inc"`.
     out.write("ee_as = tools/period_env.sh tools/cc/ee-gcc2.9-991111/bin/as\n")
-    out.write("asflags = -EL -mcpu=5900 -G 8 -Iinclude\n\n")
+    out.write("asflags = -EL -mcpu=5900 -mabi=eabi -G 8 -Iinclude\n\n")
 
 
 def emit_rules(out) -> None:

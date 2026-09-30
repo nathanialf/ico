@@ -1,4 +1,3 @@
-#include "common.h"
 #include "shockdriver.h"
 #include <libpad.h>
 

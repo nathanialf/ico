@@ -1,4 +1,3 @@
-#include "common.h"
 #include "typedef.h"
 #include "StageAnimation.h"
 #include "itou_sub.h"

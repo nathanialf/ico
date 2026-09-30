@@ -1,4 +1,3 @@
-#include "common.h"
 #include "cdvd.h"
 
 int iosMcIconWriteIconsys(int self, int *p);

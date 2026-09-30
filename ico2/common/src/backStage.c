@@ -1,4 +1,3 @@
-#include "common.h"
 #include "debug.h"
 #include "enemy_act.h"
 #include "itou_boss.h"

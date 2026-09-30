@@ -1,4 +1,3 @@
-#include "common.h"
 #include "typedef.h"
 #include "RegistPacket.h"
 #include "debug.h"

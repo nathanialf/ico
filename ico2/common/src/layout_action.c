@@ -1,4 +1,3 @@
-#include "common.h"
 #include "layout_action.h"
 #include "debug.h"
 #include "layout_texture.h"

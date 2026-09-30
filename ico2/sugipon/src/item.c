@@ -1,4 +1,3 @@
-#include "common.h"
 #include "sugiCommon.h"
 #include "item.h"
 #include "DObj.h"

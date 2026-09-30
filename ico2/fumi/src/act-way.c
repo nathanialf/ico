@@ -1,5 +1,3 @@
-#include "common.h"
-
 /* kept local: this TU's uses of ACTCheckCollis_WAY do not fit the prototype in act-game.h */
 extern unsigned char ACTCheckCollis_WAY(void *a0, void *a1, float a2, void *a3, void *a4);
 

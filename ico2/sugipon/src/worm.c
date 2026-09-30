@@ -1,4 +1,3 @@
-#include "common.h"
 #include "memory.h"
 #include "clothAnimation.h"
 #include "geometryManager.h"

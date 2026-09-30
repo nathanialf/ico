@@ -1,4 +1,3 @@
-#include "common.h"
 #include "handManager.h"
 #include "fieldCollision.h"
 #include "frameDependSequence.h"

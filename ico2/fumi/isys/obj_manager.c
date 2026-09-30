@@ -1,4 +1,3 @@
-#include "common.h"
 #include "gobj_cam_dl.h"
 #include "gobj_dl.h"
 

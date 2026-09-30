@@ -1,6 +1,5 @@
 /* libgcc.a member __main.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
-#include "common.h"
 #include "libgcc2.h"
 
 typedef void (*func_ptr)(void);
@@ -42,12 +41,14 @@ void __do_global_ctors(void)
 }
 
 extern void __do_global_ctors();
-extern int D_00736168[];
 
+/* libgcc2.c's SYMBOL__MAIN: the flag is the member's whole .bss, VMA 0x736168, 4 B. */
 void __main(void)
 {
-    if (D_00736168[0] == 0) {
-        D_00736168[0] = 1;
+    /* Support recursive calls to `main': run initializers just once.  */
+    static int initialized;
+    if (!initialized) {
+        initialized = 1;
         __do_global_ctors();
     }
 }

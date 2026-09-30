@@ -1,4 +1,3 @@
-#include "common.h"
 #include "debug.h"
 #include "gamesys.h"
 #include "boyact.h"

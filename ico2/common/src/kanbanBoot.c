@@ -1,4 +1,3 @@
-#include "common.h"
 #include "StageManager.h"
 #include "layout_texture.h"
 #include "gobj.h"

@@ -1,4 +1,3 @@
-#include "common.h"
 #include "sugiCommon.h"
 #include "windField.h"
 #include "lineManager.h"

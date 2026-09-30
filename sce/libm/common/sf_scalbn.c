@@ -1,6 +1,5 @@
 /* libm.a member sf_scalbn.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
-#include "common.h"
 #include <math_private.h>
 
 extern int __ieee754_rem_pio2f(float x, float *y);

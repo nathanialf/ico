@@ -1,6 +1,5 @@
 /* libgraph.a member graph002.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
-#include "common.h"
 
 /* The VIF1 reset packet sceGsResetPath writes to the PATH2 FIFO at
    0x10005000: STCYCL cl=4 wl=4, STMASK 0, NOP, STMOD 0, then MSKPATH3 0,

@@ -1,4 +1,3 @@
-#include "common.h"
 #include "debug.h"
 #include "DisplayFont.h"
 #include <string.h>

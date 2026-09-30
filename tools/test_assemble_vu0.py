@@ -463,6 +463,31 @@ def test_assert_pc_directive() -> None:
     raise AssertionError(".assert_pc mismatch did not raise")
 
 
+def test_emit_s_file() -> None:
+    """The emitted `.s` spells the function symbol's directives itself and
+    includes no macro file."""
+    body = struct.pack("<II", 0x000002FF, 0x8000033C)
+    text = assemble_vu0.emit_s_file(body, "__probe", ".text")
+    lines = text.splitlines()
+    assert not any(".include" in l for l in lines), "emitted .s includes a file"
+    assert not any(l.split()[:1] in (["glabel"], ["endlabel"], ["nonmatching"])
+                   for l in lines if l.strip()), "emitted .s uses a macro"
+    want = [
+        '.section .text,"ax"',
+        "",
+        ".global __probe",
+        ".type __probe, @function",
+        "__probe:",
+        "    .ent __probe",
+        "    .word 0x000002FF",
+        "    .word 0x8000033C",
+        "    .size __probe, . - __probe",
+        "    .end __probe",
+    ]
+    assert lines == want, f"emitted .s differs:\n{text}"
+    print("  ok: emit_s_file spells .global/.type/.ent/.size/.end directly")
+
+
 def test_against_textbin() -> None:
     """Disassemble first 8 bundles, re-emit as `.bundle` lines, assemble,
     compare. This tests that the round-trip via the `.bundle` escape
@@ -513,6 +538,7 @@ def main(argv: list[str] | None = None) -> int:
     test_move_equiv_nop_swap()
     test_e_class_transcendentals()
     test_nop_swap()
+    test_emit_s_file()
     if args.against_textbin:
         test_against_textbin()
     print("all tests passed")

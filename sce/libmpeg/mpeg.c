@@ -2,7 +2,6 @@
  * tiles the retail run exactly, VMA 0x26B408..0x26BFD8, 35 functions: the
  * sceMpeg entry points, the callback dispatch, the arena allocator and the
  * picture loop. */
-#include "common.h"
 #include <libmpeg.h>
 
 extern void DIntr();

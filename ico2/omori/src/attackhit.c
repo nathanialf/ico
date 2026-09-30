@@ -1,4 +1,3 @@
-#include "common.h"
 #include "debug.h"
 #include "gobj.h"
 #include "obj_manager.h"

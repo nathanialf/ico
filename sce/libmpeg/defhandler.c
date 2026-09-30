@@ -2,7 +2,6 @@
  * (0x1C) tiles the retail run, VMA 0x26CBA8..0x26CBC4, 2 functions, then 12
  * bytes of link fill to mpc.o's 16-aligned start: the default DMA stop and
  * restart handlers sceMpegCreate installs. */
-#include "common.h"
 #include <libmpeg.h>
 #include <libipu.h>
 

@@ -4,7 +4,6 @@
  * in the shipped ELF, so it cannot open its own subsegment and is kept here. */
 /* MAIN.MAP member memmove.o starts at 0x002863CC inside this file: not 8-aligned
  * in the shipped ELF, so it cannot open its own subsegment and is kept here. */
-#include "common.h"
 #include <stdlib.h>
 #include <string.h>
 #include <reent.h>

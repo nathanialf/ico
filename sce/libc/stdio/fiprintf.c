@@ -2,7 +2,6 @@
  * this member starts at an 8-aligned function start of the shipped ELF. */
 /* MAIN.MAP member memcmp.o starts at 0x0027E684 inside this file: not 8-aligned
  * in the shipped ELF, so it cannot open its own subsegment and is kept here. */
-#include "common.h"
 #include <reent.h>
 
 struct D520 {

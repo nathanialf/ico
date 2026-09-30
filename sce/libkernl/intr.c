@@ -1,7 +1,6 @@
 /* Vendor SCE library member: libkernl.a(intr.o).  MAIN.MAP places this member at
  * the same address as the shipped ELF and its size tiles the run exactly, every
  * boundary a retail function start; VMA 0x100A08..0x100D68, 13 functions. */
-#include "common.h"
 #include <eekernel.h>
 
 /* EE syscall leaf wrappers.  This member's uses stand for a Sony-internal

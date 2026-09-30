@@ -1,4 +1,3 @@
-#include "common.h"
 #include "debug.h"
 #include "DisplayList.h"
 #include "Primitive.h"

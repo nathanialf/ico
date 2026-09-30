@@ -1,4 +1,3 @@
-#include "common.h"
 #include "st22a.h"
 #include "layout_texture.h"
 #include "thread.h"

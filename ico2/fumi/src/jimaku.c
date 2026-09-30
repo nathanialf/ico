@@ -1,4 +1,3 @@
-#include "common.h"
 #include "cdvd.h"
 #include "message.h"
 #include "thread.h"

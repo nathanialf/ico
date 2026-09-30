@@ -1,4 +1,3 @@
-#include "common.h"
 #include "effectTool.h"
 #include "pad.h"
 #include "camera-root.h"

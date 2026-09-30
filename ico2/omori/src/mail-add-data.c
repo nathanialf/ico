@@ -1,4 +1,3 @@
-#include "common.h"
 #include "obj_manager.h"
 
 /* PAL listing (omori/src/mail-add-data.c): two static inline helpers,

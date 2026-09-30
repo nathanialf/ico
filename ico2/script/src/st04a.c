@@ -1,4 +1,3 @@
-#include "common.h"
 #include "st04a.h"
 #include "StageManager.h"
 #include "debug.h"

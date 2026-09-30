@@ -1,4 +1,3 @@
-#include "common.h"
 #include "s_init.h"
 #include "act.h"
 #include "commonact.h"

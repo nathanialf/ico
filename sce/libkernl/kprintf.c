@@ -1,7 +1,6 @@
 /* Vendor SCE library member: libkernl.a(kprintf.o).  MAIN.MAP places this member at
  * the same address as the shipped ELF and its size tiles the run exactly, every
  * boundary a retail function start; VMA 0x1010C8..0x101A40, 8 functions. */
-#include "common.h"
 
 int kputchar(int c)
 {

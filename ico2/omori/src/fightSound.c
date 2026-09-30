@@ -1,4 +1,3 @@
-#include "common.h"
 #include "fightSound.h"
 #include "adpcm_init.h"
 #include "s_init.h"

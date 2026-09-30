@@ -1,4 +1,3 @@
-#include "common.h"
 #include "deja.h"
 #include "StageManager.h"
 #include "layout_texture.h"

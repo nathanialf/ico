@@ -1,4 +1,3 @@
-#include "common.h"
 #include "act.h"
 
 extern void *D_0063A61C;

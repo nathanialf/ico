@@ -1,4 +1,3 @@
-#include "common.h"
 #include "debug.h"
 #include "act.h"
 #include "way_llf.h"

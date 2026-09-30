@@ -1,6 +1,5 @@
 /* libgcc.a member fp-bit.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
-#include "common.h"
 #include "libgcc2.h"
 
 extern void __unpack_d(void *in, void *out);
@@ -25,9 +24,6 @@ typedef struct {
    so the implicit one sits at bit 30 and the overflow bit at bit 31.  The
    file static shares its name with the double build's global in dp-bit.o. */
 
-/* the quiet NaN this build hands back for inf - inf */
-extern char D_736188[];
-
 static __inline__ int isnan(fp_number_type *x)
 {
     return x->class == CLASS_SNAN || x->class == CLASS_QNAN;
@@ -43,9 +39,13 @@ static __inline__ int iszero(fp_number_type *x)
     return x->class == CLASS_ZERO;
 }
 
+/* fp-bit.c's nan(): the NaN this build hands back for inf - inf; its static is the
+   member's whole .bss, VMA 0x736188, 0x10 B. */
 static __inline__ fp_number_type *nan(void)
 {
-    return (fp_number_type *)D_736188;
+    static fp_number_type thenan;
+
+    return &thenan;
 }
 
 typedef union {

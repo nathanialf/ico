@@ -1,5 +1,3 @@
-#include "common.h"
-
 /* .bss, owned by act-parallel-control.o and reached only from this file
    (MAIN.MAP names no symbol in the run): the parallel-action ids copied out of
    the layout table. */

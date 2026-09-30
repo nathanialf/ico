@@ -77,9 +77,9 @@ are textually replaced by the call's argument.
 # Output
 
 Default: emits a `.s` file (one `.word` per 32-bit half) ready for
-the period assembler. The `.s` file uses the same `.include "labels.inc"`
-preamble and `.section .text,"ax"` form as splat-emitted hasm so the
-build pipeline doesn't need a special case.
+the period assembler: a `.section .text,"ax"` line and the function
+symbol's own directives (`.global`, `.type @function`, `.ent`, `.size`,
+`.end`), with no macro file to include.
 
 `--raw out.bin` emits a raw binary instead (useful for cross-checking
 against `assets/cod/16F5E0.textbin.bin` byte-for-byte).
@@ -1233,19 +1233,19 @@ def emit_s_file(body: bytes, label: str, section: str) -> str:
     mirror what splat's textbin emitter produced so the rest of the
     build (ld, postprocess passes) doesn't need to change."""
     lines = [
-        '.include "labels.inc"',
-        '',
         f'.section {section},"ax"',
         '',
-        f'nonmatching {label}',
-        '',
-        f'glabel {label}',
+        f'.global {label}',
+        f'.type {label}, @function',
+        f'{label}:',
+        f'    .ent {label}',
     ]
     # Emit one .word per 32-bit half, 2 per bundle.
     for i in range(0, len(body), 4):
         word = int.from_bytes(body[i:i + 4], "little")
         lines.append(f"    .word 0x{word:08X}")
-    lines.append(f'endlabel {label}')
+    lines.append(f'    .size {label}, . - {label}')
+    lines.append(f'    .end {label}')
     lines.append('')
     return "\n".join(lines)
 

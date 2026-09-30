@@ -1,4 +1,3 @@
-#include "common.h"
 #include "st04d.h"
 #include "s_init.h"
 #include "act.h"

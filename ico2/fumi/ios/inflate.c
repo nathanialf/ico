@@ -1,4 +1,3 @@
-#include "common.h"
 #include "inflate.h"
 #include "debug.h"
 #include "mblock.h"

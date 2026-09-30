@@ -1,6 +1,5 @@
 /* libgraph.a member graph021.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
-#include "common.h"
 
 void sceGsSetHalfOffset(void *a0, short a1, short a2, short a3)
 {

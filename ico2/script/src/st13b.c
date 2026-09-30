@@ -1,4 +1,3 @@
-#include "common.h"
 #include "st13b.h"
 #include "StageManager.h"
 #include "layout_texture.h"

@@ -1,4 +1,3 @@
-#include "common.h"
 #include "girl_act.h"
 #include "debug.h"
 #include "pad.h"

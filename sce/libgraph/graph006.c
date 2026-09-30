@@ -1,6 +1,5 @@
 /* libgraph.a member graph006.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
-#include "common.h"
 
 typedef long long s_long128;
 

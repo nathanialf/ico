@@ -1,4 +1,3 @@
-#include "common.h"
 #include "GobjProc.h"
 #include "way_sys.h"
 

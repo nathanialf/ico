@@ -1,4 +1,3 @@
-#include "common.h"
 #include "end.h"
 #include "layout_texture.h"
 #include "adpcm_init.h"

@@ -1,7 +1,6 @@
 /* libc.a member s_isnan.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 /* The listing puts this source under newlib libm/math; the archive is libc.a. */
-#include "common.h"
 #include "reent.h"
 
 struct D520 {

@@ -1,4 +1,3 @@
-#include "common.h"
 #include "hand-camera.h"
 #include "act-game.h"
 #include "gv.h"

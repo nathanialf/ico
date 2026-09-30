@@ -1,4 +1,3 @@
-#include "common.h"
 #include "debug.h"
 #include "gobj.h"
 #include "act-game.h"

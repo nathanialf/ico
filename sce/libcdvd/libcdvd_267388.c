@@ -5,7 +5,6 @@
  * could be its own member as cdvd014 and cdvd015 are, but the map names
  * none of them, so the three stay one row named by their address until the
  * ROM forces a split. */
-#include "common.h"
 #include <eekernel.h>
 #include <stdio.h>
 #include <sifrpc.h>

@@ -1,4 +1,3 @@
-#include "common.h"
 #include "debug_exception.h"
 
 /* The EE exceptions the debug monitor traps: {cause code, printable name}. */

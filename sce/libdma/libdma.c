@@ -2,7 +2,6 @@
  * MAIN.MAP's symbol table.  The January link carried a different revision of
  * this archive, so its member spans do not tile this run: the per-member
  * partition is NOT verified, and this file is the whole run. */
-#include "common.h"
 #include <stdio.h>
 
 typedef struct {

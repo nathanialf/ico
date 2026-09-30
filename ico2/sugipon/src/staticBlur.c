@@ -1,4 +1,3 @@
-#include "common.h"
 #include "staticBlur.h"
 #include "debug.h"
 #include "Primitive.h"

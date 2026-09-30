@@ -1,4 +1,3 @@
-#include "common.h"
 #include "DObj.h"
 #include "GobjProc.h"
 #include "debug.h"

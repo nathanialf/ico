@@ -1,4 +1,3 @@
-#include "common.h"
 #include "itou_boss.h"
 #include "debug.h"
 #include "memory.h"

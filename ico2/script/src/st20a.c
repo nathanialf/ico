@@ -1,4 +1,3 @@
-#include "common.h"
 #include "st20a.h"
 #include "gamesys.h"
 #include "layout_texture.h"

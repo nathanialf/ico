@@ -1,6 +1,5 @@
 #define MV_DEFS_WANT_ALLOC
 
-#include "common.h"
 #include "mv_defs.h"
 
 int readBufCreate(int *self)

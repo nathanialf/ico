@@ -5,7 +5,6 @@
  * _SgSndn2Remote carries the library's name, and retail links the block directly
  * before sound.o.  The member name is unknown, so the file takes the family's.
  * VMA 0x273228..0x276AD0. */
-#include "common.h"
 #include <sifrpc.h>
 #include <string.h>
 

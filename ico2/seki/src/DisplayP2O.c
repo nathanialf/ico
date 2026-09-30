@@ -1,4 +1,3 @@
-#include "common.h"
 #include "typedef.h"
 #include "DisplayP2O.h"
 #include "debug.h"

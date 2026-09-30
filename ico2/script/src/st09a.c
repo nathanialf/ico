@@ -1,4 +1,3 @@
-#include "common.h"
 #include "st09a.h"
 #include "debug.h"
 #include "layout_texture.h"

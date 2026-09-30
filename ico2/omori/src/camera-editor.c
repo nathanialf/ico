@@ -1,4 +1,3 @@
-#include "common.h"
 #include "camera-editor.h"
 #include "debug.h"
 #include "memory.h"

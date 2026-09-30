@@ -4,10 +4,10 @@
  * is the public SDK's libscf, GetRomName and IsT10K feed sceScfSetT10kConfig, and the
  * BCD date helpers feed the RTC readers, so the run is one library, VMA 0x272878..0x273228.
  * The FILE name is the run's own __assert string "libscf.c" at 0x637260 (ROM bytes), and
- * the asserts carry __LINE__ (tobcd's is 281), so the line layout above them is pinned.
+ * the asserts carry __LINE__ (tobcd's is 281), so the line layout above them is pinned
+ * (a line added or removed anywhere above an assert moves its line constant).
  * sceScfSetT10kConfig's `sdr` sits in the return's delay slot by the SDK archive
  * assembler's reorder-mode swap (docs/NOTES.md "Assembler per archive"). */
-#include "common.h"
 #include <stdio.h>
 #include <libscf.h>
 #include <sifdev.h>

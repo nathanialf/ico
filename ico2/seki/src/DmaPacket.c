@@ -1,5 +1,3 @@
-#include "common.h"
-
 typedef struct {
     int cur;     /* 0x00 */
     int *buf[2]; /* 0x04 0x08 */

@@ -1,4 +1,3 @@
-#include "common.h"
 #include "typedef.h"
 #include <stdlib.h>
 #include <libvu0.h>

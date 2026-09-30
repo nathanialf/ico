@@ -1,7 +1,6 @@
 /* Vendor SCE library member: libkernl.a(deci2.o).  MAIN.MAP places this member at
  * the same address as the shipped ELF and its size tiles the run exactly, every
  * boundary a retail function start; VMA 0x101AA0..0x101C80, 10 functions. */
-#include "common.h"
 
 extern int Deci2Call(int req, void *args);
 extern char D_0063CFE0[];

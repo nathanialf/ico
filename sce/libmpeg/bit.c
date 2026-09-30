@@ -4,7 +4,6 @@
  * them (setD3_CHCR, setD4_CHCR, VMA 0x272268..0x272338) are libipu.o's own
  * functions in the listing, where libipu.o begins after bit.o's 4 bytes of
  * link fill; they stay in this file until libipu's row is moved to take them. */
-#include "common.h"
 #include <libmpeg.h>
 
 /* the bitstream reader state: the 64 bit accumulator this file shifts bits out

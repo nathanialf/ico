@@ -1,4 +1,3 @@
-#include "common.h"
 #include "typedef.h"
 #include "Matrix.h"
 #include "matrixDrive.h"

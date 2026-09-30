@@ -1,4 +1,3 @@
-#include "common.h"
 #include "camera-root.h"
 #include "gobj.h"
 #include "boyact.h"

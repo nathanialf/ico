@@ -1,4 +1,3 @@
-#include "common.h"
 #include "typedef.h"
 #include "backStage.h"
 #include "debug.h"

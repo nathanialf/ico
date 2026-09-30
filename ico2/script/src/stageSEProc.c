@@ -1,4 +1,3 @@
-#include "common.h"
 #include "gobj.h"
 #include "s_init.h"
 #include "boyact.h"

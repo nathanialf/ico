@@ -32,7 +32,7 @@ pins are fine only where the developers' own source was assembly).
      the listing attributes to three or more source lines of a .c file: that is
      a compiled-C function typed out as asm, a stub hidden from the
      NON_MATCHING count (mv_vibuf carried five until 2026-09-23); it is written
-     as an INCLUDE_ASM stub instead.
+     as C instead.
 """
 import os
 import re
@@ -218,7 +218,7 @@ def main(argv):
                         else:
                             src, n = listing[g]
                             if not (src.endswith(('.s', '.S')) or n <= 2):
-                                bad.append(f'{f}:{i+1}: file-scope asm defines {g}, which the listing attributes to {n} source lines of {src} (compiled C typed out as asm: make it an INCLUDE_ASM stub)')
+                                bad.append(f'{f}:{i+1}: file-scope asm defines {g}, which the listing attributes to {n} source lines of {src} (compiled C typed out as asm: write it as C)')
                     continue
                 key = f'{f}:{fn}'
                 if key in allow:

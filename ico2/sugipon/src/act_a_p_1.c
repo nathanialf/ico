@@ -1,4 +1,3 @@
-#include "common.h"
 #include "typedef.h"
 #include "sugiCommon.h"
 #include "act_a_p_1.h"

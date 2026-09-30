@@ -1,4 +1,3 @@
-#include "common.h"
 #include "rotObject.h"
 #include "gamesys.h"
 #include "memory.h"

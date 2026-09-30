@@ -1,4 +1,3 @@
-#include "common.h"
 #include "gamesys.h"
 #include "boyact.h"
 #include "stage_orient.h"

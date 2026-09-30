@@ -1,4 +1,3 @@
-#include "common.h"
 #include "matrixDrive.h"
 #include "quaternion.h"
 #include "multiBgaManager.h"

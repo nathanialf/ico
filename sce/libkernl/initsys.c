@@ -1,7 +1,6 @@
 /* Vendor SCE library member: libkernl.a(initsys.o).  MAIN.MAP places this member at
  * the same address as the shipped ELF and its size tiles the run exactly, every
  * boundary a retail function start; VMA 0x100990..0x100A08, 3 functions. */
-#include "common.h"
 
 void setup(int a0, int a1)
 {

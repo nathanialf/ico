@@ -1,4 +1,3 @@
-#include "common.h"
 #include "lineManager.h"
 #include "matrixDrive.h"
 #include "wireLetter.h"

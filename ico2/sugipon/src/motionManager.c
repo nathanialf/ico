@@ -1,4 +1,3 @@
-#include "common.h"
 #include "typedef.h"
 #include "sugiCommon.h"
 #include "debug_exception.h"

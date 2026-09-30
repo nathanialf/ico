@@ -1,4 +1,3 @@
-#include "common.h"
 #include "haveParentSimpleObj.h"
 
 /* kept local: this TU's uses of UpdateRootMatrix do not fit the prototype in geometryManager.h */

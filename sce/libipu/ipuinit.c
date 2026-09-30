@@ -1,6 +1,5 @@
 /* Vendor SCE library member: libipu.a(ipuinit.o).  MAIN.MAP's size (0x2A0) tiles the
  * retail run exactly, VMA 0x2725D8..0x272878, 2 functions. */
-#include "common.h"
 
 extern void DIntr(int *self);
 extern void EIntr(void);

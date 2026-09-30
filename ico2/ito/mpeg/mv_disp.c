@@ -1,4 +1,3 @@
-#include "common.h"
 #include "mv_defs.h"
 #include "typedef.h"
 #include "mv_vobuf.h"

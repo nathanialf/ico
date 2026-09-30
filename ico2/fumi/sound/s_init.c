@@ -1,4 +1,3 @@
-#include "common.h"
 #include "typedef.h"
 #include "s_init.h"
 #include "debug.h"

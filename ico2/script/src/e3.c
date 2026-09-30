@@ -1,4 +1,3 @@
-#include "common.h"
 #include "StageManager.h"
 #include "debug.h"
 #include "gamesys.h"

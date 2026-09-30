@@ -1,5 +1,3 @@
-#include "common.h"
-
 extern char D_0063BD38[8];
 
 /* .bss, owned by EnemyInit.o and reached only from this file (MAIN.MAP names

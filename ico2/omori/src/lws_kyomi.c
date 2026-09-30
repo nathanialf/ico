@@ -1,4 +1,3 @@
-#include "common.h"
 #include "sceneManager.h"
 #include "memory.h"
 #include "StageAnimation.h"

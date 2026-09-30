@@ -1,6 +1,5 @@
 /* libm.a member sf_sin.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
-#include "common.h"
 #include <math_private.h>
 
 /* Float<->word access, the public-domain fdlibm idiom (netlib's fdlibm),

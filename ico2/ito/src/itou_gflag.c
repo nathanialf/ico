@@ -1,5 +1,3 @@
-#include "common.h"
-
 /* kept local: this TU's uses of itou_boss_gflag_init do not fit the prototype in itou_boss.h */
 extern void itou_boss_gflag_init();
 

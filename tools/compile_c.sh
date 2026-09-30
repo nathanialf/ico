@@ -52,9 +52,6 @@ EE_AS_OLD="${ROOT}/tools/cc/ee-gcc2.9-991111/bin/as"
 # SDK-install archive assembler (see the paragraph above).
 EE_AS_SDK="${ROOT}/tools/cc/ee-gcc2.96/bin/as"
 
-INCLUDE_DIR="${ROOT}/include"
-# include/ holds stub scaffolding only (the fdlibm two-word idiom now lives in the libm members that use it): the libm
-# members and the game TUs that use the GET_FLOAT_WORD macros reach it by name.
 # Small-data threshold. The game (ico2/) was built at -G 8. Every SDK archive
 # under sce/ was built at -G 0: no SDK function in the ROM makes a gp-relative
 # access (0 of 208 stubs across twelve archives), the libm and libscf members
@@ -88,7 +85,7 @@ SCE_INCS=""
 for _a in libc libm libvu0 libkernl libpkt libgraph libdma libpad libscf libmpeg libmc libipu libcdvd; do
     SCE_INCS="${SCE_INCS} -I${ROOT}/sce/${_a}"
 done
-CFLAGS="-S ${DBG} -G ${GNUM} -O2 -mips3 -EL ${BUILTIN} -nostdinc -fdata-sections -I${INCLUDE_DIR}${SCE_INCS}"
+CFLAGS="-S ${DBG} -G ${GNUM} -O2 -mips3 -EL ${BUILTIN} -nostdinc -fdata-sections${SCE_INCS}"
 # DUMP MODE (2026-09-27): `DUMP_DIR=<dir> tools/compile_c.sh <src> <obj>` adds -da (every RTL
 # pass dump) under the SAME per-origin flags and assembler, then moves the dumps gcc wrote
 # beside the source into DUMP_DIR so nothing lands under ico2/ or sce/. DUMP_FLAGS may add
@@ -117,8 +114,11 @@ if [ -n "${DUMP_DIR:-}" ]; then
     }
     trap _collect_dumps EXIT
 fi
-ASFLAGS="-EL -march=r5900 -mabi=eabi -G ${GNUM} -no-pad-sections -I${INCLUDE_DIR}"
-EE_ASFLAGS="-EL -mcpu=5900 -G ${GNUM}"
+ASFLAGS="-EL -march=r5900 -G ${GNUM} -no-pad-sections"
+# -mabi=eabi is what the ee-gcc driver itself passes its assembler (its specs:
+# `*abi_gas_asm_spec: %{mabi=*} %{!mabi=*:-mabi=eabi}`); both assemblers take it
+# and it sets only the EF_MIPS_ABI_EABI64 bit (0x4000) of e_flags.
+EE_ASFLAGS="-EL -mcpu=5900 -mabi=eabi -G ${GNUM}"
 
 PYTHON="${ROOT}/.venv/bin/python"
 
@@ -167,8 +167,7 @@ INCLUDE_ITO_TXT="${ROOT}/config/include_ito.txt"
 # the sibling programmers' include dirs. ee-gcc bakes the spelling it is given
 # into __FILE__, so both the source argument (`src/main.c`, not
 # `ico2/common/src/main.c`) and the header spelling (`../ito/include/mv_defs.h`)
-# have to match what the 2002 link recorded. The project's own headers stay at
-# the repo-root include/ and are reached by an absolute -I.
+# have to match what the 2002 link recorded.
 ICO2_PROG=""
 case "${SRC}" in
     /*) echo "compile_c.sh: give the source as a repo-relative path (ico2/..., sce/...), run from the tree root; got '${SRC}'" >&2; exit 2 ;;
@@ -180,7 +179,7 @@ if [ -n "${ICO2_PROG}" ]; then
     S_ABS="${S}"; case "${S_ABS}" in /*) ;; *) S_ABS="${ROOT}/${S_ABS}";; esac
     # Search order: the programmer's own include dir first, then the
     # cross-programmer dirs the listing shows their TUs reaching into, then
-    # (from CFLAGS) the repo's own include/ last.
+    # (from CFLAGS) the sce/ archive headers.
     ICO2_INCS=""
     for _p in "${ICO2_PROG}" sugipon omori common ito fumi seki script; do
         [ -d "${ROOT}/ico2/${_p}/include" ] || continue
@@ -326,7 +325,7 @@ fi
 # preprocess_old_as.py now translates to the bare spelling). Hard-fail so ninja
 # stops on it instead of silently producing an object from a different assembler.
 # shellcheck disable=SC2086
-if "${ROOT}/tools/period_env.sh" "${SELECTED_EE_AS}" ${EE_ASFLAGS} -I"${INCLUDE_DIR}" -o "${OUT}" "${ASM_INPUT}" 2>"${OUT}.aserr"; then
+if "${ROOT}/tools/period_env.sh" "${SELECTED_EE_AS}" ${EE_ASFLAGS} -o "${OUT}" "${ASM_INPUT}" 2>"${OUT}.aserr"; then
     rm -f "${OUT}.aserr"
     "${OBJCOPY}" "${OUT}" "${OUT}"
 else

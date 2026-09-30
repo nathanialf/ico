@@ -7,7 +7,6 @@ top-level items sit together. This pass normalises, at brace depth 0 only:
   * `#include` lines form one block with no blank lines inside it;
   * declarations (`extern ...;`, prototypes, `static inline` prototypes)
     form contiguous blocks with no blank lines inside;
-  * INCLUDE_ASM lines form contiguous blocks of their own;
   * preprocessor lines (#define, #if...) form contiguous blocks;
   * every other item (function, struct/union/enum/typedef definition,
     data definition, standalone comment) is separated by exactly one blank
@@ -23,7 +22,6 @@ import re, sys
 
 INCLUDE = re.compile(r"^#\s*include\b")
 PP = re.compile(r"^#")
-ASM = re.compile(r"^INCLUDE_ASM\b")
 DECL_START = re.compile(r"^(extern\b|static\s+inline\b[^{]*\)\s*;|inline\b[^{]*\)\s*;|[A-Za-z_][\w \*]*\b[A-Za-z_]\w*\s*\([^;{]*\)\s*;)")
 
 
@@ -101,8 +99,6 @@ def items(lines):
             # start of an item; attach any pending comment
             if INCLUDE.match(stripped):
                 kind = "include"
-            elif ASM.match(stripped):
-                kind = "asm"
             elif PP.match(stripped):
                 kind = "pp"
             elif DECL_START.match(stripped) and "{" not in code:
@@ -115,7 +111,7 @@ def items(lines):
             depth += code.count("{") - code.count("}")
             # single-line items end here unless a statement continues
             ends = (kind in ("include", "pp") and not stripped.endswith("\\")) or \
-                   (kind in ("asm", "decl") and code.rstrip().endswith(";")) or \
+                   (kind == "decl" and code.rstrip().endswith(";")) or \
                    (kind == "def" and depth == 0 and (code.rstrip().endswith(";") or code.rstrip().endswith("}")))
             if kind == "def" and depth == 0 and not ends and not code.strip():
                 ends = False
@@ -130,7 +126,7 @@ def items(lines):
         if cur_kind in ("include", "pp"):
             if not stripped.endswith("\\"):
                 flush()
-        elif cur_kind in ("asm", "decl"):
+        elif cur_kind == "decl":
             if code.rstrip().endswith(";"):
                 flush()
         else:
@@ -143,7 +139,7 @@ def items(lines):
     return result
 
 
-CONTIG = {"include", "asm", "decl", "pp"}
+CONTIG = {"include", "decl", "pp"}
 
 
 def render(its):

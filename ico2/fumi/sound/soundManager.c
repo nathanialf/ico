@@ -1,4 +1,3 @@
-#include "common.h"
 #include "typedef.h"
 #include "debug.h"
 #include "adpcm_init.h"

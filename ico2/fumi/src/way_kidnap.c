@@ -1,4 +1,3 @@
-#include "common.h"
 #include "way_kidnap.h"
 #include "debug.h"
 #include "gobj.h"
