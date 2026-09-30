@@ -1,3 +1,4 @@
+#include "gflag.h"
 #include "gamesys.h"
 #include "mcard.h"
 #include "boyact.h"
@@ -11,8 +12,14 @@
 static unsigned char gflags[50] = {0};
 
 extern int D_0028F4CC[];
-extern int D_0063AA00;
-extern int D_0063AA04;
+
+/* gflag.o's .sdata run (VMA 0x63AA00..0x63AA08; MAIN.MAP's January object
+   is the one word gFlagSaveStage): the game-clear state, saved and loaded
+   with the flags, then the stage the save was made on (MAIN.MAP global). */
+int gFlagGameClear = 0; /* derived name */
+
+int gFlagSaveStage = 0;
+
 extern int before_stage_no;
 extern int gamesysVersionDiff;
 extern int stage_no;
@@ -44,16 +51,16 @@ void gflagInit(void)
 
 void gflagSave(void *fp)
 {
-    D_0063AA04 = stage_no;
-    gamesysMemoryHandlerWrite(fp, &D_0063AA04, 4);
-    gamesysMemoryHandlerWrite(fp, &D_0063AA00, 4);
+    gFlagSaveStage = stage_no;
+    gamesysMemoryHandlerWrite(fp, &gFlagSaveStage, 4);
+    gamesysMemoryHandlerWrite(fp, &gFlagGameClear, 4);
     gamesysMemoryHandlerWrite(fp, gflags, sizeof(gflags));
 }
 
 void gflagLoad(void *fp)
 {
-    gamesysMemoryHandlerRead(fp, &D_0063AA04, 4);
-    gamesysMemoryHandlerRead(fp, &D_0063AA00, 4);
+    gamesysMemoryHandlerRead(fp, &gFlagSaveStage, 4);
+    gamesysMemoryHandlerRead(fp, &gFlagGameClear, 4);
     gamesysMemoryHandlerRead(fp, gflags, sizeof(gflags));
 }
 

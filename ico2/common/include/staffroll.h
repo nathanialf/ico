@@ -14,4 +14,10 @@
 
 void staffRollStart(float t, int alpha);
 
+/* MAIN.MAP globals of staffroll.o's .sdata */
+extern int staffRollStartFlag;
+extern float staffRollCenterOffsetX;
+extern float staffRollCenterOffsetXDest;
+extern int staffRollAlpha;
+
 #endif /* STAFFROLL_H */

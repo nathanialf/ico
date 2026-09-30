@@ -1057,8 +1057,6 @@ void actConte14_14(volatile int a0)
     gflagOff(338);
 }
 
-extern int D_0063AA00;
-
 void actSt27aEnd(volatile int a0)
 {
     int x = a0;
@@ -1066,7 +1064,7 @@ void actSt27aEnd(volatile int a0)
 
     _ACTWait(1);
 
-    if (D_0063AA00 == 0) {
+    if (gFlagGameClear == 0) {
         scpSearchGobj(2256)->f16C = 0;
         scpSearchGobj(2257)->f16C = 0;
         scpSearchGobj(2258)->f16C = 0;
@@ -1793,10 +1791,10 @@ extern int optionScreenMode;
 
 void actEndingSave(volatile int a0)
 {
-    if (D_0063AA00 == 0) {
+    if (gFlagGameClear == 0) {
         int save;
 
-        D_0063AA00 = 1;
+        gFlagGameClear = 1;
         save = IosMcPreviewInfo[2];
         gflagInit();
         IosMcPreviewInfo[2] = save;
@@ -1807,7 +1805,7 @@ void actEndingSave(volatile int a0)
         while (D_0063B60C != 0x36) {
             _ACTWait(1);
         }
-        D_0063AA00 = 0;
+        gFlagGameClear = 0;
     }
 
     scpFadeOut(255.0f, 0, 0, 0);

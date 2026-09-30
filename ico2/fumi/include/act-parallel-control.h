@@ -16,4 +16,9 @@ int *ActPara_GetDefTbl(void);
 void ActPara_InitSystem(void);
 void ActPara_MakeTbl(int *tbl, unsigned long long mask, int n);
 
+/* motion-random-def.o's table (MAIN.MAP; a data-only member, extracted from
+   the base ELF at build time): 1147-terminated runs of motion ids that
+   ActPara_MakeTbl picks from for a layout entry above 0xFFFF. */
+extern const int randomMotionKind[];
+
 #endif /* ACT_PARALLEL_CONTROL_H */

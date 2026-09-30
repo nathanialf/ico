@@ -233,7 +233,7 @@ void subGirlBrain_Attract(volatile int a0)
     float last[4];
     GirlAttractParam tgt;
     int cnt;
-    void *cur = ((GirlBrainWork *)D_0029D650)->lastTarget;
+    void *cur = brain_val.lastTarget;
     int type = 0;
     int kind;
     int param = 0;
@@ -355,7 +355,7 @@ restart:
         if ((int)(*(unsigned long long *)((char *)sub + 0x20) >> 38) & 1) {
             hint = 1;
         }
-        if (0 < ((GirlBrainWork *)D_0029D650)->f_590C) {
+        if (0 < brain_val.f_590C) {
             _ACTCharStatus_Set((void *)a0, 31, -1.0f, 0);
         }
         if (kind != getKind()) {
@@ -596,7 +596,7 @@ restart:
             break;
         }
         case 6:
-            if (fr < cnt || ((GirlBrainWork *)D_0029D650)->f_58F3 != 0) {
+            if (fr < cnt || brain_val.f_58F3 != 0) {
                 if (girlBrainGetTypeRatio(type2) != 0.0f) {
                     setMode(1);
                 }
@@ -617,7 +617,7 @@ restart:
                 }
                 if (tgt.obj == (void *)D_00639EA4 && sub->f_350 == 2 && escape == 0 &&
                     *(int *)(GOBJ_ACT(a0)->f_688 + 0x3B0) == 0 && D_00639EA0 == 0 &&
-                    ((GirlBrainWork *)D_0029D650)->targetFlag != 0) {
+                    brain_val.targetFlag != 0) {
                     girlAttractTurnMailR((void *)a0, tgt.pos, mypos);
                     if (sub->unk34 == 77) {
                         cnt = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 10;

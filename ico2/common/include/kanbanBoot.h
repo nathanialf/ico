@@ -18,4 +18,7 @@
 void kanbanBootInit(void);
 void kanbanBootStart(void);
 
+/* MAIN.MAP global of kanbanBoot.o's .sdata: set when the boot sequence ends */
+extern int kanbanBootEnd;
+
 #endif /* KANBANBOOT_H */

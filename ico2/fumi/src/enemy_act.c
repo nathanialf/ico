@@ -239,13 +239,11 @@ typedef struct {
 
 /* kept local: this TU's uses of InitMotionGeoInfo do not fit the prototype in motionManager2.h */
 extern void InitMotionGeoInfo(char *p, float x, float y, float z, float a, float b, float c);
-extern int D_0063AA00;
 extern char D_002A8570[];
 /* kept local: this TU's uses of SetMotionNodeFixModeParameter do not fit the prototype in motionManager2.h */
 extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float *q, float e,
                                           float f, float g, float h);
 extern int D_0063B248;
-extern int D_0063AA04;
 extern int D_00639EB4;
 extern void _InterGV(float *dst, float *a, float *b, float t, float u);
 extern void EntryMultiBgaManager(void *bga, int no, int kind, void *pos, void *rot);
@@ -384,7 +382,7 @@ typedef union {
    and BeforeFunc read into the status table's six-entry rows; actInitialize
    sets it to -1, actGirlStart to 1 and actEnemyStart to 2. Reconstruction:
    an enumerated type, as the ROM proves here (only a store of a type other
-   than int lets the D_0063AA00 load below issue ahead of it); the names are
+   than int lets the gFlagGameClear load below issue ahead of it); the names are
    ours, the values the ROM's. */
 typedef enum { ACT_KIND_NONE = -1, ACT_KIND_GIRL = 1, ACT_KIND_ENEMY = 2 } ActKind;
 
@@ -1086,7 +1084,7 @@ inline int actEnemy_GetClingTarget(char *a0)
 static inline float getEnemyRestartLife(char *self)
 {
     int max = 43;
-    int idx = D_0063AA00 + 38;
+    int idx = gFlagGameClear + 38;
 
     idx = (idx < 38) ? 38 : ((idx <= max) ? idx : max);
     return GetEnemyDefLife(self) * _ACTGame_GetParamF(idx);
@@ -1326,7 +1324,7 @@ void actEnemyKidnapEnd(volatile int a0)
             ACTGame_SetMotionPlaySpeedRatio_Reserve((char *)a0, 0.0001f, 9);
         }
         if (gflagChk(392) != 0) {
-            stgmgrNextStagePreLoadForceStageSet(D_0063AA04);
+            stgmgrNextStagePreLoadForceStageSet(gFlagSaveStage);
             if ((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 3 < *(int *)(sub + 0x4C)) {
                 backStageTsuresariReturn();
                 _ACTWait(0);
@@ -3058,7 +3056,7 @@ inline int GetMotherGeneratorGObjAskEnemy(char *a0)
  * float stores through a union view of the gobj+0x15C slot (the slot is
  * re-read before each, the int gobj+0x164 load before them survives and
  * gcse reuses it after the if); the character-kind store at act+0x48 is not
- * int-typed (the D_0063AA00 load issues ahead of it); each life pair is one
+ * int-typed (the gFlagGameClear load issues ahead of it); each life pair is one
  * chained assignment (rows 5286 and 5288). What they cannot pin: the names of
  * the union and enum types and their other members. */
 void actEnemyStart(char *self)

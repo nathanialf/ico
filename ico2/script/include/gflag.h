@@ -17,4 +17,9 @@ void gflagInit(void);
 void gflagOff(int bit_idx);
 void gflagOn(int bit_idx);
 
+/* gflag.o's .sdata: the game-clear state and the stage the save was made on
+ * (gFlagSaveStage is MAIN.MAP's) */
+extern int gFlagGameClear;
+extern int gFlagSaveStage;
+
 #endif /* GFLAG_H */

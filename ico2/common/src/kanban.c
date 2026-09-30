@@ -69,8 +69,16 @@ struct KanbanProp {
 
 extern KanbanStage D_005F5D50[];
 extern KanbanProp D_00533FE8[];
-extern int kanbanCommonRead;
-extern Col4 D_0063B4A0;
+
+/* kanban.o's .sdata run (VMA 0x63B498..0x63B4BC, 0x24 B = MAIN.MAP), in the
+   ROM's order: kanbanCommonRead (MAIN.MAP global), the sign's initial colour,
+   the texture-name separator and assert text at their first uses, and the
+   initialiser of display_texture's point colour. */
+int kanbanCommonRead = 0;
+
+/* the colour a new sign starts with */
+static Col4 kanbanStartCol = {{0x80, 0x80, 0x80, 0}}; /* derived name */
+
 extern int D_0028F4C0[];
 
 typedef struct {
@@ -104,8 +112,6 @@ extern int D_0028F8F0[];
    are statics too and `static` here keeps this one's ELF symbol local */
 static void display_texture(KanbanProp *pr, LayoutTex *e, Col4 *col);
 extern char D_00535168[][0x34];
-extern char D_0063B4A8[];
-extern char D_0063B4B0[];
 extern char *strtok(char *s, const char *sep);
 extern char *strrchr(const char *s, int c);
 extern void debug_assert(char *file, int line);
@@ -126,7 +132,6 @@ extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, unsigned 
                                       int prim);
 /* kept local: this TU's uses of gif_PointOffset do not fit the prototype in GifPacket.h */
 extern void gif_PointOffset(int *v, unsigned int z, unsigned char *col, int prim);
-extern Col4 D_0063B4B8[];
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int a0);
 
@@ -144,11 +149,11 @@ static inline char *get_texture_base_name(char *src)
 
     strcpy(buf, src);
 
-    t = strtok(buf, D_0063B4A8);
+    t = strtok(buf, "/");
     if (t != 0) {
         do {
             p = t;
-            t = strtok(0, D_0063B4A8);
+            t = strtok(0, "/");
         } while (t != 0);
     }
     if ((t = strrchr(p, '.')) != 0) {
@@ -174,7 +179,7 @@ static inline int get_texture_no_of_property(int idx)
         debug_StdPrintfDummy("tex_id %d\n", n);
         debug_StdPrintfDummy("no texture loaded.(%s)\n", src);
         debug_assert(__FILE__, 0x110);
-        __assert(__FILE__, 0x110, D_0063B4B0);
+        __assert(__FILE__, 0x110, "0");
     }
     return no;
 }
@@ -252,7 +257,7 @@ found:
     pr->f2C = pr->f28;
     p->fC &= ~1;
     p->f10 = 0;
-    p->f14 = D_0063B4A0;
+    p->f14 = kanbanStartCol;
     p->f4 = pri;
     cur = (Node *)kanbanList;
     if (cur != 0) {
@@ -362,7 +367,6 @@ static void display_texture(KanbanProp *pr, LayoutTex *e, Col4 *col)
     int uv[4];
     int r[4];
     int pt[4];
-    Col4 col2;
     int i;
     int alpha;
 
@@ -407,7 +411,9 @@ static void display_texture(KanbanProp *pr, LayoutTex *e, Col4 *col)
     }
 
     if (e == &D_0030CFF8[pr->f2C]) {
-        col2 = D_0063B4B8[0];
+        /* its initialiser is the anonymous 4-byte template at the end of
+           the TU's .sdata run, which the ROM reaches with %hi/%lo */
+        Col4 col2 = {{0x80, 0x80, 0x80, 0x7F}};
 
         gif_StartPacketPri(11);
         gif_SetZTest(0);

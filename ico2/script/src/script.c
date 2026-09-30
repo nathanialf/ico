@@ -30,10 +30,15 @@
 #include "matrixDrive.h"
 #include "script.h"
 
+/* a 0x40-byte layout record as CreateLayoutedGObj takes it: position,
+   rotation, the unit scale at 0x20 and the kind index at 0x30 */
 struct DQW {
     float f0, f4, f8, fc, f10, f14;
-    char _18[0x18];
+    char _18[0x8];
+    float scale[3];
+    int _2C;
     int f30;
+    int _34[3];
 };
 
 struct SPMD {
@@ -373,7 +378,11 @@ extern int IsWallLeverStatus(void);
 /* kept local: this TU's uses of ACTGame_isHangChain do not fit the prototype in act-game.h */
 /* kept local: this TU's uses of ACTGame_isHangChain do not fit the prototype in act-game.h */
 extern int ACTGame_isHangChain();
-extern struct DQW D_002A5400;
+
+/* the last object of script.o's .data (VMA 0x2A5400..0x2A5440): the layout
+   record scpBornSpider fills and hands MakeAP1GObj for each spider */
+static struct DQW spiderLayout = {0, 0, 0, 0, 0, 0, {0}, {1.0f, 1.0f, 1.0f}}; /* derived name */
+
 /* kept local: this TU's uses of WakeUpAP1 do not fit the prototype in act_a_p_1.h */
 extern void WakeUpAP1(int a0);
 extern char D_00554810[];
@@ -1887,14 +1896,14 @@ inline void scpBornSpider(int n, float a, float b, float c, float d)
     int r, dead;
     for (i = 0; i < n; i++) {
         t1 = random_unit();
-        D_002A5400.f4 = b;
-        D_002A5400.f0 = a + d * (t1 + t1 - 1.0f);
+        spiderLayout.f4 = b;
+        spiderLayout.f0 = a + d * (t1 + t1 - 1.0f);
         t2 = random_unit();
-        D_002A5400.f8 = c + d * (t2 + t2 - 1.0f);
+        spiderLayout.f8 = c + d * (t2 + t2 - 1.0f);
         r = rand();
-        D_002A5400.f30 = 1;
-        D_002A5400.f14 = (float)((r >> 4) & 0xFFFF) * 3.1415927f * 3.0517578125e-05f;
-        dead = MakeAP1GObj(&D_002A5400);
+        spiderLayout.f30 = 1;
+        spiderLayout.f14 = (float)((r >> 4) & 0xFFFF) * 3.1415927f * 3.0517578125e-05f;
+        dead = MakeAP1GObj(&spiderLayout);
         _ACTWait(1);
         WakeUpAP1(dead);
     }

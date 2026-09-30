@@ -24,4 +24,9 @@ void actSt25aQueenTalkChk(volatile int a0);
 extern const char faceShadowTex[];
 extern const char faceShadowTex00[];
 
+/* MAIN.MAP globals of st25a.o's .sdata: ADPCM request slots */
+extern int conte12;
+extern int sd2;
+extern int dead;
+
 #endif /* ST25A_H */

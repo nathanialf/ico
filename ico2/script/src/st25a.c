@@ -29,7 +29,25 @@
 extern int scpGameStat_BoyWeaponkind(void);
 /* kept local: this TU's uses of scpLinkBGAtoLayoutedTarget do not fit the prototype in script.h */
 extern void scpLinkBGAtoLayoutedTarget(int a0, int a1);
-extern int D_0063AA30;
+
+/* st25a.o's .sdata run (VMA 0x63AA30..0x63AA4C, 0x1C B; MAIN.MAP's January
+   object is 0x14), in the ROM's order: the ADPCM request slots the scenes
+   hand scpAdpcmPlayRequestFunc and wait on (conte12, sd2 and dead are
+   MAIN.MAP globals), and conte12's flag. */
+static int conte11 = 0; /* derived name */
+
+int conte12 = 0;
+
+int sd2 = 0;
+
+static int conte12Flag = 0; /* derived name */
+
+int dead = 0;
+
+static int elevAgain = 0; /* derived name */
+
+static int elevFirst = 0; /* derived name */
+
 extern int D_00639EA4;
 extern JimakuArg jimaku_msg;
 extern int jimakuOn;
@@ -42,7 +60,6 @@ extern void jimakuBegin(int a0);
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 /* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
-extern int dead;
 extern char D_00618ED0[];
 
 /* st25a.o's whole .rodata run, in the order the object emits it; the 0.15
@@ -121,10 +138,10 @@ void actSt25aQueenAppearChk(volatile int a0)
     enable_game_pause = 0;
     gflagOn(332);
     actCreateSubThread(actConte11Jimaku, 21);
-    while (D_0063AA30 == 0) {
+    while (conte11 == 0) {
         _ACTWait(1);
     }
-    AdpcmPlay(*(int *)(D_0063AA30 + 0x2C));
+    AdpcmPlay(*(int *)(conte11 + 0x2C));
     D_0063AA08 = 1;
     _ACTWait((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 3);
     actCreateSubThread(actConte11, 21);
@@ -211,8 +228,6 @@ typedef union QueenWork {
 
 extern char D_00618E70[];
 extern int D_0028F8F4[];
-extern int conte12;
-extern int sd2;
 
 /* .sbss, owned by st25a.o and reached only from this file (MAIN.MAP names no
    symbol in the run), in the ROM's run order: the flag the demo raises when it
@@ -370,11 +385,10 @@ void actSt25aQueenTalkChk(volatile int a0)
 }
 
 extern int D_00639EAC;
-extern int D_0063AA3C;
 
 void actConte12(volatile int a0)
 {
-    D_0063AA3C = 0;
+    conte12Flag = 0;
 
     scpSearchGobj(2149)->f16C = 1;
     EntryStreamMotion(D_00639EA4);
@@ -743,9 +757,6 @@ void BoySekikaTexScroll(void)
     tex_SetUVScroll(sekikaBoyTexture, 0.0f, 0.0f, 0.0f, 0.01f, 0.0f, 0.5f, 1);
 }
 
-extern int D_0063AA44;
-extern int D_0063AA48;
-
 void actSt25aElevChk(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
@@ -756,8 +767,8 @@ void actSt25aElevChk(volatile int a0)
     lt_switch_layout(55);
     D_0063AA08 = 1;
     if (gflagChk(337) == 0) {
-        scpAdpcmPlayRequestFunc(100, &D_0063AA48, 1, 1, 1);
-        while (D_0063AA48 == 0) {
+        scpAdpcmPlayRequestFunc(100, &elevFirst, 1, 1, 1);
+        while (elevFirst == 0) {
             _ACTWait(1);
         }
         _ACTWait((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]);
@@ -773,8 +784,8 @@ void actSt25aElevChk(volatile int a0)
         _ACTWait(1);
         gflagOn(337);
     } else {
-        scpAdpcmPlayRequestFunc(99, &D_0063AA44, 0, 1, 1);
-        while (D_0063AA44 == 0) {
+        scpAdpcmPlayRequestFunc(99, &elevAgain, 0, 1, 1);
+        while (elevAgain == 0) {
             _ACTWait(1);
         }
         _ACTWait((int)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 0.15));
@@ -921,13 +932,13 @@ void actSwordEffXL(volatile int a0)
 
 void actSt25aQueenBeforeChk(volatile int a0)
 {
-    D_0063AA30 = 0;
+    conte11 = 0;
     while (scpTriggerFloorAttr(D_00639EA4, 0x1000000) == 0) {
         _ACTWait(1);
     }
     gflagOn(331);
     jimakuBegin((int)&jimaku_msg);
-    scpAdpcmPlayRequestFunc(39, &D_0063AA30, 1, 1, 0);
+    scpAdpcmPlayRequestFunc(39, &conte11, 1, 1, 0);
 }
 
 void actConte11Jimaku(volatile int a0)

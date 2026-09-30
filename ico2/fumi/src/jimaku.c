@@ -60,6 +60,7 @@ extern int D_0028F4C0[];
 extern void jimakuMgrBegin(struct jArg *p);
 
 #include "jimaku.h"
+#include "gflag.h"
 
 typedef struct JimTex {
     char _0[0x1C];
@@ -216,7 +217,6 @@ int jimakuHandler(int self, struct jArg *p)
 }
 
 extern int NonLinearCameraMove;
-extern int D_0063AA00;
 extern char D_0055FBD0[][32];
 
 void jimakuMgrBegin(struct jArg *p)
@@ -260,7 +260,7 @@ void jimakuMgrBegin(struct jArg *p)
         st = 8;
         break;
     }
-    if (D_0063AA00 != 0) {
+    if (gFlagGameClear != 0) {
         st = st + 1;
     }
     sub->field40 = (void *)iosCdvdBackGroundMgrAdd(D_0055FBD0[st], jimakuHandler, p, 0, 0, 0, 0, 0);

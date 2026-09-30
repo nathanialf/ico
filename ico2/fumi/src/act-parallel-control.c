@@ -1,18 +1,12 @@
+#include "act-parallel-control.h"
+#include "debug.h"
+
 /* .bss, owned by act-parallel-control.o and reached only from this file
    (MAIN.MAP names no symbol in the run): the parallel-action ids copied out of
    the layout table. */
 static int parallelIds[86];
 
 extern char D_003089C0[];
-
-static const int actPara_MakeTblTbl[100] = {
-    3,    5,   6,    1147, 554,  555,  556,  1147, 563,  564,  1147, 576,  1147, 580, 581,
-    1147, 563, 564,  555,  1147, 563,  564,  554,  555,  1147, 563,  564,  554,  555, 556,
-    1147, 563, 564,  554,  555,  556,  1147, 841,  842,  1147, 843,  844,  845,  846, 1147,
-    927,  928, 1147, 927,  928,  929,  930,  931,  932,  1147, 927,  928,  929,  930, 931,
-    932,  933, 934,  935,  936,  1147, 927,  933,  934,  935,  936,  1147, 897,  898, 1147,
-    899,  900, 1147, 901,  902,  1147, 903,  904,  1147, 906,  907,  1147, 909,  910, 1147,
-    848,  849, 850,  851,  1147, 955,  956,  957,  1147, 0};
 
 /* listing lines 23-80.  The helper's rows (28-55) sit INSIDE this function's
    own line span and below its head, so it is a GNU nested function of the
@@ -31,18 +25,18 @@ void ActPara_MakeTbl(int *tbl, unsigned long long mask, int n)
             int m = idx;
             int k = 0;
 
-            if (actPara_MakeTblTbl[m] != 0x47B) {
+            if (randomMotionKind[m] != 0x47B) {
                 do {
                     m++;
                     k++;
-                } while (actPara_MakeTblTbl[m] != 0x47B);
+                } while (randomMotionKind[m] != 0x47B);
             }
             if (k == 0) {
                 v = 0x47B;
             } else {
                 int e = idx + n % k;
 
-                v = actPara_MakeTblTbl[e];
+                v = randomMotionKind[e];
             }
         }
         return v;
@@ -66,6 +60,17 @@ void ActPara_InitSystem(void)
     int i;
     for (i = 0; i <= 85; i++) {
         parallelIds[i] = *(int *)(D_003089C0 + i * 0xB0);
+    }
+    /* A compiled-out overflow check.  What the bytes pin: its message and
+       __FILE__ are act-parallel-control.o's whole .rodata and its "0" the
+       whole .sdata, in that order, with no instruction.  What they cannot:
+       the condition that disabled it and its line; the listing's rows
+       101-110, empty after this loop (99-100), are where it fits. */
+    if (0) {
+        /* too many parallel motions (way too many) */
+        debug_StdPrintfDummy("並列モーションが増えすぎました（大森）");
+        debug_assert(__FILE__, 103);
+        __assert(__FILE__, 103, "0");
     }
 }
 

@@ -565,7 +565,6 @@ void actSt06aStatueChk(volatile int a0)
 }
 
 extern int toge;
-extern int D_0063AA00;
 /* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(void *a0, int a1);
 
@@ -588,7 +587,7 @@ void actSt06aHeadChk(volatile int a0)
         _ACTWait(1);
     }
 
-    if (D_0063AA00 == 0) {
+    if (gFlagGameClear == 0) {
         stage_SetAnimation(119, 1, 0);
 
         if (scpTriggerFloorAttr(D_00639EA4, 0x7000000) == 0 &&
@@ -616,7 +615,7 @@ void actSt06aHeadChk(volatile int a0)
         _ACTWait(1);
     }
 
-    if (D_0063AA00 != 0) {
+    if (gFlagGameClear != 0) {
         stage_SetAnimation(120, 1, 0);
 
         if (scpTriggerFloorAttr(D_00639EA4, 0x7000000) == 0 &&
@@ -955,10 +954,10 @@ void actSt06aHead(volatile int a0)
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        if (D_0063AA00 == 0) {
+        if (gFlagGameClear == 0) {
             scpSearchGobj(1772)->f16C = 0;
         }
-        if (D_0063AA00 != 0) {
+        if (gFlagGameClear != 0) {
             scpSearchGobj(1771)->f16C = 0;
         }
     }

@@ -24,4 +24,7 @@ void kanbanExec(void);
 void init_textures_of_specified_property(int first, int last);
 void kanbanInit(int no);
 
+/* MAIN.MAP global of kanban.o's .sdata */
+extern int kanbanCommonRead;
+
 #endif /* KANBAN_H */

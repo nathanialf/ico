@@ -17,6 +17,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <eekernel.h>
+#include <libvu0.h>
 #include "gamesys.h"
 #include "typedef.h"
 #include "DisplayList.h"
@@ -606,13 +607,14 @@ static char fontfLine[512];
 
 static char loadInfoLine[32];
 
-/* the debug box's centre and half extents */
-static float boxCentre[4];
+/* the debug box's centre and half extents: VU0 vectors, whose 16-byte
+   alignment is the section's and puts the 8 zero bytes before this run */
+static sceVu0FVECTOR boxCentre;
 
-static float boxWidth[4];
+static sceVu0FVECTOR boxWidth;
 
 /* the debug ball's centre */
-static float ballCentre[4];
+static sceVu0FVECTOR ballCentre;
 
 /* the ray the collision test drives */
 static DbgRay collisionRay;

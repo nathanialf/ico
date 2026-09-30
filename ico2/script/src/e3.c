@@ -24,6 +24,7 @@
 #include "typedef.h"
 #include "commonact.h"
 #include "streamMotionManager.h"
+#include "kanbanBoot.h"
 
 extern int D_00639EA4;
 extern int D_00639EA8;
@@ -103,7 +104,6 @@ static ActMail st09aBrg_mes[2] = {{430}, {429}};
 
 static ActMail st09aBrgSwitch_mes[2] = {{430}, {429}};
 
-extern int D_0063B4D0;
 extern int D_0063BDF4;
 
 void actE3Title(volatile int a0)
@@ -121,7 +121,7 @@ void actE3Title(volatile int a0)
     D_0063BDF4 = 0;
     scpAdpcmPlayRequestFunc(5, &D_0063BDF4, 0, 1, 0);
 
-    while (D_0063B4D0 == 0) {
+    while (kanbanBootEnd == 0) {
         _ACTWait(1);
     }
 

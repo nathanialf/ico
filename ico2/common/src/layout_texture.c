@@ -196,7 +196,6 @@ void lt_analog2Pad(void)
 extern int frame_count;
 extern int D_0028F8F4[];
 extern int D_0063B620;
-extern int D_0063AA00;
 /* census display_texture: a file static here (the name is also src/jimaku's
    global and src/kanban's file-local one). */
 static void display_texture(int no, LtProperty *e);
@@ -209,7 +208,7 @@ static inline int lt_property_visible(int no)
 {
     int vis = 1;
 
-    if (D_0063AA00 == 0 && D_0063B60C == 58 && no >= 300 &&
+    if (gFlagGameClear == 0 && D_0063B60C == 58 && no >= 300 &&
         (no < 308 || (no < 330 ? no >= 325 : 0))) {
         vis = 0;
     }

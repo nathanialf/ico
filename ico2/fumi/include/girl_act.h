@@ -64,4 +64,9 @@ extern int padtimer_run;
 extern int GirlInfo[2];
 extern int girlcalled;
 
+/* MAIN.MAP globals of girl_act.o's .data: the brain's work record and the
+ * hand manager's record (their types are girl_act.c's own). */
+extern struct GirlBrainWork brain_val;
+extern struct GirlStand handmgr;
+
 #endif /* GIRL_ACT_H */

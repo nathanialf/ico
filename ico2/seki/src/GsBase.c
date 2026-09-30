@@ -10,6 +10,7 @@
 #include <sifdev.h>
 #include <stdio.h>
 #include "typedef.h"
+#include "gflag.h"
 
 /* Declared here, not through string.h: with newlib's prototype in scope gcc
    expands gsb_scissorOnDemo's four-byte zero fill as one store, and the ROM
@@ -800,7 +801,6 @@ extern int D_0063B60C;
 extern int fadeStatus;
 extern unsigned char D_0063BCB3;
 extern int D_00639FC4;
-extern int D_0063AA00;
 extern int fbKeep;
 extern int staffRollStartFlag;
 extern void FullScreenEffectAfter(void);
@@ -836,7 +836,7 @@ int gsb_PostEffect(void)
     fog_DrawFog();
     MotionBlur();
     gsb_antiAlias();
-    if (D_0063AA00 > 0 && optionScreenMode != 0) {
+    if (gFlagGameClear > 0 && optionScreenMode != 0) {
         gsb_filmNoise();
     }
     gsb_controlBrightness();

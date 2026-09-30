@@ -16,7 +16,7 @@
 #include "typedef.h"
 #include <libvu0.h>
 
-typedef struct {
+typedef struct GirlStand {
     sceVu0FVECTOR prev; /* 0x00 last frame's root position */
     sceVu0FVECTOR cur;  /* 0x10 this frame's root position */
     float f_20;         /* 0x20 */
@@ -329,7 +329,7 @@ typedef struct {
     GirlListEnt ent[100]; /* 0x10 */
 } GirlList;
 
-typedef struct {
+typedef struct GirlBrainWork {
     unsigned char f_0; /* 0x00 */
     unsigned char f_1; /* 0x01 */
     char _2[0xC8E];
@@ -361,17 +361,16 @@ typedef struct {
     int wait;
     int timer;
     int limit;
-    int f_5908; /* 0x5908 frames since the last mode change */
-    int f_590C; /* 0x590C */
-    int f_5910; /* 0x5910 */
-    int f_5914; /* 0x5914 */
+    int f_5908;   /* 0x5908 frames since the last mode change */
+    int f_590C;   /* 0x590C */
+    int f_5910;   /* 0x5910 */
+    int f_5914;   /* 0x5914 */
+    int _5918[2]; /* 0x5918, to the 0x5920 girlBrainMain_Init clears */
 } GirlBrainWork;
 
-extern char D_0029D650[];
-
 /* The head of the TU's .data, in ROM run order (VMA 0x29D420..0x29D64C; the
-   brain work record at 0x29D650 and the hand manager follow and stay in the
-   blob while the TU spells them through casts): the danger-environment
+   brain work record brain_val at 0x29D650 and the hand manager handmgr
+   follow, defined after the last of these): the danger-environment
    initial value, the
    brain mode table (the mode's routine and its flag byte), the object kinds
    the others list gathers (-1 ends it) and their debug names, the run-mode
@@ -564,7 +563,6 @@ static inline void ATGoalTurnSendMail(void *self)
     }
 }
 
-extern char D_002A2E70[];
 /* kept local: this TU's uses of ACTGameView_Check do not fit the prototype in act-game.h */
 extern int ACTGameView_Check(void *self, void *target);
 /* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
@@ -590,7 +588,7 @@ extern void __assert(char *file, int line, char *expr);
    allocation needs the chain at cse1/gcse: the switch in
    girlDispHidePoint keeps a label in that loop's body through cse1, jump2
    then merges the emptied body into the loop test's block, and gcse finds
-   two (high D_0029D650) there; the copy it inserts after the second
+   two (high brain_val) there; the copy it inserts after the second
    re-sets its reaching register inside the loop, which gives the ROM's
    `daddu $30,$22,$0` before the countdown, the $30/$22 pair from the
    prologue on and the base copy before the last loop.  With the loop
@@ -733,7 +731,7 @@ void girlBrainMain_MakeOthersList(void)
 
         for (i = 0; i < n; i++) {
             D_006C1180[i].idx = i;
-            D_006C1180[i].dist = _DistSqGV(list + i * 4, D_002A2E70);
+            D_006C1180[i].dist = _DistSqGV(list + i * 4, brain_val.f_5820);
         }
         for (i = 0; i < n; i++) {
             for (j = n - 1; i < j; j--) {
@@ -765,119 +763,105 @@ void girlBrainMain_MakeOthersList(void)
     int j;
     int k;
 
-    ((GirlBrainWork *)D_0029D650)->hide.num = ((GirlBrainWork *)D_0029D650)->listB.num = 0;
+    brain_val.hide.num = brain_val.listB.num = 0;
     for (i = 0; D_0029D480[i] != -1; i++) {
         void *o;
 
         for (o = isysGObjSearchFromObjKindID_begin(D_0029D480[i]); o != 0;
              o = isysGObjSearchFromObjKindID_next(o)) {
             if (girlListIsAlive(o) && girlListIsOnBoy(o)) {
-                if (!(((GirlBrainWork *)D_0029D650)->hide.num < 100)) {
+                if (!(brain_val.hide.num < 100)) {
                     /* "too many enemies", EUC-JP */
                     debug_StdPrintfDummy(
                         "\305\250\244\316\277\364\244\254\302\277\244\271\244\256\244\336\244\271");
                     debug_assert("src/girl_brain_main.c.inc", 485);
                     __assert("src/girl_brain_main.c.inc", 485, "0");
                 }
-                GetRootPosition(((GirlBrainWork *)D_0029D650)
-                                    ->hide.ent[((GirlBrainWork *)D_0029D650)->hide.num]
-                                    .pos,
-                                o);
-                ((GirlBrainWork *)D_0029D650)->hide.num++;
+                GetRootPosition(brain_val.hide.ent[brain_val.hide.num].pos, o);
+                brain_val.hide.num++;
             }
         }
     }
-    sort_list(((GirlBrainWork *)D_0029D650)->listB.ent[0].pos,
-              ((GirlBrainWork *)D_0029D650)->listB.num);
-    sort_list(((GirlBrainWork *)D_0029D650)->hide.ent[0].pos,
-              ((GirlBrainWork *)D_0029D650)->hide.num);
-    ((GirlBrainWork *)D_0029D650)->others.num = 0;
+    sort_list(brain_val.listB.ent[0].pos, brain_val.listB.num);
+    sort_list(brain_val.hide.ent[0].pos, brain_val.hide.num);
+    brain_val.others.num = 0;
     for (i = 0; D_0029D480[i] != -1; i++) {
         void *o;
 
         for (o = isysGObjSearchFromObjKindID_begin(D_0029D480[i]); o != 0;
              o = isysGObjSearchFromObjKindID_next(o)) {
             if (girlListIsAlive(o)) {
-                int n = ((GirlBrainWork *)D_0029D650)->others.num;
+                int n = brain_val.others.num;
 
-                ((GirlBrainWork *)D_0029D650)->others.ent[n].obj = o;
-                GetRootProjectionPosOfGObj(((GirlBrainWork *)D_0029D650)->others.ent[n].pos, o);
-                ((GirlBrainWork *)D_0029D650)->others.ent[n].dist =
-                    _DistGV(((GirlBrainWork *)D_0029D650)->others.ent[n].pos,
-                            ((GirlBrainWork *)D_0029D650)->f_5830);
-                ((GirlBrainWork *)D_0029D650)->others.ent[n].flags = 1;
+                brain_val.others.ent[n].obj = o;
+                GetRootProjectionPosOfGObj(brain_val.others.ent[n].pos, o);
+                brain_val.others.ent[n].dist =
+                    _DistGV(brain_val.others.ent[n].pos, brain_val.f_5830);
+                brain_val.others.ent[n].flags = 1;
                 if (girlListIsOnBoy(o)) {
-                    ((GirlBrainWork *)D_0029D650)->others.ent[n].flags |= 2;
+                    brain_val.others.ent[n].flags |= 2;
                 }
-                ((GirlBrainWork *)D_0029D650)->others.num++;
+                brain_val.others.num++;
             }
         }
     }
-    qsort(((GirlBrainWork *)D_0029D650)->others.ent, ((GirlBrainWork *)D_0029D650)->others.num,
-          sizeof(GirlListEnt), enemy_list_compare);
-    ((GirlBrainWork *)D_0029D650)->listB.num = girlListPick(
-        ((GirlBrainWork *)D_0029D650)->others.ent, ((GirlBrainWork *)D_0029D650)->listB.ent,
-        ((GirlBrainWork *)D_0029D650)->others.num, 0xC);
-    ((GirlBrainWork *)D_0029D650)->hide.num = girlListPick(
-        ((GirlBrainWork *)D_0029D650)->others.ent, ((GirlBrainWork *)D_0029D650)->hide.ent,
-        ((GirlBrainWork *)D_0029D650)->others.num, 0xF);
-    ((GirlBrainWork *)D_0029D650)->listD.num = girlListPick(
-        ((GirlBrainWork *)D_0029D650)->others.ent, ((GirlBrainWork *)D_0029D650)->listD.ent,
-        ((GirlBrainWork *)D_0029D650)->others.num, 0xE);
-    ((GirlBrainWork *)D_0029D650)->f_0 = 0;
-    if (((GirlBrainWork *)D_0029D650)->listB.num != 0 &&
-        ((GirlBrainWork *)D_0029D650)->listB.ent[0].dist < 300.0f) {
-        ((GirlBrainWork *)D_0029D650)->f_0 = 1;
+    qsort(brain_val.others.ent, brain_val.others.num, sizeof(GirlListEnt), enemy_list_compare);
+    brain_val.listB.num =
+        girlListPick(brain_val.others.ent, brain_val.listB.ent, brain_val.others.num, 0xC);
+    brain_val.hide.num =
+        girlListPick(brain_val.others.ent, brain_val.hide.ent, brain_val.others.num, 0xF);
+    brain_val.listD.num =
+        girlListPick(brain_val.others.ent, brain_val.listD.ent, brain_val.others.num, 0xE);
+    brain_val.f_0 = 0;
+    if (brain_val.listB.num != 0 && brain_val.listB.ent[0].dist < 300.0f) {
+        brain_val.f_0 = 1;
     }
-    ((GirlBrainWork *)D_0029D650)->f_1 = 0;
-    if (((GirlBrainWork *)D_0029D650)->listD.num != 0) {
-        ((GirlBrainWork *)D_0029D650)->f_1 = 1;
+    brain_val.f_1 = 0;
+    if (brain_val.listD.num != 0) {
+        brain_val.f_1 = 1;
     }
     /* girl_brain_main.c.inc:559-568: a marker at each hide point, coloured
        by the others entry's flags; only its drawing is compiled out (see
        girlDispWire), so the loop stays and counts down empty. */
-    for (k = 0; k < ((GirlBrainWork *)D_0029D650)->hide.num; k++) {
-        int c = ((GirlBrainWork *)D_0029D650)->others.ent[k].flags & 2 ? 'B' : 'W';
+    for (k = 0; k < brain_val.hide.num; k++) {
+        int c = brain_val.others.ent[k].flags & 2 ? 'B' : 'W';
 
-        if (((GirlBrainWork *)D_0029D650)->others.ent[k].flags & 4) {
+        if (brain_val.others.ent[k].flags & 4) {
             c = 'Y';
         }
-        if (((GirlBrainWork *)D_0029D650)->others.ent[k].flags & 8) {
+        if (brain_val.others.ent[k].flags & 8) {
             c = 'R';
         }
-        girlDispHidePoint(((GirlBrainWork *)D_0029D650)->hide.ent[k].pos, c, "III");
+        girlDispHidePoint(brain_val.hide.ent[k].pos, c, "III");
     }
     seen = 0;
-    for (i = 0; i < ((GirlBrainWork *)D_0029D650)->hide.num; i++) {
-        if (ACTGameView_Check(D_00639EA8, ((GirlBrainWork *)D_0029D650)->hide.ent[i].obj) != 0) {
+    for (i = 0; i < brain_val.hide.num; i++) {
+        if (ACTGameView_Check(D_00639EA8, brain_val.hide.ent[i].obj) != 0) {
             seen = 1;
             break;
         }
     }
     if (seen != 0) {
-        ((GirlBrainWork *)D_0029D650)->f_5910 = 0;
+        brain_val.f_5910 = 0;
     } else {
-        ((GirlBrainWork *)D_0029D650)->f_5910++;
+        brain_val.f_5910++;
     }
-    if (((GirlBrainWork *)D_0029D650)->others.num != 0 &&
-        ((GirlBrainWork *)D_0029D650)->others.ent[0].dist < 600.0f) {
+    if (brain_val.others.num != 0 && brain_val.others.ent[0].dist < 600.0f) {
         GOBJ_ACT(D_00639EA8)->flags20.ll |= 0x1000;
     }
     GOBJ_ACT(D_00639EA8)->flags20.ll &= ~0x2000;
-    if (((GirlBrainWork *)D_0029D650)->others.num != 0 &&
-        ((GirlBrainWork *)D_0029D650)->others.ent[0].dist < 1000.0f) {
+    if (brain_val.others.num != 0 && brain_val.others.ent[0].dist < 1000.0f) {
         GOBJ_ACT(D_00639EA8)->flags20.ll |= 0x2000;
     }
     GOBJ_ACT(D_00639EA8)->flags20.ll |= 0x400000000000;
-    if (((GirlBrainWork *)D_0029D650)->others.num != 0) {
-        if (((GirlBrainWork *)D_0029D650)->others.ent[0].dist < 200.0f) {
+    if (brain_val.others.num != 0) {
+        if (brain_val.others.ent[0].dist < 200.0f) {
             GOBJ_ACT(D_00639EA8)->flags20.ll &= ~0x400000000000;
             return;
         }
-        d = _DistGV(((GirlBrainWork *)D_0029D650)->f_5830, ((GirlBrainWork *)D_0029D650)->f_5850);
-        for (j = 0; j < ((GirlBrainWork *)D_0029D650)->others.num; j++) {
-            if (_DistSqGV(((GirlBrainWork *)D_0029D650)->others.ent[j].pos,
-                          ((GirlBrainWork *)D_0029D650)->f_5850) < d * d) {
+        d = _DistGV(brain_val.f_5830, brain_val.f_5850);
+        for (j = 0; j < brain_val.others.num; j++) {
+            if (_DistSqGV(brain_val.others.ent[j].pos, brain_val.f_5850) < d * d) {
                 GOBJ_ACT(D_00639EA8)->flags20.ll &= ~0x400000000000;
                 break;
             }
@@ -963,7 +947,7 @@ static inline unsigned char isHidePointTooHigh(float *p)
     float y;
 
     if (stage_no == 8 || stage_no == 22) {
-        b = (GirlBrainWork *)D_0029D650;
+        b = &brain_val;
         y = b->f_5830[1] + 100.0f;
         if (y < p[1] || y < b->f_5850[1]) {
             return 1;
@@ -1013,7 +997,7 @@ int girlBrainMain_CheckWarningMode(unsigned char check)
 {
     float hit[4];
     int mode;
-    char *w = D_0029D650;
+    char *w = (char *)&brain_val;
 
     w[0x58F1] = 1;
     if (((unsigned char *)w)[0] != 0) {
@@ -1022,7 +1006,7 @@ int girlBrainMain_CheckWarningMode(unsigned char check)
         mode = ((unsigned char *)w)[1] != 0 ? 4 : 0;
     }
     {
-        char *g = D_0029D650;
+        char *g = (char *)&brain_val;
 
         if (*(int *)(g + 0x3230) == 0 ||
             (check != 0 && ACTGameView_Check(D_00639EA8, D_00639EA4) == 0)) {
@@ -1035,12 +1019,12 @@ int girlBrainMain_CheckWarningMode(unsigned char check)
             goto out;
         }
     }
-    if (!isHidePointTooHigh((float *)(D_0029D650 + 0x5800)) &&
-        !girlBrainHideCheckIntercept((float *)(D_0029D650 + 0x5830), (float *)(D_0029D650 + 0x5800),
-                                     D_0029D650 + 0x3240, *(int *)(D_0029D650 + 0x3230))) {
+    if (!isHidePointTooHigh(brain_val.f_5800) &&
+        !girlBrainHideCheckIntercept(brain_val.f_5830, brain_val.f_5800, (char *)brain_val.hide.ent,
+                                     brain_val.hide.num)) {
         mode = 3;
     } else {
-        char *v = D_0029D650;
+        char *v = (char *)&brain_val;
 
         if (*(int *)(v + 0x1F60) != 0 && _DistSqGV(v + 0x5820, v + 0x1F80) < 90000.0f) {
             goto out;
@@ -1070,7 +1054,7 @@ extern int D_0028F8F0[];
    girlBrainMain_DecideMode and into subGirlBrainMain. */
 static inline void *girlBrainGetTarget(void)
 {
-    int *flag = &((GirlBrainWork *)D_0029D650)->targetFlag;
+    int *flag = &brain_val.targetFlag;
     Brain *b = D_002A5580;
     void *obj = 0;
 
@@ -1108,7 +1092,7 @@ static inline void *girlBrainGetTarget(void)
 static __inline__ void girlBrainDebugPrint(void)
 {
 #ifdef DEBUG
-    float *t = ((GirlBrainWork *)D_0029D650)->f_5810;
+    float *t = brain_val.f_5810;
 
     scePrintf("girl brain target %f %f %f\n", t[0], t[1], t[2]);
 #endif
@@ -1195,7 +1179,7 @@ int girlBrainMain_DecideMode(int mode, int *next)
         setNext(5);
         return 0;
     }
-    ((GirlBrainWork *)D_0029D650)->target = girlBrainGetTarget();
+    brain_val.target = girlBrainGetTarget();
 
     lv = girlBrainGetTargetLevel() * 10.0f;
     if (3.0f <= lv) {
@@ -1204,23 +1188,23 @@ int girlBrainMain_DecideMode(int mode, int *next)
     if (2.0f <= lv) {
         sub->flags20.ll |= 0x200000000000;
     }
-    if (((GirlBrainWork *)D_0029D650)->target != ((GirlBrainWork *)D_0029D650)->lastTarget) {
-        ((GirlBrainWork *)D_0029D650)->lastTarget = ((GirlBrainWork *)D_0029D650)->target;
+    if (brain_val.target != brain_val.lastTarget) {
+        brain_val.lastTarget = brain_val.target;
         changed = 1;
     }
-    if (((GirlBrainWork *)D_0029D650)->target != 0) {
-        _ACTCharStatus_Set(self, 10, -1.0f, (int)((GirlBrainWork *)D_0029D650)->target);
+    if (brain_val.target != 0) {
+        _ACTCharStatus_Set(self, 10, -1.0f, (int)brain_val.target);
     }
     switch (mode) {
     case 0:
     case 1:
     case 7:
-        if (((GirlBrainWork *)D_0029D650)->lastTarget != 0) {
+        if (brain_val.lastTarget != 0) {
             setNext(1);
         } else {
             setNext(0);
         }
-        if (((GirlBrainWork *)D_0029D650)->hide.num == 0) {
+        if (brain_val.hide.num == 0) {
             break;
         }
         for (i = 0; D_0029D480[i] != -1; i++) {
@@ -1243,9 +1227,9 @@ int girlBrainMain_DecideMode(int mode, int *next)
         break;
 
     case 2:
-        if (((GirlBrainWork *)D_0029D650)->f_58F0 != 0) {
+        if (brain_val.f_58F0 != 0) {
             checkWarning(1);
-            ((GirlBrainWork *)D_0029D650)->f_58F0 = 0;
+            brain_val.f_58F0 = 0;
         }
         if (D_0028F8F0[0] & 8) {
             ACTSendMailCorrect(self, 251);
@@ -1253,25 +1237,23 @@ int girlBrainMain_DecideMode(int mode, int *next)
         break;
 
     case 3:
-        if (((GirlBrainWork *)D_0029D650)->f_5914 == 0 && isEnterHideadv() != 0) {
+        if (brain_val.f_5914 == 0 && isEnterHideadv() != 0) {
             setNext(9);
             break;
         }
-        if ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 10 <
-                ((GirlBrainWork *)D_0029D650)->f_5910 &&
-            (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 10 <
-                ((GirlBrainWork *)D_0029D650)->f_5908) {
+        if ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 10 < brain_val.f_5910 &&
+            (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 10 < brain_val.f_5908) {
             setNext(0);
             break;
         }
         /* fall through */
 
     case 4:
-        if (((GirlBrainWork *)D_0029D650)->f_58F0 != 0) {
+        if (brain_val.f_58F0 != 0) {
             checkWarning(0);
 
             warned = 1;
-            ((GirlBrainWork *)D_0029D650)->f_58F0 = 0;
+            brain_val.f_58F0 = 0;
         }
         break;
 
@@ -1280,14 +1262,14 @@ int girlBrainMain_DecideMode(int mode, int *next)
         break;
 
     case 6:
-        if (((GirlBrainWork *)D_0029D650)->f_58F0 == 0) {
+        if (brain_val.f_58F0 == 0) {
             break;
         }
         /* fall through */
 
     case 8:
         setNext(0);
-        ((GirlBrainWork *)D_0029D650)->f_58F0 = 0;
+        brain_val.f_58F0 = 0;
         break;
 
     case 9:
@@ -1313,17 +1295,17 @@ int girlBrainMain_DecideMode(int mode, int *next)
 
 void girlBrainMain_PositionUpdate(void)
 {
-    GetRootPosition(D_002A2E70 + 0x00, D_00639EA8);
-    GetRootPosition(D_002A2E70 + 0x20, D_00639EA4);
-    GetRootProjectionPosOfGObj(D_002A2E70 + 0x10, D_00639EA8);
-    GetRootProjectionPosOfGObj(D_002A2E70 + 0x30, D_00639EA4);
+    GetRootPosition(brain_val.f_5820, D_00639EA8);
+    GetRootPosition(brain_val.f_5840, D_00639EA4);
+    GetRootProjectionPosOfGObj(brain_val.f_5830, D_00639EA8);
+    GetRootProjectionPosOfGObj(brain_val.f_5850, D_00639EA4);
 }
 
 extern void *memset(void *dst, int c, int n);
 
 void girlBrainMain_Init(void)
 {
-    memset(D_0029D650, 0, 0x5920);
+    memset(&brain_val, 0, sizeof(brain_val));
 }
 
 /* the run-mode rows ChangeRunMode indexes */
@@ -1405,16 +1387,16 @@ void subGirlBrainMain(volatile int a0)
         int lo;
         int hi;
 
-        ((GirlBrainWork *)D_0029D650)->runMode = mode;
-        ((GirlBrainWork *)D_0029D650)->timer = 0;
-        ((GirlBrainWork *)D_0029D650)->wait = rand() % 3;
+        brain_val.runMode = mode;
+        brain_val.timer = 0;
+        brain_val.wait = rand() % 3;
         n = (int)D_002A5594[0];
         n = n / 3;
         n = (n < 0) ? 0 : ((n < 4) ? n : 3);
         t = D_0029D4A0[n][0];
         lo = *(int *)(t * 16 + mode * 8 + D_005D3EF0);
         hi = *(int *)(D_005D3EF0 + (t * 16 + mode * 8) + 4);
-        ((GirlBrainWork *)D_0029D650)->limit = lo + rand() % (hi - lo);
+        brain_val.limit = lo + rand() % (hi - lo);
     }
     float sk[4];
     Act *act = (Act *)*(int *)(a0 + 0x164);
@@ -1436,8 +1418,8 @@ void subGirlBrainMain(volatile int a0)
         int carry = act->unk34 == 0x45;
 
         act->flags20.ll = (act->flags20.ll & ~(1LL << 27)) | ((long long)carry << 27);
-        if (((GirlBrainWork *)D_0029D650)->f_5914) {
-            ((GirlBrainWork *)D_0029D650)->f_5914 -= 1;
+        if (brain_val.f_5914) {
+            brain_val.f_5914 -= 1;
         }
         if (D_00639EA4) {
             unsigned int st = GOBJ_ACT(D_00639EA4)->unk34;
@@ -1453,18 +1435,17 @@ void subGirlBrainMain(volatile int a0)
             }
         }
         if (((int)(act->flags20.ll >> 8)) & 1) {
-            ((GirlBrainWork *)D_0029D650)->f_590C =
-                (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 100 / 60;
+            brain_val.f_590C = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 100 / 60;
         }
-        if (((GirlBrainWork *)D_0029D650)->f_590C > 0) {
-            ((GirlBrainWork *)D_0029D650)->f_590C -= 1;
+        if (brain_val.f_590C > 0) {
+            brain_val.f_590C -= 1;
         }
         turned = 0;
         {
             float dir[4];
             float pos[4];
 
-            if (((GirlBrainWork *)D_0029D650)->lastTarget == (void *)D_00639EA4) {
+            if (brain_val.lastTarget == (void *)D_00639EA4) {
                 GetSkeltonOrient(sk, (void *)a0, 35);
                 GetSkeltonPosition(pos, (void *)a0, 35);
                 _OrientGV(dir, test_CURRENTROOT(D_00639EA4), pos);
@@ -1480,15 +1461,15 @@ void subGirlBrainMain(volatile int a0)
             }
         }
         if (hold > 0) {
-            ((GirlBrainWork *)D_0029D650)->f_58F3 = 1;
+            brain_val.f_58F3 = 1;
             hold -= 1;
         } else {
-            ((GirlBrainWork *)D_0029D650)->f_58F3 = 0;
+            brain_val.f_58F3 = 0;
         }
         ((ActStatus *)((char *)act + 0x18))->ll &= ~(1LL << 54);
         ACTGameView_Loop((void *)a0);
-        ((GirlBrainWork *)D_0029D650)->f_58F1 = 0;
-        ((GirlBrainWork *)D_0029D650)->f_58F2 = 0;
+        brain_val.f_58F1 = 0;
+        brain_val.f_58F2 = 0;
         girlBrainMain_PositionUpdate();
         girlBrainMain_MakeOthersList();
         {
@@ -1496,24 +1477,24 @@ void subGirlBrainMain(volatile int a0)
             Act *bact = (Act *)*(int *)((char *)boy + 0x164);
             int near;
 
-            if (((GirlBrainWork *)D_0029D650)->hide.num) {
-                if (((GirlBrainWork *)D_0029D650)->hide.ent[0].dist < 200.0f) {
+            if (brain_val.hide.num) {
+                if (brain_val.hide.ent[0].dist < 200.0f) {
                     _ACTCharStatus_Set(boy, 4, -1.0f, 0);
                 }
                 if (bact->f_10 % ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) == 0) {
                     *(char **)(*(char **)(*(int *)((char *)boy + 0x164) + 0x688) + 0x370) =
-                        ((GirlBrainWork *)D_0029D650)->hide.ent[0].obj;
+                        brain_val.hide.ent[0].obj;
                 }
                 if (*(char **)(*(char **)(*(int *)((char *)boy + 0x164) + 0x688) + 0x370) == 0) {
                     *(char **)(*(char **)(*(int *)((char *)boy + 0x164) + 0x688) + 0x370) =
-                        ((GirlBrainWork *)D_0029D650)->hide.ent[0].obj;
+                        brain_val.hide.ent[0].obj;
                 }
                 *(void **)((char *)bact + 0x80) =
                     *(void **)(*(char **)(*(int *)((char *)boy + 0x164) + 0x688) + 0x370);
                 *(void **)((char *)bact + 0x84) =
                     *(void **)(*(char **)(*(int *)((char *)boy + 0x164) + 0x688) + 0x370);
             }
-            if (((GirlBrainWork *)D_0029D650)->hide.num != 0 || SearchActiveGenerator() != 0) {
+            if (brain_val.hide.num != 0 || SearchActiveGenerator() != 0) {
                 near = 1;
             } else {
                 near = 0;
@@ -1679,11 +1660,11 @@ void subGirlBrainMain(volatile int a0)
             act->flags20.ll |= 0x8000000;
         }
         if (mode != prevMode) {
-            ((GirlBrainWork *)D_0029D650)->f_5908 = 0;
+            brain_val.f_5908 = 0;
             actChangeActBrain((int)isysCurrentGObj, D_0029D430[mode].proc, (int *)act);
             prevMode = mode;
-            ((GirlBrainWork *)D_0029D650)->f_58F2 = 1;
-            ((GirlBrainWork *)D_0029D650)->curMode = mode;
+            brain_val.f_58F2 = 1;
+            brain_val.curMode = mode;
             switch (mode) {
             case 0:
                 act->f_444 = 0;
@@ -1718,50 +1699,45 @@ void subGirlBrainMain(volatile int a0)
             }
             ACTSendMailCorrect((void *)a0, 0x155);
             D_002A5580[0].f18 = 3.0f;
-            if (((GirlBrainWork *)D_0029D650)->timer++ >
-                ((GirlBrainWork *)D_0029D650)->limit * ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) /
-                    60) {
-                ChangeRunMode(((GirlBrainWork *)D_0029D650)->runMode == 0);
+            if (brain_val.timer++ >
+                brain_val.limit * ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 60) {
+                ChangeRunMode(brain_val.runMode == 0);
             }
-            _ACTParaStatus_Set((void *)a0, ((GirlBrainWork *)D_0029D650)->wait + 11);
+            _ACTParaStatus_Set((void *)a0, brain_val.wait + 11);
             _ACTCharStatus_Set((void *)a0, 8, 0.0f, 0);
             SetTurnSpeedInEscape((char *)a0);
             break;
         case 2:
             ACTSendMailCorrect((void *)a0, 0x155);
             D_002A5580[0].f18 = 6.0f;
-            if (((GirlBrainWork *)D_0029D650)->timer++ >
-                ((GirlBrainWork *)D_0029D650)->limit * ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) /
-                    60) {
-                ChangeRunMode(((GirlBrainWork *)D_0029D650)->runMode == 0);
+            if (brain_val.timer++ >
+                brain_val.limit * ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 60) {
+                ChangeRunMode(brain_val.runMode == 0);
             }
-            _ACTParaStatus_Set((void *)a0, ((GirlBrainWork *)D_0029D650)->wait + 5);
-            _ACTCharStatus_Set((void *)a0, 5, (float)((GirlBrainWork *)D_0029D650)->wait, 0);
+            _ACTParaStatus_Set((void *)a0, brain_val.wait + 5);
+            _ACTCharStatus_Set((void *)a0, 5, (float)brain_val.wait, 0);
             SetTurnSpeedInEscape((char *)a0);
             break;
         case 3:
         case 9:
             D_002A5580[0].f18 = 3.0f;
             ACTSendMailCorrect((void *)a0, 0x155);
-            if (((GirlBrainWork *)D_0029D650)->timer++ >
-                ((GirlBrainWork *)D_0029D650)->limit * ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) /
-                    60) {
-                ChangeRunMode(((GirlBrainWork *)D_0029D650)->runMode == 0);
+            if (brain_val.timer++ >
+                brain_val.limit * ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 60) {
+                ChangeRunMode(brain_val.runMode == 0);
             }
-            _ACTParaStatus_Set((void *)a0, ((GirlBrainWork *)D_0029D650)->wait + 8);
-            _ACTCharStatus_Set((void *)a0, 8, (float)((GirlBrainWork *)D_0029D650)->wait, 0);
+            _ACTParaStatus_Set((void *)a0, brain_val.wait + 8);
+            _ACTCharStatus_Set((void *)a0, 8, (float)brain_val.wait, 0);
             SetTurnSpeedInEscape((char *)a0);
             break;
         case 6: {
             void *look_at = 0;
 
             D_002A5580[0].f18 = 3.0f;
-            if (((GirlBrainWork *)D_0029D650)->f_5908 /
-                    ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 2) &
-                1) {
+            if (brain_val.f_5908 / ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 2) & 1) {
                 look_at = D_00639EA4;
-            } else if (((GirlBrainWork *)D_0029D650)->others.num != 0) {
-                look_at = ((GirlBrainWork *)D_0029D650)->others.ent[0].obj;
+            } else if (brain_val.others.num != 0) {
+                look_at = brain_val.others.ent[0].obj;
             }
             if (look_at) {
                 _ACTLookTarget_Set((void *)a0, look_at, 0, 2, 1);
@@ -1769,7 +1745,7 @@ void subGirlBrainMain(volatile int a0)
             break;
         }
         }
-        ((GirlBrainWork *)D_0029D650)->f_5908 += 1;
+        brain_val.f_5908 += 1;
         {
             float v = girlBrainGetTargetLevel();
             float c;
@@ -1792,7 +1768,7 @@ void subGirlBrainMain(volatile int a0)
         look = 0;
         fire = 0;
         act->flags20.ll &= ~(1LL << 15);
-        if (mode == 7 && ((GirlBrainWork *)D_0029D650)->others.num != 0) {
+        if (mode == 7 && brain_val.others.num != 0) {
             act->flags20.ll |= 0x8000;
         }
         switch (mode) {
@@ -1835,9 +1811,8 @@ void subGirlBrainMain(volatile int a0)
                 float dir[4];
                 int i;
 
-                for (i = 0; i < ((GirlBrainWork *)D_0029D650)->listD.num; i++) {
-                    _OrientXZGV(dir, ((GirlBrainWork *)D_0029D650)->listD.ent[i].pos,
-                                ((GirlBrainWork *)D_0029D650)->f_5830);
+                for (i = 0; i < brain_val.listD.num; i++) {
+                    _OrientXZGV(dir, brain_val.listD.ent[i].pos, brain_val.f_5830);
                     if (_AbsRotyGV(dir, test_CURRENTORIENT((void *)a0)) < 90) {
                         ACTSendMailCorrect((void *)a0, 0xB1);
                         break;
@@ -1906,7 +1881,7 @@ inline void subGirlBrain_Becarry(volatile int a0)
 inline void subGirlBrain_Busy(volatile int a0)
 {
     Act *sub = GOBJ_ACT(a0);
-    GirlBrainWork *w = (GirlBrainWork *)D_0029D650;
+    GirlBrainWork *w = &brain_val;
     int i = 0;
 
     sub->f_34C = 0;
@@ -2053,19 +2028,18 @@ void _girlBrainHide_MakeHidePoint(float *p, float dist)
     float total;
     float w;
 
-    if (*(int *)(D_0029D650 + 0x3230) == 0) {
+    if (brain_val.hide.num == 0) {
         return;
     }
     p[0] = 0.0f;
     p[1] = 0.0f;
     p[2] = 0.0f;
     total = p[0];
-    for (i = 0; i < *(int *)(D_0029D650 + 0x3230); i++) {
-        sceVu0SubVector(v, ((GirlBrainWork *)D_0029D650)->f_5850,
-                        ((GirlBrainWork *)D_0029D650)->hide.ent[i].pos);
+    for (i = 0; i < brain_val.hide.num; i++) {
+        sceVu0SubVector(v, brain_val.f_5850, brain_val.hide.ent[i].pos);
         v[1] = 0.0f;
         sceVu0Normalize(v, v);
-        w = ((GirlBrainWork *)D_0029D650)->hide.ent[i].dist;
+        w = brain_val.hide.ent[i].dist;
         if (w < 1.0f) {
             w = 1.0f;
         }
@@ -2082,10 +2056,10 @@ void _girlBrainHide_MakeHidePoint(float *p, float dist)
     }
     sceVu0Normalize(p, p);
     sceVu0ScaleVector(p, p, dist);
-    sceVu0AddVector(p, ((GirlBrainWork *)D_0029D650)->f_5850, p);
-    p[1] = ((GirlBrainWork *)D_0029D650)->f_5840[1];
+    sceVu0AddVector(p, brain_val.f_5850, p);
+    p[1] = brain_val.f_5840[1];
     work.radius = 50.0f;
-    sceVu0CopyVector(work.a, ((GirlBrainWork *)D_0029D650)->f_5820);
+    sceVu0CopyVector(work.a, brain_val.f_5820);
     sceVu0CopyVector(work.b, p);
     ClipWall(&work);
     work.a[0] = work.pos[0];
@@ -2138,13 +2112,6 @@ void girlBrainHide_GoalTurn(float *dir, unsigned char sendMail)
 
 /* kept local: this TU's uses of _DistxzSqGV do not fit the prototype in gv.h */
 extern float _DistxzSqGV(void *a, void *b);
-/* one object: [0] is the entry count, +0x20 the 0x30-byte hide-point records
-   (ROM re-reads the count as -0x20 off the record base). */
-extern int D_0029F5B0[];
-/* the second entry of girlBrainMain_PositionUpdate's vector block, i.e.
-   D_002A2E70 + 0x10: the girl's projected ground position, with her root
-   position 0x20 further on. */
-extern char D_002A2E80[];
 
 /* girl_brain_main.c.inc:~381-387 (rows outside every caller's span => static
    inline; the listing tags the two loads 382/383, the ratio store 384 and the
@@ -2192,8 +2159,8 @@ void subGirlBrain_Hide(volatile int a0)
 
         sceVu0SubVector(v0, from, root);
         sceVu0SubVector(v1, to, root);
-        for (i = 0; i < D_0029F5B0[0]; i++) {
-            sceVu0SubVector(v2, i * 0x30 + ((char *)D_0029F5B0 + 0x20), root);
+        for (i = 0; i < brain_val.listB.num; i++) {
+            sceVu0SubVector(v2, brain_val.listB.ent[i].pos, root);
             r = _RotyGV(v0, v2);
             if ((r < 0 ? -r : r) < 45) {
                 rad = 80.0f;
@@ -2214,13 +2181,13 @@ void subGirlBrain_Hide(volatile int a0)
     float dir[4];
 
     _ACTWait(1);
-    hp[0] = ((GirlBrainWork *)D_0029D650)->f_5800[0];
-    hp[1] = ((GirlBrainWork *)D_0029D650)->f_5800[1];
-    hp[2] = ((GirlBrainWork *)D_0029D650)->f_5800[2];
+    hp[0] = brain_val.f_5800[0];
+    hp[1] = brain_val.f_5800[1];
+    hp[2] = brain_val.f_5800[2];
     while (1) {
         if (cnt++ % ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 2) == 0 &&
             girlBrainMain_CheckWarningMode(0) != 3) {
-            ((GirlBrainWork *)D_0029D650)->f_58F0 = 1;
+            brain_val.f_58F0 = 1;
         }
         _girlBrainHide_MakeHidePoint(cand, rad);
         if (isHideRecheck(hp, cand, test_CURRENTROOT(D_00639EA4))) {
@@ -2232,27 +2199,26 @@ void subGirlBrain_Hide(volatile int a0)
             cand[2] = hp[2];
         }
         if (isHidePointTooHigh(cand) ||
-            girlBrainHideCheckIntercept(((GirlBrainWork *)D_0029D650)->f_5830, cand,
-                                        (char *)((GirlBrainWork *)D_0029D650)->hide.ent,
-                                        ((GirlBrainWork *)D_0029D650)->hide.num)) {
-            ((GirlBrainWork *)D_0029D650)->f_58F0 = 1;
+            girlBrainHideCheckIntercept(brain_val.f_5830, cand, (char *)brain_val.hide.ent,
+                                        brain_val.hide.num)) {
+            brain_val.f_58F0 = 1;
         }
-        near = _DistxzSqGV(cand, D_002A2E80) < 3600.0f;
+        near = _DistxzSqGV(cand, brain_val.f_5830) < 3600.0f;
         if (near) {
             hp[0] = cand[0];
             hp[1] = cand[1];
             hp[2] = cand[2];
         }
-        if (_DistxzSqGV(hp, D_002A2E80) < 10000.0f || near) {
+        if (_DistxzSqGV(hp, brain_val.f_5830) < 10000.0f || near) {
             g = (char *)a0;
             GOBJ_ACT(D_00639EA8)->f_34C = 0;
             _ACTCharStatus_Set(g, 7, -1.0f, 0);
-            if (_DistxzSqGV(hp, D_002A2E80) < 6400.0f || near) {
-                _OrientXZGV(dir, D_002A2E80 + 0x20, D_002A2E80);
+            if (_DistxzSqGV(hp, brain_val.f_5830) < 6400.0f || near) {
+                _OrientXZGV(dir, brain_val.f_5850, brain_val.f_5830);
                 girlBrainHide_GoalTurn(dir, 1);
             }
         } else {
-            _OrientXZGV(dir, cand, D_002A2E80);
+            _OrientXZGV(dir, cand, brain_val.f_5830);
             g = (char *)a0;
             girlBrainSetMoveDir(dir);
             _ACTCharStatus_Set(g, 6, -1.0f, 0);
@@ -2269,7 +2235,7 @@ inline void subGirlBrain_Hesitate(volatile int a0)
     for (;;) {
         *(void **)((char *)s + 0x34C) = 0;
         if (i % ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 2) == 0) {
-            D_0029D650[0x58F0] = 1;
+            brain_val.f_58F0 = 1;
         }
         i++;
         _ACTWait(1);
@@ -2326,14 +2292,14 @@ static inline unsigned char isRunawayPointClear(float *p, float *girl)
     float d;
 
     d = _DistSqGV(p, girl);
-    for (i = 0; i < ((GirlBrainWork *)D_0029D650)->listB.num; i++) {
-        if (_DistSqGV(p, ((GirlBrainWork *)D_0029D650)->listB.ent[i].pos) < d) {
+    for (i = 0; i < brain_val.listB.num; i++) {
+        if (_DistSqGV(p, brain_val.listB.ent[i].pos) < d) {
             return 0;
         }
     }
-    for (i = 0; i < ((GirlBrainWork *)D_0029D650)->listB.num; i++) {
-        float dg = _DistSqGV(girl, ((GirlBrainWork *)D_0029D650)->listB.ent[i].pos);
-        float dp = _DistSqGV(p, ((GirlBrainWork *)D_0029D650)->listB.ent[i].pos);
+    for (i = 0; i < brain_val.listB.num; i++) {
+        float dg = _DistSqGV(girl, brain_val.listB.ent[i].pos);
+        float dp = _DistSqGV(p, brain_val.listB.ent[i].pos);
 
         if (dp < dg) {
             return 0;
@@ -2406,7 +2372,7 @@ int girlBrainRunawaySearchPoint(float *goal, float *out, float *p)
     }
     for (i = 0; i < n; i++) {
         _DistGV(p, D_006C1B80[i]);
-        _DistGV(((GirlBrainWork *)D_0029D650)->listB.ent[0].pos, D_006C1B80[i]);
+        _DistGV(brain_val.listB.ent[0].pos, D_006C1B80[i]);
         if (isNearPoint(p, D_006C1B80[i])) {}
     }
     for (i = 0; i < n; i++) {
@@ -2433,7 +2399,7 @@ int girlBrainRunawaySearchPoint(float *goal, float *out, float *p)
             out[0] = s[0];
             out[1] = s[1];
             out[2] = s[2];
-            ((GirlBrainWork *)D_0029D650)->f_5860 = 0;
+            brain_val.f_5860 = 0;
             return 1;
         }
     }
@@ -2464,7 +2430,7 @@ int girlBrainRunawayMoveByWay(char *self, float *out, float *tgt)
             char *w;
 
             sceVu0CopyVector(out, sub + 0x3B0);
-            w = D_0029D650;
+            w = (char *)&brain_val;
             if (*(int *)(w + 0x5860) != way) {
                 if (*(int *)(w + 0x5860) != 0) {
                     done = *(int *)(sub + 0x3C4) < 1;
@@ -2522,9 +2488,9 @@ static inline void girlBrainEscapeFaceCheck(float *p, float *dir, Vec4u *v)
 
     memset(v, 0, 16);
     v->f[3] = 1.0f;
-    for (i = 0; i < ((GirlBrainWork *)D_0029D650)->listB.num; i++) {
-        if (_DistSqGV(p, ((GirlBrainWork *)D_0029D650)->listB.ent[i].pos) < 90000.0f) {
-            sceVu0SubVector(v->f, ((GirlBrainWork *)D_0029D650)->listB.ent[i].pos, p);
+    for (i = 0; i < brain_val.listB.num; i++) {
+        if (_DistSqGV(p, brain_val.listB.ent[i].pos) < 90000.0f) {
+            sceVu0SubVector(v->f, brain_val.listB.ent[i].pos, p);
             if ((_RotGV(dir, v) < 0 ? -_RotGV(dir, v) : _RotGV(dir, v)) < 45) {
                 break;
             }
@@ -2579,9 +2545,9 @@ void subGirlBrain_Escape(volatile int a0)
         if (sub->unk34 == 0x6F) {
             mode = 4;
         }
-        if (((GirlBrainWork *)D_0029D650)->listB.num == 0 ||
+        if (brain_val.listB.num == 0 ||
             cnt++ % ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 2) == 0) {
-            ((GirlBrainWork *)D_0029D650)->f_58F0 = 1;
+            brain_val.f_58F0 = 1;
         }
         GetRootPosition(pos, (void *)a0);
         GetRootProjectionPosOfGObj(ppos, (void *)a0);
@@ -2589,45 +2555,43 @@ void subGirlBrain_Escape(volatile int a0)
         case 0:
             mode = 1;
             GetRootProjectionPosOfGObj(rp, (void *)a0);
-            ((GirlBrainWork *)D_0029D650)->f_5810[0] = rp[0];
-            ((GirlBrainWork *)D_0029D650)->f_5810[1] = rp[1];
-            ((GirlBrainWork *)D_0029D650)->f_5810[2] = rp[2];
+            brain_val.f_5810[0] = rp[0];
+            brain_val.f_5810[1] = rp[1];
+            brain_val.f_5810[2] = rp[2];
             sub->f_34C = 0;
             break;
         case 1:
             mode = 2;
             girlBrainDebugPrint();
             GetRootProjectionPosOfGObj(rp, (void *)a0);
-            if (girlBrainRunawaySearchPoint(rp, ((GirlBrainWork *)D_0029D650)->f_57F0,
-                                            ((GirlBrainWork *)D_0029D650)->f_5810) == 0) {
+            if (girlBrainRunawaySearchPoint(rp, brain_val.f_57F0, brain_val.f_5810) == 0) {
                 mode = 3;
                 girlBrainDebugPrint();
             }
             sub->f_34C = 0;
             break;
         case 2:
-            ret = girlBrainRunawayMoveByWay((char *)a0, (float *)&sub->f_120,
-                                            ((GirlBrainWork *)D_0029D650)->f_57F0);
+            ret = girlBrainRunawayMoveByWay((char *)a0, (float *)&sub->f_120, brain_val.f_57F0);
             switch (ret) {
             case 0:
                 break;
             case 1:
                 girlBrainDebugPrint();
-                ((GirlBrainWork *)D_0029D650)->f_5810[0] = ((GirlBrainWork *)D_0029D650)->f_57F0[0];
-                ((GirlBrainWork *)D_0029D650)->f_5810[1] = ((GirlBrainWork *)D_0029D650)->f_57F0[1];
-                ((GirlBrainWork *)D_0029D650)->f_5810[2] = ((GirlBrainWork *)D_0029D650)->f_57F0[2];
+                brain_val.f_5810[0] = brain_val.f_57F0[0];
+                brain_val.f_5810[1] = brain_val.f_57F0[1];
+                brain_val.f_5810[2] = brain_val.f_57F0[2];
                 mode = 1;
                 break;
             case 2:
                 girlBrainDebugPrint();
-                ((GirlBrainWork *)D_0029D650)->f_5810[0] = ppos[0];
-                ((GirlBrainWork *)D_0029D650)->f_5810[1] = ppos[1];
-                ((GirlBrainWork *)D_0029D650)->f_5810[2] = ppos[2];
+                brain_val.f_5810[0] = ppos[0];
+                brain_val.f_5810[1] = ppos[1];
+                brain_val.f_5810[2] = ppos[2];
                 mode = 1;
                 break;
             }
             girlBrainEscapeFaceCheck(pos, (float *)&sub->f_120, &v);
-            switch (((GirlBrainWork *)D_0029D650)->runMode) {
+            switch (brain_val.runMode) {
             case 0:
                 girlBrainSetWalkRatio((void *)a0, 1.0f);
                 break;
@@ -2637,17 +2601,16 @@ void subGirlBrain_Escape(volatile int a0)
             }
             if (*(float *)&sub->f_34C != 0.0f) {
                 sceVu0ScaleVector(v.f, (float *)&sub->f_120, 300.0f);
-                sceVu0AddVector(v.f, ((GirlBrainWork *)D_0029D650)->f_5830, v.f);
-                if (girlBrainHideCheckIntercept(((GirlBrainWork *)D_0029D650)->f_5830, v.f,
-                                                (char *)((GirlBrainWork *)D_0029D650)->hide.ent,
-                                                ((GirlBrainWork *)D_0029D650)->hide.num)) {
+                sceVu0AddVector(v.f, brain_val.f_5830, v.f);
+                if (girlBrainHideCheckIntercept(brain_val.f_5830, v.f, (char *)brain_val.hide.ent,
+                                                brain_val.hide.num)) {
                     *(float *)&sub->f_34C = 0.0f;
-                    ((GirlBrainWork *)D_0029D650)->f_58F0 = 1;
+                    brain_val.f_58F0 = 1;
                 }
             }
-            sceVu0ScaleVector(mk, ((GirlBrainWork *)D_0029D650)->f_57F0, -1.0f);
-            debug_Marker(mk, 0xFF, 0, 0, 200.0f, (float)((GirlBrainWork *)D_0029D650)->f_58F4);
-            ((GirlBrainWork *)D_0029D650)->f_58F4 = ((GirlBrainWork *)D_0029D650)->f_58F4 + 5;
+            sceVu0ScaleVector(mk, brain_val.f_57F0, -1.0f);
+            debug_Marker(mk, 0xFF, 0, 0, 200.0f, (float)brain_val.f_58F4);
+            brain_val.f_58F4 = brain_val.f_58F4 + 5;
             break;
         case 3:
             sub->f_34C = 0;
@@ -3315,7 +3278,7 @@ void subGirlBrain_HideAdvance(volatile int a0)
     GetRootProjectionPosOfGObj(boy_pos, D_00639EA4);
     ACTWayMove_BeginDetail((void *)a0, self_pos, boy_pos, 0, 0, 0);
     for (;;) {
-        ((GirlBrainWork *)D_0029D650)->f_5914 = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1];
+        brain_val.f_5914 = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1];
         GetRootProjectionPosOfGObj(boy_pos, D_00639EA4);
         p = ACTWayMove_NextDetail((void *)a0, (char *)sub + 0x120, boy_pos, 0, 0);
         hit = p;
@@ -3361,18 +3324,17 @@ int isEnterHideadv_EnemyLocation(float *bpos, float *gpos)
     gpos[1] = ((float *)test_CURRENTROOT(D_00639EA8))[1];
     gpos[2] = ((float *)test_CURRENTROOT(D_00639EA8))[2];
     _OrientXZGV(o1, bpos, gpos);
-    for (i = 0; i < ((GirlBrainWork *)D_0029D650)->hide.num; i++) {
-        if (*(int *)((char *)((GirlBrainWork *)D_0029D650)->hide.ent[i].obj + 0xC) == 4) {
-            d = _DistGV(gpos, ((GirlBrainWork *)D_0029D650)->hide.ent[i].pos);
+    for (i = 0; i < brain_val.hide.num; i++) {
+        if (*(int *)((char *)brain_val.hide.ent[i].obj + 0xC) == 4) {
+            d = _DistGV(gpos, brain_val.hide.ent[i].pos);
             if (!(1500.0f < d)) {
-                if (_DistSqGV(bpos, ((GirlBrainWork *)D_0029D650)->hide.ent[i].pos) <
-                    (d + 100.0f) * (d + 100.0f)) {
+                if (_DistSqGV(bpos, brain_val.hide.ent[i].pos) < (d + 100.0f) * (d + 100.0f)) {
                     return 0;
                 }
                 if (d < 150.0f) {
                     return 0;
                 }
-                _OrientXZGV(o2, ((GirlBrainWork *)D_0029D650)->hide.ent[i].pos, gpos);
+                _OrientXZGV(o2, brain_val.hide.ent[i].pos, gpos);
                 if (_AbsRotyGV(o1, o2) < 45) {
                     return 0;
                 }
@@ -3426,12 +3388,10 @@ ret0:
     return 0;
 }
 
-extern int D_002A2E2C[];
-
 inline void *FindGirlPullupFloorBoxGObj(void)
 {
     void *g = D_00639EA8;
-    if (D_002A2E2C[0] == 7 && GOBJ_ACT(D_00639EA4)->unk34 == 0x4E) {
+    if (brain_val.curMode == 7 && GOBJ_ACT(D_00639EA4)->unk34 == 0x4E) {
         return *(void **)(*(char **)(*(char **)((char *)g + 0x164) + 0x688) + 0x374);
     }
     return 0;
@@ -3501,6 +3461,11 @@ void WayTest(void)
    the blob's labels. */
 static char *D_0029D628[9] = {"IDLE",    "SEARCHWAY", "LOSTTWAY", "APPROACH", "GOAL",
                               "ATTRACT", "LOOKONLY",  "ATTRLOOK", "FINISH"};
+
+/* MAIN.MAP globals of girl_act.o's .data, after the attract-state names:
+   the brain's work record (VMA 0x29D650..0x2A2F70, 0x5920 B), all zero,
+   explicitly initialised since the ROM keeps it in .data. */
+GirlBrainWork brain_val = {0};
 
 /* kept local: this TU's uses of CorrectStickInfo do not fit the prototype in boyact.h */
 extern int CorrectStickInfo(void *dir, void *stick);
@@ -4031,9 +3996,7 @@ void subGirlCollision(volatile int a0)
     }
 }
 
-extern void *D_002A2E24[];
 extern int D_0063B13C;
-extern GirlStand D_002A2F70;
 /* kept local: this TU's uses of GetHeightOfFieldPlaneDifference do not fit the
    prototype in motionManager2.h */
 extern float GetHeightOfFieldPlaneDifference(void *a, void *b);
@@ -4055,7 +4018,7 @@ inline int NotNeedBackHand(void)
     if ((((int)(*(unsigned long long *)((char *)w + 0x18) >> 40)) & 1) == 0) {
         return 1;
     }
-    if (w->unk34 == 0x45 && D_002A2F70.f_5D != 0 && D_002A2F70.f_58 == 0) {
+    if (w->unk34 == 0x45 && handmgr.f_5D != 0 && handmgr.f_58 == 0) {
         return 1;
     }
     return 0;
@@ -4069,6 +4032,11 @@ inline void afterGirlHand(unsigned int a0)
     iosPadActStop(7);
     ACTWay_SetBeginPositionIllegal(local);
 }
+
+/* the hand manager's record (MAIN.MAP global, VMA 0x2A2F70..0x2A2FD0, 0x60 B
+   on its vectors' 16-byte alignment, which leaves 8 zero bytes after
+   brain_val), all zero and explicitly initialised: the ROM keeps it in .data. */
+GirlStand handmgr = {0};
 
 void actGirlHand(volatile int a0)
 {
@@ -4179,8 +4147,8 @@ void actGirlHand(volatile int a0)
     n = 0;
     st = 0;
     cnt2 = 0;
-    if (D_002A2E24[0] == D_00639EA4) {
-        target = D_002A2E24[0];
+    if (brain_val.lastTarget == D_00639EA4) {
+        target = brain_val.lastTarget;
         GirlBrainClearTarget((void *)a0, &target);
     }
     *(void **)((char *)sub + 0x14) = (void *)afterGirlHand;
@@ -4201,11 +4169,11 @@ void actGirlHand(volatile int a0)
             HandMgr_Update();
             HandMgr_Judge();
             n++;
-            if (D_002A2F70.f_5C == 0) {
+            if (handmgr.f_5C == 0) {
                 n = 0;
             }
             grab = 0;
-            if (D_002A2F70.f_5B || D_002A2F70.f_5C) {
+            if (handmgr.f_5B || handmgr.f_5C) {
                 grab = 1;
             }
             over = 0;
@@ -4292,8 +4260,8 @@ void actGirlHand(volatile int a0)
             }
             sceVu0ScaleVector(v60, dir, 300.0f);
             sceVu0AddVector(v60, test_CURRENTROOT((void *)a0), v60);
-            if (D_002A2F70.f_59 != 0) {
-                if (D_002A2F70.f_5A != 0) {
+            if (handmgr.f_59 != 0) {
+                if (handmgr.f_5A != 0) {
                     float goal = 30.0f;
 
                     pullTurn =
@@ -4415,7 +4383,7 @@ void actGirlHand(volatile int a0)
                 break;
             }
         }
-        flag = D_002A2F70.f_5A && (box = (unsigned char *)GOBJ_ACT(D_00639EA8)->f_688 + 0x540)[1] &&
+        flag = handmgr.f_5A && (box = (unsigned char *)GOBJ_ACT(D_00639EA8)->f_688 + 0x540)[1] &&
                box[0x20];
         if (flag) {
             cnt2++;

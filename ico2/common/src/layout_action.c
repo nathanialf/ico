@@ -6,6 +6,7 @@
 #include "adpcm_init.h"
 #include "fightSound.h"
 #include "gflag.h"
+#include "kanbanBoot.h"
 
 struct S40 {
     char b[0x40];
@@ -193,7 +194,6 @@ extern int D_0063BE68;
 extern int D_0063B54C;
 extern int D_0063B5F8;
 extern int D_0063B620;
-extern int D_0063AA00;
 extern int D_0028F4D4[];
 extern R8 D_0071D900[];
 extern int D_0063B53C;
@@ -750,7 +750,7 @@ int la_title_continue_or_new(int a0)
             return 0x14;
         case 0x32:
             D_0063BE68 = 2;
-            D_0063AA00 = 0;
+            gFlagGameClear = 0;
             lt_set_item_select_func(0);
             D_0063B4F4 = 0;
             return 9;
@@ -803,7 +803,7 @@ int la_title_new_game_only(int a0)
         soundSeDefPlay(414, 0xFFFFFFFF, 0, 0);
         D_0063B5F8 = 1;
         D_0063BE68 = 2;
-        D_0063AA00 = 0;
+        gFlagGameClear = 0;
         lt_set_item_select_func(0);
         D_0063B4F4 = 0;
         return 9;
@@ -1293,7 +1293,6 @@ extern char D_004DA788[];
 extern char D_004DD700[];
 /* kept local: s_init.h's soundDataOpen and soundDataOpenSync prototypes do not fit this TU's uses */
 extern int seEnvForceClose;
-extern int D_0063AA04;
 /* the current game's save record, as in la_system_save_processing */
 /* kept local with gamesys.h's prototype, which this TU does not include */
 extern void gamesysMemoryLoad(void **tbl, int a1, void *a2);
@@ -1425,7 +1424,7 @@ int la_load_processing(int a0)
         *(struct S14 *)IosMcPreviewInfo = *(struct S14 *)&IosMcProductFile[mc[2]].f[mc[16]];
         playTime((struct S14 *)IosMcPreviewInfo, &hour, &min, &sec);
         D_0063B558 = mcSetFileNo(mc[2], mc[16]);
-        debug_StdPrintfDummy(D_0061DA30, D_0063AA04);
+        debug_StdPrintfDummy(D_0061DA30, gFlagSaveStage);
         seEnvForceClose = 1;
         if (D_0063BE6C != 0) {
             *(short *)(*(int *)(D_0063BE6C + 0x2C) + 0x44) = 0x40;
@@ -1436,8 +1435,8 @@ int la_load_processing(int a0)
             D_0063B4F4 = 0;
             return 9;
         }
-        stgmgrForceSwitchWithFade(0.05f, 4.0f, D_0063AA04);
-        ACTGame_SetActors_Debug(D_0063AA04, 0);
+        stgmgrForceSwitchWithFade(0.05f, 4.0f, gFlagSaveStage);
+        ACTGame_SetActors_Debug(gFlagSaveStage, 0);
         return -1;
     case 20:
         lt_set_item_select_func(0);
@@ -1456,7 +1455,6 @@ extern int D_0063B5E4;
 extern int D_0063B5E8;
 extern void soundDataOpen(void *p, int a1, int a2, int a3, int t0);
 extern char *soundDataOpenSync(void *p);
-extern int D_0063AA04;
 
 /* layout_action.c:2565-2570 in the listing: inlined into la_game_over_continue
    and into la_mc_confirm_save_file with different data numbers, so the number is
@@ -2185,7 +2183,7 @@ int la_save_processing(int a0)
     case 4:
         IosMcPreviewInfo[0] = stage_no;
         IosMcPreviewInfo[3] = GetSaveSofaLayoutID();
-        IosMcPreviewInfo[1] = D_0063AA00;
+        IosMcPreviewInfo[1] = gFlagGameClear;
         *(struct S14 *)&IosMcProductFile[mc[2]].f[mc[16]] = *(struct S14 *)IosMcPreviewInfo;
         playTime((struct S14 *)IosMcPreviewInfo, &hour, &min, &sec);
         (IosMcProductFile + mc[2])->_1E0 = mc[16];
@@ -2410,7 +2408,7 @@ int la_game_over_continue(int a0)
             }
             POSITIVE_SE();
             D_0028F4D0[0] = 1;
-            D_0063B4EC = D_0063AA04;
+            D_0063B4EC = gFlagSaveStage;
             releaseGameLoopCursor();
             lt_set_item_select_func(0);
             D_0063B4F4 = 0;
@@ -2731,13 +2729,12 @@ int la_adjust_screen(void)
     return -1;
 }
 
-extern int D_0063B4D0;
 extern int D_0028F4EC[];
 extern int layout_boot_flag;
 
 int la_boot_memory_card_check(void)
 {
-    if (D_0063B4D0 == 0) {
+    if (kanbanBootEnd == 0) {
         return -1;
     }
     D_0028F4EC[0] = 7;

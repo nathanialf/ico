@@ -10,6 +10,7 @@
 #include "act.h"
 #include "e3.h"
 #include "typedef.h"
+#include "kanbanBoot.h"
 
 /* The TU starts at 0x0021F060, where MAIN.MAP puts op.o: these three sit before
    the functions the listing hashes named. */
@@ -95,11 +96,9 @@ void actTitleCamera2(volatile int a0)
 
 extern PadState D_0028F8F0[];
 extern int D_0028F4C0[];
-extern int D_0063AA00;
 extern int optionScreenMode;
 extern int D_00639EA0;
 extern int D_0063AA08;
-extern int D_0063B4D0;
 extern int D_0063BE40;
 extern int D_0063BE44;
 extern char D_0063BE48[];
@@ -159,7 +158,7 @@ void actOpDemo01(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    D_0063AA00 = 0;
+    gFlagGameClear = 0;
     optionScreenMode = 0;
     D_00639EA0 = 0;
     stgmgrNextStagePreLoadForceStageSet(0);
@@ -170,7 +169,7 @@ void actOpDemo01(volatile int a0)
 
     D_0063AA08 = 1;
 
-    while (D_0063B4D0 == 0) {
+    while (kanbanBootEnd == 0) {
         _ACTWait(1);
     }
 

@@ -6,18 +6,32 @@
 #include "kanban.h"
 
 extern int D_0028F4EC[];
-extern int D_0063B4BC;
-extern int D_0063B4C4;
-extern int D_0063B4D0;
+
+/* kanbanBoot.o's .sdata run (VMA 0x63B4BC..0x63B4D4, 0x18 B; MAIN.MAP's
+   January object is 0x10), in the ROM's order: the boot sequence's step, the
+   card check's step, the start request, the card retry count, the boot sign's
+   done flag and kanbanBootEnd (MAIN.MAP global). */
+static int bootStep = 0; /* derived name */
+
+static int mcCheckStep = 0; /* derived name */
+
+static int bootStarted = 0; /* derived name */
+
+static int mcRetryCount = 10; /* derived name */
+
+static int bootKanbanDone = 0; /* derived name */
+
+int kanbanBootEnd = 0;
+
 extern int fadeStatus;
 
 inline void kanbanBootInit(void)
 {
-    D_0063B4BC = 0;
+    bootStep = 0;
     D_0028F4EC[0] = 0;
-    D_0063B4D0 = 0;
+    kanbanBootEnd = 0;
     fadeStatus = 0;
-    D_0063B4C4 = 0;
+    bootStarted = 0;
 }
 
 /* memory-card request block shared with ios/mcard.c (the same object the
@@ -57,18 +71,16 @@ typedef struct {
 } KanbanStageRec;
 
 /* .bss, owned by kanbanBoot.o and reached only from this file (MAIN.MAP names
-   no symbol in the run): the boot-time memory-card request block. */
-static McReq bootMcReq;
-
+   no symbol in the run): the boot-time memory-card request block, on the
+   64-byte alignment of a DMA transfer buffer (the 0x30 zero bytes before it
+   are that alignment's fill). */
+static McReq bootMcReq __attribute__((aligned(64)));
 /* kept local: mcard.c's save records, read here as this file's view */
 extern KanbanStageRec IosMcProductFile[];
 extern int D_00534010[];
 extern int D_0028F4C0[];
 extern int D_0028F4D8[];
 extern int fbKeep;
-extern int D_0063B4C0;
-extern int D_0063B4C8;
-extern int D_0063B4CC;
 
 /* .sbss, owned by kanbanBoot.o and reached only from this file (MAIN.MAP names
    no symbol in the run), in the ROM's run order. */
@@ -101,14 +113,14 @@ int kanbanBootMcCheck(void)
     int lang;
     int ret = 0;
 
-    switch (D_0063B4C0) {
+    switch (mcCheckStep) {
     case 0:
         bootKanbanSub = 0;
         /* fallthrough */
     case 1:
         mcPort = 0;
         mcKanbanId = 3;
-        D_0063B4C0++;
+        mcCheckStep++;
         /* fallthrough */
     case 2:
         fbKeep = 1;
@@ -116,56 +128,56 @@ int kanbanBootMcCheck(void)
         mc->fC = 0;
         mc->f0.ll &= ~2;
         iosMcChdirProduct(mc);
-        D_0063B4C0++;
+        mcCheckStep++;
         /* fallthrough */
     case 3:
         if (iosMcSync(mc) != 0) {
-            D_0063B4C0++;
+            mcCheckStep++;
         }
         break;
     case 4:
         if (mc->f14 == 2) {
             mcKanbanId = 0;
-            if (mc->f10 == 0 && D_0063B4CC == 0) {
-                D_0063B4C0 = 95;
+            if (mc->f10 == 0 && bootKanbanDone == 0) {
+                mcCheckStep = 95;
                 break;
             }
             if (mc->f20 == 0 || mc->f10 == 0 || mc->f18 >= 360) {
-                D_0063B4C0 = 100;
+                mcCheckStep = 100;
                 break;
             }
             mcKanbanId = 4;
         }
         if (mcPort == 0) {
             mcPort = 1;
-            D_0063B4C0 = 2;
+            mcCheckStep = 2;
         } else {
-            D_0063B4C0 = 90;
+            mcCheckStep = 90;
         }
         break;
     case 90:
         if (mcKanbanId == 3) {
-            if (--D_0063B4C8 > 0) {
-                D_0063B4C0 = 1;
+            if (--mcRetryCount > 0) {
+                mcCheckStep = 1;
                 break;
             }
         }
-        D_0063B4C8 = 0;
-        D_0063B4C0 = 100;
+        mcRetryCount = 0;
+        mcCheckStep = 100;
         break;
     case 95:
         iosMcLoadProductBlock(mc);
-        D_0063B4C0++;
+        mcCheckStep++;
         break;
     case 96:
         if (iosMcSync(mc) == 0) {
             break;
         }
         if (mc->f10 != 0) {
-            D_0063B4C0 = 100;
+            mcCheckStep = 100;
             break;
         }
-        D_0063B4C0++;
+        mcCheckStep++;
         r = &IosMcProductFile[mc->f8];
         NonLinearCameraMove = r->f1E8;
         D_0028F4C0[0] = r->f1EC;
@@ -175,17 +187,17 @@ int kanbanBootMcCheck(void)
         if (D_0028F4D8[0] != 0) {
             break;
         }
-        D_0063B4C0 = 190;
+        mcCheckStep = 190;
         break;
     case 100:
         if (D_0028F4D8[0] != 0) {
             break;
         }
-        D_0063B4C0 = 101;
+        mcCheckStep = 101;
         break;
     case 101:
-        if (D_0063B4CC != 0) {
-            D_0063B4C0 = 300;
+        if (bootKanbanDone != 0) {
+            mcCheckStep = 300;
             break;
         }
         mcKanbanId = -1;
@@ -209,7 +221,7 @@ int kanbanBootMcCheck(void)
             break;
         }
         bootKanban = kanbanReqAdd(0, 2);
-        D_0063B4C0++;
+        mcCheckStep++;
         break;
     case 102:
         if (bootKanban->f8 != 1) {
@@ -233,11 +245,11 @@ int kanbanBootMcCheck(void)
             break;
         }
         kanbanReqDelFade(bootKanban);
-        D_0063B4C0 = 190;
-        D_0063B4CC = 1;
+        mcCheckStep = 190;
+        bootKanbanDone = 1;
         break;
     case 190:
-        D_0063B4C0 = 191;
+        mcCheckStep = 191;
         break;
     case 191:
         stgmgrForceSwitchWithFade(1, 255.0f, 0.0f);
@@ -245,23 +257,23 @@ int kanbanBootMcCheck(void)
         /* fallthrough */
     case 192:
     case 193:
-        D_0063B4C0++;
+        mcCheckStep++;
         break;
     case 194:
         if (D_0028F4D8[0] != 0) {
             break;
         }
         if (mcKanbanId != 0) {
-            D_0063B4C0 = 200;
+            mcCheckStep = 200;
         } else {
-            D_0063B4C0 = 300;
+            mcCheckStep = 300;
         }
         isysGObjActiveLink(0, 1);
         break;
     case 200:
         bootKanban = kanbanReqAdd(1, 2);
         bootVideoMode = D_0028F4C0[0];
-        D_0063B4C0++;
+        mcCheckStep++;
         break;
     case 201:
         switch (bootKanban->obj[11]) {
@@ -280,22 +292,22 @@ int kanbanBootMcCheck(void)
             break;
         }
         kanbanReqDelFade(bootKanban);
-        D_0063B4C0++;
+        mcCheckStep++;
         break;
     case 202:
         if (mcKanbanId != 0) {
-            D_0063B4C0 = 1;
+            mcCheckStep = 1;
         } else {
-            D_0063B4C0 = 300;
+            mcCheckStep = 300;
         }
         isysGObjActiveLink(0, 1);
         break;
     case 300:
         if (mcKanbanId == 0) {
-            D_0063B4C0 = -1;
+            mcCheckStep = -1;
             break;
         }
-        D_0063B4C0 = 301;
+        mcCheckStep = 301;
         /* fallthrough */
     case 301:
         fbKeep = 0;
@@ -305,21 +317,21 @@ int kanbanBootMcCheck(void)
             kanbanReqDel(bootKanbanSub);
         }
         bootKanbanSub = kanbanReqAdd(mcKanbanId, 1);
-        D_0063B4C0++;
+        mcCheckStep++;
         break;
     case 302:
         if (bootKanban->f8 != 1) {
             break;
         }
         if (bootKanban->obj[11] == 41) {
-            D_0063B4C0 = -1;
+            mcCheckStep = -1;
             kanbanReqDelFade(bootKanbanSub);
             kanbanReqDelFade(bootKanban);
             break;
         }
         kanbanReqDelFade(bootKanbanSub);
         kanbanReqDelFade(bootKanban);
-        D_0063B4C0 = 1;
+        mcCheckStep = 1;
         break;
     default:
         fbKeep = 0;
@@ -338,16 +350,16 @@ static int waitTimer; /* frames left on that sign */
 
 void kanbanBootMain(void)
 {
-    switch (D_0063B4BC) {
+    switch (bootStep) {
     case 0:
         isysGObjActiveLink(0, 1);
         D_0028F4D4[0] = 0;
-        D_0063B4C0 = 0;
-        D_0063B4BC++;
+        mcCheckStep = 0;
+        bootStep++;
         /* fallthrough */
     case 1:
-        if (D_0063B4C4 != 0) {
-            D_0063B4BC++;
+        if (bootStarted != 0) {
+            bootStep++;
         }
         break;
     case 2:
@@ -356,40 +368,40 @@ void kanbanBootMain(void)
         }
         kanbanReqAllDelFade();
         waitKanban = kanbanReqAdd(2, 1);
-        D_0063B4BC++;
+        bootStep++;
         break;
     case 3:
         waitTimer = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 5;
-        D_0063B4BC++;
+        bootStep++;
         /* fallthrough */
     case 4:
         waitTimer--;
         if (waitTimer != -1) {
             break;
         }
-        D_0063B4BC++;
+        bootStep++;
         /* fallthrough */
     case 5:
         if (D_0028F4D8[0] != 0) {
             return;
         }
-        D_0063B4BC++;
+        bootStep++;
         break;
     case 6:
         kanbanReqAllDelFade();
-        D_0063B4BC++;
+        bootStep++;
         break;
     case 7:
         if (waitKanban->obj != 0) {
             return;
         }
-        D_0063B4D0 = 1;
-        D_0063B4BC++;
+        kanbanBootEnd = 1;
+        bootStep++;
         break;
     }
 }
 
 inline void kanbanBootStart(void)
 {
-    D_0063B4C4 = 1;
+    bootStarted = 1;
 }

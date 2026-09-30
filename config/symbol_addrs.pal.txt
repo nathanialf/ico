@@ -6291,3 +6291,7 @@ D_0028F814 = 0x0028F814; // ignore:true  // ico2/common/src/main  // GlobalStage
 D_0028F8A0 = 0x0028F8A0; // ignore:true  // ico2/common/src/main  // GlobalStageSetting+0x180, a pointer word in a rodata blob at VMA 0x0054EC0C, raw until that blob is source
 D_0028F8A4 = 0x0028F8A4; // ignore:true  // ico2/common/src/main  // GlobalStageSetting+0x184, a pointer word in a rodata blob at VMA 0x0054EC2C, raw until that blob is source
 D_0028F8B0 = 0x0028F8B0; // ignore:true  // ico2/common/src/main  // GlobalStageSetting+0x190, a pointer word in a rodata blob at VMA 0x0054EC4C, raw until that blob is source
+randomMotionKind = 0x005D3B58; // MAIN.MAP motion-random-def.o's rodata table (data-only member), read by act-parallel-control.o (finishing pass P1-8)
+objTriggerDef = 0x00629D08; // MAIN.MAP obj-trigger-def.o's rodata table (data-only member), read by objact.o (finishing pass P1-8)
+objTrigger = 0x00629D38; // MAIN.MAP obj-trigger.o's rodata table (data-only member), read by objact.o (finishing pass P1-8)
+staffRollNameDataNum = 0x0063B674; // MAIN.MAP staffroll_dat.o .sdata (data-only member), read by staffroll.o (finishing pass P1-8)

@@ -1,3 +1,4 @@
+#include "staffroll.h"
 #include "debug.h"
 #include "DisplayFont.h"
 #include <string.h>
@@ -6,8 +7,6 @@
    origin, {x, y, width, height}.  Only the first word is read here, as the
    running scroll position. */
 static int staffRollArea[4] = {-5120, -1792, 10240, 3584};
-
-extern int staffRollAlpha;
 
 typedef struct {
     unsigned char b[4];
@@ -44,9 +43,16 @@ static int rollStep; /* the roll's own sequence step */
 static StaffRollEntry rollLines[300];
 
 extern int D_0028F4C0[];
-extern int staffRollStartFlag;
-extern float staffRollCenterOffsetX;
-extern float staffRollCenterOffsetXDest;
+
+/* staffroll.o's .sdata run (VMA 0x63B650..0x63B670, 0x20 B = MAIN.MAP), in
+   the ROM's order: the three MAIN.MAP globals the roll's state starts with,
+   staffRollNameOut's assert text "0", the roll's colour and staffRollAlpha
+   (MAIN.MAP global), both defined after staffRollNameOut. */
+int staffRollStartFlag = 0;
+
+float staffRollCenterOffsetX = 0.0f;
+
+float staffRollCenterOffsetXDest = 0.0f;
 
 void staffRollStart(float t, int alpha)
 {
@@ -108,8 +114,8 @@ int staffRollScroll(void)
 }
 
 extern char *staffRollNameData[];
-extern char D_0063B660[];
-extern int D_0063B674;
+/* staffroll_dat.o's entry count (MAIN.MAP; a data-only member) */
+extern int staffRollNameDataNum;
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
@@ -127,7 +133,7 @@ int staffRollNameOut(void)
         /* staff roll: out of area */
         debug_StdPrintfDummy("staff roll 領域不足\n");
         debug_assert(__FILE__, 0xC0);
-        __assert(__FILE__, 0xC0, D_0063B660);
+        __assert(__FILE__, 0xC0, "0");
     found:
 
         e = &rollLines[i];
@@ -138,10 +144,15 @@ int staffRollNameOut(void)
         e->y = (float)(font_GetHeight() + 449);
         e->size = font_CheckAlign(&e->col, *e->str);
     }
-    return rollNameIdx >= D_0063B674;
+    return rollNameIdx >= staffRollNameDataNum;
 }
 
-extern unsigned char D_0063B66B;
+/* the roll's colour; only its alpha byte is read and written, fading toward
+   staffRollAlpha.  A 4-byte array is 8-aligned, which leaves the zero word
+   after the assert text. */
+static unsigned char rollColour[4] = {0}; /* derived name */
+
+int staffRollAlpha = 0;
 
 void staffRollMain(void)
 {
@@ -165,7 +176,7 @@ void staffRollMain(void)
         }
     }
 
-    a = D_0063B66B;
+    a = rollColour[3];
     if (a < staffRollAlpha) {
         a += 2;
         if (staffRollAlpha < a) {
@@ -179,9 +190,9 @@ void staffRollMain(void)
     }
     /* volatile: measured 2026-09-15, dropping it sinks this store into the
        following bc1f delay slot where ROM keeps it between the two lwc1 and
-       the c.lt.s. No async writer is proven, D_0063B66B is read and written
+       the c.lt.s. No async writer is proven, rollColour[3] is read and written
        only by this function (five ROM sites) and by nothing else in the ELF. */
-    *(volatile unsigned char *)&D_0063B66B = a;
+    *(volatile unsigned char *)&rollColour[3] = a;
 
     if (staffRollCenterOffsetXDest > staffRollCenterOffsetX) {
         staffRollCenterOffsetX += 0.5f;
@@ -198,12 +209,13 @@ void staffRollMain(void)
     switch (rollStep) {
     case 0:
         font_Init();
-        D_0063B66B = 0;
+        rollColour[3] = 0;
         rollStep++;
         /* fallthrough */
     case 1:
         staffRollCenterOffsetXDest = 0.0f;
-        if (D_0063B66B == staffRollAlpha && staffRollCenterOffsetX == staffRollCenterOffsetXDest) {
+        if (rollColour[3] == staffRollAlpha &&
+            staffRollCenterOffsetX == staffRollCenterOffsetXDest) {
             rollStep++;
         }
         break;
@@ -221,7 +233,7 @@ void staffRollMain(void)
     case 4:
         staffRollAlpha = 0;
         staffRollCenterOffsetXDest = 0.0f;
-        if (D_0063B66B == 0) {
+        if (rollColour[3] == 0) {
             rollStep++;
         }
         break;

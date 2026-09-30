@@ -61,7 +61,11 @@ static CharFile charFiles[MAX_CHARS];
    every slot of the table. */
 static CharFile charFileEmpty = {0, 0, 0, 0, 0, 1};
 
-extern int D_0063AD00;
+/* charFileManager.o's .sdata run (VMA 0x63AD00..0x63AD24, 0x24 B = MAIN.MAP),
+   in the ROM's order: the serial the loaders stamp into each object they
+   build, the assert texts "e", "0" and "FALSE" at their first uses, and the
+   semi-common sound header's buffer (defined after them). */
+static int objSerial = 0; /* derived name */
 
 #include "charFileManager.h"
 #include <stdio.h>
@@ -79,7 +83,7 @@ void InitCharFileManager(void)
 {
     int i;
 
-    D_0063AD00 = 0;
+    objSerial = 0;
     for (i = 0; i < MAX_CHARS; i++) {
         charFiles[i] = charFileEmpty;
     }
@@ -91,7 +95,7 @@ void ResetCharFileManager(void)
 {
     int i;
 
-    D_0063AD00 = 0;
+    objSerial = 0;
     for (i = 0; i < MAX_CHARS; i++) {
         if (charFiles[i].state == 1) {
             charFiles[i] = charFileEmpty;
@@ -103,8 +107,6 @@ void ResetCharFileManager(void)
 
 extern int D_0028F4C0[];
 extern void *D_0063A44C;
-extern char D_0063AD08[];
-extern char D_0063AD10[];
 extern PObj *InitPObj(void *buf, int a1, int id);
 
 /* "Illegal Model ID number: %d (\"%s\")\n" / "ReadModelFile:Already loaded. (id:%d)%s\n" / "ReadModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n" / sprintf above belong to ReadModelFile. */
@@ -123,7 +125,7 @@ void ReadModelFile(void *h, int a1, int size, int id, int a4, int a5, int part)
         /* please raise MAX_CHARS in commmon/include/charFileName.h */
         debug_StdPrintfDummy("commmon/include/charFileName.hのMAX_CHARSを増やしてください\n");
         debug_assertMessage(__FILE__, 0x82, buf);
-        __assert(__FILE__, 0x82, D_0063AD08);
+        __assert(__FILE__, 0x82, "e");
     }
 
     if (charFiles[id].pObj != 0) {
@@ -143,7 +145,7 @@ void ReadModelFile(void *h, int a1, int size, int id, int a4, int a5, int part)
     iosCdvdHandlerRead(h, p, size);
     debug_StdPrintfDummy("ReadModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n", id, a1, p, size);
     charFiles[id].pObj = InitPObj(p, a1, id);
-    charFiles[id].pObj->unk_20 = D_0063AD00++;
+    charFiles[id].pObj->unk_20 = objSerial++;
     iosFree(p);
 }
 
@@ -165,7 +167,7 @@ void ReadVolumeModelFile(void *h, int a1, int size, int id, int a4, int a5, int 
         debug_StdPrintfDummy("Illegal Volume ID number. %d\n", id);
         debug_StdPrintfDummy("commmon/include/charFileName.hのMAX_CHARSを増やしてください\n");
         debug_assert(__FILE__, 195);
-        __assert(__FILE__, 195, D_0063AD10);
+        __assert(__FILE__, 195, "0");
     }
     if (charFiles[id].pObj != 0) {
         debug_StdPrintfDummy("ReadVolumeModelFile:Already loaded. (id:%d)%s\n", id, a1);
@@ -176,7 +178,7 @@ void ReadVolumeModelFile(void *h, int a1, int size, int id, int a4, int a5, int 
     debug_StdPrintfDummy("ReadVolumeModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n", id, a1, buf,
                          size);
     charFiles[id].pObj = InitPObj(buf, a1, id);
-    charFiles[id].pObj->unk_20 = D_0063AD00++;
+    charFiles[id].pObj->unk_20 = objSerial++;
     iosFree(buf);
 }
 
@@ -200,7 +202,7 @@ void ReadShadowModelFile(void *h, int a1, int size, int id, int a4, int a5, int 
         debug_StdPrintfDummy("Illegal Shadow ID number. %d\n", id);
         debug_StdPrintfDummy("commmon/include/charFileName.hのMAX_CHARSを増やしてください\n");
         debug_assert(__FILE__, 235);
-        __assert(__FILE__, 235, D_0063AD10);
+        __assert(__FILE__, 235, "0");
     }
     buf = iosMallocDebug(D_0063A44C, size, __FILE__, 239);
     if (charFiles[id].pShadow != 0) {
@@ -212,7 +214,7 @@ void ReadShadowModelFile(void *h, int a1, int size, int id, int a4, int a5, int 
     debug_StdPrintfDummy("ReadShadowModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n", id, a1, buf,
                          size);
     charFiles[id].pShadow = AllocPObj(buf, a1, id);
-    charFiles[id].pShadow->unk_20 = D_0063AD00++;
+    charFiles[id].pShadow->unk_20 = objSerial++;
     shadow_MakeObjectData(charFiles[id].pShadow);
     iosFree(buf);
 }
@@ -263,7 +265,6 @@ typedef struct {
 } SkelEnt; /* 0x8C */
 
 extern SkelEnt D_004FBA80[];
-extern char D_0063AD18[];
 extern int strcmp(const char *a, const char *b);
 
 /* sugipon/include/sugiCommon.h: byte checksum helper, inlined at its call site */
@@ -324,7 +325,7 @@ void ReadSkeltonFile(void *h, char *name, int size, int a3, int a4, int a5, int 
     if (p == 0) {
         debug_StdPrintfDummy("ReadSkeltonFile:Skelton file is not applied. %s\n", name);
         debug_assert(__FILE__, 362);
-        __assert(__FILE__, 362, D_0063AD18);
+        __assert(__FILE__, 362, "FALSE");
     }
 }
 
@@ -401,7 +402,7 @@ void ReadCollisionFile(void *h, char *name, int size, int a3, int a4, int a5, in
     }
     debug_StdPrintfDummy("ReadCollisionFile:Collision file is not applied. %s\n", name);
     debug_assert(__FILE__, 466);
-    __assert(__FILE__, 466, D_0063AD18);
+    __assert(__FILE__, 466, "FALSE");
 }
 
 void ReadStageAnimationFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
@@ -415,7 +416,7 @@ void ReadStageAnimationFile(void *h, int a1, int size, int a3, int a4, int a5, i
     if (a6 == 0) {
         malloc_SetPartition(0);
         debug_assert(__FILE__, 487);
-        __assert(__FILE__, 487, D_0063AD10);
+        __assert(__FILE__, 487, "0");
     } else {
         malloc_SetPartition(1);
     }
@@ -453,7 +454,7 @@ void ReadMotionFile(void *h, int a1, int size, int id, int a4, int a5, int a6)
             /* not enough memory in the dynamic motion area */
             debug_StdPrintfDummy("ダイナミックモーション領域のメモリが足りません。\n");
             debug_assertMessage(__FILE__, 521, "LACK OF DYNAMIC MOTION MEMORY.\n");
-            __assert(__FILE__, 521, D_0063AD08);
+            __assert(__FILE__, 521, "e");
         }
         break;
     default:
@@ -462,7 +463,7 @@ void ReadMotionFile(void *h, int a1, int size, int id, int a4, int a5, int a6)
             /* not enough memory in the motion swap area */
             debug_StdPrintfDummy("モーションスワップ領域のメモリが足りません。\n");
             debug_assertMessage(__FILE__, 529, "LACK OF SWAP MOTION MEMORY.\n");
-            __assert(__FILE__, 529, D_0063AD08);
+            __assert(__FILE__, 529, "e");
         }
         break;
     }
@@ -522,7 +523,7 @@ void ReadSoundBdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6
         break;
     default:
         debug_assert(__FILE__, 606);
-        __assert(__FILE__, 606, D_0063AD10);
+        __assert(__FILE__, 606, "0");
     }
     iosFree(buf);
     debug_StdPrintfDummy("ReadSoundBdFile:loaded::[%d]%s  (size:%d)\n", a3, a1, size);
@@ -533,7 +534,10 @@ typedef struct {
     int bank;
 } HdInfo;
 
-extern char *D_0063AD20;
+/* the semi-common sound bank's header buffer, freed and reallocated on each
+   load */
+static char *semiCommonHdBuf = 0; /* derived name */
+
 extern void *D_0063A45C;
 extern void *D_0063A458;
 
@@ -559,7 +563,7 @@ void ReadSoundHdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6
         break;
     default:
         debug_assert(__FILE__, 642);
-        __assert(__FILE__, 642, D_0063AD10);
+        __assert(__FILE__, 642, "0");
     }
     if (info.bank == 0) {
         if (D_005EBBE8[a3].loaded != 1) {
@@ -573,11 +577,11 @@ void ReadSoundHdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6
             if (soundSeSemiCommonLoadChk() == 1) {
                 buf = 0;
             } else {
-                if (D_0063AD20 != 0) {
-                    iosFree(D_0063AD20);
+                if (semiCommonHdBuf != 0) {
+                    iosFree(semiCommonHdBuf);
                 }
-                D_0063AD20 = iosMallocDebug(D_0063A45C, size, __FILE__, 663);
-                buf = D_0063AD20;
+                semiCommonHdBuf = iosMallocDebug(D_0063A45C, size, __FILE__, 663);
+                buf = semiCommonHdBuf;
             }
         }
     } else {
@@ -625,7 +629,7 @@ inline void ReadSoundSqFile(void *h, int a1, int size, int a3, int kind, int a5,
         break;
     default:
         debug_assert(__FILE__, 709);
-        __assert(__FILE__, 709, D_0063AD10);
+        __assert(__FILE__, 709, "0");
     }
     if (info.bank == 0) {
         if (a6 == 0) {
@@ -707,7 +711,7 @@ void ReadCamerasetFile(void *h, int a1, int size, int a3)
         /* not enough memory to load the camera data */
         debug_StdPrintfDummy("カメラデータをロードするためのメモリが足りません\n");
         debug_assert(__FILE__, 825);
-        __assert(__FILE__, 825, D_0063AD10);
+        __assert(__FILE__, 825, "0");
     }
     D_0028F4C0[8]++;
     iosCdvdHandlerRead(h, buf, size);
@@ -763,7 +767,7 @@ void CSVSYSTEM_ReadCharFiles(CsvChar *rec, int id)
         debug_StdPrintfDummy("Illegal Char ID Number. %d\n");
         debug_StdPrintfDummy("commmon/include/charFileName.hのMAX_CHARSを増やしてください\n");
         debug_assert(__FILE__, 927);
-        __assert(__FILE__, 927, D_0063AD10);
+        __assert(__FILE__, 927, "0");
     }
     rec->unk_84 = id;
     debug_StdPrintfDummy("Link polygon & skelton & collision -> DObj. %d\n", id);
