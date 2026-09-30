@@ -1977,7 +1977,6 @@ extern void lt_switch_layout(int no);
 extern void ACTGame_CommonLoop(void *self);
 extern void ACTParaStatus_Exec(void *self);
 extern void ACTLookTargetSystem_Exec(void *self);
-extern int _ACTParaStatus_Check(void *self, int bit);
 extern void CommonAttackCenter(void *self);
 extern float GetDifferenceFromLowerField(int self, int a1);
 extern int NotNeedBackHand(void);

@@ -309,7 +309,8 @@ static WayWork wayWorkClear = {{0}, 0, 0, {0}, 0, -1};
 static WayStep wayStepClear = {{0.0f, 0.0f, 0.0f, 0.0f}, 0, 3.4028235e38f, 3.4028235e38f};
 
 extern void *D_00639EA4;
-extern void *D_0063A6B4;
+/* kept local: act-game.h's prototypes do not fit this TU's uses of its functions */
+extern void *wallGObj_ACTCheckCollis_WAY;
 extern int stage_no;
 /* kept local: this TU's uses of the gv distance helpers do not fit the void
    returns gv.h carries, and its GetRootProjectionPosOfGObj / IsThisBoxTruck
@@ -494,11 +495,11 @@ int ACTWayMove_NextDetail(char *self, float *node, float *goal, unsigned char d,
             chk = 0;
         }
         if (stage_no == 8 || chk != 0) {
-            if (self == (char *)D_00639EA8 && D_0063A6B4 != 0 &&
-                *(int *)((char *)D_0063A6B4 + 0xC) == 17 &&
-                IsThisBoxTruck((char *)D_0063A6B4) != 7 &&
-                _DistSqGV(goal, test_CURRENTROOT(D_0063A6B4)) < 40000.0f &&
-                _DistxzSqGV(pos, test_CURRENTROOT(D_0063A6B4)) < 40000.0f) {
+            if (self == (char *)D_00639EA8 && wallGObj_ACTCheckCollis_WAY != 0 &&
+                *(int *)((char *)wallGObj_ACTCheckCollis_WAY + 0xC) == 17 &&
+                IsThisBoxTruck((char *)wallGObj_ACTCheckCollis_WAY) != 7 &&
+                _DistSqGV(goal, test_CURRENTROOT(wallGObj_ACTCheckCollis_WAY)) < 40000.0f &&
+                _DistxzSqGV(pos, test_CURRENTROOT(wallGObj_ACTCheckCollis_WAY)) < 40000.0f) {
                 ok = 0;
             }
         }

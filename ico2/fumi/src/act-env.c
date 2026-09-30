@@ -369,7 +369,6 @@ extern float GetCorrectDistance(float d, int n);
 extern void GetOrientOfCliffOfGObj(void *out, void *obj);
 /* same prototype as its definition in weapon.c; kept local because no header carries it */
 extern char *CheckSwapableWeapon(char *a0, float dist);
-extern char *ACTGame_GetNearestGObj(void *pos, int kind);
 extern char *CheckTorchChainReaction(char *a0, float dist);
 extern char *CheckTorchChainReactionReverse(char *a0, float dist);
 extern char *GetBombTorchGObj(char *a0);

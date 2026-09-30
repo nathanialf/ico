@@ -545,7 +545,8 @@ extern IntrMail D_002A7E08[];
 /* the boy object, typed as the work block object pointers it is compared and
    exchanged with (ActObjRefs below; void * as in boyact.c and chain.c) */
 extern void *D_00639EA4;
-extern int D_0063A800;
+/* enemy_act.c's MAIN.MAP global; kept local: no header carries it */
+extern int entesty;
 
 /* one flag per mail list: a list whose flag is set is not checked for an
    interrupt while the status record's b11 is set */
@@ -695,7 +696,7 @@ void BeforeFunc(char *self)
     *(int *)(mb + 4) = 0;
     ClearMailAdditionalData(self);
     ACTGame_BeforeFunc(self);
-    D_0063A800 = 100;
+    entesty = 100;
 }
 
 /* The floor/wall collision work block: the 0xC0-byte record src/act-env.c

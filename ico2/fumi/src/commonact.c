@@ -2549,7 +2549,6 @@ extern void debug_StdPrintfDummy();
 extern void *test_CURRENTORIENT(char *a0);
 extern void _ACTWait(int a0);
 extern void actAfterFall(volatile int a0);
-extern int ACTCheckCollis_WELL(float *a0, float *a1, int a2, float *a3, float rad);
 extern float GetDifferenceFromLowerField(volatile int a0, int node);
 extern void sceVu0ScaleVector(void *dst, void *src, float s);
 

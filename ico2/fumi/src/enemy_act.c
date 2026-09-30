@@ -24,51 +24,9 @@
 #include "StageAnimation.h"
 #include "darkVolume.h"
 #include "sugiCommon.h"
+#include <libvu0.h>
 
-/* The brain-mode default target: the first word of this TU's .sdata, value 0,
-   still a placeholder while that run is in the blob.  Read-only to every reader
-   here: _BrainMode_SetDirect's else arm reads it, and the two nested
-   brain-change children read it on their target statement, where cse carries
-   the unchanging read over the mode store (and over _GetRandom) into the
-   inlined else arm; a plain int read there stays behind the mode store, which
-   is the six a2 == 0 sites' order (chain 3 passes 148 to 160).  The definition's
-   2001 form is not pinned: a `const int x = 0` visible ahead of its readers
-   folds to 0 (decl_constant_value) and the ROM loads it. */
-extern const int D_0063A7E0;
-/* INTERIM stand-in: the 2001 source declares _BrainMode_SetDirect `inline` -- the
-   disc listing attributes the call sites below (subEnemyBrain_Shoulder, _Pickup,
-   _Bodyslam, ...) to its body lines 3055-3060 -- but its out-of-line copy must
-   keep its own ROM slot further down while the rest of this TU's tail is still
-   asm, and gcc 2.9 emits `inline` bodies at the END of the object.  Delete this
-   twin and mark the real definition `inline` once the tail is C and the TU can
-   be laid out. */
 extern char *D_00639EA8;
-
-/* INTERIM stand-in: afterCommonCarry is `inline` in the 2001 source -- the disc
-   listing attributes subEnemyBrain_Irregular's mail block to its body lines
-   3578-3593 -- while its out-of-line copy keeps its own ROM slot below.  Same
-   deal as _BrainMode_SetDirect_INTERIM. */
-static inline void afterCommonCarry_INTERIM(volatile int a0)
-{
-    char *sub = *(char **)(a0 + 0x164);
-    int self = a0;
-    *(int *)(sub + 0x148) = (int)D_00639EA8;
-    iosOmSendMail((int)D_00639EA8, 0x30, self);
-    *(int *)(sub + 0x148) = 0;
-    if (*(int *)(sub + 0x34) == 5) {
-        eBrainSendMes(a0, 4);
-    }
-}
-
-static inline void _BrainMode_SetDirect_INTERIM(char *a0, int a1, int *a2)
-{
-    *(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x208) = a1;
-    if (a2 != 0) {
-        *(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x214) = *a2;
-    } else {
-        *(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x214) = D_0063A7E0;
-    }
-}
 
 /* The brain-mode table, one 28-byte record per mode: its name, its priority
    against the running mode, the brain function and four parameters
@@ -85,20 +43,6 @@ typedef struct {
     int f18;
 } EnemyBrainMode;
 
-extern char D_0063A7D8[]; /* "START" */
-extern char D_0063A7D0[]; /* "IDLE" */
-extern char D_0063A7C8[]; /* "AWAIT" */
-extern char D_0063A7C0[]; /* "TO_BOY" */
-extern char D_0063A7B8[]; /* "TO_GIRL" */
-extern char D_0063A7B0[]; /* "TO_GENE" */
-extern char D_00553360[]; /* "FIND_GIRL" */
-extern char D_00553350[]; /* "BODYGUARD" */
-extern char D_0063A7A8[]; /* "CLING" */
-extern char D_0063A7A0[]; /* "ATTACK" */
-extern char D_00553340[]; /* "SHOULDER" */
-extern char D_0063A798[]; /* "PICKUP" */
-extern char D_00553330[]; /* "BODYSLAM" */
-extern char D_00553320[]; /* "IRREGULAR" */
 void subEnemyBrain_Await(volatile int a0);
 void subEnemyBrain_ToBoy(volatile int a0);
 void subEnemyBrain_ToGirl(volatile int a0);
@@ -113,24 +57,31 @@ void subEnemyBrain_Bodyslam(volatile int a0);
 void subEnemyBrain_Irregular(volatile int a0);
 
 EnemyBrainMode brainModeTable[] = {
-    {D_0063A7D8, 0, subEnemyBrain_Idle, 0, 0, 1, 0},
-    {D_0063A7D0, 1, subEnemyBrain_Idle, 0, 0, 1, 0},
-    {D_0063A7C8, 2, subEnemyBrain_Await, 2, 2, 1, 1},
-    {D_0063A7C0, 2, subEnemyBrain_ToBoy, 2, 2, 1, 1},
-    {D_0063A7B8, 2, subEnemyBrain_ToGirl, 1, 3, 1, 2},
-    {D_0063A7B0, 2, subEnemyBrain_ToGenerator, 0, 1, 1, 4},
-    {D_00553360, 2, subEnemyBrain_FindGirl, 0, 0, 1, 0},
-    {D_00553350, 2, subEnemyBrain_BodyGuard, 0, 4, 1, 5},
-    {D_0063A7A8, 3, subEnemyBrain_Cling, 0, 0, 1, 0},
-    {D_0063A7A0, 3, subEnemyBrain_Attack, 0, 0, 1, 0},
-    {D_00553340, 3, subEnemyBrain_Shoulder, 0, 3, 1, 2},
-    {D_0063A798, 3, subEnemyBrain_Pickup, 0, 1, 1, 4},
-    {D_00553330, 3, subEnemyBrain_Bodyslam, 0, 0, 1, 0},
-    {D_00553320, 4, subEnemyBrain_Irregular, 0, 0, 1, 0},
+    {"START", 0, subEnemyBrain_Idle, 0, 0, 1, 0},
+    {"IDLE", 1, subEnemyBrain_Idle, 0, 0, 1, 0},
+    {"AWAIT", 2, subEnemyBrain_Await, 2, 2, 1, 1},
+    {"TO_BOY", 2, subEnemyBrain_ToBoy, 2, 2, 1, 1},
+    {"TO_GIRL", 2, subEnemyBrain_ToGirl, 1, 3, 1, 2},
+    {"TO_GENE", 2, subEnemyBrain_ToGenerator, 0, 1, 1, 4},
+    {"FIND_GIRL", 2, subEnemyBrain_FindGirl, 0, 0, 1, 0},
+    {"BODYGUARD", 2, subEnemyBrain_BodyGuard, 0, 4, 1, 5},
+    {"CLING", 3, subEnemyBrain_Cling, 0, 0, 1, 0},
+    {"ATTACK", 3, subEnemyBrain_Attack, 0, 0, 1, 0},
+    {"SHOULDER", 3, subEnemyBrain_Shoulder, 0, 3, 1, 2},
+    {"PICKUP", 3, subEnemyBrain_Pickup, 0, 1, 1, 4},
+    {"BODYSLAM", 3, subEnemyBrain_Bodyslam, 0, 0, 1, 0},
+    {"IRREGULAR", 4, subEnemyBrain_Irregular, 0, 0, 1, 0},
 };
 
-extern char D_00553370[];
-extern char D_0063A7E8[];
+/* The brain-mode default target, read when a mode is set with no target:
+   _BrainMode_SetDirect's else arm and the two nested brain-change children
+   read it.  A one-element const array: it is not folded to its value the way
+   a const scalar is (decl_constant_value skips arrays), its reads are
+   unchanging so cse carries them over the mode store, and the ROM's 8-byte
+   slot after the table's names (4 bytes of pad) is gcc's alignment for a
+   4-byte array. */
+static const int brainTargetNone[1] = {0}; /* derived name */
+
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
@@ -196,6 +147,283 @@ typedef struct {
     EnemyActSub *sub;
 } EnemyBattleGObj;
 
+extern int D_0028F4C0[];
+
+#define BOSS_START_WORK(self) (*(int *)(*(int *)((self) + 0x164) + 0x680))
+
+typedef struct {
+    char pad00[0x14];
+    int id;
+    int timer;
+    char busy;
+    char alive;
+    char pad1E[2];
+} BossPart;
+
+#define BOSS_EFFECT_WORK(self) ((char *)*(int *)(*(int *)((self) + 0x164) + 0x680))
+#define BOSS_EFFECT_PARTS(self, i) ((BossPart *)((i) * 0x20 + BOSS_EFFECT_WORK(self) + 0x360))
+
+extern void *D_00639EA4;
+
+typedef struct {
+    char pad00[0x100];
+    int f100;
+    char pad104[0x182 - 0x104];
+    short f182;
+    char pad184[2];
+    short f186;
+    char pad188[0x18C - 0x188];
+    unsigned int flags18C;
+    char pad190[4];
+} EnemyParaRow;
+
+extern EnemyParaRow D_0055FE58[];
+/* kept local: this TU's uses of _DistxzSqGV do not fit the prototype in gv.h */
+extern float _DistxzSqGV(float *a0, float *a1);
+extern char *D_00639EC0;
+extern char *D_00639ED0;
+/* kept local: this TU's uses of _GetMotionDirection do not fit the prototype in
+   motionManager2.h */
+extern void _GetMotionDirection(void *dir, int self);
+extern int CheckFloorAttribute(char *self, int attr);
+extern void _ACTCommonMailTest(int self, int a1, int a2, int a3);
+
+/* The DEBUG build holds the enemy's stick poll while the debug flag word's
+   hold bit is set, a frame at a time, the way boyact.c's subBoyControl repeats
+   its stick loop with _ACTWait; retail builds it as 0. Name and bit ours. */
+#ifdef DEBUG
+#define ENEMY_DEBUG_HOLD (D_0063B13C & 0x200)
+#else
+#define ENEMY_DEBUG_HOLD 0
+#endif
+
+extern int stage_no;
+extern int D_00639EA0;
+/* kept local: this TU's uses of _RotyGV do not fit the prototype in gv.h */
+extern int _RotyGV(float *a0, void *a1);
+extern void ACTGame_CommonLoop(void *self);
+/* kept local: enemy_act.c does not carry multiBgaManager.h, and this TU reads
+   only the display list pointer it hands the manager. */
+extern void DispMultiBgaManagerWithKind(int kind, void *base, int n);
+/* The pad record layout_texture.c reconstructs as LtPad; this TU reads only its
+   button word at +0, and the incomplete array type is what keeps ROM's %hi/%lo
+   pair where a small scalar would go gp-relative under -G 8. */
+extern int D_0028F8F0[];
+extern void ACTParaStatus_Exec(void *self);
+extern float GetEnemyDefParaIndex(void *self);
+extern void afterCommonCarry(volatile int a0);
+extern int FlyMail(void *a0);
+/* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
+extern void _OrientXZGV(float *dst, float *a, float *b);
+/* kept local: this TU's uses of SetMotionDirection do not fit the prototype in motionManager2.h */
+extern void SetMotionDirection(void *self, float *dir);
+/* kept local: this TU's uses of GetMotionFrameFlag2 do not fit the prototype in motionManager2.h */
+extern int GetMotionFrameFlag2(void *self);
+/* kept local: this TU's uses of SetMotionDirectionWithLimit do not fit the prototype in motionManager2.h */
+extern void SetMotionDirectionWithLimit(void *self, float *buf, float a, float b);
+/* kept local: this TU's uses of EnemyAttackCenter do not fit the prototype in attackhit.h */
+extern void EnemyAttackCenter(void *self);
+
+/* The actor sub-state's requested motion direction, a 3-float vector at
+   +0x120 (the same slot _ApproachTarget and the brain zero-fills below).
+   Spelling the three stores as struct members rather than `*(float *)`
+   casts is what lets the volatile `a0` home reload hoist above the first
+   of them, as ROM has it (gcc 2.9 alias.c fixed_scalar_and_varying_struct_p:
+   a COMPONENT_REF store is in-struct/varying, a cast store is not). */
+typedef struct {
+    char pad000[0x120];
+    float dir[3];
+} ActSubDir;
+
+/* kept local: this TU's uses of InitMotionGeoInfo do not fit the prototype in motionManager2.h */
+extern void InitMotionGeoInfo(char *p, float x, float y, float z, float a, float b, float c);
+extern int D_0063AA00;
+extern char D_002A8570[];
+/* kept local: this TU's uses of SetMotionNodeFixModeParameter do not fit the prototype in motionManager2.h */
+extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float *q, float e,
+                                          float f, float g, float h);
+extern int D_0063B248;
+extern int D_0063AA04;
+extern int D_00639EB4;
+extern void _InterGV(float *dst, float *a, float *b, float t, float u);
+extern void EntryMultiBgaManager(void *bga, int no, int kind, void *pos, void *rot);
+extern float _DistGV(void *a, void *b);
+/* kept local: this TU's uses of GetRootProjectionPosOfGObj do not fit the prototype in motionManager2.h */
+extern void GetRootProjectionPosOfGObj(float *dst, char *gobj);
+/* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
+extern void _ApplyRyGV(float *v, float ang);
+/* kept local: this TU's uses of GetMatrixDirectionToZ do not fit the prototype in gv.h */
+extern void GetMatrixDirectionToZ(float *dst, void *ori);
+/* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
+extern float _DistSqGV(float *a, float *b);
+/* kept local: this TU's uses of GetMotionFrameFlag1 do not fit the prototype in motionManager2.h */
+extern int GetMotionFrameFlag1(void *self);
+
+/* The point the lifting enemy turns to.  RECONSTRUCTION: the ROM holds three
+   vectors here (0x30 bytes, the first two equal) and only the first is ever
+   addressed, so the bytes cannot say whether the developer wrote one table or
+   three objects; the 8 bytes of fill after brainModeTable prove the 16-byte
+   alignment. */
+static float bodyliftTarget[3][4] __attribute__((aligned(16))) = {
+    {-311.0f, -89.0f, -147.0f, 0.0f},
+    {-311.0f, -89.0f, -147.0f, 0.0f},
+    {-770.0f, -1445.0f, -749.0f, 0.0f},
+};
+
+extern char D_002C2DC8[];
+extern char *D_0063A61C;
+extern char D_005577D0[];
+/* FLT_MAX word in .sdata; the incomplete array type is what keeps the ROM's
+   %hi/%lo pair instead of a gp-relative load. */
+extern void SetEnemyStonizedVisual(void *self);
+extern void BossEnemyFunc(void *self);
+
+/* RECONSTRUCTION: the listing puts the whole row-3197 test on its own row with
+   no helper rows, and the bytes (lwu, dsll32/dsra32, andi) are a 64-bit
+   shift-and-mask of a 32-bit word, the TU's flag-test shape: a function-like
+   macro.  The name is ours. */
+#define EA_CHKBIT(f, n) (((int)((long long)(f) >> (n))) & 1)
+
+/* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
+extern float _DistGV(void *a, void *b);
+extern int D_0063B240;
+extern float _GetRandom(void);
+/* kept local: this TU's uses of _DistxzGV do not fit the prototype in gv.h */
+extern float _DistxzGV(float *a, void *b);
+/* kept local: this TU's uses of _AbsRotyGV do not fit the prototype in gv.h */
+extern int _AbsRotyGV(float *a, float *b);
+
+/* GetFlyPosition's points: the four the enemy measures against, the four it
+   flies to (paired by index, 200 below), and the one it escapes to. */
+static float flyCheckPos[4][4] __attribute__((aligned(16))) = {
+    {760.0f, 0.0f, 766.0f, 1.0f},
+    {708.0f, 0.0f, -806.0f, 1.0f},
+    {-1394.0f, 0.0f, -858.0f, 1.0f},
+    {-1383.0f, 0.0f, 645.0f, 1.0f},
+};
+
+static float flyDestPos[4][4] __attribute__((aligned(16))) = {
+    {842.0f, -200.0f, 1278.0f, 1.0f},
+    {734.0f, -200.0f, -1273.0f, 1.0f},
+    {-1394.0f, -200.0f, -1291.0f, 1.0f},
+    {-1383.0f, -200.0f, 1291.0f, 1.0f},
+};
+
+static float flyEscapePos[4] __attribute__((aligned(16))) = {1712.0f, -600.0f, 0.0f, 1.0f};
+
+/* The brain-mode target the ChangeBrain_ToAttack and ChangeBrain_ToKidnap
+   children hand to _BrainMode_SetDirect: one word shared by the nested
+   functions of two parents, so file scope (the TU's whole .sbss). */
+static char *brainTarget;
+
+extern int isLiftBoyEnable(void);
+
+/* "change to kidnap": the string follows subEnemyBrain_ToBoy's two jump tables
+   in the ROM's .rodata (0x5536C8), so it stays in the blob while the TU's own
+   .rodata run ends at the tables. */
+
+extern int D_0063B220;
+/* kept local: enemy_act.c carries none of these owners' headers, and the ROM
+   proves gif_StartPacketPri takes the packet priority its GifPacket.h
+   prototype does not name. */
+extern int IsSelectID_EnemyCtrl(int a0);
+extern int ACTWayMove_BeginDetail(char *self, float *goal, float *from, void *tgt, void *e,
+                                  unsigned char sub);
+extern int ACTWayMove_NextDetail(char *self, float *node, float *goal, unsigned char d,
+                                 unsigned char e);
+extern unsigned char WayMove_CheckCollis(float *p0, float *p1, void *a2, void *a3);
+extern int ACTWay_IsMustWalkFromWay(char *a0);
+extern int GetFlyLimitClearance(void *pos);
+extern int CheckFloorAttribute(char *self, int attr);
+extern void MatrixDrive_PushMatrix(void);
+extern void MatrixDrive_PopMatrix(void);
+extern void *MatrixDrive_GetMatrix(void);
+extern void MatrixDrive_TransMatrixV(char *a0);
+extern void _UnitMatrix(void *p0);
+extern void gif_StartPacketPri(int pri);
+extern void gif_EndPacket(void);
+extern void prim_DispWireSphere(float r, void *col, int nu, int nv);
+extern int D_0063B234;
+/* the three actor sub-threads this function starts; their bodies are below */
+extern void subEnemyControl(volatile int a0);
+extern void subEnemyCollision(volatile int a0);
+extern void subEnemyBrainMain(volatile int a0);
+extern char D_002A84F8[];
+extern int D_0063B1EC;
+extern int D_0063B180;
+extern int InitMultiBgaManager(int a0);
+extern int GetMotherGenerator(int label);
+
+/* One start record per motion phase; the four of them are the actor's whole
+   start parameter block. */
+typedef struct {
+    int mode;
+    int f04;
+    int f08;
+    int f0C;
+    int f10;
+    float f14;
+    float f18;
+    unsigned int f1C;
+} EnemyStartRec;
+
+/* The gobj's sub-object slot at +0x15C, an int handle the engine also reads
+   as the sub record's address (see GOBJ_SUB in typedef.h). Reconstruction:
+   ROM re-reads the slot before each of actEnemyStart's four float stores
+   through it while the int chase through gobj+0x164 survives them, which
+   is what a union view of the slot gives (alias set 0 on the slot, float
+   on the stores); the union's name and members are ours. */
+typedef union {
+    int handle;
+    char *p;
+} EnemySubSlot;
+
+/* The actor's character kind at act+0x48, the index act.c's after_func_exec
+   and BeforeFunc read into the status table's six-entry rows; actInitialize
+   sets it to -1, actGirlStart to 1 and actEnemyStart to 2. Reconstruction:
+   an enumerated type, as the ROM proves here (only a store of a type other
+   than int lets the D_0063AA00 load below issue ahead of it); the names are
+   ours, the values the ROM's. */
+typedef enum { ACT_KIND_NONE = -1, ACT_KIND_GIRL = 1, ACT_KIND_ENEMY = 2 } ActKind;
+
+#define ENEMY_START_WORK(self) (*(int *)(*(int *)((self) + 0x164) + 0x680))
+
+extern char *D_0063A61C;
+/* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
+extern void _OrientXZGV(float *out, float *a, float *b);
+
+typedef struct {
+    char pad00[0x20];
+    long long flags;
+} EnemyBrainWork;
+
+inline int IsEnemyBrainToGenerator(char *a0, int *out)
+{
+    char *b = *(char **)(a0 + 0x164);
+    if (*(int *)(*(char **)(b + 0x680) + 0x204) != 5)
+        return 0;
+    *out = *(int *)(*(char **)(b + 0x688) + 0x460);
+    if (*out == 0) {
+        debug_assert("src/enemy_act.c", 0x341);
+        __assert("src/enemy_act.c", 0x341, "*generator_gop!=NULL");
+    }
+    return 1;
+}
+
+inline int IsEnemyBrainToBoy(char *self)
+{
+    char *sub;
+    char *sub2;
+    if (D_00639EA8 != 0) {
+        char *sub_d = *(char **)(D_00639EA8 + 0x164);
+        if (*(int *)(sub_d + 0x34) != 0x6F)
+            return 0;
+    }
+    sub = *(char **)(self + 0x164);
+    sub2 = *(char **)(sub + 0x680);
+    return *(int *)(sub2 + 0x204) == 3;
+}
+
 void setBattleStatus(EnemyBattleGObj *self)
 {
     switch (self->sub->enemy->battleType) {
@@ -216,13 +444,29 @@ void setBattleStatus(EnemyBattleGObj *self)
         self->sub->enemy->flags.ll |= 2LL;
         break;
     default:
-        debug_assert(D_00553370, 0x36B);
-        __assert(D_00553370, 0x36B, D_0063A7E8);
+        debug_assert("src/enemy_act.c", 0x36B);
+        __assert("src/enemy_act.c", 0x36B, "0");
     }
 }
 
-extern void sceVu0CopyVector(float *dst, float *src);
-extern int D_0028F4C0[];
+inline void boss_effect_callback(int id)
+{
+    char *g;
+    int i;
+    char *p;
+    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
+        if (*(int *)(*(int *)(*(char **)(g + 0x164) + 0x680) + 0x1E4) == 3) {
+            for (i = 0; i < 5; i++) {
+                p = (char *)(i * 0x20 + *(int *)(*(char **)(g + 0x164) + 0x680) + 0x360);
+                if (p[0x1D] != 0 && *(int *)(p + 0x10) == id) {
+                    p[0x1C] = 0;
+                    return;
+                }
+            }
+        }
+    }
+}
 
 /* static inline of the 2001 source, listing lines 973-977 -- inlined by both
    boss_effect_start and boss_effect_process (the rows attributed to 973 are
@@ -234,8 +478,6 @@ static inline void bossEffectSetNodePos(char *self, float *dst, int idx)
     sceVu0CopyVector(dst, (float *)(*(char **)(g + 0xC) + idx * 0x40 + 0x30));
     dst[3] = 1.0f;
 }
-
-#define BOSS_START_WORK(self) (*(int *)(*(int *)((self) + 0x164) + 0x680))
 
 void boss_effect_start(char *self, int id)
 {
@@ -273,18 +515,6 @@ void boss_effect_check_parts(char *a0, int a1)
     boss_effect_start(a0, a1);
 }
 
-typedef struct {
-    char pad00[0x14];
-    int id;
-    int timer;
-    char busy;
-    char alive;
-    char pad1E[2];
-} BossPart;
-
-#define BOSS_EFFECT_WORK(self) ((char *)*(int *)(*(int *)((self) + 0x164) + 0x680))
-#define BOSS_EFFECT_PARTS(self, i) ((BossPart *)((i) * 0x20 + BOSS_EFFECT_WORK(self) + 0x360))
-
 void boss_effect_process(char *self)
 {
     float tmp[4];
@@ -316,22 +546,6 @@ void boss_effect_process(char *self)
     }
 }
 
-extern void *D_00639EA4;
-
-typedef struct {
-    char pad00[0x100];
-    int f100;
-    char pad104[0x182 - 0x104];
-    short f182;
-    char pad184[2];
-    short f186;
-    char pad188[0x18C - 0x188];
-    unsigned int flags18C;
-    char pad190[4];
-} EnemyParaRow;
-
-extern EnemyParaRow D_0055FE58[];
-
 void _DoAwait(char *self)
 {
     EnemyParaRow *row;
@@ -355,9 +569,6 @@ void _DoAwaitGirl(char *self)
         }
     }
 }
-
-/* kept local: this TU's uses of _DistxzSqGV do not fit the prototype in gv.h */
-extern float _DistxzSqGV(float *a0, float *a1);
 
 int _MustChase(int a0)
 {
@@ -397,14 +608,6 @@ end:
     return rv;
 }
 
-extern char *D_00639EC0;
-extern char *D_00639ED0;
-/* kept local: this TU's uses of _GetMotionDirection do not fit the prototype in
-   motionManager2.h */
-extern void _GetMotionDirection(void *dir, int self);
-extern int CheckFloorAttribute(char *self, int attr);
-extern void _ACTCommonMailTest(int self, int a1, int a2, int a3);
-
 /* Static inline of the 2001 source, listing rows 908-915: the rows sit between
    setBattleStatus and boss_effect_callback, the body has no ROM slot of its own
    and subEnemyControl is the only place it is expanded, so this name is ours. */
@@ -417,15 +620,6 @@ static inline void enemyPollHitNodes(int self)
         GetEnemyHitNodeFlag((char *)self);
     }
 }
-
-/* The DEBUG build holds the enemy's stick poll while the debug flag word's
-   hold bit is set, a frame at a time, the way boyact.c's subBoyControl repeats
-   its stick loop with _ACTWait; retail builds it as 0. Name and bit ours. */
-#ifdef DEBUG
-#define ENEMY_DEBUG_HOLD (D_0063B13C & 0x200)
-#else
-#define ENEMY_DEBUG_HOLD 0
-#endif
 
 void subEnemyControl(volatile int a0)
 {
@@ -536,23 +730,6 @@ void subEnemyControl(volatile int a0)
         _ACTWait(1);
     }
 }
-
-extern int stage_no;
-extern int D_00639EA0;
-/* kept local: this TU's uses of _RotyGV do not fit the prototype in gv.h */
-extern int _RotyGV(float *a0, void *a1);
-extern void ACTGame_CommonLoop(void *self);
-/* kept local: enemy_act.c does not carry multiBgaManager.h, and this TU reads
-   only the display list pointer it hands the manager. */
-extern void DispMultiBgaManagerWithKind(int kind, void *base, int n);
-/* The pad record layout_texture.c reconstructs as LtPad; this TU reads only its
-   button word at +0, and the incomplete array type is what keeps ROM's %hi/%lo
-   pair where a small scalar would go gp-relative under -G 8. */
-extern int D_0028F8F0[];
-extern void ACTParaStatus_Exec(void *self);
-extern float GetEnemyDefParaIndex(void *self);
-extern void afterCommonCarry(volatile int a0);
-extern int FlyMail(void *a0);
 
 /* static inline of the 2001 source: the disc listing attributes rows
    1642-1663 -- which lie outside every function's own line span -- to the
@@ -704,27 +881,69 @@ void subEnemyCollision(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
-extern void _OrientXZGV(float *dst, float *a, float *b);
-/* kept local: this TU's uses of SetMotionDirection do not fit the prototype in motionManager2.h */
-extern void SetMotionDirection(void *self, float *dir);
-/* kept local: this TU's uses of GetMotionFrameFlag2 do not fit the prototype in motionManager2.h */
-extern int GetMotionFrameFlag2(void *self);
-/* kept local: this TU's uses of SetMotionDirectionWithLimit do not fit the prototype in motionManager2.h */
-extern void SetMotionDirectionWithLimit(void *self, float *buf, float a, float b);
-/* kept local: this TU's uses of EnemyAttackCenter do not fit the prototype in attackhit.h */
-extern void EnemyAttackCenter(void *self);
+inline void actEnemyStand(volatile int a0)
+{
+    char *sub = *(char **)(a0 + 0x164);
+    debug_StdPrintfDummy("enter actEnemyStand\n");
+    *(int *)(sub + 0x34) = 1;
+    _ACTWait(0);
+}
 
-/* The actor sub-state's requested motion direction, a 3-float vector at
-   +0x120 (the same slot _ApproachTarget and the brain zero-fills below).
-   Spelling the three stores as struct members rather than `*(float *)`
-   casts is what lets the volatile `a0` home reload hoist above the first
-   of them, as ROM has it (gcc 2.9 alias.c fixed_scalar_and_varying_struct_p:
-   a COMPONENT_REF store is in-struct/varying, a cast store is not). */
-typedef struct {
-    char pad000[0x120];
-    float dir[3];
-} ActSubDir;
+inline void motEnemyStand(volatile int a0)
+{
+    char *sub = *(char **)(a0 + 0x164);
+    debug_StdPrintfDummy("enter motEnemyStand\n");
+    *(char **)(sub + 0x130) = SetMotionRequest(a0, 1, *(MotOriReq *)(sub + 0x620));
+    while (1) {
+        _ACTWait(1);
+    }
+}
+
+inline void actEnemyWalk(volatile int a0)
+{
+    char *sub = *(char **)(a0 + 0x164);
+    debug_StdPrintfDummy("enter actEnemyWalk\n");
+    *(int *)(sub + 0x34) = 2;
+    _ACTWait(0);
+}
+
+inline void motEnemyWalk(volatile int a0)
+{
+    char *sub = *(char **)(a0 + 0x164);
+    char *mot;
+    debug_StdPrintfDummy("enter motEnemyWalk\n");
+    mot = SetMotionRequest(a0, 8, *(MotOriReq *)(sub + 0x620));
+    *(char **)(sub + 0x130) = mot;
+    *(int *)(mot + 0x114) = 0;
+    _ACTWait(0);
+}
+
+inline void actEnemyRun(volatile int a0)
+{
+    char *sub = *(char **)(a0 + 0x164);
+    debug_StdPrintfDummy("enter actEnemyRun\n");
+    *(int *)(sub + 0x34) = 3;
+    _ACTWait(0);
+}
+
+inline void motEnemyRun(volatile int a0)
+{
+    char *sub = *(char **)(a0 + 0x164);
+    char *mot;
+    debug_StdPrintfDummy("enter motEnemyRun\n");
+    mot = SetMotionRequest(a0, 0xD, *(MotOriReq *)(sub + 0x620));
+    *(char **)(sub + 0x130) = mot;
+    *(int *)(mot + 0x114) = 0;
+    _ACTWait(0);
+}
+
+inline void actEnemyJump(volatile int a0)
+{
+    char *sub = *(char **)(a0 + 0x164);
+    debug_StdPrintfDummy("enter actEnemyJump\n");
+    *(int *)(sub + 0x34) = 4;
+    _ACTWait(0);
+}
 
 void actEnemyAttack(volatile int a0)
 {
@@ -756,24 +975,103 @@ void actEnemyAttack(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of InitMotionGeoInfo do not fit the prototype in motionManager2.h */
-extern void InitMotionGeoInfo(char *p, float x, float y, float z, float a, float b, float c);
-extern int D_0063AA00;
-extern char D_002A8570[];
+inline void actEnemyHang(volatile int a0)
+{
+    char *sub = *(char **)(a0 + 0x164);
+    debug_StdPrintfDummy("enter actEnemyHang\n");
+    *(int *)(sub + 0x34) = 0x1C;
+    _ACTWait(0);
+}
 
-/* INTERIM stand-in for isEnemyActive (listing lines 2086-2088), `inline` in
-   the 2001 source and defined here, above actEnemyRestart (2151): an inline
-   emits its string at its definition, so the assert text is the first object
-   of the TU's .rodata run (VMA 0x553510), ahead of actEnemyKidnapEnd's.  Its
-   out-of-line copy keeps its own ROM slot further down while this TU's tail
-   is asm.  See the note on _BrainMode_SetDirect_INTERIM. */
-static inline int isEnemyActive_INTERIM(int *self)
+inline void funcEnemyAiGetGirl(int a0)
+{
+    char *sub = *(char **)(a0 + 0x164);
+    if (*(int *)(sub + 0x350) == 0) {
+        *(int *)(sub + 0x350) = 1;
+    }
+}
+
+inline void actEnemyHyde(int *self)
+{
+    sceVu0FVECTOR hide = {0.0f, 0.0f, -1000000.0f};
+    SetDirectRootPositionNoFitting(self, hide);
+    ResetEnemyPositionInfo(self);
+    actEnemyFlagOnFree(self);
+}
+
+inline int isEnemyHyde(int *a0)
+{
+    int *p = (int *)(D_002C2DC8 + a0[2] * 0x4C);
+    return (((unsigned int)p[0x48 / 4] >> 21) & 1) ^ 1;
+}
+
+inline void actEnemyFlagOnFree(int *a0)
+{
+    char *base = D_002C2DC8 + a0[2] * 0x4C;
+    *(int *)(base + 0x48) &= ~0x200000;
+}
+
+inline void actEnemyFlagOnDead(int *a0)
+{
+    char *base = D_002C2DC8 + a0[2] * 0x4C;
+    *(int *)(base + 0x48) |= 0x40000;
+}
+
+inline int actEnemyFlagCheckDead(int *a0)
+{
+    int *p = (int *)(D_002C2DC8 + a0[2] * 0x4C);
+    return ((unsigned int)p[0x48 / 4] >> 18) & 1;
+}
+
+inline int isEnemyActive(int *self)
 {
     if (self == 0 || *(int *)((char *)self + 0xC) != 4) {
-        debug_assert(D_00553370, 0x827);
-        __assert(D_00553370, 0x827, "ASSERTMSG__GOP_IS_NOT_ENEMY(gop)");
+        debug_assert("src/enemy_act.c", 0x827);
+        __assert("src/enemy_act.c", 0x827, "ASSERTMSG__GOP_IS_NOT_ENEMY(gop)");
     }
     return actEnemyFlagCheckActive(self);
+}
+
+inline int actEnemyFlagCheckActive(int *a0)
+{
+    unsigned int *p = (unsigned int *)(D_002C2DC8 + a0[2] * 0x4C);
+    unsigned int field = p[0x48 / 4];
+    unsigned int v0 = (field >> 18) & 1;
+    if (v0 != 0)
+        goto zero;
+    v0 = (field >> 21) & 1;
+    v0 = v0 ^ 1;
+    if (v0 == 0)
+        goto one;
+zero:
+    return 0;
+one:
+    return 1;
+}
+
+inline int actEnemy_isSmallEnemy(char *a0)
+{
+    return *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1E8) == 0;
+}
+
+inline int actEnemy_isLargeEnemy(char *a0)
+{
+    return *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1E8) == 2;
+}
+
+inline int actEnemy_isNormalEnemy(char *a0)
+{
+    return *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1E8) == 1;
+}
+
+inline int actEnemy_GetClingTarget(char *a0)
+{
+    char *b = *(char **)(a0 + 0x164);
+    char *e = *(char **)(b + 0x680);
+    if (*(int *)(e + 0x1E8) == 0 && *(int *)(b + 0x34) == 0x10) {
+        return *(int *)(e + 0x220);
+    }
+    return 0;
 }
 
 /* The disc listing attributes rows 2138-2143 -- which lie ABOVE this function's
@@ -837,8 +1135,8 @@ void actEnemyRestart(char *self, float *pos, float *dir, int kind, int mot)
         idx = 3;
         break;
     default:
-        debug_assert(D_00553370, 2161);
-        __assert(D_00553370, 2161, D_0063A7E8);
+        debug_assert("src/enemy_act.c", 2161);
+        __assert("src/enemy_act.c", 2161, "0");
     }
     *(int *)(*(char **)(*(char **)(self + 0x164) + 0x680) + 0x1EC) = idx;
     setBattleStatus((EnemyBattleGObj *)self);
@@ -863,13 +1161,6 @@ void actEnemyRestart(char *self, float *pos, float *dir, int kind, int mot)
     eBrainSendMes((int)self, 4);
     _BrainMode_SetDirect(self, 0, 0);
 }
-
-extern void sceVu0ScaleVector(float *dst, float *src, float k);
-extern void sceVu0AddVector(float *dst, float *a, float *b);
-/* kept local: this TU's uses of SetMotionNodeFixModeParameter do not fit the prototype in motionManager2.h */
-extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float *q, float e,
-                                          float f, float g, float h);
-extern int D_0063B248;
 
 /* PairSetGeometry is a NESTED function in the 2001 source: ROM passes it a
    static chain in $2 (STATIC_CHAIN_REGNUM) which it spills to 0($sp), and the
@@ -945,12 +1236,37 @@ int actEnemyForceSwitchToCarry(void *a0)
     return 1;
 }
 
-extern int D_0063A7EC;
-extern int D_0063AA04;
-extern int D_00639EB4;
-extern void _InterGV(float *dst, float *a, float *b, float t, float u);
-extern void EntryMultiBgaManager(void *bga, int no, int kind, void *pos, void *rot);
-extern float _DistGV(void *a, void *b);
+inline int ACTEnemyForceSwitchToCarry(char *a0)
+{
+    int r = actEnemyForceSwitchToCarry(a0);
+    if (r != 0) {
+        _BrainMode_SetDirect(a0, 0, 0);
+    }
+    ACTSendMailCorrect(a0, 0x104);
+    return r;
+}
+
+inline void actEnemyNest(volatile int a0)
+{
+    char *sub = *(char **)(a0 + 0x164);
+    int stg;
+    int x2;
+
+    int x = a0;
+    *(int *)(sub + 0x148) = 0;
+    RestoreReviveCount(x);
+    actChangeActBrain(D_0063A61C, (void *)subEnemyBrain_Idle, sub);
+    actEnemyHyde((int *)a0);
+    eBrainSendMes(a0, 0xA);
+    stg = stage_no;
+    *(int *)(sub + 0x440) = 0;
+    x2 = a0;
+    *(int *)(sub + 0x444) = 7;
+    gamesysObjInfoPosSetStage((int *)x2, 7, 0, stg);
+    _ACTWait(0);
+}
+
+static int kidnapEndCount = 0; /* derived name: cleared as actEnemyKidnapEnd starts its wait */
 
 void actEnemyKidnapEnd(volatile int a0)
 {
@@ -1002,7 +1318,7 @@ void actEnemyKidnapEnd(volatile int a0)
                              test_CURRENTROOT(target), q.f);
     }
     gflagOn(393);
-    D_0063A7EC = 0;
+    kidnapEndCount = 0;
     while (1) {
         if (((int)(*(long long *)(sub + 0x20) >> 21)) & 1) {
             ACTGame_SetMotionPlaySpeedRatio_Reserve((char *)a0, 0.0001f, 9);
@@ -1110,12 +1426,6 @@ void actEnemyKidnapEnd(volatile int a0)
         _ACTWait(1);
     }
 }
-
-/* kept local: this TU's uses of GetRootProjectionPosOfGObj do not fit the prototype in motionManager2.h */
-extern void GetRootProjectionPosOfGObj(float *dst, char *gobj);
-/* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
-extern void _ApplyRyGV(float *v, float ang);
-extern void sceVu0ScaleVector(float *dst, float *src, float s);
 
 /* Static inline of the 2001 source: the listing attributes rows 2609-2614 to a
    body inside actEnemyKidnapBegin's ROM range but above its own lines, the same
@@ -1239,25 +1549,12 @@ void MoveChestForCatchBoy(char *self)
     debug_NMarker((float *)(*(char **)(self + 0x15C) + 0x390), 255, 0, 0, 200.0f);
 }
 
-/* kept local: this TU's uses of GetMatrixDirectionToZ do not fit the prototype in gv.h */
-extern void GetMatrixDirectionToZ(float *dst, void *ori);
-extern void sceVu0ApplyMatrix(float *dst, float *m, float *v);
-extern void sceVu0SubVector(float *dst, float *a, float *b);
-/* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
-extern float _DistSqGV(float *a, float *b);
-/* kept local: this TU's uses of GetMotionFrameFlag1 do not fit the prototype in motionManager2.h */
-extern int GetMotionFrameFlag1(void *self);
-
-/* The point the lifting enemy turns to.  RECONSTRUCTION: the ROM holds three
-   vectors here (0x30 bytes, the first two equal) and only the first is ever
-   addressed, so the bytes cannot say whether the developer wrote one table or
-   three objects; the 8 bytes of fill after brainModeTable prove the 16-byte
-   alignment. */
-static float bodyliftTarget[3][4] __attribute__((aligned(16))) = {
-    {-311.0f, -89.0f, -147.0f, 0.0f},
-    {-311.0f, -89.0f, -147.0f, 0.0f},
-    {-770.0f, -1445.0f, -749.0f, 0.0f},
-};
+inline void afterEnemyBodylift(volatile int a0)
+{
+    int x = a0;
+    *(int *)(*(int *)(x + 0x15C) + 0x550) = 0;
+    *(int *)(*(int *)(x + 0x15C) + 0x380) = 0;
+}
 
 /* listing rows 2655-2657: a `static inline` outside this function's span. */
 static inline void enemyBodyliftClearBoy(char *self)
@@ -1350,6 +1647,24 @@ void actEnemyBodylift(volatile int a0)
     }
 }
 
+inline void actEnemyBodyslamFail(volatile int a0)
+{
+    iosOmSendMail((int)D_00639EA4, 0xE2, a0);
+    while (1) {
+        ACTSendMailCorrect((void *)a0, 0xC7);
+        _ACTWait(1);
+    }
+}
+
+inline void actEnemyBodyslam(volatile int a0)
+{
+    iosOmSendMail((int)D_00639EA4, *(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x200), a0);
+    while (1) {
+        ACTSendMailCorrect((void *)a0, 0xC7);
+        _ACTWait(1);
+    }
+}
+
 /* Static inline of the 2001 source (listing lines 2889-2892 sit inside
    actEnemyPickupBegin's ROM range but above its own body lines).  ROM's frame
    is 0x80 with the 16-byte slot at sp+0x10 no retail code references and buf
@@ -1405,28 +1720,20 @@ void actEnemyPickupBegin(volatile int a0)
     }
 }
 
-extern char D_002C2DC8[];
-
-/* INTERIM stand-in: actEnemyFlagCheckActive is `inline` in the 2001 source (the
-   disc listing attributes this call site's words to its body lines 2077-2096,
-   and isEnemyHyde's line 2047 inside it), but its out-of-line copy must keep its
-   own ROM slot above while the rest of this TU's tail is asm.  Drop it and mark
-   the real definition `inline` once the tail is C. */
-static inline int actEnemyFlagCheckActive_INTERIM(int *a0)
+inline void actEnemyCarry(volatile int a0)
 {
-    unsigned int *p = (unsigned int *)(D_002C2DC8 + a0[2] * 0x4C);
-    unsigned int field = p[0x48 / 4];
-    unsigned int v0 = (field >> 18) & 1;
-    if (v0 != 0)
-        goto zero;
-    v0 = (field >> 21) & 1;
-    v0 = v0 ^ 1;
-    if (v0 == 0)
-        goto one;
-zero:
-    return 0;
-one:
-    return 1;
+    debug_assert("src/enemy_act.c", 0xB75);
+    __assert("src/enemy_act.c", 0xB75, "0");
+}
+
+inline int EnemyBrainStatus_Boy(char *a0)
+{
+    return *(int *)(*(char **)(a0 + 0x164) + 0x440) == 2;
+}
+
+inline int EnemyBrainStatus_Girl(char *a0)
+{
+    return *(int *)(*(char **)(a0 + 0x164) + 0x440) == 1;
 }
 
 /* static inline of the 2001 source, listing lines 1148-1164 */
@@ -1457,7 +1764,7 @@ void CheckEnemyBrainMode(char *self, int *outMode, int *outData)
         *outMode = -1;
         return;
     }
-    if (actEnemyFlagCheckActive_INTERIM((int *)self) == 0) {
+    if (actEnemyFlagCheckActive((int *)self) == 0) {
         *outMode = -1;
         return;
     }
@@ -1498,13 +1805,15 @@ store:
     *outMode = mode;
 }
 
-extern char *D_0063A61C;
-extern char D_005577D0[];
-/* FLT_MAX word in .sdata; the incomplete array type is what keeps the ROM's
-   %hi/%lo pair instead of a gp-relative load. */
-extern float D_0063A7F0[];
-extern void SetEnemyStonizedVisual(void *self);
-extern void BossEnemyFunc(void *self);
+inline void _BrainMode_SetDirect(char *a0, int a1, int *a2)
+{
+    *(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x208) = a1;
+    if (a2 != 0) {
+        *(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x214) = *a2;
+    } else {
+        *(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x214) = brainTargetNone[0];
+    }
+}
 
 /* Static inline of the 2001 source: the listing puts its body at rows 3064-3065
    between _BrainMode_SetDirect (3056-3060) and subEnemyBrainMain (3074), and no
@@ -1515,14 +1824,8 @@ static inline void _BrainMode_Set(char *a0, int mode, int *tgt)
         brainModeTable[*(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x208)].pri) {
         return;
     }
-    _BrainMode_SetDirect_INTERIM(a0, mode, tgt);
+    _BrainMode_SetDirect(a0, mode, tgt);
 }
-
-/* RECONSTRUCTION: the listing puts the whole row-3197 test on its own row with
-   no helper rows, and the bytes (lwu, dsll32/dsra32, andi) are a 64-bit
-   shift-and-mask of a 32-bit word, the TU's flag-test shape: a function-like
-   macro.  The name is ours. */
-#define EA_CHKBIT(f, n) (((int)((long long)(f) >> (n))) & 1)
 
 void subEnemyBrainMain(volatile int a0)
 {
@@ -1566,12 +1869,12 @@ void subEnemyBrainMain(volatile int a0)
             _BrainMode_Set((char *)a0, 5, &arg);
             break;
         case 8:
-            _BrainMode_SetDirect_INTERIM((char *)a0, 2, &arg);
+            _BrainMode_SetDirect((char *)a0, 2, &arg);
             break;
         default:
             debug_StdPrintfDummy("undefined mode [%d]\n", req);
-            debug_assert(D_00553370, 3102);
-            __assert(D_00553370, 3102, D_0063A7E8);
+            debug_assert("src/enemy_act.c", 3102);
+            __assert("src/enemy_act.c", 3102, "0");
             break;
         }
     }
@@ -1611,7 +1914,7 @@ void subEnemyBrainMain(volatile int a0)
     case 1:
         if (D_00639EA8 != 0 &&
             ACTCheckViewCl((void *)a0, D_00639EA8, test_CURRENTROOT((int)D_00639EA8), 0x168,
-                           D_0063A7F0[0]) != 0) {
+                           3.40282347e+38f /* FLT_MAX */) != 0) {
             eBrainSendMes(a0, 2);
         } else {
             eBrainSendMes(a0, 1);
@@ -1717,6 +2020,84 @@ void subEnemyBrainMain(volatile int a0)
     }
 }
 
+inline void afterCommonCarry(volatile int a0)
+{
+    char *sub = *(char **)(a0 + 0x164);
+    int girl = (int)D_00639EA8;
+    int self = a0;
+    *(int *)(sub + 0x148) = girl;
+    iosOmSendMail(girl, 0x30, self);
+    *(int *)(sub + 0x148) = 0;
+    if (*(int *)(sub + 0x34) == 5) {
+        eBrainSendMes(a0, 4);
+    }
+}
+
+inline void funcEnemyCarryFail(char *a0)
+{
+    *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x20) |= (1ULL << 34);
+}
+
+inline void subEnemyBrain_Idle(volatile int a0)
+{
+    char *sub = *(char **)(a0 + 0x164);
+    *(int *)(sub + 0x34C) = 0;
+    *(int *)(sub + 0x120) = 0;
+    *(int *)(sub + 0x124) = 0;
+    *(int *)(sub + 0x128) = 0;
+    while (1) {
+        if (*(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x218) == (int)D_00639EA4) {
+            _DoAwait((char *)a0);
+        }
+        _ACTWait(1);
+    }
+}
+
+inline void subEnemyBrain_Await(volatile int a0)
+{
+    char *sub = *(char **)(a0 + 0x164);
+    *(int *)(sub + 0x34C) = 0;
+    *(int *)(sub + 0x120) = 0;
+    *(int *)(sub + 0x124) = 0;
+    *(int *)(sub + 0x128) = 0;
+    if (D_00639EA4 != 0) {
+        _ApproachTarget((char *)a0, D_00639EA4, sub + 0x120, 0,
+                        (float)((int)(_GetRandom() * 10.0f) % 200 + 300), 0);
+    }
+    *(int *)(sub + 0x34C) = 0;
+    *(int *)(sub + 0x120) = 0;
+    *(int *)(sub + 0x124) = 0;
+    *(int *)(sub + 0x128) = 0;
+    while (1) {
+        _DoAwait((char *)a0);
+        _ACTWait(1);
+    }
+}
+
+inline void subEnemyBrain_FindGirl(volatile int a0)
+{
+    char *sub = *(char **)(a0 + 0x164);
+    int i;
+
+    for (i = 0; i < (0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 2; i++) {
+        *(int *)(sub + 0x34C) = 0;
+        *(int *)(sub + 0x120) = 0;
+        *(int *)(sub + 0x124) = 0;
+        *(int *)(sub + 0x128) = 0;
+        ACTSendMailCorrect((void *)a0, 0xE6);
+        if (*(int *)(sub + 0x34) == 0x47) {
+            break;
+        }
+        _ACTWait(1);
+    }
+    for (i = 0; i < (0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 250 / 60; i++) {
+        _DoAwait((char *)a0);
+        _ACTWait(1);
+    }
+    eBrainSendMes(a0, 1);
+    _ACTWait(0);
+}
+
 void subEnemyBrain_ToGenerator(int self)
 {
     /* The actor handle is kept in a `volatile` local: this brain thread is
@@ -1766,12 +2147,6 @@ void subEnemyBrain_ToGenerator(int self)
         _ACTWait(1);
     }
 }
-
-/* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
-extern float _DistGV(void *a, void *b);
-extern int D_0063B240;
-extern void sceVu0Normalize(float *dst, float *src);
-extern float _GetRandom(void);
 
 /* static inline of the 2001 source, listing lines 1985-1997.  `sub` is computed
    INSIDE the helper (row 1986): in enemy_dodge the caller already holds it so
@@ -1873,11 +2248,6 @@ void enemy_dodge_to_boy(char *self)
     }
 }
 
-/* kept local: this TU's uses of _DistxzGV do not fit the prototype in gv.h */
-extern float _DistxzGV(float *a, void *b);
-/* kept local: this TU's uses of _AbsRotyGV do not fit the prototype in gv.h */
-extern int _AbsRotyGV(float *a, float *b);
-
 /* listing rows 3858-3870: a `static inline` outside this function's span,
    expanded twice here (each expansion gets its OWN .lit4 0.7f and its own
    `1.2` .rodata double -- the pool duplication in ROM is what proves it is an
@@ -1951,25 +2321,40 @@ int Battle_isCurrentStatus(char *self, char *tgt, float *pos)
     return ret;
 }
 
-extern float D_0063A7F4[];
+inline void EnemyUtil_TurnToBoy(char *self, int tgt, int smooze)
+{
+    float dir[4];
+    char *sub = *(char **)(self + 0x164);
 
-/* GetFlyPosition's points: the four the enemy measures against, the four it
-   flies to (paired by index, 200 below), and the one it escapes to. */
-static float flyCheckPos[4][4] __attribute__((aligned(16))) = {
-    {760.0f, 0.0f, 766.0f, 1.0f},
-    {708.0f, 0.0f, -806.0f, 1.0f},
-    {-1394.0f, 0.0f, -858.0f, 1.0f},
-    {-1383.0f, 0.0f, 645.0f, 1.0f},
-};
+    _OrientXZGV(dir, (float *)test_CURRENTROOT(tgt), (float *)test_CURRENTROOT((int)self));
+    *(float *)(sub + 0x120) = dir[0];
+    *(float *)(sub + 0x124) = dir[1];
+    *(float *)(sub + 0x128) = dir[2];
+    enemyCheckTurnAngle(self);
+    if (smooze == 0) {
+        SetMotionDirection(self, dir);
+    } else {
+        SetMotionDirectionSmooze(self, dir, (float)smooze);
+    }
+}
 
-static float flyDestPos[4][4] __attribute__((aligned(16))) = {
-    {842.0f, -200.0f, 1278.0f, 1.0f},
-    {734.0f, -200.0f, -1273.0f, 1.0f},
-    {-1394.0f, -200.0f, -1291.0f, 1.0f},
-    {-1383.0f, -200.0f, 1291.0f, 1.0f},
-};
-
-static float flyEscapePos[4] __attribute__((aligned(16))) = {1712.0f, -600.0f, 0.0f, 1.0f};
+inline int EnemyUtil_isOtherStatus(char *self, int mode)
+{
+    char *g;
+    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
+        if (g != self) {
+            char *sub = *(char **)(g + 0x164);
+            if (*(int *)(sub + 0x34) == 0xF) {
+                return (int)g;
+            }
+            if ((int)(*(long long *)(sub + 0x20) >> 10) & 1) {
+                return (int)g;
+            }
+        }
+    }
+    return 0;
+}
 
 int GetFlyPosition(float *out, float *me, float *tgt)
 {
@@ -1990,7 +2375,7 @@ int GetFlyPosition(float *out, float *me, float *tgt)
         return 2;
     }
     if (-150.0f < me[1]) {
-        float best = D_0063A7F4[0];
+        float best = 3.40282347e+38f /* FLT_MAX */;
         int besti = -1;
         int i;
 
@@ -2120,20 +2505,12 @@ void NakaBoss(char *self, void *tgt, float dist)
     }
 }
 
-/* The brain-mode target the ChangeBrain_ToAttack and ChangeBrain_ToKidnap
-   children hand to _BrainMode_SetDirect: one word shared by the nested
-   functions of two parents, so file scope (the TU's whole .sbss). */
-static char *brainTarget;
-
-extern float D_0063A7F8[];
-extern int isLiftBoyEnable(void);
-
 /* Listing rows 3965-3981: a file-scope helper with no ROM slot of its own,
    expanded once inside subEnemyBrain_ToBoy.  The name is ours. */
 static inline int isNearestEnemyToBoy(int self, char *boy, float *pos)
 {
     char *found = 0;
-    float best = D_0063A7F8[0];
+    float best = 3.40282347e+38f /* FLT_MAX */;
     char *g;
     float d;
 
@@ -2149,28 +2526,6 @@ static inline int isNearestEnemyToBoy(int self, char *boy, float *pos)
         }
     }
     return (char *)self == found;
-}
-
-/* INTERIM stand-in: EnemyUtil_isOtherStatus is `inline` in the 2001 source --
-   the disc listing attributes three expansions inside subEnemyBrain_ToBoy to
-   its body lines 3990-4003 -- while its out-of-line copy keeps its own ROM slot
-   below.  Same deal as _BrainMode_SetDirect_INTERIM. */
-static inline int EnemyUtil_isOtherStatus_INTERIM(char *self, int mode)
-{
-    char *g;
-    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
-         g = isysGObjSearchFromObjKindID_next(g)) {
-        if (g != self) {
-            char *sub = *(char **)(g + 0x164);
-            if (*(int *)(sub + 0x34) == 0xF) {
-                return (int)g;
-            }
-            if ((int)(*(long long *)(sub + 0x20) >> 10) & 1) {
-                return (int)g;
-            }
-        }
-    }
-    return 0;
 }
 
 void subEnemyBrain_ToBoy(volatile int a0)
@@ -2192,7 +2547,7 @@ void subEnemyBrain_ToBoy(volatile int a0)
                 char **tgt = &brainTarget;
 
                 /* RECONSTRUCTION (chain 3 passes 148 to 160): the bytes pin a
-                   read of the default D_0063A7E0 on this statement's line (the
+                   read of the default brainTargetNone[0] on this statement's line (the
                    listing's 4224: the load sits with the boy load and the slot
                    store, and is held in $s1 across _GetRandom for both
                    expansions' else arms) that is used when jump1 runs and
@@ -2204,20 +2559,20 @@ void subEnemyBrain_ToBoy(volatile int a0)
                    that one line in all five arms, i.e. one statement did the
                    three things; this text spreads them over three lines and
                    the words are the same. */
-                brainTarget = (char *)D_0063A7E0;
+                brainTarget = (char *)brainTargetNone[0];
                 brainTarget = D_00639EA4;
                 if ((int)(random_unit() * 10.0f) % 100 <
                     *(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x1FC)) {
-                    _BrainMode_SetDirect_INTERIM((char *)a0, 12, (int *)tgt);
+                    _BrainMode_SetDirect((char *)a0, 12, (int *)tgt);
                 } else {
-                    _BrainMode_SetDirect_INTERIM((char *)a0, 9, (int *)tgt);
+                    _BrainMode_SetDirect((char *)a0, 9, (int *)tgt);
                 }
             } else {
                 /* RECONSTRUCTION: the default read on the statement's line (the
                    listing's 4235), see the kind == 2 arm above. */
-                brainTarget = (char *)D_0063A7E0;
+                brainTarget = (char *)brainTargetNone[0];
                 brainTarget = D_00639EA4;
-                _BrainMode_SetDirect_INTERIM((char *)a0, 9, (int *)&brainTarget);
+                _BrainMode_SetDirect((char *)a0, 9, (int *)&brainTarget);
             }
         }
     }
@@ -2321,12 +2676,12 @@ void subEnemyBrain_ToBoy(volatile int a0)
             break;
         case 3:
             if (isNearestEnemyToBoy(a0, D_00639EA4, w) &&
-                EnemyUtil_isOtherStatus_INTERIM((char *)a0, 0) == 0) {
+                EnemyUtil_isOtherStatus((char *)a0, 0) == 0) {
                 ChangeBrain_ToAttack();
             }
             break;
         case 4:
-            if (EnemyUtil_isOtherStatus_INTERIM((char *)a0, 0) == 0) {
+            if (EnemyUtil_isOtherStatus((char *)a0, 0) == 0) {
                 ChangeBrain_ToAttack();
             }
         }
@@ -2336,7 +2691,7 @@ void subEnemyBrain_ToBoy(volatile int a0)
         *(float *)(sub + 0x128) = 0.0f;
         for (j = 0; j < (0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 90 / 60; j++) {
             if (mode == 5) {
-                if (EnemyUtil_isOtherStatus_INTERIM((char *)a0, 0) == 0) {
+                if (EnemyUtil_isOtherStatus((char *)a0, 0) == 0) {
                     ChangeBrain_ToAttack();
                 }
             }
@@ -2347,10 +2702,31 @@ void subEnemyBrain_ToBoy(volatile int a0)
     }
 }
 
-/* "change to kidnap": the string follows subEnemyBrain_ToBoy's two jump tables
-   in the ROM's .rodata (0x5536C8), so it stays in the blob while the TU's own
-   .rodata run ends at the tables. */
-extern char D_005536C8[];
+inline void subEnemyBrain_BodyGuard(volatile int a0)
+{
+    char *sub = *(char **)(a0 + 0x164);
+    int tgt = *(int *)(sub + 0x14C);
+    float *pos = (float *)(sub + 0x120);
+
+    while (1) {
+        if (_DistGV(test_CURRENTROOT(a0), test_CURRENTROOT(tgt)) < 200.0f) {
+            _ACTWait(1);
+        } else {
+            if ((unsigned char)_ApproachTarget((char *)a0, (void *)tgt, pos, 0, 100.0f, 0) == 0) {
+                *(int *)(sub + 0x34C) = 0;
+                *(int *)(sub + 0x120) = 0;
+                *(int *)(sub + 0x124) = 0;
+                *(int *)(sub + 0x128) = 0;
+                _ACTWait(30);
+            }
+            *(int *)(sub + 0x34C) = 0;
+            *(int *)(sub + 0x120) = 0;
+            *(int *)(sub + 0x124) = 0;
+            *(int *)(sub + 0x128) = 0;
+            _ACTWait(60);
+        }
+    }
+}
 
 void subEnemyBrain_ToGirl(volatile int a0)
 {
@@ -2366,19 +2742,19 @@ void subEnemyBrain_ToGirl(volatile int a0)
         case 0:
             /* RECONSTRUCTION: the default read on the statement's line (the
                listing's 4476, 4480 and 4484), see ChangeBrain_ToAttack. */
-            brainTarget = (char *)D_0063A7E0;
+            brainTarget = (char *)brainTargetNone[0];
             brainTarget = D_00639EA8;
-            _BrainMode_SetDirect_INTERIM((char *)a0, 8, (int *)&brainTarget);
+            _BrainMode_SetDirect((char *)a0, 8, (int *)&brainTarget);
             break;
         case 2:
-            brainTarget = (char *)D_0063A7E0;
+            brainTarget = (char *)brainTargetNone[0];
             brainTarget = D_00639EA8;
-            _BrainMode_SetDirect_INTERIM((char *)a0, 11, (int *)&brainTarget);
+            _BrainMode_SetDirect((char *)a0, 11, (int *)&brainTarget);
             break;
         default:
-            brainTarget = (char *)D_0063A7E0;
+            brainTarget = (char *)brainTargetNone[0];
             brainTarget = D_00639EA8;
-            _BrainMode_SetDirect_INTERIM((char *)a0, 10, (int *)&brainTarget);
+            _BrainMode_SetDirect((char *)a0, 10, (int *)&brainTarget);
             break;
         }
     }
@@ -2411,7 +2787,7 @@ void subEnemyBrain_ToGirl(volatile int a0)
         _ACTWait(0);
     }
     while (1) {
-        debug_StdPrintfDummy(D_005536C8);
+        debug_StdPrintfDummy("change to kidnap");
         ChangeBrain_ToKidnap();
         _ACTWait(1);
     }
@@ -2442,33 +2818,12 @@ int _ApproachTarget_Boss(char *self, void *tgt, void *pos, void *fn, float range
     }
 }
 
-extern char D_00553380[];
-extern int D_0063B220;
-
-/* INTERIM stand-in: IsEnemyBrainToGenerator (listing lines 831-834) is
-   `inline` in the 2001 source; its out-of-line copy keeps its own ROM slot
-   further down while this TU's tail is asm (isEnemyActive's stand-in is
-   defined at its listing position, before actEnemyRestart).  See the note
-   on _BrainMode_SetDirect_INTERIM. */
-static inline int IsEnemyBrainToGenerator_INTERIM(char *a0)
-{
-    char *b = *(char **)(a0 + 0x164);
-
-    if (*(int *)(*(char **)(b + 0x680) + 0x204) != 5) {
-        return 0;
-    }
-    if (*(int *)(*(char **)(b + 0x688) + 0x460) == 0) {
-        debug_assert(D_00553370, 0x341);
-        __assert(D_00553370, 0x341, D_00553380);
-    }
-    return 1;
-}
-
 int flyMailCore(void *self)
 {
     int flyLow = 0;
     int flyHigh = 0;
     int ret = 0;
+    int gen;
 
     switch (CanThisEnemyFly(self)) {
     case 1:
@@ -2479,10 +2834,10 @@ int flyMailCore(void *self)
         flyHigh = 1;
         break;
     }
-    if (isEnemyActive_INTERIM((int *)self) == 0) {
+    if (isEnemyActive((int *)self) == 0) {
         goto end;
     }
-    if (IsEnemyBrainToGenerator_INTERIM((char *)self)) {
+    if (IsEnemyBrainToGenerator((char *)self, &gen)) {
         if (flyHigh == 0 && D_0063B220 == 0) {
             goto end;
         }
@@ -2499,33 +2854,7 @@ end:
     return ret;
 }
 
-/* kept local: enemy_act.c carries none of these owners' headers, and the ROM
-   proves gif_StartPacketPri takes the packet priority its GifPacket.h
-   prototype does not name. */
-extern int IsSelectID_EnemyCtrl(int a0);
-extern int ACTWayMove_BeginDetail(char *self, float *goal, float *from, void *tgt, void *e,
-                                  unsigned char sub);
-extern int ACTWayMove_NextDetail(char *self, float *node, float *goal, unsigned char d,
-                                 unsigned char e);
-extern unsigned char WayMove_CheckCollis(float *p0, float *p1, void *a2, void *a3);
-extern int ACTWay_IsMustWalkFromWay(char *a0);
-extern int GetFlyLimitClearance(void *pos);
-extern int CheckFloorAttribute(char *self, int attr);
-extern void MatrixDrive_PushMatrix(void);
-extern void MatrixDrive_PopMatrix(void);
-extern void *MatrixDrive_GetMatrix(void);
-extern void MatrixDrive_TransMatrixV(char *a0);
-extern void _UnitMatrix(void *p0);
-extern void gif_StartPacketPri(int pri);
-extern void gif_EndPacket(void);
-extern void prim_DispWireSphere(float r, void *col, int nu, int nv);
-extern int D_0063B234;
-
-/* static inline of the 2001 source, listing rows 4654-4660: FlyMail is `inline`
-   there -- the listing expands its body inside _ApproachTarget_Way three times
-   -- while its out-of-line copy keeps its own ROM slot below.  Same deal as
-   _BrainMode_SetDirect_INTERIM. */
-static inline int FlyMail_INTERIM(void *a0)
+inline int FlyMail(void *a0)
 {
     int x = *(int *)(*(char **)((char *)a0 + 0x164) + 0x10);
     if (x < 0xC) {
@@ -2542,7 +2871,7 @@ static inline unsigned char waitEnemyFly(char *self)
     char *sub = *(char **)(self + 0x164);
 
     while (*(int *)(sub + 0x34) != 6) {
-        if (FlyMail_INTERIM(self) == 0) {
+        if (FlyMail(self) == 0) {
             return 0;
         }
         _ACTWait(1);
@@ -2627,11 +2956,11 @@ int _ApproachTarget_Way(char *self, void *tgt, void *pos, void *fn, float range,
                 gif_EndPacket();
                 MatrixDrive_PopMatrix();
             }
-            FlyMail_INTERIM(self);
+            FlyMail(self);
         }
         if (*(int *)(self + 8) == 0xEAD &&
             (((int)(*(unsigned long long *)(sub + 0x20) >> 39)) & 1)) {
-            FlyMail_INTERIM(self);
+            FlyMail(self);
         }
         if (stage_no == 9 && CheckFloorAttribute(self, 0x100000) != 0 &&
             (tgt == D_00639EA4 || tgt == (void *)D_00639EA8) &&
@@ -2669,76 +2998,57 @@ int _ApproachTarget_Way(char *self, void *tgt, void *pos, void *fn, float range,
         }
         _ACTWait(1);
     }
+    /* Disabled in retail: the motion-request timer and mail reports.  What
+       the bytes pin: their three texts in .rodata after subEnemyBrain_ToGirl's
+       "change to kidnap" and before actEnemyStart's trace, with no
+       instruction; the listing gives this function no row between the loop's
+       last statement (4842) and its closing line (5060).  What they cannot:
+       the statements around them, the condition and the mail number the
+       third one printed. */
+    if (0) {
+        debug_StdPrintfDummy("_ACTMotReqTimer wait\n");
+        debug_StdPrintfDummy("_ACTMotReqTimer error loop\n");
+        debug_StdPrintfDummy("\tmail[%d] can not accept\n");
+    }
 }
 
-extern char D_00553738[];
-extern char D_00553500[];
-/* the three actor sub-threads this function starts; their bodies are below */
-extern void subEnemyControl(volatile int a0);
-extern void subEnemyCollision(volatile int a0);
-extern void subEnemyBrainMain(volatile int a0);
-extern char D_002A84F8[];
-extern int D_0063B1EC;
-extern int D_0063B180;
-extern float entesty[];
-extern int InitMultiBgaManager(int a0);
-extern int GetMotherGenerator(int label);
-
-/* INTERIM stand-in: the 2001 source declares actEnemyFlagCheckDead `inline` --
-   the disc listing attributes rows 2077-2078 to a body inside actEnemyStart --
-   while its out-of-line copy keeps its own ROM slot below. */
-static inline int actEnemyFlagCheckDead_INTERIM(int *a0)
+inline int _ApproachTarget(char *self, void *tgt, void *pos, void *fn, float range,
+                           unsigned char flag)
 {
-    int *p = (int *)(D_002C2DC8 + a0[2] * 0x4C);
-    return ((unsigned int)p[0x48 / 4] >> 18) & 1;
+    if (*(int *)(*(char **)(*(char **)(self + 0x164) + 0x680) + 0x1E4) != 3) {
+        return _ApproachTarget_Way(self, tgt, pos, fn, range, flag);
+    } else {
+        return _ApproachTarget_Boss(self, tgt, pos, fn, range, flag);
+    }
 }
 
-/* INTERIM stand-in: actEnemyHyde is `inline` in the 2001 source -- the listing
-   attributes rows 2033-2037 to a body inside actEnemyStart -- while its
-   out-of-line copy keeps its own ROM slot below. */
-static inline void actEnemyHyde_INTERIM(int *self)
+inline int isEnemyKidnapEnable(int *self)
 {
-    char spill[16];
-    *(long long *)(spill + 0) = *(long long *)((char *)D_00553500 + 0);
-    *(long long *)(spill + 8) = *(long long *)((char *)D_00553500 + 8);
-    SetDirectRootPositionNoFitting(self, spill);
-    ResetEnemyPositionInfo(self);
-    actEnemyFlagOnFree(self);
+    if (*(int *)(*(int *)(*(int *)((char *)self + 0x164) + 0x680) + 0x1E4) == 0) {
+        return 0;
+    }
+    return actEnemyFlagCheckActive(self);
 }
 
-/* One start record per motion phase; the four of them are the actor's whole
-   start parameter block. */
-typedef struct {
-    int mode;
-    int f04;
-    int f08;
-    int f0C;
-    int f10;
-    float f14;
-    float f18;
-    unsigned int f1C;
-} EnemyStartRec;
+inline int GetEnemyType(void)
+{
+    return 1;
+}
 
-/* The gobj's sub-object slot at +0x15C, an int handle the engine also reads
-   as the sub record's address (see GOBJ_SUB in typedef.h). Reconstruction:
-   ROM re-reads the slot before each of actEnemyStart's four float stores
-   through it while the int chase through gobj+0x164 survives them, which
-   is what a union view of the slot gives (alias set 0 on the slot, float
-   on the stores); the union's name and members are ours. */
-typedef union {
-    int handle;
-    char *p;
-} EnemySubSlot;
+inline int GetEnemyTypeFromGObj(char *a0)
+{
+    return ((EnemyBattleGObj *)a0)->sub->enemy->liftKind;
+}
 
-/* The actor's character kind at act+0x48, the index act.c's after_func_exec
-   and BeforeFunc read into the status table's six-entry rows; actInitialize
-   sets it to -1, actGirlStart to 1 and actEnemyStart to 2. Reconstruction:
-   an enumerated type, as the ROM proves here (only a store of a type other
-   than int lets the D_0063AA00 load below issue ahead of it); the names are
-   ours, the values the ROM's. */
-typedef enum { ACT_KIND_NONE = -1, ACT_KIND_GIRL = 1, ACT_KIND_ENEMY = 2 } ActKind;
+inline int GetMotherGeneratorLabelAskEnemy(char *a0)
+{
+    return *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x464);
+}
 
-#define ENEMY_START_WORK(self) (*(int *)(*(int *)((self) + 0x164) + 0x680))
+inline int GetMotherGeneratorGObjAskEnemy(char *a0)
+{
+    return *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x468);
+}
 
 /* Listing rows 5128-5301. What the bytes pin, each read off the scheduler's
  * dependences: the bit-51 store to the actor word is a union access (the
@@ -2755,7 +3065,7 @@ void actEnemyStart(char *self)
     int alive;
     float life;
 
-    debug_StdPrintfDummy(D_00553738, self);
+    debug_StdPrintfDummy("actEnemyStart:%p\n", self);
     act = actInitialize(self);
     actInitialize_ext_charcter(self);
     actInitialize_only_charcter(self);
@@ -2772,7 +3082,7 @@ void actEnemyStart(char *self)
             {0, 35, 18, 90, 0, _ACTGame_GetParamF(20), 369.0f, 1},
             {1, 0, 18, 50, 0, _ACTGame_GetParamF(21), 369.0f, 0},
             {2, 34, 22, 25, 50, _ACTGame_GetParamF(22), 369.0f, 0},
-            {2, 33, 22, 0, 100, entesty[0], 370.0f, 1},
+            {2, 33, 22, 0, 100, 3.40282347e+38f /* FLT_MAX */, 370.0f, 1},
         };
         unsigned long long bit;
 
@@ -2800,7 +3110,7 @@ void actEnemyStart(char *self)
     *(int *)(ENEMY_START_WORK(self) + 0x1EC) = D_0063B1EC;
     setBattleStatus((EnemyBattleGObj *)self);
     alive = 0;
-    if (actEnemyFlagCheckDead_INTERIM((int *)self) != 0) {
+    if (actEnemyFlagCheckDead((int *)self) != 0) {
         alive = 1;
     }
     if (alive != 0) {
@@ -2831,9 +3141,24 @@ void actEnemyStart(char *self)
     *(int *)(act + 0x350) = 0;
     ACTSendMailCorrect(self, 199);
     if (alive != 0) {
-        actEnemyHyde_INTERIM((int *)self);
+        actEnemyHyde((int *)self);
     }
     _ACTWait(0);
+}
+
+inline void subEnemyBrain_Irregular(volatile int a0)
+{
+    EnemyBrainWork *sub = *(EnemyBrainWork **)(a0 + 0x164);
+
+    sub->flags &= ~(1LL << 34);
+    eBrainSendMes(a0, 4);
+    if (isEnemyCarriedByGirl(a0)) {
+        afterCommonCarry(a0);
+    }
+    while (1) {
+        _ACTWait(30);
+        _BrainMode_SetDirect((char *)a0, 0, 0);
+    }
 }
 
 void subEnemyBrain_Attack(volatile int a0)
@@ -2860,7 +3185,7 @@ void subEnemyBrain_Attack(volatile int a0)
         }
         _ACTWait(1);
     }
-    _BrainMode_SetDirect_INTERIM((char *)a0, 0, 0);
+    _BrainMode_SetDirect((char *)a0, 0, 0);
     _ACTWait(0);
 }
 
@@ -2887,376 +3212,13 @@ void subEnemyBrain_Cling(volatile int a0)
             }
         } else {
             _ACTWait(30);
-            _BrainMode_SetDirect_INTERIM((char *)a0, 0, 0);
+            _BrainMode_SetDirect((char *)a0, 0, 0);
         }
         _ACTWait(1);
     }
 }
 
-void funcEnemyAiGetGirl(int a0)
-{
-    char *sub = *(char **)(a0 + 0x164);
-    if (*(int *)(sub + 0x350) == 0) {
-        *(int *)(sub + 0x350) = 1;
-    }
-}
-
-extern char D_00553438[];
-
-void actEnemyStand(volatile int a0)
-{
-    char *sub = *(char **)(a0 + 0x164);
-    debug_StdPrintfDummy(D_00553438);
-    *(int *)(sub + 0x34) = 1;
-    _ACTWait(0);
-}
-
-extern char D_00553468[];
-
-void actEnemyWalk(volatile int a0)
-{
-    char *sub = *(char **)(a0 + 0x164);
-    debug_StdPrintfDummy(D_00553468);
-    *(int *)(sub + 0x34) = 2;
-    _ACTWait(0);
-}
-
-extern char D_00553498[];
-
-void actEnemyRun(volatile int a0)
-{
-    char *sub = *(char **)(a0 + 0x164);
-    debug_StdPrintfDummy(D_00553498);
-    *(int *)(sub + 0x34) = 3;
-    _ACTWait(0);
-}
-
-extern char D_005534E0[];
-
-void actEnemyHang(volatile int a0)
-{
-    char *sub = *(char **)(a0 + 0x164);
-    debug_StdPrintfDummy(D_005534E0);
-    *(int *)(sub + 0x34) = 0x1C;
-    _ACTWait(0);
-}
-
-void actEnemyCarry(volatile int a0)
-{
-    debug_assert(D_00553370, 0xB75);
-    __assert(D_00553370, 0xB75, D_0063A7E8);
-}
-
-void actEnemyBodyslam(volatile int a0)
-{
-    iosOmSendMail((int)D_00639EA4, *(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x200), a0);
-    while (1) {
-        ACTSendMailCorrect((void *)a0, 0xC7);
-        _ACTWait(1);
-    }
-}
-
-void actEnemyBodyslamFail(volatile int a0)
-{
-    iosOmSendMail((int)D_00639EA4, 0xE2, a0);
-    while (1) {
-        ACTSendMailCorrect((void *)a0, 0xC7);
-        _ACTWait(1);
-    }
-}
-
-extern char D_00553500[];
-extern char *D_0063A61C;
-
-void actEnemyNest(volatile int a0)
-{
-    char *sub = *(char **)(a0 + 0x164);
-    int *self;
-    int stg;
-    int x2;
-    char spill[16];
-
-    int x = a0;
-    *(int *)(sub + 0x148) = 0;
-    RestoreReviveCount(x);
-    actChangeActBrain(D_0063A61C, (void *)subEnemyBrain_Idle, sub);
-    self = (int *)a0;
-    *(long long *)(spill + 0) = *(long long *)((char *)D_00553500 + 0);
-    *(long long *)(spill + 8) = *(long long *)((char *)D_00553500 + 8);
-    SetDirectRootPositionNoFitting(self, spill);
-    ResetEnemyPositionInfo(self);
-    actEnemyFlagOnFree(self);
-    eBrainSendMes(a0, 0xA);
-    stg = stage_no;
-    *(int *)(sub + 0x440) = 0;
-    x2 = a0;
-    *(int *)(sub + 0x444) = 7;
-    gamesysObjInfoPosSetStage((int *)x2, 7, 0, stg);
-    _ACTWait(0);
-}
-
-void funcEnemyCarryFail(char *a0)
-{
-    *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x20) |= (1ULL << 34);
-}
-
-void actEnemyHyde(int *self)
-{
-    char spill[16];
-    *(long long *)(spill + 0) = *(long long *)((char *)D_00553500 + 0);
-    *(long long *)(spill + 8) = *(long long *)((char *)D_00553500 + 8);
-    SetDirectRootPositionNoFitting(self, spill);
-    ResetEnemyPositionInfo(self);
-    actEnemyFlagOnFree(self);
-}
-
-void actEnemyFlagOnFree(int *a0)
-{
-    char *base = D_002C2DC8 + a0[2] * 0x4C;
-    *(int *)(base + 0x48) &= ~0x200000;
-}
-
-void afterCommonCarry(volatile int a0)
-{
-    char *sub = *(char **)(a0 + 0x164);
-    int girl = (int)D_00639EA8;
-    int self = a0;
-    *(int *)(sub + 0x148) = girl;
-    iosOmSendMail(girl, 0x30, self);
-    *(int *)(sub + 0x148) = 0;
-    if (*(int *)(sub + 0x34) == 5) {
-        eBrainSendMes(a0, 4);
-    }
-}
-
-void actEnemyFlagOnDead(int *a0)
-{
-    char *base = D_002C2DC8 + a0[2] * 0x4C;
-    *(int *)(base + 0x48) |= 0x40000;
-}
-
-int EnemyBrainStatus_Boy(char *a0)
-{
-    return *(int *)(*(char **)(a0 + 0x164) + 0x440) == 2;
-}
-
-int EnemyBrainStatus_Girl(char *a0)
-{
-    return *(int *)(*(char **)(a0 + 0x164) + 0x440) == 1;
-}
-
-int actEnemyFlagCheckDead(int *a0)
-{
-    int *p = (int *)(D_002C2DC8 + a0[2] * 0x4C);
-    return ((unsigned int)p[0x48 / 4] >> 18) & 1;
-}
-
-int actEnemyFlagCheckActive(int *a0)
-{
-    unsigned int *p = (unsigned int *)(D_002C2DC8 + a0[2] * 0x4C);
-    unsigned int field = p[0x48 / 4];
-    unsigned int v0 = (field >> 18) & 1;
-    if (v0 != 0)
-        goto zero;
-    v0 = (field >> 21) & 1;
-    v0 = v0 ^ 1;
-    if (v0 == 0)
-        goto one;
-zero:
-    return 0;
-one:
-    return 1;
-}
-
-int ACTEnemyForceSwitchToCarry(char *a0)
-{
-    int r = actEnemyForceSwitchToCarry(a0);
-    if (r != 0) {
-        _BrainMode_SetDirect(a0, 0, 0);
-    }
-    ACTSendMailCorrect(a0, 0x104);
-    return r;
-}
-
-int actEnemy_GetClingTarget(char *a0)
-{
-    char *b = *(char **)(a0 + 0x164);
-    char *e = *(char **)(b + 0x680);
-    if (*(int *)(e + 0x1E8) == 0 && *(int *)(b + 0x34) == 0x10) {
-        return *(int *)(e + 0x220);
-    }
-    return 0;
-}
-
-int actEnemy_isNormalEnemy(char *a0)
-{
-    return *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1E8) == 1;
-}
-
-int actEnemy_isLargeEnemy(char *a0)
-{
-    return *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1E8) == 2;
-}
-
-int actEnemy_isSmallEnemy(char *a0)
-{
-    return *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1E8) == 0;
-}
-
-int IsEnemyBrainToGenerator(char *a0, int *out)
-{
-    char *b = *(char **)(a0 + 0x164);
-    if (*(int *)(*(char **)(b + 0x680) + 0x204) != 5)
-        return 0;
-    *out = *(int *)(*(char **)(b + 0x688) + 0x460);
-    if (*out == 0) {
-        debug_assert(D_00553370, 0x341);
-        __assert(D_00553370, 0x341, D_00553380);
-    }
-    return 1;
-}
-
-int IsEnemyBrainToBoy(char *self)
-{
-    char *sub;
-    char *sub2;
-    if (D_00639EA8 != 0) {
-        char *sub_d = *(char **)(D_00639EA8 + 0x164);
-        if (*(int *)(sub_d + 0x34) != 0x6F)
-            return 0;
-    }
-    sub = *(char **)(self + 0x164);
-    sub2 = *(char **)(sub + 0x680);
-    return *(int *)(sub2 + 0x204) == 3;
-}
-
-int GetEnemyTypeFromGObj(char *a0)
-{
-    return ((EnemyBattleGObj *)a0)->sub->enemy->liftKind;
-}
-
-int GetEnemyType(void)
-{
-    return 1;
-}
-
-int isEnemyKidnapEnable(int *self)
-{
-    if (*(int *)(*(int *)(*(int *)((char *)self + 0x164) + 0x680) + 0x1E4) == 0) {
-        return 0;
-    }
-    return actEnemyFlagCheckActive_INTERIM(self);
-}
-
-int isEnemyActive(int *self)
-{
-    if (self == 0 || *(int *)((char *)self + 0xC) != 4) {
-        debug_assert(D_00553370, 0x827);
-        __assert(D_00553370, 0x827, "ASSERTMSG__GOP_IS_NOT_ENEMY(gop)");
-    }
-    return actEnemyFlagCheckActive(self);
-}
-
-int GetMotherGeneratorLabelAskEnemy(char *a0)
-{
-    return *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x464);
-}
-
-int GetMotherGeneratorGObjAskEnemy(char *a0)
-{
-    return *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x468);
-}
-
-void subEnemyBrain_Idle(volatile int a0)
-{
-    char *sub = *(char **)(a0 + 0x164);
-    *(int *)(sub + 0x34C) = 0;
-    *(int *)(sub + 0x120) = 0;
-    *(int *)(sub + 0x124) = 0;
-    *(int *)(sub + 0x128) = 0;
-    while (1) {
-        if (*(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x218) == (int)D_00639EA4) {
-            _DoAwait((char *)a0);
-        }
-        _ACTWait(1);
-    }
-}
-
-void subEnemyBrain_Await(volatile int a0)
-{
-    char *sub = *(char **)(a0 + 0x164);
-    *(int *)(sub + 0x34C) = 0;
-    *(int *)(sub + 0x120) = 0;
-    *(int *)(sub + 0x124) = 0;
-    *(int *)(sub + 0x128) = 0;
-    if (D_00639EA4 != 0) {
-        _ApproachTarget((char *)a0, D_00639EA4, sub + 0x120, 0,
-                        (float)((int)(_GetRandom() * 10.0f) % 200 + 300), 0);
-    }
-    *(int *)(sub + 0x34C) = 0;
-    *(int *)(sub + 0x120) = 0;
-    *(int *)(sub + 0x124) = 0;
-    *(int *)(sub + 0x128) = 0;
-    while (1) {
-        _DoAwait((char *)a0);
-        _ACTWait(1);
-    }
-}
-
-void subEnemyBrain_FindGirl(volatile int a0)
-{
-    char *sub = *(char **)(a0 + 0x164);
-    int i;
-
-    for (i = 0; i < (0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 2; i++) {
-        *(int *)(sub + 0x34C) = 0;
-        *(int *)(sub + 0x120) = 0;
-        *(int *)(sub + 0x124) = 0;
-        *(int *)(sub + 0x128) = 0;
-        ACTSendMailCorrect((void *)a0, 0xE6);
-        if (*(int *)(sub + 0x34) == 0x47) {
-            break;
-        }
-        _ACTWait(1);
-    }
-    for (i = 0; i < (0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 250 / 60; i++) {
-        _DoAwait((char *)a0);
-        _ACTWait(1);
-    }
-    eBrainSendMes(a0, 1);
-    _ACTWait(0);
-}
-
-void subEnemyBrain_BodyGuard(volatile int a0)
-{
-    char *sub = *(char **)(a0 + 0x164);
-    int tgt = *(int *)(sub + 0x14C);
-    float *pos = (float *)(sub + 0x120);
-
-    while (1) {
-        if (_DistGV(test_CURRENTROOT(a0), test_CURRENTROOT(tgt)) < 200.0f) {
-            _ACTWait(1);
-        } else {
-            if ((unsigned char)_ApproachTarget((char *)a0, (void *)tgt, pos, 0, 100.0f, 0) == 0) {
-                *(int *)(sub + 0x34C) = 0;
-                *(int *)(sub + 0x120) = 0;
-                *(int *)(sub + 0x124) = 0;
-                *(int *)(sub + 0x128) = 0;
-                _ACTWait(30);
-            }
-            *(int *)(sub + 0x34C) = 0;
-            *(int *)(sub + 0x120) = 0;
-            *(int *)(sub + 0x124) = 0;
-            *(int *)(sub + 0x128) = 0;
-            _ACTWait(60);
-        }
-    }
-}
-
-/* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
-extern void _OrientXZGV(float *out, float *a, float *b);
-
-void subEnemyBrain_Shoulder(volatile int a0)
+inline void subEnemyBrain_Shoulder(volatile int a0)
 {
     float *dir = (float *)(*(char **)(a0 + 0x164) + 0x120);
     float *girl = (float *)test_CURRENTROOT((int)D_00639EA8);
@@ -3266,20 +3228,20 @@ void subEnemyBrain_Shoulder(volatile int a0)
     ACTSendMailCorrect((void *)a0, 0x162);
     while (1) {
         _ACTWait(120);
-        _BrainMode_SetDirect_INTERIM((char *)a0, 0, 0);
+        _BrainMode_SetDirect((char *)a0, 0, 0);
     }
 }
 
-void subEnemyBrain_Pickup(volatile int a0)
+inline void subEnemyBrain_Pickup(volatile int a0)
 {
     ACTSendMailCorrect((void *)a0, 0x16C);
     while (1) {
         _ACTWait(120);
-        _BrainMode_SetDirect_INTERIM((char *)a0, 0, 0);
+        _BrainMode_SetDirect((char *)a0, 0, 0);
     }
 }
 
-void subEnemyBrain_Bodyslam(volatile int a0)
+inline void subEnemyBrain_Bodyslam(volatile int a0)
 {
     if (*(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x1E4) == 3) {
         ACTSendMailCorrect((void *)a0, 0x175);
@@ -3288,169 +3250,6 @@ void subEnemyBrain_Bodyslam(volatile int a0)
     }
     while (1) {
         _ACTWait(120);
-        _BrainMode_SetDirect_INTERIM((char *)a0, 0, 0);
+        _BrainMode_SetDirect((char *)a0, 0, 0);
     }
-}
-
-typedef struct {
-    char pad00[0x20];
-    long long flags;
-} EnemyBrainWork;
-
-void subEnemyBrain_Irregular(volatile int a0)
-{
-    EnemyBrainWork *sub = *(EnemyBrainWork **)(a0 + 0x164);
-
-    sub->flags &= ~(1LL << 34);
-    eBrainSendMes(a0, 4);
-    if (isEnemyCarriedByGirl(a0)) {
-        afterCommonCarry_INTERIM(a0);
-    }
-    while (1) {
-        _ACTWait(30);
-        _BrainMode_SetDirect_INTERIM((char *)a0, 0, 0);
-    }
-}
-
-void _BrainMode_SetDirect(char *a0, int a1, int *a2)
-{
-    *(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x208) = a1;
-    if (a2 != 0) {
-        *(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x214) = *a2;
-    } else {
-        *(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x214) = D_0063A7E0;
-    }
-}
-
-void EnemyUtil_TurnToBoy(char *self, int tgt, int smooze)
-{
-    float dir[4];
-    char *sub = *(char **)(self + 0x164);
-
-    _OrientXZGV(dir, (float *)test_CURRENTROOT(tgt), (float *)test_CURRENTROOT((int)self));
-    *(float *)(sub + 0x120) = dir[0];
-    *(float *)(sub + 0x124) = dir[1];
-    *(float *)(sub + 0x128) = dir[2];
-    enemyCheckTurnAngle(self);
-    if (smooze == 0) {
-        SetMotionDirection(self, dir);
-    } else {
-        SetMotionDirectionSmooze(self, dir, (float)smooze);
-    }
-}
-
-int FlyMail(void *a0)
-{
-    int x = *(int *)(*(char **)((char *)a0 + 0x164) + 0x10);
-    if (x < 0xC) {
-        return -1;
-    }
-    return flyMailCore(a0);
-}
-
-void boss_effect_callback(int id)
-{
-    char *g;
-    int i;
-    char *p;
-    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
-         g = isysGObjSearchFromObjKindID_next(g)) {
-        if (*(int *)(*(int *)(*(char **)(g + 0x164) + 0x680) + 0x1E4) == 3) {
-            for (i = 0; i < 5; i++) {
-                p = (char *)(i * 0x20 + *(int *)(*(char **)(g + 0x164) + 0x680) + 0x360);
-                if (p[0x1D] != 0 && *(int *)(p + 0x10) == id) {
-                    p[0x1C] = 0;
-                    return;
-                }
-            }
-        }
-    }
-}
-
-extern char D_00553450[];
-
-void motEnemyStand(volatile int a0)
-{
-    char *sub = *(char **)(a0 + 0x164);
-    debug_StdPrintfDummy(D_00553450);
-    *(char **)(sub + 0x130) = SetMotionRequest(a0, 1, *(MotOriReq *)(sub + 0x620));
-    while (1) {
-        _ACTWait(1);
-    }
-}
-
-extern char D_00553480[];
-
-void motEnemyWalk(volatile int a0)
-{
-    char *sub = *(char **)(a0 + 0x164);
-    char *mot;
-    debug_StdPrintfDummy(D_00553480);
-    mot = SetMotionRequest(a0, 8, *(MotOriReq *)(sub + 0x620));
-    *(char **)(sub + 0x130) = mot;
-    *(int *)(mot + 0x114) = 0;
-    _ACTWait(0);
-}
-
-extern char D_005534B0[];
-
-void motEnemyRun(volatile int a0)
-{
-    char *sub = *(char **)(a0 + 0x164);
-    char *mot;
-    debug_StdPrintfDummy(D_005534B0);
-    mot = SetMotionRequest(a0, 0xD, *(MotOriReq *)(sub + 0x620));
-    *(char **)(sub + 0x130) = mot;
-    *(int *)(mot + 0x114) = 0;
-    _ACTWait(0);
-}
-
-extern char D_005534C8[];
-
-void actEnemyJump(volatile int a0)
-{
-    char *sub = *(char **)(a0 + 0x164);
-    debug_StdPrintfDummy(D_005534C8);
-    *(int *)(sub + 0x34) = 4;
-    _ACTWait(0);
-}
-
-int EnemyUtil_isOtherStatus(char *self, int mode)
-{
-    char *g;
-    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
-         g = isysGObjSearchFromObjKindID_next(g)) {
-        if (g != self) {
-            char *sub = *(char **)(g + 0x164);
-            if (*(int *)(sub + 0x34) == 0xF) {
-                return (int)g;
-            }
-            if ((int)(*(long long *)(sub + 0x20) >> 10) & 1) {
-                return (int)g;
-            }
-        }
-    }
-    return 0;
-}
-
-int isEnemyHyde(int *a0)
-{
-    int *p = (int *)(D_002C2DC8 + a0[2] * 0x4C);
-    return (((unsigned int)p[0x48 / 4] >> 21) & 1) ^ 1;
-}
-
-int _ApproachTarget(char *self, void *tgt, void *pos, void *fn, float range, unsigned char flag)
-{
-    if (*(int *)(*(char **)(*(char **)(self + 0x164) + 0x680) + 0x1E4) != 3) {
-        return _ApproachTarget_Way(self, tgt, pos, fn, range, flag);
-    } else {
-        return _ApproachTarget_Boss(self, tgt, pos, fn, range, flag);
-    }
-}
-
-void afterEnemyBodylift(volatile int a0)
-{
-    int x = a0;
-    *(int *)(*(int *)(x + 0x15C) + 0x550) = 0;
-    *(int *)(*(int *)(x + 0x15C) + 0x380) = 0;
 }

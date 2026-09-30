@@ -1881,7 +1881,8 @@ extern int _RotyGV(void *buf, void *vec);
 /* kept local: this TU's uses of GetSkeltonOrient do not fit the prototype in act-game.h */
 extern void GetSkeltonOrient(float *out, void *obj, int node);
 extern int ACTCheckCollis_WELL(void *p0, void *p1, void *actor, void *posout, float f);
-extern void *D_0063A6B0;
+/* kept local: act-game.h's prototypes do not fit this TU's uses of its functions */
+extern void *floorGObj_ACTCheckCollis_WELL;
 /* kept local: this TU's uses of _ACTCharStatus_Set do not fit the prototype in act-game.h */
 extern void _ACTCharStatus_Set(void *self, int status, float time, int flag);
 
@@ -1967,8 +1968,10 @@ void subGirlBrain_Pulledup(volatile int a0)
         boy_pos[0] = well[0];
         boy_pos[1] = well[1];
         boy_pos[2] = well[2];
-        if (D_0063A6B0 != 0 && *(int *)((char *)D_0063A6B0 + 0xC) == 0x11) {
-            *(void **)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x374) = D_0063A6B0;
+        if (floorGObj_ACTCheckCollis_WELL != 0 &&
+            *(int *)((char *)floorGObj_ACTCheckCollis_WELL + 0xC) == 0x11) {
+            *(void **)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x374) =
+                floorGObj_ACTCheckCollis_WELL;
         }
         boy_pos[1] = boy_pos[1] - 10.0f;
     }
