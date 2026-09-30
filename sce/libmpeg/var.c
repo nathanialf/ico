@@ -6,6 +6,7 @@
  * initialised, zero included, which keeps it in .data under ee-gcc 2.9.  The
  * default intra matrix is 64-byte aligned for its DMA to the IPU, which is
  * what starts the member 64-aligned after init.o's .data. */
+#include <eeregs.h>
 
 /* the reference-frame records the frame pointers start on, defined below */
 extern int _refFrame0[], _refFrame1[], _refFrame2[];
@@ -34,27 +35,27 @@ int _isTop32dirty = 1;
 
 int _tmp_flag = 0;
 
-volatile unsigned int *_ipucmd = (volatile unsigned int *)0x10002000;
+volatile unsigned int *_ipucmd = (volatile unsigned int *)IPU_CMD;
 
-volatile unsigned int *_ipuctrl = (volatile unsigned int *)0x10002010;
+volatile unsigned int *_ipuctrl = (volatile unsigned int *)IPU_CTRL;
 
-volatile unsigned int *_ipubp = (volatile unsigned int *)0x10002020;
+volatile unsigned int *_ipubp = (volatile unsigned int *)IPU_BP;
 
-volatile unsigned int *_iputop = (volatile unsigned int *)0x10002030;
+volatile unsigned int *_iputop = (volatile unsigned int *)IPU_TOP;
 
-volatile unsigned int *_d4tadr = (volatile unsigned int *)0x1000B430;
+volatile unsigned int *_d4tadr = (volatile unsigned int *)D4_TADR;
 
-volatile unsigned int *_d4madr = (volatile unsigned int *)0x1000B410;
+volatile unsigned int *_d4madr = (volatile unsigned int *)D4_MADR;
 
-volatile unsigned int *_d4chcr = (volatile unsigned int *)0x1000B400;
+volatile unsigned int *_d4chcr = (volatile unsigned int *)D4_CHCR;
 
-volatile unsigned int *_d4qwc = (volatile unsigned int *)0x1000B420;
+volatile unsigned int *_d4qwc = (volatile unsigned int *)D4_QWC;
 
-volatile unsigned int *_d3madr = (volatile unsigned int *)0x1000B010;
+volatile unsigned int *_d3madr = (volatile unsigned int *)D3_MADR;
 
-volatile unsigned int *_d3chcr = (volatile unsigned int *)0x1000B000;
+volatile unsigned int *_d3chcr = (volatile unsigned int *)D3_CHCR;
 
-volatile unsigned int *_d3qwc = (volatile unsigned int *)0x1000B020;
+volatile unsigned int *_d3qwc = (volatile unsigned int *)D3_QWC;
 
 /* the default intra matrix, which _setDefaultQM sends to the IPU by DMA
    channel 4; on its own 64-byte line */

@@ -3,6 +3,7 @@
 #include <eekernel.h>
 #include "mv_sub.h"
 #include "typedef.h"
+#include <eeregs.h>
 
 /* One entry of the timestamp ring: the PTS/DTS pair the demuxer read out of a
    pack header, and the run of ring bytes it applies to. */
@@ -39,9 +40,9 @@ extern int DIntr(void);
 static __inline__ void setIpuOutChcr(int chcr)
 {
     DIntr();
-    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 | 0x10000;
-    *(volatile int *)0x1000B000 = chcr;
-    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 & 0xFFFEFFFF;
+    *D_ENABLEW = *D_ENABLER | 0x10000;
+    *D3_CHCR = chcr;
+    *D_ENABLEW = *D_ENABLER & 0xFFFEFFFF;
     SYNC();
     EI();
 }
@@ -53,9 +54,9 @@ static __inline__ void setIpuOutChcr(int chcr)
 static __inline__ void setIpuInChcr(int chcr)
 {
     DIntr();
-    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 | 0x10000;
-    *(volatile int *)0x1000B400 = chcr;
-    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 & 0xFFFEFFFF;
+    *D_ENABLEW = *D_ENABLER | 0x10000;
+    *D4_CHCR = chcr;
+    *D_ENABLEW = *D_ENABLER & 0xFFFEFFFF;
     SYNC();
     EI();
 }
@@ -177,9 +178,9 @@ int viBufReset(ViBuf *self)
     }
     setDmaTag(self->dmaTag, i, phys_addr((int)self->dmaTag), 0, 2);
 
-    *(volatile int *)0x1000B420 = 0;
-    *(volatile int *)0x1000B410 = phys_addr((int)self->data);
-    *(volatile int *)0x1000B430 = phys_addr((int)self->dmaTag);
+    *D4_QWC = 0;
+    *D4_MADR = phys_addr((int)self->data);
+    *D4_TADR = phys_addr((int)self->dmaTag);
     setIpuInChcr(5);
 
     return 1;
@@ -255,9 +256,9 @@ int viBufAddDMA(ViBuf *self)
     }
 
     setIpuInChcr(5);
-    chcr = *(volatile int *)0x1000B400;
+    chcr = *D4_CHCR;
 
-    sector = getDmaSector(self, *(volatile unsigned int *)0x1000B410);
+    sector = getDmaSector(self, *D4_MADR);
     d = (sector + self->nSector - self->rdSector) % self->nSector;
     self->rdSector = (self->rdSector + d) % self->nSector;
     self->nReady -= d;
@@ -302,20 +303,20 @@ int viBufStopDMA(ViBuf *self)
     self->running = 0;
     setIpuInChcr(5);
 
-    self->unk1C[0] = *(volatile int *)0x1000B410;
-    self->unk1C[1] = *(volatile int *)0x1000B430;
-    self->unk1C[2] = *(volatile int *)0x1000B420;
-    self->unk1C[3] = *(volatile int *)0x1000B400;
+    self->unk1C[0] = *D4_MADR;
+    self->unk1C[1] = *D4_TADR;
+    self->unk1C[2] = *D4_QWC;
+    self->unk1C[3] = *D4_CHCR;
 
-    while (*(volatile int *)0x10002010 & 0xF0) {}
+    while (*IPU_CTRL & 0xF0) {}
 
     setIpuOutChcr(0);
 
-    self->unk1C[4] = *(volatile int *)0x1000B010;
-    self->unk1C[5] = *(volatile int *)0x1000B020;
-    self->unk1C[6] = *(volatile int *)0x1000B000;
-    self->bitPos = *(volatile int *)0x10002020;
-    self->unk3C = *(volatile int *)0x10002010;
+    self->unk1C[4] = *D3_MADR;
+    self->unk1C[5] = *D3_QWC;
+    self->unk1C[6] = *D3_CHCR;
+    self->bitPos = *IPU_BP;
+    self->unk3C = *IPU_CTRL;
 
     SignalSema(self->sema);
 
@@ -387,25 +388,25 @@ int viBufRestartDMA(ViBuf *self)
     }
 
     if (self->unk1C[4] != 0 && self->unk1C[5] != 0) {
-        *(volatile int *)0x1000B010 = self->unk1C[4];
-        *(volatile int *)0x1000B020 = self->unk1C[5];
+        *D3_MADR = self->unk1C[4];
+        *D3_QWC = self->unk1C[5];
         setIpuOutChcr(self->unk1C[6] | 0x100);
     }
 
     if (self->nReady != 0) {
-        while (*(volatile int *)0x10002010 < 0) {}
-        *(volatile int *)0x10002000 = cmd;
-        while (*(volatile int *)0x10002010 < 0) {}
+        while (*IPU_CTRL < 0) {}
+        *IPU_CMD = cmd;
+        while (*IPU_CTRL < 0) {}
     }
 
-    *(volatile int *)0x1000B410 = madr;
-    *(volatile int *)0x1000B430 = tadr;
-    *(volatile int *)0x1000B420 = qwc;
+    *D4_MADR = madr;
+    *D4_TADR = tadr;
+    *D4_QWC = qwc;
     if (self->nReady != 0) {
         setIpuInChcr(chcr);
     }
 
-    *(volatile int *)0x10002010 = self->unk3C;
+    *IPU_CTRL = self->unk3C;
 
     self->running = 1;
 
@@ -501,8 +502,8 @@ int viBufGetTs(ViBuf *self, ViTs *out)
     int d;
     ViTs *e;
 
-    madr = *(volatile unsigned int *)0x1000B410;
-    bp = *(volatile unsigned int *)0x10002020;
+    madr = *D4_MADR;
+    bp = *IPU_BP;
     bitPos = self->bitPos & 0x7F;
     fp = (bp >> 16) & 3;
     ifc = (bp >> 8) & 0xF;
@@ -559,9 +560,9 @@ int viBufDelete(ViBuf *self)
 {
     setIpuInChcr(5);
 
-    *(volatile int *)0x1000B420 = 0;
-    *(volatile int *)0x1000B410 = 0;
-    *(volatile int *)0x1000B430 = 0;
+    *D4_QWC = 0;
+    *D4_MADR = 0;
+    *D4_TADR = 0;
 
     if (self->created) {
         DeleteSema(self->sema);

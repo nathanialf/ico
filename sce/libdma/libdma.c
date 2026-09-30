@@ -3,6 +3,7 @@
  * this archive, so its member spans do not tile this run: the per-member
  * partition is NOT verified, and this file is the whole run. */
 #include <stdio.h>
+#include <eeregs.h>
 
 typedef struct {
     unsigned char chan; /* 0x00 channel number */
@@ -21,8 +22,8 @@ typedef struct {
  * names the three globals dch, sceDmaDebugMode and sceDmaCurrentEnv). */
 /* The ten channel register blocks, VIF0 to toSPR. */
 int dch[10] = {
-    0x10008000, 0x10009000, 0x1000A000, 0x1000B000, 0x1000B400,
-    0x1000C000, 0x1000C400, 0x1000C800, 0x1000D000, 0x1000D400,
+    (int)D0_CHCR, (int)D1_CHCR, (int)D2_CHCR, (int)D3_CHCR, (int)D4_CHCR,
+    (int)D5_CHCR, (int)D6_CHCR, (int)D7_CHCR, (int)D8_CHCR, (int)D9_CHCR,
 };
 
 int sceDmaDebugMode = 0;
@@ -60,7 +61,7 @@ int sceDmaReset(int mode)
     int old;
     int i;
 
-    old = *(volatile int *)0x1000E000 & 1;
+    old = *D_CTRL & 1;
     for (i = 0; i < 10; i++) {
         if (resetChan[i] != 0) {
             int *ch = (int *)dch[i];
@@ -72,12 +73,12 @@ int sceDmaReset(int mode)
             ch[0x80 / 4] = 0;
         }
     }
-    *(volatile int *)0x1000E010 = 0xFF1F;
-    *(int *)0x1000E010 = *(volatile int *)0x1000E010 & 0xFF1F0000;
+    *D_STAT = 0xFF1F;
+    *(int *)D_STAT = *D_STAT & 0xFF1F0000;
     memclr(&env, 0x14);
     sceDmaPutEnv(&env);
     if (mode == 1) {
-        *(volatile int *)0x1000E000 = *(volatile int *)0x1000E000 | 1;
+        *D_CTRL = *D_CTRL | 1;
     }
     return old;
 }
@@ -91,11 +92,11 @@ int sceDmaDebug(int a0)
 
 int sceDmaPutEnv(DmaEnv *env)
 {
-    int ctrl = *(volatile int *)0x1000E000;
-    int pcr = *(volatile int *)0x1000E020;
-    int sqwc = *(volatile int *)0x1000E030;
-    int rbor = *(volatile int *)0x1000E050;
-    int rbsr = *(volatile int *)0x1000E040;
+    int ctrl = *D_CTRL;
+    int pcr = *D_PCR;
+    int sqwc = *D_SQWC;
+    int rbor = *D_RBOR;
+    int rbsr = *D_RBSR;
 
     if (env->chan >= 10) {
         return -1;
@@ -122,11 +123,11 @@ int sceDmaPutEnv(DmaEnv *env)
     sqwc = (env->h0A << 16) | env->h08;
     rbor = (int)env->rbadr;
     rbsr = env->rbsize;
-    *(volatile int *)0x1000E000 = ctrl;
-    *(volatile int *)0x1000E020 = pcr;
-    *(volatile int *)0x1000E030 = sqwc;
-    *(volatile int *)0x1000E050 = rbor;
-    *(volatile int *)0x1000E040 = rbsr;
+    *D_CTRL = ctrl;
+    *D_PCR = pcr;
+    *D_SQWC = sqwc;
+    *D_RBOR = rbor;
+    *D_RBSR = rbsr;
     sceDmaCurrentEnv = *env;
     return 0;
 }
@@ -140,10 +141,10 @@ DmaEnv *sceDmaGetEnv(DmaEnv *a0)
 /* 0x1000E060 is the DMAC stall address register (D_STADR). */
 int sceDmaPutStallAddr(unsigned int addr)
 {
-    int old = *(volatile int *)0x1000E060;
+    int old = *D_STADR;
 
     if (addr != 0xFFFFFFFF) {
-        *(volatile int *)0x1000E060 = addr;
+        *D_STADR = addr;
     }
     return old;
 }

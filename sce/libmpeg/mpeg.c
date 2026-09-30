@@ -3,6 +3,7 @@
  * sceMpeg entry points, the callback dispatch, the arena allocator and the
  * picture loop. */
 #include <libmpeg.h>
+#include <eeregs.h>
 
 /* the library's build stamp, the member's first .data */
 static char sceMpegVersion[16] = "PsIIlibmpeg 2200"; /* derived name */
@@ -18,13 +19,13 @@ extern int sceIpuInit();
 void sceMpegInit(void)
 {
     DIntr();
-    *(volatile unsigned int *)0x1000F590 = *(volatile unsigned int *)0x1000F520 | 0x10000;
-    *(volatile unsigned int *)0x1000B000 &= 0xFFFFFEFF;
-    *(volatile unsigned int *)0x1000B400 &= 0xFFFFFEFF;
-    *(unsigned int *)0x1000F590 = *(volatile unsigned int *)0x1000F520 & 0xFFFEFFFF;
+    *D_ENABLEW = *D_ENABLER | 0x10000;
+    *D3_CHCR &= 0xFFFFFEFF;
+    *D4_CHCR &= 0xFFFFFEFF;
+    *(unsigned int *)D_ENABLEW = *D_ENABLER & 0xFFFEFFFF;
     EIntr();
-    *(volatile unsigned int *)0x1000B020 = 0;
-    *(volatile unsigned int *)0x1000B420 = 0;
+    *D3_QWC = 0;
+    *D4_QWC = 0;
     sceIpuInit();
 }
 

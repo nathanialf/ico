@@ -5,6 +5,7 @@
 #include <eekernel.h>
 #include <libmpeg.h>
 #include "mv_audiodec.h"
+#include <eeregs.h>
 
 /* --- the TU's whole .data run, VMA 0x2A7920..0x2A79B8 (0x98, = MAIN.MAP
    mv_main.o .data 0x98).  MAIN.MAP names the last two objects of the run,
@@ -315,10 +316,10 @@ int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
     dispCreate(&D_002A7978, a1, a2, a3, p4);
     dispClear(&D_002A7978, p7);
 
-    savedDmaCtrl = *(volatile int *)0x1000E000;
-    debug_StdPrintfDummy("D_CTRL %x\n", *(volatile int *)0x1000E000);
-    *(volatile int *)0x1000E000 |= 3;
-    *(volatile int *)0x1000E010 = 4;
+    savedDmaCtrl = *D_CTRL;
+    debug_StdPrintfDummy("D_CTRL %x\n", *D_CTRL);
+    *D_CTRL |= 3;
+    *D_STAT = 4;
 
     debug_StdPrintfDummy("open movie file %s\n", a0);
     if (strFileOpen(mpegStrFile, a0) == 0) {
@@ -415,7 +416,7 @@ void termAll(void)
     videoDecDelete(videoDec);
     audioDecDelete(&audioDec);
     dispDelete(&D_002A7978);
-    *(volatile unsigned int *)0x1000E000 = savedDmaCtrl;
+    *D_CTRL = savedDmaCtrl;
 }
 
 /* mv_main.c:425 - the VU0 status register, read back into C */

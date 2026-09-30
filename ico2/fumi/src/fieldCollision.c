@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "GsBase.h"
+#include <eeregs.h>
 
 typedef struct {
     char _0[0x10];
@@ -453,7 +454,7 @@ inline void ResetCollisionPC(void)
 {
     int tmp;
     pcWall0 = 0;
-    tmp = *(volatile int *)0x10000000;
+    tmp = *T0_COUNT;
     pcWallR0 = 0;
     pcTime = tmp;
 
@@ -472,7 +473,7 @@ void DispCollisionPC(void)
     if (game_pause == 0) {
         return;
     }
-    pcTime = *(volatile int *)0x10000000 - pcTime;
+    pcTime = *T0_COUNT - pcTime;
     sprintf(pcLine, "W :%4d %2d", pcWall0, pcWall1);
     if (debug_font_flag & 1) {
         debug_Printf(ScreenWidth / 2, ScreenHeight / 2, 0xFFFFFF00, pcLine);

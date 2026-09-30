@@ -5,6 +5,7 @@
  * functions in the listing, where libipu.o begins after bit.o's 4 bytes of
  * link fill; they stay in this file until libipu's row is moved to take them. */
 #include <libmpeg.h>
+#include <eeregs.h>
 
 /* the bitstream reader state: the 64 bit accumulator this file shifts bits out
  * of, the ring of bytes the IPU feeds it from, and the bit position */
@@ -97,17 +98,17 @@ extern int EIntr(void);
 void setD3_CHCR(int *a0)
 {
     DIntr(a0);
-    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 | 0x10000;
-    *(volatile int *)0x1000B000 = (int)a0;
-    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 & 0xFFFEFFFF;
+    *D_ENABLEW = *D_ENABLER | 0x10000;
+    *D3_CHCR = (int)a0;
+    *D_ENABLEW = *D_ENABLER & 0xFFFEFFFF;
     EIntr();
 }
 
 void setD4_CHCR(int *a0)
 {
     DIntr(a0);
-    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 | 0x10000;
-    *(volatile int *)0x1000B400 = (int)a0;
-    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 & 0xFFFEFFFF;
+    *D_ENABLEW = *D_ENABLER | 0x10000;
+    *D4_CHCR = (int)a0;
+    *D_ENABLEW = *D_ENABLER & 0xFFFEFFFF;
     EIntr();
 }

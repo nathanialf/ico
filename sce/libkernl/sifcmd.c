@@ -6,6 +6,7 @@
 #include <sifrpc.h>
 #include <string.h>
 #include <sifcmd.h>
+#include <eeregs.h>
 
 extern int DIntr();
 extern int EIntr();
@@ -123,10 +124,10 @@ void sceSifInitCmd(void)
     (sysCmdTable)[1].data = &cmdData;
     EIntr();
     FlushCache(0);
-    if (*(volatile int *)0x1000E010 & 0x20) {
-        *(volatile int *)0x1000E010 = 0x20;
+    if (*D_STAT & 0x20) {
+        *D_STAT = 0x20;
     }
-    if ((*(volatile int *)0x1000C000 & 0x100) == 0) {
+    if ((*D5_CHCR & 0x100) == 0) {
         sceSifSetDChain();
     }
     cmdDmacId = AddDmacHandler(5, _sceSifCmdIntrHdlr, 0);

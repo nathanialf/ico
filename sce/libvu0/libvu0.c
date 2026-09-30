@@ -2,6 +2,7 @@
  * MAIN.MAP's symbol table.  The January link carried a different revision of
  * this archive, so its member spans do not tile this run: the per-member
  * partition is NOT verified, and this file is the whole run. */
+#include <eeregs.h>
 
 /* VU0 / COP2 macro-mode opcodes, one instruction per __asm__ block.  This
    run's uses stand for a Sony-internal header this tree cannot name: MAIN.MAP
@@ -908,9 +909,9 @@ static unsigned int sceVpu0ResetPacket[8] __attribute__((aligned(16))) = {
 
 void sceVpu0Reset(void)
 {
-    *(volatile int *)0x10003830 = 0;
-    *(volatile int *)0x10003820 = 0;
-    *(volatile int *)0x10003810 = 1;
+    *VIF0_MARK = 0;
+    *VIF0_ERR = 0;
+    *VIF0_FBRST = 1;
 
     __asm__ __volatile__(".set noreorder\n"
                          "cfc2.ni $8, $vi28\n"
@@ -923,7 +924,7 @@ void sceVpu0Reset(void)
                          : "memory");
 
     {
-        u128 *fifo = (u128 *)0x10004000;
+        u128 *fifo = (u128 *)VIF0_FIFO;
         u128 *pkt = (u128 *)sceVpu0ResetPacket;
 
         *(volatile u128 *)fifo = pkt[0];

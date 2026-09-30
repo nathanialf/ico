@@ -13,6 +13,7 @@
 #include "keyInput.h"
 #include <eekernel.h>
 #include "main.h"
+#include <eeregs.h>
 
 /* main.c's own .data, VMA 0x0028F4C0..0x0028FEB8 (0x9F8 B), the six globals
    MAIN.MAP lists for main.o in ROM order. Each has an initialiser: the ROM
@@ -173,7 +174,7 @@ void Main(void)
     debug_StdPrintfDummy("FRAME_STEP      : \x1b[33m%d\x1b[m\n", systemStatus[1]);
     debug_StdPrintfDummy("SYSTEM_FRAMERATE: \x1b[33m%d\x1b[m\n",
                          (60 - systemStatus[0] * 10) / systemStatus[1]);
-    *(volatile int *)0x10000000 = 0;
+    *T0_COUNT = 0;
     NonLinearCameraMove = 3;
     stage_no = 0;
     exit_no = 0;

@@ -2,20 +2,21 @@
  * tiles the retail run, VMA 0x271938..0x272054, 5 functions, then 4 bytes of
  * link fill to bit.o: the IPU colour space conversion and its DMA feeders. */
 #include <libmpeg.h>
+#include <eeregs.h>
 
 void _doCSC(int a0, int a1)
 {
     int buf[8];
 
-    while (*(volatile int *)0x10002010 < 0) {}
-    *(volatile int *)0x1000B010 = a0 & 0x0FFFFFFF;
-    *(volatile int *)0x1000B020 = a1 << 6;
-    *(volatile int *)0x1000B000 = 0x100;
+    while (*IPU_CTRL < 0) {}
+    *D3_MADR = a0 & 0x0FFFFFFF;
+    *D3_QWC = a1 << 6;
+    *D3_CHCR = 0x100;
     _sendIpuCommand(a1 | 0x70000000);
     buf[0] = 4;
     _dispatchMpegCallback(_theSceMpeg, buf);
-    while (((*(volatile unsigned int *)0x1000B000) >> 8) & 1) {}
-    while (*(volatile int *)0x10002010 < 0) {}
+    while (((*(volatile unsigned int *)D3_CHCR) >> 8) & 1) {}
+    while (*IPU_CTRL < 0) {}
 }
 
 /* the member's .data: the conversion's error flag, then the chunk count
@@ -43,24 +44,24 @@ static int storeAddr; /* derived name */
 
 int _ch3dmaCSC(void)
 {
-    *(volatile int *)0x1000E010 = 8;
+    *D_STAT = 8;
     _cscDma[0]++;
-    if (*(volatile int *)0x1000B020 != 0 || (*(volatile int *)0x1000B000 & 0x100) != 0) {
+    if (*D3_QWC != 0 || (*D3_CHCR & 0x100) != 0) {
         cscError = 1;
         return 0;
     }
     if (_cscDma[0] < cscChunks - 1) {
-        *(volatile int *)0x1000B010 = cscAddr;
-        *(volatile int *)0x1000B020 = 0xFFC0;
-        *(volatile int *)0x1000B000 = 0x100;
-        *(volatile int *)0x10002000 = 0x700003FF;
+        *D3_MADR = cscAddr;
+        *D3_QWC = 0xFFC0;
+        *D3_CHCR = 0x100;
+        *IPU_CMD = 0x700003FF;
         cscAddr = (cscAddr + 0xFFC00) & 0x0FFFFFFF;
     } else if (_cscDma[0] == cscChunks - 1) {
         cscRest -= _cscDma[0] * 1023;
-        *(volatile int *)0x1000B010 = cscAddr;
-        *(volatile int *)0x1000B020 = cscRest << 6;
-        *(volatile int *)0x1000B000 = 0x100;
-        *(volatile int *)0x10002000 = cscRest | 0x70000000;
+        *D3_MADR = cscAddr;
+        *D3_QWC = cscRest << 6;
+        *D3_CHCR = 0x100;
+        *IPU_CMD = cscRest | 0x70000000;
     }
     __asm__ __volatile__("sync");
     __asm__ __volatile__("ei");
@@ -89,14 +90,14 @@ void _doCSC2(int a0, int a1)
     cscAddr = (a0 + 0xFFC00) & 0x0FFFFFFF;
     cscError = 0;
     _cscDma[0] = 0;
-    while (*(volatile int *)0x10002010 < 0) {}
+    while (*IPU_CTRL < 0) {}
     id = AddDmacHandler(3, _ch3dmaCSC, 0);
-    *(volatile int *)0x1000E010 = 8;
+    *D_STAT = 8;
     EnableDmac(3);
-    *(volatile int *)0x1000B010 = a0 & 0x0FFFFFFF;
-    *(volatile int *)0x1000B020 = qwc;
-    *(volatile int *)0x1000B000 = 0x100;
-    *(volatile int *)0x10002000 = 0x700003FF;
+    *D3_MADR = a0 & 0x0FFFFFFF;
+    *D3_QWC = qwc;
+    *D3_CHCR = 0x100;
+    *IPU_CMD = 0x700003FF;
     buf[0] = 4;
     /* the handle read in int's alias set, as mpc.c's _groupOfPicturesHeader
      * reads it: the load then waits for the register writes, after the
@@ -106,27 +107,27 @@ void _doCSC2(int a0, int a1)
     if (*(volatile int *)&cscError != 0) {
         _Error("CSC handler error\n");
     }
-    while (*(volatile int *)0x10002010 < 0) {}
+    while (*IPU_CTRL < 0) {}
     DisableDmac(3);
     RemoveDmacHandler(3, id);
 }
 
 int _ch4dma(void)
 {
-    *(volatile unsigned int *)0x1000E010 = 0x10;
+    *D_STAT = 0x10;
     storeCount++;
     if (storeQwc == 0)
         return 1;
     if ((unsigned int)storeQwc > 0xFFFF) {
-        *(volatile unsigned int *)0x1000B410 = storeAddr;
-        *(volatile unsigned int *)0x1000B420 = 0xFFFF;
-        *(volatile unsigned int *)0x1000B400 = 0x101;
+        *D4_MADR = storeAddr;
+        *D4_QWC = 0xFFFF;
+        *D4_CHCR = 0x101;
         storeAddr = (storeAddr + 0xFFFF0) & 0xFFFFFFF;
         storeQwc -= 0xFFFF;
     } else {
-        *(volatile unsigned int *)0x1000B410 = storeAddr;
-        *(volatile unsigned int *)0x1000B420 = storeQwc;
-        *(volatile unsigned int *)0x1000B400 = 0x101;
+        *D4_MADR = storeAddr;
+        *D4_QWC = storeQwc;
+        *D4_CHCR = 0x101;
         storeQwc = 0;
     }
     return 0;
@@ -151,23 +152,23 @@ void _csc_storeRefImage(char *p)
     buf[0] = 2;
     n = *(int *)(p + 0xC) * *(int *)(p + 0x10);
     _dispatchMpegCallback(self, buf);
-    if (*(volatile int *)0x10002010 & 0x4000) {
-        *(int *)0x10002010 = 0x40000000;
+    if (*IPU_CTRL & 0x4000) {
+        *(int *)IPU_CTRL = 0x40000000;
     }
-    while (*(volatile int *)0x10002010 < 0) {}
+    while (*IPU_CTRL < 0) {}
     _sendIpuCommand(0);
-    while (*(volatile int *)0x10002010 < 0) {}
+    while (*IPU_CTRL < 0) {}
     addr = *(int *)p & 0x0FFFFFFF;
     qwc = n * 24;
     storeQwc = qwc;
     storeAddr = addr;
     if ((unsigned int)qwc > 0xFFFF) {
         hid = AddDmacHandler(4, _ch4dma, 0);
-        *(volatile int *)0x1000E010 = 0x10;
+        *D_STAT = 0x10;
         EnableDmac(4);
-        *(volatile int *)0x1000B410 = storeAddr;
-        *(volatile int *)0x1000B420 = 0xFFFF;
-        *(volatile int *)0x1000B400 = 0x101;
+        *D4_MADR = storeAddr;
+        *D4_QWC = 0xFFFF;
+        *D4_CHCR = 0x101;
         storeAddr = (storeAddr + 0xFFFF0) & 0x0FFFFFFF;
         storeQwc -= 0xFFFF;
         if (n < 1024) {
@@ -178,9 +179,9 @@ void _csc_storeRefImage(char *p)
         DisableDmac(4);
         RemoveDmacHandler(4, hid);
     } else {
-        *(volatile int *)0x1000B410 = storeAddr;
-        *(volatile int *)0x1000B420 = storeQwc;
-        *(volatile int *)0x1000B400 = 0x101;
+        *D4_MADR = storeAddr;
+        *D4_QWC = storeQwc;
+        *D4_CHCR = 0x101;
         storeQwc = 0;
         if (n < 1024) {
             _doCSC(*(int *)(r + 0xD8), n);

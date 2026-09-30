@@ -2,6 +2,7 @@
  * the same address as the shipped ELF and its size tiles the run exactly, every
  * boundary a retail function start; VMA 0x100A08..0x100D68, 13 functions. */
 #include <eekernel.h>
+#include <eeregs.h>
 
 /* EE syscall leaf wrappers.  This member's uses stand for a Sony-internal
    header this tree cannot name: MAIN.MAP attests archives and their members,
@@ -241,7 +242,7 @@ void InitAlarm(void)
 {
     unsigned int i;
 
-    if (*(volatile int *)0x10001810 & 0x100)
+    if (*T3_MODE & 0x100)
         return;
     setup(alarm_syscalls[0], alarm_syscalls[1]);
     Copy((char *)0x80076000, (char *)alarm_handler, 0x740);

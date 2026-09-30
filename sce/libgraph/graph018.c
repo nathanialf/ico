@@ -1,5 +1,6 @@
 /* libgraph.a member graph018.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
+#include <eeregs.h>
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 /* The GIF FIFO's reset value.  Read-only: its load is hoisted above the
@@ -136,7 +137,7 @@ int sceGsExecStoreImage(void *pkt, void *img)
             (unsigned long)(int)(((unsigned long *)pkt)[8] & 0xFFF) | ((unsigned long)nh << 32);
     }
 
-    while (*(volatile int *)0x10009000 & 0x100) {
+    while (*D1_CHCR & 0x100) {
         if (i++ > 0x1000000) {
             printf("sceGsExecStoreImage: DMA Ch.1 does not terminate\r\n");
             return -1;
@@ -145,100 +146,100 @@ int sceGsExecStoreImage(void *pkt, void *img)
 
     imr = GsPutIMR(GsGetIMR() | 0x200);
 
-    *(volatile unsigned long *)0x12001000 = 2;
-    *(volatile int *)0x10009020 = 7;
+    *GS_CSR = 2;
+    *D1_QWC = 7;
     if (((unsigned int)pkt & 0x70000000) == 0x70000000) {
-        *(volatile int *)0x10009010 = ((unsigned int)pkt & 0x0FFFFFFF) | 0x80000000;
+        *D1_MADR = ((unsigned int)pkt & 0x0FFFFFFF) | 0x80000000;
     } else {
-        *(volatile int *)0x10009010 = (unsigned int)pkt & 0x0FFFFFFF;
+        *D1_MADR = (unsigned int)pkt & 0x0FFFFFFF;
     }
-    *(volatile int *)0x10009000 = 0x101;
-    while (*(volatile int *)0x10009000 & 0x100) {
+    *D1_CHCR = 0x101;
+    while (*D1_CHCR & 0x100) {
         if (i++ > 0x1000000) {
             printf("sceGsExecStoreImage: DMA Ch.1 does not terminate\r\n");
             return -1;
         }
     }
 
-    while ((*(volatile unsigned long *)0x12001000 & 2) == 0) {
+    while ((*GS_CSR & 2) == 0) {
         if (i++ > 0x1000000) {
             printf("sceGsExecStoreImage: GS does not terminate\r\n");
-            *(volatile u_long128 *)0x10005000 = D_0054A2E0;
+            *(volatile u_long128 *)VIF1_FIFO = D_0054A2E0;
             return -1;
         }
     }
 
-    *(volatile int *)0x10003C00 = 0x800000;
-    *(volatile unsigned long *)0x12001040 = 1;
+    *VIF1_STAT = 0x800000;
+    *GS_BUSDIR = 1;
 
     if (n8 != 0) {
-        *(volatile int *)0x10009020 = n8;
+        *D1_QWC = n8;
         if (((unsigned int)img & 0x70000000) == 0x70000000) {
-            *(volatile int *)0x10009010 = ((unsigned int)img & 0x0FFFFFFF) | 0x80000000;
+            *D1_MADR = ((unsigned int)img & 0x0FFFFFFF) | 0x80000000;
         } else {
-            *(volatile int *)0x10009010 = (unsigned int)img & 0x0FFFFFFF;
+            *D1_MADR = (unsigned int)img & 0x0FFFFFFF;
         }
-        *(volatile int *)0x10009000 = 0x100;
-        while (*(volatile int *)0x10009000 & 0x100) {
+        *D1_CHCR = 0x100;
+        while (*D1_CHCR & 0x100) {
             if (i++ > 0x1000000) {
                 printf("sceGsExecStoreImage: DMA Ch.1 (GS->MEM) does not terminate\r\n");
-                *(volatile unsigned long *)0x12001000 = 0x100;
-                *(volatile unsigned long *)0x12001040 = 0;
-                *(volatile int *)0x10003000 = 1;
-                *(volatile int *)0x10003C10 = 1;
+                *GS_CSR = 0x100;
+                *GS_BUSDIR = 0;
+                *GIF_CTRL = 1;
+                *VIF1_FBRST = 1;
                 return -1;
             }
         }
     }
 
     for (j = 0; j < n1; j++) {
-        while ((*(volatile int *)0x10003C00 & 0x1F000000) == 0) {
+        while ((*VIF1_STAT & 0x1F000000) == 0) {
             if (i++ > 0x1000000) {
                 printf("sceGsExecStoreImage: Enough data does not reach VIF1\n");
-                *(volatile unsigned long *)0x12001000 = 0x100;
-                *(volatile unsigned long *)0x12001040 = 0;
-                *(volatile int *)0x10003000 = 1;
-                *(volatile int *)0x10003C10 = 1;
+                *GS_CSR = 0x100;
+                *GS_BUSDIR = 0;
+                *GIF_CTRL = 1;
+                *VIF1_FBRST = 1;
                 return -1;
             }
         }
-        ((u_long128 *)img)[n8 + j] = *(volatile u_long128 *)0x10005000;
+        ((u_long128 *)img)[n8 + j] = *(volatile u_long128 *)VIF1_FIFO;
     }
 
     if (rem != 0) {
-        while ((*(volatile int *)0x10003C00 & 0x1F000000) == 0) {
+        while ((*VIF1_STAT & 0x1F000000) == 0) {
             if (i++ > 0x1000000) {
                 printf("sceGsExecStoreImage: Enough data does not reach VIF1\n");
-                *(volatile unsigned long *)0x12001000 = 0x100;
-                *(volatile unsigned long *)0x12001040 = 0;
-                *(volatile int *)0x10003000 = 1;
-                *(volatile int *)0x10003C10 = 1;
+                *GS_CSR = 0x100;
+                *GS_BUSDIR = 0;
+                *GIF_CTRL = 1;
+                *VIF1_FBRST = 1;
                 return -1;
             }
         }
-        buf.q = *(volatile u_long128 *)0x10005000;
+        buf.q = *(volatile u_long128 *)VIF1_FIFO;
         for (j = 0; j < rem; j++) {
             *((char *)img + (n8 + n1) * 16 + j) = buf.c[j];
         }
         for (j = 0; j < extra; j++) {
-            while ((*(volatile int *)0x10003C00 & 0x1F000000) == 0) {
+            while ((*VIF1_STAT & 0x1F000000) == 0) {
                 if (i++ > 0x1000000) {
                     printf("sceGsExecStoreImage: Enough data does not reach VIF1\n");
-                    *(volatile unsigned long *)0x12001000 = 0x100;
-                    *(volatile unsigned long *)0x12001040 = 0;
-                    *(volatile int *)0x10003000 = 1;
-                    *(volatile int *)0x10003C10 = 1;
+                    *GS_CSR = 0x100;
+                    *GS_BUSDIR = 0;
+                    *GIF_CTRL = 1;
+                    *VIF1_FBRST = 1;
                     return -1;
                 }
             }
-            buf.q = *(volatile u_long128 *)0x10005000;
+            buf.q = *(volatile u_long128 *)VIF1_FIFO;
         }
     }
 
-    *(volatile int *)0x10003C00 = 0;
-    *(volatile unsigned long *)0x12001040 = 0;
+    *VIF1_STAT = 0;
+    *GS_BUSDIR = 0;
     GsPutIMR(imr);
-    *(volatile unsigned long *)0x12001000 = 2;
-    *(volatile u_long128 *)0x10005000 = D_0054A2E0;
+    *GS_CSR = 2;
+    *(volatile u_long128 *)VIF1_FIFO = D_0054A2E0;
     return 0;
 }

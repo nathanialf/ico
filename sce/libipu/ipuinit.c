@@ -1,5 +1,6 @@
 /* Vendor SCE library member: libipu.a(ipuinit.o).  MAIN.MAP's size (0x2A0) tiles the
  * retail run exactly, VMA 0x2725D8..0x272878, 2 functions. */
+#include <eeregs.h>
 
 extern void DIntr(int *self);
 extern void EIntr(void);
@@ -9,9 +10,9 @@ extern void EIntr(void);
 static void setD4_CHCR(int *a0)
 {
     DIntr(a0);
-    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 | 0x10000;
-    *(volatile int *)0x1000B400 = (int)a0;
-    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 & 0xFFFEFFFF;
+    *D_ENABLEW = *D_ENABLER | 0x10000;
+    *D4_CHCR = (int)a0;
+    *D_ENABLEW = *D_ENABLER & 0xFFFEFFFF;
     EIntr();
 }
 
@@ -48,30 +49,30 @@ static union {
 void sceIpuInit(void)
 {
     setD4_CHCR((int *)1);
-    *(volatile int *)0x10002010 = 0x40000000;
-    while (*(volatile int *)0x10002010 < 0) {}
-    *(volatile int *)0x10002000 = 0;
-    while (*(volatile int *)0x10002010 < 0) {}
-    *(volatile u128_ipu *)0x10007010 = ipuQuantMatrix.q[0];
-    *(volatile u128_ipu *)0x10007010 = ipuQuantMatrix.q[1];
-    *(volatile u128_ipu *)0x10007010 = ipuQuantMatrix.q[2];
-    *(volatile u128_ipu *)0x10007010 = ipuQuantMatrix.q[3];
-    *(volatile u128_ipu *)0x10007010 = ipuQuantMatrix.q[4];
-    *(volatile u128_ipu *)0x10007010 = ipuQuantMatrix.q[4];
-    *(volatile u128_ipu *)0x10007010 = ipuQuantMatrix.q[4];
-    *(volatile u128_ipu *)0x10007010 = ipuQuantMatrix.q[4];
-    *(volatile int *)0x10002000 = 0x50000000;
-    while (*(volatile int *)0x10002010 < 0) {}
-    *(volatile int *)0x10002000 = 0x58000000;
-    while (*(volatile int *)0x10002010 < 0) {}
-    *(volatile u128_ipu *)0x10007010 = ipuColorTable.q[0];
-    *(volatile u128_ipu *)0x10007010 = ipuColorTable.q[1];
-    *(volatile int *)0x10002000 = 0x60000000;
-    while (*(volatile int *)0x10002010 < 0) {}
-    *(volatile int *)0x10002000 = 0x90000000;
-    while (*(volatile int *)0x10002010 < 0) {}
-    *(volatile int *)0x10002010 = 0x40000000;
-    while (*(volatile int *)0x10002010 < 0) {}
-    *(volatile int *)0x10002000 = 0;
-    while (*(volatile int *)0x10002010 < 0) {}
+    *IPU_CTRL = 0x40000000;
+    while (*IPU_CTRL < 0) {}
+    *IPU_CMD = 0;
+    while (*IPU_CTRL < 0) {}
+    *(volatile u128_ipu *)IPU_in_FIFO = ipuQuantMatrix.q[0];
+    *(volatile u128_ipu *)IPU_in_FIFO = ipuQuantMatrix.q[1];
+    *(volatile u128_ipu *)IPU_in_FIFO = ipuQuantMatrix.q[2];
+    *(volatile u128_ipu *)IPU_in_FIFO = ipuQuantMatrix.q[3];
+    *(volatile u128_ipu *)IPU_in_FIFO = ipuQuantMatrix.q[4];
+    *(volatile u128_ipu *)IPU_in_FIFO = ipuQuantMatrix.q[4];
+    *(volatile u128_ipu *)IPU_in_FIFO = ipuQuantMatrix.q[4];
+    *(volatile u128_ipu *)IPU_in_FIFO = ipuQuantMatrix.q[4];
+    *IPU_CMD = 0x50000000;
+    while (*IPU_CTRL < 0) {}
+    *IPU_CMD = 0x58000000;
+    while (*IPU_CTRL < 0) {}
+    *(volatile u128_ipu *)IPU_in_FIFO = ipuColorTable.q[0];
+    *(volatile u128_ipu *)IPU_in_FIFO = ipuColorTable.q[1];
+    *IPU_CMD = 0x60000000;
+    while (*IPU_CTRL < 0) {}
+    *IPU_CMD = 0x90000000;
+    while (*IPU_CTRL < 0) {}
+    *IPU_CTRL = 0x40000000;
+    while (*IPU_CTRL < 0) {}
+    *IPU_CMD = 0;
+    while (*IPU_CTRL < 0) {}
 }

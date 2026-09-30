@@ -5,6 +5,7 @@
  * member's .text is 16-aligned by _copyRefImage's `.align 4` before _maxval,
  * which is what places the 12 bytes of fill after defhandler.o. */
 #include <libmpeg.h>
+#include <eeregs.h>
 
 extern int _widthMB[];
 extern int _isError[];
@@ -23,7 +24,7 @@ int _motionComp0(int a0, int a1, int a2, int a3, int *a4, int *a5, int *a6)
     int intra = a2 & 1;
 
     if (intra) {
-        while (((*(volatile unsigned int *)0x1000D400) >> 8) & 1) {}
+        while (((*(volatile unsigned int *)D9_CHCR) >> 8) & 1) {}
         *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x138) = 0;
     } else {
         long long *tag;
@@ -36,7 +37,7 @@ int _motionComp0(int a0, int a1, int a2, int a3, int *a4, int *a5, int *a6)
             return 0;
         }
         _getAllRefs(x, y, a2);
-        while (((*(volatile unsigned int *)0x1000D400) >> 8) & 1) {}
+        while (((*(volatile unsigned int *)D9_CHCR) >> 8) & 1) {}
         tag = (long long *)((_sprtag & 0x0FFFFFFF) | 0x20000000);
         cnt = *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x12C);
         for (i = 0; i < cnt; i++) {
@@ -55,10 +56,10 @@ int _motionComp0(int a0, int a1, int a2, int a3, int *a4, int *a5, int *a6)
             tag += 4;
         }
         __asm__ __volatile__("sync");
-        *(volatile int *)0x1000D480 = *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140);
-        *(volatile int *)0x1000D430 = _sprtag;
-        *(volatile int *)0x1000D420 = 0;
-        *(volatile int *)0x1000D400 = 0x105;
+        *D9_SADR = *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140);
+        *D9_TADR = _sprtag;
+        *D9_QWC = 0;
+        *D9_CHCR = 0x105;
         *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x138) = 1;
     }
     if (a1 == 1 && (a2 & 2)) {
@@ -1494,7 +1495,7 @@ void _copyRefImage(void *a0, void *a1)
 
 void _ipuSetMPEG1(int a0)
 {
-    int *reg = (int *)0x10002010;
+    int *reg = (int *)IPU_CTRL;
     *reg = (*reg & 0xFF7FFFFF) | (a0 << 23);
 }
 
@@ -1512,34 +1513,34 @@ int _waitBdecOut(void)
     long long top;
 
     _waitIpuIdle();
-    while (*(volatile int *)0x1000B020 != 0 && (*(volatile int *)0x10002010 & 0x4000) == 0) {
-        if (*(volatile int *)0x1000B420 == 0 && (*(volatile int *)0x1000B400 & 0x100) == 0) {
+    while (*D3_QWC != 0 && (*IPU_CTRL & 0x4000) == 0) {
+        if (*D4_QWC == 0 && (*D4_CHCR & 0x100) == 0) {
             a[0] = 1;
             _dispatchMpegCallback(_theSceMpeg, a);
         }
     }
-    bp = *(volatile int *)0x10002020;
-    top = *(long long *)0x10002030;
+    bp = *IPU_BP;
+    top = *(long long *)IPU_TOP;
     _top32 = top;
     if (top < 0) {
         _top32len = (bp & 0x1F) != 0 ? 32 - (bp & 0x1F) : 0;
     } else {
         _top32len = 32;
     }
-    if ((*(volatile int *)0x10002010 & 0x4000) != 0) {
+    if ((*IPU_CTRL & 0x4000) != 0) {
         ret = 0;
         _Error("Error code detected(BDEC)");
         b[0] = 2;
         _dispatchMpegCallback(_theSceMpeg, b);
-        *(int *)0x10002010 = 0x40000000;
+        *(int *)IPU_CTRL = 0x40000000;
         b[0] = 3;
         _dispatchMpegCallback(_theSceMpeg, b);
         DIntr();
-        *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 | 0x10000;
-        *(volatile int *)0x1000B000 = 0;
-        *(int *)0x1000F590 = *(volatile int *)0x1000F520 & 0xFFFEFFFF;
+        *D_ENABLEW = *D_ENABLER | 0x10000;
+        *D3_CHCR = 0;
+        *(int *)D_ENABLEW = *D_ENABLER & 0xFFFEFFFF;
         EIntr();
-        *(volatile int *)0x1000B020 = 0;
+        *D3_QWC = 0;
     }
     return ret;
 }
@@ -1648,7 +1649,7 @@ int _pictureData0(int a0)
     if (_waitBdecOut() == 0) {
         r = 2;
     }
-    while (((*(volatile unsigned int *)0x1000D400) >> 8) & 1) {}
+    while (((*(volatile unsigned int *)D9_CHCR) >> 8) & 1) {}
     if (r == 0) {
         _doMC(_mbcont[0x280 / 4] == 0);
     }
@@ -1825,8 +1826,7 @@ int _decMB0(int *mb_type, int *motion_type, int *dct_type, int PMV[2][2][2], int
     int cmd;
     int cmd2;
 
-    *(volatile int *)0x10002010 =
-        (*(volatile int *)0x10002010 & 0xF8FFFFFF) | (_picture_coding_type << 24);
+    *IPU_CTRL = (*IPU_CTRL & 0xF8FFFFFF) | (_picture_coding_type << 24);
     mb_type[0] = _ipuVdec(1);
     if (mb_type[0] == 0) {
         _Error("Invalid macroblock_type code: 0");
@@ -1889,9 +1889,9 @@ int _decMB0(int *mb_type, int *motion_type, int *dct_type, int PMV[2][2][2], int
     }
     if (mb_type[0] & 3) {
         p = (int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140);
-        *(volatile int *)0x1000B010 = (p[1] & 0x0FFFFFFF) | 0x80000000;
-        *(volatile int *)0x1000B020 = 0x30;
-        *(volatile int *)0x1000B000 = 0x100;
+        *D3_MADR = (p[1] & 0x0FFFFFFF) | 0x80000000;
+        *D3_QWC = 0x30;
+        *D3_CHCR = 0x100;
         _waitIpuIdle();
         cmd = ((mb_type[0] & 1) << 27) | (_qscqsc << 16);
         cmd2 = (_sp_dcr[0] << 26) | 0x20000000;
@@ -2018,7 +2018,7 @@ static int top32Dirty[10] = {1, 1, 0, 0, 0, 1, 1, 1, 1, 1}; /* derived name */
 
 void _sendIpuCommand(unsigned int a0)
 {
-    *(volatile unsigned int *)0x10002000 = a0;
+    *IPU_CMD = a0;
     _isTop32dirty[0] = top32Dirty[a0 >> 28];
 }
 
@@ -2027,7 +2027,7 @@ void _waitIpuIdle(void)
     int n = 0;
 
     /* the IPU control register the hardware clears when the decode retires */
-    while ((*(volatile int *)0x10002010 & 0x80004000) == 0x80000000) {
+    while ((*IPU_CTRL & 0x80004000) == 0x80000000) {
         if (n++ >= 5001) {
             _dispatchMpegCbNodata(_theSceMpeg);
             n = 0;
@@ -2043,8 +2043,7 @@ long long _waitIpuIdle64(void)
     /* the 64 bit IPU command register: the top bit stays set while the
      * command is running, and 0x4000 of the control register at 0x10002010
      * is the error the decoder gives up on */
-    while ((v = *(volatile long long *)0x10002000) < 0 &&
-           (*(volatile int *)0x10002010 & 0x4000) == 0) {
+    while ((v = *(volatile long long *)IPU_CMD) < 0 && (*IPU_CTRL & 0x4000) == 0) {
         if (n++ >= 5001) {
             _dispatchMpegCbNodata(_theSceMpeg);
             n = 0;
@@ -2066,27 +2065,27 @@ int _ipuVdec(int tbl)
     int m = 0;
     int n = 0;
 
-    while ((*(volatile int *)0x10002010 & 0x80004000) == 0x80000000) {
+    while ((*IPU_CTRL & 0x80004000) == 0x80000000) {
         if (n++ >= 5001) {
             _dispatchMpegCbNodata(_theSceMpeg);
             n = 0;
         }
     }
     cmd = (tbl << 26) | 0x30000000;
-    *(volatile unsigned int *)0x10002000 = cmd;
+    *IPU_CMD = cmd;
     _isTop32dirty[0] = top32Dirty[cmd >> 28];
-    while ((v = *(volatile long long *)0x10002000) < 0) {
+    while ((v = *(volatile long long *)IPU_CMD) < 0) {
         if (m++ >= 5001) {
             _dispatchMpegCbNodata(_theSceMpeg);
             m = 0;
         }
     }
-    bp = *(volatile int *)0x10002020;
+    bp = *IPU_BP;
     /* the IPU TOP register is read once, after the command above has retired,
      * so this read is not qualified: the two busy-waits above are what needs
      * the qualifier, and the plain read is what lets the address stay a
      * constant in the load */
-    top = *(long long *)0x10002030;
+    top = *(long long *)IPU_TOP;
     _top32 = top;
     if (top < 0) {
         _top32len = (-(bp & 0x1F)) & 0x1F;
@@ -2106,13 +2105,13 @@ int _peepBit(int a0)
     if (_isTop32dirty[0] != 0 || _top32len < a0) {
         int n = 0;
 
-        while ((*(volatile int *)0x10002010 & 0x80004000) == 0x80000000) {
+        while ((*IPU_CTRL & 0x80004000) == 0x80000000) {
             if (n++ >= 5001) {
                 _dispatchMpegCbNodata(_theSceMpeg);
                 n = 0;
             }
         }
-        *(volatile unsigned int *)0x10002000 = 0x40000000;
+        *IPU_CMD = 0x40000000;
         _isTop32dirty[0] = top32Dirty[4];
         _top32 = _waitIpuIdle64();
         _top32len = 32;
@@ -2129,14 +2128,14 @@ void _flushBuf(int a0)
     int n = 0;
     int cmd;
 
-    while ((*(volatile int *)0x10002010 & 0x80004000) == 0x80000000) {
+    while ((*IPU_CTRL & 0x80004000) == 0x80000000) {
         if (n++ >= 5001) {
             _dispatchMpegCbNodata(_theSceMpeg);
             n = 0;
         }
     }
     cmd = a0 | 0x40000000;
-    *(volatile unsigned int *)0x10002000 = cmd;
+    *IPU_CMD = cmd;
     _isTop32dirty[0] = top32Dirty[(unsigned int)cmd >> 28];
     _top32 = _waitIpuIdle64();
     _top32len = 32;
@@ -2148,21 +2147,21 @@ unsigned int _nextBit(int a0)
     int cmd;
     unsigned int r;
 
-    while ((*(volatile int *)0x10002010 & 0x80004000) == 0x80000000) {
+    while ((*IPU_CTRL & 0x80004000) == 0x80000000) {
         if (n++ >= 5001) {
             _dispatchMpegCbNodata(_theSceMpeg);
             n = 0;
         }
     }
     if (_isTop32dirty[0] != 0 || _top32len < a0) {
-        *(volatile unsigned int *)0x10002000 = 0x40000000;
+        *IPU_CMD = 0x40000000;
         _isTop32dirty[0] = top32Dirty[4];
         _top32 = _waitIpuIdle64();
     }
     _top32len = 32;
     r = (unsigned int)_top32 >> (32 - a0);
     cmd = a0 | 0x40000000;
-    *(volatile unsigned int *)0x10002000 = cmd;
+    *IPU_CMD = cmd;
     _isTop32dirty[0] = top32Dirty[(unsigned int)cmd >> 28];
     _top32 = _waitIpuIdle64();
     return r;
@@ -2174,7 +2173,7 @@ void _nextStartCode(void)
 {
     int v;
     _waitIpuIdle();
-    v = (-(*(volatile int *)0x10002020 & 7)) & 7;
+    v = (-(*IPU_BP & 7)) & 7;
     if (v)
         _flushBuf(v);
     while (_peepBit(0x18) != 1) {
@@ -2341,7 +2340,7 @@ void _pictureCodingExtension(void)
     _f_code[2] = _nextBit(4);
     _f_code[3] = _nextBit(4);
     _intra_dc_precision = _nextBit(2);
-    *(int *)0x10002010 = (*(int *)0x10002010 & 0xFFFCFFFF) | (_intra_dc_precision << 16);
+    *(int *)IPU_CTRL = (*(int *)IPU_CTRL & 0xFFFCFFFF) | (_intra_dc_precision << 16);
     _picture_structure = _nextBit(2);
     if (p[0xD4 / 4] == 0) {
         p[0xD4 / 4] = _picture_structure;
@@ -2350,11 +2349,11 @@ void _pictureCodingExtension(void)
     _frame_pred_frame_dct = _nextBit(1);
     _concealment_motion_vectors = _nextBit(1);
     _q_scale_type = _nextBit(1);
-    *(int *)0x10002010 = (*(int *)0x10002010 & 0xFFBFFFFF) | (_q_scale_type << 22);
+    *(int *)IPU_CTRL = (*(int *)IPU_CTRL & 0xFFBFFFFF) | (_q_scale_type << 22);
     _intra_vlc_format = _nextBit(1);
-    *(int *)0x10002010 = (*(int *)0x10002010 & 0xFFDFFFFF) | (_intra_vlc_format << 21);
+    *(int *)IPU_CTRL = (*(int *)IPU_CTRL & 0xFFDFFFFF) | (_intra_vlc_format << 21);
     _alternate_scan = _nextBit(1);
-    *(int *)0x10002010 = (*(int *)0x10002010 & 0xFFEFFFFF) | (_alternate_scan << 20);
+    *(int *)IPU_CTRL = (*(int *)IPU_CTRL & 0xFFEFFFFF) | (_alternate_scan << 20);
     _repeat_first_field = _nextBit(1);
     _chroma_420_type = _nextBit(1);
     _progressive_frame = _nextBit(1);
@@ -2736,17 +2735,17 @@ void _cpr8(char *im)
         int d = dst;
 
         for (i = 0; i < *(int *)(im + 0xC); i++) {
-            *(volatile int *)0x1000D480 = 0;
-            *(volatile int *)0x1000D410 = src;
-            *(volatile int *)0x1000D420 = qwc;
-            *(volatile int *)0x1000D400 = 0x101;
-            while (*(volatile int *)0x1000D400 & 0x100) {}
-            *(volatile int *)0x1000D080 = 0;
-            *(volatile int *)0x1000D010 = d;
-            *(volatile int *)0x1000D020 = qwc;
-            *(volatile int *)0x1000D000 = 0x100;
-            while (*(volatile int *)0x1000D000 & 0x100) {}
-            while (*(volatile int *)0x1000D020 != 0) {}
+            *D9_SADR = 0;
+            *D9_MADR = src;
+            *D9_QWC = qwc;
+            *D9_CHCR = 0x101;
+            while (*D9_CHCR & 0x100) {}
+            *D8_SADR = 0;
+            *D8_MADR = d;
+            *D8_QWC = qwc;
+            *D8_CHCR = 0x100;
+            while (*D8_CHCR & 0x100) {}
+            while (*D8_QWC != 0) {}
             d += dstride;
             src += sstride;
         }

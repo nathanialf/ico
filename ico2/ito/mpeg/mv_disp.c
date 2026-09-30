@@ -2,6 +2,7 @@
 #include "typedef.h"
 #include "mv_vobuf.h"
 #include "mv_disp.h"
+#include <eeregs.h>
 
 void *setTEX0_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, unsigned int p8,
                 unsigned int p9, unsigned int p10, unsigned int p11, unsigned int p12);
@@ -48,9 +49,9 @@ extern int sceGsSyncV(int a0);
 
 inline void loadImage(int a0)
 {
-    *(volatile unsigned int *)0x1000A030 = phys_addr(a0);
-    *(volatile unsigned int *)0x1000A020 = 0;
-    *(volatile unsigned int *)0x1000A000 = 0x105;
+    *D2_TADR = phys_addr(a0);
+    *D2_QWC = 0;
+    *D2_CHCR = 0x105;
 }
 
 extern int sceGsSyncPath(int a0, int a1);
@@ -98,9 +99,9 @@ void dispClear(int *self, unsigned int col)
     p = setGIFtag((int *)uncached_accel_addr((int)mvClearPacket), 14, 1, 0, 0, 0, 1, 4);
     setClearSprite(p, &r, col);
 
-    *(volatile unsigned int *)0x1000A010 = phys_addr((int)mvClearPacket);
-    *(volatile unsigned int *)0x1000A020 = 5;
-    *(volatile unsigned int *)0x1000A000 = 0x101;
+    *D2_MADR = phys_addr((int)mvClearPacket);
+    *D2_QWC = 5;
+    *D2_CHCR = 0x101;
 
     sceGsSyncPath(0, 0);
 }
@@ -148,9 +149,9 @@ void sendDispEnv(void *a0)
 {
     sceGsPutDispEnv(a0);
     a0 = (void *)phys_addr((int)mvDispPacket);
-    *(volatile unsigned int *)0x1000A010 = (unsigned int)a0;
-    *(volatile unsigned int *)0x1000A020 = 7;
-    *(volatile unsigned int *)0x1000A000 = 0x101;
+    *D2_MADR = (unsigned int)a0;
+    *D2_QWC = 7;
+    *D2_CHCR = 0x101;
     sceGsSyncPath(0, 0);
 }
 
@@ -255,7 +256,7 @@ int vblankHandler(void)
     int *tag;
     int st;
 
-    *(volatile int *)&D_0063C0C0 = (int)((*(volatile unsigned long long *)0x12001000 >> 13) & 1);
+    *(volatile int *)&D_0063C0C0 = (int)((*GS_CSR >> 13) & 1);
     if (*(volatile int *)&D_0063C0B8 != 0) {
         *(volatile int *)&D_0063C0B4 = *(volatile int *)&D_0063C0B4 + 1;
         /* the display-state words are read back by this handler and by the

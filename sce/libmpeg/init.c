@@ -3,6 +3,7 @@
  * link fill to defhandler.o's 8-aligned start: the decoder state resets, the
  * error reporting, the bitstream DMA and the sequence-level header parsers. */
 #include <libmpeg.h>
+#include <eeregs.h>
 
 extern void DIntr();
 extern int EIntr(void);
@@ -80,16 +81,16 @@ void _clearEach(void)
     _sp_dcr[0] = 0;
     _isTop32dirty[0] = 1;
     DIntr();
-    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 | 0x10000;
-    *(volatile int *)0x1000B000 = 0;
-    *(volatile int *)0x1000B400 = 0;
-    *(volatile int *)0x1000D400 = 0;
-    *(int *)0x1000F590 = *(volatile int *)0x1000F520 & 0xFFFEFFFF;
+    *D_ENABLEW = *D_ENABLER | 0x10000;
+    *D3_CHCR = 0;
+    *D4_CHCR = 0;
+    *D9_CHCR = 0;
+    *(int *)D_ENABLEW = *D_ENABLER & 0xFFFEFFFF;
     EIntr();
-    *(volatile int *)0x1000B020 = 0;
-    *(volatile int *)0x1000B420 = 0;
-    *(volatile int *)0x1000D420 = 0;
-    *(volatile int *)0x10002010 = 0x40000000;
+    *D3_QWC = 0;
+    *D4_QWC = 0;
+    *D9_QWC = 0;
+    *IPU_CTRL = 0x40000000;
     sceIpuSync(0, 0);
 }
 
@@ -149,9 +150,9 @@ void _sendDataToIPU(int a0, int a1)
         p += len;
         tag += 2;
     }
-    *(volatile int *)0x1000B430 = (int)ipuTags & 0x0FFFFFFF;
-    *(volatile int *)0x1000B420 = 0;
-    *(volatile int *)0x1000B400 = 0x105;
+    *D4_TADR = (int)ipuTags & 0x0FFFFFFF;
+    *D4_QWC = 0;
+    *D4_CHCR = 0x105;
 }
 
 int _RefImageInit(int *a0, int a1, int a2)
@@ -321,12 +322,12 @@ void _setDefaultQM(int a0, int *a1)
     buf[0] = 2;
     _dispatchMpegCallback(_theSceMpeg, buf);
     _waitIpuIdle();
-    *(volatile int *)0x10002000 = 0;
+    *IPU_CMD = 0;
     _waitIpuIdle();
     /* channel 4 (to IPU) sends the four quadwords of the matrix */
-    *(volatile int *)0x1000B410 = (int)a1 & 0x0FFFFFFF;
-    *(volatile int *)0x1000B420 = 4;
-    *(volatile int *)0x1000B400 = 0x101;
+    *D4_MADR = (int)a1 & 0x0FFFFFFF;
+    *D4_QWC = 4;
+    *D4_CHCR = 0x101;
     _sendIpuCommand(a0);
     _waitIpuIdle();
     buf[0] = 3;

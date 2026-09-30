@@ -1,5 +1,6 @@
 #include "debug.h"
 #include "memory.h"
+#include <eeregs.h>
 
 typedef struct IosMsg {
     char pad0[0x44];
@@ -259,7 +260,7 @@ extern void iWakeupThread(int);
 int signal_handler(int a0)
 {
     if (a0 == 2) {
-        volatile unsigned long long *reg = (volatile unsigned long long *)0x12001000;
+        volatile unsigned long long *reg = (volatile unsigned long long *)GS_CSR;
         odd_even = (int)(((*reg >> 13) & 1) ^ 1);
         iWakeupThread(D_0063A530[12]);
     }

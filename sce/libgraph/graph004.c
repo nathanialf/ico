@@ -1,20 +1,21 @@
 /* libgraph.a member graph004.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <libgraph.h>
+#include <eeregs.h>
 
 void sceGsPutDispEnv(void *a0)
 {
     long *s = (long *)a0;
     if (*(short *)((char *)sceGsGetGParam() + 6) == 1) {
-        *(volatile long *)0x12000000 = s[0];
-        *(volatile long *)0x12000070 = s[2];
-        *(volatile long *)0x12000080 = s[3];
-        *(volatile long *)0x120000C0 = s[4];
+        *GS_PMODE = s[0];
+        *GS_DISPFB1 = s[2];
+        *GS_DISPLAY1 = s[3];
+        *GS_EXTDATA = s[4];
     } else {
-        *(volatile long *)0x12000000 = s[0];
-        *(volatile long *)0x12000020 = s[1];
-        *(volatile long *)0x12000090 = s[2];
-        *(volatile long *)0x120000A0 = s[3];
-        *(volatile long *)0x120000E0 = s[4];
+        *GS_PMODE = s[0];
+        *GS_SMODE2 = s[1];
+        *GS_DISPFB2 = s[2];
+        *GS_DISPLAY2 = s[3];
+        *GS_BGCOLOR = s[4];
     }
 }

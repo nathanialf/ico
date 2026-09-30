@@ -1,6 +1,7 @@
 /* libgraph.a member graph001.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <libgraph.h>
+#include <eeregs.h>
 
 /* RECONSTRUCTION: the record sceGsGetGParam hands back, read off the offsets
    this function writes.  The name follows the accessor's; MAIN.MAP names no
@@ -35,10 +36,10 @@ void sceGsResetGraph(short mode, short inter, short omode, short ffmd)
     switch (mode) {
     case 0:
         g = (sceGsGParam *)sceGsGetGParam();
-        *(volatile long *)0x12001000 = 0x200;
+        *GS_CSR = 0x200;
         g->inter = inter;
         g->omode = omode;
-        g->version = (*(volatile unsigned long *)0x12001000 >> 16) & 0xFF;
+        g->version = (*GS_CSR >> 16) & 0xFF;
         GsPutIMR(0xFF00);
         g->ffmd = ffmd != 0;
         if (g->intcUsed != 0) {
@@ -50,7 +51,7 @@ void sceGsResetGraph(short mode, short inter, short omode, short ffmd)
         SetGsCrt(inter & 1, omode & 0xFF, ffmd & 1);
         break;
     case 1:
-        *(volatile long *)0x12001000 = 0x100;
+        *GS_CSR = 0x100;
         break;
     }
 }

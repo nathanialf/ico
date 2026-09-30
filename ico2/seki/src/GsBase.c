@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include "typedef.h"
 #include "gflag.h"
+#include <eeregs.h>
 
 /* Declared here, not through string.h: with newlib's prototype in scope gcc
    expands gsb_scissorOnDemo's four-byte zero fill as one store, and the ROM
@@ -297,9 +298,9 @@ void gsb_Reduction(void)
 
     sceGsSyncPath(0, 0);
     FlushCache(0);
-    *(volatile int *)0x1000A020 = 22;
-    *(volatile int *)0x1000A010 = (int)pk & 0x0FFFFFFF;
-    *(volatile int *)0x1000A000 = 0x101;
+    *D2_QWC = 22;
+    *D2_MADR = (int)pk & 0x0FFFFFFF;
+    *D2_CHCR = 0x101;
     sceGsSyncPath(0, 0);
     if (D_0028F8F0[0].trg & 0x20) {
         debug_StdPrintfDummy("Film Noise:%d\n", optionScreenMode);
@@ -1087,7 +1088,7 @@ void gsb_UpdateGSSystem(int keep)
 {
     char *draw;
 
-    odd_even = (*(volatile unsigned long long *)0x12001000 >> 13) & 1;
+    odd_even = (*GS_CSR >> 13) & 1;
     gsb_Reduction();
     if (gsSystemReady == 0) {
         dl_Clear();
@@ -1138,7 +1139,7 @@ void gsb_ResetGSSystem(void)
     sceGsResetGraph(0, D_0028F4C0[1] == 1, (unsigned short)D_0028F4C0[0] + 2, 1);
     frame_count++;
     buffer_ID = frame_count & 1;
-    odd_even = (*(volatile unsigned long long *)0x12001000 >> 13) & 1;
+    odd_even = (*GS_CSR >> 13) & 1;
     FlushCache(0);
     sceGsSwapDBuff(D_0028F4F0, buffer_ID);
     if (buffer_ID != 0) {

@@ -25,6 +25,7 @@
 #include "main.h"
 #include "adpcm_init.h"
 #include "script.h"
+#include <eeregs.h>
 
 /* debug_exception_screen.c.inc (compiled into debug_exception.o) */
 
@@ -1233,15 +1234,15 @@ void debug_Init(void)
     texregs = 0;
     texturetranssize = 0;
     debug_snapshot_counter = 0;
-    *(volatile int *)0x10000010 = 0x82;
-    *(volatile int *)0x10000810 = 0x82;
+    *T0_MODE = 0x82;
+    *T1_MODE = 0x82;
     debug_makeBackImage();
 }
 
 inline void debug_BeginTimer(int a0)
 {
-    *(volatile int *)0x10000800 = 0;
-    *(volatile int *)0x10000810 = a0 | 0x80;
+    *T1_COUNT = 0;
+    *T1_MODE = a0 | 0x80;
 }
 
 inline float debug_GetTimerSec(void)
@@ -1250,20 +1251,20 @@ inline float debug_GetTimerSec(void)
     int v;
     float f2;
 
-    if (*(volatile unsigned int *)0x10000810 & 0x800) {
+    if (*T1_MODE & 0x800) {
         return -1.0f;
     }
-    v = *(volatile int *)0x10000800;
+    v = *T1_COUNT;
     f2 = (float)(unsigned int)v;
-    return f2 / clock[*(volatile unsigned int *)0x10000810 & 3] / 60.0f;
+    return f2 / clock[*T1_MODE & 3] / 60.0f;
 }
 
 inline float debug_GetTimerCount(void)
 {
-    if ((*(volatile int *)0x10000810) & 0x800) {
+    if ((*T1_MODE) & 0x800) {
         return -1.0f;
     }
-    return (float)(*(volatile unsigned int *)0x10000800);
+    return (float)(*(volatile unsigned int *)T1_COUNT);
 }
 
 /* kept local: this TU's other raw-file calls do not fit sifdev.h's sceClose */
@@ -1612,7 +1613,7 @@ void debug_FlushFont(void)
 
 inline int debug_CallbackGsFinish(void)
 {
-    drawTimerCount = *(volatile int *)0x10000000;
+    drawTimerCount = *T0_COUNT;
     return 0;
 }
 
@@ -2014,7 +2015,7 @@ inline void debug_SetBar(char *name, unsigned int col, char *file, int line)
     DebugBar *p = &debugBars[debugBarCount];
     if (debug_profile_type == 0 && debugBarCount != 0x400) {
         sprintf(p->name, "%8s", name);
-        p->count = *(volatile int *)0x10000000;
+        p->count = *T0_COUNT;
         p->col.r = col >> 24;
         p->col.g = col >> 16;
         p->col.b = col >> 8;
@@ -2032,7 +2033,7 @@ inline void debug_SetBar2(char *name, unsigned int col, char *file, int line)
     DebugBar *p = &debugBars[debugBarCount];
     if (debug_profile_type != 0 && debugBarCount != 0x400) {
         sprintf(p->name, "%8s", name);
-        p->count = *(volatile int *)0x10000000;
+        p->count = *T0_COUNT;
         p->col.r = col >> 24;
         p->col.g = col >> 16;
         p->col.b = col >> 8;
@@ -2072,7 +2073,7 @@ void debug_DispBar(void)
 inline void debug_ResetBar(void)
 {
     texregs = 0;
-    *(volatile int *)0x10000000 = 0;
+    *T0_COUNT = 0;
     textures = 0;
     packets = 0;
     strips = 0;

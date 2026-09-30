@@ -2,6 +2,7 @@
  * member and its .text size (0x338), which tiles the shipped ELF from one
  * retail function start to the next; VMA 0x25EF18..0x25F250,
  * 16 functions. */
+#include <eeregs.h>
 
 /* glue.o's .data: whether the tty is open (write and read open it on first
    use), then sbrk's current break, which starts at the end of the program's
@@ -68,7 +69,7 @@ long long VSync2(void)
     volatile int *p;
     flag = 0;
     SetVSyncFlag((void *)&flag, (void *)&val);
-    p = (volatile int *)0x1000F000;
+    p = INTC_STAT;
     *p = 4;
     while ((*p & 4) == 0 && flag == 0) {}
     *p = 4;
