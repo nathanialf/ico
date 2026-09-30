@@ -157,18 +157,16 @@ _BLOB_SECT_RE = re.compile(r"^[0-9A-Fa-f]+\.(data|rodata|lit4|sdata|sbss|bss)\.o
 def section_for(basename: str) -> str:
     """The one ALLOC section a splat blob object owns.
 
-    Carve correctness depends on this: `ee-as`/gas apply
-    `record_alignment (data_section, 4)` — i.e. a hard 2**4 (16-byte) minimum
-    alignment — to the STANDARD sections `.text`/`.data`/`.bss` regardless of
-    what the assembly actually contains. A `.data` blob whose resume address is
-    only 8-aligned (any carve that does not end on a 16-byte boundary) then gets
-    silently padded by `ld` to the next multiple of 16, shifting every following
-    byte and blowing the SHA-1 gate. Custom section names (`.rodata`, `.lit4`,
-    `.sdata`) escape that default, which is why the jtbl `.rodata` carves always
-    round-tripped while the first `.data`/`.bss` carve at a non-16-aligned
-    boundary did not. Normalising each blob's alignment down to `align_for()`
-    (a divisor of its own ROM address, so never a source of padding) removes
-    the whole failure mode. See docs/NOTES.md "Data carves" (the section-alignment floor).
+    Carve correctness depends on this. The period assembler gives a blob's own
+    section its own default alignment (measured 2026-09-30: 4 for `.data`,
+    `.rodata` and `.sdata`, 1 for `.bss` and `.sbss`, 4 for `.text`), which is
+    not the alignment of the object the blob stands in for: a blob starting at
+    an odd or 2-aligned ROM address would be padded forward, and one whose ROM
+    predecessor ends short of an 8-aligned start would lose that pad. Setting
+    each blob's alignment to `align_for()` (a divisor of its own ROM address,
+    so never a source of padding) reproduces both; with these flags and the VU
+    objects' 16 removed, every PROGBITS output section and .sbss mismatch.
+    See docs/NOTES.md "Data carves" (the section-alignment floor).
     """
     m = _BLOB_SECT_RE.match(basename)
     if m:
@@ -500,19 +498,11 @@ def emit_edges(out, objs: list[str]) -> None:
             out.write(f"build {obj}: cc_src {src}\n")
         else:
             # Own section: aligned to a divisor of its own ROM address (never a
-            # source of padding). Every OTHER standard section gas emits is an
-            # empty leftover carrying gas's 2**4 default — and ld pads for a
-            # zero-size input section just as eagerly as for a real one, so any
-            # of them landing at a non-16-aligned spot injects phantom fill.
-            # Force those to 1. See section_for()'s docstring.
-            flags = " ".join(
-                [f"--set-section-alignment {sect}={align}"]
-                + [
-                    f"--set-section-alignment {s}=1"
-                    for s in (".text", ".data", ".bss")
-                    if s != sect
-                ]
-            )
+            # source of padding). The other standard sections the assembler
+            # emits are left as it made them: measured 2026-09-30, forcing them
+            # to 1 was byte-dead (the empty .data/.bss already carry 1, and the
+            # empty .text of a data blob carries 4 and places nothing).
+            flags = f"--set-section-alignment {sect}={align}"
             out.write(f"build {obj}: {rule} {src}\n  alignflags = {flags}\n")
     out.write("\n")
 

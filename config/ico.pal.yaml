@@ -1383,9 +1383,7 @@ segments:
       - { type: .bss, vram: 0x006C0BA0, name: ico2/fumi/src/commonact }  # the TU's own .bss, 0x20 B, VMA 0x6C0BA0..0x6C0BC0; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006C0BC0, name: ico2/fumi/src/fieldCollision }  # the TU's .bss as source (completeness pass 65)
       - { type: .bss, vram: 0x006C1180, name: ico2/fumi/src/girl_act }  # the TU's own .bss, 0xCD0 B = MAIN.MAP girl_act.o .bss, VMA 0x6C1180..0x6C1E50, seven file statics in ROM run order (chain 2 pass 87)
-      - { type: bss, vram: 0x006C1E50, name: cod/006C1E50 }  # 0x30 B of fill before jimaku's 64-aligned .bss (MAIN.MAP shows the fill), kept as a blob row so the link does not depend on an ALIGN
       - { type: .bss, vram: 0x006C1E80, name: ico2/fumi/src/jimaku }  # the TU's whole .bss (= MAIN.MAP jimaku.o .bss 0x23224, chain 3 pass 124): the four-entry ring, the four 64-aligned subtitle buffers and three semaphore records as named statics in ROM order, VMA 0x6C1E80..0x6E50A4
-      - { type: bss, vram: 0x006E50A4, name: cod/006E50A4 }  # .bss blob resume (4 B of pad before way_sys's run)
       - { type: .bss, vram: 0x006E50A8, name: ico2/fumi/src/way_sys }  # the TU's own .bss as source, nigePointTbl[275] of 8-byte records, 0x898 B to script's .bss at 0x6E5940 (chain 1 pass 128); MAIN.MAP's 0x668 is the January link's count
       - { type: .bss, vram: 0x006E5940, name: ico2/script/src/script }  # the TU's own .bss, 0x50 B, VMA 0x6E5940..0x6E5990; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006E5990, name: ico2/omori/src/camera-editor }  # the member's one static, the 2048-byte dump line saveEditedData formats (completeness pass 29; MAIN.MAP camera-editor.o .bss 0x800, no map symbol), abutting camera-ico2's row
@@ -1414,7 +1412,6 @@ segments:
       - { type: .bss, vram: 0x0071CF00, name: ico2/common/src/kanbanBoot }  # the TU's own .bss, 0xA00 B, VMA 0x71CF00..0x71D900; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x0071D900, name: cod/0071D900 }  # .bss blob, the two port records (0x10 B) that layout_action's own .sdata pointer word still relocates against; a named .sdata static is not gp-relative under -fdata-sections (chain 3 pass 146)
       - { type: .bss, vram: 0x0071D910, name: ico2/common/src/layout_action }  # the TU's .bss tail as three statics, 0x44 B plus 0xC of fill before sceneManager (chain 3 pass 146)
-      - { type: bss, vram: 0x0071D954, name: cod/0071D954 }  # 0xC B of link fill before sceneManager's 16-aligned .bss (MAIN.MAP places sceneManager.o 16-aligned; compile_c.sh sets every object's .bss alignment to 1, so the fill is a row)
       - { type: .bss, vram: 0x0071D960, name: ico2/common/src/sceneManager }  # the TU's own .bss as source (completeness pass 67), 0x20 B, VMA 0x71D960..0x71D980, nextStagePos and nextStageRot in ROM run order (MAIN.MAP line 7741), staffroll's row abuts
       - { type: .bss, vram: 0x0071D980, name: ico2/common/src/staffroll }  # the TU's own .bss, 0x12C0 B, VMA 0x71D980..0x71EC40; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x0071EC40, name: ico2/sugipon/src/act_a_p_1 }  # the TU's own .bss, 0x90 B, VMA 0x71EC40..0x71ECD0; static definitions in ROM run order (completeness pass)
@@ -1434,7 +1431,6 @@ segments:
       - { type: .bss, vram: 0x007281F0, name: ico2/seki/src/BgAnimation }  # the TU's own .bss as static objects, 0x120 B, camera matrices, pivot, pos, scale, rot and a dummy light record (chain 3 pass 141)
       - { type: .bss, vram: 0x00728310, name: ico2/seki/src/DisplayList }  # the TU's own .bss, 0x290 B, VMA 0x728310..0x7285A0; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x007285A0, name: ico2/seki/src/EnemyInit }  # the TU's .bss (chain 1 pass 113, = MAIN.MAP 0x6C): the per-stage enemy position slot table as a named static, VMA 0x7285A0..0x72860C, 4 B of link fill before way_kidnap
-      - { type: bss, vram: 0x0072860C, name: cod/0072860C }  # .bss blob resume (4 B of link fill before way_kidnap)
       - { type: .bss, vram: 0x00728610, name: ico2/fumi/src/way_kidnap }  # the TU's .bss as source (completeness pass 69), the search nodes, the edge-done table, the position vectors and the position info, VMA 0x728610..0x729B58, way_tool's row follows after its 16-byte alignment
       - { type: .bss, vram: 0x00729B60, name: ico2/fumi/src/way_tool }  # the TU's own .bss, 0xB0 B, VMA 0x729B60..0x729C10; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x00729C10, name: cod/00729C10 }  # .bss blob resume
@@ -1444,13 +1440,11 @@ segments:
       - { type: .bss, vram: 0x0072A600, name: sce/libkernl/libkernl_25EF18 }  # the member's tty and sifrpc .bss (chain 1 pass 112): the tty queue, record and buffers, three 64-aligned 0x800-byte RPC tables and the rpc data, VMA 0x72A600..0x72C1EC, 0x1BEC B; filestub's objects from 0x72C1EC stay in the blob (a 64-byte member boundary)
       - { type: bss, vram: 0x0072C1EC, name: cod/0072C1EC }  # .bss blob resume
       - { type: .bss, vram: 0x0072EF00, name: sce/libcdvd/cdvd000 }  # the member's whole .bss (= MAIN.MAP cdvd000.o .bss 0x2D4, chain 3 pass 109): 16 role-named statics in address order (callback and power-off state, thread records, the search request and reply buffers, the client records), VMA 0x72EF00..0x72F1D4
-      - { type: bss, vram: 0x0072F1D4, name: cod/0072F1D4 }  # .bss blob resume (4 B of fill before cdvd047's record)
       - { type: .bss, vram: 0x0072F1D8, name: sce/libcdvd/cdvd047 }  # the member's .bss (chain 1 pass 107): the stream read mode record as a static, VMA 0x72F1D8, 4 B
       - { type: bss, vram: 0x0072F1DC, name: cod/0072F1DC }  # .bss blob resume
       - { type: .bss, vram: 0x0072F5C0, name: sce/libmc/libmc }  # the member's whole .bss (chain 1 pass 110, 0x1600 B): ten role-named statics in ROM order, VMA 0x72F5C0..0x730BC0
       - { type: bss, vram: 0x00730BC0, name: cod/00730BC0 }  # .bss blob resume
       - { type: .bss, vram: 0x00736168, name: sce/libgcc/__main }  # the member's whole .bss (= MAIN.MAP __main.o .bss 0x4): __main's `initialized` flag, libgcc2.c's own static, VMA 0x736168..0x73616C
-      - { type: bss, vram: 0x0073616C, name: cod/0073616C }  # .bss blob resume (4 B of link fill before dp-bit's 8-aligned static)
       - { type: .bss, vram: 0x00736170, name: sce/libgcc/dp-bit }  # the member's whole .bss (= MAIN.MAP dp-bit.o .bss 0x18): nan()'s `thenan`, fp-bit.c's own static, VMA 0x736170..0x736188
       - { type: .bss, vram: 0x00736188, name: sce/libgcc/fp-bit }  # the member's whole .bss (= MAIN.MAP fp-bit.o .bss 0x10): nan()'s `thenan`, fp-bit.c's own static, VMA 0x736188..0x736198
   - [0x53C0F6]

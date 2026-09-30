@@ -300,9 +300,9 @@ assemble() {
     # THE ONLY assembler = the period assembler (ee-gcc 2.9-991111's `as`), the ROM's
     # contemporary assembler — it matches the 2.9-991111 COMPILER and leaves the
     # jal/jr delay-slot NOPs that 2.96 / modern-as wrongly over-fill (e.g.
-    # debug_TargetGObj_Func). It rejects splat's %gp_rel spelling + reg aliases,
-    # so flatten+translate the .s first (byte-identical GPREL16) — UNCONDITIONALLY,
-    # exactly as compile_c.sh does, so quick_diff and the ninja build agree.
+    # debug_TargetGObj_Func). The built side is cc1's .s as compile_c.sh
+    # assembles it; the target side has had splat's %gp_rel spelling translated
+    # below (neither assembler parses it).
     # Do NOT reinstate a bare-2.96 default path: that silently fell back to modern
     # gas and faked phantom delay-fills the real build never had.
     #
@@ -315,10 +315,8 @@ assemble() {
         echo "  run ./tools/setup.sh — there is no modern-gas fallback" >&2
         return 1
     fi
-    python3 "$ROOT/tools/preprocess_old_as.py" "$in" "$in.oldas" \
-        && canon_regnames "$in.oldas" \
-        && "$ROOT/tools/period_env.sh" "$EE_AS" $EE_ASFLAGS -o "$out" "$in.oldas" && return 0
-    echo "quick_diff: period assembler (ee-as 2.9-991111) REJECTED $in.oldas" >&2
+    "$ROOT/tools/period_env.sh" "$EE_AS" $EE_ASFLAGS -o "$out" "$in" && return 0
+    echo "quick_diff: assembler $EE_AS REJECTED $in" >&2
     echo "  Fix the source/.s — there is no modern-gas fallback (retired" >&2
     echo "  2026-08-05; it manufactured 8 false delay-slot matches)." >&2
     return 1
@@ -356,11 +354,24 @@ TARGET_ASM_WRAPPED="build/quick_diff/$NAME.target.s"
     cat "$TARGET_ASM"
 } > "$TARGET_ASM_WRAPPED"
 canon_regnames "$TARGET_ASM_WRAPPED"
-# Rewrite splat's la-pseudo gp_rel form `(D_X)` (no base reg) into the
-# explicit `%gp_rel(D_X)($gp)` form so modern-as doesn't try $at under
-# .set noat. The trailing `/* gp_rel: (D_X) */` marker tells us splat
-# already verified this symbol is gp-addressable.
-sed -i -E 's|,[[:space:]]*\((D_[0-9A-Fa-f]+)\)[[:space:]]*/\*[[:space:]]*gp_rel:|, %gp_rel(\1)($28) /* gp_rel:|g' "$TARGET_ASM_WRAPPED"
+# splat spells a gp-relative reference `%gp_rel(SYM)($28)` (or `(D_X) /* gp_rel:`
+# for its la pseudo), which neither period assembler parses. Both emit the same
+# R_MIPS_GPREL16 from the bare symbol once it is declared gp-addressable with
+# `.extern SYM, 4`, and expand `la $d, SYM` to the 32-bit `addiu $d,$gp,SYM`, so
+# the reference side is spelled that way. This touches splat's reference .s
+# only, never the compiler's output.
+GP_SYMS="$({ grep -oE '%gp_rel\([[:space:]]*[A-Za-z_$.][A-Za-z0-9_$.]*|,[[:space:]]*\(D_[0-9A-Fa-f]+\)[[:space:]]*/\*[[:space:]]*gp_rel:' "$TARGET_ASM_WRAPPED" || true; } \
+    | sed -E 's/^%gp_rel\([[:space:]]*//; s/^,[[:space:]]*\((D_[0-9A-Fa-f]+)\).*/\1/' | LC_ALL=C sort -u)"
+sed -i -E \
+    -e 's|,[[:space:]]*\((D_[0-9A-Fa-f]+)\)[[:space:]]*/\*[[:space:]]*gp_rel:|, \1 /* gp_rel:|g' \
+    -e 's/addiu[[:space:]]+(\$[A-Za-z0-9_]+),[[:space:]]*\$28,[[:space:]]*%gp_rel\(([^)]+)\)/la\t\1, \2/g' \
+    -e 's/%gp_rel\(([^)]+)\)\(\$[0-9]+\)/\1/g' \
+    -e 's/%gp_rel\(([^)]+)\)/\1/g' \
+    "$TARGET_ASM_WRAPPED"
+if [[ -n "$GP_SYMS" ]]; then
+    { printf '.extern %s, 4\n' $GP_SYMS; cat "$TARGET_ASM_WRAPPED"; } > "$TARGET_ASM_WRAPPED.tmp" \
+        && mv "$TARGET_ASM_WRAPPED.tmp" "$TARGET_ASM_WRAPPED"
+fi
 assemble "$TARGET_OBJ" "$TARGET_ASM_WRAPPED"
 
 LEFT=$(mktemp); RIGHT=$(mktemp)

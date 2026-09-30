@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # tools/compile_c.sh <src.c> <out.o>
 #
-# Compile one C source for the ICO decomp: ee-gcc → .s →
-# postprocessors → regname sed → ee-as (or mips-as fallback) → objcopy.
+# Compile one C source for the ICO decomp: ee-gcc → .s → jtbl section split →
+# regname sed → ee-as (per archive) → objcopy.
 # Replaces the per-recipe body of the Makefile's $(BUILD_DIR)/src/%.o
 # rule so the same path is callable from both Make (Phase 1) and Ninja
 # (Phase 2). Running all the steps inside one shell invocation avoids
@@ -137,21 +137,6 @@ listed() {
     grep -qE "^[[:space:]]*(${BASE}|${REL})([[:space:]]|\$|#)" "$txt"
 }
 
-# Replicates Makefile:162 ALIGN_FOR in pure shell — picks the largest
-# power-of-two ≤ 8 dividing the hex offset encoded in the .o basename.
-# Non-hex basenames (and offset 0) fall through to 8.
-align_for() {
-    local b="$1" n=0 a=8
-    if [[ "$b" =~ ^[0-9A-Fa-f]+$ ]]; then
-        n=$((16#$b))
-    fi
-    while [ "$a" -gt 1 ] && [ "$n" -ne 0 ] && [ $((n % a)) -ne 0 ]; do
-        a=$((a / 2))
-    done
-    printf '%s' "$a"
-}
-ALIGN="$(align_for "$(basename "${OUT%.o}")")"
-
 mkdir -p "$(dirname "${OUT}")"
 
 # TUs that include a header under `ito/include/` (e.g. mv_defs.h) must be
@@ -250,8 +235,7 @@ fi
 # Both sources now speak the period assembler's dialect natively: splat emits
 # them bare (patch_splat.py's sigil rewrite is retired) and our own inline asm
 # — include/vu0.h plus the literal VU0_REG strings — was converted to the bare
-# spelling at source on 2026-08-01. The modern-gas path adds the `$` back via
-# preprocess_old_as.py --modern below, which also covers the .include'd files.
+# spelling at source on 2026-08-01.
 
 # ee-as 2.10 only accepts numbered MIPS registers; translate all aliases
 # (float regs $f0-$f31 and VU regs $vfN are already accepted as-is).
@@ -278,15 +262,15 @@ sed -i -E \
 # and docs/NOTES.md "Assembler per archive"): the game and the compiler-install
 # libraries (libc, libm, libgcc) on the assembler bundled with the compiler, the
 # SDK-install archives on SCE's 2.10-ee assembler that fills reorder-mode delay
-# slots as Sony's library build did. Both reject splat's `%gp_rel(SYM)($28)`
-# spelling, so a MIXED TU (C + INCLUDE_ASM siblings) is first flattened +
-# gp_rel-translated by preprocess_old_as.py (byte-identical GPREL16).
+# slots as Sony's library build did. The assembler reads cc1's .s as it is:
+# with every function in C there are no INCLUDE_ASM siblings to flatten and no
+# splat `%gp_rel` spellings, and the former preprocess_old_as.py step was
+# measured a no-op on all 371 .s files before it was deleted (2026-09-30).
 # There is no per-TU and no per-function selection and no config opt-in
 # (config/use_as296.txt was tried and reverted 2026-08-05; config/use_old_as.txt
 # retired 2026-09-04), and no modern-gas path at all (retired 2026-08-05: it
 # manufactured 8 false delay-slot matches in GAME code, where the ROM proves the
 # slots bare).
-ASM_INPUT="${S}"
 case "${SRC}" in
     sce/libc/*|*/sce/libc/*|sce/libm/*|*/sce/libm/*|sce/libgcc/*|*/sce/libgcc/*)
         SELECTED_EE_AS="${EE_AS_OLD}" ;;   # compiler-install archives (MAIN.MAP)
@@ -295,17 +279,6 @@ case "${SRC}" in
     *)
         SELECTED_EE_AS="${EE_AS_OLD}" ;;   # the game
 esac
-# Flatten INCLUDE_ASM siblings + translate splat's gp_rel spellings to the bare
-# gp-addressable form the PERIOD assembler accepts, so the ROM's contemporary
-# assembler (ee-as 2.9-991111) assembles mixed C+asm TUs
-# directly instead of silently falling back to modern gas (which mis-encodes
-# `la sdata` as daddiu where the ROM has addiu). See docs/NOTES.md.
-# stderr is NOT swallowed: preprocess_old_as.py is silent on success, so
-# anything it prints names a real defect. Hiding it would leave only the
-# assembler's downstream "REJECTED" to go on.
-if "${PYTHON}" "${ROOT}/tools/preprocess_old_as.py" "${S}" "${S}.pp"; then
-    ASM_INPUT="${S}.pp"
-fi
 
 # THE SELECTED ASSEMBLER IS THE ONLY ASSEMBLER FOR THIS TU. There is no modern-gas
 # path here any more — no allowlist, no failure fallback. Retired 2026-08-05.
@@ -321,15 +294,15 @@ fi
 #
 # If the selected assembler rejects this TU, that is a REAL defect in the .s to be
 # fixed at the source (past causes: splat's `enddlabel` leaving an `.ent`
-# unclosed — fixed in include/labels.inc; the $ACC/$Q/$R sigil dialect, which
-# preprocess_old_as.py now translates to the bare spelling). Hard-fail so ninja
+# unclosed — fixed in include/labels.inc; the $ACC/$Q/$R sigil dialect, now
+# spelled bare at source). Hard-fail so ninja
 # stops on it instead of silently producing an object from a different assembler.
 # shellcheck disable=SC2086
-if "${ROOT}/tools/period_env.sh" "${SELECTED_EE_AS}" ${EE_ASFLAGS} -o "${OUT}" "${ASM_INPUT}" 2>"${OUT}.aserr"; then
+if "${ROOT}/tools/period_env.sh" "${SELECTED_EE_AS}" ${EE_ASFLAGS} -o "${OUT}" "${S}" 2>"${OUT}.aserr"; then
     rm -f "${OUT}.aserr"
     "${OBJCOPY}" "${OUT}" "${OUT}"
 else
-    echo "compile_c.sh: assembler ${SELECTED_EE_AS} REJECTED ${ASM_INPUT}" >&2
+    echo "compile_c.sh: assembler ${SELECTED_EE_AS} REJECTED ${S}" >&2
     grep -iE 'error' "${OUT}.aserr" | head -20 >&2 || head -20 "${OUT}.aserr" >&2
     rm -f "${OUT}.aserr" "${OUT}"
     echo "  This is a source defect to FIX, not an assembler to swap: there is no" >&2
@@ -337,19 +310,3 @@ else
     echo "  delay-slot matches). See docs/NOTES.md \"Assembler\"." >&2
     exit 1
 fi
-
-# Carve safety: modern gas applies `record_alignment (data_section, 4)` — a hard
-# 2**4 floor — to the STANDARD sections `.text`/`.data`/`.bss` no matter what the
-# assembly contains, so a C TU assembled on the gas path carries an EMPTY `.data`
-# (and `.bss`) demanding 16-byte alignment. `ld` pads for a zero-size input
-# section exactly as it does for a real one, so as soon as a data carve makes the
-# `.data` output land at an address that is 8- but not 16-aligned, the first such
-# empty section injects 8 bytes of `*fill*` and every following byte shifts —
-# the classic "2nd carve corrupts the link" failure. `-fdata-sections` puts all
-# real TU data in `.data.<sym>` / `.rodata.<sym>` (whose gcc-assigned alignment
-# IS load-bearing: it reproduces intra-TU padding), so forcing the leftover
-# standard sections to 1 is free. `.text` keeps ${ALIGN} — it reproduces the
-# ROM's inter-TU function padding. See docs/NOTES.md "Data carves" (the section-alignment floor).
-"${OBJCOPY}" --set-section-alignment ".data=1" \
-             --set-section-alignment ".bss=1" "${OUT}"
-
