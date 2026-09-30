@@ -991,8 +991,6 @@ typedef struct MatTab {
     short f_10;
 } MatTab;
 
-extern int D_0063B1A8;
-
 void pac_makeMaterialTable(MatTab *out, MatObj *obj, int p2, int p3, unsigned int p4)
 {
     MatEnt *tbl;
@@ -1011,7 +1009,7 @@ void pac_makeMaterialTable(MatTab *out, MatObj *obj, int p2, int p3, unsigned in
         a = src->f_5;
         x = src->f_6 == 0;
         if (p4 != 0)
-            x = D_0063B1A8 == 1;
+            x = debug_shadow_flag == 1;
         ent->b0 = p4;
         ent->b1 = flag * p3;
         ent->b3 = (a < 4) ? a : 3;

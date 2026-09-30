@@ -125,6 +125,7 @@ void afterCommonTruckLever(volatile int a0);
 #include "matrixDrive.h"
 #include "sugiCommon.h"
 #include "layout_action.h"
+#include "script.h"
 
 typedef struct {
     int a, b, c;
@@ -227,7 +228,6 @@ typedef struct {
 extern int stage_no;
 extern int D_00639EAC;
 extern int D_00639EB4;
-extern int D_0063B210;
 extern int IsAbleChainHang(char *a0);
 extern void BoySekikaTexScroll(void);
 extern int EnemyGetNSafeParts(char *a0);
@@ -496,7 +496,7 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
         if (*(signed char *)(*(int *)(self + 0x164) + 0x1DB) != 0) {
             debug_StdPrintfDummy("!!! unable guard flag get\n");
         }
-        if (stage_no == 85 || D_0063B210 != 0) {
+        if (stage_no == 85 || debug_use_new_queen_battle != 0) {
             if (*(signed char *)(*(int *)(self + 0x164) + 0x1D9) != 0) {
                 if (ACTGame_NoWeapon(self) != 0 && *(int *)(sk + 0x34) != 14) {
                     msg = 110;
@@ -829,7 +829,6 @@ void WithMailFunc_AttackFail(char *a0)
 }
 
 extern int stage_no;
-extern int D_0063B210;
 /* kept local: this TU does not include weapon.h; the ROM proves the int return (the callee sets $2 to 1 or 0 on its two exits). */
 extern int ReleaseWeaponWithFumbleSequential(void *a0);
 
@@ -841,7 +840,7 @@ void WithMailFunc_AttackRejectInQueen(char *a0)
         ReleaseWeaponWithFumbleSequential(w);
         s->f_150 = 0;
     }
-    if (stage_no == 0x55 || D_0063B210 != 0) {
+    if (stage_no == 0x55 || debug_use_new_queen_battle != 0) {
         void *e = isysGObjSearchFromObjKindID_begin(54);
         if (e != 0) {
             iosOmSendMail(e, 0xD, (int)a0);
@@ -1475,7 +1474,6 @@ void TestCageUpDown(int cage, char *gobj)
 
 /* kept local: this TU's uses of GetOrientOfWall do not fit the prototype in fieldCollision.h */
 extern void GetOrientOfWall(void *out, void *obj, void *pos);
-extern int D_0063B13C;
 
 typedef struct {
     float x, y;
@@ -1566,7 +1564,7 @@ void actCommonRopeSpecial(volatile int a0)
         }
         GetSkeltonPosition(pos.f, (char *)a0, 35);
         GetCageChainPoint(p1.f, p2.f, (void *)cage);
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             debug_Printf(10, 120, 0xFFFFFFF, "%d, %d\n",
                          (int)*(float *)((char *)test_CURRENTROOT((void *)a0) + 4), (int)p2.f[1]);
         }
@@ -1964,7 +1962,6 @@ void actCommonSlip(volatile int a0)
     }
 }
 
-extern int D_0063AA08;
 /* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
 extern void _OrientXZGV(void *out, void *a, void *b);
 
@@ -1985,7 +1982,7 @@ void actCommonStoneDead(volatile int a0)
         *(int *)(a0 + 0x50) = 0;
     }
     enable_game_pause = 0;
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     _ACTWait(300);
     ACT_LAYOUT_GAMEOVER();
     _ACTWait(0);
@@ -2031,11 +2028,11 @@ void actCommonStone(volatile int a0)
     s->f14 = (int)afterCommonStone;
     *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x2A0) = 0;
     while (1) {
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             debug_Printf(10, 170, 0xFFFFFFF, "count =(%d)\n",
                          *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0xCC));
         }
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             debug_Printf(10, 180, 0xFFFFFFF, "level =(%d)\n",
                          *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x29C));
         }
@@ -2864,7 +2861,6 @@ static inline unsigned char IsFlyTimeOver(int a0)
     return 0;
 }
 
-extern int D_0063B234;
 extern void ClipCollisionWithField(char *a0);
 /* kept local: this TU does not include fieldCollision.h */
 extern void ClipCollision(int *self);
@@ -2915,7 +2911,8 @@ void flyCoreLoop(char *a0, char *target, int a2)
     char *act = (char *)GOBJ_ACT(a0);
     float lenSq;
     float spd;
-    unsigned long stuck = a2 && IsFallStuckOnStep((int)a0, 6, D_0063B234 ? 29 : 30, 3, 600);
+    unsigned long stuck =
+        a2 && IsFallStuckOnStep((int)a0, 6, debug_fly_limit_test ? 29 : 30, 3, 600);
     int flags = 0;
     int ringidx;
     int landCnt = 0;
@@ -3016,14 +3013,14 @@ void flyCoreLoop(char *a0, char *target, int a2)
                 FlyLimit info;
 
                 if (GetFlyLimitHeight(&info, mat[3])) {
-                    if (D_0063B234) {
-                        int save = D_0063B13C;
+                    if (debug_fly_limit_test) {
+                        int save = debug_font_flag;
 
                         debugDispFlyLimit(mat[3], info.limitY, info.floorY);
-                        D_0063B13C = 1;
+                        debug_font_flag = 1;
                         debug_Printf(10, 160, 0xFFFFFF00, "[%s] %4d %4d %4d", "limit",
                                      (int)info.floorY, (int)info.limitY, (int)info.limitOfs);
-                        D_0063B13C = save;
+                        debug_font_flag = save;
                     }
                     if (lenSq < 90000.0f && (info.floorY < root[1] || root[1] < info.limitY)) {
                         FlyClip w = {{{{0.0f}}}, 50.0f};
@@ -3059,7 +3056,7 @@ void flyCoreLoop(char *a0, char *target, int a2)
                             mode = 2;
                             fc = info.limitY;
                         }
-                        if (D_0063B234) {
+                        if (debug_fly_limit_test) {
                             static int col[4] = {0, 255, 128, 128};
                             debugDispSphere(mat[3], col, 100.0f);
                         }
@@ -3088,7 +3085,7 @@ void flyCoreLoop(char *a0, char *target, int a2)
                             mode = 0;
                         }
                     }
-                    if (D_0063B234) {
+                    if (debug_fly_limit_test) {
                         static int col[4] = {0, 0, 128, 128};
                         debugDispSphere(mat[3], col, 100.0f);
                     }
@@ -3121,7 +3118,7 @@ void flyCoreLoop(char *a0, char *target, int a2)
                 }
                 root[1] -= 10.0f;
             }
-            if (D_0063B234) {
+            if (debug_fly_limit_test) {
                 static int col[4] = {0, 128, 255, 128};
                 debugDispSphere(root, col, 10.0f);
             }
@@ -3150,7 +3147,7 @@ void flyCoreLoop(char *a0, char *target, int a2)
         if (stuck) {
             int completeEmergency(void)
             {
-                if (D_0063B234) {
+                if (debug_fly_limit_test) {
                     debug_StdPrintfDummy("EMERGENCY COMPLETE CHECK : SPEEDSQ:%f LENSQ:%f\n",
                                          VectorLengthSquare((char *)GOBJ_SUB(a0) + 0x130), spd);
                 }
@@ -3208,7 +3205,7 @@ void flyCoreLoop(char *a0, char *target, int a2)
                     } else {
                         for (i = 0; i < 5; i++) {
                             d = distance_squared(prev, ring[i]);
-                            if (D_0063B234) {
+                            if (debug_fly_limit_test) {
                                 debug_StdPrintfDummy("%1.1f ", d);
                             }
                             if (mx < d) {
@@ -3221,7 +3218,7 @@ void flyCoreLoop(char *a0, char *target, int a2)
                     if (ringidx == 5) {
                         ringidx = 0;
                     }
-                    if (D_0063B234) {
+                    if (debug_fly_limit_test) {
                         debug_StdPrintfDummy("EMERGENCY CHECK %d(%d): MAX: %f\n", cnt114, ringcnt,
                                              mx);
                     }
@@ -3230,7 +3227,7 @@ void flyCoreLoop(char *a0, char *target, int a2)
                         flags |= 2;
                         return 1;
                     }
-                    if (D_0063B234 == 0 && IsFlyTimeOver((int)a0)) {
+                    if (debug_fly_limit_test == 0 && IsFlyTimeOver((int)a0)) {
                         debug_StdPrintfDummy("\x1b[36mEMERGENCY WITH TIME OUT\x1b[m\n");
                         flags |= 4;
                         return 1;
@@ -3276,7 +3273,6 @@ void flyCoreLoop(char *a0, char *target, int a2)
     }
 }
 
-extern int D_0063B234;
 /* kept local: this TU's uses of IsEnemyBrainToGenerator do not fit the prototype in enemy_act.h */
 extern int IsEnemyBrainToGenerator(volatile int a0, char **gen);
 /* kept local: this TU's uses of IsEnemyBrainToBoy do not fit the prototype in enemy_act.h */
@@ -3317,7 +3313,7 @@ void actCommonFly(volatile int a0)
     flyCoreLoop(a0, target,
                 (D_00639EA8 != 0 && GOBJ_ACT(D_00639EA8)->unk34 == 0x6F &&
                  GOBJ_ACT(D_00639EA8)->f_144 == a0) ||
-                    D_0063B234 != 0);
+                    debug_fly_limit_test != 0);
 }
 
 /* kept local: this TU's uses of GetDifferenceFromWallUpperField do not fit the prototype in motionManager2.h */
@@ -3728,37 +3724,37 @@ void _ACTDebugPrint(char *a0)
     if (w == 0) {
         return;
     }
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         debug_Printf(30, 90, 0xFFFFFFF, " ori  = [%s]\n", D_005D1278 + *(int *)(w + 0xD0) * 32);
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             debug_Printf(30, 100, 0xFFFFFFF, " mot  = [%s]\n",
                          D_0055FF18 + GOBJ_SUB(a0)->f_4A0 * 0x194);
-            if (D_0063B13C & 1) {
+            if (debug_font_flag & 1) {
                 debug_Printf(30, 110, 0xFFFFFFF, " mode = [%s]\n",
                              D_005577F4 + *(int *)(sub + 0x34) * 0x50);
-                if (D_0063B13C & 1) {
+                if (debug_font_flag & 1) {
                     debug_Printf(30, 120, 0xFFFFFFF, "frame = [%f]\n", GOBJ_SUB(a0)->f_4AC);
-                    if (D_0063B13C & 1) {
+                    if (debug_font_flag & 1) {
                         debug_Printf(
                             30, 130, 0xFFFFFFF, "maxry = [%d]\n",
                             a0 == D_00639EA8 && D_00639EA0 != 0
                                 ? ((MotNameRecDP *)(D_0055FF18 + GOBJ_SUB(a0)->f_4A0 * 0x194))->fC2
                                 : ((MotRecDP *)(D_0055FE58 + GOBJ_SUB(a0)->f_4A0 * 0x194))->f186);
-                        if (D_0063B13C & 1) {
+                        if (debug_font_flag & 1) {
                             debug_Printf(30, 140, 0xFFFFFFF, " life = [%d]\n",
                                          (int)*(float *)(sub + 0x1E0));
-                            if (D_0063B13C & 1) {
+                            if (debug_font_flag & 1) {
                                 debug_Printf(30, 150, 0xFFFFFFF, "   dw = [%d] [%d]\n",
                                              (int)*(float *)(*(char **)(sub + 0x130) + 0x138),
                                              (int)-*(float *)(*(char **)(sub + 0x130) + 0x130));
-                                if (D_0063B13C & 1) {
+                                if (debug_font_flag & 1) {
                                     debug_Printf(30, 160, 0xFFFFFFF, "   dc = [%d] [%d]\n",
                                                  (int)*(float *)(*(char **)(sub + 0x130) + 0x114),
                                                  (int)*(float *)(*(char **)(sub + 0x130) + 0x110));
-                                    if (D_0063B13C & 1) {
+                                    if (debug_font_flag & 1) {
                                         debug_Printf(30, 170, 0xFFFFFFF, "wattr = [%x]\n",
                                                      GOBJ_SUB(a0)->f_5F4);
-                                        if (D_0063B13C & 1) {
+                                        if (debug_font_flag & 1) {
                                             debug_Printf(
                                                 30, 180, 0xFFFFFFF, "bttype= [%d]\n",
                                                 *(int *)(*(char **)(*(char **)(a0 + 0x164) +
@@ -3992,16 +3988,16 @@ void actCommonBecarry(volatile int a0)
         if (D_005577D0[*(int *)(*(char **)(D_00639EA4 + 0x164) + 0x34)].b6 == 0) {
             ACTGame_DisconnectHand();
         }
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             debug_Printf(100, 150, 0xFFFFFFF, "[%s]\n",
                          D_0055FF18 + *(int *)(*(char **)(D_00639EA8 + 0x15C) + 0x4A0) * 0x194);
         }
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             debug_Printf(100, 160, 0xFFFFFFF, "[%s]\n",
                          D_0055FF18 +
                              *(int *)(*(char **)(*(char **)(s + 0x144) + 0x15C) + 0x4A0) * 0x194);
         }
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             debug_Printf(
                 100, 170, 0xFFFFFFF, "[%s]\n",
                 D_005577D0[*(int *)(*(char **)(*(char **)(s + 0x144) + 0x164) + 0x34)].name);
@@ -4069,7 +4065,7 @@ void subCommonIdle(volatile int a0)
     }
     while (1) {
         cur = *(int *)(*(char **)(a0 + 0x15C) + 0x4A0);
-        if (((char *)a0 == D_00639EA4 && D_0063AA08 != 0) ||
+        if (((char *)a0 == D_00639EA4 && scpBoyControlReadDisable != 0) ||
             *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x38C) > 0 ||
             ((int)(*(unsigned long long *)(s + 0x20) >> 44) & 1)) {
             timer = 0;
@@ -4147,7 +4143,7 @@ void ContinueCorrectPosition(void *obj)
     if (*(int *)(*(int *)(*(int *)((char *)obj + 0x164) + 0x680) + 0xB4) <=
         *(int *)(*(int *)(*(int *)((char *)obj + 0x164) + 0x680) + 0xB0)) {
         if (obj == D_00639EA8) {
-            if (D_0063B13C & 1) {
+            if (debug_font_flag & 1) {
                 debug_Printf(100, 100, 0xFFFFFFF, "timer=%2d/%2d\n",
                              *(int *)(*(int *)(*(int *)((char *)obj + 0x164) + 0x680) + 0xB4),
                              *(int *)(*(int *)(*(int *)((char *)obj + 0x164) + 0x680) + 0xB0));

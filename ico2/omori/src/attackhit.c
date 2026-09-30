@@ -550,7 +550,6 @@ int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
 }
 
 extern char *D_00639EA8;
-extern int D_0063B23C;
 /* kept local: this TU's uses of ACTChkAttackIgnore_BOY do not fit the prototype in act-game.h */
 extern int ACTChkAttackIgnore_BOY(char *gobj, void *actor);
 /* kept local: this TU's uses of ACTChkAttackIgnore_GIRL do not fit the prototype in act-game.h */
@@ -613,7 +612,7 @@ int AttackGenerate(AttackPack *pack)
             debug_StdPrintfDummy("id equal error\n");
             continue;
         }
-        if (D_0063B23C != 0 && pack->actor == D_00639EA4 && *(int *)(g + 0xC) == 4 &&
+        if (debug_one_hit_only != 0 && pack->actor == D_00639EA4 && *(int *)(g + 0xC) == 4 &&
             ((int)(*(unsigned long long *)(EXT((char *)pack->actor) + 0x20) >> 32) & 1) == 0) {
             continue;
         }

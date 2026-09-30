@@ -58,7 +58,6 @@ typedef struct QueenMailQueue {
 
 extern int D_0063A438;
 extern int stage_no;
-extern int D_0063B13C;
 
 /* .bss, owned by queen.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the queen's four ball-ring animations. */
@@ -1027,7 +1026,7 @@ void gene_enemy(volatile int g)
                 alive++;
                 e = isysGObjSearchFromObjKindID_next(e);
             }
-            if (D_0063B13C & 1) {
+            if (debug_font_flag & 1) {
                 debug_Printf(10, 90, -1, genEnemyStatFmt, total, alive, timer);
             }
             if (alive < total) {
@@ -1216,7 +1215,7 @@ void subQueenBrainMain(volatile int g)
         bar = isysGObjSearchFromObjKindID_begin(53);
         ball = isysGObjSearchFromObjKindID_begin(54);
         QueenStatusUpdate((char *)g, &st);
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             debug_Printf(10, 80, -1, D_0063AC58, InqQueenBarrierExist());
         }
         if ((*(int *)w & 0xFF0000FF) == 0 && *(signed char *)(w + 1) != 0 && bar != 0 &&
@@ -1478,7 +1477,7 @@ void QueenBarrierGeo(char *g)
         tbl = barrierLayoutDefault;
     }
     mine = 0;
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         debug_Printf(10, 70, 0xFFFFFFFF, damageFmt, *(int *)(w + 0x18));
     }
     for (i = 0; i < 1; i++) {

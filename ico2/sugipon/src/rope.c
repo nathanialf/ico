@@ -344,7 +344,6 @@ extern void p2o_SetDefaultEnviroment(void *a0);
 extern void p2o_DispVU1DObjMulti(void *a0);
 /* kept local: this TU's uses of TestDispChainAnimation do not fit the prototype in clothAnimation.h */
 extern void TestDispChainAnimation(void *a0);
-extern int D_0063B148;
 
 void RopeDL(void *a0)
 {
@@ -375,7 +374,7 @@ void RopeDL(void *a0)
         }
         p2o_DispVU1DObjMulti(sub);
     }
-    if (D_0063B148 != 0) {
+    if (debug_skel_flag != 0) {
         TestDispChainAnimation(p[0]);
     }
 }

@@ -63,7 +63,6 @@ extern void *test_CURRENTORIENT(void *a0);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 void _GetCorrectOrientOfChain(float *out, char *gobj, float *dir);
-extern int D_0063B214;
 extern float D_0063ABC0[];
 
 /* INTERIM (same shape as GetChainDirCorrectVal below): the listing inlines
@@ -74,7 +73,7 @@ extern float D_0063ABC0[];
 static inline void initPendulum(char *gobj)
 {
     char *cw = (char *)GOBJ_SUB(gobj)->f_830;
-    float a = (float)D_0063B214 * -0.2f + 2.0f;
+    float a = (float)debug_chain_cycle_speed * -0.2f + 2.0f;
     float y;
 
     a = a < 0.1f ? 0.1f : (a > 2.0f ? 2.0f : a);
@@ -134,8 +133,6 @@ float *pos;
     initPendulum(gobj);
 }
 
-extern int D_0063B13C;
-
 /* the debug trace line: every chain trace steps it by 10 and ChainGeo resets
  * it; chain.o's one .sbss word, MAIN.MAP names nothing there, so the name is
  * ours */
@@ -183,7 +180,7 @@ int collisionCheck(char *gobj)
     w.radius = 10.0f;
     ClipWall(&w);
     if (w.hit) {
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             chainDebugY = chainDebugY + 10;
             debug_Printf(10, chainDebugY, 0x0FFFFFFF, "collision!!!\n");
         }
@@ -245,7 +242,7 @@ void chain_simulate_term_ropeturn(int a0)
 {
     char *cw = (char *)GOBJ_SUB(a0)->f_830;
 
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         chainDebugY = chainDebugY + 10;
         debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_term_ropeturn\n");
     }
@@ -257,7 +254,7 @@ void chain_simulate_term_loop(int a0)
 {
     char *cw = (char *)GOBJ_SUB(a0)->f_830;
 
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         chainDebugY = chainDebugY + 10;
         debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_term_loop\n");
     }
@@ -277,7 +274,7 @@ void chain_simulate_term_swingready(int a0)
 {
     char *cw = (char *)GOBJ_SUB(a0)->f_830;
 
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         chainDebugY = chainDebugY + 10;
         debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_term_swingready\n");
     }
@@ -298,7 +295,7 @@ void chain_simulate_term_swingstart(int a0)
     char *cw = (char *)GOBJ_SUB(a0)->f_830;
     float h;
 
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         chainDebugY = chainDebugY + 10;
         debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_term_swingstart\n");
     }
@@ -339,7 +336,7 @@ void chain_simulate_term_moveup(int a0)
     char *cw = (char *)GOBJ_SUB(a0)->f_830;
     float h;
 
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         chainDebugY = chainDebugY + 10;
         debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_term_moveup\n");
     }
@@ -367,7 +364,7 @@ void chain_simulate_term_free(int a0)
 {
     char *cw = (char *)GOBJ_SUB(a0)->f_830;
 
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         chainDebugY = chainDebugY + 10;
         debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_term_free\n");
     }
@@ -390,7 +387,7 @@ void chain_simulate_term_down(int a0)
     ChainNode *next;
     float h;
 
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         chainDebugY = chainDebugY + 10;
         /* a 2001 copy and paste: this arm prints the sibling term's name */
         debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_term_free\n");
@@ -425,7 +422,7 @@ void chain_simulate_hangstart(int a0)
 {
     char *cw = (char *)GOBJ_SUB(a0)->f_830;
 
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         chainDebugY = chainDebugY + 10;
         debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_hangstart\n");
     }
@@ -435,7 +432,7 @@ void chain_simulate_hangstart(int a0)
 
 void chain_simulate_term(int a0)
 {
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         chainDebugY = chainDebugY + 10;
         debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_term\n");
     }
@@ -463,7 +460,7 @@ void chain_simulate_stop(int a0)
     char *cw = (char *)GOBJ_SUB(a0)->f_830;
 
     ResetChainNodes(cw, (float *)(cw + 0x10));
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         chainDebugY = chainDebugY + 10;
         debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_stop\n");
     }
@@ -474,7 +471,7 @@ void chain_simulate_free(int a0)
     char *cw = (char *)GOBJ_SUB(a0)->f_830;
     int i;
 
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         chainDebugY = chainDebugY + 10;
         debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_free\n");
     }
@@ -552,19 +549,19 @@ unsigned char flag;
 
     up = w->f24 > 0.0f ? 1 : 0;
 
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, "time = %f\n", w->f18);
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, "rad  = %f\n", w->f10);
-            if (D_0063B13C & 1) {
+            if (debug_font_flag & 1) {
                 debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, "max  = %f\n", w->f14);
-                if (D_0063B13C & 1) {
+                if (debug_font_flag & 1) {
                     debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, "maxl = %f\n", w->f28);
-                    if (D_0063B13C & 1) {
+                    if (debug_font_flag & 1) {
                         debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, "T    = %f\n", w->f20);
-                        if (D_0063B13C & 1) {
+                        if (debug_font_flag & 1) {
                             debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, "d    = %f\n", w->f1C);
-                            if (D_0063B13C & 1) {
+                            if (debug_font_flag & 1) {
                                 debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, "inc  = %d\n", up);
                             }
                         }
@@ -1084,13 +1081,13 @@ void ChainGeo(char *gobj)
         *(int *)(cw + 0x78) = mode;
     }
 
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, D_0063ABD0, mode);
     }
     /* the plumb index is read as the record's member: ROM loads it ahead of
      * the counter store, which alias.c allows only for a struct member
      * against a fixed scalar */
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, "plumb = %d\n",
                      ((ChainRecord *)cw)->holdNode);
     }
@@ -1196,7 +1193,7 @@ void ChainGeo(char *gobj)
 
     /* no node-pointer local: ROM re-reads cw->0xD0 after the first fptodp */
     if (*(unsigned char *)(cw + 0x60) != 0) {
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, "%f/%f, %d\n", *(float *)(cw + 0x3C),
                          (*(ChainNode **)(cw + 0xD0))[0].y -
                              ((ChainNode *)((*(int *)(cw + 0x68) << 5) + *(int *)(cw + 0xD0)))->y,
@@ -1631,11 +1628,9 @@ void IncreasePdlChain(char *a0)
     *(float *)((char *)GOBJ_SUB(a0)->f_830 + 0x44) = 0.1f;
 }
 
-extern int D_0063B218;
-
 void DecreasePdlChain(char *a0)
 {
-    *(float *)((char *)GOBJ_SUB(a0)->f_830 + 0x44) = (float)D_0063B218 * 0.5f * -0.1f;
+    *(float *)((char *)GOBJ_SUB(a0)->f_830 + 0x44) = (float)debug_chain_slow_speed * 0.5f * -0.1f;
 }
 
 void PlumbOrientUpdateChain(char *a0, float *src)
@@ -1721,7 +1716,7 @@ void GetRootPositionHandExtra(void *a0, float *a1)
 void InitPendulum(char *a0)
 {
     char *cw = (char *)GOBJ_SUB(a0)->f_830;
-    float a = (float)D_0063B214 * -0.2f + 2.0f;
+    float a = (float)debug_chain_cycle_speed * -0.2f + 2.0f;
     float y;
 
     a = a < 0.1f ? 0.1f : (a > 2.0f ? 2.0f : a);

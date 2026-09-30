@@ -13,7 +13,6 @@ extern int isysGObjProcAdd(void *a0, void *a1, int a2, void *a3);
 extern int isysGObjProcAddS(void *a0, void *a1, int a2, void *a3, long long a4);
 /* kept local: this TU's uses of isysGObjProcRemove do not fit the prototype in gobj_process.h */
 extern void isysGObjProcRemove();
-extern int D_0063B208;
 
 /* One 0x50-byte record per act status, indexed by the actor status index; the
    six 12-byte entries at +4 are indexed by the work block's mode at +0x48.
@@ -115,7 +114,7 @@ int actCreateSubThread(void *a0, void *a1)
     unsigned short fld;
     char *p;
 
-    if (D_0063B208) {
+    if (debug_act_sub_thread) {
         Act *lval = GOBJ_ACT(isysCurrentGObj);
         debug_StdPrintfDummy("acst[%p]\n", isysCurrentGObj);
         debug_StdPrintfDummy("    [%d]\n", *(int *)(isysCurrentGObj + 8));

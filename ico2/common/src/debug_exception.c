@@ -59,8 +59,11 @@ static char exceptionMessage[1024] = "";
 
 /* This file's .bss (VMA 0x70FA80..0x70FA90), ahead of the screen include's:
    the quadword display stages one saved register in to print it as four
-   words. */
-static unsigned int regQuad[4];
+   words.  It is 128-byte aligned: the ELF's .bss section alignment is 128 and
+   this object is what carries it (the January map places debug_exception.o's
+   .bss after fill only that alignment explains, and the PAL link starts it at
+   0x70FA80, 0x60 bytes after debug.o's run ends). */
+static unsigned int regQuad[4] __attribute__((aligned(128)));
 
 #include "debug_exception_screen.c.inc"
 #include "debug.h"
@@ -447,7 +450,6 @@ typedef struct {
 } EeReg128;
 
 extern int D_0063B36C;    /* set once an exception is already being reported */
-extern int D_0063AE74;    /* the "stop the game" flag the rest of the EE polls */
 extern char D_0061D1A8[]; /* "called exception\n" */
 extern char D_0061D1C0[]; /* "%s  (code = %d)\n" */
 extern char D_0061D1D8[]; /* "CAUSE %p\n" */
@@ -525,7 +527,7 @@ void debugEEExceptionMain(int arg0, unsigned int cause, unsigned int epc, unsign
     }
     D_0063B36C = 1;
     Emergency_DestroyAllThread();
-    D_0063AE74 = 1;
+    debugBackGroundDisableFlag = 1;
 
     scePrintf(D_0061D1A8);
 

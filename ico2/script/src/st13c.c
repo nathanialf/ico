@@ -114,7 +114,6 @@ static ActMail rescue_mes[2] = {{430}, {429}};
 
 static ActMail buki_mes[2] = {{430}, {429}};
 
-extern int D_0063AA08;
 extern int bmg;
 extern int hand;
 extern int D_00639EAC;
@@ -235,7 +234,7 @@ void actSt13cBmg1Chk(volatile int a0)
         _ACTWait(1);
     }
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     _ACTWait(1);
 
     th1 = actCreateSubThread(actSt13cConte04, 21);
@@ -279,7 +278,7 @@ void actSt13cBmg1Chk(volatile int a0)
     scpPlayMotDir(D_00639EA4, &w);
     scpPlayEnd(D_00639EA4);
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
 
@@ -411,7 +410,7 @@ void actSt13cCage1stDownDemoCancel(volatile int a0)
     scpPlayEnd(D_00639EA4);
 
     CameraSetCameraSet(0x25);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
 
@@ -523,7 +522,7 @@ void actSt13cCageFallChk(volatile int a0)
     gflagOff(381);
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     fightSoundProcessRequestPause();
     while (fightSoundPlayChk() != 0) {
@@ -654,7 +653,7 @@ void actSt13cCageFallChk(volatile int a0)
 
     ((Act *)((PObjGObjSt13c *)scpSearchGobj(150))->act)->flags20.ll |= 0x20000;
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 
     _ACTWait(30);
@@ -667,7 +666,7 @@ void actSt13cCageFallChk(volatile int a0)
 void actSt13cConte05(volatile int a0)
 {
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     scpPlayStart(D_00639EA4);
     scpPlayStart(D_00639EA8);
@@ -947,7 +946,7 @@ void actSt13cSekizoChk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     SetWayGroupActive(2, 1);
 
     scpAdpcmPlayRequestFunc(17, &hand, 1, 1, 1);
@@ -975,7 +974,7 @@ void actSt13cSekizoChk(volatile int a0)
     sceVu0SubVector(dir, test_CURRENTROOT(a0), test_CURRENTROOT(D_00639EA8));
     scpPlayMotDir(D_00639EA8, dir);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     sceVu0SubVector(dir, test_CURRENTROOT(D_00639EA8), test_CURRENTROOT(D_00639EA4));
     scpPlayMotDir(D_00639EA4, dir);
@@ -1006,7 +1005,7 @@ void actSt13cSekizoChk(volatile int a0)
     scpPlayMot(D_00639EA4, 0);
     scpPlayEnd(D_00639EA4);
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
 
@@ -1071,7 +1070,7 @@ void actSt13cHandChk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
 
     ((Act *)((PObjGObjSt13c *)scpSearchGobj(150))->act)->flags20.ll &= ~0x20000;
@@ -1158,7 +1157,7 @@ void actSt13cHandChk(volatile int a0)
 
     iosOmSendMail(D_00639EA8, 0x3F, D_00639EA4);
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     scpWakeupEnemyAll();
     fightSoundProcessRequestStart();
     gflagOn(28);
@@ -1458,7 +1457,7 @@ void actSt13cCageDownSwitch(volatile int a0)
     Act *sub = (Act *)((PObjGObjSt13c *)a0)->act;
 
     sub->mainMail = 0;
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     if (gflagChk(20) == 0) {
         cageDownSwitch_mes[0].func = actSt13cCage1stDown;
@@ -1591,7 +1590,7 @@ void actSt13cRescueChk(volatile int a0)
     }
 
     gflagOn(29);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     _ACTWait(200);
 
     scpPlayStart(D_00639EA8);

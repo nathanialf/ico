@@ -46,7 +46,8 @@ extern int floor10l;
 extern int st10l_gondola_up;
 extern int st10l_gondola_down;
 extern int chain10l;
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 extern int D_00639EA4;
 extern int D_00639EA8;
 extern int D_00639EAC;
@@ -211,7 +212,7 @@ void actSt10lFloorLeft(volatile int a0)
     _ACTWait((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 0xA);
 
     if (gflagChk(295) == 0) {
-        D_0063AA08 = 0;
+        scpBoyControlReadDisable = 0;
         lt_switch_layout(54);
         scpWakeupEnemyAll();
 
@@ -259,7 +260,7 @@ void actSt10lFloorRight(volatile int a0)
 
     _ACTWait((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 0xB);
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
     scpWakeupEnemyAll();
 
@@ -307,7 +308,7 @@ void actSt10lGondolaUp(volatile int a0)
         _ACTWait(1);
     }
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     scpWakeupEnemyAll();
     lt_switch_layout(54);
 
@@ -355,7 +356,7 @@ void actSt10lGondolaDown(volatile int a0)
 
     ClearGirlDangerGObj();
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     scpWakeupEnemyAll();
     lt_switch_layout(54);
 
@@ -375,7 +376,7 @@ void actSt10lEneCam2Chk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     save = iosPadActRequestEnable;
     iosPadActRequestEnable = 0;
@@ -404,7 +405,7 @@ void actSt10lEneCam2Chk(volatile int a0)
     _ACTWait((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 0x3);
 
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     scpWakeupEnemyOne(3757);
     scpWakeupEnemyOne(992);
@@ -442,7 +443,7 @@ void actSt10lEneCam3Chk(volatile int a0)
     _ACTWait((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 0x3);
 
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     scpWakeupEnemyAll();
 }
 
@@ -485,7 +486,7 @@ void actSt10lChainMove(volatile int a0)
     }
 
     scpWakeupEnemyAll();
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 
     _ACTWait((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]);
@@ -835,7 +836,7 @@ void actSt10lFloorSwitch(volatile int a0)
 
     sub->mainMail = 0;
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
 
     if (gflagChk(289) != 0) {
@@ -867,7 +868,7 @@ void actSt10lGondolaSwitch(volatile int a0)
 
     sub->mainMail = 0;
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
 
     if (gflagChk(291) != 0) {
@@ -955,7 +956,7 @@ void actSt10lChainSwitch(volatile int a0)
     ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
 
     sub->mainMail = 0;
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     chainSwitch_mes[0].func = actSt10lChainMove;
     sub->mail = chainSwitch_mes;

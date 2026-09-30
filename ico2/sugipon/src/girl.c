@@ -20,11 +20,6 @@
 #include "wireLetter.h"
 #include <libvu0.h>
 
-extern int D_0063B250;
-extern int D_0063B254;
-extern int D_0063B258;
-extern int D_0063B25C;
-
 /* census: sugipon/src/girl.c:706 `execClothes` (a TU-static; `static` keeps the ELF
  * symbol local, so it cannot collide with the sugipon/src/boy global). */
 static void execClothes(char *gobj)
@@ -35,9 +30,9 @@ static void execClothes(char *gobj)
 
     n = GetSkeltonFocusNode(gobj, 35);
     w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
-    SetQuaternionByAxisRotateV(q, -D_0063B258 * 16, ZUnitVector);
+    SetQuaternionByAxisRotateV(q, -debug_hair_bend_angle * 16, ZUnitVector);
     if (*(void **)(w + 0x18) != 0) {
-        *(int *)(*(char **)(w + 0x18) + 0x2F8) = D_0063B25C;
+        *(int *)(*(char **)(w + 0x18) + 0x2F8) = debug_hair_collision;
     }
     switch (*(int *)(w + 0xC)) {
     default:
@@ -49,8 +44,9 @@ static void execClothes(char *gobj)
             GetCloth4D(*(void **)(w + 0x14), 4.0f, 0.98f);
         }
         if (*(void **)(w + 0x18) != 0) {
-            GetCloth4DWithTight(*(void **)(w + 0x18), D_0063B254 * 0.002f, 1.0f, D_0063B250 * 0.01f,
-                                1.0f, *(char **)((char *)GOBJ_SUB(gobj) + 0x10) + n * 16, q);
+            GetCloth4DWithTight(*(void **)(w + 0x18), debug_hair_gravity_level * 0.002f, 1.0f,
+                                debug_hair_tight_level * 0.01f, 1.0f,
+                                *(char **)((char *)GOBJ_SUB(gobj) + 0x10) + n * 16, q);
         }
         break;
     case 2:
@@ -61,8 +57,9 @@ static void execClothes(char *gobj)
             GetCloth4D(*(void **)(w + 0x14), 4.0f, 0.98f);
         }
         if (*(void **)(w + 0x18) != 0) {
-            GetCloth4DWithTight(*(void **)(w + 0x18), D_0063B254 * 0.002f, 1.0f, D_0063B250 * 0.01f,
-                                1.0f, *(char **)((char *)GOBJ_SUB(gobj) + 0x10) + n * 16, q);
+            GetCloth4DWithTight(*(void **)(w + 0x18), debug_hair_gravity_level * 0.002f, 1.0f,
+                                debug_hair_tight_level * 0.01f, 1.0f,
+                                *(char **)((char *)GOBJ_SUB(gobj) + 0x10) + n * 16, q);
         }
         break;
     case 0:
@@ -1752,10 +1749,10 @@ static GirlClothSetting girlClothGameParam = {20, 0, 256, 0};
  * of line, so it has no MAIN.MAP symbol and this name is ours. */
 static inline void setGirlClothParam(GirlClothSetting *p)
 {
-    D_0063B250 = p->unk0;
-    D_0063B254 = p->unk4;
-    D_0063B258 = p->unk8;
-    D_0063B25C = p->unkC;
+    debug_hair_tight_level = p->unk0;
+    debug_hair_gravity_level = p->unk4;
+    debug_hair_bend_angle = p->unk8;
+    debug_hair_collision = p->unkC;
 }
 
 inline void setGirlClothSetting(int a0)

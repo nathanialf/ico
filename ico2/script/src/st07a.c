@@ -69,7 +69,6 @@ void actSt07aEnd(void)
 
 extern Pad D_0028F8F0[];
 extern int D_00639EA4;
-extern int D_0063AA08;
 
 /* .sbss, owned by st07a.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
@@ -139,7 +138,7 @@ void actSt07aChanChk(volatile int a0)
     FinishHint(3);
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     stage_SetAnimation(355, 1, 0);
 
@@ -219,7 +218,7 @@ void actSt07aChanChk(volatile int a0)
         scpPlayEnd(D_00639EA8);
     }
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
     scpWakeupEnemyAll();
 }
@@ -293,7 +292,7 @@ void actSt07aTsuroChk(volatile int a0)
 
     lt_switch_layout(55);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     brainLockGirl();
 
     scpSleepEnemyAll();
@@ -351,7 +350,7 @@ void actSt07aTsuroChk(volatile int a0)
 
     lt_switch_layout(54);
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     brainUnlockGirl();
 
     gflagOn(133);
@@ -462,7 +461,7 @@ void actSt07aSekizoChk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     scpSleepEnemyAll();
 
@@ -506,7 +505,7 @@ void actSt07aSekizoChk(volatile int a0)
     sceVu0SubVector(dir, test_CURRENTROOT(a0), test_CURRENTROOT(D_00639EA8));
     scpPlayMotDir(D_00639EA8, dir);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     sceVu0SubVector(dir, test_CURRENTROOT(D_00639EA8), test_CURRENTROOT(D_00639EA4));
     scpPlayMotDir(D_00639EA4, dir);
@@ -539,7 +538,7 @@ void actSt07aSekizoChk(volatile int a0)
 
     scpWakeupEnemyAll();
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
 
@@ -599,7 +598,7 @@ void actSt07aEneChk(volatile int a0)
     ((PObjGObj *)scpSearchGobj(396))->f16C = 1;
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     scpSleepEnemyOne(3757);
 
@@ -628,7 +627,7 @@ void actSt07aEneChk(volatile int a0)
     SetStaticBlur(1);
 
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     ((PObjGObj *)scpSearchGobj(396))->f16C = 0;
 
@@ -1020,7 +1019,7 @@ void actSt07aIntroChk(volatile int a0)
     lt_switch_layout(55);
     gflagOn(129);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     _ACTWait(1);
 
     stage_SetAnimation(353, 1, 0);
@@ -1030,7 +1029,7 @@ void actSt07aIntroChk(volatile int a0)
     _ACTWait(1);
 
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 void actSt07aSekizoEvent(int x)

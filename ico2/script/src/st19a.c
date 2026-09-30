@@ -15,7 +15,8 @@
 extern PObjGObj *scpSearchGobj(int a0);
 /* kept local: this TU's uses of ScpCallCameraSetTarget do not fit the prototype in script.h */
 extern void ScpCallCameraSetTarget(float x, float y, float z);
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 extern char *pipe19a;
 
 /* .sbss, owned by st19a.o and reached only from this file (MAIN.MAP names no
@@ -103,7 +104,7 @@ void actSt19aOriUp(volatile int a0)
     if (skip == 0) {
         scpAdpcmFadeCloseFunc(&fence_up_19a, 0x100);
     }
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
 
@@ -154,7 +155,7 @@ void actSt19aHagurumaChk(volatile int a0)
         _ACTWait(1);
     }
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     gflagOn(311);
     scpAdpcmPlayRequestFunc(76, &fence_down_19a, 1, 1, 1);
     while (fence_down_19a == 0) {
@@ -193,12 +194,12 @@ void actSt19aHagurumaChk(volatile int a0)
             }
             stage_SetAnimation(141, 0, -1);
             scpFadeIn(3.0f);
-            D_0063AA08 = 0;
+            scpBoyControlReadDisable = 0;
             goto done;
         }
         _ACTWait(1);
     }
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 done:
     lt_switch_layout(54);
 }
@@ -221,7 +222,7 @@ void actSt19aPipeChk(volatile int a0)
         _ACTWait(1);
     }
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpPlayStart(D_00639EA4);
     gflagOn(312);
     scpSearchGobj(1958)->f16C = 0;
@@ -253,7 +254,7 @@ void actSt19aPipeChk(volatile int a0)
     }
     scpSearchGobj(1959)->f16C = 1;
     scpPlayEnd(D_00639EA4);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
 
@@ -288,7 +289,7 @@ void actSt19aChainDown(volatile int a0)
     if (pipe19a != 0) {
         scpAdpcmFadeCloseFunc(&pipe19a, 0x100);
     }
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
 
@@ -303,7 +304,7 @@ void actSt19bIntro(volatile int a0)
             _ACTWait(1);
         }
         lt_switch_layout(55);
-        D_0063AA08 = 1;
+        scpBoyControlReadDisable = 1;
         gflagOn(314);
         stage_SetAnimation(137, 1, 0);
         while (stage_CheckAnimationFinish(137) == 0) {
@@ -322,7 +323,7 @@ void actSt19bIntro(volatile int a0)
             _ACTWait(1);
         }
         lt_switch_layout(54);
-        D_0063AA08 = 0;
+        scpBoyControlReadDisable = 0;
     }
 }
 
@@ -418,7 +419,7 @@ void actSt19aOriMain(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     sub->mainMail = oriMain_mes;
 
@@ -431,7 +432,7 @@ void actSt19aOriSwitch(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     sub->mainMail = 0;
     oriSwitch_mes[0].func = actSt19aOriUp;
@@ -444,7 +445,7 @@ void actSt19aChainMain(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     sub->mainMail = chainMain_mes;
 
@@ -457,7 +458,7 @@ void actSt19aChainSwitch(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     sub->mainMail = 0;
 

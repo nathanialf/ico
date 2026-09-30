@@ -1,6 +1,7 @@
 #include "sceneManager.h"
 #include "memory.h"
 #include "StageAnimation.h"
+#include "debug.h"
 #include <string.h>
 
 struct HintInfo {
@@ -160,7 +161,6 @@ void ReadHintSaveInfo(void)
     READ_HINT_SAVE_BITS(D_006E99B4, 1);
 }
 
-extern int D_0063B238;
 /* kept local: this TU's uses of SetDirectRootPosition do not fit the prototype in geometryManager.h */
 extern void SetDirectRootPosition(void *gobj);
 /* kept local: this TU's uses of UpdateRootMatrix do not fit the prototype in geometryManager.h */
@@ -186,7 +186,7 @@ void SetParamKyomiGObj(void *gobj, int a1, float *param)
     if (param[2] < 0.5f) {
         on2 = 0;
     }
-    if (D_0063B238 != 0) {
+    if (debug_lwskyomi_lookonly != 0) {
         if (on2 != 0) {
             on1 = 1;
         }

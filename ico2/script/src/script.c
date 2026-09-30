@@ -31,6 +31,30 @@
 #include "script.h"
 #include "layout_action.h"
 
+/* script.o's .sdata, in the ROM's order.  MAIN.MAP lists all but the three
+   hint-voice words, which the retail build added after scpSeEnvMasterVolRate
+   (the January map has sekizo_common at +8): the ADPCM handle of the girl's
+   hint voice and the distance range its volume follows. */
+int scpBoyControlReadDisable = 0;
+
+float scpSeEnvMasterVolRate = 1.0f;
+
+static char *girlHintVoice = 0; /* derived name */
+
+static float girlHintRangeMin = 500.0f; /* derived name */
+
+static float girlHintRangeMax = 4000.0f; /* derived name */
+
+char *sekizo_common = 0;
+
+char *scpDummyGObj = 0;
+
+char *scpDummyGObj2 = 0;
+
+int sekizo_yure = 0;
+
+unsigned char sekizo_yure_vol = 0;
+
 /* a 0x40-byte layout record as CreateLayoutedGObj takes it: position,
    rotation, the unit scale at 0x20 and the kind index at 0x30 */
 struct DQW {
@@ -132,7 +156,6 @@ extern int SetLodLevel();
 /* as geometryManager.h declares it; this TU does not include that header */
 extern void SetRootMatrixWithTransOffset(void *a0, float x, float y, float z);
 extern int D_00554560[];
-extern int D_0063B150;
 extern char D_00554550[];
 extern void sceVu0SubVector(float *d, float *a, float *b);
 extern float sceVu0InnerProduct(float *a, float *b);
@@ -201,9 +224,6 @@ extern void AdpcmPlay(int a0);
 extern void soundDataClose(char *h);
 extern const char D_005546F0[];
 extern const char D_00554720[];
-extern char *D_0063AA10;
-extern float D_0063AA14;
-extern float D_0063AA18;
 /* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
 extern void _SubVector(float *dst, float *a, float *b);
 /* kept local: this TU's uses of _InnerProduct do not fit the prototype in Matrix.h */
@@ -243,10 +263,6 @@ extern int soundSeDefPlay(int no, int a1, void *pos, int a3);
 /* kept local: this TU's uses of soundSeDefStop do not fit the prototype in s_init.h */
 extern void soundSeDefStop(int h);
 extern char *D_00639EAC;
-extern int D_0063AA08;
-extern char *D_0063AA1C;
-extern int D_0063AA28;
-extern unsigned char D_0063AA2C;
 extern char D_005547F0[];
 /* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
 extern float *test_CURRENTROOT(char *target);
@@ -292,7 +308,6 @@ extern char D_00554498[];
 /* kept local: this TU's uses of GetSkeltonFocusNode do not fit the prototype in motionManager2.h */
 extern int GetSkeltonFocusNode(int a0, int a1);
 extern char D_005546E0[];
-extern float D_0063AA0C;
 
 /* .data, last in script.o's run: the wood-bridge trigger table, one row per
    bridge object, walked by object id. */
@@ -836,7 +851,7 @@ inline int scpTriggerPosBall(float *pos, float *target, float r)
     } else {
         hit = 0;
     }
-    if (D_0063B150 != 0) {
+    if (debug_wallcheck_flag != 0) {
         MatrixDrive_PushMatrix();
         col = *(Blob16 *)D_00554550;
         if (hit != 0) {
@@ -939,7 +954,7 @@ inline int scpTriggerPosBox(float *p, float *pos, float *size)
         p[1] < pos[1] + size[1] && pos[2] - size[2] < p[2] && p[2] < pos[2] + size[2]) {
         hit = 1;
     }
-    if (D_0063B150 != 0) {
+    if (debug_wallcheck_flag != 0) {
         MatrixDrive_PushMatrix();
         if (hit != 0) {
             wireBoxColor[0] = 0xFF;
@@ -1212,18 +1227,18 @@ inline int scpAdpcmCloseChkFunc(char **h)
    is ours; it has no out-of-line copy and no MAIN.MAP symbol) */
 static inline int scpGirlHintVoiceChk(void)
 {
-    return scpAdpcmCloseChkFunc(&D_0063AA10);
+    return scpAdpcmCloseChkFunc(&girlHintVoice);
 }
 
 inline void scpDeamon(volatile int a0)
 {
     debug_StdPrintfDummy(D_005546E0);
-    D_0063AA10 = 0;
+    girlHintVoice = 0;
     startStagePauseDisableTimer = 0;
     if (stage_no == 0xB && gflagChk(137) == 0) {
-        D_0063AA0C = 0.0f;
+        scpSeEnvMasterVolRate = 0.0f;
     } else {
-        D_0063AA0C = 1.0f;
+        scpSeEnvMasterVolRate = 1.0f;
     }
     gflagOff(389);
     _ACTWait(1);
@@ -1242,7 +1257,7 @@ void scpGirlHintVoiceReady(int kind)
     float d[4];
     float dist;
 
-    if (D_0063AA10 != 0) {
+    if (girlHintVoice != 0) {
         debug_StdPrintfDummy(D_005546F0);
     }
     if (AdpcmFreeAreaGet() == 0) {
@@ -1256,8 +1271,8 @@ void scpGirlHintVoiceReady(int kind)
     GetRootPosition(p1, D_00639EA8);
     _SubVector(d, p0, p1);
     dist = _InnerProduct(d, d);
-    D_0063AA14 = 500.0f;
-    D_0063AA18 = 4000.0f;
+    girlHintRangeMin = 500.0f;
+    girlHintRangeMax = 4000.0f;
     switch (kind) {
     case 0x65:
         if (500000.0f < dist) {
@@ -1270,12 +1285,12 @@ void scpGirlHintVoiceReady(int kind)
         }
         break;
     }
-    scpAdpcmPlayRequestFunc(kind, &D_0063AA10, 1, 1, 0);
+    scpAdpcmPlayRequestFunc(kind, &girlHintVoice, 1, 1, 0);
 }
 
 void scpGirlHintVoicePlay(void)
 {
-    char *p = D_0063AA10;
+    char *p = girlHintVoice;
     if (p != 0) {
         AdpcmPlay(*(int *)(p + 0x2C));
     } else {
@@ -1285,17 +1300,17 @@ void scpGirlHintVoicePlay(void)
 
 inline void scpGirlHintVoiceCancel(void)
 {
-    if (scpAdpcmCloseChkFunc(&D_0063AA10) != 0) {
-        scpAdpcmCloseFunc(&D_0063AA10);
-        D_0063AA10 = 0;
+    if (scpAdpcmCloseChkFunc(&girlHintVoice) != 0) {
+        scpAdpcmCloseFunc(&girlHintVoice);
+        girlHintVoice = 0;
     }
 }
 
 void scpGirlHintVoiceTickProc(void)
 {
-    float rmin = D_0063AA14; /* the listing's line 1892: both range globals are
+    float rmin = girlHintRangeMin; /* the listing's line 1892: both range globals are
                                 read into locals before the early returns */
-    float rmax = D_0063AA18;
+    float rmax = girlHintRangeMax;
     float pos[4];
     float dist;
     int deg;
@@ -1306,13 +1321,13 @@ void scpGirlHintVoiceTickProc(void)
     float r;
     int adeg;
 
-    if (D_0063AA10 == 0 || D_00639EA8 == 0)
+    if (girlHintVoice == 0 || D_00639EA8 == 0)
         return;
     if (scpGirlHintVoiceChk() == 0) {
-        D_0063AA10 = 0;
+        girlHintVoice = 0;
         return;
     }
-    snd = *(char **)(D_0063AA10 + 0x2C);
+    snd = *(char **)(girlHintVoice + 0x2C);
     GetRootPosition(pos, D_00639EA8);
     CameraGetOtherObjOffset(pos, &dist, &deg);
     if (rmax <= dist) {
@@ -1518,12 +1533,12 @@ void scpSekizou(char *self, int flag, int anim, int anim2, int kind, float bx, f
     }
     stgmgrNextStagePreLoadForceStageSet(0);
     lt_switch_layout(55);
-    D_0063AA08 = 1;
-    scpAdpcmPlayRequestFunc(kind, &D_0063AA1C, 1, 1, 0);
-    while (D_0063AA1C == 0) {
+    scpBoyControlReadDisable = 1;
+    scpAdpcmPlayRequestFunc(kind, &sekizo_common, 1, 1, 0);
+    while (sekizo_common == 0) {
         _ACTWait(1);
     }
-    AdpcmPlay(*(int *)(D_0063AA1C + 0x2C));
+    AdpcmPlay(*(int *)(sekizo_common + 0x2C));
     if (fade != 0) {
         scpFadeIn(8.0f);
     }
@@ -1532,9 +1547,9 @@ void scpSekizou(char *self, int flag, int anim, int anim2, int kind, float bx, f
     scpMaskGeneratorAll();
     stage_SetAnimation(anim, 1, 0);
     ReviveAllCarryableItemsWithNonSleepFrame(250);
-    D_0063AA28 = iosPadActRequest(D_00639EAC, 9);
-    D_0063AA2C = 128;
-    iosPadActVolumeSet(D_0063AA28, 128);
+    sekizo_yure = iosPadActRequest(D_00639EAC, 9);
+    sekizo_yure_vol = 128;
+    iosPadActVolumeSet(sekizo_yure, 128);
     scpPlayStart(D_00639EA8);
     scpPlayMot(D_00639EA8, 532);
     scpPlayPosSet(D_00639EA8, gx, gy, gz);
@@ -1545,7 +1560,7 @@ void scpSekizou(char *self, int flag, int anim, int anim2, int kind, float bx, f
 
         sceVu0SubVector(v.f, test_CURRENTROOT(self), test_CURRENTROOT(D_00639EA8));
         scpPlayMotDir(D_00639EA8, v.f);
-        D_0063AA08 = 1;
+        scpBoyControlReadDisable = 1;
         sceVu0SubVector(v.f, test_CURRENTROOT(D_00639EA8), test_CURRENTROOT(D_00639EA4));
         scpPlayMotDir(D_00639EA4, v.f);
         scpSekizouCheckPoint();
@@ -1569,7 +1584,7 @@ void scpSekizou(char *self, int flag, int anim, int anim2, int kind, float bx, f
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActStop(D_0063AA28);
+    iosPadActStop(sekizo_yure);
     while (stage_CheckAnimationFinish(anim) == 0) {
         _ACTWait(1);
     }
@@ -1577,7 +1592,7 @@ void scpSekizou(char *self, int flag, int anim, int anim2, int kind, float bx, f
     scpPlayMot(D_00639EA8, 532);
     scpPlayEnd(D_00639EA8);
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 inline void InitStageChange(void)
@@ -1929,7 +1944,7 @@ inline void scpWakeupItemWithBoundary(float x, float y, float z, float r)
     pos[2] = z;
     ((int *)pos)[3] = 0;
     ReviveCarryableItemsWithBoundary(pos, r);
-    if (D_0063B150 != 0) {
+    if (debug_wallcheck_flag != 0) {
         MatrixDrive_PushMatrix();
         col = *(Blob16 *)D_00554810;
         gif_StartPacketPri(0xB);

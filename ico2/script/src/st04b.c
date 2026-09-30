@@ -48,7 +48,8 @@ void actSt04bEnd(void)
 
 extern int D_00639EA4;
 extern int D_00639EAC;
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 extern int sekizo4b;
 extern int sekizo_4b;
 extern unsigned char sekizo_4b_vol;
@@ -94,7 +95,7 @@ void actSt04bSekizoChk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     brainLockGirl();
 
     scpKillEnemyOne(3757);
@@ -128,7 +129,7 @@ void actSt04bSekizoChk(volatile int a0)
     _ACTWait(1);
     sceVu0SubVector(v, test_CURRENTROOT(a0), test_CURRENTROOT(D_00639EA8));
     scpPlayMotDir(D_00639EA8, v);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     sceVu0SubVector(v, test_CURRENTROOT(D_00639EA8), test_CURRENTROOT(D_00639EA4));
     scpPlayMotDir(D_00639EA4, v);
 
@@ -168,7 +169,7 @@ void actSt04bSekizoChk(volatile int a0)
     _ACTWait(1);
 
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 /* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
@@ -190,7 +191,7 @@ void actSt04bEne1Chk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     scpSleepEnemyOne(3757);
 
@@ -209,7 +210,7 @@ void actSt04bEne1Chk(volatile int a0)
     _ACTWait(1);
 
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     scpWakeupEnemyOne(3757);
 }

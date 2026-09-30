@@ -27,7 +27,6 @@ static int wayPointSel = -1; /* derived name */
 
 extern WayRec D_004F1EC0[];
 extern int D_00639EA4;
-extern int D_0063B13C;
 
 /* .sbss, owned by way_tool.o (MAIN.MAP names no symbol in the run), in the ROM's run order: the way
    record the tool is showing, the group the selection window is on, the camera
@@ -70,7 +69,7 @@ int group_create(void)
     static int createState = 0; /* derived name */
     int f;
 
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         debug_Printf(18, 54, 0xFF000000, "group + create");
     }
     if (createState == 0) {
@@ -85,7 +84,7 @@ int group_create(void)
     if (createState != 1) {
         return 0;
     }
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         debug_Printf(26, 66, 0xFF808000, "pt.%d", selectedWay->w[4]);
     }
     f = *(int *)&wayToolPad[12];
@@ -223,9 +222,9 @@ int point_delete(void)
     WayRec *entry = &D_004F1EC0[current_select_gid];
     int f;
 
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         debug_Printf(18, 54, 0xFF000000, "point + delete\n");
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             debug_Printf(26, 66, 0xFF808000, "pt.%d", entry->w[4]);
         }
     }
@@ -264,9 +263,9 @@ int point_insert(void)
     WayRec *entry = &D_004F1EC0[current_select_gid];
     int f;
 
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         debug_Printf(18, 54, 0xFF000000, "point + insert\n");
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             debug_Printf(26, 66, 0xFF808000, "pt.%d", entry->w[4]);
         }
     }
@@ -300,7 +299,7 @@ inline int play_way(void)
     char *g;
     int f;
 
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         debug_Printf(18, 54, 0xFF000000, "to boy\n");
     }
     f = *(int *)&wayToolPad[12];
@@ -332,7 +331,7 @@ inline int point_nige(void)
     int *p;
     int v;
 
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         unsigned int color = 0xFF000000;
         debug_Printf(18, 54, color, "point + nige\n");
     }
@@ -672,7 +671,6 @@ typedef struct {
 } WayNodePos;
 
 extern WayNodePos D_004F31F0[];
-extern int D_0063B168;
 /* kept local: this TU's uses of visible_waypoint_of_all do not fit the prototype in way_util.h */
 extern char *visible_waypoint_of_all(void *pos);
 /* kept local: this TU's uses of ez_circle do not fit the prototype in way_util.h */
@@ -687,7 +685,7 @@ void way_toolDL(int a0)
     char *w;
     int i;
 
-    if (D_0063B168 == 0) {
+    if (debug_wayline == 0) {
         return;
     }
     if (load_save_flag != 0) {

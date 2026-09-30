@@ -57,7 +57,8 @@ void actSt47aEnd(void)
 
 extern int D_00639EA4;
 extern char *D_00639EAC;
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 /* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int gobj, float r);
 /* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
@@ -108,7 +109,7 @@ void actSt47aSekizo1Chk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     brainLockGirl();
 
     scpSleepEnemyAll();
@@ -148,7 +149,7 @@ void actSt47aSekizo1Chk(volatile int a0)
 
         sceVu0SubVector(v.f, test_CURRENTROOT(a0), test_CURRENTROOT(D_00639EA8));
         scpPlayMotDir(D_00639EA8, v.f);
-        D_0063AA08 = 1;
+        scpBoyControlReadDisable = 1;
         sceVu0SubVector(v.f, test_CURRENTROOT(D_00639EA8), test_CURRENTROOT(D_00639EA4));
         scpPlayMotDir(D_00639EA4, v.f);
 
@@ -191,7 +192,7 @@ void actSt47aSekizo1Chk(volatile int a0)
 
     scpWakeupEnemyAll();
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
 
@@ -288,7 +289,7 @@ void actSt47aHane1Down(volatile int a0)
         _ACTWait(1);
     }
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     lt_switch_layout(54);
     scpWakeupEnemyAll();
@@ -351,7 +352,7 @@ void actSt47aHane1Up(volatile int a0)
         _ACTWait(1);
     }
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     lt_switch_layout(54);
     scpWakeupEnemyAll();
@@ -403,7 +404,7 @@ void actSt47aHane2Down(volatile int a0)
         _ACTWait(1);
     }
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     lt_switch_layout(54);
     scpWakeupEnemyAll();
@@ -459,7 +460,7 @@ void actSt47aHane2Up(volatile int a0)
         _ACTWait(1);
     }
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     lt_switch_layout(54);
     scpWakeupEnemyAll();
@@ -523,7 +524,7 @@ void actSt47aRopeChk(volatile int a0)
             scpSearchGobj(482)->f16C = 0;
 
             lt_switch_layout(55);
-            D_0063AA08 = 1;
+            scpBoyControlReadDisable = 1;
 
             gflagOn(49);
             FinishHint(5);
@@ -554,7 +555,7 @@ void actSt47aRopeChk(volatile int a0)
             }
 
             scpWakeupEnemyAll();
-            D_0063AA08 = 0;
+            scpBoyControlReadDisable = 0;
             lt_switch_layout(54);
             break;
         }
@@ -576,7 +577,7 @@ void actSt47aBarricadeChk(volatile int a0)
     _ACTWait(1);
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     FinishHint(4);
     FinishHint(6);
@@ -596,7 +597,7 @@ void actSt47aBarricadeChk(volatile int a0)
 
     _ACTWait((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 3);
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 
     scpWakeupEnemyAll();
@@ -918,7 +919,7 @@ void actSt47aHane1Switch(volatile int a0)
 
     sub->mainMail = 0;
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
 
     if (gflagChk(47) != 0) {
@@ -966,7 +967,7 @@ void actSt47aHane2Switch(volatile int a0)
 
     sub->mainMail = 0;
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
 
     if (gflagChk(48) != 0) {

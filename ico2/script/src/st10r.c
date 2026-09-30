@@ -93,7 +93,8 @@ static const ConstVec girlWayPos = {{-296.0f, 327.0f, 2125.0f, 0.0f}};
 extern int D_00639EA8;
 /* kept local: this TU's uses of _SCPMoveCharactorByWay do not fit the prototype in script.h */
 extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 extern char *chain10r;
 extern int D_00639EA4;
 /* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
@@ -182,7 +183,7 @@ void actSt10rFloorChk(volatile int a0)
     iosPadActRequest(D_00639EAC, 0x10);
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
 
     gflagOn(300);
@@ -216,7 +217,7 @@ void actSt10rFloorChk(volatile int a0)
 
     SetWayGroupActive(15, 1);
     scpWakeupEnemyAll();
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
 
@@ -260,7 +261,7 @@ void actSt10rCageMain(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
 
     gflagOn(301);
@@ -306,7 +307,7 @@ void actSt10rCageMain(volatile int a0)
 
     scpWakeupEnemyAll();
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     lt_switch_layout(54);
 }
@@ -330,7 +331,7 @@ void actSt10rTowerChk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
 
     FinishHint(21);
@@ -383,7 +384,7 @@ void actSt10rTowerChk(volatile int a0)
 
     scpWakeupEnemyAll();
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     lt_switch_layout(54);
 
@@ -491,7 +492,7 @@ void actSt10rChainMove(volatile int a0)
 
     scpWakeupEnemyAll();
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     lt_switch_layout(54);
 }
@@ -1014,7 +1015,7 @@ void actSt10rChainSwitch(volatile int a0)
 {
     Act *self = ((PObjGObjSt10R *)a0)->act;
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     self->mainMail = 0;
     chain_switch_mes[0].func = actSt10rChainMove;
     self->mail = chain_switch_mes;

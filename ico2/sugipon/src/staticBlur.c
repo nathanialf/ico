@@ -988,7 +988,6 @@ void GetSunWorldPos(int a0)
 }
 
 extern int currentScreenWidth;
-extern int D_0063B13C;
 
 static int motionBlurAlpha = 0; /* derived name */
 
@@ -1005,7 +1004,7 @@ void MotionBlur(void)
     if (currentScreenWidth != 0) {
         return;
     }
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         /* "MBLUR %d" is "MBLUR %d": the blur strength is the value printed */
         debug_Printf(300, 40, 0xFFFFFF00, (int)"MBLUR %d", motionBlurAlpha);
     }
@@ -1115,7 +1114,7 @@ void colorSetting(void)
         colorSettingStep(&flareCol.f[3], d);
         break;
     }
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         debug_Printf(440, 40, 0xFFFFFF00, buf);
     }
 }
@@ -1165,7 +1164,7 @@ void dispPostInfo(void)
             sprintf(buf, "NO ACTION");
             break;
         }
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             debug_Printf(440, 20, 0xFFFFFF00, "BLUR: %s", buf);
         }
     }
@@ -1201,18 +1200,17 @@ void dispFeedInfo(void)
             sprintf(buf, "AURA V2");
             break;
         }
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             debug_Printf(440, 30, 0xFFFFFF00, "FEED: %s", buf);
         }
     }
 }
 
-extern int D_0063B1F0;
 extern struct D275 D_0028F720;
 
 void FullScreenEffectBefore(void)
 {
-    if (D_0063B1F0 == 0) {
+    if (debug_fullscreen_effect == 0) {
         return;
     }
 
@@ -1235,7 +1233,7 @@ void FullScreenEffectBefore(void)
     dispFeedInfo();
 
     if (sunOn)
-        if (D_0063B13C & 1)
+        if (debug_font_flag & 1)
             debug_Printf(250, 40, 0xFFFFFF00, "SUN");
 
     workBase[0] = 0x2800;
@@ -1284,7 +1282,7 @@ void FullScreenEffectBefore(void)
 
 void FullScreenEffectAfter(void)
 {
-    if (D_0063B1F0 == 0) {
+    if (debug_fullscreen_effect == 0) {
         return;
     }
 

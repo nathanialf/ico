@@ -194,7 +194,7 @@ extern void _ACTCommonMailTest(int self, int a1, int a2, int a3);
    hold bit is set, a frame at a time, the way boyact.c's subBoyControl repeats
    its stick loop with _ACTWait; retail builds it as 0. Name and bit ours. */
 #ifdef DEBUG
-#define ENEMY_DEBUG_HOLD (D_0063B13C & 0x200)
+#define ENEMY_DEBUG_HOLD (debug_font_flag & 0x200)
 #else
 #define ENEMY_DEBUG_HOLD 0
 #endif
@@ -243,7 +243,6 @@ extern char D_002A8570[];
 /* kept local: this TU's uses of SetMotionNodeFixModeParameter do not fit the prototype in motionManager2.h */
 extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float *q, float e,
                                           float f, float g, float h);
-extern int D_0063B248;
 extern int D_00639EB4;
 extern void _InterGV(float *dst, float *a, float *b, float t, float u);
 extern void EntryMultiBgaManager(void *bga, int no, int kind, void *pos, void *rot);
@@ -286,7 +285,6 @@ extern void BossEnemyFunc(void *self);
 
 /* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
 extern float _DistGV(void *a, void *b);
-extern int D_0063B240;
 extern float _GetRandom(void);
 /* kept local: this TU's uses of _DistxzGV do not fit the prototype in gv.h */
 extern float _DistxzGV(float *a, void *b);
@@ -322,7 +320,6 @@ extern int isLiftBoyEnable(void);
    in the ROM's .rodata (0x5536C8), so it stays in the blob while the TU's own
    .rodata run ends at the tables. */
 
-extern int D_0063B220;
 /* kept local: enemy_act.c carries none of these owners' headers, and the ROM
    proves gif_StartPacketPri takes the packet priority its GifPacket.h
    prototype does not name. */
@@ -343,14 +340,11 @@ extern void _UnitMatrix(void *p0);
 extern void gif_StartPacketPri(int pri);
 extern void gif_EndPacket(void);
 extern void prim_DispWireSphere(float r, void *col, int nu, int nv);
-extern int D_0063B234;
 /* the three actor sub-threads this function starts; their bodies are below */
 extern void subEnemyControl(volatile int a0);
 extern void subEnemyCollision(volatile int a0);
 extern void subEnemyBrainMain(volatile int a0);
 extern char D_002A84F8[];
-extern int D_0063B1EC;
-extern int D_0063B180;
 extern int InitMultiBgaManager(int a0);
 extern int GetMotherGenerator(int label);
 
@@ -1215,7 +1209,8 @@ int actEnemyForceSwitchToCarry(void *a0)
     *(int *)(*(char **)(D_00639EA8 + 0x164) + 0x144) = (int)a0;
     eBrainSendMes((int)a0, 9);
     eBrainSendMes((int)a0, 7);
-    if ((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 2 < *(int *)(sub + 0x10) && D_0063B248 != 0) {
+    if ((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 2 < *(int *)(sub + 0x10) &&
+        debug_enemy_kidnap_timer != 0) {
         *(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x4D0) = 1;
         if (D_00639EA4 != 0) {
             *(float *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x4E0) =
@@ -2202,7 +2197,7 @@ void enemy_dodge(char *self)
                 if (d < 200.0f) {
                     enemyDodgeSendMail(self);
                 }
-            } else if (D_0063B240 == 0) {
+            } else if (debug_ignore_dodge == 0) {
                 ACTSendMailCorrect(self, 0x113);
             }
         }
@@ -2239,7 +2234,7 @@ void enemy_dodge_to_boy(char *self)
                 if (IsBoyStatus_NotDanger() != 0) {
                     return;
                 }
-                if (D_0063B240 != 0) {
+                if (debug_ignore_dodge != 0) {
                     return;
                 }
                 ACTSendMailCorrect(self, 0x113);
@@ -2602,7 +2597,7 @@ void subEnemyBrain_ToBoy(volatile int a0)
                         1) {
                         mode = 3;
                     }
-                    if (D_0063B240 != 0) {
+                    if (debug_ignore_dodge != 0) {
                         mode = 4;
                     }
                     if (mode != 3) {
@@ -2620,7 +2615,7 @@ void subEnemyBrain_ToBoy(volatile int a0)
                     if (*(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x1E4) == 3) {
                         mode = 4;
                     }
-                    if (D_0063B240 != 0) {
+                    if (debug_ignore_dodge != 0) {
                         mode = 4;
                     }
                     debug_StdPrintfDummy("!!! wwarning !!!\n");
@@ -2838,7 +2833,7 @@ int flyMailCore(void *self)
         goto end;
     }
     if (IsEnemyBrainToGenerator((char *)self, &gen)) {
-        if (flyHigh == 0 && D_0063B220 == 0) {
+        if (flyHigh == 0 && debug_enemy_fly_with_girl == 0) {
             goto end;
         }
         ACTSendMailCorrect(self, 0x1E);
@@ -2944,7 +2939,7 @@ int _ApproachTarget_Way(char *self, void *tgt, void *pos, void *fn, float range,
         *(float *)((char *)pos + 4) = *(float *)(sub + 0x3E4);
         *(float *)((char *)pos + 8) = *(float *)(sub + 0x3E8);
         if (((int)(((ActStatusWord *)(sub + 0x3F0))->q >> 17)) & 1) {
-            if (D_0063B234 != 0) {
+            if (debug_fly_limit_test != 0) {
                 static int col[4] = {255, 100, 0, 128};
 
                 MatrixDrive_PushMatrix();
@@ -3107,7 +3102,7 @@ void actEnemyStart(char *self)
         *(float *)(((EnemySubSlot *)(self + 0x15C))->p + 0x464) = 0.05f;
         *(float *)(((EnemySubSlot *)(self + 0x15C))->p + 0x468) = 0.05f;
     }
-    *(int *)(ENEMY_START_WORK(self) + 0x1EC) = D_0063B1EC;
+    *(int *)(ENEMY_START_WORK(self) + 0x1EC) = debug_enemy_battle_type;
     setBattleStatus((EnemyBattleGObj *)self);
     alive = 0;
     if (actEnemyFlagCheckDead((int *)self) != 0) {
@@ -3125,7 +3120,7 @@ void actEnemyStart(char *self)
             *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x464));
     }
     *(char **)(act + 0xD0) = D_002A84F8;
-    if (D_0063B180 != 0) {
+    if (debug_brain_flag != 0) {
         actCreateSubThread((void *)subEnemyBrainMain, (void *)20);
     }
     actCreateSubThread((void *)subEnemyControl, (void *)21);

@@ -1462,7 +1462,6 @@ extern void _PopCurrentMatrix(void);
 extern void _CopyMatrix(void *dst, void *src);
 extern float _GetLength(void *a, void *b);
 extern int D_0063BCC4;
-extern int D_0063B13C;
 extern int ScreenHeight;
 extern int currentScreenWidth;
 extern char D_0063BCF8[];
@@ -1689,7 +1688,7 @@ void bga_CalcObject(BgaDObjEnt *d, float dt, float f13, int a1, int a2, int a3)
             ((BgaObj *)d->u.obj)->work[d->num].f38.b.f3A = bgaRollZ;
         }
         if (a1 != 0 && d->type == 2) {
-            if (D_0063B13C & 1) {
+            if (debug_font_flag & 1) {
                 debug_Printf(600, ScreenHeight / 2 - 8, 0xCCCCCC00, (int)D_0063BCF8);
             }
             bga_checkCameraDistance();

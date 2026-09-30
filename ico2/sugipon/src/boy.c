@@ -36,6 +36,7 @@ typedef struct { /* 0x10 */
 } __attribute__((aligned(16))) LLColor;
 
 #include "boy.h"
+#include "debug.h"
 
 /* The boy's five generated cloth meshes, in the order InitBoyGeo hands them to
    InitCloth4D: the mantle, the tape belt and the three loose tape strips.
@@ -645,7 +646,6 @@ typedef struct MotSyncPair { /* 0x08 */
 
 extern MotSyncPair D_00533FC0[];
 extern char *D_00639EA8;
-extern int D_0063B154;
 
 /* the two wire spheres the girl-to-boy position sync draws when the debug flag
    is on: blue for the girl, orange for the boy */
@@ -690,7 +690,7 @@ void synchronizeMotionOutputOriginForGirl(char *gobj)
             GetRootPosition(v, D_00639EA8);
             _AddVectorXYZ(v, v, d);
             SetDirectRootPositionNoFitting(D_00639EA8, v);
-            if (D_0063B154 != 0) {
+            if (debug_wallhitcoldisp != 0) {
                 gif_StartPacketPri(0xB);
                 gif_SetAlpha(1, 5, 0x80);
                 _UnitMatrix(MatrixDrive_GetMatrix());

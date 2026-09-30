@@ -323,8 +323,6 @@ extern void _AddVector(void *dst, void *a, void *b);
 extern char XUnitVector[];
 extern char ZeroPoint[];
 extern int D_0028F4C0[];
-extern int D_0063B198;
-extern int D_0063B1E0;
 
 /* The arm IK's angles: the shoulder's turns about Z and Y and the two
    joints' bends. */
@@ -365,7 +363,9 @@ typedef struct {
 /* The frame-rate factors every blend in _getFinalMatrix scales by: the
  * frame counter pair gives the frames per second of the current mode. */
 #define MOT_FPS ((float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]))
-#define MOT_SPEED (D_0063B198 != 0 ? (float)D_0063B1E0 * 0.01f : *(float *)(D_0063C4A8 + 0x158))
+#define MOT_SPEED                                                                                  \
+    (debug_now_motion_viewer != 0 ? (float)debug_face_rot_w_ratio * 0.01f                          \
+                                  : *(float *)(D_0063C4A8 + 0x158))
 #define MOT_RATE(off) (*(float *)(D_0063C490 + (off)) * (60.0f / MOT_FPS))
 #define MOT_BLEND(off) (MOT_RATE(off) + (1.0f - MOT_RATE(off)) * MOT_SPEED)
 
@@ -1156,8 +1156,6 @@ static int emphasysEdit = 0; /* derived name */
 
 static int emphasysSelect = 0; /* derived name */
 
-extern int D_0063B13C;
-
 void EditRotEmphasys(void)
 {
     int sel;
@@ -1166,14 +1164,14 @@ void EditRotEmphasys(void)
         emphasysEdit = emphasysEdit == 0;
     }
     if (emphasysEdit != 0) {
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             debug_Printf(300, 170, 0xFFFFFF00u, (int)"Emphasys Accel   Velocity");
         }
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             debug_Printf(300, 180, emphasysSelect != 0 ? 0xFFFFFF00u : 0x80808000u,
                          (int)"         %1.5f ", emphasysAccel);
         }
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             debug_Printf(300, 180, emphasysSelect != 0 ? 0x80808000u : 0xFFFFFF00u,
                          (int)"                 %1.5f", emphasysVelocity);
         }

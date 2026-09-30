@@ -66,7 +66,6 @@ typedef struct PadStateSt18A {
 
 extern PadStateSt18A D_0028F8F0[];
 extern int D_00639EA4;
-extern int D_0063AA08;
 
 void actSt18aIntroChk(volatile int a0)
 {
@@ -78,7 +77,7 @@ void actSt18aIntroChk(volatile int a0)
 
     gflagOn(55);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     _ACTWait(1);
 
@@ -104,7 +103,7 @@ void actSt18aIntroChk(volatile int a0)
     }
 
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 extern int D_0028F4C0[];
@@ -275,7 +274,7 @@ void actSt18aDoorChk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
 
     gflagOn(60);
@@ -314,7 +313,7 @@ void actSt18aDoorChk(volatile int a0)
 
     doorChk_mes[0].func = actSt18aDoorDownChk;
     sub->mail = doorChk_mes;
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }

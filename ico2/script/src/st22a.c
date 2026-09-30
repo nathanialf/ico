@@ -104,7 +104,6 @@ void actSt22aIntro(volatile int a0)
    subthread the wait loop below spins for. */
 static int demoEnd;
 
-extern int D_0063AA08;
 extern int D_0028F4C0[];
 extern int D_0028F8F4[];
 
@@ -126,7 +125,7 @@ void actSt22aIntroChk(volatile int a0)
     gflagOn(323);
     scpSekizouCheckPoint();
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpPlayStart(D_00639EA4);
     gflagOn(324);
     stage_SetAnimation(758, 1, 0);
@@ -169,7 +168,7 @@ void actSt22aIntroChk(volatile int a0)
     }
     scpPlayEnd(D_00639EA4);
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 void actSt22aIntroSub(volatile int a0)

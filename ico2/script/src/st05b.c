@@ -53,7 +53,8 @@ extern unsigned char sekizo_5b_vol;
 extern int D_00639EA4;
 extern int D_00639EA8;
 extern int D_00639EAC;
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 /* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int gobj, float r);
 /* kept local: this TU's uses of scpKillEnemyAll do not fit the prototype in script.h */
@@ -90,7 +91,7 @@ void actSt05bSekizoChk(volatile int a0)
         _ACTWait(1);
     }
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     brainLockGirl();
     scpKillEnemyAll();
     scpMaskGeneratorAll();
@@ -114,7 +115,7 @@ void actSt05bSekizoChk(volatile int a0)
     _ACTWait(1);
     sceVu0SubVector(d, test_CURRENTROOT(a0), test_CURRENTROOT(D_00639EA8));
     scpPlayMotDir(D_00639EA8, d);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     sceVu0SubVector(d, test_CURRENTROOT(D_00639EA8), test_CURRENTROOT(D_00639EA4));
     scpPlayMotDir(D_00639EA4, d);
     scpSekizouCheckPoint();
@@ -141,7 +142,7 @@ void actSt05bSekizoChk(volatile int a0)
     }
     _ACTWait(1);
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 void actSt05bDoorXL(volatile int a0)

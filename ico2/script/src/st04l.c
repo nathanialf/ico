@@ -30,7 +30,8 @@ extern PObjGObj *scpSearchGobj(int a0);
 extern int scpIsTorchLightOn(int a0);
 /* as script.h declares it; this TU does not include that header */
 extern void scpTorchLightOn(int a0);
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 extern Pad D_0028F8F0[];
 extern int D_0028F8F4[];
 extern int crest2;
@@ -88,7 +89,7 @@ extern unsigned int ball1_4l;
 extern int D_0028F4C0[];
 /* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, void *a1, int a2, int a3, int a4);
-extern float D_0063AA0C;
+extern float scpSeEnvMasterVolRate;
 extern int D_00639ED4;
 extern int sekizo_4r;
 /* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
@@ -376,7 +377,7 @@ void actSt04lBallTurnCommon(volatile int a0)
     scpSearchGobj(turnGobj1)->f16C = 1;
     scpSearchGobj(turnGobj2)->f16C = 1;
     scpWakeupEnemyAll();
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
 
@@ -571,7 +572,7 @@ void actSt04lCrestMain(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
 
     fightSoundProcessRequestPause();
@@ -680,7 +681,7 @@ void actSt04lCrest2Main(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
 
     scpAdpcmPlayRequestFunc(26, &ball3_4l, 1, 1, 1);
@@ -726,7 +727,7 @@ void actSt04lCrest2Main(volatile int a0)
     }
 
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     scpWakeupEnemyAll();
 }
 
@@ -767,7 +768,7 @@ void actSt04lCrest3Main(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
 
     scpAdpcmPlayRequestFunc(24, &crest1, 0, 1, 1);
@@ -808,7 +809,7 @@ void actSt04lCrest3Main(volatile int a0)
     }
 
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     scpWakeupEnemyAll();
 }
 
@@ -818,7 +819,7 @@ void actSt04eSolarBeamChk(volatile int a0)
 
     gflagOff(224);
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     scpAdpcmPlayRequestFunc(28, &crest2, 0, 1, 1);
 
@@ -937,7 +938,7 @@ void actSt04lStairChk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyOne(3757);
     gflagOn(180);
     FinishHint(17);
@@ -1005,7 +1006,7 @@ void actSt04lStairChk(volatile int a0)
     scpPlayEnd(D_00639EA4);
     scpPlayEnd(D_00639EA8);
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
     gflagOn(220);
     scpWakeupEnemyOne(3757);
@@ -1171,7 +1172,7 @@ void actSt04lSekizoChk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpKillEnemyAll();
     scpMaskGeneratorAll();
 
@@ -1201,7 +1202,7 @@ void actSt04lSekizoChk(volatile int a0)
     sceVu0SubVector(dir, test_CURRENTROOT((void *)a0), test_CURRENTROOT(D_00639EA8));
     scpPlayMotDir(D_00639EA8, dir);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     sceVu0SubVector(dir, test_CURRENTROOT(D_00639EA8), test_CURRENTROOT(D_00639EA4));
     scpPlayMotDir(D_00639EA4, dir);
@@ -1234,7 +1235,7 @@ void actSt04lSekizoChk(volatile int a0)
     iosOmSendMail(D_00639EA8, 0x3F, D_00639EA4);
 
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 void actSt04lGondolaChk(volatile int a0)
@@ -1246,7 +1247,7 @@ void actSt04lGondolaChk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
     _ACTWait(15);
 
@@ -1316,7 +1317,7 @@ void actSt04lGondolaChk(volatile int a0)
         gflagOff(194);
     }
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
     scpWakeupEnemyAll();
 
@@ -1337,7 +1338,7 @@ void actSt04lMonyou01Chk(volatile int a0)
         _ACTWait(1);
     }
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     gflagOn(212);
     FinishHint(16);
     scpSleepEnemyAll();
@@ -1368,7 +1369,7 @@ void actSt04lMonyou01Chk(volatile int a0)
         iosOmSendMail(D_00639EA8, 0x3F, D_00639EA4);
     }
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 void actSt04lMonyou02Chk(volatile int a0)
@@ -1382,7 +1383,7 @@ void actSt04lMonyou02Chk(volatile int a0)
         _ACTWait(1);
     }
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     gflagOn(213);
     scpSleepEnemyAll();
 
@@ -1412,7 +1413,7 @@ void actSt04lMonyou02Chk(volatile int a0)
         iosOmSendMail(D_00639EA8, 0x3F, D_00639EA4);
     }
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 void actSt04lMonyou03Chk(volatile int a0)
@@ -1426,7 +1427,7 @@ void actSt04lMonyou03Chk(volatile int a0)
         _ACTWait(1);
     }
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     gflagOn(214);
     scpSleepEnemyAll();
 
@@ -1456,7 +1457,7 @@ void actSt04lMonyou03Chk(volatile int a0)
         iosOmSendMail(D_00639EA8, 0x3F, D_00639EA4);
     }
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 void actSt04lMonyou04Chk(volatile int a0)
@@ -1470,7 +1471,7 @@ void actSt04lMonyou04Chk(volatile int a0)
         _ACTWait(1);
     }
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     gflagOn(215);
     scpSleepEnemyAll();
 
@@ -1500,7 +1501,7 @@ void actSt04lMonyou04Chk(volatile int a0)
         iosOmSendMail(D_00639EA8, 0x3F, D_00639EA4);
     }
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 void actSt04lMonyou05Chk(volatile int a0)
@@ -1514,7 +1515,7 @@ void actSt04lMonyou05Chk(volatile int a0)
         _ACTWait(1);
     }
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     gflagOn(216);
     scpSleepEnemyAll();
 
@@ -1544,7 +1545,7 @@ void actSt04lMonyou05Chk(volatile int a0)
         iosOmSendMail(D_00639EA8, 0x3F, D_00639EA4);
     }
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 void actSt04lMonyou06Chk(volatile int a0)
@@ -1558,7 +1559,7 @@ void actSt04lMonyou06Chk(volatile int a0)
         _ACTWait(1);
     }
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     gflagOn(217);
     scpSleepEnemyAll();
 
@@ -1588,7 +1589,7 @@ void actSt04lMonyou06Chk(volatile int a0)
         iosOmSendMail(D_00639EA8, 0x3F, D_00639EA4);
     }
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 void actSt04lMonyou07Chk(volatile int a0)
@@ -1602,7 +1603,7 @@ void actSt04lMonyou07Chk(volatile int a0)
         _ACTWait(1);
     }
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     gflagOn(218);
     scpSleepEnemyAll();
 
@@ -1632,7 +1633,7 @@ void actSt04lMonyou07Chk(volatile int a0)
         iosOmSendMail(D_00639EA8, 0x3F, D_00639EA4);
     }
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 void actSt04lOriSub(volatile int a0)
@@ -1680,7 +1681,7 @@ void actSt04lOriChk(volatile int a0)
 
     scpSleepEnemyAll();
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     scpPlayMot(D_00639EA4, 0);
 
@@ -1727,7 +1728,7 @@ void actSt04lOriChk(volatile int a0)
     }
 
     scpWakeupEnemyAll();
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
 
@@ -1874,7 +1875,7 @@ void actSt04lOri2Chk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     gflagOn(203);
     WakeupHint(15);
     SetWayGroupActive(14, 1);
@@ -1914,7 +1915,7 @@ void actSt04lOri2Chk(volatile int a0)
     }
 
     scpWakeupEnemyAll();
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
 
@@ -1934,7 +1935,7 @@ void actSt04lCrest01(volatile int a0)
     } else {
         stage_SetAnimation(199, 0, -1);
 
-        D_0063AA08 = 0;
+        scpBoyControlReadDisable = 0;
     }
 }
 
@@ -2745,7 +2746,7 @@ void actSt04eSolarBeam(volatile int a0)
 
         gflagOn(389);
 
-        D_0063AA0C = 0.0f;
+        scpSeEnvMasterVolRate = 0.0f;
         scpFadeOut(255.0f, 0, 0, 0);
 
         st04eSolarBeam_mes[0].func = actSt04eSolarBeamChk;
@@ -2769,7 +2770,7 @@ void actSt04lC1BallSwitch(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     sub->mainMail = 0;
 
@@ -2810,7 +2811,7 @@ void actSt04lC2BallSwitch(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     sub->mainMail = 0;
 
@@ -2851,7 +2852,7 @@ void actSt04lC3BallSwitch(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     sub->mainMail = 0;
 
@@ -2915,7 +2916,7 @@ void actSt04lBrg1Chk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
     gflagOn(182);
 
@@ -2951,7 +2952,7 @@ void actSt04lBrg2Chk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
     gflagOn(183);
     WakeupHint(16);

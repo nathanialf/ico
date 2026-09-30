@@ -419,7 +419,6 @@ static float fadeLevel;
 
 static int gsbUnusedWord;
 
-extern int D_0063B13C;
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
 extern unsigned char fadeColor[4];
@@ -486,7 +485,7 @@ void gsb_fade(void)
     setGsReg(0x42, 0x44);
     spriteRect(r.x, r.y, r.w, r.h, -1LL, fadeColor, 0x446);
     gif_EndPacket();
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         debug_Printf(0x208, ScreenHeight / 2 - 8, 0xCCCCCC00, "F");
     }
     return;
@@ -561,7 +560,7 @@ void gsb_scissorOnDemo(void)
         scissorStep = 0.0f;
     }
     if (0.0f < scissorLevel && scissorLevel <= 128.0f) {
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             debug_Printf(0x21C, ScreenHeight / 2 - 8, 0xCCCCCC00, "D");
         }
         dl_SetDLPriority(11);
@@ -609,7 +608,7 @@ void gsb_controlBrightness(void)
         v = D_0028F4C0[0x2C / 4] = 0xF;
     }
     if (v != 0) {
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             debug_Printf(0x212, ScreenHeight / 2 - 8, 0xCCCCCC00, "B");
         }
         gif_StartPacketPri(0xB);
@@ -951,14 +950,14 @@ static int postEffectReady = 0; /* derived name */
  * buffer, the staff roll and last the fade and the demo scissor. */
 int gsb_PostEffect(void)
 {
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         debug_Printf(0xA, ScreenHeight / 2 - 8, 0xCCCCCC00, "LID:%3d / FADE%d:%3.0f(%d)",
                      D_0063B60C, fadeStatus, fadeLevel, D_0063BCB3);
     }
-    if (D_0028F4C0[0x18 / 4] != 0 && (D_0063B13C & 1)) {
+    if (D_0028F4C0[0x18 / 4] != 0 && (debug_font_flag & 1)) {
         debug_Printf(0x230, ScreenHeight / 2 - 8, 0xCCCCCC00, "L");
     }
-    if (D_0028F4C0[0x14 / 4] != 0 && (D_0063B13C & 1)) {
+    if (D_0028F4C0[0x14 / 4] != 0 && (debug_font_flag & 1)) {
         debug_Printf(0x23A, ScreenHeight / 2 - 8, 0xCCCCCC00, "P");
     }
     FullScreenEffectAfter();
@@ -974,7 +973,7 @@ int gsb_PostEffect(void)
     gsb_controlBrightness();
     if (fbKeep != 0) {
         gsb_KeepFrameBuffer();
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             debug_Printf(0x226, ScreenHeight / 2 - 8, 0xCCCCCC00, "K");
         }
     }
@@ -1268,9 +1267,6 @@ void gsb_SetVSMatrixSub(float *a, float *b, float *c, float *d, float *vs)
 }
 
 extern float staffRollCenterOffsetX;
-extern int D_0063B1B0;
-extern int D_0063B1B8;
-extern int D_0063B1C8;
 extern int D_0028F948[];
 
 /* The view record gsb_SetVSMatrixSub builds the view and screen matrices
@@ -1305,13 +1301,13 @@ void gsb_SetVSMatrix(int w, int h, float d)
     if (staffRollStartFlag != 0) {
         center_X = center_X - staffRollCenterOffsetX;
     }
-    zoom = (float)D_0028F720.viewScale * zoomCurrent * d * (float)D_0063B1B0 * (float)ScreenWidth /
-           640.0f / 100.0f / 100.0f;
+    zoom = (float)D_0028F720.viewScale * zoomCurrent * d * (float)debug_zoom_per *
+           (float)ScreenWidth / 640.0f / 100.0f / 100.0f;
     vsParam[0] = zoom;
-    if (D_0063B1C8 != 0 || (D_0028F948[0] & 0x800) != 0) {
-        vsParam[0] = zoom * (float)D_0063B1B8 / 100.0f;
+    if (debug_snapshot_reserve != 0 || (D_0028F948[0] & 0x800) != 0) {
+        vsParam[0] = zoom * (float)debug_snapshot_num / 100.0f;
     }
-    tex_UpdateMipMapLevel((float)D_0028F720.viewScale * zoomCurrent * (float)D_0063B1B0 *
+    tex_UpdateMipMapLevel((float)D_0028F720.viewScale * zoomCurrent * (float)debug_zoom_per *
                           (float)ScreenWidth / 640.0f / 100.0f);
     vsParam[3] = center_X;
     vsParam[4] = center_Y;

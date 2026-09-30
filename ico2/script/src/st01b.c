@@ -44,7 +44,8 @@ void actSt01bInit(void)
 
 extern int D_00639EA4;
 extern int D_00639EA8;
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 /* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int gobj, int attr);
 /* as script.h declares it; this TU does not include that header */
@@ -63,7 +64,7 @@ void actSt01bEneChk(volatile int a0)
         _ACTWait(1);
     }
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyOne(3757);
     _ACTWait(30);
     gflagOn(68);
@@ -78,7 +79,7 @@ void actSt01bEneChk(volatile int a0)
     }
     _ACTWait(1);
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     scpWakeupEnemyOne(3757);
 }
 
@@ -169,7 +170,7 @@ void actSt01bFloorChk(volatile int a0)
         _ACTWait(1);
     }
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
     gflagOn(70);
     FinishHint(9);
@@ -221,7 +222,7 @@ void actSt01bFloorChk(volatile int a0)
 
     iosPadActStop(st01b_yure);
     scpWakeupEnemyAll();
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
 

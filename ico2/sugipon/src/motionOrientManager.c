@@ -157,9 +157,9 @@ typedef struct MotOriWork {
 /* .rodata at 0x55FE58 in the ROM: the trigger definition table is read-only. */
 extern const MotOriTrigEnt D_0055FE58[];
 extern int D_0028F4D4[];
+
 /* the seventeen fixed captions the orientation debug window prints, one per
    trigger kind, plus the window's own format at 0x6201C8 */
-extern int D_0063B160;
 
 /* The motion-name row the debug line prints: 32 bytes the ROM copies with
  * ldl/ldr, so a 4-aligned record and not an 8-aligned one. */
@@ -232,7 +232,7 @@ void orientDebug(void *self, int idx, int y)
         sprintf(buf, "DIRECTPLAY");
         break;
     }
-    if (D_0063B160 != 0) {
+    if (debug_window_flag != 0) {
         name = D_005D1278[idx];
         debug_PrintFontWindow(y, "%s \207 %s (%s)\n", &name,
                               D_0055FE58[*(int *)(MOWORK(self) + 0x4A0)].name, buf);
@@ -494,7 +494,6 @@ inline MotionOrientEntry *getMotionOrient(int i, int n, int id, int kind)
     return &D_002BC4A8;
 }
 
-extern int D_0063B188;
 extern char *matrixptr;
 
 void sendStateMail(void *self)
@@ -503,7 +502,7 @@ void sendStateMail(void *self)
     float pos[4];
     char *w = MOWORK(self) + 0x470;
 
-    if (D_0063B188 != 0) {
+    if (debug_wire_string != 0) {
         MatrixDrive_PushMatrix();
         sceVu0TransposeMatrix(m, matrixptr + 0x80);
         m[0][3] = m[1][3] = m[2][3] = 0.0f;
@@ -513,7 +512,7 @@ void sendStateMail(void *self)
         sceVu0MulMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix(), m);
     }
     if (*(int *)(w + 0x14) & 0x2) {
-        if (D_0063B188 != 0) {
+        if (debug_wire_string != 0) {
             MatrixDrive_PushMatrix();
             MatrixDrive_TransMatrix(0.0f, 80.0f, 0.0f);
             DispWireString("HIT");
@@ -522,7 +521,7 @@ void sendStateMail(void *self)
     }
     if (*(int *)(w + 0x14) & 0x4) {
         iosOmSendMail(self, 7, self);
-        if (D_0063B188 != 0) {
+        if (debug_wire_string != 0) {
             MatrixDrive_PushMatrix();
             MatrixDrive_TransMatrix(-50.0f, 0.0f, 0.0f);
             DispWireString("FALL");
@@ -531,7 +530,7 @@ void sendStateMail(void *self)
     }
     if (*(int *)(w + 0x14) & 0x10) {
         iosOmSendMail(self, 8, self);
-        if (D_0063B188 != 0) {
+        if (debug_wire_string != 0) {
             MatrixDrive_PushMatrix();
             MatrixDrive_TransMatrix(50.0f, 40.0f, 0.0f);
             DispWireString("CLIFF");
@@ -540,7 +539,7 @@ void sendStateMail(void *self)
     }
     if (*(int *)(w + 0x14) & 0x20) {
         iosOmSendMail(self, 9, self);
-        if (D_0063B188 != 0) {
+        if (debug_wire_string != 0) {
             MatrixDrive_PushMatrix();
             MatrixDrive_TransMatrix(50.0f, 0.0f, 0.0f);
             DispWireString("WALL");
@@ -549,7 +548,7 @@ void sendStateMail(void *self)
     }
     if (*(int *)(w + 0x14) & 0x1000) {
         iosOmSendMail(self, 33, self);
-        if (D_0063B188 != 0) {
+        if (debug_wire_string != 0) {
             MatrixDrive_PushMatrix();
             MatrixDrive_TransMatrix(50.0f, 0.0f, 0.0f);
             DispWireString("UPPER WALL");
@@ -558,7 +557,7 @@ void sendStateMail(void *self)
     }
     if (*(int *)(w + 0x14) & 0x8) {
         iosOmSendMail(self, 10, self);
-        if (D_0063B188 != 0) {
+        if (debug_wire_string != 0) {
             MatrixDrive_PushMatrix();
             MatrixDrive_TransMatrix(0.0f, -80.0f, 0.0f);
             DispWireString("LANDING");
@@ -567,7 +566,7 @@ void sendStateMail(void *self)
     }
     if (*(int *)(w + 0x14) & 0x400) {
         iosOmSendMail(self, 26, self);
-        if (D_0063B188 != 0) {
+        if (debug_wire_string != 0) {
             MatrixDrive_PushMatrix();
             MatrixDrive_TransMatrix(0.0f, -80.0f, 0.0f);
             DispWireString("WATER");
@@ -583,7 +582,7 @@ void sendStateMail(void *self)
     if (*(int *)(w + 0x14) & 0x200) {
         iosOmSendMail(self, 16, self);
     }
-    if (D_0063B188 != 0) {
+    if (debug_wire_string != 0) {
         MatrixDrive_PopMatrix();
     }
 }
@@ -965,7 +964,6 @@ int parallelMotionShift(void *self)
     return 0;
 }
 
-extern int D_0063B194;
 extern void *D_00639EA4;
 extern void *D_00639EA8;
 
@@ -973,7 +971,6 @@ extern void *D_00639EA8;
    motion. */
 static int ignoreCount = 0; /* derived name */
 
-extern int D_0063B160;
 extern int D_0028F8F0[];
 
 static int ignoreMotion = 0; /* derived name */
@@ -1006,11 +1003,12 @@ char *SetMotionRequest(void *self, int mot, MotOriReq req)
             debug_StdPrintfDummy("\033[36mUpdate with collision info that act memorized.\033[m\n");
             break;
         }
-        if ((D_0063B194 == 0 && self == D_00639EA4) || (D_0063B194 == 1 && self == D_00639EA8) ||
-            (D_0063B194 == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
-            (D_0063B194 == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
-            (D_0063B194 == 4 && self == isysGObjSearchFromObjKindID_begin(47))) {
-            if (ignoreCount != 0 && D_0063B160 != 0) {
+        if ((debug_mot_debug_target == 0 && self == D_00639EA4) ||
+            (debug_mot_debug_target == 1 && self == D_00639EA8) ||
+            (debug_mot_debug_target == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
+            (debug_mot_debug_target == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
+            (debug_mot_debug_target == 4 && self == isysGObjSearchFromObjKindID_begin(47))) {
+            if (ignoreCount != 0 && debug_window_flag != 0) {
                 debug_PrintFontWindow(0xC0FF20, "\n ");
             }
             orientDebug(self, mot, 0xFFFFFF80);
@@ -1019,20 +1017,20 @@ char *SetMotionRequest(void *self, int mot, MotOriReq req)
     } else {
         *(int *)(w + 0xD0) = old;
         if (D_0028F8F0[0] & 0x2) {
-            if ((D_0063B194 == 0 && self == D_00639EA4) ||
-                (D_0063B194 == 1 && self == D_00639EA8) ||
-                (D_0063B194 == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
-                (D_0063B194 == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
-                (D_0063B194 == 4 && self == isysGObjSearchFromObjKindID_begin(47))) {
+            if ((debug_mot_debug_target == 0 && self == D_00639EA4) ||
+                (debug_mot_debug_target == 1 && self == D_00639EA8) ||
+                (debug_mot_debug_target == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
+                (debug_mot_debug_target == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
+                (debug_mot_debug_target == 4 && self == isysGObjSearchFromObjKindID_begin(47))) {
                 MotOriSpin spin = {{"-", "\\", "|", "/"}};
 
                 if (ignoreMotion != mot && ignoreCount != 0) {
                     ignoreCount = 0;
-                    if (D_0063B160 != 0) {
+                    if (debug_window_flag != 0) {
                         debug_PrintFontWindow(0xC0FF20, "\n ");
                     }
                 }
-                if (D_0063B160 != 0) {
+                if (debug_window_flag != 0) {
                     MotOriName name = D_005D1278[mot];
 
                     debug_PrintFontWindow(0x3080FF20, "%s %s at %s ignore %d times",
@@ -1134,8 +1132,6 @@ extern void GetFloatingMotionRootPos(float *v, int *md, float f);
 extern void MakeMirrorMotion(void *dst, int *p);
 extern void SlopeIKControl(void *self, void *m, float *v, float *r, int n);
 extern void ExecFrameDependSequence(void *self);
-extern int D_0063B16C;
-extern int D_0063B198;
 extern int stage_no;
 
 /* Listing lines 1150 to 1160: a static inline with no symbol and no census row,
@@ -1290,7 +1286,7 @@ void getMotionGeometry(void *self)
             if (r < -6144.0f) {
                 r = -6144.0f;
             }
-            if (D_0063B198 == 0) {
+            if (debug_now_motion_viewer == 0) {
                 float t = 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.2f;
 
                 *(short *)(mo + 0x50) = (short)((float)*(short *)(mo + 0x50) * (1.0f - t)) + r * t;
@@ -1314,7 +1310,7 @@ void getMotionGeometry(void *self)
                 rotateNodes(mot, p, &rot);
             }
             flag = 0;
-            if (D_0063B16C != 0) {
+            if (debug_motion_interporate != 0) {
                 flag = *(int *)(w + 0xA4) >= *(int *)(w + 0xA0);
             }
             k = D_0055FE58[*(int *)(w + 0x30)].f11C;
@@ -1645,12 +1641,13 @@ void ExecMotionOrient(void *self)
         } else {
             parallelMotionShift(self);
         }
-        if ((D_0063B194 == 0 && self == D_00639EA4) || (D_0063B194 == 1 && self == D_00639EA8) ||
-            (D_0063B194 == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
-            (D_0063B194 == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
-            (D_0063B194 == 4 && self == isysGObjSearchFromObjKindID_begin(47))) {
+        if ((debug_mot_debug_target == 0 && self == D_00639EA4) ||
+            (debug_mot_debug_target == 1 && self == D_00639EA8) ||
+            (debug_mot_debug_target == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
+            (debug_mot_debug_target == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
+            (debug_mot_debug_target == 4 && self == isysGObjSearchFromObjKindID_begin(47))) {
             if (*(int *)(w + 0xC) != 0) {
-                if (ignoreCount != 0 && D_0063B160 != 0) {
+                if (ignoreCount != 0 && debug_window_flag != 0) {
                     debug_PrintFontWindow(0xC0FF20, "\n ");
                 }
                 orientDebug(self, *(int *)(w + 0xD0), 0xE0FF20);

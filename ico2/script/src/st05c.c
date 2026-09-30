@@ -33,7 +33,8 @@ extern Pad D_0028F8F0[];
 extern int scpEffectStart(StVec *a0, int a1);
 extern int D_00639EA4;
 extern int D_00639EA8;
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 
 /* .sbss, owned by st05c.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
@@ -66,7 +67,7 @@ void actSt05cDoorDownChk(volatile int a0)
         _ACTWait(1);
     }
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     _ACTWait(30);
     gflagOff(390);
     actCreateSubThread(actSt05cDoorDownEffect, 21);
@@ -84,7 +85,7 @@ void actSt05cDoorDownChk(volatile int a0)
 
     _ACTWait(1);
     gflagOn(165);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 void actSt04rDoorChk(volatile int a0)
@@ -110,7 +111,7 @@ void actSt04rDoorChk(volatile int a0)
         case 2:
             scpSearchGobj(1380)->f16C = 0;
             lt_switch_layout(55);
-            D_0063AA08 = 1;
+            scpBoyControlReadDisable = 1;
             scpSleepEnemyAll();
             gflagOn(255);
             demoEnd = 0;
@@ -137,7 +138,7 @@ void actSt04rDoorChk(volatile int a0)
 
             soundSeDefPlay(1331, 0, 0, 1);
             scpWakeupEnemyAll();
-            D_0063AA08 = 0;
+            scpBoyControlReadDisable = 0;
             lt_switch_layout(54);
             break;
         }
@@ -167,7 +168,7 @@ void actSt04rDoor2Chk(volatile int a0)
         case 2:
             scpSearchGobj(1381)->f16C = 0;
             lt_switch_layout(55);
-            D_0063AA08 = 1;
+            scpBoyControlReadDisable = 1;
             scpSleepEnemyAll();
             gflagOn(256);
             demoEnd = 0;
@@ -194,7 +195,7 @@ void actSt04rDoor2Chk(volatile int a0)
 
             soundSeDefPlay(1331, 0, 0, 1);
             scpWakeupEnemyAll();
-            D_0063AA08 = 0;
+            scpBoyControlReadDisable = 0;
             lt_switch_layout(54);
             break;
         }

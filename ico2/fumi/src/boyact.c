@@ -621,7 +621,8 @@ extern int CheckFloorAttribute(void *self, int id);
 extern void RequestStageChange(int id, void *boy, void *girl, float a, float b);
 extern int stage_no;
 extern int D_00639EB4;
-extern int D_0063AA08;
+/* kept local: script.h's scpPlay* and RequestStageChange prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 extern int D_00639EBC;
 
 void CheckCollisionAttr(void *self)
@@ -640,7 +641,7 @@ void CheckCollisionAttr(void *self)
     if (D_00639EB4 != 0) {
         return;
     }
-    if (D_0063AA08 != 0) {
+    if (scpBoyControlReadDisable != 0) {
         return;
     }
     for (i = 1; i < 16; i++) {
@@ -885,7 +886,6 @@ void E3_StageStartBoy(void *self)
 
 extern int D_0028F4C0[];
 extern int *D_004EB758[];
-extern int D_0063B13C;
 extern int fptodp(float v);
 
 int GetChainSlope(void)
@@ -905,10 +905,10 @@ int GetChainSlope(void)
     ratio = (float)*D_004EB758[GOBJ_SUB(g)->f_4A0] / (c * 0.5f);
     ACTGame_SetMotionPlaySpeedRatio_Reserve(
         g, ratio * (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 30.0f, 7);
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         debug_Printf(10, 140, 0x0FFFFFFF, "speed = %f (%f)\n", fptodp(ratio), fptodp(c));
     }
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         debug_Printf(10, 150, 0x0FFFFFFF, "%f / %f\n", fptodp(GOBJ_SUB(g)->f_4AC),
                      fptodp((float)*D_004EB758[GOBJ_SUB(g)->f_4A0]));
     }
@@ -961,8 +961,6 @@ extern void *D_00639EC0;
 extern void *optionControlType;
 extern int D_0063ABA0;
 extern int D_0063ABA4;
-extern int D_0063B1E8;
-extern unsigned char D_0063B20C;
 
 /* the ClipWall work record as this function uses it: the two segment
    endpoints, the radius at 0x70 and the hit flag at 0x88 (commonact.c's
@@ -1101,7 +1099,7 @@ void subBoyControl(volatile int a0)
                 goto noStick;
             }
             *(unsigned long long *)(s + 0x18) &= ~0x800000000;
-            if (D_0063AA08 == 0 &&
+            if (scpBoyControlReadDisable == 0 &&
                 *(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x4B0) == 0 &&
                 (PrivInsCamChk() == 0 || boyPrivInsCamInScreen())) {
                 iosPadRead(s + 0x2D8);
@@ -1114,9 +1112,10 @@ void subBoyControl(volatile int a0)
                 } else {
                     layoutActPushStartNew = 0;
                 }
-                iosPadGetStick(s + 0x2D8, s + 0x338, 0, 2, 2, D_0063B20C);
-                if (D_0063B1E8) {
-                    if (D_0063B13C & 1) {
+                /* the ROM passes the option word's low byte (an lbu) */
+                iosPadGetStick(s + 0x2D8, s + 0x338, 0, 2, 2, (unsigned char)debug_stick_simulate);
+                if (debug_stick_input) {
+                    if (debug_font_flag & 1) {
                         debug_Printf(10, 170, 0x0FFFFFFF, (int)"L = %f\n",
                                      fptodp(*(float *)(s + 0x34C)));
                     }
@@ -3717,7 +3716,7 @@ void actBoyStart(int a0)
                 D_0063C1F9 = 1;
                 D_006C0AB0.pos = cw.f80;
                 D_006C0AB0.hit = cw.f88;
-                D_0063AA08 = 0;
+                scpBoyControlReadDisable = 0;
                 ActSendMail_WithAdditionalData((void *)a0, 0x36, (void *)a0, &D_006C0AB0);
                 if (BOYINFO.bit32 && D_00639EA8 != 0) {
                     ActSendMail_WithAdditionalData(D_00639EA8, 0x36, D_00639EA8, &D_006C0AB0);

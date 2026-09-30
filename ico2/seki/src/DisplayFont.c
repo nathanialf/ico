@@ -1,5 +1,6 @@
 /* .data, carved VMA 0x4EE5F0..0x4EE6F0 (1 symbols), bytes verified against the target ELF */
 #include "DisplayFont.h"
+#include "debug.h"
 #include <string.h>
 
 unsigned int D_004EE5F0[64] = {
@@ -106,7 +107,6 @@ typedef struct {
 
 extern int ScreenHeight;
 extern char D_0063BD18[];
-extern int D_0063B124;
 extern int tex_GetTextureNo(void *name);
 extern int tex_TransTexture(int no, int pri);
 extern void gif_StartPacketPriPath1(int pri);
@@ -178,7 +178,7 @@ void font_Print(unsigned int color, unsigned char *str, float x, float y, int al
         return width;
     }
 
-    D_0063B124 += tex_TransTexture(tex_GetTextureNo(D_0063BD18), 12);
+    texturetranssize += tex_TransTexture(tex_GetTextureNo(D_0063BD18), 12);
     gif_StartPacketPriPath1(12);
 
     cy = cx = 0.0f;

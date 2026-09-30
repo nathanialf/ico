@@ -63,7 +63,6 @@ static ActMail hint1_mes[2] = {{430}, {429}};
 
 extern int D_00639EA8;
 extern int D_00639EA4;
-extern int D_0063AA08;
 
 void actSt20aInit(void)
 {
@@ -132,7 +131,7 @@ void actSt20aBridgeDown(volatile int a0)
     iosPadActStop(st20a_yure);
     SetWayGroupActive(4, 1);
     scpWakeupEnemyAll();
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
 
@@ -536,7 +535,7 @@ void actSt20aGirlPos(volatile int a0)
 void actSt20aBridgeMain(volatile int a0)
 {
     *(char **)(*(int *)(a0 + 0x164) + 0xD0) = (char *)bridgeMain_mes;
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     while (1) {
         _ACTWait(1);
     }
@@ -546,7 +545,7 @@ void actSt20aBridgeSwitch(volatile int a0)
 {
     Act *sub = (Act *)*(int *)(a0 + 0x164);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     bridgeSwitch_mes[0].func = actSt20aBridgeDown;
     sub->mainMail = 0;
     sub->mail = bridgeSwitch_mes;
@@ -580,7 +579,7 @@ void actSt20aGondolaMain(volatile int a0)
     Act *p = GOBJ_ACT(a0);
 
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     scpWakeupEnemyAll();
     *(char **)((char *)p + 0xD0) = (char *)gondolaMain_mes;
     while (1) {
@@ -594,7 +593,7 @@ void actSt20aGondolaSwitch(volatile int a0)
 
     sub->mainMail = 0;
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
     if (gflagChk(316) != 0) {
         gondolaSwitchUp_mes[0].func = actSt20aGondolaUp;

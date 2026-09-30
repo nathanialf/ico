@@ -30,7 +30,8 @@ static ActMail doorDownChk_mes[2] = {{430}, {429}};
 static ActMail ene_mes[2] = {{430}, {429}};
 
 extern int D_00639EA8;
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 /* as script.h declares it; this TU does not include that header */
 extern void scpPlayEnd(int a0);
 /* as script.h declares it; this TU does not include that header */
@@ -116,7 +117,7 @@ inline void actSt08bKurenMain(volatile int a0)
 {
     int sub = *(int *)(a0 + 0x164);
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     if (D_00639EA8 != 0) {
         scpPlayEnd(D_00639EA8);
     }
@@ -136,7 +137,7 @@ void actSt08bKurenSwitch(volatile int a0)
     int thread;
     int frame;
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     sub->mainMail = 0;
 
     if (D_00639EA8 != 0) {

@@ -7,6 +7,7 @@
 #include "fightSound.h"
 #include "gflag.h"
 #include "kanbanBoot.h"
+#include "script.h"
 
 /* the custom key map's sixteen pad button codes (iosPadConfCustom[44..59]),
    the default one bit per button */
@@ -1585,7 +1586,6 @@ inline int la_general_mc_confirm(void)
 
 extern int fadeStatus;
 extern void scpFadeIn(float sec);
-extern int D_0063AA08;
 extern void soundSePlayModeStop(int a0);
 extern void iosPadActStopAll(void);
 extern void soundDataOpen(void *p, int a1, int a2, int a3, int t0);
@@ -2810,7 +2810,7 @@ int la_game_over_continue(int a0)
         }
         enable_game_pause = 1;
         iosPadEnable();
-        D_0063AA08 = 0;
+        scpBoyControlReadDisable = 0;
         D_0028F4D4[0] = 1;
         AdpcmFadeCloseAll(0x200);
         AdpcmNotUseIopAreaFree();

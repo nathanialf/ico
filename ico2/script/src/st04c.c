@@ -67,7 +67,8 @@ void actSt04cDoorDownChk(volatile int a0)
     gflagOn(162);
 }
 
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 
 /* .sbss, owned by st04c.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
@@ -98,7 +99,7 @@ void actSt04cIntroChk(volatile int a0)
     gflagOff(390);
 
     gflagOn(161);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     stage_SetAnimation(352, 1, 0);
 
@@ -124,7 +125,7 @@ void actSt04cIntroChk(volatile int a0)
     }
 
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 extern int D_0028F8F0[];
@@ -165,7 +166,7 @@ void actSt04lDoorChk(volatile int a0)
 
             lt_switch_layout(55);
 
-            D_0063AA08 = 1;
+            scpBoyControlReadDisable = 1;
             scpSleepEnemyAll();
 
             gflagOn(199);
@@ -195,7 +196,7 @@ void actSt04lDoorChk(volatile int a0)
             soundSeDefPlay(1331, 0, 0, 1);
 
             scpWakeupEnemyAll();
-            D_0063AA08 = 0;
+            scpBoyControlReadDisable = 0;
 
             lt_switch_layout(54);
             break;

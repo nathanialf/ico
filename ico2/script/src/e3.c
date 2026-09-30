@@ -29,7 +29,8 @@
 
 extern int D_00639EA4;
 extern int D_00639EA8;
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 extern int D_0028F4C0[];
 /* as script.h declares it; this TU does not include that header */
 extern void scpFadeOut(float t, int a1, int a2, int a3);
@@ -114,7 +115,7 @@ void actE3Title(volatile int a0)
     _ACTWait(1);
 
     enable_game_pause = 0;
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     gflagOff(356);
 
@@ -411,7 +412,7 @@ extern void scpPlayStart(int a0);
 
 void actE3CapsuleDemo(volatile int a0)
 {
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpPlayStart(D_00639EA4);
 
     demoEnd = 1;
@@ -522,7 +523,7 @@ void actE3CageFallChk(volatile int a0)
 
     lt_switch_layout(55);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     ((Act *)scpSearchGobj(3229)->act)->flags20.ll |= 0x20000;
     ((Act *)scpSearchGobj(3230)->act)->flags20.ll |= 0x20000;
@@ -567,7 +568,7 @@ void actE3CageFallDemo(volatile int a0)
 
     lt_switch_layout(55);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     scpPlayStart(D_00639EA4);
     scpPlayStart(D_00639EA8);
@@ -650,7 +651,7 @@ void actE3CageFallDemo(volatile int a0)
 
     scpPlayEnd(D_00639EA4);
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     lt_switch_layout(54);
 
@@ -704,7 +705,7 @@ inline void actE3CapsuleDemoEnd(volatile int a0)
 
     scpPlayEnd(D_00639EA4);
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     lt_switch_layout(54);
 
@@ -840,7 +841,7 @@ inline void actE3St09aGirlWay(volatile int a0)
 
     lt_switch_layout(54);
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     brainUnlockGirl();
 }
 
@@ -867,7 +868,7 @@ void actE3St09aSekizoChk(volatile int a0)
 
     lt_switch_layout(55);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     brainLockGirl();
 
     gflagOn(366);
@@ -891,7 +892,7 @@ void actE3St09aSekizoChk(volatile int a0)
     sceVu0SubVector(dir, test_CURRENTROOT(a0), test_CURRENTROOT(D_00639EA8));
     scpPlayMotDir(D_00639EA8, dir);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     sceVu0SubVector(dir, test_CURRENTROOT(D_00639EA8), test_CURRENTROOT(D_00639EA4));
     scpPlayMotDir(D_00639EA4, dir);
@@ -971,7 +972,7 @@ void actE3GateChk(volatile int a0)
 
 /* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
-extern float D_0063AA0C;
+extern float scpSeEnvMasterVolRate;
 
 void actE3GateDemo(volatile int a0)
 {
@@ -1051,8 +1052,8 @@ void actE3GateDemo(volatile int a0)
         _ACTWait(1);
     }
 
-    while (D_0063AA0C > 0.0f) {
-        D_0063AA0C -= 0.012f;
+    while (scpSeEnvMasterVolRate > 0.0f) {
+        scpSeEnvMasterVolRate -= 0.012f;
         _ACTWait(1);
     }
 
@@ -1139,7 +1140,7 @@ void actE3St09aBrgDown(volatile int a0)
     }
     _ACTWait(1);
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     lt_switch_layout(54);
 }
@@ -1155,7 +1156,7 @@ void actE3Warning(volatile int a0)
 
     _ACTWait(1);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     InitStageLight(stage_no);
 
     RequestStageChange(1, D_00639EA4, 0, 255.0f, 0.0f);
@@ -1172,7 +1173,7 @@ void actE3Inst1(volatile int a0)
 
     _ACTWait(1);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     if (D_00639EA4 != 0) {
         scpPlayMot(D_00639EA4, 0);
     }
@@ -1382,7 +1383,7 @@ void actE3Gate(volatile int a0)
 
     scpSearchGobj(3382)->f16C = 0;
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpPlayStart(D_00639EA4);
     scpPlayMot(D_00639EA4, 0);
 
@@ -1422,7 +1423,7 @@ inline void actE3DoorMain(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     sub->mainMail = doorMain_mes;
 
@@ -1435,7 +1436,7 @@ inline void actE3DoorSwitch(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     sub->mainMail = 0;
 
@@ -1467,7 +1468,7 @@ inline void actE3DoorUp(volatile int a0)
     }
     _ACTWait(1);
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     lt_switch_layout(54);
 }
@@ -1477,7 +1478,7 @@ inline void actE3St13cIntroChk(volatile int a0)
     lt_switch_layout(55);
     gflagOn(363);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     _ACTWait(120);
 
     stage_SetAnimation(954, 1, 0);
@@ -1489,7 +1490,7 @@ inline void actE3St13cIntroChk(volatile int a0)
 
     lt_switch_layout(54);
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 /* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
@@ -1519,7 +1520,7 @@ inline void actE3St01bEneChk(volatile int a0)
 
     lt_switch_layout(55);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     _ACTWait(30);
 
     gflagOn(362);
@@ -1533,7 +1534,7 @@ inline void actE3St01bEneChk(volatile int a0)
 
     lt_switch_layout(54);
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 inline void actE3St09aBrgMain(volatile int a0)
@@ -1551,7 +1552,7 @@ inline void actE3St09aBrgSwitch(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     sub->mainMail = 0;
 

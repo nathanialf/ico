@@ -465,7 +465,6 @@ inline void ResetCollisionPC(void)
 }
 
 extern int game_pause;
-extern int D_0063B13C;
 extern int ScreenWidth;
 extern int ScreenHeight;
 
@@ -476,19 +475,19 @@ void DispCollisionPC(void)
     }
     pcTime = *(volatile int *)0x10000000 - pcTime;
     sprintf(pcLine, "W :%4d %2d", pcWall0, pcWall1);
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         debug_Printf(ScreenWidth / 2, ScreenHeight / 2, 0xFFFFFF00, pcLine);
     }
     sprintf(pcLine, "WR:%4d %2d", pcWallR0, pcWallR1);
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         debug_Printf(ScreenWidth / 2, ScreenHeight / 2 + 8, 0xFFFFFF00, pcLine);
     }
     sprintf(pcLine, "F :%4d %2d", pcFloor0, pcFloor1);
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         debug_Printf(ScreenWidth / 2, ScreenHeight / 2 + 0x10, 0xFFFFFF00, pcLine);
     }
     sprintf(pcLine, "FR:%4d %2d", pcFloorR0, pcFloorR1);
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         debug_Printf(ScreenWidth / 2, ScreenHeight / 2 + 0x18, 0xFFFFFF00, pcLine);
     }
 }

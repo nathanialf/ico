@@ -10,7 +10,8 @@
 #include "rotObject.h"
 #include "typedef.h"
 
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 
 /* st05e.o's own .data run 0x4F98A0..0x4F9920 (0x80, no MAIN.MAP symbols):
    four 0x20-byte actor mail packets, one per thread hand-off. */
@@ -86,7 +87,7 @@ void actSt05eWaterStop(volatile int a0)
     scpSearchGobj(1555)->f16C = 1;
     scpSearchGobj(1554)->f16C = 0;
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 
     scpWakeupEnemyAll();
@@ -117,7 +118,7 @@ void actSt05eSolarChk(volatile int a0)
 
     if (gflagChk(243) == 0 || gflagChk(244) == 0 || gflagChk(245) == 0) {
         lt_switch_layout(55);
-        D_0063AA08 = 1;
+        scpBoyControlReadDisable = 1;
 
         scpSleepEnemyAll();
 
@@ -147,7 +148,7 @@ void actSt05eSolarChk(volatile int a0)
 
         lt_switch_layout(54);
 
-        D_0063AA08 = 0;
+        scpBoyControlReadDisable = 0;
         scpWakeupEnemyAll();
     }
 
@@ -216,7 +217,7 @@ void actSt05eWaterSwitch(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     sub->mainMail = 0;
     waterSwitch_mes[0].func = actSt05eWaterStop;

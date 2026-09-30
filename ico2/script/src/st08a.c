@@ -57,7 +57,8 @@ static ActMail torch_on_mes[2] = {{430}, {429}};
 
 static ActMail torch_off_mes[2] = {{430}, {429}};
 
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 /* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, void *a1, float radius);
 extern void *D_00639EA4;
@@ -104,7 +105,7 @@ void actSt08aEne1Chk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyOne(3757);
     gflagOn(72);
     gflagOn(74);
@@ -121,7 +122,7 @@ void actSt08aEne1Chk(volatile int a0)
     _ACTWait(1);
 
     scpPlayMot(D_00639EA4, 0);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
     scpWakeupEnemyOne(3757);
 }
@@ -144,7 +145,7 @@ void actSt08aEne2Chk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyOne(3757);
     gflagOff(391);
     gflagOn(73);
@@ -175,7 +176,7 @@ void actSt08aEne2Chk(volatile int a0)
     iosPadActRequestEnable = save;
     scpPlayMot(D_00639EA4, 0);
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     scpWakeupEnemyOne(3757);
 }
 
@@ -228,7 +229,7 @@ void actSt08aDoorUp(volatile int a0)
 
     SetWayGroupActive(11, 1);
     scpWakeupEnemyAll();
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
 
@@ -311,7 +312,7 @@ void actSt08aHasiUp(volatile int a0)
 
     scpWakeupEnemyAll();
     scpSearchGobj(369)->f16C = 0;
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
 
@@ -608,7 +609,7 @@ void actSt08aDoorMain(volatile int a0)
 {
     int sub = *(int *)(a0 + 0x164);
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     *(int *)(sub + 0xD0) = (int)door_main_mes;
     while (1) {
@@ -621,7 +622,7 @@ void actSt08aDoorSwitch(volatile int a0)
     Act *sub = ((PObjGObjSt08A *)a0)->act;
 
     sub->mainMail = 0;
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     door_switch_mes[0].func = actSt08aDoorUp;
     sub->mail = door_switch_mes;
@@ -656,7 +657,7 @@ void actSt08aIntroChk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     gflagOn(76);
 
@@ -667,7 +668,7 @@ void actSt08aIntroChk(volatile int a0)
     _ACTWait(1);
 
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 void actSt08aGirlPosChk(volatile int a0)
@@ -696,7 +697,7 @@ void actSt08aHasiMain(volatile int a0)
 {
     int sub = *(int *)(a0 + 0x164);
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     *(int *)(sub + 0xD0) = (int)hasi_main_mes;
     while (1) {
@@ -709,7 +710,7 @@ void actSt08aHasiSwitch(volatile int a0)
     Act *sub = ((PObjGObjSt08A *)a0)->act;
 
     sub->mainMail = 0;
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     hasi_switch_mes[0].func = actSt08aHasiUp;
     sub->mail = hasi_switch_mes;

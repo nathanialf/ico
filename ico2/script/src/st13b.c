@@ -18,7 +18,8 @@
 #include "e3.h"
 #include "typedef.h"
 
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 extern int D_00639EAC;
 extern int D_0063BFF4;
 extern unsigned char D_0063BFF8;
@@ -65,7 +66,7 @@ extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 extern void ScpCallCameraSetTarget(float x, float y, float z);
 extern int D_0063BFC0;
 extern int boss;
-extern float D_0063AA0C;
+extern float scpSeEnvMasterVolRate;
 extern PadState D_0028F8F0[];
 extern int D_0028F8F4[];
 /* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
@@ -151,7 +152,7 @@ void actSt13bFloor(volatile int a0)
     if (gflagChk(5) == 0) {
         scpFadeOut(255.0f, 0, 0, 0);
         lt_switch_layout(55);
-        D_0063AA08 = 1;
+        scpBoyControlReadDisable = 1;
 
         stage_SetAnimation(30, 0, 0);
         stage_SetAnimation(26, 0, 0);
@@ -455,7 +456,7 @@ void actSt13bSekizoChk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpAdpcmPlayRequestFunc(19, &sekizo13b, 1, 1, 1);
 
     while (sekizo13b == 0) {
@@ -494,7 +495,7 @@ void actSt13bSekizoChk(volatile int a0)
 
     _ACTWait(1);
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 void actSt13bSekizo2Chk(volatile int a0)
@@ -507,7 +508,7 @@ void actSt13bSekizo2Chk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpAdpcmPlayRequestFunc(18, &sekizo13b2, 1, 1, 1);
 
     while (sekizo13b2 == 0) {
@@ -546,7 +547,7 @@ void actSt13bSekizo2Chk(volatile int a0)
 
     _ACTWait(1);
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 void actSt13bMeetAgain(volatile int a0)
@@ -611,7 +612,7 @@ void actSt13bMeetAgainChk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpPlayStart(D_00639EA4);
     scpPlayMot((void *)D_00639EA4, 0);
     gflagOn(12);
@@ -654,7 +655,7 @@ void actSt13bMeetAgainChk(volatile int a0)
 
     scpPlayMot((void *)D_00639EA4, 0);
     scpPlayEnd(D_00639EA4);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
     scpAdpcmFadeCloseFunc(&meets_again, 0x80);
 }
@@ -680,7 +681,7 @@ void actSt13bBoss(volatile int a0)
         _ACTWait(0);
     } else if (gflagChk(14) == 0) {
         scpAdpcmPlayRequestFunc(37, &boss, 1, 0, 1);
-        D_0063AA0C = 0.5f;
+        scpSeEnvMasterVolRate = 0.5f;
     }
 }
 
@@ -698,7 +699,7 @@ void actSt13bBossChk(volatile int a0)
     }
 
     scpAdpcmPlayRequestFunc(37, &boss, 1, 0, 0);
-    D_0063AA0C = 0.5f;
+    scpSeEnvMasterVolRate = 0.5f;
 
     scpSearchGobj(2470)->f16C = 1;
     scpPlayPosSet(scpSearchGobj(2470), 0.0f, -100.0f, 0.0f);
@@ -730,7 +731,7 @@ void actSt13bBossAfterChk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     gflagOn(14);
     scpAdpcmFadeCloseFunc(&boss, 0x80);
 
@@ -772,7 +773,7 @@ void actSt13bBossAfterChk(volatile int a0)
 
     scpPlayMot((void *)D_00639EA4, 0);
     scpPlayEnd(D_00639EA4);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
 
@@ -843,7 +844,7 @@ void actSt13bElevDown(volatile int a0)
     }
 
     RequestStageChange(3, D_00639EA4, 0, 2.0f, 4.0f);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
 
@@ -855,11 +856,11 @@ void actSt13bElevUp(volatile int a0)
 
     if (gflagChk(325) != 0) {
         lt_switch_layout(55);
-        D_0063AA08 = 1;
+        scpBoyControlReadDisable = 1;
         scpFadeOut(255.0f, 0, 0, 0);
         stage_SetAnimation(40, 0, 0xEB);
         _ACTWait(10);
-        D_0063AA08 = 1;
+        scpBoyControlReadDisable = 1;
         stage_SetAnimation(40, 0, 0);
         elevUp_mes[0].func = actSt13bElevUpChk;
         self->mail = elevUp_mes;
@@ -915,7 +916,7 @@ void actSt13bElevUpChk(volatile int a0)
         scpFadeIn(3.0f);
     }
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
     gflagOff(325);
 }
@@ -956,7 +957,7 @@ void actSt13bDoorUp(volatile int a0)
         soundSeDefPlay(1222, 0, 0, 1);
     }
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
 
@@ -969,7 +970,7 @@ void actSt13bElev2Chk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     if (gflagChk(16) != 0) {
         scpAdpcmPlayRequestFunc(100, &sekizo_13b_vol, 1, 1, 1);
@@ -994,7 +995,7 @@ void actSt13bElev2Chk(volatile int a0)
 
         _ACTWait(1);
         gflagOff(16);
-        D_0063AA08 = 0;
+        scpBoyControlReadDisable = 0;
     } else {
         scpAdpcmPlayRequestFunc(99, &sekizo_13b, 0, 1, 1);
 
@@ -1012,7 +1013,7 @@ void actSt13bElev2Chk(volatile int a0)
         _ACTWait(1);
         gflagOn(16);
         RequestStageChange(2, D_00639EA4, 0, 2.0f, 8.0f);
-        D_0063AA08 = 0;
+        scpBoyControlReadDisable = 0;
     }
 
     lt_switch_layout(54);
@@ -1236,7 +1237,7 @@ void actSt13bElevSwitch(volatile int a0)
     Act *sub = ((PObjGObj *)a0)->act;
 
     sub->mainMail = 0;
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     elevSwitch_mes[0].func = actSt13bElevDown;
     sub->mail = elevSwitch_mes;
@@ -1279,7 +1280,7 @@ void actSt13bDoorSwitch(volatile int a0)
     Act *sub = ((PObjGObj *)a0)->act;
 
     sub->mainMail = 0;
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     doorSwitch_mes[0].func = actSt13bDoorUp;
     sub->mail = doorSwitch_mes;

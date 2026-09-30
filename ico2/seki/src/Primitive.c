@@ -609,8 +609,6 @@ void prim_UpdateMesh3D(Mesh3D *m, int flags, int idx)
    before the argument copy and ties the pointer to $a0 (measured, 52 of 53
    or 16 words).  Rows 809 and 810 are the same statement, so every packet
    copy here is spelled the same way. */
-extern int D_0063B124;
-extern int D_0063B204;
 extern int buffer_ID;
 extern void mc_SetMicroCode(int a, int b, int c, int d, int e);
 /* kept local: this TU's uses of the gif packet calls do not fit GifPacket.h
@@ -723,7 +721,7 @@ void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
     }
 
     pri = dl_GetPri();
-    if (D_0063B204 == 0) {
+    if (debug_disp_mesh == 0) {
         return;
     }
     ext = (char *)tex_GetTexExtData(tex);
@@ -733,7 +731,7 @@ void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
         }
     }
     if (tex != -1) {
-        D_0063B124 += tex_TransTexture(tex, pri);
+        texturetranssize += tex_TransTexture(tex, pri);
     }
     mc_TransMicroCode(4, 1 << pri);
     d = &PacketBufferStruct;
@@ -793,7 +791,6 @@ typedef struct {
 } PrimParticle;
 
 extern int D_0028F4D4[];
-extern int D_0063B200;
 
 /* One 16-byte constant packet template, copied to the stack. */
 typedef struct {
@@ -897,7 +894,7 @@ void prim_DispParticle(PrimParticle *p, void *mtx)
 {
     int pri = dl_GetPri();
 
-    if (D_0063B200 != 0) {
+    if (debug_disp_particle != 0) {
         if (p->tex < 0 || p->tex >= tex_GetTextureNum()) {
             /* "the specified texture number is invalid" */
             debug_StdPrintfDummy("prim_DispParticle:指定したテクスチャ番号が異常です. %s:%d\n",
@@ -907,7 +904,7 @@ void prim_DispParticle(PrimParticle *p, void *mtx)
             return;
         }
         if (p->num < 0x51) {
-            D_0063B124 += tex_TransTexture(p->tex, pri);
+            texturetranssize += tex_TransTexture(p->tex, pri);
             _CopyMatrix(p->buf[p->cur].mtx, mtx);
             _CopyMatrix(p->buf[p->cur].lmtx, matrixptr + 0xC0);
             mc_TransMicroCode(5, 1 << pri);

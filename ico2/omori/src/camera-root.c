@@ -358,12 +358,13 @@ void BackToGameCamera(void)
     SetCameraTargetPosition(buf, buf + 0x10, cameraFov);
 }
 
-extern int D_0063B1B0;
+/* kept local: debug.h's debug_Printf prototype does not fit this TU's calls */
+extern int debug_zoom_per;
 
 void GetCameraInfomationFromGlobalPosition(int a0, int a1, int a2, int a3, int a4)
 {
     *(float *)a3 = cameraSet.fov;
-    *(float *)a4 = (float)D_0063B1B0 / 100.0f;
+    *(float *)a4 = (float)debug_zoom_per / 100.0f;
     CameraGetOtherObjOffset(a0, a1, a2);
 }
 
@@ -439,7 +440,7 @@ void InitCamera(void)
     D_0063ABA4 = 0;
     D_0063ABA0 = 0;
     D_0063ABA8 = 0;
-    D_0063B1B0 = 100;
+    debug_zoom_per = 100;
     handCameraLimitP = D_0028F720[0x180 / 4];
     handCameraLimitV = D_0028F720[0x184 / 4];
     zoomMaxInDemo = D_0028F720[0x190 / 4];
@@ -563,11 +564,11 @@ extern char D_0063AB88[]; /* "PATHCAM" */
 extern unsigned char D_0063AB90;
 extern int D_0063AB94;
 extern int D_0063AB6C;
-extern int D_0063B134;
-extern int D_0063B13C;
-extern int D_0063B144;
-extern int D_0063B1B0;
-extern int D_0063B244;
+extern int debug_ignore_demo_camera;
+extern int debug_font_flag;
+extern int debug_font_flag3;
+extern int debug_zoom_per;
+extern int debug_hand_camera;
 extern int GlobalTimer;
 extern char iosPadConfCustom[];
 extern float _ACTGame_GetParamF(int id);
@@ -638,7 +639,7 @@ void SetCameraMatrix(void)
         break;
     case 2:
         DebugCameraSemiAuto();
-        if (D_0063B144 != 0 || (D_0063B13C & 1) != 0) {
+        if (debug_font_flag3 != 0 || (debug_font_flag & 1) != 0) {
             debug_Printf(220, 30, 0xFFFFFF00, D_0063AB70);
         }
         if ((D_0028F8F0.flags & 2) != 0 && (D_0028F8F0.trg04 & 0x100) != 0) {
@@ -646,19 +647,19 @@ void SetCameraMatrix(void)
         }
         break;
     case 3:
-        if (D_0063B134 != 0) {
+        if (debug_ignore_demo_camera != 0) {
             goto handCamera;
         }
         SetCameraMatrix_Ico2(gamecamCutBack);
         gamecamCutBack = 0;
-        if (D_0063B144 != 0 || (D_0063B13C & 1) != 0) {
+        if (debug_font_flag3 != 0 || (debug_font_flag & 1) != 0) {
             debug_Printf(220, 30, 0xFFFFFF00, D_0063AB78);
         }
         break;
     case 1:
     handCamera:
         DebugCameraManual();
-        if (D_0063B144 != 0 || (D_0063B13C & 1) != 0) {
+        if (debug_font_flag3 != 0 || (debug_font_flag & 1) != 0) {
             debug_Printf(220, 30, 0xFFFFFF00, D_0063AB80);
         }
         if ((D_0028F8F0.trg04 & 0x100) != 0) {
@@ -671,14 +672,14 @@ void SetCameraMatrix(void)
         float pos[4];
         float eye[4];
 
-        if (D_0063B134 != 0) {
+        if (debug_ignore_demo_camera != 0) {
             goto handCamera;
         }
         SetLimitHandCameraCorrect((float)handCameraLimitP, (float)handCameraLimitV);
-        if (D_0063B144 != 0 || (D_0063B13C & 1) != 0) {
+        if (debug_font_flag3 != 0 || (debug_font_flag & 1) != 0) {
             debug_Printf(220, 30, 0xFFFFFF00, D_0063AB88);
         }
-        if (D_0063B144 != 0 || (D_0063B13C & 1) != 0) {
+        if (debug_font_flag3 != 0 || (debug_font_flag & 1) != 0) {
             debug_Printf(310, 30, 0xFFFFFF00, "%d,%d,%d %d", (int)m[12], (int)m[13], (int)m[14],
                          (int)cameraZoom);
         }
@@ -687,8 +688,8 @@ void SetCameraMatrix(void)
         ofs[3] = 0.0f;
         sceVu0ApplyMatrix(&cameraSet, mt, ofs);
         sceVu0ScaleVector(&cameraSet, &cameraSet, -1.0f);
-        useDemo = D_0063B244 != 0;
-        if (D_0063B244 != 0) {
+        useDemo = debug_hand_camera != 0;
+        if (debug_hand_camera != 0) {
             if (handCameraLimitP != 0 || handCameraLimitV != 0) {
                 union CameraSetIn in;
                 union CameraSetIn set;
@@ -707,7 +708,7 @@ void SetCameraMatrix(void)
                 GetHandCameraStickInfo(&stickX, &stickZ, &stickMag);
                 if (GlobalTimer != 0) {
                     ClearHandCameraCorrect();
-                    D_0063B1B0 = zoomBase;
+                    debug_zoom_per = zoomBase;
                 }
                 HandCameraCorrect(&cameraSet, pos, 1, stickX, stickZ,
                                   60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
@@ -774,7 +775,7 @@ void SetCameraMatrix(void)
         iosPadConnect(padCtx, 0, 0, iosPadConfCustom);
         if (D_0063AB90 != 0) {
             D_0063AB90 = 0;
-            zoomBase = D_0063B1B0;
+            zoomBase = debug_zoom_per;
         }
         iosPadRead(padCtx);
         ply = D_00639EA4;
@@ -799,17 +800,17 @@ void SetCameraMatrix(void)
         target = step != 0 ? zoomRangeMax : zoomBase;
         zoomRequest = 0;
         if (zoomBlend < 0.0f) {
-            if (CAM_ABS(D_0063B1B0 - target) < zp[step].step * 5) {
-                D_0063B1B0 = ((float)D_0063B1B0 * 4.0f + (float)target) / 5.0f;
-            } else if (target < D_0063B1B0) {
-                D_0063B1B0 = D_0063B1B0 - zp[step].step;
-            } else if (D_0063B1B0 < target) {
-                D_0063B1B0 = D_0063B1B0 + zp[step].step;
+            if (CAM_ABS(debug_zoom_per - target) < zp[step].step * 5) {
+                debug_zoom_per = ((float)debug_zoom_per * 4.0f + (float)target) / 5.0f;
+            } else if (target < debug_zoom_per) {
+                debug_zoom_per = debug_zoom_per - zp[step].step;
+            } else if (debug_zoom_per < target) {
+                debug_zoom_per = debug_zoom_per + zp[step].step;
             }
         } else {
-            D_0063B1B0 = (float)D_0063B1B0 * (1.0f - zoomBlend) + (float)target * zoomBlend;
+            debug_zoom_per = (float)debug_zoom_per * (1.0f - zoomBlend) + (float)target * zoomBlend;
         }
-        SetCameraZoomOffsetRatio(1.0f - (float)(D_0063B1B0 - zoomRangeMin) /
+        SetCameraZoomOffsetRatio(1.0f - (float)(debug_zoom_per - zoomRangeMin) /
                                             (float)(zoomRangeMax - zoomRangeMin));
     }
     GlobalTimer = 0;
@@ -1091,7 +1092,7 @@ void GetCameraInfo_tmp(void *dst, float *out)
     d->q[1] = s->q[1];
     d->q[2] = s->q[2];
     d->q[3] = s->q[3];
-    *out = D_0063B1B0 / 100.0f;
+    *out = debug_zoom_per / 100.0f;
 }
 
 void testcamerazoom(void)

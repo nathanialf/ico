@@ -9,6 +9,7 @@
 #include <libvu0.h>
 #include <sifdev.h>
 #include "geometryManager.h"
+#include "script.h"
 
 /* the effect-parameter descriptor table _dispParam/editParam walk: 0x1C per
  * entry, name pointer first, NULL-terminated.  `off` is the byte offset of the
@@ -486,7 +487,6 @@ int EditTarget(int id)
     return 0;
 }
 
-extern int D_0063AA08;
 /* kept local: this TU's uses of debug_StdPrintfDummy do not fit the prototype in debug.h */
 extern void debug_StdPrintfDummy(char *fmt, ...);
 
@@ -504,7 +504,7 @@ static inline void initEffectTool(void)
     effectToolPos[3] = 1.0f;
     GetRootQuaternion(q, savedTarget);
     CameraSetMode(1);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     debug_StdPrintfDummy("initialize\n");
     for (i = 0x3C; i >= 0; i--) {
         effectToolDirty[i] = 0;
@@ -666,7 +666,7 @@ void exitEffectTool(void)
     DeleteParticleEffect(effectHandle);
     effectHandle = -1;
     Camctrl_SetTarget(savedTarget, 0, 3);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     debug_StdPrintfDummy("exit\n");
 }
 

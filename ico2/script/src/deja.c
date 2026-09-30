@@ -18,7 +18,6 @@
  * actDejaChk, deja.c:196); actDeja installs it as the actor's next mail
  * handler.  _mes is the 2-entry mail table that lives in the shared
  * src/cod .data carve, so it stays extern here. */
-extern int D_0063AA08;
 
 static ActMail _mes[2] = {{430}, {429}};
 
@@ -71,7 +70,7 @@ inline void actDeja(volatile int a0)
 
     if (gflagChk(6) == 0) {
         lt_switch_layout(55);
-        D_0063AA08 = 1;
+        scpBoyControlReadDisable = 1;
         scpFadeOut(255.0f, 0, 0, 0);
         stage_SetAnimation(72, 0, 0);
         _mes[0].func = actDejaChk;
@@ -226,7 +225,7 @@ void actDejaAfterChk(volatile int a0)
     CheckPoint();
     gflagOn(7);
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpPlayStart((int)D_00639EA4);
     stage_SetAnimation(624, 1, 0);
     scpPlayMot(D_00639EA4, 307);
@@ -239,7 +238,7 @@ void actDejaAfterChk(volatile int a0)
     sceVu0SubVector(dir.f, target.f, test_CURRENTROOT(D_00639EA4));
     scpPlayMotDir(D_00639EA4, dir.f);
     scpPlayEnd((int)D_00639EA4);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
     _ACTWait(60);
     if (deja != 0) {

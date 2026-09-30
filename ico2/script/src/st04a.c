@@ -68,7 +68,8 @@ extern void scpFadeOut(float a0, int a1, int a2, int a3);
 extern char *D_00639EA4;
 extern char *D_00639EA8;
 extern int D_0028F4C0[];
-extern float D_0063AA0C;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern float scpSeEnvMasterVolRate;
 extern ActMail D_004F85D0[];
 
 void actSt04aGate(volatile int a0)
@@ -129,7 +130,7 @@ static int demoEnd;
 
 static int conte09_3Running;
 
-extern int D_0063AA08;
+extern int scpBoyControlReadDisable;
 extern int D_0028F8F4[];
 /* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(char *a0);
@@ -176,7 +177,7 @@ void actSt04aGateChk(volatile int a0)
 
     lt_switch_layout(55);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     scpPlayStart(D_00639EA4);
 
@@ -299,7 +300,7 @@ void actSt04aGateChk(volatile int a0)
     {
         float dir[4];
 
-        D_0063AA0C = 1.0f;
+        scpSeEnvMasterVolRate = 1.0f;
 
         scpPlayMot(D_00639EA4, 0);
         scpPlayMot(D_00639EA8, 532);
@@ -323,7 +324,7 @@ void actSt04aGateChk(volatile int a0)
 
     iosOmSendMail(D_00639EA8, 0x3F, D_00639EA4);
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     lt_switch_layout(54);
 
@@ -669,7 +670,7 @@ void actSt04aGateOpenChk(volatile int a0)
 
     lt_switch_layout(55);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     scpPlayStart(D_00639EA8);
 
@@ -778,7 +779,7 @@ void actSt04aGateOpenChk(volatile int a0)
         long long ofs[2];
         float dir[4];
 
-        D_0063AA0C = 1.0f;
+        scpSeEnvMasterVolRate = 1.0f;
 
         scpPlayStart(D_00639EA4);
 
@@ -795,7 +796,7 @@ void actSt04aGateOpenChk(volatile int a0)
     scpPlayEnd(D_00639EA4);
     scpPlayEnd(D_00639EA8);
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     lt_switch_layout(54);
 
@@ -997,7 +998,7 @@ void actSt04aGateOpen2Chk(volatile int a0)
 
     lt_switch_layout(55);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpPlayStart(D_00639EA4);
     scpPlayStart(D_00639EA8);
 
@@ -1133,7 +1134,7 @@ void actConte09_2(volatile int a0)
 
     scpPlayEnd(D_00639EA4);
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     gflagOn(141);
 }
@@ -1182,7 +1183,7 @@ void actSt04aGateOpen3Chk(volatile int a0)
 
     lt_switch_layout(55);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpPlayStart(D_00639EA4);
     scpPlayStart(D_00639EA8);
 
@@ -1463,7 +1464,7 @@ void actSt04aGateLChk(volatile int a0)
 
     lt_switch_layout(55);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     gflagOn(138);
 
     scpAdpcmPlayRequestFunc(29, &D_0063BEB0, 1, 1, 1);
@@ -1523,7 +1524,7 @@ void actSt04aGateRChk(volatile int a0)
 
     lt_switch_layout(55);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     gflagOn(139);
 
     fightSoundProcessRequestPause();
@@ -1731,7 +1732,7 @@ void actSt04aTorch1Chk(volatile int a0)
 
     while (1) {
         if (scpTriggerBall(a0, self->unk474, 5.0f) != 0) {
-            D_0063AA08 = 1;
+            scpBoyControlReadDisable = 1;
 
             ((PObjGObjSt04A *)self->unk474)->f16C = 0;
 
@@ -1751,7 +1752,7 @@ void actSt04aTorch1Chk(volatile int a0)
 
             gflagOn(self->unk478);
 
-            D_0063AA08 = 0;
+            scpBoyControlReadDisable = 0;
             break;
         }
         _ACTWait(1);
@@ -1771,7 +1772,7 @@ void actSt04aTorchAllFlagfChk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
     gflagOn(153);
     WakeupHint(6);
@@ -1824,7 +1825,7 @@ void actSt04aTorchAllFlagfChk(volatile int a0)
         SetCameraFlag_LwsCutBack();
         scpFadeIn(3.0f);
     }
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
     scpWakeupEnemyAll();
 }
@@ -2024,7 +2025,7 @@ void actSt04aEnvSe(volatile int a0)
 {
     float f = 0.0f;
 
-    D_0063AA0C = 0.0f;
+    scpSeEnvMasterVolRate = 0.0f;
 
     for (;;) {
         float nf = f + (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f;
@@ -2035,9 +2036,9 @@ void actSt04aEnvSe(volatile int a0)
             f = nf + 1.0f;
         }
         if ((int)f >= 5401) {
-            D_0063AA0C += 1.0f / 1800.0f;
-            if (D_0063AA0C > 1.0f) {
-                D_0063AA0C = 1.0f;
+            scpSeEnvMasterVolRate += 1.0f / 1800.0f;
+            if (scpSeEnvMasterVolRate > 1.0f) {
+                scpSeEnvMasterVolRate = 1.0f;
                 break;
             }
         }
@@ -2049,7 +2050,7 @@ void actSt04aEnvSeWakare1(volatile int a0)
 {
     float f = 0.0f;
 
-    D_0063AA0C = 0.0f;
+    scpSeEnvMasterVolRate = 0.0f;
 
     for (;;) {
         float nf = f + (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f;
@@ -2060,9 +2061,9 @@ void actSt04aEnvSeWakare1(volatile int a0)
             f = nf + 1.0f;
         }
         if ((int)f >= 2201) {
-            D_0063AA0C += 1.0f / 3800.0f;
-            if (D_0063AA0C > 1.0f) {
-                D_0063AA0C = 1.0f;
+            scpSeEnvMasterVolRate += 1.0f / 3800.0f;
+            if (scpSeEnvMasterVolRate > 1.0f) {
+                scpSeEnvMasterVolRate = 1.0f;
                 break;
             }
         }
@@ -2133,9 +2134,9 @@ void actSt04aEnvSeWakare2(volatile int a0)
             f = nf + 1.0f;
         }
         if ((int)f >= 2351) {
-            D_0063AA0C -= 1.0f / 720.0f;
-            if (D_0063AA0C < 0.0f) {
-                D_0063AA0C = 0.0f;
+            scpSeEnvMasterVolRate -= 1.0f / 720.0f;
+            if (scpSeEnvMasterVolRate < 0.0f) {
+                scpSeEnvMasterVolRate = 0.0f;
                 break;
             }
         }

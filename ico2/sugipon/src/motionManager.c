@@ -6,6 +6,7 @@
 #include "lineManager.h"
 #include "motionManager2.h"
 #include "motionOrientManager.h"
+#include "debug.h"
 
 typedef struct {
     char b[0x20];
@@ -262,7 +263,6 @@ extern float _Sqrt(float x);
 /* kept local: this TU's uses of DrawGObjWallCollision do not fit the prototype in fieldCollision.h */
 extern void DrawGObjWallCollision(int a0, int a1);
 extern unsigned char D_002C2DC8[];
-extern int D_0063B158;
 /* kept local: this TU's uses of MatrixDrive_RotMatrixZ do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_RotMatrixZ(int a0);
 /* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
@@ -326,7 +326,6 @@ extern float sceVu0InnerProduct(void *a, void *b);
 extern float FSqrt(float x);
 /* kept local: this TU's uses of MatrixDrive_ScaleMatrix do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_ScaleMatrix(float, float, float);
-extern int D_0063B148;
 /* kept local: this TU's uses of p2o_DispVU1 do not fit the prototype in DisplayP2O.h */
 extern void p2o_DispVU1();
 /* kept local: this TU's uses of MatrixDrive_RotMatrixX do not fit the prototype in matrixDrive.h */
@@ -1118,7 +1117,7 @@ void execPositionReserver(char *self, MotShift m)
             *(int *)(D_0063C494 + 0x84) -= 1;
         }
     }
-    if (D_0063B148 != 0) {
+    if (debug_skel_flag != 0) {
         if (skelGObj == D_00639EA4) {
             CopyVector(buf2, D_0063C490 + 0x70);
             _UnitMatrix(MatrixDrive_GetMatrix());
@@ -1144,7 +1143,6 @@ extern void sceVu0SubVector(void *dst, void *a, void *b);
 extern void dispPlane(void *plane, void *pos);
 extern void gif_SetZTest(int a0);
 extern char D_0055FE58[];
-extern int D_0063B150;
 void GetMatrixOfMotion(char *self, char *tbl, void *ofs);
 
 typedef enum { MOTIONNO_0 = 0 } MotionNo;
@@ -1221,7 +1219,7 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, char
             *(float *)(MOWORK(self) + 0x7C4) * r + v2[1] * (1.0f - r);
         GetMatrixOfMotion(self, m1, MOWORK(self) + 0x7C0);
     }
-    if (D_0063B150 != 0) {
+    if (debug_wallcheck_flag != 0) {
         gif_StartPacketPri(0xB);
         gif_SetAlpha(1, 5, 0x80);
         gif_SetZTest(0);
@@ -1322,11 +1320,11 @@ void GetMatrixOfMotion(char *self, char *tbl, void *ofs)
     MatrixDrive_PopMatrix();
     PopQuaternion();
 
-    if (D_0063B158 != 0) {
+    if (debug_actnode_flag != 0) {
         dispActNode(*(int *)(D_0063C490 + 0x180));
         dispLastNode();
     }
-    if (D_0063B148 != 0) {
+    if (debug_skel_flag != 0) {
         int n;
 
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
@@ -1448,7 +1446,7 @@ void SkelTest(char *a0)
     skelNode = (char *)v;
     if (v != 0) {
         p2o_DispVU1();
-        if (D_0063B148 != 0) {
+        if (debug_skel_flag != 0) {
             dispSkelton(a0);
         }
     }
@@ -1473,7 +1471,7 @@ void SkelTestGeo(char *a0)
             sceVu0MulMatrix(e, s2 + 0x20, e);
             s2 = (int)GOBJ_SUB(a0);
         }
-        if (D_0063B148 != 0) {
+        if (debug_skel_flag != 0) {
             dispSkelton(a0);
         }
     }

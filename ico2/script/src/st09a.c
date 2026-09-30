@@ -23,7 +23,6 @@ static int demoEnd;
 
 /* st09a.o's own .rodata run 0x00622DA0..0x00622DE0 (no MAIN.MAP symbols):
    the two hint-finished debug strings. */
-extern int D_0063AA08;
 
 /* st09a.o's own .data run 0x004FA2F0..0x004FA480 (no MAIN.MAP symbols):
    actor mail packets. */
@@ -139,7 +138,7 @@ void actSt09aBrgDown(volatile int a0)
             _ACTWait(1);
         }
     }
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
 
@@ -244,7 +243,7 @@ void actSt09aElvMain(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     sub->mainMail = elvMain_mes;
 
@@ -257,7 +256,7 @@ void actSt09aElvSwitch(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     sub->mainMail = 0;
 
@@ -314,7 +313,7 @@ void actSt09aIntroChk(volatile int a0)
     lt_switch_layout(55);
     gflagOn(85);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     _ACTWait(1);
 
     stage_SetAnimation(377, 1, 0);
@@ -326,7 +325,7 @@ void actSt09aIntroChk(volatile int a0)
 
     lt_switch_layout(54);
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 void actSt09aBrgMain(volatile int a0)
@@ -344,7 +343,7 @@ void actSt09aBrgSwitch(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     sub->mainMail = 0;
 

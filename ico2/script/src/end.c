@@ -69,7 +69,8 @@ static ActMail logo_mes[2] = {{430}, {429}};
 
 static ActMail end_mes[2] = {{430}, {429}};
 
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 
 void actEndDemo01(volatile int a0)
 {
@@ -80,7 +81,7 @@ void actEndDemo01(volatile int a0)
 
     if (gflagChk(339) == 0 && gflagChk(343) == 0) {
         lt_switch_layout(55);
-        D_0063AA08 = 1;
+        scpBoyControlReadDisable = 1;
         scpFadeOut(255.0f, 0, 0, 0);
         stage_SetAnimation(840, 0, 0);
         stage_SetAnimation(32, 0, -1);
@@ -200,7 +201,7 @@ void actEndDemo02(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpFadeOut(255.0f, 0, 0, 0);
     scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(3, 0, 0x22A, 0);
     stage_SetLoopFlag(554, 1);
@@ -302,7 +303,7 @@ void actEndDemo06(volatile int a0)
 
     if (gflagChk(344) == 0 && gflagChk(343) != 0) {
         lt_switch_layout(55);
-        D_0063AA08 = 1;
+        scpBoyControlReadDisable = 1;
         scpFadeOut(255.0f, 0, 0, 0);
         scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(0x9D4, 0, 0x22A, 0);
         stage_SetLoopFlag(554, 1);
@@ -369,7 +370,7 @@ void actEndDemo07(volatile int a0)
     _ACTWait(1);
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpFadeOut(255.0f, 0, 0, 0);
     scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(3, 0, 0x22A, 0);
     stage_SetAnimation(173, 0, 0);
@@ -455,7 +456,7 @@ void actEndDemo10(volatile int a0)
     _ACTWait(1);
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpFadeOut(255.0f, 0, 0, 0);
     scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(3, 0, 0x22A, 0);
     scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(3, 0x34, 0x3A, 0);
@@ -618,7 +619,7 @@ void actStaff1(volatile int a0)
     _ACTWait(1);
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     stage_SetAnimation(30, 0, -1);
     stage_SetAnimation(26, 0, 0);
     stage_SetAnimation(33, 0, 0);
@@ -959,7 +960,7 @@ void actEndDemo14(volatile int a0)
     _ACTWait(1);
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     fbKeep = 1;
     scpFadeOut(3.0f, 0xFF, 0xFF, 0xFF);
 
@@ -1051,7 +1052,7 @@ void actConte14_14(volatile int a0)
 
     scpPlayEnd(D_00639EA4);
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     lt_switch_layout(54);
 
@@ -1084,7 +1085,7 @@ void actSt27aEnd(volatile int a0)
     }
 }
 
-extern float D_0063AA0C;
+extern float scpSeEnvMasterVolRate;
 extern int D_0063BE38;
 extern int D_0028F4C0[];
 /* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
@@ -1105,7 +1106,7 @@ void actSt27aEndChk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     if (GetCharHeldItem(D_00639EA4) == 3) {
         gflagOn(354);
@@ -1127,11 +1128,11 @@ void actSt27aEndChk(volatile int a0)
     max = (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 20);
     t = (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 20);
     while (t > 0.0f) {
-        D_0063AA0C = t / max;
+        scpSeEnvMasterVolRate = t / max;
         t -= 1.0f;
         _ACTWait(1);
     }
-    D_0063AA0C = 0;
+    scpSeEnvMasterVolRate = 0;
 }
 
 /* kept local: this TU's uses of scpDisActivateAllWithKind do not fit the prototype in script.h */
@@ -1261,7 +1262,7 @@ void actEndLogoChk(volatile int a0)
 
     _ACTWait(1);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     enable_game_pause = 0;
 
     switch (NonLinearCameraMove) {
@@ -1319,7 +1320,7 @@ void actEndDemo03(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpFadeOut(255.0f, 0, 0, 0);
     stage_SetAnimation(74, 0, -1);
     stage_SetAnimation(75, 0, -1);
@@ -1342,7 +1343,7 @@ void actEndDemo04(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpFadeOut(255.0f, 0, 0, 0);
     demo04_mes[0].func = actEndDemo04Chk;
     self->mail = demo04_mes;
@@ -1358,7 +1359,7 @@ void actEndDemo05(volatile int a0)
     _ACTWait(1);
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     demo05_mes[0].func = actEndDemo05Chk;
     self->mail = demo05_mes;
     ACTSendMailCorrect(a0, 430);
@@ -1373,7 +1374,7 @@ void actEndDemo11(volatile int a0)
     _ACTWait(1);
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     SelectBoyCrown(D_00639EA4, 2);
     demo11_mes[0].func = actEndDemo11Chk;
     self->mail = demo11_mes;
@@ -1389,7 +1390,7 @@ void actEndDemo12(volatile int a0)
     _ACTWait(1);
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     stage_SetAnimation(80, 0, -1);
     demo12_mes[0].func = actEndDemo12Chk;
     self->mail = demo12_mes;
@@ -1405,7 +1406,7 @@ void actEndDemo13(volatile int a0)
     _ACTWait(1);
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpFadeOut(255.0f, 0xFF, 0xFF, 0xFF);
     SelectBoyCrown(D_00639EA4, 2);
     demo13_mes[0].func = actEndDemo13Chk;
@@ -1425,7 +1426,7 @@ void actStaff2(volatile int a0)
     _ACTWait(1);
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSetBoyWeaponGObj(scpSearchGobj(2795));
     *(int *)(scpSearchGobj(2793)->f15C + 0x658) = 1;
     *(int *)(scpSearchGobj(2794)->f15C + 0x658) = 1;
@@ -1444,7 +1445,7 @@ void actStaff3(volatile int a0)
     _ACTWait(1);
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpFadeOut(255.0f, 0, 0, 0);
     DeleteBoyWeapon();
     stage_SetAnimation(72, 0, 0);

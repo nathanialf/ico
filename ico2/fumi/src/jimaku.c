@@ -285,7 +285,7 @@ extern void __assert(char *file, int line, char *expr);
 /* The DEBUG build's switch to print the way groups' states after each Next
    (name ours); retail builds it as 0. */
 #ifdef DEBUG
-#define JIMAKU_DEBUG_DUMP (D_0063B13C & 0x400)
+#define JIMAKU_DEBUG_DUMP (debug_font_flag & 0x400)
 #else
 #define JIMAKU_DEBUG_DUMP 0
 #endif

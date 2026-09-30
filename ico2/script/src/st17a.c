@@ -178,7 +178,8 @@ void actSt17aDoorDownChk(volatile int a0)
 extern int scpTriggerFloorAttr(void *obj, int attr);
 /* as script.h declares it; this TU does not include that header */
 extern int scpSearchGobj(int a0);
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 extern void *D_00639EAC;
 extern int D_0028F4C0[];
 /* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
@@ -241,7 +242,7 @@ void actSt17aHasiChk(volatile int a0)
 
         scpPlayEnd(D_00639EA8);
 
-        D_0063AA08 = 0;
+        scpBoyControlReadDisable = 0;
     } else {
         long long buf2[2];
 
@@ -371,7 +372,7 @@ void actSt17aIntroCancel(volatile int a0)
     }
 
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 void actLinkTest(volatile int a0)
@@ -548,7 +549,7 @@ extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 void actSt17aIntroChk(volatile int a0)
 {
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     gflagOn(34);
     scpAdpcmPlayRequestFunc(53, &cam, 1, 1, 1);
     _ACTWait(1);

@@ -1244,8 +1244,6 @@ void DispMeshWire(int *rows, int nx, int ny)
     gif_EndPacket();
 }
 
-extern int D_0063B1D8;
-
 void DispCloth4D(int *a0, void *a1, void *a2)
 {
     int t;
@@ -1264,7 +1262,7 @@ void DispCloth4D(int *a0, void *a1, void *a2)
     gif_EndPacket();
     _SetCurrentMatrix(matrixptr + 0x100);
     prim_DispMesh3D(a0[1], a1, a2, t);
-    if (D_0063B1D8 != 0) {
+    if (debug_cloth_info != 0) {
         m = (int *)a0[184];
         DispMeshWire((int *)a0[2], m[0], m[1]);
     }
@@ -1288,7 +1286,7 @@ void DispCloth4DWithAdd(int *a0, void *a1, void *a2)
     gif_EndPacket();
     _SetCurrentMatrix(matrixptr + 0x100);
     prim_DispMesh3D(a0[1], a1, a2, t);
-    if (D_0063B1D8 != 0) {
+    if (debug_cloth_info != 0) {
         m = (int *)a0[184];
         DispMeshWire((int *)a0[2], m[0], m[1]);
     }
@@ -1659,7 +1657,7 @@ void getCloth4D(void *a0, int **rows)
         _ApplyMatrix(&vH[i], pD, clothDownVector);
         vH[i].w = pts[i].y - _InnerProduct(&vH[i], (*pD)[3]);
     }
-    if (D_0063B1D8) {
+    if (debug_cloth_info) {
         gif_StartPacketPri(11);
         gif_SetAlpha(1, 5, 0x80);
         gif_SetZWrite(0);

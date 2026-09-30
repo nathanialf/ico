@@ -2,6 +2,7 @@
 #include "Basic.h"
 #include "Texture.h"
 #include "DisplayList.h"
+#include "debug.h"
 #include <string.h>
 
 /* One mipmap level of a texture record: the ROM reads addr with lw at +0, dbw
@@ -504,7 +505,6 @@ void tex_transRegister(int a0)
     dl_CloseDma();
 }
 
-extern int D_0063B120;
 extern int tex_transVramDirectTex(Tim2Picture *pic, CdvdRec *t, int levels, int lv);
 extern int tex_transVramClutTex(Tim2Picture *pic, CdvdRec *t, int levels, int lv);
 extern void tex_setTexReg(Tim2Picture *pic, CdvdRec *t, int levels, int lv, int clut);
@@ -538,7 +538,7 @@ int tex_transTM2(Tim2Picture *pic, CdvdRec *t, int id, int pri)
             tex_transRegister(t);
             tex_setTexReg(pic, t, levels, texTable[id].rec.level, 0);
             vramPri[dl_GetPri()].f2 = id;
-            D_0063B120++;
+            texregs++;
         }
         break;
     case 4:
@@ -550,7 +550,7 @@ int tex_transTM2(Tim2Picture *pic, CdvdRec *t, int id, int pri)
             tex_transRegister(t);
             tex_setTexReg(pic, t, levels, texTable[id].rec.level, 1);
             vramPri[dl_GetPri()].f2 = id;
-            D_0063B120++;
+            texregs++;
         }
         break;
     default:
@@ -1240,8 +1240,8 @@ int tex_LoadTexturePart(void *name, int a1)
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 extern void debug_StdPrintfDummy();
+
 /* "FALSE" */
-extern int D_0063B11C;
 
 int tex_TransTexture(int id, int ret)
 {
@@ -1269,7 +1269,7 @@ int tex_TransTexture(int id, int ret)
         __assert("src/Texture.c", 1685, "FALSE");
     }
     if (ret != 0) {
-        D_0063B11C++;
+        textures++;
     }
     dl_OpenDma(2, (int)((char *)t + 0xA8), 3);
     dl_CloseDma();

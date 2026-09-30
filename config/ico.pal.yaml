@@ -600,8 +600,7 @@ segments:
       - [0x219020, .data, ico2/common/src/DObj]  # the TU's whole .data run as source (data pass 5), VMA 0x319020..0x319A00, 2528 B
       - [0x219A00, .data, ico2/common/src/StageManager]  # the TU's whole .data run as source (finishing pass P1-1), VMA 0x319A00..0x4D9C10, 0x1C0210 B = MAIN.MAP StageManager.o .data, all zero: stagePreLoadBuff (0x1C0000), stageMgrMsgQ (+0x1C0000, 0x30) and stageExitData (+0x1C0030, 0x1E0), all three globals in MAIN.MAP; charFileManager's row follows with no resume
       - [0x3D9C10, .data, ico2/common/src/charFileManager]  # the TU's .data (data pass 6), VMA 0x4D9C10..0x4D9C28, 24 B
-      - [0x3D9C28, data, cod/3D9C28]     # data blob resume
-      - [0x3D9D40, .data, ico2/common/src/debug]  # the tail of debug.o's .data as source (VMA 0x4D9D40..0x4D9F70, 0x230 B): the font GIF tag, the select-name table, the collision colours, the 27-entry debug menu and its help, the bar mark positions (chain 1 pass 130); debug_exception follows
+      - [0x3D9C30, .data, ico2/common/src/debug]  # the TU's whole .data run as source (finishing pass P1-8c), VMA 0x4D9C30..0x4D9F70, 0x340 B (MAIN.MAP 0x330, a different link): the sixteen option value-name lists, the font GIF tag, debug_Mode's value names, the collision ray modes and colours, debugMenu (MAIN.MAP global) and its bug list, used_dl_memory (MAIN.MAP global); debug_exception follows
       - [0x3D9F70, .data, ico2/common/src/debug_exception]  # the TU's whole .data run as source (VMA 0x4D9F70..0x4DA770, 0x800 = MAIN.MAP debug_exception.o .data; chain 3 pass 132), gamesys's row follows directly
       - [0x3DA770, .data, ico2/common/src/gamesys]  # the TU's whole .data run as source (completeness pass 5), VMA 0x4DA770..0x4DA788, 18 B emitted
       - [0x3DA788, data, cod/3DA788]     # .data blob resume
@@ -819,25 +818,8 @@ segments:
       - [0x5191D0, .rodata, ico2/common/src/backStage]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP backStage.o .rodata 0x172), EUC-JP strings with glosses, VMA 0x6191D0..0x619342, 370 B
       - [0x519342, rodata, cod/519342]     # rodata blob resume
       - [0x519348, .rodata, ico2/common/src/charFileManager]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP charFileManager.o .rodata 0x861), in census function order with the deferred inline setters, VMA 0x619348..0x619BA9, 2145 B
-      - [0x519BA9, rodata, cod/519BA9]     # rodata blob resume
-      - [0x51B9A0, .rodata, ico2/common/src/debug]  # carved jtbl_0061B9A0 (debug_Load, 11 arms, section .rodata.0x0061B9A0), VMA 0x61B9A0..0x61B9CC
-      - [0x51B9CC, rodata, cod/51B9CC]     # .rodata blob resume
-      - [0x51BAE0, .rodata, ico2/common/src/debug]  # carved jtbl_0061BAE0 (debug_DispQW, 17 arms), VMA 0x61BAE0..0x61BB24
-      - [0x51BB24, rodata, cod/51BB24]   # .rodata blob resume (pad word, strings)
-      - [0x51BDC0, .rodata, ico2/common/src/debug]  # carved jtbl_0061BDC0 (debug_mcRetErrCheck's 17-arm table), VMA 0x61BDC0..0x61BE04; one zero pad word then the 8-aligned string run stay in the blob
-      - [0x51BE04, rodata, cod/51BE04]   # .rodata blob resume (pad word + D_0061BE08 strings)
-      - [0x51BE30, .rodata, ico2/common/src/debug]  # carved jtbl_0061BE30 (debug_selectFile, 7 arms), VMA 0x61BE30..0x61BE4C
-      - [0x51BE4C, rodata, cod/51BE4C]   # .rodata blob resume (pad word, strings)
-      - [0x51BEA0, .rodata, ico2/common/src/debug]  # carved jtbl_0061BEA0 (debug_mcSaveMainBlock, 14 arms), VMA 0x61BEA0..0x61BED8
-      - [0x51BED8, rodata, cod/51BED8]   # .rodata blob resume (strings)
-      - [0x51BF30, .rodata, ico2/common/src/debug]  # carved jtbl_0061BF30 (debug_mcLoadMainBlock, 100 arms), VMA 0x61BF30..0x61C0C0
-      - [0x51C0C0, rodata, cod/51C0C0]   # .rodata blob resume (strings)
-      - [0x51C0E0, .rodata, ico2/common/src/debug]  # carved jtbl_0061C0E0 (debug_mcDeleteFile, 5 arms), VMA 0x61C0E0..0x61C0F4
-      - [0x51C0F4, rodata, cod/51C0F4]   # .rodata blob resume (the pad word after mcDeleteFile's table)
-      - [0x51C0F8, .rodata, ico2/common/src/debug]  # plain-rodata: debug_MemoryCard's initialiser templates and strings (menu table, state captions), VMA 0x61C0F8..0x61C1A8
-      - [0x51C1A8, rodata, cod/51C1A8]   # .rodata blob resume (strings)
-      - [0x51C280, .rodata, ico2/common/src/debug]  # carved jtbl_0061C280 (debug_DispBox, 6 arms, section .rodata.0x0061C280), VMA 0x61C280..0x61C298; the TU's strings and DispBall's initialiser template around it stay in the blob until the plain .rodata run closes
-      - [0x51C298, rodata, cod/51C298]     # .rodata blob resume
+      - [0x519BB0, .rodata, ico2/common/src/debug]  # the TU's whole .rodata run as source (finishing pass P1-8c), VMA 0x619BB0..0x61C589 + 7 B of link pad, 0x29D9 B (MAIN.MAP 0x28E9, a different link): the font bitmap, the option value names and the 76-entry option table (its captions flushed after it), the functions' strings and initialiser templates in listing order with the compiler's own jump tables among them, the menu captions and the bug list
+      - [0x51C590, rodata, cod/51C590]   # .rodata blob resume (debug_exception's run up to its first carve)
       - [0x51CF00, .rodata, ico2/common/src/debug_exception]  # carved jtbl_0061CF00 (VMA 0x61CF00..0x61CF20, 32 B incl. 3 zero pad words, 5 arms): SetDrawEnvironment's switch table (debug_exception_screen.c.inc), emitted by the compiled function
       - [0x51CF14, rodata, cod/51CF14]   # .rodata blob resume (the 12 zero bytes padding the jtbl to the 16-aligned GIF tags are the blob's first words: the compiled table is 0x14 B and blob sections align at most to 8)
       - [0x51CFF8, .rodata, ico2/common/src/debug_exception]  # plain-rodata: traceLine's SrcRef initialiser template (anonymous, so the TU's unnamed .rodata lands here), 4 words of 0xFFFFFFFF, VMA 0x61CFF8..0x61D008
@@ -1224,7 +1206,7 @@ segments:
       - [0x53A960, .sdata, ico2/fumi/src/jimaku]  # the TU's whole .sdata run as source (finishing pass P1-4), VMA 0x63A960..0x63A9A0, 0x40 B = MAIN.MAP jimaku.o .sdata: the display time and flag, jimakuOn, the sprite colour, the assert text, the three dump strings and jimakuMsgBuf
       - [0x53A9A0, sdata, cod/53A9A0]    # .sdata blob resume
       - [0x53AA00, .sdata, ico2/script/src/gflag]  # the TU's whole .sdata run as source (finishing pass P1-8), VMA 0x63AA00..0x63AA08, 8 B (MAIN.MAP 4, a different link): the game-clear state, then gFlagSaveStage (MAIN.MAP global)
-      - [0x53AA08, sdata, cod/53AA08]    # .sdata blob resume (script.o's run)
+      - [0x53AA08, .sdata, ico2/script/src/script]  # the TU's whole .sdata run as source (finishing pass P1-8c), VMA 0x63AA08..0x63AA2D, 0x25 B (MAIN.MAP 0x19, a different link): scpBoyControlReadDisable and scpSeEnvMasterVolRate, the retail build's three hint-voice words, then sekizo_common, the two dummy GObj words, sekizo_yure and sekizo_yure_vol (MAIN.MAP globals); 3 B of fill to st25a's row
       - [0x53AA30, .sdata, ico2/script/src/st25a]  # the TU's whole .sdata run as source (finishing pass P1-8), VMA 0x63AA30..0x63AA4C, 0x1C B (MAIN.MAP 0x14, a different link): seven ADPCM request slots and flags, conte12, sd2 and dead the MAIN.MAP globals; 4 B of fill to the blob
       - [0x53AA50, sdata, cod/53AA50]    # .sdata blob resume (warpGirl's run onward)
       - [0x53AA6C, .sdata, ico2/omori/src/brain]  # the TU's .sdata as source: two FLT_MAX words, VMA 0x63AA6C..0x63AA74, 8 B; MAIN.MAP line 7123
@@ -1232,9 +1214,8 @@ segments:
       - [0x53AC20, .sdata, ico2/ito/src/act_bird]  # the TU's .sdata: subBirdBrainMain's seven short state-name strings, which -G 8 routes to .sdata (55 B); VMA 0x63AC20..0x63AC57, one zero pad byte to the blob
       - [0x53AC58, sdata, cod/53AC58]     # .sdata blob resume
       - [0x53AD00, .sdata, ico2/common/src/charFileManager]  # the TU's whole .sdata run as source (finishing pass P1-8), VMA 0x63AD00..0x63AD24, 0x24 B = MAIN.MAP charFileManager.o .sdata: the object serial, the assert texts "e", "0" and "FALSE", the semi-common sound header's buffer; 4 B of fill to the blob
-      - [0x53AD28, sdata, cod/53AD28]     # .sdata blob resume (debug.o's run onward)
-      - [0x53B008, .sdata, ico2/common/src/debug]  # carved debug_MemoryCard's short menu labels ("LOAD".."MENU", -G 8 puts them in small data), VMA 0x63B008..0x63B040
-      - [0x53B040, sdata, cod/53B040]    # .sdata blob resume
+      - [0x53AD28, .sdata, ico2/common/src/debug]  # the TU's whole .sdata run as source (finishing pass P1-8c), VMA 0x63AD28..0x63B264, 0x53C B (MAIN.MAP 0x4F0, a different link): the collision-ray option word, the value-name strings, the statics beside their functions and the functions' short strings in listing order, then LoadFileType, the display-list counters and the option words (MAIN.MAP globals, 77 in all with debugBackGroundDisableFlag and charNumH) and the eleven retail-added option words; 4 B of fill to the blob
+      - [0x53B268, sdata, cod/53B268]    # .sdata blob resume (debug_exception's run onward)
       - [0x53B498, .sdata, ico2/common/src/kanban]  # the TU's whole .sdata run as source (finishing pass P1-8), VMA 0x63B498..0x63B4BC, 0x24 B = MAIN.MAP kanban.o .sdata: kanbanCommonRead (MAIN.MAP global), the start colour, "/" and "0", the fade colour
       - [0x53B4BC, .sdata, ico2/common/src/kanbanBoot]  # the TU's whole .sdata run as source (finishing pass P1-8), VMA 0x63B4BC..0x63B4D4, 0x18 B (MAIN.MAP 0x10, a different link): five step and flag words, then kanbanBootEnd (MAIN.MAP global); 4 B of fill to the blob
       - [0x53B4D8, .sdata, ico2/common/src/layout_action]  # the TU's whole .sdata run as source (finishing pass P1-8b), VMA 0x63B4D8..0x63B5F8, 0x120 B (MAIN.MAP 0x10C, a different link): the port pointer and nine state words, startStagePauseDisableTimer, layout_boot_flag and enable_game_pause (MAIN.MAP globals), then each function's statics before it with the short literals ("game.", "1 to 2\n", "2 to 1\n", "chk:%d\n", "case 4\n", "fail\n", progressive_bar's two colours, "%d\n") where the functions emit them, title_demo_mode and laoutActionPauseRequest (globals) at their definitions, stage_after_skipping_demo and layoutActPushStartNew (globals) last
@@ -1427,7 +1408,6 @@ segments:
       - { type: .bss, vram: 0x006FACF0, name: ico2/common/src/backStage }  # the TU's own .bss, 0x10 B, VMA 0x6FACF0..0x6FAD00; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x006FAD00, name: ico2/common/src/charFileManager }  # the TU's own .bss, 0x9978 B, VMA 0x6FAD00..0x704678; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x00704680, name: ico2/common/src/debug }  # the TU's own .bss as fourteen statics, 0xB3A0 B = MAIN.MAP's debug.o .bss, VMA 0x704680..0x70FA20 (chain 1 pass 132); its three VU0 vectors give the section its 16-byte alignment, so the 8 B before it are link fill (finishing pass P1-8)
-      - { type: bss, vram: 0x0070FA20, name: cod/0070FA20 }  # .bss blob, 0x60 B of link fill before debug_exception's 16-aligned run
       - { type: .bss, vram: 0x0070FA80, name: ico2/common/src/debug_exception }  # the TU's whole .bss (VMA 0x70FA80..0x71CA90, 0xD010 = MAIN.MAP debug_exception.o .bss: the display's staging quadword and the 26x256 character screen; chain 3 pass 132), icoMisc's row follows directly
       - { type: .bss, vram: 0x0071CA90, name: ico2/common/src/icoMisc }  # the TU's own .bss, 0x80 B, VMA 0x71CA90..0x71CB10; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x0071CB10, name: ico2/common/src/kanban }  # the TU's own .bss, 0x3C0 B, VMA 0x71CB10..0x71CED0; static definitions in ROM run order (completeness pass)

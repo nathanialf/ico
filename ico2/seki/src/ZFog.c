@@ -121,8 +121,8 @@ typedef struct {
 } FogDpk;
 
 extern FogDpk PacketBufferStruct;
-extern int D_0063B1F0;
-extern int D_0063B13C;
+extern int debug_fullscreen_effect;
+extern int debug_font_flag;
 extern int tex_AllocVramAuto(int a0, int a1);
 extern void tex_ResetVramPri(int pri);
 extern void dl_OpenDma(int chan, void *dma, int flag);
@@ -256,10 +256,10 @@ void fog_DrawFog(void)
     int rc1[4] = {8, 8, ScreenWidth * 16, ScreenHeight * 16};
     unsigned char cl[4] = {0x80, 0x80, 0x80, D_0028F720.fogStrength};
 
-    if (D_0063B1F0 == 0) return;
+    if (debug_fullscreen_effect == 0) return;
     if (D_0028F720.fogOn == 0) return;
 
-    if (D_0063B13C & 1) debug_Printf(510, ScreenHeight / 2 - 8, 0xCCCCCC00, "Z");
+    if (debug_font_flag & 1) debug_Printf(510, ScreenHeight / 2 - 8, 0xCCCCCC00, "Z");
 
     vram = tex_AllocVramAuto(1, 4);
 

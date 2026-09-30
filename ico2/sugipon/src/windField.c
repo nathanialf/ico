@@ -3,6 +3,7 @@
 #include "lineManager.h"
 #include "matrixDrive.h"
 #include "tableSin.h"
+#include "debug.h"
 #include <libvu0.h>
 
 /* the TU's .sdata (MAIN.MAP names nothing in it), in ROM order: the field mode,
@@ -191,8 +192,6 @@ extern int D_0028F4C0[];
 /* The cell centre ExecWindField samples, rewritten per cell; w stays 1. */
 static float samplePos[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 
-extern int D_0063B148;
-
 void ExecWindField(float str)
 {
     float d[4];
@@ -223,7 +222,7 @@ void ExecWindField(float str)
             }
         }
     }
-    if (D_0063B148 != 0) {
+    if (debug_skel_flag != 0) {
         MatrixDrive_PushMatrix();
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
         MatrixDrive_TransMatrixV((char *)windCenter);

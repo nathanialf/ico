@@ -565,8 +565,6 @@ void ChaseCamera(float *a0, float *a1)
     a1[8] = 50.0f;
 }
 
-extern int D_0063B178;
-
 /* Static helper at camera-ico2.c lines 149-158 of the listing, hosted by both
  * InitIco2Camera and CameraMove, so the name is ours: it scales the two
  * hand-camera correction rates by the frame budget and reports the frame step.
@@ -772,7 +770,7 @@ void CameraMove(int group, float *pos, float *out, float *ofsA, float *ofsB)
             ofsB[0] = ofsB[0] + p->z[0] * w;
             ofsB[1] = ofsB[1] + p->z[1] * w;
             ofsB[2] = ofsB[2] + p->z[2] * w;
-            if (D_0063B178 != 0) {
+            if (debug_camera_flag != 0) {
                 if (0.0f < p->range) {
                     debug_Marker(p->pos, (int)(w * 255.0f), 0, 0, p->range, (float)D_0063AB50);
                 } else {
@@ -1027,7 +1025,7 @@ void SetCameraMatrix_Ico2(int flag)
     }
     monitorMonitorCamera(&cw, &cw2);
     cw = cw2;
-    if (D_0063B178 != 0) {
+    if (debug_camera_flag != 0) {
         debug_Marker(cw.at.f, 0, 0, 255, 100.0f, 0.0f);
     }
     sceVu0ScaleVector(&cw, &cw, -1.0f);

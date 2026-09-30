@@ -102,7 +102,6 @@ extern int bga_CheckAnimationFrame(int a0, int a1, int a2);
 /* kept local: this TU's uses of bga_CheckSdfCameraFrame do not fit the prototype in BgAnimation.h */
 extern int bga_CheckSdfCameraFrame(int a0, int a1, int a2);
 extern char D_00550210[];
-extern int D_0063B13C;
 extern int ScreenHeight;
 /* kept local: this TU's uses of bga_CalcSdfCamera do not fit the prototype in BgAnimation.h */
 extern void bga_CalcSdfCamera(char *p, int a1);
@@ -739,7 +738,7 @@ void stage_CalcAnimationNoParent(void)
                 break;
             case 1:
                 if (lock != 0) {
-                    if (D_0063B13C & 1) {
+                    if (debug_font_flag & 1) {
                         debug_Printf(0, ScreenHeight / 2 - 28, 0xCCCCCC00, D_00550210,
                                      *(int *)(e + 0x280));
                     }

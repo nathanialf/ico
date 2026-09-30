@@ -1391,7 +1391,6 @@ extern char D_005D3F30[];
 extern const StgPre D_005F5D50[];
 extern int D_0063A458;
 extern int D_0028F4C0[];
-extern int D_0063B14C;
 extern int SgGetSlotStatus(int a0, int a1);
 
 inline void soundReqTickProc(void)
@@ -1404,7 +1403,7 @@ inline void soundReqTickProc(void)
             if (r == 0) {
                 soundSeDefStop(((int)*(unsigned short *)p << 8) | i);
             } else if (r & 2) {
-                if (D_0063B14C == 0) {
+                if (debug_seslotdisp_flag == 0) {
                     if (D_0028F4C0[5] != 0 && *(unsigned int *)(p + 8) != 0xFFFFFFFF &&
                         *(unsigned int *)(p + 8) != 0xFFFFFFFE) {
                         *(int *)(p + 4) |= 0x20000000;

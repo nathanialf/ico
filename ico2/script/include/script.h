@@ -12,6 +12,18 @@
 #ifndef SCRIPT_H
 #define SCRIPT_H
 
+/* script.o's .sdata globals (MAIN.MAP): the boy-control read lock the
+   scripts raise, the sound-environment master volume rate, the statue's
+   common ADPCM handle, two dummy GObj words and the statue's pad vibration
+   handle and volume. */
+extern int scpBoyControlReadDisable;
+extern float scpSeEnvMasterVolRate;
+extern char *sekizo_common;
+extern char *scpDummyGObj;
+extern char *scpDummyGObj2;
+extern int sekizo_yure;
+extern unsigned char sekizo_yure_vol;
+
 /* The entry points script.o defines inline, in the order its end-of-file
  * block emits them: ee-gcc 2.9 defers every inline definition to the end of
  * the object and writes it out in first-declaration order, so this block is

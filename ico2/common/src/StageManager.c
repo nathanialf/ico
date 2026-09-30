@@ -296,7 +296,7 @@ static __inline__ void stgPreLoadDebugHook(void)
 static __inline__ int stgPreLoadDebugHold(void)
 {
 #ifdef DEBUG
-    return D_0063B13C & 0x100;
+    return debug_font_flag & 0x100;
 #else
     return 0;
 #endif

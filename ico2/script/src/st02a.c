@@ -220,7 +220,8 @@ void actSt02aDoorDownChk(volatile int a0)
 }
 
 extern int D_0028F8F4[];
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 extern int st02a_fence;
 
 /* .sbss, owned by st02a.o and reached only from this file (MAIN.MAP names no
@@ -278,7 +279,7 @@ void actSt02aFenceOpen(volatile int a0)
         }
     }
     SetWayGroupActive(26, 1);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
     scpWakeupEnemyAll();
 }
@@ -397,7 +398,7 @@ void actSt02aGondolaUp(volatile int a0)
     }
 
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     scpWakeupEnemyAll();
 
     gondola_up_mail[0].func = actSt02aGondolaMain;
@@ -439,7 +440,7 @@ void actSt02aGondolaDown(volatile int a0)
     }
 
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     scpWakeupEnemyAll();
 
     gondola_down_mail[0].func = actSt02aGondolaMain;
@@ -735,7 +736,7 @@ void actSt02aFenceSwitch(volatile int a0)
 
     sub->mainMail = 0;
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     fence_switch_mail[0].func = actSt02aFenceOpen;
     sub->mail = fence_switch_mail;
@@ -775,7 +776,7 @@ void actSt02aGondolaSwitch(volatile int a0)
 
     sub->mainMail = 0;
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
 
     if (gflagChk(119) != 0) {

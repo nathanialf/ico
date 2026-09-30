@@ -200,7 +200,7 @@ void reg_dispBoxLine(char *pk)
     gif_EndPacket();
 }
 
-extern int D_0063B184;
+extern int debug_bounding_flag;
 
 int reg_clipPacketBoundingBox(char *pk)
 {
@@ -235,7 +235,7 @@ int reg_clipPacketBoundingBox(char *pk)
         __assert("src/RegistPacket.c", 821, "0");
         break;
     }
-    if (D_0063B184 & 2) {
+    if (debug_bounding_flag & 2) {
         reg_dispBoxLine(pk);
     }
     return ret;
@@ -278,7 +278,7 @@ void reg_chooseReflectionMicroCode(int a0, int a1, int a2)
     mc_SetMicroCode(a0, 1, 2, a1, a2);
 }
 
-extern int D_0063B124;
+extern int texturetranssize;
 
 /* One 64-bit slot of a DMA/GIF packet: written either as the whole qword
    (DMAtag, GIFtag, A+D data) or as its two 32-bit halves. */
@@ -758,7 +758,7 @@ static void func_00121428(char *a0, int a1, int a2)
     dl_SetDLPriority(4);
     h = *(short *)(a0 + 0x86);
     if (h >= 0) {
-        D_0063B124 += tex_TransTexture(h, 4);
+        texturetranssize += tex_TransTexture(h, 4);
     }
     dl_OpenDma(2, regSpecularPacket, 5);
     dl_CloseDma();
@@ -866,7 +866,7 @@ void reg_resetDissolve(int a0)
 static inline void regTransTexturePacket(int tex, int pri)
 {
     if (tex >= 0) {
-        D_0063B124 += tex_TransTexture(tex, pri);
+        texturetranssize += tex_TransTexture(tex, pri);
     }
 }
 
@@ -883,7 +883,6 @@ static const unsigned int regReflectionPacket[6][4] __attribute__((aligned(16)))
 };
 
 extern int buffer_ID;
-extern int D_0063B1AC;
 
 /* INTERIM, same rule as regTransTexturePacket above: reg_GetShinePri
    (listing line 705) is `inline` in the dev's TU -- its body is inlined into
@@ -1233,7 +1232,7 @@ void reg_dispCObj(char *o)
             reg_chooseMicroCode((char *)(*(int *)grp + *(short *)(pkt + 0x80) * 0x70), 0, pri);
             dl_OpenDma(2, *(char **)(pkt + 0x98), (*(int *)(pkt + 0x90) & 0xFFFFFF) >> 4);
             dl_CloseDma();
-            if (D_0063B1AC == 2 && *(int *)(*(char **)(o + 0x874) + 0xF0) == 2) {
+            if (debug_specular_flag == 2 && *(int *)(*(char **)(o + 0x874) + 0xF0) == 2) {
                 if (*(short *)(pkt + 0x86) != -1) {
                     func_00121428(pkt, 0, 1);
                 }
@@ -1423,7 +1422,7 @@ void reg_dispLine(char *node, float alpha)
     if (hastex != 0) {
         long long f = *(long long *)(node + 0xB8);
 
-        D_0063B124 += tex_TransTexture((unsigned short)f << 21 >> 21, pri);
+        texturetranssize += tex_TransTexture((unsigned short)f << 21 >> 21, pri);
     }
     {
         char *c = PacketBufferStruct.ptr.c;
@@ -2089,7 +2088,7 @@ void reg_SetScissorSw(int val)
 void reg_TransTexturePacket(int tex, int pri)
 {
     if (tex >= 0) {
-        D_0063B124 += tex_TransTexture(tex, pri);
+        texturetranssize += tex_TransTexture(tex, pri);
     }
 }
 

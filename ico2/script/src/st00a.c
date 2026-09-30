@@ -95,7 +95,8 @@ void actSt00aEnd(void)
 }
 
 extern int D_0028F4C0[];
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 /* kept local: this TU's uses of scpSleepEnemyOne do not fit the prototype in script.h */
 extern void scpSleepEnemyOne(int a0);
 /* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
@@ -114,7 +115,7 @@ void actSt00aEneChk(volatile int a0)
         _ACTWait(1);
     }
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     gflagOn(39);
     scpSleepEnemyOne(3757);
     scpSleepEnemyAll();
@@ -129,7 +130,7 @@ void actSt00aEneChk(volatile int a0)
     _ACTWait(1);
     lt_switch_layout(54);
     _ACTWait(120);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     scpWakeupEnemyOne(3757);
     scpWakeupEnemyAll();
     _ACTWait((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
@@ -176,7 +177,7 @@ void actSt00aStairChk(volatile int a0)
     SetWayGroupActive(3, 1);
     SetWayGroupActive(13, 0);
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     gflagOn(41);
     scpSleepEnemyAll();
     _ACTWait(60);
@@ -222,7 +223,7 @@ void actSt00aStairChk(volatile int a0)
     ReviveAllCarryableItemsWithNonSleepFrame(60);
     stage_SetAnimation(88, 0, -1);
     stage_SetAnimation(90, -1, -2);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     scpWakeupEnemyAll();
     gflagOff(38);
     fightSoundProcessRequestStart();

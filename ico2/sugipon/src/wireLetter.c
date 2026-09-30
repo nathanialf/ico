@@ -1,6 +1,7 @@
 #include "lineManager.h"
 #include "matrixDrive.h"
 #include "wireLetter.h"
+#include "debug.h"
 #include <string.h>
 
 typedef struct {
@@ -285,7 +286,6 @@ inline void Draw2DBox(float x0, float y0, float x1, float y1)
     gif_EndPacket();
 }
 
-extern int D_0063B188;
 /* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
 void DispWireLetter(int c);
@@ -320,7 +320,7 @@ void DispWireString(char *s)
     int w;
 
     len = strlen(s);
-    if (D_0063B188 == 0) {
+    if (debug_wire_string == 0) {
         return;
     }
     if (len == 0) {

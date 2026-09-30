@@ -899,7 +899,6 @@ void CameraEdit_DispBoxType2(int a0, int a1)
 extern Pad D_0028F8F0[];
 extern char D_0063AAD8[];
 extern char D_0063AAE0[];
-extern int D_0063B13C;
 extern int print_y;
 extern unsigned char exit_f;
 /* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
@@ -935,12 +934,12 @@ void menuGroupSelect(char *m)
         end = (n < 0) ? 0 : ((CameraEdit_BOX_NUMBER() < n) ? CameraEdit_BOX_NUMBER() : n);
         for (i = start; i < end; i++) {
             if (i == *box) {
-                if (D_0063B13C & 1) {
+                if (debug_font_flag & 1) {
                     print_y += 10;
                     debug_Printf(40, print_y, 0xFFFFFF00, D_0063AAD8, D_0063AA7C[1] + i * 0x4C);
                 }
             } else {
-                if (D_0063B13C & 1) {
+                if (debug_font_flag & 1) {
                     print_y += 10;
                     debug_Printf(40, print_y, 0xFFFFFF00, D_0063AAE0, D_0063AA7C[1] + i * 0x4C);
                 }
@@ -1031,13 +1030,13 @@ void menuGroupEdit(char *m)
             item[cur].val += d;
             for (i = 0; i < 7; i++) {
                 if (i == cur) {
-                    if (D_0063B13C & 1) {
+                    if (debug_font_flag & 1) {
                         print_y += 10;
                         debug_Printf(40, print_y, 0xFFFFFF00, ">>%8s = %d\n", item[i].name,
                                      item[i].val);
                     }
                 } else {
-                    if (D_0063B13C & 1) {
+                    if (debug_font_flag & 1) {
                         print_y += 10;
                         debug_Printf(40, print_y, 0xFFFFFF00, "  %8s = %d\n", item[i].name,
                                      item[i].val);
@@ -1143,13 +1142,13 @@ void menuPinSelect(char *m)
             int k = i - min;
 
             if (i == cur) {
-                if (D_0063B13C & 1) {
+                if (debug_font_flag & 1) {
                     debug_Printf(40, print_y += 10, 0xFFFFFF00, D_0063AB08,
                                  *(int *)(CameraEdit_PIN(no, cur) + 0x24) ? D_0063AB10 : D_0063AB18,
                                  k);
                 }
             } else {
-                if (D_0063B13C & 1) {
+                if (debug_font_flag & 1) {
                     debug_Printf(40, print_y += 10, 0xFFFFFF00, D_0063AB20,
                                  *(int *)(CameraEdit_PIN(no, i) + 0x24) ? D_0063AB10 : D_0063AB18,
                                  k);
@@ -1248,13 +1247,13 @@ void menuPinEdit(char *m)
             item[cur].val += d;
             for (i = 0; i < 8; i++) {
                 if (i == cur) {
-                    if (D_0063B13C & 1) {
+                    if (debug_font_flag & 1) {
                         print_y += 10;
                         debug_Printf(40, print_y, 0xFFFFFF00, ">>%8s = %d\n", item[i].name,
                                      item[i].val);
                     }
                 } else {
-                    if (D_0063B13C & 1) {
+                    if (debug_font_flag & 1) {
                         print_y += 10;
                         debug_Printf(40, print_y, 0xFFFFFF00, "  %8s = %d\n", item[i].name,
                                      item[i].val);
@@ -1537,7 +1536,7 @@ inline void InitCameraEditor(void)
 
 inline int debug_CameraEditor(void)
 {
-    D_0063B13C = 1;
+    debug_font_flag = 1;
     if (curmenu == 0) {
         test_camedit();
     }

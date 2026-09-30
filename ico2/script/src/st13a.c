@@ -13,7 +13,6 @@
 #include <libvu0.h>
 #include "typedef.h"
 
-extern int D_0063AA08;
 extern int D_00639EA4;
 extern int D_00639EAC;
 
@@ -147,7 +146,7 @@ void actSt13aElevDown(volatile int a0)
         scpFadeOut(255.0f, 0, 0, 0);
         stage_SetAnimation(173, 0, 0);
         lt_switch_layout(55);
-        D_0063AA08 = 1;
+        scpBoyControlReadDisable = 1;
         scpPlayStart(D_00639EA4);
         scpAdpcmPlayRequestFunc(80, &st13a_down, 1, 1, 0);
         _ACTWait(10);
@@ -229,7 +228,7 @@ void actSt13aElevDownChk(volatile int a0)
     scpPlayMot(D_00639EA4, 0);
     scpPlayEnd(D_00639EA4);
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     gflagOff(15);
 }
 
@@ -243,7 +242,7 @@ void actSt13aSekizoChk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     scpAdpcmPlayRequestFunc(18, &sekizo13a, 1, 1, 1);
     while (sekizo13a == 0) {
@@ -285,7 +284,7 @@ void actSt13aSekizoChk(volatile int a0)
     _ACTWait(1);
 
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 void actSt13aElev(volatile int a0)
@@ -377,7 +376,7 @@ void actSt13aElevSwitch(volatile int a0)
 
     sub->mainMail = 0;
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     elevSwitch_mes[0].func = actSt13aElevUp;
     sub->mail = elevSwitch_mes;

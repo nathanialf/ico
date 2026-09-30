@@ -567,7 +567,8 @@ void actSt03tSekizoEvent(int x)
     volatile int local = x;
 }
 
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 /* as script.h declares it; this TU does not include that header */
 extern void scpSleepEnemyOne(int a0);
 /* as script.h declares it; this TU does not include that header */
@@ -583,7 +584,7 @@ void actSt03tEneChk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyOne(3757);
     gflagOn(104);
     gflagOn(105);
@@ -595,7 +596,7 @@ void actSt03tEneChk(volatile int a0)
     _ACTWait(1);
 
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     scpWakeupEnemyOne(3757);
 }
 

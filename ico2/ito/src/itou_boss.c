@@ -345,7 +345,6 @@ extern int D_0028F8F0[];
 extern int D_0028F4C0[];
 extern char D_00556840[];
 extern char *D_00639EA4;
-extern int D_0063B13C;
 
 /* The TU's .sbss (VMA 0x63C2EC, 8 B, MAIN.MAP itou_boss.o .sbss 0x8): the
    number of gene_enemy threads started, which indexes their done flags, and
@@ -435,7 +434,7 @@ static void gene_enemy(volatile int a0)
                 }
                 c = isysGObjSearchFromObjKindID_next(c);
             }
-            if ((D_0063B13C & 1) != 0) {
+            if ((debug_font_flag & 1) != 0) {
                 debug_Printf(10, 90, 0xFFFFFFFF, D_00556840, alive, total);
             }
             num = 0;
@@ -537,7 +536,6 @@ void itou_boss_gflag_init(void)
     memset(D_006E9A30, 0, 0xD50);
 }
 
-extern int D_0063B13C;
 extern char D_00556880[];
 
 void BossCtrlDL(void)
@@ -562,7 +560,7 @@ void BossCtrlDL(void)
             n++;
         }
     }
-    if ((D_0063B13C & 1) != 0) {
+    if ((debug_font_flag & 1) != 0) {
         debug_Printf(10, 60, 0xFFFFFFFF, D_00556880, n, 53);
     }
 }

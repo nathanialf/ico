@@ -260,7 +260,6 @@ inline void GetCollisCenterPositionSimple(void *a0, void *a1, void *a2)
 
 extern char D_0063BD40[];
 extern char D_0063BD48[];
-extern int D_0063B13C;
 
 typedef struct {
     int on;
@@ -284,11 +283,11 @@ void DebugActOrientFlag(unsigned int *f)
 
     for (i = 0; tbl[i].on != -1; i++) {
         if (tbl[i].on) {
-            if (D_0063B13C & 1) {
+            if (debug_font_flag & 1) {
                 debug_Printf(10, y += 8, 0x0FFFFFFF, D_0063BD40, tbl[i].name);
             }
         } else {
-            if (D_0063B13C & 1) {
+            if (debug_font_flag & 1) {
                 debug_Printf(10, y += 8, 0x0FFFFFFF, D_0063BD48, tbl[i].name);
             }
         }
@@ -380,7 +379,6 @@ extern char D_0063BD50[];
 extern float D_0063BD54[];
 extern float D_0063BD58[];
 extern char *D_00639EA0;
-extern int D_0063B260;
 
 /* kept local, as act-game.c keeps it: the 0x194-byte-per-entry motion record
    table indexed by the object's current motion id (obj->0x15C->0x4A0). */
@@ -1005,7 +1003,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
         else if (*(int *)(*(char **)(a0 + 0x15C) + 0x1E4)) {
             flags[2].bit.b14 = c60a;
             flags[2].bit.b13 = c130;
-            if (D_0063B260)
+            if (debug_no_breast_hang)
                 flags[2].bit.b14 = 0;
             if (a0 == D_00639EA4 && *(int *)(obj + 0xC) == 0x2C)
                 flags[2].bit.b13 = c60c;

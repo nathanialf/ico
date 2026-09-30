@@ -26,7 +26,8 @@ typedef struct EditPad {
 
 extern void *D_00639EA4;
 extern EditPad D_0028F8F0;
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 /* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float t);
 /* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
@@ -85,7 +86,7 @@ void actSt24aSwordChk(volatile int self)
         _ACTWait(1);
     }
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpPlayStart(D_00639EA4);
     gflagOn(329);
     soundSeDefPlay(1343, 0, 0, 1);
@@ -120,7 +121,7 @@ void actSt24aSwordChk(volatile int self)
     scpPlayMot(D_00639EA4, 0);
     scpPlayEnd(D_00639EA4);
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 void actSt24aDemoCamChk(volatile int a0)
@@ -129,7 +130,7 @@ void actSt24aDemoCamChk(volatile int a0)
         _ACTWait(1);
     }
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     gflagOn(330);
     stage_SetAnimation(154, 1, 0);
     SetCameraFlag_LwsCutBack();
@@ -151,7 +152,7 @@ void actSt24aDemoCamChk(volatile int a0)
         _ACTWait(1);
     }
     lt_switch_layout(54);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 }
 
 /* kept local: this TU's uses of ScpCallCameraSetTarget do not fit the prototype in script.h */

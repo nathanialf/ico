@@ -34,7 +34,8 @@ extern void scpFadeIn(float f);
 extern int D_0028F4C0[];
 extern int D_0028F8F4[];
 extern int D_00639EA4;
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 extern float D_0063C088;
 
 /* .sbss, owned by st04e.o and reached only from this file (MAIN.MAP names no
@@ -105,7 +106,7 @@ void actSt04eWaterStop(volatile int a0)
     scpSearchGobj(1273)->f16C = 1;
     scpSearchGobj(1272)->f16C = 0;
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 
     scpWakeupEnemyAll();
@@ -241,7 +242,7 @@ void actSt04eWaterSwitch(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     sub->mainMail = 0;
 

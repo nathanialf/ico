@@ -637,7 +637,8 @@ static const MvColVec lookAxisColor = {{128, 64, 32, 128}}; /* derived name */
 
 static const MvColVec lookRingColor = {{64, 16, 0, 128}}; /* derived name */
 
-extern int D_0063B198;
+/* kept local: debug.h's debug_PrintfDummy and debug_SelectCsvWindowWithLine prototypes do not fit this TU's calls */
+extern int debug_now_motion_viewer;
 
 /* The TU's .sdata tail: MotionViewer's state, in ROM order. */
 static int menuLevel = 0; /* derived name */
@@ -683,7 +684,7 @@ int MotionViewer(void)
     int ret;
     int mode;
 
-    D_0063B198 = 1;
+    debug_now_motion_viewer = 1;
     switch (menuLevel) {
     default:
     case 0:
@@ -857,7 +858,7 @@ int MotionViewer(void)
         menuLevel = menuLevel - 1;
         if (menuLevel < 0) {
             menuLevel = 0;
-            D_0063B198 = 0;
+            debug_now_motion_viewer = 0;
             return -1;
         }
     }

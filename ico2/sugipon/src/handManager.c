@@ -5,6 +5,7 @@
 #include "motionManager2.h"
 #include "tableSin.h"
 #include "typedef.h"
+#include "debug.h"
 
 /* getBone is defined as a nested function inside connectToTarget below. */
 /* kept local: this TU's uses of YUnitVector do not fit the prototype in matrixDrive.h */
@@ -255,7 +256,6 @@ float _handManager(char *obj, char *hw, char *vec, char *ref, int node)
     return 1.0f;
 }
 
-extern int D_0063B198;
 extern char D_0055FE58[];
 extern char D_005D1208[];
 /* kept local: this TU's uses of XUnitVector do not fit the prototype in matrixDrive.h */
@@ -273,7 +273,7 @@ void HandManager(char *obj)
 {
     float t = 1.0f;
 
-    if (D_0063B198 == 0) {
+    if (debug_now_motion_viewer == 0) {
         ResetHandTarget(obj, 0x310);
         ResetHandTarget(obj, 0x2B0);
         if (*(int *)((int)GOBJ_SUB(obj) + 0x400) != 0) {

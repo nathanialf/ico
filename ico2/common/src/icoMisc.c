@@ -13,6 +13,7 @@
 #include "stageMultiBgaManager.h"
 #include "icoMisc.h"
 #include "s_init.h"
+#include "script.h"
 #include <stdio.h>
 
 extern void *D_0063A428;
@@ -217,22 +218,15 @@ void disp_memory_partition(void)
     }
 }
 
-extern int D_0063B174;
-extern int D_0063B14C;
 extern int D_0063B448;
 extern int D_0063A3E0;
-extern int D_0063B140;
-extern int D_0063B13C;
-extern int D_0063B1A4;
 extern int D_0063B60C;
 extern int D_0063B444;
 extern int D_0063B440;
-extern int D_0063B150;
 extern int graphics_ready;
 extern int kanbanCommonRead;
 extern int stage_no;
 extern int fall_death_active;
-extern float D_0063AA0C;
 extern char *D_00639EA4;
 extern char *D_00639EA8;
 extern int D_0028F4C0[];
@@ -268,10 +262,10 @@ void ExecIcoMisc(void)
     int used;
     int cam;
 
-    if (D_0063B174 == 1) {
+    if (debug_mem_partition_flag == 1) {
         disp_memory_partition();
     }
-    if (D_0063B14C == 1) {
+    if (debug_seslotdisp_flag == 1) {
         debug_SESlotDisp();
     }
     if (iosCdvdDiskStatusGet() != 0) {
@@ -285,11 +279,11 @@ void ExecIcoMisc(void)
         debug_PrintfDummy(250, 100, 0xFF000000, (int)"IOP BUFF OVER -%d bytes", D_0063A3E0);
     }
     iosOmGetGObjStatus(&total, &used);
-    if (D_0063B140 != 0 || (D_0063B13C & 1) != 0) {
+    if (debug_font_flag2 != 0 || (debug_font_flag & 1) != 0) {
         debug_Printf(470, 10, (used * 100 / total > 90) ? 0xFF300080 : 0xC0FF80, (int)"GObj %d/%d",
                      used, total);
     }
-    if (D_0063B1A4 != 0) {
+    if (debug_memory_bar != 0) {
         disp_memory_partition_bar();
     }
     if (graphics_ready == 0) {
@@ -310,7 +304,7 @@ void ExecIcoMisc(void)
         ExecParticleEffects();
         ExecStreamMotionManager();
         ExecWindManager();
-        soundSeEnvMasterVolRate = D_0063AA0C;
+        soundSeEnvMasterVolRate = scpSeEnvMasterVolRate;
         ExecSpiderGroupManager();
         ExecGameOverEffect();
         D_0063B444 = 0;
@@ -320,13 +314,13 @@ void ExecIcoMisc(void)
         }
         if (D_0063B444 != 0) {
             soundSeEnvMasterVolRate = 0.0f;
-        } else if (D_0063AA0C > 0.5f) {
+        } else if (scpSeEnvMasterVolRate > 0.5f) {
             soundSeEnvMasterVolRate = 0.5f;
         }
     }
     if (D_0028F4C0[6] == 0) {
         gamesysBackStageProcess();
-        if (D_0063B150 == 1) {
+        if (debug_wallcheck_flag == 1) {
             warpGirlOutStage(stage_no, 1);
         }
         cam = GetCameraPos();
@@ -392,12 +386,10 @@ extern int thisIsYourStartStage;
 extern int frame_count;
 extern int graphics_ready;
 extern int stage_no;
-extern int D_0063AA08;
 extern unsigned char D_0063B44C;
 extern int D_0063B450;
 extern int D_0063B454;
 extern int D_0063B458;
-extern int D_0063B0D8;
 
 /* .sbss, owned by icoMisc.o (MAIN.MAP does not name it: the member has no
    named sbss symbols); the frame stamp the load-time report below prints. */
@@ -466,7 +458,7 @@ void InitIcoMisc(int *arg)
 
     if (D_0028F4C0[3] != 0 && D_0028F4C0[4] != 0) {
         gamesysMemoryLoad(D_004DA788, D_004DD700, 0);
-        D_0063AA08 = 0;
+        scpBoyControlReadDisable = 0;
         D_0028F4C0[4] = 0;
     }
     if (thisIsYourStartStage != 1 && D_0063B44C != 0) {
@@ -486,7 +478,7 @@ void InitIcoMisc(int *arg)
     }
     D_0063B450 = 1;
     debug_StdPrintfDummy("InitCharFIleManager out\n");
-    pack = D_0063B0D8;
+    pack = LoadFileType;
     if (D_0063B454 == 0) {
         debugCdvdLoadInfoSegInit(0);
         iosCdvdLoadPackFile(pack, GetDataFileName(-1, pack), 0);
@@ -589,10 +581,6 @@ void InitIcoMisc(int *arg)
     iosThreadDestroy(0);
 }
 
-extern int D_0063B138;
-extern int D_0063B148;
-extern int D_0063B150;
-extern int D_0063B164;
 extern char D_004E3B20[];
 /* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
 extern void _UnitMatrix(void *m);
@@ -618,15 +606,15 @@ void DispIcoMisc(void)
     DispStageMultiBgaManager();
     DispParticleEffects();
     DispGameOverEffect();
-    SetSkeltonDispSwitch(D_0063B148);
-    SetHitCollisionDisplay(D_0063B150, D_0063B150);
-    if (D_0063B164 > 0) {
-        DrawCollision(D_0063B164 == 1 ? 0 : -10);
+    SetSkeltonDispSwitch(debug_skel_flag);
+    SetHitCollisionDisplay(debug_wallcheck_flag, debug_wallcheck_flag);
+    if (debug_fieldcollision_flag > 0) {
+        DrawCollision(debug_fieldcollision_flag == 1 ? 0 : -10);
     }
-    if (D_0063B138 != 0) {
+    if (debug_brain_bar_flag != 0) {
         DispAllSpiderGroups();
     }
-    if (D_0063B148 != 0) {
+    if (debug_skel_flag != 0) {
         MatrixDrive_PushMatrix();
         _UnitMatrix(MatrixDrive_GetMatrix());
         gif_StartPacketPri(0xB);

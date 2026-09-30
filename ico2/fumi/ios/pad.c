@@ -485,8 +485,6 @@ int iosPadDevReadFunc(void)
     return 0;
 }
 
-extern int D_0063B244;
-
 int iosPadRead(void *pad)
 {
     IosPadCtx *ctx = (IosPadCtx *)pad;
@@ -539,7 +537,7 @@ int iosPadRead(void *pad)
         return 0;
     }
     if (padEnabled == 0) {
-        int mask = D_0063B244 != 0 ? 2 : 0;
+        int mask = debug_hand_camera != 0 ? 2 : 0;
         ctx->now &= mask;
         ctx->trg &= mask;
         ctx->rel &= mask;

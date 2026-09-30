@@ -176,7 +176,6 @@ int tryToRevive(void)
     return 0;
 }
 
-extern int D_0063B138;
 extern int D_0028F4C0[];
 
 void ExecSpiderGroupManager(void)
@@ -202,7 +201,7 @@ void ExecSpiderGroupManager(void)
 
         if (groups != 0 && total > 0 && total < 5) {
             reviveCounter = reviveCounter + 1;
-            if (D_0063B138 != 0) {
+            if (debug_brain_bar_flag != 0) {
                 debug_PrintfDummy(400, 120, 0xFFFFFFFF, "COUNTER %d/%d", reviveCounter,
                                   (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 45);
             }
@@ -217,7 +216,7 @@ void ExecSpiderGroupManager(void)
             reviveDone = 1;
         }
 
-        if (D_0063B138 != 0) {
+        if (debug_brain_bar_flag != 0) {
             if (groups != 0) {
                 debug_PrintfDummy(400, 110, 0xFFFFFFFF, "REMAIN %d", total);
             } else {

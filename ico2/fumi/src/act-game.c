@@ -130,7 +130,6 @@ extern void ClipWall(void *);
 extern void ClipFloor(void *);
 /* kept local: this TU's uses of _DistxzSqGV do not fit the prototype in gv.h */
 extern float _DistxzSqGV(void *a, void *b);
-extern int D_0063B13C;
 extern float _GetRandom(void);
 extern int D_0028F4C0[];
 /* kept local: this TU's uses of actEnemyFlagCheckActive do not fit the prototype in enemy_act.h */
@@ -155,8 +154,6 @@ typedef enum { MPSR_OFF, MPSR_ONESHOT, MPSR_HOLD } MpsrMode;
    re-reads sub+0x18 after every `int` store to the work block, which only a
    union whose members include a 32-bit integer produces -- a plain
    `unsigned long long` load survives an `int` store under TBAA. */
-
-extern int D_0063AA08;
 
 /* self->0x164->0x688 -- the per-actor motion work block.  Every use in this
    function re-derives the chase (the ROM reloads both links after each
@@ -1333,7 +1330,7 @@ int ACTLookTarget_Exec(char *a0)
     int rv;
     int b0;
 
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         debug_Printf(10, 170, 0x0FFFFFFF, "mode=[%d]\n", GOBJ_SUB(a0)->f_380);
     }
     rv = 0;
@@ -1822,7 +1819,7 @@ void ACTGame_BeforeFunc(char *self)
             *(int *)(ACTWORK(self) + 0x390) = 0;
             break;
         }
-        if (D_0063AA08 != 0) {
+        if (scpBoyControlReadDisable != 0) {
             *(int *)(ACTWORK(self) + 0x390) = 0;
         }
     }
@@ -2606,7 +2603,7 @@ void ACTGame_CommonLoop(char *self)
         if (D_00639EA4 == 0 || D_00639EA8 == 0) {
             return 0;
         }
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             unsigned char *d = (unsigned char *)*(int *)(*(char **)(D_00639EA8 + 0x164) + 0x688);
 
             debug_Printf(10, 120, 0x0FFFFFFF, "[%d] [%d] [%d] [%d] [%d]\n", d[0x540], d[0x541],
@@ -3418,7 +3415,7 @@ inline int ACTChkAttackIgnore_BOY(char *a0)
 {
     Act *s = GOBJ_ACT(a0);
     if (s->unk34 == 0x35 ||
-        (*(int *)(*(char **)((char *)s + 0x688) + 0x394) != 0 && D_0063AA08 != 0) ||
+        (*(int *)(*(char **)((char *)s + 0x688) + 0x394) != 0 && scpBoyControlReadDisable != 0) ||
         ((int)(*(unsigned long long *)((char *)s + 0x18) >> 35) & 1) == 0) {
         return 1;
     }

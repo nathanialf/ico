@@ -241,7 +241,6 @@ void shadow_Reset(void)
 
 /* the 12.4 window offsets XYOFFSET_1 is programmed with for the screen pass */
 /* the debug flag word: bit 0 turns the on-screen labels on */
-extern int D_0063B13C;
 /* "S", the one character label this pass prints */
 /* kept local: this TU reads the stage setting record for its tint bytes only,
  * so it takes the byte view src/layout_texture.c also uses */
@@ -251,7 +250,7 @@ extern void tex_UnlockHeadTBP(int pri);
 
 void shadow_Draw(void)
 {
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         debug_Printf(500, ScreenHeight / 2 - 8, 0xCCCCCC00u, (int)"S");
     }
     {

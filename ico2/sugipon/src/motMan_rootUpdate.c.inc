@@ -27,7 +27,6 @@ extern char ZeroVector[];
 extern void MultiQuaternion(void *p0, void *p1, void *p2);
 extern void ClipWallAdjustPos(void *a0);
 extern void ClipWallE(void *a0);
-extern int D_0063B230;
 extern void CopyQuaternion(void *a0, void *a1);
 extern void GetRootQuaternion(void *q, void *obj);
 /* the two ints the demo timer keeps: the elapsed count and its divisor. */
@@ -49,7 +48,6 @@ typedef struct {
     int b[3];
 } FieldBlk12;
 
-extern int D_0063B154;
 extern int ClipWallEField(void *a0);
 /* kept local: this TU's uses of these do not fit the prototypes in
  * fieldCollision.h / geometryManager.h. */
@@ -117,7 +115,7 @@ void _wallHitReaction(char *w, void *pos, void *last, int noSlide)
         } else {
             ClipWallE(&cw);
         }
-        if (D_0063B154 != 0) {
+        if (debug_wallhitcoldisp != 0) {
             /* An initialised record whose address is taken: gcc fills a
                temporary a member at a time and copies it whole, the two
                copies the listing puts on this one row. */
@@ -150,7 +148,7 @@ void _wallHitReaction(char *w, void *pos, void *last, int noSlide)
                     _AddVectorXYZ((int)&cw2 + 0x10, (int)pos, &push);
                     ClipWall(&cw2);
                     _AddVectorXYZ((int)pos, (int)pos, &slide);
-                    if (D_0063B154 != 0) {
+                    if (debug_wallhitcoldisp != 0) {
                         DrawCollisionRay(&cw2);
                     }
                     if (*(int *)((char *)&cw2 + 0x88) != 0) {
@@ -160,7 +158,7 @@ void _wallHitReaction(char *w, void *pos, void *last, int noSlide)
                             *(float *)((char *)&cw2 + 0xAC) - (*(float *)(w + 0x70) + 1.0f);
                         if (GetProjectionOfPlane(&hp, (char *)&cw2 + 0xA0, pos) < 0.0f) {
                             CopyVector(pos, &hp);
-                            if (D_0063B154 != 0) {
+                            if (debug_wallhitcoldisp != 0) {
                                 WallCfg disp = {((WallCfg *)((char *)&cw2 + 0x80))->o,
                                                 ((WallCfg *)((char *)&cw2 + 0x80))->n};
 
@@ -172,7 +170,7 @@ void _wallHitReaction(char *w, void *pos, void *last, int noSlide)
             } else {
                 CopyVector(pos, &prj);
             }
-            if (D_0063B154 != 0) {
+            if (debug_wallhitcoldisp != 0) {
                 WallCfg disp = {((WallCfg *)((char *)&cw + 0x80))->o,
                                 ((WallCfg *)((char *)&cw + 0x80))->n};
 
@@ -196,7 +194,7 @@ static inline void clipStepWallAndReact(char *cur, char *last, float rad, WallCf
 {
     ClipBuf w;
 
-    if (D_0063B230 != 0) {
+    if (debug_col_old_proc != 0) {
         CopyVector(&w, last);
     } else {
         CopyVector(&w, cur + 0x160);
@@ -214,7 +212,7 @@ static inline int clipFuchiWallAndReact(char *cur, char *last, int mode, float r
 {
     ClipBuf w;
 
-    if (D_0063B230 != 0) {
+    if (debug_col_old_proc != 0) {
         CopyVector(&w, last);
     } else {
         CopyVector(&w, cur + 0x160);
@@ -249,7 +247,7 @@ static inline int clipFieldWallAndReset(char *cur, char *last)
 {
     ClipBuf w;
 
-    if (D_0063B230 != 0) {
+    if (debug_col_old_proc != 0) {
         CopyVector(&w, last);
     } else {
         CopyVector(&w, cur + 0x160);
@@ -270,7 +268,7 @@ void _wallCollisionPreProcess(char *w, void *p, void *q, float dy)
     Vec16 save;
     float r;
 
-    if (D_0063B230 != 0) {
+    if (debug_col_old_proc != 0) {
         CopyVector(w, q);
     } else {
         CopyVector(w, D_0063C490 + 0x160);
@@ -351,7 +349,7 @@ static inline void waveForceReaction(char *cur, char *last, float dy)
     float d;
     float k;
 
-    if (D_0063B230 != 0) {
+    if (debug_col_old_proc != 0) {
         CopyVector(&w, last);
     } else {
         CopyVector(&w, cur + 0x160);
@@ -445,9 +443,9 @@ int getFieldCollision(char *w)
 /* kept local: this TU's uses of these do not fit the prototypes in
  * Matrix.h / debug.h. */
 extern float _InnerProduct(void *a, void *b);
+
 /* "PLANE<EUC-JP riMItto desu> %f <EUC-JP abunai node rakka sasemasu>\n":
  * the plane limit was exceeded, so the actor is dropped. */
-extern int D_0063B21C;
 
 /* Builds the plane the root height is measured against out of the floor plane
  * the motion block carries, and reports whether the floor was steep enough to
@@ -609,7 +607,7 @@ static void setIKAndAdjustRootHeight(char *mv)
             t = GetYDistanceFromPlane(&pl2, D_0063C490 + 0x90);
 
             if (!(5.0f < (t < 0.0f ? -t : t))) {
-                if (D_0063B21C == 0) {
+                if (debug_mot_slope_interp == 0) {
                     if (10.0f < (dy < 0.0f ? -dy : dy)) {
                         if (dy < 0.0f) {
                             dy = -10.0f;
@@ -618,7 +616,7 @@ static void setIKAndAdjustRootHeight(char *mv)
                         }
                     }
                 } else {
-                    dy = dy * ((float)D_0063B21C * 0.1f);
+                    dy = dy * ((float)debug_mot_slope_interp * 0.1f);
                 }
             }
         }

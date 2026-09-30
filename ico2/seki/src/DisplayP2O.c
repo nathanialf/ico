@@ -18,7 +18,6 @@ static const char dispObjFormat[32] = "display object = %d";
    p2o_HideDispVU1 records and reports, none yet. */
 static int dispObjCount = -1; /* derived name */
 
-extern int D_0063B160;
 extern int dmaVif;
 
 void p2o_MakePacket(char *a0)
@@ -37,7 +36,7 @@ void p2o_DispShadowVolume(int a0)
 void p2o_HideDispVU1(int a0)
 {
     dispObjCount = a0;
-    if (D_0063B160 != 0) {
+    if (debug_window_flag != 0) {
         debug_PrintFontWindow(0xCCCCCC00, dispObjFormat, a0);
     }
 }

@@ -1,8 +1,6 @@
 #include "fieldCollision.h"
 #include "matrixDrive.h"
 
-extern int D_0063B234;
-
 /* the TU's one .sdata word (MAIN.MAP flyManager.o .sdata 0x4, no symbol): the
    flying object the manager tracks */
 static int flyGObj = 0; /* derived name */
@@ -17,6 +15,7 @@ typedef struct {
 } FlyLimitInfo;
 
 #include "flyManager.h"
+#include "debug.h"
 #include <string.h>
 
 static inline int getFloorLimitValue(int attr)
@@ -51,7 +50,7 @@ inline int InitFlyInfo(int *self)
 
 void DispFlyInfo(void)
 {
-    int v0 = D_0063B234;
+    int v0 = debug_fly_limit_test;
     int a0 = flyGObj;
     if (v0 == 0) {
         return;

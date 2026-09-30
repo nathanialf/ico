@@ -17,7 +17,6 @@ extern int D_0063A438;
    the colour the debug display draws a boundary sphere in */
 static unsigned int acbSphereColor[4] = {0, 128, 255, 128}; /* derived name */
 
-extern int D_0063B148;
 /* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
 /* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
@@ -90,7 +89,7 @@ inline void AttackCheckBoundaryDL(char *obj)
     char *m = *(char **)(*(char **)(obj + 0x15C) + 0x830);
     float r;
 
-    if (D_0063B148 == 0) {
+    if (debug_skel_flag == 0) {
         return;
     }
     /* The drawing is the body of this if (listing line 57 is its brace), so the

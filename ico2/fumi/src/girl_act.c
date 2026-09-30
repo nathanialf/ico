@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include "geometryManager.h"
 #include "typedef.h"
+#include "script.h"
 #include <libvu0.h>
 
 typedef struct GirlStand {
@@ -2868,8 +2869,6 @@ retry:
     }
 }
 
-extern int D_0063B13C;
-
 static void Danger_Gondola(void *self)
 {
     /* girl_brain_main.c.inc:3077 -- Danger_Gondola's own copy of the nested
@@ -2978,7 +2977,7 @@ retry:
                 *(float *)(sub + 0x128) = *(float *)(sub + 0x3E8);
                 *(float *)(sub + 0x34C) = 1.0f;
             }
-            if (D_0063B13C & 1) {
+            if (debug_font_flag & 1) {
                 debug_Printf(10, 110, 0x0FFFFFFF, (int)"goal[%d]\n", turn);
             }
             if (turn) {
@@ -3479,8 +3478,6 @@ extern char D_0055FE58[];
 extern void *D_00639EB0;
 extern void *D_00639EC0;
 extern void *D_00639ED0;
-extern int D_0063AA08;
-extern int D_0063B20C;
 
 /* MAIN.MAP globals of girl_act.o's .sdata (declared in girl_act.h) */
 int hyde_test = 0;
@@ -3551,7 +3548,7 @@ void subGirlControl(volatile int a0)
        closing brace's line 2539. */
     for (;;) {
         if ((int)(*(unsigned long long *)(w.p + 0x18) >> 48) & 1) {
-            if (D_0063AA08 == 0 && ((void *)a0 == D_00639EC0 || D_00639EA0 != 0)) {
+            if (scpBoyControlReadDisable == 0 && ((void *)a0 == D_00639EC0 || D_00639EA0 != 0)) {
                 /* The listing gives the jump out of this arm its own line
                    1639 after the last store (1637): the do-while's closing
                    line.  What the bytes pin: the arm's loop notes, which
@@ -3562,7 +3559,7 @@ void subGirlControl(volatile int a0)
                 do {
                     iosPadConnect(w.p + 0x2D8, 0, D_00639EA0 != 0, w.p + 0x1E8);
                     iosPadRead(w.p + 0x2D8);
-                    iosPadGetStick(w.p + 0x2D8, w.p + 0x338, 0, 2, 2, D_0063B20C);
+                    iosPadGetStick(w.p + 0x2D8, w.p + 0x338, 0, 2, 2, debug_stick_simulate);
                     _GetMotionDirection(mdir, (void *)a0);
                     *(int *)(w.p + 0x340) = CorrectStickInfo(mdir, w.p + 0x338);
                     if (*(float *)(w.p + 0x34C) > 0.001f) {
@@ -3776,7 +3773,6 @@ extern void ACTLookTargetSystem_Exec(void *self);
 extern void ACTParaStatus_Exec(void *self);
 /* kept local: this TU's uses of _ACTGame_GetParamF do not fit the prototype in act-game.h */
 extern float _ACTGame_GetParamF(int idx);
-extern int D_0063B13C;
 /* kept local: this TU's uses of debug_Arrow do not fit the prototype in camera-editor.h */
 extern void debug_Arrow(float len, void *from, void *to, int r, int g, int b);
 /* kept local: this TU's uses of ACTGame_FLAG_TETSUNAGI do not fit the prototype in act-game.h */
@@ -3880,7 +3876,7 @@ void subGirlCollision(volatile int a0)
                 }
             } else {
                 GetSkeltonOrient(sk, (void *)a0, 1);
-                if (D_0063B13C & 1) {
+                if (debug_font_flag & 1) {
                     debug_Printf(10, 100, 0x0FFFFFFF, (int)"[%d]\n",
                                  _AbsRotyGV((char *)sub + 0x120, sk));
                 }
@@ -3996,7 +3992,6 @@ void subGirlCollision(volatile int a0)
     }
 }
 
-extern int D_0063B13C;
 /* kept local: this TU's uses of GetHeightOfFieldPlaneDifference do not fit the
    prototype in motionManager2.h */
 extern float GetHeightOfFieldPlaneDifference(void *a, void *b);
@@ -4888,7 +4883,6 @@ void actGirlSupportBGBegin(volatile int a0)
 
 int girlcalled;
 
-extern int D_0063B180;
 extern char D_002A84F8[];
 /* kept local: this TU's uses of subCommonIdle do not fit the prototype in commonact.h */
 extern void subCommonIdle(void);
@@ -4939,7 +4933,7 @@ void actGirlStart(void *self)
     _ACTWait(1);
     ACTGameView_FirstSet(self);
     brainInitGirlSet(self, D_00639EA4);
-    if (D_0063B180 != 0) {
+    if (debug_brain_flag != 0) {
         actCreateSubThread(subGirlBrainMain, 20);
     }
     *(char **)(p + 0xD0) = D_002A84F8;
@@ -5056,7 +5050,6 @@ int IsGirlStatusEscortEnable(int a0, int a1)
     return 0;
 }
 
-extern int D_0063B228; /* debug display switch */
 extern void sceVu0UnitMatrix(void *a0);
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int a0);
@@ -5080,7 +5073,7 @@ static inline void dispEscortSphere(void *pos, float r, unsigned char in)
 {
     Col4 col;
 
-    if (D_0063B228) {
+    if (debug_disp_escort_ball) {
         MatrixDrive_PushMatrix();
         /* the wire sphere colour: a GNU constructor expression, which gcc
            keeps as an anonymous .rodata constant and copies here (the
@@ -5107,7 +5100,7 @@ void DebugDispAutoEscort(void)
     int i;
     int in;
 
-    if (D_0063B228 == 0) {
+    if (debug_disp_escort_ball == 0) {
         return;
     }
     if (D_00639EA8 != 0 && isGirlEscortStatus()) {

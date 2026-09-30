@@ -126,7 +126,8 @@ extern PObjGObj *scpSearchGobj(int a0);
 void actSt25aQueenBeforeChk(volatile int a0);
 void actSt25aQueenDeadReadyChk(volatile int a0);
 void actItouQueenAttackChk(volatile int a0);
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 void actConte11(volatile int a0);
 void actConte11Jimaku(volatile int a0);
 
@@ -142,7 +143,7 @@ void actSt25aQueenAppearChk(volatile int a0)
         _ACTWait(1);
     }
     AdpcmPlay(*(int *)(conte11 + 0x2C));
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     _ACTWait((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 3);
     actCreateSubThread(actConte11, 21);
 }
@@ -217,7 +218,7 @@ void actConte11(volatile int a0)
 
     scpPlayEnd(D_00639EA4);
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     enable_game_pause = 1;
 }
 
@@ -273,7 +274,7 @@ void actSt25aQueenTalkChk(volatile int a0)
     iosPadActStopAll();
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     scpPlayMotReq(D_00639EA4, 1);
 
@@ -366,7 +367,7 @@ void actSt25aQueenTalkChk(volatile int a0)
 
     scpPlayMot(D_00639EA4, 0);
     scpPlayEnd(D_00639EA4);
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 
     CameraSetCameraSet(0x33);
@@ -608,7 +609,7 @@ void actSt25aQueenDeadChk(volatile int a0)
     iosPadActRequest(D_00639EAC, 16);
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpPlayStart(D_00639EA4);
     scpPlayStart((int)scpSearchGobj(2149));
 
@@ -765,7 +766,7 @@ void actSt25aElevChk(volatile int a0)
         _ACTWait(1);
     }
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     if (gflagChk(337) == 0) {
         scpAdpcmPlayRequestFunc(100, &elevFirst, 1, 1, 1);
         while (elevFirst == 0) {
@@ -797,7 +798,7 @@ void actSt25aElevChk(volatile int a0)
         gflagOff(337);
         RequestStageChange(1, D_00639EA4, 2.0f, 8.0f, 0);
     }
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
     elev_chara_mes[0].func = actSt25aElevCharaChk;
     sub->mail = elev_chara_mes;

@@ -154,7 +154,8 @@ static ActMail sound2_mes[2] = {{430}, {429}};
 
 static float sound2_chk_pos[4] = {87.0f, -772.0f, 1135.0f, 0.0f};
 
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
 /* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
@@ -259,7 +260,7 @@ void actSt06aSuimonChk(volatile int a0)
 
     soundSeDefPlay(1359, 0, suimon_sound_pos, 1);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
 
     _ACTWait(30);
@@ -304,7 +305,7 @@ void actSt06aSuimonChk(volatile int a0)
     }
 
     scpWakeupEnemyAll();
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 
     scpSearchGobj(1751)->f16C = 1;
@@ -458,7 +459,7 @@ void actSt06aShutterOpen(volatile int a0)
     scpSearchGobj(1742)->f16C = 0;
     scpSearchGobj(1743)->f16C = 1;
     scpWakeupEnemyAll();
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
     SetWayGroupActive(12, 1);
 }
@@ -473,7 +474,7 @@ void actSt06aBoxChk(volatile int a0)
 
     lt_switch_layout(55);
     gflagOn(109);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
 
     h = actCreateSubThread(actSt06aBoxSub, 21);
@@ -507,7 +508,7 @@ void actSt06aBoxChk(volatile int a0)
     }
 
     scpWakeupEnemyAll();
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
 
@@ -525,7 +526,7 @@ void actSt06aStatueChk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
 
     scpSearchGobj(1813)->f16C = 0;
@@ -556,7 +557,7 @@ void actSt06aStatueChk(volatile int a0)
     _ACTWait(1);
 
     scpWakeupEnemyAll();
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 
     _ACTWait(120);
@@ -575,7 +576,7 @@ void actSt06aHeadChk(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
     gflagOn(114);
 
@@ -654,7 +655,7 @@ void actSt06aHeadChk(volatile int a0)
     }
 
     scpWakeupEnemyAll();
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
 
@@ -698,7 +699,7 @@ void actSt06aJumpMove(volatile int a0)
     }
 
     scpWakeupEnemyAll();
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
 
@@ -1212,7 +1213,7 @@ void actSt06aShutterMain(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     sub->mainMail = shutter_main_mes;
 
@@ -1225,7 +1226,7 @@ void actSt06aShutterSwitch(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     sub->mainMail = 0;
 
@@ -1265,7 +1266,7 @@ void actSt06aExitChk(volatile int a0)
         _ACTWait(1);
     }
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
     RequestStageChange(3, D_00639EA4, 0, 16.0f, 16.0f);
 }
 
@@ -1564,7 +1565,7 @@ void actSt06aJumpMain(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    D_0063AA08 = 0;
+    scpBoyControlReadDisable = 0;
 
     sub->mainMail = jump_main_mes;
 
@@ -1577,7 +1578,7 @@ void actSt06aJumpSwitch(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     sub->mainMail = 0;
 

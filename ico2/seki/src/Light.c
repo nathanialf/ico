@@ -580,7 +580,6 @@ typedef union {
     long long ll[2];
 } Col4;
 
-extern int D_0063B1CC; /* the debug display flags: 1 lights, 2 ambient volumes */
 extern char *D_00639EA4;
 extern char *matrixptr;
 extern void _TransposeMatrix(void *dst, void *src);
@@ -604,7 +603,7 @@ void light_DispVolume(void)
 {
     int i;
 
-    if (D_0063B1CC & 1) {
+    if (debug_ambient_volume & 1) {
         sceVu0FMATRIX m;
         char buf[256];
         int col[4];
@@ -679,7 +678,7 @@ void light_DispVolume(void)
             lp = lp->prev;
         }
     }
-    if (D_0063B1CC & 2) {
+    if (debug_ambient_volume & 2) {
         AmbientVolume *av;
 
         av = (AmbientVolume *)lastAmbient;

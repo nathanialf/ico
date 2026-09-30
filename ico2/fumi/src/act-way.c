@@ -7,6 +7,7 @@ extern unsigned char ACTCheckCollis_WAY(void *a0, void *a1, float a2, void *a3, 
 #include "way_sys.h"
 #include "waySystemManager.h"
 #include <libvu0.h>
+#include "debug.h"
 
 /* kept local: this TU's uses of _DistxzSqGV do not fit the prototype in gv.h */
 extern float _DistxzSqGV(void *a, void *b);
@@ -38,7 +39,6 @@ extern int D_0028F4C0[];
 /* the three detour angles DetourCheck sweeps, in degrees, zero-terminated */
 static int detourAngle[4] = {75, -75, 0, 0};
 
-extern int D_0063B22C;
 /* kept local: this TU's uses of GetSkeltonOrient do not fit the prototype in act-game.h */
 extern void GetSkeltonOrient(float *dst, char *self, int node);
 /* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
@@ -56,7 +56,7 @@ void DetourCheck(char *self, float *out)
     int wait = 0;
     int ok = 0;
 
-    if (D_0063B22C == 0) {
+    if (debug_girl_detour_flag == 0) {
         return;
     }
     GetSkeltonOrient(orient, self, 0x2C);

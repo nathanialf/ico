@@ -15,7 +15,6 @@ typedef struct {
 
 extern SePackage D_005339C0[];
 extern GsysObjInfo D_005D6DB0[];
-extern int D_0063B14C;
 /* kept local: the declaration in s_init.h changes this TU codegen */
 extern int soundSeDefPlay(int se, unsigned int a1, int a2, int a3);
 
@@ -62,7 +61,7 @@ int playSE(int no)
 
             seMail((int)fdsGObj, no);
             if (ret == -2) {
-                if (D_0063B14C != 0) {
+                if (debug_seslotdisp_flag != 0) {
                     /* EUC-JP: "SE \"%s\" is not loaded" */
                     debug_StdPrintfDummy("SE \033[36m\"%s\"\033[m はロードされていません\n",
                                          &D_005D6DB0[no]);
@@ -72,7 +71,7 @@ int playSE(int no)
             if (ret < 0) {
                 return 1;
             }
-            if (D_0063B14C != 0) {
+            if (debug_seslotdisp_flag != 0) {
                 debug_StdPrintfDummy("SE \033[33m\"%s\"\033[m CALLED with GROUP:\033[33m%d\033[m\n",
                                      &D_005D6DB0[no], fdsGroup);
             }
@@ -458,7 +457,7 @@ static inline int *findSEPackage(int no, int id)
     while (D_005339C0[no].id != -1 && D_005339C0[no].id != id) {
         no++;
     }
-    if (D_0063B14C != 0) {
+    if (debug_seslotdisp_flag != 0) {
         debug_StdPrintfDummy("\033[36mRequested by program... \033[m");
     }
     return D_005339C0[no].se;
@@ -520,7 +519,7 @@ void executeSEPackageWithNoGObj(int no)
     for (i = 0; i < 2; i++) {
         if (p[i] != 0) {
             soundSeDefPlay(p[i], 0xFFFFFFFF, 0, 1);
-            if (D_0063B14C != 0) {
+            if (debug_seslotdisp_flag != 0) {
                 debug_StdPrintfDummy("SE \033[33m\"%s\"\033[m CALLED with GROUP:\033[33m%d\033[m\n",
                                      &D_005D6DB0[p[i]], 0xFFFFFFFF);
             }

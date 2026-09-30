@@ -15,6 +15,7 @@
 #include "quaternion.h"
 #include "StageAnimation.h"
 #include "tableSin.h"
+#include "debug.h"
 #include <string.h>
 
 typedef struct {
@@ -633,7 +634,7 @@ static float workLightNormal[4][4] = {
 };
 
 extern int D_0028F4D4[];
-extern int D_0063B148;
+extern int debug_skel_flag;
 extern int stage_no;
 /* kept local: this TU's uses of _MulMatrix do not fit the prototype in Matrix.h */
 extern void _MulMatrix(void *dst, void *a, void *b);
@@ -754,7 +755,7 @@ void dispPool(char *self)
 
     gif_EndPacket();
 
-    if (D_0063B148 != 0) {
+    if (debug_skel_flag != 0) {
         DispMeshWire((int *)*(int *)(w + 0x48), *(int *)(w + 0x34), *(int *)(w + 0x38));
     }
 }
@@ -960,7 +961,7 @@ void DispLimitedPoolReflactionMesh(int *a0)
     gif_EndPacket();
     _SetCurrentMatrix(matrixptr + 0x100);
     prim_DispMesh3D(a0[4], dispLightColor, dispLightNormal, -1);
-    if (D_0063B148 != 0) {
+    if (debug_skel_flag != 0) {
         DispMeshWire((int *)a0[6], a0[0], a0[1]);
     }
 }

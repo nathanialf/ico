@@ -55,8 +55,6 @@ static SMotion streamEntry[10];
 extern int D_0028F4C0[];
 extern int frame_count;
 extern int ScreenHeight;
-extern int D_0063B13C;
-extern int D_0063B144;
 extern int D_0063BCB8;
 
 /* The ring is 0x28000 bytes; the check asks whether the write pointer has run
@@ -160,7 +158,7 @@ int _infoUpdate(void)
             }
             frameTime -= 2997;
             frameCount++;
-            if (D_0063B144 != 0 || (D_0063B13C & 1)) {
+            if (debug_font_flag3 != 0 || (debug_font_flag & 1)) {
                 debug_Printf(500, ScreenHeight / 2 - 48, 0xCCCCCC00, "S:%d", frameCount);
             }
             if (*(unsigned char *)(ringBuf + top) == 1) {
@@ -355,7 +353,6 @@ void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
     memcpy(dst + old_idx, src, amt);
 }
 
-extern int D_0063B13C;
 extern int ScreenHeight;
 
 void ExecStreamMotionManager(void)
@@ -400,10 +397,10 @@ void ExecStreamMotionManager(void)
             pct = wp - rp;
         }
         pct = pct * 100 / 0x28000;
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             debug_Printf(0, ScreenHeight / 2 - 16, 0xFF404000, " %d%%", pct);
         }
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             debug_Printf(58, ScreenHeight / 2 - 16, 0x40FF4000, "STANDBY %d CHARS %s", streamNum,
                          streamOwner);
         }

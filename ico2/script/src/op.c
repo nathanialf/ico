@@ -98,7 +98,8 @@ extern PadState D_0028F8F0[];
 extern int D_0028F4C0[];
 extern int optionScreenMode;
 extern int D_00639EA0;
-extern int D_0063AA08;
+/* kept local: script.h's prototypes do not fit this TU's calls */
+extern int scpBoyControlReadDisable;
 extern int D_0063BE40;
 extern int D_0063BE44;
 extern char D_0063BE48[];
@@ -167,7 +168,7 @@ void actOpDemo01(volatile int a0)
 
     actCreateSubThread(actSt26aConte01_1_newgame, 21);
 
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     while (kanbanBootEnd == 0) {
         _ACTWait(1);
@@ -577,7 +578,7 @@ void actOpDemo01_2(volatile int a0)
     D_0063BE60 = 0;
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     scpAdpcmPlayRequestFunc(7, &D_0063BE64, 0, 0, 1);
     while (D_0063BE64 != 0) {
@@ -690,7 +691,7 @@ void actOpDemo02(volatile int a0)
     }
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     stage_SetAnimation(151, 0, 0);
 
@@ -864,7 +865,7 @@ inline void actOpDemo03(volatile int a0)
     _ACTWait(1);
 
     lt_switch_layout(55);
-    D_0063AA08 = 1;
+    scpBoyControlReadDisable = 1;
 
     stage_SetAnimation(176, 0, 0);
     stage_SetAnimation(172, 0, 0);

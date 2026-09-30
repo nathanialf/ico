@@ -1,6 +1,7 @@
 #include "MicroCode.h"
 #include "DisplayList.h"
 #include "typedef.h"
+#include "debug.h"
 
 /* The five VU1 microprograms this table hands to the DMA; MAIN.MAP pulls
    cluster.o, mesh.o, normal_c.o, normal_l.o and particle.o into the link
@@ -121,8 +122,6 @@ inline void mc_TransMicroCode(int a0, int a1)
     }
 }
 
-extern int D_0063B1AC;
-
 /* The DEBUG build's trace of the microcode residency on the mode 1, a1 == 0
    path (names ours), switched by seki's debug-display bit; retail builds the
    switch as 0, jimaku.c's form.  It takes no argument because it reads the
@@ -140,10 +139,7 @@ extern int D_0063B1AC;
    use, and the arms merge.  WHAT THEY CANNOT PIN: the callee and what it
    printed; mcTracePut and its arguments are ours. */
 #ifdef DEBUG
-
-extern int D_0063B13C;
-
-#define MC_DEBUG_TRACE (D_0063B13C & 1)
+#define MC_DEBUG_TRACE (debug_font_flag & 1)
 #else
 #define MC_DEBUG_TRACE 0
 #endif
@@ -212,7 +208,7 @@ void mc_SetMicroCode(int mode, int a1, int a2, int a3, int pri)
             if (a3 == -1) {
                 switch (a2) {
                 case 0:
-                    if (D_0063B1AC != 1) {
+                    if (debug_specular_flag != 1) {
                         code = 20;
                     } else {
                         code = 24;
@@ -225,7 +221,7 @@ void mc_SetMicroCode(int mode, int a1, int a2, int a3, int pri)
             } else {
                 switch (a2) {
                 case 0:
-                    if (D_0063B1AC != 1) {
+                    if (debug_specular_flag != 1) {
                         code = 20;
                     } else {
                         code = 24;
@@ -242,7 +238,7 @@ void mc_SetMicroCode(int mode, int a1, int a2, int a3, int pri)
         if (a1 == 0) {
             code = 20;
         } else {
-            if (D_0063B1AC == 0) {
+            if (debug_specular_flag == 0) {
                 code = 22;
             } else {
                 code = 24;

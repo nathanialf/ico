@@ -949,8 +949,8 @@ extern void gif_SetZWrite(int on);
 extern void gif_SetZTest(int on);
 extern void gif_EndPacket(void);
 extern void DrawLineG(void *p0, void *c0, void *p1, void *c1, int z);
+
 /* the debug switch the wall-fit trace is printed under */
-extern int D_0063B148;
 
 /* the four trace lines, rodata VMA 0x61EFC0, 0x61EFD0, 0x61EFE0 and 0x61EFF0 */
 
@@ -1040,7 +1040,7 @@ int onPath(char *self)
 
     UpdateRootMatrix(self);
 
-    if (D_0063B148 != 0) {
+    if (debug_skel_flag != 0) {
         gif_StartPacketPri(11);
         gif_SetZWrite(0);
         gif_SetZTest(1);

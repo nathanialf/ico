@@ -68,13 +68,13 @@ void HandMgr_Judge(void)
 
 void HandMgr_Print(void)
 {
-    if (D_0063B13C & 1) {
+    if (debug_font_flag & 1) {
         debug_Printf(10, 60, 0xFFFFFFF, "[%d] [%d]", (int)handmgr.f_50,
                      (int)handmgr.f_54);
-        if (D_0063B13C & 1) {
+        if (debug_font_flag & 1) {
             debug_Printf(10, 70, 0xFFFFFFF, "gv[%d] mo[%d] hd[%d] hd2[%d]\n", handmgr.f_58,
                          handmgr.f_59, handmgr.f_5B, handmgr.f_5D);
-            if (D_0063B13C & 1) {
+            if (debug_font_flag & 1) {
                 debug_Printf(10, 80, 0xFFFFFFF, "\tgv[%d] mo[%d] hd[%d]\n", (int)handmgr.f_20,
                              _RotyGV(handmgr.sub40, handmgr.sub30),
                              (int)handmgr.f_50);
