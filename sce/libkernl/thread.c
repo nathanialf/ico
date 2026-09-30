@@ -39,7 +39,7 @@ typedef struct {
 
 /* the kernel event thread's stack, the semaphore that wakes it and the ring
    of events the interrupt-side calls post to it */
-static char kernEventStack[0x400]; /* derived name */
+static char kernEventStack[0x400] __attribute__((aligned(16))); /* derived name */
 
 static int kernEventSema; /* derived name */
 

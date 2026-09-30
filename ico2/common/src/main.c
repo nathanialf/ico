@@ -58,31 +58,31 @@ typedef struct {
    which this file reads only the kernel id word at +0x30. */
 static int idleThread[28]; /* derived name */
 
-static char idleThreadStack[8192]; /* derived name */
+static char idleThreadStack[8192] __attribute__((aligned(16))); /* derived name */
 
 static int mainThread[28]; /* derived name */
 
-static char mainThreadStack[24576]; /* derived name */
+static char mainThreadStack[24576] __attribute__((aligned(16))); /* derived name */
 
 static int schedulerThread[28]; /* derived name */
 
-static char schedulerThreadStack[4096]; /* derived name */
+static char schedulerThreadStack[4096] __attribute__((aligned(16))); /* derived name */
 
 static int mcThread[28]; /* derived name */
 
-static char mcThreadStack[8192]; /* derived name */
+static char mcThreadStack[8192] __attribute__((aligned(16))); /* derived name */
 
 static int cdvdThread[28]; /* derived name */
 
-static char cdvdThreadStack[110592]; /* derived name */
+static char cdvdThreadStack[110592] __attribute__((aligned(16))); /* derived name */
 
 static int stageManagerThread[28]; /* derived name */
 
-static char stageManagerThreadStack[8192]; /* derived name */
+static char stageManagerThreadStack[8192] __attribute__((aligned(16))); /* derived name */
 
 static int soundThread[28]; /* derived name */
 
-static char soundThreadStack[8192]; /* derived name */
+static char soundThreadStack[8192] __attribute__((aligned(16))); /* derived name */
 
 static int schedulerMsgBuff[8]; /* derived name */
 

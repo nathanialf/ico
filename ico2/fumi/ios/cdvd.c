@@ -1,4 +1,5 @@
 #include "cdvd.h"
+#include <ctype.h>
 #include "debug.h"
 #include "debug_exception.h"
 #include "inflate.h"
@@ -456,18 +457,6 @@ void iosCdvdMgrStStop(char *self)
     *(int *)(self + 0xC) = 0;
     close_inflate_handler(*(int *)(self + 0x160));
 }
-
-extern char D_00637E69[];
-
-/* newlib <ctype.h> (reconstruction): D_00637E69 is `_ctype_ + 1`, bit 0x02 is
- * _L (lower); the GNU C toupper macro reads its argument once. */
-#define _L 0x02
-#define islower(c) (D_00637E69[(int)(c)] & _L)
-#define toupper(c)                                                                                 \
-    ({                                                                                             \
-        int __x = (c);                                                                             \
-        islower(__x) ? (__x - 'a' + 'A') : __x;                                                    \
-    })
 
 extern char *strcpy(char *d, const char *s);
 

@@ -12,7 +12,6 @@ extern int _picture_structure;
 extern int *_curFrame;
 extern int *_curTop;
 extern int *_curBot;
-extern int D_0054C0DC[];
 extern void _getAllRefs();
 
 int _motionComp0(int a0, int a1, int a2, int a3, int *a4, int *a5, int *a6)
@@ -38,7 +37,7 @@ int _motionComp0(int a0, int a1, int a2, int a3, int *a4, int *a5, int *a6)
         }
         _getAllRefs(x, y, a2);
         while (((*(volatile unsigned int *)0x1000D400) >> 8) & 1) {}
-        tag = (long long *)((D_0054C0DC[0] & 0x0FFFFFFF) | 0x20000000);
+        tag = (long long *)((_sprtag & 0x0FFFFFFF) | 0x20000000);
         cnt = *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x12C);
         for (i = 0; i < cnt; i++) {
             int id;
@@ -57,7 +56,7 @@ int _motionComp0(int a0, int a1, int a2, int a3, int *a4, int *a5, int *a6)
         }
         __asm__ __volatile__("sync");
         *(volatile int *)0x1000D480 = *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140);
-        *(volatile int *)0x1000D430 = D_0054C0DC[0];
+        *(volatile int *)0x1000D430 = _sprtag;
         *(volatile int *)0x1000D420 = 0;
         *(volatile int *)0x1000D400 = 0x105;
         *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x138) = 1;
@@ -184,12 +183,31 @@ void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_f
 }
 
 /* the prediction buffer the IPU reads the two reference blocks out of */
-extern int D_0054C0E0;
 /* the eight luma (_rix_*) and the eight chroma (_ri0_*) prediction copy
  * routines, picked by the half-pel bits of the vector and by whether this
  * reference is averaged; _doMC calls them with the descriptor */
-extern void (*D_0054C9C8[])();
-extern void (*D_0054C9E8[])();
+void _rix_000();
+void _rix_001();
+void _rix_010();
+void _rix_011();
+void _rix_100();
+void _rix_101();
+void _rix_110();
+void _rix_111();
+void _ri0_000();
+void _ri0_001();
+void _ri0_010();
+void _ri0_011();
+void _ri0_100();
+void _ri0_101();
+void _ri0_110();
+void _ri0_111();
+
+static void (*lumaCopy[8])() = {_rix_000, _rix_001, _rix_010, _rix_011,
+                                _rix_100, _rix_101, _rix_110, _rix_111}; /* derived name */
+
+static void (*chromaCopy[8])() = {_ri0_000, _ri0_001, _ri0_010, _ri0_011,
+                                  _ri0_100, _ri0_101, _ri0_110, _ri0_111}; /* derived name */
 
 /* Append one reference block to the current macroblock record: the luma
  * descriptor at +0x48 and the chroma descriptor at +0xB8 (seven ints each,
@@ -212,7 +230,7 @@ void _getRef0(int *img, int lineOff, int predIdx, int yoff, int h, int x, int y,
     int base, idx, lrow, lrow2, cbase, crow, crow2;
 
     ix = mvx >> 1;
-    dst = D_0054C0E0;
+    dst = _refBlockp;
     rx = ix + x;
     if (fld) {
         ry = (mvy >> 1) * 2 + lineOff + yoff + y;
@@ -302,8 +320,8 @@ void _getRef0(int *img, int lineOff, int predIdx, int yoff, int h, int x, int y,
     ((void **)((char *)_mbcont + n * 4 + idx * 0x140))[2] = (void *)(img[0] + blk * 0x180);
     ((void **)((char *)_mbcont + n * 4 + idx * 0x140))[6] =
         (void *)(img[0] + (blk + img[0x10 / 4]) * 0x180);
-    ((void (**)())((char *)_mbcont + n * 4 + idx * 0x140))[10] = D_0054C9C8[lumaCmd];
-    ((void (**)())((char *)_mbcont + n * 4 + idx * 0x140))[14] = D_0054C9E8[chromaCmd];
+    ((void (**)())((char *)_mbcont + n * 4 + idx * 0x140))[10] = lumaCopy[lumaCmd];
+    ((void (**)())((char *)_mbcont + n * 4 + idx * 0x140))[14] = chromaCopy[chromaCmd];
     *(int *)((char *)_mbcont + idx * 0x140 + 0x12C) += 1;
 }
 
@@ -356,9 +374,9 @@ void _doMC(int a0)
     if (((MCState *)_mbcont)->rec[a0].intra != 0) {
         _copyRefImage(((MCState *)_mbcont)->rec[a0].dst, ((MCState *)_mbcont)->rec[a0].src);
     } else if (((MCState *)_mbcont)->rec[a0].skip != 0) {
-        _copyRefImage(((MCState *)_mbcont)->rec[a0].dst, (void *)D_0054C0E0);
+        _copyRefImage(((MCState *)_mbcont)->rec[a0].dst, (void *)_refBlockp);
     } else {
-        _copyAddRefImage(((MCState *)_mbcont)->rec[a0].dst, (void *)D_0054C0E0,
+        _copyAddRefImage(((MCState *)_mbcont)->rec[a0].dst, (void *)_refBlockp,
                          ((MCState *)_mbcont)->rec[a0].src);
     }
 }
@@ -1497,7 +1515,7 @@ int _waitBdecOut(void)
     while (*(volatile int *)0x1000B020 != 0 && (*(volatile int *)0x10002010 & 0x4000) == 0) {
         if (*(volatile int *)0x1000B420 == 0 && (*(volatile int *)0x1000B400 & 0x100) == 0) {
             a[0] = 1;
-            _dispatchMpegCallback(_theSceMpeg[0], a);
+            _dispatchMpegCallback(_theSceMpeg, a);
         }
     }
     bp = *(volatile int *)0x10002020;
@@ -1512,10 +1530,10 @@ int _waitBdecOut(void)
         ret = 0;
         _Error("Error code detected(BDEC)");
         b[0] = 2;
-        _dispatchMpegCallback(_theSceMpeg[0], b);
+        _dispatchMpegCallback(_theSceMpeg, b);
         *(int *)0x10002010 = 0x40000000;
         b[0] = 3;
-        _dispatchMpegCallback(_theSceMpeg[0], b);
+        _dispatchMpegCallback(_theSceMpeg, b);
         DIntr();
         *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 | 0x10000;
         *(volatile int *)0x1000B000 = 0;
@@ -1993,13 +2011,15 @@ c2c:
 }
 
 extern int _isTop32dirty[];
-extern int D_0054CA08[];
-extern int D_0054CA08[];
+
+/* whether the top of the bit buffer is stale after each IPU command, by the
+ * command's opcode (cmd >> 28) */
+static int top32Dirty[10] = {1, 1, 0, 0, 0, 1, 1, 1, 1, 1}; /* derived name */
 
 void _sendIpuCommand(unsigned int a0)
 {
     *(volatile unsigned int *)0x10002000 = a0;
-    _isTop32dirty[0] = D_0054CA08[a0 >> 28];
+    _isTop32dirty[0] = top32Dirty[a0 >> 28];
 }
 
 void _waitIpuIdle(void)
@@ -2009,7 +2029,7 @@ void _waitIpuIdle(void)
     /* the IPU control register the hardware clears when the decode retires */
     while ((*(volatile int *)0x10002010 & 0x80004000) == 0x80000000) {
         if (n++ >= 5001) {
-            _dispatchMpegCbNodata(_theSceMpeg[0]);
+            _dispatchMpegCbNodata(_theSceMpeg);
             n = 0;
         }
     }
@@ -2026,7 +2046,7 @@ long long _waitIpuIdle64(void)
     while ((v = *(volatile long long *)0x10002000) < 0 &&
            (*(volatile int *)0x10002010 & 0x4000) == 0) {
         if (n++ >= 5001) {
-            _dispatchMpegCbNodata(_theSceMpeg[0]);
+            _dispatchMpegCbNodata(_theSceMpeg);
             n = 0;
         }
     }
@@ -2048,16 +2068,16 @@ int _ipuVdec(int tbl)
 
     while ((*(volatile int *)0x10002010 & 0x80004000) == 0x80000000) {
         if (n++ >= 5001) {
-            _dispatchMpegCbNodata(_theSceMpeg[0]);
+            _dispatchMpegCbNodata(_theSceMpeg);
             n = 0;
         }
     }
     cmd = (tbl << 26) | 0x30000000;
     *(volatile unsigned int *)0x10002000 = cmd;
-    _isTop32dirty[0] = D_0054CA08[cmd >> 28];
+    _isTop32dirty[0] = top32Dirty[cmd >> 28];
     while ((v = *(volatile long long *)0x10002000) < 0) {
         if (m++ >= 5001) {
-            _dispatchMpegCbNodata(_theSceMpeg[0]);
+            _dispatchMpegCbNodata(_theSceMpeg);
             m = 0;
         }
     }
@@ -2088,12 +2108,12 @@ int _peepBit(int a0)
 
         while ((*(volatile int *)0x10002010 & 0x80004000) == 0x80000000) {
             if (n++ >= 5001) {
-                _dispatchMpegCbNodata(_theSceMpeg[0]);
+                _dispatchMpegCbNodata(_theSceMpeg);
                 n = 0;
             }
         }
         *(volatile unsigned int *)0x10002000 = 0x40000000;
-        _isTop32dirty[0] = D_0054CA08[4];
+        _isTop32dirty[0] = top32Dirty[4];
         _top32 = _waitIpuIdle64();
         _top32len = 32;
     }
@@ -2111,13 +2131,13 @@ void _flushBuf(int a0)
 
     while ((*(volatile int *)0x10002010 & 0x80004000) == 0x80000000) {
         if (n++ >= 5001) {
-            _dispatchMpegCbNodata(_theSceMpeg[0]);
+            _dispatchMpegCbNodata(_theSceMpeg);
             n = 0;
         }
     }
     cmd = a0 | 0x40000000;
     *(volatile unsigned int *)0x10002000 = cmd;
-    _isTop32dirty[0] = D_0054CA08[(unsigned int)cmd >> 28];
+    _isTop32dirty[0] = top32Dirty[(unsigned int)cmd >> 28];
     _top32 = _waitIpuIdle64();
     _top32len = 32;
 }
@@ -2130,20 +2150,20 @@ unsigned int _nextBit(int a0)
 
     while ((*(volatile int *)0x10002010 & 0x80004000) == 0x80000000) {
         if (n++ >= 5001) {
-            _dispatchMpegCbNodata(_theSceMpeg[0]);
+            _dispatchMpegCbNodata(_theSceMpeg);
             n = 0;
         }
     }
     if (_isTop32dirty[0] != 0 || _top32len < a0) {
         *(volatile unsigned int *)0x10002000 = 0x40000000;
-        _isTop32dirty[0] = D_0054CA08[4];
+        _isTop32dirty[0] = top32Dirty[4];
         _top32 = _waitIpuIdle64();
     }
     _top32len = 32;
     r = (unsigned int)_top32 >> (32 - a0);
     cmd = a0 | 0x40000000;
     *(volatile unsigned int *)0x10002000 = cmd;
-    _isTop32dirty[0] = D_0054CA08[(unsigned int)cmd >> 28];
+    _isTop32dirty[0] = top32Dirty[(unsigned int)cmd >> 28];
     _top32 = _waitIpuIdle64();
     return r;
 }
@@ -2209,7 +2229,7 @@ int _nextHeader(void)
             buf[0] = 5;
             *(long long *)&buf[2] = -1;
             *(long long *)&buf[4] = -1;
-            _dispatchMpegCallback(_theSceMpeg[0], buf);
+            _dispatchMpegCallback(_theSceMpeg, buf);
             _headerPts = *(long long *)&buf[2];
             _headerDts = *(long long *)&buf[4];
             return _picture_coding_type;
@@ -2248,7 +2268,30 @@ void _pictureHeader(void)
 
 /* the extension dispatch table, one entry per extension id, entry 0 is the
  * unknown-extension handler every id past the last known one falls back to */
-extern void (*D_0054CA40[])(void);
+/* the temporal-reference tracking _updateTempTackData keeps: the base of the
+ * current 1024-frame window, the highest frame number seen and the GOP-reset flag */
+int _tmpRefBase = 0;
+
+int _trFrameNumberA = -1;
+
+int _tmpRefGOPreset = 0;
+
+void _quantMatrixExtension(void);
+void _copyrightExtension(void);
+void _pictureDisplayExtension(void);
+void _pictureCodingExtension(void);
+
+static void (*extHandler[11])(void) = {_unknown_extension,
+                                       _sequenceExtension,
+                                       _sequenceDisplayExtension,
+                                       _quantMatrixExtension,
+                                       _copyrightExtension,
+                                       _sequenceScalableExtension,
+                                       _unknown_extension,
+                                       _pictureDisplayExtension,
+                                       _pictureCodingExtension,
+                                       _pictureSpatialScalableExtension,
+                                       _pictureTemporalScalableExtension}; /* derived name */
 
 void _extensionAndUserData(void)
 {
@@ -2262,7 +2305,7 @@ void _extensionAndUserData(void)
             _flushBuf(32);
             id = _nextBit(4);
             id = id > 10 ? 0 : id;
-            D_0054CA40[id]();
+            extHandler[id]();
             _nextStartCode();
         } else {
             _flushBuf(32);
@@ -2291,7 +2334,7 @@ extern int _sub_carrier_phase;
 
 void _pictureCodingExtension(void)
 {
-    int *p = *(int **)((char *)_theSceMpeg[0] + 0x40);
+    int *p = *(int **)((char *)_theSceMpeg + 0x40);
 
     _f_code[0] = _nextBit(4);
     _f_code[1] = _nextBit(4);
@@ -2332,28 +2375,26 @@ void _extrainfo(void)
     }
 }
 
-extern int D_0054CA6C;
-extern int D_0054CA70;
-extern int _tmpRefBase;
-extern int _tmpRefGOPreset;
 extern int _trFrameNumber;
-extern int _trFrameNumberA;
 
 void _updateTempTackData(void)
 {
-    if (_picture_coding_type != 3 && _temporal_reference != D_0054CA70) {
-        if (D_0054CA6C != 0) {
-            D_0054CA6C = 0;
+    static int wrapped = 0; /* derived name */
+    static int lastRef = 0; /* derived name */
+
+    if (_picture_coding_type != 3 && _temporal_reference != lastRef) {
+        if (wrapped != 0) {
+            wrapped = 0;
             _tmpRefBase += 0x400;
         }
-        if (_temporal_reference < D_0054CA70 && _tmpRefGOPreset == 0) {
-            D_0054CA6C = 1;
+        if (_temporal_reference < lastRef && _tmpRefGOPreset == 0) {
+            wrapped = 1;
         }
         _tmpRefGOPreset = 0;
-        D_0054CA70 = _temporal_reference;
+        lastRef = _temporal_reference;
     }
     _trFrameNumber = _tmpRefBase + _temporal_reference;
-    if (D_0054CA6C != 0 && D_0054CA70 >= _temporal_reference) {
+    if (wrapped != 0 && lastRef >= _temporal_reference) {
         _trFrameNumber = _tmpRefBase + _temporal_reference + 0x400;
     }
     _trFrameNumberA = _trFrameNumberA < _trFrameNumber ? _trFrameNumber : _trFrameNumberA;
@@ -2372,7 +2413,7 @@ extern int _broken_link;
  * set with the +0xE8 store (the store's anti dependence breaks the tie). */
 void _groupOfPicturesHeader(void)
 {
-    int *p = *(int **)(*(int *)_theSceMpeg + 0x40);
+    int *p = *(int **)((int)_theSceMpeg + 0x40);
 
     p[0xE8 / 4] = 0;
     _tmpRefBase = _trFrameNumberA + 1;
@@ -2508,7 +2549,7 @@ extern int _zBot[];
 
 void _outputFrame(int a0, int a1)
 {
-    int *p = *(int **)((char *)_theSceMpeg[0] + 0x40);
+    int *p = *(int **)((char *)_theSceMpeg + 0x40);
 
     if (a1 != 0) {
         int top;
@@ -2548,7 +2589,7 @@ extern int _display_vertical_size;
    pass them, as the ROM's tail order shows. */
 int _updateRefImage(int a0)
 {
-    int *r = (int *)((int *)_theSceMpeg[0])[0x40 / 4];
+    int *r = (int *)((int *)_theSceMpeg)[0x40 / 4];
     int *out = 0;
     int n = _picture_structure == 3 ? 2 : 4;
     int ret = 0;
@@ -2642,7 +2683,7 @@ extern void sprintf();
 
 int _isOutSizeOK(char *p)
 {
-    char *c = *(char **)((char *)_theSceMpeg[0] + 0x40);
+    char *c = *(char **)((char *)_theSceMpeg + 0x40);
     int e0 = *(int *)(c + 0xE0);
     int flag;
     if (e0 != 0) {
@@ -2663,7 +2704,7 @@ extern int _picture_structure;
 
 void _cpr8(char *im)
 {
-    int *r = *(int **)((char *)_theSceMpeg[0] + 0x40);
+    int *r = *(int **)((char *)_theSceMpeg + 0x40);
     int src = *(int *)im & 0x0FFFFFFF;
     int dst = r[0xD8 / 4] & 0x0FFFFFFF;
     int e;
@@ -2717,7 +2758,7 @@ extern int _isOutputPicture[];
 
 int _markOutput(void)
 {
-    int *q = *(int **)((char *)_theSceMpeg[0] + 0x40);
+    int *q = *(int **)((char *)_theSceMpeg + 0x40);
     if (q[2] != 2) {
         int v = _totalFrames[0];
         q[2] = 2;
@@ -2729,7 +2770,7 @@ int _markOutput(void)
 
 void _getPtsDtsFlags(char *a0, void *a1, void *a2, void *a3)
 {
-    char *s = *(char **)((char *)_theSceMpeg[0] + 0x40);
+    char *s = *(char **)((char *)_theSceMpeg + 0x40);
     long long t;
     int v88;
     int b80;
@@ -2767,7 +2808,9 @@ void _getPtsDtsFlags(char *a0, void *a1, void *a2, void *a3)
         ((long long)*(int *)(a0 + 0x30) << 3) | *(int *)(a0 + 0x2C);
 }
 
-extern unsigned int _showCount[];
+/* the display count of a picture by its repeat and field flags */
+unsigned int _showCount[16] = {2, 0, 2, 0, 2, 3, 2, 3, 0, 0, 0, 0, 2, 4, 0, 6};
+
 extern void _getPtsDtsFlags(char *a0, void *a1, void *a2, void *a3);
 extern int _isOutSizeOK(char *p);
 extern void _csc_storeRefImage(char *p);
@@ -2776,11 +2819,11 @@ extern int _markOutput(void);
 
 void _dispRefImage(char *a0, int a1)
 {
-    char *q = _theSceMpeg[0];
+    char *q = (char *)_theSceMpeg;
     char *r = *(char **)(q + 0x40);
 
     _getPtsDtsFlags(a0, q + 0x10, q + 0x18, q + 0x20);
-    q = _theSceMpeg[0];
+    q = (char *)_theSceMpeg;
     *(int *)(r + 0x80) = *(int *)(q + 0x10);
     *(long long *)(r + 0x88) = _showCount[(int)(*(long long *)(q + 0x20) >> 5) & 0xF];
     *(int *)(r + 0xCC) = *(int *)(a0 + 0x5C);
@@ -2801,14 +2844,6 @@ void _dispRefImage(char *a0, int a1)
     }
 }
 
-/* one of the three 8-byte time-stamp slots the decoder record carries for
- * each field: _getPtsDtsFlags fills the pair as a 64-bit word and the
- * display record takes its low half back as an int */
-typedef union {
-    long long d;
-    int w[2];
-} MpegStamp;
-
 extern int _picture_structure;
 extern void _getPtsDtsFlags(char *a0, void *a1, void *a2, void *a3);
 extern int _isOutSizeOK(char *p);
@@ -2816,9 +2851,23 @@ extern void _csc_storeRefImage(char *p);
 extern void _cpr8(char *p);
 extern int _markOutput(void);
 
+/* the display record the handle's sys field points at: the stamp and show
+ * count of the picture going out and its output geometry */
+typedef struct MpegOut { /* derived name */
+    char pad00[0x80];
+    int pts; /* 0x80 */
+    int pad84;
+    long long showCount; /* 0x88 */
+    char pad90[0x20];
+    int csc;           /* 0xB0 */
+    int b4, b8, padBC; /* 0xB4 */
+    int c0, c4, padC8; /* 0xC0 */
+    int cc, d0;        /* 0xCC */
+} MpegOut;
+
 void _dispRefImageField(char *a0, char *a1, int a2)
 {
-    char *r = *(char **)((char *)_theSceMpeg[0] + 0x40);
+    MpegOut *r = _theSceMpeg->sys;
     char *f;
     char *s;
     int m = 0;
@@ -2831,25 +2880,23 @@ void _dispRefImageField(char *a0, char *a1, int a2)
         f = a1;
         s = a0;
     }
-    _getPtsDtsFlags(f, (char *)_theSceMpeg[0] + 0x10, (char *)_theSceMpeg[0] + 0x18,
-                    (char *)_theSceMpeg[0] + 0x20);
-    *(int *)(r + 0x80) = ((MpegStamp *)((char *)_theSceMpeg[0] + 0x10))->w[0];
-    *(long long *)(r + 0x88) = 1;
-    _getPtsDtsFlags(s, (char *)_theSceMpeg[0] + 0x28, (char *)_theSceMpeg[0] + 0x30,
-                    (char *)_theSceMpeg[0] + 0x38);
-    *(int *)(r + 0x80) = ((MpegStamp *)((char *)_theSceMpeg[0] + 0x28))->w[0];
-    *(long long *)(r + 0x88) = 1;
-    *(long long *)((char *)_theSceMpeg[0] + 0x20) |= m;
-    *(long long *)((char *)_theSceMpeg[0] + 0x38) |= m;
-    *(int *)(r + 0xCC) = *(int *)(f + 0x5C);
-    *(int *)(r + 0xD0) = *(int *)(f + 0x60);
-    *(int *)(r + 0xB4) = *(int *)(f + 0x44);
-    *(int *)(r + 0xB8) = *(int *)(s + 0x48);
-    *(int *)(r + 0xC0) = *(int *)(f + 0x50);
-    *(int *)(r + 0xC4) = *(int *)(s + 0x54);
+    _getPtsDtsFlags(f, &_theSceMpeg->pts, &_theSceMpeg->dts, &_theSceMpeg->flags);
+    r->pts = _theSceMpeg->pts.w[0];
+    r->showCount = 1;
+    _getPtsDtsFlags(s, &_theSceMpeg->pts2nd, &_theSceMpeg->dts2nd, &_theSceMpeg->flags2nd);
+    r->pts = _theSceMpeg->pts2nd.w[0];
+    r->showCount = 1;
+    _theSceMpeg->flags |= m;
+    _theSceMpeg->flags2nd |= m;
+    r->cc = *(int *)(f + 0x5C);
+    r->d0 = *(int *)(f + 0x60);
+    r->b4 = *(int *)(f + 0x44);
+    r->b8 = *(int *)(s + 0x48);
+    r->c0 = *(int *)(f + 0x50);
+    r->c4 = *(int *)(s + 0x54);
     if (_isOutSizeOK(a0) != 0 && *(int *)(a0 + 0x28) == 1 && *(int *)(a1 + 0x28) == 1) {
         *(int *)(a0 + 0x10) = *(int *)(a0 + 0x10) * 2;
-        if (*(int *)(r + 0xB0) != 0) {
+        if (r->csc != 0) {
             _csc_storeRefImage(a0);
         } else {
             _cpr8(a0);

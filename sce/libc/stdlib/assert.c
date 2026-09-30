@@ -9,14 +9,13 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-extern int D_0054CEAC[];
 extern void fiprintf();
 extern void abort(void);
 
 void __assert(int a0, int a1, int a2)
 {
-    fiprintf(*(int *)(D_0054CEAC[0] + 0xC), (int)"assertion \"%s\" failed: file \"%s\", line %d\n",
-             a2, a0, a1);
+    fiprintf(*(int *)((int)_impure_ptr + 0xC),
+             (int)"assertion \"%s\" failed: file \"%s\", line %d\n", a2, a0, a1);
     abort();
 }
 

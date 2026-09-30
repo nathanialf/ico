@@ -475,7 +475,6 @@ sce/libgraph/graph013.c
 sce/libgraph/graph014.c
 sce/libgraph/graph015.c
 sce/libgraph/graph016.c
-blob:cod/5363FC.rodata
 sce/libgraph/graph017.c
 # sce/libgraph/graph018.c .rodata starts 16-aligned at 0x636440, 14 B after its predecessor; the object's section is 8-aligned
 sce/libgraph/graph018.c rodata=.rodata,.rodata.0x00636440,.rodata.[A-Za-z_]* align.rodata=16
@@ -487,7 +486,6 @@ sce/libgraph/graph005.c
 sce/libgraph/graph007.c
 blob:cod/44A2E0.data
 sce/libvu0/libvu0.c
-blob:cod/53660C.rodata
 sce/libdma/libdma.c
 sce/libpkt/vifpk025.c
 sce/libpkt/vifpk026.c
@@ -511,9 +509,7 @@ sce/libkernl/iopreset.c
 sce/libkernl/tlbfunc.c
 sce/libkernl/tlbtrap.s
 sce/libkernl/sifcmd.c
-blob:cod/0072C1EC.bss
 blob:cod/536750.rodata
-blob:cod/44A50C.data
 sce/libcdvd/cdvd000.c
 sce/libcdvd/cdvd005.c
 sce/libcdvd/cdvd006.c
@@ -531,6 +527,7 @@ blob:cod/536CF8.rodata
 sce/libmpeg/mpeg.c
 sce/libmpeg/init.c
 sce/libmpeg/defhandler.c
+sce/libmpeg/var.c
 sce/libmpeg/mpc.c
 sce/libmpeg/csc.c
 sce/libmpeg/bit.c
@@ -539,9 +536,7 @@ blob:cod/44C018.data
 sce/libipu/ipuinit.c
 blob:cod/536DD4.rodata
 sce/libscf/libscf.c
-blob:cod/5372C8.rodata
 sce/libsndn2/sg.c rodata=.rodata,.rodata.0x006372D0,.rodata.[A-Za-z_]*
-blob:cod/53745C.rodata
 part:sce/libsndn2/sg.c rodata=.rodata.0x00637460
 sce/libsndn2/sound.c
 sce/libm/math/sf_sin.c
@@ -568,7 +563,7 @@ sce/libm/math/sf_floor.c
 sce/libm/math/sf_isnan.c
 sce/libm/common/sf_scalbn.c
 sce/libm/common/sf_copysign.c
-blob:cod/00730BC0.bss
+blob:cod/007315E8.bss
 sce/libgcc/__main.c
 sce/libgcc/_ctors.c
 sce/libgcc/_divdi3.c
@@ -582,8 +577,10 @@ sce/libgcc/dp-bit.c
 sce/libgcc/fp-bit.c
 sce/libc/stdlib/assert.c
 sce/libc/stdlib/atoi.c
+sce/libc/ctype/ctype_.c
 sce/libc/errno/errno.c
 sce/libc/stdio/fiprintf.c
+sce/libc/reent/impure.c
 sce/libc/machine/r5900/memcmp.s
 sce/libc/machine/r5900/memcpy.s
 sce/libc/machine/r5900/memset.s
@@ -603,7 +600,6 @@ sce/libc/string/strstr.c
 sce/libc/string/strtok.c
 sce/libc/string/strtok_r.c
 sce/libc/stdlib/strtol.c
-blob:cod/537E68.rodata
 sce/libc/stdio/vfiprintf.c
 blob:cod/538164.rodata
 sce/libc/stdio/vfprintf.c
@@ -613,7 +609,6 @@ sce/libc/stdio/vsprintf.c
 sce/libc/stdio/wsetup.c
 sce/libc/stdlib/abort.c
 sce/libc/stdlib/atof.c
-blob:cod/5387EC.rodata
 sce/libc/stdlib/dtoa.c
 sce/libc/stdio/fflush.c
 sce/libc/stdio/findfp.c

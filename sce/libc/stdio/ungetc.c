@@ -8,7 +8,6 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-extern int D_0054CEAC[];
 extern void fiprintf();
 extern void abort(void);
 extern void *_malloc_r(void *r, int n);
@@ -61,7 +60,7 @@ int ungetc(int c, Fil *fp)
     /* newlib's CHECK_INIT(fp), a do-while-zero macro wrapper */
     do {
         if (fp->data == 0)
-            fp->data = (char *)D_0054CEAC[0];
+            fp->data = (char *)_impure_ptr;
         if (fp->data->sdidinit == 0)
             __sinit(fp->data);
     } while (0);

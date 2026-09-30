@@ -9,7 +9,6 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-extern int D_0054CEAC[];
 extern void fiprintf();
 extern void abort(void);
 extern int strtok_r(int a0, int a1, int a2);
@@ -132,24 +131,24 @@ extern int _raise_r(void *ptr, int sig);
 
 int raise(int a0)
 {
-    return _raise_r(D_0054CEAC[0], a0);
+    return _raise_r((int)_impure_ptr, a0);
 }
 
 int signal(int a0, int a1)
 {
-    return _signal_r(D_0054CEAC[0], a0, a1);
+    return _signal_r((int)_impure_ptr, a0, a1);
 }
 
 void *_init_signal(void)
 {
-    return _init_signal_r(D_0054CEAC[0]);
+    return _init_signal_r((int)_impure_ptr);
 }
 
 extern int __sigtramp_r(void *ptr, int signo);
 
 int __sigtramp(int a0)
 {
-    return __sigtramp_r(D_0054CEAC[0], a0);
+    return __sigtramp_r((int)_impure_ptr, a0);
 }
 
 extern int kill(int a0, void *a1);

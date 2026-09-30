@@ -9,19 +9,18 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-extern int D_0054CEAC[];
 extern void fiprintf();
 extern void abort(void);
 
 void srand(int a0)
 {
-    char *p = (char *)D_0054CEAC[0];
+    char *p = (char *)_impure_ptr;
     *(int *)(p + 0x58) = a0;
 }
 
 int rand(void)
 {
-    char *p = (char *)D_0054CEAC[0];
+    char *p = (char *)_impure_ptr;
     int s = *(int *)(p + 0x58) * 0x41C64E6D + 0x3039;
     *(int *)(p + 0x58) = s;
     return s & 0x7fffffff;

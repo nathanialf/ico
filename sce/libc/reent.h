@@ -29,8 +29,8 @@ typedef struct {
 } StreamBuf;
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: the reentrancy record every member
- * of this archive reaches through the stream record's data field.  Only the one
- * field the members read is named. */
+ * of this archive reaches through the stream record's data field, defined after
+ * the stream record it holds three of. */
 struct Reent;
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: the chain of stream record blocks
@@ -41,14 +41,6 @@ typedef struct Glue {
     struct Fil *iobs;  /* 0x8 */
 } Glue;
 
-typedef struct Reent {
-    int err;           /* 0x000, the errno this reentrancy record carries */
-    char pad004[0x34]; /* 0x004 */
-    int sdidinit;      /* 0x038 */
-    void *cleanup;     /* 0x03C */
-    char pad040[0x198]; /* 0x040 */
-    Glue glue;         /* 0x1D8 */
-} Reent;
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for the archive's stream
  * members, which carried six divergent local copies of it. */
@@ -73,7 +65,29 @@ typedef struct Fil {
     Sbuf lb;               /* 0x44 */
     int blksize;           /* 0x4C */
     int offset;            /* 0x50 */
-    Reent *data;           /* 0x54 */
+    struct Reent *data;    /* 0x54 */
 } Fil;
+
+/* The reentrancy record, newlib's struct _reent: impure.c's _REENT_INIT sets
+ * the three standard stream pointers, the locale name and the rand seed; the
+ * members read the errno, the init flag, the cleanup hook and the glue. */
+typedef struct Reent {
+    int err;              /* 0x000, the errno this reentrancy record carries */
+    Fil *in, *out, *errs; /* 0x004, the standard streams, &sf[0..2] */
+    int inc;              /* 0x010 */
+    char emergency[25];   /* 0x014 */
+    int current_category; /* 0x030 */
+    const char *current_locale; /* 0x034 */
+    int sdidinit;         /* 0x038 */
+    void *cleanup;        /* 0x03C */
+    char pad040[0x18];    /* 0x040 */
+    unsigned int rand_next; /* 0x058 */
+    char *strtok_last;    /* 0x05C */
+    char pad060[0x178];   /* 0x060 */
+    Glue glue;            /* 0x1D8 */
+    Fil sf[3];            /* 0x1E4 */
+} Reent;
+
+extern Reent *_impure_ptr; /* definition in sce/ (reent/impure.c) */
 
 #endif /* SCE_LIBC_REENT_H */

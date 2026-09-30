@@ -9,7 +9,7 @@
 
 /* sifrpc.o's definition: a void call, no value register after it */
 extern void sceSifExitRpc(void);
-static SifCmdResetData resetData __attribute__((aligned(16))); /* derived name */
+static SifCmdResetData resetData __attribute__((aligned(64))); /* derived name */
 extern void sceSifStopDma(void);
 
 int sceSifResetIop(char *arg, int mode)

@@ -3,13 +3,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <reent.h>
+#include <ctype.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
 
-extern int D_0054CEAC[];
 extern void fiprintf();
 extern void abort(void);
 extern int strtok_r(int a0, int a1, int a2);
@@ -28,15 +28,6 @@ extern int kill(int a0, void *a1);
 extern int _read_r(int *self, int a1, int a2, int a3);
 extern int _lseek_r(int *self, int a1, int a2, int a3);
 extern int _write_r(int *self, int a1, int a2, int a3);
-/* newlib's _ctype_ table, reached one byte in (the EOF slot sits at -1), so a
-   plain subscript by the signed character is the classification lookup.  The
-   flag bits are newlib's: _U 01, _L 02, _N 04, _S 010. */
-extern unsigned char D_00637E69[];
-
-#define _U 001
-#define _L 002
-#define _N 004
-#define _S 010
 
 struct _reent {
     int _errno; /* 0x00 */
@@ -55,7 +46,7 @@ unsigned long _strtoul_r(struct _reent *rptr, const char *nptr, char **endptr, i
 
     do {
         c = *s++;
-    } while (D_00637E69[c] & _S);
+    } while ((_ctype_ + 1)[c] & _S);
     if (c == '-') {
         neg = 1;
         c = *s++;
@@ -73,10 +64,10 @@ unsigned long _strtoul_r(struct _reent *rptr, const char *nptr, char **endptr, i
     cutoff = ULONG_MAX / (unsigned long)base;
     cutlim = ULONG_MAX % (unsigned long)base;
     for (acc = 0, any = 0;; c = *s++) {
-        if (D_00637E69[c] & _N) {
+        if ((_ctype_ + 1)[c] & _N) {
             c -= '0';
-        } else if (D_00637E69[c] & (_U | _L)) {
-            c -= (D_00637E69[c] & _U) ? 'A' - 10 : 'a' - 10;
+        } else if ((_ctype_ + 1)[c] & (_U | _L)) {
+            c -= ((_ctype_ + 1)[c] & _U) ? 'A' - 10 : 'a' - 10;
         } else {
             break;
         }
@@ -105,7 +96,7 @@ unsigned long _strtoul_r(struct _reent *rptr, const char *nptr, char **endptr, i
 
 long long strtoul(void *a0, int a1, int a2)
 {
-    return _strtoul_r((void *)D_0054CEAC[0], a0, a1, a2);
+    return _strtoul_r((void *)_impure_ptr, a0, a1, a2);
 }
 
 extern int write(int a1, int a2, int a3);

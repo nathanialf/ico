@@ -1,13 +1,13 @@
 /* libc.a member vfscanf.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <reent.h>
+#include <ctype.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
 
-extern int D_0054CEAC[];
 extern char D_00637E38[];
 extern void fiprintf();
 extern void abort(void);
@@ -15,16 +15,6 @@ extern void abort(void);
 /* newlib's struct __sbuf / struct __sFILE, reconstructed from the ROM's own
    field offsets in this member (evidence rung: ROM bytes; the newlib member
    layout gives the names). */
-
-/* newlib's _ctype_ table, reached one byte in (the EOF slot sits at -1). */
-extern unsigned char D_00637E69[];
-
-#define _U 001
-#define _L 002
-#define _N 004
-#define _S 010
-#define isspace(c) (D_00637E69[(int)(c)] & _S)
-#define isupper(c) (D_00637E69[(int)(c)] & _U)
 
 /* newlib's own table: the base a `%i` conversion falls back to, indexed by
    the base the format asked for (0 becomes 10). */

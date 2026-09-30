@@ -8,7 +8,6 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-extern int D_0054CEAC[];
 extern void fiprintf();
 extern void abort(void);
 
@@ -30,7 +29,7 @@ int sscanf(void *a0, void *a1, ...)
     *(int *)(buf + 0x20) = (int)eofread;
     *(int *)(buf + 0x30) = 0;
     *(int *)(buf + 0x44) = 0;
-    *(int *)(buf + 0x54) = D_0054CEAC[0];
+    *(int *)(buf + 0x54) = (int)_impure_ptr;
     va = (char *)__builtin_next_arg(a1) - 48;
     return __svfscanf(buf, a1, va);
 }

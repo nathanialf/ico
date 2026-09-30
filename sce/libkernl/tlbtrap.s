@@ -238,8 +238,11 @@ _kDebugException:
 /* The member's .bss (MAIN.MAP tlbtrap.o 0x122C, 64-byte aligned there): the
    handlers' 0x1000-byte stack, whose top is the register save area the
    entries store the 32 GPRs into, then HI, HI1, LO, LO1, SA and the EPC.
-   Global: this tree's SDK assembler writes a .symtab whose sh_info omits any
-   local symbol that is not a section symbol, and ld refuses such an object. */
+   Local in the source: the .globl lines below are transitional.  This
+   tree's SDK assembler writes a .symtab whose sh_info omits a local symbol
+   that is not a section symbol; the period linker (ld 2.10, the plain
+   build) reads such an object and keeps the symbols local, the splat
+   build's modern ld refuses it, so the .globl lines go at the cut-over. */
 	.bss
 	.align	6
 	.globl	_tlbSaveGpr

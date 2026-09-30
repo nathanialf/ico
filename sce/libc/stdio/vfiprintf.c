@@ -9,7 +9,6 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-extern char *D_0054CEAC; /* _impure_ptr */
 extern char D_00637E38[];
 extern void fiprintf();
 extern void abort(void);
@@ -71,7 +70,7 @@ int vfiprintf(char *fp, char *fmt0, void *ap)
     /* newlib's CHECK_INIT(fp), a do-while-zero macro wrapper */
     do {
         if (*(char **)(fp + 0x54) == 0)
-            *(char **)(fp + 0x54) = D_0054CEAC;
+            *(char **)(fp + 0x54) = (char *)_impure_ptr;
         if (*(int *)(*(char **)(fp + 0x54) + 0x38) == 0)
             __sinit(*(char **)(fp + 0x54));
     } while (0);
@@ -105,7 +104,7 @@ extern int _mbtowc_r(void *r, int *pwc, const char *s, int n, int *state);
 extern char *memchr(const char *s, int c, int n);
 
 #define NULL 0
-#define _REENT ((void *)D_0054CEAC)
+#define _REENT ((void *)_impure_ptr)
 
 /*
  * Actual printf innards.

@@ -45,11 +45,39 @@ void _alalcFree(int *a0);                               /* mpeg.o */
 int _alalcAlloc(unsigned int *a0, int a1, unsigned int a2); /* mpeg.o */
 void _sendIpuCommand(unsigned int a0);                  /* mpc.o */
 int _sysbitNext(void *a0, int a1);                      /* bit.o */
+void _unknown_extension(void);                          /* init.o */
+void _sequenceExtension(void);                          /* init.o */
+void _sequenceDisplayExtension(void);                   /* init.o */
+void _sequenceScalableExtension(void);                  /* init.o */
+void _pictureSpatialScalableExtension(void);            /* init.o */
+void _pictureTemporalScalableExtension(void);           /* init.o */
+
+/* one of the 8-byte time-stamp slots the decoder handle carries for each
+ * field: _getPtsDtsFlags fills the pair as a 64-bit word and the display
+ * record takes its low half back as an int */
+typedef union {
+    long long d;
+    int w[2];
+} MpegStamp;
+
+/* the decoder handle sceMpegCreate registers: the picture size and count,
+ * the two fields' time stamps and flags, and its internal record */
+typedef struct {
+    int width, height, frameCount, pad0C;
+    MpegStamp pts, dts;       /* 0x10, 0x18 */
+    long long flags;          /* 0x20 */
+    MpegStamp pts2nd, dts2nd; /* 0x28, 0x30 */
+    long long flags2nd;       /* 0x38 */
+    struct MpegOut *sys;      /* 0x40 */
+} MpegHandle; /* derived name */
 
 /* the decoder state more than one member reads, spelled as the members that
  * first declared it spell it (the objects themselves are still in the data
  * blob) */
-extern void *_theSceMpeg[];
+extern MpegHandle *_theSceMpeg; /* init.o */
+extern int _sprtag;               /* init.o */
+extern int _refBlockp;            /* init.o */
+extern int _bsDatap;              /* init.o */
 extern int _picture_structure;
 extern int _isMpeg2[];
 extern int _isSecondField[];

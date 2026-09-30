@@ -10,7 +10,6 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-extern int D_0054CEAC[];
 extern char D_00637E38[];
 extern void fiprintf();
 extern void abort(void);
@@ -131,7 +130,7 @@ struct lconv {
 
 extern struct lconv *localeconv(void);
 
-#define _REENT ((Reent *)D_0054CEAC[0])
+#define _REENT (_impure_ptr)
 #define CHECK_INIT(fp)                                                                             \
     do {                                                                                           \
         if ((fp)->data == 0)                                                                       \

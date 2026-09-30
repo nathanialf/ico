@@ -9,7 +9,6 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-extern int D_0054CEAC[];
 extern void fiprintf();
 extern void abort(void);
 extern int strtok_r(int a0, int a1, int a2);
@@ -114,7 +113,7 @@ extern void _cleanup_r(int a0);
 
 void _cleanup(void)
 {
-    _cleanup_r(D_0054CEAC[0]);
+    _cleanup_r((int)_impure_ptr);
 }
 
 extern void std();

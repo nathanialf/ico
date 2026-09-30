@@ -10,7 +10,6 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-extern int D_0054CEAC[];
 extern void fiprintf();
 extern void abort(void);
 extern int _vfprintf_r(int *self, int subj, int b, void *args);
@@ -24,7 +23,7 @@ int _printf_r(int *self, int b, ...)
 void printf(void *a0, ...)
 {
     void *args = (char *)__builtin_next_arg(a0) - 0x38;
-    int s = D_0054CEAC[0];
+    int s = (int)_impure_ptr;
     *(int *)(*(int *)(s + 8) + 0x54) = s;
     vfprintf(*(int *)(s + 8), a0, args);
 }

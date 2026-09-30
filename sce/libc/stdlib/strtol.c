@@ -3,13 +3,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <reent.h>
+#include <ctype.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
 
-extern int D_0054CEAC[];
 extern void fiprintf();
 extern void abort(void);
 extern int strtok_r(int a0, int a1, int a2);
@@ -17,14 +17,6 @@ extern int strtok_r(int a0, int a1, int a2);
 /* MAIN.MAP member strtol.o: this is the reentrant worker `strtol` calls, i.e.
    newlib's _strtol_r; the shipped ELF has no symbol for it, so splat named it
    _strtol_r, now under its own row.  Its twin _strtoul_r sits in the strtoul.o member. */
-
-/* newlib's _ctype_ table, reached one byte in (the EOF slot sits at -1). */
-extern unsigned char D_00637E69[];
-
-#define _U 001
-#define _L 002
-#define _N 004
-#define _S 010
 
 struct _reent {
     int _errno; /* 0x00 */
@@ -44,7 +36,7 @@ long _strtol_r(struct _reent *rptr, const char *nptr, char **endptr, int base)
 
     do {
         c = *s++;
-    } while (D_00637E69[c] & _S);
+    } while ((_ctype_ + 1)[c] & _S);
     if (c == '-') {
         neg = 1;
         c = *s++;
@@ -64,10 +56,10 @@ long _strtol_r(struct _reent *rptr, const char *nptr, char **endptr, int base)
     cutlim = cutoff % (unsigned long)base;
     cutoff /= (unsigned long)base;
     for (acc = 0, any = 0;; c = *s++) {
-        if (D_00637E69[c] & _N) {
+        if ((_ctype_ + 1)[c] & _N) {
             c -= '0';
-        } else if (D_00637E69[c] & (_U | _L)) {
-            c -= (D_00637E69[c] & _U) ? 'A' - 10 : 'a' - 10;
+        } else if ((_ctype_ + 1)[c] & (_U | _L)) {
+            c -= ((_ctype_ + 1)[c] & _U) ? 'A' - 10 : 'a' - 10;
         } else {
             break;
         }
@@ -96,7 +88,7 @@ long _strtol_r(struct _reent *rptr, const char *nptr, char **endptr, int base)
 
 long long strtol(void *a0, int a1, int a2)
 {
-    return _strtol_r((struct _reent *)D_0054CEAC[0], a0, (char **)a1, a2);
+    return _strtol_r((struct _reent *)_impure_ptr, a0, (char **)a1, a2);
 }
 
 extern int __sread(void *a0, int a1, int a2);

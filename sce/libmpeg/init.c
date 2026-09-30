@@ -36,14 +36,31 @@ void _lastFrame(int a0)
     _isSecondField[0] = 0;
 }
 
-extern int D_0054C0D8[];
+/* the member's .bss: the scratchpad tag buffer _sprtag points at and the
+   DMA tags _sendDataToIPU builds the bitstream chain in */
+static long long sprTagBuf[64]; /* derived name */
+
+static long long ipuTags[258]; /* derived name */
+
+/* the member's .data: the scratchpad base the macroblock state lives at, then
+   the four globals MAIN.MAP lists */
+static int sprBase = 0x70000000; /* derived name */
+
+int _sprtag = (int)sprTagBuf;
+
+int _refBlockp = 0x70003600;
+
+MpegHandle *_theSceMpeg = 0;
+
+int _bsDatap = 0;
+
 extern int _mbcont[];
 
 void _clearOnce(void)
 {
     int v;
     _ipuSetMPEG1(1);
-    v = D_0054C0D8[0];
+    v = sprBase;
     _mbcont[0] = v;
     _mbcont[1] = v + 0x1800;
     *(void **)&_mbcont[0x50] = (void *)(v + 0x1B00);
@@ -96,7 +113,7 @@ extern void _ErrMessage(int a0);
 
 void _Error(void *a0)
 {
-    char *p = _theSceMpeg[0];
+    char *p = (char *)_theSceMpeg;
     if (p != 0) {
         register int q = *(int *)(p + 0x40);
         if (q != 0) {
@@ -113,11 +130,9 @@ void _Error(void *a0)
     _ErrMessage(a0);
 }
 
-extern int D_00730DC0[];
-
 void _sendDataToIPU(int a0, int a1)
 {
-    long long *tag = (long long *)((((unsigned int)D_00730DC0) & 0x0FFFFFFF) | 0x20000000);
+    long long *tag = (long long *)((((unsigned int)ipuTags) & 0x0FFFFFFF) | 0x20000000);
     int p = a0;
     int n = a1;
 
@@ -134,7 +149,7 @@ void _sendDataToIPU(int a0, int a1)
         p += len;
         tag += 2;
     }
-    *(volatile int *)0x1000B430 = (int)D_00730DC0 & 0x0FFFFFFF;
+    *(volatile int *)0x1000B430 = (int)ipuTags & 0x0FFFFFFF;
     *(volatile int *)0x1000B420 = 0;
     *(volatile int *)0x1000B400 = 0x105;
 }
@@ -170,7 +185,7 @@ void _sequenceHeader(void)
 {
     unsigned int v;
 
-    *(int *)(*(int *)((char *)_theSceMpeg[0] + 0x40) + 0xD4) = 0;
+    *(int *)(*(int *)((char *)_theSceMpeg + 0x40) + 0xD4) = 0;
     v = _nextBit(32);
     _frame_rate_code = v & 0xF;
     _aspect_ratio_information = (v >> 4) & 0xF;
@@ -198,7 +213,7 @@ void _sequenceHeader(void)
         _setDefaultQM(0x58000000, _defNIQM);
     }
     _extensionAndUserData();
-    _initSeq(_theSceMpeg[0]);
+    _initSeq(_theSceMpeg);
 }
 
 extern int _isMpeg2[];
@@ -304,7 +319,7 @@ void _setDefaultQM(int a0, int *a1)
     int buf[8];
 
     buf[0] = 2;
-    _dispatchMpegCallback(_theSceMpeg[0], buf);
+    _dispatchMpegCallback(_theSceMpeg, buf);
     _waitIpuIdle();
     *(volatile int *)0x10002000 = 0;
     _waitIpuIdle();
@@ -315,7 +330,7 @@ void _setDefaultQM(int a0, int *a1)
     _sendIpuCommand(a0);
     _waitIpuIdle();
     buf[0] = 3;
-    _dispatchMpegCallback(_theSceMpeg[0], buf);
+    _dispatchMpegCallback(_theSceMpeg, buf);
 }
 
 extern int _chroma_format;

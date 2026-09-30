@@ -7,7 +7,6 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-extern int D_0054CEAC[];
 extern char D_00637E38[];
 extern int fiprintf(void *fp, void *fmt, ...);
 extern void abort(void);

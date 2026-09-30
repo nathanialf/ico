@@ -13,39 +13,54 @@ void _doCSC(int a0, int a1)
     *(volatile int *)0x1000B000 = 0x100;
     _sendIpuCommand(a1 | 0x70000000);
     buf[0] = 4;
-    _dispatchMpegCallback(_theSceMpeg[0], buf);
+    _dispatchMpegCallback(_theSceMpeg, buf);
     while (((*(volatile unsigned int *)0x1000B000) >> 8) & 1) {}
     while (*(volatile int *)0x10002010 < 0) {}
 }
 
-extern int D_0054CAB8[];
-/* the chunk count (MAIN.MAP's _cscDma): this channel-3 handler bumps it while
- * _doCSC2 polls it, so every read is fresh */
-extern volatile int _cscDma[];
-extern int D_007315D0[];
-extern int D_007315D4[];
-extern int D_007315D8[];
+/* the member's .data: the conversion's error flag, then the chunk count
+ * (MAIN.MAP's _cscDma, the member's one global): the channel-3 handler bumps
+ * it while _doCSC2 polls it, so every read is fresh.  The ROM pins _cscDma's
+ * 8-aligned start at +8 and the member's 0x18 end, not the array's length. */
+static int cscError = 0; /* derived name */
+
+volatile int _cscDma[4] = {0, 0, 0, 0};
+
+/* the member's .bss: the macroblocks left, the next source address and the
+ * chunk count of a conversion, then the qword count and address of the
+ * reference-image store the channel-4 handler feeds */
+static int cscRest; /* derived name */
+
+static int cscAddr; /* derived name */
+
+static int cscChunks; /* derived name */
+
+static int storeCount; /* derived name */
+
+static int storeQwc; /* derived name */
+
+static int storeAddr; /* derived name */
 
 int _ch3dmaCSC(void)
 {
     *(volatile int *)0x1000E010 = 8;
     _cscDma[0]++;
     if (*(volatile int *)0x1000B020 != 0 || (*(volatile int *)0x1000B000 & 0x100) != 0) {
-        D_0054CAB8[0] = 1;
+        cscError = 1;
         return 0;
     }
-    if (_cscDma[0] < D_007315D8[0] - 1) {
-        *(volatile int *)0x1000B010 = D_007315D4[0];
+    if (_cscDma[0] < cscChunks - 1) {
+        *(volatile int *)0x1000B010 = cscAddr;
         *(volatile int *)0x1000B020 = 0xFFC0;
         *(volatile int *)0x1000B000 = 0x100;
         *(volatile int *)0x10002000 = 0x700003FF;
-        D_007315D4[0] = (D_007315D4[0] + 0xFFC00) & 0x0FFFFFFF;
-    } else if (_cscDma[0] == D_007315D8[0] - 1) {
-        D_007315D0[0] -= _cscDma[0] * 1023;
-        *(volatile int *)0x1000B010 = D_007315D4[0];
-        *(volatile int *)0x1000B020 = D_007315D0[0] << 6;
+        cscAddr = (cscAddr + 0xFFC00) & 0x0FFFFFFF;
+    } else if (_cscDma[0] == cscChunks - 1) {
+        cscRest -= _cscDma[0] * 1023;
+        *(volatile int *)0x1000B010 = cscAddr;
+        *(volatile int *)0x1000B020 = cscRest << 6;
         *(volatile int *)0x1000B000 = 0x100;
-        *(volatile int *)0x10002000 = D_007315D0[0] | 0x70000000;
+        *(volatile int *)0x10002000 = cscRest | 0x70000000;
     }
     __asm__ __volatile__("sync");
     __asm__ __volatile__("ei");
@@ -69,10 +84,10 @@ void _doCSC2(int a0, int a1)
     int id;
     int qwc = 0xFFC0;
 
-    D_007315D8[0] = a1 / 1023 + 1;
-    D_007315D0[0] = a1;
-    D_007315D4[0] = (a0 + 0xFFC00) & 0x0FFFFFFF;
-    D_0054CAB8[0] = 0;
+    cscChunks = a1 / 1023 + 1;
+    cscRest = a1;
+    cscAddr = (a0 + 0xFFC00) & 0x0FFFFFFF;
+    cscError = 0;
     _cscDma[0] = 0;
     while (*(volatile int *)0x10002010 < 0) {}
     id = AddDmacHandler(3, _ch3dmaCSC, 0);
@@ -86,9 +101,9 @@ void _doCSC2(int a0, int a1)
     /* the handle read in int's alias set, as mpc.c's _groupOfPicturesHeader
      * reads it: the load then waits for the register writes, after the
      * record store */
-    _dispatchMpegCallback((void *)((int *)_theSceMpeg)[0], buf);
-    while (_cscDma[0] < D_007315D8[0]) {}
-    if (*(volatile int *)D_0054CAB8 != 0) {
+    _dispatchMpegCallback((void *)(int)_theSceMpeg, buf);
+    while (_cscDma[0] < cscChunks) {}
+    if (*(volatile int *)&cscError != 0) {
         _Error("CSC handler error\n");
     }
     while (*(volatile int *)0x10002010 < 0) {}
@@ -96,30 +111,23 @@ void _doCSC2(int a0, int a1)
     RemoveDmacHandler(3, id);
 }
 
-extern int D_007315DC[];
-extern int D_007315E0[];
-extern int D_007315E4[];
-extern int D_007315DC[];
-extern int D_007315E0[];
-extern int D_007315E4[];
-
 int _ch4dma(void)
 {
     *(volatile unsigned int *)0x1000E010 = 0x10;
-    D_007315DC[0]++;
-    if (D_007315E0[0] == 0)
+    storeCount++;
+    if (storeQwc == 0)
         return 1;
-    if ((unsigned int)D_007315E0[0] > 0xFFFF) {
-        *(volatile unsigned int *)0x1000B410 = D_007315E4[0];
+    if ((unsigned int)storeQwc > 0xFFFF) {
+        *(volatile unsigned int *)0x1000B410 = storeAddr;
         *(volatile unsigned int *)0x1000B420 = 0xFFFF;
         *(volatile unsigned int *)0x1000B400 = 0x101;
-        D_007315E4[0] = (D_007315E4[0] + 0xFFFF0) & 0xFFFFFFF;
-        D_007315E0[0] -= 0xFFFF;
+        storeAddr = (storeAddr + 0xFFFF0) & 0xFFFFFFF;
+        storeQwc -= 0xFFFF;
     } else {
-        *(volatile unsigned int *)0x1000B410 = D_007315E4[0];
-        *(volatile unsigned int *)0x1000B420 = D_007315E0[0];
+        *(volatile unsigned int *)0x1000B410 = storeAddr;
+        *(volatile unsigned int *)0x1000B420 = storeQwc;
         *(volatile unsigned int *)0x1000B400 = 0x101;
-        D_007315E0[0] = 0;
+        storeQwc = 0;
     }
     return 0;
 }
@@ -133,7 +141,7 @@ extern int RemoveDmacHandler(int a0, int a1);
 void _csc_storeRefImage(char *p)
 {
     int buf[8];
-    void *self = _theSceMpeg[0];
+    void *self = _theSceMpeg;
     char *r = (char *)*(int *)((char *)self + 0x40);
     int n;
     int addr;
@@ -151,17 +159,17 @@ void _csc_storeRefImage(char *p)
     while (*(volatile int *)0x10002010 < 0) {}
     addr = *(int *)p & 0x0FFFFFFF;
     qwc = n * 24;
-    D_007315E0[0] = qwc;
-    D_007315E4[0] = addr;
+    storeQwc = qwc;
+    storeAddr = addr;
     if ((unsigned int)qwc > 0xFFFF) {
         hid = AddDmacHandler(4, _ch4dma, 0);
         *(volatile int *)0x1000E010 = 0x10;
         EnableDmac(4);
-        *(volatile int *)0x1000B410 = D_007315E4[0];
+        *(volatile int *)0x1000B410 = storeAddr;
         *(volatile int *)0x1000B420 = 0xFFFF;
         *(volatile int *)0x1000B400 = 0x101;
-        D_007315E4[0] = (D_007315E4[0] + 0xFFFF0) & 0x0FFFFFFF;
-        D_007315E0[0] -= 0xFFFF;
+        storeAddr = (storeAddr + 0xFFFF0) & 0x0FFFFFFF;
+        storeQwc -= 0xFFFF;
         if (n < 1024) {
             _doCSC(*(int *)(r + 0xD8), n);
         } else {
@@ -170,10 +178,10 @@ void _csc_storeRefImage(char *p)
         DisableDmac(4);
         RemoveDmacHandler(4, hid);
     } else {
-        *(volatile int *)0x1000B410 = D_007315E4[0];
-        *(volatile int *)0x1000B420 = D_007315E0[0];
+        *(volatile int *)0x1000B410 = storeAddr;
+        *(volatile int *)0x1000B420 = storeQwc;
         *(volatile int *)0x1000B400 = 0x101;
-        D_007315E0[0] = 0;
+        storeQwc = 0;
         if (n < 1024) {
             _doCSC(*(int *)(r + 0xD8), n);
         } else {
@@ -181,5 +189,5 @@ void _csc_storeRefImage(char *p)
         }
     }
     buf[0] = 3;
-    _dispatchMpegCallback(_theSceMpeg[0], buf);
+    _dispatchMpegCallback(_theSceMpeg, buf);
 }

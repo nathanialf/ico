@@ -7,7 +7,6 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-extern int D_0054CEAC[];
 extern void fiprintf();
 extern void abort(void);
 extern void __sinit(void *a0);
@@ -18,7 +17,7 @@ int __swsetup(Fil *fp)
 {
     do {
         if (fp->data == 0) {
-            fp->data = (char *)D_0054CEAC[0];
+            fp->data = (char *)_impure_ptr;
         }
         if (*(int *)((char *)fp->data + 0x38) == 0) {
             __sinit(fp->data);

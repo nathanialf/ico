@@ -9,7 +9,6 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-extern int D_0054CEAC[];
 extern void fiprintf();
 extern void abort(void);
 extern int strtok_r(int a0, int a1, int a2);
@@ -75,12 +74,12 @@ void *_localeconv_r(int a0)
 
 int setlocale(int a0, int a1)
 {
-    return _setlocale_r(D_0054CEAC[0], a0, a1);
+    return _setlocale_r((int)_impure_ptr, a0, a1);
 }
 
 void *localeconv(void)
 {
-    return _localeconv_r(D_0054CEAC[0]);
+    return _localeconv_r((int)_impure_ptr);
 }
 
 extern int *_Balloc(void *a0, int a1);

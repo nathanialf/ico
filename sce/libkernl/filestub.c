@@ -33,6 +33,26 @@ static int iob_sema = -1;
 
 static int q_sema = -1;
 
+/* the member's .bss: the ioctl caller's argument pointer, the 64-aligned RPC
+   send buffer, receive buffer and reply packet the IOP writes (the handler
+   reads the words at +0x10 and +0x14 of it), the iob table, the RPC client,
+   the IOP module's version stamp and the command handler's buffer */
+static void *fsIoctlArg; /* derived name */
+
+static int fsSendBuf[0x310] __attribute__((aligned(64))); /* derived name */
+
+static int fsRecvBuf[16] __attribute__((aligned(64))); /* derived name */
+
+static char fsRcvPkt[0x440] __attribute__((aligned(64))); /* derived name */
+
+static char fsIobTab[0x200]; /* derived name */
+
+static int fsClient[10]; /* derived name */
+
+static char fsVersion[4]; /* derived name */
+
+static char fsCmdBuf[0x40]; /* derived name */
+
 void _sceFsIobSemaMK(void)
 {
     extern int CreateSema(int *a0);
@@ -46,7 +66,6 @@ void _sceFsIobSemaMK(void)
     }
 }
 
-extern char D_0072D300[];
 extern int SignalSema(int a0);
 extern int WaitSema(int a0);
 
@@ -56,7 +75,7 @@ int new_iob(void)
     char *end;
     _sceFsIobSemaMK();
     WaitSema(iob_sema);
-    p = D_0072D300;
+    p = fsIobTab;
     end = p + 0x200;
     while (p < end) {
         if (*(int *)(p + 4) == 0) {
@@ -81,7 +100,7 @@ void *get_iob(unsigned int i)
     SignalSema(iob_sema);
     return 0;
 ok:
-    p = &D_0072D300[i * 16];
+    p = &fsIobTab[i * 16];
     SignalSema(iob_sema);
     return p;
 }
@@ -93,9 +112,7 @@ typedef struct {
     char v[4];
 } SceFsVersion;
 
-extern char D_0072CEC0[];
-
-/* the FS reply packet the IOP leaves in D_0072CEC0; the handler reads it
+/* the FS reply packet the IOP leaves in fsRcvPkt; the handler reads it
    through the uncached accelerated window, so every record copy below is a
    byte-array assignment and gcc expands each one inline with the unaligned
    pairs the window forces. */
@@ -107,8 +124,6 @@ typedef struct {
 typedef struct {
     char v[0x40];
 } SceFsStatRec;
-
-extern char D_0072CED4[];
 
 /* The SIF command handler for the FS reply.  Each reply word is its own
    local (the header's request id, command, buffer and size, then a
@@ -134,14 +149,14 @@ void _sceFs_Rcv_Intr(void)
     int i;
     int k;
 
-    *(SceFsVersion *)&id = *(SceFsVersion *)((int)(D_0072CEC0 + 0x0) | 0x20000000);
-    *(SceFsVersion *)&cmd = *(SceFsVersion *)((int)(D_0072CEC0 + 0x4) | 0x20000000);
-    *(SceFsVersion *)&buf = *(SceFsVersion *)((int)(D_0072CEC0 + 0x8) | 0x20000000);
-    *(SceFsVersion *)&size = *(SceFsVersion *)((int)(D_0072CEC0 + 0xC) | 0x20000000);
-    memcpy((void *)buf, (void *)((int)(D_0072CEC0 + 0x10) | 0x20000000), size);
+    *(SceFsVersion *)&id = *(SceFsVersion *)((int)(fsRcvPkt + 0x0) | 0x20000000);
+    *(SceFsVersion *)&cmd = *(SceFsVersion *)((int)(fsRcvPkt + 0x4) | 0x20000000);
+    *(SceFsVersion *)&buf = *(SceFsVersion *)((int)(fsRcvPkt + 0x8) | 0x20000000);
+    *(SceFsVersion *)&size = *(SceFsVersion *)((int)(fsRcvPkt + 0xC) | 0x20000000);
+    memcpy((void *)buf, (void *)((int)(fsRcvPkt + 0x10) | 0x20000000), size);
     switch (cmd) {
     case 2:
-        q = (int *)((int)D_0072CED4 | 0x20000000);
+        q = (int *)((int)(fsRcvPkt + 0x14) | 0x20000000);
         if (q[0] > 0) {
             char *dst = (char *)q[2];
 
@@ -162,24 +177,24 @@ void _sceFs_Rcv_Intr(void)
         }
         break;
     case 11:
-        *(SceFsVersion *)&addr = *(SceFsVersion *)((int)D_0072CED4 | 0x20000000);
-        *(SceFsDirent *)addr = *(SceFsDirent *)((int)(D_0072CED4 + 4) | 0x20000000);
+        *(SceFsVersion *)&addr = *(SceFsVersion *)((int)(fsRcvPkt + 0x14) | 0x20000000);
+        *(SceFsDirent *)addr = *(SceFsDirent *)((int)((fsRcvPkt + 0x14) + 4) | 0x20000000);
         break;
     case 12:
-        *(SceFsVersion *)&addr = *(SceFsVersion *)((int)D_0072CED4 | 0x20000000);
-        *(SceFsStatRec *)addr = *(SceFsStatRec *)((int)(D_0072CED4 + 4) | 0x20000000);
+        *(SceFsVersion *)&addr = *(SceFsVersion *)((int)(fsRcvPkt + 0x14) | 0x20000000);
+        *(SceFsStatRec *)addr = *(SceFsStatRec *)((int)((fsRcvPkt + 0x14) + 4) | 0x20000000);
         break;
     case 23:
     case 25:
     case 26:
-        *(SceFsVersion *)&addr = *(SceFsVersion *)((int)D_0072CED4 | 0x20000000);
-        *(SceFsVersion *)&len = *(SceFsVersion *)((int)(D_0072CED4 + 4) | 0x20000000);
+        *(SceFsVersion *)&addr = *(SceFsVersion *)((int)(fsRcvPkt + 0x14) | 0x20000000);
+        *(SceFsVersion *)&len = *(SceFsVersion *)((int)((fsRcvPkt + 0x14) + 4) | 0x20000000);
         k = len;
         if (1024 < (unsigned int)k) {
             len = 1024;
             k = 1024;
         }
-        memcpy((void *)addr, (void *)((int)(D_0072CED4 + 8) | 0x20000000), k);
+        memcpy((void *)addr, (void *)((int)((fsRcvPkt + 0x14) + 8) | 0x20000000), k);
         break;
     }
     if (id < 0) {
@@ -218,11 +233,6 @@ void _sceFsSigSema(void)
     SignalSema(fs_sema);
 }
 
-extern char D_0072D300[];
-extern int D_0072D500[];
-extern char D_0072D528[];
-extern char D_0072D530[];
-extern int D_0072CE80[];
 extern void _sceFsIobSemaMK(void);
 extern int SignalSema(int a0);
 extern int sceSifAddCmdHandler(int a0, int a1, int a2);
@@ -237,13 +247,13 @@ int sceFsInit(void)
 
     sceSifInitRpc(0);
     DIntr();
-    sceSifAddCmdHandler(0x80000011, (int)_sceFs_Rcv_Intr, (int)D_0072D530);
+    sceSifAddCmdHandler(0x80000011, (int)_sceFs_Rcv_Intr, (int)fsCmdBuf);
     EIntr();
     for (;;) {
-        if (sceSifBindRpc(D_0072D500, 0x80000001, 0) < 0) {
+        if (sceSifBindRpc(fsClient, 0x80000001, 0) < 0) {
             return -1;
         }
-        if (D_0072D500[9] != 0) {
+        if (fsClient[9] != 0) {
             break;
         }
         for (i = 0x100000; i != -1; i--) {
@@ -252,23 +262,22 @@ int sceFsInit(void)
     }
     _sceFsIobSemaMK();
     WaitSema(iob_sema);
-    p = D_0072D300;
-    end = D_0072D300 + 0x200;
+    p = fsIobTab;
+    end = fsIobTab + 0x200;
     while (p < end) {
         ((int *)p)[1] = 0;
         p += 0x10;
     }
     SignalSema(iob_sema);
-    buf[0] = (int)D_0072CEC0;
-    if (sceSifCallRpc(D_0072D500, 0xFF, 0, buf, 4, D_0072CE80, 4, 0, 0) < 0) {
+    buf[0] = (int)fsRcvPkt;
+    if (sceSifCallRpc(fsClient, 0xFF, 0, buf, 4, fsRecvBuf, 4, 0, 0) < 0) {
         return 0xFFFEFFFF;
     }
-    *(SceFsVersion *)D_0072D528 = *(SceFsVersion *)((int)D_0072CE80 | 0x20000000);
+    *(SceFsVersion *)fsVersion = *(SceFsVersion *)((int)fsRecvBuf | 0x20000000);
     fs_inited = 1;
     return 0;
 }
 
-extern char D_0072D528[];
 extern int memcmp();
 
 /* the stamp _fs_version accepts besides the library's own.  Defined here, after
@@ -280,7 +289,7 @@ static char *fs_stamp = "....";
 int _fs_version(void)
 {
     char *s3 = __ps2_klibinfo__ + 12;
-    char *s1 = D_0072D528;
+    char *s1 = fsVersion;
     int s2 = 0;
     int v0;
     v0 = memcmp(s1, s3, 4);
@@ -295,17 +304,15 @@ done:
     return s2;
 }
 
-extern char D_0072D528[];
-
 int sceFsReset(void)
 {
     fs_inited = 0;
-    memset(D_0072D528, 0, 4);
+    memset(fsVersion, 0, 4);
     return 0;
 }
 
 /* Reconstruction: the 16-byte file-descriptor record new_iob() hands out of
-   the D_0072D300 table; field 0 is the driver handle _sceCallCode returns and
+   the fsIobTab table; field 0 is the driver handle _sceCallCode returns and
    field 4 the in-use flag new_iob() sets to 0x10000000. */
 typedef struct {
     int fd;
@@ -313,9 +320,6 @@ typedef struct {
     int _8[2];
 } SceIob;
 
-extern int D_0072C240[];
-extern int D_0072CE80[];
-extern int D_0072D500[];
 extern int CreateSema(int *self);
 extern int WaitSema(int a0);
 extern int DeleteSema(int a0);
@@ -333,7 +337,7 @@ extern void *get_iob(unsigned int a0);
    the flag store, which an addressed stack local cannot pass. */
 int sceOpen(unsigned char *name, int flags, ...)
 {
-    int *g = D_0072C240;
+    int *g = fsSendBuf;
     int mode;
     SceIob *iob;
     int i;
@@ -365,7 +369,7 @@ int sceOpen(unsigned char *name, int flags, ...)
     if (i == 0x400) {
         ((char *)g)[0x413] = 0;
     }
-    idx = iob - (SceIob *)D_0072D300;
+    idx = iob - (SceIob *)fsIobTab;
     g[3] = flags & 0xFFFFFFF;
     g[4] = mode;
     g[0x414 / 4] = idx;
@@ -375,13 +379,13 @@ int sceOpen(unsigned char *name, int flags, ...)
     g[0] = h = CreateSema(buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
-    rc = sceSifCallRpc(D_0072D500, 0, 0, D_0072C240, 0x418, D_0072CE80, 4, 0, 0);
+    rc = sceSifCallRpc(fsClient, 0, 0, fsSendBuf, 0x418, fsRecvBuf, 4, 0, 0);
     if (rc < 0) {
         DeleteSema(h);
         _sceFsSigSema();
         return -0xB;
     }
-    rc = *(int *)((int)D_0072CE80 | 0x20000000);
+    rc = *(int *)((int)fsRecvBuf | 0x20000000);
     _sceFsSigSema();
     if (rc == 0) {
         DeleteSema(h);
@@ -405,7 +409,7 @@ int sceOpen(unsigned char *name, int flags, ...)
 
 int sceClose(unsigned int fd)
 {
-    int *g = D_0072C240;
+    int *g = fsSendBuf;
     SceIob *iob;
     int f0;
     int uv;
@@ -426,21 +430,21 @@ int sceClose(unsigned int fd)
     }
     f0 = iob->fd;
     g[3] = f0;
-    g[4] = iob - (SceIob *)D_0072D300;
+    g[4] = iob - (SceIob *)fsIobTab;
     buf[1] = 1;
     buf[2] = 0;
     buf[5] = 0;
-    D_0072C240[0] = h = CreateSema(buf);
+    fsSendBuf[0] = h = CreateSema(buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
-    rc = sceSifCallRpc(D_0072D500, 1, 0, g, 0x14, D_0072CE80, 4, 0, 0);
+    rc = sceSifCallRpc(fsClient, 1, 0, g, 0x14, fsRecvBuf, 4, 0, 0);
     if (rc < 0) {
         DeleteSema(h);
         _sceFsSigSema();
         return -0xB;
     }
     iob->inuse = 0;
-    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    uv = *(int *)((int)fsRecvBuf | 0x20000000);
     _sceFsSigSema();
     if (uv == 0) {
         DeleteSema(h);
@@ -471,7 +475,7 @@ static inline int isNowait(unsigned short mode)
 
 int sceLseek(unsigned int fd, int offset, int whence)
 {
-    int *g = D_0072C240;
+    int *g = fsSendBuf;
     SceIob *iob;
     int inuse;
     int uv;
@@ -494,11 +498,11 @@ int sceLseek(unsigned int fd, int offset, int whence)
     g[3] = iob->fd;
     g[4] = offset;
     g[5] = whence;
-    g[6] = iob - (SceIob *)D_0072D300;
+    g[6] = iob - (SceIob *)fsIobTab;
     buf[1] = 1;
     buf[2] = 0;
     buf[5] = 0;
-    D_0072C240[0] = h = CreateSema(buf);
+    fsSendBuf[0] = h = CreateSema(buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
     if (inuse & 0x8000) {
@@ -512,13 +516,13 @@ int sceLseek(unsigned int fd, int offset, int whence)
         }
         SignalSema(q_sema);
     }
-    rc = sceSifCallRpc(D_0072D500, 4, 0, D_0072C240, 0x1C, D_0072CE80, 4, 0, 0);
+    rc = sceSifCallRpc(fsClient, 4, 0, fsSendBuf, 0x1C, fsRecvBuf, 4, 0, 0);
     if (rc < 0) {
         DeleteSema(h);
         _sceFsSigSema();
         return -0xB;
     }
-    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    uv = *(int *)((int)fsRecvBuf | 0x20000000);
     _sceFsSigSema();
     if (uv == 0) {
         DeleteSema(h);
@@ -535,7 +539,7 @@ int sceLseek(unsigned int fd, int offset, int whence)
 
 int sceRead(int fd, void *buf, int nbyte)
 {
-    int *g = D_0072C240;
+    int *g = fsSendBuf;
     SceIob *iob;
     int inuse;
     int uv;
@@ -556,13 +560,13 @@ int sceRead(int fd, void *buf, int nbyte)
         return -9;
     }
     g[3] = iob->fd;
-    g[7] = iob - (SceIob *)D_0072D300;
+    g[7] = iob - (SceIob *)fsIobTab;
     g[4] = (int)buf;
     g[5] = nbyte;
     sema[1] = 1;
     sema[2] = 0;
     sema[5] = 0;
-    D_0072C240[0] = h = CreateSema(sema);
+    fsSendBuf[0] = h = CreateSema(sema);
     *(void **)(g + 1) = &result;
     g[2] = 4;
     if (inuse & 0x8000) {
@@ -579,18 +583,18 @@ int sceRead(int fd, void *buf, int nbyte)
     if ((inuse & 0x20000000) == 0) {
         sceSifWriteBackDCache(buf, nbyte);
     }
-    sceSifWriteBackDCache(D_0072CEC0, 0xA4);
+    sceSifWriteBackDCache(fsRcvPkt, 0xA4);
     /* the request record is flushed through g and handed to the RPC by its
-       symbol: the ROM passes $17 here and rebuilds %lo(D_0072C240) for the
+       symbol: the ROM passes $17 here and rebuilds %lo(fsSendBuf) for the
        call's fourth argument */
     sceSifWriteBackDCache(g, 0x20);
-    rc = sceSifCallRpc(D_0072D500, 2, 0, D_0072C240, 0x20, D_0072CE80, 4, 0, 0);
+    rc = sceSifCallRpc(fsClient, 2, 0, fsSendBuf, 0x20, fsRecvBuf, 4, 0, 0);
     if (rc < 0) {
         DeleteSema(h);
         _sceFsSigSema();
         return -0xB;
     }
-    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    uv = *(int *)((int)fsRecvBuf | 0x20000000);
     _sceFsSigSema();
     if (uv == 0) {
         DeleteSema(h);
@@ -607,7 +611,7 @@ int sceRead(int fd, void *buf, int nbyte)
 
 int sceWrite(int fd, void *buf, int nbyte)
 {
-    int *g = D_0072C240;
+    int *g = fsSendBuf;
     SceIob *iob;
     int inuse;
     int uv;
@@ -631,13 +635,13 @@ int sceWrite(int fd, void *buf, int nbyte)
         return -9;
     }
     g[3] = iob->fd;
-    g[11] = iob - (SceIob *)D_0072D300;
+    g[11] = iob - (SceIob *)fsIobTab;
     g[5] = nbyte;
     g[4] = (int)buf;
     sema[1] = 1;
     sema[2] = 0;
     sema[5] = 0;
-    D_0072C240[0] = h = CreateSema(sema);
+    fsSendBuf[0] = h = CreateSema(sema);
     *(void **)(g + 1) = &result;
     g[2] = 4;
     if (inuse & 0x8000) {
@@ -676,13 +680,13 @@ int sceWrite(int fd, void *buf, int nbyte)
         dst = (char *)g + 0x1C;
         dst[j] = ((char *)buf)[j];
     }
-    rc = sceSifCallRpc(D_0072D500, 3, 0, D_0072C240, 0x30, D_0072CE80, 4, 0, 0);
+    rc = sceSifCallRpc(fsClient, 3, 0, fsSendBuf, 0x30, fsRecvBuf, 4, 0, 0);
     if (rc < 0) {
         DeleteSema(h);
         _sceFsSigSema();
         return -0xB;
     }
-    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    uv = *(int *)((int)fsRecvBuf | 0x20000000);
     _sceFsSigSema();
     if (uv == 0) {
         DeleteSema(h);
@@ -698,9 +702,7 @@ int sceWrite(int fd, void *buf, int nbyte)
 }
 
 /* the ioctl argument pointer the request-0x1 arm reads back */
-extern void *D_0072C200;
 /* the 8-byte status word the IOP leaves for requests 0x2 and 0x3 */
-extern char D_0072CED0[];
 
 typedef struct {
     char b[1024];
@@ -708,7 +710,7 @@ typedef struct {
 
 int sceIoctl(unsigned int fd, int request, void *argp)
 {
-    int *g = D_0072C240;
+    int *g = fsSendBuf;
     SceIob *iob;
     int uv;
     int h;
@@ -729,13 +731,13 @@ int sceIoctl(unsigned int fd, int request, void *argp)
                the statement the arm builds its own constant and the whole
                dispatch reorders (211 of 211 instructions, 38 differing
                words).  Re-audit (completeness pass 57): the two live reads of
-               the 1 the function has, case 1's `*(int *)D_0072C200 = rc;`
+               the 1 the function has, case 1's `*(int *)fsIoctlArg = rc;`
                and `sema[1] = rc;`, were measured and change the function's
                size (0x344 and 0x354 against the ROM's 0x34C). */
 
     iob = (SceIob *)get_iob(fd);
     _sceFsWaitS(5);
-    D_0072C200 = argp;
+    fsIoctlArg = argp;
     if (fs_inited == 0) {
         sceFsInit();
     }
@@ -754,19 +756,19 @@ int sceIoctl(unsigned int fd, int request, void *argp)
             }
         }
         if (i == 0x20) {
-            *(int *)D_0072C200 = 0;
+            *(int *)fsIoctlArg = 0;
         } else {
-            *(int *)D_0072C200 = 1;
+            *(int *)fsIoctlArg = 1;
         }
         SignalSema(q_sema);
         _sceFsSigSema();
         return 0;
     case 2:
-        *(int *)argp = *(int *)((int)D_0072CED0 | 0x20000000);
+        *(int *)argp = *(int *)((int)(fsRcvPkt + 0x10) | 0x20000000);
         _sceFsSigSema();
         return 0;
     case 3:
-        *(long long *)argp = *(long long *)((int)D_0072CED0 | 0x20000000);
+        *(long long *)argp = *(long long *)((int)(fsRcvPkt + 0x10) | 0x20000000);
         _sceFsSigSema();
         return 0;
     }
@@ -785,14 +787,14 @@ int sceIoctl(unsigned int fd, int request, void *argp)
     g[2] = 4;
     *(void **)(g + 1) = &result;
     g[0] = h;
-    sceSifWriteBackDCache(D_0072C240, 0x420);
-    rc = sceSifCallRpc(D_0072D500, 5, 0, D_0072C240, 0x420, D_0072CE80, 4, 0, 0);
+    sceSifWriteBackDCache(fsSendBuf, 0x420);
+    rc = sceSifCallRpc(fsClient, 5, 0, fsSendBuf, 0x420, fsRecvBuf, 4, 0, 0);
     if (rc < 0) {
         DeleteSema(h);
         _sceFsSigSema();
         return -0xB;
     }
-    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    uv = *(int *)((int)fsRecvBuf | 0x20000000);
     _sceFsSigSema();
     if (uv == 0) {
         DeleteSema(h);
@@ -806,7 +808,7 @@ int sceIoctl(unsigned int fd, int request, void *argp)
 int sceIoctl2(unsigned int fd, int request, void *argp, unsigned int arglen, void *bufp,
               unsigned int buflen)
 {
-    int *g = D_0072C240;
+    int *g = fsSendBuf;
     SceIob *iob;
     int uv;
     int h;
@@ -843,14 +845,14 @@ int sceIoctl2(unsigned int fd, int request, void *argp, unsigned int arglen, voi
     g[2] = 4;
     *(void **)(g + 0x105) = bufp;
     g[0] = h;
-    sceSifWriteBackDCache(D_0072C240, 0x420);
-    rc = sceSifCallRpc(D_0072D500, 0x1A, 0, D_0072C240, 0x420, D_0072CE80, 4, 0, 0);
+    sceSifWriteBackDCache(fsSendBuf, 0x420);
+    rc = sceSifCallRpc(fsClient, 0x1A, 0, fsSendBuf, 0x420, fsRecvBuf, 4, 0, 0);
     if (rc < 0) {
         DeleteSema(h);
         _sceFsSigSema();
         return -0xB;
     }
-    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    uv = *(int *)((int)fsRecvBuf | 0x20000000);
     _sceFsSigSema();
     if (uv == 0) {
         DeleteSema(h);
@@ -863,7 +865,7 @@ int sceIoctl2(unsigned int fd, int request, void *argp, unsigned int arglen, voi
 
 int _sceCallCode(void *name, int code)
 {
-    int *g = D_0072C240;
+    int *g = fsSendBuf;
     int uv;
     int h;
     int rc;
@@ -891,13 +893,13 @@ int _sceCallCode(void *name, int code)
     g[0] = h = CreateSema(buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
-    rc = sceSifCallRpc(D_0072D500, code, 0, D_0072C240, i + 0xD, D_0072CE80, 4, 0, 0);
+    rc = sceSifCallRpc(fsClient, code, 0, fsSendBuf, i + 0xD, fsRecvBuf, 4, 0, 0);
     if (rc < 0) {
         DeleteSema(h);
         _sceFsSigSema();
         return -0xB;
     }
-    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    uv = *(int *)((int)fsRecvBuf | 0x20000000);
     _sceFsSigSema();
     if (uv == 0) {
         DeleteSema(h);
@@ -917,7 +919,7 @@ int sceRemove(void *a0)
 
 int sceMkdir(char *name, int mode)
 {
-    int *g = D_0072C240;
+    int *g = fsSendBuf;
     int uv;
     int h;
     int rc;
@@ -946,13 +948,13 @@ int sceMkdir(char *name, int mode)
     g[0] = h = CreateSema(buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
-    rc = sceSifCallRpc(D_0072D500, 7, 0, D_0072C240, i + 0x11, D_0072CE80, 4, 0, 0);
+    rc = sceSifCallRpc(fsClient, 7, 0, fsSendBuf, i + 0x11, fsRecvBuf, 4, 0, 0);
     if (rc < 0) {
         DeleteSema(h);
         _sceFsSigSema();
         return -0xB;
     }
-    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    uv = *(int *)((int)fsRecvBuf | 0x20000000);
     _sceFsSigSema();
     if (uv == 0) {
         DeleteSema(h);
@@ -970,7 +972,7 @@ int sceRmdir(void *a0)
 
 int sceFormat(unsigned char *dev, unsigned char *blockdev, unsigned char *arg, int arglen)
 {
-    int *g = D_0072C240;
+    int *g = fsSendBuf;
     int uv;
     int h;
     int rc;
@@ -1020,14 +1022,14 @@ int sceFormat(unsigned char *dev, unsigned char *blockdev, unsigned char *arg, i
     g[0] = h = CreateSema(buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
-    sceSifWriteBackDCache(D_0072C240, 0xC10);
-    rc = sceSifCallRpc(D_0072D500, 0xE, 0, D_0072C240, 0xC10, D_0072CE80, 4, 0, 0);
+    sceSifWriteBackDCache(fsSendBuf, 0xC10);
+    rc = sceSifCallRpc(fsClient, 0xE, 0, fsSendBuf, 0xC10, fsRecvBuf, 4, 0, 0);
     if (rc < 0) {
         DeleteSema(h);
         _sceFsSigSema();
         return -0xB;
     }
-    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    uv = *(int *)((int)fsRecvBuf | 0x20000000);
     _sceFsSigSema();
     if (uv == 0) {
         DeleteSema(h);
@@ -1038,9 +1040,6 @@ int sceFormat(unsigned char *dev, unsigned char *blockdev, unsigned char *arg, i
     return result;
 }
 
-extern int D_0072C240[];
-extern int D_0072CE80[];
-extern int D_0072D500[];
 extern int CreateSema(int *a0);
 extern int WaitSema(int a0);
 extern int DeleteSema(int a0);
@@ -1049,7 +1048,7 @@ extern int sceFsInit(void);
 
 int sceAddDrv(void *a0)
 {
-    int *g = D_0072C240;
+    int *g = fsSendBuf;
     int uv;
     int h;
     int rc;
@@ -1064,16 +1063,16 @@ int sceAddDrv(void *a0)
     buf[1] = 1;
     buf[2] = 0;
     buf[5] = 0;
-    D_0072C240[0] = h = CreateSema(buf);
+    fsSendBuf[0] = h = CreateSema(buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
-    rc = sceSifCallRpc(D_0072D500, 0xF, 0, g, 0x10, D_0072CE80, 4, 0, 0);
+    rc = sceSifCallRpc(fsClient, 0xF, 0, g, 0x10, fsRecvBuf, 4, 0, 0);
     if (rc < 0) {
         DeleteSema(h);
         _sceFsSigSema();
         return -1;
     }
-    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    uv = *(int *)((int)fsRecvBuf | 0x20000000);
     _sceFsSigSema();
     if (uv == 0) {
         DeleteSema(h);
@@ -1107,14 +1106,11 @@ int sceDopen(void *name)
     }
     WaitSema(iob_sema);
     iob->fd = rc;
-    rc = iob - (SceIob *)D_0072D300;
+    rc = iob - (SceIob *)fsIobTab;
     SignalSema(iob_sema);
     return rc;
 }
 
-extern int D_0072C240[];
-extern int D_0072CE80[];
-extern int D_0072D500[];
 extern int DeleteSema(int a0);
 extern void _sceFsSigSema(void);
 extern void *get_iob(unsigned int a0);
@@ -1123,7 +1119,7 @@ int sceDclose(unsigned int a0)
 {
     extern int CreateSema(int *a0);
     extern int WaitSema(int a0);
-    int *g = D_0072C240;
+    int *g = fsSendBuf;
     void *obj;
     int f0;
     int uv;
@@ -1147,17 +1143,17 @@ int sceDclose(unsigned int a0)
     buf[1] = 1;
     buf[2] = 0;
     buf[5] = 0;
-    D_0072C240[0] = h = CreateSema(buf);
+    fsSendBuf[0] = h = CreateSema(buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
-    rc = sceSifCallRpc(D_0072D500, 0xA, 0, g, 0x14, D_0072CE80, 4, 0, 0);
+    rc = sceSifCallRpc(fsClient, 0xA, 0, g, 0x14, fsRecvBuf, 4, 0, 0);
     if (rc < 0) {
         DeleteSema(h);
         _sceFsSigSema();
         return -0xB;
     }
     ((int *)obj)[1] = 0;
-    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    uv = *(int *)((int)fsRecvBuf | 0x20000000);
     _sceFsSigSema();
     if (uv == 0) {
         DeleteSema(h);
@@ -1175,7 +1171,7 @@ int sceDread(unsigned int a0, int a1)
 {
     extern int CreateSema(int *a0);
     extern int WaitSema(int a0);
-    int *g = D_0072C240;
+    int *g = fsSendBuf;
     void *obj;
     int f0;
     int uv;
@@ -1199,16 +1195,16 @@ int sceDread(unsigned int a0, int a1)
     buf[1] = 1;
     buf[2] = 0;
     buf[5] = 0;
-    D_0072C240[0] = a1 = CreateSema(buf);
+    fsSendBuf[0] = a1 = CreateSema(buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
-    rc = sceSifCallRpc(D_0072D500, 0xB, 0, g, 0x20, D_0072CE80, 4, 0, 0);
+    rc = sceSifCallRpc(fsClient, 0xB, 0, g, 0x20, fsRecvBuf, 4, 0, 0);
     if (rc < 0) {
         WaitSema(a1);
         _sceFsSigSema();
         return -0xB;
     }
-    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    uv = *(int *)((int)fsRecvBuf | 0x20000000);
     _sceFsSigSema();
     if (uv == 0) {
         DeleteSema(a1);
@@ -1221,7 +1217,7 @@ int sceDread(unsigned int a0, int a1)
 
 int sceGetstat(unsigned char *name, void *stat)
 {
-    int *g = D_0072C240;
+    int *g = fsSendBuf;
     int uv;
     int h;
     int rc;
@@ -1250,13 +1246,13 @@ int sceGetstat(unsigned char *name, void *stat)
     g[0] = h = CreateSema(buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
-    rc = sceSifCallRpc(D_0072D500, 0xC, 0, D_0072C240, i + 0x11, D_0072CE80, 4, 0, 0);
+    rc = sceSifCallRpc(fsClient, 0xC, 0, fsSendBuf, i + 0x11, fsRecvBuf, 4, 0, 0);
     if (rc < 0) {
         DeleteSema(h);
         _sceFsSigSema();
         return -0xB;
     }
-    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    uv = *(int *)((int)fsRecvBuf | 0x20000000);
     _sceFsSigSema();
     if (uv == 0) {
         DeleteSema(h);
@@ -1276,7 +1272,7 @@ typedef struct {
 
 int sceChstat(unsigned char *name, void *stat, int mask)
 {
-    int *g = D_0072C240;
+    int *g = fsSendBuf;
     int uv;
     int h;
     int rc;
@@ -1306,14 +1302,14 @@ int sceChstat(unsigned char *name, void *stat, int mask)
     g[0] = h = CreateSema(buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
-    sceSifWriteBackDCache(D_0072C240, 0x450);
-    rc = sceSifCallRpc(D_0072D500, 0xD, 0, D_0072C240, i + 0x51, D_0072CE80, 4, 0, 0);
+    sceSifWriteBackDCache(fsSendBuf, 0x450);
+    rc = sceSifCallRpc(fsClient, 0xD, 0, fsSendBuf, i + 0x51, fsRecvBuf, 4, 0, 0);
     if (rc < 0) {
         DeleteSema(h);
         _sceFsSigSema();
         return -0xB;
     }
-    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    uv = *(int *)((int)fsRecvBuf | 0x20000000);
     _sceFsSigSema();
     if (uv == 0) {
         DeleteSema(h);
@@ -1326,7 +1322,7 @@ int sceChstat(unsigned char *name, void *stat, int mask)
 
 int sceRename(unsigned char *oldname, unsigned char *newname)
 {
-    int *g = D_0072C240;
+    int *g = fsSendBuf;
     int uv;
     int h;
     int rc;
@@ -1363,14 +1359,14 @@ int sceRename(unsigned char *oldname, unsigned char *newname)
     g[0] = h = CreateSema(buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
-    sceSifWriteBackDCache(D_0072C240, 0x80C);
-    rc = sceSifCallRpc(D_0072D500, 0x11, 0, D_0072C240, 0x80C, D_0072CE80, 4, 0, 0);
+    sceSifWriteBackDCache(fsSendBuf, 0x80C);
+    rc = sceSifCallRpc(fsClient, 0x11, 0, fsSendBuf, 0x80C, fsRecvBuf, 4, 0, 0);
     if (rc < 0) {
         DeleteSema(h);
         _sceFsSigSema();
         return -0xB;
     }
-    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    uv = *(int *)((int)fsRecvBuf | 0x20000000);
     _sceFsSigSema();
     if (uv == 0) {
         DeleteSema(h);
@@ -1388,7 +1384,7 @@ int sceChdir(void *a0)
 
 int sceSync(unsigned char *name, int flag)
 {
-    int *g = D_0072C240;
+    int *g = fsSendBuf;
     int uv;
     int h;
     int rc;
@@ -1416,13 +1412,13 @@ int sceSync(unsigned char *name, int flag)
     g[0] = h = CreateSema(buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
-    rc = sceSifCallRpc(D_0072D500, 0x13, 0, D_0072C240, 0x414, D_0072CE80, 4, 0, 0);
+    rc = sceSifCallRpc(fsClient, 0x13, 0, fsSendBuf, 0x414, fsRecvBuf, 4, 0, 0);
     if (rc < 0) {
         DeleteSema(h);
         _sceFsSigSema();
         return -0xB;
     }
-    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    uv = *(int *)((int)fsRecvBuf | 0x20000000);
     _sceFsSigSema();
     if (uv == 0) {
         DeleteSema(h);
@@ -1436,7 +1432,7 @@ int sceSync(unsigned char *name, int flag)
 int sceMount(unsigned char *fsname, unsigned char *devname, int flag, unsigned char *arg,
              int arglen)
 {
-    int *g = D_0072C240;
+    int *g = fsSendBuf;
     int uv;
     int h;
     int rc;
@@ -1483,14 +1479,14 @@ int sceMount(unsigned char *fsname, unsigned char *devname, int flag, unsigned c
     g[0] = h = CreateSema(buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
-    sceSifWriteBackDCache(D_0072C240, 0xC14);
-    rc = sceSifCallRpc(D_0072D500, 0x14, 0, D_0072C240, 0xC14, D_0072CE80, 4, 0, 0);
+    sceSifWriteBackDCache(fsSendBuf, 0xC14);
+    rc = sceSifCallRpc(fsClient, 0x14, 0, fsSendBuf, 0xC14, fsRecvBuf, 4, 0, 0);
     if (rc < 0) {
         DeleteSema(h);
         _sceFsSigSema();
         return -0xB;
     }
-    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    uv = *(int *)((int)fsRecvBuf | 0x20000000);
     _sceFsSigSema();
     if (uv == 0) {
         DeleteSema(h);
@@ -1508,7 +1504,7 @@ int sceUmount(void *a0)
 
 long long sceLseek64(int fd, long long offset, int whence)
 {
-    int *g = D_0072C240;
+    int *g = fsSendBuf;
     SceIob *iob;
     int f4;
     int uv;
@@ -1531,14 +1527,14 @@ long long sceLseek64(int fd, long long offset, int whence)
     *(long long *)(g + 4) = offset;
     g[3] = iob->fd;
     g[6] = whence;
-    g[7] = iob - (SceIob *)D_0072D300;
+    g[7] = iob - (SceIob *)fsIobTab;
     buf[1] = 1;
     buf[2] = 0;
     buf[5] = 0;
     h = CreateSema(buf);
     *(void **)(g + 1) = &result;
     g[2] = 8;
-    D_0072C240[0] = h;
+    fsSendBuf[0] = h;
     if (f4 & 0x8000) {
         WaitSema(q_sema);
         for (i = 0; i < 0x20; i++) {
@@ -1550,13 +1546,13 @@ long long sceLseek64(int fd, long long offset, int whence)
         }
         SignalSema(q_sema);
     }
-    rc = sceSifCallRpc(D_0072D500, 0x16, 0, D_0072C240, 0x20, D_0072CE80, 4, 0, 0);
+    rc = sceSifCallRpc(fsClient, 0x16, 0, fsSendBuf, 0x20, fsRecvBuf, 4, 0, 0);
     if (rc < 0) {
         DeleteSema(h);
         _sceFsSigSema();
         return -0xB;
     }
-    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    uv = *(int *)((int)fsRecvBuf | 0x20000000);
     _sceFsSigSema();
     if (uv == 0) {
         DeleteSema(h);
@@ -1574,7 +1570,7 @@ long long sceLseek64(int fd, long long offset, int whence)
 int sceDevctl(unsigned char *name, int cmd, unsigned char *arg, unsigned int arglen, void *bufp,
               unsigned int buflen)
 {
-    int *g = D_0072C240;
+    int *g = fsSendBuf;
     int uv;
     int h;
     int rc;
@@ -1613,14 +1609,14 @@ int sceDevctl(unsigned char *name, int cmd, unsigned char *arg, unsigned int arg
     g[2] = 4;
     *(void **)(g + 0x205) = bufp;
     g[0] = h;
-    sceSifWriteBackDCache(D_0072C240, 0x81C);
-    rc = sceSifCallRpc(D_0072D500, 0x17, 0, D_0072C240, 0x81C, D_0072CE80, 4, 0, 0);
+    sceSifWriteBackDCache(fsSendBuf, 0x81C);
+    rc = sceSifCallRpc(fsClient, 0x17, 0, fsSendBuf, 0x81C, fsRecvBuf, 4, 0, 0);
     if (rc < 0) {
         DeleteSema(h);
         _sceFsSigSema();
         return -0xB;
     }
-    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    uv = *(int *)((int)fsRecvBuf | 0x20000000);
     _sceFsSigSema();
     if (uv == 0) {
         DeleteSema(h);
@@ -1633,7 +1629,7 @@ int sceDevctl(unsigned char *name, int cmd, unsigned char *arg, unsigned int arg
 
 int sceSymlink(unsigned char *existing, unsigned char *newpath)
 {
-    int *g = D_0072C240;
+    int *g = fsSendBuf;
     int uv;
     int h;
     int rc;
@@ -1670,13 +1666,13 @@ int sceSymlink(unsigned char *existing, unsigned char *newpath)
     g[0] = h = CreateSema(buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
-    rc = sceSifCallRpc(D_0072D500, 0x18, 0, D_0072C240, 0x80C, D_0072CE80, 4, 0, 0);
+    rc = sceSifCallRpc(fsClient, 0x18, 0, fsSendBuf, 0x80C, fsRecvBuf, 4, 0, 0);
     if (rc < 0) {
         DeleteSema(h);
         _sceFsSigSema();
         return -0xB;
     }
-    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    uv = *(int *)((int)fsRecvBuf | 0x20000000);
     _sceFsSigSema();
     if (uv == 0) {
         DeleteSema(h);
@@ -1689,7 +1685,7 @@ int sceSymlink(unsigned char *existing, unsigned char *newpath)
 
 int sceReadlink(unsigned char *name, void *buf, unsigned int len)
 {
-    int *g = D_0072C240;
+    int *g = fsSendBuf;
     int uv;
     int h;
     int rc;
@@ -1722,13 +1718,13 @@ int sceReadlink(unsigned char *name, void *buf, unsigned int len)
     g[0] = h = CreateSema(sema);
     *(void **)(g + 1) = &result;
     g[2] = 4;
-    rc = sceSifCallRpc(D_0072D500, 0x19, 0, D_0072C240, 0x80C, D_0072CE80, 4, 0, 0);
+    rc = sceSifCallRpc(fsClient, 0x19, 0, fsSendBuf, 0x80C, fsRecvBuf, 4, 0, 0);
     if (rc < 0) {
         DeleteSema(h);
         _sceFsSigSema();
         return -0xB;
     }
-    uv = *(int *)((int)D_0072CE80 | 0x20000000);
+    uv = *(int *)((int)fsRecvBuf | 0x20000000);
     _sceFsSigSema();
     if (uv == 0) {
         DeleteSema(h);

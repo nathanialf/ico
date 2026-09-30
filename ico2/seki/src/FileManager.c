@@ -2,6 +2,7 @@
 #include "cdvd.h"
 #include "memory.h"
 #include <string.h>
+#include <ctype.h>
 #include <eekernel.h>
 
 extern void sceSifInitRpc(int mode);
@@ -36,7 +37,6 @@ typedef struct IosPartition {
     char *base;
 } IosPartition;
 
-extern unsigned char D_00637E69[];
 extern IosPartition *D_0063A434;
 extern IosPartition *D_0063A438;
 extern IosPartition *D_0063A440;
@@ -103,10 +103,6 @@ void file_Init(void)
     while (sceSifLoadModule("cdrom0:\\SNDN2DRV.IRX;1", 0, 0) < 0);
     debug_StdPrintfDummy("done.\n");
 }
-
-/* BSD <ctype.h> table: D_00637E69 is `_ctype_ + 1`, bit 0x02 is _L (lower). */
-#define _L 0x02
-#define islower(c) (D_00637E69[(int)(c)] & _L)
 
 int file_LoadCDFile(void **adr, char *fname, int area)
 {

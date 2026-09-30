@@ -10,8 +10,12 @@
 # alignment (sce/libkernl/klib.s), not part of crt0.
 # The module's .bss (MAIN.MAP crt0.o 0x144): the argument block _start hands
 # main, argc then argv's sixteen pointers and the 256 bytes they point into.
-# Global: this tree's SDK assembler writes a .symtab whose sh_info omits any
-# local symbol that is not a section symbol, and ld refuses such an object.
+# Local in the source: the .globl below is transitional.  This tree's SDK
+# assembler writes a .symtab whose sh_info omits a local symbol that is not a
+# section symbol; the period linker (ld 2.10, the plain build) reads such an
+# object and keeps the symbol local, the splat build's modern ld refuses it
+# ("local symbol at index 6 (>= sh_info of 6)"), so the .globl goes at the
+# cut-over.
     .section .bss
     .globl _args
 _args: /* derived name */

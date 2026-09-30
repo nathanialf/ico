@@ -7,11 +7,10 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-extern int D_0054CEAC[];
 extern void fiprintf();
 extern void abort(void);
 
 int __errno(void)
 {
-    return D_0054CEAC[0];
+    return (int)_impure_ptr;
 }

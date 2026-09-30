@@ -28,7 +28,6 @@ void sceMpegInit(void)
     sceIpuInit();
 }
 
-extern void *_theSceMpeg[];
 extern void _Error(void *a0);
 extern void _alalcInit(int *a0, int a1, int a2);
 extern int _alalcAlloc(unsigned int *a0, int a1, unsigned int a2);
@@ -111,7 +110,7 @@ int sceMpegCreate(void *self, void *buf, int size)
     *(int *)(p + 0xAC) = 0;
     *(int *)(p + 0x80) = -1;
     *(int *)(p + 0xB0) = 1;
-    _theSceMpeg[0] = self;
+    _theSceMpeg = self;
     *(int *)(p + 0x94) = -1;
     *(int *)(p + 0x98) = -1;
     *(int *)(p + 0x9C) = -1;
@@ -135,14 +134,13 @@ int sceMpegDelete(void)
     return 1;
 }
 
-extern int D_0054C0E8[];
 extern int _bsDataSize[];
 extern void _sendDataToIPU(int a0, int a1);
 
 void sceMpegAddBs(int a0, int a1, int a2)
 {
     int rounded = (a2 + 0x13) / 16 * 16;
-    D_0054C0E8[0] = a1;
+    _bsDatap = a1;
     _bsDataSize[0] = rounded;
     _sendDataToIPU(a1, rounded);
 }
@@ -306,11 +304,9 @@ void sceMpegResetDefaultPtsGap(void *a0)
     *(long long *)((char *)p + 0x78) = 0;
 }
 
-extern void *_theSceMpeg[];
-
 void sceMpegSetImageBuff(int a0)
 {
-    int *q = *(int **)((char *)_theSceMpeg[0] + 0x40);
+    int *q = *(int **)((char *)_theSceMpeg + 0x40);
     q[0x36] = a0;
 }
 

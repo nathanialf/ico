@@ -7,7 +7,6 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-extern int D_0054CEAC[];
 extern void fiprintf();
 extern void abort(void);
 /* fflush is reached both with and without an argument in this member, exactly
@@ -28,7 +27,7 @@ int __srefill(Fil *fp)
     /* newlib's CHECK_INIT(fp), a do-while-zero macro wrapper */
     do {
         if (fp->data == 0)
-            fp->data = (Reent *)D_0054CEAC[0];
+            fp->data = _impure_ptr;
         if (!fp->data->sdidinit)
             __sinit(fp->data);
     } while (0);
