@@ -1190,7 +1190,7 @@ typedef union {
 } ClimbVec4;
 
 typedef struct {
-    float v0[4] __attribute__((aligned(16)));
+    sceVu0FVECTOR v0;
     float v1[4];
     ClimbVec3 v2;
     int obj;

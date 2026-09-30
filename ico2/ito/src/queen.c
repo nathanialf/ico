@@ -1074,7 +1074,7 @@ extern void tex_SetUVScroll(void *p, int a1, float a2, float a3, float a4, float
                             float a7);
 
 /* The position the queen is dropped at outside her own stage. */
-static const QVec queenStartPos __attribute__((aligned(16))) = {{0.0f, 800.0f, 0.0f, 1.0f}};
+static const QVec queenStartPos = {{0.0f, 800.0f, 0.0f, 1.0f}};
 
 static const char queenDeadMsg[] = "queen dead\n";
 

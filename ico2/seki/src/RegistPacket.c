@@ -737,7 +737,8 @@ void reg_setCMatrixPacket(char *o, float alpha, int prilist)
 }
 
 /* The GS state the specular pass draws in: a VIF DIRECT of three qwords, a
-   GIF A+D tag with PABE and ALPHA_1, then the VIF MSCNT. */
+   GIF A+D tag with PABE and ALPHA_1, then the VIF MSCNT; qword aligned because
+   dl_OpenDma chains it into the display list as a DMA source. */
 static const unsigned int regSpecularPacket[5][4] __attribute__((aligned(16))) = {
     /* derived name */
     {0, 0, 0, 0x6C038000}, {0x8002, 0x10000000, 0xE, 0}, {0, 0, 0x49, 0},
@@ -846,7 +847,8 @@ int reg_setDissolve(float a, int pri)
 
 /* The GS state the dissolve leaves behind, defined after reg_dispNObj (see
    there): a VIF DIRECT of two qwords, a GIF A+D tag with TEST_1, then the VIF
-   MSCNT. */
+   MSCNT; qword aligned because
+   dl_OpenDma chains it into the display list as a DMA source. */
 static const unsigned int regDissolveResetPacket[4][4] __attribute__((aligned(16)));
 
 void reg_resetDissolve(int a0)
@@ -875,7 +877,8 @@ static inline void regTransTexturePacket(int tex, int pri)
 static void func_00121428(char *pkt, int r, int c);
 
 /* The GS state the reflection pass draws in: a VIF DIRECT of four qwords, a
-   GIF A+D tag with CLAMP_1, PABE and ALPHA_1, then the VIF MSCNT. */
+   GIF A+D tag with CLAMP_1, PABE and ALPHA_1, then the VIF MSCNT; qword aligned because
+   dl_OpenDma chains it into the display list as a DMA source. */
 static const unsigned int regReflectionPacket[6][4] __attribute__((aligned(16))) = {
     /* derived name */
     {0, 0, 0, 0x6C048000}, {0x8003, 0x10000000, 0xE, 0}, {5, 0, 8, 0},
@@ -1819,9 +1822,7 @@ void reg_RenderReflection(char *o, int pri)
 
 /* The sixteen bytes that close the enemy matrix packet: the VIF MSCAL 0x10
    code and three zero words, copied as one quadword (the ROM's lq/sq pair). */
-static const struct {
-    int w[4];
-} regEnemyEndTag __attribute__((aligned(16))) = {{0x15000010, 0, 0, 0}};
+static const sceVu0IVECTOR regEnemyEndTag = {0x15000010, 0, 0, 0};
 
 void reg_DispEnemy(void *sub)
 {

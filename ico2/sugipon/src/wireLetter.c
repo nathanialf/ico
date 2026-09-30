@@ -10,6 +10,16 @@ typedef struct {
     int z;
 } WLPnt;
 
+/* a box corner: the stroke point's fields on a 16-byte boundary.  The ROM
+ * keeps the two apart: Draw2DBox's corners sit 16 bytes apart with no pad
+ * store, while DispWireLetter copies its stroke ends with ldl/ldr, so
+ * WLPnt itself is 4-aligned. */
+typedef struct {
+    float x;
+    float y;
+    int z;
+} __attribute__((aligned(16))) WLBoxPnt; /* derived name */
+
 /* the vector font: one stroke list per glyph, four floats per stroke
  * (x0, y0, x1, y1), the list ending on a first coordinate of 999999.0.
  * wireLetterGlyphs is indexed by the character minus '.'. */
@@ -274,10 +284,10 @@ extern void gif_StartPacketPri(int a0);
 
 inline void Draw2DBox(float x0, float y0, float x1, float y1)
 {
-    WLPnt a __attribute__((aligned(16))) = {x0, y0, 0};
-    WLPnt b __attribute__((aligned(16))) = {x0, y1, 0};
-    WLPnt c __attribute__((aligned(16))) = {x1, y1, 0};
-    WLPnt d __attribute__((aligned(16))) = {x1, y0, 0};
+    WLBoxPnt a = {x0, y0, 0};
+    WLBoxPnt b = {x0, y1, 0};
+    WLBoxPnt c = {x1, y1, 0};
+    WLBoxPnt d = {x1, y0, 0};
     gif_StartPacketPri(0xB);
     DrawLineG(&a, wireStringColor, &b, wireStringColor, -1);
     DrawLineG(&b, wireStringColor, &c, wireStringColor, -1);

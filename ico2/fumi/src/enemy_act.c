@@ -263,7 +263,7 @@ extern int GetMotionFrameFlag1(void *self);
    addressed, so the bytes cannot say whether the developer wrote one table or
    three objects; the 8 bytes of fill after brainModeTable prove the 16-byte
    alignment. */
-static float bodyliftTarget[3][4] __attribute__((aligned(16))) = {
+static sceVu0FVECTOR bodyliftTarget[3] = {
     {-311.0f, -89.0f, -147.0f, 0.0f},
     {-311.0f, -89.0f, -147.0f, 0.0f},
     {-770.0f, -1445.0f, -749.0f, 0.0f},
@@ -293,21 +293,21 @@ extern int _AbsRotyGV(float *a, float *b);
 
 /* GetFlyPosition's points: the four the enemy measures against, the four it
    flies to (paired by index, 200 below), and the one it escapes to. */
-static float flyCheckPos[4][4] __attribute__((aligned(16))) = {
+static sceVu0FVECTOR flyCheckPos[4] = {
     {760.0f, 0.0f, 766.0f, 1.0f},
     {708.0f, 0.0f, -806.0f, 1.0f},
     {-1394.0f, 0.0f, -858.0f, 1.0f},
     {-1383.0f, 0.0f, 645.0f, 1.0f},
 };
 
-static float flyDestPos[4][4] __attribute__((aligned(16))) = {
+static sceVu0FVECTOR flyDestPos[4] = {
     {842.0f, -200.0f, 1278.0f, 1.0f},
     {734.0f, -200.0f, -1273.0f, 1.0f},
     {-1394.0f, -200.0f, -1291.0f, 1.0f},
     {-1383.0f, -200.0f, 1291.0f, 1.0f},
 };
 
-static float flyEscapePos[4] __attribute__((aligned(16))) = {1712.0f, -600.0f, 0.0f, 1.0f};
+static sceVu0FVECTOR flyEscapePos = {1712.0f, -600.0f, 0.0f, 1.0f};
 
 /* The brain-mode target the ChangeBrain_ToAttack and ChangeBrain_ToKidnap
    children hand to _BrainMode_SetDirect: one word shared by the nested

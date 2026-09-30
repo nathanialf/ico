@@ -37,8 +37,9 @@ typedef struct {
     KernEvent ent[512];
 } KernEventRing;
 
-/* the kernel event thread's stack, the semaphore that wakes it and the ring
-   of events the interrupt-side calls post to it */
+/* the kernel event thread's stack (16-byte aligned, as CreateThread
+   requires), the semaphore that wakes it and the ring of events the
+   interrupt-side calls post to it */
 static char kernEventStack[0x400] __attribute__((aligned(16))); /* derived name */
 
 static int kernEventSema; /* derived name */

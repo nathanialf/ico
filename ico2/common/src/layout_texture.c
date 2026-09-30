@@ -117,10 +117,10 @@ typedef struct {
 } SprRect;
 
 /* the screen rectangle lt_draw_primary_sprite draws, in 1/16 pixels: 640 x 226
-   pixels centred on the origin; first in this object's .rodata and 16-aligned
-   as the ROM's 12 B of fill before it prove */
-static const SprRect primarySpriteRect
-    __attribute__((aligned(16))) = {-5120, -1808, 10240, 3616}; /* derived name */
+   pixels centred on the origin; first in this object's .rodata, whose 16-byte
+   section alignment (carried by texture_fading's switch table) is the ROM's
+   12 B of fill before it */
+static const SprRect primarySpriteRect = {-5120, -1808, 10240, 3616}; /* derived name */
 
 /* source lines 342-390 */
 void display_texture_fade_cancel_chk(int from, int to)

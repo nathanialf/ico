@@ -63,6 +63,8 @@ volatile int sceCdCbfunc_num = 0;
 
 int sceCdCbfunc_number = 0;
 
+/* the RPC receive and send buffers the IOP reads and writes by SIF DMA, each
+   on its own 64-byte line */
 int _sceCd_ncmdrdata[32] __attribute__((aligned(64))) = {0};
 
 int _sceCd_ncmdsdata[1024] __attribute__((aligned(64))) = {0};
@@ -81,7 +83,8 @@ char _sceCd_cd_scmd[40] = {0};
 
 /* The member's .bss in the ROM's order (VMA 0x72EF00..0x72F1D4), all file
    statics: the callbacks, the callback thread, and each bound server's client
-   record and buffers. */
+   record and buffers (the RPC buffers on the SIF DMA's alignment: a 64-byte
+   line, or a quadword for diskready's send word). */
 static int cd_cbfunc;
 
 static void (*poff_cbfunc)(int);

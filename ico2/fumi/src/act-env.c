@@ -1,4 +1,5 @@
 #include "debug.h"
+#include <libvu0.h>
 #include "act-game.h"
 
 union ENVIF {
@@ -43,9 +44,6 @@ typedef struct {
 static const Vec4 sofaSeatOffset = {30.0f, 0.0f, -50.0f, 0.0f};
 
 extern int D_00639EA4;
-extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
-extern void sceVu0AddVector(float *a0, float *a1, float *a2);
-extern void sceVu0ScaleVector(float *a0, float *a1, float a2);
 /* kept local: this TU's uses of CheckPureWallAttribute do not fit the prototype in motionManager2.h */
 extern int CheckPureWallAttribute();
 /* kept local: this TU's uses of CheckWallAttribute do not fit the prototype in motionManager2.h */
@@ -241,7 +239,7 @@ int GetDitchPosition(float *out, float *org, float *dir, float d0, float d1, flo
 
 inline void GetCollisCenterPositionSimple(void *a0, void *a1, void *a2)
 {
-    float acc[4] __attribute__((aligned(16)));
+    sceVu0FVECTOR acc;
     char *w;
     int i;
     ((int *)acc)[0] = 0;

@@ -1374,10 +1374,13 @@ int debug_Load(char **dst, char *name, int kind)
     return size;
 }
 
+/* a GIF tag as the two 64-bit words the packet takes it in, on the
+   quadword boundary the GIF reads it at */
+typedef unsigned long long GifTag[2] __attribute__((aligned(16))); /* derived name */
+
 /* the GIF tag debug_MakeFont copies ahead of each font packet, as
    debug_exception's fontTag */
-static unsigned long long debugFontTag[2]
-    __attribute__((aligned(16))) = {0x2000400000008000LL, 0x51}; /* derived name */
+static GifTag debugFontTag = {0x2000400000008000LL, 0x51}; /* derived name */
 
 /* clang-format off */
 void debug_MakeFont(void)
@@ -3635,8 +3638,8 @@ static float ballRadius = 0.0f; /* derived name */
 int debug_DispBall(int on)
 {
     DbgBallList list = {{{"centerX", &ballCentre[0]}, {"centerY", &ballCentre[1]}, {"centerZ", &ballCentre[2]}, {" radius", &ballRadius}}};
-    /* the wire sphere's colour, 16-aligned like the collision test's */
-    static const Col4 wireCol __attribute__((aligned(16))) = {{0, 0x10, 0x20, 0x80}}; /* derived name */
+    /* the wire sphere's colour */
+    static const Col4 wireCol = {{0, 0x10, 0x20, 0x80}}; /* derived name */
     float pos[4];
     Col4 col;
     int i;
@@ -3718,10 +3721,10 @@ int debug_DispBall(int on)
 static char *collisionMoveName[] = {"move all", "move src", "move dst"}; /* derived name */
 
 /* the wall hit sphere colour */
-static Col4 collisionWallCol __attribute__((aligned(16))) = {{0, 0x80, 0xFF, 0x80}}; /* derived name */
+static Col4 collisionWallCol = {{0, 0x80, 0xFF, 0x80}}; /* derived name */
 
 /* the floor hit sphere colour */
-static Col4 collisionFloorCol __attribute__((aligned(16))) = {{0, 0x80, 0xFF, 0x80}}; /* derived name */
+static Col4 collisionFloorCol = {{0, 0x80, 0xFF, 0x80}}; /* derived name */
 
 int debug_CollisionTest(int reset)
 {

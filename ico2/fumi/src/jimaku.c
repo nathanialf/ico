@@ -39,9 +39,9 @@ struct jWayGroup { /* jimakuRing element, stride 0x18 */
 };
 
 /* The TU's .bss, in ROM run order (VMA 0x6C1E80..0x6E50A4): the four-group
-   read ring, the groups' read buffers (64-byte aligned, which puts them at
-   +0x80 past the 0x60-byte ring; MAIN.MAP pads the object's .bss to a
-   64-byte boundary) and three semaphore records of iosSemaCreate's 13 words:
+   read ring, the groups' CD read buffers (64-byte aligned as DMA targets,
+   which puts them at +0x80 past the 0x60-byte ring; MAIN.MAP pads the
+   object's .bss to a 64-byte boundary) and three semaphore records of iosSemaCreate's 13 words:
    read done (signalled by jimakuHandler), shown five frames (jimakuDisp) and
    one per frame (jimakuDisp). */
 static struct jWayGroup jimakuRing[4];

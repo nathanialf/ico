@@ -77,7 +77,7 @@ extern void ClipFloor(void *a0);
 
 inline void initParentize(char *a0)
 {
-    char buf[0xC0] __attribute__((aligned(16)));
+    char buf[0xC0];
     GetRootPosition(buf, a0);
     CopyVector(buf + 0x10, buf);
     *(float *)(buf + 4) -= 10.0f;

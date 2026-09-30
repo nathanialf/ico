@@ -9,6 +9,8 @@
 
 /* sifrpc.o's definition: a void call, no value register after it */
 extern void sceSifExitRpc(void);
+/* the reset command packet sceSifSendCmd DMAs to the IOP, on its own 64-byte
+   line */
 static SifCmdResetData resetData __attribute__((aligned(64))); /* derived name */
 extern void sceSifStopDma(void);
 

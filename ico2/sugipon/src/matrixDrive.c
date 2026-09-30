@@ -606,7 +606,7 @@ void VectorLengthSquare(void *p0)
 
 float GetPointDistance(void *a0, void *a1)
 {
-    float v[4] __attribute__((aligned(16)));
+    sceVu0FVECTOR v;
     float r;
     sceVu0SubVector(v, a0, a1);
     __asm__ __volatile__(".set noreorder\n"

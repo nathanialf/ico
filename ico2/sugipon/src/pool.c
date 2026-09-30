@@ -35,7 +35,7 @@ void falldownSE(int a0)
    {x0, y0, x1, y1}: copyToWork and flushWork blit the frame through it.  A
    quadword: the member's .rodata starts on a 16-byte boundary in both the
    retail link (8 bytes of fill after motionManager2's run) and MAIN.MAP. */
-static const int workRect[4] __attribute__((aligned(16))) = {-2048, -2048, 4096, 4096};
+static const sceVu0IVECTOR workRect = {-2048, -2048, 4096, 4096};
 
 /* The TU's .sdata opens with the two work-area VRAM addresses (MAIN.MAP names
    nothing in the run); the two colour constants after them are copyToWork's and

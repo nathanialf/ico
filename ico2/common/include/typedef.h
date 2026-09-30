@@ -581,7 +581,8 @@ typedef struct StageSetting {
 typedef union {
     int c[4];
     long long ll[2];
-} Col4;
+} __attribute__((aligned(16))) Col4;
+
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
 typedef struct {
@@ -652,7 +653,7 @@ typedef struct PadState {
 typedef union Vec16 {
     float f[4];
     long long ll[2];
-} Vec16;
+} __attribute__((aligned(16))) Vec16;
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: the 70-entry object-kind table at
  * D_002C1270, one 0x64-byte row per kind, indexed by the kind id a GObj carries
@@ -837,7 +838,7 @@ typedef struct ActMail {
 typedef union {
     float f[4];
     long long d[2];
-} ConstVec;
+} __attribute__((aligned(16))) ConstVec;
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 30 TUs that carried 8 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
 typedef struct PObjGObj {

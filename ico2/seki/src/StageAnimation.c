@@ -70,8 +70,8 @@ typedef struct {
     void *next;  /* 0x10 */
     void *prev;  /* 0x14 */
     int _18[2];
-    float pos[4] __attribute__((aligned(16))); /* 0x20 */
-    float rot[4];                              /* 0x30 */
+    sceVu0FVECTOR pos; /* 0x20 */
+    float rot[4];      /* 0x30 */
 } BgaPlayNode;
 
 extern int D_0028F4D4[];

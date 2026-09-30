@@ -35,6 +35,10 @@ static unsigned long long drawEnv[20] __attribute__((aligned(16))) = {0x10000000
 
 typedef unsigned int u128_dbgscr __attribute__((mode(TI)));
 
+/* a GIF tag as the two 64-bit words the packet takes it in, on the
+   quadword boundary the GIF reads it at */
+typedef unsigned long long GifTag[2] __attribute__((aligned(16))); /* derived name */
+
 /* sceVif1Packet: 0x20 bytes (two per drawSprite frame at sp+0x00 / sp+0x20).
  * Field offsets 0x00/0x04/0x0C/0x14 are the ones the libpkt bodies in
  * src/cod/vendor_25EC00.c touch; 0x08/0x10/0x18 are unused here. */
@@ -63,10 +67,9 @@ extern u128_dbgscr D_0061CF30[];
 /* GIF tags for the sprite packets, PACKED with EOP and NLOOP left for
    sceVif1PkCloseGifTag: UV and XYZ2 for a textured sprite, XYZ2 alone for a
    flat one. */
-static unsigned long long spriteTexTag[2]
-    __attribute__((aligned(16))) = {0x2400000000008000LL, 0x43};
+static GifTag spriteTexTag = {0x2400000000008000LL, 0x43};
 
-static unsigned long long spriteTag[2] __attribute__((aligned(16))) = {0x1400000000008000LL, 0x4};
+static GifTag spriteTag = {0x1400000000008000LL, 0x4};
 
 extern int D_0063B37C;
 extern int D_0063B380;
@@ -74,7 +77,7 @@ extern int D_0063B384;
 extern const unsigned char D_0061C590[];
 
 /* The font's tag: XYZ2 pairs, one sprite per lit pixel. */
-static unsigned long long fontTag[2] __attribute__((aligned(16))) = {0x1400000000008000LL, 0x4};
+static GifTag fontTag = {0x1400000000008000LL, 0x4};
 
 extern void sceGsResetPath(void);
 

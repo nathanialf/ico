@@ -80,6 +80,8 @@ typedef struct {
     char name[252]; /* 0x04 */
 } SifHeapReq;
 
+/* the LoadIopHeap RPC's send buffer, on its own 64-byte DMA line like the
+   buffers above */
 static SifHeapReq heapLoadReq __attribute__((aligned(64))); /* derived name */
 
 int sceSifLoadIopHeap(char *name, void *addr)

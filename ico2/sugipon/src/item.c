@@ -263,8 +263,8 @@ extern char *D_00639EA8;
 void carriedItemGeo(char *gobj)
 {
     Vec16 pos;
-    float q[4] __attribute__((aligned(16)));
-    float m[16] __attribute__((aligned(16)));
+    sceVu0FVECTOR q;
+    sceVu0FMATRIX m;
     Vec16 wpos;
     Vec16 rot;
     Vec16 up;

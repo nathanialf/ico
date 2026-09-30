@@ -56,6 +56,8 @@ volatile unsigned int *_d3chcr = (volatile unsigned int *)0x1000B000;
 
 volatile unsigned int *_d3qwc = (volatile unsigned int *)0x1000B020;
 
+/* the default intra matrix, which _setDefaultQM sends to the IPU by DMA
+   channel 4; on its own 64-byte line */
 unsigned char _defIQM[64] __attribute__((aligned(64))) = {
     8,  16, 16, 19, 16, 19, 22, 22, 22, 22, 22, 22, 26, 24, 26, 27, 27, 27, 26, 26, 26, 26,
     27, 27, 27, 29, 29, 29, 34, 34, 34, 29, 29, 29, 27, 27, 29, 29, 32, 32, 34, 34, 37, 38,

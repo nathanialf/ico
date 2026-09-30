@@ -379,7 +379,7 @@ static inline void waveForceReaction(char *cur, char *last, float dy)
 
 inline int upperFieldCheck(char *a0, float f)
 {
-    char buf[0xC0] __attribute__((aligned(16)));
+    char buf[0xC0];
     CopyVector((void *)buf, a0);
     CopyVector((void *)(buf + 0x10), a0);
     *(float *)(buf + 0x14) = *(float *)(buf + 0x14) + f;
@@ -480,7 +480,7 @@ static inline int makeRootFitPlane(char *pl, char *o)
  * to sit on it. */
 static inline float getFloorDropAt(char *v, char *pl, char *o)
 {
-    char w[0xC0] __attribute__((aligned(16)));
+    char w[0xC0];
     float d;
 
     CopyVector(w, v);
@@ -1498,7 +1498,7 @@ static inline void pushRootAlongSideWall(char *w)
 int avoidSideAdjustWall(void)
 {
     float mtx[16];
-    char w[0xD0] __attribute__((aligned(16)));
+    char w[0xD0];
 
     memset(w, 0, 0xC0);
     GetMatrixFromQuaternionPos(mtx, D_0063C490 + 0x30, D_0063C490);
@@ -1980,7 +1980,7 @@ MotShift rootUpdateY_Rope(int a0)
 MotShift rootUpdateFly(void)
 {
     MotShift shift = {0, -1};
-    char w[0xC0] __attribute__((aligned(16)));
+    char w[0xC0];
     int contact;
     float h;
     float d;
@@ -2013,7 +2013,7 @@ MotShift rootUpdateFly(void)
 MotShift rootUpdateEnemyFly(void)
 {
     MotShift shift = {0, -1};
-    char w[0xC0] __attribute__((aligned(16)));
+    char w[0xC0];
     int contact;
 
     AddVectorXYZ(D_0063C490, D_0063C490, D_0063C490 + 0x90);

@@ -814,8 +814,7 @@ inline void scpRotateLinear(void *obj, int deg, short step, int axis)
 }
 
 /* the colour a trigger ball's wire sphere is drawn in; red while it hits */
-static const Col4 triggerBallColor
-    __attribute__((aligned(16))) = {{0, 16, 32, 128}}; /* derived name */
+static const Col4 triggerBallColor = {{0, 16, 32, 128}}; /* derived name */
 
 inline int scpTriggerPosBall(float *pos, float *target, float r)
 {
@@ -1505,8 +1504,7 @@ found:
 }
 
 /* where the stone statue's sound effects play */
-static const Vec16 sekizouSePos
-    __attribute__((aligned(16))) = {{6646.0f, -2157.0f, 1102.0f, 0.0f}}; /* derived name */
+static const Vec16 sekizouSePos = {{6646.0f, -2157.0f, 1102.0f, 0.0f}}; /* derived name */
 
 void scpSekizou(char *self, int flag, int anim, int anim2, int kind, float bx, float by, float bz,
                 float gx, float gy, float gz)
@@ -1655,8 +1653,7 @@ inline int RequestStageChangeSimple(int no, float speed, float wait, unsigned ch
 }
 
 /* the root position a direct stage change parks the actor at, far out of the map */
-static const Vec16 farRootPos
-    __attribute__((aligned(16))) = {{-1000000.0f, 0.0f, 0.0f, 0.0f}}; /* derived name */
+static const Vec16 farRootPos = {{-1000000.0f, 0.0f, 0.0f, 0.0f}}; /* derived name */
 
 inline void RequestStageChangeDirect(int *self)
 {
@@ -1941,8 +1938,7 @@ inline void scpSetStreamMotionRootOffset(int a0, float x, float y, float z)
 }
 
 /* the colour the item-revival boundary's wire sphere is drawn in */
-static const Col4 itemBoundaryColor
-    __attribute__((aligned(16))) = {{0, 32, 16, 128}}; /* derived name */
+static const Col4 itemBoundaryColor = {{0, 32, 16, 128}}; /* derived name */
 
 inline void scpWakeupItemWithBoundary(float x, float y, float z, float r)
 {

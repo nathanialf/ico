@@ -55,7 +55,8 @@ typedef struct {
    starts, then the scheduler's message buffer. The map names none of them, so
    they are file statics; the names are ours, after jimaku.c's jimakuThread and
    jimakuThreadStack. A thread record is the ios thread object, 0x70 bytes, of
-   which this file reads only the kernel id word at +0x30. */
+   which this file reads only the kernel id word at +0x30.  Each stack is
+   16-byte aligned, as the kernel's CreateThread requires. */
 static int idleThread[28]; /* derived name */
 
 static char idleThreadStack[8192] __attribute__((aligned(16))); /* derived name */

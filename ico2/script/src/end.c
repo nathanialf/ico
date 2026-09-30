@@ -398,14 +398,11 @@ extern void scpPlayMotNode(int a0, int mot, int node, int a3);
    the long long view is the one the copy reads, which is what makes gcc
    emit the ld/sd pair the ROM has. */
 
-static const ConstVec conte14_7Pos
-    __attribute__((aligned(16))) = {{-4743.0f, -661.0f, 2503.0f, 1.0f}};
+static const ConstVec conte14_7Pos = {{-4743.0f, -661.0f, 2503.0f, 1.0f}};
 
-static const ConstVec staff3DemoPos
-    __attribute__((aligned(16))) = {{-800.0f, 0.0f, -1000.0f, 1.0f}};
+static const ConstVec staff3DemoPos = {{-800.0f, 0.0f, -1000.0f, 1.0f}};
 
-static const ConstVec conte14_14Pos
-    __attribute__((aligned(16))) = {{16975.0f, 71.0f, -4332.0f, 1.0f}};
+static const ConstVec conte14_14Pos = {{16975.0f, 71.0f, -4332.0f, 1.0f}};
 
 void actConte14_7(volatile int a0)
 {

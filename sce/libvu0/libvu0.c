@@ -29,6 +29,10 @@
 
 typedef unsigned int u128 __attribute__((mode(TI)));
 
+/* libvu0.h's float quadword; this file does not include the header, whose
+   declarations spell some of these entry points differently */
+typedef float sceVu0FVECTOR[4] __attribute__((aligned(16)));
+
 void sceVu0ApplyMatrix(void *a0, void *a1, void *a2)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
@@ -346,8 +350,7 @@ void sceVu0UnitMatrix(void *a0)
 
 /* _sceVu0ecossin's polynomial: the odd Taylor coefficients 1/9!, -1/7!,
    1/5! and -1/3!, loaded whole with lqc2, so the array is 16-aligned. */
-static float sceVu0SinCoeff[4]
-    __attribute__((aligned(16))) = {2.601887e-06f, -0.00019807414f, 0.0083330255f, -0.16666657f};
+static sceVu0FVECTOR sceVu0SinCoeff = {2.601887e-06f, -0.00019807414f, 0.0083330255f, -0.16666657f};
 
 __asm__(".section .text\n"
         "    .set noat\n"
@@ -898,7 +901,8 @@ __asm__(".section .text\n"
 
 /* the VIF0 reset packet sceVpu0Reset writes to the PATH2 FIFO at
    0x10004000: STCYCL cl=4 wl=4, STMASK 0, NOP, STMOD 0, then ITOP 0 and
-   three NOPs.  VIF codes are register fields, so they are spelled in hex. */
+   three NOPs, quadword aligned for the FIFO's 128-bit writes.  VIF codes are
+   register fields, so they are spelled in hex. */
 static unsigned int sceVpu0ResetPacket[8] __attribute__((aligned(16))) = {
     0x01000404, 0x20000000, 0x00000000, 0x05000000, 0x04000000, 0x00000000, 0x00000000, 0x00000000};
 

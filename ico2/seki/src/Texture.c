@@ -275,7 +275,8 @@ extern void debug_StdPrintfDummy();
 /* "0" */
 
 /* three qwords: a VIF DIRECT of two, the GIF A+D tag and the TEXFLUSH write
-   that closes the upload */
+   that closes the upload; qword aligned because
+   dl_OpenDma chains it into the display list as a DMA source */
 static const unsigned int texFlushPacket[3][4] __attribute__((aligned(16))) = {
     /* derived name */
     {0, 0, 0, 0x50000002},
