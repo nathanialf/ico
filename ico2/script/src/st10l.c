@@ -41,7 +41,6 @@ extern Pad D_0028F8F0[];
 extern PObjGObjSt10L *scpSearchGobj(int a0);
 /* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
-extern int D_0063A538;
 extern int floor10l;
 extern int st10l_gondola_up;
 extern int st10l_gondola_down;
@@ -378,8 +377,8 @@ void actSt10lEneCam2Chk(volatile int a0)
     lt_switch_layout(55);
     D_0063AA08 = 1;
 
-    save = D_0063A538;
-    D_0063A538 = 0;
+    save = iosPadActRequestEnable;
+    iosPadActRequestEnable = 0;
 
     scpKillEnemyOne(992);
     scpKillEnemyOne(993);
@@ -393,7 +392,7 @@ void actSt10lEneCam2Chk(volatile int a0)
 
     gflagOn(294);
 
-    D_0063A538 = save;
+    iosPadActRequestEnable = save;
 
     stage_SetAnimation(381, 1, 0);
 
@@ -975,8 +974,8 @@ void actSt10lEneKillChk(volatile int a0)
     enable_game_pause = 0;
     _ACTWait(1);
 
-    save = D_0063A538;
-    D_0063A538 = 0;
+    save = iosPadActRequestEnable;
+    iosPadActRequestEnable = 0;
     _ACTWait(30);
 
     gflagOn(297);
@@ -985,7 +984,7 @@ void actSt10lEneKillChk(volatile int a0)
     scpKillSpiderGroup(1002);
     _ACTWait(30);
 
-    D_0063A538 = save;
+    iosPadActRequestEnable = save;
     _ACTWait(1);
     enable_game_pause = 1;
 }

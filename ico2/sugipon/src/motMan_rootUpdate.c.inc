@@ -14,7 +14,9 @@ extern void GetWallGlobalInfo(int a0, void *v, int a2, char *node);
 extern float atan2f(float y, float x);
 /* kept local: this TU's uses of ZeroPoint do not fit the prototype in matrixDrive.h */
 extern char ZeroPoint[];
-extern MotShift D_0063A810;
+/* kept local: this TU does not include fieldCollision.h (its prototypes
+   conflict here) and reads the pair as its own MotShift */
+extern MotShift InitialObjPointer;
 extern MotShift D_0063B930[];
 extern float D_0063B940;
 extern void sceVu0AddVector(void *a0, void *a1, void *a2);
@@ -1699,7 +1701,7 @@ MotShift rootUpdateTrueMotion(int a0)
     *(int *)(D_0063C490 + 0x180) = -1;
     *(int *)(D_0063C490 + 0xC0) = 0;
     CopyVector(D_0063C490 + 0xD0, D_00720210);
-    return D_0063A810;
+    return InitialObjPointer;
 }
 
 MotShift rootUpdateDirectPlayForStream(void)
@@ -1721,7 +1723,7 @@ MotShift rootUpdateDirectPlayForStream(void)
     q[0x30] = 0;
     AdjustMotionHeightToNearestField((char *)D_0063B93C);
     CopyVector(D_0063C490 + 0xD0, D_00720210);
-    return D_0063A810;
+    return InitialObjPointer;
 }
 
 MotShift rootUpdateDirectPlay(int a0)
@@ -1755,7 +1757,7 @@ MotShift rootUpdateDirectPlay(int a0)
     q[0x30] = 0;
     AdjustMotionHeightToNearestField((char *)D_0063B93C);
     CopyVector(D_0063C490 + 0xD0, D_00720210);
-    return D_0063A810;
+    return InitialObjPointer;
 }
 
 MotShift rootUpdateNodeFix(void)
@@ -1826,7 +1828,7 @@ MotShift rootUpdateNodeFix(void)
     *(int *)(D_0063C490 + 0x180) = -1;
     *(int *)(D_0063C490 + 0xC0) = 0;
     *(int *)(D_0063C494 + 0x188) = 0;
-    return D_0063A810;
+    return InitialObjPointer;
 }
 
 MotShift rootUpdateY(void)
@@ -1962,7 +1964,7 @@ MotShift rootUpdateY_Rope(int a0)
     CopyVector(D_0063C490 + 0x1B0, D_0063C490);
     CopyVector(D_0063C490 + 0x150, D_0063C490);
     *(int *)(D_0063C490 + 0x180) = -1;
-    return D_0063A810;
+    return InitialObjPointer;
 }
 
 MotShift rootUpdateFly(void)

@@ -1,10 +1,10 @@
 #include "debug.h"
+#include "cdvd.h"
 #include "memory.h"
 #include <string.h>
 #include <eekernel.h>
 
 extern char D_00639F48[];
-extern int D_0063A370;
 extern void sceSifInitRpc(int mode);
 extern int sceCdInit(int mode);
 extern int sceCdMmode(int media);
@@ -71,7 +71,7 @@ void file_Init(void)
     debug_StdPrintfDummy("initialize CD device.\n");
     sceSifInitRpc(0);
     sceCdInit(0);
-    sceCdMmode(D_0063A370);
+    sceCdMmode(iosCdvdMediaType);
     debug_StdPrintfDummy(D_00639F48);
     debug_StdPrintfDummy("load default module.\n");
     do
@@ -83,7 +83,7 @@ void file_Init(void)
     sceSifLoadFileReset();
     sceFsReset();
     sceCdInit(0);
-    sceCdMmode(D_0063A370);
+    sceCdMmode(iosCdvdMediaType);
     debug_StdPrintfDummy(D_00639F48);
     debug_StdPrintfDummy("loading iop modules.\n");
     do

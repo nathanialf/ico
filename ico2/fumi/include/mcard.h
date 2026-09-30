@@ -12,6 +12,15 @@
 #ifndef MCARD_H
 #define MCARD_H
 
+/* mcard.c's globals (MAIN.MAP's mcard.o names; IosMcProductFile is declared
+   by each user in its own view of the save record). */
+extern int IosMcMgrSleep;
+extern int IosMcLock;
+extern char *iconName[];
+extern char *iOSMcSaveSeg[];
+extern int IosMcPreviewInfo[];
+extern char McMsgQ[];
+
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order mcard.c's inline tail has. */

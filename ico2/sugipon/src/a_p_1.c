@@ -72,7 +72,6 @@ extern AP1Layout D_0062B588[];
 extern char D_004E5550[];
 extern char D_004E55A0[];
 extern float D_004E56D0[];
-extern char InitialColInfo[];
 
 typedef union {
     int i;
@@ -121,7 +120,7 @@ char *InitAP1(char *self, char *arg)
         *(AP1Part *)(p + 0x10 + i * 0x50) = *(AP1Part *)D_004E5550;
     }
     for (i = 0; i < 2; i++) {
-        *(AP1ColHit *)(p + 0x150 + i * 0xC) = *(AP1ColHit *)InitialColInfo;
+        *(AP1ColHit *)(p + 0x150 + i * 0xC) = *(AP1ColHit *)&InitialColInfo;
     }
     applyPartOrients(self);
     if (*(int *)(p + 0x4) == 0) {

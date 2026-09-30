@@ -22,4 +22,12 @@ void jimakuBegin(int a0);
 void jimakuEnd(void);
 void jimakuJump(int a0);
 
+/* jimaku.c's globals (MAIN.MAP's jimaku.o names); jimaku_msg is declared by
+   each user in its own view of the request. */
+extern char jimakuThread[];
+extern char jimakuThreadStack[];
+extern int jimakuMsgQ[];
+extern int jimakuOn;
+extern int jimakuMsgBuf[2];
+
 #endif /* JIMAKU_H */

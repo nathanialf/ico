@@ -55,15 +55,9 @@ static int jimakuShownSema[13];
 static int jimakuFrameSema[13];
 
 extern void jimakuMgrNext(struct jArg *p);
-extern int jimakuMsgQ[];
 extern int D_0028F4E8[];
 extern int D_0028F4C0[];
-extern int D_0063A960;
-extern int jimakuMsgBuf[2];
-extern char D_005540F8[];
 extern void jimakuMgrBegin(struct jArg *p);
-extern int D_0063A964;
-extern int jimakuOn;
 
 #include "jimaku.h"
 
@@ -90,7 +84,28 @@ typedef struct JimCol {
     unsigned char a;
 } JimCol;
 
-extern JimCol D_0063A970[];
+/* .data, owned by jimaku.o, 0x2A2FD0..0x2A50C0 (= MAIN.MAP jimaku.o .data
+   0x20F0, line 5856, which names all four at these offsets), all zero: the
+   subtitle thread's record and its 8 KB stack, the manager's message queue
+   and the request the script actors hand it.
+   .sdata, 0x63A960..0x63A9A0 (= MAIN.MAP's 0x40, line 7097, naming jimakuOn
+   and jimakuMsgBuf): the display time in frames, the display flag, jimakuOn,
+   display_texture's colour initialiser (a 4-byte template, so .sdata,
+   reached by %hi/%lo), then jimakuMgrNext's strings and jimakuMsgBuf. */
+char jimakuThread[112] = {0};
+
+char jimakuThreadStack[8192] = {0};
+
+int jimakuMsgQ[12] = {0};
+
+struct jArg jimaku_msg = {0};
+
+static int jimakuDispTime = 120; /* derived name */
+
+static int jimakuDispOn = 0; /* derived name */
+
+int jimakuOn = 1;
+
 extern unsigned char D_0028F720[];
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
@@ -109,11 +124,10 @@ extern void gif_EndPacket(void);
 
 void display_texture(JimTex *t)
 {
-    JimCol col;
+    JimCol col = {128, 128, 128, 128};
     int dst[4];
     int src[4];
 
-    col = D_0063A970[0];
     src[0] = (t->u << 4) + 8;
     src[1] = (t->v << 4) + 8;
     src[2] = t->th << 4;
@@ -266,18 +280,14 @@ void jimakuMgrBegin(struct jArg *p)
 }
 
 extern int lock_execIcoMisc;
-extern char D_005540C8[];
-extern char D_005540D8[];
-extern char D_005540E8[];
-extern char D_0063A978[];
 extern void __assert(char *file, int line, char *expr);
 
-/* The DEBUG build's switch to free every way group again after each Next
+/* The DEBUG build's switch to print the way groups' states after each Next
    (name ours); retail builds it as 0. */
 #ifdef DEBUG
-#define JIMAKU_DEBUG_RESET (D_0063B13C & 0x400)
+#define JIMAKU_DEBUG_DUMP (D_0063B13C & 0x400)
 #else
-#define JIMAKU_DEBUG_RESET 0
+#define JIMAKU_DEBUG_DUMP 0
 #endif
 
 void jimakuMgrNext(struct jArg *p)
@@ -295,14 +305,14 @@ void jimakuMgrNext(struct jArg *p)
         return;
     }
     g->node->f4 = 1;
-    sprintf(buf, D_005540C8, (sub->n + 1) % 4);
+    sprintf(buf, "jimaku%02d.tm2", (sub->n + 1) % 4);
     g->node->f8 = tex_InitTexture(buf, g->node->buf);
     tex_SetSamplingType(tex_GetTextureData(g->node->f8), 1, 1);
     g->node->fC = lock_execIcoMisc;
     if (g->node->f8 == -1) {
-        debug_StdPrintfDummy(D_005540D8);
-        debug_assert(D_005540E8, 688);
-        __assert(D_005540E8, 688, D_0063A978);
+        debug_StdPrintfDummy("already exist\n");
+        debug_assert(__FILE__, 688);
+        __assert(__FILE__, 688, "0");
     }
     sub->n = (sub->n + 1) % 4;
     if (iosSemaWait(jimakuShownSema) < 0) {
@@ -313,23 +323,25 @@ void jimakuMgrNext(struct jArg *p)
         tex_FreeTexture(g->f8);
     }
     sub->field3C = jimakuBuf[sub->n];
-    D_0063A964 = 1;
+    jimakuDispOn = 1;
     /* The listing's rows 705 to 714 carry no code, and the ROM's second and
      * third returns take `ld $31` from the epilogue where the build without
      * this block takes the next statement's constant into the second one's
      * slot: reorg predicts a branch to the epilogue taken when a loop-begin
      * note stands just before it (mostly_true_jump), so a loop compiled out
      * at the end of the function is what the bytes pin: here the DEBUG
-     * build's reset, whose switch retail builds as 0. What they cannot
-     * pin: the block's contents (no string of it reached the .rodata); the
-     * walk over the four way groups here is ours, in jimakuMgrBegin's
-     * terms. */
-    if (JIMAKU_DEBUG_RESET) {
+     * build's dump, whose switch retail builds as 0. Its strings are the
+     * .sdata's ">%d", " %d" and "\n" after the assert's "0", which no
+     * instruction reads in retail or in the January listing. What they
+     * cannot pin: the values printed; the four way groups' states and the
+     * mark on the current one are ours. */
+    if (JIMAKU_DEBUG_DUMP) {
         int m;
 
         for (m = 0; m < 4; m++) {
-            jimakuRing[m].f4 = 3;
+            debug_StdPrintfDummy(m == sub->n ? ">%d" : " %d", jimakuRing[m].f4);
         }
+        debug_StdPrintfDummy("\n");
     }
 }
 
@@ -363,6 +375,8 @@ void jimakuMgrEnd(p) int *p;
     iosSemaDelete(jimakuReadSema);
 }
 
+int jimakuMsgBuf[2] = {0};
+
 inline void jimakuManager(void)
 {
     struct jArg *msg;
@@ -385,7 +399,7 @@ inline void jimakuManager(void)
             jimakuMgrEnd((int *)msg);
             break;
         default:
-            debug_StdPrintfDummy(D_005540F8, msg->cmd);
+            debug_StdPrintfDummy("jimakuManager: recv command %d error.", msg->cmd);
             break;
         }
         msg->done = 1;
@@ -414,9 +428,9 @@ void jimakuJump(int a0)
     {
         int v = w[14];
         if (v == -1) {
-            D_0063A960 = ((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) << 2;
+            jimakuDispTime = ((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) << 2;
         } else {
-            D_0063A960 = v;
+            jimakuDispTime = v;
         }
     }
     *(int *)a0 = 2;
@@ -453,8 +467,8 @@ void jimakuDisp(char *self)
         return;
     }
     c = g->fC;
-    if ((unsigned int)(c + D_0063A960) < (unsigned int)lock_execIcoMisc) {
-        D_0063A964 = 0;
+    if ((unsigned int)(c + jimakuDispTime) < (unsigned int)lock_execIcoMisc) {
+        jimakuDispOn = 0;
     }
     if ((unsigned int)(c + 5) < (unsigned int)lock_execIcoMisc) {
         iosSemaReferStatus(jimakuShownSema);
@@ -468,7 +482,7 @@ void jimakuDisp(char *self)
             iosSemaSignal(jimakuFrameSema);
         }
     }
-    if (D_0063A964 != 0) {
+    if (jimakuDispOn != 0) {
         int v = g->f8;
         D_0030CFF8[435].f1C = v;
         D_0030CFF8[434].f1C = v;
@@ -484,6 +498,6 @@ void jimakuDisp(char *self)
 
 inline void jimakuUndisp(void)
 {
-    D_0063A964 = 0;
+    jimakuDispOn = 0;
     jimakuOn = 0;
 }

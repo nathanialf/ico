@@ -1,5 +1,6 @@
 #include <libvu0.h>
 #include "debug.h"
+#include "cdvd.h"
 #include "Basic.h"
 #include "Matrix.h"
 #include "Texture.h"
@@ -808,7 +809,6 @@ extern char D_0054F7A8[];
 extern char D_0054F7C8[];
 extern char D_0063A130[];
 extern int D_0063A0F8;
-extern float D_0063A3DC;
 extern void malloc_MemCpy(int dst, int src, int n);
 extern void iosFree(int p);
 extern void debug_assertMessage(char *file, int line, char *msg);
@@ -890,7 +890,7 @@ int pac_makeStrip(char **out, char *obj, char **tbl, int shpno, int matno, int l
             n = p[0];
         }
     }
-    D_0063A3DC += debug_GetTimerSec() - t0;
+    inflateSec += debug_GetTimerSec() - t0;
     size = pac_closeTag(shp, mat);
     ctx = pacWork;
     used = *(int *)(ctx + 0x2C) - pkt;

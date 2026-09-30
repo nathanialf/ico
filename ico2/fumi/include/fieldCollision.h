@@ -12,6 +12,28 @@
 #ifndef FIELDCOLLISION_H
 #define FIELDCOLLISION_H
 
+/* The collision hit record a character starts from (the object, the node
+   and the attribute of the last hit), and the empty one it is reset to. */
+typedef struct {
+    int obj;
+    int node;
+    int attr;
+} FcColInfo;
+
+extern FcColInfo InitialColInfo;
+
+/* The object pointer pair a clip resets its wall and floor sources to, read
+   as one 8-byte block (the ROM copies it with ldl/ldr). */
+typedef struct {
+    unsigned int lo;
+    unsigned char m[3];
+    unsigned char hi;
+} FcBlk8;
+
+extern FcBlk8 InitialObjPointer;
+
+extern int collision_pick;
+
 /* RECONSTRUCTION: one wall of a collision set, 0x50 bytes (the table
  * stride). The corners are what GetWallGlobalInfo transforms, the height
  * and normal are what clip_wall_1 reads, the angle is GetWallGlobalInfo's

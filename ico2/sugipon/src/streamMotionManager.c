@@ -16,7 +16,6 @@ static SMotion streamEntry[10];
 extern int D_0028F4C0[];
 extern int frame_count;
 extern int ScreenHeight;
-extern int D_0063A3D8;
 extern int D_0063B13C;
 extern int D_0063B144;
 extern int D_0063BBF0;
@@ -109,7 +108,7 @@ int _infoUpdate(void)
             /* the data had not arrived in time when the stream motion started */
             debug_StdPrintfDummy(
                 "ストリームモーション開始時にデータの転送が間に合っていませんでした。\n");
-            D_0063A3D8++;
+            iosCdvdStDelayCnt++;
             return 0;
         }
     }
@@ -119,7 +118,7 @@ int _infoUpdate(void)
         if (!_checkRing(D_0063BC18)) {
             /* the stream motion data transfer is not keeping up */
             debug_StdPrintfDummy("ストリームモーションのデータ転送が間に合っていません。\n");
-            D_0063A3D8++;
+            iosCdvdStDelayCnt++;
             return 0;
         } else {
             if (*(unsigned char *)(D_0063BC08 + D_0063BC00) == 0xFF) {

@@ -590,8 +590,6 @@ void ReadSoundHdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6
     debug_StdPrintfDummy("ReadSoundHdFile:loaded::[%d]%s  (size:%d)\n", a3, a1, size);
 }
 
-extern char *ShockVoiceSetCommon;
-extern char *ShockVoiceSetStage;
 extern void *D_0063A460;
 
 typedef struct {

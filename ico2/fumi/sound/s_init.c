@@ -1,6 +1,7 @@
 #include "typedef.h"
 #include "s_init.h"
 #include "debug.h"
+#include "cdvd.h"
 #include "ios.h"
 #include "memory.h"
 #include "pad.h"
@@ -144,7 +145,6 @@ inline int Ee2Iop(int a0, int a1, int a2)
     return (x >= 0) ? 0 : -1;
 }
 
-extern int D_0063A370;
 extern int D_0063A650;
 extern void SgInit(void);
 extern void SgSetDigitalOutputMode(int a0);
@@ -161,7 +161,7 @@ int soundInit(void)
 
     debug_StdPrintfDummy("SgInit()\n");
     SgInit();
-    if (D_0063A370 == 1) {
+    if (iosCdvdMediaType == 1) {
         SgSetDigitalOutputMode(0x80);
     } else {
         SgSetDigitalOutputMode(0x880);

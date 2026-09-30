@@ -12,6 +12,23 @@
 #ifndef SHOCKDRIVER_H
 #define SHOCKDRIVER_H
 
+/* The voice set manager: its slot count, the slot table and the level the
+   decoders read (Init_ShockDriver clears it). */
+typedef struct {
+    int count;
+    int *arr;
+    int level;
+} ShockMgr;
+
+/* shockdriver.c's globals (MAIN.MAP's shockdriver.o names; ShockRequest is
+   left out, pad.c has a type of that name). */
+extern int ShockDriver[4];
+extern ShockMgr *System_shock_driver;
+extern char *ShockVoiceSetCommon;
+extern char *ShockVoiceSetStage;
+extern int ShockVoiceSetBuf[2];
+extern int ShockRequestMemory[2];
+
 void Init_Controler(short *a0);
 void Init_Player(int *box);
 void Init_Shock();

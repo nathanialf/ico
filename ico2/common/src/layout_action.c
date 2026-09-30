@@ -177,7 +177,10 @@ typedef struct {
     char _1E8[0x8];
 } R1F0 __attribute__((aligned(16)));
 
-extern R1F0 D_0029B5F0[];
+/* kept local (mcard.h's entry points do not fit this file's calls): mcard.c's
+   save records, read here as this file's R1F0, and its preview record */
+extern R1F0 IosMcProductFile[];
+extern int IosMcPreviewInfo[];
 extern int D_005343C8[];
 extern int D_0063B554;
 extern int D_0063B558;
@@ -202,9 +205,10 @@ extern int D_0063B52C;
 extern int D_00534400[];
 extern char D_0063B5A8[];
 extern int D_0063B548;
-extern int D_0029BC00[];
+/* the custom pad configuration ios/pad.c owns, reached here as its words
+   (the sixteen button bits from word 44) */
+extern int iosPadConfCustom[];
 extern struct S40 D_0061D968;
-extern int D_0063A538;
 extern char *D_0063BE6C;
 extern int D_0028F4D0[];
 extern char *D_0063B4FC;
@@ -324,10 +328,10 @@ int _la_memory_card_check(McWork *p, int a1)
         p->_10 = 0;
         iosMcGetInfo(p);
         mcLastResult = 0;
-        /* the pointer form, not D_0029B5F0[p->_8]: the ROM's addu takes the
+        /* the pointer form, not IosMcProductFile[p->_8]: the ROM's addu takes the
            scaled index first, which the subscript spelling does not give */
-        (D_0029B5F0 + p->_8)->_1E4 = 0;
-        (D_0029B5F0 + p->_8)->_1E0 = 0;
+        (IosMcProductFile + p->_8)->_1E4 = 0;
+        (IosMcProductFile + p->_8)->_1E0 = 0;
         a1++;
         break;
     case 10:
@@ -417,7 +421,7 @@ int _la_memory_card_check(McWork *p, int a1)
             break;
         }
         for (i = 0; i < 10; i++) {
-            if (D_0029B5F0[p->_8].f[i]._0 != 0xFFFFFFFF) {
+            if (IosMcProductFile[p->_8].f[i]._0 != 0xFFFFFFFF) {
                 break;
             }
         }
@@ -672,7 +676,7 @@ static inline void keyconfigReset(void)
     struct S40 tmp;
 
     tmp = D_0061D968;
-    *(struct S40 *)D_0029BC00 = tmp;
+    *(struct S40 *)&iosPadConfCustom[44] = tmp;
 }
 
 /* layout_action.c:1455-1490 in the listing. */
@@ -682,10 +686,10 @@ int la_vibe_select(void)
         soundSeDefPlay(415, 0xFFFFFFFF, 0, 0);
         switch (lt_current_property_item()) {
         case 0x2C:
-            D_0063A538 = 1;
+            iosPadActRequestEnable = 1;
             break;
         case 0x2D:
-            D_0063A538 = 0;
+            iosPadActRequestEnable = 0;
             break;
         }
         if (D_0063BE6C != 0) {
@@ -838,8 +842,8 @@ extern int D_00534324[];
 static inline int mcCurrentFileNo(void)
 {
     int port = D_0063B550;
-    int no = (D_0029B5F0 + port)->_1E0;
-    if (D_0071D900[port]._4 == 0 || D_0029B5F0[port].f[no]._0 == 0xFFFFFFFF)
+    int no = (IosMcProductFile + port)->_1E0;
+    if (D_0071D900[port]._4 == 0 || IosMcProductFile[port].f[no]._0 == 0xFFFFFFFF)
         return 0;
     return no;
 }
@@ -850,7 +854,7 @@ static inline int mcFileNoOfPort(void)
 {
     int port = D_0063B550;
 
-    if (D_0063B558 == (D_0029B5F0 + port)->_1E4)
+    if (D_0063B558 == (IosMcProductFile + port)->_1E4)
         return D_0063B55C;
     return mcCurrentFileNo();
 }
@@ -884,7 +888,7 @@ int la_mc_file_select(int a0)
     }
 
     for (i = 0; i < 10; i++) {
-        if (((D_0063B4F0 >> i) & 1) && D_0029B5F0[D_0063B550].f[i]._0 != 0xFFFFFFFF) {
+        if (((D_0063B4F0 >> i) & 1) && IosMcProductFile[D_0063B550].f[i]._0 != 0xFFFFFFFF) {
             lt_mask_property(i + 62, 0);
             lt_mask_property(i + 52, 1);
         } else {
@@ -893,7 +897,7 @@ int la_mc_file_select(int a0)
         }
     }
 
-    previewInfo = *(struct S14 *)&D_0029B5F0[D_0063B550].f[D_0063B4E4];
+    previewInfo = *(struct S14 *)&IosMcProductFile[D_0063B550].f[D_0063B4E4];
 
     return (D_0028F8F0[0].flags & 0x50) ? D_0063B4E4 : -1;
 }
@@ -955,7 +959,7 @@ void _la_set_preview_info(void)
     if (((D_0063B4F0 >> D_0063B4E4) & 1) == 0) {
         return;
     }
-    if (D_0029B5F0[D_0063B550].f[D_0063B4E4]._0 == 0xFFFFFFFF) {
+    if (IosMcProductFile[D_0063B550].f[D_0063B4E4]._0 == 0xFFFFFFFF) {
         return;
     }
 
@@ -999,7 +1003,7 @@ void _la_set_preview_info(void)
    symbol of its own in the ROM and no census row, and the name is descriptive. */
 static inline void setLoadGameStartItem(void)
 {
-    if (D_0063B558 == D_0029B5F0[0]._1E4 || D_0063B554 != D_0029B5F0[1]._1E4) {
+    if (D_0063B558 == IosMcProductFile[0]._1E4 || D_0063B554 != IosMcProductFile[1]._1E4) {
         D_005343C8[0] = 186;
     } else {
         D_005343C8[0] = 187;
@@ -1091,7 +1095,7 @@ int la_mc_load_file_select(int a0, int a1)
 
     if ((D_0063B4F0 != 0 || D_0063B56C != 0) && (D_0028F8F4[0] & 0x40)) {
         POSITIVE_SE();
-        if (D_0029B5F0[D_0063B550].f[a1]._0 != 0xFFFFFFFF) {
+        if (IosMcProductFile[D_0063B550].f[a1]._0 != 0xFFFFFFFF) {
             D_0063B4E8 = a1;
             D_0063B4DC = D_0063B550;
             lt_set_item_select_func(0);
@@ -1290,7 +1294,6 @@ extern char D_004DD700[];
 extern int D_0063A650;
 extern int D_0063AA04;
 /* the current game's save record, as in la_system_save_processing */
-extern int D_0029B9D0[];
 /* kept local with gamesys.h's prototype, which this TU does not include */
 extern void gamesysMemoryLoad(void **tbl, int a1, void *a2);
 /* kept local: this TU's uses of iosMcLoadGameBlock do not fit the prototype
@@ -1304,7 +1307,7 @@ extern void ACTGame_SetActors_Debug(int a0, int a1);
    mcSetSavedFile, with no symbol of its own in the ROM (the name is ours). */
 static inline int mcSetFileNo(int port, int no)
 {
-    int serial = (D_0029B5F0 + port)->_1E4;
+    int serial = (IosMcProductFile + port)->_1E4;
 
     D_0063B55C = no;
     return serial;
@@ -1418,8 +1421,8 @@ int la_load_processing(int a0)
         D_0028F4C0[4] = 1;
         debug_StdPrintfDummy(D_0061DA20);
         D_0063B580 = 0;
-        *(struct S14 *)D_0029B9D0 = *(struct S14 *)&D_0029B5F0[mc[2]].f[mc[16]];
-        playTime((struct S14 *)D_0029B9D0, &hour, &min, &sec);
+        *(struct S14 *)IosMcPreviewInfo = *(struct S14 *)&IosMcProductFile[mc[2]].f[mc[16]];
+        playTime((struct S14 *)IosMcPreviewInfo, &hour, &min, &sec);
         D_0063B558 = mcSetFileNo(mc[2], mc[16]);
         debug_StdPrintfDummy(D_0061DA30, D_0063AA04);
         D_0063A650 = 1;
@@ -1575,7 +1578,7 @@ extern char D_0061DB20[];
    census row, and the name is descriptive. */
 static inline void setSaveGameStartItem(void)
 {
-    if (D_0063B558 == D_0029B5F0[0]._1E4 || D_0063B558 != D_0029B5F0[1]._1E4) {
+    if (D_0063B558 == IosMcProductFile[0]._1E4 || D_0063B558 != IosMcProductFile[1]._1E4) {
         D_00534400[0] = 186;
     } else {
         D_00534400[0] = 187;
@@ -1842,7 +1845,7 @@ int la_save_start_check(int a0)
             return 0x24;
         }
         if ((D_0063B4D8->_4 >> D_0063B4E8) & 1) {
-            if (D_0029B5F0[D_0063B550].f[D_0063B4E8]._0 != 0xFFFFFFFF) {
+            if (IosMcProductFile[D_0063B550].f[D_0063B4E8]._0 != 0xFFFFFFFF) {
                 lt_set_item_select_func(0);
                 D_0063B4F4 = 0;
                 return 0x23;
@@ -1987,7 +1990,6 @@ extern void iosMcSaveGameBlock(void *a0, void *buf);
 extern char D_004DD700[];
 /* the current game's save record (la_save_confirm_complete copies the
    preview from it) */
-extern int D_0029B9D0[];
 /* kept local: this TU's spelling predates sce/libc/string.h; the game compiled
    with builtins live, so a copy of a constant string is the builtin block
    move */
@@ -2076,11 +2078,11 @@ int la_system_save_processing(int a0)
         return 44;
     case 4:
         for (i = 0; i < 10; i++) {
-            D_0029B5F0[mc[2]].f[i]._0 = 0xFFFFFFFF;
+            IosMcProductFile[mc[2]].f[i]._0 = 0xFFFFFFFF;
         }
-        while ((D_0029B5F0[mc[2]]._1E4 = mcMakeSerial()) == 0)
+        while ((IosMcProductFile[mc[2]]._1E4 = mcMakeSerial()) == 0)
             ;
-        playTime((struct S14 *)D_0029B9D0, &hour, &min, &sec);
+        playTime((struct S14 *)IosMcPreviewInfo, &hour, &min, &sec);
         iosMcSaveProductBlock(mc);
         D_0063B5CC++;
         D_0063B5B0++;
@@ -2180,17 +2182,17 @@ int la_save_processing(int a0)
         D_0063B4F4 = 0;
         return 44;
     case 4:
-        D_0029B9D0[0] = stage_no;
-        D_0029B9D0[3] = GetSaveSofaLayoutID();
-        D_0029B9D0[1] = D_0063AA00;
-        *(struct S14 *)&D_0029B5F0[mc[2]].f[mc[16]] = *(struct S14 *)D_0029B9D0;
-        playTime((struct S14 *)D_0029B9D0, &hour, &min, &sec);
-        (D_0029B5F0 + mc[2])->_1E0 = mc[16];
-        if ((D_0029B5F0 + mc[2])->_1E4 == (D_0029B5F0 + (mc[2] ^ 1))->_1E4) {
+        IosMcPreviewInfo[0] = stage_no;
+        IosMcPreviewInfo[3] = GetSaveSofaLayoutID();
+        IosMcPreviewInfo[1] = D_0063AA00;
+        *(struct S14 *)&IosMcProductFile[mc[2]].f[mc[16]] = *(struct S14 *)IosMcPreviewInfo;
+        playTime((struct S14 *)IosMcPreviewInfo, &hour, &min, &sec);
+        (IosMcProductFile + mc[2])->_1E0 = mc[16];
+        if ((IosMcProductFile + mc[2])->_1E4 == (IosMcProductFile + (mc[2] ^ 1))->_1E4) {
             do {
-                while ((D_0029B5F0[mc[2]]._1E4 = mcMakeSerial()) == 0)
+                while ((IosMcProductFile[mc[2]]._1E4 = mcMakeSerial()) == 0)
                     ;
-            } while ((D_0029B5F0 + mc[2])->_1E4 == (D_0029B5F0 + (mc[2] ^ 1))->_1E4);
+            } while ((IosMcProductFile + mc[2])->_1E4 == (IosMcProductFile + (mc[2] ^ 1))->_1E4);
         }
         mcSetSavedFile();
         iosMcSaveProductBlock(mc);
@@ -2434,8 +2436,6 @@ int la_game_over_continue(int a0)
 extern int D_004E3B58[];
 extern int D_004E3B78[];
 extern int D_0063B5EC;
-/* the custom pad configuration ios/pad.c owns, reached here as its words */
-extern int iosPadConfCustom[];
 
 /* layout_action.c:3941-3947 in the listing: the key-config property sweep,
    inlined into la_key_config twice; it has no symbol of its own in the ROM and
@@ -2503,7 +2503,7 @@ int la_key_config(int a0)
         D_00534CC0[0] = 323;
         for (i = 0; i < 16; i++) {
             if ((D_0063B5EC >> i) & 1) {
-                D_004E3B78[keyCodeIndex(D_0029BC00[i])] = keyCodeIndex(1 << i);
+                D_004E3B78[keyCodeIndex((iosPadConfCustom + 44)[i])] = keyCodeIndex(1 << i);
             }
         }
     }
@@ -2543,7 +2543,7 @@ int la_key_config(int a0)
                 }
             }
             for (i = 0; i < 8; i++) {
-                D_0029BC00[keyBitIndex(D_004E3B58[D_004E3B78[i]])] = D_004E3B58[i];
+                (iosPadConfCustom + 44)[keyBitIndex(D_004E3B58[D_004E3B78[i]])] = D_004E3B58[i];
             }
             keyconfigMaskAll();
             for (i = 0; i < 6; i++) {
@@ -2610,7 +2610,7 @@ int la_game_option(void)
             break;
         case 313:
             if ((D_0028F8F0[0].flags & 0xA000) != 0) {
-                D_0063A538 = D_0063A538 == 0;
+                iosPadActRequestEnable = iosPadActRequestEnable == 0;
                 CUR_SE();
             }
             break;
@@ -2669,7 +2669,7 @@ int la_game_option(void)
         lt_default_mask_property(311, 1);
         lt_default_mask_property(312, 0);
     }
-    if (D_0063A538 != 0) {
+    if (iosPadActRequestEnable != 0) {
         lt_default_mask_property(316, 0);
         lt_default_mask_property(317, 1);
     } else {
@@ -2962,14 +2962,13 @@ int la_format_processing(int a0)
     return -1;
 }
 
-extern int D_0029B9D0[];
 extern int D_0061DC40[];
 extern int D_0061DC58[];
 
 int la_save_confirm_complete(int a0, int a1)
 {
     if (a0) {
-        previewInfo = *(struct S14 *)D_0029B9D0;
+        previewInfo = *(struct S14 *)IosMcPreviewInfo;
         D_0063B4F0 = 0x3FF;
         _la_set_preview_info();
         debug_StdPrintfDummy(D_0061DC40, D_0063B4F0, D_0063B4E4);
@@ -3072,7 +3071,7 @@ int la_game_loading(int a0)
 void la_playtime_count(void)
 {
     if (D_0028F4D4[0] == 0) {
-        D_0029B9D0[2]++;
+        IosMcPreviewInfo[2]++;
     }
 }
 
@@ -3172,7 +3171,7 @@ void keyconfig_reset(void)
 {
     struct S40 tmp;
     tmp = D_0061D968;
-    *(struct S40 *)D_0029BC00 = tmp;
+    *(struct S40 *)&iosPadConfCustom[44] = tmp;
 }
 
 extern int D_0063B550;
@@ -3192,7 +3191,7 @@ int la_mc_saved_file_select(int a0)
             i -= 1;
         } else if (D_0028F8F4[0] & 0x2000) {
             i += 1;
-        } else if (D_0029B5F0[D_0063B550].f[i]._0 == 0xFFFFFFFF) {
+        } else if (IosMcProductFile[D_0063B550].f[i]._0 == 0xFFFFFFFF) {
             i++;
         }
         if (i < 0) {
@@ -3201,7 +3200,7 @@ int la_mc_saved_file_select(int a0)
         if (i >= 10) {
             i -= 10;
         }
-    } while (D_0029B5F0[D_0063B550].f[i]._0 == 0xFFFFFFFF);
+    } while (IosMcProductFile[D_0063B550].f[i]._0 == 0xFFFFFFFF);
     if (old != i) {
         CUR_SE();
     }

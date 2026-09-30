@@ -11,7 +11,6 @@ struct McIconWork {
 
 /* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
 extern void iosThreadSleep(void);
-extern int D_0063A368;
 
 /* .sbss, owned by mcdata.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the flag the mcard thread raises when the request the
@@ -42,12 +41,12 @@ static inline int _iosMcIconWriteIconsys(int self, struct McIconWork *p)
         p->remain -= size;
         if (p->remain <= 0)
             loop = 0;
-        D_0063A368 = 1;
+        IosCdvdMgrSleep = 1;
         mcDataDone = 0;
         do {
             iosThreadSleep();
         } while (mcDataDone == 0);
-        D_0063A368 = 0;
+        IosCdvdMgrSleep = 0;
     } while (loop);
 
     return 1;

@@ -126,7 +126,6 @@ void actSt08aEne1Chk(volatile int a0)
     scpWakeupEnemyOne(3757);
 }
 
-extern int D_0063A538;
 /* as script.h declares it; this TU does not include that header */
 extern void scpKillEnemyOne(int a0);
 /* as script.h declares it; this TU does not include that header */
@@ -152,8 +151,8 @@ void actSt08aEne2Chk(volatile int a0)
     gflagOn(75);
     _ACTWait(60);
 
-    save = D_0063A538;
-    D_0063A538 = 0;
+    save = iosPadActRequestEnable;
+    iosPadActRequestEnable = 0;
 
     scpKillEnemyOne(334);
     scpKillEnemyOne(335);
@@ -173,7 +172,7 @@ void actSt08aEne2Chk(volatile int a0)
     }
     _ACTWait(1);
 
-    D_0063A538 = save;
+    iosPadActRequestEnable = save;
     scpPlayMot(D_00639EA4, 0);
     lt_switch_layout(54);
     D_0063AA08 = 0;

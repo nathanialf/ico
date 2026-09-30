@@ -1,12 +1,6 @@
 #include "shockdriver.h"
 #include <libpad.h>
 
-typedef struct {
-    int count;
-    int *arr;
-    int level; /* 0x8, the level the decoders read; Init_ShockDriver clears it */
-} ShockMgr;
-
 struct PadNode {
     char pad[0x30];
     struct PadNode *prev;
@@ -82,7 +76,26 @@ typedef struct ShockRequestBox {
     /* 0xC */ void *arg;
 } ShockRequestBox;
 
-extern ShockMgr *System_shock_driver;
+/* .data, owned by shockdriver.o, 0x29C0E0..0x29C4F0 (= MAIN.MAP
+   shockdriver.o .data 0x410, line 5833, which names both), all zero: the
+   voice set manager record and the request pool.
+   .sdata, 0x63A5D0..0x63A5F0 (= MAIN.MAP's 0x20, line 7044, naming all five
+   at these offsets), all zero: the current manager, the common and stage
+   voice sets charFileManager loads, the manager's two-slot voice set table
+   and the request allocator record. */
+int ShockDriver[4] = {0};
+
+char ShockRequest[1024] = {0};
+
+ShockMgr *System_shock_driver = 0;
+
+char *ShockVoiceSetCommon = 0;
+
+char *ShockVoiceSetStage = 0;
+
+int ShockVoiceSetBuf[2] = {0};
+
+int ShockRequestMemory[2] = {0};
 
 int Vibration_ShotDecode(SHOCKREQUEST *p, int level)
 {
@@ -722,11 +735,6 @@ int ShockRequestBox_RequestDirectCancel(int *a0, int *a1)
     }
     return 1;
 }
-
-extern int ShockDriver[4];
-extern int ShockVoiceSetBuf[2];
-extern int ShockRequestMemory[2];
-extern char ShockRequest[];
 
 /* What the bytes pin (listing lines 34-43, here and in Init_Shock's inlined
    copy): after the guards the manager is reached through the global it has

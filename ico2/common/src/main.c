@@ -1,7 +1,9 @@
 #include "StageManager.h"
+#include "mcard.h"
 #include "debug.h"
 #include "layout_action.h"
 #include "cdvd.h"
+#include "jimaku.h"
 #include "ios.h"
 #include "message.h"
 #include "gflag.h"
@@ -109,9 +111,6 @@ extern int mpegPlay;
 extern int stageManagerFreeResourceFlag;
 extern int startStagePauseDisableTimer;
 extern int stgMgrWakeupRequest;
-extern int D_0063A368;
-extern int D_0063A3B8;
-extern int D_0063A47C;
 extern void sceGsSyncV(int mode);
 /* kept local: this TU's uses of iosThreadCancelWakeup do not fit the prototype in thread.h */
 extern int iosThreadCancelWakeup(void *th);
@@ -216,7 +215,7 @@ void Main(void)
             if (mpegInitDone == 0) {
                 continue;
             }
-            if (D_0063A3B8 != 0) {
+            if (iosCdvdBackGroundMgrRunning != 0) {
                 continue;
             }
             D_0063A468 = D_0063A430;
@@ -363,10 +362,10 @@ void scheduler(void)
             }
         skip:
             iosThreadWakeup(soundThread);
-            if (D_0063A47C >= 0) {
-                SignalSema(D_0063A47C);
+            if (IosMcLock >= 0) {
+                SignalSema(IosMcLock);
             }
-            if (D_0063A368 != 0 && (mpegPlay == 0 || D_0063A3B8 != 0)) {
+            if (IosCdvdMgrSleep != 0 && (mpegPlay == 0 || iosCdvdBackGroundMgrRunning != 0)) {
                 iosThreadWakeup(cdvdThread);
             }
             if (stgMgrWakeupRequest != 0) {

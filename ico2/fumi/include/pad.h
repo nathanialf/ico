@@ -27,4 +27,7 @@ int iosPadGetStick_func(void *dev, void *out, int mode, int a3, int a4, int a5);
 int iosPadRead(void *pad);
 void iosPadStickCameraCoord(void *a0, float *a1);
 
+/* pad.c's vibration enable flag (MAIN.MAP's pad.o .sdata name). */
+extern int iosPadActRequestEnable;
+
 #endif /* PAD_H */

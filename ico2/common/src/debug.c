@@ -1,4 +1,5 @@
 #include "debug.h"
+#include "cdvd.h"
 #include "StageManager.h"
 #include "backStage.h"
 #include "kanban.h"
@@ -1551,7 +1552,6 @@ void debug_WriteBMP(int fd, int w, int h, unsigned int *src)
 }
 
 extern int D_0063AF34;
-extern int D_0063A3B8;
 extern int D_0063AE74;
 extern char D_0061BA40[];
 extern char D_0061BA50[];
@@ -1585,7 +1585,7 @@ int debug_SnapShot(int idx)
     mask = 1 << (D_0063B1BC - 1);
     D_0063AE74 = 1;
     if (D_0063AF34 != 0) {
-        if (D_0063A3B8 != 0) {
+        if (iosCdvdBackGroundMgrRunning != 0) {
             return -1;
         }
         D_0063AF34 = 0;

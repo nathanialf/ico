@@ -1,4 +1,5 @@
 #include "end.h"
+#include "mcard.h"
 #include "layout_texture.h"
 #include "adpcm_init.h"
 #include "act.h"
@@ -1787,7 +1788,6 @@ void actEndDemo14Chk(volatile int a0)
     actCreateSubThread(actConte14_14, 21);
 }
 
-extern int D_0029B9D0[];
 extern int D_0063B60C;
 extern int optionScreenMode;
 
@@ -1797,9 +1797,9 @@ void actEndingSave(volatile int a0)
         int save;
 
         D_0063AA00 = 1;
-        save = D_0029B9D0[2];
+        save = IosMcPreviewInfo[2];
         gflagInit();
-        D_0029B9D0[2] = save;
+        IosMcPreviewInfo[2] = save;
         gflagOn(395);
         lt_switch_layout(28);
         _ACTWait(60);

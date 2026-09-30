@@ -19,15 +19,9 @@ typedef struct {
     float *unk20;
 } FuzioCtx;
 
+/* One line colour of the collision display: red, green, blue, alpha. */
 typedef struct {
-    unsigned int lo;
-    unsigned char m[3];
-    unsigned char hi;
-} FcBlk8;
-
-typedef union {
-    unsigned char rgba[4];
-    long long ll[2];
+    int rgba[4];
 } FcColor;
 
 typedef int (*FcFunc)(void *a0, int a1);
@@ -36,8 +30,6 @@ extern void *isysGObjGetExist_begin(void);
 /* kept local: this TU's uses of isysGObjGetExist_next do not fit the prototype in gobj.h */
 extern void *isysGObjGetExist_next(void);
 extern void __assert(char *file, int line, char *expr);
-extern char D_0063A820[];
-extern int D_0063A818;
 
 /* fieldCollision.o's .sbss and .bss, each in the ROM's order (MAIN.MAP lines
    7593 and 7704 size the runs 0x38 and 0x5C0 and name no symbol in either, so
@@ -85,37 +77,62 @@ static short blockTable[64];
 
 static void *exitAttr[16];
 
+/* .data, owned by fieldCollision.o, 0x29D1D0..0x29D420 (= MAIN.MAP's 0x250,
+   line 5851, which names InitialColInfo), in the ROM's order: InitialColInfo
+   here, the debug label table in MakeCollisionDependGObjList's disabled
+   block, then the clip mode table, the clip work matrix and the plane point
+   after the clip functions and the wall line colours with the unused unit
+   matrix before DrawGObjWallCollision.
+   .sdata, 0x63A808..0x63A868 (MAIN.MAP line 7083 names collision_pick and
+   InitialObjPointer), in emission order: the four variables here, the
+   assert text "e", the three labels, the two clip function pointers and the
+   wall draw count, then GetEdgeOfFloor's three strings.  The word before
+   collision_pick is reached by no instruction, in retail or in the January
+   listing (whose collision_pick also sits 4 below InitialObjPointer). */
+FcColInfo InitialColInfo = {0, -1, 0};
+
+static int fcReserved = 0; /* derived name */
+
+int collision_pick = 0;
+
+FcBlk8 InitialObjPointer = {0, {255, 255, 255}, 255};
+
+static int colObjListNum = 0; /* derived name */
+
 void MakeCollisionDependGObjList(void)
 {
     char *g;
     char *sub;
 
-    D_0063A818 = 0;
+    colObjListNum = 0;
     for (g = isysGObjGetExist_begin(); g != 0; g = isysGObjGetExist_next()) {
         sub = (char *)GOBJ_SUB(g);
         if (sub != 0 && *(int *)(sub + 0x70) != 0 && *(int *)(g + 0x16C) != 0 &&
             *(int *)(g + 0x4) == 1 && *(int *)(g + 0x8) >= 0 && *(int *)(sub + 0x74) != 0) {
-            colObjList[D_0063A818] = g;
-            D_0063A818 = D_0063A818 + 1;
+            colObjList[colObjListNum] = g;
+            colObjListNum = colObjListNum + 1;
         }
     }
-    if (D_0063A818 >= 0x100) {
+    if (colObjListNum >= 0x100) {
         debug_assertMessage(__FILE__, 533, "TOO MANY COLLISION DEPEND GOBJS\n");
-        __assert(__FILE__, 533, D_0063A820);
+        __assert(__FILE__, 533, "e");
     }
     /* The listing's rows 534 to 579 carry no code: a debug dump of the list
      * compiled out. What the bytes pin: a 33- to 48-byte buffer in the frame
      * (0x60 with 0x30 of register saves) and the format "%s%d(%d)\n", which
      * the ROM's .rodata holds right after this function's two strings with no
-     * reader. What they cannot pin: the rest of the block (the .sdata labels
-     * " COL: ", " MAT: " and "GOBJ: " after the assert's "e" are most likely
-     * its other strings). */
+     * reader. The block's label table is a static: the .data holds three
+     * pointers to the .sdata labels "GOBJ: ", " MAT: " and " COL: " (emitted
+     * in reverse, after the assert's "e") and zero words to the clip mode
+     * table. What they cannot pin: the rest of the block, or whether the zero
+     * words are the table's (seven or eight slots) or an object of their own. */
     if (0) {
+        static char *label[8] = {"GOBJ: ", " MAT: ", " COL: "};
         char buf[48];
         int i;
 
-        for (i = 0; i < D_0063A818; i++) {
-            debug_StdPrintfDummy("%s%d(%d)\n", buf, i, D_0063A818);
+        for (i = 0; i < colObjListNum; i++) {
+            debug_StdPrintfDummy("%s%d(%d)\n", buf, i, colObjListNum);
         }
     }
 }
@@ -934,21 +951,34 @@ inline int _clipFR(ClipWork *arg0, int arg1, int arg2)
 
 /* The clip-mode table the ClipWall/ClipFloor wrappers index by mode: modes
  * 0..11 are the wall entries, 12 on the floor ones (ClipFloor passes 0xC).
- * VMA 0x0029D200, 16-byte records, func at +0xC. splat splits the blob at
- * entry 12's func word (D_0029D2CC) because ClipFloorByGObj's load is the only
- * reference into the table's middle; D_0029D200 + 0xCC links to the same
- * address. */
+ * VMA 0x0029D200, 16-byte records, func at +0xC (ClipFloorByGObj reads
+ * entry 12's directly). */
 typedef struct {
     int f_0;
     int f_4;
     int f_8;
-    int (*func)(void *p, void *gobj, int mode);
+    int (*func)(ClipWork *p, int gobj, int mode);
 } FcClipMode;
 
-extern FcClipMode D_0029D200[];
-extern float D_0029D310[16];
-extern float D_0029D340[4];
-extern float D_0029D350[4];
+/* The clip modes, then the work matrix whose translation row _Clip sets for
+   an unrotated object, and the plane point of the wall hit arm. */
+static FcClipMode clipMode[17] = {
+    /* derived name */
+    {1, 0, 0, _clipWDebug},     {1, 0, 0, _clipW},
+    {1, 0, 0, _clipWR},         {1, 0, 0, _clipWField},
+    {1, 1, 0, _clipWE},         {1, 1, 0, _clipWEField},
+    {1, 0, 0, _clipWWaveForce}, {1, 0, 0, _clipWDitchHangWalkStop},
+    {1, 0, 1, _clipW},          {1, 0, 1, _clipWField},
+    {1, 0, 0, _clipWBoxStop},   {1, 0, 0, _clipWAdjustPos},
+    {0, 0, 0, _clipF},          {0, 1, 0, _clipFE},
+    {0, 0, 0, _clipFR},         {0, 0, 0, _clipFIH},
+    {0, 0, 1, _clipF},
+};
+
+static float clipMatrix[16] = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0}; /* derived name */
+
+static float clipPlanePos[4] = {0}; /* derived name */
+
 extern void _ApplyMatrix(void *dst, void *m, void *src);
 extern float sceVu0InnerProduct(int a0, int a1);
 extern void sceVu0ApplyMatrix(void *a0, void *a1, void *buf);
@@ -970,7 +1000,7 @@ static __inline__ void setClipPlane(char *self, void *m, void *v)
 
 /* RECONSTRUCTION: the 0x15C sub-object slot of a gobj, read as the union of
  * its pointer and int-handle views. _Clip's wall-hit arm is the proof: the
- * ROM keeps the slot read behind both float stores to D_0029D350 while the
+ * ROM keeps the slot read behind both float stores to clipPlanePos while the
  * int reads of the ClipWork fields move ahead of them. Only an alias-set-0
  * read does that (a union member access, c_get_alias_set), where
  * typedef.h's int-typed GOBJ_SUB read or a plain pointer read lets the
@@ -988,26 +1018,26 @@ void _Clip(char *self, int mode)
     float keep[4];
     float m1[16];
     FcPlane keep2;
-    int (*func)(void *, void *, int);
+    int (*func)(ClipWork *, int, int);
     char *obj;
     char *sub;
     char *m;
     int cnt;
     int i;
 
-    func = D_0029D200[mode].func;
+    func = clipMode[mode].func;
     {
-        int x = D_0029D200[mode].f_4;
-        int y = D_0029D200[mode].f_8;
+        int x = clipMode[mode].f_4;
+        int y = clipMode[mode].f_8;
 
         sceVu0CopyVector((int *)sv0, (int *)self);
         sceVu0CopyVector((int *)sv1, (int *)(self + 0x10));
         sceVu0CopyVector((int *)(self + 0x20), (int *)(self + 0x10));
         colObjNum = 0;
         obj = (char *)colObjList[0];
-        if (D_0063A818 > 0) {
+        if (colObjListNum > 0) {
             do {
-                m = (char *)D_0029D310;
+                m = (char *)clipMatrix;
                 sub = ((FcSubSlot *)(obj + 0x15C))->sub;
                 if (*(int *)(sub + 0x74) != 0) {
                     if (x != 0) {
@@ -1038,7 +1068,7 @@ void _Clip(char *self, int mode)
                         CopyVector(keep, self + 0x20);
                         CopyVector(self, sv0);
                         if (*(int *)(((FcSubSlot *)(obj + 0x15C))->sub + 0x78) == 0) {
-                            CopyVector(D_0029D340,
+                            CopyVector(&clipMatrix[12],
                                        *(char **)(((FcSubSlot *)(obj + 0x15C))->sub + 0xC) +
                                            (i << 6) + 0x30);
                         } else {
@@ -1060,19 +1090,19 @@ void _Clip(char *self, int mode)
             next_gobj:
                 colObjNum = colObjNum + 1;
                 obj = (char *)colObjList[colObjNum];
-            } while (colObjNum < D_0063A818);
+            } while (colObjNum < colObjListNum);
         }
-        if (D_0029D200[mode].f_0 != 0) {
+        if (clipMode[mode].f_0 != 0) {
             if (*(int *)(self + 0x88) != 0) {
-                D_0029D350[0] = (*(float **)(*(char **)(self + 0x88) + 0x4C))[0];
-                D_0029D350[2] = (*(float **)(*(char **)(self + 0x88) + 0x4C))[1];
+                clipPlanePos[0] = (*(float **)(*(char **)(self + 0x88) + 0x4C))[0];
+                clipPlanePos[2] = (*(float **)(*(char **)(self + 0x88) + 0x4C))[1];
                 CopyMatrix(m1,
                            *(char **)(((FcSubSlot *)(*(char **)(self + 0x80) + 0x15C))->sub + 0xC) +
                                (*(int *)(self + 0x84) << 6));
                 if (*(int *)(((FcSubSlot *)(*(char **)(self + 0x80) + 0x15C))->sub + 0x78) == 0) {
                     UnitRotation(m1);
                 }
-                setClipPlane(self, m1, D_0029D350);
+                setClipPlane(self, m1, clipPlanePos);
                 *(int *)(self + 0x98) = *(int *)(*(char **)(self + 0x88) + 0x48);
             } else {
                 sceVu0CopyVector((int *)(self + 0x20), (int *)sv1);
@@ -1105,14 +1135,13 @@ extern void sceVu0UnitMatrix(void *m);
 extern void gif_EndPacket(void);
 /* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
 extern void gif_SetZTest(int a0);
-extern FcBlk8 D_0063A810;
 
 void __ClipWall(ClipWork *a0, int a1)
 {
     a0->f_B0 = 0;
     a0->floorHit = 0;
     a0->wallHit = 0;
-    *(FcBlk8 *)a0->wallSrc = D_0063A810;
+    *(FcBlk8 *)a0->wallSrc = InitialObjPointer;
     _Clip(a0, a1);
 }
 
@@ -1138,7 +1167,7 @@ inline void __ClipWallWithDrawRay(char *w, int a1)
 void __ClipFloor(ClipWork *a0, int a1)
 {
     a0->floorHit = 0;
-    *(FcBlk8 *)a0->floorSrc = D_0063A810;
+    *(FcBlk8 *)a0->floorSrc = InitialObjPointer;
     _Clip(a0, a1);
 }
 
@@ -1161,8 +1190,6 @@ inline void __ClipFloorWithDrawRay(char *w, int a1)
     gif_EndPacket();
 }
 
-extern int collision_pick;
-
 inline void ClipWallRD(void)
 {
     collision_pick = 1;
@@ -1174,106 +1201,108 @@ inline void ClipWallRD(void)
     collision_pick = 0;
 }
 
-extern int (*D_0063A840)(void *a0, int a1);
-extern int (*D_0063A844)(void *a0, int a1);
+static int (*clipWallFunc)(void *a0, int a1) = (int (*)(void *, int))__ClipWall; /* derived name */
+
+static int (*clipFloorFunc)(void *a0,
+                            int a1) = (int (*)(void *, int))__ClipFloor; /* derived name */
 
 inline int ChangeFieldCollisionDebugMode(int a0)
 {
-    D_0063A840 = (int (*)(void *, int))__ClipWall;
-    D_0063A844 = (int (*)(void *, int))__ClipFloor;
+    clipWallFunc = (int (*)(void *, int))__ClipWall;
+    clipFloorFunc = (int (*)(void *, int))__ClipFloor;
     if (a0 != 0) {
-        D_0063A840 = (int (*)(void *, int))__ClipWallWithDrawRay;
-        D_0063A844 = (int (*)(void *, int))__ClipFloorWithDrawRay;
+        clipWallFunc = (int (*)(void *, int))__ClipWallWithDrawRay;
+        clipFloorFunc = (int (*)(void *, int))__ClipFloorWithDrawRay;
     }
     return 0;
 }
 
 inline int ClipWallDebug(void *a0)
 {
-    return D_0063A840(a0, 0);
+    return clipWallFunc(a0, 0);
 }
 
 inline int ClipWall(void *a0)
 {
-    return D_0063A840(a0, 0x1);
+    return clipWallFunc(a0, 0x1);
 }
 
 inline int ClipWallR(void *a0)
 {
-    return D_0063A840(a0, 0x2);
+    return clipWallFunc(a0, 0x2);
 }
 
 inline int ClipWallWaveForce(void *a0)
 {
-    return D_0063A840(a0, 0x6);
+    return clipWallFunc(a0, 0x6);
 }
 
 inline int ClipWallFuchiHangWalkStop(void *a0)
 {
-    return D_0063A840(a0, 0x7);
+    return clipWallFunc(a0, 0x7);
 }
 
 inline int ClipWallField(void *a0)
 {
-    return D_0063A840(a0, 0x3);
+    return clipWallFunc(a0, 0x3);
 }
 
 inline int ClipWallEField(void *a0)
 {
-    return D_0063A840(a0, 0x5);
+    return clipWallFunc(a0, 0x5);
 }
 
 inline int ClipWallBoxStop(void *a0)
 {
-    return D_0063A840(a0, 0xA);
+    return clipWallFunc(a0, 0xA);
 }
 
 inline int ClipWallAdjustPos(void *a0)
 {
-    return D_0063A840(a0, 0xB);
+    return clipWallFunc(a0, 0xB);
 }
 
 inline void ClipWallE(void *a0)
 {
-    D_0063A840(a0, 0x4);
+    clipWallFunc(a0, 0x4);
 }
 
 inline void ClipWallCheckCB(void *a0, int a1)
 {
     colFilter = (int (*)(void *))a1;
-    D_0063A840(a0, 8);
+    clipWallFunc(a0, 8);
 }
 
 inline void ClipWallFieldCheckCB(void *a0, int a1)
 {
     colFilter = (int (*)(void *))a1;
-    D_0063A840(a0, 9);
+    clipWallFunc(a0, 9);
 }
 
 inline int ClipFloor(void *a0)
 {
-    return D_0063A844(a0, 0xC);
+    return clipFloorFunc(a0, 0xC);
 }
 
 inline int ClipFloorE(void *a0)
 {
-    return D_0063A844(a0, 0xD);
+    return clipFloorFunc(a0, 0xD);
 }
 
 inline int ClipFloorR(void *a0)
 {
-    return D_0063A844(a0, 0xE);
+    return clipFloorFunc(a0, 0xE);
 }
 
 inline int ClipFloorIH(void *a0)
 {
-    return D_0063A844(a0, 0xF);
+    return clipFloorFunc(a0, 0xF);
 }
 
 inline void ClipFloorCheckCB(void *a0, int a1)
 {
     colFilter = (int (*)(void *))a1;
-    D_0063A844(a0, 0x10);
+    clipFloorFunc(a0, 0x10);
 }
 
 inline int ClipWallVector(int *a0, int *a1)
@@ -1384,15 +1413,28 @@ inline void LoadCollision(int *self, int a1)
     p[5] = (int)p + p[5];
 }
 
-extern int D_0063A848;
-extern const FcColor D_0029D360;
-extern const FcColor D_0029D370;
-extern const FcColor D_0029D380;
-extern const FcColor D_0029D390;
-extern const FcColor D_0029D3A0;
-extern const FcColor D_0029D3B0;
-extern const FcColor D_0029D3C0;
-extern const FcColor D_0029D3D0;
+static int wallDrawCnt = 0; /* derived name */
+
+/* The wall edge and rim colours for a plain wall, an attributed one and the
+   two exit kinds, then a unit matrix no instruction reaches (in retail or in
+   the January listing). */
+static FcColor wallEdgeColor = {0, 56, 255, 128}; /* derived name */
+
+static FcColor wallEdgeColorAttr = {0, 0, 255, 128}; /* derived name */
+
+static FcColor wallEdgeColorExit = {0, 255, 192, 128}; /* derived name */
+
+static FcColor wallEdgeColorExit1 = {255, 0, 192, 128}; /* derived name */
+
+static FcColor wallRimColor = {0, 5, 25, 32}; /* derived name */
+
+static FcColor wallRimColorAttr = {0, 0, 25, 32}; /* derived name */
+
+static FcColor wallRimColorExit = {0, 25, 19, 32}; /* derived name */
+
+static FcColor wallRimColorExit1 = {25, 0, 19, 32}; /* derived name */
+
+static float unitMatrix[16] = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0}; /* derived name */
 
 typedef struct {
     char _0[0x8];
@@ -1430,7 +1472,7 @@ void DrawGObjWallCollision(char *gobj, int col)
     int j;
     int attr;
 
-    D_0063A848 = D_0063A848 + 1;
+    wallDrawCnt = wallDrawCnt + 1;
     n = 1;
     if (g->sub->multi != 0) {
         n = g->sub->nobj;
@@ -1447,19 +1489,19 @@ void DrawGObjWallCollision(char *gobj, int col)
         }
         for (j = 0; j < cd->nwall; j++) {
             e = cd->walls + j * 0x50;
-            c0 = &D_0029D360;
-            c1 = &D_0029D3A0;
+            c0 = &wallEdgeColor;
+            c1 = &wallRimColor;
             attr = *(int *)(e + 0x48);
             if ((attr & 0xF0000000) != 0) {
-                c0 = &D_0029D380;
-                c1 = &D_0029D3C0;
+                c0 = &wallEdgeColorExit;
+                c1 = &wallRimColorExit;
                 if ((attr & 0x10000000) != 0) {
-                    c0 = &D_0029D390;
-                    c1 = &D_0029D3D0;
+                    c0 = &wallEdgeColorExit1;
+                    c1 = &wallRimColorExit1;
                 }
             } else if (attr != 0) {
-                c0 = &D_0029D370;
-                c1 = &D_0029D3B0;
+                c0 = &wallEdgeColorAttr;
+                c1 = &wallRimColorAttr;
             }
             DrawLineG(e, (void *)c0, e + 0x10, (void *)c0, col);
             DrawLineG(e + 0x10, (void *)c0, e + 0x30, (void *)c0, col);
@@ -1528,21 +1570,21 @@ inline void DrawCollision(int a0)
     gif_EndPacket();
     colObjNum = 0;
     obj = colObjList[0];
-    if (D_0063A818 > 0) {
+    if (colObjListNum > 0) {
         do {
             DrawGObjWallCollision(obj, n);
             colObjNum = colObjNum + 1;
             obj = colObjList[colObjNum];
-        } while (colObjNum < D_0063A818);
+        } while (colObjNum < colObjListNum);
     }
     colObjNum = 0;
     obj = colObjList[0];
-    if (D_0063A818 > 0) {
+    if (colObjListNum > 0) {
         do {
             DrawGObjFloorCollision(obj, n);
             colObjNum = colObjNum + 1;
             obj = colObjList[colObjNum];
-        } while (colObjNum < D_0063A818);
+        } while (colObjNum < colObjListNum);
     }
 }
 
@@ -1550,10 +1592,6 @@ void DBG_VECTOR(float *vec)
 {
     return debug_StdPrintfDummy("%8f %8f %8f", vec[0], vec[1], vec[2]);
 }
-
-extern char D_0063A850[];
-extern char D_0063A858[];
-extern char D_0063A860[];
 
 int GetEdgeOfFloor(float *out, FcFloorEnt *e, float *p1, float *p2)
 {
@@ -1624,9 +1662,9 @@ int GetEdgeOfFloor(float *out, FcFloorEnt *e, float *p1, float *p2)
         debug_StdPrintfDummy("src:%8f %8f %8f\n", p1[0], p1[1], p1[2]);
         debug_StdPrintfDummy("dst:%8f %8f %8f\n", p2[0], p2[1], p2[2]);
         for (i = 0; i < 4; i++) {
-            debug_StdPrintfDummy(D_0063A850, i);
+            debug_StdPrintfDummy("%2d ", i);
             DBG_VECTOR((float *)&e->v[i]);
-            debug_StdPrintfDummy(D_0063A858);
+            debug_StdPrintfDummy("\n");
         }
         for (i = 0; i < 4; i++) {
             j = (i + 3) % 4;
@@ -1642,7 +1680,7 @@ int GetEdgeOfFloor(float *out, FcFloorEnt *e, float *p1, float *p2)
             debug_StdPrintfDummy("%02d: src:%8f dst:%8f\n", i, g1, g2);
         }
         debug_assert(__FILE__, 2006);
-        __assert(__FILE__, 2006, D_0063A860);
+        __assert(__FILE__, 2006, "0");
     }
     return i;
 }
@@ -1784,7 +1822,7 @@ void MakeExitAttributeIndex(void)
     } while (i >= 0);
     colObjNum = 0;
     obj = colObjList[0];
-    if (D_0063A818 > 0) {
+    if (colObjListNum > 0) {
         do {
             p70 = (int *)GOBJ_SUB(obj)->f_70;
             for (j = 0; j < p70[0xC / 4]; j++) {
@@ -1800,7 +1838,7 @@ void MakeExitAttributeIndex(void)
             }
             colObjNum = colObjNum + 1;
             obj = colObjList[colObjNum];
-        } while (colObjNum < D_0063A818);
+        } while (colObjNum < colObjListNum);
     }
 }
 
@@ -1820,12 +1858,12 @@ void ClipFloorByGObj(char *p, char *gobj)
     float buf1[4];
     float mtx[16];
     FcPlane keep;
-    int (*clip)(void *, void *, int);
+    int (*clip)(ClipWork *, int, int);
     char *m;
     char *ep;
     char *pos;
 
-    clip = D_0029D200[12].func;
+    clip = clipMode[12].func;
     sceVu0CopyVector((int *)buf0, (int *)p);
     sceVu0CopyVector((int *)buf1, (int *)(p + 0x10));
     pos = p + 0x20;

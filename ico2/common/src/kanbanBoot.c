@@ -60,7 +60,8 @@ typedef struct {
    no symbol in the run): the boot-time memory-card request block. */
 static McReq bootMcReq;
 
-extern KanbanStageRec D_0029B5F0[];
+/* kept local: mcard.c's save records, read here as this file's view */
+extern KanbanStageRec IosMcProductFile[];
 extern int D_00534010[];
 extern int D_0028F4C0[];
 extern int D_0028F4D8[];
@@ -165,7 +166,7 @@ int kanbanBootMcCheck(void)
             break;
         }
         D_0063B4C0++;
-        r = &D_0029B5F0[mc->f8];
+        r = &IosMcProductFile[mc->f8];
         NonLinearCameraMove = r->f1E8;
         D_0028F4C0[0] = r->f1EC;
         gsResetFunc(0);

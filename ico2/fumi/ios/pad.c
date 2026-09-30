@@ -96,25 +96,6 @@ typedef struct {
 } PadAct;
 
 extern int Shock_Request(int box, int player, ShockPrm prm, int key, int a4);
-extern char D_00551B10[];
-extern char D_00551B28[];
-extern char D_00551B38[];
-extern char D_00551B48[];
-extern char D_00551B58[];
-extern char D_00551B68[];
-extern char D_00551B80[];
-extern char D_00551B90[];
-extern char D_00551BB0[];
-extern char D_0063A568[];
-extern char D_0063A570[];
-extern char D_0063A578[];
-extern char D_0063A580[];
-extern char D_0063A588[];
-extern char D_0063A590[];
-extern char D_0063A598[];
-extern char D_0063A5A0[];
-extern char D_0063A5A8[];
-extern char D_0063A5B0[];
 
 /* .sbss, pad.o's two words in the ROM's order (MAIN.MAP names no symbol in the
    run, so the names are ours): the terminal id the reconnect check compares
@@ -123,6 +104,74 @@ extern char D_0063A5B0[];
 static int padTermId;
 
 static int padEnabled;
+
+/* The pad configuration record, 60 words: two byte tables and a pair table
+   for the pressure and repeat handling (their roles are ours; no reader in
+   this build) and, at 0xB0, the sixteen button bits iosPadRead ORs. */
+typedef struct {
+    unsigned char press[12][2];
+    unsigned char pressRate[24];
+    int repeat[16][2];
+    int bit[16];
+} PadConf;
+
+/* .data, owned by pad.o, 0x29BA40..0x29C0E0 (= MAIN.MAP pad.o .data 0x6A0,
+   line 5827, which names iosPadConfDefault, iosPadConfCustom, iosPadDev,
+   th_iosPadDevManager and padDevMgrMsgQ at these offsets): the default and
+   custom configurations with the scePadGetState name table between them,
+   the two device records, the manager thread record and its queue.
+   .sdata, 0x63A538..0x63A5D0: iosPadActRequestEnable (MAIN.MAP's one pad.o
+   .sdata name), the state names of five bytes or fewer (emitted with the
+   table, last entry first, as are the two longer ones in .rodata), the
+   literals of controler_stable_check and the reads in first-use order, and
+   the vibration request key. */
+PadConf iosPadConfDefault = {
+    {{5, 120},
+     {5, 120},
+     {5, 120},
+     {5, 120},
+     {5, 120},
+     {5, 120},
+     {5, 120},
+     {5, 120},
+     {5, 120},
+     {5, 120},
+     {5, 120},
+     {5, 120}},
+    {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5},
+    {{30, 5},
+     {30, 5},
+     {30, 5},
+     {30, 5},
+     {30, 5},
+     {30, 5},
+     {30, 5},
+     {30, 5},
+     {30, 5},
+     {30, 5},
+     {30, 5},
+     {30, 5},
+     {30, 5},
+     {30, 5},
+     {30, 5},
+     {30, 5}},
+    {0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0020, 0x0040, 0x0080, 0x0100, 0x0200, 0x0400, 0x0800,
+     0x1000, 0x2000, 0x4000, 0x8000},
+};
+
+int iosPadActRequestEnable = 1;
+
+static char *padStateName[8] = {/* derived name */
+                                "DISCONNECT", "FINDPAD", "FINDCTP1", "",
+                                "",           "EXECCMD", "STABLE",   "ERROR"};
+
+PadConf iosPadConfCustom = {0};
+
+unsigned char iosPadDev[1024] = {0};
+
+char th_iosPadDevManager[112] = {0};
+
+unsigned char padDevMgrMsgQ[48] = {0};
 
 extern int scePadInfoMode(int port, int slot, int term, int offs);
 extern int scePadSetMainMode(int port, int slot, int offs, int lock);
@@ -134,9 +183,6 @@ extern int scePadSetActAlign(int port, int slot, void *align);
 extern int scePadGetState(int port, int slot);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *msg);
-extern char *D_0029BB30[];
-extern char D_00551BD8[];
-extern char D_0063A5B8[];
 
 int controler_stable_check(void *a0)
 {
@@ -156,17 +202,17 @@ int controler_stable_check(void *a0)
     state = scePadGetState(port, slot);
     if ((unsigned int)state < 8) {
         if (state != prev) {
-            debug_StdPrintfDummy(D_00551B10, port, slot, D_0029BB30[state]);
+            debug_StdPrintfDummy("pad:port:%d slot:%d %s\n", port, slot, padStateName[state]);
         }
     } else {
-        debug_StdPrintfDummy(D_00551B28, state);
+        debug_StdPrintfDummy("pad:?%d\n", state);
     }
     if (state == 0) {
         cnt = 0;
         phase = 0;
     }
     if (port == 0 && slot == 0) {
-        debug_StdPrintfDummy(D_00551B38, phase);
+        debug_StdPrintfDummy("phase %d\n", phase);
     }
     switch (phase) {
     case 0:
@@ -183,24 +229,24 @@ int controler_stable_check(void *a0)
         dev->f1C0 &= ~0x10000;
         mode = scePadInfoMode(port, slot, 1, 0);
         orig = mode;
-        debug_StdPrintfDummy(D_00551B48, mode);
-        debug_StdPrintfDummy(D_00551B48, mode);
+        debug_StdPrintfDummy("pad id:%d\n", mode);
+        debug_StdPrintfDummy("pad id:%d\n", mode);
         if (mode == 0) {
             break;
         }
         exid = scePadInfoMode(port, slot, 2, 0);
-        debug_StdPrintfDummy(D_00551B58, exid);
-        debug_StdPrintfDummy(D_00551B58, exid);
+        debug_StdPrintfDummy("pad: exid %d\n", exid);
+        debug_StdPrintfDummy("pad: exid %d\n", exid);
         if (exid >= 1) {
             mode = exid;
         }
         switch (mode) {
         default:
-            debug_StdPrintfDummy(D_00551B68, mode);
+            debug_StdPrintfDummy("pad:default 0x%x\n", mode);
             phase = 99;
             break;
         case 4:
-            debug_StdPrintfDummy(D_0063A568);
+            debug_StdPrintfDummy("pad:4\n");
             phase = 40;
             if (orig != mode) {
                 phase = 30;
@@ -209,14 +255,14 @@ int controler_stable_check(void *a0)
             }
             break;
         case 7:
-            debug_StdPrintfDummy(D_0063A570);
+            debug_StdPrintfDummy("pad:7\n");
             phase = 70;
             if (((int)(dev->f1C0 >> 18) & 1) == 0) {
                 phase = 0;
             }
             break;
         }
-        debug_StdPrintfDummy(D_00551B80, mode);
+        debug_StdPrintfDummy("pad:%03x\n", mode);
         break;
     case 30:
         if (scePadSetMainMode(port, slot, 0, 2) == 1) {
@@ -224,7 +270,7 @@ int controler_stable_check(void *a0)
         }
         break;
     case 31:
-        debug_StdPrintfDummy(D_0063A578);
+        debug_StdPrintfDummy("pad:31\n");
         if (scePadGetReqState(port, slot) == 1) {
             phase--;
         }
@@ -232,7 +278,7 @@ int controler_stable_check(void *a0)
             break;
         }
         phase = 0;
-        debug_StdPrintfDummy(D_00551B90);
+        debug_StdPrintfDummy("pad:switch to ANALOG mode\n");
         break;
     case 40:
         if (scePadInfoMode(port, slot, 4, -1) == 0) {
@@ -241,13 +287,13 @@ int controler_stable_check(void *a0)
         }
         phase++;
     case 41:
-        debug_StdPrintfDummy(D_0063A580);
+        debug_StdPrintfDummy("pad:41\n");
         if (scePadSetMainMode(port, slot, 1, 3) == 1) {
             phase++;
         }
         break;
     case 42:
-        debug_StdPrintfDummy(D_0063A588);
+        debug_StdPrintfDummy("pad:42\n");
         if (scePadGetReqState(port, slot) == 1) {
             phase--;
         }
@@ -255,10 +301,10 @@ int controler_stable_check(void *a0)
             break;
         }
         phase = 1;
-        debug_StdPrintfDummy(D_00551B90);
+        debug_StdPrintfDummy("pad:switch to ANALOG mode\n");
         break;
     case 70:
-        debug_StdPrintfDummy(D_0063A590);
+        debug_StdPrintfDummy("pad:70\n");
         if (scePadInfoPressMode(port, slot) == 1) {
             phase++;
         } else {
@@ -266,13 +312,13 @@ int controler_stable_check(void *a0)
         }
         break;
     case 71:
-        debug_StdPrintfDummy(D_0063A598);
+        debug_StdPrintfDummy("pad:71\n");
         if (scePadEnterPressMode(port, slot) == 1) {
             phase++;
         }
         break;
     case 72:
-        debug_StdPrintfDummy(D_0063A5A0);
+        debug_StdPrintfDummy("pad:72\n");
         if (scePadGetReqState(port, slot) == 1) {
             phase--;
         }
@@ -280,10 +326,10 @@ int controler_stable_check(void *a0)
             break;
         }
         phase = 75;
-        debug_StdPrintfDummy(D_00551BB0);
+        debug_StdPrintfDummy("pad:switch to PRESSURE SENSE mode\n");
         break;
     case 75:
-        debug_StdPrintfDummy(D_0063A5A8);
+        debug_StdPrintfDummy("pad:75\n");
         if (scePadInfoAct(port, slot, -1, 0) == 0) {
             phase = 99;
         }
@@ -297,7 +343,7 @@ int controler_stable_check(void *a0)
         }
         break;
     case 76:
-        debug_StdPrintfDummy(D_0063A5B0);
+        debug_StdPrintfDummy("pad:76\n");
         if (scePadGetState(port, slot) != 5) {
             phase = 99;
         }
@@ -309,8 +355,8 @@ int controler_stable_check(void *a0)
             dev->f184 = -1;
             dev->f188 = cnt;
             dev->f18C = id;
-            debug_assert(D_00551BD8, 468);
-            __assert(D_00551BD8, 468, D_0063A5B8);
+            debug_assert(__FILE__, 468);
+            __assert(__FILE__, 468, "0");
             return -1;
         }
         if (state == 6 || state == 2) {
@@ -340,21 +386,7 @@ int controler_stable_check(void *a0)
     return phase;
 }
 
-/* The pad configuration record: 60 words, the same PadConf src/act.c copies
-   into the actor work block. */
-typedef struct {
-    int w[60];
-} PadConf;
-
-extern unsigned char iosPadDev[];
-extern PadConf iosPadConfDefault;
-extern PadConf iosPadConfCustom;
-extern char th_iosPadDevManager[];
 extern int D_0063A428;
-extern char D_00551BD8[];
-extern char D_00551D28[];
-extern char D_00551D38[];
-extern char D_0063A5B8[];
 extern int iosThreadCreateS(void *th, int prio, void *func, int arg, int stack, int size,
                             int flags);
 extern void iosThreadStart(void *th);
@@ -370,9 +402,9 @@ int iosPadDevInit(void *a0)
     iosThreadStart(th_iosPadDevManager);
 
     if (scePadInit(0) != 1) {
-        debug_StdPrintfDummy(D_00551D28);
-        debug_assert(D_00551BD8, 553);
-        __assert(D_00551BD8, 553, D_0063A5B8);
+        debug_StdPrintfDummy("pad:init error\n");
+        debug_assert(__FILE__, 553);
+        __assert(__FILE__, 553, "0");
         return 0;
     }
     for (i = 0; i < 2; i++) {
@@ -384,9 +416,9 @@ int iosPadDevInit(void *a0)
         dev->error = 0xFFFFFFFFu;
         dev->f180 = 0xFFFF;
         if (scePadPortOpen(i, 0, (char *)dev + 128) == 0) {
-            debug_StdPrintfDummy(D_00551D38, i, 0);
-            debug_assert(D_00551BD8, 569);
-            __assert(D_00551BD8, 569, D_0063A5B8);
+            debug_StdPrintfDummy("ERROR: scePadPortOpen port%d slot%d\n", i, 0);
+            debug_assert(__FILE__, 569);
+            __assert(__FILE__, 569, "0");
         }
     }
     iosPadConfCustom = iosPadConfDefault;
@@ -395,9 +427,6 @@ int iosPadDevInit(void *a0)
 
 /* the frame counter this TU reads unsigned: the ROM divides it with divu */
 extern unsigned int frame_count;
-extern char D_00551D60[];
-extern char D_00551D80[];
-extern char D_0063A5C0[];
 extern int scePadRead(int port, int slot, void *buf);
 extern void Shock_Decode(void *box, unsigned char *pFlags, unsigned char *pLevel);
 extern void Shock_SetMotor(int flags, int level, void *box, int port, int slot);
@@ -420,12 +449,12 @@ int iosPadDevReadFunc(void)
         if (dev->error != 0) {
             controler_stable_check(dev);
             if (frame_count % 120 == 0) {
-                debug_StdPrintfDummy(D_00551D60);
-                debug_StdPrintfDummy(D_00551D80, dev->port, dev->slot);
+                debug_StdPrintfDummy("pad:checking controler... ");
+                debug_StdPrintfDummy("port:%d, slot:%d\n", dev->port, dev->slot);
             }
         } else {
             if (scePadRead(dev->port, dev->slot, &dev->buf[dev->idx]) == 0) {
-                debug_StdPrintfDummy(D_0063A5C0, scePadGetState(dev->port, dev->slot));
+                debug_StdPrintfDummy("err %d\n", scePadGetState(dev->port, dev->slot));
                 if (scePadGetState(dev->port, dev->slot) == 0) {
                     dev->f184 = 0;
                     dev->error = 1;
@@ -623,8 +652,7 @@ static int padDevMgrMsgBuf[8];
 
 static PadAct padActs[16];
 
-extern int D_0063A538;
-extern int D_0063A5C8;
+static int padActKey = 1; /* derived name */
 
 /* The per-request definition table: eight bytes an entry, read through the
    request index. */
@@ -663,7 +691,7 @@ notfound:
 found:
     entry = p;
 go:
-    if (port == 0 || D_0063A538 == 0 || entry == 0) {
+    if (port == 0 || iosPadActRequestEnable == 0 || entry == 0) {
         return 0;
     }
     entry->player = D_005F5C70[id].player;
@@ -674,17 +702,15 @@ go:
     entry->prm.volume = 255;
     entry->volume = 255;
     entry->prm.b3 = 32;
-    if (Shock_Request(entry->box, entry->player, entry->prm, D_0063A5C8, 0) == 0) {
+    if (Shock_Request(entry->box, entry->player, entry->prm, padActKey, 0) == 0) {
         return 0;
     }
-    entry->key = D_0063A5C8++;
-    if (D_0063A5C8 == 0) {
-        D_0063A5C8 = 1;
+    entry->key = padActKey++;
+    if (padActKey == 0) {
+        padActKey = 1;
     }
     return *(int *)entry;
 }
-
-extern unsigned char padDevMgrMsgQ[];
 
 int iosPadDevRead(void)
 {
@@ -761,8 +787,6 @@ int iosPadEnableGet(void)
     return padEnabled;
 }
 
-extern int ShockVoiceSetCommon;
-
 void iosPadActInit(void)
 {
     unsigned char *base;
@@ -770,7 +794,7 @@ void iosPadActInit(void)
     int i;
     memset(padActs, 0, sizeof(padActs));
     Init_Shock();
-    Shock_SetShockVoiceSet(0, ShockVoiceSetCommon);
+    Shock_SetShockVoiceSet(0, (int)ShockVoiceSetCommon);
     base = iosPadDev;
     p = base + 0x1B8;
     i = 1;

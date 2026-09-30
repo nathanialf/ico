@@ -1,5 +1,6 @@
 #include "charFileManager.h"
 #include "debug.h"
+#include "fieldCollision.h"
 #include "memory.h"
 #include "gv.h"
 #include "Matrix.h"
@@ -16,7 +17,6 @@ typedef struct {
 } DObjBlk8;
 
 extern int D_0063A438;
-extern DObjBlk8 D_0063A810;
 
 #include "DObj.h"
 
@@ -157,7 +157,7 @@ void initGeometryState(char *self, float *lay)
         CopyVector(p->data.p + 0x7E0, ZeroPoint);
         CopyVector(p->data.p + 0x7F0, ZeroVector);
         *(int *)(p->data.p + 0x808) = 0;
-        *(DObjBlk8 *)(p->data.p + 0x800) = D_0063A810;
+        *(DObjBlk8 *)(p->data.p + 0x800) = *(DObjBlk8 *)&InitialObjPointer;
         *(void **)(p->data.p + 0x80C) =
             iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 6, __FILE__, 137);
         for (i = 0; i < *(int *)(p->data.p + 0x88); i++) {
@@ -488,5 +488,5 @@ inline void LinkParentOfDObj(void *a0, PackedLL_19CAF0 *a1)
 inline void UnlinkParentOfDObj(void *a0)
 {
     GlobalizeGeometry(a0);
-    *(DObjBlk8 *)GOBJ_SUB(a0) = D_0063A810;
+    *(DObjBlk8 *)GOBJ_SUB(a0) = *(DObjBlk8 *)&InitialObjPointer;
 }

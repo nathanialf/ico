@@ -1,4 +1,5 @@
 #include "gamesys.h"
+#include "mcard.h"
 #include "boyact.h"
 #include "stage_orient.h"
 #include "generator.h"
@@ -10,7 +11,6 @@
 static unsigned char gflags[50] = {0};
 
 extern int D_0028F4CC[];
-extern int D_0029B9D0[];
 extern int D_0063AA00;
 extern int D_0063AA04;
 extern int before_stage_no;
@@ -37,7 +37,7 @@ void gflagInit(void)
     Generator_Init();
     warpGirlInit();
     D_0028F4CC[0] = 0;
-    memset(D_0029B9D0, 0, 0x14);
+    memset(IosMcPreviewInfo, 0, 0x14);
     gamesysVersionDiff = 0;
     itouGFlagInit();
 }

@@ -556,15 +556,22 @@ segments:
       - [0x190B40, .data, ico2/seki/src/Shadow]  # the TU's .data run as source (completeness pass 65; MAIN.MAP line 5806), VMA 0x290B40..0x290B58, 24 B
       - [0x190B58, .data, ico2/seki/src/Texture]  # the TU's .data run as source (completeness pass 66): mipmap_header_size, textype, psmTable, imageTypeName, clutTypeName, headerName in ROM order, VMA 0x290B58..0x290C08, 0xB0 B, ZFog's row follows
       - [0x190C08, .data, ico2/seki/src/ZFog]  # the TU's whole .data run as source (completeness pass 6), VMA 0x290C08..0x290C10, 8 B emitted
-      - [0x190C10, data, cod/190C10]     # .data blob resume
+      - [0x190C10, data, cod/190C10]     # .data blob resume (48 zero bytes of alignment fill before cdvd.o's 64-aligned .data)
+      - [0x190C40, .data, ico2/fumi/ios/cdvd]  # the TU's whole .data run as source (finishing pass P1-4), VMA 0x290C40..0x29B430, 0xA7F0 B, all zero: iosCdvd, CdvdMsgQ, CdvdMsgQ_LoadEnd, iosCdvdSrhBuff (MAIN.MAP cdvd.o globals, January 0xA7A0 at the same offsets) then retail's stream acknowledge queue and request record; inflate's row follows
       - [0x19B430, .data, ico2/fumi/ios/inflate]  # the TU's whole .data run as source (completeness pass 5), VMA 0x29B430..0x29B57C, 332 B emitted
-      - [0x19B57C, data, cod/19B57C]     # .data blob resume
+      - [0x19B57C, data, cod/19B57C]     # .data blob resume (4 B of fill before mcard.o's 16-aligned .data)
+      - [0x19B580, .data, ico2/fumi/ios/mcard]  # the TU's whole .data run as source (finishing pass P1-4), VMA 0x29B580..0x29BA18, 0x498 B (MAIN.MAP mcard.o .data 0x3C8, the product records grown): iconName, iOSMcSaveSeg, iOSMcSaveList, IosMcProductFile, IosMcPreviewInfo, McMsgQ (MAIN.MAP globals)
+      - [0x19BA18, data, cod/19BA18]     # .data blob resume (0x28 B of fill before pad.o's 64-aligned .data)
+      - [0x19BA40, .data, ico2/fumi/ios/pad]  # the TU's whole .data run as source (finishing pass P1-4), VMA 0x29BA40..0x29C0E0, 0x6A0 B = MAIN.MAP pad.o .data: iosPadConfDefault, the scePadGetState name table, iosPadConfCustom, iosPadDev, th_iosPadDevManager, padDevMgrMsgQ (MAIN.MAP globals at the map's offsets)
+      - [0x19C0E0, .data, ico2/fumi/ios/shockdriver]  # the TU's whole .data run as source (finishing pass P1-4), VMA 0x29C0E0..0x29C4F0, 0x410 B = MAIN.MAP shockdriver.o .data, all zero: ShockDriver and ShockRequest (MAIN.MAP globals)
+      - [0x19C4F0, data, cod/19C4F0]     # .data blob resume (isys, obj_manager, act-game)
       - [0x19C610, .data, ico2/fumi/src/boyact]  # the TU's whole .data run as source (chain 3 pass 166): the BoyWork and kidnap initial values, BgaEntry[5], the PrivInsCam, 16 zero bytes and the last object, VMA 0x29C610..0x29C840, 0x230 B, up to commonact's row
       - [0x19C840, .data, ico2/fumi/src/commonact]  # the TU's whole .data run as source (chain 3 pass 62): intrMotion (432 ints, the motion id per interrupt kind), cageUpDown (CageUD, 0x2C plus 4 pad), flyLimitCol and the three block-scope col[4] colour quads (anonymous col.N), VMA 0x29C840..0x29CF70, 0x730 B; MAIN.MAP commonact.o .data 0x680 is the January link
       - [0x19CF70, .data, ico2/fumi/src/enemy_act]  # the TU's whole .data run as source: fourteen 28-byte brain-mode records, 8 B of fill, three 16-aligned float tables and a colour quad, VMA 0x29CF70..0x29D1D0 (chain 3 pass 148); the record names stay placeholders until the string runs are carved
-      - [0x19D1D0, data, cod/19D1D0]     # data blob resume
+      - [0x19D1D0, .data, ico2/fumi/src/fieldCollision]  # the TU's whole .data run as source (finishing pass P1-4), VMA 0x29D1D0..0x29D420, 0x250 B = MAIN.MAP fieldCollision.o .data: InitialColInfo (global), the debug label table, the 17 clip modes, the clip work matrix, the plane point, eight line colours and an unreferenced unit matrix; girl_act's row follows
       - [0x19D420, .data, ico2/fumi/src/girl_act]  # the head of the TU's .data run as source (chain 2 pass 87): the danger-env initial value, the ten-entry brain-mode table, the kinds triple, four group-name strings, the run-mode rows, three attract parameter sets, five move-state names, the angles triple and nine attract-state names, VMA 0x29D420..0x29D64C, 0x22C B; the rest of the run (brain_val 0x29D650, 0x5920 B, and handmgr 0x2A2F70) stays in the blob until its readers are retyped and actGirlHand lands
       - [0x19D64C, data, cod/19D64C]     # data blob resume (a pad word, then brain_val and handmgr)
+      - [0x1A2FD0, .data, ico2/fumi/src/jimaku]  # the TU's whole .data run as source (finishing pass P1-4), VMA 0x2A2FD0..0x2A50C0, 0x20F0 B = MAIN.MAP jimaku.o .data, all zero: jimakuThread, jimakuThreadStack, jimakuMsgQ, jimaku_msg (MAIN.MAP globals at the same offsets)
       - [0x1A50C0, .data, ico2/script/src/gflag]  # the story flag bitmap (data pass 3), VMA 0x2A50C0..0x2A50F2, 50 B; the 14 zero bytes to 0x2A5100 are the next input's alignment pad
       - [0x1A5100, .data, ico2/script/src/script]  # the TU's whole .data run as source (completeness pass 5), VMA 0x2A5100..0x2A5400, 768 B emitted
       - [0x1A5400, data, cod/1A5400]     # .data blob resume
@@ -736,14 +743,12 @@ segments:
       - [0x450FF0, .rodata, ico2/fumi/ios/inflate]  # the TU's whole .rodata (chain 1 pass 114, = MAIN.MAP 0x65): __FILE__ and three message strings as anonymous literals at their use sites, VMA 0x550FF0..0x551055, 3 B of pad before ios's row
       - [0x451058, .rodata, ico2/fumi/ios/ios]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x551058..0x551430, 984 B
       - [0x4510F8, .rodata, ico2/fumi/ios/mblock]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x5510F8..0x551430, 824 B
-      - [0x451110, rodata, cod/451110]     # rodata blob resume
+      - [0x451110, .rodata, ico2/fumi/ios/mcard]  # the TU's .rodata strings as source (finishing pass P1-4), VMA 0x551110..0x551425: the three names the .data tables point at, then the literals in first-use order (the card helpers in the listing's order); the switch table's row follows
       - [0x451430, .rodata, ico2/fumi/ios/mcard]  # carved jtbl_00551430 (VMA 0x551430..0x55146C, 60 B, 15 arms): iosMcManager's command switch table, emitted by the compiled function
       - [0x45146C, rodata, cod/45146C]   # .rodata blob resume (one zero pad word, then the rest of the run)
       - [0x451470, .rodata, ico2/fumi/ios/memory]  # the TU's whole .rodata run as source (completeness pass 65; MAIN.MAP line 6319), 1520 B; message's run follows
       - [0x451A60, .rodata, ico2/fumi/ios/message]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x551A60..0x552080, 1568 B
-      - [0x451AF0, rodata, cod/451AF0]     # rodata blob resume
-      - [0x451BF0, .rodata, ico2/fumi/ios/pad]  # controler_stable_check's jump table (77 entries on phase, section .rodata.0x00551BF0, anonymous), VMA 0x551BF0..0x551D24, 308 B; arms checked against the ROM words
-      - [0x451D24, rodata, cod/451D24]     # .rodata blob resume
+      - [0x451AF0, .rodata, ico2/fumi/ios/pad]  # the TU's whole .rodata run as source (finishing pass P1-4), VMA 0x551AF0..0x551D98, 0x2A8 B (MAIN.MAP pad.o .rodata 0x2A2): the two long scePadGetState names, the strings as literals in first-use order, __FILE__, controler_stable_check's 77-entry switch table where gcc emits it, then the device init and read strings; shockdriver's row follows
       - [0x451D98, .rodata, ico2/fumi/ios/shockdriver]  # the TU's .rodata (chain 1 pass 108, = MAIN.MAP 0x11): the "voice error? %d\n" format as a literal, VMA 0x551D98..0x551DA9 plus link pad to thread's row at 0x551DB0
       - [0x451DB0, .rodata, ico2/fumi/ios/thread]  # the TU's whole .rodata run as source (data pass 2): seventeen string literals at their use sites, __FILE__ for "ios/thread.c", assert/malloc line arguments in decimal; VMA 0x551DB0..0x551F2E + 2 B link pad
       - [0x451F30, .rodata, ico2/fumi/isys/gobj]  # the TU's whole .rodata run as source (data pass 2): __FILE__ plus the two isys messages; VMA 0x551F30..0x551F71 + 7 B link pad
@@ -777,8 +782,7 @@ segments:
       - [0x4536C8, rodata, cod/4536C8]   # .rodata blob resume (subEnemyBrain_ToGirl's change-to-kidnap string, kept a placeholder since it follows the tables)
       - [0x453750, .rodata, ico2/fumi/src/fieldCollision]  # the TU's .rodata run as source (completeness pass 66), VMA 0x553750, 0x23E B, anonymous strings in the listing's source order with the compiled-out "%s%d(%d)\n" among them
       - [0x453990, .rodata, ico2/fumi/src/girl_act]  # the TU's whole .rodata run as source (pass sgw2), VMA 0x553990..0x5540B0, 0x720 B = MAIN.MAP girl_act.o .rodata: strings, the eight jump tables (0x553AD0, 0x553B20, 0x553B50, 0x553B80, 0x553BC0, 0x553C30, 0x553D30, 0x553EB0) unsplit in gcc's section, the anonymous constants and ee-as's two interned doubles, in emission order, with the compiled-out prints' texts (subGirlControl's four, actGirlDitch3mExec's "WBP set [ditch jump]\n") in their functions' places
-      - [0x4540B0, .rodata, ico2/fumi/src/jimaku]  # carved jtbl_005540B0 (VMA 0x5540B0..0x5540C4, 20 B, 5 arms): jimakuMgrBegin's switch table, selector NonLinearCameraMove - 2, emitted by the compiled function
-      - [0x4540C4, rodata, cod/4540C4]   # .rodata blob resume (the pad word before D_005540C8)
+      - [0x4540B0, .rodata, ico2/fumi/src/jimaku]  # the TU's whole .rodata run as source (finishing pass P1-4), VMA 0x5540B0..0x554120, 0x70 B (MAIN.MAP jimaku.o .rodata 0x6E): jimakuMgrBegin's 5-arm switch table, a pad word, then the four strings as literals in first-use order; way_sys's row follows
       - [0x454120, .rodata, ico2/fumi/src/way_sys]  # the TU's whole .rodata run as source, 25 format strings, VMA 0x554120..0x5542FB plus 5 B of pad to way_util (chain 1 pass 130); the TU entirely C
       - [0x454300, .rodata, ico2/fumi/src/way_util]  # the TU's whole .rodata run as source (completeness pass 6), VMA 0x554300..0x554372, 114 B emitted
       - [0x454372, rodata, cod/454372]     # .rodata blob resume
@@ -1228,6 +1232,13 @@ segments:
       - [0x53A2C8, sdata, cod/53A2C8]     # .sdata blob resume
       - [0x53A348, .sdata, ico2/seki/src/ZFog]  # the TU's whole .sdata run as source (completeness pass 6), VMA 0x63A348..0x63A354, 12 B emitted
       - [0x53A354, sdata, cod/53A354]     # .sdata blob resume
+      - [0x53A368, .sdata, ico2/fumi/ios/cdvd]  # the TU's whole .sdata run as source (finishing pass P1-4), VMA 0x63A368..0x63A3E0, 0x78 B: the variables and the short literals in emission order, IosCdvdMgrSleep first and inflateSec last (MAIN.MAP cdvd.o .sdata 0x5C, the same first and last globals); ios.o's iopBuffOver follows
+      - [0x53A3E0, sdata, cod/53A3E0]     # .sdata blob resume (ios.o, mblock.o)
+      - [0x53A478, .sdata, ico2/fumi/ios/mcard]  # the TU's whole .sdata run as source (finishing pass P1-4), VMA 0x63A478..0x63A4D5, 0x5D B = MAIN.MAP mcard.o .sdata: IosMcMgrSleep, IosMcLock, "game.", the lock count and the literals in first-use order
+      - [0x53A4D8, sdata, cod/53A4D8]     # .sdata blob resume
+      - [0x53A538, .sdata, ico2/fumi/ios/pad]  # the TU's whole .sdata run as source (finishing pass P1-4), VMA 0x63A538..0x63A5D0, 0x98 B (MAIN.MAP pad.o .sdata 0x80): iosPadActRequestEnable, the short state names, the literals in first-use order and the request key; shockdriver's row follows
+      - [0x53A5D0, .sdata, ico2/fumi/ios/shockdriver]  # the TU's whole .sdata run as source (finishing pass P1-4), VMA 0x63A5D0..0x63A5F0, 0x20 B = MAIN.MAP shockdriver.o .sdata, all zero: System_shock_driver, ShockVoiceSetCommon, ShockVoiceSetStage, ShockVoiceSetBuf, ShockRequestMemory at the map's offsets; thread's strings follow
+      - [0x53A5F0, sdata, cod/53A5F0]     # .sdata blob resume
       - [0x53A670, .sdata, ico2/fumi/sound/s_init]  # the TU's .sdata as source (chain 1 pass 72): debug_DispSEInfo's cursor strings ">" (padded to 8) and " ", anonymous, VMA 0x63A670..0x63A67A, 0xA B
       - [0x53A67A, sdata, cod/53A67A]     # .sdata blob resume
       # --- per-TU .sdata carves ---
@@ -1239,8 +1250,12 @@ segments:
       # the literal's own VMA, and holds only literals the TU's C actually emits.
       - [0x53A738, .sdata, ico2/fumi/src/commonact]     # carved D_0063A738 ("reset\n", afterCommonBar's string literal) + ROM's 1 pad byte, VMA 0x63A738..0x63A740, 8 B.  NARROW: commonact's full .sdata run is 0x63A710..0x63A7E0 (208 B, ~17 more <=8-byte string literals whose owners are still INCLUDE_ASM); the one-run-per-(TU,section) rule means widening it later needs those bodies in C first.  MAIN.MAP commonact.o .sdata is 0x6d (a different link; the PAL ELF's own run is 0xd0).  USA: - [0x5322F0, .sdata, ico2/fumi/src/commonact]  # carved D_006322F0..D_00632308 (VMA 0x6322F0..0x632310, 32 bytes); D_006322F0 is func_0015F578's "reset\n" string literal, the other 4 are sidecar objects
       - [0x53A740, sdata, cod/53A740]    # .sdata blob resume
+      - [0x53A808, .sdata, ico2/fumi/src/fieldCollision]  # the TU's whole .sdata run as source (finishing pass P1-4), VMA 0x63A808..0x63A868, 0x60 B: an unreferenced word, collision_pick and InitialObjPointer (MAIN.MAP globals), the object count, the labels and literals in emission order, the two clip function pointers and the wall draw count; fuzio's strings follow
+      - [0x53A868, sdata, cod/53A868]    # .sdata blob resume (fuzio.o's three strings)
       - [0x53A880, .sdata, ico2/fumi/src/girl_act]  # the TU's .sdata run as source (pass sgw2), VMA 0x63A880..0x63A8E3, 0x63 B: motGirlHand200's "boy"/"girl", ATGoalTurnSendMail's two mail pairs, MakeOthersList's "0" and "III", the group names' "DIRECT"/"FALSE", "X", the move states' "WAIT"/"END"/"IDLE" and subGirlBrain_Escape's "%s" (VMA 0x63A8E0); the objects after it (WayTest's flag byte at 0x63A8E3, D_0063A8E4) cannot be defined in C while -fdata-sections takes named small objects off gp, so the blob resumes at the odd address, its strings pinned by their symbol rows
       - [0x53A8E3, sdata, cod/53A8E3]    # .sdata blob resume
+      - [0x53A960, .sdata, ico2/fumi/src/jimaku]  # the TU's whole .sdata run as source (finishing pass P1-4), VMA 0x63A960..0x63A9A0, 0x40 B = MAIN.MAP jimaku.o .sdata: the display time and flag, jimakuOn, the sprite colour, the assert text, the three dump strings and jimakuMsgBuf
+      - [0x53A9A0, sdata, cod/53A9A0]    # .sdata blob resume
       - [0x53AA6C, .sdata, ico2/omori/src/brain]  # the TU's .sdata as source: two FLT_MAX words, VMA 0x63AA6C..0x63AA74, 8 B; MAIN.MAP line 7123
       - [0x53AA78, sdata, cod/53AA78]    # .sdata blob resume (the zero pad word at 0x53AA74 belongs to the pad)
       - [0x53AC20, .sdata, ico2/ito/src/act_bird]  # the TU's .sdata: subBirdBrainMain's seven short state-name strings, which -G 8 routes to .sdata (55 B); VMA 0x63AC20..0x63AC57, one zero pad byte to the blob

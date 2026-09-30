@@ -24,7 +24,7 @@ typedef struct {
 } CdStOwner;
 
 /* The streaming request iosCdvdMgrStStart hands to the cdvd thread: the
- * request record at D_0029B410 and the preload window it describes. */
+ * request record stReq and the preload window it describes. */
 typedef struct {
     CdStOwner *owner; /* 0x00 */
     int f_4;
@@ -36,8 +36,58 @@ typedef struct {
     int f_1C;
 } CdStReq;
 
-extern CdStReq D_0029B410;
-extern char D_0029B3E0[];
+/* The sceCdRead mode record (libcdvd's sceCdRMode): try count, spindle
+   control and data pattern bytes. */
+typedef struct {
+    unsigned char trycount;
+    unsigned char spindlctrl;
+    unsigned char datapattern;
+    unsigned char pad;
+} CdRMode;
+
+/* .data, owned by cdvd.o, in the ROM's run order, 0x290C40..0x29B430, all
+   zero.  MAIN.MAP (line 5812) names iosCdvd, CdvdMsgQ, CdvdMsgQ_LoadEnd and
+   iosCdvdSrhBuff in its January member of 0xA7A0 bytes, at the offsets they
+   have here; the stream manager's acknowledge queue and its request record
+   after them are retail's and not in that link.  iosCdvd is the manager's
+   cdvd handle (33216 bytes, as unifileHandle), the two queues take the
+   48-byte message queue record, iosCdvdSrhBuff is the 200-entry directory
+   cache. */
+char iosCdvd[33216] = {0};
+
+unsigned char CdvdMsgQ[48] = {0};
+
+int CdvdMsgQ_LoadEnd[12] = {0};
+
+CdSrhEnt iosCdvdSrhBuff[200] = {0};
+
+static char stAckQ[48] = {0}; /* derived name */
+
+static CdStReq stReq = {0}; /* derived name */
+
+/* .sdata, owned by cdvd.o, 0x63A368..0x63A3E0 (MAIN.MAP line 7004 names
+   IosCdvdMgrSleep, iosCdvdMediaType, iosCdvdBackGroundMgrRunning and
+   inflateSec).  The objects before the first string: the sleep flag, the
+   directory cache count, the media mode (2, DVD), the disc type the drive
+   must report (20, a DVD video disc), the spindle control byte copied into
+   each handle's read mode, the background read mode record (a record, so
+   8-aligned after the byte), the background drive state and the stream
+   load-end wait flag. */
+int IosCdvdMgrSleep = 0;
+
+static int srhBuffCnt = 0; /* derived name */
+
+int iosCdvdMediaType = 2;
+
+static int cdDiskType = 20; /* derived name */
+
+static unsigned char cdSpindlCtrl = 1; /* derived name */
+
+static CdRMode bgReadMode = {0}; /* derived name */
+
+static int bgDriveState = 0; /* derived name */
+
+static int stLoadEndWait = 0; /* derived name */
 
 /* .bss, owned by cdvd.o and reached only from this file (MAIN.MAP line 7688
    gives the member, 0xC38 in its January link, and names no symbol in it), in
@@ -84,9 +134,6 @@ static int stReqRing[2];
 
 static int stAckRing[1];
 
-extern char D_0063A390[];
-extern int D_0063A370;
-extern int D_0063A388;
 extern void sprintf();
 extern void __assert(const char *file, int line, char *expr);
 extern int sceCdRead(int lsn, int sectors, void *buf, int *mode);
@@ -135,7 +182,7 @@ static __inline__ void stDebugPrintStatus(void)
 static __inline__ void stDebugPrintMode(void)
 {
 #ifdef DEBUG
-    scePrintf("cd media mode %d\n", D_0063A370);
+    scePrintf("cd media mode %d\n", iosCdvdMediaType);
 #endif
 }
 
@@ -149,12 +196,12 @@ void iosCdvdStManager(void)
     unsigned int err;
     int mode;
 
-    D_0029B410.f_4 = 0;
+    stReq.f_4 = 0;
     iosMsgQueueCreate(stReqQ, stReqRing, 1);
-    iosMsgQueueCreate(D_0029B3E0, stAckRing, 1);
+    iosMsgQueueCreate(stAckQ, stAckRing, 1);
 
     while (1) {
-        req = &D_0029B410;
+        req = &stReq;
         mode = 0;
         if (req->f_4 != 1) {
             mode = 1;
@@ -163,7 +210,7 @@ void iosCdvdStManager(void)
             if (req->f_4 != 1) {
                 sprintf(buf, "stream mode error %d\n", req->f_4);
                 debug_assertMessage(__FILE__, 518, buf);
-                __assert(__FILE__, 518, D_0063A390);
+                __assert(__FILE__, 518, "e");
             }
             if (req->f_1C > req->f_14) {
                 n = req->f_1C - req->f_14;
@@ -174,7 +221,7 @@ void iosCdvdStManager(void)
                 if (req->f_18 != req->size) {
                     sprintf(buf2, "stream size illigual %d\n", req->f_18);
                     debug_assertMessage(__FILE__, 546, buf2);
-                    __assert(__FILE__, 546, D_0063A390);
+                    __assert(__FILE__, 546, "e");
                 }
             }
             if (n > 16) {
@@ -189,13 +236,13 @@ void iosCdvdStManager(void)
                 if (sceCdRead(req->owner->lsn, n, p, &req->owner->mode) == 0) {
                     sprintf(buf2, "read command fail\n");
                     debug_assertMessage(__FILE__, 569, buf2);
-                    __assert(__FILE__, 569, D_0063A390);
+                    __assert(__FILE__, 569, "e");
                 }
                 sceCdSync(0);
                 err = sceCdGetError();
                 if ((int)err == -1) {
                     sceCdInit(0);
-                    sceCdMmode(D_0063A370);
+                    sceCdMmode(iosCdvdMediaType);
                     stDebugPrintError();
                     stDebugPrintStatus();
                     stDebugPrintMode();
@@ -210,9 +257,9 @@ void iosCdvdStManager(void)
                     iosCdvdDiskReadyBlock();
                     goto retry;
                 }
-                if (D_0063A388 != 0) {
-                    iosMsgSend(D_0029B3E0, 1, 0);
-                    D_0063A388 = 0;
+                if (stLoadEndWait != 0) {
+                    iosMsgSend(stAckQ, 1, 0);
+                    stLoadEndWait = 0;
                 }
                 req->owner->lsn += n;
                 req->owner->left -= n;
@@ -231,7 +278,7 @@ void iosCdvdStManager(void)
                 req->f_4 = 1;
                 break;
             case 1:
-                iosMsgSend(D_0029B3E0, 2, 0);
+                iosMsgSend(stAckQ, 2, 0);
                 req->f_4 = 0;
                 break;
             }
@@ -249,23 +296,10 @@ typedef struct {
     unsigned int reserved;
 } CdlFILE;
 
-/* iosCdvdSrhBuff is the directory cache: D_0063A36C records of 0x30 bytes,
- * and D_00298E68 is iosCdvdSrhBuff[0].name (the ROM addresses the name column
- * through its own symbol).  */
-typedef struct {
-    int lsn;
-    int size;
-    char name[0x28];
-} CdSrhEnt;
-
-extern CdSrhEnt iosCdvdSrhBuff[];
-extern char D_00298E68[];
-extern int D_0063A36C;
 extern unsigned int strlen(const char *s);
 extern int strcmp(const char *a, const char *b);
 extern char *strncpy(char *d, const char *s, int n);
 extern int sceCdSearchFile(CdlFILE *fp, const char *name);
-extern int D_0063A374;
 extern int sceCdDiskReady(int mode);
 extern int sceCdGetDiskType(void);
 
@@ -285,8 +319,32 @@ inline void iosCdvdDiskReadyBlock(void)
         debug_StdPrintfDummy("wait insert ico disk %s %s\n", "SCES_507.60", file);
         do {
             sceCdDiskReady(0);
-        } while (sceCdGetDiskType() != D_0063A374 || sceCdSearchFile(&fp, file) == 0);
+        } while (sceCdGetDiskType() != cdDiskType || sceCdSearchFile(&fp, file) == 0);
     }
+}
+
+extern void debug_assert();
+
+/* INTERIM: the January-2002 listing expands iosCdvdGetFileLsn (cdvd.c rows
+ * 739-753) inside iosCdvdBackGroundMgrAdd, so the 2001 source declared it
+ * `inline` and the compiler emitted both the inlined copy and the out-of-line
+ * body.  While this TU still carries asm members the out-of-line body has to
+ * stay at its own ROM slot below, so the inlined copy is spelled here as a
+ * static stand-in.  Delete this once the TU is C-complete and mark the real
+ * definition `inline`.  */
+static inline int getFileLsnInlined(char *name, int *size)
+{
+    int i;
+
+    for (i = 0; i < srhBuffCnt; i++) {
+        if (strcmp(name, iosCdvdSrhBuff[i].name) == 0)
+            goto found;
+    }
+    debug_assert(__FILE__, 749);
+    __assert(__FILE__, 749, "0");
+found:
+    *size = iosCdvdSrhBuff[i].size;
+    return iosCdvdSrhBuff[i].lsn;
 }
 
 void iosCdvdMgrSearchFile(char *self)
@@ -298,8 +356,8 @@ void iosCdvdMgrSearchFile(char *self)
     int r = 1;
 
     if (strlen(self + 0x38) < 0x28) {
-        for (i = 0; i < D_0063A36C; i++) {
-            r = strcmp(self + 0x38, D_00298E68 + i * 0x30);
+        for (i = 0; i < srhBuffCnt; i++) {
+            r = strcmp(self + 0x38, iosCdvdSrhBuff[i].name);
             if (r == 0) {
                 break;
             }
@@ -315,11 +373,11 @@ void iosCdvdMgrSearchFile(char *self)
         if (sceCdSearchFile((CdlFILE *)(self + 0x138), self + 0x38) == 0) {
             *(int *)(self + 0xC) = 100;
         }
-        if (D_0063A36C < 200) {
-            iosCdvdSrhBuff[D_0063A36C].lsn = *(int *)(self + 0x138);
-            iosCdvdSrhBuff[D_0063A36C].size = *(int *)(self + 0x13C);
-            strncpy(iosCdvdSrhBuff[D_0063A36C].name, self + 0x38, 0x28);
-            D_0063A36C++;
+        if (srhBuffCnt < 200) {
+            iosCdvdSrhBuff[srhBuffCnt].lsn = *(int *)(self + 0x138);
+            iosCdvdSrhBuff[srhBuffCnt].size = *(int *)(self + 0x13C);
+            strncpy(iosCdvdSrhBuff[srhBuffCnt].name, self + 0x38, 0x28);
+            srhBuffCnt++;
         } else {
             debug_StdPrintfDummy("iosCdvdMgrSearchFile: warning iosCdvdSrhBuff over\n");
         }
@@ -346,26 +404,24 @@ void iosCdvdMgrStStart(char *self)
         stagePreLoadSectorCnt = 0;
         stPreLoadCnt = 0;
     }
-    D_0029B410.owner = (CdStOwner *)self;
-    D_0029B410.buf = stagePreLoadBuff;
-    D_0029B410.size = 0x380;
-    D_0029B410.f_18 = stPreLoadCnt;
-    D_0029B410.f_14 = stPreLoadCnt;
+    stReq.owner = (CdStOwner *)self;
+    stReq.buf = stagePreLoadBuff;
+    stReq.size = 0x380;
+    stReq.f_18 = stPreLoadCnt;
+    stReq.f_14 = stPreLoadCnt;
     if (stPreLoadCnt >= 0x380) {
-        D_0029B410.f_14 = 0;
+        stReq.f_14 = 0;
     }
-    D_0029B410.f_1C = 0;
+    stReq.f_1C = 0;
     *(int *)(self + 0x14) = lsn;
     total = (*(unsigned int *)(self + 0x13C) - 1) >> 11;
     rest = lsn - *(int *)(self + 0x138) - 1;
     *(int *)(self + 0x18) = total - rest;
-    D_0029B410.f_8 = 0;
-    iosMsgSend(stReqQ, &D_0029B410, 1);
+    stReq.f_8 = 0;
+    iosMsgSend(stReqQ, &stReq, 1);
     *(int *)(self + 0x160) = open_inflate_handler(inflate_cd_read_func, self);
 }
 
-extern char D_0029B3E0[];
-extern char D_0063A390[];
 /* kept local: this TU's uses of iosThreadGetPri do not fit the prototype in thread.h */
 extern int iosThreadGetPri(int tid);
 /* kept local: this TU's uses of iosThreadSetPri do not fit the prototype in thread.h */
@@ -382,24 +438,23 @@ void iosCdvdMgrStStop(char *self)
 
     pri = iosThreadGetPri(0);
     iosThreadSetPri(0, 27);
-    D_0029B410.f_8 = 1;
-    iosMsgSend(stReqQ, &D_0029B410, 1);
-    if (D_0029B410.f_4 == 1) {
+    stReq.f_8 = 1;
+    iosMsgSend(stReqQ, &stReq, 1);
+    if (stReq.f_4 == 1) {
         sceCdBreak();
     }
     iosThreadSetPri(0, pri);
-    iosMsgRecv(D_0029B3E0, &msg, 1);
+    iosMsgRecv(stAckQ, &msg, 1);
     if (msg != 2) {
         sprintf(buf, "stream manager stop command error %d\n", msg);
         debug_assertMessage(__FILE__, 906, buf);
-        __assert(__FILE__, 906, D_0063A390);
+        __assert(__FILE__, 906, "e");
     }
     *(int *)(self + 0xC) = 0;
     close_inflate_handler(*(int *)(self + 0x160));
 }
 
 extern char D_00637E69[];
-extern char D_0063A3A0[];
 
 /* newlib <ctype.h> (reconstruction): D_00637E69 is `_ctype_ + 1`, bit 0x02 is
  * _L (lower); the GNU C toupper macro reads its argument once. */
@@ -426,7 +481,7 @@ static inline int chgFileNameInlined(int a0)
     char *p = buf;
     char c;
 
-    sprintf(buf, D_0063A3A0, a0);
+    sprintf(buf, "\\%s;1", a0);
 
     do {
         if ((c = *p) == '/') {
@@ -439,15 +494,13 @@ static inline int chgFileNameInlined(int a0)
     return strcpy(a0, buf);
 }
 
-extern unsigned char D_0063A378;
-
 void iosCdvdMgrLoad(char *self)
 {
     int rv;
 
     chgFileNameInlined((int)(self + 0x38));
     *(char *)(self + 0x15C) = 0;
-    *(unsigned char *)(self + 0x15D) = D_0063A378;
+    *(unsigned char *)(self + 0x15D) = cdSpindlCtrl;
     *(char *)(self + 0x15E) = 0;
     *(int *)(self + 0x28) = 0;
     iosCdvdDiskReadyBlock();
@@ -461,6 +514,11 @@ void iosCdvdMgrLoad(char *self)
     iosCdvdMgrStStart(self);
     if (*(int *)(self + 0xC) != 0) {
         return;
+    }
+    /* January row 1013 prints here; retail keeps the string with no
+     * reader. */
+    if (0) {
+        debug_StdPrintfDummy("handler");
     }
     if (*(int (**)(char *, int))(self + 0x1C) != 0) {
         rv = (*(int (**)(char *, int))(self + 0x1C))(self, *(int *)(self + 0x20));
@@ -507,8 +565,6 @@ typedef struct PackKind {
 
 extern PackKind D_0055F828[];
 extern int D_0028F4C0[];
-extern int D_0063A3DC;
-extern char D_0063A3B0[];
 extern int SgGetDmaTransferStatus(int ch);
 extern int lock_execIcoMisc;
 
@@ -536,7 +592,7 @@ static inline PackFunc getPackLoader(char *name, int *kind)
     char *p;
     int i;
 
-    D_0063A3DC = 0;
+    inflateSec = 0;
     len = strlen(name);
     p = name + (len - 1);
     for (i = 0; i < len; i++, p--) {
@@ -565,7 +621,7 @@ void iosCdvdMgrPackLoad(char *self)
 
     chgFileNameInlined((int)(self + 0x38));
     *(char *)(self + 0x15C) = 0;
-    *(unsigned char *)(self + 0x15D) = D_0063A378;
+    *(unsigned char *)(self + 0x15D) = cdSpindlCtrl;
     *(char *)(self + 0x15E) = 0;
     *(int *)(self + 0x28) = 0;
     iosCdvdDiskReadyBlock();
@@ -598,7 +654,7 @@ void iosCdvdMgrPackLoad(char *self)
         /* The entry count is the header's first word; the loop re-reads it
          * through this view after every member call. */
         num = hdr;
-        debug_StdPrintfDummy(D_0063A3B0, *num);
+        debug_StdPrintfDummy("n=%d\n", *num);
         if (0) {
             debug_StdPrintfDummy("------------------------------------------------files %d -----\n",
                                  *num);
@@ -638,14 +694,13 @@ void iosCdvdMgrPackLoad(char *self)
     }
 }
 
-extern int D_0063A388;
 extern char *memcpy(char *d, const char *s, int n);
 
 int iosCdStRead(unsigned int n, int *buf, int flag, int *result, char *self)
 {
     char msgbuf[128];
     int msg;
-    CdStReq *req = &D_0029B410;
+    CdStReq *req = &stReq;
     int pri = iosThreadGetPri(0);
     int total = 0;
     int size;
@@ -662,12 +717,12 @@ int iosCdStRead(unsigned int n, int *buf, int flag, int *result, char *self)
             size = req->f_18;
         } else {
             while (req->f_18 < size) {
-                D_0063A388 = 1;
-                iosMsgRecv(D_0029B3E0, &msg, 1);
+                stLoadEndWait = 1;
+                iosMsgRecv(stAckQ, &msg, 1);
                 if (msg != 1) {
                     sprintf(msgbuf, "stream manager load end command error %d\n", msg);
                     debug_assertMessage(__FILE__, 1304, msgbuf);
-                    __assert(__FILE__, 1304, D_0063A390);
+                    __assert(__FILE__, 1304, "e");
                 }
             }
         }
@@ -683,9 +738,9 @@ int iosCdStRead(unsigned int n, int *buf, int flag, int *result, char *self)
             buf += bytes;
             n -= size;
             total += size;
-            if (D_0029B410.f_4 == 2) {
-                D_0029B410.f_8 = 2;
-                iosMsgSend(stReqQ, &D_0029B410, 1);
+            if (stReq.f_4 == 2) {
+                stReq.f_8 = 2;
+                iosMsgSend(stReqQ, &stReq, 1);
             }
         }
         iosThreadSetPri(0, pri);
@@ -693,19 +748,18 @@ int iosCdStRead(unsigned int n, int *buf, int flag, int *result, char *self)
     return total;
 }
 
-extern int D_0063A368;
 extern void iosThreadSleep(void);
 
 /* The read-retry sleep (our name): the listing attributes its statements to
    cdvd.c:679-680, a static inline between iosCdvdStManager and
-   iosCdvdDiskReadyBlock that is never emitted out of line.  D_0063A368 marks
+   iosCdvdDiskReadyBlock that is never emitted out of line.  IosCdvdMgrSleep marks
    the cdvd thread asleep, as cdWait and iosCdvdManager set it around their
    own sleeps. */
 static inline void cdvdSleep(void)
 {
-    D_0063A368 = 1;
+    IosCdvdMgrSleep = 1;
     iosThreadSleep();
-    D_0063A368 = 0;
+    IosCdvdMgrSleep = 0;
 }
 
 /* cdvd.c:1365-1501 in the listing.  self is the cdvd handle: 0x0C the result
@@ -757,7 +811,7 @@ void iosCdvdHandlerReadNoInflate(int *self, void *buf, int n)
             sprintf(msg, "CDVD read buff empty readSectorCnt:%d buffCnt%d\n", self[0x2C / 4],
                     self[0x34 / 4]);
             debug_assertMessage(__FILE__, 1417, msg);
-            __assert(__FILE__, 1417, D_0063A390);
+            __assert(__FILE__, 1417, "e");
         }
         if (sz >= left) {
             sz = left;
@@ -821,11 +875,11 @@ int unifile_read_func(int *self)
         iosCdvdHandlerRead(self, work, 32);
         sprintf((char *)self + 0x38, "DFDATAS/%s", work);
         chgFileNameInlined((int)((char *)self + 0x38));
-        strcpy(D_00298E68 + D_0063A36C * 0x30, (char *)self + 0x38);
+        strcpy(iosCdvdSrhBuff[srhBuffCnt].name, (char *)self + 0x38);
         iosCdvdHandlerRead(self, &lsn, 4);
-        *(int *)(D_00298E68 + D_0063A36C * 0x30 - 8) = lsn / 2048 + self[0x138 / 4];
-        iosCdvdHandlerRead(self, D_00298E68 + D_0063A36C * 0x30 - 4, 4);
-        D_0063A36C++;
+        iosCdvdSrhBuff[srhBuffCnt].lsn = lsn / 2048 + self[0x138 / 4];
+        iosCdvdHandlerRead(self, &iosCdvdSrhBuff[srhBuffCnt].size, 4);
+        srhBuffCnt++;
     }
     return 1;
 }
@@ -847,10 +901,10 @@ void iosCdvdUnifileInfoGet(void)
     iosCdvdMgrLoad(unifileHandle);
 }
 
-extern unsigned char CdvdMsgQ[];
-extern int CdvdMsgQ_LoadEnd[];
 extern int IosCdLock;
-extern int D_0063A3B8;
+
+int iosCdvdBackGroundMgrRunning = 0;
+
 extern void sceFsReset(void);
 /* kept local: this TU does not include thread.h, whose iosThreadStart and
    iosThreadCreate take the thread record as an int and a void pointer */
@@ -878,7 +932,7 @@ void iosCdvdManager(void)
     int *req;
 
     sceCdInit(0);
-    sceCdMmode(D_0063A370);
+    sceCdMmode(iosCdvdMediaType);
     sceFsReset();
 
     iosThreadCreate(stThread, 6, iosCdvdStManager, 0, stStack, 16384, 27);
@@ -900,12 +954,12 @@ void iosCdvdManager(void)
 
     while (1) {
         while (iosMsgRecv(CdvdMsgQ, &msg, 0) == -1) {
-            D_0063A3B8 = 1;
+            iosCdvdBackGroundMgrRunning = 1;
             iosCdvdBackGroundMgr();
-            D_0063A3B8 = 0;
-            D_0063A368 = 1;
+            iosCdvdBackGroundMgrRunning = 0;
+            IosCdvdMgrSleep = 1;
             iosThreadSleep();
-            D_0063A368 = 0;
+            IosCdvdMgrSleep = 0;
         }
         req = msg;
         switch (req[1]) {
@@ -914,6 +968,11 @@ void iosCdvdManager(void)
             req[3] = 0;
             break;
         case 1:
+            /* January row 1708 prints here; retail keeps the string with no
+             * reader. */
+            if (0) {
+                debug_StdPrintfDummy("load");
+            }
             iosCdvdMgrLoad((char *)req);
             break;
         case 2:
@@ -951,31 +1010,7 @@ void iosCdvdPackLoad(void *a0)
     iosMsgSend(CdvdMsgQ, a0, 0);
 }
 
-extern char D_0063A398[];
-extern void debug_assert();
 extern char *strrchr(const char *s, int c);
-
-/* INTERIM: the January-2002 listing expands iosCdvdGetFileLsn (cdvd.c rows
- * 739-753) inside iosCdvdBackGroundMgrAdd, so the 2001 source declared it
- * `inline` and the compiler emitted both the inlined copy and the out-of-line
- * body.  While this TU still carries asm members the out-of-line body has to
- * stay at its own ROM slot below, so the inlined copy is spelled here as a
- * static stand-in.  Delete this once the TU is C-complete and mark the real
- * definition `inline`.  */
-static inline int getFileLsnInlined(char *name, int *size)
-{
-    int i;
-
-    for (i = 0; i < D_0063A36C; i++) {
-        if (strcmp(name, D_00298E68 + i * 0x30) == 0)
-            goto found;
-    }
-    debug_assert(__FILE__, 749);
-    __assert(__FILE__, 749, D_0063A398);
-found:
-    *size = iosCdvdSrhBuff[i].size;
-    return iosCdvdSrhBuff[i].lsn;
-}
 
 char *iosCdvdBackGroundMgrAdd(char *name, void *readFunc, int readArg, void *readyFunc,
                               void *resumeFunc, int cbArg, void *closeFunc, int closeArg)
@@ -1000,7 +1035,7 @@ char *iosCdvdBackGroundMgrAdd(char *name, void *readFunc, int readArg, void *rea
         }
     }
     debug_assert(__FILE__, 1890);
-    __assert(__FILE__, 1890, D_0063A398);
+    __assert(__FILE__, 1890, "0");
 found:
     bg = bgReqTable + i * 0x12C;
     *(int *)(bg + 0x108) |= 1;
@@ -1035,10 +1070,24 @@ found:
     return bg;
 }
 
-extern int D_0063A384;
-extern int D_0063A3C8;
-extern int D_0063A3CC;
 extern int sceCdStatus(void);
+
+/* The rest of the .sdata run, after iosCdvdManager's strings: the saved
+   system parameter word cdWait restores after a drive recovery and the flag
+   that it is saved, the background read and read retry counts, the stream
+   motion late count streamMotionManager keeps, and inflateSec. */
+static int cdWaitParamSet = 0; /* derived name */
+
+static int cdWaitParamSave = 0; /* derived name */
+
+static int bgReadCnt = 0; /* derived name */
+
+static int bgReadRetryCnt = 0; /* derived name */
+
+int iosCdvdStDelayCnt = 0; /* derived name */
+
+float inflateSec = 0;
+
 typedef void (*BgReadyFunc)(char *self, int arg, int flag);
 typedef void (*BgResumeFunc)(char *self, int arg);
 
@@ -1049,18 +1098,18 @@ void cdWait(int *busy)
     char *self;
     int r;
 
-    D_0063A368 = 1;
+    IosCdvdMgrSleep = 1;
     iosThreadSleep();
-    D_0063A368 = 0;
+    IosCdvdMgrSleep = 0;
     while (1) {
         self = (char *)bgRunning;
-        switch (D_0063A384) {
+        switch (bgDriveState) {
         case 0:
             if (sceCdStatus() != 1) {
                 break;
             }
-            D_0063A384 = 1;
-            D_0063A3CC = D_0028F4C0[0x14 / 4];
+            bgDriveState = 1;
+            cdWaitParamSave = D_0028F4C0[0x14 / 4];
         case 1:
             if (*(BgReadyFunc *)(self + 0x118) != 0) {
                 (*(BgReadyFunc *)(self + 0x118))(self, *(int *)(self + 0x120),
@@ -1070,42 +1119,38 @@ void cdWait(int *busy)
             if (((*(unsigned int *)(self + 0x108) >> 4) & 1) == 0) {
                 iosPadDisable();
                 D_0028F4C0[0x14 / 4] = 1;
-                D_0063A3C8 = 1;
+                cdWaitParamSet = 1;
             }
             strcpy(file, "SCES_507.60");
             chgFileNameInlined((int)file);
             r = sceCdDiskReady(1);
-            if (r == 2 && sceCdGetDiskType() == D_0063A374 && sceCdSearchFile(&fp, file) != 0) {
+            if (r == 2 && sceCdGetDiskType() == cdDiskType && sceCdSearchFile(&fp, file) != 0) {
                 *(int *)(self + 0x108) |= 4;
                 if (*(BgResumeFunc *)(self + 0x11C) != 0) {
                     (*(BgResumeFunc *)(self + 0x11C))(self, *(int *)(self + 0x120));
                 }
-                D_0063A384 = r;
-                if (D_0063A3C8 != 0) {
+                bgDriveState = r;
+                if (cdWaitParamSet != 0) {
                     iosPadEnable();
-                    D_0063A3C8 = 0;
-                    D_0028F4C0[0x14 / 4] = D_0063A3CC;
+                    cdWaitParamSet = 0;
+                    D_0028F4C0[0x14 / 4] = cdWaitParamSave;
                 }
             }
             break;
         case 2:
-            D_0063A384 = 0;
+            bgDriveState = 0;
             break;
         }
-        if (D_0063A384 == 0) {
+        if (bgDriveState == 0) {
             break;
         }
         *busy = 1;
-        D_0063A368 = 1;
+        IosCdvdMgrSleep = 1;
         iosThreadSleep();
-        D_0063A368 = 0;
+        IosCdvdMgrSleep = 0;
     }
 }
 
-extern int D_0063A370;
-extern int D_0063A380;
-extern int D_0063A3D0;
-extern int D_0063A3D4;
 extern int sceCdSync(int mode);
 extern int sceCdGetError(void);
 extern int sceCdReadIOPm(int lsn, int sectors, void *buf, int *mode);
@@ -1122,21 +1167,21 @@ int iosCdvdBackGroundRead(char *self, void *buf, int size)
         debug_StdPrintfDummy("lsn %d cnt %d size %d buf %p %s\n", *(int *)(self + 0x114),
                              *(int *)(self + 0x110), size, buf, self);
     }
-    D_0063A3D0++;
+    bgReadCnt++;
     while (1) {
         flag = 0;
-        while ((D_0063A370 == 1 && sceCdStatus() != 10) || sceCdDiskReady(1) != 2) {
+        while ((iosCdvdMediaType == 1 && sceCdStatus() != 10) || sceCdDiskReady(1) != 2) {
             cdWait(&flag);
         }
         while (sceCdRead(*(int *)(self + 0x114) + *(int *)(self + 0x110) / 2048, size / 2048, buf,
-                         &D_0063A380) == 0) {
+                         (int *)&bgReadMode) == 0) {
             cdWait(&flag);
         }
         while (sceCdSync(1) != 0) {
             cdWait(&flag);
         }
         if (flag != 0) {
-            D_0063A3D4++;
+            bgReadRetryCnt++;
             while (sceCdBreak() == 0) {
                 cdWait(&flag);
             }
@@ -1165,21 +1210,21 @@ int iosCdvdBackGroundReadIOPm(char *self, void *buf, int size)
         debug_StdPrintfDummy("lsn %d cnt %d size %d iopbuf %p %s\n", *(int *)(self + 0x114),
                              *(int *)(self + 0x110), size, buf, self);
     }
-    D_0063A3D0++;
+    bgReadCnt++;
     while (1) {
         flag = 0;
-        while ((D_0063A370 == 1 && sceCdStatus() != 10) || sceCdDiskReady(1) != 2) {
+        while ((iosCdvdMediaType == 1 && sceCdStatus() != 10) || sceCdDiskReady(1) != 2) {
             cdWait(&flag);
         }
         while (sceCdReadIOPm(*(int *)(self + 0x114) + *(int *)(self + 0x110) / 2048, size / 2048,
-                             buf, &D_0063A380) == 0) {
+                             buf, (int *)&bgReadMode) == 0) {
             cdWait(&flag);
         }
         while (sceCdSync(1) != 0) {
             cdWait(&flag);
         }
         if (flag != 0) {
-            D_0063A3D4++;
+            bgReadRetryCnt++;
             while (sceCdBreak() == 0) {
                 cdWait(&flag);
             }
@@ -1266,7 +1311,7 @@ int iosCdvdChgFileName(int a0)
     char *p = buf;
     char c;
 
-    sprintf(buf, D_0063A3A0, a0);
+    sprintf(buf, "\\%s;1", a0);
 
     do {
         if ((c = *p) == '/') {
@@ -1286,12 +1331,12 @@ int iosCdvdGetFileLsn(char *name, int *size)
 {
     int i;
 
-    for (i = 0; i < D_0063A36C; i++) {
-        if (strcmp(name, D_00298E68 + i * 0x30) == 0)
+    for (i = 0; i < srhBuffCnt; i++) {
+        if (strcmp(name, iosCdvdSrhBuff[i].name) == 0)
             goto found;
     }
     debug_assert(__FILE__, 749);
-    __assert(__FILE__, 749, D_0063A398);
+    __assert(__FILE__, 749, "0");
 found:
     *size = iosCdvdSrhBuff[i].size;
     return iosCdvdSrhBuff[i].lsn;
@@ -1303,8 +1348,6 @@ int iosCdvdSync(int a0)
     iosMsgRecv(CdvdMsgQ_LoadEnd, &local, 1);
     return 1;
 }
-
-extern char iosCdvd[];
 
 void iosCdvdLoadPackFile(int a0, char *name, int a2)
 {
@@ -1321,7 +1364,7 @@ void iosCdvdLoadPackFile(int a0, char *name, int a2)
 
 int iosCdvdDiskStatusGet(void)
 {
-    return D_0063A384;
+    return bgDriveState;
 }
 
 void iosCdvdBackGroundMgrDelete(char *self)

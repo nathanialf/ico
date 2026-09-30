@@ -12,6 +12,26 @@
 #ifndef CDVD_H
 #define CDVD_H
 
+/* One entry of the directory cache iosCdvdMgrSearchFile fills: the file's
+   sector and size and its disc name. */
+typedef struct {
+    int lsn;
+    int size;
+    char name[0x28];
+} CdSrhEnt;
+
+/* cdvd.c's globals: MAIN.MAP's cdvd.o names, and the stream motion late
+   count streamMotionManager reads (our name). */
+extern char iosCdvd[];
+extern unsigned char CdvdMsgQ[];
+extern int CdvdMsgQ_LoadEnd[];
+extern CdSrhEnt iosCdvdSrhBuff[];
+extern int IosCdvdMgrSleep;
+extern int iosCdvdMediaType;
+extern int iosCdvdBackGroundMgrRunning;
+extern int iosCdvdStDelayCnt;
+extern float inflateSec;
+
 void cdWait(int *busy);
 long long inflate_cd_read_func(void *buf, long long size, int *self);
 void iosCdvdBackGroundMgr(void);

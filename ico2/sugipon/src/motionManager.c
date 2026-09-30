@@ -1141,7 +1141,6 @@ extern void sceVu0SubVector(void *dst, void *a, void *b);
 extern void dispPlane(void *plane, void *pos);
 extern void gif_SetZTest(int a0);
 extern char D_0055FE58[];
-extern MotShift D_0063A810;
 extern int D_0063B150;
 void GetMatrixOfMotion(char *self, char *tbl, void *ofs);
 
@@ -1211,7 +1210,7 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, char
         }
         CopyVector(D_0063C490 + 0x160, D_0063C490 + 0x150);
         if (*(int *)(MOWORK(self) + 0x4E8) == 1) {
-            sh = D_0063A810;
+            sh = InitialObjPointer;
         }
         AddVectorXYZ(MOWORK(self) + 0x7C0, D_0063C490, D_0063C490 + 0x10);
         *(float *)(MOWORK(self) + 0x7CC) = 1.0f;
