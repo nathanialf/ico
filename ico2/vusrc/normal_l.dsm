@@ -4,7 +4,7 @@
 ; carries (tc-dvp.c vuoverlay_section_name), assembled from ico2/.
 ;
 ; Assembled by tools/cc/dvp-as (ps2dev dvp-v2.45.1) through the vu rule of
-; tools/gen_ninja_plain.py; ico2/<stem>.S still feeds the splat build.
+; tools/gen_ninja_plain.py and, for splat's hasm row, by tools/build.sh.
 	.global NormalLMicroProgram
 NormalLMicroProgram:
 	DMAret *

@@ -88,15 +88,32 @@ setup() {
     rm -rf build .ninja_log .ninja_deps
     echo "==> verifying base ROM SHA-1"
     "${VENV_PY}" tools/verify_elf.py --target "${BASEROM}"
-    echo "==> assembling hand-written VU1 microprogram .S sources (ico2)"
-    for vs in ico2/*.S; do
-        [ -f "$vs" ] || continue
-        out="${vs%.S}.s"
-        stem=$(basename "${vs%.S}")
+    echo "==> assembling the VU1 microprograms (ico2/vusrc/*.dsm) with dvp-as for splat's hasm rows"
+    # dvp-as (ps2dev's DVP assembler, built by tools/setup.sh) assembles each
+    # program from ico2/ on the path vusrc/<stem>.dsm, as the plain build's vu
+    # rule does. splat's hasm row ico2/<stem> reads ico2/<stem>.s (gitignored),
+    # written here as the object's .vutext bytes in .word lines under the
+    # program's global label; splat's link script takes that row's .text*, so
+    # the ROM's .vutext is the dvp-as output byte for byte.
+    local vu_objcopy=mips-linux-gnu-objcopy
+    command -v mips64r5900el-ps2-elf-objcopy >/dev/null && vu_objcopy=mips64r5900el-ps2-elf-objcopy
+    mkdir -p build/vu
+    for dsm in ico2/vusrc/*.dsm; do
+        stem=$(basename "${dsm%.dsm}")
         # VU microprogram global symbol: TitleCase(stem, split on '_') + MicroProgram
         # e.g. cluster→ClusterMicroProgram, normal_c→NormalCMicroProgram
         sym=$("${VENV_PY}" -c "import sys;print(''.join(w.title() for w in sys.argv[1].split('_'))+'MicroProgram')" "$stem")
-        "${VENV_PY}" tools/assemble_vu0.py "$vs" --label "$sym" --out "$out"
+        (cd ico2 && ../tools/cc/dvp-as/bin/dvp-as -no-abicalls -mabi=64 -o "../build/vu/${stem}.o" "vusrc/${stem}.dsm")
+        "${vu_objcopy}" -O binary -j .vutext "build/vu/${stem}.o" "build/vu/${stem}.bin"
+        "${VENV_PY}" - "build/vu/${stem}.bin" "$sym" "ico2/${stem}.s" <<'PY'
+import sys
+body = open(sys.argv[1], "rb").read()
+sym = sys.argv[2]
+lines = ['.section .text,"ax"', "", f".global {sym}", f".type {sym}, @function", f"{sym}:", f"    .ent {sym}"]
+lines += [f"    .word 0x{int.from_bytes(body[i:i + 4], 'little'):08X}" for i in range(0, len(body), 4)]
+lines += [f"    .size {sym}, . - {sym}", f"    .end {sym}", ""]
+open(sys.argv[3], "w").write("\n".join(lines))
+PY
     done
     split
     regen_ninja

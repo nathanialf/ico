@@ -4,7 +4,7 @@
 ; carries (tc-dvp.c vuoverlay_section_name), assembled from ico2/.
 ;
 ; Assembled by tools/cc/dvp-as (ps2dev dvp-v2.45.1) through the vu rule of
-; tools/gen_ninja_plain.py; ico2/<stem>.S still feeds the splat build.
+; tools/gen_ninja_plain.py and, for splat's hasm row, by tools/build.sh.
 	.global MeshMicroProgram
 MeshMicroProgram:
 	DMAret *
@@ -177,8 +177,8 @@ SPACE_DEBUG_FONT:
 ;     used by `addi.xy vf14, vf00` at 0x10E0 to set vf14.xy).
 ; Then loads vf01..vf04 from the vi13 stream.
 ;
-; assemble_vu0.py has no I-bit `pad` suffix yet, so both I-bundles
-; are emitted as two raw `.word`s.  disasm renders the lowers as
+; Both I-bundles are `loi` in the lower slot, the I-bit set on the
+; upper.  A disassembler without I-bit tracking renders the lowers as
 ; `jalr vi31, vi31` (0x4B7FFFFE) and an op7=0x22 ".word" (0x457FF000)
 ; - both are immediate misreads.
 ; -----------------------------------------------------------------------

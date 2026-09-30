@@ -4,7 +4,7 @@
 ; carries (tc-dvp.c vuoverlay_section_name), assembled from ico2/.
 ;
 ; Assembled by tools/cc/dvp-as (ps2dev dvp-v2.45.1) through the vu rule of
-; tools/gen_ninja_plain.py; ico2/<stem>.S still feeds the splat build.
+; tools/gen_ninja_plain.py and, for splat's hasm row, by tools/build.sh.
 	.global ClusterMicroProgram
 ClusterMicroProgram:
 	DMAret *
@@ -80,9 +80,9 @@ ClusterMicroProgram:
 ; matching VU0_TPC) and terminates via an E-bit upper-half pad followed
 ; by its implicit one-bundle delay slot.
 ;
-; The E-bit pad (upper=`0x400002FF`, lower=anything) is encoded via
-; `.word` until assemble_vu0.py learns it as a symbolic mnemonic; the
-; lower halves of those bundles continue to use symbolic `nop_swap`.
+; The E-bit pad (upper=`0x400002FF`, lower=anything) is `nop[e]` in the
+; upper slot; the lower halves of those bundles are plain `nop`s
+; ahead of the one-bundle delay slot.
 ; =======================================================================
 
 ; -----------------------------------------------------------------------
@@ -343,8 +343,8 @@ BEGIN_CLUSTER_0:
 ; The bundle at 0x0618 has the upper-half I-bit set (bit 31):
 ;   upper = 0x81DECE6A  (mul.xyz vf25, vf25, vf30 with I-bit)
 ;   lower = 0x437F0000  (= IEEE-754 255.0f, the I-register immediate)
-; assemble_vu0.py has no I-bit suffix yet, so the bundle is emitted
-; as two raw `.word`s with the byte sequence above.  The disassembler
+; dvp-as writes it as `loi` in the lower slot, the I-bit set on the
+; upper; the byte sequence is the one above.  The disassembler
 ; mis-decodes the immediate as `bal vi31, L_0620` because it doesn't
 ; track the I-bit - the iaddiu at 0x0620 is NOT a branch target.
 ; -----------------------------------------------------------------------

@@ -85,10 +85,10 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# --- VU1 microprogram hand-typed assembly intermediate ---
-# `ico2/<prog>.S` is tracked; `tools/assemble_vu0.py` regenerates
-# `ico2/<prog>.s` from it before each splat (via build.sh setup).
-# The .s is a build artifact, not source — keep it out of git.
+# --- VU1 microprogram intermediate for splat's hasm rows ---
+# `ico2/vusrc/<prog>.dsm` is tracked; `tools/build.sh setup` assembles it
+# with dvp-as and writes the object's .vutext as `ico2/<prog>.s` before each
+# splat. The .s is a build artifact, not source; keep it out of git.
 ico2/cluster.s
 ico2/mesh.s
 ico2/normal_c.s

@@ -129,11 +129,7 @@ def check(entries, rows):
             fail(f"{LIST}:{e['line']}: part of {e['name']}, which has no line of its own")
     tracked = subprocess.run(["git", "ls-files", "--", "ico2", "sce"], cwd=ROOT,
                              capture_output=True, text=True, check=True).stdout.split()
-    # Transitional: ico2/<stem>.S is the splat build's copy of ico2/vusrc/<stem>.dsm
-    # (tools/build.sh assembles it with tools/assemble_vu0.py) until the cut-over.
-    splat_only = {f"ico2/{Path(p).stem}.S" for p in listed if p.endswith(".dsm")}
-    missing = [p for p in tracked if p.endswith((".c", ".s", ".dsm")) and p not in listed]
-    missing += [p for p in tracked if p.endswith(".S") and p not in splat_only]
+    missing = [p for p in tracked if p.endswith((".c", ".s", ".S", ".dsm")) and p not in listed]
     if missing:
         fail(f"tracked sources missing from {LIST}:\n  " + "\n  ".join(missing))
 
