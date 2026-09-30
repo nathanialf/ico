@@ -43,8 +43,6 @@ static int workVram = 0; /* derived name */
 
 static int work1Vram = 0; /* derived name */
 
-extern int ScreenWidth;
-extern int ScreenHeight;
 /* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
 /* kept local: this TU's uses of gif_SetDrawEnviroment do not fit the prototype in GifPacket.h */
@@ -635,9 +633,6 @@ static float workLightNormal[4][4] = {
 };
 
 extern int D_0028F4D4[];
-extern int D_00639F94;
-extern int D_0063A07C;
-extern int D_0063A080;
 extern int D_0063B148;
 extern int stage_no;
 /* kept local: this TU's uses of _MulMatrix do not fit the prototype in Matrix.h */
@@ -686,7 +681,7 @@ void dispPool(char *self)
     CopyMatrix(m3, (char *)(matrixptr + 0x200));
     CopyMatrix(m4, (char *)(matrixptr + 0x340));
 
-    gsb_SetVSMatrix(0xCC, 0xCC, (float)D_00639F94);
+    gsb_SetVSMatrix(0xCC, 0xCC, (float)currentFocusDistance);
 
     _MulMatrix((char *)(matrixptr + 0x100), (char *)(matrixptr + 0xC0), (char *)(matrixptr + 0x80));
     _MulMatrix((char *)(matrixptr + 0x200), (char *)(matrixptr + 0x1C0),
@@ -731,8 +726,8 @@ void dispPool(char *self)
     CopyMatrix((char *)(matrixptr + 0x340), m4);
     CopyMatrix((char *)(matrixptr + 0x100), m2);
     CopyMatrix((char *)(matrixptr + 0x200), m3);
-    D_0063A07C = ScreenWidth;
-    D_0063A080 = ScreenHeight;
+    vsWidth = ScreenWidth;
+    vsHeight = ScreenHeight;
 
     gif_SetGsReg(6, workVram | 0x20010000 | 0x600000000LL);
 

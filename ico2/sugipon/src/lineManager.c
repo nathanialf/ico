@@ -1,4 +1,5 @@
 #include "lineManager.h"
+#include "GsBase.h"
 #include "GifPacket.h"
 #include "typedef.h"
 
@@ -63,8 +64,6 @@ void Draw2DLineG(int *p1, int *c1, int *p2, int *c2, int z)
 }
 
 extern char *matrixptr;
-extern int D_0063A07C;
-extern int D_0063A080;
 extern void *MatrixDrive_GetMatrix(void);
 /* kept local, as declared in Matrix.h: this TU does not include that header
  * (its _FTOI4Vector and _InitCurrentMatrix do not fit DrawLine's uses) */
@@ -226,25 +225,25 @@ int _getLine(float *o1, float *o2, float *p1, float *p2)
 
     if (sortByX(o1, o2))
         rev = !rev;
-    if (2048.0f + D_0063A07C * 0.5f <= o1[0])
+    if (2048.0f + vsWidth * 0.5f <= o1[0])
         return -1;
-    if (o2[0] <= 2048.0f - D_0063A07C * 0.5f)
+    if (o2[0] <= 2048.0f - vsWidth * 0.5f)
         return -1;
-    if (o1[0] < 2048.0f - D_0063A07C * 0.5f)
-        clipAtX(o1, o1, o2, 2048.0f - D_0063A07C * 0.5f);
-    if (2048.0f + D_0063A07C * 0.5f < o2[0])
-        clipAtX(o2, o1, o2, 2048.0f + D_0063A07C * 0.5f);
+    if (o1[0] < 2048.0f - vsWidth * 0.5f)
+        clipAtX(o1, o1, o2, 2048.0f - vsWidth * 0.5f);
+    if (2048.0f + vsWidth * 0.5f < o2[0])
+        clipAtX(o2, o1, o2, 2048.0f + vsWidth * 0.5f);
 
     if (sortByY(o1, o2))
         rev = !rev;
-    if (2048.0f + D_0063A080 * 0.5f <= o1[1])
+    if (2048.0f + vsHeight * 0.5f <= o1[1])
         return -1;
-    if (o2[1] <= 2048.0f - D_0063A080 * 0.5f)
+    if (o2[1] <= 2048.0f - vsHeight * 0.5f)
         return -1;
-    if (o1[1] < 2048.0f - D_0063A080 * 0.5f)
-        clipAtY(o1, o1, o2, 2048.0f - D_0063A080 * 0.5f);
-    if (2048.0f + D_0063A080 * 0.5f < o2[1])
-        clipAtY(o2, o1, o2, 2048.0f + D_0063A080 * 0.5f);
+    if (o1[1] < 2048.0f - vsHeight * 0.5f)
+        clipAtY(o1, o1, o2, 2048.0f - vsHeight * 0.5f);
+    if (2048.0f + vsHeight * 0.5f < o2[1])
+        clipAtY(o2, o1, o2, 2048.0f + vsHeight * 0.5f);
     return rev;
 }
 

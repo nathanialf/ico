@@ -18,9 +18,75 @@
    which is what keeps the builtin off in this file, as in layout_action.c
    and puddle.c. */
 extern void *memset(void *p, int c, int n);
-extern int ScreenWidth;
-extern int ScreenHeight;
+
+/* The TU's globals, MAIN.MAP's GsBase.o .sdata names, then the four words
+   retail added after them (the XYOFFSET adjustment and the frame size
+   gsb_SetVSMatrix records; MAIN.MAP's January object ends at
+   currentScreenHeight, so their names are ours).  Tentative definitions: under
+   -fno-common they land after the rest of the run, in this order.  The two
+   offset names are read by gcse's name hash in their users: Shadow.c's
+   frame layout moves under gsOffsetX/Y, offsetX/Y or dispOffsetX/Y, and
+   screenOffsetX/Y keeps it, so the bytes pin that much of the names. */
+int fbKeep;
+
+int fbClear;
+
+float center_X;
+
+float center_Y;
+
+int ScreenWidth;
+
+int ScreenHeight;
+
+int currentScreenWidth;
+
+int currentScreenHeight;
+
+int screenOffsetX; /* derived name */
+
+int screenOffsetY; /* derived name */
+
+int vsWidth; /* derived name */
+
+int vsHeight; /* derived name */
+
+/* The inline half of the TU's interface, declared in the order its deferred
+   out-of-line copies are emitted (gcc writes them in first-declaration order;
+   the definitions sit at their listing rows below). */
+void gsb_SetBGColor(void *a0, int r, int g, int b);
+void gsb_GetBGColor(unsigned char *a0);
+void gsb_ResetFilmNoise(void);
+void gsb_SetZoom(float a, float b);
+int gsb_SyncGSSystem(void);
+int gsb_LoadStageSettings(void);
+int gsb_SaveStageSettings(void);
+void gsb_ClearFrameBuffer(void);
+int gsb_ResetSnap(void);
+int gsb_TakeSnap(void);
+int lockOtherEditing(void);
+int unlockOtherEditing(void);
 extern void sceGsSetDefDispEnv(int *env, int psm, short w, short h, short dx, short dy);
+
+/* The head of the TU's .sdata run: the stage lock state, the word gsb_Init
+   clears (read nowhere in the ROM), the
+   GS system flag, the zoom easing (target, current, speed) and the last
+   projection distance gsb_SetVSMatrix was given. */
+static int otherEditingLocked = 0; /* derived name */
+
+static int editingSettings = 0; /* derived name */
+
+static int gsInitState = 0; /* derived name */
+
+static int gsSystemReady = 0; /* derived name */
+
+static float zoomTarget = 1.0f; /* derived name */
+
+static float zoomCurrent = 1.0f; /* derived name */
+
+static float zoomSpeed = 1000.0f; /* derived name */
+
+int currentFocusDistance = 1;
 
 /* Point the double buffer's two display and two draw environments at the
  * frame this stage draws into: the low nine bits of each frame word carry the
@@ -45,15 +111,7 @@ void gsb_SetFrame(int *db, int a1, int a2, int psm, short zbp)
 }
 
 extern int D_0028F4C0[];
-extern int fbClear;
-extern int ScreenWidth;
-extern int ScreenHeight;
-extern int D_00639F80;
-extern float D_00639F88;
-extern float D_00639F8C;
-extern float D_00639F90;
 extern int buffer_ID;
-extern char D_0054E170[];
 extern void sceGsSyncV(int a0);
 extern void sceGsResetGraph(short mode, short inter, short omode, short ffmd);
 extern void sceGsSetDefDBuff(void *db, short psm, short w, short h, short ztst, short zpsm,
@@ -72,7 +130,7 @@ void gsb_Init(void *db)
 
     sceGsSyncV(0);
     fbClear = 1;
-    D_00639F80 = 0;
+    gsInitState = 0;
     switch (D_0028F4C0[0]) {
     case 0:
         ScreenWidth = 0x200;
@@ -92,12 +150,74 @@ void gsb_Init(void *db)
     FlushCache(0);
     sceGsSwapDBuff(db, buffer_ID);
     while (sceGsSyncPath(1, 0) != 0) {
-        debug_StdPrintfDummy(D_0054E170);
+        debug_StdPrintfDummy("wait gs init\n");
     }
     gsb_SetVSMatrix(ScreenWidth, ScreenHeight, 512.0f);
-    D_00639F88 = 1.0f;
-    D_00639F90 = 1000.0f;
-    D_00639F8C = 1.0f;
+    zoomTarget = 1.0f;
+    zoomSpeed = 1000.0f;
+    zoomCurrent = 1.0f;
+}
+
+/* A frame buffer clear packet for the whole screen, 48 doublewords: a GIF tag
+   of 23 A+D writes and the register pairs.  Nothing in the ROM reads it (the
+   bytes pin the table at this row, after gsb_Init's message, and its size,
+   which is gsb_ClearFrameBuffer's frame; they do not pin its role), so the
+   send that copied it is gone from the retail body. */
+static const long long clearFramePacket[48] = {
+    /* derived name */
+    0x1000000000008017LL,
+    0xE,
+    0,
+    0x4A,
+    0x8000000048LL,
+    0x42,
+    0x700000007000LL,
+    0x18,
+    0x30000,
+    0x47,
+    0x130000000LL,
+    0x4E,
+    0x200000002000000LL,
+    0x40,
+    0,
+    1,
+    0x80000,
+    0x4C,
+    0x106,
+    0,
+    0xFFFFFFFF70007000LL,
+    5,
+    0xFFFFFFFF90009000LL,
+    5,
+    0x81000,
+    0x4C,
+    0x106,
+    0,
+    0xFFFFFFFF70007000LL,
+    5,
+    0xFFFFFFFF90009000LL,
+    5,
+    0x82000,
+    0x4C,
+    0x106,
+    0,
+    0xFFFFFFFF70007000LL,
+    5,
+    0xFFFFFFFF90009000LL,
+    5,
+    0x83000,
+    0x4C,
+    0x106,
+    0,
+    0xFFFFFFFF70007000LL,
+    5,
+    0xFFFFFFFF90009000LL,
+    5,
+};
+
+inline void gsb_ClearFrameBuffer(void)
+{
+    volatile int local[96];
 }
 
 /* .sbss, owned by GsBase.o (MAIN.MAP line 7575; it names no symbol in the
@@ -109,9 +229,7 @@ static int reductionGreen;
 
 static int reductionBlue;
 
-extern int fbKeep;
 extern int optionScreenMode;
-extern char D_0054E300[];
 extern StageSetting D_0028F720;
 extern GsbPad D_0028F8F0[];
 
@@ -184,7 +302,7 @@ void gsb_Reduction(void)
     *(volatile int *)0x1000A000 = 0x101;
     sceGsSyncPath(0, 0);
     if (D_0028F8F0[0].trg & 0x20) {
-        debug_StdPrintfDummy(D_0054E300, optionScreenMode);
+        debug_StdPrintfDummy("Film Noise:%d\n", optionScreenMode);
     }
     if (optionScreenMode) {
         reductionRed = fbKeep ? 128 : D_0028F720.targetCol[optionScreenMode - 1][0];
@@ -201,7 +319,8 @@ void gsb_Reduction(void)
    TU's .sdata at VMA 0x639F98.  `const` is what the ROM proves: its four
    byte loads issue ahead of the sprite's first packet store, and a QImode
    load may pass a store only as an unchanging read (alias.c true_dependence) */
-extern const unsigned char D_00639F98[4];
+static const unsigned char keepFrameColor[4] = {112, 112, 112, 128}; /* derived name */
+
 /* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
 /* kept local: this TU's uses of gif_SetGsReg do not fit the prototype in GifPacket.h */
@@ -284,7 +403,7 @@ void gsb_KeepFrameBuffer(void)
     gif_SetGsReg(0x4A, 0);
     gif_SetGsReg(0x3B, 0x8000000080LL);
     gif_SetGsReg(6, ((long long)(ScreenWidth / 64) << 14) | (0xC482LL << 19));
-    spriteUV(&r0.x, &r1.x, D_00639F98, 0x116);
+    spriteUV(&r0.x, &r1.x, keepFrameColor, 0x116);
     gif_EndPacket();
 }
 
@@ -306,7 +425,6 @@ extern void gif_StartPacketPri(int pri);
 extern unsigned char fadeColor[4];
 extern float fadeSpeed;
 extern int fadeContinue;
-extern char D_00639FA0[];
 /* kept local: this TU's uses of gif_SetDrawEnviroment do not fit the prototype in GifPacket.h */
 extern void gif_SetDrawEnviroment(int a0, int a1, int w, int h, int a4, int a5);
 
@@ -369,7 +487,7 @@ void gsb_fade(void)
     spriteRect(r.x, r.y, r.w, r.h, -1LL, fadeColor, 0x446);
     gif_EndPacket();
     if (D_0063B13C & 1) {
-        debug_Printf(0x208, ScreenHeight / 2 - 8, 0xCCCCCC00, D_00639FA0);
+        debug_Printf(0x208, ScreenHeight / 2 - 8, 0xCCCCCC00, "F");
     }
     return;
 clear:
@@ -392,10 +510,15 @@ void gsb_SetMotionBlur(void)
 }
 
 extern int D_0063B60C;
-extern int D_00639FA4;
-extern float D_00639FA8;
-extern float D_00639FAC;
-extern char D_00639FB0[];
+
+/* gsb_scissorOnDemo's state: the demo state it last saw, the band level and
+   its step */
+static int scissorLastState = 54; /* derived name */
+
+static float scissorLevel = 0.0f; /* derived name */
+
+static float scissorStep = 0.0f; /* derived name */
+
 extern void SetMotionBlur(int on);
 extern void gif_EndPacketPath1(void);
 /* kept local: this TU's uses of dl_GetPri do not fit the prototype in DisplayList.h */
@@ -421,25 +544,25 @@ void gsb_scissorOnDemo(void)
     unsigned char col[4];
     int i;
 
-    if (D_0063B60C == 55 && D_00639FA4 != D_0063B60C) {
-        D_00639FAC = 2.5f;
-    } else if (D_00639FA4 != D_0063B60C) {
-        D_00639FAC = -2.5f;
+    if (D_0063B60C == 55 && scissorLastState != D_0063B60C) {
+        scissorStep = 2.5f;
+    } else if (scissorLastState != D_0063B60C) {
+        scissorStep = -2.5f;
     }
-    D_00639FA4 = D_0063B60C;
+    scissorLastState = D_0063B60C;
 
-    D_00639FA8 = D_00639FA8 + D_00639FAC;
-    if (D_00639FA8 <= 0.0f) {
-        D_00639FA8 = 0.0f;
-        D_00639FAC = 0.0f;
+    scissorLevel = scissorLevel + scissorStep;
+    if (scissorLevel <= 0.0f) {
+        scissorLevel = 0.0f;
+        scissorStep = 0.0f;
     }
-    if (128.0f <= D_00639FA8) {
-        D_00639FA8 = 128.0f;
-        D_00639FAC = 0.0f;
+    if (128.0f <= scissorLevel) {
+        scissorLevel = 128.0f;
+        scissorStep = 0.0f;
     }
-    if (0.0f < D_00639FA8 && D_00639FA8 <= 128.0f) {
+    if (0.0f < scissorLevel && scissorLevel <= 128.0f) {
         if (D_0063B13C & 1) {
-            debug_Printf(0x21C, ScreenHeight / 2 - 8, 0xCCCCCC00, D_00639FB0);
+            debug_Printf(0x21C, ScreenHeight / 2 - 8, 0xCCCCCC00, "D");
         }
         dl_SetDLPriority(11);
         gif_StartPacketPriPath1(dl_GetPri());
@@ -449,7 +572,7 @@ void gsb_scissorOnDemo(void)
         gif_SetGsReg(0x47, 0x30000);
         gif_SetGsReg(0x4E, 0x300000C0);
         gif_SetGsReg(0x49, 0);
-        gif_SetGsReg(0x42, ((long long)(int)D_00639FA8 << 32) | 0x64);
+        gif_SetGsReg(0x42, ((long long)(int)scissorLevel << 32) | 0x64);
         for (i = 0; i < 2; i++) {
             spriteRect(r[i].x, r[i].y, r[i].w, r[i].h, -1LL, col, 0x446);
         }
@@ -460,7 +583,6 @@ void gsb_scissorOnDemo(void)
 }
 
 extern int D_0028F4C0[];
-extern char D_00639FB8[];
 /* kept local: this TU's uses of gif_SetGsReg do not fit the prototype in GifPacket.h */
 extern void gif_SetGsReg(int a0, long long a1);
 /* kept local: this TU's uses of gif_EndPacketPath1 do not fit the prototype in GifPacket.h */
@@ -488,7 +610,7 @@ void gsb_controlBrightness(void)
     }
     if (v != 0) {
         if (D_0063B13C & 1) {
-            debug_Printf(0x212, ScreenHeight / 2 - 8, 0xCCCCCC00, D_00639FB8);
+            debug_Printf(0x212, ScreenHeight / 2 - 8, 0xCCCCCC00, "B");
         }
         gif_StartPacketPri(0xB);
         {
@@ -513,21 +635,6 @@ typedef struct {
     unsigned char a;
 } GsbColor;
 
-/* The anti-alias pass's initialiser data, placeholders for GsBase.o's own
-   constants: the grey {128, 128, 128, 128} in the TU's .sdata at VMA 0x639FC0,
-   and the six rectangles in its .rodata at VMA 0x54E310..0x54E370, in order
-   the three sources {4, 4, 0x2000, 0x2000}, {4, 4, 0x1000, 0x1000},
-   {4, 4, 0x800, 0x800} and the three destinations {-0x1004, -0x1004, 0x2000,
-   0x2000}, {-0x804, -0x804, 0x1000, 0x1000}, {-0x404, -0x404, 0x800, 0x800}.
-   The .rodata run interleaves anonymous strings with named tables, which the
-   build cannot emit as one run from C, so they stay extern here. */
-extern const GsbColor D_00639FC0[];
-extern const GsbRect D_0054E310;
-extern const GsbRect D_0054E320;
-extern const GsbRect D_0054E330;
-extern const GsbRect D_0054E340;
-extern const GsbRect D_0054E350;
-extern const GsbRect D_0054E360;
 extern void gif_SetZTest(int on);
 extern void gif_SetZWrite(int on);
 extern int tex_GetTWTH(int size);
@@ -544,13 +651,13 @@ extern void gif_SpriteSensitiveOrg(int *r, long long z, int *uv, unsigned char *
  * own that the four writes share in $s1. */
 void gsb_antiAlias(void)
 {
-    GsbColor col = D_00639FC0[0];
-    GsbRect s0 = D_0054E310;
-    GsbRect s1 = D_0054E320;
-    GsbRect s2 = D_0054E330;
-    GsbRect d0 = D_0054E340;
-    GsbRect d1 = D_0054E350;
-    GsbRect d2 = D_0054E360;
+    GsbColor col = {128, 128, 128, 128};
+    GsbRect s0 = {4, 4, 8192, 8192};
+    GsbRect s1 = {4, 4, 4096, 4096};
+    GsbRect s2 = {4, 4, 2048, 2048};
+    GsbRect d0 = {-4100, -4100, 8192, 8192};
+    GsbRect d1 = {-2052, -2052, 4096, 4096};
+    GsbRect d2 = {-1028, -1028, 2048, 2048};
     int lv[2];
 
     if (optionScreenMode == 0) {
@@ -649,7 +756,6 @@ void gsb_setParticleReg(int ctx)
 
 extern int game_pause;
 extern char *matrixptr;
-extern char D_0054E370[];
 extern void _MulMatrix(void *d, void *a, void *b);
 extern void _InversMatrix(void *d, void *s);
 extern void _CopyMatrix(void *d, void *s);
@@ -657,6 +763,18 @@ extern void _CopyMatrix(void *d, void *s);
 extern void dl_OpenDma(int a0, char *a1, int a2);
 /* kept local: this TU's uses of dl_CloseDma do not fit the prototype in DisplayList.h */
 extern void dl_CloseDma(void);
+
+/* the head of the common matrix packet: the three constant rows of the VU
+   parameter block (the unit w, the clip extents and a zero row) and the GIF
+   tag of the strip the microcode sends */
+static const struct {
+    sceVu0FVECTOR row[3];
+    sceVu0IVECTOR tag;
+} commonMatrixHead = {
+    /* derived name */
+    {{0.0f, 0.0f, 0.0f, 1.0f}, {4095.0f, 4095.0f, 0.0f, 16777215.0f}, {0.0f, 0.0f, 0.0f, 0.0f}},
+    {0x8000, 0x302EC000, 0x512, 0},
+};
 
 /* Build the frame's common matrix packet: the three view matrices the stage
  * needs, the inverse of the view, and the display list that uploads them to
@@ -687,7 +805,7 @@ void gsb_MakeCommonMatrix(void)
     PacketBufferStruct.gif = (char *)p + 0xC;
     p[1].w[1] = 0x6C100000;
     PacketBufferStruct.ptr = (unsigned long long *)((char *)p + 0x10);
-    _CopyMatrix((char *)p + 0x10, D_0054E370);
+    _CopyMatrix((char *)p + 0x10, &commonMatrixHead);
     PacketBufferStruct.ptr = (unsigned long long *)((char *)PacketBufferStruct.ptr + 0x40);
     _CopyMatrix(PacketBufferStruct.ptr, matrixptr + 0x100);
     PacketBufferStruct.ptr = (unsigned long long *)((char *)PacketBufferStruct.ptr + 0x40);
@@ -761,15 +879,13 @@ void gsb_SetGsDefault(void)
     gsb_setNormalReg(0xC);
 }
 
-extern char D_0054E3B0[];
-
 /* Lay the film grain texture over the frame: the noise texture at texture
  * slot 10, drawn as one full screen sprite whose colour comes from the
  * stage record's grain tint for this target and whose UV step is the
  * record's grain scale, passed as raw bits in both halves of the register. */
 void gsb_filmNoise(void)
 {
-    int n = tex_GetTextureNo(D_0054E3B0);
+    int n = tex_GetTextureNo("sandstorm_spr");
     float scale;
 
     if (n < 0) {
@@ -793,15 +909,28 @@ void gsb_filmNoise(void)
     gif_EndPacketPath1();
 }
 
-extern char D_0054E408[];
-extern char D_00639FC8[];
-extern char D_00639FD0[];
-extern char D_00639FD8[];
+/* the stage animation group each film noise target loops, -1 for none */
+static const int filmNoiseGroup[] = {-1, 67, 68, 69, 70}; /* derived name */
+
+inline void gsb_ResetFilmNoise(void)
+{
+    int i;
+    for (i = 0; i < 5; i++) {
+        if (filmNoiseGroup[i] != -1) {
+            if (i == optionScreenMode) {
+                stage_SetLoopFlag(filmNoiseGroup[i], 1);
+                debug_StdPrintfDummy("set film noise %d\n", optionScreenMode);
+            } else {
+                stage_SetLoopFlag(filmNoiseGroup[i], 0);
+                debug_StdPrintfDummy("clear film noise %d\n", optionScreenMode);
+            }
+        }
+    }
+}
+
 extern int D_0063B60C;
 extern int fadeStatus;
 extern unsigned char D_0063BCB3;
-extern int D_00639FC4;
-extern int fbKeep;
 extern int staffRollStartFlag;
 extern void FullScreenEffectAfter(void);
 extern void shadow_Draw(void);
@@ -813,6 +942,9 @@ extern void staffRollMain(void);
 extern void gsb_fade(void);
 extern void gsb_scissorOnDemo(void);
 
+/* set by gsb_UpdateGSSystem once the frame is up, tested by gsb_PostEffect */
+static int postEffectReady = 0; /* derived name */
+
 /* Everything the frame still owes after the scene is drawn: the debug read
  * outs, the full screen effect, the shadow and fog passes, the motion blur,
  * the anti alias pass, the film grain and the brightness step, the kept frame
@@ -820,17 +952,17 @@ extern void gsb_scissorOnDemo(void);
 int gsb_PostEffect(void)
 {
     if (D_0063B13C & 1) {
-        debug_Printf(0xA, ScreenHeight / 2 - 8, 0xCCCCCC00, D_0054E408, D_0063B60C, fadeStatus,
-                     fadeLevel, D_0063BCB3);
+        debug_Printf(0xA, ScreenHeight / 2 - 8, 0xCCCCCC00, "LID:%3d / FADE%d:%3.0f(%d)",
+                     D_0063B60C, fadeStatus, fadeLevel, D_0063BCB3);
     }
     if (D_0028F4C0[0x18 / 4] != 0 && (D_0063B13C & 1)) {
-        debug_Printf(0x230, ScreenHeight / 2 - 8, 0xCCCCCC00, D_00639FC8);
+        debug_Printf(0x230, ScreenHeight / 2 - 8, 0xCCCCCC00, "L");
     }
     if (D_0028F4C0[0x14 / 4] != 0 && (D_0063B13C & 1)) {
-        debug_Printf(0x23A, ScreenHeight / 2 - 8, 0xCCCCCC00, D_00639FD0);
+        debug_Printf(0x23A, ScreenHeight / 2 - 8, 0xCCCCCC00, "P");
     }
     FullScreenEffectAfter();
-    if (D_00639FC4 != 0) {
+    if (postEffectReady != 0) {
         shadow_Draw();
     }
     fog_DrawFog();
@@ -843,7 +975,7 @@ int gsb_PostEffect(void)
     if (fbKeep != 0) {
         gsb_KeepFrameBuffer();
         if (D_0063B13C & 1) {
-            debug_Printf(0x226, ScreenHeight / 2 - 8, 0xCCCCCC00, D_00639FD8);
+            debug_Printf(0x226, ScreenHeight / 2 - 8, 0xCCCCCC00, "K");
         }
     }
     if (staffRollStartFlag != 0) {
@@ -854,16 +986,11 @@ int gsb_PostEffect(void)
     return fbKeep;
 }
 
-extern int D_00639FDC;
+/* gsb_InitGSSystem's first call brings every module up */
+static int firstGsInit = 1; /* derived name */
+
 extern int screen_offset_y;
 extern int screen_offset_x;
-extern int D_0063A074;
-extern int D_0063A078;
-extern int D_00639F84;
-extern char D_0054E428[];
-extern char D_0054E438[];
-extern char D_0054E448[];
-extern char D_0054E458[];
 extern char D_0028F4F0[];
 extern void sceGsResetPath(void);
 extern void sceGsSyncV(int a0);
@@ -876,40 +1003,81 @@ void gsb_InitGSSystem(void)
 {
     screen_offset_y = 0;
     screen_offset_x = 0;
-    if (D_00639FDC != 0) {
+    if (firstGsInit != 0) {
         sceGsResetPath();
         sceVpu0Reset();
-        debug_StdPrintfDummy(D_0054E428);
+        debug_StdPrintfDummy("dma init\n");
         dma_init();
-        debug_StdPrintfDummy(D_0054E438);
+        debug_StdPrintfDummy("matrix init\n");
         matrix_init();
-        debug_StdPrintfDummy(D_0054E448);
+        debug_StdPrintfDummy("texture init\n");
         tex_Init();
-        debug_StdPrintfDummy(D_0054E458);
+        debug_StdPrintfDummy("gs init\n");
         sceGsSyncV(0);
         gsb_Init(D_0028F4F0);
         sceGsSyncV(0);
         dl_Init();
-        D_00639FDC = 0;
+        firstGsInit = 0;
     } else {
-        debug_StdPrintfDummy(D_0054E428);
+        debug_StdPrintfDummy("dma init\n");
         dma_init();
-        debug_StdPrintfDummy(D_0054E448);
+        debug_StdPrintfDummy("texture init\n");
         tex_Init();
     }
     resetmallocseki();
     pac_Init();
     reg_Init();
     shadow_Init();
-    D_00639F84 = 1;
-    D_0063A074 = D_0063A078 = 0;
+    gsSystemReady = 1;
+    screenOffsetX = screenOffsetY = 0;
+}
+
+/* Six zero words of .sdata between gsb_InitGSSystem's flag and
+   gsb_SyncGSSystem's counter: nothing in the ROM reads or writes them.  The
+   bytes pin their place, the value and that each is at most eight bytes; they
+   do not pin their types, their split or their role. */
+static int gsbUnused0 = 0; /* derived name */
+
+static int gsbUnused1 = 0; /* derived name */
+
+static int gsbUnused2 = 0; /* derived name */
+
+static int gsbUnused3 = 0; /* derived name */
+
+static int gsbUnused4 = 0; /* derived name */
+
+static int gsbUnused5 = 0; /* derived name */
+
+inline int gsb_ResetSnap(void) {}
+
+inline int gsb_TakeSnap(void) {}
+
+extern int sceGsSyncPath(int mode, int timeout);
+/* kept local: the declaration in GsBase.h changes this TU codegen */
+extern void gsb_ResetGSSystem(void);
+
+/* the frames gsb_SyncGSSystem has waited on the GS */
+static int syncRetry = 0; /* derived name */
+
+inline int gsb_SyncGSSystem(void)
+{
+    if (sceGsSyncPath(1, 0)) {
+        syncRetry++;
+        if (syncRetry >= 11) {
+            debug_StdPrintfDummy("reset gs\n");
+            gsb_ResetGSSystem();
+            syncRetry = 0;
+        }
+        return 1;
+    }
+    syncRetry = 0;
+    gsb_PostEffect();
+    return 0;
 }
 
 extern int frame_count;
 extern int buffer_ID;
 extern int odd_even;
-extern int D_00639FC4;
-extern int currentScreenWidth;
 extern int GlobalTimer;
 extern void sceGsSetHalfOffset(void *env, short x, short y, int field);
 extern void gsb_Reduction(void);
@@ -929,7 +1097,7 @@ void gsb_UpdateGSSystem(int keep)
 
     odd_even = (*(volatile unsigned long long *)0x12001000 >> 13) & 1;
     gsb_Reduction();
-    if (D_00639F84 == 0) {
+    if (gsSystemReady == 0) {
         dl_Clear();
         return;
     }
@@ -952,9 +1120,9 @@ void gsb_UpdateGSSystem(int keep)
         dl_Clear();
     }
     gsb_SetGsDefault();
-    D_00639FC4 = 0;
+    postEffectReady = 0;
     shadow_Reset();
-    D_00639FC4 = 1;
+    postEffectReady = 1;
     FullScreenEffectBefore();
     currentScreenWidth = GlobalTimer;
     light_ResetLight();
@@ -994,11 +1162,9 @@ void gsb_ResetGSSystem(void)
 }
 
 extern void _UnitMatrix(float *m);
-/* The 1500 unit screen the projection b is scaled to, {1500, 1500, 0, 0}:
-   a placeholder for GsBase.o's own 16 bytes in its .rodata at VMA 0x54E478,
-   a run the build cannot emit from C (it interleaves anonymous strings with
-   named tables), so it stays extern here. */
-extern const float D_0054E478[];
+
+/* the 1500 unit screen the projection b is scaled to */
+static const float vsScreenSize[] = {1500.0f, 1500.0f, 0.0f, 0.0f}; /* derived name */
 
 /* Build the view matrices from the record gsb_SetVSMatrix fills (vs[0] the
  * zoom, vs[1] and vs[2] the aspect terms, vs[3] and vs[4] the centre, vs[5]
@@ -1024,8 +1190,8 @@ void gsb_SetVSMatrixSub(float *a, float *b, float *c, float *d, float *vs)
     float rx;
     float ry;
 
-    sx = vs[7] * D_0054E478[0] / vs[0];
-    sy = vs[7] * D_0054E478[1] / vs[0];
+    sx = vs[7] * vsScreenSize[0] / vs[0];
+    sy = vs[7] * vsScreenSize[1] / vs[0];
 
     cx = vs[7] * v[0] / vs[0];
     cy = vs[7] * v[1] / vs[0];
@@ -1101,16 +1267,11 @@ void gsb_SetVSMatrixSub(float *a, float *b, float *c, float *d, float *vs)
     _CopyMatrix(matrixptr + 0x680, m1);
 }
 
-extern int D_0063A07C;
-extern int D_0063A080;
 extern float staffRollCenterOffsetX;
 extern int D_0063B1B0;
 extern int D_0063B1B8;
 extern int D_0063B1C8;
 extern int D_0028F948[];
-extern float center_X;
-extern float center_Y;
-extern int D_00639F94;
 
 /* The view record gsb_SetVSMatrixSub builds the view and screen matrices
  * from: the zoom, the two aspect terms, the centre, and the near and far
@@ -1132,25 +1293,25 @@ void gsb_SetVSMatrix(int w, int h, float d)
 
     center_X = center_Y = 2048.0f;
     if (d == 0.0f) {
-        d = (float)D_00639F94;
+        d = (float)currentFocusDistance;
     } else {
-        D_00639F94 = d;
+        currentFocusDistance = d;
     }
-    D_0063A07C = w;
-    D_0063A080 = h;
-    if (D_00639F88 != D_00639F8C) {
-        D_00639F8C = D_00639F8C + (D_00639F88 - D_00639F8C) * D_00639F90 * 0.001f;
+    vsWidth = w;
+    vsHeight = h;
+    if (zoomTarget != zoomCurrent) {
+        zoomCurrent = zoomCurrent + (zoomTarget - zoomCurrent) * zoomSpeed * 0.001f;
     }
     if (staffRollStartFlag != 0) {
         center_X = center_X - staffRollCenterOffsetX;
     }
-    zoom = (float)D_0028F720.viewScale * D_00639F8C * d * (float)D_0063B1B0 * (float)ScreenWidth /
+    zoom = (float)D_0028F720.viewScale * zoomCurrent * d * (float)D_0063B1B0 * (float)ScreenWidth /
            640.0f / 100.0f / 100.0f;
     vsParam[0] = zoom;
     if (D_0063B1C8 != 0 || (D_0028F948[0] & 0x800) != 0) {
         vsParam[0] = zoom * (float)D_0063B1B8 / 100.0f;
     }
-    tex_UpdateMipMapLevel((float)D_0028F720.viewScale * D_00639F8C * (float)D_0063B1B0 *
+    tex_UpdateMipMapLevel((float)D_0028F720.viewScale * zoomCurrent * (float)D_0063B1B0 *
                           (float)ScreenWidth / 640.0f / 100.0f);
     vsParam[3] = center_X;
     vsParam[4] = center_Y;
@@ -1248,10 +1409,22 @@ typedef struct sceCdCLOCK {
 
 extern int stage_no;
 extern char D_005F5D90[];
-extern char D_0063A000[];
-extern char D_0054E4F8[];
-extern char D_0054E518[];
-extern char D_0054E530[];
+
+inline int gsb_LoadStageSettings(void)
+{
+    char buf[0x100];
+    int fd;
+    sprintf(buf, "object/stagesetting/%s.ssb", D_005F5D90 + stage_no * 0x194);
+    fd = debugSceOpen(buf, 1);
+    if (fd < 0) {
+        debug_StdPrintfDummy("gsb_LoadStageSettings: host file open error.\n");
+    } else {
+        debug_StdPrintfDummy("Load stage settings file. %s\n", buf);
+        sceRead(fd, &D_0028F720, 0x1D0);
+        debugSceClose(fd);
+    }
+    return -1;
+}
 
 /* Scratch for the editing log: first the log file's name, then the line
  * appended to it.  MAIN.MAP names no symbol inside GsBase.o's .bss, so the
@@ -1266,18 +1439,38 @@ void appendLogFile(void)
     int fd;
 
     sceCdReadClock(&clock);
-    sprintf(logBuf, D_0054E4F8);
+    sprintf(logBuf, "object/stagesetting/change.txt");
     fd = debugSceOpen(logBuf, 0x302);
     if (fd < 0) {
-        debug_StdPrintfDummy(D_0054E518);
+        debug_StdPrintfDummy("change.txt open error.\n");
         return;
     }
-    sprintf(logBuf, D_0054E530, clock.year | 0x2000, clock.month, clock.day, clock.hour,
-            clock.minute, clock.second, D_005F5D90 + stage_no * 0x194, D_0063A000);
+    sprintf(logBuf, "%04x/%02x/%02x %02x:%02x:%02x : stage %s  edit by %s\n", clock.year | 0x2000,
+            clock.month, clock.day, clock.hour, clock.minute, clock.second,
+            D_005F5D90 + stage_no * 0x194, "horagai");
     sceLseek(fd, 0, 2);
     sceWrite(fd, logBuf, strlen(logBuf));
     debugSceClose(fd);
     debug_StdPrintfDummy(logBuf);
+}
+
+inline int gsb_SaveStageSettings(void)
+{
+    char buf[0x100];
+    int fd;
+    if (otherEditingLocked == 0) {
+        sprintf(buf, "object/stagesetting/%s.ssb", D_005F5D90 + stage_no * 0x194);
+        fd = debugSceOpen(buf, 0x602);
+        if (fd < 0) {
+            debug_StdPrintfDummy("gsb_SaveStageSettings: host file open error.\n");
+            return -1;
+        }
+        sceWrite(fd, &D_0028F720, 0x1D0);
+        debug_StdPrintfDummy("Save stage settings file. %s\n", buf);
+        debugSceClose(fd);
+        appendLogFile();
+    }
+    return -1;
 }
 
 /* one row of the film noise debug menu (the same shape ico2/seki/src/ZFog.c
@@ -1295,27 +1488,61 @@ typedef struct GsbToolItem {
     void (*fn)(); /* 0x1C */
 } GsbToolItem;
 
-/* .rodata, VMA 0x0054E5B8..0x0054E938: the four pages of seven rows, one page
-   per render target, each row naming a word of the stage record. */
-extern const GsbToolItem D_0054E5B8[4][7];
-/* .rodata, VMA 0x0054E9E0: the unselected and selected row colours. */
-extern unsigned int D_0054E9E0[];
-extern char D_0054E9E8[]; /* "Film Noise Pattern %d" */
-extern char D_0054EA00[]; /* "StageSetting %s => %s\n" */
-extern char D_0054EA18[]; /* "StageSetting %s => %d\n" */
-extern char D_0054EA30[]; /* "StageSetting %s => %f\n" */
-extern char D_0063A018[]; /* "%s : %s" */
-extern char D_0063A020[]; /* "%s : %d" */
-extern char D_0063A028[]; /* "%s : %f" */
-extern char D_0063A008[]; /* "On" */
-extern char D_0063A010[]; /* "Off" */
+/* the four pages of seven rows, one page per render target, each row naming
+   a word of the stage record */
+static const GsbToolItem filmNoiseItems[4][7] = {
+    /* derived name */
+    {
+        {" HighLight Color R ", &D_0028F720.targetCol[0][0], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
+        {" HighLight Color G ", &D_0028F720.targetCol[0][1], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
+        {" HighLight Color B ", &D_0028F720.targetCol[0][2], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
+        {" Noise Level       ", &D_0028F720.targetCol[0][3], 0, 0.0f, 255.0f, 8.0f, 1.0f, 0},
+        {" Motion Blur       ", &D_0028F720.subMotionBlur[0], 0, 0.0f, 127.0f, 32.0f, 1.0f, 0},
+        {" AntiLevel0        ", &D_0028F720.f19C[0].a, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
+        {" AntiLevel1        ", &D_0028F720.f19C[0].b, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
+    },
+    {
+        {" HighLight Color R ", &D_0028F720.targetCol[1][0], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
+        {" HighLight Color G ", &D_0028F720.targetCol[1][1], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
+        {" HighLight Color B ", &D_0028F720.targetCol[1][2], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
+        {" Noise Level       ", &D_0028F720.targetCol[1][3], 0, 0.0f, 255.0f, 16.0f, 1.0f, 0},
+        {" Motion Blur       ", &D_0028F720.subMotionBlur[1], 0, 0.0f, 127.0f, 32.0f, 1.0f, 0},
+        {" AntiLevel0        ", &D_0028F720.f19C[1].a, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
+        {" AntiLevel1        ", &D_0028F720.f19C[1].b, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
+    },
+    {
+        {" HighLight Color R ", &D_0028F720.targetCol[2][0], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
+        {" HighLight Color G ", &D_0028F720.targetCol[2][1], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
+        {" HighLight Color B ", &D_0028F720.targetCol[2][2], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
+        {" Noise Level       ", &D_0028F720.targetCol[2][3], 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
+        {" Motion Blur       ", &D_0028F720.subMotionBlur[2], 0, 0.0f, 127.0f, 32.0f, 1.0f, 0},
+        {" AntiLevel0        ", &D_0028F720.f19C[2].a, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
+        {" AntiLevel1        ", &D_0028F720.f19C[2].b, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
+    },
+    {
+        {" HighLight Color R ", &D_0028F720.targetCol[3][0], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
+        {" HighLight Color G ", &D_0028F720.targetCol[3][1], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
+        {" HighLight Color B ", &D_0028F720.targetCol[3][2], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
+        {" Noise Level       ", &D_0028F720.targetCol[3][3], 0, 0.0f, 255.0f, 32.0f, 1.0f, 0},
+        {" Motion Blur       ", &D_0028F720.subMotionBlur[3], 0, 0.0f, 127.0f, 32.0f, 1.0f, 0},
+        {" AntiLevel0        ", &D_0028F720.f19C[3].a, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
+        {" AntiLevel1        ", &D_0028F720.f19C[3].b, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
+    },
+};
 
-/* .data, VMA 0x00290810: the word a boolean row prints. The two strings stay
-   blob owned until the TU's .sdata run lands, so they are named by address
-   here; MAIN.MAP names no symbol in this run and the array name is ours. */
-static char *filmNoiseOnOffText[] = {D_0063A010, D_0063A008};
+/* the unselected and selected row colours, ZFog's fogRowColor idiom: the
+   unspecified bound keeps the 8-byte object out of small data under -G 8,
+   which is where the ROM has it */
+static const unsigned int filmNoiseRowColor[] = {0xFFFFFF00, 0xFF000000}; /* derived name */
 
-extern int D_0063A014; /* the highlighted row */
+/* .data, VMA 0x00290810: the word a boolean row prints.  Its two strings are
+   the .sdata run's "On" then "Off": gcc writes an initialiser's string
+   constants after the table, last one first.  MAIN.MAP names no symbol in this
+   run and the array name is ours. */
+static char *filmNoiseOnOffText[] = {"Off", "On"};
+
+static int filmNoiseRow = 0; /* derived name */ /* the highlighted row */
+
 extern GsbPad D_0028F8F0[];
 
 /* The film noise page of the debug menu: seven editable words of the stage
@@ -1328,98 +1555,103 @@ int gsb_FilmNoiseTool(int target)
     int ret = 0;
     int page = target;
 
-    debug_PrintfDummy(10, 30, 0xFF800000, D_0054E9E8, target);
+    debug_PrintfDummy(10, 30, 0xFF800000, "Film Noise Pattern %d", target);
 
     for (i = 0; i < 7; i++) {
-        if (D_0054E5B8[target][i].min == 0.0f && D_0054E5B8[target][i].max == 1.0f &&
-            D_0054E5B8[target][i].isFloat == 0) {
-            debug_PrintfDummy(18, (i + 1) * 8 + 30, D_0054E9E0[(D_0063A014 == i) ? 1 : 0],
-                              D_0063A018, D_0054E5B8[target][i].name,
-                              filmNoiseOnOffText[*(int *)D_0054E5B8[target][i].val]);
-        } else if (D_0054E5B8[target][i].isFloat == 0) {
-            debug_PrintfDummy(18, (i + 1) * 8 + 30, D_0054E9E0[(D_0063A014 == i) ? 1 : 0],
-                              D_0063A020, D_0054E5B8[target][i].name,
-                              *(int *)D_0054E5B8[target][i].val);
+        if (filmNoiseItems[target][i].min == 0.0f && filmNoiseItems[target][i].max == 1.0f &&
+            filmNoiseItems[target][i].isFloat == 0) {
+            debug_PrintfDummy(18, (i + 1) * 8 + 30, filmNoiseRowColor[(filmNoiseRow == i) ? 1 : 0],
+                              "%s : %s", filmNoiseItems[target][i].name,
+                              filmNoiseOnOffText[*(int *)filmNoiseItems[target][i].val]);
+        } else if (filmNoiseItems[target][i].isFloat == 0) {
+            debug_PrintfDummy(18, (i + 1) * 8 + 30, filmNoiseRowColor[(filmNoiseRow == i) ? 1 : 0],
+                              "%s : %d", filmNoiseItems[target][i].name,
+                              *(int *)filmNoiseItems[target][i].val);
         } else {
-            debug_PrintfDummy(18, (i + 1) * 8 + 30, D_0054E9E0[(D_0063A014 == i) ? 1 : 0],
-                              D_0063A028, D_0054E5B8[target][i].name,
-                              *(float *)D_0054E5B8[target][i].val);
+            debug_PrintfDummy(18, (i + 1) * 8 + 30, filmNoiseRowColor[(filmNoiseRow == i) ? 1 : 0],
+                              "%s : %f", filmNoiseItems[target][i].name,
+                              *(float *)filmNoiseItems[target][i].val);
         }
     }
 
     if (D_0028F8F0[0].rep & 0x4000) {
-        if (++D_0063A014 >= 7) {
-            D_0063A014 = 0;
+        if (++filmNoiseRow >= 7) {
+            filmNoiseRow = 0;
         }
     }
     if (D_0028F8F0[0].rep & 0x1000) {
-        if (--D_0063A014 < 0) {
-            D_0063A014 = 6;
+        if (--filmNoiseRow < 0) {
+            filmNoiseRow = 6;
         }
     }
     if (D_0028F8F0[0].rep & 0x2000) {
-        if (D_0054E5B8[page][D_0063A014].isFloat == 0) {
-            int v =
-                (float)*(int *)D_0054E5B8[page][D_0063A014].val + D_0054E5B8[page][D_0063A014].step;
+        if (filmNoiseItems[page][filmNoiseRow].isFloat == 0) {
+            int v = (float)*(int *)filmNoiseItems[page][filmNoiseRow].val +
+                    filmNoiseItems[page][filmNoiseRow].step;
 
-            *(int *)D_0054E5B8[page][D_0063A014].val = v;
-            if (D_0054E5B8[page][D_0063A014].max < (float)v) {
-                *(int *)D_0054E5B8[page][D_0063A014].val = D_0054E5B8[page][D_0063A014].min;
+            *(int *)filmNoiseItems[page][filmNoiseRow].val = v;
+            if (filmNoiseItems[page][filmNoiseRow].max < (float)v) {
+                *(int *)filmNoiseItems[page][filmNoiseRow].val =
+                    filmNoiseItems[page][filmNoiseRow].min;
             }
         } else {
-            float v =
-                *(float *)D_0054E5B8[page][D_0063A014].val + D_0054E5B8[page][D_0063A014].step;
+            float v = *(float *)filmNoiseItems[page][filmNoiseRow].val +
+                      filmNoiseItems[page][filmNoiseRow].step;
 
-            *(float *)D_0054E5B8[page][D_0063A014].val = v;
-            if (D_0054E5B8[page][D_0063A014].max < v) {
-                *(float *)D_0054E5B8[page][D_0063A014].val = D_0054E5B8[page][D_0063A014].min;
+            *(float *)filmNoiseItems[page][filmNoiseRow].val = v;
+            if (filmNoiseItems[page][filmNoiseRow].max < v) {
+                *(float *)filmNoiseItems[page][filmNoiseRow].val =
+                    filmNoiseItems[page][filmNoiseRow].min;
             }
         }
-        if (D_0054E5B8[page][D_0063A014].fn != 0) {
-            D_0054E5B8[page][D_0063A014].fn(0);
+        if (filmNoiseItems[page][filmNoiseRow].fn != 0) {
+            filmNoiseItems[page][filmNoiseRow].fn(0);
         }
     }
     if (D_0028F8F0[0].rep & 0x8000) {
-        if (D_0054E5B8[page][D_0063A014].isFloat == 0) {
-            int v =
-                (float)*(int *)D_0054E5B8[page][D_0063A014].val - D_0054E5B8[page][D_0063A014].step;
+        if (filmNoiseItems[page][filmNoiseRow].isFloat == 0) {
+            int v = (float)*(int *)filmNoiseItems[page][filmNoiseRow].val -
+                    filmNoiseItems[page][filmNoiseRow].step;
 
-            *(int *)D_0054E5B8[page][D_0063A014].val = v;
-            if ((float)v < D_0054E5B8[page][D_0063A014].min) {
-                *(int *)D_0054E5B8[page][D_0063A014].val = D_0054E5B8[page][D_0063A014].max;
+            *(int *)filmNoiseItems[page][filmNoiseRow].val = v;
+            if ((float)v < filmNoiseItems[page][filmNoiseRow].min) {
+                *(int *)filmNoiseItems[page][filmNoiseRow].val =
+                    filmNoiseItems[page][filmNoiseRow].max;
             }
         } else {
-            float v =
-                *(float *)D_0054E5B8[page][D_0063A014].val - D_0054E5B8[page][D_0063A014].step;
+            float v = *(float *)filmNoiseItems[page][filmNoiseRow].val -
+                      filmNoiseItems[page][filmNoiseRow].step;
 
-            *(float *)D_0054E5B8[page][D_0063A014].val = v;
-            if (v < D_0054E5B8[page][D_0063A014].min) {
-                *(float *)D_0054E5B8[page][D_0063A014].val = D_0054E5B8[page][D_0063A014].max;
+            *(float *)filmNoiseItems[page][filmNoiseRow].val = v;
+            if (v < filmNoiseItems[page][filmNoiseRow].min) {
+                *(float *)filmNoiseItems[page][filmNoiseRow].val =
+                    filmNoiseItems[page][filmNoiseRow].max;
             }
         }
-        if (D_0054E5B8[page][D_0063A014].fn != 0) {
-            D_0054E5B8[page][D_0063A014].fn(0);
+        if (filmNoiseItems[page][filmNoiseRow].fn != 0) {
+            filmNoiseItems[page][filmNoiseRow].fn(0);
         }
     }
     if (D_0028F8F0[0].trg & 0x10) {
-        if (D_0054E5B8[page][D_0063A014].isFloat == 0) {
-            *(int *)D_0054E5B8[page][D_0063A014].val = D_0054E5B8[page][D_0063A014].def;
+        if (filmNoiseItems[page][filmNoiseRow].isFloat == 0) {
+            *(int *)filmNoiseItems[page][filmNoiseRow].val = filmNoiseItems[page][filmNoiseRow].def;
         } else {
-            *(float *)D_0054E5B8[page][D_0063A014].val = D_0054E5B8[page][D_0063A014].def;
+            *(float *)filmNoiseItems[page][filmNoiseRow].val =
+                filmNoiseItems[page][filmNoiseRow].def;
         }
     }
     if (D_0028F8F0[0].trg & 0x20) {
         for (i = 0; i < 7; i++) {
-            if (D_0054E5B8[page][i].min == 0.0f && D_0054E5B8[page][i].max == 1.0f &&
-                D_0054E5B8[page][i].isFloat == 0) {
-                debug_StdPrintfDummy(D_0054EA00, D_0054E5B8[page][i].name,
-                                     filmNoiseOnOffText[*(int *)D_0054E5B8[page][i].val]);
-            } else if (D_0054E5B8[page][i].isFloat == 0) {
-                debug_StdPrintfDummy(D_0054EA18, D_0054E5B8[page][i].name,
-                                     *(int *)D_0054E5B8[page][i].val);
+            if (filmNoiseItems[page][i].min == 0.0f && filmNoiseItems[page][i].max == 1.0f &&
+                filmNoiseItems[page][i].isFloat == 0) {
+                debug_StdPrintfDummy("StageSetting %s => %s\n", filmNoiseItems[page][i].name,
+                                     filmNoiseOnOffText[*(int *)filmNoiseItems[page][i].val]);
+            } else if (filmNoiseItems[page][i].isFloat == 0) {
+                debug_StdPrintfDummy("StageSetting %s => %d\n", filmNoiseItems[page][i].name,
+                                     *(int *)filmNoiseItems[page][i].val);
             } else {
-                debug_StdPrintfDummy(D_0054EA30, D_0054E5B8[page][i].name,
-                                     *(float *)D_0054E5B8[page][i].val);
+                debug_StdPrintfDummy("StageSetting %s => %f\n", filmNoiseItems[page][i].name,
+                                     *(float *)filmNoiseItems[page][i].val);
             }
         }
         ret = 1;
@@ -1436,23 +1668,55 @@ int gsb_FilmNoiseTool(int target)
         ret = -1;
     }
     if (ret != 0) {
-        D_0063A014 = 0;
+        filmNoiseRow = 0;
     }
     return ret;
 }
 
-/* .rodata, VMA 0x0054EA48..0x0054ECE8: the twenty one rows of the stage
-   setting page, each naming a word of the stage record. */
-extern const GsbToolItem D_0054EA48[21];
-/* .rodata, VMA 0x0054EEE0: the unselected and selected row colours. */
-extern unsigned int D_0054EEE0[];
-extern char D_0054EEE8[]; /* "StageSetting" */
+extern int UpdateHandCameraLimitP(void);
+extern int UpdateHandCameraLimitV(void);
+extern int UpdateZoomMaxVallInDemo(void);
+
+/* the twenty one rows of the stage setting page, each naming a word of the
+   stage record (the words at 0xE4..0xF0, 0xF8, 0x104..0x11C and 0x180..0x190
+   are still padding in typedef.h's StageSetting) */
+static const GsbToolItem stageSettingItems[] = {
+    /* derived name */
+    {" HighLight Color R   ", &D_0028F720.reductionCol[0], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
+    {" HighLight Color G   ", &D_0028F720.reductionCol[1], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
+    {" HighLight Color B   ", &D_0028F720.reductionCol[2], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
+    {" Zoom Offset         ", &D_0028F720.viewScale, 0, 5e+01f, 4e+02f, 1e+02f, 1.0f, 0},
+    {" Def Tex Sample Mode ", &D_0028F720.pad0E4[0], 0, 0.0f, 5.0f, 5.0f, 1.0f,
+     tex_RemakeRegistersSampleMin},
+    {" Post Effect         ", &D_0028F720.pad0E4[4], 0, 0.0f, 8.0f, 0.0f, 1.0f, 0},
+    {" Feedback Effect     ", &D_0028F720.pad104[0], 0, 0.0f, 3.0f, 0.0f, 1.0f, 0},
+    {" Feedback Effect R   ", &D_0028F720.pad104[12], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
+    {" Feedback Effect G   ", &D_0028F720.pad104[16], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
+    {" Feedback Effect B   ", &D_0028F720.pad104[20], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
+    {" Feedback Effect A   ", &D_0028F720.pad104[24], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
+    {" DepthField Level    ", &D_0028F720.pad0F8[0], 0, 0.0f, 1e+03f, 1e+02f, 1.0f, 0},
+    {" DepthField Start    ", &D_0028F720.pad0E4[8], 0, 0.0f, 2e+04f, 2e+03f, 2e+01f, 0},
+    {" DepthField Width    ", &D_0028F720.pad0E4[12], 0, 0.0f, 2e+04f, 1e+04f, 2e+01f, 0},
+    {" HandCamera Limit P  ", &D_0028F720.pad174[12], 0, 0.0f, 1.8e+02f, 1.2e+02f, 1.0f,
+     UpdateHandCameraLimitP},
+    {" HandCamera Limit V  ", &D_0028F720.pad174[16], 0, 0.0f, 9e+01f, 8e+01f, 1.0f,
+     UpdateHandCameraLimitV},
+    {" ZOOM MAX IN DEMO    ", &D_0028F720.pad174[28], 0, 0.0f, 3e+02f, 2e+02f, 1.0f,
+     UpdateZoomMaxVallInDemo},
+    {" Motion Blur         ", &D_0028F720.motionBlur, 0, 0.0f, 127.0f, 32.0f, 1.0f, 0},
+    {" AntiLevel0          ", &D_0028F720.f0FC, 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
+    {" AntiLevel1          ", &D_0028F720.f100, 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
+    {" Film Noise Tex Rep  ", &D_0028F720.grainScale, 1, 1.0f, 8.0f, 6.0f, 0.1f, 0},
+};
+
+/* the unselected and selected row colours, as filmNoiseRowColor */
+static const unsigned int stageSettingRowColor[] = {0xFFFFFF00, 0xFF000000}; /* derived name */
 
 /* .data, VMA 0x00290818: the stage setting page's own copy of the same pair.
    MAIN.MAP names no symbol in this run; the name is ours. */
-static char *stageSettingOnOffText[] = {D_0063A010, D_0063A008};
+static char *stageSettingOnOffText[] = {"Off", "On"};
 
-extern int D_0063A030; /* the highlighted row */
+static int stageSettingRow = 0; /* derived name */ /* the highlighted row */
 
 /* The stage setting page of the debug menu: twenty one editable words of the
  * stage record, the pad keys that walk and change them, and the key that dumps
@@ -1462,89 +1726,104 @@ int gsb_StageSettingTool(void)
     int i;
     int ret = 0;
 
-    debug_PrintfDummy(10, 30, 0xFF800000, D_0054EEE8);
+    debug_PrintfDummy(10, 30, 0xFF800000, "StageSetting Tool");
 
     for (i = 0; i < 21; i++) {
-        if (D_0054EA48[i].min == 0.0f && D_0054EA48[i].max == 1.0f && D_0054EA48[i].isFloat == 0) {
-            debug_PrintfDummy(18, (i + 1) * 8 + 30, D_0054EEE0[(D_0063A030 == i) ? 1 : 0],
-                              D_0063A018, D_0054EA48[i].name,
-                              stageSettingOnOffText[*(int *)D_0054EA48[i].val]);
-        } else if (D_0054EA48[i].isFloat == 0) {
-            debug_PrintfDummy(18, (i + 1) * 8 + 30, D_0054EEE0[(D_0063A030 == i) ? 1 : 0],
-                              D_0063A020, D_0054EA48[i].name, *(int *)D_0054EA48[i].val);
+        if (stageSettingItems[i].min == 0.0f && stageSettingItems[i].max == 1.0f &&
+            stageSettingItems[i].isFloat == 0) {
+            debug_PrintfDummy(18, (i + 1) * 8 + 30,
+                              stageSettingRowColor[(stageSettingRow == i) ? 1 : 0], "%s : %s",
+                              stageSettingItems[i].name,
+                              stageSettingOnOffText[*(int *)stageSettingItems[i].val]);
+        } else if (stageSettingItems[i].isFloat == 0) {
+            debug_PrintfDummy(18, (i + 1) * 8 + 30,
+                              stageSettingRowColor[(stageSettingRow == i) ? 1 : 0], "%s : %d",
+                              stageSettingItems[i].name, *(int *)stageSettingItems[i].val);
         } else {
-            debug_PrintfDummy(18, (i + 1) * 8 + 30, D_0054EEE0[(D_0063A030 == i) ? 1 : 0],
-                              D_0063A028, D_0054EA48[i].name, *(float *)D_0054EA48[i].val);
+            debug_PrintfDummy(18, (i + 1) * 8 + 30,
+                              stageSettingRowColor[(stageSettingRow == i) ? 1 : 0], "%s : %f",
+                              stageSettingItems[i].name, *(float *)stageSettingItems[i].val);
         }
     }
 
     if (D_0028F8F0[0].rep & 0x4000) {
-        if (++D_0063A030 >= 21) {
-            D_0063A030 = 0;
+        if (++stageSettingRow >= 21) {
+            stageSettingRow = 0;
         }
     }
     if (D_0028F8F0[0].rep & 0x1000) {
-        if (--D_0063A030 < 0) {
-            D_0063A030 = 20;
+        if (--stageSettingRow < 0) {
+            stageSettingRow = 20;
         }
     }
     if (D_0028F8F0[0].rep & 0x2000) {
-        if (D_0054EA48[D_0063A030].isFloat == 0) {
-            int v = (float)*(int *)D_0054EA48[D_0063A030].val + D_0054EA48[D_0063A030].step;
+        if (stageSettingItems[stageSettingRow].isFloat == 0) {
+            int v = (float)*(int *)stageSettingItems[stageSettingRow].val +
+                    stageSettingItems[stageSettingRow].step;
 
-            *(int *)D_0054EA48[D_0063A030].val = v;
-            if (D_0054EA48[D_0063A030].max < (float)v) {
-                *(int *)D_0054EA48[D_0063A030].val = D_0054EA48[D_0063A030].min;
+            *(int *)stageSettingItems[stageSettingRow].val = v;
+            if (stageSettingItems[stageSettingRow].max < (float)v) {
+                *(int *)stageSettingItems[stageSettingRow].val =
+                    stageSettingItems[stageSettingRow].min;
             }
         } else {
-            float v = *(float *)D_0054EA48[D_0063A030].val + D_0054EA48[D_0063A030].step;
+            float v = *(float *)stageSettingItems[stageSettingRow].val +
+                      stageSettingItems[stageSettingRow].step;
 
-            *(float *)D_0054EA48[D_0063A030].val = v;
-            if (D_0054EA48[D_0063A030].max < v) {
-                *(float *)D_0054EA48[D_0063A030].val = D_0054EA48[D_0063A030].min;
+            *(float *)stageSettingItems[stageSettingRow].val = v;
+            if (stageSettingItems[stageSettingRow].max < v) {
+                *(float *)stageSettingItems[stageSettingRow].val =
+                    stageSettingItems[stageSettingRow].min;
             }
         }
-        if (D_0054EA48[D_0063A030].fn != 0) {
-            D_0054EA48[D_0063A030].fn(0);
+        if (stageSettingItems[stageSettingRow].fn != 0) {
+            stageSettingItems[stageSettingRow].fn(0);
         }
     }
     if (D_0028F8F0[0].rep & 0x8000) {
-        if (D_0054EA48[D_0063A030].isFloat == 0) {
-            int v = (float)*(int *)D_0054EA48[D_0063A030].val - D_0054EA48[D_0063A030].step;
+        if (stageSettingItems[stageSettingRow].isFloat == 0) {
+            int v = (float)*(int *)stageSettingItems[stageSettingRow].val -
+                    stageSettingItems[stageSettingRow].step;
 
-            *(int *)D_0054EA48[D_0063A030].val = v;
-            if ((float)v < D_0054EA48[D_0063A030].min) {
-                *(int *)D_0054EA48[D_0063A030].val = D_0054EA48[D_0063A030].max;
+            *(int *)stageSettingItems[stageSettingRow].val = v;
+            if ((float)v < stageSettingItems[stageSettingRow].min) {
+                *(int *)stageSettingItems[stageSettingRow].val =
+                    stageSettingItems[stageSettingRow].max;
             }
         } else {
-            float v = *(float *)D_0054EA48[D_0063A030].val - D_0054EA48[D_0063A030].step;
+            float v = *(float *)stageSettingItems[stageSettingRow].val -
+                      stageSettingItems[stageSettingRow].step;
 
-            *(float *)D_0054EA48[D_0063A030].val = v;
-            if (v < D_0054EA48[D_0063A030].min) {
-                *(float *)D_0054EA48[D_0063A030].val = D_0054EA48[D_0063A030].max;
+            *(float *)stageSettingItems[stageSettingRow].val = v;
+            if (v < stageSettingItems[stageSettingRow].min) {
+                *(float *)stageSettingItems[stageSettingRow].val =
+                    stageSettingItems[stageSettingRow].max;
             }
         }
-        if (D_0054EA48[D_0063A030].fn != 0) {
-            D_0054EA48[D_0063A030].fn(0);
+        if (stageSettingItems[stageSettingRow].fn != 0) {
+            stageSettingItems[stageSettingRow].fn(0);
         }
     }
     if (D_0028F8F0[0].trg & 0x10) {
-        if (D_0054EA48[D_0063A030].isFloat == 0) {
-            *(int *)D_0054EA48[D_0063A030].val = D_0054EA48[D_0063A030].def;
+        if (stageSettingItems[stageSettingRow].isFloat == 0) {
+            *(int *)stageSettingItems[stageSettingRow].val = stageSettingItems[stageSettingRow].def;
         } else {
-            *(float *)D_0054EA48[D_0063A030].val = D_0054EA48[D_0063A030].def;
+            *(float *)stageSettingItems[stageSettingRow].val =
+                stageSettingItems[stageSettingRow].def;
         }
     }
     if (D_0028F8F0[0].trg & 0x20) {
         for (i = 0; i < 21; i++) {
-            if (D_0054EA48[i].min == 0.0f && D_0054EA48[i].max == 1.0f &&
-                D_0054EA48[i].isFloat == 0) {
-                debug_StdPrintfDummy(D_0054EA00, D_0054EA48[i].name,
-                                     stageSettingOnOffText[*(int *)D_0054EA48[i].val]);
-            } else if (D_0054EA48[i].isFloat == 0) {
-                debug_StdPrintfDummy(D_0054EA18, D_0054EA48[i].name, *(int *)D_0054EA48[i].val);
+            if (stageSettingItems[i].min == 0.0f && stageSettingItems[i].max == 1.0f &&
+                stageSettingItems[i].isFloat == 0) {
+                debug_StdPrintfDummy("StageSetting %s => %s\n", stageSettingItems[i].name,
+                                     stageSettingOnOffText[*(int *)stageSettingItems[i].val]);
+            } else if (stageSettingItems[i].isFloat == 0) {
+                debug_StdPrintfDummy("StageSetting %s => %d\n", stageSettingItems[i].name,
+                                     *(int *)stageSettingItems[i].val);
             } else {
-                debug_StdPrintfDummy(D_0054EA30, D_0054EA48[i].name, *(float *)D_0054EA48[i].val);
+                debug_StdPrintfDummy("StageSetting %s => %f\n", stageSettingItems[i].name,
+                                     *(float *)stageSettingItems[i].val);
             }
         }
         ret = 1;
@@ -1553,17 +1832,10 @@ int gsb_StageSettingTool(void)
         ret = -1;
     }
     if (ret != 0) {
-        D_0063A030 = 0;
+        stageSettingRow = 0;
     }
     return ret;
 }
-
-extern int D_00639F78;
-extern char D_0054EF00[];
-extern char D_0054EF20[];
-extern char D_0054EF30[];
-extern char D_0063A038[];
-extern char D_0063A040[];
 
 /* The stage lock file's name, and the owner name read back out of it.
  * MAIN.MAP names no symbol inside GsBase.o's .bss, so both names are
@@ -1572,34 +1844,29 @@ static char lockFileName[256];
 
 static char lockOwner[72];
 
-extern int D_00639F7C;
-
 void updateOtherEditingLockFlag(void)
 {
     char buf[0x100];
     int fd;
 
-    sprintf(lockFileName, D_0054EF00, D_005F5D90 + stage_no * 0x194);
-    D_00639F78 = 0;
+    sprintf(lockFileName, "object/stagesetting/%s.lock", D_005F5D90 + stage_no * 0x194);
+    otherEditingLocked = 0;
     fd = debugSceOpen(lockFileName, 1);
     if (fd >= 0) {
         sceRead(fd, buf, 0x100);
         debugSceClose(fd);
-        sscanf(buf, D_0063A038, lockOwner);
+        sscanf(buf, "%s\n", lockOwner);
     }
-    if (fd < 0 || strcmp(D_0063A040, lockOwner) == 0) {
-        debug_StdPrintfDummy(D_0054EF20);
-        D_00639F7C = 0;
-    } else if (strcmp(D_0063A000, lockOwner) != 0) {
-        debug_StdPrintfDummy(D_0054EF30, lockOwner);
-        D_00639F78 = 1;
+    if (fd < 0 || strcmp("nouser", lockOwner) == 0) {
+        debug_StdPrintfDummy("no lock\n");
+        editingSettings = 0;
+    } else if (strcmp("horagai", lockOwner) != 0) {
+        debug_StdPrintfDummy("lock by \"%s\"\n", lockOwner);
+        otherEditingLocked = 1;
     } else {
-        D_00639F7C = 1;
+        editingSettings = 1;
     }
 }
-
-extern char D_0054EF40[];
-extern char D_0054EF58[];
 
 /* the line-2873 helper the PAL listing shows inlined at the head of
    updateOtherEditingLockFlag, createLockFile and removeLockFile */
@@ -1608,7 +1875,7 @@ extern char D_0054EF58[];
  * out of line, so it has no MAIN.MAP symbol and this name is ours. */
 static inline char *makeLockFileName(void)
 {
-    sprintf(lockFileName, D_0054EF00, D_005F5D90 + stage_no * 0x194);
+    sprintf(lockFileName, "object/stagesetting/%s.lock", D_005F5D90 + stage_no * 0x194);
     return lockFileName;
 }
 
@@ -1618,19 +1885,16 @@ int createLockFile(void)
     char *name = makeLockFileName();
     int fd = debugSceOpen(name, 0x602);
     if (fd < 0) {
-        debug_StdPrintfDummy(D_0054EF40);
+        debug_StdPrintfDummy("cant create lock file\n");
         return 0;
     }
-    sprintf(buf, D_0063A038, D_0063A000);
+    sprintf(buf, "%s\n", "horagai");
     sceWrite(fd, buf, strlen(buf) + 1);
     debugSceClose(fd);
-    debug_StdPrintfDummy(D_0054EF58, name, buf);
-    D_00639F7C = 1;
+    debug_StdPrintfDummy(" create lock file \"%s\" by %s\n", name, buf);
+    editingSettings = 1;
     return 1;
 }
-
-extern char D_0054EF78[];
-extern char D_0054EF90[];
 
 int removeLockFile(void)
 {
@@ -1638,14 +1902,14 @@ int removeLockFile(void)
     char *name = makeLockFileName();
     int fd = debugSceOpen(name, 0x602);
     if (fd < 0) {
-        debug_StdPrintfDummy(D_0054EF78);
+        debug_StdPrintfDummy("cant remove lock file\n");
         return 0;
     }
-    sprintf(buf, D_0063A038, D_0063A040);
+    sprintf(buf, "%s\n", "nouser");
     sceWrite(fd, buf, strlen(buf) + 1);
     debugSceClose(fd);
-    debug_StdPrintfDummy(D_0054EF90, name, D_0063A000);
-    D_00639F7C = 0;
+    debug_StdPrintfDummy(" remove lock file \"%s\" by %s\n", name, "horagai");
+    editingSettings = 0;
     return 1;
 }
 
@@ -1659,75 +1923,6 @@ typedef struct {
 extern int light_Tool(void);
 extern int shadow_Tool(void);
 extern int fog_FogTool(void);
-extern char D_0054EFB0[]; /* "LOCK OTHER EDITING" */
-extern char D_0054EFC8[]; /* "UnLock Quit" */
-extern char D_0054EFD8[]; /* "Save Settings" */
-extern char D_0054EFE8[]; /* "Load Settings" */
-extern char D_0054EFF8[]; /* "Other Settings" */
-extern char D_0054F008[]; /* "Film Noise 4" */
-extern char D_0054F018[]; /* "Film Noise 3" */
-extern char D_0054F028[]; /* "Film Noise 2" */
-extern char D_0054F038[]; /* "Film Noise 1" */
-extern char D_0054F048[]; /* "Fog Tool" */
-extern char D_0054F058[]; /* "Shadow Tool" */
-extern char D_0054F068[]; /* "Light Tool" */
-
-/* .data, VMA 0x00290820 and 0x00290830: the one row the menu shows while
-   another machine holds the lock, and the eleven rows it shows otherwise.
-   The row names are still blob owned (the TU's .rodata run is behind three
-   assembled functions), so they are named by address; MAIN.MAP names no
-   symbol in this run and both table names are ours. */
-static GsbMenuItem lockedMenu[];
-
-static GsbMenuItem stageSettingMenu[];
-
-extern int D_0054F078[];
-extern int D_0054F07C[];
-extern char D_0054F080[];
-extern char D_0063A050[];
-extern int D_0063A048;
-extern int D_0063A04C;
-
-int gsb_StageSetting(void)
-{
-    int i;
-    D_00639F7C = 1;
-    if (D_0063A04C >= 0) {
-        if (stageSettingMenu[D_0063A04C].fn != 0) {
-            int r = stageSettingMenu[D_0063A04C].fn(stageSettingMenu[D_0063A04C].arg);
-            if (r == -1) {
-                D_0063A04C = r;
-            }
-            return 0;
-        }
-    }
-    if (D_00639F7C) {
-        for (i = 0; i < 11; i++) {
-            debug_PrintfDummy(18, (i + 1) * 8 + 0x1E, D_0054F078[(D_0063A048 == i) ? 1 : 0],
-                              D_0063A050, stageSettingMenu[i].name);
-        }
-        if (D_0028F8F0[0].rep & 0x4000) {
-            D_0063A048++;
-            if (D_0063A048 >= 11)
-                D_0063A048 = 0;
-        }
-        if (D_0028F8F0[0].rep & 0x1000) {
-            D_0063A048--;
-            if (D_0063A048 < 0)
-                D_0063A048 = 10;
-        }
-        if (D_0028F8F0[0].trg & 0x20) {
-            D_0063A04C = D_0063A048;
-        }
-    } else {
-        debug_PrintfDummy(26, 22, 0xFFFFFFFF, D_0054F080);
-        debug_PrintfDummy(18, 38, D_0054F07C[0], D_0063A050, lockedMenu[0].name);
-        if (D_0028F8F0[0].trg & 0x20) {
-            lockedMenu[0].fn(1);
-        }
-    }
-    return (D_0028F8F0[0].trg & 0x40) ? -1 : 0;
-}
 
 /* The background colour the display list is cleared to, one component per
  * word of an integer quadword: gsb_SetBGColor writes the four words and
@@ -1759,109 +1954,11 @@ inline void gsb_GetBGColor(unsigned char *a0)
     a0[3] = bgColor[3];
 }
 
-extern int D_0054E3C0[];
-extern char D_0054E3D8[];
-extern char D_0054E3F0[];
-
-inline void gsb_ResetFilmNoise(void)
-{
-    int i;
-    for (i = 0; i < 5; i++) {
-        if (D_0054E3C0[i] != -1) {
-            if (i == optionScreenMode) {
-                stage_SetLoopFlag(D_0054E3C0[i], 1);
-                debug_StdPrintfDummy(D_0054E3D8, optionScreenMode);
-            } else {
-                stage_SetLoopFlag(D_0054E3C0[i], 0);
-                debug_StdPrintfDummy(D_0054E3F0, optionScreenMode);
-            }
-        }
-    }
-}
-
-extern float D_00639F88;
-extern float D_00639F90;
-
 inline void gsb_SetZoom(float a, float b)
 {
-    D_00639F88 = a;
-    D_00639F90 = b;
+    zoomTarget = a;
+    zoomSpeed = b;
 }
-
-extern int sceGsSyncPath(int mode, int timeout);
-/* kept local: the declaration in GsBase.h changes this TU codegen */
-extern void gsb_ResetGSSystem(void);
-extern char D_0054E468[];
-extern int D_00639FF8;
-
-inline int gsb_SyncGSSystem(void)
-{
-    if (sceGsSyncPath(1, 0)) {
-        D_00639FF8++;
-        if (D_00639FF8 >= 11) {
-            debug_StdPrintfDummy(D_0054E468);
-            gsb_ResetGSSystem();
-            D_00639FF8 = 0;
-        }
-        return 1;
-    }
-    D_00639FF8 = 0;
-    gsb_PostEffect();
-    return 0;
-}
-
-extern char D_0054E488[];
-extern char D_0054E4A8[];
-extern char D_0054E4D8[];
-
-inline int gsb_LoadStageSettings(void)
-{
-    char buf[0x100];
-    int fd;
-    sprintf(buf, D_0054E488, D_005F5D90 + stage_no * 0x194);
-    fd = debugSceOpen(buf, 1);
-    if (fd < 0) {
-        debug_StdPrintfDummy(D_0054E4A8);
-    } else {
-        debug_StdPrintfDummy(D_0054E4D8, buf);
-        sceRead(fd, &D_0028F720, 0x1D0);
-        debugSceClose(fd);
-    }
-    return -1;
-}
-
-extern char D_0054E568[];
-extern char D_0054E598[];
-/* kept local: the declaration in GsBase.h changes this TU codegen */
-extern void appendLogFile(void);
-
-inline int gsb_SaveStageSettings(void)
-{
-    char buf[0x100];
-    int fd;
-    if (D_00639F78 == 0) {
-        sprintf(buf, D_0054E488, D_005F5D90 + stage_no * 0x194);
-        fd = debugSceOpen(buf, 0x602);
-        if (fd < 0) {
-            debug_StdPrintfDummy(D_0054E568);
-            return -1;
-        }
-        sceWrite(fd, &D_0028F720, 0x1D0);
-        debug_StdPrintfDummy(D_0054E598, buf);
-        debugSceClose(fd);
-        appendLogFile();
-    }
-    return -1;
-}
-
-inline void gsb_ClearFrameBuffer(void)
-{
-    volatile int local[96];
-}
-
-inline int gsb_ResetSnap(void) {}
-
-inline int gsb_TakeSnap(void) {}
 
 /* kept local: the declaration in GsBase.h changes this TU codegen */
 extern void updateOtherEditingLockFlag(void);
@@ -1869,7 +1966,7 @@ extern void updateOtherEditingLockFlag(void);
 inline int lockOtherEditing(void)
 {
     updateOtherEditingLockFlag();
-    if (D_00639F78 != 0) {
+    if (otherEditingLocked != 0) {
         return -1;
     }
     createLockFile();
@@ -1880,7 +1977,7 @@ inline int lockOtherEditing(void)
 inline int unlockOtherEditing(void)
 {
     updateOtherEditingLockFlag();
-    if (D_00639F78 != 0) {
+    if (otherEditingLocked != 0) {
         return -1;
     }
     gsb_LoadStageSettings();
@@ -1889,19 +1986,68 @@ inline int unlockOtherEditing(void)
 }
 
 static GsbMenuItem lockedMenu[] = {
-    {D_0054EFB0, lockOtherEditing, 0},
+    {"LOCK OTHER EDITING", lockOtherEditing, 0},
 };
 
 static GsbMenuItem stageSettingMenu[] = {
-    {D_0054F068, light_Tool, 0},
-    {D_0054F058, shadow_Tool, 0},
-    {D_0054F048, fog_FogTool, 0},
-    {D_0054F038, gsb_FilmNoiseTool, 0},
-    {D_0054F028, gsb_FilmNoiseTool, 1},
-    {D_0054F018, gsb_FilmNoiseTool, 2},
-    {D_0054F008, gsb_FilmNoiseTool, 3},
-    {D_0054EFF8, gsb_StageSettingTool, 0},
-    {D_0054EFE8, gsb_LoadStageSettings, 0},
-    {D_0054EFD8, gsb_SaveStageSettings, 0},
-    {D_0054EFC8, unlockOtherEditing, 0},
+    {"Light Tool", light_Tool, 0},
+    {"Shadow Tool", shadow_Tool, 0},
+    {"Fog Tool", fog_FogTool, 0},
+    {"Film Noise 1", gsb_FilmNoiseTool, 0},
+    {"Film Noise 2", gsb_FilmNoiseTool, 1},
+    {"Film Noise 3", gsb_FilmNoiseTool, 2},
+    {"Film Noise 4", gsb_FilmNoiseTool, 3},
+    {"Other Settings", gsb_StageSettingTool, 0},
+    {"Load Settings", gsb_LoadStageSettings, 0},
+    {"Save Settings", gsb_SaveStageSettings, 0},
+    {"UnLock Quit", unlockOtherEditing, 0},
 };
+
+/* the unselected and selected row colours, as filmNoiseRowColor */
+static const unsigned int menuRowColor[] = {0xFFFFFF00, 0xFF000000}; /* derived name */
+
+/* the menu row under the cursor and the page it opened, -1 for none */
+static int menuCursor = 0; /* derived name */
+
+static int menuSelected = -1; /* derived name */
+
+int gsb_StageSetting(void)
+{
+    int i;
+    editingSettings = 1;
+    if (menuSelected >= 0) {
+        if (stageSettingMenu[menuSelected].fn != 0) {
+            int r = stageSettingMenu[menuSelected].fn(stageSettingMenu[menuSelected].arg);
+            if (r == -1) {
+                menuSelected = r;
+            }
+            return 0;
+        }
+    }
+    if (editingSettings) {
+        for (i = 0; i < 11; i++) {
+            debug_PrintfDummy(18, (i + 1) * 8 + 0x1E, menuRowColor[(menuCursor == i) ? 1 : 0], "%s",
+                              stageSettingMenu[i].name);
+        }
+        if (D_0028F8F0[0].rep & 0x4000) {
+            menuCursor++;
+            if (menuCursor >= 11)
+                menuCursor = 0;
+        }
+        if (D_0028F8F0[0].rep & 0x1000) {
+            menuCursor--;
+            if (menuCursor < 0)
+                menuCursor = 10;
+        }
+        if (D_0028F8F0[0].trg & 0x20) {
+            menuSelected = menuCursor;
+        }
+    } else {
+        debug_PrintfDummy(26, 22, 0xFFFFFFFF, "NO ONE EDITS THIS STAGE'S SETTING.");
+        debug_PrintfDummy(18, 38, menuRowColor[1], "%s", lockedMenu[0].name);
+        if (D_0028F8F0[0].trg & 0x20) {
+            lockedMenu[0].fn(1);
+        }
+    }
+    return (D_0028F8F0[0].trg & 0x40) ? -1 : 0;
+}

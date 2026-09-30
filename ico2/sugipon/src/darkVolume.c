@@ -1,4 +1,5 @@
 #include "sugiCommon.h"
+#include "GsBase.h"
 #include "darkVolume.h"
 #include "gobj.h"
 #include "obj_manager.h"
@@ -316,10 +317,6 @@ typedef struct {
 } DVDpk;
 
 extern DVDpk PacketBufferStruct;
-extern int ScreenWidth;
-extern int ScreenHeight;
-extern int D_0063A074;
-extern int D_0063A078;
 void dl_SetDLPriority(int a0);
 void dl_OpenDma(int a0, int a1, int a2);
 void dl_CloseDma(void);
@@ -488,7 +485,7 @@ void sonic(void *pos, float t)
     dvSetGsReg(0x4A, 0);
     dvSetGsReg(0x3B, 0x8000008080LL);
     dvSetGsReg(0x14, 0x60);
-    dvSetFrame(0x40, ScreenWidth, ScreenHeight, D_0063A074, D_0063A078);
+    dvSetFrame(0x40, ScreenWidth, ScreenHeight, screenOffsetX, screenOffsetY);
     dvSetGsReg(0x42, 0x44);
     dvSetGsReg(0x47, 0x30000);
     dvSetGsReg(0x06, 0x664122800LL);
@@ -565,7 +562,7 @@ void sonic(void *pos, float t)
 
             dvSetGsReg(0x46, 1);
             dvSetGsReg(0x4A, 0);
-            dvSetFrame(0x40, ScreenWidth, ScreenHeight, D_0063A074, D_0063A078);
+            dvSetFrame(0x40, ScreenWidth, ScreenHeight, screenOffsetX, screenOffsetY);
             dvSetGsReg(0x06, 0x664020800LL);
             dvSetGsReg(0x14, 0x60);
             dvSetGsReg(0x47, 0x33001);
@@ -705,7 +702,7 @@ void darkVolume(void *pos, float a1, float a2, float a3)
     dvSetGsReg(0x4A, 0);
     dvSetGsReg(0x3B, 0x8000008080LL);
     dvSetGsReg(0x14, 0x60);
-    dvSetFrame(0x1000040, ScreenWidth, ScreenHeight, D_0063A074, D_0063A078);
+    dvSetFrame(0x1000040, ScreenWidth, ScreenHeight, screenOffsetX, screenOffsetY);
     dvSetGsReg(0x42, 0x44);
     dvSetGsReg(0x47, 0x30000);
     dvSetGsReg(0x06, 0x664122800LL);

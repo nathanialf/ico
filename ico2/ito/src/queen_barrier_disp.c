@@ -1,6 +1,7 @@
 #include "typedef.h"
 #include "debug.h"
 #include "GifPacket.h"
+#include "GsBase.h"
 #include "Primitive.h"
 #include "tableSin.h"
 
@@ -62,8 +63,6 @@ typedef struct {
 } GifCol;
 
 extern GifCol D_0063AC60[];
-extern int ScreenWidth;
-extern int ScreenHeight;
 extern GifDpk PacketBufferStruct;
 
 /* INTERIM: the listing inlines gif_SetGsReg here the same way it does across
@@ -121,8 +120,6 @@ inline void queen_barrier_anim(void)
     }
 }
 
-extern int ScreenWidth;
-extern int ScreenHeight;
 /* kept local: this TU's uses of _GetNorm do not fit the prototype in Matrix.h */
 extern float _GetNorm(QVec *v);
 /* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
@@ -175,8 +172,6 @@ void makeRefractST(float k)
     }
 }
 
-extern int D_0063A074;
-extern int D_0063A078;
 extern int matrixptr;
 extern int buffer_ID;
 extern void tex_ResetVramPri(int pri);
@@ -215,8 +210,8 @@ void queen_barrier_disp_proc(char *g, float k)
 
     setGsReg(0x4C, ((long long)((ScreenWidth >> 6) & 0x3F) << 16) | 64);
     setGsReg(0x40, ((long long)(ScreenWidth - 1) << 16) | ((long long)(ScreenHeight - 1) << 48));
-    setGsReg(0x18, (((long long)(2048 - ScreenWidth / 2) << 4) + D_0063A074) |
-                       ((((long long)(2048 - ScreenHeight / 2) << 4) + D_0063A078) << 32));
+    setGsReg(0x18, (((long long)(2048 - ScreenWidth / 2) << 4) + screenOffsetX) |
+                       ((((long long)(2048 - ScreenHeight / 2) << 4) + screenOffsetY) << 32));
 
     gif_SetGsReg(0x4E, 0x300000C0);
     gif_SetGsReg(0x47, 0x50000);

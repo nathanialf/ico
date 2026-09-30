@@ -569,9 +569,6 @@ extern int D_0063B144;
 extern int D_0063B1B0;
 extern int D_0063B244;
 extern int GlobalTimer;
-extern char D_00555170[]; /* "%d,%d,%d %d" */
-extern const union CamQuad D_00555180;
-extern const union CamQuad D_00555190;
 extern char iosPadConfCustom[];
 extern float _ACTGame_GetParamF(int id);
 extern void _ApplyRyGV(void *v, float ry);
@@ -682,7 +679,7 @@ void SetCameraMatrix(void)
             debug_Printf(220, 30, 0xFFFFFF00, D_0063AB88);
         }
         if (D_0063B144 != 0 || (D_0063B13C & 1) != 0) {
-            debug_Printf(310, 30, 0xFFFFFF00, D_00555170, (int)m[12], (int)m[13], (int)m[14],
+            debug_Printf(310, 30, 0xFFFFFF00, "%d,%d,%d %d", (int)m[12], (int)m[13], (int)m[14],
                          (int)cameraZoom);
         }
         sceVu0TransposeMatrix(mt, m);
@@ -700,7 +697,7 @@ void SetCameraMatrix(void)
                 float stickMag;
 
                 MatrixDrive_PushMatrix();
-                *(union CamQuad *)eye = D_00555180;
+                *(union CamQuad *)eye = (union CamQuad){{0.0f, 0.0f, 1000.0f, 1.0f}};
                 CopyMatrix(MatrixDrive_GetMatrix(), m);
                 MatrixDrive_SetTransposeMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix());
                 eye[3] = 0.0f;
@@ -749,7 +746,7 @@ void SetCameraMatrix(void)
 
         root = D_0063AB9C;
         GetRootPosition(rootPos, root);
-        ofs = D_00555190;
+        ofs = (union CamQuad){{0.0f, -200.0f, -500.0f, 0.0f}};
         ry = (float)(int)(_GetDirection(test_CURRENTORIENT(root)) / 3.14159265f * 180.0f) *
              3.14159265f / 180.0f;
         _ApplyRyGV(ofs.f, ry);

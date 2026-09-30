@@ -12,6 +12,22 @@
 #ifndef GSBASE_H
 #define GSBASE_H
 
+/* the TU's globals (MAIN.MAP names the first nine; the last four are
+   retail additions and their names are ours) */
+extern int currentFocusDistance;
+extern int fbKeep;
+extern int fbClear;
+extern float center_X;
+extern float center_Y;
+extern int ScreenWidth;
+extern int ScreenHeight;
+extern int currentScreenWidth;
+extern int currentScreenHeight;
+extern int screenOffsetX;
+extern int screenOffsetY;
+extern int vsWidth;
+extern int vsHeight;
+
 void appendLogFile(void);
 void gsb_ClearFrameBuffer(void);
 int gsb_ClipBox(void *pk);

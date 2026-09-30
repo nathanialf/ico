@@ -28,7 +28,6 @@ typedef struct {
 } Fan2D;
 
 extern void *D_0063A44C;
-extern char D_0054F8C0[];
 extern float center_X;
 extern float center_Y;
 extern int ScreenWidth;
@@ -41,8 +40,8 @@ Fan2D *prim_InitFan2D(int n, float *pos, unsigned int cc, unsigned int rc, float
     Fan2DVtx *first;
     int i;
 
-    f = (Fan2D *)iosMallocDebug(D_0063A44C, 12, D_0054F8C0, 318);
-    f->buf = (Fan2DVtx *)iosMallocDebug(D_0063A44C, (n + 2) * 32, D_0054F8C0, 319);
+    f = (Fan2D *)iosMallocDebug(D_0063A44C, 12, "src/Primitive.c", 318);
+    f->buf = (Fan2DVtx *)iosMallocDebug(D_0063A44C, (n + 2) * 32, "src/Primitive.c", 319);
     q = f->buf;
 
     f->n = n;
@@ -301,8 +300,12 @@ extern void _SetCurrentMatrix(void *mtx);
 extern void _ApplyCurrentMatrix(void *dst, void *src);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
-extern long long D_0054F8D0[];
-extern char D_0054F8E0[];
+
+/* The mesh strip's GIF tag template: NLOOP and PRIM are ORed in per strip.
+   prim_makePacketMesh3D reads it by pointer dereference; the bytes pin that
+   (a subscript of the const array is a read-only reference, which gcc
+   schedules above the store before it, where the ROM loads after it). */
+static const long long meshGifTag[2] = {0x3000400000008000LL, 0x512}; /* derived name */
 
 void prim_makePacketMesh3D(Mesh3D *m, void *pkt, int uv)
 {
@@ -325,17 +328,17 @@ void prim_makePacketMesh3D(Mesh3D *m, void *pkt, int uv)
         int n = w * (m->f58 + 2) + 2;
         long long reg = m->f60;
 
-        if (n >= 0xFD) {
-            debug_StdPrintfDummy(D_0054F8E0, w);
-            debug_assert(D_0054F8C0, 0x1D9);
-            __assert(D_0054F8C0, 0x1D9, "0");
+        if (n >= 253) {
+            debug_StdPrintfDummy("too large mesh packet. %d\n", w);
+            debug_assert("src/Primitive.c", 473);
+            __assert("src/Primitive.c", 473, "0");
         }
         *(int *)(p + 0x0) = 0;
         *(int *)(p + 0x4) = 0;
         *(int *)(p + 0x8) = 0;
         *(int *)(p + 0xC) = (n << 16) | 0x6C008000;
-        *(long long *)(p + 0x10) = w | (D_0054F8D0[0] | (reg << 47));
-        *(long long *)(p + 0x18) = D_0054F8D0[1];
+        *(long long *)(p + 0x10) = w | (*meshGifTag | (reg << 47));
+        *(long long *)(p + 0x18) = *(meshGifTag + 1);
         p += 0x20;
         *(Qw128 *)p = *(Qw128 *)&c;
         p += 0x10;
@@ -382,12 +385,12 @@ Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col
     Mesh3D *m;
     int i;
 
-    m = (Mesh3D *)iosMallocDebug(D_0063A44C, 144, D_0054F8C0, 576);
+    m = (Mesh3D *)iosMallocDebug(D_0063A44C, 144, "src/Primitive.c", 576);
     m->nx = nx;
     m->ny = ny;
-    m->pos = (Prim3DVec *)iosMallocDebug(D_0063A44C, m->nx * 16 * m->ny, D_0054F8C0, 579);
-    m->uv = (Prim3DVec *)iosMallocDebug(D_0063A44C, m->nx * 16 * m->ny, D_0054F8C0, 580);
-    m->nrm = (Prim3DVec *)iosMallocDebug(D_0063A44C, m->nx * 16 * m->ny, D_0054F8C0, 581);
+    m->pos = (Prim3DVec *)iosMallocDebug(D_0063A44C, m->nx * 16 * m->ny, "src/Primitive.c", 579);
+    m->uv = (Prim3DVec *)iosMallocDebug(D_0063A44C, m->nx * 16 * m->ny, "src/Primitive.c", 580);
+    m->nrm = (Prim3DVec *)iosMallocDebug(D_0063A44C, m->nx * 16 * m->ny, "src/Primitive.c", 581);
     for (i = 0; i < m->nx * m->ny; i++) {
         m->pos[i].x = m->pos[i].y = m->pos[i].z = 0.0f;
         m->pos[i].w = 1.0f;
@@ -403,8 +406,8 @@ Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col
 
     m->f78 = m->f54 * (m->f50 * (f58 + 2) + 4);
 
-    m->bufs[0] = iosMallocDebug(D_0063A44C, m->f78 * 16, D_0054F8C0, 597);
-    m->bufs[1] = iosMallocDebug(D_0063A44C, m->f78 * 16, D_0054F8C0, 598);
+    m->bufs[0] = iosMallocDebug(D_0063A44C, m->f78 * 16, "src/Primitive.c", 597);
+    m->bufs[1] = iosMallocDebug(D_0063A44C, m->f78 * 16, "src/Primitive.c", 598);
 
     _InitCurrentMatrix();
     _RotCurrentMatrixZ((short)((float)(rot % 4) * 3.1415927f * 0.5f * 10430.3779f));
@@ -789,7 +792,6 @@ typedef struct {
     /* 0x194 */ int f194;
 } PrimParticle;
 
-extern char D_0054F9A8[];
 extern int D_0028F4D4[];
 extern int D_0063B200;
 
@@ -798,20 +800,15 @@ typedef struct {
     long long d[2];
 } PrimQw;
 
-extern const PrimQw D_0054F900;
-extern const Prim3DVec D_0054F910;
-extern const Prim3DVec D_0054F920;
-extern char D_0054F930[];
-extern char D_0054F978[];
 extern void _UnitMatrix(void *m);
 extern void malloc_MemCpy(void *dst, void *src, int n);
 
 PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, int a1, char *name,
                                            int a3, void *heap)
 {
-    PrimQw hd = D_0054F900;
-    Prim3DVec cl0 = D_0054F910;
-    Prim3DVec cl1 = D_0054F920;
+    PrimQw hd = {{0x5000400000000000LL, 0x52521}};
+    Prim3DVec cl0 = {1024.0f, 1024.0f, 0.0f, 1.0f};
+    Prim3DVec cl1 = {3071.0f, 3071.0f, 0.0f, 16777215.0f};
     PrimParticle *p;
     char *q;
     char *r;
@@ -819,10 +816,11 @@ PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, i
     long long prim = 214;
 
     if (num > 80) {
-        debug_StdPrintfDummy(D_0054F930, num, 80);
+        debug_StdPrintfDummy(
+            "Particle Object too big (%d particles). (must be under %d particles)\n", num, 80);
         return 0;
     }
-    p = (PrimParticle *)iosMallocDebugNoAssert(heap, 0x1A0, D_0054F8C0, 911);
+    p = (PrimParticle *)iosMallocDebugNoAssert(heap, 0x1A0, "src/Primitive.c", 911);
     if (p == 0) {
         return 0;
     }
@@ -847,17 +845,17 @@ PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, i
     sprintf(p->name, "%s", name);
     p->tex = tex_GetTextureNo(p->name);
     if (p->tex < 0 || p->tex >= tex_GetTextureNum()) {
-        debug_StdPrintfDummy(D_0054F978, p->name, p->tex);
-        debug_assert(D_0054F8C0, 0x3AA);
-        __assert(D_0054F8C0, 0x3AA, "FALSE");
+        debug_StdPrintfDummy("prim_InitParticle:illegal texture no. %s:%d\n", p->name, p->tex);
+        debug_assert("src/Primitive.c", 938);
+        __assert("src/Primitive.c", 938, "FALSE");
     }
     p->f184 = num * 32 + 128;
-    p->objs[0] = (char *)iosMallocDebugNoAssert(heap, p->f184, D_0054F8C0, 944);
+    p->objs[0] = (char *)iosMallocDebugNoAssert(heap, p->f184, "src/Primitive.c", 944);
     if (p->objs[0] == 0) {
         iosFree(p);
         return 0;
     }
-    p->objs[1] = (char *)iosMallocDebugNoAssert(heap, p->f184, D_0054F8C0, 949);
+    p->objs[1] = (char *)iosMallocDebugNoAssert(heap, p->f184, "src/Primitive.c", 949);
     if (p->objs[1] == 0) {
         iosFree(p->objs[0]);
         iosFree(p);
@@ -901,9 +899,11 @@ void prim_DispParticle(PrimParticle *p, void *mtx)
 
     if (D_0063B200 != 0) {
         if (p->tex < 0 || p->tex >= tex_GetTextureNum()) {
-            debug_StdPrintfDummy(D_0054F9A8, p->name, p->tex);
-            debug_assert(D_0054F8C0, 0x3FC);
-            __assert(D_0054F8C0, 0x3FC, "FALSE");
+            /* "the specified texture number is invalid" */
+            debug_StdPrintfDummy("prim_DispParticle:指定したテクスチャ番号が異常です. %s:%d\n",
+                                 p->name, p->tex);
+            debug_assert("src/Primitive.c", 1020);
+            __assert("src/Primitive.c", 1020, "FALSE");
             return;
         }
         if (p->num < 0x51) {

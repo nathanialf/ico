@@ -1,5 +1,6 @@
 #include "typedef.h"
 #include "GifPacket.h"
+#include "GsBase.h"
 
 typedef struct {
     int a, b, c, d;
@@ -48,11 +49,6 @@ static inline void setGsReg(long long a0, long long a1)
 typedef struct {
     int u0, v0, u1, v1;
 } GifUvRect;
-
-extern int ScreenWidth;
-extern int ScreenHeight;
-extern float center_X;
-extern float center_Y;
 
 /* The "Offset" family adds the float draw origin (in 1/16-pixel units) instead
    of the fixed 2048.0-pixel window origin. */
@@ -389,9 +385,6 @@ void gif_SpriteSensitiveOrg(int *r, long long z, int *uv, unsigned char *col, in
     }
 }
 
-extern int D_0063A074;
-extern int D_0063A078;
-
 void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm, unsigned int w,
                            unsigned int h, int useoffset, int clear)
 {
@@ -407,8 +400,9 @@ void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm, unsig
         setGsReg(0x47, 0x50000);
     }
     if (useoffset) {
-        setGsReg(0x18, (unsigned long long)(unsigned int)(((0x800 - (w >> 1)) << 4) + D_0063A074) |
-                           ((unsigned long long)(((0x800 - (h >> 1)) << 4) + D_0063A078) << 32));
+        setGsReg(0x18,
+                 (unsigned long long)(unsigned int)(((0x800 - (w >> 1)) << 4) + screenOffsetX) |
+                     ((unsigned long long)(((0x800 - (h >> 1)) << 4) + screenOffsetY) << 32));
     } else {
         setGsReg(0x18, (unsigned long long)(unsigned int)((0x800 - (w >> 1)) << 4) |
                            ((unsigned long long)((0x800 - (h >> 1)) << 4) << 32));
@@ -780,8 +774,8 @@ void gif_SetZWrite(int a0)
 
 void gif_SetHalfOffset(void)
 {
-    setGsReg(0x18, (long long)(((0x800 - ScreenWidth / 2) << 4) + D_0063A074) |
-                       ((long long)(((0x800 - ScreenHeight / 2) << 4) + D_0063A078) << 32));
+    setGsReg(0x18, (long long)(((0x800 - ScreenWidth / 2) << 4) + screenOffsetX) |
+                       ((long long)(((0x800 - ScreenHeight / 2) << 4) + screenOffsetY) << 32));
 }
 
 int _IsInScreen(volatile int *a0)

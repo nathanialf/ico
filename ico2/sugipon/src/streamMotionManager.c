@@ -272,6 +272,16 @@ void DisableStreamMotionManagerAutomaticDelete(void)
     debug_StdPrintfDummy("disable automatic delete\n");
 }
 
+inline int GetDataSizeOfStreamMotion(int no)
+{
+    if (streamEntry[no].w[3] < 0) {
+        /* tried to get the work size before the data has arrived */
+        debug_StdPrintfDummy("データがまだ来ていないのにワークサイズの取得をしようとしました\n");
+        return 4;
+    }
+    return streamEntry[no].w[2];
+}
+
 extern void memcpy();
 
 void getStreamMotionData(char *dst, int off, int no)
@@ -307,6 +317,28 @@ void GetStreamMotionDataNext(int a0, int a1)
     getStreamMotionData(a0, streamEntry[a1].w[4], a1);
 }
 
+typedef struct {
+    char c[4];
+} StreamMotionHead;
+
+/* the four bytes GetStreamMotionData hands back while no data has arrived.
+   ZFog's idiom: the unspecified bound keeps the object out of small data
+   under -G 8, which is where the ROM has it */
+static const char streamDummyHead[] = {0, 0xFF, 0, 0}; /* derived name */
+
+inline float GetStreamMotionData(char *dst, int no)
+{
+    if (streamEntry[no].w[3] < 0) {
+        *(StreamMotionHead *)dst = *(const StreamMotionHead *)streamDummyHead;
+        /* "tried to get the stream motion before the data has arrived" */
+        debug_StdPrintfDummy(
+            "データがまだ来ていないのにストリームモーションの取得をしようとしました\n");
+        return -1.0f;
+    }
+    getStreamMotionData(dst, streamEntry[no].w[3], no);
+    return (float)framePlayed / 2997.0f;
+}
+
 void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
 {
     int old_idx = *idx_p;
@@ -325,8 +357,6 @@ void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
 
 extern int D_0063B13C;
 extern int ScreenHeight;
-extern char D_006212A0[];
-extern char D_00621278[];
 
 void ExecStreamMotionManager(void)
 {
@@ -338,7 +368,8 @@ void ExecStreamMotionManager(void)
         break;
     case 1:
         if (_infoUpdate() != 0) {
-            debug_StdPrintfDummy(D_00621278);
+            /* "detected the end of the stream motion" */
+            debug_StdPrintfDummy("ストリームモーションの終了を検知\n");
             streamState = 0;
             if (streamIdle != 0) {
                 if (bgMgrId != 0) {
@@ -373,22 +404,22 @@ void ExecStreamMotionManager(void)
             debug_Printf(0, ScreenHeight / 2 - 16, 0xFF404000, " %d%%", pct);
         }
         if (D_0063B13C & 1) {
-            debug_Printf(58, ScreenHeight / 2 - 16, 0x40FF4000, D_006212A0, streamNum, streamOwner);
+            debug_Printf(58, ScreenHeight / 2 - 16, 0x40FF4000, "STANDBY %d CHARS %s", streamNum,
+                         streamOwner);
         }
     }
 }
 
 extern int D_0063A438;
-extern char D_006212B8[];
-extern char D_006212D8[];
 
 void MallocStreamMotionBuffer(void)
 {
-    ringBuf = iosMallocDebug(D_0063A438, 0x28000, D_006212B8, 602);
-    readBufRaw = iosMallocDebug(D_0063A438, 0x28040, D_006212B8, 604);
+    ringBuf = iosMallocDebug(D_0063A438, 0x28000, "src/streamMotionManager.c", 602);
+    readBufRaw = iosMallocDebug(D_0063A438, 0x28040, "src/streamMotionManager.c", 604);
     readBuf = (readBufRaw + 0x3F) & 0xFFFFFFC0;
     if (ringBuf == 0 || readBuf == 0) {
-        debug_StdPrintfDummy(D_006212D8);
+        /* "could not allocate the stream buffer memory" */
+        debug_StdPrintfDummy("ストリーム用のバッファメモリが確保できませんでした\n");
     }
 }
 
@@ -420,13 +451,12 @@ inline void DeleteStreamMotionManager(void)
 
 /* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
 extern void iosThreadSleep(void);
-extern char D_00621310[];
 
 inline void StandbyStreamMotion(int self)
 {
     DeleteStreamMotionManager();
     while (bgMgrId != 0) {
-        debug_StdPrintfDummy(D_00621310);
+        debug_StdPrintfDummy("\033[36mWait!!!\033[m\n");
         iosThreadSleep();
     }
     bgMgrId = iosCdvdBackGroundMgrAdd(self, _handler, 0, 0, 0, 0, _closeHander, 0);
@@ -450,34 +480,6 @@ inline int EntryStreamMotion(char *a0)
     *(int *)(*(int *)(a0 + 0x15C) + 0x550) = 0;
     streamNum = no + 1;
     return no;
-}
-
-inline int GetDataSizeOfStreamMotion(int no)
-{
-    if (streamEntry[no].w[3] < 0) {
-        /* tried to get the work size before the data has arrived */
-        debug_StdPrintfDummy("データがまだ来ていないのにワークサイズの取得をしようとしました\n");
-        return 4;
-    }
-    return streamEntry[no].w[2];
-}
-
-extern char D_00621228[];
-extern char D_00621230[];
-
-typedef struct {
-    char c[4];
-} StreamMotionHead;
-
-inline float GetStreamMotionData(char *dst, int no)
-{
-    if (streamEntry[no].w[3] < 0) {
-        *(StreamMotionHead *)dst = *(StreamMotionHead *)D_00621228;
-        debug_StdPrintfDummy(D_00621230);
-        return -1.0f;
-    }
-    getStreamMotionData(dst, streamEntry[no].w[3], no);
-    return (float)framePlayed / 2997.0f;
 }
 
 inline void InitStreamMotionManager(void)

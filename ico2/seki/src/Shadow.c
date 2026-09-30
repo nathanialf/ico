@@ -1,4 +1,5 @@
 #include "typedef.h"
+#include "GsBase.h"
 #include "debug.h"
 #include "Shadow.h"
 
@@ -76,8 +77,6 @@ typedef struct {
 
 extern ShadowDpk PacketBufferStruct;
 /* the screen width and height in pixels */
-extern int ScreenWidth;
-extern int ScreenHeight;
 /* kept local: this TU's uses of these do not fit the prototypes in the headers */
 extern void tex_LockHeadTBP(int tbp, int pri);
 extern void dl_SetDLPriority(int pri);
@@ -241,8 +240,6 @@ void shadow_Reset(void)
     }
 
 /* the 12.4 window offsets XYOFFSET_1 is programmed with for the screen pass */
-extern int D_0063A074;
-extern int D_0063A078;
 /* the debug flag word: bit 0 turns the on-screen labels on */
 extern int D_0063B13C;
 /* "S", the one character label this pass prints */
@@ -352,7 +349,7 @@ void shadow_Draw(void)
 
         setGsReg(0x4E, 0x300000C0);
         setGsReg(0x47, 0x50000);
-        setFrame(0x40, ScreenWidth, ScreenHeight, D_0063A074, D_0063A078);
+        setFrame(0x40, ScreenWidth, ScreenHeight, screenOffsetX, screenOffsetY);
 
         ((GifPkWord *)PacketBufferStruct.end.c)->d =
             (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >>
@@ -1369,15 +1366,24 @@ typedef struct ShadowToolRow {
     int max;
 } ShadowToolRow;
 
-extern ShadowToolRow D_0054FE18[];
-/* the two menu colours, unselected then selected */
-extern unsigned int D_0054FF58[];
-/* "Shadow Tool" */
-extern char D_0054FF60[];
-/* "Shadow %s => %s\n" */
-extern char D_0054FF70[];
-/* "Shadow %s => %d\n" */
-extern char D_0054FF88[];
+/* the tool's eight rows, each a word of the stage record: the shadow depth,
+ * its colour and the four blend weights */
+static const ShadowToolRow shadowToolRows[] = {
+    /* derived name */
+    {" Shadow Depth      ", (int *)(D_0028F720 + 0xAC), 0, 128},
+    {" Shadow Color R    ", (int *)(D_0028F720 + 0xC0), 0, 255},
+    {" Shadow Color G    ", (int *)(D_0028F720 + 0xC4), 0, 255},
+    {" Shadow Color B    ", (int *)(D_0028F720 + 0xC8), 0, 255},
+    {" Shadow Blend 1/1  ", (int *)(D_0028F720 + 0xB0), 0, 128},
+    {" Shadow Blend 1/4  ", (int *)(D_0028F720 + 0xB4), 0, 128},
+    {" Shadow Blend 1/16 ", (int *)(D_0028F720 + 0xB8), 0, 128},
+    {" Shadow Blend 1/64 ", (int *)(D_0028F720 + 0xBC), 0, 128},
+};
+
+/* the two menu colours, unselected then selected, ZFog's fogRowColor idiom:
+ * the unspecified bound keeps the 8-byte object out of small data under -G 8,
+ * which is where the ROM has it */
+static const unsigned int shadowRowColor[] = {0xFFFFFF00, 0xFF000000}; /* derived name */
 
 /* A word of .sdata between shadow_Draw's "S" and this table's "On": the
    bytes pin an initialised int of -1 defined after shadow_Draw; nothing in
@@ -1410,14 +1416,15 @@ int shadow_Tool(void)
     int ret = 0;
     int i;
 
-    debug_PrintfDummy(10, 50, 0xFF800000u, (int)D_0054FF60);
+    debug_PrintfDummy(10, 50, 0xFF800000u, (int)"Shadow Tool");
     for (i = 0; i < 8; i++) {
-        if (D_0054FE18[i].min == 0 && D_0054FE18[i].max == 1) {
-            debug_PrintfDummy(0x12, (i + 1) * 8 + 50, D_0054FF58[toolRow == i], (int)"%s : %s",
-                              (int)D_0054FE18[i].name, (int)shadowOnOffText[*D_0054FE18[i].val]);
+        if (shadowToolRows[i].min == 0 && shadowToolRows[i].max == 1) {
+            debug_PrintfDummy(0x12, (i + 1) * 8 + 50, shadowRowColor[toolRow == i], (int)"%s : %s",
+                              (int)shadowToolRows[i].name,
+                              (int)shadowOnOffText[*shadowToolRows[i].val]);
         } else {
-            debug_PrintfDummy(0x12, (i + 1) * 8 + 50, D_0054FF58[toolRow == i], (int)"%s : %d",
-                              (int)D_0054FE18[i].name, *D_0054FE18[i].val);
+            debug_PrintfDummy(0x12, (i + 1) * 8 + 50, shadowRowColor[toolRow == i], (int)"%s : %d",
+                              (int)shadowToolRows[i].name, *shadowToolRows[i].val);
         }
     }
     if (D_0028F8F0[0].repeat & 0x4000) {
@@ -1433,22 +1440,23 @@ int shadow_Tool(void)
         }
     }
     if (D_0028F8F0[0].repeat & 0x2000) {
-        if (++*D_0054FE18[toolRow].val > D_0054FE18[toolRow].max) {
-            *D_0054FE18[toolRow].val = D_0054FE18[toolRow].min;
+        if (++*shadowToolRows[toolRow].val > shadowToolRows[toolRow].max) {
+            *shadowToolRows[toolRow].val = shadowToolRows[toolRow].min;
         }
     }
     if (D_0028F8F0[0].repeat & 0x8000) {
-        if (--*D_0054FE18[toolRow].val < D_0054FE18[toolRow].min) {
-            *D_0054FE18[toolRow].val = D_0054FE18[toolRow].max;
+        if (--*shadowToolRows[toolRow].val < shadowToolRows[toolRow].min) {
+            *shadowToolRows[toolRow].val = shadowToolRows[toolRow].max;
         }
     }
     if (D_0028F8F0[0].flags & 0x20) {
         for (i = 0; i < 8; i++) {
-            if (D_0054FE18[i].min == 0 && D_0054FE18[i].max == 1) {
-                debug_StdPrintfDummy(D_0054FF70, D_0054FE18[i].name,
-                                     shadowOnOffText[*D_0054FE18[i].val]);
+            if (shadowToolRows[i].min == 0 && shadowToolRows[i].max == 1) {
+                debug_StdPrintfDummy("Shadow %s => %s\n", shadowToolRows[i].name,
+                                     shadowOnOffText[*shadowToolRows[i].val]);
             } else {
-                debug_StdPrintfDummy(D_0054FF88, D_0054FE18[i].name, *D_0054FE18[i].val);
+                debug_StdPrintfDummy("Shadow %s => %d\n", shadowToolRows[i].name,
+                                     *shadowToolRows[i].val);
             }
         }
         ret = 1;

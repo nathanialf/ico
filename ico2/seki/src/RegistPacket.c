@@ -13,9 +13,6 @@
    reg_SetScissorSw sets and reg_Init clears, then the assert text. */
 static int scissorSw = 0; /* derived name */
 
-extern char D_0054FA50[];
-extern char D_0054FA80[];
-extern char D_0054FA98[];
 /* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
 extern void _CopyVector(void *dst, void *src);
 /* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
@@ -65,10 +62,11 @@ void reg_setShape(char *o, int idx, int flag, char *pkt, char *mat)
                     _ScaleVectorXYZ(vec, m, *(float *)(i * 4 + *(int *)(o + 0x838)));
                     if (*(float *)(m + 0xC) == 1.0f) {
                         if (*(unsigned int *)(m + 0x10) >= *(unsigned int *)(s + 0x94)) {
-                            debug_StdPrintfDummy(D_0054FA50, *(unsigned int *)(m + 0x10),
+                            debug_StdPrintfDummy("reg_setShape:illegal vertex index. %d/%d\n",
+                                                 *(unsigned int *)(m + 0x10),
                                                  *(unsigned int *)(s + 0x94));
-                            debug_assert(D_0054FA80, 635);
-                            __assert(D_0054FA80, 635, "0");
+                            debug_assert("src/RegistPacket.c", 635);
+                            __assert("src/RegistPacket.c", 635, "0");
                         }
                         t = *(char **)(s + 0x90);
                         t += *(int *)(m + 0x10) * 0x10;
@@ -83,17 +81,18 @@ void reg_setShape(char *o, int idx, int flag, char *pkt, char *mat)
                             }
                         }
                         if (*(unsigned int *)(m + 0x10) >= *(unsigned int *)(s + 0xA4)) {
-                            debug_StdPrintfDummy(D_0054FA98, *(unsigned int *)(m + 0x10),
+                            debug_StdPrintfDummy("reg_setShape:illegal normal index. %d/%d\n",
+                                                 *(unsigned int *)(m + 0x10),
                                                  *(unsigned int *)(s + 0xA4));
-                            debug_assert(D_0054FA80, 642);
-                            __assert(D_0054FA80, 642, "0");
+                            debug_assert("src/RegistPacket.c", 642);
+                            __assert("src/RegistPacket.c", 642, "0");
                         }
                         t = *(char **)(s + 0xA0);
                         t += *(int *)(m + 0x10) * 0x10;
                         _AddVectorXYZ(t, t, vec);
                     } else {
-                        debug_assert(D_0054FA80, 647);
-                        __assert(D_0054FA80, 647, "0");
+                        debug_assert("src/RegistPacket.c", 647);
+                        __assert("src/RegistPacket.c", 647, "0");
                     }
                 nextbone:
                     m += 0x20;
@@ -149,7 +148,7 @@ void reg_setShape(char *o, int idx, int flag, char *pkt, char *mat)
 }
 
 typedef union {
-    unsigned int c[4];
+    sceVu0IVECTOR c;
     unsigned long long w[2];
 } RegColor;
 
@@ -157,8 +156,6 @@ typedef struct {
     int e[12][2];
 } RegBoxLines;
 
-extern RegColor D_0054FAD0;
-extern RegBoxLines D_0054FAE0;
 extern char *matrixptr;
 /* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
 extern void _SetCurrentMatrix(void *mtx);
@@ -182,8 +179,19 @@ void reg_dispBoxLine(char *pk)
     }
     _SetCurrentMatrix(matrixptr + 0x40);
     gif_StartPacketPri(11);
-    col = D_0054FAD0;
-    line = D_0054FAE0;
+    col = (RegColor){{255, 255, 255, 80}};
+    line = (RegBoxLines){{{0, 1},
+                          {1, 3},
+                          {3, 2},
+                          {2, 0},
+                          {4, 5},
+                          {5, 7},
+                          {7, 6},
+                          {6, 4},
+                          {0, 4},
+                          {1, 5},
+                          {2, 6},
+                          {3, 7}}};
     gif_SetAlpha(1, 4, 0x20);
     _CopyMatrix(MatrixDrive_GetMatrix(), matrixptr + 0x40);
     for (i = 0; i < 12; i++) {
@@ -193,7 +201,6 @@ void reg_dispBoxLine(char *pk)
 }
 
 extern int D_0063B184;
-extern char D_0054FB40[];
 
 int reg_clipPacketBoundingBox(char *pk)
 {
@@ -223,9 +230,9 @@ int reg_clipPacketBoundingBox(char *pk)
         }
         break;
     default:
-        debug_StdPrintfDummy(D_0054FB40, type);
-        debug_assert(D_0054FA80, 821);
-        __assert(D_0054FA80, 821, "0");
+        debug_StdPrintfDummy("illegal clip type. %d\n", type);
+        debug_assert("src/RegistPacket.c", 821);
+        __assert("src/RegistPacket.c", 821, "0");
         break;
     }
     if (D_0063B184 & 2) {
@@ -271,7 +278,6 @@ void reg_chooseReflectionMicroCode(int a0, int a1, int a2)
     mc_SetMicroCode(a0, 1, 2, a1, a2);
 }
 
-extern char D_0054FB80[];
 extern int D_0063B124;
 
 /* One 64-bit slot of a DMA/GIF packet: written either as the whole qword
@@ -624,8 +630,6 @@ char *reg_setMMatrixPacket(char *o, int idx)
     return pkt;
 }
 
-extern char D_0054FB58[];
-
 void reg_setCMatrixPacket(char *o, float alpha, int prilist)
 {
     int i;
@@ -708,9 +712,9 @@ void reg_setCMatrixPacket(char *o, float alpha, int prilist)
     if (haslight) {
         light();
     } else {
-        debug_StdPrintfDummy(D_0054FB58, *(char **)(o + 0x854));
-        debug_assert(D_0054FA80, 1238);
-        __assert(D_0054FA80, 1238, "0");
+        debug_StdPrintfDummy("no light calc cluster model %s\n", *(char **)(o + 0x854));
+        debug_assert("src/RegistPacket.c", 1238);
+        __assert("src/RegistPacket.c", 1238, "0");
     }
     {
         char *c = PacketBufferStruct.ptr.c;
@@ -732,6 +736,14 @@ void reg_setCMatrixPacket(char *o, float alpha, int prilist)
     }
 }
 
+/* The GS state the specular pass draws in: a VIF DIRECT of three qwords, a
+   GIF A+D tag with PABE and ALPHA_1, then the VIF MSCNT. */
+static const unsigned int regSpecularPacket[5][4] __attribute__((aligned(16))) = {
+    /* derived name */
+    {0, 0, 0, 0x6C038000}, {0x8002, 0x10000000, 0xE, 0}, {0, 0, 0x49, 0},
+    {0x48, 0x80, 0x42, 0}, {0x15000000, 0, 0, 0},
+};
+
 /* This helper has NO NAME IN THE DISC MAPS, so it keeps the placeholder on
    purpose.  The retail object out-of-lines it and tail-calls it from all six
    reg_disp* functions; the January listing inlines the same block at every site
@@ -748,7 +760,7 @@ static void func_00121428(char *a0, int a1, int a2)
     if (h >= 0) {
         D_0063B124 += tex_TransTexture(h, 4);
     }
-    dl_OpenDma(2, D_0054FB80, 5);
+    dl_OpenDma(2, regSpecularPacket, 5);
     dl_CloseDma();
     reg_chooseSpecularMicroCode(a2, a1, 4);
     dl_OpenDma(2, *(void **)(a0 + 0x98), (*(int *)(a0 + 0x90) & 0xFFFFFF) >> 4);
@@ -832,12 +844,15 @@ int reg_setDissolve(float a, int pri)
     return 1;
 }
 
-extern char D_0054FC60[];
+/* The GS state the dissolve leaves behind, defined after reg_dispNObj (see
+   there): a VIF DIRECT of two qwords, a GIF A+D tag with TEST_1, then the VIF
+   MSCNT. */
+static const unsigned int regDissolveResetPacket[4][4] __attribute__((aligned(16)));
 
 void reg_resetDissolve(int a0)
 {
     dl_SetDLPriority(a0);
-    dl_OpenDma(2, D_0054FC60, 4);
+    dl_OpenDma(2, regDissolveResetPacket, 4);
     dl_CloseDma();
 }
 
@@ -858,8 +873,15 @@ static inline void regTransTexturePacket(int tex, int pri)
 /* ===== su-a sweep begin ===== */
 
 static void func_00121428(char *pkt, int r, int c);
-extern char D_0054FBD0[];
-extern char D_0054FC30[];
+
+/* The GS state the reflection pass draws in: a VIF DIRECT of four qwords, a
+   GIF A+D tag with CLAMP_1, PABE and ALPHA_1, then the VIF MSCNT. */
+static const unsigned int regReflectionPacket[6][4] __attribute__((aligned(16))) = {
+    /* derived name */
+    {0, 0, 0, 0x6C048000}, {0x8003, 0x10000000, 0xE, 0}, {5, 0, 8, 0},
+    {0, 0, 0x49, 0},       {0x48, 0x80, 0x42, 0},        {0x15000000, 0, 0, 0},
+};
+
 extern int buffer_ID;
 extern int D_0063B1AC;
 
@@ -960,12 +982,12 @@ void reg_dispNObj(char *o)
                         mode = *(int *)(*(char **)(o + 0x874) + 0xF0);
                         if (*(short *)(pkt + 0x88) != -1) {
                             if (mode == 0) {
-                                debug_StdPrintfDummy(D_0054FC30);
+                                debug_StdPrintfDummy("光源オフでリフレクションを表示.\n");
                                 mc_TransMicroCode(2, 0x10);
                             }
                             dl_SetDLPriority(4);
                             regTransTexturePacket(*(short *)(pkt + 0x88), 4);
-                            dl_OpenDma(2, D_0054FBD0, 6);
+                            dl_OpenDma(2, regReflectionPacket, 6);
                             dl_CloseDma();
                             reg_chooseReflectionMicroCode(0, r, 4);
                             dl_OpenDma(2, *(char **)(pkt + 0x98),
@@ -985,6 +1007,18 @@ void reg_dispNObj(char *o)
         shadow_RenderVolume(o);
     }
 }
+
+/* The ROM emits this template after the reflection message reg_dispNObj
+   prints: in the listing that message and the reflection packet sit in a
+   helper at lines 1345-1377, above reg_resetDissolve (line 1479), which every
+   reg_disp* function inlines. */
+static const unsigned int regDissolveResetPacket[4][4] __attribute__((aligned(16))) = {
+    /* derived name */
+    {0, 0, 0, 0x6C028000},
+    {0x8001, 0x10000000, 0xE, 0},
+    {0x300000C0, 0, 0x4E, 0},
+    {0x15000000, 0, 0, 0},
+};
 
 void reg_dispMObj(char *o)
 {
@@ -1068,12 +1102,12 @@ void reg_dispMObj(char *o)
                         mode = *(int *)(*(char **)(o + 0x874) + 0xF0);
                         if (*(short *)(pkt + 0x88) != -1) {
                             if (mode == 0) {
-                                debug_StdPrintfDummy(D_0054FC30);
+                                debug_StdPrintfDummy("光源オフでリフレクションを表示.\n");
                                 mc_TransMicroCode(2, 0x10);
                             }
                             dl_SetDLPriority(4);
                             regTransTexturePacket(*(short *)(pkt + 0x88), 4);
-                            dl_OpenDma(2, D_0054FBD0, 6);
+                            dl_OpenDma(2, regReflectionPacket, 6);
                             dl_CloseDma();
                             reg_chooseReflectionMicroCode(0, r, 4);
                             dl_OpenDma(2, *(char **)(pkt + 0x98),
@@ -1139,12 +1173,12 @@ void reg_dispSObj(char *o, int idx)
                 mode = *(int *)(*(char **)(o + 0x874) + 0xF0);
                 if (*(short *)(pkt + 0x88) != -1) {
                     if (mode == 0) {
-                        debug_StdPrintfDummy(D_0054FC30);
+                        debug_StdPrintfDummy("光源オフでリフレクションを表示.\n");
                         mc_TransMicroCode(2, 0x10);
                     }
                     dl_SetDLPriority(4);
                     regTransTexturePacket(*(short *)(pkt + 0x88), 4);
-                    dl_OpenDma(2, D_0054FBD0, 6);
+                    dl_OpenDma(2, regReflectionPacket, 6);
                     dl_CloseDma();
                     reg_chooseReflectionMicroCode(0, r, 4);
                     dl_OpenDma(2, *(char **)(pkt + 0x98), (*(int *)(pkt + 0x90) & 0xFFFFFF) >> 4);
@@ -1720,12 +1754,12 @@ void reg_DispAccessoryWithShadow(char *o, char *src)
                         mode = *(int *)(*(char **)(o + 0x874) + 0xF0);
                         if (*(short *)(pkt + 0x88) != -1) {
                             if (mode == 0) {
-                                debug_StdPrintfDummy(D_0054FC30);
+                                debug_StdPrintfDummy("光源オフでリフレクションを表示.\n");
                                 mc_TransMicroCode(2, 0x10);
                             }
                             dl_SetDLPriority(4);
                             regTransTexturePacket(*(short *)(pkt + 0x88), 4);
-                            dl_OpenDma(2, D_0054FBD0, 6);
+                            dl_OpenDma(2, regReflectionPacket, 6);
                             dl_CloseDma();
                             reg_chooseReflectionMicroCode(0, r, 4);
                             dl_OpenDma(2, *(char **)(pkt + 0x98),
@@ -1990,12 +2024,12 @@ void reg_DispMultiPri(char *o, int pri)
                     mode = *(int *)(*(char **)(o + 0x874) + 0xF0);
                     if (*(short *)(pkt + 0x88) != -1) {
                         if (mode == 0) {
-                            debug_StdPrintfDummy(D_0054FC30);
+                            debug_StdPrintfDummy("光源オフでリフレクションを表示.\n");
                             mc_TransMicroCode(2, 0x10);
                         }
                         dl_SetDLPriority(4);
                         regTransTexturePacket(*(short *)(pkt + 0x88), 4);
-                        dl_OpenDma(2, D_0054FBD0, 6);
+                        dl_OpenDma(2, regReflectionPacket, 6);
                         dl_CloseDma();
                         reg_chooseReflectionMicroCode(0, r, 4);
                         dl_OpenDma(2, *(char **)(pkt + 0x98),

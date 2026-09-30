@@ -1,4 +1,5 @@
 #include "debug.h"
+#include "GsBase.h"
 #include <eekernel.h>
 #include "typedef.h"
 
@@ -120,10 +121,6 @@ typedef struct {
 } FogDpk;
 
 extern FogDpk PacketBufferStruct;
-extern int ScreenWidth;
-extern int ScreenHeight;
-extern int D_0063A074;
-extern int D_0063A078;
 extern int D_0063B1F0;
 extern int D_0063B13C;
 extern int tex_AllocVramAuto(int a0, int a1);
@@ -330,7 +327,7 @@ void fog_DrawFog(void)
     }
     FOG_SET_GSREG(78, ((long long)0x3000 << 16) | 0xC0);
 
-    FOG_SET_FRAME(64, ScreenWidth, ScreenHeight, D_0063A074, D_0063A078);
+    FOG_SET_FRAME(64, ScreenWidth, ScreenHeight, screenOffsetX, screenOffsetY);
     FOG_END_PACKET();
 }
 

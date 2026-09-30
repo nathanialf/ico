@@ -84,12 +84,7 @@ static float savedMatrix340[16]; /* derived name */
 extern void memset(void *p, int c, int n);
 extern void *D_0063A438;
 extern char D_002A79B8[];
-extern int D_00639F94;
 extern char *matrixptr;
-extern int ScreenWidth;  /* screen width  */
-extern int ScreenHeight; /* screen height */
-extern int D_0063A07C;
-extern int D_0063A080;
 extern int stage_no;
 extern int D_0028F4C0[];
 void PuddleGeo(char *a0);
@@ -172,7 +167,7 @@ void drawAreaSetup(void)
     CopyMatrix(savedMatrix200, matrixptr + 0x200);
     CopyMatrix(savedMatrix340, matrixptr + 0x340);
 
-    gsb_SetVSMatrix(0xE6, 0xE6, (float)D_00639F94);
+    gsb_SetVSMatrix(0xE6, 0xE6, (float)currentFocusDistance);
 
     _MulMatrix(matrixptr + 0x100, matrixptr + 0xC0, matrixptr + 0x80);
     _MulMatrix(matrixptr + 0x200, matrixptr + 0x1C0, matrixptr + 0x80);
@@ -208,8 +203,8 @@ void drawAreaRestore(void)
     CopyMatrix(matrixptr + 0x100, savedMatrix100);
     CopyMatrix(matrixptr + 0x200, savedMatrix200);
 
-    D_0063A07C = ScreenWidth;
-    D_0063A080 = ScreenHeight;
+    vsWidth = ScreenWidth;
+    vsHeight = ScreenHeight;
     gif_SetGsReg(6, (long long)workVram | 0x20010000 | 0x600000000LL);
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
     gif_SetGsReg(0x14, 0x60);
