@@ -14,6 +14,11 @@
 #include "GifPacket.h"
 #include <libvu0.h>
 
+/* The rope's interpolation rate: the chain's geometry sets it from the hang
+   height and rootUpdateY_Rope moves the root by it.  The first word of the
+   TU's .sdata; MAIN.MAP's January link has neither the word nor its name. */
+float ropeInterRate = 0.0f; /* derived name */
+
 extern MotionOrientEntry D_002ADD60[];
 extern MotionOrientEntry D_002BC4A8;
 /* kept local: this declaration is identical to the motionManager2.h prototype, but the
@@ -154,24 +159,6 @@ extern const MotOriTrigEnt D_0055FE58[];
 extern int D_0028F4D4[];
 /* the seventeen fixed captions the orientation debug window prints, one per
    trigger kind, plus the window's own format at 0x6201C8 */
-extern char D_0063B948[];
-extern char D_0063B950[];
-extern char D_0063B958[];
-extern char D_0063B960[];
-extern char D_0063B968[];
-extern char D_0063B970[];
-extern char D_0063B978[];
-extern char D_0063B980[];
-extern char D_00620120[];
-extern char D_00620130[];
-extern char D_00620140[];
-extern char D_00620158[];
-extern char D_00620170[];
-extern char D_00620188[];
-extern char D_00620198[];
-extern char D_006201A8[];
-extern char D_006201B8[];
-extern char D_006201C8[];
 extern int D_0063B160;
 
 /* The motion-name row the debug line prints: 32 bytes the ROM copies with
@@ -194,68 +181,63 @@ void orientDebug(void *self, int idx, int y)
     case 14:
     case 18:
     case 19:
-        sprintf(buf, D_0063B948);
+        sprintf(buf, "ASSERT");
         break;
     case 1:
-        sprintf(buf, D_0063B950);
+        sprintf(buf, "XZ");
         break;
     case 20:
-        sprintf(buf, D_0063B958);
+        sprintf(buf, "XZ_FIT");
         break;
     case 2:
-        sprintf(buf, D_00620120);
+        sprintf(buf, "XZ_MOTPOS");
         break;
     case 17:
-        sprintf(buf, D_00620130);
+        sprintf(buf, "XZ_MOTPOS_FIT");
         break;
     case 7:
-        sprintf(buf, D_00620140);
+        sprintf(buf, "UPPERWALLSOLUTION");
         break;
     case 16:
-        sprintf(buf, D_00620158);
+        sprintf(buf, "UPPERWALLSOL_FIT");
         break;
     case 8:
-        sprintf(buf, D_00620170);
+        sprintf(buf, "LOWERWALLSOLUTION");
         break;
     case 9:
-        sprintf(buf, D_00620188);
+        sprintf(buf, "CLIFFSOLUTION");
         break;
     case 10:
-        sprintf(buf, D_0063B960);
+        sprintf(buf, "HANG");
         break;
     case 15:
-        sprintf(buf, D_00620198);
+        sprintf(buf, "HANG FIT");
         break;
     case 11:
-        sprintf(buf, D_0063B968);
+        sprintf(buf, "WATER");
         break;
     case 5:
-        sprintf(buf, D_0063B970);
+        sprintf(buf, "NODEFIX");
         break;
     case 4:
-        sprintf(buf, D_0063B978);
+        sprintf(buf, "Y_ROPE");
         break;
     case 3:
-        sprintf(buf, D_0063B980);
+        sprintf(buf, "Y");
         break;
     case 0:
-        sprintf(buf, D_006201A8);
+        sprintf(buf, "TRUEMOTION");
         break;
     case 6:
-        sprintf(buf, D_006201B8);
+        sprintf(buf, "DIRECTPLAY");
         break;
     }
     if (D_0063B160 != 0) {
         name = D_005D1278[idx];
-        debug_PrintFontWindow(y, D_006201C8, &name, D_0055FE58[*(int *)(MOWORK(self) + 0x4A0)].name,
-                              buf);
+        debug_PrintFontWindow(y, "%s \207 %s (%s)\n", &name,
+                              D_0055FE58[*(int *)(MOWORK(self) + 0x4A0)].name, buf);
     }
 }
-
-extern char D_00620238[];
-extern char D_00620290[];
-extern char D_006202D0[];
-extern char D_0063B988[];
 
 typedef struct MotOriSub {
     /* 0x0 */ int f0;
@@ -271,10 +253,14 @@ static inline void checkMotionKind(int i, int j)
     if (D_0055FE58[i].f178 != 0x140) {
         char buf[0x100];
 
-        debug_StdPrintfDummy(D_00620238, D_0055FE58[j].name);
-        sprintf(buf, D_00620290, D_0055FE58[j].name);
-        debug_assertMessage(D_006202D0, 152, buf);
-        __assert(D_006202D0, 152, D_0063B988);
+        /* EUC-JP: "the node-blending motion (%s) uses a node-blending motion again" */
+        debug_StdPrintfDummy(
+            "ノードを混ぜるモーション(%s)が、\n再度ノードを混ぜるモーションを利用しています。\n",
+            D_0055FE58[j].name);
+        sprintf(buf, "NODE BLEND MOTION \"%s\" REFERS\nNODE BLEND MOTION RECURSIVELY.\n",
+                D_0055FE58[j].name);
+        debug_assertMessage(__FILE__, 152, buf);
+        __assert(__FILE__, 152, "e");
     }
 }
 
@@ -509,13 +495,6 @@ inline MotionOrientEntry *getMotionOrient(int i, int n, int id, int kind)
 }
 
 extern int D_0063B188;
-extern char D_0063B968[];
-extern char D_0063B990[];
-extern char D_0063B998[];
-extern char D_0063B9A0[];
-extern char D_0063B9A8[];
-extern char D_0063B9B0[];
-extern char D_006202F0[];
 extern char *matrixptr;
 
 void sendStateMail(void *self)
@@ -537,7 +516,7 @@ void sendStateMail(void *self)
         if (D_0063B188 != 0) {
             MatrixDrive_PushMatrix();
             MatrixDrive_TransMatrix(0.0f, 80.0f, 0.0f);
-            DispWireString(D_0063B990);
+            DispWireString("HIT");
             MatrixDrive_PopMatrix();
         }
     }
@@ -546,7 +525,7 @@ void sendStateMail(void *self)
         if (D_0063B188 != 0) {
             MatrixDrive_PushMatrix();
             MatrixDrive_TransMatrix(-50.0f, 0.0f, 0.0f);
-            DispWireString(D_0063B998);
+            DispWireString("FALL");
             MatrixDrive_PopMatrix();
         }
     }
@@ -555,7 +534,7 @@ void sendStateMail(void *self)
         if (D_0063B188 != 0) {
             MatrixDrive_PushMatrix();
             MatrixDrive_TransMatrix(50.0f, 40.0f, 0.0f);
-            DispWireString(D_0063B9A0);
+            DispWireString("CLIFF");
             MatrixDrive_PopMatrix();
         }
     }
@@ -564,7 +543,7 @@ void sendStateMail(void *self)
         if (D_0063B188 != 0) {
             MatrixDrive_PushMatrix();
             MatrixDrive_TransMatrix(50.0f, 0.0f, 0.0f);
-            DispWireString(D_0063B9A8);
+            DispWireString("WALL");
             MatrixDrive_PopMatrix();
         }
     }
@@ -573,7 +552,7 @@ void sendStateMail(void *self)
         if (D_0063B188 != 0) {
             MatrixDrive_PushMatrix();
             MatrixDrive_TransMatrix(50.0f, 0.0f, 0.0f);
-            DispWireString(D_006202F0);
+            DispWireString("UPPER WALL");
             MatrixDrive_PopMatrix();
         }
     }
@@ -582,7 +561,7 @@ void sendStateMail(void *self)
         if (D_0063B188 != 0) {
             MatrixDrive_PushMatrix();
             MatrixDrive_TransMatrix(0.0f, -80.0f, 0.0f);
-            DispWireString(D_0063B9B0);
+            DispWireString("LANDING");
             MatrixDrive_PopMatrix();
         }
     }
@@ -591,7 +570,7 @@ void sendStateMail(void *self)
         if (D_0063B188 != 0) {
             MatrixDrive_PushMatrix();
             MatrixDrive_TransMatrix(0.0f, -80.0f, 0.0f);
-            DispWireString(D_0063B968);
+            DispWireString("WATER");
             MatrixDrive_PopMatrix();
         }
     }
@@ -736,8 +715,6 @@ void shiftMotionData(int a0, int a1, int a2, int a3)
     }
 }
 
-extern char D_00620300[];
-extern char D_0063B9B8[];
 /* kept local: this TU's uses of FeedbackWallWorkInfoToBrainSystem do not fit the prototype in motionManager2.h */
 extern void FeedbackWallWorkInfoToBrainSystem(void *self);
 
@@ -747,9 +724,11 @@ void shiftMotionOrientEndFunc(void *self)
     int x;
 
     if (*(int *)(w + 0x1AC) == -1) {
-        debug_StdPrintfDummy(D_00620300);
-        debug_assert(D_006202D0, 745);
-        __assert(D_006202D0, 745, D_0063B9B8);
+        /* EUC-JP: "the SE internal processing seems wrong for some reason; report it to Sugiyama" */
+        debug_StdPrintfDummy(
+            "何らかの理由でSEの内部処理がおかしいようです。杉山に報告してください。\n");
+        debug_assert(__FILE__, 745);
+        __assert(__FILE__, 745, "0");
     }
     StopSEPackageWithGroupVariation(self, 0);
     StopSEPackageWithGroupVariation(self, 1);
@@ -789,11 +768,6 @@ inline void CopyBlendMotionDataSource(void *self, short ang)
     }
 }
 
-extern char D_0063B9C0[];
-extern char D_00620348[];
-extern char D_00620390[];
-extern char D_006203B8[];
-extern char D_006203D8[];
 /* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector(void *dst, void *src);
 /* kept local: GetOutOutsideOfWall is defined in src/motionManager2 and no header of
@@ -808,8 +782,10 @@ void shiftMotionOrientBeginFunc(void *self, int a1, int a2, int a3)
     char *p = m + 0xA0;
     short ang;
 
-    debug_StdPrintfDummy(D_00620348, D_005D1278[*(int *)(w + 0xD0)].s, *(int *)(w + 0xD0),
-                         D_0055FE58[*(int *)(w + 0x30)].name, *(int *)(w + 0x30), D_0063B9C0);
+    debug_StdPrintfDummy(
+        "Change \"\033[33m%s(%d)\033[m\"in \"\033[33m%s(%d)\033[m\" at control \"\033[33m%s\033[m\".\n",
+        D_005D1278[*(int *)(w + 0xD0)].s, *(int *)(w + 0xD0), D_0055FE58[*(int *)(w + 0x30)].name,
+        *(int *)(w + 0x30), "");
     shiftMotionData((int)self, a1, a2, a3);
     if (*(int *)(w + 0x6C) != 0) {
         GetOutOutsideOfWall(self, *(float *)(p + 0x338));
@@ -824,7 +800,8 @@ void shiftMotionOrientBeginFunc(void *self, int a1, int a2, int a3)
             sceVu0UnitMatrix(MatrixDrive_GetMatrix());
             if (kind != 0 && kind != 1) {
                 ang = (short)(kind * 32768 / 180);
-                debug_StdPrintfDummy(D_00620390, ang, (float)ang * 180.0f / 32768.0f);
+                debug_StdPrintfDummy("ADJUST FROM TABLE \033[36m%08x(%f)\033[m\n", ang,
+                                     (float)ang * 180.0f / 32768.0f);
             } else {
                 float mtx[4][4];
 
@@ -833,12 +810,13 @@ void shiftMotionOrientBeginFunc(void *self, int a1, int a2, int a3)
                 v.f[1] = 0.0f;
                 _NormalizeVector(&v, &v);
                 ang = GetTableArcTan2(v.f[0], v.f[2]);
-                debug_StdPrintfDummy(D_006203B8, ang, (float)ang * 180.0f / 32768.0f);
+                debug_StdPrintfDummy("ADJUST \033[36m%08x(%f)\033[m\n", ang,
+                                     (float)ang * 180.0f / 32768.0f);
             }
             MatrixDrive_RotMatrixY(ang);
             sceVu0ApplyMatrix(w + 0xB0, MatrixDrive_GetMatrix(), w + 0xB0);
         } else {
-            debug_StdPrintfDummy(D_006203D8, 0, (float)ang);
+            debug_StdPrintfDummy("ROT DIFF %08x(%f)\n", 0, (float)ang);
         }
     }
     CopyBlendMotionDataSource(self, ang);
@@ -987,24 +965,25 @@ int parallelMotionShift(void *self)
     return 0;
 }
 
-extern char D_0063B9D0[];
 extern int D_0063B194;
 extern void *D_00639EA4;
 extern void *D_00639EA8;
-extern int D_0063B9C4;
+
+/* The ignored-request report: how many times in a row, and for which
+   motion. */
+static int ignoreCount = 0; /* derived name */
+
 extern int D_0063B160;
-extern char D_006203F0[];
-extern char D_00620438[];
 extern int D_0028F8F0[];
-extern int D_0063B9C8;
+
+static int ignoreMotion = 0; /* derived name */
+
 extern int frame_count;
 
 /* The four one-character spinners the debug line cycles with the frame count. */
 typedef struct MotOriSpin {
     char *s[4];
 } MotOriSpin;
-
-extern MotOriSpin D_00620428;
 
 char *SetMotionRequest(void *self, int mot, MotOriReq req)
 {
@@ -1024,18 +1003,18 @@ char *SetMotionRequest(void *self, int mot, MotOriReq req)
         case 15:
         case 16:
             *(MotOriReq *)((char *)*(int *)((char *)self + 0x15C) + 0x180) = req;
-            debug_StdPrintfDummy(D_006203F0);
+            debug_StdPrintfDummy("\033[36mUpdate with collision info that act memorized.\033[m\n");
             break;
         }
         if ((D_0063B194 == 0 && self == D_00639EA4) || (D_0063B194 == 1 && self == D_00639EA8) ||
             (D_0063B194 == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
             (D_0063B194 == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
             (D_0063B194 == 4 && self == isysGObjSearchFromObjKindID_begin(47))) {
-            if (D_0063B9C4 != 0 && D_0063B160 != 0) {
-                debug_PrintFontWindow(0xC0FF20, D_0063B9D0);
+            if (ignoreCount != 0 && D_0063B160 != 0) {
+                debug_PrintFontWindow(0xC0FF20, "\n ");
             }
             orientDebug(self, mot, 0xFFFFFF80);
-            D_0063B9C4 = 0;
+            ignoreCount = 0;
         }
     } else {
         *(int *)(w + 0xD0) = old;
@@ -1045,21 +1024,22 @@ char *SetMotionRequest(void *self, int mot, MotOriReq req)
                 (D_0063B194 == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
                 (D_0063B194 == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
                 (D_0063B194 == 4 && self == isysGObjSearchFromObjKindID_begin(47))) {
-                MotOriSpin spin = D_00620428;
+                MotOriSpin spin = {{"-", "\\", "|", "/"}};
 
-                if (D_0063B9C8 != mot && D_0063B9C4 != 0) {
-                    D_0063B9C4 = 0;
+                if (ignoreMotion != mot && ignoreCount != 0) {
+                    ignoreCount = 0;
                     if (D_0063B160 != 0) {
-                        debug_PrintFontWindow(0xC0FF20, D_0063B9D0);
+                        debug_PrintFontWindow(0xC0FF20, "\n ");
                     }
                 }
                 if (D_0063B160 != 0) {
                     MotOriName name = D_005D1278[mot];
 
-                    debug_PrintFontWindow(0x3080FF20, D_00620438, spin.s[frame_count & 3], name.s,
-                                          D_0055FE58[*(int *)(w + 0x30)].name, ++D_0063B9C4);
+                    debug_PrintFontWindow(0x3080FF20, "%s %s at %s ignore %d times",
+                                          spin.s[frame_count & 3], name.s,
+                                          D_0055FE58[*(int *)(w + 0x30)].name, ++ignoreCount);
                 }
-                D_0063B9C8 = mot;
+                ignoreMotion = mot;
             }
         }
     }
@@ -1092,7 +1072,6 @@ inline void SetParallelMotionTable(void *self, int a1, int a2, int a3, int a4)
     }
 }
 
-extern char D_00620498[];
 /* kept local: this TU's uses of GetFloatingMotion do not fit the prototype in motionManager2.h */
 extern void GetFloatingMotion(void *dst, float t, float *v, int *mot, int n, int a5, void *skel);
 /* kept local: this TU's uses of CopyMotionWithNodeHrc do not fit the prototype in
@@ -1131,9 +1110,10 @@ void getNodeBlendedFloatingMotion(void *dst, float *root, int id, int n, int a4,
         }
     }
     if (i == 0) {
-        debug_StdPrintfDummy(D_00620498, D_0055FE58[id].name);
-        debug_assert(D_006202D0, 1228);
-        __assert(D_006202D0, 1228, D_0063B9B8);
+        /* EUC-JP: "(%s) the motion to blend is not defined" */
+        debug_StdPrintfDummy("(%s)混ぜるモーションが定義されていません。\n", D_0055FE58[id].name);
+        debug_assert(__FILE__, 1228);
+        __assert(__FILE__, 1228, "0");
     }
 }
 
@@ -1154,9 +1134,6 @@ extern void GetFloatingMotionRootPos(float *v, int *md, float f);
 extern void MakeMirrorMotion(void *dst, int *p);
 extern void SlopeIKControl(void *self, void *m, float *v, float *r, int n);
 extern void ExecFrameDependSequence(void *self);
-extern char D_006204C8[];
-extern char D_00620510[];
-extern const float D_0063B9F4[];
 extern int D_0063B16C;
 extern int D_0063B198;
 extern int stage_no;
@@ -1185,9 +1162,10 @@ static inline void assertMotionLoaded(char *w, int *md)
     if (md == 0) {
         char buf[1024];
 
-        sprintf(buf, D_006204C8, D_0055FE58[*(int *)(w + 0x30)].name, *(int *)(w + 0x30));
-        debug_assertMessage(D_006202D0, 1275, buf);
-        __assert(D_006202D0, 1275, D_0063B988);
+        sprintf(buf, "THE MOTION \"%s\"(%d)\nDID NOT LOAD IN THIS STAGE\nOR IS INVALID ID.\n",
+                D_0055FE58[*(int *)(w + 0x30)].name, *(int *)(w + 0x30));
+        debug_assertMessage(__FILE__, 1275, buf);
+        __assert(__FILE__, 1275, "e");
     }
 }
 
@@ -1202,9 +1180,12 @@ static inline void assertMotionNodeCount(char *w, int *md, int n)
     if (i - 1 != n) {
         char buf[1024];
 
-        sprintf(buf, D_00620510, D_0055FE58[*(int *)(w + 0x30)].name, i - 1, n);
-        debug_assertMessage(D_006202D0, 1287, buf);
-        __assert(D_006202D0, 1287, D_0063B988);
+        sprintf(
+            buf,
+            "THE NUMBER OF NODE DATAS OF MOTION\n\"%s\"(%d SKELTONS) DOES NOT MATCH\nTHE NUMBER OF SKELTON NODES(%d SKELTONS)\n",
+            D_0055FE58[*(int *)(w + 0x30)].name, i - 1, n);
+        debug_assertMessage(__FILE__, 1287, buf);
+        __assert(__FILE__, 1287, "e");
     }
 }
 
@@ -1386,16 +1367,13 @@ void getMotionGeometry(void *self)
             t = *(void **)(MOWORK(self) + 0x180);
             if (*(int *)((char *)o + 0xC) == 17) {
                 if (o == t) {
-                    ((Vec16 *)(MOWORK(self) + 0x5A0))->f[0] = D_0063B9F4[0];
-                    ((Vec16 *)(MOWORK(self) + 0x5A0))->f[1] = D_0063B9F4[0];
+                    ((Vec16 *)(MOWORK(self) + 0x5A0))->f[0] = 3.40282347e+38f;
+                    ((Vec16 *)(MOWORK(self) + 0x5A0))->f[1] = 3.40282347e+38f;
                 }
             }
         }
     }
 }
-
-extern char D_00620580[];
-extern char D_006205D8[];
 
 /* The two line colours the debug bar graph draws with: 16-byte records the ROM
  * copies into the frame with ld/sd, so the type is 8-byte aligned; the union
@@ -1405,8 +1383,6 @@ typedef union {
     unsigned long long w[2];
 } MotOriCol4;
 
-extern const MotOriCol4 D_00620610;
-extern const MotOriCol4 D_00620620;
 extern int ScreenWidth;
 extern int ScreenHeight;
 
@@ -1448,7 +1424,10 @@ void getShapeGeometry(void *self)
 
                 if (cnt != 0) {
                     if (cnt != n) {
-                        debug_StdPrintfDummy(D_00620580, n, cnt);
+                        /* EUC-JP: "the shape motion data and the number of targets differ; motion: %d target: %d" */
+                        debug_StdPrintfDummy(
+                            "シェイプモーションデータとターゲットの数が違います。\nモーション:%d ターゲット:%d\n",
+                            n, cnt);
                     }
                     for (i = 0; i < n; i++) {
                         float x = buf[i] * 0.01f;
@@ -1470,18 +1449,16 @@ void getShapeGeometry(void *self)
                         }
                     }
                 } else {
-                    debug_StdPrintfDummy(D_006205D8);
+                    /* EUC-JP: "no place is reserved to store the handover data" */
+                    debug_StdPrintfDummy("受渡しデータを格納する場所が確保されていません。\n");
                 }
                 if (debug_bar_flag != 0) {
                     gif_StartPacketPri(11);
                     {
                         int p1[4];
                         int p2[4];
-                        MotOriCol4 c0;
-                        MotOriCol4 c1;
-
-                        c0 = D_00620610;
-                        c1 = D_00620620;
+                        MotOriCol4 c0 = {{64, 32, 0, 128}};
+                        MotOriCol4 c1 = {{255, 128, 0, 128}};
 
                         gif_SetAlpha(1, 5, 128);
                         for (i = 0; i < n; i++) {
@@ -1654,14 +1631,13 @@ void getStreamMotion(void *self)
     }
 }
 
-extern char D_00620630[];
-
 void ExecMotionOrient(void *self)
 {
     char *w = (char *)*(int *)((char *)self + 0x15C) + 0x470;
 
     if (*(int *)(w + 0x18) != 0) {
-        debug_StdPrintfDummy(D_00620630, self);
+        /* EUC-JP: "the motion replacement function is stopped" */
+        debug_StdPrintfDummy("\033[36mモーション置き換え機能が停止しています。\033[m: %p\n", self);
     }
     if (*(int *)w == -1) {
         if (*(int *)(w + 0xD0) != 0x10D) {
@@ -1674,11 +1650,11 @@ void ExecMotionOrient(void *self)
             (D_0063B194 == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
             (D_0063B194 == 4 && self == isysGObjSearchFromObjKindID_begin(47))) {
             if (*(int *)(w + 0xC) != 0) {
-                if (D_0063B9C4 != 0 && D_0063B160 != 0) {
-                    debug_PrintFontWindow(0xC0FF20, D_0063B9D0);
+                if (ignoreCount != 0 && D_0063B160 != 0) {
+                    debug_PrintFontWindow(0xC0FF20, "\n ");
                 }
                 orientDebug(self, *(int *)(w + 0xD0), 0xE0FF20);
-                D_0063B9C4 = 0;
+                ignoreCount = 0;
             }
         }
         if (*(int *)(w + 0x58) != 0) {
@@ -1695,8 +1671,6 @@ void ExecMotionOrient(void *self)
         getStreamMotion(self);
     }
 }
-
-extern char D_00620668[];
 
 /* The node rotation limit table: three float triples (the lower, the middle and
  * the upper limit), the skeleton node name id and two unused words.  Read from
@@ -1726,9 +1700,11 @@ void SetNodeRotationLimitDataTable(void *self, int a1, int a2)
         int node = GetSkeltonFocusNode(self, motionLimitDef[i].node);
 
         if (node < 0) {
-            debug_StdPrintfDummy(D_00620668);
-            debug_assert(D_006202D0, 1838);
-            __assert(D_006202D0, 1838, D_0063B9B8);
+            /* EUC-JP: "the node the node rotation limit data names is not in the skeleton" */
+            debug_StdPrintfDummy(
+                "ノード回転リミットデータの示すノードがスケルトン中にありません。\n");
+            debug_assert(__FILE__, 1838);
+            __assert(__FILE__, 1838, "0");
         }
         *(int *)(*(int *)(MOWORK(self) + 0x810) + node * 4) = (int)&motionLimitDef[i];
         if (motionLimitDef[i].mid.y < motionLimitDef[i + 2].mid.y) {

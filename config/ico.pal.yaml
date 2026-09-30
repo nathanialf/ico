@@ -550,7 +550,6 @@ segments:
       - [0x1908E0, .data, ico2/seki/src/Matrix]  # syms: scaleWorkMatrix  the unit matrix the scale routines work in (data pass 3), VMA 0x2908E0..0x290920, 64 B
       - [0x190920, data, cod/190920]     # data blob resume
       - [0x190B20, .data, ico2/seki/src/MicroCode]  # the TU's whole .data run as source (completeness pass 5), VMA 0x290B20..0x290B3C, 28 B emitted
-      - [0x190B3C, data, cod/190B3C]     # .data blob resume
       - [0x190B40, .data, ico2/seki/src/Shadow]  # the TU's .data run as source (completeness pass 65; MAIN.MAP line 5806), VMA 0x290B40..0x290B58, 24 B
       - [0x190B58, .data, ico2/seki/src/Texture]  # the TU's .data run as source (completeness pass 66): mipmap_header_size, textype, psmTable, imageTypeName, clutTypeName, headerName in ROM order, VMA 0x290B58..0x290C08, 0xB0 B, ZFog's row follows
       - [0x190C08, .data, ico2/seki/src/ZFog]  # the TU's whole .data run as source (completeness pass 6), VMA 0x290C08..0x290C10, 8 B emitted
@@ -618,10 +617,9 @@ segments:
       - [0x3ECBE0, .data, ico2/sugipon/src/motionOrientManager]  # the TU's whole .data as source: slopeVector, a zero sceVu0FVECTOR (16 B, VMA 0x4ECBE0; chain 3 pass 144); non-static while the getMotionGeometry stub reaches it
       - [0x3ECBF0, .data, ico2/sugipon/src/motionViewer]  # syms: objMenu  the TU's whole .data run as source (finishing pass P1-6): objMenu (MAIN.MAP motionViewer.o, global) then the three test-line colours, VMA 0x4ECBF0..0x4ECCA0, 0xB0 B = MAIN.MAP
       - [0x3ECCA0, .data, ico2/sugipon/src/multiBgaManager]  # syms: InitialBgaMultiAnimeState  the TU's whole .data run as source (finishing pass P1-6): the slot initial state (MAIN.MAP, global), VMA 0x4ECCA0..0x4ECCF0, 0x50 B = MAIN.MAP; particleEffect's row follows
-      - [0x3ECCF0, .data, ico2/sugipon/src/particleEffect]  # the TU's whole .data run as source (completeness pass 5), VMA 0x4ECCF0..0x4ECDEC, 252 B emitted
-      - [0x3ECDEC, data, cod/3ECDEC]     # .data blob resume: particleEffect's remaining 0xB4 (D_004ECDF0's 160-byte record and D_004ECE90)
+      - [0x3ECCF0, .data, ico2/sugipon/src/particleEffect]  # the TU's whole .data run as source (completeness pass 5; finishing pass P1-6b added the default package and the spread vector), VMA 0x4ECCF0..0x4ECEA0, 0x1B0 B = MAIN.MAP
       - [0x3ECEA0, .data, ico2/sugipon/src/puddle]  # the TU's whole .data run as source (finishing pass P1-6): rippleInit, rippleCenter, rippleScale, VMA 0x4ECEA0..0x4ECEE0, 0x40 B
-      - [0x3ECEE0, data, cod/3ECEE0]     # .data blob resume: rope's run (0xB0 = MAIN.MAP rope.o .data)
+      - [0x3ECEE0, .data, ico2/sugipon/src/rope]  # the TU's whole .data run as source (finishing pass P1-6b): the zero vector and the chain system record, VMA 0x4ECEE0..0x4ECF90, 0xB0 B = MAIN.MAP rope.o .data
       - [0x3ECF90, .data, ico2/sugipon/src/rotObject]  # the TU's whole .data run as source (completeness pass 5), VMA 0x4ECF90..0x4ECFA0, 16 B emitted
       - [0x3ECFA0, .data, ico2/sugipon/src/spider]  # the TU's .data (data pass 5), abutting spiderGroupManager's run, VMA 0x4ECFA0..0x4ECFB0, 16 B
       - [0x3ECFB0, .data, ico2/sugipon/src/spiderGroupManager]  # the TU's whole .data run as source (data pass 3): seven RGBA tints, VMA 0x4ECFB0..0x4ED020, 112 B
@@ -878,11 +876,7 @@ segments:
       - [0x51EE98, .rodata, ico2/sugipon/src/act_a_p_1]  # the TU's whole .rodata run as source (data pass 5; = MAIN.MAP act_a_p_1.o .rodata 0x2A), VMA 0x61EE98..0x61EEC2, 42 B
       - [0x51EEC2, rodata, cod/51EEC2]     # rodata blob resume
       - [0x51EEC8, .rodata, ico2/sugipon/src/attackCheckBoundary]  # the TU's whole .rodata run as source (completeness pass 65; MAIN.MAP line 6504), VMA 0x61EEC8..0x61EF0D
-      - [0x51EF10, rodata, cod/51EF10]     # .rodata blob resume
-      - [0x51F020, .rodata, ico2/sugipon/src/box]  # carved jtbl_0061F020 (avoidCharGObj, section .rodata.0x0061F020), VMA 0x61F020..0x61F048
-      - [0x51F048, rodata, cod/51F048]     # .rodata blob resume
-      - [0x51F060, .rodata, ico2/sugipon/src/box]  # carved jtbl_0061F060 (action, section .rodata.0x0061F060), VMA 0x61F060..0x61F080
-      - [0x51F080, rodata, cod/51F080]     # .rodata blob resume
+      - [0x51EF10, .rodata, ico2/sugipon/src/box]  # the TU's whole .rodata run as source (finishing pass P1-6b), VMA 0x61EF10..0x61F153, in gcc's emission order as one section: switch.c's file name, the prints, avoidCharGObj's and action's jump tables
       - [0x51F158, .rodata, ico2/sugipon/src/boy]  # the TU's whole .rodata run as source (completeness pass 7): the mesh texture name and strings, VMA 0x61F158..0x61F182
       - [0x51F182, rodata, cod/51F182]     # .rodata blob resume (6 B)
       - [0x51F188, .rodata, ico2/sugipon/src/cage]  # the TU's .rodata (chain 1 pass 110): "src/cage.c" from __FILE__, anonymous, VMA 0x61F188..0x61F193, padded to candle's row at 0x61F198
@@ -895,11 +889,8 @@ segments:
       - [0x51F650, .rodata, ico2/sugipon/src/enemy]  # the TU's whole .rodata run as source (completeness pass 5), VMA 0x61F650..0x61F710, 189 B emitted
       - [0x51F710, .rodata, ico2/sugipon/src/enemyParts]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x61F710..0x61F7D0, 192 B
       - [0x51F728, .rodata, ico2/sugipon/src/flag]  # the TU's __FILE__ literal "src/flag.c" (VMA 0x61F728, 11 B; chain 3 pass 136)
-      - [0x51F740, rodata, cod/51F740]     # rodata blob resume (13 B of alignment before frameDependSequence's 16-aligned run)
-      - [0x51F7D0, .rodata, ico2/sugipon/src/frameDependSequence]  # carved jtbl_0061F7D0 (VMA 0x61F7D0..0x61F7E4, 20 B, 5 arms): playSEConditionID's switch table, emitted by the compiled function
-      - [0x51F7E4, rodata, cod/51F7E4]   # .rodata blob resume
+      - [0x51F740, .rodata, ico2/sugipon/src/frameDependSequence]  # the TU's whole .rodata run as source (finishing pass P1-6b): playSE's three prints, playSEConditionID's 5-arm switch table, execSE's compiled-out bad-ID print, playEff's, execVibCondition's and findSEPackage's prints, in emission order, VMA 0x61F740..0x61F898, 0x158 B; the compiler's one section, kept unsplit by tools/postprocess_split_jtbls.py's one-row rule (data after the table)
       - [0x51F8A0, .rodata, ico2/sugipon/src/girl]  # the TU's whole .rodata run as source (completeness pass 7 widened it to the run head), VMA 0x61F8A0..0x61F9DB
-      - [0x51F9DB, rodata, cod/51F9DB]     # rodata blob resume
       - [0x51F9E0, .rodata, ico2/sugipon/src/girlForceField]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x61F9E0..0x61FA00, 32 B
       - [0x51FA00, .rodata, ico2/sugipon/src/handManager]  # carved jtbl_0061FA00 (VMA 0x61FA00..0x61FA18, 24 B, 6 arms): _handManager's switch table, emitted by the compiled function; the two zero pad words after it are the blob's first words
       - [0x51FA18, rodata, cod/51FA18]   # .rodata blob resume
@@ -908,16 +899,8 @@ segments:
       - [0x51FB51, rodata, cod/51FB51]     # rodata blob resume
       - [0x51FBC0, .rodata, ico2/sugipon/src/motionFileManager]  # carved jtbl_0061FBC0 (VMA 0x61FBC0..0x61FBD8, 24 B, 6 arms): pursueNodeList's switch table, emitted by the compiled function
       - [0x51FBD8, rodata, cod/51FBD8]   # .rodata blob resume (two zero pad words)
-      - [0x51FBE0, .rodata, ico2/sugipon/src/motionManager]  # syms: 0x0061FBE0  _getFinalMatrix's 52-arm switch table jtbl_0061FBE0, VMA 0x61FBE0..0x61FCB0, 0xD0 B, every arm checked against the ROM (chain 1 pass 155)
-      - [0x51FCB0, rodata, cod/51FCB0]   # .rodata blob resume (the EditRotEmphasys strings)
-      - [0x51FFB0, .rodata, ico2/sugipon/src/motionManager]  # syms: 0x0061FFB0  rootUpdateStepSolution's 10-arm switch table (listing row 2078), VMA 0x61FFB0..0x61FFD8, 0x28 B, every arm checked against the ROM (chain 1 pass 159)
-      - [0x51FFD8, rodata, cod/51FFD8]   # .rodata blob resume (D_0061FFD8 and the rest up to the plain row)
-      - [0x520030, .rodata, ico2/sugipon/src/motionManager]  # plain-rodata: the TU's whole .rodata run as source (chain 2 pass 86): _getGeometryOfMotion's 21-arm switch table (0x54 B), a 4 B zero pad, then dispSkeltonHierarchy's nine initialiser templates (0x98 B), all anonymous, VMA 0x620030..0x620120; the compiler's one section, kept unsplit by tools/postprocess_split_jtbls.py's single-table rule
-      - [0x520120, rodata, cod/520120]   # .rodata blob resume (XZ_MOTPOS)
-      - [0x5201E0, .rodata, ico2/sugipon/src/motionOrientManager]  # orientDebug's jump table jtbl_006201E0 (21 words, section .rodata.0x006201E0), VMA 0x6201E0..0x620233
-      - [0x520234, rodata, cod/520234]   # .rodata blob resume
-      - [0x520460, .rodata, ico2/sugipon/src/motionOrientManager]  # SetMotionRequest's jump table jtbl_00620460 (14 words, section .rodata.0x00620460), VMA 0x620460..0x620498
-      - [0x520498, rodata, cod/520498]     # .rodata blob resume
+      - [0x51FBE0, .rodata, ico2/sugipon/src/motionManager]  # the TU's whole .rodata run as source (finishing pass P1-6b), VMA 0x61FBE0..0x620120, 0x540 B, in gcc's emission order as one section (tools/postprocess_split_jtbls.py's one-row rule keeps the three tables where the compiler puts them): _getFinalMatrix's table, EditRotEmphasys's labels, checkWallSideState's ClipBuf template, _checkCliffAndWall's __FILE__ and message, setIKAndAdjustRootHeight's compiled-out height report and PLANE message, rootUpdateXZ's compiled-out report, the rootUpdate prints, rootUpdateStepSolution's WallCfg template, print and table, _getGeometryOfMotion's message and table, dispSkeltonHierarchy's templates
+      - [0x520120, .rodata, ico2/sugipon/src/motionOrientManager]  # the TU's whole .rodata run as source (finishing pass P1-6b), VMA 0x620120..0x6206AA, 0x58A B (= MAIN.MAP), in gcc's emission order as one section: orientDebug's names, format and jump table, the prints and messages, the spinner template, SetMotionRequest's jump table, the bar colours
       - [0x5206B0, .rodata, ico2/sugipon/src/motionViewer]  # the TU's whole .rodata run as source (finishing pass P1-6): objMenu's names, the literals at their use sites, the two look-test colours, then MotionViewer's switch table, VMA 0x6206B0..0x620894, 0x1E4 B = MAIN.MAP; moveColTest's 8-aligned run follows
       - [0x520898, .rodata, ico2/sugipon/src/moveColTest]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x620898..0x620C90, 1016 B
       - [0x5208C8, .rodata, ico2/sugipon/src/multiBgaManager]  # the TU's whole .rodata run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x6208C8..0x620C90, 968 B
@@ -1273,18 +1256,18 @@ segments:
       - [0x53B8E0, .sdata, ico2/sugipon/src/item]  # the TU's whole .sdata run as source (finishing pass P1-6): HoldItem's assert literal "0", VMA 0x63B8E0..0x63B8E2, 2 B = MAIN.MAP
       - [0x53B8E4, .sdata, ico2/sugipon/src/lineManager]  # the TU's whole .sdata run as source (finishing pass P1-6): the three GS PRIM words, VMA 0x63B8E4..0x63B8F0, 0xC B = MAIN.MAP
       - [0x53B8F0, .sdata, ico2/sugipon/src/motionFileManager]  # the TU's whole .sdata run as source (finishing pass P1-6): the loaded motion file's base, VMA 0x63B8F0..0x63B8F4, 4 B = MAIN.MAP
-      - [0x53B8F4, sdata, cod/53B8F4]     # .sdata blob resume (a fill word, then motionManager's run)
-      - [0x53B91C, .sdata, ico2/sugipon/src/motionManager]  # clearCollisionStatus's anonymous constant-pool literal 3.40282347e+38f (mips.c refuses SF constants at or above 1.0e38 as immediates), 4 B, VMA 0x63B91C..0x63B920 (chain 2 pass 84); the TU's other pool words stay in the blob
-      - [0x53B920, sdata, cod/53B920]     # .sdata blob resume
+      - [0x53B8F8, .sdata, ico2/sugipon/src/motionManager]  # the TU's whole .sdata run as source (finishing pass P1-6b), VMA 0x63B8F8..0x63B940, 0x48 B (= MAIN.MAP motionManager.o .sdata; the word at 0x63B8F4 is alignment): the collision display switches and skeleton scale, the IK angles and EditRotEmphasys's tuning (getFinalMatrix.c.inc), clearCollisionStatus's FLT_MAX pool word, _checkCliffAndWall's "e" and pool word, setIKAndAdjustRootHeight's pool word, the {0, -1} MotShift template (rootUpdate.c.inc), then the skeleton's node array and object, defined after that file
+      - [0x53B940, .sdata, ico2/sugipon/src/motionOrientManager]  # the TU's whole .sdata run as source (finishing pass P1-6b), VMA 0x63B940..0x63B9F8, 0xB8 B: ropeInterRate (read by chain and motionManager), the short names and assert texts, the ignored-request counters, the spinner strings and SetMotionRequest's FLT_MAX pool word
       - [0x53B9F8, .sdata, ico2/sugipon/src/motionViewer]  # the TU's whole .sdata run as source (finishing pass P1-6): the file statics, the bar colour templates, the short literals and MotionViewer's state in ROM order, VMA 0x63B9F8..0x63BA78, 0x80 B = MAIN.MAP
       - [0x53BA78, .sdata, ico2/sugipon/src/moveColTest]  # the TU's whole .sdata run as source (finishing pass P1-6): the blink counter, the test offset and MoveColTestGeo's "%d\n", VMA 0x63BA78..0x63BA84, 0xC B = MAIN.MAP
       - [0x53BA88, .sdata, ico2/sugipon/src/puddle]  # the TU's whole .sdata run as source (finishing pass P1-6): the two VRAM words and the three sprite colours (records, 8-aligned), VMA 0x63BA88..0x63BAA4; rope's row follows
       - [0x53BAA8, .sdata, ico2/sugipon/src/rope]  # the TU's .sdata as source (chain 3 pass 74), the anonymous string "0", 2 B as MAIN.MAP gives, VMA 0x63BAA8, the linker pads to the next 8-aligned string
-      - [0x53BAB0, sdata, cod/53BAB0]     # .sdata blob resume
+      - [0x53BAB0, .sdata, ico2/sugipon/src/rotObject]  # the TU's whole .sdata run as source (finishing pass P1-6b): the object phase counter and the "%s\n" of the three compiled-out traces, VMA 0x63BAB0..0x63BABC, 0xC B (= MAIN.MAP rotObject.o .sdata)
       - [0x53BAC0, .sdata, ico2/sugipon/src/spider]  # syms: sgSelLine sgInfoLine  the TU's whole .sdata run as source (finishing pass P1-6): the entry count, sgSelLine, the three debug literals and sgInfoLine (MAIN.MAP, both global), VMA 0x63BAC0..0x63BAE0, 0x20 B = MAIN.MAP
       - [0x53BAE0, .sdata, ico2/sugipon/src/spiderGroupManager]  # the TU's whole .sdata run as source (finishing pass P1-6): eight counters and the revive state, then the assert literal "e", VMA 0x63BAE0..0x63BB02, 0x22 B = MAIN.MAP
       - [0x53BB04, .sdata, ico2/sugipon/src/stageMultiBgaManager]  # the TU's whole .sdata run as source (finishing pass P1-6): the stage animation count, VMA 0x63BB04..0x63BB08, 4 B = MAIN.MAP
-      - [0x53BB08, sdata, cod/53BB08]     # .sdata blob resume: staticBlur's and streamMotionManager's runs
+      - [0x53BB08, sdata, cod/53BB08]     # .sdata blob resume: staticBlur's run
+      - [0x53BBF0, .sdata, ico2/sugipon/src/streamMotionManager]  # the TU's whole .sdata run as source (finishing pass P1-6b), VMA 0x63BBF0..0x63BC46: the seventeen stream statics and the two debug formats
       - [0x53BC48, .sdata, ico2/sugipon/src/waterDot]  # the TU's whole .sdata run as source (finishing pass P1-6): the registered count and the splash PRIM word, VMA 0x63BC48..0x63BC50, 8 B
       - [0x53BC50, .sdata, ico2/sugipon/src/waySystemManager]  # the TU's whole .sdata run as source (finishing pass P1-6): the manager GObj word, VMA 0x63BC50..0x63BC54, 4 B = MAIN.MAP
       - [0x53BC54, .sdata, ico2/sugipon/src/windField]  # the TU's whole .sdata run as source (finishing pass P1-6): the field mode, the wind vector function (dummyGetWindVector) and the fan angle, VMA 0x63BC54..0x63BC5E, 0xA B = MAIN.MAP
@@ -1395,7 +1378,6 @@ segments:
       - { type: .bss, vram: 0x00668640, name: ico2/sugipon/src/matrixDrive }  # the TU's own .bss, 0x1000 B, VMA 0x668640..0x669640; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x00669640, name: ico2/sugipon/src/quaternion }  # the TU's own .bss, 0x400 B, VMA 0x669640..0x669A40; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x00669A40, name: ico2/sugipon/src/tableSin }  # the TU's own .bss, 0x12012 B, VMA 0x669A40..0x67BA52; static definitions in ROM run order (completeness pass)
-      - { type: bss, vram: 0x0067BA52, name: cod/0067BA52 }  # .bss blob resume
       - { type: .bss, vram: 0x0067BA60, name: ico2/seki/src/GsBase }  # the TU's own .bss, 0x280 B, VMA 0x67BA60..0x67BCE0, five statics in ROM run order (vsParam, logBuf, lockFileName, lockOwner, bgColor; completeness pass 46); MAIN.MAP line 7678 gives the owner, its 0x40 is the January object before the retail revision added the three character buffers; abuts Light
       - { type: .bss, vram: 0x0067BCE0, name: ico2/seki/src/Light }  # the TU's own .bss, 0xF0 B, VMA 0x67BCE0..0x67BDD0; static definitions in ROM run order (completeness pass)
       - { type: bss, vram: 0x0067BDD0, name: cod/0067BDD0 }  # .bss blob resume

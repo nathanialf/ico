@@ -57,4 +57,7 @@ void orientDebug(void *self, int mode, int col);
 int parallelMotionShift(void *self);
 void shiftMotionData(int a0, int a1, int a2, int a3);
 
+/* the rope interpolation rate the chain sets (motionOrientManager.c) */
+extern float ropeInterRate;
+
 #endif /* MOTIONORIENTMANAGER_H */

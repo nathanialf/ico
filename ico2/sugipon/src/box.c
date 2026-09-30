@@ -197,10 +197,9 @@ extern void SetRootQuaternion(void *obj, void *q);
    the prototypes in quaternion.h and matrixDrive.h */
 extern char IdentityQuaternion[];
 extern char YUnitVector[];
+
 /* the two debug lines the wall fit prints, rodata VMA 0x61EF20 and 0x61EF48;
    the second is EUC-JP, "this terrain is wrong (it is not cut to 100cm)" */
-extern char D_0061EF20[];
-extern char D_0061EF48[];
 
 /* the record the clip work reports at +0x80: the contact point's x and z, and
    the hit flag the caller has just tested at +0x88.  The point and the flag
@@ -296,11 +295,13 @@ int execNormalMove(char *self, int stop)
                         _OuterProduct(norm, YUnitVector, plSide);
                         ang = GetTableArcTan2(axis[0], axis[2]);
                         SetQuaternionByAxisRotateV(rot, ang, norm);
-                        debug_StdPrintfDummy(D_0061EF20, dy, d, adj, ang);
+                        debug_StdPrintfDummy("height: %f   dist: %f  ofs: %f %x \n", dy, d, adj,
+                                             ang);
 
                         GetSlerpQuaternion(p + 0x150, rot, p + 0x150, 0.5f);
                     } else {
-                        debug_StdPrintfDummy(D_0061EF48);
+                        /* EUC-JP: "this terrain is wrong (it is not divided into 100 cm)" */
+                        debug_StdPrintfDummy("この地形はおかしいです(100cmに区切られていません)\n");
                         GetSlerpQuaternion(p + 0x150, IdentityQuaternion, p + 0x150, 0.5f);
                     }
                 }
@@ -401,11 +402,9 @@ int AlignBox(char *a0, float grid)
    (ico2/fumi/include/memory.h has them with an IosMemPart * partition) */
 extern void *iosMallocDebug(void *part, int size, char *file, int line);
 extern void iosFree(void *p);
-/* the heap partition the wheel buffers come from and the "src/box.c" file
-   string the debug allocator records, both read by VMA: D_0063A44C is the
-   gp-relative partition handle, D_0061EF80 is at rodata VMA 0x61EF80 */
+/* the heap partition the wheel buffers come from, read by VMA: D_0063A44C
+   is the gp-relative partition handle */
 extern void *D_0063A44C;
-extern char D_0061EF80[];
 extern GenGeo D_002C2DC8[];
 
 /* box.c:546-565 in the listing.  Lines 558 to 560 are one call-site line in
@@ -432,16 +431,14 @@ void initWheels(char *self, float *lay)
         }
         *(int *)(*(char **)(w + 0x11C) + 0xC) = 0;
         *(int *)(*(char **)(w + 0x11C) + 0x10) = 0;
-        *(int *)(*(char **)(w + 0x11C) + 0xC) =
-            (int)iosMallocDebug(D_0063A44C, 128, D_0061EF80, 560);
-        *(int *)(*(char **)(w + 0x11C) + 0x10) =
-            (int)iosMallocDebug(D_0063A44C, 32, D_0061EF80, 560);
+        *(int *)(*(char **)(w + 0x11C) + 0xC) = (int)iosMallocDebug(D_0063A44C, 128, __FILE__, 560);
+        *(int *)(*(char **)(w + 0x11C) + 0x10) = (int)iosMallocDebug(D_0063A44C, 32, __FILE__, 560);
         *(int *)(*(char **)(w + 0x11C) + 0x8) = 2;
         if (*(int *)(*(char **)(w + 0x11C) + 0x870) != 0) {
             iosFree((void *)(*(int *)(*(char **)(w + 0x11C) + 0x870) & 0x0FFFFFFF));
         }
         *(int *)(*(char **)(w + 0x11C) + 0x870) =
-            (int)iosMallocDebug(D_0063A44C, 160, D_0061EF80, 560);
+            (int)iosMallocDebug(D_0063A44C, 160, __FILE__, 560);
 
         for (i = 0; i < 2; i++) {
             {
@@ -907,9 +904,6 @@ int getNearestPosition(float *out, int *pidx, int *path)
     return 1;
 }
 
-extern char D_0061EF90[];
-extern char D_0061EFA8[];
-
 void onPathInitialize(char *a0)
 {
     char *p = (char *)GOBJ_SUB(a0)->f_830;
@@ -931,8 +925,8 @@ void onPathInitialize(char *a0)
     sceVu0ApplyMatrix(rear, (void *)GOBJ_SUB(a0)->f_C, &rv);
     getNearestPosition(front, (int *)(p + 0x50), (int *)(p + 0x58));
     getNearestPosition(rear, (int *)(p + 0x54), (int *)(p + 0x58));
-    debug_StdPrintfDummy(D_0061EF90, front[0], front[1], front[2]);
-    debug_StdPrintfDummy(D_0061EFA8, rear[0], rear[1], rear[2]);
+    debug_StdPrintfDummy("front pos: %f, %f, %f\n", front[0], front[1], front[2]);
+    debug_StdPrintfDummy("rear  pos: %f, %f, %f\n", rear[0], rear[1], rear[2]);
     if (distance_squared(front, rear) < 0.010000001f) {
         GetRootQuaternion((int)quat, (int)a0);
         RotQuaternionY(quat, 16384);
@@ -957,11 +951,8 @@ extern void gif_EndPacket(void);
 extern void DrawLineG(void *p0, void *c0, void *p1, void *c1, int z);
 /* the debug switch the wall-fit trace is printed under */
 extern int D_0063B148;
+
 /* the four trace lines, rodata VMA 0x61EFC0, 0x61EFD0, 0x61EFE0 and 0x61EFF0 */
-extern char D_0061EFC0[];
-extern char D_0061EFD0[];
-extern char D_0061EFE0[];
-extern char D_0061EFF0[];
 
 /* the two route colours onPath draws the route and its end points in, one
    word per channel, RGBA */
@@ -1023,19 +1014,19 @@ int onPath(char *self)
 
         if (hitFront != 0) {
             _SubVectorXYZ(&dir, &front, (char *)GOBJ_SUB(self)->f_C + 0x30);
-            debug_StdPrintfDummy(D_0061EFC0);
+            debug_StdPrintfDummy("hit with front\n");
         }
         if (hitRear != 0) {
             _SubVectorXYZ(&dir, &rear, (char *)GOBJ_SUB(self)->f_C + 0x30);
-            debug_StdPrintfDummy(D_0061EFD0);
+            debug_StdPrintfDummy("hit with rear\n");
         }
         _NormalizeVector(&dir, &dir);
         if (0.0f < _InnerProduct(&dir, p + 0x190)) {
-            debug_StdPrintfDummy(D_0061EFE0);
+            debug_StdPrintfDummy("se stopped\n");
             stopBoxMoveSE(self);
             *(int *)(p + 0x114) = 1;
         } else {
-            debug_StdPrintfDummy(D_0061EFF0);
+            debug_StdPrintfDummy("but different orient, then se not stop\n");
         }
 
         mid.f[1] = front.f[1];
@@ -1466,13 +1457,11 @@ extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
 extern char **GetCharGObjList(void);
 /* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
 extern void ClipWall(void *a0);
-extern char D_0061F048[];
 extern int moveXPlus(float *a0, float f12, float f13, float f14);
 extern int moveXMinus(float *a0, float f12, float f13, float f14);
 extern int moveZPlus(float *a0, float f12, float f13, float f14);
 extern int moveZMinus(float *a0, float f12, float f13, float f14);
 extern int stage_no;
-extern char D_0061F080[];
 
 int _checkItemBreak(void *pos)
 {
@@ -1669,7 +1658,7 @@ void action(char *a0)
         break;
     case -1:
     default:
-        debug_StdPrintfDummy(D_0061F048);
+        debug_StdPrintfDummy("box die!!!\n");
         CopyVector((char *)GOBJ_SUB(a0) + 0x130, ZeroVector);
         break;
     }
@@ -2132,7 +2121,7 @@ int MoveBoxWithHoldPoint(char *a0, void *a1, char *a2, int a3, float *a4)
             *(int *)(q + 0x20) = 6;
             alignPosition(a0, npos, npos, 100.0f);
             npos[1] -= 1.0f;
-            debug_StdPrintfDummy(D_0061F080, npos[0], npos[1], npos[2]);
+            debug_StdPrintfDummy("near wall to %f, %f, %f\n", npos[0], npos[1], npos[2]);
             CopyVector(*(char **)(*(char **)(*(char **)(q + 0x180) + 0x15C) + 0xC) + 0x30, npos);
             *(int *)(*(char **)(q + 0x180) + 0x16C) = 1;
         }
@@ -2195,31 +2184,30 @@ inline void ExecBoxMoveEndReaction(char *a0)
     *(int *)(q + 0x110) = 0;
 }
 
-extern char D_0061F0A0[];
-extern char D_0061F0B0[];
-extern char D_0061F128[];
-extern char D_0061F138[];
-
 void ReInitBoxGeo(char *a0)
 {
     char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
 
-    debug_StdPrintfDummy(D_0061F0A0);
+    debug_StdPrintfDummy("BOXREINIT\n");
     GOBJ_SUB(a0)->f_70 = *(int *)(p + 0x2C);
     if (checkFieldContact(a0, 100000.0f) == 0) {
-        debug_StdPrintfDummy(D_0061F0B0);
+        /* EUC-JP: "the box is placed where there is no ground; its behaviour cannot be guaranteed (is the box before the collision definition?)" */
+        debug_StdPrintfDummy(
+            "\033[36m箱が地面の無いところに初期配置されています。\n動作が保証できません(コリジョン定義より前に箱がありませんか?)\033[m\n");
     } else {
         int m = GOBJ_SUB(a0)->f_5F8;
 
         if (m == 0x40 || m == 0x50) {
             initFloating(a0);
             *(int *)(p + 0x20) = 5;
-            debug_StdPrintfDummy(D_0061F128);
+            /* EUC-JP: "box initially placed on the water bottom" */
+            debug_StdPrintfDummy("箱初期水底配置\n");
         } else {
             *(int *)(p + 0x20) = 0;
             AlignBox(a0, 100.0f);
             execNormalMove(a0, 1);
-            debug_StdPrintfDummy(D_0061F138);
+            /* EUC-JP: "box initially placed normally" */
+            debug_StdPrintfDummy("箱初期通常配置\n");
         }
     }
     UpdateRootMatrix(a0);
@@ -2252,7 +2240,7 @@ typedef struct {
 /* box.c:2014-2102 in the listing. */
 char *InitBoxGeo(char *self, BoxLayout *lay)
 {
-    char *w = (char *)iosMallocDebug(D_0063A438, 416, D_0061EF80, 2017);
+    char *w = (char *)iosMallocDebug(D_0063A438, 416, __FILE__, 2017);
     char *o;
     char *g;
     int sub;
@@ -2369,8 +2357,6 @@ inline void BoxDL(char *a0)
     }
 }
 
-extern char D_0061F148[];
-
 inline int BoxGeoRestore(float *a0, float *a1)
 {
     a0[0] = a1[4];
@@ -2379,7 +2365,7 @@ inline int BoxGeoRestore(float *a0, float *a1)
     a0[4] = a1[8];
     a0[5] = a1[9];
     a0[6] = a1[10];
-    debug_StdPrintfDummy(D_0061F148, a0[8], a0[9], a0[10]);
+    debug_StdPrintfDummy("%f, %f, %f\n", a0[8], a0[9], a0[10]);
     return 1;
 }
 

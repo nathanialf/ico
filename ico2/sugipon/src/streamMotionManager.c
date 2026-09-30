@@ -4,6 +4,45 @@
 #include "matrixDrive.h"
 #include "streamMotionManager.h"
 
+/* The TU's .sdata (MAIN.MAP names nothing in it), in ROM order: the stream
+   entry count and state, the background reader's state and id, the ring
+   buffer's read and write offsets and buffers, the header parse, the owner,
+   the ring use, the idle flag and the frame clock; the two debug formats
+   follow. */
+static int streamNum = 0; /* derived name */
+
+static int streamState = 0; /* derived name */
+
+static int readState = 0; /* derived name */
+
+static int bgMgrId = 0; /* derived name */
+
+static int ringRead = 0; /* derived name */
+
+static int ringWrite = 0; /* derived name */
+
+static int ringBuf = 0; /* derived name */
+
+static int readBuf = 0; /* derived name */
+
+static int readBufRaw = 0; /* derived name */
+
+static int headerRead = 0; /* derived name */
+
+static int headerSize = 0; /* derived name */
+
+static int streamOwner = 0; /* derived name */
+
+static int ringUsed = 0; /* derived name */
+
+static unsigned int streamIdle = 1; /* derived name */
+
+static int framePlayed = 0; /* derived name */
+
+static int frameTime = 0; /* derived name */
+
+static int frameCount = 0; /* derived name */
+
 typedef struct {
     int w[7];
 } SMotion;
@@ -18,26 +57,15 @@ extern int frame_count;
 extern int ScreenHeight;
 extern int D_0063B13C;
 extern int D_0063B144;
-extern int D_0063BBF0;
-extern int D_0063BC00;
-extern int D_0063BC04;
-extern int D_0063BC08;
-extern int D_0063BC14;
-extern int D_0063BC18;
-extern int D_0063BC20;
-extern int D_0063BC28;
-extern int D_0063BC2C;
-extern int D_0063BC30;
-extern char D_0063BC38[]; /* "S:%d", the stream counter D_0063BC30 its argument */
 extern int D_0063BCB8;
 
 /* The ring is 0x28000 bytes; the check asks whether the write pointer has run
  * far enough ahead of the read pointer for `room` more bytes to be there. */
 static inline int _checkRing(int room)
 {
-    unsigned int p = D_0063BC00;
+    unsigned int p = ringRead;
     unsigned int end = p + room;
-    unsigned int q = D_0063BC04;
+    unsigned int q = ringWrite;
     int r;
 
     if (q < p) {
@@ -55,8 +83,8 @@ static inline void _setEntryOffsets(void)
     unsigned int off = 0;
     int i;
 
-    for (i = 0; i < D_0063BBF0; i++) {
-        streamEntry[i].w[3] = streamEntry[i].w[4] = (D_0063BC00 + off) % 0x28000;
+    for (i = 0; i < streamNum; i++) {
+        streamEntry[i].w[3] = streamEntry[i].w[4] = (ringRead + off) % 0x28000;
         off += streamEntry[i].w[2];
     }
 }
@@ -66,7 +94,7 @@ static inline void _setNextEntryOffsets(unsigned int base)
     unsigned int off = 0;
     int i;
 
-    for (i = 0; i < D_0063BBF0; i++) {
+    for (i = 0; i < streamNum; i++) {
         streamEntry[i].w[4] = (base + off) % 0x28000;
         off += streamEntry[i].w[2];
     }
@@ -74,10 +102,10 @@ static inline void _setNextEntryOffsets(unsigned int base)
 
 static inline void _advanceRing(int amt)
 {
-    D_0063BC20 += amt;
-    D_0063BC00 += amt;
-    if ((unsigned int)D_0063BC00 > 0x27FFF) {
-        D_0063BC00 -= 0x28000;
+    ringUsed += amt;
+    ringRead += amt;
+    if ((unsigned int)ringRead > 0x27FFF) {
+        ringRead -= 0x28000;
     }
 }
 
@@ -87,23 +115,23 @@ int _infoUpdate(void)
     int n;
     int i;
 
-    if (D_0063BC14 == 0) {
+    if (headerRead == 0) {
         if (_checkRing(0x1000)) {
-            D_0063BC18 = 0;
-            for (i = 0; i < D_0063BBF0; i++) {
-                int a = D_0063BC00 + D_0063BC18;
+            headerSize = 0;
+            for (i = 0; i < streamNum; i++) {
+                int a = ringRead + headerSize;
 
-                streamEntry[i].w[0] = *(unsigned char *)(D_0063BC08 + (a + 2) % 0x28000);
-                streamEntry[i].w[1] = *(unsigned char *)(D_0063BC08 + (a + 3) % 0x28000);
+                streamEntry[i].w[0] = *(unsigned char *)(ringBuf + (a + 2) % 0x28000);
+                streamEntry[i].w[1] = *(unsigned char *)(ringBuf + (a + 3) % 0x28000);
                 streamEntry[i].w[2] = 16 + streamEntry[i].w[0] * 8 + streamEntry[i].w[1] * 4;
-                D_0063BC18 += streamEntry[i].w[2];
+                headerSize += streamEntry[i].w[2];
             }
             n = 0xE23;
             if (D_0028F4C0[0] == 0) {
                 n = 0xBB5;
             }
-            D_0063BC14 = 1;
-            D_0063BC2C = n;
+            headerRead = 1;
+            frameTime = n;
         } else {
             /* the data had not arrived in time when the stream motion started */
             debug_StdPrintfDummy(
@@ -112,31 +140,31 @@ int _infoUpdate(void)
             return 0;
         }
     }
-    top = D_0063BC00;
-    D_0063BC28 = 0;
-    while (D_0063BC2C >= 2997) {
-        if (!_checkRing(D_0063BC18)) {
+    top = ringRead;
+    framePlayed = 0;
+    while (frameTime >= 2997) {
+        if (!_checkRing(headerSize)) {
             /* the stream motion data transfer is not keeping up */
             debug_StdPrintfDummy("ストリームモーションのデータ転送が間に合っていません。\n");
             iosCdvdStDelayCnt++;
             return 0;
         } else {
-            if (*(unsigned char *)(D_0063BC08 + D_0063BC00) == 0xFF) {
+            if (*(unsigned char *)(ringBuf + ringRead) == 0xFF) {
                 return 1;
             }
-            top = D_0063BC00;
+            top = ringRead;
             _setEntryOffsets();
-            _advanceRing(D_0063BC18);
-            if (_checkRing(D_0063BC18) && *(unsigned char *)(D_0063BC08 + D_0063BC00) == 0) {
-                _setNextEntryOffsets(D_0063BC00);
+            _advanceRing(headerSize);
+            if (_checkRing(headerSize) && *(unsigned char *)(ringBuf + ringRead) == 0) {
+                _setNextEntryOffsets(ringRead);
             }
-            D_0063BC2C -= 2997;
-            D_0063BC30++;
+            frameTime -= 2997;
+            frameCount++;
             if (D_0063B144 != 0 || (D_0063B13C & 1)) {
-                debug_Printf(500, ScreenHeight / 2 - 48, 0xCCCCCC00, D_0063BC38, D_0063BC30);
+                debug_Printf(500, ScreenHeight / 2 - 48, 0xCCCCCC00, "S:%d", frameCount);
             }
-            if (*(unsigned char *)(D_0063BC08 + top) == 1) {
-                if (D_0063BC2C == 2997) {
+            if (*(unsigned char *)(ringBuf + top) == 1) {
+                if (frameTime == 2997) {
                     /* the motion divided evenly and the cut switched over */
                     debug_StdPrintfDummy(
                         "\033[33mキリ良くモーションが割り切れてカットが切り替わり\033[m\n");
@@ -144,13 +172,13 @@ int _infoUpdate(void)
                     /* the next cut's data arrived, so a forced switch (remainder: %f) */
                     debug_StdPrintfDummy(
                         "\033[33m次のカットデータ来たので強制切り替わり(余り：%f)\033[m\n",
-                        (float)D_0063BC2C / 2997.0f);
+                        (float)frameTime / 2997.0f);
                 }
                 break;
             }
         }
     }
-    if (*(unsigned char *)(D_0063BC08 + top) == 1) {
+    if (*(unsigned char *)(ringBuf + top) == 1) {
         debug_StdPrintfDummy("\033[33mFIND HEADER FLAG\033[m\n");
         if (D_0063BCB8 != 0) {
             debug_StdPrintfDummy("\033[36mSTREAM MOTION SYNCHRONIZE OK(%d)\033[m\n", frame_count);
@@ -160,26 +188,23 @@ int _infoUpdate(void)
     }
     if (D_0063BCB8 != 0) {
         debug_StdPrintfDummy("\033[33mCLEAR FRAME MOD\033[m\n");
-        D_0063BC30 = 0;
-        D_0063BC2C = 0;
+        frameCount = 0;
+        frameTime = 0;
         D_0063BCB8 = 0;
     }
-    D_0063BC28 = D_0063BC2C;
-    D_0063BC2C += D_0028F4C0[0] == 0 ? 0xBB5 : 0xE23;
+    framePlayed = frameTime;
+    frameTime += D_0028F4C0[0] == 0 ? 0xBB5 : 0xE23;
     return 0;
 }
 
-extern int D_0063BBF4;
-extern int D_0063BBFC;
-
 void PlayStreamMotion(void)
 {
-    if (D_0063BBFC == 0) {
+    if (bgMgrId == 0) {
         /* StandbyStreamMotion has not been called; nothing was played */
         return debug_StdPrintfDummy(
             "StandbyStreamMotionが呼ばれてません。再生はされませんでした。\n");
     }
-    D_0063BBF4 = 1;
+    streamState = 1;
     return 1;
 }
 
@@ -209,56 +234,44 @@ void ClearStreamMotionEntry(char *gobj)
    slot is reset to. */
 static SMotion emptyEntry = {{0, 0, -1, -1, -1, 0, 0}};
 
-extern int D_0063BBF0;
-extern int D_0063BBF8;
-extern int D_0063BC00;
-extern int D_0063BC04;
-extern int D_0063BC14;
-extern int D_0063BC18;
-extern int D_0063BC20;
-extern unsigned int D_0063BC24;
-extern int D_0063BC28;
-extern int D_0063BC2C;
-
 void _deleteStreamMotionManager(void)
 {
     int i;
 
-    if (D_0063BBF0 != 0) {
-        for (i = 0; i < D_0063BBF0; i++) {
+    if (streamNum != 0) {
+        for (i = 0; i < streamNum; i++) {
             ClearStreamMotionEntry((char *)streamEntry[i].w[5]);
             if (streamEntry[i].w[6] != 0) {
                 ((void (*)())streamEntry[i].w[6])(streamEntry[i].w[5]);
             }
         }
-        D_0063BBF0 = 0;
+        streamNum = 0;
     }
     for (i = 0; i < 10; i++) {
         streamEntry[i] = emptyEntry;
     }
-    D_0063BBF4 = 0;
-    D_0063BBF8 = 0;
-    D_0063BC00 = 0;
-    D_0063BC04 = 0;
-    D_0063BC24 = 1;
-    D_0063BC14 = 0;
-    D_0063BC18 = 0;
-    D_0063BC20 = 0;
-    D_0063BC28 = 0;
-    D_0063BC2C = 0;
-    if (D_0063BBFC != 0) {
-        D_0063BBFC = 0;
+    streamState = 0;
+    readState = 0;
+    ringRead = 0;
+    ringWrite = 0;
+    streamIdle = 1;
+    headerRead = 0;
+    headerSize = 0;
+    ringUsed = 0;
+    framePlayed = 0;
+    frameTime = 0;
+    if (bgMgrId != 0) {
+        bgMgrId = 0;
     }
     debug_StdPrintfDummy("delete stream motion manager\n");
 }
 
 void DisableStreamMotionManagerAutomaticDelete(void)
 {
-    D_0063BC24 = 0;
+    streamIdle = 0;
     debug_StdPrintfDummy("disable automatic delete\n");
 }
 
-extern int D_0063BC08;
 extern void memcpy();
 
 void getStreamMotionData(char *dst, int off, int no)
@@ -269,10 +282,10 @@ void getStreamMotionData(char *dst, int off, int no)
     if (over > 0) {
         int first = 0x28000 - off;
 
-        memcpy(dst, D_0063BC08 + off, first);
-        return memcpy(dst + first, D_0063BC08, over);
+        memcpy(dst, ringBuf + off, first);
+        return memcpy(dst + first, ringBuf, over);
     }
-    return memcpy(dst, D_0063BC08 + off, size);
+    return memcpy(dst, ringBuf + off, size);
 }
 
 void getStreamMotionBlendData(char *dst, int no)
@@ -312,45 +325,43 @@ void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
 
 extern int D_0063B13C;
 extern int ScreenHeight;
-extern char D_0063BC40[];
 extern char D_006212A0[];
 extern char D_00621278[];
-extern int D_0063BC1C;
 
 void ExecStreamMotionManager(void)
 {
     int i;
     int pct;
 
-    switch (D_0063BBF4) {
+    switch (streamState) {
     case 0:
         break;
     case 1:
         if (_infoUpdate() != 0) {
             debug_StdPrintfDummy(D_00621278);
-            D_0063BBF4 = 0;
-            if (D_0063BC24 != 0) {
-                if (D_0063BBFC != 0) {
-                    iosCdvdBackGroundMgrDelete(D_0063BBFC);
+            streamState = 0;
+            if (streamIdle != 0) {
+                if (bgMgrId != 0) {
+                    iosCdvdBackGroundMgrDelete(bgMgrId);
                 } else {
                     _deleteStreamMotionManager();
                 }
-                if (D_0063BBF0 != 0) {
-                    for (i = 0; i < D_0063BBF0; i++) {
+                if (streamNum != 0) {
+                    for (i = 0; i < streamNum; i++) {
                         ClearStreamMotionEntry((char *)streamEntry[i].w[5]);
                         if (streamEntry[i].w[6] != 0) {
                             ((void (*)())streamEntry[i].w[6])(streamEntry[i].w[5]);
                         }
                     }
-                    D_0063BBF0 = 0;
+                    streamNum = 0;
                 }
             }
         }
         break;
     }
-    if (D_0063BBFC != 0) {
-        unsigned int wp = D_0063BC04;
-        unsigned int rp = D_0063BC00;
+    if (bgMgrId != 0) {
+        unsigned int wp = ringWrite;
+        unsigned int rp = ringRead;
 
         if (wp < rp) {
             pct = wp + 0x28000 - rp;
@@ -359,26 +370,24 @@ void ExecStreamMotionManager(void)
         }
         pct = pct * 100 / 0x28000;
         if (D_0063B13C & 1) {
-            debug_Printf(0, ScreenHeight / 2 - 16, 0xFF404000, D_0063BC40, pct);
+            debug_Printf(0, ScreenHeight / 2 - 16, 0xFF404000, " %d%%", pct);
         }
         if (D_0063B13C & 1) {
-            debug_Printf(58, ScreenHeight / 2 - 16, 0x40FF4000, D_006212A0, D_0063BBF0, D_0063BC1C);
+            debug_Printf(58, ScreenHeight / 2 - 16, 0x40FF4000, D_006212A0, streamNum, streamOwner);
         }
     }
 }
 
 extern int D_0063A438;
-extern int D_0063BC0C;
-extern int D_0063BC10;
 extern char D_006212B8[];
 extern char D_006212D8[];
 
 void MallocStreamMotionBuffer(void)
 {
-    D_0063BC08 = iosMallocDebug(D_0063A438, 0x28000, D_006212B8, 602);
-    D_0063BC10 = iosMallocDebug(D_0063A438, 0x28040, D_006212B8, 604);
-    D_0063BC0C = (D_0063BC10 + 0x3F) & 0xFFFFFFC0;
-    if (D_0063BC08 == 0 || D_0063BC0C == 0) {
+    ringBuf = iosMallocDebug(D_0063A438, 0x28000, D_006212B8, 602);
+    readBufRaw = iosMallocDebug(D_0063A438, 0x28040, D_006212B8, 604);
+    readBuf = (readBufRaw + 0x3F) & 0xFFFFFFC0;
+    if (ringBuf == 0 || readBuf == 0) {
         debug_StdPrintfDummy(D_006212D8);
     }
 }
@@ -387,22 +396,22 @@ inline void ClearAllStreamMotionEntry(void)
 {
     int i;
 
-    if (D_0063BBF0 == 0) {
+    if (streamNum == 0) {
         return;
     }
-    for (i = 0; i < D_0063BBF0; i++) {
+    for (i = 0; i < streamNum; i++) {
         ClearStreamMotionEntry((char *)streamEntry[i].w[5]);
         if (streamEntry[i].w[6] != 0) {
             ((void (*)())streamEntry[i].w[6])(streamEntry[i].w[5]);
         }
     }
-    D_0063BBF0 = 0;
+    streamNum = 0;
 }
 
 inline void DeleteStreamMotionManager(void)
 {
-    if (D_0063BBFC != 0) {
-        iosCdvdBackGroundMgrDelete(D_0063BBFC);
+    if (bgMgrId != 0) {
+        iosCdvdBackGroundMgrDelete(bgMgrId);
     } else {
         _deleteStreamMotionManager();
     }
@@ -416,22 +425,22 @@ extern char D_00621310[];
 inline void StandbyStreamMotion(int self)
 {
     DeleteStreamMotionManager();
-    while (D_0063BBFC != 0) {
+    while (bgMgrId != 0) {
         debug_StdPrintfDummy(D_00621310);
         iosThreadSleep();
     }
-    D_0063BBFC = iosCdvdBackGroundMgrAdd(self, _handler, 0, 0, 0, 0, _closeHander, 0);
-    D_0063BC1C = self;
+    bgMgrId = iosCdvdBackGroundMgrAdd(self, _handler, 0, 0, 0, 0, _closeHander, 0);
+    streamOwner = self;
 }
 
 inline void StopStreamMotion(void)
 {
-    D_0063BBF4 = 0;
+    streamState = 0;
 }
 
 inline int EntryStreamMotion(char *a0)
 {
-    int no = D_0063BBF0;
+    int no = streamNum;
 
     streamEntry[no].w[5] = (int)a0;
 
@@ -439,7 +448,7 @@ inline int EntryStreamMotion(char *a0)
     *(int *)(*(int *)(a0 + 0x15C) + 0x4F0) = 0;
     *(int *)(*(int *)(a0 + 0x15C) + 0x4EC) = 0;
     *(int *)(*(int *)(a0 + 0x15C) + 0x550) = 0;
-    D_0063BBF0 = no + 1;
+    streamNum = no + 1;
     return no;
 }
 
@@ -468,20 +477,20 @@ inline float GetStreamMotionData(char *dst, int no)
         return -1.0f;
     }
     getStreamMotionData(dst, streamEntry[no].w[3], no);
-    return (float)D_0063BC28 / 2997.0f;
+    return (float)framePlayed / 2997.0f;
 }
 
 inline void InitStreamMotionManager(void)
 {
-    D_0063BC10 = 0;
-    D_0063BC08 = 0;
-    D_0063BC0C = 0;
+    readBufRaw = 0;
+    ringBuf = 0;
+    readBuf = 0;
 }
 
 inline int CheckReadyStreamMotion(void)
 {
-    unsigned int p = D_0063BC00;
-    unsigned int q = D_0063BC04;
+    unsigned int p = ringRead;
+    unsigned int q = ringWrite;
     unsigned int end = p + 0x1000;
     int r;
     if (q < p)
@@ -499,12 +508,12 @@ inline void SetStreamMotionFinishCallBackFunc(int a0, int a1)
 
 inline void FreeStreamMotionBuffer(void)
 {
-    if (D_0063BC08 != 0) {
-        iosFree(D_0063BC08);
-        iosFree(D_0063BC10);
-        D_0063BC10 = 0;
-        D_0063BC08 = 0;
-        D_0063BC0C = 0;
+    if (ringBuf != 0) {
+        iosFree(ringBuf);
+        iosFree(readBufRaw);
+        readBufRaw = 0;
+        ringBuf = 0;
+        readBuf = 0;
     }
 }
 
@@ -516,8 +525,8 @@ inline int _closeHander(void)
 
 inline int _handler(int self)
 {
-    unsigned int wp = D_0063BC04;
-    unsigned int rp = D_0063BC00;
+    unsigned int wp = ringWrite;
+    unsigned int rp = ringRead;
     int rest;
     int size;
 
@@ -526,19 +535,19 @@ inline int _handler(int self)
     } else {
         rest = wp - rp;
     }
-    switch (D_0063BBF8) {
+    switch (readState) {
     default:
     case 0:
         if (rest > 0x13FFF) {
             break;
         }
-        D_0063BBF8 = 1;
+        readState = 1;
     case 1:
         size = 0x28000 - rest;
         size = ((size - 1) / 2048) * 2048;
-        iosCdvdBackGroundRead(self, D_0063BC0C, size);
-        _transRingBuf(&D_0063BC04, D_0063BC08, 0x28000, D_0063BC0C, size);
-        D_0063BBF8 = 0;
+        iosCdvdBackGroundRead(self, readBuf, size);
+        _transRingBuf(&ringWrite, ringBuf, 0x28000, readBuf, size);
+        readState = 0;
         break;
     }
     return 0;

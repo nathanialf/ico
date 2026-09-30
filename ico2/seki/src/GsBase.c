@@ -1730,22 +1730,23 @@ int gsb_StageSetting(void)
 }
 
 /* The background colour the display list is cleared to, one component per
- * word: gsb_SetBGColor writes the four words and gsb_GetBGColor reads their
- * low bytes back, which is why the declaration is a byte array.  MAIN.MAP
- * names no symbol inside GsBase.o's .bss, so the name is a reconstruction;
- * the extent is the ROM run's. */
-static unsigned char bgColor[16];
+ * word of an integer quadword: gsb_SetBGColor writes the four words and
+ * gsb_GetBGColor reads them back as bytes.  The quadword's alignment is the
+ * one that puts GsBase.o's .bss on a 16-byte boundary (0x67BA60) after
+ * tableSin.o's 0x12012-byte run.  MAIN.MAP names no symbol inside GsBase.o's
+ * .bss, so the name is a reconstruction; the extent is the ROM run's. */
+static sceVu0IVECTOR bgColor;
 
 inline void gsb_SetBGColor(void *a0, int r, int g, int b)
 {
     unsigned long long bg = ((long long)b << 16) | ((long long)g << 8);
     unsigned long long v = r | 0x3F80000000000000ULL;
     v |= bg;
-    *(int *)&bgColor[0] = r;
+    bgColor[0] = r;
     v |= 0x80000000;
-    *(int *)&bgColor[4] = g;
-    *(int *)&bgColor[8] = b;
-    *(int *)&bgColor[0xC] = 0x80;
+    bgColor[1] = g;
+    bgColor[2] = b;
+    bgColor[3] = 0x80;
     *(unsigned long long *)((char *)a0 + 0x1F0) = v;
     *(unsigned long long *)((char *)a0 + 0x100) = v;
 }
@@ -1753,9 +1754,9 @@ inline void gsb_SetBGColor(void *a0, int r, int g, int b)
 inline void gsb_GetBGColor(unsigned char *a0)
 {
     a0[0] = bgColor[0];
-    a0[1] = bgColor[4];
-    a0[2] = bgColor[8];
-    a0[3] = bgColor[0xC];
+    a0[1] = bgColor[1];
+    a0[2] = bgColor[2];
+    a0[3] = bgColor[3];
 }
 
 extern int D_0054E3C0[];

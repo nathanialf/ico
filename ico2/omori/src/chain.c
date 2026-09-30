@@ -7,6 +7,7 @@
 #include <string.h>
 #include <math.h>
 #include "geometryManager.h"
+#include "motionOrientManager.h"
 
 /* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
 extern float _DistSqGV(void *a, void *b);
@@ -942,7 +943,6 @@ typedef struct {
 } ChainParaRow;
 
 extern ChainParaRow D_0055FE58[];
-extern float D_0063B940;
 void SetChainRootUpdateMode(char *gobj, int mode, float *pos);
 void TestChainUpDown(char *gobj, char *boy);
 
@@ -1175,10 +1175,10 @@ void ChainGeo(char *gobj)
                 h = *(float *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x4AC);
                 if (h < 3.0f) {
                     *(int *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x420) = -1;
-                    D_0063B940 = 0.5f;
+                    ropeInterRate = 0.5f;
                 } else if (h < 10.0f) {
                     *(int *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x420) = -1;
-                    D_0063B940 = 1.0f;
+                    ropeInterRate = 1.0f;
                 } else {
                     *(int *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x420) = 1;
                 }

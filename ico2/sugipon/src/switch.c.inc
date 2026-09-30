@@ -92,7 +92,6 @@ inline void initParentize(char *a0)
    head of box.o's .data, VMA 0x4E5AA0, 32 bytes); the name is ours */
 static LeverGeoWork leverGeoInit = {{0}};
 
-extern char D_0061EF10[];
 extern int D_0063A438;
 
 /* The per-model box record table at VMA 0x2A79B8, 0x28 bytes a record: the
@@ -116,7 +115,10 @@ extern BoxModelRec D_002A79B8[];
 
 inline LeverGeoWork *InitFloorLeverGeo(char *a0, char *a1)
 {
-    LeverGeoWork *g = (LeverGeoWork *)iosMallocDebug(D_0063A438, 0x20, D_0061EF10, 0x8D);
+    /* "src/switch.c" is this file's __FILE__ in the retail build (the listing
+       names it sugipon/src/switch.c, included by src/box.c); __FILE__ here
+       would spell the repository's .c.inc name. */
+    LeverGeoWork *g = (LeverGeoWork *)iosMallocDebug(D_0063A438, 0x20, "src/switch.c", 0x8D);
     *g = leverGeoInit;
     if (*(int *)(a1 + 0x30) != 0) {
         g->w[5] = 1;
@@ -278,7 +280,7 @@ inline int CanWallLeverPull(char *a0)
 
 inline LeverGeoWork *InitWallLeverGeo(char *a0, char *a1)
 {
-    LeverGeoWork *g = (LeverGeoWork *)iosMallocDebug(D_0063A438, 0x20, D_0061EF10, 0x12C);
+    LeverGeoWork *g = (LeverGeoWork *)iosMallocDebug(D_0063A438, 0x20, "src/switch.c", 0x12C);
     *g = leverGeoInit;
     if (*(int *)(a1 + 0x30) != 0) {
         g->w[5] = 1;

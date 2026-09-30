@@ -325,16 +325,23 @@ extern char ZeroPoint[];
 extern int D_0028F4C0[];
 extern int D_0063B198;
 extern int D_0063B1E0;
-extern short D_0063B904;
-extern short D_0063B906;
-extern short D_0063B908;
-extern short D_0063B90A;
+
+/* The arm IK's angles: the shoulder's turns about Z and Y and the two
+   joints' bends. */
+static short ikRotZ = 0; /* derived name */
+
+static short ikRotY = 0; /* derived name */
+
+static short ikBend0 = 0; /* derived name */
+
+static short ikBend1 = 0; /* derived name */
+
 extern char D_0055FE58[];
 
 /* RECONSTRUCTION, names ours: members of the geo block (D_0063C490).  The
  * two lifts at +0x208 are the arm-target height offsets cases 45 and 49 add;
  * the look-at turn sits at +0x300.  The ROM's stores to them do not order
- * against the stack shorts and do not invalidate D_0063B900, which holds
+ * against the stack shorts and do not invalidate skelScale, which holds
  * for structure members (alias.c fixed_scalar_and_varying_struct_p) and not
  * for plain pointer casts. */
 typedef struct {
@@ -397,9 +404,9 @@ static inline void getRotOfDir(float *q, float *v)
 
 void _getFinalMatrix(int id)
 {
-    char *node = D_0063B938 + id * 0x40;
+    char *node = skelNode + id * 0x40;
     char *elem = D_0063C478 + id * 0x20;
-    char *geo = (char *)GOBJ_SUB(D_0063B93C) + 0xA0;
+    char *geo = (char *)GOBJ_SUB(skelGObj) + 0xA0;
     char *ik = *(char **)(geo + 0x76C) + id * 0x40;
     char *lim = ((char **)*(char **)(geo + 0x770))[id];
     float v[4];
@@ -408,11 +415,11 @@ void _getFinalMatrix(int id)
     int dbg = 0;
 
     if (*(int *)(node + 0x38) != -1) {
-        sceVu0ScaleVectorXYZ(v, node + 0x10, D_0063B900);
+        sceVu0ScaleVectorXYZ(v, node + 0x10, skelScale);
         sceVu0ApplyMatrix((int *)(MatrixDrive_GetMatrix() + 0x30), (int)MatrixDrive_GetLastMatrix(),
                           (char *)v);
     } else {
-        D_0063B904 = D_0063B906 = D_0063B908 = D_0063B90A = 0;
+        ikRotZ = ikRotY = ikBend0 = ikBend1 = 0;
     }
 
     switch (*(int *)(node + 4)) {
@@ -716,12 +723,12 @@ void _getFinalMatrix(int id)
                     if (ci == -1) {
                         break;
                     }
-                    cn = D_0063B938 + ci * 0x40;
-                    len[i] = D_0063B900 * VectorLength(cn + 0x10);
+                    cn = skelNode + ci * 0x40;
+                    len[i] = skelScale * VectorLength(cn + 0x10);
                 }
-                len[1] += D_0063B900 *
-                          VectorLength(D_0063B938 +
-                                       GetSkeltonFocusNode((char *)D_0063B93C, 32) * 0x40 + 0x10);
+                len[1] += skelScale *
+                          VectorLength(skelNode + GetSkeltonFocusNode((char *)skelGObj, 32) * 0x40 +
+                                       0x10);
                 {
                     float ax[4], w[4];
                     short ang;
@@ -729,13 +736,13 @@ void _getFinalMatrix(int id)
 
                     {
                         MatrixDrive_PushMatrixWithNoCopy();
-                        n = GetSkeltonFocusNode((char *)D_0063B93C, 22);
+                        n = GetSkeltonFocusNode((char *)skelGObj, 22);
                         GetMatrixFromQuaternion((void *)MatrixDrive_GetMatrix(),
                                                 D_0063C478 + n * 0x20 + 0x10);
                         MatrixDrive_TransMatrix(5.0f, -3.0f, 0.0f);
                         CopyVector(p, (void *)(MatrixDrive_GetMatrix() + 0x30));
-                        _AddVector(t, D_0063B938 + *(int *)(node + 0x30) * 0x40 + 0x10, p);
-                        l = D_0063B900 * VectorLength(t);
+                        _AddVector(t, skelNode + *(int *)(node + 0x30) * 0x40 + 0x10, p);
+                        l = skelScale * VectorLength(t);
                         w[0] = l;
                         w[1] = 0.0f;
                         w[2] = 0.0f;
@@ -756,12 +763,12 @@ void _getFinalMatrix(int id)
                     }
                 }
                 dd = d * d;
-                D_0063B908 =
+                ikBend0 =
                     GetTableArcCos((dd + len[0] * len[0] - len[1] * len[1]) / (2.0f * len[0] * d));
-                D_0063B90A =
+                ikBend1 =
                     GetTableArcCos((dd + len[1] * len[1] - len[0] * len[0]) / (2.0f * len[1] * d));
                 RotQuaternionX(qa, ba);
-                RotQuaternionZ(qa, D_0063B908);
+                RotQuaternionZ(qa, ikBend0);
                 CopyQuaternion(s, qa);
                 getRootRelativePos(t, MatrixDrive_GetMatrix(), (float *)(D_0063C490 + 0x2A0));
                 _NormalizeVector(t, t);
@@ -825,7 +832,7 @@ void _getFinalMatrix(int id)
 
             CopyQuaternion(t, dq);
             if (*(int *)(D_0063C490 + 0x290) == 1) {
-                SetQuaternionByAxisRotateWithNoRegularize(t, -(D_0063B908 + D_0063B90A), 0.0f, 0.0f,
+                SetQuaternionByAxisRotateWithNoRegularize(t, -(ikBend0 + ikBend1), 0.0f, 0.0f,
                                                           -1.0f);
                 MultiQuaternion(t, t, D_00720190);
             }
@@ -931,18 +938,18 @@ void _getFinalMatrix(int id)
                     if (ci == -1) {
                         break;
                     }
-                    cn = D_0063B938 + ci * 0x40;
-                    len[i] = D_0063B900 * VectorLength(cn + 0x10);
+                    cn = skelNode + ci * 0x40;
+                    len[i] = skelScale * VectorLength(cn + 0x10);
                 }
-                len[1] += D_0063B900 *
-                          VectorLength(D_0063B938 +
-                                       GetSkeltonFocusNode((char *)D_0063B93C, 16) * 0x40 + 0x10);
-                D_0063B908 = GetTableArcCos((d * d + len[0] * len[0] - len[1] * len[1]) /
-                                            (2.0f * len[0] * d));
-                D_0063B90A = GetTableArcCos((d * d + len[1] * len[1] - len[0] * len[0]) /
-                                            (2.0f * len[1] * d));
+                len[1] += skelScale *
+                          VectorLength(skelNode + GetSkeltonFocusNode((char *)skelGObj, 16) * 0x40 +
+                                       0x10);
+                ikBend0 = GetTableArcCos((d * d + len[0] * len[0] - len[1] * len[1]) /
+                                         (2.0f * len[0] * d));
+                ikBend1 = GetTableArcCos((d * d + len[1] * len[1] - len[0] * len[0]) /
+                                         (2.0f * len[1] * d));
                 RotQuaternionX(qa, ba);
-                RotQuaternionZ(qa, D_0063B908);
+                RotQuaternionZ(qa, ikBend0);
                 CopyQuaternion(t, qa);
                 break;
             }
@@ -983,7 +990,7 @@ void _getFinalMatrix(int id)
 
             CopyQuaternion(t, dq);
             if (*(int *)(D_0063C490 + 0x230) == 1) {
-                SetQuaternionByAxisRotateWithNoRegularize(t, -(D_0063B908 + D_0063B90A), 0.0f, 0.0f,
+                SetQuaternionByAxisRotateWithNoRegularize(t, -(ikBend0 + ikBend1), 0.0f, 0.0f,
                                                           -1.0f);
             }
             GetSlerpQuaternion(ik + 0x10, t, ik + 0x10,
@@ -1053,11 +1060,11 @@ void _getFinalMatrix(int id)
                     flag = 1;
                     break;
                 }
-                cn = D_0063B938 + ci * 0x40;
-                sceVu0ScaleVectorXYZ(sv, cn + 0x10, D_0063B900);
+                cn = skelNode + ci * 0x40;
+                sceVu0ScaleVectorXYZ(sv, cn + 0x10, skelScale);
                 MatrixDrive_TransMatrixV(sv);
                 MultiMatrixByQuaternion(D_0063C478 + ci * 0x20 + 0x10);
-                len[i] = D_0063B900 * VectorLength(cn + 0x10);
+                len[i] = skelScale * VectorLength(cn + 0x10);
             }
             CopyVector(p, (void *)(MatrixDrive_GetMatrix() + 0x30));
             switch (*(int *)(node + 4)) {
@@ -1075,19 +1082,19 @@ void _getFinalMatrix(int id)
             sceVu0TransposeMatrix(m, m);
             sceVu0ApplyMatrix((int *)p, m, (char *)p);
             sceVu0Normalize(p, p);
-            D_0063B904 = asinf(p[1]) * 10430.378f;
-            D_0063B906 = -asinf(p[2]) * 10430.378f;
+            ikRotZ = asinf(p[1]) * 10430.378f;
+            ikRotY = -asinf(p[2]) * 10430.378f;
             aa = len[0] * len[0];
             bb = len[1] * len[1];
             d2 = d + d;
-            D_0063B908 = acosf((dd + aa - bb) / (d2 * len[0])) * 10430.378f;
-            D_0063B90A = acosf((dd + bb - aa) / (d2 * len[1])) * 10430.378f;
+            ikBend0 = acosf((dd + aa - bb) / (d2 * len[0])) * 10430.378f;
+            ikBend1 = acosf((dd + bb - aa) / (d2 * len[1])) * 10430.378f;
             MatrixDrive_PopMatrix();
             if (flag == 0) {
                 MultiQuaternion(q, q, dq);
-                RotQuaternionZ(q, D_0063B904);
-                RotQuaternionY(q, D_0063B906);
-                RotQuaternionZ(q, -D_0063B908);
+                RotQuaternionZ(q, ikRotZ);
+                RotQuaternionY(q, ikRotY);
+                RotQuaternionZ(q, -ikBend0);
             } else {
                 MultiQuaternion(q, q, dq);
             }
@@ -1098,7 +1105,7 @@ void _getFinalMatrix(int id)
     case 50:
         if (*(int *)(D_0063C490 + 0x204) != 0) {
             GET_NODE_ROT(q, dq);
-            RotQuaternionZ(q, D_0063B908 + D_0063B90A);
+            RotQuaternionZ(q, ikBend0 + ikBend1);
             APPLY_ROT(q);
             break;
         }
@@ -1106,9 +1113,9 @@ void _getFinalMatrix(int id)
     case 51:
         if (*(int *)(D_0063C490 + 0x204) != 0) {
             GET_NODE_ROT(q, dq);
-            RotQuaternionZ(q, -D_0063B90A);
-            RotQuaternionY(q, -D_0063B906);
-            RotQuaternionZ(q, -D_0063B904);
+            RotQuaternionZ(q, -ikBend1);
+            RotQuaternionY(q, -ikRotY);
+            RotQuaternionZ(q, -ikRotZ);
             MultiQuaternion(q, q, D_0063C478 + *(int *)(node + 0x38) * 0x20 + 0x10);
             MultiQuaternion(q, q, dq);
             APPLY_ROT(q);
@@ -1139,56 +1146,59 @@ typedef struct {
     int hold; /* 0x64 */
 } EditPad;
 
-extern int D_0063B914;
+/* EditRotEmphasys's tuning: the two coefficients it shows and edits, the
+   switch that turns the editor on and the coefficient selected. */
+static float emphasysAccel = 0.1f; /* derived name */
+
+static float emphasysVelocity = 0.97f; /* derived name */
+
+static int emphasysEdit = 0; /* derived name */
+
+static int emphasysSelect = 0; /* derived name */
+
 extern int D_0063B13C;
-extern int D_0063B918;
-extern float D_0063B90C;
-extern float D_0063B910;
-extern char D_0061FCB0[];
-extern char D_0061FCD0[];
-extern char D_0061FCE0[];
 
 void EditRotEmphasys(void)
 {
     int sel;
 
     if (((EditPad *)D_0028F8F0)->trg & 0x20) {
-        D_0063B914 = D_0063B914 == 0;
+        emphasysEdit = emphasysEdit == 0;
     }
-    if (D_0063B914 != 0) {
+    if (emphasysEdit != 0) {
         if (D_0063B13C & 1) {
-            debug_Printf(300, 170, 0xFFFFFF00u, (int)D_0061FCB0);
+            debug_Printf(300, 170, 0xFFFFFF00u, (int)"Emphasys Accel   Velocity");
         }
         if (D_0063B13C & 1) {
-            debug_Printf(300, 180, D_0063B918 != 0 ? 0xFFFFFF00u : 0x80808000u, (int)D_0061FCD0,
-                         D_0063B90C);
+            debug_Printf(300, 180, emphasysSelect != 0 ? 0xFFFFFF00u : 0x80808000u,
+                         (int)"         %1.5f ", emphasysAccel);
         }
         if (D_0063B13C & 1) {
-            debug_Printf(300, 180, D_0063B918 != 0 ? 0x80808000u : 0xFFFFFF00u, (int)D_0061FCE0,
-                         D_0063B910);
+            debug_Printf(300, 180, emphasysSelect != 0 ? 0x80808000u : 0xFFFFFF00u,
+                         (int)"                 %1.5f", emphasysVelocity);
         }
-        sel = D_0063B918;
+        sel = emphasysSelect;
         if (((EditPad *)D_0028F8F0)->trg & 0xA000) {
             sel++;
             sel &= 1;
-            D_0063B918 = sel;
+            emphasysSelect = sel;
         }
         switch (sel) {
         default:
         case 0:
             if (((EditPad *)D_0028F8F0)->hold & 0x1000) {
-                D_0063B910 = D_0063B910 + 0.01f;
+                emphasysVelocity = emphasysVelocity + 0.01f;
             }
             if (((EditPad *)D_0028F8F0)->hold & 0x4000) {
-                D_0063B910 = D_0063B910 - 0.01f;
+                emphasysVelocity = emphasysVelocity - 0.01f;
             }
             break;
         case 1:
             if (((EditPad *)D_0028F8F0)->hold & 0x1000) {
-                D_0063B90C = D_0063B90C + 0.01f;
+                emphasysAccel = emphasysAccel + 0.01f;
             }
             if (((EditPad *)D_0028F8F0)->hold & 0x4000) {
-                D_0063B90C = D_0063B90C - 0.01f;
+                emphasysAccel = emphasysAccel - 0.01f;
             }
             break;
         }
@@ -1197,11 +1207,11 @@ void EditRotEmphasys(void)
 
 static inline void getFinalMatrixCore(int id)
 {
-    char *e = D_0063B938 + id * 0x40;
+    char *e = skelNode + id * 0x40;
     MatrixDrive_PushMatrixWithNoCopy();
     PushQuaternionWithNoCopy();
     _getFinalMatrix(id);
-    CopyMatrix(*(char **)(*(char **)(D_0063B93C + 0x15C) + 0xC) + id * 0x40,
+    CopyMatrix(*(char **)(*(char **)(skelGObj + 0x15C) + 0xC) + id * 0x40,
                (void *)MatrixDrive_GetMatrix());
     CopyQuaternion(D_0063C480 + id * 0x10, GetCurrentQuaternion());
     if (*(int *)(e + 0x30) != -1) {
@@ -1234,18 +1244,18 @@ void getFinalMatrix(int id)
 /* kept local: this TU's uses of GetMatrixFromQuaternionRotElem do not fit the
  * prototype in quaternion.h.  It must be prototyped above its only call site:
  * left implicit it returns int, which reserves $2 at the call and moves the
- * D_0063B93C chase off the ROM's registers. */
+ * skelGObj chase off the ROM's registers. */
 extern void GetMatrixFromQuaternionRotElem(char *a0, char *a1);
 
 /* RECONSTRUCTED NAME: rows 1440-1447, inlined only into
  * getFinalMatrixWithNaturalGeometry (def line 1452), no MAIN.MAP symbol. */
 static inline void applyNaturalGeometry(int id)
 {
-    char *e = D_0063B938 + id * 0x40;
+    char *e = skelNode + id * 0x40;
     Vec16 t;
 
     if (*(int *)(e + 0x38) != -1) {
-        _ScaleVectorXYZ(&t, e + 0x10, D_0063B900);
+        _ScaleVectorXYZ(&t, e + 0x10, skelScale);
         _ApplyMatrix((char *)MatrixDrive_GetMatrix() + 0x30, MatrixDrive_GetLastMatrix(),
                      (char *)&t);
     }
@@ -1255,14 +1265,14 @@ static inline void applyNaturalGeometry(int id)
 
 void getFinalMatrixWithNaturalGeometry(int id)
 {
-    char *e = D_0063B938 + id * 0x40;
+    char *e = skelNode + id * 0x40;
     int child = *(int *)(e + 0x30);
     int next = *(int *)(e + 0x34);
 
     MatrixDrive_PushMatrixWithNoCopy();
     PushQuaternionWithNoCopy();
     applyNaturalGeometry(id);
-    CopyMatrix(*(char **)(*(char **)(D_0063B93C + 0x15C) + 0xC) + id * 0x40,
+    CopyMatrix(*(char **)(*(char **)(skelGObj + 0x15C) + 0xC) + id * 0x40,
                (void *)MatrixDrive_GetMatrix());
     CopyQuaternion(D_0063C480 + id * 0x10, GetCurrentQuaternion());
     if (child != -1) {
@@ -1277,11 +1287,11 @@ void getFinalMatrixWithNaturalGeometry(int id)
 
 void _calcNaturalGeometry(int a0)
 {
-    char *elemA = D_0063B938 + a0 * 0x40;
+    char *elemA = skelNode + a0 * 0x40;
     char *elemB = D_0063C4A4 + a0 * 0x20;
     int x;
     if (*(int *)(elemA + 0x38) != -1) {
-        _ScaleVectorXYZ(D_007201E0, elemA + 0x10, D_0063B900);
+        _ScaleVectorXYZ(D_007201E0, elemA + 0x10, skelScale);
         GetMatrixFromQuaternionPos(D_007201A0, elemB + 0x10, D_007201E0);
     } else {
         GetMatrixFromQuaternion(D_007201A0, elemB + 0x10);
@@ -1292,7 +1302,7 @@ void _calcNaturalGeometry(int a0)
 
 static inline void pursueNaturalGeometry(int id)
 {
-    char *e = D_0063B938 + id * 0x40;
+    char *e = skelNode + id * 0x40;
     int child = *(int *)(e + 0x30);
     int next = *(int *)(e + 0x34);
     char *o;

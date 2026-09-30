@@ -7,8 +7,17 @@
 #include "geometryManager.h"
 #include "motionManager2.h"
 #include "tableSin.h"
+#include "debug.h"
 #include <math.h>
 #include <libvu0.h>
+
+/* the name every iosMallocDebug in this file reports itself under */
+static const char rotObjectFile[] = "src/rotObject.c";
+
+/* The TU's .sdata word (MAIN.MAP names nothing in it): the phase the next
+   rotating object's uniq-data save counter starts at, cycling through 30 so
+   the objects' saves fall on different frames. */
+static unsigned char rotObjectPhase = 0; /* derived name */
 
 void moveStartSE(int a0, int a1, int a2, int a3)
 {
@@ -74,6 +83,16 @@ void GetRotObjectHoldPoint(void *a0, void *a1, void *a2, void *a3)
     *(int *)((char *)a1 + 0xC) = 0;
     AdjustVerticalSidePlaneOfWall(a0, a2, buf + 0x10, 10.0f);
     GetProjectionPosOfPlane(a0, buf, a0);
+    /* Disabled in retail: the hold point trace.  What the bytes pin: the
+       function's name, the vector format and the "%s\n" in .sdata, with no
+       instruction; the listing's rows 155-175, empty between the projection
+       (154) and the transpose (176), are where it fits.  What they cannot:
+       the condition that disabled it and which vectors it printed. */
+    if (0) {
+        debug_StdPrintfDummy("%s\n", "GetRotObjectHoldPoint");
+        debug_StdPrintfDummy("\t%f, %f, %f\n", ((float *)a0)[0], ((float *)a0)[1],
+                             ((float *)a0)[2]);
+    }
     MatrixDrive_SetTransposeMatrix(buf + 0x20, *(int *)(*(char **)(*(int *)a2 + 0x15C) + 0xC) +
                                                    (*(int *)((char *)a2 + 4) << 6));
     sceVu0ApplyMatrix(a0, buf + 0x20, a0);
@@ -175,6 +194,14 @@ int MoveRotObjectWithHoldPoint(void *bar, void *hold, void *self, void *dir, voi
         }
         break;
     }
+    /* Disabled in retail: the function's name trace.  What the bytes pin:
+       its text in .rodata after GetRotObjectHoldPoint's trace, with no
+       instruction.  What they cannot: which of the function's empty listing
+       rows held it (304-310, after the switch, is the one used here) and the
+       condition that disabled it. */
+    if (0) {
+        debug_StdPrintfDummy("%s\n", "MoveRotObjectWithHoldPoint");
+    }
     *(int *)(w + 0x24) += ang * 10430.378f;
     *(short *)(w + 0x20) += ang * 10430.378f;
     return 1;
@@ -202,28 +229,16 @@ void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, void *gobj, void *posM
     getRotObjectDriveMatrix(gobj, m);
     sceVu0ApplyMatrix(pos, m, posMtx);
     sceVu0ApplyMatrix(dir, m, dirMtx);
+    /* Disabled in retail: the function's name trace.  What the bytes pin:
+       its text last in .rodata, with no instruction; the listing's last row
+       for the function is 326.  What they cannot: the condition that
+       disabled it. */
+    if (0) {
+        debug_StdPrintfDummy("%s\n", "GetRotObjectGlobalHoldGeometry");
+    }
 }
 
 extern int D_0063A438;
-
-/* the name every iosMallocDebug in this file reports itself under */
-static const char rotObjectFile[] = "src/rotObject.c";
-
-/* The four strings after it in rotObject.o's .rodata run: the name of a
-   function and the vector format under it, for the three hold-point routines.
-   No instruction in the retail ELF reaches any of them, so the calls that
-   printed them are not in the shipped build and their sites are not
-   recoverable; the strings themselves are, and the run's order is the ROM's.
-   MAIN.MAP names no symbol in the run, so these four names are ours. */
-static const char getHoldPointTrace[] = "GetRotObjectHoldPoint";
-
-static const char vectorTraceFmt[] = "\t%f, %f, %f\n";
-
-static const char moveWithHoldPointTrace[] = "MoveRotObjectWithHoldPoint";
-
-static const char getGlobalHoldGeometryTrace[] = "GetRotObjectGlobalHoldGeometry";
-
-extern unsigned char D_0063BAB0;
 /* kept local: this TU's uses of ZeroPoint do not fit the prototype in matrixDrive.h */
 extern char ZeroPoint[];
 
@@ -239,8 +254,8 @@ char *InitRotObjectGeo(char *gobj, char *src)
 {
     char *p = iosMallocDebug(D_0063A438, 0x40, (void *)rotObjectFile, 57);
 
-    *(int *)(p + 0x30) = D_0063BAB0;
-    D_0063BAB0 = (D_0063BAB0 + 1) % 30;
+    *(int *)(p + 0x30) = rotObjectPhase;
+    rotObjectPhase = (rotObjectPhase + 1) % 30;
 
     CopyVector(p + 0x10, src);
     *(int *)p = *(int *)(src + 0x30);

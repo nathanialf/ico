@@ -21,13 +21,34 @@ extern void sceVu0ApplyMatrix(void *d, void *m, void *v);
 extern void ClipWall(void *w);
 extern int InitChains(void *c);
 
-/* The chain template block the rope copies out of .rodata at 0x004ECEF0: two
-   0x50-byte records, copied whole, so the record carries 8-byte alignment. */
+/* The chain template the rope starts from: two 0x50-byte records, the
+   halves of the chain system record below, copied whole with doubleword
+   moves, so the record carries 8-byte alignment (its zero doubleword at
+   0x18 is spelled as one, as particleEffect.c's staging record does). */
 typedef struct {
-    long long d[10];
+    int n; /* 0x00 */
+    int _04[3];
+    int f10;       /* 0x10 */
+    float f14;     /* 0x14 */
+    long long _18; /* 0x18 */
+    float f20;     /* 0x20 */
+    float f24;     /* 0x24 */
+    float f28;     /* 0x28 */
+    float f2c;     /* 0x2C */
+    int _30[4];
+    float f40; /* 0x40 */
+    int _44[3];
 } RopeTemplate;
 
-extern RopeTemplate D_004ECEF0[];
+/* .data, the whole of rope.o's run (MAIN.MAP sizes the member 0xB0): the zero
+   vector HoldRope clears the holder's offset with, then the template. */
+static float ropeZeroVector[4] = {0.0f, 0.0f, 0.0f, 0.0f}; /* derived name */
+
+static RopeTemplate ropeChainInit[2] = {
+    /* derived name */
+    {55, {0, 0, 0}, -1, 20.0f, 0, 0.0f, 0.0f, 0.0f, 1.0f, {0, 0, 0, 0}, 10.0f},
+    {-1},
+};
 
 typedef struct {
     int a;
@@ -78,8 +99,8 @@ void *InitRopeGeo(char *o, const float *p)
     w = (RopeGeoWork *)iosMallocDebug(D_0063A438, 0x14, __FILE__, 38);
     c = (RopeChainSys *)iosMallocDebug(D_0063A438, 0xA0, __FILE__, 39);
 
-    ((RopeTemplate *)c)[0] = D_004ECEF0[0];
-    ((RopeTemplate *)c)[1] = D_004ECEF0[1];
+    ((RopeTemplate *)c)[0] = ropeChainInit[0];
+    ((RopeTemplate *)c)[1] = ropeChainInit[1];
     c->f20 = p[0];
     c->f24 = p[1];
     c->f28 = p[2];
@@ -234,7 +255,6 @@ typedef union {
 extern float GetChainNodeID(void *n);
 /* kept local: this TU's uses of SetChainExtendedWeight do not fit the prototype in clothAnimation.h */
 extern int SetChainExtendedWeight(void *a0, int a1, float f12, float f13);
-extern char D_004ECEE0[];
 
 void HoldRope(void *a0, void *a1)
 {
@@ -259,7 +279,7 @@ void HoldRope(void *a0, void *a1)
         q[9] -= 100.0f;
         q[13] -= 100.0f;
     }
-    CopyVector(((Sub15CRef *)((char *)a1 + 0x15C))->b + 0x130, D_004ECEE0);
+    CopyVector(((Sub15CRef *)((char *)a1 + 0x15C))->b + 0x130, ropeZeroVector);
     debug_StdPrintfDummy("HOLD ROPE\n");
 }
 

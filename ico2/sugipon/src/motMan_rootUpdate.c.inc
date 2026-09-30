@@ -17,8 +17,6 @@ extern char ZeroPoint[];
 /* kept local: this TU does not include fieldCollision.h (its prototypes
    conflict here) and reads the pair as its own MotShift */
 extern MotShift InitialObjPointer;
-extern MotShift D_0063B930[];
-extern float D_0063B940;
 extern void sceVu0AddVector(void *a0, void *a1, void *a2);
 /* kept local: this TU's uses of _InterGV do not fit the prototype in gv.h */
 extern void _InterGV(void *elem, void *base, void *v, float a, float b);
@@ -34,19 +32,9 @@ extern void CopyQuaternion(void *a0, void *a1);
 extern void GetRootQuaternion(void *q, void *obj);
 /* the two ints the demo timer keeps: the elapsed count and its divisor. */
 extern int D_0028F4C0[];
-extern char D_0061FE80[];
 extern int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *ptsIn, int *cfg,
                                                  int flip, char *self);
 extern void sceVu0OuterProduct(void *dst, void *a, void *b);
-extern char D_0061FE98[];
-extern char D_0061FEB0[];
-extern char D_0061FEC8[];
-extern char D_0061FED8[];
-extern char D_0061FF00[];
-/* the {{0, -1}, 0} wall record rootUpdateStepSolution starts from. */
-extern WallCfg D_0061FF80;
-/* EUC-JP: "hit an extension wall\n". */
-extern char D_0061FF90[];
 extern WallCfg InitialColInfo;
 /* kept local, as ico2/sugipon/src/box.c declares them: fieldCollision.h is
  * not included here. */
@@ -55,8 +43,6 @@ extern int GetWaterReaction(void *w, int *hit, void *plane, void *pos, void *vel
                             float mid, float high, float k, float acc);
 /* kept local: void like this TU's other clip entries (the result is never read). */
 extern void ClipWallWaveForce(void *a0);
-/* EUC-JP: rootUpdateSwim's message when the DWATER probe finds no water. */
-extern char D_0061FF20[];
 
 /* 12-byte plane record copied out of the motion work block. */
 typedef struct {
@@ -216,7 +202,7 @@ static inline void clipStepWallAndReact(char *cur, char *last, float rad, WallCf
         CopyVector(&w, cur + 0x160);
     }
     CopyVector((char *)&w + 0x10, cur);
-    w.rad = rad * D_0063B900;
+    w.rad = rad * skelScale;
     w.filter = *col;
     ClipWallE(&w);
     if (*(int *)((char *)&w + 0x88) != 0) {
@@ -234,7 +220,7 @@ static inline int clipFuchiWallAndReact(char *cur, char *last, int mode, float r
         CopyVector(&w, cur + 0x160);
     }
     CopyVector((char *)&w + 0x10, cur);
-    w.rad = rad * D_0063B900;
+    w.rad = rad * skelScale;
     ClipWallFuchiHangWalkStop(&w);
     if (*(int *)((char *)&w + 0x88) != 0) {
         int attr = GetWallAttribute(&w);
@@ -296,13 +282,13 @@ void _wallCollisionPreProcess(char *w, void *p, void *q, float dy)
     if (*(int *)(D_0063C490 + 0x320) != 0) {
         r = *(float *)(D_0063C490 + 0x338);
         if (r < 20.0f) {
-            *(float *)(w + 0x70) = D_0063B900 * 20.0f;
+            *(float *)(w + 0x70) = skelScale * 20.0f;
         } else {
-            *(float *)(w + 0x70) = r * D_0063B900;
+            *(float *)(w + 0x70) = r * skelScale;
         }
         ClipWallField(w);
     } else {
-        *(float *)(w + 0x70) = *(float *)(D_0063C490 + 0x338) * D_0063B900;
+        *(float *)(w + 0x70) = *(float *)(D_0063C490 + 0x338) * skelScale;
         CopyVector(&save, w + 0x10);
         if (*(int *)(w + 0x74) != 0) {
             ClipWallE(w);
@@ -461,10 +447,7 @@ int getFieldCollision(char *w)
 extern float _InnerProduct(void *a, void *b);
 /* "PLANE<EUC-JP riMItto desu> %f <EUC-JP abunai node rakka sasemasu>\n":
  * the plane limit was exceeded, so the actor is dropped. */
-extern char D_0061FE08[];
 extern int D_0063B21C;
-/* declared as an array so the load is %hi/%lo and not gp-relative. */
-extern float D_0063B928[];
 
 /* Builds the plane the root height is measured against out of the floor plane
  * the motion block carries, and reports whether the floor was steep enough to
@@ -510,7 +493,7 @@ static inline float getFloorDropAt(char *v, char *pl, char *o)
     if (*(int *)(w + 0x94) != 0) {
         d = -(*(float *)(w + 0x24) - *(float *)(v + 4));
     } else {
-        d = D_0063B928[0];
+        d = 3.40282347e+38f;
     }
 
     if (*(int *)(w + 0x94) != 0) {
@@ -546,6 +529,15 @@ static void setIKAndAdjustRootHeight(char *mv)
     steep = makeRootFitPlane((char *)&pl, D_0063C490);
     h = GetYProjectionOfPlane((int)&pl, (int)D_0063C490) + *(float *)(mv + 4) -
         *(float *)(D_0063C490 + 4);
+    /* Disabled in retail: the root height report.  What the bytes pin: its
+       text in .rodata after _checkCliffAndWall's messages and before this
+       function's PLANE message (row 571), with no instruction; rows 559-561
+       after the height (558) are empty.  What they cannot: the row, the
+       condition that disabled it and its two arguments. */
+    if (0) {
+        debug_StdPrintfDummy("regular height: %f (%f)\n", fptodp(h),
+                             fptodp(*(float *)(D_0063C490 + 4)));
+    }
     if (steep != 0) {
         if ((h < 0.0f ? -h : h) < 35.0f) {
             *(float *)(D_0063C490 + 4) = *(float *)(D_0063C490 + 4) + h;
@@ -555,7 +547,8 @@ static void setIKAndAdjustRootHeight(char *mv)
         *(int *)(D_0063C494 + 0x14) = *(int *)(D_0063C494 + 0x14) | 4;
         *(float *)(D_0063C490 + 0x154) = *(float *)(D_0063C490 + 4);
         /* retail links debug_StdPrintfDummy in place of the listing's printf. */
-        debug_StdPrintfDummy(D_0061FE08, fptodp(h));
+        /* EUC-JP: "PLANE limit %f, it is steep so it is dropped" */
+        debug_StdPrintfDummy("PLANEリミットです %f 急なので落下させます\n", fptodp(h));
 
         return;
     }
@@ -564,7 +557,7 @@ static void setIKAndAdjustRootHeight(char *mv)
         *(float *)(D_0063C490 + 0x154) = *(float *)(D_0063C490 + 0x154) + h;
         return;
     }
-    if (*(float *)(D_0063B938 + 0x14) * D_0063B900 < (h < 0.0f ? -h : h)) {
+    if (*(float *)(skelNode + 0x14) * skelScale < (h < 0.0f ? -h : h)) {
         *(float *)(D_0063C490 + 4) = *(float *)(D_0063C490 + 4) + h;
         *(float *)(D_0063C490 + 0x154) = *(float *)(D_0063C490 + 0x154) + h;
         return;
@@ -581,12 +574,12 @@ static void setIKAndAdjustRootHeight(char *mv)
     d0 = getFloorDropAt((char *)&p1, (char *)&pl, D_0063C490);
 
     dy = d0;
-    switch (*(int *)(D_0063B938 + *(int *)(D_0063C490 + 0x364) * 0x40 + 4)) {
+    switch (*(int *)(skelNode + *(int *)(D_0063C490 + 0x364) * 0x40 + 4)) {
     case 0x30:
-        node = GetSkeltonFocusNode((char *)D_0063B93C, 0x34);
+        node = GetSkeltonFocusNode((char *)skelGObj, 0x34);
         break;
     case 0x34:
-        node = GetSkeltonFocusNode((char *)D_0063B93C, 0x30);
+        node = GetSkeltonFocusNode((char *)skelGObj, 0x30);
         break;
     default:
         node = -1;
@@ -631,7 +624,7 @@ static void setIKAndAdjustRootHeight(char *mv)
         }
         if (*(int *)(D_0063C490 + 0x200) != 0) {
             *(int *)(D_0063C490 + 0x204) = 1;
-            if (*(int *)(D_0063B938 + *(int *)(D_0063C490 + 0x364) * 0x40 + 4) == 0x30) {
+            if (*(int *)(skelNode + *(int *)(D_0063C490 + 0x364) * 0x40 + 4) == 0x30) {
                 if (0.0f < d1) {
                     ((MotGeoTurn *)D_0063C490)->lift[0] = 0.0f;
                     ((MotGeoTurn *)D_0063C490)->lift[1] = -d1;
@@ -649,14 +642,14 @@ static void setIKAndAdjustRootHeight(char *mv)
                 }
             }
             if (((MotGeoTurn *)D_0063C490)->lift[0] <
-                -(*(float *)(D_0063B938 + 0x14) * D_0063B900 * 0.5f)) {
+                -(*(float *)(skelNode + 0x14) * skelScale * 0.5f)) {
                 ((MotGeoTurn *)D_0063C490)->lift[0] =
-                    -(*(float *)(D_0063B938 + 0x14) * D_0063B900 * 0.5f);
+                    -(*(float *)(skelNode + 0x14) * skelScale * 0.5f);
             }
             if (((MotGeoTurn *)D_0063C490)->lift[1] <
-                -(*(float *)(D_0063B938 + 0x14) * D_0063B900 * 0.5f)) {
+                -(*(float *)(skelNode + 0x14) * skelScale * 0.5f)) {
                 ((MotGeoTurn *)D_0063C490)->lift[1] =
-                    -(*(float *)(D_0063B938 + 0x14) * D_0063B900 * 0.5f);
+                    -(*(float *)(skelNode + 0x14) * skelScale * 0.5f);
             }
         }
     }
@@ -681,7 +674,7 @@ static inline int getFlyFieldCollision(char *w)
     CopyVector(w + 0x10, D_0063C490);
     *(float *)(w + 0x14) = *(float *)(w + 0x14) + 10000.0f;
     ClipFloor(w);
-    return CheckFieldContact(w, (char *)D_0063B93C, (float *)D_0063C490,
+    return CheckFieldContact(w, (char *)skelGObj, (float *)D_0063C490,
                              *(float *)(D_0063C490 + 0x1D0));
 }
 
@@ -764,7 +757,7 @@ static inline int getFloorAttributeUnderNode(void)
     int node;
 
     memset(&w, 0, 0xC0);
-    node = GetSkeltonFocusNode((char *)D_0063B93C, 51);
+    node = GetSkeltonFocusNode((char *)skelGObj, 51);
     _AddVectorXYZ((int)&w, (int)D_0063C490, D_0063C488 + node * 0x10);
     CopyVector((char *)&w + 0x10, &w);
     *(float *)((char *)&w + 4) = *(float *)((char *)&w + 4) - 50.0f;
@@ -798,7 +791,7 @@ MotShift rootUpdateXZ(int kind, int no)
 {
     Vec16 mv;
     Vec16 step;
-    MotShift ret = D_0063B930[0];
+    MotShift ret = {0, -1};
     float mtx[16];
 
     GetMatrixFromQuaternion(mtx, D_0063C490 + 0x30);
@@ -812,12 +805,12 @@ MotShift rootUpdateXZ(int kind, int no)
 
         *(int *)(D_0063C490 + 0x364) = no;
         CopyVector(&focus, D_0063C484 + no * 0x10);
-        switch (*(int *)(D_0063B938 + no * 0x40 + 4)) {
+        switch (*(int *)(skelNode + no * 0x40 + 4)) {
         case 47:
-            *(int *)(D_0063C490 + 0x364) = GetSkeltonFocusNode((char *)D_0063B93C, 48);
+            *(int *)(D_0063C490 + 0x364) = GetSkeltonFocusNode((char *)skelGObj, 48);
             break;
         case 51:
-            *(int *)(D_0063C490 + 0x364) = GetSkeltonFocusNode((char *)D_0063B93C, 52);
+            *(int *)(D_0063C490 + 0x364) = GetSkeltonFocusNode((char *)skelGObj, 52);
             break;
         }
         if (*(int *)(D_0063C490 + 0x180) == no) {
@@ -929,7 +922,7 @@ MotShift rootUpdateXZ(int kind, int no)
             *(float *)(D_0063C490 + 0x1BC) = 1.0f;
             proj = GetYProjectionOfPlane((int)(D_0063C490 + 0x130), (int)&sum);
             gap = proj - *(float *)(D_0063C490 + 0x1B4);
-            if ((gap < 0.0f ? -gap : gap) < *(float *)(D_0063B938 + 0x14) * D_0063B900) {
+            if ((gap < 0.0f ? -gap : gap) < *(float *)(skelNode + 0x14) * skelScale) {
                 *(float *)(D_0063C490 + 0x1B4) = proj;
             }
         }
@@ -971,6 +964,18 @@ MotShift rootUpdateXZ(int kind, int no)
         case 2:
             markPoolContact((char *)&w);
             break;
+        default:
+            /* Disabled in retail: the unknown-reaction report ("whoever sees
+               this message, report it to Sugiyama at once").  What the bytes
+               pin: its text in .rodata after setIKAndAdjustRootHeight's PLANE
+               message and before rootUpdateXZ_MotPos's, with no instruction;
+               rows 1159-1167, after case 2 (1158), are empty.  What they
+               cannot: the arm's form and the condition that disabled it. */
+            if (0) {
+                debug_StdPrintfDummy(
+                    "このメッセージを見た人は直ちにすぎやまに報告してくれー:NOWALLHITPROC\n");
+            }
+            break;
         }
     }
     if (*(int *)(D_0063C494 + 0x100) != 0) {
@@ -995,7 +1000,7 @@ MotShift rootUpdateXZ(int kind, int no)
 
 MotShift rootUpdateXZ_MotPos(int kind, int no)
 {
-    MotShift ret;
+    MotShift ret = {0, -1};
     ClipBuf w;
     Vec16 mv;
     Vec16 step;
@@ -1003,7 +1008,6 @@ MotShift rootUpdateXZ_MotPos(int kind, int no)
     float lim;
     int r;
 
-    ret = D_0063B930[0];
     GetMatrixFromQuaternion(mtx, D_0063C490 + 0x30);
     sceVu0ApplyMatrix((int *)&mv, (int)mtx, (char *)D_007201F0);
     sceVu0ApplyMatrix((int *)&step, (int)mtx, D_00720200);
@@ -1022,7 +1026,7 @@ MotShift rootUpdateXZ_MotPos(int kind, int no)
             if (*(float *)(D_0063C490 + 0xD4) < lim) {
                 *(float *)(D_0063C490 + 0xD4) = lim;
                 /* retail links debug_StdPrintfDummy in place of the listing's printf. */
-                debug_StdPrintfDummy(D_0061FE80);
+                debug_StdPrintfDummy("inertia cancel.\n");
             }
         }
         AddVectorXYZ(D_0063C490, D_0063C490, D_0063C490 + 0xD0);
@@ -1173,13 +1177,13 @@ block12:
 
 void forceFallDown(void)
 {
-    iosOmSendMail(D_0063B93C, 0x18, D_0063B93C);
+    iosOmSendMail(skelGObj, 0x18, skelGObj);
     CopyVector(D_0063C490 + 0x150, D_0063C490);
 }
 
 void forceReset(void)
 {
-    iosOmSendMail(D_0063B93C, 0x103, D_0063B93C);
+    iosOmSendMail(skelGObj, 0x103, skelGObj);
     CopyVector((char *)D_0063C490 + 0x150, (char *)D_0063C490);
 }
 
@@ -1293,7 +1297,8 @@ MotShift rootUpdateHang(int kind, int a1, int a2)
                 n = GetPureVerticalPlaneOfCurrentPosition(D_0063C490 + 0x130, &pl, 0, (int *)&rec,
                                                           0, D_0063C490);
                 if (-0.25f < *(float *)(D_0063C490 + 0x134)) {
-                    debug_StdPrintfDummy(D_0061FE98);
+                    /* EUC-JP: "the wall angle is steep, so fall" */
+                    debug_StdPrintfDummy("壁の角度が急なので落下\n");
                     forceFallDown();
                     goto out;
                 }
@@ -1309,11 +1314,13 @@ MotShift rootUpdateHang(int kind, int a1, int a2)
                     GetWallAttribute(&w);
                 if (attr == 768) {
                     forceFallDown();
-                    debug_StdPrintfDummy(D_0061FEB0);
+                    /* EUC-JP: "fall by the wall attribute" */
+                    debug_StdPrintfDummy("壁属性により落下\n");
                     goto out;
                 }
             } else {
-                debug_StdPrintfDummy(D_0061FEC8);
+                /* EUC-JP: "no wall, so fall" */
+                debug_StdPrintfDummy("壁がなくて落下\n");
                 forceFallDown();
                 goto out;
             }
@@ -1341,7 +1348,8 @@ MotShift rootUpdateHang(int kind, int a1, int a2)
             d = GetDistanceFromPlane(D_0063C490 + 0x130, &v);
             if (hit == 0) {
                 if (d < 0.0f ? 30.0f < -d : 30.0f < d) {
-                    debug_StdPrintfDummy(D_0061FED8, fptodp(d));
+                    /* EUC-JP: "no hold point on the wall, so fall (step: %f)" */
+                    debug_StdPrintfDummy("壁のつかまり先がなくて落下 (段差:%f)\n", fptodp(d));
                     forceFallDown();
                     goto out;
                 }
@@ -1359,7 +1367,8 @@ MotShift rootUpdateHang(int kind, int a1, int a2)
             r1 = checkSideWall((int)D_004ECAB0, (int)mtx2, (int)&sw1, (int)&w, (int)&pl2);
             r2 = checkSideWall((int)D_004ECAC0, (int)mtx2, (int)&sw2, (int)&w, (int)&pl2);
             if (r1 == -1 || r2 == -1) {
-                debug_StdPrintfDummy(D_0061FF00);
+                /* EUC-JP: "hit a forced-fall wall, so fall" */
+                debug_StdPrintfDummy("強制落下の壁に当たったので落下\n");
                 forceFallDown();
                 goto out;
             }
@@ -1397,11 +1406,11 @@ MotShift rootUpdateSwim(void)
 {
     ClipBuf w;
     Vec16 v;
-    MotShift shift = D_0063B930[0];
+    MotShift shift = {0, -1};
     float mtx[16];
     int node;
 
-    node = GetSkeltonFocusNode((char *)D_0063B93C, 34);
+    node = GetSkeltonFocusNode((char *)skelGObj, 34);
     GetMatrixFromQuaternion(mtx, D_0063C490 + 0x30);
     sceVu0ApplyMatrix((int *)&v, (int)mtx, D_00720200);
     v.f[0] = v.f[0] * 0.2f;
@@ -1427,7 +1436,9 @@ MotShift rootUpdateSwim(void)
     } else {
         *(int *)(D_0063C494 + 0x14) |= 0x800;
         /* retail links debug_StdPrintfDummy in place of the listing's printf. */
-        debug_StdPrintfDummy(D_0061FF20);
+        /* EUC-JP: "there is no DWATER water bottom below.  If this message keeps coming, it has not left the swim state" */
+        debug_StdPrintfDummy(
+            "下にDWATERの水底がないです。このメッセージが連続で\n出てるなら、泳ぎから遷移していない状態です\n\n");
     }
     if (*(int *)((char *)&w + 0x94) != 0) {
         *(int *)(D_0063C494 + 0x188) = GetFloorAttribute(&w);
@@ -1512,7 +1523,7 @@ MotShift rootUpdateStepSolution(int kind)
     Vec16 up;
     /* every arm of the switch below reassigns it, but the ROM copies the
        initial record (listing row 2025) all the same. */
-    WallCfg cfg = D_0061FF80;
+    WallCfg cfg = {{0, -1}, 0};
     float mtx[16];
     Vec16 d1;
     Vec16 d2;
@@ -1532,9 +1543,9 @@ MotShift rootUpdateStepSolution(int kind)
     sceVu0ApplyMatrix((int *)&mv, (int)mtx, (char *)D_00720200);
     sceVu0ApplyMatrix((int *)&up, (int)mtx, (char *)D_007201F0);
     if (D_0063C49C != -1) {
-        node = GetSkeltonFocusNode((char *)D_0063B93C, D_0063C49C);
-        _SubVectorXYZ(&d2, *(char **)(*(char **)(D_0063B93C + 0x15C) + 0xC) + node * 0x40 + 0x30,
-                      *(char **)(*(char **)(D_0063B93C + 0x15C) + 0xC) + 0x30);
+        node = GetSkeltonFocusNode((char *)skelGObj, D_0063C49C);
+        _SubVectorXYZ(&d2, *(char **)(*(char **)(skelGObj + 0x15C) + 0xC) + node * 0x40 + 0x30,
+                      *(char **)(*(char **)(skelGObj + 0x15C) + 0xC) + 0x30);
         _SubVectorXYZ(&d1, D_0063C488 + node * 0x10, &d2);
         _SubVectorXYZ(D_0063C490, D_0063C490, &d1);
     } else {
@@ -1635,7 +1646,8 @@ MotShift rootUpdateStepSolution(int kind)
 
     if (clipFuchiWallAndReact(D_0063C490, D_0063C490 + 0x150, *(int *)(D_0063C490 + 0x324),
                               *(float *)(D_0063C490 + 0x338)) != 0) {
-        debug_StdPrintfDummy(D_0061FF90);
+        /* EUC-JP: "hit an extension wall" */
+        debug_StdPrintfDummy("拡張壁に当たった\n");
     }
     if (*(int *)(D_0063C490 + 0x320) != 0) {
         if (clipFieldWallAndReset(D_0063C490, D_0063C490 + 0x150) != 0) {
@@ -1692,7 +1704,7 @@ MotShift rootUpdateTrueMotion(int a0)
     GetMatrixFromQuaternion(mtx, D_0063C490 + 0x30);
     if (noMove == 0) {
         sceVu0ApplyMatrix((int *)&v, (int)mtx, (char *)D_007201F0);
-        v.f[1] = v.f[1] + *(float *)(D_0063B938 + 0x14);
+        v.f[1] = v.f[1] + *(float *)(skelNode + 0x14);
         v.f[0] = v.f[2] = 0.0f;
         CopyVector(D_0063C490 + 0x10, &v);
     } else {
@@ -1721,7 +1733,7 @@ MotShift rootUpdateDirectPlayForStream(void)
     q = (int *)D_0063C490;
     q[0x60] = -1;
     q[0x30] = 0;
-    AdjustMotionHeightToNearestField((char *)D_0063B93C);
+    AdjustMotionHeightToNearestField((char *)skelGObj);
     CopyVector(D_0063C490 + 0xD0, D_00720210);
     return InitialObjPointer;
 }
@@ -1741,7 +1753,7 @@ MotShift rootUpdateDirectPlay(int a0)
     p[1] = p[1] - *(float *)(D_0063C4A8 + 0x128);
     p[2] = p[2] + *(float *)(D_0063C4A8 + 0x12C);
     if (kind == 14) {
-        s = 1.0f / D_0063B900;
+        s = 1.0f / skelScale;
         p[0] = p[0] * -s;
         p[1] = p[1] * s;
         p[2] = p[2] * -s;
@@ -1755,7 +1767,7 @@ MotShift rootUpdateDirectPlay(int a0)
     q = (int *)D_0063C490;
     q[0x60] = -1;
     q[0x30] = 0;
-    AdjustMotionHeightToNearestField((char *)D_0063B93C);
+    AdjustMotionHeightToNearestField((char *)skelGObj);
     CopyVector(D_0063C490 + 0xD0, D_00720210);
     return InitialObjPointer;
 }
@@ -1940,14 +1952,14 @@ MotShift rootUpdateY_Rope(int a0)
         *(float *)D_0063C490 = pos.f[0];
         *(float *)(D_0063C490 + 8) = pos.f[2];
     } else if (mode != 0) {
-        int node = GetSkeltonFocusNode((char *)D_0063B93C, 22);
+        int node = GetSkeltonFocusNode((char *)skelGObj, 22);
 
         v.f[0] = *(float *)D_0063C490;
         v.f[1] = *(float *)(D_0063C490 + 4);
         v.f[2] = *(float *)(D_0063C490 + 8);
         _SubVector(D_0063C490, D_0063C490 + 0x370, D_0063C488 + node * 0x10);
         if (*(int *)(D_0063C490 + 0x380) < 0) {
-            _InterGV(D_0063C490, &v, D_0063C490, D_0063B940, 1.0f);
+            _InterGV(D_0063C490, &v, D_0063C490, ropeInterRate, 1.0f);
         }
     }
     save = *(float *)(D_0063C490 + 0x338);
@@ -1969,7 +1981,7 @@ MotShift rootUpdateY_Rope(int a0)
 
 MotShift rootUpdateFly(void)
 {
-    MotShift shift = D_0063B930[0];
+    MotShift shift = {0, -1};
     char w[0xC0] __attribute__((aligned(16)));
     int contact;
     float h;
@@ -1990,7 +2002,7 @@ MotShift rootUpdateFly(void)
         markPoolContact(w);
         break;
     }
-    wallCollisionAndReact(*(float *)(D_0063B938 + 0x14));
+    wallCollisionAndReact(*(float *)(skelNode + 0x14));
     *(int *)(D_0063C490 + 0xC0) = 0;
     SubVectorXYZ(D_0063C490 + 0x90, D_0063C490, D_0063C490 + 0x150);
     CopyVector(D_0063C490 + 0x10, ZeroPoint);
@@ -2002,12 +2014,12 @@ MotShift rootUpdateFly(void)
 
 MotShift rootUpdateEnemyFly(void)
 {
-    MotShift shift = D_0063B930[0];
+    MotShift shift = {0, -1};
     char w[0xC0] __attribute__((aligned(16)));
     int contact;
 
     AddVectorXYZ(D_0063C490, D_0063C490, D_0063C490 + 0x90);
-    if (*(int *)((int)GOBJ_SUB(D_0063B93C) + 0x654) == 0) {
+    if (*(int *)((int)GOBJ_SUB(skelGObj) + 0x654) == 0) {
         wallCollisionAndReact(0.0f);
         contact = getFlyFieldCollision(w);
         switch (contact) {

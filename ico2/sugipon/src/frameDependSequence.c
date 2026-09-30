@@ -16,8 +16,6 @@ typedef struct {
 extern SePackage D_005339C0[];
 extern GsysObjInfo D_005D6DB0[];
 extern int D_0063B14C;
-extern char D_0061F878[];
-extern char D_0061F798[];
 /* kept local: the declaration in s_init.h changes this TU codegen */
 extern int soundSeDefPlay(int se, unsigned int a1, int a2, int a3);
 
@@ -38,8 +36,6 @@ static float fdsVolume = 1.0f; /* derived name */
 
 static int fdsGroup = 0; /* derived name */
 
-extern char D_0061F740[];
-extern char D_0061F770[];
 extern int soundSeDefPlayWithVolumeRate(int se, unsigned int a1, int a2, int a3, float rate);
 /* kept local: seMail has no header; this matches its definition in
  * ico2/fumi/src/seMail.c, one prototype per symbol. */
@@ -52,7 +48,8 @@ int playSE(int no)
     if (no != 0) {
         if (((GObj *)fdsGObj)->f50 != 0) {
             if (fdsLayout != 0 && ((int *)fdsLayout)[0x1E8 / 4] != 0) {
-                debug_StdPrintfDummy(D_0061F740, fdsGObj);
+                /* EUC-JP: "gObj:(%p) has its motion SE stopped" */
+                debug_StdPrintfDummy("gObj:(%p) はモーションSEが停止しています\n", fdsGObj);
                 return 1;
             }
 
@@ -66,7 +63,9 @@ int playSE(int no)
             seMail((int)fdsGObj, no);
             if (ret == -2) {
                 if (D_0063B14C != 0) {
-                    debug_StdPrintfDummy(D_0061F770, &D_005D6DB0[no]);
+                    /* EUC-JP: "SE \"%s\" is not loaded" */
+                    debug_StdPrintfDummy("SE \033[36m\"%s\"\033[m はロードされていません\n",
+                                         &D_005D6DB0[no]);
                 }
                 return 0;
             }
@@ -74,7 +73,8 @@ int playSE(int no)
                 return 1;
             }
             if (D_0063B14C != 0) {
-                debug_StdPrintfDummy(D_0061F798, &D_005D6DB0[no], fdsGroup);
+                debug_StdPrintfDummy("SE \033[33m\"%s\"\033[m CALLED with GROUP:\033[33m%d\033[m\n",
+                                     &D_005D6DB0[no], fdsGroup);
             }
         }
     }
@@ -185,6 +185,26 @@ int playSEConditionID(int no, void *entry)
     return 0;
 }
 
+inline int execSE(int a0, void *a1)
+{
+    if (a0 <= 0xFFFF) {
+        return playSE(a0);
+    } else if (a0 <= 0x1FFFF) {
+        return playSERandomID(a0 - 0x10000, a1);
+    } else {
+        return playSEConditionID(a0 - 0x20000, a1);
+    }
+    /* Disabled in retail: the bad-ID report.  What the bytes pin: its text in
+       .rodata after playSEConditionID's jump table and before playEff's
+       print, with no instruction; the listing gives execSE rows 249-255 and
+       its closing brace 259, and 256-258 are empty.  What they cannot: the
+       condition that disabled it. */
+    if (0) {
+        /* EUC-JP: "an SE with a strange ID(%d) was called" */
+        debug_StdPrintfDummy("おかしなID(%d)のSEがコールされました\n", a0);
+    }
+}
+
 typedef struct EffEntry { /* 0x24 */
     float x;              /* 0x00 */
     float y;              /* 0x04 */
@@ -199,7 +219,6 @@ typedef struct EffEntry { /* 0x24 */
 
 extern EffEntry D_00626278[];
 extern int stage_no;
-extern char D_0061F810[];
 /* kept local: this TU's uses of GetSkeltonFocusNode do not fit the prototype in motionManager2.h */
 extern int GetSkeltonFocusNode(void *gobj, int node);
 /* kept local: this TU's uses of RotQuaternionX do not fit the prototype in quaternion.h */
@@ -225,7 +244,9 @@ void playEff(int no)
         if (no == -1) {
             GetRootQuaternion(q, fdsGObj);
             GetRootMatrix(MatrixDrive_GetMatrix(), fdsGObj);
-            debug_StdPrintfDummy(D_0061F810);
+            /* EUC-JP: "note: the node of a node-specified motion effect was not found" */
+            debug_StdPrintfDummy(
+                "注意：ノード指定のモーションエフェクトでノードが見つかりませんでした\n");
         } else {
             GetRootQuaternion(q, fdsGObj);
             CopyMatrix(MatrixDrive_GetMatrix(),
@@ -327,14 +348,14 @@ done:
 
 extern void *D_00639EA0;
 extern int D_00639EB0;
-extern char D_0061F858[];
 /* kept local: the declaration in frameDependSequence.h changes this TU codegen */
 extern void StopFDSVibration(void *a0);
 
 void execVibCondition(int no, int *entry)
 {
     if (D_00639EA0 != 0) {
-        debug_StdPrintfDummy(D_0061F858);
+        /* EUC-JP: "controller-2 vibration condition detect mode" */
+        debug_StdPrintfDummy("2コン振動条件検知モード\n");
         if (D_00626010[no].kind != 0) {
             if (fdsFlags != 0) {
                 StopFDSVibration(fdsFlags);
@@ -438,7 +459,7 @@ static inline int *findSEPackage(int no, int id)
         no++;
     }
     if (D_0063B14C != 0) {
-        debug_StdPrintfDummy(D_0061F878);
+        debug_StdPrintfDummy("\033[36mRequested by program... \033[m");
     }
     return D_005339C0[no].se;
 }
@@ -447,17 +468,6 @@ static inline int *findSEPackage(int no, int id)
 extern int playSE(int no);
 /* kept local: the declaration in frameDependSequence.h changes this TU codegen */
 extern int playSERandomID(int no, void *entry);
-
-inline int execSE(int a0, void *a1)
-{
-    if (a0 <= 0xFFFF) {
-        return playSE(a0);
-    } else if (a0 <= 0x1FFFF) {
-        return playSERandomID(a0 - 0x10000, a1);
-    } else {
-        return playSEConditionID(a0 - 0x20000, a1);
-    }
-}
 
 /* static helper the listing places at frameDependSequence.c lines 549-564; never
  * emitted out of line, so it has no MAIN.MAP symbol and this name is ours. */
@@ -511,7 +521,8 @@ void executeSEPackageWithNoGObj(int no)
         if (p[i] != 0) {
             soundSeDefPlay(p[i], 0xFFFFFFFF, 0, 1);
             if (D_0063B14C != 0) {
-                debug_StdPrintfDummy(D_0061F798, &D_005D6DB0[p[i]], 0xFFFFFFFF);
+                debug_StdPrintfDummy("SE \033[33m\"%s\"\033[m CALLED with GROUP:\033[33m%d\033[m\n",
+                                     &D_005D6DB0[p[i]], 0xFFFFFFFF);
             }
         }
     }

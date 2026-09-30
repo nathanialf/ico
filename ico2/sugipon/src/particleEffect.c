@@ -35,9 +35,50 @@ static PEffect particleEffects[128];
 
 static int particleParams[61 * 40];
 
+/* RECONSTRUCTION: one particle package, 0xA0 bytes, the record an effect
+   file supplies per particle kind (SetParticleEffectPackage copies the file's
+   over the default below).  Field types are the accessors' in this file; the
+   colour is a quadword, which makes the record 16-byte aligned as the ROM's
+   default is (0x4ECDF0). */
 typedef struct {
-    long long q[20];
-} PE160;
+    int version;           /* 0x00 */
+    int mode;              /* 0x04 */
+    int unk_08;            /* 0x08 */
+    unsigned short spread; /* 0x0C */
+    short unk_0E;
+    float speed;     /* 0x10 */
+    float speedRand; /* 0x14 */
+    float drag;      /* 0x18 */
+    float gravity;   /* 0x1C */
+    short spinY;     /* 0x20 */
+    short unk_22;
+    float spinYRand;     /* 0x24 */
+    float spinYDecay;    /* 0x28 */
+    float size;          /* 0x2C */
+    float sizeRand;      /* 0x30 */
+    float sizeStep;      /* 0x34 */
+    float sizeStepRand;  /* 0x38 */
+    float sizeStepDecay; /* 0x3C */
+    int count;           /* 0x40 */
+    int emit;            /* 0x44 */
+    float emitRand;      /* 0x48 */
+    float unk_4C;
+    float alpha;       /* 0x50 */
+    float alphaRand;   /* 0x54 */
+    int life;          /* 0x58 */
+    float lifeRand;    /* 0x5C */
+    int unk_60[4];     /* 0x60 */
+    sceVu0IVECTOR col; /* 0x70 */
+    int u;             /* 0x80 */
+    int v;             /* 0x84 */
+    short spinX;       /* 0x88 */
+    short unk_8A;
+    float spinXRand; /* 0x8C */
+    float wind;      /* 0x90 */
+    int unk_94;      /* 0x94 */
+    int unk_98;      /* 0x98 */
+    int unk_9C;
+} PEPackage;
 
 /* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector();
@@ -70,9 +111,6 @@ void setParticleEffectGeometry(int a0, int a1, int a2)
     CopyQuaternion(a0 + 0x10, a2);
 }
 
-/* D_004ECE90 is the scratch vector the spread offset is written into and the
-   current matrix is applied to; it follows the PE160 template in the run and
-   stays in the uncarved .data blob. */
 typedef struct {
     int unk_00;
     int spin; /* 0x04 */
@@ -146,7 +184,11 @@ static PEPartRec blankParticle = {
 
 static PEffect emptyEffect = {0, 0, 1, 0, 0, 0, 0};
 
-extern float D_004ECE90[4];
+/* The scratch vector the spread offset is written into and the current matrix
+   is applied to.  Declared here for makeParticle; its definition follows the
+   default package, after it in the TU's .data. */
+static sceVu0FVECTOR spreadVector; /* derived name */
+
 extern float _GetRandom(void);
 /* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
 extern void CopyMatrix(void *dst, void *src);
@@ -180,7 +222,7 @@ void _setParticleEffect(char *out, char *pkg, char *m, float k)
 
     w = &particleWork;
     CopyVector(w->pos, m + 0x30);
-    D_004ECE90[2] = *(float *)(pkg + 0x10) * (*(float *)(pkg + 0x14) * sugiSignedRandom() + 1.0f);
+    spreadVector[2] = *(float *)(pkg + 0x10) * (*(float *)(pkg + 0x14) * sugiSignedRandom() + 1.0f);
     CopyMatrix(MatrixDrive_GetMatrix(), m);
     if (*(unsigned short *)(pkg + 0xC) != 0) {
         MatrixDrive_RotMatrixY(
@@ -188,7 +230,7 @@ void _setParticleEffect(char *out, char *pkg, char *m, float k)
         MatrixDrive_RotMatrixX(
             (short)((float)*(unsigned short *)(pkg + 0xC) * (sugiRandom() - 0.5f) * 182.04445f));
     }
-    sceVu0ApplyMatrix(w->vel, MatrixDrive_GetMatrix(), D_004ECE90);
+    sceVu0ApplyMatrix(w->vel, MatrixDrive_GetMatrix(), spreadVector);
     n = (int)((float)(unsigned int)*(int *)(pkg + 0x44) *
               (*(float *)(pkg + 0x48) * sugiSignedRandom() + 1.0f));
     w->life = (float)n * k;
@@ -679,12 +721,54 @@ void ResetParticleEffectPackages(int *pkg)
     }
 }
 
-extern PE160 D_004ECDF0;
+/* .data, the tail of particleEffect.o's run: the default package a file's
+   record is laid over, then the spread vector. */
+static PEPackage defaultPackage = {
+    11,  /* version */
+    1,   /* mode */
+    1,   /* unk_08 */
+    360, /* spread */
+    0,
+    2.0f,  /* speed */
+    0.1f,  /* speedRand */
+    0.95f, /* drag */
+    -0.1f, /* gravity */
+    0,     /* spinY */
+    0,
+    0.1f,  /* spinYRand */
+    0.95f, /* spinYDecay */
+    10.0f, /* size */
+    0.1f,  /* sizeRand */
+    0.3f,  /* sizeStep */
+    0.01f, /* sizeStepRand */
+    1.0f,  /* sizeStepDecay */
+    80,    /* count */
+    80,    /* emit */
+    0.1f,  /* emitRand */
+    1.0f,
+    0.2f, /* alpha */
+    0.1f, /* alphaRand */
+    80,   /* life */
+    0.1f, /* lifeRand */
+    {0, 0, 0, 0},
+    {128, 128, 128, 128}, /* col */
+    0,                    /* u */
+    0,                    /* v */
+    0,                    /* spinX */
+    0,
+    0.1f, /* spinXRand */
+    1.0f, /* wind */
+    0,
+    0,
+    0,
+};
+
+static sceVu0FVECTOR spreadVector = {0.0f, 0.0f, 1.0f, 0.0f};
 
 void SetParticleEffectPackage(int a0, int *a1, int a2)
 {
-    *(PE160 *)((unsigned char *)particleParams + a0 * 160) = D_004ECDF0;
-    if (*(int *)&D_004ECDF0 != *a1) {
+    *(PEPackage *)((unsigned char *)particleParams + a0 * 160) = defaultPackage;
+    if (*(int *)&defaultPackage != *a1) {
         debug_StdPrintfDummy("\033[36mThis is old version(%d) file. May be an error occur.\033[m\n",
                              *a1);
     }
