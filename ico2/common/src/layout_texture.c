@@ -1,6 +1,7 @@
 #include "typedef.h"
 #include "debug.h"
 #include "gflag.h"
+#include "layout_action.h"
 
 extern int D_0063B60C;
 extern unsigned int D_0063B610;
@@ -74,11 +75,8 @@ typedef struct LtProperty {
 
 extern LtProperty D_0030CFF8[];
 extern StgPre D_005F5D50[];
-extern int D_0063B5F0;
 extern int D_0063B614;
-extern int layout_boot_flag;
 extern int mpegPlayReturnStage;
-extern int title_demo_mode;
 
 /* The 0x38-byte layout property records this TU shares with src/kanban. */
 typedef struct LtProp {
@@ -853,10 +851,10 @@ void init_layout_texture(int stage)
             D_0063B60C = 7;
         } else if (mpegPlayReturnStage == stage) {
             mpegPlayReturnStage = 0;
-            if (D_0063B5F0 == 0xFFFFFFFE) {
+            if (stage_after_skipping_demo == 0xFFFFFFFE) {
                 title_demo_mode = title_demo_mode ^ 1;
                 D_0063B60C = 13;
-            } else if (D_0063B5F0 == 0xFFFFFFFF) {
+            } else if (stage_after_skipping_demo == 0xFFFFFFFF) {
                 D_0063B60C = 10;
                 title_demo_mode = title_demo_mode ^ 1;
             } else {

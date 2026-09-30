@@ -21,6 +21,7 @@
 #include "gamesys.h"
 #include "typedef.h"
 #include "DisplayList.h"
+#include "layout_action.h"
 
 /* debug_exception_screen.c.inc (compiled into debug_exception.o) */
 
@@ -2093,7 +2094,6 @@ extern char D_0063AF98[];
 extern char D_0061BC78[];
 extern int stage_no;
 extern int mpegPlayReturnStage;
-extern int enable_game_pause;
 extern int D_0063AA08;
 
 int debug_SelectStageMain(int ret, int stage)

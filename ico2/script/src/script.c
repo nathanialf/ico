@@ -29,6 +29,7 @@
 #include "torch.h"
 #include "matrixDrive.h"
 #include "script.h"
+#include "layout_action.h"
 
 /* a 0x40-byte layout record as CreateLayoutedGObj takes it: position,
    rotation, the unit scale at 0x20 and the kind index at 0x30 */
@@ -292,7 +293,6 @@ extern char D_00554498[];
 extern int GetSkeltonFocusNode(int a0, int a1);
 extern char D_005546E0[];
 extern float D_0063AA0C;
-extern int startStagePauseDisableTimer;
 
 /* .data, last in script.o's run: the wood-bridge trigger table, one row per
    bridge object, walked by object id. */

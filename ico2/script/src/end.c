@@ -17,6 +17,7 @@
 #include <libvu0.h>
 #include "e3.h"
 #include "typedef.h"
+#include "layout_action.h"
 
 /* kept local: this TU's bytes only come out with its own view of PObjGObj, so it
    keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
@@ -1251,7 +1252,6 @@ void actSt27aEndDemo(volatile int a0)
    the record ahead of the handler in gcc's expression-hash order. */
 
 extern int NonLinearCameraMove;
-extern int enable_game_pause;
 
 void actEndLogoChk(volatile int a0)
 {

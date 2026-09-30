@@ -12,6 +12,7 @@
 #include "gflag.h"
 #include "StageAnimation.h"
 #include "typedef.h"
+#include "layout_action.h"
 
 /* kept local: this TU's bytes only come out with its own view of ActSt10L. */
 /* kept local: this TU's bytes only come out with its own view of Act, so it
@@ -46,7 +47,6 @@ extern int st10l_gondola_up;
 extern int st10l_gondola_down;
 extern int chain10l;
 extern int D_0063AA08;
-extern int enable_game_pause;
 extern int D_00639EA4;
 extern int D_00639EA8;
 extern int D_00639EAC;

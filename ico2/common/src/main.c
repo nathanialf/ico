@@ -109,7 +109,6 @@ extern char D_0054D660[];
 extern char D_0054D688[];
 extern int mpegPlay;
 extern int stageManagerFreeResourceFlag;
-extern int startStagePauseDisableTimer;
 extern int stgMgrWakeupRequest;
 extern void sceGsSyncV(int mode);
 /* kept local: this TU's uses of iosThreadCancelWakeup do not fit the prototype in thread.h */
@@ -130,7 +129,6 @@ extern int mpegPlayReturnStage;
 extern float mpegPlayFadeInSpeed;
 extern int D_0063A430;
 extern int D_0063A468;
-extern unsigned int D_0063B5F0;
 extern int debug_TryToGetStartStage(void);
 extern void debug_VariableInit(void);
 extern void InitDelayFree(void);
@@ -234,7 +232,7 @@ void Main(void)
             mpegPlay = 0;
             stgmgrForceSwitchWithFade(mpegPlayReturnStage, 255.0f, mpegPlayFadeInSpeed);
             if (ret == 1) {
-                D_0063B5F0 = 0xFFFFFFFE;
+                stage_after_skipping_demo = 0xFFFFFFFE;
             }
             continue;
         }

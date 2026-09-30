@@ -25,11 +25,11 @@
 #include "commonact.h"
 #include "streamMotionManager.h"
 #include "kanbanBoot.h"
+#include "layout_action.h"
 
 extern int D_00639EA4;
 extern int D_00639EA8;
 extern int D_0063AA08;
-extern int enable_game_pause;
 extern int D_0028F4C0[];
 /* as script.h declares it; this TU does not include that header */
 extern void scpFadeOut(float t, int a1, int a2, int a3);
@@ -183,7 +183,6 @@ void actE3TitleChk(volatile int a0)
 extern int NonLinearCameraMove;
 /* kept local: this TU's uses of scpAdpcmCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmCloseFunc(int *h);
-extern int D_0063B5F0;
 extern int mpegPlayReturnStage;
 
 void actE3TitleFrameChk(volatile int a0)
@@ -272,7 +271,7 @@ void actE3TitleFrameChk(volatile int a0)
         }
 
         mpegPlayReturnStage = 0x5F;
-        D_0063B5F0 = 0x5F;
+        stage_after_skipping_demo = 0x5F;
 
         stgmgrForceSwitchWithFade(0x67, 4.0f, 4.0f);
     }

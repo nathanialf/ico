@@ -8,9 +8,11 @@
 #include "gflag.h"
 #include "kanbanBoot.h"
 
-struct S40 {
-    char b[0x40];
-};
+/* the custom key map's sixteen pad button codes (iosPadConfCustom[44..59]),
+   the default one bit per button */
+typedef struct {
+    int code[16];
+} KeyConf;
 
 typedef struct {
     int _0;
@@ -20,7 +22,7 @@ typedef struct {
 
 /* The port record's flag word is reached through a union member: the ROM's
    codegen at layout_action.c:1128 proves that store is an alias-set-0 access
-   (it kills the cached D_0063B4D8 load, which a plain scalar field store does
+   (it kills the cached curPortInfo load, which a plain scalar field store does
    not).  RECONSTRUCTION: the word member and a one-bit view of the low bits,
    the names ours.  Re-audit (completeness pass 57): a plain struct member
    changes the object, and reading bits 1 and 3..5 through a bit-field view in
@@ -91,14 +93,11 @@ static int mcLoadMode;
 static int barTotal;
 
 /* .bss, layout_action.o's objects in the ROM's order (MAIN.MAP line 7739, no
-   symbol; the names are ours): the preview record of the save being
-   confirmed, the open request of the layout voice and the twenty game flags
-   kept across a load.  The two card ports' records in front of them
-   (0x71D900, 0x10 bytes) are the run's first object but stay the extern
-   D_0071D900 for now: the first word of this object's .sdata run (0x63B4D8)
-   is a pointer initialised to them, and that word cannot be this file's own
-   object while the harness puts a named small object in .sdata.<name>
-   (chain 3 pass 146). */
+   symbol; the names are ours): the two card ports' records, the preview
+   record of the save being confirmed, the open request of the layout voice
+   and the twenty game flags kept across a load. */
+static R8 mcPortInfo[2]; /* derived name */
+
 static struct S14 previewInfo;
 
 static AdpcmOpenReq voiceOpenReq;
@@ -122,13 +121,7 @@ void CUR_SE(void)
 
 extern R58 D_0028F8F0[];
 
-/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
- * PSH_POSITIVE_OR_NEGATIVE (line 730) into the two la_save_confirm_no_*
- * actions, so it is a public `inline` of the deferred tail; until the tail's
- * asm members are C its copy is emitted as a plain function at its ROM
- * position (before keyconfig_reset) and the callers inline this static
- * stand-in, which collapses at layout. */
-static inline int pshPositiveOrNegative(int idx)
+inline int PSH_POSITIVE_OR_NEGATIVE(int idx)
 {
     int v = D_0028F8F0[idx].flags;
     if ((v & 0x40) != 0)
@@ -141,23 +134,14 @@ zero:
     return 0;
 }
 
-extern int D_0061D750[];
-
 void la_TESTFUNCTION(void)
 {
-    debug_StdPrintfDummy(D_0061D750);
+    debug_StdPrintfDummy("sync end\n");
 }
 
-extern int D_0063B4F4;
 extern int mc[];
 /* kept local: this TU's uses of iosMcSync do not fit the prototype in mcard.h */
 extern int iosMcSync(unsigned long *a0);
-extern int D_0063B4E8;
-extern int D_0063B4F0;
-extern int D_0063B4E0;
-extern R8 *D_0063B4D8;
-extern int D_0063B550;
-extern int D_0063B528;
 extern int D_00534CC0[];
 extern int D_0028F4C0[];
 extern int D_0028F8F4[];
@@ -183,52 +167,22 @@ typedef struct {
 extern R1F0 IosMcProductFile[];
 extern int IosMcPreviewInfo[];
 extern int D_005343C8[];
-extern int D_0063B554;
-extern int D_0063B558;
-extern int D_0063B4EC;
 extern void stgmgrForceSwitchWithFade(float a0, float a1, int a2);
-extern int D_0063B5C4;
 extern int lock_execIcoMisc;
-extern int D_0063B4DC;
 extern int D_0063BE68;
-extern int D_0063B54C;
 extern int D_0063B5F8;
 extern int D_0063B620;
 extern int D_0028F4D4[];
-extern R8 D_0071D900[];
-extern int D_0063B53C;
-extern int D_0063B540;
-extern int D_0063B530;
-extern int D_0063B534;
-extern int D_0063B538;
-extern int D_0063B52C;
 extern int D_00534400[];
-extern char D_0063B5A8[];
-extern int D_0063B548;
 /* the custom pad configuration ios/pad.c owns, reached here as its words
    (the sixteen button bits from word 44) */
 extern int iosPadConfCustom[];
-extern struct S40 D_0061D968;
 extern char *D_0063BE6C;
 extern int D_0028F4D0[];
-extern char *D_0063B4FC;
-extern int D_0063B598;
-extern int D_0063B59C;
-extern int D_0063B5A0;
 extern void CheckPoint(void);
-extern char D_0061DA98[];
-extern char D_0061DAB8[];
 extern int stage_no;
-extern int D_0063B4F8;
+
 /* the memory-card error messages, VMA 0x61D760..0x61D840 */
-extern char D_0061D760[];
-extern char D_0061D770[];
-extern char D_0061D790[];
-extern char D_0061D7A8[];
-extern char D_0061D7C0[];
-extern char D_0061D7F0[];
-extern char D_0061D810[];
-extern char D_0061D820[];
 
 /* layout_action.c:762-806 in the listing.  The switch table is
    jtbl_0061D840 (17 arms, selector the card result at +0x10, cases -16..0). */
@@ -243,37 +197,32 @@ int _la_mcard_error_check(void *a0)
     case 0:
         return 1;
     case -2:
-        debug_StdPrintfDummy(D_0061D760, *(int *)(w + 0x10));
+        debug_StdPrintfDummy("unformatted %d\n", *(int *)(w + 0x10));
         return -1;
     case -9:
-        debug_StdPrintfDummy(D_0061D770, *(int *)(w + 0x10));
+        debug_StdPrintfDummy("not insert memory card %d\n", *(int *)(w + 0x10));
         return -1;
     case -4:
-        debug_StdPrintfDummy(D_0061D790, w + 0x47C);
+        debug_StdPrintfDummy("%s file not found\n", w + 0x47C);
         return -1;
     case -14:
-        debug_StdPrintfDummy(D_0061D7A8, w + 0x454);
+        debug_StdPrintfDummy("%s Directory not found\n", w + 0x454);
         return -1;
     case -16:
-        debug_StdPrintfDummy(D_0061D7C0, *(int *)(w + 0x24), *(int *)(w + 0x50),
-                             *(int *)(w + 0x4C));
+        debug_StdPrintfDummy("segID %d check sum err rom:%d != load:%d\n", *(int *)(w + 0x24),
+                             *(int *)(w + 0x50), *(int *)(w + 0x4C));
         return -1;
     case -15:
-        debug_StdPrintfDummy(D_0061D7F0, w + 0x47C);
+        debug_StdPrintfDummy("%s handler func ret err code\n", w + 0x47C);
         return -1;
     case -10:
-        debug_StdPrintfDummy(D_0061D810);
+        debug_StdPrintfDummy("memory over\n");
         return -1;
     default:
-        debug_StdPrintfDummy(D_0061D820, *(int *)(w + 0x10));
+        debug_StdPrintfDummy("memory card another err %d\n", *(int *)(w + 0x10));
         return -2;
     }
 }
-
-extern int D_0063B518;
-extern int D_0063B51C;
-extern int D_0063B520;
-extern int D_0063B524;
 
 /* the product-block file-name field, six bytes; every writer copies the
    TU's one "game." literal into it (VMA 0x63B510 in .sdata) */
@@ -303,7 +252,6 @@ typedef struct {
 
 /* file-local: nothing outside this TU calls it */
 int _la_memory_card_check(McWork *p, int a1);
-extern char D_0061D888[];
 extern void *memset(void *a0, int a1, int a2);
 extern int iosMcGetInfo(void *a0);
 /* kept local: this TU's uses of these two do not fit the prototypes in
@@ -312,6 +260,37 @@ extern int iosMcGetInfo(void *a0);
 extern void iosMcLoadProductBlock(void *a0);
 extern void iosMcGetBlockSaveInfo(void *a0);
 
+/* .sdata, layout_action.o's run in the ROM's order (VMA 0x63B4D8..0x63B5F8,
+   0x120 B; MAIN.MAP's January object is 0x10C): these ten statics, the three
+   MAIN.MAP globals after them, then each function's own statics before it,
+   with the short literals the functions emit between them.  The names of the
+   statics are ours. */
+static R8 *curPortInfo = &mcPortInfo[0]; /* derived name */
+
+static int lastPort = -1; /* derived name */
+
+static int curPort = 0; /* derived name */
+
+static int curFile = 0; /* derived name */
+
+static int selectFile = -1; /* derived name */
+
+static int nextStage = 1; /* derived name */
+
+static int fileMask = 0; /* derived name */
+
+static int actionStarted = 0; /* derived name */
+
+static int fightSoundStopped = 0; /* derived name */
+
+static char *layoutVoice = 0; /* derived name */
+
+int startStagePauseDisableTimer = 0;
+
+int layout_boot_flag = 0;
+
+int enable_game_pause = 1;
+
 /* layout_action.c:853-1006 in the listing.  The switch table is jtbl_0061D8D0
    (24 arms over the memory-card step, cases 0..23; VMA 0x61D8D0..0x61D930). */
 int _la_memory_card_check(McWork *p, int a1)
@@ -319,12 +298,12 @@ int _la_memory_card_check(McWork *p, int a1)
     int r;
     int i;
 
-    D_0063B4D8 = &D_0071D900[p->_8];
+    curPortInfo = &mcPortInfo[p->_8];
     switch (a1) {
     case 0:
-        D_0063B4D8->_4 = 0;
+        curPortInfo->_4 = 0;
         p->_C = 0;
-        memset(&D_0071D900[p->_8], 0, 8);
+        memset(&mcPortInfo[p->_8], 0, 8);
         p->_10 = 0;
         iosMcGetInfo(p);
         mcLastResult = 0;
@@ -370,9 +349,9 @@ int _la_memory_card_check(McWork *p, int a1)
         }
         mcLastResult = p->_10;
         if (p->_10 == -9 || r == -2) {
-            D_0063B4D8->_0.w = (int)D_0063B4D8->_0.w & ~0x20;
-            D_0063B4D8->_0.w = (int)D_0063B4D8->_0.w & ~2;
-            D_0063B4D8->_0.w = (int)D_0063B4D8->_0.w & ~1;
+            curPortInfo->_0.w = (int)curPortInfo->_0.w & ~0x20;
+            curPortInfo->_0.w = (int)curPortInfo->_0.w & ~2;
+            curPortInfo->_0.w = (int)curPortInfo->_0.w & ~1;
         }
         /* falls through */
     case 2:
@@ -384,23 +363,23 @@ int _la_memory_card_check(McWork *p, int a1)
             return 99;
         case 1:
         case 3:
-            D_0063B4D8->_0.w |= 1;
+            curPortInfo->_0.w |= 1;
             return 99;
         case 2:
-            D_0063B4D8->_0.w |= 3;
+            curPortInfo->_0.w |= 3;
             break;
         }
         switch (p->_20) {
         case 0:
             return 99;
         case 1:
-            D_0063B4D8->_0.w |= 8;
+            curPortInfo->_0.w |= 8;
             break;
         }
         if (p->_18 >= 360) {
-            D_0063B4D8->_0.w |= 0x10;
+            curPortInfo->_0.w |= 0x10;
         } else {
-            D_0063B4D8->_0.w = (int)D_0063B4D8->_0.w & ~0x10;
+            curPortInfo->_0.w = (int)curPortInfo->_0.w & ~0x10;
         }
         a1 = 10;
         break;
@@ -409,7 +388,8 @@ int _la_memory_card_check(McWork *p, int a1)
         break;
     case 23:
         if (p->_44 >= 11) {
-            debug_StdPrintfDummy(D_0061D888);
+            debug_StdPrintfDummy(
+                "debug_mcLoadMainBlock:既に設定された数以上のデータを保存してる\n");
         }
         for (i = 0; i < 10; i++) {
             if ((1 << i) & p->_9C0) {
@@ -427,8 +407,8 @@ int _la_memory_card_check(McWork *p, int a1)
         }
         if (i < 10) {
             if (p->_44 == 10) {
-                D_0063B4D8->_0.w |= 0x20;
-                D_0063B4D8->_4 = p->_9C0;
+                curPortInfo->_0.w |= 0x20;
+                curPortInfo->_4 = p->_9C0;
             }
         }
         break;
@@ -442,8 +422,16 @@ int _la_memory_card_check(McWork *p, int a1)
    and the name is descriptive. */
 static inline int currentPortLockState(void)
 {
-    return (((D_0063B4D8->_0.w >> 1) & 1) && (D_0063B4D8->_0.w & 0x38) != 8) ? 1 : -1;
+    return (((curPortInfo->_0.w >> 1) & 1) && (curPortInfo->_0.w & 0x38) != 8) ? 1 : -1;
 }
+
+static int port2Step = 0; /* derived name */
+
+static int port2SubStep = 0; /* derived name */
+
+static int port2Changed = 0; /* derived name */
+
+static int port2Locked = 0; /* derived name */
 
 /* layout_action.c:1039-1150 in the listing.  The three inlined copies of
    currentPortLockState are the listing's line 1029 rows. */
@@ -455,61 +443,61 @@ int _la_set_current_port_2(void *p, int a1)
 
     if (a1 != 0) {
         *(int *)((char *)p + 8) = 0;
-        D_0063B518 = 0;
-        D_0063B51C = 0;
-        D_0063B4F0 = 0;
+        port2Step = 0;
+        port2SubStep = 0;
+        fileMask = 0;
         return 0;
     }
-    D_0063B4D8 = &D_0071D900[*(int *)((char *)p + 8)];
-    D_0063B518 = _la_memory_card_check(p, D_0063B518);
-    if (D_0063B518 == 99) {
+    curPortInfo = &mcPortInfo[*(int *)((char *)p + 8)];
+    port2Step = _la_memory_card_check(p, port2Step);
+    if (port2Step == 99) {
         switch (*(int *)((char *)p + 8)) {
         case 0:
             portLockState = currentPortLockState();
-            D_0063B520 = (D_0063B4D8->_0.w >> 5) & 1;
-            D_0063B524 = ((D_0063B4D8->_0.w >> 1) & 1) && (D_0063B4D8->_0.w & 0x38) != 8;
+            port2Changed = (curPortInfo->_0.w >> 5) & 1;
+            port2Locked = ((curPortInfo->_0.w >> 1) & 1) && (curPortInfo->_0.w & 0x38) != 8;
             /* listing line 1069: the whole 8-byte record is copied to the frame
                and never read again (the ROM ldl/ldr/sdl/sdr pair). */
-            tmp = *D_0063B4D8;
+            tmp = *curPortInfo;
             *(int *)((char *)p + 8) = 1;
-            D_0063B518 = 0;
+            port2Step = 0;
             break;
         case 1:
-            D_0063B518 = 100;
+            port2Step = 100;
             switch (portLockState) {
             case 1:
                 r = currentPortLockState();
                 switch (r) {
                 case 1:
-                    r = D_0063B4D8->_0.w >> 5;
+                    r = curPortInfo->_0.w >> 5;
                     r &= 1;
-                    if ((D_0063B4D8->_0.w >> 1) & 1) {
-                        if ((D_0063B4D8->_0.w & 0x38) != 8) {
+                    if ((curPortInfo->_0.w >> 1) & 1) {
+                        if ((curPortInfo->_0.w & 0x38) != 8) {
                             q = 1;
                         }
                     }
-                    if (D_0063B524 != 0 && q != 0) {
-                        D_0071D900[0]._0.w |= 4;
-                        D_0071D900[1]._0.w |= 4;
+                    if (port2Locked != 0 && q != 0) {
+                        mcPortInfo[0]._0.w |= 4;
+                        mcPortInfo[1]._0.w |= 4;
                     }
-                    if (D_0063B520 != 0 && r != 0) {
-                        D_0071D900[0]._0.w |= 0x40;
-                        D_0071D900[1]._0.w |= 0x40;
+                    if (port2Changed != 0 && r != 0) {
+                        mcPortInfo[0]._0.w |= 0x40;
+                        mcPortInfo[1]._0.w |= 0x40;
                     }
-                    if (D_0063B4DC >= 0) {
-                        D_0063B4E0 = D_0063B4DC;
-                    } else if (D_0063B520 != 0) {
-                        D_0063B4E0 = 0;
-                    } else if ((D_0063B4D8->_0.w >> 5) & 1) {
-                        D_0063B4E0 = 1;
+                    if (lastPort >= 0) {
+                        curPort = lastPort;
+                    } else if (port2Changed != 0) {
+                        curPort = 0;
+                    } else if ((curPortInfo->_0.w >> 5) & 1) {
+                        curPort = 1;
                     }
                     break;
                 case -1:
-                    D_0063B4DC = r;
-                    D_0063B4E0 = 0;
-                    D_0063B4D8 = &D_0071D900[0];
-                    D_0063B4D8->_0.w = (int)D_0063B4D8->_0.w & ~4;
-                    D_0063B4D8->_0.w = (int)D_0063B4D8->_0.w & ~0x40;
+                    lastPort = r;
+                    curPort = 0;
+                    curPortInfo = &mcPortInfo[0];
+                    curPortInfo->_0.w = (int)curPortInfo->_0.w & ~4;
+                    curPortInfo->_0.w = (int)curPortInfo->_0.w & ~0x40;
                     break;
                 }
                 break;
@@ -517,34 +505,44 @@ int _la_set_current_port_2(void *p, int a1)
                 r = currentPortLockState();
                 switch (r) {
                 case 1:
-                    D_0063B4E0 = r;
-                    D_0063B4D8 = &D_0071D900[1];
-                    D_0063B4D8->_0.w = (int)D_0063B4D8->_0.w & ~4;
-                    D_0063B4D8->_0.w = (int)D_0063B4D8->_0.w & ~0x40;
+                    curPort = r;
+                    curPortInfo = &mcPortInfo[1];
+                    curPortInfo->_0.w = (int)curPortInfo->_0.w & ~4;
+                    curPortInfo->_0.w = (int)curPortInfo->_0.w & ~0x40;
                     break;
                 case -1:
-                    D_0063B4E0 = 0;
-                    D_0063B4D8 = &D_0071D900[0];
-                    if ((D_0071D900[0]._0.w & 1) || (D_0071D900[1]._0.w & 1)) {
-                        D_0071D900[0]._0.w |= 1;
+                    curPort = 0;
+                    curPortInfo = &mcPortInfo[0];
+                    if ((mcPortInfo[0]._0.w & 1) || (mcPortInfo[1]._0.w & 1)) {
+                        mcPortInfo[0]._0.w |= 1;
                     }
-                    if (((D_0071D900[0]._0.w >> 1) & 1) || ((D_0071D900[1]._0.w >> 1) & 1)) {
-                        D_0063B4D8->_0.w |= 2;
+                    if (((mcPortInfo[0]._0.w >> 1) & 1) || ((mcPortInfo[1]._0.w >> 1) & 1)) {
+                        curPortInfo->_0.w |= 2;
                     }
-                    D_0063B4D8->_0.w = (int)D_0063B4D8->_0.w & ~4;
-                    D_0063B4D8->_0.w = (int)D_0063B4D8->_0.w & ~0x40;
+                    curPortInfo->_0.w = (int)curPortInfo->_0.w & ~4;
+                    curPortInfo->_0.w = (int)curPortInfo->_0.w & ~0x40;
                     _la_set_current_port_2(p, 1);
                     return -1;
                 }
                 break;
             }
-            D_0063B4D8 = &D_0071D900[D_0063B4E0];
+            curPortInfo = &mcPortInfo[curPort];
             _la_set_current_port_2(p, 1);
             return 1;
         }
     }
     return 0;
 }
+
+static int lock2Restart = 1; /* derived name */
+
+static int lock2Step = 0; /* derived name */
+
+static int lock2SubStep = 0; /* derived name */
+
+static int lock2Changed = 0; /* derived name */
+
+static int lock2Locked = 0; /* derived name */
 
 /* layout_action.c:1157-1218 in the listing. */
 int _la_set_current_port_lock_2(void *p, int a1)
@@ -554,129 +552,161 @@ int _la_set_current_port_lock_2(void *p, int a1)
     int a;
     int q;
 
-    if (a1 != 0 || D_0063B528 != 0) {
-        *(int *)((char *)p + 8) = D_0063B4E0;
-        D_0063B52C = 0;
-        D_0063B528 = 0;
-        D_0063B530 = 0;
-        D_0063B4F0 = 0;
+    if (a1 != 0 || lock2Restart != 0) {
+        *(int *)((char *)p + 8) = curPort;
+        lock2Step = 0;
+        lock2Restart = 0;
+        lock2SubStep = 0;
+        fileMask = 0;
         return 0;
     }
-    D_0063B4D8 = &D_0071D900[*(int *)((char *)p + 8)];
-    D_0063B52C = _la_memory_card_check(p, D_0063B52C);
-    if (D_0063B52C != 99) {
+    curPortInfo = &mcPortInfo[*(int *)((char *)p + 8)];
+    lock2Step = _la_memory_card_check(p, lock2Step);
+    if (lock2Step != 99) {
         return 0;
     }
     r = currentPortLockState();
     lock2PortState = r;
-    D_0063B534 = (D_0063B4D8->_0.w >> 5) & 1;
-    D_0063B538 = ((D_0063B4D8->_0.w >> 1) & 1) && (D_0063B4D8->_0.w & 0x38) != 8;
-    tmp = *D_0063B4D8;
+    lock2Changed = (curPortInfo->_0.w >> 5) & 1;
+    lock2Locked = ((curPortInfo->_0.w >> 1) & 1) && (curPortInfo->_0.w & 0x38) != 8;
+    tmp = *curPortInfo;
     switch (lock2PortState) {
     case 1:
-        a = D_0063B4D8->_0.w >> 5;
+        a = curPortInfo->_0.w >> 5;
         a &= 1;
         q = 0;
-        if ((D_0063B4D8->_0.w >> 1) & 1) {
-            if ((D_0063B4D8->_0.w & 0x38) != 8) {
+        if ((curPortInfo->_0.w >> 1) & 1) {
+            if ((curPortInfo->_0.w & 0x38) != 8) {
                 q = 1;
             }
         }
-        if (D_0063B538 != 0 && q != 0) {
-            D_0071D900[*(int *)((char *)p + 8)]._0.w |= 4;
+        if (lock2Locked != 0 && q != 0) {
+            mcPortInfo[*(int *)((char *)p + 8)]._0.w |= 4;
         }
-        if (D_0063B534 != 0 && a != 0) {
-            D_0071D900[*(int *)((char *)p + 8)]._0.w |= 0x40;
+        if (lock2Changed != 0 && a != 0) {
+            mcPortInfo[*(int *)((char *)p + 8)]._0.w |= 0x40;
         }
         _la_set_current_port_lock_2(p, 1);
         return 1;
     case -1:
-        D_0063B4D8 = &D_0071D900[D_0063B4E0];
-        D_0063B4D8->_0.w = (int)D_0063B4D8->_0.w & ~4;
-        D_0063B4D8->_0.w = (int)D_0063B4D8->_0.w & ~0x40;
+        curPortInfo = &mcPortInfo[curPort];
+        curPortInfo->_0.w = (int)curPortInfo->_0.w & ~4;
+        curPortInfo->_0.w = (int)curPortInfo->_0.w & ~0x40;
         return -1;
     }
     return 0;
 }
 
+static int portNewStep = 0; /* derived name */
+
+static int portNewRestart = 1; /* derived name */
+
 /* layout_action.c:1222-1288 in the listing.  The switch table is jtbl_0061D930
-   (5 arms, selector D_0063B53C, cases 0..4). */
+   (5 arms, selector portNewStep, cases 0..4). */
 int _la_set_current_port_new(McWork *p, int a1)
 {
     int r = 0;
     int v;
 
     if (a1) {
-        D_0063B53C = 0;
-        D_0063B4E0 = -1;
+        portNewStep = 0;
+        curPort = -1;
     }
-    switch (D_0063B53C) {
+    switch (portNewStep) {
     case 0:
     case 2:
-        D_0063B4E0++;
-        D_0063B540 = 1;
-        D_0063B53C++;
+        curPort++;
+        portNewRestart = 1;
+        portNewStep++;
         break;
     case 1:
-        port0LockResult = _la_set_current_port_lock_2(p, D_0063B540);
-        D_0063B540 = 0;
+        port0LockResult = _la_set_current_port_lock_2(p, portNewRestart);
+        portNewRestart = 0;
         if (port0LockResult == 0) {
             break;
         }
-        D_0063B53C++;
+        portNewStep++;
         break;
     case 3:
-        port1LockResult = _la_set_current_port_lock_2(p, D_0063B540);
-        D_0063B540 = 0;
+        port1LockResult = _la_set_current_port_lock_2(p, portNewRestart);
+        portNewRestart = 0;
         if (port1LockResult == 0) {
             break;
         }
-        D_0063B53C++;
+        portNewStep++;
         break;
     case 4:
-        if (((D_0071D900[0]._0.w >> 1) & 1) && ((D_0071D900[1]._0.w >> 1) & 1))
+        if (((mcPortInfo[0]._0.w >> 1) & 1) && ((mcPortInfo[1]._0.w >> 1) & 1))
             v = 1;
         else
             v = 0;
-        D_0071D900[0]._0.bit.f2 = D_0071D900[1]._0.bit.f2 = v;
-        if (((D_0071D900[0]._0.w >> 5) & 1) && ((D_0071D900[1]._0.w >> 5) & 1))
+        mcPortInfo[0]._0.bit.f2 = mcPortInfo[1]._0.bit.f2 = v;
+        if (((mcPortInfo[0]._0.w >> 5) & 1) && ((mcPortInfo[1]._0.w >> 5) & 1))
             v = 1;
         else
             v = 0;
-        D_0071D900[0]._0.bit.f6 = D_0071D900[1]._0.bit.f6 = v;
+        mcPortInfo[0]._0.bit.f6 = mcPortInfo[1]._0.bit.f6 = v;
         if (port0LockResult == 1) {
-            D_0063B4E0 = 0;
+            curPort = 0;
             r = 1;
         } else if (port1LockResult == 1) {
-            D_0063B4E0 = 1;
+            curPort = 1;
             r = 1;
         } else {
-            if (((D_0071D900[0]._0.w >> 1) & 1) == 0 && D_0071D900[1]._0.bit.f1 == 1) {
-                D_0063B4E0 = 1;
+            if (((mcPortInfo[0]._0.w >> 1) & 1) == 0 && mcPortInfo[1]._0.bit.f1 == 1) {
+                curPort = 1;
             } else {
-                D_0063B4E0 = 0;
+                curPort = 0;
             }
             r = -1;
         }
-        p->_8 = D_0063B4E0;
-        D_0063B4D8 = &D_0071D900[D_0063B4E0];
+        p->_8 = curPort;
+        curPortInfo = &mcPortInfo[curPort];
         break;
     }
     return r;
 }
 
-/* INTERIM (see the PSH_POSITIVE_OR_NEGATIVE note at the head of this file): the
- * listing inlines keyconfig_reset (line 1438) into la_vibe_select, so it is a
- * public `inline` of the deferred tail; until that tail is reordered its copy is
- * emitted as a plain function at its ROM position (after
- * PSH_POSITIVE_OR_NEGATIVE) and the caller inlines this static stand-in, which
- * collapses at layout. */
-static inline void keyconfigReset(void)
-{
-    struct S40 tmp;
+extern int D_0028F4EC[];
 
-    tmp = D_0061D968;
-    *(struct S40 *)&iosPadConfCustom[44] = tmp;
+inline int la_boot_memory_card_check(void)
+{
+    if (kanbanBootEnd == 0) {
+        return -1;
+    }
+    D_0028F4EC[0] = 7;
+    layout_boot_flag = 1;
+    lt_set_item_select_func(0);
+    actionStarted = 0;
+    return 0x37;
+}
+
+inline int la_boot_no_memory_card(int a0, int a1)
+{
+    debug_StdPrintfDummy("no memoca\n");
+    return a1;
+}
+
+inline int la_boot_no_free_area(int a0, int a1)
+{
+    debug_StdPrintfDummy("no free\n");
+    return a1;
+}
+
+inline int la_boot_confirm_memory_card(void)
+{
+    if (D_0028F8F4[0] & 0x40) {
+        return lt_link_layout(0);
+    }
+    return -1;
+}
+
+inline void keyconfig_reset(void)
+{
+    KeyConf def = {{0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0020, 0x0040, 0x0080, 0x0100, 0x0200,
+                    0x0400, 0x0800, 0x1000, 0x2000, 0x4000, 0x8000}};
+
+    *(KeyConf *)&iosPadConfCustom[44] = def;
 }
 
 /* layout_action.c:1455-1490 in the listing. */
@@ -697,7 +727,7 @@ int la_vibe_select(void)
         }
         D_0063BE6C = 0;
         gflagInit();
-        keyconfigReset();
+        keyconfig_reset();
         D_0028F4D0[0] = 0;
         gflagOn(382);
         return -1;
@@ -710,9 +740,38 @@ int la_vibe_select(void)
     }
     NEGATIVE_SE();
     lt_set_item_select_func(0);
-    D_0063B4F4 = 0;
+    actionStarted = 0;
     return 0xC;
 }
+
+extern int D_0028F4D4[];
+/* kept local: this TU's uses of stgmgrNextStagePreLoadForceStageSet do not fit the prototype in StageManager.h */
+extern void stgmgrNextStagePreLoadForceStageSet(int val);
+
+inline int la_scei_logo(int a0)
+{
+    if (a0) {
+        stgmgrNextStagePreLoadForceStageSet(0);
+        logoIcoMiscLock = lock_execIcoMisc;
+        D_0028F4D4[0] = 1;
+        iosPadEnable();
+        isysGObjActiveLink(0, 0);
+        gflagOff(386);
+        if (layout_boot_flag == 0) {
+            layout_boot_flag = 1;
+        }
+    }
+    return -1;
+}
+
+int title_demo_mode = 0;
+
+inline int la_title_demo(void)
+{
+    return -1;
+}
+
+static int continueDecided = 0; /* derived name */
 
 /* layout_action.c:1579-1630 in the listing. */
 int la_title_continue_or_new(int a0)
@@ -727,10 +786,10 @@ int la_title_continue_or_new(int a0)
         if (gflagChk(385) == 0) {
             gflagOn(385);
         }
-        D_0063B548 = 0;
+        continueDecided = 0;
         D_0063B5F8 = 0;
     }
-    if (D_0063B548 != 0) {
+    if (continueDecided != 0) {
         D_0063B620 = 0;
         lt_mask_property(0x31, 0);
         lt_mask_property(0x32, 0);
@@ -739,20 +798,20 @@ int la_title_continue_or_new(int a0)
         lt_mask_property(0x31, 1);
         lt_mask_property(0x32, 1);
     }
-    if (D_0063B548 != 0 && (D_0028F8F4[0] & 0x840) && lt_fade_status() == 2) {
+    if (continueDecided != 0 && (D_0028F8F4[0] & 0x840) && lt_fade_status() == 2) {
         D_0063B5F8 = 1;
         soundSeDefPlay(414, 0xFFFFFFFF, 0, 0);
         switch (lt_current_property_item()) {
         case 0x31:
             D_0063BE68 = 2;
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x14;
         case 0x32:
             D_0063BE68 = 2;
             gFlagGameClear = 0;
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 9;
         }
     }
@@ -760,20 +819,22 @@ int la_title_continue_or_new(int a0)
     case 0:
         break;
     case 1:
-        if ((D_0063B4D8->_0.w & 0x22) == 2) {
+        if ((curPortInfo->_0.w & 0x22) == 2) {
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0xD;
         }
-        D_0063B548 = 1;
+        continueDecided = 1;
         break;
     case -1:
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0xD;
     }
     return -1;
 }
+
+static int newGameDecided = 0; /* derived name */
 
 /* layout_action.c:1647-1700 in the listing. */
 int la_title_new_game_only(int a0)
@@ -788,48 +849,87 @@ int la_title_new_game_only(int a0)
         if (gflagChk(385) == 0) {
             gflagOn(385);
         }
-        D_0063B54C = 0;
+        newGameDecided = 0;
         D_0063B5F8 = 0;
-        D_0063B4DC = -1;
+        lastPort = -1;
     }
-    if (D_0063B54C != 0) {
+    if (newGameDecided != 0) {
         D_0063B620 = 0;
         lt_mask_property(51, 0);
     } else {
         D_0063B620 = 1;
         lt_mask_property(51, 1);
     }
-    if (D_0063B54C != 0 && (D_0028F8F4[0] & 0x840) && lt_fade_status() == 2) {
+    if (newGameDecided != 0 && (D_0028F8F4[0] & 0x840) && lt_fade_status() == 2) {
         soundSeDefPlay(414, 0xFFFFFFFF, 0, 0);
         D_0063B5F8 = 1;
         D_0063BE68 = 2;
         gFlagGameClear = 0;
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 9;
     }
     switch (_la_set_current_port_2(mc, a0)) {
     case 0:
         break;
     case -1:
-        D_0063B54C = 1;
+        newGameDecided = 1;
         break;
     case 1:
-        if ((D_0063B4D8->_0.w >> 5) & 1) {
+        if ((curPortInfo->_0.w >> 5) & 1) {
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0xC;
         }
-        D_0063B54C = 1;
+        newGameDecided = 1;
         break;
     }
     return -1;
 }
 
-extern int D_0063B4E4;
-extern int D_0063B55C;
-extern int D_0063B560;
-extern int D_0063B564;
+static int filePort = -1; /* derived name */
+
+static int saveSerial = 0; /* derived name */
+
+static int loadSerial = 0; /* derived name */
+
+static int savedFileNo = 0; /* derived name */
+
+static int fileMoved = 0; /* derived name */
+
+static int fileFirst = 1; /* derived name */
+
+inline int la_mc_saved_file_select(int a0)
+{
+    int i = a0 - 0x3E;
+    int old = i;
+
+    lt_analog2Pad();
+    do {
+        if (D_0028F8F4[0] & 0x1000) {
+            i += 5;
+        } else if (D_0028F8F4[0] & 0x4000) {
+            i -= 5;
+        } else if (D_0028F8F4[0] & 0x8000) {
+            i -= 1;
+        } else if (D_0028F8F4[0] & 0x2000) {
+            i += 1;
+        } else if (IosMcProductFile[filePort].f[i]._0 == 0xFFFFFFFF) {
+            i++;
+        }
+        if (i < 0) {
+            i += 10;
+        }
+        if (i >= 10) {
+            i -= 10;
+        }
+    } while (IosMcProductFile[filePort].f[i]._0 == 0xFFFFFFFF);
+    if (old != i) {
+        CUR_SE();
+    }
+    return i + 0x3E;
+}
+
 extern int D_00534324[];
 
 /* layout_action.c:1780-1786 in the listing: inlined into la_mc_file_select
@@ -841,9 +941,9 @@ extern int D_00534324[];
    branches and share one zero block. */
 static inline int mcCurrentFileNo(void)
 {
-    int port = D_0063B550;
+    int port = filePort;
     int no = (IosMcProductFile + port)->_1E0;
-    if (D_0071D900[port]._4 == 0 || IosMcProductFile[port].f[no]._0 == 0xFFFFFFFF)
+    if (mcPortInfo[port]._4 == 0 || IosMcProductFile[port].f[no]._0 == 0xFFFFFFFF)
         return 0;
     return no;
 }
@@ -852,10 +952,10 @@ static inline int mcCurrentFileNo(void)
    la_mc_file_select, so it is a static inline here too. */
 static inline int mcFileNoOfPort(void)
 {
-    int port = D_0063B550;
+    int port = filePort;
 
-    if (D_0063B558 == (IosMcProductFile + port)->_1E4)
-        return D_0063B55C;
+    if (loadSerial == (IosMcProductFile + port)->_1E4)
+        return savedFileNo;
     return mcCurrentFileNo();
 }
 
@@ -864,31 +964,31 @@ int la_mc_file_select(int a0)
 {
     int i;
 
-    D_0063B4E4 = lt_current_property_item() - 62;
+    curFile = lt_current_property_item() - 62;
 
     if (a0) {
-        D_0063B564 = 1;
-        D_0063B560 = 0;
+        fileFirst = 1;
+        fileMoved = 0;
     }
 
-    if (D_0063B4F4 == 0) {
+    if (actionStarted == 0) {
         D_0063B620 = 1;
         return -1;
     }
 
-    if (D_0063B564 != 0) {
-        D_0063B564 = 0;
+    if (fileFirst != 0) {
+        fileFirst = 0;
         if (mcLoadMode != 0) {
-            D_0063B4E4 = mcCurrentFileNo();
+            curFile = mcCurrentFileNo();
         } else {
-            D_0063B4E4 = mcFileNoOfPort();
+            curFile = mcFileNoOfPort();
         }
-        D_00534324[0] = D_0063B4E4 + 62;
-        D_0063B560 = 1;
+        D_00534324[0] = curFile + 62;
+        fileMoved = 1;
     }
 
     for (i = 0; i < 10; i++) {
-        if (((D_0063B4F0 >> i) & 1) && IosMcProductFile[D_0063B550].f[i]._0 != 0xFFFFFFFF) {
+        if (((fileMask >> i) & 1) && IosMcProductFile[filePort].f[i]._0 != 0xFFFFFFFF) {
             lt_mask_property(i + 62, 0);
             lt_mask_property(i + 52, 1);
         } else {
@@ -897,9 +997,9 @@ int la_mc_file_select(int a0)
         }
     }
 
-    previewInfo = *(struct S14 *)&IosMcProductFile[D_0063B550].f[D_0063B4E4];
+    previewInfo = *(struct S14 *)&IosMcProductFile[filePort].f[curFile];
 
-    return (D_0028F8F0[0].flags & 0x50) ? D_0063B4E4 : -1;
+    return (D_0028F8F0[0].flags & 0x50) ? curFile : -1;
 }
 
 /* layout_action.c:1924-1942 in the listing. */
@@ -956,10 +1056,10 @@ void _la_set_preview_info(void)
 
     _la_mask_preview_info();
 
-    if (((D_0063B4F0 >> D_0063B4E4) & 1) == 0) {
+    if (((fileMask >> curFile) & 1) == 0) {
         return;
     }
-    if (IosMcProductFile[D_0063B550].f[D_0063B4E4]._0 == 0xFFFFFFFF) {
+    if (IosMcProductFile[filePort].f[curFile]._0 == 0xFFFFFFFF) {
         return;
     }
 
@@ -998,12 +1098,30 @@ void _la_set_preview_info(void)
     }
 }
 
+inline int la_mc_preview_info(void)
+{
+    if (fileMask == 0) {
+        if ((1 >> curFile) & 1) {
+            return -1;
+        }
+    }
+    _la_set_preview_info();
+    return -1;
+}
+
+inline int la_mc_current_slot(void)
+{
+    lt_mask_property(0xB0, curPort);
+    lt_mask_property(0xB1, curPort ^ 1);
+    return -1;
+}
+
 /* layout_action.c:1808-1814 in the listing: inlined once, into
    la_load_game_memory_card_check, so it is a static inline here; it has no
    symbol of its own in the ROM and no census row, and the name is descriptive. */
 static inline void setLoadGameStartItem(void)
 {
-    if (D_0063B558 == IosMcProductFile[0]._1E4 || D_0063B554 != IosMcProductFile[1]._1E4) {
+    if (loadSerial == IosMcProductFile[0]._1E4 || saveSerial != IosMcProductFile[1]._1E4) {
         D_005343C8[0] = 186;
     } else {
         D_005343C8[0] = 187;
@@ -1023,42 +1141,62 @@ int la_load_game_memory_card_check(int a0)
             return -1;
         }
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0x16;
     case -1:
-        if ((D_0063B4D8->_0.w >> 1) & 1) {
+        if ((curPortInfo->_0.w >> 1) & 1) {
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x17;
         }
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0x16;
     case 1:
-        if ((D_0063B4D8->_0.w >> 6) & 1) {
+        if ((curPortInfo->_0.w >> 6) & 1) {
             setLoadGameStartItem();
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x11;
         }
-        if ((D_0063B4D8->_0.w >> 5) & 1) {
+        if ((curPortInfo->_0.w >> 5) & 1) {
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x13;
         }
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0x17;
     }
     return -1;
 }
 
-extern int D_0063B568;
-extern int D_0063B56C;
+inline int la_mc_load_current_slot_select(void)
+{
+    _la_mask_preview_info();
+    if (D_0028F8F4[0] & 0x40) {
+        curPort = lt_current_property_item() - 0xBA;
+        lastPort = curPort;
+        curPortInfo = &mcPortInfo[curPort];
+        POSITIVE_SE();
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x13;
+    }
+    if (D_0028F8F4[0] & 0x10) {
+        NEGATIVE_SE();
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0xC;
+    }
+    return -1;
+}
+
 /* the two load-select trace messages, VMA 0x63B570 and 0x63B578 (.sdata) */
-extern char D_0063B570[];
-extern char D_0063B578[];
-int la_mc_saved_file_select(int a0);
+
+static int loadCardChanged = 1; /* derived name */
+
+static int loadFileChosen = 0; /* derived name */
 
 /* layout_action.c:2139-2235 in the listing. */
 int la_mc_load_file_select(int a0, int a1)
@@ -1066,12 +1204,12 @@ int la_mc_load_file_select(int a0, int a1)
     int r;
 
     if (a0) {
-        D_0063B4F0 = 0;
-        D_0063B4DC = D_0063B550 = D_0063B4E0;
-        D_0063B56C = 0;
+        fileMask = 0;
+        lastPort = filePort = curPort;
+        loadFileChosen = 0;
     }
 
-    if (D_0063B4F0 != 0) {
+    if (fileMask != 0) {
         _la_set_preview_info();
         lt_mask_property(73, 1);
         lt_mask_property(72, 1);
@@ -1089,17 +1227,17 @@ int la_mc_load_file_select(int a0, int a1)
     if (D_0028F8F4[0] & 0x10) {
         NEGATIVE_SE();
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 12;
     }
 
-    if ((D_0063B4F0 != 0 || D_0063B56C != 0) && (D_0028F8F4[0] & 0x40)) {
+    if ((fileMask != 0 || loadFileChosen != 0) && (D_0028F8F4[0] & 0x40)) {
         POSITIVE_SE();
-        if (IosMcProductFile[D_0063B550].f[a1]._0 != 0xFFFFFFFF) {
-            D_0063B4E8 = a1;
-            D_0063B4DC = D_0063B550;
+        if (IosMcProductFile[filePort].f[a1]._0 != 0xFFFFFFFF) {
+            selectFile = a1;
+            lastPort = filePort;
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 21;
         }
     }
@@ -1107,23 +1245,23 @@ int la_mc_load_file_select(int a0, int a1)
     r = _la_set_current_port_lock_2(mc, a0);
     switch (r) {
     case -1:
-        if (((D_0063B4D8->_0.w >> 1) & 1) == 0) {
+        if (((curPortInfo->_0.w >> 1) & 1) == 0) {
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 22;
         }
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 23;
     case 1:
-        if (((D_0063B4D8->_0.w >> 1) & 1) == 0) {
+        if (((curPortInfo->_0.w >> 1) & 1) == 0) {
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 22;
         }
-        if ((D_0063B4D8->_0.w & 0x22) == 2) {
+        if ((curPortInfo->_0.w & 0x22) == 2) {
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 23;
         }
         break;
@@ -1132,24 +1270,24 @@ int la_mc_load_file_select(int a0, int a1)
         return -1;
     }
 
-    if (D_0063B4F0 != 0) {
-        if (D_0063B568 == 0) {
-            if (((D_0063B4D8->_0.w >> 6) & 1) != 0) {
-                debug_StdPrintfDummy(D_0063B570);
+    if (fileMask != 0) {
+        if (loadCardChanged == 0) {
+            if (((curPortInfo->_0.w >> 6) & 1) != 0) {
+                debug_StdPrintfDummy("1 to 2\n");
                 lt_set_item_select_func(0);
-                D_0063B4F4 = 0;
+                actionStarted = 0;
                 return 17;
             }
-        } else if (((D_0063B4D8->_0.w >> 6) & 1) == 0) {
-            debug_StdPrintfDummy(D_0063B578);
-            D_0063B568 = (D_0063B4D8->_0.w >> 6) & 1;
+        } else if (((curPortInfo->_0.w >> 6) & 1) == 0) {
+            debug_StdPrintfDummy("2 to 1\n");
+            loadCardChanged = (curPortInfo->_0.w >> 6) & 1;
         }
     } else {
-        D_0063B568 = (D_0063B4D8->_0.w >> 6) & 1;
-        D_0063B4F0 = D_0063B4D8->_4;
-        D_0063B4F4 = r;
-        if ((D_0063B4D8->_0.w & 0xA) == 2) {
-            D_0063B56C = r;
+        loadCardChanged = (curPortInfo->_0.w >> 6) & 1;
+        fileMask = curPortInfo->_4;
+        actionStarted = r;
+        if ((curPortInfo->_0.w & 0xA) == 2) {
+            loadFileChosen = r;
         }
     }
     return -1;
@@ -1161,37 +1299,37 @@ int la_load_confirm_no_memory_card(int a0)
     if (a0) {
         _la_mask_preview_info();
     }
-    if (pshPositiveOrNegative(0)) {
+    if (PSH_POSITIVE_OR_NEGATIVE(0)) {
         NEGATIVE_SE();
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0xD;
     }
     switch (_la_set_current_port_lock_2(mc, a0)) {
     case 0:
         break;
     case -1:
-        if ((D_0063B4D8->_0.w & 0x32) == 2 || (D_0063B4D8->_0.w & 0x22) == 2) {
+        if ((curPortInfo->_0.w & 0x32) == 2 || (curPortInfo->_0.w & 0x22) == 2) {
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x17;
         }
-        if ((D_0063B4D8->_0.w >> 1) & 1) {
+        if ((curPortInfo->_0.w >> 1) & 1) {
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x14;
         }
-        D_0063B528 = 1;
+        lock2Restart = 1;
         break;
     case 1:
-        if ((D_0063B4D8->_0.w & 0x32) == 2 || (D_0063B4D8->_0.w & 0x22) == 2) {
+        if ((curPortInfo->_0.w & 0x32) == 2 || (curPortInfo->_0.w & 0x22) == 2) {
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x17;
         }
-        if ((D_0063B4D8->_0.w >> 1) & 1) {
+        if ((curPortInfo->_0.w >> 1) & 1) {
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x14;
         }
         break;
@@ -1205,27 +1343,27 @@ int la_load_confirm_no_data(int a0)
     if (a0) {
         _la_mask_preview_info();
     }
-    if (pshPositiveOrNegative(0)) {
+    if (PSH_POSITIVE_OR_NEGATIVE(0)) {
         NEGATIVE_SE();
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0xD;
     }
     switch (_la_set_current_port_lock_2(mc, a0)) {
     case 0:
         break;
     case -1:
-        if (((D_0063B4D8->_0.w >> 1) & 1) == 0) {
+        if (((curPortInfo->_0.w >> 1) & 1) == 0) {
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x16;
         }
-        D_0063B528 = 1;
+        lock2Restart = 1;
         break;
     case 1:
-        if ((D_0063B4D8->_0.w >> 5) & 1) {
+        if ((curPortInfo->_0.w >> 5) & 1) {
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x14;
         }
         break;
@@ -1238,55 +1376,44 @@ int la_load_start_check(int a0)
 {
     switch (_la_set_current_port_lock_2(mc, a0)) {
     case 0:
-        D_0063B4F0 = 0x3FF;
+        fileMask = 0x3FF;
         if (mcLastResult == 0 || mcLastResult == -14) {
             return -1;
         }
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0x2E;
     case -1:
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0x2E;
     case 1:
-        if (D_0063B550 != D_0063B4E0) {
+        if (filePort != curPort) {
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x2E;
         }
-        if ((D_0063B4D8->_0.w & 3) != 3) {
+        if ((curPortInfo->_0.w & 3) != 3) {
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x16;
         }
-        if ((D_0063B4D8->_4 >> D_0063B4E8) & 1) {
-            D_0063B4F0 = 0x3FF;
+        if ((curPortInfo->_4 >> selectFile) & 1) {
+            fileMask = 0x3FF;
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x19;
         }
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0x17;
     }
     return -1;
 }
 
-extern int D_0063B580;
 /* the load-phase messages in .rodata, VMA 0x61D9A8..0x61DA30 */
-extern int D_0061D9A8[];
-extern int D_0061D9C0[];
-extern int D_0061D9D0[];
-extern int D_0061D9E8[];
-extern int D_0061D9F8[];
-extern int D_0061DA08[];
-extern int D_0061DA20[];
-extern int D_0061DA30[];
 /* "chk:%d\n" and "case 4\n", short strings in this TU's .sdata at VMA
    0x63B588 and 0x63B590 */
-extern int D_0063B588[];
-extern int D_0063B590[];
 /* the twenty game-flag ids the load carries across gflagInit */
 extern int D_004E3B40[];
 extern char D_004DA788[];
@@ -1309,7 +1436,7 @@ static inline int mcSetFileNo(int port, int no)
 {
     int serial = (IosMcProductFile + port)->_1E4;
 
-    D_0063B55C = no;
+    savedFileNo = no;
     return serial;
 }
 
@@ -1340,10 +1467,12 @@ static inline void gflagRestoreState(void)
     }
 }
 
+static int loadStep = 0; /* derived name */
+
 /* layout_action.c:2393-2536 in the listing, with the menu-close pair of lines
    707-708, the play time of lines 829-832, the flag-keeping pair of lines
    2370-2382 and the serial readback of lines 1798-1799 inlined into it.  The
-   switch table is jtbl_0061DA40 (21 arms, selector D_0063B580, cases 0-10 and
+   switch table is jtbl_0061DA40 (21 arms, selector loadStep, cases 0-10 and
    20). */
 int la_load_processing(int a0)
 {
@@ -1352,65 +1481,65 @@ int la_load_processing(int a0)
     int min;
     int sec;
 
-    debug_StdPrintfDummy(D_0061D9A8);
+    debug_StdPrintfDummy("load processing\n");
     if (a0) {
-        D_0063B580 = 0;
+        loadStep = 0;
     }
 
-    switch (D_0063B580) {
+    switch (loadStep) {
     case 0:
         strcpy((char *)mc + 0x47C, "game.");
-        mc[16] = D_0063B4E8;
-        mc[2] = D_0063B4E0;
+        mc[16] = selectFile;
+        mc[2] = curPort;
         mc[3] = 0;
         iosMcGetBlockSaveInfo(mc);
-        D_0063B580++;
+        loadStep++;
         break;
     case 1:
     case 3:
         if (iosMcSync((unsigned long *)mc) != 0) {
-            D_0063B580++;
+            loadStep++;
         }
         break;
     case 2:
-        D_0063B580++;
+        loadStep++;
         break;
     case 6:
     case 9:
-        debug_StdPrintfDummy(D_0061D9C0, D_0063B580);
+        debug_StdPrintfDummy("case %d\n", loadStep);
         err = _la_mcard_error_check(mc);
         if (err > 0) {
-            D_0063B580++;
-            debug_StdPrintfDummy(D_0061D9D0, D_0063B580, err);
-            debug_StdPrintfDummy(D_0061D9E8);
+            loadStep++;
+            debug_StdPrintfDummy("McLoad phase:%d  %x\n", loadStep, err);
+            debug_StdPrintfDummy("phase++\n");
             return -1;
         }
-        debug_StdPrintfDummy(D_0061D9F8);
-        debug_StdPrintfDummy(D_0063B588, err);
+        debug_StdPrintfDummy("through\n");
+        debug_StdPrintfDummy("chk:%d\n", err);
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 46;
     case 4:
-        debug_StdPrintfDummy(D_0063B590);
+        debug_StdPrintfDummy("case 4\n");
         if (((1 << mc[16]) & ((McWork *)mc)->_9C0) == 0) {
-            D_0063B580 = 20;
+            loadStep = 20;
         } else {
             iosMcLoadProductBlock(mc);
-            D_0063B580++;
+            loadStep++;
         }
         break;
     case 5:
     case 8:
-        debug_StdPrintfDummy(D_0061D9C0, D_0063B580);
+        debug_StdPrintfDummy("case %d\n", loadStep);
         if (iosMcSync((unsigned long *)mc) != 0) {
-            D_0063B580++;
+            loadStep++;
         }
         break;
     case 7:
-        debug_StdPrintfDummy(D_0061D9C0, D_0063B580);
-        debug_StdPrintfDummy(D_0061DA08);
+        debug_StdPrintfDummy("case %d\n", loadStep);
+        debug_StdPrintfDummy("=== LoadGameBlock ===\n");
         iosMcLoadGameBlock(mc, D_004DD700);
-        D_0063B580++;
+        loadStep++;
         break;
     case 10:
         gflagKeepState();
@@ -1419,12 +1548,12 @@ int la_load_processing(int a0)
         gflagRestoreState();
         D_0028F4C0[3] = 1;
         D_0028F4C0[4] = 1;
-        debug_StdPrintfDummy(D_0061DA20);
-        D_0063B580 = 0;
+        debug_StdPrintfDummy("case 10\n");
+        loadStep = 0;
         *(struct S14 *)IosMcPreviewInfo = *(struct S14 *)&IosMcProductFile[mc[2]].f[mc[16]];
         playTime((struct S14 *)IosMcPreviewInfo, &hour, &min, &sec);
-        D_0063B558 = mcSetFileNo(mc[2], mc[16]);
-        debug_StdPrintfDummy(D_0061DA30, gFlagSaveStage);
+        loadSerial = mcSetFileNo(mc[2], mc[16]);
+        debug_StdPrintfDummy("stage no %d\n", gFlagSaveStage);
         seEnvForceClose = 1;
         if (D_0063BE6C != 0) {
             *(short *)(*(int *)(D_0063BE6C + 0x2C) + 0x44) = 0x40;
@@ -1432,7 +1561,7 @@ int la_load_processing(int a0)
         D_0063BE6C = 0;
         if (gflagChk(395)) {
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 9;
         }
         stgmgrForceSwitchWithFade(0.05f, 4.0f, gFlagSaveStage);
@@ -1440,8 +1569,16 @@ int la_load_processing(int a0)
         return -1;
     case 20:
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 20;
+    }
+    return -1;
+}
+
+inline int la_general_mc_confirm(void)
+{
+    if (D_0028F8F4[0] & 0x40) {
+        return lt_current_property_item();
     }
     return -1;
 }
@@ -1451,8 +1588,6 @@ extern void scpFadeIn(float sec);
 extern int D_0063AA08;
 extern void soundSePlayModeStop(int a0);
 extern void iosPadActStopAll(void);
-extern int D_0063B5E4;
-extern int D_0063B5E8;
 extern void soundDataOpen(void *p, int a1, int a2, int a3, int t0);
 extern char *soundDataOpenSync(void *p);
 
@@ -1462,7 +1597,7 @@ extern char *soundDataOpenSync(void *p);
    ROM and no census row, and the name is descriptive. */
 static inline int openLayoutVoice(int no)
 {
-    if (D_0063B4FC != 0) {
+    if (layoutVoice != 0) {
         return 0;
     }
     soundDataOpen(&voiceOpenReq, 2, no, 1, 0);
@@ -1472,6 +1607,12 @@ static inline int openLayoutVoice(int no)
 /* layout_action.c:2591-2678 in the listing. */
 /* extra preview pages to re-mask; none in the release build */
 #define LA_EXTRA_PREVIEW_PAGES 0
+
+static int saveVoice = 0; /* derived name */
+
+static int saveVoiceOpened = 0; /* derived name */
+
+static int saveVoiceWait = 0; /* derived name */
 
 int la_mc_confirm_save_file(int a0, int a1)
 {
@@ -1483,22 +1624,23 @@ int la_mc_confirm_save_file(int a0, int a1)
     if (a0) {
         D_0028F4D4[0] = 1;
         fightSoundProcessRequestPause();
-        D_0063B4F8 = 1;
+        fightSoundStopped = 1;
         CheckPoint();
-        D_0063B59C = 0;
-        D_0063B5A0 = 0;
+        saveVoiceOpened = 0;
+        saveVoiceWait = 0;
     }
-    if (D_0063B59C == 0) {
+    if (saveVoiceOpened == 0) {
         if (AdpcmFreeAreaGet() != 0) {
-            D_0063B598 = openLayoutVoice(0x16);
-            D_0063B59C = 1;
+            saveVoice = openLayoutVoice(0x16);
+            saveVoiceOpened = 1;
         } else {
-            debug_StdPrintfDummy(D_0061DA98);
+            debug_StdPrintfDummy("ADPCM一杯で開けませんでした。\n");
             if (AdpcmNotUseIopAreaFree() != 0) {
-                debug_StdPrintfDummy(D_0061DAB8);
+                debug_StdPrintfDummy(
+                    "オープンされていないのにも関わらず使われていないIOP領域発見&強制解放\n");
                 return -1;
             }
-            if (D_0063B5A0-- < 0) {
+            if (saveVoiceWait-- < 0) {
                 AdpcmFadeCloseAll(0x3FFF);
                 return -1;
             }
@@ -1522,12 +1664,12 @@ int la_mc_confirm_save_file(int a0, int a1)
         for (i = 0; i < LA_EXTRA_PREVIEW_PAGES; i++) {
             _la_mask_preview_info();
         }
-        if (D_0063B598 != 0) {
-            D_0063B4FC = soundDataOpenSync(&voiceOpenReq);
-            if (D_0063B4FC != (char *)0xFFFFFFFF) {
-                D_0063B598 = 0;
-                if (D_0063B4FC != 0) {
-                    AdpcmPlay(*(void **)(D_0063B4FC + 0x2C));
+        if (saveVoice != 0) {
+            layoutVoice = soundDataOpenSync(&voiceOpenReq);
+            if (layoutVoice != (char *)0xFFFFFFFF) {
+                saveVoice = 0;
+                if (layoutVoice != 0) {
+                    AdpcmPlay(*(void **)(layoutVoice + 0x2C));
                     return -1;
                 }
             }
@@ -1539,13 +1681,13 @@ int la_mc_confirm_save_file(int a0, int a1)
                 case 214:
                     POSITIVE_SE();
                     lt_set_item_select_func(0);
-                    D_0063B4F4 = 0;
+                    actionStarted = 0;
                     return 0x1E;
                 case 215:
                     NEGATIVE_SE();
                     D_0028F4D4[0] = 0;
                     lt_set_item_select_func(0);
-                    D_0063B4F4 = 0;
+                    actionStarted = 0;
                     return 0x36;
                 }
             }
@@ -1560,7 +1702,7 @@ int la_mc_confirm_save_file(int a0, int a1)
             }
             NEGATIVE_SE();
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x36;
         }
     }
@@ -1568,8 +1710,6 @@ int la_mc_confirm_save_file(int a0, int a1)
 }
 
 /* the save-slot report strings, VMA 0x61DB00 and 0x61DB20 */
-extern char D_0061DB00[];
-extern char D_0061DB20[];
 
 /* layout_action.c:1816-1822 in the listing: the save-side twin of
    setLoadGameStartItem, inlined twice into la_save_game_memory_card_check, so
@@ -1577,7 +1717,7 @@ extern char D_0061DB20[];
    census row, and the name is descriptive. */
 static inline void setSaveGameStartItem(void)
 {
-    if (D_0063B558 == IosMcProductFile[0]._1E4 || D_0063B558 != IosMcProductFile[1]._1E4) {
+    if (loadSerial == IosMcProductFile[0]._1E4 || loadSerial != IosMcProductFile[1]._1E4) {
         D_00534400[0] = 186;
     } else {
         D_00534400[0] = 187;
@@ -1591,45 +1731,65 @@ int la_save_game_memory_card_check(int a0)
     mcLoadMode = 0;
     lt_mask_property(0xB0, 1);
     lt_mask_property(0xB1, 1);
-    debug_StdPrintfDummy(D_0061DB00, D_0063B4E0);
+    debug_StdPrintfDummy("save game check port %d\n", curPort);
     switch (_la_set_current_port_new(mc, a0)) {
     case 0:
         break;
     case -1:
-        debug_StdPrintfDummy(D_0063B5A8);
-        if ((D_0063B4D8->_0.w & 3) == 3) {
-            if ((D_0063B4D8->_0.w >> 2) & 1) {
+        debug_StdPrintfDummy("fail\n");
+        if ((curPortInfo->_0.w & 3) == 3) {
+            if ((curPortInfo->_0.w >> 2) & 1) {
                 setSaveGameStartItem();
                 lt_set_item_select_func(0);
-                D_0063B4F4 = 0;
+                actionStarted = 0;
                 return 0x12;
             }
-            if (((D_0063B4D8->_0.w >> 4) & 1) == 0) {
+            if (((curPortInfo->_0.w >> 4) & 1) == 0) {
                 lt_set_item_select_func(0);
-                D_0063B4F4 = 0;
+                actionStarted = 0;
                 return 0x20;
             }
         }
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0x1F;
     case 1:
-        debug_StdPrintfDummy(D_0061DB20, (D_0063B4D8->_0.w >> 5) & 1, (D_0063B4D8->_0.w >> 4) & 1,
-                             (D_0063B4D8->_0.w & 0xA) == 2);
-        if ((D_0063B4D8->_0.w >> 2) & 1) {
+        debug_StdPrintfDummy("sucess :%d %d %d\n", (curPortInfo->_0.w >> 5) & 1,
+                             (curPortInfo->_0.w >> 4) & 1, (curPortInfo->_0.w & 0xA) == 2);
+        if ((curPortInfo->_0.w >> 2) & 1) {
             setSaveGameStartItem();
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x12;
         }
-        if ((D_0063B4D8->_0.w & 0x30) != 0 || (D_0063B4D8->_0.w & 0xA) == 2) {
+        if ((curPortInfo->_0.w & 0x30) != 0 || (curPortInfo->_0.w & 0xA) == 2) {
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x21;
         }
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0x20;
+    }
+    return -1;
+}
+
+inline int la_mc_save_current_slot_select(void)
+{
+    if (D_0028F8F4[0] & 0x40) {
+        POSITIVE_SE();
+        curPort = lt_current_property_item() - 0xBA;
+        lastPort = curPort;
+        curPortInfo = &mcPortInfo[curPort];
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x21;
+    }
+    if (D_0028F8F4[0] & 0x10) {
+        NEGATIVE_SE();
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x1C;
     }
     return -1;
 }
@@ -1650,14 +1810,7 @@ typedef struct {
     unsigned char a;
 } SprCol;
 
-/* the progress-bar frame and fill rectangles, VMA 0x61DB38 and 0x61DB48 */
-extern SprRect D_0061DB38;
-extern SprRect D_0061DB48;
-extern SprCol D_0063B5B8[];
-extern SprCol D_0063B5C0[];
 extern int fbKeep;
-extern int D_0063B5B0;
-extern int D_0063B5B4;
 /* kept local: this TU's uses of these do not fit the prototypes in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
 extern void gif_SetZTest(int on);
@@ -1666,17 +1819,14 @@ extern void gif_SetAlpha(int a, int b, int c);
 extern void gif_Sprite(void *rect, unsigned int z, void *uv, void *col, int prim);
 extern void gif_EndPacket(void);
 
+static int barStep = 0; /* derived name */
+
+static int barFrame = 0; /* derived name */
+
 /* layout_action.c:2793-2850 in the listing. */
 void progressive_bar(void)
 {
-    SprRect frame;
-    SprCol frameCol;
-    SprRect back;
-    SprCol backCol;
-    SprRect bar;
-    SprCol barCol;
     int n;
-    int w;
 
     if (fbKeep != 0) {
         return;
@@ -1689,33 +1839,38 @@ void progressive_bar(void)
     gif_SetZWrite(0);
     gif_SetZTest(0);
     gif_SetAlpha(1, 2, 64);
-    frame = D_0061DB38;
-    frameCol = D_0063B5B8[0];
-    gif_Sprite(&frame, 0xFFFFFFFF, 0, &frameCol, 1);
-    back = D_0061DB48;
-    memset(&backCol, 0, 4);
-    backCol.a = 0x20;
-    gif_Sprite(&back, 0xFFFFFFFF, 0, &backCol, 1);
-    w = (float)D_0063B5B0 / (float)barTotal * -160.0f;
-    bar.x = -80 - w;
-    bar.y = 13;
-    bar.w = w;
-    bar.h = 1;
-    barCol = D_0063B5C0[0];
-    gif_Sprite(&bar, 0xFFFFFFFF, 0, &barCol, 1);
+    {
+        SprRect frame = {80, 11, -160, 5};
+        SprCol frameCol = {128, 128, 128, 32};
+
+        gif_Sprite(&frame, 0xFFFFFFFF, 0, &frameCol, 1);
+    }
+    {
+        SprRect back = {78, 12, -156, 3};
+        SprCol backCol = {0, 0, 0, 32};
+
+        gif_Sprite(&back, 0xFFFFFFFF, 0, &backCol, 1);
+    }
+    {
+        int w = (float)barStep / (float)barTotal * -160.0f;
+        SprRect bar = {-80 - w, 13, w, 1};
+        SprCol barCol = {64, 255, 64, 32};
+
+        gif_Sprite(&bar, 0xFFFFFFFF, 0, &barCol, 1);
+    }
     gif_SetZTest(1);
     gif_SetZWrite(1);
     gif_SetAlpha(1, 4, 128);
     gif_EndPacket();
     if (n != barLastStep) {
         barLastStep = n;
-        D_0063B5B4++;
+        barFrame++;
     }
 }
 
 /* the two save-select trace messages, VMA 0x61DB58 and 0x61DB68 */
-extern char D_0061DB58[];
-extern char D_0061DB68[];
+
+static int saveCardChanged = 1; /* derived name */
 
 /* layout_action.c:2860-2951 in the listing. */
 int la_mc_save_file_select(int a0, int a1)
@@ -1723,14 +1878,14 @@ int la_mc_save_file_select(int a0, int a1)
     int r;
 
     if (a0) {
-        D_0063B4F0 = 0;
-        D_0063B4DC = D_0063B550 = D_0063B4E0;
+        fileMask = 0;
+        lastPort = filePort = curPort;
         saveSelectReady = 0;
         barTotal = 2;
-        D_0063B5B0 = 0;
+        barStep = 0;
     }
 
-    if (D_0063B4F4 != 0) {
+    if (actionStarted != 0) {
         _la_set_preview_info();
         lt_mask_property(73, 1);
         lt_mask_property(72, 1);
@@ -1743,67 +1898,67 @@ int la_mc_save_file_select(int a0, int a1)
         lt_mask_property(240, 1);
     }
 
-    if (D_0063B4F4 != 0) {
+    if (actionStarted != 0) {
         if (D_0028F8F4[0] & 0x10) {
             NEGATIVE_SE();
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 28;
         }
     }
 
-    if ((D_0063B4F0 != 0 || saveSelectReady != 0) && (D_0028F8F4[0] & 0x40)) {
+    if ((fileMask != 0 || saveSelectReady != 0) && (D_0028F8F4[0] & 0x40)) {
         POSITIVE_SE();
-        D_0063B4E8 = a1;
+        selectFile = a1;
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 34;
     }
 
     r = _la_set_current_port_lock_2(mc, a0);
     switch (r) {
     case -1:
-        if (((D_0063B4D8->_0.w >> 1) & 1) == 0) {
+        if (((curPortInfo->_0.w >> 1) & 1) == 0) {
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 31;
         }
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 32;
     case 1:
-        if (((D_0071D900[D_0063B550]._0.w >> 1) & 1) == 0) {
+        if (((mcPortInfo[filePort]._0.w >> 1) & 1) == 0) {
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 28;
         }
-        if (D_0063B4F0 != 0) {
-            if (D_0063B5C4 == 0) {
-                if (((D_0063B4D8->_0.w >> 2) & 1) != 0) {
+        if (fileMask != 0) {
+            if (saveCardChanged == 0) {
+                if (((curPortInfo->_0.w >> 2) & 1) != 0) {
                     lt_set_item_select_func(0);
-                    D_0063B4F4 = 0;
+                    actionStarted = 0;
                     return 18;
                 }
-            } else if (((D_0063B4D8->_0.w >> 2) & 1) == 0) {
-                D_0063B5C4 = 0;
+            } else if (((curPortInfo->_0.w >> 2) & 1) == 0) {
+                saveCardChanged = 0;
             }
         } else {
-            D_0063B5C4 = (D_0063B4D8->_0.w >> 2) & 1;
-            if ((D_0063B4D8->_0.w >> 3) & 1) {
-                debug_StdPrintfDummy(D_0061DB58);
+            saveCardChanged = (curPortInfo->_0.w >> 2) & 1;
+            if ((curPortInfo->_0.w >> 3) & 1) {
+                debug_StdPrintfDummy("format 2\n");
                 saveSelectReady = r;
-            } else if ((D_0063B4D8->_0.w & 0xA) == 2) {
-                debug_StdPrintfDummy(D_0061DB68);
-                if (D_0063B550 == D_0063B4E0) {
-                    D_0063B4F4 = r;
+            } else if ((curPortInfo->_0.w & 0xA) == 2) {
+                debug_StdPrintfDummy("unformat 2\n");
+                if (filePort == curPort) {
+                    actionStarted = r;
                 }
                 saveSelectReady = r;
                 return -1;
             }
         }
-        if (D_0063B550 == D_0063B4E0) {
-            D_0063B4F0 = D_0063B4D8->_4;
-            D_0063B4F4 = 1;
+        if (filePort == curPort) {
+            fileMask = curPortInfo->_4;
+            actionStarted = 1;
         }
         break;
     case 0:
@@ -1813,9 +1968,67 @@ int la_mc_save_file_select(int a0, int a1)
     return -1;
 }
 
+inline int la_save_confirm_no_memory_card(int a0)
+{
+    if (PSH_POSITIVE_OR_NEGATIVE(0)) {
+        NEGATIVE_SE();
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x1C;
+    }
+    switch (_la_set_current_port_lock_2(mc, a0)) {
+    case 0:
+        break;
+    case -1:
+        if ((curPortInfo->_0.w >> 1) & 1) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x1E;
+        }
+        lock2Restart = 1;
+        break;
+    case 1:
+        if ((curPortInfo->_0.w >> 1) & 1) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x1E;
+        }
+        break;
+    }
+    return -1;
+}
+
+inline int la_save_confirm_no_free_area(int a0)
+{
+    if (PSH_POSITIVE_OR_NEGATIVE(0)) {
+        NEGATIVE_SE();
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x1C;
+    }
+    switch (_la_set_current_port_lock_2(mc, a0)) {
+    case 0:
+        break;
+    case -1:
+        if (((curPortInfo->_0.w >> 1) & 1) == 0) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x1F;
+        }
+        lock2Restart = 1;
+        break;
+    case 1:
+        if ((curPortInfo->_0.w >> 4) & 1) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x1E;
+        }
+        break;
+    }
+    return -1;
+}
+
 /* the save-slot messages, VMA 0x61DB78 and 0x61DB98 */
-extern char D_0061DB78[];
-extern char D_0061DB98[];
 
 /* layout_action.c:3016-3045 in the listing. */
 int la_save_start_check(int a0)
@@ -1824,41 +2037,41 @@ int la_save_start_check(int a0)
     case 0:
         break;
     case -1:
-        if (((D_0063B4D8->_0.w >> 1) & 1) == 0) {
+        if (((curPortInfo->_0.w >> 1) & 1) == 0) {
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x1F;
         }
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0x1E;
     case 1:
-        if (D_0063B550 != D_0063B4E0) {
+        if (filePort != curPort) {
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x2C;
         }
-        if ((D_0063B4D8->_0.w & 0xA) == 2) {
+        if ((curPortInfo->_0.w & 0xA) == 2) {
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x24;
         }
-        if ((D_0063B4D8->_4 >> D_0063B4E8) & 1) {
-            if (IosMcProductFile[D_0063B550].f[D_0063B4E8]._0 != 0xFFFFFFFF) {
+        if ((curPortInfo->_4 >> selectFile) & 1) {
+            if (IosMcProductFile[filePort].f[selectFile]._0 != 0xFFFFFFFF) {
                 lt_set_item_select_func(0);
-                D_0063B4F4 = 0;
+                actionStarted = 0;
                 return 0x23;
             }
-            if (D_0063B4D8->_4 != 0) {
-                debug_StdPrintfDummy(D_0061DB78);
+            if (curPortInfo->_4 != 0) {
+                debug_StdPrintfDummy("already exist save data\n");
                 lt_set_item_select_func(0);
-                D_0063B4F4 = 0;
+                actionStarted = 0;
                 return 0x26;
             }
         }
-        debug_StdPrintfDummy(D_0061DB98);
+        debug_StdPrintfDummy("new save. system data making..\n");
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0x27;
     }
     return -1;
@@ -1868,14 +2081,14 @@ int la_save_start_check(int a0)
 int la_save_confirm_overwrite(int a0, int a1)
 {
     if (a0) {
-        D_0063B550 = D_0063B4E0;
+        filePort = curPort;
     }
-    D_0063B4F0 = 0x3FF;
+    fileMask = 0x3FF;
     _la_set_preview_info();
     if (lt_fade_status() == 2 && (D_0028F8F4[0] & 0x10)) {
         NEGATIVE_SE();
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0x21;
     }
     switch (a1) {
@@ -1883,13 +2096,13 @@ int la_save_confirm_overwrite(int a0, int a1)
     case 218:
         POSITIVE_SE();
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0x26;
     case 215:
     case 219:
         NEGATIVE_SE();
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0x21;
     }
     switch (_la_set_current_port_lock_2(mc, a0)) {
@@ -1897,26 +2110,26 @@ int la_save_confirm_overwrite(int a0, int a1)
         break;
     case -1:
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0x1F;
     case 1:
-        if (D_0063B5C4 == 0) {
-            if (((D_0063B4D8->_0.w >> 2) & 1) == 0) {
+        if (saveCardChanged == 0) {
+            if (((curPortInfo->_0.w >> 2) & 1) == 0) {
                 break;
             }
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x12;
         }
-        if ((D_0063B4D8->_0.w >> 2) & 1) {
+        if ((curPortInfo->_0.w >> 2) & 1) {
             break;
         }
-        D_0063B5C4 = 0;
-        if (D_0063B550 == D_0063B4E0) {
+        saveCardChanged = 0;
+        if (filePort == curPort) {
             break;
         }
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0x1E;
     }
     return -1;
@@ -1926,12 +2139,12 @@ int la_save_confirm_overwrite(int a0, int a1)
 int la_format_confirm(int a0, int a1)
 {
     if (a0) {
-        D_0063B550 = D_0063B4E0;
+        filePort = curPort;
     }
     if (lt_fade_status() == 2 && (D_0028F8F4[0] & 0x10)) {
         NEGATIVE_SE();
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0x21;
     }
     switch (a1) {
@@ -1939,13 +2152,13 @@ int la_format_confirm(int a0, int a1)
     case 218:
         POSITIVE_SE();
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0x25;
     case 215:
     case 219:
         NEGATIVE_SE();
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0x21;
     }
     switch (_la_set_current_port_lock_2(mc, a0)) {
@@ -1953,34 +2166,73 @@ int la_format_confirm(int a0, int a1)
         break;
     case -1:
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0x1F;
     case 1:
-        if (D_0063B5C4 == 0) {
-            if (((D_0063B4D8->_0.w >> 2) & 1) == 0) {
+        if (saveCardChanged == 0) {
+            if (((curPortInfo->_0.w >> 2) & 1) == 0) {
                 break;
             }
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x12;
         }
-        if ((D_0063B4D8->_0.w >> 2) & 1) {
+        if ((curPortInfo->_0.w >> 2) & 1) {
             break;
         }
-        D_0063B5C4 = 0;
-        if (D_0063B550 == D_0063B4E0) {
+        saveCardChanged = 0;
+        if (filePort == curPort) {
             break;
         }
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0x1E;
     }
     return -1;
 }
 
-extern int D_0063B5CC;
+/* kept local: the declaration in mcard.h changes this TU codegen */
+extern void iosMcFormat(void *a0);
+
+static int formatStep = 0; /* derived name */
+
+inline int la_format_processing(int a0)
+{
+    if (a0) {
+        formatStep = 0;
+    }
+    switch (formatStep) {
+    case 0:
+        mc[2] = curPort;
+        mc[3] = 0;
+        iosMcFormat(mc);
+        formatStep++;
+        break;
+    case 1:
+    case 3:
+        if (iosMcSync((unsigned long *)mc) == 0) {
+            break;
+        }
+        formatStep++;
+        break;
+    case 2:
+        if (_la_mcard_error_check(mc) > 0) {
+            formatStep++;
+            break;
+        }
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x2D;
+    case 4:
+        formatStep++;
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x27;
+    }
+    return -1;
+}
+
 /* the system-save error message, VMA 0x61DBB8 */
-extern int D_0061DBB8[];
 /* kept local: this TU's uses of the block calls do not fit the prototypes in
    mcard.h, exactly as in common/src/debug.c */
 extern void iosMcSaveIconBlock(void *a0);
@@ -2027,10 +2279,12 @@ static inline int mcMakeSerial(void)
            clock.second;
 }
 
+static int systemSaveStep = 0; /* derived name */
+
 /* layout_action.c:3203-3294 in the listing, with the serial builder of lines
    1768-1775 and the play time of lines 826-841 inlined into it (its results
    are unused here, so the record passed is not visible in the bytes).  The
-   switch table is jtbl_0061DBD0 (11 arms, selector D_0063B5CC, cases 0-10). */
+   switch table is jtbl_0061DBD0 (11 arms, selector systemSaveStep, cases 0-10). */
 int la_system_save_processing(int a0)
 {
     int err;
@@ -2039,41 +2293,41 @@ int la_system_save_processing(int a0)
     int min;
     int sec;
 
-    D_0063B4D8 = &D_0071D900[mc[2]];
+    curPortInfo = &mcPortInfo[mc[2]];
     if (a0) {
-        D_0063B5CC = 0;
+        systemSaveStep = 0;
         systemSaveRetry = 0;
         barTotal = 14;
     }
 
     progressive_bar();
 
-    switch (D_0063B5CC) {
+    switch (systemSaveStep) {
     case 0:
         strcpy((char *)mc + 0x47C, "game.");
         mc[16] = systemSaveRetry;
-        mc[2] = D_0063B4E0;
+        mc[2] = curPort;
         mc[3] = 0;
         iosMcGetBlockSaveInfo(mc);
-        D_0063B5CC++;
-        D_0063B4D8->_0.w = (int)D_0063B4D8->_0.w & ~0x80;
-        D_0063B5B0++;
+        systemSaveStep++;
+        curPortInfo->_0.w = (int)curPortInfo->_0.w & ~0x80;
+        barStep++;
         break;
     case 2:
         iosMcSaveIconBlock(mc);
-        D_0063B5CC++;
+        systemSaveStep++;
         break;
     case 6:
     case 9:
         err = _la_mcard_error_check(mc);
         if (err > 0) {
-            D_0063B5CC++;
-            debug_StdPrintfDummy(D_0061DBB8, D_0063B5CC, err);
+            systemSaveStep++;
+            debug_StdPrintfDummy("McSave phase:%d  %x\n", systemSaveStep, err);
             return -1;
         }
-        D_0063B4D8->_0.w |= 0x80;
+        curPortInfo->_0.w |= 0x80;
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 44;
     case 4:
         for (i = 0; i < 10; i++) {
@@ -2083,29 +2337,29 @@ int la_system_save_processing(int a0)
             ;
         playTime((struct S14 *)IosMcPreviewInfo, &hour, &min, &sec);
         iosMcSaveProductBlock(mc);
-        D_0063B5CC++;
-        D_0063B5B0++;
+        systemSaveStep++;
+        barStep++;
         break;
     case 1:
     case 3:
     case 5:
     case 8:
         if (iosMcSync((unsigned long *)mc) != 0) {
-            D_0063B5CC++;
+            systemSaveStep++;
         }
         break;
     case 7:
         iosMcSaveGameBlock(mc, D_004DD700);
-        D_0063B5CC++;
-        D_0063B5B0++;
+        systemSaveStep++;
+        barStep++;
         break;
     case 10:
-        D_0063B5CC = 7;
+        systemSaveStep = 7;
         systemSaveRetry++;
         mc[16] = systemSaveRetry;
         if (systemSaveRetry >= 10) {
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 38;
         }
         break;
@@ -2113,9 +2367,7 @@ int la_system_save_processing(int a0)
     return -1;
 }
 
-extern int D_0063B5D0;
 /* the second save-phase message, VMA 0x61DC00 */
-extern int D_0061DC00[];
 extern int GetSaveSofaLayoutID(void);
 
 /* layout_action.c:1802-1805 in the listing: the save side's readback, the
@@ -2125,14 +2377,16 @@ static inline void mcSetSavedFile(void)
 {
     int serial = mcSetFileNo(mc[2], mc[16]);
 
-    D_0063B558 = serial;
-    D_0063B554 = serial;
+    loadSerial = serial;
+    saveSerial = serial;
 }
+
+static int saveStep = 0; /* derived name */
 
 /* layout_action.c:3309-3410 in the listing, with the menu-close pair of lines
    707-708, the play time of lines 829-832, the serial builder of lines
    1768-1775 and the readback of lines 1798-1804 inlined into it.  The switch
-   table is jtbl_0061DC10 (11 arms, selector D_0063B5D0, cases 0-10). */
+   table is jtbl_0061DC10 (11 arms, selector saveStep, cases 0-10). */
 int la_save_processing(int a0)
 {
     int err;
@@ -2140,45 +2394,45 @@ int la_save_processing(int a0)
     int min;
     int sec;
 
-    D_0063B4D8 = &D_0071D900[mc[2]];
+    curPortInfo = &mcPortInfo[mc[2]];
     if (a0) {
-        D_0063B4F0 = 0;
-        D_0063B5D0 = 0;
+        fileMask = 0;
+        saveStep = 0;
     }
 
     progressive_bar();
 
-    switch (D_0063B5D0) {
+    switch (saveStep) {
     case 0:
         strcpy((char *)mc + 0x47C, "game.");
-        mc[16] = D_0063B4E8;
-        mc[2] = D_0063B4E0;
+        mc[16] = selectFile;
+        mc[2] = curPort;
         mc[3] = 0;
         iosMcGetBlockSaveInfo(mc);
-        D_0063B5D0++;
-        D_0063B4D8->_0.w = (int)D_0063B4D8->_0.w & ~0x80;
+        saveStep++;
+        curPortInfo->_0.w = (int)curPortInfo->_0.w & ~0x80;
         break;
     case 1:
         if (iosMcSync((unsigned long *)mc) != 0) {
-            D_0063B5D0 = 4;
+            saveStep = 4;
         }
         break;
     case 2:
         iosMcSaveIconBlock(mc);
-        D_0063B5D0++;
+        saveStep++;
         break;
     case 6:
     case 9:
         err = _la_mcard_error_check(mc);
         if (err > 0) {
-            D_0063B5D0++;
-            debug_StdPrintfDummy(D_0061DBB8, D_0063B5D0, err);
+            saveStep++;
+            debug_StdPrintfDummy("McSave phase:%d  %x\n", saveStep, err);
             return -1;
         }
-        D_0063B4D8->_0.w |= 0x80;
-        debug_StdPrintfDummy(D_0061DC00, D_0063B5D0);
+        curPortInfo->_0.w |= 0x80;
+        debug_StdPrintfDummy("save error? %d\n", saveStep);
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 44;
     case 4:
         IosMcPreviewInfo[0] = stage_no;
@@ -2195,31 +2449,56 @@ int la_save_processing(int a0)
         }
         mcSetSavedFile();
         iosMcSaveProductBlock(mc);
-        D_0063B5D0++;
+        saveStep++;
         break;
     case 3:
     case 5:
     case 8:
         if (iosMcSync((unsigned long *)mc) != 0) {
-            D_0063B5D0++;
-            D_0063B5B0++;
+            saveStep++;
+            barStep++;
         }
         break;
     case 7:
         CheckPoint();
         iosMcSaveGameBlock(mc, D_004DD700);
-        D_0063B5D0++;
+        saveStep++;
         break;
     case 10:
-        D_0063B5D0 = 0;
+        saveStep = 0;
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 41;
     }
     return -1;
 }
 
-extern char stage_after_skipping_demo[];
+inline int la_save_confirm_complete(int a0, int a1)
+{
+    if (a0) {
+        previewInfo = *(struct S14 *)IosMcPreviewInfo;
+        fileMask = 0x3FF;
+        _la_set_preview_info();
+        debug_StdPrintfDummy("save complete %d %d\n", fileMask, curFile);
+    }
+    if (a1 != -1) {
+        debug_StdPrintfDummy("%d %d %d\n", 0x108, 0x109, a1);
+    }
+    switch (a1) {
+    case 0x108:
+        D_0028F4D4[0] = 0;
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x36;
+    case 0x109:
+        nextStage = 1;
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x3F;
+    }
+    return -1;
+}
+
 extern int optionScreenMode;
 extern void gflagInit(void);
 extern void fightSoundProcessRequestPause(void);
@@ -2237,20 +2516,20 @@ int la_end_confirm(void)
         if (item >= 270) {
             if (item < 272) {
                 lt_set_item_select_func(0);
-                D_0063B4F4 = 0;
+                actionStarted = 0;
                 return 0x29;
             }
             if (item < 426) {
                 if (item >= 424) {
                     lt_set_item_select_func(0);
-                    D_0063B4F4 = 0;
+                    actionStarted = 0;
                     return 0x39;
                 }
             }
         }
     }
     if (D_0028F8F0[0].flags & 0x40) {
-        debug_StdPrintfDummy(stage_after_skipping_demo, lt_current_property_item());
+        debug_StdPrintfDummy("%d\n", lt_current_property_item());
         switch (lt_current_property_item()) {
         case 270:
         case 424:
@@ -2260,92 +2539,182 @@ int la_end_confirm(void)
             fightSoundProcessRequestPause();
             fightSoundClose();
             soundDataSegAllClose(0, 2);
-            D_0063B4EC = 1;
+            nextStage = 1;
             stgmgrForceSwitchWithFade(0.025f, 4.0f, 1);
         case 271:
             NEGATIVE_SE();
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x29;
         case 425:
             NEGATIVE_SE();
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x39;
         }
     }
     return -1;
 }
 
-extern int layoutActPushStartNew;
+inline int la_save_confirm_yesno(void)
+{
+    if (D_0028F8F4[0] & 0x10) {
+        return lt_current_property_item();
+    }
+    return -1;
+}
+
+inline int la_save_confirm_fail(void)
+{
+    return -1;
+}
+
+inline int la_format_confirm_fail(void)
+{
+    return -1;
+}
+
+inline int la_delete_start_check(int a0)
+{
+    switch (_la_set_current_port_2(mc, a0)) {
+    case 0:
+        break;
+    case -1:
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x1E;
+    case 1:
+        if ((curPortInfo->_4 >> selectFile) & 1) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x31;
+        }
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x21;
+    }
+    return -1;
+}
+
+inline int la_delete_confirm(int a0, int a1)
+{
+    switch (a1) {
+    case 0xD6:
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x32;
+    case 0xD7:
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x1E;
+    }
+    return -1;
+}
+
 /* kept local: this TU's uses of iosMcDelete do not fit the prototype in mcard.h */
 extern void iosMcDelete(void *a0);
+
+static int deleteStep = 0; /* derived name */
 
 /* layout_action.c:3601-3642 in the listing. */
 int la_delete_processing(int a0)
 {
     if (a0) {
-        mc[16] = D_0063B4E8;
-        layoutActPushStartNew = 2;
+        mc[16] = selectFile;
+        deleteStep = 2;
     }
-    switch (layoutActPushStartNew) {
+    switch (deleteStep) {
     case 2:
         strcpy((char *)mc + 0x47C, (char *)mc + 0x4E0 + (mc[16] << 6));
         iosMcDelete(mc);
-        layoutActPushStartNew++;
+        deleteStep++;
         break;
     case 3:
         if (iosMcSync((unsigned long *)mc) == 0) {
             break;
         }
-        layoutActPushStartNew++;
+        deleteStep++;
         break;
     case 4:
         if (_la_mcard_error_check(mc) == 0) {
             break;
         }
-        layoutActPushStartNew++;
+        deleteStep++;
         break;
     case 5:
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0x33;
     }
     return -1;
 }
 
-extern int D_0063B5F4;
-extern int laoutActionPauseRequest;
-extern int startStagePauseDisableTimer;
-extern int enable_game_pause;
+inline int la_delete_confirm_complete(void)
+{
+    int ret;
+    if ((D_0028F8F4[0] & 0x10) == 0)
+        goto fail;
+    lt_set_item_select_func(0);
+    actionStarted = 0;
+    ret = 0x1E;
+    goto out;
+fail:
+    ret = -1;
+out:
+    return ret;
+}
+
+inline int la_delete_confirm_fail(void)
+{
+    return -1;
+}
+
+extern int D_0028F4D8[];
+
+inline int la_game_loading(int a0)
+{
+    if (a0 != 0) {
+        D_0028F4D8[0] = 1;
+    }
+    return -1;
+}
+
+inline void la_playtime_count(void)
+{
+    if (D_0028F4D4[0] == 0) {
+        IosMcPreviewInfo[2]++;
+    }
+}
 
 /* layout_action.c:2576-2582 in the listing: inlined into la_game_loop and into
    la_game_over_continue, so it is a static inline here; it has no symbol of its
    own in the ROM and no census row, and the name is descriptive. */
 static inline void releaseGameLoopCursor(void)
 {
-    if (D_0063B4FC != 0 && *(int *)(D_0063B4FC + 0x2C) != 0) {
-        *(short *)(*(char **)(D_0063B4FC + 0x2C) + 0x44) = 0x100;
+    if (layoutVoice != 0 && *(int *)(layoutVoice + 0x2C) != 0) {
+        *(short *)(*(char **)(layoutVoice + 0x2C) + 0x44) = 0x100;
     }
-    D_0063B4FC = 0;
+    layoutVoice = 0;
 }
+
+int laoutActionPauseRequest = 0;
 
 /* layout_action.c:3720-3748 in the listing. */
 int la_game_loop(int a0)
 {
     if (a0) {
-        if (D_0063B4F8 != 0) {
+        if (fightSoundStopped != 0) {
             fightSoundProcessRequestStart();
-            D_0063B4F8 = 0;
+            fightSoundStopped = 0;
         }
         releaseGameLoopCursor();
         D_0028F4C0[2] = 1;
         D_0028F4C0[5] = 0;
         iosPadEnable();
         isysGObjActiveLink(0, 1);
-        D_0063B5F4 = 0;
+        layoutActPushStartNew = 0;
     }
-    if (D_0063B5F4 != 0) {
+    if (layoutActPushStartNew != 0) {
         laoutActionPauseRequest++;
     } else {
         laoutActionPauseRequest = 0;
@@ -2360,14 +2729,77 @@ int la_game_loop(int a0)
             return -1;
         }
         D_0028F4D4[0] = 1;
-        D_0063B5F4 = 0;
+        layoutActPushStartNew = 0;
         adpcmPauseRequest(1);
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0x39;
     }
     return -1;
 }
+
+inline int la_game_demo_pause(int a0)
+{
+    if (a0) {
+        D_0028F4D4[0] = 1;
+    }
+    if ((D_0028F8F4[0] & 0x800) == 0) {
+        return -1;
+    }
+    lt_set_item_select_func(0);
+    actionStarted = 0;
+    return 0x37;
+}
+
+/* kept local: the declaration in StageManager.h changes this TU codegen */
+
+inline int la_game_demo(int a0)
+{
+    if (a0) {
+        if (stage_no == 1) {
+            iosPadDisable();
+        }
+    }
+    if ((D_0028F8F4[0] & 0x800) && gflagChk(388)) {
+        debug_StdPrintfDummy("push start\n");
+        gflagOff(388);
+        title_demo_mode ^= 1;
+        nextStage = stage_after_skipping_demo;
+        stgmgrForceSwitchWithFade(8.0f, 4.0f, nextStage);
+        if (stage_after_skipping_demo == 0xFFFFFFFF) {
+            stage_after_skipping_demo = 1;
+        }
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x3F;
+    }
+    return -1;
+}
+
+inline int la_game_pause(int a0)
+{
+    if (a0) {
+        D_0028F4D4[0] = 1;
+        iosPadActStopAll();
+        D_00534CC0[0] = 0x134;
+    }
+    if (lt_fade_status() != 2) {
+        return -1;
+    }
+    if (((D_0028F8F0[0].flags & 0x40) && lt_current_property_item() == 0x127) ||
+        (D_0028F8F0[0].flags & 0x810)) {
+        NEGATIVE_SE(0);
+        adpcmPauseRequest(0);
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x36;
+    }
+    return -1;
+}
+
+static int gameOverVoice = 0; /* derived name */
+
+static int gameOverVoiceOpened = 0; /* derived name */
 
 /* layout_action.c:3837-3900 in the listing. */
 int la_game_over_continue(int a0)
@@ -2385,18 +2817,18 @@ int la_game_over_continue(int a0)
         soundSePlayModeStop(1);
         soundSePlayModeStop(0);
         iosPadActStopAll();
-        D_0063B5E8 = 0;
-    } else if (D_0063B5E8 == 0) {
+        gameOverVoiceOpened = 0;
+    } else if (gameOverVoiceOpened == 0) {
         if (AdpcmFreeAreaGet() != 0) {
-            D_0063B5E4 = openLayoutVoice(0x34);
-            D_0063B5E8 = 1;
+            gameOverVoice = openLayoutVoice(0x34);
+            gameOverVoiceOpened = 1;
         }
-    } else if (D_0063B5E4 != 0) {
-        D_0063B4FC = soundDataOpenSync(&voiceOpenReq);
-        if (D_0063B4FC != (char *)0xFFFFFFFF) {
-            D_0063B5E4 = 0;
-            if (D_0063B4FC != 0) {
-                AdpcmPlay(*(void **)(D_0063B4FC + 0x2C));
+    } else if (gameOverVoice != 0) {
+        layoutVoice = soundDataOpenSync(&voiceOpenReq);
+        if (layoutVoice != (char *)0xFFFFFFFF) {
+            gameOverVoice = 0;
+            if (layoutVoice != 0) {
+                AdpcmPlay(*(void **)(layoutVoice + 0x2C));
                 return -1;
             }
         }
@@ -2408,10 +2840,10 @@ int la_game_over_continue(int a0)
             }
             POSITIVE_SE();
             D_0028F4D0[0] = 1;
-            D_0063B4EC = gFlagSaveStage;
+            nextStage = gFlagSaveStage;
             releaseGameLoopCursor();
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x3F;
         case 0x1AE:
             if ((D_0028F8F4[0] & 0x40) == 0 || lt_fade_status() != 2) {
@@ -2420,12 +2852,20 @@ int la_game_over_continue(int a0)
             POSITIVE_SE();
             optionScreenMode = 0;
             gflagInit();
-            D_0063B4EC = 1;
+            nextStage = 1;
             releaseGameLoopCursor();
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 0x3F;
         }
+    }
+    return -1;
+}
+
+inline int la_switching_stage(void)
+{
+    if (fightSoundPlayChk() == 0) {
+        stgmgrForceSwitchWithFade(0.4f, 4.0f, nextStage);
     }
     return -1;
 }
@@ -2434,7 +2874,6 @@ int la_game_over_continue(int a0)
    the six-plus-two slot assignments it edits, VMA 0x004E3B78 */
 extern int D_004E3B58[];
 extern int D_004E3B78[];
-extern int D_0063B5EC;
 
 /* layout_action.c:3941-3947 in the listing: the key-config property sweep,
    inlined into la_key_config twice; it has no symbol of its own in the ROM and
@@ -2488,6 +2927,8 @@ static inline int keyAssignIndex(int v)
     return -1;
 }
 
+static int keyConfigMask = 0xFF; /* derived name */
+
 /* layout_action.c:4053-4237 in the listing. */
 int la_key_config(int a0)
 {
@@ -2501,13 +2942,13 @@ int la_key_config(int a0)
     if (a0) {
         D_00534CC0[0] = 323;
         for (i = 0; i < 16; i++) {
-            if ((D_0063B5EC >> i) & 1) {
+            if ((keyConfigMask >> i) & 1) {
                 D_004E3B78[keyCodeIndex((iosPadConfCustom + 44)[i])] = keyCodeIndex(1 << i);
             }
         }
     }
     if (sel >= 0 && sel < 6) {
-        m = D_0028F8F0[0].flags & D_0063B5EC;
+        m = D_0028F8F0[0].flags & keyConfigMask;
         if (m != 0 && m == D_0028F8F0[0].flags) {
             k = keyCodeIndex(m);
             POSITIVE_SE();
@@ -2535,7 +2976,7 @@ int la_key_config(int a0)
         if (lt_current_property_item() == 390) {
             POSITIVE_SE();
             for (i = 0; i < 16; i++) {
-                if ((D_0063B5EC >> i) & 1) {
+                if ((keyConfigMask >> i) & 1) {
                     iosPadConfCustom[i + 44] = 0;
                 } else {
                     iosPadConfCustom[i + 44] = 1 << i;
@@ -2550,7 +2991,7 @@ int la_key_config(int a0)
                 lt_mask_property(i * 8 + 342 + D_004E3B78[i], 0);
             }
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 58;
         }
     }
@@ -2559,12 +3000,19 @@ int la_key_config(int a0)
 
 extern int optionControlType;
 extern int D_00639EA0;
-/* the option screen's layout item id tables, VMA 0x61DC78, 0x61DC90, 0x61DCA8
-   and 0x61DCB0, each 16-byte aligned in this TU's .rodata */
-extern int D_0061DC78[];
-extern int D_0061DC90[];
-extern int D_0061DCA8[];
-extern int D_0061DCB0[];
+
+/* the option screen's layout items: the five screen modes, the stage
+   animation each mode plays (-1 for none), and the two choices of the control
+   type (item 318) followed by the two of the setting item 325 toggles.  The
+   last four are one table: two 8-byte tables would be small data under -G 8,
+   and the ROM keeps them in .rodata; its code reaches the second pair from
+   that pair's own address constant, which the offset pointer spells. */
+static const int screenModeItem[5] = {303, 304, 305, 306, 307}; /* derived name */
+
+static const int screenModeAnim[5] = {-1, 67, 68, 69, 70}; /* derived name */
+
+static const int choiceItem[4] = {321, 322, 328, 329}; /* derived name */
+
 /* kept local: this TU carries no other use of s_init.h or StageAnimation.h */
 extern int soundOutputModeGet(void);
 extern void soundOutputModeSet(int a0);
@@ -2632,11 +3080,11 @@ int la_game_option(void)
             break;
         }
         if (sel != optionScreenMode) {
-            if (D_0061DC90[optionScreenMode] != -1) {
-                stage_SetLoopFlag(D_0061DC90[optionScreenMode], 0);
-                stage_SetAnimation(D_0061DC90[optionScreenMode], -1, -2);
+            if (screenModeAnim[optionScreenMode] != -1) {
+                stage_SetLoopFlag(screenModeAnim[optionScreenMode], 0);
+                stage_SetAnimation(screenModeAnim[optionScreenMode], -1, -2);
             }
-            item = D_0061DC90[sel];
+            item = screenModeAnim[sel];
             if (item != -1) {
                 stage_SetLoopFlag(item, 1);
                 stage_SetAnimation(item, 1, 0);
@@ -2646,18 +3094,18 @@ int la_game_option(void)
         optionControlType = cur;
     }
     for (sel = 0; sel < 5; sel++) {
-        lt_default_mask_property(D_0061DC78[sel], 1);
+        lt_default_mask_property(screenModeItem[sel], 1);
     }
-    lt_default_mask_property(D_0061DC78[optionScreenMode], 0);
+    lt_default_mask_property(screenModeItem[optionScreenMode], 0);
     for (sel = 0; sel < 2; sel++) {
-        lt_default_mask_property(D_0061DCA8[sel], 1);
+        lt_default_mask_property(choiceItem[sel], 1);
     }
-    lt_default_mask_property(D_0061DCA8[optionControlType], 0);
+    lt_default_mask_property(choiceItem[optionControlType], 0);
     if ((D_0028F8F0[0].flags & 0x40) != 0) {
         if (lt_current_property_item() == 330) {
             NEGATIVE_SE();
             lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
+            actionStarted = 0;
             return 57;
         }
     }
@@ -2676,9 +3124,9 @@ int la_game_option(void)
         lt_default_mask_property(317, 0);
     }
     for (sel = 0; sel < 2; sel++) {
-        lt_default_mask_property(D_0061DCB0[sel], 1);
+        lt_default_mask_property((choiceItem + 2)[sel], 1);
     }
-    lt_default_mask_property(D_0061DCB0[D_00639EA0], 0);
+    lt_default_mask_property((choiceItem + 2)[D_00639EA0], 0);
     return -1;
 }
 
@@ -2723,484 +3171,12 @@ int la_adjust_screen(void)
     if (D_0028F8F0[0].flags & 0x40) {
         POSITIVE_SE();
         lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
+        actionStarted = 0;
         return 0x3A;
     }
     return -1;
 }
 
-extern int D_0028F4EC[];
-extern int layout_boot_flag;
+unsigned int stage_after_skipping_demo = 0;
 
-int la_boot_memory_card_check(void)
-{
-    if (kanbanBootEnd == 0) {
-        return -1;
-    }
-    D_0028F4EC[0] = 7;
-    layout_boot_flag = 1;
-    lt_set_item_select_func(0);
-    D_0063B4F4 = 0;
-    return 0x37;
-}
-
-extern int D_0061D948[];
-
-int la_boot_no_memory_card(int a0, int a1)
-{
-    debug_StdPrintfDummy(D_0061D948);
-    return a1;
-}
-
-extern int D_0061D958[];
-
-int la_boot_no_free_area(int a0, int a1)
-{
-    debug_StdPrintfDummy(D_0061D958);
-    return a1;
-}
-
-int la_boot_confirm_memory_card(void)
-{
-    if (D_0028F8F4[0] & 0x40) {
-        return lt_link_layout(0);
-    }
-    return -1;
-}
-
-extern int D_0028F4D4[];
-/* kept local: this TU's uses of stgmgrNextStagePreLoadForceStageSet do not fit the prototype in StageManager.h */
-extern void stgmgrNextStagePreLoadForceStageSet(int val);
-
-int la_scei_logo(int a0)
-{
-    if (a0) {
-        stgmgrNextStagePreLoadForceStageSet(0);
-        logoIcoMiscLock = lock_execIcoMisc;
-        D_0028F4D4[0] = 1;
-        iosPadEnable();
-        isysGObjActiveLink(0, 0);
-        gflagOff(386);
-        if (layout_boot_flag == 0) {
-            layout_boot_flag = 1;
-        }
-    }
-    return -1;
-}
-
-int la_title_demo(void)
-{
-    return -1;
-}
-
-int la_mc_preview_info(void)
-{
-    if (D_0063B4F0 == 0) {
-        if ((1 >> D_0063B4E4) & 1) {
-            return -1;
-        }
-    }
-    _la_set_preview_info();
-    return -1;
-}
-
-int la_mc_current_slot(void)
-{
-    lt_mask_property(0xB0, D_0063B4E0);
-    lt_mask_property(0xB1, D_0063B4E0 ^ 1);
-    return -1;
-}
-
-int la_mc_load_current_slot_select(void)
-{
-    _la_mask_preview_info();
-    if (D_0028F8F4[0] & 0x40) {
-        D_0063B4E0 = lt_current_property_item() - 0xBA;
-        D_0063B4DC = D_0063B4E0;
-        D_0063B4D8 = &D_0071D900[D_0063B4E0];
-        POSITIVE_SE();
-        lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
-        return 0x13;
-    }
-    if (D_0028F8F4[0] & 0x10) {
-        NEGATIVE_SE();
-        lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
-        return 0xC;
-    }
-    return -1;
-}
-
-int la_mc_save_current_slot_select(void)
-{
-    if (D_0028F8F4[0] & 0x40) {
-        POSITIVE_SE();
-        D_0063B4E0 = lt_current_property_item() - 0xBA;
-        D_0063B4DC = D_0063B4E0;
-        D_0063B4D8 = &D_0071D900[D_0063B4E0];
-        lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
-        return 0x21;
-    }
-    if (D_0028F8F4[0] & 0x10) {
-        NEGATIVE_SE();
-        lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
-        return 0x1C;
-    }
-    return -1;
-}
-
-int la_general_mc_confirm(void)
-{
-    if (D_0028F8F4[0] & 0x40) {
-        return lt_current_property_item();
-    }
-    return -1;
-}
-
-int la_save_confirm_no_memory_card(int a0)
-{
-    if (pshPositiveOrNegative(0)) {
-        NEGATIVE_SE();
-        lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
-        return 0x1C;
-    }
-    switch (_la_set_current_port_lock_2(mc, a0)) {
-    case 0:
-        break;
-    case -1:
-        if ((D_0063B4D8->_0.w >> 1) & 1) {
-            lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
-            return 0x1E;
-        }
-        D_0063B528 = 1;
-        break;
-    case 1:
-        if ((D_0063B4D8->_0.w >> 1) & 1) {
-            lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
-            return 0x1E;
-        }
-        break;
-    }
-    return -1;
-}
-
-int la_save_confirm_no_free_area(int a0)
-{
-    if (pshPositiveOrNegative(0)) {
-        NEGATIVE_SE();
-        lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
-        return 0x1C;
-    }
-    switch (_la_set_current_port_lock_2(mc, a0)) {
-    case 0:
-        break;
-    case -1:
-        if (((D_0063B4D8->_0.w >> 1) & 1) == 0) {
-            lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
-            return 0x1F;
-        }
-        D_0063B528 = 1;
-        break;
-    case 1:
-        if ((D_0063B4D8->_0.w >> 4) & 1) {
-            lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
-            return 0x1E;
-        }
-        break;
-    }
-    return -1;
-}
-
-extern int D_0063B5C8;
-/* kept local: the declaration in mcard.h changes this TU codegen */
-extern void iosMcFormat(void *a0);
-
-int la_format_processing(int a0)
-{
-    if (a0) {
-        D_0063B5C8 = 0;
-    }
-    switch (D_0063B5C8) {
-    case 0:
-        mc[2] = D_0063B4E0;
-        mc[3] = 0;
-        iosMcFormat(mc);
-        D_0063B5C8++;
-        break;
-    case 1:
-    case 3:
-        if (iosMcSync((unsigned long *)mc) == 0) {
-            break;
-        }
-        D_0063B5C8++;
-        break;
-    case 2:
-        if (_la_mcard_error_check(mc) > 0) {
-            D_0063B5C8++;
-            break;
-        }
-        lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
-        return 0x2D;
-    case 4:
-        D_0063B5C8++;
-        lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
-        return 0x27;
-    }
-    return -1;
-}
-
-extern int D_0061DC40[];
-extern int D_0061DC58[];
-
-int la_save_confirm_complete(int a0, int a1)
-{
-    if (a0) {
-        previewInfo = *(struct S14 *)IosMcPreviewInfo;
-        D_0063B4F0 = 0x3FF;
-        _la_set_preview_info();
-        debug_StdPrintfDummy(D_0061DC40, D_0063B4F0, D_0063B4E4);
-    }
-    if (a1 != -1) {
-        debug_StdPrintfDummy(D_0061DC58, 0x108, 0x109, a1);
-    }
-    switch (a1) {
-    case 0x108:
-        D_0028F4D4[0] = 0;
-        lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
-        return 0x36;
-    case 0x109:
-        D_0063B4EC = 1;
-        lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
-        return 0x3F;
-    }
-    return -1;
-}
-
-int la_save_confirm_fail(void)
-{
-    return -1;
-}
-
-int la_format_confirm_fail(void)
-{
-    return -1;
-}
-
-int la_delete_start_check(int a0)
-{
-    switch (_la_set_current_port_2(mc, a0)) {
-    case 0:
-        break;
-    case -1:
-        lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
-        return 0x1E;
-    case 1:
-        if ((D_0063B4D8->_4 >> D_0063B4E8) & 1) {
-            lt_set_item_select_func(0);
-            D_0063B4F4 = 0;
-            return 0x31;
-        }
-        lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
-        return 0x21;
-    }
-    return -1;
-}
-
-int la_delete_confirm(int a0, int a1)
-{
-    switch (a1) {
-    case 0xD6:
-        lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
-        return 0x32;
-    case 0xD7:
-        lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
-        return 0x1E;
-    }
-    return -1;
-}
-
-int la_delete_confirm_complete(void)
-{
-    int ret;
-    if ((D_0028F8F4[0] & 0x10) == 0)
-        goto fail;
-    lt_set_item_select_func(0);
-    D_0063B4F4 = 0;
-    ret = 0x1E;
-    goto out;
-fail:
-    ret = -1;
-out:
-    return ret;
-}
-
-int la_delete_confirm_fail(void)
-{
-    return -1;
-}
-
-extern int D_0028F4D8[];
-
-int la_game_loading(int a0)
-{
-    if (a0 != 0) {
-        D_0028F4D8[0] = 1;
-    }
-    return -1;
-}
-
-void la_playtime_count(void)
-{
-    if (D_0028F4D4[0] == 0) {
-        IosMcPreviewInfo[2]++;
-    }
-}
-
-extern int title_demo_mode;
-extern int D_0063B5F0;
-extern int D_0061DC68[];
-
-/* kept local: the declaration in StageManager.h changes this TU codegen */
-
-int la_game_demo(int a0)
-{
-    if (a0) {
-        if (stage_no == 1) {
-            iosPadDisable();
-        }
-    }
-    if ((D_0028F8F4[0] & 0x800) && gflagChk(388)) {
-        debug_StdPrintfDummy(D_0061DC68);
-        gflagOff(388);
-        title_demo_mode ^= 1;
-        D_0063B4EC = D_0063B5F0;
-        stgmgrForceSwitchWithFade(8.0f, 4.0f, D_0063B4EC);
-        if (D_0063B5F0 == 0xFFFFFFFF) {
-            D_0063B5F0 = 1;
-        }
-        lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
-        return 0x3F;
-    }
-    return -1;
-}
-
-int la_game_demo_pause(int a0)
-{
-    if (a0) {
-        D_0028F4D4[0] = 1;
-    }
-    if ((D_0028F8F4[0] & 0x800) == 0) {
-        return -1;
-    }
-    lt_set_item_select_func(0);
-    D_0063B4F4 = 0;
-    return 0x37;
-}
-
-int la_game_pause(int a0)
-{
-    if (a0) {
-        D_0028F4D4[0] = 1;
-        iosPadActStopAll();
-        D_00534CC0[0] = 0x134;
-    }
-    if (lt_fade_status() != 2) {
-        return -1;
-    }
-    if (((D_0028F8F0[0].flags & 0x40) && lt_current_property_item() == 0x127) ||
-        (D_0028F8F0[0].flags & 0x810)) {
-        NEGATIVE_SE(0);
-        adpcmPauseRequest(0);
-        lt_set_item_select_func(0);
-        D_0063B4F4 = 0;
-        return 0x36;
-    }
-    return -1;
-}
-
-int la_switching_stage(void)
-{
-    if (fightSoundPlayChk() == 0) {
-        stgmgrForceSwitchWithFade(0.4f, 4.0f, D_0063B4EC);
-    }
-    return -1;
-}
-
-int la_save_confirm_yesno(void)
-{
-    if (D_0028F8F4[0] & 0x10) {
-        return lt_current_property_item();
-    }
-    return -1;
-}
-
-int PSH_POSITIVE_OR_NEGATIVE(int idx)
-{
-    int v = D_0028F8F0[idx].flags;
-    if ((v & 0x40) != 0)
-        goto one;
-    if ((v & 0x10) == 0)
-        goto zero;
-one:
-    return 1;
-zero:
-    return 0;
-}
-
-void keyconfig_reset(void)
-{
-    struct S40 tmp;
-    tmp = D_0061D968;
-    *(struct S40 *)&iosPadConfCustom[44] = tmp;
-}
-
-extern int D_0063B550;
-
-int la_mc_saved_file_select(int a0)
-{
-    int i = a0 - 0x3E;
-    int old = i;
-
-    lt_analog2Pad();
-    do {
-        if (D_0028F8F4[0] & 0x1000) {
-            i += 5;
-        } else if (D_0028F8F4[0] & 0x4000) {
-            i -= 5;
-        } else if (D_0028F8F4[0] & 0x8000) {
-            i -= 1;
-        } else if (D_0028F8F4[0] & 0x2000) {
-            i += 1;
-        } else if (IosMcProductFile[D_0063B550].f[i]._0 == 0xFFFFFFFF) {
-            i++;
-        }
-        if (i < 0) {
-            i += 10;
-        }
-        if (i >= 10) {
-            i -= 10;
-        }
-    } while (IosMcProductFile[D_0063B550].f[i]._0 == 0xFFFFFFFF);
-    if (old != i) {
-        CUR_SE();
-    }
-    return i + 0x3E;
-}
+int layoutActPushStartNew = 0;

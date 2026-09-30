@@ -8,6 +8,7 @@
 #include "girl_act.h"
 #include "brain.h"
 #include "gflag.h"
+#include "layout_action.h"
 #include "frameDependSequence.h"
 #include "torch.h"
 #include <string.h>
@@ -961,7 +962,6 @@ extern void *optionControlType;
 extern int D_0063ABA0;
 extern int D_0063ABA4;
 extern int D_0063B1E8;
-extern int D_0063B5F4;
 extern unsigned char D_0063B20C;
 
 /* the ClipWall work record as this function uses it: the two segment
@@ -1080,7 +1080,7 @@ void subBoyControl(volatile int a0)
     iosPadConnect(s + 0x2D8, 0, 0, &iosPadConfCustom);
     D_00639EAC = (int)(s + 0x2D8);
     E3_StageStartBoy((void *)a0);
-    D_0063B5F4 = 0;
+    layoutActPushStartNew = 0;
     while (1) {
         if (D_0063ABA4) {
             n = 3;
@@ -1110,9 +1110,9 @@ void subBoyControl(volatile int a0)
                 }
                 *(unsigned long long *)(s + 0x18) |= 0x800000000;
                 if ((int)(*(unsigned long long *)(*(char **)(s + 0x2D8) + 0x1C0) >> 16) & 1) {
-                    D_0063B5F4 = 1;
+                    layoutActPushStartNew = 1;
                 } else {
-                    D_0063B5F4 = 0;
+                    layoutActPushStartNew = 0;
                 }
                 iosPadGetStick(s + 0x2D8, s + 0x338, 0, 2, 2, D_0063B20C);
                 if (D_0063B1E8) {

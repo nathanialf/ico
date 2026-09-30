@@ -846,22 +846,8 @@ segments:
       - [0x51D6F0, .rodata, ico2/common/src/kanbanBoot]  # syms: 0x0061D6F0  carved jtbl_0061D6F0 (kanbanBootMcCheck's first 5-arm table, 0x14 B, 16-aligned), VMA 0x61D6F0..0x61D710
       - [0x51D710, .rodata, ico2/common/src/kanbanBoot]  # syms: 0x0061D710  carved jtbl_0061D710 (kanbanBootMcCheck's second 5-arm table, 0x14 B, 16-aligned), VMA 0x61D710..0x61D730
       - [0x51D730, .rodata, ico2/common/src/kanbanBoot]  # syms: 0x0061D730  carved jtbl_0061D730 (8 arms, 0x20): kanbanBootMain's switch table, emitted by the compiled function, VMA 0x61D730..0x61D750
-      - [0x51D750, rodata, cod/51D750]   # .rodata blob resume ("sync end\n" and the rest of the run)
-      - [0x51D840, .rodata, ico2/common/src/layout_action]  # carved jtbl_0061D840 (_la_mcard_error_check, 17 arms over the card result, section .rodata.0x0061D840), VMA 0x61D840..0x61D884
-      - [0x51D884, rodata, cod/51D884]     # .rodata blob resume
-      - [0x51D8D0, .rodata, ico2/common/src/layout_action]  # carved jtbl_0061D8D0 (_la_memory_card_check, 24 arms over the step argument, section .rodata.0x0061D8D0), VMA 0x61D8D0..0x61D930
-      - [0x51D930, .rodata, ico2/common/src/layout_action]  # _la_set_current_port_new's jump table jtbl_0061D930 (20 B, five arms verified against the ROM words; chain 3 pass 146)
-      - [0x51D944, rodata, cod/51D944]   # .rodata blob resume
-      - [0x51DA40, .rodata, ico2/common/src/layout_action]  # jtbl_0061DA40, la_load_processing's 21-arm switch table (0x54 B, arms verified against the ROM words; chain 3 pass 147)
-      - [0x51DA94, rodata, cod/51DA94]   # .rodata blob resume (the zero fill word after the table)
-      - [0x51DBD0, .rodata, ico2/common/src/layout_action]  # jtbl_0061DBD0, la_system_save_processing's 11-arm switch table (0x2C B, arms verified; chain 3 pass 147)
-      - [0x51DBFC, rodata, cod/51DBFC]   # .rodata blob resume (the zero fill word after the table)
-      - [0x51DC10, .rodata, ico2/common/src/layout_action]  # jtbl_0061DC10, la_save_processing's 11-arm switch table (0x2C B, arms verified; chain 3 pass 147)
-      - [0x51DC3C, rodata, cod/51DC3C]   # .rodata blob resume (the zero fill word after the table)
-      - [0x51DCC0, .rodata, ico2/common/src/layout_action]  # carved jtbl_0061DCC0 (la_game_option, 26 arms over the property item minus 300, section .rodata.0x0061DCC0), VMA 0x61DCC0..0x61DD28
-      - [0x51DD28, rodata, cod/51DD28]   # .rodata blob resume (two pad words)
-      - [0x51DD30, .rodata, ico2/common/src/layout_action]  # carved jtbl_0061DD30 (5 arms, 0x14): la_format_processing's switch table, emitted by the compiled function; VMA 0x61DD30..0x61DD44
-      - [0x51DD44, rodata, cod/51DD44]   # .rodata blob resume (three pad words)
+      - [0x51D750, .rodata, ico2/common/src/layout_action]  # the TU's whole .rodata run as source (finishing pass P1-8b), one section in emission order, VMA 0x61D750..0x61DD44, 0x5F4 B (MAIN.MAP 0x4E4, a different link): every string at its use with the file in the listing's source order (the deferred `inline` actions at their own lines, so their strings sit there and their code, with la_format_processing's table, at the end), each main function's jump table after its strings, keyconfig_reset's default key map and progressive_bar's two rectangles as local initialisers, la_game_option's three item tables
+      - [0x51DD44, rodata, cod/51DD44]   # .rodata blob, 0xC of alignment fill after layout_action's run, then layout_texture's zero SprRect template (its extern D_0061DD50) before that TU's row
       - [0x51DD60, .rodata, ico2/common/src/layout_texture]  # texture_fading's jump table (9 entries on the state word, section .rodata.0x0061DD60, 36 B), the linker's pad word, then display_texture's double pool (pi and 10430.3779296875 twice, plain rodata, 32 B); anonymous, VMA 0x61DD60..0x61DDA8
       - [0x51DDA8, rodata, cod/51DDA8]     # .rodata blob resume (layout_texture's two strings)
       - [0x51DDD8, .rodata, ico2/common/src/sceneManager]  # the TU's whole .rodata run as source (completeness pass 69), seven literals at their use sites, 0x12F B as MAIN.MAP line 6494 gives, VMA 0x61DDD8..0x61DF07, anonymous, staffroll's row follows after its 16-byte alignment pad
@@ -1246,9 +1232,8 @@ segments:
       - [0x53B040, sdata, cod/53B040]    # .sdata blob resume
       - [0x53B498, .sdata, ico2/common/src/kanban]  # the TU's whole .sdata run as source (finishing pass P1-8), VMA 0x63B498..0x63B4BC, 0x24 B = MAIN.MAP kanban.o .sdata: kanbanCommonRead (MAIN.MAP global), the start colour, "/" and "0", the fade colour
       - [0x53B4BC, .sdata, ico2/common/src/kanbanBoot]  # the TU's whole .sdata run as source (finishing pass P1-8), VMA 0x63B4BC..0x63B4D4, 0x18 B (MAIN.MAP 0x10, a different link): five step and flag words, then kanbanBootEnd (MAIN.MAP global); 4 B of fill to the blob
-      - [0x53B4D8, sdata, cod/53B4D8]    # .sdata blob resume (layout_action's run up to its "game." literal)
-      - [0x53B510, .sdata, ico2/common/src/layout_action]  # the TU's one anonymous "game." literal, 6 B plus 2 B of fill (VMA 0x63B510; chain 3 pass 147)
-      - [0x53B518, sdata, cod/53B518]    # .sdata blob resume (layout_action's tail, layout_texture, sceneManager)
+      - [0x53B4D8, .sdata, ico2/common/src/layout_action]  # the TU's whole .sdata run as source (finishing pass P1-8b), VMA 0x63B4D8..0x63B5F8, 0x120 B (MAIN.MAP 0x10C, a different link): the port pointer and nine state words, startStagePauseDisableTimer, layout_boot_flag and enable_game_pause (MAIN.MAP globals), then each function's statics before it with the short literals ("game.", "1 to 2\n", "2 to 1\n", "chk:%d\n", "case 4\n", "fail\n", progressive_bar's two colours, "%d\n") where the functions emit them, title_demo_mode and laoutActionPauseRequest (globals) at their definitions, stage_after_skipping_demo and layoutActPushStartNew (globals) last
+      - [0x53B5F8, sdata, cod/53B5F8]    # .sdata blob resume (layout_texture, sceneManager)
       - [0x53B650, .sdata, ico2/common/src/staffroll]  # the TU's whole .sdata run as source (finishing pass P1-8), VMA 0x63B650..0x63B670, 0x20 B = MAIN.MAP staffroll.o .sdata: staffRollStartFlag, staffRollCenterOffsetX and staffRollCenterOffsetXDest (MAIN.MAP globals), staffRollNameOut's "0", the roll's colour and staffRollAlpha (MAIN.MAP global)
       - [0x53B670, sdata, cod/53B670]    # data-only member staffroll_dat's .sdata (config/data_members.pal.txt), VMA 0x63B670..0x63B678; extracted, never C
       - [0x53B678, .sdata, ico2/sugipon/src/a_p_1]  # the TU's whole .sdata run as source (finishing pass P1-6): the nine mode-name literals then InitAP1's assert literal, VMA 0x63B678..0x63B6C2, 0x4A B = MAIN.MAP; the blob before it ends at staffroll_dat's run
@@ -1442,8 +1427,7 @@ segments:
       - { type: .bss, vram: 0x0071CA90, name: ico2/common/src/icoMisc }  # the TU's own .bss, 0x80 B, VMA 0x71CA90..0x71CB10; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x0071CB10, name: ico2/common/src/kanban }  # the TU's own .bss, 0x3C0 B, VMA 0x71CB10..0x71CED0; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x0071CF00, name: ico2/common/src/kanbanBoot }  # the TU's own .bss, 0xA00 B, VMA 0x71CF00..0x71D900; static definitions in ROM run order (completeness pass); the request block's 64-byte alignment makes the 0x30 B after kanban's run link fill (finishing pass P1-8)
-      - { type: bss, vram: 0x0071D900, name: cod/0071D900 }  # .bss blob, the two port records (0x10 B) that layout_action's own .sdata pointer word still relocates against; a named .sdata static is not gp-relative under -fdata-sections (chain 3 pass 146)
-      - { type: .bss, vram: 0x0071D910, name: ico2/common/src/layout_action }  # the TU's .bss tail as three statics, 0x44 B plus 0xC of fill before sceneManager (chain 3 pass 146)
+      - { type: .bss, vram: 0x0071D900, name: ico2/common/src/layout_action }  # the TU's whole .bss as four statics, 0x54 B (MAIN.MAP 0x4C), VMA 0x71D900..0x71D954: the two card ports' records, the preview record, the voice open request and the kept game flags; 0xC of fill before sceneManager (finishing pass P1-8b)
       - { type: .bss, vram: 0x0071D960, name: ico2/common/src/sceneManager }  # the TU's own .bss as source (completeness pass 67), 0x20 B, VMA 0x71D960..0x71D980, nextStagePos and nextStageRot in ROM run order (MAIN.MAP line 7741), staffroll's row abuts
       - { type: .bss, vram: 0x0071D980, name: ico2/common/src/staffroll }  # the TU's own .bss, 0x12C0 B, VMA 0x71D980..0x71EC40; static definitions in ROM run order (completeness pass)
       - { type: .bss, vram: 0x0071EC40, name: ico2/sugipon/src/act_a_p_1 }  # the TU's own .bss, 0x90 B, VMA 0x71EC40..0x71ECD0; static definitions in ROM run order (completeness pass)

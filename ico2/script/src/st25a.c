@@ -24,6 +24,7 @@
 #include <string.h>
 #include "e3.h"
 #include "typedef.h"
+#include "layout_action.h"
 
 /* kept local: this TU's uses of scpGameStat_BoyWeaponkind do not fit the prototype in script.h */
 extern int scpGameStat_BoyWeaponkind(void);
@@ -125,7 +126,6 @@ extern PObjGObj *scpSearchGobj(int a0);
 void actSt25aQueenBeforeChk(volatile int a0);
 void actSt25aQueenDeadReadyChk(volatile int a0);
 void actItouQueenAttackChk(volatile int a0);
-extern int enable_game_pause;
 extern int D_0063AA08;
 void actConte11(volatile int a0);
 void actConte11Jimaku(volatile int a0);

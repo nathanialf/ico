@@ -124,6 +124,7 @@ void afterCommonTruckLever(volatile int a0);
 #include "act-game.h"
 #include "matrixDrive.h"
 #include "sugiCommon.h"
+#include "layout_action.h"
 
 typedef struct {
     int a, b, c;
@@ -1963,7 +1964,6 @@ void actCommonSlip(volatile int a0)
     }
 }
 
-extern int enable_game_pause;
 extern int D_0063AA08;
 /* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
 extern void _OrientXZGV(void *out, void *a, void *b);

@@ -11,6 +11,7 @@
 #include "e3.h"
 #include "typedef.h"
 #include "kanbanBoot.h"
+#include "layout_action.h"
 
 /* The TU starts at 0x0021F060, where MAIN.MAP puts op.o: these three sit before
    the functions the listing hashes named. */
@@ -43,7 +44,6 @@ extern char *scpSearchGobj(int id);
 extern void scpFadeIn(float t);
 /* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int kind, void *id, int a2, int a3, int a4);
-extern int enable_game_pause;
 extern int D_0063BE68;
 
 void actTitleCamera2(volatile int a0)
