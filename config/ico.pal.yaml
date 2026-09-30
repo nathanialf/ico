@@ -638,11 +638,7 @@ segments:
       - [0x3F7E10, .data, ico2/script/src/op]  # the TU's whole .data run as source (completeness pass 5), VMA 0x4F7E10..0x4F7E50, 64 B emitted
       - [0x3F7E50, .data, ico2/script/src/st00a]  # syms: atr2_mes,ene_mes,stair_mes,door2Down_mes,door2Up_mes,door2Upchk_mes,door2Downchk_mes,door1Down_mes,door1Up_mes,door1Upchk_mes,door1Downchk_mes  the TU's whole .data run (VMA 0x4F7E50..0x4F7FB0, 0x160 = MAIN.MAP st00a.o .data): eleven mail records static ActMail[2] {{430},{429}} named for the actor that installs each, ROM order (chain 3 pass 131); the four check records' spellings are pinned by their gcse hash buckets (site comment), st01b's row follows directly
       - [0x3F7FB0, .data, ico2/script/src/st01b]  # syms: ene_mes,floor_mes,way_mes,way_on_mes,way_off_mes  the TU's whole .data run, five mail records (VMA 0x4F7FB0..0x4F8050, 0xA0 = MAIN.MAP st01b.o .data); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
-      - [0x3F8050, data, cod/3F8050]     # .data blob resume
-      - [0x3F8270, .data, ico2/script/src/st02a]  # syms: way_on_mail  actSt02aWayOnChk mail record (VMA 0x4F8270..0x4F8290); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
-      - [0x3F8290, data, cod/3F8290]     # .data blob resume
-      - [0x3F82D0, .data, ico2/script/src/st02a]  # syms: taki_on_mail,taki_off_mail  the two Taki mail records (VMA 0x4F82D0..0x4F8310); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
-      - [0x3F8310, data, cod/3F8310]     # .data blob resume
+      - [0x3F8050, .data, ico2/script/src/st02a]  # the TU's whole .data run as source (finishing pass P1-2): twenty-three mail records in ROM order, the two main-mail records answering 406/407 with their switch threads, VMA 0x4F8050..0x4F8330, 0x2E0 B = MAIN.MAP st02a.o .data; role-named per the 2026-09-07 ruling
       - [0x3F8330, .data, ico2/script/src/st03t]  # the TU's whole .data run as source (data pass 1: literals at the use sites, role-named statics, first-use order), VMA 0x4F8330..0x4F8770, 1088 B
       - [0x3F85D0, data, cod/3F85D0]     # data blob resume
       - [0x3F8770, .data, ico2/script/src/st04a]  # syms: model_on,model_off  ModelOn/ModelOff mail records, the tail of st04a.o's .data run (VMA 0x4F8770..0x4F87B0); static ActMail[2] {{0x1AE},{0x1AD}}, role-named per the 2026-09-07 ruling
@@ -768,12 +764,8 @@ segments:
       - [0x452680, .rodata, ico2/fumi/src/act-game]  # syms: 0x00552680  carved jtbl_00552680 (_ACTCharStatus_Set's 17-arm table), VMA 0x552680..0x5526C4
       - [0x4526C4, rodata, cod/4526C4]   # .rodata blob resume (zero pad word, then the 8-aligned strings at 0x5526C8)
       - [0x452710, .rodata, ico2/fumi/src/act-wish]  # plain-rodata: ACTGetWish_FromPad's "orient null" string + pad + the double 0.9 (0x18 B, 8-aligned), VMA 0x552710..0x552728
-      - [0x452728, rodata, cod/452728]   # .rodata blob resume (the 8 zero bytes ROM keeps after the double, then the rest of the run)
-      - [0x452840, .rodata, ico2/fumi/src/boyact]  # syms: 0x00552840,0x00552A20  subBoyControl's two jump tables, jtbl_00552840 (118 arms, VMA 0x552840..0x552A18) and after an 8-byte pad jtbl_00552A20 (5 arms, ..0x552A34) (chain 3 pass 168)
-      - [0x452A34, rodata, cod/452A34]   # .rodata blob resume (a zero pad word and "%d -> %d\n", a still-asm boyact function's string)
-      - [0x452A48, .rodata, ico2/fumi/src/boyact]  # syms: collisionKinds,0x00552A60  subBoyCollision's kind list {4, 47, 62, -1} (VMA 0x552A48, 0x10 B, anonymous in the ROM) and its 68-arm jump table jtbl_00552A60 (VMA 0x552A60..0x552B70, 0x110 B) after an 8-byte pad (chain 3 pass 167); the plain row follows
-      - [0x452B70, .rodata, ico2/fumi/src/boyact]  # plain-rodata: the four li.d doubles of actBoyWalk/actBoyRun (0.2, 0.9, 0.2, 0.7; ee-as interns them into the object's own .rodata), VMA 0x552B70..0x552B90; the TU's strings and its three jump tables stay in the blob until their owners land
-      - [0x452B90, rodata, cod/452B90]   # .rodata blob resume (boyact's strings)
+      - [0x452730, .rodata, ico2/fumi/src/boyact]  # the TU's whole .rodata run as source (finishing pass P1-2), one section in emission order: the climb headers' strings, subBoyControl's two jump tables, SwapBoyWeapon's string, collisionKinds and subBoyCollision's table, the four li.d doubles of actBoyWalk/actBoyRun, then the strings and initialiser templates of the functions after them to actBoyStart; VMA 0x552730..0x552CB8, 0x588 B (the 8 zero bytes before it are the pad to its 16-byte start)
+      - [0x452CB8, rodata, cod/452CB8]   # .rodata blob resume (commonact's strings ahead of its C row)
       - [0x452EE8, .rodata, ico2/fumi/src/commonact]  # the TU's whole .rodata run as source (chain 3 pass 62, commonact entirely C): the 0.8 double, twenty-four anonymous string literals in listing definition order (the 96 end-of-file inline definitions emit their strings at definition and their code at the end), then WithMailFunc_FallDead's 0.3 last; VMA 0x552EE8..0x553320, 0x438 B, anonymous
       - [0x453320, rodata, cod/453320]   # .rodata blob resume (strings)
       - [0x4533A0, .rodata, ico2/fumi/src/enemy_act]  # jtbl_005533A0, subEnemyControl's 38-arm switch table (0x98 B, arms verified against the ROM words; chain 3 pass 150)

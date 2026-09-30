@@ -277,13 +277,44 @@ extern void _ACTWait(int a0);
 extern void ACTSendMailCorrect(int a0, int mail);
 extern void *D_00639EA8;
 extern void *D_0063A61C;
-extern char D_00552770[];
+
+/* The three climb headers (omori/include/b50climb.h, b100climb.h,
+   b200climb.h in the listing) textually included here, as girl_act.c does
+   with its own three: each defines the hand-off's after-routine and
+   act-routine `inline`, which the compiler emits at the end of the file in
+   boyact.h's order, and the mot-routine plainly, emitted in place.  Their
+   strings come out here, in this order, at the head of the TU's .rodata. */
+inline void afterBoyHand50(volatile int a0)
+{
+    debug_StdPrintfDummy("boy after func\n");
+    if (D_00639EA8 != 0) {
+        iosOmSendMail(D_00639EA8, 0x60, D_0063A61C);
+    }
+}
+
+inline void actBoyHand50(volatile int a0)
+{
+    Act *sub = GOBJ_ACT(a0);
+
+    debug_StdPrintfDummy("enter actBoyHand50\n");
+    sub->unk34 = 0x52;
+    *(void **)((char *)sub + 0x14) = (void *)afterBoyHand50;
+    sub->f_E0 = 0;
+    while ((sub->f_E0 & 0x10) == 0) {
+        _ACTWait(1);
+    }
+    debug_StdPrintfDummy("boy error flg get\n");
+    while (1) {
+        ACTSendMailCorrect(a0, 0x60);
+        _ACTWait(1);
+    }
+}
 
 void motBoyHand50(volatile int a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
-    debug_StdPrintfDummy(D_00552770);
+    debug_StdPrintfDummy("enter motBoyHand50\n");
     while (1) {
         if (D_00639EA8 != 0) {
             iosOmSendMail(D_00639EA8, 0x5C, D_0063A61C);
@@ -315,8 +346,6 @@ void motBoyHand50(volatile int a0)
 }
 
 extern void *D_00639EA4;
-extern char D_005527B0[];
-extern char D_005527C8[];
 extern char D_0063A6C0[];
 extern char D_0063A6C8[];
 extern int D_0028F4C0[];
@@ -338,12 +367,38 @@ static inline void faceGirlFlat(void)
     SetMotionDirection(boy, dir);
 }
 
+inline void afterBoyHand100(volatile int a0)
+{
+    debug_StdPrintfDummy("boy after func\n");
+    if (D_00639EA8 != 0) {
+        iosOmSendMail(D_00639EA8, 0x65, D_0063A61C);
+    }
+}
+
+inline void actBoyHand100(volatile int a0)
+{
+    Act *sub = GOBJ_ACT(a0);
+
+    debug_StdPrintfDummy("enter actBoyHand100\n");
+    sub->unk34 = 0x53;
+    *(void **)((char *)sub + 0x14) = (void *)afterBoyHand100;
+    sub->f_E0 = 0;
+    while ((sub->f_E0 & 0x10) == 0) {
+        _ACTWait(1);
+    }
+    debug_StdPrintfDummy("boy error\n");
+    while (1) {
+        ACTSendMailCorrect(a0, 0x65);
+        _ACTWait(1);
+    }
+}
+
 void motBoyHand100(volatile int a0)
 {
     Act *sub = GOBJ_ACT(a0);
     int n;
 
-    debug_StdPrintfDummy(D_005527B0);
+    debug_StdPrintfDummy("enter motBoyHand100\n");
     faceGirlFlat();
     n = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 2;
     while (1) {
@@ -362,7 +417,7 @@ void motBoyHand100(volatile int a0)
         _ACTWait(1);
     }
     ACTSendMailCorrect(a0, 0x65);
-    debug_StdPrintfDummy(D_005527C8, (void *)a0 == D_00639EA4 ? D_0063A6C0 : D_0063A6C8);
+    debug_StdPrintfDummy("%s sync error\n", (void *)a0 == D_00639EA4 ? D_0063A6C0 : D_0063A6C8);
 done:
     while (GOBJ_SUB(a0)->f_4A0 < 0 || 2 <= GOBJ_SUB(a0)->f_4A0) {
         _ACTWait(1);
@@ -402,14 +457,38 @@ done:
     }
 }
 
-extern char D_005527F0[];
+inline void afterBoyHand200(volatile int a0)
+{
+    debug_StdPrintfDummy("boy after func\n");
+    if (D_00639EA8 != 0) {
+        iosOmSendMail(D_00639EA8, 0x6A, D_0063A61C);
+    }
+}
+
+inline void actBoyHand200(volatile int a0)
+{
+    Act *sub = GOBJ_ACT(a0);
+
+    debug_StdPrintfDummy("enter actBoyHand200\n");
+    sub->unk34 = 0x54;
+    *(void **)((char *)sub + 0x14) = (void *)afterBoyHand200;
+    sub->f_E0 = 0;
+    while ((sub->f_E0 & 0x10) == 0) {
+        _ACTWait(1);
+    }
+    debug_StdPrintfDummy("boy error\n");
+    while (1) {
+        ACTSendMailCorrect(a0, 0x6A);
+        _ACTWait(1);
+    }
+}
 
 void motBoyHand200(volatile int a0)
 {
     Act *sub = GOBJ_ACT(a0);
     int n;
 
-    debug_StdPrintfDummy(D_005527F0);
+    debug_StdPrintfDummy("enter motBoyHand200\n");
     faceGirlFlat();
     n = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] / 2;
     while (1) {
@@ -428,7 +507,7 @@ void motBoyHand200(volatile int a0)
         _ACTWait(1);
     }
     ACTSendMailCorrect(a0, 0x6A);
-    debug_StdPrintfDummy(D_005527C8, (void *)a0 == D_00639EA4 ? D_0063A6C0 : D_0063A6C8);
+    debug_StdPrintfDummy("%s sync error\n", (void *)a0 == D_00639EA4 ? D_0063A6C0 : D_0063A6C8);
 done:
     while (GOBJ_SUB(a0)->f_4A0 < 0 || 2 <= GOBJ_SUB(a0)->f_4A0) {
         _ACTWait(1);
@@ -673,7 +752,6 @@ extern void _ApplyRyGV(void *v, float ry);
 extern float stage_PlayBgAnimation(float frame, int id, void *a, void *b);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
-extern char D_00552808[];
 extern char D_0063A6D0[];
 
 void BoyBgaManager(void *self, int id, void *dst)
@@ -716,8 +794,8 @@ void BoyBgaManager(void *self, int id, void *dst)
             goto found;
         }
     }
-    debug_assert(D_00552808, 1731);
-    __assert(D_00552808, 1731, D_0063A6D0);
+    debug_assert(__FILE__, 1731);
+    __assert(__FILE__, 1731, D_0063A6D0);
     p = 0;
 found:
     v = *(int *)dst;
@@ -810,8 +888,6 @@ void E3_StageStartBoy(void *self)
 extern int D_0028F4C0[];
 extern int *D_004EB758[];
 extern int D_0063B13C;
-extern char D_00552818[];
-extern char D_00552830[];
 extern int fptodp(float v);
 
 int GetChainSlope(void)
@@ -832,10 +908,10 @@ int GetChainSlope(void)
     ACTGame_SetMotionPlaySpeedRatio_Reserve(
         g, ratio * (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 30.0f, 7);
     if (D_0063B13C & 1) {
-        debug_Printf(10, 140, 0x0FFFFFFF, D_00552818, fptodp(ratio), fptodp(c));
+        debug_Printf(10, 140, 0x0FFFFFFF, "speed = %f (%f)\n", fptodp(ratio), fptodp(c));
     }
     if (D_0063B13C & 1) {
-        debug_Printf(10, 150, 0x0FFFFFFF, D_00552830, fptodp(GOBJ_SUB(g)->f_4AC),
+        debug_Printf(10, 150, 0x0FFFFFFF, "%f / %f\n", fptodp(GOBJ_SUB(g)->f_4AC),
                      fptodp((float)*D_004EB758[GOBJ_SUB(g)->f_4A0]));
     }
     if ((b < 0.0f ? -b : b) < 30.0f) {
@@ -1765,6 +1841,41 @@ void PutWeapon(void)
     }
 }
 
+/* kept local: this TU's uses of PickupWeapon do not fit the prototype in weapon.h */
+extern void PickupWeapon(void *w, void *boy, int kind);
+/* kept local: this TU's uses of ReleaseWeapon do not fit the prototype in weapon.h */
+extern void ReleaseWeapon(void *w);
+extern char D_0063A6F0[];
+
+/* boyact.c:3002-3021 in the PAL listing: a static helper with no out-of-line
+   copy in ROM, inlined into SetBoyWeaponGObj and afterBoyTakeWeapon. */
+static inline int SwapBoyWeapon(void *oldW, void *newW, void *boy)
+{
+    Act *sub = GOBJ_ACT(boy);
+
+    if (oldW == newW) {
+        return 0;
+    }
+    if (newW == 0) {
+        debug_assert(__FILE__, 3007);
+        __assert(__FILE__, 3007, D_0063A6F0);
+        return 0;
+    }
+    PickupWeapon(newW, boy, 0x16);
+    ((int *)D_006C0AD0)[0] = *(int *)((char *)newW + 0x8);
+    *(void **)((char *)sub + 0x150) = newW;
+    SetWeaponOffsetMode(newW, 0);
+
+    if (oldW == 0) {
+        return 1;
+    }
+    ReleaseWeapon(oldW);
+    PutWeapon();
+    gamesysObjInfoPosSetStage((int *)oldW, 0, 0, stage_no);
+    debug_StdPrintfDummy("%d -> %d\n", *(int *)((char *)oldW + 0x8), *(int *)((char *)newW + 0x8));
+    return 1;
+}
+
 /* kept local: the declaration in camera-root.h changes this TU codegen */
 extern float *GetCurrentCameraSet2(void);
 
@@ -2599,8 +2710,17 @@ void actBoyRun(volatile int a0)
     }
 }
 
-extern char D_00552BA8[];
-extern char D_00552BC0[];
+inline void actBoyFall(volatile int a0)
+{
+    Act *sub = GOBJ_ACT(a0);
+
+    debug_StdPrintfDummy("enter actBoyFall\n");
+    sub->unk34 = 5;
+    while (1) {
+        _ACTWait(1);
+    }
+}
+
 extern void BoyAttackCenter(int a0);
 /* kept local: this TU's uses of SetMotionDirectionWithLimit do not fit the prototype in motionManager2.h */
 extern void SetMotionDirectionWithLimit(void *self, float *dir, float lo, float hi);
@@ -2622,8 +2742,8 @@ void actBoyAttack(volatile int a0)
 
     *(unsigned long long *)(sub + 0x20) |= 0x100000000ULL;
     *(int *)(sub + 0x450) = mot;
-    debug_StdPrintfDummy(D_00552BA8, mot);
-    debug_StdPrintfDummy(D_00552BC0);
+    debug_StdPrintfDummy("attack sub id [%d]\n", mot);
+    debug_StdPrintfDummy("enter actBoyAttack\n");
     _ACTWait(2);
     ACTSearchEnemy_inl((void *)a0, (int *)(sub + 0x188), vec);
     while (1) {
@@ -2678,10 +2798,6 @@ void actBoyTakeWeaponReady(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of PickupWeapon do not fit the prototype in weapon.h */
-extern void PickupWeapon(void *w, void *boy, int kind);
-/* kept local: this TU's uses of ReleaseWeapon do not fit the prototype in weapon.h */
-extern void ReleaseWeapon(void *w);
 /* sub->0x14 is the actor's "after" callback slot: actBoyTakeWeapon arms it with
    afterBoyTakeWeapon and calls it through the slot once the motion frame passes
    the swap point, so it is written and read as a function pointer. */
@@ -2765,6 +2881,24 @@ void actBoyCliffHesitate(volatile int a0)
             }
         }
         ACTSendMailCorrect(a0, 0x128);
+        _ACTWait(1);
+    }
+}
+
+inline void actBoyCall(volatile int a0)
+{
+    Act *sub = GOBJ_ACT(a0);
+
+    debug_StdPrintfDummy("enter actBoyCall\n");
+    sub->unk34 = 9;
+    _ACTWait(2);
+    if (D_00639EA8 != 0) {
+        iosOmSendMail(D_00639EA8, 0x41, D_0063A61C);
+    }
+    while (1) {
+        if ((*(int *)((char *)sub + 0x2E0) & 8) == 0) {
+            ACTSendMailCorrect(a0, 0xC7);
+        }
         _ACTWait(1);
     }
 }
@@ -2976,7 +3110,6 @@ extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float 
                                           float y, float z, float w);
 extern int ACTCheckCollis_WF(float f, void *p0, void *p1, void *actor, void *posout);
 extern void InsertCamera_Set(float *pos, float *tgt, int frames);
-extern char D_00552BF0[];
 extern char D_005577F4[];
 
 void actBoyBelift(volatile int a0)
@@ -3058,8 +3191,9 @@ void actBoyBelift(volatile int a0)
             break;
         default:
             ACTSendMailCorrect(a0, 0xE2);
-            debug_StdPrintfDummy(
-                D_00552BF0, D_005577F4 + *(unsigned int *)(*(char **)(girl + 0x164) + 0x34) * 0x50);
+            debug_StdPrintfDummy("enemy error body slam[%s]\n",
+                                 D_005577F4 +
+                                     *(unsigned int *)(*(char **)(girl + 0x164) + 0x34) * 0x50);
             break;
         }
         _ACTWait(1);
@@ -3420,6 +3554,25 @@ void actBoyRescueGirlBhang(volatile int a0)
     }
 }
 
+/* kept local: this TU's uses of RequestStageChangeSimple do not fit the prototype in script.h */
+extern int RequestStageChangeSimple(void *a0, int a1, int a2, int a3, float a4, float a5);
+
+inline int RequestStageChangeKidnapEnd(void *a0, int a1)
+{
+    int rv = 0;
+    if (D_00639EA4 != 0) {
+        rv = RequestStageChangeSimple(a0, 0, 0, 0, 0.25f, 4.0f) & 0xFF;
+        if (rv != 0) {
+            Vec16 buf = {{-1000000.0f, 0.0f, 0.0f}};
+
+            BOYEFSTAGE[0] = 1;
+            *(int *)(BOYEFSTAGE + 4) = a1;
+            ACTGame_StageChangeGObjDirect(D_00639EA4, a0, &buf, 0);
+        }
+    }
+    return rv;
+}
+
 /* kept local: this TU's uses of InsertCamera_SetNoraml do not fit the prototype in camera-root.h */
 extern void InsertCamera_SetNoraml(float *a, float *b, int c, int d);
 
@@ -3456,15 +3609,6 @@ void SetStatusBoy_OtherStageGirlPinch(void)
     InsertCamera_SetNoraml(cam, pos, frames, 0);
 }
 
-extern char D_00552C20[];
-extern char D_00552C50[];
-extern char D_00552C88[];
-/* the two segment ends actBoyStart runs through the layout object's matrix,
-   {0, 0, -50, 1} and {0, 0, 50, 1}; they sit in the .rodata blob between the
-   function's strings, and `const` is what keeps the second copy's two loads in
-   the ROM's order (no anti-dependence on the stack stores) */
-extern const Vec16 D_00552C30;
-extern const Vec16 D_00552C40;
 extern char D_002A84F8[];
 extern void *D_0063A70C;
 /* not declared by the headers this TU includes; the act.c entry points as
@@ -3498,7 +3642,7 @@ void actBoyStart(int a0)
     D_0063C1F9 = 0;
 
     D_0063C1FC = 0;
-    debug_StdPrintfDummy(D_00552C20, a0);
+    debug_StdPrintfDummy("actBoyStart:%p\n", a0);
 
     work = actInitialize(a0);
     *(void **)(work + 0x68C) = D_006C0AC0;
@@ -3555,12 +3699,9 @@ void actBoyStart(int a0)
     if (BOYINFO.layoutID != 0) {
         g = isysGObjSearchFromObjLayoutID(BOYINFO.layoutID);
         if (g != 0) {
-            Vec16 p0;
-            Vec16 p1;
+            Vec16 p0 = {{0.0f, 0.0f, -50.0f, 1.0f}};
+            Vec16 p1 = {{0.0f, 0.0f, 50.0f, 1.0f}};
             BoyWallWork cw;
-
-            p0 = D_00552C30;
-            p1 = D_00552C40;
 
             CopyMatrix(MatrixDrive_GetMatrix(), *(void **)(*(char **)((char *)g + 0x15C) + 0xC));
             MatrixDrive_TransMatrix(0.0f, -50.0f, 0.0f);
@@ -3569,7 +3710,8 @@ void actBoyStart(int a0)
             cw.f70 = 0.0f;
             ClipWall(&cw);
             if (cw.f88 == 0) {
-                debug_StdPrintfDummy(D_00552C50);
+                /* "!!! cannot find the sofa's wall !!!" */
+                debug_StdPrintfDummy("！！！ソファの壁を見付けることができません！！！\n");
             } else {
                 D_0063C1F8 = 1;
                 D_0063C1F9 = 1;
@@ -3602,7 +3744,16 @@ void actBoyStart(int a0)
 
     if (BOYINFO.fire && D_00639EA8 != 0) {
         iosOmSendMail(D_00639EA8, 0x3F, (void *)a0);
-        debug_StdPrintfDummy(D_00552C88);
+        debug_StdPrintfDummy("hand connect start\n");
+        /* Disabled in retail: the way-begin report of the landing.  What the
+           bytes pin: its text in .rodata right after "hand connect start\n",
+           with no instruction; the listing's lines 5749-5750, empty between
+           this print (5748) and the final wait (5751), are where it fits.
+           What they cannot: the condition that disabled it.  girl_act.c's
+           actGirlDitch3mExec carries the same pair. */
+        if (0) {
+            debug_StdPrintfDummy("WBP set [landing]\n");
+        }
     }
     _ACTWait(0);
 }
@@ -3615,14 +3766,14 @@ extern int _RotyGV();
 /* `stick` is never named in the body: the ROM leaves $a1 untouched and
    ConvertStickToAbsCoord reads it straight out of the incoming register, so the
    stick record reaches it through the argument register alone. */
-int CorrectStickInfo(void *dir, void *stick)
+inline int CorrectStickInfo(void *dir, void *stick)
 {
     int buf[4];
     ConvertStickToAbsCoord(buf);
     return _RotyGV(buf, dir);
 }
 
-void *GetBoyWeaponGObj(void)
+inline void *GetBoyWeaponGObj(void)
 {
     char *g = (char *)D_00639EA4;
     if (g != 0) {
@@ -3637,7 +3788,7 @@ typedef struct {
     char pad190[4];
 } BoyParaRow;
 
-void actBoyStand(volatile int a0)
+inline void actBoyStand(volatile int a0)
 {
     BoyParaRow *row = (BoyParaRow *)(GOBJ_SUB(a0)->f_4A0 * sizeof(BoyParaRow) + D_0055FE58);
 
@@ -3649,54 +3800,21 @@ void actBoyStand(volatile int a0)
     }
 }
 
-void actBoyHang(volatile int a0)
+inline void actBoyHang(volatile int a0)
 {
     char *g = (char *)a0;
     ACTAdjustPlane(a0, *(char **)(*(char **)(g + 0x164) + 0x688) + 0x8B0);
     _ACTWait(0);
 }
 
-void actBoyBHang(volatile int a0)
+inline void actBoyBHang(volatile int a0)
 {
     char *g = (char *)a0;
     ACTAdjustPlane(a0, *(char **)(*(char **)(g + 0x164) + 0x688) + 0x8B0);
     _ACTWait(0);
 }
 
-extern char D_00552B90[];
-
-void actBoyFall(volatile int a0)
-{
-    Act *sub = GOBJ_ACT(a0);
-
-    debug_StdPrintfDummy(D_00552B90);
-    sub->unk34 = 5;
-    while (1) {
-        _ACTWait(1);
-    }
-}
-
-extern char D_00552BD8[];
-
-void actBoyCall(volatile int a0)
-{
-    Act *sub = GOBJ_ACT(a0);
-
-    debug_StdPrintfDummy(D_00552BD8);
-    sub->unk34 = 9;
-    _ACTWait(2);
-    if (D_00639EA8 != 0) {
-        iosOmSendMail(D_00639EA8, 0x41, D_0063A61C);
-    }
-    while (1) {
-        if ((*(int *)((char *)sub + 0x2E0) & 8) == 0) {
-            ACTSendMailCorrect(a0, 0xC7);
-        }
-        _ACTWait(1);
-    }
-}
-
-void actBoyHangBefore(volatile int a0)
+inline void actBoyHangBefore(volatile int a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -3711,7 +3829,7 @@ void actBoyHangBefore(volatile int a0)
     }
 }
 
-void actBoyBeslam(volatile int a0)
+inline void actBoyBeslam(volatile int a0)
 {
     char *p = (char *)GOBJ_SUB(a0) + 0x130;
 
@@ -3722,7 +3840,7 @@ void actBoyBeslam(volatile int a0)
     }
 }
 
-void actBoyRescueSrc(volatile int a0)
+inline void actBoyRescueSrc(volatile int a0)
 {
     while (1) {
         ACTSendMailCorrect(a0, 0xC7);
@@ -3730,7 +3848,7 @@ void actBoyRescueSrc(volatile int a0)
     }
 }
 
-void actBoySupportGBBegin(volatile int a0)
+inline void actBoySupportGBBegin(volatile int a0)
 {
     while (1) {
         if (D_00639EA8 != 0) {
@@ -3752,7 +3870,7 @@ static inline unsigned char IsBoyStatus_SupportGB(void)
     return 0;
 }
 
-void actBoySupportGBLoop(volatile int a0)
+inline void actBoySupportGBLoop(volatile int a0)
 {
     while (1) {
         if (!IsBoyStatus_SupportGB()) {
@@ -3762,7 +3880,7 @@ void actBoySupportGBLoop(volatile int a0)
     }
 }
 
-void actBoySupportGBEnd(volatile int a0)
+inline void actBoySupportGBEnd(volatile int a0)
 {
     while (1) {
         if (D_00639EA8 != 0) {
@@ -3773,7 +3891,7 @@ void actBoySupportGBEnd(volatile int a0)
     }
 }
 
-void actBoySupportBGBegin(volatile int a0)
+inline void actBoySupportBGBegin(volatile int a0)
 {
     while (1) {
         ACTSendMailCorrect(a0, 0x183);
@@ -3781,7 +3899,7 @@ void actBoySupportBGBegin(volatile int a0)
     }
 }
 
-void actBoyDitch3mExec(volatile int a0)
+inline void actBoyDitch3mExec(volatile int a0)
 {
     while (1) {
         ACTSendMailCorrect(a0, 0x190);
@@ -3789,7 +3907,7 @@ void actBoyDitch3mExec(volatile int a0)
     }
 }
 
-void actBoyHangG3M(volatile int a0)
+inline void actBoyHangG3M(volatile int a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -3805,100 +3923,12 @@ void actBoyHangG3M(volatile int a0)
     }
 }
 
-unsigned char IsAbleBoyControl(void)
+inline unsigned char IsAbleBoyControl(void)
 {
     return D_0063C1F5;
 }
 
-extern char D_00552740[];
-extern char D_00552758[];
-
-void actBoyHand50(volatile int a0)
-{
-    Act *sub = GOBJ_ACT(a0);
-
-    debug_StdPrintfDummy(D_00552740);
-    sub->unk34 = 0x52;
-    *(void **)((char *)sub + 0x14) = (void *)afterBoyHand50;
-    sub->f_E0 = 0;
-    while ((sub->f_E0 & 0x10) == 0) {
-        _ACTWait(1);
-    }
-    debug_StdPrintfDummy(D_00552758);
-    while (1) {
-        ACTSendMailCorrect(a0, 0x60);
-        _ACTWait(1);
-    }
-}
-
-extern char D_00552730[];
-
-void afterBoyHand50(volatile int a0)
-{
-    debug_StdPrintfDummy(D_00552730);
-    if (D_00639EA8 != 0) {
-        iosOmSendMail(D_00639EA8, 0x60, D_0063A61C);
-    }
-}
-
-extern char D_00552788[];
-extern char D_005527A0[];
-
-void actBoyHand100(volatile int a0)
-{
-    Act *sub = GOBJ_ACT(a0);
-
-    debug_StdPrintfDummy(D_00552788);
-    sub->unk34 = 0x53;
-    *(void **)((char *)sub + 0x14) = (void *)afterBoyHand100;
-    sub->f_E0 = 0;
-    while ((sub->f_E0 & 0x10) == 0) {
-        _ACTWait(1);
-    }
-    debug_StdPrintfDummy(D_005527A0);
-    while (1) {
-        ACTSendMailCorrect(a0, 0x65);
-        _ACTWait(1);
-    }
-}
-
-void afterBoyHand100(volatile int a0)
-{
-    debug_StdPrintfDummy(D_00552730);
-    if (D_00639EA8 != 0) {
-        iosOmSendMail(D_00639EA8, 0x65, D_0063A61C);
-    }
-}
-
-extern char D_005527D8[];
-
-void actBoyHand200(volatile int a0)
-{
-    Act *sub = GOBJ_ACT(a0);
-
-    debug_StdPrintfDummy(D_005527D8);
-    sub->unk34 = 0x54;
-    *(void **)((char *)sub + 0x14) = (void *)afterBoyHand200;
-    sub->f_E0 = 0;
-    while ((sub->f_E0 & 0x10) == 0) {
-        _ACTWait(1);
-    }
-    debug_StdPrintfDummy(D_005527A0);
-    while (1) {
-        ACTSendMailCorrect(a0, 0x6A);
-        _ACTWait(1);
-    }
-}
-
-void afterBoyHand200(volatile int a0)
-{
-    debug_StdPrintfDummy(D_00552730);
-    if (D_00639EA8 != 0) {
-        iosOmSendMail(D_00639EA8, 0x6A, D_0063A61C);
-    }
-}
-
-void ACTSearchEnemy(void *a0, int *out_id, float *out_vec)
+inline void ACTSearchEnemy(void *a0, int *out_id, float *out_vec)
 {
     float buf[4];
     void *node;
@@ -3937,7 +3967,7 @@ void ACTSearchEnemy(void *a0, int *out_id, float *out_vec)
     }
 }
 
-void DeleteBoyWeapon(void)
+inline void DeleteBoyWeapon(void)
 {
     union {
         float f[4];
@@ -3962,7 +3992,7 @@ void DeleteBoyWeapon(void)
     }
 }
 
-int isLiftBoyEnable(void)
+inline int isLiftBoyEnable(void)
 {
     unsigned int st = *(unsigned int *)(*(char **)((char *)D_00639EA4 + 0x164) + 0x34);
     if (st >= 0x60) {
@@ -3974,20 +4004,20 @@ int isLiftBoyEnable(void)
     return 0;
 }
 
-void SetKidnapInfo(int a0, int a1)
+inline void SetKidnapInfo(int a0, int a1)
 {
     D_006C0B30[5] = a0;
     D_006C0B30[6] = a1;
 }
 
-void GetKidnapInfo(int *a0, int *a1)
+inline void GetKidnapInfo(int *a0, int *a1)
 {
     *a0 = D_006C0B30[5];
     *a1 = D_006C0B30[6];
 }
 
-void PrivInsCamSet(float *pos, float *tgt, int a2, int a3, int a4, float f5, float f6,
-                   unsigned char a7)
+inline void PrivInsCamSet(float *pos, float *tgt, int a2, int a3, int a4, float f5, float f6,
+                          unsigned char a7)
 {
     D_006C0B50.pos[0] = pos[0];
     D_006C0B50.pos[1] = pos[1];
@@ -4004,37 +4034,14 @@ void PrivInsCamSet(float *pos, float *tgt, int a2, int a3, int a4, float f5, flo
     D_006C0B50.on = 1;
 }
 
-void BoyInfoUpdate_StageChange(void)
-{
-    char *g = (char *)D_00639EA4;
-    Act *sub = GOBJ_ACT(g);
-    char *w;
-    int x;
-
-    BOYINFO.torch = 0;
-    w = *(char **)((char *)sub + 0x150);
-    if (w != 0) {
-        x = ACTGame_isWeaponEnableCatchfire(w);
-        if (x != 0) {
-            if (IsTorchLightOn(x)) {
-                BOYINFO.torch = 1;
-            }
-        }
-    }
-    BOYINFO.fire = 0;
-    if (ACTGame_FLAG_TETSUNAGI()) {
-        BOYINFO.fire = 1;
-    }
-}
-
-int IsBoyStatus_EnemyMustWait(void)
+inline int IsBoyStatus_EnemyMustWait(void)
 {
     char *sub;
     unsigned int st;
 
     if (D_00639EA4 == 0) {
-        debug_assert(D_00552808, 5795);
-        __assert(D_00552808, 5795, D_0063A6D0);
+        debug_assert(__FILE__, 5795);
+        __assert(__FILE__, 5795, D_0063A6D0);
         return 0;
     }
     sub = *(char **)((char *)D_00639EA4 + 0x164);
@@ -4054,17 +4061,17 @@ int IsBoyStatus_EnemyMustWait(void)
     return 0;
 }
 
-int IsGirlEscortedInNextStage(void)
+inline int IsGirlEscortedInNextStage(void)
 {
     return (int)((unsigned char)((unsigned long long)D_006C0AD0[1] >> 35)) & 1;
 }
 
-unsigned char IsGirlEscortedInCurrentStage(void)
+inline unsigned char IsGirlEscortedInCurrentStage(void)
 {
     return D_0063C1F4;
 }
 
-int GetSaveSofaLayoutID(void)
+inline int GetSaveSofaLayoutID(void)
 {
     int *a = (int *)D_00639EA4;
     int *b = (int *)D_00639EA8;
@@ -4087,51 +4094,19 @@ err:
     return -1;
 }
 
-void OnGirlEscortFlag(void)
+inline void OnGirlEscortFlag(void)
 {
     D_006C0AD0[1] |= 0x800000000LL;
 }
 
-extern char D_00552A38[];
-extern char D_0063A6F0[];
-
-/* boyact.c:3002-3021 in the PAL listing: a static helper with no out-of-line
-   copy in ROM, inlined into SetBoyWeaponGObj and afterBoyTakeWeapon. */
-static inline int SwapBoyWeapon(void *oldW, void *newW, void *boy)
-{
-    Act *sub = GOBJ_ACT(boy);
-
-    if (oldW == newW) {
-        return 0;
-    }
-    if (newW == 0) {
-        debug_assert(D_00552808, 3007);
-        __assert(D_00552808, 3007, D_0063A6F0);
-        return 0;
-    }
-    PickupWeapon(newW, boy, 0x16);
-    ((int *)D_006C0AD0)[0] = *(int *)((char *)newW + 0x8);
-    *(void **)((char *)sub + 0x150) = newW;
-    SetWeaponOffsetMode(newW, 0);
-
-    if (oldW == 0) {
-        return 1;
-    }
-    ReleaseWeapon(oldW);
-    PutWeapon();
-    gamesysObjInfoPosSetStage((int *)oldW, 0, 0, stage_no);
-    debug_StdPrintfDummy(D_00552A38, *(int *)((char *)oldW + 0x8), *(int *)((char *)newW + 0x8));
-    return 1;
-}
-
-void SetBoyWeaponGObj(void *w)
+inline void SetBoyWeaponGObj(void *w)
 {
     if (D_00639EA4 != 0 && w != 0) {
         SwapBoyWeapon(0, w, D_00639EA4);
     }
 }
 
-int IsBoyStatus_NotDanger(void)
+inline int IsBoyStatus_NotDanger(void)
 {
     unsigned int st = *(unsigned int *)(*(char **)((char *)D_00639EA4 + 0x164) + 0x34);
     if (st < 0x17) {
@@ -4142,28 +4117,7 @@ int IsBoyStatus_NotDanger(void)
     return 0 < *(int *)(*(char **)(*(char **)((char *)D_00639EA4 + 0x164) + 0x688) + 0x37C);
 }
 
-extern char D_00552C10[];
-/* kept local: this TU's uses of RequestStageChangeSimple do not fit the prototype in script.h */
-extern int RequestStageChangeSimple(void *a0, int a1, int a2, int a3, float a4, float a5);
-
-int RequestStageChangeKidnapEnd(void *a0, int a1)
-{
-    char buf[0x10];
-    int rv = 0;
-    if (D_00639EA4 != 0) {
-        rv = RequestStageChangeSimple(a0, 0, 0, 0, 0.25f, 4.0f) & 0xFF;
-        if (rv != 0) {
-            BOYEFSTAGE[0] = 1;
-            *(int *)(BOYEFSTAGE + 4) = a1;
-            *(long *)buf = *(long *)D_00552C10;
-            *(long *)(buf + 8) = *(long *)(D_00552C10 + 8);
-            ACTGame_StageChangeGObjDirect(D_00639EA4, a0, buf, 0);
-        }
-    }
-    return rv;
-}
-
-int GetEfStageCameraTargetID(void)
+inline int GetEfStageCameraTargetID(void)
 {
     if (BOYEFSTAGE[0]) {
         return *(int *)(BOYEFSTAGE + 4);
@@ -4171,32 +4125,32 @@ int GetEfStageCameraTargetID(void)
     return 0;
 }
 
-int IsBackFromEfStage(void)
+inline int IsBackFromEfStage(void)
 {
     return BOYEFSTAGE[0];
 }
 
-int PrivInsCamChk(void)
+inline int PrivInsCamChk(void)
 {
     return D_006C0B50.on != 0;
 }
 
-unsigned char PrivInsCamChk_Control(void)
+inline unsigned char PrivInsCamChk_Control(void)
 {
     return D_006C0B50.unk34;
 }
 
-int *GetbufpCharacterPacket(void)
+inline int *GetbufpCharacterPacket(void)
 {
     return D_006C0B30;
 }
 
-int GetsizeCharacterPacket(void)
+inline int GetsizeCharacterPacket(void)
 {
     return 32;
 }
 
-void MakeCharacterPacket(void)
+inline void MakeCharacterPacket(void)
 {
     char *pkt = (char *)D_006C0B30;
     char *sub;
@@ -4228,6 +4182,29 @@ void MakeCharacterPacket(void)
     }
 }
 
+inline void BoyInfoUpdate_StageChange(void)
+{
+    char *g = (char *)D_00639EA4;
+    Act *sub = GOBJ_ACT(g);
+    char *w;
+    int x;
+
+    BOYINFO.torch = 0;
+    w = *(char **)((char *)sub + 0x150);
+    if (w != 0) {
+        x = ACTGame_isWeaponEnableCatchfire(w);
+        if (x != 0) {
+            if (IsTorchLightOn(x)) {
+                BOYINFO.torch = 1;
+            }
+        }
+    }
+    BOYINFO.fire = 0;
+    if (ACTGame_FLAG_TETSUNAGI()) {
+        BOYINFO.fire = 1;
+    }
+}
+
 typedef struct {
     CharPos pos; /* 0x00 */
     int boyID;   /* 0x08 */
@@ -4240,7 +4217,7 @@ typedef struct {
     unsigned int h1E : 16; /* 0x1E */
 } CharacterPacket;
 
-void ReadCharacterPacket(void)
+inline void ReadCharacterPacket(void)
 {
     CharacterPacket *p = (CharacterPacket *)D_006C0B30;
 
@@ -4253,7 +4230,7 @@ void ReadCharacterPacket(void)
     BOYINFO.f50 = p->pos;
 }
 
-void ACTSearchGObj(void *a0, int a1, int a2, int *out_id, float *out_vec, float thresh)
+inline void ACTSearchGObj(void *a0, int a1, int a2, int *out_id, float *out_vec, float thresh)
 {
     float buf[4];
     void *node;
@@ -4294,14 +4271,14 @@ void ACTSearchGObj(void *a0, int a1, int a2, int *out_id, float *out_vec, float 
 extern S12 InitialColInfo;
 extern char D_0063A700[];
 
-void afterBoySwim(volatile int a0)
+inline void afterBoySwim(volatile int a0)
 {
     RequestChangeHandMode((void *)a0, 0, 3, 0, 0, 0, 0);
     *(S12 *)((char *)GOBJ_SUB(a0) + 0x1C0) = InitialColInfo;
     debug_StdPrintfDummy(D_0063A700);
 }
 
-void actBoyJump(volatile int a0)
+inline void actBoyJump(volatile int a0)
 {
     while (1) {
         ACTSendMailCorrect(a0, 0xBD);
@@ -4309,7 +4286,7 @@ void actBoyJump(volatile int a0)
     }
 }
 
-void afterBoyTakeWeapon(volatile int a0)
+inline void afterBoyTakeWeapon(volatile int a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -4317,12 +4294,12 @@ void afterBoyTakeWeapon(volatile int a0)
     *(void **)((char *)sub + 0x150) = BOYINFO.nextWeapon;
 }
 
-void afterBoyHangG3M(int x)
+inline void afterBoyHangG3M(int x)
 {
     volatile int local = x;
 }
 
-void afterBoyRescueGirlBhang(volatile int a0)
+inline void afterBoyRescueGirlBhang(volatile int a0)
 {
     ACTGame_DisconnectHand();
 }
@@ -4330,7 +4307,7 @@ void afterBoyRescueGirlBhang(volatile int a0)
 /* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
 extern void _ACTWait();
 
-void subBoyBrainMain(int a0)
+inline void subBoyBrainMain(int a0)
 {
     volatile int local = a0;
     while (1) {
@@ -4338,7 +4315,7 @@ void subBoyBrainMain(int a0)
     }
 }
 
-void SetBoyInfo(int *a0, int *a1)
+inline void SetBoyInfo(int *a0, int *a1)
 {
     int n;
     int i;
@@ -4356,7 +4333,7 @@ void SetBoyInfo(int *a0, int *a1)
     }
 }
 
-void GetBoyRootPositionForCamera(float *out)
+inline void GetBoyRootPositionForCamera(float *out)
 {
     float buf[4];
     char *g = (char *)D_00639EA4;
@@ -4376,7 +4353,7 @@ void GetBoyRootPositionForCamera(float *out)
     }
 }
 
-void Boy_Init(void)
+inline void Boy_Init(void)
 {
     *(BoyWork *)D_006C0AD0 = D_0029C610;
     *(BoyKidnapWork *)D_006C0B30 = D_0029C670;

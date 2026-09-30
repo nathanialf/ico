@@ -85,7 +85,7 @@ SCE_INCS=""
 for _a in libc libm libvu0 libkernl libpkt libgraph libdma libpad libscf libmpeg libmc libipu libcdvd; do
     SCE_INCS="${SCE_INCS} -I${ROOT}/sce/${_a}"
 done
-CFLAGS="-S ${DBG} -G ${GNUM} -O2 -mips3 -EL ${BUILTIN} -nostdinc -fdata-sections${SCE_INCS}"
+CFLAGS="-S ${DBG} -G ${GNUM} -O2 -mips3 -EL ${BUILTIN} -nostdinc${SCE_INCS}"
 # DUMP MODE (2026-09-27): `DUMP_DIR=<dir> tools/compile_c.sh <src> <obj>` adds -da (every RTL
 # pass dump) under the SAME per-origin flags and assembler, then moves the dumps gcc wrote
 # beside the source into DUMP_DIR so nothing lands under ico2/ or sce/. DUMP_FLAGS may add

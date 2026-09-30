@@ -19,6 +19,61 @@
 
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
+/* The TU's .data run, VMA 0x004F8050..0x004F8330 (0x2E0 B, MAIN.MAP's st02a.o
+ * .data size), declared in the ROM's own order: one mail record per posting
+ * site.  Word 0 of each entry is the mail id the entry answers (430 the actor
+ * post, 429 the trailing entry); .func is filled in at run time before the
+ * post, except in the two main-mail records, which answer 406 and 407 with
+ * their switch threads.  Each record is named for the thread that owns and
+ * posts it; where one thread owns two, for the watcher it installs. */
+void actSt02aFenceSwitch(volatile int a0);
+void actSt02aGondolaSwitch(volatile int a0);
+
+static ActMail door_down_start_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail door_up_start_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail door_up_chk_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail door_down_chk_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail fence_main_mail[2] = {{406, actSt02aFenceSwitch}, {429}}; /* derived name */
+
+static ActMail fence_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail fence_switch_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail waterfall_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail gondola_main_mail[2] = {{407, actSt02aGondolaSwitch}, {429}}; /* derived name */
+
+static ActMail gondola_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail gondola_switch_down_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail gondola_switch_up_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail gondola_up_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail gondola_down_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail ene_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail way_off_start_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail way_on_start_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail way_on_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail way_off_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail taki_way_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail taki_on_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail taki_off_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail secret_item_mail[2] = {{430}, {429}}; /* derived name */
 
 void actSt02aInit(void)
 {
@@ -34,8 +89,6 @@ void actSt02aInit(void)
 extern int scpTriggerBall(int a0, int gobj, float r);
 extern char *D_00639EA4;
 extern int D_00639EA8;
-extern ActMail D_004F8050[];
-extern ActMail D_004F8070[];
 
 void actSt02aDoor(volatile int a0)
 {
@@ -47,14 +100,14 @@ void actSt02aDoor(volatile int a0)
         (D_00639EA8 != 0 && scpTriggerBall(a0, D_00639EA8, 400.0f) != 0)) {
         stage_SetAnimation(98, 0, 0);
         _ACTWait(60);
-        D_004F8050[0].func = actSt02aDoorDownChk;
-        self->mail = D_004F8050;
+        door_down_start_mail[0].func = actSt02aDoorDownChk;
+        self->mail = door_down_start_mail;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(97, 0, 0);
-        D_004F8070[0].func = actSt02aDoorUpChk;
-        self->mail = D_004F8070;
+        door_up_start_mail[0].func = actSt02aDoorUpChk;
+        self->mail = door_up_start_mail;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -99,7 +152,6 @@ static const PoolMeshQuad poolReflactionQuad = {{{650.0f, 0.0f, 700.0f, 1.0f},
                                                  {920.0f, 0.0f, 700.0f, 1.0f},
                                                  {920.0f, 0.0f, 1200.0f, 1.0f}}};
 
-extern ActMail D_004F8090[];
 /* kept local: this TU's uses of scpTriggerFloorAttrTargetMan do not fit the prototype in script.h */
 extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
 /* as script.h declares it; this TU does not include that header */
@@ -130,13 +182,11 @@ void actSt02aDoorUpChk(volatile int a0)
         _ACTWait(1);
     }
     _ACTWait(1);
-    D_004F8090[0].func = actSt02aDoorDownChk;
-    sub->mail = D_004F8090;
+    door_up_chk_mail[0].func = actSt02aDoorDownChk;
+    sub->mail = door_up_chk_mail;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern ActMail D_004F80B0[];
 
 void actSt02aDoorDownChk(volatile int a0)
 {
@@ -163,8 +213,8 @@ void actSt02aDoorDownChk(volatile int a0)
         _ACTWait(1);
     }
     _ACTWait(1);
-    D_004F80B0[0].func = actSt02aDoorUpChk;
-    sub->mail = D_004F80B0;
+    door_down_chk_mail[0].func = actSt02aDoorUpChk;
+    sub->mail = door_down_chk_mail;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -308,7 +358,6 @@ void actSt02aWaterFallChk(volatile int a0)
 
 extern int gondola;
 extern int D_00639EAC;
-extern ActMail D_004F81D0[];
 /* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 /* kept local: this TU's uses of scpAdpcmCloseFunc do not fit the prototype in script.h */
@@ -351,14 +400,13 @@ void actSt02aGondolaUp(volatile int a0)
     D_0063AA08 = 0;
     scpWakeupEnemyAll();
 
-    D_004F81D0[0].func = actSt02aGondolaMain;
-    sub->mail = D_004F81D0;
+    gondola_up_mail[0].func = actSt02aGondolaMain;
+    sub->mail = gondola_up_mail;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
 
 extern int gondola_test;
-extern ActMail D_004F81F0[];
 
 void actSt02aGondolaDown(volatile int a0)
 {
@@ -394,8 +442,8 @@ void actSt02aGondolaDown(volatile int a0)
     D_0063AA08 = 0;
     scpWakeupEnemyAll();
 
-    D_004F81F0[0].func = actSt02aGondolaMain;
-    sub->mail = D_004F81F0;
+    gondola_down_mail[0].func = actSt02aGondolaMain;
+    sub->mail = gondola_down_mail;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -426,8 +474,6 @@ void actSt02aBox(volatile int a0)
     }
 }
 
-extern ActMail D_004F8170[];
-
 void actSt02aGondola(volatile int a0)
 {
     int x = a0;
@@ -443,13 +489,11 @@ void actSt02aGondola(volatile int a0)
         stage_SetAnimation(101, 0, 0x12C);
     }
 
-    D_004F8170[0].func = actSt02aGondolaMain;
-    self->mail = D_004F8170;
+    gondola_mail[0].func = actSt02aGondolaMain;
+    self->mail = gondola_mail;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern ActMail D_004F80F0[];
 
 void actSt02aFence(volatile int a0)
 {
@@ -459,14 +503,12 @@ void actSt02aFence(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(118) == 0) {
-        D_004F80F0[0].func = actSt02aFenceMain;
-        self->mail = D_004F80F0;
+        fence_mail[0].func = actSt02aFenceMain;
+        self->mail = fence_mail;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
-
-extern ActMail D_004F8130[];
 
 void actSt02aWaterFall(volatile int a0)
 {
@@ -476,8 +518,8 @@ void actSt02aWaterFall(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(106) != 0) {
-        D_004F8130[0].func = actSt02aWaterFallChk;
-        self->mail = D_004F8130;
+        waterfall_mail[0].func = actSt02aWaterFallChk;
+        self->mail = waterfall_mail;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -501,8 +543,6 @@ void actSt02aBoxEvent2(volatile int a0)
     }
 }
 
-extern ActMail D_004F8210[];
-
 void actSt02aEne(volatile int a0)
 {
     int x = a0;
@@ -511,8 +551,8 @@ void actSt02aEne(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(121) == 0) {
-        D_004F8210[0].func = actSt02aEneChk;
-        self->mail = D_004F8210;
+        ene_mail[0].func = actSt02aEneChk;
+        self->mail = ene_mail;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -576,9 +616,6 @@ void actSt02aSekizo(volatile int a0)
     scpSekizou(a0, 0x7B, 0x66, 0, 0x12, 900.0f, 1828.0f, 1150.0f, 800.0f, 1828.0f, 1150.0f);
 }
 
-extern ActMail D_004F8230[];
-extern ActMail D_004F8250[];
-
 void actSt02aWay(volatile int a0)
 {
     int x = a0;
@@ -587,19 +624,17 @@ void actSt02aWay(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(124) == 0) {
-        D_004F8230[0].func = actSt02aWayOffChk;
-        self->mail = D_004F8230;
+        way_off_start_mail[0].func = actSt02aWayOffChk;
+        self->mail = way_off_start_mail;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        D_004F8250[0].func = actSt02aWayOnChk;
-        self->mail = D_004F8250;
+        way_on_start_mail[0].func = actSt02aWayOnChk;
+        self->mail = way_on_start_mail;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
-
-extern ActMail D_004F82B0[];
 
 void actSt02aTakiWay(volatile int a0)
 {
@@ -609,14 +644,12 @@ void actSt02aTakiWay(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(106) != 0) {
-        D_004F82B0[0].func = actSt02aTakiWayOnChk;
-        self->mail = D_004F82B0;
+        taki_way_mail[0].func = actSt02aTakiWayOnChk;
+        self->mail = taki_way_mail;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
-
-extern ActMail D_004F8310[];
 
 void actSt02aSecretItem(volatile int a0)
 {
@@ -626,8 +659,8 @@ void actSt02aSecretItem(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(114) == 0) {
-        D_004F8310[0].func = actSt02aSecretItemChk;
-        self->mail = D_004F8310;
+        secret_item_mail[0].func = actSt02aSecretItemChk;
+        self->mail = secret_item_mail;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -686,19 +719,15 @@ void actSt02aDoorDownEffect(volatile int a0)
     }
 }
 
-extern ActMail D_004F80D0[];
-
 void actSt02aFenceMain(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
 
-    sub->mainMail = D_004F80D0;
+    sub->mainMail = fence_main_mail;
     while (1) {
         _ACTWait(1);
     }
 }
-
-extern ActMail D_004F8110[];
 
 void actSt02aFenceSwitch(volatile int a0)
 {
@@ -708,8 +737,8 @@ void actSt02aFenceSwitch(volatile int a0)
     lt_switch_layout(55);
     D_0063AA08 = 1;
 
-    D_004F8110[0].func = actSt02aFenceOpen;
-    sub->mail = D_004F8110;
+    fence_switch_mail[0].func = actSt02aFenceOpen;
+    sub->mail = fence_switch_mail;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -730,15 +759,11 @@ void actSt02aFenceOpenSub(volatile int a0)
     _ACTWait(0);
 }
 
-extern ActMail D_004F8150[];
-extern ActMail D_004F8190[];
-extern ActMail D_004F81B0[];
-
 void actSt02aGondolaMain(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
 
-    sub->mainMail = D_004F8150;
+    sub->mainMail = gondola_main_mail;
     while (1) {
         _ACTWait(1);
     }
@@ -754,14 +779,14 @@ void actSt02aGondolaSwitch(volatile int a0)
     scpSleepEnemyAll();
 
     if (gflagChk(119) != 0) {
-        D_004F8190[0].func = actSt02aGondolaDown;
-        sub->mail = D_004F8190;
+        gondola_switch_down_mail[0].func = actSt02aGondolaDown;
+        sub->mail = gondola_switch_down_mail;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 
-    D_004F81B0[0].func = actSt02aGondolaUp;
-    sub->mail = D_004F81B0;
+    gondola_switch_up_mail[0].func = actSt02aGondolaUp;
+    sub->mail = gondola_switch_up_mail;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -791,12 +816,6 @@ void actSt02aSekizoEvent(int x)
 /* as script.h declares it; this TU does not include that header */
 extern int scpCheckExistAliveEnemy(void);
 
-/* The way-on watcher's mail record: it installs actSt02aWayOffChk here and
-   posts it. Word 0 of each entry is the mail id the entry answers (430 the
-   actor post, 429 the trailing entry); .func is filled in at run time.
-   Named for the thread that owns and posts it. */
-static ActMail way_on_mail[2] = {{430}, {429}};
-
 void actSt02aWayOnChk(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
@@ -820,8 +839,6 @@ void actSt02aWayOnChk(volatile int a0)
     _ACTWait(0);
 }
 
-extern ActMail D_004F8290[];
-
 void actSt02aWayOffChk(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
@@ -839,15 +856,11 @@ void actSt02aWayOffChk(volatile int a0)
     SetWayGroupActive(57, 0);
     gflagOn(124);
 
-    D_004F8290[0].func = actSt02aWayOnChk;
-    sub->mail = D_004F8290;
+    way_off_mail[0].func = actSt02aWayOnChk;
+    sub->mail = way_off_mail;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-/* The waterfall way-on watcher's own mail record (installs
-   actSt02aTakiWayOffChk). */
-static ActMail taki_on_mail[2] = {{430}, {429}};
 
 void actSt02aTakiWayOnChk(volatile int a0)
 {
@@ -868,10 +881,6 @@ void actSt02aTakiWayOnChk(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-/* The waterfall way-off watcher's own mail record (installs
-   actSt02aTakiWayOnChk). */
-static ActMail taki_off_mail[2] = {{430}, {429}};
 
 void actSt02aTakiWayOffChk(volatile int a0)
 {
