@@ -4,24 +4,29 @@
  * section that comes up short fails the byte gate on its own and one that runs
  * long is an ld overlap error (no --no-check-sections). Inputs are taken in the
  * one object order of config/link_order.pal.txt, which is the order the objects
- * reach ld's command line. ld makes the one PT_LOAD itself; the link passes
- * -z max-page-size=0x1000, which gives it the base's file offset 0x1000 and
- * alignment (a PHDRS command leaves .sbss/.bss out of its memsz).
+ * reach ld's command line. ld makes the one PT_LOAD itself, at the base's
+ * file offset 0x1000 and alignment, the page size of its elf32-littlemips
+ * output (a PHDRS command leaves .sbss/.bss out of its memsz).
  *
  * Transitional lines, gone at the cut-over:
  *  - the two INCLUDEs: while the order file still carries part:/<sec>= tokens,
  *    tools/gen_ninja_plain.py lists .data and .rodata input by input there;
  *    with none they are empty and the wildcard after them places everything.
  *
- * What this script cannot give the file, measured with tools/check_elf.py
- * --full-diff against the base (report B-5): .vudata and .vubss keep their
- * names and addresses but come out PROGBITS/W and at the end of the file,
- * because no input carries them (the base's VU objects, from the DVP
- * assembler, bring empty .vudata "aw" and .vubss "aw",@nobits sections);
- * .reginfo's entsize 1 (ld writes 1 only for the IRIX-compatible
- * elf32-littlemips output, which Debian's mips-linux-gnu-ld does not have);
- * the .DVP.* overlay tables; the base linker's .shstrtab string order and
- * its file offsets of NOBITS and non-ALLOC sections.
+ * The linker is GNU ld 2.10 with tools/binutils-2.10-ee.patch (built by
+ * tools/setup.sh), writing elf32-littlemips as MAIN.MAP's OUTPUT line does:
+ * that era's BFD gives the base's .shstrtab order, NOBITS file offsets and
+ * .reginfo entsize 1, the patch the R5900 e_flags and the .DVP.ovlytab link.
+ * ld 2.10 has no INCLUDE inside a section, so tools/gen_ninja_plain.py links
+ * with build/plain/link.ld, this file with the INCLUDE lines expanded.
+ *
+ * What the link still does not give the file, measured with
+ * tools/check_elf.py --full-diff (report B-6): .text's alignment 64 (no input
+ * here carries it), .bss's 128 (debug_exception.c's .bss in the base), the
+ * .sbss and .rodata sizes and so every file offset after .sbss (pad inside
+ * the transitional blobs), the .DVP.overlay.* sections' addresses (the base
+ * has them at 0) and the names of the seven overlays dvp-as starts by itself
+ * every 256 instructions.
  */
 ENTRY(_start)
 
@@ -50,6 +55,11 @@ SECTIONS
     .sbss 0x0063C100 (NOLOAD) : { *(.sbss) *(.scommon) }
     .bss 0x0063C600 (NOLOAD) : { *(.bss) *(COMMON) }
     .vubss . (NOLOAD) : { *(.vubss) . = .; }
+    /* dvp-as's overlay table and its string table, not allocated: the base
+     * has both at the end of .vubss. The .DVP.overlay.* sections follow as
+     * orphans, one output section per input section. */
+    .DVP.ovlytab 0x00736198 : { *(.DVP.ovlytab) }
+    .DVP.ovlystrtab 0x00736198 : { *(.DVP.ovlystrtab) }
 
     /DISCARD/ : { *(.mdebug) *(.MIPS.abiflags) *(.pdr) *(.comment) *(.gnu.attributes) }
 }

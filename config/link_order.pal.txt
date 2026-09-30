@@ -5,12 +5,12 @@
 # The file is hand-maintained. It was derived once (2026-09-30) from the object
 # order of config/ico.pal.d, the five VU microprograms and the data-only members
 # placed where MAIN.MAP puts them. tools/gen_ninja_plain.py reads it and fails
-# on any tracked .c/.s/.S under ico2/ or sce/ that is missing here, and on any
+# on any tracked .c/.s/.dsm under ico2/ or sce/ that is missing here, and on any
 # listed file that does not exist.
 #
 # Line forms:
 #   <path>             a source file (.c compiled by tools/compile_c.sh, .s
-#                      assembled per archive, ico2/*.S through tools/assemble_vu0.py)
+#                      assembled per archive, ico2/vusrc/*.dsm by dvp-as)
 #   data:<member>      a data-only ico2000.a member: every row of
 #                      config/data_members.pal.txt for it, extracted from the
 #                      user's base ELF by tools/extract_data.py. Inside each
@@ -736,10 +736,10 @@ sce/libc/reent/readr.c
 sce/libc/stdlib/reallocr.c
 sce/libkernl/cache.c
 sce/libgcc/_fixdfdi.c
-ico2/cluster.S
-ico2/mesh.S
-ico2/normal_c.S
-ico2/normal_l.S
-ico2/particle.S
+ico2/vusrc/cluster.dsm
+ico2/vusrc/mesh.dsm
+ico2/vusrc/normal_c.dsm
+ico2/vusrc/normal_l.dsm
+ico2/vusrc/particle.dsm
 blob:cod/0063C5C8.sbss
 blob:cod/538A90.rodata

@@ -16,18 +16,19 @@ shape.
 
 | tool | what it does |
 |---|---|
-| `setup.sh` | idempotent bootstrap: venv, submodules, EE toolchain, ghidra, git hooks |
+| `setup.sh` | idempotent bootstrap: venv, submodules, EE toolchain, ghidra, git hooks; builds the plain build's ld 2.10 and dvp-as from public source under `tools/cc/` |
+| `binutils-2.10-ee.patch` | the R5900 machine and DVP overlay section types for GNU ld 2.10, backported from ps2dev's binutils-2.14-PS2.patch; applied by `setup.sh` |
 | `install_hooks.sh` | installs the pre-commit and pre-push hooks (`ninja` SHA-1 gate + `check_no_rom.sh`) |
 | `extract_elf.sh` / `extract_elf.py` | disc -> `baserom/<ver>/baseelf.{elf,rom}` + SHA-1 check + reference maps |
 | `ico_version.py` / `ico_version.sh` | the single source of truth for the branch's target slug and paths |
 | `build.sh` | `setup` (verify ELF, run splat, emit build.ninja) / `progress` (rewrite tables) |
 | `patch_splat.py` | applies this repo's local splat patches |
 | `gen_ninja.py` | generates `build.ninja` from `config/ico.<ver>.d`; auto-regens on input change |
-| `gen_ninja_plain.py` | generates `build.plain.ninja` from `config/link_order.pal.txt` + `config/link.pal.ld` (the build without splat's `.d`/`.ld`, objects under `build/plain/`); replaces `gen_ninja.py` at the cut-over |
+| `gen_ninja_plain.py` | generates `build.plain.ninja` from `config/link_order.pal.txt` + `config/link.pal.ld` (the build without splat's `.d`/`.ld`, objects under `build/plain/`); links with ld 2.10 (elf32-littlemips) and assembles `ico2/vusrc/*.dsm` with dvp-as; replaces `gen_ninja.py` at the cut-over |
 | `compile_c.sh` | THE C compile rule: ee-gcc 2.9-991111 + the period ee-as, plus always-on ROM parity |
 | `preprocess_old_as.py` | flattens INCLUDE_ASM siblings + translates `%gp_rel` for the period assembler |
 | `postprocess_split_jtbls.py` | puts each gcc switch jtbl on its own `.rodata.0x<VMA>` so the linker can place it |
-| `assemble_vu0.py` | `.vutext` assembler for the five hand-typed `ico2/*.S` microprograms |
+| `assemble_vu0.py` | `.vutext` assembler for the five hand-typed `ico2/*.S` microprograms (the splat build's copy; the plain build assembles `ico2/vusrc/*.dsm` with dvp-as) |
 | `verify_elf.py` | SHA-1 of the base ROM against `config/sha1sums.txt` (`build.sh setup`) |
 | `check_elf.py` | the gate (`--gate`: every allocated section against the base ELF by address + the ROM SHA-1, the ninja verify step) and the progress tables (`--progress`: README.md / `docs/PROGRESS.md` / `docs/progress.json`) |
 | `check_no_rom.sh` | IP guard: refuses disc data / extracted assets in the tree |

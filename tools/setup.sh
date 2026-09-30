@@ -6,7 +6,8 @@
 #
 #   1. Create a Python venv at .venv and install tools/requirements.txt.
 #   2. Initialize / update git submodules (splat, asm-differ).
-#   3. Set up the EE toolchain (system binary detection → Docker → source).
+#   3. Set up the EE toolchain (system binary detection → Docker → source),
+#      and build the period linker (ld 2.10) and dvp-as from public source.
 #   4. Fetch a pinned Ghidra release into tools/ghidra/.
 #   5. Best-effort install pcsx2.
 #   6. Install the IP-safety pre-commit hook.
@@ -127,6 +128,111 @@ ee-as 2.9-991111 under tools/cc/, fetched above. The PS2-specific
 binutils features; for matching work the generic binutils is sufficient.
 
 EOF
+fi
+
+# --- 3c. Period linker and DVP assembler, built from public source ---------
+#
+# The plain build (tools/gen_ninja_plain.py) links with the linker era of the
+# retail link and assembles the VU microprograms with a DVP assembler. Both are
+# built here from public GPL source; no SDK file is fetched or used.
+#
+#   ld 2.10 + EE/DVP patch   GNU binutils 2.10 release tarball,
+#                            https://ftp.gnu.org/gnu/binutils/binutils-2.10.tar.gz
+#                            (GPL-2.0-or-later), sha256 pinned below, with
+#                            tools/binutils-2.10-ee.patch applied (the R5900
+#                            machine and the DVP overlay section types,
+#                            backported from ps2dev's binutils-2.14-PS2.patch,
+#                            github.com/ps2dev/ps2toolchain commit aa984e7).
+#                            Target mipsel-elf: its default output vector is
+#                            elf32-littlemips, the one MAIN.MAP names.
+#   dvp-as                   ps2dev's binutils-gdb, branch dvp-v2.45.1
+#                            (GPL-3.0-or-later, the Cygnus "sky" DVP port
+#                            carried forward), pinned to one commit below,
+#                            configured --target=dvp, gas only.
+#
+# Neither tree needs bison, flex or makeinfo on the host. The 2.10 release
+# tarball ships its generated parsers (ld/ldgram.c, ld/ldlex.c and the
+# binutils/ ones); its configure still probes for lex and yacc and stops when
+# neither exists, so the cache variables below answer the probe and make never
+# regenerates the shipped files. The dvp target's gas has no generated parser
+# at all (the itbl ones are MIPS-only), and MAKEINFO=true skips the manuals.
+# The 2.10 tree's config.sub/config.guess predate x86_64 hosts; the dvp
+# clone's copies (GNU config, same license) replace them.
+#
+# Measured on a 4-core host: dvp fetch ~20 s, dvp-as build ~30 s, ld 2.10
+# build ~17 s. Rebuilt when the pinned commit or the patch changes (stamp).
+
+BU210_URL="${BU210_URL:-https://ftp.gnu.org/gnu/binutils/binutils-2.10.tar.gz}"
+BU210_SHA256="fd7d227c0dd15cf5448385e56b8ad8313cd491839834b57c0c086ac7b7819a15"
+BU210_PATCH="$ROOT/tools/binutils-2.10-ee.patch"
+BU210_DIR="$ROOT/tools/cc/binutils-2.10-ee"
+DVP_REPO="${DVP_REPO:-https://github.com/ps2dev/binutils-gdb}"
+DVP_COMMIT="3eb45ea37f0efd498d1de3cf9562de07197aefa8"   # dvp-v2.45.1 "DVP changes"
+DVP_DIR="$ROOT/tools/cc/dvp-as"
+CCSRC="$ROOT/tools/cc/src"
+
+build_dvp_as() {
+    local stamp="$DVP_DIR/.stamp" want="$DVP_COMMIT"
+    if [[ -x "$DVP_DIR/bin/dvp-as" && "$(cat "$stamp" 2>/dev/null)" == "$want" ]]; then
+        echo "==> dvp-as already at $DVP_DIR"
+        return 0
+    fi
+    echo "==> fetching ps2dev binutils-gdb $DVP_COMMIT (dvp-v2.45.1)"
+    rm -rf "$CCSRC/dvp-binutils" "$CCSRC/build-dvp"
+    mkdir -p "$CCSRC/dvp-binutils" "$CCSRC/build-dvp" "$DVP_DIR/bin"
+    git -C "$CCSRC/dvp-binutils" init -q
+    git -C "$CCSRC/dvp-binutils" fetch -q --depth 1 "$DVP_REPO" "$DVP_COMMIT"
+    git -C "$CCSRC/dvp-binutils" checkout -q FETCH_HEAD
+    echo "==> building dvp-as"
+    ( cd "$CCSRC/build-dvp" &&
+      ../dvp-binutils/configure --target=dvp --prefix="$DVP_DIR" \
+          --disable-nls --disable-werror --disable-gdb --disable-gdbserver \
+          --disable-sim --disable-gprof --disable-gprofng --disable-libdecnumber \
+          --disable-readline --without-zstd > configure.log 2>&1 &&
+      make -j"$(nproc)" all-gas MAKEINFO=true > make.log 2>&1 ) ||
+        { echo "==> dvp-as build failed; see $CCSRC/build-dvp/*.log" >&2; return 1; }
+    cp "$CCSRC/build-dvp/gas/as-new" "$DVP_DIR/bin/dvp-as"
+    echo "$want" > "$stamp"
+    echo "==> dvp-as installed at $DVP_DIR/bin/dvp-as"
+}
+
+build_ld210() {
+    local stamp="$BU210_DIR/.stamp" want
+    want="$BU210_SHA256 $(sha256sum "$BU210_PATCH" | cut -d' ' -f1)"
+    if [[ -x "$BU210_DIR/bin/ld" && "$(cat "$stamp" 2>/dev/null)" == "$want" ]]; then
+        echo "==> ld 2.10 already at $BU210_DIR"
+        return 0
+    fi
+    mkdir -p "$CCSRC" "$BU210_DIR/bin"
+    local tgz="$CCSRC/binutils-2.10.tar.gz"
+    if [[ ! -f "$tgz" ]] || ! echo "$BU210_SHA256  $tgz" | sha256sum -c --status; then
+        echo "==> fetching GNU binutils 2.10"
+        curl -fsSL -o "$tgz" "$BU210_URL"
+        echo "$BU210_SHA256  $tgz" | sha256sum -c --status ||
+            { echo "==> binutils-2.10.tar.gz sha256 mismatch" >&2; return 1; }
+    fi
+    echo "==> building ld 2.10 with tools/binutils-2.10-ee.patch"
+    rm -rf "$CCSRC/binutils-2.10" "$CCSRC/build-ld210"
+    tar -xzf "$tgz" -C "$CCSRC"
+    ( cd "$CCSRC/binutils-2.10" && patch -s -p1 < "$BU210_PATCH" ) || return 1
+    cp "$CCSRC/dvp-binutils/config.sub" "$CCSRC/dvp-binutils/config.guess" "$CCSRC/binutils-2.10/"
+    mkdir -p "$CCSRC/build-ld210"
+    ( cd "$CCSRC/build-ld210" &&
+      ac_cv_prog_lex_root=lex.yy ac_cv_prog_LEX=flex ac_cv_prog_YACC="bison -y" LEXLIB= \
+      CC="gcc -std=gnu89 -fcommon -w -g -O1" \
+          ../binutils-2.10/configure --target=mipsel-elf --disable-nls > configure.log 2>&1 &&
+      make -j"$(nproc)" all-ld MAKEINFO=true > make.log 2>&1 ) ||
+        { echo "==> ld 2.10 build failed; see $CCSRC/build-ld210/*.log" >&2; return 1; }
+    cp "$CCSRC/build-ld210/ld/ld-new" "$BU210_DIR/bin/ld"
+    echo "$want" > "$stamp"
+    echo "==> ld 2.10 installed at $BU210_DIR/bin/ld"
+}
+
+if [[ "${SKIP_TOOLCHAIN:-0}" == "1" ]]; then
+    echo "==> SKIP_TOOLCHAIN=1; not building ld 2.10 / dvp-as"
+else
+    # dvp-as first: the 2.10 build takes its config.sub/config.guess.
+    build_dvp_as && build_ld210 || echo "==> plain-build toolchain incomplete" >&2
 fi
 
 # --- 4. Ghidra ---------------------------------------------------------------
