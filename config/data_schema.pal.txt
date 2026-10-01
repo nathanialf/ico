@@ -1,0 +1,28 @@
+# config/data_schema.pal.txt -- the data-only members written as C.
+#
+# One row per member of config/data_members.pal.txt that tools/gen_data_c.py
+# writes as a C translation unit instead of assembly. The row holds facts
+# about the member's type, never its values: the build reads the values from
+# the user's own baserom/pal/baseelf.elf and writes build/data/<member>.c,
+# which ninja compiles with the game's flags (tools/compile_c.sh). Nothing
+# generated is committed (docs/LEGAL.md).
+#
+# Columns: <member> <section> <type> <header> <count> <symbols> [hex=<field>,...]
+#   member    the member's name in config/data_members.pal.txt (one row there)
+#   section   data or rodata; rodata rows are defined const
+#   type      the element type, a typedef the header defines
+#   header    the header that defines it, repo-relative
+#   count     the number of elements the member holds
+#   symbols   MAIN.MAP's names for the member, <name>@<element index>; each
+#             names one array, and the arrays follow each other in the order
+#             given
+#   hex=      fields spelled in hex because they hold masks (dotted paths for
+#             nested fields); every other number is decimal
+#
+# A label some source spells inside the member (build/data_labels.txt, the
+# D_<VMA> placeholders) is not an array of its own: gen_data_c.py binds it to
+# the member's first symbol plus its offset in build/data/<member>.alias.ld.
+
+act-intrlist data IntrMail config/data_schema.pal.h 875 actIntrList@0 hex=flags
+obj-layout data GenGeo config/data_schema.pal.h 3759 objLayout@0 hex=procMask,flags
+motion-def rodata MotionRec config/data_schema.pal.h 1148 motionKind@0 hex=modeBits,flags,flags2

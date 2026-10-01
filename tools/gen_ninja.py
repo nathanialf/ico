@@ -10,7 +10,12 @@ dvp-as, ps2dev's DVP assembler built by tools/setup.sh under tools/cc/dvp-as/,
 run from ico2/ on the path vusrc/<stem>.dsm because the overlay section names
 it writes hash that path; -no-abicalls -mabi=64 leave the ABI bits of e_flags
 clear, the one setting the link merges with the game's EABI64 objects), data
-(tools/extract_data.py per data-only member row), labels (the D_<VMA>
+(tools/extract_data.py per data-only member row), the members
+config/data_schema.pal.txt lists as C (tools/gen_data_c.py: a zero stand-in
+per member, a layout link with the stand-ins that fixes every other address,
+the member's C written from the base ELF with its pointers named from that
+link, compiled by cc, checked against the ROM range, and the placeholder
+labels inside it bound by a linker assignment), labels (the D_<VMA>
 placeholders a tracked source still spells inside a data member's row, which
 the extractor defines as labels), link (the period linker, GNU ld 2.10 with
 tools/binutils-2.10-ee.patch, built by tools/setup.sh under
@@ -33,12 +38,17 @@ ROOT = Path(__file__).resolve().parent.parent
 LIST = "config/link_order.pal.txt"
 SCRIPT = "config/link.pal.ld"
 TABLE = "config/data_members.pal.txt"
+SCHEMA = "config/data_schema.pal.txt"
 BASE_ELF = "baserom/pal/baseelf.elf"
 OUT = "build"
 NINJA = "build.ninja"
 LD = "tools/cc/binutils-2.10-ee/bin/ld"
 DVP_AS = "tools/cc/dvp-as/bin/dvp-as"
 LINK_LD = f"{OUT}/link.ld"
+# The layout link: the same objects and script with a zero stand-in for each
+# member written as C, so the C's pointers can be named before it exists.
+LAYOUT_LD = f"{OUT}/layout.ld"
+LAYOUT_ELF = f"{OUT}/ico.layout.elf"
 LABELS = f"{OUT}/data_labels.txt"
 # Output sections the script can take input by input (its INCLUDE lines).
 LISTED = {"data": ".data .data.*", "rodata": ".rodata .rodata.*"}
@@ -75,6 +85,16 @@ def table_rows():
         if f:
             rows.setdefault(f[1], []).append(f"{f[1]}.{f[0]}")
     return rows
+
+
+def schema_members():
+    """The members tools/gen_data_c.py writes as C, with the header each names."""
+    out = {}
+    for line in (ROOT / SCHEMA).read_text().splitlines():
+        f = line.split("#", 1)[0].split()
+        if f:
+            out[f[0]] = f[3]
+    return out
 
 
 def obj_of(src):
@@ -141,33 +161,40 @@ def write_labels(out):
     Path(out).write_text("".join(l + "\n" for l in lines))
 
 
-def objects(e, rows):
+def objects(e, rows, cmembers, layout=False):
+    """The objects a line links: a member written as C is one object (in the
+    layout link, its zero stand-in)."""
     if e["kind"] == "src":
         return [obj_of(e["name"])]
+    if e["name"] in cmembers:
+        return [f"{OUT}/data/stub/{e['name']}.o" if layout else f"{OUT}/data/{e['name']}.o"]
     return [f"{OUT}/data/{k}.o" for k in rows[e["name"]]]
 
 
-def inputs_ld(entries, rows, sec):
+def inputs_ld(entries, rows, sec, cmembers, layout=False):
     """build/<sec>.inputs.ld: the section input by input, or empty when no
     line needs more than the script's wildcard."""
     if not any(sec in e["align"] for e in entries):
         return ""
     out = []
     for e in entries:
-        for o in objects(e, rows):
+        for o in objects(e, rows, cmembers, layout):
             if sec in e["align"]:
                 out.append(f". = ALIGN({e['align'][sec]});")
             out.append(f"*{o}({LISTED[sec]})")
     return "\n".join(out) + "\n"
 
 
-def expand_includes(script):
-    """config/link.pal.ld with each INCLUDE line replaced by the file it names:
-    ld 2.10 reads INCLUDE only at the top level of a script."""
+def expand_includes(script, swap=None):
+    """config/link.pal.ld with each INCLUDE line replaced by the file it names
+    (or by the text swap gives for that path): ld 2.10 reads INCLUDE only at
+    the top level of a script."""
     out = []
     for line in (ROOT / script).read_text().splitlines(keepends=True):
         m = re.fullmatch(r"(\s*)INCLUDE\s+(\S+)\s*", line)
-        if m:
+        if m and swap is not None and m.group(2) in swap:
+            out.append(swap[m.group(2)])
+        elif m:
             out.append((ROOT / m.group(2)).read_text())
         else:
             out.append(line)
@@ -180,12 +207,19 @@ def main():
         return 0
     entries = parse_list()
     rows = table_rows()
+    cmembers = schema_members()
     check(entries, rows)
+    for m in cmembers:
+        if m not in rows:
+            fail(f"{SCHEMA}: {m} is not a member in {TABLE}")
+    swap = {}
     for sec in LISTED:
         p = ROOT / OUT / f"{sec}.inputs.ld"
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(inputs_ld(entries, rows, sec))
+        p.write_text(inputs_ld(entries, rows, sec, cmembers))
+        swap[f"{OUT}/{sec}.inputs.ld"] = inputs_ld(entries, rows, sec, cmembers, layout=True)
     (ROOT / LINK_LD).write_text(expand_includes(SCRIPT))
+    (ROOT / LAYOUT_LD).write_text(expand_includes(SCRIPT, swap))
     w = []
     w.append(f"# Generated by tools/gen_ninja.py from {LIST}; do not edit.\n"
              f"ninja_required_version = 1.10\nbuilddir = {OUT}\n"
@@ -193,7 +227,8 @@ def main():
              "as_old = tools/period_env.sh tools/cc/ee-gcc2.9-991111/bin/as\n"
              "as_sdk = tools/period_env.sh tools/cc/ee-gcc2.96/bin/as\n"
              "asflags = -EL -mcpu=5900 -mabi=eabi\n"
-             f"ldcmd = $ld -EL --oformat elf32-littlemips -T {LINK_LD} --no-warn-mismatch\n\n")
+             f"ldcmd = $ld -EL --oformat elf32-littlemips -T {LINK_LD} --no-warn-mismatch\n"
+             f"ldlayout = $ld -EL --oformat elf32-littlemips -T {LAYOUT_LD} --no-warn-mismatch\n\n")
     w.append(f"rule gen\n  command = $py tools/gen_ninja.py\n  generator = 1\n"
              "  description = GEN $out\n\n"
              "rule cc\n  command = tools/compile_c.sh $in $out\n  description = CC $out\n\n")
@@ -203,6 +238,15 @@ def main():
              "  description = VU $out\n\n"
              f"rule data\n  command = $py tools/extract_data.py --only $key --out-dir {OUT}/data"
              f" --extra-labels {LABELS} --assemble > /dev/null\n  description = DATA $out\n\n"
+             "rule datastub\n  command = $py tools/gen_data_c.py --stub $member --out $out\n"
+             "  description = STUB $out\n  restat = 1\n\n"
+             f"rule dataalias\n  command = $py tools/gen_data_c.py --alias $member --labels {LABELS} --out $out\n"
+             "  description = ALIAS $out\n  restat = 1\n\n"
+             f"rule datac\n  command = $py tools/gen_data_c.py --c $member --layout {LAYOUT_ELF} --out $out\n"
+             "  description = DATAC $out\n  restat = 1\n\n"
+             f"rule datacheck\n  command = $py tools/gen_data_c.py --check $member --obj $obj"
+             f" --layout {LAYOUT_ELF} --out $out\n  description = CHECK $obj\n\n"
+             "rule layout\n  command = $ldlayout -o $out $in\n  description = LD $out\n\n"
              "rule labels\n  command = $py tools/gen_ninja.py --labels $out\n"
              "  description = LABELS $out\n\n"
              f"rule link\n  command = $ldcmd -Map {OUT}/ico.pal.map -o {OUT}/ico.syms.elf $in"
@@ -211,9 +255,28 @@ def main():
              f"rule verify\n  command = $py tools/check_elf.py --gate --elf {OUT}/ico.elf"
              f" --map {OUT}/ico.pal.map --rom $in && touch $out\n  description = VERIFY $in\n\n")
     link = []
+    layout = []
+    stamps = []
+    gen_deps = f"{SCHEMA} {TABLE} tools/gen_data_c.py tools/extract_data.py"
     for e in entries:
-        for o in objects(e, rows):
+        if e["kind"] == "data" and e["name"] in cmembers:
+            m = e["name"]
+            stub, obj = f"{OUT}/data/stub/{m}.o", f"{OUT}/data/{m}.o"
+            src, alias, ok = f"{OUT}/data/{m}.c", f"{OUT}/data/{m}.alias.ld", f"{OUT}/data/{m}.ok"
+            w.append(f"build {OUT}/data/stub/{m}.s: datastub | {gen_deps} {cmembers[m]}\n  member = {m}\n"
+                     f"build {stub}: as_old {OUT}/data/stub/{m}.s\n  gnum = 8\n"
+                     f"build {alias}: dataalias | {LABELS} {gen_deps}\n  member = {m}\n"
+                     f"build {src}: datac | {LAYOUT_ELF} {BASE_ELF} {gen_deps} {cmembers[m]}\n  member = {m}\n"
+                     f"build {obj}: cc {src}\n"
+                     f"build {ok}: datacheck | {obj} {LAYOUT_ELF} {BASE_ELF} {gen_deps}\n"
+                     f"  member = {m}\n  obj = {obj}\n")
+            link.append(obj)
+            layout.append(stub)
+            stamps.append(ok)
+            continue
+        for o in objects(e, rows, cmembers):
             link.append(o)
+            layout.append(o)
             if e["kind"] == "src" and e["name"].endswith(".c"):
                 w.append(f"build {o}: cc {e['name']}\n")
             elif e["kind"] == "src" and e["name"].endswith(".dsm"):
@@ -228,17 +291,21 @@ def main():
                          f"  key = {key}\n")
     w.append(f"build {LABELS}: labels {' '.join(label_sources())} | {LIST} {TABLE}"
              " tools/gen_ninja.py\n")
-    w.append(f"\nbuild {OUT}/ico.syms.elf {OUT}/ico.elf: link {' '.join(link)} | {LINK_LD} {LD}\n"
+    aliases = [f"{OUT}/data/{m}.alias.ld" for m in cmembers]
+    if cmembers:
+        w.append(f"\nbuild {LAYOUT_ELF}: layout {' '.join(layout + aliases)} | {LAYOUT_LD} {LD}\n")
+    w.append(f"\nbuild {OUT}/ico.syms.elf {OUT}/ico.elf: link {' '.join(link + aliases)} | {LINK_LD} {LD}"
+             f"{''.join(' ' + s for s in stamps)}\n"
              f"build {OUT}/ico.rom: rom {OUT}/ico.elf\n"
              f"build {OUT}/.verified: verify {OUT}/ico.rom | tools/check_elf.py\n"
              f"default {OUT}/.verified\n"
-             f"build {NINJA} {OUT}/data.inputs.ld {OUT}/rodata.inputs.ld {LINK_LD}: gen | "
-             f"tools/gen_ninja.py {LIST} {TABLE} {SCRIPT}\n")
+             f"build {NINJA} {OUT}/data.inputs.ld {OUT}/rodata.inputs.ld {LINK_LD} {LAYOUT_LD}: gen | "
+             f"tools/gen_ninja.py {LIST} {TABLE} {SCHEMA} {SCRIPT}\n")
     (ROOT / NINJA).write_text("".join(w))
     n = {k: sum(e["kind"] == k for e in entries) for k in ("src", "data")}
     toks = sum(len(e["align"]) for e in entries)
     print(f"gen_ninja: wrote {NINJA} ({len(link)} objects: {n['src']} sources, "
-          f"{n['data']} data members, {toks} align tokens)")
+          f"{n['data']} data members ({len(cmembers)} as C), {toks} align tokens)")
     return 0
 
 
