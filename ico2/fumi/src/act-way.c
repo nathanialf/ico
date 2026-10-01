@@ -1,6 +1,7 @@
-/* kept local: unsigned char (void *, void *, float, void *, void *) here, int (float, void *, void *, void *, void *) in act-game.h */
-extern unsigned char ACTCheckCollis_WAY(void *a0, void *a1, float a2, void *a3, void *a4);
-
+#include "main.h"
+#include "camera-editor.h"
+#include "motionManager2.h"
+#include "act-game.h"
 #include "act-way.h"
 #include "act.h"
 #include "gobj_process.h"
@@ -10,6 +11,7 @@ extern unsigned char ACTCheckCollis_WAY(void *a0, void *a1, float a2, void *a3, 
 #include "debug.h"
 #include "girl_act.h"
 #include "box.h"
+#include "commonact.h"
 
 /* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistxzSqGV(void *a, void *b);
@@ -33,17 +35,11 @@ typedef struct {
     long long _68[3]; /* 0x68 */
 } WayWork;            /* 0x80 */
 
-/* kept local: agrees with commonact.h, which this TU does not include */
-extern float *test_CURRENTROOT();
 /* the two-word playback-rate pair the wait counters are scaled by */
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int systemStatus[];
 
 /* the three detour angles DetourCheck sweeps, in degrees, zero-terminated */
 static int detourAngle[4] = {75, -75, 0, 0};
 
-/* kept local: void (float *, char *, int) here, void (float *, void *, int) in act-game.h */
-extern void GetSkeltonOrient(float *dst, char *self, int node);
 /* kept local: agrees with gv.h, which this TU does not include (_DistGV, _DistSqGV differ) */
 extern void _ApplyRyGV(float *v, float ry);
 
@@ -100,7 +96,7 @@ void DetourCheck(char *self, float *out)
         _ApplyRyGV(dir, (float)detourAngle[i] * 3.1415927f / 180.0f);
         sceVu0ScaleVector(tmp, dir, 100.0f);
         sceVu0AddVector(tmp, cur, tmp);
-        if (ACTCheckCollis_WAY(cur, tmp, 10.0f, 0, 0) == 0) {
+        if (ACTCheckCollis_WAY(10.0f, cur, tmp, 0, 0) == 0) {
             *(float *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x8F0) = dir[0];
             *(float *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x8F4) = dir[1];
             *(float *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x8F8) = dir[2];
@@ -119,10 +115,6 @@ typedef struct {
 } EnemyParaRow;
 
 extern EnemyParaRow motionKind[];
-/* kept local: void (float *, int, int, int, float) here, void (int *, int, int, int, float) in camera-editor.h */
-extern void debug_NMarker(float *pos, int r, int g, int b, float size);
-/* kept local: agrees with motionManager2.h, which this TU does not include (GetRootProjectionPosOfGObj differ) */
-extern float GetDifferenceFromLastField(char *self, int a1);
 
 int checkPositionIllegal(char *self, float *pos)
 {
@@ -174,16 +166,13 @@ inline unsigned char WayMove_CheckCollis(float *p0, float *p1, void *a2, void *a
     b[2] = p1[2];
     a[1] -= 50.0f;
     b[1] -= 50.0f;
-    return ACTCheckCollis_WAY(a, b, 10.0f, a2, a3);
+    return ACTCheckCollis_WAY(10.0f, a, b, a2, a3);
 }
 
 /* ico2/fumi/src/act-way.c lines 236 to 290: three helpers the January-2002
    listing inlines into ACTWayMove_BeginDetail and ACTWayMove_NextDetail.
    None of them carries a symbol of its own in MAIN.MAP, so the names here
    are ours; the bodies come from the listing's rows 239 to 287. */
-
-/* kept local: void * here, GObj * in main.h */
-extern void *girlGObj;
 
 /* .sbss, owned by act-way.o and reached only from these two helpers (MAIN.MAP
    names no symbol in the run), in the ROM's run order: the pull-up floor box's
@@ -326,12 +315,6 @@ static WayWork wayWorkClear = {{0}, 0, 0, {0}, 0, -1};
 
 static WayStep wayStepClear = {{0.0f, 0.0f, 0.0f, 0.0f}, 0, 3.4028235e38f, 3.4028235e38f};
 
-/* kept local: void * here, GObj * in main.h */
-extern void *boyGObj;
-/* kept local: agrees with act-game.h, which this TU does not include (ACTCheckCollis_WAY, GetSkeltonOrient differ) */
-extern void *wallGObj_ACTCheckCollis_WAY;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int stage_no;
 /* kept local: this TU's uses of the gv distance helpers do not fit the void
    returns gv.h carries, and its GetRootProjectionPosOfGObj / IsThisBoxTruck
    call forms do not fit motionManager2.h and box.h */
@@ -343,8 +326,6 @@ extern float _DistSqGV(void *a, void *b);
 extern float _DistxzGV(void *a, void *b);
 /* kept local: void (float *, float *, float *) here, void (int) in gv.h */
 extern void _OrientXZGV(float *dst, float *a, float *b);
-/* kept local: void (float *, void *) here, void (int, int) in motionManager2.h */
-extern void GetRootProjectionPosOfGObj(float *dst, void *self);
 
 int ACTWayMove_NextDetail(char *self, float *node, float *goal, unsigned char d, unsigned char e)
 {
@@ -542,7 +523,7 @@ int ACTWayMove_NextDetail(char *self, float *node, float *goal, unsigned char d,
                     _OrientXZGV(dir, goal, pos);
                     sceVu0ScaleVector(dir, dir, 200.0f);
                     sceVu0AddVector(p1, p0, dir);
-                    if (ACTCheckCollis_WAY(p0, p1, 10.0f, 0, 0) == 0) {
+                    if (ACTCheckCollis_WAY(10.0f, p0, p1, 0, 0) == 0) {
                         ok = 0;
                     }
                 }
@@ -657,7 +638,7 @@ int ACTWay_IsMustWalkFromWay(char *a0)
     }
     d = *(float *)(w + 0x2C);
     if (d != 0.0f) {
-        return _DistxzSqGV(w + 0x10, test_CURRENTROOT()) < d * d;
+        return _DistxzSqGV(w + 0x10, test_CURRENTROOT(a0)) < d * d;
     }
     return 0;
 }

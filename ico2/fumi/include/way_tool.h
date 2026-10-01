@@ -12,15 +12,20 @@
 #ifndef WAY_TOOL_H
 #define WAY_TOOL_H
 
-void ExtractWayData(int stage_no);
-void cursor_control(volatile int a0);
-int group_create(void);
+/* The functions way_tool.c defines `inline`, in the order its end-of-file block
+ * emits their out-of-line copies: gcc 2.9 defers a plain-inline definition to
+ * the end of the object and writes the copies in first-declaration order, so
+ * this block is read from the ROM. */
 int play_way(void);
+int point_nige(void);
+int quick_save_wpfile(void);
+void cursor_control(volatile int a0);
+
+void ExtractWayData(int stage_no);
+int group_create(void);
 int point_delete(void);
 int point_insert(void);
-int point_nige(void);
 int quick_load_wpfile(void);
-int quick_save_wpfile(void);
 int wp_print_out(void);
 
 int debug_WayTool(void);

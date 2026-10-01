@@ -25,11 +25,9 @@
 #include "e3.h"
 #include "typedef.h"
 #include "layout_action.h"
-
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern int scpGameStat_BoyWeaponkind(void);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpLinkBGAtoLayoutedTarget(int a0, int a1);
+#include "main.h"
+#include "script.h"
+#include "jimaku.h"
 
 /* st25a.o's .sdata run (VMA 0x63AA30..0x63AA4C, 0x1C B; MAIN.MAP's January
    object is 0x14), in the ROM's order: the ADPCM request slots the scenes
@@ -49,21 +47,6 @@ static int elevAgain = 0; /* derived name */
 
 static int elevFirst = 0; /* derived name */
 
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
-extern JimakuArg jimaku_msg;
-/* kept local: agrees with jimaku.h, which this TU does not include (jimakuUndisp differ) */
-extern int jimakuOn;
-/* kept local: agrees with jimaku.h, which this TU does not include (jimakuUndisp differ) */
-extern void jimakuJump(int a0);
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern int systemStatus[];
-/* kept local: agrees with jimaku.h, which this TU does not include (jimakuUndisp differ) */
-extern void jimakuBegin(int a0);
-/* kept local: void (int, int *, int, int, int) here, void (int, char **, int, int, int) in script.h */
-extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-/* kept local: int (int, int) here, int (char *, int) in script.h */
-extern int scpTriggerFloorAttr(int a0, int a1);
 extern char D_00618ED0[];
 
 /* st25a.o's whole .rodata run, in the order the object emits it; the 0.15
@@ -124,13 +107,9 @@ static ActMail elev_chara_mes[2] = {{430}, {429}};
 
 static ActMail elev_end_mes[2] = {{430}, {429}};
 
-/* kept local: PObjGObj * (int) here, int (int) in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
 void actSt25aQueenBeforeChk(volatile int a0);
 void actSt25aQueenDeadReadyChk(volatile int a0);
 void actItouQueenAttackChk(volatile int a0);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern int scpBoyControlReadDisable;
 void actConte11(volatile int a0);
 void actConte11Jimaku(volatile int a0);
 
@@ -150,19 +129,6 @@ void actSt25aQueenAppearChk(volatile int a0)
     _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 3);
     actCreateSubThread(actConte11, 21);
 }
-
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpPlayStart(int a0);
-/* kept local: void (int, int) here, void (char *, int) in script.h */
-extern void scpPlayMot(int a0, int mot);
-/* kept local: void (int, void *) here, void (char *, float *) in script.h */
-extern void scpPlayMotDir(int a0, void *dir);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpPlayEnd(int a0);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpSekizouCheckPoint(void);
 
 void actConte11(volatile int a0)
 {
@@ -231,8 +197,6 @@ typedef union QueenWork {
 } QueenWork;
 
 extern char D_00618E70[];
-/* kept local: agrees with main.h, which this TU does not include */
-extern PadState pad[];
 
 /* .sbss, owned by st25a.o and reached only from this file (MAIN.MAP names no
    symbol in the run), in the ROM's run order: the flag the demo raises when it
@@ -240,25 +204,6 @@ extern PadState pad[];
 static int demoEnd;
 
 static int eventDone;
-
-/* kept local: void (int, int) here, void (char *, int) in script.h */
-extern void scpPlayMotReq(int a0, int mot);
-/* kept local: void (int, float, float, float) here, void (void *, float, float, float) in script.h */
-extern void scpPlayPosSet(int a0, float x, float y, float z);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern int scpAdpcmPlayRequestNum(void);
-/* kept local: void (int *, int) here, int (char **, short) in script.h */
-extern void scpAdpcmFadeCloseFunc(int *a0, int a1);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpFadeOut(float t, int a1, int a2, int a3);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpFadeIn(float f);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern int scpFadeChk(void);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void ScpCallCameraTargetOff(void);
-/* kept local: void (int) here, void (void) in jimaku.h */
-extern void jimakuUndisp(int a0);
 
 void actSt25aQueenTalkChk(volatile int a0)
 {
@@ -343,7 +288,7 @@ void actSt25aQueenTalkChk(volatile int a0)
         stage_SetAnimation(561, 0, -1);
 
         stage_SetAnimation(801, 1, -1);
-        jimakuUndisp((int)&jimaku_msg);
+        jimakuUndisp(&jimaku_msg);
 
         w.v[0] = cancelBoyPos;
         SetDirectRootPosition(boyGObj, &w.v[0]);
@@ -388,9 +333,6 @@ void actSt25aQueenTalkChk(volatile int a0)
 
     stage_SetAnimation(160, 1, 0);
 }
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern int boyPad;
 
 void actConte12(volatile int a0)
 {
@@ -527,61 +469,61 @@ void actConte12Jimaku(volatile int a0)
     do {
         switch ((int)t) {
         case 1:
-            jimakuBegin((int)&jimaku_msg);
+            jimakuBegin(&jimaku_msg);
             break;
         case 341:
             jimaku_msg.sub.unk2C = 96;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 521:
             jimaku_msg.sub.unk2C = 97;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 801:
             jimaku_msg.sub.unk2C = 98;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 1031:
             jimaku_msg.sub.unk2C = 99;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 1301:
             jimaku_msg.sub.unk2C = 100;
             jimaku_msg.sub.unk38 = 200;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 1781:
             jimaku_msg.sub.unk2C = 104;
             jimaku_msg.sub.unk38 = 200;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 2261:
             jimaku_msg.sub.unk2C = 105;
             jimaku_msg.sub.unk38 = 150;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 2561:
             jimaku_msg.sub.unk2C = 106;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 3780:
             jimaku_msg.sub.unk2C = 109;
             jimaku_msg.sub.unk38 = 180;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         }
 
@@ -599,12 +541,6 @@ void actConte12Jimaku(volatile int a0)
 
 extern const StgPre stageData[];
 extern const ExitData exitData[];
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern int stage_no;
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpKillEnemyAll(void);
-/* kept local: void (int, int, float, float, int) here, int (int, char *, int, float, float) in script.h */
-extern void RequestStageChange(int a0, int gobj, float f12, float f13, int a2);
 
 void actSt25aQueenDeadChk(volatile int a0)
 {
@@ -658,12 +594,12 @@ void actSt25aQueenDeadChk(volatile int a0)
         _ACTWait(1);
     }
 
-    *(int *)(*(int *)((char *)scpSearchGobj(2149) + 0x15C) + 0x660) = 0;
+    *(int *)(scpSearchGobj(2149)->sub + 0x660) = 0;
     while (stage_ContinueAnimation(805, 806) == 0) {
         _ACTWait(1);
     }
 
-    *(int *)(*(int *)((char *)scpSearchGobj(2149) + 0x15C) + 0x660) = 1;
+    *(int *)(scpSearchGobj(2149)->sub + 0x660) = 1;
     while (stage_ContinueAnimation(806, 807) == 0) {
         _ACTWait(1);
     }
@@ -719,7 +655,7 @@ void actSt25aQueenDeadChk(volatile int a0)
 
     DeleteStreamMotionManager();
 
-    RequestStageChange(4, boyGObj, 1.0f, 8.0f, 0);
+    RequestStageChange(4, boyGObj, 0, 1.0f, 8.0f);
 }
 
 void actConte13Jimaku(volatile int a0)
@@ -732,19 +668,19 @@ void actConte13Jimaku(volatile int a0)
     do {
         switch ((int)t) {
         case 1:
-            jimakuBegin((int)&jimaku_msg);
+            jimakuBegin(&jimaku_msg);
             break;
         case 600:
             jimaku_msg.sub.unk2C = 110;
             jimaku_msg.sub.unk38 = 400;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 1320:
             jimaku_msg.sub.unk2C = 111;
             jimaku_msg.sub.unk38 = 200;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         }
 
@@ -802,7 +738,7 @@ void actSt25aElevChk(volatile int a0)
         }
         _ACTWait(1);
         gflagOff(337);
-        RequestStageChange(1, boyGObj, 2.0f, 8.0f, 0);
+        RequestStageChange(1, boyGObj, 0, 2.0f, 8.0f);
     }
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
@@ -944,7 +880,7 @@ void actSt25aQueenBeforeChk(volatile int a0)
         _ACTWait(1);
     }
     gflagOn(331);
-    jimakuBegin((int)&jimaku_msg);
+    jimakuBegin(&jimaku_msg);
     scpAdpcmPlayRequestFunc(39, &conte11, 1, 1, 0);
 }
 
@@ -963,7 +899,7 @@ void actConte11Jimaku(volatile int a0)
             jimaku_msg.sub.unk2C = 0x5D;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         }
 

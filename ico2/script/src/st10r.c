@@ -19,6 +19,8 @@
 #include "motionManager2.h"
 #include "rotObject.h"
 #include "typedef.h"
+#include "main.h"
+#include "script.h"
 
 /* kept local: this TU's bytes only come out with its own view of PObjGObj, so it
    keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
@@ -72,13 +74,6 @@ static ActMail way_offchk_mes[2] = {{430}, {429}};
 
 static ActMail tower_resque_mes[2] = {{430}, {429}};
 
-/* kept local: PObjGObjSt10R * (int) here, int (int) in script.h */
-extern PObjGObjSt10R *scpSearchGobj(int a0);
-/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
-extern void scpSetCageVelocityFriction(int id, float f);
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int boyPad;
-
 /* .sbss, owned by st10r.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
    subthreads the wait loops below spin for. */
@@ -90,37 +85,11 @@ static int demoEnd;
 
 static const ConstVec girlWayPos = {{-296.0f, 327.0f, 2125.0f, 0.0f}};
 
-/* kept local: int here, GObj * in main.h */
-extern int girlGObj;
-/* kept local: void (int, int, int *, int, float) here, int (char *, int, int, float, int) in script.h */
-extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
-/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
-extern int scpBoyControlReadDisable;
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
-/* kept local: int (int, int) here, int (char *, int) in script.h */
-extern int scpTriggerFloorAttr(int a0, int a1);
-
 /* The second fence-up watcher's mail record: it installs
    actSt10rFenceDownChk2 here and posts it. Word 0 of each entry is the mail
    id the entry answers (430 the actor post, 429 the trailing entry);
    .func is filled in at run time. Named for the thread that owns and posts
    it. */
-
-/* kept local: int (int, int, float) here, int (char *, char *, float) in script.h */
-extern int scpTriggerBall(int a0, int a1, float radius);
-/* kept local: int (int, int, int, float, float) here, int (int, char *, int, float, float) in script.h */
-extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
-/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
-extern int scpCheckExistAliveEnemy(void);
-/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
-extern void scpPlayStart(int a0);
-/* kept local: void (int, float, float, float) here, void (void *, float, float, float) in script.h */
-extern void scpPlayPosSet(int a0, float f12, float f13, float f14);
-/* kept local: void (int, int) here, void (char *, int) in script.h */
-extern void scpPlayMot(int a0, int mot);
-/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
-extern void scpPlayEnd(int a0);
 
 /* .sdata, owned by st10r.o, in the ROM's order: the floor and cage stream handles (MAIN.MAP globals), the scene stream MAIN.MAP leaves unnamed, the chain's. */
 int st10r_floor = 0;
@@ -159,28 +128,9 @@ void actSt10rInit(void)
 
 void actSt10rEnd(void)
 {
-    gamesysObjInfoCls(scpSearchGobj(1634)->f0C, scpSearchGobj(1634)->f08);
-    gamesysObjInfoCls(scpSearchGobj(1632)->f0C, scpSearchGobj(1632)->f08);
+    gamesysObjInfoCls(scpSearchGobj(1634)->kind, scpSearchGobj(1634)->f08);
+    gamesysObjInfoCls(scpSearchGobj(1632)->kind, scpSearchGobj(1632)->f08);
 }
-
-/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
-extern void scpSleepEnemyAll(void);
-/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
-extern void scpWakeupEnemyAll(void);
-/* kept local: void (int, void *, int, int, int) here, void (int, char **, int, int, int) in script.h */
-extern void scpAdpcmPlayRequestFunc(int a0, void *a1, int a2, int a3, int a4);
-/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
-extern int scpAdpcmPlayRequestNum(void);
-/* kept local: void (void *, int) here, int (char **, short) in script.h */
-extern void scpAdpcmFadeCloseFunc(void *a0, int a1);
-/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
-extern void scpFadeOut(float t, int a1, int a2, int a3);
-/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
-extern void scpFadeIn(float f);
-/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
-extern int scpFadeChk(void);
-/* kept local: agrees with main.h, which this TU does not include */
-extern PadState pad[];
 
 void actSt10rFloorChk(volatile int a0)
 {
@@ -230,9 +180,6 @@ void actSt10rFloorChk(volatile int a0)
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
-
-/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
-extern float scpGetRotObjectRotCount(int a0);
 
 void actSt10rFloorHitChk(volatile int a0)
 {
@@ -322,9 +269,6 @@ void actSt10rCageMain(volatile int a0)
     lt_switch_layout(54);
 }
 
-/* kept local: int (int) here, int * (int) in script.h */
-extern int scpIsBombExplode(int a0);
-
 void actSt10rTowerChk(volatile int a0)
 {
     int th;
@@ -403,9 +347,6 @@ void actSt10rTowerChk(volatile int a0)
 
     gflagOn(303);
 }
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int systemStatus[];
 
 void actSt10rTowerConte(volatile int a0)
 {
@@ -506,9 +447,6 @@ void actSt10rChainMove(volatile int a0)
 
     lt_switch_layout(54);
 }
-
-/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
-extern void scpLinkBGAtoLayoutedTarget(int a0, int a1);
 
 void actSt10rFence(volatile int a0)
 {
@@ -828,10 +766,6 @@ void actSt10rChain(volatile int a0)
     }
 }
 
-/* kept local: void (int, int, int, int, int, float, float, float, float, float, float) here, void (char *, int, int, int, int, float, float, float, float, float, float) in script.h */
-extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
-                       float x2, float y2, float z2);
-
 void actSt10rSekizo(volatile int a0)
 {
     int x = a0;
@@ -990,7 +924,7 @@ void actSt10rGirlWay(volatile unsigned int a0)
     long long buf[2];
     buf[0] = girlWayPos.d[0];
     buf[1] = girlWayPos.d[1];
-    _SCPMoveCharactorByWay(girlGObj, 0, (int *)buf, 0, 100.0f);
+    _SCPMoveCharactorByWay(girlGObj, 0, (float *)buf, 100.0f, 0);
     _ACTWait(0);
 }
 

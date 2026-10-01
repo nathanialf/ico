@@ -3,23 +3,6 @@
 #include "thread.h"
 #include "Texture.h"
 
-struct jSub { /* sub-object at offset 0xC of the argument */
-    char _0[0x2C];
-    int field2C;
-    int n;
-    int field34;
-    char _38[4];
-    void *field3C;
-    void *field40;
-};
-
-struct jArg { /* the object queued on jimakuMsgQ */
-    int cmd;  /* 0x0 command: 0 begin, 1 next, 2 jump, 3 end */
-    int _4;
-    int done;        /* 0x8 cleared while the manager services it, 1 when finished */
-    struct jSub sub; /* 0xC */
-};
-
 struct jNode {
     char _0[4];
     int status;
@@ -97,7 +80,7 @@ char jimakuThreadStack[8192] = {0};
 
 int jimakuMsgQ[12] = {0};
 
-struct jArg jimaku_msg = {0};
+JimakuArg jimaku_msg = {0};
 
 static int jimakuDispTime = 120; /* derived name */
 
@@ -171,16 +154,16 @@ void iosCdvdBackGroundReadJimaku(int self, int a1, int size)
     iosCdvdBackGroundMgrSeek(self, *(int *)((char *)self + 0x110) + size);
 }
 
-int jimakuHandler(int self, struct jArg *p)
+int jimakuHandler(int self, JimakuArg *p)
 {
-    struct jSub *sub = &p->sub;
+    JimakuSub *sub = &p->sub;
     struct jWayGroup *g;
     int size = 0x8440;
     int left;
     int n;
 
-    while (sub->field34 != (sub->n + 3) % 4) {
-        g = &jimakuRing[sub->field34];
+    while (sub->unk34 != (sub->n + 3) % 4) {
+        g = &jimakuRing[sub->unk34];
         if (g->f4 == 2) {
             g->f4 = 3;
             break;
@@ -190,21 +173,21 @@ int jimakuHandler(int self, struct jArg *p)
            outer loop. cse1 cannot see that value where the entry test
            stands, so the test's edge past the loop lives through gcse and
            is folded only after it: gcse then puts %hi(jimakuBuf) in the
-           loop's preheader once per record (0x0017CC0C) and reloads field34
+           loop's preheader once per record (0x0017CC0C) and reloads unk34
            on both exits of the loop, as ROM does. What they cannot pin is
            the variable's name. */
         left = size;
         while (left > 0) {
             n = (0x8C40 < left) ? 0x8C40 : left;
-            jimakuBuf[sub->field34][0] = -1;
-            jimakuBuf[sub->field34][1] = -1;
-            iosCdvdBackGroundReadJimaku(self, (int)jimakuBuf[sub->field34], n);
+            jimakuBuf[sub->unk34][0] = -1;
+            jimakuBuf[sub->unk34][1] = -1;
+            iosCdvdBackGroundReadJimaku(self, (int)jimakuBuf[sub->unk34], n);
             left -= n;
         }
-        jimakuRing[sub->field34].f0 = sub->field2C++;
-        jimakuRing[sub->field34].f4 = 4;
-        iosCdvdBackGroundMgrSeek(sub->field40, sub->field2C * 0x8800);
-        sub->field34 = (sub->field34 + 1) % 4;
+        jimakuRing[sub->unk34].f0 = sub->unk2C++;
+        jimakuRing[sub->unk34].f4 = 4;
+        iosCdvdBackGroundMgrSeek(sub->unk40, sub->unk2C * 0x8800);
+        sub->unk34 = (sub->unk34 + 1) % 4;
     }
     if (systemStatus[10] != 0) {
         iosSemaReferStatus(jimakuReadSema);
@@ -219,9 +202,9 @@ int jimakuHandler(int self, struct jArg *p)
 extern int NonLinearCameraMove;
 extern char jimakuFileName[][32];
 
-void jimakuMgrBegin(struct jArg *p)
+void jimakuMgrBegin(JimakuArg *p)
 {
-    struct jSub *sub = &p->sub;
+    JimakuSub *sub = &p->sub;
     int st = 0;
     int i;
     struct jWayGroup *g;
@@ -242,7 +225,7 @@ void jimakuMgrBegin(struct jArg *p)
     jimakuRing[0].f0 = -1;
     jimakuRing[0].f4 = 3;
     jimakuRing[0].f8 = -1;
-    sub->field34 = 1;
+    sub->unk34 = 1;
     switch (NonLinearCameraMove) {
     case 2:
         st = 0;
@@ -263,14 +246,14 @@ void jimakuMgrBegin(struct jArg *p)
     if (gFlagGameClear != 0) {
         st = st + 1;
     }
-    sub->field40 =
+    sub->unk40 =
         (void *)iosCdvdBackGroundMgrAdd(jimakuFileName[st], jimakuHandler, p, 0, 0, 0, 0, 0);
     {
-        struct jSub *q = &p->sub;
+        JimakuSub *q = &p->sub;
         int m;
 
-        iosCdvdBackGroundMgrSeek(q->field40, q->field2C * 0x8800);
-        m = (q->field34 = (q->n + 1) % 4);
+        iosCdvdBackGroundMgrSeek(q->unk40, q->unk2C * 0x8800);
+        m = (q->unk34 = (q->n + 1) % 4);
         while (m != q->n) {
             jimakuRing[m].f0 = -1;
             jimakuRing[m].f4 = 3;
@@ -292,10 +275,10 @@ extern void __assert(char *file, int line, char *expr);
 #define JIMAKU_DEBUG_DUMP 0
 #endif
 
-void jimakuMgrNext(struct jArg *p)
+void jimakuMgrNext(JimakuArg *p)
 {
     char buf[16];
-    struct jSub *sub = &p->sub;
+    JimakuSub *sub = &p->sub;
     struct jWayGroup *g = &jimakuRing[sub->n];
 
     while (g->node->f4 != 4) {
@@ -324,7 +307,7 @@ void jimakuMgrNext(struct jArg *p)
     if (g->f8 >= 0) {
         tex_FreeTexture(g->f8);
     }
-    sub->field3C = jimakuBuf[sub->n];
+    sub->unk3C = jimakuBuf[sub->n];
     jimakuDispOn = 1;
     /* The listing's rows 705 to 714 carry no code, and the ROM's second and
      * third returns take `ld $31` from the epilogue where the build without
@@ -347,13 +330,13 @@ void jimakuMgrNext(struct jArg *p)
     }
 }
 
-void jimakuMgrJump(struct jArg *p)
+void jimakuMgrJump(JimakuArg *p)
 {
-    struct jSub *q = &p->sub;
+    JimakuSub *q = &p->sub;
     int m;
 
-    iosCdvdBackGroundMgrSeek(q->field40, q->field2C * 0x8800);
-    m = (q->field34 = (q->n + 1) % 4);
+    iosCdvdBackGroundMgrSeek(q->unk40, q->unk2C * 0x8800);
+    m = (q->unk34 = (q->n + 1) % 4);
     while (m != q->n) {
         jimakuRing[m].f0 = -1;
         jimakuRing[m].f4 = 3;
@@ -381,7 +364,7 @@ int jimakuMsgBuf[2] = {0};
 
 inline void jimakuManager(void)
 {
-    struct jArg *msg;
+    JimakuArg *msg;
 
     iosMsgQueueCreate(jimakuMsgQ, jimakuMsgBuf, 2);
     while (1) {
@@ -408,38 +391,39 @@ inline void jimakuManager(void)
     }
 }
 
-void jimakuBegin(int a0)
+void jimakuBegin(JimakuArg *msg)
 {
-    *(int *)a0 = 0;
-    iosMsgSend(jimakuMsgQ, a0, 1);
+    msg->cmd = 0;
+    iosMsgSend(jimakuMsgQ, msg, 1);
 }
 
-void jimakuNext(int *p)
+void jimakuNext(JimakuArg *msg)
 {
     if (systemStatus[10] != 0) {
-        *p = 1;
-        iosMsgSend(jimakuMsgQ, p, 0);
+        msg->cmd = 1;
+        iosMsgSend(jimakuMsgQ, msg, 0);
     }
 }
 
-void jimakuJump(int a0)
+void jimakuJump(JimakuArg *msg)
 {
-    int *w = (int *)(a0 + 0xC);
+    JimakuSub *sub = &msg->sub;
     if (systemStatus[10] == 0)
         return;
     {
-        int v = w[14];
+        int v = sub->unk38;
+
         if (v == -1) {
             jimakuDispTime = ((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) << 2;
         } else {
             jimakuDispTime = v;
         }
     }
-    *(int *)a0 = 2;
-    iosMsgSend(jimakuMsgQ, a0, 0);
+    msg->cmd = 2;
+    iosMsgSend(jimakuMsgQ, msg, 0);
 }
 
-void jimakuEnd(void)
+void jimakuEnd(JimakuArg *msg)
 {
     systemStatus[10] = 0;
     jimakuMgrEnd();
@@ -461,9 +445,9 @@ extern char D_00318DD8[];
 extern char D_00318E48[];
 extern void display_texture(JimTex *t);
 
-void jimakuDisp(char *self)
+void jimakuDisp(JimakuArg *msg)
 {
-    struct jWayGroup *g = &jimakuRing[*(int *)(self + 0x3C)];
+    struct jWayGroup *g = &jimakuRing[msg->sub.n];
     int c;
 
     if (systemStatus[10] == 0) {
@@ -499,7 +483,7 @@ void jimakuDisp(char *self)
     }
 }
 
-inline void jimakuUndisp(void)
+inline void jimakuUndisp(JimakuArg *msg)
 {
     jimakuDispOn = 0;
     jimakuOn = 0;

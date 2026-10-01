@@ -146,7 +146,7 @@ void debug_closeLog(void);
 void debugCdvdLoadInfoSegInit(int page);
 void debugCdvdLoadInfoSegAdd(int page, int idx, int delta);
 void debugCdvdLoadInfoSegCls(int page, int idx);
-int gsResetFunc(void);
+int gsResetFunc(int a0);
 void ChangeGirlControlMode(int a0);
 int debug_CallbackGsFinish(int channel);
 void debug_SaveStartStageFile(int stage);

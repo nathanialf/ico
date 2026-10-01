@@ -9,6 +9,8 @@
 #include "geometryManager.h"
 #include <libvu0.h>
 #include <stdlib.h>
+#include "Matrix.h"
+#include "main.h"
 
 /* .sdata, owned by way_kidnap.o (VMA 0x63BD60..0x63BD6C, then
    WayPointWithRangeFromPos2's FLT_MAX pool word; 0x10 B = MAIN.MAP), names ours:
@@ -122,9 +124,6 @@ typedef struct WayWork {
     int f70;
     char unk74[0xC];
 } WayWork;
-
-/* kept local: float (float *, float *) here, void (void *, void *, void *) in Matrix.h */
-extern float _GetLength(float *a, float *b);
 
 float WayLengthOfPos_Pos(float *pos0, float *pos1)
 {
@@ -323,10 +322,6 @@ typedef struct WayEdge {
 } WayEdge;
 
 extern WayEdge way_group[];
-/* kept local: void (float *, float *, float *) here, void (void *, void *, void *) in Matrix.h */
-extern void _SubVector(float *dst, float *a, float *b);
-/* kept local: float (float *, float *) here, float (void *, void *) in Matrix.h */
-extern float _InnerProduct(float *a, float *b);
 
 static inline WpNode *SearchOpenNode(WpNode *start)
 {
@@ -546,9 +541,6 @@ inline int WayPointWithRangeFromGObj(void *obj, float f)
     GetRootPosition(pos, obj);
     return WayPointWithRangeFromPos(pos, 0, f);
 }
-
-/* kept local: void * here, GObj * in main.h */
-extern void *girlGObj;
 
 void *NearestEnemyFromGirl(float *len)
 {

@@ -10,6 +10,7 @@
 #include "StageAnimation.h"
 #include <libvu0.h>
 #include "typedef.h"
+#include "main.h"
 
 /* PAL listing rows: every instruction of actDeja is attributed to
  * script/src/deja.c lines 170-189 -- no inlined helper bodies.
@@ -25,19 +26,12 @@ static ActMail after_mes[2] = {{430}, {429}};
 
 /* --- su-b sweep decls --- */
 
-/* kept local: char * here, GObj * in main.h */
-extern char *boyGObj;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern PadState pad[];
-
 /* .sbss, owned by deja.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the handler the wait
    loop below is spinning for. */
 static int demoEnd;
 
 void actDejaDemo(volatile int a0);
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern int stage_no;
 
 /* the 0x28-byte stage-manager table entry */
 typedef struct {
@@ -88,8 +82,8 @@ inline void actDeja(volatile int a0)
 void actDejaChk(volatile int a0)
 {
     gflagOn(6);
-    *(int *)(scpSearchGobj(2548) + 0x16C) = 0;
-    *(int *)(scpSearchGobj(2549) + 0x16C) = 0;
+    scpSearchGobj(2548)->f16C = 0;
+    scpSearchGobj(2549)->f16C = 0;
     actCreateSubThread(actEnemySleep, 21);
     scpAdpcmPlayRequestFunc(12, &deja, 0, 1, 1);
     while (deja == 0) {
@@ -141,7 +135,7 @@ void actDejaDemo(volatile int a0)
         _ACTWait(1);
     }
     _ACTWait(1);
-    *(int *)(scpSearchGobj(54) + 0x16C) = 0;
+    scpSearchGobj(54)->f16C = 0;
     while (stage_ContinueAnimation(612, 613) == 0) {
         _ACTWait(1);
     }
@@ -152,7 +146,7 @@ void actDejaDemo(volatile int a0)
         _ACTWait(1);
     }
     scpPlayMot((char *)scpSearchGobj(2548), 724);
-    *(int *)(scpSearchGobj(2548) + 0x16C) = 1;
+    scpSearchGobj(2548)->f16C = 1;
     _ACTWait(1);
     stage_SetAnimation(620, -1, -2);
     stage_SetAnimation(621, 1, 0);
@@ -160,7 +154,7 @@ void actDejaDemo(volatile int a0)
     while (stage_ContinueAnimation(614, 615) == 0) {
         _ACTWait(1);
     }
-    *(int *)(scpSearchGobj(54) + 0x16C) = 1;
+    scpSearchGobj(54)->f16C = 1;
     scpPlayMot(boyGObj, 303);
     _ACTWait(1);
     stage_SetAnimation(621, -1, -2);
@@ -174,7 +168,7 @@ void actDejaDemo(volatile int a0)
     while (stage_ContinueAnimation(616, 617) == 0) {
         _ACTWait(1);
     }
-    *(int *)(scpSearchGobj(2549) + 0x16C) = 1;
+    scpSearchGobj(2549)->f16C = 1;
     scpPlayMot(boyGObj, 305);
     scpPlayStart(scpSearchGobj(2549));
     scpPlayMot((char *)scpSearchGobj(2549), 962);

@@ -3,6 +3,7 @@
 #include "DisplayP2O.h"
 #include <stdio.h>
 #include "debug_exception.h"
+#include "Matrix.h"
 
 /* RECONSTRUCTION, PUBLIC SDK NAMING RUNG for the shape (libvu0's
    sceVu0FVECTOR, a 16-byte aligned float[4]); the name is ours.  The ROM pins
@@ -376,9 +377,6 @@ PObj *AllocPObj(ObjHdr *h, char *name, int n)
 
     return p;
 }
-
-/* kept local: void (Vec, Vec, Vec) here, void (void *, void *, void *) in Matrix.h */
-extern void _AddVector(Vec d, Vec a, Vec b);
 
 PObj *InitPObj(int a0, int a1, int n)
 {

@@ -12,21 +12,12 @@
 #include "item.h"
 #include <libvu0.h>
 #include "typedef.h"
+#include "main.h"
+#include "script.h"
 
 static ActMail sekizo_mes[2] = {{430}, {429}};
 
 static ActMail ene1_mes[2] = {{430}, {429}};
-
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChangeDirect, _SCPMoveCharactorByWay differ) */
-extern void ScpCallCameraSetTarget(float x, float y, float z);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChangeDirect, _SCPMoveCharactorByWay differ) */
-extern void scpTorchLightOn(int a0);
-/* kept local: int here, GObj * in main.h */
-extern int girlGObj;
-/* kept local: int (int, int, int *, int, float) here, int (char *, int, int, float, int) in script.h */
-extern int _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
-/* kept local: void (int, int, int *, int) here, void (int *) in script.h */
-extern void RequestStageChangeDirect(int a0, int a1, int *buf, int a3);
 
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc
@@ -46,35 +37,6 @@ void actSt04bEnd(void)
         }
     }
 }
-
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int boyPad;
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChangeDirect, _SCPMoveCharactorByWay differ) */
-extern int scpBoyControlReadDisable;
-/* kept local: int (int, int, float) here, int (char *, char *, float) in script.h */
-extern int scpTriggerBall(int a0, int gobj, float r);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChangeDirect, _SCPMoveCharactorByWay differ) */
-extern void scpKillEnemyOne(int a0);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChangeDirect, _SCPMoveCharactorByWay differ) */
-extern void scpMaskGeneratorAll(void);
-/* kept local: void (int, int *, int, int, int) here, void (int, char **, int, int, int) in script.h */
-extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChangeDirect, _SCPMoveCharactorByWay differ) */
-extern void scpPlayStart(int a0);
-/* kept local: void (int, int) here, void (char *, int) in script.h */
-extern void scpPlayMot(int a0, int mot);
-/* kept local: void (int, float, float, float) here, void (void *, float, float, float) in script.h */
-extern void scpPlayPosSet(int a0, float x, float y, float z);
-/* kept local: void (int, void *) here, void (char *, float *) in script.h */
-extern void scpPlayMotDir(int a0, void *dir);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChangeDirect, _SCPMoveCharactorByWay differ) */
-extern void scpSekizouCheckPoint(void);
-/* kept local: void (int) here, void (char *) in script.h */
-extern void scpPlayWaitMotEnd(int a0);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChangeDirect, _SCPMoveCharactorByWay differ) */
-extern void scpPlayEnd(int a0);
 
 /* .sdata, owned by st04b.o, in the ROM's order: the stone statue's stream handle, its shake and the shake's volume. */
 int sekizo4b = 0;
@@ -177,13 +139,6 @@ void actSt04bSekizoChk(volatile int a0)
     lt_switch_layout(54);
     scpBoyControlReadDisable = 0;
 }
-
-/* kept local: int (int, int) here, int (char *, int) in script.h */
-extern int scpTriggerFloorAttr(int a0, int attr);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChangeDirect, _SCPMoveCharactorByWay differ) */
-extern void scpSleepEnemyOne(int a0);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChangeDirect, _SCPMoveCharactorByWay differ) */
-extern void scpWakeupEnemyOne(int a0);
 
 void actSt04bEne1Chk(volatile int a0)
 {
@@ -375,7 +330,7 @@ void actSt04bGirlWay(volatile int a0)
 
     buf[0] = girlWayPos.d[0];
     buf[1] = girlWayPos.d[1];
-    _SCPMoveCharactorByWay(girlGObj, 0, (int *)buf, 0, 100.0f);
+    _SCPMoveCharactorByWay(girlGObj, 0, (float *)buf, 100.0f, 0);
 
     way[0] = girlWay2Pos.d[0];
     way[1] = girlWay2Pos.d[1];

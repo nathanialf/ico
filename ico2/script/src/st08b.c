@@ -12,6 +12,8 @@
 #include "geometryManager.h"
 #include "item.h"
 #include "typedef.h"
+#include "main.h"
+#include "script.h"
 
 static ActMail kurenMain_mes[2] = {{406, actSt08bKurenSwitch}, {429}};
 
@@ -29,19 +31,6 @@ static ActMail doorDownChk_mes[2] = {{430}, {429}};
 
 static ActMail ene_mes[2] = {{430}, {429}};
 
-/* kept local: int here, GObj * in main.h */
-extern int girlGObj;
-/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpPlayMot differ) */
-extern int scpBoyControlReadDisable;
-/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpPlayMot differ) */
-extern void scpPlayEnd(int a0);
-/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpPlayMot differ) */
-extern void scpPlayStart(int a0);
-/* kept local: void (int, int) here, void (char *, int) in script.h */
-extern void scpPlayMot(int a0, int mot);
-/* kept local: void (int) here, void (char *) in script.h */
-extern void scpPlayWaitMotEnd(int a0);
-
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc
    emit the ld/sd pair the ROM has. */
@@ -56,49 +45,18 @@ static const ConstVec doorUpEffectPos = {{-505.0f, -1200.0f, -5671.0f, 1.0f}};
 
 static const ConstVec doorUpEffect2Pos = {{-505.0f, -1447.0f, -5671.0f, 1.0f}};
 
-/* kept local: void (int *, int) here, int (void *, int) in script.h */
-extern void scpEffectStart(int *buf, int a1);
-/* kept local: int (int, int) here, int (char *, int) in script.h */
-extern int scpTriggerFloorAttr(int a0, int a1);
-/* kept local: int (int, int, float) here, int (char *, char *, float) in script.h */
-extern int scpTriggerBall(int a0, int a1, float radius);
-/* kept local: int (int, int) here, int (char *, int) in script.h */
-extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
-/* kept local: void (int, int *, int, int, int) here, void (int, char **, int, int, int) in script.h */
-extern void scpAdpcmPlayRequestFunc(int a0, int *h, int a2, int a3, int a4);
-/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpPlayMot differ) */
-extern int scpAdpcmPlayRequestNum(void);
-/* kept local: void (int *, int) here, int (char **, short) in script.h */
-extern void scpAdpcmFadeCloseFunc(int *h, int a1);
-/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpPlayMot differ) */
-extern void scpFadeOut(float a0, int a1, int a2, int a3);
-/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpPlayMot differ) */
-extern int scpFadeChk(void);
-/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpPlayMot differ) */
-extern void scpFadeIn(float a0);
-
 typedef union Pos {
     long long ll[2];
     float f[4];
 } Pos;
 
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern PadState pad[];
 void actSt08bKurenLeft(volatile int a0);
 void actSt08bKurenRight(volatile int a0);
-/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpPlayMot differ) */
-extern void scpWakeupItemWithBoundary(float a0, float a1, float a2, float a3);
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
 /* The door-boundary X/Z corners live in the -G8 gp float pool and are written
    by the stage's layout/script side, so their loads may not sink into the jal
    delay slot; ROM has a nop at both call sites. */
 void actSt08bDoorUpChk(volatile int a0);
 void actSt08bDoorDownChk(volatile int a0);
-/* kept local: PObjGObj * (int) here, int (int) in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int boyPad;
 
 /* .sbss, owned by st08b.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the

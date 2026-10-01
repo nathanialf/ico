@@ -13,33 +13,8 @@
 #include "rotObject.h"
 #include "typedef.h"
 #include "stageSEProc.h"
-
-/* kept local: PObjGObj * (int) here, int (int) in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
-/* kept local: int (int, int, float) here, int (char *, char *, float) in script.h */
-extern int scpTriggerBall(int a0, int gobj, float r);
-/* kept local: int (int, int) here, int (char *, int) in script.h */
-extern int scpTriggerFloorAttr(int a0, int a1);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpSleepEnemyAll(void);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpWakeupEnemyAll(void);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern int scpAdpcmPlayRequestNum(void);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpFadeOut(float f, int a1, int a2, int a3);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern int scpFadeChk(void);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpFadeIn(float f);
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern int systemStatus[];
-/* kept local: agrees with main.h, which this TU does not include */
-extern PadState pad[];
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern int scpBoyControlReadDisable;
+#include "main.h"
+#include "script.h"
 
 /* .sbss, owned by st04e.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the

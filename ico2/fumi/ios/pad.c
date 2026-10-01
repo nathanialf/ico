@@ -9,6 +9,9 @@
 #include "ios.h"
 #include "debug_exception.h"
 #include "matrixDrive.h"
+#include "thread.h"
+#include <libpad.h>
+#include "gv.h"
 
 /* One sampled pad buffer: the two button bytes the device leaves at +2 and
    +3, active low. */
@@ -392,11 +395,6 @@ int controler_stable_check(void *a0)
     return phase;
 }
 
-/* kept local: int (void *, int, void *, int, int, int, int) here, void (unsigned int *, int, void (*)(), int, void *, long, int) in thread.h */
-extern int iosThreadCreateS(void *th, int prio, void *func, int arg, int stack, int size,
-                            int flags);
-/* kept local: void (void *) here, void (int) in thread.h */
-extern void iosThreadStart(void *th);
 extern int scePadInit(int mode);
 extern int scePadPortOpen(int port, int slot, void *buf);
 void iosPadDevManager(void);
@@ -435,8 +433,6 @@ int iosPadDevInit(void *a0)
 /* the frame counter this TU reads unsigned: the ROM divides it with divu */
 /* kept local: unsigned int here, int in main.h */
 extern unsigned int frame_count;
-/* kept local: int (int, int, void *) here, int (int, int, int) in libpad.h */
-extern int scePadRead(int port, int slot, void *buf);
 extern void Shock_Decode(void *box, unsigned char *pFlags, unsigned char *pLevel);
 extern void Shock_SetMotor(int flags, int level, void *box, int port, int slot);
 void iosPadActTickProc(void);
@@ -549,9 +545,6 @@ int iosPadRead(void *pad)
     }
     return 0;
 }
-
-/* kept local: float (void *) here, float (float *) in gv.h */
-extern float _GetDirection(void *v);
 
 float iosPadNormalizeStick(void *p)
 {

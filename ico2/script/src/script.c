@@ -32,6 +32,21 @@
 #include "layout_action.h"
 #include "Basic.h"
 #include "GifPacket.h"
+#include <libvu0.h>
+#include "lodManager.h"
+#include "geometryManager.h"
+#include "adpcm_init.h"
+#include "s_init.h"
+#include "Matrix.h"
+#include "item.h"
+#include "pad.h"
+#include "rotObject.h"
+#include "quaternion.h"
+#include "act_a_p_1.h"
+#include "gobj.h"
+#include "boyact.h"
+#include "act-game.h"
+#include "commonact.h"
 
 /* script.o's .sdata, in the ROM's order.  MAIN.MAP lists all but the three
    hint-voice words, which the retail build added after scpSeEnvMasterVolRate
@@ -128,12 +143,9 @@ struct S {
 
 /* kept local: void (char *, float *) here, void (void *, float *) in motionManager2.h */
 extern void SetMotionDirection(char *self, float *dir);
+
 /* SCE VU0 library: sceVu0Normalize(dst, src) -- normalised in place here, so
    the second argument is already in $a1 and cse drops the redundant copy. */
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0AddVector, sceVu0InnerProduct differ) */
-extern void sceVu0Normalize();
-/* kept local: void (char *, float *, float) here, int (int, float *, float) in commonact.h */
-extern void SetMotionDirectionSmooze(char *self, float *dir, float ang);
 
 extern struct MotTblRec {
     char _000[0x186];
@@ -145,26 +157,6 @@ extern struct MotTblRec {
 extern char *boyGObj;
 /* kept local: char * here, GObj * in main.h */
 extern char *girlGObj;
-/* kept local: agrees with gobj.h, which this TU does not include (isysGObjSearchFromObjKindID_begin, isysGObjSearchFromObjKindID_next differ) */
-extern int isysGObjSearchFromObjLayoutID();
-/* kept local: void (int) here, void (char *) in act-game.h */
-extern void ACTItemForceDrop(int a0);
-/* kept local: agrees with lodManager.h, which this TU does not include */
-extern int SetLodLevel();
-/* kept local: agrees with geometryManager.h, which this TU does not include (GetRootMatrixRotOffset, GetRootMatrixTransOffset differ) */
-extern void SetRootMatrixWithTransOffset(void *a0, float x, float y, float z);
-/* kept local: void (float *, float *, float *) here, void (void *, void *, void *) in libvu0.h */
-extern void sceVu0SubVector(float *d, float *a, float *b);
-/* kept local: float (float *, float *) here, float (void *, void *) in libvu0.h */
-extern float sceVu0InnerProduct(float *a, float *b);
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0AddVector, sceVu0InnerProduct differ) */
-extern void sceVu0UnitMatrix(void *m);
-/* kept local: void (void *, void *) here, void (void *, char *) in geometryManager.h */
-extern void GetRootPosition(void *dst, void *obj);
-/* kept local: void (float *, void *) here, void (char *, char *) in geometryManager.h */
-extern void GetRootMatrixTransOffset(float *dst, void *obj);
-/* kept local: void (int, int) here, void (char *, int) in commonact.h */
-extern void ACTSendMailCorrect(int a0, int mail);
 
 /* .data, first in script.o's run: the colour packet prim_DispWireBox draws the
    debug trigger box with.  Declared as the whole 4-word record so gcc reaches
@@ -197,28 +189,8 @@ struct ScpAct {
     ActMail *mail;     /* 0xD4 */
 };
 
-/* kept local: agrees with adpcm_init.h, which this TU does not include (AdpcmFadeCloseAll, AdpcmPlay differ) */
-extern int AdpcmFreeAreaGet(void);
-/* kept local: agrees with adpcm_init.h, which this TU does not include (AdpcmFadeCloseAll, AdpcmPlay differ) */
-extern int AdpcmNotUseIopAreaFree(void);
-/* kept local: void (int) here, void (short) in adpcm_init.h */
-extern void AdpcmFadeCloseAll(int a0);
-/* kept local: void (void *, int, int, int, int) here, void (int *, int, int, int, int) in s_init.h */
-extern void soundDataOpen(void *work, int mode, int kind, int a3, int a4);
-/* kept local: char * (void *) here, int * (int *) in s_init.h */
-extern char *soundDataOpenSync(void *work);
-/* kept local: void (int) here, void (void *) in adpcm_init.h */
-extern void AdpcmPlay(int a0);
-/* kept local: void (char *) here, void (int *) in s_init.h */
-extern void soundDataClose(char *h);
-/* kept local: void (float *, float *, float *) here, void (void *, void *, void *) in Matrix.h */
-extern void _SubVector(float *dst, float *a, float *b);
-/* kept local: float (float *, float *) here, float (void *, void *) in Matrix.h */
-extern float _InnerProduct(float *a, float *b);
 /* kept local: this TU's uses of AdpcmInterStereoVolumeSet do not fit the
    prototype in adpcm_init.h */
-/* kept local: void (void *, int) here, void () in adpcm_init.h */
-extern void AdpcmInterStereoVolumeSet(void *h, int a1);
 
 /* the 0x30-byte wood-bridge table entry at woodBoxTbl: an object id, the
    trigger `kind` that selects which axis test runs, the bridge end offset the
@@ -234,28 +206,10 @@ struct WoodBoxEnt {
     float b3;       /* 0x2C */
 };
 
-/* kept local: void (float *, float *, float *) here, void (void *, void *, void *) in libvu0.h */
-extern void sceVu0AddVector(float *dst, float *a, float *b);
-/* kept local: void (int) here, int (int) in item.h */
-extern void ReviveAllCarryableItemsWithNonSleepFrame(int frames);
-/* kept local: int (char *, int) here, int (int, int) in pad.h */
-extern int iosPadActRequest(char *g, int no);
-/* kept local: void (int, int) here, int * (int, unsigned int) in pad.h */
-extern void iosPadActVolumeSet(int h, int vol);
-/* kept local: agrees with pad.h, which this TU does not include (iosPadActRequest, iosPadActVolumeSet differ) */
-extern void iosPadActStop(int h);
-/* kept local: int (int, int, void *, int) here, int (int, int, int, int) in s_init.h */
-extern int soundSeDefPlay(int no, int a1, void *pos, int a3);
-/* kept local: agrees with s_init.h, which this TU does not include (soundDataClose, soundDataOpen differ) */
-extern void soundSeDefStop(int h);
 /* kept local: char * here, int in main.h */
 extern char *boyPad;
-/* kept local: float * (char *) here, void * (void *) in commonact.h */
-extern float *test_CURRENTROOT(char *target);
 /* kept local: void (void *) here, void (int *) in motionManager2.h */
 extern void ClearMotionGeometryInfo(void *a0);
-/* kept local: agrees with geometryManager.h, which this TU does not include (GetRootMatrixRotOffset, GetRootMatrixTransOffset differ) */
-extern void SetDirectRootPosition();
 /* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipWall(void *w);
 
@@ -271,8 +225,6 @@ typedef struct {
     char _08C[0x34];    /* 0x8C */
 } ClipWorkScript;       /* 0xC0 */
 
-/* kept local: void (float *, float *, float) here, void (void *, void *, float) in libvu0.h */
-extern void sceVu0ScaleVector(float *dst, float *src, float scale);
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, boyPad differ) */
 extern int stage_no;
 
@@ -285,12 +237,6 @@ struct StgEnt {
 
 extern struct StgEnt exitData[];
 extern StgPre stageData[];
-/* kept local: agrees with boyact.h, which this TU does not include */
-extern void SetBoyWeaponGObj();
-/* kept local: agrees with gobj.h, which this TU does not include (isysGObjSearchFromObjKindID_next, isysGObjSearchFromObjLayoutID differ) */
-extern int isysGObjSearchFromObjKindID_begin();
-/* kept local: agrees with gobj.h, which this TU does not include (isysGObjSearchFromObjKindID_begin, isysGObjSearchFromObjLayoutID differ) */
-extern int isysGObjSearchFromObjKindID_next();
 /* kept local: int (int, int) here, int (char *, int) in motionManager2.h */
 extern int GetSkeltonFocusNode(int a0, int a1);
 
@@ -310,30 +256,10 @@ static struct WoodBoxEnt woodBoxTbl[11] = {
     {3294, 9, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, 0.0f, 0.0f, 0.0f, 0.0f},
 };
 
-/* kept local: agrees with item.h, which this TU does not include (BreakItemFromOutside, ReviveAllCarryableItemsWithNonSleepFrame differ) */
-extern int IsBombExplode(char *self);
-/* kept local: float (int) here, float (char *) in rotObject.h */
-extern float GetRotObjectRotCount(int a0);
-/* kept local: int (int) here, int (void *) in rotObject.h */
-extern int GetRotObjectZPlusDirection(int a0);
-/* kept local: void (float *, void *) here, void (void *, int) in geometryManager.h */
-extern void GetRootMatrixRotOffset(float *q, void *obj);
-/* kept local: void (void *, float *) here, void (int, void *) in geometryManager.h */
-extern void SetRootMatrixRotOffset(void *obj, float *q);
-/* kept local: void (float *, int) here, void (void *, int) in quaternion.h */
-extern void RotQuaternionX(float *q, int step);
-/* kept local: void (float *, int) here, void (void *, int) in quaternion.h */
-extern void RotQuaternionY(float *q, int step);
-/* kept local: void (float *, int) here, void (void *, int) in quaternion.h */
-extern void RotQuaternionZ(float *q, int step);
-/* kept local: agrees with act-game.h, which this TU does not include (ACTGame_StageChangeGObjDirect, ACTGame_isHangChain differ) */
-extern float _ACTGame_GetParamF(int idx);
 /* kept local: agrees with motionManager2.h, which this TU does not include (ClearMotionGeometryInfo, GetSkeltonFocusNode differ) */
 extern int CheckFloorAttribute(char *self, int attr);
 /* kept local: int (char *, int) here, int (char *) in motionManager2.h */
 extern int CheckWallAttribute(char *self, int attr);
-/* kept local: void (int) here, void (void *) in quaternion.h */
-extern void SetIdentityQuaternion(int a0);
 extern char objLayout[];
 
 struct EnemyEnt {
@@ -341,10 +267,6 @@ struct EnemyEnt {
     unsigned short f42;
 }; /* 0x4C stride */
 
-/* kept local: agrees with act-game.h, which this TU does not include (ACTGame_StageChangeGObjDirect, ACTGame_isHangChain differ) */
-extern void ACTCharctrl_Lock(char *self);
-/* kept local: float * (char *) here, void * (char *) in commonact.h */
-extern float *test_CURRENTORIENT(char *target);
 /* kept local: void (void *, void *, int, int, void *, float, float, float, float) here, void (char *, char *, float, float, float, int, int, float, void *) in motionManager2.h */
 extern void SetMotionNodeFixModeParameter(void *a0, void *a1, int a2, int a3, void *a4, float f12,
                                           float f13, float f14, float f15);
@@ -355,44 +277,17 @@ static int stageChangeReq;
 
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, boyPad differ) */
 extern int gameover_flag;
-/* kept local: agrees with act-game.h, which this TU does not include (ACTGame_StageChangeGObjDirect, ACTGame_isHangChain differ) */
-extern void ACTGame_StageChangeGObj(char *g, int no);
-/* kept local: agrees with boyact.h, which this TU does not include (SetBoyWeaponGObj differ) */
-extern void BoyInfoUpdate_StageChange(void);
-/* kept local: agrees with act-game.h, which this TU does not include (ACTGame_StageChangeGObjDirect, ACTGame_isHangChain differ) */
-extern void ACTCharctrl_Lock(char *a0);
-/* kept local: agrees with act-game.h, which this TU does not include (ACTGame_isHangChain, ACTItemForceDrop differ) */
-extern void ACTGame_StageChangeGObjDirect();
 /* kept local: this TU's uses of IsWallLeverStatus do not fit the prototype in box.h */
 extern int IsWallLeverStatus(void);
+
 /* kept local: this TU's uses of ACTGame_isHangChain do not fit the prototype in act-game.h */
-/* kept local: agrees with act-game.h, which this TU does not include (ACTGame_StageChangeGObjDirect, ACTItemForceDrop differ) */
-extern int ACTGame_isHangChain();
 
 /* the last object of script.o's .data (VMA 0x2A5400..0x2A5440): the layout
    record scpBornSpider fills and hands MakeAP1GObj for each spider */
 static struct DQW spiderLayout = {0, 0, 0, 0, 0, 0, {0}, {1.0f, 1.0f, 1.0f}}; /* derived name */
 
-/* kept local: void (int) here, void (int *) in act_a_p_1.h */
-extern void WakeUpAP1(int a0);
-/* kept local: int (float *, float) here, int (void *, float) in item.h */
-extern int ReviveCarryableItemsWithBoundary(float *pos, float r);
 /* kept local: agrees with box.h, which this TU does not include (IsWallLeverStatus differ) */
 extern int CheckReadyAllSwitches();
-/* kept local: void (void *, void *) here, void (void *, char *) in geometryManager.h */
-extern void GetRootPosition(void *a0, void *a1);
-/* kept local: void (void *, void *) here, void (char *, void *) in geometryManager.h */
-extern void SetDirectRootPosition(void *a0, void *a1);
-/* kept local: void (void *) here, int (char *) in item.h */
-extern void BreakItemFromOutside(void *o);
-/* kept local: int (void *) here, int (char *) in item.h */
-extern int CheckItemDead(void *o);
-/* kept local: int (void *) here, int (char *) in item.h */
-extern int GetItemKind(void *o);
-/* kept local: int (char *) here, int (int *) in act_a_p_1.h */
-extern int IsActCharDead(char *g);
-/* kept local: agrees with rotObject.h, which this TU does not include (GetRotObjectRotCount, GetRotObjectZPlusDirection differ) */
-extern void GetRotObjectGameSysObjInfoExtData(short *a0, int *a1, char *a2);
 extern ActMail queen_appear_mes[];
 
 /* The January listing has no row for this function (its body is st25a.c's
@@ -410,7 +305,7 @@ inline void actSubSekizoSe(volatile int a0)
     _ACTWait(1);
     if (gflagChk(332) == 0) {
         ScpCallCameraSetTarget(3834.0f, -888.0f, 0.0f);
-        *(int *)(scpSearchGobj(2149) + 0x16C) = 0;
+        scpSearchGobj(2149)->f16C = 0;
         stage_SetLoopFlag(555, 0);
         queen_appear_mes[0].func = actSt25aQueenAppearChk;
         act->mail = queen_appear_mes;
@@ -419,7 +314,7 @@ inline void actSubSekizoSe(volatile int a0)
         return;
     }
     scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(0x2F, 0, 0x22B, 0);
-    *(int *)(scpSearchGobj(2149) + 0x16C) = 1;
+    scpSearchGobj(2149)->f16C = 1;
     scpPlayMot((char *)scpSearchGobj(2149), 1104);
     tex_SetUVScroll(faceShadowTex, 0.0f, 0.0f, 0.25f, 0.0625f, 0.8f, 0.8f, 1);
     tex_SetUVScroll(faceShadowTex00, 0.0f, 0.0f, 0.25f, 0.0625f, 0.45f, 0.45f, 1);
@@ -428,9 +323,9 @@ inline void actSubSekizoSe(volatile int a0)
     stage_SetAnimation(159, 1, 0);
 }
 
-inline void scpDispOffAllWithKind(void)
+inline void scpDispOffAllWithKind(int kind)
 {
-    int v0 = isysGObjSearchFromObjKindID_begin();
+    int v0 = isysGObjSearchFromObjKindID_begin(kind);
     while (v0 != 0) {
         *(int *)(v0 + 0x50) = 0;
         v0 = isysGObjSearchFromObjKindID_next(v0);
@@ -446,18 +341,18 @@ inline void scpDispOnAllWithKind(int x)
     }
 }
 
-inline void scpActivateAllWithKind(void)
+inline void scpActivateAllWithKind(int kind)
 {
-    int *p = isysGObjSearchFromObjKindID_begin();
+    int *p = isysGObjSearchFromObjKindID_begin(kind);
     while (p != 0) {
         p[0x16C / 4] = 1;
         p = isysGObjSearchFromObjKindID_next(p);
     }
 }
 
-inline void scpDisActivateAllWithKind(void)
+inline void scpDisActivateAllWithKind(int kind)
 {
-    int v0 = isysGObjSearchFromObjKindID_begin();
+    int v0 = isysGObjSearchFromObjKindID_begin(kind);
     while (v0 != 0) {
         *(int *)(v0 + 0x16C) = 0;
         v0 = isysGObjSearchFromObjKindID_next(v0);
@@ -467,8 +362,8 @@ inline void scpDisActivateAllWithKind(void)
 inline int scpIsTorchLightOn(int a0)
 {
     int ret1 = scpSearchGobj(a0);
-    int *ret2 = (int *)scpSearchGobj(0);
-    ret2[0x16C / 4] = 1;
+    PObjGObj *ret2 = scpSearchGobj(0);
+    ret2->f16C = 1;
     return IsTorchLightOn(ret1);
 }
 
@@ -645,7 +540,7 @@ inline struct WallCol *scpGetWallCollision(float x0, float y0, float z0, float x
     return &wallColResult;
 }
 
-inline int scpSearchGobj(int id)
+inline PObjGObj *scpSearchGobj(int id)
 {
     return isysGObjSearchFromObjLayoutID(id);
 }
@@ -1659,10 +1554,11 @@ inline int RequestStageChangeSimple(int no, float speed, float wait, unsigned ch
 /* the root position a direct stage change parks the actor at, far out of the map */
 static const Vec16 farRootPos = {{-1000000.0f, 0.0f, 0.0f, 0.0f}}; /* derived name */
 
-inline void RequestStageChangeDirect(int *self)
+inline void RequestStageChangeDirect(int *self, int a1, int *a2, int a3)
+
 {
     Vec16 pos;
-    ACTGame_StageChangeGObjDirect((int)self);
+    ACTGame_StageChangeGObjDirect(self, a1, a2, a3);
     ACTCharctrl_Lock((int)self);
     pos = farRootPos;
     SetDirectRootPosition(self, &pos);
@@ -1723,14 +1619,14 @@ void _SCPBoySupportGirl(float x0, float y0, float z0, float x1, float y1, float 
    allocation (the same C89 default-int prototype the TU's other way/thread
    callees carry) */
 
-inline int _SCPMoveCharactorByWay(char *self, int a1, int a2, float speed, int a3)
+inline int _SCPMoveCharactorByWay(char *self, int a1, float *dir, float speed, int a3)
 {
     struct ScpAct *act = (struct ScpAct *)*(char **)(self + 0x164);
 
     act->st18.ll |= 1ULL << 47;
     ACTCharctrl_Lock(self);
     ACTSendMailCorrect(self, 0x106);
-    ACTWayExec_Position(self, a1, a2, speed, a3);
+    ACTWayExec_Position(self, a1, dir, speed, a3);
     act->st18.ll &= ~(1ULL << 47);
     ACTCharctrl_Unlock(self);
     return 0;
@@ -1763,7 +1659,7 @@ inline int _SCPMoveByWay_ToChar(char *self, char *target, int deg, int a3, float
     _ApplyRyGV(v, (float)deg * 3.1415927f / 180.0f);
     sceVu0ScaleVector(v, v, scale);
     sceVu0AddVector(w, test_CURRENTROOT(target), v);
-    return _SCPMoveCharactorByWay(self, (int)target, (int)w, speed, a3);
+    return _SCPMoveCharactorByWay(self, (int)target, w, speed, a3);
 }
 
 inline int scpGameStat_BoyWeaponkind(void)
@@ -1795,9 +1691,9 @@ inline int scpIsWallLever2On(void)
     return IsWallLeverStatus();
 }
 
-inline int scpIsHangChain(void)
+inline int scpIsHangChain(char *self)
 {
-    return ACTGame_isHangChain() != 0;
+    return ACTGame_isHangChain(self) != 0;
 }
 
 inline int scpIsHangChainOptional(int a0, int b)
@@ -2083,9 +1979,9 @@ inline int scpActStatusDeathFall(char *self)
     return 1;
 }
 
-void scpSetBoyWeaponGObj(int a0, int a1, int a2, int a3)
+void scpSetBoyWeaponGObj(void *w)
 {
-    SetBoyWeaponGObj(a0, a1, a2, a3);
+    SetBoyWeaponGObj(w);
 }
 
 inline int scpCheckExistAliveEnemy(void)

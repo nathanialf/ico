@@ -15,6 +15,8 @@
 #include "boyact.h"
 #include "geometryManager.h"
 #include "layout_texture.h"
+#include "Matrix.h"
+#include "gobj.h"
 
 /* .sdata, owned by backStage.o (VMA 0x63ACF0..0x63ACFC): the enemy the heroine is
    carried off by, then backStageProcessOutStage's "%d\n" (MAIN.MAP global). */
@@ -128,8 +130,6 @@ extern float WayLengthOfGObj_GObj(void *obj0, void *obj1);
 extern int NumOfWpPos(void);
 /* kept local: void (float *, int, int) here, int (float [][4], int, int) in way_kidnap.h */
 extern void CopyWpPos(float *out, int i, int j);
-/* kept local: float (float *, float *) here, float (void *, void *) in Matrix.h */
-extern float _InnerProduct(float *a, float *b);
 /* kept local: agrees with main.h, which this TU does not include (girlGObj differ) */
 extern int systemStatus[];
 /* kept local with gamesys.h's declaration, which this TU does not include */
@@ -141,12 +141,6 @@ extern unsigned int gamesysTimeCount;
 extern int girlGObj;
 /* kept local: void (float *, float, int) here, int (float *, int, float) in way_kidnap.h */
 extern void WayPointWithRangeFromPos(float *pos, float range, int flag);
-/* kept local: int (int) here, void * (int) in gobj.h */
-extern int isysGObjSearchFromObjKindID_begin(int kind);
-/* kept local: int (int) here, void * (char *) in gobj.h */
-extern int isysGObjSearchFromObjKindID_next(int gobj);
-/* kept local: int (int) here, void * (int) in gobj.h */
-extern int isysGObjSearchFromObjLayoutID(int id);
 
 inline void backStageProcessInit(void)
 {

@@ -16,6 +16,7 @@
 #include "script.h"
 #include "StageAnimation.h"
 #include "typedef.h"
+#include "main.h"
 
 /* This stage's actor mail records. Word 0 of each entry is the mail id the
    entry answers (430 = the actor's own wake-up post, 429 = the trailing
@@ -61,11 +62,6 @@ static ActMail girlPos_mes[2] = {{430}, {429}};
 
 static ActMail hint1_mes[2] = {{430}, {429}};
 
-/* kept local: int here, GObj * in main.h */
-extern int girlGObj;
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
-
 void actSt20aInit(void)
 {
     if (gflagChk(315) == 0) {
@@ -82,20 +78,14 @@ void actSt20aEnd(void)
     if (girlGObj != 0 && gflagChk(315) != 0 && gflagChk(318) == 0) {
         gflagOn(391);
     }
-    gamesysObjInfoCls(*(int *)(scpSearchGobj(2025) + 0xC), *(int *)(scpSearchGobj(2025) + 8));
-    gamesysObjInfoCls(*(int *)(scpSearchGobj(2023) + 0xC), *(int *)(scpSearchGobj(2023) + 8));
+    gamesysObjInfoCls(scpSearchGobj(2025)->kind, scpSearchGobj(2025)->f08);
+    gamesysObjInfoCls(scpSearchGobj(2023)->kind, scpSearchGobj(2023)->f08);
 }
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int boyPad;
 
 /* .sbss, owned by st20a.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
    subthread the wait loop below spins for. */
 static int demoEnd;
-
-/* kept local: agrees with main.h, which this TU does not include */
-extern PadState pad[];
 
 /* .sdata, owned by st20a.o, in the ROM's order: the bridge and gondola stream handles and the shake. */
 int brg20a = 0;
@@ -221,18 +211,18 @@ void actSt20aFence(volatile int a0)
     if (gflagChk(309) == 0) {
         SetWayGroupActive(19, 1);
 
-        *(int *)(scpSearchGobj(2024) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(2025) + 0x16C) = 0;
+        scpSearchGobj(2024)->f16C = 0;
+        scpSearchGobj(2025)->f16C = 0;
 
-        *(int *)(scpSearchGobj(2030) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(2031) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(2032) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(2033) + 0x16C) = 0;
+        scpSearchGobj(2030)->f16C = 0;
+        scpSearchGobj(2031)->f16C = 0;
+        scpSearchGobj(2032)->f16C = 0;
+        scpSearchGobj(2033)->f16C = 0;
 
-        *(int *)(scpSearchGobj(2026) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(2027) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(2028) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(2029) + 0x16C) = 0;
+        scpSearchGobj(2026)->f16C = 0;
+        scpSearchGobj(2027)->f16C = 0;
+        scpSearchGobj(2028)->f16C = 0;
+        scpSearchGobj(2029)->f16C = 0;
 
         scpLinkBGAtoLayoutedTarget(0x7E6, 0x95);
         stage_SetAnimation(149, 0, 0x1E);
@@ -244,13 +234,13 @@ void actSt20aFence(volatile int a0)
     } else {
         SetWayGroupActive(19, 0);
 
-        *(int *)(scpSearchGobj(2022) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(2023) + 0x16C) = 0;
+        scpSearchGobj(2022)->f16C = 0;
+        scpSearchGobj(2023)->f16C = 0;
 
-        *(int *)(scpSearchGobj(2026) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(2027) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(2028) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(2029) + 0x16C) = 0;
+        scpSearchGobj(2026)->f16C = 0;
+        scpSearchGobj(2027)->f16C = 0;
+        scpSearchGobj(2028)->f16C = 0;
+        scpSearchGobj(2029)->f16C = 0;
 
         gflagOff(309);
 
@@ -286,10 +276,10 @@ void actSt20aFenceDownChk(volatile int a0)
     }
     _ACTWait(1);
     SetWayGroupActive(19, 1);
-    *(int *)(scpSearchGobj(2026) + 0x16C) = 0;
-    *(int *)(scpSearchGobj(2027) + 0x16C) = 0;
-    *(int *)(scpSearchGobj(2028) + 0x16C) = 0;
-    *(int *)(scpSearchGobj(2029) + 0x16C) = 0;
+    scpSearchGobj(2026)->f16C = 0;
+    scpSearchGobj(2027)->f16C = 0;
+    scpSearchGobj(2028)->f16C = 0;
+    scpSearchGobj(2029)->f16C = 0;
     gflagOff(320);
     fenceDownChk_mes[0].func = actSt20aFenceUpChk;
     sub->mail = fenceDownChk_mes;
@@ -315,10 +305,10 @@ void actSt20aFenceUpChk(volatile int a0)
         _ACTWait(1);
     }
     _ACTWait(1);
-    *(int *)(scpSearchGobj(2026) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(2027) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(2028) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(2029) + 0x16C) = 1;
+    scpSearchGobj(2026)->f16C = 1;
+    scpSearchGobj(2027)->f16C = 1;
+    scpSearchGobj(2028)->f16C = 1;
+    scpSearchGobj(2029)->f16C = 1;
     gflagOn(320);
     fenceUpChk_mes[0].func = actSt20aFenceDownChk;
     sub->mail = fenceUpChk_mes;
@@ -343,10 +333,10 @@ void actSt20aFenceDownChk2(volatile int a0)
         _ACTWait(1);
     }
     _ACTWait(1);
-    *(int *)(scpSearchGobj(2030) + 0x16C) = 0;
-    *(int *)(scpSearchGobj(2031) + 0x16C) = 0;
-    *(int *)(scpSearchGobj(2032) + 0x16C) = 0;
-    *(int *)(scpSearchGobj(2033) + 0x16C) = 0;
+    scpSearchGobj(2030)->f16C = 0;
+    scpSearchGobj(2031)->f16C = 0;
+    scpSearchGobj(2032)->f16C = 0;
+    scpSearchGobj(2033)->f16C = 0;
     SetWayGroupActive(19, 1);
     gflagOff(320);
     fenceDownChk2_mes[0].func = actSt20aFenceUpChk2;
@@ -373,10 +363,10 @@ void actSt20aFenceUpChk2(volatile int a0)
         _ACTWait(1);
     }
     _ACTWait(1);
-    *(int *)(scpSearchGobj(2030) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(2031) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(2032) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(2033) + 0x16C) = 1;
+    scpSearchGobj(2030)->f16C = 1;
+    scpSearchGobj(2031)->f16C = 1;
+    scpSearchGobj(2032)->f16C = 1;
+    scpSearchGobj(2033)->f16C = 1;
     gflagOn(320);
     fenceUpChk2_mes[0].func = actSt20aFenceDownChk2;
     sub->mail = fenceUpChk2_mes;
@@ -436,12 +426,12 @@ void actSt20aElv(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
     if (gflagChk(309) != 0) {
-        *(int *)(scpSearchGobj(2022) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(2023) + 0x16C) = 0;
+        scpSearchGobj(2022)->f16C = 0;
+        scpSearchGobj(2023)->f16C = 0;
         gflagOff(309);
     } else {
-        *(int *)(scpSearchGobj(2024) + 0x16C) = 0;
-        *(int *)(scpSearchGobj(2025) + 0x16C) = 0;
+        scpSearchGobj(2024)->f16C = 0;
+        scpSearchGobj(2025)->f16C = 0;
     }
 }
 

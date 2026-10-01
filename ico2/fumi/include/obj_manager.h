@@ -26,10 +26,11 @@ int iosOmSendMail(char *self_arg, int val5, int val6);
 int iosOmSendMailLink(int a0, int val5, int val6);
 int iosOmExeMail(void (*func)(IosMail));
 
-void _iosOmMain(int a0, int a1, int a2, int a3);
+void _iosOmMain(void);
 void iosOmInit(void);
 
-void iosOmMain(int a0, int a1, int a2, int a3);
+void iosOmMain(void);
+
 void iosOmCreateDL(void);
 
 #endif /* OBJ_MANAGER_H */

@@ -12,11 +12,7 @@
 #include "StageAnimation.h"
 #include "motionManager2.h"
 #include "typedef.h"
-
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern int boyPad;
+#include "main.h"
 
 /* .sbss, owned by st09a.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
@@ -54,9 +50,6 @@ static ActMail brgSwitch_mes[2] = {{430}, {429}};
 static ActMail hint1_mes[2] = {{430}, {429}};
 
 static ActMail hint2_mes[2] = {{430}, {429}};
-
-/* kept local: agrees with main.h, which this TU does not include */
-extern PadState pad[];
 
 /* .sdata, owned by st09a.o, in the ROM's order: the bridge stream handle. */
 int st09a_brg = 0;

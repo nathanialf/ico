@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "debug_exception.h"
+#include "tableSin.h"
 
 typedef struct {
     unsigned char r;
@@ -518,8 +519,6 @@ extern void texture_fading(LtProp *p);
    gif_PointOffset/gif_SetGsReg/rand are its callees. */
 /* kept local: unsigned char [] here, StageSetting in main.h */
 extern unsigned char GlobalStageSetting[];
-/* kept local: float (int) here, float (short) in tableSin.h */
-extern float GetTableSin(int a);
 /* kept local: void (void *, unsigned int, void *, void *, int) here, void (int *, long long, int *, unsigned char *, int) in GifPacket.h */
 extern void gif_SpriteSensitiveOffset(void *rect, unsigned int z, void *ofs, void *col, int prim);
 /* kept local: void (void *, unsigned int, void *, int) here, void (int *, long long, unsigned char *, int) in GifPacket.h */

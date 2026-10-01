@@ -3,6 +3,7 @@
 #include "pad.h"
 #include "main.h"
 #include "mcdata.h"
+#include <string.h>
 
 typedef union {
     long long ll;
@@ -424,9 +425,6 @@ static inline void iosMcMgrSum(McMgr *mp, void *q, int n)
     }
 }
 
-/* kept local: void * (void *, void *, int) here, void * (void *, const void *, unsigned int) in string.h */
-extern void *memcpy(void *dst, void *src, int n);
-
 int iosMcHandlerWrite(McMgr *mp, unsigned char *buf, int len)
 {
     int n;
@@ -601,11 +599,6 @@ retry:
         goto retry;
     }
 }
-
-/* kept local: void (char *, char *) here, char * (char *, const char *) in string.h */
-extern void strcpy(char *dst, char *src);
-/* kept local: void (char *, char *) here, char * (char *, const char *) in string.h */
-extern void strcat(char *dst, char *src);
 
 /* the per-slot segment table: one record per loadable block */
 typedef struct {
@@ -813,9 +806,6 @@ void iosMcMgrLoadProductBlock(void *a0)
     *(int *)((char *)a0 + 0x24) = 0;
     iosMcMgrLoadSeg(a0, 0);
 }
-
-/* kept local: int (char *) here, unsigned int (const char *) in string.h */
-extern int strlen(char *s);
 
 static inline void iosMcMgrSaveGame(McMgr *mp)
 {

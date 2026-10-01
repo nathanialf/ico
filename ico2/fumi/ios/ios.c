@@ -6,6 +6,7 @@
 #include "s_init.h"
 #include <eekernel.h>
 #include <sifrpc.h>
+#include "main.h"
 
 /* .sdata, owned by ios.o in MAIN.MAP's order: the IOP heap shortfall the
    allocator records, then a word no retail code reads or writes (MAIN.MAP
@@ -42,20 +43,6 @@ static struct SemaParam sndLockSemaParam;
 
 static struct SemaParam stgMgrLockSemaParam;
 
-/* kept local: agrees with main.h, which this TU does not include (system_stage_func differ) */
-extern int IosPadLock;
-/* kept local: agrees with main.h, which this TU does not include (system_stage_func differ) */
-extern int IosCdLock;
-/* kept local: agrees with main.h, which this TU does not include (system_stage_func differ) */
-extern int IosStgMgrLock;
-/* kept local: agrees with main.h, which this TU does not include (system_stage_func differ) */
-extern int IosSndLock;
-/* kept local: int here, void (*system_stage_func)(void) in main.h */
-extern int system_stage_func;
-/* kept local: agrees with main.h, which this TU does not include (system_stage_func differ) */
-extern int screen_offset_x;
-/* kept local: agrees with main.h, which this TU does not include (system_stage_func differ) */
-extern int screen_offset_y;
 /* kept local: agrees with keyInput.h, which this TU does not include */
 extern void InitKeyInput();
 extern void SgSndn2RemoteInit(void);
@@ -124,38 +111,38 @@ void iosInitialize(void)
 
 /* .sdata, after iosInitialize's partition names: the partition handles (MAIN.MAP
    globals, in its order), then global_variable, which no retail code uses. */
-int ios_partition_root = 0;
+IosMemPart *ios_partition_root = 0;
 
-int ios_partition_event = 0;
+IosMemPart *ios_partition_event = 0;
 
-int ios_partition_isys = 0;
+IosMemPart *ios_partition_isys = 0;
 
-int ios_partition_hara = 0;
+IosMemPart *ios_partition_hara = 0;
 
-int ios_partition_sugipon = 0;
+IosMemPart *ios_partition_sugipon = 0;
 
-int ios_partition_common = 0;
+IosMemPart *ios_partition_common = 0;
 
-int ios_partition_dmotion = 0;
+IosMemPart *ios_partition_dmotion = 0;
 
-int ios_partition_smotion = 0;
+IosMemPart *ios_partition_smotion = 0;
 
-int ios_partition_s2motion = 0;
+IosMemPart *ios_partition_s2motion = 0;
 
-int ios_partition_seki = 0;
+IosMemPart *ios_partition_seki = 0;
 
-int ios_partition_oomori = 0;
+IosMemPart *ios_partition_oomori = 0;
 
-int ios_partition_horagai = 0;
+IosMemPart *ios_partition_horagai = 0;
 
-int ios_partition_sound = 0;
+IosMemPart *ios_partition_sound = 0;
 
-int ios_partition_sound_semi = 0;
+IosMemPart *ios_partition_sound_semi = 0;
 
-int ios_partition_shock = 0;
+IosMemPart *ios_partition_shock = 0;
 
-int ios_partition_inflate = 0;
+IosMemPart *ios_partition_inflate = 0;
 
-int ios_partition_mpeg = 0;
+IosMemPart *ios_partition_mpeg = 0;
 
 int global_variable = 0;

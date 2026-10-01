@@ -15,7 +15,7 @@
 /* MAIN.MAP global */
 extern int load_save_flag;
 
-void ez_circle(void);
+void ez_circle(void *pos, void *base, unsigned int col, float r);
 char *nearest_waypoint_by_lineseg(void *arg0);
 int set_bridge(int gid);
 int visible_waypoint_of_all(void *a0);
@@ -25,7 +25,7 @@ char *waypoint_with_range(int *arg0, float thresh);
 char *visible_waypoint_of_all_except_gid_ThreadVersion(int *pos, int gid);
 char *visible_waypoint_of_all_except_temp(int *pos, int gid);
 char *visible_waypoint_of_all_except_temp_ThreadVersion(int *pos, int gid);
-void ez_line(void);
+void ez_line(void *a, void *b, unsigned int col);
 int short_direction_between_wp(char *from, char *to);
 void *WayUtilWorkAlloc(void);
 void WayUtilWorkFree(int *self);

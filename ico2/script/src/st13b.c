@@ -17,11 +17,8 @@
 #include <libvu0.h>
 #include "e3.h"
 #include "typedef.h"
-
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern int scpBoyControlReadDisable;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern int boyPad;
+#include "main.h"
+#include "script.h"
 
 /* .sbss, owned by st13b.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, the conte-02
@@ -37,64 +34,9 @@ static unsigned char padActVolume;
 
 static int doorUpDone;
 
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
-/* kept local: int (int, int) here, int (char *, int) in script.h */
-extern int scpTriggerFloorAttr(int a0, int a1);
-/* kept local: int (int, int, float) here, int (char *, char *, float) in script.h */
-extern int scpTriggerBall(int a0, int gobj, float r);
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern int current_stage_no;
-/* kept local: PObjGObj * (int) here, int (int) in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
-/* kept local: void (void *, int) here, void (char *, int) in script.h */
-extern void scpPlayMot(void *a0, int mot);
-extern JimakuArg jimaku_msg;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern int systemStatus[];
 /* st13b.o's own .data run (no MAIN.MAP symbols): actor mail packets. */
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpFadeOut(float f, int a1, int a2, int a3);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern int scpAdpcmPlayRequestNum(void);
-/* kept local: void (int *, short) here, int (char **, short) in script.h */
-extern void scpAdpcmFadeCloseFunc(int *h, short a1);
-/* kept local: void (int, int *, int, int, int) here, void (int, char **, int, int, int) in script.h */
-extern void scpAdpcmPlayRequestFunc(int a0, int *h, int a2, int a3, int a4);
-/* kept local: int (int, int, int, float, float) here, int (int, char *, int, float, float) in script.h */
-extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void ScpCallCameraSetTarget(float x, float y, float z);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern float scpSeEnvMasterVolRate;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern PadState pad[];
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern int scpFadeChk(void);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpFadeIn(float f);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void preload(int a0);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpPlayPosSet(void *a0, float x, float y, float z);
-/* kept local: int (int *) here, int (char **) in script.h */
-extern int scpAdpcmCloseChkFunc(int *h);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpPlayEnd(int a0);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpPlayStart(int a0);
-/* kept local: void (int) here, void (char *) in script.h */
-extern void scpPlayWaitMotEnd(int a0);
-/* kept local: void (int, float *) here, void (char *, float *) in script.h */
-extern void scpPlayMotDir(int a0, float *dir);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpSekizouCheckPoint(void);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern int scpGameStat_BoyWeaponkind(void);
 extern StgPre stageData[];
 extern const ExitData exitData[];
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern int stage_no;
 
 static ActMail floor_mes[2] = {{430}, {429}};
 
@@ -1193,13 +1135,13 @@ void actSt13bConte02Jimaku(volatile int a0)
     do {
         switch ((int)t) {
         case 1:
-            jimakuBegin((int)&jimaku_msg);
+            jimakuBegin(&jimaku_msg);
             break;
         case 1800:
             jimaku_msg.sub.unk2C = 1;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         }
 

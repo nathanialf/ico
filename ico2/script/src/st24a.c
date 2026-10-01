@@ -10,6 +10,8 @@
 #include "StageAnimation.h"
 #include <libvu0.h>
 #include "typedef.h"
+#include "script.h"
+#include "main.h"
 
 /* The actor mail table entries this TU installs live in the shared
  * src/cod .data carve, so they stay extern here. */
@@ -17,29 +19,6 @@
 static ActMail sword_mes[2] = {{430}, {429}};
 
 static ActMail demoCam_mes[2] = {{430}, {429}};
-
-typedef struct EditPad {
-    char _p0[0x4];
-    int trg; /* 0x04 */
-    char _p8[0x58 - 0x8];
-} EditPad;
-
-/* kept local: void * here, GObj * in main.h */
-extern void *boyGObj;
-/* kept local: EditPad here, PadState [16] in main.h */
-extern EditPad pad;
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmFadeCloseFunc, scpAdpcmPlayRequestFunc differ) */
-extern int scpBoyControlReadDisable;
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmFadeCloseFunc, scpAdpcmPlayRequestFunc differ) */
-extern void scpFadeIn(float t);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmFadeCloseFunc, scpAdpcmPlayRequestFunc differ) */
-extern void scpFadeOut(float t, int a1, int a2, int a3);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmFadeCloseFunc, scpAdpcmPlayRequestFunc differ) */
-extern int scpFadeChk(void);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmFadeCloseFunc, scpAdpcmPlayRequestFunc differ) */
-extern int scpAdpcmPlayRequestNum(void);
-/* kept local: int (int, void *, float) here, int (char *, char *, float) in script.h */
-extern int scpTriggerBall(int self, void *target, float r);
 
 /* the 16-byte vector this file copies whole */
 
@@ -54,25 +33,6 @@ typedef struct SwordObj {
 static int demoEnd;
 
 static const Vec16 swordChkPos = {{1685.0f, -1080.0f, -1000.0f, 1.0f}};
-
-/* kept local: void (int, SwordObj **, int, int, int) here, void (int, char **, int, int, int) in script.h */
-extern void scpAdpcmPlayRequestFunc(int a0, SwordObj **h, int a2, int a3, int a4);
-/* kept local: void (SwordObj **, int) here, int (char **, short) in script.h */
-extern void scpAdpcmFadeCloseFunc(SwordObj **h, int a1);
-/* kept local: void (void *) here, void (int) in script.h */
-extern void scpPlayStart(void *a0);
-/* kept local: void (void *) here, void (int) in script.h */
-extern void scpPlayEnd(void *a0);
-/* kept local: void (void *, int) here, void (char *, int) in script.h */
-extern void scpPlayMot(void *a0, int a1);
-/* kept local: void (void *, float *) here, void (char *, float *) in script.h */
-extern void scpPlayMotDir(void *a0, float *dir);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmFadeCloseFunc, scpAdpcmPlayRequestFunc differ) */
-extern void scpPlayPosSet(void *a0, float x, float y, float z);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmFadeCloseFunc, scpAdpcmPlayRequestFunc differ) */
-extern int scpSearchGobj(int a0);
-/* kept local: void (int) here, void (int, int, int, int) in script.h */
-extern void scpSetBoyWeaponGObj(int a0);
 
 /* .sdata, owned by st24a.o, in the ROM's order: the sword's object. */
 SwordObj *sword = 0;
@@ -95,7 +55,7 @@ void actSt24aSwordChk(volatile int self)
     scpAdpcmPlayRequestFunc(34, &sword, 1, 1, 0);
     th = (char *)actCreateSubThread(actSt24aSwordSub, 21);
     demoEnd = 0;
-    while (demoEnd == 0 && ((pad.trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
     iosThreadSetPri(th + 0x24, 34);
@@ -137,7 +97,7 @@ void actSt24aDemoCamChk(volatile int a0)
     stage_SetAnimation(154, 1, 0);
     SetCameraFlag_LwsCutBack();
     while (stage_CheckAnimationFinish(154) == 0) {
-        if (pad.trg & 0x800) {
+        if (pad[0].flags & 0x800) {
             if (scpAdpcmPlayRequestNum() == 0) {
                 scpFadeOut(16.0f, 0, 0, 0);
                 while (scpFadeChk() != 0) {
@@ -156,9 +116,6 @@ void actSt24aDemoCamChk(volatile int a0)
     lt_switch_layout(54);
     scpBoyControlReadDisable = 0;
 }
-
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmFadeCloseFunc, scpAdpcmPlayRequestFunc differ) */
-extern void ScpCallCameraSetTarget(float x, float y, float z);
 
 void actSt24aSword(volatile int a0)
 {

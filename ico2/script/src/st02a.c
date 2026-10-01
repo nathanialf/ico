@@ -16,9 +16,9 @@
 #include "particleLayout.h"
 #include "pool.h"
 #include "typedef.h"
+#include "main.h"
+#include "script.h"
 
-/* kept local: PObjGObj * (int) here, int (int) in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
 /* The TU's .data run, VMA 0x004F8050..0x004F8330 (0x2E0 B, MAIN.MAP's st02a.o
  * .data size), declared in the ROM's own order: one mail record per posting
  * site.  Word 0 of each entry is the mail id the entry answers (430 the actor
@@ -85,13 +85,6 @@ void actSt02aInit(void)
     }
 }
 
-/* kept local: int (int, int, float) here, int (char *, char *, float) in script.h */
-extern int scpTriggerBall(int a0, int gobj, float r);
-/* kept local: char * here, GObj * in main.h */
-extern char *boyGObj;
-/* kept local: int here, GObj * in main.h */
-extern int girlGObj;
-
 void actSt02aDoor(volatile int a0)
 {
     int x = a0;
@@ -153,11 +146,6 @@ static const PoolMeshQuad poolReflactionQuad = {{{650.0f, 0.0f, 700.0f, 1.0f},
                                                  {650.0f, 0.0f, 1200.0f, 1.0f},
                                                  {920.0f, 0.0f, 700.0f, 1.0f},
                                                  {920.0f, 0.0f, 1200.0f, 1.0f}}};
-
-/* kept local: int (int, int) here, int (char *, int) in script.h */
-extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpWakeupItemWithBoundary(float x, float y, float z, float r);
 
 void actSt02aDoorUpChk(volatile int a0)
 {
@@ -221,11 +209,6 @@ void actSt02aDoorDownChk(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: agrees with main.h, which this TU does not include */
-extern PadState pad[];
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern int scpBoyControlReadDisable;
-
 /* .sdata, owned by st02a.o (MAIN.MAP global, as are gondola and gondola_test
    below) */
 int st02a_fence = 0;
@@ -234,19 +217,6 @@ int st02a_fence = 0;
    symbol in the run): the demo's own end flag, raised by the
    subthread the wait loop below spins for. */
 static int demoEnd;
-
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpSleepEnemyAll(void);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern int scpAdpcmPlayRequestNum(void);
-/* kept local: int (int *, int) here, int (char **, short) in script.h */
-extern int scpAdpcmFadeCloseFunc(int *h, int fade);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpFadeOut(float t, int a1, int a2, int a3);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpFadeIn(float t);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern int scpFadeChk(void);
 
 void actSt02aFenceOpen(volatile int a0)
 {
@@ -289,11 +259,6 @@ void actSt02aFenceOpen(volatile int a0)
     lt_switch_layout(54);
     scpWakeupEnemyAll();
 }
-
-/* kept local: void (void *, int) here, int (void *, int) in script.h */
-extern void scpEffectStart(void *buf, int kind);
-/* kept local: int (void *, void *, float) here, int (float *, float *, float) in script.h */
-extern int scpTriggerPosBall(void *a, void *b, float f);
 
 void actSt02WaterFallBoySplashCheck(volatile int a0)
 {
@@ -338,9 +303,6 @@ void actSt02aWaterFallReflactionEffect(volatile int a0)
     }
 }
 
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpTransGObj(void *a0, float x, float y, float z);
-
 void actSt02aWaterFallChk(volatile int a0)
 {
     Act *act = ((PObjGObj *)boyGObj)->act;
@@ -364,15 +326,6 @@ void actSt02aWaterFallChk(volatile int a0)
 }
 
 int gondola = 0;
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int boyPad;
-/* kept local: void (int, int *, int, int, int) here, void (int, char **, int, int, int) in script.h */
-extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-/* kept local: void (int *) here, void (char **) in script.h */
-extern void scpAdpcmCloseFunc(int *a0);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpWakeupEnemyAll(void);
 
 void actSt02aGondolaUp(volatile int a0)
 {
@@ -611,10 +564,6 @@ void actSt02aEnemy2(volatile int a0)
     Generator_Call((int)scpSearchGobj(1703));
 }
 
-/* kept local: void (int, int, int, int, int, float, float, float, float, float, float) here, void (char *, int, int, int, int, float, float, float, float, float, float) in script.h */
-extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
-                       float x2, float y2, float z2);
-
 void actSt02aSekizo(volatile int a0)
 {
     int x = a0;
@@ -800,9 +749,6 @@ void actSt02aGondolaSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: int (int, int) here, int (char *, int) in script.h */
-extern int scpTriggerFloorAttr(int a0, int a1);
-
 void actSt02aEneChk(volatile int a0)
 {
     if (girlGObj == 0) {
@@ -821,9 +767,6 @@ void actSt02aSekizoEvent(int x)
 {
     volatile int local = x;
 }
-
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern int scpCheckExistAliveEnemy(void);
 
 void actSt02aWayOnChk(volatile int a0)
 {
@@ -910,9 +853,6 @@ void actSt02aTakiWayOffChk(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpExplodeSecretItem(void);
 
 void actSt02aSecretItemChk(volatile int a0)
 {

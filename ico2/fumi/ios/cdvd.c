@@ -10,6 +10,10 @@
 #include "StageManager.h"
 #include "main.h"
 #include <eekernel.h>
+#include <stdio.h>
+#include <string.h>
+#include "thread.h"
+#include "ios.h"
 
 union U001325D8 {
     long long ll;
@@ -141,8 +145,6 @@ static int stReqRing[2];
 
 static int stAckRing[1];
 
-/* kept local: agrees with stdio.h, which this TU does not include */
-extern void sprintf();
 extern void __assert(const char *file, int line, char *expr);
 /* kept local: int (int, int, void *, int *) here, int (int, int, void *, CdRMode *) in libcdvd.h */
 extern int sceCdRead(int lsn, int sectors, void *buf, int *mode);
@@ -308,12 +310,6 @@ typedef struct {
     unsigned int reserved;
 } CdlFILE;
 
-/* kept local: agrees with string.h, which this TU does not include (strncpy differ) */
-extern unsigned int strlen(const char *s);
-/* kept local: agrees with string.h, which this TU does not include (strncpy differ) */
-extern int strcmp(const char *a, const char *b);
-/* kept local: char * (char *, const char *, int) here, char * (char *, const char *, unsigned int) in string.h */
-extern char *strncpy(char *d, const char *s, int n);
 extern int sceCdSearchFile(CdlFILE *fp, const char *name);
 /* kept local: agrees with libcdvd.h, which this TU does not include (sceCdRead, sceFsReset differ) */
 extern int sceCdDiskReady(int mode);
@@ -434,14 +430,8 @@ void iosCdvdMgrStStart(char *self)
     *(int *)(self + 0x160) = open_inflate_handler(inflate_cd_read_func, self);
 }
 
-/* kept local: int (int) here, int (int *) in thread.h */
-extern int iosThreadGetPri(int tid);
-/* kept local: void (int, int) here, void (int *, int) in thread.h */
-extern void iosThreadSetPri(int tid, int pri);
 /* kept local: agrees with libcdvd.h, which this TU does not include (sceCdRead, sceFsReset differ) */
 extern int sceCdBreak(void);
-/* kept local: agrees with stdio.h, which this TU does not include */
-extern void sprintf();
 extern void __assert(const char *file, int line, char *expr);
 
 void iosCdvdMgrStStop(char *self)
@@ -467,9 +457,6 @@ void iosCdvdMgrStStop(char *self)
     *(int *)(self + 0xC) = 0;
     close_inflate_handler(*(int *)(self + 0x160));
 }
-
-/* kept local: agrees with string.h, which this TU does not include (strncpy differ) */
-extern char *strcpy(char *d, const char *s);
 
 /* INTERIM: the January-2002 listing expands iosCdvdChgFileName (cdvd.c rows
  * 958-967) inside unifile_read_func, so the 2001 source declared it `inline`
@@ -535,9 +522,6 @@ void iosCdvdMgrLoad(char *self)
         *(int *)(self + 0xC) = 0;
     }
 }
-
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_seki;
 
 void temp_loadfunc(int *self, int name, int size, int a3, int a4, int a5, int seg)
 {
@@ -696,9 +680,6 @@ void iosCdvdMgrPackLoad(char *self)
     }
 }
 
-/* kept local: char * (char *, const char *, int) here, void * (void *, const void *, unsigned int) in string.h */
-extern char *memcpy(char *d, const char *s, int n);
-
 int iosCdStRead(unsigned int n, int *buf, int flag, int *result, char *self)
 {
     char msgbuf[128];
@@ -750,9 +731,6 @@ int iosCdStRead(unsigned int n, int *buf, int flag, int *result, char *self)
     }
     return total;
 }
-
-/* kept local: agrees with thread.h, which this TU does not include (iosThreadCreate, iosThreadGetPri differ) */
-extern void iosThreadSleep(void);
 
 /* The read-retry sleep (our name): the listing attributes its statements to
    cdvd.c:679-680, a static inline between iosCdvdStManager and
@@ -909,13 +887,9 @@ int iosCdvdBackGroundMgrRunning = 0;
 
 /* kept local: void (void) here, int (void) in libcdvd.h */
 extern void sceFsReset(void);
+
 /* kept local: this TU does not include thread.h, whose iosThreadStart and
    iosThreadCreate take the thread record as an int and a void pointer */
-/* kept local: void (char *, int, void *, int, char *, int, int) here, void (void *, int, void (*)(), int, void *, long, int) in thread.h */
-extern void iosThreadCreate(char *th, int prio, void *entry, int arg, char *stack, int stacksize,
-                            int a6);
-/* kept local: void (char *) here, void (int) in thread.h */
-extern void iosThreadStart(char *th);
 
 /* cdvd.c:1665-1724 in the listing, with iosCdvdDiskReadyBlock (rows
    701-708) expanded in case 0.  The frame is the ROM's: the inlined block's
@@ -1251,8 +1225,6 @@ int iosCdvdBackGroundReadIOPm(char *self, void *buf, int size)
     return !(*(int *)(self + 0x110) < *(int *)(self + 0x10C));
 }
 
-/* kept local: agrees with ios.h, which this TU does not include (ios_partition_seki differ) */
-extern int iosSifAllocIopHeapDebug(int size, char *file, int line);
 extern void sceCdStInit(int bufmax, int bansu, void *buf);
 extern void sceCdStStart(int lsn, void *mode);
 
@@ -1333,8 +1305,6 @@ int iosCdvdChgFileName(int a0)
     return strcpy(a0, buf);
 }
 
-/* kept local: agrees with string.h, which this TU does not include (strncpy differ) */
-extern int strcmp();
 extern void __assert();
 
 int iosCdvdGetFileLsn(char *name, int *size)

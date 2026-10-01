@@ -1,3 +1,7 @@
+#include "enemy.h"
+#include "enemy_act.h"
+#include "isys.h"
+
 /* prototypes: their order is the inline tail's emission order (gcc emits every
    inline at the end of the object in first-declaration order). They precede
    commonact.h, whose alphabetical list would otherwise fix that order. */
@@ -68,8 +72,8 @@ void extraCommonCall(volatile int a0);
 void funcCommonWayOn(void *a0);
 void funcCommonSofaWakeup(char *a0);
 int _ACTMotReqResult(char *a0, int a1);
-void *test_CURRENTORIENT(char *a0);
-void *test_CURRENTROOT(void *a0);
+float *test_CURRENTORIENT(char *a0);
+float *test_CURRENTROOT(void *a0);
 void StartCorrectPosition(char *a0, float *pos, float *dir, int mode, float t);
 int IsCorrectPosition(char *a0);
 void ControlMotionOrient(int a0, int a1);
@@ -190,19 +194,19 @@ int ChangeMailInLadder(char *a0, int a1)
             lim1 = a0 == boyGObj ? 175.0f : 225.0f;
             lim2 = a0 == boyGObj ? 175.0f : 210.0f;
             if (a0 == boyGObj) {
-                p[0] = ((float *)test_CURRENTROOT(a0))[0];
-                p[1] = ((float *)test_CURRENTROOT(boyGObj))[1];
-                p[2] = ((float *)test_CURRENTROOT(boyGObj))[2];
-                q[0] = ((float *)test_CURRENTROOT(girlGObj))[0];
-                q[1] = ((float *)test_CURRENTROOT(girlGObj))[1];
-                q[2] = ((float *)test_CURRENTROOT(girlGObj))[2];
+                p[0] = test_CURRENTROOT(a0)[0];
+                p[1] = test_CURRENTROOT(boyGObj)[1];
+                p[2] = test_CURRENTROOT(boyGObj)[2];
+                q[0] = test_CURRENTROOT(girlGObj)[0];
+                q[1] = test_CURRENTROOT(girlGObj)[1];
+                q[2] = test_CURRENTROOT(girlGObj)[2];
             } else {
-                p[0] = ((float *)test_CURRENTROOT(girlGObj))[0];
-                p[1] = ((float *)test_CURRENTROOT(girlGObj))[1];
-                p[2] = ((float *)test_CURRENTROOT(girlGObj))[2];
-                q[0] = ((float *)test_CURRENTROOT(boyGObj))[0];
-                q[1] = ((float *)test_CURRENTROOT(boyGObj))[1];
-                q[2] = ((float *)test_CURRENTROOT(boyGObj))[2];
+                p[0] = test_CURRENTROOT(girlGObj)[0];
+                p[1] = test_CURRENTROOT(girlGObj)[1];
+                p[2] = test_CURRENTROOT(girlGObj)[2];
+                q[0] = test_CURRENTROOT(boyGObj)[0];
+                q[1] = test_CURRENTROOT(boyGObj)[1];
+                q[2] = test_CURRENTROOT(boyGObj)[2];
             }
             switch (a1) {
             case 0x14A:
@@ -546,9 +550,9 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
             if (*(int *)(*(int *)(*(int *)(self + 0x164) + 0x680) + 0x228) <= 0) {
                 DamageFunc(self);
                 iosPadActRequest(boyPad, 2);
-                pos[0] = ((float *)test_CURRENTROOT(self))[0];
-                pos[1] = ((float *)test_CURRENTROOT(self))[1];
-                pos[2] = ((float *)test_CURRENTROOT(self))[2];
+                pos[0] = test_CURRENTROOT(self)[0];
+                pos[1] = test_CURRENTROOT(self)[1];
+                pos[2] = test_CURRENTROOT(self)[2];
                 soundSeDefPlay(382, 0, pos, 1);
             }
             msg = 418;
@@ -1335,12 +1339,12 @@ void actCommonRopeCliff(volatile int a0)
             SetDirectRootPositionNoFitting((void *)a0, cur);
         }
         if (*(int *)(*(char **)(a0 + 0x15C) + 0x4A0) == 118) {
-            y = ((float *)test_CURRENTROOT((void *)a0))[1];
+            y = test_CURRENTROOT((void *)a0)[1];
             SetChainRootUpdateMode(boyGObj, 3,
                                    (float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1D0));
-            p[0] = ((float *)test_CURRENTROOT((void *)a0))[0];
-            p[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
-            p[2] = ((float *)test_CURRENTROOT((void *)a0))[2];
+            p[0] = test_CURRENTROOT((void *)a0)[0];
+            p[1] = test_CURRENTROOT((void *)a0)[1];
+            p[2] = test_CURRENTROOT((void *)a0)[2];
             p[1] = y + 5.0f;
             SetDirectRootPositionNoFitting((void *)a0, p);
         }
@@ -1410,9 +1414,9 @@ void TestCageUpDown(int cage, char *gobj)
         if (stage_no == 8) {
             lim = 80.0f;
         }
-        pos[0] = ((float *)test_CURRENTROOT(gobj))[0];
-        pos[1] = ((float *)test_CURRENTROOT(gobj))[1];
-        pos[2] = ((float *)test_CURRENTROOT(gobj))[2];
+        pos[0] = test_CURRENTROOT(gobj)[0];
+        pos[1] = test_CURRENTROOT(gobj)[1];
+        pos[2] = test_CURRENTROOT(gobj)[2];
         low = lo[1] + lim;
         d = ((CagePtr *)(gobj + 0x15C))->f[81];
         pos[1] = pos[1] + d;
@@ -1676,7 +1680,7 @@ void actCommonLever(volatile int a0)
     p[0] = *(float *)((char *)s + 0x5A0);
     p[1] = *(float *)((char *)s + 0x5A4);
     p[2] = *(float *)((char *)s + 0x5A8);
-    p[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
+    p[1] = test_CURRENTROOT((void *)a0)[1];
     SetDirectRootPositionNoFittingWithNodePointXZ((void *)a0, 0x2C, (char *)s + 0x5A0, 1.0f);
     actMotDirToWall((char *)a0);
     while (1) {
@@ -1706,9 +1710,6 @@ inline void actCommonPlay(volatile int a0)
     debug_StdPrintfDummy("enter actCommonPlay\n");
     _ACTWait(0);
 }
-
-/* kept local: void (void *, void *, void *) here, void (char *, float *, short *) in enemy.h */
-extern void EnemyDeleteParticle(void *a0, void *a1, void *a2);
 
 void DamageFunc(char *a0)
 {
@@ -1782,13 +1783,7 @@ void actCommonDown(volatile int a0)
 
 extern void enemySetParticleDie(void *root, void *dir);
 extern void EnemySetfDisappearAll(volatile int a0);
-/* kept local: void (volatile int) here, void (int *) in enemy_act.h */
-extern void actEnemyFlagOnDead(volatile int a0);
 extern void ACTGame_DeleteActorInformation(volatile int a0);
-/* kept local: void (volatile int, float) here, void (char *, float) in enemy.h */
-extern void SetEnemyDissolve(volatile int a0, float d);
-/* kept local: void (volatile int) here, void (int *) in enemy_act.h */
-extern void actEnemyHyde(volatile int a0);
 
 void actCommonDie(volatile int a0)
 {
@@ -1995,11 +1990,6 @@ void actCommonStoneDead(volatile int a0)
     ACT_LAYOUT_GAMEOVER();
     _ACTWait(0);
 }
-
-/* kept local: void (void *) here, void (char *) in enemy.h */
-extern void EnemySetfAppearAll(void *a0);
-/* kept local: void (void *) here, void (char *) in enemy.h */
-extern void ResetEnemyPositionInfo(void *a0);
 
 typedef struct {
     char _0[0x14];
@@ -2432,9 +2422,9 @@ void correctJumpOrientByChain(char *a0)
     float best = 3.40282347e+38f; /* FLT_MAX */
     float ang = 0.0f;
 
-    pos[0] = ((float *)test_CURRENTROOT((void *)a0))[0];
-    pos[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
-    pos[2] = ((float *)test_CURRENTROOT((void *)a0))[2];
+    pos[0] = test_CURRENTROOT((void *)a0)[0];
+    pos[1] = test_CURRENTROOT((void *)a0)[1];
+    pos[2] = test_CURRENTROOT((void *)a0)[2];
     GetMatrixDirectionToZ(mtx, test_CURRENTORIENT(a0));
 
     for (o = isysGObjSearchFromObjKindID_begin(21); o != 0;
@@ -3269,13 +3259,6 @@ void flyCoreLoop(char *a0, char *target, int a2)
     }
 }
 
-/* kept local: int (volatile int, char **) here, int (char *, int *) in enemy_act.h */
-extern int IsEnemyBrainToGenerator(volatile int a0, char **gen);
-/* kept local: int (volatile int) here, int (char *) in enemy_act.h */
-extern int IsEnemyBrainToBoy(volatile int a0);
-/* kept local: agrees with enemy.h, which this TU does not include (EnemyDeleteParticle, EnemySetfAppearAll differ) */
-extern void SetEnemyFootPrintSwitch();
-
 typedef struct {
     char _0[0x5F8];
     int f5F8;
@@ -3364,9 +3347,9 @@ void actCommonLadder(volatile int a0)
     char *o;
 
     if (*(float *)((char *)s + 0x57C) != 0.0f) {
-        pos[0] = ((float *)test_CURRENTROOT((void *)a0))[0];
-        pos[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
-        pos[2] = ((float *)test_CURRENTROOT((void *)a0))[2];
+        pos[0] = test_CURRENTROOT((void *)a0)[0];
+        pos[1] = test_CURRENTROOT((void *)a0)[1];
+        pos[2] = test_CURRENTROOT((void *)a0)[2];
         pos[0] = *(float *)((char *)s + 0x570);
         pos[2] = *(float *)((char *)s + 0x578);
         *(float *)((char *)s + 0x57C) = 0.0f;
@@ -3446,9 +3429,9 @@ void actCommonLadder(volatile int a0)
             }
         }
         if (a0 == (int)boyGObj || a0 == (int)girlGObj) {
-            pos[0] = ((float *)test_CURRENTROOT((void *)a0))[0];
-            pos[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
-            pos[2] = ((float *)test_CURRENTROOT((void *)a0))[2];
+            pos[0] = test_CURRENTROOT((void *)a0)[0];
+            pos[1] = test_CURRENTROOT((void *)a0)[1];
+            pos[2] = test_CURRENTROOT((void *)a0)[2];
             for (o = (char *)isysGObjSearchFromObjKindID_begin(4); o != 0;
                  o = (char *)isysGObjSearchFromObjKindID_next(o)) {
                 if (*(int *)(o + 0x16C) != 0) {
@@ -3531,7 +3514,7 @@ inline void actCommonGuard(volatile int a0)
     }
     iosOmSendMail(boyGObj, 0x11C, a0);
     if (*(int *)((char *)s + 0xD8) == 0x11A) {
-        ACTSetPositionWithFitting((void *)a0, (float *)test_CURRENTROOT((void *)a0));
+        ACTSetPositionWithFitting((void *)a0, test_CURRENTROOT((void *)a0));
     }
     for (;;) {
         ACTSendMailCorrect((char *)a0, 0xC7);
@@ -3675,14 +3658,14 @@ int SetMotionDirectionSmooze(int a0, float *dir, float s)
         v[1] = dir[1];
         v[2] = dir[2];
     } else if (r > 0) {
-        v[0] = ((float *)test_CURRENTORIENT((char *)a0))[0];
-        v[1] = ((float *)test_CURRENTORIENT((char *)a0))[1];
-        v[2] = ((float *)test_CURRENTORIENT((char *)a0))[2];
+        v[0] = test_CURRENTORIENT((char *)a0)[0];
+        v[1] = test_CURRENTORIENT((char *)a0)[1];
+        v[2] = test_CURRENTORIENT((char *)a0)[2];
         _ApplyRyGV(v, -s * 3.1415927f / 180.0f);
     } else {
-        v[0] = ((float *)test_CURRENTORIENT((char *)a0))[0];
-        v[1] = ((float *)test_CURRENTORIENT((char *)a0))[1];
-        v[2] = ((float *)test_CURRENTORIENT((char *)a0))[2];
+        v[0] = test_CURRENTORIENT((char *)a0)[0];
+        v[1] = test_CURRENTORIENT((char *)a0)[1];
+        v[2] = test_CURRENTORIENT((char *)a0)[2];
         _ApplyRyGV(v, s * 3.1415927f / 180.0f);
     }
     SetMotionDirection(a0, v);
@@ -3894,8 +3877,6 @@ int E3_LeverCheck(char *a0)
                                                     : _RotyGV(test_CURRENTORIENT(a0), buf) < 45;
 }
 
-/* kept local: agrees with enemy_act.h, which this TU does not include (IsEnemyBrainToGenerator, actEnemyFlagOnDead differ) */
-extern void afterCommonCarry(volatile int a0);
 extern SlowrunRec motionOrient[];
 
 typedef struct {
@@ -3984,7 +3965,7 @@ void actCommonBecarry(volatile int a0)
                 debug_StdPrintfDummy("girl becarry error");
             }
         }
-        if (actModeTbl[*(int *)(*(char **)(boyGObj + 0x164) + 0x34)].b6 == 0) {
+        if (actModeTbl[GOBJ_ACT(boyGObj)->unk34].b6 == 0) {
             ACTGame_DisconnectHand();
         }
         if (debug_font_flag & 1) {
@@ -4220,9 +4201,9 @@ void actCommonBackhand(volatile int a0)
 
     _OrientXZGV(dir, test_CURRENTROOT((void *)a0), test_CURRENTROOT(girlGObj));
     SetMotionDirection(a0, dir);
-    v[0] = ((float *)test_CURRENTORIENT(girlGObj))[0];
-    v[1] = ((float *)test_CURRENTORIENT(girlGObj))[1];
-    v[2] = ((float *)test_CURRENTORIENT(girlGObj))[2];
+    v[0] = test_CURRENTORIENT(girlGObj)[0];
+    v[1] = test_CURRENTORIENT(girlGObj)[1];
+    v[2] = test_CURRENTORIENT(girlGObj)[2];
     while (1) {
         sceVu0ScaleVector(pos, v, 50.0f);
         sceVu0AddVector(pos, test_CURRENTROOT(girlGObj), pos);
@@ -5062,9 +5043,6 @@ inline void extraCommonNull(volatile int a0)
     }
 }
 
-/* kept local: int here, char * in isys.h */
-extern int isysCurrentGObj;
-
 inline void extraCommonCall(volatile int a0)
 {
     if (girlGObj) {
@@ -5105,18 +5083,12 @@ typedef union {
 
 inline void StartCorrectPosition(char *a0, float *pos, float *dir, int mode, float t)
 {
-    *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x70) =
-        ((float *)test_CURRENTROOT(a0))[0];
-    *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x74) =
-        ((float *)test_CURRENTROOT(a0))[1];
-    *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x78) =
-        ((float *)test_CURRENTROOT(a0))[2];
-    *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x80) =
-        ((float *)test_CURRENTORIENT(a0))[0];
-    *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x84) =
-        ((float *)test_CURRENTORIENT(a0))[1];
-    *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x88) =
-        ((float *)test_CURRENTORIENT(a0))[2];
+    *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x70) = test_CURRENTROOT(a0)[0];
+    *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x74) = test_CURRENTROOT(a0)[1];
+    *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x78) = test_CURRENTROOT(a0)[2];
+    *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x80) = test_CURRENTORIENT(a0)[0];
+    *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x84) = test_CURRENTORIENT(a0)[1];
+    *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x88) = test_CURRENTORIENT(a0)[2];
     *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x90) = pos[0];
     *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x94) = pos[1];
     *(float *)((char *)*(int *)(*(int *)(a0 + 0x164) + 0x680) + 0x98) = pos[2];
@@ -5147,7 +5119,7 @@ static float commonPos[4];
 /* kept local: void (void *, void *) here, void (int, int) in motionManager2.h */
 extern void _GetMotionDirection(void *a0, void *a1);
 
-inline void *test_CURRENTORIENT(char *a0)
+inline float *test_CURRENTORIENT(char *a0)
 {
     if (a0 != boyGObj && a0 != girlGObj && *(int *)(a0 + 0xC) != 4) {
         GetRootOrient(commonOrient, a0);
@@ -5160,7 +5132,7 @@ inline void *test_CURRENTORIENT(char *a0)
     }
 }
 
-inline void *test_CURRENTROOT(void *a0)
+inline float *test_CURRENTROOT(void *a0)
 {
     float buf[4];
     float *p;
@@ -5304,9 +5276,6 @@ inline void actAfterFall(volatile int a0)
     *(unsigned long long *)(s + 0x18) = fl;
     *(unsigned long long *)(s + 0x20) = st | (1ULL << 31);
 }
-
-/* kept local: void (int, int) here, void (char *, int) in enemy.h */
-extern void SetEnemyFootPrintSwitch(int a0, int a1);
 
 typedef struct {
     char _0[0x20];

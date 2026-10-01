@@ -7,6 +7,8 @@
 #include "fuzio.h"
 #include "memory.h"
 #include "ios.h"
+#include <string.h>
+#include "debug_exception.h"
 
 typedef struct {
     float a[4];
@@ -247,12 +249,12 @@ char *visible_waypoint_of_all_except_temp_ThreadVersion(int *pos, int gid)
     return visible_waypoint_of_all_except_temp_sub(pos, gid, 1);
 }
 
-void ez_line(void)
+void ez_line(void *a, void *b, unsigned int col)
 {
     volatile int local[12];
 }
 
-void ez_circle(void)
+void ez_circle(void *pos, void *base, unsigned int col, float r)
 {
     volatile int local[12];
 }
@@ -351,8 +353,6 @@ char *visible_waypoint_from_gobj(void *dobj, int handle);
 void *get_wp_nearest_bridge_side_me(int arg0, int arg1);
 int get_wp_nearest_bridge_side_bridge(int arg0, int arg1);
 extern void __assert(void *a0, int a1, void *a2);
-/* kept local: void (void *, int) here, void (char *, int) in debug_exception.h */
-extern void debug_assert(void *a0, int a1);
 
 inline int direction_across_bridge(void *a0, int a1)
 {
@@ -678,9 +678,6 @@ void set_check_wp(CheckWp *out, int wp, int gid)
     }
     }
 }
-
-/* kept local: void * (void *, int, int) here, void * (void *, int, unsigned int) in string.h */
-extern void *memset(void *dst, int c, int n);
 
 typedef struct WayDist {
     float d0;

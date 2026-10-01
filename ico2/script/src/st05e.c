@@ -10,9 +10,8 @@
 #include "rotObject.h"
 #include "typedef.h"
 #include "stageSEProc.h"
-
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmFadeCloseFunc, scpAdpcmPlayRequestFunc differ) */
-extern int scpBoyControlReadDisable;
+#include "script.h"
+#include "main.h"
 
 /* st05e.o's own .data run 0x4F98A0..0x4F9920 (0x80, no MAIN.MAP symbols):
    four 0x20-byte actor mail packets, one per thread hand-off. */
@@ -33,25 +32,6 @@ static int demoEnd;
 
 static int demoSkipped;
 
-/* kept local: PObjGObj * (int) here, int (int) in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
-/* kept local: agrees with main.h, which this TU does not include (pad differ) */
-extern int systemStatus[];
-/* kept local: int [] here, PadState [16] in main.h */
-extern int pad[];
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmFadeCloseFunc, scpAdpcmPlayRequestFunc differ) */
-extern void scpSleepEnemyAll(void);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmFadeCloseFunc, scpAdpcmPlayRequestFunc differ) */
-extern void scpWakeupEnemyAll(void);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmFadeCloseFunc, scpAdpcmPlayRequestFunc differ) */
-extern int scpAdpcmPlayRequestNum(void);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmFadeCloseFunc, scpAdpcmPlayRequestFunc differ) */
-extern void scpFadeOut(float f, int a1, int a2, int a3);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmFadeCloseFunc, scpAdpcmPlayRequestFunc differ) */
-extern int scpFadeChk(void);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmFadeCloseFunc, scpAdpcmPlayRequestFunc differ) */
-extern void scpFadeIn(float f);
-
 /* listing lines 228-270 */
 void actSt05eWaterStop(volatile int a0)
 {
@@ -66,7 +46,7 @@ void actSt05eWaterStop(volatile int a0)
     scpSleepEnemyAll();
 
     th = actCreateSubThread(actSt05eWaterStopSub, 21);
-    while (demoEnd == 0 && (!(pad[1] & 0x800) || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && (!(pad[0].flags & 0x800) || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
     demoSkipped = demoEnd ^ 1;
@@ -96,13 +76,6 @@ void actSt05eWaterStop(volatile int a0)
     SetWayGroupActive(5, 1);
 }
 
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmFadeCloseFunc, scpAdpcmPlayRequestFunc differ) */
-extern int scpIsRotObjectZPlusDirInclude(int a0, int a1, int a2);
-/* kept local: void (int, int *, int, int, int) here, void (int, char **, int, int, int) in script.h */
-extern void scpAdpcmPlayRequestFunc(int a0, int *h, int a2, int a3, int a4);
-/* kept local: void (int *, short) here, int (char **, short) in script.h */
-extern void scpAdpcmFadeCloseFunc(int *h, short a1);
-
 /* .sdata, owned by st05e.o, in the ROM's order: the solar stream handle. */
 int solar = 0;
 
@@ -130,7 +103,7 @@ void actSt05eSolarChk(volatile int a0)
         stage_SetAnimation(268, 1, 0);
 
         while (stage_CheckAnimationFinish(268) == 0) {
-            if ((pad[1] & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+            if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
                 scpFadeOut(16.0f, 0, 0, 0);
                 while (scpFadeChk() != 0) {
                     _ACTWait(1);

@@ -12,15 +12,17 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
+struct IosMsgQueue; /* the record ios/message.c defines */
+
 /* message.o's .sdata global (MAIN.MAP): the signal thread's record */
 extern int *th_sig;
 
 void iosMsgInit(void);
-void iosMsgQueueCreate(void *q, void *buf, int n);
-void iosMsgQueueDestroy(void *q);
+void iosMsgQueueCreate(struct IosMsgQueue *q, int *buf, int size);
+void iosMsgQueueDestroy(struct IosMsgQueue *q);
 int iosMsgRecv(char *q, int *out, int mode);
 int iosMsgSend(char *q, int val, int mode);
-void iosMsgSetEvent(int ev, void *q, int msg);
+void iosMsgSetEvent(int intc, struct IosMsgQueue *q, int val);
 int signal_handler(int a0);
 
 #endif /* MESSAGE_H */

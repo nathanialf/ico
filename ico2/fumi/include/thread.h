@@ -12,24 +12,31 @@
 #ifndef THREAD_H
 #define THREAD_H
 
-int iosGetIOSThreadFromId(unsigned int a0);
-int iosSemaCreate(int *self, int a1, int a2, int a3);
-int iosSemaDelete(int *self);
-int iosSemaReferStatus(int *self);
-int iosSemaSignal(int *self);
-int iosSemaWait(int *self);
-int iosThreadCancelWakeup(int *self);
+struct IOSThread; /* the record ios/thread.c defines */
+struct IosSema;   /* the record ios/thread.c defines */
 
-void iosThreadCreate(void *th, int no, void (*func)(), int arg, void *stack, long stackSize,
-                     int pri);
-
-void iosThreadCreateS(unsigned int *th, int no, void (*func)(), int arg, void *heap, long stackSize,
-                      int pri);
-
-void iosThreadDestroy(int a0);
+/* The functions thread.c defines `inline`, in the order its end-of-file block
+ * emits their out-of-line copies: gcc 2.9 defers a plain-inline definition to
+ * the end of the object and writes the copies in first-declaration order, so
+ * this block is read from the ROM (thread.o's .text from iosThreadCreate on). */
+void iosThreadCreate(struct IOSThread *th, int no, void (*func)(), int arg, void *stack,
+                     long stackSize, int pri);
 int iosThreadGetPri(int *a0);
-void iosThreadInit(void);
+int iosGetIOSThreadFromId(unsigned int a0);
+int iosThreadWakeup(int *self);
 int iosThreadJoin(void *a0);
+int iosThreadCancelWakeup(int *self);
+int iosSemaCreate(struct IosSema *self, int initCount, int maxCount, int option);
+int iosSemaDelete(struct IosSema *self);
+int iosSemaWait(struct IosSema *self);
+int iosSemaSignal(struct IosSema *self);
+int iosSemaReferStatus(struct IosSema *self);
+
+/* The entry points thread.c compiles in place. */
+void iosThreadCreateS(struct IOSThread *th, int no, void (*func)(), int arg, void *heap,
+                      long stackSize, int pri);
+void iosThreadDestroy(int a0);
+void iosThreadInit(void);
 void iosThreadSetPri(int *a0, int a1);
 /* reconstruction corrected: the ROM sets no argument register at any call
    site (StageManager has a bare nop in the jal delay slot); ios/thread.c keeps
@@ -37,7 +44,6 @@ void iosThreadSetPri(int *a0, int a1);
 void iosThreadSleep(void);
 void iosThreadStart(int a0);
 void iosThreadStop(int a0);
-int iosThreadWakeup(int *self);
 void iosThreadMessage(int a0);
 
 #endif /* THREAD_H */

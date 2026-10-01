@@ -11,6 +11,7 @@
 #include <libvu0.h>
 #include <string.h>
 #include "stageSEProc.h"
+#include "main.h"
 
 typedef struct {
     float f0;
@@ -91,9 +92,6 @@ typedef struct {
     int *mail;        /* 0x3C */
 } SEObj;
 
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
-
 /* The wind-speed cache the strong-wind routines share: the last value of
    GetRegularizedWindSpeed and the frame_count it was read on.  Both carry an
    explicit 0 so they sit in .sdata ahead of stageSEtaimatsu's FLT_MAX literal,
@@ -160,9 +158,6 @@ int stageSEtaimatsu(SEObj *self)
     }
     return rv;
 }
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern int stage_no;
 
 /* .sbss, owned by stageSEProc.o (MAIN.MAP names no symbol in the run): the
    running level of each river sound effect, held across frames so SEFadeOut can
@@ -265,9 +260,6 @@ int stageSE06ariver(SEObj *a0)
     a0->pos[2] = p[2];
     return 1;
 }
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern int frame_count;
 
 int stageSE10lstrong2(char *a0)
 {

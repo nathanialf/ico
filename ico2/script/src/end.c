@@ -19,6 +19,9 @@
 #include "typedef.h"
 #include "layout_action.h"
 #include "GsBase.h"
+#include "main.h"
+#include "script.h"
+#include "staffroll.h"
 
 /* .sdata, owned by end.o in the ROM's order: the ending scenes' stream handles
    (MAIN.MAP globals, ed5 and happy_end unused by the retail code), then the
@@ -45,20 +48,6 @@ static int staff3 = 0; /* derived name */
 static int endDemo14 = 0; /* derived name */
 
 static int st27aEnd = 0; /* derived name */
-
-/* kept local: this TU's bytes only come out with its own view of PObjGObj, so it
-   keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
-typedef struct PObjGObjEnd {
-    char pad00[0x15C]; /* 0x000 */
-    char *f15C;        /* 0x15C */
-    char pad160[0x4];  /* 0x160 */
-    Act *act;          /* 0x164 */
-    char pad168[0x4];  /* 0x168 */
-    int f16C;          /* 0x16C */
-} PObjGObjEnd;
-
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMot differ) */
-extern void scpFadeOut(float a0, int a1, int a2, int a3);
 
 static ActMail demo01_mes[2] = {{430}, {429}};
 
@@ -96,9 +85,6 @@ static ActMail logo_mes[2] = {{430}, {429}};
 
 static ActMail end_mes[2] = {{430}, {429}};
 
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMot differ) */
-extern int scpBoyControlReadDisable;
-
 void actEndDemo01(volatile int a0)
 {
     int x = a0;
@@ -124,19 +110,6 @@ void actEndDemo01(volatile int a0)
         _ACTWait(0);
     }
 }
-
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMot differ) */
-extern void scpPlayStart(int a0);
-/* kept local: void (int, int) here, void (char *, int) in script.h */
-extern void scpPlayMot(int a0, int mot);
-/* kept local: PObjGObjEnd * (int) here, int (int) in script.h */
-extern PObjGObjEnd *scpSearchGobj(int a0);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMot differ) */
-extern void scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
-/* kept local: int (int, int, int, float, float) here, int (int, char *, int, float, float) in script.h */
-extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
 
 void actConte14_1(volatile int a0)
 {
@@ -214,9 +187,6 @@ void actConte14_1(volatile int a0)
     RequestStageChange(2, boyGObj, 0, 1.0f, 8.0f);
 }
 
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMot differ) */
-extern void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
-
 void actEndDemo02(volatile int a0)
 {
     int x = a0;
@@ -246,9 +216,6 @@ void actEndDemo02(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMot differ) */
-extern void scpPlayEnd(int a0);
 
 void actConte14_2(volatile int a0)
 {
@@ -352,11 +319,6 @@ void actEndDemo06(volatile int a0)
     }
 }
 
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMot differ) */
-extern void preload(int idx);
-/* kept local: int here, GObj * in main.h */
-extern int girlGObj;
-
 void actConte14_6(volatile int a0)
 {
     preload(3);
@@ -414,13 +376,6 @@ void actEndDemo07(volatile int a0)
         _ACTWait(0);
     }
 }
-
-/* kept local: void (int, float, float, float) here, void (void *, float, float, float) in script.h */
-extern void scpPlayPosSet(int a0, float x, float y, float z);
-/* kept local: void (int, void *) here, void (char *, float *) in script.h */
-extern void scpPlayMotDir(int a0, void *dir);
-/* kept local: void (int, int, int, int) here, void (void *, int, void *, int) in script.h */
-extern void scpPlayMotNode(int a0, int mot, int node, int a3);
 
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc
@@ -603,9 +558,6 @@ void actConte14_10(volatile int a0)
     RequestStageChange(3, boyGObj, girlGObj, 1.0f, 8.0f);
 }
 
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMot differ) */
-extern void scpFadeIn(float f);
-
 void actConte14_13(volatile int a0)
 {
     scpPlayStart(boyGObj);
@@ -660,16 +612,11 @@ void actStaff1(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: void (int, float) here, void (float, int) in staffroll.h */
-extern void staffRollStart(int a0, float a1);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMot differ) */
-extern int scpFadeChk(void);
-
 void actStaff1Demo(volatile int a0)
 {
     preload(1);
 
-    staffRollStart(0xFF, 1.0f);
+    staffRollStart(1.0f, 0xFF);
 
     stage_SetAnimation(870, 1, 0);
 
@@ -965,11 +912,6 @@ void actStaff3Demo(volatile int a0)
     scpFadeOut(6.0f, 0, 0, 0);
 }
 
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMot differ) */
-extern void ScpCallCameraSetTarget(float x, float y, float z);
-/* kept local: void (int, int *, int, int, int) here, void (int, char **, int, int, int) in script.h */
-extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-
 /* Demo 14's mail record: the actor installs actEndDemo14Chk in it and posts
    it. Word 0 of each entry is the mail id the entry answers (430 the actor
    post, 429 the trailing entry); .func is filled in at run time. Named in
@@ -1109,17 +1051,6 @@ void actSt27aEnd(volatile int a0)
     }
 }
 
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMot differ) */
-extern float scpSeEnvMasterVolRate;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int systemStatus[];
-/* kept local: int (int, int) here, int (char *, int) in script.h */
-extern int scpTriggerFloorAttr(int gobj, int attr);
-/* kept local: void (int *, int) here, int (char **, short) in script.h */
-extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
-/* kept local: void (int, int *, int, int, int) here, void (int, char **, int, int, int) in script.h */
-extern void scpAdpcmPlayRequestFunc(int a0, int *h, int a2, int a3, int a4);
-
 /* listing lines 2614-2661 */
 void actSt27aEndChk(volatile int a0)
 {
@@ -1159,9 +1090,6 @@ void actSt27aEndChk(volatile int a0)
     }
     scpSeEnvMasterVolRate = 0;
 }
-
-/* kept local: void (int) here, void (void) in script.h */
-extern void scpDisActivateAllWithKind(int a0);
 
 void actSt27aEndDemo(volatile int a0)
 {
@@ -1276,9 +1204,6 @@ void actSt27aEndDemo(volatile int a0)
    (its MAIN.MAP globals are ed1..ed6, sea, happy_end) for the sequence it
    belongs to; among the role-plausible spellings this is one that also puts
    the record ahead of the handler in gcc's expression-hash order. */
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int NonLinearCameraMove;
 
 void actEndLogoChk(volatile int a0)
 {
@@ -1441,9 +1366,6 @@ void actEndDemo13(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: void (PObjGObjEnd *) here, void (int, int, int, int) in script.h */
-extern void scpSetBoyWeaponGObj(PObjGObjEnd *gobj);
-
 void actStaff2(volatile int a0)
 {
     int x = a0;
@@ -1454,8 +1376,8 @@ void actStaff2(volatile int a0)
     lt_switch_layout(55);
     scpBoyControlReadDisable = 1;
     scpSetBoyWeaponGObj(scpSearchGobj(2795));
-    *(int *)(scpSearchGobj(2793)->f15C + 0x658) = 1;
-    *(int *)(scpSearchGobj(2794)->f15C + 0x658) = 1;
+    *(int *)(scpSearchGobj(2793)->sub + 0x658) = 1;
+    *(int *)(scpSearchGobj(2794)->sub + 0x658) = 1;
     stage_SetAnimation(269, 0, 0);
     staff2_mes[0].func = actStaff2Chk;
     self->mail = staff2_mes;
@@ -1659,8 +1581,6 @@ void actEndDemo10Chk(volatile int a0)
     actCreateSubThread(actConte14_10_Jimaku, 21);
 }
 
-extern JimakuArg jimaku_msg;
-
 void actConte14_10_Jimaku(volatile int a0)
 {
     float t;
@@ -1671,13 +1591,13 @@ void actConte14_10_Jimaku(volatile int a0)
     do {
         switch ((int)t) {
         case 1:
-            jimakuBegin((int)&jimaku_msg);
+            jimakuBegin(&jimaku_msg);
             break;
         case 1500:
             jimaku_msg.sub.unk2C = 0x70;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         }
 
@@ -1721,10 +1641,6 @@ void actEndDemo12Chk(volatile int a0)
 
     actCreateSubThread(actConte14_12, 21);
 }
-
-/* kept local: int (int, int, int, float, float, int, int, int) here, int (int, char *, int, float, float, unsigned char, unsigned char, unsigned char) in script.h */
-extern int RequestStageChangeWithColor(int a0, int a1, int a2, float a3, float a4, int r, int g,
-                                       int b);
 
 void actConte14_12(volatile int a0)
 {
@@ -1776,9 +1692,6 @@ void actStaff3Chk(volatile int a0)
     actCreateSubThread(actStaff3RollChk, 21);
 }
 
-/* kept local: agrees with staffroll.h, which this TU does not include (staffRollStart differ) */
-extern int staffRollStartFlag;
-
 void actStaff3RollChk(volatile int a0)
 {
     preload(1);
@@ -1800,9 +1713,6 @@ void actEndDemo14Chk(volatile int a0)
 
     actCreateSubThread(actConte14_14, 21);
 }
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int optionScreenMode;
 
 void actEndingSave(volatile int a0)
 {

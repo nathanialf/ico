@@ -13,6 +13,7 @@
 #include "st04c.h"
 #include "typedef.h"
 #include "gamesys.h"
+#include "main.h"
 
 /* The TU starts at 0x00252418, where MAIN.MAP puts st22a.o. */
 
@@ -57,9 +58,6 @@ void actSt22aLightningVolime(volatile int a0)
         _ACTWait(1);
     }
 }
-
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
 
 static ActMail intro_mes[2] = {{430}, {429}};
 
@@ -115,11 +113,6 @@ void actSt22aIntro(volatile int a0)
    symbol in the run): the demo's own end flag, raised by the
    subthread the wait loop below spins for. */
 static int demoEnd;
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern int systemStatus[];
-/* kept local: agrees with main.h, which this TU does not include */
-extern PadState pad[];
 
 typedef struct St22Anims {
     int id[2];

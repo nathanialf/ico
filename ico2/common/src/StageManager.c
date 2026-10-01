@@ -27,6 +27,8 @@
 #include "streamMotionManager.h"
 #include "tableSin.h"
 #include "Basic.h"
+#include "ios.h"
+#include "jimaku.h"
 
 typedef struct {
     char name[0x110];
@@ -98,37 +100,20 @@ extern int db[];
 /* */
 static unsigned int initIcoMiscThread[28];
 
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_root;
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int current_stage_no;
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int IosCdLock;
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int IosStgMgrLock;
-/* kept local: agrees with jimaku.h, which this TU does not include */
-extern void jimakuEnd();
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int game_pause;
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int before_stage_no;
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_isys;
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_sugipon;
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_dmotion;
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_seki;
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_oomori;
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_sound;
 /* kept local: void * here, GObj * in main.h */
 extern void *boyGObj;
 /* kept local: void * here, GObj * in main.h */
 extern void *girlGObj;
-extern int jimaku_msg[];
 
 #include "StageManager.h"
 #include <libgraph.h>
@@ -176,7 +161,7 @@ void stop_free_resources(void)
     sceGsSyncPath(0, 0);
     InitDelayFree();
     if (systemStatus[10] != 0) {
-        jimakuEnd(jimaku_msg);
+        jimakuEnd(&jimaku_msg);
         systemStatus[10] = 0;
     }
     if (sndInitBgmCancelFlag == 0) {

@@ -4,6 +4,7 @@
 #include <eekernel.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 /* kept local: the TUs that call iosMallocDebugNoAssert declare it themselves; it
    passes its four arguments straight through to _iosMallocDebug. */
@@ -28,21 +29,12 @@ typedef struct IosMemNode {
     struct IosMemNode *head;      /* 0x44 (partition header view: free-list head) */
 } IosMemNode;
 
-/* kept local: int (int *, const char *) here, int (const char *, const char *) in string.h */
-extern int strcmp(int *a0, const char *a1);
-/* kept local: void (unsigned char *, int) here, char * (char *, const char *) in string.h */
-extern void strcpy(unsigned char *ptr, int value);
 extern void __assert(char *file, int line, char *expr);
-/* kept local: int (void *, void *, int) here, int (const char *, const char *, unsigned int) in string.h */
-extern int strncmp(void *a0, void *a1, int a2);
 
 /* .bss, owned by memory.o (MAIN.MAP sizes the run 0x20 and names no
    symbol in it): the node name the heap walk copies out before printing it. */
 /* */
 static char nodeName[32];
-
-/* kept local: int (char *, int, int) here, char * (char *, const char *, unsigned int) in string.h */
-extern int strncpy(char *dst, int src, int n);
 
 inline IosMemPart *iosMallocInitPartition(unsigned int start, unsigned int end)
 {
@@ -222,9 +214,6 @@ static int mallocBusy = 0; /* derived name */
 static char *mallocFile;
 
 static int mallocLine;
-
-/* kept local: unsigned int (char *) here, unsigned int (const char *) in string.h */
-extern unsigned int strlen(char *s);
 
 void *_iosMallocDebug(IosMemPart *part, int size, char *file, int line)
 {

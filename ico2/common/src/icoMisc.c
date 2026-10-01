@@ -37,6 +37,9 @@
 #include "soundManager.h"
 #include "pad.h"
 #include "thread.h"
+#include "obj_manager.h"
+#include "camera-root.h"
+#include "act-game.h"
 
 extern int debug_bar_flag;
 
@@ -261,16 +264,11 @@ extern char *boyGObj;
 extern char *girlGObj;
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int systemStatus[];
-extern char jimaku_msg[];
 /* debug_Printf comes from debug.h */
-/* kept local: void (int *, int *) here, void (int, int) in obj_manager.h */
-extern void iosOmGetGObjStatus(int *a0, int *a1);
 extern void ExecParticleEffects(void);
 extern void ExecStreamMotionManager(void);
 extern void ExecWindManager(void);
 extern void ExecSpiderGroupManager(void);
-/* kept local: int (void) here, void * (void) in camera-root.h */
-extern int GetCameraPos(void);
 extern void scpGirlHintVoiceTickProc(int cam);
 extern void fightSoundProcess(void);
 extern void eBrainProcess(void);
@@ -368,7 +366,7 @@ void ExecIcoMisc(void)
             }
         }
     }
-    jimakuDisp(jimaku_msg);
+    jimakuDisp(&jimaku_msg);
 }
 
 /* per-scene preset: twelve (time, effect id) pairs then the scene label at 0xC0 */
@@ -428,8 +426,6 @@ static int load_time;
 extern void InitializeStaticBlur(void);
 /* kept local: agrees with flyManager.h, which this TU does not include */
 extern void InitFlyManager(void);
-/* kept local: void (int, int) here, void (int, unsigned char) in act-game.h */
-extern void ACTGame_SetActors_Debug(int stage, int a1);
 extern void light_InitLight(void);
 extern void enemy_Initialize(void);
 extern void fog_MakeFogClut(void);

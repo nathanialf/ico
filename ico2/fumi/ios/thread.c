@@ -2,6 +2,9 @@
 #include "memory.h"
 #include "message.h"
 #include <eekernel.h>
+#include "debug_exception.h"
+#include "ios.h"
+#include "thread.h"
 
 /* ---------------------------------------------------------------------------
  * EMISSION ORDER / INLINE MODEL of this TU, proven from baserom/pal/SRCFILE.TXT
@@ -84,30 +87,6 @@ typedef struct IosSema {
     int id;                  /* 0x30 */
 } IosSema;                   /* derived name */
 
-/* kept local: void (IOSThread *, int, void (*)(), int, void *, long, int) here, void (void *, int, void (*)(), int, void *, long, int) in thread.h */
-extern void iosThreadCreate(IOSThread *th, int no, void (*func)(), int arg, void *stack,
-                            long stackSize, int pri);
-/* kept local: agrees with thread.h, which this TU does not include (iosSemaCreate, iosSemaDelete differ) */
-extern int iosThreadGetPri(int *a0);
-/* kept local: agrees with thread.h, which this TU does not include (iosSemaCreate, iosSemaDelete differ) */
-extern int iosGetIOSThreadFromId(unsigned int a0);
-/* kept local: agrees with thread.h, which this TU does not include (iosSemaCreate, iosSemaDelete differ) */
-extern int iosThreadWakeup(int *self);
-/* kept local: agrees with thread.h, which this TU does not include (iosSemaCreate, iosSemaDelete differ) */
-extern int iosThreadJoin(void *a0);
-/* kept local: agrees with thread.h, which this TU does not include (iosSemaCreate, iosSemaDelete differ) */
-extern int iosThreadCancelWakeup(int *self);
-/* kept local: int (IosSema *, int, int, int) here, int (int *, int, int, int) in thread.h */
-extern int iosSemaCreate(IosSema *self, int initCount, int maxCount, int option);
-/* kept local: int (IosSema *) here, int (int *) in thread.h */
-extern int iosSemaDelete(IosSema *self);
-/* kept local: int (IosSema *) here, int (int *) in thread.h */
-extern int iosSemaWait(IosSema *self);
-/* kept local: int (IosSema *) here, int (int *) in thread.h */
-extern int iosSemaSignal(IosSema *self);
-/* kept local: int (IosSema *) here, int (int *) in thread.h */
-extern int iosSemaReferStatus(IosSema *self);
-
 /* .bss, owned by thread.o and reached only from this file (MAIN.MAP names no
    symbol in the run), in the ROM's run order: the IOSThread each thread id
    maps to, the destroy manager's own message queue, the boot thread and its
@@ -122,9 +101,6 @@ static IOSThread iosBootThread;
    alignment is the ROM's, whose .bss puts 8 B of fill between pad.o's run and
    this object's */
 static char iosBootStack[8192] __attribute__((aligned(16)));
-
-/* kept local: agrees with thread.h, which this TU does not include (iosSemaCreate, iosSemaDelete differ) */
-extern void iosThreadSetPri(int *a0, int a1);
 
 void iosThreadMain(void *arg)
 {
@@ -148,8 +124,6 @@ extern int _gp; /* linker-defined global pointer */
 static int n_thread = 0; /* derived name: the number of live IOS threads */
 
 inline void iosThreadDestroyMgr(); /* deferred-tail member; see the emission-order note */
-/* kept local: void (const char *, int) here, void (char *, int) in debug_exception.h */
-extern void debug_assert(const char *file, int line);
 extern void __assert(const char *file, int line, const char *expr);
 
 /* thread.c:111 - iosThreadCreate.  It is a PUBLIC function (10 external call
@@ -321,9 +295,6 @@ valid:
 out:
     return ret;
 }
-
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_root;
 
 void iosThreadMessage(int a0)
 {

@@ -24,6 +24,13 @@
 #include "generator.h"
 #include "boyact.h"
 #include "lws_kyomi.h"
+#include "act.h"
+#include "gobj.h"
+#include "enemy_act.h"
+#include "torch.h"
+#include <stdio.h>
+#include "act-game.h"
+#include "commonact.h"
 
 typedef struct GirlStand {
     sceVu0FVECTOR prev; /* 0x00 last frame's root position */
@@ -67,9 +74,6 @@ void GetEyeDirection(char *dir, char *obj)
     sceVu0ApplyMatrix(dir, (char *)(GOBJ_SUB(obj)->f_C + (node << 6)), dir);
 }
 
-/* kept local: agrees with act-game.h, which this TU does not include (ACTGameView_Check, ACTGame_FLAG_TETSUNAGI differ) */
-extern void ACTGame_DisconnectHand(void);
-
 void funcGirlHandDisconnect(void)
 {
     ACTGame_DisconnectHand();
@@ -78,10 +82,6 @@ void funcGirlHandDisconnect(void)
 
 /* kept local: int * here, GObj * in main.h */
 extern int *boyGObj;
-/* kept local: void (void *, int) here, void (char *, int) in commonact.h */
-extern void ACTSendMailCorrect(void *a0, int mail);
-/* kept local: agrees with act.h, which this TU does not include (actChangeActBrain, actCreateSubThread differ) */
-extern void _ACTWait(int n);
 /* kept local: agrees with motionManager2.h, which this TU does not include (GetRootProjectionPosOfGObj, GetSkeltonFocusNode differ) */
 extern void SetMotionDirection(void *a0, float *dir);
 
@@ -473,10 +473,6 @@ static GirlDangerEnv dangerEnv; /* derived name */
 
 /* kept local: void * here, GObj * in main.h */
 extern void *girlGObj;
-/* kept local: int (void) here, unsigned char (void) in act-game.h */
-extern int ACTGame_FLAG_TETSUNAGI(void);
-/* kept local: void (float *, void *, int) here, void (float *, char *, void *) in act-game.h */
-extern void GetSkeltonPosition(float *out, void *obj, int node);
 /* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistSqGV(void *a, void *b);
 
@@ -572,18 +568,10 @@ static inline void ATGoalTurnSendMail(void *self)
     }
 }
 
-/* kept local: int (void *, void *) here, int (int, int) in act-game.h */
-extern int ACTGameView_Check(void *self, void *target);
 /* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistGV(void *a, void *b);
 /* kept local: void (void *, void *) here, void (int, int) in motionManager2.h */
 extern void GetRootProjectionPosOfGObj(void *out, void *obj);
-/* kept local: agrees with gobj.h, which this TU does not include (isysGObjSearchFromObjKindID_next differ) */
-extern void *isysGObjSearchFromObjKindID_begin(int kind);
-/* kept local: void * (void *) here, void * (char *) in gobj.h */
-extern void *isysGObjSearchFromObjKindID_next(void *gobj);
-/* kept local: int (void *) here, int (char *) in enemy_act.h */
-extern int EnemyBrainStatus_Boy(void *gobj);
 extern void __assert(char *file, int line, char *expr);
 
 /* girl_brain_main.c.inc:279-293: the wire-string marker (colour, a
@@ -678,9 +666,6 @@ inline void ClearGirlDangerGObj(void)
         *(int *)(*(char **)(*(char **)(g + 0x164) + 0x688) + 0x3E4) = 0;
     }
 }
-
-/* kept local: void (void *, float, int) here, void (char *, float, unsigned int) in act-game.h */
-extern void ACTGame_SetMotionPlaySpeedRatio_Reserve(void *a0, float f, int a1);
 
 void SetTurnSpeedInEscape(char *a0)
 {
@@ -933,8 +918,6 @@ int girlBrainHideCheckIntercept(float *from, float *to, char *list, int n)
 
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlControlMode differ) */
 extern int stage_no;
-/* kept local: int (void *, void *, float, void *, void *) here, int (float, void *, void *, void *, void *) in act-game.h */
-extern int ACTCheckCollis_WAY(void *a0, void *a1, float a2, void *a3, void *a4);
 /* kept local: void (void *, int, int, int, float, float) here, void (int *, int, int, int, float, float) in camera-editor.h */
 extern void debug_Marker(void *buf, int a1, int a2, int a3, float f12, float f13);
 
@@ -990,7 +973,7 @@ static inline int girlBrainHide_TryWay(float *pt, char *way, float *goal, float 
         start[1] -= 50.0f;
         goal[1] = goal[1] - 30.0f;
         *(int *)(way + 0x44) = 0;
-        if (ACTCheckCollis_WAY(goal, start, 10.0f, girl, hit) == 0) {
+        if (ACTCheckCollis_WAY(10.0f, goal, start, girl, hit) == 0) {
             *(int *)(way + 0x44) = 1;
             DeleteGuideWay(way);
             r = 3;
@@ -1043,18 +1026,10 @@ out:
     return mode;
 }
 
-/* kept local: agrees with commonact.h, which this TU does not include (ACTSendMailCorrect, SetMotionDirectionSmooze differ) */
-extern void *test_CURRENTROOT(void *a0);
 /* kept local: void * here, int in main.h */
 extern void *girlControlMode;
-/* kept local: void (void *, int, float, int) here, void (char *, int, float, int) in act-game.h */
-extern void _ACTCharStatus_Set(void *obj, int id, float v, int flag);
 /* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistxzSqGV(void *a, void *b);
-/* kept local: int (void *, void *, float *, float, int) here, int (char *, void *, void *, void *, float) in act-game.h */
-extern int ACTCheckView(void *self, void *obj, float *pos, float margin, int range);
-/* kept local: agrees with act-game.h, which this TU does not include (ACTGameView_Check, ACTGame_FLAG_TETSUNAGI differ) */
-extern int PAIR_IsStatus_BOY_WAIT(void);
 extern void brainGetTarget(Brain *b);
 /* the pad record: the button word at +0 */
 /* kept local: int [] here, PadState [16] in main.h */
@@ -1181,9 +1156,9 @@ int girlBrainMain_DecideMode(int mode, int *next)
     int changed = 0;
     int near = 0;
 
-    gpos[0] = ((float *)test_CURRENTROOT(self))[0];
-    gpos[1] = ((float *)test_CURRENTROOT(self))[1];
-    gpos[2] = ((float *)test_CURRENTROOT(self))[2];
+    gpos[0] = test_CURRENTROOT(self)[0];
+    gpos[1] = test_CURRENTROOT(self)[1];
+    gpos[2] = test_CURRENTROOT(self)[2];
 
     if (sub->unk34 == 0x6F) {
         setNext(5);
@@ -1221,10 +1196,10 @@ int girlBrainMain_DecideMode(int mode, int *next)
             for (o = isysGObjSearchFromObjKindID_begin(othersKindList[i]); o != 0;
                  o = isysGObjSearchFromObjKindID_next(o)) {
                 seen = 0;
-                opos[0] = ((float *)test_CURRENTROOT(o))[0];
-                opos[1] = ((float *)test_CURRENTROOT(o))[1];
-                opos[2] = ((float *)test_CURRENTROOT(o))[2];
-                if (ACTCheckView(self, o, opos, 0.0f, 160) != 0 &&
+                opos[0] = test_CURRENTROOT(o)[0];
+                opos[1] = test_CURRENTROOT(o)[1];
+                opos[2] = test_CURRENTROOT(o)[2];
+                if (ACTCheckView(self, o, opos, 160, 0.0f) != 0 &&
                     _DistSqGV(gpos, opos) < 160000.0f) {
                     seen = 1;
                 }
@@ -1332,20 +1307,6 @@ extern char motionKind[];
    a tentative definition the compiler emits at the end of the .sdata run */
 int GirlInfo[2];
 
-/* kept local: agrees with act-game.h, which this TU does not include (ACTGameView_Check, ACTGame_FLAG_TETSUNAGI differ) */
-extern float _ACTGame_GetParamF(int idx);
-/* kept local: void (void *, int) here, void (char *, int) in act-game.h */
-extern void _ACTParaStatus_Set(void *self, int para);
-/* kept local: void (void *, void *, float *, int, int) here, int (char *, int, float *, int, int) in act-game.h */
-extern void _ACTLookTarget_Set(void *self, void *target, float *pos, int kind, int flag);
-/* kept local: void (void *) here, void (char *) in act-game.h */
-extern void ACTGameView_Loop(void *self);
-/* kept local: int (void *, void *) here, int (int, int) in act-game.h */
-extern int ACTGameViewSimple_Check(void *self, void *obj);
-/* kept local: void (float *, void *, int) here, void (float *, char *, void *) in act-game.h */
-extern void GetSkeltonPosition(float *out, void *obj, int node);
-/* kept local: agrees with act-game.h, which this TU does not include (ACTGameView_Check, ACTGame_FLAG_TETSUNAGI differ) */
-extern void GetSkeltonOrient(float *out, void *obj, int node);
 /* kept local: void (void *, void *, void *) here, void (int) in gv.h */
 extern void _OrientGV(void *out, void *a, void *b);
 /* kept local: this TU's uses of _RotGV do not fit the prototype in gv.h */
@@ -1355,21 +1316,7 @@ extern int _AbsRotyGV(void *a, void *b);
 extern int _FrontGV(void *a, void *b, void *c, int deg);
 /* kept local: void (void *, void *, void *) here, void (int) in gv.h */
 extern void _OrientXZGV(void *out, void *a, void *b);
-/* kept local: void * (void *) here, void * (char *) in commonact.h */
-extern void *test_CURRENTORIENT(void *a0);
 extern void *GetBombTorchGObj(void *obj);
-/* kept local: int (void *) here, int (char *) in torch.h */
-extern int IsTorchLightOn(void *obj);
-/* kept local: agrees with commonact.h, which this TU does not include (ACTSendMailCorrect, SetMotionDirectionSmooze differ) */
-extern int FloorIsTruck(void *obj);
-/* kept local: agrees with gobj.h, which this TU does not include (isysGObjSearchFromObjKindID_next differ) */
-extern void *isysGObjSearchFromObjLayoutID(int id);
-/* kept local: void (int, void *, int *) here, void (int, int, int *) in act.h */
-extern void actChangeActBrain(int a0, void *proc, int *a2);
-/* kept local: agrees with gobj.h, which this TU does not include (isysGObjSearchFromObjKindID_next differ) */
-extern void *isysGObjGetExist_begin(void);
-/* kept local: agrees with gobj.h, which this TU does not include (isysGObjSearchFromObjKindID_next differ) */
-extern void *isysGObjGetExist_next(void *gobj);
 
 /* girl_brain_main.c.inc:44-53 -- a file-scope static helper with no MAIN.MAP
  * symbol of its own; the listing attributes lines 45/50/52 to Danger_Box, to
@@ -1586,12 +1533,12 @@ void subGirlBrainMain(volatile int a0)
                 void *tgt = *(void **)((char *)GOBJ_ACT(a0)->f_688 + 0x3E4);
 
                 if (tgt) {
-                    dir[0] = ((float *)test_CURRENTROOT(tgt))[0];
-                    dir[1] = ((float *)test_CURRENTROOT(tgt))[1];
-                    dir[2] = ((float *)test_CURRENTROOT(tgt))[2];
-                    pos[0] = ((float *)test_CURRENTROOT((void *)a0))[0];
-                    pos[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
-                    pos[2] = ((float *)test_CURRENTROOT((void *)a0))[2];
+                    dir[0] = test_CURRENTROOT(tgt)[0];
+                    dir[1] = test_CURRENTROOT(tgt)[1];
+                    dir[2] = test_CURRENTROOT(tgt)[2];
+                    pos[0] = test_CURRENTROOT((void *)a0)[0];
+                    pos[1] = test_CURRENTROOT((void *)a0)[1];
+                    pos[2] = test_CURRENTROOT((void *)a0)[2];
                     if (_DistxzSqGV(dir, pos) < 250000.0f &&
                         (dir[1] - pos[1] < 0.0f ? -(dir[1] - pos[1]) : dir[1] - pos[1]) < 1000.0f &&
                         (dir[1] - pos[1] < 0.0f ? -(dir[1] - pos[1]) : dir[1] - pos[1]) > 100.0f) {
@@ -1609,15 +1556,15 @@ void subGirlBrainMain(volatile int a0)
                     float rad;
 
                     rad = isBoyPushBoxTruck() ? 300.0f : 150.0f;
-                    eye[0] = ((float *)test_CURRENTORIENT(boyGObj))[0];
-                    eye[1] = ((float *)test_CURRENTORIENT(boyGObj))[1];
-                    eye[2] = ((float *)test_CURRENTORIENT(boyGObj))[2];
-                    pos[0] = ((float *)test_CURRENTROOT(GOBJ_ACT(boyGObj)->box))[0];
-                    pos[1] = ((float *)test_CURRENTROOT(GOBJ_ACT(boyGObj)->box))[1];
-                    pos[2] = ((float *)test_CURRENTROOT(GOBJ_ACT(boyGObj)->box))[2];
-                    dir[0] = ((float *)test_CURRENTROOT((void *)a0))[0];
-                    dir[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
-                    dir[2] = ((float *)test_CURRENTROOT((void *)a0))[2];
+                    eye[0] = test_CURRENTORIENT(boyGObj)[0];
+                    eye[1] = test_CURRENTORIENT(boyGObj)[1];
+                    eye[2] = test_CURRENTORIENT(boyGObj)[2];
+                    pos[0] = test_CURRENTROOT(GOBJ_ACT(boyGObj)->box)[0];
+                    pos[1] = test_CURRENTROOT(GOBJ_ACT(boyGObj)->box)[1];
+                    pos[2] = test_CURRENTROOT(GOBJ_ACT(boyGObj)->box)[2];
+                    dir[0] = test_CURRENTROOT((void *)a0)[0];
+                    dir[1] = test_CURRENTROOT((void *)a0)[1];
+                    dir[2] = test_CURRENTROOT((void *)a0)[2];
                     sceVu0ScaleVector(ofs, eye, 100.0f);
                     sceVu0AddVector(far, pos, ofs);
                     if (_DistxzSqGV(far, dir) < rad * rad) {
@@ -1864,22 +1811,12 @@ void subGirlBrainMain(volatile int a0)
 
 /* kept local: void (void *, int, int, int, float) here, void (int *, int, int, int, float) in camera-editor.h */
 extern void debug_NMarker(void *pos, int r, int g, int b, float size);
-/* kept local: void * (void *) here, void * (char *) in commonact.h */
-extern void *test_CURRENTORIENT(void *a0);
 /* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistxzGV(void *a, void *b);
 /* kept local: void (void *, void *, void *) here, void (int) in gv.h */
 extern void _OrientXZGV(void *out, void *a, void *b);
 /* kept local: int (void *, void *) here, int (float *, float *) in gv.h */
 extern int _RotyGV(void *buf, void *vec);
-/* kept local: agrees with act-game.h, which this TU does not include (ACTGameView_Check, ACTGame_FLAG_TETSUNAGI differ) */
-extern void GetSkeltonOrient(float *out, void *obj, int node);
-/* kept local: agrees with act-game.h, which this TU does not include (ACTGameView_Check, ACTGame_FLAG_TETSUNAGI differ) */
-extern int ACTCheckCollis_WELL(void *p0, void *p1, void *actor, void *posout, float f);
-/* kept local: agrees with act-game.h, which this TU does not include (ACTGameView_Check, ACTGame_FLAG_TETSUNAGI differ) */
-extern void *floorGObj_ACTCheckCollis_WELL;
-/* kept local: void (void *, int, float, int) here, void (char *, int, float, int) in act-game.h */
-extern void _ACTCharStatus_Set(void *self, int status, float time, int flag);
 
 inline void subGirlBrain_Idle(volatile int a0)
 {
@@ -1981,9 +1918,9 @@ void subGirlBrain_Pulledup(volatile int a0)
         }
     }
     for (;;) {
-        cur[0] = ((float *)test_CURRENTROOT((void *)a0))[0];
-        cur[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
-        cur[2] = ((float *)test_CURRENTROOT((void *)a0))[2];
+        cur[0] = test_CURRENTROOT((void *)a0)[0];
+        cur[1] = test_CURRENTROOT((void *)a0)[1];
+        cur[2] = test_CURRENTROOT((void *)a0)[2];
         hit = ACTWayMove_NextDetail((void *)a0, (char *)sub + 0x120, boy_pos, 0, 0);
         debug_NMarker(boy_pos, 0xFF, 0, 0, 100.0f);
         if (!hit) {
@@ -2485,8 +2422,6 @@ int girlBrainRunawayMoveByWay(char *self, float *out, float *tgt)
     return 0;
 }
 
-/* kept local: int (char *, const char *, ...) here, int (void *, int, ...) in stdio.h */
-extern int sprintf(char *buf, const char *fmt, ...);
 /* kept local: this TU's uses of _RotGV do not fit the prototype in gv.h */
 extern int _RotGV(void *a, void *b);
 /* kept local: float * here, char * in main.h */
@@ -2831,13 +2766,12 @@ retry:
     {
         GetRootProjectionPosOfGObj(goal, bomb);
         GetRootProjectionPosOfGObj(girl, self);
-        obj[0] = ((float *)test_CURRENTROOT(bomb))[0];
-        obj[1] = ((float *)test_CURRENTROOT(bomb))[1];
-        obj[2] = ((float *)test_CURRENTROOT(bomb))[2];
+        obj[0] = test_CURRENTROOT(bomb)[0];
+        obj[1] = test_CURRENTROOT(bomb)[1];
+        obj[2] = test_CURRENTROOT(bomb)[2];
         GetRootProjectionPosOfGObj(base, bomb);
         _ACTWait(1);
-        GetSafePosition(500.0f, goal, (float *)test_CURRENTROOT(bomb), girl,
-                        (int)test_CURRENTROOT(boyGObj));
+        GetSafePosition(500.0f, goal, test_CURRENTROOT(bomb), girl, (int)test_CURRENTROOT(boyGObj));
         _ACTWait(1);
         p = ACTWayMove_BeginDetail(self, girl, goal, 0, 0, 0);
         r = p;
@@ -2948,12 +2882,12 @@ retry:
     {
         GetRootProjectionPosOfGObj(goal, gondola);
         GetRootProjectionPosOfGObj(girl, self);
-        obj[0] = ((float *)test_CURRENTROOT(gondola))[0];
-        obj[1] = ((float *)test_CURRENTROOT(gondola))[1];
-        obj[2] = ((float *)test_CURRENTROOT(gondola))[2];
+        obj[0] = test_CURRENTROOT(gondola)[0];
+        obj[1] = test_CURRENTROOT(gondola)[1];
+        obj[2] = test_CURRENTROOT(gondola)[2];
         GetRootProjectionPosOfGObj(base, gondola);
         _ACTWait(1);
-        GetSafePosition(300.0f, goal, (float *)test_CURRENTROOT(gondola), girl,
+        GetSafePosition(300.0f, goal, test_CURRENTROOT(gondola), girl,
                         (int)test_CURRENTROOT(boyGObj));
         _ACTWait(1);
         p = ACTWayMove_BeginDetail(self, girl, goal, 0, 0, 0);
@@ -3106,22 +3040,19 @@ static void Danger_Box(void *self)
     box = dangerEnv.obj;
     GetRootProjectionPosOfGObj(goal, box);
     GetRootProjectionPosOfGObj(girl, self);
-    objp[0] = ((float *)test_CURRENTROOT(box))[0];
-    objp[1] = ((float *)test_CURRENTROOT(box))[1];
-    objp[2] = ((float *)test_CURRENTROOT(box))[2];
+    objp[0] = test_CURRENTROOT(box)[0];
+    objp[1] = test_CURRENTROOT(box)[1];
+    objp[2] = test_CURRENTROOT(box)[2];
     GetRootProjectionPosOfGObj(way, box);
-    orient[0] = ((float *)test_CURRENTORIENT(boyGObj))[0];
-    orient[1] = ((float *)test_CURRENTORIENT(boyGObj))[1];
-    orient[2] = ((float *)test_CURRENTORIENT(boyGObj))[2];
-    boxp[0] =
-        ((float *)test_CURRENTROOT(*(void **)(*(char **)((char *)boyGObj + 0x164) + 0x158)))[0];
-    boxp[1] =
-        ((float *)test_CURRENTROOT(*(void **)(*(char **)((char *)boyGObj + 0x164) + 0x158)))[1];
-    boxp[2] =
-        ((float *)test_CURRENTROOT(*(void **)(*(char **)((char *)boyGObj + 0x164) + 0x158)))[2];
-    cur[0] = ((float *)test_CURRENTROOT(self))[0];
-    cur[1] = ((float *)test_CURRENTROOT(self))[1];
-    cur[2] = ((float *)test_CURRENTROOT(self))[2];
+    orient[0] = test_CURRENTORIENT(boyGObj)[0];
+    orient[1] = test_CURRENTORIENT(boyGObj)[1];
+    orient[2] = test_CURRENTORIENT(boyGObj)[2];
+    boxp[0] = (test_CURRENTROOT(*(void **)(*(char **)((char *)boyGObj + 0x164) + 0x158)))[0];
+    boxp[1] = (test_CURRENTROOT(*(void **)(*(char **)((char *)boyGObj + 0x164) + 0x158)))[1];
+    boxp[2] = (test_CURRENTROOT(*(void **)(*(char **)((char *)boyGObj + 0x164) + 0x158)))[2];
+    cur[0] = test_CURRENTROOT(self)[0];
+    cur[1] = test_CURRENTROOT(self)[1];
+    cur[2] = test_CURRENTROOT(self)[2];
     sceVu0ScaleVector(ofs, orient, 100.0f);
     sceVu0AddVector(sideA, boxp, ofs);
     sceVu0ScaleVector(ofs, orient, -100.0f);
@@ -3201,9 +3132,9 @@ static void Danger_Rotobject(void *self)
         int found;
         int i;
 
-        boy[0] = ((float *)test_CURRENTROOT(boyGObj))[0];
-        boy[1] = ((float *)test_CURRENTROOT(boyGObj))[1];
-        boy[2] = ((float *)test_CURRENTROOT(boyGObj))[2];
+        boy[0] = test_CURRENTROOT(boyGObj)[0];
+        boy[1] = test_CURRENTROOT(boyGObj)[1];
+        boy[2] = test_CURRENTROOT(boyGObj)[2];
         best = 0.0f;
         found = 0;
         for (i = 0; i < 4; i++) {
@@ -3244,12 +3175,12 @@ static void Danger_Rotobject(void *self)
     obj = dangerEnv.obj;
     GetRootProjectionPosOfGObj(goal, obj);
     GetRootProjectionPosOfGObj(girl, self);
-    objp[0] = ((float *)test_CURRENTROOT(obj))[0];
-    objp[1] = ((float *)test_CURRENTROOT(obj))[1];
-    objp[2] = ((float *)test_CURRENTROOT(obj))[2];
+    objp[0] = test_CURRENTROOT(obj)[0];
+    objp[1] = test_CURRENTROOT(obj)[1];
+    objp[2] = test_CURRENTROOT(obj)[2];
     GetRootProjectionPosOfGObj(base, obj);
     _ACTWait(1);
-    if (!GetSafePosition(300.0f, goal, (float *)test_CURRENTROOT(obj), girl,
+    if (!GetSafePosition(300.0f, goal, test_CURRENTROOT(obj), girl,
                          (int)test_CURRENTROOT(boyGObj))) {
         while (1) {
             *(float *)(sub + 0x34C) = 0.0f;
@@ -3329,12 +3260,12 @@ int isEnterHideadv_EnemyLocation(float *bpos, float *gpos)
     int i;
     float d;
 
-    bpos[0] = ((float *)test_CURRENTROOT(boyGObj))[0];
-    bpos[1] = ((float *)test_CURRENTROOT(boyGObj))[1];
-    bpos[2] = ((float *)test_CURRENTROOT(boyGObj))[2];
-    gpos[0] = ((float *)test_CURRENTROOT(girlGObj))[0];
-    gpos[1] = ((float *)test_CURRENTROOT(girlGObj))[1];
-    gpos[2] = ((float *)test_CURRENTROOT(girlGObj))[2];
+    bpos[0] = test_CURRENTROOT(boyGObj)[0];
+    bpos[1] = test_CURRENTROOT(boyGObj)[1];
+    bpos[2] = test_CURRENTROOT(boyGObj)[2];
+    gpos[0] = test_CURRENTROOT(girlGObj)[0];
+    gpos[1] = test_CURRENTROOT(girlGObj)[1];
+    gpos[2] = test_CURRENTROOT(girlGObj)[2];
     _OrientXZGV(o1, bpos, gpos);
     for (i = 0; i < brain_val.hide.num; i++) {
         if (*(int *)((char *)brain_val.hide.ent[i].obj + 0xC) == 4) {
@@ -3480,8 +3411,6 @@ GirlBrainWork brain_val = {0};
 extern float GetDifferenceFromLowerField(void *obj, int node);
 /* kept local: void (float *, void *) here, void (int, int) in motionManager2.h */
 extern void _GetMotionDirection(float *dir, void *g);
-/* kept local: void (void *, float *, float) here, int (int, float *, float) in commonact.h */
-extern void SetMotionDirectionSmooze(void *self, float *dir, float t);
 extern void _ACTCommonMailTest(void *self, int a1, int a2, int a3);
 extern char motionKind[];
 /* kept local: void * here, int in main.h */
@@ -3785,16 +3714,8 @@ extern void ACTGame_CommonLoop(void *self);
 extern void brainLevelProcess(Brain *b);
 extern void ACTLookTargetSystem_Exec(void *self);
 extern void ACTParaStatus_Exec(void *self);
-/* kept local: agrees with act-game.h, which this TU does not include (ACTGameView_Check, ACTGame_FLAG_TETSUNAGI differ) */
-extern float _ACTGame_GetParamF(int idx);
 /* kept local: void (float, void *, void *, int, int, int) here, void (void) in camera-editor.h */
 extern void debug_Arrow(float len, void *from, void *to, int r, int g, int b);
-/* kept local: int (void) here, unsigned char (void) in act-game.h */
-extern int ACTGame_FLAG_TETSUNAGI(void);
-/* kept local: void (void *) here, void (char *) in act-game.h */
-extern void ACTGame_SaveActorInformation(void *a0);
-/* kept local: int (void *, void *) here, int (char *, char *) in act-game.h */
-extern int ACTGame_CheckHandMotion(void *a0, void *a1);
 extern double fptodp(float v);
 /* kept local: agrees with motionManager2.h, which this TU does not include (GetRootProjectionPosOfGObj, GetSkeltonFocusNode differ) */
 extern void SetMotionDirection(void *a0, float *dir);
@@ -3959,7 +3880,7 @@ void subGirlCollision(volatile int a0)
 
             if (!gflagChk(106)) {
                 _OrientXZGV((char *)sub + 0x120, gate, test_CURRENTROOT((void *)a0));
-            } else if (((float *)test_CURRENTROOT((void *)a0))[2] > 350.0f) {
+            } else if (test_CURRENTROOT((void *)a0)[2] > 350.0f) {
                 _OrientXZGV((char *)sub + 0x120, home, test_CURRENTROOT((void *)a0));
             } else {
                 *(float *)((char *)sub + 0x120) = 0.0f;
@@ -4012,14 +3933,6 @@ void subGirlCollision(volatile int a0)
    prototype in motionManager2.h */
 /* kept local: float (void *, void *) here, float (int *, int *) in motionManager2.h */
 extern float GetHeightOfFieldPlaneDifference(void *a, void *b);
-/* kept local: agrees with act-game.h, which this TU does not include (ACTGameView_Check, ACTGame_FLAG_TETSUNAGI differ) */
-extern float _ACTGame_GetParamF(int idx);
-/* kept local: agrees with act-game.h, which this TU does not include (ACTGameView_Check, ACTGame_FLAG_TETSUNAGI differ) */
-extern void ACTGame_ConnectHand(void);
-/* kept local: int (void) here, unsigned char (void) in act-game.h */
-extern int ACTGame_FLAG_TETSUNAGI(void);
-/* kept local: void (void *, void *, float *, int, int) here, int (char *, int, float *, int, int) in act-game.h */
-extern void _ACTLookTarget_Set(void *self, void *target, float *pos, int kind, int flag);
 
 inline int NotNeedBackHand(void)
 {
@@ -4410,17 +4323,6 @@ void actGirlHand(volatile int a0)
     }
 }
 
-/* kept local: agrees with act-game.h, which this TU does not include (ACTGameView_Check, ACTGame_FLAG_TETSUNAGI differ) */
-extern void PAIR_GetPosition_BOY(float *boy, float *dir);
-/* kept local: void (void *, float *, float *, float, int) here, void (char *, float *, float *, int, float) in commonact.h */
-extern void StartCorrectPosition(void *obj, float *dst, float *cur, float dist, int flag);
-/* kept local: int (void *) here, int (char *) in commonact.h */
-extern int IsCorrectPosition(void *obj);
-/* kept local: agrees with commonact.h, which this TU does not include (ACTSendMailCorrect, SetMotionDirectionSmooze differ) */
-extern void ContinueCorrectPosition(void *obj);
-/* kept local: agrees with act-game.h, which this TU does not include (ACTGameView_Check, ACTGame_FLAG_TETSUNAGI differ) */
-extern int PAIR_IsStatus_BOY_PULL(void);
-
 void actGirlPulledReady(volatile int a0)
 {
     float boy[4];
@@ -4434,11 +4336,11 @@ void actGirlPulledReady(volatile int a0)
     PAIR_GetPosition_BOY(boy, dir);
     sceVu0ScaleVector(dst, dir, 30.0f);
     sceVu0AddVector(dst, boy, dst);
-    dst[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
+    dst[1] = test_CURRENTROOT((void *)a0)[1];
     sceVu0ScaleVector(dir, dir, -1.0f);
     d = _DistxzGV(pos, dst) * 0.5f;
     v = (d < 1.0f) ? 1.0f : ((d > 20.0f) ? 20.0f : d);
-    StartCorrectPosition((void *)a0, dst, dir, v, 1);
+    StartCorrectPosition((void *)a0, dst, dir, 1, v);
     while (IsCorrectPosition((void *)a0)) {
         ContinueCorrectPosition((void *)a0);
         _ACTWait(1);
@@ -4455,8 +4357,6 @@ typedef struct {
     int w[8];
 } GirlPullBlk;
 
-/* kept local: agrees with act-game.h, which this TU does not include (ACTGameView_Check, ACTGame_FLAG_TETSUNAGI differ) */
-extern void ACTGame_ConnectHand(void);
 /* kept local: void (void *, void *, int, int, float *, float, float, float, float) here, void (char *, char *, float, float, float, int, int, float, void *) in motionManager2.h */
 extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float *q, float x,
                                           float y, float z, float w);
@@ -4502,11 +4402,6 @@ void actGirlPulledGo(volatile int a0)
     }
 }
 
-/* kept local: agrees with act-game.h, which this TU does not include (ACTGameView_Check, ACTGame_FLAG_TETSUNAGI differ) */
-extern void PAIR_GetPosition_BOY_DITCH(float *bpos, float *gpos);
-/* kept local: agrees with act-game.h, which this TU does not include (ACTGameView_Check, ACTGame_FLAG_TETSUNAGI differ) */
-extern int PAIR_IsStatus_BOY_DITCH(void);
-
 void actGirlDitch3mReady(volatile int a0)
 {
     float gpos[4];
@@ -4515,8 +4410,8 @@ void actGirlDitch3mReady(volatile int a0)
 
     GetRootPosition(now, (void *)a0);
     PAIR_GetPosition_BOY_DITCH(bpos, gpos);
-    bpos[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
-    StartCorrectPosition((void *)a0, bpos, gpos, 20.0f, 1);
+    bpos[1] = test_CURRENTROOT((void *)a0)[1];
+    StartCorrectPosition((void *)a0, bpos, gpos, 1, 20.0f);
     while (IsCorrectPosition((void *)a0)) {
         debug_NMarker(bpos, 0, 0, 0xFF, 100.0f);
         ContinueCorrectPosition((void *)a0);
@@ -4551,12 +4446,12 @@ inline void actGirlDitch3mExec(volatile int a0)
     }
     for (;;) {
         if (go) {
-            boy[0] = ((float *)test_CURRENTROOT(boyGObj))[0];
-            boy[1] = ((float *)test_CURRENTROOT(boyGObj))[1];
-            boy[2] = ((float *)test_CURRENTROOT(boyGObj))[2];
-            girl[0] = ((float *)test_CURRENTROOT(girlGObj))[0];
-            girl[1] = ((float *)test_CURRENTROOT(girlGObj))[1];
-            girl[2] = ((float *)test_CURRENTROOT(girlGObj))[2];
+            boy[0] = test_CURRENTROOT(boyGObj)[0];
+            boy[1] = test_CURRENTROOT(boyGObj)[1];
+            boy[2] = test_CURRENTROOT(boyGObj)[2];
+            girl[0] = test_CURRENTROOT(girlGObj)[0];
+            girl[1] = test_CURRENTROOT(girlGObj)[1];
+            girl[2] = test_CURRENTROOT(girlGObj)[2];
             _InterGV(dst, boy, girl, 1.0f, 1.0f);
             SetRootPosition((void *)a0, dst);
             i++;
@@ -4623,8 +4518,6 @@ inline void actGirlAttack(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: void (void *, void *) here, void (int, int) in commonact.h */
-extern void ACTAdjustPlane(void *self, void *plane);
 /* kept local: void (void *, void *, int, int, float *, float, float, float, float) here, void (char *, char *, float, float, float, int, int, float, void *) in motionManager2.h */
 extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float *q, float x,
                                           float y, float z, float w);
@@ -4724,8 +4617,8 @@ void actGirlReadyMove(volatile int a0)
     dir[0] = *(float *)(*(int *)(*(int *)((char *)a0 + 0x164) + 0x680) + 0x240);
     dir[1] = *(float *)(*(int *)(*(int *)((char *)a0 + 0x164) + 0x680) + 0x244);
     dir[2] = *(float *)(*(int *)(*(int *)((char *)a0 + 0x164) + 0x680) + 0x248);
-    dst[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
-    StartCorrectPosition((void *)a0, dst, dir, (float)n, 1);
+    dst[1] = test_CURRENTROOT((void *)a0)[1];
+    StartCorrectPosition((void *)a0, dst, dir, 1, (float)n);
     while (IsCorrectPosition((void *)a0)) {
         debug_Arrow(100.0f, test_CURRENTROOT((void *)a0), dir, 0xFF, 0, 0xFF);
         ContinueCorrectPosition((void *)a0);
@@ -4737,16 +4630,8 @@ void actGirlReadyMove(volatile int a0)
     }
 }
 
-/* kept local: void (void *) here, void (volatile int *) in act-game.h */
-extern void ACTGameCollisionOn(void *a0);
-/* kept local: agrees with commonact.h, which this TU does not include (ACTSendMailCorrect, SetMotionDirectionSmooze differ) */
-extern void ACTSetPositionWithFitting(void *a0, float *pos);
 /* kept local: agrees with motionManager2.h, which this TU does not include (GetRootProjectionPosOfGObj, GetSkeltonFocusNode differ) */
 extern void SetMotionDirection(void *a0, float *dir);
-/* kept local: int (void *, void *) here, int (char *, char *) in act-game.h */
-extern int ACTGame_CheckHandMotion(void *a0, void *a1);
-/* kept local: void (float *, void *, int) here, void (float *, char *, void *) in act-game.h */
-extern void GetSkeltonPosition(float *out, void *obj, int node);
 
 void actGirlRescueDst(volatile int a0)
 {
@@ -4769,9 +4654,9 @@ void actGirlRescueDst(volatile int a0)
     ACTGame_ConnectHand();
     ACTGameCollisionOn((void *)a0);
     gflagOff(393);
-    pos[0] = ((float *)test_CURRENTROOT((void *)a0))[0];
-    pos[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
-    pos[2] = ((float *)test_CURRENTROOT((void *)a0))[2];
+    pos[0] = test_CURRENTROOT((void *)a0)[0];
+    pos[1] = test_CURRENTROOT((void *)a0)[1];
+    pos[2] = test_CURRENTROOT((void *)a0)[2];
     pos[1] = *(float *)(*(char **)(*(char **)((char *)boyGObj + 0x164) + 0x680) + 0x304);
     ACTSetPositionWithFitting((void *)a0, pos);
     w = *(char **)(*(char **)((char *)boyGObj + 0x164) + 0x680);
@@ -4795,7 +4680,7 @@ void actGirlRescueDst(volatile int a0)
         }
         if (n > 0) {
             sceVu0AddVector(dst, test_CURRENTROOT((void *)a0), dir);
-            dst[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
+            dst[1] = test_CURRENTROOT((void *)a0)[1];
             ACTSetPositionWithFitting((void *)a0, dst);
         }
         iosOmSendMail(boyGObj, 350, isysCurrentGObj);
@@ -4815,12 +4700,12 @@ inline void actGirlSupportGBBegin(volatile int a0)
     float dst[4];
 
     for (;;) {
-        girl[0] = ((float *)test_CURRENTROOT(girlGObj))[0];
-        girl[1] = ((float *)test_CURRENTROOT(girlGObj))[1];
-        girl[2] = ((float *)test_CURRENTROOT(girlGObj))[2];
-        boy[0] = ((float *)test_CURRENTROOT(boyGObj))[0];
-        boy[1] = ((float *)test_CURRENTROOT(boyGObj))[1];
-        boy[2] = ((float *)test_CURRENTROOT(boyGObj))[2];
+        girl[0] = test_CURRENTROOT(girlGObj)[0];
+        girl[1] = test_CURRENTROOT(girlGObj)[1];
+        girl[2] = test_CURRENTROOT(girlGObj)[2];
+        boy[0] = test_CURRENTROOT(boyGObj)[0];
+        boy[1] = test_CURRENTROOT(boyGObj)[1];
+        boy[2] = test_CURRENTROOT(boyGObj)[2];
         boy[1] = girl[1];
         _MoveGV(dst, girl, boy, 20.0f);
         SetDirectRootPositionNoFitting((void *)a0, dst);
@@ -4878,12 +4763,12 @@ void actGirlSupportBGBegin(volatile int a0)
 
     i = 0;
     s = *(char **)((char *)a0 + 0x164);
-    v1[0] = ((float *)test_CURRENTROOT(boyGObj))[0];
-    v1[1] = ((float *)test_CURRENTROOT(boyGObj))[1];
-    v1[2] = ((float *)test_CURRENTROOT(boyGObj))[2];
-    v2[0] = ((float *)test_CURRENTROOT(girlGObj))[0];
-    v2[1] = ((float *)test_CURRENTROOT(girlGObj))[1];
-    v2[2] = ((float *)test_CURRENTROOT(girlGObj))[2];
+    v1[0] = test_CURRENTROOT(boyGObj)[0];
+    v1[1] = test_CURRENTROOT(boyGObj)[1];
+    v1[2] = test_CURRENTROOT(boyGObj)[2];
+    v2[0] = test_CURRENTROOT(girlGObj)[0];
+    v2[1] = test_CURRENTROOT(girlGObj)[1];
+    v2[2] = test_CURRENTROOT(girlGObj)[2];
     memset(q, 0, 0x10);
     q[3] = 1.0f;
     RotQuaternionY(q, 0);
@@ -4902,30 +4787,6 @@ void actGirlSupportBGBegin(volatile int a0)
 int girlcalled;
 
 extern char D_002A84F8[];
-/* kept local: void (void) here, void (volatile int) in commonact.h */
-extern void subCommonIdle(void);
-/* kept local: void (void *, int) here, int (void *, void *) in act.h */
-extern void actCreateSubThread(void *entry, int prio);
-/* kept local: char * (void *) here, char * (char *) in act.h */
-extern char *actInitialize(void *self);
-/* kept local: void (void *) here, void (char *) in act.h */
-extern void actInitialize_ext_charcter(void *self);
-/* kept local: void (void *) here, void (char *) in act.h */
-extern void actInitialize_only_charcter(void *self);
-/* kept local: agrees with act.h, which this TU does not include (actChangeActBrain, actCreateSubThread differ) */
-extern void actInitialize_geo(void *self);
-/* kept local: agrees with act-game.h, which this TU does not include (ACTGameView_Check, ACTGame_FLAG_TETSUNAGI differ) */
-extern float _ACTGame_GetParamF(int idx);
-/* kept local: void (void *) here, void (char *) in act-game.h */
-extern void ACTGame_LwsEffectInit(void *self);
-/* kept local: void (void *) here, void (char *) in act-game.h */
-extern void ACTLookTarget_Init(void *self);
-/* kept local: void (void *) here, void (char *) in act-game.h */
-extern void ACTParaStatus_Init(void *self);
-/* kept local: void (void *) here, void (int **) in act-game.h */
-extern void _ACTCharStatus_Init(void *self);
-/* kept local: void (void *) here, void (void) in act-game.h */
-extern void ACTGameView_FirstSet(void *self);
 
 void actGirlStart(void *self)
 {
@@ -5111,9 +4972,9 @@ void DebugDispAutoEscort(void)
         return;
     }
     if (girlGObj != 0 && isGirlEscortStatus()) {
-        pos.f[0] = ((float *)test_CURRENTROOT(girlGObj))[0];
-        pos.f[1] = ((float *)test_CURRENTROOT(girlGObj))[1];
-        pos.f[2] = ((float *)test_CURRENTROOT(girlGObj))[2];
+        pos.f[0] = test_CURRENTROOT(girlGObj)[0];
+        pos.f[1] = test_CURRENTROOT(girlGObj)[1];
+        pos.f[2] = test_CURRENTROOT(girlGObj)[2];
     }
     for (i = 1; i < 16; i++) {
         p = searchEscortPoint(stage_no, i);
@@ -5139,9 +5000,6 @@ typedef struct {
     float f_524;
     float f_528;
 } ActPara;
-
-/* kept local: void (void *, int, int, int, void *, int, void *) here, void (char *, int, int, int, int, int, float *) in act-game.h */
-extern void RequestChangeHandMode(void *a0, int a1, int a2, int a3, void *a4, int a5, void *a6);
 
 inline void afterGirlHintPoint(volatile int a0)
 {
@@ -5169,12 +5027,12 @@ void actGirlHintPoint(volatile int a0)
         sceVu0SubVector(p, p, test_CURRENTROOT(tgt));
         RequestChangeHandMode((void *)a0, 1, 4, 3, tgt, 0, p);
         if (boyGObj) {
-            q[0] = ((float *)test_CURRENTROOT((void *)a0))[0];
-            q[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
-            q[2] = ((float *)test_CURRENTROOT((void *)a0))[2];
-            r[0] = ((float *)test_CURRENTROOT(boyGObj))[0];
-            r[1] = ((float *)test_CURRENTROOT(boyGObj))[1];
-            r[2] = ((float *)test_CURRENTROOT(boyGObj))[2];
+            q[0] = test_CURRENTROOT((void *)a0)[0];
+            q[1] = test_CURRENTROOT((void *)a0)[1];
+            q[2] = test_CURRENTROOT((void *)a0)[2];
+            r[0] = test_CURRENTROOT(boyGObj)[0];
+            r[1] = test_CURRENTROOT(boyGObj)[1];
+            r[2] = test_CURRENTROOT(boyGObj)[2];
             sceVu0AddVector(u, q, d);
             _OrientXZGV(o1, r, q);
             _OrientXZGV(o2, u, q);

@@ -18,9 +18,8 @@
 #include <libvu0.h>
 #include <string.h>
 #include "typedef.h"
-
-/* kept local: PObjGObj * (int) here, int (int) in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
+#include "script.h"
+#include "main.h"
 
 void actSt47aInit(void)
 {
@@ -41,9 +40,6 @@ void actSt47aInit(void)
     }
 }
 
-/* kept local: int here, GObj * in main.h */
-extern int girlGObj;
-
 void actSt47aEnd(void)
 {
     if (girlGObj != 0) {
@@ -55,41 +51,6 @@ void actSt47aEnd(void)
 
 /* the 16-byte work vector the stone-statue cutscene reuses for both motion
    directions (src/script.c's scpSekizou uses the same union) */
-
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
-/* kept local: char * here, int in main.h */
-extern char *boyPad;
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern int scpBoyControlReadDisable;
-/* kept local: int (int, int, float) here, int (char *, char *, float) in script.h */
-extern int scpTriggerBall(int a0, int gobj, float r);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpSleepEnemyAll(void);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpWakeupEnemyAll(void);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpKillEnemyAll(void);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpMaskGeneratorAll(void);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpSekizouCheckPoint(void);
-/* kept local: void (int, int *, int, int, int) here, void (int, char **, int, int, int) in script.h */
-extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpPlayStart(int a0);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpPlayEnd(int a0);
-/* kept local: void (int, int) here, void (char *, int) in script.h */
-extern void scpPlayMot(int a0, int mot);
-/* kept local: void (int, float *) here, void (char *, float *) in script.h */
-extern void scpPlayMotDir(int a0, float *dir);
-/* kept local: void (int, float, float, float) here, void (void *, float, float, float) in script.h */
-extern void scpPlayPosSet(int a0, float x, float y, float z);
-/* kept local: void (int) here, void (char *) in script.h */
-extern void scpPlayWaitMotEnd(int a0);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void ScpCallCameraSetTarget(float x, float y, float z);
 
 /* file-static sound / pad handles, .sbss 0x0063C05C..0x0063C078 */
 
@@ -211,22 +172,8 @@ void actSt47aSekizo1Chk(volatile int a0)
     lt_switch_layout(54);
 }
 
-/* kept local: int (int *, int) here, int (char **, short) in script.h */
-extern int scpAdpcmFadeCloseFunc(int *a0, int a1);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern int scpAdpcmPlayRequestNum(void);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpFadeOut(float t, int a1, int a2, int a3);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpFadeIn(float f);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern int scpFadeChk(void);
-
 /* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
    pad, trg at 0x4. */
-
-/* kept local: Pad [] here, PadState [16] in main.h */
-extern Pad pad[];
 
 /* file-static sound handles, .sbss 0x0063C05C..0x0063C078 */
 
@@ -285,7 +232,7 @@ void actSt47aHane1Down(volatile int a0)
     SetCameraFlag_LwsCutBack();
 
     while (stage_CheckAnimationFinish(165) == 0) {
-        if ((pad[0].trg & 0x800) != 0 && scpAdpcmPlayRequestNum() == 0) {
+        if ((pad[0].flags & 0x800) != 0 && scpAdpcmPlayRequestNum() == 0) {
             scpFadeOut(16.0f, 0, 0, 0);
 
             scpAdpcmFadeCloseFunc(&hane1down, 0x200);
@@ -318,9 +265,6 @@ void actSt47aHane1Down(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: int (int, int) here, int (char *, int) in script.h */
-extern int scpTriggerFloorAttr(int a0, int a1);
-
 void actSt47aHane1Up(volatile int a0)
 {
     Act *self = ((PObjGObj *)a0)->act;
@@ -347,7 +291,7 @@ void actSt47aHane1Up(volatile int a0)
     SetCameraFlag_LwsCutBack();
 
     while (stage_CheckAnimationFinish(166) == 0) {
-        if ((pad[0].trg & 0x800) != 0 && scpAdpcmPlayRequestNum() == 0) {
+        if ((pad[0].flags & 0x800) != 0 && scpAdpcmPlayRequestNum() == 0) {
             scpFadeOut(16.0f, 0, 0, 0);
 
             scpAdpcmFadeCloseFunc(&hane1up, 0x200);
@@ -397,7 +341,7 @@ void actSt47aHane2Down(volatile int a0)
     SetCameraFlag_LwsCutBack();
 
     while (stage_CheckAnimationFinish(167) == 0) {
-        if ((pad[0].trg & 0x800) != 0 && scpAdpcmPlayRequestNum() == 0) {
+        if ((pad[0].flags & 0x800) != 0 && scpAdpcmPlayRequestNum() == 0) {
             scpFadeOut(16.0f, 0, 0, 0);
 
             scpAdpcmFadeCloseFunc(&hane2down, 0x200);
@@ -451,7 +395,7 @@ void actSt47aHane2Up(volatile int a0)
     SetCameraFlag_LwsCutBack();
 
     while (stage_CheckAnimationFinish(168) == 0) {
-        if ((pad[0].trg & 0x800) != 0 && scpAdpcmPlayRequestNum() == 0) {
+        if ((pad[0].flags & 0x800) != 0 && scpAdpcmPlayRequestNum() == 0) {
             scpFadeOut(16.0f, 0, 0, 0);
 
             scpAdpcmFadeCloseFunc(&hane2up, 0x200);
@@ -545,7 +489,7 @@ void actSt47aRopeChk(volatile int a0)
             th = actCreateSubThread(actSt47aRopeSub, 21);
 
             demoEnd = 0;
-            while (demoEnd == 0 && ((pad[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+            while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
                 _ACTWait(1);
             }
 
@@ -571,11 +515,6 @@ void actSt47aRopeChk(volatile int a0)
         }
     }
 }
-
-/* kept local: int (int) here, int * (int) in script.h */
-extern int scpIsBombExplode(int a0);
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, boyPad differ) */
-extern int systemStatus[];
 
 void actSt47aBarricadeChk(volatile int a0)
 {
@@ -642,9 +581,6 @@ void actSt47aEnemy1(volatile int a0)
     Generator_Call((int)scpSearchGobj(513));
 }
 
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpTorchLightOn(int a0);
-
 void actSt47aTorch(volatile int a0)
 {
     int x = a0;
@@ -690,10 +626,6 @@ void actSt47aSekizo1(volatile int a0)
         }
     }
 }
-
-/* kept local: void (int, int, int, int, int, float, float, float, float, float, float) here, void (char *, int, int, int, int, float, float, float, float, float, float) in script.h */
-extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
-                       float x2, float y2, float z2);
 
 void actSt47aSekizo2(volatile int a0)
 {
@@ -890,11 +822,6 @@ static const ConstVec hane1_2GirlPos = {{1028.0f, -1972.0f, 744.0f, 0.0f}};
 
 static const ConstVec hane2GirlPos = {{-1031.0f, -1972.0f, -747.0f, 0.0f}};
 
-/* kept local: void (int, int, int *, int, float) here, int (char *, int, int, float, int) in script.h */
-extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
-/* kept local: void (int, int, int *, int) here, void (int *) in script.h */
-extern void RequestStageChangeDirect(int a0, int a1, int *buf, int a3);
-
 void actSt47aGirlWay(volatile int a0)
 {
     long long buf[2];
@@ -902,7 +829,7 @@ void actSt47aGirlWay(volatile int a0)
 
     buf[0] = girlWayPos.d[0];
     buf[1] = girlWayPos.d[1];
-    _SCPMoveCharactorByWay(girlGObj, 0, (int *)buf, 0, 100.0f);
+    _SCPMoveCharactorByWay(girlGObj, 0, (float *)buf, 100.0f, 0);
 
     memset(way, 0, 0x10);
     RequestStageChangeDirect(girlGObj, 0xB, (int *)way, 0xB4);
@@ -951,7 +878,7 @@ void actSt47aHane1_1Girl(volatile int a0)
     long long buf[2];
     buf[0] = hane1_1GirlPos.d[0];
     buf[1] = hane1_1GirlPos.d[1];
-    _SCPMoveCharactorByWay(girlGObj, 0, (int *)buf, 0, 100.0f);
+    _SCPMoveCharactorByWay(girlGObj, 0, (float *)buf, 100.0f, 0);
 }
 
 void actSt47aHane1_2Girl(volatile int a0)
@@ -959,7 +886,7 @@ void actSt47aHane1_2Girl(volatile int a0)
     long long buf[2];
     buf[0] = hane1_2GirlPos.d[0];
     buf[1] = hane1_2GirlPos.d[1];
-    _SCPMoveCharactorByWay(girlGObj, 0, (int *)buf, 0, 100.0f);
+    _SCPMoveCharactorByWay(girlGObj, 0, (float *)buf, 100.0f, 0);
 }
 
 void actSt47aHane2Main(volatile int a0)
@@ -999,7 +926,7 @@ void actSt47aHane2Girl(volatile int a0)
     long long buf[2];
     buf[0] = hane2GirlPos.d[0];
     buf[1] = hane2GirlPos.d[1];
-    _SCPMoveCharactorByWay(girlGObj, 0, (int *)buf, 0, 100.0f);
+    _SCPMoveCharactorByWay(girlGObj, 0, (float *)buf, 100.0f, 0);
 }
 
 void actSt47aRopeSub(volatile int a0)

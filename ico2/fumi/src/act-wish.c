@@ -4,6 +4,7 @@
 #include "item.h"
 #include <libvu0.h>
 #include "act-wish.h"
+#include "boyact.h"
 
 /* The wish/flag words the pad handler ORs into the actor's sub-record are a
    64-bit word that the engine also reads a word at a time; declaring them as
@@ -37,8 +38,6 @@ extern void *girlControlMode;
 extern int optionControlType;
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlControlMode differ) */
 extern int systemStatus[];
-/* kept local: void (char *, float, int, int, char **, float *) here, void (void *, int, int, int *, float *, float) in boyact.h */
-extern void ACTSearchGObj(char *a0, float a1, int a2, int a3, char **a4, float *a5);
 
 static inline unsigned char chkOrient(char *s, float *dir, float *w, float deg)
 {
@@ -64,9 +63,9 @@ void ACTGetWish_FromPad(char *a0, float *a1)
     char *s = (char *)*(int *)(a0 + 0x164);
     float deg;
 
-    v[0] = ((float *)test_CURRENTROOT(a0))[0];
-    v[1] = ((float *)test_CURRENTROOT(a0))[1];
-    v[2] = ((float *)test_CURRENTROOT(a0))[2];
+    v[0] = test_CURRENTROOT(a0)[0];
+    v[1] = test_CURRENTROOT(a0)[1];
+    v[2] = test_CURRENTROOT(a0)[2];
 
     WISH(s + 0x488) |= 1ULL << 37;
     WISH(s + 0x488) |= 1ULL << 36;
@@ -310,13 +309,13 @@ void ACTGetWish_FromPad(char *a0, float *a1)
     }
 
     if (*(int *)(s + 0x2E0) & 0x20) {
-        ACTSearchGObj(a0, 100.0f, 0x13, 0x2D, &o, u);
+        ACTSearchGObj(a0, 0x13, 0x2D, &o, u, 100.0f);
 
         if (o != 0 && CheckCarryableItem(o)) {
             deg = a0 == boyGObj ? 60.0f : 80.0f;
-            p[0] = ((float *)test_CURRENTROOT(o))[0];
-            p[1] = ((float *)test_CURRENTROOT(o))[1];
-            p[2] = ((float *)test_CURRENTROOT(o))[2];
+            p[0] = test_CURRENTROOT(o)[0];
+            p[1] = test_CURRENTROOT(o)[1];
+            p[2] = test_CURRENTROOT(o)[2];
             if (p[1] > v[1] && (float)(p[1] - v[1] < 0.0f ? -(p[1] - v[1]) : (p[1] - v[1])) < deg) {
                 *(int *)(s + 0x184) = (int)o;
                 WISH(s + 0x490) |= 1ULL << 43;

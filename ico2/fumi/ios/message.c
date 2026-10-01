@@ -6,6 +6,7 @@
 #include "thread.h"
 #include "debug_exception.h"
 #include "main.h"
+#include "message.h"
 
 typedef struct IosMsg {
     char pad0[0x44];
@@ -35,12 +36,9 @@ typedef struct MsgEventThread {
 } MsgEventThread;
 
 extern void __assert(char *file, int line, char *expr);
-/* kept local: agrees with message.h, which this TU does not include */
-extern int signal_handler(int a0);
+
 /* kept local with message.h's declaration (this TU does not include it): the
    signal thread's record, defined after the functions whose strings precede it */
-/* kept local: agrees with message.h, which this TU does not include */
-extern int *th_sig;
 
 /* .bss, owned by message.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the queue registered against each semaphore id. */

@@ -15,17 +15,8 @@
 #include "Shadow.h"
 #include "StageAnimation.h"
 #include "typedef.h"
-
-/* kept local: this TU's bytes only come out with its own view of PObjGObj, so it
-   keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
-typedef struct PObjGObjSt08A {
-    char pad00[0x15C]; /* 0x000 */
-    char *f15C;        /* 0x15C */
-    char pad160[0x4];  /* 0x160 */
-    Act *act;          /* 0x164 */
-    char pad168[0x4];  /* 0x168 */
-    int f16C;          /* 0x16C */
-} PObjGObjSt08A;
+#include "main.h"
+#include "script.h"
 
 static ActMail ene1_mes[2] = {{430}, {429}};
 
@@ -57,15 +48,6 @@ static ActMail torch_on_mes[2] = {{430}, {429}};
 
 static ActMail torch_off_mes[2] = {{430}, {429}};
 
-/* kept local: agrees with script.h, which this TU does not include (scpPlayMot, scpSearchGobj differ) */
-extern int scpBoyControlReadDisable;
-/* kept local: int (int, void *, float) here, int (char *, char *, float) in script.h */
-extern int scpTriggerBall(int a0, void *a1, float radius);
-/* kept local: void * here, GObj * in main.h */
-extern void *boyGObj;
-/* kept local: void * here, GObj * in main.h */
-extern void *girlGObj;
-
 /* .sbss, owned by st08a.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
    subthreads the wait loops below spin for, and the flag actSt08aDoorUpSub
@@ -73,11 +55,6 @@ extern void *girlGObj;
 static int demoEnd;
 
 static int doorUpDone;
-
-/* kept local: PObjGObjSt08A * (int) here, int (int) in script.h */
-extern PObjGObjSt08A *scpSearchGobj(int a0);
-/* kept local: agrees with script.h, which this TU does not include (scpPlayMot, scpSearchGobj differ) */
-extern void scpSetCageVelocityFriction(int id, float f);
 
 void actSt08aEnd(void)
 {
@@ -87,13 +64,6 @@ void actSt08aEnd(void)
         }
     }
 }
-
-/* kept local: agrees with script.h, which this TU does not include (scpPlayMot, scpSearchGobj differ) */
-extern void scpSleepEnemyOne(int id);
-/* kept local: agrees with script.h, which this TU does not include (scpPlayMot, scpSearchGobj differ) */
-extern void scpWakeupEnemyOne(int id);
-/* kept local: void (void *, int) here, void (char *, int) in script.h */
-extern void scpPlayMot(void *o, int mot);
 
 void actSt08aEne1Chk(volatile int a0)
 {
@@ -128,11 +98,6 @@ void actSt08aEne1Chk(volatile int a0)
     lt_switch_layout(54);
     scpWakeupEnemyOne(3757);
 }
-
-/* kept local: agrees with script.h, which this TU does not include (scpPlayMot, scpSearchGobj differ) */
-extern void scpKillEnemyOne(int a0);
-/* kept local: agrees with script.h, which this TU does not include (scpPlayMot, scpSearchGobj differ) */
-extern void scpKillSpiderGroup(int a0);
 
 void actSt08aEne2Chk(volatile int a0)
 {
@@ -182,21 +147,6 @@ void actSt08aEne2Chk(volatile int a0)
     scpWakeupEnemyOne(3757);
 }
 
-/* kept local: agrees with main.h, which this TU does not include */
-extern PadState pad[];
-/* kept local: agrees with script.h, which this TU does not include (scpPlayMot, scpSearchGobj differ) */
-extern int scpAdpcmPlayRequestNum(void);
-/* kept local: agrees with script.h, which this TU does not include (scpPlayMot, scpSearchGobj differ) */
-extern void scpSleepEnemyAll(void);
-/* kept local: agrees with script.h, which this TU does not include (scpPlayMot, scpSearchGobj differ) */
-extern void scpWakeupEnemyAll(void);
-/* kept local: agrees with script.h, which this TU does not include (scpPlayMot, scpSearchGobj differ) */
-extern void scpFadeOut(float t, int a1, int a2, int a3);
-/* kept local: agrees with script.h, which this TU does not include (scpPlayMot, scpSearchGobj differ) */
-extern void scpFadeIn(float t);
-/* kept local: agrees with script.h, which this TU does not include (scpPlayMot, scpSearchGobj differ) */
-extern int scpFadeChk(void);
-
 void actSt08aDoorUp(volatile int a0)
 {
     int th;
@@ -236,9 +186,6 @@ void actSt08aDoorUp(volatile int a0)
     lt_switch_layout(54);
 }
 
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int boyPad;
-
 /* .sdata, owned by st08a.o, in the ROM's order: the scene's stream handle (MAIN.MAP has no .sdata for the January object). */
 static int *st08a_adpcm = 0; /* derived name */
 
@@ -274,11 +221,6 @@ void actSt08aHasiUpSub(volatile int a0)
     demoEnd = 1;
     _ACTWait(0);
 }
-
-/* kept local: void (int, int *, int, int, int) here, void (int, char **, int, int, int) in script.h */
-extern void scpAdpcmPlayRequestFunc(int kind, int *id, int a2, int a3, int a4);
-/* kept local: int (int *, int) here, int (char **, short) in script.h */
-extern int scpAdpcmFadeCloseFunc(int *h, int fade);
 
 void actSt08aHasiUp(volatile int a0)
 {
@@ -322,12 +264,9 @@ void actSt08aHasiUp(volatile int a0)
     lt_switch_layout(54);
 }
 
-/* kept local: int (void *, int) here, int (char *, int) in script.h */
-extern int scpTriggerFloorAttr(void *a0, int attr);
-
 void actSt08aTorchOnChk(volatile int a0)
 {
-    Act *self = ((PObjGObjSt08A *)a0)->act;
+    Act *self = GOBJ_ACT(a0);
 
     while (scpTriggerFloorAttr(boyGObj, 0x5000000) != 0 ||
            scpTriggerFloorAttr(boyGObj, 0x7000000) != 0 ||
@@ -355,7 +294,7 @@ void actSt08aTorchOnChk(volatile int a0)
 
 void actSt08aTorchOffChk(volatile int a0)
 {
-    Act *self = ((PObjGObjSt08A *)a0)->act;
+    Act *self = GOBJ_ACT(a0);
 
     while (scpTriggerFloorAttr(boyGObj, 0x5000000) == 0 &&
            scpTriggerFloorAttr(boyGObj, 0x7000000) == 0 &&
@@ -405,9 +344,9 @@ void actSt08aEne1(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    shadow_SetLength(scpSearchGobj(366)->f15C, 100.0f);
-    shadow_SetLength(scpSearchGobj(367)->f15C, 100.0f);
-    shadow_SetLength(scpSearchGobj(368)->f15C, 100.0f);
+    shadow_SetLength(scpSearchGobj(366)->sub, 100.0f);
+    shadow_SetLength(scpSearchGobj(367)->sub, 100.0f);
+    shadow_SetLength(scpSearchGobj(368)->sub, 100.0f);
 
     if (gflagChk(72) == 0) {
         ene1_mes[0].func = actSt08aEne1Chk;
@@ -625,7 +564,7 @@ void actSt08aDoorMain(volatile int a0)
 
 void actSt08aDoorSwitch(volatile int a0)
 {
-    Act *sub = ((PObjGObjSt08A *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = 0;
     scpBoyControlReadDisable = 1;
@@ -713,7 +652,7 @@ void actSt08aHasiMain(volatile int a0)
 
 void actSt08aHasiSwitch(volatile int a0)
 {
-    Act *sub = ((PObjGObjSt08A *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = 0;
     scpBoyControlReadDisable = 1;

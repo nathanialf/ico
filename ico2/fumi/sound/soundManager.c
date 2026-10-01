@@ -4,34 +4,12 @@
 #include "adpcm_init.h"
 #include "Matrix.h"
 #include "main.h"
+#include "thread.h"
+#include "s_init.h"
 
-/* kept local: agrees with s_init.h, which this TU does not include (soundSeKindBuild differ) */
-extern void soundDataSegAllClose(int a0, int a1);
-/* kept local: agrees with s_init.h, which this TU does not include (soundSeKindBuild differ) */
-extern void soundDataSegNextStageNotUseClose();
-/* kept local: agrees with s_init.h, which this TU does not include (soundSeKindBuild differ) */
-extern void soundSeEnvNotUseClose();
-/* kept local: agrees with s_init.h, which this TU does not include (soundSeKindBuild differ) */
-extern void soundSePlayModeStop(int arg);
-/* kept local: void (int, int *) here, void () in s_init.h */
-extern void soundDataSegNextStageNotUseClose(int x, int *p);
-/* kept local: void (int *, int *) here, void () in s_init.h */
-extern void soundSeEnvNotUseClose(int *a, int *b);
 extern StgPre stageData[];
-/* kept local: agrees with s_init.h, which this TU does not include (soundSeKindBuild differ) */
-extern void soundReverbDepthSet(int a0);
-/* kept local: void (int) here, void (void) in s_init.h */
-extern void soundSeKindBuild(int idx);
-/* kept local: void (int) here, int (int *) in thread.h */
-extern void iosThreadCancelWakeup(int mode);
-/* kept local: agrees with thread.h, which this TU does not include (iosThreadCancelWakeup differ) */
-extern void iosThreadSleep();
 extern int SgSndn2RemoteSync();
 extern void SgCalledTickProc();
-/* kept local: agrees with s_init.h, which this TU does not include (soundSeKindBuild differ) */
-extern void soundVBlank();
-/* kept local: agrees with s_init.h, which this TU does not include (soundSeKindBuild differ) */
-extern int soundOutputModeGet();
 
 #include "soundManager.h"
 
@@ -75,7 +53,7 @@ int sndInitBgmCancelFlag;
 void sndInit(int idx)
 {
     short attrOff;
-    soundSeKindBuild(idx);
+    soundSeKindBuild();
     adpcmPauseRequest(0);
     attrOff = 0x18C;
     soundReverbDepthSet(*(unsigned short *)((char *)&stageData[idx] + attrOff));

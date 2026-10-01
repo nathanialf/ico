@@ -26,21 +26,14 @@
 #include "streamMotionManager.h"
 #include "kanbanBoot.h"
 #include "layout_action.h"
+#include "script.h"
 
 /* kept local: int here, GObj * in main.h */
 extern int boyGObj;
 /* kept local: int here, GObj * in main.h */
 extern int girlGObj;
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmCloseFunc differ) */
-extern int scpBoyControlReadDisable;
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int systemStatus[];
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmCloseFunc differ) */
-extern void scpFadeOut(float t, int a1, int a2, int a3);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmCloseFunc differ) */
-extern int scpFadeChk(void);
-/* kept local: int (int, int, int, float, float) here, int (int, char *, int, float, float) in script.h */
-extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 
 void actE3WarningChk(volatile int a0)
 {
@@ -66,11 +59,6 @@ void actE3WarningChk(volatile int a0)
 
     RequestStageChange(1, boyGObj, 0, 255.0f, 0.0f);
 }
-
-/* kept local: void (int, int *, int, int, int) here, void (int, char **, int, int, int) in script.h */
-extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmCloseFunc differ) */
-extern void scpFadeIn(float t);
 
 #include "e3.h"
 
@@ -203,8 +191,6 @@ void actE3TitleChk(volatile int a0)
 
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int NonLinearCameraMove;
-/* kept local: void (int *) here, void (char **) in script.h */
-extern void scpAdpcmCloseFunc(int *h);
 
 void actE3TitleFrameChk(volatile int a0)
 {
@@ -342,9 +328,6 @@ void actE3Inst1Chk(volatile int a0)
     RequestStageChange(1, boyGObj, 0, 255.0f, 16.0f);
 }
 
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmCloseFunc differ) */
-extern void ScpCallCameraOff(void);
-
 void actE3Capsule(volatile int a0)
 {
     int x = a0;
@@ -425,9 +408,6 @@ void actE3CapsuleDemoCancel(volatile int a0)
     actCreateSubThread(actE3CapsuleDemoEnd, 21);
 }
 
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmCloseFunc differ) */
-extern void scpPlayStart(int a0);
-
 void actE3CapsuleDemo(volatile int a0)
 {
     scpBoyControlReadDisable = 1;
@@ -496,9 +476,6 @@ void actE3St13cInit(void)
     }
 }
 
-/* kept local: void (int, float, float, float) here, void (void *, float, float, float) in script.h */
-extern void scpPlayPosSet(int a0, float x, float y, float z);
-
 void actE3CageFall(volatile int a0)
 {
     int x = a0;
@@ -526,11 +503,6 @@ void actE3CageFall(volatile int a0)
         stage_SetAnimation(75, 0, -1);
     }
 }
-
-/* kept local: int (int, int, float) here, int (char *, char *, float) in script.h */
-extern int scpTriggerBall(int a0, int gobj, float r);
-/* kept local: PObjGObj * (int) here, int (int) in script.h */
-extern PObjGObj *scpSearchGobj(int id);
 
 void actE3CageFallChk(volatile int a0)
 {
@@ -573,10 +545,6 @@ void actE3CageFallChk(volatile int a0)
     SetWayGroupActive(9, 0);
 }
 
-/* kept local: void (int, void *) here, void (char *, float *) in script.h */
-extern void scpPlayMotDir(int a0, void *dir);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmCloseFunc differ) */
-extern void scpPlayEnd(int a0);
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int stage_no;
 
@@ -696,12 +664,8 @@ void actE3CageFallDemo(volatile int a0)
 /* no prototype in the dev's TU: the C89 implicit-int return is what makes
    ee-gcc treat $v0 as clobbered at every call site. The definition in
    src/script.c is void. */
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmCloseFunc differ) */
-extern int scpEffectStart(void *a0, int a1);
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int boyPad;
-/* kept local: void (int, int) here, void (char *, int) in script.h */
-extern void scpPlayMot(int a0, int mot);
 
 inline void actE3CapsuleDemoEnd(volatile int a0)
 {
@@ -804,9 +768,6 @@ void actE3CageFallEffect(volatile int a0)
     } while (t < 400.0f);
 }
 
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmCloseFunc differ) */
-extern void ScpCallCameraSetTarget(float x, float y, float z);
-
 /* e3.o's own .data run (no MAIN.MAP symbol): the sekizou's SE position. */
 
 void actE3St09aSekizo(volatile int a0)
@@ -833,25 +794,12 @@ void actE3St09aSekizo(volatile int a0)
     }
 }
 
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmCloseFunc differ) */
-extern void scpSekizouCheckPoint(void);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmCloseFunc differ) */
-extern void scpKillEnemyAll(void);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmCloseFunc differ) */
-extern void scpMaskGeneratorAll(void);
-/* kept local: void (int) here, void (char *) in script.h */
-extern void scpPlayWaitMotEnd(int a0);
-/* kept local: void (int, int, int *, int, float) here, int (char *, int, int, float, int) in script.h */
-extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
-/* kept local: void (int, int, int *, int) here, void (int *) in script.h */
-extern void RequestStageChangeDirect(int a0, int a1, int *buf, int a3);
-
 inline void actE3St09aGirlWay(volatile int a0)
 {
     EffectArg buf = {{-1410.0f, -100.0f, 1950.0f, 0.0f}};
     long long way[2];
 
-    _SCPMoveCharactorByWay(girlGObj, 0, (int *)&buf, 0, 100.0f);
+    _SCPMoveCharactorByWay(girlGObj, 0, buf.f, 100.0f, 0);
 
     memset(way, 0, 0x10);
     RequestStageChangeDirect(girlGObj, 0x66, (int *)way, 0xB4);
@@ -985,11 +933,6 @@ void actE3GateChk(volatile int a0)
     stage_SetAnimation(269, 1, 0);
 }
 
-/* kept local: void (int *, int) here, int (char **, short) in script.h */
-extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmCloseFunc differ) */
-extern float scpSeEnvMasterVolRate;
-
 void actE3GateDemo(volatile int a0)
 {
     scpSearchGobj(3382)->f16C = 1;
@@ -1078,8 +1021,6 @@ void actE3GateDemo(volatile int a0)
     stgmgrForceSwitchWithFadeColor(0x68, 255.0f, 4.0f, 0, 0, 0);
 }
 
-extern JimakuArg jimaku_msg;
-
 void actE3GateJimaku(volatile int a0)
 {
     float t;
@@ -1090,19 +1031,19 @@ void actE3GateJimaku(volatile int a0)
     do {
         switch ((int)t) {
         case 1:
-            jimakuBegin((int)&jimaku_msg);
+            jimakuBegin(&jimaku_msg);
             break;
         case 0x12C:
             jimaku_msg.sub.unk2C = 0x19;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 0x58C:
             jimaku_msg.sub.unk2C = 0x1A;
             jimaku_msg.sub.unk38 = 0x1E;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         }
 
@@ -1411,9 +1352,6 @@ void actE3Gate(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmCloseFunc differ) */
-extern void scpFadeIn(float f);
-
 void actE3CapsuleChk(volatile int a0)
 {
     scpSekizouCheckPoint();
@@ -1505,9 +1443,6 @@ inline void actE3St13cIntroChk(volatile int a0)
 
     scpBoyControlReadDisable = 0;
 }
-
-/* kept local: int (int, int) here, int (char *, int) in script.h */
-extern int scpTriggerFloorAttr(int a0, int a1);
 
 inline void actE3CageFallReadyChk(volatile int a0)
 {

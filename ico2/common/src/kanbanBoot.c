@@ -7,6 +7,7 @@
 #include "GsBase.h"
 #include "main.h"
 #include "Basic.h"
+#include "debug.h"
 
 /* kanbanBoot.o's .sdata run (VMA 0x63B4BC..0x63B4D4, 0x18 B; MAIN.MAP's
    January object is 0x10), in the ROM's order: the boot sequence's step, the
@@ -96,8 +97,6 @@ extern void iosMcChdirProduct(McReq *mc);
 extern int iosMcSync(McReq *mc);
 /* kept local: void (McReq *) here, int (void *) in mcard.h */
 extern void iosMcLoadProductBlock(McReq *mc);
-/* kept local: void (int) here, int (void) in debug.h */
-extern void gsResetFunc(int a0);
 extern KanbanReq *kanbanReqAdd(int a0, int a1);
 
 int kanbanBootMcCheck(void)

@@ -12,6 +12,8 @@
 #include "StageAnimation.h"
 #include "item.h"
 #include "typedef.h"
+#include "main.h"
+#include "script.h"
 
 /* .sdata, owned by st00a.o (MAIN.MAP globals): the prototype stair's stream
    handle, its shake and the shake's volume. */
@@ -91,9 +93,6 @@ void actSt00aInit(void)
     }
 }
 
-/* kept local: char * here, GObj * in main.h */
-extern char *girlGObj;
-
 void actSt00aEnd(void)
 {
     if (girlGObj != 0) {
@@ -102,19 +101,6 @@ void actSt00aEnd(void)
         }
     }
 }
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int systemStatus[];
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern int scpBoyControlReadDisable;
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpSleepEnemyOne(int a0);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpSleepEnemyAll(void);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpWakeupEnemyOne(int a0);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpWakeupEnemyAll(void);
 
 void actSt00aEneChk(volatile int a0)
 {
@@ -147,30 +133,11 @@ void actSt00aEneChk(volatile int a0)
     gflagOff(39);
 }
 
-/* kept local: PObjGObj * (int) here, int (int) in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
-/* kept local: int (int, int, float) here, int (char *, char *, float) in script.h */
-extern int scpTriggerBall(int a0, int a1, float f);
-
 /* .sbss, owned by st00a.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the flag the stair-check subthread raises when the demo
    is over, which the wait loop below spins for. */
 static int demoEnd;
 
-/* kept local: agrees with main.h, which this TU does not include */
-extern PadState pad[];
-/* kept local: void (int, int *, int, int, int) here, void (int, char **, int, int, int) in script.h */
-extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern int scpAdpcmPlayRequestNum(void);
-/* kept local: int (int *, short) here, int (char **, short) in script.h */
-extern int scpAdpcmFadeCloseFunc(int *h, short fade);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpFadeOut(float f, int a1, int a2, int a3);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern int scpFadeChk(void);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpFadeIn(float f);
 void actSt00aStairChkSub(volatile int a0);
 
 void actSt00aStairChk(volatile int a0)
@@ -238,8 +205,6 @@ void actSt00aStairChk(volatile int a0)
     fightSoundProcessRequestStart();
 }
 
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
 void actSt00aDoor2DownChk(int a0);
 void actSt00aDoor2UpChk(int a0);
 
@@ -266,10 +231,6 @@ void actSt00aDoor2(volatile int a0)
     }
 }
 
-/* kept local: int (int, int) here, int (char *, int) in script.h */
-extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
-extern void scpWakeupItemWithBoundary(float x, float y, float z, float r);
 void actSt00aDoor2UpEffect(volatile int a0);
 
 void actSt00aDoor2UpChk(volatile int a0)
@@ -543,9 +504,6 @@ void actSt00aAtr2(volatile int a0)
     }
 }
 
-/* kept local: int (int, int) here, int (char *, int) in script.h */
-extern int scpTriggerFloorAttr(int a0, int a1);
-
 void actSt00aAtr2Chk(volatile int a0)
 {
     if (girlGObj == 0) {
@@ -556,9 +514,6 @@ void actSt00aAtr2Chk(volatile int a0)
     }
     gflagOn(42);
 }
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int boyPad;
 
 void actSt00aStairChkSub(volatile int a0)
 {
@@ -582,9 +537,6 @@ void actSt00aDoor2Event(int x)
 {
     volatile int local = x;
 }
-
-/* kept local: void (int *, int) here, int (void *, int) in script.h */
-extern void scpEffectStart(int *buf, int a1);
 
 void actSt00aDoor2UpEffect(volatile int a0)
 {

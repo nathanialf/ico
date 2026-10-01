@@ -23,6 +23,7 @@
 #include <libvu0.h>
 #include "typedef.h"
 #include "e3.h"
+#include "main.h"
 
 void actSt07aInit(void)
 {
@@ -55,9 +56,6 @@ void actSt07aInit(void)
     }
 }
 
-/* kept local: int here, GObj * in main.h */
-extern int girlGObj;
-
 void actSt07aEnd(void)
 {
     if (girlGObj != 0 && gflagChk(131) == 0 && gflagChk(128) != 0) {
@@ -68,20 +66,10 @@ void actSt07aEnd(void)
     }
 }
 
-/* kept local: Pad [] here, PadState [16] in main.h */
-extern Pad pad[];
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
-
 /* .sbss, owned by st07a.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
    subthreads the wait loops below spin for. */
 static int demoEnd;
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int boyPad;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int systemStatus[];
 
 /* A 16-byte constant vector: the float view carries the values, the long
    long view is the one the whole-object copy reads. */
@@ -187,7 +175,7 @@ void actSt07aChanChk(volatile int a0)
 
     demoEnd = 0;
 
-    while (demoEnd == 0 && ((pad[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -318,7 +306,7 @@ void actSt07aTsuroChk(volatile int a0)
     hConte = actCreateSubThread(actSt07aTsuroConte, 21);
 
     demoEnd = 0;
-    while (demoEnd == 0 && ((pad[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -968,7 +956,7 @@ void actSt07aChanWay1(volatile unsigned int a0)
     long long buf[2];
     buf[0] = chanWay1Pos.d[0];
     buf[1] = chanWay1Pos.d[1];
-    _SCPMoveCharactorByWay(girlGObj, 0, (int)buf, 100.0f, 0);
+    _SCPMoveCharactorByWay(girlGObj, 0, (float *)buf, 100.0f, 0);
     _ACTWait(0);
 }
 
@@ -977,7 +965,7 @@ void actSt07aChanWay2(volatile unsigned int a0)
     long long buf[2];
     buf[0] = chanWay2Pos.d[0];
     buf[1] = chanWay2Pos.d[1];
-    _SCPMoveCharactorByWay(girlGObj, 0, (int)buf, 100.0f, 0);
+    _SCPMoveCharactorByWay(girlGObj, 0, (float *)buf, 100.0f, 0);
     _ACTWait(0);
 }
 
@@ -1008,7 +996,7 @@ void actSt07aGirlWay(volatile unsigned int a0)
     long long buf[2];
     buf[0] = tsuroChkPos.d[0];
     buf[1] = tsuroChkPos.d[1];
-    _SCPMoveCharactorByWay(girlGObj, 0, (int)buf, 100.0f, 0);
+    _SCPMoveCharactorByWay(girlGObj, 0, (float *)buf, 100.0f, 0);
     _ACTWait(0);
 }
 

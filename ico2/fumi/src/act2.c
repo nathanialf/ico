@@ -1,8 +1,6 @@
 #include "act.h"
 #include "act2.h"
-
-/* kept local: void * here, char * in isys.h */
-extern void *isysCurrentGObj;
+#include "isys.h"
 
 /* One mail-table row: the message id the actor listens for and the three
    entry points it starts. 429 terminates a table. */

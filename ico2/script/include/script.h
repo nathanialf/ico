@@ -27,10 +27,10 @@ extern unsigned char sekizo_yure_vol;
  * block emits them: ee-gcc 2.9 defers every inline definition to the end of
  * the object and writes it out in first-declaration order, so this block is
  * read from the ROM (script.o's .text from scpDispOffAllWithKind on). */
-void scpDispOffAllWithKind(void);
+void scpDispOffAllWithKind(int kind);
 void scpDispOnAllWithKind(int x);
-void scpActivateAllWithKind(void);
-void scpDisActivateAllWithKind(void);
+void scpActivateAllWithKind(int kind);
+void scpDisActivateAllWithKind(int kind);
 void scpLinkBGAtoLayoutedTarget(int a0, int a1);
 void scpLinkBGAtoLayoutedTargetSkelton(int a0, int a1, int a2);
 void scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
@@ -63,10 +63,10 @@ void scpWakeupEnemyAll(void);
 void scpKillEnemyAll(void);
 void scpMaskGeneratorAll(void);
 void scpKillEnemyOne(int id);
-int _SCPMoveCharactorByWay(char *self, int a1, int a2, float speed, int a3);
+int _SCPMoveCharactorByWay(char *self, int a1, float *dir, float speed, int a3);
 int _SCPMoveByWay_ToChar(char *self, char *target, int deg, int a3, float scale, float speed);
 void _SCPCharacterStop(char *self);
-int scpSearchGobj(int id);
+struct PObjGObj *scpSearchGobj(int id);
 void scpPlayMotNode(void *a0, int a1, void *a2, int a3);
 void scpPlayMotReq(char *a0, int a1);
 void scpPlayPosSet(void *a0, float f12, float f13, float f14);
@@ -80,13 +80,13 @@ int RequestStageChangeWithColor(int no, char *g, int flag, float speed, float wa
 int RequestStageChangeSimple(int no, float speed, float wait, unsigned char r, unsigned char gr,
                              unsigned char b);
 
-void RequestStageChangeDirect(int *self);
+void RequestStageChangeDirect(int *self, int a1, int *a2, int a3);
 void scpFadeOut(float a0, int a1, int a2, int a3);
 void scpFadeIn(float f);
 int scpFadeChk(void);
 int scpGameStat_BoyWeaponkind(void);
 int scpIsWallLever2On(void);
-int scpIsHangChain(void);
+int scpIsHangChain(char *self);
 int scpIsHangChainOptional(int a0, int b);
 void scpBornSpider(int n, float a, float b, float c, float d);
 int scpActStatusDeathFall(char *self);
@@ -136,6 +136,6 @@ void scpSleepSpiderGroupOne(int id);
 void scpWakeupSpiderGroupOne(int id);
 void scpKillSpiderGroup(int id);
 void preload(int idx);
-void scpSetBoyWeaponGObj(int a0, int a1, int a2, int a3);
+void scpSetBoyWeaponGObj(void *w);
 
 #endif /* SCRIPT_H */

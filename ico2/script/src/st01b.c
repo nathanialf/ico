@@ -13,6 +13,8 @@
 #include "gflag.h"
 #include "StageAnimation.h"
 #include "typedef.h"
+#include "main.h"
+#include "script.h"
 
 /* This stage's actor mail records. Word 0 of each entry is the mail id the
    entry answers (430 = the actor's own wake-up post, 429 = the trailing
@@ -41,19 +43,6 @@ void actSt01bInit(void)
     stage_SetAnimation(180, 0, -1);
     return FinishHint(9);
 }
-
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
-/* kept local: int here, GObj * in main.h */
-extern int girlGObj;
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayPosSet differ) */
-extern int scpBoyControlReadDisable;
-/* kept local: int (int, int) here, int (char *, int) in script.h */
-extern int scpTriggerFloorAttr(int gobj, int attr);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayPosSet differ) */
-extern void scpSleepEnemyOne(int id);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayPosSet differ) */
-extern void scpWakeupEnemyOne(int id);
 
 void actSt01bEneChk(volatile int a0)
 {
@@ -105,9 +94,6 @@ static int demoEnd;
 
 static int seHandle;
 
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int boyPad;
-
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc
    emit the ld/sd pair the ROM has. */
@@ -142,31 +128,6 @@ void actSt01bFloorChkSub(volatile int a0)
     demoEnd = 1;
     _ACTWait(0);
 }
-
-/* kept local: agrees with main.h, which this TU does not include */
-extern PadState pad[];
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayPosSet differ) */
-extern int scpIsHangChainOptional(int gobj, int id);
-/* kept local: void (int, float, float, float) here, void (void *, float, float, float) in script.h */
-extern void scpPlayPosSet(int gobj, float x, float y, float z);
-/* kept local: void (int, void *, int, int, int) here, void (int, char **, int, int, int) in script.h */
-extern void scpAdpcmPlayRequestFunc(int a0, void *a1, int a2, int a3, int a4);
-/* kept local: int (void *, int) here, int (char **, short) in script.h */
-extern int scpAdpcmFadeCloseFunc(void *h, int fade);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayPosSet differ) */
-extern int scpAdpcmPlayRequestNum(void);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayPosSet differ) */
-extern void scpFadeOut(float t, int a1, int a2, int a3);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayPosSet differ) */
-extern void scpFadeIn(float t);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayPosSet differ) */
-extern int scpFadeChk(void);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayPosSet differ) */
-extern void scpSleepEnemyAll(void);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayPosSet differ) */
-extern void scpWakeupEnemyAll(void);
-/* kept local: void * (int) here, int (int) in script.h */
-extern void *scpSearchGobj(int id);
 
 void actSt01bFloorChk(volatile int a0)
 {
@@ -232,10 +193,6 @@ void actSt01bFloorChk(volatile int a0)
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
-
-/* kept local: void (int, int, int, int, int, float, float, float, float, float, float) here, void (char *, int, int, int, int, float, float, float, float, float, float) in script.h */
-extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
-                       float x2, float y2, float z2);
 
 void actSt01bSekizo(volatile int a0)
 {
@@ -412,9 +369,6 @@ void actSt01bFloorEvent(int x)
 {
     volatile int local = x;
 }
-
-/* kept local: int (int, int) here, int (char *, int) in script.h */
-extern int scpTriggerFloorAttr(int a0, int a1);
 
 void actSt01bWayOnChk(volatile int a0)
 {

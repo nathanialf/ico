@@ -1,6 +1,7 @@
 #include "debug_exception.h"
 #include "pad.h"
 #include "keyInput.h"
+#include <libcdvd.h>
 
 /* The EE exceptions the debug monitor traps: {cause code, printable name}. */
 typedef struct {
@@ -206,11 +207,6 @@ static unsigned int regQuad[4] __attribute__((aligned(128)));
 #include <eekernel.h>
 #include <sifdev.h>
 #include <string.h>
-
-/* kept local: agrees with libcdvd.h, which this TU does not include (sceFsReset differ) */
-extern int sceCdSync(int mode);
-/* kept local: void (void) here, int (void) in libcdvd.h */
-extern void sceFsReset(void);
 
 /* The disc settle the debug monitor does around every raw file operation: wait
  * out the outstanding sceCdSync, then spin.  The listing puts the whole

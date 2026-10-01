@@ -10,9 +10,8 @@
 #include "act.h"
 #include "typedef.h"
 #include "generator.h"
-
-/* kept local: char * here, GObj * in main.h */
-extern char *girlGObj;
+#include "script.h"
+#include "main.h"
 
 void actSt04cEnd(void)
 {
@@ -34,11 +33,6 @@ static const ConstVec doorDownEffectPos = {{0.0f, 50.0f, -1450.0f, 1.0f}};
 static const ConstVec doorDownEffect2Pos = {{-2.0f, 250.0f, -1450.0f, 1.0f}};
 
 static const ConstVec doorDownEffect3Pos = {{5.0f, 260.0f, -1450.0f, 1.0f}};
-
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
-/* kept local: int (int, int, float) here, int (char *, char *, float) in script.h */
-extern int scpTriggerBall(int a0, int gobj, float r);
 
 /* listing lines 326-357 */
 void actSt04cDoorDownChk(volatile int a0)
@@ -69,24 +63,10 @@ void actSt04cDoorDownChk(volatile int a0)
     gflagOn(162);
 }
 
-/* kept local: agrees with script.h, which this TU does not include (scpTriggerBall differ) */
-extern int scpBoyControlReadDisable;
-
 /* .sbss, owned by st04c.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
    subthread the wait loop below spins for. */
 static int demoEnd;
-
-/* kept local: int [] here, PadState [16] in main.h */
-extern int pad[];
-/* kept local: agrees with script.h, which this TU does not include (scpTriggerBall differ) */
-extern int scpAdpcmPlayRequestNum(void);
-/* kept local: agrees with script.h, which this TU does not include (scpTriggerBall differ) */
-extern void scpFadeOut(float f, int a1, int a2, int a3);
-/* kept local: agrees with script.h, which this TU does not include (scpTriggerBall differ) */
-extern int scpFadeChk(void);
-/* kept local: agrees with script.h, which this TU does not include (scpTriggerBall differ) */
-extern void scpFadeIn(float f);
 
 /* listing lines 592-637 */
 void actSt04cIntroChk(volatile int a0)
@@ -109,7 +89,7 @@ void actSt04cIntroChk(volatile int a0)
     th = actCreateSubThread(actSt04cIntroChkSub, 21);
     demoEnd = 0;
 
-    while (demoEnd == 0 && (!(pad[1] & 0x800) || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && (!(pad[0].flags & 0x800) || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -130,13 +110,6 @@ void actSt04cIntroChk(volatile int a0)
     lt_switch_layout(54);
     scpBoyControlReadDisable = 0;
 }
-
-/* kept local: agrees with script.h, which this TU does not include (scpTriggerBall differ) */
-extern int scpSearchGobj(int a0);
-/* kept local: agrees with script.h, which this TU does not include (scpTriggerBall differ) */
-extern void scpSleepEnemyAll(void);
-/* kept local: agrees with script.h, which this TU does not include (scpTriggerBall differ) */
-extern void scpWakeupEnemyAll(void);
 
 /* listing lines 705-753 */
 void actSt04lDoorChk(volatile int a0)
@@ -163,7 +136,7 @@ void actSt04lDoorChk(volatile int a0)
             break;
 
         case 2:
-            *(int *)(scpSearchGobj(1098) + 0x16C) = 0;
+            scpSearchGobj(1098)->f16C = 0;
             FinishHint(15);
 
             lt_switch_layout(55);
@@ -178,7 +151,7 @@ void actSt04lDoorChk(volatile int a0)
             h = soundSeDefPlay(1330, 0, 0, 1);
 
             for (i = 90; i-- > 0;) {
-                if ((pad[1] & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+                if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
                     scpFadeOut(16.0f, 0, 0, 0);
                     while (scpFadeChk() != 0) {
                         _ACTWait(1);
@@ -240,7 +213,7 @@ void actSt04lDoor(volatile int a0)
         _ACTWait(0);
     } else {
         stage_SetAnimation(231, 0, -1);
-        *(int *)(scpSearchGobj(1098) + 0x16C) = 0;
+        scpSearchGobj(1098)->f16C = 0;
         FinishHint(15);
     }
 }
@@ -332,7 +305,7 @@ void actSt04cWaterXL(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(230) != 0) {
-        *(int *)(scpSearchGobj(1094) + 0x16C) = 0;
+        scpSearchGobj(1094)->f16C = 0;
     }
 }
 

@@ -16,6 +16,8 @@
 #include "Basic.h"
 #include <stdlib.h>
 #include "boyact.h"
+#include "act-game.h"
+#include "StageManager.h"
 
 /* the custom key map's sixteen pad button codes (iosPadConfCustom[44..59]),
    the default one bit per button */
@@ -196,16 +198,12 @@ extern R1F0 IosMcProductFile[];
 /* kept local: agrees with mcard.h, which this TU does not include (iosMcGetBlockSaveInfo, iosMcLoadGameBlock differ) */
 extern int IosMcPreviewInfo[];
 extern int D_005343C8[];
-/* kept local: void (float, float, int) here, void (int, float, float) in StageManager.h */
-extern void stgmgrForceSwitchWithFade(float a0, float a1, int a2);
 /* kept local: agrees with main.h, which this TU does not include (pad differ) */
 extern int lock_execIcoMisc;
 extern int D_00534400[];
 /* the custom pad configuration ios/pad.c owns, reached here as its words
    (the sixteen button bits from word 44) */
 extern int iosPadConfCustom[];
-/* kept local: agrees with StageManager.h, which this TU does not include (stgmgrForceSwitchWithFade differ) */
-extern void CheckPoint(void);
 /* kept local: agrees with main.h, which this TU does not include (pad differ) */
 extern int stage_no;
 
@@ -770,9 +768,6 @@ int la_vibe_select(void)
     actionStarted = 0;
     return 0xC;
 }
-
-/* kept local: agrees with StageManager.h, which this TU does not include (stgmgrForceSwitchWithFade differ) */
-extern void stgmgrNextStagePreLoadForceStageSet(int val);
 
 inline int la_scei_logo(int a0)
 {
@@ -1448,8 +1443,6 @@ extern int seEnvForceClose;
    in mcard.h, exactly as in common/src/debug.c */
 /* kept local: void (void *, void *) here, int (void *, int) in mcard.h */
 extern void iosMcLoadGameBlock(void *a0, void *buf);
-/* kept local: void (int, int) here, void (int, unsigned char) in act-game.h */
-extern void ACTGame_SetActors_Debug(int a0, int a1);
 
 /* layout_action.c:1796-1800 in the listing: the saved file's serial read
    from the port's record, with the file number kept beside it; inlined into
@@ -1587,7 +1580,7 @@ int la_load_processing(int a0)
             actionStarted = 0;
             return 9;
         }
-        stgmgrForceSwitchWithFade(0.05f, 4.0f, gFlagSaveStage);
+        stgmgrForceSwitchWithFade(gFlagSaveStage, 0.05f, 4.0f);
         ACTGame_SetActors_Debug(gFlagSaveStage, 0);
         return -1;
     case 20:
@@ -2565,7 +2558,7 @@ int la_end_confirm(void)
             fightSoundClose();
             soundDataSegAllClose(0, 2);
             nextStage = 1;
-            stgmgrForceSwitchWithFade(0.025f, 4.0f, 1);
+            stgmgrForceSwitchWithFade(1, 0.025f, 4.0f);
         case 271:
             NEGATIVE_SE();
             lt_set_item_select_func(0);
@@ -2786,7 +2779,7 @@ inline int la_game_demo(int a0)
         gflagOff(388);
         title_demo_mode ^= 1;
         nextStage = stage_after_skipping_demo;
-        stgmgrForceSwitchWithFade(8.0f, 4.0f, nextStage);
+        stgmgrForceSwitchWithFade(nextStage, 8.0f, 4.0f);
         if (stage_after_skipping_demo == 0xFFFFFFFF) {
             stage_after_skipping_demo = 1;
         }
@@ -2885,7 +2878,7 @@ int la_game_over_continue(int a0)
 inline int la_switching_stage(void)
 {
     if (fightSoundPlayChk() == 0) {
-        stgmgrForceSwitchWithFade(0.4f, 4.0f, nextStage);
+        stgmgrForceSwitchWithFade(nextStage, 0.4f, 4.0f);
     }
     return -1;
 }

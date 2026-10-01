@@ -16,6 +16,7 @@
 #include "particleEffect.h"
 #include "tableSin.h"
 #include <string.h>
+#include "ios.h"
 
 extern void __assert(char *file, int line, char *expr);
 
@@ -108,8 +109,6 @@ void ResetCharFileManager(void)
 
 /* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting differ) */
 extern int systemStatus[];
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_seki;
 extern PObj *InitPObj(void *buf, int a1, int id);
 
 /* "Illegal Model ID number: %d (\"%s\")\n" / "ReadModelFile:Already loaded. (id:%d)%s\n" / "ReadModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n" / sprintf above belong to ReadModelFile. */
@@ -436,12 +435,6 @@ typedef struct {
 } MotEnt; /* 0x194 */
 
 extern MotEnt motionKind[];
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_dmotion;
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_smotion;
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_s2motion;
 
 void ReadMotionFile(void *h, int a1, int size, int id, int a4, int a5, int a6)
 {
@@ -478,9 +471,6 @@ void ReadMotionFile(void *h, int a1, int size, int id, int a4, int a5, int a6)
     debug_StdPrintfDummy("ReadMotionFile:[%d]%s (size:%d): \033[33m%1.2fMB\033[m\n", id, a1, size,
                          (float)GetMotionMemorySize(a6) / 1024.0f / 1024.0f);
 }
-
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_sugipon;
 
 void ReadParticleEffectFile(void *h, int a1, int size, int a3)
 {
@@ -544,11 +534,6 @@ typedef struct {
    load */
 static char *semiCommonHdBuf = 0; /* derived name */
 
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_sound_semi;
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_sound;
-
 void ReadSoundHdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6)
 {
     /* same bank/mode pair the switch fills in and soundHDDataSet reads back:
@@ -601,9 +586,6 @@ void ReadSoundHdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6
     }
     debug_StdPrintfDummy("ReadSoundHdFile:loaded::[%d]%s  (size:%d)\n", a3, a1, size);
 }
-
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_shock;
 
 typedef struct {
     int mode;
@@ -708,9 +690,6 @@ void ReadShockFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
     }
     debug_StdPrintfDummy("ReadShockData:loaded::[%d]%s  (size:%d)\n", a3, a1, size);
 }
-
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_oomori;
 
 void ReadCamerasetFile(void *h, int a1, int size, int a3)
 {

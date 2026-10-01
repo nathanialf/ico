@@ -22,7 +22,7 @@ void HandMgr_Update(void)
 {
     GetRootPosition(handmgr.cur, girlGObj);
     handmgr.f_20 = _DistGV(handmgr.cur, handmgr.prev);
-    handmgr.sub30[0] = ((float *)test_CURRENTORIENT(girlGObj))[0]; handmgr.sub30[1] = ((float *)test_CURRENTORIENT(girlGObj))[1]; handmgr.sub30[2] = ((float *)test_CURRENTORIENT(girlGObj))[2];
+    handmgr.sub30[0] = test_CURRENTORIENT(girlGObj)[0]; handmgr.sub30[1] = test_CURRENTORIENT(girlGObj)[1]; handmgr.sub30[2] = test_CURRENTORIENT(girlGObj)[2];
     _OrientXZGV(handmgr.sub40, test_CURRENTROOT(boyGObj), handmgr.cur);
     HandMgr_GetDistHand(&handmgr.f_50, &handmgr.f_54);
 

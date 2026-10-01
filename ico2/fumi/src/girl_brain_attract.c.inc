@@ -94,7 +94,7 @@ int ATGoalTurnMail(void *actor, float *dir, int node)
 }
 
 /* kept local: agrees with commonact.h, which this TU does not include */
-extern void *test_CURRENTROOT(void *a0);
+extern float *test_CURRENTROOT(void *a0);
 
 int checkWaterfallResult(float *out)
 {
@@ -144,12 +144,9 @@ int checkWaterfallResult(float *out)
     if (r0 == 1) {
         if (*(void **)(*(char **)((char *)boyGObj + 0x15C)) != 0 &&
             *(int *)((char *)*(void **)(*(char **)((char *)boyGObj + 0x15C)) + 0xC) == 17) {
-            t.f[0] =
-                ((float *)test_CURRENTROOT(*(void **)(*(char **)((char *)boyGObj + 0x15C))))[0];
-            t.f[1] =
-                ((float *)test_CURRENTROOT(*(void **)(*(char **)((char *)boyGObj + 0x15C))))[1];
-            t.f[2] =
-                ((float *)test_CURRENTROOT(*(void **)(*(char **)((char *)boyGObj + 0x15C))))[2];
+            t.f[0] = (test_CURRENTROOT(*(void **)(*(char **)((char *)boyGObj + 0x15C))))[0];
+            t.f[1] = (test_CURRENTROOT(*(void **)(*(char **)((char *)boyGObj + 0x15C))))[1];
+            t.f[2] = (test_CURRENTROOT(*(void **)(*(char **)((char *)boyGObj + 0x15C))))[2];
         } else {
             return 1;
         }
@@ -177,8 +174,8 @@ int checkWaterfallResult(float *out)
 
 /* kept local: brain.h has no row for the target timer; the ROM passes the target object. */
 extern int brainDecTargetTimer(void *gobj);
-/* kept local: void (void *, int) here, void (void *, char *) in act-game.h */
-extern void _GetRootObjectOrient(void *out, int gobj);
+/* kept local: agrees with act-game.h, which this TU does not include */
+extern void _GetRootObjectOrient(void *a0, char *a1);
 
 /* One 0x50-byte record per act status, indexed by the actor's status at
    0x34 (act.c reads the same table).  The flags word at 0x4C is a bitfield:
@@ -332,9 +329,9 @@ restart:
         float margin;
         float ratio;
 
-        root[0] = ((float *)test_CURRENTROOT((void *)a0))[0];
-        root[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
-        root[2] = ((float *)test_CURRENTROOT((void *)a0))[2];
+        root[0] = test_CURRENTROOT((void *)a0)[0];
+        root[1] = test_CURRENTROOT((void *)a0)[1];
+        root[2] = test_CURRENTROOT((void *)a0)[2];
         if (tgt.obj != 0 && *(int *)((char *)tgt.obj + 0xC) == 32 &&
             !(_DistSqGV(root, test_CURRENTROOT(tgt.obj)) < 90000.0f)) {
             far = 1;
@@ -347,7 +344,7 @@ restart:
         }
         if (*(int *)GOBJ_SUB(a0) != 0 && *(int *)(*(int *)GOBJ_SUB(a0) + 0xC) == 17 &&
             boyGObj != 0 && type == 0 && tgt.obj == (void *)boyGObj &&
-            root[1] < ((float *)test_CURRENTROOT(boyGObj))[1] &&
+            root[1] < test_CURRENTROOT(boyGObj)[1] &&
             _DistSqGV(test_CURRENTROOT((void *)a0), test_CURRENTROOT(boyGObj)) <
                 _ACTGame_GetParamF(30) * _ACTGame_GetParamF(30)) {
             hint = 1;
@@ -371,9 +368,9 @@ restart:
 
             if (tgt.obj == (void *)boyGObj && GOBJ_ACT(tgt.obj)->unk34 == 28) {
                 onSofa = 1;
-                dir[0] = ((float *)test_CURRENTORIENT(boyGObj))[0];
-                dir[1] = ((float *)test_CURRENTORIENT(boyGObj))[1];
-                dir[2] = ((float *)test_CURRENTORIENT(boyGObj))[2];
+                dir[0] = test_CURRENTORIENT(boyGObj)[0];
+                dir[1] = test_CURRENTORIENT(boyGObj)[1];
+                dir[2] = test_CURRENTORIENT(boyGObj)[2];
             }
             if (onSofa) {
                 sceVu0ScaleVector(ofs, dir, 50.0f);

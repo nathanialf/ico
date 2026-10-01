@@ -11,6 +11,7 @@
 #include "act.h"
 #include "e3.h"
 #include "typedef.h"
+#include "script.h"
 
 static ActMail linkTest_mes[2] = {{430}, {429}};
 
@@ -50,8 +51,6 @@ static const ConstVec hasiChkSePos = {{3587.0f, -2072.0f, 1124.0f, 0.0f}};
 extern int *boyGObj;
 /* kept local: void * here, GObj * in main.h */
 extern void *girlGObj;
-/* kept local: int (int, void *, float) here, int (char *, char *, float) in script.h */
-extern int scpTriggerBall(int a0, void *a1, float radius);
 
 void actSt17aDoor(volatile int a0)
 {
@@ -85,11 +84,6 @@ void actSt17aDoor(volatile int a0)
         _ACTWait(0);
     }
 }
-
-/* kept local: int (int, int) here, int (char *, int) in script.h */
-extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
-/* kept local: agrees with script.h, which this TU does not include (scpTriggerBall, scpTriggerFloorAttr differ) */
-extern void scpWakeupItemWithBoundary(float a0, float a1, float a2, float a3);
 
 void actSt17aDoorUpChk(volatile int a0)
 {
@@ -176,24 +170,10 @@ void actSt17aDoorDownChk(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: int (void *, int) here, int (char *, int) in script.h */
-extern int scpTriggerFloorAttr(void *obj, int attr);
-/* kept local: agrees with script.h, which this TU does not include (scpTriggerBall, scpTriggerFloorAttr differ) */
-extern int scpSearchGobj(int a0);
-/* kept local: agrees with script.h, which this TU does not include (scpTriggerBall, scpTriggerFloorAttr differ) */
-extern int scpBoyControlReadDisable;
 /* kept local: void * here, int in main.h */
 extern void *boyPad;
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, boyPad differ) */
 extern int systemStatus[];
-/* kept local: void (void *) here, void (int) in script.h */
-extern void scpPlayStart(void *o);
-/* kept local: void (void *, int) here, void (char *, int) in script.h */
-extern void scpPlayMot(void *o, int mot);
-/* kept local: void (void *) here, void (char *) in script.h */
-extern void scpPlayWaitMotEnd(void *o);
-/* kept local: void (void *) here, void (int) in script.h */
-extern void scpPlayEnd(void *o);
 
 void actSt17aHasiChk(volatile int a0)
 {
@@ -218,8 +198,8 @@ void actSt17aHasiChk(volatile int a0)
     iosPadActRequest(boyPad, 0xF);
     SetWayGroupActive(3, 0);
 
-    *(int *)(scpSearchGobj(243) + 0x16C) = 0;
-    *(int *)(scpSearchGobj(244) + 0x16C) = 1;
+    scpSearchGobj(243)->f16C = 0;
+    scpSearchGobj(244)->f16C = 1;
 
     stage_SetAnimation(133, 1, 0);
     SetCameraFlag_LwsCutBack();
@@ -334,14 +314,6 @@ void actSt17aHasiEffect(volatile int a0)
 
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, boyPad differ) */
 extern PadState pad[];
-/* kept local: agrees with script.h, which this TU does not include (scpTriggerBall, scpTriggerFloorAttr differ) */
-extern int scpAdpcmPlayRequestNum(void);
-/* kept local: agrees with script.h, which this TU does not include (scpTriggerBall, scpTriggerFloorAttr differ) */
-extern void scpFadeOut(float t, int a1, int a2, int a3);
-/* kept local: agrees with script.h, which this TU does not include (scpTriggerBall, scpTriggerFloorAttr differ) */
-extern int scpFadeChk(void);
-/* kept local: agrees with script.h, which this TU does not include (scpTriggerBall, scpTriggerFloorAttr differ) */
-extern void scpFadeIn(float f);
 
 /* .sbss, owned by st17a.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
@@ -392,10 +364,6 @@ void actLinkTest(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: void (int, int, int, int, int, float, float, float, float, float, float) here, void (char *, int, int, int, int, float, float, float, float, float, float) in script.h */
-extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
-                       float x2, float y2, float z2);
-
 void actSt17aSekizo(volatile int a0)
 {
     int x = a0;
@@ -413,7 +381,7 @@ void actSt17aHasi(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(33) == 0) {
-        *(int *)(scpSearchGobj(244) + 0x16C) = 0;
+        scpSearchGobj(244)->f16C = 0;
         stage_SetAnimation(132, 0, 0);
         SetWayGroupActive(3, 1);
         hasi_mes[0].func = actSt17aHasiChk;
@@ -421,7 +389,7 @@ void actSt17aHasi(volatile int a0)
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        *(int *)(scpSearchGobj(243) + 0x16C) = 0;
+        scpSearchGobj(243)->f16C = 0;
         stage_SetAnimation(132, 0, -1);
     }
 }
@@ -475,9 +443,6 @@ void actSt17aSekizoEvent(int x)
     volatile int local = x;
 }
 
-/* kept local: void (float, float, float, float, float, float) here, struct WallCol * (float, float, float, float, float, float) in script.h */
-extern void scpGetWallCollision(float a0, float a1, float a2, float a3, float a4, float a5);
-
 void actLinkTestChk(volatile int a0)
 {
     *(int *)(boyGObj[0x57] + 0x4E8) = 1;
@@ -490,9 +455,6 @@ void actSt17aDoorEvent(int x)
 {
     volatile int local = x;
 }
-
-/* kept local: void (int *, int) here, int (void *, int) in script.h */
-extern void scpEffectStart(int *buf, int a1);
 
 void actSt17aDoorUpEffect(volatile int a0)
 {
@@ -547,9 +509,6 @@ void actSt17aHasiEvent(int x)
     volatile int local = x;
 }
 
-/* kept local: void (int, int *, int, int, int) here, void (int, char **, int, int, int) in script.h */
-extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-
 /* .sdata, owned by st17a.o, in the ROM's order: the camera stream handle. */
 int cam = 0;
 
@@ -571,14 +530,11 @@ void actSt17aIntroChk(volatile int a0)
     demoEnd = 1;
 }
 
-/* kept local: void (void *, int, int *, int, float) here, int (char *, int, int, float, int) in script.h */
-extern void _SCPMoveCharactorByWay(void *a0, int a1, int *buf, int a3, float f);
-
 void actSt17aGirlWay(volatile int a0)
 {
     EffectArg buf = {{1547.0f, -2070.0f, 1495.0f, 0.0f}};
 
-    _SCPMoveCharactorByWay(girlGObj, 0, (int *)&buf, 2, 100.0f);
+    _SCPMoveCharactorByWay(girlGObj, 0, buf.f, 100.0f, 2);
 }
 
 void actSt17aHint1Chk(volatile int a0)

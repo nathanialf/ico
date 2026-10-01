@@ -21,15 +21,25 @@
 #include "debug_exception.h"
 #include "layout_texture.h"
 #include "motionManager.h"
+#include "main.h"
+#include <libvu0.h>
+#include "cage.h"
+#include "isys.h"
+#include "way_sys.h"
+#include "fuzio.h"
+#include "pad.h"
+#include "weapon.h"
+#include "attackhit.h"
+#include "mail-add-data.h"
+#include "camera-editor.h"
+#include "quaternion.h"
+#include "script.h"
+#include "commonact.h"
+#include "act.h"
 
 typedef struct {
     int a, b, c;
 } S12;
-
-typedef struct {
-    char pad[4];
-    float f4;
-} CCPResult;
 
 /* One word of the boy's actor parameter block at gobj->x15C: the motion code
    writes these slots as float and the evaluator reads them as int, so the word
@@ -41,12 +51,6 @@ typedef union BoyVal {
 } BoyVal;
 
 extern char motionKind[];
-/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
-extern int systemStatus[];
-/* kept local: CCPResult * (void *) here, void * (void *) in commonact.h */
-extern CCPResult *test_CURRENTROOT(void *a0);
-/* kept local: void * (void *) here, void * (char *) in commonact.h */
-extern void *test_CURRENTORIENT(void *a0);
 /* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistxzSqGV(void *a, void *b);
 /* kept local: void (void *, void *, void *) here, void (int) in gv.h */
@@ -55,15 +59,7 @@ extern void _OrientXZGV(void *dst, void *a, void *b);
 extern int _RotyGV();
 /* kept local: void (void *, void *) here, void (float *, float *) in gv.h */
 extern void GetMatrixDirectionToZ(void *dst, void *orient);
-/* kept local: void (void *, CCPResult *, CCPResult *) here, void (void *, void *, void *) in libvu0.h */
-extern void sceVu0SubVector(void *dst, CCPResult *a, CCPResult *b);
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0Normalize, sceVu0SubVector differ) */
-extern void sceVu0ApplyMatrix(void *dst, void *m, void *v);
 extern void GetChainNearestNodePosition(float *out, void *g, float *ref);
-/* kept local: int (float *, float *, void *) here, int (char *, char *, char *) in cage.h */
-extern int GetCageChainPoint(float *a, float *b, void *obj);
-/* kept local: void (int, int) here, void (char *, int) in commonact.h */
-extern void ACTSendMailCorrect(int a0, int mail);
 
 /* one 0x194-byte motion row per motion id; 0x182/0x186 are the halfwords
    subBoyCollision hands SetMotionDirectionSmooze (with and without the girl
@@ -122,7 +118,7 @@ void findChainInJump(void *self)
             q[2] = p[2];
             q[1] += GetChainLength(g) + 50.0f;
             if (_DistxzSqGV(test_CURRENTROOT(self), p) < r * r &&
-                p[1] < test_CURRENTROOT(self)->f4 && test_CURRENTROOT(self)->f4 < q[1]) {
+                p[1] < test_CURRENTROOT(self)[1] && test_CURRENTROOT(self)[1] < q[1]) {
                 _OrientXZGV(rt, p, test_CURRENTROOT(self));
                 ang = (float)_RotyGV(rt, test_CURRENTORIENT(self));
                 if ((ang < 0.0f ? -ang : ang) < r2) {
@@ -143,14 +139,14 @@ void findChainInJump(void *self)
         }
     }
 
-    rt[0] = ((float *)test_CURRENTROOT(self))[0];
-    rt[1] = ((float *)test_CURRENTROOT(self))[1];
-    rt[2] = ((float *)test_CURRENTROOT(self))[2];
+    rt[0] = test_CURRENTROOT(self)[0];
+    rt[1] = test_CURRENTROOT(self)[1];
+    rt[2] = test_CURRENTROOT(self)[2];
     GetMatrixDirectionToZ(mtx, test_CURRENTORIENT(self));
     lp[0] = p[0];
     lp[1] = p[1];
     lp[2] = p[2];
-    sceVu0SubVector(lv, (CCPResult *)lp, (CCPResult *)rt);
+    sceVu0SubVector(lv, (float *)lp, (float *)rt);
     lv[3] = 0.0f;
     sceVu0ApplyMatrix(lv, mtx, lv);
 
@@ -201,9 +197,9 @@ void findChainInJump(void *self)
         void *o;
 
         cage = 0;
-        pos[0] = ((float *)test_CURRENTROOT(self))[0];
-        pos[1] = ((float *)test_CURRENTROOT(self))[1];
-        pos[2] = ((float *)test_CURRENTROOT(self))[2];
+        pos[0] = test_CURRENTROOT(self)[0];
+        pos[1] = test_CURRENTROOT(self)[1];
+        pos[2] = test_CURRENTROOT(self)[2];
         for (o = isysGObjSearchFromObjKindID_begin(0x2C); o != 0;
              o = isysGObjSearchFromObjKindID_next(o)) {
             if (*(int *)((char *)o + 0x16C) != 0) {
@@ -286,15 +282,6 @@ int CorrectOrient_RopeCliff(float *out, void *gobj, float *dir)
     return 0;
 }
 
-/* kept local: agrees with act.h, which this TU does not include (actInitialize, actInitialize_ext_charcter differ) */
-extern void _ACTWait(int a0);
-/* kept local: void (int, int) here, void (char *, int) in commonact.h */
-extern void ACTSendMailCorrect(int a0, int mail);
-/* kept local: void * here, GObj * in main.h */
-extern void *girlGObj;
-/* kept local: void * here, char * in isys.h */
-extern void *isysCurrentGObj;
-
 /* The three climb headers (omori/include/b50climb.h, b100climb.h,
    b200climb.h in the listing) textually included here, as girl_act.c does
    with its own three: each defines the hand-off's after-routine and
@@ -362,16 +349,6 @@ void motBoyHand50(volatile int a0)
     }
 }
 
-/* kept local: void * here, GObj * in main.h */
-extern void *boyGObj;
-/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
-extern int systemStatus[];
-/* kept local: CCPResult * (void *) here, void * (void *) in commonact.h */
-extern CCPResult *test_CURRENTROOT(void *a0);
-/* kept local: void (void *, CCPResult *, CCPResult *) here, void (void *, void *, void *) in libvu0.h */
-extern void sceVu0SubVector(void *, CCPResult *, CCPResult *);
-/* kept local: void (float *, float *) here, void (void *, void *) in libvu0.h */
-extern void sceVu0Normalize(float *dst, float *src);
 /* kept local: agrees with motionManager2.h, which this TU does not include (CheckFloorAttribute, GetHeightOfFieldPlaneDifference differ) */
 extern void SetMotionDirection(void *self, float *dir);
 
@@ -572,11 +549,7 @@ done:
     }
 }
 
-/* kept local: void * here, GObj * in main.h */
-extern void *boyGObj;
 extern char actModeTbl[];
-/* kept local: CCPResult * (void *) here, void * (void *) in commonact.h */
-extern CCPResult *test_CURRENTROOT(void *a0);
 /* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistxzGV(void *a, void *b);
 /* kept local: float (void *, void *) here, float (int *, int *) in motionManager2.h */
@@ -589,7 +562,7 @@ extern float GetHeightOfFieldPlaneDifference(void *boy, void *girl);
    the eight re-evaluations of the pair of test_CURRENTROOT calls in each copy.
    The :1562 copy's body is empty in retail (the January-2002 listing shows the
    same shape), so only the calls the condition makes survive there. */
-#define BOYGIRL_DY() (test_CURRENTROOT(boyGObj)->f4 - test_CURRENTROOT(girlGObj)->f4)
+#define BOYGIRL_DY() (test_CURRENTROOT(boyGObj)[1] - test_CURRENTROOT(girlGObj)[1])
 #define ABSF(x) ((x) < 0.0f ? -(x) : (x))
 
 void handoff_heroin(void)
@@ -640,16 +613,6 @@ static long long boyInfo[12]; /* derived name */
 
 /* kept local: int (void *, int) here, int (char *, int) in motionManager2.h */
 extern int CheckFloorAttribute(void *self, int id);
-/* kept local: void (int, void *, void *, float, float) here, int (int, char *, int, float, float) in script.h */
-extern void RequestStageChange(int id, void *boy, void *girl, float a, float b);
-/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
-extern int stage_no;
-/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
-extern int gameover_flag;
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMotReq differ) */
-extern int scpBoyControlReadDisable;
-/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
-extern int itemWatchOff;
 
 void CheckCollisionAttr(void *self)
 {
@@ -771,12 +734,6 @@ float test_rope_velo[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 float add_rope_vec[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
-/* kept local: void * (void *) here, void * (char *) in commonact.h */
-extern void *test_CURRENTORIENT(void *a0);
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0Normalize, sceVu0SubVector differ) */
-extern void sceVu0ScaleVector(void *dst, void *src, float s);
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0Normalize, sceVu0SubVector differ) */
-extern void sceVu0AddVector(void *dst, void *a, void *b);
 /* kept local: void (void *, float) here, void (float *, float) in gv.h */
 extern void _ApplyRyGV(void *v, float ry);
 /* kept local: float (float, int, void *, void *) here, float (int, float, void *, void *) in StageAnimation.h */
@@ -796,9 +753,9 @@ void BoyBgaManager(void *self, int id, void *dst)
         void *obj;
 
         if (p->b0F != 0) {
-            dir[0] = ((float *)test_CURRENTORIENT(self))[0];
-            dir[1] = ((float *)test_CURRENTORIENT(self))[1];
-            dir[2] = ((float *)test_CURRENTORIENT(self))[2];
+            dir[0] = test_CURRENTORIENT(self)[0];
+            dir[1] = test_CURRENTORIENT(self)[1];
+            dir[2] = test_CURRENTORIENT(self)[2];
         } else {
             obj = isysGObjSearchFromObjKindID_begin(47);
             _OrientXZGV(dir, test_CURRENTROOT(obj), test_CURRENTROOT(self));
@@ -872,13 +829,6 @@ static int sitCount; /* derived name */
 
 static void *beliftGirl; /* derived name */
 
-/* kept local: void (void *) here, void (int) in script.h */
-extern void scpPlayStart(void *a0);
-/* kept local: void (void *, int) here, void (char *, int) in script.h */
-extern void scpPlayMotReq(void *a0, int a1);
-/* kept local: void (void *) here, void (int) in script.h */
-extern void scpPlayEnd(void *a0);
-
 void E3_StageStartBoy(void *self)
 {
     float buf[4];
@@ -914,8 +864,6 @@ void E3_StageStartBoy(void *self)
     _ACTWait(w3);
 }
 
-/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
-extern int systemStatus[];
 extern int fptodp(float v);
 
 int GetChainSlope(void)
@@ -957,40 +905,18 @@ int GetChainSlope(void)
 
 /* kept local: this TU's uses of these do not fit the prototypes in the headers
    the rest of the file reaches. */
-/* kept local: agrees with act.h, which this TU does not include (actInitialize, actInitialize_ext_charcter differ) */
-extern void ConvertStickToAbsCoord();
-/* kept local: void (void *, void *) here, int (WVTObj *, float *) in way_sys.h */
-extern void GetWay_next(void *way, void *pos);
-/* kept local: int (void *, void *, void *) here, int (void *, int, int) in way_sys.h */
-extern int GetWay_begin(void *a, void *way, void *b);
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0Normalize, sceVu0SubVector differ) */
-extern void sceVu0CopyVector(void *dst, void *src);
-/* kept local: float (void *, void *) here, float (float *, float *) in fuzio.h */
-extern float fzMagnitude2fv(void *a, void *b);
 /* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistSqGV(void *a, void *b);
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0Normalize, sceVu0SubVector differ) */
-extern float sceVu0InnerProduct(void *a, void *b);
 /* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipWall(void *w);
-/* kept local: agrees with way_sys.h, which this TU does not include (GetWay_begin, GetWay_next differ) */
-extern void BridgeBox(void);
 /* kept local: float (void *, void *) here, void (void *, void *) in poly-flat.h */
 extern float IsPointIsInScreen(void *dst, void *pos);
-/* kept local: int (void *, int, int, void *) here, int (void *, int, int, int) in pad.h */
-extern int iosPadConnect(void *pad, int a, int b, void *conf);
-/* kept local: agrees with pad.h, which this TU does not include (iosPadConnect differ) */
-extern int iosPadRead(void *pad);
-/* kept local: agrees with pad.h, which this TU does not include (iosPadConnect differ) */
-extern int iosPadGetStick(void *pad, void *out, int a, int b, int c, int d);
 /* kept local: void (void *, void *) here, void (int, int) in motionManager2.h */
 extern void _GetMotionDirection(void *dst, void *g);
 extern void _ACTCommonMailTest(int a0, int a, int b, int c);
 extern float GetDifferenceFromLowerField(int self, int a1);
 /* kept local: int (void *) here, int (char *) in motionManager2.h */
 extern int GetMotionFrameFlag1(void *self);
-/* kept local: agrees with act.h, which this TU does not include (actInitialize, actInitialize_ext_charcter differ) */
-extern void ACTDebugMove(int a0, int a1);
 extern void IncreasePdlChain(int id);
 extern void DecreasePdlChain(int id);
 
@@ -1000,12 +926,6 @@ typedef struct {
 } PadConf;
 
 extern PadConf iosPadConfCustom;
-/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
-extern int boyPad;
-/* kept local: void * here, GObj * in main.h */
-extern void *CurrentTargetGObj;
-/* kept local: void * here, int in main.h */
-extern void *optionControlType;
 /* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
 extern int InsertCameraWorkingFlag;
 /* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
@@ -1031,9 +951,9 @@ static inline void SaveBoyOrientForScript(void)
 {
     void *boy = boyGObj;
 
-    add_rope_vec[0] = ((float *)test_CURRENTORIENT(boy))[0];
-    add_rope_vec[1] = ((float *)test_CURRENTORIENT(boy))[1];
-    add_rope_vec[2] = ((float *)test_CURRENTORIENT(boy))[2];
+    add_rope_vec[0] = test_CURRENTORIENT(boy)[0];
+    add_rope_vec[1] = test_CURRENTORIENT(boy)[1];
+    add_rope_vec[2] = test_CURRENTORIENT(boy)[2];
 }
 
 /* INTERIM: CorrectStickInfo is a file-scope `inline` in the original TU
@@ -1496,13 +1416,13 @@ void subBoyControl(volatile int a0)
             void *obj = *(void **)(s + 0x600);
 
             if (obj != 0 && girlGObj != 0) {
-                gpos[0] = ((float *)test_CURRENTROOT(girlGObj))[0];
-                gpos[1] = ((float *)test_CURRENTROOT(girlGObj))[1];
-                gpos[2] = ((float *)test_CURRENTROOT(girlGObj))[2];
+                gpos[0] = test_CURRENTROOT(girlGObj)[0];
+                gpos[1] = test_CURRENTROOT(girlGObj)[1];
+                gpos[2] = test_CURRENTROOT(girlGObj)[2];
                 GetRootPosition(tpos, obj);
-                ori[0] = ((float *)test_CURRENTORIENT((void *)a0))[0];
-                ori[1] = ((float *)test_CURRENTORIENT((void *)a0))[1];
-                ori[2] = ((float *)test_CURRENTORIENT((void *)a0))[2];
+                ori[0] = test_CURRENTORIENT((void *)a0)[0];
+                ori[1] = test_CURRENTORIENT((void *)a0)[1];
+                ori[2] = test_CURRENTORIENT((void *)a0)[2];
                 _OrientXZGV(vec, gpos, tpos);
                 if (_DistSqGV(tpos, gpos) < 250000.0f &&
                     CheckFloorAttribute(girlGObj, 0xA000000) != 0) {
@@ -1871,10 +1791,6 @@ void InitSwapWeapon(void *self)
 
 /* kept local: void (void *, float, float, float, float, float, float) here, void (char *, float, float, float, float, float, float) in motionManager2.h */
 extern void InitMotionGeoInfo(void *node, float x, float y, float z, float rx, float ry, float rz);
-/* kept local: int (void *) here, int (char *) in weapon.h */
-extern int CheckWeaponKind(void *w);
-/* kept local: void (void *, int) here, void (char *, int) in weapon.h */
-extern void SetWeaponOffsetMode(void *w, int mode);
 
 void PutWeapon(void)
 {
@@ -1890,11 +1806,6 @@ void PutWeapon(void)
         UpdateRootMatrix(*(void **)(p + 0x20));
     }
 }
-
-/* kept local: void (void *, void *, int) here, void (char *, char *, int) in weapon.h */
-extern void PickupWeapon(void *w, void *boy, int kind);
-/* kept local: void (void *) here, void (char *) in weapon.h */
-extern void ReleaseWeapon(void *w);
 
 /* boyact.c:3002-3021 in the PAL listing: a static helper with no out-of-line
    copy in ROM, inlined into SetBoyWeaponGObj and afterBoyTakeWeapon. */
@@ -1932,20 +1843,20 @@ void OtherStageGirlPinchCamera_After(float t)
 {
     float buf[4];
 
-    pinchBoyPos[0] = ((float *)test_CURRENTROOT(boyGObj))[0];
-    pinchBoyPos[1] = ((float *)test_CURRENTROOT(boyGObj))[1];
-    pinchBoyPos[2] = ((float *)test_CURRENTROOT(boyGObj))[2];
+    pinchBoyPos[0] = test_CURRENTROOT(boyGObj)[0];
+    pinchBoyPos[1] = test_CURRENTROOT(boyGObj)[1];
+    pinchBoyPos[2] = test_CURRENTROOT(boyGObj)[2];
     if (_ACTGame_GetParamF(0xE) * (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f <=
         t) {
-        pinchBoyPosLate[0] = ((float *)test_CURRENTROOT(boyGObj))[0];
-        pinchBoyPosLate[1] = ((float *)test_CURRENTROOT(boyGObj))[1];
-        pinchBoyPosLate[2] = ((float *)test_CURRENTROOT(boyGObj))[2];
+        pinchBoyPosLate[0] = test_CURRENTROOT(boyGObj)[0];
+        pinchBoyPosLate[1] = test_CURRENTROOT(boyGObj)[1];
+        pinchBoyPosLate[2] = test_CURRENTROOT(boyGObj)[2];
         GetOtherStageGirlOrient(buf, GetCurrentCameraSet2());
         sceVu0ScaleVector(buf, buf, 500.0f);
         sceVu0AddVector(pinchCameraPos, GetCurrentCameraSet2(), buf);
     } else {
         /* a2 is the gobj the insert-camera record tracks, not a frame count. */
-        PrivInsCamSet((float *)test_CURRENTROOT(boyGObj), pinchCameraPos, (int)boyGObj,
+        PrivInsCamSet(test_CURRENTROOT(boyGObj), pinchCameraPos, (int)boyGObj,
                       (60 - systemStatus[0] * 10) / systemStatus[1] * 100 / 60,
                       (60 - systemStatus[0] * 10) / systemStatus[1] * 45 / 60, 0.05f, 0.25f, 0);
         *(int *)(*(char **)(*(char **)((char *)boyGObj + 0x164) + 0x688) + 0x4B0) = 0;
@@ -1999,9 +1910,9 @@ void PrivInsCamProcess(void)
         break;
     case 4:
         if (privInsCam.unk20 != 0) {
-            p[0] = ((float *)test_CURRENTROOT((void *)privInsCam.unk20))[0];
-            p[1] = ((float *)test_CURRENTROOT((void *)privInsCam.unk20))[1];
-            p[2] = ((float *)test_CURRENTROOT((void *)privInsCam.unk20))[2];
+            p[0] = test_CURRENTROOT((void *)privInsCam.unk20)[0];
+            p[1] = test_CURRENTROOT((void *)privInsCam.unk20)[1];
+            p[2] = test_CURRENTROOT((void *)privInsCam.unk20)[2];
         } else {
             p[0] = privInsCam.pos[0];
             p[1] = privInsCam.pos[1];
@@ -2018,8 +1929,8 @@ void PrivInsCamProcess(void)
     }
 }
 
-/* kept local: float (CCPResult *, CCPResult *) here, void (void *, void *) in gv.h */
-extern float _DistGV(CCPResult *a, CCPResult *b);
+/* kept local: float (float *, float *) here, void (void *, void *) in gv.h */
+extern float _DistGV(float *a, float *b);
 /* kept local: poly-flat.h declares IsPointIsInScreen void, the callers here
    read the float it returns */
 /* kept local: float (void *, void *) here, void (void *, void *) in poly-flat.h */
@@ -2027,26 +1938,10 @@ extern float IsPointIsInScreen(void *dst, void *pos);
 extern void ACTGame_CommonLoop(void *self);
 extern void ACTParaStatus_Exec(void *self);
 extern void ACTLookTargetSystem_Exec(void *self);
-/* kept local: void (void *) here, void (char *) in attackhit.h */
-extern void CommonAttackCenter(void *self);
 extern float GetDifferenceFromLowerField(int self, int a1);
 extern int isBottomOfChain(void *chain);
-/* kept local: agrees with commonact.h, which this TU does not include (ACTSendMailCorrect, test_CURRENTORIENT differ) */
-extern void GetCorrectOrientOfChain(void *buf, void *obj);
-/* kept local: void (void *, float *, float) here, int (int, float *, float) in commonact.h */
-extern void SetMotionDirectionSmooze(void *self, float *dir, float t);
-/* kept local: int (void *, int, void *, void *) here, int (char *, int, void *, void *) in mail-add-data.h */
-extern int ActSendMail_WithAdditionalData(void *gop, int msg, void *sender, void *data);
 /* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
 extern void Camctrl_SetTarget(int self, int obj, int a2);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMotReq differ) */
-extern void ScpCallCameraGetTarget(float *dst);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMotReq differ) */
-extern void ScpCallCameraSetTarget(float x, float y, float z);
-/* kept local: void (float *, int, int, int, float) here, void (int *, int, int, int, float) in camera-editor.h */
-extern void debug_NMarker(float *pos, int r, int g, int b, float size);
-/* kept local: void * here, int in main.h */
-extern void *girlControlMode;
 
 /* the boy's work record at Act+0x688.  subBoyCollision's stores through it are
    member accesses: the ROM moves its a0 reloads ahead of them (the 0x4B0
@@ -2105,11 +2000,11 @@ static inline void ACTSearchGObj_inl(void *a0, int a1, int a2, int *out_id, floa
     *out_id = 0;
     for (; node != 0; node = isysGObjSearchFromObjKindID_next(node)) {
         if (*(int *)((char *)node + 0x16C) != 0) {
-            CCPResult *r1 = test_CURRENTROOT(a0);
+            float *r1 = test_CURRENTROOT(a0);
             if (_DistGV(r1, test_CURRENTROOT(node)) < thresh) {
                 int sign;
                 int dist;
-                CCPResult *r4 = test_CURRENTROOT(node);
+                float *r4 = test_CURRENTROOT(node);
                 sceVu0SubVector(buf, r4, test_CURRENTROOT(a0));
                 sign = ((int (*)(void *, void *))_RotyGV)(buf, test_CURRENTORIENT(a0));
                 if (sign < 0) {
@@ -2218,9 +2113,9 @@ void subBoyCollision(volatile int a0)
                 ACTSendMailCorrect(a0, 0xC3);
             }
             if (*(int *)(sub + 0x2E4) & 0x40) {
-                HANG_TARGET(a0)->f33C = ((float *)test_CURRENTROOT(*(void **)(sub + 0x190)))[1] +
+                HANG_TARGET(a0)->f33C = test_CURRENTROOT(*(void **)(sub + 0x190))[1] +
                                         GetChainLength(*(void **)(sub + 0x190)) -
-                                        ((float *)test_CURRENTROOT((void *)a0))[1];
+                                        test_CURRENTROOT((void *)a0)[1];
                 ActSendMail_WithAdditionalData((void *)a0, 0x13C, (void *)a0,
                                                &HANG_TARGET(a0)->f33C);
             }
@@ -2258,9 +2153,9 @@ void subBoyCollision(volatile int a0)
                         if (100 < *(int *)(sub + 0x338) - 0x80) {
                             ry = -5;
                         }
-                        bodyori[0] = ((float *)test_CURRENTORIENT((void *)a0))[0];
-                        bodyori[1] = ((float *)test_CURRENTORIENT((void *)a0))[1];
-                        bodyori[2] = ((float *)test_CURRENTORIENT((void *)a0))[2];
+                        bodyori[0] = test_CURRENTORIENT((void *)a0)[0];
+                        bodyori[1] = test_CURRENTORIENT((void *)a0)[1];
+                        bodyori[2] = test_CURRENTORIENT((void *)a0)[2];
                         _ApplyRyGV(bodyori, (float)ry * 3.1415927f / 180.0f);
                         SetMotionDirection((void *)a0, bodyori);
                     }
@@ -2359,9 +2254,9 @@ void subBoyCollision(volatile int a0)
                     }
                 }
                 if (girlGObj != 0) {
-                    ((float *)tgt2)[0] = ((float *)test_CURRENTROOT(girlGObj))[0];
-                    ((float *)tgt2)[1] = ((float *)test_CURRENTROOT(girlGObj))[1];
-                    ((float *)tgt2)[2] = ((float *)test_CURRENTROOT(girlGObj))[2];
+                    ((float *)tgt2)[0] = test_CURRENTROOT(girlGObj)[0];
+                    ((float *)tgt2)[1] = test_CURRENTROOT(girlGObj)[1];
+                    ((float *)tgt2)[2] = test_CURRENTROOT(girlGObj)[2];
                     see = 1;
                     onGirl = 1;
                 } else if ((stage_no == 0x56 || stage_no == 0x3 || stage_no == 0x2E) &&
@@ -2371,7 +2266,7 @@ void subBoyCollision(volatile int a0)
                     ScpCallCameraGetTarget((float *)tgt2);
                 }
                 if (see) {
-                    float d = _DistGV(test_CURRENTROOT((void *)a0), (CCPResult *)tgt2);
+                    float d = _DistGV(test_CURRENTROOT((void *)a0), (float *)tgt2);
 
                     if (d < _ACTGame_GetParamF(3) && onGirl) {
                         _ACTParaStatus_Set((void *)a0, 0x15);
@@ -2505,9 +2400,9 @@ void subBoyCollision(volatile int a0)
                             Camctrl_SetTarget(a0, (int)w, 1);
                             camOn = 1;
                             if (stage_no == 0x25) {
-                                ((float *)cam)[0] = ((float *)test_CURRENTROOT(w))[0];
-                                ((float *)cam)[1] = ((float *)test_CURRENTROOT(w))[1];
-                                ((float *)cam)[2] = ((float *)test_CURRENTROOT(w))[2];
+                                ((float *)cam)[0] = test_CURRENTROOT(w)[0];
+                                ((float *)cam)[1] = test_CURRENTROOT(w)[1];
+                                ((float *)cam)[2] = test_CURRENTROOT(w)[2];
                                 ScpCallCameraSetTarget(-((float *)cam)[0], -((float *)cam)[1],
                                                        -((float *)cam)[2]);
                                 *(unsigned long long *)(sub + 0x20) =
@@ -2535,14 +2430,14 @@ void subBoyCollision(volatile int a0)
                     looking = 0;
                 }
                 if ((*(int *)(sub + 0x2E0) & 0x8) && lo != 0) {
-                    ((float *)broot)[0] = ((float *)test_CURRENTROOT(boyGObj))[0];
-                    ((float *)broot)[1] = ((float *)test_CURRENTROOT(boyGObj))[1];
-                    ((float *)broot)[2] = ((float *)test_CURRENTROOT(boyGObj))[2];
+                    ((float *)broot)[0] = test_CURRENTROOT(boyGObj)[0];
+                    ((float *)broot)[1] = test_CURRENTROOT(boyGObj)[1];
+                    ((float *)broot)[2] = test_CURRENTROOT(boyGObj)[2];
                     ((float *)cam)[0] = ((float *)GetCurrentCameraSet2())[0];
                     ((float *)cam)[1] = ((float *)GetCurrentCameraSet2())[1];
                     ((float *)cam)[2] = ((float *)GetCurrentCameraSet2())[2];
                     GetOtherStageGirlOrient((float *)ofs, (float *)cam);
-                    sceVu0ScaleVector(ofs, ofs, _DistGV((CCPResult *)cam, (CCPResult *)broot));
+                    sceVu0ScaleVector(ofs, ofs, _DistGV((float *)cam, (float *)broot));
                     sceVu0AddVector(work, cam, ofs);
                     SetRootPosition(lo, work);
                     /* Local debug switch, off (see dbg in the declarations).
@@ -2623,10 +2518,6 @@ void subBoyCollision(volatile int a0)
 void afterBoySwim(volatile int a0);
 /* kept local: S12 here, FcColInfo in fieldCollision.h */
 extern S12 InitialColInfo;
-/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
-extern int boyPad;
-/* kept local: agrees with pad.h, which this TU does not include (iosPadConnect differ) */
-extern int iosPadActRequest(int port, int id);
 /* kept local: agrees with motionManager2.h, which this TU does not include (CheckFloorAttribute, GetHeightOfFieldPlaneDifference differ) */
 extern int GetSkeltonFocusNode(char *a0, int a1);
 extern void MoveFloatingBox(void *box, int self, void *m, void *p, float d);
@@ -2725,7 +2616,7 @@ void actBoyWalk(volatile int a0)
 
             GetSkeltonPosition(bp, boyGObj, 2);
             GetSkeltonPosition(gp, girlGObj, 0x12);
-            d = _DistGV((CCPResult *)gp, (CCPResult *)bp);
+            d = _DistGV((float *)gp, (float *)bp);
             if ((60 - systemStatus[0] * 10) / systemStatus[1] * 100 / 60 <
                     *(int *)((char *)sub + 0x4C) &&
                 80.0f < d) {
@@ -2752,7 +2643,7 @@ void actBoyRun(volatile int a0)
 
             GetSkeltonPosition(bp, boyGObj, 2);
             GetSkeltonPosition(gp, girlGObj, 0x12);
-            d = _DistGV((CCPResult *)gp, (CCPResult *)bp);
+            d = _DistGV((float *)gp, (float *)bp);
             if ((60 - systemStatus[0] * 10) / systemStatus[1] * 100 / 60 <
                     *(int *)((char *)sub + 0x4C) &&
                 90.0f < d) {
@@ -2818,8 +2709,6 @@ void actBoyAttack(volatile int a0)
 
 /* kept local: agrees with motionManager2.h, which this TU does not include (CheckFloorAttribute, GetHeightOfFieldPlaneDifference differ) */
 extern void SetMotionDirection(void *self, float *dir);
-/* kept local: void (void *, float *) here, int (char *, float *) in commonact.h */
-extern void _ACTMotDirSmzDirect(void *self, float *dir);
 
 void actBoyTakeWeaponReady(volatile int a0)
 {
@@ -2831,13 +2720,13 @@ void actBoyTakeWeaponReady(volatile int a0)
     int n = 0;
 
     obj = *(char **)(*(char **)((char *)a0 + 0x164) + 0x608);
-    w[0] = ((float *)test_CURRENTROOT(obj))[0];
-    w[1] = ((float *)test_CURRENTROOT(obj))[1];
-    w[2] = ((float *)test_CURRENTROOT(obj))[2];
+    w[0] = test_CURRENTROOT(obj)[0];
+    w[1] = test_CURRENTROOT(obj)[1];
+    w[2] = test_CURRENTROOT(obj)[2];
     while (1) {
-        p[0] = ((float *)test_CURRENTROOT((void *)a0))[0];
-        p[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
-        p[2] = ((float *)test_CURRENTROOT((void *)a0))[2];
+        p[0] = test_CURRENTROOT((void *)a0)[0];
+        p[1] = test_CURRENTROOT((void *)a0)[1];
+        p[2] = test_CURRENTROOT((void *)a0)[2];
         _OrientXZGV(dir, w, p);
         if (first) {
             SetMotionDirection((void *)a0, dir);
@@ -2869,9 +2758,9 @@ void actBoyTakeWeapon(volatile int a0)
 
     InitSwapWeapon((void *)a0);
     *(BoyAfterFunc *)((char *)sub + 0x14) = afterBoyTakeWeapon;
-    p[0] = ((float *)test_CURRENTROOT(BOYINFO.nextWeapon))[0];
-    p[1] = ((float *)test_CURRENTROOT(BOYINFO.nextWeapon))[1];
-    p[2] = ((float *)test_CURRENTROOT(BOYINFO.nextWeapon))[2];
+    p[0] = test_CURRENTROOT(BOYINFO.nextWeapon)[0];
+    p[1] = test_CURRENTROOT(BOYINFO.nextWeapon)[1];
+    p[2] = test_CURRENTROOT(BOYINFO.nextWeapon)[2];
     _OrientXZGV(dir, p, test_CURRENTROOT((void *)a0));
     SetMotionDirection((void *)a0, dir);
     while (1) {
@@ -2907,8 +2796,6 @@ void actBoyTakeWeapon(volatile int a0)
     }
 }
 
-/* kept local: void (int, void *) here, void (int, int) in commonact.h */
-extern void ACTAdjustPlane(int a0, void *p);
 /* kept local: void (void *, void *, void *) here, void (void *, void *, int *) in fieldCollision.h */
 extern void GetOrientOfWall(void *out, void *wall, void *pos);
 /* kept local: int (int, int) here, int (unsigned int, unsigned int) in fieldCollision.h */
@@ -2959,8 +2846,7 @@ inline void actBoyCall(volatile int a0)
     }
 }
 
-#define BOY_GIRL_DY()                                                                              \
-    (((float *)test_CURRENTROOT(girlGObj))[1] - ((float *)test_CURRENTROOT(boyGObj))[1])
+#define BOY_GIRL_DY() (test_CURRENTROOT(girlGObj)[1] - test_CURRENTROOT(boyGObj)[1])
 
 void ACTSendMail_PULLUP_GO(void)
 {
@@ -3019,10 +2905,6 @@ static inline void ACTSendMail_PULLUP_START(void)
     }
 }
 
-/* kept local: void (void *, CCPResult *, CCPResult *) here, void (void *, void *, void *) in libvu0.h */
-extern void sceVu0SubVector(void *, CCPResult *, CCPResult *);
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0Normalize, sceVu0SubVector differ) */
-extern float sceVu0InnerProduct(void *a, void *b);
 /* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistSqGV(void *a, void *b);
 
@@ -3059,7 +2941,7 @@ int pullup_check_heroin_position(void)
                         54) &
          1) &&
         (girlGObj == 0 || boyGObj == 0 ||
-         !(test_CURRENTROOT(girlGObj)->f4 > test_CURRENTROOT(boyGObj)->f4 + 450.0f))) {
+         !(test_CURRENTROOT(girlGObj)[1] > test_CURRENTROOT(boyGObj)[1] + 450.0f))) {
         return 1;
     }
     return 0;
@@ -3074,7 +2956,7 @@ int ditch_check_heroin_position(void)
     if (0.0f < sceVu0InnerProduct(buf, (float *)((char *)s + 0x4C0)) &&
         _DistxzGV((char *)s + 0x510, test_CURRENTROOT(girlGObj)) < 31.0f &&
         (girlGObj == 0 || boyGObj == 0 ||
-         !(test_CURRENTROOT(girlGObj)->f4 > test_CURRENTROOT(boyGObj)->f4 + 200.0f))) {
+         !(test_CURRENTROOT(girlGObj)[1] > test_CURRENTROOT(boyGObj)[1] + 200.0f))) {
         return 1;
     }
     return 0;
@@ -3083,8 +2965,6 @@ int ditch_check_heroin_position(void)
 extern char D_0055FFA8[];
 /* kept local: void (float *, float *, float *, float) here, float (float *, float *, float *, float) in gv.h */
 extern void _MoveGV(float *dst, float *from, float *to, float d);
-/* kept local: agrees with commonact.h, which this TU does not include (ACTSendMailCorrect, test_CURRENTORIENT differ) */
-extern int IsCorrectPosition(char *a0);
 
 void actBoyPullupReady(volatile int a0)
 {
@@ -3112,8 +2992,7 @@ void actBoyPullupReady(volatile int a0)
     while (1) {
         if (*(unsigned char *)(BOY_WALL(a0) + 0x4F0) &&
             *(int *)(GOBJ_SUB(a0)->f_4A0 * 0x194 + D_0055FFA8) != 1) {
-            _MoveGV(mv, (float *)test_CURRENTROOT((void *)a0), (float *)(BOY_WALL(a0) + 0x500),
-                    3.0f);
+            _MoveGV(mv, test_CURRENTROOT((void *)a0), (float *)(BOY_WALL(a0) + 0x500), 3.0f);
             SetRootPosition((char *)a0, mv);
         }
         _ACTCharStatus_Set((char *)a0, 0x1C, -1.0f, 0);
@@ -3162,8 +3041,6 @@ void actBoyPullupGo(volatile int a0)
     }
 }
 
-/* kept local: void (float *, short) here, void (void *, int) in quaternion.h */
-extern void RotQuaternionX(float *q, short a);
 /* kept local: void (void *, void *, int, int, float *, float, float, float, float) here, void (char *, char *, float, float, float, int, int, float, void *) in motionManager2.h */
 extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float *q, float x,
                                           float y, float z, float w);
@@ -3336,12 +3213,12 @@ void actBoyRescueReady(volatile int a0)
     int gm = *(int *)(*(char **)((char *)girlGObj + 0x15C) + 0x4A0);
     int t;
 
-    p[0] = ((float *)test_CURRENTROOT((void *)a0))[0];
-    p[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
-    p[2] = ((float *)test_CURRENTROOT((void *)a0))[2];
-    q[0] = ((float *)test_CURRENTROOT(g))[0];
-    q[1] = ((float *)test_CURRENTROOT(g))[1];
-    q[2] = ((float *)test_CURRENTROOT(g))[2];
+    p[0] = test_CURRENTROOT((void *)a0)[0];
+    p[1] = test_CURRENTROOT((void *)a0)[1];
+    p[2] = test_CURRENTROOT((void *)a0)[2];
+    q[0] = test_CURRENTROOT(g)[0];
+    q[1] = test_CURRENTROOT(g)[1];
+    q[2] = test_CURRENTROOT(g)[2];
     _OrientXZGV(dir, q, p);
     sceVu0ScaleVector(tmp, dir, -60.0f);
     sceVu0AddVector(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x2F0, q, tmp);
@@ -3349,15 +3226,15 @@ void actBoyRescueReady(volatile int a0)
     sceVu0AddVector(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x300, q, tmp);
     ((float *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x300))[1] += 50.0f;
     SetMotionDirection((void *)a0, dir);
-    sceVu0SubVector(step, (CCPResult *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x2F0),
-                    (CCPResult *)p);
+    sceVu0SubVector(step, (float *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x2F0),
+                    (float *)p);
     sceVu0ScaleVector(step, step, 1.0f / (float)cnt);
     t = 1;
     rest = cnt;
     while (1) {
         if (0 < rest) {
             sceVu0AddVector(np, test_CURRENTROOT((void *)a0), step);
-            np[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
+            np[1] = test_CURRENTROOT((void *)a0)[1];
             SetDirectRootPositionNoFitting((void *)a0, np);
         }
         rest--;
@@ -3445,12 +3322,12 @@ void actBoyDitch3mReady(volatile int a0)
         switch (*(unsigned int *)(*(char **)((char *)girlGObj + 0x164) + 0x34)) {
         case 4:
         case 90:
-            p[0] = ((float *)test_CURRENTROOT(boyGObj))[0];
-            p[1] = ((float *)test_CURRENTROOT(boyGObj))[1];
-            p[2] = ((float *)test_CURRENTROOT(boyGObj))[2];
-            q[0] = ((float *)test_CURRENTROOT(girlGObj))[0];
-            q[1] = ((float *)test_CURRENTROOT(girlGObj))[1];
-            q[2] = ((float *)test_CURRENTROOT(girlGObj))[2];
+            p[0] = test_CURRENTROOT(boyGObj)[0];
+            p[1] = test_CURRENTROOT(boyGObj)[1];
+            p[2] = test_CURRENTROOT(boyGObj)[2];
+            q[0] = test_CURRENTROOT(girlGObj)[0];
+            q[1] = test_CURRENTROOT(girlGObj)[1];
+            q[2] = test_CURRENTROOT(girlGObj)[2];
             if (_DistxzSqGV(p, q) < 250000.0f) {
                 if (p[1] + 300.0f < q[1]) {
                 } else {
@@ -3511,7 +3388,7 @@ void actBoyDitch3mReady(volatile int a0)
                 float dy;
 
                 b = 0;
-                dy = test_CURRENTROOT(girlGObj)->f4 - test_CURRENTROOT(boyGObj)->f4;
+                dy = test_CURRENTROOT(girlGObj)[1] - test_CURRENTROOT(boyGObj)[1];
                 if (_DistxzSqGV(test_CURRENTROOT(boyGObj), test_CURRENTROOT(girlGObj)) < 10000.0f &&
                     ABSF(BOYGIRL_DY()) < 100.0f) {
                     b = 1;
@@ -3573,12 +3450,12 @@ void actBoyRescueGirlBhang(volatile int a0)
         }
         if (mode != 0) {
             if (*(int *)((char *)sub + 0x4C) < 0xA) {
-                boy[0] = ((float *)test_CURRENTROOT(boyGObj))[0];
-                boy[1] = ((float *)test_CURRENTROOT(boyGObj))[1];
-                boy[2] = ((float *)test_CURRENTROOT(boyGObj))[2];
-                girl[0] = ((float *)test_CURRENTROOT(girlGObj))[0];
-                girl[1] = ((float *)test_CURRENTROOT(girlGObj))[1];
-                girl[2] = ((float *)test_CURRENTROOT(girlGObj))[2];
+                boy[0] = test_CURRENTROOT(boyGObj)[0];
+                boy[1] = test_CURRENTROOT(boyGObj)[1];
+                boy[2] = test_CURRENTROOT(boyGObj)[2];
+                girl[0] = test_CURRENTROOT(girlGObj)[0];
+                girl[1] = test_CURRENTROOT(girlGObj)[1];
+                girl[2] = test_CURRENTROOT(girlGObj)[2];
                 tgt[0] = girl[0];
                 tgt[2] = girl[2];
                 tgt[1] = boy[1];
@@ -3608,14 +3485,11 @@ void actBoyRescueGirlBhang(volatile int a0)
     }
 }
 
-/* kept local: int (void *, int, int, int, float, float) here, int (int, float, float, unsigned char, unsigned char, unsigned char) in script.h */
-extern int RequestStageChangeSimple(void *a0, int a1, int a2, int a3, float a4, float a5);
-
 inline int RequestStageChangeKidnapEnd(void *a0, int a1)
 {
     int rv = 0;
     if (boyGObj != 0) {
-        rv = RequestStageChangeSimple(a0, 0, 0, 0, 0.25f, 4.0f) & 0xFF;
+        rv = RequestStageChangeSimple(a0, 0.25f, 4.0f, 0, 0, 0) & 0xFF;
         if (rv != 0) {
             Vec16 buf = {{-1000000.0f, 0.0f, 0.0f}};
 
@@ -3657,9 +3531,9 @@ void SetStatusBoy_OtherStageGirlPinch(void)
     cam[0] = GetCurrentCameraSet2()[0];
     cam[1] = GetCurrentCameraSet2()[1];
     cam[2] = GetCurrentCameraSet2()[2];
-    pos[0] = ((float *)test_CURRENTROOT(boyGObj))[0];
-    pos[1] = ((float *)test_CURRENTROOT(boyGObj))[1];
-    pos[2] = ((float *)test_CURRENTROOT(boyGObj))[2];
+    pos[0] = test_CURRENTROOT(boyGObj)[0];
+    pos[1] = test_CURRENTROOT(boyGObj)[1];
+    pos[2] = test_CURRENTROOT(boyGObj)[2];
     InsertCamera_SetNoraml(cam, pos, frames, 0);
 }
 
@@ -3669,18 +3543,6 @@ void *gopp_subBoyControl;
 
 /* not declared by the headers this TU includes; the act.c entry points as
    girl_act.c declares them for actGirlStart */
-/* kept local: char * (void *) here, char * (char *) in act.h */
-extern char *actInitialize(void *self);
-/* kept local: void (void *) here, void (char *) in act.h */
-extern void actInitialize_ext_charcter(void *self);
-/* kept local: void (void *) here, void (char *) in act.h */
-extern void actInitialize_only_charcter(void *self);
-/* kept local: agrees with act.h, which this TU does not include (actInitialize, actInitialize_ext_charcter differ) */
-extern void actInitialize_geo(void *self);
-/* kept local: int (void *, int) here, int (void *, void *) in act.h */
-extern int actCreateSubThread(void *entry, int prio);
-/* kept local: void (void) here, void (volatile int) in commonact.h */
-extern void subCommonIdle(void);
 extern void LightTorchOnOfWeaponWithNoSE(void *w);
 
 void actBoyStart(int a0)
@@ -3807,18 +3669,14 @@ void actBoyStart(int a0)
     _ACTWait(0);
 }
 
-/* kept local: agrees with act.h, which this TU does not include (actInitialize, actInitialize_ext_charcter differ) */
-extern void ConvertStickToAbsCoord();
 /* kept local: agrees with gv.h, which this TU does not include (GetMatrixDirectionToZ, _DistxzSqGV differ) */
 extern int _RotyGV();
 
-/* `stick` is never named in the body: the ROM leaves $a1 untouched and
-   ConvertStickToAbsCoord reads it straight out of the incoming register, so the
-   stick record reaches it through the argument register alone. */
 inline int CorrectStickInfo(void *dir, void *stick)
 {
     int buf[4];
-    ConvertStickToAbsCoord(buf);
+    ConvertStickToAbsCoord(buf, stick);
+
     return _RotyGV(buf, dir);
 }
 
@@ -3990,11 +3848,11 @@ inline void ACTSearchEnemy(void *a0, int *out_id, float *out_vec)
     if (node != 0) {
         do {
             if (*(int *)((char *)node + 0x16C) != 0) {
-                CCPResult *r1 = test_CURRENTROOT(a0);
+                float *r1 = test_CURRENTROOT(a0);
                 if (_DistGV(r1, test_CURRENTROOT(node)) < thresh) {
                     int sign;
                     int dist;
-                    CCPResult *r4 = test_CURRENTROOT(node);
+                    float *r4 = test_CURRENTROOT(node);
                     sceVu0SubVector(buf, r4, test_CURRENTROOT(a0));
                     sign = ((int (*)(void *, void *))_RotyGV)(buf, test_CURRENTORIENT(a0));
                     if (sign < 0) {
@@ -4291,11 +4149,11 @@ inline void ACTSearchGObj(void *a0, int a1, int a2, int *out_id, float *out_vec,
     if (node != 0) {
         do {
             if (*(int *)((char *)node + 0x16C) != 0) {
-                CCPResult *r1 = test_CURRENTROOT(a0);
+                float *r1 = test_CURRENTROOT(a0);
                 if (_DistGV(r1, test_CURRENTROOT(node)) < thresh) {
                     int sign;
                     int dist;
-                    CCPResult *r4 = test_CURRENTROOT(node);
+                    float *r4 = test_CURRENTROOT(node);
                     sceVu0SubVector(buf, r4, test_CURRENTROOT(a0));
                     sign = ((int (*)(void *, void *))_RotyGV)(buf, test_CURRENTORIENT(a0));
                     if (sign < 0) {
@@ -4354,9 +4212,6 @@ inline void afterBoyRescueGirlBhang(volatile int a0)
 {
     ACTGame_DisconnectHand();
 }
-
-/* kept local: agrees with act.h, which this TU does not include (actInitialize, actInitialize_ext_charcter differ) */
-extern void _ACTWait();
 
 inline void subBoyBrainMain(int a0)
 {

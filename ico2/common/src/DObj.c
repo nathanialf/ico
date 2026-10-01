@@ -9,6 +9,7 @@
 #include "matrixDrive.h"
 #include "motionManager2.h"
 #include "quaternion.h"
+#include "ios.h"
 
 typedef struct {
     unsigned int lo;
@@ -20,8 +21,6 @@ typedef struct {
 
 /* kept local with ios.h's declaration: this TU keeps its own pointer view of
    ios_partition_seki below and so does not include ios.h */
-/* kept local: agrees with ios.h, which this TU does not include (ios_partition_seki differ) */
-extern int ios_partition_sugipon;
 
 typedef union {
     char *p;
@@ -237,8 +236,6 @@ typedef union {
 
 /* kept local: this TU's view of ios.c's seki partition handle is a pointer
    (ios.h declares the handles int, and that view changes this TU's code) */
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_seki;
 
 void allocObjectData(char *self, char *lay, int n)
 {

@@ -11,14 +11,11 @@
 #include "isys.h"
 #include "geometryManager.h"
 #include "thread.h"
+#include "lineManager.h"
+#include "pad.h"
+#include "gobj_process.h"
 
 extern char objLayout[];
-/* kept local: int (void *, void *, int, void *) here, int (int, int, int, int) in gobj_process.h */
-extern int isysGObjProcAdd(void *a0, void *a1, int a2, void *a3);
-/* kept local: int (void *, void *, int, void *, long long) here, int (int, int, int, int, int) in gobj_process.h */
-extern int isysGObjProcAddS(void *a0, void *a1, int a2, void *a3, long long a4);
-/* kept local: agrees with gobj_process.h, which this TU does not include (isysGObjProcAdd, isysGObjProcAddS differ) */
-extern void isysGObjProcRemove();
 
 /* One 0x50-byte record per act status, indexed by the actor status index; the
    six 12-byte entries at +4 are indexed by the work block's mode at +0x48.
@@ -48,8 +45,6 @@ typedef struct {
 extern const StatusAttrAct actModeTbl[];
 /* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
 extern int systemStatus[];
-/* kept local: agrees with gobj_process.h, which this TU does not include (isysGObjProcAdd, isysGObjProcAddS differ) */
-extern int isysGObjProcAddGOppArg();
 /* kept local: int here, char * in main.h */
 extern int matrixptr;
 
@@ -748,14 +743,9 @@ extern void ClipFloorR(void *work);
 extern int CompareAttribute(unsigned int a, unsigned int b);
 /* kept local: agrees with fieldCollision.h, which this TU does not include (ClipFloor, ClipFloorR differ) */
 extern void SetSimplePlane(float *plane, float a, float b, float c, float d);
-/* kept local: void (void *, void *, void *, void *, int) here, void (int *, int *, int *, int *, int) in lineManager.h */
-extern void DrawLineG(void *a, void *ca, void *b, void *cb, int flag);
+
 /* kept local: this TU passes the packet priority that the prototype in
    seki/include/GifPacket.h leaves out */
-/* kept local: void (void *) here, int (void *) in pad.h */
-extern void iosPadRead(void *pad);
-/* kept local: agrees with pad.h, which this TU does not include (iosPadRead differ) */
-extern int iosPadGetStick(void *dev, void *out, int mode, int a3, int a4, int a5);
 
 void ACTDebugMove(int a0, int a1)
 {

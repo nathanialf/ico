@@ -34,6 +34,11 @@
 #include "debug_menu.h"
 #include "way_tool.h"
 #include "camera-editor.h"
+#include <stdlib.h>
+#include "matrixDrive.h"
+#include "pad.h"
+#include "ios.h"
+#include "staffroll.h"
 
 /* debug_exception_screen.c.inc (compiled into debug_exception.o) */
 
@@ -461,31 +466,10 @@ static int startStageNo = -1; /* derived name */
 
 int debugBackGroundDisableFlag = 0;
 
-/* kept local: int (char *) here, int (void *) in stdlib.h */
-extern int atoi(char *s);
 extern int debug_bar_flag;
+
 /* the areas debug_Load parcels its files into; the report prints how much of
    each one is in use once the file has been allocated out of it */
-/* kept local: IosMemPart * here, int in ios.h */
-extern IosMemPart *ios_partition_hara; /* hara */
-/* kept local: IosMemPart * here, int in ios.h */
-extern IosMemPart *ios_partition_sugipon; /* sugi */
-/* kept local: IosMemPart * here, int in ios.h */
-extern IosMemPart *ios_partition_common; /* static object */
-/* kept local: IosMemPart * here, int in ios.h */
-extern IosMemPart *ios_partition_dmotion; /* dynamic motion */
-/* kept local: IosMemPart * here, int in ios.h */
-extern IosMemPart *ios_partition_smotion; /* static motion */
-/* kept local: IosMemPart * here, int in ios.h */
-extern IosMemPart *ios_partition_seki; /* seki */
-/* kept local: IosMemPart * here, int in ios.h */
-extern IosMemPart *ios_partition_oomori; /* oomori */
-/* kept local: IosMemPart * here, int in ios.h */
-extern IosMemPart *ios_partition_horagai; /* horagai */
-/* kept local: IosMemPart * here, int in ios.h */
-extern IosMemPart *ios_partition_sound; /* sound */
-/* kept local: IosMemPart * here, int in ios.h */
-extern IosMemPart *ios_partition_sound_semi; /* sound_semi */
 
 /* one glyph's image packet, built by debug_MakeFont and sent by
    debug_PrintCharacter: its size in quadwords and its address */
@@ -876,14 +860,6 @@ typedef struct {
 
 /* the four-row initialiser template (centerX, centerY, centerZ, radius), blob-owned
    by address until the TU's plain .rodata run closes up */
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_TransMatrixV differ) */
-extern void *MatrixDrive_GetMatrix(void);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_TransMatrixV differ) */
-extern void MatrixDrive_PushMatrix(void);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_TransMatrixV differ) */
-extern void MatrixDrive_PopMatrix(void);
-/* kept local: void (void *) here, void (char *) in matrixDrive.h */
-extern void MatrixDrive_TransMatrixV(void *a0);
 
 /* iosPadGetStick's output block: the raw pair at +0 and +4, the camera-space
    pair at +0xC/+0x10 and the stick deflection at +0x14 (the same record
@@ -906,16 +882,6 @@ extern int MotionViewer(void);
 extern int EffectTool(void);
 extern int tex_ListTool(void);
 extern char iosPadConfDefault[];
-/* kept local: int (void *, int, int, void *) here, int (void *, int, int, int) in pad.h */
-extern int iosPadConnect(void *dev, int a1, int a2, void *conf);
-/* kept local: agrees with pad.h, which this TU does not include (iosPadConnect differ) */
-extern int iosPadRead(void *dev);
-/* kept local: agrees with pad.h, which this TU does not include (iosPadConnect differ) */
-extern int iosPadGetStick(void *dev, void *out, int mode, int a3, int a4, int a5);
-/* kept local: agrees with pad.h, which this TU does not include (iosPadConnect differ) */
-extern void iosPadStickCameraCoord(void *out, float *stick);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_TransMatrixV differ) */
-extern void CopyVector(void *dst, void *src);
 extern void DebugDisp1Collision(void *hit);
 /* Profiler bar table: 0x400 entries of 0x1C bytes; debugBarCount = live count.
    Callers pass (label, colour, __FILE__, __LINE__) -- see the call sites in
@@ -930,8 +896,6 @@ extern int iosMcSync(int port);
 extern void iosMcUnformat(int port);
 /* kept local: agrees with mcard.h, which this TU does not include (iosMcChdirProduct, iosMcGetBlockSaveInfo differ) */
 extern void iosMcTest(void);
-/* kept local: void (int, float) here, void (float, int) in staffroll.h */
-extern void staffRollStart(int a0, float a1);
 extern unsigned short seKind[];
 /* pad state block: +0x4 held buttons, +0xC newly-pressed (trigger) buttons */
 extern char adpcmFile[];
@@ -2526,7 +2490,7 @@ inline void debug_DispVu1SReg(int no)
     }
 }
 
-inline int gsResetFunc(void)
+inline int gsResetFunc(int a0)
 {
     gsb_Init(db);
     return 1;
@@ -3251,7 +3215,7 @@ int debug_MemoryCard(void)
 
 inline int debug_STAFFROLLTest(void)
 {
-    staffRollStart(0x80, 1.0f);
+    staffRollStart(1.0f, 0x80);
     return 1;
 }
 

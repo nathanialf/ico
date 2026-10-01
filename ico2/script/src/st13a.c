@@ -12,19 +12,13 @@
 #include "StageAnimation.h"
 #include <libvu0.h>
 #include "typedef.h"
-
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern int boyPad;
+#include "main.h"
 
 /* .sbss, owned by st13a.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
    subthreads the wait loops below spin for. */
 static int demoEnd;
 
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern PadState pad[];
 /* st13a.o's own .sdata run; MAIN.MAP names all seven. */
 void actSt13aElevUpSub(volatile int a0);
 void actSt13aElevDownSub(volatile int a0);

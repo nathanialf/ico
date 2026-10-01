@@ -1,17 +1,8 @@
 #include "gobj_cam_dl.h"
 #include "gobj_dl.h"
 #include "main.h"
-
-/* kept local: agrees with gobj.h, which this TU does not include (isysGetNbAllocedGObjs differ) */
-extern void isysGObjInit();
-/* kept local: agrees with isys.h, which this TU does not include (gobj_camera_dl_link_head, gobj_dl_link_head differ) */
-extern int *gobj_link_head[];
-/* kept local: agrees with gobj.h, which this TU does not include */
-extern int isysGetNbAllocedGObjs();
-/* kept local: agrees with isys.h, which this TU does not include (gobj_camera_dl_link_head, gobj_dl_link_head differ) */
-extern char *isysCurrentGObj;
-/* kept local: agrees with gobj.h, which this TU does not include (isysGetNbAllocedGObjs differ) */
-extern void isysGObjRemove(char *g);
+#include "isys.h"
+#include "gobj.h"
 
 typedef struct {
     int type;
@@ -48,7 +39,7 @@ void iosOmInit(void)
 inline void iosOmGetGObjStatus(int a0, int a1)
 {
     *(int *)a0 = 0x140;
-    *(int *)a1 = isysGetNbAllocedGObjs(a0);
+    *(int *)a1 = isysGetNbAllocedGObjs();
 }
 
 inline void iosOmExeEachGObj(int idx, void (*fn)(int *, int), int arg)
@@ -237,12 +228,7 @@ typedef struct OmGObj {
     int pauseExempt; /* 0x170 */
 } OmGObj;
 
-/* kept local: agrees with isys.h, which this TU does not include (gobj_camera_dl_link_head, gobj_dl_link_head differ) */
-extern int active_gobj_link;
-/* kept local: OmProc * here, void * in isys.h */
-extern OmProc *isysCurrentGObjProcess;
-
-void _iosOmMain(int a0, int a1, int a2, int a3)
+void _iosOmMain(void)
 {
     OmGObj *g;
     OmGObj *g2;
@@ -303,9 +289,9 @@ void _iosOmMain(int a0, int a1, int a2, int a3)
     }
 }
 
-void iosOmMain(int a0, int a1, int a2, int a3)
+void iosOmMain(void)
 {
-    _iosOmMain(a0, a1, a2, a3);
+    _iosOmMain();
 }
 
 /* the camera list node the DL walk hangs off (gobj_camera_dl_link_head) and the per-kind
@@ -329,11 +315,6 @@ typedef struct OmObj {
     char _p54[0x16C - 0x54];
     int active; /* 0x16C */
 } OmObj;
-
-/* kept local: OmCam * here, int * in isys.h */
-extern OmCam *gobj_camera_dl_link_head;
-/* kept local: OmObj * [] here, int * [8] in isys.h */
-extern OmObj *gobj_dl_link_head[];
 
 void iosOmCreateDL(void)
 {

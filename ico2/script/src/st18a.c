@@ -12,6 +12,7 @@
 #include "StageAnimation.h"
 #include "st04r.h"
 #include "typedef.h"
+#include "main.h"
 
 static ActMail intro_mes[2] = {{430}, {429}};
 
@@ -43,9 +44,6 @@ static ActMail ene_mes[2] = {{430}, {429}};
 
 static ActMail ene2_mes[2] = {{430}, {429}};
 
-/* kept local: char * here, GObj * in main.h */
-extern char *girlGObj;
-
 void actSt18aEnd(void)
 {
     if (girlGObj != 0) {
@@ -54,21 +52,6 @@ void actSt18aEnd(void)
         }
     }
 }
-
-/* the shared pad-state array (op.c's PadStateSt18A): 0x58 per pad, trg at 0x4 */
-/* kept local: this TU's bytes only come out with its own view of PadStateSt18A. */
-/* kept local: this TU's bytes only come out with its own view of PadState, so it
-   keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
-typedef struct PadStateSt18A {
-    int unk00;        /* 0x00 */
-    int trg;          /* 0x04 */
-    char unk08[0x50]; /* 0x08 */
-} PadStateSt18A;
-
-/* kept local: PadStateSt18A [] here, PadState [16] in main.h */
-extern PadStateSt18A pad[];
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
 
 void actSt18aIntroChk(volatile int a0)
 {
@@ -87,7 +70,7 @@ void actSt18aIntroChk(volatile int a0)
     stage_SetAnimation(354, 1, 0);
 
     while (stage_CheckAnimationFinish(354) == 0) {
-        if ((pad[0].trg & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+        if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
             scpFadeOut(16.0f, 0, 0, 0);
 
             while (scpFadeChk() != 0) {
@@ -108,9 +91,6 @@ void actSt18aIntroChk(volatile int a0)
     lt_switch_layout(54);
     scpBoyControlReadDisable = 0;
 }
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int systemStatus[];
 
 void actSt18aSwitchLChk(volatile int a0)
 {
@@ -287,7 +267,7 @@ void actSt18aDoorChk(volatile int a0)
     demoEnd = 0;
     doorChkDone = 0;
 
-    while (demoEnd == 0 && ((pad[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 

@@ -13,12 +13,12 @@
 #include "Light.h"
 #include "clipCollisionManager.h"
 #include "waySystemManager.h"
+#include "Matrix.h"
+#include "gobj.h"
+#include "enemy_act.h"
+#include "gobj_process.h"
 
 extern ObjKindEnt objKindData[];
-/* kept local: int * (int) here, void * (void) in gobj.h */
-extern int *isysGObjGetExist_begin(int a0);
-/* kept local: int * (int *) here, void * (void *) in gobj.h */
-extern int *isysGObjGetExist_next(int *a0);
 
 /* .sbss, owned by sceneManager.o and reached only from this file (MAIN.MAP
    names no symbol in the run), in the ROM's run order: the three frame counts
@@ -127,10 +127,6 @@ inline void MoveNextStage_Clear(void)
 }
 
 extern const StgPre stageData[];
-/* kept local: int (float, float, float) here, int (void) in enemy_act.h */
-extern int GetEnemyType(float x, float y, float z);
-/* kept local: agrees with Matrix.h, which this TU does not include (_NormalizeVector differ) */
-extern float _GetRandom(void);
 
 /* RECONSTRUCTION: the 0x28-byte enemy-model record; the two members named are the
    first and one-past-last index into the model-id list enemymodelTable. */
@@ -252,8 +248,6 @@ typedef struct StageSettingScenemanager {
 extern StageSettingScenemanager GlobalStageSetting;
 /* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, boyGObj differ) */
 extern int db[];
-/* kept local: void (float *, float *) here, void (void *, void *) in Matrix.h */
-extern void _NormalizeVector(float *dst, float *src);
 /* kept local: void (int) here, int (void) in Texture.h */
 extern void tex_RemakeRegistersSampleMin(int a);
 
@@ -417,11 +411,10 @@ static inline void MoveNextStage_Get(ActInit *a, int kind)
 
 /* kept local: void * here, GObj * in main.h */
 extern void *girlGObj;
+
 /* kept local: this TU passes a 64-bit process priority where the prototype in
    gobj_process.h carries an int, and the ROM's `dsll $8, $2, 10` proves the
    fifth argument is 64 bits wide. */
-/* kept local: int (char *, int, int, int, long long) here, int (int, int, int, int, int) in gobj_process.h */
-extern int isysGObjProcAddS(char *gobj, int fn, int a2, int a3, long long pri);
 
 void initSceneGObj(int stage, int no)
 {
@@ -591,11 +584,6 @@ void initParentLink(int id)
    inlines into InitSceneObjects; they have no symbol of their own in the ROM
    and no census row, so the names below are descriptive. */
 
-/* kept local: int * (int) here, void * (int) in gobj.h */
-extern int *isysGObjSearchFromObjKindID_begin(int kind);
-/* kept local: int * (int *) here, void * (char *) in gobj.h */
-extern int *isysGObjSearchFromObjKindID_next(int *gobj);
-
 static inline void initSceneGObjRange(int stage, int first, int last)
 {
     int i;
@@ -652,8 +640,6 @@ extern void *gameover_flag;
 extern void *gameover_layout_flag;
 /* kept local: void * here, int in main.h */
 extern void *itemWatchOff;
-/* kept local: void (void *, int *) here, void (char *, char *) in gobj.h */
-extern void isysGObjMoveAfterGObj(void *gobj, int *after);
 
 void InitSceneObjects(int stage)
 {
@@ -706,7 +692,7 @@ void InitSceneObjects(int stage)
 
 int HotInitSceneObjects(int a0)
 {
-    int *node = isysGObjGetExist_begin(a0);
+    int *node = isysGObjGetExist_begin();
     if (node != 0) {
         do {
             int idx = ((PObjGObj *)node)->kind;

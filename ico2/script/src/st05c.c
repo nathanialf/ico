@@ -11,33 +11,8 @@
 #include "attackCheckBoundary.h"
 #include "st04c.h"
 #include "typedef.h"
-
-/* kept local: PObjGObj * (int) here, int (int) in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
-/* kept local: int (int, int, float) here, int (char *, char *, float) in script.h */
-extern int scpTriggerBall(int a0, int gobj, float r);
-/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpSearchGobj differ) */
-extern void scpSleepEnemyAll(void);
-/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpSearchGobj differ) */
-extern void scpWakeupEnemyAll(void);
-/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpSearchGobj differ) */
-extern int scpAdpcmPlayRequestNum(void);
-/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpSearchGobj differ) */
-extern void scpFadeOut(float f, int a1, int a2, int a3);
-/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpSearchGobj differ) */
-extern int scpFadeChk(void);
-/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpSearchGobj differ) */
-extern void scpFadeIn(float f);
-/* kept local: Pad [] here, PadState [16] in main.h */
-extern Pad pad[];
-/* kept local: int (StVec *, int) here, int (void *, int) in script.h */
-extern int scpEffectStart(StVec *a0, int a1);
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
-/* kept local: int here, GObj * in main.h */
-extern int girlGObj;
-/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpSearchGobj differ) */
-extern int scpBoyControlReadDisable;
+#include "script.h"
+#include "main.h"
 
 /* .sbss, owned by st05c.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
@@ -120,7 +95,7 @@ void actSt04rDoorChk(volatile int a0)
             demoEnd = 0;
             th = actCreateSubThread(actSt04rDoorSub, 21);
 
-            while (demoEnd == 0 && ((pad[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+            while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
                 _ACTWait(1);
             }
 
@@ -176,7 +151,7 @@ void actSt04rDoor2Chk(volatile int a0)
             demoEnd = 0;
             th = actCreateSubThread(actSt04rDoor2Sub, 21);
 
-            while (demoEnd == 0 && ((pad[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+            while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
                 _ACTWait(1);
             }
 

@@ -26,6 +26,8 @@
 #include <string.h>
 #include "e3.h"
 #include "typedef.h"
+#include "main.h"
+#include "jimaku.h"
 
 /* scpEffectStart's argument block: a 16-byte spawn position, copied as a
    pair of doublewords and written as four floats. */
@@ -60,29 +62,12 @@ typedef struct PObjGObjSt13c {
     int unk16C;        /* 0x16C */
 } PObjGObjSt13c;
 
-/* kept local: agrees with jimaku.h, which this TU does not include (jimakuUndisp differ) */
-extern void jimakuBegin(int a0);
-/* kept local: void (int) here, void (void) in jimaku.h */
-extern void jimakuUndisp(int a0);
-/* kept local: agrees with jimaku.h, which this TU does not include (jimakuUndisp differ) */
-extern void jimakuJump(int a0);
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
-
 /* .sbss, owned by st13c.o and reached only from this file (MAIN.MAP names no
    symbol in the run), in the ROM's run order: the flag each demo raises when
    it is over, and the generator the boss fight calls through. */
 static int demoEnd;
 
 static int bossGenerator;
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int systemStatus[];
-/* kept local: agrees with main.h, which this TU does not include */
-extern PadState pad[];
-extern JimakuArg jimaku_msg;
-/* kept local: agrees with jimaku.h, which this TU does not include (jimakuUndisp differ) */
-extern int jimakuOn;
 
 /* st13c.o's own .data run (no MAIN.MAP symbols): actor mail packets. */
 
@@ -117,11 +102,6 @@ static ActMail hand_mes[2] = {{430}, {429}};
 static ActMail rescue_mes[2] = {{430}, {429}};
 
 static ActMail buki_mes[2] = {{430}, {429}};
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int boyPad;
-/* kept local: int here, GObj * in main.h */
-extern int girlGObj;
 
 /* .sdata, owned by st13c.o, in the ROM's order: bmg and hand (MAIN.MAP globals) around the two scene streams MAIN.MAP leaves unnamed, then a word no retail code uses and the shake and volume the retail object adds. */
 int bmg = 0;
@@ -277,7 +257,7 @@ void actSt13cBmg1Chk(volatile int a0)
             _ACTWait(1);
         }
 
-        jimakuUndisp((int)&jimaku_msg);
+        jimakuUndisp(&jimaku_msg);
 
         stage_SetAnimation(629, 1, -1);
         scpFadeIn(3.0f);
@@ -342,25 +322,25 @@ void actSt13cConte04Jimaku(volatile int a0)
     do {
         switch ((int)t) {
         case 1:
-            jimakuBegin((int)&jimaku_msg);
+            jimakuBegin(&jimaku_msg);
             break;
         case 0x122:
             jimaku_msg.sub.unk2C = 2;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 0x320:
             jimaku_msg.sub.unk2C = 4;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 0x42E:
             jimaku_msg.sub.unk2C = 5;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         }
 
@@ -590,7 +570,7 @@ void actSt13cCageFallChk(volatile int a0)
             _ACTWait(1);
         }
 
-        jimakuUndisp((int)&jimaku_msg);
+        jimakuUndisp(&jimaku_msg);
 
         ((PObjGObjSt13c *)scpSearchGobj(128))->unk16C = 1;
         ((PObjGObjSt13c *)scpSearchGobj(129))->unk16C = 1;
@@ -835,31 +815,31 @@ void actSt13cConte05Jimaku(volatile int a0)
     do {
         switch ((int)t) {
         case 1:
-            jimakuBegin((int)&jimaku_msg);
+            jimakuBegin(&jimaku_msg);
             break;
         case 0x65E:
             jimakuOn = 1;
             jimaku_msg.sub.unk2C = 9;
             jimaku_msg.sub.unk38 = -1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 0x9BC:
             jimaku_msg.sub.unk2C = 6;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 0xAC8:
             jimaku_msg.sub.unk2C = 7;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 0xE80:
             jimaku_msg.sub.unk2C = 8;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         }
 
@@ -1147,7 +1127,7 @@ void actSt13cHandChk(volatile int a0)
             _ACTWait(1);
         }
 
-        jimakuUndisp((int)&jimaku_msg);
+        jimakuUndisp(&jimaku_msg);
         scpFadeIn(3.0f);
     }
 
@@ -1186,25 +1166,25 @@ void actSt13cHandJimaku(volatile int a0)
     do {
         switch ((int)t) {
         case 1:
-            jimakuBegin((int)&jimaku_msg);
+            jimakuBegin(&jimaku_msg);
             break;
         case 0x6E:
             jimaku_msg.sub.unk2C = 0xB;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 0x154:
             jimaku_msg.sub.unk2C = 0xC;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 0x244:
             jimaku_msg.sub.unk2C = 0xD;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         }
 
@@ -1541,13 +1521,13 @@ void actSt13cSekizoJimakuEff(volatile int a0)
     do {
         switch ((int)t) {
         case 1:
-            jimakuBegin((int)&jimaku_msg);
+            jimakuBegin(&jimaku_msg);
             break;
         case 0x2D:
             jimaku_msg.sub.unk2C = 0x13;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         }
 

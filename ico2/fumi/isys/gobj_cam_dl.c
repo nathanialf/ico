@@ -1,5 +1,6 @@
 #include "debug.h"
 #include "gobj_cam_dl.h"
+#include "isys.h"
 
 typedef struct EnNode {
     char pad[0x34];
@@ -7,10 +8,6 @@ typedef struct EnNode {
     struct EnNode *prev;
 } EnNode;
 
-/* kept local: agrees with isys.h, which this TU does not include (gobj_camera_dl_link_tail differ) */
-extern int *gobj_camera_dl_link_head;
-/* kept local: AdpT * here, int * in isys.h */
-extern AdpT *gobj_camera_dl_link_tail;
 static void add_gobj_to_tail();
 
 /* listing lines 130-165: sorted insert by key, inlined into

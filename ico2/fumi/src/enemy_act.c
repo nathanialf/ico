@@ -32,6 +32,7 @@
 #include "debug_exception.h"
 #include "enemy-control.h"
 #include "Primitive.h"
+#include "multiBgaManager.h"
 
 int entesty;
 
@@ -221,8 +222,6 @@ extern int _RotyGV(float *a0, void *a1);
 extern void ACTGame_CommonLoop(void *self);
 /* kept local: enemy_act.c does not carry multiBgaManager.h, and this TU reads
    only the display list pointer it hands the manager. */
-/* kept local: void (int, void *, int) here, void (int, BgaDisp *, int) in multiBgaManager.h */
-extern void DispMultiBgaManagerWithKind(int kind, void *base, int n);
 /* The pad record layout_texture.c reconstructs as LtPad; this TU reads only its
    button word at +0, and the incomplete array type is what keeps ROM's %hi/%lo
    pair where a small scalar would go gp-relative under -G 8. */
@@ -262,8 +261,6 @@ extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float 
 extern int gameover_flag;
 /* kept local: agrees with gv.h, which this TU does not include (_DistxzSqGV, _OrientXZGV differ) */
 extern void _InterGV(float *dst, float *a, float *b, float t, float u);
-/* kept local: void (void *, int, int, void *, void *) here, void (BgaDisp *, int, int, void *, void *) in multiBgaManager.h */
-extern void EntryMultiBgaManager(void *bga, int no, int kind, void *pos, void *rot);
 /* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistGV(void *a, void *b);
 /* kept local: void (float *, char *) here, void (int, int) in motionManager2.h */
@@ -344,8 +341,6 @@ extern int GetFlyLimitClearance(void *pos);
 extern int CheckFloorAttribute(char *self, int attr);
 /* the three actor sub-threads this function starts; their bodies are below */
 extern char D_002A84F8[];
-/* kept local: int (int) here, void * (int) in multiBgaManager.h */
-extern int InitMultiBgaManager(int a0);
 
 /* One start record per motion phase; the four of them are the actor's whole
    start parameter block. */
@@ -572,12 +567,12 @@ int _MustChase(int a0)
     if (boyGObj == 0) {
         goto zero;
     }
-    v1[0] = ((float *)test_CURRENTROOT((int)boyGObj))[0];
-    v1[1] = ((float *)test_CURRENTROOT((int)boyGObj))[1];
-    v1[2] = ((float *)test_CURRENTROOT((int)boyGObj))[2];
-    v2[0] = ((float *)test_CURRENTROOT(a0))[0];
-    v2[1] = ((float *)test_CURRENTROOT(a0))[1];
-    v2[2] = ((float *)test_CURRENTROOT(a0))[2];
+    v1[0] = test_CURRENTROOT((int)boyGObj)[0];
+    v1[1] = test_CURRENTROOT((int)boyGObj)[1];
+    v1[2] = test_CURRENTROOT((int)boyGObj)[2];
+    v2[0] = test_CURRENTROOT(a0)[0];
+    v2[1] = test_CURRENTROOT(a0)[1];
+    v2[2] = test_CURRENTROOT(a0)[2];
     angle = _DistxzSqGV(v1, v2);
     if (angle < 90000.0f) {
         diff = v1[1] - v2[1];
@@ -946,7 +941,7 @@ void actEnemyAttack(volatile int a0)
 
     _ACTWait(2);
     ACTSearchEnemy((void *)a0, (int *)(sub + 0x188), buf);
-    _OrientXZGV(v, (float *)test_CURRENTROOT((int)boyGObj), (float *)test_CURRENTROOT(a0));
+    _OrientXZGV(v, test_CURRENTROOT((int)boyGObj), test_CURRENTROOT(a0));
     ((ActSubDir *)sub)->dir[0] = v[0];
     ((ActSubDir *)sub)->dir[1] = v[1];
     ((ActSubDir *)sub)->dir[2] = v[2];
@@ -1167,12 +1162,12 @@ int actEnemyForceSwitchToCarry(void *a0)
         float dir[4];
         float ofs[4];
 
-        p0[0] = ((float *)test_CURRENTROOT((int)me))[0];
-        p0[1] = ((float *)test_CURRENTROOT((int)me))[1];
-        p0[2] = ((float *)test_CURRENTROOT((int)me))[2];
-        p1[0] = ((float *)test_CURRENTROOT((int)pair))[0];
-        p1[1] = ((float *)test_CURRENTROOT((int)pair))[1];
-        p1[2] = ((float *)test_CURRENTROOT((int)pair))[2];
+        p0[0] = test_CURRENTROOT((int)me)[0];
+        p0[1] = test_CURRENTROOT((int)me)[1];
+        p0[2] = test_CURRENTROOT((int)me)[2];
+        p1[0] = test_CURRENTROOT((int)pair)[0];
+        p1[1] = test_CURRENTROOT((int)pair)[1];
+        p1[2] = test_CURRENTROOT((int)pair)[2];
         _OrientXZGV(dir, p1, p0);
         sceVu0ScaleVector(ofs, dir, dist);
         sceVu0AddVector(p1, p0, ofs);
@@ -1193,7 +1188,7 @@ int actEnemyForceSwitchToCarry(void *a0)
     if (ACTReserveTarget(girlGObj, a0, 0xFF) == 0) {
         return 0;
     }
-    if (*(int *)(*(char **)(girlGObj + 0x164) + 0x34) == 0x6F) {
+    if (GOBJ_ACT(girlGObj)->unk34 == 0x6F) {
         return 0;
     }
     PairSetGeometry(a0, girlGObj, 50.0f);
@@ -1204,7 +1199,7 @@ int actEnemyForceSwitchToCarry(void *a0)
         girlGObj, a0, 2, *(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x680) + 0x1F4), q,
         18.0f, 0.0f, 0.0f, 1.0f);
     *(int *)(sub + 0x148) = (int)girlGObj;
-    *(int *)(*(char **)(girlGObj + 0x164) + 0x144) = (int)a0;
+    GOBJ_ACT(girlGObj)->f_144 = (int)a0;
     eBrainSendMes((int)a0, 9);
     eBrainSendMes((int)a0, 7);
     if ((0x3C - systemStatus[0] * 10) / systemStatus[1] * 2 < *(int *)(sub + 0x10) &&
@@ -1212,18 +1207,18 @@ int actEnemyForceSwitchToCarry(void *a0)
         *(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x4D0) = 1;
         if (boyGObj != 0) {
             *(float *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x4E0) =
-                ((float *)test_CURRENTROOT((int)boyGObj))[0];
+                test_CURRENTROOT((int)boyGObj)[0];
             *(float *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x4E4) =
-                ((float *)test_CURRENTROOT((int)boyGObj))[1];
+                test_CURRENTROOT((int)boyGObj)[1];
             *(float *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x4E8) =
-                ((float *)test_CURRENTROOT((int)boyGObj))[2];
+                test_CURRENTROOT((int)boyGObj)[2];
         } else {
             *(float *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x4E0) =
-                ((float *)test_CURRENTROOT((int)a0))[0];
+                test_CURRENTROOT((int)a0)[0];
             *(float *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x4E4) =
-                ((float *)test_CURRENTROOT((int)a0))[1];
+                test_CURRENTROOT((int)a0)[1];
             *(float *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x688) + 0x4E8) =
-                ((float *)test_CURRENTROOT((int)a0))[2];
+                test_CURRENTROOT((int)a0)[2];
         }
     }
     return 1;
@@ -1291,9 +1286,9 @@ void actEnemyKidnapEnd(volatile int a0)
     }
     g = isysGObjSearchFromObjKindID_begin(33);
     best = 10000.0f;
-    mypos[0] = ((float *)test_CURRENTROOT((void *)a0))[0];
-    mypos[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
-    mypos[2] = ((float *)test_CURRENTROOT((void *)a0))[2];
+    mypos[0] = test_CURRENTROOT((void *)a0)[0];
+    mypos[1] = test_CURRENTROOT((void *)a0)[1];
+    mypos[2] = test_CURRENTROOT((void *)a0)[2];
     while (g != 0) {
         GetRootPosition(gpos, g);
         d = _DistGV(mypos, gpos);
@@ -1324,8 +1319,7 @@ void actEnemyKidnapEnd(volatile int a0)
             }
         }
         if (5 <= *(int *)(sub + 0x4C)) {
-            if (*(int *)(*(char **)(girlGObj + 0x164) + 0x34) != 0x6F ||
-                *(int *)(*(char **)(girlGObj + 0x164) + 0x144) != a0) {
+            if (GOBJ_ACT(girlGObj)->unk34 != 0x6F || GOBJ_ACT(girlGObj)->f_144 != a0) {
                 ((EnemyActSub *)sub)->stageKind = 0;
                 gamesysObjInfoPosSetStage((int *)a0, 0, 0, stage_no);
             }
@@ -1357,8 +1351,7 @@ void actEnemyKidnapEnd(volatile int a0)
             if (50.0f < *(float *)(*(char **)(a0 + 0x15C) + 0x4AC)) {
                 if ((((int)(*(long long *)(sub + 0x20) >> 21)) & 1) == 0) {
                 gameover:
-                    if (*(int *)(*(char **)(girlGObj + 0x164) + 0x34) == 0x6F &&
-                        *(int *)(*(char **)(girlGObj + 0x164) + 0x144) == a0) {
+                    if (GOBJ_ACT(girlGObj)->unk34 == 0x6F && GOBJ_ACT(girlGObj)->f_144 == a0) {
                         if (target != 0) {
                             q.i[0] = (int)target;
                             best = 0.0f;
@@ -1389,9 +1382,8 @@ void actEnemyKidnapEnd(volatile int a0)
             }
         }
         if (boyGObj != 0) {
-            if (*(int *)(*(char **)(boyGObj + 0x164) + 0x34) == 0x6D) {
-                _OrientXZGV(q.f, (float *)test_CURRENTROOT(boyGObj),
-                            (float *)test_CURRENTROOT((void *)a0));
+            if (GOBJ_ACT(boyGObj)->unk34 == 0x6D) {
+                _OrientXZGV(q.f, test_CURRENTROOT(boyGObj), test_CURRENTROOT((void *)a0));
                 sceVu0ScaleVector(q.f, q.f, -1.0f);
                 SetMotionDirectionSmooze(a0, q.f, 3.0f);
                 ACTSendMailCorrect((char *)a0, 0x167);
@@ -1401,16 +1393,15 @@ void actEnemyKidnapEnd(volatile int a0)
             }
         }
         if (target != 0) {
-            pos[0] = ((float *)test_CURRENTROOT(target))[0];
-            pos[1] = ((float *)test_CURRENTROOT(target))[1];
-            pos[2] = ((float *)test_CURRENTROOT(target))[2];
-            pos[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
-            _InterGV(tmp, p, (float *)test_CURRENTROOT((void *)a0), 5.0f, 1.0f);
+            pos[0] = test_CURRENTROOT(target)[0];
+            pos[1] = test_CURRENTROOT(target)[1];
+            pos[2] = test_CURRENTROOT(target)[2];
+            pos[1] = test_CURRENTROOT((void *)a0)[1];
+            _InterGV(tmp, p, test_CURRENTROOT((void *)a0), 5.0f, 1.0f);
             SetRootPosition((char *)a0, tmp);
         }
         ACTSendMailCorrect((char *)a0, 0x16B);
-        if (girlGObj == 0 || *(int *)(*(char **)(girlGObj + 0x164) + 0x34) != 0x6F ||
-            *(int *)(*(char **)(girlGObj + 0x164) + 0x144) != a0) {
+        if (girlGObj == 0 || GOBJ_ACT(girlGObj)->unk34 != 0x6F || GOBJ_ACT(girlGObj)->f_144 != a0) {
             if ((0x3C - systemStatus[0] * 10) / systemStatus[1] / 6 < ++cnt && sent == 0) {
                 eBrainSendMes(a0, 10);
                 sent = 1;
@@ -1460,8 +1451,7 @@ void actEnemyKidnapBegin(volatile int a0)
 
     while (1) {
         if (*(int *)(*(char **)(a0 + 0x15C) + 0x4A0) == 0x3AA) {
-            _OrientXZGV(dir, (float *)test_CURRENTROOT((int)girlGObj),
-                        (float *)test_CURRENTROOT(a0));
+            _OrientXZGV(dir, test_CURRENTROOT((int)girlGObj), test_CURRENTROOT(a0));
             if (0.1f < *(float *)(sub + 0x34C) && *(int *)(sub + 0x34) != 0x73) {
                 SetMotionDirectionSmooze(
                     (void *)a0, dir,
@@ -1520,9 +1510,9 @@ void MoveChestForCatchBoy(char *self)
     t = (t < 0.0f) ? 0.0f : ((1.0f < t) ? 1.0f : t);
     a = t * 1000.0f + -200.0f;
     b = t * -400.0f;
-    ori[0] = ((float *)test_CURRENTORIENT((int)self))[0];
-    ori[1] = ((float *)test_CURRENTORIENT((int)self))[1];
-    ori[2] = ((float *)test_CURRENTORIENT((int)self))[2];
+    ori[0] = test_CURRENTORIENT((int)self)[0];
+    ori[1] = test_CURRENTORIENT((int)self)[1];
+    ori[2] = test_CURRENTORIENT((int)self)[2];
     _OrientXZGV(d, p1, p0);
     ang = _RotyGV(ori, (void *)d);
     if (-45 <= ang) {
@@ -1568,11 +1558,10 @@ void actEnemyBodylift(volatile int a0)
     sub = ((EnemyBattleGObj *)a0)->sub;
     hit = 0;
     ((EnemyBattleGObj *)a0)->sub->enemy->flags.ll &= ~4LL;
-    _OrientXZGV(dir, bodyliftTarget[0], (float *)test_CURRENTROOT((int)a0));
+    _OrientXZGV(dir, bodyliftTarget[0], test_CURRENTROOT((int)a0));
     sub->after = (void *)afterEnemyBodylift;
     if (((EnemyBattleGObj *)a0)->sub->enemy->liftKind != 3) {
-        _OrientXZGV(sub->dir, (float *)test_CURRENTROOT((int)boyGObj),
-                    (float *)test_CURRENTROOT((int)a0));
+        _OrientXZGV(sub->dir, test_CURRENTROOT((int)boyGObj), test_CURRENTROOT((int)a0));
         SetMotionDirection((void *)a0, sub->dir);
     }
     for (;;) {
@@ -1585,11 +1574,11 @@ void actEnemyBodylift(volatile int a0)
             }
         }
         GetSkeltonPosition(pos, (char *)a0, 22);
-        bpos[0] = ((float *)test_CURRENTROOT((int)boyGObj))[0];
-        bpos[1] = ((float *)test_CURRENTROOT((int)boyGObj))[1];
-        bpos[2] = ((float *)test_CURRENTROOT((int)boyGObj))[2];
+        bpos[0] = test_CURRENTROOT((int)boyGObj)[0];
+        bpos[1] = test_CURRENTROOT((int)boyGObj)[1];
+        bpos[2] = test_CURRENTROOT((int)boyGObj)[2];
         if (((EnemyBattleGObj *)a0)->sub->enemy->liftKind == 3) {
-            sceVu0SubVector(lv, (float *)test_CURRENTROOT((int)boyGObj), pos);
+            sceVu0SubVector(lv, test_CURRENTROOT((int)boyGObj), pos);
             GetMatrixDirectionToZ(mtx, test_CURRENTORIENT((int)a0));
             lv[3] = 0.0f;
             sceVu0ApplyMatrix(lv, mtx, lv);
@@ -1615,8 +1604,7 @@ void actEnemyBodylift(volatile int a0)
             iosOmSendMail((int)boyGObj, 0x170, a0);
         }
         if (GetMotionFrameFlag2((void *)a0) != 0) {
-            _OrientXZGV(bpos, (float *)test_CURRENTROOT((int)boyGObj),
-                        (float *)test_CURRENTROOT((int)a0));
+            _OrientXZGV(bpos, test_CURRENTROOT((int)boyGObj), test_CURRENTROOT((int)a0));
             _ACTMotDirSmzDirect((void *)a0, bpos);
         }
         if (*(int *)(*(char **)((char *)boyGObj + 0x164) + 0x34) == 94 &&
@@ -1688,8 +1676,8 @@ static inline int enemyPickupCheckGirl(int self)
 void actEnemyPickupBegin(volatile int a0)
 {
     float *dir = (float *)(*(char **)(a0 + 0x164) + 0x120);
-    float *girl = (float *)test_CURRENTROOT((int)girlGObj);
-    float *me = (float *)test_CURRENTROOT(a0);
+    float *girl = test_CURRENTROOT((int)girlGObj);
+    float *me = test_CURRENTROOT(a0);
     int mode;
 
     _OrientXZGV(dir, girl, me);
@@ -1773,11 +1761,11 @@ void CheckEnemyBrainMode(char *self, int *outMode, int *outData)
             *outMode = -1;
             return;
         }
-        if (*(int *)(*(char **)(girlGObj + 0x164) + 0x34) != 0x6F) {
+        if (GOBJ_ACT(girlGObj)->unk34 != 0x6F) {
             *outMode = -1;
             return;
         }
-        if (*(int *)(*(char **)(girlGObj + 0x164) + 0x144) != (int)self) {
+        if (GOBJ_ACT(girlGObj)->f_144 != (int)self) {
             *outMode = -1;
             return;
         }
@@ -1919,8 +1907,8 @@ void subEnemyBrainMain(volatile int a0)
         break;
     }
     while (1) {
-        if (girlGObj != 0 && *(int *)(*(char **)(girlGObj + 0x164) + 0x34) == 0x6F &&
-            *(int *)(*(char **)(girlGObj + 0x164) + 0x144) == (int)a0 &&
+        if (girlGObj != 0 && GOBJ_ACT(girlGObj)->unk34 == 0x6F &&
+            GOBJ_ACT(girlGObj)->f_144 == (int)a0 &&
             EA_CHKBIT(*(unsigned int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x454), 0)) {
             ACTSendMailCorrect((void *)a0, 0x1E);
             ACTSendMailCorrect((void *)a0, 0x1D);
@@ -1986,8 +1974,8 @@ void subEnemyBrainMain(volatile int a0)
             *(int *)(sub + 0x33C) = 127;
             *(int *)(sub + 0x338) = 127;
             while (1) {
-                if (girlGObj == 0 || *(int *)(*(char **)(girlGObj + 0x164) + 0x34) != 0x6F ||
-                    *(int *)(*(char **)(girlGObj + 0x164) + 0x144) != (int)a0) {
+                if (girlGObj == 0 || GOBJ_ACT(girlGObj)->unk34 != 0x6F ||
+                    GOBJ_ACT(girlGObj)->f_144 != (int)a0) {
                     if ((((StatusAttr *)(actModeTbl +
                                          *(int *)(*(char **)(a0 + 0x164) + 0x34) * 0x50))
                              ->f_4C >>
@@ -2108,7 +2096,7 @@ void subEnemyBrain_ToGenerator(int self)
                 float d;
 
                 d = _DistSqGV((float *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x4E0),
-                              (float *)test_CURRENTROOT((int)g));
+                              test_CURRENTROOT((int)g));
                 if (best < d) {
                     best = d;
                     *(char **)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x460) = g;
@@ -2209,12 +2197,12 @@ void enemy_dodge_to_boy(char *self)
         return;
     }
     if (((int)(*(long long *)(*(char **)(*(char **)(self + 0x164) + 0x680) + 0x210) >> 1)) & 1) {
-        boy[0] = ((float *)test_CURRENTROOT((int)boyGObj))[0];
-        boy[1] = ((float *)test_CURRENTROOT((int)boyGObj))[1];
-        boy[2] = ((float *)test_CURRENTROOT((int)boyGObj))[2];
-        me[0] = ((float *)test_CURRENTROOT((int)self))[0];
-        me[1] = ((float *)test_CURRENTROOT((int)self))[1];
-        me[2] = ((float *)test_CURRENTROOT((int)self))[2];
+        boy[0] = test_CURRENTROOT((int)boyGObj)[0];
+        boy[1] = test_CURRENTROOT((int)boyGObj)[1];
+        boy[2] = test_CURRENTROOT((int)boyGObj)[2];
+        me[0] = test_CURRENTROOT((int)self)[0];
+        me[1] = test_CURRENTROOT((int)self)[1];
+        me[2] = test_CURRENTROOT((int)self)[2];
         if (_DistSqGV(boy, me) < GetEnemyDefDodgeRange(self) * GetEnemyDefDodgeRange(self)) {
             _OrientXZGV(v, boy, me);
             ang = _RotyGV(v, test_CURRENTORIENT((int)boyGObj));
@@ -2276,9 +2264,9 @@ int Battle_isCurrentStatus(char *self, char *tgt, float *pos)
 
     ret = 0;
     xz = _DistxzGV(pos, test_CURRENTROOT((int)tgt));
-    dy = ((pos[1] - ((float *)test_CURRENTROOT((int)tgt))[1]) < 0.0f)
-             ? -(pos[1] - ((float *)test_CURRENTROOT((int)tgt))[1])
-             : (pos[1] - ((float *)test_CURRENTROOT((int)tgt))[1]);
+    dy = ((pos[1] - test_CURRENTROOT((int)tgt)[1]) < 0.0f)
+             ? -(pos[1] - test_CURRENTROOT((int)tgt)[1])
+             : (pos[1] - test_CURRENTROOT((int)tgt)[1]);
     vflag = 0.0f;
     range = GetEnemyDefDodgeRange(self);
     if (200.0f < xz || battleRangeScale(self, 200.0f) < dy) {
@@ -2287,10 +2275,10 @@ int Battle_isCurrentStatus(char *self, char *tgt, float *pos)
     if (xz < range && dy < battleRangeScale(self, 150.0f)) {
         vflag = -1.0f;
     }
-    ori[0] = ((float *)test_CURRENTORIENT((int)tgt))[0];
-    ori[1] = ((float *)test_CURRENTORIENT((int)tgt))[1];
-    ori[2] = ((float *)test_CURRENTORIENT((int)tgt))[2];
-    _OrientXZGV(dir, (float *)test_CURRENTROOT((int)self), (float *)test_CURRENTROOT((int)tgt));
+    ori[0] = test_CURRENTORIENT((int)tgt)[0];
+    ori[1] = test_CURRENTORIENT((int)tgt)[1];
+    ori[2] = test_CURRENTORIENT((int)tgt)[2];
+    _OrientXZGV(dir, test_CURRENTROOT((int)self), test_CURRENTROOT((int)tgt));
     ang = _AbsRotyGV(ori, dir);
     a = (ang < 75) ? 1.0f : 0.0f;
     far = (101 <= ang);
@@ -2315,7 +2303,7 @@ inline void EnemyUtil_TurnToBoy(char *self, int tgt, int smooze)
     float dir[4];
     char *sub = *(char **)(self + 0x164);
 
-    _OrientXZGV(dir, (float *)test_CURRENTROOT(tgt), (float *)test_CURRENTROOT((int)self));
+    _OrientXZGV(dir, test_CURRENTROOT(tgt), test_CURRENTROOT((int)self));
     *(float *)(sub + 0x120) = dir[0];
     *(float *)(sub + 0x124) = dir[1];
     *(float *)(sub + 0x128) = dir[2];
@@ -2461,9 +2449,9 @@ void NakaBoss(char *self, void *tgt, float dist)
             GetRootPosition(bpos, boy);
             GetRootPosition(mpos, self);
             _OrientXZGV(dir, mpos, bpos);
-            ori[0] = ((float *)test_CURRENTORIENT((int)boy))[0];
-            ori[1] = ((float *)test_CURRENTORIENT((int)boy))[1];
-            ori[2] = ((float *)test_CURRENTORIENT((int)boy))[2];
+            ori[0] = test_CURRENTORIENT((int)boy)[0];
+            ori[1] = test_CURRENTORIENT((int)boy)[1];
+            ori[2] = test_CURRENTORIENT((int)boy)[2];
             if (_AbsRotyGV(ori, dir) < 60) {
                 if (dist < 270.0) {
                     if (GetFlyPosition(
@@ -2503,12 +2491,12 @@ static inline int isNearestEnemyToBoy(int self, char *boy, float *pos)
     char *g;
     float d;
 
-    pos[0] = ((float *)test_CURRENTROOT(boy))[0];
-    pos[1] = ((float *)test_CURRENTROOT(boy))[1];
-    pos[2] = ((float *)test_CURRENTROOT(boy))[2];
+    pos[0] = test_CURRENTROOT(boy)[0];
+    pos[1] = test_CURRENTROOT(boy)[1];
+    pos[2] = test_CURRENTROOT(boy)[2];
     for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
-        d = _DistSqGV(pos, (float *)test_CURRENTROOT(g));
+        d = _DistSqGV(pos, test_CURRENTROOT(g));
         if (d < best) {
             best = d;
             found = g;
@@ -2571,9 +2559,9 @@ void subEnemyBrain_ToBoy(volatile int a0)
         r = (int)(random_unit() * 10.0f) % 100;
         debug_StdPrintfDummy("**toboy function start :: count=[%d]\n", cnt++);
         ret = _ApproachTarget((char *)a0, boy, sub + 0x120, NakaBoss, 200.0f, 0);
-        v[0] = ((float *)test_CURRENTROOT((void *)a0))[0];
-        v[1] = ((float *)test_CURRENTROOT((void *)a0))[1];
-        v[2] = ((float *)test_CURRENTROOT((void *)a0))[2];
+        v[0] = test_CURRENTROOT((void *)a0)[0];
+        v[1] = test_CURRENTROOT((void *)a0)[1];
+        v[2] = test_CURRENTROOT((void *)a0)[2];
         if (ret != 0) {
             debug_StdPrintfDummy("await start\n");
             for (i = 0; i < (0x3C - systemStatus[0] * 10) / systemStatus[1] * 75 / 60; i++) {
@@ -2595,8 +2583,8 @@ void subEnemyBrain_ToBoy(volatile int a0)
                         mode = 4;
                     }
                     if (mode != 3) {
-                        if (!(_DistSqGV((float *)test_CURRENTROOT((void *)a0),
-                                        (float *)test_CURRENTROOT(boyGObj)) < 22500.0f)) {
+                        if (!(_DistSqGV(test_CURRENTROOT((void *)a0), test_CURRENTROOT(boyGObj)) <
+                              22500.0f)) {
                             mode = 0;
                         }
                     }
@@ -2656,7 +2644,7 @@ void subEnemyBrain_ToBoy(volatile int a0)
         case 2:
             if (IsBoyStatus_NotDanger() != 0) {
                 if (girlGObj != 0) {
-                    if (*(int *)(*(char **)(girlGObj + 0x164) + 0x34) != 0x6F) {
+                    if (GOBJ_ACT(girlGObj)->unk34 != 0x6F) {
                         break;
                     }
                 }
@@ -2953,14 +2941,10 @@ int _ApproachTarget_Way(char *self, void *tgt, void *pos, void *fn, float range,
         }
         if (stage_no == 9 && CheckFloorAttribute(self, 0x100000) != 0 &&
             (tgt == boyGObj || tgt == (void *)girlGObj) &&
-            _DistxzSqGV((float *)test_CURRENTROOT((int)self), (float *)test_CURRENTROOT((int)tgt)) <
-                40000.0f &&
-            ((((float *)test_CURRENTROOT((int)self))[1] - ((float *)test_CURRENTROOT((int)tgt))[1] <
-              0.0f)
-                 ? -(((float *)test_CURRENTROOT((int)self))[1] -
-                     ((float *)test_CURRENTROOT((int)tgt))[1])
-                 : (((float *)test_CURRENTROOT((int)self))[1] -
-                    ((float *)test_CURRENTROOT((int)tgt))[1])) < 150.0f) {
+            _DistxzSqGV(test_CURRENTROOT((int)self), test_CURRENTROOT((int)tgt)) < 40000.0f &&
+            ((test_CURRENTROOT((int)self)[1] - test_CURRENTROOT((int)tgt)[1] < 0.0f)
+                 ? -(test_CURRENTROOT((int)self)[1] - test_CURRENTROOT((int)tgt)[1])
+                 : (test_CURRENTROOT((int)self)[1] - test_CURRENTROOT((int)tgt)[1])) < 150.0f) {
             return 1;
         }
         if (tgt == (void *)girlGObj && _DistxzSqGV(p1, p0) < 10000.0f &&
@@ -3019,7 +3003,7 @@ inline int isEnemyKidnapEnable(int *self)
     return actEnemyFlagCheckActive(self);
 }
 
-inline int GetEnemyType(void)
+inline int GetEnemyType(float x, float y, float z)
 {
     return 1;
 }
@@ -3185,7 +3169,7 @@ void subEnemyBrain_Cling(volatile int a0)
     float v[4];
 
     *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x21C) = tgt;
-    _OrientXZGV(v, (float *)test_CURRENTROOT(tgt), (float *)test_CURRENTROOT(a0));
+    _OrientXZGV(v, test_CURRENTROOT(tgt), test_CURRENTROOT(a0));
     ((ActSubDir *)sub)->dir[0] = v[0];
     ((ActSubDir *)sub)->dir[1] = v[1];
     ((ActSubDir *)sub)->dir[2] = v[2];
@@ -3195,8 +3179,7 @@ void subEnemyBrain_Cling(volatile int a0)
     _ACTWait(1);
     while (1) {
         if (*(int *)(sub + 0x34) == 4 || *(int *)(sub + 0x34) == 0x10) {
-            if (_DistSqGV((float *)test_CURRENTROOT(tgt), (float *)test_CURRENTROOT(a0)) <
-                3600.0f) {
+            if (_DistSqGV(test_CURRENTROOT(tgt), test_CURRENTROOT(a0)) < 3600.0f) {
                 ACTSendMailCorrect((void *)a0, 0xD0);
             }
         } else {
@@ -3210,8 +3193,8 @@ void subEnemyBrain_Cling(volatile int a0)
 inline void subEnemyBrain_Shoulder(volatile int a0)
 {
     float *dir = (float *)(*(char **)(a0 + 0x164) + 0x120);
-    float *girl = (float *)test_CURRENTROOT((int)girlGObj);
-    float *me = (float *)test_CURRENTROOT(a0);
+    float *girl = test_CURRENTROOT((int)girlGObj);
+    float *me = test_CURRENTROOT(a0);
     _OrientXZGV(dir, girl, me);
     SetMotionDirection((void *)a0, dir);
     ACTSendMailCorrect((void *)a0, 0x162);

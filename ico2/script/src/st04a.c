@@ -29,6 +29,9 @@
 #include <libvu0.h>
 #include "e3.h"
 #include "typedef.h"
+#include "Matrix.h"
+#include "script.h"
+#include "jimaku.h"
 
 /* kept local: this TU's bytes only come out with its own view of Act, so it
    keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
@@ -57,22 +60,12 @@ typedef struct PObjGObjSt04A {
     int f16C;          /* 0x16C */
 } PObjGObjSt04A;
 
-/* kept local: PObjGObjSt04A * (int) here, int (int) in script.h */
-extern PObjGObjSt04A *scpSearchGobj(int a0);
-/* kept local: int (int, void *, float) here, int (char *, char *, float) in script.h */
-extern int scpTriggerBall(int a0, void *a1, float radius);
-/* kept local: int (void *, int) here, int (char *, int) in script.h */
-extern int scpTriggerFloorAttr(void *a0, int a1);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpFadeOut(float a0, int a1, int a2, int a3);
 /* kept local: char * here, GObj * in main.h */
 extern char *boyGObj;
 /* kept local: char * here, GObj * in main.h */
 extern char *girlGObj;
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int systemStatus[];
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern float scpSeEnvMasterVolRate;
 
 /* .data, owned by st04a.o, in the ROM's order ahead of model_on and model_off
    (MAIN.MAP sizes the member's run 0x160 in the January link): each action's
@@ -135,14 +128,6 @@ void actSt04aGate(volatile int a0)
     }
 }
 
-extern JimakuArg jimaku_msg;
-/* kept local: agrees with jimaku.h, which this TU does not include (jimakuUndisp differ) */
-extern int jimakuOn;
-/* kept local: agrees with jimaku.h, which this TU does not include (jimakuUndisp differ) */
-extern void jimakuBegin(int a0);
-/* kept local: agrees with jimaku.h, which this TU does not include (jimakuUndisp differ) */
-extern void jimakuJump(int a0);
-
 typedef struct AnimList28 {
     int v[28];
 } AnimList28;
@@ -164,32 +149,8 @@ static int demoEnd;
 
 static int conte09_3Running;
 
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern int scpBoyControlReadDisable;
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern PadState pad[];
-/* kept local: void (char *) here, void (int) in script.h */
-extern void scpPlayStart(char *a0);
-/* kept local: void (char *) here, void (int) in script.h */
-extern void scpPlayEnd(char *a0);
-/* kept local: void (void *, int) here, void (char *, int) in script.h */
-extern void scpPlayMot(void *o, int mot);
-/* kept local: void (void *, void *) here, void (char *, float *) in script.h */
-extern void scpPlayMotDir(void *a0, void *dir);
-/* kept local: void (int) here, void (void) in script.h */
-extern void scpDispOffAllWithKind(int a0);
-/* kept local: void (int, void *, int, int, int) here, void (int, char **, int, int, int) in script.h */
-extern void scpAdpcmPlayRequestFunc(int a0, void *a1, int a2, int a3, int a4);
-/* kept local: void (int *, int) here, int (char **, short) in script.h */
-extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern int scpAdpcmPlayRequestNum(void);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpFadeIn(float t);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern int scpFadeChk(void);
-/* kept local: void (JimakuArg *) here, void (void) in jimaku.h */
-extern void jimakuUndisp(JimakuArg *a0);
 
 void actSt04aGateChk(volatile int a0)
 {
@@ -381,8 +342,6 @@ void actSt04aGateChk(volatile int a0)
     stgmgrNextStagePreLoadDistBoyMode();
 }
 
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int boyPad;
 
@@ -568,85 +527,85 @@ void actSt04aConte06Jimaku(volatile int a0)
     do {
         switch ((int)t) {
         case 1:
-            jimakuBegin((int)&jimaku_msg);
+            jimakuBegin(&jimaku_msg);
             break;
         case 0xFA:
             jimaku_msg.sub.unk2C = 0x19;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 0x564:
             jimaku_msg.sub.unk2C = 0x1A;
             jimaku_msg.sub.unk38 = 0x3C;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 0x94C:
             jimaku_msg.sub.unk2C = 0x1F;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 0xB2D:
             jimaku_msg.sub.unk2C = 0x22;
             jimaku_msg.sub.unk38 = 0x96;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 0xC58:
             jimaku_msg.sub.unk2C = 0x23;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 0xD84:
             jimaku_msg.sub.unk2C = 0x24;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 0xEB0:
             jimaku_msg.sub.unk2C = 0x25;
             jimaku_msg.sub.unk38 = 0xAE;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 0x1054:
             jimaku_msg.sub.unk2C = 0x26;
             jimaku_msg.sub.unk38 = 0xAE;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 0x12C0:
             jimaku_msg.sub.unk2C = 0x2B;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 0x15CC:
             jimaku_msg.sub.unk2C = 0x1B;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 0x17A2:
             jimaku_msg.sub.unk2C = 0x1D;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 0x1A54:
             jimaku_msg.sub.unk2C = 0x30;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 0x1B44:
             jimaku_msg.sub.unk2C = 0x31;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         }
 
@@ -705,14 +664,6 @@ static const ConstVec liftOfs1;
 static const ConstVec liftOfs2;
 
 extern char D_00618DB0[];
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpSleepEnemyAll(void);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpKillEnemyAll(void);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpDispOnAllWithKind(int a0);
-/* kept local: void (int) here, void (void) in script.h */
-extern void scpDisActivateAllWithKind(int a0);
 
 void actSt04aGateOpenChk(volatile int a0)
 {
@@ -1019,19 +970,19 @@ void actConte09Jimaku(volatile int a0)
     do {
         switch ((int)t) {
         case 1:
-            jimakuBegin((int)&jimaku_msg);
+            jimakuBegin(&jimaku_msg);
             break;
         case 0x871:
             jimaku_msg.sub.unk2C = 0x58;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         case 0x97E:
             jimaku_msg.sub.unk2C = 0x56;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         }
 
@@ -1046,9 +997,6 @@ void actConte09Jimaku(volatile int a0)
     } while (t < 2700.0f);
     _ACTWait(0);
 }
-
-/* kept local: void (void *, int) here, void (char *, int) in script.h */
-extern void scpPlayMotReq(void *a0, int mot);
 
 /* st04a.o's own .rodata: the gate-open exit direction vector. */
 
@@ -1092,8 +1040,6 @@ void actSt04aGateOpen2Chk(volatile int a0)
     actCreateSubThread(actConte09_2, 21);
 }
 
-/* kept local: void (char *, float, float, float) here, void (void *, float, float, float) in script.h */
-extern void scpPlayPosSet(char *a0, float x, float y, float z);
 extern char D_00618E10[];
 
 /* st04a.o's own .rodata: the two demo exit direction vectors. */
@@ -1276,15 +1222,6 @@ void actSt04aGateOpen3Chk(volatile int a0)
     actCreateSubThread(actConte09_3, 21);
     actCreateSubThread(actConte09_3Jimaku, 21);
 }
-
-/* kept local: void (char *, float, float, float) here, void (int, float, float, float) in script.h */
-extern void scpSetStreamMotionRootOffset(char *o, float x, float y, float z);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpTorchLightOff(int a0);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern int scpGameStat_BoyWeaponkind(void);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern int RequestStageChange(int a0, char *a1, int a2, float a3, float a4);
 
 void actConte09_3(volatile int a0)
 {
@@ -1524,9 +1461,6 @@ void actConte09_3(volatile int a0)
     RequestStageChange(3, boyGObj, 0, 16.0f, 16.0f);
 }
 
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void preload(int idx);
-
 void actSt04aGateLChk(volatile int a0)
 {
     int *th;
@@ -1660,9 +1594,6 @@ void actSt04aGateRChk(volatile int a0)
 
     RequestStageChange(stage, boyGObj, 0, 1.0f, 8.0f);
 }
-
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpTorchLightOn(int a0);
 
 void actSt04aTorch1(volatile int a0)
 {
@@ -2127,11 +2058,6 @@ typedef struct {
     float m[4];
 } Vec4St04A;
 
-/* kept local: void (int, int, int) here, void (void *, void *, void *) in Matrix.h */
-extern void _ApplyMatrix(int dst, int m, int src);
-/* kept local: void (int, int) here, void (void *, void *) in Matrix.h */
-extern void _NormalizeVector(int dst, int src);
-
 void finishCallBackFunc(int a0)
 {
     Vec4St04A v;
@@ -2205,13 +2131,13 @@ void actConte09_3Jimaku(volatile int a0)
     do {
         switch ((int)t) {
         case 1:
-            jimakuBegin((int)&jimaku_msg);
+            jimakuBegin(&jimaku_msg);
             break;
         case 2470:
             jimaku_msg.sub.unk2C = 91;
             jimaku_msg.sub.unk38 = 300;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         }
 
@@ -2265,7 +2191,7 @@ void actSt04aGirlSitChk(volatile int a0)
     ((ActStatus *)(*(char **)(girlGObj + 0x164) + 0x20))->ll |= 0x10000;
     n = 0;
     for (;;) {
-        if ((int)(*(unsigned long long *)(*(char **)(girlGObj + 0x164) + 0x20) >> 20) & 1) {
+        if ((int)(GOBJ_ACT(girlGObj)->flags20.ll >> 20) & 1) {
             n++;
         } else {
             n = 0;

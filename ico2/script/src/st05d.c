@@ -10,11 +10,7 @@
 #include "item.h"
 #include "quaternion.h"
 #include "typedef.h"
-
-/* kept local: void * here, GObj * in main.h */
-extern void *boyGObj;
-/* kept local: char * here, GObj * in main.h */
-extern char *girlGObj;
+#include "main.h"
 
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc

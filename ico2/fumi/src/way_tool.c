@@ -19,6 +19,9 @@
 #include "geometryManager.h"
 #include "ios.h"
 #include "GifPacket.h"
+#include <string.h>
+#include "way_util.h"
+#include "way_tool.h"
 
 /* way_tool.o .data +0x00: the scratch world position the tool builds a point
    at; the fourth word is the homogeneous 1.0f. */
@@ -151,11 +154,6 @@ WayMenuLine debugWayGroupSelect[64] = {
     {"55 ( -)  ", 0}, {"56 ( -)  ", 0}, {"57 ( -)  ", 0}, {"58 ( -)  ", 0}, {"59 ( -)  ", 0},
     {"60 ( -)  ", 0}, {"61 ( -)  ", 0}, {"62 ( -)  ", 0}, {"63 ( -)  ", 0}};
 
-/* kept local: char * (char *, char *) here, char * (char *, const char *) in string.h */
-extern char *strcat(char *d, char *s);
-/* kept local: agrees with way_util.h, which this TU does not include (ez_circle, nearest_waypoint_by_lineseg differ) */
-extern int set_bridge(int gid);
-
 /* relabels the way-group selector; the 2001 source has it as a helper between
    group_create and group_select (SRCFILE.TXT rows 299-311) and group_select
    inlines it at all three of its call sites */
@@ -229,9 +227,6 @@ static int group_select(void)
     return 0;
 }
 
-/* kept local: agrees with way_util.h, which this TU does not include (ez_circle, nearest_waypoint_by_lineseg differ) */
-extern char *waypoint_with_range(int *, float);
-
 int point_delete(void)
 {
     WayRec *entry = &way_group[current_select_gid];
@@ -268,9 +263,6 @@ int point_delete(void)
     }
     return 0;
 }
-
-/* kept local: void * (void *) here, char * (void *) in way_util.h */
-extern void *nearest_waypoint_by_lineseg(void *a0);
 
 int point_insert(void)
 {
@@ -365,9 +357,6 @@ inline int point_nige(void)
     }
     return 0;
 }
-
-/* kept local: agrees with way_util.h, which this TU does not include (ez_circle, nearest_waypoint_by_lineseg differ) */
-extern int load_save_flag;
 
 inline int quick_save_wpfile(void)
 {
@@ -480,8 +469,6 @@ extern StgPre stageData[];
 extern WaySrcGrp wayGroupSheet[];
 extern WaySrcPt wayPointSheet[];
 extern WayNode way_point[];
-/* kept local: void (void *, int, int) here, void * (void *, int, unsigned int) in string.h */
-extern void memset(void *p, int a, int n);
 extern WayBridge *WayBridgeAll_begin(void);
 extern WayBridge *WayBridgeAll_next(WayBridge *p);
 
@@ -546,8 +533,6 @@ typedef struct {
     char s[8];
 } WpName;
 
-/* kept local: int (char *) here, unsigned int (const char *) in string.h */
-extern int strlen(char *s);
 extern WayRec *WayGroup_begin(void);
 extern WayRec *WayGroup_next(WayRec *p);
 
@@ -673,11 +658,6 @@ void draw_way_group(int g, WayCol *col)
     }
 }
 
-/* kept local: char * (void *) here, int (void *) in way_util.h */
-extern char *visible_waypoint_of_all(void *pos);
-/* kept local: void (void *, void *, unsigned int, float) here, void (void) in way_util.h */
-extern void ez_circle(void *pos, void *base, unsigned int col, float r);
-
 void way_toolDL(int a0)
 {
     WayVec m;
@@ -750,22 +730,6 @@ typedef struct {
 
 /* way_tool.o .data +0x2A0: the way-tool menu, nine {label, action} lines.
    Line 5's label is the play/stop text the tool rewrites at runtime. */
-/* kept local: agrees with way_tool.h, which this TU does not include */
-extern int group_create(void);
-/* kept local: agrees with way_tool.h, which this TU does not include */
-extern int point_delete(void);
-/* kept local: agrees with way_tool.h, which this TU does not include */
-extern int point_insert(void);
-/* kept local: agrees with way_tool.h, which this TU does not include */
-extern int point_nige(void);
-/* kept local: agrees with way_tool.h, which this TU does not include */
-extern int play_way(void);
-/* kept local: agrees with way_tool.h, which this TU does not include */
-extern int quick_save_wpfile(void);
-/* kept local: agrees with way_tool.h, which this TU does not include */
-extern int quick_load_wpfile(void);
-/* kept local: agrees with way_tool.h, which this TU does not include */
-extern int wp_print_out(void);
 
 WayMenu debugWayMenu[9] = {{"group + create", group_create},  {"      + select", group_select},
                            {"point + delete", point_delete},  {"      + insert", point_insert},
@@ -776,8 +740,6 @@ WayMenu debugWayMenu[9] = {{"group + create", group_create},  {"      + select",
 /* kept local: int here, GObj * in main.h */
 extern int CurrentTargetGObj;
 extern char iosPadConfDefault[];
-/* kept local: agrees with way_tool.h, which this TU does not include */
-extern void cursor_control(volatile int a0);
 
 int debug_WayTool(void)
 {

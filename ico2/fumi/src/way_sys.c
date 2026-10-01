@@ -6,6 +6,10 @@
 #include "Matrix.h"
 #include "main.h"
 #include "matrixDrive.h"
+#include "geometryManager.h"
+#include "tableSin.h"
+#include "fuzio.h"
+#include "way_util.h"
 
 typedef struct {
     int pad[8];
@@ -48,27 +52,11 @@ typedef struct WgAll2 {
     int f0, f4, f8, fC, f10, f14, f18;
 } WgAll2;
 
-/* kept local: char * (void *, int) here, char * (int *, int) in way_util.h */
-extern char *visible_waypoint_of_all_except_temp(void *pos, int gid);
-/* kept local: char * (void *, int) here, char * (int *, int) in way_util.h */
-extern char *visible_waypoint_of_all_except_temp_ThreadVersion(void *pos, int gid);
-/* kept local: char * (void *, int) here, char * (int *, int) in way_util.h */
-extern char *visible_waypoint_of_all_except_gid(void *pos, int gid);
-/* kept local: char * (void *, int) here, char * (int *, int) in way_util.h */
-extern char *visible_waypoint_of_all_except_gid_ThreadVersion(void *pos, int gid);
 extern int shortest_path(int from, int to, WgAll2 *w);
 extern int shortest_path_ThreadVersion(int from, int to, WgAll2 *w);
 extern int GetWgAll(int from, int to, WgAll2 *w);
 extern int NearestWgFromTarget(int cur, int end, WgAll2 *w);
-/* kept local: char * (void *, int) here, char * (int *, int) in way_util.h */
-extern char *nearest_waypoint_of_group(void *pos, int handle);
 extern void set_check_wp(void *out, int wp, int gid);
-/* kept local: agrees with way_util.h, which this TU does not include (visible_waypoint_of_all_except_gid, visible_waypoint_of_all_except_temp differ) */
-extern int short_direction_between_wp(char *from, char *to);
-/* kept local: agrees with way_util.h, which this TU does not include (visible_waypoint_of_all_except_gid, visible_waypoint_of_all_except_temp differ) */
-extern void *WayUtilWorkAlloc(void);
-/* kept local: void (void *) here, void (int *) in way_util.h */
-extern void WayUtilWorkFree(void *self);
 
 int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
 {
@@ -291,18 +279,10 @@ typedef struct {
 
 typedef float WayVec[4] __attribute__((aligned(16)));
 
-/* kept local: void (void *, void *) here, void (void *, char *) in geometryManager.h */
-extern void GetRootPosition(void *out, void *gobj);
-/* kept local: float (int) here, float (short) in tableSin.h */
-extern float GetTableCos(int ang);
-/* kept local: float (int) here, float (short) in tableSin.h */
-extern float GetTableSin(int ang);
 /* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipWall(void *cc);
 /* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipFloorR(void *cc);
-/* kept local: void (int) here, int (int) in way_util.h */
-extern void set_bridge(int group);
 
 /* The scene's generated-geometry record, 0x4C bytes; this TU reads only the
    kind byte at 0x46 (the same record ico2/common/src/sceneManager.c carves). */
@@ -587,15 +567,9 @@ inline void DeleteGuideWay(WVTObj *o)
     }
 }
 
-/* kept local: void (void *, void *, unsigned int) here, void (void) in way_util.h */
-extern void ez_line(void *a, void *b, unsigned int col);
-/* kept local: void (void *, void *, unsigned int, float) here, void (void) in way_util.h */
-extern void ez_circle(void *pos, void *base, unsigned int col, float r);
 /* kept local: void (void *, int) here, void (char *, int) in fieldCollision.h */
 extern void DrawGObjWallCollision(void *gobj, int col);
 extern char *waypoint_bidirectional_list(char *wp, int dir);
-/* kept local: float (void *) here, float (int) in fuzio.h */
-extern float fzMagnitudefv(void *v);
 
 /* the object whose wall collision GetWay_next draws, for debugging */
 static void *wayDebugWallGObj = 0; /* derived name */

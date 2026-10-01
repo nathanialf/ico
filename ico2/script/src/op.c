@@ -13,6 +13,8 @@
 #include "kanbanBoot.h"
 #include "layout_action.h"
 #include "thread.h"
+#include "main.h"
+#include "script.h"
 
 /* The TU starts at 0x0021F060, where MAIN.MAP puts op.o: these three sit before
    the functions the listing hashes named. */
@@ -39,17 +41,6 @@ static int demoAdpcm;
 static int opDemoMode = 0; /* derived name */
 
 static int opDemoNextMode = 0; /* derived name */
-
-/* kept local: char * here, GObj * in main.h */
-extern char *boyGObj;
-/* kept local: void (char *) here, void (int) in script.h */
-extern void scpPlayStart(char *gobj);
-/* kept local: char * (int) here, int (int) in script.h */
-extern char *scpSearchGobj(int id);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayStart differ) */
-extern void scpFadeIn(float t);
-/* kept local: void (int, void *, int, int, int) here, void (int, char **, int, int, int) in script.h */
-extern void scpAdpcmPlayRequestFunc(int kind, void *id, int a2, int a3, int a4);
 
 void actTitleCamera2(volatile int a0)
 {
@@ -99,28 +90,8 @@ void actTitleCamera2(volatile int a0)
     }
 }
 
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern PadState pad[];
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern int systemStatus[];
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern int optionScreenMode;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern int girlControlMode;
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayStart differ) */
-extern int scpBoyControlReadDisable;
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayStart differ) */
-extern int scpFadeChk(void);
-/* kept local: void (int, int, int, float) here, void (float, int, int, int) in script.h */
-extern void scpFadeOut(int a0, int a1, int a2, float t);
-/* kept local: void (int *, int) here, int (char **, short) in script.h */
-extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
 /* kept local, the sibling script TUs' spelling: this TU's uses of
    scpAdpcmCloseFunc and scpAdpcmCloseChkFunc do not fit script.h's */
-/* kept local: void (int *) here, void (char **) in script.h */
-extern void scpAdpcmCloseFunc(int *h);
-/* kept local: int (int *) here, int (char **) in script.h */
-extern int scpAdpcmCloseChkFunc(int *h);
 /* thread.h's prototype; op.c does not include thread.h */
 void actTitleReadTimeDemo0(volatile int a0);
 void actTitleShortCut(volatile int a0);
@@ -176,7 +147,7 @@ void actOpDemo01(volatile int a0)
         _ACTWait(1);
     }
 
-    scpFadeOut(0, 0, 0, 255.0f);
+    scpFadeOut(255.0f, 0, 0, 0);
     titleAdpcm = 0;
 
     while (1) {
@@ -230,7 +201,7 @@ void actOpDemo01(volatile int a0)
                 scpAdpcmCloseFunc(&titleSubAdpcm);
             }
             iosThreadSetPri((int *)(th + 0x24), 34);
-            scpFadeOut(0, 0, 0, 16.0f);
+            scpFadeOut(16.0f, 0, 0, 0);
             break;
 
         case 1:
@@ -250,7 +221,7 @@ void actOpDemo01(volatile int a0)
                 }
             }
             iosThreadSetPri((int *)(th + 0x24), 34);
-            scpFadeOut(0, 0, 0, 16.0f);
+            scpFadeOut(16.0f, 0, 0, 0);
             break;
 
         case 2:
@@ -303,13 +274,13 @@ void actTitleShortCut(volatile int a0)
     SetHandCameraLimitInDemo(0, 0);
     SetZoomMaxValInDemo(0);
 
-    *(int *)(scpSearchGobj(43) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(44) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(45) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(48) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(49) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(50) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(51) + 0x16C) = 1;
+    scpSearchGobj(43)->f16C = 1;
+    scpSearchGobj(44)->f16C = 1;
+    scpSearchGobj(45)->f16C = 1;
+    scpSearchGobj(48)->f16C = 1;
+    scpSearchGobj(49)->f16C = 1;
+    scpSearchGobj(50)->f16C = 1;
+    scpSearchGobj(51)->f16C = 1;
 
     while (titleAdpcm != 0) {
         _ACTWait(1);
@@ -334,12 +305,6 @@ static ActMail opDemo03_mes[2] = {{430}, {429}};
 
 /* the retail build's printf stub; the 2001 declaration was unprototyped, which
    is why the extra arguments still travel in $a1/$a2 rather than on the stack */
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern int frame_count;
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayStart differ) */
-extern int RequestStageChange(int a0, char *a1, int a2, float a3, float a4);
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern int stage_no;
 
 /* the 0x194-byte per-stage record; the cutscene entries read their exit index
    out of `ent`.  The leading padding is spelled `int` so the record is 4-byte
@@ -354,14 +319,6 @@ extern int stage_no;
    home store issue three slots later. */
 extern const StgPre stageData[];
 extern const ExitData exitData[];
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayStart differ) */
-extern void scpPlayMot(char *self, int mot);
-/* kept local: int (int, char *, int, float, float, int, int, int) here, int (int, char *, int, float, float, unsigned char, unsigned char, unsigned char) in script.h */
-extern int RequestStageChangeWithColor(int a0, char *a1, int a2, float a3, float a4, int r, int g,
-                                       int b);
-/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayStart differ) */
-extern int scpAdpcmPlayRequestNum(void);
-extern JimakuArg jimaku_msg;
 
 inline void actSubMpegReturnPreload(volatile int a0)
 {
@@ -383,15 +340,15 @@ void actTitleReadTimeDemo0(volatile int a0)
 
     _ACTWait(1);
 
-    *(int *)(scpSearchGobj(43) + 0x16C) = 0;
-    *(int *)(scpSearchGobj(44) + 0x16C) = 0;
-    *(int *)(scpSearchGobj(45) + 0x16C) = 0;
-    *(int *)(scpSearchGobj(48) + 0x16C) = 0;
-    *(int *)(scpSearchGobj(49) + 0x16C) = 0;
-    *(int *)(scpSearchGobj(50) + 0x16C) = 0;
-    *(int *)(scpSearchGobj(51) + 0x16C) = 0;
+    scpSearchGobj(43)->f16C = 0;
+    scpSearchGobj(44)->f16C = 0;
+    scpSearchGobj(45)->f16C = 0;
+    scpSearchGobj(48)->f16C = 0;
+    scpSearchGobj(49)->f16C = 0;
+    scpSearchGobj(50)->f16C = 0;
+    scpSearchGobj(51)->f16C = 0;
 
-    *(int *)(scpSearchGobj(46) + 0x16C) = 1;
+    scpSearchGobj(46)->f16C = 1;
 
     scpAdpcmPlayRequestFunc(6, &titleSubAdpcm, 1, 1, 1);
     while (titleSubAdpcm == 0) {
@@ -410,11 +367,11 @@ void actTitleReadTimeDemo0(volatile int a0)
     }
 
     scpPlayMot(scpSearchGobj(59), 1051);
-    *(int *)(scpSearchGobj(59) + 0x16C) = 1;
+    scpSearchGobj(59)->f16C = 1;
     scpPlayMot(scpSearchGobj(60), 1058);
-    *(int *)(scpSearchGobj(60) + 0x16C) = 1;
+    scpSearchGobj(60)->f16C = 1;
     scpPlayMot(scpSearchGobj(61), 1065);
-    *(int *)(scpSearchGobj(61) + 0x16C) = 1;
+    scpSearchGobj(61)->f16C = 1;
 
     while (stage_ContinueAnimation(564, 565) == 0) {
         _ACTWait(1);
@@ -425,11 +382,11 @@ void actTitleReadTimeDemo0(volatile int a0)
     scpPlayMot(boyGObj, 263);
 
     scpPlayMot(scpSearchGobj(56), 983);
-    *(int *)(scpSearchGobj(56) + 0x16C) = 1;
+    scpSearchGobj(56)->f16C = 1;
     scpPlayMot(scpSearchGobj(57), 1005);
-    *(int *)(scpSearchGobj(57) + 0x16C) = 1;
+    scpSearchGobj(57)->f16C = 1;
     scpPlayMot(scpSearchGobj(58), 1028);
-    *(int *)(scpSearchGobj(58) + 0x16C) = 1;
+    scpSearchGobj(58)->f16C = 1;
     scpPlayMot(scpSearchGobj(59), 1052);
     scpPlayMot(scpSearchGobj(60), 1059);
     scpPlayMot(scpSearchGobj(61), 1066);
@@ -451,15 +408,15 @@ void actTitleReadTimeDemo0(volatile int a0)
     }
     _ACTWait(1);
 
-    *(int *)(scpSearchGobj(60) + 0x16C) = 0;
-    *(int *)(scpSearchGobj(57) + 0x16C) = 0;
+    scpSearchGobj(60)->f16C = 0;
+    scpSearchGobj(57)->f16C = 0;
 
     while (stage_ContinueAnimation(566, 567) == 0) {
         _ACTWait(1);
     }
 
-    *(int *)(scpSearchGobj(60) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(57) + 0x16C) = 1;
+    scpSearchGobj(60)->f16C = 1;
+    scpSearchGobj(57)->f16C = 1;
 
     scpPlayMot(boyGObj, 265);
     scpPlayMot(scpSearchGobj(56), 985);
@@ -474,7 +431,7 @@ void actTitleReadTimeDemo0(volatile int a0)
     }
     _ACTWait(1);
 
-    *(int *)(scpSearchGobj(54) + 0x16C) = 0;
+    scpSearchGobj(54)->f16C = 0;
 
     while (stage_ContinueAnimation(567, 568) == 0) {
         _ACTWait(1);
@@ -489,7 +446,7 @@ void actTitleReadTimeDemo0(volatile int a0)
 
     _ACTWait(1);
 
-    *(int *)(scpSearchGobj(57) + 0x16C) = 0;
+    scpSearchGobj(57)->f16C = 0;
 
     while (stage_ContinueAnimation(568, 569) == 0) {
         _ACTWait(1);
@@ -505,18 +462,18 @@ void actTitleReadTimeDemo0(volatile int a0)
 
     _ACTWait(1);
 
-    *(int *)(scpSearchGobj(54) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(57) + 0x16C) = 1;
+    scpSearchGobj(54)->f16C = 1;
+    scpSearchGobj(57)->f16C = 1;
 
-    *(int *)(scpSearchGobj(43) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(44) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(45) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(48) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(49) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(50) + 0x16C) = 1;
-    *(int *)(scpSearchGobj(51) + 0x16C) = 1;
+    scpSearchGobj(43)->f16C = 1;
+    scpSearchGobj(44)->f16C = 1;
+    scpSearchGobj(45)->f16C = 1;
+    scpSearchGobj(48)->f16C = 1;
+    scpSearchGobj(49)->f16C = 1;
+    scpSearchGobj(50)->f16C = 1;
+    scpSearchGobj(51)->f16C = 1;
 
-    *(int *)(scpSearchGobj(46) + 0x16C) = 0;
+    scpSearchGobj(46)->f16C = 0;
 
     while (stage_ContinueAnimation(569, 571) == 0) {
         _ACTWait(1);
@@ -584,7 +541,7 @@ void actOpDemo01_2(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    scpFadeOut(0, 0, 0, 255.0f);
+    scpFadeOut(255.0f, 0, 0, 0);
 
     adpcm_conte01_sea = 0;
     op2 = 0;
@@ -629,11 +586,11 @@ void actOpDemo01_2Chk(volatile int a0)
 
     scpPlayMot(boyGObj, 269);
     scpPlayMot(scpSearchGobj(2312), 989);
-    *(int *)(scpSearchGobj(2312) + 0x16C) = 1;
+    scpSearchGobj(2312)->f16C = 1;
     scpPlayMot(scpSearchGobj(2313), 1011);
-    *(int *)(scpSearchGobj(2313) + 0x16C) = 1;
+    scpSearchGobj(2313)->f16C = 1;
     scpPlayMot(scpSearchGobj(2314), 1034);
-    *(int *)(scpSearchGobj(2314) + 0x16C) = 1;
+    scpSearchGobj(2314)->f16C = 1;
 
     while (stage_ContinueAnimation(572, 573) == 0) {
         _ACTWait(1);
@@ -653,7 +610,7 @@ void actOpDemo01_2Chk(volatile int a0)
     }
     _ACTWait(1);
 
-    scpFadeOut(255, 255, 255, 3.0f);
+    scpFadeOut(3.0f, 255, 255, 255);
     while (scpFadeChk() != 0) {
         _ACTWait(45);
     }
@@ -763,11 +720,11 @@ void actSt24aConte01_2(volatile int a0)
     scpPlayMot(boyGObj, 273);
 
     scpPlayMot(scpSearchGobj(2336), 993);
-    *(int *)(scpSearchGobj(2336) + 0x16C) = 1;
+    scpSearchGobj(2336)->f16C = 1;
     scpPlayMot(scpSearchGobj(2337), 1015);
-    *(int *)(scpSearchGobj(2337) + 0x16C) = 1;
+    scpSearchGobj(2337)->f16C = 1;
     scpPlayMot(scpSearchGobj(2338), 1038);
-    *(int *)(scpSearchGobj(2338) + 0x16C) = 1;
+    scpSearchGobj(2338)->f16C = 1;
 
     while (stage_ContinueAnimation(576, 577) == 0) {
         _ACTWait(1);
@@ -815,7 +772,7 @@ void actSt24aConte01_2(volatile int a0)
 
     _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0xA);
 
-    scpFadeOut(0, 0, 0, 6.0f);
+    scpFadeOut(6.0f, 0, 0, 0);
     while (scpFadeChk() != 0) {
         _ACTWait(45);
     }
@@ -849,13 +806,13 @@ inline void actSt24aConte01_2_Jimaku(volatile int a0)
     do {
         switch ((int)t) {
         case 100:
-            jimakuBegin((int)&jimaku_msg);
+            jimakuBegin(&jimaku_msg);
             break;
         case 2400:
             jimaku_msg.sub.unk2C = 0;
             jimaku_msg.sub.unk38 = -1;
             jimakuOn = 1;
-            jimakuJump((int)&jimaku_msg);
+            jimakuJump(&jimaku_msg);
             break;
         }
 
@@ -894,7 +851,7 @@ void actOpDemo03Chk(volatile int a0)
 
     gflagOn(4);
 
-    scpFadeOut(0, 0, 0, 255.0f);
+    scpFadeOut(255.0f, 0, 0, 0);
 
     scpAdpcmPlayRequestFunc(9, &op2, 0, 1, 1);
     while (op2 == 0) {
@@ -919,7 +876,7 @@ void actOpDemo03Chk(volatile int a0)
         }
     }
 
-    scpFadeOut(0, 0, 0, t);
+    scpFadeOut(t, 0, 0, 0);
     while (scpFadeChk() != 0) {
         _ACTWait(1);
     }
@@ -937,11 +894,11 @@ void actSt13aConte01_3(volatile int a0)
 
     scpPlayMot(boyGObj, 278);
     scpPlayMot(scpSearchGobj(2364), 998);
-    *(int *)(scpSearchGobj(2364) + 0x16C) = 1;
+    scpSearchGobj(2364)->f16C = 1;
     scpPlayMot(scpSearchGobj(2365), 1020);
-    *(int *)(scpSearchGobj(2365) + 0x16C) = 1;
+    scpSearchGobj(2365)->f16C = 1;
     scpPlayMot(scpSearchGobj(2366), 1042);
-    *(int *)(scpSearchGobj(2366) + 0x16C) = 1;
+    scpSearchGobj(2366)->f16C = 1;
 
     _ACTWait(1);
     stage_SetAnimation(16, 1, 0);

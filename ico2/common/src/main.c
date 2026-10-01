@@ -20,6 +20,9 @@
 #include "fieldCollision.h"
 #include "icoMisc.h"
 #include "soundManager.h"
+#include "thread.h"
+#include "act-game.h"
+#include "obj_manager.h"
 
 /* main.c's own .data, VMA 0x0028F4C0..0x0028FEB8 (0x9F8 B), the six globals
    MAIN.MAP lists for main.o in ROM order. Each has an initialiser: the ROM
@@ -108,21 +111,10 @@ static const ThreadTbl allThreads = {{mainThread, schedulerThread, mcThread, cdv
  * 0x1B000, and as an `int` the SImode large_int splitter in mips.md cuts it into lui and ori
  * before sched1, which then hoists the lui five slots ahead of its ori; as a `long` it stays one
  * DImode `dli` the assembler expands into the adjacent lui/ori pair the ROM has. */
-/* kept local: void (void *, int, void (*)(void), int, void *, long, int) here, void (void *, int, void (*)(), int, void *, long, int) in thread.h */
-extern void iosThreadCreate(void *th, int a1, void (*entry)(void), int a3, void *stack, long size,
-                            int pri);
-/* kept local: void (void *) here, void (int) in thread.h */
-extern void iosThreadStart(void *th);
-/* kept local: agrees with thread.h, which this TU does not include (iosThreadCancelWakeup, iosThreadStart differ) */
-extern void iosThreadSleep(void);
 void idle(void);
 void scheduler(void);
 /* kept local: void (int) here, int (void) in libgraph.h */
 extern void sceGsSyncV(int mode);
-/* kept local: int (void *) here, int (int *) in thread.h */
-extern int iosThreadCancelWakeup(void *th);
-/* kept local: int (void *) here, int (int *) in thread.h */
-extern int iosThreadWakeup(void *th);
 extern char movieFile[];
 /* gsb_ResetSnap and gsb_TakeSnap return a value the callers drop, and the ROM
    proves it here: the load that follows each of the two calls takes $3, not
@@ -133,16 +125,10 @@ extern char movieFile[];
 extern int gsb_ResetSnap(void);
 extern void movie_init(void *p, int w, int h, int a3, int a4, int a5, int col);
 extern int movie_proc(int (*abort)(void));
-/* kept local: void (int, int) here, void (int, unsigned char) in act-game.h */
-extern void ACTGame_SetActors_Debug(int stage, int a1);
 extern void MakeCharGObjList(void);
 extern void stage_ResetAnimation(void);
 extern void stage_CalcAnimationNoParent(void);
-/* kept local: void (void) here, void (int, int, int, int) in obj_manager.h */
-extern void iosOmMain(void);
 extern void stage_CalcAnimationParent(void);
-/* kept local: agrees with obj_manager.h, which this TU does not include (iosOmMain differ) */
-extern void iosOmCreateDL(void);
 extern int gsb_TakeSnap(void);
 int movie_abort_check(void);
 
@@ -245,9 +231,6 @@ void Main(void)
         iosThreadSleep();
     }
 }
-
-/* kept local: void (int, int) here, void (int *, int) in thread.h */
-extern void iosThreadSetPri(int id, int pri);
 
 /* main.c's own first two small-bss cells, at 0x0063C100 and 0x0063C104, ahead of
    the boot thread id: the idle thread's spin counters. The names are ours. */
@@ -373,9 +356,6 @@ void boot(void)
     iosThreadStart(schedulerThread);
     iosThreadSleep();
 }
-
-/* kept local: void (int *) here, void (int) in thread.h */
-extern void iosThreadDestroy(int *th);
 
 void Emergency_DestroyAllThread(void)
 {

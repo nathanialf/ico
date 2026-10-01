@@ -42,7 +42,7 @@ int actEnemy_isSmallEnemy(char *a0);
 int IsEnemyBrainToGenerator(char *a0, int *out);
 int IsEnemyBrainToBoy(char *self);
 int GetEnemyTypeFromGObj(char *a0);
-int GetEnemyType(void);
+int GetEnemyType(float x, float y, float z);
 int isEnemyKidnapEnable(int *self);
 int isEnemyActive(int *self);
 int GetMotherGeneratorLabelAskEnemy(char *a0);

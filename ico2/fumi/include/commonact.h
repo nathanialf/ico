@@ -53,8 +53,8 @@ void afterCommonStone(volatile int a0);
 void afterCommonTruckLever(volatile int a0);
 void flyCoreLoop(char *a0, char *target, int flag);
 void subCommonIdle(volatile int a0);
-void *test_CURRENTORIENT(char *a0);
-void *test_CURRENTROOT(void *a0);
+float *test_CURRENTORIENT(char *a0);
+float *test_CURRENTROOT(void *a0);
 
 void DownFunc(char *a0);
 int FloorIsTruck(void *a0);

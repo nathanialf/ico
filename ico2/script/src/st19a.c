@@ -10,13 +10,8 @@
 #include "StageAnimation.h"
 #include "motionManager2.h"
 #include "typedef.h"
-
-/* kept local: PObjGObj * (int) here, int (int) in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void ScpCallCameraSetTarget(float x, float y, float z);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern int scpBoyControlReadDisable;
+#include "main.h"
+#include "script.h"
 
 /* .sbss, owned by st19a.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
@@ -44,27 +39,6 @@ static ActMail chainMain_mes[2] = {{406, actSt19aChainSwitch}, {429}};
 static ActMail chain_mes[2] = {{430}, {429}};
 
 static ActMail chainSwitch_mes[2] = {{430}, {429}};
-
-/* kept local: int (int, int, float) here, int (char *, char *, float) in script.h */
-extern int scpTriggerBall(int a0, int a1, float r);
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern PadState pad[];
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
-/* kept local: int (int, int) here, int (char *, int) in script.h */
-extern int scpTriggerFloorAttr(int a0, int a1);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern int scpAdpcmPlayRequestNum(void);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpFadeOut(float t, int a1, int a2, int a3);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern int scpFadeChk(void);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpFadeIn(float t);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpAdpcmPlayRequestFunc(int a0, char **a1, int a2, int a3, int a4);
-/* kept local: void (char **, int) here, int (char **, short) in script.h */
-extern void scpAdpcmFadeCloseFunc(char **a0, int a1);
 
 /* .sdata, owned by st19a.o, in the ROM's order: the fence, horn and pipe stream handles. */
 char *fence_up_19a = 0;
@@ -210,15 +184,6 @@ void actSt19aHagurumaChk(volatile int a0)
 done:
     lt_switch_layout(54);
 }
-
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpPlayStart(int a0);
-/* kept local: void (int, int) here, void (char *, int) in script.h */
-extern void scpPlayMot(int a0, int mot);
-/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
-extern void scpPlayEnd(int a0);
-/* kept local: void (int, float, float, float) here, void (void *, float, float, float) in script.h */
-extern void scpPlayPosSet(int a0, float x, float y, float z);
 
 void actSt19aPipeChk(volatile int a0)
 {

@@ -25,6 +25,13 @@
 #include "gflag.h"
 #include "Matrix.h"
 #include "debug_exception.h"
+#include <libvu0.h>
+#include "enemy_act.h"
+#include "gobj.h"
+#include "act_bird.h"
+#include "item.h"
+#include "commonact.h"
+#include "obj_manager.h"
 
 typedef struct {
     char _0[0x1C];
@@ -86,8 +93,6 @@ extern int stage_no;
 extern const ExitData exitData[];
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlControlMode differ) */
 extern int exit_no;
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector differ) */
-extern void sceVu0ScaleVector(void *dst, void *src, float k);
 
 typedef struct {
     float x, y, z, w;
@@ -97,8 +102,6 @@ typedef struct {
 extern char *girlGObj;
 /* kept local: void (void *, float) here, void (float *, float) in gv.h */
 extern void _ApplyRyGV(void *v, float ry);
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector differ) */
-extern void sceVu0AddVector(void *dst, void *a, void *b);
 /* kept local: char * here, GObj * in main.h */
 extern char *boyGObj;
 /* kept local: agrees with boyact.h, which this TU does not include (PrivInsCamSet differ) */
@@ -110,12 +113,6 @@ extern const StgPre stageData[];
 extern char *boyGObj;
 /* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistGV(void *a, void *b);
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector differ) */
-extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector differ) */
-extern void sceVu0SubVector(void *dst, void *a, void *b);
-/* kept local: float * (char *) here, void * (char *) in commonact.h */
-extern float *test_CURRENTORIENT(char *a0);
 /* kept local: int (void *, void *) here, int (float *, float *) in gv.h */
 extern int _RotyGV(void *a, void *b);
 
@@ -135,8 +132,6 @@ typedef struct {
    anywhere in the ROM and stay in the blob. */
 static ActGameViewTbl actGameView;
 
-/* kept local: int * (int *) here, void * (void *) in commonact.h */
-extern int *test_CURRENTROOT(int *a0);
 /* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipWall(void *);
 /* kept local: void (void *) here, int (void *) in fieldCollision.h */
@@ -145,14 +140,6 @@ extern void ClipFloor(void *);
 extern float _DistxzSqGV(void *a, void *b);
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlControlMode differ) */
 extern int systemStatus[];
-/* kept local: int (void *) here, int (int *) in enemy_act.h */
-extern int actEnemyFlagCheckActive(void *g);
-/* kept local: int * (int) here, void * (int) in gobj.h */
-extern int *isysGObjSearchFromObjKindID_begin(int);
-/* kept local: int * (int *) here, void * (char *) in gobj.h */
-extern int *isysGObjSearchFromObjKindID_next(int *);
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector differ) */
-extern void sceVu0ApplyMatrix(void *dst, void *m, void *v);
 extern char actModeTbl[];
 
 /* One 0x50-byte record per act status, indexed by sub->0x34. */
@@ -174,11 +161,6 @@ typedef enum { MPSR_OFF, MPSR_ONESHOT, MPSR_HOLD } MpsrMode;
    store), so it is spelled as one accessor rather than a cached local. */
 #define ACTWORK(g) ((char *)*(int *)((char *)*(int *)((g) + 0x164) + 0x688))
 
-/* kept local: char * (void *) here, int (char *) in enemy_act.h */
-extern char *actEnemy_GetClingTarget(void *g);
-/* kept local: agrees with obj_manager.h, which this TU does not include */
-extern int iosOmSendMail();
-
 /* The environment work block the actor rebuilds every frame: 464 bytes at
    +0x4B0, plus the four sub-blocks that survive the rebuild. */
 typedef struct {
@@ -194,8 +176,6 @@ typedef struct {
     float f[8];
 } EnvOct;
 
-/* kept local: agrees with commonact.h, which this TU does not include (test_CURRENTORIENT, test_CURRENTROOT differ) */
-extern void ACTSendMailCorrect(char *self, int mail);
 /* kept local: agrees with weapon.h, which this TU does not include (GetTorchGObjOfWeapon differ) */
 extern int CheckWeaponKind();
 /* kept local: int (int, int) here, int (unsigned int, unsigned int) in fieldCollision.h */
@@ -204,8 +184,6 @@ extern int CompareAttribute(int attr, int mask);
 extern void GetOrientOfWall(void *out, int n, void *vec);
 /* kept local: void (void *, void *) here, void (float *, float *) in gv.h */
 extern void SwapGV(void *a, void *b);
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector differ) */
-extern float sceVu0InnerProduct(void *a, void *b);
 /* kept local: char * here, int in main.h */
 extern char *girlControlMode;
 
@@ -234,8 +212,6 @@ static HandClInfo handClInfoClear = {0}; /* derived name */
 
 /* kept local: void (void *, void *, float, int, int, int) here, void (void) in camera-editor.h */
 extern void debug_Arrow(void *root, void *vec, float len, int r, int g, int b);
-/* kept local: void (void *, int) here, void (void *, void *) in libvu0.h */
-extern void sceVu0CopyVector(void *buf, int x);
 
 /* The hand-mode rows the motion record's two hand nibbles index: 16 bytes a
    row, the mode RequestChangeHandMode wants in the last word. */
@@ -254,27 +230,13 @@ extern int _AbsRotyGV(void *a, void *b);
 /* kept local: brain.h is not in this TU's include list and does not declare
    brainAddLevelGirlDetail */
 extern void brainAddLevelGirlDetail(int a0, float f);
-/* kept local: void (int *, int, char *) here, void (void *, void *, void *) in act_bird.h */
-extern void _ACTSendMailToBird(int *bird, int mail, char *self);
 void ACTItemWatchMotion(char *self);
 /* kept local: void (float *, int, int, int, float) here, void (int *, int, int, int, float) in camera-editor.h */
 extern void debug_NMarker(float *pos, int r, int g, int b, float size);
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector differ) */
-extern void sceVu0AddVector(void *a0, void *a1, void *a2);
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector differ) */
-extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 /* The look-target candidate table: 27 rows, one column per character kind
    (self->_164->_48). */
 extern int lookTargetData[][3];
 extern float gameParam[];
-/* kept local: int (int) here, int (char *) in item.h */
-extern int GetItemKind(int item);
-/* kept local: void (int, float *) here, void (char *, void *) in item.h */
-extern void ThrowItem(int item, float *v);
-/* kept local: void (int, char *) here, void (char *, char *) in item.h */
-extern void HoldItem(int item, char *self);
-/* kept local: void (int) here, void (char *) in item.h */
-extern void ReleaseItem(int item);
 /* kept local: agrees with boyact.h, which this TU does not include (PrivInsCamSet differ) */
 extern void SetBoyInfo(int *a0, int *a1);
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlControlMode differ) */
@@ -292,10 +254,6 @@ typedef struct {
     int f_4;
 } HandModeCmd;
 
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector differ) */
-extern void sceVu0Normalize(void *a0, void *a1);
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector differ) */
-extern void sceVu0SubVector(void *a0, void *a1, void *a2);
 /* kept local: int (int *) here, int (char *) in weapon.h */
 extern int GetTorchGObjOfWeapon(int *self);
 /* kept local: void (void *) here, int (void *) in fieldCollision.h */
@@ -303,8 +261,6 @@ extern void ClipWallField(void *);
 extern WeaponEntry weaponKind[];
 /* kept local: float (void *) here, float (float *) in gv.h */
 extern float _GetDirection(void *v);
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector differ) */
-extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
 /* kept local: void (float *, float *, float *) here, void (int) in gv.h */
 extern void _OrientGV(float *dst, float *a, float *b);
 
@@ -841,7 +797,7 @@ inline int ACTCheckCollis_WELL(void *p0, void *p1, void *actor, void *posout, fl
     return rv;
 }
 
-inline int ACTCheckCollis_WAY(float f, void *p0, void *p1, void *actor, void *posout)
+inline unsigned char ACTCheckCollis_WAY(float f, void *p0, void *p1, void *actor, void *posout)
 {
     HandWork work;
     int flag;
@@ -924,7 +880,7 @@ inline unsigned char ACTCheckCollis_VIEW(float f, void *p0, void *p1, void *acto
     return rv;
 }
 
-int ACTCheckView(char *self, void *a1, void *a2, void *a3, float f)
+int ACTCheckView(char *self, void *a1, void *a2, int range, float f)
 {
     float pos[4];
     float v[4];
@@ -940,7 +896,7 @@ int ACTCheckView(char *self, void *a1, void *a2, void *a3, float f)
     if (_DistGV(pos, a2) < f) {
         return 1;
     }
-    if ((int)a3 >= 360) {
+    if (range >= 360) {
         return 1;
     }
     /* SRCFILE.TXT rows put the whole of each arm on ONE source line (1666 /
@@ -963,13 +919,13 @@ int ACTCheckView(char *self, void *a1, void *a2, void *a3, float f)
         v[1] = test_CURRENTORIENT(self)[1];
         v[2] = test_CURRENTORIENT(self)[2];
     }
-    if ((int)a3 / 2 < (_RotyGV(v, d) < 0 ? -_RotyGV(v, d) : _RotyGV(v, d))) {
+    if (range / 2 < (_RotyGV(v, d) < 0 ? -_RotyGV(v, d) : _RotyGV(v, d))) {
         return 0;
     }
     return 1;
 }
 
-inline int ACTCheckViewCl(char *self, void *a1, void *a2, void *a3, float f)
+inline int ACTCheckViewCl(char *self, void *a1, void *a2, int range, float f)
 {
     float pos[4];
     float *m;
@@ -983,13 +939,13 @@ inline int ACTCheckViewCl(char *self, void *a1, void *a2, void *a3, float f)
     pos[0] = m[12];
     pos[1] = m[13];
     pos[2] = m[14];
-    if (ACTCheckView(self, a1, a2, a3, f) == 0) {
+    if (ACTCheckView(self, a1, a2, range, f) == 0) {
         return 0;
     }
     return ACTCheckCollis_VIEW(0.0f, pos, a2, a1) == 0;
 }
 
-inline int ACTCheckViewClDetail(char *self, void *a1, void *a2, void *a3, float f)
+inline int ACTCheckViewClDetail(char *self, void *a1, void *a2, int range, float f)
 {
     float pos[4];
     float *m;
@@ -1004,7 +960,7 @@ inline int ACTCheckViewClDetail(char *self, void *a1, void *a2, void *a3, float 
     pos[0] = m[12];
     pos[1] = m[13];
     pos[2] = m[14];
-    ret = ACTCheckView(self, a1, a2, a3, f);
+    ret = ACTCheckView(self, a1, a2, range, f);
     if (ACTCheckCollis_VIEW(0.0f, pos, a2, a1)) {
         return 0;
     }
@@ -1038,7 +994,8 @@ inline void ACTGameView_Init(void)
     actGameView.cur = 0;
 }
 
-inline void ACTGameView_FirstSet(void)
+inline void ACTGameView_FirstSet(char *self)
+
 {
     int *g;
 
@@ -1063,7 +1020,7 @@ void ACTGameView_Loop(char *self)
     i = actGameView.cur;
     if (actGameView.simple[i] != 0) {
         GetRootPosition(pos, actGameView.obj[i]);
-        actGameView.view[i] = ACTCheckView(self, actGameView.obj[i], pos, (void *)0x96, 300.0f);
+        actGameView.view[i] = ACTCheckView(self, actGameView.obj[i], pos, 150, 300.0f);
     } else {
         actGameView.view[i] = 0;
     }
@@ -1293,12 +1250,9 @@ int _ACTGame_SearchGObj(char *self, char *tgt, float range, float height, int an
           range * range)) {
         return 0;
     }
-    if ((((float *)test_CURRENTROOT((int *)self))[1] - ((float *)test_CURRENTROOT((int *)tgt))[1] <
-                 0.0f
-             ? -(((float *)test_CURRENTROOT((int *)self))[1] -
-                 ((float *)test_CURRENTROOT((int *)tgt))[1])
-             : ((float *)test_CURRENTROOT((int *)self))[1] -
-                   ((float *)test_CURRENTROOT((int *)tgt))[1]) < height) {
+    if ((test_CURRENTROOT((int *)self)[1] - test_CURRENTROOT((int *)tgt)[1] < 0.0f
+             ? -(test_CURRENTROOT((int *)self)[1] - test_CURRENTROOT((int *)tgt)[1])
+             : test_CURRENTROOT((int *)self)[1] - test_CURRENTROOT((int *)tgt)[1]) < height) {
         sceVu0SubVector(buf, test_CURRENTROOT((int *)tgt), test_CURRENTROOT((int *)self));
         n = _RotyGV(buf, test_CURRENTORIENT(self)) < 0 ? -_RotyGV(buf, test_CURRENTORIENT(self))
                                                        : _RotyGV(buf, test_CURRENTORIENT(self));
@@ -1699,9 +1653,9 @@ void ACTGame_InnerVelocityUpdate(char *self)
 
     slow = 0;
     stop = 0;
-    pos[0] = ((float *)test_CURRENTROOT((int *)self))[0];
-    pos[1] = ((float *)test_CURRENTROOT((int *)self))[1];
-    pos[2] = ((float *)test_CURRENTROOT((int *)self))[2];
+    pos[0] = test_CURRENTROOT((int *)self)[0];
+    pos[1] = test_CURRENTROOT((int *)self)[1];
+    pos[2] = test_CURRENTROOT((int *)self)[2];
     sceVu0SubVector((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x430, pos,
                     (char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x420);
     speed = FSqrt(*(float *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x430) *
@@ -2473,9 +2427,9 @@ void ActOrientTest(char *self)
     if (((&motionKind[GOBJ_SUB(self)->f_4A0])->f_190 >> 3) & 1) {
         memset(&w2, 0, 0xC0);
         near = 0;
-        p2[0] = ((float *)test_CURRENTROOT((int *)self))[0];
-        p2[1] = ((float *)test_CURRENTROOT((int *)self))[1];
-        p2[2] = ((float *)test_CURRENTROOT((int *)self))[2];
+        p2[0] = test_CURRENTROOT((int *)self)[0];
+        p2[1] = test_CURRENTROOT((int *)self)[1];
+        p2[2] = test_CURRENTROOT((int *)self)[2];
         sceVu0ScaleVector(d2, test_CURRENTORIENT(self), -50.0f);
         sceVu0AddVector(&w2, p2, d2);
         sceVu0ScaleVector(d2, test_CURRENTORIENT(self), 50.0f);
@@ -2621,12 +2575,12 @@ void ACTGame_CommonLoop(char *self)
             return 0;
         }
         if (debug_font_flag & 1) {
-            unsigned char *d = (unsigned char *)*(int *)(*(char **)(girlGObj + 0x164) + 0x688);
+            unsigned char *d = (unsigned char *)GOBJ_ACT(girlGObj)->f_688;
 
             debug_Printf(10, 120, 0x0FFFFFFF, "[%d] [%d] [%d] [%d] [%d]\n", d[0x540], d[0x541],
                          d[0x542], d[0x560], d[0x561]);
         }
-        h = (unsigned char *)*(int *)(*(char **)(girlGObj + 0x164) + 0x688);
+        h = (unsigned char *)GOBJ_ACT(girlGObj)->f_688;
         if (h[0x540] != 0) {
             if (h[0x541] != 0 || h[0x560] != 0) {
                 if (h[0x542] != 0) {
@@ -2638,14 +2592,13 @@ void ACTGame_CommonLoop(char *self)
             }
             return 1;
         }
-        boy[0] = ((float *)test_CURRENTROOT((int *)boyGObj))[0];
-        boy[1] = ((float *)test_CURRENTROOT((int *)boyGObj))[1];
-        boy[2] = ((float *)test_CURRENTROOT((int *)boyGObj))[2];
-        girl[0] = ((float *)test_CURRENTROOT((int *)girlGObj))[0];
-        girl[1] = ((float *)test_CURRENTROOT((int *)girlGObj))[1];
-        girl[2] = ((float *)test_CURRENTROOT((int *)girlGObj))[2];
-        if (*(int *)(*(char **)(girlGObj + 0x164) + 0x34) != 29 ||
-            _DistSqGV((int *)boy, (int)girl) < 10000.0f) {
+        boy[0] = test_CURRENTROOT((int *)boyGObj)[0];
+        boy[1] = test_CURRENTROOT((int *)boyGObj)[1];
+        boy[2] = test_CURRENTROOT((int *)boyGObj)[2];
+        girl[0] = test_CURRENTROOT((int *)girlGObj)[0];
+        girl[1] = test_CURRENTROOT((int *)girlGObj)[1];
+        girl[2] = test_CURRENTROOT((int *)girlGObj)[2];
+        if (GOBJ_ACT(girlGObj)->unk34 != 29 || _DistSqGV((int *)boy, (int)girl) < 10000.0f) {
             return 0;
         }
         return 0;
@@ -2789,10 +2742,10 @@ void ACTGame_CommonLoop(char *self)
                 ScpCallCameraGetTarget(tgt);
                 _OrientXZGV(orient, tgt, test_CURRENTROOT((int *)boyGObj));
             } else if (girlGObj != 0) {
-                tgt = (float *)test_CURRENTROOT((int *)girlGObj);
+                tgt = test_CURRENTROOT((int *)girlGObj);
                 _OrientXZGV(orient, tgt, test_CURRENTROOT((int *)boyGObj));
             } else {
-                GetOtherStageGirlOrient(orient, (float *)test_CURRENTROOT((int *)self));
+                GetOtherStageGirlOrient(orient, test_CURRENTROOT((int *)self));
                 orient[1] = 0.0f;
                 limit = 45;
             }
@@ -2815,7 +2768,7 @@ void ACTGame_CommonLoop(char *self)
             } else {
                 connect = 0;
             }
-            if (*(int *)(*(char **)(girlGObj + 0x164) + 0x34) == 74) {
+            if (GOBJ_ACT(girlGObj)->unk34 == 74) {
                 connect = 1;
             }
             if (connect && (*(int *)(s + 0x2E0) & 8)) {
@@ -2825,7 +2778,7 @@ void ACTGame_CommonLoop(char *self)
         break;
     }
     default:
-        if (ACTGame_FLAG_TETSUNAGI() && *(int *)(*(char **)(girlGObj + 0x164) + 0x34) != 81) {
+        if (ACTGame_FLAG_TETSUNAGI() && GOBJ_ACT(girlGObj)->unk34 != 81) {
             brainAddLevelGirl(3.0f);
         }
         break;
@@ -3172,7 +3125,7 @@ inline void ACTGame_SendSoundMail(char *a0, int mail, int a2, int a3, int a4)
         if (a4 != 0 && GOBJ_ACT(a0)->f_13A > 0) {
             break;
         }
-        iosOmSendMail(a0, 0x1A0);
+        iosOmSendMail(a0, 0x1A0, a2);
         if (a3 == 0) {
             break;
         }
@@ -3182,7 +3135,7 @@ inline void ACTGame_SendSoundMail(char *a0, int mail, int a2, int a3, int a4)
         break;
 
     case 0x1A1:
-        iosOmSendMail(a0, 0x1A1);
+        iosOmSendMail(a0, 0x1A1, a2);
 
         GOBJ_ACT(a0)->f_134 = a3;
         break;

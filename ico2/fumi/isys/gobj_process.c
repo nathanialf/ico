@@ -69,7 +69,7 @@ static inline GProc *alloc_gobj_process(void)
     return (GProc *)(procPool + i * 0x94);
 }
 
-int isysGObjProcAdd_(int a0, int a1, int a2, unsigned char a3, int a4, int a5)
+int isysGObjProcAdd_(int a0, int a1, int a2, unsigned char a3, int a4, long a5)
 {
     GProc *p;
     GProc *h;
@@ -136,7 +136,7 @@ inline int isysGObjProcAdd(int a0, int a1, int a2, int a3)
     return isysGObjProcAdd_(a0, a0, a1, a2 & 0xFF, a3, 0x1800);
 }
 
-inline int isysGObjProcAddS(int a0, int a1, int a2, int a3, int a4)
+inline int isysGObjProcAddS(int a0, int a1, int a2, int a3, long a4)
 {
     return isysGObjProcAdd_(a0, a0, a1, a2 & 0xFF, a3, a4);
 }

@@ -4,6 +4,7 @@
 #include <sifrpc.h>
 #include "s_init.h"
 #include "debug_exception.h"
+#include "cdvd.h"
 
 /* .sbss and .bss, owned by adpcm_init.o and reached only from this file
    (MAIN.MAP names no symbol in either run), in the ROM's run order: the
@@ -35,8 +36,6 @@ typedef struct {
     int f3C;   /* 0x3C */
 } AdpcmDataRec;
 
-/* kept local: agrees with cdvd.h, which this TU does not include (iosCdvdBackGroundMgrAdd, iosCdvdBackGroundMgrDelete differ) */
-extern int iosCdvdDiskStatusGet(void);
 extern const AdpcmDataRec adpcmFile[];
 extern int SgStAdpcmChannelPitch(long long mask, int pitch);
 extern int SgStAdpcmIopReadAddr(int addr);
@@ -111,11 +110,6 @@ static const char adpcmFreeIopMsg[] =
 extern void __assert(char *file, int line, char *expr);
 extern int SgStAdpcmOpen(AdpcmChReq *req);
 extern int SgStAdpcmChannelVolume(long long mask, int l, int r);
-/* kept local: int (char *, void *, void *, void *, int, void *, int, int) here, char * (char *, void *, int, void *, void *, int, void *, int) in cdvd.h */
-extern int iosCdvdBackGroundMgrAdd(char *name, void *proc, void *self, void *notready, int a4,
-                                   void *a5, int a6, int a7);
-/* kept local: void (int, int) here, void (char *, int) in cdvd.h */
-extern void iosCdvdBackGroundMgrSeek(int a, int b);
 
 int debugAdpcmOn = 1;
 
@@ -235,10 +229,6 @@ found:
     return adpcmIopBase + i * 0x5C000;
 }
 
-/* kept local: int (char *, void *, void *, void *, int, void *, int, int) here, char * (char *, void *, int, void *, void *, int, void *, int) in cdvd.h */
-extern int iosCdvdBackGroundMgrAdd(char *name, void *proc, void *self, void *notready, int a4,
-                                   void *a5, int a6, int a7);
-
 void AdpcmOpen(AdpcmOpenReq *self, int no, int a2, int a3)
 {
     int req;
@@ -262,8 +252,6 @@ void AdpcmOpen(AdpcmOpenReq *self, int no, int a2, int a3)
     self->f10 = a3;
 }
 
-/* kept local: void (int) here, void (char *) in cdvd.h */
-extern void iosCdvdBackGroundMgrDelete(int handle);
 extern int SgStAdpcmClose(int ch);
 
 static inline void AdpcmIopBuffFree(AdpcmStream *self)
@@ -436,9 +424,6 @@ inline int AdpcmNotUseIopAreaFree(void)
     return cnt;
 }
 
-/* kept local: void (int) here, void (char *) in cdvd.h */
-extern void iosCdvdBackGroundMgrDelete(int x);
-
 inline int *AdpcmOpenSync(AdpcmOpenReq *self)
 {
     int *r;
@@ -533,8 +518,6 @@ inline short AdpcmVolumeGet(char *self)
 }
 
 extern int SgStAdpcmIopReadAddr(int a);
-/* kept local: void (int, int, int) here, int (char *, void *, int) in cdvd.h */
-extern void iosCdvdBackGroundReadIOPm(int a0, int a1, int a2);
 
 inline int adpcmTickProc(int self, int obj)
 {
@@ -567,9 +550,6 @@ inline int adpcmTickProc(int self, int obj)
 inline void adpcmDiskNotReady(void) {}
 
 inline void adpcmDiskReturnReady(void) {}
-
-/* kept local: agrees with cdvd.h, which this TU does not include (iosCdvdBackGroundMgrAdd, iosCdvdBackGroundMgrDelete differ) */
-extern void iosCdvdBackGroundReadIOPm();
 
 inline int adpcmOpenProc(int a0, int a1)
 {

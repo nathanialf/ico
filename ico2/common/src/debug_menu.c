@@ -2,13 +2,8 @@
 #include "debug.h"
 #include "camera-root.h"
 #include "debug_menu.h"
-
-/* kept local: agrees with GobjProc.h, which this TU does not include (GetGObjP differ) */
-extern int GetMaxGObj(void);
-/* kept local: agrees with GobjProc.h, which this TU does not include */
-extern int GetGObjP(); /* unprototyped: C89 default int return, a GObj handle */
-/* kept local: agrees with GobjProc.h, which this TU does not include (GetGObjP differ) */
-extern int GetGObjId(int gobj);
+#include "main.h"
+#include "GobjProc.h"
 
 /* .sdata, owned by debug_menu.o (VMA 0x63B400..0x63B414, 0x14 B; MAIN.MAP's
    January run is 0x10 and names no symbol in it), the "object target" menu's
@@ -25,9 +20,6 @@ static int savedDispWord = 0; /* derived name */
 
 static int targetBlinkCount = 0; /* derived name */
 
-/* kept local: int here, GObj * in main.h */
-extern int CurrentTargetGObj;
-
 /* .sbss, owned by debug_menu.o and reached only from this file (MAIN.MAP names
    no symbol in the run), in the ROM's run order.  init_debug_menu writes the
    first two and nothing in the ROM ever reads them (checked over every
@@ -39,7 +31,7 @@ static int debugMenuFlag1;
 
 static int targetGObjIdx;
 
-char *debug_TargetGObj_Func(void);
+char *debug_TargetGObj_Func(int idx);
 
 int debug_TargetGObj(int reset)
 {
@@ -89,11 +81,9 @@ void init_debug_menu(void)
 }
 
 extern ObjKindEnt objKindData[];
-/* kept local: agrees with GobjProc.h, which this TU does not include */
-extern int GetGObjP();
 
-char *debug_TargetGObj_Func(void)
+char *debug_TargetGObj_Func(int idx)
 {
-    int idx = ((PObjGObj *)GetGObjP())->kind;
-    return ((ObjKindEnt *)((char *)objKindData + idx * 0x64))->name;
+    int kind = ((PObjGObj *)GetGObjP(idx))->kind;
+    return objKindData[kind].name;
 }

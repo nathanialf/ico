@@ -3,6 +3,7 @@
 #include "act-game.h"
 #include "geometryManager.h"
 #include <libvu0.h>
+#include "main.h"
 
 void setMailTarget(int a0, int *a1, int *a2)
 {
@@ -28,10 +29,6 @@ typedef struct SeRec {
 } SeRec;
 
 extern SeRec seDef[];
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
-/* kept local: int here, GObj * in main.h */
-extern int girlGObj;
 void setMailTarget(int a0, int *a1, int *a2);
 
 void seMail(int self, int id)

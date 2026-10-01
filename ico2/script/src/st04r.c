@@ -19,6 +19,8 @@
 #include "item.h"
 #include <libvu0.h>
 #include "typedef.h"
+#include "script.h"
+#include "main.h"
 
 static ActMail c1_ball_main_mes[2] = {{406, actSt04rC1BallSwitch}, {429}};
 
@@ -112,23 +114,6 @@ static ActMail torch2_1xl_mes[2] = {{430}, {429}};
 
 static ActMail torch2_2xl_mes[2] = {{430}, {429}};
 
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpSearchGobj differ) */
-extern int scpIsTorchLightOn(int a0);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpSearchGobj differ) */
-extern void scpTorchLightOn(int a0);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpSearchGobj differ) */
-extern int scpBoyControlReadDisable;
-/* kept local: PObjGObj * (int) here, int (int) in script.h */
-extern PObjGObj *scpSearchGobj(int a0);
-/* kept local: int (int, int, int, float, float) here, int (int, char *, int, float, float) in script.h */
-extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
-/* kept local: int here, GObj * in main.h */
-extern int girlGObj;
-/* kept local: int (int, int) here, int (char *, int) in script.h */
-extern int scpTriggerFloorAttr(int a0, int a1);
-
 /* .sbss, owned by st04r.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the pad actuator handle openGate
    holds, the demo's own end flag, the gate animation and voice clip openGate
@@ -143,49 +128,6 @@ static int gateAdpcm;
 
 static int subStarted;
 
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int boyPad;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int current_stage_no;
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpSearchGobj differ) */
-extern void scpSleepEnemyAll(void);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpSearchGobj differ) */
-extern void scpWakeupEnemyAll(void);
-/* kept local: void (int, int *, int, int, int) here, void (int, char **, int, int, int) in script.h */
-extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-/* kept local: int (int *, int) here, int (char **, short) in script.h */
-extern int scpAdpcmFadeCloseFunc(int *a0, int a1);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpSearchGobj differ) */
-extern int scpAdpcmPlayRequestNum(void);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpSearchGobj differ) */
-extern void scpFadeOut(float t, int a1, int a2, int a3);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpSearchGobj differ) */
-extern void scpFadeIn(float f);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpSearchGobj differ) */
-extern int scpFadeChk(void);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpSearchGobj differ) */
-extern void scpPlayStart(int a0);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpSearchGobj differ) */
-extern void scpPlayEnd(int a0);
-/* kept local: void (int, int) here, void (char *, int) in script.h */
-extern void scpPlayMotReq(int a0, int mot);
-/* kept local: int (int) here, int * (int) in script.h */
-extern int scpIsBombExplode(int a0);
-/* kept local: int (int, int, float) here, int (char *, char *, float) in script.h */
-extern int scpTriggerBall(int a0, int gobj, float r);
-/* kept local: void (int, int) here, void (char *, int) in script.h */
-extern void scpPlayMot(int a0, int mot);
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int systemStatus[];
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpSearchGobj differ) */
-extern void preload(int a0);
-/* kept local: void (int, void *) here, void (char *, float *) in script.h */
-extern void scpPlayMotDir(int a0, void *dir);
-/* kept local: void (int, float, float, float) here, void (void *, float, float, float) in script.h */
-extern void scpPlayPosSet(int a0, float x, float y, float z);
-/* kept local: void (int) here, void (char *) in script.h */
-extern void scpPlayWaitMotEnd(int a0);
-
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc
    emit the ld/sd pair the ROM has. */
@@ -193,24 +135,8 @@ extern void scpPlayWaitMotEnd(int a0);
 /* The look-at point both characters face in the crest cutscene. */
 static const ConstVec crestFacePos = {{0.0f, 0.0f, -5000.0f, 1.0f}};
 
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpSearchGobj differ) */
-extern void scpWakeupItemWithBoundary(float a0, float a1, float a2, float a3);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpSearchGobj differ) */
-extern void scpKillEnemyAll(void);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpSearchGobj differ) */
-extern void scpMaskGeneratorAll(void);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpSearchGobj differ) */
-extern void scpSekizouCheckPoint(void);
-
 /* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
    pad, trg at 0x4. */
-
-/* kept local: Pad [] here, PadState [16] in main.h */
-extern Pad pad[];
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpSearchGobj differ) */
-extern void scpSleepEnemyOne(int a0);
-/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpSearchGobj differ) */
-extern void scpWakeupEnemyOne(int a0);
 
 /* .sdata, owned by st04r.o, in the ROM's order: the room's stream handles and shakes (the three balls and crest2_4r unused by the retail code). */
 int solar4r = 0;
@@ -502,7 +428,7 @@ void openGate(int a0)
     demoEnd = 0;
     padAct = -1;
 
-    while (demoEnd == 0 && ((pad[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -672,7 +598,7 @@ void actSt04rSolarBeamChk(volatile int a0)
     stage_SetAnimation(294, 1, 0);
 
     while (stage_CheckAnimationFinish(294) == 0) {
-        if ((pad[0].trg & 0x800) != 0 && scpAdpcmPlayRequestNum() == 0) {
+        if ((pad[0].flags & 0x800) != 0 && scpAdpcmPlayRequestNum() == 0) {
             scpFadeOut(16.0f, 0, 0, 0);
 
             scpAdpcmFadeCloseFunc(&solar4r, 0x100);
@@ -797,7 +723,7 @@ void actSt04rStairChk(volatile int a0)
     padAct = -1;
     subStarted = 0;
 
-    while (demoEnd == 0 && ((pad[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -1030,7 +956,7 @@ void actSt04rBrgCommon(volatile int a0)
 
     demoEnd = 0;
 
-    while (demoEnd == 0 && ((pad[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -1514,7 +1440,7 @@ void actSt04rBarricadeChk(volatile int a0)
     SetCameraFlag_LwsCutBack();
 
     while (stage_CheckAnimationFinish(344) == 0) {
-        if ((pad[0].trg & 0x800) != 0 && scpAdpcmPlayRequestNum() == 0) {
+        if ((pad[0].flags & 0x800) != 0 && scpAdpcmPlayRequestNum() == 0) {
             scpFadeOut(16.0f, 0, 0, 0);
 
             while (scpFadeChk() != 0) {
