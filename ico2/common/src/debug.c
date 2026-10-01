@@ -1649,7 +1649,7 @@ void debug_brainBar(void)
         a.x = 300.0f - brainGetLevel(brain, &brain->tgt[i]) * 20.0f;
         if (brain->idx == i) {
             col = &c2;
-        } else if (brainGetLevel(brain, &brain->tgt[i]) < brain->f14) {
+        } else if (brainGetLevel(brain, &brain->tgt[i]) < brain->threshold) {
             col = &c0;
         } else {
             col = &c1;
@@ -1662,7 +1662,7 @@ void debug_brainBar(void)
             c.y = a.y;
             c.z = a.z;
             c.x -= 15;
-            if (brain->tgt[i].b19) {
+            if (brain->tgt[i].alwaysSeen) {
                 draw_shikaku(&c);
             } else {
                 draw_batsu(&c);
@@ -1674,7 +1674,7 @@ void debug_brainBar(void)
                 draw_batsu(&c);
             }
             c.x += 15;
-            if (brain->tgt[i].b18) {
+            if (brain->tgt[i].byte18) {
                 draw_shikaku(&c);
             } else {
                 draw_batsu(&c);
@@ -1682,7 +1682,7 @@ void debug_brainBar(void)
         }
         y += 4;
     }
-    b.x = 300.0f - brain->f14 * 20.0f;
+    b.x = 300.0f - brain->threshold * 20.0f;
     a.x = b.x;
     a.y = ytop;
     b.y = y;
@@ -3223,7 +3223,7 @@ inline int debug_STAFFROLLTest(void)
 
 inline int debug_SETest_color(int idx)
 {
-    return seKind[seDef[idx].f_20] != 0 ? 0xFFFFFF00 : 0x80808000;
+    return seKind[seDef[idx].kind] != 0 ? 0xFFFFFF00 : 0x80808000;
 }
 
 static int seSelect = 0; /* derived name */
@@ -3240,7 +3240,7 @@ int debug_SETest(int reset)
     r = debug_SelectCsvWindowWithLineColor("SE LIST", 0xA, 0x3C, 0xA, seDef, 0x3C, 0,
                                                0, 0x592, &seSelect, debug_SETest_color);
     if (r > 0) {
-        seHandle = soundSeDefPlay(seSelect, 0, GOBJ_SUB(D_00639EA4)->f_C + 0x30, 1);
+        seHandle = soundSeDefPlay(seSelect, 0, GOBJ_SUB(D_00639EA4)->nodeMtx + 0x30, 1);
         return 0;
     }
     if (r < 0) {

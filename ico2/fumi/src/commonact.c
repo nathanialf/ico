@@ -177,12 +177,12 @@ int ChangeMailInLadder(char *a0, int a1)
 
     if ((char *)boyGObj != 0 && (char *)girlGObj != 0) {
         if (a0 == (char *)boyGObj) {
-            if (s->unk34 == 0x26) {
-                flag = (GOBJ_ACT(girlGObj)->unk34 == 0x26);
+            if (s->actMode == 0x26) {
+                flag = (GOBJ_ACT(girlGObj)->actMode == 0x26);
             }
         }
         if (a0 == (char *)girlGObj) {
-            if (s->unk34 == 0x26) {
+            if (s->actMode == 0x26) {
                 flag = 1;
             }
         }
@@ -264,34 +264,34 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
 {
     float pos[4];
     Act *sk = GOBJ_ACT(self);
-    int fast = _ACTGame_GetParamF(2) < GOBJ_SUB(self)->f_560;
+    int fast = _ACTGame_GetParamF(2) < GOBJ_SUB(self)->groundHeight;
 
     switch (msg) {
     case 309:
         if (!(((int)(sk->flags18.ll >> 53) & 1) &&
-              GOBJ_WORK(self)->f_338 < GOBJ_SUB(self)->f_560)) {
+              GOBJ_WORK(self)->f_338 < GOBJ_SUB(self)->groundHeight)) {
             msg = 418;
         }
         break;
     case 42:
         if (!(((int)(sk->flags18.ll >> 53) & 1) &&
-              GOBJ_WORK(self)->f_338 < GOBJ_SUB(self)->f_560)) {
+              GOBJ_WORK(self)->f_338 < GOBJ_SUB(self)->groundHeight)) {
             msg = 418;
         }
         break;
     case 259:
-        if ((((CorrMotRec *)(motionKind + GOBJ_SUB(self)->f_4A0 * 0x194))->f18C >> 9) & 1) {
+        if ((((CorrMotRec *)(motionKind + GOBJ_SUB(self)->motion * 0x194))->f18C >> 9) & 1) {
             msg = 418;
         }
         break;
     case 298:
-        if (sk->unk34 == 5 && *(int *)((char *)GOBJ_ACT(self)->f_688 + 0x900) == 26) {
+        if (sk->actMode == 5 && *(int *)((char *)GOBJ_ACT(self)->work + 0x900) == 26) {
             msg = 418;
         }
         break;
     case 297:
-        if (sk->unk34 == 1 &&
-            *(long long *)((char *)GOBJ_ACT(self)->f_688 + 0x900) == 0x1A00000005LL) {
+        if (sk->actMode == 1 &&
+            *(long long *)((char *)GOBJ_ACT(self)->work + 0x900) == 0x1A00000005LL) {
             msg = 418;
         }
         break;
@@ -300,14 +300,14 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
         msg = ChangeMailInLadder(self, msg);
         break;
     case 240:
-        if ((((CorrMotRec *)(motionKind + GOBJ_SUB(self)->f_4A0 * 0x194))->f18C >> 5) & 1) {
+        if ((((CorrMotRec *)(motionKind + GOBJ_SUB(self)->motion * 0x194))->f18C >> 5) & 1) {
             msg = 418;
         } else if ((int)(sk->flags20.ll >> 14) & 1) {
             msg = 239;
         }
         break;
     case 241:
-        if ((((CorrMotRec *)(motionKind + GOBJ_SUB(self)->f_4A0 * 0x194))->f18C >> 5) & 1) {
+        if ((((CorrMotRec *)(motionKind + GOBJ_SUB(self)->motion * 0x194))->f18C >> 5) & 1) {
             msg = 418;
         }
         break;
@@ -333,7 +333,7 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
         }
         break;
     case 205:
-        if (sk->f_50 != 0) {
+        if (sk->msgBlockTimer != 0) {
             msg = 418;
         }
         break;
@@ -341,12 +341,13 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
         if (fast) {
             msg = 418;
         }
-        if (((int)(sk->flags18.ll >> 53) & 1) && GOBJ_SUB(self)->f_560 < GOBJ_WORK(self)->f_338) {
+        if (((int)(sk->flags18.ll >> 53) & 1) &&
+            GOBJ_SUB(self)->groundHeight < GOBJ_WORK(self)->f_338) {
             msg = 418;
         }
         break;
     case 26:
-        if (GOBJ_SUB(self)->f_644 < (self == (char *)boyGObj ? 110.0f : 135.0f)) {
+        if (GOBJ_SUB(self)->waterDepth < (self == (char *)boyGObj ? 110.0f : 135.0f)) {
             msg = 418;
         }
         /* fallthrough */
@@ -363,7 +364,7 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
             msg = 223;
             if ((int)(sk->flags20.ll >> 30) & 1) {
                 msg = 418;
-                if (13 <= sk->f_10) {
+                if (13 <= sk->frame) {
                     msg = 30;
                     iosOmSendMail(self, 29, (int)param);
                 }
@@ -371,7 +372,7 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
         }
         break;
     case 21:
-        if (sk->unk34 == 62 && param == sk->f_194) {
+        if (sk->actMode == 62 && param == sk->lastChain) {
             msg = 418;
         }
         if (fast) {
@@ -380,7 +381,8 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
         if (IsAbleChainHang(param) == 0) {
             msg = 418;
         }
-        if (((int)(sk->flags18.ll >> 53) & 1) && GOBJ_SUB(self)->f_560 < GOBJ_WORK(self)->f_338) {
+        if (((int)(sk->flags18.ll >> 53) & 1) &&
+            GOBJ_SUB(self)->groundHeight < GOBJ_WORK(self)->f_338) {
             msg = 418;
         }
         break;
@@ -388,23 +390,24 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
         if (IsAbleChainHang(param) == 0) {
             msg = 418;
         }
-        if (((int)(sk->flags18.ll >> 53) & 1) && GOBJ_SUB(self)->f_560 < GOBJ_WORK(self)->f_338) {
+        if (((int)(sk->flags18.ll >> 53) & 1) &&
+            GOBJ_SUB(self)->groundHeight < GOBJ_WORK(self)->f_338) {
             msg = 418;
         }
         break;
     case 7:
-        if ((((CorrMotRec *)(motionKind + GOBJ_SUB(self)->f_4A0 * 0x194))->f188 >> 19) & 7) {
+        if ((((CorrMotRec *)(motionKind + GOBJ_SUB(self)->motion * 0x194))->f188 >> 19) & 7) {
             if (sk->heldItem.i != 0) {
                 msg = 315;
             }
         }
         break;
     case 10: {
-        int iv = (int)GOBJ_SUB(self)->f_55C;
+        int iv = (int)GOBJ_SUB(self)->fallHeight;
         int flagA = 0;
         int flagB = 0;
 
-        if (120.0f < GOBJ_SUB(self)->f_55C) {
+        if (120.0f < GOBJ_SUB(self)->fallHeight) {
             ACTWay_SetBeginPositionIllegal(self);
             /* Disabled in retail: the way-begin-position (WBP) report of the
                landing.  What the bytes pin: its text is the first item of
@@ -416,7 +419,7 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
                 debug_StdPrintfDummy("WBP set [landing]\n");
             }
         }
-        if (!((((CorrMotRec *)(motionKind + GOBJ_SUB(self)->f_4A0 * 0x194))->f18C >> 25) & 1)) {
+        if (!((((CorrMotRec *)(motionKind + GOBJ_SUB(self)->motion * 0x194))->f18C >> 25) & 1)) {
             msg = 418;
             break;
         }
@@ -429,7 +432,7 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
                 iosOmSendMail(self, 57, (int)param);
             }
         }
-        if (*(int *)((char *)GOBJ_ACT(self)->f_688 + 0x900) == 38) {
+        if (*(int *)((char *)GOBJ_ACT(self)->work + 0x900) == 38) {
             iosOmSendMail(self, 60, (int)self);
         }
         if (_ACTGame_GetParamF(2) < (float)iv) {
@@ -437,7 +440,7 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
         } else if (_ACTGame_GetParamF(1) < (float)iv) {
             flagB = 1;
         }
-        switch (sk->unk34) {
+        switch (sk->actMode) {
         case 95:
             flagB = 1;
             break;
@@ -450,7 +453,7 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
         } else if (flagB) {
             msg = 43;
         }
-        if (*(int *)((char *)GOBJ_ACT(self)->f_688 + 0x900) == 21) {
+        if (*(int *)((char *)GOBJ_ACT(self)->work + 0x900) == 21) {
             iosOmSendMail(self, 56, (int)param);
             if (msg == 43) {
                 iosOmSendMail(self, 55, (int)param);
@@ -460,39 +463,39 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
     }
     case 14:
         debug_StdPrintfDummy("critical hit to boss!!!");
-        if (GOBJ_ACT(self)->f_680->f_20C <= 1) {
+        if (GOBJ_ACT(self)->enemy->f_20C <= 1) {
             msg = 293;
         } else {
             msg = 285;
         }
         break;
     case 13: {
-        float d = sk->f_1E0 - (float)GOBJ_ACT(self)->f_1D0;
+        float d = sk->life - (float)GOBJ_ACT(self)->damage;
 
         if (self == (char *)boyGObj || self == (char *)girlGObj) {
-            d = sk->f_1E0 = 100.0f;
+            d = sk->life = 100.0f;
         }
-        if (GOBJ_ACT(self)->f_1DB != 0) {
+        if (GOBJ_ACT(self)->unguardable != 0) {
             debug_StdPrintfDummy("!!! unable guard flag get\n");
         }
         if (stage_no == 85 || debug_use_new_queen_battle != 0) {
-            if (GOBJ_ACT(self)->f_1D9 != 0) {
-                if (ACTGame_NoWeapon(self) != 0 && sk->unk34 != 14) {
+            if (GOBJ_ACT(self)->stoneHit != 0) {
+                if (ACTGame_NoWeapon(self) != 0 && sk->actMode != 14) {
                     msg = 110;
-                    GOBJ_ACT(self)->f_680->f_CC = 10;
+                    GOBJ_ACT(self)->enemy->f_CC = 10;
                     BoySekikaTexScroll();
-                    GOBJ_ACT(self)->f_680->f_2A8 += 1;
+                    GOBJ_ACT(self)->enemy->f_2A8 += 1;
                     break;
                 } else {
                     msg = 282;
-                    GOBJ_ACT(self)->f_680->f_2AC += 1;
-                    GOBJ_ACT(self)->f_680->f_CC = 10;
+                    GOBJ_ACT(self)->enemy->f_2AC += 1;
+                    GOBJ_ACT(self)->enemy->f_CC = 10;
                     break;
                 }
             }
         }
         if (_AbsRotyGV(test_CURRENTORIENT(self), (void *)((int)GOBJ_ACT(self) + 0x1C0)) < 60 &&
-            sk->unk34 != 15 && sk->unk34 != 20 && GOBJ_ACT(self)->f_1DB == 0 &&
+            sk->actMode != 15 && sk->actMode != 20 && GOBJ_ACT(self)->unguardable == 0 &&
             !((int)(sk->flags18.ll >> 51) & 1)) {
             iosOmSendMail(self, 283, (int)param);
             debug_StdPrintfDummy("guard mail\n");
@@ -500,14 +503,14 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
             debug_StdPrintfDummy(
                 "guard error=[%d][%d][%d][%d]\n",
                 _AbsRotyGV(test_CURRENTORIENT(self), (void *)((int)GOBJ_ACT(self) + 0x1C0)),
-                sk->unk34, 15, 20);
+                sk->actMode, 15, 20);
         }
-        if (GOBJ_ACT(self)->f_1D9 != 0) {
-            GOBJ_ACT(self)->f_680->f_29C += 1;
-            GOBJ_ACT(self)->f_680->f_CC = 10;
+        if (GOBJ_ACT(self)->stoneHit != 0) {
+            GOBJ_ACT(self)->enemy->f_29C += 1;
+            GOBJ_ACT(self)->enemy->f_CC = 10;
         }
-        if (*(int *)(self + 0xC) == 4 && GOBJ_ACT(self)->f_680->liftKind == 3) {
-            if (GOBJ_ACT(self)->f_680->slowTimer <= 0) {
+        if (*(int *)(self + 0xC) == 4 && GOBJ_ACT(self)->enemy->liftKind == 3) {
+            if (GOBJ_ACT(self)->enemy->slowTimer <= 0) {
                 DamageFunc(self);
                 iosPadActRequest(boyPad, 2);
                 pos[0] = test_CURRENTROOT(self)[0];
@@ -516,19 +519,19 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
                 soundSeDefPlay(382, 0, pos, 1);
             }
             msg = 418;
-            GOBJ_ACT(self)->f_680->slowTimer = 60;
+            GOBJ_ACT(self)->enemy->slowTimer = 60;
             break;
         }
         if (self == (char *)boyGObj && *(int *)(param + 0xC) == 17) {
             msg = 418;
             break;
         }
-        if (*(int *)(self + 0xC) == 4 && sk->unk34 == 16 &&
-            (char *)GOBJ_ACT(self)->f_680->f_220 == (char *)girlGObj) {
+        if (*(int *)(self + 0xC) == 4 && sk->actMode == 16 &&
+            (char *)GOBJ_ACT(self)->enemy->f_220 == (char *)girlGObj) {
             msg = 215;
             break;
         }
-        if (*(int *)(self + 0xC) == 4 && GOBJ_ACT(self)->f_680->liftKind != 3 &&
+        if (*(int *)(self + 0xC) == 4 && GOBJ_ACT(self)->enemy->liftKind != 3 &&
             EnemyGetNSafeParts(self) < 8) {
             msg = 293;
             debug_StdPrintfDummy("die!!!!!!!!!!!\n");
@@ -538,12 +541,12 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
             msg = 293;
             if (self == (char *)boyGObj) {
                 msg = 291;
-                sk->f_1E0 = 100.0f;
+                sk->life = 100.0f;
             }
             debug_StdPrintfDummy("die!!!!!!!!!!!\n");
             break;
         }
-        if (GOBJ_ACT(self)->f_1D8 != 0 || _ACTCharStatus_Check(self, 16) != 0) {
+        if (GOBJ_ACT(self)->downHit != 0 || _ACTCharStatus_Check(self, 16) != 0) {
             msg = 291;
             debug_StdPrintfDummy("down!!!!!!!!!!!\n");
             break;
@@ -608,10 +611,10 @@ int ACTGetOrientFromIntrK(char *self, int k, void *buf, int arg)
     *out = *(IntrOrient *)((char *)s + 0x620);
     switch (k) {
     case 140:
-        out->b = ((IntrOrient *)((char *)GOBJ_ACT(self)->f_688 + 0x480))->b;
+        out->b = ((IntrOrient *)((char *)GOBJ_ACT(self)->work + 0x480))->b;
         break;
     case 305:
-        out->a = ((IntrOrient *)((char *)GOBJ_ACT(self)->f_688 + 0x480))->a;
+        out->a = ((IntrOrient *)((char *)GOBJ_ACT(self)->work + 0x480))->a;
         break;
     case 298:
         *(char **)((char *)s + 0x30) = GetMailAdditionalData(self, arg);
@@ -623,14 +626,14 @@ int ACTGetOrientFromIntrK(char *self, int k, void *buf, int arg)
         tmp = *(IntrVec3 *)(*(char **)((char *)GOBJ_ACT(self) + 0x30));
         out->a = out->b = ((IntrOrient *)((char *)s + 0x620))->a =
             ((IntrOrient *)((char *)s + 0x620))->b = tmp;
-        s->f_61C = *(int *)&tmp;
-        GetSofaPosition(self, (char *)s->f_61C);
+        s->sofaObj = *(int *)&tmp;
+        GetSofaPosition(self, (char *)s->sofaObj);
         break;
     case 145:
-        out->a = *(IntrVec3 *)((char *)GOBJ_ACT(self)->f_688 + 0x3D8);
+        out->a = *(IntrVec3 *)((char *)GOBJ_ACT(self)->work + 0x3D8);
         break;
     case 144:
-        out->a = *(IntrVec3 *)((char *)GOBJ_ACT(self)->f_688 + 0x3CC);
+        out->a = *(IntrVec3 *)((char *)GOBJ_ACT(self)->work + 0x3CC);
         break;
     case 114:
     case 115:
@@ -639,9 +642,9 @@ int ACTGetOrientFromIntrK(char *self, int k, void *buf, int arg)
         out->b = ((IntrOrient *)((char *)s + 0x620))->a;
         break;
     case 45:
-        return GOBJ_ACT(self)->f_680->f_C0;
+        return GOBJ_ACT(self)->enemy->f_C0;
     case 63:
-        if (s->unk34 == 0x4A) {
+        if (s->actMode == 0x4A) {
             ret = 272;
         }
         break;
@@ -671,17 +674,17 @@ int ACTGetOrientFromIntrK(char *self, int k, void *buf, int arg)
             if (ACTGame_NoWeapon(self)) {
                 ret = 42;
             } else {
-                ret = ACTGame_GetMotOrientFromWeapon(s->f_150);
+                ret = ACTGame_GetMotOrientFromWeapon(s->weapon);
             }
         }
         break;
     case 72:
     case 74:
     case 338:
-        ret = s->f_44;
+        ret = s->orientMot;
         break;
     case 81:
-        ret = s->f_44;
+        ret = s->orientMot;
         out->a = ((IntrOrient *)((char *)GOBJ_ACT(boyGObj) + 0x620))->b;
         *(IntrOrient *)((char *)s + 0x620) = *out;
         break;
@@ -693,15 +696,15 @@ int ACTGetOrientFromIntrK(char *self, int k, void *buf, int arg)
         break;
     case 416:
         ret = 0;
-        if (s->f_134 != 0 && !((int)(s->flags20.ll >> 13) & 1)) {
-            ret = s->f_134;
-            s->f_134 = 0;
+        if (s->soundMot != 0 && !((int)(s->flags20.ll >> 13) & 1)) {
+            ret = s->soundMot;
+            s->soundMot = 0;
         }
         break;
     case 152:
     case 155:
     case 156:
-        out->a = *(IntrVec3 *)((char *)GOBJ_ACT(self)->f_680 + 0x350);
+        out->a = *(IntrVec3 *)((char *)GOBJ_ACT(self)->enemy + 0x350);
         break;
     default:
         ret = intrMotion[k];
@@ -757,14 +760,14 @@ void ACTRunIntrCorrect(char *a0, IntrRec *a1, IntrRec *a2)
 
     setIntrFlags();
     correctIntrList();
-    rec = motionKind + GOBJ_SUB(a0)->f_4A0 * 404;
+    rec = motionKind + GOBJ_SUB(a0)->motion * 404;
     if (rec[399] & 1) {
         actIntrList[10].f14 |= 0x40000;
     } else {
         actIntrList[10].f14 &= ~0x40000;
     }
-    if (s->unk34 == 26) {
-        if (s->f_4C < ((60 - systemStatus[0] * 10) / systemStatus[1]) / 3) {
+    if (s->actMode == 26) {
+        if (s->modeFrame < ((60 - systemStatus[0] * 10) / systemStatus[1]) / 3) {
             actIntrList[371].f14 |= 0x40000;
         } else {
             actIntrList[371].f14 &= ~0x40000;
@@ -791,12 +794,12 @@ extern void ExecWeaponHitReaction(void *a0);
 void WithMailFunc_AttackFail(char *a0)
 {
     Act *s = GOBJ_ACT(a0);
-    char *p = (char *)s->f_30;
-    int v = p != 0 ? *(int *)p : s->f_5E0;
+    char *p = (char *)s->intrData;
+    int v = p != 0 ? *(int *)p : s->wallWord;
     if (a0 == (char *)boyGObj) {
-        char *t = (char *)s->f_150;
+        char *t = (char *)s->weapon;
         if (t != 0) {
-            GOBJ_SUB(t)->f_5F4 = v;
+            GOBJ_SUB(t)->wallAttr = v;
             ExecWeaponHitReaction(t);
         }
     }
@@ -808,10 +811,10 @@ extern int ReleaseWeaponWithFumbleSequential(char *g);
 void WithMailFunc_AttackRejectInQueen(char *a0)
 {
     Act *s = GOBJ_ACT(a0);
-    void *w = (void *)s->f_150;
+    void *w = (void *)s->weapon;
     if (w != 0) {
         ReleaseWeaponWithFumbleSequential(w);
-        s->f_150 = 0;
+        s->weapon = 0;
     }
     if (stage_no == 0x55 || debug_use_new_queen_battle != 0) {
         void *e = isysGObjSearchFromObjKindID_begin(54);
@@ -829,7 +832,7 @@ void GetCorrectOrientOfChain(void *buf, void *obj)
     float q[4];
     int deg;
 
-    if (GetChainDirCorrectVal(GOBJ_ACT(obj)->f_190, &deg) != 0) {
+    if (GetChainDirCorrectVal(GOBJ_ACT(obj)->chain, &deg) != 0) {
         memset(q, 0, 16);
         q[2] = 1.0f;
         _ApplyRyGV(
@@ -962,7 +965,7 @@ typedef struct {
 
 static inline int chainFloorHit(char *a0, void *w)
 {
-    if ((((RopeMotRec *)motionKind)[GOBJ_SUB(a0)->f_4A0].f18C >> 4) & 1) {
+    if ((((RopeMotRec *)motionKind)[GOBJ_SUB(a0)->motion].f18C >> 4) & 1) {
         GetSkeltonPosition((float *)w, a0, 0x2C);
         GetSkeltonPosition((float *)((char *)w + 0x10), a0, 0x33);
         *(float *)((char *)w + 0x14) -= 5.0f;
@@ -981,22 +984,22 @@ inline void afterCommonRope(volatile int a0)
 {
     Act *s = GOBJ_ACT(a0);
     debug_StdPrintfDummy("common rope after func\n");
-    ReleaseChain((char *)s->f_190, (char *)a0);
+    ReleaseChain((char *)s->chain, (char *)a0);
     {
         int g = a0;
-        *(int *)((int)s + 0x194) = s->f_190;
-        GOBJ_SUB(g)->f_420 = 0;
+        *(int *)((int)s + 0x194) = s->chain;
+        GOBJ_SUB(g)->ropeState = 0;
     }
 }
 
 inline void actAfterForceRope(volatile int a0)
 {
     Act *s = GOBJ_ACT(a0);
-    if (s->f_190 == 0) {
+    if (s->chain == 0) {
         debug_assert("src/commonact.c", 1531);
         __assert("src/commonact.c", 1531, "ROPE_GOBJ!=NULL");
     }
-    UnLockChainGeo(s->f_190);
+    UnLockChainGeo(s->chain);
 }
 
 void actCommonRope(volatile int a0)
@@ -1023,18 +1026,18 @@ void actCommonRope(volatile int a0)
     if ((int)s->after == 0) {
         GetRootPositionHandExtra((void *)a0, hand);
         step = 0;
-        HoldChain((char *)s->f_190, (char *)a0, hand);
+        HoldChain((char *)s->chain, (char *)a0, hand);
     }
     *(int *)((char *)s + 0x14) = (int)afterCommonRope;
     *(int *)((char *)s + 0x18) = (int)actAfterForceRope;
-    LockChainGeo(s->f_190);
+    LockChainGeo(s->chain);
     _ACTWait(1);
     debug_StdPrintfDummy("enter actCommonRope\n");
     while (1) {
-        UnLockChainGeo(s->f_190);
-        ChainGeo(s->f_190);
-        LockChainGeo(s->f_190);
-        switch (CollisCheckInRope((void *)a0, s->f_190)) {
+        UnLockChainGeo(s->chain);
+        ChainGeo(s->chain);
+        LockChainGeo(s->chain);
+        switch (CollisCheckInRope((void *)a0, s->chain)) {
         case 1:
             ACTSendMailCorrect((char *)a0, 0xA8);
             break;
@@ -1057,11 +1060,11 @@ void actCommonRope(volatile int a0)
             }
             step++;
         }
-        if (CheckChainClimbablePos(s->f_190)) {
-            GetChainClimbOrient((char *)GOBJ_ACT(a0)->f_680 + 0x330, s->f_190);
-            GetRootPosition((float *)((char *)GOBJ_ACT(a0)->f_680 + 0x340), (void *)s->f_190);
-            GetChainClimbCollision((char *)GOBJ_ACT(a0)->f_680 + 0x350, s->f_190);
-            ((RopeSubObj *)(char *)GOBJ_ACT(a0)->f_680)->f35C = s->f_190;
+        if (CheckChainClimbablePos(s->chain)) {
+            GetChainClimbOrient((char *)GOBJ_ACT(a0)->enemy + 0x330, s->chain);
+            GetRootPosition((float *)((char *)GOBJ_ACT(a0)->enemy + 0x340), (void *)s->chain);
+            GetChainClimbCollision((char *)GOBJ_ACT(a0)->enemy + 0x350, s->chain);
+            ((RopeSubObj *)(char *)GOBJ_ACT(a0)->enemy)->f35C = s->chain;
             ActSendMail_WithAdditionalData((char *)a0, 0x98, (void *)a0,
                                            *(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x330);
         }
@@ -1167,10 +1170,10 @@ void actCommonRopeClimbEnd1(volatile int a0)
     int n;
     int r;
 
-    c = *(ClimbEndRec *)(char *)GOBJ_ACT(a0)->f_30;
+    c = *(ClimbEndRec *)(char *)GOBJ_ACT(a0)->intrData;
     isCage = *(int *)(c.obj + 0xC) == 0x2C;
     flag = 0;
-    GOBJ_SUB(boyGObj)->f_420 = 0;
+    GOBJ_SUB(boyGObj)->ropeState = 0;
     dir.f[0] = c.v0[0];
     dir.f[1] = c.v0[1];
     dir.f[2] = c.v0[2];
@@ -1183,7 +1186,7 @@ void actCommonRopeClimbEnd1(volatile int a0)
             if (isCage) {
                 TestCageUpDown(c.obj, (void *)a0);
             }
-            if (GOBJ_SUB(a0)->f_4A0 == 118) {
+            if (GOBJ_SUB(a0)->motion == 118) {
                 break;
             }
             _ACTWait(1);
@@ -1211,11 +1214,11 @@ void actCommonRopeClimbEnd1(volatile int a0)
             SetChainRootUpdateMode((void *)a0, 3, pos);
             _ACTWait(1);
         }
-        if (GOBJ_SUB(a0)->f_4A0 != 118) {
+        if (GOBJ_SUB(a0)->motion != 118) {
             do {
                 ACTSendMailCorrect((char *)a0, 0x150);
                 _ACTWait(1);
-            } while (GOBJ_SUB(a0)->f_4A0 != 118);
+            } while (GOBJ_SUB(a0)->motion != 118);
         }
     }
     SetMotionDirection(a0, &dir);
@@ -1232,7 +1235,7 @@ void actCommonRopeClimbEnd1(volatile int a0)
         if (isCage) {
             TestCageUpDown(c.obj, (void *)a0);
         }
-        *(ClimbVec3 *)((char *)GOBJ_ACT(a0)->f_680 + 0x350) = c.v2;
+        *(ClimbVec3 *)((char *)GOBJ_ACT(a0)->enemy + 0x350) = c.v2;
         if (hand[1] - base[1] < 10.0f) {
             ACTSendMailCorrect((char *)a0, 0x9B);
         }
@@ -1264,9 +1267,9 @@ void actCommonRopeCliff(volatile int a0)
 
     s->flags18.afterProc = afterCommonRopeCliff;
     ((CagePtr *)(((CagePtr *)((char *)boyGObj + 0x15C))->p + 0x420))->p = 0;
-    dst[0] = GOBJ_ACT(a0)->f_680->f_1C0;
-    dst[1] = GOBJ_ACT(a0)->f_680->f_1C4;
-    dst[2] = GOBJ_ACT(a0)->f_680->f_1C8;
+    dst[0] = GOBJ_ACT(a0)->enemy->f_1C0;
+    dst[1] = GOBJ_ACT(a0)->enemy->f_1C4;
+    dst[2] = GOBJ_ACT(a0)->enemy->f_1C8;
     GetRootPosition(root, (void *)a0);
     while (1) {
         i++;
@@ -1274,10 +1277,10 @@ void actCommonRopeCliff(volatile int a0)
             _InterGV(cur, root, dst, (float)i, (float)(n - i));
             SetDirectRootPositionNoFitting((void *)a0, cur);
         }
-        if (GOBJ_SUB(a0)->f_4A0 == 118) {
+        if (GOBJ_SUB(a0)->motion == 118) {
             y = test_CURRENTROOT((void *)a0)[1];
             SetChainRootUpdateMode((char *)boyGObj, 3,
-                                   (float *)((char *)GOBJ_ACT(a0)->f_680 + 0x1D0));
+                                   (float *)((char *)GOBJ_ACT(a0)->enemy + 0x1D0));
             p[0] = test_CURRENTROOT((void *)a0)[0];
             p[1] = test_CURRENTROOT((void *)a0)[1];
             p[2] = test_CURRENTROOT((void *)a0)[2];
@@ -1385,7 +1388,7 @@ void TestCageUpDown(int cage, char *gobj)
         chainUpdate(vG, vH, vB, vC);
         break;
     case 0x77:
-        if (GOBJ_ACT(gobj)->unk34 == 0x3F) {
+        if (GOBJ_ACT(gobj)->actMode == 0x3F) {
             putRoot(vE, vB, vC, 0);
             chainUpdate(vE, vF, vB, vC);
         } else {
@@ -1407,7 +1410,7 @@ void TestCageUpDown(int cage, char *gobj)
         break;
     default:
         if (cageUpDown.last != mot) {
-            GetSkeltonPosition((float *)((char *)GOBJ_ACT(gobj)->f_688 + 0x410), gobj, 22);
+            GetSkeltonPosition((float *)((char *)GOBJ_ACT(gobj)->work + 0x410), gobj, 22);
         }
         _InterGV(vD, vB, vC, GOBJ_WORK(gobj)->f_414 - vB[1], vC[1] - GOBJ_WORK(gobj)->f_414);
         SetChainRootUpdateMode(gobj, 3, vD);
@@ -1487,23 +1490,23 @@ void actCommonRopeSpecial(volatile int a0)
     unsigned char found;
 
     s = GOBJ_ACT(a0);
-    cage = s->f_610;
+    cage = s->cageObj;
     if (cage != 0) {
-        *(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x400) = cage;
+        *(int *)((char *)GOBJ_ACT(a0)->work + 0x400) = cage;
     } else {
         cage = (int)GOBJ_WORK(a0)->f_400;
     }
-    if (*(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x900) == 4 ||
-        *(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x900) == 5) {
-        GetSkeltonPosition((float *)((char *)GOBJ_ACT(a0)->f_688 + 0x410), (char *)a0, 35);
+    if (*(int *)((char *)GOBJ_ACT(a0)->work + 0x900) == 4 ||
+        *(int *)((char *)GOBJ_ACT(a0)->work + 0x900) == 5) {
+        GetSkeltonPosition((float *)((char *)GOBJ_ACT(a0)->work + 0x410), (char *)a0, 35);
     } else {
-        GetSkeltonPosition((float *)((char *)GOBJ_ACT(a0)->f_688 + 0x410), (char *)a0, 22);
+        GetSkeltonPosition((float *)((char *)GOBJ_ACT(a0)->work + 0x410), (char *)a0, 22);
     }
     GetCageChainPoint(p1.f, p2.f, (void *)cage);
     found = ropeSpecialWallHit(&p1, &hit);
-    GOBJ_SUB(a0)->f_420 = 0;
+    GOBJ_SUB(a0)->ropeState = 0;
     while (1) {
-        if (GOBJ_SUB(a0)->f_4A0 == 118) {
+        if (GOBJ_SUB(a0)->motion == 118) {
             *(long long *)((char *)s + 0x20) &= ~(1ULL << 11);
         }
         GetSkeltonPosition(pos.f, (char *)a0, 35);
@@ -1516,15 +1519,15 @@ void actCommonRopeSpecial(volatile int a0)
             ACTSendMailCorrect((char *)a0, 0xC7);
         }
         if (found && pos.f[1] < p1.f[1] + 60.0f) {
-            ((RsSub *)(char *)GOBJ_ACT(a0)->f_680)->f35C = cage;
+            ((RsSub *)(char *)GOBJ_ACT(a0)->enemy)->f35C = cage;
             GetOrientOfWall(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x330, hit.obj, &hit);
-            ((RsSub *)(char *)GOBJ_ACT(a0)->f_680)->f340 = p1.f[0];
-            ((RsSub *)(char *)GOBJ_ACT(a0)->f_680)->f344 = p1.f[1];
-            ((RsSub *)(char *)GOBJ_ACT(a0)->f_680)->f348 = p1.f[2];
-            ((RsSub *)(char *)GOBJ_ACT(a0)->f_680)->f344 -= 100.0f;
-            ((RsSub *)(char *)GOBJ_ACT(a0)->f_680)->f350 = hit;
+            ((RsSub *)(char *)GOBJ_ACT(a0)->enemy)->f340 = p1.f[0];
+            ((RsSub *)(char *)GOBJ_ACT(a0)->enemy)->f344 = p1.f[1];
+            ((RsSub *)(char *)GOBJ_ACT(a0)->enemy)->f348 = p1.f[2];
+            ((RsSub *)(char *)GOBJ_ACT(a0)->enemy)->f344 -= 100.0f;
+            ((RsSub *)(char *)GOBJ_ACT(a0)->enemy)->f350 = hit;
             ActSendMail_WithAdditionalData((char *)a0, 0xB0, (void *)a0,
-                                           (char *)GOBJ_ACT(a0)->f_680 + 0x330);
+                                           (char *)GOBJ_ACT(a0)->enemy + 0x330);
         }
         TestCageUpDown(cage, (void *)a0);
         _ACTWait(1);
@@ -1594,20 +1597,20 @@ void actCommonLever(volatile int a0)
     Act *s = GOBJ_ACT(a0);
     char *lev = *(char **)((char *)s + 0x5FC);
 
-    ((LeverAnim *)(char *)GOBJ_ACT(a0)->f_688)->f394 =
+    ((LeverAnim *)(char *)GOBJ_ACT(a0)->work)->f394 =
         ((0x3C - systemStatus[0] * 10) / systemStatus[1]) * 5;
-    p[0] = s->f_5A0;
-    p[1] = s->f_5A4;
-    p[2] = s->f_5A8;
+    p[0] = s->pullPosX;
+    p[1] = s->pullPosY;
+    p[2] = s->pullPosZ;
     p[1] = test_CURRENTROOT((void *)a0)[1];
     SetDirectRootPositionNoFittingWithNodePointXZ((void *)a0, 0x2C, (char *)s + 0x5A0, 1.0f);
     actMotDirToWall((char *)a0);
     while (1) {
         if (lev != 0) {
-            if (GOBJ_SUB(a0)->f_604 != 0) {
+            if (GOBJ_SUB(a0)->frameFlag2 != 0) {
                 correctLeverHoldPoint((void *)a0, lev);
             }
-            if (GOBJ_SUB(a0)->f_600 != 0) {
+            if (GOBJ_SUB(a0)->frameFlag1 != 0) {
                 lever_nego1((void *)a0, lev);
             }
         }
@@ -1635,12 +1638,12 @@ void DamageFunc(char *a0)
     Act *s = GOBJ_ACT(a0);
     debug_StdPrintfDummy("damage\n");
     if (a0 != (char *)girlGObj) {
-        s->f_1E0 -= (float)GOBJ_ACT(a0)->f_1D0;
+        s->life -= (float)GOBJ_ACT(a0)->damage;
     }
     if (*(int *)(a0 + 0xC) == 4) {
         EnemyBattleWork *b;
         EBRAIN_SEND_MES(a0, 5);
-        b = GOBJ_ACT(a0)->f_680;
+        b = GOBJ_ACT(a0)->enemy;
         EnemyDeleteParticle(a0, (char *)b + 0xE0, (char *)b + 0xF0);
     }
 }
@@ -1649,7 +1652,7 @@ void DownFunc(char *a0)
 {
     DamageFunc(a0);
     if (*(int *)(a0 + 0xC) == 1) {
-        EBRAIN_SEND_MES((void *)GOBJ_ACT(a0)->f_1B0, 6);
+        EBRAIN_SEND_MES((void *)GOBJ_ACT(a0)->attacker, 6);
     }
 }
 
@@ -1658,7 +1661,7 @@ inline void actCommonDamage(volatile int a0)
     debug_StdPrintfDummy("enter actCommonDamage\n");
     SetMotionDirection(a0, (char *)GOBJ_ACT(a0) + 0x1C0);
     DamageFunc((char *)a0);
-    if (GOBJ_ACT(a0)->f_680->liftKind == 3) {
+    if (GOBJ_ACT(a0)->enemy->liftKind == 3) {
         _ACTWait(360);
     }
     for (;;) {
@@ -1671,7 +1674,7 @@ void actCommonDown(volatile int a0)
 {
     float v[4];
     Act *s = GOBJ_ACT(a0);
-    int notDamage = s->f_D8 != 0x37 && s->f_D8 != 0x38;
+    int notDamage = s->intrKind != 0x37 && s->intrKind != 0x38;
 
     debug_StdPrintfDummy("enter actCommonDown\n");
     *(int *)((char *)s + 0x18) = (int)actAfterDown;
@@ -1687,13 +1690,13 @@ void actCommonDown(volatile int a0)
         }
         DownFunc((char *)a0);
     }
-    GOBJ_ACT(a0)->f_680->f_CC = 0x10;
+    GOBJ_ACT(a0)->enemy->f_CC = 0x10;
     while (1) {
         if (*(int *)(a0 + 0xC) != 4) {
-            GOBJ_ACT(a0)->f_1DA = 1;
+            GOBJ_ACT(a0)->hit = 1;
         }
         ACTSendMailCorrect((char *)a0, 0xC7);
-        if (GOBJ_ACT(a0)->f_680->f_CC <= 0) {
+        if (GOBJ_ACT(a0)->enemy->f_CC <= 0) {
             ACTSendMailCorrect((char *)a0, 0x124);
         }
         _ACTWait(1);
@@ -1730,7 +1733,7 @@ void actCommonDie(volatile int a0)
     float t;
     int corpse;
 
-    if (s->f_D8 == 0x2C) {
+    if (s->intrKind == 0x2C) {
         corpse = 1;
     } else {
         corpse = 0;
@@ -1738,7 +1741,7 @@ void actCommonDie(volatile int a0)
     debug_StdPrintfDummy("enter actCommonDie\n");
     SetMotionDirection(a0, (char *)GOBJ_ACT(a0) + 0x1C0);
     DownFunc((char *)a0);
-    GOBJ_ACT(a0)->f_1DA = 1;
+    GOBJ_ACT(a0)->hit = 1;
     dieNotifyObjects();
     if (*(int *)(a0 + 8) == 0xEAD) {
         ResetReviveCountEnemy(a0);
@@ -1847,9 +1850,9 @@ void actCommonCling(volatile int a0)
     }
 
     no = (int)(_GetRandom() * 10.0f) % 15;
-    mot = ((ClingSub *)GOBJ_ACT(a0)->f_680)->f21C;
+    mot = ((ClingSub *)GOBJ_ACT(a0)->enemy)->f21C;
 
-    ((ClingSub *)GOBJ_ACT(a0)->f_680)->f220 = mot;
+    ((ClingSub *)GOBJ_ACT(a0)->enemy)->f220 = mot;
     ACTGameCollisionOff(a0);
     Cling(no, mot);
     _ACTWait(0);
@@ -1861,17 +1864,17 @@ void actCommonSlip(volatile int a0)
     float v2[4];
     float v3[4];
 
-    if (*(unsigned char *)((char *)GOBJ_ACT(a0)->f_680 + 0x280) == 0) {
-        dir[0] = GOBJ_ACT(a0)->f_680->f_270;
-        dir[1] = GOBJ_ACT(a0)->f_680->f_274;
-        dir[2] = GOBJ_ACT(a0)->f_680->f_278;
+    if (*(unsigned char *)((char *)GOBJ_ACT(a0)->enemy + 0x280) == 0) {
+        dir[0] = GOBJ_ACT(a0)->enemy->f_270;
+        dir[1] = GOBJ_ACT(a0)->enemy->f_274;
+        dir[2] = GOBJ_ACT(a0)->enemy->f_278;
     } else {
-        sceVu0ScaleVector(dir, (float *)((char *)GOBJ_ACT(a0)->f_680 + 0x270), -1.0f);
+        sceVu0ScaleVector(dir, (float *)((char *)GOBJ_ACT(a0)->enemy + 0x270), -1.0f);
     }
-    v2[0] = GOBJ_ACT(a0)->f_680->f_270;
-    v2[1] = GOBJ_ACT(a0)->f_680->f_274;
-    v2[2] = GOBJ_ACT(a0)->f_680->f_278;
-    sceVu0ScaleVector(v3, (float *)((char *)GOBJ_ACT(a0)->f_680 + 0x270), 30.0f);
+    v2[0] = GOBJ_ACT(a0)->enemy->f_270;
+    v2[1] = GOBJ_ACT(a0)->enemy->f_274;
+    v2[2] = GOBJ_ACT(a0)->enemy->f_278;
+    sceVu0ScaleVector(v3, (float *)((char *)GOBJ_ACT(a0)->enemy + 0x270), 30.0f);
     v3[1] = -20.0f;
     while (1) {
         SetMotionDirectionSmooze(a0, dir, 3.0f);
@@ -1885,7 +1888,7 @@ void actCommonStoneDead(volatile int a0)
     float dir[4];
     Act *s = GOBJ_ACT(a0);
 
-    if (s->f_D8 == 0x22) {
+    if (s->intrKind == 0x22) {
         SetBoyStonizedVisual(a0);
         GetGameOverEffectCenterPosition(center);
         _OrientXZGV(dir, center, test_CURRENTROOT((void *)a0));
@@ -1938,12 +1941,12 @@ void actCommonStone(volatile int a0)
     *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x2A0) = 0;
     while (1) {
         if (debug_font_flag & 1) {
-            debug_Printf(10, 170, 0xFFFFFFF, "count =(%d)\n", GOBJ_ACT(a0)->f_680->f_CC);
+            debug_Printf(10, 170, 0xFFFFFFF, "count =(%d)\n", GOBJ_ACT(a0)->enemy->f_CC);
         }
         if (debug_font_flag & 1) {
-            debug_Printf(10, 180, 0xFFFFFFF, "level =(%d)\n", GOBJ_ACT(a0)->f_680->f_29C);
+            debug_Printf(10, 180, 0xFFFFFFF, "level =(%d)\n", GOBJ_ACT(a0)->enemy->f_29C);
         }
-        switch (GOBJ_ACT(a0)->f_680->f_29C) {
+        switch (GOBJ_ACT(a0)->enemy->f_29C) {
         case 0:
         case 1:
             break;
@@ -1954,11 +1957,11 @@ void actCommonStone(volatile int a0)
             _ACTParaStatus_Set(a0, 0x27);
             break;
         }
-        if (GOBJ_ACT(a0)->f_680->f_CC < 0) {
+        if (GOBJ_ACT(a0)->enemy->f_CC < 0) {
             ACTSendMailCorrect((char *)a0, 0xC7);
-            GOBJ_ACT(a0)->f_680->f_29C = 0;
+            GOBJ_ACT(a0)->enemy->f_29C = 0;
         }
-        if (s->f4C >= 0x3D && GOBJ_ACT(a0)->f_680->f_29C >= 3) {
+        if (s->f4C >= 0x3D && GOBJ_ACT(a0)->enemy->f_29C >= 3) {
             ACT_LAYOUT_GAMEOVER();
             _ACTWait(0);
         }
@@ -1982,19 +1985,19 @@ void actCommonSofa(volatile int a0)
     Act *s = GOBJ_ACT(a0);
 
     SetDirectRootPositionNoFitting((void *)a0, (char *)s + 0x5B0);
-    ((SofaObj *)GOBJ_ACT(a0)->f_680)->f250 = 0;
-    ((SofaObj *)GOBJ_ACT(a0)->f_680)->f258 = 0;
-    ((SofaObj *)GOBJ_ACT(a0)->f_680)->f25C = 0;
+    ((SofaObj *)GOBJ_ACT(a0)->enemy)->f250 = 0;
+    ((SofaObj *)GOBJ_ACT(a0)->enemy)->f258 = 0;
+    ((SofaObj *)GOBJ_ACT(a0)->enemy)->f25C = 0;
     *(void **)((char *)s + 0x160) = *(void **)((char *)s + 0x61C);
     while (1) {
-        ((SofaAnim *)GOBJ_ACT(a0)->f_688)->f3A0 =
+        ((SofaAnim *)GOBJ_ACT(a0)->work)->f3A0 =
             ((0x3C - systemStatus[0] * 10) / systemStatus[1]) * 3;
-        ((SofaAnim *)GOBJ_ACT(a0)->f_688)->f3A4 =
+        ((SofaAnim *)GOBJ_ACT(a0)->work)->f3A4 =
             ((0x3C - systemStatus[0] * 10) / systemStatus[1]) * 10;
-        if (((SofaObj *)GOBJ_ACT(a0)->f_680)->f250 > ((SofaObj *)GOBJ_ACT(a0)->f_680)->f254) {
+        if (((SofaObj *)GOBJ_ACT(a0)->enemy)->f250 > ((SofaObj *)GOBJ_ACT(a0)->enemy)->f254) {
             ACTSendMailCorrect((char *)a0, 0x73);
         }
-        ((SofaObj *)GOBJ_ACT(a0)->f_680)->f250 += 1;
+        ((SofaObj *)GOBJ_ACT(a0)->enemy)->f250 += 1;
         _ACTWait(1);
     }
 }
@@ -2002,12 +2005,12 @@ void actCommonSofa(volatile int a0)
 void BoxBarSoundOn(char *a0)
 {
     Act *s = GOBJ_ACT(a0);
-    switch (s->unk34) {
+    switch (s->actMode) {
     case 0x31:
-        ExecBoxMoveStartReaction((int)s->box, (int)s->f_38);
+        ExecBoxMoveStartReaction((int)s->box, (int)s->pushDir);
         break;
     case 0x33:
-        ExecRotObjectMoveStartReaction(s->f_5F8);
+        ExecRotObjectMoveStartReaction(s->barObj);
         break;
     }
 }
@@ -2015,40 +2018,40 @@ void BoxBarSoundOn(char *a0)
 void BoxBarSoundOff(char *a0)
 {
     Act *s = GOBJ_ACT(a0);
-    switch (s->unk34) {
+    switch (s->actMode) {
     case 0x31:
         ExecBoxMoveEndReaction((int)s->box);
         break;
     case 0x33:
-        ExecRotObjectMoveEndReaction(s->f_5F8);
+        ExecRotObjectMoveEndReaction(s->barObj);
         break;
     }
 }
 
 void _boxbar_set_sound(int a0, int mode)
 {
-    switch (GOBJ_ACT(a0)->f_680->f_310) {
+    switch (GOBJ_ACT(a0)->enemy->f_310) {
     case 0:
         if (mode == 1) {
             BoxBarSoundOn((char *)a0);
-            GOBJ_ACT(a0)->f_680->f_310 = 1;
+            GOBJ_ACT(a0)->enemy->f_310 = 1;
         }
         break;
     case 1:
         if (mode == 0 || mode == 2) {
             BoxBarSoundOff((char *)a0);
-            GOBJ_ACT(a0)->f_680->f_310 = mode;
+            GOBJ_ACT(a0)->enemy->f_310 = mode;
         } else {
             BoxBarSoundOn((char *)a0);
         }
         break;
     case 2:
         if (mode == 0) {
-            GOBJ_ACT(a0)->f_680->f_310 = 0;
+            GOBJ_ACT(a0)->enemy->f_310 = 0;
         }
         if (mode == 3) {
             BoxBarSoundOn((char *)a0);
-            GOBJ_ACT(a0)->f_680->f_310 = 1;
+            GOBJ_ACT(a0)->enemy->f_310 = 1;
         }
         break;
     }
@@ -2116,7 +2119,7 @@ void actCommonBox(volatile int a0)
     float hold[4];
 
     *(BoxAfterFn *)((char *)s + 0x14) = afterCommonBox;
-    box = s->f_5F4;
+    box = s->holdBoxObj;
     if (stage_no == 0x10) {
         sub = *(char **)((char *)GOBJ_SUB(box));
         if (sub != 0) {
@@ -2127,9 +2130,9 @@ void actCommonBox(volatile int a0)
     }
     ((Act *)(char *)s)->box = box;
     actMotDirToWall((char *)a0);
-    sceVu0ScaleVector((char *)GOBJ_ACT(a0)->f_688 + 0x530, (char *)s + 0x4B0, -1.0f);
+    sceVu0ScaleVector((char *)GOBJ_ACT(a0)->work + 0x530, (char *)s + 0x4B0, -1.0f);
     while (1) {
-        int had = (int)s->f_38 != 0;
+        int had = (int)s->pushDir != 0;
         int f2 = 0;
         int miss = 0;
         int flag = 0;
@@ -2142,24 +2145,24 @@ void actCommonBox(volatile int a0)
                 ACTSendMailCorrect((char *)a0, 0xC7);
                 miss = 1;
             }
-            if (s->f_38 == 0xFFFFFFFF) {
+            if (s->pushDir == 0xFFFFFFFF) {
                 if (boxWallCheck(a0, box, 150.0f, 48)) {
                     miss = 1;
                 }
             }
         }
         if (!miss &&
-            (isTruck == 0 ? *(int *)((char *)GOBJ_SUB(a0) + 0x608) : GOBJ_SUB(a0)->f_600)) {
+            (isTruck == 0 ? *(int *)((char *)GOBJ_SUB(a0) + 0x608) : GOBJ_SUB(a0)->frameFlag1)) {
             f2 = 1;
-            if ((int)s->f_38 == 1 && boxWallCheck(a0, box, -25.0f, 30)) {
+            if ((int)s->pushDir == 1 && boxWallCheck(a0, box, -25.0f, 30)) {
                 miss = 1;
             } else {
                 float dir[4];
                 unsigned char ok;
-                if (s->f_38 == 0xFFFFFFFF) {
-                    dir[0] = s->f_4B0;
-                    dir[1] = s->f_4B4;
-                    dir[2] = s->f_4B8;
+                if (s->pushDir == 0xFFFFFFFF) {
+                    dir[0] = s->wallOrientX;
+                    dir[1] = s->wallOrientY;
+                    dir[2] = s->wallOrientZ;
                 } else {
                     sceVu0ScaleVector(dir, (char *)s + 0x4B0, -1.0f);
                 }
@@ -2178,8 +2181,8 @@ void actCommonBox(volatile int a0)
         if (GetMotionFrameFlag2((void *)a0)) {
             float pos[4];
             GetBoxGlobalHoldPoint(pos, box, hold);
-            SetDirectRootPositionNoFittingWithNodePointXZ((void *)a0, 22, pos,
-                                                          GOBJ_SUB(a0)->f_600 != 0 ? 1.0f : 0.3f);
+            SetDirectRootPositionNoFittingWithNodePointXZ(
+                (void *)a0, 22, pos, GOBJ_SUB(a0)->frameFlag1 != 0 ? 1.0f : 0.3f);
         }
         if (!had) {
             _boxbar_set_sound(a0, 0);
@@ -2234,7 +2237,7 @@ void actCommonBar(volatile int a0)
     float hold[4];
     float hold2[4];
 
-    bar = (char *)s->f_5F8;
+    bar = (char *)s->barObj;
     actMotDirToWall((char *)a0);
     pos[0] = *(float *)((char *)test_CURRENTROOT((void *)a0) + 0);
     pos[1] = *(float *)((char *)test_CURRENTROOT((void *)a0) + 4);
@@ -2242,7 +2245,7 @@ void actCommonBar(volatile int a0)
     ori[0] = *(float *)((char *)test_CURRENTORIENT((char *)a0) + 0);
     ori[1] = *(float *)((char *)test_CURRENTORIENT((char *)a0) + 4);
     ori[2] = *(float *)((char *)test_CURRENTORIENT((char *)a0) + 8);
-    GetRotObjectHoldPoint(hold, hold2, (char *)GOBJ_ACT(a0)->f_688 + 0x8B0, (void *)a0);
+    GetRotObjectHoldPoint(hold, hold2, (char *)GOBJ_ACT(a0)->work + 0x8B0, (void *)a0);
     (int)GOBJ_SUB(s) = (int)bar;
     s->after = (void *)afterCommonBar;
     debug_StdPrintfDummy("set %p\n", bar);
@@ -2250,7 +2253,7 @@ void actCommonBar(volatile int a0)
     ((BarHold *)(int)GOBJ_SUB(a0))->f1C4 = -1;
     ((BarHold *)(int)GOBJ_SUB(a0))->f1C8 = 0;
     while (1) {
-        int had = (int)s->f_38 != 0;
+        int had = (int)s->pushDir != 0;
         int lit = 0;
         int miss = 0;
         int flag = 0;
@@ -2260,8 +2263,8 @@ void actCommonBar(volatile int a0)
             int node = GetSkeltonFocusNode((void *)a0, 32);
             unsigned char ok;
             lit = 1;
-            CopyVector(dir, (char *)GOBJ_SUB(a0)->f_C + node * 64 + 0x30);
-            if (s->f_38 == 0xFFFFFFFF) {
+            CopyVector(dir, (char *)GOBJ_SUB(a0)->nodeMtx + node * 64 + 0x30);
+            if (s->pushDir == 0xFFFFFFFF) {
                 sceVu0ScaleVector(up, test_CURRENTORIENT((char *)a0), -1.0f);
             } else {
                 up[0] = *(float *)((char *)test_CURRENTORIENT((char *)a0) + 0);
@@ -2297,12 +2300,12 @@ void actCommonBar(volatile int a0)
 
 void funcCommonJumpDircorrect(char *a0)
 {
-    SetMotionDirection(a0, (char *)GOBJ_ACT(a0)->f_688 + 0x350);
+    SetMotionDirection(a0, (char *)GOBJ_ACT(a0)->work + 0x350);
 }
 
 void funcCommonFallDircorrect(char *a0)
 {
-    SetMotionDirection(a0, (char *)GOBJ_ACT(a0)->f_688 + 0x360);
+    SetMotionDirection(a0, (char *)GOBJ_ACT(a0)->work + 0x360);
 }
 
 /* kept local: agrees with chain.h, which this TU does not include (HoldChain, ReleaseChain, SetChainRootUpdateMode differ) */
@@ -2390,10 +2393,10 @@ void actCommonJump(volatile int a0)
 
     ((ActFlagJ *)((char *)s + 0x18))->ll &= ~(1ULL << 55);
     ((ActFlagJ *)((char *)s + 0x18))->p = (void *)actAfterJump;
-    if (s->f_D8 == 0x52) {
+    if (s->intrKind == 0x52) {
         GOBJ_WORK(a0)->f_3B4 = ((0x3C - systemStatus[0] * 10) / systemStatus[1]) * 10;
     }
-    if (s->f_D8 == 0x105) {
+    if (s->intrKind == 0x105) {
         ((ActFlagJ *)((char *)s + 0x18))->ll |= (1ULL << 55);
         if ((char *)a0 == (char *)girlGObj && (char *)boyGObj != 0) {
             _OrientXZGV(dir, test_CURRENTROOT((char *)boyGObj), test_CURRENTROOT((void *)a0));
@@ -2401,20 +2404,20 @@ void actCommonJump(volatile int a0)
         }
     }
     ((ActFlagJ *)((char *)s + 0x18))->ll &= ~(1ULL << 56);
-    if (s->f_D8 == 0xC5) {
-        SetMotionDirection(a0, (char *)GOBJ_ACT(a0)->f_688 + 0x510);
+    if (s->intrKind == 0xC5) {
+        SetMotionDirection(a0, (char *)GOBJ_ACT(a0)->work + 0x510);
         ((ActFlagJ *)((char *)s + 0x18))->ll |= (1ULL << 56);
     }
-    n = *(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x900);
+    n = *(int *)((char *)GOBJ_ACT(a0)->work + 0x900);
     if (n < 4) {
         if (0 < n) {
-            switch ((unsigned int)s->f_D8) {
+            switch ((unsigned int)s->intrKind) {
             case 0xBF:
             case 0xC0:
                 chk = 1;
                 break;
             case 0xBD:
-                if (0.1f < s->f_34C) {
+                if (0.1f < s->stickMag) {
                     chk = 1;
                 }
                 break;
@@ -2425,11 +2428,11 @@ void actCommonJump(volatile int a0)
         }
     }
     while (1) {
-        if (((MotRecJ *)(motionKind + GOBJ_SUB(a0)->f_4A0 * 0x194))->f18E & 1) {
+        if (((MotRecJ *)(motionKind + GOBJ_SUB(a0)->motion * 0x194))->f18E & 1) {
             hit = 1;
         }
-        if (hit != 0 && *(int *)(motionKind + GOBJ_SUB(a0)->f_4A0 * 0x194 + 0x150) == 1) {
-            GOBJ_SUB(a0)->f_130 = GOBJ_SUB(a0)->f_138 = 0.0f;
+        if (hit != 0 && *(int *)(motionKind + GOBJ_SUB(a0)->motion * 0x194 + 0x150) == 1) {
+            GOBJ_SUB(a0)->moveX = GOBJ_SUB(a0)->moveZ = 0.0f;
         }
         ACTSendMailCorrect((char *)a0, 0xBD);
         _ACTWait(1);
@@ -2460,10 +2463,10 @@ static inline int IsFallStuckOnStep(int a0, int state, int mot, int need, int ti
     int *q;
     int i, n, d;
 
-    for (i = 0, n = 1, q = (int *)((char *)s->f_688 + 0x928); i < 10; i++, q++) {
+    for (i = 0, n = 1, q = (int *)((char *)s->work + 0x928); i < 10; i++, q++) {
         if (q[-10] == state && (mot == 418 || mot == q[10])) {
             if (n >= need) {
-                d = s->f_10 - *q;
+                d = s->frame - *q;
 
                 if (d < time * ((60 - systemStatus[0] * 10) / systemStatus[1]) / 60) {
                     return 1;
@@ -2501,49 +2504,49 @@ void actCommonFall(volatile int a0)
     slowed = 0;
     ((Act *)(char *)s)->flags18.afterProc = (void (*)(char *))actAfterFall;
     if (stageData[stage_no].flag3) {
-        keep = FALL_SUB(a0)->f_5F8 & 0xF;
-        debug_StdPrintfDummy("0x%8x -> 0x%8x\n", FALL_SUB(a0)->f_5F8, keep);
-        FALL_SUB(a0)->f_5F8 = 0;
-        FALL_SUB(a0)->f_5F8 = keep;
+        keep = FALL_SUB(a0)->floorAttr & 0xF;
+        debug_StdPrintfDummy("0x%8x -> 0x%8x\n", FALL_SUB(a0)->floorAttr, keep);
+        FALL_SUB(a0)->floorAttr = 0;
+        FALL_SUB(a0)->floorAttr = keep;
     } else {
-        FALL_SUB(a0)->f_5F8 = 0;
+        FALL_SUB(a0)->floorAttr = 0;
     }
-    mot = (unsigned int)s->f_D8;
+    mot = (unsigned int)s->intrKind;
     switch (mot) {
     case 226:
-        if (*(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x900) == 34 ||
-            *(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x900) == 28 ||
-            *(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x900) == 30) {
-            FALL_SUB(a0)->f_130 = 0;
+        if (*(int *)((char *)GOBJ_ACT(a0)->work + 0x900) == 34 ||
+            *(int *)((char *)GOBJ_ACT(a0)->work + 0x900) == 28 ||
+            *(int *)((char *)GOBJ_ACT(a0)->work + 0x900) == 30) {
+            FALL_SUB(a0)->moveX = 0;
             noVel = 1;
-            FALL_SUB(a0)->f_134 = 0;
-            FALL_SUB(a0)->f_138 = 0;
+            FALL_SUB(a0)->moveY = 0;
+            FALL_SUB(a0)->moveZ = 0;
         }
         break;
     case 329:
-        SetMotionDirection(a0, (char *)GOBJ_ACT(a0)->f_688 + 0x4C0);
+        SetMotionDirection(a0, (char *)GOBJ_ACT(a0)->work + 0x4C0);
         break;
     case 166:
-        FALL_SUB(a0)->f_130 = 0;
-        FALL_SUB(a0)->f_134 = 0;
-        FALL_SUB(a0)->f_138 = 0;
+        FALL_SUB(a0)->moveX = 0;
+        FALL_SUB(a0)->moveY = 0;
+        FALL_SUB(a0)->moveZ = 0;
         break;
     case 24:
-        FALL_SUB(a0)->f_130 = 0;
-        FALL_SUB(a0)->f_134 = 0;
-        FALL_SUB(a0)->f_138 = 0;
+        FALL_SUB(a0)->moveX = 0;
+        FALL_SUB(a0)->moveY = 0;
+        FALL_SUB(a0)->moveZ = 0;
         wasHigh = 1;
         noVel = 1;
         break;
     case 49:
-        sceVu0ScaleVector(&FALL_SUB(a0)->f_130, test_CURRENTORIENT((char *)a0), -5.0f);
-        FALL_SUB(a0)->f_134 = 3.0f;
+        sceVu0ScaleVector(&FALL_SUB(a0)->moveX, test_CURRENTORIENT((char *)a0), -5.0f);
+        FALL_SUB(a0)->moveY = 3.0f;
         wasHigh = 1;
         ((ActStatus *)((char *)s + 0x18))->ll |= (1ULL << 53);
         GOBJ_WORK(a0)->f_338 = 200.0f;
         break;
     case 48:
-        GetSkeltonPosition(pa, s->f_2C, 44);
+        GetSkeltonPosition(pa, s->intrArg, 44);
         GetSkeltonPosition(pb, (char *)a0, 44);
         lo[0] = pb[0];
         lo[1] = pb[1];
@@ -2568,14 +2571,14 @@ void actCommonFall(volatile int a0)
         d = GetDifferenceFromLowerField(a0, 44);
         wasHigh = 1;
         ((ActStatus *)((char *)s + 0x18))->ll |= (1ULL << 53);
-        FALL_SUB(a0)->f_130 = 0;
-        FALL_SUB(a0)->f_134 = 0;
-        FALL_SUB(a0)->f_138 = 0;
+        FALL_SUB(a0)->moveX = 0;
+        FALL_SUB(a0)->moveY = 0;
+        FALL_SUB(a0)->moveZ = 0;
         if (d < 800.0f) {
             GOBJ_WORK(a0)->f_338 = 900.0f;
         } else {
-            if (*(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x900) != 38) {
-                p = (char *)GOBJ_ACT(a0)->f_30;
+            if (*(int *)((char *)GOBJ_ACT(a0)->work + 0x900) != 38) {
+                p = (char *)GOBJ_ACT(a0)->intrData;
                 if (p != 0 && 100.0f < *(float *)p && *(float *)p < 500.0f) {
                     GOBJ_WORK(a0)->f_338 = *(float *)p;
                     break;
@@ -2585,20 +2588,20 @@ void actCommonFall(volatile int a0)
         }
         break;
     default:
-        if (mot == 7 && *(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x950) == 259) {
-            FALL_SUB(a0)->f_130 = 0;
-            FALL_SUB(a0)->f_134 = 0;
-            FALL_SUB(a0)->f_138 = 0;
+        if (mot == 7 && *(int *)((char *)GOBJ_ACT(a0)->work + 0x950) == 259) {
+            FALL_SUB(a0)->moveX = 0;
+            FALL_SUB(a0)->moveY = 0;
+            FALL_SUB(a0)->moveZ = 0;
             noVel = 1;
         }
-        n = *(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x900);
+        n = *(int *)((char *)GOBJ_ACT(a0)->work + 0x900);
         if (19 <= n) {
             if (22 <= n) {
                 if (n < 29) {
                     if (27 <= n) {
-                        FALL_SUB(a0)->f_130 = 0;
-                        FALL_SUB(a0)->f_134 = 0;
-                        FALL_SUB(a0)->f_138 = 0;
+                        FALL_SUB(a0)->moveX = 0;
+                        FALL_SUB(a0)->moveY = 0;
+                        FALL_SUB(a0)->moveZ = 0;
                         noVel = 1;
                     }
                 }
@@ -2607,9 +2610,9 @@ void actCommonFall(volatile int a0)
             }
         }
         if ((char *)a0 == (char *)girlGObj && mot == 7 &&
-            *(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x900) == 21) {
+            *(int *)((char *)GOBJ_ACT(a0)->work + 0x900) == 21) {
             slowed = 1;
-            FALL_SUB(a0)->f_134 = 0;
+            FALL_SUB(a0)->moveY = 0;
         }
         if ((unsigned char)IsFallStuckOnStep(a0, 5, 418, 2, 60)) {
             ((Act *)(char *)s)->flags20.ll |= (1ULL << 42);
@@ -2617,16 +2620,16 @@ void actCommonFall(volatile int a0)
         break;
     }
     while (1) {
-        if (s->f_4C < ((60 - systemStatus[0] * 10) / systemStatus[1]) / 6) {
+        if (s->modeFrame < ((60 - systemStatus[0] * 10) / systemStatus[1]) / 6) {
             if (wasHigh) {
                 ((ActStatus *)((char *)s + 0x18))->ll |= (1ULL << 52);
             }
             if (noVel) {
-                FALL_SUB(a0)->f_130 = FALL_SUB(a0)->f_138 = 0.0f;
+                FALL_SUB(a0)->moveX = FALL_SUB(a0)->moveZ = 0.0f;
             }
             if (slowed) {
-                FALL_SUB(a0)->f_130 *= 0.8;
-                FALL_SUB(a0)->f_138 *= 0.8;
+                FALL_SUB(a0)->moveX *= 0.8;
+                FALL_SUB(a0)->moveZ *= 0.8;
             }
         }
         ACTSendMailCorrect((char *)a0, 314);
@@ -2972,7 +2975,7 @@ void flyCoreLoop(char *a0, char *target, int a2)
             }
         }
 
-        GOBJ_SUB(a0)->f_3C0 = a2;
+        GOBJ_SUB(a0)->word3C0 = a2;
         GetRootMotionMatrix(mat, (char *)a0);
         if (target) {
             GetRootPosition(root, target);
@@ -2984,7 +2987,7 @@ void flyCoreLoop(char *a0, char *target, int a2)
             if (stuck) {
                 root[1] += -100.0f;
             } else {
-                root[1] += GOBJ_SUB(target)->f_270;
+                root[1] += GOBJ_SUB(target)->projHeight;
                 if ((60 - systemStatus[0] * 10) / systemStatus[1] < landCnt++ || !landed) {
                     landed = getLandOffset(off, root, ang, 100.0f);
                     if (!landed) {
@@ -3136,7 +3139,7 @@ void flyCoreLoop(char *a0, char *target, int a2)
             _ApplyMatrix(&v, mat, &v);
             v.f[1] = 0.0f;
             _AddVectorXYZ((char *)GOBJ_SUB(a0) + 0x130, (char *)GOBJ_SUB(a0) + 0x130, &v);
-            GOBJ_SUB(a0)->f_134 += acc * 2.0f;
+            GOBJ_SUB(a0)->moveY += acc * 2.0f;
         }
         if ((stage_no == 86 || stage_no == 3 || stage_no == 46) &&
             (60 - systemStatus[0] * 10) / systemStatus[1] * 10 < cnt104) {
@@ -3181,8 +3184,8 @@ void actCommonFly(volatile int a0)
     SetEnemyFootPrintSwitch(a0, 0);
 
     flyCoreLoop(a0, target,
-                ((char *)girlGObj != 0 && GOBJ_ACT(girlGObj)->unk34 == 0x6F &&
-                 GOBJ_ACT(girlGObj)->f_144 == a0) ||
+                ((char *)girlGObj != 0 && GOBJ_ACT(girlGObj)->actMode == 0x6F &&
+                 GOBJ_ACT(girlGObj)->carrier == a0) ||
                     debug_fly_limit_test != 0);
 }
 
@@ -3223,7 +3226,7 @@ typedef struct {
 void actCommonLadder(volatile int a0)
 {
     Act *s = GOBJ_ACT(a0);
-    int mot = s->f_3C;
+    int mot = s->intrMot;
     float pos[4];
     int uf22;
     int uf6;
@@ -3235,13 +3238,13 @@ void actCommonLadder(volatile int a0)
     int lp48;
     char *o;
 
-    if (s->f_57C != 0.0f) {
+    if (s->edgePosW != 0.0f) {
         pos[0] = test_CURRENTROOT((void *)a0)[0];
         pos[1] = test_CURRENTROOT((void *)a0)[1];
         pos[2] = test_CURRENTROOT((void *)a0)[2];
-        pos[0] = s->f_570;
-        pos[2] = s->f_578;
-        s->f_57C = 0.0f;
+        pos[0] = s->edgePosX;
+        pos[2] = s->edgePosZ;
+        s->edgePosW = 0.0f;
     }
     LADW->f290 = 0;
     LADW->f294 = 0;
@@ -3249,14 +3252,14 @@ void actCommonLadder(volatile int a0)
     LADW->f298.ll &= ~2ULL;
     LADW->f298.ll &= ~4ULL;
     if (a0 == (int)((char *)boyGObj)) {
-        GOBJ_ACT(a0)->f_1DA = 1;
+        GOBJ_ACT(a0)->hit = 1;
     }
     if (mot == 0x7F || mot == 0x80 || mot == 0x7B) {
         while (1) {
-            if (a0 == (int)((char *)boyGObj) && GOBJ_SUB(a0)->f_4AC > 40.0f) {
+            if (a0 == (int)((char *)boyGObj) && GOBJ_SUB(a0)->animFrame > 40.0f) {
                 break;
             }
-            if (((LadMotTbl *)motionKind)->m[GOBJ_SUB(a0)->f_4A0].f150 == 1) {
+            if (((LadMotTbl *)motionKind)->m[GOBJ_SUB(a0)->motion].f150 == 1) {
                 break;
             }
             _ACTWait(1);
@@ -3306,14 +3309,14 @@ void actCommonLadder(volatile int a0)
                 LADW->f298.ll |= 4ULL;
             }
         }
-        if (s->f_38 == 0xFFFFFFFF && ((int)((long long)LADW->f298.ll >> 2) & 1)) {
+        if (s->pushDir == 0xFFFFFFFF && ((int)((long long)LADW->f298.ll >> 2) & 1)) {
             ACTSendMailCorrect((char *)a0, 0x8E);
             if (a0 != (int)((char *)boyGObj)) {
                 ACTSendMailCorrect((char *)a0, 0x8F);
             }
         }
         if (a0 == (int)((char *)boyGObj) && (char *)girlGObj != 0 &&
-            GOBJ_ACT(girlGObj)->unk34 == 0x26) {
+            GOBJ_ACT(girlGObj)->actMode == 0x26) {
             if (_DistSqGV(test_CURRENTROOT((void *)a0), test_CURRENTROOT((char *)girlGObj)) <
                 3600.0f) {
                 ACTSendMailCorrect((char *)a0, 0x31);
@@ -3326,7 +3329,7 @@ void actCommonLadder(volatile int a0)
             for (o = (char *)isysGObjSearchFromObjKindID_begin(4); o != 0;
                  o = (char *)isysGObjSearchFromObjKindID_next(o)) {
                 if (*(int *)(o + 0x16C) != 0) {
-                    if (GOBJ_ACT(o)->unk34 == 0x26 &&
+                    if (GOBJ_ACT(o)->actMode == 0x26 &&
                         _DistSqGV(pos, test_CURRENTROOT(o)) < 6400.0f) {
                         ACTSendMailCorrect((char *)a0, 0x31);
                         break;
@@ -3405,7 +3408,7 @@ inline void actCommonGuard(volatile int a0)
         ACTGame_LwsEffect_Guard((void *)a0);
     }
     iosOmSendMail((char *)boyGObj, 0x11C, a0);
-    if (s->f_D8 == 0x11A) {
+    if (s->intrKind == 0x11A) {
         ACTSetPositionWithFitting((void *)a0, test_CURRENTROOT((void *)a0));
     }
     for (;;) {
@@ -3440,12 +3443,12 @@ void actCommonEdgeHang(volatile int a0)
     float p1[4];
     float p2[4];
 
-    ACTAdjustPlane(a0, GOBJ_ACT(a0)->f_688 + 0x8B0);
+    ACTAdjustPlane(a0, GOBJ_ACT(a0)->work + 0x8B0);
     while (1) {
         if (CheckWallAttributeEdegWall((void *)a0) == 0) {
             ACTSendMailCorrect((char *)a0, 0xE2);
         }
-        if (-GOBJ_SUB(a0)->f_5E8 > 250.0f) {
+        if (-GOBJ_SUB(a0)->cliffDepth > 250.0f) {
             ACTSendMailCorrect((char *)a0, 0x18);
         }
         if (stageData[stage_no].flag2) {
@@ -3492,28 +3495,28 @@ inline void motCommonNull(volatile int a0)
 
 void funcCommonBeginReady(char *a0, int a1, char *a2)
 {
-    GOBJ_ACT(a0)->f_E0 |= 1;
+    GOBJ_ACT(a0)->readyFlags |= 1;
     debug_StdPrintfDummy("ready begin %s to %s\n", a2 == (char *)boyGObj ? "boy" : "girl",
                          a0 == (char *)boyGObj ? "boy" : "girl");
 }
 
 void funcCommonEndReady(char *a0, int a1, char *a2)
 {
-    GOBJ_ACT(a0)->f_E0 |= 2;
+    GOBJ_ACT(a0)->readyFlags |= 2;
     debug_StdPrintfDummy("ready end %s to %s\n", a2 == (char *)boyGObj ? "boy" : "girl",
                          a0 == (char *)boyGObj ? "boy" : "girl");
 }
 
 void funcCommonEndExec(char *a0, int a1, char *a2)
 {
-    GOBJ_ACT(a0)->f_E0 |= 8;
+    GOBJ_ACT(a0)->readyFlags |= 8;
     debug_StdPrintfDummy("exec end %s to %s\n", a2 == (char *)boyGObj ? "boy" : "girl",
                          a0 == (char *)boyGObj ? "boy" : "girl");
 }
 
 void funcCommonError(char *a0, int a1, char *a2)
 {
-    GOBJ_ACT(a0)->f_E0 |= 0x10;
+    GOBJ_ACT(a0)->readyFlags |= 0x10;
     debug_StdPrintfDummy("????error %s to %s\n", a2 == (char *)boyGObj ? "boy" : "girl",
                          a0 == (char *)boyGObj ? "boy" : "girl");
 }
@@ -3536,12 +3539,12 @@ int SetMotionDirectionSmooze(int a0, float *dir, float s)
     }
     s = s * 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
     if (dir[0] == 0.0f && dir[1] == 0.0f && dir[2] == 0.0f) {}
-    if ((((MotRecSm *)(motionKind + GOBJ_SUB(a0)->f_4A0 * 0x194))->f18C >> 6) & 1 &&
-        *(long long *)((char *)sub->f_688 + 0x900) == 0x1A00000005LL) {
+    if ((((MotRecSm *)(motionKind + GOBJ_SUB(a0)->motion * 0x194))->f18C >> 6) & 1 &&
+        *(long long *)((char *)sub->work + 0x900) == 0x1A00000005LL) {
         s = 30.0f;
     }
     if ((int)(sub->flags20.ll >> 33) & 1) {
-        s = ((ActWork *)sub->f_688)->f_344;
+        s = ((ActWork *)sub->work)->f_344;
     }
     r = _RotyGV(test_CURRENTORIENT((char *)a0), dir);
     if ((float)(r < 0 ? -r : r) < s) {
@@ -3598,33 +3601,34 @@ void _ACTDebugPrint(char *a0)
         debug_Printf(30, 90, 0xFFFFFFF, " ori  = [%s]\n", motionOriKind + *(int *)(w + 0xD0) * 32);
         if (debug_font_flag & 1) {
             debug_Printf(30, 100, 0xFFFFFFF, " mot  = [%s]\n",
-                         D_0055FF18 + GOBJ_SUB(a0)->f_4A0 * 0x194);
+                         D_0055FF18 + GOBJ_SUB(a0)->motion * 0x194);
             if (debug_font_flag & 1) {
-                debug_Printf(30, 110, 0xFFFFFFF, " mode = [%s]\n", D_005577F4 + sub->unk34 * 0x50);
+                debug_Printf(30, 110, 0xFFFFFFF, " mode = [%s]\n",
+                             D_005577F4 + sub->actMode * 0x50);
                 if (debug_font_flag & 1) {
-                    debug_Printf(30, 120, 0xFFFFFFF, "frame = [%f]\n", GOBJ_SUB(a0)->f_4AC);
+                    debug_Printf(30, 120, 0xFFFFFFF, "frame = [%f]\n", GOBJ_SUB(a0)->animFrame);
                     if (debug_font_flag & 1) {
                         debug_Printf(
                             30, 130, 0xFFFFFFF, "maxry = [%d]\n",
                             a0 == (char *)girlGObj && (void *)girlControlMode != 0
-                                ? ((MotNameRecDP *)(D_0055FF18 + GOBJ_SUB(a0)->f_4A0 * 0x194))->fC2
-                                : ((MotRecDP *)(motionKind + GOBJ_SUB(a0)->f_4A0 * 0x194))->f186);
+                                ? ((MotNameRecDP *)(D_0055FF18 + GOBJ_SUB(a0)->motion * 0x194))->fC2
+                                : ((MotRecDP *)(motionKind + GOBJ_SUB(a0)->motion * 0x194))->f186);
                         if (debug_font_flag & 1) {
-                            debug_Printf(30, 140, 0xFFFFFFF, " life = [%d]\n", (int)sub->f_1E0);
+                            debug_Printf(30, 140, 0xFFFFFFF, " life = [%d]\n", (int)sub->life);
                             if (debug_font_flag & 1) {
                                 debug_Printf(30, 150, 0xFFFFFFF, "   dw = [%d] [%d]\n",
-                                             (int)*(float *)((char *)sub->f_130 + 0x138),
-                                             (int)-*(float *)((char *)sub->f_130 + 0x130));
+                                             (int)*(float *)((char *)sub->motReq + 0x138),
+                                             (int)-*(float *)((char *)sub->motReq + 0x130));
                                 if (debug_font_flag & 1) {
                                     debug_Printf(30, 160, 0xFFFFFFF, "   dc = [%d] [%d]\n",
-                                                 (int)*(float *)((char *)sub->f_130 + 0x114),
-                                                 (int)*(float *)((char *)sub->f_130 + 0x110));
+                                                 (int)*(float *)((char *)sub->motReq + 0x114),
+                                                 (int)*(float *)((char *)sub->motReq + 0x110));
                                     if (debug_font_flag & 1) {
                                         debug_Printf(30, 170, 0xFFFFFFF, "wattr = [%x]\n",
-                                                     GOBJ_SUB(a0)->f_5F4);
+                                                     GOBJ_SUB(a0)->wallAttr);
                                         if (debug_font_flag & 1) {
                                             debug_Printf(30, 180, 0xFFFFFFF, "bttype= [%d]\n",
-                                                         GOBJ_ACT(a0)->f_680->battleType);
+                                                         GOBJ_ACT(a0)->enemy->battleType);
                                         }
                                     }
                                 }
@@ -3665,11 +3669,11 @@ void _ACTCommonMailTest(char *self, int a1, int a2, int a3)
 
     s = GOBJ_ACT(self);
     if (self == (char *)boyGObj) {
-        if (optionControlType == 1 ? (s->unk2E4 & 8) != 0 : (s->f_2E0 & 8) == 0) {
+        if (optionControlType == 1 ? (s->padTrg & 8) != 0 : (s->padNow & 8) == 0) {
             handoff_heroin();
         }
     }
-    m = (unsigned int)s->unk34;
+    m = (unsigned int)s->actMode;
     switch (m) {
     case 1:
     case 2:
@@ -3693,47 +3697,47 @@ void _ACTCommonMailTest(char *self, int a1, int a2, int a3)
         ret = self == boyGObj;
         break;
     }
-    if ((((MtMotRec *)motionKind)[GOBJ_SUB(self)->f_4A0].f190 >> 1) & 1) {
+    if ((((MtMotRec *)motionKind)[GOBJ_SUB(self)->motion].f190 >> 1) & 1) {
         ret = 1;
     }
     if (ret) {
-        if (0.1f < s->f_34C && (unsigned int)(s->f_340 + 45) < 91) {
+        if (0.1f < s->stickMag && (unsigned int)(s->stickAngle + 45) < 91) {
             ACTSendMailCorrect(self, 0x14C);
         }
-        if (0.1f < s->f_34C && !((unsigned int)(s->f_340 + 134) < 269) &&
-            !(s->unk34 == 3 && ((int)(s->flags18.ll >> 44) & 1))) {
+        if (0.1f < s->stickMag && !((unsigned int)(s->stickAngle + 134) < 269) &&
+            !(s->actMode == 3 && ((int)(s->flags18.ll >> 44) & 1))) {
             ACTSendMailCorrect(self, 0x14D);
             if (((int)(s->flags20.ll >> 18) & 1) && !((int)(s->flags18.ll >> 44) & 1)) {
                 ACTSendMailCorrect(self, 0xBC);
             }
         }
-        if (0.1f < s->f_34C && (unsigned int)(s->f_340 - 46) < 89) {
+        if (0.1f < s->stickMag && (unsigned int)(s->stickAngle - 46) < 89) {
             ACTSendMailCorrect(self, 0x14E);
         }
-        if (0.1f < s->f_34C && !(s->f_340 < -134) && s->f_340 < -45) {
+        if (0.1f < s->stickMag && !(s->stickAngle < -134) && s->stickAngle < -45) {
             ACTSendMailCorrect(self, 0x14F);
         }
-        if (0.1f < s->f_34C && (s->f_34C < 0.99f || (s->f_2E0 & 0x20)) && !(a2 < 4)) {
+        if (0.1f < s->stickMag && (s->stickMag < 0.99f || (s->padNow & 0x20)) && !(a2 < 4)) {
             ACTSendMailCorrect(self, 0xB5);
         }
         /* the negated conjunct is the 0xB5 guard'(char *)s whole predicate, repeated;
            it emits a real (dead) branch, so it is in the shipped code. */
-        if (0.1f < s->f_34C && !(0.1f < s->f_34C && (s->f_34C < 0.99f || (s->f_2E0 & 0x20))) &&
-            !(a3 < 4)) {
+        if (0.1f < s->stickMag &&
+            !(0.1f < s->stickMag && (s->stickMag < 0.99f || (s->padNow & 0x20))) && !(a3 < 4)) {
             ACTSendMailCorrect(self, 0xBA);
         }
-        if (!(0.1f < s->f_34C) && 0 < a1) {
+        if (!(0.1f < s->stickMag) && 0 < a1) {
             ACTSendMailCorrect(self, 0xC7);
         }
     }
-    if (s->unk34 == 0x49) {
-        if (0.1f < s->f_34C && (s->f_34C < 0.99f || (s->f_2E0 & 0x20)) && !(a2 < 4)) {
+    if (s->actMode == 0x49) {
+        if (0.1f < s->stickMag && (s->stickMag < 0.99f || (s->padNow & 0x20)) && !(a2 < 4)) {
             ACTSendMailCorrect(self, 0xB5);
         }
         /* the negated conjunct is the 0xB5 guard'(char *)s whole predicate, repeated;
            it emits a real (dead) branch, so it is in the shipped code. */
-        if (0.1f < s->f_34C && !(0.1f < s->f_34C && (s->f_34C < 0.99f || (s->f_2E0 & 0x20))) &&
-            !(a3 < 4)) {
+        if (0.1f < s->stickMag &&
+            !(0.1f < s->stickMag && (s->stickMag < 0.99f || (s->padNow & 0x20))) && !(a3 < 4)) {
             ACTSendMailCorrect(self, 0xBA);
         }
     }
@@ -3742,9 +3746,9 @@ void _ACTCommonMailTest(char *self, int a1, int a2, int a3)
 int E3_LeverCheck(char *a0)
 {
     float buf[3];
-    buf[0] = *(float *)((char *)test_CURRENTORIENT((char *)GOBJ_SUB(a0)->f_180) + 0x0);
-    buf[1] = *(float *)((char *)test_CURRENTORIENT((char *)GOBJ_SUB(a0)->f_180) + 0x4);
-    buf[2] = *(float *)((char *)test_CURRENTORIENT((char *)GOBJ_SUB(a0)->f_180) + 0x8);
+    buf[0] = *(float *)((char *)test_CURRENTORIENT((char *)GOBJ_SUB(a0)->wallObj) + 0x0);
+    buf[1] = *(float *)((char *)test_CURRENTORIENT((char *)GOBJ_SUB(a0)->wallObj) + 0x4);
+    buf[2] = *(float *)((char *)test_CURRENTORIENT((char *)GOBJ_SUB(a0)->wallObj) + 0x8);
     _ApplyRyGV(buf, -1.5707964f);
     return _RotyGV(test_CURRENTORIENT(a0), buf) < 0 ? -_RotyGV(test_CURRENTORIENT(a0), buf) < 0x2D
                                                     : _RotyGV(test_CURRENTORIENT(a0), buf) < 45;
@@ -3822,27 +3826,27 @@ void actCommonBecarry(volatile int a0)
     while (1) {
         _ACTCharStatus_Set((char *)a0, 9, -1.0f, 0);
         old = cur;
-        cur = GOBJ_SUB(g)->f_4A0;
+        cur = GOBJ_SUB(g)->motion;
         if (old != cur) {
             done =
-                requestBecarryMotion((char *)a0, cur, (GOBJ_ACT(g)->unk34 == 103) ? 30 : 0, 2118);
+                requestBecarryMotion((char *)a0, cur, (GOBJ_ACT(g)->actMode == 103) ? 30 : 0, 2118);
             if (!done) {
                 ((ActFlagJ *)((char *)s + 0x18))->ll |= (1ULL << 46);
             }
         }
-        if (6 <= s->f_4C) {
-            if (actModeTbl[GOBJ_ACT(g)->unk34].b0 ||
-                (fl = ((CarryMot *)motionKind)[GOBJ_SUB(g)->f_4A0].f18C, fl >> 7)) {
+        if (6 <= s->modeFrame) {
+            if (actModeTbl[GOBJ_ACT(g)->actMode].b0 ||
+                (fl = ((CarryMot *)motionKind)[GOBJ_SUB(g)->motion].f18C, fl >> 7)) {
                 afterCommonCarry((int)g);
                 debug_StdPrintfDummy("girl becarry error");
             }
         }
-        if (actModeTbl[GOBJ_ACT(boyGObj)->unk34].b6 == 0) {
+        if (actModeTbl[GOBJ_ACT(boyGObj)->actMode].b6 == 0) {
             ACTGame_DisconnectHand();
         }
         if (debug_font_flag & 1) {
             debug_Printf(100, 150, 0xFFFFFFF, "[%s]\n",
-                         D_0055FF18 + GOBJ_SUB(girlGObj)->f_4A0 * 0x194);
+                         D_0055FF18 + GOBJ_SUB(girlGObj)->motion * 0x194);
         }
         if (debug_font_flag & 1) {
             debug_Printf(100, 160, 0xFFFFFFF, "[%s]\n",
@@ -3888,7 +3892,7 @@ extern int idlingDef[][3];
 void subCommonIdle(volatile int a0)
 {
     Act *s = GOBJ_ACT(a0);
-    int k = s->f_48;
+    int k = s->actKind;
     int m0 = actDataTbl[k].w[0];
     int timer = 0;
     int same = 0;
@@ -3918,12 +3922,12 @@ void subCommonIdle(volatile int a0)
         }
     }
     while (1) {
-        cur = GOBJ_SUB(a0)->f_4A0;
+        cur = GOBJ_SUB(a0)->motion;
         if (((char *)a0 == (char *)boyGObj && scpBoyControlReadDisable != 0) ||
             GOBJ_WORK(a0)->f_38C > 0 || ((int)(s->flags20.ll >> 44) & 1)) {
             timer = 0;
             ACTSendMailCorrect((char *)a0, 180);
-        } else if (s->unk34 != 1 && s->unk34 != 69) {
+        } else if (s->actMode != 1 && s->actMode != 69) {
             timer = 0;
         } else if ((int)(s->flags18.ll >> 62) & 1) {
             timer = 0;
@@ -3993,27 +3997,27 @@ void ContinueCorrectPosition(void *obj)
 {
     float v[4];
 
-    (GOBJ_ACT(obj)->f_680->f_B4)++;
-    if (GOBJ_ACT(obj)->f_680->f_B4 <= GOBJ_ACT(obj)->f_680->f_B0) {
+    (GOBJ_ACT(obj)->enemy->f_B4)++;
+    if (GOBJ_ACT(obj)->enemy->f_B4 <= GOBJ_ACT(obj)->enemy->f_B0) {
         if (obj == (char *)girlGObj) {
             if (debug_font_flag & 1) {
-                debug_Printf(100, 100, 0xFFFFFFF, "timer=%2d/%2d\n", GOBJ_ACT(obj)->f_680->f_B4,
-                             GOBJ_ACT(obj)->f_680->f_B0);
+                debug_Printf(100, 100, 0xFFFFFFF, "timer=%2d/%2d\n", GOBJ_ACT(obj)->enemy->f_B4,
+                             GOBJ_ACT(obj)->enemy->f_B0);
             }
         }
-        _InterGV(v, (void *)((int)GOBJ_ACT(obj)->f_680 + 0x70),
-                 (void *)((int)GOBJ_ACT(obj)->f_680 + 0x90), (float)GOBJ_ACT(obj)->f_680->f_B4,
-                 (float)(GOBJ_ACT(obj)->f_680->f_B0 - GOBJ_ACT(obj)->f_680->f_B4));
+        _InterGV(v, (void *)((int)GOBJ_ACT(obj)->enemy + 0x70),
+                 (void *)((int)GOBJ_ACT(obj)->enemy + 0x90), (float)GOBJ_ACT(obj)->enemy->f_B4,
+                 (float)(GOBJ_ACT(obj)->enemy->f_B0 - GOBJ_ACT(obj)->enemy->f_B4));
         SetDirectRootPositionNoFitting(obj, v);
-        if (*(int *)((int)GOBJ_ACT(obj)->f_680 + 0xB8) == 1) {
-            _InterGV(v, (void *)((int)GOBJ_ACT(obj)->f_680 + 0x80),
-                     (void *)((int)GOBJ_ACT(obj)->f_680 + 0xA0), (float)GOBJ_ACT(obj)->f_680->f_B4,
-                     (float)(GOBJ_ACT(obj)->f_680->f_B0 - GOBJ_ACT(obj)->f_680->f_B4));
+        if (*(int *)((int)GOBJ_ACT(obj)->enemy + 0xB8) == 1) {
+            _InterGV(v, (void *)((int)GOBJ_ACT(obj)->enemy + 0x80),
+                     (void *)((int)GOBJ_ACT(obj)->enemy + 0xA0), (float)GOBJ_ACT(obj)->enemy->f_B4,
+                     (float)(GOBJ_ACT(obj)->enemy->f_B0 - GOBJ_ACT(obj)->enemy->f_B4));
             sceVu0Normalize(v, v);
             SetMotionDirection(obj, v);
         }
     } else {
-        *(long long *)((int)GOBJ_ACT(obj)->f_680 + 0xB8) &= 0xFFFFFFFEFFFFFFFFLL;
+        *(long long *)((int)GOBJ_ACT(obj)->enemy + 0xB8) &= 0xFFFFFFFEFFFFFFFFLL;
     }
 }
 
@@ -4032,7 +4036,7 @@ void actCommonTurn(volatile int a0)
         if (a0 == (int)((char *)girlGObj)) {
             GetSkeltonOrient(o, a0, 1);
             if (_AbsRotyGV(t, o) < 60) {
-                if (s->f_34C != 0.0f) {
+                if (s->stickMag != 0.0f) {
                     ACTSendMailCorrect((char *)a0, 0xF0);
                 }
                 ACTSendMailCorrect((char *)a0, 0xF1);
@@ -4042,7 +4046,7 @@ void actCommonTurn(volatile int a0)
                 ACTSendMailCorrect((char *)a0, 0xF1);
             }
         }
-        switch ((unsigned int)s->f_D8) {
+        switch ((unsigned int)s->intrKind) {
         case 0xE7:
         case 0xE9:
             GOBJ_WORK(a0)->f_384 = (60 - systemStatus[0] * 10) / systemStatus[1];
@@ -4072,7 +4076,7 @@ void actCommonBackhand(volatile int a0)
         sceVu0ScaleVector(pos, v, 50.0f);
         sceVu0AddVector(pos, test_CURRENTROOT((char *)girlGObj), pos);
         SetDirectRootPositionNoFittingWithNodePointXZ((void *)a0, 6, pos, 0.2f);
-        if (GOBJ_SUB(a0)->f_4A0 == 0xBD) {
+        if (GOBJ_SUB(a0)->motion == 0xBD) {
             _OrientXZGV(dir, test_CURRENTROOT((char *)girlGObj), test_CURRENTROOT((void *)a0));
             SetMotionDirection(a0, dir);
         }
@@ -4110,13 +4114,13 @@ void actCommonSlowrun(volatile int a0)
 
         i1 = GetSkeltonFocusNode((char *)girlGObj, 22);
         i2 = GetSkeltonFocusNode((char *)boyGObj, (void *)6);
-        ((IntFloatSR *)p[0])[0].f = *(float *)((i1 << 6) + GOBJ_SUB(girlGObj)->f_C + 0x30);
-        ((IntFloatSR *)p[0])[1].f = *(float *)((i1 << 6) + GOBJ_SUB(girlGObj)->f_C + 0x34);
-        ((IntFloatSR *)p[0])[2].f = *(float *)((i1 << 6) + GOBJ_SUB(girlGObj)->f_C + 0x38);
-        ((IntFloatSR *)p[1])[0].f = *(float *)((i2 << 6) + GOBJ_SUB(boyGObj)->f_C + 0x30);
-        ((IntFloatSR *)p[1])[1].f = *(float *)((i2 << 6) + GOBJ_SUB(boyGObj)->f_C + 0x34);
-        ((IntFloatSR *)p[1])[2].f = *(float *)((i2 << 6) + GOBJ_SUB(boyGObj)->f_C + 0x38);
-        if ((((MotRecSR *)(motionKind + GOBJ_SUB(girlGObj)->f_4A0 * 0x194))->f18C >> 29) & 1) {
+        ((IntFloatSR *)p[0])[0].f = *(float *)((i1 << 6) + GOBJ_SUB(girlGObj)->nodeMtx + 0x30);
+        ((IntFloatSR *)p[0])[1].f = *(float *)((i1 << 6) + GOBJ_SUB(girlGObj)->nodeMtx + 0x34);
+        ((IntFloatSR *)p[0])[2].f = *(float *)((i1 << 6) + GOBJ_SUB(girlGObj)->nodeMtx + 0x38);
+        ((IntFloatSR *)p[1])[0].f = *(float *)((i2 << 6) + GOBJ_SUB(boyGObj)->nodeMtx + 0x30);
+        ((IntFloatSR *)p[1])[1].f = *(float *)((i2 << 6) + GOBJ_SUB(boyGObj)->nodeMtx + 0x34);
+        ((IntFloatSR *)p[1])[2].f = *(float *)((i2 << 6) + GOBJ_SUB(boyGObj)->nodeMtx + 0x38);
+        if ((((MotRecSR *)(motionKind + GOBJ_SUB(girlGObj)->motion * 0x194))->f18C >> 29) & 1) {
             SetDirectRootPositionNoFittingWithNodePointXZ((void *)a0, 6, p[0], 0.2f);
         } else {
             SetDirectRootPositionNoFittingWithNodePointXZ((void *)a0, 6, p[0], 0.1f);
@@ -4133,16 +4137,16 @@ typedef struct {
 void actCommonTruckLever(volatile int a0)
 {
     Act *s = GOBJ_ACT(a0);
-    char *lev = (char *)s->f_5FC;
+    char *lev = (char *)s->pullObj;
 
     ((TruckLeverWork *)s)->f14 = (int)afterCommonTruckLever;
     actMotDirToWall((char *)a0);
     while (1) {
         if (lev != 0) {
-            if (GOBJ_SUB(a0)->f_604 != 0) {
+            if (GOBJ_SUB(a0)->frameFlag2 != 0) {
                 correctLeverHoldPoint((void *)a0, lev);
             }
-            if (GOBJ_SUB(a0)->f_600 != 0) {
+            if (GOBJ_SUB(a0)->frameFlag1 != 0) {
                 lever_nego1((void *)a0, lev);
             }
         }
@@ -4183,22 +4187,22 @@ inline int _ACTMotDirSmzDirect(char *a0, float *a1)
     return SetMotionDirectionSmooze(
         (int)a0, a1,
         (float)(a0 == (char *)girlGObj && (void *)girlControlMode != 0
-                    ? ((MotRecSR *)(motionKind + GOBJ_SUB(a0)->f_4A0 * 0x194))->f182
-                    : ((MotRecSR *)(motionKind + GOBJ_SUB(a0)->f_4A0 * 0x194))->f186));
+                    ? ((MotRecSR *)(motionKind + GOBJ_SUB(a0)->motion * 0x194))->f182
+                    : ((MotRecSR *)(motionKind + GOBJ_SUB(a0)->motion * 0x194))->f186));
 }
 
 inline void WithMailFunc_Idling(char *a0)
 {
     Act *s = GOBJ_ACT(a0);
-    int k = s->f_48;
-    int mot = GOBJ_SUB(a0)->f_4A0;
+    int k = s->actKind;
+    int mot = GOBJ_SUB(a0)->motion;
 
     SetIdleMotionRange(k, mot, mot);
 }
 
 inline void WithMailFunc_BossDamaged(char *a0)
 {
-    EnemyBattleWork *m = GOBJ_ACT(a0)->f_680;
+    EnemyBattleWork *m = GOBJ_ACT(a0)->enemy;
     m->f_20C -= 1;
 }
 
@@ -4206,9 +4210,9 @@ inline void WithMailFunc_FallDead(char *a0)
 {
     float v[4];
     Sub15C *s = GOBJ_SUB(a0);
-    v[0] = s->f_1D0;
-    v[1] = s->f_1D4;
-    v[2] = s->f_1D8;
+    v[0] = s->planeX;
+    v[1] = s->planeY;
+    v[2] = s->planeZ;
     sceVu0Normalize(v, v);
     if ((double)FSqrt(v[0] * v[0] + v[2] * v[2]) > 0.3) {
         v[1] = 0.0f;
@@ -4231,9 +4235,9 @@ inline void actCommonOne(volatile int a0)
 {
     Act *s = GOBJ_ACT(a0);
 
-    if (s->f_D8 == 0x1A0) {
+    if (s->intrKind == 0x1A0) {
         if (*(int *)((char *)s + 0x138) & 1) {
-            s->f_13A = ((0x3C - systemStatus[0] * 10) / systemStatus[1]) * 5;
+            s->soundWait = ((0x3C - systemStatus[0] * 10) / systemStatus[1]) * 5;
         }
     }
     for (;;) {
@@ -4258,7 +4262,7 @@ inline void actCommonCatchFire(volatile int a0)
     SetMotionDirection(a0, (char *)s + 0x4D0);
     for (;;) {
         if (GetMotionFrameFlag1((void *)a0) && !lit) {
-            LightTorchOnOfWeapon((void *)s->f_150);
+            LightTorchOnOfWeapon((void *)s->weapon);
             lit = 1;
         }
         ACTSendMailCorrect((char *)a0, 0xC7);
@@ -4274,7 +4278,7 @@ inline void actCommonCatchFireBomb(volatile int a0)
     SetMotionDirection(a0, (char *)s + 0x4D0);
     for (;;) {
         if (GetMotionFrameFlag1((void *)a0) && !lit) {
-            LightTorchOn(s->f_614);
+            LightTorchOn(s->bombObj);
             lit = 1;
         }
         ACTSendMailCorrect((char *)a0, 0xC7);
@@ -4290,7 +4294,7 @@ inline void actCommonPutFire(volatile int a0)
     SetMotionDirection(a0, (char *)s + 0x4E0);
     for (;;) {
         if (GetMotionFrameFlag1((void *)a0) && !lit) {
-            LightTorchOn(s->f_618);
+            LightTorchOn(s->torchRevObj);
             lit = 1;
         }
         ACTSendMailCorrect((char *)a0, 0xC7);
@@ -4317,7 +4321,7 @@ inline void actCommonItem(volatile int a0)
 
 inline void actCommonClimb(volatile int a0)
 {
-    ACTAdjustPlane(a0, GOBJ_ACT(a0)->f_688 + 0x8B0);
+    ACTAdjustPlane(a0, GOBJ_ACT(a0)->work + 0x8B0);
     for (;;) {
         ACTSendMailCorrect((char *)a0, 0xC7);
         _ACTWait(1);
@@ -4346,11 +4350,11 @@ inline void actCommonLadderBellow(volatile int a0)
         if (ACTCheckCollis_CI((int)p, (int)q, attr, (char *)hit) != 0) {
             if (CompareAttribute(attr[0], 0x3000) != 0) {
                 ACTSendMailCorrect((char *)a0, 0x91);
-                *(Vec3f *)((char *)GOBJ_ACT(a0)->f_688 + 0x3D8) = *(Vec3f *)hit;
+                *(Vec3f *)((char *)GOBJ_ACT(a0)->work + 0x3D8) = *(Vec3f *)hit;
             }
             if (CompareAttribute(attr[0], 0x400) != 0) {
                 ACTSendMailCorrect((char *)a0, 0x90);
-                *(Vec3f *)((char *)GOBJ_ACT(a0)->f_688 + 0x3CC) = *(Vec3f *)hit;
+                *(Vec3f *)((char *)GOBJ_ACT(a0)->work + 0x3CC) = *(Vec3f *)hit;
             }
         }
         ACTSendMailCorrect((char *)a0, 0xE2);
@@ -4375,7 +4379,7 @@ inline void actCommonEdge(volatile int a0)
 {
     for (;;) {
         ACTSendMailCorrect((char *)a0, 0x150);
-        if (-GOBJ_SUB(a0)->f_5E8 > 250.0f) {
+        if (-GOBJ_SUB(a0)->cliffDepth > 250.0f) {
             ACTSendMailCorrect((char *)a0, 0x18);
         }
         _ACTWait(1);
@@ -4418,7 +4422,7 @@ inline void actCommonFallDamage(volatile int a0)
 inline void actCommonLever2(volatile int a0)
 {
     Act *s = GOBJ_ACT(a0);
-    char *lev = (char *)s->f_5FC;
+    char *lev = (char *)s->pullObj;
 
     SetDirectRootPositionXZ((void *)a0, (char *)s + 0x5A0);
     actMotDirToWall((char *)a0);
@@ -4428,8 +4432,8 @@ inline void actCommonLever2(volatile int a0)
                exactly this dead volatile re-read and nothing else; retail
                dropped the body (actCommonLever keeps correctLeverHoldPoint
                here). */
-            if (GOBJ_SUB(a0)->f_604 != 0) {}
-            if (GOBJ_SUB(a0)->f_600 != 0) {
+            if (GOBJ_SUB(a0)->frameFlag2 != 0) {}
+            if (GOBJ_SUB(a0)->frameFlag1 != 0) {
                 lever_nego1((void *)a0, lev);
             }
         }
@@ -4442,7 +4446,7 @@ inline void actCommonRopeTouchWall(volatile int a0)
     Act *s = GOBJ_ACT(a0);
 
     while (1) {
-        if (((0x3C - systemStatus[0] * 10) / systemStatus[1]) / 2 < s->f_4C) {
+        if (((0x3C - systemStatus[0] * 10) / systemStatus[1]) / 2 < s->modeFrame) {
             ACTSendMailCorrect((char *)a0, 0xAA);
         }
         _ACTWait(1);
@@ -4462,16 +4466,16 @@ inline void actCommonRopeSwing(volatile int a0)
     float q[4];
     Act *s = GOBJ_ACT(a0);
 
-    LockChainGeo(s->f_190);
+    LockChainGeo(s->chain);
     ((RopeSwingWork *)s)->f18 = (int)actAfterForceRopeSwing;
     GetCorrectOrientOfChain(q, (void *)a0);
-    s->f_1A0 = q[0];
-    s->f_1A4 = q[1];
-    s->f_1A8 = q[2];
-    PlumbOrientUpdateChain(s->f_190, q);
+    s->ropeSwingX = q[0];
+    s->ropeSwingY = q[1];
+    s->ropeSwingZ = q[2];
+    PlumbOrientUpdateChain(s->chain, q);
     _ACTWait(1);
     while (1) {
-        switch (CollisCheckInRope((void *)a0, s->f_190)) {
+        switch (CollisCheckInRope((void *)a0, s->chain)) {
         case 1:
             ACTSendMailCorrect((char *)a0, 0xA8);
             break;
@@ -4479,9 +4483,9 @@ inline void actCommonRopeSwing(volatile int a0)
             ACTSendMailCorrect((char *)a0, 0xA7);
             break;
         }
-        UnLockChainGeo(s->f_190);
-        ChainGeo(s->f_190);
-        LockChainGeo(s->f_190);
+        UnLockChainGeo(s->chain);
+        ChainGeo(s->chain);
+        LockChainGeo(s->chain);
         SetMotionDirection(a0, q);
         _ACTWait(1);
     }
@@ -4513,7 +4517,7 @@ typedef struct {
 static inline int isRopeDownEndOnFloor(char *self)
 {
     FloorWork work;
-    char *rec = motionKind + GOBJ_SUB(self)->f_4A0 * 0x194;
+    char *rec = motionKind + GOBJ_SUB(self)->motion * 0x194;
 
     if ((*(unsigned int *)(rec + 0x18C) >> 4) & 1) {
         GetSkeltonPosition((float *)&work, self, 0x2C);
@@ -4549,7 +4553,7 @@ inline void actCommonRopeJump(volatile int a0)
     Act *s = GOBJ_ACT(a0);
 
     *(int *)((char *)s + 0x18) = (int)actAfterRopeJump;
-    if (s->f_D8 == 0xA7) {
+    if (s->intrKind == 0xA7) {
         ((RopeJumpWork *)(int)GOBJ_SUB(a0))->f130 = 0;
         ((RopeJumpWork *)(int)GOBJ_SUB(a0))->f134 = 0;
         ((RopeJumpWork *)(int)GOBJ_SUB(a0))->f138 = 0;
@@ -4581,9 +4585,9 @@ inline void actCommonRopeTurnSpecial(volatile int a0)
     float out[4];
 
     ((RopeTurnSpWork *)(char *)GOBJ_ACT(a0))->f18 = (int)afterCommonRopeTurnSpecial;
-    base.f[0] = GOBJ_SUB(a0)->f_410;
-    base.f[1] = GOBJ_SUB(a0)->f_414;
-    base.f[2] = GOBJ_SUB(a0)->f_418;
+    base.f[0] = GOBJ_SUB(a0)->ropeBaseX;
+    base.f[1] = GOBJ_SUB(a0)->ropeBaseY;
+    base.f[2] = GOBJ_SUB(a0)->ropeBaseZ;
     while (1) {
         GetCageChainPoint(p0, p1, GOBJ_WORK(a0)->f_400);
         _InterGV(out, p0, p1, base.f[1] - p0[1], p1[1] - base.f[1]);
@@ -4625,19 +4629,19 @@ inline void actCommonTurnWarn(volatile int a0)
 {
     float q[4];
     Act *s = GOBJ_ACT(a0);
-    int prev = s->f_40;
+    int prev = s->curMot;
 
     while (1) {
         int d;
 
-        if (s->f_40 != 0x10D) {
-            prev = s->f_40;
+        if (s->curMot != 0x10D) {
+            prev = s->curMot;
         } else {
             *(int *)((char *)s + 0x130) =
                 SetMotionRequest((void *)a0, prev, *(MotOriReq *)((char *)s + 0x620));
         }
         GetRootMotionOrient(q, a0);
-        d = _RotyGV((char *)GOBJ_ACT(a0)->f_688 + 0x3F0, q);
+        d = _RotyGV((char *)GOBJ_ACT(a0)->work + 0x3F0, q);
         if ((d < 0 ? -d : d) < 0xF) {
             ACTSendMailCorrect((char *)a0, 0xF5);
         }
@@ -4678,9 +4682,9 @@ inline void actCommonHandrail(volatile int a0)
 {
     Act *s = GOBJ_ACT(a0);
 
-    ((HandrailNode *)(char *)GOBJ_ACT(a0)->f_688)->f4C0 = s->f_4B0;
-    ((HandrailNode *)(char *)GOBJ_ACT(a0)->f_688)->f4C4 = s->f_4B4;
-    ((HandrailNode *)(char *)GOBJ_ACT(a0)->f_688)->f4C8 = s->f_4B8;
+    ((HandrailNode *)(char *)GOBJ_ACT(a0)->work)->f4C0 = s->wallOrientX;
+    ((HandrailNode *)(char *)GOBJ_ACT(a0)->work)->f4C4 = s->wallOrientY;
+    ((HandrailNode *)(char *)GOBJ_ACT(a0)->work)->f4C8 = s->wallOrientZ;
     for (;;) {
         _ACTWait(1);
     }
@@ -4699,7 +4703,7 @@ inline void motCommonBoxPush(volatile int a0)
     *(int *)((char *)s + 0x38) = 1;
     while (1) {
         if (IsThisBoxTruck(s->box) == 0) {
-            SetMotionDirection(a0, (char *)GOBJ_ACT(a0)->f_688 + 0x530);
+            SetMotionDirection(a0, (char *)GOBJ_ACT(a0)->work + 0x530);
         } else {
             actMotDirToWall((char *)a0);
         }
@@ -4711,10 +4715,10 @@ inline void motCommonBoxPull(volatile int a0)
 {
     Act *s = GOBJ_ACT(a0);
 
-    s->f_38 = -1;
+    s->pushDir = -1;
     while (1) {
         if (IsThisBoxTruck(s->box) == 0) {
-            SetMotionDirection(a0, (char *)GOBJ_ACT(a0)->f_688 + 0x530);
+            SetMotionDirection(a0, (char *)GOBJ_ACT(a0)->work + 0x530);
         } else {
             actMotDirToWall((char *)a0);
         }
@@ -4731,7 +4735,7 @@ inline void motCommonBarPush(volatile int a0)
 inline void motCommonBarPull(volatile int a0)
 {
     char *g = (char *)a0;
-    GOBJ_ACT(g)->f_38 = 0xFFFFFFFFu;
+    GOBJ_ACT(g)->pushDir = 0xFFFFFFFFu;
     _ACTWait(0);
 }
 
@@ -4746,7 +4750,7 @@ inline void motCommonLadderUp(volatile int a0)
 
     while (1) {
         s->f38 = 1;
-        switch (GOBJ_ACT(a0)->f_680->f_290) {
+        switch (GOBJ_ACT(a0)->enemy->f_290) {
         case 1:
             ACTSendMailCorrect((char *)a0, 0x89);
         case 2:
@@ -4768,7 +4772,7 @@ inline void motCommonLadderDown(volatile int a0)
 
     while (1) {
         s->f38 = -1;
-        switch (GOBJ_ACT(a0)->f_680->f_294) {
+        switch (GOBJ_ACT(a0)->enemy->f_294) {
         case 1:
             ACTSendMailCorrect((char *)a0, 0x89);
         case 2:
@@ -4799,10 +4803,10 @@ inline void motCommonRopejumpDircorrect(volatile int a0)
     float v[4];
     Act *s = GOBJ_ACT(a0);
 
-    v[0] = s->f_1A0;
-    v[1] = s->f_1A4;
-    v[2] = s->f_1A8;
-    if (s->f_D8 == 0xBE) {
+    v[0] = s->ropeSwingX;
+    v[1] = s->ropeSwingY;
+    v[2] = s->ropeSwingZ;
+    if (s->intrKind == 0xBE) {
         sceVu0ScaleVector(v, v, -1.0f);
     }
     for (;;) {
@@ -4825,7 +4829,7 @@ inline void motCommonRopeTurnSpecialR(volatile int a0)
         _ApplyRyGV(dir, (float)RoundDegGV(base + deg) * 3.1415927f / 180.0f);
         debug_Arrow(200.0f, test_CURRENTROOT((void *)a0), dir, 0xFF, 0, 0xFF);
         SetMotionDirection(a0, dir);
-        if (i++ % wait == 0 && !(0.1f < s->f_34C)) {
+        if (i++ % wait == 0 && !(0.1f < s->stickMag)) {
             ACTSendMailCorrect((char *)a0, 0xAC);
         }
         deg += 5;
@@ -4847,7 +4851,7 @@ inline void motCommonRopeTurnSpecialL(volatile int a0)
         _ApplyRyGV(dir, (float)RoundDegGV(base - deg) * 3.1415927f / 180.0f);
         debug_Arrow(200.0f, test_CURRENTROOT((void *)a0), dir, 0xFF, 0, 0xFF);
         SetMotionDirection(a0, dir);
-        if (i++ % wait == 0 && !(0.1f < s->f_34C)) {
+        if (i++ % wait == 0 && !(0.1f < s->stickMag)) {
             ACTSendMailCorrect((char *)a0, 0xAC);
         }
         deg += 5;
@@ -4857,7 +4861,7 @@ inline void motCommonRopeTurnSpecialL(volatile int a0)
 
 inline void motCommonTruckLeverLoop(volatile int a0)
 {
-    int sw = GOBJ_ACT(a0)->f_5FC;
+    int sw = GOBJ_ACT(a0)->pullObj;
 
     _ACTWait(6);
     SetSwitchState(sw, 0);
@@ -4867,7 +4871,7 @@ inline void motCommonTruckLeverLoop(volatile int a0)
 
 inline void motCommonTruckLeverPull(volatile int a0)
 {
-    int sw = GOBJ_ACT(a0)->f_5FC;
+    int sw = GOBJ_ACT(a0)->pullObj;
     _ACTWait(30);
     SetSwitchState(sw, -1);
     debug_StdPrintfDummy("pull");
@@ -4876,7 +4880,7 @@ inline void motCommonTruckLeverPull(volatile int a0)
 
 inline void motCommonTruckLeverPush(volatile int a0)
 {
-    int sw = GOBJ_ACT(a0)->f_5FC;
+    int sw = GOBJ_ACT(a0)->pullObj;
     _ACTWait(30);
     SetSwitchState(sw, 1);
     debug_StdPrintfDummy("push");
@@ -4885,7 +4889,7 @@ inline void motCommonTruckLeverPush(volatile int a0)
 
 inline void funcCommonRopeBefore(char *a0, int a1, int a2)
 {
-    GOBJ_ACT(a0)->f_190 = a2;
+    GOBJ_ACT(a0)->chain = a2;
 }
 
 inline void extraCommonNull(volatile int a0)
@@ -4914,7 +4918,7 @@ inline void funcCommonWayOn(void *a0)
 
 inline void funcCommonSofaWakeup(char *a0)
 {
-    GOBJ_ACT(a0)->f_680->f_250 = 0;
+    GOBJ_ACT(a0)->enemy->f_250 = 0;
 }
 
 inline int _ACTMotReqResult(char *a0, int a1)
@@ -4935,29 +4939,29 @@ typedef union {
 
 inline void StartCorrectPosition(char *a0, float *pos, float *dir, int mode, float t)
 {
-    GOBJ_ACT(a0)->f_680->f_70 = test_CURRENTROOT(a0)[0];
-    GOBJ_ACT(a0)->f_680->f_74 = test_CURRENTROOT(a0)[1];
-    GOBJ_ACT(a0)->f_680->f_78 = test_CURRENTROOT(a0)[2];
-    GOBJ_ACT(a0)->f_680->f_80 = test_CURRENTORIENT(a0)[0];
-    GOBJ_ACT(a0)->f_680->f_84 = test_CURRENTORIENT(a0)[1];
-    GOBJ_ACT(a0)->f_680->f_88 = test_CURRENTORIENT(a0)[2];
-    GOBJ_ACT(a0)->f_680->f_90 = pos[0];
-    GOBJ_ACT(a0)->f_680->f_94 = pos[1];
-    GOBJ_ACT(a0)->f_680->f_98 = pos[2];
+    GOBJ_ACT(a0)->enemy->f_70 = test_CURRENTROOT(a0)[0];
+    GOBJ_ACT(a0)->enemy->f_74 = test_CURRENTROOT(a0)[1];
+    GOBJ_ACT(a0)->enemy->f_78 = test_CURRENTROOT(a0)[2];
+    GOBJ_ACT(a0)->enemy->f_80 = test_CURRENTORIENT(a0)[0];
+    GOBJ_ACT(a0)->enemy->f_84 = test_CURRENTORIENT(a0)[1];
+    GOBJ_ACT(a0)->enemy->f_88 = test_CURRENTORIENT(a0)[2];
+    GOBJ_ACT(a0)->enemy->f_90 = pos[0];
+    GOBJ_ACT(a0)->enemy->f_94 = pos[1];
+    GOBJ_ACT(a0)->enemy->f_98 = pos[2];
     if (dir != 0) {
-        GOBJ_ACT(a0)->f_680->f_A0 = dir[0];
-        GOBJ_ACT(a0)->f_680->f_A4 = dir[1];
-        GOBJ_ACT(a0)->f_680->f_A8 = dir[2];
+        GOBJ_ACT(a0)->enemy->f_A0 = dir[0];
+        GOBJ_ACT(a0)->enemy->f_A4 = dir[1];
+        GOBJ_ACT(a0)->enemy->f_A8 = dir[2];
     }
-    GOBJ_ACT(a0)->f_680->f_B0 = (int)t;
-    GOBJ_ACT(a0)->f_680->f_B4 = 0;
-    ((CorrFlag *)((char *)GOBJ_ACT(a0)->f_680 + 0xB8))->i = mode;
-    ((CorrFlag *)((char *)GOBJ_ACT(a0)->f_680 + 0xB8))->ll |= (1ULL << 32);
+    GOBJ_ACT(a0)->enemy->f_B0 = (int)t;
+    GOBJ_ACT(a0)->enemy->f_B4 = 0;
+    ((CorrFlag *)((char *)GOBJ_ACT(a0)->enemy + 0xB8))->i = mode;
+    ((CorrFlag *)((char *)GOBJ_ACT(a0)->enemy + 0xB8))->ll |= (1ULL << 32);
 }
 
 inline int IsCorrectPosition(char *a0)
 {
-    unsigned long long v = GOBJ_ACT(a0)->f_680->f_BC;
+    unsigned long long v = GOBJ_ACT(a0)->enemy->f_BC;
     return (int)v & 1;
 }
 
@@ -5054,11 +5058,11 @@ inline void SetCorrectOrientOfChain(void *a0)
 inline void actAfterForceRopeSwing(volatile int a0)
 {
     Act *s = GOBJ_ACT(a0);
-    if (s->f_190 == 0) {
+    if (s->chain == 0) {
         debug_assert("src/commonact.c", 1653);
         __assert("src/commonact.c", 1653, "ROPE_GOBJ!=NULL");
     }
-    UnLockChainGeo(s->f_190);
+    UnLockChainGeo(s->chain);
 }
 
 inline void actAfterRopeJump(volatile int a0)
@@ -5077,7 +5081,7 @@ inline void afterCommonRopeCliff(char *a0)
 inline void afterCommonRopeTurnSpecial(volatile int a0)
 {
     char *g = (char *)a0;
-    GOBJ_SUB(g)->f_420 = 0;
+    GOBJ_SUB(g)->ropeState = 0;
 }
 
 inline void actAfterDown(volatile int a0)
@@ -5104,8 +5108,8 @@ inline void afterCommonStone(volatile int a0)
 {
     int g1 = a0;
     int g2 = a0;
-    GOBJ_ACT(g1)->f_680->f_2A0 = -1;
-    GOBJ_ACT(g2)->f_680->f_2A4 = 0;
+    GOBJ_ACT(g1)->enemy->f_2A0 = -1;
+    GOBJ_ACT(g2)->enemy->f_2A4 = 0;
 }
 
 inline void afterCommonBox(volatile int a0)
@@ -5161,7 +5165,7 @@ inline void afterCommonOneWall(int x)
 
 inline int ACTCheckFlagAttack(char *a0)
 {
-    return GOBJ_ACT(a0)->unk34 == 0xF;
+    return GOBJ_ACT(a0)->actMode == 0xF;
 }
 
 typedef struct {
@@ -5180,5 +5184,5 @@ inline void afterCommonBecarry(volatile int a0)
 inline void afterCommonTruckLever(volatile int a0)
 {
     char *g = (char *)a0;
-    SetSwitchState(GOBJ_ACT(g)->f_5FC, 0);
+    SetSwitchState(GOBJ_ACT(g)->pullObj, 0);
 }

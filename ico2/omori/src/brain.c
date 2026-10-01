@@ -43,15 +43,15 @@ void brainInit(void)
 
     b->girl = 0;
     b->cur = 0;
-    b->wC = 0;
-    b->w10 = 0;
+    b->spMode = 0;
+    b->spCount = 0;
     for (i = 0; i < 40; i++) {
         b->tgt[i].gobj = 0;
     }
-    b->f14 = 0.0f;
+    b->threshold = 0.0f;
     b->idx = -1;
-    b->h1C = 0;
-    b->w8 = 0;
+    b->targetType = 0;
+    b->lock = 0;
     eBrainInit();
 }
 
@@ -63,9 +63,9 @@ void OverrideBrainStatusByGObj(Brain *b, int gobj, float f8, float f10, float fC
     for (i = 0; i < 40; i++) {
         if (b->tgt[i].gobj == gobj) {
             t = &b->tgt[i];
-            t->f8 = f8;
-            t->fC = fC;
-            t->f10 = f10;
+            t->levelCap = f8;
+            t->capStep = fC;
+            t->rate = f10;
             t->level = 0.0f;
             return;
         }
@@ -85,8 +85,8 @@ extern BrainDefEnt objLayout[];
 
 static inline void brainSetTargetSub(Brain *b, int gobj, float lvl, int k)
 {
-    float fc = objKindData[k].f28;
-    float f10 = objKindData[k].f2C;
+    float fc = objKindData[k].brainCapStep;
+    float f10 = objKindData[k].brainRate;
     BrainTarget *t;
     int i;
 
@@ -101,12 +101,12 @@ static inline void brainSetTargetSub(Brain *b, int gobj, float lvl, int k)
     t = &b->tgt[i];
     t->gobj = gobj;
     t->level = 0.0f;
-    t->f8 = lvl;
-    t->fC = fc;
-    t->f10 = f10;
-    t->b18 = 0;
-    t->b19 = 0;
-    *(int *)&t->b18 &= ~0x10000;
+    t->levelCap = lvl;
+    t->capStep = fc;
+    t->rate = f10;
+    t->byte18 = 0;
+    t->alwaysSeen = 0;
+    *(int *)&t->byte18 &= ~0x10000;
     brainSetTargetTimer(t);
 }
 
@@ -116,23 +116,23 @@ void brainStatusDefaultSet(Brain *b, int gobj, int idx)
     int k = d->b46;
 
     if ((d->w48 >> 20) & 1) {
-        if (objKindData[k].f30 != 0) {
-            brainSetTargetSub(b, gobj, (float)objKindData[k].f30, k);
+        if (objKindData[k].brainLevel != 0) {
+            brainSetTargetSub(b, gobj, (float)objKindData[k].brainLevel, k);
         }
     }
 }
 
 static inline void brainLevelUp(BrainTarget *t) /* derived name */
 {
-    float d = t->f10;
+    float d = t->rate;
 
-    if (t->level <= t->f8) {
+    if (t->level <= t->levelCap) {
         float r;
         t->level = t->level + d;
         if (t->level < 0.0f) {
             r = 0.0f;
-        } else if (t->level > t->f8) {
-            r = t->f8;
+        } else if (t->level > t->levelCap) {
+            r = t->levelCap;
         } else {
             r = t->level;
         }
@@ -143,7 +143,7 @@ static inline void brainLevelUp(BrainTarget *t) /* derived name */
 /* brainCheckView's body, for the caller above its definition */
 static inline int brainCheckView_INTERIM(Brain *b, BrainTarget *t)
 {
-    if (t->b19 != 0) {
+    if (t->alwaysSeen != 0) {
         return 1;
     }
     return ACTGameView_Check(b->girl, t->gobj) != 0;
@@ -153,9 +153,9 @@ void brainLevelProcess(Brain *b)
 {
     int i;
 
-    b->f14 = b->f14 - _ACTGame_GetParamF(24) * 0.1f;
-    if (b->f14 < b->f18) {
-        b->f14 = b->f18;
+    b->threshold = b->threshold - _ACTGame_GetParamF(24) * 0.1f;
+    if (b->threshold < b->minThreshold) {
+        b->threshold = b->minThreshold;
     }
     for (i = 0; i < 40; i++) {
         BrainTarget *t = &b->tgt[i];
@@ -167,7 +167,7 @@ void brainLevelProcess(Brain *b)
             t->level = 0.0f;
             continue;
         }
-        if (b->w8 != 0) {
+        if (b->lock != 0) {
             t->level = 0.0f;
             continue;
         }
@@ -194,11 +194,11 @@ void brainLevelProcess(Brain *b)
             continue;
         }
         brainLevelUp(t);
-        if (t->f8 < t->level) {
+        if (t->levelCap < t->level) {
             float r;
-            t->level = t->level - t->f10 / 10.0f;
-            if (t->level < t->f8) {
-                r = t->f8;
+            t->level = t->level - t->rate / 10.0f;
+            if (t->level < t->levelCap) {
+                r = t->levelCap;
             } else if (t->level > 3.40282347e+38f) {
                 r = 3.40282347e+38f;
             } else {
@@ -213,7 +213,7 @@ void brainLevelProcess(Brain *b)
 static inline float brainGetLevel_INTERIM(Brain *b, BrainTarget *t)
 {
     if (b->cur == t) {
-        return t->level + b->f14;
+        return t->level + b->threshold;
     }
     return t->level;
 }
@@ -248,24 +248,24 @@ void brainGetTarget(Brain *b)
         }
     }
 
-    if (b->wC != 0) {
-        b->wC = 0;
-        b->w10 = b->w10 + 1;
+    if (b->spMode != 0) {
+        b->spMode = 0;
+        b->spCount = b->spCount + 1;
     } else {
-        b->w10 = b->w10 - 1;
+        b->spCount = b->spCount - 1;
     }
-    if (b->w10 >= 0) {
-        n = b->w10 > (0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 3 +
-                         (0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 12
+    if (b->spCount >= 0) {
+        n = b->spCount > (0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 3 +
+                             (0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 12
                 ? (0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 3 +
                       (0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 12
-                : b->w10;
+                : b->spCount;
     } else {
         n = 0;
     }
-    b->w10 = n;
+    b->spCount = n;
 
-    if ((0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 3 < b->w10) {
+    if ((0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 3 < b->spCount) {
         best = b->cur;
         for (i = 0; i < 40; i++) {
             t = &b->tgt[i];
@@ -279,27 +279,27 @@ void brainGetTarget(Brain *b)
     b->idx = -1;
     if (best != 0) {
         b->idx = idx;
-        lv = (int)(brainGetLevel_INTERIM(b, best) - b->f14);
+        lv = (int)(brainGetLevel_INTERIM(b, best) - b->threshold);
 
-        b->f20 = (float)lv / 10.0f;
-        if (b->f20 < 0.0f) {
+        b->targetLevel = (float)lv / 10.0f;
+        if (b->targetLevel < 0.0f) {
             r = 0.0f;
-        } else if (b->f20 > 1.0f) {
+        } else if (b->targetLevel > 1.0f) {
             r = 1.0f;
         } else {
-            r = b->f20;
+            r = b->targetLevel;
         }
-        b->f20 = r;
+        b->targetLevel = r;
         if (lv > 0) {
-            if (best->b18 != 0 || lv < 2) {
-                b->h1C = 1;
+            if (best->byte18 != 0 || lv < 2) {
+                b->targetType = 1;
             } else if (lv < 4) {
-                b->h1C = 2;
+                b->targetType = 2;
             } else {
-                b->h1C = 3;
+                b->targetType = 3;
             }
         } else {
-            b->h1C = 0;
+            b->targetType = 0;
         }
     }
 }
@@ -312,7 +312,7 @@ void brainStatusDel(char *self)
 float brainGetLevel(Brain *b, BrainTarget *t)
 {
     if (b->cur == t) {
-        return t->level + b->f14;
+        return t->level + b->threshold;
     }
     return t->level;
 }
@@ -326,12 +326,12 @@ void brainClsTargetLevel(Brain *b)
     }
     t = &b->tgt[b->idx];
     t->level = 0.0f;
-    b->h1C = 0;
-    t->f8 = t->f8 - t->fC;
-    if (t->f8 < t->level) {
-        t->f8 = t->level;
+    b->targetType = 0;
+    t->levelCap = t->levelCap - t->capStep;
+    if (t->levelCap < t->level) {
+        t->levelCap = t->level;
     }
-    *(int *)&t->b18 &= ~0x10000;
+    *(int *)&t->byte18 &= ~0x10000;
     brainSetTargetTimer(t);
 }
 
@@ -364,7 +364,7 @@ void brainAddLevelGirlDetail(int flag, float lv)
     if (b->cur != 0) {
         brainAddLevel(b->cur, lv);
         if (flag != 0) {
-            *(int *)&b->cur->b18 |= 0x10000;
+            *(int *)&b->cur->byte18 |= 0x10000;
         }
     }
 }
@@ -413,8 +413,8 @@ void brainSetLevelGop(int gobj, int a1, int a2, float lv)
 
     for (i = 0; i < 40; i++) {
         if (((BrainTarget *)tgt)[i].gobj == gobj) {
-            ((BrainTarget *)tgt)[i].b18 = a1;
-            ((BrainTarget *)tgt)[i].b19 = a2;
+            ((BrainTarget *)tgt)[i].byte18 = a1;
+            ((BrainTarget *)tgt)[i].alwaysSeen = a2;
             brainSetLevel((int *)brain, &((BrainTarget *)tgt)[i], lv);
         }
     }
@@ -460,24 +460,24 @@ found:
 
 void brainSetSpMode(void)
 {
-    brainGirl.wC = 1;
+    brainGirl.spMode = 1;
 }
 
 void brainLockGirl(void)
 {
-    brainGirl.w8 = 1;
+    brainGirl.lock = 1;
 }
 
 void brainUnlockGirl(void)
 {
-    brainGirl.w8 = 0;
+    brainGirl.lock = 0;
 }
 
 void brainAddLevel(BrainTarget *t, float lv)
 {
     float r;
 
-    t->level = t->level + t->f10 * lv;
+    t->level = t->level + t->rate * lv;
     if (t->level < 0.0f) {
         r = 0.0f;
     } else if (t->level > 10.0f) {
@@ -491,7 +491,7 @@ void brainAddLevel(BrainTarget *t, float lv)
 void brainSetLevel(int *b, BrainTarget *t, float lv)
 {
     int cond;
-    if (t->b19 != 0) {
+    if (t->alwaysSeen != 0) {
         cond = 1;
     } else {
         cond = ACTGameView_Check(*b, t->gobj) != 0;

@@ -433,8 +433,8 @@ void shadow_EntryClusterShadow(Sub15C *a0, float a1)
     _ScaleVectorXYZ(sa, v, a1);
     _ScaleVectorXYZ(sb, v, 4.0f);
 
-    for (i = 0; i < a0->f_8; i++) {
-        _SetCurrentMatrix((char *)a0->f_C + i * 0x40);
+    for (i = 0; i < a0->nodeNum; i++) {
+        _SetCurrentMatrix((char *)a0->nodeMtx + i * 0x40);
         _MulCurrentMatrixR(a0->clusterMtx + i * 0x40);
         _MulCurrentMatrixL(matrixptr + 0x80);
         _GetCurrentMatrix(clusterMatrix + i * 0x40);
@@ -527,7 +527,7 @@ void shadow_EntryNormalShadow(Sub15C *a0, int a1, float a2)
     shadow_getShadowVectorAverage(v, a0);
     _ScaleVectorXYZ(sa, v, a2);
     _ScaleVectorXYZ(sb, v, 4.0f);
-    _SetCurrentMatrix((char *)a0->f_C + a1 * 0x40);
+    _SetCurrentMatrix((char *)a0->nodeMtx + a1 * 0x40);
     _MulCurrentMatrixL(matrixptr + 0x80);
 
     p = x->parts;
@@ -1266,7 +1266,7 @@ inline void shadow_DispCancel(int a0, int a1)
     if (obj != 0) {
         long long bit = (long long)(a1 & 1) << 26;
         do {
-            Sub15C *node = ((GObj *)obj)->p_15C;
+            Sub15C *node = ((GObj *)obj)->dobj;
             if (node != 0) {
                 PObjModel *dl = node->model;
                 if (dl != 0) {

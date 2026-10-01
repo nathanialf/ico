@@ -180,17 +180,17 @@ void actSt13bConte02(volatile int a0)
 
     scpFadeIn(8.0f);
 
-    stgmgrNextStagePreLoadForceStageSet(exitData[(&stageData[stage_no])->ent[3]].f_24);
+    stgmgrNextStagePreLoadForceStageSet(exitData[(&stageData[stage_no])->ent[3]].nextStage);
     stgmgrNextStagePreLoadForceNoCancel(1);
 
     stage_SetAnimation(586, 1, 0);
     scpPlayMot((void *)boyGObj, 282);
     scpPlayMot(scpSearchGobj(2403), 1001);
-    scpSearchGobj(2403)->f16C = 1;
+    scpSearchGobj(2403)->active = 1;
     scpPlayMot(scpSearchGobj(2404), 1023);
-    scpSearchGobj(2404)->f16C = 1;
+    scpSearchGobj(2404)->active = 1;
     scpPlayMot(scpSearchGobj(2405), 1047);
-    scpSearchGobj(2405)->f16C = 1;
+    scpSearchGobj(2405)->active = 1;
     _ACTWait(1);
 
     stage_SetAnimation(34, 1, 0);
@@ -277,9 +277,9 @@ void actSt13bConte02(volatile int a0)
     }
 
     scpPlayMot((void *)boyGObj, 287);
-    scpSearchGobj(2403)->f16C = 0;
-    scpSearchGobj(2404)->f16C = 0;
-    scpSearchGobj(2405)->f16C = 0;
+    scpSearchGobj(2403)->active = 0;
+    scpSearchGobj(2404)->active = 0;
+    scpSearchGobj(2405)->active = 0;
 
     stage_SetAnimation(34, 0, 0);
 
@@ -635,7 +635,7 @@ void actSt13bBoss(volatile int a0)
     }
 
     if (gflagChk(13) == 0) {
-        scpSearchGobj(2470)->f16C = 0;
+        scpSearchGobj(2470)->active = 0;
         boss_mes[0].func = actSt13bBossChk;
         self->mail = boss_mes;
         ACTSendMailCorrect(a0, 430);
@@ -662,7 +662,7 @@ void actSt13bBossChk(volatile int a0)
     scpAdpcmPlayRequestFunc(37, &boss, 1, 0, 0);
     scpSeEnvMasterVolRate = 0.5f;
 
-    scpSearchGobj(2470)->f16C = 1;
+    scpSearchGobj(2470)->active = 1;
     scpPlayPosSet(scpSearchGobj(2470), 0.0f, -100.0f, 0.0f);
 
     scpPlayMot(scpSearchGobj(2464), 834);
@@ -1051,7 +1051,7 @@ void actSt13bStoneGirl(volatile int a0)
 
     if (current_stage_no == 0x2E) {
         scpPlayMot(scpSearchGobj(2462), 808);
-        scpSearchGobj(2462)->f16C = 1;
+        scpSearchGobj(2462)->active = 1;
     }
 }
 

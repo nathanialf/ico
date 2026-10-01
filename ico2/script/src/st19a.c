@@ -109,7 +109,7 @@ void actSt19aHaguruma(volatile int a0)
     pos[1] = hagurumaPos.d[1];
     soundSeDefPlay(1349, 0, (float *)pos, 1);
     if (gflagChk(311) == 0) {
-        scpSearchGobj(1960)->f16C = 0;
+        scpSearchGobj(1960)->active = 0;
         stage_SetAnimation(139, 0, 0);
         stage_SetAnimation(140, -1, -2);
         haguruma_mes[0].func = actSt19aHagurumaChk;
@@ -120,7 +120,7 @@ void actSt19aHaguruma(volatile int a0)
         soundSeDefPlay(1350, 0, haguruma2Pos, 1);
         soundSeDefPlay(1351, 0, haguruma2Pos, 1);
         soundSeDefPlay(1352, 0, haguruma2Pos, 1);
-        scpSearchGobj(1961)->f16C = 0;
+        scpSearchGobj(1961)->active = 0;
         stage_SetAnimation(139, 1, 0);
         stage_SetLoopFlag(139, 1);
         stage_SetLoopFlag(140, 1);
@@ -156,8 +156,8 @@ void actSt19aHagurumaChk(volatile int a0)
     _ACTWait(1);
     stage_SetAnimation(139, 1, 0);
     stage_SetAnimation(140, 1, 0);
-    scpSearchGobj(1961)->f16C = 0;
-    scpSearchGobj(1960)->f16C = 1;
+    scpSearchGobj(1961)->active = 0;
+    scpSearchGobj(1960)->active = 1;
     stage_SetLoopFlag(139, 1);
     stage_SetLoopFlag(140, 1);
     soundSeDefPlay(1350, 0, haguruma2Pos, 1);
@@ -196,7 +196,7 @@ void actSt19aPipeChk(volatile int a0)
     scpBoyControlReadDisable = 1;
     scpPlayStart(boyGObj);
     gflagOn(312);
-    scpSearchGobj(1958)->f16C = 0;
+    scpSearchGobj(1958)->active = 0;
     _ACTWait(1);
     scpAdpcmPlayRequestFunc(84, &hgrm_19a, 1, 1, 1);
     while (hgrm_19a == 0) {
@@ -223,7 +223,7 @@ void actSt19aPipeChk(volatile int a0)
         }
         _ACTWait(1);
     }
-    scpSearchGobj(1959)->f16C = 1;
+    scpSearchGobj(1959)->active = 1;
     scpPlayEnd(boyGObj);
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
@@ -255,7 +255,7 @@ void actSt19aChainDown(volatile int a0)
         SetCameraFlag_LwsCutBack();
         scpFadeIn(3.0f);
     }
-    scpSearchGobj(1963)->f16C = 1;
+    scpSearchGobj(1963)->active = 1;
     stage_SetAnimation(144, 0, 0x169);
     if (pipe19a != 0) {
         scpAdpcmFadeCloseFunc(&pipe19a, 0x100);
@@ -339,7 +339,7 @@ void actSt19aPipe(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(312) == 0) {
-        scpSearchGobj(1959)->f16C = 0;
+        scpSearchGobj(1959)->active = 0;
         stage_SetAnimation(143, 0, 0);
 
         pipe_mes[0].func = actSt19aPipeChk;
@@ -348,7 +348,7 @@ void actSt19aPipe(volatile int a0)
         _ACTWait(0);
 
     } else {
-        scpSearchGobj(1958)->f16C = 0;
+        scpSearchGobj(1958)->active = 0;
         stage_SetAnimation(143, 0, -1);
     }
 }
@@ -375,7 +375,7 @@ void actSt19aChain(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(313) == 0) {
-        scpSearchGobj(1963)->f16C = 0;
+        scpSearchGobj(1963)->active = 0;
 
         stage_SetAnimation(144, 0, 0);
 

@@ -94,14 +94,14 @@ void outerProcess(int act)
 
     if ((pad[1].flags & 0x20) != 0) {
         n = GetSkeltonFocusNode(boyGObj, 22);
-        GetWormRoute(act, (WormVec *)((char *)GOBJ_SUB(boyGObj)->f_C + n * 0x40 + 0x30));
+        GetWormRoute(act, (WormVec *)((char *)GOBJ_SUB(boyGObj)->nodeMtx + n * 0x40 + 0x30));
         SetWormReduceRatio(act, 1.0f);
     }
 
     if ((pad[1].now & 0x40) != 0) {
         n = GetSkeltonFocusNode(boyGObj, 22);
-        SetDirectWormTargetPos(act, (char *)GOBJ_SUB(boyGObj)->f_C + n * 0x40 + 0x30);
-        GetWormCaptureVector(v, (void *)act, (char *)GOBJ_SUB(boyGObj)->f_C + n * 0x40 + 0x30,
+        SetDirectWormTargetPos(act, (char *)GOBJ_SUB(boyGObj)->nodeMtx + n * 0x40 + 0x30);
+        GetWormCaptureVector(v, (void *)act, (char *)GOBJ_SUB(boyGObj)->nodeMtx + n * 0x40 + 0x30,
                              5.0f);
         GetRootPosition(p, boyGObj);
         sceVu0AddVector(p, p, v);
@@ -173,7 +173,7 @@ void simulate(WormVec *v, int n, float len)
 void getAnimation(int act)
 {
     float tmp[4];
-    WormWork *w = GOBJ_SUB(act)->f_830;
+    WormWork *w = GOBJ_SUB(act)->work;
     WormRoute *r = w->route;
     int i, j;
 
@@ -206,7 +206,7 @@ void disp(void *act)
 {
     unsigned short ax;
     unsigned short az;
-    WormWork *w = GOBJ_SUB(act)->f_830;
+    WormWork *w = GOBJ_SUB(act)->work;
     WormRoute *r = w->route;
     int i;
     int j;
@@ -229,7 +229,7 @@ void disp(void *act)
             MatrixDrive_PushMatrix();
             MatrixDrive_ScaleMatrix(2.0f, len[j - 1] * 0.02f, 2.0f);
             MatrixDrive_RotMatrixX(-0x8000);
-            CopyMatrix((char *)GOBJ_SUB(act)->f_C + (j * 0x40 - 0x40), MatrixDrive_GetMatrix());
+            CopyMatrix((char *)GOBJ_SUB(act)->nodeMtx + (j * 0x40 - 0x40), MatrixDrive_GetMatrix());
             MatrixDrive_PopMatrix();
 
             if (j == num - 1) {
@@ -270,13 +270,13 @@ typedef union {
 
 inline void SetWormReduceRatio(int a0, float f12)
 {
-    ((WormFI *)((char *)GOBJ_SUB(a0)->f_830 + 8))->f = f12;
+    ((WormFI *)((char *)GOBJ_SUB(a0)->work + 8))->f = f12;
 }
 
 void GetWormRoute(int act, WormVec *target)
 {
     WormVec d;
-    WormWork *w = GOBJ_SUB(act)->f_830;
+    WormWork *w = GOBJ_SUB(act)->work;
     WormRoute *r = w->route;
     int i;
     int j;
@@ -307,7 +307,7 @@ void GetWormRoute(int act, WormVec *target)
 
 inline void SetDirectWormTargetPos(int act, void *pos)
 {
-    WormWork *w = GOBJ_SUB(act)->f_830;
+    WormWork *w = GOBJ_SUB(act)->work;
     WormRoute *r = w->route;
     int i;
 
@@ -321,7 +321,7 @@ inline void SetDirectWormTargetPos(int act, void *pos)
 
 inline void TraceWormRoute(int act, float t)
 {
-    WormWork *w = GOBJ_SUB(act)->f_830;
+    WormWork *w = GOBJ_SUB(act)->work;
     WormRoute *r = w->route;
     int i, j;
     float step = t * 8.99999f;
@@ -406,42 +406,42 @@ void *InitWormGeo(int act, WormInit *ini)
     *(float *)(*(char **)((char *)d + 0x870) + 0x4) = 0.0f;
     *(float *)(*(char **)((char *)d + 0x870) + 0x0) = 0.0f;
 
-    d->p_870->scale[2] = 1.0f;
-    d->p_870->scale[1] = 1.0f;
-    d->p_870->scale[0] = 1.0f;
+    d->nodes->scale[2] = 1.0f;
+    d->nodes->scale[1] = 1.0f;
+    d->nodes->scale[0] = 1.0f;
 
-    if (d->f_C != 0) {
-        iosFree(d->f_C & 0xFFFFFFF);
+    if (d->nodeMtx != 0) {
+        iosFree(d->nodeMtx & 0xFFFFFFF);
     }
-    if (d->f_10 != 0) {
-        iosFree(d->f_10 & 0xFFFFFFF);
+    if (d->nodeQuat != 0) {
+        iosFree(d->nodeQuat & 0xFFFFFFF);
     }
-    d->f_C = 0;
-    d->f_10 = 0;
-    d->f_C = (int)iosMallocDebug(ios_partition_seki, num * 0x40, __FILE__, 367);
-    d->f_10 = (int)iosMallocDebug(ios_partition_seki, num * 0x10, __FILE__, 367);
-    d->f_8 = num;
-    if ((int)d->p_870 != 0) {
-        iosFree((int)d->p_870 & 0xFFFFFFF);
+    d->nodeMtx = 0;
+    d->nodeQuat = 0;
+    d->nodeMtx = (int)iosMallocDebug(ios_partition_seki, num * 0x40, __FILE__, 367);
+    d->nodeQuat = (int)iosMallocDebug(ios_partition_seki, num * 0x10, __FILE__, 367);
+    d->nodeNum = num;
+    if ((int)d->nodes != 0) {
+        iosFree((int)d->nodes & 0xFFFFFFF);
     }
-    d->p_870 = iosMallocDebug(ios_partition_seki, num * 80, __FILE__, 367);
+    d->nodes = iosMallocDebug(ios_partition_seki, num * 80, __FILE__, 367);
     {
         int n;
 
         for (n = 0; n < num; n++) {
-            d->p_870[n].flags.ll &= ~1;
-            d->p_870[n].flags.ll &= ~2;
-            d->p_870[n].pos[0] = 0.0f;
-            d->p_870[n].pos[1] = 0.0f;
-            d->p_870[n].pos[2] = 0.0f;
-            d->p_870[n].pos[3] = 1.0f;
-            d->p_870[n].flags.ll &= ~4;
-            d->p_870[n].fade = 0.0f;
-            d->p_870[n].alpha = 1.0f;
-            *(short *)((char *)&d->p_870[n] + 0x3A) = 0;
-            d->p_870[n].scale[0] = 1.0f;
-            d->p_870[n].scale[1] = 1.0f;
-            d->p_870[n].scale[2] = 1.0f;
+            d->nodes[n].flags.ll &= ~1;
+            d->nodes[n].flags.ll &= ~2;
+            d->nodes[n].pos[0] = 0.0f;
+            d->nodes[n].pos[1] = 0.0f;
+            d->nodes[n].pos[2] = 0.0f;
+            d->nodes[n].pos[3] = 1.0f;
+            d->nodes[n].flags.ll &= ~4;
+            d->nodes[n].fade = 0.0f;
+            d->nodes[n].alpha = 1.0f;
+            *(short *)((char *)&d->nodes[n] + 0x3A) = 0;
+            d->nodes[n].scale[0] = 1.0f;
+            d->nodes[n].scale[1] = 1.0f;
+            d->nodes[n].scale[2] = 1.0f;
         }
     }
     d->dispType = 2;
@@ -458,7 +458,7 @@ void GetWormCaptureVector(void *out, void *act, void *node, float scale)
 
 void WormGeo(int act)
 {
-    WormWork *w = GOBJ_SUB(act)->f_830;
+    WormWork *w = GOBJ_SUB(act)->work;
 
     if (wormFirst != 0) {
         ResetWormRoute(act, w);

@@ -158,7 +158,7 @@ void actSt08bKurenSwitch(volatile int a0)
             } else {
                 p2.ll[0] = kurenSwitch2Pos.d[0];
                 p2.ll[1] = kurenSwitch2Pos.d[1];
-                p2.f[1] += *(float *)(GOBJ_SUB(girlGObj)->f_8C + 0x14);
+                p2.f[1] += *(float *)(GOBJ_SUB(girlGObj)->skel + 0x14);
                 SetDirectRootPosition(girlGObj, &p2);
             }
         }
@@ -167,7 +167,7 @@ void actSt08bKurenSwitch(volatile int a0)
 
     if (girlGObj != 0) {
         GetRootPosition(&p1, girlGObj);
-        GOBJ_SUB(girlGObj)->f_254 = p1.f[1];
+        GOBJ_SUB(girlGObj)->groundY = p1.f[1];
     }
 
     while (stage_CheckAnimationFrame(370, frame, 1) == 0) {
@@ -178,8 +178,8 @@ void actSt08bKurenSwitch(volatile int a0)
     lt_switch_layout(54);
 
     if (gflagChk(80) != 0) {
-        scpSearchGobj(365)->f16C = 1;
-        scpSearchGobj(364)->f16C = 0;
+        scpSearchGobj(365)->active = 1;
+        scpSearchGobj(364)->active = 0;
         _ACTWait(1);
         gflagOff(80);
     } else {
@@ -198,8 +198,8 @@ void actSt08bKurenLeft(volatile int a0)
 
     stage_SetAnimation(370, 1, 0);
 
-    scpSearchGobj(365)->f16C = 0;
-    scpSearchGobj(364)->f16C = 1;
+    scpSearchGobj(365)->active = 0;
+    scpSearchGobj(364)->active = 1;
 
     while (stage_CheckAnimationFrame(370, 5, 0) == 0) {
         _ACTWait(1);

@@ -35,7 +35,7 @@ inline GirlForceFieldWork *InitGirlForceFieldGeo(char *self, char *param)
     w->radius = *(float *)(param + 0x28);
     w->invRadius = 1.0f / w->radius;
     w->frame = 0;
-    c = ((SubHandle *)(self + 0x15C))->sub->p_870;
+    c = ((SubHandle *)(self + 0x15C))->sub->nodes;
     c->scale[0] = c->scale[1] = c->scale[2] = 1.0f;
     return w;
 }
@@ -55,7 +55,7 @@ void GirlForceFieldDL(char *self)
     float pos[4];
     float quat[4];
     float gpos[4];
-    GirlForceFieldWork *w = GOBJ_SUB(self)->f_830;
+    GirlForceFieldWork *w = GOBJ_SUB(self)->work;
     float d2;
     float ratio;
 
@@ -70,9 +70,9 @@ void GirlForceFieldDL(char *self)
             ratio = ratio < 0.0f ? 0.0f : ratio;
 
             GetRootQuaternion(quat, self);
-            w->frame =
-                (int)stage_PlayBgAnimationDissolve(D_002BC6E0[objLayout[*(int *)(self + 8)].x34].x0,
-                                                   pos, quat, (float)w->frame, ratio);
+            w->frame = (int)stage_PlayBgAnimationDissolve(
+                D_002BC6E0[objLayout[*(int *)(self + 8)].action].baseMode, pos, quat,
+                (float)w->frame, ratio);
             return;
         }
     }

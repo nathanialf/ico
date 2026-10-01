@@ -273,12 +273,12 @@ void actSt02WaterFallBoySplashCheck(volatile int a0)
     buf[3] = boySplashPos[1].d[1];
     for (;;) {
         idx = GetSkeltonFocusNode(boyGObj, 0x23);
-        CopyVector(buf2, (float *)(GOBJ_SUB(boyGObj)->f_C + (idx << 6) + 0x30));
+        CopyVector(buf2, (float *)(GOBJ_SUB(boyGObj)->nodeMtx + (idx << 6) + 0x30));
         if (scpTriggerPosBall(&buf[0], buf2, 100.0f))
             scpEffectStart(buf2, 0x2F);
         _ACTWait(10);
         idx = GetSkeltonFocusNode(boyGObj, 0x23);
-        CopyVector(buf2, (float *)(GOBJ_SUB(boyGObj)->f_C + (idx << 6) + 0x30));
+        CopyVector(buf2, (float *)(GOBJ_SUB(boyGObj)->nodeMtx + (idx << 6) + 0x30));
         if (scpTriggerPosBall(&buf[2], buf2, 100.0f))
             scpEffectStart(buf2, 0x2F);
         _ACTWait(10);
@@ -308,11 +308,11 @@ void actSt02aWaterFallChk(volatile int a0)
     Act *act = ((PObjGObj *)boyGObj)->act;
 
     act->flags20.ll &= ~0x80000000000LL;
-    scpSearchGobj(1713)->f16C = 1;
-    scpSearchGobj(1670)->f16C = 0;
-    scpSearchGobj(1687)->f16C = 0;
-    scpSearchGobj(1688)->f16C = 0;
-    scpSearchGobj(1691)->f16C = 0;
+    scpSearchGobj(1713)->active = 1;
+    scpSearchGobj(1670)->active = 0;
+    scpSearchGobj(1687)->active = 0;
+    scpSearchGobj(1688)->active = 0;
+    scpSearchGobj(1691)->active = 0;
     DeleteParticleLayout(scpSearchGobj(1722));
     DeleteParticleLayout(scpSearchGobj(1723));
     DeleteParticleLayout(scpSearchGobj(1724));
@@ -417,22 +417,22 @@ void actSt02aBox(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
     if (gflagChk(109) != 0) {
-        scpSearchGobj(1705)->f16C = 0;
+        scpSearchGobj(1705)->active = 0;
         if (gflagChk(106) != 0) {
-            scpSearchGobj(1705)->f16C = 0;
-            scpSearchGobj(1706)->f16C = 0;
+            scpSearchGobj(1705)->active = 0;
+            scpSearchGobj(1706)->active = 0;
         } else {
-            scpSearchGobj(1707)->f16C = 0;
+            scpSearchGobj(1707)->active = 0;
         }
     }
     if (gflagChk(108) != 0) {
-        scpSearchGobj(1706)->f16C = 0;
-        scpSearchGobj(1707)->f16C = 0;
+        scpSearchGobj(1706)->active = 0;
+        scpSearchGobj(1707)->active = 0;
     }
     if (gflagChk(108) == 0 && gflagChk(109) == 0) {
-        scpSearchGobj(1705)->f16C = 0;
-        scpSearchGobj(1706)->f16C = 0;
-        scpSearchGobj(1707)->f16C = 0;
+        scpSearchGobj(1705)->active = 0;
+        scpSearchGobj(1706)->active = 0;
+        scpSearchGobj(1707)->active = 0;
     }
 }
 
@@ -486,7 +486,7 @@ void actSt02aWaterFall(volatile int a0)
         _ACTWait(0);
     }
 
-    scpSearchGobj(1713)->f16C = 0;
+    scpSearchGobj(1713)->active = 0;
 
     actCreateSubThread(actSt02WaterFallBoySplashCheck, 21);
     actCreateSubThread(actSt02aWaterFallReflactionEffect, 21);
@@ -501,7 +501,7 @@ void actSt02aBoxEvent2(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(110) == 0) {
-        scpSearchGobj(1709)->f16C = 0;
+        scpSearchGobj(1709)->active = 0;
     }
 }
 

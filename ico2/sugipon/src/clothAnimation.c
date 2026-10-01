@@ -484,7 +484,7 @@ void GetClothAnimation(int a0, void *a1, int a2, void *m, ClothCfg *cfg, int nwa
 
     focus = 0;
     if (a6 != 0) {
-        nwall = *(int *)(GOBJ_SUB(a6)->f_70 + 8);
+        nwall = *(int *)(GOBJ_SUB(a6)->colData + 8);
     } else {
         nwall = 0;
     }
@@ -504,7 +504,7 @@ void GetClothAnimation(int a0, void *a1, int a2, void *m, ClothCfg *cfg, int nwa
     for (i = 0; i < n0; i++) {
         if (focus != 0) {
             node = GetSkeltonFocusNode((char *)a2, *(int *)(pts + i * 48));
-            sceVu0ApplyMatrix(((char **)a0)[i], (char *)GOBJ_SUB(a2)->f_C + node * 64,
+            sceVu0ApplyMatrix(((char **)a0)[i], (char *)GOBJ_SUB(a2)->nodeMtx + node * 64,
                               pts + i * 48 + 16);
         } else {
             if (m != 0) {
@@ -1545,7 +1545,7 @@ void getCloth4D(void *a0, int **rows)
     int ny = cfg[1];
     int cnt = ((int *)a0)[190] ? ((int *)a0)[185] : 0;
     ClothPoint *pts = (ClothPoint *)((int *)a0)[188];
-    float scale = GOBJ_SUB(*(int *)a0)->p_870->scale[0];
+    float scale = GOBJ_SUB(*(int *)a0)->nodes->scale[0];
     float inv = 1.0f / scale;
     float tbase = *(float *)&cfg[10] * scale;
     int nyArr[ny];
@@ -2078,7 +2078,7 @@ Cloth4D *InitCloth4D(int a0, Cloth4DCfg *cfg, int tbl)
     prim_UpdateMesh3D(r->mesh, 8, (buffer_ID + 1) & 1);
     if (tbl != 0) {
         i = 0;
-        sc = GOBJ_SUB(r->gobj)->p_870->scale[0];
+        sc = GOBJ_SUB(r->gobj)->nodes->scale[0];
         while (*(int *)(i * 0x40 + tbl) != -1) {
             i++;
         }

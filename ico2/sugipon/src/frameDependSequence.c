@@ -48,7 +48,7 @@ int playSE(int no)
     int ret;
 
     if (no != 0) {
-        if (((GObj *)fdsGObj)->f50 != 0) {
+        if (((GObj *)fdsGObj)->drawMask != 0) {
             if (fdsLayout != 0 && ((int *)fdsLayout)[0x1E8 / 4] != 0) {
                 /* EUC-JP: "gObj:(%p) has its motion SE stopped" */
                 debug_StdPrintfDummy("gObj:(%p) はモーションSEが停止しています\n", fdsGObj);
@@ -56,10 +56,10 @@ int playSE(int no)
             }
 
             if (fdsVolume > 0.95f) {
-                ret = soundSeDefPlay(no, fdsGroup, GOBJ_SUB(fdsGObj)->f_C + 0x30, 1);
+                ret = soundSeDefPlay(no, fdsGroup, GOBJ_SUB(fdsGObj)->nodeMtx + 0x30, 1);
             } else {
-                ret = soundSeDefPlayWithVolumeRate(no, fdsGroup, GOBJ_SUB(fdsGObj)->f_C + 0x30, 1,
-                                                   fdsVolume);
+                ret = soundSeDefPlayWithVolumeRate(no, fdsGroup, GOBJ_SUB(fdsGObj)->nodeMtx + 0x30,
+                                                   1, fdsVolume);
             }
 
             seMail((int)fdsGObj, no);
@@ -244,7 +244,7 @@ void playEff(int no)
                 "注意：ノード指定のモーションエフェクトでノードが見つかりませんでした\n");
         } else {
             GetRootQuaternion(q, fdsGObj);
-            CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(fdsGObj)->f_C + (node << 6));
+            CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(fdsGObj)->nodeMtx + (node << 6));
         }
     }
     MatrixDrive_TransMatrix(-motionEffKind[no].x, -motionEffKind[no].y, -motionEffKind[no].z);
@@ -258,7 +258,7 @@ void playEff(int no)
     p = &motionEffKind[no];
     flags = p->flags;
     if ((flags >> 1) & 1) {
-        pos[1] = GOBJ_SUB(fdsGObj)->f_640;
+        pos[1] = GOBJ_SUB(fdsGObj)->waterY;
     }
     if (flags & 1) {
         EntryStageMultiBgaManager(motionEffKind[no].eff, pos, q);
@@ -435,7 +435,7 @@ void ExecFrameDependSequence(void *gobj)
             }
         }
     }
-    if (GOBJ_SUB(gobj)->f_630 != 0) {
+    if (GOBJ_SUB(gobj)->pickedWeapon != 0) {
         if (((FDSFlags *)fdsFlags)->weaponDone == 0) {
             fireFDSSlot(((FDSRecord *)fdsRecord)->weapon.t, 0, 0,
                         &((FDSFlags *)fdsFlags)->weaponDone, execWeaponLightOff);

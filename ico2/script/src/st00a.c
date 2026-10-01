@@ -192,8 +192,8 @@ void actSt00aStairChk(volatile int a0)
         _ACTWait(1);
     }
     _ACTWait(1);
-    scpSearchGobj(273)->f16C = 0;
-    scpSearchGobj(272)->f16C = 1;
+    scpSearchGobj(273)->active = 0;
+    scpSearchGobj(272)->active = 1;
     lt_switch_layout(54);
     _ACTWait(120);
     ReviveAllCarryableItemsWithNonSleepFrame(60);
@@ -478,13 +478,13 @@ void actSt00aStair(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(41) == 0) {
-        scpSearchGobj(272)->f16C = 0;
+        scpSearchGobj(272)->active = 0;
         stair_mes[0].func = actSt00aStairChk;
         self->mail = stair_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        scpSearchGobj(273)->f16C = 0;
+        scpSearchGobj(273)->active = 0;
     }
 }
 

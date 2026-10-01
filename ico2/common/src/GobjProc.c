@@ -62,10 +62,10 @@ PObjGObj *InitCameraGObjs(int a0, int from, int to)
     for (i = from; i < to; i++) {
         g = isysGObjAdd((int)SetCameraMatrix, 0, 0);
         g->act = 0;
-        g->f04 = 0;
-        g->f08 = -1;
+        g->labelType = 0;
+        g->labelId = -1;
         g->kind = -1;
-        g->f16C = 1;
+        g->active = 1;
         isysGObjLinkObjDL(g, (int)DispIcoMisc, 0, 0, 0xFFFFFFFF);
     }
 
@@ -82,10 +82,10 @@ inline PObjGObj *CreateGObjByFuncSet(int a0, int a1, int a2, int a3, int a4, int
 
     g = isysGObjAdd(a0, 0, 0);
     g->act = 0;
-    g->f04 = 1;
-    g->f08 = -1;
+    g->labelType = 1;
+    g->labelId = -1;
     g->kind = -1;
-    g->f16C = 1;
+    g->active = 1;
     gobj_table[gobjCount++] = g;
     isysGObjProcAdd(g, a1, 1, 0x16);
     isysGObjProcAdd(g, a2, 1, 0x17);
@@ -103,10 +103,10 @@ PObjGObj *CreateGObj(PObjGObj *p, int a1, int a2, int a3, int a4)
     int r21 = 0;
 
     if (a4 != 0) {
-        r21 = p->f40;
+        r21 = p->dlLinkId;
     }
-    g = CreateGObjByFuncSet(p->f60, p->f5C, p->f50, p->f4C, r21, p->f48, a3);
-    g->f08 = a2;
+    g = CreateGObjByFuncSet(p->mailArg, p->mailType, p->drawMask, p->word4C, r21, p->dl, a3);
+    g->labelId = a2;
     isysGObjKindTableAdd(g, a1);
     return g;
 }

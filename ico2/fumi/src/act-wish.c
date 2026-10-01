@@ -43,7 +43,7 @@ void ACTGetWish_FromPad(char *a0, float *a1)
 
     s->wish4.ll |= 2;
 
-    if ((s->f_2E0 & 0x20) || GOBJ_WORK(a0)->f_340 < 0.9) {
+    if ((s->padNow & 0x20) || GOBJ_WORK(a0)->f_340 < 0.9) {
         s->wish4.ll |= 4;
     }
     s->wish3.ll |= 1ULL << 63;
@@ -69,9 +69,9 @@ void ACTGetWish_FromPad(char *a0, float *a1)
     s->wish3.ll |= 1ULL << 34;
 
     if (a0 == boyGObj) {
-        if (0.1f < s->f_34C && ((int)(s->wish1.ll >> 5) & 1) &&
+        if (0.1f < s->stickMag && ((int)(s->wish1.ll >> 5) & 1) &&
             chkOrient((char *)s, a1, u, 80.0f)) {
-            if (!(s->f_2E0 & 8) || girlGObj == 0 || GOBJ_WORK(girlGObj)->f_3A0 == 0) {
+            if (!(s->padNow & 8) || girlGObj == 0 || GOBJ_WORK(girlGObj)->f_3A0 == 0) {
                 s->wish3.ll |= 0x20;
             }
         }
@@ -102,14 +102,14 @@ void ACTGetWish_FromPad(char *a0, float *a1)
     s->wish3.ll |= 1ULL << 51;
     s->wish3.ll |= 1ULL << 49;
     s->wish3.ll |= 0x80;
-    if (0.1f < s->f_34C && (s->f_340 >= -45 && s->f_340 <= 45)) {
+    if (0.1f < s->stickMag && (s->stickAngle >= -45 && s->stickAngle <= 45)) {
         s->wish3.ll |= 0x200;
         s->wish3.ll |= 0x100;
     }
 
-    switch ((unsigned int)s->unk34) {
+    switch ((unsigned int)s->actMode) {
     case 1:
-        if (s->f_4C >= 181) {
+        if (s->modeFrame >= 181) {
             s->wish2.ll |= 1ULL << 38;
         }
         break;
@@ -134,7 +134,7 @@ void ACTGetWish_FromPad(char *a0, float *a1)
         if (a0 == boyGObj) {
             if (chkOrient((char *)s, a1, u, 80.0f)) {
                 s->wish3.ll |= 0x400000;
-                if (s->f_2E0 & 0x10) {
+                if (s->padNow & 0x10) {
                     s->wish3.ll |= 0x800000;
                 }
             }
@@ -147,13 +147,13 @@ void ACTGetWish_FromPad(char *a0, float *a1)
         s->wish3.ll |= 0x40000;
     }
 
-    if (((int)(s->wish1.ll >> 3) & 1) && (s->f_2E0 & 0x10) && chkOrient((char *)s, a1, u, 90.0f)) {
+    if (((int)(s->wish1.ll >> 3) & 1) && (s->padNow & 0x10) && chkOrient((char *)s, a1, u, 90.0f)) {
         s->wish3.ll |= 8;
     }
 
     if (((int)(s->wish0.ll >> 32) & 1) && chkOrient((char *)s, a1, u, 80.0f)) {
         if (a0 == boyGObj) {
-            if (s->f_2E0 & 0x10) {
+            if (s->padNow & 0x10) {
                 s->wish3.ll |= 0x80000;
 
                 s->wish3.ll |= 0x40;
@@ -175,7 +175,7 @@ void ACTGetWish_FromPad(char *a0, float *a1)
     }
 
     if (a0 == girlGObj && girlControlMode != 0) {
-        if (!(s->f_2E0 & 0x10)) {
+        if (!(s->padNow & 0x10)) {
             s->wish3.ll &= ~0x80000;
             s->wish3.ll &= ~0x100000;
         }
@@ -187,14 +187,14 @@ void ACTGetWish_FromPad(char *a0, float *a1)
         s->wish4.ll |= 8;
     }
 
-    if (0.1f < s->f_34C || ((int)(s->flags20.ll >> 3) & 1)) {
+    if (0.1f < s->stickMag || ((int)(s->flags20.ll >> 3) & 1)) {
         s->wish2.ll |= 1ULL << 34;
         s->wish2.ll |= 1ULL << 35;
     }
 
-    if (s->unk2E4 & 0x10) {
+    if (s->padTrg & 0x10) {
         s->wish2.ll |= 1ULL << 39;
-        if (0.1f < s->f_34C) {
+        if (0.1f < s->stickMag) {
             s->wish2.ll |= 1ULL << 40;
 
             s->wish2.ll |= 1ULL << 41;
@@ -206,7 +206,7 @@ void ACTGetWish_FromPad(char *a0, float *a1)
         s->wish2.ll |= 1ULL << 43;
     }
 
-    if (s->unk2E4 & 0x80) {
+    if (s->padTrg & 0x80) {
         /* Both arms set the same bit; gcc cross-jumps them and drops the
            branch, leaving the compare'(char *)s two operands as dead instructions --
            which is exactly what ROM has here. */
@@ -216,17 +216,18 @@ void ACTGetWish_FromPad(char *a0, float *a1)
             s->wish2.ll |= 1ULL << 44;
         }
 
-        if (0.1f < s->f_34C) {
+        if (0.1f < s->stickMag) {
             s->wish2.ll |= 1ULL << 45;
         }
     }
 
-    if ((0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 4 < s->f_28 && (s->f_2E0 & 8)) {
+    if ((0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 4 < s->handFreeFrame &&
+        (s->padNow & 8)) {
         s->flags18.ll |= 1ULL << 43;
     }
 
-    if (s->f_2E0 & 8) {
-        if (GOBJ_SUB(a0)->f_4A0 == 0xBA) {
+    if (s->padNow & 8) {
+        if (GOBJ_SUB(a0)->motion == 0xBA) {
             GOBJ_WORK(a0)->f_38C = (0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 6;
         }
         if (GOBJ_WORK(a0)->f_390 == 0) {
@@ -240,7 +241,7 @@ void ACTGetWish_FromPad(char *a0, float *a1)
         s->wish2.ll |= 1ULL << 58;
         s->wish2.ll |= 1ULL << 57;
         s->wish4.ll |= 0x2000;
-        if (!(0.1f < s->f_34C)) {
+        if (!(0.1f < s->stickMag)) {
             s->wish3.ll |= 4;
             s->wish3.ll |= 0x10;
         }
@@ -250,15 +251,15 @@ void ACTGetWish_FromPad(char *a0, float *a1)
         s->wish2.ll |= 1ULL << 46;
     }
 
-    if (optionControlType == 1 ? (s->unk2E4 & 8) != 0 : (s->f_2E0 & 8) != 0) {
+    if (optionControlType == 1 ? (s->padTrg & 8) != 0 : (s->padNow & 8) != 0) {
         s->wish2.ll |= 1ULL << 47;
     }
 
-    if (optionControlType == 1 ? (s->unk2E4 & 8) != 0 : (s->f_2E0 & 8) == 0) {
+    if (optionControlType == 1 ? (s->padTrg & 8) != 0 : (s->padNow & 8) == 0) {
         s->wish2.ll |= 1ULL << 48;
     }
 
-    if (s->f_2E0 & 0x20) {
+    if (s->padNow & 0x20) {
         s->wish3.ll |= 1ULL << 36;
         s->wish3.ll |= 1ULL << 37;
         s->wish3.ll |= 1ULL << 38;
@@ -268,11 +269,11 @@ void ACTGetWish_FromPad(char *a0, float *a1)
         s->wish3.ll |= 1ULL << 42;
     }
 
-    if (s->unk2E4 & 0x20) {
+    if (s->padTrg & 0x20) {
         s->wish3.ll |= 1ULL << 44;
     }
 
-    if (s->f_2E0 & 0x20) {
+    if (s->padNow & 0x20) {
         ACTSearchGObj(a0, 0x13, 0x2D, &o, u, 100.0f);
 
         if (o != 0 && CheckCarryableItem(o)) {
@@ -289,37 +290,37 @@ void ACTGetWish_FromPad(char *a0, float *a1)
         s->wish2.ll |= 1ULL << 55;
     }
 
-    if (s->f_2E0 & 0x10) {
+    if (s->padNow & 0x10) {
         s->wish3.ll |= 0x400;
     }
 
-    if (0.1f < s->f_34C) {
+    if (0.1f < s->stickMag) {
         s->wish2.ll |= 1ULL << 49;
     }
 
     if (a0 == boyGObj) {
-        if (s->unk2E4 & 0x40) {
-            if (0.1f < s->f_34C && (s->f_340 >= -45 && s->f_340 <= 45)) {
+        if (s->padTrg & 0x40) {
+            if (0.1f < s->stickMag && (s->stickAngle >= -45 && s->stickAngle <= 45)) {
                 s->wish2.ll |= 1ULL << 50;
-            } else if (0.1f < s->f_34C && (s->f_340 >= 46 && s->f_340 <= 134)) {
+            } else if (0.1f < s->stickMag && (s->stickAngle >= 46 && s->stickAngle <= 134)) {
                 s->wish2.ll |= 1ULL << 52;
-            } else if (0.1f < s->f_34C && s->f_340 >= -134 && s->f_340 <= -46) {
+            } else if (0.1f < s->stickMag && s->stickAngle >= -134 && s->stickAngle <= -46) {
                 s->wish2.ll |= 1ULL << 53;
             }
             s->wish2.ll |= 1ULL << 51;
         }
     }
 
-    if (s->unk2E4 & 0x20) {
+    if (s->padTrg & 0x20) {
         s->wish3.ll |= 1ULL << 35;
         s->wish3.ll |= 1ULL << 33;
     }
 
     if ((int)(s->wish3.ll >> 37) & 1) {
         if ((int)(s->wish1.ll >> 37) & 1) {
-            *(int *)((char *)GOBJ_ACT(a0)->f_680 + 0x2C0) = 1;
+            *(int *)((char *)GOBJ_ACT(a0)->enemy + 0x2C0) = 1;
         }
     } else {
-        *(int *)((char *)GOBJ_ACT(a0)->f_680 + 0x2C0) = 0;
+        *(int *)((char *)GOBJ_ACT(a0)->enemy + 0x2C0) = 0;
     }
 }

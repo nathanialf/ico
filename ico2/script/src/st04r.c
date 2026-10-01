@@ -238,7 +238,7 @@ void actSt05cInit(void)
     }
 
     if (gflagChk(253) == 0) {
-        scpSearchGobj(1379)->f16C = 0;
+        scpSearchGobj(1379)->active = 0;
     }
 }
 
@@ -712,7 +712,7 @@ void actSt04rStairChk(volatile int a0)
 
     scpSleepEnemyAll();
 
-    scpSearchGobj(1523)->f16C = 0;
+    scpSearchGobj(1523)->active = 0;
 
     stage_SetAnimation(351, -1, -2);
 
@@ -892,7 +892,7 @@ void actSt04rRope1Chk(volatile int a0)
             _ACTWait(1);
             break;
         case 2:
-            scpSearchGobj(1459)->f16C = 0;
+            scpSearchGobj(1459)->active = 0;
 
             gflagOn(261);
 
@@ -927,7 +927,7 @@ void actSt04rRope2Chk(volatile int a0)
             _ACTWait(1);
             break;
         case 2:
-            scpSearchGobj(1460)->f16C = 0;
+            scpSearchGobj(1460)->active = 0;
 
             gflagOn(262);
 
@@ -1007,7 +1007,7 @@ void actSt04rRope3Chk(volatile int a0)
             _ACTWait(1);
             break;
         case 2:
-            scpSearchGobj(1461)->f16C = 0;
+            scpSearchGobj(1461)->active = 0;
 
             gflagOn(263);
 
@@ -1042,7 +1042,7 @@ void actSt04rRope4Chk(volatile int a0)
             _ACTWait(1);
             break;
         case 2:
-            scpSearchGobj(1462)->f16C = 0;
+            scpSearchGobj(1462)->active = 0;
 
             gflagOn(264);
 
@@ -1633,8 +1633,8 @@ void actSt04rC1Ball(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(250) == 0) {
-        scpSearchGobj(1404)->f16C = 0;
-        scpSearchGobj(1405)->f16C = 0;
+        scpSearchGobj(1404)->active = 0;
+        scpSearchGobj(1405)->active = 0;
 
         stage_SetAnimation(317, 0, 0);
 
@@ -1654,8 +1654,8 @@ void actSt04rC2Ball(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(251) == 0) {
-        scpSearchGobj(1487)->f16C = 0;
-        scpSearchGobj(1488)->f16C = 0;
+        scpSearchGobj(1487)->active = 0;
+        scpSearchGobj(1488)->active = 0;
 
         stage_SetAnimation(318, 0, 0);
 
@@ -1675,8 +1675,8 @@ void actSt04rC3Ball(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(252) == 0) {
-        scpSearchGobj(1489)->f16C = 0;
-        scpSearchGobj(1490)->f16C = 0;
+        scpSearchGobj(1489)->active = 0;
+        scpSearchGobj(1490)->active = 0;
 
         stage_SetAnimation(319, 0, 0);
 
@@ -1703,7 +1703,7 @@ void actSt04rStair(volatile int a0)
             _ACTWait(0);
         }
     } else {
-        scpSearchGobj(1523)->f16C = 0;
+        scpSearchGobj(1523)->active = 0;
 
         stage_SetAnimation(351, -1, -2);
     }
@@ -1781,7 +1781,7 @@ void actSt04rRope1(volatile int a0)
     } else {
         stage_SetAnimation(320, 0, -1);
 
-        scpSearchGobj(1459)->f16C = 0;
+        scpSearchGobj(1459)->active = 0;
     }
 }
 
@@ -1801,7 +1801,7 @@ void actSt04rRope2(volatile int a0)
     } else {
         stage_SetAnimation(321, 0, -1);
 
-        scpSearchGobj(1460)->f16C = 0;
+        scpSearchGobj(1460)->active = 0;
     }
 }
 
@@ -1821,7 +1821,7 @@ void actSt04rRope3(volatile int a0)
     } else {
         stage_SetAnimation(322, 0, -1);
 
-        scpSearchGobj(1461)->f16C = 0;
+        scpSearchGobj(1461)->active = 0;
     }
 }
 
@@ -1841,7 +1841,7 @@ void actSt04rRope4(volatile int a0)
     } else {
         stage_SetAnimation(323, 0, -1);
 
-        scpSearchGobj(1462)->f16C = 0;
+        scpSearchGobj(1462)->active = 0;
     }
 }
 
@@ -1956,8 +1956,8 @@ void actSt04rC2BallXL(volatile int a0)
     if (gflagChk(251) == 0) {
         stage_SetAnimation(318, 0, 0);
 
-        scpSearchGobj(1408)->f16C = 0;
-        scpSearchGobj(1409)->f16C = 0;
+        scpSearchGobj(1408)->active = 0;
+        scpSearchGobj(1409)->active = 0;
     } else {
         stage_SetAnimation(318, 0, -1);
     }
@@ -1973,8 +1973,8 @@ void actSt04rC3BallXL(volatile int a0)
     if (gflagChk(252) == 0) {
         stage_SetAnimation(319, 0, 0);
 
-        scpSearchGobj(1562)->f16C = 0;
-        scpSearchGobj(1563)->f16C = 0;
+        scpSearchGobj(1562)->active = 0;
+        scpSearchGobj(1563)->active = 0;
     } else {
         stage_SetAnimation(319, 0, -1);
     }

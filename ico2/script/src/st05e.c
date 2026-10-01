@@ -65,8 +65,8 @@ void actSt05eWaterStop(volatile int a0)
         scpFadeIn(3.0f);
     }
 
-    scpSearchGobj(1555)->f16C = 1;
-    scpSearchGobj(1554)->f16C = 0;
+    scpSearchGobj(1555)->active = 1;
+    scpSearchGobj(1554)->active = 0;
 
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
@@ -144,14 +144,14 @@ void actSt05eWater(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(231) == 0) {
-        scpSearchGobj(1555)->f16C = 0;
+        scpSearchGobj(1555)->active = 0;
 
         water_mes[0].func = actSt05eWaterMain;
         self->mail = water_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        scpSearchGobj(1554)->f16C = 0;
+        scpSearchGobj(1554)->active = 0;
 
         stage_SetAnimation(266, -1, -2);
     }

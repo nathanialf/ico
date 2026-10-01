@@ -231,7 +231,7 @@ void _iosOmMain(void)
             for (; g != 0; g = g->next) {
                 isysCurrentGObj = (char *)g;
                 if (systemStatus[5] == 0 || g->pauseExempt != 0) {
-                    if (g->f_16C != 0) {
+                    if (g->active != 0) {
                         if (g->fn != 0) {
                             g->fn(g);
                         }
@@ -246,7 +246,7 @@ void _iosOmMain(void)
             for (; g2 != 0; g2 = g2->next) {
                 isysCurrentGObj = (char *)g2;
                 if (systemStatus[5] == 0 || g2->pauseExempt != 0) {
-                    if (g2->f_16C != 0) {
+                    if (g2->active != 0) {
                         for (pri = 0x13; pri < 27; pri++) {
                             p = (OmProc *)g2->procHead;
                             while (p != 0) {

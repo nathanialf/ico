@@ -437,15 +437,15 @@ void actSt47aRope(volatile int a0)
 
     if (gflagChk(49) == 0) {
         stage_SetAnimation(169, 0, 0);
-        scpSearchGobj(503)->f16C = 0;
+        scpSearchGobj(503)->active = 0;
         rope_mes[0].func = actSt47aRopeChk;
         self->mail = rope_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(170, 0, -1);
-        scpSearchGobj(503)->f16C = 1;
-        scpSearchGobj(482)->f16C = 0;
+        scpSearchGobj(503)->active = 1;
+        scpSearchGobj(482)->active = 0;
         FinishHint(5);
     }
 }
@@ -476,7 +476,7 @@ void actSt47aRopeChk(volatile int a0)
             _ACTWait(1);
             break;
         case 2:
-            scpSearchGobj(482)->f16C = 0;
+            scpSearchGobj(482)->active = 0;
 
             lt_switch_layout(55);
             scpBoyControlReadDisable = 1;
@@ -504,7 +504,7 @@ void actSt47aRopeChk(volatile int a0)
                     _ACTWait(1);
                 }
                 stage_SetAnimation(170, 0, -1);
-                scpSearchGobj(503)->f16C = 1;
+                scpSearchGobj(503)->active = 1;
                 scpFadeIn(3.0f);
             }
 
@@ -940,7 +940,7 @@ void actSt47aRopeSub(volatile int a0)
     }
     _ACTWait(1);
 
-    scpSearchGobj(503)->f16C = 1;
+    scpSearchGobj(503)->active = 1;
 
     while (stage_CheckAnimationFinish(170) == 0) {
         _ACTWait(1);
@@ -958,21 +958,21 @@ void actSt47aBarricadeEvent(int x)
 
 void actSt47aExitChk(volatile int a0)
 {
-    scpSearchGobj(481)->f16C = 0;
+    scpSearchGobj(481)->active = 0;
 
     while ((gflagChk(174) == 0) || (gflagChk(234) == 0)) {
         _ACTWait(1);
     }
 
     gflagOn(51);
-    scpSearchGobj(480)->f16C = 0;
-    scpSearchGobj(481)->f16C = 1;
+    scpSearchGobj(480)->active = 0;
+    scpSearchGobj(481)->active = 1;
 }
 
 void actSt47aExit2Chk(volatile int a0)
 {
-    scpSearchGobj(480)->f16C = 1;
-    scpSearchGobj(481)->f16C = 0;
+    scpSearchGobj(480)->active = 1;
+    scpSearchGobj(481)->active = 0;
 }
 
 void actSt47aEneChk(volatile int a0)

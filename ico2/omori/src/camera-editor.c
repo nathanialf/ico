@@ -952,10 +952,10 @@ void menuGroupEdit(MenuThread *m)
                     d = -1;
                 }
             } else {
-                if (D_0028F8F0[1].unk00 & 0x2000) {
+                if (D_0028F8F0[1].now & 0x2000) {
                     d = 1;
                 }
-                if (D_0028F8F0[1].unk00 & 0x8000) {
+                if (D_0028F8F0[1].now & 0x8000) {
                     d = -1;
                 }
             }
@@ -1141,10 +1141,10 @@ void menuPinEdit(MenuThread *m)
                     d = -1;
                 }
             } else {
-                if (D_0028F8F0[1].unk00 & 0x2000) {
+                if (D_0028F8F0[1].now & 0x2000) {
                     d = 1;
                 }
-                if (D_0028F8F0[1].unk00 & 0x8000) {
+                if (D_0028F8F0[1].now & 0x8000) {
                     d = -1;
                 }
             }
@@ -1185,14 +1185,14 @@ void menuPinEdit(MenuThread *m)
                 SetWSMatrix(&cw);
 
                 StickToTrans(D_0028F8F0[1].ana[1] - 128, D_0028F8F0[1].ana[0] - 128,
-                             D_0028F8F0[1].unk00 & 2, camHeading(cw.at, &cw), out, 20);
+                             D_0028F8F0[1].now & 2, camHeading(cw.at, &cw), out, 20);
                 sceVu0ScaleVector(out, out, -1.0f);
                 pin->pos[0] = pin->pos[0] + out[0];
                 pin->pos[1] = pin->pos[1] + out[1];
                 pin->pos[2] = pin->pos[2] + out[2];
 
                 StickToTrans(D_0028F8F0[1].ana[3] - 128, D_0028F8F0[1].ana[2] - 128,
-                             D_0028F8F0[1].unk00 & 2, camHeading(cw.at, &cw), out, 20);
+                             D_0028F8F0[1].now & 2, camHeading(cw.at, &cw), out, 20);
                 sceVu0ScaleVector(out, out, -1.0f);
                 pin->look[0] = pin->look[0] + out[0];
                 pin->look[1] = pin->look[1] + out[1];

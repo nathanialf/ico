@@ -202,7 +202,7 @@ static inline void applyPartOrients(char *g)
 {
     char *tbl = (char *)ap1PartOffset;
     Mtx44 m;
-    AP1Work *q = GOBJ_SUB(g)->f_830;
+    AP1Work *q = GOBJ_SUB(g)->work;
     int i;
 
     GetRootMatrix(&m, g);
@@ -249,7 +249,7 @@ char *InitAP1(char *self, char *arg)
     int i;
 
     p = iosMallocDebug(ios_partition_sugipon, sizeof(AP1Work), a_p_1File, 228);
-    GOBJ_SUB(self)->f_830 = p;
+    GOBJ_SUB(self)->work = p;
     p->layout = *(int *)(arg + 0x30);
     p->skel = 1;
     p->f_16C = 0;
@@ -522,7 +522,7 @@ int fitToCol(char *self, int arg1)
     int hit1;
     int hit2;
 
-    p = GOBJ_SUB(self)->f_830;
+    p = GOBJ_SUB(self)->work;
     GetRootMatrix(&m, self);
     hit1 = clipPartPair(&p->hit[0], &m, ap1ColSegA, &posA, &nrmA);
     hit2 = clipPartPair(&p->hit[1], &m, ap1ColSegB, &posB, &nrmB);
@@ -631,7 +631,7 @@ int walkMot(char *a0)
     Mtx44 m;
     Mtx44 tm;
     Vec4A_P_1 out;
-    AP1Work *p = GOBJ_SUB(a0)->f_830;
+    AP1Work *p = GOBJ_SUB(a0)->work;
     int ret = fitToCol(a0, 1);
     int i;
     int n;
@@ -697,10 +697,11 @@ int rolling(char *a0)
             {
                 char *col = (char *)&ap1RollClip;
                 if (*(int *)(col + 0x88) != 0) {
-                    GOBJ_SUB(a0)->f_5F8 = GetWallAttribute(col);
+                    GOBJ_SUB(a0)->floorAttr = GetWallAttribute(col);
                 }
                 if (CheckWallAttribute(a0, 0x50) != 0) {
-                    if (GetPoolGlobalHeight(*(int *)(col + 0x80)) < GOBJ_SUB(a0)->f_A4 + 50.0f) {
+                    if (GetPoolGlobalHeight(*(int *)(col + 0x80)) <
+                        GOBJ_SUB(a0)->rootPosY + 50.0f) {
                         iosOmSendMail(a0, 0x26, a0);
                     }
                 }
@@ -708,10 +709,10 @@ int rolling(char *a0)
             {
                 char *col = (char *)&ap1RollClip;
                 if (*(int *)(col + 0x94) != 0) {
-                    GOBJ_SUB(a0)->f_5F8 = GetFloorAttribute(col);
+                    GOBJ_SUB(a0)->floorAttr = GetFloorAttribute(col);
                     if (CheckFloorAttribute(a0, 0x50) != 0) {
                         if (GetPoolGlobalHeight(*(int *)(col + 0x8C)) <
-                            GOBJ_SUB(a0)->f_A4 + 50.0f) {
+                            GOBJ_SUB(a0)->rootPosY + 50.0f) {
                             iosOmSendMail(a0, 0x26, a0);
                         }
                     }
@@ -762,7 +763,7 @@ static inline short armCosine(float a, float b, float c)
 
 void calcSubMission(char *self)
 {
-    AP1Work *p = GOBJ_SUB(self)->f_830;
+    AP1Work *p = GOBJ_SUB(self)->work;
     Vec4A_P_1 base;
     Vec4A_P_1 axis;
     Vec4A_P_1 rq;
@@ -856,7 +857,7 @@ void calcSubMission(char *self)
         CopyVector((char *)MatrixDrive_GetMatrix() + 0x30, &save);
 
         if (p->skel != 0) {
-            _MulMatrix((char *)GOBJ_SUB(self)->f_C + ((&p->focus[1])[i * 2] << 6),
+            _MulMatrix((char *)GOBJ_SUB(self)->nodeMtx + ((&p->focus[1])[i * 2] << 6),
                        MatrixDrive_GetMatrix(), ap1ArmScale);
         } else {
             _MulMatrix(*(char **)(p->arm[0] + 0xC) + (i << 6), MatrixDrive_GetMatrix(),
@@ -883,7 +884,7 @@ void calcSubMission(char *self)
         }
 
         if (p->skel != 0) {
-            _MulMatrix((char *)GOBJ_SUB(self)->f_C + ((&p->focus[2])[i * 2] << 6),
+            _MulMatrix((char *)GOBJ_SUB(self)->nodeMtx + ((&p->focus[2])[i * 2] << 6),
                        MatrixDrive_GetMatrix(), ap1ArmScale);
         } else {
             _MulMatrix(*(char **)(p->arm[1] + 0xC) + (i << 6), MatrixDrive_GetMatrix(),
@@ -908,11 +909,11 @@ void updateMatrix(char *a0)
     float pos[4];
     float quat[4];
     float mtx[16];
-    AP1Work *p = GOBJ_SUB(a0)->f_830;
+    AP1Work *p = GOBJ_SUB(a0)->work;
 
     CopyVector((char *)GOBJ_SUB(a0) + 0x1F0, (char *)GOBJ_SUB(a0) + 0xA0);
     UpdateRootMatrix(a0);
-    CopyMatrix(p->root, (void *)GOBJ_SUB(a0)->f_C);
+    CopyMatrix(p->root, (void *)GOBJ_SUB(a0)->nodeMtx);
 
     ap1BodyPos[1] = ((float)p->blink * 0.03125f < 0.5f)
                         ? ((float)p->blink * 0.03125f) * 2.0f * 5.0f + -10.0f
@@ -931,12 +932,12 @@ void updateMatrix(char *a0)
     _InterVectorXYZ(&p->pos, pos, &p->pos, 0.5f);
     GetSlerpQuaternion(&p->quat, quat, &p->quat, 0.1f);
     GetMatrixFromQuaternionPos(p->mtx, &p->quat, &p->pos);
-    _MulMatrix((void *)GOBJ_SUB(a0)->f_C, p->mtx, ap1BodyMatrix);
+    _MulMatrix((void *)GOBJ_SUB(a0)->nodeMtx, p->mtx, ap1BodyMatrix);
 }
 
 void resetPositionInfo(char *a0)
 {
-    AP1Work *p = GOBJ_SUB(a0)->f_830;
+    AP1Work *p = GOBJ_SUB(a0)->work;
     GetRootPosition(&p->pos, a0);
     GetRootQuaternion(&p->quat, a0);
     ResetEnemyEye(p->eye);
@@ -946,7 +947,7 @@ void resetPositionInfo(char *a0)
  * into AP1Geo, so this name is ours. */
 static inline void stepAP1BlinkTimer(char *g)
 {
-    AP1Work *q = GOBJ_SUB(g)->f_830;
+    AP1Work *q = GOBJ_SUB(g)->work;
     int t = q->blink + 1;
 
     q->blink = t;
@@ -957,7 +958,7 @@ static inline void stepAP1BlinkTimer(char *g)
 
 void AP1Geo(char *a0)
 {
-    AP1Work *p = GOBJ_SUB(a0)->f_830;
+    AP1Work *p = GOBJ_SUB(a0)->work;
     float d;
 
     switch (p->mode) {
@@ -987,17 +988,17 @@ void AP1Geo(char *a0)
     }
     updateMatrix(a0);
     calcSubMission(a0);
-    _MulMatrix(MatrixDrive_GetMatrix(), (void *)GOBJ_SUB(a0)->f_C, ap1EyeMatrix);
+    _MulMatrix(MatrixDrive_GetMatrix(), (void *)GOBJ_SUB(a0)->nodeMtx, ap1EyeMatrix);
     UpdateEnemyEye(p->eye, MatrixDrive_GetMatrix(), 1.0f);
     if (p->skel != 0) {
-        CopyMatrix(MatrixDrive_GetMatrix(), (void *)GOBJ_SUB(a0)->f_C);
+        CopyMatrix(MatrixDrive_GetMatrix(), (void *)GOBJ_SUB(a0)->nodeMtx);
         MatrixDrive_RotMatrixZ(0x4000);
         MatrixDrive_RotMatrixX(0x4000);
-        _MulMatrix((void *)GOBJ_SUB(a0)->f_C, MatrixDrive_GetMatrix(), ap1HeadScale);
+        _MulMatrix((void *)GOBJ_SUB(a0)->nodeMtx, MatrixDrive_GetMatrix(), ap1HeadScale);
     }
-    d = GOBJ_SUB(a0)->f_54 - *(float *)((char *)GOBJ_SUB(a0)->f_C + 0x34);
+    d = GOBJ_SUB(a0)->matrixTy - *(float *)((char *)GOBJ_SUB(a0)->nodeMtx + 0x34);
     if ((d < 0.0f) ? ((d = -d) > 10000.0f) : (d > 10000.0f)) {
-        GOBJ_SUB(a0)->f_5F8 = 0x800;
+        GOBJ_SUB(a0)->floorAttr = 0x800;
         /* EUC-JP: "fall-death request from the spider slipping free" */
         debug_StdPrintfDummy("蜘蛛の抜けによる落下死リクエスト\n");
     }
@@ -1005,7 +1006,7 @@ void AP1Geo(char *a0)
 
 void AP1DL(char *a0)
 {
-    AP1Work *p = GOBJ_SUB(a0)->f_830;
+    AP1Work *p = GOBJ_SUB(a0)->work;
 
     if (p->mode < 5) {
         if (p->visible != 0) {
@@ -1022,12 +1023,12 @@ void AP1DL(char *a0)
 
 int GetAP1SpecType(char *a0)
 {
-    return ((AP1Work *)GOBJ_SUB(a0)->f_830)->layout;
+    return ((AP1Work *)GOBJ_SUB(a0)->work)->layout;
 }
 
 void SetAP1VisualState(char *a0, int a1)
 {
-    ((AP1Work *)GOBJ_SUB(a0)->f_830)->visible = a1;
+    ((AP1Work *)GOBJ_SUB(a0)->work)->visible = a1;
 }
 
 /* kept local: void (int, int) here, void (void *, short) in quaternion.h */
@@ -1038,7 +1039,7 @@ extern void RegularizeQuaternion(int q);
 int AP1Turn(char *a0, short a1)
 {
     Vec4A_P_1 q;
-    int s = ((AP1Work *)GOBJ_SUB(a0)->f_830)->mode;
+    int s = ((AP1Work *)GOBJ_SUB(a0)->work)->mode;
     if (s < 6) {
         if (s >= 2)
             goto out;
@@ -1055,7 +1056,7 @@ out:
 
 int AP1MotReqForce(char *a0, int a1)
 {
-    AP1Work *p = GOBJ_SUB(a0)->f_830;
+    AP1Work *p = GOBJ_SUB(a0)->work;
 
     p->mode = a1;
     if (motFuncList[a1][0] != 0) {
@@ -1066,7 +1067,7 @@ int AP1MotReqForce(char *a0, int a1)
 
 int AP1MotReq(char *a0, int a1)
 {
-    int s = ((AP1Work *)GOBJ_SUB(a0)->f_830)->mode;
+    int s = ((AP1Work *)GOBJ_SUB(a0)->work)->mode;
     if (s < 6) {
         if (s >= 2)
             return 0;
@@ -1079,7 +1080,7 @@ int AP1JumpReq(char *a0, int a1, void *a2)
 {
     int flag;
     Sub15C *p = GOBJ_SUB(a0);
-    AP1Work *q = (AP1Work *)p->f_830;
+    AP1Work *q = (AP1Work *)p->work;
     if (q->mode < 6) {
         if (q->mode >= 2) {
             flag = 0;
@@ -1091,7 +1092,7 @@ int AP1JumpReq(char *a0, int a1, void *a2)
 check:
     if (flag != 0) {
         Sub15C *pp = GOBJ_SUB(a0);
-        AP1Work *qq = (AP1Work *)pp->f_830;
+        AP1Work *qq = (AP1Work *)pp->work;
         _ApplyMatrix((int)((char *)pp + 0x130), (int)qq->root, (int)a2);
         return 1;
     }
@@ -1105,12 +1106,12 @@ char *MakeAP1GObj(char *a0)
 
 int GetAP1Mode(char *a0)
 {
-    return (int)ap1ModeName[((AP1Work *)GOBJ_SUB(a0)->f_830)->mode];
+    return (int)ap1ModeName[((AP1Work *)GOBJ_SUB(a0)->work)->mode];
 }
 
 int standMot(char *a0)
 {
-    AP1Work *p = GOBJ_SUB(a0)->f_830;
+    AP1Work *p = GOBJ_SUB(a0)->work;
     int ret = fitToCol(a0, 0);
     if (ret != -1)
         return ret;
@@ -1122,7 +1123,7 @@ int standMot(char *a0)
 
 int rollingMot(char *a0)
 {
-    AP1Work *p = GOBJ_SUB(a0)->f_830;
+    AP1Work *p = GOBJ_SUB(a0)->work;
     int ret = rolling(a0);
     if (ret != -1)
         return ret;
@@ -1159,7 +1160,7 @@ void attackMotInit(char *a0)
     Vec4A_P_1 pos;
     Mtx44 mtx;
     Vec4A_P_1 dir;
-    AP1Work *p = GOBJ_SUB(a0)->f_830;
+    AP1Work *p = GOBJ_SUB(a0)->work;
 
     GetRootPosition(&pos, (void *)boyGObj);
     MatrixDrive_SetTransposeMatrix(&mtx, p->root);
@@ -1170,7 +1171,7 @@ void attackMotInit(char *a0)
 
 int attackMot(char *a0)
 {
-    AP1Work *p = GOBJ_SUB(a0)->f_830;
+    AP1Work *p = GOBJ_SUB(a0)->work;
     int ret = fitToCol(a0, 0);
     if (ret != -1)
         return ret;

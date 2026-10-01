@@ -18,12 +18,12 @@ inline short *InitSugiLeafGeo(void)
 inline void SugiLeafGeo(void *gobj)
 {
     Sub15C *p = GOBJ_SUB(gobj);
-    short *ang = p->f_830;
+    short *ang = p->work;
 
-    CopyMatrix(MatrixDrive_GetMatrix(), &p->f_20);
+    CopyMatrix(MatrixDrive_GetMatrix(), &p->matrix);
     MatrixDrive_RotMatrixY(GetTableSin(*ang) * 256.0f);
     MatrixDrive_RotMatrixX(GetTableSin(*ang * 2) * 256.0f);
-    CopyMatrix((void *)p->f_C, MatrixDrive_GetMatrix());
+    CopyMatrix((void *)p->nodeMtx, MatrixDrive_GetMatrix());
     *ang += 0x80;
 }
 
@@ -44,20 +44,20 @@ void SugiLeafGeo2(void *gobj)
 {
     Sub15C *p = GOBJ_SUB(gobj);
     int n = p->model->partCount;
-    short *ang = p->f_830;
+    short *ang = p->work;
     int i;
 
     for (i = 0; i < n; i++) {
         if (i == n - 1) {
-            CopyMatrix((char *)p->f_C + i * 64, &p->f_20);
+            CopyMatrix((char *)p->nodeMtx + i * 64, &p->matrix);
         } else {
-            CopyMatrix((char *)p->f_C + i * 64, &p->f_20);
+            CopyMatrix((char *)p->nodeMtx + i * 64, &p->matrix);
             CopyMatrix(MatrixDrive_GetMatrix(), (char *)p->model->parts[i].mtx);
-            p->p_870[i].rot[0] = (int)(GetTableCos((short)((ang[i / 3] * 9 + i) * 10)) * 768.0f);
-            p->p_870[i].rot[1] = (int)(GetTableSin((short)((ang[i / 3] * 6 + i) * 16)) * 768.0f);
+            p->nodes[i].rot[0] = (int)(GetTableCos((short)((ang[i / 3] * 9 + i) * 10)) * 768.0f);
+            p->nodes[i].rot[1] = (int)(GetTableSin((short)((ang[i / 3] * 6 + i) * 16)) * 768.0f);
             MatrixDrive_RotMatrixY(*(short *)(*(char **)((char *)p + 0x870) + i * 0x50 + 4));
             MatrixDrive_RotMatrixX(*(short *)(*(char **)((char *)p + 0x870) + i * 0x50));
-            sceVu0MulMatrix((char *)p->f_C + i * 64, (char *)p->f_C + i * 64,
+            sceVu0MulMatrix((char *)p->nodeMtx + i * 64, (char *)p->nodeMtx + i * 64,
                             MatrixDrive_GetMatrix());
             ang[i / 3]++;
         }

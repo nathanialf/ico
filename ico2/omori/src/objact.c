@@ -10,7 +10,7 @@ extern OaRecB D_002BC6E0[];
 /* the object's action record, or none */
 static inline OaRecB *objActionRecord(int a0) /* derived name */
 {
-    int e = objLayout[a0].x34;
+    int e = objLayout[a0].action;
     if (e != 0) {
         return &D_002BC6E0[e];
     }
@@ -21,22 +21,22 @@ inline void ObjAction_Init(void)
 {
     GObj *p = isysGObjGetExist_begin();
     while (p != 0) {
-        ObjAction_CorrectGeo(p->f_8, 0);
+        ObjAction_CorrectGeo(p->labelId, 0);
         p = isysGObjGetExist_next(p);
     }
 }
 
 static inline void objActionCorrectFlag(OaRecB *p) /* derived name */
 {
-    if ((p->x10 & 1) == 1u) {
-        p->xC = 972;
+    if ((p->flags & 1) == 1u) {
+        p->mode = 972;
     }
 }
 
 static inline void objActionCorrectMode(OaRecB *p)
 {
-    if (p->xC == 972) {
-        p->xC = p->x0;
+    if (p->mode == 972) {
+        p->mode = p->baseMode;
     }
 }
 

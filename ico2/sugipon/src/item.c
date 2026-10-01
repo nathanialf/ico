@@ -93,7 +93,7 @@ void bombExplodeSE(int a0)
    is inlined into HoldItem, StopItemExplodeAnimationAll and GetBombTorchGObj. */
 static inline int IsItemKindBomb(char *gobj)
 {
-    ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(gobj)->f_830;
+    ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(gobj)->work;
     return p->kind == 1;
 }
 
@@ -115,7 +115,7 @@ void HoldItem(char *gobj, char *holder)
     p->released = 0;
     p->held = 1;
     p->holder = (int)holder;
-    GOBJ_SUB(gobj)->f_74 = 0;
+    GOBJ_SUB(gobj)->disp = 0;
     SetIdentityQuaternion((char *)*(int *)(gobj + 0x15C) + 0x150);
     if (IsItemKindBomb(gobj)) {
         SetRootQuaternion(gobj, IdentityQuaternion);
@@ -189,14 +189,14 @@ void ReleaseItem(char *gobj)
     p->held = 0;
     p->holder = 0;
     p->thrown = 0;
-    GOBJ_SUB(gobj)->f_74 = 1;
+    GOBJ_SUB(gobj)->disp = 1;
     CopyVector((char *)*(int *)(gobj + 0x15C) + 0x130, zeroVelocity);
     SetIdentityQuaternion((char *)*(int *)(gobj + 0x15C) + 0x150);
 }
 
 void ThrowItem(char *gobj, void *vel)
 {
-    ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(gobj)->f_830;
+    ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(gobj)->work;
     avoidInsideOfWall(gobj, p->holder);
     p->released = 1;
     p->held = 0;
@@ -732,7 +732,7 @@ void execBombGeo(char *gobj)
         _CopyVector(q->anim + 0x20, q->pos);
         CopyQuaternion(q->anim + 0x30, IdentityQuaternion);
         q->state = 3;
-        GOBJ_SUB(gobj)->f_74 = 0;
+        GOBJ_SUB(gobj)->disp = 0;
         break;
     case 3:
         rec->released = 0;
@@ -751,11 +751,11 @@ void ItemGeo(char *gobj)
     if (p->held != 0) {
         carriedItemGeo(gobj);
     } else if (p->released != 0) {
-        int held = GOBJ_SUB(gobj)->f_74;
-        GOBJ_SUB(gobj)->f_74 = 0;
+        int held = GOBJ_SUB(gobj)->disp;
+        GOBJ_SUB(gobj)->disp = 0;
         uncarriedItemGeo(gobj);
         if (held != 0) {
-            GOBJ_SUB(gobj)->f_74 = 1;
+            GOBJ_SUB(gobj)->disp = 1;
         }
     } else {
         char *owner = *(char **)*(int *)(gobj + 0x15C);
@@ -852,7 +852,7 @@ int BreakItemFromOutside(char *gobj)
 int CheckCarryableItem(char *a0)
 {
     int r = 0;
-    ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(a0)->f_830;
+    ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(a0)->work;
     if (*(int *)(a0 + 0x16C) != 0) {
         if (*(long long *)&p->released == 0) {
             if (p->fuse.state < 2) {
@@ -865,7 +865,7 @@ int CheckCarryableItem(char *a0)
 
 int GetItemKind(char *a0)
 {
-    return *(int *)((char *)GOBJ_SUB(a0)->f_830 + 4);
+    return *(int *)((char *)GOBJ_SUB(a0)->work + 4);
 }
 
 int GetCharHeldItem(char *a0)
@@ -876,22 +876,22 @@ int GetCharHeldItem(char *a0)
     w = *(char **)(*(char **)(a0 + 0x164) + 0x154);
     if (w == 0)
         return -1;
-    return *(int *)((char *)GOBJ_SUB(w)->f_830 + 4);
+    return *(int *)((char *)GOBJ_SUB(w)->work + 4);
 }
 
 int IsItemHoldable(char *a0)
 {
-    return *(int *)((char *)GOBJ_SUB(a0)->f_830) == 0;
+    return *(int *)((char *)GOBJ_SUB(a0)->work) == 0;
 }
 
 int IsBombExplode(char *a0)
 {
-    return *(int *)((char *)GOBJ_SUB(a0)->f_830 + 0x48) == 2;
+    return *(int *)((char *)GOBJ_SUB(a0)->work + 0x48) == 2;
 }
 
 void *GetBombTorchGObj(char *a0)
 {
-    ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(a0)->f_830;
+    ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(a0)->work;
     if (IsItemKindBomb(a0)) {
         return p->fuse.torch;
     }
@@ -905,7 +905,7 @@ void *GetBombTorchGObj(char *a0)
 static inline int CheckCarryableItemInline(char *a0)
 {
     int r = 0;
-    ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(a0)->f_830;
+    ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(a0)->work;
     if (*(int *)(a0 + 0x16C) != 0) {
         if (*(long long *)&p->released == 0) {
             if (p->fuse.state < 2) {
@@ -922,7 +922,7 @@ int ReviveAllCarryableItems(void)
     for (g = isysGObjSearchFromObjKindID_begin(19); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
         if (CheckCarryableItemInline(g)) {
-            ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(g)->f_830;
+            ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(g)->work;
             UnlinkParentOfDObj(g);
             p->released = 1;
             p->sleep = 0;
@@ -942,7 +942,7 @@ int ReviveCarryableItemsWithBoundary(void *center, float radius)
         GetRootPosition(pos, g);
         if (distance_squared(pos, center) < r2) {
             if (CheckCarryableItemInline(g)) {
-                ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(g)->f_830;
+                ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(g)->work;
                 UnlinkParentOfDObj(g);
                 p->released = 1;
                 p->sleep = 0;
@@ -961,7 +961,7 @@ int ReviveAllCarryableItemsWithRandomVelocity(float up, float horz)
         short ang = random_unit() * 65536.0f;
 
         if (CheckCarryableItemInline(g)) {
-            ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(g)->f_830;
+            ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(g)->work;
             UnlinkParentOfDObj(g);
             p->released = 1;
             p->sleep = 0;
@@ -976,7 +976,7 @@ int ReviveAllCarryableItemsWithRandomVelocity(float up, float horz)
 int CheckItemDead(char *a0)
 {
     int r = 0;
-    if (*(int *)((char *)GOBJ_SUB(a0)->f_830) == 1 || *(int *)(a0 + 0x16C) == 0) {
+    if (*(int *)((char *)GOBJ_SUB(a0)->work) == 1 || *(int *)(a0 + 0x16C) == 0) {
         r = 1;
     }
     return r;
@@ -992,7 +992,7 @@ void StopItemExplodeAnimationAll(void)
     char *g;
     for (g = isysGObjSearchFromObjKindID_begin(19); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
-        ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(g)->f_830;
+        ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(g)->work;
         if (IsItemKindBomb(g)) {
             if (p->fuse.state == 3) {
                 if (stage_DispBgAnimation(&p->fuse.anim) == 0) {
@@ -1024,7 +1024,7 @@ int ReviveAllCarryableItemsWithNonSleepFrame(int nonSleepFrame)
     for (g = isysGObjSearchFromObjKindID_begin(19); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
         if (CheckCarryableItemInline(g)) {
-            ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(g)->f_830;
+            ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(g)->work;
             UnlinkParentOfDObj(g);
             p->released = 1;
             p->sleep = nonSleepFrame;

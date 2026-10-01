@@ -173,10 +173,10 @@ void actSt17aHasiChk(volatile int a0)
     }
 
     while (1) {
-        if ((GOBJ_ACT(girlGObj)->unk34 != 0x6F && (void *)girlGObj != 0 &&
+        if ((GOBJ_ACT(girlGObj)->actMode != 0x6F && (void *)girlGObj != 0 &&
              scpTriggerFloorAttr((void *)girlGObj, 0x1000000) != 0 &&
              scpTriggerFloorAttr(((int *)boyGObj), 0x2000000) != 0) ||
-            (GOBJ_ACT(girlGObj)->unk34 != 0x6F && (void *)girlGObj != 0 &&
+            (GOBJ_ACT(girlGObj)->actMode != 0x6F && (void *)girlGObj != 0 &&
              scpTriggerFloorAttr((void *)girlGObj, 0x4000000) != 0 &&
              scpTriggerFloorAttr(((int *)boyGObj), 0x2000000) != 0)) {
             break;
@@ -189,8 +189,8 @@ void actSt17aHasiChk(volatile int a0)
     iosPadActRequest((void *)boyPad, 0xF);
     SetWayGroupActive(3, 0);
 
-    scpSearchGobj(243)->f16C = 0;
-    scpSearchGobj(244)->f16C = 1;
+    scpSearchGobj(243)->active = 0;
+    scpSearchGobj(244)->active = 1;
 
     stage_SetAnimation(133, 1, 0);
     SetCameraFlag_LwsCutBack();
@@ -212,7 +212,7 @@ void actSt17aHasiChk(volatile int a0)
         scpPlayWaitMotEnd((void *)girlGObj);
 
         scpPlayMot((void *)girlGObj, 532);
-        GOBJ_SUB(girlGObj)->f_514 =
+        GOBJ_SUB(girlGObj)->word514 =
             (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
 
         scpPlayEnd((void *)girlGObj);
@@ -239,7 +239,7 @@ void actSt17aHasiChk(volatile int a0)
 
         scpPlayMot(((int *)boyGObj), 0);
         scpPlayMot((void *)girlGObj, 532);
-        GOBJ_SUB(girlGObj)->f_514 =
+        GOBJ_SUB(girlGObj)->word514 =
             (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
     }
 
@@ -369,7 +369,7 @@ void actSt17aHasi(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(33) == 0) {
-        scpSearchGobj(244)->f16C = 0;
+        scpSearchGobj(244)->active = 0;
         stage_SetAnimation(132, 0, 0);
         SetWayGroupActive(3, 1);
         hasi_mes[0].func = actSt17aHasiChk;
@@ -377,7 +377,7 @@ void actSt17aHasi(volatile int a0)
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        scpSearchGobj(243)->f16C = 0;
+        scpSearchGobj(243)->active = 0;
         stage_SetAnimation(132, 0, -1);
     }
 }

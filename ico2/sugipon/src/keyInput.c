@@ -20,7 +20,7 @@ void InitKeyInput(void)
     for (i = 0; i < 2; i++) {
         pad[i].old = 0;
         pad[i].flags = 0;
-        pad[i].unk08 = 0;
+        pad[i].rel = 0;
         pad[i].rep = 0;
         for (j = 15; j >= 0; j--) {
             pad[i].hist[j] = 0;
@@ -64,7 +64,7 @@ void ExecKeyInput(void)
         iosPadRead(&buf);
         pad[i].now = buf.f18;
         pad[i].flags = buf.f1C;
-        pad[i].unk08 = buf.f20;
+        pad[i].rel = buf.f20;
         pad[i].rep = 0;
         iosPadGetStick(&buf, stL, 1, 127, 127, 0);
         pad[i].ana[0] = stL[0];

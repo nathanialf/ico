@@ -29,7 +29,7 @@ inline void p2o_SetDefaultEnviroment(void) {}
 
 void p2o_DispShadowVolume(int a0)
 {
-    shadow_Render(((GObj *)a0)->p_15C);
+    shadow_Render(((GObj *)a0)->dobj);
 }
 
 void p2o_HideDispVU1(int a0)

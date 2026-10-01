@@ -67,10 +67,10 @@ inline void isysGObjAlloc(int n)
     gobjMax = n;
     tbl = gobjTable;
     for (i = 0; i < n; i++) {
-        tbl[i].f0 = 0;
-        tbl[i].p_15C = 0;
-        tbl[i].f_8 = -1;
-        tbl[i].f04 = -1;
+        tbl[i].self = 0;
+        tbl[i].dobj = 0;
+        tbl[i].labelId = -1;
+        tbl[i].labelType = -1;
     }
 }
 
@@ -128,7 +128,7 @@ static __inline__ void removeGObjEntry(GObj *g)
         }
     }
     cut_gobj_link(g);
-    g->f0 = 0;
+    g->self = 0;
     while (proc != 0) {
         isysGObjProcRemove(proc);
         proc = g->procHead;
@@ -140,7 +140,7 @@ void isysGObjRemoveAll(void)
     unsigned int i;
 
     for (i = 0; i < gobjMax; i++) {
-        if (gobjTable[i].f0 != 0)
+        if (gobjTable[i].self != 0)
             removeGObjEntry(&gobjTable[i]);
     }
     isysGObjKindTableInit();
@@ -264,7 +264,7 @@ static __inline__ GObj *allocGObjEntry(void)
     GObj *g;
 
     for (i = 0; i < gobjMax; i++) {
-        if (gobjTable[i].f0 == 0) {
+        if (gobjTable[i].self == 0) {
             break;
         }
     }
@@ -292,15 +292,15 @@ void *isysGObjAddAfterGObj(void (*fn)(GObj *), GObj *other)
         debug_StdPrintfDummy("isys:null GObj\n");
         return 0;
     }
-    g->f0 = g;
+    g->self = g;
     g->fn = fn;
     linkGObjAfter(g, other);
-    g->p_15C = 0;
-    g->f_8 = -1;
-    g->f04 = -1;
+    g->dobj = 0;
+    g->labelId = -1;
+    g->labelType = -1;
     g->procHead = 0;
     g->procTail = 0;
-    g->f58 = 0;
+    g->mailNum = 0;
     return g;
 }
 
@@ -318,7 +318,7 @@ void *isysGObjAddBeforeGObj(void (*fn)(GObj *), GObj *other)
         debug_StdPrintfDummy("isys:null GObj\n");
         return 0;
     }
-    g->f0 = g;
+    g->self = g;
     g->fn = fn;
     t = other->linkId;
     g->linkId = t;
@@ -330,12 +330,12 @@ void *isysGObjAddBeforeGObj(void (*fn)(GObj *), GObj *other)
     if (g->prev == 0) {
         gobj_link_head[g->linkId] = g;
     }
-    g->p_15C = 0;
-    g->f_8 = -1;
-    g->f04 = -1;
+    g->dobj = 0;
+    g->labelId = -1;
+    g->labelType = -1;
     g->procHead = 0;
     g->procTail = 0;
-    g->f58 = 0;
+    g->mailNum = 0;
     return g;
 }
 
@@ -344,7 +344,7 @@ int isysGetNbAllocedGObjs(void)
     int result = 0;
     unsigned int i;
     for (i = 0; i < gobjMax; i++) {
-        if (gobjTable[i].f0 != 0) {
+        if (gobjTable[i].self != 0) {
             result++;
         }
     }
@@ -372,7 +372,7 @@ inline void isysGObjRemove(GObj *g)
         }
     }
     cut_gobj_link(g);
-    g->f0 = 0;
+    g->self = 0;
     while (proc != 0) {
         isysGObjProcRemove(proc);
         proc = g->procHead;
@@ -473,14 +473,14 @@ inline void *isysGObjAdd(void (*fn)(GObj *), int a1, int a2)
         return 0;
     }
     g->fn = fn;
-    g->f0 = g;
+    g->self = g;
     add_gobj_to_tail(g, kind, prio);
-    g->p_15C = 0;
-    g->f_8 = -1;
-    g->f04 = -1;
+    g->dobj = 0;
+    g->labelId = -1;
+    g->labelType = -1;
     g->procHead = 0;
     g->procTail = 0;
-    g->f58 = 0;
+    g->mailNum = 0;
     g->kind = 0;
     return g;
 }
@@ -496,14 +496,14 @@ inline void *isysGObjAddHead(void (*fn)(GObj *), int a1, int a2)
         return 0;
     }
     g->fn = fn;
-    g->f0 = g;
+    g->self = g;
     add_gobj_to_head(g, kind, prio);
-    g->p_15C = 0;
-    g->f_8 = -1;
-    g->f04 = -1;
+    g->dobj = 0;
+    g->labelId = -1;
+    g->labelType = -1;
     g->procHead = 0;
     g->procTail = 0;
-    g->f58 = 0;
+    g->mailNum = 0;
     return g;
 }
 
@@ -512,7 +512,7 @@ inline void *isysGObjSearchFromObjLayoutID(int a0)
     unsigned int i;
     for (i = 0; i < gobjMax; i++) {
         GObj *e = &gobjTable[i];
-        if (e->f0 != 0 && e->f04 == 1 && e->f_8 == a0)
+        if (e->self != 0 && e->labelType == 1 && e->labelId == a0)
             return e;
     }
     return 0;
@@ -526,7 +526,7 @@ static __inline__ GObj *searchGObjOfObjKind(GObj *p, int kind)
 
     while (p != end) {
         p++;
-        if (p->f04 == 1 && p->kind == kind)
+        if (p->labelType == 1 && p->kind == kind)
             return p;
     }
     return 0;
@@ -556,7 +556,7 @@ inline void *isysGObjSearchFromLabelTypeID(int a0)
     unsigned int i;
     for (i = 0; i < gobjMax; i++) {
         GObj *e = &gobjTable[i];
-        if (e->f0 != 0 && e->f04 == a0)
+        if (e->self != 0 && e->labelType == a0)
             return e;
     }
     return 0;
@@ -568,7 +568,7 @@ inline void *isysGObjGetExist_begin(void)
     GObj *end = &gobjTable[gobjMax - 1];
     while (start != end) {
         start++;
-        if (start->f0 != 0) {
+        if (start->self != 0) {
             return start;
         }
     }
@@ -580,7 +580,7 @@ inline void *isysGObjGetExist_next(GObj *start)
     GObj *end = &gobjTable[gobjMax - 1];
     while (start != end) {
         start++;
-        if (start->f0 != 0) {
+        if (start->self != 0) {
             return start;
         }
     }

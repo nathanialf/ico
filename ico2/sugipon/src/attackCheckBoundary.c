@@ -76,7 +76,7 @@ inline void AttackCheckBoundaryGeo(void *a0)
 
 inline void AttackCheckBoundaryDL(char *obj)
 {
-    char *m = GOBJ_SUB(obj)->f_830;
+    char *m = GOBJ_SUB(obj)->work;
     float r;
 
     if (debug_skel_flag == 0) {
@@ -92,7 +92,7 @@ inline void AttackCheckBoundaryDL(char *obj)
         gif_SetZTest(1);
         gif_SetAlpha(1, 5, 0x80);
         _UnitMatrix(MatrixDrive_GetMatrix());
-        CopyVector((char *)MatrixDrive_GetMatrix() + 0x30, (char *)GOBJ_SUB(obj)->f_C + 0x30);
+        CopyVector((char *)MatrixDrive_GetMatrix() + 0x30, (char *)GOBJ_SUB(obj)->nodeMtx + 0x30);
         r = GetAttackCheckBoundaryRadius(obj);
         prim_DispWireSphere(r, acbSphereColor, 4, 4);
         gif_EndPacket();
@@ -111,7 +111,7 @@ inline void SetAttackCheckBoundaryAttribute(char *a0, int a1)
 
 inline float GetAttackCheckBoundaryRadius(char *a0)
 {
-    return *(float *)((char *)GOBJ_SUB(a0)->p_870 + 0x20);
+    return *(float *)((char *)GOBJ_SUB(a0)->nodes + 0x20);
 }
 
 inline char *CreateAttackCheckBoundary(int *obj, float x, float y, float z, float r)
@@ -150,7 +150,7 @@ void AttackCheckBoundaryBeforeFunc(char *self)
     for (i = 0; i < mgr[1]; i++, e += 2) {
         if (e[0] == 13) {
             if (*(char **)&e[1] == boyGObj) {
-                int *b = GOBJ_SUB(self)->f_830;
+                int *b = GOBJ_SUB(self)->work;
                 void *g = GetBoyWeaponGObj();
 
                 if (g != 0) {
@@ -158,7 +158,7 @@ void AttackCheckBoundaryBeforeFunc(char *self)
 
                     if (k == 4 || k == 5 || k == 6 || k == 9 || k == 8) {
                         if (*(int *)b[0] < 2) {
-                            GOBJ_SUB(g)->f_5F4 = b[2];
+                            GOBJ_SUB(g)->wallAttr = b[2];
                             ExecuteSEPackage(g, 74);
                             b[1] = 2;
                             *(int *)b[0] = 2;
@@ -281,7 +281,7 @@ AcbMgr *InitAttackCheckBoundaryManagerGeo(int a0, char *a1)
 
 void AttackCheckBoundaryManagerGeo(char *self)
 {
-    AcbMgr *m = GOBJ_SUB(self)->f_830;
+    AcbMgr *m = GOBJ_SUB(self)->work;
     int i;
 
     for (i = 0; i < m->count; i++) {
@@ -301,5 +301,5 @@ void AttackCheckBoundaryManagerDL(void) {}
 
 inline int GetAttackCheckBoundaryManagerStatus(char *a0)
 {
-    return *(int *)((char *)GOBJ_SUB(a0)->f_830 + 8);
+    return *(int *)((char *)GOBJ_SUB(a0)->work + 8);
 }

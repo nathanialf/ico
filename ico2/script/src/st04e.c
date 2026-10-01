@@ -81,8 +81,8 @@ void actSt04eWaterStop(volatile int a0)
         scpFadeIn(3.0f);
     }
 
-    scpSearchGobj(1273)->f16C = 1;
-    scpSearchGobj(1272)->f16C = 0;
+    scpSearchGobj(1273)->active = 1;
+    scpSearchGobj(1272)->active = 0;
 
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
@@ -195,13 +195,13 @@ void actSt04eWater(volatile int a0)
     SetRotObjectLockFlag(scpSearchGobj(1274), 1);
 
     if (gflagChk(230) == 0) {
-        scpSearchGobj(1273)->f16C = 0;
+        scpSearchGobj(1273)->active = 0;
         water_mes[0].func = actSt04eWaterMain;
         self->mail = water_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        scpSearchGobj(1272)->f16C = 0;
+        scpSearchGobj(1272)->active = 0;
         stage_SetAnimation(261, -1, -2);
     }
 }

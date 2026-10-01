@@ -1428,7 +1428,7 @@ void pac_makePacket(void *a0, int a1, int a2)
 void pac_MakePacket(Sub15C *a0)
 {
     PObjModel *p = a0->model;
-    pac_makePacket(p, a0->p_874->mode, p->disp > 0);
+    pac_makePacket(p, a0->lightMtx->mode, p->disp > 0);
 }
 
 inline void pac_Init(void)

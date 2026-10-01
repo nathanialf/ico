@@ -52,7 +52,7 @@ static void execClothes(char *gobj)
     int n;
 
     n = GetSkeltonFocusNode(gobj, 35);
-    w = GOBJ_SUB(gobj)->f_830;
+    w = GOBJ_SUB(gobj)->work;
     SetQuaternionByAxisRotateV(q, -debug_hair_bend_angle * 16, ZUnitVector);
     if ((void *)w->f18 != 0) {
         *(int *)((char *)w->f18 + 0x2F8) = debug_hair_collision;
@@ -69,7 +69,7 @@ static void execClothes(char *gobj)
         if ((void *)w->f18 != 0) {
             GetCloth4DWithTight((void *)w->f18, debug_hair_gravity_level * 0.002f, 1.0f,
                                 debug_hair_tight_level * 0.01f, 1.0f,
-                                (char *)GOBJ_SUB(gobj)->f_10 + n * 16, q);
+                                (char *)GOBJ_SUB(gobj)->nodeQuat + n * 16, q);
         }
         break;
     case 2:
@@ -82,7 +82,7 @@ static void execClothes(char *gobj)
         if ((void *)w->f18 != 0) {
             GetCloth4DWithTight((void *)w->f18, debug_hair_gravity_level * 0.002f, 1.0f,
                                 debug_hair_tight_level * 0.01f, 1.0f,
-                                (char *)GOBJ_SUB(gobj)->f_10 + n * 16, q);
+                                (char *)GOBJ_SUB(gobj)->nodeQuat + n * 16, q);
         }
         break;
     case 0:
@@ -107,9 +107,9 @@ static void dispCrown(char *gobj, char *acc)
     GirlWork *w;
     int n;
 
-    w = GOBJ_SUB(gobj)->f_830;
+    w = GOBJ_SUB(gobj)->work;
     n = GetSkeltonFocusNode(gobj, 35);
-    CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(gobj)->f_C + n * 0x40);
+    CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(gobj)->nodeMtx + n * 0x40);
     MatrixDrive_ScaleMatrix(1.1111112f, 1.1111112f, 1.1111112f);
     if (w->f28 != 0) {
         CopyMatrix(*(char **)((char *)w->f2C + 0xC), MatrixDrive_GetMatrix());
@@ -132,8 +132,8 @@ static void dispClothes(char *gobj)
     char *x;
     char *y;
 
-    w = GOBJ_SUB(gobj)->f_830;
-    x = (char *)GOBJ_SUB(gobj)->p_874;
+    w = GOBJ_SUB(gobj)->work;
+    x = (char *)GOBJ_SUB(gobj)->lightMtx;
     y = x + 0x40;
     if (w->f24 != 0) {
         dispCrown(gobj, (char *)w->f24);
@@ -162,8 +162,8 @@ static void dispClothes(char *gobj)
         /* Two separate tests, not `>= 642 || < 639`: gcc's fold_range_test
          * merges a disjunction over one operand into `(unsigned)(v - 639) < 3`,
          * which ROM does not have, ROM keeps both `slti`s. */
-        if (GOBJ_SUB(gobj)->f_4A0 < 642) {
-            if (GOBJ_SUB(gobj)->f_4A0 >= 639) {
+        if (GOBJ_SUB(gobj)->motion < 642) {
+            if (GOBJ_SUB(gobj)->motion >= 639) {
                 goto skip;
             }
         }
@@ -1715,7 +1715,7 @@ static ClothHangCfg clothHangF20[2] = {
    ROM has them, while their string constants stay at this point of the run. */
 inline void SetGirlClothDispSwitch(char *a0, int a1, int a2)
 {
-    GirlWork *cloth = GOBJ_SUB(a0)->f_830;
+    GirlWork *cloth = GOBJ_SUB(a0)->work;
     switch (a1) {
     case 0:
         cloth->f4 = a2;
@@ -1731,7 +1731,7 @@ inline void SetGirlClothDispSwitch(char *a0, int a1, int a2)
 
 inline void SetGirlHairDispSwitch(char *a0, int a1)
 {
-    *(int *)((char *)GOBJ_SUB(a0)->f_830 + 0x28) = a1;
+    *(int *)((char *)GOBJ_SUB(a0)->work + 0x28) = a1;
 }
 
 typedef struct {
@@ -1793,7 +1793,7 @@ void *InitGirlGeo(char *gobj, char *csv)
     w->f0 = kind;
     /* an int-set store: the word is a pointer, but this store must stay
        ordered against the int stores into the work record (the bytes) */
-    *(int *)&GOBJ_SUB(gobj)->f_830 = (int)w;
+    *(int *)&GOBJ_SUB(gobj)->work = (int)w;
     switch (kind) {
     case 1:
         w->f10 = (int)InitCloth4D(gobj, &demoClothMeshF10, 0);
@@ -1813,9 +1813,9 @@ void *InitGirlGeo(char *gobj, char *csv)
         w->f30 = (int)CSVSYSTEM_InitDObj(0xE, csv);
         break;
     }
-    *(int *)((char *)GOBJ_SUB(gobj)->f_830 + 0x4) = 1;
-    *(int *)((char *)GOBJ_SUB(gobj)->f_830 + 0xC) = 1;
-    *(int *)((char *)GOBJ_SUB(gobj)->f_830 + 0x1C) = 1;
+    *(int *)((char *)GOBJ_SUB(gobj)->work + 0x4) = 1;
+    *(int *)((char *)GOBJ_SUB(gobj)->work + 0xC) = 1;
+    *(int *)((char *)GOBJ_SUB(gobj)->work + 0x1C) = 1;
     InitMotionOrient(gobj, 0x503, 0x84A, 0xC, 0x18, 0x214);
     SetLodLevel(gobj, 2);
     return w;
@@ -1841,11 +1841,11 @@ void GirlGeo(char *a0)
         GirlAct_BoyAndMeCollisionMail(a0);
     } else {
         w = GOBJ_SUB(a0);
-        if (w->f_310 == 4 && w->f_7C != 0 && *(int *)((char *)w + 0x3C8) != 0) {
+        if (w->hand0Mode == 4 && w->cylinderOn != 0 && *(int *)((char *)w + 0x3C8) != 0) {
             n0 = GetSkeltonFocusNode(boyGObj, 6);
             n1 = GetSkeltonFocusNode(a0, 0x16);
-            sceVu0SubVector(v, (char *)GOBJ_SUB(boyGObj)->f_C + n0 * 64 + 0x30,
-                            (char *)GOBJ_SUB(a0)->f_C + n1 * 64 + 0x30);
+            sceVu0SubVector(v, (char *)GOBJ_SUB(boyGObj)->nodeMtx + n0 * 64 + 0x30,
+                            (char *)GOBJ_SUB(a0)->nodeMtx + n1 * 64 + 0x30);
             len = FSqrt(sceVu0InnerProduct(v, v));
             if (10.0f < len) {
                 ratio = 1.0f - len / 50.0f;
@@ -1860,7 +1860,7 @@ void GirlGeo(char *a0)
 void GirlAI(char *a0)
 {
     Sub15C *work = GOBJ_SUB(a0);
-    int mode = work->f_4A0;
+    int mode = work->motion;
     GirlWork *cloth = *(GirlWork **)((char *)work + 0x830);
     int hint = *(int *)((char *)work + 0x4C8);
 
@@ -1874,7 +1874,7 @@ void GirlAI(char *a0)
             cloth->f34 = 1;
             debug_StdPrintfDummy("hint1 voice ready\n");
         }
-        if (cloth->f34 != 0 && cloth->f3C == 0 && 47.0f < GOBJ_SUB(a0)->f_4AC) {
+        if (cloth->f34 != 0 && cloth->f3C == 0 && 47.0f < GOBJ_SUB(a0)->animFrame) {
             scpGirlHintVoicePlay();
             cloth->f3C = 1;
             debug_StdPrintfDummy("hint1 voice play\n");
@@ -1890,7 +1890,7 @@ void GirlAI(char *a0)
             cloth->f38 = 1;
             debug_StdPrintfDummy("hint2 voice ready\n");
         }
-        if (cloth->f38 != 0 && cloth->f40 == 0 && 107.0f < GOBJ_SUB(a0)->f_4AC) {
+        if (cloth->f38 != 0 && cloth->f40 == 0 && 107.0f < GOBJ_SUB(a0)->animFrame) {
             scpGirlHintVoicePlay();
             cloth->f40 = 1;
             debug_StdPrintfDummy("hint2 voice play\n");
@@ -1921,7 +1921,7 @@ static char *girlClothName[4] = {"", "DEVIL", "STONE", 0};
  * of line, so it has no MAIN.MAP symbol and this name is ours. */
 static inline int *getGirlCloth(char *gobj)
 {
-    return (int *)GOBJ_SUB(gobj)->f_830;
+    return (int *)GOBJ_SUB(gobj)->work;
 }
 
 void debugWireStringGirl(char *a0)

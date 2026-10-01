@@ -1012,8 +1012,8 @@ void actSt13cGirlCarryChk(volatile int a0)
         _ACTWait(0);
     }
 
-    while (gflagChk(25) == 0 || ((Act *)((PObjGObjSt13c *)girlGObj)->act)->unk34 == 0x6F ||
-           ((Act *)((PObjGObjSt13c *)girlGObj)->act)->unk34 == 0x6E || gflagChk(29) != 0) {
+    while (gflagChk(25) == 0 || ((Act *)((PObjGObjSt13c *)girlGObj)->act)->actMode == 0x6F ||
+           ((Act *)((PObjGObjSt13c *)girlGObj)->act)->actMode == 0x6E || gflagChk(29) != 0) {
         _ACTWait(1);
     }
 
@@ -1053,8 +1053,8 @@ void actSt13cHandChk(volatile int a0)
             scpTriggerFloorAttr(boyGObj, 0x1000000) == 0 &&
             scpTriggerFloorAttr(boyGObj, 0x3000000) != 0 && gflagChk(26) != 0 &&
             scpTriggerBall(girlGObj, boyGObj, 550.0f) != 0 &&
-            (((Act *)((PObjGObjSt13c *)boyGObj)->act)->unk2E4 & 8) != 0 &&
-            ((Act *)((PObjGObjSt13c *)girlGObj)->act)->unk34 != 0x6E) {
+            (((Act *)((PObjGObjSt13c *)boyGObj)->act)->padTrg & 8) != 0 &&
+            ((Act *)((PObjGObjSt13c *)girlGObj)->act)->actMode != 0x6E) {
             break;
         }
         if (gflagChk(30) != 0) {
@@ -1551,7 +1551,7 @@ void actSt13cGirlCarryAgainChk(volatile int a0)
         _ACTWait(0);
     }
 
-    while (((Act *)((PObjGObjSt13c *)girlGObj)->act)->unk34 != 0x6F) {
+    while (((Act *)((PObjGObjSt13c *)girlGObj)->act)->actMode != 0x6F) {
         _ACTWait(1);
     }
 
@@ -1579,7 +1579,7 @@ void actSt13cRescueChk(volatile int a0)
         _ACTWait(0);
     }
 
-    while (((Act *)((PObjGObjSt13c *)girlGObj)->act)->unk34 != 0x6E) {
+    while (((Act *)((PObjGObjSt13c *)girlGObj)->act)->actMode != 0x6E) {
         _ACTWait(1);
     }
 

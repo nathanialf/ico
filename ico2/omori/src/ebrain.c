@@ -217,7 +217,7 @@ inline int eBrainGetTargetGeneratorFromLabelStage(int label, int stage)
     for (i = stageData[st].labelTop; i < stageData[st].labelEnd; i++) {
         GenGeo *g = &objLayout[i];
         if (g->kind == 33) {
-            f = g->f48 >> 17;
+            f = g->flags >> 17;
             f &= 1;
             if (pri < f) {
                 pri = f;
@@ -262,7 +262,7 @@ int eBrainGetTargetGeneratorFromLabel(int label)
     for (i = stageData[st].labelTop; i < stageData[st].labelEnd; i++) {
         GenGeo *g = &objLayout[i];
         if (g->kind == 33) {
-            f = g->f48 >> 17;
+            f = g->flags >> 17;
             f &= 1;
             if (pri < f) {
                 pri = f;

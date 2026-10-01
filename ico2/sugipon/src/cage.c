@@ -41,7 +41,7 @@ int CageRideFunc(char **self, char *rider)
     float d;
     float t;
 
-    w = GOBJ_SUB(*self)->f_830;
+    w = GOBJ_SUB(*self)->work;
     CopyVector(v, (char *)GOBJ_SUB(rider) + 0xA0);
     v[1] = v[1] - 250.0f;
     sceVu0Normalize(n, v);
@@ -64,7 +64,7 @@ int CageRideFunc(char **self, char *rider)
 
 void SetCageFixGeometry(char *self, void *pos, void *dir)
 {
-    CageWork *w = GOBJ_SUB(self)->f_830;
+    CageWork *w = GOBJ_SUB(self)->work;
 
     CopyVector(*(char **)(w->chains) + 0x20, pos);
     CopyVector(w->rot, dir);
@@ -72,7 +72,7 @@ void SetCageFixGeometry(char *self, void *pos, void *dir)
 
 inline int GetCageChainPoint(char *a0, char *a1, char *a2)
 {
-    CageWork *w = GOBJ_SUB(a2)->f_830;
+    CageWork *w = GOBJ_SUB(a2)->work;
     CopyVector(a0, *(char **)(*(char **)(w->chains + 8)));
     CopyVector(a1, *(char **)(*(char **)(w->chains + 8)) + 0x10);
     *(float *)(a0 + 4) = *(float *)(a0 + 4) + 50.0f;
@@ -126,9 +126,10 @@ char *InitCageGeo(char *self, char *lay)
     w = (CageWork *)iosMallocDebug((void *)ios_partition_sugipon, 80, __FILE__, 97);
     ch = (char *)iosMallocDebug((void *)ios_partition_sugipon, 160, __FILE__, 98);
     w->dobj = (Sub15C *)CSVSYSTEM_InitDObj(
-        *(int *)(D_002A79B8 + ((SubHandle *)(self + 0x15C))->sub->f_844 * 40), (float *)lay);
+        *(int *)(D_002A79B8 + ((SubHandle *)(self + 0x15C))->sub->accessary * 40), (float *)lay);
     w->dobj2 = CSVSYSTEM_InitDObj(
-        *(int *)(D_002A79B8 + ((SubHandle *)(self + 0x15C))->sub->f_844 * 40 + 4), (float *)lay);
+        *(int *)(D_002A79B8 + ((SubHandle *)(self + 0x15C))->sub->accessary * 40 + 4),
+        (float *)lay);
     w->damping = 0.995f;
     w->mass = *(float *)(lay + 0x20);
     ((CageChainParam *)ch)[0] = cageChainParam[0];
@@ -145,12 +146,12 @@ char *InitCageGeo(char *self, char *lay)
     w->rideable = 1;
     one = 1.0f;
     {
-        struct DObjNode *e = ((SubHandle *)(self + 0x15C))->sub->p_870;
+        struct DObjNode *e = ((SubHandle *)(self + 0x15C))->sub->nodes;
 
         e->scale[0] = e->scale[1] = e->scale[2] = one;
     }
     {
-        struct DObjNode *e = ((SubHandle *)(self + 0x15C))->sub->p_870;
+        struct DObjNode *e = ((SubHandle *)(self + 0x15C))->sub->nodes;
 
         e->rot[0] = e->rot[1] = e->rot[2] = 0;
     }
@@ -163,86 +164,86 @@ char *InitCageGeo(char *self, char *lay)
     if (*(void **)((char *)w->dobj + 0xC) != 0) {
         iosFree((void *)((int)*(void **)((char *)w->dobj + 0xC) & 0x0FFFFFFF));
     }
-    if (w->dobj->f_10 != 0) {
-        iosFree((void *)(w->dobj->f_10 & 0x0FFFFFFF));
+    if (w->dobj->nodeQuat != 0) {
+        iosFree((void *)(w->dobj->nodeQuat & 0x0FFFFFFF));
     }
     *(char **)((char *)w->dobj + 0x10) = *(char **)((char *)w->dobj + 0xC) = 0;
     *(void **)((char *)w->dobj + 0xC) =
         iosMallocDebug((void *)ios_partition_seki, w->linkCount << 6, __FILE__, 128);
     *(void **)((char *)w->dobj + 0x10) =
         iosMallocDebug((void *)ios_partition_seki, w->linkCount << 4, __FILE__, 128);
-    w->dobj->f_8 = w->linkCount;
-    if (w->dobj->p_870 != 0) {
-        iosFree((void *)((int)w->dobj->p_870 & 0x0FFFFFFF));
+    w->dobj->nodeNum = w->linkCount;
+    if (w->dobj->nodes != 0) {
+        iosFree((void *)((int)w->dobj->nodes & 0x0FFFFFFF));
     }
-    w->dobj->p_870 = iosMallocDebug((void *)ios_partition_seki, w->linkCount * 80, __FILE__, 128);
+    w->dobj->nodes = iosMallocDebug((void *)ios_partition_seki, w->linkCount * 80, __FILE__, 128);
     for (i = 0; i < w->linkCount; i++) {
         {
-            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->p_870);
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->nodes);
             e->flags.ll &= ~1;
         }
         {
-            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->p_870);
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->nodes);
             e->flags.ll &= ~2;
         }
         {
-            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->p_870);
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->nodes);
             e->pos[0] = 0.0f;
         }
         {
-            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->p_870);
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->nodes);
             e->pos[1] = 0.0f;
         }
         {
-            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->p_870);
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->nodes);
             e->pos[2] = 0.0f;
         }
         {
-            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->p_870);
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->nodes);
             e->pos[3] = 1.0f;
         }
         {
-            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->p_870);
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->nodes);
             e->flags.ll &= ~4;
         }
         {
-            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->p_870);
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->nodes);
             e->fade = 0.0f;
         }
         {
-            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->p_870);
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->nodes);
             e->alpha = 1.0f;
         }
         {
-            char *e = (char *)(i * 80 + (int)w->dobj->p_870);
+            char *e = (char *)(i * 80 + (int)w->dobj->nodes);
             *(short *)(e + 0x3A) = 0;
         }
         {
-            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->p_870);
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->nodes);
             e->scale[0] = 1.0f;
         }
         {
-            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->p_870);
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->nodes);
             e->scale[1] = 1.0f;
         }
         {
-            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->p_870);
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->nodes);
             e->scale[2] = 1.0f;
         }
     }
     w->dobj->dispType = 2;
-    ((SubHandle *)(self + 0x15C))->sub->f_81C = (int)CageRideFunc;
+    ((SubHandle *)(self + 0x15C))->sub->rideFunc = (int)CageRideFunc;
     return (char *)w;
 }
 
 inline void SetCageChainHangableFlag(char *a0, int a1)
 {
-    *(int *)((char *)GOBJ_SUB(a0)->f_830 + 0x40) = a1;
+    *(int *)((char *)GOBJ_SUB(a0)->work + 0x40) = a1;
 }
 
 void HotInitCageGeo(char *self)
 {
-    CageWork *w = GOBJ_SUB(self)->f_830;
+    CageWork *w = GOBJ_SUB(self)->work;
 
     CopyVector((void *)(w->upperNode * 80 + *(int *)(w->chains + 8) + 0x40), ZeroVector);
     CopyVector((void *)(w->lowerNode * 80 + *(int *)(w->chains + 8) + 0x40), ZeroVector);
@@ -280,7 +281,7 @@ inline void StabilizeAllLayoutedCage(void)
 
 inline void SetCageVelocityFriction(char *a0, float a1)
 {
-    *(float *)((char *)GOBJ_SUB(a0)->f_830 + 0x3C) = a1;
+    *(float *)((char *)GOBJ_SUB(a0)->work + 0x3C) = a1;
 }
 
 /* kept local: void * (int, void *) here, int (void) in windField.h */
@@ -320,7 +321,7 @@ void CageGeo(char *self)
     char *n1;
     int i;
 
-    w = GOBJ_SUB(self)->f_830;
+    w = GOBJ_SUB(self)->work;
 
     n0 = *(char **)(w->chains + 8) + (w->upperNode * 80 + 16);
     n1 = *(char **)(w->chains + 8) + (w->lowerNode * 80 + 16);
@@ -355,16 +356,16 @@ void CageGeo(char *self)
     sceVu0ScaleVectorXYZ((void *)(w->upperNode * 80 + *(int *)(w->chains + 8) + 0x40),
                          (void *)(w->upperNode * 80 + *(int *)(w->chains + 8) + 0x40), w->damping);
 
-    SetCageChainQuaternion((char *)GOBJ_SUB(self)->f_10,
+    SetCageChainQuaternion((char *)GOBJ_SUB(self)->nodeQuat,
                            (void *)(w->lowerNode * 80 + *(int *)(w->chains + 8) + 0x30),
                            (void *)(w->upperNode * 80 + *(int *)(w->chains + 8) + 0x30));
-    RotQuaternionY((char *)GOBJ_SUB(self)->f_10, w->angle);
-    MultiQuaternion((char *)GOBJ_SUB(self)->f_10, (char *)GOBJ_SUB(self)->f_10, w->rot);
-    RegularizeQuaternion((char *)GOBJ_SUB(self)->f_10);
-    GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(self)->f_10,
+    RotQuaternionY((char *)GOBJ_SUB(self)->nodeQuat, w->angle);
+    MultiQuaternion((char *)GOBJ_SUB(self)->nodeQuat, (char *)GOBJ_SUB(self)->nodeQuat, w->rot);
+    RegularizeQuaternion((char *)GOBJ_SUB(self)->nodeQuat);
+    GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(self)->nodeQuat,
                                (void *)(w->upperNode * 80 + *(int *)(w->chains + 8) + 0x30));
     MatrixDrive_TransMatrix(0.0f, 0.0f, 0.0f);
-    CopyMatrix((char *)GOBJ_SUB(self)->f_C, MatrixDrive_GetMatrix());
+    CopyMatrix((char *)GOBJ_SUB(self)->nodeMtx, MatrixDrive_GetMatrix());
 
     {
         float q[4];
@@ -381,7 +382,7 @@ void CageGeo(char *self)
     for (i = 0; i < w->linkCount; i++) {
         MatrixDrive_PushMatrix();
         MatrixDrive_RotMatrixX(-32768);
-        CopyMatrix((char *)w->dobj->f_C + i * 64, MatrixDrive_GetMatrix());
+        CopyMatrix((char *)w->dobj->nodeMtx + i * 64, MatrixDrive_GetMatrix());
         MatrixDrive_PopMatrix();
         MatrixDrive_TransMatrix(0.0f, -w->linkLength, 0.0f);
     }
@@ -389,7 +390,7 @@ void CageGeo(char *self)
 
 void CageDL(char *self)
 {
-    CageWork *w = GOBJ_SUB(self)->f_830;
+    CageWork *w = GOBJ_SUB(self)->work;
 
     p2o_DispVU1(self);
     p2o_DispVU1DObjMulti(w->dobj);

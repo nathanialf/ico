@@ -286,7 +286,7 @@ inline void actSubSekizoSe(volatile int a0)
     _ACTWait(1);
     if (gflagChk(332) == 0) {
         ScpCallCameraSetTarget(3834.0f, -888.0f, 0.0f);
-        scpSearchGobj(2149)->f16C = 0;
+        scpSearchGobj(2149)->active = 0;
         stage_SetLoopFlag(555, 0);
         queen_appear_mes[0].func = actSt25aQueenAppearChk;
         act->mail = queen_appear_mes;
@@ -295,7 +295,7 @@ inline void actSubSekizoSe(volatile int a0)
         return;
     }
     scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(0x2F, 0, 0x22B, 0);
-    scpSearchGobj(2149)->f16C = 1;
+    scpSearchGobj(2149)->active = 1;
     scpPlayMot((char *)scpSearchGobj(2149), 1104);
     tex_SetUVScroll(faceShadowTex, 0.0f, 0.0f, 0.25f, 0.0625f, 0.8f, 0.8f, 1);
     tex_SetUVScroll(faceShadowTex00, 0.0f, 0.0f, 0.25f, 0.0625f, 0.45f, 0.45f, 1);
@@ -308,7 +308,7 @@ inline void scpDispOffAllWithKind(int kind)
 {
     int v0 = isysGObjSearchFromObjKindID_begin(kind);
     while (v0 != 0) {
-        ((GObj *)v0)->f50 = 0;
+        ((GObj *)v0)->drawMask = 0;
         v0 = isysGObjSearchFromObjKindID_next(v0);
     }
 }
@@ -335,7 +335,7 @@ inline void scpDisActivateAllWithKind(int kind)
 {
     int v0 = isysGObjSearchFromObjKindID_begin(kind);
     while (v0 != 0) {
-        ((GObj *)v0)->f_16C = 0;
+        ((GObj *)v0)->active = 0;
         v0 = isysGObjSearchFromObjKindID_next(v0);
     }
 }
@@ -344,7 +344,7 @@ inline int scpIsTorchLightOn(int a0)
 {
     int ret1 = scpSearchGobj(a0);
     PObjGObj *ret2 = scpSearchGobj(0);
-    ret2->f16C = 1;
+    ret2->active = 1;
     return IsTorchLightOn(ret1);
 }
 
@@ -537,7 +537,7 @@ void scpPlayMotDirSmz(char *self, float *dir)
     sceVu0Normalize(dir, dir);
     SetMotionDirectionSmooze(
         self, dir,
-        (float)((struct MotTblRec *)(GOBJ_SUB(self)->f_4A0 * 0x194 + (char *)motionKind))
+        (float)((struct MotTblRec *)(GOBJ_SUB(self)->motion * 0x194 + (char *)motionKind))
             ->smzAngle);
 }
 
@@ -570,13 +570,13 @@ void scpPlayMot(char *self, int mot)
         return;
     }
     ControlMotionOrient(id, mot);
-    act->f_130 = SetMotionRequest(self, 0x10C, act->motOriReq);
+    act->motReq = SetMotionRequest(self, 0x10C, act->motOriReq);
 }
 
 inline void scpPlayMotReq(char *a0, int a1)
 {
     Act *p = GOBJ_ACT(a0);
-    p->f_130 = SetMotionRequest(a0, a1, p->motOriReq);
+    p->motReq = SetMotionRequest(a0, a1, p->motOriReq);
 }
 
 inline void scpPlayPosSet(void *a0, float f12, float f13, float f14)
@@ -593,7 +593,7 @@ inline void scpPlayPosSet(void *a0, float f12, float f13, float f14)
 void scpPlayJump(char *a0, int a1)
 {
     ACTItemForceDrop(a0);
-    GOBJ_ACT(a0)->f_680->f_C0 = a1;
+    GOBJ_ACT(a0)->enemy->f_C0 = a1;
     iosOmSendMail(a0, 0x2D, a0);
 }
 
@@ -613,7 +613,7 @@ void scpPlayEnd(int a0)
 inline void scpPlayWaitMotEnd(char *a0)
 {
     Act *p = GOBJ_ACT(a0);
-    while ((*(int *)((char *)p->f_130 + 0x5C) & 1) == 0) {
+    while ((*(int *)((char *)p->motReq + 0x5C) & 1) == 0) {
         _ACTWait(1);
     }
 }
@@ -767,7 +767,7 @@ inline int scpTriggerIgnore(char *self)
     while (ignoreKind[i] != -1) {
         if (((GObj *)self)->kind == ignoreKind[i]) {
             Sub15C *sub = GOBJ_SUB(self);
-            if (_ACTGame_GetParamF(2) < sub->f_560 || GOBJ_ACT(self)->unk34 == 0x16) {
+            if (_ACTGame_GetParamF(2) < sub->groundHeight || GOBJ_ACT(self)->actMode == 0x16) {
                 return 1;
             }
         }
@@ -849,9 +849,9 @@ inline void scpDoorTypeUp(volatile int a0)
 {
     Act *act = GOBJ_ACT(a0);
 
-    if (gflagChk(act->f_454) != 0) {
+    if (gflagChk(act->doorFlag) != 0) {
         int self = a0;
-        scpTransLinear((void *)self, 1, -act->f_458, act->f_458);
+        scpTransLinear((void *)self, 1, -act->doorDist, act->doorDist);
     }
     doorTypeUp_mes[0].func = scpDoorTypeUpMain;
     act->mail = doorTypeUp_mes;
@@ -862,7 +862,7 @@ inline void scpDoorTypeUp(volatile int a0)
 inline void scpDoorTypeUpMain(volatile int a0)
 {
     Act *p = GOBJ_ACT(a0);
-    p->mainMail = (ActMail *)p->f_460;
+    p->mainMail = (ActMail *)p->doorMail;
     for (;;) {
         _ACTWait(1);
     }
@@ -873,7 +873,7 @@ inline void scpDoorTypeUpSwitch(volatile int a0)
     Act *act = GOBJ_ACT(a0);
 
     act->mainMail = 0;
-    if (gflagChk(act->f_454) != 0) {
+    if (gflagChk(act->doorFlag) != 0) {
         doorTypeUpSwitchDown_mes[0].func = scpDoorTypeUpDown;
         act->mail = doorTypeUpSwitchDown_mes;
         ACTSendMailCorrect(a0, 430);
@@ -889,17 +889,17 @@ void scpDoorTypeUpDown(volatile int a0)
 {
     Act *act = GOBJ_ACT(a0);
 
-    if (act->f_46C != 0) {
-        Camctrl_SetTarget(act->f_46C, 0, 3);
-        if (act->f_464 != 0) {
-            _ACTWait(act->f_464);
+    if (act->doorCamera != 0) {
+        Camctrl_SetTarget(act->doorCamera, 0, 3);
+        if (act->doorCamWait != 0) {
+            _ACTWait(act->doorCamWait);
         }
     }
     debug_StdPrintfDummy("start animation down\n");
-    gflagOff(act->f_454);
-    scpTransLinear((void *)a0, 1, act->f_458, act->f_45C);
-    if (act->f_468 != 0) {
-        _ACTWait(act->f_468);
+    gflagOff(act->doorFlag);
+    scpTransLinear((void *)a0, 1, act->doorDist, act->doorStep);
+    if (act->doorEndWait != 0) {
+        _ACTWait(act->doorEndWait);
     }
     Camctrl_ExitEveRock();
     doorTypeUpDown_mes[0].func = scpDoorTypeUpMain;
@@ -912,17 +912,17 @@ void scpDoorTypeUpUp(volatile int a0)
 {
     Act *act = GOBJ_ACT(a0);
 
-    if (act->f_46C != 0) {
-        Camctrl_SetTarget(act->f_46C, 0, 3);
-        if (act->f_464 != 0) {
-            _ACTWait(act->f_464);
+    if (act->doorCamera != 0) {
+        Camctrl_SetTarget(act->doorCamera, 0, 3);
+        if (act->doorCamWait != 0) {
+            _ACTWait(act->doorCamWait);
         }
     }
     debug_StdPrintfDummy("start animation up\n");
-    gflagOn(act->f_454);
-    scpTransLinear((void *)a0, 1, -act->f_458, act->f_45C);
-    if (act->f_468 != 0) {
-        _ACTWait(act->f_468);
+    gflagOn(act->doorFlag);
+    scpTransLinear((void *)a0, 1, -act->doorDist, act->doorStep);
+    if (act->doorEndWait != 0) {
+        _ACTWait(act->doorEndWait);
     }
     Camctrl_ExitEveRock();
     doorTypeUpUp_mes[0].func = scpDoorTypeUpMain;
@@ -1495,11 +1495,11 @@ inline int RequestStageChangeWithColor(int no, char *g, int flag, float speed, f
         if (g != 0) {
             act = GOBJ_ACT(g);
             ACTGame_StageChangeGObj(g, next);
-            if ((char *)act->f_150 != 0) {
-                ACTGame_StageChangeGObj((char *)act->f_150, next);
+            if ((char *)act->weapon != 0) {
+                ACTGame_StageChangeGObj((char *)act->weapon, next);
             }
-            if (act->f_154 != 0) {
-                ACTGame_StageChangeGObj(act->f_154, next);
+            if (act->curItem != 0) {
+                ACTGame_StageChangeGObj(act->curItem, next);
             }
             BoyInfoUpdate_StageChange();
         }
@@ -1621,8 +1621,8 @@ inline void _SCPCharacterStop(char *self)
     p->dir[0] = 0;
     p->dir[1] = 0;
     p->dir[2] = 0;
-    p->f_338 = p->f_33C = 0x7F;
-    p->f_34C = 0;
+    p->stickX = p->stickY = 0x7F;
+    p->stickMag = 0;
 }
 
 inline int _SCPMoveByWay_ToChar(char *self, char *target, int deg, int a3, float scale, float speed)
@@ -1641,7 +1641,7 @@ inline int _SCPMoveByWay_ToChar(char *self, char *target, int deg, int a3, float
 
 inline int scpGameStat_BoyWeaponkind(void)
 {
-    char *w = (char *)GOBJ_ACT(boyGObj)->f_150;
+    char *w = (char *)GOBJ_ACT(boyGObj)->weapon;
     if (w == 0)
         return 0;
     return CheckWeaponKind(w);
@@ -1652,9 +1652,9 @@ void scpSekizouCheckPoint(void)
     int was;
 
     if (girlGObj != 0) {
-        gamesysObjInfoPosSetStage((int *)girlGObj, GOBJ_ACT(girlGObj)->f_444, 0, stage_no);
+        gamesysObjInfoPosSetStage((int *)girlGObj, GOBJ_ACT(girlGObj)->infoPos, 0, stage_no);
     }
-    gamesysObjInfoPosSetStage((int *)boyGObj, GOBJ_ACT(boyGObj)->f_444, 0, stage_no);
+    gamesysObjInfoPosSetStage((int *)boyGObj, GOBJ_ACT(boyGObj)->infoPos, 0, stage_no);
     was = gflagChk(381);
     gflagOn(381);
     CheckPoint();
@@ -1927,7 +1927,7 @@ inline int scpActStatusDeathFall(char *self)
 {
     Sub15C *sub;
 
-    switch ((unsigned int)GOBJ_ACT(self)->unk34) {
+    switch ((unsigned int)GOBJ_ACT(self)->actMode) {
     case 4:
     case 5:
     case 0x3E:
@@ -1941,16 +1941,16 @@ inline int scpActStatusDeathFall(char *self)
 
     sub = GOBJ_SUB(self);
     if (stage_no == 0x22) {
-        if (_ACTGame_GetParamF(2) - 200.0f < sub->f_560) {
+        if (_ACTGame_GetParamF(2) - 200.0f < sub->groundHeight) {
             return 1;
         }
         sub = GOBJ_SUB(self);
     }
-    if (_ACTGame_GetParamF(2) < sub->f_560) {
+    if (_ACTGame_GetParamF(2) < sub->groundHeight) {
         return 1;
     }
     sub = GOBJ_SUB(self);
-    if (!(_ACTGame_GetParamF(2) < sub->f_55C)) {
+    if (!(_ACTGame_GetParamF(2) < sub->fallHeight)) {
         return 0;
     }
     return 1;

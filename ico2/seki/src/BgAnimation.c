@@ -1316,9 +1316,9 @@ void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int a1, int a2)
         switch (e->type) {
         case 0:
             if (p->u.obj != 0) {
-                ((Sub15C *)p->u.obj)->p_870[p->num].fade =
+                ((Sub15C *)p->u.obj)->nodes[p->num].fade =
                     bga_GetExtMotion((BgaExtMotion *)e->data);
-                ((Sub15C *)p->u.obj)->p_870[p->num].flags.ll |= 1;
+                ((Sub15C *)p->u.obj)->nodes[p->num].flags.ll |= 1;
                 bga_stepEnvelope(e, dt, a2);
             }
             break;
@@ -2232,7 +2232,7 @@ void bga_DispLightning(void)
             if (isEnemyHyde(o) != 0) {
                 continue;
             }
-            if (((GObj *)o)->f_16C == 0) {
+            if (((GObj *)o)->active == 0) {
                 continue;
             }
             cnt++;
@@ -2246,7 +2246,7 @@ void bga_DispLightning(void)
                 k = p->n;
                 if (k < 10) {
                     p->n = k + 1;
-                    _CopyVector(&p->seg[k], (char *)GOBJ_SUB(o)->f_C + (g->f2C << 6) + 0x30);
+                    _CopyVector(&p->seg[k], (char *)GOBJ_SUB(o)->nodeMtx + (g->f2C << 6) + 0x30);
                 }
             }
             col.c[0] = g->col[0];
@@ -2281,7 +2281,7 @@ void bga_DispLightning(void)
                 k = p->n;
                 if (k < 10) {
                     p->n = k + 1;
-                    _CopyVector(&p->seg[k], (char *)GOBJ_SUB(o)->f_C + (g->f2C << 6) + 0x30);
+                    _CopyVector(&p->seg[k], (char *)GOBJ_SUB(o)->nodeMtx + (g->f2C << 6) + 0x30);
                 }
             }
             DrawLightningN(p->n, p, &col, g->f08, g->f0C, g->f10, g->f14, g->f18, g->f1C, g->f20,
@@ -2295,7 +2295,7 @@ void bga_DispLightning(void)
                         if (k < 10) {
                             p->n = k + 1;
                             _CopyVector(&p->seg[k],
-                                        (char *)GOBJ_SUB(o)->f_C + (g->f2C << 6) + 0x30);
+                                        (char *)GOBJ_SUB(o)->nodeMtx + (g->f2C << 6) + 0x30);
                         }
                     }
                     DrawLightningN(p->n, p, &col, g->f08, g->f0C, g->f10, g->f14, g->f18, g->f1C,
@@ -2311,7 +2311,7 @@ void bga_DispLightning(void)
                         if (k < 10) {
                             p->n = k + 1;
                             _CopyVector(&p->seg[k],
-                                        (char *)GOBJ_SUB(o)->f_C + (g->f2C << 6) + 0x30);
+                                        (char *)GOBJ_SUB(o)->nodeMtx + (g->f2C << 6) + 0x30);
                         }
                     }
                     DrawLightningN(p->n, p, &col, g->f08, g->f0C, g->f10, g->f14, g->f18, g->f1C,

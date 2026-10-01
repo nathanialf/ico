@@ -58,7 +58,7 @@ char *CreateKyomiGObj(int no)
     lay[10] = 1.0f;
     gobj = CreateLayoutedGObj(61, 75, -1, 0, lay, 1, 7, 0);
     hint = (struct HintInfo *)iosMallocDebug(ios_partition_sugipon, 16, "src/lws_kyomi.c", 101);
-    GOBJ_SUB(gobj)->f_830 = hint;
+    GOBJ_SUB(gobj)->work = hint;
     *hint = hintDefault;
     hint->_0 = no;
     for (i = 0; i < 28; i++) {
@@ -84,7 +84,7 @@ void LwsKyomiGeo(void *gobj)
     int i;
     unsigned char fin;
 
-    hint = GOBJ_SUB(gobj)->f_830;
+    hint = GOBJ_SUB(gobj)->work;
     hint->flags &= ~1;
     for (i = 0; i < 28; i++) {
         if (hintTable[i]._0 == stage_no && (hintTable[i].flags & 1) == 0) {
@@ -218,7 +218,7 @@ void WakeupHint(int no)
 int IsTopHint(void *gobj)
 {
     if (((GObj *)gobj)->kind == 61) {
-        struct HintInfo *hint = GOBJ_SUB(gobj)->f_830;
+        struct HintInfo *hint = GOBJ_SUB(gobj)->work;
 
         if (hint->flags & 1) {
             return 1;
@@ -231,7 +231,7 @@ void DebugHintStart(void *gobj)
 {
     struct HintInfo *hint;
 
-    hint = GOBJ_SUB(gobj)->f_830;
+    hint = GOBJ_SUB(gobj)->work;
     hintTimers[hint->no] = hint->time;
 }
 

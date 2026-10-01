@@ -246,9 +246,9 @@ void light_getNearLight(Sub15C *self, int idx)
         near[i] = 0;
     }
     if (self->dispType == 2) {
-        _CopyVector(pos, (char *)self->f_C + idx * 64 + 48);
+        _CopyVector(pos, (char *)self->nodeMtx + idx * 64 + 48);
     } else {
-        _CopyVector(pos, (char *)self->f_C + 48);
+        _CopyVector(pos, (char *)self->nodeMtx + 48);
     }
     for (p = (Light *)lastLight; p != 0; p = p->prev) {
         switch (p->f_44) {
@@ -275,7 +275,7 @@ void light_getNearLight(Sub15C *self, int idx)
                 p->f_3C = 0.0f;
                 continue;
             }
-            GetRootPositionByDObj(p, ((GObj *)p->f_40)->p_15C);
+            GetRootPositionByDObj(p, ((GObj *)p->f_40)->dobj);
             d = _GetLength(pos, p);
             if (p->f_34 < d) {
                 p->f_38 = 0.0f;
@@ -342,22 +342,22 @@ void light_getNearLight(Sub15C *self, int idx)
     for (i = 0; i < 3; i++) {
         if (near[i] != 0) {
             if (near[i]->f_44 == 0) {
-                _NormalizeVector(self->p_874->dir[i], near[i]->f_10);
-                _CopyVector(self->p_874->col[i], near[i]->f_20);
+                _NormalizeVector(self->lightMtx->dir[i], near[i]->f_10);
+                _CopyVector(self->lightMtx->col[i], near[i]->f_20);
             } else if (near[i]->f_44 >= 0) {
                 if (near[i]->f_44 < 4) {
-                    _SubVector(self->p_874->dir[i], pos, near[i]);
-                    _NormalizeVector(self->p_874->dir[i], self->p_874->dir[i]);
-                    _ScaleVectorXYZ(self->p_874->col[i], near[i]->f_20,
+                    _SubVector(self->lightMtx->dir[i], pos, near[i]);
+                    _NormalizeVector(self->lightMtx->dir[i], self->lightMtx->dir[i]);
+                    _ScaleVectorXYZ(self->lightMtx->col[i], near[i]->f_20,
                                     near[i]->f_38 * near[i]->f_30);
                 }
             }
         } else {
-            _UnitVector(self->p_874->dir[i]);
-            _UnitVector(self->p_874->col[i]);
+            _UnitVector(self->lightMtx->dir[i]);
+            _UnitVector(self->lightMtx->col[i]);
         }
-        self->p_874->dir[i][3] = 0.0f;
-        self->p_874->col[i][3] = 1.0f;
+        self->lightMtx->dir[i][3] = 0.0f;
+        self->lightMtx->col[i][3] = 1.0f;
     }
 }
 
@@ -385,15 +385,15 @@ void light_getAmbientLight(Sub15C *a, int b)
 
     scale = 1.0f;
     if (lastAmbient == 0) {
-        _CopyVector(a->p_874->ambient, GlobalStageSetting.ambientCol);
+        _CopyVector(a->lightMtx->ambient, GlobalStageSetting.ambientCol);
         return;
     }
-    _CopyVector(a->p_874->ambient, GlobalStageSetting.ambientCol);
+    _CopyVector(a->lightMtx->ambient, GlobalStageSetting.ambientCol);
     best = 3.0f;
     if (a->dispType == 2) {
-        _CopyVector(pos, (char *)a->f_C + (b << 6) + 48);
+        _CopyVector(pos, (char *)a->nodeMtx + (b << 6) + 48);
     } else {
-        _CopyVector(pos, (char *)a->f_C + 48);
+        _CopyVector(pos, (char *)a->nodeMtx + 48);
     }
     for (v = (AmbientVolume *)lastAmbient; v != 0; v = v->prev) {
         if (v->f_90 == 0) {
@@ -417,7 +417,7 @@ void light_getAmbientLight(Sub15C *a, int b)
             nx = LIGHT_ABS(_GetNorm(p));
             ny = LIGHT_ABS(_GetNorm(q));
             if (nx <= 1.0f) {
-                _CopyVector(a->p_874->ambient, v->f_40);
+                _CopyVector(a->lightMtx->ambient, v->f_40);
                 scale = v->f_80;
                 goto found;
             }
@@ -429,7 +429,7 @@ void light_getAmbientLight(Sub15C *a, int b)
                 _AddVector(s0, v->f_40, s0);
                 my = s0[0] + s0[1] + s0[2];
                 if (my < best) {
-                    _CopyVector(a->p_874->ambient, s0);
+                    _CopyVector(a->lightMtx->ambient, s0);
                     best = my;
                     scale = v->f_80 + (1.0f - v->f_80) * rx / (rx + ry);
                 }
@@ -440,7 +440,7 @@ void light_getAmbientLight(Sub15C *a, int b)
             float sum;
 
             if (LIGHT_ABS(p[0]) <= 1.0f && LIGHT_ABS(p[1]) <= 1.0f && LIGHT_ABS(p[2]) <= 1.0f) {
-                _CopyVector(a->p_874->ambient, v->f_40);
+                _CopyVector(a->lightMtx->ambient, v->f_40);
                 scale = v->f_80;
                 goto found;
             }
@@ -465,7 +465,7 @@ void light_getAmbientLight(Sub15C *a, int b)
                     /* the kind-1 arm copies the volume colour here where the
                        kind-2 arm copies its blended vector; the ROM's $s0
                        (v + 0x40) at this call site is what it is. */
-                    _CopyVector(a->p_874->ambient, v->f_40);
+                    _CopyVector(a->lightMtx->ambient, v->f_40);
                     best = sum;
                     scale = v->f_80 + (1.0f - v->f_80) * mx / (mx + my);
                 }
@@ -475,28 +475,29 @@ void light_getAmbientLight(Sub15C *a, int b)
         }
     }
 found:
-    _ScaleVectorXYZ(a->p_874->col[0], a->p_874->col[0], scale);
-    _ScaleVectorXYZ(a->p_874->col[1], a->p_874->col[1], scale);
-    _ScaleVectorXYZ(a->p_874->col[2], a->p_874->col[2], scale);
-    a->p_874->ambient[3] = 1.0f;
+    _ScaleVectorXYZ(a->lightMtx->col[0], a->lightMtx->col[0], scale);
+    _ScaleVectorXYZ(a->lightMtx->col[1], a->lightMtx->col[1], scale);
+    _ScaleVectorXYZ(a->lightMtx->col[2], a->lightMtx->col[2], scale);
+    a->lightMtx->ambient[3] = 1.0f;
 }
 
 void light_MakeLightMatrix(Sub15C *a, int b)
 {
     int i;
 
-    if (a->p_874->mode == 0) {
+    if (a->lightMtx->mode == 0) {
         return;
     }
     light_getNearLight(a, b);
     light_getAmbientLight(a, b);
     for (i = 0; i < 3; i++) {
-        _ScaleVectorXYZ(a->p_874->col[i], a->p_874->col[i], a->model->mode.s.lightScale);
+        _ScaleVectorXYZ(a->lightMtx->col[i], a->lightMtx->col[i], a->model->mode.s.lightScale);
     }
-    _ScaleVectorXYZ(a->p_874->ambient, a->p_874->ambient, a->model->ambientScale);
-    _MakeNormalLightMatrix(a->p_874->normal, a->p_874->dir[0], a->p_874->dir[1], a->p_874->dir[2]);
-    _MakeLightColorMatrix(a->p_874->color, a->p_874->col[0], a->p_874->col[1], a->p_874->col[2],
-                          a->p_874->ambient);
+    _ScaleVectorXYZ(a->lightMtx->ambient, a->lightMtx->ambient, a->model->ambientScale);
+    _MakeNormalLightMatrix(a->lightMtx->normal, a->lightMtx->dir[0], a->lightMtx->dir[1],
+                           a->lightMtx->dir[2]);
+    _MakeLightColorMatrix(a->lightMtx->color, a->lightMtx->col[0], a->lightMtx->col[1],
+                          a->lightMtx->col[2], a->lightMtx->ambient);
 }
 
 /* Light.c lines 1200-1373.  The January-2002 listing carries two debug arms
@@ -549,7 +550,7 @@ void light_DispVolume(void)
                 if (lp->f_40 == 0) {
                     break;
                 }
-                if (((GObj *)lp->f_40)->p_15C->lightId == 0) {
+                if (((GObj *)lp->f_40)->dobj->lightId == 0) {
                     break;
                 }
             case 2:

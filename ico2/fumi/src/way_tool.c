@@ -312,13 +312,13 @@ inline int play_way(void)
         switch (playMode) {
         case 0:
             while (g != 0) {
-                GOBJ_ACT(g)->f_350 = 1;
+                GOBJ_ACT(g)->wayMode = 1;
                 g = isysGObjSearchFromObjKindID_next(g);
             }
             break;
         case 1:
             while (g != 0) {
-                GOBJ_ACT(g)->f_350 = 0;
+                GOBJ_ACT(g)->wayMode = 0;
                 g = isysGObjSearchFromObjKindID_next(g);
             }
             break;
@@ -784,7 +784,7 @@ inline void cursor_control(volatile int a0)
     while (1) {
         iosPadRead((char *)w + 0x2D8);
 
-        if (a0 == (int)CurrentTargetGObj && (w->unk2E4 & 1)) {
+        if (a0 == (int)CurrentTargetGObj && (w->padTrg & 1)) {
             ACTDebugMove(a0, 1);
         }
         _ACTWait(1);

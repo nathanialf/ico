@@ -5,10 +5,10 @@ void HandMgr_GetDistHand(float *dist, float *height)
     int n, m;
     n = GetSkeltonFocusNode(girlGObj, 0x12);
 
-    g[0].f = *(float *)((n << 6) + GOBJ_SUB(girlGObj)->f_C + 0x30); g[1].f = *(float *)((n << 6) + GOBJ_SUB(girlGObj)->f_C + 0x34); g[2].f = *(float *)((n << 6) + GOBJ_SUB(girlGObj)->f_C + 0x38);
+    g[0].f = *(float *)((n << 6) + GOBJ_SUB(girlGObj)->nodeMtx + 0x30); g[1].f = *(float *)((n << 6) + GOBJ_SUB(girlGObj)->nodeMtx + 0x34); g[2].f = *(float *)((n << 6) + GOBJ_SUB(girlGObj)->nodeMtx + 0x38);
     m = GetSkeltonFocusNode(boyGObj, 2);
 
-    b[0].f = *(float *)((m << 6) + GOBJ_SUB(boyGObj)->f_C + 0x30); b[1].f = *(float *)((m << 6) + GOBJ_SUB(boyGObj)->f_C + 0x34); b[2].f = *(float *)((m << 6) + GOBJ_SUB(boyGObj)->f_C + 0x38);
+    b[0].f = *(float *)((m << 6) + GOBJ_SUB(boyGObj)->nodeMtx + 0x30); b[1].f = *(float *)((m << 6) + GOBJ_SUB(boyGObj)->nodeMtx + 0x34); b[2].f = *(float *)((m << 6) + GOBJ_SUB(boyGObj)->nodeMtx + 0x38);
 
 
     *dist = _DistGV(g, b);
@@ -94,7 +94,7 @@ void HandMgr_Speed(float f)
     f = f < 1.0f ? 1.0f : (lim < f ? lim : f);
     f = f < 1.0f ? 1.0f : (_ACTGame_GetParamF(8) < f ? _ACTGame_GetParamF(8) : f);
     ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)a0, f, 2);
-    m = GOBJ_ACT(boyGObj)->unk34;
+    m = GOBJ_ACT(boyGObj)->actMode;
     if ((unsigned int)m < 4) {
         if (m != 0) {
             float one = 1.0f;
@@ -111,7 +111,7 @@ void HandMgr_Speed(float f)
     }
     if (90.0f < handmgr.f_50) {
         float r;
-        if ((int)GOBJ_ACT(boyGObj)->f_154 != 0) {
+        if ((int)GOBJ_ACT(boyGObj)->curItem != 0) {
             r = 2.0f;
         } else if (systemStatus[0] == 1) {
             r = (handmgr.f_50 - 90.0f) / 120.0f + 1.1f;

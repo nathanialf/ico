@@ -23,7 +23,7 @@ static inline int sendMailAndGetIndex(char *gop, int msg, void *sender) /* deriv
     if (iosOmSendMail(gop, msg, sender) < 0) {
         return -1;
     }
-    return ((GObj *)gop)->f58 - 1;
+    return ((GObj *)gop)->mailNum - 1;
 }
 
 static inline MailAdditionalData *getMailAdditionalDataTable(char *gop) /* derived name */
@@ -33,7 +33,7 @@ static inline MailAdditionalData *getMailAdditionalDataTable(char *gop) /* deriv
         __assert("src/mail-add-data.c", 71, "GOBJ_VAL(gop)");
     }
     /* Act's 0x684 holds this table's address, an int in typedef.h's Act */
-    return (MailAdditionalData *)GOBJ_ACT(gop)->f_684;
+    return (MailAdditionalData *)GOBJ_ACT(gop)->mailAddData;
 }
 
 #include "mail-add-data.h"
@@ -75,7 +75,7 @@ inline void *GetMailAdditionalData(char *gop, int mail)
 
 void InitMailAdditionalData(char *a0, int a1)
 {
-    GOBJ_ACT(a0)->f_684 = a1;
+    GOBJ_ACT(a0)->mailAddData = a1;
     ClearMailAdditionalData(a0);
 }
 

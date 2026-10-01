@@ -57,7 +57,7 @@ void SetFlag4PointFixID(char *self, int a1, int id)
     char *w;
     short ang;
 
-    w = GOBJ_SUB(self)->f_830;
+    w = GOBJ_SUB(self)->work;
     *(int *)(w + 0x10) = a1;
     _UnitMatrix(MatrixDrive_GetMatrix());
     ang = -a1 * 0x4000;
@@ -210,15 +210,15 @@ char *InitFlagGeo(char *self, char *arg)
 
 
 
-    if (GOBJ_SUB(self)->f_70 != 0) {
+    if (GOBJ_SUB(self)->colData != 0) {
 
         *(int *)(p + 0xC) = 1;
     } else { *(int *)(p + 0xC) = 0; }
 
-    GOBJ_SUB(self)->f_74 = 0;
+    GOBJ_SUB(self)->disp = 0;
 
-    GOBJ_SUB(self)->p_870->rot[0] = GOBJ_SUB(self)->p_870->rot[1] = GOBJ_SUB(self)->p_870->rot[2] = 0;
-    ((FlagNodeWord *)&GOBJ_SUB(self)->p_870->scale[0])->f = ((FlagNodeWord *)&GOBJ_SUB(self)->p_870->scale[1])->f = ((FlagNodeWord *)&GOBJ_SUB(self)->p_870->scale[2])->f = 1.0f;
+    GOBJ_SUB(self)->nodes->rot[0] = GOBJ_SUB(self)->nodes->rot[1] = GOBJ_SUB(self)->nodes->rot[2] = 0;
+    ((FlagNodeWord *)&GOBJ_SUB(self)->nodes->scale[0])->f = ((FlagNodeWord *)&GOBJ_SUB(self)->nodes->scale[1])->f = ((FlagNodeWord *)&GOBJ_SUB(self)->nodes->scale[2])->f = 1.0f;
 
     SetIdentityQuaternion((char *)GOBJ_SUB(self) + 0xD0);
 
@@ -232,7 +232,7 @@ void FlagGeo(char *self)
     char *gd;
     char *o;
 
-    gd = GOBJ_SUB(self)->f_830;
+    gd = GOBJ_SUB(self)->work;
     o = *(char **)(gd + 0x4);
     if (*(char **)((char *)GOBJ_SUB(self)) != 0 &&
         *(int *)(*(char **)((char *)GOBJ_SUB(self)) + 0x16C) == 0) {
@@ -275,7 +275,7 @@ void FlagDL(char *self)
     int i;
     int n;
 
-    gd = GOBJ_SUB(self)->f_830;
+    gd = GOBJ_SUB(self)->work;
     o = *(char **)(gd + 0x4);
     if (*(char **)((char *)GOBJ_SUB(self)) != 0 &&
         *(int *)(*(char **)((char *)GOBJ_SUB(self)) + 0x16C) == 0) {
@@ -296,19 +296,19 @@ void FlagDL(char *self)
             GetDifferencialQuaternionWithNoRegularize(&l40, &l30, &l10);
             MultiQuaternion(&l0, &l40, &l0);
             CopyVector(&l10, &l30);
-            GetMatrixFromQuaternionPos((char *)GOBJ_SUB(self)->f_C + (i * 0x40 - 0x40), &l0,
+            GetMatrixFromQuaternionPos((char *)GOBJ_SUB(self)->nodeMtx + (i * 0x40 - 0x40), &l0,
                                        base + (i * 0x10 - 0x10));
         }
         p2o_DispVU1Multi(self);
         break;
     case 0:
         light_MakeLightMatrix(GOBJ_SUB(self), 0);
-        m = (char *)GOBJ_SUB(self)->p_874;
+        m = (char *)GOBJ_SUB(self)->lightMtx;
         DispClothMesh(*(char **)(o + 0x4), m + 0x40, m);
         break;
     case 4:
         light_MakeLightMatrix(GOBJ_SUB(self), 0);
-        m = (char *)GOBJ_SUB(self)->p_874;
+        m = (char *)GOBJ_SUB(self)->lightMtx;
         DispClothMesh(*(char **)(o + 0x4), m + 0x40, m);
         break;
     }

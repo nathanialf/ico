@@ -98,7 +98,7 @@ void actSt04aGate(volatile int a0)
 
     MallocStreamMotionBuffer();
 
-    scpSearchGobj(590)->f16C = 0;
+    scpSearchGobj(590)->active = 0;
 
     if (gflagChk(137) == 0) {
         scpFadeOut(255.0f, 0, 0, 0);
@@ -203,7 +203,7 @@ void actSt04aGateChk(volatile int a0)
 
     stage_SetAnimation(269, 1, 0);
 
-    scpSearchGobj(590)->f16C = 1;
+    scpSearchGobj(590)->active = 1;
 
     EntryStreamMotion(boyGObj);
     EntryStreamMotion(girlGObj);
@@ -263,7 +263,7 @@ void actSt04aGateChk(volatile int a0)
         stage_SetAnimation(475, -1, -2);
         stage_SetAnimation(477, -1, -2);
 
-        scpSearchGobj(590)->f16C = 0;
+        scpSearchGobj(590)->active = 0;
 
         stage_SetLoopFlag(555, 0);
         stage_SetAnimation(555, -1, -2);
@@ -303,9 +303,9 @@ void actSt04aGateChk(volatile int a0)
         scpPlayMot(boyGObj, 0);
         scpPlayMot(girlGObj, 532);
 
-        GOBJ_SUB(boyGObj)->f_514 =
+        GOBJ_SUB(boyGObj)->word514 =
             (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
-        GOBJ_SUB(girlGObj)->f_514 =
+        GOBJ_SUB(girlGObj)->word514 =
             (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
 
         sceVu0SubVector(dir, test_CURRENTROOT((int)girlGObj), test_CURRENTROOT((int)boyGObj));
@@ -448,7 +448,7 @@ void actSt04aConte06(volatile int a0)
         _ACTWait(1);
     }
 
-    scpSearchGobj(590)->f16C = 0;
+    scpSearchGobj(590)->active = 0;
 
     stage_SetLoopFlag(555, 0);
     stage_SetAnimation(555, -1, -2);
@@ -620,7 +620,7 @@ void actSt04aGateOpen(volatile int a0)
     if (gflagChk(140) == 0) {
         stage_SetAnimation(270, 0, 0);
 
-        scpSearchGobj(669)->f16C = 0;
+        scpSearchGobj(669)->active = 0;
 
         gate_open_mail[0].func = actSt04aGateOpenChk;
         self->mail = gate_open_mail;
@@ -633,7 +633,7 @@ void actSt04aGateOpen(volatile int a0)
         stage_SetAnimation(272, 0, -1);
         stage_SetAnimation(275, 0, -1);
 
-        scpSearchGobj(669)->f16C = 0;
+        scpSearchGobj(669)->active = 0;
 
         SetGirlHairDispSwitch(girlGObj, 1);
     }
@@ -820,7 +820,7 @@ void actSt04aGateOpenChk(volatile int a0)
 
     SetWayGroupActive(2, 1);
 
-    scpSearchGobj(648)->f16C = 0;
+    scpSearchGobj(648)->active = 0;
 }
 
 static const ConstVec liftOfs1 = {{0.0f, 0.0f, 6000.0f, 1.0f}};
@@ -842,7 +842,7 @@ void actConte09(volatile int a0)
 
     scpPlayMot(boyGObj, 0);
 
-    scpSearchGobj(648)->f16C = 1;
+    scpSearchGobj(648)->active = 1;
 
     stage_SetAnimation(712, 1, 0);
 
@@ -938,9 +938,9 @@ void actConte09(volatile int a0)
     }
     _ACTWait(1);
 
-    GOBJ_SUB(boyGObj)->f_514 =
+    GOBJ_SUB(boyGObj)->word514 =
         (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
-    GOBJ_SUB(girlGObj)->f_514 =
+    GOBJ_SUB(girlGObj)->word514 =
         (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
 
     demoEnd = 1;
@@ -1217,7 +1217,7 @@ void actConte09_3(volatile int a0)
 
     actCreateSubThread(actConte09_3_demoCancel, 21);
 
-    scpSearchGobj(669)->f16C = 1;
+    scpSearchGobj(669)->active = 1;
 
     EntryStreamMotion(boyGObj);
     EntryStreamMotion(girlGObj);
@@ -1361,7 +1361,7 @@ void actConte09_3(volatile int a0)
 
     _ACTWait(1);
 
-    scpSearchGobj(649)->f16C = 0;
+    scpSearchGobj(649)->active = 0;
 
     SetStaticBlur(0);
 
@@ -1379,7 +1379,7 @@ void actConte09_3(volatile int a0)
 
     _ACTWait(1);
 
-    scpSearchGobj(649)->f16C = 1;
+    scpSearchGobj(649)->active = 1;
 
     while (stage_CheckAnimationFrame(754, 50, 0) == 0) {
         _ACTWait(1);
@@ -1405,8 +1405,8 @@ void actConte09_3(volatile int a0)
 
     _ACTWait(1);
 
-    scpSearchGobj(54)->f16C = 0;
-    scpSearchGobj(649)->f16C = 0;
+    scpSearchGobj(54)->active = 0;
+    scpSearchGobj(649)->active = 0;
 
     shadow_DispCancel(0, 1);
     shadow_DispCancel(4, 1);
@@ -1421,8 +1421,8 @@ void actConte09_3(volatile int a0)
 
     _ACTWait(1);
 
-    scpSearchGobj(54)->f16C = 1;
-    scpSearchGobj(649)->f16C = 1;
+    scpSearchGobj(54)->active = 1;
+    scpSearchGobj(649)->active = 1;
 
     gflagOn(144);
     gflagOn(390);
@@ -1594,42 +1594,42 @@ void actSt04aTorch1(volatile int a0)
         SleepHint(4);
 
         if (gflagChk(145) != 0) {
-            scpSearchGobj(563)->f16C = 0;
+            scpSearchGobj(563)->active = 0;
             stage_SetAnimation(283, 0, -1);
         }
 
         if (gflagChk(146) != 0) {
-            scpSearchGobj(564)->f16C = 0;
+            scpSearchGobj(564)->active = 0;
             stage_SetAnimation(284, 0, -1);
         }
 
         if (gflagChk(147) != 0) {
-            scpSearchGobj(565)->f16C = 0;
+            scpSearchGobj(565)->active = 0;
             stage_SetAnimation(285, 0, -1);
         }
 
         if (gflagChk(148) != 0) {
-            scpSearchGobj(566)->f16C = 0;
+            scpSearchGobj(566)->active = 0;
             stage_SetAnimation(286, 0, -1);
         }
 
         if (gflagChk(149) != 0) {
-            scpSearchGobj(567)->f16C = 0;
+            scpSearchGobj(567)->active = 0;
             stage_SetAnimation(287, 0, -1);
         }
 
         if (gflagChk(150) != 0) {
-            scpSearchGobj(568)->f16C = 0;
+            scpSearchGobj(568)->active = 0;
             stage_SetAnimation(288, 0, -1);
         }
 
         if (gflagChk(151) != 0) {
-            scpSearchGobj(569)->f16C = 0;
+            scpSearchGobj(569)->active = 0;
             stage_SetAnimation(289, 0, -1);
         }
 
         if (gflagChk(152) != 0) {
-            scpSearchGobj(570)->f16C = 0;
+            scpSearchGobj(570)->active = 0;
             stage_SetAnimation(290, 0, -1);
         }
 
@@ -1638,14 +1638,14 @@ void actSt04aTorch1(volatile int a0)
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        scpSearchGobj(563)->f16C = 0;
-        scpSearchGobj(564)->f16C = 0;
-        scpSearchGobj(565)->f16C = 0;
-        scpSearchGobj(566)->f16C = 0;
-        scpSearchGobj(567)->f16C = 0;
-        scpSearchGobj(568)->f16C = 0;
-        scpSearchGobj(569)->f16C = 0;
-        scpSearchGobj(570)->f16C = 0;
+        scpSearchGobj(563)->active = 0;
+        scpSearchGobj(564)->active = 0;
+        scpSearchGobj(565)->active = 0;
+        scpSearchGobj(566)->active = 0;
+        scpSearchGobj(567)->active = 0;
+        scpSearchGobj(568)->active = 0;
+        scpSearchGobj(569)->active = 0;
+        scpSearchGobj(570)->active = 0;
 
         stage_SetAnimation(283, 0, -1);
         stage_SetAnimation(284, 0, -1);
@@ -1931,7 +1931,7 @@ void actSt04aGateOpen2(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(141) == 0) {
-        scpSearchGobj(669)->f16C = 0;
+        scpSearchGobj(669)->active = 0;
 
         gate_open2_mail[0].func = actSt04aGateOpen2Chk;
         self->mail = gate_open2_mail;
@@ -1984,7 +1984,7 @@ void actSt04aModel(volatile int a0)
     ActSt04A *self = actInitialize(a0);
     _ACTWait(1);
 
-    scpSearchGobj(648)->f16C = 0;
+    scpSearchGobj(648)->active = 0;
 
     model_mail[0].func = actSt04aModelOnChk;
     self->mail = model_mail;
@@ -2051,12 +2051,12 @@ void finishCallBackFunc(int a0)
     Vec4St04A v;
     int i;
 
-    _ApplyMatrix((int)&v, GOBJ_SUB(a0)->f_C, (int)YUnitVector);
+    _ApplyMatrix((int)&v, GOBJ_SUB(a0)->nodeMtx, (int)YUnitVector);
     v.m[1] = 0.0f;
     _NormalizeVector((int)GOBJ_SUB(a0) + 0x520, (int)&v);
 
-    for (i = 0; i < GOBJ_SUB(a0)->f_88; i++) {
-        *(Mtx44 *)(GOBJ_SUB(a0)->p_80C + i * 64) = jointMtxInit;
+    for (i = 0; i < GOBJ_SUB(a0)->skelNodeNum; i++) {
+        *(Mtx44 *)(GOBJ_SUB(a0)->nodeRotElem + i * 64) = jointMtxInit;
     }
 }
 
@@ -2206,7 +2206,7 @@ void actSt04aModelOnChk(volatile int a0)
         _ACTWait(1);
     }
 
-    scpSearchGobj(648)->f16C = 1;
+    scpSearchGobj(648)->active = 1;
 
     model_on[0].func = actSt04aModelOffChk;
     sub->mail = model_on;
@@ -2225,7 +2225,7 @@ void actSt04aModelOffChk(volatile int a0)
         _ACTWait(1);
     }
 
-    scpSearchGobj(648)->f16C = 0;
+    scpSearchGobj(648)->active = 0;
 
     model_off[0].func = actSt04aModelOnChk;
     sub->mail = model_off;

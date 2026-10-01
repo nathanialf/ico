@@ -120,7 +120,7 @@ void wallHitSE(int a0)
    its own in the ROM and no census row, and the name is descriptive. */
 static inline void stopBoxMoveSE(char *self)
 {
-    BoxWork *q = GOBJ_SUB(self)->f_830;
+    BoxWork *q = GOBJ_SUB(self)->work;
 
     StopSEPackage((int)self);
     StopSEPackageWithGroupVariation((int)self, 1);
@@ -137,14 +137,14 @@ void initFallDown(char *a0)
     float pos[4];
     float pts[16];
     float n[4];
-    BoxWork *p = GOBJ_SUB(a0)->f_830;
+    BoxWork *p = GOBJ_SUB(a0)->work;
 
     GetRootPosition(pos, a0);
-    GOBJ_SUB(a0)->f_78 = 0;
-    *(int *)&GOBJ_SUB(a0)->f_4AC = 0;
+    GOBJ_SUB(a0)->colRotate = 0;
+    *(int *)&GOBJ_SUB(a0)->animFrame = 0;
     if (p->wall.n != 0) {
         GetWallGlobalInfo((char *)pts, n, p->wall.n,
-                          (char *)GOBJ_SUB(p->wall.o.obj)->f_C + (p->wall.o.node << 6));
+                          (char *)GOBJ_SUB(p->wall.o.obj)->nodeMtx + (p->wall.o.node << 6));
         n[1] = 0.0f;
         sceVu0Normalize(n, n);
         SetIdentityQuaternion((char *)GOBJ_SUB(a0) + 0xC0);
@@ -153,9 +153,9 @@ void initFallDown(char *a0)
         DivQuaternion((int)((char *)GOBJ_SUB(a0) + 0xE0), (int)((char *)GOBJ_SUB(a0) + 0xE0),
                       (int)((char *)GOBJ_SUB(a0) + 0xC0));
         GetMatrixFromQuaternionPos(p->mtx[0], (char *)GOBJ_SUB(a0) + 0xC0, (char *)pos);
-        GOBJ_SUB(a0)->f_4A0 = 1143;
+        GOBJ_SUB(a0)->motion = 1143;
     } else {
-        GOBJ_SUB(a0)->f_4A0 = 1143;
+        GOBJ_SUB(a0)->motion = 1143;
         GetRootQuaternion((int)((char *)GOBJ_SUB(a0) + 0xC0), (int)a0);
     }
 }
@@ -173,27 +173,27 @@ int checkFieldContact(char *a0, float lim)
 
     GetRootPosition(pos, a0);
     CopyVector(v, pos);
-    v[1] -= GOBJ_SUB(a0)->f_134;
+    v[1] -= GOBJ_SUB(a0)->moveY;
     GetLowerPlaneCollision(&w, v);
     r = CheckFieldContact(&w, a0, pos, lim);
     if (*(int *)GOBJ_SUB(a0) != 0) {
         UnlinkParentOfDObj(a0);
     }
-    GOBJ_SUB(a0)->f_5F8 = 0;
+    GOBJ_SUB(a0)->floorAttr = 0;
     switch (r) {
     case 1:
         if (a0 != w.floor.o.obj) {
             if (*(char **)GOBJ_SUB(a0) != w.floor.o.obj ||
                 *(int *)((char *)GOBJ_SUB(a0) + 4) != w.floor.o.node) {
                 LinkParentOfDObj(a0, (PackedLL_19CAF0 *)&w.floor);
-                GOBJ_SUB(a0)->f_5F8 = GetFloorAttribute(&w);
+                GOBJ_SUB(a0)->floorAttr = GetFloorAttribute(&w);
             }
         }
         w.pt[1][1] = w.pt[2][1] - 50.0f;
         SetDirectRootPosition(a0, w.pt[1]);
         return 1;
     case 2:
-        GOBJ_SUB(a0)->f_5F8 = GetFloorAttribute(&w);
+        GOBJ_SUB(a0)->floorAttr = GetFloorAttribute(&w);
         return 2;
     }
     return 0;
@@ -216,7 +216,7 @@ extern void SetRootPosition(void *obj, void *pos);
    separate work buffers while sharing one output vector. */
 static inline void checkBoxWallHit(char *self, char *w, float *base, float *out, int stop)
 {
-    BoxWork *p = GOBJ_SUB(self)->f_830;
+    BoxWork *p = GOBJ_SUB(self)->work;
 
     GetRootPosition(base, self);
     if (out != 0) {
@@ -277,7 +277,7 @@ int execNormalMove(char *self, int stop)
     float axis[4];
     float norm[4];
     float rot[4];
-    BoxWork *p = GOBJ_SUB(self)->f_830;
+    BoxWork *p = GOBJ_SUB(self)->work;
     int ret = 1;
     float hw;
     float d;
@@ -368,7 +368,7 @@ static inline void setBoxStopWallFlag(char *self, float *vel)
 {
     ClipBuf w;
     float dir[4];
-    BoxWork *p = GOBJ_SUB(self)->f_830;
+    BoxWork *p = GOBJ_SUB(self)->work;
 
     memset(&w, 0, 0xC0);
     _NormalizeVector(dir, vel);
@@ -386,7 +386,7 @@ static inline void setBoxStopWallFlag(char *self, float *vel)
 int execAutoMove(char *a0)
 {
     float pos[4];
-    BoxWork *p = GOBJ_SUB(a0)->f_830;
+    BoxWork *p = GOBJ_SUB(a0)->work;
 
     GetRootPosition(pos, a0);
     _AddVector(pos, pos, p->f_040);
@@ -456,13 +456,15 @@ extern GenGeo objLayout[];
    560 the allocator records is the dev source line. */
 void initWheels(char *self, float *lay)
 {
-    char *w = GOBJ_SUB(self)->f_830;
+    char *w = GOBJ_SUB(self)->work;
     int i;
 
-    if (objLayout[((int *)self)[2]].f30 == 26 || D_002A79B8[GOBJ_SUB(self)->f_844].dobj0 == 0x610) {
+    if (objLayout[((int *)self)[2]].accessary == 26 ||
+        D_002A79B8[GOBJ_SUB(self)->accessary].dobj0 == 0x610) {
         *(int *)(w + 0x11C) = 0;
     } else {
-        *(char **)(w + 0x11C) = CSVSYSTEM_InitDObj(D_002A79B8[GOBJ_SUB(self)->f_844].dobj0, lay);
+        *(char **)(w + 0x11C) =
+            CSVSYSTEM_InitDObj(D_002A79B8[GOBJ_SUB(self)->accessary].dobj0, lay);
         if (*(int *)(*(char **)(w + 0x11C) + 0xC) != 0) {
             iosFree((void *)(*(int *)(*(char **)(w + 0x11C) + 0xC) & 0x0FFFFFFF));
         }
@@ -569,7 +571,7 @@ void initWheels(char *self, float *lay)
    spelling of the radian-to-angle-table factor (ico2/seki/src/Primitive.c). */
 static inline void updateBoxWheelAngle(char *self)
 {
-    BoxWork *p = GOBJ_SUB(self)->f_830;
+    BoxWork *p = GOBJ_SUB(self)->work;
 
     if (p->wheelDObj != 0) {
         p->wheelAngle = (short)((float)p->wheelAngle - p->f_040[2] * 10430.3779f / p->f_124);
@@ -578,12 +580,12 @@ static inline void updateBoxWheelAngle(char *self)
 
 void dispWheels(char *a0)
 {
-    BoxWork *p = GOBJ_SUB(a0)->f_830;
+    BoxWork *p = GOBJ_SUB(a0)->work;
 
     if (p->wheelDObj == 0) {
         return;
     }
-    CopyMatrix(MatrixDrive_GetMatrix(), *(void **)&GOBJ_SUB(a0)->f_C);
+    CopyMatrix(MatrixDrive_GetMatrix(), *(void **)&GOBJ_SUB(a0)->nodeMtx);
     MatrixDrive_TransMatrix(0.0f, p->f_128, 0.0f);
     MatrixDrive_PushMatrix();
     MatrixDrive_TransMatrix(0.0f, 0.0f, p->wheelFront);
@@ -901,7 +903,7 @@ int getNearestPosition(float *out, int *pidx, int *path)
 
 void onPathInitialize(char *a0)
 {
-    BoxWork *p = GOBJ_SUB(a0)->f_830;
+    BoxWork *p = GOBJ_SUB(a0)->work;
     float front[4];
     float rear[4];
     /* The wheel offset is one variable assigned on each wheel's line. What the
@@ -916,8 +918,8 @@ void onPathInitialize(char *a0)
     float quat[4];
 
     p->f_050 = p->f_054 = -1;
-    sceVu0ApplyMatrix(front, (void *)GOBJ_SUB(a0)->f_C, &fv);
-    sceVu0ApplyMatrix(rear, (void *)GOBJ_SUB(a0)->f_C, &rv);
+    sceVu0ApplyMatrix(front, (void *)GOBJ_SUB(a0)->nodeMtx, &fv);
+    sceVu0ApplyMatrix(rear, (void *)GOBJ_SUB(a0)->nodeMtx, &rv);
     getNearestPosition(front, (int *)&p->f_050, (int *)&p->route);
     getNearestPosition(rear, (int *)&p->f_054, (int *)&p->route);
     debug_StdPrintfDummy("front pos: %f, %f, %f\n", front[0], front[1], front[2]);
@@ -952,7 +954,7 @@ static int routeRearColor[4] = {255, 128, 0, 128};
    enough for the ROM's schedule. */
 int onPath(char *self)
 {
-    BoxWork *p = GOBJ_SUB(self)->f_830;
+    BoxWork *p = GOBJ_SUB(self)->work;
     Vec4 front;
     Vec4 rear;
     float q[4] = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -967,8 +969,8 @@ int onPath(char *self)
     int hitRear;
     int i;
 
-    sceVu0ApplyMatrix(&front, (void *)GOBJ_SUB(self)->f_C, &fwd);
-    sceVu0ApplyMatrix(&rear, (void *)GOBJ_SUB(self)->f_C, &bwd);
+    sceVu0ApplyMatrix(&front, (void *)GOBJ_SUB(self)->nodeMtx, &fwd);
+    sceVu0ApplyMatrix(&rear, (void *)GOBJ_SUB(self)->nodeMtx, &bwd);
 
     hitFront = getNearestPosition(front.f, (int *)&p->f_050, (int *)&p->route);
     hitRear = getNearestPosition(rear.f, (int *)&p->f_054, (int *)&p->route);
@@ -996,11 +998,11 @@ int onPath(char *self)
         }
 
         if (hitFront != 0) {
-            _SubVectorXYZ(&dir, &front, (char *)GOBJ_SUB(self)->f_C + 0x30);
+            _SubVectorXYZ(&dir, &front, (char *)GOBJ_SUB(self)->nodeMtx + 0x30);
             debug_StdPrintfDummy("hit with front\n");
         }
         if (hitRear != 0) {
-            _SubVectorXYZ(&dir, &rear, (char *)GOBJ_SUB(self)->f_C + 0x30);
+            _SubVectorXYZ(&dir, &rear, (char *)GOBJ_SUB(self)->nodeMtx + 0x30);
             debug_StdPrintfDummy("hit with rear\n");
         }
         _NormalizeVector(&dir, &dir);
@@ -1031,10 +1033,10 @@ int onPath(char *self)
         for (i = 1; pts[i][3] < 10.0f; i++) {
             DrawLineG(pts[i - 1], routeFrontColor, pts[i], routeFrontColor, -1);
         }
-        CopyMatrix(MatrixDrive_GetMatrix(), (void *)GOBJ_SUB(self)->f_C);
+        CopyMatrix(MatrixDrive_GetMatrix(), (void *)GOBJ_SUB(self)->nodeMtx);
         MatrixDrive_TransMatrix(0.0f, 0.0f, p->scaleZ * 50.0f);
         prim_DispWireSphere(10.0f, routeFrontColor, 4, 4);
-        CopyMatrix(MatrixDrive_GetMatrix(), (void *)GOBJ_SUB(self)->f_C);
+        CopyMatrix(MatrixDrive_GetMatrix(), (void *)GOBJ_SUB(self)->nodeMtx);
         MatrixDrive_TransMatrix(0.0f, 0.0f, p->scaleZ * -50.0f);
         prim_DispWireSphere(10.0f, routeRearColor, 4, 4);
         gif_EndPacket();
@@ -1063,9 +1065,10 @@ int playAnimationCore(char *a0)
     float dir[4];
     float pos[4];
     float q[4];
-    BoxWork *p = GOBJ_SUB(a0)->f_830;
+    BoxWork *p = GOBJ_SUB(a0)->work;
 
-    GetFloatingMotion(mot, dir, motionTable[GOBJ_SUB(a0)->f_4A0], 1, 0, 0, GOBJ_SUB(a0)->f_4AC);
+    GetFloatingMotion(mot, dir, motionTable[GOBJ_SUB(a0)->motion], 1, 0, 0,
+                      GOBJ_SUB(a0)->animFrame);
     dir[3] = 1.0f;
     sceVu0ApplyMatrix(pos, p->mtx[0], dir);
     CopyQuaternion(q, (char *)GOBJ_SUB(a0) + 0xC0);
@@ -1074,7 +1077,7 @@ int playAnimationCore(char *a0)
     RotQuaternionY(q, -16384);
     MultiQuaternion(q, q, (char *)GOBJ_SUB(a0) + 0xE0);
     SetRootQuaternion(a0, q);
-    sceVu0SubVector(&GOBJ_SUB(a0)->f_130, pos, (char *)GOBJ_SUB(a0) + 0x1F0);
+    sceVu0SubVector(&GOBJ_SUB(a0)->moveX, pos, (char *)GOBJ_SUB(a0) + 0x1F0);
     CopyVector((char *)GOBJ_SUB(a0) + 0x1F0, pos);
     SetRootPosition(a0, pos);
     ExecFrameDependSequence(a0);
@@ -1099,7 +1102,7 @@ static inline void execBoxFall(char *self)
     AddVectorXYZ(v, v, *(char **)(self + 0x15C) + 0x130);
     SetRootPosition(self, v);
     if (LimitExistGeometry(v, *(char **)(self + 0x15C) + 0x130) != 0) {
-        *(int *)((char *)GOBJ_SUB(self)->f_830 + 0x20) = -1;
+        *(int *)((char *)GOBJ_SUB(self)->work + 0x20) = -1;
     }
 }
 
@@ -1119,7 +1122,7 @@ int MoveFloatingBox(char *self, char *other, float *dst, void *src, float lim)
     float opos[4];
     float tp[4];
     float m[16];
-    BoxWork *w = GOBJ_SUB(self)->f_830;
+    BoxWork *w = GOBJ_SUB(self)->work;
     float dx;
     float dz;
     float len;
@@ -1236,9 +1239,9 @@ void avoidCharGObj(char *a0, char *a1)
     float pos[4];
     int hit;
 
-    w.rad = (30.0f < GOBJ_SUB(a1)->f_3D8) ? GOBJ_SUB(a1)->f_3D8 : 30.0f;
+    w.rad = (30.0f < GOBJ_SUB(a1)->radius) ? GOBJ_SUB(a1)->radius : 30.0f;
     GetRootPosition(pos, a1);
-    pos[1] += GOBJ_SUB(a1)->f_270 + 10.0f;
+    pos[1] += GOBJ_SUB(a1)->projHeight + 10.0f;
     CopyVector(&w, pos);
     CopyVector(w.pt[1], pos);
     w.filter.o.obj = a0;
@@ -1246,13 +1249,13 @@ void avoidCharGObj(char *a0, char *a1)
     w.filter.n = 0;
     ClipWallE(&w);
     if (w.wall.n != 0) {
-        switch (GOBJ_SUB(a1)->f_4D8) {
+        switch (GOBJ_SUB(a1)->rootUpdateMode) {
         case 7:
         case 8:
         case 10:
         case 15:
         case 16:
-            hit = (char *)GOBJ_SUB(a1)->f_180 == a0;
+            hit = (char *)GOBJ_SUB(a1)->wallObj == a0;
             break;
         default:
             hit = 1;
@@ -1295,7 +1298,7 @@ void execFloating(char *self)
     float sv[4];
     float dv[4];
     int hit;
-    BoxWork *w = GOBJ_SUB(self)->f_830;
+    BoxWork *w = GOBJ_SUB(self)->work;
     float len;
     float r;
 
@@ -1366,11 +1369,11 @@ void execFloating(char *self)
         _AddVectorXYZ(cw, pos, ofs);
         *(float *)(cw + 0xC) = 0.0f;
         _SubVector((char *)GOBJ_SUB(self) + 0x130, cw, w->f_100);
-        GOBJ_SUB(self)->f_13C = 0;
+        GOBJ_SUB(self)->word13C = 0;
         CopyVector(w->f_100, cw);
         SetRootPosition(self, pos);
     }
-    GOBJ_SUB(self)->f_134 += GetTableSin(w->f_118) * 0.1f;
+    GOBJ_SUB(self)->moveY += GetTableSin(w->f_118) * 0.1f;
     w->f_118 += 2048;
     w->f_164 = 0;
     if (w->f_118 == 0) {
@@ -1385,10 +1388,10 @@ static float floatInitFacing[4] = {0.0f, 0.0f, 1.0f, 0.0f};
 
 void initFloating(char *a0)
 {
-    BoxWork *p = GOBJ_SUB(a0)->f_830;
+    BoxWork *p = GOBJ_SUB(a0)->work;
 
-    GOBJ_SUB(a0)->f_70 = *(int *)(p->effectDObj + 0x70);
-    GOBJ_SUB(a0)->f_78 = 1;
+    GOBJ_SUB(a0)->colData = *(int *)(p->effectDObj + 0x70);
+    GOBJ_SUB(a0)->colRotate = 1;
     CopyQuaternion((char *)(int)GOBJ_SUB(a0) + 0xC0, IdentityQuaternion);
     SetRootQuaternion(a0, IdentityQuaternion);
     CopyVector(p->f_0E0, ZeroVector);
@@ -1448,12 +1451,12 @@ void initLanding(char *a0)
     float pos[4];
     float plane[4];
     float v[4];
-    BoxWork *p = GOBJ_SUB(a0)->f_830;
+    BoxWork *p = GOBJ_SUB(a0)->work;
 
     GetRootPosition(pos, a0);
-    CopyVector(&GOBJ_SUB(a0)->f_130, ZeroVector);
-    *(int *)&GOBJ_SUB(a0)->f_4AC = 0;
-    GOBJ_SUB(a0)->f_4A0 = 1144;
+    CopyVector(&GOBJ_SUB(a0)->moveX, ZeroVector);
+    *(int *)&GOBJ_SUB(a0)->animFrame = 0;
+    GOBJ_SUB(a0)->motion = 1144;
     if (p->wall.n != 0) {
         float d;
 
@@ -1475,13 +1478,13 @@ static inline void resetBoxRootQuaternion(char *self, float *q)
 {
     GetInverseQuaternion(q, (char *)GOBJ_SUB(self) + 0x60);
     SetRootQuaternion(self, q);
-    GOBJ_SUB(self)->f_78 = 1;
+    GOBJ_SUB(self)->colRotate = 1;
 }
 
 static inline void playBoxAnimation(char *self, float *q)
 {
     if (playAnimationCore(self) != 0) {
-        BoxWork *p = GOBJ_SUB(self)->f_830;
+        BoxWork *p = GOBJ_SUB(self)->work;
 
         p->f_020 = 0;
         resetBoxRootQuaternion(self, q);
@@ -1495,7 +1498,7 @@ static inline void attackBoxFallCenter(char *self)
 {
     float plane[4];
     float pos[4];
-    BoxWork *q = GOBJ_SUB(self)->f_830;
+    BoxWork *q = GOBJ_SUB(self)->work;
 
     if (q->wall.n != 0) {
         GetPureVerticalPlane(0, plane, 0, (int *)&q->wall, 1);
@@ -1508,7 +1511,7 @@ static inline void attackBoxFallCenter(char *self)
 
 void execFallDown(char *a0)
 {
-    BoxWork *p = GOBJ_SUB(a0)->f_830;
+    BoxWork *p = GOBJ_SUB(a0)->work;
 
     switch (p->f_020) {
     case 2:
@@ -1541,14 +1544,14 @@ void inertiaMove(char *a0)
     float tmp[4];
     ClipBuf w;
     float base[4];
-    BoxWork *p = GOBJ_SUB(a0)->f_830;
+    BoxWork *p = GOBJ_SUB(a0)->work;
 
     if (onPath(a0) != 0) {
         CopyVector(p->f_040, ZeroVector);
     }
     GetRootPosition(pos, a0);
     sceVu0ScaleVectorXYZ(p->f_040, p->f_040, p->f_134);
-    sceVu0ApplyMatrix(tmp, (void *)GOBJ_SUB(a0)->f_C, p->f_040);
+    sceVu0ApplyMatrix(tmp, (void *)GOBJ_SUB(a0)->nodeMtx, p->f_040);
     sceVu0AddVector(pos, pos, tmp);
     SetRootPosition(a0, pos);
     checkBoxWallHit(a0, &w, base, pos, 1);
@@ -1560,7 +1563,7 @@ void inertiaMove(char *a0)
 
 inline int IsThisBoxTruck(char *a0)
 {
-    return *(int *)((char *)GOBJ_SUB(a0)->f_830 + 0x58);
+    return *(int *)((char *)GOBJ_SUB(a0)->work + 0x58);
 }
 
 void action(char *a0)
@@ -1568,7 +1571,7 @@ void action(char *a0)
     /* the float view carries the up vector; the union is what the ROM's
        schedule needs, its alias-set-0 store keeping the matrix read after it */
     Vec4u v;
-    BoxWork *p = GOBJ_SUB(a0)->f_830;
+    BoxWork *p = GOBJ_SUB(a0)->work;
 
     switch (p->f_020) {
     case 0:
@@ -1577,7 +1580,7 @@ void action(char *a0)
             updateBoxWheelAngle(a0);
             memset(&v, 0, 16);
             v.f[2] = 1.0f;
-            _ApplyMatrix((char *)GOBJ_SUB(a0) + 0x520, (void *)GOBJ_SUB(a0)->f_C, &v);
+            _ApplyMatrix((char *)GOBJ_SUB(a0) + 0x520, (void *)GOBJ_SUB(a0)->nodeMtx, &v);
         }
         CopyVector((char *)GOBJ_SUB(a0) + 0x130, ZeroVector);
         break;
@@ -1630,7 +1633,7 @@ int GetBoxHoldPoint(float *out, char *self, void *chara)
 {
     float pos[4];
     float p[4];
-    BoxWork *q = GOBJ_SUB(self)->f_830;
+    BoxWork *q = GOBJ_SUB(self)->work;
     int best = 0;
     float min = 0.0f;
     float d;
@@ -1674,7 +1677,7 @@ int GetBoxHoldPoint(float *out, char *self, void *chara)
 
 inline int CanHoldBox(char *a0)
 {
-    return *(int *)((char *)GOBJ_SUB(a0)->f_830 + 0x20) == 0;
+    return *(int *)((char *)GOBJ_SUB(a0)->work + 0x20) == 0;
 }
 
 static inline void setupClipWork(ClipBuf *w, char *obj, float *dir, float len, float h)
@@ -1893,7 +1896,7 @@ static inline int checkCharGObjs(char *obj, char *holder, float *dir)
         if (*list != holder) {
             GetRootPosition(pos2, *list);
             _SubVector(d, pos2, pos);
-            if (move(d, w + w, w, GOBJ_SUB(*list)->f_3D8 + 5.0f) != 0) {
+            if (move(d, w + w, w, GOBJ_SUB(*list)->radius + 5.0f) != 0) {
                 return 0;
             }
         }
@@ -1949,7 +1952,7 @@ int moveBoxAutoMatic(char *a0, int a1)
 {
     float v[4];
     float v2[4];
-    BoxWork *p = GOBJ_SUB(a0)->f_830;
+    BoxWork *p = GOBJ_SUB(a0)->work;
     float t = 30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
     float w = t * t;
     int r;
@@ -1995,7 +1998,7 @@ int MoveBoxWithHoldPoint(char *a0, void *a1, char *a2, int a3, float *a4)
     float hp[4];
     float pos[4];
     float mv[4];
-    BoxWork *q = GOBJ_SUB(a0)->f_830;
+    BoxWork *q = GOBJ_SUB(a0)->work;
     int idx;
     int hit;
     float dot;
@@ -2011,15 +2014,15 @@ int MoveBoxWithHoldPoint(char *a0, void *a1, char *a2, int a3, float *a4)
     SetSimplePlane(plane, nv[0], nv[1], nv[2], -dot);
 
     idx = GetSkeltonFocusNode(a2, a3);
-    dist = GetDistanceFromPlane(plane, (char *)GOBJ_SUB(a2)->f_C + (idx << 6) + 0x30);
+    dist = GetDistanceFromPlane(plane, (char *)GOBJ_SUB(a2)->nodeMtx + (idx << 6) + 0x30);
 
     sceVu0ScaleVector(mv, nv, dist);
 
-    if (*(int *)((char *)GOBJ_SUB(a0)->f_830 + 0x58) != 0) {
+    if (*(int *)((char *)GOBJ_SUB(a0)->work + 0x58) != 0) {
         float m[16];
 
         _ScaleVector(mv, mv, 0.05f);
-        MatrixDrive_SetTransposeMatrix(m, (void *)GOBJ_SUB(a0)->f_C);
+        MatrixDrive_SetTransposeMatrix(m, (void *)GOBJ_SUB(a0)->nodeMtx);
         sceVu0ApplyMatrix(mv, m, mv);
         AddVectorXYZ(q->f_040, q->f_040, mv);
         if (onPath(a0) != 0) {
@@ -2034,7 +2037,7 @@ int MoveBoxWithHoldPoint(char *a0, void *a1, char *a2, int a3, float *a4)
     } else if (checkCharGObjs(a0, a2, a4) && checkBoxStopWall(a0, a4) &&
                CheckGeneratorCollision(a0, a4) && checkItemHit(a0, a4)) {
         q->f_030 = (0x3C - systemStatus[0] * 0xA) / systemStatus[1] *
-                   (GetNbMotionFrames(GOBJ_SUB(a2)->f_4A0) - 1) / 0x1E;
+                   (GetNbMotionFrames(GOBJ_SUB(a2)->motion) - 1) / 0x1E;
         _ScaleVectorXYZ(q->f_040, a4, 100.0f / (float)q->f_030);
 
         hit = checkMoveWall(a0, a4);
@@ -2054,7 +2057,7 @@ int MoveBoxWithHoldPoint(char *a0, void *a1, char *a2, int a3, float *a4)
             CopyVector(*(char **)(*(char **)(q->subGObj + 0x15C) + 0xC) + 0x30, npos);
             *(int *)(q->subGObj + 0x16C) = 1;
         }
-        if (GOBJ_SUB(a2)->f_56C != 0) {
+        if (GOBJ_SUB(a2)->word56C != 0) {
             q->wall = *(WallCfg *)((char *)GOBJ_SUB(a2) + 0x190);
         }
     } else {
@@ -2077,7 +2080,7 @@ inline int BoxRideFunc(int *a0, char *a1)
     if (*(int *)(s0 + 0x20) != 5) {
         return 0;
     }
-    p15c->f_134 += 0.5f;
+    p15c->moveY += 0.5f;
     GetRootPosition(buf + 0x10, obj);
     CopyVector(buf, (char *)GOBJ_SUB(a1) + 0xA0);
     *(int *)(buf + 4) = 0;
@@ -2087,7 +2090,7 @@ inline int BoxRideFunc(int *a0, char *a1)
 
 inline void ExecBoxMoveStartReaction(char *a0, int a1)
 {
-    BoxWork *q = GOBJ_SUB(a0)->f_830;
+    BoxWork *q = GOBJ_SUB(a0)->work;
     if (q->route != 0) {
         if (q->f_110 != 0) {
             goto end;
@@ -2106,7 +2109,7 @@ end:
 
 inline void ExecBoxMoveEndReaction(char *a0)
 {
-    BoxWork *q = GOBJ_SUB(a0)->f_830;
+    BoxWork *q = GOBJ_SUB(a0)->work;
     if (q->route == 0 || q->f_110 != 0) {
         stopBoxMoveSE(a0);
     }
@@ -2115,16 +2118,16 @@ inline void ExecBoxMoveEndReaction(char *a0)
 
 void ReInitBoxGeo(char *a0)
 {
-    BoxWork *p = GOBJ_SUB(a0)->f_830;
+    BoxWork *p = GOBJ_SUB(a0)->work;
 
     debug_StdPrintfDummy("BOXREINIT\n");
-    GOBJ_SUB(a0)->f_70 = p->f_02C;
+    GOBJ_SUB(a0)->colData = p->f_02C;
     if (checkFieldContact(a0, 100000.0f) == 0) {
         /* EUC-JP: "the box is placed where there is no ground; its behaviour cannot be guaranteed (is the box before the collision definition?)" */
         debug_StdPrintfDummy(
             "\033[36m箱が地面の無いところに初期配置されています。\n動作が保証できません(コリジョン定義より前に箱がありませんか?)\033[m\n");
     } else {
-        int m = GOBJ_SUB(a0)->f_5F8;
+        int m = GOBJ_SUB(a0)->floorAttr;
 
         if (m == 0x40 || m == 0x50) {
             initFloating(a0);
@@ -2172,7 +2175,7 @@ char *InitBoxGeo(char *self, BoxLayout *lay)
     char *g;
     int sub;
 
-    (char *)GOBJ_SUB(self)->f_830 = w;
+    (char *)GOBJ_SUB(self)->work = w;
 
     *(BoxWork *)w = boxWorkInit;
 
@@ -2181,11 +2184,11 @@ char *InitBoxGeo(char *self, BoxLayout *lay)
 
     ((IntFloat *)(w + 0x24))->f = lay->scale[0];
     ((IntFloat *)(w + 0x28))->f = lay->scale[2];
-    ((IntFloat *)((char *)GOBJ_SUB(self)->p_870 + 0x20))->f =
-        ((IntFloat *)((char *)GOBJ_SUB(self)->p_870 + 0x24))->f =
-            ((IntFloat *)((char *)GOBJ_SUB(self)->p_870 + 0x28))->f = 1.0f;
+    ((IntFloat *)((char *)GOBJ_SUB(self)->nodes + 0x20))->f =
+        ((IntFloat *)((char *)GOBJ_SUB(self)->nodes + 0x24))->f =
+            ((IntFloat *)((char *)GOBJ_SUB(self)->nodes + 0x28))->f = 1.0f;
 
-    *(int *)(w + 0x2C) = GOBJ_SUB(self)->f_70;
+    *(int *)(w + 0x2C) = GOBJ_SUB(self)->colData;
 
     *(int *)(w + 0x160) = (int)CSVSYSTEM_InitDObj(63, (float *)&InitialSObjSimpleSetting);
 
@@ -2195,7 +2198,7 @@ char *InitBoxGeo(char *self, BoxLayout *lay)
     g = CreateLayoutedGObj(0, 64, -1, 0, (int)lay, 0, 7, 0);
     *(int *)(w + 0x180) = (int)g;
 
-    GOBJ_SUB(g)->f_74 = 1;
+    GOBJ_SUB(g)->disp = 1;
     *(int *)(g + 0x16C) = 0;
 
     if (*(int *)(w + 0x58) != 0) {
@@ -2219,14 +2222,14 @@ char *InitBoxGeo(char *self, BoxLayout *lay)
             r.scale[3] = 1.0f;
             r.kind = 1;
 
-            sub = D_002A79B8[GOBJ_SUB(self)->f_844].sub;
+            sub = D_002A79B8[GOBJ_SUB(self)->accessary].sub;
             o = CreateLayoutedGObj(23, D_002A79B8[sub].dobj0, sub, 0, (int)&r, 0, 7, 0);
 
             LinkParentOfDObj(o, (PackedLL_19CAF0 *)&lnk);
 
-            q.f[0] = D_002A79B8[GOBJ_SUB(self)->f_844].pos[0];
-            q.f[1] = D_002A79B8[GOBJ_SUB(self)->f_844].pos[1];
-            q.f[2] = D_002A79B8[GOBJ_SUB(self)->f_844].pos[2];
+            q.f[0] = D_002A79B8[GOBJ_SUB(self)->accessary].pos[0];
+            q.f[1] = D_002A79B8[GOBJ_SUB(self)->accessary].pos[1];
+            q.f[2] = D_002A79B8[GOBJ_SUB(self)->accessary].pos[2];
             q.f[3] = 1.0f;
             v = q;
 
@@ -2234,7 +2237,8 @@ char *InitBoxGeo(char *self, BoxLayout *lay)
 
             memset(&q, 0, 16);
             q.f[3] = 1.0f;
-            RotQuaternionY(&q, (short)(D_002A79B8[GOBJ_SUB(self)->f_844].rotY * 32768.0f / 180.0f));
+            RotQuaternionY(&q,
+                           (short)(D_002A79B8[GOBJ_SUB(self)->accessary].rotY * 32768.0f / 180.0f));
             CopyVector((char *)GOBJ_SUB(o) + 0xD0, &q);
 
             SetSwitchTriggerFunc(o, (void *)moveBoxAutoMatic);
@@ -2254,7 +2258,7 @@ char *InitBoxGeo(char *self, BoxLayout *lay)
 
 void BoxGeo(char *a0)
 {
-    BoxWork *p = GOBJ_SUB(a0)->f_830;
+    BoxWork *p = GOBJ_SUB(a0)->work;
 
     action(a0);
     UpdateRootMatrix(a0);
@@ -2266,7 +2270,7 @@ void BoxGeo(char *a0)
 
 inline void BoxDL(char *a0)
 {
-    BoxWork *q = GOBJ_SUB(a0)->f_830;
+    BoxWork *q = GOBJ_SUB(a0)->work;
     p2o_SetDefaultEnviroment();
     p2o_DispVU1(a0);
     if (q->route != 0) {
@@ -2274,7 +2278,7 @@ inline void BoxDL(char *a0)
     }
     if (systemStatus[5] != 0) {
         StopSEPackageWithGroupVariation((int)a0, 1);
-        *(int *)((char *)GOBJ_SUB(a0)->f_830 + 0x138) = 0;
+        *(int *)((char *)GOBJ_SUB(a0)->work + 0x138) = 0;
     }
 }
 
@@ -2302,5 +2306,5 @@ inline int BoxMemoryFunc(void)
 
 int GetBoxMode(char *a0)
 {
-    return *(int *)((char *)GOBJ_SUB(a0)->f_830 + 0x20);
+    return *(int *)((char *)GOBJ_SUB(a0)->work + 0x20);
 }

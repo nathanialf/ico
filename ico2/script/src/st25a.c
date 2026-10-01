@@ -142,7 +142,7 @@ void actConte11(volatile int a0)
     stage_SetAnimation(764, 1, 0);
 
     scpPlayMot(boyGObj, 400);
-    scpSearchGobj(2149)->f16C = 1;
+    scpSearchGobj(2149)->active = 1;
     scpPlayMot((int)scpSearchGobj(2149), 1104);
 
     _ACTWait(1);
@@ -283,7 +283,7 @@ void actSt25aQueenTalkChk(volatile int a0)
         DeleteBoyWeapon();
         scpLinkBGAtoLayoutedTarget(0x86E, 0x1E7);
 
-        scpSearchGobj(2158)->f16C = 1;
+        scpSearchGobj(2158)->active = 1;
         stage_SetAnimation(157, -1, -2);
         SelectBoyCrown(boyGObj, 1);
 
@@ -342,7 +342,7 @@ void actConte12(volatile int a0)
 {
     conte12Flag = 0;
 
-    scpSearchGobj(2149)->f16C = 1;
+    scpSearchGobj(2149)->active = 1;
     EntryStreamMotion(boyGObj);
     EntryStreamMotion((int)scpSearchGobj(2149));
     PlayStreamMotion();
@@ -430,7 +430,7 @@ void actConte12(volatile int a0)
 
     scpLinkBGAtoLayoutedTarget(0x86E, 0x1E7);
 
-    scpSearchGobj(2158)->f16C = 1;
+    scpSearchGobj(2158)->active = 1;
 
     _ACTWait(1);
     stage_SetAnimation(561, 1, 0);
@@ -573,10 +573,10 @@ void actSt25aQueenDeadChk(volatile int a0)
     }
     AdpcmPlay(((AdpcmObj *)dead)->stream);
 
-    stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[3]].f_24);
+    stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[3]].nextStage);
     stgmgrNextStagePreLoadForceNoCancel(1);
 
-    scpSearchGobj(2149)->f16C = 1;
+    scpSearchGobj(2149)->active = 1;
     EntryStreamMotion(boyGObj);
     EntryStreamMotion((int)scpSearchGobj(2149));
     PlayStreamMotion();
@@ -585,8 +585,8 @@ void actSt25aQueenDeadChk(volatile int a0)
 
     stage_SetAnimation(802, 1, 0);
 
-    scpSearchGobj(2227)->f16C = 0;
-    scpSearchGobj(2228)->f16C = 0;
+    scpSearchGobj(2227)->active = 0;
+    scpSearchGobj(2228)->active = 0;
 
     while (stage_ContinueAnimation(802, 803) == 0) {
         _ACTWait(1);
@@ -598,12 +598,12 @@ void actSt25aQueenDeadChk(volatile int a0)
         _ACTWait(1);
     }
 
-    GOBJ_SUB(scpSearchGobj(2149))->f_660 = 0;
+    GOBJ_SUB(scpSearchGobj(2149))->streamScale = 0;
     while (stage_ContinueAnimation(805, 806) == 0) {
         _ACTWait(1);
     }
 
-    GOBJ_SUB(scpSearchGobj(2149))->f_660 = 1;
+    GOBJ_SUB(scpSearchGobj(2149))->streamScale = 1;
     while (stage_ContinueAnimation(806, 807) == 0) {
         _ACTWait(1);
     }
@@ -645,7 +645,7 @@ void actSt25aQueenDeadChk(volatile int a0)
     _ACTWait(1);
     iosPadActRequest(boyPad, 15);
 
-    scpSearchGobj(2149)->f16C = 0;
+    scpSearchGobj(2149)->active = 0;
     stage_SetLoopFlag(555, 0);
 
     while (stage_ContinueAnimation(811, 813) == 0) {
@@ -784,7 +784,7 @@ void actSt25aQueenTalk(volatile int a0)
     fightSoundProcessRequestPause();
 
     if (gflagChk(333) == 0) {
-        scpSearchGobj(2158)->f16C = 0;
+        scpSearchGobj(2158)->active = 0;
         queen_talk_mes[0].func = actSt25aQueenTalkChk;
         sub->mail = queen_talk_mes;
         ACTSendMailCorrect(a0, 430);

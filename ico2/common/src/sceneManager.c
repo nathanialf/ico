@@ -287,20 +287,20 @@ void InitStageLight(int stage)
 
     light_AddLight(0, 0, 0);
 
-    GlobalStageSetting.f080 = (int)stageData[stage].f60[0];
-    GlobalStageSetting.f090[0] = (int)stageData[stage].f60[1];
-    GlobalStageSetting.f090[1] = (int)stageData[stage].f60[2];
-    GlobalStageSetting.f090[2] = (int)stageData[stage].f60[3];
-    GlobalStageSetting.f090[3] = (int)stageData[stage].f60[4];
-    GlobalStageSetting.f0A0[0] = (int)stageData[stage].f60[5];
-    GlobalStageSetting.f0A0[1] = (int)stageData[stage].f60[6];
-    GlobalStageSetting.f0A0[2] = (int)stageData[stage].f60[7];
+    GlobalStageSetting.f080 = (int)stageData[stage].fog[0];
+    GlobalStageSetting.f090[0] = (int)stageData[stage].fog[1];
+    GlobalStageSetting.f090[1] = (int)stageData[stage].fog[2];
+    GlobalStageSetting.f090[2] = (int)stageData[stage].fog[3];
+    GlobalStageSetting.f090[3] = (int)stageData[stage].fog[4];
+    GlobalStageSetting.f0A0[0] = (int)stageData[stage].fog[5];
+    GlobalStageSetting.f0A0[1] = (int)stageData[stage].fog[6];
+    GlobalStageSetting.f0A0[2] = (int)stageData[stage].fog[7];
     GlobalStageSetting.f120 = 128;
 
     gsb_SetBGColor(db, (int)GlobalStageSetting.bgCol[0], (int)GlobalStageSetting.bgCol[1],
                    (int)GlobalStageSetting.bgCol[2]);
 
-    GlobalStageSetting.f0AC = stageData[stage].f188;
+    GlobalStageSetting.f0AC = stageData[stage].shadowDepth;
     GlobalStageSetting.f0B0 = 0;
     GlobalStageSetting.f0B4 = 40;
     GlobalStageSetting.f0B8 = 80;
@@ -357,14 +357,14 @@ inline char *CreateLayoutedGObj(int id, int a1, int a2, int a3, int a4, int a5, 
     int dobj = CSVSYSTEM_InitDObj(a1, a4);
     int (*fn)(char *, int);
 
-    *(int *)&((GObj *)gobj)->p_15C = dobj;
-    ((Sub15C *)dobj)->f_844 = a2;
+    *(int *)&((GObj *)gobj)->dobj = dobj;
+    ((Sub15C *)dobj)->accessary = a2;
 
     light_AddLight(gobj, a3, 1);
 
     fn = layout->create;
     if (fn != 0) {
-        GOBJ_SUB(gobj)->f_830 = fn(gobj, a4);
+        GOBJ_SUB(gobj)->work = fn(gobj, a4);
     }
     return gobj;
 }
@@ -455,7 +455,7 @@ void initSceneGObj(int stage, int no)
 
     st = 0;
 
-    if (lay->f44 != 0) {
+    if (lay->layouted != 0) {
         /* sceneManager.c:394 holds the whole fill and the copy into a: one
            statement, a constructor built in a temporary and assigned (the
            construct ico2/ito/src/lightning.c uses for its LightningVtx). */
@@ -463,7 +463,7 @@ void initSceneGObj(int stage, int no)
             {-gen->pos[0], -gen->pos[1], -gen->pos[2], 1.0f},
             {gen->rot[0] * 3.1415927f / 180.0f, 0.0f, gen->rot[2] * 3.1415927f / 180.0f, 0.0f},
             {gen->scale[0], gen->scale[1], gen->scale[2], 1.0f},
-            gen->f38};
+            gen->initArg};
 
         ry = gen->rot[1];
         if (ry > 180.0f) {
@@ -475,8 +475,8 @@ void initSceneGObj(int stage, int no)
         a.ang[1] = ry * 3.1415927f / 180.0f;
 
         if (info != 0) {
-            if (lay->f38 != 0) {
-                lay->f38(&a, info);
+            if (lay->infoInit != 0) {
+                lay->infoInit(&a, info);
             } else {
                 a.pos[0] = info->pos[0];
                 a.pos[1] = info->pos[1];
@@ -490,19 +490,19 @@ void initSceneGObj(int stage, int no)
 
         MoveNextStage_Get(&a, gen->kind);
 
-        gobj = CreateLayoutedGObj(gen->kind, mdl, gen->f30, gen->f47 & 0x1F, (int)&a, no,
-                                  (gen->f48 >> 14) & 7, 0);
+        gobj = CreateLayoutedGObj(gen->kind, mdl, gen->accessary, gen->light & 0x1F, (int)&a, no,
+                                  (gen->flags >> 14) & 7, 0);
 
-        fld = gen->f40;
+        fld = gen->procPri;
         pri = 0x1800;
         if (fld != 0) {
             pri = (long long)fld << 10;
         }
 
-        if (gen->f24 != 0) {
-            isysGObjProcAddS(gobj, gen->f24, 0, 0x13, pri);
-        } else if (lay->f40 != 0) {
-            isysGObjProcAddS(gobj, (int)lay->f40, 0, 0x13, pri);
+        if (gen->proc != 0) {
+            isysGObjProcAddS(gobj, gen->proc, 0, 0x13, pri);
+        } else if (lay->start != 0) {
+            isysGObjProcAddS(gobj, (int)lay->start, 0, 0x13, pri);
         }
 
         if (gen->kind == 1) {
@@ -512,16 +512,16 @@ void initSceneGObj(int stage, int no)
             girlGObj = gobj;
         }
 
-        if (info != 0 && lay->f34 != 0) {
-            lay->f34(gobj, info);
+        if (info != 0 && lay->infoLoad != 0) {
+            lay->infoLoad(gobj, info);
         }
 
         if (st == 4) {
             backStageGirlTargetEnemyGop = gobj;
         }
 
-        if (gen->f28 != 0) {
-            *gen->f28 = (int)gobj;
+        if (gen->outGObj != 0) {
+            *gen->outGObj = (int)gobj;
         }
 
         brainStatusDefaultSet(&brainGirl, (int)gobj, no);
@@ -555,7 +555,7 @@ void initParentLink(int id)
     int self;
     int parent;
 
-    if (lay->f44 != 0 && parentId != 0 && gen->kind != 4) {
+    if (lay->layouted != 0 && parentId != 0 && gen->kind != 4) {
         self = (int)isysGObjSearchFromObjLayoutID(id);
         parent = (int)isysGObjSearchFromObjLayoutID(parentId);
         if (parent != 0) {
@@ -606,7 +606,7 @@ static inline void setEnemyGeneratorDispFlag(void)
          gobj = isysGObjSearchFromObjKindID_next(gobj)) {
         GenGeo *gen = &objLayout[gobj[2]];
 
-        gen->f48 |= 0x200000;
+        gen->flags |= 0x200000;
     }
 }
 
@@ -700,7 +700,7 @@ int HotInitSceneObjects(int a0)
             if (idx >= 0) {
                 ObjKindEnt *e = (ObjKindEnt *)((char *)objKindData + idx * 0x64);
                 void (*fn)(int *);
-                if (e->f60 != 0) {
+                if (e->before != 0) {
                     iosOmSendMail(node, 0x2F, node);
                 }
                 fn = e->hotInit;

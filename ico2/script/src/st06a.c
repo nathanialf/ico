@@ -192,7 +192,7 @@ void actSt06aSuimon(volatile int a0)
 
     if (gflagChk(106) == 0) {
         stage_SetAnimation(107, 0, 0);
-        scpSearchGobj(1751)->f16C = 0;
+        scpSearchGobj(1751)->active = 0;
         stage_SetLoopFlag(108, 1);
         stage_SetAnimation(108, 1, 0);
         suimon_mes[0].func = actSt06aSuimonChk;
@@ -202,7 +202,7 @@ void actSt06aSuimon(volatile int a0)
     } else {
         stage_SetAnimation(107, 0, -1);
         stage_SetAnimation(109, 0, -1);
-        scpSearchGobj(1752)->f16C = 0;
+        scpSearchGobj(1752)->active = 0;
         SetRotObjectLockFlag(scpSearchGobj(1774), 1);
         _ACTWait(1);
         ReInitBoxGeo(scpSearchGobj(1773));
@@ -284,8 +284,8 @@ void actSt06aSuimonChk(volatile int a0)
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 
-    scpSearchGobj(1751)->f16C = 1;
-    scpSearchGobj(1752)->f16C = 0;
+    scpSearchGobj(1751)->active = 1;
+    scpSearchGobj(1752)->active = 0;
 
     SetWayGroupActive(9, 1);
     SetWayGroupActive(10, 1);
@@ -427,8 +427,8 @@ void actSt06aShutterOpen(volatile int a0)
         scpFadeIn(3.0f);
     }
 
-    scpSearchGobj(1742)->f16C = 0;
-    scpSearchGobj(1743)->f16C = 1;
+    scpSearchGobj(1742)->active = 0;
+    scpSearchGobj(1743)->active = 1;
     scpWakeupEnemyAll();
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
@@ -468,7 +468,7 @@ void actSt06aBoxChk(volatile int a0)
             _ACTWait(1);
         }
 
-        scpSearchGobj(1773)->f16C = 0;
+        scpSearchGobj(1773)->active = 0;
         stage_SetAnimation(115, 0, -1);
         SetCameraFlag_GamecamCutBack();
         scpFadeIn(8.0f);
@@ -500,7 +500,7 @@ void actSt06aStatueChk(volatile int a0)
     scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
 
-    scpSearchGobj(1813)->f16C = 0;
+    scpSearchGobj(1813)->active = 0;
     stage_SetAnimation(259, -1, -2);
     stage_SetAnimation(117, 1, 0);
 
@@ -575,7 +575,7 @@ void actSt06aHeadChk(volatile int a0)
         }
         _ACTWait(1);
 
-        scpSearchGobj(1771)->f16C = 1;
+        scpSearchGobj(1771)->active = 1;
 
         while (stage_CheckAnimationFinish(119) == 0) {
             _ACTWait(1);
@@ -603,7 +603,7 @@ void actSt06aHeadChk(volatile int a0)
         }
         _ACTWait(1);
 
-        scpSearchGobj(1772)->f16C = 1;
+        scpSearchGobj(1772)->active = 1;
 
         while (stage_CheckAnimationFinish(120) == 0) {
             _ACTWait(1);
@@ -615,7 +615,7 @@ void actSt06aHeadChk(volatile int a0)
         scpPlayMot(boyGObj, 0);
     }
 
-    scpSearchGobj(1770)->f16C = 0;
+    scpSearchGobj(1770)->active = 0;
 
     if (toge != 0) {
         scpAdpcmFadeCloseFunc(&toge, 0x50);
@@ -725,7 +725,7 @@ void actSt06aShutter(volatile int a0)
 
     if (gflagChk(107) == 0) {
         stage_SetAnimation(110, 0, 0);
-        scpSearchGobj(1743)->f16C = 0;
+        scpSearchGobj(1743)->active = 0;
         SleepHint(19);
         shutter_mes[0].func = actSt06aShutterMain;
         self->mail = shutter_mes;
@@ -733,7 +733,7 @@ void actSt06aShutter(volatile int a0)
         _ACTWait(0);
     } else {
         stage_SetAnimation(110, 0, -1);
-        scpSearchGobj(1742)->f16C = 0;
+        scpSearchGobj(1742)->active = 0;
     }
 }
 
@@ -776,7 +776,7 @@ void actSt06aBox(volatile int a0)
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        scpSearchGobj(1773)->f16C = 0;
+        scpSearchGobj(1773)->active = 0;
     }
 }
 
@@ -902,7 +902,7 @@ void actSt06aStatue(volatile int a0)
         _ACTWait(0);
     } else {
         stage_SetAnimation(117, 0, -1);
-        scpSearchGobj(1813)->f16C = 0;
+        scpSearchGobj(1813)->active = 0;
         stage_SetAnimation(259, -1, -2);
     }
 }
@@ -915,18 +915,18 @@ void actSt06aHead(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(114) == 0) {
-        scpSearchGobj(1771)->f16C = 0;
-        scpSearchGobj(1772)->f16C = 0;
+        scpSearchGobj(1771)->active = 0;
+        scpSearchGobj(1772)->active = 0;
         head_mes[0].func = actSt06aHeadChk;
         self->mail = head_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
         if (gFlagGameClear == 0) {
-            scpSearchGobj(1772)->f16C = 0;
+            scpSearchGobj(1772)->active = 0;
         }
         if (gFlagGameClear != 0) {
-            scpSearchGobj(1771)->f16C = 0;
+            scpSearchGobj(1771)->active = 0;
         }
     }
 }
@@ -939,13 +939,13 @@ void actSt06aTree(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(114) == 0) {
-        scpSearchGobj(1770)->f16C = 0;
+        scpSearchGobj(1770)->active = 0;
         tree_mes[0].func = actSt06aTreeChk;
         self->mail = tree_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        scpSearchGobj(1770)->f16C = 0;
+        scpSearchGobj(1770)->active = 0;
     }
 }
 
@@ -1258,7 +1258,7 @@ void actSt06aBoxSub(volatile int a0)
 
     stage_SetAnimation(115, 1, 0);
 
-    scpSearchGobj(1773)->f16C = 0;
+    scpSearchGobj(1773)->active = 0;
 
     while (stage_CheckAnimationFinish(115) == 0) {
         _ACTWait(1);
@@ -1278,7 +1278,7 @@ void actSt06aBox2Chk(volatile int a0)
     }
 
     gflagOn(108);
-    scpSearchGobj(1773)->f16C = 0;
+    scpSearchGobj(1773)->active = 0;
 }
 
 void actSt06aBox3Chk(volatile int a0)
@@ -1294,7 +1294,7 @@ void actSt06aBallDeleteChk(volatile int a0)
         _ACTWait(1);
     }
 
-    scpSearchGobj(1770)->f16C = 0;
+    scpSearchGobj(1770)->active = 0;
 }
 
 void actSt06aBoxEvent2InChk(volatile int a0)
@@ -1456,7 +1456,7 @@ void actSt06aTreeChk(volatile int a0)
         _ACTWait(1);
     }
 
-    scpSearchGobj(1770)->f16C = 1;
+    scpSearchGobj(1770)->active = 1;
     ReviveAllCarryableItems();
 }
 
@@ -1473,10 +1473,10 @@ void actSt06aKyomiOnChk(volatile int a0)
         _ACTWait(1);
     }
 
-    scpSearchGobj(1766)->f16C = 1;
-    scpSearchGobj(1767)->f16C = 1;
-    scpSearchGobj(1768)->f16C = 1;
-    scpSearchGobj(1769)->f16C = 1;
+    scpSearchGobj(1766)->active = 1;
+    scpSearchGobj(1767)->active = 1;
+    scpSearchGobj(1768)->active = 1;
+    scpSearchGobj(1769)->active = 1;
 
     kyomi_onchk_mes[0].func = actSt06aKyomiOffChk;
     sub->mail = kyomi_onchk_mes;
@@ -1497,10 +1497,10 @@ void actSt06aKyomiOffChk(volatile int a0)
         _ACTWait(1);
     }
 
-    scpSearchGobj(1766)->f16C = 0;
-    scpSearchGobj(1767)->f16C = 0;
-    scpSearchGobj(1768)->f16C = 0;
-    scpSearchGobj(1769)->f16C = 0;
+    scpSearchGobj(1766)->active = 0;
+    scpSearchGobj(1767)->active = 0;
+    scpSearchGobj(1768)->active = 0;
+    scpSearchGobj(1769)->active = 0;
 
     kyomi_off_chk_mes[0].func = actSt06aKyomiOnChk;
     sub->mail = kyomi_off_chk_mes;

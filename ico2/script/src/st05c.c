@@ -87,7 +87,7 @@ void actSt04rDoorChk(volatile int a0)
             _ACTWait(1);
             break;
         case 2:
-            scpSearchGobj(1380)->f16C = 0;
+            scpSearchGobj(1380)->active = 0;
             lt_switch_layout(55);
             scpBoyControlReadDisable = 1;
             scpSleepEnemyAll();
@@ -143,7 +143,7 @@ void actSt04rDoor2Chk(volatile int a0)
             _ACTWait(1);
             break;
         case 2:
-            scpSearchGobj(1381)->f16C = 0;
+            scpSearchGobj(1381)->active = 0;
             lt_switch_layout(55);
             scpBoyControlReadDisable = 1;
             scpSleepEnemyAll();
@@ -198,7 +198,7 @@ void actSt05cWaterXL(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(231) != 0) {
-        scpSearchGobj(1376)->f16C = 0;
+        scpSearchGobj(1376)->active = 0;
     }
 }
 
@@ -216,7 +216,7 @@ void actSt04rDoor(volatile int a0)
         _ACTWait(0);
     } else {
         stage_SetAnimation(332, 0, -1);
-        scpSearchGobj(1380)->f16C = 0;
+        scpSearchGobj(1380)->active = 0;
     }
 }
 
@@ -234,7 +234,7 @@ void actSt04rDoor2(volatile int a0)
         _ACTWait(0);
     } else {
         stage_SetAnimation(333, 0, -1);
-        scpSearchGobj(1381)->f16C = 0;
+        scpSearchGobj(1381)->active = 0;
     }
 }
 

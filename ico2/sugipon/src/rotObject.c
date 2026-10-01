@@ -35,7 +35,7 @@ void moveEndSE(int a0, int a1, int a2, int a3)
 
 void RotObjectGeo(char *a0)
 {
-    char *p = GOBJ_SUB(a0)->f_830;
+    char *p = GOBJ_SUB(a0)->work;
     if ((*(int *)(p + 0x30))++ >= 0x1F) {
         *(int *)(p + 0x30) = 0;
         gamesysObjInfoUniqDataSet(a0);
@@ -88,7 +88,7 @@ void GetRotObjectHoldPoint(void *a0, void *a1, void *a2, void *a3)
 
 int MoveRotObjectWithHoldPoint(void *bar, void *hold, void *self, void *dir, void *up)
 {
-    char *w = GOBJ_SUB(bar)->f_830;
+    char *w = GOBJ_SUB(bar)->work;
     char *gobj = (char *)bar;
     float *a1 = (float *)hold;
     float *a3 = (float *)dir;
@@ -195,7 +195,7 @@ void ExecRotObjectMoveEndReaction(int a0, int a1, int a2, int a3)
 
 void SetRotObjectArmRadius(char *a0, float f)
 {
-    *(float *)((char *)GOBJ_SUB(a0)->f_830 + 0x3C) = 100.0f / f;
+    *(float *)((char *)GOBJ_SUB(a0)->work + 0x3C) = 100.0f / f;
 }
 
 void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, void *gobj, void *posMtx, void *dirMtx)
@@ -245,7 +245,7 @@ char *InitRotObjectGeo(char *gobj, char *src)
         CopyVector((char *)((RotObjWord *)(gobj + 0x15C))->i + 0xA0, ZeroPoint);
     }
     {
-        struct DObjNode *q = GOBJ_SUB(gobj)->p_870;
+        struct DObjNode *q = GOBJ_SUB(gobj)->nodes;
         q->scale[0] = q->scale[1] = q->scale[2] = 1.0f;
     }
     return p;
@@ -259,13 +259,13 @@ void GetRotObjectGameSysObjInfoExtData(short *a0, int *a1, char *a2)
 
 void RotObjectDL(void *gobj)
 {
-    getRotObjectDriveMatrix(gobj, (void *)GOBJ_SUB(gobj)->f_C);
+    getRotObjectDriveMatrix(gobj, (void *)GOBJ_SUB(gobj)->nodeMtx);
     p2o_DispVU1(gobj);
 }
 
 float GetRotObjectRotCount(char *a0)
 {
-    return (float)*(int *)((char *)GOBJ_SUB(a0)->f_830 + 0x24) * (1.0f / 65536.0f);
+    return (float)*(int *)((char *)GOBJ_SUB(a0)->work + 0x24) * (1.0f / 65536.0f);
 }
 
 /* .data, the whole of rotObject.o's run (MAIN.MAP sizes the member 0x10): the
@@ -291,7 +291,7 @@ int RestoreRotObjectGeo(void)
 
 int RestoreRotObjectExtGeo(char *a0, char *a1)
 {
-    char *p = GOBJ_SUB(a0)->f_830;
+    char *p = GOBJ_SUB(a0)->work;
     *(short *)(p + 0x20) = *(unsigned short *)(a1 + 0x30);
     *(int *)(p + 0x24) = *(int *)(a1 + 0x34);
     return 1;
@@ -299,7 +299,7 @@ int RestoreRotObjectExtGeo(char *a0, char *a1)
 
 int MemoryRotObject(char *a0, char *a1)
 {
-    char *p = GOBJ_SUB(a1)->f_830;
+    char *p = GOBJ_SUB(a1)->work;
     *(short *)a0 = *(unsigned short *)(p + 0x20);
     *(int *)(a0 + 4) = *(int *)(p + 0x24);
     return 1;
@@ -307,5 +307,5 @@ int MemoryRotObject(char *a0, char *a1)
 
 void SetRotObjectLockFlag(char *a0, int a1)
 {
-    *(int *)((char *)GOBJ_SUB(a0)->f_830 + 0x34) = a1;
+    *(int *)((char *)GOBJ_SUB(a0)->work + 0x34) = a1;
 }

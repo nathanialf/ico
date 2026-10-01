@@ -382,7 +382,7 @@ static inline void kidnapWarpToWaypoint(int gobj, float range)
     }
     k = (n * (rand() & 0xFFFF)) >> 16;
     CopyWpPos(wp.f, k, k);
-    wp.f[1] = wp.f[1] - *(float *)(GOBJ_SUB(gobj)->f_8C + 0x14);
+    wp.f[1] = wp.f[1] - *(float *)(GOBJ_SUB(gobj)->skel + 0x14);
     SetDirectRootPosition(gobj, wp.f);
 }
 
@@ -458,7 +458,7 @@ void backStageProcessInStage(float arg)
                     }
                     debug_StdPrintfDummy("set pos %f %f %f\n", pos.f[0], pos.f[1], pos.f[2]);
                     pos.f[1] =
-                        pos.f[1] - *(float *)(GOBJ_SUB(backStageGirlTargetEnemyGop)->f_8C + 0x14);
+                        pos.f[1] - *(float *)(GOBJ_SUB(backStageGirlTargetEnemyGop)->skel + 0x14);
                     SetDirectRootPosition(backStageGirlTargetEnemyGop, pos.f);
                 }
             }

@@ -114,8 +114,8 @@ void MakeCollisionDependGObjList(void)
     colObjListNum = 0;
     for (g = isysGObjGetExist_begin(); g != 0; g = isysGObjGetExist_next()) {
         sub = GOBJ_SUB(g);
-        if ((char *)sub != 0 && sub->f_70 != 0 && *(int *)(g + 0x16C) != 0 &&
-            *(int *)(g + 0x4) == 1 && *(int *)(g + 0x8) >= 0 && sub->f_74 != 0) {
+        if ((char *)sub != 0 && sub->colData != 0 && *(int *)(g + 0x16C) != 0 &&
+            *(int *)(g + 0x4) == 1 && *(int *)(g + 0x8) >= 0 && sub->disp != 0) {
             colObjList[colObjListNum] = g;
             colObjListNum = colObjListNum + 1;
         }
@@ -275,7 +275,7 @@ int clip_wall_1(void *a0, FcWallEnt *wall, int flip, int useh)
         return 0;
     }
     if (FcAbsF(pb[2] - sz) < 1.0f) {
-        if (ray->f_B0 > 0) {
+        if (ray->slideCount > 0) {
             pc[0] = pb[0];
             pc[1] = pb[1];
             pb[2] = ray->radius + 1.0f;
@@ -302,12 +302,12 @@ int clip_wall_1(void *a0, FcWallEnt *wall, int flip, int useh)
         }
         pb[0] = pc[0];
         pb[1] = pc[1];
-        ray->f_B0++;
+        ray->slideCount++;
     } else {
         far = 25.0f < distance_squared_xz(pa, pb);
         if (ds < ray->radius) {
             hh = ds;
-            ray->f_B0++;
+            ray->slideCount++;
         } else {
             hh = ray->radius;
         }
@@ -1119,7 +1119,7 @@ void _Clip(char *self, int mode)
 
 void __ClipWall(ClipWork *a0, int a1)
 {
-    a0->f_B0 = 0;
+    a0->slideCount = 0;
     a0->floorHit = 0;
     a0->wallHit = 0;
     *(FcBlk8 *)a0->wallSrc = InitialObjPointer;
@@ -1506,17 +1506,17 @@ void DrawGObjFloorCollision(char *gobj, int col)
     int j;
 
     n = 1;
-    if (GOBJ_SUB(gobj)->f_80 != 0) {
-        n = GOBJ_SUB(gobj)->f_8;
+    if (GOBJ_SUB(gobj)->colPerNode != 0) {
+        n = GOBJ_SUB(gobj)->nodeNum;
     }
-    cd = (char *)GOBJ_SUB(gobj)->f_70;
+    cd = (char *)GOBJ_SUB(gobj)->colData;
     gif_StartPacketPri(11);
     MatrixDrive_PushMatrix();
     gif_SetAlpha(1, 5, 0);
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     for (i = 0; i < n; i++) {
-        CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(gobj)->f_C + (i << 6));
-        if (GOBJ_SUB(gobj)->f_78 == 0) {
+        CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(gobj)->nodeMtx + (i << 6));
+        if (GOBJ_SUB(gobj)->colRotate == 0) {
             UnitRotation(MatrixDrive_GetMatrix());
         }
         for (j = 0; j < *(int *)(cd + 0xC); j++) {
@@ -1801,7 +1801,7 @@ void MakeExitAttributeIndex(void)
     obj = colObjList[0];
     if (colObjListNum > 0) {
         do {
-            p70 = (int *)GOBJ_SUB(obj)->f_70;
+            p70 = (int *)GOBJ_SUB(obj)->colData;
             for (j = 0; j < p70[0xC / 4]; j++) {
                 entry = (char *)p70[0x14 / 4] + j * 0x70;
                 slot = *(int *)(entry + 0x60) & 0xF;

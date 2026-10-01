@@ -283,11 +283,11 @@ inline int *InitStormTestGeo(int a0, int *a1)
 
 void StormTestGeo(char *a0)
 {
-    UpdateStormPackage(*(StormPackage **)((char *)GOBJ_SUB(a0)->f_830 + 0x20));
+    UpdateStormPackage(*(StormPackage **)((char *)GOBJ_SUB(a0)->work + 0x20));
 }
 
 void StormTestDL(char *a0)
 {
-    char *p = GOBJ_SUB(a0)->f_830;
+    char *p = GOBJ_SUB(a0)->work;
     DispStormPackage(*(StormPackage **)(p + 0x20), p + 0x10);
 }

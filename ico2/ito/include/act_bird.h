@@ -8,7 +8,7 @@
 #ifndef ACT_BIRD_H
 #define ACT_BIRD_H
 
-/* The bird's own work record, hung on its sub-object (Sub15C f_830). */
+/* The bird's own work record, hung on its sub-object (Sub15C work). */
 typedef struct BirdWork { /* field names derived */
     float home[4];        /* 0x00, where the bird was placed */
     char scared;          /* 0x10, a mail 423 sender came within 200 */

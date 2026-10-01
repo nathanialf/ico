@@ -1512,8 +1512,8 @@ ObjNode rootUpdateStepSolution(int kind)
     sceVu0ApplyMatrix((int *)&up, (int)mtx, (char *)rootMove);
     if (stepFocusNode != -1) {
         node = GetSkeltonFocusNode((char *)skelGObj, stepFocusNode);
-        _SubVectorXYZ(&d2, (char *)GOBJ_SUB(skelGObj)->f_C + node * 0x40 + 0x30,
-                      (char *)GOBJ_SUB(skelGObj)->f_C + 0x30);
+        _SubVectorXYZ(&d2, (char *)GOBJ_SUB(skelGObj)->nodeMtx + node * 0x40 + 0x30,
+                      (char *)GOBJ_SUB(skelGObj)->nodeMtx + 0x30);
         _SubVectorXYZ(&d1, nodePos2 + node * 0x10, &d2);
         _SubVectorXYZ(skelRoot->pos, skelRoot->pos, &d1);
     } else {
@@ -1972,7 +1972,7 @@ ObjNode rootUpdateEnemyFly(void)
     int contact;
 
     AddVectorXYZ(skelRoot->pos, skelRoot->pos, skelRoot->move);
-    if (GOBJ_SUB(skelGObj)->f_654 == 0) {
+    if (GOBJ_SUB(skelGObj)->word654 == 0) {
         wallCollisionAndReact(0.0f);
         contact = getFlyFieldCollision(&w);
         switch (contact) {

@@ -322,8 +322,8 @@ void actSt04lBallTurnCommon(volatile int a0)
         }
     }
 
-    scpSearchGobj(turnGobj1)->f16C = 1;
-    scpSearchGobj(turnGobj2)->f16C = 1;
+    scpSearchGobj(turnGobj1)->active = 1;
+    scpSearchGobj(turnGobj2)->active = 1;
     scpWakeupEnemyAll();
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
@@ -601,7 +601,7 @@ void actSt04lCrest2Sub(volatile int a0)
     _ACTWait(1);
 
     if (current_stage_no == 0x13) {
-        scpSearchGobj(1122)->f16C = 1;
+        scpSearchGobj(1122)->active = 1;
     }
 
     demoEnd = 1;
@@ -667,7 +667,7 @@ void actSt04lCrest2Main(volatile int a0)
         stage_SetAnimation(crest2Anim, 0, -1);
 
         if (current_stage_no == 0x13) {
-            scpSearchGobj(1122)->f16C = 1;
+            scpSearchGobj(1122)->active = 1;
         }
 
         SetCameraFlag_LwsCutBack();
@@ -891,7 +891,7 @@ void actSt04lStairChk(volatile int a0)
     gflagOn(180);
     FinishHint(17);
 
-    scpSearchGobj(1242)->f16C = 0;
+    scpSearchGobj(1242)->active = 0;
 
     stage_SetAnimation(259, -1, -2);
 
@@ -982,7 +982,7 @@ void actSt04lRope1Chk(volatile int a0)
             _ACTWait(1);
             break;
         case 2:
-            scpSearchGobj(1183)->f16C = 0;
+            scpSearchGobj(1183)->active = 0;
             gflagOn(184);
             stage_SetAnimation(216, 1, 0);
 
@@ -1018,7 +1018,7 @@ void actSt04lRope2Chk(volatile int a0)
             _ACTWait(1);
             break;
         case 2:
-            scpSearchGobj(1184)->f16C = 0;
+            scpSearchGobj(1184)->active = 0;
             gflagOn(185);
             stage_SetAnimation(217, 1, 0);
 
@@ -1054,7 +1054,7 @@ void actSt04lRope3Chk(volatile int a0)
             _ACTWait(1);
             break;
         case 2:
-            scpSearchGobj(1185)->f16C = 0;
+            scpSearchGobj(1185)->active = 0;
             gflagOn(186);
             stage_SetAnimation(218, 1, 0);
 
@@ -1090,7 +1090,7 @@ void actSt04lRope4Chk(volatile int a0)
             _ACTWait(1);
             break;
         case 2:
-            scpSearchGobj(1186)->f16C = 0;
+            scpSearchGobj(1186)->active = 0;
             gflagOn(187);
             stage_SetAnimation(219, 1, 0);
 
@@ -1911,8 +1911,8 @@ void actSt04lC1Ball(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(177) == 0) {
-        scpSearchGobj(1114)->f16C = 0;
-        scpSearchGobj(1115)->f16C = 0;
+        scpSearchGobj(1114)->active = 0;
+        scpSearchGobj(1115)->active = 0;
 
         stage_SetAnimation(207, 0, 0);
 
@@ -1932,8 +1932,8 @@ void actSt04lC2Ball(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(178) == 0) {
-        scpSearchGobj(1202)->f16C = 0;
-        scpSearchGobj(1203)->f16C = 0;
+        scpSearchGobj(1202)->active = 0;
+        scpSearchGobj(1203)->active = 0;
 
         stage_SetAnimation(208, 0, 0);
 
@@ -1953,8 +1953,8 @@ void actSt04lC3Ball(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(179) == 0) {
-        scpSearchGobj(1204)->f16C = 0;
-        scpSearchGobj(1205)->f16C = 0;
+        scpSearchGobj(1204)->active = 0;
+        scpSearchGobj(1205)->active = 0;
 
         stage_SetAnimation(209, 0, 0);
 
@@ -1981,7 +1981,7 @@ void actSt04lStair(volatile int a0)
             _ACTWait(0);
         }
     } else {
-        scpSearchGobj(1242)->f16C = 0;
+        scpSearchGobj(1242)->active = 0;
 
         stage_SetAnimation(259, -1, -2);
     }
@@ -2061,7 +2061,7 @@ void actSt04lRope1(volatile int a0)
     } else {
         stage_SetAnimation(216, 0, -1);
 
-        scpSearchGobj(1183)->f16C = 0;
+        scpSearchGobj(1183)->active = 0;
     }
 }
 
@@ -2081,7 +2081,7 @@ void actSt04lRope2(volatile int a0)
     } else {
         stage_SetAnimation(217, 0, -1);
 
-        scpSearchGobj(1184)->f16C = 0;
+        scpSearchGobj(1184)->active = 0;
     }
 }
 
@@ -2101,7 +2101,7 @@ void actSt04lRope3(volatile int a0)
     } else {
         stage_SetAnimation(218, 0, -1);
 
-        scpSearchGobj(1185)->f16C = 0;
+        scpSearchGobj(1185)->active = 0;
     }
 }
 
@@ -2121,7 +2121,7 @@ void actSt04lRope4(volatile int a0)
     } else {
         stage_SetAnimation(219, 0, -1);
 
-        scpSearchGobj(1186)->f16C = 0;
+        scpSearchGobj(1186)->active = 0;
     }
 }
 
@@ -2423,8 +2423,8 @@ void actSt04lC2BallXL(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(178) == 0) {
-        scpSearchGobj(1118)->f16C = 0;
-        scpSearchGobj(1119)->f16C = 0;
+        scpSearchGobj(1118)->active = 0;
+        scpSearchGobj(1119)->active = 0;
 
         stage_SetAnimation(208, 0, 0);
     } else {
@@ -2442,8 +2442,8 @@ void actSt04lC3BallXL(volatile int a0)
     if (gflagChk(179) == 0) {
         stage_SetAnimation(209, 0, 0);
 
-        scpSearchGobj(1283)->f16C = 0;
-        scpSearchGobj(1284)->f16C = 0;
+        scpSearchGobj(1283)->active = 0;
+        scpSearchGobj(1284)->active = 0;
     } else {
         stage_SetAnimation(209, 0, -1);
     }
@@ -3026,7 +3026,7 @@ void actSt04lOri2Event(int x)
 
 void actSt04lSwordChk(volatile int a0)
 {
-    scpSearchGobj(1122)->f16C = 0;
+    scpSearchGobj(1122)->active = 0;
 }
 
 void actSt04lTorch1_1Chk(volatile int a0)

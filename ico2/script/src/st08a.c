@@ -259,7 +259,7 @@ void actSt08aHasiUp(volatile int a0)
     }
 
     scpWakeupEnemyAll();
-    scpSearchGobj(369)->f16C = 0;
+    scpSearchGobj(369)->active = 0;
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
@@ -517,7 +517,7 @@ void actSt08aHasi(volatile int a0)
         _ACTWait(0);
     } else {
         stage_SetAnimation(106, 0, -1);
-        scpSearchGobj(369)->f16C = 0;
+        scpSearchGobj(369)->active = 0;
         SetWayGroupActive(30, 1);
     }
 }
@@ -543,10 +543,10 @@ void actSt08aInit(void)
 
     if (gflagChk(80) != 0) {
         stage_SetAnimation(370, 0, 0x1FE);
-        scpSearchGobj(365)->f16C = 0;
+        scpSearchGobj(365)->active = 0;
     } else {
         stage_SetAnimation(370, 0, 0);
-        scpSearchGobj(364)->f16C = 0;
+        scpSearchGobj(364)->active = 0;
     }
 }
 

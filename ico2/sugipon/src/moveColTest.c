@@ -41,14 +41,14 @@ static int testOffset = 0; /* derived name */
 void MoveColTestGeo(char *self)
 {
     float pos[4];
-    MctWork *w = GOBJ_SUB(self)->f_830;
+    MctWork *w = GOBJ_SUB(self)->work;
     int c;
 
     CopyMatrix(MatrixDrive_GetMatrix(), *(char **)(self + 0x15C) + 0x20);
     MatrixDrive_RotMatrixZ(w->angle);
     CopyQuaternion(*(char **)(self + 0x15C) + 0xD0, *(char **)(self + 0x15C) + 0x60);
     RotQuaternionZ(*(char **)(self + 0x15C) + 0xD0, w->angle);
-    CopyMatrix((void *)GOBJ_SUB(self)->f_C, MatrixDrive_GetMatrix());
+    CopyMatrix((void *)GOBJ_SUB(self)->nodeMtx, MatrixDrive_GetMatrix());
     UpdateRootMatrix(self);
 
     if (pad[1].now & 4) {

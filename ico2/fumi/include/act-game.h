@@ -119,7 +119,7 @@ typedef struct ActWork { /* derived name */
     char _pad8CC[0x4];
 } ActWork;
 
-#define GOBJ_WORK(o) ((ActWork *)GOBJ_ACT(o)->f_688) /* derived name */
+#define GOBJ_WORK(o) ((ActWork *)GOBJ_ACT(o)->work) /* derived name */
 
 /* act-game.c defines these `inline`, so the compiler emits them after the
  * rest of the file in the order they are first declared: this list is the
@@ -136,8 +136,10 @@ int ACTGame_FLAG_LIFEPINCH(char *a0);
 unsigned char ACTGame_FLAG_TETSUNAGI(void);
 int ACTGame_FLAG_TETSUNAGI_VISUAL(void);
 void GetSkeltonPosition(float *dst, char *obj, void *a2);
+
 void SetDirectRootPositionWithNodePointLimit(void *a0, void *a1, void *a2, float farg0,
                                              float farg1);
+
 void ACTGameView_Init(void);
 void ACTCharctrl_Lock(char *a0);
 void ACTCharctrl_Unlock(char *a0);
@@ -152,8 +154,10 @@ int PAIR_IsStatus_BOY_DITCH(void);
 int ACTGame_isHangChain(char *a0);
 int ACTGame_isWeaponEnableCatchfire(int *self);
 int ACTCheckCollis_WF(float f, void *p0, void *p1, void *actor, void *posout);
+
 int ACTCheckCollis_W(float f, void *hand0, void *hand1, void *actor, void *posout, void *magtarget,
                      int *flagout);
+
 int ACTCheckCollis_CI(int a0, int a1, int *a2, char *a3);
 int ACTCheckCollis_WELL(void *p0, void *p1, void *actor, void *posout, float f);
 unsigned char ACTCheckCollis_WAY(float f, void *p0, void *p1, void *actor, void *posout);
@@ -195,7 +199,6 @@ int ACTCheckViewClDetail(char *self, void *a1, void *a2, int range, float f);
 void ACTGame_SetMotionPlaySpeedRatio_Clear(char *a0);
 void ACTGame_SetMotionPlaySpeedRatio_Exec(char *a0);
 void GetGirlPositionAtThisStage(float *a0);
-
 int ACTCheckView(char *self, void *a1, void *a2, int range, float f);
 void ACTGame_BeforeFunc(char *self);
 void ACTGame_InnerVelocityUpdate(char *self);
@@ -210,7 +213,6 @@ void FunctionAboutClingedStatus(char *self);
 void GetSkeltonOrient(float *out, void *obj, int node);
 void RequestChangeHandMode(char *self, int mode, int pri, int flag, int p5, int p6, float *p7);
 int _ACTGame_SearchGObj(char *self, char *tgt, float range, float height, int angle, float *out);
-
 /* MAIN.MAP globals of act-game.o's .sdata, the last two words of its run:
  * the floor and wall records ACTCheckCollis_WELL and ACTCheckCollis_WAY
  * publish. */

@@ -91,7 +91,7 @@ void *InitRopeGeo(char *o, const float *p)
     RopeGeoWork *w;
     int i;
 
-    sub = ((GObj *)o)->p_15C;
+    sub = ((GObj *)o)->dobj;
     w = (RopeGeoWork *)iosMallocDebug(ios_partition_sugipon, 0x14, __FILE__, 38);
     c = (RopeChainSys *)iosMallocDebug(ios_partition_sugipon, 0xA0, __FILE__, 39);
 
@@ -146,11 +146,11 @@ void *InitRopeGeo(char *o, const float *p)
         w->f4 = 0;
     }
 
-    if (sub->f_C != 0) {
-        iosFree((void *)(sub->f_C & 0x0FFFFFFF));
+    if (sub->nodeMtx != 0) {
+        iosFree((void *)(sub->nodeMtx & 0x0FFFFFFF));
     }
-    if (sub->f_10 != 0) {
-        iosFree((void *)(sub->f_10 & 0x0FFFFFFF));
+    if (sub->nodeQuat != 0) {
+        iosFree((void *)(sub->nodeQuat & 0x0FFFFFFF));
     }
     *(void **)((char *)sub + 0xC) = 0;
     *(void **)((char *)sub + 0x10) = 0;
@@ -158,83 +158,83 @@ void *InitRopeGeo(char *o, const float *p)
         iosMallocDebug(ios_partition_seki, (c->n - 1) * 64, __FILE__, 82);
     *(void **)((char *)sub + 0x10) =
         iosMallocDebug(ios_partition_seki, (c->n - 1) * 16, __FILE__, 82);
-    sub->f_8 = *(int *)c - 1;
-    if ((int)sub->p_870 != 0) {
-        iosFree((void *)((int)sub->p_870 & 0x0FFFFFFF));
+    sub->nodeNum = *(int *)c - 1;
+    if ((int)sub->nodes != 0) {
+        iosFree((void *)((int)sub->nodes & 0x0FFFFFFF));
     }
-    sub->p_870 = iosMallocDebug(ios_partition_seki, (c->n - 1) * 80, __FILE__, 82);
+    sub->nodes = iosMallocDebug(ios_partition_seki, (c->n - 1) * 80, __FILE__, 82);
     for (i = 0; i < c->n - 1; i++) {
         {
-            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->p_870);
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
             e->flags.ll &= ~1;
         }
         {
-            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->p_870);
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
             e->flags.ll &= ~2;
         }
         {
-            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->p_870);
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
             e->pos[0] = 0.0f;
         }
         {
-            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->p_870);
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
             e->pos[1] = 0.0f;
         }
         {
-            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->p_870);
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
             e->pos[2] = 0.0f;
         }
         {
-            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->p_870);
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
             e->pos[3] = 1.0f;
         }
         {
-            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->p_870);
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
             e->flags.ll &= ~4;
         }
         {
-            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->p_870);
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
             /* float, where the other expansions of this reset write an int: the
                ROM loads the loop bound c->n (an int) ahead of this store, which
                it may do only if the two do not alias */
             e->fade = 0.0f;
         }
         {
-            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->p_870);
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
             e->alpha = 1.0f;
         }
         {
-            char *e = (char *)(i * 80 + (int)sub->p_870);
+            char *e = (char *)(i * 80 + (int)sub->nodes);
             *(short *)(e + 0x3A) = 0;
         }
         {
-            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->p_870);
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
             e->scale[0] = 1.0f;
         }
         {
-            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->p_870);
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
             e->scale[1] = 1.0f;
         }
         {
-            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->p_870);
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
             e->scale[2] = 1.0f;
         }
     }
     sub->dispType = 2;
     w->f0 = InitChains(c);
-    sub->p_870->scale[0] = sub->p_870->scale[1] = sub->p_870->scale[2] = 1.0f;
-    sub->p_870->rot[0] = sub->p_870->rot[1] = sub->p_870->rot[2] = 0;
+    sub->nodes->scale[0] = sub->nodes->scale[1] = sub->nodes->scale[2] = 1.0f;
+    sub->nodes->rot[0] = sub->nodes->rot[1] = sub->nodes->rot[2] = 0;
     return w;
 }
 
 inline int CheckRopeUpperWallClimbable(int a0, char *a1)
 {
-    return *(int *)((char *)GOBJ_SUB(a1)->f_830 + 4);
+    return *(int *)((char *)GOBJ_SUB(a1)->work + 4);
 }
 
 void SetRopeFixPoint(char *a0, void *a1)
 {
-    CopyVector(**(char ***)((char *)GOBJ_SUB(a0)->f_830) + 0x20, a1);
+    CopyVector(**(char ***)((char *)GOBJ_SUB(a0)->work) + 0x20, a1);
 }
 
 /* The actor's 0x15C sub-object slot: the engine stores a different per-actor
@@ -341,7 +341,7 @@ void RopeDL(void *a0)
 {
     unsigned short ax;
     unsigned short az;
-    Sub15C *sub = ((GObj *)a0)->p_15C;
+    Sub15C *sub = ((GObj *)a0)->dobj;
     void **p = *(void ***)((char *)sub + 0x830);
     char *set = (char *)p[0];
     int i;

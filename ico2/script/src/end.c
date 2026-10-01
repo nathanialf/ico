@@ -119,7 +119,7 @@ void actConte14_1(volatile int a0)
 
     scpPlayMot((int)scpSearchGobj(2515), 809);
 
-    scpSearchGobj(2515)->f16C = 1;
+    scpSearchGobj(2515)->active = 1;
 
     while (stage_ContinueAnimation(814, 815) == 0) {
         _ACTWait(1);
@@ -149,11 +149,11 @@ void actConte14_1(volatile int a0)
         _ACTWait(1);
     }
 
-    scpSearchGobj(2515)->f16C = 0;
+    scpSearchGobj(2515)->active = 0;
 
     scpPlayMot((int)scpSearchGobj(2516), 811);
 
-    scpSearchGobj(2516)->f16C = 1;
+    scpSearchGobj(2516)->active = 1;
 
     scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(0x9D4, 0, 0x22A, 0);
 
@@ -235,7 +235,7 @@ void actConte14_2(volatile int a0)
 
     scpPlayMot((int)scpSearchGobj(2686), 815);
 
-    scpSearchGobj(2686)->f16C = 1;
+    scpSearchGobj(2686)->active = 1;
 
     _ACTWait(1);
 
@@ -335,7 +335,7 @@ void actConte14_6(volatile int a0)
 
     scpPlayMot((int)scpSearchGobj(2516), 820);
 
-    scpSearchGobj(2516)->f16C = 1;
+    scpSearchGobj(2516)->active = 1;
 
     while (stage_ContinueAnimation(838, 839) == 0) {
         _ACTWait(1);
@@ -422,7 +422,7 @@ void actConte14_7(volatile int a0)
 
     scpPlayMot((int)scpSearchGobj(2388), 822);
 
-    scpSearchGobj(2388)->f16C = 1;
+    scpSearchGobj(2388)->active = 1;
 
     while (stage_CheckAnimationFinish(842) == 0) {
         _ACTWait(1);
@@ -466,7 +466,7 @@ void actConte14_10(volatile int a0)
 
     scpPlayMot((int)scpSearchGobj(2122), 823);
 
-    scpSearchGobj(2122)->f16C = 1;
+    scpSearchGobj(2122)->active = 1;
 
     _ACTWait(1);
 
@@ -722,7 +722,7 @@ void actStaff2Demo(volatile int a0)
 
     scpPlayMot((int)scpSearchGobj(2789), 737);
 
-    scpSearchGobj(2789)->f16C = 1;
+    scpSearchGobj(2789)->active = 1;
 
     while (stage_ContinueAnimation(907, 908) == 0) {
         _ACTWait(1);
@@ -840,7 +840,7 @@ void actStaff3Demo(volatile int a0)
 
     scpPlayMot((int)scpSearchGobj(2841), 551);
 
-    scpSearchGobj(2841)->f16C = 1;
+    scpSearchGobj(2841)->active = 1;
 
     scpPlayMot(boyGObj, 308);
 
@@ -1000,7 +1000,7 @@ void actConte14_14(volatile int a0)
 
     scpPlayMot((int)scpSearchGobj(2253), 829);
 
-    scpSearchGobj(2253)->f16C = 1;
+    scpSearchGobj(2253)->active = 1;
 
     while (stage_CheckAnimationFinish(865) == 0) {
         _ACTWait(1);
@@ -1033,14 +1033,14 @@ void actSt27aEnd(volatile int a0)
     _ACTWait(1);
 
     if (gFlagGameClear == 0) {
-        scpSearchGobj(2256)->f16C = 0;
-        scpSearchGobj(2257)->f16C = 0;
-        scpSearchGobj(2258)->f16C = 0;
-        scpSearchGobj(2259)->f16C = 0;
-        scpSearchGobj(2260)->f16C = 0;
-        scpSearchGobj(2261)->f16C = 0;
-        scpSearchGobj(2262)->f16C = 0;
-        scpSearchGobj(2263)->f16C = 0;
+        scpSearchGobj(2256)->active = 0;
+        scpSearchGobj(2257)->active = 0;
+        scpSearchGobj(2258)->active = 0;
+        scpSearchGobj(2259)->active = 0;
+        scpSearchGobj(2260)->active = 0;
+        scpSearchGobj(2261)->active = 0;
+        scpSearchGobj(2262)->active = 0;
+        scpSearchGobj(2263)->active = 0;
     }
 
     if (gflagChk(355) == 0) {
@@ -1103,7 +1103,7 @@ void actSt27aEndDemo(volatile int a0)
 
     scpPlayMot((int)scpSearchGobj(2253), 830);
 
-    scpSearchGobj(2253)->f16C = 1;
+    scpSearchGobj(2253)->active = 1;
 
     while (stage_ContinueAnimation(866, 867) == 0) {
         _ACTWait(1);

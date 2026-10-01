@@ -129,8 +129,8 @@ void actSt10rInit(void)
 
 void actSt10rEnd(void)
 {
-    gamesysObjInfoCls(scpSearchGobj(1634)->kind, scpSearchGobj(1634)->f08);
-    gamesysObjInfoCls(scpSearchGobj(1632)->kind, scpSearchGobj(1632)->f08);
+    gamesysObjInfoCls(scpSearchGobj(1634)->kind, scpSearchGobj(1634)->labelId);
+    gamesysObjInfoCls(scpSearchGobj(1632)->kind, scpSearchGobj(1632)->labelId);
 }
 
 void actSt10rFloorChk(volatile int a0)
@@ -333,8 +333,8 @@ void actSt10rTowerChk(volatile int a0)
         }
     }
 
-    scpSearchGobj(1594)->f16C = 1;
-    scpSearchGobj(1595)->f16C = 1;
+    scpSearchGobj(1594)->active = 1;
+    scpSearchGobj(1595)->active = 1;
 
     scpWakeupEnemyAll();
 
@@ -355,8 +355,8 @@ void actSt10rTowerConte(volatile int a0)
 
     AdpcmPlay(((AdpcmObj *)st10r_adpcm)->stream);
 
-    scpSearchGobj(1594)->f16C = 0;
-    scpSearchGobj(1595)->f16C = 0;
+    scpSearchGobj(1594)->active = 0;
+    scpSearchGobj(1595)->active = 0;
 
     while (stage_CheckAnimationFrame(389, 215, 0) == 0) {
         _ACTWait(1);
@@ -403,7 +403,7 @@ void actSt10rChainMove(volatile int a0)
 
     gflagOn(304);
 
-    scpSearchGobj(1622)->f16C = 1;
+    scpSearchGobj(1622)->active = 1;
 
     scpAdpcmPlayRequestFunc(93, &chain10r, 1, 1, 0);
 
@@ -457,16 +457,16 @@ void actSt10rFence(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(317) == 0) {
-        scpSearchGobj(1631)->f16C = 0;
-        scpSearchGobj(1632)->f16C = 0;
-        scpSearchGobj(1635)->f16C = 0;
-        scpSearchGobj(1636)->f16C = 0;
-        scpSearchGobj(1637)->f16C = 0;
-        scpSearchGobj(1638)->f16C = 0;
-        scpSearchGobj(1639)->f16C = 0;
-        scpSearchGobj(1640)->f16C = 0;
-        scpSearchGobj(1641)->f16C = 0;
-        scpSearchGobj(1642)->f16C = 0;
+        scpSearchGobj(1631)->active = 0;
+        scpSearchGobj(1632)->active = 0;
+        scpSearchGobj(1635)->active = 0;
+        scpSearchGobj(1636)->active = 0;
+        scpSearchGobj(1637)->active = 0;
+        scpSearchGobj(1638)->active = 0;
+        scpSearchGobj(1639)->active = 0;
+        scpSearchGobj(1640)->active = 0;
+        scpSearchGobj(1641)->active = 0;
+        scpSearchGobj(1642)->active = 0;
 
         scpLinkBGAtoLayoutedTarget(0x661, 0x95);
 
@@ -480,12 +480,12 @@ void actSt10rFence(volatile int a0)
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        scpSearchGobj(1633)->f16C = 0;
-        scpSearchGobj(1634)->f16C = 0;
-        scpSearchGobj(1639)->f16C = 0;
-        scpSearchGobj(1640)->f16C = 0;
-        scpSearchGobj(1641)->f16C = 0;
-        scpSearchGobj(1642)->f16C = 0;
+        scpSearchGobj(1633)->active = 0;
+        scpSearchGobj(1634)->active = 0;
+        scpSearchGobj(1639)->active = 0;
+        scpSearchGobj(1640)->active = 0;
+        scpSearchGobj(1641)->active = 0;
+        scpSearchGobj(1642)->active = 0;
 
         gflagOff(317);
 
@@ -512,10 +512,10 @@ void actSt10rFenceDownChk(volatile int a0)
         _ACTWait(1);
     }
 
-    scpSearchGobj(1639)->f16C = 0;
-    scpSearchGobj(1640)->f16C = 0;
-    scpSearchGobj(1641)->f16C = 0;
-    scpSearchGobj(1642)->f16C = 0;
+    scpSearchGobj(1639)->active = 0;
+    scpSearchGobj(1640)->active = 0;
+    scpSearchGobj(1641)->active = 0;
+    scpSearchGobj(1642)->active = 0;
 
     stage_SetAnimation(149, 1, 0);
 
@@ -552,10 +552,10 @@ void actSt10rFenceUpChk(volatile int a0)
         _ACTWait(1);
     }
 
-    scpSearchGobj(1639)->f16C = 1;
-    scpSearchGobj(1640)->f16C = 1;
-    scpSearchGobj(1641)->f16C = 1;
-    scpSearchGobj(1642)->f16C = 1;
+    scpSearchGobj(1639)->active = 1;
+    scpSearchGobj(1640)->active = 1;
+    scpSearchGobj(1641)->active = 1;
+    scpSearchGobj(1642)->active = 1;
 
     stage_SetAnimation(149, 1, 0x1F);
 
@@ -592,10 +592,10 @@ void actSt10rFenceDownChk2(volatile int a0)
         _ACTWait(1);
     }
 
-    scpSearchGobj(1635)->f16C = 0;
-    scpSearchGobj(1636)->f16C = 0;
-    scpSearchGobj(1637)->f16C = 0;
-    scpSearchGobj(1638)->f16C = 0;
+    scpSearchGobj(1635)->active = 0;
+    scpSearchGobj(1636)->active = 0;
+    scpSearchGobj(1637)->active = 0;
+    scpSearchGobj(1638)->active = 0;
 
     stage_SetAnimation(149, 1, 0);
 
@@ -630,10 +630,10 @@ void actSt10rFenceUpChk2(volatile int a0)
         _ACTWait(1);
     }
 
-    scpSearchGobj(1635)->f16C = 1;
-    scpSearchGobj(1636)->f16C = 1;
-    scpSearchGobj(1637)->f16C = 1;
-    scpSearchGobj(1638)->f16C = 1;
+    scpSearchGobj(1635)->active = 1;
+    scpSearchGobj(1636)->active = 1;
+    scpSearchGobj(1637)->active = 1;
+    scpSearchGobj(1638)->active = 1;
 
     stage_SetAnimation(149, 1, 0x1F);
 
@@ -756,7 +756,7 @@ void actSt10rChain(volatile int a0)
 
     if (gflagChk(304) == 0) {
         stage_SetAnimation(387, 0, 0);
-        scpSearchGobj(1622)->f16C = 0;
+        scpSearchGobj(1622)->active = 0;
 
         chain_mes[0].func = actSt10rChainMain;
         self->mail = chain_mes;
@@ -838,12 +838,12 @@ void actSt10rElv(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(317) != 0) {
-        scpSearchGobj(1633)->f16C = 0;
-        scpSearchGobj(1634)->f16C = 0;
+        scpSearchGobj(1633)->active = 0;
+        scpSearchGobj(1634)->active = 0;
         gflagOff(317);
     } else {
-        scpSearchGobj(1631)->f16C = 0;
-        scpSearchGobj(1632)->f16C = 0;
+        scpSearchGobj(1631)->active = 0;
+        scpSearchGobj(1632)->active = 0;
     }
 }
 
@@ -854,9 +854,9 @@ void actSt10rGateXL(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(243) == 0) {
-        scpSearchGobj(1598)->f16C = 0;
+        scpSearchGobj(1598)->active = 0;
     } else {
-        scpSearchGobj(1597)->f16C = 0;
+        scpSearchGobj(1597)->active = 0;
     }
 }
 

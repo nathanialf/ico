@@ -2,7 +2,7 @@
 inline int SetDirectMotionProgramInterpInfo(char *a0, int a1, float f)
 {
     int n = GetSkeltonFocusNode(a0, a1);
-    char *e = GOBJ_SUB(a0)->p_80C + (n << 6);
+    char *e = GOBJ_SUB(a0)->nodeRotElem + (n << 6);
     if (n < 0)
         return 0;
     *(float *)e = f;
@@ -14,7 +14,7 @@ inline int SetDirectMotionProgramInterpInfo(char *a0, int a1, float f)
 inline int ResetMotionProgramInterpInfo(char *a0, int a1)
 {
     int n = GetSkeltonFocusNode(a0, a1);
-    char *e = GOBJ_SUB(a0)->p_80C + (n << 6);
+    char *e = GOBJ_SUB(a0)->nodeRotElem + (n << 6);
     if (n < 0)
         return 0;
     *(int *)e = 0;
@@ -1132,7 +1132,7 @@ static inline void getFinalMatrixCore(int id)
     MatrixDrive_PushMatrixWithNoCopy();
     PushQuaternionWithNoCopy();
     _getFinalMatrix(id);
-    CopyMatrix((char *)GOBJ_SUB(skelGObj)->f_C + id * 0x40, (void *)MatrixDrive_GetMatrix());
+    CopyMatrix((char *)GOBJ_SUB(skelGObj)->nodeMtx + id * 0x40, (void *)MatrixDrive_GetMatrix());
     CopyQuaternion(skelQuat + id * 0x10, GetCurrentQuaternion());
     if (*(int *)(e + 0x30) != -1) {
         getFinalMatrixCore(*(int *)(e + 0x30));
@@ -1184,7 +1184,7 @@ void getFinalMatrixWithNaturalGeometry(int id)
     MatrixDrive_PushMatrixWithNoCopy();
     PushQuaternionWithNoCopy();
     applyNaturalGeometry(id);
-    CopyMatrix((char *)GOBJ_SUB(skelGObj)->f_C + id * 0x40, (void *)MatrixDrive_GetMatrix());
+    CopyMatrix((char *)GOBJ_SUB(skelGObj)->nodeMtx + id * 0x40, (void *)MatrixDrive_GetMatrix());
     CopyQuaternion(skelQuat + id * 0x10, GetCurrentQuaternion());
     if (child != -1) {
         getFinalMatrixWithNaturalGeometry(child);

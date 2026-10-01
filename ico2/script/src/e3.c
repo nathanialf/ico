@@ -630,7 +630,7 @@ void actE3CageFallDemo(volatile int a0)
     {
         int self = (int)girlGObj;
 
-        GOBJ_SUB(self)->f_514 =
+        GOBJ_SUB(self)->word514 =
             (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 30.0f);
 
         scpPlayEnd(self);
@@ -638,7 +638,7 @@ void actE3CageFallDemo(volatile int a0)
 
     gflagOn(381);
 
-    gamesysObjInfoPosSetStage((int *)((int)boyGObj), GOBJ_ACT((int)boyGObj)->f_444, 0, stage_no);
+    gamesysObjInfoPosSetStage((int *)((int)boyGObj), GOBJ_ACT((int)boyGObj)->infoPos, 0, stage_no);
 
     CheckPoint();
 
@@ -918,7 +918,7 @@ void actE3GateChk(volatile int a0)
 
 void actE3GateDemo(volatile int a0)
 {
-    scpSearchGobj(3382)->f16C = 1;
+    scpSearchGobj(3382)->active = 1;
 
     EntryStreamMotion((int)boyGObj);
     EntryStreamMotion((int)girlGObj);
@@ -1318,7 +1318,7 @@ void actE3Gate(volatile int a0)
 
     MallocStreamMotionBuffer();
 
-    scpSearchGobj(3382)->f16C = 0;
+    scpSearchGobj(3382)->active = 0;
 
     scpBoyControlReadDisable = 1;
     scpPlayStart((int)boyGObj);

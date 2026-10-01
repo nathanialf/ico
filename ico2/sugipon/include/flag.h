@@ -52,11 +52,11 @@ typedef union {
 #define FLAG_ALLOC_NODES(o, num)                                                                   \
     {                                                                                              \
         int n;                                                                                     \
-        if ((o)->f_C != 0) {                                                                       \
-            iosFree((void *)((o)->f_C & 0x0FFFFFFF));                                              \
+        if ((o)->nodeMtx != 0) {                                                                   \
+            iosFree((void *)((o)->nodeMtx & 0x0FFFFFFF));                                          \
         }                                                                                          \
-        if ((o)->f_10 != 0) {                                                                      \
-            iosFree((void *)((o)->f_10 & 0x0FFFFFFF));                                             \
+        if ((o)->nodeQuat != 0) {                                                                  \
+            iosFree((void *)((o)->nodeQuat & 0x0FFFFFFF));                                         \
         }                                                                                          \
         *(char **)((char *)(o) + 0xC) = 0;                                                         \
         *(char **)((char *)(o) + 0x10) = 0;                                                        \
@@ -64,26 +64,26 @@ typedef union {
             iosMallocDebug(ios_partition_seki, (num) * 64, __FILE__, __LINE__);                    \
         *(char **)((char *)(o) + 0x10) =                                                           \
             iosMallocDebug(ios_partition_seki, (num) * 16, __FILE__, __LINE__);                    \
-        (o)->f_8 = (num);                                                                          \
-        if ((o)->p_870 != 0) {                                                                     \
-            iosFree((void *)((int)(o)->p_870 & 0x0FFFFFFF));                                       \
+        (o)->nodeNum = (num);                                                                      \
+        if ((o)->nodes != 0) {                                                                     \
+            iosFree((void *)((int)(o)->nodes & 0x0FFFFFFF));                                       \
         }                                                                                          \
-        (o)->p_870 = iosMallocDebug(ios_partition_seki, (num) * 80, __FILE__, __LINE__);           \
+        (o)->nodes = iosMallocDebug(ios_partition_seki, (num) * 80, __FILE__, __LINE__);           \
         for (n = 0; n < (num); n++) {                                                              \
             float zero = 0.0f;                                                                     \
-            (o)->p_870[n].flags.ll &= ~1;                                                          \
-            (o)->p_870[n].flags.ll &= ~2;                                                          \
-            (o)->p_870[n].pos[0] = zero;                                                           \
-            (o)->p_870[n].pos[1] = zero;                                                           \
-            (o)->p_870[n].pos[2] = zero;                                                           \
-            (o)->p_870[n].pos[3] = 1.0f;                                                           \
-            (o)->p_870[n].flags.ll &= ~4;                                                          \
-            (o)->p_870[n].fade = zero;                                                             \
-            (o)->p_870[n].alpha = 1.0f;                                                            \
-            *(short *)((char *)&(o)->p_870[n] + 0x3A) = 0;                                         \
-            (o)->p_870[n].scale[0] = 1.0f;                                                         \
-            (o)->p_870[n].scale[1] = 1.0f;                                                         \
-            (o)->p_870[n].scale[2] = 1.0f;                                                         \
+            (o)->nodes[n].flags.ll &= ~1;                                                          \
+            (o)->nodes[n].flags.ll &= ~2;                                                          \
+            (o)->nodes[n].pos[0] = zero;                                                           \
+            (o)->nodes[n].pos[1] = zero;                                                           \
+            (o)->nodes[n].pos[2] = zero;                                                           \
+            (o)->nodes[n].pos[3] = 1.0f;                                                           \
+            (o)->nodes[n].flags.ll &= ~4;                                                          \
+            (o)->nodes[n].fade = zero;                                                             \
+            (o)->nodes[n].alpha = 1.0f;                                                            \
+            *(short *)((char *)&(o)->nodes[n] + 0x3A) = 0;                                         \
+            (o)->nodes[n].scale[0] = 1.0f;                                                         \
+            (o)->nodes[n].scale[1] = 1.0f;                                                         \
+            (o)->nodes[n].scale[2] = 1.0f;                                                         \
         }                                                                                          \
         (o)->dispType = 2;                                                                         \
     }

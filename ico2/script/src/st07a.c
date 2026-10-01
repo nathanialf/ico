@@ -28,7 +28,7 @@
 void actSt07aInit(void)
 {
     if (gflagChk(126) != 0) {
-        ((PObjGObj *)scpSearchGobj(397))->f16C = 0;
+        ((PObjGObj *)scpSearchGobj(397))->active = 0;
 
         stage_SetAnimation(360, -1, -2);
 
@@ -146,7 +146,7 @@ void actSt07aChanChk(volatile int a0)
 
     _ACTWait(1);
 
-    ((PObjGObj *)scpSearchGobj(397))->f16C = 0;
+    ((PObjGObj *)scpSearchGobj(397))->active = 0;
     stage_SetAnimation(360, -1, -2);
 
     while (stage_CheckAnimationFinish(355) == 0) {
@@ -560,18 +560,18 @@ void actSt07aEne(volatile int a0)
 
     _ACTWait(1);
 
-    ((PObjGObj *)scpSearchGobj(396))->f16C = 0;
+    ((PObjGObj *)scpSearchGobj(396))->active = 0;
 
-    ((PObjGObj *)scpSearchGobj(408))->f50 = 0;
-    ((PObjGObj *)scpSearchGobj(409))->f50 = 0;
+    ((PObjGObj *)scpSearchGobj(408))->drawMask = 0;
+    ((PObjGObj *)scpSearchGobj(409))->drawMask = 0;
 
     if (gflagChk(131) == 0) {
-        ((PObjGObj *)scpSearchGobj(411))->f16C = 0;
-        ((PObjGObj *)scpSearchGobj(412))->f16C = 0;
-        ((PObjGObj *)scpSearchGobj(413))->f16C = 0;
-        ((PObjGObj *)scpSearchGobj(414))->f16C = 0;
-        ((PObjGObj *)scpSearchGobj(415))->f16C = 0;
-        ((PObjGObj *)scpSearchGobj(416))->f16C = 0;
+        ((PObjGObj *)scpSearchGobj(411))->active = 0;
+        ((PObjGObj *)scpSearchGobj(412))->active = 0;
+        ((PObjGObj *)scpSearchGobj(413))->active = 0;
+        ((PObjGObj *)scpSearchGobj(414))->active = 0;
+        ((PObjGObj *)scpSearchGobj(415))->active = 0;
+        ((PObjGObj *)scpSearchGobj(416))->active = 0;
 
         ene_mes[0].func = actSt07aEneChk;
         self->mail = ene_mes;
@@ -590,7 +590,7 @@ void actSt07aEneChk(volatile int a0)
         _ACTWait(1);
     }
 
-    ((PObjGObj *)scpSearchGobj(396))->f16C = 1;
+    ((PObjGObj *)scpSearchGobj(396))->active = 1;
 
     lt_switch_layout(55);
     scpBoyControlReadDisable = 1;
@@ -624,7 +624,7 @@ void actSt07aEneChk(volatile int a0)
     lt_switch_layout(54);
     scpBoyControlReadDisable = 0;
 
-    ((PObjGObj *)scpSearchGobj(396))->f16C = 0;
+    ((PObjGObj *)scpSearchGobj(396))->active = 0;
 
     _ACTWait(30);
 
@@ -712,7 +712,7 @@ void actSt07aChanChain(volatile int a0)
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        ((PObjGObj *)scpSearchGobj(454))->f16C = 0;
+        ((PObjGObj *)scpSearchGobj(454))->active = 0;
     }
 }
 
@@ -904,13 +904,13 @@ void actSt07aChanChainChk(volatile int a0)
                 gflagOn(127);
                 soundSeDefPlay(878, 0, 0, 1);
                 _ACTWait(30);
-                ((PObjGObj *)scpSearchGobj(454))->f16C = 0;
+                ((PObjGObj *)scpSearchGobj(454))->active = 0;
             }
         case 0:
             _ACTWait(1);
             break;
         case 2:
-            ((PObjGObj *)scpSearchGobj(454))->f16C = 0;
+            ((PObjGObj *)scpSearchGobj(454))->active = 0;
             gflagOn(127);
             break;
         }

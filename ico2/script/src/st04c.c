@@ -136,7 +136,7 @@ void actSt04lDoorChk(volatile int a0)
             break;
 
         case 2:
-            scpSearchGobj(1098)->f16C = 0;
+            scpSearchGobj(1098)->active = 0;
             FinishHint(15);
 
             lt_switch_layout(55);
@@ -213,7 +213,7 @@ void actSt04lDoor(volatile int a0)
         _ACTWait(0);
     } else {
         stage_SetAnimation(231, 0, -1);
-        scpSearchGobj(1098)->f16C = 0;
+        scpSearchGobj(1098)->active = 0;
         FinishHint(15);
     }
 }
@@ -305,7 +305,7 @@ void actSt04cWaterXL(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(230) != 0) {
-        scpSearchGobj(1094)->f16C = 0;
+        scpSearchGobj(1094)->active = 0;
     }
 }
 

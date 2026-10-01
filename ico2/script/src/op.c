@@ -275,13 +275,13 @@ void actTitleShortCut(volatile int a0)
     SetHandCameraLimitInDemo(0, 0);
     SetZoomMaxValInDemo(0);
 
-    scpSearchGobj(43)->f16C = 1;
-    scpSearchGobj(44)->f16C = 1;
-    scpSearchGobj(45)->f16C = 1;
-    scpSearchGobj(48)->f16C = 1;
-    scpSearchGobj(49)->f16C = 1;
-    scpSearchGobj(50)->f16C = 1;
-    scpSearchGobj(51)->f16C = 1;
+    scpSearchGobj(43)->active = 1;
+    scpSearchGobj(44)->active = 1;
+    scpSearchGobj(45)->active = 1;
+    scpSearchGobj(48)->active = 1;
+    scpSearchGobj(49)->active = 1;
+    scpSearchGobj(50)->active = 1;
+    scpSearchGobj(51)->active = 1;
 
     while (titleAdpcm != 0) {
         _ACTWait(1);
@@ -341,15 +341,15 @@ void actTitleReadTimeDemo0(volatile int a0)
 
     _ACTWait(1);
 
-    scpSearchGobj(43)->f16C = 0;
-    scpSearchGobj(44)->f16C = 0;
-    scpSearchGobj(45)->f16C = 0;
-    scpSearchGobj(48)->f16C = 0;
-    scpSearchGobj(49)->f16C = 0;
-    scpSearchGobj(50)->f16C = 0;
-    scpSearchGobj(51)->f16C = 0;
+    scpSearchGobj(43)->active = 0;
+    scpSearchGobj(44)->active = 0;
+    scpSearchGobj(45)->active = 0;
+    scpSearchGobj(48)->active = 0;
+    scpSearchGobj(49)->active = 0;
+    scpSearchGobj(50)->active = 0;
+    scpSearchGobj(51)->active = 0;
 
-    scpSearchGobj(46)->f16C = 1;
+    scpSearchGobj(46)->active = 1;
 
     scpAdpcmPlayRequestFunc(6, &titleSubAdpcm, 1, 1, 1);
     while (titleSubAdpcm == 0) {
@@ -368,11 +368,11 @@ void actTitleReadTimeDemo0(volatile int a0)
     }
 
     scpPlayMot(scpSearchGobj(59), 1051);
-    scpSearchGobj(59)->f16C = 1;
+    scpSearchGobj(59)->active = 1;
     scpPlayMot(scpSearchGobj(60), 1058);
-    scpSearchGobj(60)->f16C = 1;
+    scpSearchGobj(60)->active = 1;
     scpPlayMot(scpSearchGobj(61), 1065);
-    scpSearchGobj(61)->f16C = 1;
+    scpSearchGobj(61)->active = 1;
 
     while (stage_ContinueAnimation(564, 565) == 0) {
         _ACTWait(1);
@@ -383,11 +383,11 @@ void actTitleReadTimeDemo0(volatile int a0)
     scpPlayMot(boyGObj, 263);
 
     scpPlayMot(scpSearchGobj(56), 983);
-    scpSearchGobj(56)->f16C = 1;
+    scpSearchGobj(56)->active = 1;
     scpPlayMot(scpSearchGobj(57), 1005);
-    scpSearchGobj(57)->f16C = 1;
+    scpSearchGobj(57)->active = 1;
     scpPlayMot(scpSearchGobj(58), 1028);
-    scpSearchGobj(58)->f16C = 1;
+    scpSearchGobj(58)->active = 1;
     scpPlayMot(scpSearchGobj(59), 1052);
     scpPlayMot(scpSearchGobj(60), 1059);
     scpPlayMot(scpSearchGobj(61), 1066);
@@ -409,15 +409,15 @@ void actTitleReadTimeDemo0(volatile int a0)
     }
     _ACTWait(1);
 
-    scpSearchGobj(60)->f16C = 0;
-    scpSearchGobj(57)->f16C = 0;
+    scpSearchGobj(60)->active = 0;
+    scpSearchGobj(57)->active = 0;
 
     while (stage_ContinueAnimation(566, 567) == 0) {
         _ACTWait(1);
     }
 
-    scpSearchGobj(60)->f16C = 1;
-    scpSearchGobj(57)->f16C = 1;
+    scpSearchGobj(60)->active = 1;
+    scpSearchGobj(57)->active = 1;
 
     scpPlayMot(boyGObj, 265);
     scpPlayMot(scpSearchGobj(56), 985);
@@ -432,7 +432,7 @@ void actTitleReadTimeDemo0(volatile int a0)
     }
     _ACTWait(1);
 
-    scpSearchGobj(54)->f16C = 0;
+    scpSearchGobj(54)->active = 0;
 
     while (stage_ContinueAnimation(567, 568) == 0) {
         _ACTWait(1);
@@ -447,7 +447,7 @@ void actTitleReadTimeDemo0(volatile int a0)
 
     _ACTWait(1);
 
-    scpSearchGobj(57)->f16C = 0;
+    scpSearchGobj(57)->active = 0;
 
     while (stage_ContinueAnimation(568, 569) == 0) {
         _ACTWait(1);
@@ -463,18 +463,18 @@ void actTitleReadTimeDemo0(volatile int a0)
 
     _ACTWait(1);
 
-    scpSearchGobj(54)->f16C = 1;
-    scpSearchGobj(57)->f16C = 1;
+    scpSearchGobj(54)->active = 1;
+    scpSearchGobj(57)->active = 1;
 
-    scpSearchGobj(43)->f16C = 1;
-    scpSearchGobj(44)->f16C = 1;
-    scpSearchGobj(45)->f16C = 1;
-    scpSearchGobj(48)->f16C = 1;
-    scpSearchGobj(49)->f16C = 1;
-    scpSearchGobj(50)->f16C = 1;
-    scpSearchGobj(51)->f16C = 1;
+    scpSearchGobj(43)->active = 1;
+    scpSearchGobj(44)->active = 1;
+    scpSearchGobj(45)->active = 1;
+    scpSearchGobj(48)->active = 1;
+    scpSearchGobj(49)->active = 1;
+    scpSearchGobj(50)->active = 1;
+    scpSearchGobj(51)->active = 1;
 
-    scpSearchGobj(46)->f16C = 0;
+    scpSearchGobj(46)->active = 0;
 
     while (stage_ContinueAnimation(569, 571) == 0) {
         _ACTWait(1);
@@ -581,17 +581,17 @@ void actOpDemo01_2Chk(volatile int a0)
 
     stage_SetAnimation(572, 1, 0);
 
-    stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[0]].f_24);
+    stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[0]].nextStage);
 
     stage_SetAnimation(7, 1, 0);
 
     scpPlayMot(boyGObj, 269);
     scpPlayMot(scpSearchGobj(2312), 989);
-    scpSearchGobj(2312)->f16C = 1;
+    scpSearchGobj(2312)->active = 1;
     scpPlayMot(scpSearchGobj(2313), 1011);
-    scpSearchGobj(2313)->f16C = 1;
+    scpSearchGobj(2313)->active = 1;
     scpPlayMot(scpSearchGobj(2314), 1034);
-    scpSearchGobj(2314)->f16C = 1;
+    scpSearchGobj(2314)->active = 1;
 
     while (stage_ContinueAnimation(572, 573) == 0) {
         _ACTWait(1);
@@ -710,7 +710,7 @@ inline void actOpDemo02Chk(volatile int a0)
 
 void actSt24aConte01_2(volatile int a0)
 {
-    stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[1]].f_24);
+    stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[1]].nextStage);
 
     scpPlayStart(boyGObj);
 
@@ -721,11 +721,11 @@ void actSt24aConte01_2(volatile int a0)
     scpPlayMot(boyGObj, 273);
 
     scpPlayMot(scpSearchGobj(2336), 993);
-    scpSearchGobj(2336)->f16C = 1;
+    scpSearchGobj(2336)->active = 1;
     scpPlayMot(scpSearchGobj(2337), 1015);
-    scpSearchGobj(2337)->f16C = 1;
+    scpSearchGobj(2337)->active = 1;
     scpPlayMot(scpSearchGobj(2338), 1038);
-    scpSearchGobj(2338)->f16C = 1;
+    scpSearchGobj(2338)->active = 1;
 
     while (stage_ContinueAnimation(576, 577) == 0) {
         _ACTWait(1);
@@ -887,7 +887,7 @@ void actOpDemo03Chk(volatile int a0)
 
 void actSt13aConte01_3(volatile int a0)
 {
-    stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[3]].f_24);
+    stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[3]].nextStage);
 
     scpPlayStart(boyGObj);
 
@@ -895,11 +895,11 @@ void actSt13aConte01_3(volatile int a0)
 
     scpPlayMot(boyGObj, 278);
     scpPlayMot(scpSearchGobj(2364), 998);
-    scpSearchGobj(2364)->f16C = 1;
+    scpSearchGobj(2364)->active = 1;
     scpPlayMot(scpSearchGobj(2365), 1020);
-    scpSearchGobj(2365)->f16C = 1;
+    scpSearchGobj(2365)->active = 1;
     scpPlayMot(scpSearchGobj(2366), 1042);
-    scpSearchGobj(2366)->f16C = 1;
+    scpSearchGobj(2366)->active = 1;
 
     _ACTWait(1);
     stage_SetAnimation(16, 1, 0);

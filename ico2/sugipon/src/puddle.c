@@ -96,7 +96,7 @@ PuddleWork *InitPuddleGeo(char *a0, char *a1)
     float *v;
     int i;
 
-    *(char **)w = CSVSYSTEM_InitDObj(*(int *)(D_002A79B8 + GOBJ_SUB(a0)->f_844 * 0x28), a1);
+    *(char **)w = CSVSYSTEM_InitDObj(*(int *)(D_002A79B8 + GOBJ_SUB(a0)->accessary * 0x28), a1);
 
     v = spokeDir;
     for (i = 0; i < 9; i++) {
@@ -115,7 +115,7 @@ PuddleWork *InitPuddleGeo(char *a0, char *a1)
         w->rip[i] = rippleInit;
     }
 
-    GOBJ_SUB(a0)->f_81C = (int)puddleRideFunc;
+    GOBJ_SUB(a0)->rideFunc = (int)puddleRideFunc;
     return w;
 }
 
@@ -142,7 +142,7 @@ void baseSetup(char *a0)
     gif_SetZTest(1);
     gif_EndPacket();
 
-    reg_RenderReflection(((GObj *)a0)->p_15C, 4);
+    reg_RenderReflection(((GObj *)a0)->dobj, 4);
 }
 
 /* the sprite rectangle drawAreaSetup blits the frame through, in GS primitive
@@ -344,7 +344,7 @@ void drawRipple(float t, void *pos)
 
 void drawRipples(char *a0, int pri)
 {
-    PuddleWork *w = (PuddleWork *)(char *)GOBJ_SUB(a0)->f_830;
+    PuddleWork *w = (PuddleWork *)(char *)GOBJ_SUB(a0)->work;
     Ripple *p;
     float *t;
     int i;
@@ -380,7 +380,7 @@ void drawRipples(char *a0, int pri)
 
 void PuddleDL(char *a0)
 {
-    char *p = *(char **)(char *)GOBJ_SUB(a0)->f_830;
+    char *p = *(char **)(char *)GOBJ_SUB(a0)->work;
 
     baseSetup(a0);
     drawAreaSetup();
@@ -398,7 +398,7 @@ inline void PuddleGeo(char *a0)
     char *p;
     int i;
 
-    p = GOBJ_SUB(a0)->f_830;
+    p = GOBJ_SUB(a0)->work;
     for (i = 0; i < 6; i++) {
         if (*(float *)(p + 0x20) < 200.0f) {
             *(float *)(p + 0x20) +=
@@ -412,7 +412,7 @@ inline void EntryRippleToPuddle(char *a0, void *vec)
 {
     PuddleWork *w;
 
-    w = GOBJ_SUB(a0)->f_830;
+    w = GOBJ_SUB(a0)->work;
     CopyVector(w->rip[w->idx].pos, vec);
     w->rip[w->idx].t = 0.0f;
     w->idx = w->idx + 1;

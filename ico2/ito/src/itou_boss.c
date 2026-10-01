@@ -329,7 +329,7 @@ void BossEnemyFunc(void *self)
     if (gflag[0] != 0 && InqCapsuleGhostBossStage() != 0) {
         _ACTSetEnemyDisappearSpeed(self, 6.0f);
 
-        switch (GOBJ_SUB(self)->f_4A0) {
+        switch (GOBJ_SUB(self)->motion) {
         default:
             break;
         case 905:
@@ -362,14 +362,14 @@ static inline void sendEnemyAway(char *o) /* derived name */
     pos[2] = pos[1] = pos[0] = 4294967296.0f;
     pos[3] = 0.0f;
     SetRootPosition(o, pos);
-    GOBJ_SUB(o)->f_74 = 0;
+    GOBJ_SUB(o)->disp = 0;
 }
 
 /* drop an enemy at a position and mark its actor live */
 static inline void putEnemyAt(char *o, float *pos) /* derived name */
 {
     SetRootPosition(o, pos);
-    GOBJ_SUB(o)->f_74 = 1;
+    GOBJ_SUB(o)->disp = 1;
 }
 
 /* The DEBUG build's switch to release the enemies without their gather

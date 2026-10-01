@@ -687,8 +687,8 @@ void gsb_antiAlias(void)
         lv[0] = GlobalStageSetting.antiLevel0;
         lv[1] = GlobalStageSetting.antiLevel1;
     } else {
-        lv[0] = GlobalStageSetting.f19C[optionScreenMode].a;
-        lv[1] = GlobalStageSetting.f19C[optionScreenMode].b;
+        lv[0] = GlobalStageSetting.antiLevel[optionScreenMode].a;
+        lv[1] = GlobalStageSetting.antiLevel[optionScreenMode].b;
     }
     if (lv[0] == 0 && lv[1] == 0) {
         return;
@@ -1515,8 +1515,10 @@ static const GsbToolItem filmNoiseItems[4][7] = {
          0},
         {" Motion Blur       ", &GlobalStageSetting.subMotionBlur[0], 0, 0.0f, 127.0f, 32.0f, 1.0f,
          0},
-        {" AntiLevel0        ", &GlobalStageSetting.f19C[0].a, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
-        {" AntiLevel1        ", &GlobalStageSetting.f19C[0].b, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
+        {" AntiLevel0        ", &GlobalStageSetting.antiLevel[0].a, 0, 0.0f, 255.0f, 24.0f, 1.0f,
+         0},
+        {" AntiLevel1        ", &GlobalStageSetting.antiLevel[0].b, 0, 0.0f, 255.0f, 24.0f, 1.0f,
+         0},
     },
     {
         {" HighLight Color R ", &GlobalStageSetting.targetCol[1][0], 0, 0.0f, 255.0f, 128.0f, 1.0f,
@@ -1529,8 +1531,10 @@ static const GsbToolItem filmNoiseItems[4][7] = {
          0},
         {" Motion Blur       ", &GlobalStageSetting.subMotionBlur[1], 0, 0.0f, 127.0f, 32.0f, 1.0f,
          0},
-        {" AntiLevel0        ", &GlobalStageSetting.f19C[1].a, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
-        {" AntiLevel1        ", &GlobalStageSetting.f19C[1].b, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
+        {" AntiLevel0        ", &GlobalStageSetting.antiLevel[1].a, 0, 0.0f, 255.0f, 24.0f, 1.0f,
+         0},
+        {" AntiLevel1        ", &GlobalStageSetting.antiLevel[1].b, 0, 0.0f, 255.0f, 24.0f, 1.0f,
+         0},
     },
     {
         {" HighLight Color R ", &GlobalStageSetting.targetCol[2][0], 0, 0.0f, 255.0f, 128.0f, 1.0f,
@@ -1543,8 +1547,10 @@ static const GsbToolItem filmNoiseItems[4][7] = {
          0},
         {" Motion Blur       ", &GlobalStageSetting.subMotionBlur[2], 0, 0.0f, 127.0f, 32.0f, 1.0f,
          0},
-        {" AntiLevel0        ", &GlobalStageSetting.f19C[2].a, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
-        {" AntiLevel1        ", &GlobalStageSetting.f19C[2].b, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
+        {" AntiLevel0        ", &GlobalStageSetting.antiLevel[2].a, 0, 0.0f, 255.0f, 24.0f, 1.0f,
+         0},
+        {" AntiLevel1        ", &GlobalStageSetting.antiLevel[2].b, 0, 0.0f, 255.0f, 24.0f, 1.0f,
+         0},
     },
     {
         {" HighLight Color R ", &GlobalStageSetting.targetCol[3][0], 0, 0.0f, 255.0f, 128.0f, 1.0f,
@@ -1557,8 +1563,10 @@ static const GsbToolItem filmNoiseItems[4][7] = {
          0},
         {" Motion Blur       ", &GlobalStageSetting.subMotionBlur[3], 0, 0.0f, 127.0f, 32.0f, 1.0f,
          0},
-        {" AntiLevel0        ", &GlobalStageSetting.f19C[3].a, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
-        {" AntiLevel1        ", &GlobalStageSetting.f19C[3].b, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
+        {" AntiLevel0        ", &GlobalStageSetting.antiLevel[3].a, 0, 0.0f, 255.0f, 24.0f, 1.0f,
+         0},
+        {" AntiLevel1        ", &GlobalStageSetting.antiLevel[3].b, 0, 0.0f, 255.0f, 24.0f, 1.0f,
+         0},
     },
 };
 
@@ -1694,8 +1702,8 @@ int gsb_FilmNoiseTool(int target)
         GlobalStageSetting.targetCol[target][1] = GlobalStageSetting.reductionCol[1];
         GlobalStageSetting.targetCol[target][2] = GlobalStageSetting.reductionCol[2];
         GlobalStageSetting.subMotionBlur[target] = GlobalStageSetting.motionBlur;
-        GlobalStageSetting.f19C[target].a = GlobalStageSetting.antiLevel0;
-        GlobalStageSetting.f19C[target].b = GlobalStageSetting.antiLevel1;
+        GlobalStageSetting.antiLevel[target].a = GlobalStageSetting.antiLevel0;
+        GlobalStageSetting.antiLevel[target].b = GlobalStageSetting.antiLevel1;
     }
     if (pad[0].flags & 0x40) {
         ret = -1;

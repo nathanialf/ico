@@ -341,11 +341,11 @@ void actSt03tBoxA(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(298) == 0) {
-        scpSearchGobj(865)->f16C = 0;
+        scpSearchGobj(865)->active = 0;
     } else {
-        scpSearchGobj(852)->f16C = 0;
-        scpSearchGobj(863)->f16C = 0;
-        scpSearchGobj(865)->f16C = 1;
+        scpSearchGobj(852)->active = 0;
+        scpSearchGobj(863)->active = 0;
+        scpSearchGobj(865)->active = 1;
 
         scpTransGObj(scpSearchGobj(865), 0.0f, -200.0f, 0.0f);
         _ACTWait(1);
@@ -361,11 +361,11 @@ void actSt03tBoxB(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(299) == 0) {
-        scpSearchGobj(866)->f16C = 0;
+        scpSearchGobj(866)->active = 0;
     } else {
-        scpSearchGobj(853)->f16C = 0;
-        scpSearchGobj(864)->f16C = 0;
-        scpSearchGobj(866)->f16C = 1;
+        scpSearchGobj(853)->active = 0;
+        scpSearchGobj(864)->active = 0;
+        scpSearchGobj(866)->active = 1;
 
         gflagOn(98);
 

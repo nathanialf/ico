@@ -343,12 +343,12 @@ void ExecIcoMisc(void)
     eBrainProcess();
     if (fall_death_active != 0) {
         if (boyGObj != 0) {
-            if (GOBJ_SUB(boyGObj)->f_55C > 1000.0f) {
+            if (GOBJ_SUB(boyGObj)->fallHeight > 1000.0f) {
                 lt_switch_layout(62);
             }
         }
         if (girlGObj != 0) {
-            if (GOBJ_SUB(girlGObj)->f_55C > 1000.0f) {
+            if (GOBJ_SUB(girlGObj)->fallHeight > 1000.0f) {
                 lt_switch_layout(62);
             }
         }

@@ -177,7 +177,7 @@ void setNodePursueParticleEffectWithUpperLimit(char *a0, char *a1, int a2, float
     int ret = GetSkeltonFocusNode(a1, a2);
     if (ret != -1) {
         Sub15C *p = GOBJ_SUB(a1);
-        int r = SetParticleEffectActiveSensing((int)a0, p->f_C + ret * 0x40 + 0x30,
+        int r = SetParticleEffectActiveSensing((int)a0, p->nodeMtx + ret * 0x40 + 0x30,
                                                (int)IdentityQuaternion);
         SetParticleEffectUpperLimit(r, f);
     }
@@ -187,7 +187,7 @@ void SetFallDownSplash(char *pool, char *self)
 {
     float pos[4];
     float tmp[4];
-    PoolWork *w = GOBJ_SUB(pool)->f_830;
+    PoolWork *w = GOBJ_SUB(pool)->work;
 
     GetRootPosition(pos, self);
     _ScaleVectorXYZ(tmp, *(char **)(self + 0x15C) + 0x130, 2.0f);
@@ -218,7 +218,7 @@ void SetFallDownSplash(char *pool, char *self)
 
 void GetPoolGlobalDrainVector(void *dst, char *a0)
 {
-    CopyVector(dst, ((PoolWork *)GOBJ_SUB(a0)->f_830)->drain);
+    CopyVector(dst, ((PoolWork *)GOBJ_SUB(a0)->work)->drain);
 }
 
 /* RECONSTRUCTION, read from the ROM.  The 64-byte record CSVSYSTEM_InitDObj
@@ -306,13 +306,13 @@ char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
 
         w->rippleNo = 0;
 
-        if (GOBJ_SUB(self)->f_844 != 26) {
+        if (GOBJ_SUB(self)->accessary != 26) {
             PoolLayout obj = *(PoolLayout *)&InitialSObjSimpleSetting;
 
-            obj.x = -D_002A79B8[GOBJ_SUB(self)->f_844].f_C;
-            obj.y = -D_002A79B8[GOBJ_SUB(self)->f_844].f_10;
-            obj.z = -D_002A79B8[GOBJ_SUB(self)->f_844].f_14;
-            w->dobj = CSVSYSTEM_InitDObj(D_002A79B8[GOBJ_SUB(self)->f_844].id, (float *)&obj);
+            obj.x = -D_002A79B8[GOBJ_SUB(self)->accessary].f_C;
+            obj.y = -D_002A79B8[GOBJ_SUB(self)->accessary].f_10;
+            obj.z = -D_002A79B8[GOBJ_SUB(self)->accessary].f_14;
+            w->dobj = CSVSYSTEM_InitDObj(D_002A79B8[GOBJ_SUB(self)->accessary].id, (float *)&obj);
 
             w->spin = 0;
         } else {
@@ -325,20 +325,20 @@ char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
     }
 
     {
-        PoolDisp *q = (PoolDisp *)GOBJ_SUB(self)->p_870;
+        PoolDisp *q = (PoolDisp *)GOBJ_SUB(self)->nodes;
         q->pos.i[0] = q->pos.i[1] = q->pos.i[2] = 0;
     }
     {
-        PoolDisp *q = (PoolDisp *)GOBJ_SUB(self)->p_870;
+        PoolDisp *q = (PoolDisp *)GOBJ_SUB(self)->nodes;
         q->scale.f[0] = q->scale.f[1] = q->scale.f[2] = 1.0f;
     }
     {
-        PoolDisp *q = (PoolDisp *)GOBJ_SUB(self)->p_870;
+        PoolDisp *q = (PoolDisp *)GOBJ_SUB(self)->nodes;
         q->rot.f[0] = q->rot.f[1] = q->rot.f[2] = 0.0f;
     }
 
-    _UnitMatrix(&GOBJ_SUB(self)->f_20);
-    _UnitMatrix((char *)GOBJ_SUB(self)->f_C);
+    _UnitMatrix(&GOBJ_SUB(self)->matrix);
+    _UnitMatrix((char *)GOBJ_SUB(self)->nodeMtx);
 
     w->f_28 = 0;
     w->bga = InitMultiBgaManager(10);
@@ -346,7 +346,7 @@ char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
     w->splashNo = 0;
     w->splash = InitMultiBgaManager(2);
 
-    ((SubHandle *)(self + 0x15C))->sub->f_81C = (int)poolRideFunc;
+    ((SubHandle *)(self + 0x15C))->sub->rideFunc = (int)poolRideFunc;
 
     return (char *)w;
 }
@@ -461,7 +461,7 @@ void updatePoolGeo(char *self)
     float tmp[4];
     float pos[4];
     float sub[4];
-    PoolWork *w = GOBJ_SUB(self)->f_830;
+    PoolWork *w = GOBJ_SUB(self)->work;
     Mesh3D *mesh0 = w->reflect;
     Mesh3D *mesh1 = w->surface;
     float step = w->step;
@@ -637,7 +637,7 @@ void dispPool(char *self)
     char m2[0x40];
     char m3[0x40];
     char m4[0x40];
-    PoolWork *w = GOBJ_SUB(self)->f_830;
+    PoolWork *w = GOBJ_SUB(self)->work;
 
     gif_StartPacketPri(4);
     copyToWork(4);
@@ -656,8 +656,8 @@ void dispPool(char *self)
 
     prim_DispMesh3D(w->surface, dispLightColor, dispLightNormal, -1);
 
-    CopyMatrix((char *)GOBJ_SUB(self)->p_874 + 0x40, workLightColor);
-    CopyMatrix((char *)GOBJ_SUB(self)->p_874, workLightNormal);
+    CopyMatrix((char *)GOBJ_SUB(self)->lightMtx + 0x40, workLightColor);
+    CopyMatrix((char *)GOBJ_SUB(self)->lightMtx, workLightNormal);
 
     gif_StartPacketPri(4);
     flushWork(4);
@@ -680,7 +680,7 @@ void dispPool(char *self)
     gif_EndPacket();
 
     _UnitMatrix(MatrixDrive_GetMatrix());
-    CopyMatrix((char *)GOBJ_SUB(self)->f_C, MatrixDrive_GetMatrix());
+    CopyMatrix((char *)GOBJ_SUB(self)->nodeMtx, MatrixDrive_GetMatrix());
     reg_RenderReflection(GOBJ_SUB(self), 4);
 
     if (w->dobj != 0) {
@@ -749,7 +749,7 @@ void dispPool(char *self)
 
 void PoolDL(char *self)
 {
-    PoolWork *w = GOBJ_SUB(self)->f_830;
+    PoolWork *w = GOBJ_SUB(self)->work;
 
     DispMultiBgaManagerWithKind(498, w->bga, 10);
     DispMultiBgaManagerWithKind(499, w->splash, 2);
@@ -843,7 +843,7 @@ void SetLayoutedPoolReflactionMesh(PoolMesh *a0)
 
 void SetLimitedPoolReflactionMesh(PoolMesh *a0, char *a1, char *a2)
 {
-    PoolWork *w = GOBJ_SUB(a1)->f_830;
+    PoolWork *w = GOBJ_SUB(a1)->work;
     float pos[4];
     float v1[4];
     float v2[4];
@@ -874,7 +874,7 @@ void SetLimitedPoolReflactionMesh(PoolMesh *a0, char *a1, char *a2)
     CopyVector(v1, pos);
     v1[1] = w->pos[1];
     CopyVector(v2, pos);
-    v2[1] += GOBJ_SUB(a2)->f_270;
+    v2[1] += GOBJ_SUB(a2)->projHeight;
 
     pos[1] = (v1[1] + v2[1]) * 0.5f;
     _InterVectorXYZ(pos, pos, (char *)(matrixptr + 944),
@@ -946,12 +946,12 @@ void PoolGeo(void) {}
 
 float GetPoolGlobalHeight(char *a0)
 {
-    return ((PoolWork *)GOBJ_SUB(a0)->f_830)->pos[1];
+    return ((PoolWork *)GOBJ_SUB(a0)->work)->pos[1];
 }
 
 float GetPoolGlobalHeightDetail(char *a0, float *pos)
 {
-    PoolWork *p = GOBJ_SUB(a0)->f_830;
+    PoolWork *p = GOBJ_SUB(a0)->work;
     float inv;
     int ix;
     int iz;
@@ -969,7 +969,7 @@ float GetPoolGlobalHeightDetail(char *a0, float *pos)
 
 int CheckPoolHasGridMesh(char *a0)
 {
-    return ((PoolWork *)GOBJ_SUB(a0)->f_830)->hasGrid != 0;
+    return ((PoolWork *)GOBJ_SUB(a0)->work)->hasGrid != 0;
 }
 
 void InitLayoutedPoolReflactionMesh(PoolMesh *a0, PoolMeshQuad *a1)
@@ -994,8 +994,8 @@ void InitLayoutedPoolReflactionMesh(PoolMesh *a0, PoolMeshQuad *a1)
 int poolRideFunc(char **a0, char *a1)
 {
     Sub15C *e = GOBJ_SUB(a1);
-    PoolWork *p = GOBJ_SUB(a0[0])->f_830;
-    e->f_644 = e->f_A4 - p->pos[1];
+    PoolWork *p = GOBJ_SUB(a0[0])->work;
+    e->waterDepth = e->rootPosY - p->pos[1];
     return 1;
 }
 

@@ -430,7 +430,7 @@ int stage_Init(void)
             }
             for (k = 0; k < e->flags.b.count; k++) {
                 if (STG_SUB(e->obj[k]) != 0) {
-                    STG_SUB(e->obj[k])->f_8 = 0;
+                    STG_SUB(e->obj[k])->nodeNum = 0;
                 }
             }
             k = 0;
@@ -448,51 +448,51 @@ int stage_Init(void)
             }
             e->flags.b.nodes = 0;
             for (k = 0; k < e->flags.b.count; k++) {
-                if (STG_SUB(e->obj[k])->f_C != 0) {
-                    iosFree((void *)(STG_SUB(e->obj[k])->f_C & 0x0FFFFFFF));
+                if (STG_SUB(e->obj[k])->nodeMtx != 0) {
+                    iosFree((void *)(STG_SUB(e->obj[k])->nodeMtx & 0x0FFFFFFF));
                 }
-                if (STG_SUB(e->obj[k])->f_10 != 0) {
-                    iosFree((void *)(STG_SUB(e->obj[k])->f_10 & 0x0FFFFFFF));
+                if (STG_SUB(e->obj[k])->nodeQuat != 0) {
+                    iosFree((void *)(STG_SUB(e->obj[k])->nodeQuat & 0x0FFFFFFF));
                 }
-                STG_SUB(e->obj[k])->f_C = 0;
-                STG_SUB(e->obj[k])->f_10 = 0;
-                STG_SUB(e->obj[k])->f_C = (int)iosMallocDebug(
-                    ios_partition_seki, STG_SUB(e->obj[k])->f_8 << 6, __FILE__, 761);
-                STG_SUB(e->obj[k])->f_10 = (int)iosMallocDebug(
-                    ios_partition_seki, STG_SUB(e->obj[k])->f_8 << 4, __FILE__, 761);
+                STG_SUB(e->obj[k])->nodeMtx = 0;
+                STG_SUB(e->obj[k])->nodeQuat = 0;
+                STG_SUB(e->obj[k])->nodeMtx = (int)iosMallocDebug(
+                    ios_partition_seki, STG_SUB(e->obj[k])->nodeNum << 6, __FILE__, 761);
+                STG_SUB(e->obj[k])->nodeQuat = (int)iosMallocDebug(
+                    ios_partition_seki, STG_SUB(e->obj[k])->nodeNum << 4, __FILE__, 761);
                 /* The reallocation block's own count line (`X->8 = N;`, as
                    chain.c, boy.c and box.c spell the same block), here passed
                    the count field itself (listing 762; all three allocations
                    pass line 761, one macro invocation). reload_cse deletes it
                    as a no-op and turns the 0x870 test's load into the ROM's
                    register copy. */
-                STG_SUB(e->obj[k])->f_8 = STG_SUB(e->obj[k])->f_8;
-                if ((int)STG_SUB(e->obj[k])->p_870 != 0) {
-                    iosFree((void *)((int)STG_SUB(e->obj[k])->p_870 & 0x0FFFFFFF));
+                STG_SUB(e->obj[k])->nodeNum = STG_SUB(e->obj[k])->nodeNum;
+                if ((int)STG_SUB(e->obj[k])->nodes != 0) {
+                    iosFree((void *)((int)STG_SUB(e->obj[k])->nodes & 0x0FFFFFFF));
                 }
-                STG_SUB(e->obj[k])->p_870 =
-                    iosMallocDebug(ios_partition_seki, STG_SUB(e->obj[k])->f_8 * 80, __FILE__, 761);
-                for (t = 0; t < STG_SUB(e->obj[k])->f_8; t++) {
-                    STG_SUB(e->obj[k])->p_870[t].flags.ll &= ~1;
-                    STG_SUB(e->obj[k])->p_870[t].flags.ll &= ~2;
-                    STG_SUB(e->obj[k])->p_870[t].pos[0] = 0;
-                    STG_SUB(e->obj[k])->p_870[t].pos[1] = 0;
-                    STG_SUB(e->obj[k])->p_870[t].pos[2] = 0;
-                    STG_SUB(e->obj[k])->p_870[t].pos[3] = 1.0f;
-                    STG_SUB(e->obj[k])->p_870[t].flags.ll &= ~4;
-                    STG_SUB(e->obj[k])->p_870[t].fade = 0;
-                    STG_SUB(e->obj[k])->p_870[t].alpha = 1.0f;
-                    *(short *)((char *)&STG_SUB(e->obj[k])->p_870[t] + 0x3A) = 0;
-                    STG_SUB(e->obj[k])->p_870[t].scale[0] = 1.0f;
-                    STG_SUB(e->obj[k])->p_870[t].scale[1] = 1.0f;
-                    STG_SUB(e->obj[k])->p_870[t].scale[2] = 1.0f;
+                STG_SUB(e->obj[k])->nodes = iosMallocDebug(
+                    ios_partition_seki, STG_SUB(e->obj[k])->nodeNum * 80, __FILE__, 761);
+                for (t = 0; t < STG_SUB(e->obj[k])->nodeNum; t++) {
+                    STG_SUB(e->obj[k])->nodes[t].flags.ll &= ~1;
+                    STG_SUB(e->obj[k])->nodes[t].flags.ll &= ~2;
+                    STG_SUB(e->obj[k])->nodes[t].pos[0] = 0;
+                    STG_SUB(e->obj[k])->nodes[t].pos[1] = 0;
+                    STG_SUB(e->obj[k])->nodes[t].pos[2] = 0;
+                    STG_SUB(e->obj[k])->nodes[t].pos[3] = 1.0f;
+                    STG_SUB(e->obj[k])->nodes[t].flags.ll &= ~4;
+                    STG_SUB(e->obj[k])->nodes[t].fade = 0;
+                    STG_SUB(e->obj[k])->nodes[t].alpha = 1.0f;
+                    *(short *)((char *)&STG_SUB(e->obj[k])->nodes[t] + 0x3A) = 0;
+                    STG_SUB(e->obj[k])->nodes[t].scale[0] = 1.0f;
+                    STG_SUB(e->obj[k])->nodes[t].scale[1] = 1.0f;
+                    STG_SUB(e->obj[k])->nodes[t].scale[2] = 1.0f;
                 }
                 STG_SUB(e->obj[k])->dispType = 2;
                 e->flags.i = (e->flags.i & 0xFFF003FF) |
-                             ((e->flags.b.nodes + STG_SUB(e->obj[k])->f_8) & 0x3FF) << 10;
-                for (u = 0; u < STG_SUB(e->obj[k])->f_8; u++) {
-                    _UnitMatrix((void *)(STG_SUB(e->obj[k])->f_C + u * 64));
-                    SetIdentityQuaternion((void *)(STG_SUB(e->obj[k])->f_10 + u * 16));
+                             ((e->flags.b.nodes + STG_SUB(e->obj[k])->nodeNum) & 0x3FF) << 10;
+                for (u = 0; u < STG_SUB(e->obj[k])->nodeNum; u++) {
+                    _UnitMatrix((void *)(STG_SUB(e->obj[k])->nodeMtx + u * 64));
+                    SetIdentityQuaternion((void *)(STG_SUB(e->obj[k])->nodeQuat + u * 16));
                 }
             }
         }
@@ -510,14 +510,14 @@ int stage_Init(void)
                 tbl2 = objKindData + *(int *)((char *)e->data[k] + 4) * 100;
                 fn = *(int (**)(char *, StageGObjInit *))(tbl2 + 0x58);
                 if (fn != 0) {
-                    STG_SUB(e->obj[k])->f_830 = (void *)fn(g, &arg);
+                    STG_SUB(e->obj[k])->work = (void *)fn(g, &arg);
                 }
                 isysGObjProcAdd(g, *(int *)(tbl2 + 0x5C), 1, 0x16);
                 isysGObjProcAdd(g, *(int *)(tbl2 + 0x50), 1, 0x17);
                 isysGObjProcAdd(g, *(int *)(tbl2 + 0x4C), 1, 0x18);
                 isysGObjLinkObjDL(g, 0, 0, 7, 0xFFFFFFFF);
                 *(int *)(g + 0x16C) = 1;
-                STG_SUB(e->obj[k])->f_74 = 0;
+                STG_SUB(e->obj[k])->disp = 0;
             }
         }
     }
@@ -853,9 +853,9 @@ void stage_DispAnimation(void)
         }
         for (k = 0; k < e->flags.b.count; k++) {
             char *objs = (char *)e->obj;
-            Sub15C *d = ((GObj *)*(char **)(objs + (k << 2)))->p_15C;
+            Sub15C *d = ((GObj *)*(char **)(objs + (k << 2)))->dobj;
 
-            if (d->f_74 != 0) {
+            if (d->disp != 0) {
                 reg_DispObj(d);
             }
         }
@@ -959,10 +959,10 @@ void stage_SetScale(int key, float scale)
         if (key == e->entry1[0x58 / 4]) {
             if ((e->flags.i >> 30) == 0) {
                 for (j = 0; j < e->flags.b.count; j++) {
-                    for (k = 0; k < STG_SUB(e->obj[j])->f_8; k++) {
-                        STG_SUB(e->obj[j])->p_870[k].scale[0] =
-                            STG_SUB(e->obj[j])->p_870[k].scale[1] =
-                                STG_SUB(e->obj[j])->p_870[k].scale[2] = scale;
+                    for (k = 0; k < STG_SUB(e->obj[j])->nodeNum; k++) {
+                        STG_SUB(e->obj[j])->nodes[k].scale[0] =
+                            STG_SUB(e->obj[j])->nodes[k].scale[1] =
+                                STG_SUB(e->obj[j])->nodes[k].scale[2] = scale;
                     }
                 }
             }
@@ -1022,10 +1022,10 @@ float stage_PlayBgAnimation(int key, float t, void *v, void *q)
         }
         for (k = 0; k < e->flags.b.count; k++) {
             char *objs = (char *)e->obj;
-            Sub15C *d = ((GObj *)*(char **)(objs + (k << 2)))->p_15C;
+            Sub15C *d = ((GObj *)*(char **)(objs + (k << 2)))->dobj;
 
             reg_DispObj(d);
-            d->f_74 = 0;
+            d->disp = 0;
         }
         *(signed char *)(e->entry2 + 0xA) = -1;
     }
@@ -1083,13 +1083,13 @@ float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv
         }
         stageAnimDebugHook();
         for (k = 0; k < e->flags.b.count; k++) {
-            Sub15C *d = ((GObj *)e->obj[k])->p_15C;
+            Sub15C *d = ((GObj *)e->obj[k])->dobj;
 
-            for (m = 0; m < d->f_8; m++) {
-                d->p_870[m].alpha = dv;
+            for (m = 0; m < d->nodeNum; m++) {
+                d->nodes[m].alpha = dv;
             }
             reg_DispObj(d);
-            d->f_74 = 0;
+            d->disp = 0;
             stageAnimDebugHook();
         }
         stageAnimDebugHook();

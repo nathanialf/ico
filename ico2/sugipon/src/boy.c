@@ -386,18 +386,18 @@ typedef struct BoyWork { /* field names derived */
 
 void dispClothes(char *gobj)
 {
-    BoyWork *w = GOBJ_SUB(gobj)->f_830;
+    BoyWork *w = GOBJ_SUB(gobj)->work;
     char *x;
 
-    x = (char *)GOBJ_SUB(gobj)->p_874;
+    x = (char *)GOBJ_SUB(gobj)->lightMtx;
     DispCloth4D((Cloth4D *)w->mantle, x + 0x40, x);
-    x = (char *)GOBJ_SUB(gobj)->p_874;
+    x = (char *)GOBJ_SUB(gobj)->lightMtx;
     DispCloth4D((Cloth4D *)w->tape, x + 0x40, x);
-    x = (char *)GOBJ_SUB(gobj)->p_874;
+    x = (char *)GOBJ_SUB(gobj)->lightMtx;
     DispCloth4D((Cloth4D *)w->tapeB, x + 0x40, x);
-    x = (char *)GOBJ_SUB(gobj)->p_874;
+    x = (char *)GOBJ_SUB(gobj)->lightMtx;
     DispCloth4D((Cloth4D *)w->tapeBoro1, x + 0x40, x);
-    x = (char *)GOBJ_SUB(gobj)->p_874;
+    x = (char *)GOBJ_SUB(gobj)->lightMtx;
     DispCloth4D((Cloth4D *)w->tapeBoro2, x + 0x40, x);
 }
 
@@ -411,7 +411,7 @@ void dispClothes(char *gobj)
  * two locals' names are ours (a nested inline leaves no symbol). */
 static void execClothes(char *gobj)
 {
-    BoyWork *w = GOBJ_SUB(gobj)->f_830;
+    BoyWork *w = GOBJ_SUB(gobj)->work;
 
     if (w->wet != 0) {
         GetCloth4DWithDetail(w->mantle, 0.0f, 0.5f, 1.0f, 0.0f);
@@ -569,7 +569,7 @@ void LightLineDL(void)
 
 inline void SelectBoyCrown(char *a0, int a1)
 {
-    ((BoyWork *)GOBJ_SUB(a0)->f_830)->crown = a1;
+    ((BoyWork *)GOBJ_SUB(a0)->work)->crown = a1;
 }
 
 /* The display-list record's 0x38 word carries single bits set and cleared with
@@ -609,35 +609,35 @@ BoyWork *InitBoyGeo(char *gobj, void *csv)
     *(int *)(*(char **)(gobj + 0x15C) + 0x554) = 1;
     w->head = (Sub15C *)CSVSYSTEM_InitDObj(2, csv);
     w->body = (Sub15C *)CSVSYSTEM_InitDObj(3, csv);
-    if (w->body->f_C != 0) {
-        iosFree(w->body->f_C & 0xFFFFFFF);
+    if (w->body->nodeMtx != 0) {
+        iosFree(w->body->nodeMtx & 0xFFFFFFF);
     }
-    if (w->body->f_10 != 0) {
-        iosFree(w->body->f_10 & 0xFFFFFFF);
+    if (w->body->nodeQuat != 0) {
+        iosFree(w->body->nodeQuat & 0xFFFFFFF);
     }
-    w->body->f_C = 0;
-    w->body->f_10 = 0;
-    w->body->f_C = (int)iosMallocDebug(ios_partition_seki, 128, "src/boy.c", 291);
-    w->body->f_10 = (int)iosMallocDebug(ios_partition_seki, 32, "src/boy.c", 291);
-    w->body->f_8 = 2;
-    if ((int)w->body->p_870 != 0) {
-        iosFree((int)w->body->p_870 & 0xFFFFFFF);
+    w->body->nodeMtx = 0;
+    w->body->nodeQuat = 0;
+    w->body->nodeMtx = (int)iosMallocDebug(ios_partition_seki, 128, "src/boy.c", 291);
+    w->body->nodeQuat = (int)iosMallocDebug(ios_partition_seki, 32, "src/boy.c", 291);
+    w->body->nodeNum = 2;
+    if ((int)w->body->nodes != 0) {
+        iosFree((int)w->body->nodes & 0xFFFFFFF);
     }
-    w->body->p_870 = iosMallocDebug(ios_partition_seki, 160, "src/boy.c", 291);
+    w->body->nodes = iosMallocDebug(ios_partition_seki, 160, "src/boy.c", 291);
     for (i = 0; i < 2; i++) {
-        ((struct DObjNode *)(i * 80 + (int)w->body->p_870))->flags.ll &= ~1;
-        ((struct DObjNode *)(i * 80 + (int)w->body->p_870))->flags.ll &= ~2;
-        ((struct DObjNode *)(i * 80 + (int)w->body->p_870))->pos[0] = 0.0f;
-        ((struct DObjNode *)(i * 80 + (int)w->body->p_870))->pos[1] = 0.0f;
-        ((struct DObjNode *)(i * 80 + (int)w->body->p_870))->pos[2] = 0.0f;
-        ((struct DObjNode *)(i * 80 + (int)w->body->p_870))->pos[3] = 1.0f;
-        ((struct DObjNode *)(i * 80 + (int)w->body->p_870))->flags.ll &= ~4;
-        ((struct DObjNode *)(i * 80 + (int)w->body->p_870))->fade = 0.0f;
-        ((struct DObjNode *)(i * 80 + (int)w->body->p_870))->alpha = 1.0f;
-        *(short *)(i * 80 + (int)w->body->p_870 + 0x3A) = 0;
-        ((struct DObjNode *)(i * 80 + (int)w->body->p_870))->scale[0] = 1.0f;
-        ((struct DObjNode *)(i * 80 + (int)w->body->p_870))->scale[1] = 1.0f;
-        ((struct DObjNode *)(i * 80 + (int)w->body->p_870))->scale[2] = 1.0f;
+        ((struct DObjNode *)(i * 80 + (int)w->body->nodes))->flags.ll &= ~1;
+        ((struct DObjNode *)(i * 80 + (int)w->body->nodes))->flags.ll &= ~2;
+        ((struct DObjNode *)(i * 80 + (int)w->body->nodes))->pos[0] = 0.0f;
+        ((struct DObjNode *)(i * 80 + (int)w->body->nodes))->pos[1] = 0.0f;
+        ((struct DObjNode *)(i * 80 + (int)w->body->nodes))->pos[2] = 0.0f;
+        ((struct DObjNode *)(i * 80 + (int)w->body->nodes))->pos[3] = 1.0f;
+        ((struct DObjNode *)(i * 80 + (int)w->body->nodes))->flags.ll &= ~4;
+        ((struct DObjNode *)(i * 80 + (int)w->body->nodes))->fade = 0.0f;
+        ((struct DObjNode *)(i * 80 + (int)w->body->nodes))->alpha = 1.0f;
+        *(short *)(i * 80 + (int)w->body->nodes + 0x3A) = 0;
+        ((struct DObjNode *)(i * 80 + (int)w->body->nodes))->scale[0] = 1.0f;
+        ((struct DObjNode *)(i * 80 + (int)w->body->nodes))->scale[1] = 1.0f;
+        ((struct DObjNode *)(i * 80 + (int)w->body->nodes))->scale[2] = 1.0f;
     }
     w->body->dispType = 2;
     w->crown0 = CSVSYSTEM_InitDObj(1, csv);
@@ -691,10 +691,10 @@ void synchronizeMotionOutputOriginForGirl(char *gobj)
     if (girlGObj != 0) {
         p = motSyncPairs;
         for (i = 0; i < 5; i++) {
-            if (GOBJ_SUB(girlGObj)->f_4A0 == p->girl) {
+            if (GOBJ_SUB(girlGObj)->motion == p->girl) {
                 okA = 1;
             }
-            if (GOBJ_SUB(gobj)->f_4A0 == p->boy) {
+            if (GOBJ_SUB(gobj)->motion == p->boy) {
                 okB = 1;
             }
             p++;
@@ -725,11 +725,11 @@ void synchronizeMotionOutputOriginForGirl(char *gobj)
 void actionOfWater(char *gobj)
 {
     float pos[4];
-    BoyWork *w = GOBJ_SUB(gobj)->f_830;
+    BoyWork *w = GOBJ_SUB(gobj)->work;
     int node;
 
     ExecWaterDot((int)w->waterDot);
-    if (GOBJ_SUB(gobj)->f_4D8 == 0xB) {
+    if (GOBJ_SUB(gobj)->rootUpdateMode == 0xB) {
         w->wet = 1;
         w->dripVel = 5.0f;
         w->drip = 0.0f;
@@ -739,13 +739,13 @@ void actionOfWater(char *gobj)
         w->drip = w->drip + w->dripVel;
         if (1.0f < w->drip) {
             node = GetSkeltonFocusNode(gobj, 0x16);
-            CopyVector(pos, (char *)GOBJ_SUB(gobj)->f_C + (node << 6) + 0x30);
+            CopyVector(pos, (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6) + 0x30);
             EntryWaterDot((int)w->waterDot, pos, ZeroVector, 8.0f);
             node = GetSkeltonFocusNode(gobj, 0x6);
-            CopyVector(pos, (char *)GOBJ_SUB(gobj)->f_C + (node << 6) + 0x30);
+            CopyVector(pos, (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6) + 0x30);
             EntryWaterDot((int)w->waterDot, pos, ZeroVector, 8.0f);
             node = GetSkeltonFocusNode(gobj, 0x2C);
-            CopyVector(pos, (char *)GOBJ_SUB(gobj)->f_C + (node << 6) + 0x30);
+            CopyVector(pos, (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6) + 0x30);
             EntryWaterDot((int)w->waterDot, pos, ZeroVector, 10.0f);
             w->drip = 0.0f;
         }
@@ -772,27 +772,27 @@ void BoyGeo(char *gobj)
 
 void dispSubParts(char *gobj)
 {
-    BoyWork *w = GOBJ_SUB(gobj)->f_830;
+    BoyWork *w = GOBJ_SUB(gobj)->work;
     char *a;
     char *c;
     int node;
 
     a = (char *)w->head;
     node = GetSkeltonFocusNode(gobj, 35);
-    CopyMatrix(*(char **)(a + 0xC), (char *)GOBJ_SUB(gobj)->f_C + (node << 6));
+    CopyMatrix(*(char **)(a + 0xC), (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6));
     p2o_DispVU1DObj(w->head);
     a = (char *)w->body;
     node = GetSkeltonFocusNode(gobj, 0x14);
-    CopyMatrix(*(char **)(a + 0xC), (char *)GOBJ_SUB(gobj)->f_C + (node << 6));
-    c = (char *)w->body->f_C + 0x40;
+    CopyMatrix(*(char **)(a + 0xC), (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6));
+    c = (char *)w->body->nodeMtx + 0x40;
     node = GetSkeltonFocusNode(gobj, 0x4);
-    CopyMatrix(c, (char *)GOBJ_SUB(gobj)->f_C + (node << 6));
+    CopyMatrix(c, (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6));
     p2o_DispVU1DObjMulti(w->body);
 }
 
 void dispCrown(char *gobj)
 {
-    BoyWork *w = GOBJ_SUB(gobj)->f_830;
+    BoyWork *w = GOBJ_SUB(gobj)->work;
     int node = GetSkeltonFocusNode(gobj, 0x23);
     char *obj;
 
@@ -807,7 +807,7 @@ void dispCrown(char *gobj)
         obj = w->crown0;
         break;
     }
-    CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(gobj)->f_C + (node << 6));
+    CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6));
     MatrixDrive_RotMatrixX(-0x8000);
     CopyMatrix(*(char **)(obj + 0xC), MatrixDrive_GetMatrix());
     reg_DispAccessoryWithShadow((Sub15C *)obj, GOBJ_SUB(gobj));
@@ -815,11 +815,11 @@ void dispCrown(char *gobj)
 
 inline void SetBoyStonizedVisual(char *a0)
 {
-    BoyWork *crown = GOBJ_SUB(a0)->f_830;
+    BoyWork *crown = GOBJ_SUB(a0)->work;
     AdjustMotionHeightToNearestField(a0);
     crown->stone = 1;
     crown->stoneAnim = 0;
-    GOBJ_SUB(a0)->f_62C = 0;
+    GOBJ_SUB(a0)->word62C = 0;
 }
 
 /* kept local: float (int, void *, void *, float) here, float (int, float, void *, void *) in StageAnimation.h */
@@ -830,7 +830,7 @@ void BoyDL(char *gobj)
 {
     char pos[0x10];
     char quat[0x10];
-    BoyWork *w = GOBJ_SUB(gobj)->f_830;
+    BoyWork *w = GOBJ_SUB(gobj)->work;
     PoolMesh *m;
     Sub15C *sub;
     int r;
@@ -851,11 +851,11 @@ void BoyDL(char *gobj)
         dispCrown(gobj);
         dispClothes(gobj);
     }
-    if (stage_no == 0x27 && 20.0f < GOBJ_SUB(gobj)->f_644 && GOBJ_SUB(gobj)->f_648 != 0 &&
-        CheckPoolHasGridMesh((char *)GOBJ_SUB(gobj)->f_648) == 0) {
+    if (stage_no == 0x27 && 20.0f < GOBJ_SUB(gobj)->waterDepth && GOBJ_SUB(gobj)->pool != 0 &&
+        CheckPoolHasGridMesh((char *)GOBJ_SUB(gobj)->pool) == 0) {
         sub = GOBJ_SUB(gobj);
-        m = (PoolMesh *)(sub->f_830 + 0x34);
-        SetLimitedPoolReflactionMesh(m, sub->f_648, gobj);
+        m = (PoolMesh *)(sub->work + 0x34);
+        SetLimitedPoolReflactionMesh(m, sub->pool, gobj);
         DispLimitedPoolReflactionMesh(m);
     }
     DispWaterDot((int)w->waterDot);

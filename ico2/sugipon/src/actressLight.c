@@ -13,9 +13,9 @@ void SetActressLight(void *a0, int a1, int a2, void *a3)
     int r1 = GetSkeltonFocusNode(a0, a1);
     int r2 = GetSkeltonFocusNode(a0, a2);
     stage_SetLoopFlag(a3, 1);
-    CopyQuaternion(buf, GOBJ_SUB(a0)->f_10 + r1 * 0x10);
+    CopyQuaternion(buf, GOBJ_SUB(a0)->nodeQuat + r1 * 0x10);
     RotQuaternionX(buf, 0x4000);
     RotQuaternionZ(buf, 0x4000);
-    stage_PlayBgAnimation(a3, GOBJ_SUB(a0)->f_C + r2 * 0x40 + 0x30, buf, 0.0f);
+    stage_PlayBgAnimation(a3, GOBJ_SUB(a0)->nodeMtx + r2 * 0x40 + 0x30, buf, 0.0f);
     stage_SetLoopFlag(a3, 0);
 }
