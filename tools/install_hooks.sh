@@ -45,8 +45,8 @@ ROOT="$(git rev-parse --show-toplevel)"
 "$ROOT/tools/check_no_rom.sh"
 
 # Staged C must be developer-native: no K&R definitions, no empty do-while
-# loop notes, no empty asm, no register pins or asm blocks in functions the
-# January listing proves were compiled C. tools/dev_native_allow.txt holds the
+# loop notes, no empty asm, no symbol aliases, no register pins or asm blocks
+# in functions the January listing proves were compiled C. tools/dev_native_allow.txt holds the
 # ROM-proven exceptions with their reasons.
 python3 "$ROOT/tools/check_dev_native.py"
 
@@ -68,19 +68,13 @@ if [[ -z "$BUILD_SENSITIVE" ]]; then
     exit 0
 fi
 
-if [[ ! -f "$ROOT/build.ninja" ]]; then
-    echo "pre-commit: build.ninja not found: run \`tools/build.sh setup && ninja\` once," >&2
-    echo "  then this hook will be able to enforce the byte gate." >&2
-    exit 0
-fi
-
 NINJA="$ROOT/.venv/bin/ninja"
 if [[ ! -x "$NINJA" ]]; then
     NINJA="$(command -v ninja || true)"
 fi
 if [[ -z "$NINJA" ]]; then
-    echo "pre-commit: ninja not on PATH and .venv/bin/ninja missing: skip" >&2
-    exit 0
+    echo "pre-commit: ninja not on PATH and .venv/bin/ninja missing: run tools/setup.sh" >&2
+    exit 1
 fi
 
 echo "pre-commit: tools/build.sh setup ..."
@@ -118,15 +112,14 @@ echo "Installed pre-commit hook at $HOOK"
 
 # pre-push: re-run the byte gate against the tip of each ref being
 # pushed. Catches commits that bypassed pre-commit via --no-verify.
-# Cannot itself be bypassed (--no-verify only affects pre-commit and
-# commit-msg; for push, use `git push --no-verify`, but reviewers can
-# at least see push history in the reflog).
+# `git push --no-verify` skips it in turn.
 cat > "$PUSH_HOOK" <<'EOF'
 #!/usr/bin/env bash
 # Auto-installed by tools/install_hooks.sh. Per-push byte gate.
 #
 # For each ref being pushed whose commits touch the build, requires the
-# working tree to be at that ref's tip, runs tools/build.sh setup + ninja
+# working tree to be at that ref's tip with no uncommitted change to a
+# build path, runs tools/build.sh setup + ninja
 # (which ends in tools/check_elf.py --gate), and refuses the push if the
 # rebuilt ELF differs from the base. This is the backstop against commits authored with
 # `git commit --no-verify` that broke the byte-identical round-trip.
@@ -144,8 +137,8 @@ if [[ ! -x "$NINJA" ]]; then
     NINJA="$(command -v ninja || true)"
 fi
 if [[ -z "$NINJA" ]]; then
-    echo "pre-push: ninja not on PATH and .venv/bin/ninja missing: skip" >&2
-    exit 0
+    echo "pre-push: ninja not on PATH and .venv/bin/ninja missing: run tools/setup.sh" >&2
+    exit 1
 fi
 
 # Read refs from stdin (git push protocol): "<local-ref> <local-sha> <remote-ref> <remote-sha>"
@@ -170,13 +163,18 @@ while read local_ref local_sha remote_ref remote_sha; do
     fi
 
     echo "pre-push: build-sensitive changes in $local_ref: re-running the byte gate ..."
-    # Verify the tip being pushed builds clean. Use the current working
-    # tree (which should match local_sha if the user hasn't done weird
-    # things). If working tree differs, refuse.
+    # The gate builds the working tree, so it must be the tip being pushed:
+    # HEAD at that commit and no uncommitted change under a build path.
     head_sha=$(git rev-parse HEAD)
     if [[ "$head_sha" != "$local_sha" ]]; then
         echo "pre-push: working tree HEAD ($head_sha) doesn't match pushed ref tip ($local_sha)." >&2
         echo "  Check out the pushed commit and re-run \`tools/build.sh setup && ninja\` manually first." >&2
+        push_failed=1
+        continue
+    fi
+    if ! git diff --quiet HEAD -- ico2 sce config tools; then
+        echo "pre-push: uncommitted changes under ico2/, sce/, config/ or tools/;" >&2
+        echo "  the gate would build them instead of $local_sha. Commit or set them aside first." >&2
         push_failed=1
         continue
     fi

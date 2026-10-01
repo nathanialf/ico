@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# tools/build.sh — top-level orchestration for the ICO decomp.
+# tools/build.sh: top-level orchestration for the ICO decomp.
 #
 # The target slug and the base ELF/ROM paths come from tools/ico_version.sh
 # (`main` = PAL retail, slug pal). Override with VERSION=<slug> for ad-hoc runs.

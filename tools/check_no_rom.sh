@@ -6,14 +6,18 @@
 # IP-tainted files slip into a commit. Run before pushing; the pre-commit
 # hook runs it on staged files.
 #
-# Heuristics (intentionally conservative — false positives are fine, false
+# Heuristics (intentionally conservative: false positives are fine, false
 # negatives are not):
 #
 #   1. File extensions associated with PS2 disc dumps and extracted assets.
-#   2. PS2 boot-ELF naming patterns (SLUS-/SLES-/SLPS-/SLPM-/SCUS-/...).
-#   3. Any tracked file > 256 KiB that is not in an allowlisted directory.
+#   2. PS2 boot-ELF naming patterns (SLUS-/SLES-/SLPS-/SLPM-/SCUS-/...) and
+#      the PAL disc's reference files (MAIN.MAP, SRCFILE.TXT, TRFILE.TXT,
+#      TRTABLE.BIN, SYSTEM.CNF), which docs/LEGAL.md keeps out of the tree.
+#   3. Any tracked file > 256 KiB (C sources under ico2/ and sce/: 8 MiB),
+#      except the named text files below.
 #   4. ELF magic (\x7fELF) sniff regardless of extension.
-#   5. Any file whose path matches our gitignore patterns but is somehow
+#   5. Raw byte-array initializers in tracked C.
+#   6. Any file whose path matches our gitignore patterns but is somehow
 #      tracked anyway.
 #
 # Exit non-zero on any hit.
@@ -50,22 +54,27 @@ for f in "${files[@]}"; do
         note "PS2 boot-ELF naming: $f"
     fi
 done
+disc_file_re='(^|/)(MAIN\.MAP|SRCFILE\.TXT|TRFILE\.TXT|TRTABLE\.BIN|SYSTEM\.CNF)$'
+for f in "${files[@]}"; do
+    [[ -z "$f" ]] && continue
+    if [[ "${f^^}" =~ $disc_file_re ]]; then
+        note "disc reference file: $f"
+    fi
+done
 
-# --- 3. size cap outside allowlisted dirs ---
+# --- 3. size cap ---
 # Non-source files keep the tight 256 KiB cap (catches stray binary/asset
 # dumps). Tracked C source (ico2/ and sce/ *.c/*.h/*.c.inc) gets a
 # higher 8 MiB ceiling: some TUs hold their data as typed C (word arrays,
 # strings, structs), which pushes them past 256 KiB. Their CONTENT is still
 # gated by rule #5 below (raw byte-array dumps banned), so a large .c is
 # typed source, not laundered ROM. The 8 MiB ceiling stays as a backstop.
-allow_large_re='^(tools/ghidra/|\.git/)'
-src_large_re='^(ico2|sce|include)/.*\.(c|h|c\.inc|inc)$'
+src_large_re='^(ico2|sce)/.*\.(c|h|c\.inc|inc)$'
 for f in "${files[@]}"; do
     [[ -z "$f" ]] && continue
     [[ ! -f "$f" ]] && continue
-    if [[ "$f" =~ $allow_large_re ]]; then continue; fi
-    # Symbol-address files (config/symbol_addrs.<ver>.txt — pal, us, aug6) are
-    # `Name = 0xADDR; // type:func` declarations — no byte data. The aug6 and
+    # Symbol-address files (config/symbol_addrs.<ver>.txt: pal, us, aug6) are
+    # `Name = 0xADDR; // type:func` declarations, no byte data. The aug6 and
     # PAL ones are large (>256 KiB) only because those builds are fully named
     # from a disc-shipped MAIN.MAP (5k+ functions), unlike the USA retail
     # target's sparse file. Format-verified text, not laundered ROM; exempt the
@@ -108,15 +117,16 @@ done
 # ico2/ and sce/ uses TYPED forms (string literals, ints, floats, named
 # pointer arrays, struct literals); a byte-array initializer fails the
 # commit, so the bytes are never laundered into the tracked tree. (The
-# data-only members are extracted at build time instead: tools/extract_data.py.)
+# data-only members are generated at build time instead, from the user's own
+# disc: tools/gen_data_c.py and tools/extract_data.py.)
 #
 # The match is on the byte-array SHAPE itself, with an
 # `__attribute__((section(...)))` prefix OPTIONAL: a plain
 # `unsigned char D_X[N] = { 0xAB, 0xCD, ... }` is just as much a raw dump.
 # The shape requires the first brace element to be a hex byte AND at least
 # one comma (>=2 elements), so the legitimate typed forms all pass:
-#   - all-zero `{ 0 };`        (no comma — never matches)
-#   - strings `= "...";`       (no brace — never matches)
+#   - all-zero `{ 0 };`        (no comma, never matches)
+#   - strings `= "...";`       (no brace, never matches)
 #   - word/short `unsigned int D_X[N] = { 0x.., .. }`  (non-byte type)
 #   - struct/typedef arrays    (non-byte type)
 byte_type_re='(unsigned[[:space:]]+char|signed[[:space:]]+char|char|uint8_t|int8_t|u8|s8)'

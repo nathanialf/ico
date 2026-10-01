@@ -9,15 +9,16 @@ archive as compile_c.sh chooses them for C), vu (ico2/vusrc/*.dsm through
 dvp-as, ps2dev's DVP assembler built by tools/setup.sh under tools/cc/dvp-as/,
 run from ico2/ on the path vusrc/<stem>.dsm because the overlay section names
 it writes hash that path; -no-abicalls -mabi=64 leave the ABI bits of e_flags
-clear, the one setting the link merges with the game's EABI64 objects), data
-(tools/extract_data.py per data-only member row), the members
-config/data_schema.pal.txt lists as C (tools/gen_data_c.py: a zero stand-in
-per member, a layout link with the stand-ins that fixes every other address,
-the member's C written from the base ELF with its pointers named from that
-link, compiled by cc, checked against the ROM range, and the placeholder
-labels inside it bound by a linker assignment), labels (the D_<VMA>
-placeholders a tracked source still spells inside a data member's row, which
-the extractor defines as labels), link (the period linker, GNU ld 2.10 with
+clear, the one setting the link merges with the game's EABI64 objects), the
+members config/data_schema.pal.txt lists as C (tools/gen_data_c.py: a zero
+stand-in per member, a layout link with the stand-ins that fixes every other
+address, the member's C written from the base ELF with its pointers named from
+that link, compiled by cc, checked against the ROM range, and the placeholder
+labels inside it bound by a linker assignment), data (tools/extract_data.py's
+assembly for each data-only row the schema does not type, assembled by as),
+labels (the D_<VMA> placeholders a tracked source spells inside a data
+member's row: gen_data_c.py binds them for a member written as C, the
+extractor defines them for a row written as assembly), link (the period linker, GNU ld 2.10 with
 tools/binutils-2.10-ee.patch, built by tools/setup.sh under
 tools/cc/binutils-2.10-ee/, writing the IRIX-compatible elf32-littlemips output
 MAIN.MAP names: once to ico.syms.elf, which keeps the symbols, and once with -s
@@ -35,6 +36,11 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "tools"))
+# The member table's and the schema's one parser each.
+from extract_data import parse_table  # noqa: E402
+from gen_data_c import parse_schema  # noqa: E402
+
 LIST = "config/link_order.pal.txt"
 SCRIPT = "config/link.pal.ld"
 TABLE = "config/data_members.pal.txt"
@@ -79,22 +85,17 @@ def parse_list():
 
 
 def table_rows():
+    """Each member's rows of the table, as MEMBER.SECTION keys."""
     rows = {}
-    for line in (ROOT / TABLE).read_text().splitlines():
-        f = line.split("#", 1)[0].split()
-        if f:
-            rows.setdefault(f[1], []).append(f"{f[1]}.{f[0]}")
+    for r in parse_table(ROOT / TABLE):
+        rows.setdefault(r["member"], []).append(f"{r['member']}.{r['section']}")
     return rows
 
 
 def schema_members():
     """The members tools/gen_data_c.py writes as C, with the headers their rows name."""
-    out = {}
-    for line in (ROOT / SCHEMA).read_text().splitlines():
-        f = line.split("#", 1)[0].split()
-        if f and f[3] not in out.setdefault(f[0], "").split():
-            out[f[0]] = (out[f[0]] + " " + f[3]).strip()
-    return out
+    return {m: " ".join(dict.fromkeys(r["header"] for r in rs))
+            for m, rs in parse_schema(ROOT / SCHEMA).items()}
 
 
 def obj_of(src):
@@ -143,12 +144,7 @@ def write_labels(out):
     table at an interior offset, where MAIN.MAP names no symbol, spells the
     address as the name, and the extractor defines that label. Only names some
     source spells are written."""
-    rows = []
-    for line in (ROOT / TABLE).read_text().splitlines():
-        f = line.split("#", 1)[0].split()
-        if f:
-            own = set() if f[4] == "-" else {s.split("@")[0] for s in f[4].split(",")}
-            rows.append((int(f[2], 16), int(f[3], 16), own))
+    rows = [(r["lo"], r["hi"], {name for name, _ in r["syms"]}) for r in parse_table(ROOT / TABLE)]
     idents = set()
     for p in label_sources():
         idents.update(re.findall(r"\bD_[0-9A-F]{8}\b", (ROOT / p).read_text(errors="replace")))
@@ -237,7 +233,7 @@ def main():
     w.append("rule vu\n  command = cd ico2 && ../$dvp_as -no-abicalls -mabi=64 -o ../$out $dsm\n"
              "  description = VU $out\n\n"
              f"rule data\n  command = $py tools/extract_data.py --only $key --out-dir {OUT}/data"
-             f" --extra-labels {LABELS} --assemble > /dev/null\n  description = DATA $out\n\n"
+             f" --extra-labels {LABELS}\n  description = DATA $out\n\n"
              "rule datastub\n  command = $py tools/gen_data_c.py --stub $member --out $out\n"
              "  description = STUB $out\n  restat = 1\n\n"
              f"rule dataalias\n  command = $py tools/gen_data_c.py --alias $member --labels {LABELS} --out $out\n"
@@ -287,10 +283,11 @@ def main():
                 w.append(f"build {o}: {rule} {e['name']}\n  gnum = {gnum}\n")
             else:
                 key = Path(o).stem
-                w.append(f"build {o}: data {TABLE} | tools/extract_data.py {BASE_ELF} {LABELS}\n"
-                         f"  key = {key}\n")
+                w.append(f"build {OUT}/data/{key}.s: data {TABLE} | tools/extract_data.py {BASE_ELF} {LABELS}\n"
+                         f"  key = {key}\n"
+                         f"build {o}: as_old {OUT}/data/{key}.s\n  gnum = 8\n")
     w.append(f"build {LABELS}: labels {' '.join(label_sources())} | {LIST} {TABLE}"
-             " tools/gen_ninja.py\n")
+             " tools/gen_ninja.py tools/extract_data.py\n")
     aliases = [f"{OUT}/data/{m}.alias.ld" for m in cmembers]
     if cmembers:
         w.append(f"\nbuild {LAYOUT_ELF}: layout {' '.join(layout + aliases)} | {LAYOUT_LD} {LD}\n")
@@ -300,7 +297,7 @@ def main():
              f"build {OUT}/.verified: verify {OUT}/ico.rom | tools/check_elf.py\n"
              f"default {OUT}/.verified\n"
              f"build {NINJA} {OUT}/data.inputs.ld {OUT}/rodata.inputs.ld {LINK_LD} {LAYOUT_LD}: gen | "
-             f"tools/gen_ninja.py {LIST} {TABLE} {SCHEMA} {SCRIPT}\n")
+             f"tools/gen_ninja.py tools/extract_data.py tools/gen_data_c.py {LIST} {TABLE} {SCHEMA} {SCRIPT}\n")
     (ROOT / NINJA).write_text("".join(w))
     n = {k: sum(e["kind"] == k for e in entries) for k in ("src", "data")}
     toks = sum(len(e["align"]) for e in entries)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-extract_elf.py — pull the EE-side boot ELF out of the user's ICO disc image,
+extract_elf.py: pull the EE-side boot ELF out of the user's ICO disc image,
 record its SHA-1, and dump a hint about the compiler fingerprint.
 
 Version-aware (tools/ico_version.py picks the branch's target):
@@ -20,10 +20,10 @@ Raw .bin sectors are cooked by extracting the 2048-byte user data of each
 sector and feeding the resulting ISO9660 image to pycdlib; an image that is
 already 2048-byte-sector ISO9660 is read directly.
 
-Nothing copyrighted enters the repository — everything written lands under
+Nothing copyrighted enters the repository: everything written lands under
 baserom/, which is gitignored wholesale.
 
-Idempotent — re-runs are cheap once baseelf.elf exists.
+Idempotent: re-runs are cheap once baseelf.elf exists.
 """
 
 from __future__ import annotations
@@ -47,7 +47,7 @@ VERSION = detect_version(REPO_ROOT)
 # Where the user drops their own disc images (all gitignored).
 DISC_DIR = REPO_ROOT / "baserom"
 # Where THIS target's extracted files land: baserom/ for us, baserom/<ver>/
-# otherwise — see tools/ico_version.py.
+# otherwise (see tools/ico_version.py).
 OUT_DIR = baserom_dir(REPO_ROOT, VERSION)
 ELF = baseelf_path(REPO_ROOT, VERSION)
 ROM = rom_path(REPO_ROOT, VERSION)     # objcopy -O binary view, the ROM SHA-1's subject
@@ -107,7 +107,7 @@ def cook_iso(bin_path: Path, mode: str, out_path: Path) -> None:
         # Mode 2 Form 1: 12 sync + 4 header + 8 subheader = 24
         data_offset = 24
     elif mode == "MODE1/2048":
-        # already cooked — just copy / symlink
+        # already cooked: just copy / symlink
         out_path.write_bytes(bin_path.read_bytes())
         return
     else:
@@ -115,7 +115,7 @@ def cook_iso(bin_path: Path, mode: str, out_path: Path) -> None:
 
     size = bin_path.stat().st_size
     if size % RAW_SECTOR_SIZE != 0:
-        print(f"extract_elf: warning — bin size {size} is not a multiple of "
+        print(f"extract_elf: warning: bin size {size} is not a multiple of "
               f"{RAW_SECTOR_SIZE}; truncating", file=sys.stderr)
     n_sectors = size // RAW_SECTOR_SIZE
     print(f"extract_elf: cooking {bin_path.name} "
@@ -247,7 +247,7 @@ def copy_reference_files(iso_path: Path, names: tuple[str, ...]) -> None:
     """Pull the disc's reference files (linker map, listings, SYSTEM.CNF).
 
     Best-effort per file: a disc that doesn't carry one is not an error (the
-    build never reads these — they're provenance/reference material for
+    build never reads these: they're provenance/reference material for
     symbol recovery, and live under the gitignored baserom/).
     """
     for name in names:
@@ -257,7 +257,7 @@ def copy_reference_files(iso_path: Path, names: tuple[str, ...]) -> None:
         try:
             extract_iso_file(iso_path, name, dst)
         except SystemExit as exc:
-            print(f"extract_elf: note — no {name} on this disc ({exc})",
+            print(f"extract_elf: note: no {name} on this disc ({exc})",
                   file=sys.stderr)
             continue
         print(f"==> {name} -> {dst.relative_to(REPO_ROOT)} "
@@ -271,7 +271,7 @@ def resolve_iso(disc: dict) -> Path:
 
     if raw_bin is None:
         # The user's image is already cooked (one 2048-byte sector per logical
-        # sector) — read it in place, never rewrite it.
+        # sector): read it in place, never rewrite it.
         if not image.exists():
             raise SystemExit(
                 f"extract_elf: missing {image}\n"
@@ -280,7 +280,7 @@ def resolve_iso(disc: dict) -> Path:
             )
         size = image.stat().st_size
         if size % LOGICAL_SECTOR_SIZE != 0:
-            print(f"extract_elf: warning — {image.name} size {size} is not a "
+            print(f"extract_elf: warning: {image.name} size {size} is not a "
                   f"multiple of {LOGICAL_SECTOR_SIZE}; is it a raw .bin?",
                   file=sys.stderr)
         return image
@@ -323,7 +323,7 @@ def main() -> int:
         print(str(exc), file=sys.stderr)
         return 1
 
-    # 2. pull the boot ELF (name comes from SYSTEM.CNF — varies by region/title)
+    # 2. pull the boot ELF (its name comes from SYSTEM.CNF and varies by region)
     if not ELF.exists():
         boot_name = boot_path_from_system_cnf(iso)
         print(f"==> SYSTEM.CNF BOOT2: {boot_name}")
@@ -347,7 +347,7 @@ def main() -> int:
         print(f"  actual:   {sha1}", file=sys.stderr)
         print("Either your disc image is a different revision, or the recorded",
               file=sys.stderr)
-        print(f"hash is wrong. Do not blindly update {SHA1SUMS} — consult the",
+        print(f"hash is wrong. Do not blindly update {SHA1SUMS}: consult the",
               file=sys.stderr)
         print("maintainer first.", file=sys.stderr)
         return 4

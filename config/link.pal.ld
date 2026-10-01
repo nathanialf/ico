@@ -30,6 +30,8 @@ ENTRY(_start)
 
 SECTIONS
 {
+    /* MAIN.MAP line 6795's `_gp=(ALIGN(0x80)+0x7ff0)`, evaluated where the
+     * retail link reaches it, the start of .lit4: 0x00638B00 + 0x7FF0. */
     _gp = 0x00640AF0;
     /* The SDK script's start-up values, MAIN.MAP lines 724-726: crt0 hands
      * _stack and _stack_size to the SetupThread syscall and _heap_size to
@@ -79,5 +81,6 @@ SECTIONS
     .DVP.ovlytab 0x00736198 : { *(.DVP.ovlytab) }
     .DVP.ovlystrtab 0x00736198 : { *(.DVP.ovlystrtab) }
 
+    /* Sections the objects carry and the base ELF has none of. */
     /DISCARD/ : { *(.mdebug) *(.MIPS.abiflags) *(.pdr) *(.comment) *(.gnu.attributes) }
 }

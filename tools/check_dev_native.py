@@ -30,6 +30,12 @@ pins are fine only where the developers' own source was assembly).
   6. A file-scope `__asm__(...)` block that defines (`.global NAME`) a function
      the listing attributes to three or more source lines of a .c file: that is
      a compiled-C function typed out as asm, and it is written as C instead.
+  7. A symbol alias: a declarator followed by an asm label
+     (`extern int x __asm__("name");`), which binds one name to another
+     symbol instead of declaring the symbol under its own name.
+
+What the ban list in CLAUDE.md names but no pattern can decide (dead stores,
+declaration tricks, a do-while(0) wrapper with a body) stays with review.
 """
 import os
 import re
@@ -55,6 +61,7 @@ FN_HDR = re.compile(r'^(?!\s*(?:__asm__|asm)\b)(?:static\s+|inline\s+|__inline__
 PIN = re.compile(r'\bregister\b[^;]*__asm__\s*\(\s*"\$')
 ASM_OPEN = re.compile(r'(__asm__|\basm\b)\s*(__volatile__|volatile)?\s*\(')
 EMPTY_ASM = re.compile(r'(__asm__|\basm\b)\s*(__volatile__|volatile)?\s*\(\s*""\s*[:)]')
+ALIAS = re.compile(r'[\w\])]\s*(__asm__|\basm\b)\s*\(\s*"[A-Za-z_.][\w.]*"\s*\)\s*(__attribute__\b.*)?[;,=]')
 PIN_MACRO = re.compile(r'\b(KEEP_LIVE|ANCHOR|MEM_BARRIER|MATERIALIZE)\s*\(|\bREG\s*\(\s*\$')
 # instructions no C spells, valid only inside an asm template (the assert trap and its kin)
 ASM_ONLY = re.compile(r'\b(break|teq|tne|tge|tlt|tgeu|tltu)\b')
@@ -196,6 +203,8 @@ def main(argv):
                     bad.append(f'{f}:{i+1}: empty inline asm')
             if PIN_MACRO.search(l):
                 bad.append(f'{f}:{i+1}: retired pin macro')
+            if ALIAS.search(l) and not PIN.search(l):
+                bad.append(f'{f}:{i+1}: symbol alias (an asm label on a declaration)')
             if PIN.search(l) or (ASM_OPEN.search(l) and not EMPTY_ASM.search(l)):
                 fn = enclosing_function(L, i)
                 if fn is None and not PIN.search(l):

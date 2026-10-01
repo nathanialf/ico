@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # tools/compile_c.sh <src.c> <out.o>
 #
-# Compile one C source for the ICO decomp: ee-gcc → .s → ee-as (per archive)
-# → objcopy. build.ninja's cc rule (tools/gen_ninja.py) runs it per object.
+# Compile one C source: ee-gcc 2.9-991111 to a .s, then the assembler of the
+# source's archive to the object. build.ninja's cc rule (tools/gen_ninja.py)
+# runs it per object.
 
 set -eu
 
@@ -16,21 +17,13 @@ EEGCC_DIR="${EEGCC_DIR:-${ROOT}/tools/cc/ee-gcc2.9-991111}"
 EEGCC_LIB="${EEGCC_DIR}/gcc-lib/ee/2.9-ee-991111-01/"
 CC="${EEGCC_DIR}/ee-gcc"
 
-if command -v mips64r5900el-ps2-elf-objcopy >/dev/null 2>&1; then
-    MIPS_PREFIX="mips64r5900el-ps2-elf-"
-else
-    MIPS_PREFIX="mips-linux-gnu-"
-fi
-OBJCOPY="${MIPS_PREFIX}objcopy"
-
 # TWO ASSEMBLERS, SELECTED PER ARCHIVE BY THE DISC'S LINK. MAIN.MAP takes
 # libc.a, libm.a and libgcc.a from the studio's ee-gcc 2.9-991111-01 install and
 # every other archive from Sony's SDK install (/usr/local/sce/ee/lib, version
 # strings PsIIlib* 2200 and 2240 in the ELF). The game and the compiler-install
 # libraries were assembled by the assembler bundled with that compiler,
 # EE_AS_OLD: 142 game TUs and 12 libc/libm TUs give the ROM's bytes only under
-# it. The
-# SDK-install archives were compiled by a compiler code-identical to it (SCE's
+# it. The SDK-install archives were compiled by a compiler code-identical to it (SCE's
 # later 2.96 is ruled out by size) but assembled by a later gas that fills
 # reorder-mode branch delay slots: sceGsSyncPath, sceScfSetT10kConfig and
 # cmd_sem_init are the compiler's own output plus that swap, and all 58 archive
@@ -127,7 +120,6 @@ if [ -n "${DUMP_DIR:-}" ]; then
     }
     trap _collect_dumps EXIT
 fi
-ASFLAGS="-EL -march=r5900 -G ${GNUM} -no-pad-sections"
 # -mabi=eabi is what the ee-gcc driver itself passes its assembler (its specs:
 # `*abi_gas_asm_spec: %{mabi=*} %{!mabi=*:-mabi=eabi}`); both assemblers take it
 # and it sets only the EF_MIPS_ABI_EABI64 bit (0x4000) of e_flags.
@@ -176,7 +168,7 @@ else
     ( cd "$(dirname "${SRC_ABS}")" && "${ROOT}/tools/period_env.sh" "${CC}" -B "${EEGCC_LIB}" ${CFLAGS} -o "${S_ABS}" "$(basename "${SRC_ABS}")" )
 fi
 
-# Dump mode: the dumps were moved out by the EXIT trap armed below (it runs whether or not the
+# Dump mode: the dumps are moved out by the EXIT trap armed above (it runs whether or not the
 # compile or the assembly succeeded, so a failed run never leaves <basename>.c.<pass> files in
 # the tree).
 if [ -n "${DUMP_DIR:-}" ]; then
@@ -213,7 +205,6 @@ esac
 # shellcheck disable=SC2086
 if "${ROOT}/tools/period_env.sh" "${SELECTED_EE_AS}" ${EE_ASFLAGS} -o "${OUT}" "${S}" 2>"${OUT}.aserr"; then
     rm -f "${OUT}.aserr"
-    "${OBJCOPY}" "${OUT}" "${OUT}"
 else
     echo "compile_c.sh: assembler ${SELECTED_EE_AS} REJECTED ${S}" >&2
     grep -iE 'error' "${OUT}.aserr" | head -20 >&2 || head -20 "${OUT}.aserr" >&2

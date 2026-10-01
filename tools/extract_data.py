@@ -1,38 +1,36 @@
 #!/usr/bin/env python3
-"""tools/extract_data.py -- write the data-only members' assembly from the base ELF.
+"""tools/extract_data.py -- write a data-only member row as assembly from the base ELF.
 
-The retail link carries ico2000.a members that have .data/.rodata/.sdata but no
-.text: game data tables (obj-layout, model-path, motion-def, sedef, way-point,
-...). They are never committed as C (user decision 2026-09-30). The build
-extracts their bytes from the user's own baserom/pal/baseelf.elf, one assembly
-file per (member, section) row of config/data_members.pal.txt:
+The rows of config/data_members.pal.txt that config/data_schema.pal.txt does
+not type (today the one transitional .sbss word) are written as assembly
+from the user's own baserom/pal/baseelf.elf, one file per (member, section)
+row, and never committed:
 
     build/data/<member>.<section>.s
 
 Each file switches to the row's section, aligns to the member's natural
 alignment (the largest power of two dividing its start, capped at 16), defines
 a global label for every MAIN.MAP symbol the row names at its offset, and
-spells the bytes as .word where the address is 4-aligned and .byte otherwise.
-Pointers inside the tables stay absolute words: every address is fixed by the
-link, so nothing needs a relocation.
+spells the bytes as .word where the address is 4-aligned and .byte otherwise
+(.space for a NOBITS row). Pointers inside the tables stay absolute words:
+every address is fixed by the link, so nothing needs a relocation. ninja
+assembles the file with the game's assembler and flags (tools/gen_ninja.py's
+as_old rule), and the byte gate compares the result with the ROM.
+
+The table parser (parse_table), the ROM reader (rom_bytes) and natural_align
+also serve tools/gen_data_c.py and tools/gen_ninja.py.
 
 Usage:
     tools/extract_data.py [--table T] [--elf E] [--out-dir D]
-                          [--extra-labels F] [--assemble] [--only MEMBER.SECTION ...]
+                          [--extra-labels F] [--only MEMBER.SECTION ...]
 
---assemble also assembles every written file with the period assembler the way
-tools/compile_c.sh assembles game code (tools/period_env.sh + the ee-gcc
-2.9-991111 as, -EL -mcpu=5900 -G 8) and checks that the object's section bytes
-equal the ROM range exactly; any difference is an error.
-
---extra-labels names a file of "<symbol> <vma>" lines: each symbol inside a
-row's range is also defined, as a global label at that address. The table only
-carries MAIN.MAP's names; this is for links whose other objects still refer to
-the tables by placeholder names.
+--extra-labels names a file of "<symbol> <vma>" lines (build/data_labels.txt):
+each symbol inside a row's range is also defined, as a global label at that
+address, for a source that reads the row at an interior offset under a
+placeholder name.
 """
 
 import argparse
-import subprocess
 import sys
 from pathlib import Path
 
@@ -42,9 +40,6 @@ ROOT = Path(__file__).resolve().parent.parent
 SECTIONS = ("data", "rodata", "sdata", "sbss")
 # Sections with no file bytes: the row is that many zero bytes, written as .space.
 NOBITS = ("sbss",)
-EE_AS = ROOT / "tools/cc/ee-gcc2.9-991111/bin/as"
-PERIOD_ENV = ROOT / "tools/period_env.sh"
-EE_ASFLAGS = ["-EL", "-mcpu=5900", "-G", "8"]
 
 
 def parse_table(path):
@@ -141,37 +136,12 @@ def render(row, data, extra):
     return "\n".join(out)
 
 
-def assemble_and_check(src, row, data):
-    obj = src.with_suffix(".o")
-    r = subprocess.run([str(PERIOD_ENV), str(EE_AS), *EE_ASFLAGS, "-o", str(obj), str(src)],
-                       capture_output=True, text=True)
-    if r.returncode != 0:
-        sys.exit(f"{src}: assembler failed:\n{r.stderr}")
-    with open(obj, "rb") as fh:
-        e = ELFFile(fh)
-        s = e.get_section_by_name("." + row["section"])
-        if row["section"] in NOBITS:
-            got = bytes(s["sh_size"]) if s is not None else b""
-        else:
-            got = s.data() if s is not None else b""
-        for other in (".data", ".rodata", ".sdata", ".text"):
-            t = e.get_section_by_name(other)
-            if other != "." + row["section"] and t is not None and t["sh_size"]:
-                sys.exit(f"{obj}: unexpected bytes in {other}")
-    if got != data:
-        diff = next((i for i in range(min(len(got), len(data))) if got[i] != data[i]), min(len(got), len(data)))
-        sys.exit(f"{obj}: .{row['section']} differs from the ROM at 0x{row['lo'] + diff:x} "
-                 f"(object {len(got)} B, ROM {len(data)} B)")
-    return obj
-
-
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--table", type=Path, default=ROOT / "config/data_members.pal.txt")
     ap.add_argument("--elf", type=Path, default=ROOT / "baserom/pal/baseelf.elf")
     ap.add_argument("--out-dir", type=Path, default=ROOT / "build/data")
     ap.add_argument("--extra-labels", type=Path)
-    ap.add_argument("--assemble", action="store_true")
     ap.add_argument("--only", nargs="*", help="MEMBER.SECTION names to write (default: every row)")
     args = ap.parse_args()
 
@@ -199,9 +169,6 @@ def main():
             data = rom_bytes(elf, r["lo"], r["hi"], r["section"])
             src = args.out_dir / f"{key}.s"
             src.write_text(render(r, data, extra))
-            if args.assemble:
-                assemble_and_check(src, r, data)
-                print(f"ok {key} 0x{r['lo']:x}..0x{r['hi']:x}")
 
 
 if __name__ == "__main__":

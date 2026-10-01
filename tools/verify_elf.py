@@ -1,23 +1,18 @@
 #!/usr/bin/env python3
 """
-verify_elf.py — confirm the SHA-1 of an extracted or built artifact matches
+verify_elf.py: confirm the SHA-1 of an extracted or built artifact matches
 the value recorded in config/sha1sums.txt.
 
 tools/build.sh setup runs it on the base ELF and ROM. Exits 0 on match,
 non-zero on mismatch or missing target.
 
 config/sha1sums.txt is keyed by BASENAME (baseelf.elf / baseelf.rom) on every
-branch — each branch records only its own target's hashes — so the same
+branch, each branch recording only its own target's hashes, so the same
 lookup works whether the file lives at baserom/ (us) or baserom/<ver>/
-(pal, aug6).
-
-The recorded-name lookup defaults to the basename of --target, but can be
-overridden with --name (useful when verifying build/ico.rom against the
-'baseelf.rom' entry).
+(pal, aug6). (The built ROM's SHA-1 is checked by tools/check_elf.py --gate.)
 
     verify_elf.py --target baserom/pal/baseelf.elf
     verify_elf.py --target baserom/pal/baseelf.rom
-    verify_elf.py --target build/ico.rom --name baseelf.rom
 """
 
 from __future__ import annotations
@@ -56,9 +51,6 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--target", required=True, type=Path,
                     help="path to artifact to verify")
-    ap.add_argument("--name", default=None,
-                    help="name to look up in sha1sums.txt "
-                         "(default: basename of --target)")
     args = ap.parse_args(argv)
 
     target: Path = args.target
@@ -66,7 +58,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"verify_elf: target not found: {target}", file=sys.stderr)
         return 2
 
-    name = args.name or target.name
+    name = target.name
     recorded = load_recorded(name)
     if recorded is None:
         print(

@@ -4,14 +4,15 @@
 #   tools/format.sh --check    # exit 1 if any tracked .c is not formatted (pre-commit)
 #   tools/format.sh FILE...    # format just these files
 # Whitespace and line breaks only. The game compiles with -g, where a moved
-# line break can change the code, so run the byte gate after formatting. The binary is the `clang-format` wheel in the venv
-# (tools/setup.sh installs it); without it the check is skipped with a note.
+# line break can change the code, so run the byte gate after formatting. The
+# binary is the `clang-format` wheel in the venv (tools/setup.sh installs it);
+# without it the script fails.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CF="$ROOT/.venv/bin/clang-format"
 if [[ ! -x "$CF" ]]; then
-    echo "format: $CF not found (pip install clang-format into the venv); skipping" >&2
-    exit 0
+    echo "format: $CF not found; run tools/setup.sh (it installs tools/requirements.txt)" >&2
+    exit 1
 fi
 mode=format
 if [[ "${1:-}" == "--check" ]]; then mode=check; shift; fi

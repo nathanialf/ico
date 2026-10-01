@@ -4,6 +4,7 @@
 #   1. tools/setup.sh, when the toolchain under tools/cc/ or the venv is
 #      missing (Ghidra and pcsx2 are skipped here; run tools/setup.sh by hand
 #      for them).
+#      Then a check for mips-linux-gnu-objcopy, a host package.
 #   2. tools/extract_elf.sh, when baserom/pal/baseelf.elf is missing. It reads
 #      baserom/Ico_PAL.iso, the user's own image of the PAL disc.
 #   3. tools/build.sh setup when build.ninja is missing (delete build/, verify
@@ -43,6 +44,14 @@ if ! toolchain_ok; then
         echo "  see its output above (32-bit host libraries, network access)." >&2
         exit 1
     fi
+fi
+
+# The ROM view (build.ninja's rom rule) needs a host package setup.sh cannot
+# install; say so before ninja fails on it.
+if ! command -v mips-linux-gnu-objcopy >/dev/null 2>&1; then
+    echo "build.sh: mips-linux-gnu-objcopy is not on PATH;" >&2
+    echo "  install it (Debian/Ubuntu: sudo apt-get install binutils-mips-linux-gnu)." >&2
+    exit 1
 fi
 
 if [[ ! -f "$BASEELF" ]]; then

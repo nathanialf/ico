@@ -13,8 +13,10 @@
 #   <path>             a source file (.c compiled by tools/compile_c.sh, .s
 #                      assembled per archive, ico2/vusrc/*.dsm by dvp-as)
 #   data:<member>      a data-only ico2000.a member: every row of
-#                      config/data_members.pal.txt for it, extracted from the
-#                      user's base ELF by tools/extract_data.py. Inside each
+#                      config/data_members.pal.txt for it, generated from the
+#                      user's base ELF at build time (tools/gen_data_c.py for
+#                      a member config/data_schema.pal.txt types, else
+#                      tools/extract_data.py). Inside each
 #                      run of them the order is MAIN.MAP's: its sections keep
 #                      their ROM order and interleave by member name.
 #

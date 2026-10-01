@@ -94,18 +94,16 @@ if [[ -f "$EEGCC_BIN" ]] && ! "$EEGCC_BIN" --version >/dev/null 2>&1; then
 EOF
 fi
 
-# --- 2b. MIPS objcopy (the ROM view and compile_c.sh's object step) ---------
+# --- 2b. MIPS objcopy (build/ico.rom, the ROM view of the linked ELF) -------
 
 if [[ "${SKIP_TOOLCHAIN:-0}" == "1" ]]; then
     :
-elif command -v mips64r5900el-ps2-elf-objcopy >/dev/null 2>&1; then
-    echo "==> system EE binutils detected"
 elif command -v mips-linux-gnu-objcopy >/dev/null 2>&1; then
-    echo "==> using mips-linux-gnu binutils (objcopy)"
+    echo "==> using mips-linux-gnu-objcopy"
 else
     cat <<'EOF' >&2
 
-==> No MIPS linker/objcopy on PATH.
+==> mips-linux-gnu-objcopy is not on PATH.
 
 Quickest fix on Debian/Ubuntu:
 

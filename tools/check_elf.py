@@ -6,31 +6,30 @@ derive progress from that comparison and the link map.
               .vutext .data .rodata .lit4 .sdata; a zero-sized one such as
               .vudata is listed and trivially passes) the built ELF must hold
               the same bytes at the same addresses. The built ELF's section
-              names do not matter, only
-              addresses. For the NOBITS sections (.sbss .bss) the built ELF
-              must allocate the base's address range; the share of it owned
-              by an object under build/ico2/ or build/sce/ is reported. Then the ROM SHA-1
-              against config/sha1sums.txt (gated) and the ELF SHA-1 (reported,
-              gated only with --require-elf-sha). A second, informational
-              table compares .reginfo, the .DVP.* sections, e_flags, e_entry,
-              program and section headers. Exit 0 only when every gated
-              check passes.
+              names do not matter, only addresses. For the NOBITS sections
+              (.sbss .bss) the built ELF must allocate the base's address
+              range; the share of it owned by an object under build/ico2/ or
+              build/sce/ is reported. Then the ROM SHA-1 against
+              config/sha1sums.txt (gated) and the ELF SHA-1 (reported, gated
+              only with --require-elf-sha, kept for the ELF-identity work
+              --full-diff measures). A second, informational table compares
+              .reginfo, the .DVP.* sections, e_flags, e_entry, program and
+              section headers. Exit 0 only when every gated check passes.
 
   --progress  Rewrite README.md's badge block, docs/PROGRESS.md's table and
-              docs/progress.json (schema 2) from the same comparison. A byte
-              counts for its section when the map row that places it belongs
-              to an object under build/ico2/ or build/sce/ AND the byte equals
-              the base's (NOBITS: ownership only, there is nothing to
-              compare). Fill belongs to the object it follows, in every
-              section: a `*fill*` row counts with the input section that ends
-              where it starts, so an object's trailing pad is the object's
-              (a data-only member's tail fill counts with the member, as it
-              did while the member was one assembled row). Objects under
-              build/data/ (the data-only
-              members, generated at build time from the user's own base ELF,
-              as C for the members config/data_schema.pal.txt lists and as
-              assembly for the rest) are counted separately as `extracted`:
-              their content comes from the user's disc, not the repository.
+              docs/progress.json (schema 2) from the same comparison, in two
+              shares. From source: a byte counts for its section when the
+              map row that places it belongs to an object under build/ico2/
+              or build/sce/ AND the byte equals the base's (NOBITS: ownership
+              only, there is nothing to compare). From the disc (`extracted`):
+              the same count for the objects under build/data/, the data-only
+              members generated at build time from the user's own base ELF (as
+              C for the members config/data_schema.pal.txt lists, as assembly
+              for the rest), whose content is not in the repository.
+              Fill belongs to the object it follows, in every section: a
+              `*fill*` row counts with the input section that ends where it
+              starts, so an object's trailing pad, a data-only member's
+              included, is the object's.
 
   --full-diff The whole file, built vs base, for the ELF-identity work: ELF
               header fields side by side, program headers, section headers
