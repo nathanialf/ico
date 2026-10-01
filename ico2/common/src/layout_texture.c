@@ -1,4 +1,5 @@
 #include "typedef.h"
+#include "layout_texture.h"
 #include "debug.h"
 #include "StageManager.h"
 #include "gflag.h"
@@ -69,8 +70,6 @@ static int selectFrame; /* derived name */
 static unsigned int fadeLength; /* derived name */
 
 static unsigned int fadeCount; /* derived name */
-
-#include "layout_texture.h"
 
 /* memset with an int count, which this TU's calls pin over <string.h>'s
    unsigned one */

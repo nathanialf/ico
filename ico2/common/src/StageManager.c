@@ -1,3 +1,4 @@
+#include "StageManager.h"
 #include "backStage.h"
 #include "debug.h"
 #include "debug_menu.h"
@@ -58,7 +59,6 @@ static int stagePreLoadForceStageNo; /* derived name */
    where IOSThread's flags is the int ios/thread.c tests */
 static unsigned int initIcoMiscThread[28]; /* derived name */
 
-#include "StageManager.h"
 #include "main.h"
 #include <libgraph.h>
 #include <libvu0.h>

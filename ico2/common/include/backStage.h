@@ -17,7 +17,7 @@ void backStageProcessInStage(float arg);
 void backStageProcessOutStage(void);
 void backStageProcessMain(void);
 /* The enemy carrying the heroine off, which sceneManager sets when it takes her. */
-extern int backStageGirlTargetEnemyGop;
+extern struct GObj *backStageGirlTargetEnemyGop;
 
 /* the gamesys object-info record */
 typedef struct GamesysObjInfo { /* field names derived */

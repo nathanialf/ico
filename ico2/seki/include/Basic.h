@@ -31,9 +31,9 @@ void malloc_MemCpy(void *dst, void *src, int size);
 #define SIGNF(x) ((x) < 0.0f ? -1.0f : ((x) > 0.0f ? 1.0f : 0.0f)) /* derived name */
 
 /* Basic.c's globals */
-extern int *dmaVif;
-extern int *dmaGif;
-extern int *dmaFSp;
+extern struct DmaChan *dmaVif;
+extern struct DmaChan *dmaGif;
+extern struct DmaChan *dmaFSp;
 extern int fadeStatus;
 extern float fadeSpeed;
 extern int fadeContinue;

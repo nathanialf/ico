@@ -228,20 +228,17 @@ static void disp_memory_partition(void)
     }
 }
 
-static int prevCameraPos = 0; /* derived name */
+static void *prevCameraPos = 0; /* derived name */
 
 static int seEnvMute = 0; /* derived name */
 
 static int diskErrorBlink = 0; /* derived name */
 
-/* the definition in script.c is (void); this caller passes the camera */
-extern void scpGirlHintVoiceTickProc(int cam);
-
 void ExecIcoMisc(void)
 {
     int total;
     int used;
-    int cam;
+    void *cam;
 
     if (debug_mem_partition_flag == 1) {
         disp_memory_partition();

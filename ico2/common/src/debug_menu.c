@@ -41,7 +41,7 @@ int debug_TargetGObj(int reset)
         savedCameraTarget = t;
         targetGObjIdx = GetGObjId(t);
     }
-    ret = debug_SelectCsvWindowVal((int)"object target", 10, 60, 10, n, (int)&targetGObjIdx,
+    ret = debug_SelectCsvWindowVal("object target", 10, 60, 10, n, &targetGObjIdx,
                                    (int (*)(int, int))debug_TargetGObj_Func, 0);
     if (targetGObj != GetGObjP(targetGObjIdx)) {
         CameraSetMode(2);

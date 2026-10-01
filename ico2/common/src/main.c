@@ -24,6 +24,7 @@
 #include "act-game.h"
 #include "obj_manager.h"
 #include "StageAnimation.h"
+#include "mv_main.h"
 #include "libgraph.h"
 #include <stdlib.h>
 
@@ -103,10 +104,6 @@ static void idle(void);
 static void scheduler(void);
 /* motionOrientManager.h carries MotOriName and declares no movieFile */
 extern char movieFile[];
-/* mv_main.h does not declare it; the definition takes char * and returns int */
-extern void movie_init(void *p, int w, int h, int a3, int a4, int a5, int col);
-/* mv_main.h does not declare it either */
-extern int movie_proc(int (*poll)(void));
 /* geometryManager.h does not declare it */
 extern void MakeCharGObjList(void);
 int movie_abort_check(void);

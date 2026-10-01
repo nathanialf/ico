@@ -4,6 +4,7 @@
 #include <eekernel.h>
 #include <stdio.h>
 #include <sifrpc.h>
+#include <sifcmd.h>
 #include <libcdvd.h>
 #include <libcdvd_internal.h>
 

@@ -170,7 +170,7 @@ void debug_Assert(char *fmt, ...);
 void debug_DispQW(void *p, int size);
 void debug_Init(void);
 int debug_MemoryCard(void);
-void debug_PrintFontWindow(int col, char *fmt, ...);
+void debug_PrintFontWindow(int col, const char *fmt, ...);
 void debug_Printf(int a, int b, unsigned int c, const char *fmt, ...);
 void debug_PrintfDummy(int x, int y, unsigned int col, const char *fmt, ...);
 int debug_SETest(int reset);
@@ -187,8 +187,8 @@ void debug_FlushFont(void);
 void debug_VariableInit(void);
 int debug_SnapShot(int idx);
 
-int debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5, int (*fn)(int, int),
-                             int a7);
+int debug_SelectCsvWindowVal(char *title, int x, int y, int rows, int count, int *psel,
+                             int (*fn)(int, int), int arg);
 
 void debug_SESlotDisp(void);
 

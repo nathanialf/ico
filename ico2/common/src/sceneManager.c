@@ -466,11 +466,11 @@ static inline void initSceneGObjRange(int stage, int first, int last) /* derived
 
 static inline void setEnemyGeneratorDispFlag(void) /* derived name */
 {
-    int *gobj;
+    GObj *gobj;
 
     for (gobj = isysGObjSearchFromObjKindID_begin(4); gobj != 0;
          gobj = isysGObjSearchFromObjKindID_next(gobj)) {
-        GenGeo *gen = &objLayout[gobj[2]];
+        GenGeo *gen = &objLayout[gobj->labelId];
 
         gen->flags |= 0x200000;
     }

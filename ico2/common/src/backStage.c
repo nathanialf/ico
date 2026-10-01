@@ -22,7 +22,7 @@
 #include "gamesys.h"
 
 /* the enemy the heroine is carried off by */
-int backStageGirlTargetEnemyGop = 0;
+GObj *backStageGirlTargetEnemyGop = 0;
 
 /* .sbss: the off-stage kidnap state, in the order backStageSave writes it to
    the memory card. */
@@ -78,7 +78,7 @@ void backStageProcessOutStage(void)
     int i;
     int gen;
     void *p;
-    char *o;
+    GObj *o;
 
     done = 0;
     if (gflagChk(394) != 0) {
@@ -165,15 +165,15 @@ void backStageProcessOutStage(void)
     } else {
         o = isysGObjSearchFromObjKindID_begin(4);
         while (o != 0) {
-            if (*(int *)(o + 8) == 0xEAD) {
-                gamesysObjInfoCls(4, 0xEAD);
+            if (o->labelId == 3757) {
+                gamesysObjInfoCls(4, 3757);
             }
             o = isysGObjSearchFromObjKindID_next(o);
         }
         o = isysGObjSearchFromObjKindID_begin(33);
         while (o != 0) {
-            if (*(int *)(o + 8) == 0xEAE) {
-                gamesysObjInfoCls(0x21, 0xEAE);
+            if (o->labelId == 3758) {
+                gamesysObjInfoCls(33, 3758);
             }
             o = isysGObjSearchFromObjKindID_next(o);
         }
@@ -192,7 +192,7 @@ void backStageProcessMain(void)
     if (gflagChk(390) != 0) {
         return;
     }
-    if (current_layout_id != 0x36) {
+    if (current_layout_id != 54) {
         return;
     }
     if (stage_no == gameSysObjInfo[1].stage) {
@@ -248,7 +248,7 @@ void backStageProcessMain(void)
     }
 }
 
-static void routeSetPos(int gobj0, int gobj1, float *out, float ratio)
+static void routeSetPos(GObj *gobj0, GObj *gobj1, float *out, float ratio)
 {
     Vec16 p0;
     Vec16 cur;
@@ -260,7 +260,7 @@ static void routeSetPos(int gobj0, int gobj1, float *out, float ratio)
     int i;
     int n;
 
-    len = WayLengthOfGObj_GObj((void *)gobj0, (void *)gobj1);
+    len = WayLengthOfGObj_GObj(gobj0, gobj1);
     GetRootPosition(p0.f, gobj0);
     if (1.0f <= ratio) {
         GetRootPosition(out, gobj1);
@@ -273,7 +273,7 @@ static void routeSetPos(int gobj0, int gobj1, float *out, float ratio)
         target = len * ratio;
         debug_StdPrintfDummy("way num %d\n", n);
         for (i = 0; i < n; i++) {
-            CopyWpPos(cur.f, i, i);
+            CopyWpPos(&cur.f, i, i);
             if (i == 0) {
                 sum = 0.0f;
             } else {
@@ -289,7 +289,7 @@ static void routeSetPos(int gobj0, int gobj1, float *out, float ratio)
         if (i != 0) {
             i--;
         }
-        CopyWpPos(cur.f, i, i);
+        CopyWpPos(&cur.f, i, i);
         sceVu0CopyVector(out, cur.f);
         debug_StdPrintfDummy("set pos_table %f %f %f\n", out[0], out[1], out[2]);
     } else {
@@ -300,7 +300,7 @@ static void routeSetPos(int gobj0, int gobj1, float *out, float ratio)
 }
 
 /* inlined at both of its call sites */
-static inline void kidnapWarpToWaypoint(int gobj, float range) /* derived name */
+static inline void kidnapWarpToWaypoint(GObj *gobj, float range) /* derived name */
 {
     Vec16 p;
     Vec16 wp;
@@ -314,7 +314,7 @@ static inline void kidnapWarpToWaypoint(int gobj, float range) /* derived name *
         return;
     }
     k = (n * (rand() & 0xFFFF)) >> 16;
-    CopyWpPos(wp.f, k, k);
+    CopyWpPos(&wp.f, k, k);
     wp.f[1] = wp.f[1] - GOBJ_SUB(gobj)->skel->pos[1];
     SetDirectRootPosition(gobj, wp.f);
 }
@@ -324,8 +324,8 @@ void backStageProcessInStage(float arg)
     float range;
     float limit;
     float rest;
-    int gobj;
-    int t;
+    GObj *gobj;
+    GObj *t;
 
     range = (float)((unsigned int)(gamesysTimeCount - gamesysStageExitTime[stage_no]) /
                     ((60 - systemStatus[0] * 10) / systemStatus[1])) *
@@ -363,8 +363,7 @@ void backStageProcessInStage(float arg)
                     kidnapWarpToWaypoint(gobj, range);
                 }
             } else {
-                t = isysGObjSearchFromObjLayoutID(
-                    eBrainGetTargetGeneratorFromLabel(*(int *)(gobj + 8)));
+                t = isysGObjSearchFromObjLayoutID(eBrainGetTargetGeneratorFromLabel(gobj->labelId));
                 if (t != 0) {
                     Vec16 pos;
                     Vec16 root;

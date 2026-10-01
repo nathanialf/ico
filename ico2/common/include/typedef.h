@@ -1054,7 +1054,7 @@ typedef struct ClipWork { /* field names derived */
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
 typedef struct { /* field names derived */
-    int girl;
+    GObj *girl;
     BrainTarget *cur;
     int lock;           /* 0x08, brainLockGirl: every level held at 0 */
     int spMode;         /* 0x0C, brainSetSpMode's one-frame request */

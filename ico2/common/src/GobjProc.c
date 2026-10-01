@@ -74,23 +74,25 @@ GObj *InitCameraGObjs(int a0, int from, int to)
     return g;
 }
 
-inline GObj *CreateGObjByFuncSet(int a0, int a1, int a2, int a3, int a4, int a5, int a6)
+inline GObj *CreateGObjByFuncSet(void (*before)(GObj *), void (*ai)(GObj *), void (*geo)(GObj *),
+                                 void (*afterGeo)(GObj *), void (*start)(), void (*dl)(GObj *),
+                                 int key)
 {
     GObj *g;
 
-    g = isysGObjAdd(a0, 0, 0);
+    g = isysGObjAdd(before, 0, 0);
     g->act = 0;
     g->labelType = 1;
     g->labelId = -1;
     g->kind = -1;
     g->active = 1;
     gobj_table[gobjCount++] = g;
-    isysGObjProcAdd(g, a1, 1, 0x16);
-    isysGObjProcAdd(g, a2, 1, 0x17);
-    isysGObjProcAdd(g, a3, 1, 0x18);
-    isysGObjLinkObjDL(g, a5, 0, a6, 0xFFFFFFFF);
-    if (a4 != 0) {
-        isysGObjProcAddS(g, a4, 0, 0x13, 0x1800);
+    isysGObjProcAdd(g, ai, 1, 22);
+    isysGObjProcAdd(g, geo, 1, 23);
+    isysGObjProcAdd(g, afterGeo, 1, 24);
+    isysGObjLinkObjDL(g, dl, 0, key, 0xFFFFFFFF);
+    if (start != 0) {
+        isysGObjProcAddS(g, start, 0, 19, 6144);
     }
     return g;
 }
@@ -98,13 +100,12 @@ inline GObj *CreateGObjByFuncSet(int a0, int a1, int a2, int a3, int a4, int a5,
 GObj *CreateGObj(ObjKindEnt *p, int a1, int a2, int a3, int a4)
 {
     GObj *g;
-    int r21 = 0;
+    void (*start)() = 0;
 
     if (a4 != 0) {
-        r21 = (int)p->start;
+        start = p->start;
     }
-    g = CreateGObjByFuncSet((int)p->before, (int)p->ai, (int)p->geo, p->afterGeo, r21, (int)p->dl,
-                            a3);
+    g = CreateGObjByFuncSet(p->before, p->ai, p->geo, p->afterGeo, start, p->dl, a3);
     g->labelId = a2;
     isysGObjKindTableAdd(g, a1);
     return g;

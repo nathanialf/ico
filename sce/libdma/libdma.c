@@ -9,9 +9,10 @@
  * sceDmaDebugMode, the build stamp, sceDmaReset's channel list and
  * sceDmaPutEnv's three D_CTRL code tables, then the global sceDmaCurrentEnv. */
 /* The ten channel register blocks, VIF0 to toSPR. */
-int dch[10] = {
-    (int)D0_CHCR, (int)D1_CHCR, (int)D2_CHCR, (int)D3_CHCR, (int)D4_CHCR,
-    (int)D5_CHCR, (int)D6_CHCR, (int)D7_CHCR, (int)D8_CHCR, (int)D9_CHCR,
+DmaChan *dch[10] = {
+    (DmaChan *)D0_CHCR, (DmaChan *)D1_CHCR, (DmaChan *)D2_CHCR, (DmaChan *)D3_CHCR,
+    (DmaChan *)D4_CHCR, (DmaChan *)D5_CHCR, (DmaChan *)D6_CHCR, (DmaChan *)D7_CHCR,
+    (DmaChan *)D8_CHCR, (DmaChan *)D9_CHCR,
 };
 
 int sceDmaDebugMode = 0;
@@ -32,7 +33,7 @@ static unsigned char stdCode[16] = {0, 2, 3}; /* derived name */
 
 DmaEnv sceDmaCurrentEnv = {0};
 
-int sceDmaGetChan(unsigned int a0)
+DmaChan *sceDmaGetChan(unsigned int a0)
 {
     if (a0 < 0xA) {
         return dch[a0];

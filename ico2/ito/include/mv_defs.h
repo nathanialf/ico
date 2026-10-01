@@ -37,7 +37,7 @@ static __inline__ int uncached_accel_addr(int p) /* derived name */
 #include <string.h>
 #include <assert.h>
 #include "ios.h"
-void *iosMallocAlignDebug(struct IosMemPart *part, int size, int align, char *file, int line);
+void *iosMallocAlignDebug(struct IosMemPart *part, int size, int align, const char *file, int line);
 void debug_assert(const char *file, int line);   /* assert reporter */
 static __inline__ int alloc_zeroed(int size, int align) /* derived name */
 { int p = (int)iosMallocAlignDebug(ios_partition_mpeg, size, align, __FILE__, __LINE__);

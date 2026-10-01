@@ -12,7 +12,8 @@
 
 /* GobjProc.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
-GObj *CreateGObjByFuncSet(int a0, int a1, int a2, int a3, int a4, int a5, int a6);
+GObj *CreateGObjByFuncSet(void (*before)(GObj *), void (*ai)(GObj *), void (*geo)(GObj *),
+                          void (*afterGeo)(GObj *), void (*start)(), void (*dl)(GObj *), int key);
 GObj *CreateGObj(ObjKindEnt *kind, int id, int a2, int a3, int a4);
 int GetGObjId(GObj *gobj);
 GObj *GetGObjP(int idx);

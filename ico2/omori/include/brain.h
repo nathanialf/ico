@@ -22,7 +22,7 @@ float brainGetLevel(Brain *b, BrainTarget *t);
 void brainGetTarget(Brain *b);
 int brainDecTargetTimer(GObj *gobj);
 void brainInit(void);
-void brainInitGirlSet(void *girl, int cur);
+void brainInitGirlSet(GObj *girl, GObj *cur);
 void brainLevelProcess(Brain *b);
 void brainLockGirl(void);
 void brainSetLevelGop(GObj *gobj, float lv, int lookOnly, int alwaysSeen);

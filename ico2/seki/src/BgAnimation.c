@@ -1699,7 +1699,7 @@ static void bga_CalcObject(BgaDObjEnt *d, float dt, float frame, int cut, int pl
         }
         if (cut != 0 && d->type == 2) {
             if (debug_font_flag & 1) {
-                debug_Printf(600, ScreenHeight / 2 - 8, 0xCCCCCC00, (int)"LWS");
+                debug_Printf(600, ScreenHeight / 2 - 8, 0xCCCCCC00, "LWS");
             }
             bga_checkCameraDistance();
         }

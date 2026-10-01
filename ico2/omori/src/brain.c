@@ -329,26 +329,21 @@ void brainClsTargetLevel(Brain *b)
     brainSetTargetTimer(t);
 }
 
-void brainInitGirlSet(void *girl, int cur)
+void brainInitGirlSet(GObj *girl, GObj *cur)
 {
-    int *base = (int *)&brainGirl;
-    int *p = (int *)((char *)base + 0x28);
-    int key;
-    int t;
-    brainGirl.girl = (int)girl;
-    key = *p;
-    if (key == 0) {
+    Brain *b = &brainGirl;
+    BrainTarget *t = b->tgt;
+    b->girl = girl;
+    if (t->gobj == 0) {
         return;
     }
     do {
-        if (key == cur) {
-            base[1] = (int)p;
+        if (t->gobj == cur) {
+            b->cur = t;
         }
-        ACTGameView_Add(girl, *p);
-        p = (int *)((char *)p + 0x1C);
-        t = *p;
-        key = t;
-    } while (t != 0);
+        ACTGameView_Add(girl, t->gobj);
+        t++;
+    } while (t->gobj != 0);
 }
 
 void brainAddLevelGirlDetail(int flag, float lv)

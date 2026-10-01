@@ -771,9 +771,6 @@ typedef struct {
     int val;
 } DbgBoxVal;
 
-/* camera-editor.h does not declare it; the definition takes BoxVec * */
-extern void DebugDispBox(float *centre, float *width);
-
 /* one editable value of the debug ball: its label and the cell it moves */
 typedef struct {
     char *name;
@@ -2191,7 +2188,7 @@ void debug_Printf2(int a, int b, unsigned int c, int x, ...)
     debug_PrintFont(a, b, c, buf);
 }
 
-void debug_PrintFontWindow(int col, char *fmt, ...)
+void debug_PrintFontWindow(int col, const char *fmt, ...)
 {
     char buf[256];
     char *p = buf;
@@ -2458,14 +2455,14 @@ static int debug_Mode(void)
     return ret;
 }
 
-int debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5, int (*fn)(int, int),
-                             int a7)
+int debug_SelectCsvWindowVal(char *title, int x, int y, int rows, int count, int *psel,
+                             int (*fn)(int, int), int arg)
 {
     char buf[count][37];
     int i;
     for (i = 0; i < count; i++) {
         if (fn != 0) {
-            int r = fn(i, a7);
+            int r = fn(i, arg);
             sprintf(buf[i], "%3d %s", i, r);
         } else {
             sprintf(buf[i], "%3d", i);
@@ -2475,7 +2472,7 @@ int debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5, 
             debug_StdPrintfDummy("debug_SelectCsvWindowVal: func return string length over\n");
         }
     }
-    return debug_SelectCsvWindow(a0, a1, a2, a3, (char *)buf, 0x25, 0, 0, count, a5);
+    return debug_SelectCsvWindow(title, x, y, rows, buf, 37, 0, 0, count, psel);
 }
 
 /* the csv window's scroll counter */
@@ -2859,7 +2856,7 @@ static int debug_mcSaveMainBlock(McMgr *mc)
         if (mc->dirCount >= 11) {
             debug_StdPrintfDummy("debug_mcSaveMainBlock:既に設定された数以上のデータを保存してる\n");
         }
-        r = debug_SelectCsvWindowVal((int)"SAVE NO.", 0x50, 0x46, 0xA, 0xA, (int)&mc->fileNo,
+        r = debug_SelectCsvWindowVal("SAVE NO.", 80, 70, 10, 10, &mc->fileNo,
                                      (int (*)(int, int))debug_saveNumFunc, (int)mc);
         if (r > 0) {
             r = 0;
@@ -2929,7 +2926,7 @@ static int debug_mcLoadMainBlock(McMgr *mc)
         if (mc->dirCount >= 11) {
             debug_StdPrintfDummy("debug_mcLoadMainBlock:既に設定された数以上のデータを保存してる\n");
         }
-        r = debug_SelectCsvWindowVal((int)"SAVE NO.", 0x50, 0x46, 0xA, 0xA, (int)&mc->fileNo,
+        r = debug_SelectCsvWindowVal("SAVE NO.", 80, 70, 10, 10, &mc->fileNo,
                                      (int (*)(int, int))debug_saveNumFunc, (int)mc);
         if (r > 0) {
             r = 0;
@@ -3259,7 +3256,7 @@ inline int debugCdvdLoadInfoSegDisp(void)
     if (loadInfoPage != 0) {
         strcpy(title, "CD LOAD INFO STAGE");
     }
-    r = debug_SelectCsvWindowVal((int)title, 80, 70, 10, 26, (int)&loadInfoSelect,
+    r = debug_SelectCsvWindowVal(title, 80, 70, 10, 26, &loadInfoSelect,
                                  (int (*)(int, int))debugCdvdLoadInfoSegDispFunc, loadInfoPage);
     if (pad[0].flags & 0x10) {
         int i;

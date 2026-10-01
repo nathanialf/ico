@@ -115,11 +115,11 @@ void malloc_MemCpy(void *dst, void *src, int size)
 }
 
 /* The DMA channel handles and the screen fade state. */
-int *dmaVif = 0;
+DmaChan *dmaVif = 0;
 
-int *dmaGif = 0;
+DmaChan *dmaGif = 0;
 
-int *dmaFSp = 0;
+DmaChan *dmaFSp = 0;
 
 int fadeStatus = 0;
 

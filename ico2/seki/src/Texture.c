@@ -1621,19 +1621,18 @@ static int tex_Tool(int *tno)
      * functions. */
     inline void printInt(int i) /* derived name */
     {
-        debug_PrintfDummy(10, i * 9 + 46, col[i == toolRow], (int)"%s:%d", (int)m[i].label,
-                          *(int *)m[i].var);
+        debug_PrintfDummy(10, i * 9 + 46, col[i == toolRow], "%s:%d", m[i].label, *(int *)m[i].var);
     }
 
     inline void printShort(int i) /* derived name */
     {
-        debug_PrintfDummy(10, i * 9 + 46, col[i == toolRow], (int)"%s:%d", (int)m[i].label,
+        debug_PrintfDummy(10, i * 9 + 46, col[i == toolRow], "%s:%d", m[i].label,
                           *(short *)m[i].var);
     }
 
     inline void printFloat(int i) /* derived name */
     {
-        debug_PrintfDummy(10, i * 9 + 46, col[i == toolRow], (int)"%s:%f", (int)m[i].label,
+        debug_PrintfDummy(10, i * 9 + 46, col[i == toolRow], "%s:%f", m[i].label,
                           *(float *)m[i].var);
     }
 

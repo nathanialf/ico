@@ -140,10 +140,10 @@ void CloseVif1DirectPacket(int a0)
 
 void SendVif1DirectPacket(int *self)
 {
-    int *p;
+    DmaChan *p;
     sceGsSyncPath(0, 0);
     p = sceDmaGetChan(1);
-    *p |= 0x40;
+    p->chcr |= 0x40;
     sceDmaSend(p, (self[0x4 / 4] & 0x3FF0) | 0x80000000);
 }
 
@@ -349,9 +349,9 @@ void PutFont(int c, int x, int y)
 static void resetPath(void)
 {
     sceDmaReset(1);
-    sceDmaSync((int *)sceDmaGetChan(0), 0, 0x64);
-    sceDmaSync((int *)sceDmaGetChan(1), 0, 0x64);
-    sceDmaSync((int *)sceDmaGetChan(2), 0, 0x64);
+    sceDmaSync(sceDmaGetChan(0), 0, 100);
+    sceDmaSync(sceDmaGetChan(1), 0, 100);
+    sceDmaSync(sceDmaGetChan(2), 0, 100);
     *(int *)sceDmaGetChan(0) |= 0x40;
     *(int *)sceDmaGetChan(1) |= 0x40;
     *(int *)sceDmaGetChan(2) |= 0x40;

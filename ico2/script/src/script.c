@@ -1086,7 +1086,7 @@ inline void scpGirlHintVoiceCancel(void)
     }
 }
 
-void scpGirlHintVoiceTickProc(void)
+void scpGirlHintVoiceTickProc(void *cam)
 {
     float rmin = girlHintRangeMin; /* both range globals are read into locals
                                       before the early returns */

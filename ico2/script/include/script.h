@@ -127,6 +127,7 @@ void scpSubAdpcmPlay(struct GObj *volatile a0);
 void scpAdpcmCloseFunc(char **h);
 void scpGirlHintVoiceReady(int kind);
 void scpGirlHintVoicePlay(void);
+void scpGirlHintVoiceTickProc(void *cam);
 
 void scpSekizou(struct GObj *self, int flag, int anim, int anim2, int kind, float bx, float by,
                 float bz, float gx, float gy, float gz);

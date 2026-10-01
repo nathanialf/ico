@@ -1,5 +1,6 @@
 /* libc.a member strtod.o */
 #include <stdlib.h>
+#include <string.h>
 #include <reent.h>
 #include <libc_internal.h>
 

@@ -176,7 +176,7 @@ void shadow_Reset(void)
 void shadow_Draw(void)
 {
     if (debug_font_flag & 1) {
-        debug_Printf(500, ScreenHeight / 2 - 8, 0xCCCCCC00u, (int)"S");
+        debug_Printf(500, ScreenHeight / 2 - 8, 0xCCCCCC00u, "S");
     }
     {
         /* the four level tables, this block's statics */
@@ -1185,11 +1185,11 @@ inline void shadow_KillShadow(int val)
 
 inline void shadow_DispCancel(int a0, int a1)
 {
-    char *obj = isysGObjGetExist_begin();
+    GObj *obj = isysGObjGetExist_begin();
     if (obj != 0) {
         long long bit = (long long)(a1 & 1) << 26;
         do {
-            Sub15C *node = ((GObj *)obj)->dobj;
+            Sub15C *node = obj->dobj;
             if (node != 0) {
                 PObjModel *dl = node->model;
                 if (dl != 0) {
@@ -1217,7 +1217,7 @@ inline void shadow_SetLength(Sub15C *a0, float f)
 
 inline void shadow_Init(void)
 {
-    char *obj;
+    GObj *obj;
     killShadow = 0;
     killShadowRequest = 0;
     for (obj = isysGObjGetExist_begin(); obj != 0; obj = isysGObjGetExist_next(obj)) {
@@ -1274,15 +1274,14 @@ int shadow_Tool(void)
     int ret = 0;
     int i;
 
-    debug_PrintfDummy(10, 50, 0xFF800000u, (int)"Shadow Tool");
+    debug_PrintfDummy(10, 50, 0xFF800000u, "Shadow Tool");
     for (i = 0; i < 8; i++) {
         if (shadowToolRows[i].min == 0 && shadowToolRows[i].max == 1) {
-            debug_PrintfDummy(0x12, (i + 1) * 8 + 50, shadowRowColor[toolRow == i], (int)"%s : %s",
-                              (int)shadowToolRows[i].name,
-                              (int)shadowOnOffText[*shadowToolRows[i].val]);
+            debug_PrintfDummy(18, (i + 1) * 8 + 50, shadowRowColor[toolRow == i], "%s : %s",
+                              shadowToolRows[i].name, shadowOnOffText[*shadowToolRows[i].val]);
         } else {
-            debug_PrintfDummy(0x12, (i + 1) * 8 + 50, shadowRowColor[toolRow == i], (int)"%s : %d",
-                              (int)shadowToolRows[i].name, *shadowToolRows[i].val);
+            debug_PrintfDummy(18, (i + 1) * 8 + 50, shadowRowColor[toolRow == i], "%s : %d",
+                              shadowToolRows[i].name, *shadowToolRows[i].val);
         }
     }
     if (pad[0].rep & 0x4000) {

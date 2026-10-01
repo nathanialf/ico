@@ -20,9 +20,6 @@
 #include "ios.h"
 #include <assert.h>
 
-/* memory.h does not declare it */
-void *iosMallocDebugNoAssert(IosMemPart *part, int size, const char *file, int line);
-
 Fan2D *prim_InitFan2D(int n, float r, float *pos, unsigned int cc, unsigned int rc)
 {
     Fan2D *f;
