@@ -62,7 +62,7 @@ typedef union { /* field names derived */
 /* the 0x20-byte contact record (Sub15C + 0x180) the environment check keeps
    two copies of */
 typedef struct { /* field names derived */
-    char b[0x20];
+    char b[32];
 } ClipCopy; /* derived name */
 
 /* the actor's environment record (Act + 0x4B0) ACTGetEnvironment fills in:
@@ -77,14 +77,14 @@ typedef struct {             /* field names derived */
     float cliffStepPos[4];   /* 0x50 */
     float ditchPos[4];       /* 0x60 */
     float ditchDir[4];       /* 0x70 */
-    char pad80[0x10];
+    char pad80[16];
     float cliffBackPos[4]; /* 0x90 */
     float edgeOrient[4];   /* 0xA0 */
-    char padB0[0x10];
+    char padB0[16];
     float edgePos[4]; /* 0xC0 */
-    char padD0[0x20];
+    char padD0[32];
     float pullPos[4]; /* 0xF0 */
-    char pad100[0x30];
+    char pad100[48];
     int wallWord;      /* 0x130 */
     int cliffSel;      /* 0x134 */
     float cliffHeight; /* 0x138 */
@@ -94,7 +94,7 @@ typedef struct {             /* field names derived */
     int kind12Obj;     /* 0x148 */
     int pullObj;       /* 0x14C */
     int pullKind;      /* 0x150 */
-    char pad154[0x4];
+    char pad154[4];
     char *swapWeapon;      /* 0x158 */
     char *frontObj;        /* 0x15C */
     char *cageObj;         /* 0x160 */

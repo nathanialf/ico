@@ -8,6 +8,8 @@
 #ifndef ACT2_H
 #define ACT2_H
 
-void BeforeFunc2(char *self);
+#include "typedef.h"
+
+void BeforeFunc2(GObj *self);
 
 #endif /* ACT2_H */

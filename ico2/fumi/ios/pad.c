@@ -173,7 +173,7 @@ char th_iosPadDevManager[112] = {0};
 
 IosMsgQueue padDevMgrMsgQ = {0};
 
-int controler_stable_check(void *a0)
+static int controler_stable_check(void *a0)
 {
     IosPadDevRec *dev = (IosPadDevRec *)a0;
     int port = dev->port;
@@ -366,7 +366,7 @@ int controler_stable_check(void *a0)
     return phase;
 }
 
-void iosPadDevManager(void);
+static void iosPadDevManager(void);
 
 int iosPadDevInit(void *a0)
 {
@@ -402,9 +402,9 @@ int iosPadDevInit(void *a0)
 /* the frame counter this TU reads unsigned */
 extern void Shock_Decode(void *box, unsigned char *pFlags, unsigned char *pLevel);
 extern void Shock_SetMotor(int flags, int level, void *box, int port, int slot);
-void iosPadActTickProc(void);
+static void iosPadActTickProc(void);
 
-int iosPadDevReadFunc(void)
+static int iosPadDevReadFunc(void)
 {
     int i;
 
@@ -551,7 +551,7 @@ float iosPadNormalizeStick(void *p)
     return (len - 48.0f) / 72.0f;
 }
 
-int iosPadGetStick_func(void *dev, void *out, int mode, int a3, int a4, int a5)
+static int iosPadGetStick_func(void *dev, void *out, int mode, int a3, int a4, int a5)
 {
     IosPadCtx *ctx = (IosPadCtx *)dev;
     IosPadStick *st = (IosPadStick *)out;
@@ -826,7 +826,7 @@ end:
     return rv;
 }
 
-void iosPadDevManager(void)
+static void iosPadDevManager(void)
 {
     int local_buf;
     iosMsgQueueCreate(&padDevMgrMsgQ, padDevMgrMsgBuf, 8);
@@ -852,7 +852,7 @@ static inline void setRequestVolume(ShockRequest *req, unsigned int volume) /* d
     req->prm.volume = v;
 }
 
-void iosPadActTickProc(void)
+static void iosPadActTickProc(void)
 {
     PadAct *p = (PadAct *)padActs;
     int i;

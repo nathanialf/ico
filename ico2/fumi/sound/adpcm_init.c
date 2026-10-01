@@ -8,6 +8,11 @@
 #include <assert.h>
 #include <sound.h>
 
+static inline void adpcmDiskNotReady(void);
+static inline void adpcmDiskReturnReady(void);
+static inline int adpcmOpenProc(int a0, int a1);
+static inline void adpcmOpenDiskNotReady(void);
+
 /* the 2 KB-aligned base of the IOP stream buffers, the two buffers' in-use
    flags, the pause request and the IOP heap block the base was cut from;
    then the two stream records and the four SPU slots the streams play on */
@@ -520,14 +525,14 @@ inline int adpcmTickProc(int self, int obj)
     return 0;
 }
 
-inline void adpcmDiskNotReady(void) {}
+static inline void adpcmDiskNotReady(void) {}
 
-inline void adpcmDiskReturnReady(void) {}
+static inline void adpcmDiskReturnReady(void) {}
 
-inline int adpcmOpenProc(int a0, int a1)
+static inline int adpcmOpenProc(int a0, int a1)
 {
     iosCdvdBackGroundReadIOPm(a0, *(int *)(a1 + 0xC), 0x5C000);
     return 1;
 }
 
-inline void adpcmOpenDiskNotReady(void) {}
+static inline void adpcmOpenDiskNotReady(void) {}

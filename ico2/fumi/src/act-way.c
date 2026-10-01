@@ -32,7 +32,7 @@ typedef struct {              /* field names derived */
 /* the three detour angles DetourCheck sweeps, in degrees, zero-terminated */
 static int detourAngle[4] = {75, -75, 0, 0}; /* derived name */
 
-void DetourCheck(GObj *self, float *out)
+static void DetourCheck(GObj *self, float *out)
 {
     float orient[4];
     float cur[4];
@@ -95,7 +95,7 @@ void DetourCheck(GObj *self, float *out)
 /* motionOrientManager.h declares none of the motion tables */
 extern MotionDef motionKind[];
 
-int checkPositionIllegal(GObj *self, float *pos)
+static int checkPositionIllegal(GObj *self, float *pos)
 {
     float v[4];
     float r[4];

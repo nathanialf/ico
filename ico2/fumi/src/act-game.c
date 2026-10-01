@@ -178,7 +178,7 @@ typedef struct { /* field names derived */
 } HandModeRow; /* derived name */
 
 extern HandModeRow motionIKEffKind[];
-void ACTItemWatchMotion(GObj *self);
+static void ACTItemWatchMotion(GObj *self);
 /* f5 is int here, float in boyact.h; a7 is float here, unsigned char in boyact.h */
 extern void PrivInsCamSet(float *pos, float *tgt, int a2, int a3, int a4, int a5, float f6,
                           float f1);
@@ -238,7 +238,7 @@ void ACTGame_DeleteActorInformation(GObj *a0)
     gamesysObjInfoCls(a0->kind, a0->labelId);
 }
 
-void EXITDATA_GetNextPosition(int idx, float *pos, float *rot)
+static void EXITDATA_GetNextPosition(int idx, float *pos, float *rot)
 {
     exit_no = idx;
     test_nextstage_firstwalk_set(idx, exitData[idx].firstWalk0, exitData[idx].firstWalk1,
@@ -938,15 +938,15 @@ void ACTGameView_Loop(GObj *self)
     case 1:
         *(void (**)(void *))(GOBJ_ACT(self)->work + 0x7F4) = ClipWall;
         GOBJ_WORK(self)->viewObj = actGameView.obj[i];
-        GOBJ_WORK(self)->view7A0 = 0;
+        GOBJ_WORK(self)->viewRadius = 0.0f;
         GetSkeltonPosition((float *)(GOBJ_ACT(self)->work + 0x730), self, 0x23);
         GetRootPosition(GOBJ_ACT(self)->work + 0x740, actGameView.obj[i]);
         RequestClipCollision(GOBJ_ACT(self)->work + 0x720);
         GOBJ_WORK(self)->viewState = 2;
         break;
     case 2:
-        if (GOBJ_WORK(self)->view720 != 0) {
-            if (GOBJ_WORK(self)->view7B8 != 0) {
+        if (GOBJ_WORK(self)->viewResult != 0) {
+            if (GOBJ_WORK(self)->viewHitWall != 0) {
                 GOBJ_WORK(self)->viewState = 6;
             } else {
                 GOBJ_WORK(self)->viewState = 3;
@@ -956,15 +956,15 @@ void ACTGameView_Loop(GObj *self)
     case 3:
         *(void (**)(void *))(GOBJ_ACT(self)->work + 0x7F4) = ClipFloor;
         GOBJ_WORK(self)->viewObj = actGameView.obj[i];
-        GOBJ_WORK(self)->view7A0 = 0;
+        GOBJ_WORK(self)->viewRadius = 0.0f;
         GetSkeltonPosition((float *)(GOBJ_ACT(self)->work + 0x730), self, 0x23);
         GetRootPosition(GOBJ_ACT(self)->work + 0x740, actGameView.obj[i]);
         RequestClipCollision(GOBJ_ACT(self)->work + 0x720);
         GOBJ_WORK(self)->viewState = 4;
         break;
     case 4:
-        if (GOBJ_WORK(self)->view720 != 0) {
-            if (GOBJ_WORK(self)->view7C4 != 0) {
+        if (GOBJ_WORK(self)->viewResult != 0) {
+            if (GOBJ_WORK(self)->viewHitFloor != 0) {
                 GOBJ_WORK(self)->viewState = 6;
             } else {
                 GOBJ_WORK(self)->viewState = 5;
@@ -1011,7 +1011,7 @@ inline int ACTGameViewSimple_Check(GObj *self, GObj *obj)
     return 0;
 }
 
-void ACTGame_LwsEffectProcess(GObj *a0)
+static void ACTGame_LwsEffectProcess(GObj *a0)
 {
     int m = GOBJ_ACT(a0)->enemy->lwsEffect;
     if (m != 0) {
@@ -1514,7 +1514,7 @@ static inline void actGame_SendMailToBirds(GObj *self) /* derived name */
 /* The speed is computed before the parameter block is fetched, both hops of
    that fetch going through one pointer variable; the pos stores go through
    it and the two thresholds test the speed itself. */
-void ACTGame_InnerVelocityUpdate(GObj *self)
+static void ACTGame_InnerVelocityUpdate(GObj *self)
 {
     float pos[4];
     int slow;
@@ -1764,7 +1764,7 @@ static inline void andRequestFlags(char *d, char *m) /* derived name */
     }
 }
 
-void FunctionAboutClingedStatus(GObj *self)
+static void FunctionAboutClingedStatus(GObj *self)
 {
     int buf[4];
     Act *s;
@@ -1835,7 +1835,7 @@ void FunctionAboutClingedStatus(GObj *self)
     }
 }
 
-void ACTEnvGetTest(GObj *self, void *a1)
+static void ACTEnvGetTest(GObj *self, void *a1)
 {
     EnvWork old;
     Act *s = GOBJ_ACT(self);
@@ -1927,7 +1927,7 @@ void ACTEnvGetTest(GObj *self, void *a1)
     FunctionAboutClingedStatus(self);
 }
 
-void ActOrientTest(GObj *self)
+static void ActOrientTest(GObj *self)
 {
     float v0[4];
     HandWork w1;
@@ -2353,7 +2353,7 @@ void ActOrientTest(GObj *self)
     }
 }
 
-void GetGirlHandlinkClInfo(void)
+static void GetGirlHandlinkClInfo(void)
 {
     float boyPos[4];
     float girlPos[4];
@@ -2997,7 +2997,7 @@ inline void ACTGame_SendSoundMail(GObj *a0, int mail, GObj *from, int a3, int a4
     }
 }
 
-void ACTItemWatchMotion(GObj *self)
+static void ACTItemWatchMotion(GObj *self)
 {
     MotionRec *rec = &motionKind[GOBJ_SUB(self)->ctrl.motion];
     Act *sub = GOBJ_ACT(self);

@@ -27,7 +27,7 @@ extern int ShockRequestMemory[2];
 
 void Init_Controler(short *a0);
 void Init_Player(int *box);
-void Init_Shock();
+void Init_Shock(void);
 typedef struct ShockVoiceSet ShockVoiceSet; /* derived name */
 
 void Init_ShockVoiceSet(ShockVoiceSet *set, int *data);

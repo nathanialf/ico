@@ -180,7 +180,7 @@ typedef struct { /* field names derived */
     char b[64];
 } McBlk; /* derived name */
 
-inline int product_write(int *self)
+static inline int product_write(int *self)
 {
     (IosMcProductFile + self[2])->soundMode = systemStatus[11];
     (IosMcProductFile + self[2])->outputMode = soundOutputModeGet();
@@ -193,14 +193,14 @@ inline int product_write(int *self)
     return 0;
 }
 
-inline int product_read(int *self)
+static inline int product_read(int *self)
 {
     int idx = self[0x8 / 4];
     iosMcHandlerRead((int)self, (int)&IosMcProductFile[idx], 0x1F0);
     return self[0x10 / 4];
 }
 
-inline int gameblock_write(int self, void *buf)
+static inline int gameblock_write(int self, void *buf)
 {
     iosMcHandlerWrite(self, buf, 0x63F4);
     iosMcHandlerWrite(self, &optionScreenMode, 4);
@@ -208,7 +208,7 @@ inline int gameblock_write(int self, void *buf)
     return 0;
 }
 
-inline int gameblock_read(int *self, void *buf)
+static inline int gameblock_read(int *self, void *buf)
 {
     iosMcHandlerRead((int)self, (int)buf, 0x63F4);
     systemStatus[11] = (IosMcProductFile + self[2])->soundMode;
@@ -227,7 +227,7 @@ typedef struct { /* field names derived */
     char c[17];
 } McName; /* derived name */
 
-void iosMcMgrGetInfo(McMgr *mp)
+static void iosMcMgrGetInfo(McMgr *mp)
 {
     int r;
 
@@ -496,7 +496,7 @@ int iosMcHandlerRead(McMgr *mp, unsigned char *buf, int len)
     }
 }
 
-void iosMcMgrChdirProduct(McMgr *mp)
+static void iosMcMgrChdirProduct(McMgr *mp)
 {
     int r;
 
@@ -564,7 +564,7 @@ int IosMcPreviewInfo[6] = {0};
 
 IosMsgQueue McMsgQ = {0};
 
-void iosMcMgrSaveSeg(McMgr *mp, char *suffix)
+static void iosMcMgrSaveSeg(McMgr *mp, char *suffix)
 {
     int r = 0;
     unsigned int i;
@@ -638,7 +638,7 @@ flush:
     }
 }
 
-void iosMcMgrLoadSeg(McMgr *mp, char *suffix)
+static void iosMcMgrLoadSeg(McMgr *mp, char *suffix)
 {
     int r = 0;
     unsigned int i;
@@ -730,13 +730,13 @@ static inline void iosMcMgrSaveIcon(McMgr *mp) /* derived name */
     iosMcMgrSaveIconDebugResult(mp->result);
 }
 
-void iosMcMgrSaveProductBlock(void *a0)
+static void iosMcMgrSaveProductBlock(void *a0)
 {
     *(int *)((char *)a0 + 0x24) = 0;
     iosMcMgrSaveSeg(a0, 0);
 }
 
-void iosMcMgrLoadProductBlock(void *a0)
+static void iosMcMgrLoadProductBlock(void *a0)
 {
     *(int *)((char *)a0 + 0x24) = 0;
     iosMcMgrLoadSeg(a0, 0);
@@ -760,7 +760,7 @@ static inline void iosMcMgrLoadGame(McMgr *mp) /* derived name */
     iosMcMgrLoadSeg(mp, buf);
 }
 
-void iosMcMgrGetBlockSaveInfo(McMgr *mp)
+static void iosMcMgrGetBlockSaveInfo(McMgr *mp)
 {
     int i;
 

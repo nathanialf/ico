@@ -42,8 +42,6 @@ extern struct IosMsgQueue jimakuMsgQ;
 extern int jimakuOn;
 extern int jimakuMsgBuf[2];
 extern JimakuArg jimaku_msg;
-void jimakuMgrBegin(JimakuArg *p);
-void jimakuMgrNext(JimakuArg *p);
 void jimakuDisp(JimakuArg *msg);
 
 /* unmapped_0055FBD0: one subtitle file name, 0x20 bytes. Reader:

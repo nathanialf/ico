@@ -18,7 +18,7 @@ struct IosCdvdHandle; /* the record ios/cdvd.c defines */
  * and the file's sector, the functions told when the disc goes away and
  * comes back with their argument, and the function that closes the request
  * with its argument. */
-typedef struct CdvdBgReq { /* derived name */         /* field names derived */
+typedef struct CdvdBgReq { /* field names derived */
     char name[256];                                   /* 0x000 */
     int (*readFunc)(struct CdvdBgReq *self, int arg); /* 0x100 */
     int readArg;                                      /* 0x104 */
@@ -46,7 +46,7 @@ typedef struct CdvdBgReq { /* derived name */         /* field names derived */
 typedef struct { /* field names derived */
     int lsn;
     int size;
-    char name[0x28];
+    char name[40];
 } CdSrhEnt; /* derived name */
 
 /* cdvd.c's globals, with the stream motion late count streamMotionManager
@@ -60,9 +60,7 @@ extern int iosCdvdMediaType;
 extern int iosCdvdBackGroundMgrRunning;
 extern int iosCdvdStDelayCnt;
 extern float inflateSec;
-void cdWait(int *busy);
 long long inflate_cd_read_func(void *buf, long long size, struct IosCdvdHandle *self);
-void iosCdvdBackGroundMgr(void);
 
 CdvdBgReq *iosCdvdBackGroundMgrAdd(const char *name, void *readFunc, int readArg, void *readyFunc,
                                    void *resumeFunc, int cbArg, void *closeFunc, int closeArg);
@@ -83,13 +81,8 @@ int iosCdvdGetFileLsn(char *name, int *size);
 void iosCdvdHandlerRead(struct IosCdvdHandle *a0, void *a1, int a2);
 void iosCdvdHandlerReadInflate(struct IosCdvdHandle *self, void *buf, int n);
 void iosCdvdHandlerReadNoInflate(struct IosCdvdHandle *self, void *buf, int n);
-void iosCdvdMgrSearchFile(struct IosCdvdHandle *self);
-void iosCdvdMgrStStart(struct IosCdvdHandle *self);
-void iosCdvdMgrStStop(struct IosCdvdHandle *self);
-inline void iosCdvdDiskReadyBlock(void);
 void iosCdvdManager(void);
 void iosCdvdLoadPackFile(int a0, char *name, int a2);
-void iosCdvdBackGroundMgrInit(void);
 
 /* init-func: one file kind and its loader, 0x24 bytes. Reader:
  * ico2/fumi/ios/cdvd.c (PackKind). Owner: ico2/fumi/include/cdvd.h. */

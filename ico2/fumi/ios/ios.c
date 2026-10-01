@@ -44,7 +44,7 @@ static struct SemaParam stgMgrLockSemaParam;
 /* keyInput.h declares InitKeyInput (void); this call passes 0 */
 extern void InitKeyInput();
 
-void ios_init_plus(void)
+static void ios_init_plus(void)
 {
     cdLockSemaParam.attr = 1;
     cdLockSemaParam.maxCount = 1;

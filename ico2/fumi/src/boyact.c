@@ -62,7 +62,7 @@ extern void GetChainNearestNodePosition(float *out, void *g, float *ref);
 /* the motion-def row of an actor's current motion */
 #define CHAINROW(self) (GOBJ_SUB(self)->ctrl.motion + motionKind) /* derived name */
 
-void findChainInJump(void *self)
+static void findChainInJump(void *self)
 {
     float p[4];
     float q[4];
@@ -208,7 +208,7 @@ void findChainInJump(void *self)
 
 /* dir: subBoyCollision passes the motion direction (sub + 0x120); this body
    never reads it */
-int CorrectOrient_RopeCliff(float *out, void *gobj, float *dir)
+static int CorrectOrient_RopeCliff(float *out, void *gobj, float *dir)
 {
     float pos[4];
     float rpos[4];
@@ -576,7 +576,7 @@ static int attrWallHit[3]; /* derived name */
 
 static long long boyInfo[12]; /* derived name */
 
-void CheckCollisionAttr(void *self)
+static void CheckCollisionAttr(void *self)
 {
     Sub15C *stage = GOBJ_SUB(self);
     int i;
@@ -697,7 +697,7 @@ float add_rope_vec[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 /* key is float here, int in StageAnimation.h; t is int here, float in StageAnimation.h */
 extern float stage_PlayBgAnimation(float frame, int id, void *v, void *q);
 
-void BoyBgaManager(void *self, int id, void *dst)
+static void BoyBgaManager(void *self, int id, void *dst)
 {
     /* UpdateGeo is a GNU nested function: it reads `self` out of
        BoyBgaManager's frame through the static chain. */
@@ -784,7 +784,7 @@ static int sitCount; /* derived name */
 
 static void *beliftGirl; /* derived name */
 
-void E3_StageStartBoy(void *self)
+static void E3_StageStartBoy(void *self)
 {
     float buf[4];
     int w1;
@@ -821,7 +821,7 @@ void E3_StageStartBoy(void *self)
 
 extern int fptodp(float v);
 
-int GetChainSlope(void)
+static int GetChainSlope(void)
 {
     float a;
     float b;
@@ -1626,7 +1626,7 @@ typedef struct {                      /* field names derived */
    camera target id at +4 (BoyInfoUpdate_StageChange copies it whole as f50). */
 #define BOYEFSTAGE ((unsigned char *)boyInfo + 0x50) /* derived name */
 
-void InitSwapWeapon(void *self)
+static void InitSwapWeapon(void *self)
 {
     Act *sub = GOBJ_ACT(self);
     char *info;
@@ -1659,7 +1659,7 @@ void InitSwapWeapon(void *self)
     }
 }
 
-void PutWeapon(void)
+static void PutWeapon(void)
 {
     char *p = (char *)boyInfo;
 
@@ -1705,7 +1705,7 @@ static inline int SwapBoyWeapon(void *oldW, void *newW, void *boy) /* derived na
 /* returns float * here, int * in camera-root.h */
 extern float *GetCurrentCameraSet2(void);
 
-void OtherStageGirlPinchCamera_After(float t)
+static void OtherStageGirlPinchCamera_After(float t)
 {
     float buf[4];
 
@@ -1746,7 +1746,7 @@ static PrivInsCam privInsCam; /* derived name */
 extern void InsertCamera_SetDetail(float *pos, float *tgt, int gobj, int cutType, int b37, int b38,
                                    float blend);
 
-void PrivInsCamProcess(void)
+static void PrivInsCamProcess(void)
 {
     float p[4];
 
@@ -2637,7 +2637,7 @@ inline void actBoyCall(GObj *volatile a0)
 #define BOY_GIRL_DY()                                                                              \
     (test_CURRENTROOT(girlGObj)[1] - test_CURRENTROOT(boyGObj)[1]) /* derived name */
 
-void ACTSendMail_PULLUP_GO(void)
+static void ACTSendMail_PULLUP_GO(void)
 {
     char *g = (char *)boyGObj;
     Act *sub = GOBJ_ACT(g);
@@ -2692,7 +2692,7 @@ static inline void ACTSendMail_PULLUP_START(void) /* derived name */
     }
 }
 
-int pullup_check_heroin_position(void)
+static int pullup_check_heroin_position(void)
 {
     float buf[4];
     float p1[4];
@@ -2729,7 +2729,7 @@ int pullup_check_heroin_position(void)
     return 0;
 }
 
-int ditch_check_heroin_position(void)
+static int ditch_check_heroin_position(void)
 {
     float buf[4];
     Act *s = GOBJ_ACT(boyGObj);

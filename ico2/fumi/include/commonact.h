@@ -20,42 +20,31 @@ void ACTRunIntrCorrect(struct GObj *self, struct IntrMail *a1, struct IntrMail *
 void ACTSendMailCorrect(struct GObj *a0, int a1);
 void ACTSetPositionWithFitting(void *a0, float *pos);
 void ACT_LAYOUT_GAMEOVER(void);
-int CollisCheckInRope(void *a0, struct GObj *chain);
 void ContinueCorrectPosition(void *obj);
 void ControlMotionOrient(int a0, int a1);
-void DamageFunc(char *a0);
 void GetCorrectOrientOfChain(void *buf, void *obj);
 int IsCorrectPosition(struct GObj *a0);
 int SetMotionDirectionSmooze(struct GObj *a0, float *dir, float s);
 void StartCorrectPosition(struct GObj *a0, float *pos, float *dir, int mode, float t);
-void TestCageUpDown(int cage, struct GObj *gobj);
 int _ACTCorrectMsg(struct GObj *self, int msg, void *arg);
 void _ACTDebugPrint(struct GObj *a0);
 int _ACTMotDirSmzDirect(char *a0, float *a1);
-void _boxbar_set_sound(struct GObj *a0, int mode);
 void actAfterDown(struct GObj *volatile a0);
 void actAfterFly(struct GObj *volatile a0);
 void actAfterForceRope(struct GObj *volatile a0);
 void actAfterForceRopeSwing(struct GObj *volatile a0);
-void actAfterJump(struct GObj *volatile a0);
-void actAfterRopeJump(struct GObj *volatile a0);
 void afterCommonBar(struct GObj *volatile a0);
 void afterCommonOneWall(int x);
 void afterCommonRevive(volatile unsigned int a0);
 void afterCommonRope(struct GObj *volatile a0);
-void afterCommonRopeTurnSpecial(struct GObj *volatile a0);
 void afterCommonStone(struct GObj *volatile a0);
 void afterCommonTruckLever(struct GObj *volatile a0);
-void flyCoreLoop(struct GObj *a0, struct GObj *target, int flag);
 void subCommonIdle(struct GObj *volatile a0);
 float *test_CURRENTORIENT(struct GObj *a0);
 float *test_CURRENTROOT(struct GObj *a0);
-void DownFunc(char *a0);
 int FloorIsTruck(struct GObj *a0);
-void afterCommonRopeCliff(char *a0);
 void afterCommonBox(struct GObj *volatile a0);
 void actAfterFall(struct GObj *volatile a0);
-void ClipCollisionWithField(char *a0);
 
 /* idle-mot-def: one idling motion per actor kind, 0x0C bytes. Reader:
  * ico2/fumi/src/commonact.c (int [][3]). Owner: ico2/fumi/include/commonact.h. */

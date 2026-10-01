@@ -18,6 +18,10 @@
 #include <libcdvd.h>
 #include <sound.h>
 
+static inline void iosCdvdDiskReadyBlock(void);
+static void iosCdvdBackGroundMgrInit(void);
+static void iosCdvdBackGroundMgr(void);
+
 /* a handle's control doubleword: bit 0 asks for the inflating read, word 1
    is the command */
 union IosCdvdCtl { /* field names derived */
@@ -186,7 +190,7 @@ static __inline__ void stDebugPrintMode(void) /* derived name */
 #endif
 }
 
-void iosCdvdStManager(void)
+static void iosCdvdStManager(void)
 {
     char buf[128];
     char buf2[256];
@@ -291,7 +295,7 @@ void iosCdvdStManager(void)
  * iosCdvdDirectStOpen expand it, the stream manager above calls it, and the
  * out-of-line body goes to the end of the object.  Its two strings follow the
  * stream manager's in .rodata. */
-inline void iosCdvdDiskReadyBlock(void)
+static inline void iosCdvdDiskReadyBlock(void)
 {
     if (sceCdDiskReady(1) != 2) {
         sceCdlFILE fp;
@@ -322,7 +326,7 @@ found:
     return iosCdvdSrhBuff[i].lsn;
 }
 
-void iosCdvdMgrSearchFile(IosCdvdHandle *self)
+static void iosCdvdMgrSearchFile(IosCdvdHandle *self)
 {
     /* The walk index stays in its stack slot and is re-read after every
      * strcmp: the directory cache it indexes is the table the cdvd thread
@@ -359,7 +363,7 @@ void iosCdvdMgrSearchFile(IosCdvdHandle *self)
     }
 }
 
-void iosCdvdMgrStStart(IosCdvdHandle *self)
+static void iosCdvdMgrStStart(IosCdvdHandle *self)
 {
     int total;
     int rest;
@@ -394,7 +398,7 @@ void iosCdvdMgrStStart(IosCdvdHandle *self)
     self->inflate = open_inflate_handler(inflate_cd_read_func, self);
 }
 
-void iosCdvdMgrStStop(IosCdvdHandle *self)
+static void iosCdvdMgrStStop(IosCdvdHandle *self)
 {
     char buf[128];
     int msg;
@@ -439,7 +443,7 @@ static inline int chgFileName(int a0) /* derived name */
     return strcpy(a0, buf);
 }
 
-void iosCdvdMgrLoad(IosCdvdHandle *self)
+static void iosCdvdMgrLoad(IosCdvdHandle *self)
 {
     int rv;
 
@@ -537,7 +541,7 @@ static inline PackFunc getPackLoader(char *name, int *kind) /* derived name */
  * the load time.  Their format strings stay in .rodata after "try load %s\n",
  * and the timer and DMA status calls whose values only the prints used
  * stay. */
-void iosCdvdMgrPackLoad(IosCdvdHandle *self)
+static void iosCdvdMgrPackLoad(IosCdvdHandle *self)
 {
     int start = lock_execIcoMisc;
     float sec;
@@ -617,7 +621,7 @@ void iosCdvdMgrPackLoad(IosCdvdHandle *self)
     }
 }
 
-int iosCdStRead(unsigned int n, int *buf, int flag, int *result, char *self)
+static int iosCdStRead(unsigned int n, int *buf, int flag, int *result, char *self)
 {
     char msgbuf[128];
     int msg;
@@ -768,7 +772,7 @@ void iosCdvdHandlerRead(IosCdvdHandle *a0, void *a1, int a2)
     }
 }
 
-int unifile_read_func(IosCdvdHandle *self)
+static int unifile_read_func(IosCdvdHandle *self)
 {
     char work[32];
     int cnt;
@@ -796,7 +800,7 @@ typedef struct { /* field names derived */
     long long hi;
 } CdvdName16; /* derived name */
 
-void iosCdvdUnifileInfoGet(void)
+static void iosCdvdUnifileInfoGet(void)
 {
     unifileHandle.ctl.ll &= ~1LL;
     *(CdvdName16 *)unifileHandle.name = *(CdvdName16 *)"DFDATAS/DATA.DF";
@@ -890,7 +894,7 @@ void iosCdvdLoad(int a0, int a1)
     iosMsgSend(&CdvdMsgQ, a0, 0);
 }
 
-void iosCdvdPackLoad(void *a0)
+static void iosCdvdPackLoad(void *a0)
 {
     *(int *)((char *)a0 + 4) = 2;
     iosMsgSend(&CdvdMsgQ, a0, 0);
@@ -968,7 +972,7 @@ int iosCdvdStDelayCnt = 0; /* derived name */
 
 float inflateSec = 0;
 
-void cdWait(int *busy)
+static void cdWait(int *busy)
 {
     sceCdlFILE fp;
     char file[32];
@@ -1278,7 +1282,7 @@ long long inflate_cd_read_func(void *buf, long long size, IosCdvdHandle *self)
     return len;
 }
 
-void iosCdvdBackGroundMgrInit(void)
+static void iosCdvdBackGroundMgrInit(void)
 {
     CdvdBgReq *p = bgReqTable;
     int i;
@@ -1292,7 +1296,7 @@ void iosCdvdBackGroundMgrInit(void)
 
 typedef int (*BgFunc)(CdvdBgReq *self, int arg);
 
-void iosCdvdBackGroundMgr(void)
+static void iosCdvdBackGroundMgr(void)
 {
     CdvdBgReq *bg = bgReqTable;
     int i;

@@ -3,7 +3,7 @@
  * girl_brain_main.c.inc, which is not split out, so the include sits at the
  * point of girl_act.c that girl_brain_main.c.inc's text occupies. */
 
-int ATGoalTurnMail(void *actor, float *dir, int node);
+static int ATGoalTurnMail(void *actor, float *dir, int node);
 /* void (void *, int, void *, void *) here, int (char *, int, void *, void *) in mail-add-data.h */
 extern void ActSendMail_WithAdditionalData(void *gop, int msg, void *sender, void *data);
 
@@ -39,7 +39,7 @@ static inline int girlAttractTurnMailR(void *actor, float *from, float *to) /* d
     return 1;
 }
 
-int ATGoalTurnMail(void *actor, float *dir, int node)
+static int ATGoalTurnMail(void *actor, float *dir, int node)
 {
     float o1[4];
     float v[4];
@@ -82,7 +82,7 @@ int ATGoalTurnMail(void *actor, float *dir, int node)
     return ret;
 }
 
-int checkWaterfallResult(float *out)
+static int checkWaterfallResult(float *out)
 {
     union {
         float f[4];

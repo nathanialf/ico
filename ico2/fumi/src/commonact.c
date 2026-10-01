@@ -86,9 +86,9 @@ void ACTMotDirToWall(GObj *a0);
 void SetCorrectOrientOfChain(void *a0);
 void actAfterForceRope(GObj *volatile a0);
 inline void actAfterForceRopeSwing(GObj *volatile a0);
-inline void actAfterRopeJump(GObj *volatile a0);
-inline void afterCommonRopeCliff(char *a0);
-inline void afterCommonRopeTurnSpecial(GObj *volatile a0);
+static inline void actAfterRopeJump(GObj *volatile a0);
+static inline void afterCommonRopeCliff(char *a0);
+static inline void afterCommonRopeTurnSpecial(GObj *volatile a0);
 inline void actAfterDown(GObj *volatile a0);
 void afterCommonCling(volatile unsigned int a0);
 void actAfterSlip(int x);
@@ -96,13 +96,13 @@ inline void afterCommonRevive(volatile unsigned int a0);
 inline void afterCommonStone(GObj *volatile a0);
 inline void afterCommonBox(GObj *volatile a0);
 void afterCommonBar(GObj *volatile a0);
-inline void actAfterJump(GObj *volatile a0);
+static inline void actAfterJump(GObj *volatile a0);
 inline void actAfterFall(GObj *volatile a0);
 inline void actAfterFly(GObj *volatile a0);
-inline void ClipCollisionWithField(char *a0);
+static inline void ClipCollisionWithField(char *a0);
 inline void afterCommonOneWall(int x);
 int ACTCheckFlagAttack(GObj *a0);
-inline void afterCommonBecarry(GObj *volatile a0);
+static inline void afterCommonBecarry(GObj *volatile a0);
 inline void afterCommonTruckLever(GObj *volatile a0);
 
 #include "commonact.h"
@@ -154,6 +154,9 @@ inline void afterCommonTruckLever(GObj *volatile a0);
 #include "clipCollisionManager.h"
 #include "layout_texture.h"
 
+static void DamageFunc(char *a0);
+static void TestCageUpDown(int cage, GObj *gobj);
+
 typedef struct { /* field names derived */
     int a, b, c;
 } Blob12; /* derived name */
@@ -167,7 +170,7 @@ void ACTSetPositionWithFitting(void *a0, float *pos)
     SetDirectRootPosition(a0, pos);
 }
 
-void ACTSetPositionNoFitting(void *a0, float *pos)
+static void ACTSetPositionNoFitting(void *a0, float *pos)
 {
     SetDirectRootPositionNoFitting(a0, pos);
 }
@@ -177,7 +180,7 @@ void ACTSetPositionNodeWithFitting(int a0, int a1, int a2, float a3)
     SetDirectRootPositionWithNodePoint(a0, a1, a2, a3);
 }
 
-int ChangeMailInLadder(GObj *a0, int a1)
+static int ChangeMailInLadder(GObj *a0, int a1)
 {
     float p[4];
     float q[4];
@@ -483,11 +486,11 @@ int _ACTCorrectMsg(GObj *self, int msg, void *param)
                     msg = 110;
                     GOBJ_ACT(self)->enemy->liftLevel = 10;
                     BoySekikaTexScroll();
-                    GOBJ_ACT(self)->enemy->count2A8 += 1;
+                    GOBJ_ACT(self)->enemy->stoneHitNoWeapon += 1;
                     break;
                 } else {
                     msg = 282;
-                    GOBJ_ACT(self)->enemy->count2AC += 1;
+                    GOBJ_ACT(self)->enemy->stoneHitWeapon += 1;
                     GOBJ_ACT(self)->enemy->liftLevel = 10;
                     break;
                 }
@@ -833,7 +836,7 @@ typedef struct { /* field names derived */
     char pad8C[52];
 } RopeWallWork; /* derived name */
 
-int CollisCheckInRope(void *a0, GObj *chain)
+static int CollisCheckInRope(void *a0, GObj *chain)
 {
     /* whether p is a box (kind 0x11), as a char */
     inline char ropeWallIsBox(char *p) /* derived name */
@@ -1221,7 +1224,7 @@ typedef struct { /* field names derived */
 static CageUD cageUpDown = {
     {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0, 0, -1}; /* derived name */
 
-void TestCageUpDown(int cage, GObj *gobj)
+static void TestCageUpDown(int cage, GObj *gobj)
 {
     inline void initCage(char *o) /* derived name */
     {
@@ -1443,7 +1446,7 @@ void actCommonRopeSpecial(GObj *volatile a0)
     }
 }
 
-void lever_nego1(void *a0, void *a1)
+static void lever_nego1(void *a0, void *a1)
 {
     int m = *(int *)((char *)a1 + 0xC);
     if (m < 0x16) {
@@ -1461,7 +1464,7 @@ lever:
     SetFloorLeverWithNodePoint(a1, a0, 0x16);
 }
 
-void SetDirectRootPositionXZ(void *a0, void *a1)
+static void SetDirectRootPositionXZ(void *a0, void *a1)
 {
     void *ret = test_CURRENTROOT(a0);
     *(float *)((char *)a1 + 4) = *(float *)((char *)ret + 4);
@@ -1517,7 +1520,7 @@ void actCommonLever(GObj *volatile a0)
     }
 }
 
-void EBRAIN_SEND_MES(void *a0, int a1)
+static void EBRAIN_SEND_MES(void *a0, int a1)
 {
     if (a0 && *(int *)((char *)a0 + 0xC) == 4)
         eBrainSendMes(a0, a1);
@@ -1529,7 +1532,7 @@ inline void actCommonPlay(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void DamageFunc(char *a0)
+static void DamageFunc(char *a0)
 {
     Act *s = GOBJ_ACT(a0);
     debug_StdPrintfDummy("damage\n");
@@ -1540,11 +1543,11 @@ void DamageFunc(char *a0)
         EnemyBattleWork *b;
         EBRAIN_SEND_MES(a0, 5);
         b = GOBJ_ACT(a0)->enemy;
-        EnemyDeleteParticle(a0, (char *)b + 0xE0, (char *)b + 0xF0);
+        EnemyDeleteParticle(a0, b->hitDir, b->hitNodes);
     }
 }
 
-void DownFunc(char *a0)
+static void DownFunc(char *a0)
 {
     DamageFunc(a0);
     if (*(int *)(a0 + 0xC) == 1) {
@@ -1869,7 +1872,7 @@ void actCommonSofa(GObj *volatile a0)
     }
 }
 
-void BoxBarSoundOn(char *a0)
+static void BoxBarSoundOn(char *a0)
 {
     Act *s = GOBJ_ACT(a0);
     switch (s->actMode) {
@@ -1882,7 +1885,7 @@ void BoxBarSoundOn(char *a0)
     }
 }
 
-void BoxBarSoundOff(char *a0)
+static void BoxBarSoundOff(char *a0)
 {
     Act *s = GOBJ_ACT(a0);
     switch (s->actMode) {
@@ -1895,7 +1898,7 @@ void BoxBarSoundOff(char *a0)
     }
 }
 
-void _boxbar_set_sound(GObj *a0, int mode)
+static void _boxbar_set_sound(GObj *a0, int mode)
 {
     switch (GOBJ_ACT(a0)->enemy->boxBarSound) {
     case 0:
@@ -2160,7 +2163,7 @@ void funcCommonFallDircorrect(GObj *a0)
     SetMotionDirection(a0, GOBJ_WORK(a0)->fallDir);
 }
 
-void correctJumpOrientByChain(GObj *a0)
+static void correctJumpOrientByChain(GObj *a0)
 {
     float out[4];
     float mtx[16];
@@ -2558,7 +2561,7 @@ void debugDispFlyLimit(float *pos, float y0, float y1)
     MatrixDrive_PopMatrix();
 }
 
-void debugDispSphere(void *a0, void *a1, float f)
+static void debugDispSphere(void *a0, void *a1, float f)
 {
     MatrixDrive_PushMatrix();
     _UnitMatrix(MatrixDrive_GetMatrix());
@@ -2617,7 +2620,7 @@ typedef struct { /* field names derived */
     void (*func)();
 } FlyClipReq; /* derived name */
 
-void flyCoreLoop(GObj *a0, GObj *target, int a2)
+static void flyCoreLoop(GObj *a0, GObj *target, int a2)
 {
     Act *act = GOBJ_ACT(a0);
     float lenSq;
@@ -4755,20 +4758,20 @@ inline void actAfterForceRopeSwing(GObj *volatile a0)
     UnLockChainGeo(s->chain);
 }
 
-inline void actAfterRopeJump(GObj *volatile a0)
+static inline void actAfterRopeJump(GObj *volatile a0)
 {
     char *g = (char *)a0;
     GOBJ_ACT(g)->flags20.ll |= (1ULL << 31);
 }
 
-inline void afterCommonRopeCliff(char *a0)
+static inline void afterCommonRopeCliff(char *a0)
 {
     char *volatile local = a0;
     char *g = *(char **)((char *)boyGObj + 0x15C);
     *(int *)(g + 0x420) = 0;
 }
 
-inline void afterCommonRopeTurnSpecial(GObj *volatile a0)
+static inline void afterCommonRopeTurnSpecial(GObj *volatile a0)
 {
     char *g = (char *)a0;
     GOBJ_SUB(g)->root.ropeState = 0;
@@ -4807,7 +4810,7 @@ inline void afterCommonBox(GObj *volatile a0)
     _boxbar_set_sound(a0, 0);
 }
 
-inline void actAfterJump(GObj *volatile a0)
+static inline void actAfterJump(GObj *volatile a0)
 {
     char *g = (char *)a0;
     GOBJ_ACT(g)->flags20.ll |= (1ULL << 31);
@@ -4835,7 +4838,7 @@ inline void actAfterFly(GObj *volatile a0)
     ResetFlyLimit(a0);
 }
 
-inline void ClipCollisionWithField(char *a0)
+static inline void ClipCollisionWithField(char *a0)
 {
     int tmp[4];
     sceVu0CopyVector(tmp, a0 + 0x10);
@@ -4860,7 +4863,7 @@ typedef struct { /* field names derived */
     int coll;
 } BecSub; /* derived name */
 
-inline void afterCommonBecarry(GObj *volatile a0)
+static inline void afterCommonBecarry(GObj *volatile a0)
 {
     SetKidnapInfo(-1, -1);
     ((BecSub *)(int)GOBJ_SUB(a0))->coll = 1;

@@ -24,8 +24,8 @@ int debug_WayTool(void);
  * ico2/fumi/include/way_tool.h. */
 typedef struct {   /* field names derived */
     float pos[3];  /* 0x00, negated into the way point */
-    float float0C; /* 0x0C, WayPoint+0x24 */
-    int word10;    /* 0x10, WayPoint+0x28 */
+    float radius;  /* 0x0C, WayPoint+0x24 */
+    int escape;    /* 0x10, WayPoint+0x28 */
     float float14; /* 0x14, WayPoint+0x2C */
     int bridgeEnd; /* 0x18, WayPoint+0x30 */
 } WaySrcPt;        /* derived name */

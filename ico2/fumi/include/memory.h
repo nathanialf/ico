@@ -34,16 +34,13 @@ typedef struct IosMemNode {       /* field names derived */
     struct IosMemPart *part;      /* 0x30 */
     int size;                     /* 0x34 */
     int line;                     /* 0x38 */
-    int pad3C;                    /* 0x3C */
-    struct IosMemNode *pad40;     /* 0x40 (partition header view) */
-    struct IosMemNode *head;      /* 0x44 (partition header view: free-list head) */
+    char pad3C[4];
 } IosMemNode;                     /* derived name */
 
 /* memory.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
 IosMemPart *iosMallocInitPartition(unsigned int start, unsigned int end);
 void *iosMallocDebug(IosMemPart *part, int size, const char *file, int line);
-void *_iosMallocDebug(IosMemPart *part, int size, const char *file, int line);
 void *iosFree(void *ptr);
 void iosMallocCheckLeak(IosMemPart *part);
 IosMemPart *iosMallocResetPartition(IosMemPart *part);

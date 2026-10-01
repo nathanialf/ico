@@ -28,6 +28,9 @@ typedef struct WpSortEnt { /* field names derived */
     float d;
 } WpSortEnt; /* derived name */
 
+/* the qsort comparator the two visible_waypoint searches sort by */
+static inline int wpsort_compfnc(WpSortEnt *a0, WpSortEnt *a1);
+
 /* the name every iosMallocDebug and assert in this file reports itself under */
 static const char wayUtilFile[] = "src/way_util.c"; /* derived name */
 
@@ -48,8 +51,6 @@ static const int axisColor[3][4] = {
 static inline WayPoint *visible_waypoint_of_all_except_gid_sub(float *pos, int gid,
                                                                int thread) /* derived name */
 {
-    /* declared here, in the only function that takes its address */
-    extern int wpsort_compfnc(WpSortEnt * a0, WpSortEnt * a1);
     float buf[4];
     ClipBox cb;
     WpSortEnt *tbl;
@@ -121,7 +122,6 @@ WayPoint *visible_waypoint_of_all_except_gid_ThreadVersion(float *pos, int gid)
 static inline WayPoint *visible_waypoint_of_all_except_temp_sub(float *pos, int gid,
                                                                 int thread) /* derived name */
 {
-    extern int wpsort_compfnc(WpSortEnt * a0, WpSortEnt * a1);
     float buf[4];
     ClipBox cb;
     WpSortEnt *tbl;
@@ -1092,7 +1092,7 @@ inline int NearestWgFromTarget(int cur, int end, WgAll *w)
     return cur;
 }
 
-inline int wpsort_compfnc(WpSortEnt *a0, WpSortEnt *a1)
+static inline int wpsort_compfnc(WpSortEnt *a0, WpSortEnt *a1)
 {
     float x = a0->d;
     float y = a1->d;

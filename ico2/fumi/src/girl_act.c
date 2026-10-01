@@ -39,6 +39,9 @@
 #include "motionManager2.h"
 #include "act-env.h"
 
+static void _girlBrainHide_MakeHidePoint(float *p, float dist);
+static int isEnterHideadv(void);
+
 typedef struct GirlStand { /* field names derived */
     sceVu0FVECTOR prev;    /* 0x00 last frame's root position */
     sceVu0FVECTOR cur;     /* 0x10 this frame's root position */
@@ -62,7 +65,7 @@ union GAIF { /* field names derived */
     float f;
 }; /* derived name */
 
-void GetEyeDirection(char *dir, char *obj)
+static void GetEyeDirection(char *dir, char *obj)
 {
     int node = GetSkeltonFocusNode(obj, 0x23);
     if (*(int *)(obj + 0xC) == 4) {
@@ -300,7 +303,7 @@ held:
 
 /* actGirlHand passes two arguments here, so the definition is unprototyped
    and not `(void)`. */
-void GirlBrainClearTarget()
+static void GirlBrainClearTarget()
 {
     brainClsTargetLevel(&brainGirl);
 }
@@ -612,7 +615,7 @@ inline void ClearGirlDangerGObj(void)
     }
 }
 
-void SetTurnSpeedInEscape(char *a0)
+static void SetTurnSpeedInEscape(char *a0)
 {
     if (GOBJ_ACT(a0)->actMode == 10) {
         ACTGame_SetMotionPlaySpeedRatio_Reserve(a0, 1.5f, 5);
@@ -632,7 +635,7 @@ static inline int girlListIsAlive(void *gobj) /* derived name */
     return (int)(GOBJ_ACT(gobj)->flags18.ll >> 32) & 1;
 }
 
-inline int enemy_list_compare(int a0, int a1)
+static inline int enemy_list_compare(int a0, int a1)
 {
     float diff = *(float *)(a0 + 0x20) - *(float *)(a1 + 0x20);
     return (int)diff;
@@ -654,7 +657,7 @@ static inline int girlListPick(GirlListEnt *src, GirlListEnt *dst, int n,
     return cnt;
 }
 
-void girlBrainMain_MakeOthersList(void)
+static void girlBrainMain_MakeOthersList(void)
 {
     /* a GNU nested function */
     void sort_list(float *list, int n)
@@ -807,7 +810,7 @@ void girlBrainMain_MakeOthersList(void)
 static char *groupRelationName[4] = {"FALSE", "OTHERGROUP", "SAMEGROUP",
                                      "DIRECT"}; /* derived name */
 
-int girlBrainHideCheckIntercept(float *from, float *to, char *list, int n)
+static int girlBrainHideCheckIntercept(float *from, float *to, char *list, int n)
 {
     float d[4];
     float m[16];
@@ -914,7 +917,7 @@ static inline int girlBrainHide_TryWay(float *pt, char *way, float *goal,
     return r;
 }
 
-int girlBrainMain_CheckWarningMode(unsigned char check)
+static int girlBrainMain_CheckWarningMode(unsigned char check)
 {
     float hit[4];
     int mode;
@@ -1027,7 +1030,7 @@ static inline float girlBrainGetTypeRatio(int type) /* derived name */
     return r;
 }
 
-int girlBrainMain_DecideMode(int mode, int *next)
+static int girlBrainMain_DecideMode(int mode, int *next)
 {
     /* two nested helpers, reading `next` through the static chain */
     __inline void setNext(int m)
@@ -1179,7 +1182,7 @@ int girlBrainMain_DecideMode(int mode, int *next)
     return *next == 1 ? changed : warned;
 }
 
-void girlBrainMain_PositionUpdate(void)
+static void girlBrainMain_PositionUpdate(void)
 {
     GetRootPosition(brain_val.f_5820, (void *)girlGObj);
     GetRootPosition(brain_val.f_5840, boyGObj);
@@ -1187,7 +1190,7 @@ void girlBrainMain_PositionUpdate(void)
     GetRootProjectionPosOfGObj(brain_val.f_5850, boyGObj);
 }
 
-void girlBrainMain_Init(void)
+static void girlBrainMain_Init(void)
 {
     memset(&brain_val, 0, sizeof(brain_val));
 }
@@ -1840,7 +1843,7 @@ void subGirlBrain_Pulledup(GObj *volatile a0)
 
 #include "girl_brain_attract.c.inc"
 
-void _girlBrainHide_MakeHidePoint(float *p, float dist)
+static void _girlBrainHide_MakeHidePoint(float *p, float dist)
 {
     float v[4];
     ClipWork work;
@@ -1894,7 +1897,7 @@ void _girlBrainHide_MakeHidePoint(float *p, float dist)
     p[1] = work.pos[1] - 10.0f;
 }
 
-void girlBrainHide_GoalTurn(float *dir, unsigned char sendMail)
+static void girlBrainHide_GoalTurn(float *dir, unsigned char sendMail)
 {
     float mo[4];
     float eye[4];
@@ -2107,7 +2110,7 @@ static inline unsigned char isRunawayPointClear(float *p, float *girl) /* derive
     return 1;
 }
 
-int girlBrainRunawaySearchPoint(float *goal, float *out, float *p)
+static int girlBrainRunawaySearchPoint(float *goal, float *out, float *p)
 {
     /* CorrectList, a GNU nested function placed inside its parent's body.  It
        reads nothing of the parent's frame (its scratch list is a file
@@ -2198,7 +2201,7 @@ int girlBrainRunawaySearchPoint(float *goal, float *out, float *p)
     return 0;
 }
 
-int girlBrainRunawayMoveByWay(char *self, float *out, float *tgt)
+static int girlBrainRunawayMoveByWay(char *self, float *out, float *tgt)
 {
     float d[4];
     float pos[4];
@@ -3054,7 +3057,7 @@ void subGirlBrain_HideAdvance(GObj *volatile a0)
     }
 }
 
-int isEnterHideadv_EnemyLocation(float *bpos, float *gpos)
+static int isEnterHideadv_EnemyLocation(float *bpos, float *gpos)
 {
     float o1[4];
     float o2[4];
@@ -3088,7 +3091,7 @@ int isEnterHideadv_EnemyLocation(float *bpos, float *gpos)
     return 1;
 }
 
-int isEnterHideadv(void)
+static int isEnterHideadv(void)
 {
     char buf[32];
     int rv = 0;
@@ -4681,7 +4684,7 @@ typedef struct { /* field names derived */
     float f_528;
 } ActPara; /* derived name */
 
-inline void afterGirlHintPoint(GObj *volatile a0)
+static inline void afterGirlHintPoint(GObj *volatile a0)
 {
     RequestChangeHandMode((void *)a0, 1, 4, 0, 0, 0, 0);
 }

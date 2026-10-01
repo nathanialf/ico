@@ -86,7 +86,7 @@ extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, unsigned 
 /* as in GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
 extern void gif_EndPacket(void);
 
-void display_texture(LtProperty *t)
+static void display_texture(LtProperty *t)
 {
     JimCol col = {128, 128, 128, 128};
     int dst[4];
@@ -135,7 +135,7 @@ void iosCdvdBackGroundReadJimaku(int self, int a1, int size)
     iosCdvdBackGroundMgrSeek(self, *(int *)((char *)self + 0x110) + size);
 }
 
-int jimakuHandler(int self, JimakuArg *p)
+static int jimakuHandler(int self, JimakuArg *p)
 {
     JimakuSub *sub = &p->sub;
     struct jWayGroup *g;
@@ -172,7 +172,7 @@ int jimakuHandler(int self, JimakuArg *p)
     return 0;
 }
 
-void jimakuMgrBegin(JimakuArg *p)
+static void jimakuMgrBegin(JimakuArg *p)
 {
     JimakuSub *sub = &p->sub;
     int st = 0;
@@ -241,7 +241,7 @@ void jimakuMgrBegin(JimakuArg *p)
 #define JIMAKU_DEBUG_DUMP 0 /* derived name */
 #endif
 
-void jimakuMgrNext(JimakuArg *p)
+static void jimakuMgrNext(JimakuArg *p)
 {
     char buf[16];
     JimakuSub *sub = &p->sub;
@@ -287,7 +287,7 @@ void jimakuMgrNext(JimakuArg *p)
     }
 }
 
-void jimakuMgrJump(JimakuArg *p)
+static void jimakuMgrJump(JimakuArg *p)
 {
     JimakuSub *q = &p->sub;
     int m;
@@ -305,7 +305,7 @@ void jimakuMgrJump(JimakuArg *p)
 
 /* K&R definition: it declares no prototype, so jimakuEnd below calls this
  * function with no argument. */
-void jimakuMgrEnd(p) int *p;
+static void jimakuMgrEnd(p) int *p;
 
 {
     int val = p[0x4C / 4];

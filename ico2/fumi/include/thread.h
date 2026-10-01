@@ -18,7 +18,7 @@ typedef struct IOSThread {     /* field names derived */
     void (*func)();            /* 0x38 body run by iosThreadMain       */
     int flags;                 /* 0x3C, bit 0: the stack was allocated (iosThreadCreateS) */
     int sleeping;              /* 0x40 read by iosThreadMain           */
-    int pad44;                 /* 0x44 */
+    char pad44[4];
     int hasQueue;              /* 0x48 */
     struct IosMsgQueue *queue; /* 0x4C, the join queue iosThreadMessage creates */
     char name[16];             /* 0x50 */

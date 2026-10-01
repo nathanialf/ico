@@ -229,7 +229,7 @@ inline int IsEnemyBrainToBoy(GObj *self)
     return sub2->mode == 3;
 }
 
-void setBattleStatus(GObj *self)
+static void setBattleStatus(GObj *self)
 {
     switch (GOBJ_ACT(self)->enemy->battleType) {
     case 0:
@@ -283,7 +283,7 @@ static inline void bossEffectSetNodePos(char *self, float *dst, int idx) /* deri
     dst[3] = 1.0f;
 }
 
-void boss_effect_start(char *self, int id)
+static void boss_effect_start(char *self, int id)
 {
     int i;
 
@@ -307,7 +307,7 @@ void boss_effect_start(char *self, int id)
     ReviveEnemyParticle(self, id);
 }
 
-void boss_effect_check_parts(char *a0, int a1)
+static void boss_effect_check_parts(char *a0, int a1)
 {
     char *p = (char *)GOBJ_ACT(a0)->enemy + 0x360;
     int i;
@@ -319,7 +319,7 @@ void boss_effect_check_parts(char *a0, int a1)
     boss_effect_start(a0, a1);
 }
 
-void boss_effect_process(char *self)
+static void boss_effect_process(char *self)
 {
     float tmp[4];
     int n;
@@ -350,7 +350,7 @@ void boss_effect_process(char *self)
     }
 }
 
-void _DoAwait(char *self)
+static void _DoAwait(char *self)
 {
     MotionDef *row;
     if ((void *)boyGObj != 0) {
@@ -362,7 +362,7 @@ void _DoAwait(char *self)
     }
 }
 
-void _DoAwaitGirl(GObj *self)
+static void _DoAwaitGirl(GObj *self)
 {
     MotionDef *row;
     if ((char *)girlGObj != 0) {
@@ -374,7 +374,7 @@ void _DoAwaitGirl(GObj *self)
     }
 }
 
-int _MustChase(GObj *a0)
+static int _MustChase(GObj *a0)
 {
     float v1[4];
     float v2[4];
@@ -938,7 +938,7 @@ void actEnemyRestart(GObj *self, float *pos, float *dir, int kind, GObj *mother)
 
 /* PairSetGeometry is a GNU nested function, reading its parent's frame
    through the static chain. */
-int actEnemyForceSwitchToCarry(void *a0)
+static int actEnemyForceSwitchToCarry(void *a0)
 {
     void PairSetGeometry(void *me, void *pair, float dist)
     {
@@ -1254,7 +1254,7 @@ void actEnemyKidnapBegin(GObj *volatile a0)
     }
 }
 
-void MoveChestForCatchBoy(GObj *self)
+static void MoveChestForCatchBoy(GObj *self)
 {
     float p0[4];
     float p1[4];
@@ -1485,7 +1485,7 @@ static inline int getEnemyBrainMes(char *self, int *data) /* derived name */
     return t->status;
 }
 
-void CheckEnemyBrainMode(char *self, int *outMode, int *outData)
+static void CheckEnemyBrainMode(char *self, int *outMode, int *outData)
 {
     char *sub = *(char **)(self + 0x164);
     int mode;
@@ -1877,7 +1877,7 @@ static inline void enemyDodgeSendMail(GObj *self) /* derived name */
     *(long long *)((char *)sub + 0x20) |= 0x400;
 }
 
-void enemy_dodge(GObj *self)
+static void enemy_dodge(GObj *self)
 {
     float a[4];
     float b[4];
@@ -1919,7 +1919,7 @@ void enemy_dodge(GObj *self)
     }
 }
 
-void enemy_dodge_to_boy(GObj *self)
+static void enemy_dodge_to_boy(GObj *self)
 {
     float boy[4];
     float me[4];
@@ -1978,7 +1978,7 @@ static inline float battleRangeScale(GObj *self, float v) /* derived name */
     return v;
 }
 
-int Battle_isCurrentStatus(GObj *self, GObj *tgt, float *pos)
+static int Battle_isCurrentStatus(GObj *self, GObj *tgt, float *pos)
 {
     float ori[4];
     float dir[4];
@@ -2062,7 +2062,7 @@ inline int EnemyUtil_isOtherStatus(char *self, int mode)
     return 0;
 }
 
-int GetFlyPosition(float *out, float *me, float *tgt)
+static int GetFlyPosition(float *out, float *me, float *tgt)
 {
     int ret;
 
@@ -2136,7 +2136,7 @@ int GetFlyPosition(float *out, float *me, float *tgt)
 
 /* An _ApproachTarget callback: _ApproachTarget_Way calls its `fn` through
    (void (*)(char *, void *, float)).  `dist` is unused here. */
-void NakaBoss(GObj *self, void *tgt, float dist)
+static void NakaBoss(GObj *self, void *tgt, float dist)
 {
     float bpos[4];
     float mpos[4];
@@ -2468,8 +2468,8 @@ void subEnemyBrain_ToGirl(GObj *volatile a0)
     }
 }
 
-int _ApproachTarget_Boss(GObj *self, void *tgt, void *pos, void *fn, float range,
-                         unsigned char flag)
+static int _ApproachTarget_Boss(GObj *self, void *tgt, void *pos, void *fn, float range,
+                                unsigned char flag)
 {
     float p0[4];
     float p1[4];
@@ -2492,7 +2492,7 @@ int _ApproachTarget_Boss(GObj *self, void *tgt, void *pos, void *fn, float range
     }
 }
 
-int flyMailCore(void *self)
+static int flyMailCore(void *self)
 {
     int flyLow = 0;
     int flyHigh = 0;
@@ -2567,7 +2567,8 @@ static inline int flyLimitMail(GObj *self, float *rp) /* derived name */
     return 1;
 }
 
-int _ApproachTarget_Way(GObj *self, void *tgt, void *pos, void *fn, float range, unsigned char flag)
+static int _ApproachTarget_Way(GObj *self, void *tgt, void *pos, void *fn, float range,
+                               unsigned char flag)
 {
     float p0[4];
     float p1[4];

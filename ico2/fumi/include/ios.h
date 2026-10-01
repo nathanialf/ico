@@ -35,6 +35,5 @@ extern int global_variable;
 int iosSifAllocIopHeapDebug(int size, char *file, int line);
 
 void iosInitialize(void);
-void ios_init_plus(void);
 
 #endif /* IOS_H */

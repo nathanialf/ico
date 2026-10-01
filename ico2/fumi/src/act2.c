@@ -12,18 +12,6 @@ typedef struct MailRec { /* field names derived */
     void *sub;    /* 0x0C */
 } MailRec;        /* derived name */
 
-/* The GObj's pending-mail box at +0x54: a count and a run of 8-byte slots. */
-typedef struct MailEntry { /* field names derived */
-    int key;               /* 0x00 */
-    int val;               /* 0x04 */
-} MailEntry;               /* derived name */
-
-typedef struct MailBox { /* field names derived */
-    int _p0;             /* 0x54 */
-    int count;           /* 0x58 */
-    MailEntry list[1];   /* 0x5C */
-} MailBox;               /* derived name */
-
 typedef struct ActState { /* field names derived */
     char pad0[4];
     void *mainThread;   /* 0x04 */
@@ -34,13 +22,13 @@ typedef struct ActState { /* field names derived */
     int lastKey;    /* 0xD8 */
 } ActState;         /* derived name */
 
-void BeforeFunc2(char *self)
+void BeforeFunc2(GObj *self)
 {
-    ActState *act = *(ActState **)(self + 0x164);
+    ActState *act = (ActState *)self->act;
 
     if (act != 0) {
         /* the mail box and the three lists to walk, the last a -1 terminator */
-        MailBox *mb = (MailBox *)(self + 0x54);
+        IosMailBox *mb = (IosMailBox *)&self->mailQueue;
         MailRec *lists[3] = {act->listA, act->listB, (MailRec *)-1};
         MailRec *p;
         int i;
@@ -52,20 +40,20 @@ void BeforeFunc2(char *self)
                 continue;
             }
             while (p->id != 429) {
-                for (j = 0; j < mb->count; j++) {
-                    if (mb->list[j].key == p->id) {
+                for (j = 0; j < mb->num; j++) {
+                    if (mb->mail[j].type == p->id) {
                         goto found;
                     }
                 }
                 p++;
             }
         }
-        mb->count = 0;
+        mb->num = 0;
         return;
 
     found:
-        act->lastKey = mb->list[j].key;
-        mb->count = 0;
+        act->lastKey = mb->mail[j].type;
+        mb->num = 0;
         if (p->main != 0) {
             actChangeActMain(isysCurrentGObj, p->main, &act->mainThread);
         }

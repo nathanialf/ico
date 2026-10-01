@@ -26,9 +26,6 @@ void ConvertStickToAbsCoord(void *a0, float *a1);
 void ActSetStartBrainStatus(struct GObj *self, int status);
 void actWaitCondition(int a0, int a1);
 
-/* act.c's `inline` functions, in the order of their definitions'
- * out-of-line copies at the end of the object (first-declaration order). */
-
 void ACTDebugMove(struct GObj *a0, int a1);
 void actChangeActBrain(struct GObj *self, void (*fn)(), struct GProc **slot);
 void actChangeActMain(struct GObj *self, void (*fn)(), struct GProc **slot);

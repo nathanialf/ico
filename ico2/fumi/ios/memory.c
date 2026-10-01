@@ -195,7 +195,7 @@ static char *mallocFile; /* derived name */
 
 static int mallocLine; /* derived name */
 
-void *_iosMallocDebug(IosMemPart *part, int size, const char *file, int line)
+static void *_iosMallocDebug(IosMemPart *part, int size, const char *file, int line)
 {
     char buf[1024];
     /* read only by the DEBUG build's free-list trace at the loop's end */
@@ -430,14 +430,14 @@ void *iosFree(void *ptr)
                         fn = next->free_prev;
                         prev->free_prev = fn;
                         if (fn == 0) {
-                            ((IosMemNode *)node->part)->head = prev;
+                            node->part->head = prev;
                         } else {
                             fn->free_next = prev;
                         }
                     } else {
                         fn = next->free_prev;
                         if (fn == 0) {
-                            ((IosMemNode *)node->part)->head = next->free_next;
+                            node->part->head = next->free_next;
                         } else {
                             fn->free_next = next->free_next;
                         }
@@ -484,8 +484,8 @@ void *iosFree(void *ptr)
     }
     if (strcmp(next->tag, "<ALLOC>________") == 0) {
         node->free_prev = 0;
-        node->free_next = ((IosMemNode *)node->part)->head;
-        ((IosMemNode *)node->part)->head = node;
+        node->free_next = node->part->head;
+        node->part->head = node;
         if (node->free_next != 0) {
             node->free_next->free_prev = node;
         }
@@ -496,7 +496,7 @@ void *iosFree(void *ptr)
     }
     fn = next->free_prev;
     if (fn == 0) {
-        ((IosMemNode *)node->part)->head = node;
+        node->part->head = node;
     } else {
         fn->free_next = node;
     }
@@ -519,9 +519,9 @@ void *iosFree(void *ptr)
     goto tag_free;
 tail_node:
     node->free_prev = 0;
-    node->free_next = ((IosMemNode *)node->part)->head;
-    if (((IosMemNode *)node->part)->head != 0) {
-        ((IosMemNode *)node->part)->head = node;
+    node->free_next = node->part->head;
+    if (node->part->head != 0) {
+        node->part->head = node;
         node->free_next->free_prev = node;
     }
     debug_assertMessage(__FILE__, 962, "IOSFREE(): ALLOC NULL\n");
@@ -683,7 +683,7 @@ void *iosReallocDebug(void *ptr, unsigned int size)
     if (p->free_prev != 0) {
         p->free_prev->free_next = p;
     } else {
-        ((IosMemNode *)node->part)->head = p;
+        node->part->head = p;
     }
     if (p->free_next != 0) {
         p->free_next->free_prev = p;

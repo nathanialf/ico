@@ -177,7 +177,7 @@ inline void actWaitCondition(int a0, int a1)
     }
 }
 
-void after_func_exec(void *self, int oldst, int newst)
+static void after_func_exec(void *self, int oldst, int newst)
 {
     Act *g = GOBJ_ACT(self);
 
@@ -375,7 +375,7 @@ typedef struct { /* field names derived */
     int w[8];
 } IntrOrient; /* derived name */
 
-IntrMail *act_check_intr_list(void *self, IntrMail *m, void **out)
+static IntrMail *act_check_intr_list(void *self, IntrMail *m, void **out)
 {
     IntrList *k = (IntrList *)(self + 0x54);
     Act *w = GOBJ_ACT(self);
@@ -416,7 +416,7 @@ IntrMail *act_check_intr_list(void *self, IntrMail *m, void **out)
     return 0;
 }
 
-void act_check_mail(void *self, IntrMail *m)
+static void act_check_mail(void *self, IntrMail *m)
 {
     IntrList *k = (IntrList *)(self + 0x54);
     Act *w = GOBJ_ACT(self);

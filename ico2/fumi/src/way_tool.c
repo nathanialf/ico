@@ -442,8 +442,8 @@ void ExtractWayData(int stage_no)
             p = CreateWayPoint(v.f);
             AddWayPoint(g, p);
             w = &way_point[p];
-            w->radius = q->float0C;
-            w->escape = q->word10;
+            w->radius = q->radius;
+            w->escape = q->escape;
             w->float2C = q->float14;
             w->bridgeEnd = q->bridgeEnd;
         }

@@ -9,15 +9,15 @@
 #define GOBJ_DL_H
 
 typedef struct DLN { /* field names derived */
-    char pad0[0x34];
+    char pad0[52];
     struct DLN *next;
     struct DLN *prev;
-    char pad3C[0x4];
+    char pad3C[4];
     unsigned char id;
-    char pad41[0x3];
+    char pad41[3];
     int key;
     void *dl; /* 0x48, the display function the object manager calls */
-    char pad4C[0x4];
+    char pad4C[4];
     int drawMask; /* 0x50, ANDed with the camera's mask to pick the cameras that draw it */
 } DLN;            /* derived name */
 

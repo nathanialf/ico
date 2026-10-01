@@ -243,7 +243,7 @@ static inline int way_probe(float *a, float *b) /* derived name */
     return cc.wall;
 }
 
-int avoid_obstacle2(float *pos, float *wp, WVTObj *w)
+static int avoid_obstacle2(float *pos, float *wp, WVTObj *w)
 {
     WayClipWork cc;
     WayVec box[4];
@@ -383,7 +383,7 @@ int avoid_obstacle2(float *pos, float *wp, WVTObj *w)
     return 0;
 }
 
-void create_box_bridge(char *g)
+static void create_box_bridge(char *g)
 {
     WayClipWork cc;
     WayVec pos;

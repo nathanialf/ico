@@ -107,7 +107,7 @@ static inline int getDitchCarryModeStage8(void) /* derived name */
     return 0;
 }
 
-void getDitchDistTbl(float **tbl, float *range, int *sofa, float *pos, void *obj, int *carry)
+static void getDitchDistTbl(float **tbl, float *range, int *sofa, float *pos, void *obj, int *carry)
 {
     VECTOR v;
     int mode;
@@ -170,7 +170,7 @@ void getDitchDistTbl(float **tbl, float *range, int *sofa, float *pos, void *obj
     }
 }
 
-int GetDitchPosition(float *out, float *org, float *dir, float d0, float d1, float h)
+static int GetDitchPosition(float *out, float *org, float *dir, float d0, float d1, float h)
 {
     ClipWork work;
     float tmp[4];

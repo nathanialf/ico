@@ -43,10 +43,6 @@ void SetGirlDangerGObj(struct GObj *a0);
 void ClearGirlDangerGObj(void);
 void GirlAct_BoyAndMeCollisionMail(void *a0);
 int IsGirlStatusEscortEnable(int a0, int a1);
-void _girlBrainHide_MakeHidePoint(float *p, float dist);
-int girlBrainHideCheckIntercept(float *from, float *to, char *list, int n);
-int girlBrainMain_CheckWarningMode(unsigned char check);
-int isEnterHideadv_EnemyLocation(float *bpos, float *gpos);
 void subGirlBrainMain(struct GObj *volatile a0);
 void subGirlCollision(struct GObj *volatile a0);
 void subGirlControl(struct GObj *volatile a0);
@@ -63,7 +59,6 @@ extern int girlcalled;
  * hand manager's record (their types are girl_act.c's own). */
 extern struct GirlBrainWork brain_val;
 extern struct GirlStand handmgr;
-int isEnterHideadv(void);
 
 /* param-escape-run: one escape-run timer range, 8 bytes, [t][mode]. Reader:
  * ico2/fumi/src/girl_act.c (brain_val.limit). Owner:

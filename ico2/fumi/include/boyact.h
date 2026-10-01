@@ -72,8 +72,6 @@ void SetBoyInfo(int *a0, int *a1);
 void GetBoyRootPositionForCamera(float *out, struct GObj *gobj);
 void Boy_Init(void);
 void ACTDispLwsBoyStonize_InQueenStage(void *self);
-void BoyBgaManager(void *self, int id, void *dst);
-void PutWeapon(void);
 void SetStatusBoy_OtherStageGirlPinch(void);
 void handoff_heroin(void);
 /* boyact.o's .sdata globals: the two rope values and, last,

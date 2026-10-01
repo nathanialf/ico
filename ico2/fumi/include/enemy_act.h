@@ -10,15 +10,16 @@
 
 #include "typedef.h"
 
+/* The target a brain-mode request carries (_BrainMode_SetDirect). */
+typedef struct { /* field names derived */
+    GObj *gobj;
+} BrainModeTarget; /* derived name */
+
 /* A 64-bit flag word with a byte view (the enemy work's +0x210 status word and
    the sub record's +0x20 word).  A write through the byte view may alias the
    pointers that reach it, so each arm below re-reads self->sub->enemy for its
    second assignment.  The two-word view is the enemy work's: +0x210 is one
    64-bit word and +0x214, the requested brain target, a record inside it. */
-/* The target a brain-mode request carries (_BrainMode_SetDirect). */
-typedef struct { /* field names derived */
-    GObj *gobj;
-} BrainModeTarget; /* derived name */
 
 typedef union { /* field names derived */
     char c[8];
@@ -64,7 +65,9 @@ typedef struct EnemyBattleWork { /* field names derived */
     char padC4[8];
     int liftLevel;    /* 0xCC */
     int floorAttrOff; /* 0xD0 */
-    char padD4[228];
+    char padD4[12];
+    float hitDir[4];      /* 0xE0, the direction of the last attack that hit (AttackGenerate) */
+    short hitNodes[100];  /* 0xF0, the nodes that attack hit, -1 terminated (AttackCheckHit) */
     int lwsEffect; /* 0x1B8 */
     char pad1BC[4];
     float ropeCliffX; /* 0x1C0 */
@@ -114,8 +117,8 @@ typedef struct EnemyBattleWork { /* field names derived */
     int stoneLevel; /* 0x29C */
     int stonePair;  /* 0x2A0 */
     int word2A4;    /* 0x2A4 */
-    int count2A8;   /* 0x2A8 */
-    int count2AC;   /* 0x2AC */
+    int stoneHitNoWeapon; /* 0x2A8, queen-battle stone hits taken with no weapon */
+    int stoneHitWeapon;   /* 0x2AC, the same hits taken with a weapon */
     int word2B0;    /* 0x2B0 */
     char pad2B4[44];
     char *rescueObj; /* 0x2E0 */
@@ -182,16 +185,7 @@ inline int _ApproachTarget(GObj *self, void *tgt, void *pos, void *fn, float ran
 
 void afterEnemyBodylift(GObj *volatile a0);
 
-int _ApproachTarget_Boss(GObj *self, void *tgt, void *pos, void *fn, float range,
-                         unsigned char flag);
-
-int _ApproachTarget_Way(GObj *self, void *tgt, void *pos, void *fn, float range,
-                        unsigned char flag);
-
-int actEnemyForceSwitchToCarry(void *a0);
 void actEnemyRestart(GObj *self, float *pos, float *dir, int kind, GObj *mother);
-void boss_effect_start(char *self, int id);
-int flyMailCore(void *self);
 /* enemy_act.o's last .sdata global (act.c sets it) */
 extern int entesty;
 void subEnemyControl(GObj *volatile a0);

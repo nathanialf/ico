@@ -96,13 +96,13 @@ typedef struct ActWork { /* field names derived */
     char pad52C[4];
     float boxDir[4]; /* 0x530, the direction a box is pushed and pulled in (actCommonBox) */
     char pad540[480];
-    int view720; /* 0x720 */
+    int viewResult; /* 0x720, the clip request ACTGameView_Loop runs (clipCollisionManager.c's ClipColWork): done */
     char pad724[124];
-    void *view7A0; /* 0x7A0 */
+    float viewRadius; /* 0x7A0, the clip radius (ClipWork+0x70) */
     char pad7A4[20];
-    int view7B8; /* 0x7B8 */
+    int viewHitWall; /* 0x7B8, the wall the clip hit */
     char pad7BC[8];
-    int view7C4; /* 0x7C4 */
+    int viewHitFloor; /* 0x7C4, the floor the clip hit */
     char pad7C8[40];
     char *viewObj; /* 0x7F0 */
     char pad7F4[12];
@@ -196,7 +196,6 @@ void ACTGame_SetMotionPlaySpeedRatio_Exec(struct GObj *a0);
 void GetGirlPositionAtThisStage(float *a0);
 int ACTCheckView(struct GObj *self, void *a1, void *a2, int range, float f);
 void ACTGame_BeforeFunc(struct GObj *self);
-void ACTGame_InnerVelocityUpdate(struct GObj *self);
 void ACTGame_InsertCamera_GirlIsPinch(void);
 void ACTParaStatus_Clear(struct GObj *a0);
 void ACTGame_SaveActorInformation(struct GObj *a0);
@@ -204,7 +203,6 @@ void ACTGame_DeleteActorInformation(struct GObj *a0);
 /* The second parameter is an unsigned char. */
 void ACTGame_SetActors_Debug(int stage, unsigned char flag);
 void ACTGame_StageChangeGObj(struct GObj *self, int idx);
-void FunctionAboutClingedStatus(struct GObj *self);
 void GetSkeltonOrient(float *out, void *obj, int node);
 void RequestChangeHandMode(char *self, int mode, int pri, int flag, int p5, int p6, float *p7);
 
