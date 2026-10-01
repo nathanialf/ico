@@ -301,7 +301,7 @@ static inline void iosCdvdDiskReadyBlock(void)
         sceCdlFILE fp;
         char file[32];
         strcpy(file, "SCES_507.60");
-        iosCdvdChgFileName((int)file);
+        iosCdvdChgFileName(file);
         debug_StdPrintfDummy("wait insert ico disk %s %s\n", "SCES_507.60", file);
         do {
             sceCdDiskReady(0);
@@ -424,13 +424,13 @@ static void iosCdvdMgrStStop(IosCdvdHandle *self)
 
 /* a file name in the disc's form (a leading backslash, upper case, ";1"),
  * which iosCdvdChgFileName and the load paths inline */
-static inline int chgFileName(int a0) /* derived name */
+static inline char *chgFileName(char *name) /* derived name */
 {
     char buf[256];
     char *p = buf;
     char c;
 
-    sprintf(buf, "\\%s;1", a0);
+    sprintf(buf, "\\%s;1", name);
 
     do {
         if ((c = *p) == '/') {
@@ -440,14 +440,14 @@ static inline int chgFileName(int a0) /* derived name */
         }
         p++;
     } while (*p != 0);
-    return strcpy(a0, buf);
+    return strcpy(name, buf);
 }
 
 static void iosCdvdMgrLoad(IosCdvdHandle *self)
 {
     int rv;
 
-    chgFileName((int)self->name);
+    chgFileName(self->name);
     self->mode.trycount = 0;
     self->mode.spindlctrl = cdSpindlCtrl;
     self->mode.datapattern = 0;
@@ -546,7 +546,7 @@ static void iosCdvdMgrPackLoad(IosCdvdHandle *self)
     int start = lock_execIcoMisc;
     float sec;
 
-    chgFileName((int)self->name);
+    chgFileName(self->name);
     self->mode.trycount = 0;
     self->mode.spindlctrl = cdSpindlCtrl;
     self->mode.datapattern = 0;
@@ -781,7 +781,7 @@ static int unifile_read_func(IosCdvdHandle *self)
     while (cnt-- > 0) {
         iosCdvdHandlerRead(self, work, 32);
         sprintf(self->name, "DFDATAS/%s", work);
-        chgFileName((int)self->name);
+        chgFileName(self->name);
         strcpy(iosCdvdSrhBuff[srhBuffCnt].name, self->name);
         iosCdvdHandlerRead(self, &lsn, 4);
         iosCdvdSrhBuff[srhBuffCnt].lsn = lsn / 2048 + self->file.lsn;
@@ -893,10 +893,10 @@ void iosCdvdLoad(int req, int inflate)
     iosMsgSend(&CdvdMsgQ, req, 0);
 }
 
-static void iosCdvdPackLoad(void *a0)
+static void iosCdvdPackLoad(IosCdvdHandle *cdvd)
 {
-    *(int *)((char *)a0 + 4) = 2;
-    iosMsgSend(&CdvdMsgQ, a0, 0);
+    cdvd->ctl.i[1] = 2;
+    iosMsgSend(&CdvdMsgQ, cdvd, 0);
 }
 
 CdvdBgReq *iosCdvdBackGroundMgrAdd(const char *name, void *readFunc, int readArg, void *readyFunc,
@@ -942,7 +942,7 @@ found:
         p = bg->name;
     }
     sprintf(buf, "DFDATAS/%s", p);
-    chgFileName((int)buf);
+    chgFileName(buf);
     bg->lsn = getFileLsn(buf, &size);
     bg->size = size;
     /* a print compiled out of the retail build; its string stays in
@@ -1001,7 +1001,7 @@ static void cdWait(int *busy)
                 cdWaitParamSet = 1;
             }
             strcpy(file, "SCES_507.60");
-            chgFileName((int)file);
+            chgFileName(file);
             r = sceCdDiskReady(1);
             if (r == 2 && sceCdGetDiskType() == cdDiskType && sceCdSearchFile(&fp, file) != 0) {
                 self->flags.ready = 1;
@@ -1127,7 +1127,7 @@ void iosCdvdDirectStOpen(IosCdvdHandle *self)
     }
     sprintf(buf, "DFDATAS/%s", name);
     strcpy(self->name, buf);
-    chgFileName((int)self->name);
+    chgFileName(self->name);
     self->mode.trycount = 0;
     self->mode.spindlctrl = 0;
     self->mode.datapattern = 0;
@@ -1162,9 +1162,9 @@ void iosCdvdDirectStClose(IosCdvdHandle *self)
 
 /* The loop carries the next character in `c`, which the test assigns and
  * toupper reads. */
-int iosCdvdChgFileName(int a0)
+char *iosCdvdChgFileName(char *name)
 {
-    return chgFileName(a0);
+    return chgFileName(name);
 }
 
 int iosCdvdGetFileLsn(char *name, int *size)
@@ -1172,9 +1172,9 @@ int iosCdvdGetFileLsn(char *name, int *size)
     return getFileLsn(name, size);
 }
 
-int iosCdvdSync(int a0)
+int iosCdvdSync(int msg)
 {
-    int local = a0;
+    int local = msg;
     iosMsgRecv(&CdvdMsgQ_LoadEnd, &local, 1);
     return 1;
 }
@@ -1248,7 +1248,7 @@ int iosCdvdBackGroundMgrGetRunning(void)
     return bgRunning;
 }
 
-int iosCdvdDirectStRead(int a0, void *dst, int size, int *err)
+int iosCdvdDirectStRead(int stream, void *dst, int size, int *err)
 {
     int local, result;
     *err = 0;

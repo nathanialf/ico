@@ -38,6 +38,8 @@
 #include "camera-editor.h"
 #include "motionManager2.h"
 #include "act-env.h"
+#include "item.h"
+#include "wireLetter.h"
 
 static void _girlBrainHide_MakeHidePoint(float *p, float dist);
 static int isEnterHideadv(void);
@@ -545,12 +547,6 @@ static inline void ATGoalTurnSendMail(GObj *self) /* derived name */
 /* The wire-string marker (colour, a MatrixDrive transform of the position,
    DispWireString, colour reset), built only under DEBUG, as
    girlBrainDebugPrint is. */
-#ifdef DEBUG
-
-extern void DefaultColorWireString(void);
-
-#endif
-
 static inline void girlDispWire(int r, int g, int b, float *pos, char *str) /* derived name */
 {
 #ifdef DEBUG
@@ -1213,8 +1209,6 @@ extern MotionDef motionKind[];
 /* declared in girl_act.h: the girl's look timer and its state, a tentative
    definition */
 int GirlInfo[2];
-
-extern void *GetBombTorchGObj(void *obj);
 
 /* A file-scope static helper, inlined in Danger_Box, its nested
  * GetSafePosition and subGirlBrainMain: whether the boy is pushing a
@@ -3201,7 +3195,7 @@ static char *wayTestStateName[9] = {
    record, all zero, explicitly initialised so that it stays in .data. */
 GirlBrainWork brain_val = {0};
 
-extern float GetDifferenceFromLowerField(void *obj, int node);
+extern float GetDifferenceFromLowerField(GObj *obj, int node);
 
 /* girl_act.o's .sdata globals (declared in girl_act.h) */
 int hyde_test = 0;
@@ -4500,7 +4494,7 @@ void actGirlStart(void *self)
     actInitialize_ext_charcter(self);
     actInitialize_only_charcter(self);
     actInitialize_geo(self);
-    GOBJ_ACT(self)->enemy->word254 =
+    GOBJ_ACT(self)->enemy->sofaWakeTime =
         (int)(_ACTGame_GetParamF(0x22) * (float)((60 - systemStatus[0] * 10) / systemStatus[1]) /
               60.0f);
     ACTGame_LwsEffectInit(self);

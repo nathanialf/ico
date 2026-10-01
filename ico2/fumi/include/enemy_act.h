@@ -9,6 +9,7 @@
 #define ENEMY_ACT_H
 
 #include "typedef.h"
+#include "chain.h"
 
 /* The target a brain-mode request carries (_BrainMode_SetDirect). */
 typedef struct { /* field names derived */
@@ -101,8 +102,8 @@ typedef struct EnemyBattleWork { /* field names derived */
     float readyDirY; /* 0x244 */
     float readyDirZ; /* 0x248 */
     char pad24C[4];
-    int sofaWake;         /* 0x250 */
-    int word254;          /* 0x254 */
+    int sofaWake;         /* 0x250 the frames on the sofa, cleared on waking */
+    int sofaWakeTime;     /* 0x254 the frames after which the sofa sends mail 0x73 */
     int dirSmoothFrames;  /* 0x258 */
     int dirSmoothFrames2; /* 0x25C */
     int clingedFrames;    /* 0x260 */
@@ -126,6 +127,11 @@ typedef struct EnemyBattleWork { /* field names derived */
     float rescueY; /* 0x304 */
     char pad308[8];
     int boxBarSound; /* 0x310 */
+    char pad314[28];
+    float climbOrient[4]; /* 0x330 the orient of the chain or wall climbed */
+    float climbPos[4];    /* 0x340 the climb's position */
+    ClimbCol climbCol;    /* 0x350 the wall the climb holds, as GetChainClimbCollision fills it */
+    int climbObj;         /* 0x35C the chain or cage climbed */
 } EnemyBattleWork;   /* derived name */
 
 /* enemy_act.c's `inline` functions, in the order of their definitions'

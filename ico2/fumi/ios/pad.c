@@ -31,13 +31,13 @@ typedef struct { /* field names derived */
 /* The device record iosPadDev carries one of per port: the buffer the last
    read filled is chosen by the index at +0xC, and +0x194 is set while the
    port has no controller. */
-typedef struct { /* field names derived */
-    char pad0[16];
+typedef struct {          /* field names derived */
+    ShockRequestBox box;  /* 0x00 the player Init_Player sets up */
     unsigned char motor0; /* 0x10 */
     unsigned char motor1; /* 0x11 */
     char pad12[2];
-    int motor; /* 0x14 the motor state Shock_SetMotor keeps, which Init_Controler clears */
-} IosPadShock; /* derived name */
+    ShockReq motor; /* 0x14 the motor state Shock_SetMotor keeps, which Init_Controler clears */
+} IosPadShock;      /* derived name */
 
 typedef struct IosPadDevRec { /* field names derived */
     int port;                 /* 0x00 */
@@ -58,8 +58,7 @@ typedef struct IosPadDevRec { /* field names derived */
     unsigned int error;   /* 0x194 */
     unsigned char act[6]; /* 0x198 */
     char pad19E[6];
-    IosPadShock shock; /* 0x1A4 */
-    char pad1BC[4];
+    IosPadShock shock;        /* 0x1A4 */
     unsigned long long flags; /* 0x1C0 */
 } IosPadDevRec;               /* derived name */
 
@@ -74,28 +73,6 @@ typedef struct { /* field names derived */
     float mag; /* 0x14 */
     char pad18[8];
 } IosPadStick; /* derived name */
-
-typedef struct { /* field names derived */
-    unsigned char mode;
-    unsigned char b1;
-    unsigned char volume;
-    unsigned char b3;
-} ShockPrm; /* derived name */
-
-typedef struct {          /* field names derived */
-    int key;              /* 0x00 */
-    int box;              /* 0x04 */
-    int voice;            /* 0x08 the shockList row's voice */
-    ShockPrm prm;         /* 0x0C */
-    short life;           /* 0x10 */
-    short tick;           /* 0x12 */
-    unsigned char volume; /* 0x14 */
-    unsigned char pad[3];
-} PadAct; /* derived name */
-
-/* with the two below: shockdriver.c's definitions take its own records, and
-   this TU hands them the box and parameter as its PadAct holds them */
-extern int Shock_Request(int box, int voice, ShockPrm prm, int key, int arg);
 
 /* the terminal id the reconnect check compares against, which nothing in the
    retail build writes, and the enable flag iosPadEnable and iosPadDisable
@@ -384,10 +361,6 @@ int iosPadDevInit(void *desc)
     return 1;
 }
 
-/* shockdriver.c's decoder and motor output: its definitions take its own box
-   records, which this TU passes as the device record holds them */
-extern void Shock_Decode(void *box, unsigned char *pFlags, unsigned char *pLevel);
-extern void Shock_SetMotor(int flags, int level, void *box, int port, int slot);
 static void iosPadActTickProc(void);
 
 static int iosPadDevReadFunc(void)
@@ -427,7 +400,7 @@ static int iosPadDevReadFunc(void)
         }
         sh = &dev->shock;
         port = dev->port;
-        Shock_Decode(sh, &dev->shock.motor0, &dev->shock.motor1);
+        Shock_Decode(&sh->box, &dev->shock.motor0, &dev->shock.motor1);
         if (((*(unsigned int *)((char *)dev + (dev->idx << 5) + 0x10) >> 12) & 0xF) != 7 ||
             dev->error != 0) {
             port = -1;
@@ -599,16 +572,11 @@ static PadAct padActs[16]; /* derived name */
 
 static int padActKey = 1; /* derived name */
 
-/* the pad device the request hangs off: only the shock box pointer at +0 is read */
-typedef struct { /* field names derived */
-    char *box;
-} PadDev; /* derived name */
-
-int iosPadActRequest(int port, int id)
+int iosPadActRequest(int pad, int id)
 {
-    PadAct *p = (PadAct *)padActs;
+    PadAct *p = padActs;
     PadAct *entry;
-    int i = 0xF;
+    int i = 15;
 
     while (1) {
         if (p->key == 0) {
@@ -618,7 +586,7 @@ int iosPadActRequest(int port, int id)
         if (i == -1) {
             goto notfound;
         }
-        p = (PadAct *)((char *)p + 0x18);
+        p++;
     }
 notfound:
     entry = 0;
@@ -626,17 +594,17 @@ notfound:
 found:
     entry = p;
 go:
-    if (port == 0 || iosPadActRequestEnable == 0 || entry == 0) {
+    if (pad == 0 || iosPadActRequestEnable == 0 || entry == 0) {
         return 0;
     }
     entry->voice = shockList[id].voice;
     entry->life = shockList[id].life;
     entry->tick = 0;
-    entry->box = (int)(((PadDev *)port)->box + 0x1A4);
-    entry->prm.mode = entry->prm.b1 = 0;
+    entry->box = &((IosPadCtx *)pad)->dev->shock.box;
+    entry->prm.voice = entry->prm.waveId = 0;
     entry->prm.volume = 255;
     entry->volume = 255;
-    entry->prm.b3 = 32;
+    entry->prm.timeScale = 32;
     if (Shock_Request(entry->box, entry->voice, entry->prm, padActKey, 0) == 0) {
         return 0;
     }
@@ -644,7 +612,7 @@ go:
     if (padActKey == 0) {
         padActKey = 1;
     }
-    return *(int *)entry;
+    return entry->key;
 }
 
 int iosPadDevRead(void)
@@ -721,21 +689,16 @@ int iosPadEnableGet(void)
 
 void iosPadActInit(void)
 {
-    unsigned char *base;
-    unsigned char *p;
+    IosPadDevRec *dev;
     int i;
     memset(padActs, 0, sizeof(padActs));
     Init_Shock();
     Shock_SetShockVoiceSet(0, (int)ShockVoiceSetCommon);
-    base = (unsigned char *)iosPadDev;
-    p = base + 0x1B8;
-    i = 1;
-    do {
-        Init_Controler(p);
-        i--;
-        Init_Player(p - 0x14);
-        p += 0x200;
-    } while (i >= 0);
+    dev = iosPadDev;
+    for (i = 0; i < 2; i++) {
+        Init_Controler(&dev[i].shock.motor);
+        Init_Player(&dev[i].shock.box);
+    }
 }
 
 void iosPadActStop(int key)
@@ -744,18 +707,18 @@ void iosPadActStop(int key)
         return;
     }
     for (;;) {
-        int *p = (int *)padActs;
-        int *entry;
-        int i = 0xF;
+        PadAct *p = padActs;
+        PadAct *entry;
+        int i = 15;
         while (1) {
-            if (*p == key) {
+            if (p->key == key) {
                 goto found;
             }
             i--;
             if (i == -1) {
                 goto notfound;
             }
-            p = (int *)((char *)p + 0x18);
+            p++;
         }
     notfound:
         entry = 0;
@@ -766,39 +729,39 @@ void iosPadActStop(int key)
         if (entry == 0) {
             break;
         }
-        ShockRequestBox_RequestCancel(entry[0x4 / 4], key);
-        entry[0] = 0;
+        ShockRequestBox_RequestCancel(entry->box, key);
+        entry->key = 0;
     }
 }
 
 void iosPadActStopAll(void)
 {
-    int *p = (int *)padActs;
+    PadAct *p = padActs;
     int i;
-    for (i = 0xF; i != -1; i--) {
-        int x = p[0];
-        if (x != 0) {
-            ShockRequestBox_RequestCancel(p[1], x);
-            p[0] = 0;
+    for (i = 15; i != -1; i--) {
+        int key = p->key;
+        if (key != 0) {
+            ShockRequestBox_RequestCancel(p->box, key);
+            p->key = 0;
         }
-        p = (int *)((char *)p + 0x18);
+        p++;
     }
 }
 
-int *iosPadActVolumeSet(int key, unsigned int val)
+PadAct *iosPadActVolumeSet(int key, unsigned int val)
 {
-    int *p = (int *)padActs;
-    int *rv;
+    PadAct *p = padActs;
+    PadAct *rv;
     int i;
     val = val & 0xFF;
-    i = 0xF;
+    i = 15;
     while (1) {
-        if (*p == key)
+        if (p->key == key)
             goto found;
         i--;
         if (i == -1)
             goto notfound;
-        p = (int *)((char *)p + 0x18);
+        p++;
     }
 notfound:
     rv = 0;
@@ -807,7 +770,7 @@ found:
     rv = p;
 end:
     if (rv != 0) {
-        *(unsigned char *)((char *)rv + 0x14) = val;
+        rv->volume = val;
     }
     return rv;
 }
@@ -822,29 +785,23 @@ static void iosPadDevManager(void)
     }
 }
 
-typedef struct ShockRequest { /* field names derived */
-    ShockPrm prm;             /* 0x00 */
-    unsigned char pad[56];
-    struct ShockRequest *org; /* 0x3C */
-} ShockRequest;
-
-static inline void setRequestVolume(ShockRequest *req, unsigned int volume) /* derived name */
+static inline void setRequestVolume(SHOCKREQUEST *req, unsigned int volume) /* derived name */
 {
     unsigned int v;
-    v = volume * req->org->prm.volume / 255;
+    v = volume * req->org->volume / 255;
     if (v > 255) {
         v = 255;
     }
-    req->prm.volume = v;
+    req->volume = v;
 }
 
 static void iosPadActTickProc(void)
 {
-    PadAct *p = (PadAct *)padActs;
+    PadAct *p = padActs;
     int i;
     for (i = 0xF; i != -1; i--) {
         if (p->key != 0) {
-            ShockRequest *req = ShockRequestBox_GetRequest(p->box, p->key);
+            SHOCKREQUEST *req = ShockRequestBox_GetRequest(p->box, p->key);
             if (req == 0) {
                 p->tick++;
                 if (p->life == 0 || p->tick < p->life) {

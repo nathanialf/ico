@@ -2,6 +2,7 @@
 #include "matrixDrive.h"
 #include <libvu0.h>
 #include "fuzio.h"
+#include <stdlib.h>
 
 void fzShowV(float *p)
 {
@@ -14,14 +15,14 @@ void fzShowV(float *p)
     debug_StdPrintfDummy("\n");
 }
 
-void fzShowM(int *p)
+void fzShowM(float *p)
 {
     int i = 0;
     do {
         debug_StdPrintfDummy("[%d]: ", i);
         i++;
         fzShowV(p);
-        p = (int *)((char *)p + 0x10);
+        p += 4;
     } while (i < 4);
 }
 
@@ -40,16 +41,10 @@ float fzMagnitudefv(float *v)
     return FSqrt(sceVu0InnerProduct(v, v));
 }
 
-/* 8-byte aligned so the initializer's block copy is ld/sd, not ldl/ldr+sdl/sdr */
-typedef union FzVec { /* field names derived */
-    float f[4];
-    long long ll[2];
-} FzVec; /* derived name */
-
 float fzMagnitude2fv(float *p0, float *p1)
 {
-    FzVec d = {{p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]}};
-    return FSqrt(sceVu0InnerProduct(&d, &d));
+    sceVu0FVECTOR d = {p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]};
+    return FSqrt(sceVu0InnerProduct(d, d));
 }
 
 float fzMagnitudeByLine(float *p0, float *p1, float *p2)
@@ -62,7 +57,7 @@ float fzMagnitudeByLine(float *p0, float *p1, float *p2)
     c = p0[2] * p1[0] - p0[0] * p1[2];
     mdret = FSqrt(b * b + a * a);
     ci = (int)(b * p2[0] + a * p2[2] + c);
-    ci = __builtin_abs(ci);
+    ci = abs(ci);
     return (float)ci / mdret;
 }
 
@@ -96,6 +91,6 @@ float fzMagnitudeByLineSeg(float *p0, float *p1, float *p2)
     c = p0[2] * p1[0] - p0[0] * p1[2];
     mdret = FSqrt(b * b + a * a);
     ci = (int)(b * p2[0] + a * p2[2] + c);
-    ci = __builtin_abs(ci);
+    ci = abs(ci);
     return (float)ci / mdret;
 }

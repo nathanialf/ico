@@ -191,7 +191,7 @@ typedef struct { /* field names derived */
 } HandModeCmd; /* derived name */
 
 /* as in weapon.h, which this TU does not include (CheckWeaponKind differs) */
-extern int GetTorchGObjOfWeapon(char *a0);
+extern int GetTorchGObjOfWeapon(char *weapon);
 extern WeaponEntry weaponKind[];
 
 inline void ACTGameCollisionOff(volatile int *self)

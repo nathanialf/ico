@@ -8,6 +8,8 @@
 #ifndef PAD_H
 #define PAD_H
 
+#include "shockdriver.h"
+
 struct PadConf;
 struct IosPadDevRec;
 
@@ -26,10 +28,24 @@ typedef struct IosPadCtx {      /* field names derived */
     int word24;                 /* 0x24 the copy of word14 */
 } IosPadCtx;                    /* derived name */
 
-int iosPadActRequest(int port, int id);
+int iosPadActRequest(int pad, int id);
 void iosPadActStop(int key);
 void iosPadActStopAll(void);
-int *iosPadActVolumeSet(int key, unsigned int val);
+/* One actuator request iosPadActRequest hands out: its key, the player
+   box, the shockList row's voice and life, the parameter Shock_Request is
+   handed and the volume iosPadActVolumeSet sets. */
+typedef struct {          /* field names derived */
+    int key;              /* 0x00 */
+    ShockRequestBox *box; /* 0x04 */
+    int voice;            /* 0x08 the shockList row's voice */
+    ShockParam prm;       /* 0x0C */
+    short life;           /* 0x10 */
+    short tick;           /* 0x12 */
+    unsigned char volume; /* 0x14 */
+    unsigned char pad[3];
+} PadAct; /* derived name */
+
+PadAct *iosPadActVolumeSet(int key, unsigned int val);
 int iosPadConnect(void *pad, int a1, int port, struct PadConf *conf);
 int iosPadDevInit(void *desc);
 int iosPadDevRead(void);

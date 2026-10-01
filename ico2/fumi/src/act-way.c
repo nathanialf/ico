@@ -169,12 +169,12 @@ static inline void ResumeGirlPullupFloorBox(void) /* derived name */
     }
 }
 
-static inline int RequestWayBegin(char *self, float *goal, float *from, WayWork *way,
-                                  unsigned char sub) /* derived name */
+static inline WayPoint *RequestWayBegin(char *self, float *goal, float *from, WayWork *way,
+                                        unsigned char sub) /* derived name */
 {
     ActWork *req;
     char *ws;
-    int w;
+    WayPoint *w;
 
     if (sub) {
         req = GOBJ_WORK(self);
@@ -194,14 +194,14 @@ static inline int RequestWayBegin(char *self, float *goal, float *from, WayWork 
         while (*(int *)ws == 0) {
             _ACTWait(1);
         }
-        w = *(int *)(ws + 4);
+        w = *(WayPoint **)(ws + 4);
         *way = *(WayWork *)(ws + 0x20);
         return w;
     }
     if (self == (char *)girlGObj) {
         SuspendGirlPullupFloorBox();
     }
-    w = GetWay_begin(from, (int)way, (int)goal);
+    w = GetWay_begin(from, (WVTObj *)way, goal);
     if (self == (char *)girlGObj) {
         ResumeGirlPullupFloorBox();
     }
@@ -216,7 +216,7 @@ int ACTWayMove_BeginDetail(GObj *self, float *goal, float *from, void *tgt, void
     WayWork *home;
     WayWork *wp;
     int ret = 0;
-    int w;
+    WayPoint *w;
 
     /* disabled in retail: the way-begin-position (WBP) report */
     if (0) {

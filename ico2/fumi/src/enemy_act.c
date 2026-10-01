@@ -39,6 +39,7 @@
 #include "motionManager2.h"
 #include "attackhit.h"
 #include "pad.h"
+#include "flyManager.h"
 
 int entesty;
 
@@ -156,11 +157,6 @@ static sceVu0FVECTOR flyEscapePos = {1712.0f, -600.0f, 0.0f, 1.0f}; /* derived n
    record shared by the nested functions of two parents, so file scope (the
    TU's whole .sbss). */
 static BrainModeTarget brainTarget; /* derived name */
-
-/* enemy_act.c carries none of these owners' headers; gif_StartPacketPri takes
-   the packet priority its GifPacket.h prototype does not name */
-/* as in flyManager.h, which this TU does not include */
-extern int GetFlyLimitClearance(void *pos);
 
 /* One start record per motion phase; the four of them are the actor's whole
    start parameter block. */

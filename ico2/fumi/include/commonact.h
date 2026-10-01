@@ -28,7 +28,7 @@ int SetMotionDirectionSmooze(struct GObj *self, float *dir, float s);
 void StartCorrectPosition(struct GObj *self, float *pos, float *dir, int mode, float t);
 int _ACTCorrectMsg(struct GObj *self, int msg, void *arg);
 void _ACTDebugPrint(struct GObj *self);
-int _ACTMotDirSmzDirect(char *self, float *dir);
+int _ACTMotDirSmzDirect(struct GObj *self, float *dir);
 void actAfterDown(struct GObj *volatile self);
 void actAfterFly(struct GObj *volatile self);
 void actAfterForceRope(struct GObj *volatile self);

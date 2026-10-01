@@ -42,11 +42,11 @@ typedef struct WVTObj { /* field names derived */
 
 /* way_sys.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
-int GetWay_begin(void *from, int way, int goal);
+WayPoint *GetWay_begin(float *from, WVTObj *w, float *goal);
 void BridgeBox(void);
 inline void DeleteGuideWay(WVTObj *o);
 int GetWay_next(WVTObj *w, float *pos);
-int _FUNC_GetWay_begin(void *from, WVTObj *w, int goal, int threaded);
+WayPoint *_FUNC_GetWay_begin(float *from, WVTObj *w, float *goal, int threaded);
 int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos);
 
 #endif /* WAY_SYS_H */

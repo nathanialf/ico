@@ -13,7 +13,7 @@
 #include "fieldCollision.h"
 #include "gamesys.h"
 
-int _FUNC_GetWay_begin(void *from, WVTObj *w, int goal, int threaded)
+WayPoint *_FUNC_GetWay_begin(float *from, WVTObj *w, float *goal, int threaded)
 {
     WayPoint *(*findTemp)(float *, int);
     WayPoint *(*findGid)(float *, int);
@@ -49,9 +49,9 @@ int _FUNC_GetWay_begin(void *from, WVTObj *w, int goal, int threaded)
 
     if ((unsigned int)w->stampFrame < (unsigned int)(lock_execIcoMisc - 1) || w->nearWp == 0) {
         if (w->guideFirst >= 0) {
-            wp = findTemp((void *)goal, way_point[w->guideFirst].group);
+            wp = findTemp(goal, way_point[w->guideFirst].group);
         } else {
-            wp = findTemp((void *)goal, -1);
+            wp = findTemp(goal, -1);
         }
 
         w->nearWp = wp;
@@ -68,7 +68,7 @@ int _FUNC_GetWay_begin(void *from, WVTObj *w, int goal, int threaded)
     }
 
     if (way_group[wp->group].active == 0) {
-        wp = findGid((void *)goal, wp->group);
+        wp = findGid(goal, wp->group);
         if (wp == 0) {
             goto out;
         }
@@ -197,12 +197,12 @@ int _FUNC_GetWay_begin(void *from, WVTObj *w, int goal, int threaded)
 
 out:
     WayUtilWorkFree(work);
-    return (int)ret;
+    return ret;
 }
 
-inline int GetWay_begin(void *from, int way, int goal)
+inline WayPoint *GetWay_begin(float *from, WVTObj *w, float *goal)
 {
-    return _FUNC_GetWay_begin(from, way, goal, 0);
+    return _FUNC_GetWay_begin(from, w, goal, 0);
 }
 
 /* The collision query ClipWall / ClipFloorR fill in: 192 bytes, 16-aligned. */

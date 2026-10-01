@@ -10,7 +10,7 @@
 
 static inline void adpcmDiskNotReady(void);
 static inline void adpcmDiskReturnReady(void);
-static inline int adpcmOpenProc(int a0, int a1);
+static inline int adpcmOpenProc(CdvdBgReq *bg, AdpcmOpenReq *open);
 static inline void adpcmOpenDiskNotReady(void);
 
 /* the 2 KB-aligned base of the IOP stream buffers, the two buffers' in-use
@@ -529,9 +529,9 @@ static inline void adpcmDiskNotReady(void) {}
 
 static inline void adpcmDiskReturnReady(void) {}
 
-static inline int adpcmOpenProc(int a0, int a1)
+static inline int adpcmOpenProc(CdvdBgReq *bg, AdpcmOpenReq *open)
 {
-    iosCdvdBackGroundReadIOPm(a0, *(int *)(a1 + 0xC), 0x5C000);
+    iosCdvdBackGroundReadIOPm(bg, open->iopBuf, 376832);
     return 1;
 }
 

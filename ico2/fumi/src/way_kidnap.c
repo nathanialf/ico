@@ -164,7 +164,7 @@ found:
 
 /* public inlines, deferred to the end of the object like NumOfWpPos;
    NearestEnemyFromGirl inlines the pair. */
-inline float WayLengthOfGObj_Pos(void *obj, float *pos)
+inline float WayLengthOfGObj_Pos(GObj *obj, float *pos)
 {
     float buf[4];
     if (obj == 0) {
@@ -174,7 +174,7 @@ inline float WayLengthOfGObj_Pos(void *obj, float *pos)
     return WayLengthOfPos_Pos(buf, pos);
 }
 
-inline float WayLengthOfGObj_GObj(void *obj0, void *obj1)
+inline float WayLengthOfGObj_GObj(GObj *obj0, GObj *obj1)
 {
     float pos[4];
     if (obj1 == 0) {
@@ -187,11 +187,14 @@ inline float WayLengthOfGObj_GObj(void *obj0, void *obj1)
 /* a file-static wpsort_compfnc, distinct from the way_util global of the same
    name; only qsort takes its address, so its body is emitted last, after the
    header's public inlines. */
-static inline int wpsort_compfnc(float *a, float *b)
+static inline int wpsort_compfnc(const void *a, const void *b)
 {
-    if (a[1] < b[1])
+    const WpPosEntry *ea = a;
+    const WpPosEntry *eb = b;
+
+    if (ea->len < eb->len)
         return -1;
-    if (b[1] < a[1])
+    if (eb->len < ea->len)
         return 1;
     return 0;
 }
@@ -444,7 +447,7 @@ ret:
 }
 
 /* a public inline, deferred like the others */
-inline int WayPointWithRangeFromGObj(void *obj, float f)
+inline int WayPointWithRangeFromGObj(GObj *obj, float f)
 {
     float pos[4];
     if (obj == 0) {
@@ -454,11 +457,11 @@ inline int WayPointWithRangeFromGObj(void *obj, float f)
     return WayPointWithRangeFromPos(pos, f, 0);
 }
 
-void *NearestEnemyFromGirl(float *len)
+GObj *NearestEnemyFromGirl(float *len)
 {
     float min;
-    void *nearest = 0;
-    void *obj;
+    GObj *nearest = 0;
+    GObj *obj;
     float d;
 
     obj = isysGObjSearchFromObjKindID_begin(4);

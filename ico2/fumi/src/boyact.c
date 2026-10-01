@@ -856,23 +856,23 @@ static int GetChainSlope(void)
     return down;
 }
 
-/* this TU's uses of these do not fit the prototypes in the headers the rest
-   of the file reaches */
-extern float GetDifferenceFromLowerField(int self, int a1);
+/* motionManager2.c's; motionManager2.h does not declare it */
+extern float GetDifferenceFromLowerField(GObj *obj, int node);
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
 extern int InsertCameraWorkingFlag;
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
 extern int FixViewInGameCameraFlag;
 
-/* the ClipWall work record as this function uses it: the two segment
-   endpoints, the radius at 0x70 and the hit flag at 0x88 (commonact.c's
-   RopeWallWork is the same 0xC0-byte record). */
+/* typedef.h's ClipWork with the pair at 0x80 as one CharPos, which
+   actBoyStart copies whole into the sofa's wall hit */
 typedef struct { /* field names derived */
-    char pad0[112];
-    float f70;
+    float a[4];
+    float b[4];
+    char pad20[80];
+    float radius;
     char pad74[12];
-    CharPos f80;
-    int f88;
+    CharPos wallSrc;
+    int wallHit;
     char pad8C[52];
 } BoyWallWork; /* derived name */
 
@@ -1063,11 +1063,11 @@ void subBoyControl(GObj *volatile self)
 
                     GetRootPosition(p0, (void *)self);
                     GetRootPosition(p1, g);
-                    work.f70 = 10.0f;
-                    sceVu0CopyVector(&work, p0);
-                    sceVu0CopyVector((char *)&work + 0x10, p1);
+                    work.radius = 10.0f;
+                    sceVu0CopyVector(work.a, p0);
+                    sceVu0CopyVector(work.b, p1);
                     ClipWall(&work);
-                    if (work.f88 != 0) {
+                    if (work.wallHit != 0) {
                         s->wayMode = 1;
                     }
                     dist = fzMagnitude2fv(p1, p0);
@@ -3294,7 +3294,7 @@ void actBoyStart(GObj *self)
     actInitialize_only_charcter(self);
     actInitialize_geo(self);
 
-    GOBJ_ACT(self)->enemy->word254 =
+    GOBJ_ACT(self)->enemy->sofaWakeTime =
         (int)(_ACTGame_GetParamF(0x21) * (float)((60 - systemStatus[0] * 10) / systemStatus[1]) /
               60.0f);
     ACTGame_LwsEffectInit(self);
@@ -3346,18 +3346,18 @@ void actBoyStart(GObj *self)
 
             CopyMatrix(MatrixDrive_GetMatrix(), (void *)GOBJ_SUB(g)->nodeMtx);
             MatrixDrive_TransMatrix(0.0f, -50.0f, 0.0f);
-            sceVu0ApplyMatrix(&cw, MatrixDrive_GetMatrix(), &p0);
-            sceVu0ApplyMatrix((char *)&cw + 0x10, MatrixDrive_GetMatrix(), &p1);
-            cw.f70 = 0.0f;
+            sceVu0ApplyMatrix(cw.a, MatrixDrive_GetMatrix(), &p0);
+            sceVu0ApplyMatrix(cw.b, MatrixDrive_GetMatrix(), &p1);
+            cw.radius = 0.0f;
             ClipWall(&cw);
-            if (cw.f88 == 0) {
+            if (cw.wallHit == 0) {
                 /* "!!! cannot find the sofa's wall !!!" */
                 debug_StdPrintfDummy("！！！ソファの壁を見付けることができません！！！\n");
             } else {
                 startOnSofa = 1;
                 sitLayoutDone = 1;
-                sofaWallHit.pos = cw.f80;
-                sofaWallHit.hit = cw.f88;
+                sofaWallHit.pos = cw.wallSrc;
+                sofaWallHit.hit = cw.wallHit;
                 scpBoyControlReadDisable = 0;
                 ActSendMail_WithAdditionalData((void *)self, 0x36, (void *)self, &sofaWallHit);
                 if (BOYINFO.bit32 && girlGObj != 0) {

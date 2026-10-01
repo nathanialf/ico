@@ -135,35 +135,35 @@ void isysGObjRemoveAll(void)
     isysGObjKindTableInit();
 }
 
-static void add_gobj_to_tail(GObj *g, int a1, int a2)
+static void add_gobj_to_tail(GObj *g, int link, int key)
 {
-    unsigned char kind = a1;
-    unsigned int val = a2;
+    unsigned char id = link;
+    unsigned int val = key;
     GObj *head;
     GObj *tail;
     GObj *p;
-    g->linkId = kind;
+    g->linkId = id;
     g->key = val;
-    head = gobj_link_head[kind];
+    head = gobj_link_head[id];
     if (head == 0) {
-        gobj_link_head[kind] = g;
+        gobj_link_head[id] = g;
         g->prev = 0;
         g->next = 0;
-        gobj_link_tail[kind] = g;
+        gobj_link_tail[id] = g;
         return;
     }
     if (val < head->key) {
         g->prev = 0;
         g->next = head;
-        gobj_link_head[kind] = g;
+        gobj_link_head[id] = g;
         head->prev = g;
         return;
     }
-    tail = gobj_link_tail[kind];
+    tail = gobj_link_tail[id];
     if (!(val < tail->key)) {
         g->prev = tail;
         g->next = 0;
-        gobj_link_tail[kind] = g;
+        gobj_link_tail[id] = g;
         tail->next = g;
         return;
     }
@@ -177,35 +177,35 @@ static void add_gobj_to_tail(GObj *g, int a1, int a2)
     g->next->prev = g;
 }
 
-static void add_gobj_to_head(GObj *g, int a1, int a2)
+static void add_gobj_to_head(GObj *g, int link, int key)
 {
-    unsigned char kind = a1;
-    unsigned int val = a2;
+    unsigned char id = link;
+    unsigned int val = key;
     GObj *head;
     GObj *tail;
     GObj *p;
-    g->linkId = kind;
+    g->linkId = id;
     g->key = val;
-    head = gobj_link_head[kind];
+    head = gobj_link_head[id];
     if (head == 0) {
-        gobj_link_head[kind] = g;
+        gobj_link_head[id] = g;
         g->prev = 0;
         g->next = 0;
-        gobj_link_tail[kind] = g;
+        gobj_link_tail[id] = g;
         return;
     }
     if (!(head->key < val)) {
         g->prev = 0;
         g->next = head;
-        gobj_link_head[kind] = g;
+        gobj_link_head[id] = g;
         head->prev = g;
         return;
     }
-    tail = gobj_link_tail[kind];
+    tail = gobj_link_tail[id];
     if (tail->key < val) {
         g->prev = tail;
         g->next = 0;
-        gobj_link_tail[kind] = g;
+        gobj_link_tail[id] = g;
         tail->next = g;
         return;
     }

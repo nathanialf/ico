@@ -2,48 +2,6 @@
 #include <libpad.h>
 #include "debug.h"
 
-struct PadNode { /* field names derived */
-    char pad[48];
-    struct PadNode *prev;
-    struct PadNode *next;
-}; /* derived name */
-
-typedef struct ShockReq { /* field names derived */
-    /* 0x0 */ unsigned short out;
-    /* 0x2 */ unsigned short acc;
-    /* 0x4 */ unsigned char type;
-    /* 0x5 */ unsigned char val;
-} ShockReq; /* derived name */
-
-typedef struct VibDecode { /* field names derived */
-    /* 0x0 */ unsigned char *buf;
-    /* 0x4 */ unsigned short pos;
-    /* 0x6 */ unsigned short acc;
-    /* 0x8 */ unsigned short prev;
-    /* 0xA */ unsigned short len;
-    /* 0xC */ short time;
-    /* 0xE */ short cnt;
-} VibDecode; /* derived name */
-
-typedef struct SHOCKREQUEST { /* field names derived */
-    /* 0x00 */ unsigned char flags;
-    /* 0x01 */ unsigned char b1;
-    /* 0x02 */ unsigned char b2;
-    /* 0x03 */ unsigned char b3;
-    /* 0x04 */ VibDecode shot;
-    /* 0x14 */ VibDecode wave;
-    /* 0x24 */ unsigned char c24;
-    /* 0x25 */ unsigned char c25;
-    /* 0x26 */ unsigned char shotRep;
-    /* 0x27 */ unsigned char waveRep;
-    /* 0x28 */ int key;
-    /* 0x2C */ int arg;
-    /* 0x30 */ struct SHOCKREQUEST *prev;
-    /* 0x34 */ struct SHOCKREQUEST *next;
-    /* 0x38 */ unsigned char voice;
-    /* 0x39 */ unsigned char pad39[7];
-} SHOCKREQUEST; /* derived name */
-
 /* A voice-set file as ReadShockFile loads it: this 16-byte record, then the
  * file image (charFileManager.c allocates size + 16 and reads to p + 16).  The
  * image's halfwords at +2, +6 and +10 are the word offsets of the shot, wave
@@ -61,27 +19,13 @@ struct ShockVoiceSet { /* field names derived */
     /* 0xC */ int *voice;
 }; /* derived name */
 
-typedef struct ShockParam { /* field names derived */
-    /* 0x0 */ unsigned char voice;
-    /* 0x1 */ unsigned char b1;
-    /* 0x2 */ unsigned char b2;
-    /* 0x3 */ unsigned char b3;
-} ShockParam; /* derived name */
-
-typedef struct ShockRequestBox { /* field names derived */
-    /* 0x0 */ void *head;
-    /* 0x4 */ void *(*alloc)(void *, int);
-    /* 0x8 */ void (*free)(SHOCKREQUEST *, void *);
-    /* 0xC */ void *arg;
-} ShockRequestBox; /* derived name */
-
 /* .data, all zero: the voice set manager record and the request pool.
    .sdata, all zero: the current manager, the common and stage voice sets
    charFileManager loads, the manager's two-slot voice set table and the
    request allocator record. */
 int ShockDriver[4] = {0};
 
-char ShockRequest[1024] = {0};
+SHOCKREQUEST ShockRequest[16] = {0};
 
 ShockMgr *System_shock_driver = 0;
 
@@ -91,7 +35,7 @@ char *ShockVoiceSetStage = 0;
 
 int ShockVoiceSetBuf[2] = {0};
 
-int ShockRequestMemory[2] = {0};
+ShockReqAlloc ShockRequestMemory = {0};
 
 int Vibration_ShotDecode(SHOCKREQUEST *p, void (*callback)(SHOCKREQUEST *req, unsigned char *cmd))
 {
@@ -114,17 +58,17 @@ int Vibration_ShotDecode(SHOCKREQUEST *p, void (*callback)(SHOCKREQUEST *req, un
         if (p->shot.cnt != 0) {
             p->shot.time = p->shot.time + 1;
             if (c & 0x40) {
-                if (p->b2 >> 7) {
-                    if ((p->b2 >> 4) == 0xF) {
+                if (p->volume >> 7) {
+                    if ((p->volume >> 4) == 0xF) {
                         ret = 1;
                     } else {
                         ret = 0;
                     }
-                    if (p->shot.time % ((p->b2 >> 4) - 5) != 0) {
+                    if (p->shot.time % ((p->volume >> 4) - 5) != 0) {
                         ret = 1;
                     }
                 } else {
-                    ret = (p->shot.time % (9 - (p->b2 >> 4))) == 0;
+                    ret = (p->shot.time % (9 - (p->volume >> 4))) == 0;
                 }
             }
             if (p->shot.time >= p->shot.len) {
@@ -169,7 +113,7 @@ int Vibration_ShotDecode(SHOCKREQUEST *p, void (*callback)(SHOCKREQUEST *req, un
             }
         } else {
             n = c & 0x3F;
-            p->shot.len = (p->shot.acc + n) * p->b3 / 64;
+            p->shot.len = (p->shot.acc + n) * p->timeScale / 64;
             p->shot.prev = p->shot.time;
             p->shot.cnt = p->shot.len - p->shot.time;
             p->shot.acc = p->shot.acc + n;
@@ -204,13 +148,14 @@ int Vibration_WaveDecode(SHOCKREQUEST *p, void (*callback)(SHOCKREQUEST *req, un
         c = *q;
         if (p->wave.cnt != 0) {
             p->wave.time = p->wave.time + 1;
-            n = (p->c24 * (p->wave.len - p->wave.time) + p->c25 * (p->wave.time - p->wave.prev)) /
+            n = (p->waveFrom * (p->wave.len - p->wave.time) +
+                 p->waveTo * (p->wave.time - p->wave.prev)) /
                 p->wave.cnt;
-            ret = n * p->b2 / 255;
+            ret = n * p->volume / 255;
             if (p->wave.time >= p->wave.len) {
                 p->wave.cnt = 0;
                 p->wave.pos = p->wave.pos + 2;
-                p->c24 = p->c25;
+                p->waveFrom = p->waveTo;
                 c = p->wave.buf[p->wave.pos];
                 if (c == 0x80) {
                     p->flags &= 0xEF;
@@ -250,18 +195,18 @@ int Vibration_WaveDecode(SHOCKREQUEST *p, void (*callback)(SHOCKREQUEST *req, un
             }
         } else {
             n = c & 0x3F;
-            p->c25 = q[1];
+            p->waveTo = q[1];
             p->wave.prev = p->wave.time;
-            p->wave.len = (p->wave.acc + n) * p->b3 / 64;
+            p->wave.len = (p->wave.acc + n) * p->timeScale / 64;
             p->wave.cnt = p->wave.len - p->wave.time;
             p->wave.acc = p->wave.acc + n;
             if (p->wave.cnt <= 0) {
                 p->wave.cnt = 0;
                 p->wave.pos = p->wave.pos + 2;
                 num = num + 1;
-                sum = sum + p->c25;
+                sum = sum + p->waveTo;
             } else if (num != 0) {
-                p->c25 = sum / num;
+                p->waveTo = sum / num;
                 p->wave.len = p->wave.time + 1;
                 p->wave.cnt = 1;
                 p->wave.pos = p->wave.pos - 2;
@@ -275,7 +220,7 @@ int Vibration_WaveDecode(SHOCKREQUEST *p, void (*callback)(SHOCKREQUEST *req, un
 }
 
 /* declared void ahead of its definition */
-extern void ShockRequestBox_Regst(struct PadNode **head, struct PadNode *new_node);
+extern void ShockRequestBox_Regst(ShockRequestBox *box, SHOCKREQUEST *req);
 
 /* file-static copies of ShockDriver_GetShockVoiceSet, ShockDriver_GetShockVoice
  * and ShockRequestBox_Request, which Shock_Request inlines */
@@ -299,8 +244,8 @@ static inline SHOCKREQUEST *requestBoxRequest(ShockRequestBox *box, ShockParam *
 {
     ShockVoiceSet *vs;
     SHOCKREQUEST *req;
-    int shot;
-    int wave;
+    unsigned char *shot;
+    unsigned char *wave;
     int t;
 
     if (System_shock_driver == 0)
@@ -312,7 +257,7 @@ static inline SHOCKREQUEST *requestBoxRequest(ShockRequestBox *box, ShockParam *
     if (vs == 0)
         return 0;
 
-    req = box->alloc(box->arg, arg);
+    req = box->alloc(box->pool, arg);
     if (req == 0)
         return 0;
 
@@ -321,24 +266,24 @@ static inline SHOCKREQUEST *requestBoxRequest(ShockRequestBox *box, ShockParam *
     req->key = key;
 
     if (p->voice != 0xFF) {
-        shot = (int)vs->shot + vs->shot[p->voice];
+        shot = (unsigned char *)vs->shot + vs->shot[p->voice];
     } else {
         shot = 0;
     }
-    if (p->b1 != 0xFF) {
-        wave = (int)vs->wave + vs->wave[p->b1];
+    if (p->waveId != 0xFF) {
+        wave = (unsigned char *)vs->wave + vs->wave[p->waveId];
     } else {
         wave = 0;
     }
-    Vibration_SetDecodeData(req, shot, wave, 0xFF, 0x40);
-    req->b1 = v.b1;
-    t = p->b2 * v.b2 / 0xFF;
-    req->b2 = (t < 0x100) ? t : 0xFF;
-    t = p->b3 * v.b3 / 0x40;
-    if (t >= 0x100)
-        t = 0xFF;
-    req->b3 = t;
-    ShockRequestBox_Regst((struct PadNode **)box, (struct PadNode *)req);
+    Vibration_SetDecodeData(req, shot, wave, 255, 64);
+    req->waveId = v.waveId;
+    t = p->volume * v.volume / 255;
+    req->volume = (t < 256) ? t : 255;
+    t = p->timeScale * v.timeScale / 64;
+    if (t >= 256)
+        t = 255;
+    req->timeScale = t;
+    ShockRequestBox_Regst(box, req);
     return req;
 }
 
@@ -354,7 +299,7 @@ SHOCKREQUEST *Shock_Request(ShockRequestBox *box, int voice, ShockParam v, int k
     }
     req = requestBoxRequest(box, p, v, key, arg);
     if (req != 0) {
-        *(ShockParam **)((char *)req + 0x3C) = p;
+        req->org = p;
     }
     return req;
 }
@@ -429,74 +374,79 @@ void Init_ShockVoiceSet(ShockVoiceSet *set, int *data)
     set->wave = data + ((unsigned short *)data)[3];
 }
 
-void Vibration_SetDecodeData(void *req, int shot, int wave, unsigned char b2, unsigned char b3)
+void Vibration_SetDecodeData(SHOCKREQUEST *req, unsigned char *shot, unsigned char *wave,
+                             unsigned char volume, unsigned char timeScale)
 {
-    char *p = (char *)req;
-    p[0x3] = b3;
-    p[0x0] = 0x11;
-    *(int *)(p + 0x4) = shot;
-    *(int *)(p + 0x14) = wave;
-    p[0x2] = b2;
-    *(short *)(p + 0x8) = 0;
-    *(short *)(p + 0x12) = 0;
-    *(short *)(p + 0x10) = 0;
-    *(short *)(p + 0xC) = 0;
-    *(short *)(p + 0xA) = 0;
-    p[0x26] = 0;
-    *(short *)(p + 0x18) = 0;
-    *(short *)(p + 0x22) = 0;
-    *(short *)(p + 0x20) = 0;
-    *(short *)(p + 0x1C) = 0;
-    *(short *)(p + 0x1A) = 0;
-    p[0x27] = 0;
-    p[0x24] = 0;
+    req->timeScale = timeScale;
+    req->flags = 0x11;
+    req->shot.buf = shot;
+    req->wave.buf = wave;
+    req->volume = volume;
+    req->shot.pos = 0;
+    req->shot.cnt = 0;
+    req->shot.time = 0;
+    req->shot.prev = 0;
+    req->shot.acc = 0;
+    req->shotRep = 0;
+    req->wave.pos = 0;
+    req->wave.cnt = 0;
+    req->wave.time = 0;
+    req->wave.prev = 0;
+    req->wave.acc = 0;
+    req->waveRep = 0;
+    req->waveFrom = 0;
 }
 
 /* a file-static copy of Init_ShockRequestBox, which Init_Player inlines */
-static inline void initShockRequestBox(int *box, int alloc, int free, int arg) /* derived name */
+static inline void initShockRequestBox(ShockRequestBox *box,
+                                       SHOCKREQUEST *(*alloc)(ShockReqAlloc *pool, int arg),
+                                       void (*free)(SHOCKREQUEST *req, ShockReqAlloc *pool),
+                                       ShockReqAlloc *pool) /* derived name */
 {
-    box[0] = 0;
+    box->head = 0;
     if (alloc) {
-        box[1] = alloc;
+        box->alloc = alloc;
     } else {
-        box[1] = (int)&dumyAllocFunc;
+        box->alloc = dumyAllocFunc;
     }
-    box[2] = free;
-    box[3] = arg;
+    box->free = free;
+    box->pool = pool;
 }
 
-void Init_ShockRequestBox(int *box, int alloc, int free, int arg)
+void Init_ShockRequestBox(ShockRequestBox *box,
+                          SHOCKREQUEST *(*alloc)(ShockReqAlloc *pool, int arg),
+                          void (*free)(SHOCKREQUEST *req, ShockReqAlloc *pool), ShockReqAlloc *pool)
 {
-    initShockRequestBox(box, alloc, free, arg);
+    initShockRequestBox(box, alloc, free, pool);
 }
 
-void ShockRequestBox_Clear(int *self)
+void ShockRequestBox_Clear(ShockRequestBox *self)
 {
-    int *node = (int *)self[0];
-    if (self[0x8 / 4] == 0) {
+    SHOCKREQUEST *node = self->head;
+    if (self->free == 0) {
         goto end;
     }
     if (node == 0) {
         goto end;
     }
     do {
-        int *cur = node;
-        node = (int *)node[0x34 / 4];
-        (*(void (**)(int, int))((char *)self + 8))((int)cur, self[0xC / 4]);
+        SHOCKREQUEST *cur = node;
+        node = node->next;
+        self->free(cur, self->pool);
     } while (node != 0);
 end:
-    self[0] = 0;
+    self->head = 0;
 }
 
-void ShockRequestBox_Regst(struct PadNode **head, struct PadNode *new_node)
+void ShockRequestBox_Regst(ShockRequestBox *box, SHOCKREQUEST *req)
 {
-    struct PadNode *old = *head;
-    new_node->prev = (struct PadNode *)0;
-    new_node->next = old;
-    if (old != (struct PadNode *)0) {
-        old->prev = new_node;
+    SHOCKREQUEST *old = box->head;
+    req->prev = 0;
+    req->next = old;
+    if (old != 0) {
+        old->prev = req;
     }
-    *head = new_node;
+    box->head = req;
 }
 
 SHOCKREQUEST *ShockRequestBox_Request(ShockRequestBox *box, ShockParam *p, ShockParam v, int key,
@@ -504,8 +454,8 @@ SHOCKREQUEST *ShockRequestBox_Request(ShockRequestBox *box, ShockParam *p, Shock
 {
     ShockVoiceSet *vs;
     SHOCKREQUEST *req;
-    int shot;
-    int wave;
+    unsigned char *shot;
+    unsigned char *wave;
     int t;
 
     if (System_shock_driver == 0)
@@ -517,7 +467,7 @@ SHOCKREQUEST *ShockRequestBox_Request(ShockRequestBox *box, ShockParam *p, Shock
     if (vs == 0)
         return 0;
 
-    req = box->alloc(box->arg, arg);
+    req = box->alloc(box->pool, arg);
     if (req == 0)
         return 0;
 
@@ -526,24 +476,24 @@ SHOCKREQUEST *ShockRequestBox_Request(ShockRequestBox *box, ShockParam *p, Shock
     req->key = key;
 
     if (p->voice != 0xFF) {
-        shot = (int)vs->shot + vs->shot[p->voice];
+        shot = (unsigned char *)vs->shot + vs->shot[p->voice];
     } else {
         shot = 0;
     }
-    if (p->b1 != 0xFF) {
-        wave = (int)vs->wave + vs->wave[p->b1];
+    if (p->waveId != 0xFF) {
+        wave = (unsigned char *)vs->wave + vs->wave[p->waveId];
     } else {
         wave = 0;
     }
-    Vibration_SetDecodeData(req, shot, wave, 0xFF, 0x40);
-    req->b1 = v.b1;
-    t = p->b2 * v.b2 / 0xFF;
-    req->b2 = (t < 0x100) ? t : 0xFF;
-    t = p->b3 * v.b3 / 0x40;
-    if (t >= 0x100)
-        t = 0xFF;
-    req->b3 = t;
-    ShockRequestBox_Regst((struct PadNode **)box, (struct PadNode *)req);
+    Vibration_SetDecodeData(req, shot, wave, 255, 64);
+    req->waveId = v.waveId;
+    t = p->volume * v.volume / 255;
+    req->volume = (t < 256) ? t : 255;
+    t = p->timeScale * v.timeScale / 64;
+    if (t >= 256)
+        t = 255;
+    req->timeScale = t;
+    ShockRequestBox_Regst(box, req);
     return req;
 }
 
@@ -560,7 +510,7 @@ static inline int decodeRequestBox(ShockRequestBox *box, unsigned char *pFlags,
     if (box == 0) {
         return 0;
     }
-    p = (SHOCKREQUEST *)box->head;
+    p = box->head;
     count = 0;
     while (p != 0) {
         count++;
@@ -569,12 +519,12 @@ static inline int decodeRequestBox(ShockRequestBox *box, unsigned char *pFlags,
         p = p->next;
     }
     count |= sum << 16;
-    if (sum >= 0x100) {
-        sum = 0xFF;
+    if (sum >= 256) {
+        sum = 255;
     }
     *pLevel = sum;
     *pFlags = flags;
-    ShockRequestBox_EndRequestFree((int **)box);
+    ShockRequestBox_EndRequestFree(box);
     return count;
 }
 
@@ -586,23 +536,23 @@ int ShockRequestBox_DecodeRequest(ShockRequestBox *box, unsigned char *pFlags,
 
 static inline SHOCKREQUEST *requestFree(ShockRequestBox *box, SHOCKREQUEST *req);
 
-int *ShockRequestBox_EndRequestFree(int **box)
+SHOCKREQUEST *ShockRequestBox_EndRequestFree(ShockRequestBox *box)
 {
-    int *p;
+    SHOCKREQUEST *p;
     unsigned char b;
     if (box != 0) {
-        p = *box;
+        p = box->head;
         if (p != 0) {
             do {
-                b = *(unsigned char *)p;
+                b = p->flags;
                 if (b == 0)
-                    p = (int *)requestFree((ShockRequestBox *)box, (SHOCKREQUEST *)p);
+                    p = requestFree(box, p);
                 else
-                    p = (int *)p[0x34 / 4];
+                    p = p->next;
             } while (p != 0);
         }
     }
-    return *box;
+    return box->head;
 }
 
 static inline SHOCKREQUEST *requestFree(ShockRequestBox *box, SHOCKREQUEST *req)
@@ -620,16 +570,16 @@ static inline SHOCKREQUEST *requestFree(ShockRequestBox *box, SHOCKREQUEST *req)
     p = req;
     req = req->next;
     if (box->free != 0) {
-        box->free(p, box->arg);
+        box->free(p, box->pool);
     }
     return req;
 }
 
-void *ShockRequestBox_VoiceSetUseRequestFree(ShockRequestBox *box, int voice)
+SHOCKREQUEST *ShockRequestBox_VoiceSetUseRequestFree(ShockRequestBox *box, int voice)
 {
     SHOCKREQUEST *p;
     if (box != 0) {
-        p = (SHOCKREQUEST *)box->head;
+        p = box->head;
         if (p != 0) {
             do {
                 if (p->voice == voice) {
@@ -643,75 +593,74 @@ void *ShockRequestBox_VoiceSetUseRequestFree(ShockRequestBox *box, int voice)
     return box->head;
 }
 
-int *ShockRequestBox_GetRequest(int **head_ptr, int key)
+SHOCKREQUEST *ShockRequestBox_GetRequest(ShockRequestBox *box, int key)
 {
-    int *p;
-    if (head_ptr == 0)
+    SHOCKREQUEST *p;
+    if (box == 0)
         goto fail;
-    p = *head_ptr;
+    p = box->head;
     if (p == 0)
         goto fail;
     do {
-        if (p[0x28 / 4] == key) {
+        if (p->key == key) {
             return p;
         }
-        p = (int *)p[0x34 / 4];
+        p = p->next;
     } while (p != 0);
 fail:
     return 0;
 }
 
-int ShockRequestBox_RequestCancel(int boxp, int key)
+int ShockRequestBox_RequestCancel(ShockRequestBox *box, int key)
 {
-    int *box = (int *)boxp;
-    int *node;
-    int *next;
-    int *prev;
-    int (*fn)(int *, int);
-    node = ShockRequestBox_GetRequest((int **)box, key);
+    SHOCKREQUEST *node;
+    SHOCKREQUEST *next;
+    SHOCKREQUEST *prev;
+    void (*fn)(SHOCKREQUEST *req, ShockReqAlloc *pool);
+    node = ShockRequestBox_GetRequest(box, key);
     if (node == 0) {
         return 0;
     }
-    prev = (int *)node[0x30 / 4];
+    prev = node->prev;
     if (prev != 0) {
-        prev[0x34 / 4] = node[0x34 / 4];
-        next = (int *)node[0x34 / 4];
+        prev->next = node->next;
+        next = node->next;
     } else {
-        next = (int *)node[0x34 / 4];
-        box[0] = (int)next;
+        next = node->next;
+        box->head = next;
     }
     if (next != 0) {
-        next[0x30 / 4] = node[0x30 / 4];
+        next->prev = node->prev;
     }
-    fn = (int (*)(int *, int))box[8 / 4];
+    fn = box->free;
     if (fn != 0) {
-        fn(node, box[0xC / 4]);
+        fn(node, box->pool);
     }
     return 1;
 }
 
-int ShockRequestBox_RequestDirectCancel(int *box, int *req)
+int ShockRequestBox_RequestDirectCancel(ShockRequestBox *box, SHOCKREQUEST *req)
 {
-    int *next;
-    int *prev;
-    int (*fn)(int *, int);
+    SHOCKREQUEST *next;
+    SHOCKREQUEST *prev;
+    void (*fn)(SHOCKREQUEST *req, ShockReqAlloc *pool);
     if (req == 0) {
         return 0;
     }
-    prev = (int *)req[0x30 / 4];
+    prev = req->prev;
     if (prev != 0) {
-        prev[0x34 / 4] = req[0x34 / 4];
-        next = (int *)req[0x34 / 4];
+        prev->next = req->next;
+        next = req->next;
     } else {
-        next = (int *)req[0x34 / 4];
-        box[0] = (int)next;
+        next = req->next;
+        box->head = next;
     }
     if (next != 0) {
-        next[0x30 / 4] = req[0x30 / 4];
+        next->prev = req->prev;
     }
-    fn = (int (*)(int *, int))box[8 / 4];
+    fn = box->free;
     if (fn != 0) {
-        fn(req, box[0xC / 4]);
+        fn(req, box->pool);
     }
     return 1;
 }
@@ -741,10 +690,10 @@ void Init_ShockDriver(ShockMgr *m, int *arr, int num)
 
 int ShockDriver_VoiceSet_NumberRegist(unsigned int idx, int val)
 {
-    int *base = (int *)System_shock_driver;
-    if (idx >= (unsigned int)base[0])
+    ShockMgr *m = System_shock_driver;
+    if (idx >= (unsigned int)m->count)
         return -1;
-    ((int *)base[1])[idx] = val;
+    m->arr[idx] = val;
     return idx;
 }
 
@@ -763,10 +712,10 @@ int ShockDriver_VoiceSet_Regist(int value)
 
 int ShockDriver_VoiceSet_Remove(unsigned int idx)
 {
-    int *base = (int *)System_shock_driver;
-    if (idx >= (unsigned int)base[0])
+    ShockMgr *m = System_shock_driver;
+    if (idx >= (unsigned int)m->count)
         return -1;
-    ((int *)base[1])[idx] = 0;
+    m->arr[idx] = 0;
     return idx;
 }
 
@@ -790,10 +739,10 @@ check:
 
 int ShockDriver_GetShockVoiceSet(unsigned idx)
 {
-    int *base = (int *)System_shock_driver;
-    if (idx >= (unsigned)base[0])
+    ShockMgr *m = System_shock_driver;
+    if (idx >= (unsigned)m->count)
         return 0;
-    return ((int *)base[1])[idx];
+    return m->arr[idx];
 }
 
 int ShockDriver_GetShockVoice(int idx, int n)
@@ -848,16 +797,9 @@ unsigned short ShockEmulator_EmulationWave(short *emu, int level)
     return (unsigned short)emu[0];
 }
 
-/* the request pool header ShockRequestMemory holds: a count and the pool's
-   base */
-typedef struct { /* field names derived */
-    int num;
-    char *buf;
-} ShockReqAlloc; /* derived name */
-
 /* the request pool's setup, which Init_ShockRequestAlloc and Init_Shock
    inline */
-static inline void initShockRequestAlloc(ShockReqAlloc *alloc, char *buf,
+static inline void initShockRequestAlloc(ShockReqAlloc *alloc, SHOCKREQUEST *buf,
                                          int num) /* derived name */
 {
     int i;
@@ -865,34 +807,34 @@ static inline void initShockRequestAlloc(ShockReqAlloc *alloc, char *buf,
         alloc->num = num;
         alloc->buf = buf;
         for (i = 0; i < num; i++) {
-            buf[i * 64] = 0;
+            buf[i].flags = 0;
         }
     } else {
         alloc->num = 0;
     }
 }
 
-void Init_ShockRequestAlloc(ShockReqAlloc *alloc, char *buf, int num)
+void Init_ShockRequestAlloc(ShockReqAlloc *alloc, SHOCKREQUEST *buf, int num)
 {
     initShockRequestAlloc(alloc, buf, num);
 }
 
-void *Get_ShockRequestStruct(int *alloc)
+SHOCKREQUEST *Get_ShockRequestStruct(ShockReqAlloc *pool, int arg)
 {
-    unsigned char *p = (unsigned char *)alloc[1];
+    SHOCKREQUEST *p = pool->buf;
     int i;
-    for (i = 0; i < alloc[0]; i++) {
-        if (*p == 0) {
+    for (i = 0; i < pool->num; i++) {
+        if (p->flags == 0) {
             return p;
         }
-        p += 64;
+        p++;
     }
     return 0;
 }
 
-void Reset_ShockRequestStruct(char *p)
+void Reset_ShockRequestStruct(SHOCKREQUEST *req, ShockReqAlloc *pool)
 {
-    *p = 0;
+    req->flags = 0;
 }
 
 int ShockRevice_Wave(int level, int cur)
@@ -937,52 +879,51 @@ Lend:
 void Init_Shock(void)
 {
     initShockDriver((ShockMgr *)ShockDriver, ShockVoiceSetBuf, 2);
-    initShockRequestAlloc((ShockReqAlloc *)ShockRequestMemory, ShockRequest, 16);
+    initShockRequestAlloc(&ShockRequestMemory, ShockRequest, 16);
 }
 
 int Shock_SetShockVoiceSet(int idx, int val)
 {
-    int *base = (int *)System_shock_driver;
+    ShockMgr *m = System_shock_driver;
     int *array;
-    if ((unsigned int)idx < (unsigned int)base[0])
+    if ((unsigned int)idx < (unsigned int)m->count)
         goto store;
     idx = -1;
     goto end;
 store:
-    array = (int *)base[1];
+    array = m->arr;
     array[idx] = val;
 end:
     return idx;
 }
 
-void Init_Player(int *box)
+void Init_Player(ShockRequestBox *box)
 {
-    initShockRequestBox(box, (int)Get_ShockRequestStruct, (int)Reset_ShockRequestStruct,
-                        (int)ShockRequestMemory);
+    initShockRequestBox(box, Get_ShockRequestStruct, Reset_ShockRequestStruct, &ShockRequestMemory);
 }
 
-void Init_Controler(short *motor)
+void Init_Controler(ShockReq *motor)
 {
-    motor[1] = 0;
-    motor[0] = 0;
+    motor->acc = 0;
+    motor->out = 0;
 }
 
-void Shock_RequestClear(int *self)
+void Shock_RequestClear(ShockRequestBox *self)
 {
-    int *node = (int *)self[0];
-    if (self[0x8 / 4] == 0) {
+    SHOCKREQUEST *node = self->head;
+    if (self->free == 0) {
         goto end;
     }
     if (node == 0) {
         goto end;
     }
     do {
-        int *cur = node;
-        node = (int *)node[0x34 / 4];
-        (*(void (**)(int, int))((char *)self + 8))((int)cur, self[0xC / 4]);
+        SHOCKREQUEST *cur = node;
+        node = node->next;
+        self->free(cur, self->pool);
     } while (node != 0);
 end:
-    self[0] = 0;
+    self->head = 0;
 }
 
 void Shock_Decode(ShockRequestBox *box, unsigned char *pFlags, unsigned char *pLevel)
@@ -990,7 +931,7 @@ void Shock_Decode(ShockRequestBox *box, unsigned char *pFlags, unsigned char *pL
     decodeRequestBox(box, pFlags, pLevel);
 }
 
-int dumyAllocFunc(void)
+SHOCKREQUEST *dumyAllocFunc(ShockReqAlloc *pool, int arg)
 {
     return 0;
 }
