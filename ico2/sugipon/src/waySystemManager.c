@@ -1,13 +1,12 @@
 #include "GobjProc.h"
 #include "way_sys.h"
 
-/* the TU's one .sdata word (MAIN.MAP waySystemManager.o .sdata 0x4, no symbol):
-   the manager object */
+/* the manager object */
 static int waySystemManagerGObj = 0; /* derived name */
 
-/* kept local: void * (void *, int) here, void (int, int) in act.h */
+/* void * (void *, int) here, void (int, int) in act.h */
 extern void *actCreateSubThreadGOppArg(void *entry, int arg);
-/* kept local: agrees with act.h, which this TU does not include (actCreateSubThreadGOppArg differs) */
+/* as in act.h, which this file does not include */
 extern void _ACTWait(int a0);
 
 #include "waySystemManager.h"

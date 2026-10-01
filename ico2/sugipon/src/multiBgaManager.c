@@ -7,7 +7,7 @@
 #include "StageAnimation.h"
 #include "memory.h"
 
-/* the TU's whole .data */
+/* the state InitMultiBgaManager resets every slot to */
 BgaAnimeState InitialBgaMultiAnimeState = {
     -1.0f,
     {0.0f, 0.0f, 0.0f},
@@ -18,7 +18,8 @@ BgaAnimeState InitialBgaMultiAnimeState = {
     0,
 };
 
-static inline void entryMultiBga(BgaDisp *bga, int no, int kind, void *pos, void *rot)
+static inline void entryMultiBga(BgaDisp *bga, int no, int kind, void *pos,
+                                 void *rot) /* derived name */
 {
     BgaDisp *p = &bga[no];
 

@@ -1,12 +1,8 @@
 /*
  * ico2/sugipon/include/ropeFix.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what ropeFix.c.inc defines, in the order the
- * coalescing TU's prototype block carried them; every type here is read from
- * the ROM's calling convention at the call sites.
+ * The declarations of what ropeFix.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef ROPEFIX_H

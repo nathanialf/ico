@@ -1,30 +1,31 @@
 #include "sceneManager.h"
 #include "main.h"
 
-/* kept local: int (void *, int, int) here, void (char *, int, int) in flag.h */
+/* int (void *, int, int) here, void (char *, int, int) in flag.h */
 extern int SetFlag4PointFixID(void *gobj, int idx, int a2);
 
 /* The 0x40-byte layout record CreateLayoutedGObj takes: three 16-byte vectors
-   and the model id the loader resolves. 8-byte aligned (the copy is ld/sd). */
-typedef union {
+   and the model id the loader resolves.  The vectors are copied as two
+   doublewords each. */
+typedef union { /* field names derived */
     float f[4];
     long long ll[2];
-} WmVec;
+} WmVec; /* derived name */
 
-typedef struct {
+typedef struct {  /* field names derived */
     WmVec pos;    /* 0x00 */
     WmVec rot;    /* 0x10 */
     WmVec scale;  /* 0x20 */
     int id;       /* 0x30 */
     int unk34[3]; /* 0x34 */
-} WmLayout;
+} WmLayout;       /* derived name */
 
-/* The GObj's 0x15C slot is read as an INT handle (types.h GOBJ_SUB): the int
-   view may-alias the int stores below, so each store reloads it. */
-typedef struct {
-    int owner; /* 0x00 */
-    int flag;  /* 0x04 */
-} WmWork;
+/* the windmill's work record, reached through the GObj's 0x15C slot read as
+   an int handle, so each store below reads the slot again */
+typedef struct { /* field names derived */
+    int owner;   /* 0x00 */
+    int flag;    /* 0x04 */
+} WmWork;        /* derived name */
 
 int InitWindMillGeo(int owner, WmLayout *src)
 {

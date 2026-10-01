@@ -9,7 +9,8 @@
 #include "ios.h"
 #include "main.h"
 
-/* kept local: DisplayP2O.h does not compile in this TU (too many arguments to function `p2o_DispVU1') */
+/* declared without a prototype: DisplayP2O.h's p2o_DispVU1 takes fewer
+   arguments than this file passes */
 extern void p2o_DispVU1();
 
 inline short *InitMoveColTestGeo(int a0, int *self)
@@ -24,16 +25,15 @@ inline short *InitMoveColTestGeo(int a0, int *self)
 }
 
 /* the 12-byte work block InitMoveColTestGeo allocates, hung at sub+0x830 */
-typedef struct MctWork {
-    int obj;     /* 0x00 */
-    short r1;    /* 0x04 */
-    short r2;    /* 0x06 */
-    short r3;    /* 0x08 */
-    short angle; /* 0x0A */
-} MctWork;
+typedef struct MctWork { /* field names derived */
+    int obj;             /* 0x00 */
+    short r1;            /* 0x04 */
+    short r2;            /* 0x06 */
+    short r3;            /* 0x08 */
+    short angle;         /* 0x0A */
+} MctWork;               /* derived name */
 
-/* the TU's .sdata (MAIN.MAP moveColTest.o .sdata 0xC, no symbol): the blink
-   counter and the test offset, then MoveColTestGeo's "%d\n" */
+/* the blink counter and the test offset */
 static unsigned char blinkCount = 0; /* derived name */
 
 static int testOffset = 0; /* derived name */

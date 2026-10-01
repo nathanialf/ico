@@ -2,22 +2,21 @@
 #include "matrixDrive.h"
 #include "main.h"
 
-/* the TU's one .sdata word (MAIN.MAP flyManager.o .sdata 0x4, no symbol): the
-   flying object the manager tracks */
+/* the flying object the manager tracks */
 static int flyGObj = 0; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     float floorY;
     float limitY;
     float limitOfs;
     int flags;
-} FlyLimitInfo;
+} FlyLimitInfo; /* derived name */
 
 #include "flyManager.h"
 #include "debug.h"
 #include <string.h>
 
-static inline int getFloorLimitValue(int attr)
+static inline int getFloorLimitValue(int attr) /* derived name */
 {
     int type = attr & 0xF;
 
@@ -30,7 +29,7 @@ static inline int getFloorLimitValue(int attr)
     return type * 100;
 }
 
-static inline int clipFlyFloor(char *work, void *pos)
+static inline int clipFlyFloor(char *work, void *pos) /* derived name */
 {
     CopyVector(work, pos);
     CopyVector(work + 0x10, pos);

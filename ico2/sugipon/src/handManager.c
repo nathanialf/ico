@@ -14,9 +14,8 @@
 
 void connectToTarget(GObj *obj, char *hw, int na, int nb, int nc)
 {
-    /* getBone is a nested function in the ROM: connectToTarget passes it a
-     * static chain in $2 (STATIC_CHAIN_REGNUM) and getBone's prologue spills
-     * it to 0(sp). */
+    /* getBone reads connectToTarget's frame through the static chain, which
+     * its prologue saves at 0(sp). */
     void getBone(float *out, GObj *o)
     {
         Sub15C *sub = GOBJ_SUB(o);
@@ -114,7 +113,7 @@ void connectToTarget(GObj *obj, char *hw, int na, int nb, int nc)
     }
 }
 
-static inline void SetHandQuaternion(char *hw, char *vec, char *ref)
+static inline void SetHandQuaternion(char *hw, char *vec, char *ref) /* derived name */
 {
     char *q = hw + 0x40;
     Vec4 n;
@@ -136,7 +135,7 @@ static inline void SetHandQuaternion(char *hw, char *vec, char *ref)
     }
 }
 
-static inline void FollowHandMatrix(char *hw, char *vec, char *ref)
+static inline void FollowHandMatrix(char *hw, char *vec, char *ref) /* derived name */
 {
     _ApplyMatrix(hw + 0x30,
                  (char *)*(int *)(*(int *)(*(int *)(hw + 4) + 0x15C) + 0xC) +
@@ -145,7 +144,8 @@ static inline void FollowHandMatrix(char *hw, char *vec, char *ref)
     SetHandQuaternion(hw, vec, ref);
 }
 
-static inline int SetHandOnWall(GObj *obj, char *hw, char *vec, char *ref, int node)
+static inline int SetHandOnWall(GObj *obj, char *hw, char *vec, char *ref,
+                                int node) /* derived name */
 {
     Vec4 plane;
 
@@ -158,7 +158,7 @@ static inline int SetHandOnWall(GObj *obj, char *hw, char *vec, char *ref, int n
     return 1;
 }
 
-static inline int PutHandOnLadder(char *hw, int node)
+static inline int PutHandOnLadder(char *hw, int node) /* derived name */
 {
     CopyMatrix(MatrixDrive_GetMatrix(),
                (char *)*(int *)(*(int *)(*(int *)(hw + 4) + 0x15C) + 0xC) + (node << 6));
@@ -211,12 +211,12 @@ float _handManager(GObj *obj, char *hw, char *vec, char *ref, int node)
     return 1.0f;
 }
 
-/* kept local: motionOrientManager.h reaches ico2/fumi's TUs through
-   typedef.h, and commonact.c declares the table char [] */
+/* not from motionOrientManager.h, which reaches ico2/fumi's files through
+   typedef.h, where commonact.c declares the table char [] */
 extern const MotionDef motionKind[];
 extern char motionIKEffKind[];
 
-static inline void ResetHandTarget(GObj *obj, int off)
+static inline void ResetHandTarget(GObj *obj, int off) /* derived name */
 {
     char *h = (char *)(int)GOBJ_SUB(obj) + off;
     *(int *)(h + 0x20) = 0;

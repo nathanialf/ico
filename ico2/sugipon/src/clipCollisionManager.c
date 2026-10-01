@@ -5,36 +5,32 @@
 #include "Matrix.h"
 #include "main.h"
 
-/* the TU's one .sdata word (MAIN.MAP clipCollisionManager.o .sdata 0x4, no
-   symbol): the manager object CreateClipCollisionManagerGObj made */
+/* the manager object CreateClipCollisionManagerGObj made */
 static int clipCollisionManagerGObj = 0; /* derived name */
 
-/* kept local: void * (void *, int) here, void (int, int) in act.h */
+/* void * (void *, int) here, void (int, int) in act.h */
 extern void *actCreateSubThreadGOppArg(void *entry, int arg);
-/* kept local: agrees with act.h, which this TU does not include (actCreateSubThreadGOppArg differs) */
+/* as in act.h, which this file does not include */
 extern void _ACTWait(int a0);
 
-typedef struct ClipColWork {
-    int result; /* 0x00 */
+typedef struct ClipColWork { /* field names derived */
+    int result;              /* 0x00 */
     char _p04[12];
     float p0[4]; /* 0x10 */
     float p1[4]; /* 0x20 */
     char _p30[104];
     /* the two clip results the callback fills in: _clipF stores the floor
-       record pointer at +0xA4 and _Clip dereferences +0x98 as the wall
-       record (lw 0x4C/0x48 off it), so both are pointers, not flags. */
+       record at +0xA4 and _Clip reads the wall record at +0x98 */
     void *hitWall; /* 0x98 */
     char _p9C[8];
     void *hitFloor; /* 0xA4 */
     char _pA8[40];
     char *gobj;           /* 0xD0 */
     void (*func)(void *); /* 0xD4 */
-} ClipColWork;
+} ClipColWork;            /* derived name */
 
-/* `self` is volatile because the actor entry's argument has an addressable
-   home on the stack (ROM: `sw $a0, 0($sp)` then `lw $v0, 0($sp)`), the thread
-   this runs on is resumed by _ACTWait below, so the entry argument is re-read
-   from its home rather than kept in a register across the yield. */
+/* `self` is volatile: the thread yields in _ACTWait below, and the entry
+   argument is read back from its stack home after each resume. */
 void actClipCollisionCore(volatile unsigned int self)
 {
     ClipColWork *w = *(ClipColWork **)(self + 0x20);
@@ -96,10 +92,8 @@ inline void *RequestClipCollision(int *a0)
     return t;
 }
 
-/* listing line 72: the manager thread's idle body, handed to
-   CreateGObjByFuncSet, a static inline forced out of line by its address.
-   `static` keeps its ELF symbol local so it cannot collide with the
-   ico2/sugipon/src/waySystemManager global of the same name */
+/* the manager thread's idle body, handed to CreateGObjByFuncSet;
+   waySystemManager.c has its own thStart */
 static inline void thStart(void)
 {
     for (;;) {

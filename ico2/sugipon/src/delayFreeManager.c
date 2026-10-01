@@ -3,20 +3,17 @@
 #include "debug_exception.h"
 #include <assert.h>
 
-/* .bss, owned by delayFreeManager.o and reached only from this file (MAIN.MAP
-   names no symbol in the run): three frames of pointers queued for a delayed
-   iosFree. */
-static void *delayFreeBuffer[3][384];
+/* three frames of pointers queued for a delayed iosFree */
+static void *delayFreeBuffer[3][384]; /* derived name */
 
-/* The TU's .sdata (MAIN.MAP names nothing in it): the frame being filled and
-   its entry count, then EntryDelayFree's assert literal. */
+/* the frame being filled and its entry count */
 static int delayFreeNo = 0; /* derived name */
 
 static int delayFreeCount = 0; /* derived name */
 
 #include "delayFreeManager.h"
 
-static inline void ClearDelayFreeBuffer(int no)
+static inline void ClearDelayFreeBuffer(int no) /* derived name */
 {
     int i;
 
@@ -25,7 +22,7 @@ static inline void ClearDelayFreeBuffer(int no)
     }
 }
 
-static inline void FreeDelayFreeBuffer(int no)
+static inline void FreeDelayFreeBuffer(int no) /* derived name */
 {
     int i;
 

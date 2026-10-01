@@ -5,7 +5,7 @@
 #include "pad.h"
 
 /* the pad device descriptor InitKeyInput hands to iosPadDevInit */
-static int keyInputPadDev[6] = {7, 2, 0, 0, 0, 0};
+static int keyInputPadDev[6] = {7, 2, 0, 0, 0, 0}; /* derived name */
 
 void InitKeyInput(void)
 {
@@ -29,13 +29,13 @@ void InitKeyInput(void)
     SignalSema(IosPadLock);
 }
 
-typedef struct PadBuf {
+typedef struct PadBuf { /* field names derived */
     char _p0[24];
     int f18; /* 0x18 */
     int f1C; /* 0x1C */
     int f20; /* 0x20 */
     char _p24[60];
-} PadBuf;
+} PadBuf; /* derived name */
 
 extern PadConf iosPadConfDefault;
 

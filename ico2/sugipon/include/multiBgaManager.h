@@ -1,12 +1,8 @@
 /*
  * ico2/sugipon/include/multiBgaManager.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what multiBgaManager.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what multiBgaManager.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef MULTIBGAMANAGER_H
@@ -16,9 +12,7 @@
    slot is idle), the position, the drift added to the position every frame
    (zero unless entered sensitive), the rotation quaternion, the animation and
    whether it stays on its last frame.  The record is quadword aligned, as its
-   vectors are: stageMultiBgaManager.o's .bss, which opens with an array of
-   these, starts on 16 bytes after spiderGroupManager's run ends 8 short of
-   it, in retail as in MAIN.MAP. */
+   vectors are. */
 typedef struct {    /* field names derived */
     float frame;    /* 0x00 */
     float pad04[3]; /* 0x04 */
@@ -28,7 +22,7 @@ typedef struct {    /* field names derived */
     int kind;       /* 0x40, -1 for none */
     int stay;       /* 0x44 */
     int pad48[2];   /* 0x48 */
-} __attribute__((aligned(16))) BgaDisp;
+} __attribute__((aligned(16))) BgaDisp; /* derived name */
 
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
@@ -39,11 +33,10 @@ void EntryMultiBgaManager(BgaDisp *bga, int no, int kind, void *pos, void *rot);
 BgaDisp *InitMultiBgaManager(int n);
 void EntryMultiBgaManagerSensitive(BgaDisp *bga, int no, int kind, void *pos, void *rot, void *vel);
 
-/* the state every slot starts from (MAIN.MAP multiBgaManager.o .data): idle,
-   at the origin, not drifting, unrotated, no animation, not staying.  It is
-   the slot's fields without the slot's quadword alignment (the object sits on
-   8 bytes in the ROM's .data), so a slot is reset by copying it through the
-   slot's type, which is what gives the ROM's quadword copy. */
+/* the state every slot starts from: idle, at the origin, not drifting,
+   unrotated, no animation, not staying.  It is the slot's fields without the
+   slot's quadword alignment, and a slot is reset by copying it through the
+   slot's type. */
 typedef struct {    /* field names derived */
     float frame;    /* 0x00 */
     float pad04[3]; /* 0x04 */
@@ -53,7 +46,7 @@ typedef struct {    /* field names derived */
     int kind;       /* 0x40 */
     int stay;       /* 0x44 */
     int pad48[2];   /* 0x48 */
-} BgaAnimeState;
+} BgaAnimeState; /* derived name */
 
 extern BgaAnimeState InitialBgaMultiAnimeState;
 

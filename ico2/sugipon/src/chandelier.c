@@ -4,7 +4,8 @@
 #include "chandelier.h"
 #include "DisplayP2O.h"
 
-/* kept local: rope.h does not compile in this TU (too many arguments to function `SetRopeFixPoint') */
+/* declared without a prototype: rope.h's SetRopeFixPoint takes fewer
+   arguments than this file passes */
 extern void SetRopeFixPoint();
 
 inline int InitChandelierGeo(void)

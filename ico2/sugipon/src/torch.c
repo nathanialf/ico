@@ -19,13 +19,13 @@ typedef struct TorchGeoWork { /* field names derived */
     /* 0x30 */ int chainFlag;
     /* 0x34 */ int effect[5]; /* the particle effects a lit torch runs, -1 when off */
     /* 0x48 */ int pad48[2];
-} __attribute__((aligned(16))) TorchGeoWork;
+} __attribute__((aligned(16))) TorchGeoWork; /* derived name */
 
-/* torch.o's whole .data run: the torch work record InitTorchGeo starts every
-   torch from.  The 0x50 malloc right above the copy proves the size. */
+/* the torch work record InitTorchGeo starts every torch from (0x50 bytes,
+   the size it allocates) */
 static TorchGeoWork emptyTorchWork = {
     0, {0}, {0.0f, 0.0f, 0.0f, 1.0f}, 0, 0, 65536, 65536, 0, {-1, -1, -1, -1, -1}, {0},
-};
+}; /* derived name */
 
 #include "torch.h"
 #include <libvu0.h>
@@ -290,9 +290,9 @@ inline void UpdateRealTimeGeometryValue(GObj *a0)
     CopyVector(sub + 0x1F0, buf);
 }
 
-/* static helper the listing places at torch.c lines 347-374; never emitted out
- * of line, so it has no MAIN.MAP symbol and this name is ours. */
-static inline int chainReactionBlocked(char *gobj, char *other)
+/* nonzero when lighting `other`'s torch from `gobj` must not happen: the
+ * heroine's bomb, or the boy's weapon pair */
+static inline int chainReactionBlocked(char *gobj, char *other) /* derived name */
 {
     char *p;
     char *q;

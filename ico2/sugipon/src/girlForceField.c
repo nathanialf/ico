@@ -6,11 +6,11 @@
 
 /* Per-object force-field state, hung off the actor's sub-object by the caller
    (GirlForceFieldDL reads it back at sub+0x830). */
-typedef struct GirlForceFieldWork {
+typedef struct GirlForceFieldWork { /* field names derived */
     float radius;
     float invRadius;
     int frame;
-} GirlForceFieldWork;
+} GirlForceFieldWork; /* derived name */
 
 #include "girlForceField.h"
 #include "ios.h"
@@ -18,14 +18,8 @@ typedef struct GirlForceFieldWork {
 #include "StageAnimation.h"
 #include "sceneManager.h"
 
-/* The TU's .data (VMA 0x4EB430, 16 B = MAIN.MAP girlForceField.o .data): the
-   girl's blue, the colour boy.c's position-sync marker draws her sphere in.
-   RECONSTRUCTION: nothing references it in the retail ELF or in the January
-   listing, so its use (most likely a debug sphere at the field's radius) is
-   compiled out.  What the bytes pin: the four words and the owner (MAIN.MAP
-   and the Aug-2001 prototype both put this colour first of the two 16-byte
-   members between girl.o and item.o, and retail keeps only it).  What they
-   cannot pin: the name or the display it fed. */
+/* the girl's blue, the colour boy.c's position-sync marker draws her sphere
+   in; nothing reads it */
 static int forceFieldColor[4] = {64, 96, 128, 128}; /* derived name */
 
 inline GirlForceFieldWork *InitGirlForceFieldGeo(char *self, SObjSimpleSetting *param)
@@ -42,8 +36,6 @@ inline GirlForceFieldWork *InitGirlForceFieldGeo(char *self, SObjSimpleSetting *
 }
 
 inline void GirlForceFieldGeo(void) {}
-
-/* The girl's GObj, or NULL before she is spawned. */
 
 /* The stage's object layout (indexed by the GObj's labelId) and the action
    table its rows select into. */

@@ -4,15 +4,12 @@
 #include "Matrix.h"
 #include "main.h"
 
-/* .bss, owned by stageMultiBgaManager.o and reached only from this file
-   (MAIN.MAP names no symbol in the run), in the ROM's run order: the thirty
-   multi-BGA slots and the animation each one is playing. */
-static BgaDisp stageBga[30];
+/* the thirty multi-BGA slots and the animation each one is playing */
+static BgaDisp stageBga[30]; /* derived name */
 
-static char *stageBgaAnim[30];
+static char *stageBgaAnim[30]; /* derived name */
 
-/* the TU's one .sdata word (MAIN.MAP stageMultiBgaManager.o .sdata 0x4, no
-   symbol): the number of stage animations entered */
+/* the number of stage animations entered */
 static int stageBgaCount = 0; /* derived name */
 
 #include "stageMultiBgaManager.h"

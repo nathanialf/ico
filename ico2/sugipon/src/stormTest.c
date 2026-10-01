@@ -13,9 +13,9 @@
 #include "windField.h"
 
 /* the clip plane normal StormTestDL transforms into view space */
-static float stormClipPlane[4] = {0.0f, 0.0f, 1.0f, 0.0f};
+static float stormClipPlane[4] = {0.0f, 0.0f, 1.0f, 0.0f}; /* derived name */
 
-typedef struct StormPackage {
+typedef struct StormPackage { /* field names derived */
     /* 0x00 */ int mode;
     /* 0x04 */ int num;
     /* 0x08 */ float (*pos)[4];
@@ -23,19 +23,16 @@ typedef struct StormPackage {
     /* 0x10 */ int (*disp)[4];
     /* 0x14 */ float *rate;
     /* 0x18 */ int unk18;
-} StormPackage;
+} StormPackage; /* derived name */
 
-/* stormTest.c lines 28-31 */
-
-static __inline__ void StormStoreI4(void *dst, void *src)
+static __inline__ void StormStoreI4(void *dst, void *src) /* derived name */
 {
     VU0_LSV_R(lqc2, 4, 0x0, src);
     VU0_V2OP(vftoi4.xyzw, 5, 4);
     VU0_LSV_R(sqc2, 5, 0x0, dst);
 }
 
-/* stormTest.c lines 38-44 */
-static __inline__ void StormPerspective(void *dst, void *src)
+static __inline__ void StormPerspective(void *dst, void *src) /* derived name */
 {
     float t[4];
 
@@ -44,8 +41,7 @@ static __inline__ void StormPerspective(void *dst, void *src)
     StormStoreI4(dst, t);
 }
 
-/* stormTest.c lines 48-55 */
-static __inline__ float StormScreen(void *dst, void *src)
+static __inline__ float StormScreen(void *dst, void *src) /* derived name */
 {
     float t[4];
     float w;
@@ -57,8 +53,7 @@ static __inline__ float StormScreen(void *dst, void *src)
     return w;
 }
 
-/* stormTest.c lines 100-107 */
-static __inline__ void StormProject(void *dst, void *src)
+static __inline__ void StormProject(void *dst, void *src) /* derived name */
 {
     float t[4];
 

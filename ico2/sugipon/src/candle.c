@@ -7,12 +7,12 @@
 #include "quaternion.h"
 #include "DisplayP2O.h"
 
-typedef struct CandleFlame {
-    int effect; /* 0x0 */
-    int off;    /* 0x4 */
-} CandleFlame;
+typedef struct CandleFlame { /* field names derived */
+    int effect;              /* 0x0 */
+    int off;                 /* 0x4 */
+} CandleFlame;               /* derived name */
 
-typedef struct CandleWork {
+typedef struct CandleWork { /* field names derived */
     char _pad0[8];
     int num;   /* 0x8 , flame count */
     char *mtx; /* 0xC , the per-flame 0x40-byte matrix run */
@@ -20,9 +20,9 @@ typedef struct CandleWork {
     int alive; /* 0x74 */
     char _pad_78[1976];
     CandleFlame *flame; /* 0x830 */
-} CandleWork;
+} CandleWork;           /* derived name */
 
-#define CANDLE_WORK(o) ((CandleWork *)*(int *)((char *)(o) + 0x15C))
+#define CANDLE_WORK(o) ((CandleWork *)*(int *)((char *)(o) + 0x15C)) /* derived name */
 
 #include "candle.h"
 #include "ios.h"
@@ -55,16 +55,7 @@ void CandleGeo(void *self)
 {
     CandleWork *w = CANDLE_WORK(self);
     CandleFlame *flame = w->flame;
-    /* RECONSTRUCTION.  The release pass reads the work block through its own
-       handle, and the ROM proves there are two: with one pointer, gcse's PRE
-       finds the release loop's count load fully redundant against the update
-       loop's and deletes it, and no ordering of these statements brings it
-       back.  Two pointer quantities give the two loops two expressions, the
-       release loop keeps its own `lw 0x8` before the guard, and the update
-       loop's count then dies at its own exit and takes $2 the way the ROM has
-       it.  The bytes cannot say whether the source fetched the block again or
-       copied the first handle; the fetch is written because cse turns it into
-       a copy that coalesces away, which is why it costs no instruction. */
+    /* the release pass reads the work block through its own handle */
     CandleWork *cw = CANDLE_WORK(self);
     int i;
 

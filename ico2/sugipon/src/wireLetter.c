@@ -5,17 +5,16 @@
 #include <string.h>
 #include "GifPacket.h"
 
-typedef struct {
+typedef struct { /* field names derived */
     float x;
     float y;
     int z;
-} WLPnt;
+} WLPnt; /* derived name */
 
-/* a box corner: the stroke point's fields on a 16-byte boundary.  The ROM
- * keeps the two apart: Draw2DBox's corners sit 16 bytes apart with no pad
- * store, while DispWireLetter copies its stroke ends with ldl/ldr, so
- * WLPnt itself is 4-aligned. */
-typedef struct {
+/* a box corner: the stroke point's fields on a 16-byte boundary.  Draw2DBox's
+ * corners sit 16 bytes apart, while DispWireLetter's stroke ends are the
+ * 4-aligned WLPnt. */
+typedef struct { /* field names derived */
     float x;
     float y;
     int z;
@@ -27,201 +26,201 @@ typedef struct {
 static float wireLetterA[][4] = {
     -10.0f, -10.0f, 0.0f,  10.0f,  0.0f,      10.0f, 10.0f, -10.0f,
     -7.07f, -4.15f, 7.07f, -4.15f, 999999.0f, 0.0f,  0.0f,  0.0f,
-};
+}; /* derived name */
 
 static float wireLetterB[][4] = {
     -10.0f, -10.0f, -10.0f, 10.0f, -10.0f, 10.0f,  5.0f, 10.0f,  5.0f,      10.0f,  10.0f, 5.0f,
     5.0f,   0.0f,   10.0f,  5.0f,  -10.0f, 0.0f,   5.0f, 0.0f,   5.0f,      -10.0f, 10.0f, -5.0f,
     5.0f,   0.0f,   10.0f,  -5.0f, -10.0f, -10.0f, 5.0f, -10.0f, 999999.0f, 0.0f,   0.0f,  0.0f,
-};
+}; /* derived name */
 
 static float wireLetterC[][4] = {
     -10.0f, -5.0f,  -5.0f,  -10.0f, -10.0f, 5.0f,  -5.0f,     10.0f, -5.0f,  10.0f, 5.0f,
     10.0f,  10.0f,  5.0f,   5.0f,   10.0f,  -5.0f, -10.0f,    5.0f,  -10.0f, 10.0f, -5.0f,
     5.0f,   -10.0f, -10.0f, 5.0f,   -10.0f, -5.0f, 999999.0f, 0.0f,  0.0f,   0.0f,
-};
+}; /* derived name */
 
 static float wireLetterD[][4] = {
     -10.0f, -10.0f, -10.0f, 10.0f,  -10.0f,    10.0f,  5.0f,  10.0f, 10.0f, 5.0f,
     5.0f,   10.0f,  -10.0f, -10.0f, 5.0f,      -10.0f, 10.0f, -5.0f, 5.0f,  -10.0f,
     10.0f,  5.0f,   10.0f,  -5.0f,  999999.0f, 0.0f,   0.0f,  0.0f,
-};
+}; /* derived name */
 
 static float wireLetterE[][4] = {
     -10.0f, -10.0f, -10.0f, 10.0f,  -10.0f, 10.0f,  10.0f,     10.0f, -10.0f, 0.0f,
     5.0f,   0.0f,   -10.0f, -10.0f, 10.0f,  -10.0f, 999999.0f, 0.0f,  0.0f,   0.0f,
-};
+}; /* derived name */
 
 static float wireLetterF[][4] = {
     -10.0f, -10.0f, -10.0f, 10.0f, -10.0f,    10.0f, 10.0f, 10.0f,
     -10.0f, 0.0f,   10.0f,  0.0f,  999999.0f, 0.0f,  0.0f,  0.0f,
-};
+}; /* derived name */
 
 static float wireLetterG[][4] = {
     -10.0f, -5.0f, -5.0f, -10.0f, -10.0f, 5.0f,  -5.0f,     10.0f,  -5.0f, 10.0f,
     5.0f,   10.0f, 10.0f, 5.0f,   5.0f,   10.0f, -5.0f,     -10.0f, 5.0f,  -10.0f,
     10.0f,  -5.0f, 5.0f,  -10.0f, -10.0f, 5.0f,  -10.0f,    -5.0f,  10.0f, 0.0f,
     10.0f,  -5.0f, 10.0f, 0.0f,   0.0f,   0.0f,  999999.0f, 0.0f,   0.0f,  0.0f,
-};
+}; /* derived name */
 
 static float wireLetterH[][4] = {
     -10.0f, -10.0f, -10.0f, 10.0f, 10.0f,     -10.0f, 10.0f, 10.0f,
     -10.0f, 0.0f,   10.0f,  0.0f,  999999.0f, 0.0f,   0.0f,  0.0f,
-};
+}; /* derived name */
 
 static float wireLetterI[][4] = {
     0.0f, -10.0f, 0.0f, 10.0f, 999999.0f, 0.0f, 0.0f, 0.0f,
-};
+}; /* derived name */
 
 static float wireLetterJ[][4] = {
     10.0f, 10.0f,  10.0f, -5.0f,  10.0f,  -5.0f, 5.0f,      -10.0f, 5.0f, -10.0f,
     -5.0f, -10.0f, -5.0f, -10.0f, -10.0f, -5.0f, 999999.0f, 0.0f,   0.0f, 0.0f,
-};
+}; /* derived name */
 
 static float wireLetterK[][4] = {
     -10.0f, 10.0f,  -10.0f, -10.0f, 10.0f,     10.0f, -10.0f, 0.0f,
     10.0f,  -10.0f, -10.0f, 0.0f,   999999.0f, 0.0f,  0.0f,   0.0f,
-};
+}; /* derived name */
 
 static float wireLetterL[][4] = {
     -10.0f, -10.0f, -10.0f, 10.0f, -10.0f, -10.0f, 10.0f, -10.0f, 999999.0f, 0.0f, 0.0f, 0.0f,
-};
+}; /* derived name */
 
 static float wireLetterM[][4] = {
     -10.0f, -10.0f, -10.0f, 10.0f,  10.0f, -10.0f, 10.0f,     10.0f, 0.0f, -10.0f,
     -10.0f, 10.0f,  0.0f,   -10.0f, 10.0f, 10.0f,  999999.0f, 0.0f,  0.0f, 0.0f,
-};
+}; /* derived name */
 
 static float wireLetterN[][4] = {
     -10.0f, -10.0f, -10.0f, 10.0f, 10.0f,     -10.0f, -10.0f, 10.0f,
     10.0f,  -10.0f, 10.0f,  10.0f, 999999.0f, 0.0f,   0.0f,   0.0f,
-};
+}; /* derived name */
 
 static float wireLetterO[][4] = {
     -10.0f, -5.0f,  -5.0f,  -10.0f, -10.0f, 5.0f, -5.0f, 10.0f, -5.0f,     10.0f, 5.0f, 10.0f,
     -5.0f,  -10.0f, 5.0f,   -10.0f, 10.0f,  5.0f, 5.0f,  10.0f, 10.0f,     -5.0f, 5.0f, -10.0f,
     -10.0f, 5.0f,   -10.0f, -5.0f,  10.0f,  5.0f, 10.0f, -5.0f, 999999.0f, 0.0f,  0.0f, 0.0f,
-};
+}; /* derived name */
 
 static float wireLetterP[][4] = {
     -10.0f, -10.0f, -10.0f, 10.0f, -10.0f, 10.0f, 5.0f,   10.0f, 5.0f,      10.0f, 10.0f, 5.0f,
     10.0f,  5.0f,   5.0f,   0.0f,  5.0f,   0.0f,  -10.0f, 0.0f,  999999.0f, 0.0f,  0.0f,  0.0f,
-};
+}; /* derived name */
 
 static float wireLetterQ[][4] = {
     -10.0f, -5.0f, -5.0f, -10.0f, -10.0f, 5.0f,   -5.0f,     10.0f, -5.0f, 10.0f,
     5.0f,   10.0f, -5.0f, -10.0f, 5.0f,   -10.0f, 10.0f,     5.0f,  5.0f,  10.0f,
     10.0f,  -5.0f, 5.0f,  -10.0f, -10.0f, 5.0f,   -10.0f,    -5.0f, 10.0f, 5.0f,
     10.0f,  -5.0f, 0.0f,  0.0f,   10.0f,  -10.0f, 999999.0f, 0.0f,  0.0f,  0.0f,
-};
+}; /* derived name */
 
 static float wireLetterR[][4] = {
     -10.0f, -10.0f, -10.0f, 10.0f,  -10.0f,    10.0f, 5.0f, 10.0f, 5.0f,   10.0f,
     10.0f,  5.0f,   10.0f,  5.0f,   5.0f,      0.0f,  5.0f, 0.0f,  -10.0f, 0.0f,
     0.0f,   0.0f,   10.0f,  -10.0f, 999999.0f, 0.0f,  0.0f, 0.0f,
-};
+}; /* derived name */
 
 static float wireLetterS[][4] = {
     10.0f,  5.0f,   5.0f,   10.0f,  5.0f,   10.0f, -5.0f,     10.0f,  -5.0f, 10.0f,
     -10.0f, 5.0f,   -10.0f, 5.0f,   -5.0f,  0.0f,  -5.0f,     0.0f,   5.0f,  0.0f,
     5.0f,   0.0f,   10.0f,  -5.0f,  10.0f,  -5.0f, 5.0f,      -10.0f, 5.0f,  -10.0f,
     -5.0f,  -10.0f, -5.0f,  -10.0f, -10.0f, -5.0f, 999999.0f, 0.0f,   0.0f,  0.0f,
-};
+}; /* derived name */
 
 static float wireLetterSlash[][4] = {
     -10.0f, 5.0f,  -5.0f, 10.0f,  -5.0f, 10.0f,  5.0f,      10.0f, 5.0f, 10.0f, 10.0f,
     5.0f,   10.0f, 5.0f,  5.0f,   0.0f,  5.0f,   0.0f,      0.0f,  0.0f, 0.0f,  0.0f,
     0.0f,   -5.0f, 0.0f,  -10.0f, 0.0f,  -15.0f, 999999.0f, 0.0f,  0.0f, 0.0f,
-};
+}; /* derived name */
 
 static float wireLetterDot[][4] = {
     0.0f, -10.0f, 0.0f, -15.0f, 999999.0f, 0.0f, 0.0f, 0.0f,
-};
+}; /* derived name */
 
 static float wireLetterT[][4] = {
     -10.0f, 10.0f, 10.0f, 10.0f, 0.0f, -10.0f, 0.0f, 10.0f, 999999.0f, 0.0f, 0.0f, 0.0f,
-};
+}; /* derived name */
 
 static float wireLetterU[][4] = {
     -10.0f, 10.0f,  -10.0f, -5.0f, -10.0f, -5.0f, -5.0f, -10.0f, -5.0f,     -10.0f, 5.0f, -10.0f,
     5.0f,   -10.0f, 10.0f,  -5.0f, 10.0f,  -5.0f, 10.0f, 10.0f,  999999.0f, 0.0f,   0.0f, 0.0f,
-};
+}; /* derived name */
 
 static float wireLetterV[][4] = {
     -10.0f, 10.0f, 0.0f, -10.0f, 0.0f, -10.0f, 10.0f, 10.0f, 999999.0f, 0.0f, 0.0f, 0.0f,
-};
+}; /* derived name */
 
 static float wireLetterW[][4] = {
     -10.0f, -10.0f, -10.0f, 10.0f, 10.0f, -10.0f, 10.0f,     10.0f, 0.0f, 0.0f,
     -10.0f, -10.0f, 0.0f,   0.0f,  10.0f, -10.0f, 999999.0f, 0.0f,  0.0f, 0.0f,
-};
+}; /* derived name */
 
 static float wireLetterY[][4] = {
     -10.0f, 10.0f, 0.0f, 0.0f,   10.0f,     10.0f, 0.0f, 0.0f,
     0.0f,   0.0f,  0.0f, -10.0f, 999999.0f, 0.0f,  0.0f, 0.0f,
-};
+}; /* derived name */
 
 static float wireLetterX[][4] = {
     -10.0f, 10.0f, 10.0f, -10.0f, -10.0f, -10.0f, 10.0f, 10.0f, 999999.0f, 0.0f, 0.0f, 0.0f,
-};
+}; /* derived name */
 
 static float wireLetterZ[][4] = {
     -10.0f, 10.0f,  10.0f, 10.0f, -10.0f,    -10.0f, 10.0f, -10.0f,
     -10.0f, -10.0f, 10.0f, 10.0f, 999999.0f, 0.0f,   0.0f,  0.0f,
-};
+}; /* derived name */
 
 static float wireLetter0[][4] = {
     -10.0f, -5.0f,  -5.0f,  -10.0f, -10.0f, 5.0f, -5.0f, 10.0f, -5.0f,     10.0f, 5.0f, 10.0f,
     -5.0f,  -10.0f, 5.0f,   -10.0f, 10.0f,  5.0f, 5.0f,  10.0f, 10.0f,     -5.0f, 5.0f, -10.0f,
     -10.0f, 5.0f,   -10.0f, -5.0f,  10.0f,  5.0f, 10.0f, -5.0f, 999999.0f, 0.0f,  0.0f, 0.0f,
-};
+}; /* derived name */
 
 static float wireLetter1[][4] = {
     0.0f, -10.0f, 0.0f, 10.0f, 999999.0f, 0.0f, 0.0f, 0.0f,
-};
+}; /* derived name */
 
 static float wireLetter2[][4] = {
     -10.0f, 10.0f,  10.0f, 10.0f, -10.0f,    -10.0f, 10.0f, -10.0f,
     -10.0f, -10.0f, 10.0f, 10.0f, 999999.0f, 0.0f,   0.0f,  0.0f,
-};
+}; /* derived name */
 
 static float wireLetter3[][4] = {
     10.0f, -10.0f, 10.0f,  10.0f,  -10.0f, 10.0f,  10.0f,     10.0f, 10.0f, 0.0f,
     -5.0f, 0.0f,   -10.0f, -10.0f, 10.0f,  -10.0f, 999999.0f, 0.0f,  0.0f,  0.0f,
-};
+}; /* derived name */
 
 static float wireLetter4[][4] = {
     -10.0f, 0.0f, -10.0f, 10.0f, 10.0f,     -10.0f, 10.0f, 10.0f,
     -10.0f, 0.0f, 10.0f,  0.0f,  999999.0f, 0.0f,   0.0f,  0.0f,
-};
+}; /* derived name */
 
 static float wireLetter5[][4] = {
     10.0f,  5.0f,   5.0f,   10.0f,  5.0f,   10.0f, -5.0f,     10.0f,  -5.0f, 10.0f,
     -10.0f, 5.0f,   -10.0f, 5.0f,   -5.0f,  0.0f,  -5.0f,     0.0f,   5.0f,  0.0f,
     5.0f,   0.0f,   10.0f,  -5.0f,  10.0f,  -5.0f, 5.0f,      -10.0f, 5.0f,  -10.0f,
     -5.0f,  -10.0f, -5.0f,  -10.0f, -10.0f, -5.0f, 999999.0f, 0.0f,   0.0f,  0.0f,
-};
+}; /* derived name */
 
 static float wireLetter6[][4] = {
     -10.0f, -10.0f, -10.0f, 10.0f, -10.0f, 10.0f,  5.0f, 10.0f,  5.0f,      10.0f,  10.0f, 5.0f,
     5.0f,   0.0f,   10.0f,  5.0f,  -10.0f, 0.0f,   5.0f, 0.0f,   5.0f,      -10.0f, 10.0f, -5.0f,
     5.0f,   0.0f,   10.0f,  -5.0f, -10.0f, -10.0f, 5.0f, -10.0f, 999999.0f, 0.0f,   0.0f,  0.0f,
-};
+}; /* derived name */
 
 static float wireLetter7[][4] = {
     -10.0f, 10.0f, 10.0f, 10.0f, 0.0f, -10.0f, 0.0f, 10.0f, 999999.0f, 0.0f, 0.0f, 0.0f,
-};
+}; /* derived name */
 
 static float wireLetter8[][4] = {
     -10.0f, -10.0f, -10.0f, 10.0f, -10.0f, 10.0f,  5.0f, 10.0f,  5.0f,      10.0f,  10.0f, 5.0f,
     5.0f,   0.0f,   10.0f,  5.0f,  -10.0f, 0.0f,   5.0f, 0.0f,   5.0f,      -10.0f, 10.0f, -5.0f,
     5.0f,   0.0f,   10.0f,  -5.0f, -10.0f, -10.0f, 5.0f, -10.0f, 999999.0f, 0.0f,   0.0f,  0.0f,
-};
+}; /* derived name */
 
 static float wireLetter9[][4] = {
     -10.0f, -10.0f, -10.0f, 10.0f, -10.0f, 10.0f, 5.0f,   10.0f, 5.0f,      10.0f, 10.0f, 5.0f,
     10.0f,  5.0f,   5.0f,   0.0f,  5.0f,   0.0f,  -10.0f, 0.0f,  999999.0f, 0.0f,  0.0f,  0.0f,
-};
+}; /* derived name */
 
 static float *wireLetterGlyphs[48] = {
     &wireLetterDot[0][0],
@@ -272,11 +271,11 @@ static float *wireLetterGlyphs[48] = {
     0,
     0,
     0,
-};
+}; /* derived name */
 
-static int wireStringColorDefault[4] = {0x80, 0xC8, 0xFF, 0x80};
+static int wireStringColorDefault[4] = {0x80, 0xC8, 0xFF, 0x80}; /* derived name */
 
-static int wireStringColor[4] = {0x80, 0xC8, 0xFF, 0x80};
+static int wireStringColor[4] = {0x80, 0xC8, 0xFF, 0x80}; /* derived name */
 
 inline void Draw2DBox(float x0, float y0, float x1, float y1)
 {
