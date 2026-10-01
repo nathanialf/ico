@@ -10,13 +10,70 @@
 #ifndef SCE_LIBMPEG_LIBMPEG_INTERNAL_H
 #define SCE_LIBMPEG_LIBMPEG_INTERNAL_H
 
+/* one entry of the callback table, by callback type */
+typedef struct { /* derived name */
+    sceMpegCallback func;
+    void *data;
+} MpegCb;
+
+/* the arena the frame buffers and the stream-callback table are allocated
+ * out of: the work area after the decoder record.  Allocations past the
+ * dynamic mark are released by _alalcFree on each new sequence size. */
+typedef struct {      /* derived name */
+    unsigned int base;    /* 0x00 */
+    unsigned int size;    /* 0x04 */
+    unsigned int cur;     /* 0x08 the next free byte */
+    unsigned int dynamic; /* 0x0C where the per-sequence allocations start */
+} MpegHeap;
+
+/* the decoder's own record, 0x118 bytes at the head of the work area
+ * sceMpegCreate is given; the handle's sys field points at it.  Every field
+ * name here, in MpegCb and in MpegHeap is ours. */
+typedef struct MpegSys {     /* derived name */
+    int isEnd;               /* 0x000 the stream's end was reached */
+    int refCount;            /* 0x004 pictures decoded since the last flush */
+    int outState;            /* 0x008 0 none yet, 1 decoding, 2 output started */
+    MpegCb cb[7];            /* 0x00C by callback type */
+    struct StrCb *strCb;     /* 0x044 sceMpegAddStrCallback's table, 64 entries */
+    int nStrCb;              /* 0x048 */
+    int dmaEnv[9];           /* 0x04C what sceIpuStopDMA saves */
+    int usePtsGap;           /* 0x070 sceMpegSetDefaultPtsGap */
+    int pad74;               /* 0x074 */
+    long long ptsGap;        /* 0x078 */
+    int lastPts;             /* 0x080 the stamp of the picture last output */
+    int pad84;               /* 0x084 */
+    long long lastShow;      /* 0x088 and its display count */
+    int halfCount;           /* 0x090 odd half-gaps carried */
+    int ni, np, nb;          /* 0x094 sceMpegSetDecodeMode */
+    int iCount;              /* 0x0A0 I, P and B pictures seen in the GOP */
+    int pCount;              /* 0x0A4 */
+    int bCount;              /* 0x0A8 */
+    int frameBase;           /* 0x0AC _totalFrames at the first output */
+    int csc;                 /* 0x0B0 sceMpegGetPicture: convert to RGB */
+    int centerOffX[3];       /* 0x0B4 frame_centre_horizontal_offset */
+    int centerOffY[3];       /* 0x0C0 frame_centre_vertical_offset */
+    int dispWidth;           /* 0x0CC display_horizontal_size */
+    int dispHeight;          /* 0x0D0 display_vertical_size */
+    int picStructure;        /* 0x0D4 the first picture's structure */
+    int imageBuff;           /* 0x0D8 the output buffer, uncached */
+    int buffWidth;           /* 0x0DC in pixels, 0 for a packed buffer */
+    int buffHeight;          /* 0x0E0 */
+    int buffSize;            /* 0x0E4 in macroblocks */
+    int brokenLink;          /* 0x0E8 sceSetBrokenLink */
+    int padEC;               /* 0x0EC */
+    long long ptm;           /* 0x0F0 sceSetPtm */
+    int ptmState;            /* 0x0F8 1 set, 2 armed, 0 used */
+    int frameBuff[3];        /* 0x0FC the three reference frames */
+    MpegHeap heap;           /* 0x108 */
+} MpegSys;
+
 void _ErrMessage(char *a0);
 void _Error(char *a0);
 void _Error1(char *fmt, int a1);
-int _alalcAlloc(unsigned int *a0, int a1, unsigned int a2);
-void _alalcFree(int *a0);
-void _alalcInit(int *a0, int a1, int a2);
-void _alalcSetDynamic(int *a0);
+int _alalcAlloc(MpegHeap *heap, int size, unsigned int align);
+void _alalcFree(MpegHeap *heap);
+void _alalcInit(MpegHeap *heap, int base, int size);
+void _alalcSetDynamic(MpegHeap *heap);
 extern int _alternate_scan;
 extern int _aspect_ratio_information;
 extern int *_backBot;
@@ -57,14 +114,14 @@ int _decMB0(int *mb_type, int *motion_type, int *dct_type, int PMV[2][2][2], int
             int *dmvector);
 
 int _decPicture(int a0, int a1);
-int _decodeOrSkip(int a0, int a1, int a2);
-int _decodeOrSkipField(int a0, int a1, int a2);
-int _decodeOrSkipFrame(int a0, int a1, int a2);
+int _decodeOrSkip(sceMpeg *mp, int count, int limit);
+int _decodeOrSkipField(sceMpeg *mp, int count, int limit);
+int _decodeOrSkipFrame(sceMpeg *mp, int count, int limit);
 void _decode_motion_vector(int *pred, int r_size, int motion_code, int motion_r, int full_pel);
-void _defRestartDMA(int **a0);
-void _defStopDMA(int **a0);
-void *_dispatchMpegCallback(void *a0, void *a1);
-void _dispatchMpegCbNodata(void *a0);
+int _defRestartDMA(sceMpeg *mp, void *cbdata, void *data);
+int _defStopDMA(sceMpeg *mp, void *cbdata, void *data);
+int _dispatchMpegCallback(sceMpeg *mp, int *cbdata);
+void _dispatchMpegCbNodata(sceMpeg *mp);
 extern unsigned char _defIQM[64];
 extern unsigned char _defNIQM[64];
 extern int _display_horizontal_size;
@@ -81,7 +138,7 @@ extern int _f_code[2][2];
 extern int _field_sequence;
 void _flushBuf(int a0);
 
-void _getAllRefs(int x, int y, int mbflags, int motion_type, int PMV[2][2][2], int *mv_field_sel,
+void _getAllRefs(int x, int y, int mbflags, int motion_type, int PMV[2][2][2], int mv_field_sel[2][2],
                  int *dmvector);
 
 extern int *_forwBot;
@@ -96,8 +153,8 @@ extern int _frame_rate_extension_d;
 extern int _frame_rate_extension_n;
 extern int _full_pel_backward_vector;
 extern int _full_pel_forward_vector;
-void _getPtsDtsFlags(int *img, void *a1, void *a2, void *a3);
-int _getpic(int a0);
+void _getPtsDtsFlags(int *img, long long *pts, long long *dts, long long *flags);
+int _getpic(sceMpeg *mp);
 
 void _getRef0(int *img, int lineOff, int predIdx, int yoff, int h, int x, int y, int mvx, int mvy,
               int fld, int avg);
@@ -111,7 +168,7 @@ extern int _horizontal_size;
 void _initRefImages(int *frame0, int *frame1, int *frame2, int *top0, int *top1, int *top2,
                     int *bot0, int *bot1, int *bot2, int y, int cb, int cr);
 
-void _initSeq(void *a0);
+void _initSeq(sceMpeg *mp);
 void _initSeqAgain(void);
 extern int _isError;
 extern int _isMpeg2;
@@ -177,7 +234,7 @@ typedef struct {     /* derived name */
     int aux;         /* 0x284 zeroed beside cur, read by no member */
 } MCState;
 
-int _motionComp0(int a0, int a1, int a2, int a3, int PMV[2][2][2], int *mv_field_sel,
+int _motionComp0(int a0, int a1, int a2, int a3, int PMV[2][2][2], int mv_field_sel[2][2],
                  int *dmvector);
 
 void _motionVector(int *PMV, int *dmvector, int h_r_size, int v_r_size, int dmv, int mvscale,
@@ -216,7 +273,7 @@ extern int _refTop0[];
 extern int _refTop1[];
 extern int _refTop2[];
 extern int _repeat_first_field;
-int _sceMpegFlush(int *self);
+int _sceMpegFlush(sceMpeg *mp);
 void _sendDataToIPU(int a0, int a1);
 void _sendIpuCommand(unsigned int a0);
 void _sequenceDisplayExtension(void);
@@ -224,7 +281,7 @@ void _sequenceExtension(void);
 void _sequenceHeader(void);
 void _sequenceScalableExtension(void);
 void _setDefaultQM(int cmd, unsigned char *qm);
-int _skipMB0(int PMV[2][2][2], int *motion_type, int *mv_field_sel, int *mb_type);
+int _skipMB0(int PMV[2][2][2], int *motion_type, int mv_field_sel[2][2], int *mb_type);
 int _slice0(int a0, int a1);
 int _sliceA0(int a0, int *a1, int *a2, int PMV[2][2][2]);
 int _sliceB(void);

@@ -105,16 +105,15 @@ void _Error1(char *fmt, int a1)
 
 void _Error(char *a0)
 {
-    char *p = (char *)_theSceMpeg;
-    if (p != 0) {
-        register int q = *(int *)(p + 0x40);
-        if (q != 0) {
-            register int r = *(int *)(q + 0xC);
-            if (r != 0) {
+    sceMpeg *mp = _theSceMpeg;
+    if (mp != 0) {
+        MpegSys *p = mp->sys;
+        if (p != 0) {
+            if (p->cb[0].func != 0) {
                 int local[2];
                 local[0] = 0;
                 local[1] = (int)a0;
-                _dispatchMpegCallback(p, local);
+                _dispatchMpegCallback(mp, local);
                 return;
             }
         }
@@ -159,7 +158,7 @@ void _sequenceHeader(void)
 {
     unsigned int v;
 
-    *(int *)(*(int *)((char *)_theSceMpeg + 0x40) + 0xD4) = 0;
+    _theSceMpeg->sys->picStructure = 0;
     v = _nextBit(32);
     _frame_rate_code = v & 0xF;
     _aspect_ratio_information = (v >> 4) & 0xF;
@@ -190,21 +189,10 @@ void _sequenceHeader(void)
     _initSeq(_theSceMpeg);
 }
 
-/* the stream record _initSeq re-sizes: the picture size the decoder was last
- * set up for, and at 0x40 the decoder the three frame buffers are allocated
- * out of */
-typedef struct {
-    int width;
-    int height;
-    int _8[14];
-    int *dec;
-} MpegSeq;
-
-void _initSeq(void *a0)
+void _initSeq(sceMpeg *mp)
 {
-    MpegSeq *p = (MpegSeq *)a0;
-    int *r = p->dec;
-    int *heap;
+    MpegSys *r = mp->sys;
+    MpegHeap *heap;
     unsigned int size;
 
     if (_isMpeg2 == 0) {
@@ -220,19 +208,19 @@ void _initSeq(void *a0)
                                                               : (_vertical_size + 15) >> 4;
     _picWidth = _widthMB * 16;
     _picHeight = _heightMB * 16;
-    if (_picWidth != p->width || _picHeight != p->height) {
-        p->width = _picWidth;
-        p->height = _picHeight;
+    if (_picWidth != mp->width || _picHeight != mp->height) {
+        mp->width = _picWidth;
+        mp->height = _picHeight;
         _cWidth = _picWidth >> 1;
         _cHeight = _picHeight >> 1;
-        heap = (int *)((char *)r + 0x108);
+        heap = &r->heap;
         size = (unsigned int)(_picWidth * 0x180 * _picHeight) >> 8;
         _alalcFree(heap);
-        r[0xFC / 4] = _alalcAlloc((unsigned int *)heap, size, 0x40);
-        r[0x100 / 4] = _alalcAlloc((unsigned int *)heap, size, 0x40);
-        r[0x104 / 4] = _alalcAlloc((unsigned int *)heap, size, 0x40);
+        r->frameBuff[0] = _alalcAlloc(heap, size, 0x40);
+        r->frameBuff[1] = _alalcAlloc(heap, size, 0x40);
+        r->frameBuff[2] = _alalcAlloc(heap, size, 0x40);
         _initRefImages(_refFrame0, _refFrame1, _refFrame2, _refTop0, _refTop1, _refTop2, _refBot0,
-                       _refBot1, _refBot2, r[0xFC / 4], r[0x100 / 4], r[0x104 / 4]);
+                       _refBot1, _refBot2, r->frameBuff[0], r->frameBuff[1], r->frameBuff[2]);
         _RefImageInit(_refFrame0, _picWidth, _picHeight);
         _RefImageInit(_refFrame1, _picWidth, _picHeight);
         _RefImageInit(_refFrame2, _picWidth, _picHeight);

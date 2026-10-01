@@ -25,68 +25,68 @@ void sceMpegInit(void)
     sceIpuInit();
 }
 
-int sceMpegCreate(void *self, void *buf, int size)
+int sceMpegCreate(sceMpeg *mp, void *buf, int size)
 {
-    char *p = (char *)((((unsigned int)buf + 3) >> 2) << 2);
-    unsigned int n = size - (p - (char *)buf);
+    MpegSys *p = (MpegSys *)((((unsigned int)buf + 3) >> 2) << 2);
+    unsigned int n = size - ((char *)p - (char *)buf);
 
-    if (n < 0x118) {
+    if (n < sizeof(MpegSys)) {
         _Error("The size of work area is too small");
         return 0;
     }
-    *(int *)((char *)self + 0x40) = (int)p;
-    _alalcInit((int *)(p + 0x108), (int)(p + 0x118), n - 0x118);
-    *(int *)((char *)self + 0x0) = 0;
-    *(int *)((char *)self + 0x4) = 0;
-    *(int *)((char *)self + 0x8) = 0;
-    *(long long *)((char *)self + 0x10) = -1;
-    *(long long *)((char *)self + 0x18) = -1;
-    *(long long *)((char *)self + 0x20) = 0;
-    *(long long *)((char *)self + 0x28) = -1;
-    *(long long *)((char *)self + 0x30) = -1;
-    *(long long *)((char *)self + 0x38) = 0;
-    *(int *)(p + 0xB4) = 0;
-    *(int *)(p + 0xB8) = 0;
-    *(int *)(p + 0xBC) = 0;
-    *(int *)(p + 0xC0) = 0;
-    *(int *)(p + 0xC4) = 0;
-    *(int *)(p + 0xC8) = 0;
-    *(int *)(p + 0xCC) = 0;
-    *(int *)(p + 0xD0) = 0;
-    *(int *)(p + 0xD4) = 0;
-    *(int *)(p + 0xD8) = 0;
-    *(int *)(p + 0xDC) = 0;
-    *(int *)(p + 0xE0) = 0;
-    *(int *)(p + 0xE4) = 0;
-    *(int *)(p + 0xE8) = 0;
-    *(int *)(p + 0xF8) = 0;
-    *(int *)(p + 0xC) = 0;
-    *(int *)(p + 0x14) = 0;
-    *(int *)(p + 0x2C) = 0;
-    *(int *)(p + 0x34) = 0;
-    *(int *)(p + 0x3C) = 0;
-    *(long long *)(p + 0xF0) = -1;
-    *(int *)(p + 0x1C) = (int)_defStopDMA;
-    *(int *)(p + 0x24) = (int)_defRestartDMA;
-    *(int *)(p + 0x44) = _alalcAlloc((unsigned int *)(p + 0x108), 0x600, 8);
-    *(int *)(p + 0x48) = 0;
-    *(int *)(p + 0xFC) = 0;
-    *(int *)(p + 0x100) = 0;
-    *(int *)(p + 0x104) = 0;
-    *(int *)(p + 0x70) = 0;
-    *(long long *)(p + 0x78) = 0;
-    *(long long *)(p + 0x88) = 0;
-    *(int *)(p + 0x90) = 0;
-    *(int *)(p + 0xAC) = 0;
-    *(int *)(p + 0x80) = -1;
-    *(int *)(p + 0xB0) = 1;
-    _theSceMpeg = self;
-    *(int *)(p + 0x94) = -1;
-    *(int *)(p + 0x98) = -1;
-    *(int *)(p + 0x9C) = -1;
+    mp->sys = p;
+    _alalcInit(&p->heap, (int)(p + 1), n - sizeof(MpegSys));
+    mp->width = 0;
+    mp->height = 0;
+    mp->frameCount = 0;
+    mp->pts = -1;
+    mp->dts = -1;
+    mp->flags = 0;
+    mp->pts2nd = -1;
+    mp->dts2nd = -1;
+    mp->flags2nd = 0;
+    p->centerOffX[0] = 0;
+    p->centerOffX[1] = 0;
+    p->centerOffX[2] = 0;
+    p->centerOffY[0] = 0;
+    p->centerOffY[1] = 0;
+    p->centerOffY[2] = 0;
+    p->dispWidth = 0;
+    p->dispHeight = 0;
+    p->picStructure = 0;
+    p->imageBuff = 0;
+    p->buffWidth = 0;
+    p->buffHeight = 0;
+    p->buffSize = 0;
+    p->brokenLink = 0;
+    p->ptmState = 0;
+    p->cb[0].func = 0;
+    p->cb[1].func = 0;
+    p->cb[4].func = 0;
+    p->cb[5].func = 0;
+    p->cb[6].func = 0;
+    p->ptm = -1;
+    p->cb[2].func = _defStopDMA;
+    p->cb[3].func = _defRestartDMA;
+    p->strCb = (struct StrCb *)_alalcAlloc(&p->heap, 0x600, 8);
+    p->nStrCb = 0;
+    p->frameBuff[0] = 0;
+    p->frameBuff[1] = 0;
+    p->frameBuff[2] = 0;
+    p->usePtsGap = 0;
+    p->ptsGap = 0;
+    p->lastShow = 0;
+    p->halfCount = 0;
+    p->frameBase = 0;
+    p->lastPts = -1;
+    p->csc = 1;
+    _theSceMpeg = mp;
+    p->ni = -1;
+    p->np = -1;
+    p->nb = -1;
     _clearOnce();
-    sceMpegReset(self);
-    sceMpegClearRefBuff(self);
+    sceMpegReset(mp);
+    sceMpegClearRefBuff(mp);
     _forwFrame = _refFrame0;
     _backFrame = _refFrame1;
     _zFrame = _refFrame2;
@@ -96,7 +96,7 @@ int sceMpegCreate(void *self, void *buf, int size)
     _forwBot = _refBot0;
     _backBot = _refBot1;
     _zBot = _refBot2;
-    _alalcSetDynamic((int *)(p + 0x108));
+    _alalcSetDynamic(&p->heap);
 }
 
 int sceMpegDelete(sceMpeg *m)
@@ -112,84 +112,84 @@ void sceMpegAddBs(int a0, int a1, int a2)
     _sendDataToIPU(a1, rounded);
 }
 
-int sceMpegGetPicture(int *a0, unsigned int a1, int a2)
+int sceMpegGetPicture(sceMpeg *mp, unsigned int a1, int a2)
 {
-    int *p = (int *)a0[0x40 / 4];
+    MpegSys *p = mp->sys;
     a1 = (a1 & 0x0FFFFFFF) | 0x20000000;
-    p[0xB0 / 4] = 1;
-    p[0xD8 / 4] = a1;
-    p[0xE4 / 4] = a2;
-    p[0xE0 / 4] = 0;
-    p[0xDC / 4] = 0;
-    return _getpic((int)a0);
+    p->csc = 1;
+    p->imageBuff = a1;
+    p->buffSize = a2;
+    p->buffHeight = 0;
+    p->buffWidth = 0;
+    return _getpic(mp);
 }
 
-int sceMpegGetPictureRAW8(int *self, unsigned int a1, int a2, int a3)
+int sceMpegGetPictureRAW8(sceMpeg *mp, unsigned int a1, int a2, int a3)
 {
-    int *p = (int *)self[0x40 / 4];
-    p[0xE4 / 4] = a2;
-    p[0xD8 / 4] = (a1 & 0x0FFFFFFF) | 0x20000000;
-    p[0xB0 / 4] = 0;
-    p[0xE0 / 4] = 0;
-    p[0xDC / 4] = 0;
-    return _getpic((int)self);
+    MpegSys *p = mp->sys;
+    p->buffSize = a2;
+    p->imageBuff = (a1 & 0x0FFFFFFF) | 0x20000000;
+    p->csc = 0;
+    p->buffHeight = 0;
+    p->buffWidth = 0;
+    return _getpic(mp);
 }
 
-int sceMpegGetPictureRAW8xy(int *self, unsigned int a1, int a2, int a3)
+int sceMpegGetPictureRAW8xy(sceMpeg *mp, unsigned int a1, int a2, int a3)
 {
-    int *p = (int *)self[0x40 / 4];
+    MpegSys *p = mp->sys;
     int prod;
-    p[0xE0 / 4] = a3 << 4;
-    p[0xD8 / 4] = (a1 & 0x0FFFFFFF) | 0x20000000;
+    p->buffHeight = a3 << 4;
+    p->imageBuff = (a1 & 0x0FFFFFFF) | 0x20000000;
     prod = a2 * a3;
-    p[0xE4 / 4] = prod;
-    p[0xDC / 4] = a2 << 4;
-    p[0xB0 / 4] = 0;
-    return _getpic((int)self);
+    p->buffSize = prod;
+    p->buffWidth = a2 << 4;
+    p->csc = 0;
+    return _getpic(mp);
 }
 
-void sceMpegSetDecodeMode(void *a0, int a1, int a2, int a3)
+void sceMpegSetDecodeMode(sceMpeg *mp, int ni, int np, int nb)
 {
-    int *p = *(int **)((char *)a0 + 0x40);
-    p[0x25] = a1;
-    p[0x26] = a2;
-    p[0x27] = a3;
+    MpegSys *p = mp->sys;
+    p->ni = ni;
+    p->np = np;
+    p->nb = nb;
 }
 
-void sceMpegGetDecodeMode(void *a0, int *a1, int *a2, int *a3)
+void sceMpegGetDecodeMode(sceMpeg *mp, int *ni, int *np, int *nb)
 {
-    int *p = *(int **)((char *)a0 + 0x40);
-    *a1 = *(int *)((char *)p + 0x94);
-    *a2 = *(int *)((char *)p + 0x98);
-    *a3 = *(int *)((char *)p + 0x9C);
+    MpegSys *p = mp->sys;
+    *ni = p->ni;
+    *np = p->np;
+    *nb = p->nb;
 }
 
-int sceMpegIsEnd(int **a0)
+int sceMpegIsEnd(sceMpeg *mp)
 {
-    return a0[0x10][0];
+    return mp->sys->isEnd;
 }
 
-int sceMpegIsRefBuffEmpty(void *a0)
+int sceMpegIsRefBuffEmpty(sceMpeg *mp)
 {
-    void *p = *(void **)((char *)a0 + 0x40);
-    return *(int *)((char *)p + 0x4) == 0;
+    MpegSys *p = mp->sys;
+    return p->refCount == 0;
 }
 
-void sceMpegReset(int *a0)
+void sceMpegReset(sceMpeg *mp)
 {
-    int *p = (int *)a0[0x10];
-    p[0] = 0;
-    p[1] = 0;
-    p[2] = 0;
-    a0[2] = 0;
-    p[0x20] = -1;
-    p[0x2B] = 0;
+    MpegSys *p = mp->sys;
+    p->isEnd = 0;
+    p->refCount = 0;
+    p->outState = 0;
+    mp->frameCount = 0;
+    p->lastPts = -1;
+    p->frameBase = 0;
     _clearEach();
     _totalFrames = 0;
     _initSeqAgain();
 }
 
-int sceMpegClearRefBuff(void *mp)
+int sceMpegClearRefBuff(sceMpeg *mp)
 {
     if (_forwFrame != 0)
         *(int *)((char *)_forwFrame + 0x28) = 0;
@@ -206,145 +206,140 @@ int sceMpegClearRefBuff(void *mp)
     return 1;
 }
 
-int sceMpegAddCallback(void *a0, int a1, int a2, int a3)
+sceMpegCallback sceMpegAddCallback(sceMpeg *mp, int type, sceMpegCallback func, void *data)
 {
-    char *p = *(char **)((char *)a0 + 0x40);
-    char *q0 = p + 0xC;
-    int *q = (int *)(q0 + a1 * 8);
-    int old;
-    p += a1 * 8;
-    ((int *)p)[4] = a3;
-    old = *q;
-    *q = a2;
+    MpegSys *p = mp->sys;
+    sceMpegCallback old;
+    p->cb[type].data = data;
+    old = p->cb[type].func;
+    p->cb[type].func = func;
     return old;
 }
 
-void *_dispatchMpegCallback(void *a0, void *a1)
+int _dispatchMpegCallback(sceMpeg *mp, int *cbdata)
 {
-    void *rv = 0;
-    if (a0 != 0) {
-        char *p = *(char **)((char *)a0 + 0x40);
+    int rv = 0;
+    if (mp != 0) {
+        MpegSys *p = mp->sys;
         if (p != 0) {
-            char *q0 = p + 0xC;
-            int off = *(int *)a1 * 8;
-            void *(*fn)(void *, void *, int) = *(void *(**)(void *, void *, int))(q0 + off);
+            int type = *cbdata;
+            sceMpegCallback fn = p->cb[type].func;
             if (fn != 0) {
-                char *e2 = p + off;
-                rv = fn(a0, a1, *(int *)(e2 + 0x10));
+                rv = fn(mp, cbdata, p->cb[type].data);
             }
         }
     }
     return rv;
 }
 
-void _dispatchMpegCbNodata(void *a0)
+void _dispatchMpegCbNodata(sceMpeg *mp)
 {
     int buf[8];
     buf[0] = 1;
-    _dispatchMpegCallback(a0, buf);
+    _dispatchMpegCallback(mp, buf);
 }
 
-void sceMpegSetDefaultPtsGap(void *a0, long long a1)
+void sceMpegSetDefaultPtsGap(sceMpeg *mp, long long gap)
 {
-    int *p = *(int **)((char *)a0 + 0x40);
-    p[0x1C] = 1;
-    *(long long *)((char *)p + 0x78) = a1;
+    MpegSys *p = mp->sys;
+    p->usePtsGap = 1;
+    p->ptsGap = gap;
 }
 
-void sceMpegResetDefaultPtsGap(void *a0)
+void sceMpegResetDefaultPtsGap(sceMpeg *mp)
 {
-    void *p = *(void **)((char *)a0 + 0x40);
-    *(int *)((char *)p + 0x70) = 0;
-    *(long long *)((char *)p + 0x78) = 0;
+    MpegSys *p = mp->sys;
+    p->usePtsGap = 0;
+    p->ptsGap = 0;
 }
 
-void sceMpegSetImageBuff(int a0)
+void sceMpegSetImageBuff(int buff)
 {
-    int *q = *(int **)((char *)_theSceMpeg + 0x40);
-    q[0x36] = a0;
+    MpegSys *q = _theSceMpeg->sys;
+    q->imageBuff = buff;
 }
 
-int sceMpegDispWidth(int **a0)
+int sceMpegDispWidth(sceMpeg *mp)
 {
-    return a0[0x10][0x33];
+    return mp->sys->dispWidth;
 }
 
-int sceMpegDispHeight(int **a0)
+int sceMpegDispHeight(sceMpeg *mp)
 {
-    return a0[0x10][0x34];
+    return mp->sys->dispHeight;
 }
 
-void *sceMpegDispCenterOffX(int **a0)
+int *sceMpegDispCenterOffX(sceMpeg *mp)
 {
-    return (char *)a0[0x10] + 0xB4;
+    return mp->sys->centerOffX;
 }
 
-void *sceMpegDispCenterOffY(int **a0)
+/* returns the horizontal offsets too, as the ROM's code does */
+int *sceMpegDispCenterOffY(sceMpeg *mp)
 {
-    return (char *)a0[0x10] + 0xB4;
+    return mp->sys->centerOffX;
 }
 
-int sceSetBrokenLink(void *a0, int a1)
+int sceSetBrokenLink(sceMpeg *mp, int pending)
 {
-    void *p = *(void **)((char *)a0 + 0x40);
-    int old = *(int *)((char *)p + 0xE8);
-    *(int *)((char *)p + 0xE8) = a1;
+    MpegSys *p = mp->sys;
+    int old = p->brokenLink;
+    p->brokenLink = pending;
     return old;
 }
 
-void sceSetPtm(void *a0, long long a1)
+void sceSetPtm(sceMpeg *mp, long long ptm)
 {
-    int *p = *(int **)((char *)a0 + 0x40);
-    *(long long *)((char *)p + 0xF0) = a1;
-    p[0x3E] = 1;
+    MpegSys *p = mp->sys;
+    p->ptm = ptm;
+    p->ptmState = 1;
 }
 
-void _alalcInit(int *a0, int a1, int a2)
+void _alalcInit(MpegHeap *heap, int base, int size)
 {
-    a0[0] = a1;
-    a0[1] = a2;
-    a0[2] = a1;
-    a0[3] = a1;
+    heap->base = base;
+    heap->size = size;
+    heap->cur = base;
+    heap->dynamic = base;
 }
 
-void _alalcSetDynamic(int *a0)
+void _alalcSetDynamic(MpegHeap *heap)
 {
-    a0[3] = a0[2];
+    heap->dynamic = heap->cur;
 }
 
-void _alalcFree(int *a0)
+void _alalcFree(MpegHeap *heap)
 {
-    a0[2] = a0[3];
+    heap->cur = heap->dynamic;
 }
 
-int _alalcAlloc(unsigned int *a0, int a1, unsigned int a2)
+int _alalcAlloc(MpegHeap *heap, int size, unsigned int align)
 {
     unsigned int rounded;
     unsigned int total;
-    rounded = ((a0[2] + a2 - 1) / a2) * a2;
-    total = rounded + a1;
-    if (a0[0] + a0[1] >= total) {
-        a0[2] = total;
+    rounded = ((heap->cur + align - 1) / align) * align;
+    total = rounded + size;
+    if (heap->base + heap->size >= total) {
+        heap->cur = total;
         return rounded;
     }
     _Error("work area size is too small");
     return 0;
 }
 
-int _alalcRest(int *a0)
+int _alalcRest(MpegHeap *heap)
 {
-    return a0[0] + a0[1] - a0[2];
+    return heap->base + heap->size - heap->cur;
 }
 
-int _getpic(int a0)
+int _getpic(sceMpeg *mp)
 {
     int code = 1;
     int ret = 0;
-    int *self = (int *)a0;
-    int *p = (int *)self[0x40 / 4];
-    int v = p[0xD8 / 4];
+    MpegSys *p = mp->sys;
+    int v = p->imageBuff;
 
-    p[0] = 0;
+    p->isEnd = 0;
     if ((v & 0x3F) != 0) {
         _Error1("image buffer needs to be aligned to 64byte boundary(0x%08x)", v);
         return -1;
@@ -354,87 +349,86 @@ int _getpic(int a0)
         if (ret != -1) {
             do {
                 code = _nextHeader();
-            } while (code != 0 && _picture_structure != p[0xD4 / 4] && _isMpeg2 != 0);
+            } while (code != 0 && _picture_structure != p->picStructure && _isMpeg2 != 0);
         }
         switch (code) {
         case 0:
-            _sceMpegFlush(self);
-            p[0] = 1;
+            _sceMpegFlush(mp);
+            p->isEnd = 1;
             break;
         case 1:
-            p[0xA8 / 4] = 0;
-            p[0xA4 / 4] = 0;
-            p[0xA0 / 4] = 0;
-            ret = _decodeOrSkip(a0, 0, p[0x94 / 4]);
-            p[0xA0 / 4] = p[0xA0 / 4] + 1;
+            p->bCount = 0;
+            p->pCount = 0;
+            p->iCount = 0;
+            ret = _decodeOrSkip(mp, 0, p->ni);
+            p->iCount = p->iCount + 1;
             break;
         case 2:
-            ret = _decodeOrSkip(a0, p[0xA4 / 4], p[0x98 / 4]);
-            p[0xA4 / 4] = p[0xA4 / 4] + 1;
+            ret = _decodeOrSkip(mp, p->pCount, p->np);
+            p->pCount = p->pCount + 1;
             break;
         case 3:
         case 4:
-            ret = _decodeOrSkip(a0, p[0xA8 / 4], p[0x9C / 4]);
-            p[0xA8 / 4] = p[0xA8 / 4] + 1;
+            ret = _decodeOrSkip(mp, p->bCount, p->nb);
+            p->bCount = p->bCount + 1;
             break;
         }
     } while (_isOutputPicture == 0);
     return 1;
 }
 
-int _decodeOrSkipFrame(int a0, int a1, int a2)
+int _decodeOrSkipFrame(sceMpeg *mp, int count, int limit)
 {
     int skip = 0;
     int ret;
     int t;
     int second;
-    int *self = (int *)a0;
-    int *p = (int *)self[0x40 / 4];
+    MpegSys *p = mp->sys;
 
-    if (a2 == -1 || a1 < a2) {
+    if (limit == -1 || count < limit) {
         int ok;
         int decoded;
 
-        if (p[2] == 0) {
-            self[2] = 0;
-            p[2] = 1;
+        if (p->outState == 0) {
+            mp->frameCount = 0;
+            p->outState = 1;
         }
         ok = _updateRefImage(0);
         decoded = 0;
         if (ok != 0) {
-            decoded = _decPicture(_totalFrames, p[1]) != 0;
+            decoded = _decPicture(_totalFrames, p->refCount) != 0;
         }
         ret = decoded;
     } else {
         ret = _updateRefImage(0);
-        _dispatchMpegCbNodata(self);
+        _dispatchMpegCbNodata(mp);
         skip = 1;
     }
-    _outputFrame(_totalFrames, p[1]);
+    _outputFrame(_totalFrames, p->refCount);
     if (_picture_structure != 3 && skip == 0) {
         _isSecondField = _isSecondField == 0;
     }
     t = _totalFrames;
     second = _isSecondField;
-    self[2] = t - p[0xAC / 4];
+    mp->frameCount = t - p->frameBase;
     if (second == 0) {
-        int f = p[1];
+        int f = p->refCount;
 
         _totalFrames = t + 1;
-        p[1] = f + 1;
+        p->refCount = f + 1;
     }
     return ret;
 }
 
-int _decodeOrSkip(int a0, int a1, int a2)
+int _decodeOrSkip(sceMpeg *mp, int count, int limit)
 {
     if (_picture_structure != 3) {
-        return _decodeOrSkipField(a0, a1, a2);
+        return _decodeOrSkipField(mp, count, limit);
     }
-    return _decodeOrSkipFrame(a0, a1, a2);
+    return _decodeOrSkipFrame(mp, count, limit);
 }
 
-int _decodeOrSkipField(int a0, int a1, int a2)
+int _decodeOrSkipField(sceMpeg *mp, int count, int limit)
 {
     int dec = 0;
     int ret;
@@ -442,28 +436,27 @@ int _decodeOrSkipField(int a0, int a1, int a2)
     int want;
     int ok;
     int base;
-    int *self = (int *)a0;
-    int *p = (int *)self[0x40 / 4];
+    MpegSys *p = mp->sys;
 
     _isSecondField = 0;
-    if (a2 == -1 || a1 < a2) {
+    if (limit == -1 || count < limit) {
         dec = 1;
     }
-    if (p[2] == 0) {
-        self[2] = 0;
-        p[2] = 1;
+    if (p->outState == 0) {
+        mp->frameCount = 0;
+        p->outState = 1;
     }
     if (_updateRefImage(0) != 0 && dec != 0) {
-        _decPicture(_totalFrames, p[1]);
+        _decPicture(_totalFrames, p->refCount);
     }
     _isSecondField = 1;
     if (_nextHeader() == 0) {
-        _sceMpegFlush(self);
-        p[0] = 1;
+        _sceMpegFlush(mp);
+        p->isEnd = 1;
         return 0;
     }
     want = 2;
-    if (p[0xD4 / 4] != 1) {
+    if (p->picStructure != 1) {
         want = 1;
     }
     if (_picture_structure != want) {
@@ -475,31 +468,31 @@ int _decodeOrSkipField(int a0, int a1, int a2)
         ok = 1;
     }
     if (ok != 0 && dec != 0) {
-        if (_decPicture(_totalFrames, p[1]) != 0) {
+        if (_decPicture(_totalFrames, p->refCount) != 0) {
             ret = 1;
         }
     }
-    _outputFrame(_totalFrames, p[1]);
+    _outputFrame(_totalFrames, p->refCount);
     t = _totalFrames;
-    base = p[0xAC / 4];
+    base = p->frameBase;
     _isSecondField = 0;
-    self[2] = t - base;
+    mp->frameCount = t - base;
     _totalFrames = t + 1;
-    p[1] = p[1] + 1;
+    p->refCount = p->refCount + 1;
     if (dec == 0) {
-        _dispatchMpegCbNodata(self);
+        _dispatchMpegCbNodata(mp);
     }
     return ret;
 }
 
-int _sceMpegFlush(int *self)
+int _sceMpegFlush(sceMpeg *mp)
 {
-    int *p = (int *)self[0x40 / 4];
+    MpegSys *p = mp->sys;
     int ret = 0;
-    if (p[1] != 0 && p[2] != 0) {
+    if (p->refCount != 0 && p->outState != 0) {
         _lastFrame(_totalFrames);
-        self[2] = _totalFrames - p[0xAC / 4];
-        p[1] = 0;
+        mp->frameCount = _totalFrames - p->frameBase;
+        p->refCount = 0;
         ret = 1;
     }
     return ret;

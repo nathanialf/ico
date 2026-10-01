@@ -11,7 +11,8 @@
 /* _mbcont as MCState; init.c declares the same words with its own store types */
 extern MCState _mbcont;
 
-int _motionComp0(int a0, int a1, int a2, int a3, int PMV[2][2][2], int *mv_field_sel, int *dmvector)
+int _motionComp0(int a0, int a1, int a2, int a3, int PMV[2][2][2], int mv_field_sel[2][2],
+                 int *dmvector)
 {
     int col = a0 % _widthMB;
     int row = a0 / _widthMB;
@@ -68,8 +69,8 @@ int _motionComp0(int a0, int a1, int a2, int a3, int PMV[2][2][2], int *mv_field
     return 1;
 }
 
-void _getAllRefs(int x, int y, int mbflags, int motion_type, int PMV[2][2][2], int *mv_field_sel,
-                 int *dmvector)
+void _getAllRefs(int x, int y, int mbflags, int motion_type, int PMV[2][2][2],
+                 int mv_field_sel[2][2], int *dmvector)
 {
     int DMV[4];
     int *fields[2][2];
@@ -82,9 +83,9 @@ void _getAllRefs(int x, int y, int mbflags, int motion_type, int PMV[2][2][2], i
             if (motion_type == 2 || (mbflags & 8) == 0) {
                 _getRef0(_forwFrame, 0, 0, 0, 16, x, y, PMV[0][0][0], PMV[0][0][1], 0, 0);
             } else if (motion_type == 1) {
-                _getRef0(_forwFrame, mv_field_sel[0], 0, 0, 8, x, y, PMV[0][0][0],
+                _getRef0(_forwFrame, mv_field_sel[0][0], 0, 0, 8, x, y, PMV[0][0][0],
                          PMV[0][0][1] >> 1, fld, 0);
-                _getRef0(_forwFrame, mv_field_sel[2], 1, 0, 8, x, y, PMV[1][0][0],
+                _getRef0(_forwFrame, mv_field_sel[1][0], 1, 0, 8, x, y, PMV[1][0][0],
                          PMV[1][0][1] >> 1, fld, 0);
             } else if (motion_type == 3) {
                 _dualPrimeVector(DMV, dmvector, PMV[0][0][0], PMV[0][0][1] >> 1);
@@ -105,24 +106,24 @@ void _getAllRefs(int x, int y, int mbflags, int motion_type, int PMV[2][2][2], i
             /* On a field picture the frame flag is reused for the current
                field's parity (1 = bottom). */
             fld = _picture_structure == 2;
-            if (_picture_coding_type == 2 && _isSecondField != 0 && fld != mv_field_sel[0]) {
+            if (_picture_coding_type == 2 && _isSecondField != 0 && fld != mv_field_sel[0][0]) {
                 sel = 1;
             } else {
                 sel = 0;
             }
             if (motion_type == 1 || (mbflags & 8) == 0) {
-                _getRef0(fields[sel][mv_field_sel[0]], 0, 0, 0, 16, x, y, PMV[0][0][0],
+                _getRef0(fields[sel][mv_field_sel[0][0]], 0, 0, 0, 16, x, y, PMV[0][0][0],
                          PMV[0][0][1], 0, 0);
             } else if (motion_type == 2) {
-                _getRef0(fields[sel][mv_field_sel[0]], 0, 0, 0, 8, x, y, PMV[0][0][0], PMV[0][0][1],
-                         0, 0);
+                _getRef0(fields[sel][mv_field_sel[0][0]], 0, 0, 0, 8, x, y, PMV[0][0][0],
+                         PMV[0][0][1], 0, 0);
                 sel = 0;
                 if (_picture_coding_type == motion_type && _isSecondField != 0 &&
-                    fld != mv_field_sel[2]) {
+                    fld != mv_field_sel[1][0]) {
                     sel = 1;
                 }
-                _getRef0(fields[sel][mv_field_sel[2]], 0, 0, 8, 8, x, y, PMV[1][0][0], PMV[1][0][1],
-                         0, 0);
+                _getRef0(fields[sel][mv_field_sel[1][0]], 0, 0, 8, 8, x, y, PMV[1][0][0],
+                         PMV[1][0][1], 0, 0);
             } else if (motion_type == 3) {
                 sel = 0;
                 if (_isSecondField != 0) {
@@ -146,18 +147,18 @@ void _getAllRefs(int x, int y, int mbflags, int motion_type, int PMV[2][2][2], i
             if (motion_type == 2) {
                 _getRef0(_backFrame, 0, 0, 0, 16, x, y, PMV[0][1][0], PMV[0][1][1], 0, avg);
             } else {
-                _getRef0(_backFrame, mv_field_sel[1], 0, 0, 8, x, y, PMV[0][1][0],
+                _getRef0(_backFrame, mv_field_sel[0][1], 0, 0, 8, x, y, PMV[0][1][0],
                          PMV[0][1][1] >> 1, bfld, avg);
-                _getRef0(_backFrame, mv_field_sel[3], 1, 0, 8, x, y, PMV[1][1][0],
+                _getRef0(_backFrame, mv_field_sel[1][1], 1, 0, 8, x, y, PMV[1][1][0],
                          PMV[1][1][1] >> 1, bfld, avg);
             }
         } else if (motion_type == 1) {
-            _getRef0(mv_field_sel[1] ? _backBot : _backTop, 0, 0, 0, 16, x, y, PMV[0][1][0],
+            _getRef0(mv_field_sel[0][1] ? _backBot : _backTop, 0, 0, 0, 16, x, y, PMV[0][1][0],
                      PMV[0][1][1], 0, avg);
         } else if (motion_type == 2) {
-            _getRef0(mv_field_sel[1] ? _backBot : _backTop, 0, 0, 0, 8, x, y, PMV[0][1][0],
+            _getRef0(mv_field_sel[0][1] ? _backBot : _backTop, 0, 0, 0, 8, x, y, PMV[0][1][0],
                      PMV[0][1][1], 0, avg);
-            _getRef0(mv_field_sel[3] ? _backBot : _backTop, 0, 0, 8, 8, x, y, PMV[1][1][0],
+            _getRef0(mv_field_sel[1][1] ? _backBot : _backTop, 0, 0, 8, 8, x, y, PMV[1][1][0],
                      PMV[1][1][1], 0, avg);
         } else {
             _Error1("(c) invalid motion_type(%d)-2", motion_type);
@@ -1624,7 +1625,7 @@ int _sliceA0(int a0, int *a1, int *a2, int PMV[2][2][2])
 int _slice0(int a0, int a1)
 {
     int PMV[2][2][2];
-    int mv_field_sel[4];
+    int mv_field_sel[2][2];
     int dmvector[4];
     int mba;
     int n;
@@ -1687,7 +1688,7 @@ int _slice0(int a0, int a1)
     }
 }
 
-int _skipMB0(int PMV[2][2][2], int *motion_type, int *mv_field_sel, int *mb_type)
+int _skipMB0(int PMV[2][2][2], int *motion_type, int mv_field_sel[2][2], int *mb_type)
 {
     int ret = 1;
     MCRecord *p;
@@ -1702,7 +1703,7 @@ int _skipMB0(int PMV[2][2][2], int *motion_type, int *mv_field_sel, int *mb_type
         motion_type[0] = 2;
     } else {
         motion_type[0] = 1;
-        mv_field_sel[0] = mv_field_sel[1] = _picture_structure == 2;
+        mv_field_sel[0][0] = mv_field_sel[0][1] = _picture_structure == 2;
     }
     if (_picture_coding_type == 1) {
         _Error("skiped macroblock in I picure is not allowed");
@@ -2172,7 +2173,7 @@ void _extensionAndUserData(void)
 
 void _pictureCodingExtension(void)
 {
-    int *p = *(int **)((char *)_theSceMpeg + 0x40);
+    MpegSys *p = _theSceMpeg->sys;
 
     _f_code[0][0] = _nextBit(4);
     _f_code[0][1] = _nextBit(4);
@@ -2181,8 +2182,8 @@ void _pictureCodingExtension(void)
     _intra_dc_precision = _nextBit(2);
     *(int *)IPU_CTRL = (*(int *)IPU_CTRL & 0xFFFCFFFF) | (_intra_dc_precision << 16);
     _picture_structure = _nextBit(2);
-    if (p[0xD4 / 4] == 0) {
-        p[0xD4 / 4] = _picture_structure;
+    if (p->picStructure == 0) {
+        p->picStructure = _picture_structure;
     }
     _top_field_first = _nextBit(1);
     _frame_pred_frame_dct = _nextBit(1);
@@ -2236,12 +2237,11 @@ void _updateTempTackData(void)
     _trFrameNumberA = _trFrameNumberA < _trFrameNumber ? _trFrameNumber : _trFrameNumberA;
 }
 
-/* The handle is read as an int here. */
 void _groupOfPicturesHeader(void)
 {
-    int *p = *(int **)((int)_theSceMpeg + 0x40);
+    MpegSys *p = _theSceMpeg->sys;
 
-    p[0xE8 / 4] = 0;
+    p->brokenLink = 0;
     _tmpRefBase = _trFrameNumberA + 1;
     _tmpRefGOPreset = 1;
     _drop_frame_flag = _nextBit(1);
@@ -2349,7 +2349,7 @@ int _decPicture(int a0, int a1)
 
 void _outputFrame(int a0, int a1)
 {
-    int *p = *(int **)((char *)_theSceMpeg + 0x40);
+    MpegSys *p = _theSceMpeg->sys;
 
     if (a1 != 0) {
         int *top;
@@ -2373,8 +2373,8 @@ void _outputFrame(int a0, int a1)
             _dispRefImageField(top, bot, a0 - 1);
         }
     }
-    if (p[0xF8 / 4] == 1) {
-        p[0xF8 / 4] = 2;
+    if (p->ptmState == 1) {
+        p->ptmState = 2;
     }
 }
 
@@ -2382,7 +2382,7 @@ void _outputFrame(int a0, int a1)
    written through the record seen as long longs. */
 int _updateRefImage(int a0)
 {
-    int *r = (int *)((int *)_theSceMpeg)[0x40 / 4];
+    MpegSys *r = _theSceMpeg->sys;
     int *out = 0;
     int n = _picture_structure == 3 ? 2 : 4;
     int ret = 0;
@@ -2391,17 +2391,17 @@ int _updateRefImage(int a0)
         _curFrame = _zFrame;
         _curTop = _zTop;
         _curBot = _zBot;
-        if (r[0xA0 / 4] + r[0xA4 / 4] >= n) {
-            r[0xE8 / 4] = 0;
+        if (r->iCount + r->pCount >= n) {
+            r->brokenLink = 0;
             _broken_link = 0;
             _closed_gop = 0;
         }
-        if ((r[0xE8 / 4] != 0 || _broken_link != 0) && _closed_gop == 0) {
+        if ((r->brokenLink != 0 || _broken_link != 0) && _closed_gop == 0) {
             _forwFrame[0x28 / 4] = 0;
             _forwTop[0x28 / 4] = 0;
             _forwBot[0x28 / 4] = 0;
         }
-        r[0xE8 / 4] = 0;
+        r->brokenLink = 0;
         _broken_link = 0;
         if (_picture_structure == 3) {
             if ((_forwFrame[0x28 / 4] == 1 || _closed_gop != 0) && _backFrame[0x28 / 4] == 1) {
@@ -2474,13 +2474,13 @@ int _updateRefImage(int a0)
 
 int _isOutSizeOK(int *p)
 {
-    char *c = *(char **)((char *)_theSceMpeg + 0x40);
-    int e0 = *(int *)(c + 0xE0);
+    MpegSys *c = _theSceMpeg->sys;
+    int h = c->buffHeight;
     int flag;
-    if (e0 != 0) {
-        flag = *(int *)(c + 0xDC) >= p[0x4 / 4] && e0 >= p[0x8 / 4];
+    if (h != 0) {
+        flag = c->buffWidth >= p[0x4 / 4] && h >= p[0x8 / 4];
     } else {
-        flag = *(int *)(c + 0xE4) >= p[0xC / 4] * p[0x10 / 4];
+        flag = c->buffSize >= p[0xC / 4] * p[0x10 / 4];
     }
     if (flag == 0) {
         char buf[0x100];
@@ -2492,9 +2492,9 @@ int _isOutSizeOK(int *p)
 
 void _cpr8(int *im)
 {
-    int *r = *(int **)((char *)_theSceMpeg + 0x40);
+    MpegSys *r = _theSceMpeg->sys;
     int src = im[0] & 0x0FFFFFFF;
-    int dst = r[0xD8 / 4] & 0x0FFFFFFF;
+    int dst = r->imageBuff & 0x0FFFFFFF;
     int e;
     int sstride;
     int dstride;
@@ -2503,8 +2503,8 @@ void _cpr8(int *im)
     int i;
     int j;
 
-    if (_picture_structure == 3 || r[0xE0 / 4] == 0) {
-        e = r[0xE0 / 4];
+    if (_picture_structure == 3 || r->buffHeight == 0) {
+        e = r->buffHeight;
         sstride = im[0x10 / 4] * 0x180;
         qwc = sstride >> 4;
         if (e != 0) {
@@ -2514,7 +2514,7 @@ void _cpr8(int *im)
         }
         n = 1;
     } else {
-        e = r[0xE0 / 4];
+        e = r->buffHeight;
         sstride = (im[0x10 / 4] >> 1) * 0x180;
         qwc = sstride >> 4;
         dstride = (e >> 4) * 0xC0;
@@ -2538,91 +2538,78 @@ void _cpr8(int *im)
             d += dstride;
             src += sstride;
         }
-        dst += r[0xE4 / 4] * 0xC0;
+        dst += r->buffSize * 0xC0;
     }
 }
 
 int _markOutput(void)
 {
-    int *q = *(int **)((char *)_theSceMpeg + 0x40);
-    if (q[2] != 2) {
+    MpegSys *q = _theSceMpeg->sys;
+    if (q->outState != 2) {
         int v = _totalFrames;
-        q[2] = 2;
-        q[0x2B] = v;
+        q->outState = 2;
+        q->frameBase = v;
     }
     _isOutputPicture = 1;
     return 1;
 }
 
-void _getPtsDtsFlags(int *img, void *a1, void *a2, void *a3)
+void _getPtsDtsFlags(int *img, long long *pts, long long *dts, long long *flags)
 {
-    char *s = *(char **)((char *)_theSceMpeg + 0x40);
+    MpegSys *s = _theSceMpeg->sys;
     long long t;
-    int v88;
-    int b80;
+    int show;
+    int last;
     int carry;
 
-    if (*(int *)(s + 0x70) != 0) {
+    if (s->usePtsGap != 0) {
         t = *(long long *)&img[0x18 / 4];
-        if (t < 0 && (b80 = *(int *)(s + 0x80)) >= 0) {
-            v88 = (int)*(long long *)(s + 0x88);
-            carry = (int)((long long)(v88 & 1) * (*(long long *)(s + 0x78) & 1) *
-                          (*(int *)(s + 0x90) & 1));
-            *(long long *)a1 = b80 + ((int)((*(long long *)(s + 0x78) * v88) >> 1) + carry);
-            if ((long long)(v88 & 1) * (*(long long *)(s + 0x78) & 1) != 0) {
-                *(int *)(s + 0x90) = *(int *)(s + 0x90) + 1;
+        if (t < 0 && (last = s->lastPts) >= 0) {
+            show = (int)s->lastShow;
+            carry = (int)((long long)(show & 1) * (s->ptsGap & 1) * (s->halfCount & 1));
+            *pts = last + ((int)((s->ptsGap * show) >> 1) + carry);
+            if ((long long)(show & 1) * (s->ptsGap & 1) != 0) {
+                s->halfCount = s->halfCount + 1;
             }
         } else {
-            *(long long *)a1 = t;
+            *pts = t;
         }
     } else {
-        *(long long *)a1 = *(long long *)&img[0x18 / 4];
+        *pts = *(long long *)&img[0x18 / 4];
     }
-    if (*(int *)(s + 0xF8) == 2) {
-        long long v = *(long long *)(s + 0xF0);
+    if (s->ptmState == 2) {
+        long long v = s->ptm;
 
         if (v >= 0) {
-            *(long long *)a1 = v;
-            *(int *)(s + 0xF8) = 0;
-            *(long long *)(s + 0xF0) = -1;
+            *pts = v;
+            s->ptmState = 0;
+            s->ptm = -1;
         }
     }
-    *(long long *)a2 = *(long long *)&img[0x20 / 4];
-    *(long long *)a3 = ((long long)img[0x34 / 4] << 8) | ((long long)img[0x38 / 4] << 7) |
-                       ((long long)img[0x3C / 4] << 6) | ((long long)img[0x40 / 4] << 5) |
-                       ((long long)img[0x30 / 4] << 3) | img[0x2C / 4];
+    *dts = *(long long *)&img[0x20 / 4];
+    *flags = ((long long)img[0x34 / 4] << 8) | ((long long)img[0x38 / 4] << 7) |
+             ((long long)img[0x3C / 4] << 6) | ((long long)img[0x40 / 4] << 5) |
+             ((long long)img[0x30 / 4] << 3) | img[0x2C / 4];
 }
 
 /* the display count of a picture by its repeat and field flags */
 unsigned int _showCount[16] = {2, 0, 2, 0, 2, 3, 2, 3, 0, 0, 0, 0, 2, 4, 0, 6};
 
-typedef struct MpegOut { /* derived name */
-    char pad00[0x80];
-    int pts; /* 0x80 */
-    int pad84;
-    long long showCount; /* 0x88 */
-    char pad90[0x20];
-    int csc;        /* 0xB0 */
-    int b4, b8, bc; /* 0xB4 */
-    int c0, c4, c8; /* 0xC0 */
-    int cc, d0;     /* 0xCC */
-} MpegOut;
-
 void _dispRefImage(int *img, int a1)
 {
-    MpegOut *r = _theSceMpeg->sys;
+    MpegSys *r = _theSceMpeg->sys;
 
     _getPtsDtsFlags(img, &_theSceMpeg->pts, &_theSceMpeg->dts, &_theSceMpeg->flags);
-    r->pts = _theSceMpeg->pts.w[0];
-    r->showCount = _showCount[(int)(_theSceMpeg->flags >> 5) & 0xF];
-    r->cc = img[0x5C / 4];
-    r->d0 = img[0x60 / 4];
-    r->b4 = img[0x44 / 4];
-    r->b8 = img[0x48 / 4];
-    r->bc = img[0x4C / 4];
-    r->c0 = img[0x50 / 4];
-    r->c4 = img[0x54 / 4];
-    r->c8 = img[0x58 / 4];
+    r->lastPts = _theSceMpeg->pts;
+    r->lastShow = _showCount[(int)(_theSceMpeg->flags >> 5) & 0xF];
+    r->dispWidth = img[0x5C / 4];
+    r->dispHeight = img[0x60 / 4];
+    r->centerOffX[0] = img[0x44 / 4];
+    r->centerOffX[1] = img[0x48 / 4];
+    r->centerOffX[2] = img[0x4C / 4];
+    r->centerOffY[0] = img[0x50 / 4];
+    r->centerOffY[1] = img[0x54 / 4];
+    r->centerOffY[2] = img[0x58 / 4];
     if (_isOutSizeOK(img) != 0 && img[0x28 / 4] == 1) {
         if (r->csc != 0) {
             _csc_storeRefImage(img);
@@ -2633,11 +2620,11 @@ void _dispRefImage(int *img, int a1)
     }
 }
 
-/* the display record the handle's sys field points at: the stamp and show
- * count of the picture going out and its output geometry */
+/* a field pair goes out as one frame: both fields' stamps on the handle, and
+ * the stamp, show count and output geometry in the decoder record */
 void _dispRefImageField(int *top, int *bot, int a2)
 {
-    MpegOut *r = _theSceMpeg->sys;
+    MpegSys *r = _theSceMpeg->sys;
     int *f;
     int *s;
     int m = 0;
@@ -2651,19 +2638,19 @@ void _dispRefImageField(int *top, int *bot, int a2)
         s = top;
     }
     _getPtsDtsFlags(f, &_theSceMpeg->pts, &_theSceMpeg->dts, &_theSceMpeg->flags);
-    r->pts = _theSceMpeg->pts.w[0];
-    r->showCount = 1;
+    r->lastPts = _theSceMpeg->pts;
+    r->lastShow = 1;
     _getPtsDtsFlags(s, &_theSceMpeg->pts2nd, &_theSceMpeg->dts2nd, &_theSceMpeg->flags2nd);
-    r->pts = _theSceMpeg->pts2nd.w[0];
-    r->showCount = 1;
+    r->lastPts = _theSceMpeg->pts2nd;
+    r->lastShow = 1;
     _theSceMpeg->flags |= m;
     _theSceMpeg->flags2nd |= m;
-    r->cc = f[0x5C / 4];
-    r->d0 = f[0x60 / 4];
-    r->b4 = f[0x44 / 4];
-    r->b8 = s[0x48 / 4];
-    r->c0 = f[0x50 / 4];
-    r->c4 = s[0x54 / 4];
+    r->dispWidth = f[0x5C / 4];
+    r->dispHeight = f[0x60 / 4];
+    r->centerOffX[0] = f[0x44 / 4];
+    r->centerOffX[1] = s[0x48 / 4];
+    r->centerOffY[0] = f[0x50 / 4];
+    r->centerOffY[1] = s[0x54 / 4];
     if (_isOutSizeOK(top) != 0 && top[0x28 / 4] == 1 && bot[0x28 / 4] == 1) {
         top[0x10 / 4] = top[0x10 / 4] * 2;
         if (r->csc != 0) {

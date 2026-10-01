@@ -5,12 +5,12 @@
 #include <libmpeg_internal.h>
 #include <libipu.h>
 
-void _defStopDMA(int **a0)
+int _defStopDMA(sceMpeg *mp, void *cbdata, void *data)
 {
-    sceIpuStopDMA((char *)a0[0x10] + 0x4C);
+    sceIpuStopDMA(mp->sys->dmaEnv);
 }
 
-void _defRestartDMA(int **a0)
+int _defRestartDMA(sceMpeg *mp, void *cbdata, void *data)
 {
-    sceIpuRestartDMA((char *)a0[0x10] + 0x4C);
+    sceIpuRestartDMA(mp->sys->dmaEnv);
 }

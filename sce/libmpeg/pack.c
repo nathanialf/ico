@@ -163,11 +163,11 @@ typedef struct {
 } DemuxRec;
 
 /* a stream callback: the decoder, the packet record and the user argument */
-typedef int (*MpegStrCallback)(int *dec, DemuxRec *cbdata, void *arg);
+typedef int (*MpegStrCallback)(sceMpeg *mp, DemuxRec *cbdata, void *arg);
 
 /* one demux callback: the stream id it matches, the mask of the id bits that
  * take part in the match, and the handler with its user argument */
-typedef struct {
+typedef struct StrCb {
     long long id;
     unsigned long long mask;
     MpegStrCallback func;
@@ -178,17 +178,17 @@ typedef struct {
 int _pack_header(int *bs, PackHeader *pkt);
 int _PES_packet(int *bs, PesPkt *pkt);
 
-int sceMpegDemuxPssRing(int *dec, void *p4, int size, int a3, int a4)
+int sceMpegDemuxPssRing(sceMpeg *mp, void *p4, int size, int a3, int a4)
 {
     int bsbuf[12];
     PssPkt pktbuf;
     int *bs;
     PssPkt *pkt = &pktbuf;
     DemuxRec rec;
-    int *p = (int *)dec[0x40 / 4];
+    MpegSys *p = mp->sys;
     MpegStrCallback func = 0;
     void *arg = 0;
-    StrCb *tbl = (StrCb *)p[0x44 / 4];
+    StrCb *tbl = p->strCb;
     int ret = 0;
     int i;
     int cont = 1;
@@ -196,7 +196,7 @@ int sceMpegDemuxPssRing(int *dec, void *p4, int size, int a3, int a4)
     _sysbitInit(bsbuf, (int)p4, a3, a4);
     bs = bsbuf;
     i = 0;
-    if (p[0x48 / 4] > 0) {
+    if (p->nStrCb > 0) {
         do {
             if (tbl[i].id == 0xBDFF000000LL) {
                 func = tbl[i].func;
@@ -206,7 +206,7 @@ int sceMpegDemuxPssRing(int *dec, void *p4, int size, int a3, int a4)
                 break;
             }
             i++;
-        } while (i < p[0x48 / 4]);
+        } while (i < p->nStrCb);
     }
     do {
         if (_sysbitNext(bs, 32) == 0x1BA) {
@@ -219,7 +219,7 @@ int sceMpegDemuxPssRing(int *dec, void *p4, int size, int a3, int a4)
             if (*(unsigned long long *)(bs + 6) > size * 8) {
                 continue;
             }
-            for (i = 0; i < p[0x48 / 4]; i++) {
+            for (i = 0; i < p->nStrCb; i++) {
                 if (tbl[i].id == (pkt->pes.id & tbl[i].mask)) {
                     rec.type = MPEG_CB_STR;
                     rec.header = (unsigned char *)_sysbitPtr(bs, pkt->pes.startpos);
@@ -227,18 +227,18 @@ int sceMpegDemuxPssRing(int *dec, void *p4, int size, int a3, int a4)
                     rec.len = pkt->pes.datalen;
                     rec.pts = pkt->pes.pts;
                     rec.dts = pkt->pes.dts;
-                    cont = tbl[i].func(dec, &rec, tbl[i].arg);
+                    cont = tbl[i].func(mp, &rec, tbl[i].arg);
                     break;
                 }
             }
-            if (i == p[0x48 / 4] && func != 0) {
+            if (i == p->nStrCb && func != 0) {
                 rec.type = MPEG_CB_STR;
                 rec.header = (unsigned char *)_sysbitPtr(bs, pkt->pes.startpos);
                 rec.data = (unsigned char *)_sysbitPtr(bs, pkt->pes.pos);
                 rec.len = pkt->pes.datalen;
                 rec.pts = pkt->pes.pts;
                 rec.dts = pkt->pes.dts;
-                cont = func(dec, &rec, arg);
+                cont = func(mp, &rec, arg);
             }
             if (cont != 0) {
                 ret = (int)(*(unsigned long long *)(bs + 6) >> 3);
@@ -256,13 +256,13 @@ int sceMpegDemuxPss(void *a0, void *a1, int a2)
     return sceMpegDemuxPssRing(a0, a1, a2, 0, -1);
 }
 
-int sceMpegAddStrCallback(int *a0, int a1, int a2, MpegStrCallback a3, void *a4)
+int sceMpegAddStrCallback(sceMpeg *mp, int a1, int a2, MpegStrCallback a3, void *a4)
 {
     int ret = 0;
-    int *p = (int *)a0[0x40 / 4];
-    StrCb *tbl = (StrCb *)p[0x44 / 4];
+    MpegSys *p = mp->sys;
+    StrCb *tbl = p->strCb;
     long long id = _type2id(a1, a2);
-    int n = p[0x48 / 4];
+    int n = p->nStrCb;
     int i;
 
     for (i = 0; i < n; i++) {
@@ -272,7 +272,7 @@ int sceMpegAddStrCallback(int *a0, int a1, int a2, MpegStrCallback a3, void *a4)
         }
     }
     if (i < 0x40) {
-        p[0x48 / 4] = n + 1;
+        p->nStrCb = n + 1;
         tbl[i].id = id;
         tbl[i].arg = a4;
         tbl[i].func = a3;

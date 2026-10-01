@@ -91,8 +91,7 @@ void _doCSC2(int a0, int a1)
     *D3_CHCR = 0x100;
     *IPU_CMD = 0x700003FF;
     buf[0] = 4;
-    /* the handle read as an int, as mpc.c's _groupOfPicturesHeader reads it */
-    _dispatchMpegCallback((void *)(int)_theSceMpeg, buf);
+    _dispatchMpegCallback(_theSceMpeg, buf);
     while (_cscDma[0] < cscChunks) {}
     if (*(volatile int *)&cscError != 0) {
         _Error("CSC handler error\n");
@@ -123,11 +122,12 @@ int _ch4dma(int channel)
     return 0;
 }
 
+/* The handle's sys word is read as an int here: the bytes need it. */
 void _csc_storeRefImage(int *p)
 {
     int buf[8];
-    void *self = _theSceMpeg;
-    char *r = (char *)*(int *)((char *)self + 0x40);
+    sceMpeg *mp = _theSceMpeg;
+    MpegSys *r = (MpegSys *)*(int *)&mp->sys;
     int n;
     int addr;
     int qwc;
@@ -135,7 +135,7 @@ void _csc_storeRefImage(int *p)
 
     buf[0] = 2;
     n = p[0xC / 4] * p[0x10 / 4];
-    _dispatchMpegCallback(self, buf);
+    _dispatchMpegCallback(mp, buf);
     if (*IPU_CTRL & 0x4000) {
         *(int *)IPU_CTRL = 0x40000000;
     }
@@ -156,9 +156,9 @@ void _csc_storeRefImage(int *p)
         storeAddr = (storeAddr + 0xFFFF0) & 0x0FFFFFFF;
         storeQwc -= 0xFFFF;
         if (n < 1024) {
-            _doCSC(*(int *)(r + 0xD8), n);
+            _doCSC(r->imageBuff, n);
         } else {
-            _doCSC2(*(int *)(r + 0xD8), n);
+            _doCSC2(r->imageBuff, n);
         }
         DisableDmac(4);
         RemoveDmacHandler(4, hid);
@@ -168,9 +168,9 @@ void _csc_storeRefImage(int *p)
         *D4_CHCR = 0x101;
         storeQwc = 0;
         if (n < 1024) {
-            _doCSC(*(int *)(r + 0xD8), n);
+            _doCSC(r->imageBuff, n);
         } else {
-            _doCSC2(*(int *)(r + 0xD8), n);
+            _doCSC2(r->imageBuff, n);
         }
     }
     buf[0] = 3;
