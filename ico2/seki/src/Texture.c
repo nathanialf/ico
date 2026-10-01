@@ -30,22 +30,34 @@ typedef struct TexLevel { /* field names derived */
 } TexLevel; /* derived name */
 
 /* the texture's UV packet at 0xA8 of the texture record, three quadwords the
- * record hands the display list: the two scroll offsets tex_textureAnimation
- * writes and tex_SetUVScroll seeds sit in its second quadword. */
+ * record hands the display list: the UNPACK of one quadword, the quadword
+ * (the two scroll offsets tex_textureAnimation writes and tex_SetUVScroll
+ * seeds, then z and w, written once as zero) and the MSCAL. */
 typedef struct TexUV { /* field names derived */
-    char pad0[16];
+    int vif[4];
     float uOfs;
     float vOfs;
-    char pad18[24];
+    long long zw;
+    int end[4];
 } TexUV; /* derived name */
 
-/* the record's own five-quadword GS packet at 0x58 (the GIF tag, TEX1 and
- * TEST_1 with their register addresses, and the closing tag), built word by
- * word and register by register; d[4] is the TEX1 value and d[6] TEST_1 */
-typedef union TexPkt { /* field names derived */
-    int w[20];
-    long long d[10];
+/* the record's own five-quadword GS packet at 0x58: the DIRECT head, TEX1_1
+ * and TEST_1 as A+D writes, and the closing VIF codes */
+typedef struct TexPkt { /* field names derived */
+    DpkHead head;
+    DpkRegAD tex1;
+    DpkRegAD test;
+    int end[4];
 } TexPkt; /* derived name */
+
+/* one level's transfer packet: the DIRECT head, then TRXPOS, TRXREG and
+ * TRXDIR, the host-to-local transfer the level's image packet follows */
+typedef struct TexLevelPkt { /* field names derived */
+    DpkHead head;
+    DpkRegAD trxpos;
+    DpkRegAD trxreg;
+    DpkRegAD trxdir;
+} TexLevelPkt; /* derived name */
 
 /* the TIM2 picture header.  The fields this file reads off
  * it are clutColors at 0x0E, clutType at 0x12 (masked with 0x3F where the
@@ -90,7 +102,7 @@ typedef struct CdvdRec { /* field names derived */
     TexPkt pkt; /* 0x58 */
     TexUV uv;   /* 0xA8 */
     /* the base of the per-level transfer packets tex_setRegisters allocates */
-    char *levelPkt;
+    TexLevelPkt *levelPkt;
     /* the TIM2 file image the record was built from */
     void *tim2;
     unsigned short levelNum; /* the mipmap level count */
@@ -263,7 +275,7 @@ int tex_loadImage(unsigned int addr, CdvdRec *tex, int idx, short dbp, short dbw
     gif_StartPacketPri(dl_GetPri());
     gif_SetGsReg(0x50, ((long long)dbp << 32) | ((long long)dbw << 48) | ((long long)dpsm << 56));
     gif_EndPacket();
-    dl_OpenDma(2, (tex->levelPkt + idx * 80), 5);
+    dl_OpenDma(2, &tex->levelPkt[idx], 5);
     dl_CloseDma();
     dl_OpenDma(2, addr & 0x0FFFFFFF, size + 3);
     dl_CloseDma();
@@ -531,8 +543,8 @@ void tex_initClutTexture(Tim2Picture *pic, CdvdRec *t)
 
 void tex_setRegisters(Tim2Picture *pic, CdvdRec *t)
 {
-    int *p;
-    int *q;
+    TexPkt *p;
+    TexUV *uv;
     int i;
     int levels = t->levelNum;
     int cw = 0;
@@ -555,43 +567,43 @@ void tex_setRegisters(Tim2Picture *pic, CdvdRec *t)
         l = t->ext.file.mipmapL;
     }
 
-    p = t->pkt.w;
+    p = &t->pkt;
 
-    p[0] = 0;
-    p[1] = 0;
-    p[2] = 0x13000000;
-    p[3] = 0x6C038000;
+    p->head.vif[0] = 0;
+    p->head.vif[1] = 0;
+    p->head.vif[2] = 0x13000000;
+    p->head.vif[3] = 0x6C038000;
 
-    *(long long *)(p + 4) = 0x1000000000008002LL;
-    *(long long *)(p + 6) = 14;
+    p->head.tag[0] = 0x1000000000008002LL;
+    p->head.tag[1] = 14;
 
-    *(long long *)(p + 8) = ((long long)(levels - 1) << 2) | ((long long)mmag << 5) |
-                            ((long long)mmin << 6) | ((long long)l << 19) | ((long long)k << 32);
-    *(long long *)(p + 10) = 20;
-    *(long long *)(p + 12) =
+    p->tex1.data = ((long long)(levels - 1) << 2) | ((long long)mmag << 5) |
+                   ((long long)mmin << 6) | ((long long)l << 19) | ((long long)k << 32);
+    p->tex1.addr = 20;
+    p->test.data =
         1 | (6 << 1) | ((long long)aref << 4) | ((long long)atst << 12) | (1 << 16) | (2 << 17);
-    *(long long *)(p + 14) = 71;
+    p->test.addr = 71;
 
-    p[16] = 0x15000000;
-    p[17] = 0;
-    p[18] = 0;
-    p[19] = 0;
+    p->end[0] = 0x15000000;
+    p->end[1] = 0;
+    p->end[2] = 0;
+    p->end[3] = 0;
 
-    q = (int *)&t->uv;
+    uv = &t->uv;
 
-    q[0] = 0;
-    q[1] = 0;
-    q[2] = 0x13000000;
-    q[3] = 0x6C018000;
+    uv->vif[0] = 0;
+    uv->vif[1] = 0;
+    uv->vif[2] = 0x13000000;
+    uv->vif[3] = 0x6C018000;
 
-    q[4] = 0;
-    q[5] = 0;
-    *(long long *)(q + 6) = 0;
+    uv->uOfs = 0.0f;
+    uv->vOfs = 0.0f;
+    uv->zw = 0;
 
-    q[8] = 0x15000002;
-    q[9] = 0;
-    q[10] = 0;
-    q[11] = 0;
+    uv->end[0] = 0x15000002;
+    uv->end[1] = 0;
+    uv->end[2] = 0;
+    uv->end[3] = 0;
 
     t->levelPkt =
         mallocseki((pic->imageType == 4 || pic->imageType == 5 ? levels + 1 : levels) * 80);
@@ -620,41 +632,41 @@ void tex_setRegisters(Tim2Picture *pic, CdvdRec *t)
     switch (pic->imageType) {
     case 4:
     case 5:
-        *(int *)(t->levelPkt + levels * 80) = 0;
-        *(int *)(t->levelPkt + levels * 80 + 4) = 0;
-        *(int *)(t->levelPkt + levels * 80 + 8) = 0x13000000;
-        *(int *)(t->levelPkt + levels * 80 + 12) = 0x50000005;
+        t->levelPkt[levels].head.vif[0] = 0;
+        t->levelPkt[levels].head.vif[1] = 0;
+        t->levelPkt[levels].head.vif[2] = 0x13000000;
+        t->levelPkt[levels].head.vif[3] = 0x50000005;
 
-        *(long long *)(t->levelPkt + levels * 80 + 16) = 0x1000000000008004LL;
-        *(long long *)(t->levelPkt + levels * 80 + 24) = 14;
+        t->levelPkt[levels].head.tag[0] = 0x1000000000008004LL;
+        t->levelPkt[levels].head.tag[1] = 14;
 
-        *(long long *)(t->levelPkt + levels * 80 + 32) = 0;
-        *(long long *)(t->levelPkt + levels * 80 + 40) = 81;
-        *(long long *)(t->levelPkt + levels * 80 + 48) = cw | ((long long)ch << 32);
-        *(long long *)(t->levelPkt + levels * 80 + 56) = 82;
+        t->levelPkt[levels].trxpos.data = 0;
+        t->levelPkt[levels].trxpos.addr = 81;
+        t->levelPkt[levels].trxreg.data = cw | ((long long)ch << 32);
+        t->levelPkt[levels].trxreg.addr = 82;
 
-        *(long long *)(t->levelPkt + levels * 80 + 64) = 0;
-        *(long long *)(t->levelPkt + levels * 80 + 72) = 83;
+        t->levelPkt[levels].trxdir.data = 0;
+        t->levelPkt[levels].trxdir.addr = 83;
         break;
     }
 
     for (i = 0; i < levels; i++) {
-        *(int *)(t->levelPkt + i * 80) = 0;
-        *(int *)(t->levelPkt + i * 80 + 4) = 0;
-        *(int *)(t->levelPkt + i * 80 + 8) = 0x13000000;
-        *(int *)(t->levelPkt + i * 80 + 12) = 0x50000005;
+        t->levelPkt[i].head.vif[0] = 0;
+        t->levelPkt[i].head.vif[1] = 0;
+        t->levelPkt[i].head.vif[2] = 0x13000000;
+        t->levelPkt[i].head.vif[3] = 0x50000005;
 
-        *(long long *)(t->levelPkt + i * 80 + 16) = 0x1000000000008004LL;
-        *(long long *)(t->levelPkt + i * 80 + 24) = 14;
+        t->levelPkt[i].head.tag[0] = 0x1000000000008004LL;
+        t->levelPkt[i].head.tag[1] = 14;
 
-        *(long long *)(t->levelPkt + i * 80 + 32) = 0;
-        *(long long *)(t->levelPkt + i * 80 + 40) = 81;
-        *(long long *)(t->levelPkt + i * 80 + 48) =
+        t->levelPkt[i].trxpos.data = 0;
+        t->levelPkt[i].trxpos.addr = 81;
+        t->levelPkt[i].trxreg.data =
             (pic->imageWidth >> i) | ((long long)(pic->imageHeight >> i) << 32);
-        *(long long *)(t->levelPkt + i * 80 + 56) = 82;
+        t->levelPkt[i].trxreg.addr = 82;
 
-        *(long long *)(t->levelPkt + i * 80 + 64) = 0;
-        *(long long *)(t->levelPkt + i * 80 + 72) = 83;
+        t->levelPkt[i].trxdir.data = 0;
+        t->levelPkt[i].trxdir.addr = 83;
     }
 }
 
@@ -788,7 +800,7 @@ void tex_makeCopyImage(Tim2Picture *pic, CdvdRec *t, char *src, int convert)
 {
     Tim2Mipmap *mip = (Tim2Mipmap *)(pic + 1);
     int i;
-    int *p;
+    DpkHead *p;
     int *q;
     int n;
 
@@ -802,14 +814,14 @@ void tex_makeCopyImage(Tim2Picture *pic, CdvdRec *t, char *src, int convert)
             malloc_MemCpy((char *)t->lv[0].addr + 32, src, pic->imageSize);
         }
 
-        p = (int *)t->lv[0].addr;
+        p = t->lv[0].addr;
         n = pic->imageSize >> 4;
-        p[0] = 0;
-        p[1] = 0;
-        p[2] = 0x13000000;
-        p[3] = (n + 1) | 0x50000000;
-        *(long long *)(p + 4) = (n | 0x8000) | ((long long)0x8000 << 44);
-        *(long long *)(p + 6) = 0;
+        p->vif[0] = 0;
+        p->vif[1] = 0;
+        p->vif[2] = 0x13000000;
+        p->vif[3] = (n + 1) | 0x50000000;
+        p->tag[0] = (n | 0x8000) | ((long long)0x8000 << 44);
+        p->tag[1] = 0;
         q = (int *)((char *)p + (pic->imageSize + 32));
         *q++ = 0;
         *q++ = 0;
@@ -827,14 +839,14 @@ void tex_makeCopyImage(Tim2Picture *pic, CdvdRec *t, char *src, int convert)
                 malloc_MemCpy((char *)t->lv[i].addr + 32, src, mip->sizes[i]);
             }
 
-            p = (int *)t->lv[i].addr;
+            p = t->lv[i].addr;
             n = mip->sizes[i] >> 4;
-            p[0] = 0;
-            p[1] = 0;
-            p[2] = 0x13000000;
-            p[3] = (n + 1) | 0x50000000;
-            *(long long *)(p + 4) = (n | 0x8000) | ((long long)0x8000 << 44);
-            *(long long *)(p + 6) = 0;
+            p->vif[0] = 0;
+            p->vif[1] = 0;
+            p->vif[2] = 0x13000000;
+            p->vif[3] = (n + 1) | 0x50000000;
+            p->tag[0] = (n | 0x8000) | ((long long)0x8000 << 44);
+            p->tag[1] = 0;
             src += mip->sizes[i];
             q = (int *)((char *)p + (mip->sizes[i] + 32));
             *q++ = 0;
@@ -860,7 +872,7 @@ static inline Tim2Picture *tim2Picture(void *file) /* derived name */
  * packet header written in front of a copy of the palette. */
 static inline void tim2MakeClutPacket(Tim2Picture *pic, CdvdRec *t, char *clut) /* derived name */
 {
-    int *p;
+    DpkHead *p;
     int *q;
     int n;
 
@@ -868,14 +880,14 @@ static inline void tim2MakeClutPacket(Tim2Picture *pic, CdvdRec *t, char *clut) 
         t->clut.addr = mallocseki(pic->clutSize + 80);
         malloc_MemCpy((char *)t->clut.addr + 32, clut, pic->clutSize);
 
-        p = (int *)t->clut.addr;
+        p = t->clut.addr;
         n = pic->clutSize >> 4;
-        p[0] = 0;
-        p[1] = 0;
-        p[2] = 0x13000000;
-        p[3] = (n + 1) | 0x50000000;
-        *(long long *)(p + 4) = (n | 0x8000) | ((long long)0x8000 << 44);
-        *(long long *)(p + 6) = 0;
+        p->vif[0] = 0;
+        p->vif[1] = 0;
+        p->vif[2] = 0x13000000;
+        p->vif[3] = (n + 1) | 0x50000000;
+        p->tag[0] = (n | 0x8000) | ((long long)0x8000 << 44);
+        p->tag[1] = 0;
         q = (int *)((char *)p + (pic->clutSize + 32));
         *q++ = 0;
         *q++ = 0;
@@ -1090,7 +1102,7 @@ int tex_TransTexture(int id, int ret)
     }
     if (id < 0) {
         ret = -1;
-    } else if (*(int *)((char *)t + 0xDC) != 0) {
+    } else if (t->tim2 != 0) {
         ret = tex_transTM2(&t->pic, t, id, ret);
     } else {
         ret = -1;
@@ -1501,20 +1513,20 @@ static inline void toolMakeRegs(CdvdRec *t, int lv) /* derived name */
     int ztst = 2;
     int mmag = t->ext.file.smpMag;
     int mmin = t->ext.file.smpMin;
-    long long *reg;
+    TexPkt *reg;
 
     if (t->ext.file.alpTst != 0) {
         aref = t->ext.file.alpTst;
         afail = t->ext.file.alpFai;
     }
-    reg = t->pkt.d;
-    reg[4] = ((long long)(t->levelNum - lv - 1) << 2) | ((long long)mmag << 5) |
-             ((long long)mmin << 6) | ((long long)t->ext.file.mipmapL << 19) |
-             ((long long)t->ext.file.mipmapK << 32);
+    reg = &t->pkt;
+    reg->tex1.data = ((long long)(t->levelNum - lv - 1) << 2) | ((long long)mmag << 5) |
+                     ((long long)mmin << 6) | ((long long)t->ext.file.mipmapL << 19) |
+                     ((long long)t->ext.file.mipmapK << 32);
     /* 13 is the alpha test switched on with the GEQUAL function in the two
      * fields below AREF */
-    reg[6] = 13 | (long long)aref << 4 | (long long)afail << 12 | (long long)zte << 16 |
-             (long long)ztst << 17;
+    reg->test.data = 13 | (long long)aref << 4 | (long long)afail << 12 | (long long)zte << 16 |
+                     (long long)ztst << 17;
 }
 
 /* the shared pad-state array (main.c's PadState): holding the 0x10 button on
@@ -1815,7 +1827,7 @@ static inline void remakeSampling(CdvdRec *t) /* derived name */
         mmag = t->ext.file.smpMag;
         mmin = t->ext.file.smpMin;
     }
-    t->pkt.d[4] = (t->pkt.d[4] & ~0xE0) | (mmag << 5) | (mmin << 6);
+    t->pkt.tex1.data = (t->pkt.tex1.data & ~0xE0) | (mmag << 5) | (mmin << 6);
 }
 
 int tex_ListTool(void)
@@ -1997,8 +2009,8 @@ void tex_UpdateMipMapLevel(float lv)
             mmag = 1;
             mmin = GlobalStageSetting.texSampleMode;
         }
-        tex->pkt.d[4] = ((long long)(mxl - 1) << 2) | ((long long)mmag << 5) |
-                        ((long long)mmin << 6) | ((long long)l << 19) | ((long long)k << 32);
+        tex->pkt.tex1.data = ((long long)(mxl - 1) << 2) | ((long long)mmag << 5) |
+                             ((long long)mmin << 6) | ((long long)l << 19) | ((long long)k << 32);
     }
 }
 
@@ -2075,7 +2087,7 @@ int tex_RemakeRegistersSampleMin(void)
             f8 = b->ext.file.smpMag;
             f5 = b->ext.file.smpMin;
         }
-        b->pkt.d[4] = (b->pkt.d[4] & ~0xE0) | (f8 << 5) | (f5 << 6);
+        b->pkt.tex1.data = (b->pkt.tex1.data & ~0xE0) | (f8 << 5) | (f5 << 6);
     }
     return 0;
 }

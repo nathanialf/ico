@@ -17,18 +17,6 @@ struct HintInfo { /* field names derived */
     int flags;
 };
 
-/* The hint TABLE's element type differs from the per-GObj record above in one
- * field: hintTable[i].time is a float (seconds), the record's is an int
- * (frames).  CreateKyomiGObj converts one into the other. */
-struct HintDef { /* field names derived */
-    int stage;
-    int no;
-    float time;
-    int flags;
-};
-
-extern struct HintDef hintTable[]; /* derived name */
-
 /* The two 4-byte hint flag sets the save block carries, then one timer per
    hint; Hint_Init clears the whole record. */
 static struct {

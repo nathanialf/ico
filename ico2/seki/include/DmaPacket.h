@@ -29,6 +29,27 @@ typedef struct { /* field names derived */
     DpkPtr end;
 } DpkCtl; /* derived name */
 
+/* a DMA tag and the two VIF codes that ride in its upper half */
+typedef struct { /* field names derived */
+    long long tag;
+    int vif[2];
+} DpkTag; /* derived name */
+
+/* the head of a packet the VIF passes to the GIF (DIRECT) or unpacks into VU
+   memory (UNPACK): four VIF codes, the last the DIRECT or the UNPACK, then
+   the GIF tag */
+typedef struct { /* field names derived */
+    int vif[4];
+    long long tag[2];
+} DpkHead; /* derived name */
+
+/* one A+D register write of a GIF packet: the value, then the register
+   address */
+typedef struct { /* field names derived */
+    long long data;
+    long long addr;
+} DpkRegAD; /* derived name */
+
 extern DpkCtl PacketBufferStruct;
 extern int used_dma_memory;
 void dpk_Init(void);

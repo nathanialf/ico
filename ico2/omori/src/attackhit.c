@@ -113,24 +113,6 @@ static int inner_check(float *p, float *o, float *a, float *b, float r, float t)
 }
 
 typedef struct { /* field names derived */
-    char pad00[16];
-    /* 0x10 */ int motion;    /* the motion the row belongs to */
-    /* 0x14 */ int focusNode; /* the focus node a body attack hits from */
-    /* 0x18 */ float radius;
-    /* 0x1C */ float power;
-    /* 0x20 */ unsigned int weapon : 1; /* the attack is the held weapon's */
-    unsigned int down : 1;              /* it knocks the target down */
-    unsigned int unguardable : 1;
-    unsigned int stone : 1;  /* it is a stone hit */
-    unsigned int toRoot : 1; /* the reach runs from the focus node to the root */
-    unsigned int padBits : 27;
-} AttackKindEntry;
-
-/* the data-only member attack-def.o, read through this file's view of its
-   rows; no header declares it */
-extern const AttackKindEntry attackData[];
-
-typedef struct { /* field names derived */
     /* 0x00 */ float radius;
     char pad04[4];
     /* 0x08 */ float power; /* the attack power multiplier */

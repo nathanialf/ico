@@ -113,18 +113,6 @@ int CheckGeneratorCollision(GObj *gobj, float *dir)
     return 1;
 }
 
-/* the offsets GetGeneratorSafePosition tries around a generator */
-typedef struct SafePosOffset { /* field names derived */
-    float x;
-    float y;
-    float z;
-    int kind;
-} SafePosOffset;
-
-/* the data-only member generator-sub-position.o, read through this file's view of its
-   rows; no header declares it */
-extern SafePosOffset generatorSubPosition[];
-
 /* whether no live enemy stands close to pos; GetGeneratorSafePosition uses it
    twice and reads the result as a byte */
 static inline unsigned char IsGeneratorSafePosition(float *pos) /* derived name */
@@ -167,7 +155,7 @@ void GetGeneratorSafePosition(float *dst, GObj *gobj)
         float probe[4];
 
         for (i = 0; i < 7; i++) {
-            SafePosOffset *e = &generatorSubPosition[i];
+            const SafePosOffset *e = &generatorSubPosition[i];
 
             if (e->kind != (gobj)->labelId) {
                 continue;

@@ -102,13 +102,6 @@ void prim_SetFan2D(Fan2D *f, float r, float *pos, unsigned int cc, unsigned int 
     *q = *first;
 }
 
-/* One 64-bit slot of a DMA/GIF packet, written either whole or as its two
-   32-bit halves. */
-typedef union { /* field names derived */
-    long long d;
-    int w[2];
-} PrimPkWord; /* derived name */
-
 void prim_DispFan2D(Fan2D *f, int mode)
 {
     int v[4];
@@ -156,21 +149,21 @@ void prim_DispFan2D(Fan2D *f, int mode)
         d->gif.c = 0;
         d->end.c = 0;
         d->ptr.c = p + 8;
-        ((PrimPkWord *)(p + 8))->w[0] = 0x11000000;
+        ((GifPkWord *)(p + 8))->w[0] = 0x11000000;
         d->gif.c = p + 0xC;
         d->end.c = p + 0x10;
         d->ptr.c = p + 0x18;
-        ((PrimPkWord *)(p + 0x18))->d = 0xE;
+        ((GifPkWord *)(p + 0x18))->d = 0xE;
         d->ptr.c = p + 0x20;
         if (mode == 0) {
-            ((PrimPkWord *)(p + 0x20))->d = ((long long)f->blend << 6) | 0x10D;
+            ((GifPkWord *)(p + 0x20))->d = ((long long)f->blend << 6) | 0x10D;
             d->ptr.c = p + 0x28;
-            ((PrimPkWord *)(p + 0x28))->d = 0;
+            ((GifPkWord *)(p + 0x28))->d = 0;
             d->ptr.c = p + 0x30;
         } else {
-            ((PrimPkWord *)(p + 0x20))->d = ((long long)f->blend << 6) | 0x10A;
+            ((GifPkWord *)(p + 0x20))->d = ((long long)f->blend << 6) | 0x10A;
             d->ptr.c = p + 0x28;
-            ((PrimPkWord *)(p + 0x28))->d = 0;
+            ((GifPkWord *)(p + 0x28))->d = 0;
             d->ptr.c = p + 0x30;
         }
     }
@@ -178,63 +171,63 @@ void prim_DispFan2D(Fan2D *f, int mode)
     for (i = 0; i < f->n + 2; i++) {
         _FTOI4Vector(v, &q->x);
         pp = PacketBufferStruct.ptr.c;
-        ((PrimPkWord *)pp)->d = ((long long)q->cr | ((long long)q->cg << 8) |
-                                 ((long long)q->cb << 16) | ((long long)q->ca << 24)) |
-                                ((long long)0x3F800000 << 32);
+        ((GifPkWord *)pp)->d = ((long long)q->cr | ((long long)q->cg << 8) |
+                                ((long long)q->cb << 16) | ((long long)q->ca << 24)) |
+                               ((long long)0x3F800000 << 32);
         pp += 8;
         PacketBufferStruct.ptr.c = pp;
-        ((PrimPkWord *)pp)->d = 1;
+        ((GifPkWord *)pp)->d = 1;
         PacketBufferStruct.ptr.c = pp + 8;
         if (q->z < 0.0f) {
             kick = 3;
         }
         kick--;
         if (kick > 0) {
-            ((PrimPkWord *)(pp + 8))->d =
+            ((GifPkWord *)(pp + 8))->d =
                 (long long)v[0] | ((long long)v[1] << 16) | ((long long)v[2] << 32);
             PacketBufferStruct.ptr.c = pp + 0x10;
-            ((PrimPkWord *)(pp + 0x10))->d = 0xD;
+            ((GifPkWord *)(pp + 0x10))->d = 0xD;
             PacketBufferStruct.ptr.c = pp + 0x18;
         } else {
-            ((PrimPkWord *)(pp + 8))->d =
+            ((GifPkWord *)(pp + 8))->d =
                 (long long)v[0] | ((long long)v[1] << 16) | ((long long)v[2] << 32);
             PacketBufferStruct.ptr.c = pp + 0x10;
-            ((PrimPkWord *)(pp + 0x10))->d = 5;
+            ((GifPkWord *)(pp + 0x10))->d = 5;
             PacketBufferStruct.ptr.c = pp + 0x18;
         }
         q++;
     }
 
     end = PacketBufferStruct.end.c;
-    ((PrimPkWord *)end)->d =
+    ((GifPkWord *)end)->d =
         (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - end) >> 4) - 1) |
         0x1000000000008000LL;
     gif = PacketBufferStruct.gif.c;
-    ((PrimPkWord *)gif)->w[0] =
+    ((GifPkWord *)gif)->w[0] =
         (((unsigned int)(PacketBufferStruct.ptr.c - gif) >> 4) << 16) | 0x6C008000;
 
     n = PacketBufferStruct.ptr.c;
-    ((PrimPkWord *)n)->w[0] = 0x15000000;
+    ((GifPkWord *)n)->w[0] = 0x15000000;
     n += 4;
     PacketBufferStruct.ptr.c = n;
-    ((PrimPkWord *)n)->w[0] = 0;
+    ((GifPkWord *)n)->w[0] = 0;
     PacketBufferStruct.ptr.c = n + 4;
-    ((PrimPkWord *)n)->w[1] = 0;
+    ((GifPkWord *)n)->w[1] = 0;
     PacketBufferStruct.ptr.c = n + 8;
-    ((PrimPkWord *)(n + 8))->w[0] = 0;
+    ((GifPkWord *)(n + 8))->w[0] = 0;
     PacketBufferStruct.ptr.c = n + 0xC;
 
     tail = PacketBufferStruct.tail.c;
-    ((PrimPkWord *)tail)->d =
+    ((GifPkWord *)tail)->d =
         (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - tail) >> 4) - 1) | 0x10000000;
 
     m = PacketBufferStruct.ptr.c;
     PacketBufferStruct.tail.c = m;
-    ((PrimPkWord *)m)->d = 0x60000000;
+    ((GifPkWord *)m)->d = 0x60000000;
     PacketBufferStruct.ptr.c = m + 8;
-    ((PrimPkWord *)(m + 8))->w[0] = 0;
+    ((GifPkWord *)(m + 8))->w[0] = 0;
     PacketBufferStruct.ptr.c = m + 0xC;
-    ((PrimPkWord *)(m + 8))->w[1] = 0;
+    ((GifPkWord *)(m + 8))->w[1] = 0;
     PacketBufferStruct.ptr.c = m + 0x10;
 
     dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
@@ -267,18 +260,20 @@ void prim_makePacketMesh3D(Mesh3D *m, void *pkt, int uv)
         int w = m->stripLen;
         int n = w * (m->lit + 2) + 2;
         long long reg = m->prim;
+        DpkHead *h;
 
         if (n >= 253) {
             debug_StdPrintfDummy("too large mesh packet. %d\n", w);
             debug_assert("src/Primitive.c", 473);
             __assert("src/Primitive.c", 473, "0");
         }
-        *(int *)(p + 0x0) = 0;
-        *(int *)(p + 0x4) = 0;
-        *(int *)(p + 0x8) = 0;
-        *(int *)(p + 0xC) = (n << 16) | 0x6C008000;
-        *(long long *)(p + 0x10) = w | (*meshGifTag | (reg << 47));
-        *(long long *)(p + 0x18) = *(meshGifTag + 1);
+        h = (DpkHead *)p;
+        h->vif[0] = 0;
+        h->vif[1] = 0;
+        h->vif[2] = 0;
+        h->vif[3] = (n << 16) | 0x6C008000;
+        h->tag[0] = w | (*meshGifTag | (reg << 47));
+        h->tag[1] = *(meshGifTag + 1);
         p += 0x20;
         *(Qw128 *)p = *(Qw128 *)&c;
         p += 0x10;
@@ -304,10 +299,10 @@ void prim_makePacketMesh3D(Mesh3D *m, void *pkt, int uv)
                 p += 0x10;
             }
         }
-        *(int *)(p + 0x0) = 0x17000000;
-        *(int *)(p + 0x4) = 0;
-        *(int *)(p + 0x8) = 0;
-        *(int *)(p + 0xC) = 0;
+        ((int *)p)[0] = 0x17000000;
+        ((int *)p)[1] = 0;
+        ((int *)p)[2] = 0;
+        ((int *)p)[3] = 0;
         p += 0x10;
     }
 }
@@ -539,23 +534,23 @@ void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
         dd = &PacketBufferStruct;
         q = dd->ptr.c;
         dd->tail.c = q;
-        ((PrimPkWord *)q)->d = 0x10000005;
+        ((GifPkWord *)q)->d = 0x10000005;
         dd->ptr.c = q + 8;
-        ((PrimPkWord *)(q + 8))->w[0] = 0;
+        ((GifPkWord *)(q + 8))->w[0] = 0;
         dd->ptr.c = q + 0xC;
         dd->gif.c = q + 0xC;
-        ((PrimPkWord *)(q + 0xC))->w[0] = 0x6C048000;
+        ((GifPkWord *)(q + 0xC))->w[0] = 0x6C048000;
         dd->ptr.c = q + 0x10;
         _CopyMatrix(((float (*)[16])dd->ptr.c)++, mtx);
         r = dd->ptr.c;
-        ((PrimPkWord *)r)->w[0] = 0x15000010;
+        ((GifPkWord *)r)->w[0] = 0x15000010;
         r += 4;
         dd->ptr.c = r;
-        ((PrimPkWord *)r)->w[0] = 0;
+        ((GifPkWord *)r)->w[0] = 0;
         dd->ptr.c = r + 4;
-        ((PrimPkWord *)(r + 4))->w[0] = 0;
+        ((GifPkWord *)(r + 4))->w[0] = 0;
         dd->ptr.c = r + 8;
-        ((PrimPkWord *)(r + 8))->w[0] = 0;
+        ((GifPkWord *)(r + 8))->w[0] = 0;
         dd->ptr.c = r + 0xC;
     }
 
@@ -568,24 +563,24 @@ void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
         dd = &PacketBufferStruct;
         q = dd->ptr.c;
         dd->tail.c = q;
-        ((PrimPkWord *)q)->d = 0x10000009;
+        ((GifPkWord *)q)->d = 0x10000009;
         dd->ptr.c = q + 8;
-        ((PrimPkWord *)(q + 8))->w[0] = 0;
+        ((GifPkWord *)(q + 8))->w[0] = 0;
         dd->ptr.c = q + 0xC;
         dd->gif.c = q + 0xC;
-        ((PrimPkWord *)(q + 0xC))->w[0] = 0x6C088000;
+        ((GifPkWord *)(q + 0xC))->w[0] = 0x6C088000;
         dd->ptr.c = q + 0x10;
         _CopyMatrix(((float (*)[16])dd->ptr.c)++, lb);
         _CopyMatrix(((float (*)[16])dd->ptr.c)++, la);
         r = dd->ptr.c;
-        ((PrimPkWord *)r)->w[0] = 0x15000012;
+        ((GifPkWord *)r)->w[0] = 0x15000012;
         r += 4;
         dd->ptr.c = r;
-        ((PrimPkWord *)r)->w[0] = 0;
+        ((GifPkWord *)r)->w[0] = 0;
         dd->ptr.c = r + 4;
-        ((PrimPkWord *)(r + 4))->w[0] = 0;
+        ((GifPkWord *)(r + 4))->w[0] = 0;
         dd->ptr.c = r + 8;
-        ((PrimPkWord *)(r + 8))->w[0] = 0;
+        ((GifPkWord *)(r + 8))->w[0] = 0;
         dd->ptr.c = r + 0xC;
     }
 
@@ -600,23 +595,23 @@ void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
         dd = &PacketBufferStruct;
         q = dd->ptr.c;
         dd->tail.c = q;
-        ((PrimPkWord *)q)->d = 0x10000002;
+        ((GifPkWord *)q)->d = 0x10000002;
         dd->ptr.c = q + 8;
-        ((PrimPkWord *)(q + 8))->w[0] = 0;
+        ((GifPkWord *)(q + 8))->w[0] = 0;
         dd->ptr.c = q + 0xC;
         dd->gif.c = q + 0xC;
-        ((PrimPkWord *)(q + 0xC))->w[0] = 0x6C018000;
+        ((GifPkWord *)(q + 0xC))->w[0] = 0x6C018000;
         dd->ptr.c = q + 0x10;
         _CopyVector(((float (*)[4])dd->ptr.c)++, v);
         r = dd->ptr.c;
-        ((PrimPkWord *)r)->w[0] = 0x15000002;
+        ((GifPkWord *)r)->w[0] = 0x15000002;
         r += 4;
         dd->ptr.c = r;
-        ((PrimPkWord *)r)->w[0] = 0;
+        ((GifPkWord *)r)->w[0] = 0;
         dd->ptr.c = r + 4;
-        ((PrimPkWord *)(r + 4))->w[0] = 0;
+        ((GifPkWord *)(r + 4))->w[0] = 0;
         dd->ptr.c = r + 8;
-        ((PrimPkWord *)(r + 8))->w[0] = 0;
+        ((GifPkWord *)(r + 8))->w[0] = 0;
         dd->ptr.c = r + 0xC;
     }
 
@@ -649,11 +644,11 @@ void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
     }
     q = d->ptr.c;
     d->tail.c = q;
-    ((PrimPkWord *)q)->d = 0x60000000;
+    ((GifPkWord *)q)->d = 0x60000000;
     d->ptr.c = q + 8;
-    ((PrimPkWord *)(q + 8))->w[0] = 0;
+    ((GifPkWord *)(q + 8))->w[0] = 0;
     d->ptr.c = q + 0xC;
-    ((PrimPkWord *)(q + 0xC))->w[0] = 0;
+    ((GifPkWord *)(q + 0xC))->w[0] = 0;
     d->ptr.c = q + 0x10;
     dl_OpenDma(5, d->dma.c, 0);
     dl_CloseDma();

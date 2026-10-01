@@ -8,7 +8,20 @@
 #ifndef GENERATOR_H
 #define GENERATOR_H
 
+/* one row of generatorSubPosition, the data-only member
+   generator-sub-position.o: an offset GetGeneratorSafePosition tries around
+   a generator, and the generator label it belongs to */
+typedef struct SafePosOffset { /* field names derived */
+    float x;
+    float y;
+    float z;
+    int kind;
+} SafePosOffset; /* derived name */
+
+extern const SafePosOffset generatorSubPosition[];
+
 struct GenGeo;
+
 struct GenWork *InitGeneratorGeo(struct GObj *gobj, struct GenGeo *src);
 void Generator_Call(struct GObj *gobj);
 void Generator_ResetCount(struct GObj *gobj);
@@ -22,7 +35,10 @@ int RestoreGeneratorGeo(float *dst, float *src);
 int RestoreGeneratorExtGeo(struct GObj *gobj, short *info);
 int MemoryGenerator(short *info, struct GObj *gobj);
 void *IsEnableCallEnemy(struct GObj *self);
-struct GObj *DirectCallEnemy(struct GObj *gobj, struct GObj *mother, float *pos, float *dir, int kind);
+
+struct GObj *DirectCallEnemy(struct GObj *gobj, struct GObj *mother, float *pos, float *dir,
+                             int kind);
+
 void LockEnemyGenerate(int *self);
 void UnlockEnemyGenerate(void *gobj);
 void RestoreReviveCount(struct GObj *gobj);
@@ -34,7 +50,6 @@ void SetInfoSpKidnapGenerator(short *info);
 void SetInfoSpKidnapEnemy(short *work);
 inline int IsOpenGenerator(struct GObj *gobj);
 int IsEnableCallEnemyByTargetGObj(void *gobj);
-
 int CheckGeneratorCollision(struct GObj *gobj, float *dir);
 void Generator_Delete(void *gobj);
 void Generator_QuickCall(struct GObj *gobj);

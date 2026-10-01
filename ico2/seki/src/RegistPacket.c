@@ -20,6 +20,29 @@
 /* the scissor switch reg_SetScissorSw sets and reg_Init clears */
 static int scissorSw = 0; /* derived name */
 
+/* one sixteen-byte record of a part's strip list as reg_setShape reads it
+ * (Shadow.c's ShadowRun is the silhouette's view of the same list).  A strip
+ * opens with a head record, its vertex count (-1 ends the list) and the
+ * strip's offset in its material's packet data; the vertex records that
+ * follow hold the vertex and normal indices, and the first of them the
+ * strip's material and texture slot. */
+typedef struct RegStripHead { /* field names derived */
+    short count;
+    short pad2;
+    int ofs;
+    char pad8[8];
+} RegStripHead; /* derived name */
+
+typedef struct RegStripVtx { /* field names derived */
+    short flag;
+    short pad2;
+    short vtx;
+    short nrm;
+    char pad8[4];
+    short mat;
+    short texSlot;
+} RegStripVtx; /* derived name */
+
 void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, PObjMaterial *mat)
 {
     float vec[4];
@@ -98,12 +121,13 @@ void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, PObjMaterial *ma
     }
     for (i = 0; i < s->stripCount; i++) {
         v = ((char **)s->strips)[i];
-        while (*(short *)v != -1) {
+        while (((RegStripHead *)v)->count != -1) {
             pk = pkt;
-            n = *(short *)v;
+            n = ((RegStripHead *)v)->count;
             v += 0x10;
             while (pk != 0) {
-                if (*(short *)(v + 0xE) == pk->texSlot && *(short *)(v + 0xC) == pk->mat) {
+                if (((RegStripVtx *)v)->texSlot == pk->texSlot &&
+                    ((RegStripVtx *)v)->mat == pk->mat) {
                     break;
                 }
                 pk = pk->next;
@@ -112,11 +136,11 @@ void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, PObjMaterial *ma
                 break;
             }
             base = (int)pk->data;
-            p = (char *)(*(int *)(v - 0xC) + base);
-            if (*(int *)(v - 0xC) != 0) {
+            p = (char *)(((RegStripHead *)(v - 0x10))->ofs + base);
+            if (((RegStripHead *)(v - 0x10))->ofs != 0) {
                 if (n != 0) {
                     do {
-                        _CopyVector(p, s->vtx + *(short *)(v + 4) * 0x10);
+                        _CopyVector(p, s->vtx + ((RegStripVtx *)v)->vtx * 0x10);
                         p += 0x10;
                         if ((((int)(mat->attr.bits >> 5)) & 3) == 0) {
                             switch (mat->attr.word & 1) {
@@ -126,7 +150,7 @@ void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, PObjMaterial *ma
                                 goto nocopy;
                             }
                         }
-                        _CopyVector(p, s->nrm + *(short *)(v + 6) * 0x10);
+                        _CopyVector(p, s->nrm + ((RegStripVtx *)v)->nrm * 0x10);
                         p += 0x10;
                     nocopy:
                         if (mdl->disp != 0) {
@@ -259,13 +283,6 @@ void reg_chooseReflectionMicroCode(int a0, int a1, int a2)
     mc_SetMicroCode(a0, 1, 2, a1, a2);
 }
 
-/* One 64-bit slot of a DMA/GIF packet: written either as the whole qword
-   (DMAtag, GIFtag, A+D data) or as its two 32-bit halves. */
-typedef union { /* field names derived */
-    long long d;
-    int w[2];
-} RegPkWord; /* derived name */
-
 /* the quadword copy type src/Primitive.c and src/Shadow.c use */
 typedef int Qw128 __attribute__((mode(TI))); /* derived name */
 
@@ -281,12 +298,12 @@ char *reg_setNMatrixPacket(Sub15C *o, int idx)
 
         c = PacketBufferStruct.ptr.c;
         PacketBufferStruct.tail.c = c;
-        ((RegPkWord *)c)->d = 0x1000000D;
+        ((GifPkWord *)c)->d = 0x1000000D;
         PacketBufferStruct.ptr.c = c + 8;
-        ((RegPkWord *)(c + 8))->w[0] = 0;
+        ((GifPkWord *)(c + 8))->w[0] = 0;
         PacketBufferStruct.ptr.c = c + 0xC;
         PacketBufferStruct.gif.c = c + 0xC;
-        ((RegPkWord *)(c + 8))->w[1] = 0x6C0C8000;
+        ((GifPkWord *)(c + 8))->w[1] = 0x6C0C8000;
         PacketBufferStruct.ptr.c = c + 0x50;
         _CopyMatrix(c + 0x10, matrixptr + 0x140);
         _MulMatrix(PacketBufferStruct.ptr.c, matrixptr + 0x200, matrixptr + 0x40);
@@ -294,11 +311,11 @@ char *reg_setNMatrixPacket(Sub15C *o, int idx)
         _MulMatrix(PacketBufferStruct.ptr.c, matrixptr + 0x80, matrixptr + 0x40);
         m = PacketBufferStruct.ptr.c;
         PacketBufferStruct.ptr.c = m + 0x40;
-        ((RegPkWord *)(m + 0x40))->w[0] = 0x15000010;
+        ((GifPkWord *)(m + 0x40))->w[0] = 0x15000010;
         PacketBufferStruct.ptr.c = m + 0x44;
-        ((RegPkWord *)(m + 0x40))->w[1] = 0;
+        ((GifPkWord *)(m + 0x40))->w[1] = 0;
         PacketBufferStruct.ptr.c = m + 0x48;
-        ((RegPkWord *)(m + 0x48))->d = 0;
+        ((GifPkWord *)(m + 0x48))->d = 0;
         PacketBufferStruct.ptr.c = m + 0x50;
     }
     void setLight(void)
@@ -309,24 +326,24 @@ char *reg_setNMatrixPacket(Sub15C *o, int idx)
 
         c = PacketBufferStruct.ptr.c;
         PacketBufferStruct.tail.c = c;
-        ((RegPkWord *)c)->d = 0x10000009;
+        ((GifPkWord *)c)->d = 0x10000009;
         PacketBufferStruct.ptr.c = c + 8;
-        ((RegPkWord *)(c + 8))->w[0] = 0;
+        ((GifPkWord *)(c + 8))->w[0] = 0;
         PacketBufferStruct.ptr.c = c + 0xC;
         PacketBufferStruct.gif.c = c + 0xC;
-        ((RegPkWord *)(c + 8))->w[1] = 0x6C088000;
+        ((GifPkWord *)(c + 8))->w[1] = 0x6C088000;
         PacketBufferStruct.ptr.c = c + 0x10;
         _GetCurrentMatrix(c + 0x10);
         m = PacketBufferStruct.ptr.c;
         PacketBufferStruct.ptr.c = m + 0x80;
         _CopyMatrix(m + 0x40, (char *)o->lightMtx + 64);
         n = PacketBufferStruct.ptr.c;
-        ((RegPkWord *)n)->w[0] = 0x15000012;
+        ((GifPkWord *)n)->w[0] = 0x15000012;
         n += 4;
         PacketBufferStruct.ptr.c = n;
-        ((RegPkWord *)n)->w[0] = 0;
+        ((GifPkWord *)n)->w[0] = 0;
         PacketBufferStruct.ptr.c = n + 4;
-        ((RegPkWord *)(n + 4))->d = 0;
+        ((GifPkWord *)(n + 4))->d = 0;
         PacketBufferStruct.ptr.c = n + 0xC;
     }
     char *pkt;
@@ -371,11 +388,11 @@ char *reg_setNMatrixPacket(Sub15C *o, int idx)
         char *c = PacketBufferStruct.ptr.c;
 
         PacketBufferStruct.tail.c = c;
-        ((RegPkWord *)c)->d = 0x60000000;
+        ((GifPkWord *)c)->d = 0x60000000;
         PacketBufferStruct.ptr.c = c + 8;
-        ((RegPkWord *)(c + 8))->w[0] = 0;
+        ((GifPkWord *)(c + 8))->w[0] = 0;
         PacketBufferStruct.ptr.c = c + 0xC;
-        ((RegPkWord *)(c + 8))->w[1] = 0;
+        ((GifPkWord *)(c + 8))->w[1] = 0;
         PacketBufferStruct.ptr.c = c + 0x10;
     }
     return pkt;
@@ -408,12 +425,12 @@ char *reg_setMMatrixPacket(Sub15C *o, int idx)
 
         c = PacketBufferStruct.ptr.c;
         PacketBufferStruct.tail.c = c;
-        ((RegPkWord *)c)->d = 0x1000000D;
+        ((GifPkWord *)c)->d = 0x1000000D;
         PacketBufferStruct.ptr.c = c + 8;
-        ((RegPkWord *)(c + 8))->w[0] = 0;
+        ((GifPkWord *)(c + 8))->w[0] = 0;
         PacketBufferStruct.ptr.c = c + 0xC;
         PacketBufferStruct.gif.c = c + 0xC;
-        ((RegPkWord *)(c + 8))->w[1] = 0x6C0C8000;
+        ((GifPkWord *)(c + 8))->w[1] = 0x6C0C8000;
         PacketBufferStruct.ptr.c = c + 0x50;
         _CopyMatrix(c + 0x10, matrixptr + 0x140);
         if ((o->nodes[idx].flags.ll & 6) != 0) {
@@ -426,11 +443,11 @@ char *reg_setMMatrixPacket(Sub15C *o, int idx)
         _MulMatrix(PacketBufferStruct.ptr.c, matrixptr + 0x80, matrixptr + 0x40);
         m = PacketBufferStruct.ptr.c;
         PacketBufferStruct.ptr.c = m + 0x40;
-        ((RegPkWord *)(m + 0x40))->w[0] = 0x15000010;
+        ((GifPkWord *)(m + 0x40))->w[0] = 0x15000010;
         PacketBufferStruct.ptr.c = m + 0x44;
-        ((RegPkWord *)(m + 0x40))->w[1] = 0;
+        ((GifPkWord *)(m + 0x40))->w[1] = 0;
         PacketBufferStruct.ptr.c = m + 0x48;
-        ((RegPkWord *)(m + 0x48))->d = 0;
+        ((GifPkWord *)(m + 0x48))->d = 0;
         PacketBufferStruct.ptr.c = m + 0x50;
     }
     void setLight(void)
@@ -441,24 +458,24 @@ char *reg_setMMatrixPacket(Sub15C *o, int idx)
 
         c = PacketBufferStruct.ptr.c;
         PacketBufferStruct.tail.c = c;
-        ((RegPkWord *)c)->d = 0x10000009;
+        ((GifPkWord *)c)->d = 0x10000009;
         PacketBufferStruct.ptr.c = c + 8;
-        ((RegPkWord *)(c + 8))->w[0] = 0;
+        ((GifPkWord *)(c + 8))->w[0] = 0;
         PacketBufferStruct.ptr.c = c + 0xC;
         PacketBufferStruct.gif.c = c + 0xC;
-        ((RegPkWord *)(c + 8))->w[1] = 0x6C088000;
+        ((GifPkWord *)(c + 8))->w[1] = 0x6C088000;
         PacketBufferStruct.ptr.c = c + 0x10;
         _GetCurrentMatrix(c + 0x10);
         m = PacketBufferStruct.ptr.c;
         PacketBufferStruct.ptr.c = m + 0x80;
         _CopyMatrix(m + 0x40, (char *)o->lightMtx + 64);
         n = PacketBufferStruct.ptr.c;
-        ((RegPkWord *)n)->w[0] = 0x15000012;
+        ((GifPkWord *)n)->w[0] = 0x15000012;
         n += 4;
         PacketBufferStruct.ptr.c = n;
-        ((RegPkWord *)n)->w[0] = 0;
+        ((GifPkWord *)n)->w[0] = 0;
         PacketBufferStruct.ptr.c = n + 4;
-        ((RegPkWord *)(n + 4))->d = 0;
+        ((GifPkWord *)(n + 4))->d = 0;
         PacketBufferStruct.ptr.c = n + 0xC;
     }
     w = (struct DObjNode *)(idx * 80 + (int)o->nodes);
@@ -547,15 +564,27 @@ char *reg_setMMatrixPacket(Sub15C *o, int idx)
         char *c = PacketBufferStruct.ptr.c;
 
         PacketBufferStruct.tail.c = c;
-        ((RegPkWord *)c)->d = 0x60000000;
+        ((GifPkWord *)c)->d = 0x60000000;
         PacketBufferStruct.ptr.c = c + 8;
-        ((RegPkWord *)(c + 8))->w[0] = 0;
+        ((GifPkWord *)(c + 8))->w[0] = 0;
         PacketBufferStruct.ptr.c = c + 0xC;
-        ((RegPkWord *)(c + 8))->w[1] = 0;
+        ((GifPkWord *)(c + 8))->w[1] = 0;
         PacketBufferStruct.ptr.c = c + 0x10;
     }
     return pkt;
 }
+
+/* the head of a cluster matrix packet: the DMA tag with FLUSH and the
+   UNPACK, then the first quadword unpacked, the unpack's quadword count and
+   the alpha the microcode fades the cluster by.  The two pad words are
+   stored as plain words: stored through pad14, reg_setCMatrixPacket's
+   schedule moves (measured). */
+typedef struct { /* field names derived */
+    DpkTag dma;
+    int qwc;
+    int pad14[2];
+    float alpha;
+} RegClusterHead; /* derived name */
 
 void reg_setCMatrixPacket(Sub15C *o, float alpha, int prilist)
 {
@@ -571,20 +600,20 @@ void reg_setCMatrixPacket(Sub15C *o, float alpha, int prilist)
         n = o->nodeNum * 4;
         c = PacketBufferStruct.ptr.c;
         PacketBufferStruct.tail.c = c;
-        *(long long *)c = n | 0x10000002;
+        ((RegClusterHead *)c)->dma.tag = n | 0x10000002;
         PacketBufferStruct.ptr.c = c + 8;
-        *(int *)(c + 8) = 0x11000000;
+        ((RegClusterHead *)c)->dma.vif[0] = 0x11000000;
         PacketBufferStruct.ptr.c = c + 0xC;
         PacketBufferStruct.gif.c = c + 0xC;
-        *(int *)(c + 0xC) = ((n + 1) << 16) | 0x6C008000;
+        ((RegClusterHead *)c)->dma.vif[1] = ((n + 1) << 16) | 0x6C008000;
         PacketBufferStruct.ptr.c = c + 0x10;
-        *(int *)(c + 0x10) = n + 1;
+        ((RegClusterHead *)c)->qwc = n + 1;
         PacketBufferStruct.ptr.c = c + 0x14;
         *(int *)(c + 0x14) = 0;
         PacketBufferStruct.ptr.c = c + 0x18;
         *(int *)(c + 0x18) = 0;
         PacketBufferStruct.ptr.c = c + 0x1C;
-        *(float *)(c + 0x1C) = alpha;
+        ((RegClusterHead *)c)->alpha = alpha;
         PacketBufferStruct.ptr.c = c + 0x20;
         for (i = 0; i < o->nodeNum; i++) {
             _MulMatrix(PacketBufferStruct.ptr.c, (char *)o->nodeMtx + i * 64,
@@ -647,11 +676,11 @@ void reg_setCMatrixPacket(Sub15C *o, float alpha, int prilist)
         char *c = PacketBufferStruct.ptr.c;
 
         PacketBufferStruct.tail.c = c;
-        *(long long *)c = 0x60000000;
+        ((DpkTag *)c)->tag = 0x60000000;
         PacketBufferStruct.ptr.c = c + 8;
-        *(int *)(c + 8) = 0;
+        ((DpkTag *)c)->vif[0] = 0;
         PacketBufferStruct.ptr.c = c + 0xC;
-        *(int *)(c + 0xC) = 0;
+        ((DpkTag *)c)->vif[1] = 0;
         PacketBufferStruct.ptr.c = c + 0x10;
     }
     for (i = 0; i < 13; i++) {
@@ -716,48 +745,48 @@ int reg_setDissolve(float a, int pri)
     PacketBufferStruct.dma.c = p;
     PacketBufferStruct.end.c = 0;
     PacketBufferStruct.tail.c = p;
-    ((RegPkWord *)p)->d = 0x10000005;
+    ((GifPkWord *)p)->d = 0x10000005;
     PacketBufferStruct.ptr.c = p + 8;
-    ((RegPkWord *)(p + 8))->w[0] = 0;
+    ((GifPkWord *)(p + 8))->w[0] = 0;
     PacketBufferStruct.ptr.c = p + 0xC;
     PacketBufferStruct.gif.c = p + 0xC;
-    ((RegPkWord *)(p + 8))->w[1] = 0x6C048000;
+    ((GifPkWord *)(p + 8))->w[1] = 0x6C048000;
     PacketBufferStruct.ptr.c = p + 0x10;
-    ((RegPkWord *)(p + 0x10))->d = 0x1000000000008003LL;
+    ((GifPkWord *)(p + 0x10))->d = 0x1000000000008003LL;
     PacketBufferStruct.ptr.c = p + 0x18;
-    ((RegPkWord *)(p + 0x18))->d = 14;
+    ((GifPkWord *)(p + 0x18))->d = 14;
     PacketBufferStruct.ptr.c = p + 0x20;
-    ((RegPkWord *)(p + 0x20))->d = 0;
+    ((GifPkWord *)(p + 0x20))->d = 0;
     PacketBufferStruct.ptr.c = p + 0x28;
-    ((RegPkWord *)(p + 0x28))->d = 0x49;
+    ((GifPkWord *)(p + 0x28))->d = 0x49;
     PacketBufferStruct.ptr.c = p + 0x30;
     if (0.0f < a) {
-        ((RegPkWord *)(p + 0x30))->d = ((long long)v << 32) | 0x68;
+        ((GifPkWord *)(p + 0x30))->d = ((long long)v << 32) | 0x68;
         PacketBufferStruct.ptr.c = p + 0x38;
     } else {
-        ((RegPkWord *)(p + 0x30))->d = ((long long)v << 32) | 0x62;
+        ((GifPkWord *)(p + 0x30))->d = ((long long)v << 32) | 0x62;
         PacketBufferStruct.ptr.c = p + 0x38;
     }
     q = PacketBufferStruct.ptr.c;
-    ((RegPkWord *)q)->d = 0x42;
+    ((GifPkWord *)q)->d = 0x42;
     q += 8;
     PacketBufferStruct.ptr.c = q;
-    ((RegPkWord *)q)->d = 0x1300000C0LL;
+    ((GifPkWord *)q)->d = 0x1300000C0LL;
     PacketBufferStruct.ptr.c = q + 8;
-    ((RegPkWord *)(q + 8))->d = 0x4E;
+    ((GifPkWord *)(q + 8))->d = 0x4E;
     PacketBufferStruct.ptr.c = q + 0x10;
-    ((RegPkWord *)(q + 0x10))->w[0] = 0x15000000;
+    ((GifPkWord *)(q + 0x10))->w[0] = 0x15000000;
     PacketBufferStruct.ptr.c = q + 0x14;
-    ((RegPkWord *)(q + 0x10))->w[1] = 0;
+    ((GifPkWord *)(q + 0x10))->w[1] = 0;
     PacketBufferStruct.ptr.c = q + 0x18;
-    ((RegPkWord *)(q + 0x18))->d = 0;
+    ((GifPkWord *)(q + 0x18))->d = 0;
     PacketBufferStruct.ptr.c = q + 0x20;
     PacketBufferStruct.tail.c = q + 0x20;
-    ((RegPkWord *)(q + 0x20))->d = 0x60000000;
+    ((GifPkWord *)(q + 0x20))->d = 0x60000000;
     PacketBufferStruct.ptr.c = q + 0x28;
-    ((RegPkWord *)(q + 0x28))->w[0] = 0;
+    ((GifPkWord *)(q + 0x28))->w[0] = 0;
     PacketBufferStruct.ptr.c = q + 0x2C;
-    ((RegPkWord *)(q + 0x28))->w[1] = 0;
+    ((GifPkWord *)(q + 0x28))->w[1] = 0;
     PacketBufferStruct.ptr.c = q + 0x30;
     dl_SetDLPriority(pri);
     dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
@@ -1166,11 +1195,11 @@ void reg_dispPoint(PacLine *node, float alpha, int idx, int flag)
         PacketBufferStruct.dma.c = c;
         PacketBufferStruct.tail.c = c;
         PacketBufferStruct.ptr.c = c + 8;
-        *(unsigned int *)(c + 8) = 0x11000000;
+        ((DpkTag *)c)->vif[0] = 0x11000000;
         PacketBufferStruct.gif.c = c + 0xC;
         PacketBufferStruct.end.c = c + 0x10;
         PacketBufferStruct.ptr.c = c + 0x18;
-        ((RegPkWord *)(c + 0x18))->d = 0xE;
+        ((GifPkWord *)(c + 0x18))->d = 0xE;
         PacketBufferStruct.ptr.c = c + 0x20;
     }
     _RotTransPersCurrentMatrix(fv, node->pos[0]);
@@ -1235,26 +1264,26 @@ void reg_dispPoint(PacLine *node, float alpha, int idx, int flag)
             char *p;
             char *q;
 
-            ((RegPkWord *)PacketBufferStruct.end.c)->d =
+            ((GifPkWord *)PacketBufferStruct.end.c)->d =
                 (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c -
                                                PacketBufferStruct.end.c) >>
                                 4) -
                                1) |
                 0x1000000000008000LL;
-            ((RegPkWord *)PacketBufferStruct.gif.c)->w[0] =
+            ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
                 (((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) << 16) |
                 0x6C008000;
             p = PacketBufferStruct.ptr.c;
-            ((RegPkWord *)p)->w[0] = 0x15000000;
+            ((GifPkWord *)p)->w[0] = 0x15000000;
             p += 4;
             PacketBufferStruct.ptr.c = p;
-            ((RegPkWord *)p)->w[0] = 0;
+            ((GifPkWord *)p)->w[0] = 0;
             PacketBufferStruct.ptr.c = p + 4;
-            ((RegPkWord *)(p + 4))->w[0] = 0;
+            ((GifPkWord *)(p + 4))->w[0] = 0;
             PacketBufferStruct.ptr.c = p + 8;
-            ((RegPkWord *)(p + 8))->w[0] = 0;
+            ((GifPkWord *)(p + 8))->w[0] = 0;
             PacketBufferStruct.ptr.c = p + 0xC;
-            ((RegPkWord *)PacketBufferStruct.tail.c)->d =
+            ((GifPkWord *)PacketBufferStruct.tail.c)->d =
                 (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c -
                                                 PacketBufferStruct.tail.c) >>
                                  4) -
@@ -1262,11 +1291,11 @@ void reg_dispPoint(PacLine *node, float alpha, int idx, int flag)
                                0x10000000);
             q = PacketBufferStruct.ptr.c;
             PacketBufferStruct.tail.c = q;
-            ((RegPkWord *)q)->d = 0x60000000;
+            ((GifPkWord *)q)->d = 0x60000000;
             PacketBufferStruct.ptr.c = q + 8;
-            ((RegPkWord *)(q + 8))->w[0] = 0;
+            ((GifPkWord *)(q + 8))->w[0] = 0;
             PacketBufferStruct.ptr.c = q + 0xC;
-            ((RegPkWord *)(q + 8))->w[1] = 0;
+            ((GifPkWord *)(q + 8))->w[1] = 0;
             PacketBufferStruct.ptr.c = q + 0x10;
             dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
             dl_CloseDma();
@@ -1318,11 +1347,11 @@ void reg_dispLine(PacLine *node, float alpha)
         PacketBufferStruct.dma.c = c;
         PacketBufferStruct.tail.c = c;
         PacketBufferStruct.ptr.c = c + 8;
-        *(unsigned int *)(c + 8) = 0x11000000;
+        ((DpkTag *)c)->vif[0] = 0x11000000;
         PacketBufferStruct.gif.c = c + 0xC;
         PacketBufferStruct.end.c = c + 0x10;
         PacketBufferStruct.ptr.c = c + 0x18;
-        ((RegPkWord *)(c + 0x18))->d = 0xE;
+        ((GifPkWord *)(c + 0x18))->d = 0xE;
         PacketBufferStruct.ptr.c = c + 0x20;
     }
     _RotTransPersCurrentMatrix(fv0, node->pos[0]);
@@ -1378,36 +1407,36 @@ void reg_dispLine(PacLine *node, float alpha)
         *PacketBufferStruct.ptr.d++ =
             (long long)iv1[0] | ((long long)iv1[1] << 16) | ((long long)iv1[2] << 32);
         *PacketBufferStruct.ptr.d++ = 5;
-        ((RegPkWord *)PacketBufferStruct.end.c)->d =
+        ((GifPkWord *)PacketBufferStruct.end.c)->d =
             (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >>
                             4) -
                            1) |
             0x1000000000008000LL;
-        ((RegPkWord *)PacketBufferStruct.gif.c)->w[0] =
+        ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
             (((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) << 16) |
             0x6C008000;
         p = PacketBufferStruct.ptr.c;
-        ((RegPkWord *)p)->w[0] = 0x15000000;
+        ((GifPkWord *)p)->w[0] = 0x15000000;
         p += 4;
         PacketBufferStruct.ptr.c = p;
-        ((RegPkWord *)p)->w[0] = 0;
+        ((GifPkWord *)p)->w[0] = 0;
         PacketBufferStruct.ptr.c = p + 4;
-        ((RegPkWord *)(p + 4))->w[0] = 0;
+        ((GifPkWord *)(p + 4))->w[0] = 0;
         PacketBufferStruct.ptr.c = p + 8;
-        ((RegPkWord *)(p + 8))->w[0] = 0;
+        ((GifPkWord *)(p + 8))->w[0] = 0;
         PacketBufferStruct.ptr.c = p + 0xC;
-        ((RegPkWord *)PacketBufferStruct.tail.c)->d =
+        ((GifPkWord *)PacketBufferStruct.tail.c)->d =
             (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
                              4) -
                             1) |
                            0x10000000);
         q = PacketBufferStruct.ptr.c;
         PacketBufferStruct.tail.c = q;
-        ((RegPkWord *)q)->d = 0x60000000;
+        ((GifPkWord *)q)->d = 0x60000000;
         PacketBufferStruct.ptr.c = q + 8;
-        ((RegPkWord *)(q + 8))->w[0] = 0;
+        ((GifPkWord *)(q + 8))->w[0] = 0;
         PacketBufferStruct.ptr.c = q + 0xC;
-        ((RegPkWord *)(q + 8))->w[1] = 0;
+        ((GifPkWord *)(q + 8))->w[1] = 0;
         PacketBufferStruct.ptr.c = q + 0x10;
         dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
         dl_CloseDma();
@@ -1480,12 +1509,12 @@ void reg_DispAccessoryWithShadow(Sub15C *o, Sub15C *src)
 
             c = PacketBufferStruct.ptr.c;
             PacketBufferStruct.tail.c = c;
-            ((RegPkWord *)c)->d = 0x1000000D;
+            ((GifPkWord *)c)->d = 0x1000000D;
             PacketBufferStruct.ptr.c = c + 8;
-            ((RegPkWord *)(c + 8))->w[0] = 0;
+            ((GifPkWord *)(c + 8))->w[0] = 0;
             PacketBufferStruct.ptr.c = c + 0xC;
             PacketBufferStruct.gif.c = c + 0xC;
-            ((RegPkWord *)(c + 8))->w[1] = 0x6C0C8000;
+            ((GifPkWord *)(c + 8))->w[1] = 0x6C0C8000;
             PacketBufferStruct.ptr.c = c + 0x50;
             _CopyMatrix(c + 0x10, matrixptr + 0x140);
             _MulMatrix(PacketBufferStruct.ptr.c, matrixptr + 0x200, matrixptr + 0x40);
@@ -1493,11 +1522,11 @@ void reg_DispAccessoryWithShadow(Sub15C *o, Sub15C *src)
             _MulMatrix(PacketBufferStruct.ptr.c, matrixptr + 0x80, matrixptr + 0x40);
             m = PacketBufferStruct.ptr.c;
             PacketBufferStruct.ptr.c = m + 0x40;
-            ((RegPkWord *)(m + 0x40))->w[0] = 0x15000010;
+            ((GifPkWord *)(m + 0x40))->w[0] = 0x15000010;
             PacketBufferStruct.ptr.c = m + 0x44;
-            ((RegPkWord *)(m + 0x40))->w[1] = 0;
+            ((GifPkWord *)(m + 0x40))->w[1] = 0;
             PacketBufferStruct.ptr.c = m + 0x48;
-            ((RegPkWord *)(m + 0x48))->d = 0;
+            ((GifPkWord *)(m + 0x48))->d = 0;
             PacketBufferStruct.ptr.c = m + 0x50;
         }
         void setLight(void)
@@ -1508,24 +1537,24 @@ void reg_DispAccessoryWithShadow(Sub15C *o, Sub15C *src)
 
             c = PacketBufferStruct.ptr.c;
             PacketBufferStruct.tail.c = c;
-            ((RegPkWord *)c)->d = 0x10000009;
+            ((GifPkWord *)c)->d = 0x10000009;
             PacketBufferStruct.ptr.c = c + 8;
-            ((RegPkWord *)(c + 8))->w[0] = 0;
+            ((GifPkWord *)(c + 8))->w[0] = 0;
             PacketBufferStruct.ptr.c = c + 0xC;
             PacketBufferStruct.gif.c = c + 0xC;
-            ((RegPkWord *)(c + 8))->w[1] = 0x6C088000;
+            ((GifPkWord *)(c + 8))->w[1] = 0x6C088000;
             PacketBufferStruct.ptr.c = c + 0x10;
             _GetCurrentMatrix(c + 0x10);
             m = PacketBufferStruct.ptr.c;
             PacketBufferStruct.ptr.c = m + 0x80;
             _CopyMatrix(m + 0x40, (char *)o->lightMtx + 64);
             n = PacketBufferStruct.ptr.c;
-            ((RegPkWord *)n)->w[0] = 0x15000012;
+            ((GifPkWord *)n)->w[0] = 0x15000012;
             n += 4;
             PacketBufferStruct.ptr.c = n;
-            ((RegPkWord *)n)->w[0] = 0;
+            ((GifPkWord *)n)->w[0] = 0;
             PacketBufferStruct.ptr.c = n + 4;
-            ((RegPkWord *)(n + 4))->d = 0;
+            ((GifPkWord *)(n + 4))->d = 0;
             PacketBufferStruct.ptr.c = n + 0xC;
         }
         char *pkt;
@@ -1571,11 +1600,11 @@ void reg_DispAccessoryWithShadow(Sub15C *o, Sub15C *src)
             char *c = PacketBufferStruct.ptr.c;
 
             PacketBufferStruct.tail.c = c;
-            ((RegPkWord *)c)->d = 0x60000000;
+            ((GifPkWord *)c)->d = 0x60000000;
             PacketBufferStruct.ptr.c = c + 8;
-            ((RegPkWord *)(c + 8))->w[0] = 0;
+            ((GifPkWord *)(c + 8))->w[0] = 0;
             PacketBufferStruct.ptr.c = c + 0xC;
-            ((RegPkWord *)(c + 8))->w[1] = 0;
+            ((GifPkWord *)(c + 8))->w[1] = 0;
             PacketBufferStruct.ptr.c = c + 0x10;
         }
         return pkt;
@@ -1718,20 +1747,20 @@ void reg_DispEnemy(void *sub)
             n = o->nodeNum * 4;
             c = PacketBufferStruct.ptr.c;
             PacketBufferStruct.tail.c = c;
-            *(long long *)c = n | 0x10000002;
+            ((RegClusterHead *)c)->dma.tag = n | 0x10000002;
             PacketBufferStruct.ptr.c = c + 8;
-            *(int *)(c + 8) = 0x11000000;
+            ((RegClusterHead *)c)->dma.vif[0] = 0x11000000;
             PacketBufferStruct.ptr.c = c + 0xC;
             PacketBufferStruct.gif.c = c + 0xC;
-            *(int *)(c + 0xC) = ((n + 1) << 16) | 0x6C008000;
+            ((RegClusterHead *)c)->dma.vif[1] = ((n + 1) << 16) | 0x6C008000;
             PacketBufferStruct.ptr.c = c + 0x10;
-            *(int *)(c + 0x10) = n + 1;
+            ((RegClusterHead *)c)->qwc = n + 1;
             PacketBufferStruct.ptr.c = c + 0x14;
             *(int *)(c + 0x14) = 0;
             PacketBufferStruct.ptr.c = c + 0x18;
             *(int *)(c + 0x18) = 0;
             PacketBufferStruct.ptr.c = c + 0x1C;
-            *(float *)(c + 0x1C) = alpha;
+            ((RegClusterHead *)c)->alpha = alpha;
             PacketBufferStruct.ptr.c = c + 0x20;
             for (i = 0; i < o->nodeNum; i++) {
                 _MulMatrix(PacketBufferStruct.ptr.c, (char *)o->nodeMtx + i * 64,
@@ -1753,11 +1782,11 @@ void reg_DispEnemy(void *sub)
             char *c = PacketBufferStruct.ptr.c;
 
             PacketBufferStruct.tail.c = c;
-            *(long long *)c = 0x60000000;
+            ((DpkTag *)c)->tag = 0x60000000;
             PacketBufferStruct.ptr.c = c + 8;
-            *(int *)(c + 8) = 0;
+            ((DpkTag *)c)->vif[0] = 0;
             PacketBufferStruct.ptr.c = c + 0xC;
-            *(int *)(c + 0xC) = 0;
+            ((DpkTag *)c)->vif[1] = 0;
             PacketBufferStruct.ptr.c = c + 0x10;
         }
         for (i = 0; i < 13; i++) {
