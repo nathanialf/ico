@@ -18,5 +18,6 @@ void SetCageVelocityFriction(struct GObj *a0, float a1);
 void StabilizeAllLayoutedCage(void);
 void SetCageChainHangableFlag(struct GObj *a0, int a1);
 void HotInitCageGeo(struct GObj *self);
+void SetCageFixGeometry(struct GObj *self, void *pos, void *dir);
 
 #endif /* CAGE_H */

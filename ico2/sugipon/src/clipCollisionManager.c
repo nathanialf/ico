@@ -31,7 +31,7 @@ typedef struct ClipColWork { /* field names derived */
 
 /* `self` is volatile: the thread yields in _ACTWait below, and the entry
    argument is read back from its stack home after each resume. */
-void actClipCollisionCore(volatile unsigned int self)
+static void actClipCollisionCore(volatile unsigned int self)
 {
     ClipColWork *w = *(ClipColWork **)(self + 0x20);
     float a[4];

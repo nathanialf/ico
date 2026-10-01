@@ -154,8 +154,8 @@ void initFallDown(GObj *a0)
     }
 }
 
-/* this file does not include matrixDrive.h, whose FSqrt and AddVectorXYZ
-   prototypes do not fit its uses of them */
+/* motionManager2.c's; motionManager2.h cannot declare it while act.c keeps
+   its own void * extern */
 extern void GetLowerPlaneCollision(void *work, void *pos);
 
 int checkFieldContact(GObj *a0, float lim)
@@ -192,9 +192,6 @@ int checkFieldContact(GObj *a0, float lim)
     }
     return 0;
 }
-
-/* this file does not include geometryManager.h, whose GetRootMatrix and
-   GetCharGObjList prototypes do not fit its uses of them */
 
 /* Inlined into execNormalMove twice (once with ClipWall, once with
    ClipWallBoxStop) and into inertiaMove once; the two constant arguments
@@ -415,12 +412,6 @@ int AlignBox(GObj *a0, float grid)
     q->mode = 0;
     return 0;
 }
-
-/* declared here: box.c includes no header that declares the ios allocators
-   (ico2/fumi/include/memory.h has them with an IosMemPart * partition) */
-/* this file's view of ios.c's partition handle is a pointer (ios.h
-   declares the handles int) */
-extern GenGeo objLayout[];
 
 /* Lines 558 to 560 are one call-site line, the same DObj-buffer setup
    ico2/omori/src/chain.c expands by hand in InitChainGeo: the wheel count is

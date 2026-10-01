@@ -10,14 +10,6 @@
 
 extern int targetMemo;
 
-int EditTarget(int id);
 int EffectTool(void);
-void dispCircle2(float rad, short elev, int step);
-void dispEffectToolField(int idx);
-void dispXZYZCircle(float rad, int from, int to, int step);
-int editParam(int id, int sel);
-int execEffectTool(void);
-void moveEffectToolGeometry(int idx);
-int saveEffectData(int id);
 
 #endif /* EFFECTTOOL_H */

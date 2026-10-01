@@ -30,7 +30,9 @@ static float windStrength[256]; /* derived name */
 
 static WindCell windCell[20][20]; /* derived name */
 
-float *getRadiateWindVector(float *power, float *pos);
+static float *dummyGetWindVector(float *power, float *pos);
+static float *getParallelWindVector(float *power, float *pos);
+static float *getRadiateWindVector(float *power, float *pos);
 
 /* the wind field's sampler: none, the radial cells or the parallel plane */
 static float *(*windVectorFunc)(float *power, float *pos) = dummyGetWindVector; /* derived name */
@@ -223,14 +225,14 @@ float *GetWindVector(float *power, float *pos)
     return windVectorFunc(power, pos);
 }
 
-float *dummyGetWindVector(float *power, float *pos)
+static float *dummyGetWindVector(float *power, float *pos)
 {
     if (power)
         *power = 0.0f;
     return ZeroVector;
 }
 
-float *getParallelWindVector(float *power, float *pos)
+static float *getParallelWindVector(float *power, float *pos)
 {
     float d;
     float s;
@@ -250,7 +252,7 @@ float *getParallelWindVector(float *power, float *pos)
     return windVector;
 }
 
-float *getRadiateWindVector(float *power, float *pos)
+static float *getRadiateWindVector(float *power, float *pos)
 {
     int x;
     int z;

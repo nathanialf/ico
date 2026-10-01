@@ -211,6 +211,7 @@ int ExecutePauseSlipProc(struct GObj *a0);
 void ExecMotionOrient(void *self);
 float GetMotionPlaySpeedRatio(int id);
 int GetNbMotionFrames(int id);
+int UpdateFrameCounter(void *self);
 char *SetMotionRequest(void *self, int mot, MotOriReq req);
 void SetNodeRotationLimitDataTable(void *self, int a1, int a2);
 void getMotionGeometry(void *self);

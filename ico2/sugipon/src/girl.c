@@ -127,8 +127,6 @@ static void dispCrown(GObj *gobj, char *acc)
     }
 }
 
-static void dispCrown(GObj *gobj, char *acc);
-
 /* file-static: boy.c has a global function of the same name */
 static void dispClothes(GObj *gobj)
 {

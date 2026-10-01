@@ -75,7 +75,7 @@ static EffParamDef effParam[] = {
     {0},
 }; /* derived name */
 
-void _dispParam(int *pkg, int idx, int x, int y, int col)
+static void _dispParam(int *pkg, int idx, int x, int y, int col)
 {
     char lbl[256];
     char val[256];
@@ -129,7 +129,7 @@ static int effectToolDirty[64]; /* derived name */
 
 static float effectToolPos[4]; /* derived name */
 
-int editParam(int id, int sel)
+static int editParam(int id, int sel)
 {
     EffParamDef *e = &effParam[sel];
     int *pkg = GetParticleEffectPackage(id);
@@ -277,7 +277,7 @@ static inline void drawEdge(EffVec *p0, EffVec *p1, EffCol *c) /* derived name *
     DrawLineG(p0, &dim, p1, &dim, -1);
 }
 
-void dispXZYZCircle(float rad, int from, int to, int step)
+static void dispXZYZCircle(float rad, int from, int to, int step)
 {
     int i;
 
@@ -301,7 +301,7 @@ void dispXZYZCircle(float rad, int from, int to, int step)
     }
 }
 
-void dispCircle2(float rad, short elev, int step)
+static void dispCircle2(float rad, short elev, int step)
 {
     EffVec o;
     int i;
@@ -341,14 +341,14 @@ static int savedTarget = 0; /* derived name */
 
 int targetMemo = 0;
 
-void setQ(int *self)
+static void setQ(int *self)
 {
     SetIdentityQuaternion(self);
     RotQuaternionY(self, -viewRotY);
     RotQuaternionX(self, -viewRotX);
 }
 
-void dispEffectToolField(int idx)
+static void dispEffectToolField(int idx)
 {
     int q[4];
     EffVec o;
@@ -414,7 +414,7 @@ static inline void dispEffectParams(int id, int sel) /* derived name */
     }
 }
 
-int EditTarget(int id)
+static int EditTarget(int id)
 {
     int q[4];
     int n;
@@ -464,7 +464,7 @@ static inline void initEffectTool(void) /* derived name */
     }
 }
 
-int saveEffectData(int id)
+static int saveEffectData(int id)
 {
     int *pkg;
 
@@ -496,7 +496,7 @@ typedef struct { /* field names derived */
     char pad18[8];
 } EffToolStick; /* derived name */
 
-void moveEffectToolGeometry(int idx)
+static void moveEffectToolGeometry(int idx)
 {
     float v[4];
     int padCtx[96 / 4];
@@ -535,7 +535,7 @@ void moveEffectToolGeometry(int idx)
     }
 }
 
-int execEffectTool(void)
+static int execEffectTool(void)
 {
     int q[4];
     int r;
@@ -595,7 +595,7 @@ int execEffectTool(void)
     return r;
 }
 
-void exitEffectTool(void)
+static void exitEffectTool(void)
 {
     DeleteParticleEffect(effectHandle);
     effectHandle = -1;

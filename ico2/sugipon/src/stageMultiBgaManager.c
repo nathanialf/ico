@@ -14,9 +14,6 @@ static int stageBgaCount = 0; /* derived name */
 
 #include "stageMultiBgaManager.h"
 
-void EntryStageMultiBgaManagerSensitiveWithStay(int kind, void *pos, void *rot, void *vel,
-                                                int stay);
-
 inline void InitStageMultiBgaManager(void)
 {
     int i;

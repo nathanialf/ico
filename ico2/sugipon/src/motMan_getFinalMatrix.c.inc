@@ -271,9 +271,6 @@ void avoidReverseInterpOnCurrentMatrixWithLimit(float *q, MotLimAng *info, void 
     }
 }
 
-/* float (int) here, float (char *) in weapon.h */
-extern float GetWeaponWeight(int w);
-
 /* The arm IK's angles: the shoulder's turns about Z and Y and the two
    joints' bends. */
 static short ikRotZ = 0; /* derived name */

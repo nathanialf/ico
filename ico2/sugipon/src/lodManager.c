@@ -1,10 +1,7 @@
 #include "debug.h"
 #include "motionManager2.h"
 #include "lodManager.h"
-
-/* typedef.h holds the record but no declaration of the table, which every
-   reader declares itself */
-extern ObjKindEnt objKindData[];
+#include "gamesys.h"
 
 /* Two node lists and the two parallel tables SetLodLevel indexes by the LOD
    level: level 0 is the demo mode

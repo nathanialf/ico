@@ -116,7 +116,7 @@ static EnemyFootPrint footPrintVtxTemplate = {-1, 1.0f}; /* derived name */
    calls */
 static inline PointBlur *initPointBlurAt(int num, int a1, int *col, void *pos) /* derived name */
 {
-    PointBlur *p = (PointBlur *)iosMallocDebug(ios_partition_sugipon, 0x40, "src/enemyParts.c", 16);
+    PointBlur *p = (PointBlur *)iosMallocDebug(ios_partition_sugipon, 64, "src/enemyParts.c", 16);
     *p = pointBlurTemplate;
 
     p->pri = a1;

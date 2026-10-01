@@ -50,7 +50,7 @@ typedef struct {   /* field names derived */
     int lastTable; /* 0x04 */
 } NodeRec;         /* derived name */
 
-void pursueNodeList(void **node, unsigned char *type)
+static void pursueNodeList(void **node, unsigned char *type)
 {
     int i;
     int ofs;

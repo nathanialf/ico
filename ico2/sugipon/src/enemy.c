@@ -1,5 +1,6 @@
 #include "typedef.h"
 #include "enemy.h"
+#include "act_a_p_1.h"
 #include "sugiCommon.h"
 #include "charFileManager.h"
 #include "debug.h"
@@ -554,16 +555,13 @@ void DisplayEnemy(GObj *self)
     }
 }
 
-/* declared here: act_a_p_1.h does not compile in this file (too few arguments to function `IsActCharDead') */
-extern int IsActCharDead();
-
 void EnemyDL(GObj *self)
 {
     Act *sub = GOBJ_ACT(self);
     unsigned long long flag = sub->flags18.ll;
     if (((flag >> 33) & 1) == 0)
         return;
-    IsActCharDead();
+    IsActCharDead(self);
     if (isEnemyHyde(self) != 0)
         return;
     DisplayEnemy(self);

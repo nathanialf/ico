@@ -972,7 +972,7 @@ void PickupWeapon(GObj *a0, GObj *a1, int a2)
 
     p->holder = a1;
     p->holderId = GetSkeltonFocusNode(a1, a2);
-    GOBJ_SUB(a1)->ctrl.pickedWeapon = (int)a0;
+    GOBJ_SUB(a1)->ctrl.pickedWeapon = a0;
 }
 
 GObj *CheckSwapableWeapon(GObj *a0, float dist)

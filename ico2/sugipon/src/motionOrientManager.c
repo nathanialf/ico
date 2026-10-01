@@ -5,9 +5,14 @@
 #include "frameDependSequence.h"
 #include "matrixDrive.h"
 #include "motionManager.h"
+#include "motionManager2.h"
+#include "geometryManager.h"
+#include "wireLetter.h"
+#include "obj_manager.h"
 #include "quaternion.h"
 #include "motionOrientManager.h"
 #include <stdio.h>
+#include <assert.h>
 #include "streamMotionManager.h"
 #include "tableSin.h"
 #include "typedef.h"
@@ -26,8 +31,6 @@
 float ropeInterRate = 0.0f; /* derived name */
 
 extern MotionOrientEntry motionOrient[];
-/* as in motionManager2.h, which this file does not include */
-extern void CopyMotion(void *dst, void *src, int n);
 
 struct MotOriHead8 { /* field names derived */
     long long v;
@@ -568,9 +571,6 @@ void shiftMotionData(int a0, int a1, int a2, int a3)
     }
 }
 
-/* void (void *) here, void (char *) in motionManager2.h */
-extern void FeedbackWallWorkInfoToBrainSystem(void *self);
-
 void shiftMotionOrientEndFunc(void *self)
 {
     struct MotCtrl *w = &MOWORK(self)->ctrl;
@@ -621,9 +621,6 @@ inline void CopyBlendMotionDataSource(void *self, short ang)
         i = MOWORK(self)->skel[i].sibling;
     }
 }
-
-/* void (void *, float) here, void (GObj *, float) in motionManager2.h */
-extern void GetOutOutsideOfWall(void *self, float d);
 
 void shiftMotionOrientBeginFunc(void *self, int a1, int a2, int a3)
 {
@@ -892,10 +889,9 @@ inline void SetParallelMotionTable(void *self, int *next, int *req, int from, in
     }
 }
 
-/* this file's uses of GetFloatingMotion do not fit the prototype in motionManager2.h */
+/* motionManager2.c's, in this file's argument order (the float in its own
+   register); motionManager2.h does not declare it */
 extern void GetFloatingMotion(void *dst, float t, float *v, int *mot, int n, int a5, void *skel);
-/* void (void *, void *, void *, int, int) here, void (struct Pack32 *, struct Pack32 *, char *, int, int) in motionManager2.h */
-extern void CopyMotionWithNodeHrc(void *dst, void *src, void *skel, int node, int a4);
 
 void getNodeBlendedFloatingMotion(void *dst, float *root, int id, int n, int a4, void *self,
                                   float t)
@@ -940,16 +936,7 @@ void getNodeBlendedFloatingMotion(void *dst, float *root, int id, int n, int a4,
 /* the slope vector getMotionGeometry normalises for its pitch angle */
 static sceVu0FVECTOR slopeVector = {0.0f, 0.0f, 0.0f, 0.0f}; /* derived name */
 
-/* void (void *, void *) here, void (GObj *, int) in motionManager2.h */
-extern void DispSkelton(void *self, void *m);
-/* as in motionManager2.h, which this file does not include */
-extern void GetBlendedMotion(void *dst, float *dv, void *m1, float *v1, void *m0, float *v0,
-                             float t, int tbl, int n);
-/* void (float *, int *, float) here, void (float *, void *, float) in motionManager2.h */
-extern void GetFloatingMotionRootPos(float *v, int *md, float f);
 extern void MakeMirrorMotion(void *dst, int *p);
-/* void (void *, void *, float *, float *, int) here, void (GObj *, char *, int, Vec4 *) in motionManager2.h */
-extern void SlopeIKControl(void *self, void *m, float *v, float *r, int n);
 
 /* getMotionGeometry is its only caller */
 static inline void getMotionRootPos(struct MotCtrl *w, float *v) /* derived name */
@@ -1193,8 +1180,6 @@ enum DebugDisplayMode {
 }; /* derived name */
 
 extern enum DebugDisplayMode debug_bar_flag;
-/* void (float *, void *, int, float) here, void (float *, char *, float, int) in motionManager2.h */
-extern void GetFloatingShapeMotion(float *dst, void *mot, int n, float frame);
 
 void getShapeGeometry(void *self)
 {
@@ -1208,7 +1193,7 @@ void getShapeGeometry(void *self)
             float buf[n];
             int i;
 
-            GetFloatingShapeMotion(buf, mot, n, m->animFrame);
+            GetFloatingShapeMotion(buf, mot, m->animFrame, n);
             if (n != 0) {
                 int cnt = GOBJ_SUB(self)->morphNum;
 
@@ -1267,9 +1252,6 @@ void getShapeGeometry(void *self)
         }
     }
 }
-
-/* int (void *, float *, void *, int) here, int (char *, float *, char *, char *) in motionManager2.h */
-extern int GetStreamMotion(void *dst, float *v, void *sm, SkelNode *skel);
 
 /* both stream-geometry functions inline it (once and twice) */
 static inline int getStreamVec(void *self, void *sm, float *v, void *mot) /* derived name */
@@ -1336,9 +1318,6 @@ void getStreamBlendMotionGeometry(void *self, void *sm0, void *sm1, float t)
             *p = 0;                                                                                \
         }                                                                                          \
     }
-
-/* as in motionManager2.h, which this file does not include */
-extern int GetStreamShapeMotion(float *dst, void *sm);
 
 void getStreamBlendShapeGeometry(void *self, void *sm0, void *sm1, float t)
 {

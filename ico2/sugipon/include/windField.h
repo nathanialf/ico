@@ -12,7 +12,5 @@ void ExecWindField(float f);
 float *GetWindVector(float *power, float *pos);
 void InitWindField(int mode, float str, void *center, void *dir);
 void drawSenpuukiHaneUnit(float scale);
-float *dummyGetWindVector(float *power, float *pos);
-float *getParallelWindVector(float *power, float *pos);
 
 #endif /* WINDFIELD_H */

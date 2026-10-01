@@ -14,13 +14,14 @@
 #include "memory.h"
 #include "windField.h"
 #include "sceneManager.h"
+#include "DObj.h"
 
 /* the cage's 80-byte work record, InitCageGeo's allocation, kept at +0x830
    of the object's motion work: the cage and chain DObjs, the cage's rotation
    and turn, the chains InitChains builds and the swing state */
-typedef struct {  /* field names derived */
-    Sub15C *dobj; /* 0x00 */
-    char *dobj2;  /* 0x04 */
+typedef struct {   /* field names derived */
+    Sub15C *dobj;  /* 0x00 */
+    Sub15C *dobj2; /* 0x04 */
     char pad08[8];
     float rot[4];     /* 0x10 */
     char *chains;     /* 0x20 */
@@ -117,10 +118,10 @@ char *InitCageGeo(char *self, SObjSimpleSetting *lay)
 
     w = (CageWork *)iosMallocDebug((void *)ios_partition_sugipon, 80, __FILE__, 97);
     ch = (char *)iosMallocDebug((void *)ios_partition_sugipon, 160, __FILE__, 98);
-    w->dobj = (Sub15C *)CSVSYSTEM_InitDObj(
-        accessary[((SubHandle *)(self + 0x15C))->sub->accessary].model, (float *)lay);
-    w->dobj2 = CSVSYSTEM_InitDObj(accessary[((SubHandle *)(self + 0x15C))->sub->accessary].model2,
-                                  (float *)lay);
+    w->dobj =
+        CSVSYSTEM_InitDObj(accessary[((SubHandle *)(self + 0x15C))->sub->accessary].model, lay);
+    w->dobj2 =
+        CSVSYSTEM_InitDObj(accessary[((SubHandle *)(self + 0x15C))->sub->accessary].model2, lay);
     w->damping = 0.995f;
     w->mass = lay->scale[0];
     ((CageChainParam *)ch)[0] = cageChainParam[0];

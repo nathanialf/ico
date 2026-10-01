@@ -226,9 +226,9 @@ inline int CheckRopeUpperWallClimbable(int a0, GObj *a1)
     return *(int *)((char *)GOBJ_SUB(a1)->work + 4);
 }
 
-void SetRopeFixPoint(GObj *a0, void *a1)
+void SetRopeFixPoint(GObj *rope, void *pos, int flag)
 {
-    CopyVector(**(char ***)((char *)GOBJ_SUB(a0)->work) + 0x20, a1);
+    CopyVector(**(char ***)((char *)GOBJ_SUB(rope)->work) + 0x20, pos);
 }
 
 /* The actor's 0x15C sub-object slot: the engine stores a different per-actor
@@ -276,7 +276,7 @@ inline void ReleaseRope(void) {}
 /* as in clothAnimation.h, which this file does not include */
 extern void GetChainAnimation(void *sys, int obj, void *mtx);
 
-void ropeGeo(void *a0)
+static void ropeGeo(void *a0)
 {
     void **obj = *(void ***)((char *)*(void **)((char *)a0 + 0x15C) + 0x830);
 

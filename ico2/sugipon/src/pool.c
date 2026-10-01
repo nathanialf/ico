@@ -3,6 +3,7 @@
 #include "pool.h"
 #include "memory.h"
 #include "DisplayP2O.h"
+#include "DObj.h"
 #include "GsBase.h"
 #include "Primitive.h"
 #include "RegistPacket.h"
@@ -131,7 +132,7 @@ typedef struct {          /* field names derived */
     PoolRipple ripple[5]; /* 0x50 */
     int rippleNo;         /* 0xC8 */
     short phase;          /* 0xCC */
-    char *dobj;           /* 0xD0, the reflected stage object or 0 */
+    Sub15C *dobj;         /* 0xD0, the reflected stage object or 0 */
     int spin;             /* 0xD4 */
 } PoolWork;               /* derived name */
 
@@ -635,7 +636,7 @@ void dispPool(GObj *self)
     reg_RenderReflection(GOBJ_SUB(self), 4);
 
     if (w->dobj != 0) {
-        CopyMatrix(MatrixDrive_GetMatrix(), w->dobj + 0x20);
+        CopyMatrix(MatrixDrive_GetMatrix(), &w->dobj->matrix);
         switch (stage_no) {
         case 101:
             MatrixDrive_RotMatrixZ((w->spin << 16) / 1600);
@@ -644,9 +645,9 @@ void dispPool(GObj *self)
             MatrixDrive_RotMatrixZ(-(w->spin << 16) / 1600);
         }
 
-        CopyMatrix(*(char **)(w->dobj + 0xC), MatrixDrive_GetMatrix());
+        CopyMatrix((char *)w->dobj->nodeMtx, MatrixDrive_GetMatrix());
 
-        reg_RenderReflection((Sub15C *)w->dobj, 4);
+        reg_RenderReflection(w->dobj, 4);
 
         if (systemStatus[5] == 0) {
             if (++w->spin > 1600) {

@@ -12,6 +12,7 @@
 #include "main.h"
 #include "GifPacket.h"
 #include "DmaPacket.h"
+#include "DisplayList.h"
 
 /* the centre the game-over dark volume and its shock ring spread from, and
    the position of the ordinary dark volume, both homogeneous points */
@@ -278,11 +279,6 @@ void renderViewCoordZSphere(void *pos, DVColor col, int neg, float r)
 
 inline void ExecGameOverEffect(void) {}
 
-void dl_SetDLPriority(int a0);
-void dl_OpenDma(int a0, int a1, int a2);
-void dl_CloseDma(void);
-void gif_EndPacket(void);
-
 /* the packet writer's cursor check, built only when DEBUG is defined */
 static __inline__ void dvCheckPacket(char *p) /* derived name */
 {
@@ -405,7 +401,7 @@ void sonic(void *pos, float t)
         PacketBufferStruct.ptr.c = q + 0xC;
         ((GifPkWord *)(q + 8))->w[1] = 0;
         PacketBufferStruct.ptr.c = q + 0x10;
-        dl_OpenDma(5, (int)PacketBufferStruct.dma.c, 0);
+        dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
         dl_CloseDma();
     }
     gif_StartPacketPri(10);
@@ -477,7 +473,7 @@ void sonic(void *pos, float t)
         PacketBufferStruct.ptr.c = q + 0xC;
         ((GifPkWord *)(q + 8))->w[1] = 0;
         PacketBufferStruct.ptr.c = q + 0x10;
-        dl_OpenDma(5, (int)PacketBufferStruct.dma.c, 0);
+        dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
         dl_CloseDma();
     }
     dl_SetDLPriority(10);
@@ -549,7 +545,7 @@ void sonic(void *pos, float t)
         PacketBufferStruct.ptr.c = q + 0xC;
         ((GifPkWord *)(q + 8))->w[1] = 0;
         PacketBufferStruct.ptr.c = q + 0x10;
-        dl_OpenDma(5, (int)PacketBufferStruct.dma.c, 0);
+        dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
         dl_CloseDma();
     }
 }
@@ -615,7 +611,7 @@ void darkVolume(void *pos, float a1, float a2, float a3)
         PacketBufferStruct.ptr.c = q + 0xC;
         ((GifPkWord *)(q + 8))->w[1] = 0;
         PacketBufferStruct.ptr.c = q + 0x10;
-        dl_OpenDma(5, (int)PacketBufferStruct.dma.c, 0);
+        dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
         dl_CloseDma();
     }
     gif_StartPacketPri(10);
@@ -688,7 +684,7 @@ void darkVolume(void *pos, float a1, float a2, float a3)
         PacketBufferStruct.ptr.c = q + 0xC;
         ((GifPkWord *)(q + 8))->w[1] = 0;
         PacketBufferStruct.ptr.c = q + 0x10;
-        dl_OpenDma(5, (int)PacketBufferStruct.dma.c, 0);
+        dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
         dl_CloseDma();
     }
 }
@@ -711,17 +707,17 @@ static float darkVolumeTarget = 0; /* derived name */
 
 /* arm the game-over dark volume, shared by StartGameOverEffect and
    StartQueenAttackEffect */
-static inline void setGameOverEffect(int a0, float t) /* derived name */
+static inline void setGameOverEffect(float *center, float speed) /* derived name */
 {
     gameOverActive = 1;
     gameOverRadius = 0;
     gameOverRing = 1;
     gameOverQueen = 0;
-    CopyVector(gameOverCenter, a0);
-    gameOverSpeed = t;
+    CopyVector(gameOverCenter, center);
+    gameOverSpeed = speed;
 }
 
-inline void StartGameOverEffect(int a0, float t)
+inline void StartGameOverEffect(float *center, float speed)
 {
     if (girlGObj != 0) {
         ExecuteSEPackage(girlGObj, 0x7A);
@@ -730,12 +726,12 @@ inline void StartGameOverEffect(int a0, float t)
         ExecuteSEPackage(girlGObj, 0x7D);
         ExecuteSEPackage(girlGObj, 0x7E);
     }
-    setGameOverEffect(a0, t);
+    setGameOverEffect(center, speed);
 }
 
-inline void StartQueenAttackEffect(int a0, float t)
+inline void StartQueenAttackEffect(float *center, float speed)
 {
-    setGameOverEffect(a0, t);
+    setGameOverEffect(center, speed);
     gameOverQueen = 1;
     gameOverRing = 0;
 }
@@ -746,10 +742,10 @@ inline void ResetGameOverEffect(void)
     gameOverRing = 0;
 }
 
-void SetDarkVolumeEffect(int a0, float a1)
+void SetDarkVolumeEffect(float *pos, float size)
 {
-    darkVolumeTarget = a1;
-    CopyVector(darkVolumeCenter, (void *)a0);
+    darkVolumeTarget = size;
+    CopyVector(darkVolumeCenter, pos);
 }
 
 /* the per-object hit test, inlined at all three sites */

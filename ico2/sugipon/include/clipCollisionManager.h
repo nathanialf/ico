@@ -14,6 +14,5 @@
 void *RequestClipCollision(int *a0);
 
 int CreateClipCollisionManagerGObj(void);
-void actClipCollisionCore(volatile unsigned int self);
 
 #endif /* CLIPCOLLISIONMANAGER_H */

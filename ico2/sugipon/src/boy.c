@@ -730,9 +730,6 @@ void actionOfWater(GObj *gobj)
     }
 }
 
-void synchronizeMotionOutputOriginForGirl(GObj *gobj);
-void actionOfWater(GObj *gobj);
-
 void BoyGeo(GObj *gobj)
 {
     HandManager(gobj);
@@ -802,7 +799,6 @@ inline void SetBoyStonizedVisual(GObj *a0)
 
 /* float (int, void *, void *, float) here, float (int, float, void *, void *) in StageAnimation.h */
 extern float stage_PlayBgAnimation(int obj, void *a1, void *a2, float f);
-void dispSubParts(GObj *gobj);
 
 void BoyDL(GObj *gobj)
 {

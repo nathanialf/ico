@@ -3,6 +3,7 @@
 #include "memory.h"
 #include "geometryManager.h"
 #include "matrixDrive.h"
+#include "gamesys.h"
 
 /* Per-object force-field state, hung off the actor's sub-object by the caller
    (GirlForceFieldDL reads it back at sub+0x830). */
@@ -37,9 +38,7 @@ inline GirlForceFieldWork *InitGirlForceFieldGeo(char *self, SObjSimpleSetting *
 
 inline void GirlForceFieldGeo(void) {}
 
-/* The stage's object layout (indexed by the GObj's labelId) and the action
-   table its rows select into. */
-extern GenGeo objLayout[];
+/* the action table the layout rows select into */
 extern OaRecB objAction[];
 
 void GirlForceFieldDL(GObj *self)

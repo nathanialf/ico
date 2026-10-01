@@ -27,8 +27,6 @@ extern int GetWaterReaction(void *w, int *hit, void *plane, void *pos, void *vel
 extern void ClipWallWaveForce(void *a0);
 /* as in fieldCollision.h, which this file does not include */
 extern int ClipWallEField(void *a0);
-/* as in fieldCollision.h, which this file does not include */
-extern float GetDistanceFromPlane(void *plane, void *pos);
 /* as in geometryManager.h, which this file does not include */
 extern float GetProjectionOfPlane(void *out, void *plane, void *pos);
 
@@ -984,9 +982,6 @@ ObjNode rootUpdateXZ_MotPos(int kind, int no)
     skelRoot->standNode = no;
     return ret;
 }
-
-/* as in fieldCollision.h, which this file does not include */
-extern float GetDistanceFromPlane(void *a0, void *a1);
 
 int adjustSideWall(ClipBuf *w, int a1, Vec16 *wallPlane)
 {

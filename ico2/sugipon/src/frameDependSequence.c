@@ -518,7 +518,7 @@ inline int checkModelDataID(GObj *a0, int a1)
 
 inline int checkWeaponType(GObj *a0, int a1)
 {
-    GObj *w = (GObj *)GOBJ_SUB(a0)->ctrl.pickedWeapon;
+    GObj *w = GOBJ_SUB(a0)->ctrl.pickedWeapon;
     if (w != 0 && CheckWeaponKind(w) == a1) {
         return 1;
     }
@@ -542,11 +542,11 @@ inline int execWeaponLightOff(void)
     Sub15C *p;
     GObj *q;
     p = GOBJ_SUB(fdsGObj);
-    q = (GObj *)p->ctrl.pickedWeapon;
+    q = p->ctrl.pickedWeapon;
     if (q != 0) {
         if (CheckWeaponKind(q) == 1) {
             Sub15C *r = GOBJ_SUB(fdsGObj);
-            LightTorchOffOfWeapon((GObj *)r->ctrl.pickedWeapon);
+            LightTorchOffOfWeapon(r->ctrl.pickedWeapon);
         }
     }
     return 1;

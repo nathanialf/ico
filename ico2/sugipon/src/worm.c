@@ -11,7 +11,7 @@ void GetWormCaptureVector(void *out, GObj *act, void *node, float scale);
 /* nonzero until the first worm has been set up */
 static int wormFirst = 1; /* derived name */
 
-void disp(GObj *act);
+static void disp(GObj *act);
 
 /* A 16-byte GS colour: four 8-bit RGBA components, one per word, handed to
    DrawLine through the float view the call expects. */
@@ -74,7 +74,7 @@ typedef struct { /* field names derived */
     float ratio;
 } WormWork; /* derived name */
 
-void simulate(WormVec *v, int n, float len);
+static void simulate(WormVec *v, int n, float len);
 void GetWormRoute(GObj *act, WormVec *target);
 
 #include "worm.h"
@@ -86,7 +86,7 @@ void GetWormRoute(GObj *act, WormVec *target);
 #include "GifPacket.h"
 #include "ios.h"
 
-void outerProcess(GObj *act)
+static void outerProcess(GObj *act)
 {
     float v[4];
     float p[4];
@@ -94,15 +94,14 @@ void outerProcess(GObj *act)
 
     if ((pad[1].flags & 0x20) != 0) {
         n = GetSkeltonFocusNode(boyGObj, 22);
-        GetWormRoute(act, (WormVec *)((char *)GOBJ_SUB(boyGObj)->nodeMtx + n * 0x40 + 0x30));
+        GetWormRoute(act, (WormVec *)((char *)GOBJ_SUB(boyGObj)->nodeMtx + n * 64 + 48));
         SetWormReduceRatio(act, 1.0f);
     }
 
     if ((pad[1].now & 0x40) != 0) {
         n = GetSkeltonFocusNode(boyGObj, 22);
-        SetDirectWormTargetPos(act, (char *)GOBJ_SUB(boyGObj)->nodeMtx + n * 0x40 + 0x30);
-        GetWormCaptureVector(v, (void *)act, (char *)GOBJ_SUB(boyGObj)->nodeMtx + n * 0x40 + 0x30,
-                             5.0f);
+        SetDirectWormTargetPos(act, (char *)GOBJ_SUB(boyGObj)->nodeMtx + n * 64 + 48);
+        GetWormCaptureVector(v, act, (char *)GOBJ_SUB(boyGObj)->nodeMtx + n * 64 + 48, 5.0f);
         GetRootPosition(p, boyGObj);
         sceVu0AddVector(p, p, v);
         SetDirectRootPosition(boyGObj, p);
@@ -112,7 +111,7 @@ void outerProcess(GObj *act)
     }
 }
 
-void simulate(WormVec *v, int n, float len)
+static void simulate(WormVec *v, int n, float len)
 {
     float d[4];
     float acc[4];
@@ -170,7 +169,7 @@ void simulate(WormVec *v, int n, float len)
     }
 }
 
-void getAnimation(GObj *act)
+static void getAnimation(GObj *act)
 {
     float tmp[4];
     WormWork *w = GOBJ_SUB(act)->work;
@@ -202,7 +201,7 @@ void getAnimation(GObj *act)
     }
 }
 
-void disp(GObj *act)
+static void disp(GObj *act)
 {
     unsigned short ax;
     unsigned short az;
@@ -229,7 +228,7 @@ void disp(GObj *act)
             MatrixDrive_PushMatrix();
             MatrixDrive_ScaleMatrix(2.0f, len[j - 1] * 0.02f, 2.0f);
             MatrixDrive_RotMatrixX(-0x8000);
-            CopyMatrix((char *)GOBJ_SUB(act)->nodeMtx + (j * 0x40 - 0x40), MatrixDrive_GetMatrix());
+            CopyMatrix((char *)GOBJ_SUB(act)->nodeMtx + (j * 64 - 64), MatrixDrive_GetMatrix());
             MatrixDrive_PopMatrix();
 
             if (j == num - 1) {
@@ -259,15 +258,16 @@ void disp(GObj *act)
     }
 }
 
-/* a work word read as a float or as an int */
+/* the work record's reduce word as SetWormReduceRatio stores it; a store
+   through WormWork moves WormGeo's reload of the work pointer (measured) */
 typedef union { /* field names derived */
     float f;
     int i;
 } WormFI; /* derived name */
 
-inline void SetWormReduceRatio(GObj *a0, float f12)
+inline void SetWormReduceRatio(GObj *act, float ratio)
 {
-    ((WormFI *)((char *)GOBJ_SUB(a0)->work + 8))->f = f12;
+    ((WormFI *)((char *)GOBJ_SUB(act)->work + 8))->f = ratio;
 }
 
 void GetWormRoute(GObj *act, WormVec *target)
@@ -335,7 +335,7 @@ inline void TraceWormRoute(GObj *act, float t)
 }
 
 /* restart the worm's route; used only by WormGeo */
-static inline void ResetWormRoute(int act, WormWork *w) /* derived name */
+static inline void ResetWormRoute(GObj *act, WormWork *w) /* derived name */
 {
     WormRoute *r = w->route;
     int i;
@@ -398,6 +398,8 @@ void *InitWormGeo(GObj *act, WormInit *ini)
     w->ratio = 1.0f;
     w->route = (WormRoute *)InitChains((char *)seg);
 
+    /* the first node's angle words cleared as floats; int stores through
+       d->nodes->rot move InitWormGeo's schedule (measured) */
     *(float *)(*(char **)((char *)d + 0x870) + 0x8) = 0.0f;
     *(float *)(*(char **)((char *)d + 0x870) + 0x4) = 0.0f;
     *(float *)(*(char **)((char *)d + 0x870) + 0x0) = 0.0f;
@@ -414,8 +416,8 @@ void *InitWormGeo(GObj *act, WormInit *ini)
     }
     d->nodeMtx = 0;
     d->nodeQuat = 0;
-    d->nodeMtx = (int)iosMallocDebug(ios_partition_seki, num * 0x40, __FILE__, 367);
-    d->nodeQuat = (int)iosMallocDebug(ios_partition_seki, num * 0x10, __FILE__, 367);
+    d->nodeMtx = (int)iosMallocDebug(ios_partition_seki, num * 64, __FILE__, 367);
+    d->nodeQuat = (int)iosMallocDebug(ios_partition_seki, num * 16, __FILE__, 367);
     d->nodeNum = num;
     if ((int)d->nodes != 0) {
         iosFree((int)d->nodes & 0xFFFFFFF);

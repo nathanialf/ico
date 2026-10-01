@@ -899,11 +899,12 @@ void InitMotionGeoInfo(char *self, float x, float y, float z, float rx, float ry
 }
 
 /* The skeleton-display state DispSkelton hands to dispSkeltonHierarchy
-   through file scope: the object, the flag and the nodes.  Nothing reads
-   skelDispFlag back. */
+   through file scope: the object, the motion and the nodes.  Nothing reads
+   skelMotion back.  The motion is held as a word: typed void *, the three
+   stores in DispSkelton reorder (measured). */
 static void *skelGObj; /* derived name */
 
-static int skelDispFlag; /* derived name */
+static int skelMotion; /* derived name */
 
 static SkelNode *skelNodes; /* derived name */
 
@@ -948,11 +949,11 @@ static void dispSkeltonHierarchy(int node)
 /* SetSkeltonDispSwitch's switch for DispSkelton's debug draw */
 static int skeltonDispSwitch = 0; /* derived name */
 
-void DispSkelton(GObj *self, int a1)
+void DispSkelton(GObj *self, int motion)
 {
     /* the skeleton, read as a void * word */
     skelNodes = *(void **)((char *)GOBJ_SUB(self) + 0x8C);
-    skelDispFlag = a1;
+    skelMotion = motion;
     skelGObj = self;
 
     if (skeltonDispSwitch) {
@@ -1007,7 +1008,7 @@ static inline float getSlopeRatio(float d, float rate) /* derived name */
     return (r > 0.3f) ? r : 0.3f;
 }
 
-void SlopeIKControl(GObj *self, char *arg, int a2, Vec4 *vel)
+void SlopeIKControl(GObj *self, char *mot, float *v, Vec4 *vel, int n)
 {
     struct MotCtrl *ik;
     struct MotRoot *sub;
@@ -1028,12 +1029,12 @@ void SlopeIKControl(GObj *self, char *arg, int a2, Vec4 *vel)
                 if (n0 != -1 && n1 != -1) {
                     SkelNode *skel = GOBJ_SUB(self)->skel;
 
-                    calcFootIK(skel, arg, n0, GOBJ_SUB(self)->nodes->scale[0], sub->footIKRate);
-                    calcFootIK(skel, arg, n1, GOBJ_SUB(self)->nodes->scale[0], sub->footIKRate);
+                    calcFootIK(skel, mot, n0, GOBJ_SUB(self)->nodes->scale[0], sub->footIKRate);
+                    calcFootIK(skel, mot, n1, GOBJ_SUB(self)->nodes->scale[0], sub->footIKRate);
                     vel->f[0] = vel->f[0] * sub->footIKRate;
                     vel->f[2] = vel->f[2] * sub->footIKRate;
                 }
-                d = getSlopeDifference(self, arg, (char *)GOBJ_SUB(self));
+                d = getSlopeDifference(self, mot, (char *)GOBJ_SUB(self));
                 rec = ik->motion;
                 r1 = getSlopeRatio(d, motionKind[rec].rate0);
                 r0 = getSlopeRatio(d, motionKind[rec].rate1);
@@ -1628,7 +1629,7 @@ void GetFloatingMotion(StreamElem *dst, float *root, void *motion, int count, un
     }
 }
 
-int MakeMirrorMotion(StreamElem *a, StreamNode *b)
+void MakeMirrorMotion(StreamElem *a, StreamNode *b)
 {
     int i;
     int n;
@@ -2074,12 +2075,9 @@ void ClearMotionGeometryInfo(GObj *self)
     Sub15C *p = self->dobj;
     float *p1 = p->root.focusPos;
     struct MotRoot *p2 = &p->root;
-    int ret;
     CopyVector(p1, ZeroVector);
     sceVu0AddVector(p->root.footPos, p2->pos, p1);
-    ret = -1;
-    p2->standNode = ret;
-    return ret;
+    p2->standNode = -1;
 }
 
 void SetSkeltonDispSwitch(int val)

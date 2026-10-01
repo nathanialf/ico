@@ -9,6 +9,7 @@
 #include "motionOrientManager.h"
 #include "debug.h"
 #include "pool.h"
+#include "weapon.h"
 #include "matrixDrive.h"
 #include "quaternion.h"
 #include "tableSin.h"

@@ -456,7 +456,7 @@ struct MotCtrl {           /* field names derived */
     int slipFlags;     /* 0x1B4 */
     int lastSlipFlags; /* 0x1B8 */
     int slipOn;        /* 0x1BC, the floor slip attribute bits take effect */
-    int pickedWeapon;  /* 0x1C0, the weapon PickupWeapon picked up */
+    GObj *pickedWeapon; /* 0x1C0, the weapon PickupWeapon picked up */
     int keepWall;      /* 0x1C4, nonzero to keep the wall contact over getGeometryOfMotion */
     int keepStand;     /* 0x1C8, nonzero to keep the stand object over getGeometryOfMotion */
     int landed;        /* 0x1CC, 1 for the frame the root comes to stand on a node */
