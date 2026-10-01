@@ -15,6 +15,7 @@
 #include "matrixDrive.h"
 #include "motionManager.h"
 #include "motionOrientManager.h"
+#include "camera-editor.h"
 #include "multiBgaManager.h"
 #include "quaternion.h"
 #include <stdlib.h>
@@ -178,9 +179,6 @@ typedef struct {
 
 static HandClInfo handClInfoClear = {0}; /* derived name */
 
-/* kept local: void is void * here, void in camera-editor.h */
-extern void debug_Arrow(void *root, void *vec, float len, int r, int g, int b);
-
 /* The hand-mode rows the motion record's two hand nibbles index: 16 bytes a
    row, the mode RequestChangeHandMode wants in the last word. */
 typedef struct {
@@ -193,8 +191,6 @@ extern HandModeRow motionIKEffKind[];
    brainAddLevelGirlDetail */
 extern void brainAddLevelGirlDetail(int a0, float f);
 void ACTItemWatchMotion(GObj *self);
-/* kept local: agrees with camera-editor.h, which this TU does not include */
-extern void debug_NMarker(float *pos, int r, int g, int b, float size);
 /* kept local: agrees with boyact.h, which this TU does not include (PrivInsCamSet differs) */
 extern void SetBoyInfo(int *a0, int *a1);
 /* kept local: f5 is int here, float in boyact.h; a7 is float here, unsigned char in boyact.h */
@@ -1893,7 +1889,7 @@ void FunctionAboutClingedStatus(GObj *self)
         g = isysGObjSearchFromObjKindID_begin(4);
         while (g != 0) {
             if (self == actEnemy_GetClingTarget(g)) {
-                iosOmSendMail(g, 0xD6, (int)self);
+                iosOmSendMail(g, 0xD6, self);
                 break;
             }
             g = isysGObjSearchFromObjKindID_next(g);
@@ -2474,14 +2470,14 @@ work:
 
 draw:
     if (((HandClInfo *)((char *)GOBJ_ACT(((char *)girlGObj))->work + 0x540))->hit) {
-        debug_Arrow(test_CURRENTROOT(girlGObj),
+        debug_Arrow(100.0f, test_CURRENTROOT(girlGObj),
                     ((HandClInfo *)((char *)GOBJ_ACT(((char *)girlGObj))->work + 0x540))->orient,
-                    100.0f, 255, 0, 0);
+                    255, 0, 0);
     }
     if (((HandClInfo *)((char *)GOBJ_ACT(((char *)girlGObj))->work + 0x540))->hit2) {
-        debug_Arrow(test_CURRENTROOT(boyGObj),
+        debug_Arrow(100.0f, test_CURRENTROOT(boyGObj),
                     ((HandClInfo *)((char *)GOBJ_ACT(((char *)girlGObj))->work + 0x540))->orient2,
-                    100.0f, 0, 0, 255);
+                    0, 0, 255);
     }
 }
 
@@ -2692,7 +2688,7 @@ void ACTGame_CommonLoop(GObj *self)
                 connect = 1;
             }
             if (connect && (s->padNow & 8)) {
-                iosOmSendMail(girlGObj, 63, (int)boyGObj);
+                iosOmSendMail(girlGObj, 63, boyGObj);
             }
         }
         break;
@@ -3039,14 +3035,14 @@ inline float _ACTGame_GetParamF(int idx)
     return gameParam[idx];
 }
 
-inline void ACTGame_SendSoundMail(GObj *a0, int mail, int a2, int a3, int a4)
+inline void ACTGame_SendSoundMail(GObj *a0, int mail, GObj *from, int a3, int a4)
 {
     switch (mail) {
     case 0x1A0:
         if (a4 != 0 && GOBJ_ACT(a0)->soundWait > 0) {
             break;
         }
-        iosOmSendMail(a0, 0x1A0, a2);
+        iosOmSendMail(a0, 0x1A0, from);
         if (a3 == 0) {
             break;
         }
@@ -3059,7 +3055,7 @@ inline void ACTGame_SendSoundMail(GObj *a0, int mail, int a2, int a3, int a4)
         break;
 
     case 0x1A1:
-        iosOmSendMail(a0, 0x1A1, a2);
+        iosOmSendMail(a0, 0x1A1, from);
         {
             Act *act = GOBJ_ACT(a0);
             act->soundMot = a3;

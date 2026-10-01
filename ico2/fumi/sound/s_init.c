@@ -20,40 +20,22 @@
 #include <assert.h>
 #include <sound.h>
 
-/* The SE source definition record (0x3C bytes) a slot plays from: the same
-   record `_soundSeDefStop` reaches through the slot's 0x38 pointer. */
-typedef struct SeSrcDef {       /* field names derived */
-    char name[32];              /* 0x00 */
-    int kind;                   /* 0x20, the seKind row */
-    float volume;               /* 0x24 */
-    int mail;                   /* 0x28 */
-    int (*check)();             /* 0x2C */
-    int range;                  /* 0x30 */
-    short mailArg;              /* 0x34 */
-    unsigned short shock;       /* 0x36, the shockList row its pad action plays */
-    unsigned int mailMode : 4;  /* 0x38 bits 0..3, seMail's target bits */
-    unsigned int playMode : 2;  /* 0 plays beside a playing copy, 1 keeps it, 2 restarts it */
-    unsigned int shockStop : 1; /* the pad action stops with the sound */
-    unsigned int audible : 1;   /* the slot's starting flag.bit.f24 */
-    unsigned int procRan : 1;   /* set once the slot's proc has run */
-    unsigned int : 23;
-} SeSrcDef;
-
 /* The slot's 0x04 status word, written both as a whole and bit by bit. */
 typedef union SeFlag {
     unsigned int all;
 
-    struct {
-        short f0;
-        unsigned int f16 : 8;
-        unsigned int f24 : 1;
-        unsigned int f25 : 1;
-        unsigned int f26 : 1;
-        unsigned int f27 : 1;
-        unsigned int f28 : 1;
-        unsigned int f29 : 1;
-        unsigned int f30 : 1;
-        unsigned int f31 : 1;
+    struct {        /* field names derived */
+        short vol1; /* the second volume, which level1 is panned to */
+        unsigned int playMode
+            : 8; /* soundSeDefPlay's fourth argument, what soundSePlayModeStop stops by */
+        unsigned int audible : 1;       /* the sound is placed at its position */
+        unsigned int placed : 1;        /* set once a position has given the volume */
+        unsigned int levelHeight : 1;   /* the distance is taken at the camera's height */
+        unsigned int stereo : 1;        /* panned by the angle to the camera */
+        unsigned int rearFade : 1;      /* quieter the further it lies behind the camera */
+        unsigned int soloMute : 1;      /* silenced while another slot plays solo */
+        unsigned int maxVolumeType : 1; /* the curve past maxVolumeRange */
+        unsigned int : 1;
     } bit;
 } SeFlag;
 
@@ -66,7 +48,7 @@ typedef struct SeSlot { /* field names derived */
     int padAct;         /* 0x0C, the iosPadActRequest handle */
     short handle;       /* 0x10, the SgSePlay or SgBgmOpen handle */
     short level0;       /* 0x12, the panned level vol0 follows */
-    short level1;       /* 0x14, the panned level flag.bit.f0 follows */
+    short level1;       /* 0x14, the panned level flag.bit.vol1 follows */
     char pad16[2];
     float volumeRate;     /* 0x18, the labels are debug_DispSEInfo's */
     float stereoRate;     /* 0x1C */
@@ -79,7 +61,7 @@ typedef struct SeSlot { /* field names derived */
                             sceVu0CopyVector, soundSeEnvPlay stores an allocated
                             block in it, and _soundSeDefPlay's init schedule needs
                             its store not to alias the int stage_no load */
-    SeSrcDef *src;        /* 0x38 */
+    SeDef *src;           /* 0x38 */
     const SeEnvDef *env;  /* 0x3C, the sound-environment row the slot plays */
 } SeSlot;
 
@@ -582,7 +564,6 @@ void soundDataClose(char *obj)
 {
     SqEntry *self = (SqEntry *)obj;
     int i;
-    char *slot;
     short h;
 
     switch (self->mode) {
@@ -593,8 +574,7 @@ void soundDataClose(char *obj)
         i = 0;
         while (self->seMask != 0) {
             if ((int)((self->seMask >> i) & 1)) {
-                slot = (char *)&seSlotTbl[i];
-                h = *(short *)(slot + 0x10);
+                h = seSlotTbl[i].handle;
                 SgBgmStop(h, 1);
                 SgBgmClose(h);
                 seReqRelease(i);
@@ -778,9 +758,9 @@ static void debug_DispSEInfo(void)
         }
         p = &seSlotTbl[i];
         if (self == p) {
-            self->flag.bit.f29 = 0;
+            self->flag.bit.soloMute = 0;
         } else {
-            p->flag.bit.f29 = solo;
+            p->flag.bit.soloMute = solo;
         }
     }
     if (pad[0].flags & 0x80) {
@@ -788,7 +768,7 @@ static void debug_DispSEInfo(void)
     }
     if (self->pos != 0) {
         sceVu0CopyVector(center, self->pos);
-        if (self->flag.bit.f26 == 1) {
+        if (self->flag.bit.levelHeight == 1) {
             center[1] = cam[1];
         }
         sceVu0SubVector(v, cam, center);
@@ -797,7 +777,7 @@ static void debug_DispSEInfo(void)
         dist = center[0] = center[1] = center[2] = 0.0f;
     }
     {
-        int sel = self->flag.bit.f30;
+        int sel = self->flag.bit.maxVolumeType;
         DbgRow *row;
         DbgRow *cur;
         DbgRow list[9] = {
@@ -856,7 +836,7 @@ static void debug_DispSEInfo(void)
                 break;
             }
         }
-        self->flag.bit.f30 = sel;
+        self->flag.bit.maxVolumeType = sel;
         if (self->pos != 0) {
             sceVu0CopyVector(self->pos, center);
             MatrixDrive_PushMatrix();
@@ -897,14 +877,14 @@ static void sound3DParamSet(SeSlot *self)
     if (self->proc != 0) {
         ret = self->proc();
         if (ret > 0) {
-            self->flag.bit.f24 = 1;
-            self->flag.bit.f25 = 0;
+            self->flag.bit.audible = 1;
+            self->flag.bit.placed = 0;
         } else if (ret < 0) {
-            self->flag.bit.f24 = 0;
+            self->flag.bit.audible = 0;
         } else {
             self->level0 = 0;
             self->level1 = 0;
-            self->flag.bit.f24 = 0;
+            self->flag.bit.audible = 0;
         }
         self->src->procRan = 1;
     }
@@ -919,7 +899,7 @@ static void sound3DParamSet(SeSlot *self)
         return;
     }
     self->flag.all |= 0x02000000;
-    if (self->flag.bit.f26 == 1) {
+    if (self->flag.bit.levelHeight == 1) {
         cam = GetCameraPos();
         sceVu0CopyVector(v, self->pos);
         v[1] = cam[1];
@@ -934,7 +914,7 @@ static void sound3DParamSet(SeSlot *self)
     } else {
         dist = dist - self->maxVolumeRange;
         range = self->attenuator - self->maxVolumeRange;
-        if (self->flag.bit.f30 == 0) {
+        if (self->flag.bit.maxVolumeType == 0) {
             rate = dist / range;
             vol = 1.0f / (rate + 1.0f);
         } else {
@@ -948,10 +928,10 @@ static void sound3DParamSet(SeSlot *self)
             }
         }
     }
-    if (self->flag.bit.f27 == 1) {
+    if (self->flag.bit.stereo == 1) {
         a = ang;
         pan = a;
-        if (self->flag.bit.f28 == 1) {
+        if (self->flag.bit.rearFade == 1) {
             a = (a <= -1) ? -a : a;
             front = (float)a * -0.0027777778f + 1.0f;
         } else {
@@ -983,45 +963,44 @@ static void sound3DParamSet(SeSlot *self)
     soundSeVolSet(self);
 }
 
-/* kept local: s_init.h declares the rows as SeDef, whose 0x38 word seMail.c
-   reads as one flags word; this TU reads it as bit-fields (SeSrcDef) */
-extern SeSrcDef seDef[];
+/* kept local: the generated sedef member defines the rows const, and this TU
+   writes procRan into them */
+extern SeDef seDef[];
 
 inline void soundSeGroupStop(int arg)
 {
-    char *p = (char *)seSlotTbl;
+    SeSlot *p = seSlotTbl;
     int i = 0;
     do {
-        int *e30 = *(int **)(p + 0x30);
-        if (e30 != 0) {
-            if (*(int *)(p + 8) == arg) {
-                int *e38 = *(int **)(p + 0x38);
-                if ((*(unsigned int *)((char *)e38 + 0x38) >> 6) & 1) {
-                    if (*(unsigned short *)((char *)e30 + 4) == 0) {
-                        soundSeDefStop(((int)*(unsigned short *)p << 8) | i);
+        SqEntry *req = p->req;
+        if (req != 0) {
+            if (p->owner == arg) {
+                if (p->src->shockStop) {
+                    if (req->mode == 0) {
+                        soundSeDefStop(((int)p->num << 8) | i);
                     }
                 }
             }
         }
         i++;
-        p += 0x40;
-    } while (i < 0x30);
+        p++;
+    } while (i < 48);
 }
 
 /* The slot search the listing carries at rows 1075 to 1085, between
    soundSeGroupStop and soundSeGroupGet, and inlines twice into _soundSeDefPlay:
    no out-of-line copy is emitted and MAIN.MAP names none, so a file static
    inline (the name is ours). */
-static inline int se_find_slot(SeSrcDef *src, SeSlot **out)
+static inline int se_find_slot(SeDef *src, SeSlot **out)
 {
-    char *p = (char *)seSlotTbl;
+    SeSlot *p = seSlotTbl;
     int i;
 
     for (i = 0; i < 48; i++) {
-        if (*(int *)(p + 0x30) != 0 && *(SeSrcDef **)(p + 0x38) == src) {
+        if (p->req != 0 && p->src == src) {
             goto found;
         }
-        p += 64;
+        p++;
     }
     if (out != 0) {
         *out = 0;
@@ -1029,7 +1008,7 @@ static inline int se_find_slot(SeSrcDef *src, SeSlot **out)
     return -1;
 found:
     if (out != 0) {
-        *out = (SeSlot *)p;
+        *out = p;
     }
     return i;
 }
@@ -1050,26 +1029,26 @@ inline int soundSeGroupGet(void)
 
 inline void soundSePlayModeStop(int arg)
 {
-    char *p = (char *)seSlotTbl;
+    SeSlot *p = seSlotTbl;
     int i = 0;
     do {
-        int *e30 = *(int **)(p + 0x30);
-        if (e30 != 0) {
-            if (*(unsigned char *)(p + 6) == arg) {
-                if (*(unsigned short *)((char *)e30 + 4) == 0) {
-                    soundSeDefStopNoRelease(((int)*(unsigned short *)p << 8) | i);
+        SqEntry *req = p->req;
+        if (req != 0) {
+            if (p->flag.bit.playMode == arg) {
+                if (req->mode == 0) {
+                    soundSeDefStopNoRelease(((int)p->num << 8) | i);
                 }
             }
         }
         i++;
-        p += 0x40;
-    } while (i < 0x30);
+        p++;
+    } while (i < 48);
 }
 
 static int _soundSeDefPlay(int kind, unsigned int a1, float *a2, int a3, const SeEnvDef *env,
                            SeSlot **out, float vol)
 {
-    SeSrcDef *src;
+    SeDef *src;
     const SeKind *def;
     SqEntry *e;
     SeSlot *slot;
@@ -1145,9 +1124,9 @@ static int _soundSeDefPlay(int kind, unsigned int a1, float *a2, int a3, const S
     if (out != 0) {
         *out = slot;
     }
-    slot->flag.bit.f16 = a3;
+    slot->flag.bit.playMode = a3;
     slot->src = src;
-    slot->flag.bit.f24 = src->audible;
+    slot->flag.bit.audible = src->audible;
     if (vol < 0.0f) {
         slot->volumeRate = src->volume;
     } else {
@@ -1158,11 +1137,11 @@ static int _soundSeDefPlay(int kind, unsigned int a1, float *a2, int a3, const S
     slot->volumeLength = 3000.0f;
     slot->pos = a2;
     slot->level0 = slot->level1 = 4096;
-    slot->vol0 = slot->flag.bit.f0 = -1;
-    slot->flag.bit.f29 = 0;
-    slot->flag.bit.f26 = 0;
-    slot->flag.bit.f27 = slot->flag.bit.f28 = 1;
-    slot->flag.bit.f30 = 1;
+    slot->vol0 = slot->flag.bit.vol1 = -1;
+    slot->flag.bit.soloMute = 0;
+    slot->flag.bit.levelHeight = 0;
+    slot->flag.bit.stereo = slot->flag.bit.rearFade = 1;
+    slot->flag.bit.maxVolumeType = 1;
     slot->stereoRate = 0.1f;
     slot->proc = (int (*)())cb;
     slot->owner = a1;
@@ -1207,7 +1186,7 @@ void _soundSeDefStop(int a0, int a1)
     int ch = a0 & 0xFF;
     SeSlot *self = &seSlotTbl[ch];
     short h;
-    SeSrcDef *src;
+    SeDef *src;
 
     h = self->handle;
     if (h < 0)
@@ -1244,14 +1223,14 @@ extern void SgSetSePitchDirect();
 
 void soundSeDefPitchSet(int a0)
 {
-    char *entry;
+    SeSlot *entry;
     short id;
-    entry = (char *)&seSlotTbl[a0 & 0xFF];
-    id = *(short *)(entry + 0x10);
+    entry = &seSlotTbl[a0 & 0xFF];
+    id = entry->handle;
     if (id < 0)
         return;
     a0 = a0 >> 8;
-    if (a0 != *(unsigned short *)entry)
+    if (a0 != entry->num)
         return;
     SgSetSePitchDirect(id);
 }
@@ -1287,28 +1266,27 @@ inline void soundSeDefVolumeRateSet(int a0, float f)
 
 inline void soundReqTickProc(void)
 {
-    char *p = (char *)seSlotTbl;
+    SeSlot *p = seSlotTbl;
     int i = 0;
     do {
-        if (*(int *)(p + 0x30) != 0) {
-            int r = SgGetSlotStatus(1, *(short *)(p + 0x10));
+        if (p->req != 0) {
+            int r = SgGetSlotStatus(1, p->handle);
             if (r == 0) {
-                soundSeDefStop(((int)*(unsigned short *)p << 8) | i);
+                soundSeDefStop(((int)p->num << 8) | i);
             } else if (r & 2) {
                 if (debug_seslotdisp_flag == 0) {
-                    if (systemStatus[5] != 0 && *(unsigned int *)(p + 8) != 0xFFFFFFFF &&
-                        *(unsigned int *)(p + 8) != 0xFFFFFFFE) {
-                        *(int *)(p + 4) |= 0x20000000;
+                    if (systemStatus[5] != 0 && p->owner != 0xFFFFFFFF && p->owner != 0xFFFFFFFE) {
+                        p->flag.all |= 0x20000000;
                     } else {
-                        *(int *)(p + 4) &= 0xDFFFFFFF;
+                        p->flag.all &= 0xDFFFFFFF;
                     }
                 }
-                sound3DParamSet((SeSlot *)p);
+                sound3DParamSet(p);
             }
         }
         i++;
-        p += 0x40;
-    } while (i < 0x30);
+        p++;
+    } while (i < 48);
 }
 
 inline void soundVBlank(void)
@@ -1376,9 +1354,9 @@ static inline void soundSeEnvDefaultSet(SeSlot *self)
     } else {
         self->volumeLength = 3000.0f;
     }
-    self->flag.bit.f30 = env->maxVolumeType;
-    self->flag.bit.f26 = env->levelHeight;
-    self->flag.bit.f27 = env->stereo;
+    self->flag.bit.maxVolumeType = env->maxVolumeType;
+    self->flag.bit.levelHeight = env->levelHeight;
+    self->flag.bit.stereo = env->stereo;
     self->stereoRate = 0.1f;
 }
 

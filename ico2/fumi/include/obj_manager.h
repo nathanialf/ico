@@ -24,7 +24,7 @@ void iosOmGetGObjStatus(int a0, int a1);
 int *iosOmSearchGObjId(int idx, int target);
 int *iosOmSearchGObjIdAll(int a0);
 void iosOmBeforeFuncStandard(void);
-int iosOmSendMail(GObj *g, int type, int arg);
+int iosOmSendMail(GObj *g, int type, void *arg);
 int iosOmSendMailLink(int a0, int val5, int val6);
 int iosOmExeMail(void (*func)(IosMail));
 void _iosOmMain(void);

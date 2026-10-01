@@ -17,13 +17,14 @@ void setMailTarget(GObj *a0, GObj **a1, int *a2)
     a1[v] = a0;
 }
 
-/* kept local: s_init.c reads the table as bytes */
+/* kept local: the generated sedef member defines the rows const, and s_init.c
+   writes procRan into them */
 extern SeDef seDef[];
 
 void seMail(GObj *self, int id)
 {
     SeDef *rec = &seDef[id];
-    int flags = rec->flags & 0xF;
+    int flags = rec->mailMode;
     GObj *targets[16];
     int n = 0;
     int i;
@@ -31,7 +32,7 @@ void seMail(GObj *self, int id)
     int r;
 
     if (flags != 0) {
-        if (rec->flags & 8) {
+        if (rec->mailMode & 8) {
             if (self != boyGObj) {
                 flags |= 1;
             }
@@ -62,8 +63,7 @@ void seMail(GObj *self, int id)
                 r = 1;
             }
             if (r != 0) {
-                ACTGame_SendSoundMail(targets[i], rec->mail, self, rec->mailArg,
-                                      (rec->flags >> 9) & 1);
+                ACTGame_SendSoundMail(targets[i], rec->mail, self, rec->mailArg, rec->waitSkip);
             }
         }
     }

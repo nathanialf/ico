@@ -11,6 +11,7 @@
 #include "fuzio.h"
 #include "way_util.h"
 #include "fieldCollision.h"
+#include "gamesys.h"
 
 int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
 {
@@ -232,8 +233,6 @@ typedef struct {
 } __attribute__((aligned(16))) WayClipWork;
 
 typedef float WayVec[4] __attribute__((aligned(16)));
-
-extern GenGeo objLayout[];
 
 /* census rows 582-593: a wall probe between two points, both lifted 75 units. */
 static inline int way_probe(float *a, float *b)

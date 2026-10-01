@@ -81,8 +81,8 @@ typedef struct ActWork { /* field names derived */
     int noMoveFrames;        /* 0x450 */
     unsigned int enemyFlags; /* 0x454 */
     char pad458[8];
-    char *genTarget; /* 0x460 */
-    int motherLabel; /* 0x464 */
+    char *genTarget;         /* 0x460 */
+    int motherLabel;         /* 0x464 */
     struct GObj *motherGObj; /* 0x468, the generator object motherLabel names */
     char pad46C[52];
     float pinchPosX; /* 0x4A0 */
@@ -186,7 +186,7 @@ void ACTGame_SetMotionPlaySpeedRatio_Reserve(struct GObj *a0, float f, unsigned 
 float _ACTGame_GetParamF(int idx);
 int ACTGame_GetCurrentCallStatus(struct GObj *a0);
 unsigned char ACTGame_CheckPriInputFrame(struct GObj *a0);
-void ACTGame_SendSoundMail(struct GObj *a0, int mail, int a2, int a3, int a4);
+void ACTGame_SendSoundMail(struct GObj *a0, int mail, struct GObj *from, int a3, int a4);
 void ACTGame_LwsEffectInit(struct GObj *a0);
 void ACTGame_LwsEffect_Guard(struct GObj *a0);
 inline void ActGame_GetOrientQ(void *q, void *v, int deg);
@@ -238,12 +238,11 @@ void ACTGameView_Loop(struct GObj *self);
 typedef struct { /* field names derived */
     int kind[3]; /* 0x00, one per column */
 } LookTarget;    /* derived name */
-extern const LookTarget lookTargetData[];
 
+extern const LookTarget lookTargetData[];
 void ACTGame_CommonLoop(struct GObj *self);
 void ACTParaStatus_Exec(struct GObj *self);
 void ACTLookTargetSystem_Exec(struct GObj *self);
-
 extern float gameParam[]; /* game-param: the tuning values _ACTGame_GetParamF returns */
 
 #endif /* ACT_GAME_H */

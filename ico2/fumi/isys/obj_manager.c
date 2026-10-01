@@ -113,7 +113,7 @@ inline int *iosOmSearchGObjIdAll(int a0)
 
 inline void iosOmBeforeFuncStandard(void) {}
 
-inline int iosOmSendMail(GObj *g, int type, int arg)
+inline int iosOmSendMail(GObj *g, int type, void *arg)
 {
     IosMailBox *mb = (IosMailBox *)&g->mailQueue;
     int count = mb->num;

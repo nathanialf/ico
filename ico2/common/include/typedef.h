@@ -134,11 +134,11 @@ struct DObjNode {   /* field names derived */
     float pos[4]; /* 0x40, reset to 0 0 0 1 */
 };
 
-/* One mail in a game object's mail box (obj_manager.c): the mail type and its
- * argument word, which is a number or an object as the type says. */
+/* One mail in a game object's mail box (obj_manager.c): the mail type and
+ * what it carries, the object that sent it or the record the type names. */
 typedef struct IosMail { /* field names derived */
     int type;
-    int arg;
+    void *arg;
 } IosMail;
 
 /* A game object's mail box, the 0x108 bytes at GObj + 0x54: obj_manager.c

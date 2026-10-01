@@ -78,7 +78,7 @@ obj-light rodata ObjLight ico2/seki/include/Light.h 3 objectLight@0
 pair-motion rodata BecPair ico2/fumi/include/commonact.h 31 pairMotion@0
 param-escape-run rodata EscapeRange ico2/fumi/include/girl_act.h 8 paramEscapeRun@0
 se-env rodata SeEnvDef ico2/fumi/include/s_init.h 425 seEnv@0
-sedef rodata SeDef ico2/fumi/include/s_init.h 1426 seDef@0 hex=flags
+sedef rodata SeDef ico2/fumi/include/s_init.h 1426 seDef@0
 sefile rodata SeBank ico2/fumi/include/s_init.h 104 seFile@0
 selist rodata SeKind ico2/fumi/include/s_init.h 3837 seList@0
 shocklist rodata PadActDef ico2/fumi/include/pad.h 28 shockList@0

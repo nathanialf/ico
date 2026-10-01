@@ -96,7 +96,7 @@ extern void SetMotionDirection(void *a0, float *a1);
 inline void afterGirlHand50(GObj *volatile a0)
 {
     debug_StdPrintfDummy("girl after func\n");
-    iosOmSendMail(boyGObj, 0x60, (int)isysCurrentGObj);
+    iosOmSendMail(boyGObj, 0x60, isysCurrentGObj);
     ACTGame_DisconnectHand();
 }
 
@@ -127,7 +127,7 @@ void motGirlHand50(GObj *volatile a0)
 
     debug_StdPrintfDummy("enter motGirlHand50\n");
     while (1) {
-        iosOmSendMail(boyGObj, 0x5C, (int)isysCurrentGObj);
+        iosOmSendMail(boyGObj, 0x5C, isysCurrentGObj);
         if (sub->readyFlags & 1)
             break;
         _ACTWait(1);
@@ -138,16 +138,16 @@ void motGirlHand50(GObj *volatile a0)
     }
     _ACTWait(1);
     while (1) {
-        iosOmSendMail(boyGObj, 0x5D, (int)isysCurrentGObj);
+        iosOmSendMail(boyGObj, 0x5D, isysCurrentGObj);
         if (sub->readyFlags & 2)
             break;
         _ACTWait(1);
     }
     if ((((int)(sub->flags18.ll >> 44)) & 1) == 0) {
-        iosOmSendMail(boyGObj, 0x10, (int)isysCurrentGObj);
+        iosOmSendMail(boyGObj, 0x10, isysCurrentGObj);
         ACTSendMailCorrect((void *)a0, 7);
     }
-    iosOmSendMail(boyGObj, 0x5E, (int)isysCurrentGObj);
+    iosOmSendMail(boyGObj, 0x5E, isysCurrentGObj);
     sub->motReq = SetMotionRequest((void *)a0, 0x5E, sub->motOriReq);
     while ((*(int *)((char *)sub->motReq + 0x5C) & 1) == 0) {
         _ACTWait(1);
@@ -162,7 +162,7 @@ void motGirlHand50(GObj *volatile a0)
 inline void afterGirlHand100(GObj *volatile a0)
 {
     debug_StdPrintfDummy("girl after func\n");
-    iosOmSendMail(boyGObj, 0x65, (int)isysCurrentGObj);
+    iosOmSendMail(boyGObj, 0x65, isysCurrentGObj);
     ACTGame_DisconnectHand();
 }
 
@@ -190,7 +190,7 @@ void motGirlHand100(GObj *volatile a0)
 
     debug_StdPrintfDummy("enter motGirlHand100\n");
     while (1) {
-        iosOmSendMail(boyGObj, 0x61, (int)isysCurrentGObj);
+        iosOmSendMail(boyGObj, 0x61, isysCurrentGObj);
         if (sub->readyFlags & 1)
             break;
         _ACTWait(1);
@@ -201,12 +201,12 @@ void motGirlHand100(GObj *volatile a0)
     }
     _ACTWait(1);
     while (1) {
-        iosOmSendMail(boyGObj, 0x62, (int)isysCurrentGObj);
+        iosOmSendMail(boyGObj, 0x62, isysCurrentGObj);
         if (sub->readyFlags & 2)
             break;
         _ACTWait(1);
     }
-    iosOmSendMail(boyGObj, 0x63, (int)isysCurrentGObj);
+    iosOmSendMail(boyGObj, 0x63, isysCurrentGObj);
     sub->motReq = SetMotionRequest((void *)a0, 0x65, sub->motOriReq);
     while (GOBJ_SUB(a0)->ctrl.motion < 0x214 || !(GOBJ_SUB(a0)->ctrl.motion < 0x21B)) {
         sub->motReq = SetMotionRequest((void *)a0, 1, sub->motOriReq);
@@ -214,7 +214,7 @@ void motGirlHand100(GObj *volatile a0)
     }
     _ACTWait(1);
     while (1) {
-        iosOmSendMail(boyGObj, 0x64, (int)isysCurrentGObj);
+        iosOmSendMail(boyGObj, 0x64, isysCurrentGObj);
         if (sub->readyFlags & 8)
             break;
         _ACTWait(1);
@@ -229,7 +229,7 @@ void motGirlHand100(GObj *volatile a0)
 inline void afterGirlHand200(GObj *volatile a0)
 {
     debug_StdPrintfDummy("girl after func\n");
-    iosOmSendMail(boyGObj, 0x6A, (int)isysCurrentGObj);
+    iosOmSendMail(boyGObj, 0x6A, isysCurrentGObj);
     ACTGame_DisconnectHand();
 }
 
@@ -262,7 +262,7 @@ void motGirlHand200(GObj *volatile a0)
         if (n <= 0)
             goto expired;
         n--;
-        iosOmSendMail(boyGObj, 0x66, (int)isysCurrentGObj);
+        iosOmSendMail(boyGObj, 0x66, isysCurrentGObj);
         if (sub->readyFlags & 1)
             break;
         _ACTWait(1);
@@ -279,18 +279,18 @@ held:
     }
     _ACTWait(1);
     while (1) {
-        iosOmSendMail(boyGObj, 0x67, (int)isysCurrentGObj);
+        iosOmSendMail(boyGObj, 0x67, isysCurrentGObj);
         if (sub->readyFlags & 2)
             break;
         _ACTWait(1);
     }
-    iosOmSendMail(boyGObj, 0x68, (int)isysCurrentGObj);
+    iosOmSendMail(boyGObj, 0x68, isysCurrentGObj);
     sub->motReq = SetMotionRequest((void *)a0, 0x66, sub->motOriReq);
     while ((*(int *)((char *)sub->motReq + 0x5C) & 1) == 0) {
         _ACTWait(1);
     }
     while (1) {
-        iosOmSendMail(boyGObj, 0x69, (int)isysCurrentGObj);
+        iosOmSendMail(boyGObj, 0x69, isysCurrentGObj);
         if (sub->readyFlags & 8)
             break;
         _ACTWait(1);
@@ -4003,9 +4003,9 @@ void actGirlHand(GObj *volatile a0)
                     _OrientXZGV(d, test_CURRENTROOT((boyGObj)), test_CURRENTROOT((void *)a0));
                     if (((int)(sub->flags18.ll >> 44) & 1) &&
                         _AbsRotyGV(d, (char *)sub + 0x4B0) >= 0x88) {
-                        iosOmSendMail(boyGObj, 0xF7, (int)isysCurrentGObj);
+                        iosOmSendMail(boyGObj, 0xF7, isysCurrentGObj);
                     } else {
-                        iosOmSendMail(boyGObj, 0xF8, (int)isysCurrentGObj);
+                        iosOmSendMail(boyGObj, 0xF8, isysCurrentGObj);
                     }
                 }
             }
@@ -4195,7 +4195,7 @@ void actGirlHand(GObj *volatile a0)
             cnt2 = cnt2 / 2;
         }
         if ((60 - systemStatus[0] * 10) / systemStatus[1] / 5 < cnt2) {
-            iosOmSendMail((void *)girlGObj, 0x3E, ((int)boyGObj));
+            iosOmSendMail((void *)girlGObj, 0x3E, boyGObj);
         }
         ACTSendMailCorrect((void *)a0, 0x1AB);
         _ACTWait(1);
@@ -4547,7 +4547,7 @@ void actGirlRescueDst(GObj *volatile a0)
             GetSkeltonPosition(p1, (boyGObj), 6);
             GetSkeltonPosition(p2, (void *)girlGObj, 22);
             if (!(_DistSqGV(p1, p2) < 400.0f)) {
-                iosOmSendMail(boyGObj, 248, (int)isysCurrentGObj);
+                iosOmSendMail(boyGObj, 248, isysCurrentGObj);
             }
             ACTSendMailCorrect((void *)a0, 198);
         }
@@ -4556,7 +4556,7 @@ void actGirlRescueDst(GObj *volatile a0)
             dst[1] = test_CURRENTROOT((void *)a0)[1];
             ACTSetPositionWithFitting((void *)a0, dst);
         }
-        iosOmSendMail(boyGObj, 350, (int)isysCurrentGObj);
+        iosOmSendMail(boyGObj, 350, isysCurrentGObj);
         n--;
         ACTSendMailCorrect((void *)a0, 199);
         _ACTWait(1);

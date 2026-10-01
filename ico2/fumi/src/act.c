@@ -16,8 +16,6 @@
 #include "gobj_process.h"
 #include "main.h"
 
-extern GenGeo objLayout[];
-
 /* One 0x50-byte record per act status, indexed by the actor status index; the
    six 12-byte entries at +4 are indexed by the work block's mode at +0x48.
    The flags word at 0x4C is a bitfield: the ROM keeps 0x4C as the load
@@ -38,6 +36,7 @@ static int actUnusedWord = 0; /* derived name */
 #include "typedef.h"
 #include "ios.h"
 #include "fieldCollision.h"
+#include "gamesys.h"
 
 inline void ActSetStartBrainStatus(GObj *self, int status)
 {
@@ -372,7 +371,7 @@ inline int ACTReserveTarget(GObj *self, void *a1, int a2)
     if (g->reserved == 0) {
         *(char **)((char *)g + 0x13C) = self;
         g->reservedMail = a2;
-        iosOmSendMail(self, a2, (int)a1);
+        iosOmSendMail(self, a2, a1);
         return 1;
     }
     return 0;
@@ -499,15 +498,8 @@ typedef union {
     int i;
 } ActFloat;
 
-/* Motion record table, 0x194 bytes per entry (only the flags word is used
-   here); src/act-game.c carries the full layout as MotionRec. */
-typedef struct {
-    char pad0[396];
-    unsigned int f18C;
-    unsigned int f190;
-} ActMotionRec;
-
-extern ActMotionRec motionKind[];
+/* kept local: motionOrientManager.h declares none of the motion tables */
+extern MotionDef motionKind[];
 
 /* one flag per mail list: a list whose flag is set is not checked for an
    interrupt while the status record's b11 is set */
@@ -590,7 +582,8 @@ void BeforeFunc(GObj *self)
     }
     g = *(char **)((char *)self + 0x15C);
     *(char **)((char *)w + 0x40) = *(char **)(g + 0x540);
-    if ((((&motionKind[*(int *)(*(char **)((char *)self + 0x15C) + 0x4A0)])->f18C >> 1) & 1) != 0 &&
+    if ((((&motionKind[*(int *)(*(char **)((char *)self + 0x15C) + 0x4A0)])->flags.word >> 1) &
+         1) != 0 &&
         GOBJ_SUB(self)->ctrl.animFrame < 3.0f) {
         w->flags20.ll |= 1LL << 18;
     }

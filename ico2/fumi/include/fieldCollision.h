@@ -12,18 +12,15 @@
 #ifndef FIELDCOLLISION_H
 #define FIELDCOLLISION_H
 
+#include "typedef.h"
 
 struct GObj;
-struct ClipWork;
-/* The collision hit record a character starts from (the object, the node
-   and the attribute of the last hit), and the empty one it is reset to. */
-typedef struct {
-    int obj;
-    int node;
-    int attr;
-} FcColInfo;
 
-extern FcColInfo InitialColInfo;
+struct ClipWork;
+
+/* The empty wall-hit record (no object, node -1, no wall) a character's
+   collision filter is reset to. */
+extern WallCfg InitialColInfo;
 
 /* The object pointer pair a clip resets its wall and floor sources to, read
    as one 8-byte block (the ROM copies it with ldl/ldr). */

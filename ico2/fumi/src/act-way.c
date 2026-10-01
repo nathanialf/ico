@@ -13,6 +13,7 @@
 #include "box.h"
 #include "commonact.h"
 #include "gv.h"
+#include "motionOrientManager.h"
 
 /* the 0x80-byte way-walker work record, the same one ico2/fumi/src/way_kidnap
    carries as WayWork; the actor keeps its copy at act + 0x360 */
@@ -92,15 +93,8 @@ void DetourCheck(GObj *self, float *out)
     }
 }
 
-/* the 0x194-byte enemy parameter rows, the same record ico2/fumi/src/enemy_act
-   reads the 0x18C flag word out of */
-typedef struct {
-    char pad00[396];
-    unsigned int flags18C; /* 0x18C */
-    char pad190[4];
-} EnemyParaRow;
-
-extern EnemyParaRow motionKind[];
+/* kept local: motionOrientManager.h declares none of the motion tables */
+extern MotionDef motionKind[];
 
 int checkPositionIllegal(GObj *self, float *pos)
 {
@@ -113,9 +107,7 @@ int checkPositionIllegal(GObj *self, float *pos)
         return 1;
     }
     if (act->actMode == 0x26 ||
-        ((((EnemyParaRow *)((char *)motionKind + GOBJ_SUB(self)->ctrl.motion * 0x194))->flags18C >>
-          12) &
-         1)) {
+        (((GOBJ_SUB(self)->ctrl.motion + motionKind)->flags.word >> 12) & 1)) {
         return 1;
     }
     v[0] = pos[0];

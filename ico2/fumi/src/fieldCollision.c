@@ -1,5 +1,6 @@
 #include "typedef.h"
 #include "fieldCollision.h"
+#include "gobj.h"
 #include "debug.h"
 #include "debug_exception.h"
 #include "FileManager.h"
@@ -32,10 +33,6 @@ typedef struct {
 } FcColor;
 
 typedef int (*FcFunc)(void *a0, int a1);
-/* kept local: agrees with gobj.h, which this TU does not include (isysGObjGetExist_next differs) */
-extern void *isysGObjGetExist_begin(void);
-/* kept local: start is void here, struct GObj * in gobj.h */
-extern void *isysGObjGetExist_next(void);
 
 /* fieldCollision.o's .sbss and .bss, each in the ROM's order (MAIN.MAP lines
    7593 and 7704 size the runs 0x38 and 0x5C0 and name no symbol in either, so
@@ -95,7 +92,7 @@ static void *exitAttr[16];
    wall draw count, then GetEdgeOfFloor's three strings.  The word before
    collision_pick is reached by no instruction, in retail or in the January
    listing (whose collision_pick also sits 4 below InitialObjPointer). */
-FcColInfo InitialColInfo = {0, -1, 0};
+WallCfg InitialColInfo = {{0, -1}, 0};
 
 static int fcReserved = 0; /* derived name */
 
@@ -107,14 +104,14 @@ static int colObjListNum = 0; /* derived name */
 
 void MakeCollisionDependGObjList(void)
 {
-    char *g;
+    GObj *g;
     Sub15C *sub;
 
     colObjListNum = 0;
-    for (g = isysGObjGetExist_begin(); g != 0; g = isysGObjGetExist_next()) {
+    for (g = isysGObjGetExist_begin(); g != 0; g = isysGObjGetExist_next(g)) {
         sub = GOBJ_SUB(g);
-        if ((char *)sub != 0 && sub->colData != 0 && *(int *)(g + 0x16C) != 0 &&
-            *(int *)(g + 0x4) == 1 && *(int *)(g + 0x8) >= 0 && sub->disp != 0) {
+        if ((char *)sub != 0 && sub->colData != 0 && g->active != 0 && g->labelType == 1 &&
+            g->labelId >= 0 && sub->disp != 0) {
             colObjList[colObjListNum] = g;
             colObjListNum = colObjListNum + 1;
         }

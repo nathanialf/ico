@@ -107,19 +107,8 @@ typedef struct {
 #define BOSS_EFFECT_WORK(self) ((char *)*(int *)(*(int *)((self) + 0x164) + 0x680))
 #define BOSS_EFFECT_PARTS(self, i) ((BossPart *)((i) * 0x20 + BOSS_EFFECT_WORK(self) + 0x360))
 
-typedef struct {
-    char pad00[256];
-    int f100;
-    char pad104[0x182 - 0x104];
-    short f182;
-    char pad184[2];
-    short f186;
-    char pad188[0x18C - 0x188];
-    unsigned int flags18C;
-    char pad190[4];
-} EnemyParaRow;
-
-extern EnemyParaRow motionKind[];
+/* kept local: motionOrientManager.h declares none of the motion tables */
+extern MotionDef motionKind[];
 /* kept local: this TU's uses of _GetMotionDirection do not fit the prototype in
    motionManager2.h */
 /* kept local: agrees with motionManager2.h, which this TU does not include */
@@ -173,7 +162,6 @@ static sceVu0FVECTOR bodyliftTarget[3] = {
     {-770.0f, -1445.0f, -749.0f, 0.0f},
 };
 
-extern GenGeo objLayout[];
 /* FLT_MAX word in .sdata; the incomplete array type is what keeps the ROM's
    %hi/%lo pair instead of a gp-relative load. */
 extern void SetEnemyStonizedVisual(void *self);
@@ -410,11 +398,11 @@ void boss_effect_process(char *self)
 
 void _DoAwait(char *self)
 {
-    EnemyParaRow *row;
+    MotionDef *row;
     if ((void *)boyGObj != 0) {
         _ACTParaStatus_Set(self, 0x1C);
         row = &motionKind[GOBJ_SUB(self)->ctrl.motion];
-        if ((row->flags18C >> 3) & 1) {
+        if ((row->flags.word >> 3) & 1) {
             EnemyUtil_TurnToBoy(self, ((void *)boyGObj), 5);
         }
     }
@@ -422,11 +410,11 @@ void _DoAwait(char *self)
 
 void _DoAwaitGirl(GObj *self)
 {
-    EnemyParaRow *row;
+    MotionDef *row;
     if ((char *)girlGObj != 0) {
         _ACTParaStatus_Set(self, 0x1C);
         row = &motionKind[GOBJ_SUB(self)->ctrl.motion];
-        if ((row->flags18C >> 3) & 1) {
+        if ((row->flags.word >> 3) & 1) {
             EnemyUtil_TurnToBoy(self, girlGObj, 5);
         }
     }
@@ -689,10 +677,11 @@ void subEnemyCollision(GObj *volatile a0)
         }
         if ((stage_no == 19 || stage_no == 28) && sub->actMode == 6) {
         } else if (0.1f < sub->stickMag && sub->actMode != 0x73) {
-            SetMotionDirectionSmooze(a0, dir,
-                                     (float)((a0 == (int)((char *)girlGObj) && girlControlMode != 0)
-                                                 ? motionKind[GOBJ_SUB(a0)->ctrl.motion].f182
-                                                 : motionKind[GOBJ_SUB(a0)->ctrl.motion].f186));
+            SetMotionDirectionSmooze(
+                a0, dir,
+                (float)((a0 == (int)((char *)girlGObj) && girlControlMode != 0)
+                            ? motionKind[GOBJ_SUB(a0)->ctrl.motion].girlDirFrames
+                            : motionKind[GOBJ_SUB(a0)->ctrl.motion].dirFrames));
         }
         if (actEnemyFlagCheckDead(a0) == 0) {
             ACTGame_SaveActorInformation((char *)a0);
@@ -1315,8 +1304,8 @@ void actEnemyKidnapBegin(GObj *volatile a0)
                 SetMotionDirectionSmooze(
                     (void *)a0, dir,
                     (float)((a0 == (int)((char *)girlGObj) && girlControlMode != 0)
-                                ? motionKind[GOBJ_SUB(a0)->ctrl.motion].f182
-                                : motionKind[GOBJ_SUB(a0)->ctrl.motion].f186));
+                                ? motionKind[GOBJ_SUB(a0)->ctrl.motion].girlDirFrames
+                                : motionKind[GOBJ_SUB(a0)->ctrl.motion].dirFrames));
             }
             mode = enemyKidnapCheckGirl(a0);
             switch (mode) {
@@ -1458,7 +1447,7 @@ void actEnemyBodylift(GObj *volatile a0)
            has to be written. */
         (void)a0;
         if (GetMotionFrameFlag1((void *)a0) != 0 && hit != 0) {
-            iosOmSendMail(((void *)boyGObj), 0x170, (int)a0);
+            iosOmSendMail(((void *)boyGObj), 0x170, a0);
         }
         if (GetMotionFrameFlag2((void *)a0) != 0) {
             _OrientXZGV(bpos, test_CURRENTROOT(((void *)boyGObj)), test_CURRENTROOT(a0));
@@ -1483,7 +1472,7 @@ void actEnemyBodylift(GObj *volatile a0)
 
 inline void actEnemyBodyslamFail(GObj *volatile a0)
 {
-    iosOmSendMail(((void *)boyGObj), 0xE2, (int)a0);
+    iosOmSendMail(((void *)boyGObj), 0xE2, a0);
     while (1) {
         ACTSendMailCorrect((void *)a0, 0xC7);
         _ACTWait(1);
@@ -1492,7 +1481,7 @@ inline void actEnemyBodyslamFail(GObj *volatile a0)
 
 inline void actEnemyBodyslam(GObj *volatile a0)
 {
-    iosOmSendMail(((void *)boyGObj), GOBJ_ACT(a0)->enemy->bodyslamMail, (int)a0);
+    iosOmSendMail(((void *)boyGObj), GOBJ_ACT(a0)->enemy->bodyslamMail, a0);
     while (1) {
         ACTSendMailCorrect((void *)a0, 0xC7);
         _ACTWait(1);
@@ -1589,7 +1578,7 @@ void CheckEnemyBrainMode(char *self, int *outMode, int *outData)
     int mode;
 
     *outData = 0;
-    if (*(int *)(sub + 0x148) != 0 && motionKind[GOBJ_SUB(self)->ctrl.motion].f100 == 0) {
+    if (*(int *)(sub + 0x148) != 0 && motionKind[GOBJ_SUB(self)->ctrl.motion].word100 == 0) {
         *outMode = -1;
         return;
     }
@@ -1839,8 +1828,8 @@ void subEnemyBrainMain(GObj *volatile a0)
 inline void afterCommonCarry(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
-    int girl = (int)girlGObj;
-    int self = a0;
+    GObj *girl = girlGObj;
+    GObj *self = a0;
     sub->carried = girl;
     iosOmSendMail(girl, 0x30, self);
     sub->carried = 0;

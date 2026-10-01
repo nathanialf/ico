@@ -45,9 +45,6 @@ static inline int girlAttractTurnMailR(void *actor, float *from, float *to)
     return 1;
 }
 
-/* kept local: agrees with act-game.h, which this TU does not include */
-extern void GetSkeltonOrient(float *out, void *obj, int node);
-
 int ATGoalTurnMail(void *actor, float *dir, int node)
 {
     float o1[4];
@@ -90,9 +87,6 @@ int ATGoalTurnMail(void *actor, float *dir, int node)
     }
     return ret;
 }
-
-/* kept local: agrees with commonact.h, which this TU does not include */
-extern float *test_CURRENTROOT(GObj *a0);
 
 int checkWaterfallResult(float *out)
 {
@@ -172,8 +166,6 @@ int checkWaterfallResult(float *out)
 
 /* kept local: brain.h has no row for the target timer; the ROM passes the target object. */
 extern int brainDecTargetTimer(void *gobj);
-/* kept local: agrees with act-game.h, which this TU does not include */
-extern void _GetRootObjectOrient(void *a0, char *a1);
 
 /* One 0x50-byte record per act status, indexed by the actor's status at
    0x34 (act.c reads the same table).  The flags word at 0x4C is a bitfield:

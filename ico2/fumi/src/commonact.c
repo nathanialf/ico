@@ -144,6 +144,7 @@ inline void afterCommonTruckLever(GObj *volatile a0);
 #include "box.h"
 #include "quaternion.h"
 #include "main.h"
+#include "fieldCollision.h"
 
 typedef struct {
     int a, b, c;
@@ -362,7 +363,7 @@ int _ACTCorrectMsg(GObj *self, int msg, void *param)
                 msg = 418;
                 if (13 <= sk->frame) {
                     msg = 30;
-                    iosOmSendMail(self, 29, (int)param);
+                    iosOmSendMail(self, 29, param);
                 }
             }
         }
@@ -420,16 +421,16 @@ int _ACTCorrectMsg(GObj *self, int msg, void *param)
             break;
         }
         if (iv < 130) {
-            iosOmSendMail(self, 59, (int)param);
+            iosOmSendMail(self, 59, param);
         }
         if (self == girlGObj && ACTGame_FLAG_TETSUNAGI()) {
-            iosOmSendMail(self, 58, (int)param);
+            iosOmSendMail(self, 58, param);
             if (iv < 130) {
-                iosOmSendMail(self, 57, (int)param);
+                iosOmSendMail(self, 57, param);
             }
         }
         if (*(int *)((char *)GOBJ_ACT(self)->work + 0x900) == 38) {
-            iosOmSendMail(self, 60, (int)self);
+            iosOmSendMail(self, 60, self);
         }
         if (_ACTGame_GetParamF(2) < (float)iv) {
             flagA = 1;
@@ -450,9 +451,9 @@ int _ACTCorrectMsg(GObj *self, int msg, void *param)
             msg = 43;
         }
         if (*(int *)((char *)GOBJ_ACT(self)->work + 0x900) == 21) {
-            iosOmSendMail(self, 56, (int)param);
+            iosOmSendMail(self, 56, param);
             if (msg == 43) {
-                iosOmSendMail(self, 55, (int)param);
+                iosOmSendMail(self, 55, param);
             }
         }
         break;
@@ -493,7 +494,7 @@ int _ACTCorrectMsg(GObj *self, int msg, void *param)
         if (_AbsRotyGV(test_CURRENTORIENT(self), (void *)((int)GOBJ_ACT(self) + 0x1C0)) < 60 &&
             sk->actMode != 15 && sk->actMode != 20 && GOBJ_ACT(self)->unguardable == 0 &&
             !((int)(sk->flags18.ll >> 51) & 1)) {
-            iosOmSendMail(self, 283, (int)param);
+            iosOmSendMail(self, 283, param);
             debug_StdPrintfDummy("guard mail\n");
         } else {
             debug_StdPrintfDummy(
@@ -799,7 +800,7 @@ void WithMailFunc_AttackRejectInQueen(char *a0)
     if (stage_no == 0x55 || debug_use_new_queen_battle != 0) {
         void *e = isysGObjSearchFromObjKindID_begin(54);
         if (e != 0) {
-            iosOmSendMail(e, 0xD, (int)a0);
+            iosOmSendMail(e, 0xD, a0);
         }
     }
 }
@@ -829,9 +830,6 @@ void GetCorrectOrientOfChain(void *buf, void *obj)
         ((float *)buf)[2] = *(float *)((char *)test_CURRENTORIENT(obj) + 8);
     }
 }
-
-/* kept local: agrees with fieldCollision.h, which this TU does not include */
-extern void ClipWall(void *a0);
 
 /* reconstruction: the ClipWall work buffer as this function reads it. RsWork
    below is the other view of the same 0xC0-byte record and disagrees at 0x80
@@ -919,8 +917,6 @@ extern int CheckChainClimbablePos(char *a0);
 extern void GetChainClimbOrient(float *dst, char *a0);
 /* kept local: agrees with chain.h, which this TU does not include (HoldChain, ReleaseChain, SetChainRootUpdateMode differ) */
 extern void GetChainClimbCollision(void *out, int chain);
-/* kept local: agrees with fieldCollision.h, which this TU does not include */
-extern void ClipFloor(void *a0);
 /* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
 extern void SetMotionDirection();
 
@@ -1391,9 +1387,6 @@ void TestCageUpDown(int cage, GObj *gobj)
 
 /* SU-E END TestCageUpDown */
 
-/* kept local: agrees with fieldCollision.h, which this TU does not include */
-extern void GetOrientOfWall(void *a0, void *a1, int *a2);
-
 typedef struct {
     float x, y;
 } RsVec2;
@@ -1693,7 +1686,7 @@ void actCommonDie(GObj *volatile a0)
             g = isysGObjSearchFromObjKindID_begin(0x41);
         }
         if (a0->kind == 4 && g != 0) {
-            iosOmSendMail(g, 0x12, (int)a0);
+            iosOmSendMail(g, 0x12, a0);
         }
     }
     Act *s = GOBJ_ACT(a0);
@@ -2162,13 +2155,11 @@ void actCommonBox(GObj *volatile a0)
 
 /* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionDirection, SetMotionNodeFixModeParameter differ) */
 extern int GetMotionFrameFlag1(char *self);
-/* kept local: Blob12 here, FcColInfo in fieldCollision.h */
-extern Blob12 InitialColInfo;
 
 inline void afterCommonBar(GObj *volatile a0)
 {
     debug_StdPrintfDummy("reset\n");
-    *(Blob12 *)((char *)GOBJ_SUB(a0) + 0x1C0) = InitialColInfo;
+    GOBJ_SUB(a0)->root.filter = InitialColInfo;
     _boxbar_set_sound(a0, 0);
 }
 
@@ -2697,8 +2688,6 @@ static inline unsigned char IsFlyTimeOver(int a0)
     return 0;
 }
 
-/* kept local: agrees with fieldCollision.h, which this TU does not include */
-extern void ClipCollision(int *self);
 /* kept local: no header declares it */
 extern void GetRootMotionMatrix(void *m, char *obj);
 /* kept local: no header declares it */
@@ -3345,7 +3334,7 @@ inline void actCommonGuard(GObj *volatile a0)
         EBRAIN_SEND_MES((void *)a0, 6);
         ACTGame_LwsEffect_Guard((void *)a0);
     }
-    iosOmSendMail(boyGObj, 0x11C, (int)a0);
+    iosOmSendMail(boyGObj, 0x11C, a0);
     if (s->intrKind == 0x11A) {
         ACTSetPositionWithFitting((void *)a0, test_CURRENTROOT((void *)a0));
     }
@@ -3570,7 +3559,7 @@ void ACTSendMailCorrect(GObj *a0, int a1)
             a1 = ((int)((long long)s->wish4.ll >> 3) & 1) ? 0xB7 : a1;
         }
     }
-    iosOmSendMail(a0, a1, (int)a0);
+    iosOmSendMail(a0, a1, a0);
 }
 
 void _ACTCommonMailTest(GObj *self, int a1, int a2, int a3)
@@ -4203,9 +4192,6 @@ inline void actCommonClimb(GObj *volatile a0)
     }
 }
 
-/* kept local: agrees with fieldCollision.h, which this TU does not include */
-extern int CompareAttribute(unsigned int a, unsigned int b);
-
 typedef struct {
     float x, y, z;
 } Vec3f;
@@ -4286,7 +4272,7 @@ inline void actCommonFallDamage(GObj *volatile a0)
     for (;;) {
         if ((char *)a0 == (char *)boyGObj && (char *)girlGObj != 0) {
             brainSetSpMode();
-            iosOmSendMail(girlGObj, 0x3D, (int)a0);
+            iosOmSendMail(girlGObj, 0x3D, a0);
         }
         ACTSendMailCorrect(a0, 0xC7);
         _ACTWait(1);
@@ -4776,7 +4762,7 @@ inline void extraCommonNull(GObj *volatile a0)
 inline void extraCommonCall(GObj *volatile a0)
 {
     if ((char *)girlGObj) {
-        iosOmSendMail(girlGObj, 0x44, (int)isysCurrentGObj);
+        iosOmSendMail(girlGObj, 0x44, isysCurrentGObj);
     }
     for (;;) {
         _ACTWait(1);
@@ -5018,9 +5004,6 @@ inline void actAfterFly(GObj *volatile a0)
     SetEnemyFootPrintSwitch(a0, 1);
     ResetFlyLimit(a0);
 }
-
-/* kept local: agrees with fieldCollision.h, which this TU does not include */
-extern void ClipWallField(void *a0);
 
 inline void ClipCollisionWithField(char *a0)
 {

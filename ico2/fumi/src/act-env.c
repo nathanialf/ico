@@ -52,6 +52,7 @@ extern int stage_no;
 #include "act-env.h"
 #include "gv.h"
 #include "fieldCollision.h"
+#include "motionOrientManager.h"
 
 inline void GetSofaPosition(GObj *a0, char *a1)
 {
@@ -322,35 +323,8 @@ extern char *GetBombTorchGObj(char *a0);
 extern int GetBoxHoldPoint(float *out, char *self, void *chara);
 /* kept local: char * here, int in main.h */
 extern int girlControlMode;
-
-/* kept local, as act-game.c keeps it: the 0x194-byte-per-entry motion record
-   table indexed by the object's current motion id (obj->0x15C->0x4A0). */
-typedef struct {
-    char pad0[336];
-    int f_150;
-    char pad154[16];
-    float f_164;
-    char pad168[24];
-    short f_180;
-    short f_182;
-    short f_184;
-    char pad186[2];
-
-    union {
-        unsigned int w;
-
-        struct {
-            unsigned short lo, hi;
-        } h;
-
-        char b;
-    } u_188;
-
-    unsigned int f_18C;
-    unsigned int f_190;
-} MotionRec;
-
-extern MotionRec motionKind[];
+/* kept local: motionOrientManager.h declares none of the motion tables */
+extern MotionDef motionKind[];
 
 /* act-env.c:949-953: the negated-orient angle, eight call sites.  Interim
    name: the listing inlines it everywhere, so neither MAIN.MAP nor the
@@ -727,15 +701,15 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
             int t3;
             char t16;
             char t17;
-            MotionRec *row;
+            MotionDef *row;
 
             if (190.0f < hgt && hgt < 210.0f && hgt < 40.0f) {
             }
             row = &motionKind[GOBJ_SUB(a0)->ctrl.motion];
             g = 1;
-            if ((row->u_188.w >> 19) & 7) {
+            if ((row->modeBits.word >> 19) & 7) {
                 kk = 60.0f;
-            } else if ((row->f_18C >> 28) & 1) {
+            } else if ((row->flags.word >> 28) & 1) {
                 kk = 50.0f;
             } else {
                 kk = 40.0f;
@@ -887,7 +861,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
             flags[2].w |= 0x20000;
         }
     }
-    switch (((int)(&motionKind[GOBJ_SUB(a0)->ctrl.motion])->u_188.w << 6) >> 30) {
+    switch (((int)(&motionKind[GOBJ_SUB(a0)->ctrl.motion])->modeBits.word << 6) >> 30) {
     default:
         kd = 60.0f;
         break;
@@ -895,7 +869,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
         if (CheckWallAttributeEdegWall((int)a0)) {
             kd = 30.0f;
         } else {
-            kd = GetCorrectDistance(motionKind[GOBJ_SUB(a0)->ctrl.motion].f_164 + 2.0f,
+            kd = GetCorrectDistance(motionKind[GOBJ_SUB(a0)->ctrl.motion].clipRadius + 2.0f,
                                     v1F8);
         }
         kd = (kd < 0.0f) ? 0.0f : ((30.0f < kd) ? 30.0f : kd);
@@ -1531,9 +1505,9 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
         int x;
         int n;
         float rad;
-        MotionRec *row = &motionKind[GOBJ_SUB(a0)->ctrl.motion];
+        MotionDef *row = &motionKind[GOBJ_SUB(a0)->ctrl.motion];
 
-        rad = ((row->u_188.w >> 19) & 7) ? 100.0f : 90.0f;
+        rad = ((row->modeBits.word >> 19) & 7) ? 100.0f : 90.0f;
         c = CheckTorchChainReaction(a0, 200.0f);
         if (c != 0) {
             GetRootPosition(p70, c);

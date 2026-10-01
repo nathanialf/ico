@@ -267,9 +267,6 @@ int huft_build(unsigned int *b, unsigned int n, unsigned int s, unsigned short *
     return y != 0 && g != 1;
 }
 
-extern int huft_build(unsigned int *b, unsigned int n, unsigned int s, unsigned short *d,
-                      unsigned short *e, struct huft **t, int *m, void *mb);
-
 /* huft_free sits at source lines 307-321, ahead of inflate_codes, yet the ROM
  * emits it LAST in the TU and inlines its body into inflate_fixed and
  * inflate_dynamic: it is an `inline` function, so gcc defers the out-of-line

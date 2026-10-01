@@ -94,8 +94,9 @@ void soundAllocIopFree(void);
 void soundSeEnvPlay(void);
 
 /* sedef: one sound effect, 0x3C bytes. Readers: ico2/fumi/sound/s_init.c
- * (SeSrcDef), ico2/fumi/src/seMail.c (SeRec: mail, check, 0x34, flags),
- * ico2/common/src/debug.c, ico2/sugipon/src/frameDependSequence.c (0x20).
+ * (kind, volume, shock and the play bits), ico2/fumi/src/seMail.c (the mail,
+ * its check, argument and target bits), ico2/common/src/debug.c,
+ * ico2/sugipon/src/frameDependSequence.c (0x20).
  * Owner: ico2/fumi/include/s_init.h. */
 typedef struct {                                                     /* field names derived */
     char name[32];                                                   /* 0x00 */
@@ -103,11 +104,17 @@ typedef struct {                                                     /* field na
     float volume;                                                    /* 0x24 */
     int mail;                                                        /* 0x28 */
     int (*check)(struct GObj *target, struct GObj *self, void *rec); /* 0x2C */
-    int range;              /* 0x30, how near seMailTargetDistCheck wants a target */
-    unsigned short mailArg; /* 0x34, ACTGame_SendSoundMail's argument */
-    unsigned short shock;   /* 0x36, the shockList row */
-    unsigned int flags;     /* 0x38 */
-} SeDef;                    /* derived name */
+    int range;                  /* 0x30, how near seMailTargetDistCheck wants a target */
+    unsigned short mailArg;     /* 0x34, ACTGame_SendSoundMail's argument */
+    unsigned short shock;       /* 0x36, the shockList row */
+    unsigned int mailMode : 4;  /* 0x38 bits 0..3, seMail's target bits */
+    unsigned int playMode : 2;  /* 0 plays beside a playing copy, 1 keeps it, 2 restarts it */
+    unsigned int shockStop : 1; /* the pad action stops with the sound */
+    unsigned int audible : 1;   /* the slot's starting flag.bit.audible */
+    unsigned int procRan : 1;   /* set once the slot's proc has run */
+    unsigned int waitSkip : 1;  /* the mail is not sent while the target's sound wait runs */
+    unsigned int : 22;
+} SeDef; /* derived name */
 
 /* se-env: one stage sound environment, 0x1C bytes, the rows a stage's
  * seEnvFirst..seEnvLast covers. Reader: ico2/fumi/sound/s_init.c
