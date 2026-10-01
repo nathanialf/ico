@@ -6,9 +6,14 @@
 #      for them).
 #   2. tools/extract_elf.sh, when baserom/pal/baseelf.elf is missing. It reads
 #      baserom/Ico_PAL.iso, the user's own image of the PAL disc.
-#   3. tools/build.sh setup: verify the base ELF and ROM SHA-1s, write
-#      build.ninja.
+#   3. tools/build.sh setup when build.ninja is missing (delete build/, verify
+#      the base ELF and ROM SHA-1s, write build.ninja); otherwise
+#      tools/build.sh verify, the SHA-1s alone. build.ninja rewrites itself
+#      when gen_ninja.py or its config inputs change.
 #   4. ninja: compile, assemble, link, and run tools/check_elf.py --gate.
+#      On a tree that is already built this does nothing but the gate.
+#      ninja does not track header or .c.inc dependencies: after editing one,
+#      run tools/build.sh clean (or setup) before ./build.sh.
 #   5. Print check_elf's gate table once more, as the last thing on screen.
 #
 # Exits non-zero when any step fails. tools/build.sh keeps the individual
@@ -32,7 +37,7 @@ toolchain_ok() {
 
 if ! toolchain_ok; then
     echo "==> build.sh: toolchain incomplete, running tools/setup.sh"
-    SKIP_GHIDRA="${SKIP_GHIDRA:-1}" SKIP_PCSX2="${SKIP_PCSX2:-1}" tools/setup.sh
+    ICO_FROM_BUILD_SH=1 SKIP_GHIDRA="${SKIP_GHIDRA:-1}" SKIP_PCSX2="${SKIP_PCSX2:-1}" tools/setup.sh
     if ! toolchain_ok; then
         echo "build.sh: tools/setup.sh finished but the toolchain is still incomplete;" >&2
         echo "  see its output above (32-bit host libraries, network access)." >&2
@@ -55,7 +60,11 @@ EOF
     tools/extract_elf.sh
 fi
 
-tools/build.sh setup
+if [[ -f build.ninja ]]; then
+    tools/build.sh verify
+else
+    tools/build.sh setup
+fi
 "$NINJA"
 
 echo

@@ -5,12 +5,16 @@ name: Deploy progress dashboard
 # One branch per target: main -> pal (PAL retail, SCES-50760), ntsc -> us (USA
 # retail, SLUS-20218), aug6 -> aug6 (Aug-6-2001 prototype).
 #
-# This workflow, .github/scripts/build_pages_site.sh and docs/index.html are
-# byte-identical on all three branches — deliberately, with no per-branch
-# conditionals. A Pages deploy replaces the ENTIRE site, so every branch must
-# assemble the same complete site (pal + us + aug6) or whichever branch deployed
-# last would 404 the other versions' data. Fix these files on one branch and copy
-# them verbatim to the others; the assemble script warns if they drift.
+# This workflow and .github/scripts/build_pages_site.sh are byte-identical on
+# all three branches, with no per-branch conditionals. A Pages deploy replaces
+# the ENTIRE site, so every branch must assemble the same complete site (pal +
+# us + aug6) or whichever branch deployed last would 404 the other versions'
+# data. Fix these two files on one branch and copy them verbatim to the others;
+# the assemble script warns if they drift.
+#
+# The dashboard page, docs/index.html, is read from `main` only, whichever
+# branch runs the deploy; each branch contributes just its progress.json and
+# PROGRESS.md. A page change lands on `main` alone and is never mirrored.
 #
 # See .github/scripts/build_pages_site.sh for the layout it produces.
 on:

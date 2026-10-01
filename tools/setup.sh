@@ -277,6 +277,12 @@ else
 fi
 
 echo
+# Run from ../build.sh, which carries on with the extraction and the build
+# itself: the next steps below would only repeat what it is about to do.
+if [[ "${ICO_FROM_BUILD_SH:-0}" == "1" ]]; then
+    echo "Setup complete; build.sh continues."
+    exit 0
+fi
 echo "Setup complete. Next steps:"
 # The disc image the extractor wants depends on this branch's target: PAL retail
 # (main) reads a plain ISO, USA retail (ntsc) a .bin/.cue pair. Ask

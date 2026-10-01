@@ -10,7 +10,8 @@
 # script only handles the one-shots that do not belong in the build graph.
 #
 # Subcommands:
-#   setup       Verify the base ELF and ROM SHA-1s + write build.ninja.
+#   setup       Delete build/, verify the base ELF and ROM SHA-1s, write build.ninja.
+#   verify      Just verify the base ELF and ROM SHA-1s.
 #   regen       Just rewrite build.ninja.
 #   clean       rm -rf build/.
 #   distclean   clean + remove build.ninja and ninja's state.
@@ -36,12 +37,16 @@ regen_ninja() {
     "${VENV_PY}" tools/gen_ninja.py
 }
 
-setup() {
-    echo "==> clean build/ (full rebuild)"
-    rm -rf build .ninja_log .ninja_deps
+verify_base() {
     echo "==> verifying the base ELF and ROM SHA-1s"
     "${VENV_PY}" tools/verify_elf.py --target "${BASEELF}"
     "${VENV_PY}" tools/verify_elf.py --target "${BASEROM}"
+}
+
+setup() {
+    echo "==> clean build/ (full rebuild)"
+    rm -rf build .ninja_log .ninja_deps
+    verify_base
     regen_ninja
 }
 
@@ -63,6 +68,7 @@ do_progress() {
 cmd="${1:-help}"
 case "$cmd" in
     setup)      setup ;;
+    verify)     verify_base ;;
     regen)      regen_ninja ;;
     clean)      do_clean ;;
     distclean)  do_distclean ;;
@@ -71,7 +77,8 @@ case "$cmd" in
         cat <<EOF
 usage: $0 <subcommand>
 
-  setup       verify the base ELF and ROM, write build.ninja
+  setup       delete build/, verify the base ELF and ROM, write build.ninja
+  verify      verify the base ELF and ROM SHA-1s only
   regen       rewrite build.ninja from config/link_order.${VERSION}.txt
   clean       rm -rf build/
   distclean   clean + delete build.ninja and ninja's state

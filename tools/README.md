@@ -4,8 +4,9 @@ Every file in this directory, with what it does. The tools work on the
 branch's target as `ico_version.py` reports it (`main` is PAL retail, slug
 `pal`). `tools/cc/` and `tools/ghidra/` are fetched or built by `setup.sh`
 and are not tracked. `../build.sh` at the repository root runs `setup.sh` and
-`extract_elf.sh` when their output is missing, then `build.sh setup` and ninja,
-whose last step is the gate.
+`extract_elf.sh` when their output is missing, then `build.sh setup` (or
+`build.sh verify` once `build.ninja` exists) and ninja, whose last step is the
+gate.
 
 | tool | what it does |
 |---|---|
@@ -16,7 +17,7 @@ whose last step is the gate.
 | `install_hooks.sh` | writes the pre-commit hook (`check_no_rom.sh`, `check_dev_native.py`, `format.sh --check` on the staged C, then `build.sh setup`, `ninja` and `check_elf.py --progress` when a staged path can affect the build) and the pre-push hook (`build.sh setup` and `ninja` on the pushed tip) |
 | `extract_elf.sh` / `extract_elf.py` | reads the user's disc image and writes `baserom/<ver>/baseelf.elf`, its `objcopy -O binary` view `baseelf.rom`, and on PAL the disc's `MAIN.MAP`, `SRCFILE.TXT`, `TRFILE.TXT` and `SYSTEM.CNF`; records or checks the SHA-1s in `config/sha1sums.txt` |
 | `ico_version.py` / `ico_version.sh` | the branch's target slug (the first `config/link_order.<slug>.txt` that exists) and its base file paths, for the Python and shell tools |
-| `build.sh` | `setup` (delete `build/`, verify the base ELF and ROM SHA-1s with `verify_elf.py`, write `build.ninja`), `regen`, `clean`, `distclean`, `progress` (runs `check_elf.py --progress`) |
+| `build.sh` | `setup` (delete `build/`, verify the base ELF and ROM SHA-1s with `verify_elf.py`, write `build.ninja`), `verify` (the SHA-1s alone), `regen`, `clean`, `distclean`, `progress` (runs `check_elf.py --progress`) |
 | `gen_ninja.py` | writes `build.ninja` from `config/link_order.pal.txt`: a compile rule per C source (`compile_c.sh`), an assemble rule per `.s` source with its archive's assembler, dvp-as for `ico2/vusrc/*.dsm`, the data-only members (`gen_data_c.py` for the schema's members: a stand-in, a layout link, the C, its check; `extract_data.py` for the rest), the link with GNU ld 2.10 and `config/link.pal.ld`, the ROM view, and `check_elf.py --gate` as the last step |
 | `compile_c.sh` | compiles one C source: ee-gcc 2.9-991111 with the flags of the source's origin (the game `-g -G 8 -fno-common`, Sony's SDK archives `-G 0`, libc, libm and libgcc `-G 0 -fno-builtin`), then the assembler of its archive (ee-as 2.9-991111 for the game, libc, libm and libgcc; SCE's 2.10 assembler for the SDK archives); `DUMP_DIR` adds gcc's RTL dumps under the same flags |
 | `period_env.sh` / `period_obstack.c` | runs a period toolchain binary with `period_obstack.c` preloaded, which restores the obstack chunk size of the machine that built the game; ee-as's R5900 short-loop padding depends on it |
