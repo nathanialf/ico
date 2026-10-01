@@ -60,4 +60,7 @@ typedef union SubHandle {
     char *p;
 } SubHandle;
 
+int GetCylinderCollisionWithExceptOwnCollision(char *self, int target, float r, float h, float s,
+                                               float t, int ctrl);
+
 #endif /* GEOMETRYMANAGER_H */

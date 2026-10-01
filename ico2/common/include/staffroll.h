@@ -13,11 +13,11 @@
 #define STAFFROLL_H
 
 void staffRollStart(float t, int alpha);
-
 /* MAIN.MAP globals of staffroll.o's .sdata */
 extern int staffRollStartFlag;
 extern float staffRollCenterOffsetX;
 extern float staffRollCenterOffsetXDest;
 extern int staffRollAlpha;
+void staffRollMain(void);
 
 #endif /* STAFFROLL_H */

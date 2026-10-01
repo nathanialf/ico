@@ -14,7 +14,6 @@
 
 /* MAIN.MAP global */
 extern int current_group;
-
 void AddPluralCameraSet(int id, char *name);
 void CameraMove(int group, float *pos, float *out, float *ofsA, float *ofsB);
 void CameraSetCameraSet(int id);
@@ -25,5 +24,8 @@ void InitPluralCameraSet(void);
 void *ReadCameraSet(char *name, int stage);
 void ReflectCameraSetBinary(int a0, int a1);
 void SetCameraTargetPosition(void *a0, float a1);
+void SetCameraZoomOffsetRatio(float val);
+void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag);
+void SetCameraMatrix_Ico2(int flag);
 
 #endif /* CAMERA_ICO2_H */

@@ -2,6 +2,8 @@
 #include "GsBase.h"
 #include <eekernel.h>
 #include "typedef.h"
+#include "Texture.h"
+#include "ZFog.h"
 
 /* The fog CLUT upload packet: a VIF code quad (nop, nop, FLUSHA, DIRECT 65),
  * a GIFtag (EOP, NLOOP=64, FLG=IMAGE), the 256-entry 32-bit CLUT itself and a
@@ -121,12 +123,11 @@ typedef struct {
     FogPkPtr end;
 } FogDpk;
 
+/* kept local: FogDpk here, DpkCtl in DmaPacket.h */
 extern FogDpk PacketBufferStruct;
-extern int debug_fullscreen_effect;
-extern int debug_font_flag;
-extern int tex_AllocVramAuto(int a0, int a1);
-extern void tex_ResetVramPri(int pri);
+/* kept local: void (int, void *, int) here, void (int, int, int) in DisplayList.h */
 extern void dl_OpenDma(int chan, void *dma, int flag);
+/* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */
 extern void dl_CloseDma(void);
 
 /* RECONSTRUCTION.  The packet writers the listing attributes to their

@@ -6,6 +6,7 @@
 #include "girl_act.h"
 #include "motionManager2.h"
 #include <libvu0.h>
+#include "Matrix.h"
 
 void GetRootQuaternionByDObj(int a0, int *a1)
 {
@@ -23,7 +24,7 @@ null_path:
     CopyQuaternion(a0, (int)a1 + 0xD0);
 }
 
-/* kept local: this TU's uses of GetMatrixFromQuaternionPos do not fit the prototype in quaternion.h */
+/* kept local: void (void *, void *, void *) here, void (char *, char *, char *) in quaternion.h */
 extern void GetMatrixFromQuaternionPos(void *a0, void *a1, void *a2);
 
 void UpdateRootMatrixByDObj(char *a0)
@@ -52,7 +53,7 @@ void UpdateRootMatrix(int a0)
     UpdateRootMatrixByDObj((int)((GObj *)(a0))->p_15C);
 }
 
-/* kept local: this TU's uses of CopyQuaternion do not fit the prototype in quaternion.h */
+/* kept local: agrees with quaternion.h, which this TU does not include (DivQuaternion, GetMatrixFromQuaternion differ) */
 extern void CopyQuaternion();
 
 void SetRootBaseQuaternion(int a0)
@@ -60,7 +61,7 @@ void SetRootBaseQuaternion(int a0)
     CopyQuaternion((int)((GObj *)(a0))->p_15C + 0xC0);
 }
 
-/* kept local: this TU's uses of DivQuaternion do not fit the prototype in quaternion.h */
+/* kept local: void (void *, void *, int) here, void (int, int, int) in quaternion.h */
 extern void DivQuaternion(void *a0, void *a1, int a2);
 
 void SetRootQuaternion(char *a0, void *a1)
@@ -75,15 +76,15 @@ void SetRootQuaternion(char *a0, void *a1)
     }
 }
 
-/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
 extern void CopyMatrix();
-/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: int * () here, void * (void) in matrixDrive.h */
 extern int *MatrixDrive_GetMatrix();
-/* kept local: this TU's uses of MatrixDrive_PopMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
 extern void MatrixDrive_PopMatrix();
-/* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
 extern void MatrixDrive_PushMatrix();
-/* kept local: this TU's uses of MatrixDrive_TransMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
 extern void MatrixDrive_TransMatrix(float a, float b, float c);
 
 void SetRootMatrixWithTransOffsetByDObj(void *dobj, float x, float y, float z)
@@ -100,9 +101,9 @@ void SetRootMatrixWithTransOffset(void *obj, float x, float y, float z)
     SetRootMatrixWithTransOffsetByDObj(GOBJ_SUB(obj), x, y, z);
 }
 
-/* kept local: this TU's uses of GetInverseQuaternion do not fit the prototype in quaternion.h */
+/* kept local: agrees with quaternion.h, which this TU does not include (DivQuaternion, GetMatrixFromQuaternion differ) */
 extern void GetInverseQuaternion();
-/* kept local: this TU's uses of MultiQuaternion do not fit the prototype in quaternion.h */
+/* kept local: agrees with quaternion.h, which this TU does not include (DivQuaternion, GetMatrixFromQuaternion differ) */
 extern void MultiQuaternion();
 
 void GetRootMatrixRotOffsetByDObj(int a0, int a1)
@@ -116,7 +117,7 @@ void GetRootMatrixRotOffset(void *a0, int a1)
     GetRootMatrixRotOffsetByDObj(a0, (void *)GOBJ_SUB(a1));
 }
 
-/* kept local: this TU's uses of MultiMatrixByQuaternion do not fit the prototype in quaternion.h */
+/* kept local: agrees with quaternion.h, which this TU does not include (DivQuaternion, GetMatrixFromQuaternion differ) */
 extern void MultiMatrixByQuaternion();
 
 void SetRootMatrixRotOffsetByDObj(int *self, int *other)
@@ -134,11 +135,11 @@ void SetRootMatrixRotOffset(int a0, void *a1)
     SetRootMatrixRotOffsetByDObj((void *)GOBJ_SUB(a0), a1);
 }
 
-/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
 extern void CopyVector();
-/* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: void (void *, void *) here, void (float *, float *) in matrixDrive.h */
 extern void MatrixDrive_SetTransposeMatrix(void *a0, void *a1);
-/* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
+/* kept local: char [] here, float [4] in matrixDrive.h */
 extern char ZeroVector[];
 
 /* INTERIM stand-ins: the ROM inlines GetRootPosition (listing lines 55-64 and
@@ -254,7 +255,7 @@ extern void __assert(char *file, int line, char *expr);
 
 #define SUBOF(o) (((SubHandle *)((o) + 0x15C))->p)
 
-/* kept local: this TU's uses of DivQuaternion do not fit the prototype in quaternion.h */
+/* kept local: void () here, void (int, int, int) in quaternion.h */
 extern void DivQuaternion();
 
 /* INTERIM: the January-2002 listing inlines LocalizeDirectionOrient into
@@ -354,9 +355,9 @@ void GetRootVelocity(int a0, int a1)
     CopyVector(a0, (int)((GObj *)(a1))->p_15C + 0x130);
 }
 
-/* kept local: this TU's uses of MatrixDrive_TransMatrixV do not fit the prototype in matrixDrive.h */
+/* kept local: void (void *) here, void (char *) in matrixDrive.h */
 extern void MatrixDrive_TransMatrixV(void *a0);
-/* kept local: this TU's uses of MatrixDrive_RotMatrixX do not fit the prototype in matrixDrive.h */
+/* kept local: void (int) here, void (short) in matrixDrive.h */
 extern void MatrixDrive_RotMatrixX(int a0);
 
 void GetInitialInverseMatrixByDObj(char *mat, char *mdl)
@@ -498,9 +499,11 @@ void MakeCharGObjList(void)
 
 /* kept local: VectorLengthSquare and _Sqrt return float, where the prototypes in
  * matrixDrive.h and Matrix.h have them void. */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
 extern float VectorLengthSquare(void *v);
-extern float _Sqrt(float f);
+/* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipWall(void *w);
+/* kept local: agrees with fieldCollision.h, which this TU does not include (ClipWall differs) */
 extern void ClipWallE(void *w);
 
 /* The wall-clip request handed to ClipWall / ClipWallE: the segment endpoints,
@@ -684,7 +687,7 @@ fail:
     return 0;
 }
 
-/* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: void () here, void (float *, float *) in matrixDrive.h */
 extern void MatrixDrive_SetTransposeMatrix();
 
 void LocalizeDirectionOrient(int *self, int *a1)
@@ -727,6 +730,7 @@ static __inline__ void GetRootPosition_ic(void *a0, char *outer)
    earlier declaration there, so girl_act.h does not carry it */
 extern int isMustCheckCylinder(void *a, void *b);
 
+/* No caller in the ROM, so the bytes cannot decide the return type: int as sugipon's scalar getters. */
 int GetCylinderCollision(char *self, int target, float r, float h, float s, int ctrl)
 {
     float pos[4];
@@ -814,7 +818,7 @@ int CylinderCollisionWithControlDynamics(char *self, int group, int ctrl, float 
     return hit;
 }
 
-/* kept local: this TU's uses of GetMatrixFromQuaternionPos do not fit the prototype in quaternion.h */
+/* kept local: void () here, void (char *, char *, char *) in quaternion.h */
 extern void GetMatrixFromQuaternionPos();
 
 void GetRootMatrixByDObj(void *a0, char *src)
@@ -969,7 +973,7 @@ void GetRootPosition(void *a0, char *outer)
     *(float *)((char *)a0 + 0xC) = 1.0f;
 }
 
-/* kept local: this TU's uses of ZUnitVector do not fit the prototype in matrixDrive.h */
+/* kept local: char [] here, float [4] in matrixDrive.h */
 extern char ZUnitVector[];
 
 void GetRootOrient(char *a0, char *a1)
@@ -1026,7 +1030,7 @@ void GetRootMatrixTransOffset(char *dst, char *src)
     CopyVector((int)dst, (int)(tmp + 0x30));
 }
 
-/* kept local: this TU's uses of GetMatrixFromQuaternion do not fit the prototype in quaternion.h */
+/* kept local: void (int, int) here, void (char *, char *) in quaternion.h */
 extern void GetMatrixFromQuaternion(int dst, int src);
 
 void GetRootMotionOrient(char *a0, char *a1)
@@ -1066,10 +1070,8 @@ void GetRootMotionMatrix(char *a0, char *a1)
     sceVu0MulMatrix(a0, buf, (int)a0);
 }
 
-/* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
 extern void AddVectorXYZ(void *a0, void *a1, void *a2);
-/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
-extern void _ScaleVectorXYZ(void *a0, void *a1, float f);
 
 void GetProjectionPosOfPlane(void *a0, void *a1, void *a2)
 {
@@ -1080,9 +1082,6 @@ void GetProjectionPosOfPlane(void *a0, void *a1, void *a2)
     AddVectorXYZ(a0, a2, buf);
     *(float *)((char *)a0 + 0xC) = 1.0f;
 }
-
-/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
-extern void _AddVectorXYZ(void *a0, void *a1, void *a2);
 
 float GetProjectionOfPlane(void *a0, void *a1, void *a2)
 {
@@ -1110,7 +1109,7 @@ int *GetCharGObjList(void)
     return charGObjList;
 }
 
-/* kept local: this TU's uses of MatrixDrive_TransMatrixV do not fit the prototype in matrixDrive.h */
+/* kept local: void () here, void (char *) in matrixDrive.h */
 extern void MatrixDrive_TransMatrixV();
 
 void getInitialInverseMatrix(char *mat, char *mdl, int no)

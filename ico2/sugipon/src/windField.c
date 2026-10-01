@@ -154,11 +154,11 @@ static float baseLines[12][4] = {
     {0.0f, -100.0f, 0.0f, 1.0f},  {-10000.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f},
 };
 
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
 extern void gif_EndPacket(void);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
+/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
 extern void gif_StartPacketPri(int a0);
 
 void drawSenpuuki(float scale)

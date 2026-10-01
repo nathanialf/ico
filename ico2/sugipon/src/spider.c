@@ -15,7 +15,7 @@
 #include "spiderGroupManager.h"
 #include <stdlib.h>
 
-/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_sugipon;
 
 /* spider.o's whole .rodata run starts here.  These three are named objects,
@@ -278,13 +278,13 @@ int sgSelLine = 0;
 /* spider.o's whole .data run: the white the debug wire sphere is drawn in. */
 static int spiderWireColor[4] = {0xFF, 0xFF, 0xFF, 0xFF};
 
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
 extern void gif_StartPacketPri(int pri);
-/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
 extern void gif_SetZTest(int on);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
+/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
 extern void gif_EndPacket(void);
 
 typedef struct {

@@ -26,8 +26,8 @@ typedef struct {
 
 extern DpkCtl PacketBufferStruct;
 extern int used_dma_memory;
-
 void dpk_Init(void);
 void dpk_SwapBuffer(void);
+int dpk_CheckBufferSize(void);
 
 #endif /* DMAPACKET_H */

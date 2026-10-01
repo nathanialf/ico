@@ -46,9 +46,9 @@ static CapsuleRec capsule[53]; /* derived name */
 
 static volatile int geneDone[16]; /* derived name */
 
-/* kept local: this TU's uses of GetParticleEffectData do not fit the prototype in particleEffect.h */
+/* kept local: char * () here, int (int) in particleEffect.h */
 extern char *GetParticleEffectData();
-/* kept local: this TU's uses of pbga_start do not fit the prototype in itou_sub.h */
+/* kept local: void (void *, int) here, void (int *, int *) in itou_sub.h */
 extern void pbga_start(void *a0, int a1);
 
 /* The fifty-three capsules' placements and the points their enemies are
@@ -285,7 +285,7 @@ void effect_end_func(void *a0)
     }
 }
 
-/* kept local: this TU's uses of GatherEffect_Set do not fit the prototype in gather_effect.h */
+/* kept local: int (int, void *, void *, void *, void *, float) here, int (int, char *, float *, char *, float, void *) in gather_effect.h */
 extern int GatherEffect_Set(int kind, void *pos, void *tmpl, void *v, void *fn, float f);
 
 void bossCtrlBeforeFunc(char *self)
@@ -330,6 +330,7 @@ void bossCtrlBeforeFunc(char *self)
     *(int *)(p + 4) = 0;
 }
 
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, pad differ) */
 extern int stage_no;
 
 inline int InqCapsuleGhostBossStage(void)
@@ -365,11 +366,11 @@ void BossEnemyFunc(void *self)
     }
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int [] here, PadState [16] in main.h */
 extern int pad[];
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, pad differ) */
 extern int systemStatus[];
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *boyGObj;
 
 /* The TU's .sbss (VMA 0x63C2EC, 8 B, MAIN.MAP itou_boss.o .sbss 0x8): the
@@ -379,10 +380,10 @@ static int geneCount;
 
 static int geneReleasing;
 
-/* kept local: this TU's uses of ico_m33_to_quat do not fit the prototype in itou_sub.h */
+/* kept local: void (void *, void *) here, int (int) in itou_sub.h */
 extern void ico_m33_to_quat(void *a0, void *a1);
-extern void gene_eff_end_func(void);
 /* defined in ico2/sugipon/src/particleEffect.c; no header declares it */
+/* kept local: agrees with particleEffect.h, which this TU does not include (GetParticleEffectData differs) */
 extern void SetParticleEffectClipEnableFlag(int a0, int a1);
 
 /* listing lines 157-162: send an enemy off-world and clear its live flag
@@ -586,9 +587,9 @@ inline void actBossCtrlStart(void *a0)
     }
 }
 
-/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_sugipon;
-/* kept local: this TU's uses of ico_m33_to_quat do not fit the prototype in itou_sub.h */
+/* kept local: void (void *, void *) here, int (int) in itou_sub.h */
 extern void ico_m33_to_quat(void *a0, void *a1);
 
 inline int InitBossCtrlGeo(void *a0)
@@ -693,7 +694,7 @@ inline int InqCapsuleGhostBossEnd(void)
     return cnt >= 0x35 && no == 0;
 }
 
-/* kept local: this TU's uses of GetParticleEffectData do not fit the prototype in particleEffect.h */
+/* kept local: char * (void) here, int (int) in particleEffect.h */
 extern char *GetParticleEffectData(void);
 
 inline void gene_eff_end_func(void)

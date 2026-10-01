@@ -2,6 +2,9 @@
 #include "GsBase.h"
 #include "GifPacket.h"
 #include "typedef.h"
+#include "Matrix.h"
+#include "main.h"
+#include "matrixDrive.h"
 
 /* the TU's .sdata (MAIN.MAP lineManager.o .sdata 0xC, no symbol): the GS PRIM
    values the plain line, the line strip and the gouraud line are drawn with */
@@ -10,11 +13,6 @@ static int linePrim = 0x142; /* derived name */
 static int lineStripPrim = 0x189; /* derived name */
 
 static int lineGouraudPrim = 0x18A; /* derived name */
-
-/* kept local: this TU's uses of _FTOI4Vector do not fit the prototype in Matrix.h */
-extern void _FTOI4Vector();
-/* kept local: this TU's uses of _InitCurrentMatrix do not fit the prototype in Matrix.h */
-extern void _InitCurrentMatrix();
 
 void Draw2DLine(int *p1, int *p2, int *color, int z)
 {
@@ -62,15 +60,6 @@ void Draw2DLineG(int *p1, int *c1, int *p2, int *c2, int z)
         gif_SetGsReg(5, (long long)p2[0] | ((long long)p2[1] << 16) | ((long long)z << 32));
     }
 }
-
-extern char *matrixptr;
-extern void *MatrixDrive_GetMatrix(void);
-/* kept local, as declared in Matrix.h: this TU does not include that header
- * (its _FTOI4Vector and _InitCurrentMatrix do not fit DrawLine's uses) */
-extern void _SetCurrentMatrix(void *m);
-extern void _MulCurrentMatrixL(void *m);
-extern void _ApplyCurrentMatrix(void *dst, void *src);
-extern void _CopyVector(void *dst, void *src);
 
 /* Project a 3D segment to screen space and clip it to the screen, answering
  * -1 when it is off screen, else whether the end points were swapped.  The

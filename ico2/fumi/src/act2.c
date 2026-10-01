@@ -1,4 +1,5 @@
 #include "act.h"
+#include "act2.h"
 
 extern void *isysCurrentGObj;
 

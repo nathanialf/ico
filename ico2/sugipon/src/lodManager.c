@@ -1,5 +1,6 @@
 #include "debug.h"
 #include "motionManager2.h"
+#include "lodManager.h"
 
 /* The layout-name table src/sceneManager.c and src/gamesys.c also index with
    0x64-byte records. */

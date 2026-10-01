@@ -1915,6 +1915,7 @@ void GirlAI(char *a0)
     }
 }
 
+/* kept local: int here, char * in main.h */
 extern int matrixptr;
 
 /* the name the cloth debug display prints for each girl kind */
@@ -1945,9 +1946,9 @@ void debugWireStringGirl(char *a0)
     MatrixDrive_PopMatrix();
 }
 
-/* kept local: this TU's uses of p2o_DispVU1 do not fit the prototype in DisplayP2O.h */
+/* kept local: void (int) here, void (GObj *) in DisplayP2O.h */
 extern void p2o_DispVU1(int a0);
-/* kept local: this TU's uses of p2o_SetDefaultEnviroment do not fit the prototype in DisplayP2O.h */
+/* kept local: void (int) here, void (void) in DisplayP2O.h */
 extern void p2o_SetDefaultEnviroment(int a0);
 
 void GirlDL(int a0)

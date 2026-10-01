@@ -3,7 +3,7 @@
 #include "objact.h"
 #include "typedef.h"
 
-/* kept local: this TU's uses of BeforeFunc2 do not fit the prototype in act2.h */
+/* kept local: act2.h does not compile in this TU (too many arguments to function `BeforeFunc2') */
 extern void BeforeFunc2();
 extern OaRecA objLayout[];
 extern OaRecB D_002BC6E0[];

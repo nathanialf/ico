@@ -13,6 +13,7 @@
 #include "particleEffect.h"
 #include "quaternion.h"
 #include "tableSin.h"
+#include "Matrix.h"
 
 typedef struct AP1Vec {
     float x;
@@ -146,7 +147,7 @@ int standAI(char *self)
     return AP1MotReq(self, 1) ? 1 : -1;
 }
 
-/* kept local: this TU's uses of VectorLengthSquare do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_SetTransposeMatrix differs) */
 extern float VectorLengthSquare(void *v);
 
 int walkAI(char *self)
@@ -291,17 +292,9 @@ void WakeUpAP1(int *a0)
 /* Three static helpers the January-2002 listing places at act_a_p_1.c lines
  * 320-331, 335-344 and 346-352, expanded into subAP1BrainMain; never emitted
  * out of line, so none has a MAIN.MAP symbol and these three names are ours. */
-/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
-extern void _ApplyMatrix(void *dst, void *m, void *src);
-/* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
-extern float _Sqrt(float x);
-/* kept local: this TU's uses of _SubVectorXYZ do not fit the prototype in Matrix.h */
-extern void _SubVectorXYZ(void *dst, void *a, void *b);
-/* kept local: this TU's uses of VectorLength do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_SetTransposeMatrix differs) */
 extern float VectorLength(void *v);
-/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
-extern void _ScaleVectorXYZ(void *dst, void *src, float s);
-/* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: void (void *, void *) here, void (float *, float *) in matrixDrive.h */
 extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
 
 typedef struct AP1Mtx {
@@ -343,15 +336,11 @@ static inline void AP1ToLocal(char *self, AP1Vec *v)
     _ApplyMatrix(v, &m, v);
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
-/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_SetTransposeMatrix differs) */
 extern void CopyVector(void *dst, void *src);
-/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
-extern void _NormalizeVector(void *dst, void *src);
-/* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
-extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
-/* kept local: this TU's uses of CheckFloorAttribute do not fit the prototype in motionManager2.h */
+/* kept local: int (int, int) here, int (char *, int) in motionManager2.h */
 extern int CheckFloorAttribute(int self, int attr);
 
 /* `self` is volatile because this is an actor sub-thread entry: _ACTWait
@@ -473,7 +462,7 @@ void SetAP1DeadStatus(int *a0)
     AP1MotReqForce((int)a0, 5);
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int boyPad;
 
 typedef struct AP1MailEntry {
@@ -622,7 +611,7 @@ typedef struct AP1Spec {
 } AP1Spec;
 
 extern AP1Spec D_0062B588[];
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *girlGObj;
 void subAP1Control(int x);
 

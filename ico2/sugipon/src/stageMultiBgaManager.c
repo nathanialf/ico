@@ -1,6 +1,8 @@
 #include "StageAnimation.h"
 #include "multiBgaManager.h"
 #include "quaternion.h"
+#include "Matrix.h"
+#include "main.h"
 
 /* .bss, owned by stageMultiBgaManager.o and reached only from this file
    (MAIN.MAP names no symbol in the run), in the ROM's run order: the thirty
@@ -13,12 +15,6 @@ static char *stageBgaAnim[30];
    symbol): the number of stage animations entered */
 static int stageBgaCount = 0; /* derived name */
 
-/* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
-extern void _CopyVector(void *dst, void *src);
-/* kept local: main.c's global; this TU does not include main.h */
-extern int systemStatus[];
-/* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
-extern void _AddVector(void *dst, void *a, void *b);
 extern void EntryMultiBgaManagerSensitive(MultiBga *bga, int no, int kind, void *pos, void *rot,
                                           int sensitive);
 

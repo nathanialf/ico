@@ -1,5 +1,6 @@
 /* kept local with ios.h's declaration: box.c, which includes this file, keeps
    its own view of ios_partition_seki and so does not include ios.h */
+/* kept local: agrees with ios.h, which this TU does not include (ios_partition_seki differs) */
 extern int ios_partition_sugipon;
 
 /* switch.c -- lever / switch module; #included into box.c (one box.o, listing SRCFILE.TXT). */
@@ -28,12 +29,13 @@ inline void SwitchGeo(void) {}
 
 inline void SwitchDL(void) {}
 
-/* kept local: this TU's uses of MatrixDrive_TransMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnXAngleYZ, MatrixDrive_GetTurnYAngleXZ differ) */
 extern void MatrixDrive_TransMatrix(float x, float y, float z);
 /* kept local for the same reason.  The void return is ROM bytes: a
    value-returning call sets $2, local-alloc marks that unused $2 live at the
    call insn, and the quantity born in the next insn is pushed off $2, which
    is where dispWheels' last CopyMatrix reads its wheel pointer. */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnXAngleYZ, MatrixDrive_GetTurnYAngleXZ differ) */
 extern void MatrixDrive_RotMatrixX(short a0);
 
 void GetFloorLeverGlobalHoldPoint(void *dst, char *a1)
@@ -45,13 +47,13 @@ void GetFloorLeverGlobalHoldPoint(void *dst, char *a1)
     CopyVector(dst, MatrixDrive_GetMatrix() + 0x30);
 }
 
-/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
+/* kept local: void (void *, void *) here, void (void *, char *) in geometryManager.h */
 extern void GetRootPosition(void *dst, void *obj);
-/* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: void (void *, void *) here, void (float *, float *) in matrixDrive.h */
 extern void MatrixDrive_SetTransposeMatrix(void *a0, void *a1);
-/* kept local: this TU's uses of MatrixDrive_GetTurnYAngleXZ do not fit the prototype in matrixDrive.h */
+/* kept local: void (void *, void *, float, float, float) here, void (short *, short *, float, float, float) in matrixDrive.h */
 extern void MatrixDrive_GetTurnYAngleXZ(void *a0, void *a1, float x, float y, float z);
-/* kept local: this TU's uses of MatrixDrive_GetTurnXAngleYZ do not fit the prototype in matrixDrive.h */
+/* kept local: void (void *, void *, float, float, float) here, void (short *, short *, float, float, float) in matrixDrive.h */
 extern void MatrixDrive_GetTurnXAngleYZ(void *a0, void *a1, float x, float y, float z);
 
 inline void SetFloorLeverWithNodePoint(char *a0, char *a1, int a2)
@@ -76,7 +78,7 @@ inline int CanFloorLeverPull(char *a0)
     return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 4) == 0;
 }
 
-/* kept local: this TU's uses of ClipFloor do not fit the prototype in fieldCollision.h */
+/* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipFloor(void *a0);
 
 inline void initParentize(char *a0)
@@ -165,12 +167,14 @@ void FloorLeverTriStateGeo(char *a0)
 /* kept local: this TU's uses of SetIdentityQuaternion, RotQuaternionX,
    SetParticleEffect and ObjAction_MailCenter do not fit the prototypes in the
    headers that declare them */
+/* kept local: agrees with quaternion.h, which this TU does not include (GetInverseQuaternion, GetMatrixFromQuaternion differ) */
 extern void SetIdentityQuaternion(void *q);
+/* kept local: agrees with quaternion.h, which this TU does not include (GetInverseQuaternion, GetMatrixFromQuaternion differ) */
 extern void RotQuaternionX(void *q, int angle);
+/* kept local: void (int, void *, void *) here, int (int, void *, void *) in particleEffect.h */
 extern void SetParticleEffect(int kind, void *mat, void *q);
-extern void ObjAction_MailCenter(void *obj, int mail);
 /* the two frame-rate divisors, the pair box.c's own fall code reads */
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int systemStatus[];
 
 /* switch.c:179-225 in the listing.  The frame divisor (60 - systemStatus[0] *

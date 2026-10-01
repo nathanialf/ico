@@ -11,6 +11,7 @@
 #include "RegistPacket.h"
 #include "quaternion.h"
 #include "GsBase.h"
+#include "main.h"
 
 typedef union {
     int i;
@@ -74,9 +75,9 @@ typedef struct {
     float rot[4];      /* 0x30 */
 } BgaPlayNode;
 
-/* kept local: this TU's uses of bga_ResetAnimation do not fit the prototype in BgAnimation.h */
+/* kept local: agrees with BgAnimation.h, which this TU does not include (bga_CalcAnimation, bga_CheckAnimationFinish differ) */
 extern void bga_ResetAnimation();
-/* kept local: this TU's uses of bga_SetCameraForceOff do not fit the prototype in BgAnimation.h */
+/* kept local: agrees with BgAnimation.h, which this TU does not include (bga_CalcAnimation, bga_CheckAnimationFinish differ) */
 extern void bga_SetCameraForceOff();
 
 /* The TU's own .sbss and .bss, in ROM run order (names ours): the number of
@@ -90,43 +91,41 @@ static int *bgaPlayList;
 static StageAnim stageAnimTable[87];
 
 extern void __assert(char *file, int line, char *expr);
-/* kept local: this TU's uses of bga_CheckAnimationFinish do not fit the prototype in BgAnimation.h */
+/* kept local: int (int) here, int (char *) in BgAnimation.h */
 extern int bga_CheckAnimationFinish(int a0);
-/* kept local: this TU's uses of bga_CheckSdfCameraFinish do not fit the prototype in BgAnimation.h */
+/* kept local: int (int) here, int (char *) in BgAnimation.h */
 extern int bga_CheckSdfCameraFinish(int a0);
-/* kept local: this TU's uses of bga_CheckAnimationFrame do not fit the prototype in BgAnimation.h */
+/* kept local: int (int, int, int) here, int (char *, int, int) in BgAnimation.h */
 extern int bga_CheckAnimationFrame(int a0, int a1, int a2);
-/* kept local: this TU's uses of bga_CheckSdfCameraFrame do not fit the prototype in BgAnimation.h */
+/* kept local: int (int, int, int) here, int (char *, int, int) in BgAnimation.h */
 extern int bga_CheckSdfCameraFrame(int a0, int a1, int a2);
-/* kept local: this TU's uses of bga_CalcSdfCamera do not fit the prototype in BgAnimation.h */
+/* kept local: agrees with BgAnimation.h, which this TU does not include (bga_CalcAnimation, bga_CheckAnimationFinish differ) */
 extern void bga_CalcSdfCamera(char *p, int a1);
 extern char D_005F5E70[];
 extern char objLayout[];
 extern char D_002BC6E0[];
 extern char D_00602FA0[];
-extern int stage_no;
+/* kept local: agrees with string.h, which this TU does not include (strncmp differs) */
 extern int strcmp(const char *a, const char *b);
+/* kept local: int (const char *, const char *, int) here, int (const char *, const char *, unsigned int) in string.h */
 extern int strncmp(const char *a, const char *b, int n);
-/* kept local: this TU's uses of bga_InitData do not fit the prototype in BgAnimation.h */
+/* kept local: agrees with BgAnimation.h, which this TU does not include (bga_CalcAnimation, bga_CheckAnimationFinish differ) */
 extern int bga_InitData(char *data);
-/* kept local: this TU's uses of bga_SetFrame do not fit the prototype in BgAnimation.h */
+/* kept local: agrees with BgAnimation.h, which this TU does not include (bga_CalcAnimation, bga_CheckAnimationFinish differ) */
 extern void bga_SetFrame();
-/* kept local: this TU's uses of bga_SetCamFrame do not fit the prototype in BgAnimation.h */
+/* kept local: agrees with BgAnimation.h, which this TU does not include (bga_CalcAnimation, bga_CheckAnimationFinish differ) */
 extern void bga_SetCamFrame();
-extern int graphics_ready;
-/* kept local: main.c's global; this TU does not include main.h */
-extern int systemStatus[];
-/* kept local: this TU's uses of bga_SetUniqAnimationFlag do not fit the prototype in BgAnimation.h */
+/* kept local: agrees with BgAnimation.h, which this TU does not include (bga_CalcAnimation, bga_CheckAnimationFinish differ) */
 extern void bga_SetUniqAnimationFlag(int val);
-/* kept local: this TU's uses of bga_CalcAnimation do not fit the prototype in BgAnimation.h */
+/* kept local: void (void *, int, int) here, void (char *, int, int) in BgAnimation.h */
 extern void bga_CalcAnimation(void *a0, int a1, int a2);
-/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+/* kept local: IosMemPart * here, int in ios.h */
 extern IosMemPart *ios_partition_seki;
-/* kept local: this TU's uses of bga_DispLightning do not fit the prototype in BgAnimation.h */
+/* kept local: agrees with BgAnimation.h, which this TU does not include (bga_CalcAnimation, bga_CheckAnimationFinish differ) */
 extern void bga_DispLightning(void);
-/* kept local: this TU's uses of bga_CheckAnimationFrameIn do not fit the prototype in BgAnimation.h */
+/* kept local: int (int, int, int) here, int (char *, int, int) in BgAnimation.h */
 extern int bga_CheckAnimationFrameIn(int a0, int a1, int a2);
-/* kept local: this TU's uses of bga_CheckSdfCameraFrameIn do not fit the prototype in BgAnimation.h */
+/* kept local: int (int, int, int) here, int (char *, int, int) in BgAnimation.h */
 extern int bga_CheckSdfCameraFrameIn(int a0, int a1, int a2);
 
 /* The layout record a stage object is made with and handed to its init
@@ -252,7 +251,9 @@ typedef struct {
 
 extern StgObjDat D_00600498[];
 extern char objKindData[];
+/* kept local: agrees with BgAnimation.h, which this TU does not include (bga_CalcAnimation, bga_CheckAnimationFinish differ) */
 extern void bga_InitBGA(void);
+/* kept local: agrees with BgAnimation.h, which this TU does not include (bga_CalcAnimation, bga_CheckAnimationFinish differ) */
 extern void bga_ResetCamera(void);
 extern void bga_ApplyDObject(char *a0, char **a1, int a2, int a3);
 

@@ -9,6 +9,9 @@
 #include <math.h>
 #include <string.h>
 #include <libvu0.h>
+#include "hand-camera.h"
+#include "BgAnimation.h"
+#include "act-game.h"
 
 union PendCopy {
     float f[8];
@@ -165,6 +168,7 @@ void MakeMatrixFromCameraSet2(void *dst, CameraSet2 *cs)
     MatrixDrive_PopMatrix();
 }
 
+/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, boyGObj differ) */
 extern char *matrixptr;
 
 void MakeCameraMatrix(CameraSet2 *cs)
@@ -310,7 +314,7 @@ void DebugCameraManual(void)
 }
 
 extern void ConvertCameraSet(CameraSet2 *dst, union CameraSetIn *src);
-/* kept local: this TU's uses of _MoveGV do not fit the prototype in gv.h */
+/* kept local: float (void *, void *, void *, float) here, float (float *, float *, float *, float) in gv.h */
 extern float _MoveGV(void *a0, void *a1, void *a2, float t);
 
 void DebugCameraSemiAuto(void)
@@ -332,9 +336,9 @@ void DebugCameraSemiAuto(void)
     MakeCameraMatrix(&cameraSet);
 }
 
-/* kept local: this TU's uses of SetCameraTargetPosition do not fit the prototype in camera-ico2.h */
+/* kept local: void (void *, void *, float) here, void (void *, float) in camera-ico2.h */
 extern void SetCameraTargetPosition(void *, void *, float);
-/* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
+/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistGV(void *, void *);
 
 void BackToGameCamera(void)
@@ -357,7 +361,7 @@ void BackToGameCamera(void)
     SetCameraTargetPosition(buf, buf + 0x10, cameraFov);
 }
 
-/* kept local: debug.h's debug_Printf prototype does not fit this TU's calls */
+/* kept local: agrees with debug.h, which this TU does not include (debug_Printf differs) */
 extern int debug_zoom_per;
 
 void GetCameraInfomationFromGlobalPosition(int a0, int a1, int a2, int a3, int a4)
@@ -367,7 +371,7 @@ void GetCameraInfomationFromGlobalPosition(int a0, int a1, int a2, int a3, int a
     CameraGetOtherObjOffset(a0, a1, a2);
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int * here, GObj * in main.h */
 extern int *boyGObj;
 
 static inline int getCameraDefaultTargetGObj(void)
@@ -414,9 +418,9 @@ static inline void InsertCamera_Clear(void)
     insertCamera = insertCameraClear;
 }
 
-/* kept local: this TU's uses of InitIco2Camera do not fit the prototype in camera-ico2.h */
+/* kept local: agrees with camera-ico2.h, which this TU does not include (SetCameraTargetPosition differs) */
 extern void InitIco2Camera(void);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int [] here, StageSetting in main.h */
 extern int GlobalStageSetting[];
 
 int CameraCalclated_f;
@@ -484,14 +488,15 @@ union CamWork {
     CamZoomTbl zoom;
 };
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, boyGObj differ) */
 extern int systemStatus[];
+/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, boyGObj differ) */
 extern char *matrixptr;
-extern void BackToGameCamera(void);
+/* kept local: float () here, void (void *, void *) in poly-flat.h */
 extern float IsPointIsInScreen();
 /* same prototype as commonact.h's, kept local: this TU includes no commonact.h */
+/* kept local: agrees with commonact.h, which this TU does not include (test_CURRENTORIENT differs) */
 extern void *test_CURRENTROOT(void *gobj);
-extern void CameraSetTargetGObj(int a, int b);
 
 /* rows 255-270: one step of the camera target queue.  The name is ours. */
 static inline void Camctrl_Exec(void)
@@ -563,42 +568,38 @@ static inline void cameraSetMode(int x)
 /* set when the monitor camera must start over */
 static int monitorCameraInit = 0; /* derived name */
 
+/* kept local: agrees with debug.h, which this TU does not include (debug_Printf differs) */
 extern int debug_ignore_demo_camera;
+/* kept local: agrees with debug.h, which this TU does not include (debug_Printf differs) */
 extern int debug_font_flag;
+/* kept local: agrees with debug.h, which this TU does not include (debug_Printf differs) */
 extern int debug_font_flag3;
+/* kept local: agrees with debug.h, which this TU does not include (debug_Printf differs) */
 extern int debug_zoom_per;
+/* kept local: agrees with debug.h, which this TU does not include (debug_Printf differs) */
 extern int debug_hand_camera;
+/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, boyGObj differ) */
 extern int GlobalTimer;
 extern char iosPadConfCustom[];
-extern float _ACTGame_GetParamF(int id);
+/* kept local: void (void *, float) here, void (float *, float) in gv.h */
 extern void _ApplyRyGV(void *v, float ry);
+/* kept local: float (void *) here, float (float *) in gv.h */
 extern float _GetDirection(void *v);
+/* kept local: void (void *, void *, void *, float, float) here, void (float *, float *, float *, float, float) in gv.h */
 extern void _InterGV(void *dst, void *a, void *b, float ta, float tb);
-extern void ClearHandCameraCorrect(void);
-extern void CopyMatrix(void *dst, void *src);
-extern void CopyVector(void *dst, void *src);
-extern void DebugCameraManual(void);
-extern void DebugCameraSemiAuto(void);
+/* kept local: agrees with camera-ico2.h, which this TU does not include (SetCameraTargetPosition differs) */
 extern void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag);
-/* GetRootPosition and MatrixDrive_SetTransposeMatrix come from their owners' headers */
-extern void HandCameraCorrect(void *a0, void *a1, int a2, float f12, float f13, float f14);
+/* kept local: agrees with camera-ico2.h, which this TU does not include (SetCameraTargetPosition differs) */
 extern void SetCameraMatrix_Ico2(int cut);
+/* kept local: agrees with camera-ico2.h, which this TU does not include (SetCameraTargetPosition differs) */
 extern void SetCameraZoomOffsetRatio(float r);
-extern void SetLimitHandCameraCorrect(float x, float z);
-extern void SetWSMatrix(void *a0);
-extern void bga_ResetCamera(void);
-extern int bga_GetCameraMatrix(void *m);
-extern float bga_GetZoom(void);
+/* kept local: void (int, int, unsigned int, char *, ...) here, void (int, int, unsigned int, int, ...) in debug.h */
 extern void debug_Printf(int x, int y, unsigned int col, char *fmt, ...);
-extern void gsb_MakeCommonMatrix(void);
-extern void gsb_SetVSMatrix(int w, int h, float d);
+/* kept local: int (void *, int, int, void *) here, int (void *, int, int, int) in pad.h */
 extern int iosPadConnect(void *pad, int slot, int port, void *conf);
+/* kept local: void (void *) here, int (void *) in pad.h */
 extern void iosPadRead(void *pad);
-extern void sceVu0AddVector(void *dst, void *a, void *b);
-extern void sceVu0ApplyMatrix(void *dst, void *m, void *v);
-extern void sceVu0CopyMatrix(void *dst, void *src);
-extern void sceVu0ScaleVector(void *dst, void *src, float s);
-extern void sceVu0TransposeMatrix(void *dst, void *src);
+/* kept local: int (int) here, void * (char *) in commonact.h */
 extern int test_CURRENTORIENT(int gobj);
 
 void SetCameraMatrix(void)
@@ -907,7 +908,7 @@ int CameraGetMode(void)
     return cameraMode;
 }
 
-/* kept local: this TU's uses of _GetDirection do not fit the prototype in gv.h */
+/* kept local: float (void *) here, float (float *) in gv.h */
 extern float _GetDirection(void *v);
 
 void CameraGetOtherObjOffset(float *pos, float *outDist, int *outAngle)

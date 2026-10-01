@@ -6,9 +6,9 @@
 #include "particleEffect.h"
 #include "quaternion.h"
 
-/* kept local: this TU's uses of p2o_DispVU1DObjMulti do not fit the prototype in DisplayP2O.h */
+/* kept local: int (int) here, void (void *) in DisplayP2O.h */
 extern int p2o_DispVU1DObjMulti(int a0);
-/* kept local: this TU's uses of p2o_SetDefaultEnviroment do not fit the prototype in DisplayP2O.h */
+/* kept local: int (int) here, void (void) in DisplayP2O.h */
 extern int p2o_SetDefaultEnviroment(int a0);
 
 typedef struct CandleFlame {

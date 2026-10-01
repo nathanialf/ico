@@ -8,6 +8,7 @@
 #include "mv_vobuf.h"
 #include "typedef.h"
 #include "ios.h"
+#include <string.h>
 
 /* the MPEG library's callbacks; their out-of-line copies are deferred to the
    end of the file */
@@ -50,10 +51,12 @@ void free_buf(int a0)
     Free(*(int *)(a0 + 0x48));
 }
 
+/* kept local: void (const char *, int) here, void (char *, int) in debug_exception.h */
 extern void debug_assert(const char *file, int line);
 extern void __assert(const char *file, int line, const char *expr);
-extern void *memset(void *p, int c, int n);
+/* kept local: agrees with libmpeg.h, which this TU does not include (sceMpegAddCallback, sceMpegAddStrCallback differ) */
 extern int sceMpegCreate(void *self, void *buf, int size);
+/* kept local: int (void *, int, void *, void *) here, int (void *, int, int, int) in libmpeg.h */
 extern int sceMpegAddCallback(void *self, int id, void *fn, void *arg);
 
 int videoDecCreate(int self)
@@ -153,10 +156,13 @@ int videoCallback(int a0, char *pkt, int *a2)
     return 0 < n;
 }
 
-/* kept local: this TU's uses of switchThread do not fit the prototype in mv_main.h */
+/* kept local: mv_main.h does not compile in this TU (too many arguments to function `switchThread') */
 extern void switchThread();
+/* kept local: int (int *) here, int (int **) in libmpeg.h */
 extern int sceMpegIsEnd(int *dec);
+/* kept local: int (int *, void *, int) here, int (int *, unsigned int, int) in libmpeg.h */
 extern int sceMpegGetPicture(int *dec, void *p, int size);
+/* kept local: agrees with libmpeg.h, which this TU does not include (sceMpegAddCallback, sceMpegAddStrCallback differ) */
 extern void sceMpegReset(int *dec);
 
 int decBitStrm0(int *dec, int *disp, int *vo)
@@ -213,6 +219,7 @@ void Free(int a0)
     iosFree(phys_addr(a0));
 }
 
+/* kept local: agrees with libmpeg.h, which this TU does not include (sceMpegAddCallback, sceMpegAddStrCallback differ) */
 extern int sceMpegDelete();
 
 int videoDecDelete(int a0)
@@ -223,6 +230,7 @@ int videoDecDelete(int a0)
     return 1;
 }
 
+/* kept local: void () here, int () in libmpeg.h */
 extern void sceMpegAddStrCallback();
 
 int videoDecSetStream(void)
@@ -241,6 +249,7 @@ int videoDecGetState(int a0)
     return *(int *)(a0 + 0xB8);
 }
 
+/* kept local: int (char *) here, int (void *) in libmpeg.h */
 extern int sceMpegIsRefBuffEmpty(char *self);
 
 int videoDecIsFlushed(int *self)

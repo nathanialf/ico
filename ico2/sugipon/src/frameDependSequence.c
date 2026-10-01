@@ -15,7 +15,7 @@ typedef struct {
 
 extern SePackage D_005339C0[];
 extern GsysObjInfo seDef[];
-/* kept local: the declaration in s_init.h changes this TU codegen */
+/* kept local: int (int, unsigned int, int, int) here, int (int, int, int, int) in s_init.h */
 extern int soundSeDefPlay(int se, unsigned int a1, int a2, int a3);
 
 /* The TU's .sdata (MAIN.MAP names nothing in it), in ROM order: the sequence
@@ -35,6 +35,7 @@ static float fdsVolume = 1.0f; /* derived name */
 
 static int fdsGroup = 0; /* derived name */
 
+/* kept local: int (int, unsigned int, int, int, float) here, int (int, int, int, int) in s_init.h */
 extern int soundSeDefPlayWithVolumeRate(int se, unsigned int a1, int a2, int a3, float rate);
 /* kept local: seMail has no header; this matches its definition in
  * ico2/fumi/src/seMail.c, one prototype per symbol. */
@@ -86,7 +87,7 @@ typedef struct { /* 0x08 */
 } SERandEntry;
 
 extern SERandEntry D_00627910[];
-/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
+/* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
 extern int execSE(int a0, void *a1);
 
 int playSERandomID(int no, void *entry)
@@ -134,17 +135,17 @@ typedef struct SECondEntry { /* 0x0C */
 } SECondEntry;
 
 extern SECondEntry D_00626F28[];
-/* kept local: this TU's uses of CheckFloorAttribute do not fit the prototype in motionManager2.h */
+/* kept local: int (void *, int) here, int (char *, int) in motionManager2.h */
 extern int CheckFloorAttribute(void *self, int id);
-/* kept local: this TU's uses of CheckWallAttribute do not fit the prototype in motionManager2.h */
+/* kept local: int (void *, int) here, int (char *) in motionManager2.h */
 extern int CheckWallAttribute(void *self, int id);
 /* Declared before the three predicates: gcc 2.9 emits deferred inline bodies
    in first-declaration order, and the ROM has execSE before them. */
-/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
+/* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
 extern int checkWaterDepth(void *a0, int a1);
-/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
+/* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
 extern int checkModelDataID(void *a0, int a1);
-/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
+/* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
 extern int checkWeaponType(void *a0, int a1);
 
 int playSEConditionID(int no, void *entry)
@@ -217,14 +218,15 @@ typedef struct EffEntry { /* 0x24 */
 } EffEntry;
 
 extern EffEntry motionEffKind[];
+/* kept local: agrees with main.h, which this TU does not include (girlControlMode differs) */
 extern int stage_no;
-/* kept local: this TU's uses of GetSkeltonFocusNode do not fit the prototype in motionManager2.h */
+/* kept local: int (void *, int) here, int (char *, int) in motionManager2.h */
 extern int GetSkeltonFocusNode(void *gobj, int node);
-/* kept local: this TU's uses of RotQuaternionX do not fit the prototype in quaternion.h */
+/* kept local: void (float *, short) here, void (void *, int) in quaternion.h */
 extern void RotQuaternionX(float *q, short a);
-/* kept local: this TU's uses of RotQuaternionY do not fit the prototype in quaternion.h */
+/* kept local: void (float *, short) here, void (void *, int) in quaternion.h */
 extern void RotQuaternionY(float *q, short a);
-/* kept local: this TU's uses of RotQuaternionZ do not fit the prototype in quaternion.h */
+/* kept local: void (float *, short) here, void (void *, int) in quaternion.h */
 extern void RotQuaternionZ(float *q, short a);
 
 void playEff(int no)
@@ -345,11 +347,11 @@ done:
     return 1;
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, int in main.h */
 extern void *girlControlMode;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (girlControlMode differs) */
 extern int girlPad;
-/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
+/* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
 extern void StopFDSVibration(void *a0);
 
 void execVibCondition(int no, int *entry)
@@ -390,9 +392,9 @@ typedef struct FDSFlags { /* 0x74 */
 } FDSFlags;
 
 extern char motionKind[];
-/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
+/* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
 extern int execVib(int a0, void *a1);
-/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
+/* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
 extern int execWeaponLightOff(void);
 
 /* static helper the listing places at frameDependSequence.c lines 414-421; never
@@ -465,9 +467,9 @@ static inline int *findSEPackage(int no, int id)
     return D_005339C0[no].se;
 }
 
-/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
+/* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
 extern int playSE(int no);
-/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
+/* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
 extern int playSERandomID(int no, void *entry);
 
 /* static helper the listing places at frameDependSequence.c lines 549-564; never
@@ -529,7 +531,7 @@ void executeSEPackageWithNoGObj(int no)
     }
 }
 
-/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
+/* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
 extern void executeSEPackageWithNoGObj(int a0);
 
 void ExecuteSEPackageWithGroupVariation(void *a0, int a1, int a2)
@@ -542,7 +544,7 @@ void ExecuteSEPackageWithGroupVariation(void *a0, int a1, int a2)
     }
 }
 
-/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
+/* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
 extern void ExecuteSEPackageWithGroupVariation(void *a0, int a1, int a2);
 
 void ExecuteSEPackage(int a0, int a1)
@@ -550,7 +552,7 @@ void ExecuteSEPackage(int a0, int a1)
     ExecuteSEPackageWithGroupVariation(a0, a1, 0);
 }
 
-/* kept local: the declaration in frameDependSequence.h changes this TU codegen */
+/* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
 extern void executeSEPackageByGObj();
 
 void ExecuteSEPackageWithVolumeRate(int a0, int a1, float f)
@@ -559,7 +561,7 @@ void ExecuteSEPackageWithVolumeRate(int a0, int a1, float f)
     executeSEPackageByGObj(a0, a1, 0);
 }
 
-/* kept local: this TU's uses of soundSeGroupStop do not fit the prototype in s_init.h */
+/* kept local: agrees with s_init.h, which this TU does not include (soundSeDefPlay, soundSeDefPlayWithVolumeRate differ) */
 extern void soundSeGroupStop(int a0);
 
 void StopSEPackageWithGroupVariation(int a0, int a1)
@@ -644,7 +646,7 @@ inline int checkWeaponType(void *a0, int a1)
     return 0;
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (girlControlMode differs) */
 extern int boyPad;
 
 inline int execVib(int a0, void *a1)

@@ -8,6 +8,7 @@
 #include "item.h"
 #include "motionManager2.h"
 #include "weapon.h"
+#include "debug_exception.h"
 
 typedef struct AttackPack {
     /* 0x00 */ unsigned char active;
@@ -39,13 +40,12 @@ typedef struct AttackPack {
 /* the zeroed template every pack starts from; group and group2 start at -1 */
 static const AttackPack attackPackInit = {0, 0, {0, 0}, 0, 0, -1, -1};
 
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
 #include "attackhit.h"
 #include <libvu0.h>
 
-/* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
+/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistGV(void *a, void *b);
 
 /* listing lines 174-185 */
@@ -144,9 +144,9 @@ typedef struct {
 } WeaponKindEntry;
 
 extern WeaponKindEntry weaponKind[];
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
+/* kept local: float * (void *) here, void * (void *) in commonact.h */
 extern float *test_CURRENTROOT(void *gobj);
-/* kept local: this TU's uses of _OrientGV do not fit the prototype in gv.h */
+/* kept local: void (float *, float *, float *) here, void (int) in gv.h */
 extern void _OrientGV(float *dst, float *a, float *b);
 
 /* the 0x5C word is written through a union view at this one site: the ROM pins the
@@ -347,7 +347,7 @@ int AttackCheckSameGroup(char *self, char *other, char *third)
     return g1 == g0;
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *boyGObj;
 
 void AttackMail(char *self, AttackPack *pack)
@@ -418,11 +418,11 @@ void AttackMail(char *self, AttackPack *pack)
     }
 }
 
-/* kept local: this TU's uses of _ACTGame_GetParamF do not fit the prototype in act-game.h */
+/* kept local: agrees with act-game.h, which this TU does not include (ACTChkAttackIgnore_BOY, ACTChkAttackIgnore_ENEMY differ) */
 extern float _ACTGame_GetParamF(int idx);
-/* kept local: this TU's uses of _InterGV do not fit the prototype in gv.h */
+/* kept local: agrees with gv.h, which this TU does not include (_DistGV, _DistSqGV differ) */
 extern void _InterGV(float *dst, float *a, float *b, float ta, float tb);
-/* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
+/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistSqGV(void *a, void *b);
 
 int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
@@ -550,13 +550,13 @@ int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
     return j;
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *girlGObj;
-/* kept local: this TU's uses of ACTChkAttackIgnore_BOY do not fit the prototype in act-game.h */
+/* kept local: int (char *, void *) here, int (char *) in act-game.h */
 extern int ACTChkAttackIgnore_BOY(char *gobj, void *actor);
-/* kept local: this TU's uses of ACTChkAttackIgnore_GIRL do not fit the prototype in act-game.h */
+/* kept local: int (char *, void *) here, int (char *, int *) in act-game.h */
 extern int ACTChkAttackIgnore_GIRL(char *gobj, void *actor);
-/* kept local: this TU's uses of ACTChkAttackIgnore_ENEMY do not fit the prototype in act-game.h */
+/* kept local: int (char *, void *) here, int (char *) in act-game.h */
 extern int ACTChkAttackIgnore_ENEMY(char *gobj, void *actor);
 extern int AttackCheckHit(AttackPack *pack, char *gobj, short *out);
 

@@ -5,6 +5,8 @@
 #include <string.h>
 #include "typedef.h"
 #include "ios.h"
+#include "lws_kyomi.h"
+#include "main.h"
 
 struct HintInfo {
     int _0;
@@ -32,13 +34,10 @@ static struct {
     float timer[28]; /* 0x08 */
 } hintWork;          /* derived name */
 
-/* kept local: main.c's global; this TU does not include main.h */
-extern int systemStatus[];
-/* kept local: brain.h is not in this TU's include list (its prototypes do not fit this TU's uses) */
+/* kept local: agrees with brain.h, which this TU does not include (brainSetLevelGop, brainStatusDefaultSet differ) */
 extern Brain brainGirl;
-/* kept local: this TU's uses of brainStatusDefaultSet do not fit the prototype in brain.h */
+/* kept local: void (void *, int, int) here, void (Brain *, int, int) in brain.h */
 extern void brainStatusDefaultSet(void *b, int gobj, int idx);
-extern int stage_no;
 
 /* the record a new hint GObj starts from: no stage, no hint, no time, no
    flags */
@@ -75,7 +74,7 @@ char *CreateKyomiGObj(int no)
    per-hint elapsed-time array */
 static float *hintTimers;
 
-/* kept local: this TU's uses of brainSubLevelGop do not fit the prototype in brain.h */
+/* kept local: void (void *, float) here, void (int, float) in brain.h */
 extern void brainSubLevelGop(void *gobj, float lv);
 
 void LwsKyomiGeo(void *gobj)
@@ -170,13 +169,13 @@ void ReadHintSaveInfo(void)
     READ_HINT_SAVE_BITS(hintWork.save + 4, 1);
 }
 
-/* kept local: this TU's uses of SetDirectRootPosition do not fit the prototype in geometryManager.h */
+/* kept local: void (void *) here, void (char *, void *) in geometryManager.h */
 extern void SetDirectRootPosition(void *gobj);
-/* kept local: this TU's uses of UpdateRootMatrix do not fit the prototype in geometryManager.h */
+/* kept local: void (void *) here, void (int) in geometryManager.h */
 extern void UpdateRootMatrix(void *gobj);
-/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
+/* kept local: void (void *, void *) here, void (void *, char *) in geometryManager.h */
 extern void GetRootPosition(void *out, void *gobj);
-/* kept local: the declaration in brain.h changes this TU codegen */
+/* kept local: void (void *, float, int, int) here, void (int, int, int, float) in brain.h */
 extern void brainSetLevelGop(void *gobj, float lv, int a1, int a2);
 
 void SetParamKyomiGObj(void *gobj, int a1, float *param)

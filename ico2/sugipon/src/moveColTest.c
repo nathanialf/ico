@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include "ios.h"
 
-/* kept local: this TU's uses of p2o_DispVU1 do not fit the prototype in DisplayP2O.h */
+/* kept local: DisplayP2O.h does not compile in this TU (too many arguments to function `p2o_DispVU1') */
 extern void p2o_DispVU1();
 
 inline short *InitMoveColTestGeo(int a0, int *self)

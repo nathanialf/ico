@@ -14,5 +14,6 @@
 
 int GatherEffect_Set(int kind, char *a, float *b, char *c, float f, void *fn);
 void GatherEffect_SetGoal(int a0, void *a1);
+int GatherEffect_Proc(struct GGeo *geo);
 
 #endif /* GATHER_EFFECT_H */

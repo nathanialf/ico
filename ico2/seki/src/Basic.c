@@ -1,9 +1,13 @@
 #include "debug.h"
 #include "Matrix.h"
 
+/* kept local: int * (int) here, int (unsigned int) in libdma.h */
 extern int *sceDmaGetChan(int a0);
+/* kept local: void (int) here, int (int) in libdma.h */
 extern void sceDmaReset(int a0);
+/* kept local: int here, char * in main.h */
 extern int matrixptr;
+/* kept local: declaring it only through string.h moves this TU's bytes */
 extern void memcpy();
 
 /* The TU's .sdata opens with the allocator's partition (none selected yet)
@@ -12,13 +16,14 @@ static int mallocPartition = -1; /* derived name */
 
 static int mallocTotal = 0; /* derived name */
 
+/* kept local: void (const char *, int) here, void (char *, int) in debug_exception.h */
 extern void debug_assert(const char *file, int line);
 extern void __assert(const char *file, int line, char *expr);
-/* kept local: this TU's uses of iosMallocDebug do not fit the prototype in memory.h */
+/* kept local: int (int, int, const char *, int) here, void * (IosMemPart *, int, char *, int) in memory.h */
 extern int iosMallocDebug(int heap, int size, const char *file, int line);
-/* kept local: this TU's uses of iosFree do not fit the prototype in memory.h */
+/* kept local: int () here, void * (void *) in memory.h */
 extern int iosFree();
-/* kept local: this TU's uses of iosReallocDebug do not fit the prototype in memory.h */
+/* kept local: int (int, int, const char *, int) here, void * (void *, unsigned int) in memory.h */
 extern int iosReallocDebug(int size, int align, const char *file, int line);
 
 #include "Basic.h"

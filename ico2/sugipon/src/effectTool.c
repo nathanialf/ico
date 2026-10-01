@@ -10,6 +10,7 @@
 #include <sifdev.h>
 #include "geometryManager.h"
 #include "script.h"
+#include <string.h>
 
 /* the effect-parameter descriptor table _dispParam/editParam walk: 0x1C per
  * entry, name pointer first, NULL-terminated.  `off` is the byte offset of the
@@ -71,7 +72,7 @@ static EffParamDef effParam[] = {
     {0},
 };
 
-/* kept local: this TU's uses of debug_PrintfDummy do not fit the prototype in debug.h */
+/* kept local: void (int, int, unsigned int, char *, ...) here, void (int, int, unsigned int, int, ...) in debug.h */
 extern void debug_PrintfDummy(int x, int y, unsigned int col, char *fmt, ...);
 
 void _dispParam(int *pkg, int idx, int x, int y, int col)
@@ -122,7 +123,7 @@ typedef struct {
     char unk10[0x48]; /* 0x10 */
 } EffToolPad;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: EffToolPad [] here, PadState [16] in main.h */
 extern EffToolPad pad[];
 
 typedef union {
@@ -280,8 +281,6 @@ static EffCol circleColorYZ = {0xFF, 0x00, 0x20, 0x1C};
 
 static EffCol circleColorXY = {0x00, 0xFF, 0x20, 0x1C};
 
-extern void *memset(void *d, int c, int n);
-
 /* a static helper the PAL listing places at effectTool.c lines 286-289 and
  * inlines into dispXZYZCircle (three times, with three different colours),
  * dispCircle2 and dispEffectToolField; it is not emitted out of line, so it
@@ -360,11 +359,11 @@ static int savedTarget = 0; /* derived name */
 
 int targetMemo = 0;
 
-/* kept local: this TU's uses of RotQuaternionX do not fit the prototype in quaternion.h */
+/* kept local: void (int *, short) here, void (void *, int) in quaternion.h */
 extern void RotQuaternionX(int *self, short y);
-/* kept local: this TU's uses of RotQuaternionY do not fit the prototype in quaternion.h */
+/* kept local: void (int *, short) here, void (void *, int) in quaternion.h */
 extern void RotQuaternionY(int *self, short y);
-/* kept local: this TU's uses of SetIdentityQuaternion do not fit the prototype in quaternion.h */
+/* kept local: void (int *) here, void (void *) in quaternion.h */
 extern void SetIdentityQuaternion(int *self);
 
 void setQ(int *self)
@@ -374,15 +373,15 @@ void setQ(int *self)
     RotQuaternionX(self, -viewRotX);
 }
 
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
 extern void gif_StartPacketPri(int pri);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
+/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
-/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
 extern void gif_SetZTest(int on);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
 extern void gif_EndPacket(void);
-/* kept local: this TU's uses of MultiMatrixByQuaternion do not fit the prototype in quaternion.h */
+/* kept local: void (int *) here, void (void *) in quaternion.h */
 extern void MultiMatrixByQuaternion(int *q);
 
 void dispEffectToolField(int idx)
@@ -488,7 +487,7 @@ int EditTarget(int id)
     return 0;
 }
 
-/* kept local: this TU's uses of debug_StdPrintfDummy do not fit the prototype in debug.h */
+/* kept local: agrees with debug.h, which this TU does not include (debugSceOpen, debug_PrintfDummy differ) */
 extern void debug_StdPrintfDummy(char *fmt, ...);
 
 /* static helper the PAL listing places at effectTool.c lines 403-415 and
@@ -515,13 +514,13 @@ static inline void initEffectTool(void)
 /* particleEffect.c's effect table is 0x50 bytes per entry: char name[0x20]
    then char file[0x30].  D_0062A298 is &tbl[0].file (particleEffectFile = &tbl[0].name). */
 extern char D_0062A298[];
-/* kept local: this TU's uses of debug_closeLog do not fit the prototype in debug.h */
+/* kept local: agrees with debug.h, which this TU does not include (debugSceOpen, debug_PrintfDummy differ) */
 extern void debug_closeLog(void);
-/* kept local: this TU's uses of debug_openLog do not fit the prototype in debug.h */
+/* kept local: agrees with debug.h, which this TU does not include (debugSceOpen, debug_PrintfDummy differ) */
 extern void debug_openLog(void);
-/* kept local: this TU's uses of debugSceOpen do not fit the prototype in debug.h */
+/* kept local: int (void *, int) here, int (int, int) in debug.h */
 extern int debugSceOpen(void *name, int flags);
-/* kept local: this TU's uses of debugSceClose do not fit the prototype in debug.h */
+/* kept local: agrees with debug.h, which this TU does not include (debugSceOpen, debug_PrintfDummy differ) */
 extern int debugSceClose(int fd);
 
 int saveEffectData(int id)
@@ -598,7 +597,7 @@ void moveEffectToolGeometry(int idx)
 }
 
 extern char particleEffectFile[];
-/* kept local: this TU's uses of debug_SelectCsvWindow do not fit the prototype in debug.h */
+/* kept local: agrees with debug.h, which this TU does not include (debugSceOpen, debug_PrintfDummy differ) */
 extern int debug_SelectCsvWindow(char *title, int a1, int a2, int a3, void *tbl, int stride, int a6,
                                  int a7, int count, int *cur);
 

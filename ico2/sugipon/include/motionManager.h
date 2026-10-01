@@ -29,5 +29,6 @@ void checkWallState(int flag);
 void clearCollisionStatus(void);
 int findActPoint(int *list);
 void getFinalMatrixWithNaturalGeometry(int id);
+void _wallHitReaction(char *w, void *pos, void *last, int noSlide);
 
 #endif /* MOTIONMANAGER_H */

@@ -1,9 +1,10 @@
 #include "motionManager2.h"
 #include "quaternion.h"
+#include "actressLight.h"
 
-/* kept local: this TU's uses of stage_PlayBgAnimation do not fit the prototype in StageAnimation.h */
+/* kept local: void (void *, int, void *, float) here, float (int, float, void *, void *) in StageAnimation.h */
 extern void stage_PlayBgAnimation(void *a0, int a1, void *a2, float a3);
-/* kept local: this TU's uses of stage_SetLoopFlag do not fit the prototype in StageAnimation.h */
+/* kept local: void (void *, int) here, void (int, int) in StageAnimation.h */
 extern void stage_SetLoopFlag(void *a0, int a1);
 
 void SetActressLight(void *a0, int a1, int a2, void *a3)

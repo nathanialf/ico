@@ -15,6 +15,9 @@
 #include <libvu0.h>
 #include "GsBase.h"
 #include "motionFileManager.h"
+#include "fieldCollision.h"
+#include <math.h>
+#include "lineManager.h"
 
 /* The rope's interpolation rate: the chain's geometry sets it from the hang
    height and rootUpdateY_Rope moves the root by it.  The first word of the
@@ -26,6 +29,7 @@ extern MotionOrientEntry D_002BC4A8;
 /* kept local: this declaration is identical to the motionManager2.h prototype, but the
  * TU cannot include that header while its GetStreamMotion, DispSkelton and
  * FeedbackWallWorkInfoToBrainSystem uses still need declarations of their own. */
+/* kept local: agrees with motionManager2.h, which this TU does not include (CopyMotionWithNodeHrc, DispSkelton differ) */
 extern void CopyMotion(void *dst, void *src, int n);
 
 struct MotOriHead8 {
@@ -376,8 +380,9 @@ static __inline__ int checkMotionShiftRange(int mot, float t, float t2)
     return 1;
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int systemStatus[];
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int motionFrameUpdate;
 
 int UpdateFrameCounter(void *self)
@@ -494,6 +499,7 @@ inline MotionOrientEntry *getMotionOrient(int i, int n, int id, int kind)
     return &D_002BC4A8;
 }
 
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern char *matrixptr;
 
 void sendStateMail(void *self)
@@ -714,7 +720,7 @@ void shiftMotionData(int a0, int a1, int a2, int a3)
     }
 }
 
-/* kept local: this TU's uses of FeedbackWallWorkInfoToBrainSystem do not fit the prototype in motionManager2.h */
+/* kept local: void (void *) here, void (char *) in motionManager2.h */
 extern void FeedbackWallWorkInfoToBrainSystem(void *self);
 
 void shiftMotionOrientEndFunc(void *self)
@@ -767,10 +773,11 @@ inline void CopyBlendMotionDataSource(void *self, short ang)
     }
 }
 
-/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _NormalizeVector(void *dst, void *src);
 /* kept local: GetOutOutsideOfWall is defined in src/motionManager2 and no header of
  * this tree declares it */
+/* kept local: agrees with motionManager2.h, which this TU does not include (CopyMotionWithNodeHrc, DispSkelton differ) */
 extern void GetOutOutsideOfWall(void *self, float d);
 
 void shiftMotionOrientBeginFunc(void *self, int a1, int a2, int a3)
@@ -964,20 +971,21 @@ int parallelMotionShift(void *self)
     return 0;
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *girlGObj;
 
 /* The ignored-request report: how many times in a row, and for which
    motion. */
 static int ignoreCount = 0; /* derived name */
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int [] here, PadState [16] in main.h */
 extern int pad[];
 
 static int ignoreMotion = 0; /* derived name */
 
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int frame_count;
 
 /* The four one-character spinners the debug line cycles with the frame count. */
@@ -1077,6 +1085,7 @@ inline void SetParallelMotionTable(void *self, int a1, int a2, int a3, int a4)
 extern void GetFloatingMotion(void *dst, float t, float *v, int *mot, int n, int a5, void *skel);
 /* kept local: this TU's uses of CopyMotionWithNodeHrc do not fit the prototype in
  * motionManager2.h */
+/* kept local: void (void *, void *, void *, int, int) here, void (struct Pack32 *, struct Pack32 *, char *, int, int) in motionManager2.h */
 extern void CopyMotionWithNodeHrc(void *dst, void *src, void *skel, int node, int a4);
 
 void getNodeBlendedFloatingMotion(void *dst, float *root, int id, int n, int a4, void *self,
@@ -1123,19 +1132,19 @@ void getNodeBlendedFloatingMotion(void *dst, float *root, int id, int n, int a4,
  * initialised object, so it lives in .data. */
 static sceVu0FVECTOR slopeVector = {0.0f, 0.0f, 0.0f, 0.0f};
 
-/* kept local: this TU's uses of DispSkelton do not fit the prototype in motionManager2.h */
+/* kept local: void (void *, void *) here, void (GObj *, int) in motionManager2.h */
 extern void DispSkelton(void *self, void *m);
-/* kept local: this TU's uses of GetBlendedMotion do not fit the prototype in motionManager2.h */
+/* kept local: agrees with motionManager2.h, which this TU does not include (CopyMotionWithNodeHrc, DispSkelton differ) */
 extern void GetBlendedMotion(void *dst, float *dv, void *m1, float *v1, void *m0, float *v0,
                              float t, int tbl, int n);
-/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _ApplyMatrix(void *dst, void *m, void *v);
-extern float GetYDistanceFromPlane(float *a0, float *a1);
-extern float acosf(float x);
+/* kept local: void (float *, int *, float) here, void (float *, void *, float) in motionManager2.h */
 extern void GetFloatingMotionRootPos(float *v, int *md, float f);
 extern void MakeMirrorMotion(void *dst, int *p);
+/* kept local: void (void *, void *, float *, float *, int) here, void (GObj *, char *, int, Vec4 *) in motionManager2.h */
 extern void SlopeIKControl(void *self, void *m, float *v, float *r, int n);
-extern void ExecFrameDependSequence(void *self);
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int stage_no;
 
 /* Listing lines 1150 to 1160: a static inline with no symbol and no census row,
@@ -1396,10 +1405,8 @@ typedef union {
 enum DebugDisplayMode { DEBUG_DISPLAY_OFF, DEBUG_DISPLAY_ON, DEBUG_DISPLAY_FULL };
 
 extern enum DebugDisplayMode debug_bar_flag;
-/* kept local: no header declares it; the shape motion is written into the caller's buffer */
+/* kept local: void (float *, void *, int, float) here, void (float *, char *, float, int) in motionManager2.h */
 extern void GetFloatingShapeMotion(float *dst, void *mot, int n, float frame);
-/* kept local: no header declares it (lineManager.h has only the segment calls) */
-extern void Draw2DLine(int *p1, int *p2, int *color, int z);
 
 void getShapeGeometry(void *self)
 {
@@ -1474,11 +1481,11 @@ void getShapeGeometry(void *self)
     }
 }
 
-/* kept local: this TU's uses of GetStreamMotion do not fit the prototype in motionManager2.h */
+/* kept local: int (void *, float *, void *, int) here, int (char *, float *, char *, char *) in motionManager2.h */
 extern int GetStreamMotion(void *dst, float *v, void *sm, int n);
-/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
+/* kept local: void (float *, float *, float) here, void (void *, void *, float) in Matrix.h */
 extern void _ScaleVectorXYZ(float *dst, float *src, float s);
-/* kept local: this TU's uses of DispSkelton do not fit the prototype in motionManager2.h */
+/* kept local: void (void *, void *) here, void (GObj *, int) in motionManager2.h */
 extern void DispSkelton(void *self, void *m);
 
 /* Listing lines 1640-1647: a static inline both stream-geometry functions absorb
@@ -1516,6 +1523,7 @@ void getStreamMotionGeometry(void *self, void *sm)
 /* kept local: this declaration is identical to the motionManager2.h prototype, but the
  * TU cannot include that header while its GetStreamMotion, DispSkelton and
  * FeedbackWallWorkInfoToBrainSystem uses still need declarations of their own. */
+/* kept local: agrees with motionManager2.h, which this TU does not include (CopyMotionWithNodeHrc, DispSkelton differ) */
 extern void GetBlendedMotion(void *dst, float *dv, void *m1, float *v1, void *m0, float *v0,
                              float t, int tbl, int n);
 
@@ -1563,6 +1571,7 @@ void getStreamBlendMotionGeometry(void *self, void *sm0, void *sm1, float t)
 /* kept local: this declaration is identical to the motionManager2.h prototype, but the
  * TU cannot include that header while its GetStreamMotion, DispSkelton and
  * FeedbackWallWorkInfoToBrainSystem uses still need declarations of their own. */
+/* kept local: agrees with motionManager2.h, which this TU does not include (CopyMotionWithNodeHrc, DispSkelton differ) */
 extern int GetStreamShapeMotion(float *dst, void *sm);
 
 void getStreamBlendShapeGeometry(void *self, void *sm0, void *sm1, float t)

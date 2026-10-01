@@ -71,8 +71,8 @@ void SetFlag4PointFixID(char *self, int a1, int id)
     prim_UpdateMesh3D(*(char **)(*(char **)(*(char **)(w + 0x4) + 0x4)), 8, 1);
 }
 
-extern void *ios_partition_sugipon; /* kept local: this TU's view (ios.h: int) */
-extern void *ios_partition_seki;
+extern void *ios_partition_sugipon; /* kept local: void * here, int in ios.h */
+extern void *ios_partition_seki;    /* kept local: void * here, int in ios.h */
 /* the cloth layout rows, 104 bytes each (layout-cloth-def.o) */
 extern char layoutClothDef[];
 extern int InitClothesNoShade(char *p);

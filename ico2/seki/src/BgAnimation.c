@@ -14,6 +14,7 @@
 #include <string.h>
 #include "GsBase.h"
 #include "ios.h"
+#include "main.h"
 
 /* .data, carved VMA 0x4EE5B0..0x4EE5F0, bytes verified against
    baserom/pal/baseelf.rom.  bgaAnimDefault is the 0x30-byte default record
@@ -1384,7 +1385,7 @@ void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int a1, int a2)
     }
 }
 
-/* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern float _Sqrt(float x);
 
 /* The rotation is applied Y, then X, then Z, with the three sines derived
@@ -1509,11 +1510,15 @@ void _RotTransCurrentMatrixYXZ(void *t, int *rot)
 }
 
 /* Externs and record views bga_CalcObject uses (field names are ours). */
-extern int GlobalTimer;
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _CopyVector(void *dst, void *src);
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _PushCurrentMatrix(void);
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _PopCurrentMatrix(void);
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _CopyMatrix(void *dst, void *src);
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern float _GetLength(void *a, void *b);
 
 typedef struct BgaNodeBits {
@@ -1551,13 +1556,19 @@ extern void SetParamKyomiGObj(void *o, float *pos, float *scale);
 extern void RotCurrentQuaternionX(int a);
 extern void RotCurrentQuaternionY(int a);
 extern void RotCurrentQuaternionZ(int a);
-extern void PopQuaternion(void);
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _TransCurrentMatrix(void *v);
+/* kept local: void (float, void *, void *) here, void (void *, void *, float) in Matrix.h */
 extern void _ScaleVectorXYZ(float s, void *d, void *v);
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _ScaleCurrentMatrix(float x, float y, float z);
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _GetCurrentMatrix(void *m);
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _GetCurrentMatrixTrans(void *v);
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _InverseCurrentMatrix(void);
+/* kept local: BgAnimation.h does not compile in this TU (conflicting types for `bga_InitData') */
 extern void bga_addLightning(int kind, char *a1, float *vec, int id, int t0, float f);
 
 static inline void bga_checkCameraDistance(void)
@@ -1823,9 +1834,9 @@ void bga_resetObjectCounter(BgaCntNode *o, float f, int a1)
     bga_clampCount(&o->f34, f);
 }
 
-extern int GlobalTimer;
-/* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _CopyVector(void *dst, void *src);
+/* kept local: BgAnimation.h does not compile in this TU (conflicting types for `bga_InitData') */
 extern void bga_CalcAnimation(char *p, int a1, int a2);
 
 void bga_SetFrame(char *p, int frame, int mode, int a3)
@@ -1866,15 +1877,15 @@ void bga_SetFrame(char *p, int frame, int mode, int a3)
     bga_CalcAnimation(p, a3, 1);
 }
 
-/* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _SetCurrentMatrix(void *m);
-/* kept local: this TU's uses of _InitCurrentMatrix do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _InitCurrentMatrix(void);
-/* kept local: this TU's uses of _MulCurrentMatrixR do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _MulCurrentMatrixR(void *m);
-/* kept local: this TU's uses of _PushCurrentMatrix do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _PushCurrentMatrix(void);
-/* kept local: this TU's uses of _PopCurrentMatrix do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _PopCurrentMatrix(void);
 
 typedef struct BgaAnimGeom {
@@ -1982,14 +1993,18 @@ void bga_CalcAnimation(char *p, int a1, int a2)
 /* kept local: this TU's uses of the matrix and vector entry points do not fit
    the prototypes in Matrix.h (the interpolator takes its weight as a float,
    the length returns one and both take two vectors). */
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _RotCurrentMatrixZ(short a);
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _ApplyCurrentMatrix(void *dst, void *src);
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _SetCameraMatrix(void *m, void *pos, void *dir, void *up);
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _NormalizeVector(void *dst, void *src);
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern float _GetLength(void *a, void *b);
-extern float GetTableSin(short a);
-extern float GetTableCos(short a);
 
 /* the PAL frame counter read back on the 60 Hz timeline: the reciprocal of
    bga_palFrame's 0.82812935f. */
@@ -2097,6 +2112,7 @@ void bga_CalcSdfCamera(char *data, int loop)
 
 /* kept local: this TU's uses of _UnitVector do not fit the prototype in
    Matrix.h (_CopyVector is declared above bga_SetFrame) */
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _UnitVector(void *v);
 
 void bga_addLightning(int kind, char *a1, float *vec, int id, int t0, float f)
@@ -2222,10 +2238,15 @@ typedef struct BgaObjKind {
 extern BgaObjKind D_002C2DF4[];
 /* kept local: this TU does not include gobj.h or enemy_act.h, and its use of
    DrawLightningN does not fit the prototype in lightning.h */
+/* kept local: agrees with gobj.h, which this TU does not include (isysGObjSearchFromObjKindID_next differs) */
 extern void *isysGObjSearchFromObjKindID_begin(int kind);
+/* kept local: void * (void *) here, void * (char *) in gobj.h */
 extern void *isysGObjSearchFromObjKindID_next(void *g);
+/* kept local: agrees with gobj.h, which this TU does not include (isysGObjSearchFromObjKindID_next differs) */
 extern void *isysGObjGetExist_begin(void);
+/* kept local: agrees with gobj.h, which this TU does not include (isysGObjSearchFromObjKindID_next differs) */
 extern void *isysGObjGetExist_next(void *g);
+/* kept local: int (void *) here, int (int *) in enemy_act.h */
 extern int isEnemyHyde(void *g);
 
 /* Listing line 3069: the definition's four colour bytes widened into the
@@ -2378,7 +2399,7 @@ inline void bga_ResetCamera(void)
     bgaCameraActive = 0;
 }
 
-/* kept local: this TU's uses of _CopyMatrix do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _CopyMatrix(void *dst, void *src);
 
 inline int bga_GetCameraMatrix(void *p)
@@ -2393,8 +2414,7 @@ inline int bga_GetCameraMatrix(void *p)
     return v != 0 && bgaCameraForceOff == 0;
 }
 
-extern int GlobalTimer;
-/* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
 extern void _CopyVector(void *dst, void *src);
 
 inline void bga_SetCamFrame(char *data, int frame, int mode)

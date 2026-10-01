@@ -20,7 +20,7 @@ int GetSizeHintSaveInfo(void);
 void Hint_Init(void);
 int IsTopHint(void *gobj);
 void MakeHintSaveInfo(void);
-int ReadHintSaveInfo();
+void ReadHintSaveInfo(void);
 void SleepHint(int no);
 void WakeupHint(int no);
 

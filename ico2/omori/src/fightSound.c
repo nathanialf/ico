@@ -2,6 +2,7 @@
 #include "adpcm_init.h"
 #include "s_init.h"
 #include "act-game.h"
+#include "debug_exception.h"
 
 /* set while the fight music is paused */
 static int fightSoundPause = 0; /* derived name */
@@ -95,7 +96,6 @@ void fightSoundProcessMain(void)
     }
 }
 
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
 void fightSoundProcess(void)

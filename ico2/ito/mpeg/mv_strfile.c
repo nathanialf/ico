@@ -1,8 +1,9 @@
 #include "mv_defs.h"
+#include "mv_strfile.h"
 
-/* kept local: this TU's uses of iosCdvdDirectStClose do not fit the prototype in cdvd.h */
+/* kept local: cdvd.h does not compile in this TU (too few arguments to function `iosCdvdDirectStClose') */
 extern void iosCdvdDirectStClose();
-/* kept local: this TU's uses of iosCdvdDirectStRead do not fit the prototype in cdvd.h */
+/* kept local: cdvd.h does not compile in this TU (too few arguments to function `iosCdvdDirectStClose') */
 extern int iosCdvdDirectStRead();
 
 int strFileOpen(char *a0, char *name)

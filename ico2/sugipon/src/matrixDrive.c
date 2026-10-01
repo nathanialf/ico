@@ -53,7 +53,7 @@ void InitMatrixDrive(void)
     InitQuaternionDrive();
 }
 
-/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: matrixDrive.h does not compile in this TU (conflicting types for `UnitRotation') */
 extern void CopyMatrix(void *dst, void *src);
 
 void MatrixDrive_PushMatrix(void)
@@ -141,7 +141,7 @@ void MatrixDrive_ScaleMatrix(float x, float y, float z)
                     (int)scaleWorkMatrix);
 }
 
-/* kept local: this TU's uses of FSqrt do not fit the prototype in matrixDrive.h */
+/* kept local: matrixDrive.h does not compile in this TU (conflicting types for `UnitRotation') */
 extern float FSqrt(float a0);
 
 void MatrixDrive_TurnViewMatrix(float x, float y, float z)
@@ -193,7 +193,7 @@ void *MatrixDrive_GetLastMatrix(void)
     return &matrixStack[matrixStackIndex * 0x40 - 0x40];
 }
 
-/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
+/* kept local: matrixDrive.h does not compile in this TU (conflicting types for `UnitRotation') */
 extern void CopyVector(void *dst, void *src);
 
 void MatrixDrive_TransMatrixV(char *a0)
@@ -418,6 +418,7 @@ void MatrixDrive_GetTurnYAngleXZ(short *a0, short *a1, float x, float y, float z
     *a1 = GetTableArcTan2(v0[0], len);
 }
 
+/* No caller in the ROM, so the bytes cannot decide the return type: void as sugipon's output-parameter getters. */
 void MatrixDrive_GetTurnYEAngleXZ(float *a0, float *a1, float x, float y, float z)
 {
     float v0[4];
@@ -539,7 +540,7 @@ void CopyMatrixUncached(void *dst, void *src)
     QCOPY64_SERIAL("$6");
 }
 
-void AddVectorXYZ(void *p0, void *p1, void *p2, void *p3)
+void AddVectorXYZ(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_LSV(lqc2, 5, 0x0, 6);
@@ -547,7 +548,7 @@ void AddVectorXYZ(void *p0, void *p1, void *p2, void *p3)
     VU0_LSV(sqc2, 4, 0x0, 4);
 }
 
-void SubVectorXYZ(void *p0, void *p1, void *p2, void *p3)
+void SubVectorXYZ(void *p0, void *p1, void *p2)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_LSV(lqc2, 5, 0x0, 6);

@@ -8,18 +8,19 @@
 #include "Texture.h"
 #include "lineManager.h"
 #include "matrixDrive.h"
+#include "main.h"
+#include "debug_exception.h"
 
 /* .sdata, RegistPacket.o's run (MAIN.MAP 0xA): the scissor switch
    reg_SetScissorSw sets and reg_Init clears, then the assert text. */
 static int scissorSw = 0; /* derived name */
 
-/* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_RotCurrentMatrixZ differs) */
 extern void _CopyVector(void *dst, void *src);
-/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_RotCurrentMatrixZ differs) */
 extern void _ScaleVectorXYZ(void *dst, void *src, float k);
-/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_RotCurrentMatrixZ differs) */
 extern void _AddVectorXYZ(void *dst, void *a, void *b);
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
 void reg_setShape(char *o, int idx, int flag, char *pkt, char *mat)
@@ -156,16 +157,15 @@ typedef struct {
     int e[12][2];
 } RegBoxLines;
 
-extern char *matrixptr;
-/* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_RotCurrentMatrixZ differs) */
 extern void _SetCurrentMatrix(void *mtx);
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (_IsInScreen, gif_SetAlpha differ) */
 extern void gif_StartPacketPri(int pri);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
+/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (_IsInScreen, gif_SetAlpha differ) */
 extern void gif_EndPacket(void);
-/* kept local: this TU's uses of _CopyMatrix do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_RotCurrentMatrixZ differs) */
 extern void _CopyMatrix(void *dst, void *src);
 
 void reg_dispBoxLine(char *pk)
@@ -199,8 +199,6 @@ void reg_dispBoxLine(char *pk)
     }
     gif_EndPacket();
 }
-
-extern int debug_bounding_flag;
 
 int reg_clipPacketBoundingBox(char *pk)
 {
@@ -241,7 +239,7 @@ int reg_clipPacketBoundingBox(char *pk)
     return ret;
 }
 
-/* kept local: this TU's uses of mc_TransMicroCode do not fit the prototype in MicroCode.h */
+/* kept local: MicroCode.h does not compile in this TU (too few arguments to function `mc_TransMicroCode') */
 extern void
 mc_TransMicroCode(); /* K&R: called 1-ary here and 2-ary in reg_DispAccessoryWithShadow */
 
@@ -258,7 +256,7 @@ void reg_transMicroCode(char *a0, int mask)
     mc_TransMicroCode(2);
 }
 
-/* kept local: this TU's uses of mc_SetMicroCode do not fit the prototype in MicroCode.h */
+/* kept local: MicroCode.h does not compile in this TU (too few arguments to function `mc_TransMicroCode') */
 extern void mc_SetMicroCode();
 
 void reg_chooseMicroCode(char *self, int b, int c)
@@ -277,8 +275,6 @@ void reg_chooseReflectionMicroCode(int a0, int a1, int a2)
 {
     mc_SetMicroCode(a0, 1, 2, a1, a2);
 }
-
-extern int texturetranssize;
 
 /* One 64-bit slot of a DMA/GIF packet: written either as the whole qword
    (DMAtag, GIFtag, A+D data) or as its two 32-bit halves. */
@@ -318,18 +314,19 @@ typedef struct {
     RegPkPtr end;
 } RegDpk;
 
+/* kept local: RegDpk here, DpkCtl in DmaPacket.h */
 extern RegDpk PacketBufferStruct;
-/* kept local: this TU's uses of _InitCurrentMatrix do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_RotCurrentMatrixZ differs) */
 extern void _InitCurrentMatrix(void);
-/* kept local: this TU's uses of _GetCurrentMatrix do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_RotCurrentMatrixZ differs) */
 extern void _GetCurrentMatrix(void *dst);
-/* kept local: this TU's uses of _ScaleCurrentMatrix do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_RotCurrentMatrixZ differs) */
 extern void _ScaleCurrentMatrix(float x, float y, float z);
-/* kept local: this TU's uses of _ClearTransCurrentMatrix do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_RotCurrentMatrixZ differs) */
 extern void _ClearTransCurrentMatrix(void);
-/* kept local: this TU's uses of _MulCurrentMatrixL do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_RotCurrentMatrixZ differs) */
 extern void _MulCurrentMatrixL(void *m);
-/* kept local: this TU's uses of _MulMatrix do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_RotCurrentMatrixZ differs) */
 extern void _MulMatrix(void *dst, void *a, void *b);
 
 char *reg_setNMatrixPacket(char *o, int idx)
@@ -445,11 +442,17 @@ char *reg_setNMatrixPacket(char *o, int idx)
 
 /* kept local: this TU's uses of these matrix helpers do not fit the prototypes
    in Matrix.h (two arguments and a float result for _GetLength) */
+/* kept local: agrees with Matrix.h, which this TU does not include (_RotCurrentMatrixZ differs) */
 extern void _UnitMatrix(void *m);
+/* kept local: agrees with Matrix.h, which this TU does not include (_RotCurrentMatrixZ differs) */
 extern void _ApplyCurrentMatrix(void *dst, void *src);
+/* kept local: agrees with Matrix.h, which this TU does not include (_RotCurrentMatrixZ differs) */
 extern float _GetLength(void *a, void *b);
+/* kept local: agrees with Matrix.h, which this TU does not include (_RotCurrentMatrixZ differs) */
 extern void _SetTransCurrentMatrix(void *v);
+/* kept local: agrees with Matrix.h, which this TU does not include (_RotCurrentMatrixZ differs) */
 extern void _TransCurrentMatrix(void *v);
+/* kept local: void (int) here, void (short) in Matrix.h */
 extern void _RotCurrentMatrixZ(int a);
 
 typedef struct {
@@ -885,8 +888,6 @@ static const unsigned int regReflectionPacket[6][4] __attribute__((aligned(16)))
     {0, 0, 0x49, 0},       {0x48, 0x80, 0x42, 0},        {0x15000000, 0, 0, 0},
 };
 
-extern int buffer_ID;
-
 /* INTERIM, same rule as regTransTexturePacket above: reg_GetShinePri
    (listing line 705) is `inline` in the dev's TU -- its body is inlined into
    the whole reg_disp*Obj / reg_Disp* family -- but it also owns a ROM slot,
@@ -1252,9 +1253,13 @@ void reg_dispCObj(char *o)
 extern int systemStatus[];
 /* kept local: this TU's calls pass the two arguments the VU0 bodies read,
    where Matrix.h declares three */
+/* kept local: agrees with Matrix.h, which this TU does not include (_RotCurrentMatrixZ differs) */
 extern void _RotTransPersCurrentMatrix(void *dst, void *src);
+/* kept local: agrees with Matrix.h, which this TU does not include (_RotCurrentMatrixZ differs) */
 extern void _FTOI4Vector(void *dst, void *src);
+/* kept local: agrees with Matrix.h, which this TU does not include (_RotCurrentMatrixZ differs) */
 extern void _CopyIVector(void *dst, void *src);
+/* kept local: int (int *) here, int (volatile int *) in GifPacket.h */
 extern int _IsInScreen(int *p);
 
 void reg_dispPoint(char *node, float alpha, int idx, int flag)
@@ -1536,8 +1541,7 @@ void reg_dispLine(char *node, float alpha)
     }
 }
 
-extern int GlobalTimer;
-/* kept local: this TU's uses of _MulCurrentMatrixL do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_RotCurrentMatrixZ differs) */
 extern void _MulCurrentMatrixL(void *m);
 
 void reg_dispPointLineObj(char *o)

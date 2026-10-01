@@ -35,5 +35,6 @@ void *prim_InitParticleByPartition(int num, float x, float y, float z, int a1, c
 
 void prim_SetFan2D(int handle, float radius, void *pos, unsigned int c0, unsigned int c1);
 void prim_UpdateMesh3D(void *mesh, int a1, int a2);
+void prim_DispWireYCylinder(void *col, int n, int flag, float r, float y0, float y1);
 
 #endif /* PRIMITIVE_H */

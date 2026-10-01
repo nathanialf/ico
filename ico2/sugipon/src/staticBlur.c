@@ -60,21 +60,21 @@ static int copyToWorkRect[4] = {-2044, -2044, 4096, 4096};
 
 static float pasteToFBPoint[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetDrawEnviroment differ) */
 extern void gif_EndPacket(void);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
+/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
-/* kept local: this TU's uses of gif_SetDrawEnviroment do not fit the prototype in GifPacket.h */
+/* kept local: void (int, int, int, int, int, int) here, void (unsigned long long, unsigned long long, unsigned int, unsigned int, int, int) in GifPacket.h */
 extern void gif_SetDrawEnviroment(int fb, int b, int w, int h, int e, int f);
-/* kept local: this TU's uses of gif_SetGsReg do not fit the prototype in GifPacket.h */
+/* kept local: void (int, long long) here, void (long long, long long) in GifPacket.h */
 extern void gif_SetGsReg(int reg, long long val);
-/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetDrawEnviroment differ) */
 extern void gif_SetZTest(int on);
-/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetDrawEnviroment differ) */
 extern void gif_SetZWrite(int on);
-/* kept local: this TU's uses of gif_SpriteSensitiveOrg do not fit the prototype in GifPacket.h */
+/* kept local: void (void *, unsigned int, void *, void *, int) here, void (int *, long long, int *, unsigned char *, int) in GifPacket.h */
 extern void gif_SpriteSensitiveOrg(void *rect, unsigned int z, void *uv, void *col, int e);
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetDrawEnviroment differ) */
 extern void gif_StartPacketPri(int pri);
 
 typedef struct {
@@ -201,6 +201,7 @@ extern int systemStatus[];
 /* */
 static int blurUv[12];
 
+/* kept local: agrees with main.h, which this TU does not include (matrixptr differs) */
 extern int GlobalTimer;
 
 /* .sbss, owned by staticBlur.o and reached only from this file (MAIN.MAP names
@@ -208,8 +209,9 @@ extern int GlobalTimer;
    addresses on its own. */
 static SprCol blurCol;
 
+/* kept local: int here, char * in main.h */
 extern int matrixptr;
-/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
+/* kept local: void (void *, int, void *) here, void (void *, void *, void *) in Matrix.h */
 extern void _ApplyMatrix(void *a0, int a1, void *a2);
 
 void auraInspireAfter(int mode)
@@ -978,7 +980,7 @@ void depthField(float depth, float alpha, float rate)
     gif_EndPacket();
 }
 
-/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_ApplyMatrix differs) */
 extern void _NormalizeVector();
 
 void GetSunWorldPos(int a0)
@@ -1023,13 +1025,13 @@ void MotionBlur(void)
     gif_EndPacket();
 }
 
-/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_ApplyMatrix differs) */
 extern void _AddVectorXYZ(void *a0, void *a1, void *a2);
-/* kept local: this TU's uses of _FTOI0Vector do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_ApplyMatrix differs) */
 extern void _FTOI0Vector(void *a0, void *a1);
-/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_ApplyMatrix differs) */
 extern void _ScaleVector(void *a0, void *a1, float f);
-/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_ApplyMatrix differs) */
 extern void _ScaleVectorXYZ(void *a0, void *a1, float f);
 
 void calcSun(void)
@@ -1348,9 +1350,9 @@ void FullScreenEffectAfter(void)
     tex_UnlockHeadTBP(8);
 }
 
-/* kept local: this TU's uses of ZeroPoint do not fit the prototype in matrixDrive.h */
+/* kept local: int [] here, float [4] in matrixDrive.h */
 extern int ZeroPoint[];
-/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroPoint differs) */
 extern void CopyVector();
 
 /* INTERIM (same pattern as GetSkeltonFocusNode in src/motionManager2.c): the

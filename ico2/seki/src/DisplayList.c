@@ -8,6 +8,7 @@
 #include <libdma.h>
 #include "GsBase.h"
 #include "ios.h"
+#include "debug_exception.h"
 
 typedef struct {
     int f_0;                 /* 0x00 */
@@ -33,8 +34,8 @@ static DlEntry dlEntries[13];
 
 static int dlBufferHead[2][13];
 
+/* kept local: int here, int * in Basic.h */
 extern int dmaVif;
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
 /* The depth of the priority stack below, the TU's first .sdata object. */

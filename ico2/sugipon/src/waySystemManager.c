@@ -5,9 +5,9 @@
    the manager object */
 static int waySystemManagerGObj = 0; /* derived name */
 
-/* kept local: this TU's uses of actCreateSubThreadGOppArg do not fit the prototype in act.h */
+/* kept local: void * (void *, int) here, void (int, int) in act.h */
 extern void *actCreateSubThreadGOppArg(void *entry, int arg);
-/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
+/* kept local: agrees with act.h, which this TU does not include (actCreateSubThreadGOppArg differs) */
 extern void _ACTWait(int a0);
 
 #include "waySystemManager.h"

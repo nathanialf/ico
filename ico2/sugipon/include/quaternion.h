@@ -59,5 +59,6 @@ void PushQuaternion(void);
 void RegularizeQuaternion(void *a0);
 void SetCurrentQuaternion(int a0);
 void SetIdentityQuaternion(void *a0);
+void MultiCurrentQuaternion(void *a0);
 
 #endif /* QUATERNION_H */

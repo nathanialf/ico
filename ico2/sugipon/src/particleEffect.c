@@ -7,6 +7,8 @@
 #include "memory.h"
 #include "typedef.h"
 #include "ios.h"
+#include "Matrix.h"
+#include "main.h"
 
 typedef struct PEGeo PEGeo; /* the allocated per-effect geometry object */
 
@@ -81,7 +83,7 @@ typedef struct {
     int unk_9C;
 } PEPackage;
 
-/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, MatrixDrive_RotMatrixY differ) */
 extern void CopyVector();
 
 /* the listing's lines 129-137: a static free-slot search with no out-of-line
@@ -190,16 +192,15 @@ static PEffect emptyEffect = {0, 0, 1, 0, 0, 0, 0};
    default package, after it in the TU's .data. */
 static sceVu0FVECTOR spreadVector; /* derived name */
 
-extern float _GetRandom(void);
-/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, MatrixDrive_RotMatrixY differ) */
 extern void CopyMatrix(void *dst, void *src);
-/* kept local: this TU's uses of CopyIVector do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, MatrixDrive_RotMatrixY differ) */
 extern void CopyIVector(void *dst, void *src);
-/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, MatrixDrive_RotMatrixY differ) */
 extern void *MatrixDrive_GetMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_RotMatrixX do not fit the prototype in matrixDrive.h */
+/* kept local: void (int) here, void (short) in matrixDrive.h */
 extern void MatrixDrive_RotMatrixX(int angle);
-/* kept local: this TU's uses of MatrixDrive_RotMatrixY do not fit the prototype in matrixDrive.h */
+/* kept local: void (int) here, void (short) in matrixDrive.h */
 extern void MatrixDrive_RotMatrixY(int angle);
 
 /* sugiCommon.h:47 and :55 in the PAL listing: two nested static helpers, the
@@ -258,10 +259,9 @@ void _setParticleEffect(char *out, char *pkg, char *m, float k)
     *(PEPartRec *)out = particleWork;
 }
 
-extern char *matrixptr;
-/* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, MatrixDrive_RotMatrixY differ) */
 extern void MatrixDrive_PushMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_PopMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, MatrixDrive_RotMatrixY differ) */
 extern void MatrixDrive_PopMatrix(void);
 
 /* particleEffect.c:358-367 in the PAL listing, rows outside dispParticleEffect's
@@ -356,12 +356,8 @@ int setParticleEffect(char *self, char *pkg, int part)
     return *(int *)(self + 0x24);
 }
 
-/* kept local: this TU's uses of GetWindVector do not fit the prototype in windField.h */
+/* kept local: void * (int, void *) here, int (void) in windField.h */
 extern void *GetWindVector(int a0, void *v);
-/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
-extern void _ScaleVectorXYZ(void *dst, void *src, float k);
-/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
-extern void _AddVectorXYZ(void *dst, void *a, void *b);
 
 /* the EE scratchpad holds the particle being updated */
 #define PEWORK (*(PEPartRec *)0x70000000)
@@ -483,6 +479,7 @@ int execParticleEffect(void *a0)
 
 /* One 64-bit slot of a DMA/GIF packet, written either whole or as one half. */
 
+/* kept local: GifDpk here, DpkCtl in DmaPacket.h */
 extern GifDpk PacketBufferStruct;
 
 /* INTERIM (the same construct src/GifPacket.c uses for its own gif_SetGsReg):
@@ -622,7 +619,7 @@ void SetParticleEffectGeometry(int a0, int a1, int a2)
     }
 }
 
-/* kept local: this TU's uses of execParticleEffect do not fit the prototype in particleEffect.h */
+/* kept local: agrees with particleEffect.h, which this TU does not include (SetParticleEffectByPartition differs) */
 extern int execParticleEffect(void *a0);
 
 void SetParticleEffectUpperLimit(int no, float f)
@@ -817,7 +814,7 @@ void SetParticleEffectPauseFlag(int a0, int a1)
     particleEffects[a0].pause = a1;
 }
 
-/* kept local: this TU's uses of SetParticleEffectByPartition do not fit the prototype in particleEffect.h */
+/* kept local: int (int, PEVector *, PEQuaternion *, int) here, int (int, float *, void *, int) in particleEffect.h */
 extern int SetParticleEffectByPartition(int no, PEVector *pos, PEQuaternion *quat, int part);
 
 int SetParticleEffect(int no, PEVector *pos, PEQuaternion *quat)

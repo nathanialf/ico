@@ -2,14 +2,16 @@
 #include "GobjProc.h"
 #include "debug.h"
 #include "matrixDrive.h"
+#include "Matrix.h"
+#include "main.h"
 
 /* the TU's one .sdata word (MAIN.MAP clipCollisionManager.o .sdata 0x4, no
    symbol): the manager object CreateClipCollisionManagerGObj made */
 static int clipCollisionManagerGObj = 0; /* derived name */
 
-/* kept local: this TU's uses of actCreateSubThreadGOppArg do not fit the prototype in act.h */
+/* kept local: void * (void *, int) here, void (int, int) in act.h */
 extern void *actCreateSubThreadGOppArg(void *entry, int arg);
-/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
+/* kept local: agrees with act.h, which this TU does not include (actCreateSubThreadGOppArg differs) */
 extern void _ACTWait(int a0);
 
 typedef struct ClipColWork {
@@ -28,11 +30,6 @@ typedef struct ClipColWork {
     char *gobj;           /* 0xD0 */
     void (*func)(void *); /* 0xD4 */
 } ClipColWork;
-
-/* kept local: main.c's global; this TU does not include main.h */
-extern int systemStatus[];
-/* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
-extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
 
 /* `self` is volatile because the actor entry's argument has an addressable
    home on the stack (ROM: `sw $a0, 0($sp)` then `lw $v0, 0($sp)`), the thread

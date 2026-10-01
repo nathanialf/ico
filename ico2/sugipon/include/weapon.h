@@ -35,5 +35,6 @@ void initializeQueenzSword();
  * 0x002016DC set only $4) and four from ExecWeaponHitReaction, so the 2001
  * declaration cannot have carried a parameter list. */
 void weaponHitReactionSE();
+float GetWeaponWeight(char *a0);
 
 #endif /* WEAPON_H */

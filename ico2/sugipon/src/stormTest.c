@@ -7,35 +7,35 @@
 #include <libvu0.h>
 #include "typedef.h"
 #include "ios.h"
+#include "main.h"
 
-/* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
+/* kept local: char [] here, float [4] in matrixDrive.h */
 extern char ZeroVector[];
 
 /* the clip plane normal StormTestDL transforms into view space */
 static float stormClipPlane[4] = {0.0f, 0.0f, 1.0f, 0.0f};
 
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
 extern void gif_StartPacketPri(int pri);
-/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
 extern void gif_SetZTest(int on);
-/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
 extern void gif_SetZWrite(int on);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
+/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
 extern void gif_EndPacket(void);
-/* kept local: this TU's uses of FSqrt do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_SetTransposeMatrix, ZeroVector differ) */
 extern float FSqrt(float x);
-/* kept local: this TU's uses of CopyIVector do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_SetTransposeMatrix, ZeroVector differ) */
 extern void CopyIVector(void *dst, void *src);
-extern char *matrixptr;
-/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_SetTransposeMatrix, ZeroVector differ) */
 extern void *MatrixDrive_GetMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: void (void *, void *) here, void (float *, float *) in matrixDrive.h */
 extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
-/* kept local: this TU's uses of MatrixDrive_TransMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_SetTransposeMatrix, ZeroVector differ) */
 extern void MatrixDrive_TransMatrix(float f12, float f13, float f14);
-/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_SetTransposeMatrix, ZeroVector differ) */
 extern void CopyVector(void *dst, void *src);
 
 typedef struct StormPackage {
@@ -200,9 +200,9 @@ void ClipStormByCamera(StormPackage *pkg)
 }
 
 extern void UpdateStormPackage(StormPackage *pkg);
-/* kept local: this TU's uses of GetWindVector do not fit the prototype in windField.h */
+/* kept local: void * (int, void *) here, int (void) in windField.h */
 extern void *GetWindVector(int a0, void *pos);
-/* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_SetTransposeMatrix, ZeroVector differ) */
 extern void AddVectorXYZ(void *dst, void *a, void *b);
 
 void UpdateStormPackage(StormPackage *pkg)

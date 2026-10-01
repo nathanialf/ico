@@ -30,5 +30,6 @@ void executeSEPackageByGObj(void *gobj, int no, int grp);
 void executeSEPackageWithNoGObj(int no);
 int playSE(int no);
 int playSERandomID(int no, void *entry);
+void ExecFrameDependSequence(void *gobj);
 
 #endif /* FRAMEDEPENDSEQUENCE_H */

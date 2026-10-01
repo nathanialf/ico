@@ -19,6 +19,7 @@
 #include <libvu0.h>
 #include <math.h>
 #include <string.h>
+#include "Matrix.h"
 
 void torchOnOfWeaponSE(int a0)
 {
@@ -46,9 +47,9 @@ void weaponStickSE(int a0)
     ExecuteSEPackage(a0, 0x5D);
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj differs) */
 extern int systemStatus[];
-/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroVector differs) */
 extern void CopyVector(void *dst, void *src);
 
 /* INTERIM NAME, chosen and not recovered: the PAL listing carries this
@@ -246,14 +247,8 @@ static float pathOfsFwd[4] = {0.0f, 0.0f, 1.0f, 1.0f};
 
 static float pathOfsBack[4] = {0.0f, 0.0f, 1.0f, 1.0f};
 
-/* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
+/* kept local: char [] here, float [4] in matrixDrive.h */
 extern char ZeroVector[];
-/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
-extern void _ApplyMatrix(void *dst, void *m, void *src);
-/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
-extern void _AddVectorXYZ(void *dst, void *a, void *b);
-/* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
-extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
 
 /* INTERIM NAMES, chosen and not recovered: the PAL listing carries these two
    file-static helpers at weapon.c:362-373 and 375-385 and inlines them here,
@@ -340,16 +335,18 @@ static const CollWork collWorkInit = /* derived name */
 /* the offset the wall test pushes the blade tip along, its z set per test */
 static float hitOfs[4] = {0.0f, 0.0f, 1.0f, 1.0f};
 
+/* kept local: void (void *) here, void (int *) in fieldCollision.h */
 extern void ClipCollision(void *cc);
+/* kept local: void (void *, float, float) here, void (char *, float, float) in fieldCollision.h */
 extern void GetReflectionElement(void *cc, float a, float b);
+/* kept local: int (void *) here, int (int) in fieldCollision.h */
 extern int GetWallAttribute(void *cc);
+/* kept local: int (void *) here, int (int) in fieldCollision.h */
 extern int GetFloorAttribute(void *cc);
+/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroVector differs) */
 extern float VectorLengthSquare(void *v);
+/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroVector differs) */
 extern float VectorLength(void *v);
-extern void _SubVector(void *dst, void *a, void *b);
-extern void _InterVector(void *dst, void *a, void *b, float t);
-extern void _NormalizeVector(void *dst, void *src);
-extern void _OuterProduct(void *dst, void *a, void *b);
 
 /* calcDynamicGeometry's TTY trace, built only when DEBUG is defined; the
    retail build does not define it, so the preprocessor leaves the helper
@@ -519,11 +516,11 @@ void calcDynamicGeometry(char *g)
     }
 }
 
-/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroVector differs) */
 extern void CopyMatrix(void *dst, void *src);
-/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroVector differs) */
 extern void *MatrixDrive_GetMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_TransMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroVector differs) */
 extern void MatrixDrive_TransMatrix(float x, float y, float z);
 
 /* INTERIM: a stand-in for SetWeaponOffsetMode, which the PAL listing inlines
@@ -605,13 +602,13 @@ void ExecWeaponHitReaction(int a0, int a1, int a2, int a3)
 /* the blade tip in the sword's own frame */
 static float swordTip[4] = {0.0f, 0.0f, 80.0f, 1.0f};
 
-/* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroVector differs) */
 extern void MatrixDrive_PushMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_PopMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroVector differs) */
 extern void MatrixDrive_PopMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_TransMatrixV do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroVector differs) */
 extern void MatrixDrive_TransMatrixV(char *v);
-/* kept local: this TU's uses of SubVectorXYZ do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroVector differs) */
 extern void SubVectorXYZ(void *dst, void *a, void *b);
 
 void checkHit(char *g)
@@ -657,13 +654,15 @@ typedef struct {
     char pad34[0xC];
 } __attribute__((aligned(8))) QSwordLayout;
 
-/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_sugipon;
 
 /* the queen's sword offset, its z set per sword */
 static float queenSwordOfs[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 
+/* kept local: void * (int, int, int, int, void *, int, int, int) here, char * (int, int, int, int, int, int, int, int) in sceneManager.h */
 extern void *CreateLayoutedGObj(int a0, int a1, int a2, int a3, void *lay, int a5, int a6, int a7);
+/* kept local: void (void *, void *) here, void (void *, PackedLL_19CAF0 *) in DObj.h */
 extern void LinkParentOfDObj(void *gobj, void *link);
 
 void initializeQueenzSword(char *g, int index, QSwordLayout *lay)
@@ -708,6 +707,7 @@ extern WeaponCsvEntry D_002A79B8[];
 
 typedef float WeaponVec[4] __attribute__((aligned(8)));
 
+/* kept local: char * (int, void *) here, char * (int, float *) in DObj.h */
 extern char *CSVSYSTEM_InitDObj(int modelId, void *lay);
 
 void *InitWeaponGeo(char *g, QSwordLayout *lay)
@@ -774,7 +774,7 @@ void *InitWeaponGeo(char *g, QSwordLayout *lay)
     return w;
 }
 
-/* kept local: this TU's uses of MatrixDrive_ScaleMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroVector differs) */
 extern void MatrixDrive_ScaleMatrix(float x, float y, float z);
 
 void dispLaserSword(char *g, float t)
@@ -827,11 +827,8 @@ void dispInsectNet(char *g)
     gif_EndPacket();
 }
 
+/* kept local: agrees with main.h, which this TU does not include (boyGObj differs) */
 extern char *matrixptr;
-/* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
-extern void _SetCurrentMatrix(void *p);
-/* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
-extern void _UnitMatrix(void *m);
 
 void dispBlur(char *g)
 {
@@ -871,21 +868,7 @@ void dispBlur(char *g)
     }
 }
 
-/* kept local: this TU's uses of _OuterProduct do not fit the prototype in Matrix.h */
-extern void _OuterProduct(void *dst, void *a, void *b);
-/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
-extern void _NormalizeVector(void *dst, void *src);
-/* kept local: this TU's uses of _InnerProduct do not fit the prototype in Matrix.h */
-extern float _InnerProduct(void *a, void *b);
-/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
-extern void _ScaleVectorXYZ(void *dst, void *src, float s);
-/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
-extern void _ScaleVector(void *dst, void *src, float s);
-/* kept local: this TU's uses of _InterVector do not fit the prototype in Matrix.h */
-extern void _InterVector(void *dst, void *a, void *b, float t);
-/* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
-extern void _SubVector(void *dst, void *a, void *b);
-/* kept local: this TU's uses of ZUnitVector do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroVector differs) */
 extern float ZUnitVector[];
 
 void calcBlur(char *g, float t)
@@ -975,10 +958,8 @@ void calcBlur(char *g, float t)
     }
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *boyGObj;
-/* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
-extern float _Sqrt(float x);
 
 typedef struct {
     char pad00[0x190]; /* 0x000 */
@@ -1110,6 +1091,7 @@ void PickupWeapon(char *a0, char *a1, int a2)
     GOBJ_SUB(a1)->f_630 = (int)a0;
 }
 
+/* kept local: agrees with main.h, which this TU does not include (boyGObj differs) */
 extern int stage_no;
 
 char *CheckSwapableWeapon(char *a0, float dist)
@@ -1265,8 +1247,6 @@ void SetWeaponTorchChainReactionFlagAll(int a0)
         }
     }
 }
-
-extern void initializeQueenzSword(char *gobj, int index, QSwordLayout *a2);
 
 void *InitDemoQueensSword(char *a0, void *a1)
 {

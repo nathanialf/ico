@@ -1,6 +1,7 @@
 #include "debug.h"
 #include "matrixDrive.h"
 #include <libvu0.h>
+#include "fuzio.h"
 
 void fzShowV(float *p)
 {

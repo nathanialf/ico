@@ -37,7 +37,10 @@ void gif_Line(int *v0, int *v1, long long z0, long long z1, unsigned char *col, 
 void gif_MakeLine2D(int *v0, int *v1, long long z0, long long z1, unsigned char *col, int prim);
 void gif_PointOffset(int *v, long long z, unsigned char *col, int prim);
 void gif_SetAlpha(long long a0, long long a1, long long a2);
-void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm, unsigned int w, unsigned int h, int useoffset, int clear);
+
+void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm, unsigned int w,
+                           unsigned int h, int useoffset, int clear);
+
 void gif_SetGsReg(long long a0, long long a1);
 void gif_SetZTest(int a0);
 void gif_SetZWrite(int a0);
@@ -49,5 +52,6 @@ void gif_StartPacket(void);
 void gif_StartPacketPath1(void);
 void gif_StartPacketPri(int pri);
 void gif_StartPacketPriPath1(int pri);
+void gif_MakeSpriteNoTexture(int x, int y, int w, int h, long long z, unsigned char *col, int prim);
 
 #endif /* GIFPACKET_H */

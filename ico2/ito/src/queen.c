@@ -28,6 +28,7 @@
 #include "motionOrientManager.h"
 #include "DisplayP2O.h"
 #include "ios.h"
+#include <string.h>
 
 typedef struct {
     float v[4];
@@ -57,6 +58,7 @@ typedef struct QueenMailQueue {
     /* 0x08 */ QueenMailEntry e[1];
 } QueenMailQueue;
 
+/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, CurrentTargetGObjSub differ) */
 extern int stage_no;
 
 /* .bss, owned by queen.o and reached only from this file (MAIN.MAP names no
@@ -803,11 +805,10 @@ static float queenSpawnPos[6][4] = {
    timestamp every wait in her state machine is measured against */
 static int queenFrame;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *boyGObj;
-/* kept local: this TU's uses of ACTDispLwsBoyStonize_InQueenStage do not fit the prototype in boyact.h */
+/* kept local: void (char *) here, void (void *) in boyact.h */
 extern void ACTDispLwsBoyStonize_InQueenStage(char *g);
-extern void *memset(void *p, int c, int n);
 
 /* PAL listing rows 87-90: a static identity-3x3 helper, expanded into
  * QueenBarrierGeo (and QueenBallGeo). */
@@ -909,7 +910,7 @@ static const char queenAttackedMsg[] = "queen attacked\n";
 
 static const char enemyDeadMsg[] = "enemy dead %p\n";
 
-/* kept local: this TU's uses of GatherEffect_Set do not fit the prototype in gather_effect.h */
+/* kept local: int (int, void *, int, void *, void (*)(int), float) here, int (int, char *, float *, char *, float, void *) in gather_effect.h */
 extern int GatherEffect_Set(int no, void *a1, int a2, void *goal, void (*endFunc)(int),
                             float speed);
 
@@ -980,10 +981,11 @@ static const QueenGenTable genEnemyTable[2] = {
 
 static const char genEnemyStatFmt[] = "n_enemy_max:%d n_enemy:%d counter:%d";
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, CurrentTargetGObjSub differ) */
 extern int systemStatus[];
+/* kept local: agrees with Matrix.h, which this TU does not include (_GetLength differs) */
 extern float _GetRandom(void);
-/* kept local: this TU's uses of lw_pos_to_ico_pos do not fit the prototype in itou_sub.h */
+/* kept local: agrees with itou_sub.h, which this TU does not include (apply_matrix_w1, ico_m33_to_quat differ) */
 extern void lw_pos_to_ico_pos(float *dst, float *src);
 
 void gene_enemy(volatile int g)
@@ -1069,7 +1071,7 @@ void gene_enemy(volatile int g)
 /* r5 seed (478/478 insns, 7 diff sites / 20 non-reloc rows) at
  * scratchpad/seeds/subQueenBrainMain.r5.rc220_7sites.c (whole-TU snapshot) and
  * .r5.body.c (this block only).  Residual: one scheduling cluster, see LEDGER r5. */
-/* kept local: the declaration in Texture.h changes this TU codegen */
+/* kept local: void (void *, int, float, float, float, float, float, float) here, void (char *, float, float, float, float, float, float, int) in Texture.h */
 extern void tex_SetUVScroll(void *p, int a1, float a2, float a3, float a4, float a5, float a6,
                             float a7);
 
@@ -1327,11 +1329,11 @@ void subQueenBrainMain(volatile int g)
     }
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *CurrentTargetGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *CurrentTargetGObjSub;
-/* kept local: this TU's uses of CorrectStickInfo do not fit the prototype in boyact.h */
+/* kept local: agrees with boyact.h, which this TU does not include (ACTDispLwsBoyStonize_InQueenStage differs) */
 extern int CorrectStickInfo(void *dir, void *stick);
 
 /* census: static Debug_StickControl; ito/src/act_bird.c holds the public symbol
@@ -1556,15 +1558,15 @@ void QueenBarrierDL(char *g)
 }
 
 /* ROM 0x0012B6F0 never reads $a1: the callee takes (id, scale) only. */
-/* kept local: this TU's uses of ico_m33_to_quat do not fit the prototype in itou_sub.h */
+/* kept local: void (void *, void *) here, int (int) in itou_sub.h */
 extern void ico_m33_to_quat(void *dst, void *m);
-/* kept local: this TU's uses of pbga_start do not fit the prototype in itou_sub.h */
+/* kept local: void (int *, int) here, void (int *, int *) in itou_sub.h */
 extern void pbga_start(int *bga, int id);
-/* kept local: this TU's uses of _GetLength do not fit the prototype in Matrix.h */
+/* kept local: float (QVec *, QVec *) here, float (void *, void *) in Matrix.h */
 extern float _GetLength(QVec *a, QVec *b);
-/* kept local: this TU's uses of apply_matrix_w1 do not fit the prototype in itou_sub.h */
+/* kept local: void (QVec *, QMat33 *, QVec *) here, void (void *, void *, void *) in itou_sub.h */
 extern void apply_matrix_w1(QVec *dst, QMat33 *m, QVec *src);
-/* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_GetLength differs) */
 extern void _CopyVector(void *dst, void *src);
 
 /* PAL listing rows 1069-1081: a static helper that QueenBallGeo and QueenBallDL

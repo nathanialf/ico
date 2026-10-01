@@ -2,33 +2,42 @@
 #include "GsBase.h"
 #include "debug.h"
 #include "Shadow.h"
+#include "Texture.h"
+#include "geometryManager.h"
 
+/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, pad differ) */
 extern char *matrixptr;
-/* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
 extern void _CopyVector(void *a0, void *a1);
-/* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
 extern void _SetCurrentMatrix(void *a0);
-/* kept local: this TU's uses of _ClearTransCurrentMatrix do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
 extern void _ClearTransCurrentMatrix(void);
-/* kept local: this TU's uses of _ApplyCurrentMatrix do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
 extern void _ApplyCurrentMatrix(void *a0, void *a1);
-/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
 extern void _NormalizeVector(void *a0, void *a1);
-/* kept local: this TU's uses of _PopCurrentMatrix do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
 extern void _PopCurrentMatrix(void);
-/* kept local: this TU's uses of _PushCurrentMatrix do not fit the prototype in Matrix.h */
+/* kept local: void (void *) here, void (void) in Matrix.h */
 extern void _PushCurrentMatrix(void *a0);
-/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
 extern void _ScaleVector(void *a0, void *a1, float a2);
-/* kept local: this TU's uses of _TransposeCurrentMatrix do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
 extern void _TransposeCurrentMatrix(void);
-/* kept local: this TU's uses of these do not fit the prototypes in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
 extern void _ScaleVectorXYZ(void *a0, void *a1, float a2);
+/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
 extern void _AddVectorXYZ(void *a0, void *a1, void *a2);
+/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
 extern void _InterVectorXYZ(void *a0, void *a1, void *a2, float t);
+/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
 extern void _MulCurrentMatrixL(void *a0);
+/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
 extern void _InitCurrentMatrix(void);
+/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
 extern void _MulCurrentMatrixR(void *a0);
+/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
 extern void _GetCurrentMatrix(void *a0);
 
 /* .bss, Shadow.o's two objects in the ROM's order (MAIN.MAP line 7683 sizes
@@ -75,12 +84,14 @@ typedef struct {
     ShadowPkPtr end;
 } ShadowDpk;
 
+/* kept local: ShadowDpk here, DpkCtl in DmaPacket.h */
 extern ShadowDpk PacketBufferStruct;
 /* the screen width and height in pixels */
-/* kept local: this TU's uses of these do not fit the prototypes in the headers */
-extern void tex_LockHeadTBP(int tbp, int pri);
+/* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */
 extern void dl_SetDLPriority(int pri);
+/* kept local: void (int, void *, int) here, void (int, int, int) in DisplayList.h */
 extern void dl_OpenDma(int chan, void *dma, int flag);
+/* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */
 extern void dl_CloseDma(void);
 
 /* The GS A+D writer, a MACRO as in Texture.c: the listing puts every writer's
@@ -244,10 +255,8 @@ void shadow_Reset(void)
 /* "S", the one character label this pass prints */
 /* kept local: this TU reads the stage setting record for its tint bytes only,
  * so it takes the byte view src/layout_texture.c also uses */
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: unsigned char [] here, StageSetting in main.h */
 extern unsigned char GlobalStageSetting[];
-/* kept local: this TU's uses of these do not fit the prototypes in the headers */
-extern void tex_UnlockHeadTBP(int pri);
 
 void shadow_Draw(void)
 {
@@ -985,9 +994,9 @@ void __GetCameraPos(void *a0)
     _PopCurrentMatrix();
 }
 
-/* kept local: this TU's uses of these do not fit the prototypes in the headers */
+/* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */
 extern int dl_GetPri(void);
-extern void GetRootPositionByDObj(void *v, char *o);
+/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
 extern float _GetLength(void *a, void *b);
 
 /* One sixteen-byte record of a part's silhouette strip list. A strip opens
@@ -1204,6 +1213,7 @@ void shadow_RenderVolumeMulti(char *o, int idx)
     dl_SetDLPriority(0);
 }
 
+/* kept local: void * (int) here, int (int) in Basic.h */
 extern void *mallocseki(int size);
 
 /* The three record shapes shadow_MakeObjectData copies out of the model into
@@ -1409,7 +1419,7 @@ typedef struct PadRec {
     char _10[0x48];
 } PadRec;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: PadRec [] here, PadState [16] in main.h */
 extern PadRec pad[];
 
 int shadow_Tool(void)

@@ -1,5 +1,7 @@
 #include "particleEffect.h"
 #include <libvu0.h>
+#include "Matrix.h"
+#include <math.h>
 
 struct GEl {
     int f0;         /* 0x00 */
@@ -26,6 +28,7 @@ struct GGeo {
     int f6C;
 };
 
+/* kept local: int (struct GGeo *) here, int (struct GGeo *) in gather_effect.h */
 extern int GatherEffect_Proc(struct GGeo *geo);
 /* prototypes: their order is the inline tail's emission order */
 int GatherEffect_Set(int no, void *a1, int a2, void *goal, void (*endFunc)(int), float speed);
@@ -62,15 +65,6 @@ void GatherEffect_SetGoal(int a0, void *a1)
         sceVu0CopyVector(v + 0x50, a1);
     }
 }
-
-/* kept local: ico2/seki/include/Matrix.h carries reconstructed prototypes for
-   these two (void return, three arguments) that the call sites refute; the ROM
-   here reads a float back from each and passes _GetLength two vectors, the
-   same spelling ico2/seki/src/Light.c and ico2/ito/src/queen_barrier_disp.c
-   already keep local. */
-extern float _GetNorm(void *p);
-extern float _GetLength(void *a, void *b);
-extern float acosf(float x);
 
 int GatherEffect_Proc(struct GGeo *geo)
 {

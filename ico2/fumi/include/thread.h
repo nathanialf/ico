@@ -19,8 +19,13 @@ int iosSemaReferStatus(int *self);
 int iosSemaSignal(int *self);
 int iosSemaWait(int *self);
 int iosThreadCancelWakeup(int *self);
-void iosThreadCreate(void *th, int no, void (*func)(), int arg, void *stack, long stackSize, int pri);
-void iosThreadCreateS(unsigned int *th, int no, void (*func)(), int arg, void *heap, long stackSize, int pri);
+
+void iosThreadCreate(void *th, int no, void (*func)(), int arg, void *stack, long stackSize,
+                     int pri);
+
+void iosThreadCreateS(unsigned int *th, int no, void (*func)(), int arg, void *heap, long stackSize,
+                      int pri);
+
 void iosThreadDestroy(int a0);
 int iosThreadGetPri(int *a0);
 void iosThreadInit(void);
@@ -33,5 +38,6 @@ void iosThreadSleep(void);
 void iosThreadStart(int a0);
 void iosThreadStop(int a0);
 int iosThreadWakeup(int *self);
+void iosThreadMessage(int a0);
 
 #endif /* THREAD_H */

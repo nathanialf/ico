@@ -12,6 +12,8 @@
 #include <string.h>
 #include "typedef.h"
 #include "ios.h"
+#include "main.h"
+#include "debug_exception.h"
 
 typedef struct CamMgr {
     int count;        /* 0x00 */
@@ -48,8 +50,11 @@ extern void MakeCameraSetBinary(S4C *src, int count, S4C *dst);
 /* SRCFILE.TXT rows 369-388: saveEditedDataBinary inlines this, which is why
    the ROM folds the path buffer's frame address straight into $a0 at both the
    sprintf and the debugSceOpen instead of holding it in a register */
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ScaleVector differs) */
 extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ScaleVector differs) */
 extern void sceVu0Normalize(void *a0, void *a1);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ScaleVector differs) */
 extern void sceVu0UnitMatrix(void *a0);
 
 inline void StickToTrans(int a0, int a1, int a2, int a3, float *out, int a5)
@@ -83,6 +88,7 @@ inline void StickToTrans(int a0, int a1, int a2, int a3, float *out, int a5)
 
 inline void debug_Arrow(void) {}
 
+/* kept local: void (int *, int *, float) here, void (void *, void *, float) in libvu0.h */
 extern void sceVu0ScaleVector(int *buf, int *p, float t);
 
 inline void debug_NMarker(int *self, int a1, int a2, int a3, float t)
@@ -153,9 +159,8 @@ static int *cameraSetEdit = (int *)0x30E27E0; /* derived name */
 static char dumpLine[2048];
 
 extern void __assert(char *file, int line, char *expr);
-extern void debug_assert(char *file, int line);
+/* kept local: agrees with thread.h, which this TU does not include (iosThreadDestroy, iosThreadSleep differ) */
 extern void iosThreadMessage(int a0);
-extern int strlen(char *s);
 
 void saveEditedData(int *range)
 {
@@ -200,7 +205,7 @@ void saveEditedData(int *range)
     iosThreadMessage(2);
 }
 
-/* kept local: this TU's uses of gif_SetGsReg do not fit the prototype in GifPacket.h */
+/* kept local: void (int, long) here, void (long long, long long) in GifPacket.h */
 extern void gif_SetGsReg(int code, long data);
 
 /* The listing's rows 478 to 504 carry no code. What the bytes pin: the
@@ -222,10 +227,11 @@ void gif_test(int *a0, int *a1, int *a2, unsigned char *a3)
     gif_SetGsReg(4, (long)a2[0] | ((long)a2[1] << 16) | ((long)a2[2] << 32));
 }
 
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ScaleVector differs) */
 extern void sceVu0UnitMatrix(void *m);
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetGsReg differ) */
 extern void gif_StartPacketPri(int prio);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetGsReg differ) */
 extern void gif_EndPacket(void);
 
 static inline void dispPinRange(int box, int from, int to)
@@ -275,19 +281,19 @@ typedef union {
     unsigned long long w[2];
 } BoxCol4;
 
-extern char *matrixptr;
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ScaleVector differs) */
 extern void sceVu0MulMatrix(void *dst, void *a, void *b);
-/* kept local: this TU's uses of before_DrawPolygon do not fit the prototype in poly-flat.h */
+/* kept local: agrees with poly-flat.h, which this TU does not include (after_DrawLine, after_DrawPolygon differ) */
 extern void before_DrawPolygon(void);
-/* kept local: this TU's uses of DrawPolygon do not fit the prototype in poly-flat.h */
+/* kept local: agrees with poly-flat.h, which this TU does not include (after_DrawLine, after_DrawPolygon differ) */
 extern void DrawPolygon(void *p0, void *p1, void *p2, void *p3, unsigned char *col, void *m);
-/* kept local: this TU's uses of after_DrawPolygon do not fit the prototype in poly-flat.h */
+/* kept local: void (void) here, void (int, int, int, int) in poly-flat.h */
 extern void after_DrawPolygon(void);
-/* kept local: this TU's uses of before_DrawLine do not fit the prototype in poly-flat.h */
+/* kept local: void (void *) here, void (int) in poly-flat.h */
 extern void before_DrawLine(void *m);
-/* kept local: this TU's uses of do_DrawLine do not fit the prototype in poly-flat.h */
+/* kept local: void (void *, void *, void *, int) here, void (void *, void *, int *) in poly-flat.h */
 extern void do_DrawLine(void *p0, void *p1, void *col, int f);
-/* kept local: this TU's uses of after_DrawLine do not fit the prototype in poly-flat.h */
+/* kept local: void (void) here, void (int, int, int, int) in poly-flat.h */
 extern void after_DrawLine(void);
 
 void DebugDispBox(BoxVec *c, BoxVec *s)
@@ -499,11 +505,13 @@ static AxisPair axisArrows[3] = {
     {{0.0f, 0.0f, -200.0f, 1.0f}, {0.0f, 0.0f, 200.0f, 1.0f}},
 };
 
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ScaleVector differs) */
 extern void sceVu0ApplyMatrix(void *dst, void *m, void *v);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ScaleVector differs) */
 extern void sceVu0Normalize(void *dst, void *src);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
+/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
-/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetGsReg differ) */
 extern void gif_SetZTest(int a);
 
 void DispAxisArrow(int mask, void *col)
@@ -559,7 +567,7 @@ void DispAxisArrow(int mask, void *col)
     }
 }
 
-/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetGsReg differ) */
 extern void gif_SetZWrite(int a);
 
 /* the pin arrow colours: the first pair is drawn depth-tested (the part in
@@ -883,7 +891,7 @@ int print_y;
 
 unsigned char exit_f;
 
-/* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
+/* kept local: void (void *) here, void (void) in thread.h */
 extern void iosThreadSleep(void *th);
 
 void menuGroupSelect(char *m)
@@ -958,7 +966,7 @@ typedef struct {
     char pad48[0x4C - 0x48];
 } EditRec;
 
-/* kept local: this TU's uses of iosThreadDestroy do not fit the prototype in thread.h */
+/* kept local: void (void *) here, void (int) in thread.h */
 extern void iosThreadDestroy(void *th);
 
 void menuGroupEdit(char *m)
@@ -1151,12 +1159,12 @@ void menuPinSelect(char *m)
     }
 }
 
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ScaleVector differs) */
 extern void sceVu0SubVector(void *dst, void *a, void *b);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ScaleVector differs) */
 extern void sceVu0Normalize(void *dst, void *src);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ScaleVector differs) */
 extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
-extern void MatrixDrive_PushMatrix(void);
-extern void MatrixDrive_PopMatrix(void);
-extern float FSqrt(float v);
 
 /* the file static the listing expands at camera-editor.c rows 255-261: the
    heading from the camera's eye to its look-at point, which is the angle the
@@ -1316,8 +1324,7 @@ inline void group_select(char *m)
 }
 
 extern StgPre stageData[];
-extern int stage_no;
-/* kept local: this TU's uses of iosThreadWakeup do not fit the prototype in thread.h */
+/* kept local: void (void *) here, int (int *) in thread.h */
 extern void iosThreadWakeup(void *thread);
 
 void wakeup_cameraedit(void)
@@ -1605,8 +1612,6 @@ inline void CameraEdit_DispPin(int box, int pin)
 {
     dispPinRange(box, pin, pin + 1);
 }
-
-extern int CameraEdit_add_box(S4C *a0);
 
 /* the pin a new pin starts from; ConvertCameraSetBuffer gives it the stage's
    hand-camera rate (MAIN.MAP global) */

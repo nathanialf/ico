@@ -3,6 +3,7 @@
 #include "gv.h"
 #include "item.h"
 #include <libvu0.h>
+#include "act-wish.h"
 
 /* The wish/flag words the pad handler ORs into the actor's sub-record are a
    64-bit word that the engine also reads a word at a time; declaring them as

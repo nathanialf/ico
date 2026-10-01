@@ -836,8 +836,9 @@ EnemyModelSet *enemymodel01[] = {&enemy_enemymodel01_enemymodel04, 0};
 /* the stages' set lists and their counts, enemy_Initialize's table */
 static EnemySet enemySetTable[] = {{(int **)enemymodel01, 1}}; /* derived name */
 
-/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_seki;
+/* kept local: void * (void *, int, char *, int) here, void * (IosMemPart *, int, char *, int) in memory.h */
 extern void *iosMallocDebug(void *heap, int size, char *file, int line);
 
 /* Debug report of the number of positions enemy_Initialize copied, built only

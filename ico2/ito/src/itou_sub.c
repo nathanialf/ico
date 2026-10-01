@@ -1,7 +1,9 @@
 #include "typedef.h"
 #include "StageAnimation.h"
 #include "itou_sub.h"
+#include "Matrix.h"
 
+/* kept local: libvu0.h does not compile in this TU (too few arguments to function `sceVu0TransposeMatrix') */
 extern void sceVu0TransposeMatrix();
 
 inline void lw_pos_to_ico_pos(float *dst, float *src)
@@ -25,9 +27,6 @@ inline void apply_matrix_w1(void *a0, void *a1, void *a2)
     VU0_V3OP_BC(vmaddw.xyzw, 9, 7, 0, w);
     VU0_LSV(sqc2, 9, 0x0, 4);
 }
-
-/* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
-extern float _Sqrt(float x);
 
 int m33_to_quat(float *q, float (*m)[4])
 {

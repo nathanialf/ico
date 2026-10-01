@@ -7,6 +7,9 @@
 #include "sugiCommon.h"
 #include "GsBase.h"
 #include "sceneManager.h"
+#include "enemyParts.h"
+#include "GifPacket.h"
+#include "main.h"
 
 /* The packed colour word.  ROM copies it with lwl/lwr + swl/swr, which is
    gcc's unaligned block move: the type is a four-byte record of chars, so
@@ -30,34 +33,32 @@ typedef struct PointBlur {
     /* 0x38 */ char _pad38[8];
 } PointBlur;
 
-extern int GlobalTimer;
-extern char *matrixptr;
-/* kept local: this TU's uses of ZUnitVector do not fit the prototype in matrixDrive.h */
+/* kept local: char [] here, float [4] in matrixDrive.h */
 extern char ZUnitVector[];
 extern void moveDataElements(PointBlur *p);
-/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
 extern void _ApplyMatrix(void *dst, void *m, void *src);
-/* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
 extern void _SetCurrentMatrix(void *m);
-/* kept local: this TU's uses of _RotTransPersCurrentMatrix do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
 extern void _RotTransPersCurrentMatrix(void *dst, void *src);
-/* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
 extern void _SubVector(void *d, void *a, void *b);
-/* kept local: this TU's uses of _OuterProduct do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
 extern void _OuterProduct(void *d, void *a, void *b);
-/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
 extern void _NormalizeVector(void *d, void *s);
-/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
 extern void _ScaleVector(void *d, void *s, float k);
-/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
 extern void _AddVectorXYZ(void *d, void *a, void *b);
-/* kept local: this TU's uses of _SubVectorXYZ do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
 extern void _SubVectorXYZ(void *d, void *a, void *b);
-/* kept local: this TU's uses of _FTOI4Vector do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
 extern void _FTOI4Vector(void *d, void *s);
-/* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
 extern void _CopyVector(void *dst, void *src);
-/* kept local: this TU's uses of _CopyIVector do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
 extern void _CopyIVector(void *d, void *s);
 
 typedef struct IVec {
@@ -122,8 +123,9 @@ int UpdatePointBlur(PointBlur *p, void *mtx, void *a2, float f)
     return 1;
 }
 
-/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_sugipon;
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_seki;
 
 /* enemyParts.o's whole .data run, in ROM order: the templates the loops and
@@ -306,7 +308,7 @@ char *InitEnemyFootPrint(int num)
     return p;
 }
 
-/* kept local: this TU's uses of YUnitVector do not fit the prototype in matrixDrive.h */
+/* kept local: char [] here, float [4] in matrixDrive.h */
 extern char YUnitVector[];
 
 int ExecEnemyFootPrints(char *self)
@@ -397,15 +399,6 @@ PointBlur *InitPointBlur(int num, int a1, int *col, void *pos)
     return p;
 }
 
-/* kept local: this TU's uses of gif_Draw2DStripG do not fit the prototype in GifPacket.h */
-extern void gif_Draw2DStripG();
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
-extern void gif_EndPacket();
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
-extern void gif_SetAlpha();
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
-extern void gif_StartPacketPri();
-
 int DispPointBlur(int *self)
 {
     gif_StartPacketPri(self[0]);
@@ -415,7 +408,7 @@ int DispPointBlur(int *self)
     return 1;
 }
 
-/* kept local: this TU's uses of _MulMatrix do not fit the prototype in Matrix.h */
+/* kept local: void (void *, int, void *) here, void (void *, void *, void *) in Matrix.h */
 extern void _MulMatrix(void *a0, int a1, void *a2);
 
 int UpdateEnemyEye(char *a0, int a1, float f)
@@ -427,7 +420,7 @@ int UpdateEnemyEye(char *a0, int a1, float f)
     return 1;
 }
 
-/* kept local: this TU's uses of _CopyMatrix do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
 extern void _CopyMatrix();
 
 int DispEnemyEye(char *a0)
@@ -451,7 +444,7 @@ int ResetEnemyEye(char *self)
     return 1;
 }
 
-/* kept local: this TU's uses of _CopyIVector do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
 extern void _CopyIVector(void *dst, void *src);
 
 /* Two strip vertices per footprint: fC holds the IVec positions (2 x 0x10),

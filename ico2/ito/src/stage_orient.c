@@ -60,10 +60,15 @@ static const StageOrientDef stageOrientDefs[41] = {
    where the stage has none. */
 static short stageOrientIdx[128];
 
+/* kept local: void (VECTOR *, VECTOR *) here, void (void *, void *) in libvu0.h */
 extern void sceVu0Normalize(VECTOR *out, VECTOR *in);
+/* kept local: void (float *) here, void (void *) in libvu0.h */
 extern void sceVu0UnitMatrix(float *m);
+/* kept local: void (float *, float *, float) here, void (void *, void *, float) in libvu0.h */
 extern void sceVu0RotMatrixY(float *m0, float *m1, float rot); /* sceVu0RotMatrixY */
+/* kept local: void (float *, float *) here, void (void *, void *) in libvu0.h */
 extern void sceVu0InversMatrix(float *m0, float *m1);
+/* kept local: void (VECTOR *, float *, VECTOR *) here, void (void *, void *, void *) in libvu0.h */
 extern void sceVu0ApplyMatrix(VECTOR *out, float *m, VECTOR *in);
 
 #include "stage_orient.h"
@@ -176,6 +181,7 @@ inline int StageOrientGet(VECTOR *ret, int stA, int stB)
     return 1;
 }
 
+/* kept local: void (VECTOR *, VECTOR *, VECTOR *) here, void (void *, void *, void *) in libvu0.h */
 extern void sceVu0SubVector(VECTOR *out, VECTOR *a, VECTOR *b);
 
 int StageOrientGet2(VECTOR *ret, int stA, VECTOR *posA, int stB, VECTOR *posB)

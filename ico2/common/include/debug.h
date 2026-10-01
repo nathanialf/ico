@@ -27,7 +27,6 @@ typedef struct {
 
 /* the debug menu debug_Menu runs (MAIN.MAP, .data) */
 extern DbgMenuItem debugMenu[];
-
 extern int debugBackGroundDisableFlag;
 extern int charNumH;
 extern int LoadFileType;
@@ -118,7 +117,6 @@ extern int debug_hair_gravity_level;
 extern int debug_hair_bend_angle;
 extern int debug_hair_collision;
 extern int debug_no_breast_hang;
-
 /* debug.c's tail: each of these is an `inline` definition at its own line in
    debug.c, which gcc defers to the end of the object and outputs in
    first-declaration order, so this list is the order the ROM emits them in.
@@ -136,7 +134,10 @@ void debug_DispVu1IReg(int no);
 void debug_DispVu1SReg(int no);
 void debug_DispMatrix(int *a0);
 void debug_SetBarDummy(void);
-int debug_SelectCsvWindowWithLine(char *title, int x, int y, int rows, void *base, int stride, int off, int deref, int n, int *psel);
+
+int debug_SelectCsvWindowWithLine(char *title, int x, int y, int rows, void *base, int stride,
+                                  int off, int deref, int n, int *psel);
+
 int debug_TryToGetStartStage(void);
 int debugSceOpen(int a0, int a1);
 int debugSceClose(int a0);
@@ -149,8 +150,13 @@ int gsResetFunc(void);
 void ChangeGirlControlMode(int a0);
 int debug_CallbackGsFinish(void);
 void debug_SaveStartStageFile(int stage);
-int _debug_SelectCsvWindow(char *title, int x, int y, int rows, int base, int stride, int off, int deref, int n, int *psel, void (*getline)(), int (*colfunc)(int));
-int debug_SelectCsvWindowWithLineColor(char *title, int x, int y, int rows, void *base, int stride, int off, int deref, int n, int *psel, int (*colfunc)(int));
+
+int _debug_SelectCsvWindow(char *title, int x, int y, int rows, int base, int stride, int off,
+                           int deref, int n, int *psel, void (*getline)(), int (*colfunc)(int));
+
+int debug_SelectCsvWindowWithLineColor(char *title, int x, int y, int rows, void *base, int stride,
+                                       int off, int deref, int n, int *psel, int (*colfunc)(int));
+
 int debug_mcFormat(int port);
 int debug_mcUnformat(int port);
 void *debug_saveNumFunc(int a0, void *a1);
@@ -167,7 +173,6 @@ int debug_tsuresariTimeZero(void);
 int debug_hintStart(void);
 int debug_SelectPad2ControlGobj(int reset);
 int debug_FreeCamera(int a0);
-
 void debug_Assert(char *fmt, ...);
 int debug_DispBall(int on);
 int debug_DispBox(int on);
@@ -184,7 +189,10 @@ void debug_Printf(int a, int b, unsigned int c, int x, ...);
 void debug_PrintfDummy(int a0, int a1, unsigned int a2, int a3, ...);
 int debug_SETest(int reset);
 int debug_SelectActGobj(int reset);
-int debug_SelectCsvWindow(char *title, int x, int y, int rows, void *base, int stride, int off, int deref, int n, int *psel);
+
+int debug_SelectCsvWindow(char *title, int x, int y, int rows, void *base, int stride, int off,
+                          int deref, int n, int *psel);
+
 int debug_SelectStage(void);
 void debug_SetDmaCallback(void);
 void debug_StdPrintfDummy(char *fmt, ...);
@@ -193,5 +201,6 @@ void debug_makeBackImage(void);
 void debug_openLog(void);
 void getBuffer(int a0);
 void getLineBuffer(int a0, int a1, int a2);
+void debug_FlushFont(void);
 
 #endif /* DEBUG_H */

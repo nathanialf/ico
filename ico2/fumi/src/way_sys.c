@@ -3,6 +3,7 @@
 #include "way_sys.h"
 #include <libvu0.h>
 #include "typedef.h"
+#include "Matrix.h"
 
 typedef struct {
     int pad[8];
@@ -298,7 +299,6 @@ typedef struct {
 
 extern GenGeoKind objLayout[];
 extern int CreateTempWayGroup(void);
-extern float _GetLength(void *a, void *b);
 
 /* census rows 582-593: a wall probe between two points, both lifted 75 units. */
 static inline int way_probe(float *a, float *b)
@@ -767,7 +767,6 @@ static NigeEnt nigePointTbl[275];
 
 extern WayGroup *WayBridge_begin(void);
 extern WayGroup *WayBridge_next(WayGroup *g);
-extern float _GetLength(void *a, void *b);
 extern void CopyVector(void *dst, void *src);
 
 int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)

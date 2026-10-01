@@ -1,5 +1,6 @@
 #include "debug.h"
 #include <eekernel.h>
+#include "keyInput.h"
 
 /* one 0x58-byte pad record; the engine keeps two of them */
 /* kept local: this TU's bytes only come out with its own view of Pad. */
@@ -22,8 +23,9 @@ extern Pad pad[];
 /* the pad device descriptor InitKeyInput hands to iosPadDevInit */
 static int keyInputPadDev[6] = {7, 2, 0, 0, 0, 0};
 
+/* kept local: main.h does not compile in this TU (redefinition of `struct Pad') */
 extern int IosPadLock;
-/* kept local: this TU's uses of iosPadDevInit do not fit the prototype in pad.h */
+/* kept local: void (void *) here, int (void *) in pad.h */
 extern void iosPadDevInit(void *a0);
 
 void InitKeyInput(void)
@@ -59,13 +61,13 @@ typedef struct PadBuf {
 /* kept local: main.c's global; this TU does not include main.h */
 extern int systemStatus[];
 extern char iosPadConfDefault[];
-/* kept local: this TU's uses of iosPadDevRead do not fit the prototype in pad.h */
+/* kept local: void (void) here, int (void) in pad.h */
 extern void iosPadDevRead(void);
-/* kept local: this TU's uses of iosPadConnect do not fit the prototype in pad.h */
+/* kept local: void (void *, int, int, void *) here, int (void *, int, int, int) in pad.h */
 extern void iosPadConnect(void *buf, int a1, int port, void *conf);
-/* kept local: this TU's uses of iosPadRead do not fit the prototype in pad.h */
+/* kept local: agrees with pad.h, which this TU does not include (iosPadConnect, iosPadDevInit differ) */
 extern int iosPadRead(void *buf);
-/* kept local: this TU's uses of iosPadGetStick do not fit the prototype in pad.h */
+/* kept local: agrees with pad.h, which this TU does not include (iosPadConnect, iosPadDevInit differ) */
 extern int iosPadGetStick(void *buf, void *dst, int which, int cx, int cy, int a5);
 
 void ExecKeyInput(void)

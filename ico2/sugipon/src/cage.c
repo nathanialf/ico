@@ -7,12 +7,13 @@
 #include <libvu0.h>
 #include <math.h>
 #include "ios.h"
+#include "Matrix.h"
 
-/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, ZeroVector differ) */
 extern void CopyVector(void *dst, void *src);
-/* kept local: this TU's uses of FSqrt do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, ZeroVector differ) */
 extern float FSqrt(float x);
-/* kept local: this TU's uses of VectorLength do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, ZeroVector differ) */
 extern float VectorLength(void *v);
 
 int CageRideFunc(char **self, char *rider)
@@ -64,8 +65,9 @@ inline int GetCageChainPoint(char *a0, char *a1, char *a2)
     return *(int *)(w + 0x40);
 }
 
-/* kept local: this TU's uses of these do not fit the prototypes in memory.h */
+/* kept local: void * (void *, int, char *, int) here, void * (IosMemPart *, int, char *, int) in memory.h */
 extern void *iosMallocDebug(void *part, int size, char *file, int line);
+/* kept local: void (void *) here, void * (void *) in memory.h */
 extern void iosFree(void *p);
 
 /* the game heap handles, declared int as sugipon's other TUs do
@@ -241,7 +243,7 @@ inline void SetCageChainHangableFlag(char *a0, int a1)
     *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x40) = a1;
 }
 
-/* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
+/* kept local: char [] here, float [4] in matrixDrive.h */
 extern char ZeroVector[];
 
 void HotInitCageGeo(char *self)
@@ -292,12 +294,8 @@ inline void SetCageVelocityFriction(char *a0, float a1)
     *(float *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x3C) = a1;
 }
 
-/* kept local: this TU's uses of GetWindVector do not fit the prototype in windField.h */
+/* kept local: void * (int, void *) here, int (void) in windField.h */
 extern void *GetWindVector(int kind, void *pos);
-/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
-extern void _ScaleVector(void *dst, void *src, float k);
-/* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
-extern void _AddVector(void *dst, void *a, void *b);
 
 /* the world down axis the chain's swing axis is taken against */
 static sceVu0FVECTOR cageDown = {0.0f, -1.0f, 0.0f, 0.0f};
@@ -326,17 +324,17 @@ static inline void AddCageWindForce(char *n, float k)
     _AddVector(n + 0x30, n + 0x30, v);
 }
 
-/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, ZeroVector differ) */
 extern void *MatrixDrive_GetMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_TransMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, ZeroVector differ) */
 extern void MatrixDrive_TransMatrix(float x, float y, float z);
-/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, ZeroVector differ) */
 extern void CopyMatrix(void *dst, void *src);
-/* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, ZeroVector differ) */
 extern void MatrixDrive_PushMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_PopMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, ZeroVector differ) */
 extern void MatrixDrive_PopMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_RotMatrixX do not fit the prototype in matrixDrive.h */
+/* kept local: void (int) here, void (short) in matrixDrive.h */
 extern void MatrixDrive_RotMatrixX(int angle);
 
 void CageGeo(char *self)

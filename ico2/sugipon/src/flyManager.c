@@ -1,11 +1,10 @@
 #include "fieldCollision.h"
 #include "matrixDrive.h"
+#include "main.h"
 
 /* the TU's one .sdata word (MAIN.MAP flyManager.o .sdata 0x4, no symbol): the
    flying object the manager tracks */
 static int flyGObj = 0; /* derived name */
-
-extern int stage_no;
 
 typedef struct {
     float floorY;

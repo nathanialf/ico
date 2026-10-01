@@ -6,6 +6,7 @@
 #include "Texture.h"
 #include "Packet.h"
 #include <stdio.h>
+#include "debug_exception.h"
 
 /* .sdata, Packet.o's run (MAIN.MAP 0x57, no symbol named): the largest
    packet pac_MakePacket has built so far, then the dump formats, the assert
@@ -224,7 +225,6 @@ void pac_makeBoundingBox(float (*box)[4], int flag)
     }
 }
 
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
 void pac_error(char *name, int type)
@@ -782,11 +782,8 @@ void pac_countOneVertexPacketSize(char *shp, char *mat)
     }
 }
 
+/* kept local: void (int) here, void * (void *) in memory.h */
 extern void iosFree(int p);
-extern void debug_assertMessage(char *file, int line, char *msg);
-extern void pac_countOneVertexPacketSize(char *shp, char *mat);
-extern int pac_makeNormalStrip(char *obj, short *p, int n);
-extern int pac_makeClusterStrip(char *obj, short *p, int n);
 
 int pac_makeStrip(char **out, char *obj, char **tbl, int shpno, int matno, int line)
 {

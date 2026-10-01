@@ -32,5 +32,6 @@ void SetParticleEffectPauseFlag(int a0, int a1);
 void SetParticleEffectUpperLimit(int no, float f);
 int execParticleEffect(void *a0);
 int setParticleEffect(int geo, int *pkg, int part);
+void SetParticleEffectClipEnableFlag(int a0, int a1);
 
 #endif /* PARTICLEEFFECT_H */

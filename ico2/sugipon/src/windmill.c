@@ -1,7 +1,7 @@
 #include "sceneManager.h"
+#include "main.h"
 
-extern int stage_no;
-/* kept local: the declaration in flag.h changes this TU codegen */
+/* kept local: int (void *, int, int) here, void (char *, int, int) in flag.h */
 extern int SetFlag4PointFixID(void *gobj, int idx, int a2);
 
 /* The 0x40-byte layout record CreateLayoutedGObj takes: three 16-byte vectors

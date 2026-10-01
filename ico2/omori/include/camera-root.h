@@ -19,7 +19,6 @@ extern int InsertCameraWorkingFlag;
 extern int FixViewInGameCameraFlag;
 extern int monitorCameraHold;      /* the title shortcut holds the monitor camera */
 extern int insertCameraBlendTimer; /* frames left of the blend after an insert camera */
-
 void Camctrl_ExitEveRock(void);
 void Camctrl_SetTarget(int a0, int a1, int a2);
 void CameraChangeTargetParallel(int a0, int a1);
@@ -33,7 +32,10 @@ void *GetCameraPos(void);
 int *GetCurrentCameraSet2(void);
 void InitCamera(void);
 void InsertCamera_Exec(float *cam, int *cut, int *cutType, int *enable);
-void InsertCamera_SetDetail(float *pos, float *tgt, int gobj, int cutType, int b37, int b38, float blend);
+
+void InsertCamera_SetDetail(float *pos, float *tgt, int gobj, int cutType, int b37, int b38,
+                            float blend);
+
 void InsertCamera_SetNoraml(float *pos, float *tgt, int gobj, int cutType);
 int InsertCamera_isEnable(void);
 void MakeCameraMatrix();
@@ -46,5 +48,12 @@ void SetHandCameraLimitInDemo(int a0, int a1);
 void SetMonitorCameraInitializeFlag(void);
 void SetWSMatrix(void *a0);
 void SetZoomMaxValInDemo(int a0);
+void DebugCameraManual(void);
+void DebugCameraSemiAuto(void);
+void BackToGameCamera(void);
+void CameraSetTargetGObj(int a, int b);
+int UpdateHandCameraLimitP(void);
+int UpdateHandCameraLimitV(void);
+int UpdateZoomMaxVallInDemo(void);
 
 #endif /* CAMERA_ROOT_H */

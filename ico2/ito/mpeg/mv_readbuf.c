@@ -1,4 +1,5 @@
 #include "mv_defs.h"
+#include "mv_readbuf.h"
 
 int readBufCreate(int *self)
 {

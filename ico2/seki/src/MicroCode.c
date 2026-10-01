@@ -36,6 +36,7 @@ static int mcResident[16];
 /* The display-list packet builder state and one 64-bit packet slot; same
    objects src/GifPacket.c builds its packets in. */
 
+/* kept local: GifDpk here, DpkCtl in DmaPacket.h */
 extern GifDpk PacketBufferStruct;
 
 void mc_setBaseOffset(int base, int pri)

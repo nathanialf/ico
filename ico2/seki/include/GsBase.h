@@ -27,7 +27,6 @@ extern int screenOffsetX;
 extern int screenOffsetY;
 extern int vsWidth;
 extern int vsHeight;
-
 void appendLogFile(void);
 void gsb_ClearFrameBuffer(void);
 int gsb_ClipBox(void *pk);
@@ -44,5 +43,10 @@ void gsb_SetZoom(float a, float b);
 int gsb_SyncGSSystem(void);
 void gsb_UpdateGSSystem(int a0);
 void updateOtherEditingLockFlag(void);
+void gsb_KeepFrameBuffer(void);
+void gsb_fade(void);
+void gsb_scissorOnDemo(void);
+void gsb_antiAlias(void);
+void gsb_SetVSMatrixSub(float *a, float *b, float *c, float *d, float *vs);
 
 #endif /* GSBASE_H */

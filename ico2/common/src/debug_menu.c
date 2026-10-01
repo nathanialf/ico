@@ -1,6 +1,7 @@
 #include "typedef.h"
 #include "debug.h"
 #include "camera-root.h"
+#include "debug_menu.h"
 
 /* kept local: this TU's uses of GetMaxGObj do not fit the prototype in GobjProc.h */
 extern int GetMaxGObj(void);

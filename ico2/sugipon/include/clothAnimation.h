@@ -95,4 +95,9 @@ void getCloth4D(void *a0, int **rows);
 void getCloth4D_preProcess(void *a0, float x, float y, float z, float w, int tight, void *a6,
                            void *a7);
 
+float getXZLength(void *p0);
+float getXZInvLength(void *p0);
+float getXZLengthSquare(void *p0);
+float subAndGetInvLength(void *p0, void *p1, void *p2, void *p3);
+
 #endif /* CLOTHANIMATION_H */

@@ -20,6 +20,9 @@
 #include "geometryManager.h"
 #include "typedef.h"
 #include "ios.h"
+#include "Matrix.h"
+#include "tableSin.h"
+#include <string.h>
 
 void bombSparkStartSE(int a0)
 {
@@ -45,15 +48,16 @@ static inline int IsItemKindBomb(char *gobj)
     return *(int *)(p + 4) == 1;
 }
 
+/* kept local: void (const char *, int) here, void (char *, int) in debug_exception.h */
 extern void debug_assert(const char *file, int line);
 extern void __assert(const char *file, int line, char *expr);
-/* kept local: this TU's uses of SetIdentityQuaternion do not fit the prototype in quaternion.h */
+/* kept local: agrees with quaternion.h, which this TU does not include (GetInverseQuaternion, RotQuaternionX differ) */
 extern void SetIdentityQuaternion(void *q);
-/* kept local: this TU's uses of GetInverseQuaternion do not fit the prototype in quaternion.h */
+/* kept local: void (void *, void *) here, void (int, int) in quaternion.h */
 extern void GetInverseQuaternion(void *dst, void *src);
-/* kept local: this TU's uses of MultiQuaternion do not fit the prototype in quaternion.h */
+/* kept local: agrees with quaternion.h, which this TU does not include (GetInverseQuaternion, RotQuaternionX differ) */
 extern void MultiQuaternion(void *dst, void *a, void *b);
-/* kept local: this TU's uses of IdentityQuaternion do not fit the prototype in quaternion.h */
+/* kept local: agrees with quaternion.h, which this TU does not include (GetInverseQuaternion, RotQuaternionX differ) */
 extern float IdentityQuaternion[4];
 
 void HoldItem(char *gobj, char *holder)
@@ -133,7 +137,7 @@ static float carryOfsPlayer[4] = {-3.3333335f, -27.777779f, 0.0f, 1.0f};
 
 static float carryOfsOther[4] = {-10.0f, -15.0f, 0.0f, 1.0f};
 
-/* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
+/* kept local: void (int) here, int (void *) in fieldCollision.h */
 extern void ClipWall(int arg);
 
 void avoidInsideOfWall(void *self, int arg)
@@ -150,7 +154,7 @@ void avoidInsideOfWall(void *self, int arg)
     SetDirectRootPositionNoFitting(self, p + 0x20);
 }
 
-/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnZAngleYX, MatrixDrive_SetTransposeMatrix differ) */
 extern void CopyVector(void *dst, void *src);
 
 void ReleaseItem(char *gobj)
@@ -166,9 +170,7 @@ void ReleaseItem(char *gobj)
     SetIdentityQuaternion((char *)*(int *)(gobj + 0x15C) + 0x150);
 }
 
-/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
-extern void _ScaleVectorXYZ(void *dst, void *src, float k);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (girlGObj differs) */
 extern int systemStatus[];
 
 void ThrowItem(char *gobj, void *vel)
@@ -239,21 +241,18 @@ char *InitItemGeo(char *gobj, ItemLayout *layout)
     return p;
 }
 
-extern void *memset(void *p, int c, int n);
-/* kept local: this TU's uses of RotQuaternionY do not fit the prototype in quaternion.h */
+/* kept local: void (void *, short) here, void (void *, int) in quaternion.h */
 extern void RotQuaternionY(void *q, short ang);
-/* kept local: this TU's uses of CopyQuaternion do not fit the prototype in quaternion.h */
+/* kept local: agrees with quaternion.h, which this TU does not include (GetInverseQuaternion, RotQuaternionX differ) */
 extern void CopyQuaternion(void *dst, void *src);
-/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
-extern void _ApplyMatrix(void *dst, void *m, void *src);
-/* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: void (void *, void *) here, void (float *, float *) in matrixDrive.h */
 extern void MatrixDrive_SetTransposeMatrix(void *dst, void *m);
-/* kept local: this TU's uses of MatrixDrive_GetTurnZAngleYX do not fit the prototype in matrixDrive.h */
+/* kept local: void (unsigned short *, unsigned short *, float, float, float) here, void (short *, short *, float, float, float) in matrixDrive.h */
 extern void MatrixDrive_GetTurnZAngleYX(unsigned short *y, unsigned short *x, float vx, float vy,
                                         float vz);
-/* kept local: this TU's uses of RotQuaternionX do not fit the prototype in quaternion.h */
+/* kept local: void (void *, short) here, void (void *, int) in quaternion.h */
 extern void RotQuaternionX(void *q, short ang);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *girlGObj;
 
 /* The holder's 0x15C sub-handle is read through the SubHandle union at every
@@ -334,11 +333,6 @@ void carriedItemGeo(char *gobj)
     SetDirectRootPosition(gobj, &pos);
 }
 
-/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
-extern void _NormalizeVector(void *dst, void *src);
-/* kept local: the declaration in tableSin.h changes this TU codegen */
-extern short GetTableArcTan2(float x, float z);
-
 /* 0x004FB970: seven 32-byte records indexed by the item kind, holding the
    stage-BgAnimation ids this TU entries when an item breaks.  0x3CC is the
    "no animation" sentinel.  Field names are offset-derived. */
@@ -415,36 +409,30 @@ typedef struct ClipWorkItem {
     float f_B0[4];  /* 0xB0 */
 } ClipWorkItem;
 
-/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
-extern void _ScaleVector(void *dst, void *src, float k);
-/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
-extern void _AddVectorXYZ(void *dst, void *a, void *b);
-/* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnZAngleYX, MatrixDrive_SetTransposeMatrix differ) */
 extern void AddVectorXYZ(void *dst, void *a, void *b);
-/* kept local: this TU's uses of GetSlerpQuaternion do not fit the prototype in quaternion.h */
+/* kept local: agrees with quaternion.h, which this TU does not include (GetInverseQuaternion, RotQuaternionX differ) */
 extern void GetSlerpQuaternion(void *dst, void *a, void *b, float t);
-/* kept local: this TU's uses of RegularizeQuaternion do not fit the prototype in quaternion.h */
+/* kept local: agrees with quaternion.h, which this TU does not include (GetInverseQuaternion, RotQuaternionX differ) */
 extern void RegularizeQuaternion(void *q);
-/* kept local: this TU's uses of ClipWallWaveForce do not fit the prototype in fieldCollision.h */
+/* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipWallWaveForce(void *w);
-/* kept local: this TU's uses of ClipFloor do not fit the prototype in fieldCollision.h */
+/* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipFloor(void *w);
-/* kept local: this TU's uses of GetDistanceFromPlane do not fit the prototype in fieldCollision.h */
+/* kept local: agrees with fieldCollision.h, which this TU does not include (ClipFloor, ClipWall differ) */
 extern float GetDistanceFromPlane(void *plane, void *v);
-/* kept local: this TU's uses of VectorLength do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnZAngleYX, MatrixDrive_SetTransposeMatrix differ) */
 extern float VectorLength(void *v);
-/* kept local: this TU's uses of VectorLengthSquare do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnZAngleYX, MatrixDrive_SetTransposeMatrix differ) */
 extern float VectorLengthSquare(void *v);
-/* kept local: this TU's uses of GetWallAttribute do not fit the prototype in fieldCollision.h */
+/* kept local: int (void *) here, int (int) in fieldCollision.h */
 extern int GetWallAttribute(void *w);
-/* kept local: this TU's uses of GetFloorAttribute do not fit the prototype in fieldCollision.h */
+/* kept local: int (void *) here, int (int) in fieldCollision.h */
 extern int GetFloorAttribute(void *w);
-/* kept local: this TU's uses of GetReflectionElement do not fit the prototype in fieldCollision.h */
+/* kept local: void (void *, float, float) here, void (char *, float, float) in fieldCollision.h */
 extern void GetReflectionElement(void *w, float a, float b);
-/* kept local: this TU's uses of SetQuaternionByAxisRotate do not fit the prototype in quaternion.h */
+/* kept local: void (void *, short, float, float, float) here, void (int *, short, float, float, float) in quaternion.h */
 extern void SetQuaternionByAxisRotate(void *q, short ang, float x, float y, float z);
-/* kept local: this TU's uses of GetTableSin do not fit the prototype in tableSin.h */
-extern float GetTableSin(short a);
 
 /* src/item.c:135-178 in the January-2002 listing: a static helper with no
    out-of-line copy, inlined only into uncarriedItemGeo's wall-hit arm.
@@ -718,9 +706,6 @@ void uncarriedItemGeo(char *gobj)
     }
 }
 
-/* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
-extern void _CopyVector(void *dst, void *src);
-
 void execBombGeo(char *gobj)
 {
     float v[4];
@@ -858,7 +843,7 @@ void ItemDL(char *gobj)
     p2o_DispVU1(gobj);
 }
 
-/* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnZAngleYX, MatrixDrive_SetTransposeMatrix differ) */
 extern float ZeroVector[4];
 
 /* INTERIM stand-in: GetItemKind is a real TU function with its own ROM slot
@@ -990,9 +975,6 @@ int ReviveCarryableItemsWithBoundary(void *center, float radius)
     }
     return 1;
 }
-
-/* kept local: this TU's uses of GetTableCos do not fit the prototype in tableSin.h */
-extern float GetTableCos(short a);
 
 int ReviveAllCarryableItemsWithRandomVelocity(float up, float horz)
 {

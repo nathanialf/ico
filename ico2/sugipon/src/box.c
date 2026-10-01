@@ -15,8 +15,12 @@
 #include <string.h>
 #include "motionFileManager.h"
 #include "sceneManager.h"
+#include "Matrix.h"
+#include "GifPacket.h"
+#include <math.h>
+#include "stageMultiBgaManager.h"
 
-/* kept local: this TU's uses of UpdateRootMatrix do not fit the prototype in geometryManager.h */
+/* kept local: void (void *) here, void (int) in geometryManager.h */
 extern void UpdateRootMatrix(void *a0);
 
 void landingSE(int a0)
@@ -43,11 +47,6 @@ void wallHitSE(int a0)
 {
     ExecuteSEPackage(a0, 0x1E);
 }
-
-/* kept local: this TU's uses of StopSEPackage and StopSEPackageWithGroupVariation
-   do not fit the prototypes in frameDependSequence.h */
-extern void StopSEPackage(int a0);
-extern void StopSEPackageWithGroupVariation(int a0, int a1);
 
 /* box.c:232-241 in the listing: inlined into onPath and into
    ExecBoxMoveEndReaction, so it is a static inline here; it has no symbol of
@@ -96,8 +95,10 @@ void initFallDown(char *a0)
 
 /* kept local: this TU does not include matrixDrive.h, whose FSqrt and
    AddVectorXYZ prototypes do not fit this TU's uses of them. */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnXAngleYZ, MatrixDrive_GetTurnYAngleXZ differ) */
 extern void CopyVector(void *dst, void *src);
 extern void GetLowerPlaneCollision(void *work, void *pos);
+/* kept local: int (void *) here, int (int) in fieldCollision.h */
 extern int GetFloorAttribute(void *work);
 
 int checkFieldContact(char *a0, float lim)
@@ -135,22 +136,17 @@ int checkFieldContact(char *a0, float lim)
     return 0;
 }
 
-/* kept local: this TU's uses of SetDirectRootPosition do not fit the prototype in geometryManager.h */
+/* kept local: void (void *, void *) here, void (char *, void *) in geometryManager.h */
 extern void SetDirectRootPosition(void *obj, void *pos);
-/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
-extern void _ScaleVector(void *dst, void *src, float k);
-/* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnXAngleYZ, MatrixDrive_GetTurnYAngleXZ differ) */
 extern void AddVectorXYZ(void *dst, void *a, void *b);
-/* kept local: this TU's uses of ClipWallBoxStop do not fit the prototype in fieldCollision.h */
+/* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipWallBoxStop(void *a0);
-/* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
-extern void _AddVector(void *dst, void *a, void *b);
-/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
-extern void _NormalizeVector(void *dst, void *src);
-/* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
+/* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipWall(void *a0);
 /* kept local: this TU does not include geometryManager.h, whose GetRootMatrix and
    GetCharGObjList prototypes do not fit this TU's uses of them. */
+/* kept local: void (void *, void *) here, void (char *, void *) in geometryManager.h */
 extern void SetRootPosition(void *obj, void *pos);
 
 /* box.c:343-360 in the listing: inlined into execNormalMove twice (once with
@@ -186,18 +182,27 @@ static inline void checkBoxWallHit(char *self, char *w, float *base, float *out,
 
 /* kept local: this TU's uses of these do not fit the prototypes in the headers
    that declare them */
+/* kept local: void (int, int, void *) here, int (char *, int, int) in obj_manager.h */
 extern void iosOmSendMail(int dst, int mail, void *arg);
+/* kept local: agrees with geometryManager.h, which this TU does not include (GetCharGObjList, GetRootPosition differ) */
 extern void GetProjectionPosOfPlane(void *dst, void *plane, void *pos);
+/* kept local: agrees with quaternion.h, which this TU does not include (GetInverseQuaternion, GetMatrixFromQuaternion differ) */
 extern void CopyQuaternion(void *dst, void *src);
-extern void _OuterProduct(void *dst, void *a, void *b);
+/* kept local: void (void *, int, void *) here, void (int *, short, int *) in quaternion.h */
 extern void SetQuaternionByAxisRotateV(void *dst, int ang, void *axis);
+/* kept local: agrees with quaternion.h, which this TU does not include (GetInverseQuaternion, GetMatrixFromQuaternion differ) */
 extern void GetSlerpQuaternion(void *dst, void *a, void *b, float t);
+/* kept local: void (void *, void *) here, void (int, int) in quaternion.h */
 extern void GetInverseQuaternion(void *dst, void *src);
+/* kept local: agrees with quaternion.h, which this TU does not include (GetInverseQuaternion, GetMatrixFromQuaternion differ) */
 extern void MultiQuaternion(void *dst, void *a, void *b);
+/* kept local: void (void *, void *) here, void (char *, void *) in geometryManager.h */
 extern void SetRootQuaternion(void *obj, void *q);
 /* kept local: this TU's uses of IdentityQuaternion and YUnitVector do not fit
    the prototypes in quaternion.h and matrixDrive.h */
+/* kept local: char [] here, float [4] in quaternion.h */
 extern char IdentityQuaternion[];
+/* kept local: char [] here, float [4] in matrixDrive.h */
 extern char YUnitVector[];
 
 /* the two debug lines the wall fit prints, rodata VMA 0x61EF20 and 0x61EF48;
@@ -402,10 +407,13 @@ int AlignBox(char *a0, float grid)
 
 /* declared here: box.c includes no header that declares the ios allocators
    (ico2/fumi/include/memory.h has them with an IosMemPart * partition) */
+/* kept local: void * (void *, int, char *, int) here, void * (IosMemPart *, int, char *, int) in memory.h */
 extern void *iosMallocDebug(void *part, int size, char *file, int line);
+/* kept local: void (void *) here, void * (void *) in memory.h */
 extern void iosFree(void *p);
 /* kept local: this TU's view of ios.c's partition handle is a pointer, which
    initWheels' schedule needs (ios.h declares the handles int) */
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_seki;
 extern GenGeo objLayout[];
 
@@ -941,17 +949,11 @@ void onPathInitialize(char *a0)
 
 /* kept local: this TU's uses of these do not fit the prototypes in the headers
    that declare them */
-extern float atan2f(float y, float x);
+/* kept local: void (void *, void *) here, void (char *, char *) in quaternion.h */
 extern void GetMatrixFromQuaternion(void *m, void *q);
-extern void _SubVectorXYZ(void *dst, void *a, void *b);
-extern float _InnerProduct(void *a, void *b);
-extern void sceVu0AddVector(void *dst, void *a, void *b);
-extern void sceVu0ScaleVector(void *dst, void *src, float k);
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnXAngleYZ, MatrixDrive_GetTurnYAngleXZ differ) */
 extern void CopyMatrix(void *dst, void *src);
-extern void gif_StartPacketPri(int pri);
-extern void gif_SetZWrite(int on);
-extern void gif_SetZTest(int on);
-extern void gif_EndPacket(void);
+/* kept local: void (void *, void *, void *, void *, int) here, void (int *, int *, int *, int *, int) in lineManager.h */
 extern void DrawLineG(void *p0, void *c0, void *p1, void *c1, int z);
 
 /* the debug switch the wall-fit trace is printed under */
@@ -1064,9 +1066,10 @@ int onPath(char *self)
     return hitFront | hitRear;
 }
 
-/* kept local: this TU's uses of FSqrt do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnXAngleYZ, MatrixDrive_GetTurnYAngleXZ differ) */
 extern float FSqrt(float f);
 
+/* No caller in the ROM, so the bytes cannot decide the return type: float as sugipon's scalar getters. */
 inline float GetDistanceOfGObj(void *a0, void *a1)
 {
     char v[0x10];
@@ -1104,9 +1107,9 @@ int playAnimationCore(char *a0)
     return UpdateFrameCounter(a0);
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int systemStatus[];
-/* kept local: this TU's uses of LimitExistGeometry do not fit the prototype in geometryManager.h */
+/* kept local: int (void *, void *) here, int (float *, int *) in geometryManager.h */
 extern int LimitExistGeometry(void *pos, void *vel);
 
 /* box.c:867-877 in the listing: inlined once, into execFallDown's case 3, so it
@@ -1128,8 +1131,7 @@ static inline void execBoxFall(char *self)
     }
 }
 
-/* kept local: this TU's uses of _Sqrt do not fit the prototype in matrixDrive.h */
-extern float _Sqrt(float f);
+/* kept local: agrees with geometryManager.h, which this TU does not include (GetCharGObjList, GetRootPosition differ) */
 extern int GetCylinderCollisionWithExceptOwnCollision(char *self, int target, float r, float h,
                                                       float s, float t, int ctrl);
 
@@ -1213,17 +1215,13 @@ int MoveFloatingBox(char *self, char *other, float *dst, void *src, float lim)
     return 1;
 }
 
-/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
-extern void _AddVectorXYZ(void *dst, void *a, void *b);
-/* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
-extern void _SubVector(void *dst, void *a, void *b);
-/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
-extern void _ScaleVectorXYZ(void *dst, void *src, float k);
 /* kept local: this TU's uses of these do not fit the prototypes in Matrix.h,
    matrixDrive.h and quaternion.h */
-extern void _SubVectorXYZ(void *dst, void *a, void *b);
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnXAngleYZ, MatrixDrive_GetTurnYAngleXZ differ) */
 extern float VectorLength(void *v);
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnXAngleYZ, MatrixDrive_GetTurnYAngleXZ differ) */
 extern float VectorLengthSquare(void *v);
+/* kept local: void (void *, void *, void *) here, void (char *, char *, char *) in quaternion.h */
 extern void GetMatrixFromQuaternionPos(void *m, void *q, void *pos);
 
 /* the eight horizontal push-out directions the floating box is tested along */
@@ -1268,6 +1266,7 @@ static inline void pushOutFloatingBox(char *cw, float *m, float *sv, float *dv, 
 
 /* The same prototype fieldCollision.h gives; dropping this redeclaration moves
    avoidCharGObj's w+0x88 load from $2 to $3 (measured, complete66 row). */
+/* kept local: agrees with fieldCollision.h, which this TU does not include (ClipFloor, ClipWall differ) */
 extern void ClipWallE(void *a0);
 
 void avoidCharGObj(char *a0, char *a1)
@@ -1312,14 +1311,15 @@ void avoidCharGObj(char *a0, char *a1)
    motionManager2.h, quaternion.h and stageMultiBgaManager.h */
 extern int GetWaterReaction(void *w, int *hit, void *plane, void *pos, void *vel, float low,
                             float mid, float high, float k, float acc);
+/* kept local: agrees with quaternion.h, which this TU does not include (GetInverseQuaternion, GetMatrixFromQuaternion differ) */
 extern void RotQuaternionY(void *q, int ang);
+/* kept local: void (void *, void *) here, void (char *, char *) in quaternion.h */
 extern void GetMatrixFromQuaternion(void *m, void *q);
-extern void EntryStageMultiBgaManager(int kind, void *pos, void *rot);
 /* the two characters the floating box has to keep clear of, the boy and the
    girl, as sceneManager.c sets them */
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *girlGObj;
 
 /* the world Y axis the box's tilt is measured around */
@@ -1430,7 +1430,7 @@ void execFloating(char *self)
 }
 
 /* kept local: this TU's uses of IdentityQuaternion do not fit the prototype in quaternion.h */
-/* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
+/* kept local: char [] here, float [4] in matrixDrive.h */
 extern char ZeroVector[];
 
 /* the facing a floating box starts with */
@@ -1453,20 +1453,21 @@ void initFloating(char *a0)
     execFloating(a0);
 }
 
-/* kept local: this TU's uses of SetSimplePlane do not fit the prototype in fieldCollision.h */
+/* kept local: void (void *, float, float, float, float) here, void (float *, float, float, float, float) in fieldCollision.h */
 extern void SetSimplePlane(void *plane, float x, float y, float z, float d);
-/* kept local: this TU's uses of GetDistanceFromPlane do not fit the prototype in fieldCollision.h */
+/* kept local: agrees with fieldCollision.h, which this TU does not include (ClipFloor, ClipWall differ) */
 extern float GetDistanceFromPlane(void *plane, void *pos);
-/* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: void (void *, void *) here, void (float *, float *) in matrixDrive.h */
 extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
-/* kept local: this TU's uses of GetCharGObjList do not fit the prototype in geometryManager.h */
+/* kept local: char ** (void) here, int * (void) in geometryManager.h */
 extern char **GetCharGObjList(void);
-/* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
+/* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipWall(void *a0);
 extern int moveXPlus(float *a0, float f12, float f13, float f14);
 extern int moveXMinus(float *a0, float f12, float f13, float f14);
 extern int moveZPlus(float *a0, float f12, float f13, float f14);
 extern int moveZMinus(float *a0, float f12, float f13, float f14);
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int stage_no;
 
 int _checkItemBreak(void *pos)
@@ -1550,7 +1551,7 @@ static inline void playBoxAnimation(char *self, float *q)
     }
 }
 
-/* kept local: this TU's uses of AttackCenter_WithDir do not fit the prototype in attackhit.h */
+/* kept local: void (char *, int, void *, void *, float) here, void (char *, int, float *, float *, float) in attackhit.h */
 extern void AttackCenter_WithDir(char *self, int kind, void *pos, void *dir, float r);
 
 /* box.c:1325-1339 in the listing: inlined once, into execFallDown, so it is a
@@ -1675,7 +1676,7 @@ void action(char *a0)
     }
 }
 
-/* kept local: this TU's uses of GetRootMatrix do not fit the prototype in geometryManager.h */
+/* kept local: agrees with geometryManager.h, which this TU does not include (GetCharGObjList, GetRootPosition differ) */
 extern void GetRootMatrix();
 
 inline void GetBoxGlobalHoldPoint(void *a0, void *a1, void *a2)
@@ -1687,10 +1688,13 @@ inline void GetBoxGlobalHoldPoint(void *a0, void *a1, void *a2)
 
 /* kept local: this TU's uses of GetWallAttribute and CompareAttribute do not
    fit the prototypes in fieldCollision.h */
+/* kept local: int (void *) here, int (int) in fieldCollision.h */
 extern int GetWallAttribute(void *w);
+/* kept local: int (int, int) here, int (unsigned int, unsigned int) in fieldCollision.h */
 extern int CompareAttribute(int attr, int mask);
 /* kept local: this TU does not include matrixDrive.h, whose other prototypes
    do not fit this TU's uses of them. */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnXAngleYZ, MatrixDrive_GetTurnYAngleXZ differ) */
 extern float ZeroPoint[4];
 
 /* box.c:1477-1520 in the listing.  The clip work buffer is declared in a block
@@ -2341,9 +2345,9 @@ void BoxGeo(char *a0)
     }
 }
 
-/* kept local: this TU's uses of p2o_SetDefaultEnviroment do not fit the prototype in DisplayP2O.h */
+/* kept local: int (int) here, void (void) in DisplayP2O.h */
 extern int p2o_SetDefaultEnviroment(int a0);
-/* kept local: this TU's uses of p2o_DispVU1 do not fit the prototype in DisplayP2O.h */
+/* kept local: void (void *) here, void (GObj *) in DisplayP2O.h */
 extern void p2o_DispVU1(void *a0);
 
 inline void BoxDL(char *a0)

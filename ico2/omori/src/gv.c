@@ -4,6 +4,7 @@
 #include <math.h>
 #include "matrixDrive.h"
 
+/* kept local: void (float *, float *, float *, float) here, void (void *, void *, void *, float) in libvu0.h */
 extern void sceVu0InterVector(float *dst, float *a, float *b, float t);
 
 void _InterGV(float *dst, float *a, float *b, float ta, float tb)
@@ -14,7 +15,9 @@ void _InterGV(float *dst, float *a, float *b, float ta, float tb)
     sceVu0InterVector(dst, a, b, tb / (ta + tb));
 }
 
+/* kept local: void (float *) here, void (void *) in libvu0.h */
 extern void sceVu0UnitMatrix(float *m);
+/* kept local: void (float *, float *, float *) here, void (void *, void *, void *) in libvu0.h */
 extern void sceVu0ApplyMatrix(float *dst, float *m, float *src);
 
 void GetMatrixDirectionToZ(float *out, float *dir)
@@ -40,9 +43,9 @@ void GetMatrixDirectionToZ(float *out, float *dir)
     MatrixDrive_PopMatrix();
 }
 
-/* kept local: the declaration in gv.h changes this TU codegen */
+/* kept local: agrees with gv.h; including it here moves this TU's bytes */
 extern int _RotyGV(float *a0, float *a1);
-/* kept local: the declaration in gv.h changes this TU codegen */
+/* kept local: agrees with gv.h; including it here moves this TU's bytes */
 extern void _ApplyRyGV(float *a0, float a1);
 
 int _InterRotGV(float *dst, float *cur, float *tgt, int step)
@@ -73,7 +76,9 @@ int _InterRotGV(float *dst, float *cur, float *tgt, int step)
     return hit;
 }
 
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ApplyMatrix, sceVu0InterVector differ) */
 extern float sceVu0InnerProduct(void *a0, void *a1);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ApplyMatrix, sceVu0InterVector differ) */
 extern void sceVu0SubVector();
 
 void _DistxzSqGV(void *a0, void *a1)
@@ -106,7 +111,7 @@ void _DistxzGV(void *a0, void *a1)
     FSqrt(sceVu0InnerProduct(buf, buf));
 }
 
-/* kept local: the declaration in gv.h changes this TU codegen */
+/* kept local: agrees with gv.h; including it here moves this TU's bytes */
 extern void _InterGV(float *a0, float *a1, float *a2, float a3, float a4);
 
 float _MoveGV(float *a0, float *a1, float *a2, float a3)
@@ -145,7 +150,9 @@ int _AbsRotyGV(void *a0, void *a1)
     return (d < 0) ? -d : d;
 }
 
+/* kept local: void (float *, float *, float) here, void (void *, void *, float) in libvu0.h */
 extern void sceVu0RotMatrixY(float *dst, float *src, float a);
+/* kept local: void (float *, float *, float *) here, void (void *, void *, void *) in libvu0.h */
 extern void sceVu0ApplyMatrix(float *dst, float *m, float *v);
 
 void _ApplyRyGV(float *a0, float a1)
@@ -161,6 +168,7 @@ void _ApplyRyGV(float *a0, float a1)
     a0[2] = v[2];
 }
 
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ApplyMatrix, sceVu0InterVector differ) */
 extern void sceVu0Normalize(void *dst, void *src);
 
 float _GetDirection(float *a0)

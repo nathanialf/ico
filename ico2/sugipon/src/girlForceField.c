@@ -56,7 +56,7 @@ extern void *girlGObj;
 
 extern OaRecA objLayout[];
 extern OaRecB D_002BC6E0[];
-/* kept local: this TU's uses of stage_PlayBgAnimationDissolve do not fit the prototype in StageAnimation.h */
+/* kept local: float (void *, float *, float *, float, float) here, float (int, void *, void *, float, float) in StageAnimation.h */
 extern float stage_PlayBgAnimationDissolve(void *anim, float *pos, float *quat, float frame,
                                            float ratio);
 

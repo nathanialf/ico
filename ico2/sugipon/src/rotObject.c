@@ -11,6 +11,7 @@
 #include <math.h>
 #include <libvu0.h>
 #include "ios.h"
+#include "Matrix.h"
 
 /* the name every iosMallocDebug in this file reports itself under */
 static const char rotObjectFile[] = "src/rotObject.c";
@@ -40,19 +41,15 @@ void RotObjectGeo(char *a0)
     }
 }
 
-/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_SetTransposeMatrix, ZUnitVector differ) */
 extern void *MatrixDrive_GetMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_RotMatrixY do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_SetTransposeMatrix, ZUnitVector differ) */
 extern void MatrixDrive_RotMatrixY(short a0);
-/* kept local: this TU's uses of UnitRotation do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_SetTransposeMatrix, ZUnitVector differ) */
 extern void UnitRotation(void *m);
-/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_SetTransposeMatrix, ZUnitVector differ) */
 extern void CopyMatrix(void *dst, void *src);
-/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
-extern void _ApplyMatrix(void *dst, void *m, void *src);
-/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
-extern void _NormalizeVector(void *dst, void *src);
-/* kept local: this TU's uses of ZUnitVector do not fit the prototype in matrixDrive.h */
+/* kept local: char [] here, float [4] in matrixDrive.h */
 extern char ZUnitVector[];
 
 static inline void getRotObjectDriveMatrix(void *gobj, void *dst)
@@ -71,7 +68,7 @@ static inline void getRotObjectDriveMatrix(void *gobj, void *dst)
     CopyMatrix(dst, MatrixDrive_GetMatrix());
 }
 
-/* kept local: this TU's uses of MatrixDrive_SetTransposeMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: void (void *, int) here, void (float *, float *) in matrixDrive.h */
 extern void MatrixDrive_SetTransposeMatrix(void *a0, int a1);
 
 void GetRotObjectHoldPoint(void *a0, void *a1, void *a2, void *a3)
@@ -102,13 +99,9 @@ void GetRotObjectHoldPoint(void *a0, void *a1, void *a2, void *a3)
     sceVu0Normalize(a1, a1);
 }
 
-/* kept local: rotObject.c does not include matrixDrive.h, which declares FSqrt */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_SetTransposeMatrix, ZUnitVector differ) */
 extern float FSqrt(float x);
-/* kept local: this TU's uses of _OuterProduct do not fit the prototype in Matrix.h */
-extern void _OuterProduct(void *d, void *a, void *b);
-/* kept local: this TU's uses of _GetLengthXZ do not fit the prototype in Matrix.h */
-extern float _GetLengthXZ(void *a, void *b);
-/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_SetTransposeMatrix, ZUnitVector differ) */
 extern void CopyVector(void *dst, void *src);
 
 int MoveRotObjectWithHoldPoint(void *bar, void *hold, void *self, void *dir, void *up)
@@ -239,7 +232,7 @@ void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, void *gobj, void *posM
     }
 }
 
-/* kept local: this TU's uses of ZeroPoint do not fit the prototype in matrixDrive.h */
+/* kept local: char [] here, float [4] in matrixDrive.h */
 extern char ZeroPoint[];
 
 /* A GObj slot read as an int but written elsewhere as a float: reading it

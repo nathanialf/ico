@@ -11,6 +11,7 @@
 #include "motionManager2.h"
 #include <libvu0.h>
 #include <math.h>
+#include "Matrix.h"
 
 typedef struct {
     int start;
@@ -195,8 +196,6 @@ GamesysObjInfo *gamesysObjInfoEmptyAreaSearch(GamesysObjInfoReq *req)
 }
 
 extern GamesysObjInfo *gamesysObjInfoEmptyAreaSearch(GamesysObjInfoReq *req);
-/* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
-extern float _Sqrt(float x);
 
 int *gamesysObjInfoBaseSet(int *self, int stage)
 {

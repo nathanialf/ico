@@ -7,6 +7,8 @@
 #include "queen_barrier_disp.h"
 #include <string.h>
 #include <libvu0.h>
+#include "Texture.h"
+#include "geometryManager.h"
 
 typedef struct MeshST { /* the 0x10 stride texture coordinate record */
     float s;            /* 0x0 */
@@ -32,9 +34,9 @@ static int damageTimer;
 
 static int ripplePhase;
 
-/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
+/* kept local: void (QVec *, QVec *, float) here, void (void *, void *, float) in Matrix.h */
 extern void _ScaleVectorXYZ(QVec *dst, QVec *src, float k);
-/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
+/* kept local: void (QVec *, QVec *) here, void (void *, void *) in Matrix.h */
 extern void _NormalizeVector(QVec *dst, QVec *src);
 
 /* The screen rectangle and the texture rectangle this packet draws, in the
@@ -58,6 +60,7 @@ typedef struct {
     unsigned char c[4];
 } GifCol;
 
+/* kept local: GifDpk here, DpkCtl in DmaPacket.h */
 extern GifDpk PacketBufferStruct;
 
 /* INTERIM: the listing inlines gif_SetGsReg here the same way it does across
@@ -118,11 +121,11 @@ inline void queen_barrier_anim(void)
     }
 }
 
-/* kept local: this TU's uses of _GetNorm do not fit the prototype in Matrix.h */
+/* kept local: float (QVec *) here, float (void *) in Matrix.h */
 extern float _GetNorm(QVec *v);
-/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
+/* kept local: void (QVec *, QVec *, QVec *) here, void (void *, void *, void *) in Matrix.h */
 extern void _AddVectorXYZ(QVec *dst, QVec *a, QVec *b);
-/* kept local: this TU's uses of _RotTransPersCurrentMatrix do not fit the prototype in Matrix.h */
+/* kept local: void (QVec *, QVec *) here, void (void *, void *) in Matrix.h */
 extern void _RotTransPersCurrentMatrix(QVec *dst, QVec *src);
 
 void makeRefractST(float k)
@@ -170,11 +173,11 @@ void makeRefractST(float k)
     }
 }
 
+/* kept local: int here, char * in main.h */
 extern int matrixptr;
+/* kept local: agrees with main.h, which this TU does not include (matrixptr differs) */
 extern int buffer_ID;
-extern void tex_ResetVramPri(int pri);
-extern int tex_AllocVramAuto(int a0, int a1);
-extern void GetRootMatrix(void *dst, char *outer);
+/* kept local: agrees with Matrix.h, which this TU does not include (_AddVectorXYZ, _GetNorm differ) */
 extern void _SetCurrentMatrix(void *m);
 
 /* rows 86 and 93 to 105: the barrier tint, faded from a to b across the

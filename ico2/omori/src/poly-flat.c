@@ -1,16 +1,17 @@
 #include "Matrix.h"
 #include "matrixDrive.h"
 #include "GsBase.h"
+#include "main.h"
 
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
+/* kept local: void () here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha();
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (_IsInScreen, gif_MakeLine2D differ) */
 extern void gif_StartPacketPri();
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
+/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (_IsInScreen, gif_MakeLine2D differ) */
 extern void gif_StartPacketPri(int a0);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (_IsInScreen, gif_MakeLine2D differ) */
 extern void gif_EndPacket();
 
 /* the TU's whole .data run, VMA 0x2A6030..0x2A6070 (0x40, = MAIN.MAP
@@ -19,14 +20,13 @@ extern void gif_EndPacket();
    line transform reads back. */
 float drawline_ws_matrix[16] = {0};
 
-/* kept local: this TU's uses of gif_DrawPolyF4 do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (_IsInScreen, gif_MakeLine2D differ) */
 extern void gif_DrawPolyF4(void *a0, void *a1, void *a2, void *a3, int b0, int b1, int b2, int b3,
                            int last);
-/* kept local: this TU's uses of _IsInScreen do not fit the prototype in GifPacket.h */
+/* kept local: int (int *) here, int (volatile int *) in GifPacket.h */
 extern int _IsInScreen(int *p);
-/* kept local: this TU's uses of gif_MakeLine2D do not fit the prototype in GifPacket.h */
+/* kept local: void (int *, int *, int, int, unsigned char *, int) here, void (int *, int *, long long, long long, unsigned char *, int) in GifPacket.h */
 extern void gif_MakeLine2D(int *v0, int *v1, int z0, int z1, unsigned char *col, int n);
-extern char *matrixptr;
 
 #include "poly-flat.h"
 #include <libvu0.h>

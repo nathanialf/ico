@@ -3,6 +3,7 @@
 #include "mv_vobuf.h"
 #include "mv_disp.h"
 #include <eeregs.h>
+#include "main.h"
 
 void *setTEX0_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, unsigned int p8,
                 unsigned int p9, unsigned int p10, unsigned int p11, unsigned int p12);
@@ -35,6 +36,7 @@ static int mvDispPacket[80];
 
 static int mvClearPacket[80];
 
+/* kept local: int () here, void (void *) in libgraph.h */
 extern int sceGsPutDispEnv();
 extern char voBuf[];
 extern int D_0063C0BC;
@@ -45,6 +47,7 @@ extern int D_0063C0B8;
    counter the display loop keeps. */
 static int mvFrameCount;
 
+/* kept local: int (int) here, int (void) in libgraph.h */
 extern int sceGsSyncV(int a0);
 
 inline void loadImage(int a0)
@@ -54,6 +57,7 @@ inline void loadImage(int a0)
     *D2_CHCR = 0x105;
 }
 
+/* kept local: int (int, int) here, void (int, int) in libgraph.h */
 extern int sceGsSyncPath(int a0, int a1);
 
 typedef struct MvRect {
@@ -106,6 +110,7 @@ void dispClear(int *self, unsigned int col)
     sceGsSyncPath(0, 0);
 }
 
+/* kept local: void (int *, int, short, short, short, short) here, void (sceGsDispEnv *, short, short, short, short, short) in libgraph.h */
 extern void sceGsSetDefDispEnv(int *env, int psm, short w, short h, short dx, short dy);
 
 void setDispEnv(int *self, int a1, int a2, int a3, int a4)
@@ -157,8 +162,7 @@ void sendDispEnv(void *a0)
 
 extern int D_0063C0C0;
 extern int D_0063C0C4;
-/* kept local: main.c's global; this TU does not include main.h */
-extern int systemStatus[];
+/* kept local: agrees with libgraph.h, which this TU does not include (sceGsPutDispEnv, sceGsSetDefDispEnv differ) */
 extern void sceGsResetPath(void);
 
 void dispCreate(int *self, int a1, int a2, int a3, int a4)

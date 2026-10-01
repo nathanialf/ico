@@ -6,6 +6,9 @@
 #include "GsBase.h"
 #include "BgAnimation.h"
 #include "ios.h"
+#include "main.h"
+#include <string.h>
+#include "thread.h"
 
 /* The TU's .sdata (MAIN.MAP names nothing in it), in ROM order: the stream
    entry count and state, the background reader's state and id, the ring
@@ -54,10 +57,6 @@ typedef struct {
    _deleteStreamMotionManager resets to emptyEntry.  0x118 bytes, ten 0x1C-byte
    entries; MAIN.MAP's January member has 0xF0, ten entries of 0x18. */
 static SMotion streamEntry[10];
-
-/* kept local: main.c's global; this TU does not include main.h */
-extern int systemStatus[];
-extern int frame_count;
 
 /* The ring is 0x28000 bytes; the check asks whether the write pointer has run
  * far enough ahead of the read pointer for `room` more bytes to be there. */
@@ -282,8 +281,6 @@ inline int GetDataSizeOfStreamMotion(int no)
     return streamEntry[no].w[2];
 }
 
-extern void memcpy();
-
 void getStreamMotionData(char *dst, int off, int no)
 {
     int size = streamEntry[no].w[2];
@@ -443,9 +440,6 @@ inline void DeleteStreamMotionManager(void)
     }
     ClearAllStreamMotionEntry();
 }
-
-/* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
-extern void iosThreadSleep(void);
 
 inline void StandbyStreamMotion(int self)
 {

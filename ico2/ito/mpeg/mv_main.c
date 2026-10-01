@@ -92,60 +92,64 @@ static int moviePauseCount = 0; /* derived name */
 /* the debug frame counter */
 static int movieFrameNo = 0; /* derived name */
 
-/* kept local: this TU's uses of strFileClose do not fit the prototype in mv_strfile.h */
+/* kept local: void (char *) here, int (void) in mv_strfile.h */
 extern void strFileClose(char *self);
 extern int DIntr(void);
 extern int EIntr(void);
-/* kept local: this TU's uses of readBufDelete do not fit the prototype in mv_readbuf.h */
+/* kept local: void (int *) here, void (void) in mv_readbuf.h */
 extern void readBufDelete(int *self);
-/* kept local: this TU's uses of voBufDelete do not fit the prototype in mv_vobuf.h */
+/* kept local: void (MvVoBuf *) here, void (void) in mv_vobuf.h */
 extern void voBufDelete(MvVoBuf *self);
-/* kept local: this TU's uses of videoDecDelete do not fit the prototype in mv_videodec.h */
+/* kept local: int (int *) here, int (int) in mv_videodec.h */
 extern int videoDecDelete(int *self);
-/* kept local: this TU's uses of dispDelete do not fit the prototype in mv_disp.h */
+/* kept local: void (MvDispEnv *) here, void (void) in mv_disp.h */
 extern void dispDelete(MvDispEnv *self);
-/* kept local: this TU's uses of dispClear do not fit the prototype in mv_disp.h */
+/* kept local: void (MvDispEnv *, unsigned int) here, void (int *, unsigned int) in mv_disp.h */
 extern void dispClear(MvDispEnv *self, unsigned int col);
+/* kept local: agrees with libgraph.h, which this TU does not include (sceGsPutIMR differs) */
 extern int sceGsGetIMR(void);
+/* kept local: void (long long) here, int (void *) in libgraph.h */
 extern void sceGsPutIMR(long long imr);
+/* kept local: agrees with libgraph.h, which this TU does not include (sceGsPutIMR differs) */
 extern void sceGsSyncPath(int a0, int a1);
 void movie_end(void);
+/* kept local: agrees with libcdvd.h; including it here moves this TU's bytes */
 extern int sceCdStStat(void);
-/* kept local: this TU's uses of startDisplay do not fit the prototype in mv_disp.h */
+/* kept local: agrees with mv_disp.h, which this TU does not include (dispClear, dispCreate differ) */
 extern void startDisplay(int on);
-/* kept local: this TU's uses of endDisplay do not fit the prototype in mv_disp.h */
+/* kept local: agrees with mv_disp.h, which this TU does not include (dispClear, dispCreate differ) */
 extern void endDisplay(void);
-/* kept local: this TU's uses of videoDecAbort do not fit the prototype in mv_videodec.h */
+/* kept local: void (int *) here, void (int) in mv_videodec.h */
 extern void videoDecAbort(int *self);
-/* kept local: this TU's uses of videoDecGetState do not fit the prototype in mv_videodec.h */
+/* kept local: int (int *) here, int (int) in mv_videodec.h */
 extern int videoDecGetState(int *self);
-/* kept local: this TU's uses of videoDecFlush do not fit the prototype in mv_videodec.h */
+/* kept local: int (int *) here, int (int) in mv_videodec.h */
 extern int videoDecFlush(int *self);
-/* kept local: this TU's uses of videoDecIsFlushed do not fit the prototype in mv_videodec.h */
+/* kept local: agrees with mv_videodec.h, which this TU does not include (videoDecAbort, videoDecCreate differ) */
 extern int videoDecIsFlushed(int *self);
-/* kept local: this TU's uses of readBufBeginPut do not fit the prototype in mv_readbuf.h */
+/* kept local: int (int *, void **) here, int (int *, int *) in mv_readbuf.h */
 extern int readBufBeginPut(int *self, void **p);
-/* kept local: this TU's uses of readBufEndPut do not fit the prototype in mv_readbuf.h */
+/* kept local: agrees with mv_readbuf.h, which this TU does not include (readBufBeginGet, readBufBeginPut differ) */
 extern void readBufEndPut(int *self, int n);
-/* kept local: this TU's uses of readBufBeginGet do not fit the prototype in mv_readbuf.h */
+/* kept local: int (int *, void **) here, int (int *, int *) in mv_readbuf.h */
 extern int readBufBeginGet(int *self, void **p);
-/* kept local: this TU's uses of readBufEndGet do not fit the prototype in mv_readbuf.h */
+/* kept local: int (int *, int) here, int (int, int) in mv_readbuf.h */
 extern int readBufEndGet(int *self, int n);
-/* kept local: this TU's uses of strFileRead do not fit the prototype in mv_strfile.h */
+/* kept local: int (char *, void *, int, int *) here, int (void) in mv_strfile.h */
 extern int strFileRead(char *self, void *buf, int n, int *eof);
-/* kept local: this TU's uses of voBufIsFull do not fit the prototype in mv_vobuf.h */
+/* kept local: int (MvVoBuf *) here, int (int *) in mv_vobuf.h */
 extern int voBufIsFull(MvVoBuf *self);
-/* kept local: this TU's uses of dispCreate do not fit the prototype in mv_disp.h */
+/* kept local: void (MvDispEnv *, int, int, int, int) here, void (int *, int, int, int, int) in mv_disp.h */
 extern void dispCreate(MvDispEnv *self, int a1, int a2, int a3, int a4);
-/* kept local: this TU's uses of strFileOpen do not fit the prototype in mv_strfile.h */
+/* kept local: int (char *, int) here, int (char *, char *) in mv_strfile.h */
 extern int strFileOpen(char *self, int name);
-/* kept local: this TU's uses of readBufCreate do not fit the prototype in mv_readbuf.h */
+/* kept local: agrees with mv_readbuf.h, which this TU does not include (readBufBeginGet, readBufBeginPut differ) */
 extern int readBufCreate(int *self);
-/* kept local: this TU's uses of videoDecCreate do not fit the prototype in mv_videodec.h */
+/* kept local: int (int *) here, int (int) in mv_videodec.h */
 extern int videoDecCreate(int *self);
-/* kept local: this TU's uses of videoDecSetStream do not fit the prototype in mv_videodec.h */
+/* kept local: int (int *, int, int, void *, void *) here, int (void) in mv_videodec.h */
 extern int videoDecSetStream(int *self, int id, int a2, void *fn, void *arg);
-/* kept local: this TU's uses of voBufCreate do not fit the prototype in mv_vobuf.h */
+/* kept local: int (MvVoBuf *) here, int (char *) in mv_vobuf.h */
 extern int voBufCreate(MvVoBuf *self);
 
 typedef struct {
@@ -161,13 +165,13 @@ typedef struct {
 } ThreadParam;
 
 extern int CreateThread(ThreadParam *th);
-/* kept local: this TU's uses of videoCallback do not fit the prototype in mv_videodec.h */
+/* kept local: agrees with mv_videodec.h, which this TU does not include (videoDecAbort, videoDecCreate differ) */
 extern int videoCallback();
-/* kept local: this TU's uses of videoDecMain do not fit the prototype in mv_videodec.h */
+/* kept local: agrees with mv_videodec.h, which this TU does not include (videoDecAbort, videoDecCreate differ) */
 extern void videoDecMain();
-/* kept local: this TU's uses of handler_endimage do not fit the prototype in mv_disp.h */
+/* kept local: agrees with mv_disp.h, which this TU does not include (dispClear, dispCreate differ) */
 extern int handler_endimage();
-/* kept local: this TU's uses of vblankHandler do not fit the prototype in mv_disp.h */
+/* kept local: agrees with mv_disp.h, which this TU does not include (dispClear, dispCreate differ) */
 extern int vblankHandler();
 
 /* Argument block handed to the videoDecMain thread; it reads the three

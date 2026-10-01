@@ -1,6 +1,7 @@
 #include "lineManager.h"
 #include "matrixDrive.h"
 #include <libvu0.h>
+#include "vobj.h"
 
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int a0);

@@ -10,6 +10,10 @@
 #include <string.h>
 #include <libvu0.h>
 #include "ios.h"
+#include "Matrix.h"
+#include "Primitive.h"
+#include "debug_exception.h"
+#include "wireLetter.h"
 
 typedef struct Light {
     char _pad0[0x10];
@@ -60,7 +64,6 @@ static int lightCount;
    the flat-light editor's cursor after the object menu. */
 static int flatLightNum = 0; /* derived name */
 
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
 void light_killLinkLight(char *node)
@@ -116,20 +119,13 @@ typedef struct StageSetting {
     float ambientCol[4];      /* 0x60 */
 } StageSetting;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, pad differ) */
 extern StageSetting GlobalStageSetting;
 
 /* .data, owned by Light.o and read only here (MAIN.MAP names no symbol in the
    run).  The three flat lights light_AddLight registers, kept so
    light_resetFlatLight can reload them from the stage setting. */
 static int flatLightSlot[3] = {0, 0, 0};
-
-/* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
-extern void _CopyVector(void *dst, void *src);
-/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
-extern void _NormalizeVector(void *dst, void *src);
-/* kept local: this TU's uses of light_resetFlatLight do not fit the prototype in Light.h */
-extern void light_resetFlatLight(void);
 
 /* .bss, owned by Light.o and reached only from this file (MAIN.MAP names no
    symbol in the run; its Light.o .bss size 0xF0 is exactly these three).  The
@@ -230,12 +226,6 @@ Light *light_AddLight(char *self, int b, int kind)
     }
     return 0;
 }
-
-extern float _GetLength(void *a, void *b);
-extern void _ScaleVectorXYZ(void *dst, void *src, float s);
-extern void _AddVector(void *dst, void *x, void *y);
-extern void _SubVector(void *dst, void *x, void *y);
-extern void _UnitVector(void *dst);
 
 /* Listing rows 754-964.  The January listing's rows 877-881 (a flag-guarded
    copy of near[] and its weights into two debug arrays) are absent from the
@@ -380,22 +370,6 @@ void light_getNearLight(char *self, int idx)
 }
 
 extern float D_0028F780[4];
-/* kept local: this TU's uses of _GetNorm do not fit the prototype in Matrix.h */
-extern float _GetNorm(void *p);
-/* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
-extern void _SetCurrentMatrix(void *m);
-/* kept local: this TU's uses of _InverseCurrentMatrix do not fit the prototype in Matrix.h */
-extern void _InverseCurrentMatrix(void);
-/* kept local: this TU's uses of _ScaleVector2XYZ do not fit the prototype in Matrix.h */
-extern void _ScaleVector2XYZ(void *dst, void *src, void *scale);
-/* kept local: this TU's uses of _SubVectorXYZ do not fit the prototype in Matrix.h */
-extern void _SubVectorXYZ(void *dst, void *x, void *y);
-/* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
-extern void _AddVector(void *dst, void *x, void *y);
-/* kept local: this TU's uses of _ApplyCurrentMatrix do not fit the prototype in Matrix.h */
-extern void _ApplyCurrentMatrix(void *dst, void *src);
-/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
-extern void _ScaleVectorXYZ(void *dst, void *src, float s);
 
 /* Light.c lines 1024-1025 call _GetNorm three times per value (once for the
    sign test, once in each arm), which is what a macro does to a call
@@ -517,15 +491,6 @@ found:
     *(float *)(*(char **)(a + 0x874) + 0xEC) = 1.0f;
 }
 
-/* kept local: this TU's uses of light_getNearLight do not fit the prototype in Light.h */
-extern void light_getNearLight(char *a, int b);
-/* kept local: this TU's uses of light_getAmbientLight do not fit the prototype in Light.h */
-extern void light_getAmbientLight(char *a, int b);
-/* kept local: this TU's uses of _MakeNormalLightMatrix do not fit the prototype in Matrix.h */
-extern void _MakeNormalLightMatrix(void *a, void *b, void *c, void *d);
-/* kept local: this TU's uses of _MakeLightColorMatrix do not fit the prototype in Matrix.h */
-extern void _MakeLightColorMatrix(void *a, void *b, void *c, void *d, void *e);
-
 void light_MakeLightMatrix(char *a, int b)
 {
     int i;
@@ -581,24 +546,19 @@ typedef union {
     long long ll[2];
 } Col4;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *boyGObj;
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, pad differ) */
 extern char *matrixptr;
-extern void _TransposeMatrix(void *dst, void *src);
-extern void _MulMatrix(void *dst, void *a, void *b);
-extern void _UnitMatrix(void *m);
-extern void _SubVector(void *dst, void *a, void *b);
-extern void _UnitVector(void *p);
-extern void _GetCurrentMatrix(void *m);
-extern void _ScaleCurrentMatrix(float x, float y, float z);
-extern void *MatrixDrive_GetMatrix(void);
-extern void DispWireString(char *s);
-extern void prim_DispWireSphere(float r, void *col, int nu, int nv);
-extern void prim_DispWireBox(float *sz, void *col);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
 extern void gif_StartPacketPri(int pri);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
 extern void gif_SetZTest(int on);
+/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
 extern void gif_EndPacket(void);
+/* kept local: int (char *, char *, ...) here, int (void *, int, ...) in stdio.h */
 extern int sprintf(char *buf, char *fmt, ...);
 
 void light_DispVolume(void)
@@ -769,10 +729,8 @@ typedef struct Pad {
     unsigned char ana[4]; /* 0x54 */
 } Pad;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: Pad [] here, PadState [16] in main.h */
 extern Pad pad[];
-/* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
-extern float _Sqrt(float v);
 
 void light_GetColorAnalog(float *col)
 {
@@ -857,27 +815,9 @@ typedef union LtVec {
     int i[4];
 } LtVec;
 
-/* kept local: this TU's uses of _InitCurrentMatrix do not fit the prototype in Matrix.h */
-extern void _InitCurrentMatrix(void);
-/* kept local: this TU's uses of _TransCurrentMatrix do not fit the prototype in Matrix.h */
-extern void _TransCurrentMatrix(void *p);
-/* kept local: this TU's uses of _RotCurrentMatrixX do not fit the prototype in Matrix.h */
-extern void _RotCurrentMatrixX(short a);
-/* kept local: this TU's uses of _RotCurrentMatrixY do not fit the prototype in Matrix.h */
-extern void _RotCurrentMatrixY(short a);
-/* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
-extern void _SubVector(void *dst, void *a, void *b);
-/* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
-extern void _AddVector(void *dst, void *a, void *b);
-/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
-extern void _AddVectorXYZ(void *dst, void *a, void *b);
-/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
-extern void _ScaleVector(void *dst, void *src, float s);
-/* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
-extern void _UnitMatrix(void *m);
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
 extern void gif_StartPacketPri(int pri);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
 extern void gif_EndPacket(void);
 
 void light_DrawCursor(float *dir, int mode)
@@ -968,13 +908,8 @@ static int toolItem = 0; /* derived name */ /* the selected component: 0 x/r, 1 
 
 static int toolLight = 0; /* derived name */ /* the selected flat light: 0..2 */
 
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, pad differ) */
 extern int frame_count;
-/* kept local: this TU's uses of light_GetColorAnalog do not fit the prototype in Light.h */
-extern void light_GetColorAnalog(float *col);
-/* kept local: this TU's uses of light_DrawCursor do not fit the prototype in Light.h */
-extern void light_DrawCursor(float *dir, int mode);
-/* kept local: this TU's uses of _RotCurrentMatrixZ do not fit the prototype in Matrix.h */
-extern void _RotCurrentMatrixZ(short a);
 
 int light_Tool(void)
 {
@@ -1194,9 +1129,6 @@ void light_InitLight(void)
 
 void light_ResetLight(void) {}
 
-/* kept local: this TU's uses of light_killLinkLight do not fit the prototype in Light.h */
-extern void light_killLinkLight(char *node);
-
 void light_KillAllFixLight(void)
 {
     Light *p = (Light *)lastLight;
@@ -1214,9 +1146,6 @@ void light_KillAllFixLight(void)
     }
     lightCount = 0;
 }
-
-/* kept local: this TU's uses of light_killLinkAmbient do not fit the prototype in Light.h */
-extern void light_killLinkAmbient();
 
 void light_KillAllAmbient(void)
 {

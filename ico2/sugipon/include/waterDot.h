@@ -12,7 +12,7 @@
 #ifndef WATERDOT_H
 #define WATERDOT_H
 
-#include "typedef.h"   /* VECTOR */
+#include "typedef.h" /* VECTOR */
 
 typedef struct WaterDot {
     /* 0x00 */ int used;
@@ -38,9 +38,9 @@ typedef struct WaterDotWork {
  * first-declaration order, so this is the order waterDot.c's inline tail has. */
 void InitializeWaterDot(void);
 void EntryWaterDot(WaterDotWork *w, VECTOR *pos, VECTOR *vel, float range);
-
 WaterDotWork *AllocWaterDot(int gobj, int num, int num2);
 void DispWaterDot(WaterDotWork *w);
 void ExecWaterDot(WaterDotWork *w);
+void setWaterDot(WaterDot *dot, VECTOR *pos, VECTOR *vel);
 
 #endif /* WATERDOT_H */

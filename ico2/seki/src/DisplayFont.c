@@ -3,6 +3,7 @@
 #include "debug.h"
 #include <string.h>
 #include "GsBase.h"
+#include "Matrix.h"
 
 static unsigned int fontKerning[64] = {
     /* derived name */
@@ -112,12 +113,16 @@ typedef struct {
     unsigned char f[4];
 } SprCol;
 
+/* kept local: int (void *) here, int (char *) in Texture.h */
 extern int tex_GetTextureNo(void *name);
+/* kept local: agrees with Texture.h, which this TU does not include (tex_GetTextureNo differs) */
 extern int tex_TransTexture(int no, int pri);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetGsReg differs) */
 extern void gif_StartPacketPriPath1(int pri);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetGsReg differs) */
 extern void gif_EndPacketPath1(void);
+/* kept local: void (int, long long) here, void (long long, long long) in GifPacket.h */
 extern void gif_SetGsReg(int reg, long long val);
-extern void _FTOI4Vector(void *dst, void *src);
 
 void font_Print(unsigned int color, unsigned char *str, float x, float y, int align, SprCol col)
 {

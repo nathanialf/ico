@@ -38,7 +38,8 @@ typedef struct LightMatrix {
     int mode;              /* 0xF0 */
 } LightMatrix;
 
-struct Light;         /* Light.c's light list node */
+struct Light; /* Light.c's light list node */
+
 struct AmbientVolume; /* Light.c's ambient volume node */
 
 struct AmbientVolume *light_AddAmbientObject(int obj);
@@ -53,5 +54,7 @@ void light_getNearLight(char *a, int b);
 void light_killLinkAmbient();
 void light_killLinkLight(char *node);
 void light_resetFlatLight(void);
+int light_Tool(void);
+void light_ResetLight(void);
 
 #endif /* LIGHT_H */

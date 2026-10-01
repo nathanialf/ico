@@ -8,6 +8,7 @@
 #include "Texture.h"
 #include "matrixDrive.h"
 #include "tableSin.h"
+#include "main.h"
 
 /* 16-byte aligned: the template copy in InitPuddleGeo is ld/sd, not ldl/ldr. */
 typedef struct {
@@ -81,14 +82,11 @@ static float savedMatrix340[16]; /* derived name */
    expands the four-byte zero fill below as one store, and the ROM calls
    memset there (ROM bytes 0x1BD6D0 frame). The non-standard prototype is
    what keeps the builtin off in this file. */
+/* kept local: declaring it only through string.h moves this TU's bytes */
 extern void memset(void *p, int c, int n);
-/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_sugipon;
 extern char D_002A79B8[];
-extern char *matrixptr;
-extern int stage_no;
-/* kept local: main.c's global; this TU does not include main.h */
-extern int systemStatus[];
 void PuddleGeo(char *a0);
 void EntryRippleToPuddle(char *a0, void *vec);
 int puddleRideFunc(char **a0, char *a1);

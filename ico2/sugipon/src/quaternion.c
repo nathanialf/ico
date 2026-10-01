@@ -81,9 +81,9 @@ void SetIdentityQuaternion(void *a0)
     CopyQuaternion(a0, IdentityQuaternion);
 }
 
-/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, XUnitVector differ) */
 extern void CopyVector();
-/* kept local: this TU's uses of ZeroPoint do not fit the prototype in matrixDrive.h */
+/* kept local: char [] here, float [4] in matrixDrive.h */
 extern char ZeroPoint[];
 
 /* the {1, 1, 1, sqrt(2)} multiplier GetMatrixFromQuaternion feeds $vf12 */
@@ -127,14 +127,15 @@ void GetMatrixFromQuaternion(char *a0, char *a1)
     CopyVector(a0 + 0x30, ZeroPoint);
 }
 
-/* kept local: this TU's uses of _TransposeMatrix do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_NormalizeVector, _ScaleVectorXYZ differ) */
 extern void _TransposeMatrix(void *a0, void *a1);
-/* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_NormalizeVector, _ScaleVectorXYZ differ) */
 extern float _Sqrt(float);
 
 /* the file's `nxt` permutation table */
 static int nxt[3] = {1, 2, 0};
 
+/* No caller in the ROM, so the bytes cannot decide the return type: void as sugipon's output-parameter getters. */
 void GetQuaternionFromMatrix(void *a0, void *a1)
 {
     auto void getQuaternionFromMatrix(float *q, float (*m)[4]);
@@ -185,7 +186,7 @@ void CopyQuaternion(void *a0, void *a1)
     CopyVector(a0, a1);
 }
 
-/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
+/* kept local: void (int, int, float) here, void (void *, void *, float) in Matrix.h */
 extern void _ScaleVectorXYZ(int a0, int a1, float f);
 
 void GetInverseQuaternion(int a0, int a1)
@@ -194,7 +195,7 @@ void GetInverseQuaternion(int a0, int a1)
     _ScaleVectorXYZ(a0, a1, -1.0f);
 }
 
-/* kept local: this TU's uses of _ScaleVector do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_NormalizeVector, _ScaleVectorXYZ differ) */
 extern void _ScaleVector(void *a, void *b, float c);
 
 void RegularizeQuaternion(void *a0)
@@ -235,13 +236,13 @@ inline float GetQuaternionCosRadian(void *p0, void *p1)
     return r;
 }
 
-/* kept local: this TU's uses of GetTableArcCos do not fit the prototype in tableSin.h */
+/* kept local: agrees with tableSin.h, which this TU does not include (GetTableCos, GetTableSin differ) */
 extern int GetTableArcCos(float c);
-/* kept local: this TU's uses of GetTableSin do not fit the prototype in tableSin.h */
+/* kept local: float (int) here, float (short) in tableSin.h */
 extern float GetTableSin(int x);
-/* kept local: this TU's uses of _InterVector do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_NormalizeVector, _ScaleVectorXYZ differ) */
 extern void _InterVector(void *out, void *a, void *b, float t);
-/* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_NormalizeVector, _ScaleVectorXYZ differ) */
 extern void _AddVector(void *out, void *a, void *b);
 
 void GetSlerpQuaternionNoRegularize(void *out, void *qa, void *qb, float t)
@@ -274,7 +275,7 @@ void GetSlerpQuaternionNoRegularize(void *out, void *qa, void *qb, float t)
     _AddVector(out, out, tq);
 }
 
-/* kept local: this TU's uses of GetSlerpQuaternionNoRegularize do not fit the prototype in quaternion.h */
+/* kept local: declaring it only through quaternion.h moves this TU's bytes */
 extern void GetSlerpQuaternionNoRegularize();
 
 /* The three trailing arguments are never named here: the forwarder leaves them
@@ -322,9 +323,9 @@ inline void PopQuaternion(void)
     }
 }
 
-/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
+/* kept local: void (void *, int *) here, void (void *, void *) in Matrix.h */
 extern void _NormalizeVector(void *out, int *p);
-/* kept local: this TU's uses of GetTableCos do not fit the prototype in tableSin.h */
+/* kept local: float (int) here, float (short) in tableSin.h */
 extern float GetTableCos(int x);
 
 inline void SetQuaternionByAxisRotateVWithNoRegularize(int *self, short a1, void *src)
@@ -485,9 +486,9 @@ inline void GetMatrixFromQuaternionPos(char *a0, char *a1, char *a2)
     *(float *)(a0 + 0x3C) = 1.0f;
 }
 
-/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: int * () here, void * (void) in matrixDrive.h */
 extern int *MatrixDrive_GetMatrix();
-/* kept local: this TU's uses of _MulMatrix do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_NormalizeVector, _ScaleVectorXYZ differ) */
 extern void _MulMatrix();
 
 inline void MultiMatrixByQuaternion(void *src)
@@ -534,7 +535,7 @@ inline void GetMirrorQuaternion(float *dst, float *src, int mode)
     }
 }
 
-/* kept local: this TU's uses of XUnitVector do not fit the prototype in matrixDrive.h */
+/* kept local: char [] here, float [4] in matrixDrive.h */
 extern char XUnitVector[];
 
 inline void RotQuaternionX(void *self, int a1)
@@ -566,7 +567,7 @@ inline void RotQuaternionX(void *self, int a1)
                          : "memory");
 }
 
-/* kept local: this TU's uses of YUnitVector do not fit the prototype in matrixDrive.h */
+/* kept local: char [] here, float [4] in matrixDrive.h */
 extern char YUnitVector[];
 
 inline void RotQuaternionY(void *self, int a1)
@@ -598,7 +599,7 @@ inline void RotQuaternionY(void *self, int a1)
                          : "memory");
 }
 
-/* kept local: this TU's uses of ZUnitVector do not fit the prototype in matrixDrive.h */
+/* kept local: char [] here, float [4] in matrixDrive.h */
 extern char ZUnitVector[];
 
 inline void RotQuaternionZ(void *self, int a1)
@@ -727,9 +728,9 @@ inline void SetQuaternionByCosineAxisRotateV(void *a0, void *a1, float angle)
     SetQuaternionByCosineAxisRotateVWithNoRegularize(a0, buf, angle);
 }
 
-/* kept local: this TU's uses of _OuterProduct do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_NormalizeVector, _ScaleVectorXYZ differ) */
 extern void _OuterProduct(void *out, void *a, void *b);
-/* kept local: this TU's uses of _InnerProduct do not fit the prototype in Matrix.h */
+/* kept local: agrees with Matrix.h, which this TU does not include (_NormalizeVector, _ScaleVectorXYZ differ) */
 extern float _InnerProduct(void *a, void *b);
 
 inline void GetDifferencialQuaternionWithNoRegularize(void *out, void *a, void *b)
@@ -741,6 +742,7 @@ inline void GetDifferencialQuaternionWithNoRegularize(void *out, void *a, void *
     SetQuaternionByCosineAxisRotateV(out, v, c);
 }
 
+/* No caller in the ROM, so the bytes cannot decide the return type: float as sugipon's scalar getters. */
 inline float GetQuaternionMagnitude(void *a0)
 {
     float r;

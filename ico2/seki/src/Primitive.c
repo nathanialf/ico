@@ -10,6 +10,9 @@
 #include <string.h>
 #include <stdio.h>
 #include "GsBase.h"
+#include "Matrix.h"
+#include "main.h"
+#include "debug_exception.h"
 
 typedef struct {
     /* 0x00 */ int cr;
@@ -28,7 +31,7 @@ typedef struct {
     /* 0x08 */ Fan2DVtx *buf;
 } Fan2D;
 
-/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_seki;
 
 Fan2D *prim_InitFan2D(int n, float *pos, unsigned int cc, unsigned int rc, float r)
@@ -130,9 +133,8 @@ typedef struct {
     /* 0x1C */ char *end;
 } PrimDpk;
 
+/* kept local: PrimDpk here, DpkCtl in DmaPacket.h */
 extern PrimDpk PacketBufferStruct;
-/* kept local: this TU's uses of _FTOI4Vector do not fit the prototype in Matrix.h */
-extern void _FTOI4Vector(void *dst, void *src);
 
 void prim_DispFan2D(Fan2D *f, int mode)
 {
@@ -292,11 +294,6 @@ typedef struct {
     /* 0x84 */ int f84[3];
 } Mesh3D;
 
-/* kept local: this TU's uses of _SetCurrentMatrix do not fit the prototype in Matrix.h */
-extern void _SetCurrentMatrix(void *mtx);
-/* kept local: this TU's uses of _ApplyCurrentMatrix do not fit the prototype in Matrix.h */
-extern void _ApplyCurrentMatrix(void *dst, void *src);
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
 /* The mesh strip's GIF tag template: NLOOP and PRIM are ORed in per strip.
@@ -370,12 +367,6 @@ void prim_makePacketMesh3D(Mesh3D *m, void *pkt, int uv)
     }
 }
 
-/* kept local: this TU's uses of _InitCurrentMatrix do not fit the prototype in Matrix.h */
-extern void _InitCurrentMatrix(void);
-/* kept local: this TU's uses of _RotCurrentMatrixZ do not fit the prototype in Matrix.h */
-extern void _RotCurrentMatrixZ(short a);
-/* kept local: this TU's uses of _GetCurrentMatrix do not fit the prototype in Matrix.h */
-extern void _GetCurrentMatrix(void *dst);
 extern void prim_makePacketMesh3D(Mesh3D *m, void *pkt, int n);
 
 Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col2, int f58)
@@ -427,15 +418,6 @@ Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col
    here).  The four neighbours of a vertex are walked with one pair of
    indices, x and y, reassigned for each neighbour (listing rows 645, 651,
    657 and 663) and wrapped when the mesh is closed in that direction. */
-extern char *matrixptr;
-extern void _PushCurrentMatrix(void);
-extern void _PopCurrentMatrix(void);
-extern void _SubVector(void *d, void *a, void *b);
-extern void _OuterProduct(void *d, void *a, void *b);
-extern void _AddVector(void *d, void *a, void *b);
-extern void _NormalizeVector(void *d, void *s);
-extern float _InnerProduct(void *a, void *b);
-extern void _ScaleVector(void *d, void *s, float k);
 
 void prim_makeNormal(Mesh3D *m)
 {
@@ -610,16 +592,14 @@ void prim_UpdateMesh3D(Mesh3D *m, int flags, int idx)
    before the argument copy and ties the pointer to $a0 (measured, 52 of 53
    or 16 words).  Rows 809 and 810 are the same statement, so every packet
    copy here is spelled the same way. */
-extern int buffer_ID;
-extern void mc_SetMicroCode(int a, int b, int c, int d, int e);
 /* kept local: this TU's uses of the gif packet calls do not fit GifPacket.h
    (gif_StartPacketPri takes the priority, gif_SetGsReg two ints here) */
+/* kept local: void (int, int) here, void (long long, long long) in GifPacket.h */
 extern void gif_SetGsReg(int reg, int val);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetGsReg differs) */
 extern void gif_StartPacketPri(int pri);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetGsReg differs) */
 extern void gif_EndPacket(void);
-/* kept local: this TU's uses of _CopyMatrix do not fit the prototype in Matrix.h */
-extern void _CopyMatrix(void *dst, void *src);
-extern void _CopyVector(void *dst, void *src);
 
 void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
 {
@@ -799,7 +779,6 @@ typedef struct {
     long long d[2];
 } PrimQw;
 
-extern void _UnitMatrix(void *m);
 extern void malloc_MemCpy(void *dst, void *src, int n);
 
 PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, int a1, char *name,
@@ -965,9 +944,6 @@ void prim_DispWireYCylinder(void *col, int n, int flag, float r, float y0, float
     drawSide(r, y0, y1);
 }
 
-/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
-extern void _ScaleVectorXYZ(void *dst, void *src, float s);
-
 void prim_DispWireSphere(float r, void *col, int nu, int nv)
 {
     float us = 65536.0f / (float)nu;
@@ -1020,6 +996,7 @@ void prim_DispWireBox(float *sz, void *col)
     }
 }
 
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_oomori;
 
 PrimParticle *prim_InitParticle(int num, float x, float y, float z, int a1, char *name, int a3)

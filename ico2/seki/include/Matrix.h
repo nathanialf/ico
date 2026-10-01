@@ -15,7 +15,7 @@
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order Matrix.c's inline tail has. */
-void _Sqrt(void *p0, void *p1, void *p2, void *p3, void *p4, void *p5);
+float _Sqrt(float x);
 void _InitCurrentMatrix(void);
 void _UnitCurrentMatrix(void);
 void _PushCurrentMatrix(void);
@@ -33,7 +33,7 @@ void _SetCurrentMatrix(void *p0);
 void _MulCurrentMatrixR(void *a0);
 void _MulCurrentMatrixL(void *m);
 void _ApplyCurrentMatrix(void *p0, void *p1);
-void _RotTransPersCurrentMatrix(void *p0, void *p1, void *p2);
+void _RotTransPersCurrentMatrix(void *p0, void *p1);
 void _TransposeCurrentMatrix(void);
 void _TransposeRotationCurrentMatrix(void);
 void _InverseCurrentMatrix(void);
@@ -45,7 +45,7 @@ void _NormalizeVector(void *p0, void *p1);
    the result out of $f0 (stgmgrNextStagePreLoad does mov.s $f1,$f0 on the
    return), and every TU in the tree that calls it declares it this way. */
 float _InnerProduct(void *a, void *b);
-void _OuterProduct(void *p0, void *p1, void *p2, void *p3);
+void _OuterProduct(void *p0, void *p1, void *p2);
 void _AddVector(void *p0, void *p1, void *p2);
 void _AddVectorXYZ(void *p0, void *p1, void *p2);
 /* reconstruction corrected: the ROM sets only $4, $5 and $6 at every call
@@ -55,17 +55,17 @@ void _SubVectorXYZ(void *p0, void *p1, void *p2);
 void _ScaleVector(void *p0, void *p1, float s);
 void _ScaleVectorXYZ(void *p0, void *p1, float s);
 void _ScaleVector2XYZ(void *p0, void *p1, void *p2);
-void _FTOI4Vector(void *p0, void *p1, void *p2);
-void _FTOI0Vector(void *p0, void *p1, void *p2);
+void _FTOI4Vector(void *p0, void *p1);
+void _FTOI0Vector(void *p0, void *p1);
 void _CopyVector(void *dst, void *src);
 void _CopyIVector(void *dst, void *src);
 void _UnitVector(void *p0);
 void _InterVector(void *p0, void *p1, void *p2, float t);
 void _InterVectorXYZ(void *p0, void *p1, void *p2, float t);
-void _GetNorm(void *p0);
-void _GetLength(void *p0, void *p1, void *p2);
-void _GetLengthXY(void *p0, void *p1, void *p2);
-void _GetLengthXZ(void *p0, void *p1, void *p2);
+float _GetNorm(void *v);
+float _GetLength(void *a, void *b);
+float _GetLengthXY(void *a, void *b);
+float _GetLengthXZ(void *a, void *b);
 void _CopyMatrix(void *dst, void *src);
 void _MulMatrix(void *p0, void *p1, void *p2);
 void _ApplyMatrix(void *p0, void *p1, void *p2);

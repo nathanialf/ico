@@ -41,14 +41,14 @@ typedef struct {
  * the hand-camera rate at 0x48; the other words are named by offset, the
  * values the pin default gives them */
 typedef struct {
-    float pos[3];  /* 0x00 */
-    float look[3]; /* 0x0C */
-    float f18;     /* 0x18 */
-    int w1C[2];    /* 0x1C */
-    int type;      /* 0x24 */
-    float size;    /* 0x28 */
-    int w2C[2];    /* 0x2C */
-    int w34;       /* 0x34 */
+    float pos[3];             /* 0x00 */
+    float look[3];            /* 0x0C */
+    float f18;                /* 0x18 */
+    int w1C[2];               /* 0x1C */
+    int type;                 /* 0x24 */
+    float size;               /* 0x28 */
+    int w2C[2];               /* 0x2C */
+    int w34;                  /* 0x34 */
     float f38, f3C, f40, f44; /* 0x38 */
     float handCameraRate;     /* 0x48 */
     float f4C;                /* 0x4C */
@@ -61,7 +61,6 @@ extern BoxRec cameraGroupDefault;
 extern int curmenu;
 extern int print_y;
 extern unsigned char exit_f;
-
 /* The functions camera-editor.c defines `inline`, in the order the ROM emits
  * their out-of-line copies: gcc 2.9 writes deferred functions at the end of
  * the file in the order of their first declaration, so this block is that
@@ -85,7 +84,6 @@ void ConvertCameraSetBuffer(int n, S4C *item, char *groups);
 void StickToTrans(int a0, int a1, int a2, int a3, float *out, int a5);
 void menu_2(char *m);
 void group_select(char *m);
-
 /* compiled in place */
 int CameraEdit_add_pin(int box, char *src);
 void DispCameraGroup(int box, unsigned char sel);
@@ -106,5 +104,6 @@ typedef union Mat4 {
     long long q[2];
 } Mat4;
 
+int CameraEdit_add_box(S4C *src);
 
 #endif /* CAMERA_EDITOR_H */

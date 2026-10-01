@@ -1,4 +1,5 @@
 #include "sugiCommon.h"
+#include "main.h"
 
 /* PAL listing (windManager.c): SetWindManager (line 21) and InitWindManager
  * (35) are inline and expand into ReinitWindManager, whose rows are exactly
@@ -35,13 +36,11 @@ static float gustSpeed = 0; /* derived name */
 
 static int gustTimer = 0; /* derived name */
 
-/* kept local: main.c's global; this TU does not include main.h */
-extern int systemStatus[];
-/* kept local: this TU's uses of InitWindField do not fit the prototype in windField.h */
+/* kept local: void (int, float *, float *, float) here, void (int, float, void *, void *) in windField.h */
 extern void InitWindField(int a0, float *a1, float *a2, float a3);
-/* kept local: this TU's uses of ExecWindField do not fit the prototype in windField.h */
+/* kept local: agrees with windField.h, which this TU does not include (GetWindVector, InitWindField differ) */
 extern void ExecWindField(float f);
-/* kept local: this TU's uses of GetWindVector do not fit the prototype in windField.h */
+/* kept local: int (float *, void *) here, int (void) in windField.h */
 extern int GetWindVector(float *power, void *pos);
 
 #include "windManager.h"

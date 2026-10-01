@@ -2,6 +2,8 @@
 #include "quaternion.h"
 #include "multiBgaManager.h"
 #include "ios.h"
+#include "Matrix.h"
+#include "main.h"
 
 /* the TU's whole .data */
 BgaAnimeState InitialBgaMultiAnimeState = {
@@ -13,11 +15,7 @@ BgaAnimeState InitialBgaMultiAnimeState = {
     0,
 };
 
-/* kept local: main.c's global; this TU does not include main.h */
-extern int systemStatus[];
-/* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
-extern void _AddVector(void *a0, void *a1, void *a2);
-/* kept local: this TU's uses of stage_PlayBgAnimation do not fit the prototype in StageAnimation.h */
+/* kept local: float (int, void *, void *, float) here, float (int, float, void *, void *) in StageAnimation.h */
 extern float stage_PlayBgAnimation(int obj, void *a1, void *a2, float f);
 
 static inline void entryMultiBga(BgaDisp *bga, int no, int kind, void *pos, void *rot)

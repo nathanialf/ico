@@ -8,6 +8,7 @@
 #include <libvu0.h>
 #include <string.h>
 #include "typedef.h"
+#include "debug_exception.h"
 
 int eBrainBoyChaseCount;
 
@@ -29,7 +30,6 @@ static int enemiesWait;
 static int ebrainSlots[224];
 
 extern StgPre stageData[];
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 extern GenGeo objLayout[];
 
@@ -113,9 +113,9 @@ inline int eBrainStatusSet(void *a0, int a1)
     return (int)slot;
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *girlGObj;
 
 static EBSlot *boyTargets[32];

@@ -8,8 +8,9 @@
 #include "matrixDrive.h"
 #include "tableSin.h"
 #include <libvu0.h>
+#include "Matrix.h"
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int girlGObj;
 
 /* The TU's .data, in ROM run order (names ours): the centre the game-over
@@ -45,7 +46,7 @@ static float edgeX;
 
 static float edgeY;
 
-/* kept local: this TU's uses of gif_SetGsReg do not fit the prototype in GifPacket.h */
+/* kept local: void (int, long) here, void (long long, long long) in GifPacket.h */
 extern void gif_SetGsReg(int code, long data);
 
 /* The TU's .sdata opens with draw and drawHT's state (MAIN.MAP names nothing in
@@ -207,12 +208,9 @@ static float sinB[8];
 static float sinA[8];
 
 extern int D_0028FF00[];
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern char *matrixptr;
 void _SetCurrentMatrix(void *m);
-/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
-extern void _ApplyMatrix(void *dst, void *m, void *src);
-/* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
-extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
 
 /* listing lines 62-65: load the VU0 screen clamp limits vmaxx and vminix read
    out of vf13 and vf12 in the projection block at line 80. */
@@ -318,11 +316,12 @@ typedef struct {
     DVPkPtr end;
 } DVDpk;
 
+/* kept local: DVDpk here, DpkCtl in DmaPacket.h */
 extern DVDpk PacketBufferStruct;
 void dl_SetDLPriority(int a0);
 void dl_OpenDma(int a0, int a1, int a2);
 void dl_CloseDma(void);
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetGsReg differs) */
 extern void gif_StartPacketPri(int pri);
 void gif_EndPacket(void);
 
@@ -819,9 +818,9 @@ void SetDarkVolumeEffect(int a0, float a1)
     CopyVector(darkVolumeCenter, (void *)a0);
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int systemStatus[];
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
 
 /* listing lines 566-568: the per-object hit test, inlined at all three sites */

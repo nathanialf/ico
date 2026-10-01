@@ -36,8 +36,9 @@ extern EnemyDef D_00624880[];
 #include <libvu0.h>
 #include <stdlib.h>
 #include "ios.h"
+#include "main.h"
 
-/* kept local: this TU's uses of prim_InitParticle do not fit the prototype in Primitive.h */
+/* kept local: int (float, float, float, int, int, char *, int) here, int (int, int, int, int) in Primitive.h */
 extern int prim_InitParticle(float f12, float f13, float f14, int num, int a1, char *tag, int a3);
 extern void __assert(char *file, int line, char *mes);
 
@@ -208,8 +209,6 @@ retry:
     debug_StdPrintfDummy("\x1b[36mENEMY DESIGN ID: %d\x1b[m\n", kind);
     return kind;
 }
-
-extern char *matrixptr;
 
 typedef struct {
     int idx;
@@ -598,7 +597,7 @@ void DisplayEnemy(char *self)
     }
 }
 
-/* kept local: this TU's uses of IsActCharDead do not fit the prototype in act_a_p_1.h */
+/* kept local: act_a_p_1.h does not compile in this TU (too few arguments to function `IsActCharDead') */
 extern int IsActCharDead();
 
 void EnemyDL(int *self)

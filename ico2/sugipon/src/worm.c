@@ -3,23 +3,20 @@
 #include "geometryManager.h"
 #include "lineManager.h"
 #include "motionManager2.h"
+#include "Matrix.h"
 
 /* kept local: main.c's global; this TU does not include main.h */
 extern PadState pad[];
 /* kept local: main.c's global; this TU does not include main.h */
 extern int boyGObj;
 void GetWormCaptureVector(void *out, void *act, void *node, float scale);
-/* kept local: this TU's uses of VectorLengthSquare do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_GetTurnYAngleXZ differ) */
 extern float VectorLengthSquare(void *v);
-/* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
-extern float _Sqrt(float x);
-/* kept local: this TU's uses of _GetLength do not fit the prototype in Matrix.h */
-extern float _GetLength(void *a, void *b);
-/* kept local: this TU's uses of VectorLength do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_GetTurnYAngleXZ differ) */
 extern float VectorLength(void *v);
-extern float _GetRandom(void);
-/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_sugipon;
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_seki;
 
 /* the TU's one .sdata word (MAIN.MAP worm.o .sdata 0x4, no symbol) */
@@ -30,39 +27,39 @@ typedef union {
     long long ll;
 } WormFlag;
 
-/* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
+/* kept local: char [] here, float [4] in matrixDrive.h */
 extern char ZeroVector[];
 void disp(void *act);
-/* kept local: this TU's uses of p2o_SetDefaultEnviroment do not fit the prototype in DisplayP2O.h */
+/* kept local: void (void *) here, void (void) in DisplayP2O.h */
 extern void p2o_SetDefaultEnviroment(void *a0);
-/* kept local: this TU's uses of p2o_DispVU1DObjMulti do not fit the prototype in DisplayP2O.h */
+/* kept local: agrees with DisplayP2O.h, which this TU does not include (p2o_SetDefaultEnviroment differs) */
 extern void p2o_DispVU1DObjMulti(void *a0);
-/* kept local: this TU's uses of MatrixDrive_GetMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: float * (void) here, void * (void) in matrixDrive.h */
 extern float *MatrixDrive_GetMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_TransMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_GetTurnYAngleXZ differ) */
 extern void MatrixDrive_TransMatrix(float x, float y, float z);
-/* kept local: this TU's uses of MatrixDrive_GetTurnYAngleXZ do not fit the prototype in matrixDrive.h */
+/* kept local: void (unsigned short *, unsigned short *, float, float, float) here, void (short *, short *, float, float, float) in matrixDrive.h */
 extern void MatrixDrive_GetTurnYAngleXZ(unsigned short *o1, unsigned short *o2, float x, float y,
                                         float z);
-/* kept local: this TU's uses of MatrixDrive_RotMatrixX do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_GetTurnYAngleXZ differ) */
 extern void MatrixDrive_RotMatrixX(short a0);
-/* kept local: this TU's uses of MatrixDrive_RotMatrixY do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_GetTurnYAngleXZ differ) */
 extern void MatrixDrive_RotMatrixY(short a0);
-/* kept local: this TU's uses of MatrixDrive_RotMatrixZ do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_GetTurnYAngleXZ differ) */
 extern void MatrixDrive_RotMatrixZ(short a0);
-/* kept local: this TU's uses of MatrixDrive_PushMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_GetTurnYAngleXZ differ) */
 extern void MatrixDrive_PushMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_PopMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_GetTurnYAngleXZ differ) */
 extern void MatrixDrive_PopMatrix(void);
-/* kept local: this TU's uses of MatrixDrive_ScaleMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_GetTurnYAngleXZ differ) */
 extern void MatrixDrive_ScaleMatrix(float x, float y, float z);
-/* kept local: this TU's uses of CopyMatrix do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_GetTurnYAngleXZ differ) */
 extern void CopyMatrix(void *dst, void *src);
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
 extern void gif_StartPacketPri(int a0);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
 extern void gif_EndPacket(void);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
+/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
 
 /* A 16-byte GS colour: four 8-bit RGBA components, one per word, handed to
@@ -126,7 +123,7 @@ typedef struct {
     float ratio;
 } WormWork;
 
-/* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_GetTurnYAngleXZ differ) */
 extern void CopyVector(void *dst, void *src);
 void simulate(WormVec *v, int n, float len);
 void GetWormRoute(int act, WormVec *target);

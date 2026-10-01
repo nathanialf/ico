@@ -12,6 +12,8 @@
 #include <libvu0.h>
 #include <string.h>
 #include "ios.h"
+#include "camera-root.h"
+#include "debug_exception.h"
 
 typedef struct CamSetItem {
     char pad[0x48];
@@ -25,16 +27,15 @@ typedef struct CamSetHdr {
     CamSetItem items[1]; /* 0x10 */
 } CamSetHdr;
 
-/* kept local: this TU's uses of ReflectCameraSetBinary do not fit the prototype in camera-ico2.h */
+/* kept local: void (S4C *, int) here, void (int, int) in camera-ico2.h */
 extern void ReflectCameraSetBinary(S4C *src, int count);
 extern const StgPre stageData[];
+/* kept local: agrees with main.h, which this TU does not include (boyGObj differs) */
 extern int stage_no;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int * here, GObj * in main.h */
 extern int *boyGObj;
-/* kept local: this TU's uses of GetBoyRootPositionForCamera do not fit the prototype in boyact.h */
+/* kept local: boyact.h does not compile in this TU (too many arguments to function `GetBoyRootPositionForCamera') */
 extern void GetBoyRootPositionForCamera();
-/* kept local: this TU's uses of CameraGetTargets do not fit the prototype in camera-root.h */
-extern void CameraGetTargets(int *a0, int *a1);
 
 typedef struct PluralCameraSet {
     int id;    /* 0x00 */
@@ -114,14 +115,11 @@ static unsigned char cameraGroupChanged;
 
 static int pluralCameraSetNum;
 
-extern void SetMonitorCameraInitializeFlag(void);
-/* kept local: camera-root.h's prototypes do not fit this TU's uses */
-extern int default_cameratarget_gobj;
-/* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
+/* kept local: void (void *, float) here, void (float *, float) in gv.h */
 extern void _ApplyRyGV(void *a0, float v);
-/* kept local: this TU's uses of _GetDirection do not fit the prototype in gv.h */
+/* kept local: float (void *) here, float (float *) in gv.h */
 extern float _GetDirection(void *a0);
-/* kept local: this TU's uses of _InterGV do not fit the prototype in gv.h */
+/* kept local: void (void *, void *, void *, float, float) here, void (float *, float *, float *, float, float) in gv.h */
 extern void _InterGV(void *a0, void *a1, void *a2, float f12, float f13);
 
 typedef struct IosPadStick {
@@ -136,7 +134,6 @@ extern char iosPadConfDefault[];
 
 static float zoomOffsetRatio = 1.0f; /* derived name */
 
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
 /* the camera-set binary: a sixteen byte header, `count` group records of 0x4C
@@ -179,7 +176,7 @@ typedef struct CamItemV2 { /* 0x50 */
     unsigned char _0[0x50];
 } CamItemV2;
 
-/* kept local: this TU's uses of ReadCameraSet do not fit the prototype in camera-ico2.h */
+/* kept local: void * (CamSetFile *, int) here, void * (char *, int) in camera-ico2.h */
 extern void *ReadCameraSet(CamSetFile *f, int stage);
 extern char D_002AD010[][0x20];
 /* prototypes: their order is the inline tail's emission order */
@@ -364,12 +361,9 @@ void initMonitorCamera(unsigned char init)
         SetMonitorCameraInitializeFlag();
 }
 
-/* kept local: camera-root.h's prototypes do not fit this TU's uses */
-extern int monitorCameraHold;
-extern int insertCameraBlendTimer;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj differs) */
 extern int systemStatus[];
-/* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
+/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistGV(void *a0, void *a1);
 
 /* The retail build compiles out this function's debug arms (listing lines
@@ -919,15 +913,9 @@ inline void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag)
     }
 }
 
-/* kept local: camera-root.h's prototypes do not fit this TU's uses */
-extern int FixViewInGameCameraFlag;
-/* kept local: this TU's uses of CameraMove do not fit the prototype in camera-ico2.h */
+/* kept local: agrees with camera-ico2.h, which this TU does not include (ReadCameraSet, ReflectCameraSetBinary differ) */
 extern void CameraMove(int group, float *pos, float *out, float *ofsA, float *ofsB);
-/* kept local: this TU's uses of InsertCamera_Exec do not fit the prototype in camera-root.h */
-extern void InsertCamera_Exec(float *cam, int *cut, int *cutType, int *enable);
-/* kept local: this TU's uses of SetWSMatrix do not fit the prototype in camera-root.h */
-extern void SetWSMatrix(void *cam);
-/* kept local: this TU's uses of IsAbleBoyControl do not fit the prototype in boyact.h */
+/* kept local: boyact.h does not compile in this TU (too many arguments to function `GetBoyRootPositionForCamera') */
 extern unsigned char IsAbleBoyControl(void);
 
 /* The camera-group search the listing places at camera-ico2.c lines 921-946:

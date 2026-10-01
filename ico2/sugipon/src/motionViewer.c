@@ -136,17 +136,17 @@ typedef struct {
 } MotRec;
 
 extern MotRec motionKind[];
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SpriteSensitiveOrg differ) */
 extern void gif_StartPacketPri(int pri);
-/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SpriteSensitiveOrg differ) */
 extern void gif_SetZTest(int on);
-/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SpriteSensitiveOrg differ) */
 extern void gif_SetZWrite(int on);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
+/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
-/* kept local: this TU's uses of gif_SpriteSensitiveOrg do not fit the prototype in GifPacket.h */
+/* kept local: void (void *, int, int, void *, int) here, void (int *, long long, int *, unsigned char *, int) in GifPacket.h */
 extern void gif_SpriteSensitiveOrg(void *rect, int a1, int a2, void *col, int a4);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SpriteSensitiveOrg differ) */
 extern void gif_EndPacket(void);
 
 void dispMotFrameProgress(int obj, float cur)
@@ -249,14 +249,14 @@ typedef struct MvObj {
     MvSub *sub; /* 0x15C */
 } MvObj;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: MvObj * here, GObj * in main.h */
 extern MvObj *CurrentTargetGObj;
 
 static int lastObjSel = -1; /* derived name */
 
 static char *savedMotTbl = 0; /* derived name */
 
-/* kept local: this TU's uses of debug_SelectCsvWindow do not fit the prototype in debug.h */
+/* kept local: agrees with debug.h, which this TU does not include (debug_PrintfDummy, debug_SelectCsvWindowWithLine differ) */
 extern int debug_SelectCsvWindow(char *title, int a1, int a2, int a3, void *tbl, int stride, int a6,
                                  int a7, int count, int *cur);
 
@@ -324,7 +324,7 @@ typedef struct MvPad {
 
 /* motionOrientManager's table row (same object as src/motionOrientManager.c) */
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: MvPad [] here, PadState [16] in main.h */
 extern MvPad pad[];
 
 static int lastMotSel = -1; /* derived name */
@@ -335,9 +335,9 @@ static int lastMotSel = -1; /* derived name */
  * to debug_SelectCsvWindow. Evidence rung: ROM bytes plus the MAIN.MAP member row. */
 static int motionKindCount;
 
-/* kept local: this TU's uses of debug_PrintfDummy do not fit the prototype in debug.h */
+/* kept local: void (int, int, unsigned int, const char *, ...) here, void (int, int, unsigned int, int, ...) in debug.h */
 extern void debug_PrintfDummy(int x, int y, unsigned int color, const char *fmt, ...);
-/* kept local: this TU's uses of debug_SelectCsvWindowWithLine do not fit the prototype in debug.h */
+/* kept local: int (char *, int, int, int, void *, int, int, int, int, int *, int) here, int (char *, int, int, int, void *, int, int, int, int, int *) in debug.h */
 extern int debug_SelectCsvWindowWithLine(char *title, int a1, int a2, int a3, void *tbl, int stride,
                                          int a6, int a7, int count, int *cur, int a10);
 
@@ -542,6 +542,7 @@ typedef struct MvCol {
     int r, g, b, a;
 } __attribute__((aligned(16))) MvCol;
 
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ApplyMatrix, sceVu0InnerProduct differ) */
 extern void sceVu0UnitMatrix(void *m);
 
 void lookAtTest(MvVec *pos, float rad, void *colAxis, void *colRing, short dy, short ang)
@@ -638,7 +639,7 @@ static const MvColVec lookAxisColor = {{128, 64, 32, 128}}; /* derived name */
 
 static const MvColVec lookRingColor = {{64, 16, 0, 128}}; /* derived name */
 
-/* kept local: debug.h's debug_PrintfDummy and debug_SelectCsvWindowWithLine prototypes do not fit this TU's calls */
+/* kept local: agrees with debug.h, which this TU does not include (debug_PrintfDummy, debug_SelectCsvWindowWithLine differ) */
 extern int debug_now_motion_viewer;
 
 /* The TU's .sdata tail: MotionViewer's state, in ROM order. */
@@ -660,10 +661,14 @@ static int lookHeadStep = 0; /* derived name */
 
 static float lookRadius = 100.0f; /* derived name */
 
+/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, pad differ) */
 extern char *matrixptr;
 extern void dispPlane(MvVec *plane, MvVec *pos);
+/* kept local: void (MvVec *, void *, MvVec *) here, void (void *, void *, void *) in libvu0.h */
 extern void sceVu0ApplyMatrix(MvVec *dst, void *m, MvVec *src);
+/* kept local: float (MvVec *, MvVec *) here, float (void *, void *) in libvu0.h */
 extern float sceVu0InnerProduct(MvVec *a, MvVec *b);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ApplyMatrix, sceVu0InnerProduct differ) */
 extern void sceVu0TransposeMatrix(void *dst, void *src);
 
 int MotionViewer(void)

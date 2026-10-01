@@ -3,6 +3,7 @@
 #include "commonact.h"
 #include "ebrain.h"
 #include "typedef.h"
+#include "brain.h"
 
 extern ObjKindEnt objKindData[];
 /* kept local: main.c's global; this TU does not include main.h */
@@ -218,7 +219,7 @@ void brainLevelProcess(Brain *b)
     }
 }
 
-/* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
+/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistSqGV(void *a, void *b);
 
 /* INTERIM stand-in for brainGetLevel (listing brain.c:541-545), which the ROM

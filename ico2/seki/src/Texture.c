@@ -5,6 +5,10 @@
 #include "debug.h"
 #include <string.h>
 #include "GsBase.h"
+#include "debug_exception.h"
+#include <libgraph.h>
+#include <eekernel.h>
+#include "tableSin.h"
 
 /* One mipmap level of a texture record: the ROM reads addr with lw at +0, dbw
  * and vramSize with lh at +4 and +6, and indexes a 13-entry short table at +8
@@ -264,13 +268,13 @@ int tex_AllocVramAuto(int kind, int size)
     return ret;
 }
 
-/* kept local: this TU's uses of these do not fit the prototypes in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOrg differs) */
 extern void gif_StartPacketPri(int pri);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOrg differs) */
 extern void gif_SetGsReg(long long reg, long long val);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOrg differs) */
 extern void gif_EndPacket(void);
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
-extern void debug_StdPrintfDummy();
 
 /* "0" */
 
@@ -356,6 +360,7 @@ static inline int getTWTH(int a0)
     return ret;
 }
 
+/* kept local: GifDpk here, DpkCtl in DmaPacket.h */
 extern GifDpk PacketBufferStruct;
 
 /* The GS A+D writer this TU expands at every site. It is a MACRO and not the
@@ -510,9 +515,6 @@ void tex_transRegister(int a0)
 extern int tex_transVramDirectTex(Tim2Picture *pic, CdvdRec *t, int levels, int lv);
 extern int tex_transVramClutTex(Tim2Picture *pic, CdvdRec *t, int levels, int lv);
 extern void tex_setTexReg(Tim2Picture *pic, CdvdRec *t, int levels, int lv, int clut);
-extern void dl_SetDLPriority(int pri);
-extern void debug_StdPrintfDummy();
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
 /* "FALSE" */
@@ -778,8 +780,6 @@ static inline void texInitMipLevels(Tim2Picture *pic, CdvdRec *t)
 }
 
 extern void tex_setRegisters(Tim2Picture *pic, CdvdRec *t);
-extern void debug_StdPrintfDummy();
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
 /* "FALSE" */
@@ -856,7 +856,6 @@ typedef struct sceGsStoreImage {
     long long qw[14];
 } sceGsStoreImage;
 
-extern void sceGsSyncPath(int mode, int timeout);
 /* dpsm is short here for the reason the repo's sceGsSetDefDispEnv declaration
  * carries: the ROM reads psmTable's first word with lh at this call site and
  * with lw five instructions later, so the argument is a 16-bit conversion of an
@@ -867,8 +866,6 @@ extern void sceGsSetDefStoreImage(sceGsStoreImage *img, int sbp, int sbw, int sp
                                   int ssay, int rrw, int rrh);
 extern int sceGsExecLoadImage(sceGsLoadImage *img, void *src);
 extern int sceGsExecStoreImage(sceGsStoreImage *img, void *dst);
-extern void FlushCache(int mode);
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
 /* "FALSE" */
@@ -913,7 +910,6 @@ void tex_convertImage(void *dst, void *src, short fmt, short w, short h)
 }
 
 extern void malloc_MemCpy(void *dst, void *src, int n);
-extern void tex_convertImage(void *dst, void *src, short fmt, short w, short h);
 
 void tex_makeCopyImage(Tim2Picture *pic, CdvdRec *t, char *src, int convert)
 {
@@ -977,11 +973,8 @@ void tex_makeCopyImage(Tim2Picture *pic, CdvdRec *t, char *src, int convert)
     }
 }
 
+/* kept local: int (char *, const char *, ...) here, int (void *, int, ...) in stdio.h */
 extern int sprintf(char *buf, const char *fmt, ...);
-extern void debug_DispQW(void *p, int n);
-extern void debug_StdPrintfDummy();
-extern void debug_assert(char *file, int line);
-extern void debug_assertMessage(char *file, int line, char *msg);
 extern void __assert(char *file, int line, char *expr);
 
 /* "ICO" */
@@ -1095,6 +1088,7 @@ void tex_makeTexturePacket(void *file, CdvdRec *t)
     }
 }
 
+/* kept local: int (char *, const char *, ...) here, int (void *, int, ...) in stdio.h */
 extern int sprintf(char *buf, const char *fmt, ...);
 
 /* "%s" */
@@ -1125,9 +1119,7 @@ static inline void texTrimName(char *name)
     }
 }
 
-extern int tex_GetTextureNo(char *name);
 extern void tex_makeTexturePacket(void *pkt, CdvdRec *t);
-extern int malloc_GetPartition(void);
 
 /* "1:%s\n" */
 
@@ -1210,11 +1202,11 @@ void *pkt;
     return no;
 }
 
+/* kept local: int (int *, char *, int) here, int (void **, char *, int) in FileManager.h */
 extern int file_LoadFile(int *size, char *name, int a2);
+/* kept local: int (char *, const char *, ...) here, int (void *, int, ...) in stdio.h */
 extern int sprintf(char *buf, const char *fmt, ...);
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
-extern void debug_StdPrintfDummy();
 
 /* "%s" */
 /* "%s.tm2" */
@@ -1239,9 +1231,7 @@ int tex_LoadTexturePart(void *name, int a1)
     }
 }
 
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
-extern void debug_StdPrintfDummy();
 
 /* "FALSE" */
 
@@ -1292,16 +1282,23 @@ typedef struct TexColor {
     unsigned char a;
 } TexColor;
 
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOrg differs) */
 extern void gif_StartPacketPri(int pri);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOrg differs) */
 extern void gif_SetGsReg(long long reg, long long val);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOrg differs) */
 extern void gif_EndPacket(void);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOrg differs) */
 extern void gif_SetZTest(int on);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOrg differs) */
 extern void gif_SetZWrite(int on);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOrg differs) */
 extern void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm, unsigned int w,
                                   unsigned int h, int useoffset, int clear);
 /* kept local: this TU's one use passes the depth as a 32-bit 0xFFFFFFFF, which
  * the ROM materialises with a bare lui/ori and hands over unextended, so the
  * parameter is 32 bits here and not the long long GifPacket.h carries. */
+/* kept local: void (int *, unsigned int, int *, unsigned char *, int) here, void (int *, long long, int *, unsigned char *, int) in GifPacket.h */
 extern void gif_SpriteSensitiveOrg(int *r, unsigned int z, int *uv, unsigned char *col, int prim);
 
 void tex_TransTextureDefocus(int id, int lv)
@@ -1448,9 +1445,8 @@ void tex_scrollClut(int a0, int a1, int a2, int a3, int a4, void *a5, int a6, vo
     }
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, pad differ) */
 extern int systemStatus[];
-extern float GetTableSin(short angle);
 
 void tex_textureAnimation(void)
 {
@@ -1544,8 +1540,6 @@ void tex_SetClutAnimation(int id, int frame)
     }
 }
 
-extern int freeseki(void *p);
-
 int tex_FreeTexture(int id)
 {
     int i;
@@ -1599,9 +1593,8 @@ static inline void resetVramPri(int pri)
     }
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, pad differ) */
 extern int systemStatus[];
-extern void tex_textureAnimation(void);
 
 /* tex_Init's first-call flag: the table is marked free once, later calls
    recount the loaded entries.  The .sdata word follows the defocus colour
@@ -1730,10 +1723,8 @@ static inline void toolMakeRegs(CdvdRec *t, int lv)
 /* the shared pad-state array (GsBase.c's GsbPad): holding the 0x10 button on
  * pad 0 drops alpha blending from the PRIM word. Declared as the array, so the
  * word is reached %hi/%lo as the ROM does, not gp-relative. */
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: GsbPad [] here, PadState [16] in main.h */
 extern GsbPad pad[];
-/* UNPROTOTYPED: the ROM passes seven arguments in $4 to $10 */
-extern void debug_PrintfDummy();
 
 void tex_printTexture(int id)
 {
@@ -2319,8 +2310,6 @@ void tex_SetUVScroll(char *name, float u, float v, float su, float sv, float ou,
     }
 }
 
-extern void tex_ResetVram(void);
-
 void tex_Init(void)
 {
     int i;
@@ -2339,7 +2328,7 @@ void tex_Init(void)
     }
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int [] here, StageSetting in main.h */
 extern int GlobalStageSetting[];
 
 int tex_RemakeRegistersSampleMin(void)

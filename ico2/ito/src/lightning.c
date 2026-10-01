@@ -3,6 +3,12 @@
 #include <libvu0.h>
 #include "sugiCommon.h"
 #include "itou_common.h"
+#include "GifPacket.h"
+#include "Texture.h"
+#include "Matrix.h"
+#include "tableSin.h"
+#include "main.h"
+#include "itou_sub.h"
 
 typedef union {
     unsigned int c[4];
@@ -39,7 +45,7 @@ void DrawLightning(void *p0, void *p1, void *a2, float f0, float f1, float f2, f
 
 void lightning_test(void);
 inline int cmpr(int *self, int *other);
-/* kept local: the declaration in lightning.h changes this TU codegen */
+/* kept local: void (int, LightningVtx *, StructB *, float, float, float, float, float, float, float, float, float, float, int) here, void (int, void *, void *, float, float, float, float, float, float, float, float, float, float, int) in lightning.h */
 extern void DrawLightning2(int n, LightningVtx *a, StructB *b, float f0, float f1, float f2,
                            float f3, float f4, float f5, float f6, float f7, float f8, float f9,
                            int c);
@@ -61,6 +67,7 @@ typedef struct {
     char *end;
 } LightningDpk;
 
+/* kept local: LightningDpk here, DpkCtl in DmaPacket.h */
 extern LightningDpk PacketBufferStruct;
 
 /* one strip vertex as the three GS register payloads it is sent as */
@@ -97,8 +104,6 @@ static char *stripTag;
 /* vertices set since the draw began */
 static int vtxCount;
 
-extern char *matrixptr;
-extern void apply_matrix_w1(void *dst, void *m, void *src);
 extern void sceVu0FTOI4Vector(void *dst, void *src);
 
 /* the GS RGBAQ register carries Q as the raw float word in bits 63..32 */
@@ -266,22 +271,16 @@ static __inline__ float random_sign(float x)
     return x;
 }
 
-/* kept local: the TU's callees, spelled the way this function calls them */
-extern int tex_GetTextureNo(char *name);
-extern int tex_TransTexture(int no, int pri);
-extern void gif_StartPacketPri(int pri);
+/* kept local: unsigned int (void) here, int (void) in DmaPacket.h */
 extern unsigned int dpk_CheckBufferSize(void);
-extern void gif_SetAlpha(long long a0, long long a1, long long a2);
-extern void gif_SetGsReg(long long a0, long long a1);
-extern void gif_EndPacket(void);
+/* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */
 extern void dl_SetDLPriority(int pri);
+/* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */
 extern int dl_GetPri(void);
+/* kept local: void (int, void *, int) here, void (int, int, int) in DisplayList.h */
 extern void dl_OpenDma(int chan, void *dma, int flag);
+/* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */
 extern void dl_CloseDma(void);
-extern float _GetLength(void *a, void *b);
-extern float _GetNorm(void *v);
-extern float GetTableSin(short a);
-extern float GetTableCos(short a);
 extern void set_vertex(LightningVtx *dir, LightningVtx *pos, float u, int *col, float half);
 
 /* the Catmull-Rom basis, halved, that turns four control points into the

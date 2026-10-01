@@ -22,9 +22,9 @@ void actBirdStart(void *a0);
 char *InitBirdGeo(char *a0, void *a1);
 void BirdAI(void);
 void _ACTSendMailToBirdAll(void *a0, void *a1);
-
 void Debug_StickControl(char *self);
 void _ACTSendMailToBird(void *a0, void *a1, void *a2);
 void subBirdBrainMain();
+void Debug_WireString_Bird(float *pos, char *fmt, ...);
 
 #endif /* ACT_BIRD_H */

@@ -1,5 +1,6 @@
 #include "typedef.h"
 #include "tableSin.h"
+#include "debug_exception.h"
 
 /* Quadword copy of 64 bytes, parallel form: four lq into four distinct
    scratch GPRs, then four sq.  The latency-hiding shape the ROM uses in
@@ -311,7 +312,7 @@ inline void _ApplyCurrentMatrix(void *p0, void *p1)
     VU0_LSV(sqc2, 10, 0x0, 4);
 }
 
-inline void _RotTransPersCurrentMatrix(void *p0, void *p1, void *p2)
+inline void _RotTransPersCurrentMatrix(void *p0, void *p1)
 {
     VU0_LSV(lqc2, 8, 0x0, 5);
     VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 8, x);
@@ -427,7 +428,6 @@ static float vu0RegisterSaveWork[32][4]; /* derived name */
    assert text: retail added both (MAIN.MAP gives Matrix.o no .sdata). */
 static int vu0PushDepth = 0; /* derived name */
 
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
 void _PushVu0Registers(void)
@@ -545,7 +545,7 @@ inline float _InnerProduct(void *a, void *b)
     VU0_MTC1(2, 0);
 }
 
-inline void _OuterProduct(void *p0, void *p1, void *p2, void *p3)
+inline void _OuterProduct(void *p0, void *p1, void *p2)
 {
     __asm__ __volatile__(".set noreorder\n\t"
                          "lqc2 $vf1, 0x0(%1)\n\t"
@@ -624,14 +624,14 @@ inline void _ScaleVector2XYZ(void *p0, void *p1, void *p2)
     VU0_LSV(sqc2, 1, 0x0, 4);
 }
 
-inline void _FTOI4Vector(void *p0, void *p1, void *p2)
+inline void _FTOI4Vector(void *p0, void *p1)
 {
     VU0_LSV(lqc2, 1, 0x0, 5);
     VU0_V2OP(vftoi4.xyzw, 2, 1);
     VU0_LSV(sqc2, 2, 0x0, 4);
 }
 
-inline void _FTOI0Vector(void *p0, void *p1, void *p2)
+inline void _FTOI0Vector(void *p0, void *p1)
 {
     VU0_LSV(lqc2, 1, 0x0, 5);
     VU0_V2OP(vftoi0.xyzw, 2, 1);
@@ -685,7 +685,7 @@ inline void _InterVectorXYZ(void *p0, void *p1, void *p2, float t)
     VU0_LSV(sqc2, 1, 0x0, 4);
 }
 
-inline void _GetNorm(void *p0)
+inline float _GetNorm(void *v)
 {
     VU0_LSV(lqc2, 3, 0x0, 4);
     VU0_V3OP(vmul.xyz, 3, 3, 3);
@@ -700,7 +700,7 @@ inline void _GetNorm(void *p0)
     VU0_NOREORDER_END();
 }
 
-inline void _GetLength(void *p0, void *p1, void *p2)
+inline float _GetLength(void *a, void *b)
 {
     VU0_LSV(lqc2, 1, 0x0, 4);
     VU0_LSV(lqc2, 2, 0x0, 5);
@@ -717,7 +717,7 @@ inline void _GetLength(void *p0, void *p1, void *p2)
     VU0_NOREORDER_END();
 }
 
-inline void _GetLengthXY(void *p0, void *p1, void *p2)
+inline float _GetLengthXY(void *a, void *b)
 {
     VU0_LSV(lqc2, 1, 0x0, 4);
     VU0_LSV(lqc2, 2, 0x0, 5);
@@ -732,7 +732,7 @@ inline void _GetLengthXY(void *p0, void *p1, void *p2)
     VU0_NOREORDER_END();
 }
 
-inline void _GetLengthXZ(void *p0, void *p1, void *p2)
+inline float _GetLengthXZ(void *a, void *b)
 {
     VU0_LSV(lqc2, 1, 0x0, 4);
     VU0_LSV(lqc2, 2, 0x0, 5);
@@ -901,15 +901,15 @@ inline void _SetCameraMatrix(void *dst, void *pos, void *dir, void *up)
     float t[4];
 
     _UnitMatrix(m);
-    _OuterProduct(t, up, dir, 0);
+    _OuterProduct(t, up, dir);
     _NormalizeVector(m[0], t);
     _NormalizeVector(m[2], dir);
-    _OuterProduct(m[1], m[2], m[0], 0);
+    _OuterProduct(m[1], m[2], m[0]);
     _CopyVector(m[3], pos);
     _InversMatrix(dst, m);
 }
 
-inline void _Sqrt(void *p0, void *p1, void *p2, void *p3, void *p4, void *p5)
+inline float _Sqrt(float x)
 {
     VU0_NOREORDER_BEGIN();
     VU0_MFC1(6, 12);

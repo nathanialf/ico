@@ -18,6 +18,7 @@
 #include "quaternion.h"
 #include "waterDot.h"
 #include <libvu0.h>
+#include "Matrix.h"
 
 typedef struct { /* 0x10 */
     float x, y, z, w;
@@ -404,7 +405,7 @@ static void execClothes(char *gobj)
     }
 }
 
-/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_sugipon;
 
 /* the one LightLineExt InitLightLineGeo fills; its definition closes the
@@ -461,14 +462,15 @@ inline void LightLineGeo(void)
     }
 }
 
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
 extern void gif_StartPacketPri(int a0);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
+/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
 extern void gif_EndPacket(void);
 /* lineManager.h declares DrawLineG with int * endpoints; this TU hands it the
    vector and colour records it builds on its own frame. */
+/* kept local: void (LLVec *, LLColor *, LLVec *, LLColor *, int) here, void (int *, int *, int *, int *, int) in lineManager.h */
 extern void DrawLineG(LLVec *p0, LLColor *c0, LLVec *p1, LLColor *c1, int flags);
 
 void LightLineDL(void)
@@ -555,6 +557,7 @@ inline void SelectBoyCrown(char *a0, int a1)
    ld/or/sd and ld/and/sd, and a 16-bit field two bytes into the same
    container reached with a plain sh; the same union src/enemyParts.c uses. */
 
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_seki;
 
 /* The two points the boy's mantle hangs from, once for each cloth.  MAIN.MAP
@@ -652,7 +655,7 @@ typedef struct MotSyncPair { /* 0x08 */
 } MotSyncPair;
 
 extern MotSyncPair motSyncPairs[]; /* derived name */
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *girlGObj;
 
 /* the two wire spheres the girl-to-boy position sync draws when the debug flag
@@ -662,15 +665,6 @@ static int girlSyncMarkerColor[4] = {64, 96, 128, 128};
 static int boySyncMarkerColor[4] = {255, 96, 64, 128};
 
 static LightLineExt lightLineExt = {0, 0, 0};
-
-/* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
-extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
-/* kept local: this TU's uses of _SubVectorXYZ do not fit the prototype in Matrix.h */
-extern void _SubVectorXYZ(void *dst, void *a, void *b);
-/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
-extern void _AddVectorXYZ(void *dst, void *a, void *b);
-/* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
-extern void _UnitMatrix(void *p);
 
 void synchronizeMotionOutputOriginForGirl(char *gobj)
 {
@@ -815,10 +809,11 @@ inline void SetBoyStonizedVisual(char *a0)
     *(int *)((int)GOBJ_SUB(a0) + 0x62C) = 0;
 }
 
+/* kept local: agrees with main.h, which this TU does not include (girlGObj differs) */
 extern int stage_no;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (girlGObj differs) */
 extern int systemStatus[];
-/* kept local: this TU's uses of stage_PlayBgAnimation do not fit the prototype in StageAnimation.h */
+/* kept local: float (int, void *, void *, float) here, float (int, float, void *, void *) in StageAnimation.h */
 extern float stage_PlayBgAnimation(int obj, void *a1, void *a2, float f);
 void dispSubParts(char *gobj);
 

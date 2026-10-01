@@ -101,7 +101,7 @@ static void free_buf(int *a0)
     Free(a0[20]);
 }
 
-/* kept local: this TU's uses of viBufReset do not fit the prototype in mv_vibuf.h */
+/* kept local: mv_vibuf.h does not compile in this TU (conflicting types for `viBufCreate') */
 extern int viBufReset(ViBuf *self);
 
 int viBufCreate(ViBuf *self)

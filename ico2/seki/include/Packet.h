@@ -18,9 +18,11 @@
 void pac_Dump(int *a0, int size);
 void pac_Init(void);
 void pac_DispVu1Memory(int idx, int n, int size);
-
 void pac_DispQW(void *p, int size);
 void pac_MakePacket(char *a0);
 void pac_makePacket(void *a0, int a1, int a2);
+int pac_makeNormalStrip(char *obj, short *strip, int num);
+int pac_makeClusterStrip(char *obj, short *strip, int num);
+void pac_countOneVertexPacketSize(char *shp, char *mat);
 
 #endif /* PACKET_H */

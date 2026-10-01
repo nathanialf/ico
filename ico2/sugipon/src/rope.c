@@ -5,22 +5,20 @@
 #include "memory.h"
 #include "sugiCommon.h"
 #include <libvu0.h>
+#include "debug_exception.h"
 
-/* kept local: this TU's uses of GetChainCollision do not fit the prototype in clothAnimation.h */
+/* kept local: float (void *, void *, float) here, float (int *, void *, float) in clothAnimation.h */
 extern float GetChainCollision(void *a0, void *a1, float w);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *boyGObj;
-/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+/* kept local: IosMemPart * here, int in ios.h */
 extern IosMemPart *ios_partition_sugipon;
+/* kept local: IosMemPart * here, int in ios.h */
 extern IosMemPart *ios_partition_seki;
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
-extern void *MatrixDrive_GetMatrix(void);
-extern void MatrixDrive_TransMatrix(float x, float y, float z);
-extern void MatrixDrive_RotMatrixY(short a);
-extern void sceVu0UnitMatrix(void *m);
-extern void sceVu0ApplyMatrix(void *d, void *m, void *v);
+/* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipWall(void *w);
+/* kept local: int (void *) here, void * (char *) in clothAnimation.h */
 extern int InitChains(void *c);
 
 /* The chain template the rope starts from: two 0x50-byte records, the
@@ -253,9 +251,9 @@ typedef union {
     int *i;
 } Sub15CRef;
 
-/* kept local: this TU's uses of GetChainNodeID do not fit the prototype in clothAnimation.h */
+/* kept local: float (void *) here, float (int, float) in clothAnimation.h */
 extern float GetChainNodeID(void *n);
-/* kept local: this TU's uses of SetChainExtendedWeight do not fit the prototype in clothAnimation.h */
+/* kept local: int (void *, int, float, float) here, int (int *, int, float, float) in clothAnimation.h */
 extern int SetChainExtendedWeight(void *a0, int a1, float f12, float f13);
 
 void HoldRope(void *a0, void *a1)
@@ -287,7 +285,7 @@ void HoldRope(void *a0, void *a1)
 
 inline void ReleaseRope(void) {}
 
-/* kept local: this TU's uses of GetChainAnimation do not fit the prototype in clothAnimation.h */
+/* kept local: agrees with clothAnimation.h, which this TU does not include (GetChainCollision, GetChainNodeID differ) */
 extern void GetChainAnimation(void *sys, int obj, void *mtx);
 
 void ropeGeo(void *a0)
@@ -340,11 +338,11 @@ inline void RopeGeo(void *a0)
     ropeChainCollision(a0);
 }
 
-/* kept local: this TU's uses of p2o_SetDefaultEnviroment do not fit the prototype in DisplayP2O.h */
+/* kept local: void (void *) here, void (void) in DisplayP2O.h */
 extern void p2o_SetDefaultEnviroment(void *a0);
-/* kept local: this TU's uses of p2o_DispVU1DObjMulti do not fit the prototype in DisplayP2O.h */
+/* kept local: agrees with DisplayP2O.h, which this TU does not include (p2o_SetDefaultEnviroment differs) */
 extern void p2o_DispVU1DObjMulti(void *a0);
-/* kept local: this TU's uses of TestDispChainAnimation do not fit the prototype in clothAnimation.h */
+/* kept local: void (void *) here, void (int *) in clothAnimation.h */
 extern void TestDispChainAnimation(void *a0);
 
 void RopeDL(void *a0)

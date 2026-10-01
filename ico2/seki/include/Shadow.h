@@ -19,9 +19,11 @@ void shadow_KillShadow(int val);
 void shadow_DispCancel(int a0, int a1);
 void shadow_SetLength(char *a0, float f);
 void shadow_Init(void);
-
 void shadow_Render(char *o);
 void shadow_RenderVolume(char *o);
 void shadow_RenderVolumeMulti(char *o, int idx);
+void shadow_Reset(void);
+void shadow_Draw(void);
+int shadow_Tool(void);
 
 #endif /* SHADOW_H */

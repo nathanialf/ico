@@ -1,4 +1,6 @@
-/* kept local: this TU's uses of itou_boss_gflag_init do not fit the prototype in itou_boss.h */
+#include "itou_gflag.h"
+
+/* kept local: itou_boss.h does not compile in this TU (too many arguments to function `itou_boss_gflag_init') */
 extern void itou_boss_gflag_init();
 
 void itouGFlagInit(int a0, int a1, int a2, int a3)

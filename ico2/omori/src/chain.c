@@ -9,8 +9,11 @@
 #include "geometryManager.h"
 #include "motionOrientManager.h"
 #include "motionFileManager.h"
+#include "Matrix.h"
+#include "debug_exception.h"
+#include "motionManager2.h"
 
-/* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
+/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistSqGV(void *a, void *b);
 
 typedef struct {
@@ -59,9 +62,8 @@ int UpdateRootPosition(char *gobj)
     return moved;
 }
 
-/* kept local: this TU's uses of test_CURRENTORIENT do not fit the prototype in commonact.h */
+/* kept local: void * (void *) here, void * (char *) in commonact.h */
 extern void *test_CURRENTORIENT(void *a0);
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 void _GetCorrectOrientOfChain(float *out, char *gobj, float *dir);
 
@@ -138,9 +140,9 @@ float *pos;
  * ours */
 static int chainDebugY;
 
-/* kept local: this TU's uses of debug_Arrow do not fit the prototype in camera-editor.h */
+/* kept local: void (float, void *, void *, int, int, int) here, void (void) in camera-editor.h */
 extern void debug_Arrow(float len, void *from, void *to, int r, int g, int b);
-/* kept local: the declaration in fieldCollision.h changes this TU codegen */
+/* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipWall(void *w);
 
 /* The wall-clip request the chain hands to ClipWall: the segment endpoints, the
@@ -189,13 +191,13 @@ int collisionCheck(char *gobj)
     return 0;
 }
 
-/* kept local: this TU's uses of _GetDirection do not fit the prototype in gv.h */
+/* kept local: agrees with gv.h, which this TU does not include (_ApplyRyGV, _DistSqGV differ) */
 extern float _GetDirection(float *a0);
-/* kept local: this TU's uses of collisionCheck do not fit the prototype in chain.h */
+/* kept local: chain.h does not compile in this TU (conflicting types for `ChainGeo') */
 extern int collisionCheck(char *gobj);
-/* kept local: this TU's uses of pendulum_Process do not fit the prototype in chain.h */
+/* kept local: chain.h does not compile in this TU (conflicting types for `ChainGeo') */
 extern void pendulum_Process(void *a0, int a1);
-/* kept local: this TU's uses of chain_sub_pendulum do not fit the prototype in chain.h */
+/* kept local: chain.h does not compile in this TU (conflicting types for `ChainGeo') */
 extern void chain_sub_pendulum(char *base, int n, void *a2);
 /* The sixth integer parameter is passed by both ROM call sites (always 0) and
  * never read by the body; it keeps $9 in the argument sequence. */
@@ -235,7 +237,7 @@ void chain_simulate_term_simple(int a0)
                        0, 20.0f, 50.0f, 0.6f);
 }
 
-/* kept local: this TU's uses of chain_simulate_term_simple do not fit the prototype in chain.h */
+/* kept local: chain.h does not compile in this TU (conflicting types for `ChainGeo') */
 extern void chain_simulate_term_simple(int a0);
 
 void chain_simulate_term_ropeturn(int a0)
@@ -329,7 +331,7 @@ void chain_simulate_term_swingstart(int a0)
     chain_simulate_term_simple(a0);
 }
 
-/* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
+/* kept local: void (void *, float) here, void (float *, float) in gv.h */
 extern void _ApplyRyGV(void *a0, float a1);
 
 void chain_simulate_term_moveup(int a0)
@@ -608,10 +610,13 @@ unsigned char flag;
 
 /* kept local: this TU does not include fieldCollision.h, whose third parameter
  * type is not the float pair the chain hands over */
+/* kept local: void (void *, int, float *) here, void (void *, void *, int *) in fieldCollision.h */
 extern void GetOrientOfWall(void *out, int wall, float *pos);
 /* kept local: this TU does not include memory.h, whose first parameter type is
  * not the plain partition word the chain code hands over */
+/* kept local: void * (void *, int, char *, int) here, void * (IosMemPart *, int, char *, int) in memory.h */
 extern void *iosMallocDebug(void *part, int size, char *file, int line);
+/* kept local: agrees with memory.h, which this TU does not include (iosMallocDebug differs) */
 extern void *iosFree(void *p);
 
 /* The pendulum block at 0x20 of a chain record: the swing orientation, the
@@ -688,8 +693,9 @@ static ChainRecord chainRecordDefault = {
     1,
     0};
 
-/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_sugipon;
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_seki;
 
 /* The geometry request the caller fills in: the anchor position, the probe
@@ -930,7 +936,7 @@ void chain_set_charachara(char *gobj, float amp)
     *(int *)(cw + 0xC4) = *(int *)(cw + 0xC4) + 1;
 }
 
-/* kept local: this TU's uses of iosOmSendMail do not fit the prototype in obj_manager.h */
+/* kept local: int (void *, int, void *) here, int (char *, int, int) in obj_manager.h */
 extern int iosOmSendMail(void *to, int msg, void *from);
 
 /* The enemy parameter table, one 404-byte row per motion id; ChainGeo reads
@@ -1227,11 +1233,6 @@ void ChainGeo(char *gobj)
     }
 }
 
-/* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
-extern void _SubVector(void *d, void *a, void *b);
-/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
-extern void _NormalizeVector(void *d, void *s);
-
 void ChainDL(char *gobj)
 {
     char q[0x10];
@@ -1262,7 +1263,7 @@ void ChainDL(char *gobj)
     p2o_DispVU1DObjMulti(ext);
 }
 
-/* kept local: this TU's uses of _InterGV do not fit the prototype in gv.h */
+/* kept local: void (void *, void *, void *, float, float) here, void (float *, float *, float *, float, float) in gv.h */
 extern void _InterGV(void *elem, void *base, void *v, float a, float b);
 
 static inline void ChainNodeSpan(char *cw, float *pos, int *i0, int *i1)
@@ -1363,12 +1364,12 @@ typedef struct {
  * ours */
 static int chainClimb[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0};
 
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
+/* kept local: float * (void *) here, void * (void *) in commonact.h */
 extern float *test_CURRENTROOT(void *a0);
 /* the per-motion frame-count records, indexed by the motion id at ext + 0x4A0 */
 /* kept local: this TU's uses of these do not fit the prototypes their own
  * headers carry */
-extern int GetSkeltonFocusNode(char *gobj, int node);
+/* kept local: void (float, void *, int, int, int) here, void (int *, int, int, int, float) in camera-editor.h */
 extern void debug_NMarker(float size, void *pos, int r, int g, int b);
 
 /* chain.c:1777-1987 in the listing: the two climb helpers and TestChainUpDown, laid out on its lines */
@@ -1700,7 +1701,7 @@ static inline int getChainDirCorrectVal(char *a0, int *a1)
     return *(unsigned char *)(p + 0x6C);
 }
 
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
+/* kept local: float * (void *) here, void * (void *) in commonact.h */
 extern float *test_CURRENTROOT(void *a0);
 
 void GetRootPositionHandExtra(void *a0, float *a1)
@@ -1776,9 +1777,9 @@ void ChainPositionReset(char *a0)
     ResetChainNodes(cw, pos);
 }
 
-/* kept local: this TU's uses of RoundDegGV do not fit the prototype in gv.h */
+/* kept local: agrees with gv.h, which this TU does not include (_ApplyRyGV, _DistSqGV differ) */
 extern int RoundDegGV(int a0);
-/* kept local: this TU's uses of AlignDegGV do not fit the prototype in gv.h */
+/* kept local: agrees with gv.h, which this TU does not include (_ApplyRyGV, _DistSqGV differ) */
 extern int AlignDegGV(int a0);
 
 void _GetCorrectOrientOfChain(float *out, char *gobj, float *dir)

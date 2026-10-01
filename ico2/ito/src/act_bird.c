@@ -20,18 +20,21 @@
 #include <stdio.h>
 #include "typedef.h"
 #include "GsBase.h"
+#include "Matrix.h"
+#include "stageMultiBgaManager.h"
+#include "boyact.h"
 
-/* kept local: this TU's uses of ExecMotionOrient do not fit the prototype in motionOrientManager.h */
+/* kept local: agrees with motionOrientManager.h, which this TU does not include (SetMotionRequest differs) */
 extern void ExecMotionOrient();
-/* kept local: this TU's uses of iosOmSendMail do not fit the prototype in obj_manager.h */
+/* kept local: void (void *) here, int (char *, int, int) in obj_manager.h */
 extern void iosOmSendMail(void *a0);
 /* Actor sub-thread body: the actor scheduler resumes this frame after every
    _ACTWait yield, so the entry GObj lives in its stack home, not a register. */
-/* kept local: this TU's uses of SetMotionRequest do not fit the prototype in motionOrientManager.h */
+/* kept local: int (void *, int, void *) here, char * (void *, int, MotOriReq) in motionOrientManager.h */
 extern int SetMotionRequest(void *a0, int id, void *work);
-/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_sugipon;
-/* kept local: this TU's uses of InitMotionOrient do not fit the prototype in motionOrientManager.h */
+/* kept local: agrees with motionOrientManager.h, which this TU does not include (SetMotionRequest differs) */
 extern void InitMotionOrient(void *o, int a1, int a2, int a3, int a4, int a5);
 
 inline float vector_angle_degree(void *a0, void *a1)
@@ -70,9 +73,6 @@ void interp_vector_sa(float *dst, float *a, float *b, float sa)
     sceVu0AddVector(sum, va, vb);
     sceVu0DivVector(dst, sum, GetTableSin((short)(ang * 10430.378f)));
 }
-
-/* kept local: this TU's uses of _GetLengthXZ do not fit the prototype in Matrix.h */
-extern float _GetLengthXZ(void *a, void *b);
 
 typedef struct BirdMailEntry {
     /* 0x0 */ unsigned int mail;
@@ -164,11 +164,7 @@ void birdBeforeFunc(char *self)
  * bodies that are only ever inlined, so none of them has a MAIN.MAP
  * symbol and the names below are ours, chosen for what the rows do. */
 
-extern void sceVu0ScaleVector(void *dst, void *src, float s);
-extern void sceVu0SubVector(void *dst, void *a, void *b);
-extern void sceVu0UnitMatrix(void *m);
-extern void sceVu0RotMatrixY(void *dst, void *src, float ang);
-extern void sceVu0InversMatrix(void *dst, void *src);
+/* kept local: agrees with itou_sub.h, which this TU does not include (pbga_start differs) */
 extern void apply_matrix_w1(void *dst, void *m, void *src);
 
 /* rows 74-75: a point 100 units along `dir` from `p`. */
@@ -241,23 +237,26 @@ void trans_bird(void *self, float *w)
     SetRootPosition(self, pos);
 }
 
+/* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipWall(void *w);
+/* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipFloor(void *w);
+/* kept local: int (void *) here, int (int) in fieldCollision.h */
 extern int GetFloorAttribute(void *w);
-extern void EntryStageMultiBgaManager(int kind, void *pos, void *rot);
+/* kept local: void (void *, int) here, void (int *, int *) in itou_sub.h */
 extern void pbga_start(void *slot, int n);
-extern void _CopyVector(void *dst, void *src);
+/* kept local: agrees with quaternion.h, which this TU does not include (IdentityQuaternion differs) */
 extern void CopyQuaternion(void *dst, void *src);
-extern void sceVu0CopyVector(void *dst, void *src);
-extern float _GetLength(void *a, void *b);
+/* kept local: void (const char *, ...) here, void (char *, ...) in debug.h */
 extern void debug_StdPrintfDummy(const char *fmt, ...);
+/* kept local: int [] here, float [4] in quaternion.h */
 extern int IdentityQuaternion[];
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, CurrentTargetGObjSub differ) */
 extern int systemStatus[];
+/* kept local: int here, char * in main.h */
 extern int matrixptr;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *CurrentTargetGObj;
-extern void Debug_WireString_Bird(float *pos, char *fmt, ...);
 
 /* rows 256-263: point the bird `ang` radians round from where it faces. */
 static __inline__ void turn_bird(void *self, float ang)
@@ -864,10 +863,8 @@ void Debug_WireString_Bird(float *pos, char *fmt, ...)
     MatrixDrive_PopMatrix();
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *CurrentTargetGObjSub;
-/* kept local: this TU's uses of CorrectStickInfo do not fit the prototype in boyact.h */
-extern int CorrectStickInfo(void *dir, void *stick);
 
 void Debug_StickControl(char *self)
 {
@@ -898,6 +895,7 @@ void BirdGeo(int a0, int a1, int a2, int a3)
     ExecMotionOrient(a0, a1, a2, a3);
 }
 
+/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, CurrentTargetGObjSub differ) */
 extern int stage_no;
 
 /* census: ito/src/act_bird.c BirdDL, def line 1024 */
