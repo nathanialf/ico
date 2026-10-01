@@ -2,6 +2,7 @@
  * so this file is the archive's whole run. */
 #include <eeregs.h>
 #include <libvu0.h>
+#include <libvu0_internal.h>
 
 /* VU0 / COP2 macro-mode opcodes, one instruction per __asm__ block, defined
    in this file (the game tree has its own copy in
@@ -916,10 +917,11 @@ void sceVpu0Reset(void)
     }
 }
 
-void memclr(unsigned char *a0, int a1)
+void memclr(void *p, int n)
 {
+    unsigned char *c = p;
     int i;
-    for (i = a1 - 1; i != -1; i--) {
-        *a0++ = 0;
+    for (i = n - 1; i != -1; i--) {
+        *c++ = 0;
     }
 }

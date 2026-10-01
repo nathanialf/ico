@@ -3,8 +3,8 @@
 verify_elf.py — confirm the SHA-1 of an extracted or built artifact matches
 the value recorded in config/sha1sums.txt.
 
-Used by the Makefile as a build-time oracle. Exits 0 on match, non-zero on
-mismatch or missing target.
+tools/build.sh setup runs it on the base ELF and ROM. Exits 0 on match,
+non-zero on mismatch or missing target.
 
 config/sha1sums.txt is keyed by BASENAME (baseelf.elf / baseelf.rom) on every
 branch — each branch records only its own target's hashes — so the same

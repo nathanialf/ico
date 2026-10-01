@@ -71,10 +71,9 @@ typedef struct {
     sceGsClear clear1;  /* 0x1D0 */
 } sceGsDBuff;
 
-/* this member's own declaration; libgraph.h declares it as `void *sceGsGetGParam(void)` */
+/* returns this member's own GParam record; libgraph.h returns void * */
 extern GParam *sceGsGetGParam(void);
-/* libgraph.h's prototypes, declared here because this member views the
-   records through its own field-level types and does not include it. */
+/* libgraph.h's prototypes over this member's own field-level record types */
 extern short sceGszbufaddr(short psm, short w, short h);
 extern void sceGsSetDefDispEnv(sceGsDispEnv *disp, short psm, short w, short h, short dx, short dy);
 extern int sceGsSetDefDrawEnv(sceGsDrawEnv *env, short psm, short w, short h, short ztst,

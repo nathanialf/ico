@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <eeregs.h>
 #include <libdma.h>
+#include <libvu0_internal.h>
 
 /* The member's .data in link order (0xAC): the three globals dch,
  * sceDmaDebugMode and sceDmaCurrentEnv. */
@@ -37,9 +38,6 @@ int sceDmaGetChan(unsigned int a0)
     }
     return 0;
 }
-
-/* libvu0's memclr takes unsigned char *, and this member passes its DmaEnv */
-extern void memclr(void *p, int n);
 
 int sceDmaReset(int mode)
 {

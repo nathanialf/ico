@@ -25,10 +25,6 @@ void sceMpegInit(void)
     sceIpuInit();
 }
 
-/* libmpeg.h leaves it out: this member passes an argument its definition does not
-   take */
-extern int sceMpegClearRefBuff();
-
 int sceMpegCreate(void *self, void *buf, int size)
 {
     char *p = (char *)((((unsigned int)buf + 3) >> 2) << 2);
@@ -193,7 +189,7 @@ void sceMpegReset(int *a0)
     _initSeqAgain();
 }
 
-int sceMpegClearRefBuff(void)
+int sceMpegClearRefBuff(void *mp)
 {
     if (_forwFrame != 0)
         *(int *)((char *)_forwFrame + 0x28) = 0;

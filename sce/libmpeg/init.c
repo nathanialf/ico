@@ -5,6 +5,7 @@
 #include <eeregs.h>
 #include <eekernel.h>
 #include <stdio.h>
+#include <libipu.h>
 
 void _initSeqAgain(void)
 {
@@ -47,11 +48,7 @@ MpegHandle *_theSceMpeg = 0;
 
 int _bsDatap = 0;
 
-/* var.o's _mbcont (sce/libmpeg/libmpeg_internal.h's MCState) as this member
-   declares it, only the words _clearOnce sets: the first record's two
-   scratchpad areas as ints, the second record's as pointers, and the
-   current-record index as a float.  init.o and mpc.o are separate archive
-   members, each compiled against its own view of the same words. */
+/* _mbcont as _clearOnce's stores type it: record 1's buffers as pointers, the index as a float */
 extern struct mbcontInit { /* derived name */
     int refBuf0;           /* 0x000 */
     int ipuBuf0;           /* 0x004 */
@@ -73,9 +70,6 @@ void _clearOnce(void)
     _mbcont.ipuBuf1 = (void *)(v + 0x3300);
     _mbcont.cur = 0.0f;
 }
-
-/* libipu.h declares sceIpuSync(int); this member passes two arguments */
-extern int sceIpuSync();
 
 /* Same hardware-register rule as sceMpegInit: volatile everywhere except the
    second write of the enable register at 0x1000F590. */

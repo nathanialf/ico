@@ -10,10 +10,10 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-int _printf_r(int *self, int b, ...)
+int _printf_r(Reent *ptr, const char *fmt, ...)
 {
-    void *args = (char *)__builtin_next_arg(b) - 0x30;
-    return _vfprintf_r(self, self[2], b, args);
+    char *ap = (char *)__builtin_next_arg(fmt) - 0x30;
+    return _vfprintf_r(ptr, ptr->out, fmt, ap);
 }
 
 int printf(const char *fmt, ...)

@@ -4,15 +4,13 @@
 #include <string.h>
 #include <reent.h>
 #include <unistd.h>
+#include <libc_internal.h>
+#include <locale.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
-
-/* this member does not include libc_internal.h, whose _vfprintf_r conflicts with its own */
-extern int _vfprintf_r();
-extern int __sfvwrite();
 
 /* The stdio stream, as this libc lays it out: __sbprintf builds one on its own
    stack so a line-buffered stream is written through a full-size buffer. */
@@ -107,29 +105,9 @@ typedef int wchar_t;
 #define __SERR 0x0040
 #define NULL 0
 
-/* this member does not include libc_internal.h, whose _vfprintf_r conflicts with its own */
-extern int __sfvwrite(Fil *fp, struct __suio *uio);
-extern int __swsetup(Fil *fp);
-/* this member does not include libc_internal.h, whose _vfprintf_r conflicts with its own */
-extern void __sinit(Reent *ptr);
-/* stdlib.h leaves it out: its definition's argument list does not fit this member's
-   calls */
-extern int _mbtowc_r(Reent *ptr, wchar_t *pwc, const char *s, int n, int *state);
-/* this member's own declaration; math.h declares it as `int isinf(long long x)` */
+/* called with a double; math.h and s_isinf.c/s_isnan.c take the bits as a long long */
 extern int isinf(double d);
-/* this member's own declaration; math.h declares it as `int isnan(long long x)` */
 extern int isnan(double d);
-/* stdlib.h leaves it out: its definition takes dtoa.c's own DtoaReent record */
-extern char *_dtoa_r(Reent *ptr, double d, int mode, int ndigits, int *decpt, int *sign,
-                     char **rve);
-
-/* locale.h: only the first member is read here. */
-struct lconv {
-    char *decimal_point; /* 0x0 */
-};
-
-/* No header declares it; its definition in sce/libc/locale returns void * */
-extern struct lconv *localeconv(void);
 
 #define _REENT (_impure_ptr)
 #define CHECK_INIT(fp)                                                                             \

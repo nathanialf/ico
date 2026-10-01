@@ -1,5 +1,6 @@
 /* libkernl.a(kprintf.o) */
 #include <eekernel.h>
+#include <libkernl_internal.h>
 
 int kputchar(int c)
 {
@@ -14,11 +15,6 @@ int kputchar(int c)
 }
 
 typedef void (*PutcharFn)(int c);
-/* this member does not include libkernl_internal.h, whose kputs conflicts with its
-   own */
-extern void deci2Putchar(int c);
-/* this member's own declaration; libkernl_internal.h declares it as `void kputs(int a0)` */
-extern void kputs(char *s);
 
 /* deci2Putchar's line buffer and its fill count; kputs sends a full line. */
 static int deci2_count = 0; /* derived name */
@@ -90,10 +86,6 @@ int ftoi(unsigned long long a)
     }
     return (int)m;
 }
-
-/* this member does not include libkernl_internal.h, whose kputs conflicts with its
-   own */
-extern void kprintf(char *fmt, ...);
 
 void printfloat(double v)
 {

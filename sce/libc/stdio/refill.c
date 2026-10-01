@@ -2,20 +2,16 @@
 #include <reent.h>
 #include <stdlib.h>
 #include <libc_internal.h>
+#include <stdio.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
 
-/* fflush is reached both with and without an argument in this member; the
-   declaration is left unprototyped. */
-/* not declared in stdio.h */
-extern int fflush();
-
-int lflush(void)
+int lflush(Fil *fp)
 {
-    return fflush();
+    return fflush(fp);
 }
 
 int __srefill(Fil *fp)

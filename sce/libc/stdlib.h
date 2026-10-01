@@ -18,7 +18,7 @@ int atoi(void *a0);                                                      /* defi
 void qsort(void *base, unsigned int n, unsigned int size, int (*cmp)()); /* definition in sce/ */
 int rand(void);                                                          /* definition in sce/ */
 double strtod(const char *s00, char **se);                               /* definition in sce/ */
-long long strtol(void *a0, int a1, int a2);                              /* definition in sce/ */
+long strtol(const char *s, char **ptr, int base);                        /* definition in sce/ */
 extern int __mb_cur_max; /* definition in sce/ (locale.c) */
 
 #define MB_CUR_MAX __mb_cur_max
@@ -28,8 +28,8 @@ extern int __mb_cur_max; /* definition in sce/ (locale.c) */
 extern const double __mprec_tens[];
 extern const double __mprec_bigtens[];
 extern const double __mprec_tinytens[];
-void abort(void);                            /* definition in sce/ */
-long long strtoul(void *a0, int a1, int a2); /* definition in sce/ */
+void abort(void);                                           /* definition in sce/ */
+unsigned long strtoul(const char *s, char **ptr, int base); /* definition in sce/ */
 
 struct Reent;
 
@@ -41,6 +41,8 @@ void *_realloc_r(struct Reent *reent_ptr, void *oldmem,
 
 void *_calloc_r(struct Reent *reent_ptr, unsigned int n,
                 unsigned int elem_size); /* definition in sce/ */
+
+int _mbtowc_r(struct Reent *r, int *pwc, const char *s, int n, int *state); /* definition in sce/ */
 
 unsigned long _strtoul_r(struct _reent *rptr, const char *nptr, char **endptr,
                          int base); /* definition in sce/ */

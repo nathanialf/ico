@@ -59,17 +59,6 @@ union double_union {
 #define n_bigtens 5
 #define Bcopy(x, y)                                                                                \
     memcpy((char *)&x->_sign, (char *)&y->_sign, y->_wds * sizeof(Long) + 2 * sizeof(int))
-
-/* math.h's HUGE_VAL, the shared +infinity constant of s_infconst.o. */
-union __dmath {
-    ULong i[2];
-    double d;
-};
-
-/* Its definition in sce/libc/s_infconst.c is one union, not this member's array */
-extern const union __dmath __infinity[1];
-
-#define HUGE_VAL (__infinity[0].d)
 #define tens __mprec_tens
 #define bigtens __mprec_bigtens
 #define tinytens __mprec_tinytens

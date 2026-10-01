@@ -40,14 +40,14 @@ void kProbeTLBEntry(void);              /* the spelling at 1 site, asm definitio
 void kPutTLBEntry(void);                /* the spelling at 1 site, asm definition in sce/ */
 void kSetTLBEntry(void);                /* the spelling at 1 site, asm definition in sce/ */
 void kprintf(char *fmt, ...);           /* definition in sce/ */
-void kputs(int a0);                     /* definition in sce/ */
-void sceDeci2ExRecv(int a0, int a1, unsigned short a2);              /* definition in sce/ */
-void sceDeci2ExSend(int a0, int a1, unsigned short a2);              /* definition in sce/ */
+void kputs(char *s);                    /* definition in sce/ */
+int sceDeci2ExRecv(int a0, int a1, unsigned short a2);               /* definition in sce/ */
+int sceDeci2ExSend(int a0, int a1, unsigned short a2);               /* definition in sce/ */
 int sceDeci2Open(unsigned short protocol, void *opt, void *handler); /* definition in sce/ */
 void sceDeci2Poll(int a0);                                           /* definition in sce/ */
-void sceDeci2ReqSend(int a0, signed char a1);                        /* definition in sce/ */
+int sceDeci2ReqSend(int a0, signed char a1);                         /* definition in sce/ */
 int sceFsInit(void);                                                 /* definition in sce/ */
-void sceResetttyinit(int a0);                                        /* definition in sce/ */
+void sceResetttyinit(void);                                          /* definition in sce/ */
 void sceTtyHandler(int event, int param, void *opt);                 /* definition in sce/ */
 int sceTtyInit(void);                                                /* definition in sce/ */
 int sceTtyRead(void *buf, int size);                                 /* definition in sce/ */

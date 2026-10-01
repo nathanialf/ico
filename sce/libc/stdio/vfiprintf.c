@@ -90,10 +90,6 @@ struct __suio {
     int uio_resid;          /* 0x8 */
 };
 
-/* stdlib.h leaves it out: its definition's argument list does not fit this member's
-   calls */
-extern int _mbtowc_r(void *r, int *pwc, const char *s, int n, int *state);
-
 #define NULL 0
 #define _REENT ((void *)_impure_ptr)
 

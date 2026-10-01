@@ -117,12 +117,12 @@ def label_sources():
 
 
 def write_labels(out):
-    """Transitional: the placeholders a source still gives addresses inside the
-    extracted tables. config/data_members.pal.txt carries MAIN.MAP's names and
-    the few derived names the C reads a table by; a C or assembly file that reads
-    a table at an interior offset by a placeholder (D_<VMA>, the address is the
-    name) needs that label defined. Only names some source spells are written,
-    so the file empties as the readers take their tables' real names."""
+    """The address-named labels (D_<VMA>) sources use inside the extracted
+    tables. config/data_members.pal.txt carries MAIN.MAP's names and the few
+    derived names the C reads a table by; a C or assembly file that reads a
+    table at an interior offset, where MAIN.MAP names no symbol, spells the
+    address as the name, and the extractor defines that label. Only names some
+    source spells are written."""
     rows = []
     for line in (ROOT / TABLE).read_text().splitlines():
         f = line.split("#", 1)[0].split()

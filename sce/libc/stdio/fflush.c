@@ -14,9 +14,6 @@ struct D520 {
 #define __SERR 0x0040
 #define EOF (-1)
 
-/* this member's own declaration; libc_internal.h declares it as `int _fwalk(Reent *ptr, int (*function)())` */
-extern int _fwalk(Reent *r, int (*func)());
-
 int fflush(Fil *fp)
 {
     register unsigned char *p;

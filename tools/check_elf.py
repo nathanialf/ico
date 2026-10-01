@@ -77,7 +77,6 @@ REPORT_ORDER = [".text", ".vutext", ".data", ".vudata", ".rodata",
                 ".lit4", ".sdata", ".sbss", ".bss"]
 OWNED_ROOTS = ("build/ico2/", "build/sce/")
 EXTRACTED_ROOT = "build/data/"
-BLOB_ROOT = "build/asm/"
 VUTEXT_GROUP = ".vutext"
 VUTEXT_NOTE = (
     "VU1 microprograms in the .vutext ELF section: ico2/vusrc/*.dsm, "
@@ -246,8 +245,6 @@ def owner_class(obj: str | None) -> str:
         return "owned"
     if obj.startswith(EXTRACTED_ROOT):
         return "extracted"
-    if obj.startswith(BLOB_ROOT):
-        return "blob"
     return "other"
 
 
@@ -354,10 +351,10 @@ class Comparison:
                 yield r, a, b
 
     def credit(self, s: dict) -> dict[str, int]:
-        """{owned, extracted, blob, other, none} bytes of section s; for
+        """{owned, extracted, other, none} bytes of section s; for
         PROGBITS only bytes identical to the base count toward `owned` and
         `extracted`."""
-        out = {"owned": 0, "extracted": 0, "blob": 0, "other": 0, "none": 0,
+        out = {"owned": 0, "extracted": 0, "other": 0, "none": 0,
                "identical_owned": 0, "identical_extracted": 0}
         placed = 0
         for r, a, b in self.rows_in(s):

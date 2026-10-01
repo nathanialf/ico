@@ -19,7 +19,7 @@ int _kill_r(Reent *ptr, int pid, int sig)
     return ret;
 }
 
-int _getpid_r(void)
+int _getpid_r(Reent *ptr)
 {
     return getpid();
 }

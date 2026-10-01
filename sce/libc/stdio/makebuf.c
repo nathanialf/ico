@@ -3,6 +3,7 @@
 #include <sys/stat.h>
 #include <libc_internal.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 struct D520 {
     char pad0[8];
@@ -18,9 +19,6 @@ struct D520 {
 #define __SNPT 0x0800
 #define __SMOD 0x0080
 #define BUFSIZ 1024
-
-/* this member's own declaration; unistd.h declares it as `int isatty(void)` */
-extern int isatty(int fd);
 
 void __smakebuf(Fil *fp)
 {

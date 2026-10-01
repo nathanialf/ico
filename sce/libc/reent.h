@@ -108,5 +108,7 @@ struct stat;
 
 int _fstat_r(Reent *ptr, int fd, struct stat *pstat); /* definition in sce/ */
 int _sbrk_r(Reent *ptr, int incr);                    /* definition in sce/ */
+int _kill_r(Reent *ptr, int pid, int sig);            /* definition in sce/ */
+int _getpid_r(Reent *ptr);                            /* definition in sce/ */
 
 #endif /* SCE_LIBC_REENT_H */

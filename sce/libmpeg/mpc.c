@@ -8,9 +8,7 @@
 #include <eekernel.h>
 #include <stdio.h>
 
-/* var.o's _mbcont as this member reads it, the two macroblock records
-   indexed by the current one.  init.o declares the same words its own way
-   (sce/libmpeg/init.c). */
+/* _mbcont as MCState; init.c declares the same words with its own store types */
 extern MCState _mbcont;
 
 int _motionComp0(int a0, int a1, int a2, int a3, int *PMV, int *mv_field_sel, int *dmvector)

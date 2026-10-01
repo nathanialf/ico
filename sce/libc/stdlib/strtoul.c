@@ -74,7 +74,7 @@ unsigned long _strtoul_r(struct _reent *rptr, const char *nptr, char **endptr, i
     return acc;
 }
 
-long long strtoul(void *a0, int a1, int a2)
+unsigned long strtoul(const char *s, char **ptr, int base)
 {
-    return _strtoul_r((void *)_impure_ptr, a0, a1, a2);
+    return _strtoul_r((struct _reent *)_impure_ptr, s, ptr, base);
 }

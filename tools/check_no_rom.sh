@@ -54,13 +54,11 @@ done
 # --- 3. size cap outside allowlisted dirs ---
 # Non-source files keep the tight 256 KiB cap (catches stray binary/asset
 # dumps). Tracked C source (ico2/ and sce/ *.c/*.h/*.c.inc) gets a
-# higher 8 MiB ceiling: Phase 3e inlines per-TU data into the .c as typed
-# C (word arrays, strings, structs), which legitimately pushes some TUs
-# past 256 KiB. Their CONTENT is still gated by rule #5 below (raw
-# byte-array dumps banned), so a large .c is verified typed source, not
-# laundered ROM. The 8 MiB ceiling stays as a backstop against a runaway
-# blob.
-allow_large_re='^(tools/toolchain/|tools/ghidra/|\.git/|lib/)'
+# higher 8 MiB ceiling: some TUs hold their data as typed C (word arrays,
+# strings, structs), which pushes them past 256 KiB. Their CONTENT is still
+# gated by rule #5 below (raw byte-array dumps banned), so a large .c is
+# typed source, not laundered ROM. The 8 MiB ceiling stays as a backstop.
+allow_large_re='^(tools/ghidra/|\.git/)'
 src_large_re='^(ico2|sce|include)/.*\.(c|h|c\.inc|inc)$'
 for f in "${files[@]}"; do
     [[ -z "$f" ]] && continue
@@ -104,22 +102,19 @@ for f in "${files[@]}"; do
     fi
 done
 
-# --- 5. raw byte-array initializers in tracked src/ ---
-# The auto-generated `src/<TU>_data.c` sidecars (gitignored) emit
-# `unsigned char D_<VMA>[N] = { 0x..., ... }` — that's raw bytes from the
-# original ELF, not a developer reconstruction. Tracked `src/**/*.c` must
-# use TYPED forms (string literals, ints, floats, named pointer arrays,
-# struct literals). If a hand-promoted file slips in a byte-array
-# initializer, fail the commit — the bytes shouldn't be laundered into the
-# tracked tree.
+# --- 5. raw byte-array initializers in tracked C ---
+# An `unsigned char D_<VMA>[N] = { 0x..., ... }` initializer is raw bytes
+# from the original ELF, not a developer reconstruction. Tracked C under
+# ico2/ and sce/ uses TYPED forms (string literals, ints, floats, named
+# pointer arrays, struct literals); a byte-array initializer fails the
+# commit, so the bytes are never laundered into the tracked tree. (The
+# data-only members are extracted at build time instead: tools/extract_data.py.)
 #
-# The match is on the byte-array SHAPE itself, with the
-# `__attribute__((section(...)))` prefix OPTIONAL: after a Phase 3d/3e
-# strip or inline-migration the attr is gone, but a plain
-# `unsigned char D_X[N] = { 0xAB, 0xCD, ... }` is just as much a raw dump
-# and must still be caught. The shape requires the first brace element to
-# be a hex byte AND at least one comma (>=2 elements), so the legitimate
-# inline forms a data carve emits all pass:
+# The match is on the byte-array SHAPE itself, with an
+# `__attribute__((section(...)))` prefix OPTIONAL: a plain
+# `unsigned char D_X[N] = { 0xAB, 0xCD, ... }` is just as much a raw dump.
+# The shape requires the first brace element to be a hex byte AND at least
+# one comma (>=2 elements), so the legitimate typed forms all pass:
 #   - all-zero `{ 0 };`        (no comma — never matches)
 #   - strings `= "...";`       (no brace — never matches)
 #   - word/short `unsigned int D_X[N] = { 0x.., .. }`  (non-byte type)
@@ -130,19 +125,15 @@ raw_byte_re="^[[:space:]]*${attr_opt_re}(const[[:space:]]+)?${byte_type_re}[[:sp
 for f in "${files[@]}"; do
     [[ -z "$f" ]] && continue
     [[ ! -f "$f" ]] && continue
-    # Only check tracked src/ .c files; skip gitignored *_data.c sidecars
-    # (those are expected to be raw bytes) and anything outside src/.
+    # Only tracked C under ico2/ and sce/.
     case "$f" in
-        src/*.c) ;;
+        ico2/*.c|ico2/*.c.inc|sce/*.c) ;;
         *) continue ;;
-    esac
-    case "$f" in
-        */[!/]*_data.c|*_data.c) continue ;;
     esac
     if grep -nE "${raw_byte_re}" "$f" >/dev/null 2>&1; then
         note "raw byte-array initializer in tracked source: $f"
         note "  ICO data sections must be typed (string literal / int / float /"
-        note "  named pointer array / struct), not raw bytes. See docs/MATCH_DATA.md."
+        note "  named pointer array / struct), not raw bytes. See docs/LEGAL.md."
         grep -nE "${raw_byte_re}" "$f" 2>&1 | head -3 >&2
     fi
 done

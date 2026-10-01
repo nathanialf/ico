@@ -5,6 +5,7 @@
 #include <signal.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <libkernl_internal.h>
 
 /* glue.o's .data: whether the tty is open (write and read open it on first
    use), then sbrk's current break, which starts at the end of the program's
@@ -17,14 +18,10 @@ static int tty_opened = 0;
 
 static char *heap_ptr = _end;
 
-/* unprototyped: sceResetttyinit passes the port, write and read call it bare */
-/* not declared in libkernl_internal.h */
-extern int sceTtyInit();
-
-void sceResetttyinit(int a0)
+void sceResetttyinit(void)
 {
     tty_opened = 0;
-    sceTtyInit(a0);
+    sceTtyInit();
 }
 
 /* VSync polls INTC_STAT (0x1000F000) for the VBLANK bit and clears it: a
@@ -69,10 +66,6 @@ long long VSync2(void)
     *p = 4;
     return val;
 }
-
-/* not declared in libkernl_internal.h */
-extern int sceTtyWrite(char *buf, int len);
-extern int sceTtyRead(void *buf, int size);
 
 int write(int fd, void *buf, int size)
 {
@@ -184,7 +177,7 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 
-int isatty(void)
+int isatty(int fd)
 {
     return 1;
 }

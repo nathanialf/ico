@@ -44,7 +44,7 @@ void sceIpuRestartDMA(void *a0)
     }
 }
 
-int sceIpuSync(int a0)
+int sceIpuSync(int a0, unsigned short timeout)
 {
     int r = 0;
     switch (a0) {

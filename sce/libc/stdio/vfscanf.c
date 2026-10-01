@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include <libc_internal.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 struct D520 {
     char pad0[8];
@@ -47,15 +48,6 @@ typedef int wchar_t;
 #define MAXFRACT 39
 #define BUF (MAXEXP + MAXFRACT + 3)
 #define EOF (-1)
-
-/* this member's own declaration; stdlib.h declares it as `long long strtol(void *a0, int a1, int a2)` */
-extern long strtol();
-/* this member's own declaration; stdlib.h declares it as `long long strtoul(void *a0, int a1, int a2)` */
-extern unsigned long strtoul();
-/* newlib atof (sce/libc/stdlib/atof): strtod with a null end pointer. */
-/* this member's own declaration; stdlib.h declares it as `double atof(const char *ascii)` */
-extern double atof(char *nptr);
-
 #define BufferEmpty (fp->r <= 0 && __srefill(fp))
 
 int __svfscanf(Fil *fp, const char *fmt0, va_list ap)

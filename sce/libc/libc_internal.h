@@ -43,22 +43,23 @@ struct mallinfo {
     int keepcost;
 };
 
-int __sread(void *cookie, char *buf, int n);                       /* definition in sce/ */
-int __swrite(void *cookie, char *buf, int n);                      /* definition in sce/ */
-long __sseek(void *cookie, long offset, int whence);               /* definition in sce/ */
-int __sclose(void *cookie);                                        /* definition in sce/ */
-void __sinit(Reent *s);                                            /* definition in sce/ */
-void __smakebuf(Fil *fp);                                          /* definition in sce/ */
-int __srefill(Fil *fp);                                            /* definition in sce/ */
-int __swsetup(Fil *fp);                                            /* definition in sce/ */
-int __sfvwrite(Fil *fp, struct __suio *uio);                       /* definition in sce/ */
-int __submore(Fil *fp);                                            /* definition in sce/ */
-char *__sccl(char *tab, char *fmt);                                /* definition in sce/ */
-int _fwalk(Reent *ptr, int (*function)());                         /* definition in sce/ */
-void _cleanup_r(Reent *ptr);                                       /* definition in sce/ */
-void std(Fil *fp, int flags, int file, Reent *data);               /* definition in sce/ */
-int _vfiprintf_r(void *data, Fil *fp, const char *fmt0, char *ap); /* definition in sce/ */
-int _vfprintf_r(int *self, int subj, int b, void *args);
+int __sread(void *cookie, char *buf, int n);                                /* definition in sce/ */
+int __swrite(void *cookie, char *buf, int n);                               /* definition in sce/ */
+long __sseek(void *cookie, long offset, int whence);                        /* definition in sce/ */
+int __sclose(void *cookie);                                                 /* definition in sce/ */
+void __sinit(Reent *s);                                                     /* definition in sce/ */
+void __smakebuf(Fil *fp);                                                   /* definition in sce/ */
+int __srefill(Fil *fp);                                                     /* definition in sce/ */
+int __swsetup(Fil *fp);                                                     /* definition in sce/ */
+int __sfvwrite(Fil *fp, struct __suio *uio);                                /* definition in sce/ */
+int __submore(Fil *fp);                                                     /* definition in sce/ */
+char *__sccl(char *tab, char *fmt);                                         /* definition in sce/ */
+int __svfscanf(Fil *fp, const char *fmt0, char *ap);                        /* definition in sce/ */
+int _fwalk(Reent *ptr, int (*function)());                                  /* definition in sce/ */
+void _cleanup_r(Reent *ptr);                                                /* definition in sce/ */
+void std(Fil *fp, int flags, int file, Reent *data);                        /* definition in sce/ */
+int _vfiprintf_r(void *data, Fil *fp, const char *fmt0, char *ap);          /* definition in sce/ */
+int _vfprintf_r(Reent *data, Fil *fp, const char *fmt0, char *ap);          /* definition in sce/ */
 _Bigint *_Balloc(Reent *ptr, int k);                                        /* definition in sce/ */
 void _Bfree(Reent *ptr, _Bigint *v);                                        /* definition in sce/ */
 _Bigint *_multadd(Reent *ptr, _Bigint *b, int m, int a);                    /* definition in sce/ */
@@ -75,6 +76,21 @@ double _ulp(double x);                                                      /* d
 double _b2d(_Bigint *a, int *e);                                            /* definition in sce/ */
 _Bigint *_d2b(Reent *ptr, double d, int *e, int *bits);                     /* definition in sce/ */
 double _ratio(_Bigint *a, _Bigint *b);                                      /* definition in sce/ */
+
+char *_dtoa_r(Reent *ptr, double _d, int mode, int ndigits, int *decpt, int *sign,
+              char **rve);                              /* definition in sce/ */
+
+/* newlib math.h's HUGE_VAL, the +infinity double s_infconst.c defines; the
+   game's math.h (sce/libm) does not carry it */
+union __dmath {
+    unsigned int i[2];
+    double d;
+};
+
+extern const union __dmath __infinity[]; /* definition in sce/ */
+
+#define HUGE_VAL (__infinity[0].d)
+
 extern struct malloc_chunk *__malloc_av_[];             /* definition in sce/ (stdlib/mallocr.c) */
 extern unsigned long __malloc_trim_threshold;           /* definition in sce/ (stdlib/mallocr.c) */
 extern unsigned long __malloc_top_pad;                  /* definition in sce/ (stdlib/mallocr.c) */

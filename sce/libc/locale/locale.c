@@ -2,34 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <reent.h>
-
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
+#include <locale.h>
 
 /* newlib's C locale.  CHAR_MAX in every numeric field is newlib's "not
    available" marker; the three strings are the only ones the member owns. */
-struct lconv {
-    char *decimal_point;
-    char *thousands_sep;
-    char *grouping;
-    char *int_curr_symbol;
-    char *currency_symbol;
-    char *mon_decimal_point;
-    char *mon_thousands_sep;
-    char *mon_grouping;
-    char *positive_sign;
-    char *negative_sign;
-    char int_frac_digits;
-    char frac_digits;
-    char p_cs_precedes;
-    char p_sep_by_space;
-    char n_cs_precedes;
-    char n_sep_by_space;
-    char p_sign_posn;
-    char n_sign_posn;
-};
 
 int __mb_cur_max = 1;
 
@@ -55,9 +31,9 @@ no_check:
     return (int)"C";
 }
 
-void *_localeconv_r(int a0)
+struct lconv *_localeconv_r(struct Reent *data)
 {
-    return (void *)&lconv;
+    return (struct lconv *)&lconv;
 }
 
 int setlocale(int a0, int a1)
@@ -65,7 +41,7 @@ int setlocale(int a0, int a1)
     return _setlocale_r((int)_impure_ptr, a0, a1);
 }
 
-void *localeconv(void)
+struct lconv *localeconv(void)
 {
-    return _localeconv_r((int)_impure_ptr);
+    return _localeconv_r(_impure_ptr);
 }

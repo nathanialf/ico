@@ -13,6 +13,7 @@
 
 int sceMpegAddCallback(void *a0, int a1, int a2, int a3); /* definition in sce/ */
 int sceMpegAddStrCallback();                              /* definition in sce/ */
+int sceMpegClearRefBuff(void *mp);
 int sceMpegCreate(void *self, void *buf, int size);
 int sceMpegDelete(void); /* definition in sce/ */
 int sceMpegDemuxPssRing(int *dec, void *p, int n, int a3, int p4);

@@ -40,7 +40,7 @@ int _sceCd_scmd_semid = -1;
 
 int _sceCd_c_cb_sem = 0;
 
-int _sceCd_ee_read_mode = 0;
+volatile int _sceCd_ee_read_mode = 0;
 
 static int ncmd_bind = -1;
 
@@ -611,7 +611,7 @@ int sceCdInit(int mode)
     diskready_bind = -1;
     init_bind = -1;
     poff_bind = -1;
-    *(volatile int *)&_sceCd_ee_read_mode = 0;
+    _sceCd_ee_read_mode = 0;
     init_count++;
     while (1) {
         r = sceSifBindRpc(init_cd, 0x80000592, 0);

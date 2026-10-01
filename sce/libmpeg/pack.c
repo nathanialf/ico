@@ -170,9 +170,9 @@ typedef struct {
     void *arg;
 } StrCb;
 
-/* Its record type is this member's own */
-extern int _pack_header(int *bs, P24D418 *pkt);
-extern int _PES_packet(int *bs, PesPkt *pkt);
+/* Their record types are this member's own */
+int _pack_header(int *bs, P24D418 *pkt);
+int _PES_packet(int *bs, PesPkt *pkt);
 
 int sceMpegDemuxPssRing(int *dec, void *p4, int size, int a3, int a4)
 {

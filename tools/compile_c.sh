@@ -28,7 +28,8 @@ OBJCOPY="${MIPS_PREFIX}objcopy"
 # every other archive from Sony's SDK install (/usr/local/sce/ee/lib, version
 # strings PsIIlib* 2200 and 2240 in the ELF). The game and the compiler-install
 # libraries were assembled by the assembler bundled with that compiler,
-# EE_AS_OLD: 142 game TUs and 12 libc/libm TUs only match under it. The
+# EE_AS_OLD: 142 game TUs and 12 libc/libm TUs give the ROM's bytes only under
+# it. The
 # SDK-install archives were compiled by a compiler code-identical to it (SCE's
 # later 2.96 is ruled out by size) but assembled by a later gas that fills
 # reorder-mode branch delay slots: sceGsSyncPath, sceScfSetT10kConfig and
@@ -45,9 +46,9 @@ EE_AS_OLD="${ROOT}/tools/cc/ee-gcc2.9-991111/bin/as"
 EE_AS_SDK="${ROOT}/tools/cc/ee-gcc2.96/bin/as"
 
 # Small-data threshold. The game (ico2/) was built at -G 8. Every SDK archive
-# under sce/ was built at -G 0: no SDK function in the ROM makes a gp-relative
-# access (0 of 208 stubs across twelve archives), the libm and libscf members
-# only match at -G 0 (li.s expands to lui/ori/mtc1, short strings and NaNs land
+# under sce/ was built at -G 0: no SDK function in the ROM, in any of the twelve
+# archives, makes a gp-relative access, the libm and libscf members give the
+# ROM's bytes only at -G 0 (li.s expands to lui/ori/mtc1, short strings and NaNs land
 # in .rodata rather than .sdata), and the whole tree is byte-identical with
 # every sce/ member at -G 0 (measured 2026-09-16). A library's own build
 # setting is a fact of that archive, not a per-function lever.
@@ -68,7 +69,7 @@ EE_AS_SDK="${ROOT}/tools/cc/ee-gcc2.96/bin/as"
 # archives were built without it. Measured: Info-ZIP's plain huft_build text,
 # the shape the listing's line map shows, gives the ROM's 498 words only with
 # -g (a line note left after the deleted break keeps cse_around_loop off the
-# body's load); every other matched game TU is byte-identical with or without
+# body's load); every other game TU is byte-identical with or without
 # it; the January listing, a build with line information for certain, agrees
 # with the retail words on that region where the no-g build does not; and with
 # -g the SDK archives lose the delay-slot fills their assembler gave them, so
@@ -98,12 +99,12 @@ for _a in libc libm libvu0 libkernl libpkt libgraph libdma libpad libscf libmpeg
     SCE_INCS="${SCE_INCS} -I${ROOT}/sce/${_a}"
 done
 CFLAGS="-S ${DBG} ${COMMON} -G ${GNUM} -O2 -mips3 -EL ${BUILTIN} -nostdinc${SCE_INCS}"
-# DUMP MODE (2026-09-27): `DUMP_DIR=<dir> tools/compile_c.sh <src> <obj>` adds -da (every RTL
+# DUMP MODE: `DUMP_DIR=<dir> tools/compile_c.sh <src> <obj>` adds -da (every RTL
 # pass dump) under the SAME per-origin flags and assembler, then moves the dumps gcc wrote
 # beside the source into DUMP_DIR so nothing lands under ico2/ or sce/. DUMP_FLAGS may add
 # further dump-only options (-d<letters> or -fsched-verbose-N); anything else is refused
 # because it would change the code. The object is still produced and is a real measurement.
-# This replaces running cc1 or ee-gcc by hand, which lost the harness's flags.
+# Running cc1 or ee-gcc by hand would lose these flags.
 if [ -n "${DUMP_DIR:-}" ]; then
     mkdir -p "${DUMP_DIR}"
     for _f in ${DUMP_FLAGS:-}; do

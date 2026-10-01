@@ -22,7 +22,7 @@ typedef struct {
 } SysBit;
 
 /* Its record type is this member's own */
-extern void _sysbitFlush(SysBit *bs, int n);
+void _sysbitFlush(SysBit *bs, int n);
 
 void _sysbitInit(int *a0, int a1, int a2, int a3)
 {

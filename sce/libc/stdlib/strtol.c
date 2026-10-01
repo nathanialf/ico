@@ -81,7 +81,7 @@ long _strtol_r(struct _reent *rptr, const char *nptr, char **endptr, int base)
     return acc;
 }
 
-long long strtol(void *a0, int a1, int a2)
+long strtol(const char *s, char **ptr, int base)
 {
-    return _strtol_r((struct _reent *)_impure_ptr, a0, (char **)a1, a2);
+    return _strtol_r((struct _reent *)_impure_ptr, s, ptr, base);
 }

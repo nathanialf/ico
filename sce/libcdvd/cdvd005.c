@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <sifrpc.h>
 #include <libcdvd.h>
+#include <libcdvd_internal.h>
 
 typedef struct {
     int lsn;
@@ -16,37 +17,12 @@ typedef struct {
     int *cur_pos;
 } CdReadCmd;
 
-/* The EE read-mode word is set by sceCdSetEEReadMode from any thread and is
-   read twice here around calls: volatile. */
-/* this member's own declaration; libcdvd_internal.h declares it as `int _sceCd_ee_read_mode` */
-extern volatile int _sceCd_ee_read_mode;
-/* this member's own declaration; libcdvd_internal.h declares it as `int _sceCd_ncmdsdata[]` */
-extern CdReadCmd _sceCd_ncmdsdata[];
-/* this member does not include libcdvd_internal.h, whose _sceCd_c_cb_sem,
-   _sceCd_cd_read_intr, _sceCd_ee_read_mode, _sceCd_ncmdsdata conflict with its own */
-extern int _sceCd_rd_intr_data[];
-extern int _sceCd_Read_cur_pos[];
-extern int _sceCd_cd_ncmd[];
-extern int _sceCd_ncmd_semid;
-extern int SCE_CD_debug;
-/* Shared with the SIF RPC end interrupt and the callback thread (cdvd000),
-   as in sceCdReadIOPm (cdvd006): volatile, and the failure arm reads the
-   semaphore id per access. */
-/* this member does not include libcdvd_internal.h, whose _sceCd_c_cb_sem,
-   _sceCd_cd_read_intr, _sceCd_ee_read_mode, _sceCd_ncmdsdata conflict with its own */
-extern volatile int sceCdCbfunc_num;
-/* this member's own declaration; libcdvd_internal.h declares it as `int _sceCd_c_cb_sem` */
+/* volatile here; cdvd000 defines it plain and releases it with plain stores */
 extern volatile int _sceCd_c_cb_sem;
-/* this member's own declaration; libcdvd_internal.h declares it as `void _sceCd_cd_read_intr(void *pkt)` */
-extern void _sceCd_cd_read_intr(void);
-/* this member does not include libcdvd_internal.h, whose _sceCd_c_cb_sem,
-   _sceCd_cd_read_intr, _sceCd_ee_read_mode, _sceCd_ncmdsdata conflict with its own */
-extern int sceCdNcmdDiskReady(void);
-extern int _sceCd_ncmd_prechk(int a0);
 
 int sceCdRead(int lsn, int sectors, void *buf, CdRMode *mode)
 {
-    CdReadCmd *sd = _sceCd_ncmdsdata;
+    CdReadCmd *sd = (CdReadCmd *)_sceCd_ncmdsdata;
     int size;
 
     if ((_sceCd_ee_read_mode & 1) == 0) {

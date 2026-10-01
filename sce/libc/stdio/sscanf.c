@@ -1,33 +1,25 @@
 /* libc.a member sscanf.o */
 #include <string.h>
 #include <reent.h>
+#include <libc_internal.h>
 #include <stdio.h>
 
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
-int eofread(void)
+int eofread(void *cookie, char *buf, int len)
 {
     return 0;
 }
 
-/* libc_internal.h leaves it out: its definition takes vfscanf.c's own va_list */
-extern int __svfscanf(void *a0, void *a1, void *a2);
-
 int sscanf(void *a0, void *a1, ...)
 {
-    char buf[0x60];
+    Fil f;
     char *va;
-    int len;
-    *(short *)(buf + 0xC) = 4;
-    *(int *)(buf + 0x10) = *(int *)(buf + 0x0) = (int)a0;
-    *(int *)(buf + 0x14) = *(int *)(buf + 0x4) = len = strlen(a0);
-    *(int *)(buf + 0x20) = (int)eofread;
-    *(int *)(buf + 0x30) = 0;
-    *(int *)(buf + 0x44) = 0;
-    *(int *)(buf + 0x54) = (int)_impure_ptr;
+    f.flags = 4;
+    f.bf.base = f.p = a0;
+    f.bf.size = f.r = strlen(a0);
+    f.read = eofread;
+    f.ub.base = 0;
+    f.lb.base = 0;
+    f.data = _impure_ptr;
     va = (char *)__builtin_next_arg(a1) - 48;
-    return __svfscanf(buf, a1, va);
+    return __svfscanf(&f, a1, va);
 }

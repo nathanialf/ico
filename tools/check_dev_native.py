@@ -25,9 +25,8 @@ pins are fine only where the developers' own source was assembly).
   5. tools/compile_c.sh names exactly two assemblers, ee-as 2.9-991111
      (EE_AS_OLD, the game and the compiler-install libc/libm/libgcc) and SCE's
      2.10-ee-001003-1 (EE_AS_SDK, the SDK-install archives), and SELECTED_EE_AS
-     is only ever one of those two, chosen by archive: no selection by TU or by
-     function and no config opt-in (user ruling 2026-09-27, replacing the
-     one-assembler ruling of 2026-09-23 after the disc's link was measured).
+     is only ever one of those two, chosen by archive as the disc's link shows:
+     no selection by TU or by function and no config opt-in.
   6. A file-scope `__asm__(...)` block that defines (`.global NAME`) a function
      the listing attributes to three or more source lines of a .c file: that is
      a compiled-C function typed out as asm, and it is written as C instead.
@@ -134,8 +133,8 @@ def asm_block_text(L, i):
 
 
 def check_one_assembler(bad):
-    """user ruling 2026-09-27: two assemblers selected per archive by the disc's link,
-    never per TU, never per function, never by a config file."""
+    """two assemblers selected per archive by the disc's link, never per TU,
+    never per function, never by a config file."""
     path = os.path.join(ROOT, 'tools', 'compile_c.sh')
     if not os.path.exists(path):
         return
@@ -185,12 +184,11 @@ def main(argv):
             if re.match(r'^\s*do\s*\{\s*$', l) and i + 1 < len(L) and re.match(r'^\s*\}\s*while\s*\(0\)\s*;', L[i+1]):
                 bad.append(f'{f}:{i+1}: empty do {{ }} while (0); (a loop note with no code)')
             if EMPTY_ASM.search(l):
-                # USER RULING 2026-09-27 (CLAUDE.md 'the sce/ archive asm exception'): a member of
-                # an SDK archive under sce/ (never ico2/, never the public libc/libm/libgcc
-                # sources) may keep an empty asm statement standing in for Sony's own text when
-                # the site is allowlisted as `path:asm:function | reason` AND a RECONSTRUCTION
-                # comment sits within the twelve lines above it; the supervisor adds the row at
-                # harvest after the five-pass rule and the fact checklist.
+                # The sce/ archive asm exception: a member of an SDK archive under sce/
+                # (never ico2/, never the public libc/libm/libgcc sources) may keep an empty
+                # asm statement standing in for Sony's own text when the site is allowlisted
+                # as `path:asm:function | reason` AND a RECONSTRUCTION comment sits within
+                # the twelve lines above it; the allowlist row names the evidence.
                 fn = enclosing_function(L, i)
                 sdk = f.startswith('sce/') and not f.startswith(('sce/libc/', 'sce/libm/', 'sce/libgcc/'))
                 marked = any('RECONSTRUCTION' in L[k] for k in range(max(0, i - 12), i))

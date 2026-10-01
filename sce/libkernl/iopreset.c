@@ -52,7 +52,7 @@ int sceSifSyncIop(void)
 {
     if (sceSifGetReg(4) & 0x40000) {
         sceSifSetReg(4, 0x40000);
-        ((void (*)(void))sceResetttyinit)();
+        sceResetttyinit();
         return 1;
     }
     return 0;

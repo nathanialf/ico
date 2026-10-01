@@ -11,9 +11,9 @@
 #ifndef SCE_LIBIPU_LIBIPU_H
 #define SCE_LIBIPU_LIBIPU_H
 
-void sceIpuStopDMA(void *a0);    /* definition in sce/ */
-void sceIpuInit(void);           /* definition in sce/ */
-void sceIpuRestartDMA(void *a0); /* definition in sce/ */
-int sceIpuSync(int a0);          /* definition in sce/ */
+void sceIpuStopDMA(void *a0);                   /* definition in sce/ */
+void sceIpuInit(void);                          /* definition in sce/ */
+void sceIpuRestartDMA(void *a0);                /* definition in sce/ */
+int sceIpuSync(int a0, unsigned short timeout); /* definition in sce/ */
 
 #endif /* SCE_LIBIPU_LIBIPU_H */

@@ -100,9 +100,9 @@ typedef struct {
     unsigned char year;
 } sceCdCLOCK;
 
-/* No libc header in this tree declares __assert, and its definition in
-   sce/libc/stdlib/assert.c takes three ints */
-extern void __assert(char *file, int line, char *expr);
+/* newlib's <assert.h> declaration, written out with the macro above (no
+   assert.h on this archive's include path); assert.c defines it */
+extern void __assert(const char *file, int line, const char *failedexpr);
 void AdjustTime(sceCdCLOCK *prtc, int diff);
 void convertfrombcd(sceCdCLOCK *prtc);
 void converttobcd(sceCdCLOCK *prtc);

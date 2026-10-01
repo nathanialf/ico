@@ -13,8 +13,8 @@
 extern int SCE_CD_debug;
 extern int _sceCd_ncmd_semid;
 extern int _sceCd_scmd_semid;
-extern int _sceCd_c_cb_sem;
-extern int _sceCd_ee_read_mode;
+/* volatile: sceCdSetEEReadMode sets the EE read-mode word from any thread */
+extern volatile int _sceCd_ee_read_mode;
 /* volatile: the pending-callback id the callback thread polls and clears */
 extern volatile int sceCdCbfunc_num;
 extern int _sceCd_ncmdrdata[];

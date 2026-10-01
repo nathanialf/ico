@@ -1,5 +1,6 @@
 /* libkernl.a(tty.o) */
 #include <eekernel.h>
+#include <libkernl_internal.h>
 
 typedef struct {
     int f0;
@@ -59,17 +60,6 @@ void QueuePeekReadDone(RingBuf_241C80 *a0)
         a0->f8 = (char *)a0 + 0x10;
     }
 }
-
-/* unprototyped: two of the four call sites pass a second argument */
-/* this member does not include libkernl_internal.h, whose sceDeci2ExRecv,
-   sceDeci2ExSend, sceDeci2ReqSend conflict with its own */
-extern void kprintf();
-/* this member's own declaration; libkernl_internal.h declares it as `void sceDeci2ExRecv(int a0, int a1, unsigned
-   short a2)` */
-extern int sceDeci2ExRecv(int s, int buf, unsigned short len);
-/* this member's own declaration; libkernl_internal.h declares it as `void sceDeci2ExSend(int a0, int a1, unsigned
-   short a2)` */
-extern int sceDeci2ExSend(int s, int buf, unsigned short len);
 
 /* the tty socket record at tty_rec as the handler sees it.  The four header
    words are volatile, the view sceTtyInit and sceTtyWrite already take (the
@@ -135,12 +125,6 @@ void sceTtyHandler(int event, int param, void *opt)
     }
     tty->busy = 0;
 }
-
-/* this member's own declaration; libkernl_internal.h declares it as `void sceDeci2ReqSend(int a0, signed char a1)` */
-extern int sceDeci2ReqSend(int s, int c);
-/* this member does not include libkernl_internal.h, whose sceDeci2ExRecv,
-   sceDeci2ExSend, sceDeci2ReqSend conflict with its own */
-extern void sceDeci2Poll(int s);
 
 int sceTtyWrite(char *buf, int len)
 {
@@ -213,11 +197,6 @@ int sceTtyRead(void *buf, int size)
     }
     return i;
 }
-
-/* this member does not include libkernl_internal.h, whose sceDeci2ExRecv,
-   sceDeci2ExSend, sceDeci2ReqSend conflict with its own */
-extern int sceDeci2Open(unsigned short protocol, void *opt, void *handler);
-extern void sceTtyHandler(int event, int param, void *opt);
 
 int sceTtyInit(void)
 {

@@ -3,25 +3,21 @@
 #include <string.h>
 #include <reent.h>
 
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
-int _mbtowc_r(int a0, int *a1, unsigned char *a2, int a3)
+int _mbtowc_r(struct Reent *r, int *pwc, const char *s, int n, int *state)
 {
-    int local;
-    int *p = &local;
-    if (a1 != 0)
-        p = a1;
-    if (a2 == 0)
+    int dummy;
+    int *p = &dummy;
+    unsigned char *t = (unsigned char *)s;
+    if (pwc != 0)
+        p = pwc;
+    if (t == 0)
         goto zero;
-    if (a3 != 0)
+    if (n != 0)
         goto store;
     return -1;
 zero:
     return 0;
 store:
-    *p = *a2;
-    return *a2 != 0;
+    *p = *t;
+    return *t != 0;
 }

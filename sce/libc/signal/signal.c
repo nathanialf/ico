@@ -46,13 +46,6 @@ unsigned int _signal_r(void *a0, int a1, int a2)
     return old;
 }
 
-/* reent.h leaves it out: its definition takes no reentrancy pointer, which this
-   member passes */
-extern int _getpid_r(void *ptr);
-/* reent.h leaves it out: its definition's argument types do not fit this member's
-   calls */
-extern int _kill_r(void *ptr, int pid, int sig);
-
 int _raise_r(void *ptr, int sig)
 {
     int *base;
