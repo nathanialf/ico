@@ -46,7 +46,7 @@ int CageRideFunc(char **self, GObj *rider)
     float t;
 
     w = GOBJ_SUB(*self)->work;
-    CopyVector(v, (char *)GOBJ_SUB(rider) + 0xA0);
+    CopyVector(v, GOBJ_SUB(rider)->root.pos);
     v[1] = v[1] - 250.0f;
     sceVu0Normalize(n, v);
     d = FSqrt(n[0] * n[0] + n[2] * n[2]) * 50.0f;

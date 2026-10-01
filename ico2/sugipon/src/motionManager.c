@@ -1083,7 +1083,7 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, floa
         gif_SetAlpha(1, 5, 0x80);
         gif_SetZTest(0);
         gif_EndPacket();
-        dispPlane((char *)MOWORK(self) + 0x1D0, (char *)MOWORK(self) + 0xA0);
+        dispPlane(MOWORK(self)->root.plane.f, MOWORK(self)->root.pos);
         gif_StartPacketPri(0xB);
         gif_SetZTest(1);
         gif_EndPacket();

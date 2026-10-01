@@ -77,13 +77,14 @@ typedef struct {      /* field names derived */
 
 /* motion-def: one frame-timed trigger of a motion, a frame and a number */
 typedef struct { /* field names derived */
-    float t; /* 0x00, the frame */
-    int no;  /* 0x04 */
-} FDSSlot; /* derived name */
+    float t;     /* 0x00, the frame */
+    int no;      /* 0x04 */
+} FDSSlot;       /* derived name */
 
 /* motion-def's three flag words, read whole or by bit */
 typedef union {
     unsigned int word;
+
     struct {
         unsigned int : 26;
         unsigned int handIK : 2;    /* MotCtrl handIK */
@@ -94,26 +95,34 @@ typedef union {
 
 typedef union {
     unsigned int word;
+
     struct {
-        unsigned int : 17;
-        unsigned int parallel : 1;     /* played as a parallel motion */
+        unsigned int : 7;
+        unsigned int carried
+            : 1; /* a carried pose: the girl's carry ends on it (commonact.c's becarry check) */
+        unsigned int : 8;
+        unsigned int jumpHit : 1;  /* actCommonJump's jump has hit and stops on a mode 1 motion */
+        unsigned int parallel : 1; /* played as a parallel motion */
         unsigned int : 1;
         unsigned int shiftInside : 1;  /* the shift range is the frames the shift may happen in */
         unsigned int loop : 1;         /* the motion loops */
         unsigned int clothPlane : 1;   /* cloth is pushed out of the object's floor plane */
         unsigned int avgWallPlane : 1; /* MotCtrl avgWallPlane */
         unsigned int stairStep : 1;    /* MotCtrl stairStep */
-        unsigned int : 3;
-        unsigned int adjustRoot : 1;   /* the root is turned by adjustAngle */
+        unsigned int intr10Live : 1;   /* actIntrList row 10 stays live (ACTRunIntrCorrect) */
+        unsigned int : 2;
+        unsigned int adjustRoot : 1; /* the root is turned by adjustAngle */
         unsigned int : 4;
     } bits;
 } MotionFlags; /* derived name */
 
 typedef union {
     unsigned int word;
+
     struct {
         unsigned int : 4;
-        unsigned int weaponSwing : 1;   /* the held weapon's blade is drawn, its hand left to the motion */
+        unsigned int weaponSwing
+            : 1; /* the held weapon's blade is drawn, its hand left to the motion */
         unsigned int : 4;
         unsigned int dropNode4Turn : 1; /* MotCtrl flag330 */
         unsigned int : 22;
@@ -129,49 +138,52 @@ typedef union {
    frames ico2/fumi's actors read, and three flag words, read whole or by bit
    (modeBits' two nibbles at bits 8 and 12 pick handManager.c's motionIKEffKind
    rows).  The generated motion-def member compiles against this record. */
-typedef struct {              /* field names derived */
-    FDSSlot eff[12];          /* 0x000, particle effects */
-    FDSSlot se[12];           /* 0x060, sound effects */
-    char name[48];            /* 0x0C0 */
-    FDSSlot vib[2];           /* 0x0F0, pad vibrations */
-    int word100;              /* 0x100 */
-    int word104;              /* 0x104, copied to the motion work's 0x328 */
-    int adjustAngle;          /* 0x108, degrees the root is turned by, 0 or 1 for none */
-    int slopeIK;              /* 0x10C, MotCtrl slopeIK */
-    int gravity;              /* 0x110, MotCtrl gravity */
-    int noStepSearch;         /* 0x114, MotCtrl noStepSearch */
-    int rootUpdateMode;       /* 0x118 */
-    int stepNode;             /* 0x11C, the focus node the step solution walks on */
-    float landFrame;          /* 0x120, a flying motion follows the floor before this frame, -1 for no floor */
-    float rootOffset[3];      /* 0x124, the root's offset the direct-play update takes off the position */
-    int wallFeedback;         /* 0x130, the wall work is fed back to the brain */
-    int node_id;              /* 0x134, the motion file's node */
-    float weaponFrame;        /* 0x138 */
-    int shiftStart;           /* 0x13C */
-    int shiftLength;          /* 0x140 */
-    int triggerStart;         /* 0x144 */
-    int triggerEnd;           /* 0x148 */
-    int trigger2Start;        /* 0x14C */
-    int playMode;             /* 0x150, 1 loops */
-    int trigger2End;          /* 0x154 */
-    float faceRotRatio;       /* 0x158, the face turn's weight (the motion viewer's debug_face_rot_w_ratio) */
-    float palSpeedRatio;      /* 0x15C, applied when systemStatus[0] is set */
-    float rate0;              /* 0x160 */
-    float clipRadius;         /* 0x164, the clip radius a shift eases to, 5 at least */
-    float rate1;              /* 0x168 */
-    int fieldWall;            /* 0x16C, MotCtrl fieldWall */
-    int lookIK;               /* 0x170, MotCtrl lookIK */
-    float playSpeedRatio;     /* 0x174 */
-    int blendKind;            /* 0x178, index into blendMotionKind, 320 for none */
-    int handTurnIK;           /* 0x17C, MotCtrl handTurnIK */
-    short priInputBegin;      /* 0x180 */
-    short girlDirFrames;      /* 0x182 */
-    short priInputEnd;        /* 0x184 */
-    short dirFrames;          /* 0x186 */
-    MotionModeBits modeBits;  /* 0x188 */
-    MotionFlags flags;        /* 0x18C */
-    MotionFlags2 flags2;      /* 0x190 */
-} MotionDef; /* derived name */
+typedef struct {     /* field names derived */
+    FDSSlot eff[12]; /* 0x000, particle effects */
+    FDSSlot se[12];  /* 0x060, sound effects */
+    char name[48];   /* 0x0C0 */
+    FDSSlot vib[2];  /* 0x0F0, pad vibrations */
+    int word100;     /* 0x100 */
+    int cylinder; /* 0x104, the motion pushes by cylinder collision, 0 for the standing ones (MotRoot 0x328) */
+    int adjustAngle;    /* 0x108, degrees the root is turned by, 0 or 1 for none */
+    int slopeIK;        /* 0x10C, MotCtrl slopeIK */
+    int gravity;        /* 0x110, MotCtrl gravity */
+    int noStepSearch;   /* 0x114, MotCtrl noStepSearch */
+    int rootUpdateMode; /* 0x118 */
+    int stepNode;       /* 0x11C, the focus node the step solution walks on */
+    float
+        landFrame; /* 0x120, a flying motion follows the floor before this frame, -1 for no floor */
+    float
+        rootOffset[3]; /* 0x124, the root's offset the direct-play update takes off the position */
+    int wallFeedback;  /* 0x130, the wall work is fed back to the brain */
+    int node_id;       /* 0x134, the motion file's node */
+    float weaponFrame; /* 0x138 */
+    int shiftStart;    /* 0x13C */
+    int shiftLength;   /* 0x140 */
+    int triggerStart;  /* 0x144 */
+    int triggerEnd;    /* 0x148 */
+    int trigger2Start; /* 0x14C */
+    int playMode;      /* 0x150, 1 loops */
+    int trigger2End;   /* 0x154 */
+    float
+        faceRotRatio; /* 0x158, the face turn's weight (the motion viewer's debug_face_rot_w_ratio) */
+    float palSpeedRatio;     /* 0x15C, applied when systemStatus[0] is set */
+    float rate0;             /* 0x160 */
+    float clipRadius;        /* 0x164, the clip radius a shift eases to, 5 at least */
+    float rate1;             /* 0x168 */
+    int fieldWall;           /* 0x16C, MotCtrl fieldWall */
+    int lookIK;              /* 0x170, MotCtrl lookIK */
+    float playSpeedRatio;    /* 0x174 */
+    int blendKind;           /* 0x178, index into blendMotionKind, 320 for none */
+    int handTurnIK;          /* 0x17C, MotCtrl handTurnIK */
+    short priInputBegin;     /* 0x180 */
+    short girlDirFrames;     /* 0x182 */
+    short priInputEnd;       /* 0x184 */
+    short dirFrames;         /* 0x186 */
+    MotionModeBits modeBits; /* 0x188 */
+    MotionFlags flags;       /* 0x18C */
+    MotionFlags2 flags2;     /* 0x190 */
+} MotionDef;                 /* derived name */
 
 extern const MotOriParallelEnt parallelMotionOrient[];
 extern MotOriAlt mirrorMotionTable[];
@@ -183,7 +195,7 @@ extern const MotOriLimit motionLimitDef[];
  * copies it into its frame, which is what the ROM's prologue does). The same
  * record is reconstructed in ico2/fumi/src/act.c as IntrOrient, whose matched
  * uses fix the member spelling. */
-typedef struct {  /* field names derived */
+typedef struct { /* field names derived */
     int word[8]; /* copied whole, no member read: its eight words */
 } MotOriReq;
 
@@ -193,8 +205,8 @@ typedef struct {  /* field names derived */
 MotionOrientEntry *GetMotionOrient(int i, int n, int id, int kind);
 MotionOrientEntry *getMotionOrient(int i, int n, int id, int kind);
 void CopyBlendMotionDataSource(void *self, short ang);
-void SetParallelMotionTableWithNoRequest(void *self, int *a1, int *a2);
-void SetParallelMotionTable(void *self, int *a1, int *a2, int a3, int a4);
+void SetParallelMotionTableWithNoRequest(void *self, int *next, int *req);
+void SetParallelMotionTable(void *self, int *next, int *req, int from, int mode);
 void InitMotionOrient(void *self, int a1, int a2, int a3, int a4, int a5);
 
 struct GObj;

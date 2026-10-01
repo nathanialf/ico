@@ -27,7 +27,6 @@
 float ropeInterRate = 0.0f; /* derived name */
 
 extern MotionOrientEntry motionOrient[];
-extern MotionOrientEntry D_002BC4A8;
 /* kept local: this declaration is identical to the motionManager2.h prototype, but the
  * TU cannot include that header while its GetStreamMotion, DispSkelton and
  * FeedbackWallWorkInfoToBrainSystem uses still need declarations of their own. */
@@ -69,9 +68,9 @@ extern const MotionDef motionKind[];
 /* the seventeen fixed captions the orientation debug window prints, one per
    trigger kind, plus the window's own format at 0x6201C8 */
 
-/* kept local: ico2/fumi/src/commonact.c declares the table as char [], and it
-   includes motionOrientManager.h through typedef.h */
-extern MotOriName motionOriKind[];
+/* kept local: ico2/fumi/src/commonact.c declares the table without const, so
+   motionOrientManager.h cannot carry it */
+extern const MotOriName motionOriKind[];
 
 void orientDebug(void *self, int idx, int y)
 {
@@ -145,7 +144,7 @@ void orientDebug(void *self, int idx, int y)
 
 static inline void checkMotionKind(int i, int j)
 {
-    if (motionKind[i].blendKind != 0x140) {
+    if (motionKind[i].blendKind != 320) {
         char buf[256];
 
         /* EUC-JP: "the node-blending motion (%s) uses a node-blending motion again" */
@@ -164,7 +163,7 @@ int GetNbMotionFrames(int id)
     int m;
     int n;
 
-    if (motionKind[id].blendKind == 0x140) {
+    if (motionKind[id].blendKind == 320) {
         return *motionTable[id];
     }
     m = blendMotionKind[motionKind[id].blendKind].motion;
@@ -180,7 +179,7 @@ float GetMotionPlaySpeedRatio(int id)
 {
     int m;
 
-    if (motionKind[id].blendKind == 0x140) {
+    if (motionKind[id].blendKind == 320) {
         return motionKind[id].playSpeedRatio;
     }
     m = blendMotionKind[motionKind[id].blendKind].motion;
@@ -190,7 +189,7 @@ float GetMotionPlaySpeedRatio(int id)
 
 void execFrameTrigger(void *self)
 {
-    struct MotCtrl *w = (struct MotCtrl *)((char *)MOWORK(self) + 0x470);
+    struct MotCtrl *w = &MOWORK(self)->ctrl;
     float t;
 
     t = (float)motionKind[w->motion].triggerStart;
@@ -224,10 +223,10 @@ void execFrameTrigger(void *self)
  * it here and in UpdateFrameCounter. The store order is the source's own. */
 static __inline__ void clearFrameTriggerState(void *self)
 {
-    *(int *)((char *)GOBJ_SUB(self) + 0x608) = 0;
-    *(int *)((char *)GOBJ_SUB(self) + 0x610) = 0;
-    *(int *)((char *)GOBJ_SUB(self) + 0x60C) = 0;
-    *(int *)((char *)GOBJ_SUB(self) + 0x614) = 0;
+    GOBJ_SUB(self)->ctrl.trigger1 = 0;
+    GOBJ_SUB(self)->ctrl.trigger2 = 0;
+    GOBJ_SUB(self)->ctrl.trigger1Done = 0;
+    GOBJ_SUB(self)->ctrl.trigger2Done = 0;
 }
 
 /* Three range tests with no symbol and no census row, listing lines 156 to 193;
@@ -363,7 +362,7 @@ inline MotionOrientEntry *GetMotionOrient(int i, int n, int id, int kind)
             if (motionOrient[i].id == id) {
                 return &motionOrient[i];
             }
-            if (motionOrient[i].id == 0x47A) {
+            if (motionOrient[i].id == 1146) {
                 found = i;
             }
         }
@@ -381,14 +380,14 @@ inline MotionOrientEntry *getMotionOrient(int i, int n, int id, int kind)
     if (p != 0) {
         return p;
     }
-    return &D_002BC4A8;
+    return &motionOrient[2467];
 }
 
 void sendStateMail(void *self)
 {
     float m[4][4];
     float pos[4];
-    struct MotCtrl *w = (struct MotCtrl *)((char *)MOWORK(self) + 0x470);
+    struct MotCtrl *w = &MOWORK(self)->ctrl;
 
     if (debug_wire_string != 0) {
         MatrixDrive_PushMatrix();
@@ -481,7 +480,7 @@ void sendStateMail(void *self)
  * and returns the paired entry from the table at 0x20. */
 static inline int searchMotionShift(void *self, int id, int cur)
 {
-    struct MotCtrl *m = (struct MotCtrl *)((char *)MOWORK(self) + 0x470);
+    struct MotCtrl *m = &MOWORK(self)->ctrl;
     int i;
 
     if (m->shiftReq != 0 && m->shiftNext != 0) {
@@ -547,7 +546,7 @@ void shiftMotionData(int a0, int a1, int a2, int a3)
     mw->handTurnIK = motionKind[mot].handTurnIK;
     mw->fuchiMode = motionKind[mot].modeBits.bits.fuchiMode;
     mw->fieldWall = motionKind[mot].fieldWall;
-    mw->word328 = motionKind[mot].word104;
+    mw->word328 = motionKind[mot].cylinder;
     mw->avgWallPlane = motionKind[mot].flags.bits.avgWallPlane;
     mw->flag330 = motionKind[mot].flags2.bits.dropNode4Turn;
     w->updateModeChanged = 0;
@@ -594,7 +593,7 @@ extern void FeedbackWallWorkInfoToBrainSystem(void *self);
 
 void shiftMotionOrientEndFunc(void *self)
 {
-    struct MotCtrl *w = (struct MotCtrl *)((char *)MOWORK(self) + 0x470);
+    struct MotCtrl *w = &MOWORK(self)->ctrl;
     int x;
 
     if (w->word1AC == -1) {
@@ -632,7 +631,7 @@ inline void CopyBlendMotionDataSource(void *self, short ang)
 
     CopyMotion(mot, (char *)MOWORK(self)->motionBuf, MOWORK(self)->skelNodeNum);
     CopyVector(MOWORK(self)->localPos, MOWORK(self)->motionPos);
-    CopyVector((char *)MOWORK(self) + 0x7F0, (char *)MOWORK(self) + 0x130);
+    CopyVector(MOWORK(self)->localMove, MOWORK(self)->root.move);
     *(struct MotOriFloat *)((char *)MOWORK(self) + 0x808) =
         *(struct MotOriFloat *)((char *)MOWORK(self) + 0x160);
     *(struct MotOriHead8 *)((char *)MOWORK(self) + 0x800) = *(struct MotOriHead8 *)MOWORK(self);
@@ -739,15 +738,15 @@ static inline int checkMotionShiftReady(struct MotCtrl *m, MotionOrientEntry *p)
 
 int normalMotionShift(void *self, int force)
 {
-    struct MotCtrl *w = (struct MotCtrl *)((char *)MOWORK(self) + 0x470);
+    struct MotCtrl *w = &MOWORK(self)->ctrl;
     MotionOrientEntry *p = getMotionOrient(w->oriFrom, w->oriTo, w->request, w->orientKind);
 
     if (force == 0) {
-        if (p->id == 0x47A) {
+        if (p->id == 1146) {
             return 0;
         }
     }
-    if (checkMotionShiftReady((struct MotCtrl *)((char *)MOWORK(self) + 0x470), p) != 0) {
+    if (checkMotionShiftReady(&MOWORK(self)->ctrl, p) != 0) {
         int kind = p->nextId;
         int mode = p->shiftMode;
         int next;
@@ -781,7 +780,7 @@ static inline MotionOrientEntry *findParallelMotion(int cur, int next)
     int i;
 
     if (cur == next) {
-        return &D_002BC4A8;
+        return &motionOrient[2467];
     }
     for (i = 0; i < 54; i++) {
         if (parallelMotionOrient[i].id == cur) {
@@ -800,7 +799,7 @@ static inline MotionOrientEntry *findParallelMotion(int cur, int next)
  * `return 0` for -1 would put a barrier ahead of it. */
 int parallelMotionShift(void *self)
 {
-    struct MotCtrl *m = (struct MotCtrl *)((char *)MOWORK(self) + 0x470);
+    struct MotCtrl *m = &MOWORK(self)->ctrl;
     int next = searchMotionShift(self, m->request, m->motion);
     MotionOrientEntry *p;
 
@@ -808,7 +807,7 @@ int parallelMotionShift(void *self)
         p = findParallelMotion(m->motion, next);
 
         if (p != 0) {
-            if (checkMotionShiftReady((struct MotCtrl *)((char *)MOWORK(self) + 0x470), p) != 0) {
+            if (checkMotionShiftReady(&MOWORK(self)->ctrl, p) != 0) {
                 shiftMotionOrientEndFunc(self);
                 shiftMotionOrientBeginFunc(self, p->nextId, m->request, p->shiftMode);
                 return 1;
@@ -816,7 +815,7 @@ int parallelMotionShift(void *self)
         } else if (next != 0x479) {
             MotionOrientEntry e = {m->motion, m->orientKind, next, m->shiftFrom, m->shiftMode};
 
-            if (checkMotionShiftReady((struct MotCtrl *)((char *)MOWORK(self) + 0x470), &e) != 0) {
+            if (checkMotionShiftReady(&MOWORK(self)->ctrl, &e) != 0) {
                 shiftMotionOrientEndFunc(self);
                 shiftMotionOrientBeginFunc(self, next, m->request, m->shiftMode);
                 return 1;
@@ -899,25 +898,25 @@ char *SetMotionRequest(void *self, int mot, MotOriReq req)
     return w;
 }
 
-inline void SetParallelMotionTableWithNoRequest(void *self, int *a1, int *a2)
+inline void SetParallelMotionTableWithNoRequest(void *self, int *next, int *req)
 {
-    struct MotCtrl *m = (struct MotCtrl *)((char *)GOBJ_SUB(self) + 0x470);
+    struct MotCtrl *m = &GOBJ_SUB(self)->ctrl;
 
     if (m->word18 == 0) {
-        m->shiftReq = a2;
-        m->shiftNext = a1;
+        m->shiftReq = req;
+        m->shiftNext = next;
     }
 }
 
-inline void SetParallelMotionTable(void *self, int *a1, int *a2, int a3, int a4)
+inline void SetParallelMotionTable(void *self, int *next, int *req, int from, int mode)
 {
-    struct MotCtrl *m = (struct MotCtrl *)((char *)GOBJ_SUB(self) + 0x470);
+    struct MotCtrl *m = &GOBJ_SUB(self)->ctrl;
     int old = m->orientKind;
 
-    m->orientKind = 0x10D;
-    SetParallelMotionTableWithNoRequest(self, a1, a2);
-    m->shiftFrom = a3;
-    m->shiftMode = a4;
+    m->orientKind = 269;
+    SetParallelMotionTableWithNoRequest(self, next, req);
+    m->shiftFrom = from;
+    m->shiftMode = mode;
     if (parallelMotionShift(self) != 0) {
         m->playTime = 0;
     } else {
@@ -1041,25 +1040,25 @@ static inline void assertMotionNodeCount(struct MotCtrl *w, int *md, int n)
 void getMotionGeometry(void *self)
 {
     int *p = *(int **)((char *)MOWORK(self) + 0x8C);
-    struct MotRoot *mo = (struct MotRoot *)((char *)MOWORK(self) + 0xA0);
-    struct MotCtrl *w = (struct MotCtrl *)((char *)MOWORK(self) + 0x470);
+    struct MotRoot *mo = &MOWORK(self)->root;
+    struct MotCtrl *w = &MOWORK(self)->ctrl;
     int n = MOWORK(self)->skelNodeNum;
     int tbl = *(int *)((char *)MOWORK(self) + 0x820);
     char mot[n * 32];
     float scale = *(float *)((char *)MOWORK(self)->nodes + 0x20);
     int *md = motionTable[w->motion];
 
-    if (motionKind[w->motion].blendKind == 0x140) {
+    if (motionKind[w->motion].blendKind == 320) {
         assertMotionLoaded(w, md);
         assertMotionNodeCount(w, md, n);
     }
-    RegularizeQuaternion((char *)MOWORK(self) + 0xD0);
+    RegularizeQuaternion(MOWORK(self)->root.quat);
     MatrixDrive_PushMatrix();
     {
         Vec16 v;
         Vec16 rv;
 
-        if (motionKind[w->motion].blendKind == 0x140) {
+        if (motionKind[w->motion].blendKind == 320) {
             GetFloatingMotion(mot, w->animFrame, v.f, md, n, tbl, p);
             GetFloatingMotionRootPos(rv.f, md, w->lastFrame);
         } else {
@@ -1212,8 +1211,8 @@ void getMotionGeometry(void *self)
             t = (void *)MOWORK(self)->root.wall.o.obj;
             if (*(int *)((char *)o + 0xC) == 17) {
                 if (o == t) {
-                    ((Vec16 *)((char *)MOWORK(self) + 0x5A0))->f[0] = 3.40282347e+38f;
-                    ((Vec16 *)((char *)MOWORK(self) + 0x5A0))->f[1] = 3.40282347e+38f;
+                    MOWORK(self)->ctrl.wallFloorHeight = 3.40282347e+38f;
+                    MOWORK(self)->ctrl.wallTopHeight = 3.40282347e+38f;
                 }
             }
         }
@@ -1246,17 +1245,17 @@ extern void GetFloatingShapeMotion(float *dst, void *mot, int n, float frame);
 
 void getShapeGeometry(void *self)
 {
-    char *m = (char *)GOBJ_SUB(self) + 0x470;
+    struct MotCtrl *m = &GOBJ_SUB(self)->ctrl;
 
-    if (motionKind[*(int *)(m + 0x30)].blendKind == 0x140) {
-        void *mot = motionTable[*(int *)(m + 0x30)];
+    if (motionKind[m->motion].blendKind == 320) {
+        void *mot = motionTable[m->motion];
 
         if (CheckMotionIncludeFacialData(mot) == 0) {
             int n = **(int **)((char *)mot + 0x10);
             float buf[n];
             int i;
 
-            GetFloatingShapeMotion(buf, mot, n, *(float *)(m + 0x3C));
+            GetFloatingShapeMotion(buf, mot, n, m->animFrame);
             if (n != 0) {
                 int cnt = GOBJ_SUB(self)->morphNum;
 
@@ -1466,14 +1465,14 @@ void getStreamMotion(void *self)
 
 void ExecMotionOrient(void *self)
 {
-    char *w = (char *)GOBJ_SUB(self) + 0x470;
+    struct MotCtrl *w = &GOBJ_SUB(self)->ctrl;
 
-    if (*(int *)(w + 0x18) != 0) {
+    if (w->word18 != 0) {
         /* EUC-JP: "the motion replacement function is stopped" */
         debug_StdPrintfDummy("\033[36mモーション置き換え機能が停止しています。\033[m: %p\n", self);
     }
-    if (*(int *)w == -1) {
-        if (*(int *)(w + 0xD0) != 0x10D) {
+    if (w->stream == -1) {
+        if (w->orientKind != 269) {
             normalMotionShift(self, 0);
         } else {
             parallelMotionShift(self);
@@ -1483,15 +1482,15 @@ void ExecMotionOrient(void *self)
             (debug_mot_debug_target == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
             (debug_mot_debug_target == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
             (debug_mot_debug_target == 4 && self == isysGObjSearchFromObjKindID_begin(47))) {
-            if (*(int *)(w + 0xC) != 0) {
+            if (w->shifted != 0) {
                 if (ignoreCount != 0 && debug_window_flag != 0) {
                     debug_PrintFontWindow(0xC0FF20, "\n ");
                 }
-                orientDebug(self, *(int *)(w + 0xD0), 0xE0FF20);
+                orientDebug(self, w->orientKind, 0xE0FF20);
                 ignoreCount = 0;
             }
         }
-        if (*(int *)(w + 0x58) != 0) {
+        if (w->justShifted != 0) {
             int n = GOBJ_SUB(self)->morphNum;
             int i;
 

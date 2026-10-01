@@ -243,7 +243,7 @@ char *InitItemGeo(char *gobj, ItemLayout *layout)
     *(int *)(w + 0x78) = 0;
     if (p->kind == 1) {
         ItemWork *rec = GOBJ_SUB(gobj)->work;
-        char *g;
+        GObj *g;
 
         link.p_0 = gobj;
         link.f_4 = 0;
@@ -252,7 +252,7 @@ char *InitItemGeo(char *gobj, ItemLayout *layout)
         g = CreateLayoutedGObj(10, 0x4B, -1, 1, &lay, -1, 7, 0);
         SetTorchChainReactionFlag(g, 1);
         LinkParentOfDObj(g, &link);
-        CopyVector((char *)GOBJ_SUB(g) + 0xA0, itemDropOfs);
+        CopyVector(GOBJ_SUB(g)->root.pos, itemDropOfs);
         rec->fuse.torch = g;
         rec->fuse.time =
             (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 300.0f);
@@ -502,7 +502,7 @@ void uncarriedItemGeo(GObj *gobj)
     p = GOBJ_SUB(gobj)->work;
     GOBJ_SUB(gobj)->ctrl.wallAttr = 0;
     GOBJ_SUB(gobj)->ctrl.floorAttr = 0;
-    CopyVector(vel, (char *)GOBJ_SUB(gobj) + 0x130);
+    CopyVector(vel, GOBJ_SUB(gobj)->root.move);
     len0 = VectorLength(vel);
     UnlinkParentOfDObj(gobj);
     GetRootPosition(pos, gobj);
@@ -628,7 +628,7 @@ void uncarriedItemGeo(GObj *gobj)
     }
     npos[3] = 1.0f;
     SetDirectRootPosition(gobj, npos);
-    CopyVector((char *)GOBJ_SUB(gobj) + 0x130, vel);
+    CopyVector(GOBJ_SUB(gobj)->root.move, vel);
     if (p->holder != 0) {
         if (VectorLengthSquare(vel) > 100.0f) {
             _AttackCenter((char *)p->holder, 0x12, npos, 0, 20.0f, (int)gobj);
@@ -745,7 +745,7 @@ void ItemGeo(GObj *gobj)
             if (*(int *)(owner + 0xC) == 0x11) {
                 if (GetBoxMode(owner) == 2) {
                     p->holder = 0;
-                    ThrowItem(gobj, (char *)GOBJ_SUB(owner) + 0x130);
+                    ThrowItem(gobj, GOBJ_SUB(owner)->root.move);
                 }
             }
         }

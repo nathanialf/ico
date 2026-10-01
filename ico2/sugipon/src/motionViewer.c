@@ -32,8 +32,8 @@ typedef struct MvMenuEnt {
 
 /* one row of the orient csv the viewer browses: name + the kind it selects */
 typedef struct OriRow {
-    char *name; /* 0x00 */
-    int kind;   /* 0x04 */
+    const char *name; /* 0x00 */
+    int kind;         /* 0x04 */
 } OriRow;
 
 typedef struct OriCsv {
@@ -65,7 +65,9 @@ static int rootUpdateMode = 0; /* derived name */
 static float motionSpeed = 1.0f; /* derived name */
 
 extern MotionOrientEntry motionOrient[];
-extern char motionOriKind[][0x20];
+/* kept local: ico2/fumi/src/commonact.c declares the table without const, so
+   motionOrientManager.h cannot carry it */
+extern const MotOriName motionOriKind[];
 
 static inline int countMotionKinds(int id, int from, int to)
 {
@@ -73,7 +75,7 @@ static inline int countMotionKinds(int id, int from, int to)
     int i;
 
     for (i = from; i < to; i++) {
-        if (motionOrient[i].id == id || motionOrient[i].id == 0x47A) {
+        if (motionOrient[i].id == id || motionOrient[i].id == 1146) {
             n++;
         }
     }
@@ -92,11 +94,11 @@ static inline int makeMotionKindList(MvMenuEnt *ent, int base)
     if (n) {
         k = 0;
         for (i = from; i < to; i++) {
-            if (motionOrient[i].id == id || motionOrient[i].id == 0x47A) {
+            if (motionOrient[i].id == id || motionOrient[i].id == 1146) {
                 int kind = motionOrient[i].kind;
 
                 list[k].kind = kind;
-                list[k].name = motionOriKind[kind];
+                list[k].name = motionOriKind[kind].s;
                 k++;
             }
         }
@@ -321,8 +323,7 @@ int motKindMenuProc(void)
                                         0xC0, 0, ent->motLast - ent->motFirst, &motSel, 0);
     base = motSel;
     cur = base + ent->motFirst;
-    if (motionKind[cur].node_id != 0 && motionKind[cur].blendKind == 0x140 &&
-        motionTable[cur] == 0) {
+    if (motionKind[cur].node_id != 0 && motionKind[cur].blendKind == 320 && motionTable[cur] == 0) {
         base = 0;
         if (((blinkCount >> 4) & 3) != 0) {
             debug_PrintfDummy(10, 60, 0x4080FF00, "NO MOTION IN THIS STAGE.");

@@ -66,7 +66,7 @@ void SetFlag4PointFixID(GObj *self, int a1, int id)
     MatrixDrive_RotMatrixZ(ang);
     _ApplyMatrix((char *)GOBJ_SUB(self) + 0xA0, MatrixDrive_GetMatrix(),
                  (char *)GOBJ_SUB(self) + 0xA0);
-    RotQuaternionZ((char *)GOBJ_SUB(self) + 0xD0, ang);
+    RotQuaternionZ(GOBJ_SUB(self)->root.quat, ang);
     setFlag4PointMesh(*(char **)(*(char **)(*(char **)(w + 0x4) + 0x4)), *(char **)(w + 0x8),
                       a1 * 0.25f, id);
     prim_UpdateMesh3D(*(char **)(*(char **)(*(char **)(w + 0x4) + 0x4)), 8, 0);
@@ -146,9 +146,9 @@ char *InitFlagGeo(char *self, char *arg)
         strcpy(*(char **)(cl + 0x14), ent->name);
 
 
-        _InterVectorXYZ((char *)GOBJ_SUB(self) + 0xA0, &v[0], &v[1], 0.5f);
-        _SubVectorXYZ(&v[0], &v[0], (char *)GOBJ_SUB(self) + 0xA0);
-        _SubVectorXYZ(&v[1], &v[1], (char *)GOBJ_SUB(self) + 0xA0);
+        _InterVectorXYZ(GOBJ_SUB(self)->root.pos, &v[0], &v[1], 0.5f);
+        _SubVectorXYZ(&v[0], &v[0], GOBJ_SUB(self)->root.pos);
+        _SubVectorXYZ(&v[1], &v[1], GOBJ_SUB(self)->root.pos);
 
         d = GetPointDistance(&v[0], &v[1]);
         *(float *)(cl + 4) = d / (float)*(int *)(cl + 0x0);
@@ -175,13 +175,13 @@ char *InitFlagGeo(char *self, char *arg)
            ROM initialises it after gcse's preheader insertions); 191 and 196
            count with j, which the ROM keeps in a register of its own apart
            from i's */
-        CopyVector((char *)GOBJ_SUB(self) + 0xA0, ZeroPoint);
+        CopyVector(GOBJ_SUB(self)->root.pos, ZeroPoint);
         for (i = 0; i < 4; i++)
-            _AddVectorXYZ((char *)GOBJ_SUB(self) + 0xA0, (char *)GOBJ_SUB(self) + 0xA0, &v[i]);
-        _ScaleVectorXYZ((char *)GOBJ_SUB(self) + 0xA0, (char *)GOBJ_SUB(self) + 0xA0, 0.25f);
+            _AddVectorXYZ(GOBJ_SUB(self)->root.pos, GOBJ_SUB(self)->root.pos, &v[i]);
+        _ScaleVectorXYZ(GOBJ_SUB(self)->root.pos, GOBJ_SUB(self)->root.pos, 0.25f);
         ((FlagNodeWord *)((char *)GOBJ_SUB(self) + 0xAC))->f = 1.0f;
         for (i = 0, q = v; i < 4; i++, q++)
-            _SubVectorXYZ(q, q, (char *)GOBJ_SUB(self) + 0xA0);
+            _SubVectorXYZ(q, q, GOBJ_SUB(self)->root.pos);
 
         d = GetPointDistance(&v[0], &v[1]);
         *(float *)(cl + 4) = d / (float)(*(int *)(cl + 0x0) - 1);
@@ -220,7 +220,7 @@ char *InitFlagGeo(char *self, char *arg)
     GOBJ_SUB(self)->nodes->rot[0] = GOBJ_SUB(self)->nodes->rot[1] = GOBJ_SUB(self)->nodes->rot[2] = 0;
     ((FlagNodeWord *)&GOBJ_SUB(self)->nodes->scale[0])->f = ((FlagNodeWord *)&GOBJ_SUB(self)->nodes->scale[1])->f = ((FlagNodeWord *)&GOBJ_SUB(self)->nodes->scale[2])->f = 1.0f;
 
-    SetIdentityQuaternion((char *)GOBJ_SUB(self) + 0xD0);
+    SetIdentityQuaternion(GOBJ_SUB(self)->root.quat);
 
     return p;
 }

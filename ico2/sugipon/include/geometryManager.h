@@ -56,8 +56,8 @@ void SetRootBaseQuaternion(struct GObj *obj, void *q);
 void UpdateRootMatrix(struct GObj *obj);
 void UpdateRootMatrixByDObj(struct Sub15C *dobj);
 
-int cylinderCollisionCheck(void *a0, void *a1, int a2, float f0, float f1, float f2, float f3,
-                           float f4, int a3, int a4);
+int cylinderCollisionCheck(struct GObj *self, float *ppos, struct GObj *target, float r, float rr,
+                           float h, float s, float t, int ctrl, int exceptOwn);
 
 void getInitialInverseMatrix(char *mat, char *mdl, int no);
 void getInitialMatrix(char *mdl, int no);
@@ -69,7 +69,7 @@ typedef union SubHandle {
     struct Sub15C *sub;
 } SubHandle;
 
-int GetCylinderCollisionWithExceptOwnCollision(char *self, int target, float r, float h, float s,
-                                               float t, int ctrl);
+int GetCylinderCollisionWithExceptOwnCollision(struct GObj *self, struct GObj *target, float r,
+                                               float h, float s, float t, int ctrl);
 
 #endif /* GEOMETRYMANAGER_H */

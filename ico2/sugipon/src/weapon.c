@@ -639,7 +639,7 @@ void initializeQueenzSword(GObj *g, int index, QSwordLayout *lay)
         queenSwordOfs[2] = weaponKind[w->kind].length * (float)i / 0.0f;
         o = CreateLayoutedGObj(10, 75, -1, i == 0, &r, -1, 7, 0);
         LinkParentOfDObj(o, &lnk);
-        CopyVector((char *)GOBJ_SUB(o) + 0xA0, queenSwordOfs);
+        CopyVector(GOBJ_SUB(o)->root.pos, queenSwordOfs);
         w->objs[i] = o;
     }
 

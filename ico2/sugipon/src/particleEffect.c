@@ -12,6 +12,7 @@
 #include "matrixDrive.h"
 #include "DmaPacket.h"
 #include "windField.h"
+#include "particleEffect.h"
 
 /* RECONSTRUCTION, read from the ROM.  The 128-byte per-effect geometry
    object SetParticleEffectByPartition allocates: the emitter's position and
@@ -566,7 +567,7 @@ void dispParticleEffect(PEGeo *geo)
     prim_DispParticle(geo->prim, matrixptr + 0x100);
 }
 
-int SetParticleEffectByPartition(int no, PEVector *pos, PEQuaternion *quat, struct IosMemPart *part)
+int SetParticleEffectByPartition(int no, void *pos, void *quat, struct IosMemPart *part)
 {
     int id;
 
@@ -810,7 +811,7 @@ void SetParticleEffectPauseFlag(int a0, int a1)
     particleEffects[a0].pause = a1;
 }
 
-int SetParticleEffect(int no, PEVector *pos, PEQuaternion *quat)
+int SetParticleEffect(int no, void *pos, void *quat)
 {
     return SetParticleEffectByPartition(no, pos, quat, ios_partition_oomori);
 }
@@ -820,12 +821,12 @@ int SetParticleEffect(int no, PEVector *pos, PEQuaternion *quat)
  * public `inline` of the deferred tail; until the tail's asm members are C its
  * out-of-line copy stays the plain definition above and this caller inlines the
  * static stand-in SetParticleEffect_inl, which collapses at layout. */
-static inline int SetParticleEffect_inl(int no, PEVector *pos, PEQuaternion *quat)
+static inline int SetParticleEffect_inl(int no, void *pos, void *quat)
 {
     return SetParticleEffectByPartition(no, pos, quat, ios_partition_oomori);
 }
 
-int SetParticleEffectActiveSensing(int no, PEVector *pos, PEQuaternion *quat)
+int SetParticleEffectActiveSensing(int no, void *pos, void *quat)
 {
     int id;
 
@@ -893,13 +894,11 @@ void DisableParticleEffectGeometryControl(int a0)
     particleEffects[a0].geoCtrl = 0;
 }
 
-extern char particleEffectFile[];
-
 int GetParticleIDWithName(char *name)
 {
     int i;
     for (i = 0; i < 61; i++) {
-        if (strcmp(particleEffectFile + i * 0x50, name) == 0) {
+        if (strcmp(particleEffectFile[i].name, name) == 0) {
             return i;
         }
     }

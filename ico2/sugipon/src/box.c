@@ -78,12 +78,13 @@ typedef struct BoxWork { /* field names derived */
     char pad13C[4];
     int stopWall; /* 0x140, set while a box-stop wall is ahead */
     char pad144[12];
-    float tiltQuat[4]; /* 0x150, the slope tilt the root quaternion takes */
-    int effectDObj;    /* 0x160, the effect DObj */
-    int charHit;       /* 0x164, set when a character pushed the floating box this frame */
+    float tiltQuat[4];  /* 0x150, the slope tilt the root quaternion takes */
+    Sub15C *effectDObj; /* 0x160, the effect DObj */
+    int charHit;        /* 0x164, set when a character pushed the floating box this frame */
     char pad168[8];
     float floatAnchor[4]; /* 0x170, the floating box's resting X and Z */
-    int subGObj;          /* 0x180, the layouted sub GObj */
+    int subGObj;          /* 0x180, the layouted sub GObj, held as a word: InitBoxGeo's store of it
+                    precedes the sub object's disp store, which a GObj * store is scheduled past */
     char pad184[12];
     float moveDir[4]; /* 0x190, the direction of the last push */
 } __attribute__((aligned(8))) BoxWork;
@@ -145,16 +146,16 @@ void initFallDown(GObj *a0)
                           (char *)GOBJ_SUB(p->wall.o.obj)->nodeMtx + (p->wall.o.node << 6));
         n[1] = 0.0f;
         sceVu0Normalize(n, n);
-        SetIdentityQuaternion((char *)GOBJ_SUB(a0) + 0xC0);
-        RotQuaternionY((char *)GOBJ_SUB(a0) + 0xC0, GetTableArcTan2(n[0], n[2]));
-        GetRootQuaternion(((char *)GOBJ_SUB(a0) + 0xE0), a0);
-        DivQuaternion(((char *)GOBJ_SUB(a0) + 0xE0), ((char *)GOBJ_SUB(a0) + 0xE0),
-                      ((char *)GOBJ_SUB(a0) + 0xC0));
-        GetMatrixFromQuaternionPos(p->mtx[0], (char *)GOBJ_SUB(a0) + 0xC0, (char *)pos);
+        SetIdentityQuaternion(GOBJ_SUB(a0)->root.baseQuat);
+        RotQuaternionY(GOBJ_SUB(a0)->root.baseQuat, GetTableArcTan2(n[0], n[2]));
+        GetRootQuaternion(GOBJ_SUB(a0)->root.motionQuat, a0);
+        DivQuaternion(GOBJ_SUB(a0)->root.motionQuat, GOBJ_SUB(a0)->root.motionQuat,
+                      GOBJ_SUB(a0)->root.baseQuat);
+        GetMatrixFromQuaternionPos(p->mtx[0], GOBJ_SUB(a0)->root.baseQuat, (char *)pos);
         GOBJ_SUB(a0)->ctrl.motion = 1143;
     } else {
         GOBJ_SUB(a0)->ctrl.motion = 1143;
-        GetRootQuaternion(((char *)GOBJ_SUB(a0) + 0xC0), a0);
+        GetRootQuaternion(GOBJ_SUB(a0)->root.baseQuat, a0);
     }
 }
 
@@ -1048,11 +1049,11 @@ int playAnimationCore(GObj *a0)
                       GOBJ_SUB(a0)->ctrl.animFrame);
     dir[3] = 1.0f;
     sceVu0ApplyMatrix(pos, p->mtx[0], dir);
-    CopyQuaternion(q, (char *)GOBJ_SUB(a0) + 0xC0);
+    CopyQuaternion(q, GOBJ_SUB(a0)->root.baseQuat);
     MultiQuaternion(q, q, rot);
     RotQuaternionX(q, -32768);
     RotQuaternionY(q, -16384);
-    MultiQuaternion(q, q, (char *)GOBJ_SUB(a0) + 0xE0);
+    MultiQuaternion(q, q, GOBJ_SUB(a0)->root.motionQuat);
     SetRootQuaternion(a0, q);
     sceVu0SubVector(&GOBJ_SUB(a0)->root.move[0], pos, GOBJ_SUB(a0)->root.last);
     CopyVector(GOBJ_SUB(a0)->root.last, pos);
@@ -1142,10 +1143,10 @@ int MoveFloatingBox(GObj *self, GObj *other, float *dst, void *src, float lim)
         ang = (short)(ox * az - oz * ax < 0.0f ? d / l1 * 0.31830987f : -d / l1 * 0.31830987f);
 
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-        MatrixDrive_RotMatrixY(GetTableArcTan2(*(float *)((char *)GOBJ_SUB(self) + 0x520),
-                                               *(float *)((char *)GOBJ_SUB(self) + 0x528)));
+        MatrixDrive_RotMatrixY(
+            GetTableArcTan2(GOBJ_SUB(self)->ctrl.dir[0], GOBJ_SUB(self)->ctrl.dir[2]));
         MatrixDrive_RotMatrixY(ang);
-        sceVu0ApplyMatrix((char *)GOBJ_SUB(self) + 0x520, MatrixDrive_GetMatrix(), floatFacingAxis);
+        sceVu0ApplyMatrix(GOBJ_SUB(self)->ctrl.dir, MatrixDrive_GetMatrix(), floatFacingAxis);
 
         SetRootPosition(self, pos);
 
@@ -1154,7 +1155,7 @@ int MoveFloatingBox(GObj *self, GObj *other, float *dst, void *src, float lim)
         SetRootPosition(other, opos);
     }
 
-    GetCylinderCollisionWithExceptOwnCollision(self, (int)other, 70.0f, 50.0f, 0.5f, 0.5f, 0);
+    GetCylinderCollisionWithExceptOwnCollision(self, other, 70.0f, 50.0f, 0.5f, 0.5f, 0);
 
     w->charHit = 1;
     return 1;
@@ -1232,8 +1233,8 @@ void avoidCharGObj(GObj *a0, GObj *a1)
             break;
         }
         if (hit != 0) {
-            GetCylinderCollisionWithExceptOwnCollision(a0, (int)a1, (w.rad + 50.0f) * 1.414f,
-                                                       100.0f, 0.5f, 0.0f, 1);
+            GetCylinderCollisionWithExceptOwnCollision(a0, a1, (w.rad + 50.0f) * 1.414f, 100.0f,
+                                                       0.5f, 0.0f, 1);
             UpdateRootMatrix(a0);
         }
     }
@@ -1274,28 +1275,26 @@ void execFloating(GObj *self)
 
     if (boyGObj != 0) {
         if (w->charHit == 0) {
-            GetCylinderCollisionWithExceptOwnCollision(self, (int)boyGObj, 50.0f, 50.0f, 0.0f, 1.0f,
-                                                       1);
+            GetCylinderCollisionWithExceptOwnCollision(self, boyGObj, 50.0f, 50.0f, 0.0f, 1.0f, 1);
             avoidCharGObj(self, boyGObj);
         }
     }
     if (girlGObj != 0) {
-        GetCylinderCollisionWithExceptOwnCollision(self, (int)girlGObj, 70.700005f, 50.0f, 0.0f,
-                                                   1.0f, 1);
+        GetCylinderCollisionWithExceptOwnCollision(self, girlGObj, 70.700005f, 50.0f, 0.0f, 1.0f,
+                                                   1);
         avoidCharGObj(self, girlGObj);
     }
     GetRootPosition(pos, self);
     GetLowerPlaneCollision(&fw, pos);
-    len = VectorLengthSquare((char *)GOBJ_SUB(self) + 0x130);
+    len = VectorLengthSquare(GOBJ_SUB(self)->root.move);
     if (100.0f < len) {
-        _ScaleVectorXYZ((char *)GOBJ_SUB(self) + 0x130, (char *)GOBJ_SUB(self) + 0x130,
-                        3.0f / _Sqrt(len));
+        _ScaleVectorXYZ(GOBJ_SUB(self)->root.move, GOBJ_SUB(self)->root.move, 3.0f / _Sqrt(len));
     }
     /* the three water-probe heights are written as additions of the offset, not
        as subtractions: the ROM adds -50.0f and -25.0f and gcc 2.9 emits sub.s
        for a written subtraction (line 1128 below is one). */
-    if (GetWaterReaction(w->waterHeight, &hit, &fw, pos, (char *)GOBJ_SUB(self) + 0x130,
-                         pos[1] + -50.0f, pos[1] + -25.0f, pos[1] + 50.0f, 0.9f,
+    if (GetWaterReaction(w->waterHeight, &hit, &fw, pos, GOBJ_SUB(self)->root.move, pos[1] + -50.0f,
+                         pos[1] + -25.0f, pos[1] + 50.0f, 0.9f,
                          60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * -0.1f *
                              (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1])) *
                              3.0f) != 0) {
@@ -1323,8 +1322,8 @@ void execFloating(GObj *self)
         sceVu0AddVector(w->tilt, w->tilt, w->tiltVel);
         sceVu0OuterProduct(axis, floatTiltAxis, w->tilt);
         CopyQuaternion(q, IdentityQuaternion);
-        RotQuaternionY(q, GetTableArcTan2(*(float *)((char *)GOBJ_SUB(self) + 0x520),
-                                          *(float *)((char *)GOBJ_SUB(self) + 0x528)));
+        RotQuaternionY(q,
+                       GetTableArcTan2(GOBJ_SUB(self)->ctrl.dir[0], GOBJ_SUB(self)->ctrl.dir[2]));
         SetQuaternionByAxisRotateV(rot, (short)(VectorLength(w->tilt) * 20.48f / 50.0f), axis);
         MultiQuaternion(q, q, rot);
         SetRootQuaternion(self, q);
@@ -1338,7 +1337,7 @@ void execFloating(GObj *self)
         pushOutFloatingBox(&cw, cm, sv, dv, pos, q, r);
         _AddVectorXYZ(cw.pt[0], pos, ofs);
         cw.pt[0][3] = 0.0f;
-        _SubVector((char *)GOBJ_SUB(self) + 0x130, cw.pt[0], w->lastPos);
+        _SubVector(GOBJ_SUB(self)->root.move, cw.pt[0], w->lastPos);
         GOBJ_SUB(self)->root.move[3] = 0;
         CopyVector(w->lastPos, cw.pt[0]);
         SetRootPosition(self, pos);
@@ -1360,15 +1359,15 @@ void initFloating(GObj *a0)
 {
     BoxWork *p = GOBJ_SUB(a0)->work;
 
-    GOBJ_SUB(a0)->colData = *(int *)(p->effectDObj + 0x70);
+    GOBJ_SUB(a0)->colData = p->effectDObj->colData;
     GOBJ_SUB(a0)->colRotate = 1;
-    CopyQuaternion((char *)(int)GOBJ_SUB(a0) + 0xC0, IdentityQuaternion);
+    CopyQuaternion(GOBJ_SUB(a0)->root.baseQuat, IdentityQuaternion);
     SetRootQuaternion(a0, IdentityQuaternion);
     CopyVector(p->lastOffset, ZeroVector);
     CopyVector(p->tilt, ZeroVector);
     CopyVector(p->tiltVel, ZeroVector);
     GetRootPosition(p->lastPos, a0);
-    CopyVector((char *)(int)GOBJ_SUB(a0) + 0x520, floatInitFacing);
+    CopyVector(GOBJ_SUB(a0)->ctrl.dir, floatInitFacing);
     p->floatPhase = 0;
     execFloating(a0);
 }
@@ -1430,7 +1429,7 @@ void initLanding(GObj *a0)
         AddVectorXYZ(pos, pos, v);
     }
     _checkItemBreak(pos);
-    GetMatrixFromQuaternionPos(p->mtx[0], (char *)GOBJ_SUB(a0) + 0xC0, (char *)pos);
+    GetMatrixFromQuaternionPos(p->mtx[0], GOBJ_SUB(a0)->root.baseQuat, (char *)pos);
 }
 
 /* box.c:1308-1313 and 1315-1321 in the listing: both are inlined once, into
@@ -1545,14 +1544,14 @@ void action(GObj *a0)
             updateBoxWheelAngle(a0);
             memset(&v, 0, 16);
             v.f[2] = 1.0f;
-            _ApplyMatrix((char *)GOBJ_SUB(a0) + 0x520, (void *)GOBJ_SUB(a0)->nodeMtx, &v);
+            _ApplyMatrix(GOBJ_SUB(a0)->ctrl.dir, (void *)GOBJ_SUB(a0)->nodeMtx, &v);
         }
-        CopyVector((char *)GOBJ_SUB(a0) + 0x130, ZeroVector);
+        CopyVector(GOBJ_SUB(a0)->root.move, ZeroVector);
         break;
     case 1:
     case 6:
         execAutoMove(a0);
-        CopyVector((char *)GOBJ_SUB(a0) + 0x130, ZeroVector);
+        CopyVector(GOBJ_SUB(a0)->root.move, ZeroVector);
         break;
     case 2:
     case 3:
@@ -1560,7 +1559,7 @@ void action(GObj *a0)
         break;
     case 4:
         playBoxAnimation(a0, v.f);
-        CopyVector((char *)GOBJ_SUB(a0) + 0x130, ZeroVector);
+        CopyVector(GOBJ_SUB(a0)->root.move, ZeroVector);
         break;
     case 5:
         execFloating(a0);
@@ -1568,7 +1567,7 @@ void action(GObj *a0)
     case -1:
     default:
         debug_StdPrintfDummy("box die!!!\n");
-        CopyVector((char *)GOBJ_SUB(a0) + 0x130, ZeroVector);
+        CopyVector(GOBJ_SUB(a0)->root.move, ZeroVector);
         break;
     }
     if (p->mode != 6) {
@@ -2022,7 +2021,7 @@ int MoveBoxWithHoldPoint(GObj *a0, void *a1, GObj *a2, int a3, float *a4)
             *(int *)(q->subGObj + 0x16C) = 1;
         }
         if (GOBJ_SUB(a2)->ctrl.cliffWallHit != 0) {
-            q->wall = *(WallCfg *)((char *)GOBJ_SUB(a2) + 0x190);
+            q->wall = GOBJ_SUB(a2)->root.cliffWall;
         }
     } else {
         return 0;
@@ -2046,7 +2045,7 @@ inline int BoxRideFunc(ObjNode *a0, GObj *a1)
     }
     p15c->root.move[1] += 0.5f;
     GetRootPosition(buf + 0x10, obj);
-    CopyVector(buf, (char *)GOBJ_SUB(a1) + 0xA0);
+    CopyVector(buf, GOBJ_SUB(a1)->root.pos);
     *(int *)(buf + 4) = 0;
     sceVu0AddVector(s0->tiltVel, s0->tiltVel, buf);
     return 1;
@@ -2154,12 +2153,12 @@ BoxWork *InitBoxGeo(GObj *self, BoxLayout *lay)
 
     w->colData = GOBJ_SUB(self)->colData;
 
-    w->effectDObj = (int)CSVSYSTEM_InitDObj(63, (float *)&InitialSObjSimpleSetting);
+    w->effectDObj = CSVSYSTEM_InitDObj(63, &InitialSObjSimpleSetting);
 
     w->route = lay->kind & 0xFFFF;
     *(void **)((char *)GOBJ_SUB(self) + 0x81C) = (void *)BoxRideFunc;
 
-    g = CreateLayoutedGObj(0, 64, -1, 0, (int)lay, 0, 7, 0);
+    g = CreateLayoutedGObj(0, 64, -1, 0, lay, 0, 7, 0);
     w->subGObj = (int)g;
 
     GOBJ_SUB(g)->disp = 1;
@@ -2187,7 +2186,7 @@ BoxWork *InitBoxGeo(GObj *self, BoxLayout *lay)
             r.kind = 1;
 
             sub = accessary[GOBJ_SUB(self)->accessary].subModel;
-            o = CreateLayoutedGObj(23, accessary[sub].model, sub, 0, (int)&r, 0, 7, 0);
+            o = CreateLayoutedGObj(23, accessary[sub].model, sub, 0, &r, 0, 7, 0);
 
             LinkParentOfDObj(o, (PackedLL_19CAF0 *)&lnk);
 
@@ -2197,13 +2196,13 @@ BoxWork *InitBoxGeo(GObj *self, BoxLayout *lay)
             q.f[3] = 1.0f;
             v = q;
 
-            CopyVector((char *)GOBJ_SUB(o) + 0xA0, &v);
+            CopyVector(GOBJ_SUB(o)->root.pos, &v);
 
             memset(&q, 0, 16);
             q.f[3] = 1.0f;
             RotQuaternionY(
                 &q, (short)(accessary[GOBJ_SUB(self)->accessary].subRotY * 32768.0f / 180.0f));
-            CopyVector((char *)GOBJ_SUB(o) + 0xD0, &q);
+            CopyVector(GOBJ_SUB(o)->root.quat, &q);
 
             SetSwitchTriggerFunc(o, (void *)moveBoxAutoMatic);
 

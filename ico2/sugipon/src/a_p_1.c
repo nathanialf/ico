@@ -616,15 +616,15 @@ int walkMot(GObj *a0)
         }
     }
     _ScaleVector(&v, &v, ((float)n * 0.25f + 0.5f) * 0.5f);
-    _ScaleVector((char *)GOBJ_SUB(a0) + 0x130, (char *)GOBJ_SUB(a0) + 0x130, 0.8f);
-    _AddVectorXYZ((char *)GOBJ_SUB(a0) + 0x130, (char *)GOBJ_SUB(a0) + 0x130, &v);
+    _ScaleVector(GOBJ_SUB(a0)->root.move, GOBJ_SUB(a0)->root.move, 0.8f);
+    _AddVectorXYZ(GOBJ_SUB(a0)->root.move, GOBJ_SUB(a0)->root.move, &v);
     MatrixDrive_SetTransposeMatrix(tm.m, m.m);
-    _ApplyMatrix(&out, &tm, ((char *)GOBJ_SUB(a0) + 0x130));
+    _ApplyMatrix(&out, &tm, GOBJ_SUB(a0)->root.move);
     /* the two stores go through the TU's AP1Val view: the ROM keeps the
        object-sub load after them, which only an alias-set-0 store gives */
     ((AP1Val *)&p->f_1C4)->f = out.m[0];
-    ((AP1Val *)&p->f_1C0)->f = VectorLength((char *)GOBJ_SUB(a0) + 0x130) * 0.1f;
-    _AddVectorXYZ(&pos, &pos, (char *)GOBJ_SUB(a0) + 0x130);
+    ((AP1Val *)&p->f_1C0)->f = VectorLength(GOBJ_SUB(a0)->root.move) * 0.1f;
+    _AddVectorXYZ(&pos, &pos, GOBJ_SUB(a0)->root.move);
     SetRootPosition(a0, &pos);
     p->f_1C8 = 0.0f;
     return 1;
@@ -640,16 +640,15 @@ int rolling(GObj *a0)
     ((AP1Val *)((char *)GOBJ_SUB(a0) + 0x134))->f +=
         60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
         (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
-    _AddVectorXYZ((char *)GOBJ_SUB(a0) + 0xA0, (char *)GOBJ_SUB(a0) + 0xA0,
-                  (char *)GOBJ_SUB(a0) + 0x130);
+    _AddVectorXYZ(GOBJ_SUB(a0)->root.pos, GOBJ_SUB(a0)->root.pos, GOBJ_SUB(a0)->root.move);
     {
         char *col = (char *)&ap1RollClip;
         CopyVector(col, GOBJ_SUB(a0)->root.last);
-        CopyVector(col + 0x10, (char *)GOBJ_SUB(a0) + 0xA0);
+        CopyVector(col + 0x10, GOBJ_SUB(a0)->root.pos);
         *(float *)(col + 4) -= 50.0f;
         if (clipAndTakeHit(&info, col)) {
-            CopyVector((char *)GOBJ_SUB(a0) + 0xA0, &ap1RollClip.pos);
-            CopyVector((char *)GOBJ_SUB(a0) + 0x130, ZeroVector);
+            CopyVector(GOBJ_SUB(a0)->root.pos, &ap1RollClip.pos);
+            CopyVector(GOBJ_SUB(a0)->root.move, ZeroVector);
             yAxisRotFitting(a0, &ap1RollClip.normal);
             LinkParentOfDObj(a0, &info);
             UpdateRootMatrix(a0);
@@ -685,8 +684,8 @@ int rolling(GObj *a0)
         char *col = (char *)&ap1RollClip;
         *(float *)(col + 0x14) += 500.0f;
         ClipFloor(col);
-        if (CheckFieldContact(col, a0, (char *)GOBJ_SUB(a0) + 0xA0, 50.0f) == 2) {
-            CopyVector((char *)GOBJ_SUB(a0) + 0x130, ZeroVector);
+        if (CheckFieldContact(col, a0, GOBJ_SUB(a0)->root.pos, 50.0f) == 2) {
+            CopyVector(GOBJ_SUB(a0)->root.move, ZeroVector);
             iosOmSendMail(a0, 0x1A, a0);
         }
     }
@@ -858,7 +857,7 @@ void updateMatrix(GObj *a0)
     float mtx[16];
     AP1Work *p = GOBJ_SUB(a0)->work;
 
-    CopyVector(GOBJ_SUB(a0)->root.last, (char *)GOBJ_SUB(a0) + 0xA0);
+    CopyVector(GOBJ_SUB(a0)->root.last, GOBJ_SUB(a0)->root.pos);
     UpdateRootMatrix(a0);
     CopyMatrix(p->root, (void *)GOBJ_SUB(a0)->nodeMtx);
 
@@ -1046,7 +1045,7 @@ check:
     return 0;
 }
 
-char *MakeAP1GObj(char *a0)
+GObj *MakeAP1GObj(char *a0)
 {
     return CreateLayoutedGObj(62, spiderDef[*(int *)(a0 + 0x30)].layout, -1, 0, a0, 0, 7, 1);
 }

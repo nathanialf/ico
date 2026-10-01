@@ -196,12 +196,12 @@ void dispPlane(Vec4 *plane, float *pos)
 
 void GetOrientOfWallOfGObj(float *dir, GObj *obj)
 {
-    CopyVector(dir, (char *)obj->dobj + 0x5C0);
+    CopyVector(dir, obj->dobj->ctrl.wallNormal);
 }
 
 void GetOrientOfCliffOfGObj(float *dir, GObj *obj)
 {
-    CopyVector(dir, (char *)obj->dobj + 0x590);
+    CopyVector(dir, obj->dobj->ctrl.cliffNormal);
 }
 
 void SetMotionDirection(GObj *a0, float *a1)
@@ -227,7 +227,7 @@ void SetMotionDirection(GObj *a0, float *a1)
 
 void _GetMotionDirection(float *dir, GObj *obj)
 {
-    GetGlobalDirectionOrient(dir, obj, (char *)obj->dobj + 0x520);
+    GetGlobalDirectionOrient(dir, obj, obj->dobj->ctrl.dir);
 }
 
 void SetMotionDirectionWithLimit(GObj *self, float *dir, float lim0, float lim1)
@@ -2000,13 +2000,13 @@ float GetDifferenceFromWallUpperPlane(GObj *self, int node)
 void DisableChangeRootUpdateMode(GObj *self)
 {
     Sub15C *sub = self->dobj;
-    *(int *)((char *)sub + 0x4D0) = 1;
+    sub->ctrl.keepUpdateMode = 1;
 }
 
 void EnableChangeRootUpdateMode(GObj *self)
 {
     Sub15C *sub = self->dobj;
-    *(int *)((char *)sub + 0x4D0) = 0;
+    sub->ctrl.keepUpdateMode = 0;
 }
 
 float GetRopeHangablePos(GObj *self)
@@ -2029,27 +2029,27 @@ int GetMotionFrameFlag2(GObj *self)
 
 float GetHeightOfFieldPlaneDifference(GObj *a, GObj *b)
 {
-    int *pa;
-    int *pb;
+    Sub15C *pa;
+    Sub15C *pb;
     float r1;
     float r2;
-    pa = (int *)a->dobj;
-    r1 = GetYProjectionOfPlane((int *)((char *)pa + 0x1D0), (int *)((char *)pa + 0xA0));
-    pb = (int *)b->dobj;
-    r2 = GetYProjectionOfPlane((int *)((char *)pb + 0x1D0), (int *)((char *)pb + 0xA0));
+    pa = a->dobj;
+    r1 = GetYProjectionOfPlane(pa->root.plane.f, pa->root.pos);
+    pb = b->dobj;
+    r2 = GetYProjectionOfPlane(pb->root.plane.f, pb->root.pos);
     return r1 - r2;
 }
 
 float GetHeightOfWallFromGObj(GObj *self)
 {
     Sub15C *sub = self->dobj;
-    return *(float *)((char *)sub + 0x5A0);
+    return sub->ctrl.wallFloorHeight;
 }
 
 float GetHeightOfCliffFromGObj(GObj *self)
 {
     Sub15C *sub = self->dobj;
-    return *(float *)((char *)sub + 0x580);
+    return sub->ctrl.cliffHeight;
 }
 
 void InitMotionRotElem(int *a0, int count)
@@ -2098,14 +2098,14 @@ void SetMotionPlaySpeedRatio(GObj *self, float val)
 
 void ClearMotionGeometryInfo(GObj *self)
 {
-    int *p = (int *)self->dobj;
-    int *p1 = (int *)(((char *)p) + 0x230);
-    int *p2 = (int *)(((char *)p) + 0xA0);
+    Sub15C *p = self->dobj;
+    float *p1 = p->root.focusPos;
+    struct MotRoot *p2 = &p->root;
     int ret;
     CopyVector(p1, ZeroVector);
-    sceVu0AddVector((int *)(((char *)p) + 0x250), p2, p1);
+    sceVu0AddVector(p->root.footPos, p2->pos, p1);
     ret = -1;
-    *((int *)(((char *)p2) + 0x180)) = ret;
+    p2->standNode = ret;
     return ret;
 }
 

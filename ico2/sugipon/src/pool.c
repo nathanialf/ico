@@ -191,7 +191,7 @@ void SetFallDownSplash(GObj *pool, GObj *self)
     PoolWork *w = GOBJ_SUB(pool)->work;
 
     GetRootPosition(pos, self);
-    _ScaleVectorXYZ(tmp, (char *)GOBJ_SUB(self) + 0x130, 2.0f);
+    _ScaleVectorXYZ(tmp, GOBJ_SUB(self)->root.move, 2.0f);
     _AddVector(pos, pos, tmp);
     pos[1] = w->pos[1];
 

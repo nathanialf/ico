@@ -114,7 +114,7 @@ void WakeUpLayoutedSpiders(GObj *self)
 }
 
 /* listing lines 324-331 */
-static inline void setSpiderGroupHost(GObj *self, void *host)
+static inline void setSpiderGroupHost(GObj *self, GObj *host)
 {
     SpiderWork *w;
     int i;
@@ -210,9 +210,9 @@ void SpiderLayoutGeo(GObj *self)
     w = GOBJ_SUB(self)->work;
     switch (*(int *)w) {
     case -1: {
-        char *host = *(char **)*(char **)(((char *)self) + 0x15C);
+        GObj *host = *(GObj **)self->dobj;
 
-        if (host != 0 && *(int *)(host + 0xC) != 33) {
+        if (host != 0 && host->kind != 33) {
             setSpiderGroupHost(self, host);
         } else {
             callSpidersToGirl(self);
@@ -529,10 +529,10 @@ static inline void SetLayoutedSpidersRootPosition(GObj *gp, void *pos)
 void WakeUpSpidersFromGenerator(GObj *gp)
 {
     float pos[4];
-    char *gen = *(char **)(*(char **)(((char *)gp) + 0x15C));
+    GObj *gen = *(GObj **)gp->dobj;
 
     if (gen != 0) {
-        if (*(int *)(gen + 0xC) != 0x21) {
+        if (gen->kind != 33) {
             debug_StdPrintfDummy(spiderWakeHasParentMsg);
             return;
         }

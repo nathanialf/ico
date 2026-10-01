@@ -14,6 +14,10 @@
 
 struct IosMemPart;
 
+struct PEGeo;
+
+struct PEPackage;
+
 /* particle-effect: one particle effect file, 0x50 bytes. Readers:
  * ico2/common/src/icoMisc.c, ico2/sugipon/src/effectTool.c (the path at
  * 0x20), particleEffect.c. */
@@ -35,7 +39,7 @@ int GetParticleLoopFlag(int a0);
 void ParticleEffects_SetAllGoal(void *goal);
 void ResetParticleEffectPackages(int *pkg);
 int SetParticleEffect(int id, void *pos, void *quat);
-int SetParticleEffectActiveSensing(int id, float *pos, int *quat);
+int SetParticleEffectActiveSensing(int id, void *pos, void *quat);
 int SetParticleEffectByPartition(int id, void *pos, void *quat, struct IosMemPart *part);
 void SetParticleEffectDrainLevel(int a0, float f);
 void SetParticleEffectGeometry(int id, void *pos, void *quat);
@@ -43,7 +47,7 @@ void SetParticleEffectPackage(int a0, int *a1, int a2);
 void SetParticleEffectPauseFlag(int a0, int a1);
 void SetParticleEffectUpperLimit(int no, float f);
 int execParticleEffect(void *a0);
-int setParticleEffect(int geo, int *pkg, int part);
+int setParticleEffect(struct PEGeo *self, struct PEPackage *pkg, struct IosMemPart *part);
 void SetParticleEffectClipEnableFlag(int a0, int a1);
 
 #endif /* PARTICLEEFFECT_H */

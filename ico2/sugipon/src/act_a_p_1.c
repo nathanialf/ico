@@ -632,9 +632,9 @@ int IsActCharDead(GObj *a0)
     return (((int)x) & 1) ^ 1;
 }
 
-void SetAP1HostGObj(GObj *self, int val)
+void SetAP1HostGObj(GObj *self, GObj *host)
 {
-    GOBJ_ACT(self)->lookTarget = val;
+    GOBJ_ACT(self)->lookTarget = host;
 }
 
 void SetAP1PriorLevel(GObj *self, int val)

@@ -693,9 +693,8 @@ void synchronizeMotionOutputOriginForGirl(GObj *gobj)
             p++;
         }
         if (okA != 0 && okB != 0) {
-            _InterVectorXYZ(v, (char *)GOBJ_SUB(girlGObj) + 0x100, (char *)GOBJ_SUB(gobj) + 0x100,
-                            0.9f);
-            _SubVectorXYZ(d, v, (char *)GOBJ_SUB(girlGObj) + 0x100);
+            _InterVectorXYZ(v, GOBJ_SUB(girlGObj)->root.up, GOBJ_SUB(gobj)->root.up, 0.9f);
+            _SubVectorXYZ(d, v, GOBJ_SUB(girlGObj)->root.up);
             d[1] = 0.0f;
             GetRootPosition(v, girlGObj);
             _AddVectorXYZ(v, v, d);
@@ -704,10 +703,10 @@ void synchronizeMotionOutputOriginForGirl(GObj *gobj)
                 gif_StartPacketPri(0xB);
                 gif_SetAlpha(1, 5, 0x80);
                 _UnitMatrix(MatrixDrive_GetMatrix());
-                MatrixDrive_TransMatrixV((char *)GOBJ_SUB(girlGObj) + 0x100);
+                MatrixDrive_TransMatrixV(GOBJ_SUB(girlGObj)->root.up);
                 prim_DispWireSphere(10.0f, girlSyncMarkerColor, 16, 8);
                 _UnitMatrix(MatrixDrive_GetMatrix());
-                MatrixDrive_TransMatrixV((char *)GOBJ_SUB(gobj) + 0x100);
+                MatrixDrive_TransMatrixV(GOBJ_SUB(gobj)->root.up);
                 prim_DispWireSphere(10.0f, boySyncMarkerColor, 16, 8);
                 gif_EndPacket();
             }
