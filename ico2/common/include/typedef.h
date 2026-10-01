@@ -1243,7 +1243,9 @@ typedef struct Act { /* field names derived */
     int intrKind;      /* 0xD8, the kind of the mail that last interrupted */
     int attack; /* 0xDC, nonzero when the actor's kind attacks (act_a_p_1.c copies spiderDef's attack) */
     int readyFlags; /* 0xE0, the hand-in-hand handshake bits: 1 ready begin, 2 ready end, 8 exec end, 0x10 error */
-    char padE4[44];
+    char padE4[12];
+    float jump[4]; /* 0xF0, the jump vector of the actor's kind (act_a_p_1.c copies spiderDef's jump; AP1JumpReq) */
+    char pad100[16];
     float camRootX; /* 0x110, the root position the camera follows, x */
     float camRootY; /* 0x114, the root position the camera follows, y */
     float camRootZ; /* 0x118, the root position the camera follows, z */

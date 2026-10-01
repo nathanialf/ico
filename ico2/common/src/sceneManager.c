@@ -23,6 +23,7 @@
 #include "ebrain.h"
 #include "act.h"
 #include "debug_exception.h"
+#include "Texture.h"
 
 /* .sbss: the three frame counts
    GetStageStartInfo hands back, which boyact's stage-entry action waits out in
@@ -160,9 +161,6 @@ plain:
 /* GlobalStageSetting is the system's StageSetting record (typedef.h).  The
    stage-preset record is read through the stageData[stage] subscript on every
    line. */
-/* Texture.h declares it (void); the callers here pass 0 */
-extern int tex_RemakeRegistersSampleMin(int a);
-
 void InitStageLight(int stage)
 {
     int i;

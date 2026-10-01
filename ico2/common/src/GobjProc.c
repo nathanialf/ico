@@ -25,27 +25,27 @@ int GetMaxGObj(void)
     return gobjCount;
 }
 
-int GetGObjP(int idx)
+GObj *GetGObjP(int idx)
 {
-    return (int)gobj_table[idx];
+    return gobj_table[idx];
 }
 
-int GetGObjId(int a0)
+int GetGObjId(GObj *gobj)
 {
     int i;
     for (i = 0; i < gobjCount; i++) {
-        if (a0 == (int)gobj_table[i]) {
+        if (gobj == gobj_table[i]) {
             return i;
         }
     }
     return -1;
 }
 
-void PrintGObjID(int a0)
+void PrintGObjID(GObj *gobj)
 {
     int i;
     for (i = 0; i < gobjCount; i++) {
-        if (a0 == (int)gobj_table[i]) {
+        if (gobj == gobj_table[i]) {
             debug_StdPrintfDummy("%d\n", i);
         }
     }

@@ -15,14 +15,12 @@
 #include "motionFileManager.h"
 #include "particleEffect.h"
 #include "tableSin.h"
+#include "DisplayP2O.h"
+#include "Shadow.h"
+#include "Texture.h"
 #include <string.h>
 #include "ios.h"
 #include <assert.h>
-
-typedef struct {
-    char pad0[32];
-    int unk_20; /* 0x20 */
-} PObj;
 
 typedef struct {
     char pad0[68];
@@ -43,12 +41,12 @@ typedef struct {
 } Coll;
 
 typedef struct {
-    PObj *pObj;    /* 0x00 */
-    PObj *pShadow; /* 0x04 */
-    char *pSkel;   /* 0x08 */
-    int skelSum;   /* 0x0C */
-    Coll *pColl;   /* 0x10 */
-    int state;     /* 0x14 */
+    PObjModel *pObj;    /* 0x00 */
+    PObjModel *pShadow; /* 0x04 */
+    char *pSkel;        /* 0x08 */
+    int skelSum;        /* 0x0C */
+    Coll *pColl;        /* 0x10 */
+    int state;          /* 0x14 */
 } CharFile;
 
 /* .bss: the character file table, MAX_CHARS entries of 0x18 bytes */
@@ -66,13 +64,13 @@ static int objSerial = 0; /* derived name */
 #include <stdio.h>
 #include "main.h"
 
-/* declared here, not in the header: PObj is a record only this TU
-   defines */
-PObj *GetPObjAddress(int a0);
+/* declared here until enemy.c's call stores the pointer without its int
+   view; then charFileManager.h declares it */
+PObjModel *GetPObjAddress(int id);
 
-inline PObj *GetPObjAddress(int a0)
+inline PObjModel *GetPObjAddress(int id)
 {
-    return charFiles[a0].pObj;
+    return charFiles[id].pObj;
 }
 
 void InitCharFileManager(void)
@@ -102,7 +100,7 @@ void ResetCharFileManager(void)
 }
 
 /* PObj.c has no header; the definition is (int, int, int) */
-extern PObj *InitPObj(void *buf, int a1, int id);
+extern PObjModel *InitPObj(void *buf, int a1, int id);
 
 /* "Illegal Model ID number: %d (\"%s\")\n" / "ReadModelFile:Already loaded. (id:%d)%s\n" / "ReadModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n" / sprintf above belong to ReadModelFile. */
 void ReadModelFile(void *h, int a1, int size, int id, int a4, int a5, int part)
@@ -140,7 +138,7 @@ void ReadModelFile(void *h, int a1, int size, int id, int a4, int a5, int part)
     iosCdvdHandlerRead(h, p, size);
     debug_StdPrintfDummy("ReadModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n", id, a1, p, size);
     charFiles[id].pObj = InitPObj(p, a1, id);
-    charFiles[id].pObj->unk_20 = objSerial++;
+    charFiles[id].pObj->serial = objSerial++;
     iosFree(p);
 }
 
@@ -173,14 +171,12 @@ void ReadVolumeModelFile(void *h, int a1, int size, int id, int a4, int a5, int 
     debug_StdPrintfDummy("ReadVolumeModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n", id, a1, buf,
                          size);
     charFiles[id].pObj = InitPObj(buf, a1, id);
-    charFiles[id].pObj->unk_20 = objSerial++;
+    charFiles[id].pObj->serial = objSerial++;
     iosFree(buf);
 }
 
 /* PObj.c has no header; the definition is (ObjHdr *, char *, int) */
-extern PObj *AllocPObj(void *buf, int a1, int id);
-/* Shadow.h does not declare it; the definition takes PObjModel * */
-extern void shadow_MakeObjectData(PObj *p);
+extern PObjModel *AllocPObj(void *buf, int a1, int id);
 
 void ReadShadowModelFile(void *h, int a1, int size, int id, int a4, int a5, int a6)
 {
@@ -211,15 +207,12 @@ void ReadShadowModelFile(void *h, int a1, int size, int id, int a4, int a5, int 
     debug_StdPrintfDummy("ReadShadowModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n", id, a1, buf,
                          size);
     charFiles[id].pShadow = AllocPObj(buf, a1, id);
-    charFiles[id].pShadow->unk_20 = objSerial++;
+    charFiles[id].pShadow->serial = objSerial++;
     shadow_MakeObjectData(charFiles[id].pShadow);
     iosFree(buf);
 }
 
-/* as in Texture.h, which this TU does not include */
-extern int tex_InitTexture(int id, void *buf);
-
-void ReadTextureFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
+void ReadTextureFile(void *h, char *name, int size, int a3, int a4, int a5, int a6)
 {
     int rv = 0;
     char *buf;
@@ -233,7 +226,7 @@ void ReadTextureFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
     }
     buf = iosMallocDebug(ios_partition_seki, size, __FILE__, 276);
     if (size == 0) {
-        debug_StdPrintfDummy("ReadTextureFile:texture size is zero.%s\n", a1);
+        debug_StdPrintfDummy("ReadTextureFile:texture size is zero.%s\n", name);
         iosCdvdHandlerRead(h, 0, 0);
         return;
     }
@@ -244,9 +237,9 @@ void ReadTextureFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
         }
     }
     if (flag == 0) {
-        rv = tex_InitTexture(a1, buf);
+        rv = tex_InitTexture(name, buf);
     }
-    debug_StdPrintfDummy("ReadTextureFile:loaded::(%d)%s(addr:%p/size:%d)\n", rv, a1, buf, size);
+    debug_StdPrintfDummy("ReadTextureFile:loaded::(%d)%s(addr:%p/size:%d)\n", rv, name, buf, size);
     iosFree(buf);
 }
 
@@ -382,7 +375,7 @@ void ReadCollisionFile(void *h, char *name, int size, int a3, int a4, int a5, in
     __assert(__FILE__, 466, "FALSE");
 }
 
-void ReadStageAnimationFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
+void ReadStageAnimationFile(void *h, char *name, int size, int a3, int a4, int a5, int a6)
 {
     char *buf;
 
@@ -399,8 +392,8 @@ void ReadStageAnimationFile(void *h, int a1, int size, int a3, int a4, int a5, i
     }
     buf = mallocseki(size);
     iosCdvdHandlerRead(h, buf, size);
-    debug_StdPrintfDummy("ReadStageAnimationFile:loaded::[%d]%s (size:%d)\n", a3, a1, size);
-    stage_ApplyData(a1, buf);
+    debug_StdPrintfDummy("ReadStageAnimationFile:loaded::[%d]%s (size:%d)\n", a3, name, size);
+    stage_ApplyData(name, buf);
 }
 
 typedef struct {
@@ -683,9 +676,6 @@ void ReadEndCheckFile(void *h, int a1, int size)
     iosFree(buf);
 }
 
-/* Texture.h declares it (void); the callers here pass 0 */
-extern int tex_RemakeRegistersSampleMin(int a);
-
 void ReadStageSettingFile(void *h, int a1, int size)
 {
     char *buf;
@@ -708,8 +698,8 @@ typedef struct {
     char pad90[1956];
     int unk_834; /* 0x834 */
     char pad838[28];
-    PObj *unk_854; /* 0x854 */
-    PObj *unk_858; /* 0x858 */
+    PObjModel *unk_854; /* 0x854 */
+    PObjModel *unk_858; /* 0x858 */
 } CsvChar;
 
 void CSVSYSTEM_ReadCharFiles(CsvChar *rec, int id)

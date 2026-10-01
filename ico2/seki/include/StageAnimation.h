@@ -57,4 +57,6 @@ void stage_ResetAnimation(void);
 void stage_CalcAnimationNoParent(void);
 void stage_CalcAnimationParent(void);
 
+int stage_Init(void);
+
 #endif /* STAGEANIMATION_H */

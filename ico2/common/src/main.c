@@ -23,6 +23,7 @@
 #include "thread.h"
 #include "act-game.h"
 #include "obj_manager.h"
+#include "StageAnimation.h"
 #include "libgraph.h"
 #include <stdlib.h>
 
@@ -108,12 +109,6 @@ extern void movie_init(void *p, int w, int h, int a3, int a4, int a5, int col);
 extern int movie_proc(int (*poll)(void));
 /* geometryManager.h does not declare it */
 extern void MakeCharGObjList(void);
-/* StageAnimation.h does not declare it */
-extern void stage_ResetAnimation(void);
-/* StageAnimation.h does not declare it */
-extern void stage_CalcAnimationNoParent(void);
-/* StageAnimation.h does not declare it */
-extern void stage_CalcAnimationParent(void);
 int movie_abort_check(void);
 
 /* the development build's Main also called debug_Menu, debug_SetBar and

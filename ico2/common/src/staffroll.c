@@ -12,16 +12,12 @@
 static int staffRollArea[4] = {-5120, -1792, 10240, 3584}; /* derived name */
 
 typedef struct {
-    unsigned char b[4];
-} StaffRollCol;
-
-typedef struct {
-    char **str;       /* 0x00 */
-    float y;          /* 0x04 */
-    char size;        /* 0x08 */
-    StaffRollCol col; /* 0x09 */
-    char pad[3];      /* 0x0D */
-} StaffRollEntry;     /* 0x10 */
+    char **str;   /* 0x00 */
+    float y;      /* 0x04 */
+    char align;   /* 0x08, font_CheckAlign's result for the line */
+    SprCol col;   /* 0x09 */
+    char pad[3];  /* 0x0D */
+} StaffRollEntry; /* 0x10 */
 
 /* .sbss */
 static float rollSpeed; /* derived name */ /* lines the roll climbs per frame */
@@ -62,12 +58,9 @@ void staffRollStart(float t, int alpha)
     rollWidth = 0;
     closing = 0;
     staffRollCenterOffsetX = staffRollCenterOffsetXDest = rollOffset;
-    staffRollArea[0] = 0x500;
+    staffRollArea[0] = 1280;
     memset(rollLines, 0, sizeof(rollLines));
 }
-
-/* DisplayFont.h does not declare it; the definition's parameters differ */
-extern void font_Print(unsigned int attr, char *str, int size, StaffRollCol col, float x, float y);
 
 /* The scroll loop walks the 300-entry table by byte offset and spells the
    base at every use site. */
@@ -99,8 +92,8 @@ static int staffRollScroll(void)
             a = 128;
         }
         if ((float)(-(font_GetHeight() + 449)) < SROLL(i)->y) {
-            font_Print(a | 0x70707000, *SROLL(i)->str, SROLL(i)->size, SROLL(i)->col,
-                       (float)rollWidth, SROLL(i)->y);
+            font_Print(a | 0x70707000, *SROLL(i)->str, (float)rollWidth, SROLL(i)->y,
+                       SROLL(i)->align, SROLL(i)->col);
         } else {
             SROLL(i)->str = 0;
         }
@@ -132,7 +125,7 @@ static int staffRollNameOut(void)
             e->str = s;
 
         e->y = (float)(font_GetHeight() + 449);
-        e->size = font_CheckAlign(&e->col, *e->str);
+        e->align = font_CheckAlign(&e->col, *e->str);
     }
     return rollNameIdx >= staffRollNameDataNum;
 }
@@ -152,13 +145,13 @@ void staffRollMain(void)
     if (closing != 0) {
         n = 0;
         staffRollArea[0] = (int)((float)staffRollArea[0] - areaStep);
-        if (staffRollArea[0] < -0x1400) {
-            staffRollArea[0] = -0x1400;
+        if (staffRollArea[0] < -5120) {
+            staffRollArea[0] = -5120;
             n = 1;
         }
         rollWidth = (int)((float)rollWidth - widthStep);
-        if (rollWidth < 0x280) {
-            rollWidth = 0x280;
+        if (rollWidth < 640) {
+            rollWidth = 640;
             n++;
         }
         if (n == 2) {
@@ -238,7 +231,7 @@ void staffRollMain(void)
 void staffRollWide(void)
 {
     closing = 1;
-    areaStep = (float)((staffRollArea[0] + 0x1400) / 30);
-    widthStep = (float)((rollWidth - 0x280) / 30);
-    staffRollAlpha = 0xFF;
+    areaStep = (float)((staffRollArea[0] + 5120) / 30);
+    widthStep = (float)((rollWidth - 640) / 30);
+    staffRollAlpha = 255;
 }

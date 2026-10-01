@@ -43,6 +43,11 @@
 #include "main.h"
 #include "windField.h"
 #include "debug_exception.h"
+#include "fightSound.h"
+#include "ebrain.h"
+#include "EnemyInit.h"
+#include "ZFog.h"
+#include "flyManager.h"
 #include <assert.h>
 
 static void disp_memory_partition_bar(void);
@@ -229,21 +234,8 @@ static int seEnvMute = 0; /* derived name */
 
 static int diskErrorBlink = 0; /* derived name */
 
-/* debug_Printf comes from debug.h */
-/* particleEffect.h does not declare it */
-extern void ExecParticleEffects(void);
-/* streamMotionManager.h does not declare it */
-extern void ExecStreamMotionManager(void);
-/* windManager.h does not declare it */
-extern void ExecWindManager(void);
-/* spiderGroupManager.h does not declare it */
-extern void ExecSpiderGroupManager(void);
 /* the definition in script.c is (void); this caller passes the camera */
 extern void scpGirlHintVoiceTickProc(int cam);
-/* fightSound.h does not declare it */
-extern void fightSoundProcess(void);
-/* ebrain.h does not declare it */
-extern void eBrainProcess(void);
 
 void ExecIcoMisc(void)
 {
@@ -381,18 +373,6 @@ static int load_time; /* derived name */
 
 /* staticBlur.h does not declare it */
 extern void InitializeStaticBlur(void);
-/* as in flyManager.h, which this TU does not include */
-extern void InitFlyManager(void);
-/* Light.h does not declare it */
-extern void light_InitLight(void);
-/* EnemyInit.h does not declare it */
-extern void enemy_Initialize(void);
-/* ZFog.h does not declare it */
-extern void fog_MakeFogClut(void);
-/* particleEffect.h does not declare it */
-extern void InitParticleEffects(void);
-/* StageAnimation.h does not declare it; the definition returns int */
-extern void stage_Init(void);
 
 void InitIcoMisc(int *arg)
 {

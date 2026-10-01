@@ -68,7 +68,7 @@ static inline int font_HexDigit(char c) /* derived name */
     return r;
 }
 
-int font_CheckAlign(unsigned char *col, unsigned char *str)
+int font_CheckAlign(SprCol *col, unsigned char *str)
 {
     unsigned char buf[256];
     unsigned char *p;
@@ -107,16 +107,12 @@ int font_CheckAlign(unsigned char *col, unsigned char *str)
             n++;
         }
     }
-    col[0] = fontColorR;
-    col[1] = fontColorG;
-    col[2] = fontColorB;
-    col[3] = fontColorA;
+    col->f[0] = fontColorR;
+    col->f[1] = fontColorG;
+    col->f[2] = fontColorB;
+    col->f[3] = fontColorA;
     return fontAlign;
 }
-
-typedef struct { /* field names derived */
-    unsigned char f[4];
-} SprCol; /* derived name */
 
 void font_Print(unsigned int color, unsigned char *str, float x, float y, int align, SprCol col)
 {

@@ -41,6 +41,7 @@
 #include "ios.h"
 #include "staffroll.h"
 #include "DmaPacket.h"
+#include "Texture.h"
 #include "debug_exception.h"
 #include <assert.h>
 
@@ -806,8 +807,6 @@ typedef struct {
 extern int MotionViewer(void);
 /* effectTool.h does not declare it */
 extern int EffectTool(void);
-/* Texture.h does not declare it */
-extern int tex_ListTool(void);
 /* motionManager2.h does not declare it; the definition takes int * */
 extern void DebugDisp1Collision(void *hit);
 

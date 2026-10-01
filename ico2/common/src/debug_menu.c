@@ -11,7 +11,7 @@
    it, and the blink counter. */
 static int debugMenuUnusedWord = 0; /* derived name */
 
-static int savedCameraTarget = 0; /* derived name */
+static GObj *savedCameraTarget = 0; /* derived name */
 
 static GObj *targetGObj = 0; /* derived name */
 
@@ -36,25 +36,25 @@ int debug_TargetGObj(int reset)
 
     n = GetMaxGObj();
     if (reset != 0) {
-        int t = CameraGetTarget();
+        GObj *t = CameraGetTarget();
         targetGObj = 0;
         savedCameraTarget = t;
         targetGObjIdx = GetGObjId(t);
     }
     ret = debug_SelectCsvWindowVal((int)"object target", 10, 60, 10, n, (int)&targetGObjIdx,
                                    (int (*)(int, int))debug_TargetGObj_Func, 0);
-    if (targetGObj != (GObj *)GetGObjP(targetGObjIdx)) {
+    if (targetGObj != GetGObjP(targetGObjIdx)) {
         CameraSetMode(2);
-        CameraChangeTargetParallel((int)targetGObj, GetGObjP(targetGObjIdx));
+        CameraChangeTargetParallel(targetGObj, GetGObjP(targetGObjIdx));
         if (targetGObj != 0) {
             targetGObj->drawMask = savedDrawMask;
         }
-        targetGObj = (GObj *)GetGObjP(targetGObjIdx);
+        targetGObj = GetGObjP(targetGObjIdx);
         savedDrawMask = targetGObj->drawMask;
     }
-    targetGObj = (GObj *)GetGObjP(targetGObjIdx);
-    CurrentTargetGObj = (int)targetGObj;
-    Camctrl_SetTarget((int)targetGObj, 0, 3);
+    targetGObj = GetGObjP(targetGObjIdx);
+    CurrentTargetGObj = targetGObj;
+    Camctrl_SetTarget(targetGObj, 0, 3);
     debug_PrintfDummy(16, 16, 0xFFFFFFFF, "GObj address:%p", CurrentTargetGObj);
     if ((targetBlinkCount++ & 7) == 0) {
         targetGObj->drawMask = ~targetGObj->drawMask;

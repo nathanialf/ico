@@ -14,6 +14,13 @@ int font_GetWidth(void);
 int font_GetHeight(void);
 void font_Init(void);
 
-int font_CheckAlign(unsigned char *col, unsigned char *str);
+/* a line's colour, {r, g, b, a}: font_CheckAlign reads it from the line's
+ * {#rrggbbaa} tag and font_Print scales the packet colour by it */
+typedef struct { /* field names derived */
+    unsigned char f[4];
+} SprCol; /* derived name */
+
+int font_CheckAlign(SprCol *col, unsigned char *str);
+void font_Print(unsigned int color, unsigned char *str, float x, float y, int align, SprCol col);
 
 #endif /* DISPLAYFONT_H */
