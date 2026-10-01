@@ -95,7 +95,9 @@ typedef union { /* field names derived */
         unsigned int : 7;
         unsigned int carried
             : 1; /* a carried pose: the girl's carry ends on it (commonact.c's becarry check) */
-        unsigned int : 8;
+        unsigned int : 3;
+        unsigned int chainHang : 1; /* the boy hangs on a chain: chain.c widens its hang range to 70 */
+        unsigned int : 4;
         unsigned int jumpHit : 1;  /* actCommonJump's jump has hit and stops on a mode 1 motion */
         unsigned int parallel : 1; /* played as a parallel motion */
         unsigned int : 1;

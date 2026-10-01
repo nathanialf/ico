@@ -5,13 +5,6 @@
 /* the flying object the manager tracks */
 static int flyGObj = 0; /* derived name */
 
-typedef struct { /* field names derived */
-    float floorY;
-    float limitY;
-    float limitOfs;
-    int flags;
-} FlyLimitInfo; /* derived name */
-
 #include "flyManager.h"
 #include "debug.h"
 #include <string.h>

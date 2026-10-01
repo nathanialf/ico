@@ -39,8 +39,6 @@ typedef struct PadBuf { /* field names derived */
     char pad24[60];
 } PadBuf; /* derived name */
 
-extern PadConf iosPadConfDefault;
-
 void ExecKeyInput(void)
 {
     PadBuf buf;

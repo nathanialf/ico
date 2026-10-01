@@ -28,6 +28,8 @@ int CheckPureCliffAttribute(GObj *self, int attr);
 void ClearMotionBlendlessNode(GObj *a0);
 void ClearMotionGeometryInfo(GObj *self);
 void CopyMotion(void *dst, void *src, int n);
+void DebugDisp1Collision(WallCfg *cfg);
+void DebugDisp1CollisionWithColor(WallCfg *cfg, void *color);
 void DisableChangeRootUpdateMode(GObj *self);
 void DisableMotionOrientUpdate(GObj *self);
 void DispSkelton(GObj *self, int a1);

@@ -860,9 +860,9 @@ def _table(sections: dict, extracted: dict) -> str:
         "assembled from a tracked source under `ico2/` or `sce/`. **From the "
         "disc** counts the bytes of the data-only archive members "
         "(`config/data_members.pal.txt`), which the build generates from the "
-        "user's own base ELF: as C for the members `config/data_schema.pal.txt` "
-        "lists (`tools/gen_data_c.py`) and as assembly for the rest "
-        "(`tools/extract_data.py`); none of their content is in the repository. "
+        "user's own base ELF as C from the record types and names in "
+        "`config/data_schema.pal.txt` (`tools/gen_data_c.py`); none of their "
+        "content is in the repository. "
         "Linker fill counts with the object it follows. "
         "**Identical** is their sum, the share of the section equal to the base, "
         "which the gate requires to be 100 % for every section with file bytes.")

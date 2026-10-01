@@ -22,11 +22,9 @@ address, the member's C written from the base ELF with its pointers named from
 that link, compiled by ccdata (compile_c.sh run on it as a game TU, from a
 programmer directory, so it reaches every ico2 include directory as the game's
 TUs do), checked against the ROM range, and the placeholder
-labels inside it bound by a linker assignment), data (tools/extract_data.py's
-assembly for each data-only row the schema does not type, assembled by as),
-labels (the D_<VMA> placeholders a tracked source spells inside a data
-member's row: gen_data_c.py binds them for a member written as C, the
-extractor defines them for a row written as assembly), link (the period linker, GNU ld 2.10 with
+labels inside it bound by a linker assignment), labels (the D_<VMA>
+placeholders a tracked source spells inside a data member's row, which
+gen_data_c.py binds), link (the period linker, GNU ld 2.10 with
 tools/binutils-2.10-ee.patch, built by tools/setup.sh under
 tools/cc/binutils-2.10-ee/, writing the IRIX-compatible elf32-littlemips output
 MAIN.MAP names: once to ico.syms.elf, which keeps the symbols, and once with -s
@@ -47,8 +45,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 # The member table's and the schema's one parser each.
-from extract_data import parse_table  # noqa: E402
-from gen_data_c import parse_schema  # noqa: E402
+from gen_data_c import parse_schema, parse_table  # noqa: E402
 
 LIST = "config/link_order.pal.txt"
 SCRIPT = "config/link.pal.ld"
@@ -94,12 +91,9 @@ def parse_list():
     return entries
 
 
-def table_rows():
-    """Each member's rows of the table, as MEMBER.SECTION keys."""
-    rows = {}
-    for r in parse_table(ROOT / TABLE):
-        rows.setdefault(r["member"], []).append(f"{r['member']}.{r['section']}")
-    return rows
+def table_members():
+    """The members config/data_members.pal.txt has rows for."""
+    return {r["member"] for r in parse_table(ROOT / TABLE)}
 
 
 def schema_members():
@@ -121,7 +115,7 @@ def archive_as(src):
     return "as_old", "8"
 
 
-def check(entries, rows):
+def check(entries, members):
     listed = set()
     for e in entries:
         where = f"{LIST}:{e['line']}"
@@ -131,7 +125,7 @@ def check(entries, rows):
             if e["name"] in listed:
                 fail(f"{where}: {e['name']} is listed twice")
             listed.add(e["name"])
-        elif e["name"] not in rows:
+        elif e["name"] not in members:
             fail(f"{where}: {e['name']} is not a member in {TABLE}")
     tracked = subprocess.run(["git", "ls-files", "--", "ico2", "sce"], cwd=ROOT,
                              capture_output=True, text=True, check=True).stdout.split()
@@ -148,12 +142,12 @@ def label_sources():
 
 
 def write_labels(out):
-    """The address-named labels (D_<VMA>) sources use inside the extracted
-    tables. config/data_members.pal.txt carries MAIN.MAP's names and the few
+    """The address-named labels (D_<VMA>) sources use inside the data
+    members. config/data_members.pal.txt carries MAIN.MAP's names and the few
     derived names the C reads a table by; a C or assembly file that reads a
     table at an interior offset, where MAIN.MAP names no symbol, spells the
-    address as the name, and the extractor defines that label. Only names some
-    source spells are written."""
+    address as the name, and gen_data_c.py --alias binds that label. Only
+    names some source spells are written."""
     rows = [(r["lo"], r["hi"], {name for name, _ in r["syms"]}) for r in parse_table(ROOT / TABLE)]
     idents = set()
     for p in label_sources():
@@ -172,24 +166,22 @@ def vu_headers():
     return sorted(str(p.relative_to(ROOT)) for p in (ROOT / "ico2/vusrc").glob("*.h"))
 
 
-def objects(e, rows, cmembers, layout=False):
-    """The objects a line links: a member written as C is one object (in the
-    layout link, its zero stand-in)."""
+def objects(e, layout=False):
+    """The objects a line links: a data member is one object (in the layout
+    link, its zero stand-in)."""
     if e["kind"] == "src":
         return [obj_of(e["name"])]
-    if e["name"] in cmembers:
-        return [f"{OUT}/data/stub/{e['name']}.o" if layout else f"{OUT}/data/{e['name']}.o"]
-    return [f"{OUT}/data/{k}.o" for k in rows[e["name"]]]
+    return [f"{OUT}/data/stub/{e['name']}.o" if layout else f"{OUT}/data/{e['name']}.o"]
 
 
-def inputs_ld(entries, rows, sec, cmembers, layout=False):
+def inputs_ld(entries, sec, layout=False):
     """build/<sec>.inputs.ld: the section input by input, or empty when no
     line needs more than the script's wildcard."""
     if not any(sec in e["align"] for e in entries):
         return ""
     out = []
     for e in entries:
-        for o in objects(e, rows, cmembers, layout):
+        for o in objects(e, layout):
             if sec in e["align"]:
                 out.append(f". = ALIGN({e['align'][sec]});")
             out.append(f"*{o}({LISTED[sec]})")
@@ -217,18 +209,21 @@ def main():
         write_labels(sys.argv[2])
         return 0
     entries = parse_list()
-    rows = table_rows()
+    members = table_members()
     cmembers = schema_members()
-    check(entries, rows)
+    check(entries, members)
     for m in cmembers:
-        if m not in rows:
+        if m not in members:
             fail(f"{SCHEMA}: {m} is not a member in {TABLE}")
+    for m in members:
+        if m not in cmembers:
+            fail(f"{TABLE}: {m} has no row in {SCHEMA}")
     swap = {}
     for sec in LISTED:
         p = ROOT / OUT / f"{sec}.inputs.ld"
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(inputs_ld(entries, rows, sec, cmembers))
-        swap[f"{OUT}/{sec}.inputs.ld"] = inputs_ld(entries, rows, sec, cmembers, layout=True)
+        p.write_text(inputs_ld(entries, sec))
+        swap[f"{OUT}/{sec}.inputs.ld"] = inputs_ld(entries, sec, layout=True)
     (ROOT / LINK_LD).write_text(expand_includes(SCRIPT))
     (ROOT / LAYOUT_LD).write_text(expand_includes(SCRIPT, swap))
     w = []
@@ -258,8 +253,6 @@ def main():
              "  description = CPP $out\n\n"
              "rule vu\n  command = cd ico2 && ../$dvp_as -no-abicalls -mabi=64 -I../build/ico2 -o ../$out $dsm\n"
              "  description = VU $out\n\n"
-             f"rule data\n  command = $py tools/extract_data.py --only $key --out-dir {OUT}/data"
-             f" --extra-labels {LABELS}\n  description = DATA $out\n\n"
              "rule datastub\n  command = $py tools/gen_data_c.py --stub $member --out $out\n"
              "  description = STUB $out\n  restat = 1\n\n"
              f"rule dataalias\n  command = $py tools/gen_data_c.py --alias $member --labels {LABELS} --out $out\n"
@@ -279,9 +272,9 @@ def main():
     link = []
     layout = []
     stamps = []
-    gen_deps = f"{SCHEMA} {TABLE} tools/gen_data_c.py tools/extract_data.py"
+    gen_deps = f"{SCHEMA} {TABLE} tools/gen_data_c.py"
     for e in entries:
-        if e["kind"] == "data" and e["name"] in cmembers:
+        if e["kind"] == "data":
             m = e["name"]
             stub, obj = f"{OUT}/data/stub/{m}.o", f"{OUT}/data/{m}.o"
             src, alias, ok = f"{OUT}/data/{m}.c", f"{OUT}/data/{m}.alias.ld", f"{OUT}/data/{m}.ok"
@@ -296,12 +289,12 @@ def main():
             layout.append(stub)
             stamps.append(ok)
             continue
-        for o in objects(e, rows, cmembers):
+        for o in objects(e):
             link.append(o)
             layout.append(o)
-            if e["kind"] == "src" and e["name"].endswith(".c"):
+            if e["name"].endswith(".c"):
                 w.append(f"build {o}: cc {e['name']}\n")
-            elif e["kind"] == "src" and e["name"].endswith(".dsm"):
+            elif e["name"].endswith(".dsm"):
                 dsm = Path(e["name"]).relative_to("ico2")
                 vsm = dsm.with_suffix(".vsm")
                 pre = f"{OUT}/ico2/{dsm.with_suffix('.i')}"
@@ -309,31 +302,25 @@ def main():
                          f"  vsm = {vsm}\n"
                          f"build {o}: vu {e['name']} | {pre} {DVP_AS}\n"
                          f"  dsm = {dsm}\n")
-            elif e["kind"] == "src":
+            else:
                 rule, gnum = archive_as(e["name"])
                 w.append(f"build {o}: {rule} {e['name']}\n  gnum = {gnum}\n")
-            else:
-                key = Path(o).stem
-                w.append(f"build {OUT}/data/{key}.s: data {TABLE} | tools/extract_data.py {BASE_ELF} {LABELS}\n"
-                         f"  key = {key}\n"
-                         f"build {o}: as_old {OUT}/data/{key}.s\n  gnum = 8\n")
     w.append(f"build {LABELS}: labels {' '.join(label_sources())} | {LIST} {TABLE}"
-             " tools/gen_ninja.py tools/extract_data.py\n")
+             " tools/gen_ninja.py\n")
     aliases = [f"{OUT}/data/{m}.alias.ld" for m in cmembers]
-    if cmembers:
-        w.append(f"\nbuild {LAYOUT_ELF}: layout {' '.join(layout + aliases)} | {LAYOUT_LD} {LD}\n")
+    w.append(f"\nbuild {LAYOUT_ELF}: layout {' '.join(layout + aliases)} | {LAYOUT_LD} {LD}\n")
     w.append(f"\nbuild {OUT}/ico.syms.elf {OUT}/ico.elf: link {' '.join(link + aliases)} | {LINK_LD} {LD}"
              f"{''.join(' ' + s for s in stamps)}\n"
              f"build {OUT}/ico.rom: rom {OUT}/ico.elf\n"
              f"build {OUT}/.verified: verify {OUT}/ico.rom | tools/check_elf.py\n"
              f"default {OUT}/.verified\n"
              f"build {NINJA} {OUT}/data.inputs.ld {OUT}/rodata.inputs.ld {LINK_LD} {LAYOUT_LD}: gen | "
-             f"tools/gen_ninja.py tools/extract_data.py tools/gen_data_c.py {LIST} {TABLE} {SCHEMA} {SCRIPT}\n")
+             f"tools/gen_ninja.py tools/gen_data_c.py {LIST} {TABLE} {SCHEMA} {SCRIPT}\n")
     (ROOT / NINJA).write_text("".join(w))
     n = {k: sum(e["kind"] == k for e in entries) for k in ("src", "data")}
     toks = sum(len(e["align"]) for e in entries)
     print(f"gen_ninja: wrote {NINJA} ({len(link)} objects: {n['src']} sources, "
-          f"{n['data']} data members ({len(cmembers)} as C), {toks} align tokens)")
+          f"{n['data']} data members, {toks} align tokens)")
     return 0
 
 

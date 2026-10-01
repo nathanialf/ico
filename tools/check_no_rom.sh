@@ -118,7 +118,7 @@ done
 # pointer arrays, struct literals); a byte-array initializer fails the
 # commit, so the bytes are never laundered into the tracked tree. (The
 # data-only members are generated at build time instead, from the user's own
-# disc: tools/gen_data_c.py and tools/extract_data.py.)
+# disc: tools/gen_data_c.py.)
 #
 # The match is on the byte-array SHAPE itself, with an
 # `__attribute__((section(...)))` prefix OPTIONAL: a plain

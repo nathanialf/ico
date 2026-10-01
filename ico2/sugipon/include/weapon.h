@@ -14,7 +14,7 @@ struct GObj;
    and the hit power (attackhit's damage factor), the weight GetWeaponWeight
    gives, the blend mode of the blur the weapon trails (-1 for none) and the
    blur's colour.
-   Readers: weapon.c, ico2/omori/src/attackhit.c (power),
+   Readers: weapon.c, ico2/omori/src/attackhit.c (power and flags),
    ico2/fumi/src/act-game.c (0x1C). */
 typedef struct {            /* field names derived */
     float length;           /* 0x00, the blade tip's distance */
@@ -25,7 +25,7 @@ typedef struct {            /* field names derived */
     int blur;               /* 0x14, the blur's blend mode, -1 for none */
     unsigned char color[4]; /* 0x18, the blur's colour */
     int word1C;             /* 0x1C */
-    int word20;             /* 0x20 */
+    unsigned int flags;     /* 0x20, bit 0 unguardable, bit 1 the swing sweeps */
 } WeaponDef; /* derived name */
 
 /* weapon-fumble-def: one fumble placement, 0x18 bytes, three to a weapon

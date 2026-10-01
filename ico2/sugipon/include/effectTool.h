@@ -11,6 +11,7 @@
 extern int targetMemo;
 
 int EditTarget(int id);
+int EffectTool(void);
 void dispCircle2(float rad, short elev, int step);
 void dispEffectToolField(int idx);
 void dispXZYZCircle(float rad, int from, int to, int step);

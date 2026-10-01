@@ -8,6 +8,7 @@
 #include "matrixDrive.h"
 #include "motionManager2.h"
 #include "motionOrientManager.h"
+#include "motionViewer.h"
 #include "tableSin.h"
 #include <stdio.h>
 #include <libpad.h>

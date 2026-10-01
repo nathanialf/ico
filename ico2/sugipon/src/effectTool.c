@@ -484,8 +484,6 @@ int saveEffectData(int id)
     return 0;
 }
 
-extern PadConf iosPadConfDefault;
-
 /* iosPadGetStick's output block (camera-ico2.c's IosPadStick, extended): the
  * camera-coord helper reads the two floats at 0xC/0x10 as a1[3]/a1[4]. */
 typedef struct { /* field names derived */

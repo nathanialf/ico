@@ -31,10 +31,6 @@ extern int ClipWallEField(void *a0);
 extern float GetDistanceFromPlane(void *plane, void *pos);
 /* as in geometryManager.h, which this file does not include */
 extern float GetProjectionOfPlane(void *out, void *plane, void *pos);
-/* motionManager2's debug draws read the three words of a WallCfg through
- * their first argument. */
-extern void DebugDisp1Collision(void *hit);
-extern void DebugDisp1CollisionWithColor(void *hit, void *colour);
 
 /* _wallHitReaction's helper */
 static inline int getWallSlideDirection(void *dir, void *hit, void *wall) /* derived name */

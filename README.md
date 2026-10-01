@@ -84,19 +84,16 @@ the link places at the base's addresses.
 The game links 70 members of its own archive, `ico2000.a`, that have data
 sections and no code: stage layouts, model paths, motion and sound
 definitions, way points (MAIN.MAP; the list is `config/data_members.pal.txt`,
-which also carries three data runs MAIN.MAP does not list and one four-byte
-`.sbss` word). They are the game's content, and nothing of that content is
-committed. The build generates them from the user's own
-`baserom/pal/baseelf.elf` into `build/data/`. A member listed in
-`config/data_schema.pal.txt` becomes `build/data/<member>.c`, an initialized
+which also carries three data runs MAIN.MAP does not list). They are the
+game's content, and nothing of that content is committed. The build
+generates them from the user's own `baserom/pal/baseelf.elf` into
+`build/data/`. Each member becomes `build/data/<member>.c`, an initialized
 array of its record type compiled with the game's flags
-(`tools/gen_data_c.py`); the schema holds only the record type, its header,
-the element count, MAIN.MAP's symbol names and which fields are masks.
-A count derived from a table is a fact about it, not content: the staff
-roll's line count is written by the generator as `sizeof` over the table.
-Every other member is written
-as assembly that the period assembler turns back into the same bytes
-(`tools/extract_data.py`). [`docs/LEGAL.md`](docs/LEGAL.md) has the
+(`tools/gen_data_c.py`); `config/data_schema.pal.txt` holds only the record
+type, its header, the element count, MAIN.MAP's symbol names and which
+fields are masks. A count derived from a table is a fact about it, not
+content: the staff roll's line count is written by the generator as
+`sizeof` over the table. [`docs/LEGAL.md`](docs/LEGAL.md) has the
 reasoning.
 
 ## Layout

@@ -41,6 +41,7 @@ int CanThisEnemyFly(struct GObj *a0);
 int CheckEnemyHit(struct GObj *self, float *pos, float *a, float *b);
 void EnemyDeleteParticle(struct GObj *self, float *dir, short *list);
 void EnemySetfAppearAll(struct GObj *self);
+void EnemySetfDisappearAll(struct GObj *self);
 int GetEnemyBattleType(struct GObj *a0);
 float GetEnemyDefDodgeRange(struct GObj *a0);
 float GetEnemyDefLife(struct GObj *a0);

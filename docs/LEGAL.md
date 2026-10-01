@@ -46,19 +46,18 @@ suspect a file in this repository breaks these rules, open an issue tagged
 
 The PAL link includes 70 members of the game's archive `ico2000.a` that have
 data sections and no code (MAIN.MAP), plus three data runs MAIN.MAP does not
-list and one four-byte `.sbss` word; `config/data_members.pal.txt` lists them
-all. They are the game's content: stage object layouts, model and motion
-file tables, sound definitions, way points, the staff roll. There is no
+list; `config/data_members.pal.txt` lists them all. They are the game's
+content: stage object layouts, model and motion file tables, sound
+definitions, way points, the staff roll. There is no
 program in them to re-derive, and their values are never committed, as C,
 as assembly or in any other form.
 
 The build reads them from the user's own `baserom/pal/baseelf.elf` and
-writes them under `build/data/`, which is gitignored. A member that
-`config/data_schema.pal.txt` lists is written as `build/data/<member>.c`, an
-initialized array of its record type that compiles with the game's flags
+writes them under `build/data/`, which is gitignored. Each member is
+written as `build/data/<member>.c`, an initialized array of its record type
+from `config/data_schema.pal.txt` that compiles with the game's flags
 (`tools/gen_data_c.py`). The committed schema and the record types in the
-owners' headers hold only types, element counts and symbol names. Every
-other member is written as assembly (`tools/extract_data.py`). The
+owners' headers hold only types, element counts and symbol names. The
 configuration files hold member names, address ranges, record types and the
 names MAIN.MAP gives the symbols, and nothing of the tables' content.
 

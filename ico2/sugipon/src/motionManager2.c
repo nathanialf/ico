@@ -1767,16 +1767,16 @@ int CheckFieldContact(ClipBuf *info, GObj *self, float *pos, float lim)
 
 /* the body of DebugDisp1CollisionWithColor, which the next function
    inlines and DebugDisp1CollisionWithColor calls */
-static inline void debugDisp1CollisionWithColor(int *cfg, void *color) /* derived name */
+static inline void debugDisp1CollisionWithColor(WallCfg *cfg, void *color) /* derived name */
 {
     float pts[5][4];
     int i;
-    int *obj = (int *)cfg[0];
-    int sh = cfg[1] << 6;
-    int *p15c = (int *)((GObj *)(obj))->dobj;
+    GObj *obj = cfg->o.obj;
+    int sh = cfg->o.node << 6;
+    int *p15c = (int *)obj->dobj;
     int v_c = p15c[0xC / 4];
 
-    GetWallGlobalInfo(pts, pts[4], cfg[2], v_c + sh);
+    GetWallGlobalInfo(pts, pts[4], cfg->n, v_c + sh);
     gif_StartPacketPri(11);
     gif_SetAlpha(1, 5, 0x80);
     MatrixDrive_PushMatrix();
@@ -1788,12 +1788,12 @@ static inline void debugDisp1CollisionWithColor(int *cfg, void *color) /* derive
     gif_EndPacket();
 }
 
-void DebugDisp1Collision(int *cfg)
+void DebugDisp1Collision(WallCfg *cfg)
 {
     debugDisp1CollisionWithColor(cfg, wallLineColor);
 }
 
-void DebugDisp1CollisionWithColor(int *cfg, void *color)
+void DebugDisp1CollisionWithColor(WallCfg *cfg, void *color)
 {
     debugDisp1CollisionWithColor(cfg, color);
 }

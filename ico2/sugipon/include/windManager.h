@@ -16,4 +16,6 @@ void SetWindManager(float a, float b, float c, float d, float e, float f, float 
 void InitWindManager(int no);
 float GetRegularizedWindSpeed(void *pos);
 
+void ExecWindManager(void);
+
 #endif /* WINDMANAGER_H */

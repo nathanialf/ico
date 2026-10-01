@@ -36,6 +36,7 @@ int _closeHander(void);
 int _handler(struct CdvdBgReq *self);
 void ClearStreamMotionEntry(struct GObj *gobj);
 void DisableStreamMotionManagerAutomaticDelete(void);
+void ExecStreamMotionManager(void);
 void GetStreamMotionDataNext(char *dst, int no);
 void MallocStreamMotionBuffer(void);
 void PlayStreamMotion(void);

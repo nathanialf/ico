@@ -45,6 +45,7 @@ int CheckReadyAllSwitches();
 int GetBoxMode(struct GObj *a0);
 void GetFloorLeverGlobalHoldPoint(void *dst, struct GObj *a1);
 void GetWallLeverGlobalHoldPoint(void *out, void *lev);
+int MoveFloatingBox(struct GObj *self, struct GObj *other, float *dst, void *src, float lim);
 void ReInitBoxGeo(struct GObj *a0);
 int _checkItemCollision(void *a0);
 void action(struct GObj *a0);

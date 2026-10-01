@@ -52,9 +52,6 @@ from elftools.elf.elffile import ELFFile
 from elftools.elf.relocation import RelocationSection
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "tools"))
-import extract_data  # noqa: E402  (the member table's parser and ROM reader)
-
 SCHEMA = ROOT / "config/data_schema.pal.txt"
 TABLE = ROOT / "config/data_members.pal.txt"
 BASE_ELF = ROOT / "baserom/pal/baseelf.elf"
@@ -62,6 +59,49 @@ BASE_ELF = ROOT / "baserom/pal/baseelf.elf"
 
 def fail(msg):
     sys.exit(f"gen_data_c: {msg}")
+
+
+# ----------------------------------------------------------------- table ----
+
+def parse_table(path=TABLE):
+    """config/data_members.pal.txt's rows: one per (member, section)."""
+    rows = []
+    for n, line in enumerate(path.read_text().splitlines(), 1):
+        line = line.split("#", 1)[0].strip()
+        if not line:
+            continue
+        f = line.split()
+        if len(f) != 5 or f[0] not in ("data", "rodata", "sdata"):
+            fail(f"{path}:{n}: expected '<section> <member> <rom_lo> <rom_hi> <symbols>'")
+        lo, hi = int(f[2], 16), int(f[3], 16)
+        if not lo < hi:
+            fail(f"{path}:{n}: empty range")
+        syms = []
+        if f[4] != "-":
+            for s in f[4].split(","):
+                name, off = s.split("@")
+                syms.append((name, int(off, 16)))
+        rows.append(dict(section=f[0], member=f[1], lo=lo, hi=hi, syms=syms, line=n))
+    return rows
+
+
+def rom_bytes(elf, lo, hi, section):
+    """The base ELF's bytes [lo, hi) of the section."""
+    s = elf.get_section_by_name("." + section)
+    if s is None:
+        fail(f"base ELF has no .{section}")
+    base, size = s["sh_addr"], s["sh_size"]
+    if not (base <= lo and hi <= base + size):
+        fail(f"0x{lo:x}..0x{hi:x} is outside the base ELF's .{section} (0x{base:x}..0x{base + size:x})")
+    return s.data()[lo - base:hi - base]
+
+
+def natural_align(addr):
+    """The largest power of two dividing addr, at most 16."""
+    a = 1
+    while a < 16 and addr % (a * 2) == 0:
+        a *= 2
+    return a
 
 
 # ---------------------------------------------------------------- schema ----
@@ -107,7 +147,7 @@ def member_rows(name):
     sch = parse_schema()
     if name not in sch:
         fail(f"{name} is not in {SCHEMA.relative_to(ROOT)}")
-    rows = [r for r in extract_data.parse_table(TABLE) if r["member"] == name]
+    rows = [r for r in parse_table(TABLE) if r["member"] == name]
     out = []
     for r in rows:
         s = [x for x in sch[name] if x["section"] == r["section"]]
@@ -722,7 +762,7 @@ def write_stub(member, rows):
     out = [f"# layout stand-in for {member}.o (zeros); generated."]
     for s, row in rows:
         lo, hi = row["lo"], row["hi"]
-        align = extract_data.natural_align(lo)
+        align = natural_align(lo)
         out += [f"    .section .{row['section']}", f"    .align {align.bit_length() - 1}"]
         labels = []
         if s is not None:
@@ -848,7 +888,7 @@ def main():
         return 0
     with open(a.elf, "rb") as fh:
         elf = ELFFile(fh)
-        datas = {r["section"]: extract_data.rom_bytes(elf, r["lo"], r["hi"], r["section"])
+        datas = {r["section"]: rom_bytes(elf, r["lo"], r["hi"], r["section"])
                  for _, r in rows}
     layout = Layout(a.layout)
     if a.c:
