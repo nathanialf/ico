@@ -18,13 +18,11 @@ typedef struct {
     unsigned char a;
 } SprCol;
 
-/* .sdata, layout_texture.o's run in the ROM's order (MAIN.MAP names
-   current_layout_id and lt_item_select_disable; the January link had the
-   continue flag's slot elsewhere): the continue screen's decided flag, which
+/* .sdata: the continue screen's decided flag, which
    layout_action sets and op's countdown waits on; the two highlight colours;
    the current layout; the selected item; the item-select handler's flag; the
    fade state and type; lt_item_select_disable; the fade-end handler; the
-   highlight blink's count and length.  The two short strings follow. */
+   highlight blink's count and length. */
 int lt_continue_selected = 0; /* derived name */
 
 static unsigned char ltCursorColor[4] = {128, 128, 128, 127}; /* derived name */
@@ -49,39 +47,35 @@ static unsigned int ltBlinkCount = 0; /* derived name */
 
 static unsigned int ltBlinkLength = 0; /* derived name */
 
-/* .sbss, layout_texture.o's nine words in the ROM's order (MAIN.MAP line 7619
-   gives the January object's 8 bytes and no symbol, so the names are ours and
-   the other seven are the retail revision's): the pad buttons of the last
+/* .sbss, nine words: the pad buttons of the last
    frame, the layout switched to and the fade state that follows the switch,
    the selection glow's flag, count and length, the frame of the last
    selection, and the switch fade's length and count. */
-static int lastButton;
+static int lastButton; /* derived name */
 
-static int nextLayout;
+static int nextLayout; /* derived name */
 
-static int nextFadeState;
+static int nextFadeState; /* derived name */
 
-static signed char glowOn;
+static signed char glowOn; /* derived name */
 
-static unsigned int glowCount;
+static unsigned int glowCount; /* derived name */
 
-static unsigned int glowLength;
+static unsigned int glowLength; /* derived name */
 
-static int selectFrame;
+static int selectFrame; /* derived name */
 
-static unsigned int fadeLength;
+static unsigned int fadeLength; /* derived name */
 
-static unsigned int fadeCount;
+static unsigned int fadeCount; /* derived name */
 
-/* kept local: typedef.h carries StgPre but declares no stageData */
+/* typedef.h carries StgPre but declares no stageData */
 extern const StgPre stageData[];
 
 #include "layout_texture.h"
 
-/* No <string.h>: display_texture's 4-byte zero fill is a `jal memset` in the
-   ROM, so newlib's builtin-compatible prototype was not in scope; memset is
-   declared as layout_action.c (same directory) declares it. */
-/* kept local: void * (void *, int, int) here, void * (void *, int, unsigned int) in string.h */
+/* This TU does not include <string.h>; memset is declared as
+   layout_action.c declares it, with an int count. */
 extern void *memset(void *dst, int c, int n);
 
 #include "Texture.h"
@@ -95,12 +89,9 @@ typedef struct {
 } SprRect;
 
 /* the screen rectangle lt_draw_primary_sprite draws, in 1/16 pixels: 640 x 226
-   pixels centred on the origin; first in this object's .rodata, whose 16-byte
-   section alignment (carried by texture_fading's switch table) is the ROM's
-   12 B of fill before it */
+   pixels centred on the origin */
 static const SprRect primarySpriteRect = {-5120, -1808, 10240, 3616}; /* derived name */
 
-/* source lines 342-390 */
 void display_texture_fade_cancel_chk(int from, int to)
 {
     short list1[256];
@@ -152,7 +143,7 @@ typedef struct LtPad {
     unsigned char rx; /* 0x57 */
 } LtPad;
 
-/* kept local: LtPad here, PadState [16] in main.h */
+/* read here as LtPad; main.h declares PadState [16] */
 extern LtPad pad;
 
 void lt_analog2Pad(void)
@@ -184,17 +175,15 @@ void lt_analog2Pad(void)
     lastButton = pad.button;
 }
 
-/* kept local: agrees with main.h, which this TU does not include (pad differs) */
+/* as in main.h, which this TU does not include */
 extern int frame_count;
-/* census display_texture: a file static here (the name is also src/jimaku's
-   global and src/kanban's file-local one). */
+/* a file static (src/jimaku has a global of the same name and src/kanban a
+   file static) */
 static void display_texture(int no, LtProperty *e);
 
-/* source lines 533-541 */
-/* source line 533-541. The second range is spelled as a conditional expression,
-   not `no < 330 && no >= 325`: as an && pair fold_range_test collapses it to
-   `addiu -325` + `sltiu 5`, where the ROM keeps both `slti` tests. */
-static inline int lt_property_visible(int no)
+/* whether property item no is shown; the second range is a conditional
+   expression */
+static inline int lt_property_visible(int no) /* derived name */
 {
     int vis = 1;
 
@@ -205,8 +194,7 @@ static inline int lt_property_visible(int no)
     return vis;
 }
 
-/* source lines 1066-1075 */
-static inline void lt_draw_layout(int no)
+static inline void lt_draw_layout(int no) /* derived name */
 {
     int i = texLayout[no].first;
     int last = texLayout[no].last;
@@ -218,23 +206,13 @@ static inline void lt_draw_layout(int no)
     }
 }
 
-/* kept local: agrees with main.h, which this TU does not include (pad differs) */
+/* as in main.h, which this TU does not include */
 extern int systemStatus[];
 
-/* Source lines 441-451.  lt_switch_layout is a real global at its own ROM slot
-   and the PAL listing inlines its body into default_item_select twice, so the two
-   call sites below need static inline stand-ins (INTERIM: they go away when the
-   deferred tail is closed and the public definition can be marked inline).
-   The two copies are NOT identical: the first site's else arm stores 7 to
-   fadeState where the out-of-line function and the second site store 3.  That is
-   what the ROM has (0x001BF548 `addiu $3,$0,0x7` feeding `sw $3,%gp_rel(fadeState)`
-   against 0x001BF5EC's `sw $2` with $2 = 3), and it is also what keeps the two
-   else arms from cross-jumping: with one constant the pair of stores is the
-   ordinary adjacent-store reversal (fadeState first, then nextFadeState) and with two
-   it stays in source order, so the tails do not match.  A single stand-in taking
-   the value as a parameter compiles one instruction short for exactly that
-   reason. */
-static inline void lt_switch_layout_7(int no)
+/* lt_switch_layout's body as default_item_select's two call sites have it.
+   The copies differ: the first site's else arm sets fadeState to 7 where the
+   out-of-line function and the second site set 3. */
+static inline void lt_switch_layout_7(int no) /* derived name */
 {
     if ((fadeState == 2 && no != current_layout_id) || no == 62) {
         nextLayout = no;
@@ -248,7 +226,7 @@ static inline void lt_switch_layout_7(int no)
     }
 }
 
-static inline void lt_switch_layout_3(int no)
+static inline void lt_switch_layout_3(int no) /* derived name */
 {
     if ((fadeState == 2 && no != current_layout_id) || no == 62) {
         nextLayout = no;
@@ -262,7 +240,6 @@ static inline void lt_switch_layout_3(int no)
     }
 }
 
-/* source lines 621-705 */
 void default_item_select(int no)
 {
     LtProp *p = &texLayout[no];
@@ -330,7 +307,7 @@ void default_item_select(int no)
     }
 }
 
-static inline void lt_reset_property_chain(int no)
+static inline void lt_reset_property_chain(int no) /* derived name */
 {
     LtProp *p = &texLayout[no];
     int i = p->link;
@@ -343,14 +320,8 @@ static inline void lt_reset_property_chain(int no)
     }
 }
 
-/* source lines 748-859.  The fade state fadeState is read and written as the
-   global itself, as the rest of this TU does (the listing puts each `li N` on
-   the line of its store, 783, 802, 815).  gcse's load/store PRE then carries the
-   value in one register into the second switch, and its edge block for the
-   fadeType default path (the load reorg later moves into the bne delay slot)
-   sits between case 3's store and the join at jump2, which is what keeps case 0
-   from cross-jumping into it; case 3's store then comes back inline after the
-   `sb` with no line of its own, as rows 771-772 show. */
+/* the layout fade's state machine; fadeState is read and written as the
+   file static itself, as in the rest of this TU */
 void texture_fading(LtProp *p)
 {
     unsigned char *col = ltCursorColor;
@@ -441,40 +412,27 @@ void texture_fading(LtProp *p)
     }
 }
 
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
+/* GifPacket.h's entry points, which this TU does not include; the sprite
+   calls take z as an unsigned int here, a long long in the header */
 extern void gif_StartPacketPri(int pri);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
 extern void gif_SetZTest(int a0);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
 extern void gif_SetZWrite(int a0);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
 extern void gif_SetAlpha(long long a0, long long a1, long long a2);
-/* kept local: z is unsigned int here, long long in GifPacket.h */
 extern void gif_SpriteSensitive(int *r, unsigned int z, int *uv, unsigned char *col, int prim);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
 extern void gif_EndPacket(void);
-/* The census display_texture body below reads these:
-   ltHighlightColor is the second highlight colour, GlobalStageSetting the system record whose
+/* display_texture below reads these: ltHighlightColor is the second highlight colour, GlobalStageSetting the system record whose
    reduction tint it inverts, and GetTableSin/gif_SpriteSensitiveOffset/
    gif_PointOffset/gif_SetGsReg/rand are its callees. */
-/* kept local: main.h declares it; this TU does not include main.h (pad, systemStatus differ) */
+/* as in main.h */
 extern StageSetting GlobalStageSetting;
-/* kept local: z is unsigned int here, long long in GifPacket.h */
 extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, unsigned char *col,
                                       int prim);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
 extern void gif_PointOffset(int *v, long long z, unsigned char *col, int prim);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
 extern void gif_SetGsReg(long long a0, long long a1);
 
-/* source lines 870-887: the pulsing highlight sprite, inlined three times by
-   display_texture.  The listing puts the parameter setup on the brace line
-   (871) and the copy, the four colour stores and the GetTableSin call on 872,
-   873 and 874, so the three locals are initialized declarations.  The
-   aggregate initializer also clobbers `c` before its field stores, which is
-   what lets sched1 take the copy ahead of the colour constant. */
+/* the pulsing highlight sprite, inlined three times by display_texture */
 static inline void lt_glow_sprite(SprRect *box, SprRect *ofs, int r, int g, int b, float t, int dx,
-                                  int dy)
+                                  int dy) /* derived name */
 {
     SprRect rr = *box;
     SprCol c = {r, g, b, 127};
@@ -491,7 +449,7 @@ static inline void lt_glow_sprite(SprRect *box, SprRect *ofs, int r, int g, int 
     gif_SpriteSensitiveOffset(&rr, 0xFFFFFF9B, ofs, &c, 1);
 }
 
-/* census display_texture, a file static; source lines 896-1045 */
+/* a file static */
 static void display_texture(int no, LtProperty *e)
 {
     SprRect ofs;
@@ -606,8 +564,7 @@ static void display_texture(int no, LtProperty *e)
     }
 }
 
-/* source lines 715-735 */
-static inline void lt_draw_primary_sprite(SprCol *col)
+static inline void lt_draw_primary_sprite(SprCol *col) /* derived name */
 {
     SprRect r;
 
@@ -723,21 +680,16 @@ void exec_layout_texture(void)
     lt_item_select_disable = 0;
 }
 
-/* census init_textures_of_specified_property, a file static; MAIN.MAP carries no
-   global of that name, so ico2/common/src/kanban's twin is a static too and
-   `static` here keeps this one's ELF symbol local */
-/* kept local: texProperty's texNo column, &texProperty[0].texNo.  The ROM
-   reaches it as its own constant, hoisted out of
-   init_textures_of_specified_property's loop apart from texProperty's base,
-   which no index expression on texProperty gives (measured). */
+/* init_textures_of_specified_property is a file static, as is
+   ico2/common/src/kanban's function of the same name */
+/* texProperty's texNo column, &texProperty[0].texNo */
 extern char D_0030D014[];
-/* kept local: sce/'s string.h does not declare it */
+/* sce/'s string.h does not declare it */
 extern char *strtok(char *s, const char *sep);
-/* kept local: sce/'s string.h does not declare it */
+/* sce/'s string.h does not declare it */
 extern char *strrchr(const char *s, int c);
 
-/* source lines 1249-1259 */
-static inline char *lt_texture_base_name(char *src)
+static inline char *lt_texture_base_name(char *src) /* derived name */
 {
     char buf[256];
     char *p;
@@ -760,8 +712,7 @@ static inline char *lt_texture_base_name(char *src)
     return p;
 }
 
-/* source lines 1275-1287 */
-static inline int lt_texture_no_of_property(int idx)
+static inline int lt_texture_no_of_property(int idx) /* derived name */
 {
     int n;
     char *src;
@@ -795,11 +746,7 @@ static void init_textures_of_specified_property(int first, int last)
     }
 }
 
-/* source lines 515-522: the property chain reset, inlined here and by
-   texture_fading. */
-
-/* source lines 1322-1331 */
-static inline void lt_init_stage_textures(int stage)
+static inline void lt_init_stage_textures(int stage) /* derived name */
 {
     int i = stageData[stage].layoutFirst;
     int last = stageData[stage].layoutLast;

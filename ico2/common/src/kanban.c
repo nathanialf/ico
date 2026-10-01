@@ -26,69 +26,50 @@ typedef union {
     char b[16];
 } Pkt16;
 
-/* .sbss and .bss, owned by kanban.o and reached only from this file (MAIN.MAP
-   names no symbol in either run).  The list head and the sign the layout key
-   follows are the .sbss run in the ROM's order; the pool is the head of the
-   .bss run, thirty Node entries of 0x20 bytes, which is the count both
-   kanbanReqAdd and kanbanReqAllDel walk.  The run's last 0x30 bytes are not
-   this pool and nothing in the ROM reads them: they stay in the blob. */
-static int *kanbanList;
+/* The list head and the sign the layout key follows (.sbss), and the pool
+   (.bss), thirty Node entries of 0x20 bytes, the count both kanbanReqAdd and
+   kanbanReqAllDel walk. */
+static int *kanbanList; /* derived name */
 
-static int kanbanCurrent;
+static int kanbanCurrent; /* derived name */
 
-static int kanbanNodes[30 * 8];
+static int kanbanNodes[30 * 8]; /* derived name */
 
-/* kanban.o's whole .rodata run opens with these two named objects: the
-   overflow message is printed far down the file and the sprite packet is
-   read further down still, but the ROM has them first. */
 /* kanban quest box over */
-static const char kanbanOverMsg[] = "かんばんクエストボックスオーバー\n";
+static const char kanbanOverMsg[] = "かんばんクエストボックスオーバー\n"; /* derived name */
 
 /* The sprite the kanban is drawn as, {x, y, width, height} centred on the
    origin, the same rectangle src/staffroll.c uses for the roll. */
-static const Pkt16 kanbanSprite = {{-5120, -1792, 10240, 3584}};
+static const Pkt16 kanbanSprite = {{-5120, -1792, 10240, 3584}}; /* derived name */
 
-/* kept local: typedef.h carries StgPre but declares no stageData */
+/* typedef.h carries StgPre but declares no stageData */
 extern const StgPre stageData[];
 
-/* kanban.o's .sdata run (VMA 0x63B498..0x63B4BC, 0x24 B = MAIN.MAP), in the
-   ROM's order: kanbanCommonRead (MAIN.MAP global), the sign's initial colour,
-   the texture-name separator and assert text at their first uses, and the
-   initialiser of display_texture's point colour. */
+/* .sdata: kanbanCommonRead and the sign's initial colour */
 int kanbanCommonRead = 0;
 
 /* the colour a new sign starts with */
 static KanbanCol kanbanStartCol = {{0x80, 0x80, 0x80, 0}}; /* derived name */
 
-/* kept local: texProperty's texNo column, &texProperty[0].texNo.  The ROM
-   reaches it as its own constant, hoisted out of
-   init_textures_of_specified_property's loop apart from texProperty's base,
-   which no index expression on texProperty gives (measured). */
+/* texProperty's texNo column, &texProperty[0].texNo */
 extern char D_0030D014[];
-/* census display_texture, a file static; MAIN.MAP carries no global of that
-   name, so the twins in ico2/fumi/src/jimaku and ico2/common/src/layout_texture
-   are statics too and `static` here keeps this one's ELF symbol local */
+/* a file static, as are the functions of the same name in
+   ico2/fumi/src/jimaku and ico2/common/src/layout_texture */
 static void display_texture(LtProp *pr, LtProperty *e, KanbanCol *col);
-/* kept local: sce/'s string.h does not declare it */
+/* sce/'s string.h does not declare it */
 extern char *strtok(char *s, const char *sep);
-/* kept local: sce/'s string.h does not declare it */
+/* sce/'s string.h does not declare it */
 extern char *strrchr(const char *s, int c);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
+/* GifPacket.h's entry points, which this TU does not include; the sprite
+   calls take z as an unsigned int here, a long long in the header */
 extern void gif_EndPacket(void);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
 extern void gif_SetAlpha(long long a0, long long a1, long long a2);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
 extern void gif_SetZTest(int a0);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
 extern void gif_SetZWrite(int a0);
-/* kept local: z is unsigned int here, long long in GifPacket.h */
 extern void gif_SpriteSensitive(int *r, unsigned int z, int *uv, unsigned char *col, int prim);
-/* kept local: z is unsigned int here, long long in GifPacket.h */
 extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, unsigned char *col,
                                       int prim);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
 extern void gif_PointOffset(int *v, long long z, unsigned char *col, int prim);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
 extern void gif_StartPacketPri(int pri);
 
 #include "kanban.h"
@@ -96,7 +77,7 @@ extern void gif_StartPacketPri(int pri);
 #include <stdlib.h>
 #include "main.h"
 
-static inline char *get_texture_base_name(char *src)
+static inline char *get_texture_base_name(char *src) /* derived name */
 {
     char buf[256];
     char *p;
@@ -119,7 +100,7 @@ static inline char *get_texture_base_name(char *src)
     return p;
 }
 
-static inline int get_texture_no_of_property(int idx)
+static inline int get_texture_no_of_property(int idx) /* derived name */
 {
     int n;
     char *src;
@@ -141,7 +122,7 @@ static inline int get_texture_no_of_property(int idx)
     return no;
 }
 
-static inline void init_textures_of_property_range(int first, int last)
+static inline void init_textures_of_property_range(int first, int last) /* derived name */
 {
     int i;
 
@@ -150,7 +131,7 @@ static inline void init_textures_of_property_range(int first, int last)
     }
 }
 
-static inline int kanban_layout_key(LtProp *pr)
+static inline int kanban_layout_key(LtProp *pr) /* derived name */
 {
     int ret = 0;
     LtProperty *e = &texProperty[pr->curItem];
@@ -368,8 +349,6 @@ static void display_texture(LtProp *pr, LtProperty *e, KanbanCol *col)
     }
 
     if (e == &texProperty[pr->curItem]) {
-        /* its initialiser is the anonymous 4-byte template at the end of
-           the TU's .sdata run, which the ROM reaches with %hi/%lo */
         KanbanCol col2 = {{0x80, 0x80, 0x80, 0x7F}};
 
         gif_StartPacketPri(11);

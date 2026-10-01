@@ -6,15 +6,13 @@
 #include "gobj.h"
 #include "gobj_process.h"
 
-/* .sdata, owned by GobjProc.o (VMA 0x63C0C8..0x63C0CC; MAIN.MAP names no
-   symbol in the run): the number of entries in gobj_table. */
+/* .sdata: the number of entries in gobj_table. */
 static int gobjCount = 0; /* derived name */
 
-/* .bss, owned by GobjProc.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the table of created game objects, 208 entries. */
-static GObj *gobj_table[208];
+/* .bss: the table of created game objects, 208 entries */
+static GObj *gobj_table[208]; /* derived name */
 
-/* kept local: a4 is unsigned int here, int in gobj_cam_dl.h */
+/* this TU passes a4 as unsigned int; gobj_cam_dl.h declares an int */
 extern void isysGObjLinkCameraDL(char *a0, int a1, int a2, int a3, unsigned int a4);
 
 void ResetGObjProc(void)

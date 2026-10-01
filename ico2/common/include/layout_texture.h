@@ -1,19 +1,15 @@
 /*
  * ico2/common/include/layout_texture.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what layout_texture.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what layout_texture.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef LAYOUT_TEXTURE_H
 #define LAYOUT_TEXTURE_H
 
-/* layout_texture.o's .sdata globals: current_layout_id and
-   lt_item_select_disable (MAIN.MAP), and the continue screen's decided flag */
+/* layout_texture.o's .sdata globals: current_layout_id,
+   lt_item_select_disable and the continue screen's decided flag */
 extern int lt_continue_selected;
 extern int current_layout_id;
 extern int lt_item_select_disable;
@@ -70,11 +66,7 @@ typedef struct LtProperty { /* field names derived */
     int texH;       /* 0x60 */
     int texW;       /* 0x64 */
     int texV;       /* 0x68 */
-    /* 0x6C: the flag word, declared as bits.  The ROM's instruction order is
-       the evidence (rung: ROM bytes): gcc 2.9 gives a bitfield reference alias
-       set 0, and only with set 0 does the record's flag load come after the
-       short store in the two chase loops of display_texture_fade_cancel_chk,
-       and the `.last` load before it. */
+    /* 0x6C: the flag word, declared as bits */
     unsigned int selectMode : 2;  /* 1: a cross on the item takes the long fade */
     unsigned int fade_cancel : 1; /* drawn in the highlight colour */
     unsigned int selectable : 1;  /* dimmed when another item is selected, glows when it is */

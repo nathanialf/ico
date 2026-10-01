@@ -51,29 +51,23 @@ typedef struct {
     int state;     /* 0x14 */
 } CharFile;
 
-/* .bss, owned by charFileManager.o (1637 entries of 0x18 = 0x9978, the
-   retail run; MAIN.MAP sizes its own link's at 0x91C8, which is 1555 of the
-   same entry, and names no symbol in it): the character file table. */
-/* */
-static CharFile charFiles[MAX_CHARS];
+/* .bss: the character file table, MAX_CHARS entries of 0x18 bytes */
+static CharFile charFiles[MAX_CHARS]; /* derived name */
 
-/* the TU's whole .data run, VMA 0x4D9C10..0x4D9C28 (0x18, = MAIN.MAP
-   charFileManager.o .data 0x18): the empty entry both initialisers copy over
+/* .data: the empty entry both initialisers copy over
    every slot of the table. */
-static CharFile charFileEmpty = {0, 0, 0, 0, 0, 1};
+static CharFile charFileEmpty = {0, 0, 0, 0, 0, 1}; /* derived name */
 
-/* charFileManager.o's .sdata run (VMA 0x63AD00..0x63AD24, 0x24 B = MAIN.MAP),
-   in the ROM's order: the serial the loaders stamp into each object they
-   build, the assert texts "e", "0" and "FALSE" at their first uses, and the
-   semi-common sound header's buffer (defined after them). */
+/* .sdata: the serial the loaders stamp into each object they build, and the
+   semi-common sound header's buffer (defined below). */
 static int objSerial = 0; /* derived name */
 
 #include "charFileManager.h"
 #include <stdio.h>
 #include "main.h"
 
-/* kept local: the prototype names PObj, a record only this TU defines, so it
-   cannot travel to the header until that record has a home of its own. */
+/* declared here, not in the header: PObj is a record only this TU
+   defines */
 PObj *GetPObjAddress(int a0);
 
 inline PObj *GetPObjAddress(int a0)
@@ -107,7 +101,7 @@ void ResetCharFileManager(void)
     InitCameraSetManager();
 }
 
-/* kept local: PObj.c has no header; the definition is (int, int, int) */
+/* PObj.c has no header; the definition is (int, int, int) */
 extern PObj *InitPObj(void *buf, int a1, int id);
 
 /* "Illegal Model ID number: %d (\"%s\")\n" / "ReadModelFile:Already loaded. (id:%d)%s\n" / "ReadModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n" / sprintf above belong to ReadModelFile. */
@@ -183,9 +177,9 @@ void ReadVolumeModelFile(void *h, int a1, int size, int id, int a4, int a5, int 
     iosFree(buf);
 }
 
-/* kept local: PObj.c has no header; the definition is (ObjHdr *, char *, int) */
+/* PObj.c has no header; the definition is (ObjHdr *, char *, int) */
 extern PObj *AllocPObj(void *buf, int a1, int id);
-/* kept local: Shadow.h (seki) does not declare it; the definition takes PObjModel * */
+/* Shadow.h does not declare it; the definition takes PObjModel * */
 extern void shadow_MakeObjectData(PObj *p);
 
 void ReadShadowModelFile(void *h, int a1, int size, int id, int a4, int a5, int a6)
@@ -222,7 +216,7 @@ void ReadShadowModelFile(void *h, int a1, int size, int id, int a4, int a5, int 
     iosFree(buf);
 }
 
-/* kept local: agrees with Texture.h, which this TU does not include (tex_RemakeRegistersSampleMin differs) */
+/* as in Texture.h, which this TU does not include */
 extern int tex_InitTexture(int id, void *buf);
 
 void ReadTextureFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
@@ -257,7 +251,7 @@ void ReadTextureFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
 }
 
 /* sugipon/include/sugiCommon.h: byte checksum helper, inlined at its call site */
-static inline int SumBytes(unsigned char *p, int n)
+static inline int SumBytes(unsigned char *p, int n) /* derived name */
 {
     int sum = 0;
     int i;
@@ -415,7 +409,7 @@ typedef struct {
     char pad138[92];
 } MotEnt; /* 0x194 */
 
-/* kept local: motionOrientManager.h (sugipon) carries MotionDef and declares no motionKind */
+/* motionOrientManager.h carries MotionDef and declares no motionKind */
 extern MotEnt motionKind[];
 
 void ReadMotionFile(void *h, int a1, int size, int id, int a4, int a5, int a6)
@@ -511,8 +505,8 @@ static char *semiCommonHdBuf = 0; /* derived name */
 
 void ReadSoundHdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6)
 {
-    /* same bank/mode pair the switch fills in and soundHDDataSet reads back:
-       ROM keeps both words memory-resident and reloads mode at the call. */
+    /* the sound bank/mode pair the switch fills in and soundHDDataSet reads
+       back */
     volatile HdInfo info;
     char *buf;
 
@@ -567,16 +561,14 @@ typedef struct {
     int bank;
 } SqInfo;
 
-/* ReadSoundSqFile and ReadSoundAdpcmFile sit here, at their census source
-   lines 695 and 743, between ReadSoundHdFile and ReadShockFile.  They are
-   plain `inline`, so gcc emits their bodies at the end of the object, where
-   the ROM has them, while their string constants stay at this point of the
-   .rodata run. */
+/* ReadSoundSqFile and ReadSoundAdpcmFile, between ReadSoundHdFile and
+   ReadShockFile; they are plain `inline`, so their out-of-line bodies come
+   out at the end of the object. */
 
 inline void ReadSoundSqFile(void *h, int a1, int size, int a3, int kind, int a5, int a6)
 {
-    /* the sound bank/mode pair the switch fills in and soundSQDataSet reads back:
-       ROM keeps both words memory-resident and reloads mode at the call. */
+    /* the sound bank/mode pair the switch fills in and soundSQDataSet reads
+       back */
     volatile SqInfo info;
     char *buf;
 
@@ -691,7 +683,7 @@ void ReadEndCheckFile(void *h, int a1, int size)
     iosFree(buf);
 }
 
-/* kept local: Texture.h declares it (void); the callers here pass 0 */
+/* Texture.h declares it (void); the callers here pass 0 */
 extern int tex_RemakeRegistersSampleMin(int a);
 
 void ReadStageSettingFile(void *h, int a1, int size)

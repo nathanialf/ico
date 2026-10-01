@@ -63,7 +63,7 @@ typedef struct {
    a global (ChangeFieldCollisionDebugMode reads it through the table) */
 static int debug_col_ray_disp = 0; /* derived name */
 
-/* kept local: debug.h leaves it out (see there) */
+/* debug.h leaves it out (see there) */
 extern int debug_bar_flag;
 
 /* clang-format off */
@@ -370,7 +370,6 @@ static char *debugMotionTargetName[] = {"BOY", "GIRL", "BIRD", "ENEMY", "QUEEN"}
 /* the debug options: name, colour, value, range, value names and the function
    called on a change, in the order debug_Mode pages through them */
 static const DbgOpt debugOption[76] = {
-    /* derived name */
     {" FrameStep          ", 0x0080FF80, &systemStatus[1], 1, 2, debugFrameStepName,
      (void (*)(int))gsResetFunc},
     {" NTSC/PAL           ", 0x0080FF80, &systemStatus[0], 0, 1, debugNtscPalName,
@@ -451,7 +450,7 @@ static const DbgOpt debugOption[76] = {
     {" GIRL PAD CONTROL   ", 0xC0C0C080, &debug_girl_pad_control, 0, 1, debugOffOnName,
      ChangeGirlControlMode},
     {" NO BREAST HANG     ", 0xC0C0C080, &debug_no_breast_hang, 0, 1, debugOffOnName, 0},
-};
+}; /* derived name */
 
 /* the font window's line count */
 static int fontWindowLine = 0; /* derived name */
@@ -462,7 +461,7 @@ static int drawTimerCount = 320; /* derived name */
 /* debug_SelectStage's cursor */
 static int stageSelectNo = 0; /* derived name */
 
-/* unreferenced in the retail build; the ROM holds -1 */
+/* unreferenced in the retail build */
 static int startStageNo = -1; /* derived name */
 
 int debugBackGroundDisableFlag = 0;
@@ -491,9 +490,7 @@ typedef struct {
     unsigned char r, g, b, a;
 } DbgCol;
 
-/* Declared ahead with no size: the ROM reaches each of these .sdata objects
-   with a %hi/%lo pair, which gcc emits for a symbol whose first declaration
-   is incomplete; the sized definitions below put them in .sdata. */
+/* declared ahead with no size; the sized definitions are below */
 static DbgCol markCol[];
 
 static DbgCol brainColLow[];
@@ -549,47 +546,43 @@ typedef struct {
     char pad98[40];  /* 0x98 */
 } DbgRay;
 
-/* .bss, owned by debug.o (MAIN.MAP debug.o .bss 0xB3A0, VMA 0x704680..0x70FA20
-   in retail; it names no symbol, so the names are ours), in the ROM's run
-   order: debug_MakeBarString's string, debug_PrintFontf's line, the load
+/* .bss: debug_MakeBarString's string, debug_PrintFontf's line, the load
    info line, the debug box and ball, the collision ray, debugSceOpen's path,
    the font images and packets, the font window, the profiler ring and the
-   load info table.  The font packets and the profiler ring are also reached
-   by the debug_MakeFont, debug_PrintCharacter and debug_DrawBar stubs. */
-static char barString[64];
+   load info table. */
+static char barString[64]; /* derived name */
 
-static char fontfLine[512];
+static char fontfLine[512]; /* derived name */
 
-static char loadInfoLine[32];
+static char loadInfoLine[32]; /* derived name */
 
-/* the debug box's centre and half extents: VU0 vectors, whose 16-byte
-   alignment is the section's and puts the 8 zero bytes before this run */
-static sceVu0FVECTOR boxCentre;
+/* the debug box's centre and half extents, VU0 vectors */
+static sceVu0FVECTOR boxCentre; /* derived name */
 
-static sceVu0FVECTOR boxWidth;
+static sceVu0FVECTOR boxWidth; /* derived name */
 
 /* the debug ball's centre */
-static sceVu0FVECTOR ballCentre;
+static sceVu0FVECTOR ballCentre; /* derived name */
 
 /* the ray the collision test drives */
-static DbgRay collisionRay;
+static DbgRay collisionRay; /* derived name */
 
-static char sceOpenPath[256];
+static char sceOpenPath[256]; /* derived name */
 
 /* the 3x3-dilated outline, 16 shorts per glyph */
-static unsigned short fontOutline[256 * 16];
+static unsigned short fontOutline[256 * 16]; /* derived name */
 
 /* the glyph re-expanded to 8 shorts */
-static unsigned short fontGlyph[256 * 8];
+static unsigned short fontGlyph[256 * 8]; /* derived name */
 
-static DbgGlyphPacket fontPacket[256];
+static DbgGlyphPacket fontPacket[256]; /* derived name */
 
-static DbgFontLine fontLines[26];
+static DbgFontLine fontLines[26]; /* derived name */
 
-static DebugBar debugBars[1024];
+static DebugBar debugBars[1024]; /* derived name */
 
 /* two pages of 26 {count, mark} pairs */
-static int loadInfoSeg[2][26][2];
+static int loadInfoSeg[2][26][2]; /* derived name */
 
 /* one 64-bit packet slot, written whole or as its two 32-bit halves */
 typedef union {
@@ -619,22 +612,17 @@ typedef struct {
     /* 0x1C */ char *end;
 } DbgDpk;
 
-/* kept local: DbgDpk here, DpkCtl in DmaPacket.h */
+/* read here as DbgDpk; DmaPacket.h declares a DpkCtl */
 extern DbgDpk PacketBufferStruct;
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_Line, gif_Sprite differ) */
+/* GifPacket.h's entry points, which this TU does not include; gif_Sprite
+   and gif_Line take z as an unsigned int here, a long long in the header */
 extern int gif_CheckOpen(void);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_Line, gif_Sprite differ) */
 extern void gif_EndPacket(void);
 /* GifPacket.h's parameter list: debug_DrawBar passes its 64-bit alpha untruncated */
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_Line, gif_Sprite differ) */
 extern void gif_SetAlpha(long long a0, long long a1, long long a2);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_Line, gif_Sprite differ) */
 extern void gif_SetZTest(int a0);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_Line, gif_Sprite differ) */
 extern void gif_SetZWrite(int a0);
-/* kept local: z is unsigned int here, long long in GifPacket.h */
 extern void gif_Sprite(int *r, unsigned int z, int *uv, unsigned char *col, int prim);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_Line, gif_Sprite differ) */
 extern void gif_StartPacketPri(int pri);
 
 typedef struct {
@@ -645,29 +633,24 @@ typedef struct {
     int x, y, z, w;
 } DbgVtx;
 
-/* kept local: brain.h (omori) does not declare it */
+/* brain.h does not declare it */
 extern float brainGetLevel(Brain *b, BrainTarget *t);
-/* kept local: z0 is unsigned int here, long long in GifPacket.h; z1 is unsigned int here, long long in GifPacket.h */
 extern void gif_Line(int *v0, int *v1, unsigned int z0, unsigned int z1, unsigned char *col,
                      int prim);
 
-/* .sbss, owned by debug.o (MAIN.MAP debug.o .sbss 0x10; it names no symbol,
-   so the names are ours), in the ROM's run order: the rows debug_DispBox,
-   debug_DispBall and debug_CollisionTest select, and the profiler's bar
-   count.  All four are static: a global initialised to zero is emitted as
-   small data and an uninitialised one as common, neither in debug.o's own
-   .sbss. */
-static int dispBoxRow;
+/* .sbss: the rows debug_DispBox, debug_DispBall and debug_CollisionTest
+   select, and the profiler's bar count. */
+static int dispBoxRow; /* derived name */
 
-static int dispBallRow;
+static int dispBallRow; /* derived name */
 
-static int collisionTestRow;
+static int collisionTestRow; /* derived name */
 
-static int debugBarCount;
+static int debugBarCount; /* derived name */
 
 /* the two sprite rectangles and the three line colours the bar display
    starts from */
-/* kept local: agrees with DmaPacket.h, which this TU does not include (PacketBufferStruct differ) */
+/* as in DmaPacket.h, which this TU does not include */
 extern int used_dma_memory;
 
 /* clang-format on */
@@ -721,17 +704,17 @@ typedef struct {
     int biClrImportant;      /* 0x34 */
 } BmpHeader;
 
-/* kept local: the store-image entry points are not declared in libgraph.h */
+/* libgraph.h does not declare the store-image entry points */
 extern void sceGsSetDefStoreImage(void *si, short fbp, short fbw, short psm, short x, short y,
                                   short w, short h);
-/* kept local: libgraph.h does not declare it */
+/* libgraph.h does not declare it */
 extern void sceGsExecStoreImage(void *si, unsigned int addr);
-/* kept local: libgcc's dp-bit.c helper, which no header declares */
+/* libgcc's dp-bit.c helper, which no header declares */
 extern float dptofp(double v);
 
 /* clang-format on */
 
-/* kept local: typedef.h carries StgPre but declares no stageData */
+/* typedef.h carries StgPre but declares no stageData */
 extern const StgPre stageData[];
 
 /* memory-card request block */
@@ -764,29 +747,25 @@ typedef struct {
     long long blockFlags; /* 0x9C0 -- one bit per save block, set where a block holds data */
 } McReq;
 
-/* src/debug.c:4415-4423 in the listing: a static helper both mc(Un)format
-   inline -- prints the confirmation prompt and reads the pad:
-   circle (0x20) = yes -> 1, cross (0x40) = cancel -> -1, otherwise 0. */
-
 /* the "*" wildcard pattern "*" is copied into the request block's name
    field as a 2-byte object, not by strcpy */
 typedef struct {
     char c[2];
 } McPat;
 
-/* kept local: returns void here, int in mcard.h */
+/* this TU declares it void; mcard.h returns int */
 extern void iosMcChdirProduct(void *a0);
-/* kept local: returns void here, int in mcard.h */
+/* this TU declares it void; mcard.h returns int */
 extern void iosMcGetDir(void *a0);
-/* kept local: agrees with mcard.h, which this TU does not include (iosMcChdirProduct, iosMcDelete, iosMcFormat, iosMcGetBlockSaveInfo, iosMcGetDir, iosMcGetInfo, iosMcLoadGameBlock, iosMcLoadProductBlock, iosMcSaveGameBlock, iosMcSaveIconBlock, iosMcSaveProductBlock, iosMcUnformat differ) */
+/* as in mcard.h, which this TU does not include */
 extern int iosMcSync(unsigned long *a0);
-/* kept local: returns void here, int in mcard.h */
+/* this TU declares it void; mcard.h returns int */
 extern void iosMcGetBlockSaveInfo(void *a0);
-/* kept local: returns void here, int in mcard.h */
+/* this TU declares it void; mcard.h returns int */
 extern void iosMcSaveIconBlock(void *a0);
-/* kept local: returns void here, int in mcard.h */
+/* this TU declares it void; mcard.h returns int */
 extern void iosMcSaveProductBlock(void *a0);
-/* kept local: returns void here, int in mcard.h */
+/* this TU declares it void; mcard.h returns int */
 extern void iosMcSaveGameBlock(void *a0, int a1);
 
 /* the default save-file name "game." lives in .sdata as 6 bytes */
@@ -794,13 +773,13 @@ typedef struct {
     char c[6];
 } McName6;
 
-/* kept local: returns void here, int in mcard.h */
+/* this TU declares it void; mcard.h returns int */
 extern void iosMcLoadProductBlock(void *a0);
-/* kept local: returns void here, int in mcard.h */
+/* this TU declares it void; mcard.h returns int */
 extern void iosMcLoadGameBlock(void *a0, int a1);
 /* forward declaration: defined below, on this TU's McReq view */
 extern int debug_selectFile(McReq *mc);
-/* kept local: returns void here, int in mcard.h */
+/* this TU declares it void; mcard.h returns int */
 extern void iosMcDelete(void *a0);
 
 /* one line of the memory-card menu: the label debug_SelectCsvWindow prints and
@@ -817,15 +796,14 @@ typedef struct {
     char *msg;
 } McTypeMsg;
 
-/* kept local: layout_action.c's block in this TU's McReq view (layout_action.h) */
+/* layout_action.c's request block, read here through McReq */
 extern McReq mc;
-/* kept local: returns void here, int in mcard.h */
+/* this TU declares it void; mcard.h returns int */
 extern void iosMcGetInfo(void *a0);
-/* kept local: GsysObjInfo [] here; s_init.h (fumi) carries SeDef and declares no seDef */
+/* read here as GsysObjInfo []; s_init.h carries SeDef and declares no seDef */
 extern GsysObjInfo seDef[];
 
-/* src/debug.c:5364-5376 in the listing: the sibling of debug_ListPadControlGobj
-   that lists the actor GObjs the debug menu can print (kinds 1, 2, 4 and 0x2F). */
+/* the sibling of debug_ListPadControlGobj that lists the actor GObjs the debug menu can print (kinds 1, 2, 4 and 0x2F). */
 typedef struct {
     char *name;
     void *obj;
@@ -837,7 +815,7 @@ typedef struct {
     int val;
 } DbgBoxVal;
 
-/* kept local: camera-editor.h (omori) does not declare it; the definition takes BoxVec * */
+/* camera-editor.h does not declare it; the definition takes BoxVec * */
 extern void DebugDispBox(float *centre, float *width);
 
 /* one editable value of the debug ball: its label and the cell it moves */
@@ -869,32 +847,31 @@ typedef struct {
 /* The strings these tables point at stay blob-owned by address until the
    TU's plain .rodata and .sdata runs close up. */
 /* the menu's handlers defined further down this file or in other TUs */
-/* kept local: GsBase.h (seki) does not declare it */
+/* GsBase.h does not declare it */
 extern int gsb_StageSetting(void);
-/* kept local: motionViewer.c (sugipon) has no header that declares it */
+/* no header declares it */
 extern int MotionViewer(void);
-/* kept local: effectTool.h (sugipon) does not declare it */
+/* effectTool.h does not declare it */
 extern int EffectTool(void);
-/* kept local: Texture.h (seki) does not declare it */
+/* Texture.h does not declare it */
 extern int tex_ListTool(void);
-/* kept local: pad.h cannot declare it while effectTool.c and camera-ico2.c
-   declare it as a char array */
-/* kept local: pad.c's record (fumi); no header declares it */
+/* pad.c's default pad configuration; no header declares it (effectTool.c
+   and camera-ico2.c read it as a char array) */
 extern PadConf iosPadConfDefault;
-/* kept local: motionManager2.h (sugipon) does not declare it; the definition takes int * */
+/* motionManager2.h does not declare it; the definition takes int * */
 extern void DebugDisp1Collision(void *hit);
 /* Profiler bar table: 0x400 entries of 0x1C bytes; debugBarCount = live count.
    Callers pass (label, colour, __FILE__, __LINE__) -- see the call sites in
    main.c and motionManager2.c, where a3 is literally the caller's line number.
-   +0x14 samples the EE timer T0_COUNT at 0x10000000; volatile because it is a
-   hardware counter (and the ROM's 32-bit `lw` shows the read is not narrowed). */
-/* kept local: returns void here, int in mcard.h */
+   +0x14 samples the EE timer T0_COUNT at 0x10000000, volatile because it is a
+   hardware counter. */
+/* this TU declares it void; mcard.h returns int */
 extern void iosMcFormat(void *a0);
-/* kept local: agrees with mcard.h, which this TU does not include (iosMcChdirProduct, iosMcDelete, iosMcFormat, iosMcGetBlockSaveInfo, iosMcGetDir, iosMcGetInfo, iosMcLoadGameBlock, iosMcLoadProductBlock, iosMcSaveGameBlock, iosMcSaveIconBlock, iosMcSaveProductBlock, iosMcUnformat differ) */
+/* as in mcard.h, which this TU does not include */
 extern int iosMcSync(unsigned long *a0);
-/* kept local: returns void here, int in mcard.h */
+/* this TU declares it void; mcard.h returns int */
 extern void iosMcUnformat(void *a0);
-/* kept local: agrees with mcard.h, which this TU does not include (iosMcChdirProduct, iosMcDelete, iosMcFormat, iosMcGetBlockSaveInfo, iosMcGetDir, iosMcGetInfo, iosMcLoadGameBlock, iosMcLoadProductBlock, iosMcSaveGameBlock, iosMcSaveIconBlock, iosMcSaveProductBlock, iosMcUnformat differ) */
+/* as in mcard.h, which this TU does not include */
 extern void iosMcTest(void);
 
 inline void ChangeGirlControlMode(int a0)
@@ -924,12 +901,8 @@ static int logAppend = 0; /* derived name */
 static unsigned int dmaHandlerId = -1; /* derived name */
 
 /* The log goes to a file on the host only in the DEBUG build; retail leaves
-   the handle at -1 and the path buffer unused, which is the ROM's 256-byte
-   frame around a lone store (the listing's rows 1411-1428 carry no code).
-   Disabled in retail: the open and its reports.  What the bytes pin: the
-   file name and the two reports in .rodata after debug_Assert's file name,
-   with no instruction.  What they cannot: the open call, its flags and the
-   test that chose between the two reports. */
+   the handle at -1 and the path buffer unused.  The open and its reports are
+   disabled in retail. */
 void debug_openLog(void)
 {
     char buf[256];
@@ -942,9 +915,7 @@ void debug_openLog(void)
     }
 }
 
-/* Disabled in retail: the close report, whose text the bytes pin in .rodata
-   after debug_openLog's with no instruction (the listing gives the function
-   one row, 1448). */
+/* the close report, disabled in retail */
 inline void debug_closeLog(void)
 {
     if (0) {
@@ -1226,17 +1197,9 @@ int debug_Load(char **dst, char *name, int kind)
     sceLseek(fd, 0, 0);
     sz = (size / 16 + 1) * 16;
     {
-        /* The line every arm prints once it has the file's address. It is a
-           nested function, and that is what puts dst, name and size in the
-           frame: each arm reads them back from their home slots rather than
-           out of a register. The block is what lets it be declared here, after
-           the size rounding, which is where the listing's rows for its body
-           sit (debug.c:1952, between the rounding at 1950 and the switch at
-           1955) and which is what decides the conditional move's sense in that
-           rounding: with the nested function above it the value is already in
-           the frame and gcc emits movn against the other arm. The line numbers
-           the iosMallocDebug calls pass are the source's own __LINE__, read
-           off the listing. */
+        /* the line every arm prints once it has the file's address, a nested
+           function that reads dst, name and size from the enclosing frame;
+           the iosMallocDebug calls pass the source's own line numbers */
         inline void loadReport(void)
         {
             debug_StdPrintfDummy(
@@ -1423,8 +1386,8 @@ void debug_PrintCharacter(char *str, int x, int y, int r, int g, int b, int sz)
     int c;
     int col[4] = {r, g, b, sz};
 
-    /* one packet word and its cursor advance per line, as the listing has
-       them; the DMA tag's line also opens the tail */
+    /* one packet word and its cursor advance per line; the DMA tag's line
+       also opens the tail */
     /* clang-format off */
     p = PacketBufferStruct.ptr; PacketBufferStruct.dma = p; PacketBufferStruct.gif = 0; PacketBufferStruct.end = 0;
 
@@ -1555,14 +1518,11 @@ inline int debug_CallbackGsFinish(int channel)
     return 0;
 }
 
-/* The four corners of a marker box, shared by draw_batsu and draw_shikaku
-   (the listing inlines lines 2379-2393 into both).  The ROM's inlined frame
-   keeps a 16-byte slot for `q` (listing row 2381, one declaration line) ahead
-   of the offsets table at <inline frame base>+0x10; its reader is the
-   DEBUG-build report in the code-free rows 2384-2388 (report ours).  The table
-   is built element by element (not copied from .rodata) because `r` makes the
-   initialiser non-constant. */
-static inline void make_mark_points(DbgVtx *v, DbgPos *p, int r)
+/* The four corners of a marker box, inlined into draw_batsu and
+   draw_shikaku.  `q` is read only by the DEBUG build's report (its text
+   derived).  The offsets table is built element by element, since `r` makes
+   the initialiser non-constant. */
+static inline void make_mark_points(DbgVtx *v, DbgPos *p, int r) /* derived name */
 {
     DbgPos q;
     int ofs[4][2] = {{-r, -r}, {r, -r}, {-r, r}, {r, r}};
@@ -1650,8 +1610,7 @@ void debug_brainBar(void)
         }
         gif_Line(&a, &b, 0xFFFFFFFFU, 0xFFFFFFFFU, col, 1);
         if (((GObj *)brain->tgt[i].gobj)->kind == 0x3D) {
-            /* a.z is never written: the ROM reads sp+0x48 uninitialised here
-               too, so the 2001 source carried the same bug. */
+            /* a.z is never written: the copy reads it uninitialised */
             c.x = a.x;
             c.y = a.y;
             c.z = a.z;
@@ -1752,7 +1711,7 @@ void debug_DrawBar(void)
     int i;
     int w;
     int len;
-    inline int barTime(void) { return debugBars[i].count; } /* the time stamp of bar i, read by both bar loops; the name is ours. RECONSTRUCTION (c1p134, cf11): naming i from a nested function keeps i in its frame slot (0x70, a load or store at every use in the three loops), which is what the ROM has; gcc inlines both calls. */
+    inline int barTime(void) { return debugBars[i].count; } /* derived name */ /* the time stamp of bar i, read by both bar loops */
 
 
     flip = 0;
@@ -1768,7 +1727,7 @@ void debug_DrawBar(void)
 
     if (debug_font_flag & 1) debug_Printf(ScreenWidth / 2 - 298, ScreenHeight / 2 + 92, 0xFFFFFF00u, "draw");
     if (debug_font_flag & 1) { debug_Printf(ScreenWidth / 2 - 282, ScreenHeight / 2 + 102, 0xFFFFFF00u, "cpu"); debugBars[debug_debug_bar_start_item].count = debugBars[debug_debug_bar_start_item].count; }
-    /* RULING-VESTIGIAL-EXCEPTION (supervisor, c1p137-harvest): the first set of sh on the next line is dead and flow deletes it, so it emits nothing; the bytes pin a dead set of sh reading a debugBars element here (without it gcse has no debugBars base before the second bar loop, which then stays phony) and the listing's no-code rows 2610-2611 place it, but neither pins its text. RECONSTRUCTION (c1p144): the store-back of debugBars[debug_debug_bar_start_item].count after the "cpu" print is a no-op the compiler deletes after reload (reload_cse removes the store, flow2 the load); its only trace is the one reload register its address takes for gcse's (high debugBars), which shifts every later reload by one register as in the ROM, so the bytes pin a load and store of one debugBars field in that branch after the call, not its text. */
+    /* the first set of sh on the next line is overwritten before any read, and the store-back after the "cpu" print writes a bar's count back unchanged: both are dead */
     sh = debugBars[debug_debug_bar_start_item].count;
     sh = debug_debug_bar_multiply;
 
@@ -2019,12 +1978,8 @@ inline void debug_ResetBar(void)
     debugBarCount = 0;
 }
 
-/* Halves a 32-bit snapshot with a 2x2 box filter.  The listing (debug.c
-   2937-2972) puts the clamp and the destination helper on rows of their own
-   inside the function, so they are nested functions, which is also what homes
-   dst and src in the frame; it puts the four accumulator zeros on one row
-   and the row offset, the pixel pointer and the j loop on another, which the
-   fenced one-liners keep. */
+/* Halves a 32-bit snapshot with a 2x2 box filter; the clamp and the
+   destination helper are nested functions. */
 void debug_ResizeSnapShot(int dst, int src, int w, int h)
 {
     int r, g, b, a;
@@ -2071,7 +2026,7 @@ void debug_ResizeSnapShot(int dst, int src, int w, int h)
     FlushCache(0);
 }
 
-static inline void debug_WriteTim2(int fd, int *img, int w, int h)
+static inline void debug_WriteTim2(int fd, int *img, int w, int h) /* derived name */
 {
     Tim2FileHdr fh;
     Tim2PicHdr ph;
@@ -2737,7 +2692,7 @@ int debug_SelectStage(void)
                                  stageSelectNo);
 }
 
-static inline int debug_mcConfirm(char *msg)
+static inline int debug_mcConfirm(char *msg) /* derived name */
 {
     int yes = 0;
     debug_PrintfDummy(80, 70, 0xFFFFFF00u, "%s? Yes:O No:X", msg);
@@ -2747,9 +2702,8 @@ static inline int debug_mcConfirm(char *msg)
     return (pad[0].flags & 0x40) ? -1 : yes;
 }
 
-/* src/debug.c:4426-4435 in the listing: the sibling of debug_mcConfirm that
-   prints an already-formatted message instead of a fixed prompt. */
-static inline int debug_mcAsk(char *msg)
+/* the sibling of debug_mcConfirm that prints an already-formatted message instead of a fixed prompt. */
+static inline int debug_mcAsk(char *msg) /* derived name */
 {
     int yes = 0;
     debug_PrintfDummy(80, 70, 0xFFFFFF00u, "%s", msg);
@@ -3412,7 +3366,7 @@ inline int debug_hintStart(void)
     return 1;
 }
 
-static inline int debug_ListActGobj(DbgGobjEnt *list)
+static inline int debug_ListActGobj(DbgGobjEnt *list) /* derived name */
 {
     void *g;
     int n = 0;
@@ -3431,9 +3385,8 @@ static inline int debug_ListActGobj(DbgGobjEnt *list)
     return n;
 }
 
-/* src/debug.c:5380-5397 in the listing: a static helper that builds the
-   {name, gobj} list of the pad-controllable objects (kind 2 = boy, 4 = girl). */
-static inline int debug_ListPadControlGobj(DbgGobjEnt *list)
+/* builds the {name, gobj} list of the pad-controllable objects (kind 2 = boy, 4 = girl). */
+static inline int debug_ListPadControlGobj(DbgGobjEnt *list) /* derived name */
 {
     void *g;
     int n = 0;
@@ -3484,10 +3437,6 @@ inline int debug_SelectPad2ControlGobj(int reset)
     }
     return (r == -1) ? -1 : 0;
 }
-
-/* The literals these two functions read stay blob-owned by address until the
-   stubs between them land and the TU's plain .rodata and .sdata runs close
-   up: the object's plain sections must stay contiguous with the ROM's. */
 
 int debug_DispBox(int on)
 {
@@ -3804,7 +3753,7 @@ static int menuSelect = 0; /* derived name */
 
 static int menuArg = 0; /* derived name */
 
-static inline void debug_MenuBlink(void)
+static inline void debug_MenuBlink(void) /* derived name */
 {
     if (menuBlink >> 4) {
         debug_PrintfDummy(220, 60, 0x80C0FF80u, "DISC VER.%s %s", "Jan 17 2002", "15:37:26");
@@ -3815,7 +3764,7 @@ static inline void debug_MenuBlink(void)
     }
 }
 
-static inline void debug_MenuHelp(void)
+static inline void debug_MenuHelp(void) /* derived name */
 {
     int x;
     int y;

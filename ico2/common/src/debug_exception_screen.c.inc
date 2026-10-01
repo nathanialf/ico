@@ -5,25 +5,17 @@
 #include <eekernel.h>
 
 /* debug_exception_screen.c.inc -- the debug screen primitives (Vif1 direct packets, GS draw environments, the 26x256 text
- * screen, sprite/font blits). #included once at the top of debug_exception.c: the PAL listing (SRCFILE.TXT) names
- * this file for these functions and MAIN.MAP lists them under debug_exception.o; debug.c calls them as externs.
+ * screen, sprite/font blits). #included once at the top of debug_exception.c; debug.c calls them as externs.
  * The three Vif1/GIF helpers are inline (they inline into drawSprite/PutFont and their out-of-line copies close the
- * object); the rest are ordinary functions emitted in this order. */
-/* kept local: agrees with libpkt.h, which this TU does not include (sceVif1PkAddGsData, sceVif1PkReset differ) */
+ * object); the rest are ordinary functions in this order. */
+/* libpkt.h's and libgraph.h's entry points, which this TU does not include */
 extern void sceVif1PkCloseDirectCode();
-/* kept local: agrees with libpkt.h, which this TU does not include (sceVif1PkAddGsData, sceVif1PkReset differ) */
 extern void sceVif1PkCloseGifTag();
-/* kept local: agrees with libpkt.h, which this TU does not include (sceVif1PkAddGsData, sceVif1PkReset differ) */
 extern void sceVif1PkEnd();
-/* kept local: agrees with libpkt.h, which this TU does not include (sceVif1PkAddGsData, sceVif1PkReset differ) */
 extern void sceVif1PkTerminate();
-/* kept local: agrees with libgraph.h, which this TU does not include (sceGsSwapDBuff, sceGsSyncV differ) */
 extern void sceGsSyncPath();
-/* kept local: agrees with libgraph.h, which this TU does not include (sceGsSwapDBuff, sceGsSyncV differ) */
 extern int sceGsSetDefTexEnv();
-/* kept local: agrees with libgraph.h, which this TU does not include (sceGsSwapDBuff, sceGsSyncV differ) */
 extern int sceGsSetDefAlphaEnv();
-/* kept local: agrees with libgraph.h, which this TU does not include (sceGsSwapDBuff, sceGsSyncV differ) */
 extern int sceGsSetDefDrawEnv();
 
 /* The four GS environment packets the screen sends with sceGsPutDrawEnv: a
@@ -31,14 +23,16 @@ extern int sceGsSetDefDrawEnv();
    it, qword aligned for the DMA.  Each Set...Environment function fills its
    own packet's registers through the uncached mirror before sending it. */
 static unsigned long long texFrameEnv[20]
-    __attribute__((aligned(16))) = {0x1000000000008009LL, 0xE};
+    __attribute__((aligned(16))) = {0x1000000000008009LL, 0xE}; /* derived name */
 
-static unsigned long long texDrawEnv[18] __attribute__((aligned(16))) = {0x1000000000008008LL, 0xE};
+static unsigned long long texDrawEnv[18]
+    __attribute__((aligned(16))) = {0x1000000000008008LL, 0xE}; /* derived name */
 
 static unsigned long long drawnTexEnv[20]
-    __attribute__((aligned(16))) = {0x1000000000008009LL, 0xE};
+    __attribute__((aligned(16))) = {0x1000000000008009LL, 0xE}; /* derived name */
 
-static unsigned long long drawEnv[20] __attribute__((aligned(16))) = {0x1000000000008002LL, 0xE};
+static unsigned long long drawEnv[20]
+    __attribute__((aligned(16))) = {0x1000000000008002LL, 0xE}; /* derived name */
 
 typedef unsigned int u128_dbgscr __attribute__((mode(TI)));
 
@@ -59,17 +53,14 @@ typedef struct {
     int f_18[2];
 } Vif1Packet;
 
-/* kept local: agrees with libpkt.h, which this TU does not include (sceVif1PkAddGsData, sceVif1PkReset differ) */
+/* as in libpkt.h, which this TU does not include */
 extern void sceVif1PkInit();
-/* kept local: agrees with libpkt.h, which this TU does not include (sceVif1PkAddGsData, sceVif1PkTerminate differ) */
 extern void sceVif1PkReset();
-/* kept local: agrees with libpkt.h, which this TU does not include (sceVif1PkAddGsData, sceVif1PkReset differ) */
 extern void sceVif1PkCnt();
-/* kept local: agrees with libpkt.h, which this TU does not include (sceVif1PkAddGsData, sceVif1PkReset differ) */
 extern void sceVif1PkOpenDirectCode();
-/* kept local: void * and u128_dbgscr here, sceVif1Packet * and u_long128 in libpkt.h */
+/* this TU passes void * and u128_dbgscr; libpkt.h declares sceVif1Packet * and u_long128 */
 extern void sceVif1PkOpenGifTag(void *packet, u128_dbgscr tag);
-/* kept local: void (void *, unsigned long long) here, void (int **, long long) in libpkt.h */
+/* this TU passes void * and unsigned long long; libpkt.h declares int ** and long long */
 extern void sceVif1PkAddGsData(void *packet, unsigned long long data);
 
 /* The packet side OpenVif1DirectPacket builds into, flipped every packet, and
@@ -83,9 +74,9 @@ static unsigned int primTexQ = 0x3F800000; /* derived name */
 /* GIF tags for the sprite packets, PACKED with EOP and NLOOP left for
    sceVif1PkCloseGifTag: UV and XYZ2 for a textured sprite, XYZ2 alone for a
    flat one. */
-static GifTag spriteTexTag = {0x2400000000008000LL, 0x43};
+static GifTag spriteTexTag = {0x2400000000008000LL, 0x43}; /* derived name */
 
-static GifTag spriteTag = {0x1400000000008000LL, 0x4};
+static GifTag spriteTag = {0x1400000000008000LL, 0x4}; /* derived name */
 
 /* The colour PutFont draws with, set per character from its screen cell. */
 static int fontR = 255; /* derived name */
@@ -95,9 +86,9 @@ static int fontG = 255; /* derived name */
 static int fontB = 255; /* derived name */
 
 /* The font's tag: XYZ2 pairs, one sprite per lit pixel. */
-static GifTag fontTag = {0x1400000000008000LL, 0x4};
+static GifTag fontTag = {0x1400000000008000LL, 0x4}; /* derived name */
 
-/* kept local: agrees with libgraph.h, which this TU does not include (sceGsSwapDBuff, sceGsSyncV differ) */
+/* as in libgraph.h, which this TU does not include */
 extern void sceGsResetPath(void);
 
 typedef struct {
@@ -106,7 +97,7 @@ typedef struct {
 } DbgChar;
 
 /* The 26-line, 256-column character screen the report is printed into. */
-static DbgChar charScreen[26][256];
+static DbgChar charScreen[26][256]; /* derived name */
 
 /* The blank a cleared or scrolled cell takes, the first line shown, and the
    print cursor. */
@@ -121,9 +112,9 @@ static int cursorY = 0; /* derived name */
 /* The cursor blink's phase, stepped every frame. */
 static int blinkPhase = 0; /* derived name */
 
-/* kept local: void (void *, int) here, int (void *, int) in libgraph.h */
+/* this TU declares it void; libgraph.h returns int */
 extern void sceGsSwapDBuff(void *a0, int a1);
-/* kept local: int (int) here, int (void) in libgraph.h */
+/* this TU passes an argument; libgraph.h declares (void) */
 extern int sceGsSyncV(int a0);
 
 inline void OpenVif1DirectPacket(void *packet)
@@ -365,14 +356,11 @@ void resetPath(void)
 
 void resetGS(void)
 {
-    /* Both ROM call sites (debugEEExceptionMain, debugIOPExceptionMain) leave
-       the jal delay slot a nop, so resetGS takes no argument and passes none
-       on: sceVpu0Reset's own prototype is argument-less here. */
     sceVpu0Reset();
     gsb_Init(db);
 }
 
-static inline void scrollDbgScreen(void)
+static inline void scrollDbgScreen(void) /* derived name */
 {
     int i, j;
 
@@ -455,14 +443,14 @@ void saveBack(void)
     SetDrawEnvironment(1);
 }
 
-static inline void putBaseChar(int c)
+static inline void putBaseChar(int c) /* derived name */
 {
     unsigned int col = 0xFFFFFF00;
     charScreen[cursorY][cursorX].col = col;
     charScreen[cursorY][cursorX].ch = c;
 }
 
-static inline void dispBase(void)
+static inline void dispBase(void) /* derived name */
 {
     int c;
     switch (blinkPhase) {

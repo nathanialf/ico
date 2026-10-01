@@ -26,14 +26,11 @@
 #include "libgraph.h"
 #include <stdlib.h>
 
-/* main.c's own .data, VMA 0x0028F4C0..0x0028FEB8 (0x9F8 B), the six globals
-   MAIN.MAP lists for main.o in ROM order. Each has an initialiser: the ROM
-   holds them in .data, not .bss. systemStatus starts in PAL mode (word 0)
+/* main.c's .data globals, each with an initialiser. systemStatus starts in PAL mode (word 0)
    at a frame step of 2 (word 1). db is the GS double buffer (libgraph's
    sceGsDBuff, 0x230 B), stageMgrMsg the stage manager's message (main.h's
    StgMgrMsg, 0x18 B) and SchedulerMsgQ the scheduler's queue (message.c's
-   IosMsgQueue, 0x30 B); the first and last of these records are still local
-   to the TUs that read their fields, so this file holds them as words. */
+   IosMsgQueue, 0x30 B); this file holds db as words. */
 int systemStatus[12] = {1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7};
 
 int db[140] = {0};
@@ -46,26 +43,22 @@ StgMgrMsg stageMgrMsg = {0};
 
 IosMsgQueue SchedulerMsgQ = {0};
 
-/* main.c's own .sdata head, VMA 0x00639C80..0x00639CA8, in ROM order (the
-   string literals Main, boot and main print land between these as the
-   compiler meets them). NetLoadTARGET is MAIN.MAP's; the three counters are
-   file statics, names ours. */
-static int vsyncCount = 0; /* derived name: the scheduler's vsync count */
+/* .sdata: the scheduler's counters and the network load target */
+static int vsyncCount = 0; /* derived name */ /* the scheduler's vsync count */
 
 char NetLoadTARGET[] = "host0:";
 
-static int frameReady = -1; /* derived name: Main's frame-done flag, -1 before the first frame */
+/* Main's frame-done flag, -1 before the first frame */
+static int frameReady = -1; /* derived name */
 
-static int lastVsyncCount = 0; /* derived name: movie_abort_check's last seen vsyncCount */
+static int lastVsyncCount = 0; /* derived name */ /* movie_abort_check's last seen vsyncCount */
 
 typedef struct {
     IOSThread *th[6];
 } ThreadTbl;
 
-/* main.c's own .bss, VMA 0x0063D010..0x00667340 (0x2A330 B, MAIN.MAP main.o
-   .bss), in ROM order: the record and the stack of every thread this file
-   starts, then the scheduler's message buffer. The map names none of them, so
-   they are file statics; the names are ours, after jimaku.c's jimakuThread and
+/* .bss: the record and the stack of every thread this file starts, then the
+   scheduler's message buffer, named after jimaku.c's jimakuThread and
    jimakuThreadStack. A thread record is the ios thread object, 0x70 bytes, of
    which this file reads only the kernel id word at +0x30.  Each stack is
    16-byte aligned, as the kernel's CreateThread requires. */
@@ -105,43 +98,29 @@ static int schedulerMsgBuff[8]; /* derived name */
 static const ThreadTbl allThreads = {{&mainThread, &schedulerThread, &mcThread, &cdvdThread,
                                       &stageManagerThread, &soundThread}}; /* derived name */
 
-/* Main, idle, scheduler and boot open the object at VMA 0x00101C80. The
-   listing records all four in main.c (lines 1011 to 1502); splat had left
-   them inside the libkernl run that precedes them. */
-/* kept local: this TU's uses of iosThreadCreate do not fit the prototype in thread.h, but the
- * stack size is that header's `long stackSize` and the ROM proves it: idle's first call passes
- * 0x1B000, and as an `int` the SImode large_int splitter in mips.md cuts it into lui and ori
- * before sched1, which then hoists the lui five slots ahead of its ori; as a `long` it stays one
- * DImode `dli` the assembler expands into the adjacent lui/ori pair the ROM has. */
 void idle(void);
 void scheduler(void);
-/* kept local: motionOrientManager.h (sugipon) carries MotOriName and declares no movieFile */
+/* motionOrientManager.h carries MotOriName and declares no movieFile */
 extern char movieFile[];
-/* gsb_ResetSnap and gsb_TakeSnap return a value the callers drop, and the ROM
-   proves it here: the load that follows each of the two calls takes $3, not
-   $2, because local-alloc still has $2 live over the load's birth index for
-   the call's unused result (mpegPlay after gsb_ResetSnap, systemFault after
-   gsb_TakeSnap). Their definitions in ico2/seki/src/GsBase.c are empty, so the
-   declaration is the only evidence; GsBase.o is byte-identical either way. */
+/* gsb_ResetSnap and gsb_TakeSnap return an int the callers here drop;
+   GsBase.h does not declare them */
 extern int gsb_ResetSnap(void);
-/* kept local: mv_main.h (ito) does not declare it; the definition takes char * and returns int */
+/* mv_main.h does not declare it; the definition takes char * and returns int */
 extern void movie_init(void *p, int w, int h, int a3, int a4, int a5, int col);
-/* kept local: geometryManager.h (sugipon) does not declare it */
+/* geometryManager.h does not declare it */
 extern void MakeCharGObjList(void);
-/* kept local: StageAnimation.h (seki) does not declare it */
+/* StageAnimation.h does not declare it */
 extern void stage_ResetAnimation(void);
-/* kept local: StageAnimation.h (seki) does not declare it */
+/* StageAnimation.h does not declare it */
 extern void stage_CalcAnimationNoParent(void);
-/* kept local: StageAnimation.h (seki) does not declare it */
+/* StageAnimation.h does not declare it */
 extern void stage_CalcAnimationParent(void);
-/* kept local: int, as the note above gsb_ResetSnap gives; GsBase.h (seki) does not declare it */
 extern int gsb_TakeSnap(void);
 int movie_abort_check(void);
 
-/* SRCFILE.TXT's Main also calls debug_Menu, debug_SetBar and debug_SetBar2
-   (main.c:1110, 1176-1182, 1206-1209, 1250) and carries a frame-step block at
-   1160-1167; the retail ELF has none of that code, so this build compiled it
-   out and it is not spelled here. */
+/* the development build's Main also called debug_Menu, debug_SetBar and
+   debug_SetBar2 and carried a frame-step block; the retail build compiled
+   them out. */
 void Main(void)
 {
     int ret;
@@ -238,11 +217,10 @@ void Main(void)
     }
 }
 
-/* main.c's own first two small-bss cells, at 0x0063C100 and 0x0063C104, ahead of
-   the boot thread id: the idle thread's spin counters. The names are ours. */
-static int idleCount;
+/* .sbss: the idle thread's spin counters */
+static int idleCount; /* derived name */
 
-static int idleLoop;
+static int idleLoop; /* derived name */
 
 void idle(void)
 {
@@ -276,8 +254,8 @@ void idle(void)
     }
 }
 
-static int frameStepCount =
-    0; /* derived name: vsyncs counted toward systemStatus[1], the frame step */
+/* vsyncs counted toward systemStatus[1], the frame step */
+static int frameStepCount = 0; /* derived name */
 
 void scheduler(void)
 {
@@ -339,8 +317,7 @@ void scheduler(void)
             debug_StdPrintfDummy("不明なメッセージの着信を確認しました in Scheduler\n");
         }
     }
-    /* the loop never ends, so this report is dead code the compiler drops; its
-       text stays in .rodata (the listing's empty row 1416) */
+    /* unreachable: the loop above never exits */
     debug_StdPrintfDummy("scheduler() out\n");
 }
 
@@ -390,12 +367,8 @@ int movie_abort_check(void)
 
 void demoEnd(void) {}
 
-/* main.c's own small-bss cell at 0x0063C108, the boot thread id. It has to be a
-   DEFINITION in this TU rather than an extern off the sbss run base: gas emits a
-   non-macro gp-relative store only for a symbol it already knows is small, and
-   only a non-macro store is swapped into the `jal boot` delay slot. The name is
-   ours; MAIN.MAP does not name the cell. */
-static int bootThreadId;
+/* the boot thread's kernel id */
+static int bootThreadId; /* derived name */
 
 int main(void)
 {
@@ -407,17 +380,10 @@ int main(void)
     return 0;
 }
 
-/* main.c's globals, VMA 0x00639CC0..0x00639EE0 in .sdata, in ROM order. They
-   follow main's literal in the section, so they are defined here, after main.
-   MAIN.MAP lists 38 of them. The PAL build adds six (marked derived), and its
-   layout is the January map's shifted by one inserted quadword after game_pause
-   and by the girl-control block before boyGObj; the ROM pins each placement by
-   its accessors and the strings the lock words are printed with ("IosPadLock %d"
-   in Main, "IosCdLock %d" in StageManager, "IosSndLock %d" in sndManager,
-   "IosstgMgrLock %d" in Main). Each word is a 4-byte scalar (every $gp access
-   is lw, sw or lwc1). The ones marked QWORD open a 16-byte quadword of their
-   own: the ROM leaves the rest of that quadword empty, which only an
-   alignment of 16 on the object produces. */
+/* main.c's .sdata globals.  The PAL build adds six (marked derived): one
+   quadword after game_pause and the girl-control block before boyGObj.  Each
+   is a 4-byte scalar; the ones marked QWORD open a 16-byte quadword of their
+   own, the rest of which stays empty. */
 #define QWORD __attribute__((aligned(16)))
 
 int buffer_ID QWORD = 0;
@@ -454,8 +420,8 @@ int game_pause QWORD = 0;
 
 int data_loading QWORD = 0;
 
-static int reservedWord QWORD =
-    0; /* derived name: the PAL build's inserted, unreferenced quadword */
+/* the PAL build's inserted, unreferenced quadword */
+static int reservedWord QWORD = 0; /* derived name */
 
 int screen_offset_x QWORD = 0;
 
@@ -477,14 +443,14 @@ int IosStgMgrLock QWORD = 0;
 
 int systemFault QWORD = 0;
 
-int optionControlType QWORD =
-    0; /* derived name: the 0/1 game option that selects the pad word +0x2E0 or +0x2E4 the actions read */
+/* the 0/1 game option that selects the pad word +0x2E0 or +0x2E4 the actions read */
+int optionControlType QWORD = 0; /* derived name */
 
-int optionScreenMode QWORD =
-    0; /* derived name: the five-way game option GsBase indexes its per-mode tint and blur rows with */
+/* the five-way game option GsBase indexes its per-mode tint and blur rows with */
+int optionScreenMode QWORD = 0; /* derived name */
 
-int girlControlMode QWORD =
-    0; /* derived name: ChangeGirlControlMode's flag, the game option that hands the girl to pad 2 */
+/* ChangeGirlControlMode's flag, the game option that hands the girl to pad 2 */
+int girlControlMode QWORD = 0; /* derived name */
 
 GObj *boyGObj = 0;
 
@@ -492,13 +458,15 @@ GObj *girlGObj = 0;
 
 int boyPad = 0;
 
-int girlPad = 0; /* derived name: the girl's pad word, girl_act's +0x2D8, boyPad's twin */
+/* the girl's pad word, girl_act's +0x2D8, the girl's counterpart of boyPad */
+int girlPad = 0; /* derived name */
 
 int gameover_flag = 0;
 
 int gameover_layout_flag = 0;
 
-int itemWatchOff = 0; /* derived name: ACTItemWatchMotion runs for the boy only while it is 0 */
+/* ACTItemWatchMotion runs for the boy only while it is 0 */
+int itemWatchOff = 0; /* derived name */
 
 GObj *CurrentTargetGObj = 0;
 

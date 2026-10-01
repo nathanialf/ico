@@ -141,7 +141,7 @@ static const unsigned char dbgFont[2048] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-};
+}; /* derived name */
 
 /* One TRTABLE.BIN record: a code address and the byte offset of its line
    inside TRFILE.TXT.  Eight bytes, which is initLineTraceTable's size / 8. */
@@ -157,8 +157,7 @@ static TraceEntry *traceTable = 0; /* derived name */
 
 static int traceTableNum = 0; /* derived name */
 
-/* This file's .data (VMA 0x4D9F70..0x4DA4C8), ahead of the screen include's.
-   The monitor installs debugEEExceptionMain for every cause in the table. */
+/* This file's .data, ahead of the screen include's.  The monitor installs debugEEExceptionMain for every cause in the table. */
 static DebugExcEntry excTable[11] = {
     {1, "TLB MOD exception"},
     {2, "TLB NOT MATCH exception LOAD or OPERATION"},
@@ -171,7 +170,7 @@ static DebugExcEntry excTable[11] = {
     {11, "COPROCESSOR UNUSABLE exception"},
     {12, "ARITHMETIC OVERFLOW exception"},
     {13, "TRAP exception"},
-};
+}; /* derived name */
 
 /* The report window: {value, name} word pairs, one pair per EE register,
    the values written at exception time and read back flat by display. */
@@ -184,23 +183,19 @@ static unsigned int regInfo[64] = {
     0, (unsigned int)"s4", 0, (unsigned int)"s5", 0, (unsigned int)"s6", 0, (unsigned int)"s7",
     0, (unsigned int)"t8", 0, (unsigned int)"t9", 0, (unsigned int)"k0", 0, (unsigned int)"k1",
     0, (unsigned int)"gp", 0, (unsigned int)"sp", 0, (unsigned int)"s8", 0, (unsigned int)"ra",
-};
+}; /* derived name */
 
-/* The message debug_SetExceptionMessage saves and the report prints back.
-   The bytes pin 1025 to 1032 bytes before the next object's 16-byte
-   alignment; the round kilobyte is ours. */
-static char exceptionMessage[1024] = "";
+/* The message debug_SetExceptionMessage saves and the report prints back
+   (the size derived). */
+static char exceptionMessage[1024] = ""; /* derived name */
 
 /* Set once an exception is already being reported (debugEEExceptionMain). */
 static int inException = 0; /* derived name */
 
-/* This file's .bss (VMA 0x70FA80..0x70FA90), ahead of the screen include's:
-   the quadword display stages one saved register in to print it as four
-   words.  It is 128-byte aligned: the ELF's .bss section alignment is 128 and
-   this object is what carries it (the January map places debug_exception.o's
-   .bss after fill only that alignment explains, and the PAL link starts it at
-   0x70FA80, 0x60 bytes after debug.o's run ends). */
-static unsigned int regQuad[4] __attribute__((aligned(128)));
+/* This file's .bss, ahead of the screen include's: the quadword display
+   stages one saved register in to print it as four words, 128-byte
+   aligned. */
+static unsigned int regQuad[4] __attribute__((aligned(128))); /* derived name */
 
 #include "GsBase.h"
 #include "debug_exception_screen.c.inc"
@@ -210,12 +205,8 @@ static unsigned int regQuad[4] __attribute__((aligned(128)));
 #include <string.h>
 
 /* The disc settle the debug monitor does around every raw file operation: wait
- * out the outstanding sceCdSync, then spin.  The listing puts the whole
- * countdown on one line (295).  The zero words inside every countdown loop are
- * not source: the spin body is empty and ee-gcc's machine reorg pads any loop
- * too short for the R5900 short-loop erratum with nops
- * (mips.c:mips_r5900_lengthen_loops). */
-static inline void waitCd(void)
+ * out the outstanding sceCdSync, then spin with an empty body. */
+static inline void waitCd(void) /* derived name */
 {
     int i;
 
@@ -252,16 +243,9 @@ void initLineTraceTable(void)
 }
 
 /* dispSource's TTY trace, built only when DEBUG is defined; the retail build
-   does not define it, so the preprocessor leaves this helper without a body.
-   A parameterless inline whose body is empty after preprocessing is saved as
-   the single `(use (const_int 0))` flow.c:count_basic_blocks gives a function
-   with no insns, and inlining copies that USE into the caller, where it takes
-   an issue slot in both scheduling passes and emits nothing (dispSource's
-   note says what that pins).  A helper with a parameter would not do it: its
-   parameter move is an insn, so no USE is saved.  The name and the trace text
-   are ours: the listing records no symbol or row for an inlined empty body,
-   and the preprocessor leaves no string in the object. */
-static __inline__ void debugExcDebugDisp(void)
+   does not define it, so the helper has no body there (the trace text
+   derived). */
+static __inline__ void debugExcDebugDisp(void) /* derived name */
 {
 #ifdef DEBUG
     scePrintf("dispSource\n");
@@ -279,12 +263,10 @@ typedef struct {
     int ra;            /* 0xC */
 } SrcRef;
 
-/* debug_exception.c:329-393.  Turns a code address into a source-line
+/* Turns a code address into a source-line
    reference by binary-searching TRTABLE.BIN for the last entry at or below it,
    then reading the matching TRFILE.TXT line back for the report.  The 16-byte
-   record goes back BY VALUE: the caller hands the hidden result pointer in $a0
-   and the callee returns it in $v0, which is why every `return info` is an
-   unaligned 16-byte copy through that pointer. */
+   record goes back by value. */
 
 SrcRef traceLine(char *out, unsigned int addr)
 {
@@ -335,9 +317,7 @@ SrcRef traceLine(char *out, unsigned int addr)
 
     sscanf((char *)buf, "%08x:%010d:%04x:%04x\n", &info.addr, &info.offset, &info.stack, &info.ra);
     /* The line's text starts past the 30-character "%08x:%010d:%04x:%04x\n"
-       header the sscanf above just read.  gcse hoists this address into the
-       block at :365 with the three &info.<field> addresses, which is why the
-       listing has no instruction on this line. */
+       header the sscanf above just read. */
     src = (char *)&buf[30];
     info.addr = addr;
     info.stack = (short)info.stack;
@@ -355,12 +335,8 @@ SrcRef traceLine(char *out, unsigned int addr)
     return info;
 }
 
-/* debug_exception.c:398-399, inlined into display: eight rows of four
-   {name, value} register pairs.  The array is indexed by the counter, not
-   walked by a pointer: the listing puts the pointer copy and its 32-byte step
-   on the for line, which is loop.c's reduced giv, and only that giv's late
-   preheader copy gives display the ROM's jal slot and register choice. */
-static inline void dispRegs(unsigned int *regs)
+/* inlined into display: eight rows of four {name, value} register pairs */
+static inline void dispRegs(unsigned int *regs) /* derived name */
 {
     int i;
 
@@ -371,22 +347,11 @@ static inline void dispRegs(unsigned int *regs)
     }
 }
 
-/* debug_exception.c:409-464.  Prints the source lines around the faulting
+/* Prints the source lines around the faulting
    address: opens SRCFILE.TXT, reads a kilobyte at the offset traceLine found
    and walks it line by line, highlighting the one whose listing address
-   matches.  The reference arrives BY VALUE: the EE ABI hands a 16-byte struct
-   over by invisible reference and the callee copies it into its own frame,
-   which is the unaligned 16-byte copy at the head.
-
-   The debugExcDebugDisp() call is the DEBUG-build TTY trace (see its
-   definition above), in the listing's code-free run 431-435.  WHAT THE
-   BYTES PIN: sched1 and sched2 both need a zero-byte insn ranked ahead of
-   `n = 0` in the cycle of the sceRead call.  Without it `n = 0` issues
-   beside that call, the loop's -121 constant takes the free slot before
-   putString, and dbr moves it into putString's delay slot, where the ROM
-   has `n = 0`.  The helper's saved USE is that insn.  WHAT IT CANNOT PIN:
-   the trace's text or its exact line; it pins only a helper without
-   parameters whose release body is empty (see the definition). */
+   matches.  The reference arrives by value.  The debugExcDebugDisp() call is
+   the DEBUG-build TTY trace (see its definition above). */
 
 void dispSource(SrcRef ref, int lines)
 {
@@ -450,9 +415,8 @@ void dispSource(SrcRef ref, int lines)
     waitCd();
 }
 
-/* debug_exception.c:473-581.  One page of the exception screen.  Seven word
-   arguments, so a0 to a3 then t0 to t3 under the EABI; the second (cause) is
-   never read, which is why nothing is copied out of a1.  `regs` is the flat
+/* One page of the exception screen.  The second argument (cause) is never
+   read.  `regs` is the flat
    {value, name} pair array regInfo, two words per EE register, so
    regs[62] is the saved ra and regs[58] the saved sp. */
 static void display(int code, unsigned int cause, unsigned int epc, unsigned int badvaddr,
@@ -548,14 +512,12 @@ typedef struct {
     unsigned int w[4];
 } EeReg128;
 
-/* kept local: libkernl's tlbfunc.c defines it and sce/'s eekernel.h does not declare it */
+/* libkernl's tlbfunc.c defines it; eekernel.h does not declare it */
 extern int SetDebugHandler();
 
-/* debug_exception_screen.c.inc(476-477, 493-495): blank the character screen
-   and put the cursor back at the top left.  Written as a helper because
-   debugEEExceptionMain inlines it at two sites and each site needs its own
-   pseudos; spelling the loop out by hand at both sites shares them. */
-static inline void clearDbgScreen(void)
+/* blank the character screen and put the cursor back at the top left;
+   inlined into debugEEExceptionMain at two sites */
+static inline void clearDbgScreen(void) /* derived name */
 {
     int i;
     int j;
@@ -569,11 +531,9 @@ static inline void clearDbgScreen(void)
     cursorY = 0;
 }
 
-/* debug_exception_screen.c.inc(591-593, 598-600): put the frame the exception
-   entry saved back into both texture buffers.  debugEEExceptionMain is the
-   only caller and inlines it once, which is why the listing attributes all six
-   calls to the include and gives the call site itself no instruction. */
-static inline void restoreSavedFrame(void)
+/* put the frame the exception entry saved back into both texture buffers;
+   inlined once, into debugEEExceptionMain */
+static inline void restoreSavedFrame(void) /* derived name */
 {
     SetTextureWithFrameBuffer(0);
     SetTexDrawEnvironment(0x3000);
@@ -584,8 +544,8 @@ static inline void restoreSavedFrame(void)
     drawSprite(128, 128, 128, 128, -320, -112, 320, 112, 1);
 }
 
-/* debug_exception_screen.c.inc(579-582): put the saved frame back on screen. */
-static inline void dispBack(int page, int tex)
+/* put the saved frame back on screen */
+static inline void dispBack(int page, int tex) /* derived name */
 {
     if (page != 0) {
         SetDrawnTextureEnvironment(0x4000);
@@ -596,7 +556,7 @@ static inline void dispBack(int page, int tex)
     drawSprite(128, 128, 128, 128, -320, -112, 320, 112, tex);
 }
 
-/* debug_exception.c:599-663.  The EE exception handler the monitor installs
+/* The EE exception handler the monitor installs
    for every trapped cause: freeze the game, copy the register image into the
    report window, draw the saved frame back over the screen and then loop on
    the pad, paging through the three report screens. */
@@ -620,21 +580,13 @@ void debugEEExceptionMain(int arg0, unsigned int cause, unsigned int epc, unsign
 
     scePrintf("called exception\n");
 
-    /* The report starts on page 1.  The store sits inside the copy loop, at
-       listing line 617: it is loop invariant, so loop.c:move_movables lifts it
-       into the preheader with emit_insn_before(..., loop_start), i.e. AFTER
-       the gcse inserts that end this block, and only then does it carry a
-       higher LUID than the hoisted `code * 8`.  Written before the loop it
-       has the lower LUID, haifa's rank_for_schedule tie-break takes it for
-       the slot between Emergency_DestroyAllThread and scePrintf, and the two
-       values and their frame slots come out swapped against ROM. */
+    /* the report starts on page 1, set inside the copy loop */
     for (i = 0; i < 32; i++) {
         regInfo[i * 2] = regs[i].w[0];
         page = 1;
     }
 
-    /* One listing line (619), an empty body: the zero words are the R5900
-       short-loop padding, as in waitCd. */
+    /* a spin with an empty body, as in waitCd */
     spin = 1000000000;
     while (spin--)
         ;
@@ -663,10 +615,7 @@ void debugEEExceptionMain(int arg0, unsigned int cause, unsigned int epc, unsign
     display(code, cause, epc, badvaddr, status, regInfo, 0);
 
     /* tex is set at the top of every pass, as page is inside the copy loop
-       above (the listing's rows are 641 for display, 643 for the store and
-       644 for the pad test, so the loop head fits the code-free 642).  loop.c
-       lifts the invariant store in front of the loop, where it follows the
-       display call instead of filling its delay slot. */
+       above */
     for (;;) {
         tex = 1;
         if (pad[0].flags & 0x20) {
@@ -696,7 +645,7 @@ void debugEEExceptionMain(int arg0, unsigned int cause, unsigned int epc, unsign
     }
 }
 
-/* kept local: libkernl's tlbfunc.c defines it and sce/'s eekernel.h does not declare it */
+/* libkernl's tlbfunc.c defines it; eekernel.h does not declare it */
 extern int SetDebugHandler();
 
 inline void debugExceptionInit(void *workBuf)

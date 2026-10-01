@@ -1,12 +1,8 @@
 /*
  * ico2/common/include/DObj.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what DObj.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what DObj.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef DOBJ_H
@@ -16,8 +12,8 @@
 
 struct Sub15C;
 
-/* The parent-link word LinkParentOfDObj copies: one long long the ROM moves with
- * an ld/sd pair off a 4-byte-aligned address, so the struct is packed. */
+/* The parent-link word LinkParentOfDObj copies: one long long at a 4-byte
+ * aligned address, so the struct is packed. */
 typedef struct {
     long long x;
 } __attribute__((packed, aligned(4))) PackedLL_19CAF0;

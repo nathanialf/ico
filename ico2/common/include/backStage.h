@@ -1,12 +1,8 @@
 /*
  * ico2/common/include/backStage.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what backStage.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what backStage.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef BACKSTAGE_H
@@ -26,8 +22,8 @@ void routeSetPos(int gobj0, int gobj1, float *out, float ratio);
 /* The enemy carrying the heroine off, which sceneManager sets when it takes her. */
 extern int backStageGirlTargetEnemyGop;
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 3 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
-typedef struct {
+/* the gamesys object-info record */
+typedef struct { /* field names derived */
     short flag;
     unsigned short no;
     unsigned short stage;

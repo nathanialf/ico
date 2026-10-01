@@ -1,12 +1,8 @@
 /*
  * ico2/common/include/gamesys.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what gamesys.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what gamesys.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef GAMESYS_H
@@ -15,7 +11,7 @@
 #include "backStage.h"
 #include "typedef.h"
 
-/* gamesys.c's .data, MAIN.MAP's gamesys.o globals in its order */
+/* gamesys.c's .data globals */
 extern char stamp_str[];
 extern void *gameSysMemoryFuncList[];
 extern int gamesysStageExitTime[];
@@ -27,7 +23,7 @@ extern int gamesysVersionDiff;
 extern int gamesysObjBuffOver;
 
 /* the object-kind table (obj-kind-data) and the stage layout objects
-   (obj-layout), the data members MAIN.MAP places in debug.o and gamesys.o */
+   (obj-layout), data members linked with debug.o and gamesys.o */
 extern ObjKindEnt objKindData[];
 extern GenGeo objLayout[];
 

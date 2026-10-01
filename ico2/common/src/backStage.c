@@ -20,35 +20,35 @@
 #include "way_kidnap.h"
 #include "main.h"
 
-/* .sdata, owned by backStage.o (VMA 0x63ACF0..0x63ACFC): the enemy the heroine is
-   carried off by, then backStageProcessOutStage's "%d\n" (MAIN.MAP global). */
+/* the enemy the heroine is carried off by */
 int backStageGirlTargetEnemyGop = 0;
 
-/* .sbss, owned by backStage.o and reached only from this file (MAIN.MAP names
-   no symbol in the run).  The off-stage kidnap state, in the ROM's run order,
-   which is also the order backStageSave writes it to the memory card. */
-static int kidnapState; /* 0 idle, 1 counting down to the grab, 2 carrying */
+/* .sbss: the off-stage kidnap state, in the order backStageSave writes it to
+   the memory card. */
+static int kidnapState; /* derived name */ /* 0 idle, 1 counting down to the grab, 2 carrying */
 
-static int kidnapTime; /* frames left before the heroine is taken */
+static int kidnapTime; /* derived name */ /* frames left before the heroine is taken */
 
-static int carryTime; /* frames left before the nest is reached */
+static int carryTime; /* derived name */ /* frames left before the nest is reached */
 
-static int kidnapObjIdx; /* index of the carrier in the gamesys object-info table */
+/* index of the carrier in the gamesys object-info table */
+static int kidnapObjIdx; /* derived name */
 
-static float enemyDist; /* distance from the heroine to the nearest enemy */
+static float enemyDist; /* derived name */ /* distance from the heroine to the nearest enemy */
 
-static float nestDist; /* route length from the carrier to the nest */
+static float nestDist; /* derived name */ /* route length from the carrier to the nest */
 
-static float enemySec; /* enemyDist scaled to seconds */
+static float enemySec; /* derived name */ /* enemyDist scaled to seconds */
 
-static float nestSec; /* nestDist scaled to seconds */
+static float nestSec; /* derived name */ /* nestDist scaled to seconds */
 
-/* kept local: agrees with gamesys.h, which this TU does not include */
+/* as in gamesys.h, which this TU does not include */
 extern void gamesysMemoryHandlerWrite(int *self, void *src, int size);
-/* kept local: agrees with gamesys.h, which this TU does not include */
+/* as in gamesys.h, which this TU does not include */
 extern void gamesysMemoryHandlerRead(int *self, void *dst, int size);
 
-static int pinchTold; /* the boy has already been told the heroine is in trouble */
+/* the boy has already been told the heroine is in trouble */
+static int pinchTold; /* derived name */
 
 /* --- su-b sweep decls --- */
 
@@ -65,7 +65,7 @@ typedef struct {
     int work[4];          /* 0x30 */
 } GamesysObjInfoBackstage;
 
-/* kept local: typedef.h carries StgPre but declares no stageData */
+/* typedef.h carries StgPre but declares no stageData */
 extern const StgPre stageData[];
 
 /* the actor work record a gobj carries at 0x164 (src/enemy_act.c reads the same
@@ -75,38 +75,35 @@ typedef struct {
     int objNo; /* 0x444 */
 } ActorWorkRec;
 
-/* kept local: gamesys.c's object-info records in this TU's view of the record
-   (gamesys.h declares them with the record backStage.h carries, and this TU
-   does not include gamesys.h) */
-/* kept local: GamesysObjInfoBackstage [] here, GamesysObjInfo [] in gamesys.h */
+/* gamesys.c's object-info records, read here as GamesysObjInfoBackstage;
+   gamesys.h, which this TU does not include, declares GamesysObjInfo [] */
 extern GamesysObjInfoBackstage gameSysObjInfo[];
-/* kept local: gamesys.h declares it; this TU does not include gamesys.h (see above) */
+/* as in gamesys.h */
 extern GenGeo objLayout[];
 
-/* .bss, owned by backStage.o and reached only from this file: the nest position
-   the carrier walks to. */
-static float nestPos[4];
+/* .bss: the nest position the carrier walks to */
+static float nestPos[4]; /* derived name */
 
-/* kept local: agrees with gamesys.h, which this TU does not include (gameSysObjInfo, gamesysMemoryHandlerRead differ) */
+/* as in gamesys.h, which this TU does not include */
 extern int gamesysAnotherStageTsuresari;
 
-static int wayKidnap; /* the carrier walks the waypoint route instead of a generator */
+/* the carrier walks the waypoint route instead of a generator */
+static int wayKidnap; /* derived name */
 
-/* kept local: agrees with gamesys.h, which this TU does not include */
+/* as in gamesys.h, which this TU does not include */
 extern GamesysObjInfo *gamesysObjInfoPosNewStageSet(int no, int kind, int stage, float *pos,
                                                     float *rot);
-/* kept local: agrees with generator.h, which this TU does not include (SetInfoSpKidnapEnemy differs) */
+/* as in generator.h, which this TU does not include */
 extern void SetInfoSpKidnapGenerator(short *a0);
-/* kept local: void is int * here, void in generator.h */
+/* this TU passes an int *; generator.h declares a short * */
 extern void SetInfoSpKidnapEnemy(int *work);
-/* kept local: agrees with gamesys.h, which this TU does not include */
+/* as in gamesys.h, which this TU does not include */
 extern int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3);
-/* kept local: agrees with gamesys.h, which this TU does not include */
+/* as in gamesys.h, which this TU does not include */
 extern void gamesysObjInfoCls(int kind, int no);
-/* kept local with gamesys.h's declaration, which this TU does not include */
-/* kept local: agrees with gamesys.h, which this TU does not include (gameSysObjInfo, gamesysMemoryHandlerRead differ) */
+/* as in gamesys.h, which this TU does not include */
 extern int gamesysStageExitTime[];
-/* kept local: unsigned int here, int in gamesys.h */
+/* read here as unsigned; gamesys.h declares an int */
 extern unsigned int gamesysTimeCount;
 
 inline void backStageProcessInit(void)
@@ -351,8 +348,8 @@ void routeSetPos(int gobj0, int gobj1, float *out, float ratio)
     }
 }
 
-/* common/src/backStage.c:772-796, inlined at both of its call sites */
-static inline void kidnapWarpToWaypoint(int gobj, float range)
+/* inlined at both of its call sites */
+static inline void kidnapWarpToWaypoint(int gobj, float range) /* derived name */
 {
     Vec16 p;
     Vec16 wp;

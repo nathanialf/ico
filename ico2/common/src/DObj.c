@@ -19,9 +19,6 @@ typedef struct {
 
 #include "DObj.h"
 
-/* kept local with ios.h's declaration: this TU keeps its own pointer view of
-   ios_partition_seki below and so does not include ios.h */
-
 typedef union {
     char *p;
     int i;
@@ -43,9 +40,8 @@ typedef struct {
     long long w[2];
 } DObjBlk10;
 
-/* The unit +Z direction the motion state starts from.  The long long view is
-   what gives the local its 8-byte alignment, which is why the ROM copies the
-   template with a pair of ld/sd rather than the unaligned ldl/ldr sequence. */
+/* The unit +Z direction the motion state starts from, with a long long view
+   for its 8-byte copy. */
 typedef union {
     float f[4];
     long long w[2];
@@ -60,15 +56,10 @@ typedef struct {
     long long w[24];
 } DObjBlkC0;
 
-/* The four DObj templates, in the order the object emits them.  Their
-   contents are ROM-direct; the names are a reconstruction, since the
-   January map lists no symbol for DObj.o's .data member (map line 5917,
-   size 0x9a0 against the retail run's 0x9e0, which is one 64-byte block
-   more).  The record type below is a reconstruction too: only the size,
-   0x880, is proven, by the malloc CSVSYSTEM_InitDObj makes right above
-   the copy, and only the slot table pointer at 0x840 and the character
-   file id at 0x84 have a proven role.  The long long pads are what give
-   the record the 8-byte alignment its copy loop uses. */
+/* The four DObj templates (names derived).  The record is 0x880 bytes, the
+   size CSVSYSTEM_InitDObj allocates before the copy; the slot table pointer
+   at 0x840 and the character file id at 0x84 are its named fields.  The long
+   long pads give the record the 8-byte alignment its copy loop uses. */
 typedef struct {
     int f00;
     int f04;
@@ -87,7 +78,7 @@ typedef struct {
 
 static DObjRecord emptyDObj = {
     0, -1, {0}, 0, 1, 1, 1, 0, 1552, {0}, 0, -1, {0},
-};
+}; /* derived name */
 
 /* One entry of the rotation element array at 0x80c: a zero vector then
    three identity quaternions. */
@@ -96,13 +87,13 @@ static DObjBlk40 initialRotElem = {{
     {0.0f, 0.0f, 0.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 1.0f},
-}};
+}}; /* derived name */
 
 /* The 32-byte record at 0x660 that closes initGeometryState. */
-static DObjBlk20 initialGeoState = {{1, 0, 0, 0, 0, 0, 0, 0}};
+static DObjBlk20 initialGeoState = {{1, 0, 0, 0, 0, 0, 0, 0}}; /* derived name */
 
 /* The 192-byte record at 0x680, cleared before the motion buffers. */
-static DObjBlkC0 initialGeoWork = {{0}};
+static DObjBlkC0 initialGeoWork = {{0}}; /* derived name */
 
 /* One entry of the blend rotation array at 0x818: four identity
    quaternions. */
@@ -111,9 +102,9 @@ static DObjBlk40 initialBlendRot = {{
     {0.0f, 0.0f, 0.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 1.0f},
-}};
+}}; /* derived name */
 
-static inline void initGeometryScaleRatio(char *d)
+static inline void initGeometryScaleRatio(char *d) /* derived name */
 {
     float r;
     float t;
@@ -235,9 +226,6 @@ typedef union {
     int i[2];
 } DObjFlags;
 
-/* kept local: this TU's view of ios.c's seki partition handle is a pointer
-   (ios.h declares the handles int, and that view changes this TU's code) */
-
 void allocObjectData(char *self, SObjSimpleSetting *lay, int n)
 {
     int i;
@@ -315,8 +303,7 @@ typedef struct {
     unsigned long long kind : 2;
 } PolyFlags;
 
-/* listing lines 232-246 */
-static inline void initPolyHead(char *d)
+static inline void initPolyHead(char *d) /* derived name */
 {
     char *h;
     char *q;
@@ -335,8 +322,7 @@ static inline void initPolyHead(char *d)
     }
 }
 
-/* listing lines 257-270 */
-static inline void allocMatrixArrays(char *d, int n)
+static inline void allocMatrixArrays(char *d, int n) /* derived name */
 {
     int i;
 
@@ -349,8 +335,7 @@ static inline void allocMatrixArrays(char *d, int n)
     }
 }
 
-/* listing lines 348-355 */
-static inline void applySkeltonMatrices(char *d)
+static inline void applySkeltonMatrices(char *d) /* derived name */
 {
     int i;
 
@@ -360,8 +345,7 @@ static inline void applySkeltonMatrices(char *d)
     }
 }
 
-/* listing lines 280-286 */
-static inline void allocIntTable(char *d, int n)
+static inline void allocIntTable(char *d, int n) /* derived name */
 {
     int i;
 
@@ -427,8 +411,8 @@ void initPolygonState(char *d, SObjSimpleSetting *lay)
 
 inline void FreeDObj(void) {}
 
-/* listing lines 423-432: the slot index of the entry tagged id, or -1 */
-static inline int findSlot(char *d, int id)
+/* the slot index of the entry tagged id, or -1 */
+static inline int findSlot(char *d, int id) /* derived name */
 {
     char *p;
     int k;
@@ -444,8 +428,8 @@ static inline int findSlot(char *d, int id)
     return -1;
 }
 
-/* listing lines 437-443: the 53-entry slot lookup table */
-static inline void makeSlotTable(char *d)
+/* the 53-entry slot lookup table */
+static inline void makeSlotTable(char *d) /* derived name */
 {
     int i;
 

@@ -29,20 +29,11 @@ typedef struct {
     int code[16];
 } KeyConf;
 
-/* The port record's flag word is reached through a union member: the ROM's
-   codegen at layout_action.c:1128 proves that store is an alias-set-0 access
-   (it kills the cached curPortInfo load, which a plain scalar field store does
-   not).  RECONSTRUCTION: the word member and a one-bit view of the low bits,
-   the names ours.  Re-audit (completeness pass 57): a plain struct member
-   changes the object, and reading bits 1 and 3..5 through a bit-field view in
-   currentPortLockState's test changes the object, so that test reads the
-   word.  The bit view is attested by _la_set_current_port_new (chain 3 pass
-   145): its last test compares bit 1 against a register holding 1, which a
-   shift-and-mask compare cannot give (fold rewrites (x & 1) != 1 as
-   (x & 1) == 0), and it stores bits 2 and 6 of both ports with port 1 first
-   on one listing line, the chained bit-field assignment.  The bytes show
-   bits 1, 2, 5 and 6 used this way; the other fields fill the low byte. */
-typedef union {
+/* The port record's flag word, read whole and through a one-bit view of its
+   low bits: currentPortLockState tests bits 1 and 3..5 of the word, and
+   _la_set_current_port_new tests bit 1 and sets bits 2 and 6 of both ports
+   through the bits. */
+typedef union { /* field names derived */
     unsigned int w;
 
     struct {
@@ -66,52 +57,49 @@ struct S14 {
     int w[5];
 };
 
-/* .sbss, layout_action.o's thirteen words in the ROM's order (MAIN.MAP line
-   7618 gives the January object's 0x30 bytes and no symbol, so the names are
-   ours): the port-0 lock state _la_set_current_port_2 records and the one
+/* .sbss, thirteen words: the port-0 lock state _la_set_current_port_2 records and the one
    _la_set_current_port_lock_2 records, the lock results for port 0 and port 1
    of _la_set_current_port_new, the icoMisc lock saved by the logo, the title
    continue and the title new game actions, the progress bar's last step, the
    save select's ready flag, the system save's retry count, the last card
    result, the load (1) or save (0) mode of the file select, and the progress
    bar's total. */
-static int portLockState;
+static int portLockState; /* derived name */
 
-static int lock2PortState;
+static int lock2PortState; /* derived name */
 
-static int port0LockResult;
+static int port0LockResult; /* derived name */
 
-static int port1LockResult;
+static int port1LockResult; /* derived name */
 
-static int logoIcoMiscLock;
+static int logoIcoMiscLock; /* derived name */
 
-static int continueIcoMiscLock;
+static int continueIcoMiscLock; /* derived name */
 
-static int newGameIcoMiscLock;
+static int newGameIcoMiscLock; /* derived name */
 
-static int barLastStep;
+static int barLastStep; /* derived name */
 
-static int saveSelectReady;
+static int saveSelectReady; /* derived name */
 
-static int systemSaveRetry;
+static int systemSaveRetry; /* derived name */
 
-static int mcLastResult;
+static int mcLastResult; /* derived name */
 
-static int mcLoadMode;
+static int mcLoadMode; /* derived name */
 
-static int barTotal;
+static int barTotal; /* derived name */
 
-/* .bss, layout_action.o's objects in the ROM's order (MAIN.MAP line 7739, no
-   symbol; the names are ours): the two card ports' records, the preview
+/* .bss: the two card ports' records, the preview
    record of the save being confirmed, the open request of the layout voice
    and the twenty game flags kept across a load. */
 static R8 mcPortInfo[2]; /* derived name */
 
-static struct S14 previewInfo;
+static struct S14 previewInfo; /* derived name */
 
-static AdpcmOpenReq voiceOpenReq;
+static AdpcmOpenReq voiceOpenReq; /* derived name */
 
-static signed char keepFlags[20];
+static signed char keepFlags[20]; /* derived name */
 
 void POSITIVE_SE(void)
 {
@@ -146,26 +134,24 @@ void la_TESTFUNCTION(void)
     debug_StdPrintfDummy("sync end\n");
 }
 
-/* .data, owned by layout_action.o and the first object of its run: the
-   game-flag ids the load carries across gflagInit.  The ROM's list holds five
-   ids and the key-config tables follow it; the keep/restore loops below walk
-   twenty words. */
+/* .data: the game-flag ids the load carries across gflagInit.  The list
+   holds five ids and the key-config tables follow it; the keep/restore loops
+   below walk twenty words. */
 static int keepFlagNo[5] = {388, 384, 383, 385, 382}; /* derived name */
 
-/* .data, owned by layout_action.o, after keepFlagNo: the eight pad button
+/* the eight pad button
    codes the key-config screen offers, and the six-plus-two slot assignments it
    edits. */
 static int keyConfigCode[8] = {16, 128, 32, 64, 8, 2, 1, 4}; /* derived name */
 
 static int keyConfigSlot[8] = {1, 2, 3, 4, 5, 0, 0, 0}; /* derived name */
 
-/* .data, the last object of the run: the memory-card request block the
-   layout actions drive (MAIN.MAP global).  The ROM places it on a 64-byte
-   boundary after the key tables (MAIN.MAP too, at member offset 0x80), the
-   alignment common/src/kanbanBoot.c's own request block carries. */
+/* the memory-card request block the layout actions drive, on a 64-byte
+   boundary, the alignment common/src/kanbanBoot.c's own request block
+   carries */
 int mc[640] __attribute__((aligned(64))) = {0};
 
-/* kept local: agrees with mcard.h, which this TU does not include (iosMcDelete, iosMcFormat, iosMcGetBlockSaveInfo, iosMcLoadGameBlock, iosMcLoadProductBlock, iosMcSaveGameBlock, iosMcSaveIconBlock, iosMcSaveProductBlock differ) */
+/* as in mcard.h, which this TU does not include */
 extern int iosMcSync(unsigned long *a0);
 
 typedef struct {
@@ -173,9 +159,8 @@ typedef struct {
     char _4[16];
 } R14;
 
-/* one card's save record; the bytes pin an alignment above 32 bits (the
-   serial store keeps 0x1E4 out of the base), as the 16-aligned array at
-   0x29B5F0 and its 0x1F0 stride do: a SIF DMA buffer for the card code */
+/* one card's save record, 16-byte aligned: a SIF DMA buffer for the card
+   code */
 typedef struct {
     R14 f[20];
     char pad190[80];
@@ -184,20 +169,13 @@ typedef struct {
     char pad1E8[8];
 } R1F0 __attribute__((aligned(16)));
 
-/* kept local (mcard.h's entry points do not fit this file's calls): mcard.c's
-   save records, read here as this file's R1F0, and its preview record */
+/* mcard.c's save records, read here as R1F0, and its preview record */
 extern R1F0 IosMcProductFile[];
-/* kept local: agrees with mcard.h, which this TU does not include (iosMcGetBlockSaveInfo, iosMcLoadGameBlock differ) */
 extern int IosMcPreviewInfo[];
-/* the custom pad configuration ios/pad.c owns; kept local: pad.h cannot
-   declare it while camera-root.c declares it as a char array */
-/* kept local: pad.c's record (fumi); no header declares it */
+/* the custom pad configuration ios/pad.c owns; no header declares it
+   (camera-root.c reads it as a char array) */
 extern PadConf iosPadConfCustom;
 
-/* the memory-card error messages, VMA 0x61D760..0x61D840 */
-
-/* layout_action.c:762-806 in the listing.  The switch table is
-   jtbl_0061D840 (17 arms, selector the card result at +0x10, cases -16..0). */
 int _la_mcard_error_check(void *a0)
 {
     char *w = (char *)a0;
@@ -237,14 +215,12 @@ int _la_mcard_error_check(void *a0)
 }
 
 /* the product-block file-name field, six bytes; every writer copies the
-   TU's one "game." literal into it (VMA 0x63B510 in .sdata) */
+   TU's one "game." literal into it */
 typedef struct {
     char b[6];
 } McName;
 
-/* the memory-card work area the layout actions pass around; the ROM reorders a
-   load of _8 across a store to the int mcLastResult, which only a typed
-   struct field reference is free to do */
+/* the memory-card work area the layout actions pass around */
 typedef struct {
     char _0[8];
     int _8;
@@ -264,18 +240,15 @@ typedef struct {
 
 /* file-local: nothing outside this TU calls it */
 int _la_memory_card_check(McWork *p, int a1);
-/* kept local: agrees with mcard.h, which this TU does not include (iosMcDelete, iosMcFormat, iosMcGetBlockSaveInfo, iosMcLoadGameBlock, iosMcLoadProductBlock, iosMcSaveGameBlock, iosMcSaveIconBlock, iosMcSaveProductBlock differ) */
+/* as in mcard.h, which this TU does not include */
 extern int iosMcGetInfo(void *a0);
-/* kept local: returns void here, int in mcard.h */
+/* this TU declares it void; mcard.h returns int */
 extern void iosMcLoadProductBlock(void *a0);
-/* kept local: returns void here, int in mcard.h */
+/* this TU declares it void; mcard.h returns int */
 extern void iosMcGetBlockSaveInfo(void *a0);
 
-/* .sdata, layout_action.o's run in the ROM's order (VMA 0x63B4D8..0x63B5F8,
-   0x120 B; MAIN.MAP's January object is 0x10C): these ten statics, the three
-   MAIN.MAP globals after them, then each function's own statics before it,
-   with the short literals the functions emit between them.  The names of the
-   statics are ours. */
+/* .sdata: these ten statics and the three globals after them, then each
+   function's own statics before it */
 static R8 *curPortInfo = &mcPortInfo[0]; /* derived name */
 
 static int lastPort = -1; /* derived name */
@@ -302,8 +275,6 @@ int layout_boot_flag = 0;
 
 int enable_game_pause = 1;
 
-/* layout_action.c:853-1006 in the listing.  The switch table is jtbl_0061D8D0
-   (24 arms over the memory-card step, cases 0..23; VMA 0x61D8D0..0x61D930). */
 int _la_memory_card_check(McWork *p, int a1)
 {
     int r;
@@ -318,8 +289,6 @@ int _la_memory_card_check(McWork *p, int a1)
         p->_10 = 0;
         iosMcGetInfo(p);
         mcLastResult = 0;
-        /* the pointer form, not IosMcProductFile[p->_8]: the ROM's addu takes the
-           scaled index first, which the subscript spelling does not give */
         (IosMcProductFile + p->_8)->_1E4 = 0;
         (IosMcProductFile + p->_8)->_1E0 = 0;
         a1++;
@@ -427,11 +396,10 @@ int _la_memory_card_check(McWork *p, int a1)
     return a1;
 }
 
-/* layout_action.c:1027-1031 in the listing: inlined three times into
-   _la_set_current_port_2 and once into _la_set_current_port_lock_2, so it is a
-   static inline here; it has no symbol of its own in the ROM and no census row,
-   and the name is descriptive. */
-static inline int currentPortLockState(void)
+/* the current port's lock state: 1 when its record's bit 1 is set and bits
+   3..5 are not 1, else -1; inlined three times into _la_set_current_port_2
+   and once into _la_set_current_port_lock_2 */
+static inline int currentPortLockState(void) /* derived name */
 {
     return (((curPortInfo->_0.w >> 1) & 1) && (curPortInfo->_0.w & 0x38) != 8) ? 1 : -1;
 }
@@ -444,8 +412,6 @@ static int port2Changed = 0; /* derived name */
 
 static int port2Locked = 0; /* derived name */
 
-/* layout_action.c:1039-1150 in the listing.  The three inlined copies of
-   currentPortLockState are the listing's line 1029 rows. */
 int _la_set_current_port_2(void *p, int a1)
 {
     R8 tmp;
@@ -467,8 +433,8 @@ int _la_set_current_port_2(void *p, int a1)
             portLockState = currentPortLockState();
             port2Changed = (curPortInfo->_0.w >> 5) & 1;
             port2Locked = ((curPortInfo->_0.w >> 1) & 1) && (curPortInfo->_0.w & 0x38) != 8;
-            /* listing line 1069: the whole 8-byte record is copied to the frame
-               and never read again (the ROM ldl/ldr/sdl/sdr pair). */
+            /* the whole 8-byte record is copied to a local and never read
+               again */
             tmp = *curPortInfo;
             *(int *)((char *)p + 8) = 1;
             port2Step = 0;
@@ -555,7 +521,6 @@ static int lock2Changed = 0; /* derived name */
 
 static int lock2Locked = 0; /* derived name */
 
-/* layout_action.c:1157-1218 in the listing. */
 int _la_set_current_port_lock_2(void *p, int a1)
 {
     R8 tmp;
@@ -612,8 +577,6 @@ static int portNewStep = 0; /* derived name */
 
 static int portNewRestart = 1; /* derived name */
 
-/* layout_action.c:1222-1288 in the listing.  The switch table is jtbl_0061D930
-   (5 arms, selector portNewStep, cases 0..4). */
 int _la_set_current_port_new(McWork *p, int a1)
 {
     int r = 0;
@@ -718,7 +681,6 @@ inline void keyconfig_reset(void)
     *(KeyConf *)iosPadConfCustom.bit = def;
 }
 
-/* layout_action.c:1455-1490 in the listing. */
 int la_vibe_select(void)
 {
     if (lt_fade_status() == 2 && (pad[0].flags & 0x840)) {
@@ -778,7 +740,6 @@ inline int la_title_demo(void)
 
 static int continueDecided = 0; /* derived name */
 
-/* layout_action.c:1579-1630 in the listing. */
 int la_title_continue_or_new(int a0)
 {
     if (a0) {
@@ -841,7 +802,6 @@ int la_title_continue_or_new(int a0)
 
 static int newGameDecided = 0; /* derived name */
 
-/* layout_action.c:1647-1700 in the listing. */
 int la_title_new_game_only(int a0)
 {
     if (a0) {
@@ -935,14 +895,10 @@ inline int la_mc_saved_file_select(int a0)
     return i + 0x3E;
 }
 
-/* layout_action.c:1780-1786 in the listing: inlined into la_mc_file_select
-   both directly and through mcFileNoOfPort below, so it is a static inline here; it
-   has no symbol of its own in the ROM and no census row, and the name is
-   descriptive.  The test is an `||` returning 0 (listing 1784/1785, the
-   `return no;` on 1786 only ever lands in a delay slot): its drop-through
-   label keeps jump.c from hoisting the zero, so both copies keep the ROM's
-   branches and share one zero block. */
-static inline int mcCurrentFileNo(void)
+/* the selected port's current file number, 0 when the port has no card or
+   the file is empty; inlined into la_mc_file_select both directly and
+   through mcFileNoOfPort below */
+static inline int mcCurrentFileNo(void) /* derived name */
 {
     int port = filePort;
     int no = (IosMcProductFile + port)->_1E0;
@@ -951,9 +907,9 @@ static inline int mcCurrentFileNo(void)
     return no;
 }
 
-/* layout_action.c:1789-1794 in the listing: inlined once, into
-   la_mc_file_select, so it is a static inline here too. */
-static inline int mcFileNoOfPort(void)
+/* the saved file's number when the port holds the loaded save, else the
+   current file's; inlined once, into la_mc_file_select */
+static inline int mcFileNoOfPort(void) /* derived name */
 {
     int port = filePort;
 
@@ -962,7 +918,6 @@ static inline int mcFileNoOfPort(void)
     return mcCurrentFileNo();
 }
 
-/* layout_action.c:1836-1912 in the listing. */
 int la_mc_file_select(int a0)
 {
     int i;
@@ -1005,7 +960,6 @@ int la_mc_file_select(int a0)
     return (pad[0].flags & 0x50) ? curFile : -1;
 }
 
-/* layout_action.c:1924-1942 in the listing. */
 void _la_mask_preview_info(void)
 {
     int i;
@@ -1026,14 +980,10 @@ void _la_mask_preview_info(void)
     lt_mask_property(136, 1);
 }
 
-/* layout_action.c:826-841 in the listing: the play time of a save record
-   split into hours, minutes and seconds and clamped to 99:59:59, inlined into
-   _la_set_preview_info, la_load_processing and la_system_save_processing; it
-   has no symbol of its own in the ROM and the name is ours.  Where the
-   results are unused (the other two sites) only the frame rate and the
-   divide checks survive, which is why their rows show 829-832 without the
-   frame read (827) or the clamp (840). */
-static inline void playTime(struct S14 *p, int *hour, int *min, int *sec)
+/* the play time of a save record split into hours, minutes and seconds and
+   clamped to 99:59:59, inlined into _la_set_preview_info, la_load_processing
+   and la_system_save_processing; the last two leave the results unused */
+static inline void playTime(struct S14 *p, int *hour, int *min, int *sec) /* derived name */
 {
     int frames = p->w[2];
     int fps = ((60 - systemStatus[0] * 10) / systemStatus[1]) * systemStatus[1];
@@ -1048,8 +998,6 @@ static inline void playTime(struct S14 *p, int *hour, int *min, int *sec)
     }
 }
 
-/* layout_action.c:1946-2012 in the listing, with the play-time split of lines
-   827-840 inlined into it. */
 void _la_set_preview_info(void)
 {
     int hour;
@@ -1119,10 +1067,9 @@ inline int la_mc_current_slot(void)
     return -1;
 }
 
-/* layout_action.c:1808-1814 in the listing: inlined once, into
-   la_load_game_memory_card_check, so it is a static inline here; it has no
-   symbol of its own in the ROM and no census row, and the name is descriptive. */
-static inline void setLoadGameStartItem(void)
+/* the load screen's default item; inlined once, into
+   la_load_game_memory_card_check */
+static inline void setLoadGameStartItem(void) /* derived name */
 {
     if (loadSerial == IosMcProductFile[0]._1E4 || saveSerial != IosMcProductFile[1]._1E4) {
         texLayout[17].defaultItem = 186;
@@ -1131,7 +1078,6 @@ static inline void setLoadGameStartItem(void)
     }
 }
 
-/* layout_action.c:2071-2102 in the listing. */
 int la_load_game_memory_card_check(int a0)
 {
     _la_mask_preview_info();
@@ -1195,13 +1141,10 @@ inline int la_mc_load_current_slot_select(void)
     return -1;
 }
 
-/* the two load-select trace messages, VMA 0x63B570 and 0x63B578 (.sdata) */
-
 static int loadCardChanged = 1; /* derived name */
 
 static int loadFileChosen = 0; /* derived name */
 
-/* layout_action.c:2139-2235 in the listing. */
 int la_mc_load_file_select(int a0, int a1)
 {
     int r;
@@ -1296,7 +1239,6 @@ int la_mc_load_file_select(int a0, int a1)
     return -1;
 }
 
-/* layout_action.c:2245-2267 in the listing. */
 int la_load_confirm_no_memory_card(int a0)
 {
     if (a0) {
@@ -1340,7 +1282,6 @@ int la_load_confirm_no_memory_card(int a0)
     return -1;
 }
 
-/* layout_action.c:2276-2311 in the listing. */
 int la_load_confirm_no_data(int a0)
 {
     if (a0) {
@@ -1374,7 +1315,6 @@ int la_load_confirm_no_data(int a0)
     return -1;
 }
 
-/* layout_action.c:2320-2352 in the listing. */
 int la_load_start_check(int a0)
 {
     switch (_la_set_current_port_lock_2(mc, a0)) {
@@ -1414,19 +1354,13 @@ int la_load_start_check(int a0)
     return -1;
 }
 
-/* the load-phase messages in .rodata, VMA 0x61D9A8..0x61DA30 */
-/* "chk:%d\n" and "case 4\n", short strings in this TU's .sdata at VMA
-   0x63B588 and 0x63B590 */
-
-/* the current game's save record, as in la_system_save_processing */
-/* kept local: returns void here, int in mcard.h */
+/* this TU declares it void; mcard.h returns int */
 extern void iosMcLoadGameBlock(void *a0, int a1);
 
-/* layout_action.c:1796-1800 in the listing: the saved file's serial read
-   from the port's record, with the file number kept beside it; inlined into
-   la_load_processing directly and into la_save_processing through
-   mcSetSavedFile, with no symbol of its own in the ROM (the name is ours). */
-static inline int mcSetFileNo(int port, int no)
+/* the saved file's serial read from the port's record, with the file number
+   kept beside it; inlined into la_load_processing directly and into
+   la_save_processing through mcSetSavedFile */
+static inline int mcSetFileNo(int port, int no) /* derived name */
 {
     int serial = (IosMcProductFile + port)->_1E4;
 
@@ -1434,11 +1368,9 @@ static inline int mcSetFileNo(int port, int no)
     return serial;
 }
 
-/* layout_action.c:2370-2371 in the listing: the game flags the load carries
-   across gflagInit, parked in keepFlags; inlined into la_load_processing, with
-   no symbol of its own in the ROM (the name is ours).  The counter is
-   unsigned: the ROM's guard is sltiu. */
-static inline void gflagKeepState(void)
+/* the game flags the load carries across gflagInit, parked in keepFlags;
+   inlined into la_load_processing */
+static inline void gflagKeepState(void) /* derived name */
 {
     unsigned int i;
 
@@ -1447,8 +1379,8 @@ static inline void gflagKeepState(void)
     }
 }
 
-/* layout_action.c:2378-2382 in the listing, the other half of the pair. */
-static inline void gflagRestoreState(void)
+/* the other half of the pair */
+static inline void gflagRestoreState(void) /* derived name */
 {
     unsigned int i;
 
@@ -1463,11 +1395,6 @@ static inline void gflagRestoreState(void)
 
 static int loadStep = 0; /* derived name */
 
-/* layout_action.c:2393-2536 in the listing, with the menu-close pair of lines
-   707-708, the play time of lines 829-832, the flag-keeping pair of lines
-   2370-2382 and the serial readback of lines 1798-1799 inlined into it.  The
-   switch table is jtbl_0061DA40 (21 arms, selector loadStep, cases 0-10 and
-   20). */
 int la_load_processing(int a0)
 {
     int err;
@@ -1577,11 +1504,9 @@ inline int la_general_mc_confirm(void)
     return -1;
 }
 
-/* layout_action.c:2565-2570 in the listing: inlined into la_game_over_continue
-   and into la_mc_confirm_save_file with different data numbers, so the number is
-   its parameter; it is a static inline here, with no symbol of its own in the
-   ROM and no census row, and the name is descriptive. */
-static inline int openLayoutVoice(int no)
+/* opens layout voice number no; inlined into la_game_over_continue and into
+   la_mc_confirm_save_file with different numbers */
+static inline int openLayoutVoice(int no) /* derived name */
 {
     if (layoutVoice != 0) {
         return 0;
@@ -1590,7 +1515,6 @@ static inline int openLayoutVoice(int no)
     return 1;
 }
 
-/* layout_action.c:2591-2678 in the listing. */
 /* extra preview pages to re-mask; none in the release build */
 #define LA_EXTRA_PREVIEW_PAGES 0
 
@@ -1632,21 +1556,9 @@ int la_mc_confirm_save_file(int a0, int a1)
             }
         }
     } else {
-        /* RECONSTRUCTION: the ROM pads 0x1BBF5C with a nop so that the label
-           at 0x1BBF60 (listing line 2663) is 8-aligned, the alignment final.c
-           gives the first label after a loop-begin note, so a once-run loop
-           began in the window between the else label and the voice-open test
-           (a loop there that holds any of the test's exits reorders it; chain 3
-           pass 145 measured each).  The call on line 2637 is the only code in
-           that window and the listing's lines 2638-2639 carry none; the bytes
-           pin the loop, not the wrapper's spelling. */
         _la_mask_preview_info();
-        /* A loop over extra preview pages, built with a count of 0 in the
-           release build.  WHAT THE BYTES PIN: the loop-begin note of a loop
-           here, which aligns the label after it (the ROM's pad nop); its body
-           never runs, so it leaves no code (listing rows 2638-2639 are
-           code-free).  WHAT THEY CANNOT PIN: what the loop counted or did;
-           the count's name and the body are ours. */
+        /* a loop over extra preview pages, built with a count of 0 in the
+           release build, so its body never runs */
         for (i = 0; i < LA_EXTRA_PREVIEW_PAGES; i++) {
             _la_mask_preview_info();
         }
@@ -1695,13 +1607,9 @@ int la_mc_confirm_save_file(int a0, int a1)
     return -1;
 }
 
-/* the save-slot report strings, VMA 0x61DB00 and 0x61DB20 */
-
-/* layout_action.c:1816-1822 in the listing: the save-side twin of
-   setLoadGameStartItem, inlined twice into la_save_game_memory_card_check, so
-   it is a static inline here; it has no symbol of its own in the ROM and no
-   census row, and the name is descriptive. */
-static inline void setSaveGameStartItem(void)
+/* the save side of setLoadGameStartItem, inlined twice into
+   la_save_game_memory_card_check */
+static inline void setSaveGameStartItem(void) /* derived name */
 {
     if (loadSerial == IosMcProductFile[0]._1E4 || loadSerial != IosMcProductFile[1]._1E4) {
         texLayout[18].defaultItem = 186;
@@ -1710,7 +1618,6 @@ static inline void setSaveGameStartItem(void)
     }
 }
 
-/* layout_action.c:2689-2722 in the listing. */
 int la_save_game_memory_card_check(int a0)
 {
     _la_mask_preview_info();
@@ -1780,8 +1687,8 @@ inline int la_mc_save_current_slot_select(void)
     return -1;
 }
 
-/* The sprite rectangle and colour the gif helpers take, the same pair
-   layout_texture.c reconstructs. */
+/* the sprite rectangle and colour the gif helpers take, the same pair
+   layout_texture.c declares */
 typedef struct {
     int x;
     int y;
@@ -1796,24 +1703,19 @@ typedef struct {
     unsigned char a;
 } SprCol;
 
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_Sprite differs) */
+/* GifPacket.h's entry points, which this TU does not include; gif_Sprite
+   takes z as an unsigned int here, a long long in the header */
 extern void gif_StartPacketPri(int pri);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_Sprite differs) */
 extern void gif_SetZTest(int a0);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_Sprite differs) */
 extern void gif_SetZWrite(int a0);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_Sprite differs) */
 extern void gif_SetAlpha(long long a0, long long a1, long long a2);
-/* kept local: z is unsigned int here, long long in GifPacket.h */
 extern void gif_Sprite(int *r, unsigned int z, int *uv, unsigned char *col, int prim);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_Sprite differs) */
 extern void gif_EndPacket(void);
 
 static int barStep = 0; /* derived name */
 
 static int barFrame = 0; /* derived name */
 
-/* layout_action.c:2793-2850 in the listing. */
 void progressive_bar(void)
 {
     int n;
@@ -1858,11 +1760,8 @@ void progressive_bar(void)
     }
 }
 
-/* the two save-select trace messages, VMA 0x61DB58 and 0x61DB68 */
-
 static int saveCardChanged = 1; /* derived name */
 
-/* layout_action.c:2860-2951 in the listing. */
 int la_mc_save_file_select(int a0, int a1)
 {
     int r;
@@ -2018,9 +1917,6 @@ inline int la_save_confirm_no_free_area(int a0)
     return -1;
 }
 
-/* the save-slot messages, VMA 0x61DB78 and 0x61DB98 */
-
-/* layout_action.c:3016-3045 in the listing. */
 int la_save_start_check(int a0)
 {
     switch (_la_set_current_port_lock_2(mc, a0)) {
@@ -2067,7 +1963,6 @@ int la_save_start_check(int a0)
     return -1;
 }
 
-/* layout_action.c:3055-3098 in the listing. */
 int la_save_confirm_overwrite(int a0, int a1)
 {
     if (a0) {
@@ -2125,7 +2020,6 @@ int la_save_confirm_overwrite(int a0, int a1)
     return -1;
 }
 
-/* layout_action.c:3107-3143 in the listing. */
 int la_format_confirm(int a0, int a1)
 {
     if (a0) {
@@ -2181,7 +2075,7 @@ int la_format_confirm(int a0, int a1)
     return -1;
 }
 
-/* kept local: returns void here, int in mcard.h */
+/* this TU declares it void; mcard.h returns int */
 extern void iosMcFormat(void *a0);
 
 static int formatStep = 0; /* derived name */
@@ -2222,23 +2116,15 @@ inline int la_format_processing(int a0)
     return -1;
 }
 
-/* the system-save error message, VMA 0x61DBB8 */
-/* kept local: returns void here, int in mcard.h */
+/* this TU declares it void; mcard.h returns int */
 extern void iosMcSaveIconBlock(void *a0);
-/* kept local: returns void here, int in mcard.h */
+/* this TU declares it void; mcard.h returns int */
 extern void iosMcSaveProductBlock(void *a0);
-/* kept local: returns void here, int in mcard.h */
+/* this TU declares it void; mcard.h returns int */
 extern void iosMcSaveGameBlock(void *a0, int a1);
 
-/* the current game's save record (la_save_confirm_complete copies the
-   preview from it) */
-/* kept local: this TU's spelling predates sce/libc/string.h; the game compiled
-   with builtins live, so a copy of a constant string is the builtin block
-   move */
-
-/* the CD real-time clock record sceCdReadClock fills in; kept local because
-   the disc records no declaration-only header and seki/src/GsBase.c carries
-   the same pair for the same reason. */
+/* the CD real-time clock record sceCdReadClock fills in, declared here as
+   seki/src/GsBase.c declares it */
 typedef struct sceCdCLOCK {
     unsigned char stat;
     unsigned char second;
@@ -2250,11 +2136,9 @@ typedef struct sceCdCLOCK {
     unsigned char year;
 } sceCdCLOCK;
 
-/* layout_action.c:1766-1776 in the listing: the save serial, the clock
-   packed into one word or a random number when the clock cannot be read;
-   inlined into la_system_save_processing, with no symbol of its own in the
-   ROM (the name is ours). */
-static inline int mcMakeSerial(void)
+/* the save serial, the clock packed into one word or a random number when
+   the clock cannot be read; inlined into la_system_save_processing */
+static inline int mcMakeSerial(void) /* derived name */
 {
     sceCdCLOCK clock;
 
@@ -2268,10 +2152,6 @@ static inline int mcMakeSerial(void)
 
 static int systemSaveStep = 0; /* derived name */
 
-/* layout_action.c:3203-3294 in the listing, with the serial builder of lines
-   1768-1775 and the play time of lines 826-841 inlined into it (its results
-   are unused here, so the record passed is not visible in the bytes).  The
-   switch table is jtbl_0061DBD0 (11 arms, selector systemSaveStep, cases 0-10). */
 int la_system_save_processing(int a0)
 {
     int err;
@@ -2354,12 +2234,9 @@ int la_system_save_processing(int a0)
     return -1;
 }
 
-/* the second save-phase message, VMA 0x61DC00 */
-
-/* layout_action.c:1802-1805 in the listing: the save side's readback, the
-   serial kept as both the saved and the current one; inlined into
-   la_save_processing (the name is ours). */
-static inline void mcSetSavedFile(void)
+/* the save side's readback, the serial kept as both the saved and the
+   current one; inlined into la_save_processing */
+static inline void mcSetSavedFile(void) /* derived name */
 {
     int serial = mcSetFileNo(mc[2], mc[16]);
 
@@ -2369,10 +2246,6 @@ static inline void mcSetSavedFile(void)
 
 static int saveStep = 0; /* derived name */
 
-/* layout_action.c:3309-3410 in the listing, with the menu-close pair of lines
-   707-708, the play time of lines 829-832, the serial builder of lines
-   1768-1775 and the readback of lines 1798-1804 inlined into it.  The switch
-   table is jtbl_0061DC10 (11 arms, selector saveStep, cases 0-10). */
 int la_save_processing(int a0)
 {
     int err;
@@ -2485,7 +2358,6 @@ inline int la_save_confirm_complete(int a0, int a1)
     return -1;
 }
 
-/* layout_action.c:3462-3499 in the listing. */
 int la_end_confirm(void)
 {
     int item;
@@ -2591,12 +2463,11 @@ inline int la_delete_confirm(int a0, int a1)
     return -1;
 }
 
-/* kept local: returns void here, int in mcard.h */
+/* this TU declares it void; mcard.h returns int */
 extern void iosMcDelete(void *a0);
 
 static int deleteStep = 0; /* derived name */
 
-/* layout_action.c:3601-3642 in the listing. */
 int la_delete_processing(int a0)
 {
     if (a0) {
@@ -2664,10 +2535,8 @@ inline void la_playtime_count(void)
     }
 }
 
-/* layout_action.c:2576-2582 in the listing: inlined into la_game_loop and into
-   la_game_over_continue, so it is a static inline here; it has no symbol of its
-   own in the ROM and no census row, and the name is descriptive. */
-static inline void releaseGameLoopCursor(void)
+/* inlined into la_game_loop and into la_game_over_continue */
+static inline void releaseGameLoopCursor(void) /* derived name */
 {
     if (layoutVoice != 0 && ((AdpcmObj *)layoutVoice)->stream != 0) {
         ((AdpcmObj *)layoutVoice)->stream->fadeStep = 0x100;
@@ -2677,7 +2546,6 @@ static inline void releaseGameLoopCursor(void)
 
 int laoutActionPauseRequest = 0;
 
-/* layout_action.c:3720-3748 in the listing. */
 int la_game_loop(int a0)
 {
     if (a0) {
@@ -2776,7 +2644,6 @@ static int gameOverVoice = 0; /* derived name */
 
 static int gameOverVoiceOpened = 0; /* derived name */
 
-/* layout_action.c:3837-3900 in the listing. */
 int la_game_over_continue(int a0)
 {
     if (a0) {
@@ -2845,10 +2712,8 @@ inline int la_switching_stage(void)
     return -1;
 }
 
-/* layout_action.c:3941-3947 in the listing: the key-config property sweep,
-   inlined into la_key_config twice; it has no symbol of its own in the ROM and
-   no census row, so the name is descriptive. */
-static inline void keyconfigMaskAll(void)
+/* the key-config property sweep, inlined into la_key_config twice */
+static inline void keyconfigMaskAll(void) /* derived name */
 {
     int i;
 
@@ -2858,8 +2723,8 @@ static inline void keyconfigMaskAll(void)
     }
 }
 
-/* layout_action.c:4079-4085 in the listing */
-static inline int keyBitIndex(int v)
+/* the lowest set bit of v, -1 for none */
+static inline int keyBitIndex(int v) /* derived name */
 {
     int i;
 
@@ -2871,8 +2736,8 @@ static inline int keyBitIndex(int v)
     return -1;
 }
 
-/* layout_action.c:4087-4093 in the listing */
-static inline int keyCodeIndex(int v)
+/* the index of pad code v in keyConfigCode, -1 for none */
+static inline int keyCodeIndex(int v) /* derived name */
 {
     int i;
 
@@ -2884,8 +2749,8 @@ static inline int keyCodeIndex(int v)
     return -1;
 }
 
-/* layout_action.c:4095-4100 in the listing */
-static inline int keyAssignIndex(int v)
+/* the slot assigned pad code v, -1 for none */
+static inline int keyAssignIndex(int v) /* derived name */
 {
     int i;
 
@@ -2899,7 +2764,6 @@ static inline int keyAssignIndex(int v)
 
 static int keyConfigMask = 0xFF; /* derived name */
 
-/* layout_action.c:4053-4237 in the listing. */
 int la_key_config(int a0)
 {
     int i;
@@ -2971,18 +2835,14 @@ int la_key_config(int a0)
 
 /* the option screen's layout items: the five screen modes, the stage
    animation each mode plays (-1 for none), and the two choices of the control
-   type (item 318) followed by the two of the setting item 325 toggles.  The
-   last four are one table: two 8-byte tables would be small data under -G 8,
-   and the ROM keeps them in .rodata; its code reaches the second pair from
-   that pair's own address constant, which the offset pointer spells. */
+   type (item 318) followed by the two of the setting item 325 toggles, in one
+   table; the code reaches the second pair through an offset pointer */
 static const int screenModeItem[5] = {303, 304, 305, 306, 307}; /* derived name */
 
 static const int screenModeAnim[5] = {-1, 67, 68, 69, 70}; /* derived name */
 
 static const int choiceItem[4] = {321, 322, 328, 329}; /* derived name */
 
-/* layout_action.c:4272-4371 in the listing.  The switch table is jtbl_0061DCC0
-   (26 arms over the property item, cases 300..325; VMA 0x61DCC0..0x61DD28). */
 int la_game_option(void)
 {
     int mode;
@@ -3092,10 +2952,8 @@ int la_game_option(void)
     return -1;
 }
 
-/* layout_action.c:4383-4386 in the listing: inlined once, into la_adjust_screen,
-   so it is a static inline here; it has no symbol of its own in the ROM and no
-   census row, and the name is descriptive. */
-static inline void clearAdjustScreenMarks(void)
+/* inlined once, into la_adjust_screen */
+static inline void clearAdjustScreenMarks(void) /* derived name */
 {
     int i;
 
@@ -3104,7 +2962,6 @@ static inline void clearAdjustScreenMarks(void)
     }
 }
 
-/* layout_action.c:4390-4427 in the listing. */
 int la_adjust_screen(void)
 {
     int v;

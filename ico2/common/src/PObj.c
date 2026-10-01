@@ -7,14 +7,8 @@
 #include "charFileManager.h"
 #include <assert.h>
 
-/* RECONSTRUCTION, PUBLIC SDK NAMING RUNG for the shape (libvu0's
-   sceVu0FVECTOR, a 16-byte aligned float[4]); the name is ours.  The ROM pins
-   the alignment: MakeBoundingBox's bounds sit at 16-byte stack slots and its
-   last loop writes self->bb through one pointer at +0x5C.  expand_expr builds
-   an array element's address as base plus constant first only when the
-   element's alignment is the float's own, which is the four-pointer loop a
-   plain float[4] gives. */
-typedef float Vec[4] __attribute__((aligned(16)));
+/* a 16-byte aligned float[4], the shape of libvu0's sceVu0FVECTOR */
+typedef float Vec[4] __attribute__((aligned(16))); /* derived name */
 
 typedef struct PktHdr {
     char pad0[240];
@@ -42,10 +36,7 @@ typedef struct PObj {
     PObjPkt *pkt; /* 0x28 */
     short f2C;    /* 0x2C */
     /* 0x2E and 0x2F, the sub-object count and a second byte, as one short's
-       two bitfields rather than chars: a character type's alias set 0 would
-       let every float store kill them, where the ROM keeps the count's lbu
-       live across MakeBoundingBox's loops and lets the modelData float
-       load hoist past InitPObj's store to 0x2F */
+       two bitfields */
     short f2E : 8;          /* 0x2E */
     unsigned short f2F : 8; /* 0x2F */
 
@@ -67,9 +58,8 @@ typedef struct PObj {
     Vec bb[8]; /* 0x50 */
 } PObj;
 
-/* The file's own name tidier: rows 26 to 39 sit inside AllocPObj's span and the
-   census lists no out-of-line copy, so it is defined here and inlined once. */
-static __inline__ void TidyPObjName(char *name)
+/* the file's own name tidier, inlined once, into AllocPObj */
+static __inline__ void TidyPObjName(char *name) /* derived name */
 {
     char buf[256];
     int i;
@@ -93,8 +83,7 @@ static __inline__ void TidyPObjName(char *name)
 }
 
 /* MakeBoundingBox: one axis-aligned box per sub-object into the block it
-   allocates at 0x44, plus the whole object's box in self->bb.  The line map
-   (SRCFILE.TXT rows 55 to 107) gives the statement boundaries used here. */
+   allocates at 0x44, plus the whole object's box in self->bb. */
 void MakeBoundingBox(PObj *self)
 {
     Vec mn;
@@ -206,9 +195,8 @@ void MakePacket(PObj *p, int n)
     debug_StdPrintfDummy("end of packet making...\n");
 }
 
-/* The file's own vector setter, defined between MakePacket and AllocPObj and
-   inlined into InitPObj (SRCFILE.TXT rows 181 and 183 inside InitPObj's span). */
-static __inline__ void SetPObjVector(Vec v, float x, float y, float z)
+/* the file's own vector setter, inlined into InitPObj */
+static __inline__ void SetPObjVector(Vec v, float x, float y, float z) /* derived name */
 {
     v[0] = x;
     v[1] = y;
@@ -258,8 +246,8 @@ typedef struct ObjRec {
     unsigned int f124; /* 0x124 */
 } ObjRec;
 
-/* Rows 123 to 126: the sub-record table allocate and copy, inlined once. */
-static __inline__ void AllocPObjSubs(PObj *p, int *list)
+/* the sub-record table allocate and copy, inlined once */
+static __inline__ void AllocPObjSubs(PObj *p, int *list) /* derived name */
 {
     int i;
 
@@ -269,8 +257,8 @@ static __inline__ void AllocPObjSubs(PObj *p, int *list)
         p->sub[i] = *(PObjSub *)list[i];
 }
 
-/* Rows 138 to 146: the header fields of a freshly allocated PObj. */
-static __inline__ void InitPObjHeader(PObj *p, ObjHdr *h, int n)
+/* the header fields of a freshly allocated PObj */
+static __inline__ void InitPObjHeader(PObj *p, ObjHdr *h, int n) /* derived name */
 {
     p->f24 = (int)h;
     p->pkt = 0;
@@ -383,12 +371,8 @@ PObj *InitPObj(int a0, int a1, int n)
 }
 
 /* The DEBUG build's report of the model file image FreePObj releases, in
-   AllocPObj's terms; built only under DEBUG. The name and the text are ours.
-   What the bytes pin: the print is a jal with a frame, not a sibling call, so
-   an insn followed it when the sibcall pass ran (sibcall.c 421-470); here that
-   is the report's argument load, which cse1 then deletes. What they cannot
-   pin: FreePObj's parameter (no caller in either build) or the report. */
-static __inline__ void FreePObjDebugInfo(ObjHdr *h)
+   AllocPObj's terms; built only under DEBUG (the text derived). */
+static __inline__ void FreePObjDebugInfo(ObjHdr *h) /* derived name */
 {
 #ifdef DEBUG
     debug_StdPrintfDummy("            : adrs(%p)\n", h);

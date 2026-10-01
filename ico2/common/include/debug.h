@@ -1,22 +1,17 @@
 /*
  * ico2/common/include/debug.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what debug.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what debug.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef DEBUG_H
 #define DEBUG_H
 
-/* debug.o's globals.  MAIN.MAP lists debugBackGroundDisableFlag, charNumH,
-   LoadFileType, the display-list counters and the debug option words through
-   debug_fly_limit_test; the eleven after it are the retail build's own options
-   (not in the January map, so their names are derived from their option
-   captions).  used_dl_memory is .data, the rest .sdata. */
+/* debug.o's globals: debugBackGroundDisableFlag, charNumH, LoadFileType,
+   the display-list counters and the debug option words; the eleven after
+   debug_fly_limit_test are named from their option captions (derived names).
+   used_dl_memory is .data, the rest .sdata. */
 /* one debug-menu entry: the label the selector prints, the handler, and a
    "stay in the menu" flag */
 typedef struct {
@@ -25,7 +20,7 @@ typedef struct {
     int stay;
 } DbgMenuItem;
 
-/* the debug menu debug_Menu runs (MAIN.MAP, .data) */
+/* the debug menu debug_Menu runs (.data) */
 extern DbgMenuItem debugMenu[];
 extern int debugBackGroundDisableFlag;
 extern int charNumH;
@@ -117,11 +112,10 @@ extern int debug_hair_gravity_level;
 extern int debug_hair_bend_angle;
 extern int debug_hair_collision;
 extern int debug_no_breast_hang;
-/* debug.c's tail: each of these is an `inline` definition at its own line in
-   debug.c, which gcc defers to the end of the object and outputs in
-   first-declaration order, so this list is the order the ROM emits them in.
-   Callers after a definition inline it; the out-of-line copies serve the
-   rest of the game and the menu tables. */
+/* debug.c's `inline` functions, in the order of their out-of-line copies at
+   the end of the object (first-declaration order).  Callers after a
+   definition inline it; the out-of-line copies serve the rest of the game
+   and the menu tables. */
 void debug_BeginTimer(int a0);
 float debug_GetTimerSec(void);
 float debug_GetTimerCount(void);

@@ -43,39 +43,33 @@
 #include "main.h"
 #include "windField.h"
 
-/* kept local: debug.h leaves it out (see there) */
+/* debug.h leaves it out (see there) */
 extern int debug_bar_flag;
 
-/* .sdata, owned by icoMisc.o (VMA 0x63B428..0x63B494, 0x6C B = MAIN.MAP), in
-   the ROM's order: the partition bar's backdrop tint, then
-   disp_memory_partition_bar's "e" and "%10s"; ExecIcoMisc's three state words;
-   InitIcoMisc's four, then its "MOTION1".."MOTION3" and "%s\n"; the six debug
-   words dbgC0..dbgC5 (MAIN.MAP globals, declared in icoMisc.h). */
+/* .sdata: the partition bar's backdrop tint; ExecIcoMisc's three state
+   words; InitIcoMisc's four; the six debug words dbgC0..dbgC5 (declared in
+   icoMisc.h). */
 static unsigned int partitionBarTint = 0x80FFFFFF; /* derived name */
 
-/* .data, owned by icoMisc.o (MAIN.MAP sizes the run 0x30 and names no symbol
-   in it): the partition bar's two line colours and the wind-field line colour,
+/* .data: the partition bar's two line colours and the wind-field line colour,
    RGBA as Draw2DLine and DrawLineG take them. */
 static int partitionFreeColor[4] = {255, 128, 64, 128}; /* derived name */
 
 static int partitionUsedColor[4] = {64, 128, 255, 128}; /* derived name */
 
-/* kept local: z is unsigned int here, long long in GifPacket.h */
+/* GifPacket.h's entry points, which this TU does not include;
+   gif_MakeSpriteNoTexture takes z as an unsigned int here, a long long in
+   the header */
 extern void gif_MakeSpriteNoTexture(int x, int y, int w, int h, unsigned int z, unsigned char *col,
                                     int prim);
 
-/* .bss, owned by icoMisc.o (MAIN.MAP sizes the run 0x80 and names no
-   symbol in it): the line buffer the memory report is printed through. */
-/* */
-static char printBuf[128];
+/* .bss: the line buffer the memory report is printed through */
+static char printBuf[128]; /* derived name */
 
 inline void ExitIcoMisc(void) {}
 
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture differs) */
 extern void gif_StartPacketPri(int pri);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture differs) */
 extern void gif_SetAlpha(long long a0, long long a1, long long a2);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture differs) */
 extern void gif_EndPacket(void);
 
 /* two-dimensional screen position handed to Draw2DLine */
@@ -87,23 +81,9 @@ typedef struct {
 } D2Pos;
 
 /* The partition bar's TTY trace, built only when DEBUG is defined; the
-   retail build does not define it, so the preprocessor leaves the helper
-   without a body.  The Jan-2002 listing emits nothing for icoMisc.c:636-647,
-   twelve source lines between the last gif_SetAlpha (line 635) and
-   gif_EndPacket (line 648), and the ROM's schedule for that basic block needs
-   exactly the one zero-byte insn this call leaves: a parameterless inline
-   whose body is empty is saved as the single `(use (const_int 0))`
-   flow.c:count_basic_blocks gives a function with no insns, and the inliner
-   copies it into the caller.  With two issue slots per clock it takes the
-   free second slot at clock 2, which pushes the third loop's `i = 0` out to
-   clock 3, so `addiu $a2,$0,0x80` stays adjacent to the first call and reorg
-   fills gif_SetAlpha's delay slot with it and gif_EndPacket's with `daddu
-   $s5,$0,$0`.  Without the call the init takes that free slot and the two
-   delay slots come out swapped, with a nop in the second.  A helper with a
-   parameter would not do it (its parameter move is an insn, so no USE is
-   saved).  The name and the trace text are ours.  Evidence rung: ROM bytes
-   (0x1B7AF0..0x1B7B1C) plus the listing's line map. */
-static __inline__ void partitionBarDebugDisp(void)
+   retail build does not define it, so the helper has no body there (the
+   trace text derived). */
+static __inline__ void partitionBarDebugDisp(void) /* derived name */
 {
 #ifdef DEBUG
     scePrintf("disp_memory_partition_bar\n");
@@ -194,13 +174,7 @@ void disp_memory_partition_bar(void)
     }
     gif_SetAlpha(1, 4, 128);
     partitionBarDebugDisp();
-    /* The same code-free rows held a compiled-out draw in white. What the
-       bytes pin: the 16-byte-aligned template {255, 255, 255, 128} the ROM's
-       .rodata holds between this function's __FILE__ and
-       disp_memory_partition's header with no reader, and no frame slot for it
-       (a white local of its own grows the frame from 1328 to 1344, measured),
-       so it was an rvalue. What they cannot pin: the draw call or its
-       arguments. */
+    /* a draw in white, compiled out of the retail build (the call derived) */
     if (0) {
         Draw2DLine((int *)&st, (int *)&ed, (sceVu0IVECTOR){255, 255, 255, 128}, -1);
     }
@@ -254,19 +228,19 @@ static int seEnvMute = 0; /* derived name */
 static int diskErrorBlink = 0; /* derived name */
 
 /* debug_Printf comes from debug.h */
-/* kept local: particleEffect.h (sugipon) does not declare it */
+/* particleEffect.h does not declare it */
 extern void ExecParticleEffects(void);
-/* kept local: streamMotionManager.h (sugipon) does not declare it */
+/* streamMotionManager.h does not declare it */
 extern void ExecStreamMotionManager(void);
-/* kept local: windManager.h (sugipon) does not declare it */
+/* windManager.h does not declare it */
 extern void ExecWindManager(void);
-/* kept local: spiderGroupManager.h (sugipon) does not declare it */
+/* spiderGroupManager.h does not declare it */
 extern void ExecSpiderGroupManager(void);
-/* kept local: the definition in script.c is (void); this caller passes the camera */
+/* the definition in script.c is (void); this caller passes the camera */
 extern void scpGirlHintVoiceTickProc(int cam);
-/* kept local: fightSound.h (omori) does not declare it */
+/* fightSound.h does not declare it */
 extern void fightSoundProcess(void);
-/* kept local: ebrain.h (omori) does not declare it */
+/* ebrain.h does not declare it */
 extern void eBrainProcess(void);
 
 void ExecIcoMisc(void)
@@ -386,15 +360,14 @@ typedef struct {
     unsigned int _21 : 31;
 } EffEnt;
 
-/* kept local: typedef.h carries StgPre but declares no stageData */
+/* typedef.h carries StgPre but declares no stageData */
 extern const StgPre stageData[];
-/* kept local: motionOrientManager.h (sugipon) carries MotionDef and declares no motionKind */
+/* motionOrientManager.h carries MotionDef and declares no motionKind */
 extern const ScnPre motionKind[];
-/* the effect table is read-only here; the const frees its loads and is what the
-   ROM's schedule shows (RTX_UNCHANGING_P, see the printf site in the scan loop) */
-/* kept local: EffEnt here, EffEntry in frameDependSequence.h (sugipon) */
+/* the effect table, read-only here and read as EffEnt;
+   frameDependSequence.h declares EffEntry */
 extern const EffEnt motionEffKind[];
-/* kept local: effectTool.c's table (sugipon); no header declares it */
+/* effectTool.c's table; no header declares it */
 extern char particleEffectFile[][80];
 
 static unsigned char setActorsDebugPending = 1; /* derived name */
@@ -405,25 +378,24 @@ static int commonPackLoaded = 0; /* derived name */
 
 static int loadedMotionSeg = -1; /* derived name */
 
-/* .sbss, owned by icoMisc.o (MAIN.MAP does not name it: the member has no
-   named sbss symbols); the frame stamp the load-time report below prints. */
-static int load_time;
+/* .sbss: the frame stamp the load-time report below prints */
+static int load_time; /* derived name */
 
-/* kept local: staticBlur.h (sugipon) does not declare it */
+/* staticBlur.h does not declare it */
 extern void InitializeStaticBlur(void);
-/* kept local: agrees with flyManager.h, which this TU does not include */
+/* as in flyManager.h, which this TU does not include */
 extern void InitFlyManager(void);
-/* kept local: Light.h (seki) does not declare it */
+/* Light.h does not declare it */
 extern void light_InitLight(void);
-/* kept local: EnemyInit.h (seki) does not declare it */
+/* EnemyInit.h does not declare it */
 extern void enemy_Initialize(void);
-/* kept local: ZFog.h (seki) does not declare it */
+/* ZFog.h does not declare it */
 extern void fog_MakeFogClut(void);
-/* kept local: particleEffect.h (sugipon) does not declare it */
+/* particleEffect.h does not declare it */
 extern void InitParticleEffects(void);
-/* kept local: GsBase.h (seki) does not declare it */
+/* GsBase.h does not declare it */
 extern void gsb_ResetFilmNoise(void);
-/* kept local: StageAnimation.h (seki) does not declare it; the definition returns int */
+/* StageAnimation.h does not declare it; the definition returns int */
 extern void stage_Init(void);
 
 void InitIcoMisc(int *arg)
@@ -478,8 +450,7 @@ void InitIcoMisc(int *arg)
         kanbanBootStart();
     }
     if (loadedMotionSeg != stageData[stage].mot) {
-        /* the listing's dispatch tests ==2, <3, ==3 in that order: case 1 shares
-           the default arm, which is what puts a low-bound test in the tree */
+        /* case 1 shares the default arm */
         switch (stageData[stage].mot) {
         case 1:
         default:
@@ -583,11 +554,9 @@ int dbgC5 = 0;
 
 static int windLineColor[4] = {0, 128, 255, 128}; /* derived name */
 
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture differs) */
+/* as in GifPacket.h, which this TU does not include */
 extern void gif_StartPacketPri(int pri);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture differs) */
 extern void gif_SetAlpha(long long a0, long long a1, long long a2);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture differs) */
 extern void gif_EndPacket(void);
 
 void DispIcoMisc(void)

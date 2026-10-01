@@ -1,12 +1,8 @@
 /*
  * ico2/common/include/kanbanBoot.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what kanbanBoot.c.inc defines, in the order the
- * coalescing TU's prototype block carried them; every type here is read from
- * the ROM's calling convention at the call sites.
+ * The declarations of what kanbanBoot.c.inc defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef KANBANBOOT_H
@@ -18,7 +14,7 @@
 void kanbanBootInit(void);
 void kanbanBootStart(void);
 
-/* MAIN.MAP global of kanbanBoot.o's .sdata: set when the boot sequence ends */
+/* kanbanBoot.o's .sdata global: set when the boot sequence ends */
 extern int kanbanBootEnd;
 
 void kanbanBootMain(void);

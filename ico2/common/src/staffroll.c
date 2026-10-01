@@ -9,7 +9,7 @@
 /* staffroll.o's whole .data run: the roll's display area, centred on the
    origin, {x, y, width, height}.  Only the first word is read here, as the
    running scroll position. */
-static int staffRollArea[4] = {-5120, -1792, 10240, 3584};
+static int staffRollArea[4] = {-5120, -1792, 10240, 3584}; /* derived name */
 
 typedef struct {
     unsigned char b[4];
@@ -23,32 +23,28 @@ typedef struct {
     char pad[3];      /* 0x0D */
 } StaffRollEntry;     /* 0x10 */
 
-/* .sbss, owned by staffroll.o and reached only from this file (MAIN.MAP names
-   no symbol in the run), in the ROM's run order. */
-static float rollSpeed; /* lines the roll climbs per frame */
+/* .sbss */
+static float rollSpeed; /* derived name */ /* lines the roll climbs per frame */
 
-static float rollOffset; /* how far it has climbed so far */
+static float rollOffset; /* derived name */ /* how far it has climbed so far */
 
-static int rollNameIdx; /* the next entry of staffRollNameData to post */
+static int rollNameIdx; /* derived name */ /* the next entry of staffRollNameData to post */
 
-static int rollWidth; /* the roll's right edge, closing in on 640 */
+static int rollWidth; /* derived name */ /* the roll's right edge, closing in on 640 */
 
-static float areaStep; /* per-frame close of the display area */
+static float areaStep; /* derived name */ /* per-frame close of the display area */
 
-static float widthStep; /* per-frame close of rollWidth */
+static float widthStep; /* derived name */ /* per-frame close of rollWidth */
 
-static int closing; /* the area is closing */
+static int closing; /* derived name */ /* the area is closing */
 
-static int rollStep; /* the roll's own sequence step */
+static int rollStep; /* derived name */ /* the roll's own sequence step */
 
-/* .bss, owned by staffroll.o and reached only from this file: the posted
-   lines, 0x12C0 bytes of StaffRollEntry. */
-static StaffRollEntry rollLines[300];
+/* .bss: the posted lines, 0x12C0 bytes of StaffRollEntry */
+static StaffRollEntry rollLines[300]; /* derived name */
 
-/* staffroll.o's .sdata run (VMA 0x63B650..0x63B670, 0x20 B = MAIN.MAP), in
-   the ROM's order: the three MAIN.MAP globals the roll's state starts with,
-   staffRollNameOut's assert text "0", the roll's colour and staffRollAlpha
-   (MAIN.MAP global), both defined after staffRollNameOut. */
+/* .sdata: the three globals the roll's state starts with; the roll's colour
+   and staffRollAlpha are defined after staffRollNameOut. */
 int staffRollStartFlag = 0;
 
 float staffRollCenterOffsetX = 0.0f;
@@ -70,13 +66,11 @@ void staffRollStart(float t, int alpha)
     memset(rollLines, 0, sizeof(rollLines));
 }
 
-/* kept local: DisplayFont.h (seki) does not declare it; the definition's parameters differ */
+/* DisplayFont.h does not declare it; the definition's parameters differ */
 extern void font_Print(unsigned int attr, char *str, int size, StaffRollCol col, float x, float y);
 
-/* The scroll loop walks the 300-entry table by BYTE offset and spells the base
-   at every use site: that is what keeps the entry address a giv of the byte
-   counter with no separate index multiply, so loop.c can drop the counter
-   itself and compare the cursor against base + 0x12C0. */
+/* The scroll loop walks the 300-entry table by byte offset and spells the
+   base at every use site. */
 #define SROLL(off) ((StaffRollEntry *)((char *)rollLines + (off)))
 
 int staffRollScroll(void)
@@ -184,10 +178,7 @@ void staffRollMain(void)
             a = staffRollAlpha;
         }
     }
-    /* volatile: measured 2026-09-15, dropping it sinks this store into the
-       following bc1f delay slot where ROM keeps it between the two lwc1 and
-       the c.lt.s. No async writer is proven, rollColour[3] is read and written
-       only by this function (five ROM sites) and by nothing else in the ELF. */
+    /* the roll colour's alpha, a volatile store */
     *(volatile unsigned char *)&rollColour[3] = a;
 
     if (staffRollCenterOffsetXDest > staffRollCenterOffsetX) {

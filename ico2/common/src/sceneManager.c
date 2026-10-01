@@ -20,30 +20,25 @@
 #include <assert.h>
 #include "main.h"
 
-/* .sbss, owned by sceneManager.o and reached only from this file (MAIN.MAP
-   names no symbol in the run), in the ROM's run order: the three frame counts
+/* .sbss: the three frame counts
    GetStageStartInfo hands back, which boyact's stage-entry action waits out in
    turn (before the motion, during it, after it). */
-static int stageStartWait1;
+static int stageStartWait1; /* derived name */
 
-static int stageStartWait2;
+static int stageStartWait2; /* derived name */
 
-static int stageStartWait3;
+static int stageStartWait3; /* derived name */
 
-/* .sdata, owned by sceneManager.o (MAIN.MAP names no symbol in the run):
-   set while MoveNextStage_Set's request stands, and the stage it is for. */
+/* .sdata: set while MoveNextStage_Set's request stands, and the stage it is for. */
 static char nextStageSet = 0; /* derived name */
 
 static int nextStageNo = -1; /* derived name */
 
-/* .bss, owned by sceneManager.o (MAIN.MAP line 7741, 0x20 bytes, no symbol
-   named): the position and rotation MoveNextStage_Set keeps for the next
-   stage and MoveNextStage_Get restores, in the ROM's run order.  Both are
-   16-byte vectors: the object's .bss is 16-aligned in the ROM and in
-   MAIN.MAP, which a plain float[4] (8-aligned) does not give. */
-static sceVu0FVECTOR nextStagePos;
+/* .bss: the position and rotation MoveNextStage_Set keeps for the next
+   stage and MoveNextStage_Get restores, as VU0 vectors. */
+static sceVu0FVECTOR nextStagePos; /* derived name */
 
-static sceVu0FVECTOR nextStageRot;
+static sceVu0FVECTOR nextStageRot; /* derived name */
 
 #include "sceneManager.h"
 #include "backStage.h"
@@ -123,7 +118,7 @@ inline void MoveNextStage_Clear(void)
     nextStageNo = -1;
 }
 
-/* kept local: typedef.h carries StgPre but declares no stageData */
+/* typedef.h carries StgPre but declares no stageData */
 extern const StgPre stageData[];
 
 int GetRealModelId(int stageNo, char *gen)
@@ -161,10 +156,10 @@ plain:
     return *(int *)(gen + 0x2C);
 }
 
-/* sceneManager.c:213-313.  GlobalStageSetting is the system's StageSetting
-   record (typedef.h).  The stage-preset record is read through the stageData[stage] subscript on
-   every line, which is what the listing's per-line pointer copies show. */
-/* kept local: Texture.h declares it (void); the callers here pass 0 */
+/* GlobalStageSetting is the system's StageSetting record (typedef.h).  The
+   stage-preset record is read through the stageData[stage] subscript on every
+   line. */
+/* Texture.h declares it (void); the callers here pass 0 */
 extern int tex_RemakeRegistersSampleMin(int a);
 
 void InitStageLight(int stage)
@@ -291,30 +286,21 @@ typedef union {
     GamesysObjInfo info;
 } GamesysObjInfoFlag;
 
-/* RECONSTRUCTION: the 0x40-byte actor-init record CreateLayoutedGObj hands to the
-   kind's constructor: position, angle and scale as VU0 vectors, then the
-   generator's word at 0x30.  The vectors' 16-byte alignment is what makes gcc
-   copy the record with eight ld/sd pairs, and the record has exactly the four
-   members initSceneGObj's constructor names, so store_constructor fills the
-   temporary without clearing it first (the ROM has no clear); 0x34..0x3F is
-   the alignment tail, copied but never written.
-   PINNED: this is SObjSimpleSetting's shape (attackCheckBoundary.c's AcbLayout
-   is the same record).  Declaring SObjSimpleSetting with these vectors leaves
-   every includer's .text identical but makes InitialSObjSimpleSetting's .data
-   16-aligned where the gated object is 8; the ELF places it at 0x4E45C0
-   either way, so the ROM does not decide, and the record stays separate. */
-typedef struct {
+/* the 0x40-byte actor-init record CreateLayoutedGObj hands to the kind's
+   constructor: position, angle and scale as VU0 vectors, then the
+   generator's word at 0x30; 0x34..0x3F is the alignment tail, copied but
+   never written.  It has SObjSimpleSetting's shape (attackCheckBoundary.c's
+   AcbLayout is the same record) with 16-byte vectors. */
+typedef struct {         /* field names derived */
     sceVu0FVECTOR pos;   /* 0x00 */
     sceVu0FVECTOR ang;   /* 0x10 */
     sceVu0FVECTOR scale; /* 0x20 */
     int obj;             /* 0x30 */
 } ActInit;
 
-/* sceneManager.c:118-127: the static helper that restores the position the
-   previous stage stored through MoveNextStage_Set.  It is fully inlined in the
-   ROM, so it has no symbol and no census row; the name follows its two siblings
-   MoveNextStage_Set and MoveNextStage_Clear. */
-static inline void MoveNextStage_Get(ActInit *a, int kind)
+/* restores the position the previous stage stored through MoveNextStage_Set;
+   named after its siblings MoveNextStage_Set and MoveNextStage_Clear */
+static inline void MoveNextStage_Get(ActInit *a, int kind) /* derived name */
 {
     if (stage_no == nextStageNo && kind == 1) {
         a->pos[0] = nextStagePos[0];
@@ -323,10 +309,6 @@ static inline void MoveNextStage_Get(ActInit *a, int kind)
         a->ang[1] = nextStageRot[1] * 3.1415927f / 180.0f;
     }
 }
-
-/* kept local: this TU passes a 64-bit process priority where the prototype in
-   gobj_process.h carries an int, and the ROM's `dsll $8, $2, 10` proves the
-   fifth argument is 64 bits wide. */
 
 void initSceneGObj(int stage, int no)
 {
@@ -368,9 +350,9 @@ void initSceneGObj(int stage, int no)
     st = 0;
 
     if (lay->layouted != 0) {
-        /* sceneManager.c:394 holds the whole fill and the copy into a: one
-           statement, a constructor built in a temporary and assigned (the
-           construct ico2/ito/src/lightning.c uses for its LightningVtx). */
+        /* one statement: a constructor built in a temporary and assigned
+           (the construct ico2/ito/src/lightning.c uses for its
+           LightningVtx) */
         a = (ActInit){
             {-gen->pos[0], -gen->pos[1], -gen->pos[2], 1.0f},
             {gen->rot[0] * 3.1415927f / 180.0f, 0.0f, gen->rot[2] * 3.1415927f / 180.0f, 0.0f},
@@ -446,16 +428,6 @@ void initSceneGObj(int stage, int no)
     MakeCollisionDependGObjList();
 }
 
-/* sceneManager.c:486-514 in the listing.  The parent id is read before the
-   kind, so the kind load carries the record pointer's death: sched1 raises
-   both loads to one priority and then prefers the lighter register weight,
-   issues the kind load first and keeps the record live past it, which is
-   what gives the ROM its registers and lets reorg put the parent load in the
-   first branch's slot.  The listing's rows cannot say where the read stood (the
-   load sits in that slot, under row 490; rows 487 and 488 hold the record
-   and the layout row, 489 is code-free), so the declaration here is ours.
-   The three tests share row 490, one condition; each assert pair shares its
-   row, 502 and 511, the line numbers it passes. */
 void initParentLink(int id)
 {
     GenGeo *gen = &objLayout[id];
@@ -490,11 +462,9 @@ void initParentLink(int id)
     }
 }
 
-/* sceneManager.c:519-536, 553-570, 606-617: three static helpers the listing
-   inlines into InitSceneObjects; they have no symbol of their own in the ROM
-   and no census row, so the names below are descriptive. */
+/* three static helpers inlined into InitSceneObjects */
 
-static inline void initSceneGObjRange(int stage, int first, int last)
+static inline void initSceneGObjRange(int stage, int first, int last) /* derived name */
 {
     int i;
 
@@ -507,7 +477,7 @@ static inline void initSceneGObjRange(int stage, int first, int last)
     }
 }
 
-static inline void setEnemyGeneratorDispFlag(void)
+static inline void setEnemyGeneratorDispFlag(void) /* derived name */
 {
     int *gobj;
 
@@ -519,7 +489,7 @@ static inline void setEnemyGeneratorDispFlag(void)
     }
 }
 
-static inline void initGamesysSceneGObjs(int stage)
+static inline void initGamesysSceneGObjs(int stage) /* derived name */
 {
     GamesysObjInfoFlag *p = (GamesysObjInfoFlag *)gameSysObjInfo;
     int i;

@@ -37,8 +37,7 @@ typedef struct {
     float pos[4];
 } StgSlot;
 
-/* .data, owned by StageManager.o (VMA 0x319A00..0x4D9C10, 0x1C0210 B, all zero;
-   MAIN.MAP names all three as globals): the preload buffer, 896 sectors of 2048
+/* .data, all zero: the preload buffer, 896 sectors of 2048
    bytes, the cap stgmgrNextStagePreLoad clamps a read to and the ring cdvd.c's
    stream reads through; the stage manager's message queue record; and the exit
    positions of the fifteen entrances stgmgrNextStagePreLoadEntry collects. */
@@ -48,24 +47,19 @@ IosMsgQueue stageMgrMsgQ = {0};
 
 StgSlot stageExitData[15] = {0};
 
-/* kept local: typedef.h carries StgPre but declares no stageData */
+/* typedef.h carries StgPre but declares no stageData */
 extern const StgPre stageData[];
 
-/* .sbss, owned by StageManager.o (VMA 0x63C348..0x63C350, no MAIN.MAP symbol,
-   so file statics; names ours): the one-entry buffer of the stage manager's
-   message queue, and the stage stgmgrNextStagePreLoadForceStageSet asks the
-   preloader for. */
-static int stageMgrMsgBuf;
+/* .sbss: the one-entry buffer of the stage manager's message queue, and the
+   stage stgmgrNextStagePreLoadForceStageSet asks the preloader for. */
+static int stageMgrMsgBuf; /* derived name */
 
-static int stagePreLoadForceStageNo;
+static int stagePreLoadForceStageNo; /* derived name */
 
-/* .bss, owned by StageManager.o (the retail run is 0x70, the size of thread.c's
-   own IOSThread record; MAIN.MAP sizes its own link's 0x80 and names no symbol
-   in it): the thread descriptor InitIcoMisc is started through. */
-/* kept as words (an IOSThread's 28): InitIcoMisc's flag word at 0x3C is read
-   here as an unsigned word (lwu into the 64-bit flags), where IOSThread's
-   flags is the int ios/thread.c tests */
-static unsigned int initIcoMiscThread[28];
+/* .bss: the thread descriptor InitIcoMisc is started through, an IOSThread's
+   28 words; InitIcoMisc's flag word at 0x3C is read here as an unsigned word,
+   where IOSThread's flags is the int ios/thread.c tests */
+static unsigned int initIcoMiscThread[28]; /* derived name */
 
 #include "StageManager.h"
 #include "main.h"
@@ -76,12 +70,9 @@ static unsigned int initIcoMiscThread[28];
 #include <string.h>
 #include "typedef.h"
 
-/* .sdata, owned by StageManager.o (VMA 0x63AC98..0x63ACF0, 0x58 B = MAIN.MAP
-   StageManager.o .sdata), in the ROM's order: the movie switches main.c's loop
-   reads, defined before stop_free_resources, whose "here\n" follows them; the
-   preload state before stgmgrNextStagePreLoad, whose "done" follows it; the fade
-   speed and the exit count last. MAIN.MAP names every global here; the four
-   file statics carry no symbol. */
+/* .sdata: the movie switches main.c's loop reads, defined before
+   stop_free_resources; the preload state before stgmgrNextStagePreLoad; the
+   fade speed and the exit count last. */
 int mpegPlay = 0;
 
 int mpegInitDone = 0;
@@ -214,28 +205,19 @@ void start_stage_Load_thread(int stage)
     }
 }
 
-/* The DEBUG build's preload report and hold (names and texts ours): a debug
-   build reports the stage it is about to preload and, while the debug flag
-   word's hold bit is set, repeats the report instead of reading. Both build
-   only under DEBUG; the retail report inlines to one (use (const_int 0)) and
-   the retail hold test to 0, which cse folds, so the loop runs once. WHAT THE
-   BYTES PIN: the ROM puts the -1 in GetDataFileName's delay slot, after both
-   argument moves (listing row 656, 0x1ab29c-0x1ab2a8). sched2 gives that order
-   only when the first argument move carries a loop-note barrier
-   (haifa-sched.c 3677-3724): it holds the second move and the -1 back one
-   cycle, so both issue before the call. The notes have to sit mid-block
-   behind a zero-code insn, which this loop with the report as its body
-   gives, and the -1 has to be set after the move. Rows 654 and 655 carry no
-   code. WHAT THEY CANNOT PIN: what the debug build printed or tested, or
-   where `ret = -1` sat between the GetDataFileName call and row 659. */
-static __inline__ void stgPreLoadDebugHook(void)
+/* The DEBUG build's preload report and hold (the report's text derived): a
+   debug build reports the stage it is about to preload and, while the debug
+   flag word's hold bit is set, repeats the report instead of reading.  Both
+   build only under DEBUG; in the retail build the report is empty and the
+   hold test is 0, so the loop runs once. */
+static __inline__ void stgPreLoadDebugHook(void) /* derived name */
 {
 #ifdef DEBUG
     scePrintf("preload: leaving stage %d's data\n", stagePreLoadStageNo);
 #endif
 }
 
-static __inline__ int stgPreLoadDebugHold(void)
+static __inline__ int stgPreLoadDebugHold(void) /* derived name */
 {
 #ifdef DEBUG
     return debug_font_flag & 0x100;
@@ -482,9 +464,7 @@ void StageManager(void)
     badCmd:
         debug_StdPrintfDummy("StageManager:unknown msg\n");
     }
-    /* Unreachable after the loop (the listing has no row between the loop's
-       909 and the closing 911), but its string is the TU's last .rodata entry
-       at 0x6191B8. */
+    /* unreachable: the loop above never exits */
     debug_StdPrintfDummy("stage manager() out\n");
 }
 

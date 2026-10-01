@@ -6,9 +6,7 @@
 #include "GobjProc.h"
 #include "gamesys.h"
 
-/* .sdata, owned by debug_menu.o (VMA 0x63B400..0x63B414, 0x14 B; MAIN.MAP's
-   January run is 0x10 and names no symbol in it), the "object target" menu's
-   state in the ROM's order: a word nothing in the ROM reads, the camera target
+/* .sdata, the "object target" menu's state: a word nothing reads, the camera target
    to restore on cancel, the object being targeted, the display word saved from
    it, and the blink counter. */
 static int debugMenuUnusedWord = 0; /* derived name */
@@ -21,16 +19,13 @@ static int savedDispWord = 0; /* derived name */
 
 static int targetBlinkCount = 0; /* derived name */
 
-/* .sbss, owned by debug_menu.o and reached only from this file (MAIN.MAP names
-   no symbol in the run), in the ROM's run order.  init_debug_menu writes the
-   first two and nothing in the ROM ever reads them (checked over every
-   gp-relative access in .text), so those two names are positional, ours; the
+/* .sbss: init_debug_menu writes the first two and nothing reads them; the
    third is the index the "object target" menu edits. */
-static int debugMenuFlag0;
+static int debugMenuFlag0; /* derived name */
 
-static int debugMenuFlag1;
+static int debugMenuFlag1; /* derived name */
 
-static int targetGObjIdx;
+static int targetGObjIdx; /* derived name */
 
 char *debug_TargetGObj_Func(int idx);
 

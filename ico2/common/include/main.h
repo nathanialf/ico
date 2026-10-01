@@ -1,10 +1,8 @@
 /*
  * ico2/common/include/main.h
  *
- * RECONSTRUCTION: the disc records no file of this name (a header that only
- * declares leaves no rows in SRCFILE.TXT). It declares the globals main.c
- * defines, as main.c defines them; the other TUs still carry their own
- * extern spellings of these objects.
+ * The globals main.c defines, as it defines them.  The file name is
+ * derived.
  */
 #ifndef MAIN_H
 #define MAIN_H
@@ -31,7 +29,7 @@ typedef struct { /* field names derived */
 
 extern StgMgrMsg stageMgrMsg;
 extern struct IosMsgQueue SchedulerMsgQ;
-/* .sdata; the ones marked derived are named by this tree, the rest by MAIN.MAP */
+/* .sdata; the ones marked derived carry derived names */
 extern char NetLoadTARGET[];
 extern int buffer_ID;
 extern int odd_even;

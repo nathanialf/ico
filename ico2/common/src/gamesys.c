@@ -40,8 +40,7 @@ void gamesysHintInfoSave(int *self);
 void gamesysCharacterInfoLoad(int *a0);
 void gamesysCharacterInfoSave(int *self);
 
-/* .data, owned by gamesys.o in MAIN.MAP's order (all five are the map's
-   globals): the build stamp written into the save area and compared against
+/* .data: the build stamp written into the save area and compared against
    the one the card holds; the save area's handler table, a load and a save
    handler per record, which gamesysMemoryLoad and gamesysMemorySave walk to
    the zero pair; the per-stage exit times; the object-info records; the save
@@ -79,7 +78,8 @@ GamesysObjRec gameSysObjInfo[182] = {0};
 
 char gameSysMainSaveBuff[25596] = {0};
 
-static inline GamesysObjInfo *gamesysObjInfoSearch(GamesysObjInfoReq *req, int no)
+static inline GamesysObjInfo *gamesysObjInfoSearch(GamesysObjInfoReq *req,
+                                                   int no) /* derived name */
 {
     int i;
 
@@ -107,11 +107,10 @@ void gamesysObjInfoInit(void)
     backStageProcessInit();
 }
 
-/* .sdata, owned by gamesys.o (VMA 0x63B414..0x63B428, 0x14 B = MAIN.MAP), in
-   the ROM's order: the frame clock the object records are stamped with, the
+/* .sdata: the frame clock the object records are stamped with, the
    stage the heroine's record was last seen in, the other-stage kidnap flag
    backStage keeps, the save-version mismatch flag and the object-buffer
-   overflow flag (MAIN.MAP globals, declared in gamesys.h, but the stage). */
+   overflow flag (declared in gamesys.h, but the stage). */
 int gamesysTimeCount = 0;
 
 void gamesysObjInfoSave(void *h)
@@ -140,18 +139,14 @@ void gamesysObjInfoLoad(void *h)
     gamesysMemoryHandlerRead(h, gamesysStageExitTime, 0x1A8);
 }
 
-/* unsigned: the ROM reads it with lhu (0x1B6928). */
+/* unsigned */
 static unsigned short gamesysGirlStage = 0; /* derived name */
 
 int gamesysAnotherStageTsuresari = 0;
 
-/* RECONSTRUCTION: the January listing's whole gamesysObjInfoEmptyAreaSearch
- * (gamesys.c:356-413: search for an empty record, else the oldest one, clear
- * flag bit 1, return it).  The retail function calls it after a search by
- * number, and its two exits are the ones an inlined return leaves in the ROM
- * (the k < 0 arm's `move $5,$0` then the caller's test at 0x1B6988, and the
- * copy at 0x1B697C).  The ROM carries no name for it; this one is descriptive. */
-static inline GamesysObjInfo *gamesysObjInfoOldestSearch(GamesysObjInfoReq *req)
+/* gamesysObjInfoEmptyAreaSearch's body: search for an empty record, else the
+ * oldest one, clear flag bit 1, return it; called after a search by number. */
+static inline GamesysObjInfo *gamesysObjInfoOldestSearch(GamesysObjInfoReq *req) /* derived name */
 {
     GamesysObjInfo *p;
     int i;
@@ -204,9 +199,7 @@ int *gamesysObjInfoBaseSet(int *self, int stage)
     float v[4];
     GamesysObjInfo *p;
     /* the default arm writes the range through the record pointer, every other
-       arm writes the record directly: the ROM keeps the two spellings apart as
-       `daddu $6, $29, $0` plus `sw $2, 0x4($6)` / `sw $3, 0x0($6)` against the
-       other arms' plain `sw $2, 0x0($29)` / `sw $3, 0x4($29)` */
+       arm writes the record directly */
     GamesysObjInfoReq *r = &req;
 
     req.no = self[2];
@@ -271,7 +264,7 @@ void gamesysBackStageProcess(void)
     backStageProcessMain();
 }
 
-/* kept local: declaring it only through string.h moves this TU's bytes */
+/* redeclared without a prototype: the calls here pass two or three arguments */
 extern void memcpy();
 
 void gamesysMemoryHandlerWrite(int *self, void *src, int size)
@@ -412,10 +405,8 @@ int *gamesysObjInfoUniqDataSet(int a0)
     return p;
 }
 
-/* Two static helpers the listing inlines into the ObjInfo functions (lines
- * 426-456 and 350-364); neither is emitted out of line, so neither has a
- * MAIN.MAP name and both names here are ours. */
-static inline void gamesysObjInfoReqSet(GamesysObjInfoReq *req, int no, int kind)
+/* inlined into the ObjInfo functions, as gamesysObjInfoSearch is */
+static inline void gamesysObjInfoReqSet(GamesysObjInfoReq *req, int no, int kind) /* derived name */
 {
     req->no = no;
     req->stage = stage_no;

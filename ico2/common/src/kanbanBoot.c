@@ -9,10 +9,9 @@
 #include "Basic.h"
 #include "debug.h"
 
-/* kanbanBoot.o's .sdata run (VMA 0x63B4BC..0x63B4D4, 0x18 B; MAIN.MAP's
-   January object is 0x10), in the ROM's order: the boot sequence's step, the
+/* .sdata: the boot sequence's step, the
    card check's step, the start request, the card retry count, the boot sign's
-   done flag and kanbanBootEnd (MAIN.MAP global). */
+   done flag and kanbanBootEnd. */
 static int bootStep = 0; /* derived name */
 
 static int mcCheckStep = 0; /* derived name */
@@ -37,9 +36,9 @@ inline void kanbanBootInit(void)
 /* memory-card request block shared with ios/mcard.c (the same object the
    debug menu drives); only the words this file touches are named. */
 typedef struct {
-    /* the iosMc flag word.  This file clears a bit in it as ONE 64-bit
-       quantity (ROM: ld/and/sd) while ios/mcard.c takes the same block a
-       word at a time, so the field carries both views. */
+    /* the iosMc flag word.  This file clears a bit in it as one 64-bit
+       quantity while ios/mcard.c takes the same block a word at a time, so
+       the field carries both views. */
     union {
         long long ll;
         int w[2];
@@ -52,9 +51,8 @@ typedef struct {
     int f18; /* 0x18 */
     int f1C; /* 0x1C */
     int f20; /* 0x20 */
-    /* the product block iosMcLoadProductBlock reads into.  Its length is the
-       ROM's own: the run this object owns is 0xA00 bytes and nothing in the
-       ROM forms an address inside it, so the tail is one buffer. */
+    /* the product block iosMcLoadProductBlock reads into, the rest of the
+       0xA00-byte request block */
     char block[0xA00 - 0x24];
 } McReq;
 
@@ -70,33 +68,31 @@ typedef struct {
     int f1EC; /* 0x1EC */
 } KanbanStageRec;
 
-/* .bss, owned by kanbanBoot.o and reached only from this file (MAIN.MAP names
-   no symbol in the run): the boot-time memory-card request block, on the
-   64-byte alignment of a DMA transfer buffer (the 0x30 zero bytes before it
-   are that alignment's fill). */
-static McReq bootMcReq __attribute__((aligned(64)));
-/* kept local: mcard.c's save records, read here as this file's view */
+/* .bss: the boot-time memory-card request block, on the 64-byte alignment
+   of a DMA transfer buffer */
+static McReq bootMcReq __attribute__((aligned(64))); /* derived name */
+/* mcard.c's save records, read here as KanbanStageRec */
 extern KanbanStageRec IosMcProductFile[];
 
-/* .sbss, owned by kanbanBoot.o and reached only from this file (MAIN.MAP names
-   no symbol in the run), in the ROM's run order. */
-static KanbanReq *bootKanban; /* the sign the boot sequence is showing */
+/* .sbss */
+static KanbanReq *bootKanban; /* derived name */ /* the sign the boot sequence is showing */
 
-static KanbanReq *bootKanbanSub; /* the second sign shown beside it */
+static KanbanReq *bootKanbanSub; /* derived name */ /* the second sign shown beside it */
 
-static int mcKanbanId; /* the sign id the card check picked: 3 none, 0 ok, 4 full, -1 clear */
+/* the sign id the card check picked: 3 none, 0 ok, 4 full, -1 clear */
+static int mcKanbanId; /* derived name */
 
-static int mcPort; /* the card slot being checked, 0 then 1 */
+static int mcPort; /* derived name */ /* the card slot being checked, 0 then 1 */
 
-static int bootVideoMode; /* the video mode in force when the sign went up */
+static int bootVideoMode; /* derived name */ /* the video mode in force when the sign went up */
 
-/* kept local: returns void here, int in mcard.h */
+/* this TU declares it void; mcard.h returns int */
 extern void iosMcChdirProduct(void *a0);
-/* kept local: agrees with mcard.h, which this TU does not include (iosMcChdirProduct, iosMcLoadProductBlock differ) */
+/* as in mcard.h, which this TU does not include */
 extern int iosMcSync(unsigned long *a0);
-/* kept local: returns void here, int in mcard.h */
+/* this TU declares it void; mcard.h returns int */
 extern void iosMcLoadProductBlock(void *a0);
-/* kept local: kanban.h does not declare it; kanban.c returns its own Node *, read here as KanbanReq * */
+/* kanban.h does not declare it; kanban.c returns its own Node *, read here as KanbanReq * */
 extern KanbanReq *kanbanReqAdd(int a0, int a1);
 
 int kanbanBootMcCheck(void)
@@ -336,9 +332,9 @@ int kanbanBootMcCheck(void)
     return ret;
 }
 
-static KanbanReq *waitKanban; /* the "please wait" sign */
+static KanbanReq *waitKanban; /* derived name */ /* the "please wait" sign */
 
-static int waitTimer; /* frames left on that sign */
+static int waitTimer; /* derived name */ /* frames left on that sign */
 
 void kanbanBootMain(void)
 {

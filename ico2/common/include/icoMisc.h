@@ -1,12 +1,8 @@
 /*
  * ico2/common/include/icoMisc.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what icoMisc.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what icoMisc.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef ICOMISC_H
@@ -24,7 +20,7 @@ void disp_memory_partition_bar(void);
 void disp_memory_partition(void);
 void ExecIcoMisc(void);
 
-/* Six debug words nothing in the ROM reads. */
+/* Six debug words nothing reads. */
 extern int dbgC0;
 extern int dbgC1;
 extern int dbgC2;
