@@ -36,6 +36,7 @@
 #include "gv.h"
 #include "main.h"
 #include <assert.h>
+#include "motionManager2.h"
 
 int entesty;
 
@@ -109,12 +110,9 @@ typedef struct {
 
 /* kept local: motionOrientManager.h declares none of the motion tables */
 extern MotionDef motionKind[];
+
 /* kept local: this TU's uses of _GetMotionDirection do not fit the prototype in
    motionManager2.h */
-/* kept local: agrees with motionManager2.h, which this TU does not include */
-extern void _GetMotionDirection(float *dir, GObj *obj);
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern int CheckFloorAttribute(GObj *self, int attr);
 
 /* The DEBUG build holds the enemy's stick poll while the debug flag word's
    hold bit is set, a frame at a time, the way boyact.c's subBoyControl repeats
@@ -132,24 +130,8 @@ extern int CheckFloorAttribute(GObj *self, int attr);
    pair where a small scalar would go gp-relative under -G 8. */
 extern void ACTParaStatus_Exec(GObj *self);
 extern float GetEnemyDefParaIndex(void *self);
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern void SetMotionDirection(void *a0, float *a1);
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern int GetMotionFrameFlag2(char *self);
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern void SetMotionDirectionWithLimit(void *self, float *dir, float lim0, float lim1);
 /* kept local: void is void * here, void in attackhit.h */
 extern void EnemyAttackCenter(void *self);
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern void InitMotionGeoInfo(char *self, float x, float y, float z, float rx, float ry, float rz);
-/* kept local: motionManager2.h lists the parameters as (self, obj, x, y, z, mode, node, w, quat);
-   the callers pass them in this order */
-extern void SetMotionNodeFixModeParameter(char *self, char *obj, int mode, int node, void *quat,
-                                          float x, float y, float z, float w);
-/* kept local: agrees with motionManager2.h, which this TU does not include */
-extern void GetRootProjectionPosOfGObj(float *pos, GObj *obj);
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern int GetMotionFrameFlag1(char *self);
 
 /* The point the lifting enemy turns to.  RECONSTRUCTION: the ROM holds three
    vectors here (0x30 bytes, the first two equal) and only the first is ever
@@ -205,8 +187,6 @@ static char *brainTarget;
    prototype does not name. */
 /* kept local: agrees with flyManager.h, which this TU does not include */
 extern int GetFlyLimitClearance(void *pos);
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern int CheckFloorAttribute(GObj *self, int attr);
 
 /* One start record per motion phase; the four of them are the actor's whole
    start parameter block. */
@@ -599,9 +579,9 @@ static inline unsigned char enemyCheckTurnAngle(GObj *self)
     ang = _RotyGV(mot, cur);
     aang = ang < 0 ? -ang : ang;
     if (limit < aang) {
-        s->turnDirX = cur[0];
-        s->turnDirY = cur[1];
-        s->turnDirZ = cur[2];
+        s->turnDir[0] = cur[0];
+        s->turnDir[1] = cur[1];
+        s->turnDir[2] = cur[2];
         if (ang > 0) {
             ACTSendMailCorrect(self, 0xE8);
         } else {
@@ -1051,8 +1031,8 @@ int actEnemyForceSwitchToCarry(void *a0)
     memset(q, 0, 0x10);
     q[3] = 1.0f;
     RotQuaternionY(q, -0x8000);
-    SetMotionNodeFixModeParameter((char *)girlGObj, a0, 2, GOBJ_ACT(a0)->enemy->clingNode, q, 18.0f,
-                                  0.0f, 0.0f, 1.0f);
+    SetMotionNodeFixModeParameter(girlGObj, a0, 2, GOBJ_ACT(a0)->enemy->clingNode, q, 18.0f, 0.0f,
+                                  0.0f, 1.0f);
     sub->carried = girlGObj;
     GOBJ_ACT(girlGObj)->carrier = (int)a0;
     eBrainSendMes(a0, 9);
@@ -1061,13 +1041,13 @@ int actEnemyForceSwitchToCarry(void *a0)
         debug_enemy_kidnap_timer != 0) {
         GOBJ_WORK(a0)->basePosSet = 1;
         if ((void *)boyGObj != 0) {
-            GOBJ_WORK(a0)->basePosX = test_CURRENTROOT(((void *)boyGObj))[0];
-            GOBJ_WORK(a0)->basePosY = test_CURRENTROOT(((void *)boyGObj))[1];
-            GOBJ_WORK(a0)->basePosZ = test_CURRENTROOT(((void *)boyGObj))[2];
+            GOBJ_WORK(a0)->basePos[0] = test_CURRENTROOT(((void *)boyGObj))[0];
+            GOBJ_WORK(a0)->basePos[1] = test_CURRENTROOT(((void *)boyGObj))[1];
+            GOBJ_WORK(a0)->basePos[2] = test_CURRENTROOT(((void *)boyGObj))[2];
         } else {
-            GOBJ_WORK(a0)->basePosX = test_CURRENTROOT(a0)[0];
-            GOBJ_WORK(a0)->basePosY = test_CURRENTROOT(a0)[1];
-            GOBJ_WORK(a0)->basePosZ = test_CURRENTROOT(a0)[2];
+            GOBJ_WORK(a0)->basePos[0] = test_CURRENTROOT(a0)[0];
+            GOBJ_WORK(a0)->basePos[1] = test_CURRENTROOT(a0)[1];
+            GOBJ_WORK(a0)->basePos[2] = test_CURRENTROOT(a0)[2];
         }
     }
     return 1;
@@ -1923,7 +1903,7 @@ void subEnemyBrain_ToGenerator(GObj *self)
             if (IsOpenGenerator(g) != 0) {
                 float d;
 
-                d = _DistSqGV((float *)((char *)GOBJ_ACT(a0)->work + 0x4E0), test_CURRENTROOT(g));
+                d = _DistSqGV(GOBJ_WORK(a0)->basePos, test_CURRENTROOT(g));
                 if (best < d) {
                     best = d;
                     GOBJ_WORK(a0)->genTarget = g;

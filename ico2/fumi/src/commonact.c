@@ -146,6 +146,7 @@ inline void afterCommonTruckLever(GObj *volatile a0);
 #include "main.h"
 #include "fieldCollision.h"
 #include "chain.h"
+#include "motionManager2.h"
 
 typedef struct {
     int a, b, c;
@@ -898,9 +899,6 @@ int CollisCheckInRope(void *a0, GObj *chain)
     return rv;
 }
 
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern void SetMotionDirection();
-
 typedef struct {
     char pad0[860];
     int f35C;
@@ -1027,7 +1025,7 @@ void actCommonRope(GObj *volatile a0)
    stand-in.  Collapses to one `inline` definition at layout. */
 static inline void setCorrectOrientOfChain_inl(void *a0)
 {
-    int local[4];
+    float local[4];
     GetCorrectOrientOfChain(local, a0);
     SetMotionDirection(a0, local);
 }
@@ -1162,7 +1160,7 @@ void actCommonRopeClimbEnd1(GObj *volatile a0)
             } while (GOBJ_SUB(a0)->ctrl.motion != 118);
         }
     }
-    SetMotionDirection(a0, &dir);
+    SetMotionDirection(a0, dir.f);
     while (1) {
         ACTSendMailCorrect(a0, 0x99);
         if (flag) {
@@ -1229,8 +1227,6 @@ void actCommonRopeCliff(GObj *volatile a0)
 }
 
 /* SU-E BEGIN TestCageUpDown */
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionDirection, SetMotionNodeFixModeParameter differ) */
-extern int GetSkeltonFocusNode(char *a0, int a1);
 
 typedef struct {
     float a[4];
@@ -1494,11 +1490,6 @@ void SetDirectRootPositionXZ(void *a0, void *a1)
     SetDirectRootPositionNoFitting(a0, a1);
 }
 
-typedef struct {
-    char pad0[916];
-    int f394;
-} LeverAnim;
-
 /* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
    listing inlines ACTMotDirToWall (lines 1307-1312) into actCommonLever, so it
    is `inline` in the dev's TU; while this tail still has asm members a deferred
@@ -1507,7 +1498,7 @@ typedef struct {
    Collapses to one `inline` definition at layout. */
 static inline void actMotDirToWall(char *a0)
 {
-    int local[4];
+    float local[4];
     sceVu0ScaleVector(local, *(char **)(a0 + 0x164) + 0x4B0, -1.0f);
     SetMotionDirection(a0, local);
 }
@@ -1532,13 +1523,12 @@ void actCommonLever(GObj *volatile a0)
     Act *s = GOBJ_ACT(a0);
     char *lev = *(char **)((char *)s + 0x5FC);
 
-    ((LeverAnim *)(char *)GOBJ_ACT(a0)->work)->f394 =
-        ((0x3C - systemStatus[0] * 10) / systemStatus[1]) * 5;
-    p[0] = s->pullPosX;
-    p[1] = s->pullPosY;
-    p[2] = s->pullPosZ;
+    GOBJ_WORK(a0)->leverTimer = ((0x3C - systemStatus[0] * 10) / systemStatus[1]) * 5;
+    p[0] = s->pullPos[0];
+    p[1] = s->pullPos[1];
+    p[2] = s->pullPos[2];
     p[1] = test_CURRENTROOT((void *)a0)[1];
-    SetDirectRootPositionNoFittingWithNodePointXZ((void *)a0, 0x2C, (char *)s + 0x5A0, 1.0f);
+    SetDirectRootPositionNoFittingWithNodePointXZ((void *)a0, 0x2C, s->pullPos, 1.0f);
     actMotDirToWall((char *)a0);
     while (1) {
         if (lev != 0) {
@@ -1714,11 +1704,6 @@ void actCommonDie(GObj *volatile a0)
     }
 }
 
-/* kept local: motionManager2.h lists the parameters as (self, obj, x, y, z, mode, node, w, quat);
-   the callers pass them in this order */
-extern void SetMotionNodeFixModeParameter(char *self, char *obj, int mode, int node, void *quat,
-                                          float x, float y, float z, float w);
-
 typedef struct {
     char pad0[540];
     int f21C;
@@ -1892,25 +1877,18 @@ typedef struct {
     int f250, f254, f258, f25C;
 } SofaObj;
 
-typedef struct {
-    char pad0[928];
-    int f3A0, f3A4;
-} SofaAnim;
-
 void actCommonSofa(GObj *volatile a0)
 {
     Act *s = GOBJ_ACT(a0);
 
-    SetDirectRootPositionNoFitting((void *)a0, (char *)s + 0x5B0);
+    SetDirectRootPositionNoFitting((void *)a0, s->sofaPos);
     ((SofaObj *)GOBJ_ACT(a0)->enemy)->f250 = 0;
     ((SofaObj *)GOBJ_ACT(a0)->enemy)->f258 = 0;
     ((SofaObj *)GOBJ_ACT(a0)->enemy)->f25C = 0;
     *(void **)((char *)s + 0x160) = *(void **)((char *)s + 0x61C);
     while (1) {
-        ((SofaAnim *)GOBJ_ACT(a0)->work)->f3A0 =
-            ((0x3C - systemStatus[0] * 10) / systemStatus[1]) * 3;
-        ((SofaAnim *)GOBJ_ACT(a0)->work)->f3A4 =
-            ((0x3C - systemStatus[0] * 10) / systemStatus[1]) * 10;
+        GOBJ_WORK(a0)->sofaTimer = ((0x3C - systemStatus[0] * 10) / systemStatus[1]) * 3;
+        GOBJ_WORK(a0)->sofaRestTimer = ((0x3C - systemStatus[0] * 10) / systemStatus[1]) * 10;
         if (((SofaObj *)GOBJ_ACT(a0)->enemy)->f250 > ((SofaObj *)GOBJ_ACT(a0)->enemy)->f254) {
             ACTSendMailCorrect(a0, 0x73);
         }
@@ -2047,7 +2025,7 @@ void actCommonBox(GObj *volatile a0)
     }
     ((Act *)(char *)s)->box = box;
     actMotDirToWall((char *)a0);
-    sceVu0ScaleVector((char *)GOBJ_ACT(a0)->work + 0x530, (char *)s + 0x4B0, -1.0f);
+    sceVu0ScaleVector(GOBJ_WORK(a0)->boxDir, s->wallOrient, -1.0f);
     while (1) {
         int had = (int)s->pushDir != 0;
         int f2 = 0;
@@ -2077,9 +2055,9 @@ void actCommonBox(GObj *volatile a0)
                 float dir[4];
                 unsigned char ok;
                 if (s->pushDir == 0xFFFFFFFF) {
-                    dir[0] = s->wallOrientX;
-                    dir[1] = s->wallOrientY;
-                    dir[2] = s->wallOrientZ;
+                    dir[0] = s->wallOrient[0];
+                    dir[1] = s->wallOrient[1];
+                    dir[2] = s->wallOrient[2];
                 } else {
                     sceVu0ScaleVector(dir, (char *)s + 0x4B0, -1.0f);
                 }
@@ -2123,18 +2101,12 @@ void actCommonBox(GObj *volatile a0)
     }
 }
 
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionDirection, SetMotionNodeFixModeParameter differ) */
-extern int GetMotionFrameFlag1(char *self);
-
 inline void afterCommonBar(GObj *volatile a0)
 {
     debug_StdPrintfDummy("reset\n");
     GOBJ_SUB(a0)->root.filter = InitialColInfo;
     _boxbar_set_sound(a0, 0);
 }
-
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionDirection, SetMotionNodeFixModeParameter differ) */
-extern int GetMotionFrameFlag2(char *self);
 
 typedef struct {
     char pad0[448];
@@ -2215,12 +2187,12 @@ void actCommonBar(GObj *volatile a0)
 
 void funcCommonJumpDircorrect(GObj *a0)
 {
-    SetMotionDirection(a0, (char *)GOBJ_ACT(a0)->work + 0x350);
+    SetMotionDirection(a0, GOBJ_WORK(a0)->padWish);
 }
 
 void funcCommonFallDircorrect(GObj *a0)
 {
-    SetMotionDirection(a0, (char *)GOBJ_ACT(a0)->work + 0x360);
+    SetMotionDirection(a0, GOBJ_WORK(a0)->fallDir);
 }
 
 void correctJumpOrientByChain(GObj *a0)
@@ -2315,7 +2287,7 @@ void actCommonJump(GObj *volatile a0)
     }
     ((ActFlagJ *)((char *)s + 0x18))->ll &= ~(1ULL << 56);
     if (s->intrKind == 0xC5) {
-        SetMotionDirection(a0, (char *)GOBJ_ACT(a0)->work + 0x510);
+        SetMotionDirection(a0, GOBJ_WORK(a0)->boyOrient);
         ((ActFlagJ *)((char *)s + 0x18))->ll |= (1ULL << 56);
     }
     n = *(int *)((char *)GOBJ_ACT(a0)->work + 0x900);
@@ -2433,7 +2405,7 @@ void actCommonFall(GObj *volatile a0)
         }
         break;
     case 329:
-        SetMotionDirection(a0, (char *)GOBJ_ACT(a0)->work + 0x4C0);
+        SetMotionDirection(a0, GOBJ_WORK(a0)->handrailOrient);
         break;
     case 166:
         FALL_SUB(a0)->root.move[0] = 0;
@@ -2833,7 +2805,7 @@ void flyCoreLoop(GObj *a0, GObj *target, int a2)
                             dir[1] = 0.0f;
                             _NormalizeVector(dir, dir);
                             MatrixDrive_PopMatrix();
-                            SetMotionDirection((char *)a0, dir);
+                            SetMotionDirection(a0, dir);
                             acc = -1.0f;
                         } else if (info.floorY < root[1]) {
                             acc = 1.0f;
@@ -3095,15 +3067,6 @@ void actCommonFly(GObj *volatile a0)
                     debug_fly_limit_test != 0);
 }
 
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionDirection, SetMotionNodeFixModeParameter differ) */
-extern float GetDifferenceFromWallUpperField(char *a0, int a1);
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionDirection, SetMotionNodeFixModeParameter differ) */
-extern float GetDifferenceFromLastField(char *a0, int a1);
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionDirection, SetMotionNodeFixModeParameter differ) */
-extern float GetDifferenceFromWallUpperPlane(char *self, int node);
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionDirection, SetMotionNodeFixModeParameter differ) */
-extern float GetDifferenceFromWallLowerPlane(char *self, int node);
-
 typedef struct {
     char pad0[656];
     int f290;
@@ -3132,13 +3095,13 @@ void actCommonLadder(GObj *volatile a0)
     int lp48;
     char *o;
 
-    if (s->edgePosW != 0.0f) {
+    if (s->edgePos[3] != 0.0f) {
         pos[0] = test_CURRENTROOT((void *)a0)[0];
         pos[1] = test_CURRENTROOT((void *)a0)[1];
         pos[2] = test_CURRENTROOT((void *)a0)[2];
-        pos[0] = s->edgePosX;
-        pos[2] = s->edgePosZ;
-        s->edgePosW = 0.0f;
+        pos[0] = s->edgePos[0];
+        pos[2] = s->edgePos[2];
+        s->edgePos[3] = 0.0f;
     }
     LADW->f290 = 0;
     LADW->f294 = 0;
@@ -3243,7 +3206,7 @@ inline void actCommonCliffdown(GObj *volatile a0)
     Act *s = GOBJ_ACT(a0);
 
     debug_StdPrintfDummy("enter actCommonCliffdown\n");
-    SetMotionDirection(a0, (char *)s + 0x4C0);
+    SetMotionDirection(a0, s->cliffOrient);
     for (;;) {
         ACTSendMailCorrect(a0, 0xC7);
         _ACTWait(1);
@@ -3264,9 +3227,6 @@ inline void actCommonSwim(GObj *volatile a0)
     }
 }
 
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionDirection, SetMotionNodeFixModeParameter differ) */
-extern void SetMotionDirectionWithLimit(void *self, float *dir, float lim0, float lim1);
-
 inline void actCommonDodge(GObj *volatile a0)
 {
     float dir[4];
@@ -3277,8 +3237,8 @@ inline void actCommonDodge(GObj *volatile a0)
     if (a0->kind == 1) {
         ACTSearchEnemy((void *)a0, &id, dir);
     } else {
-        _OrientXZGV((char *)s + 0x120, test_CURRENTROOT(boyGObj), test_CURRENTROOT((void *)a0));
-        SetMotionDirection(a0, (char *)s + 0x120);
+        _OrientXZGV(s->dir, test_CURRENTROOT(boyGObj), test_CURRENTROOT((void *)a0));
+        SetMotionDirection(a0, s->dir);
     }
     while (1) {
         if (id != 0) {
@@ -3865,13 +3825,13 @@ void actCommonTurn(GObj *volatile a0)
     float q[4];
     float o[4];
     Act *s = GOBJ_ACT(a0);
-    char *t = (char *)s + 0x5C0;
+    float *t = s->turnDir;
     int d;
 
     while (1) {
         GetRootMotionOrient(q, a0);
-        d = _RotyGV((char *)s + 0x5C0, q);
-        debug_Arrow(100.0f, test_CURRENTROOT((void *)a0), (char *)s + 0x5C0, 0, 0, 0xFF);
+        d = _RotyGV(s->turnDir, q);
+        debug_Arrow(100.0f, test_CURRENTROOT((void *)a0), s->turnDir, 0, 0, 0xFF);
         if (a0 == (int)((char *)girlGObj)) {
             GetSkeltonOrient(o, a0, 1);
             if (_AbsRotyGV(t, o) < 60) {
@@ -3941,8 +3901,8 @@ void actCommonSlowrun(GObj *volatile a0)
         int i1;
         int i2;
 
-        i1 = GetSkeltonFocusNode((char *)girlGObj, 22);
-        i2 = GetSkeltonFocusNode((char *)boyGObj, 6);
+        i1 = GetSkeltonFocusNode(girlGObj, 22);
+        i2 = GetSkeltonFocusNode(boyGObj, 6);
         ((IntFloatSR *)p[0])[0].f = *(float *)((i1 << 6) + GOBJ_SUB(girlGObj)->nodeMtx + 0x30);
         ((IntFloatSR *)p[0])[1].f = *(float *)((i1 << 6) + GOBJ_SUB(girlGObj)->nodeMtx + 0x34);
         ((IntFloatSR *)p[0])[2].f = *(float *)((i1 << 6) + GOBJ_SUB(girlGObj)->nodeMtx + 0x38);
@@ -3990,9 +3950,6 @@ void ACT_LAYOUT_GAMEOVER(void)
         lt_switch_layout(62);
     }
 }
-
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionDirection, SetMotionNodeFixModeParameter differ) */
-extern void AdjustRootPositionToVerticalSidePlaneOfWall(void *a0, void *a1, float f);
 
 void ACTAdjustPlane(GObj *a0, void *a1)
 {
@@ -4088,7 +4045,7 @@ inline void actCommonCatchFire(GObj *volatile a0)
     Act *s = GOBJ_ACT(a0);
     int lit = 0;
 
-    SetMotionDirection(a0, (char *)s + 0x4D0);
+    SetMotionDirection(a0, s->torchOrient);
     for (;;) {
         if (GetMotionFrameFlag1((void *)a0) && !lit) {
             LightTorchOnOfWeapon((void *)s->weapon);
@@ -4104,7 +4061,7 @@ inline void actCommonCatchFireBomb(GObj *volatile a0)
     Act *s = GOBJ_ACT(a0);
     int lit = 0;
 
-    SetMotionDirection(a0, (char *)s + 0x4D0);
+    SetMotionDirection(a0, s->torchOrient);
     for (;;) {
         if (GetMotionFrameFlag1((void *)a0) && !lit) {
             LightTorchOn(s->bombObj);
@@ -4120,7 +4077,7 @@ inline void actCommonPutFire(GObj *volatile a0)
     Act *s = GOBJ_ACT(a0);
     int lit = 0;
 
-    SetMotionDirection(a0, (char *)s + 0x4E0);
+    SetMotionDirection(a0, s->torchRevOrient);
     for (;;) {
         if (GetMotionFrameFlag1((void *)a0) && !lit) {
             LightTorchOn(s->torchRevObj);
@@ -4188,9 +4145,6 @@ inline void actCommonLadderBellow(GObj *volatile a0)
     }
 }
 
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionDirection, SetMotionNodeFixModeParameter differ) */
-extern int CheckWallAttribute(char *self, int attr);
-
 inline void actCommonLadderBellowHang(GObj *volatile a0)
 {
     for (;;) {
@@ -4221,8 +4175,8 @@ inline void actCommonDodgeJump(GObj *volatile a0)
     if (a0->kind == 1) {
         ACTSearchEnemy((void *)a0, &id, buf);
     } else {
-        _OrientXZGV((char *)s + 0x120, test_CURRENTROOT(boyGObj), test_CURRENTROOT((void *)a0));
-        SetMotionDirection(a0, (char *)s + 0x120);
+        _OrientXZGV(s->dir, test_CURRENTROOT(boyGObj), test_CURRENTROOT((void *)a0));
+        SetMotionDirection(a0, s->dir);
     }
     for (;;) {
         _ACTWait(1);
@@ -4249,7 +4203,7 @@ inline void actCommonLever2(GObj *volatile a0)
     Act *s = GOBJ_ACT(a0);
     char *lev = (char *)s->pullObj;
 
-    SetDirectRootPositionXZ((void *)a0, (char *)s + 0x5A0);
+    SetDirectRootPositionXZ((void *)a0, s->pullPos);
     actMotDirToWall((char *)a0);
     while (1) {
         if (lev != 0) {
@@ -4474,7 +4428,7 @@ inline void actCommonTurnWarn(GObj *volatile a0)
 inline void actCommonTurnStrict(GObj *volatile a0)
 {
     float q[4];
-    char *t = (char *)GOBJ_ACT(a0) + 0x5C0;
+    float *t = GOBJ_ACT(a0)->turnDir;
 
     for (;;) {
         int d;
@@ -4493,20 +4447,13 @@ inline void actCommonPPipe(GObj *volatile a0)
     _ACTWait(0);
 }
 
-typedef struct {
-    char pad0[1216];
-    float f4C0;
-    float f4C4;
-    float f4C8;
-} HandrailNode;
-
 inline void actCommonHandrail(GObj *volatile a0)
 {
     Act *s = GOBJ_ACT(a0);
 
-    ((HandrailNode *)(char *)GOBJ_ACT(a0)->work)->f4C0 = s->wallOrientX;
-    ((HandrailNode *)(char *)GOBJ_ACT(a0)->work)->f4C4 = s->wallOrientY;
-    ((HandrailNode *)(char *)GOBJ_ACT(a0)->work)->f4C8 = s->wallOrientZ;
+    GOBJ_WORK(a0)->handrailOrient[0] = s->wallOrient[0];
+    GOBJ_WORK(a0)->handrailOrient[1] = s->wallOrient[1];
+    GOBJ_WORK(a0)->handrailOrient[2] = s->wallOrient[2];
     for (;;) {
         _ACTWait(1);
     }
@@ -4525,7 +4472,7 @@ inline void motCommonBoxPush(GObj *volatile a0)
     *(int *)((char *)s + 0x38) = 1;
     while (1) {
         if (IsThisBoxTruck(s->box) == 0) {
-            SetMotionDirection(a0, (char *)GOBJ_ACT(a0)->work + 0x530);
+            SetMotionDirection(a0, GOBJ_WORK(a0)->boxDir);
         } else {
             actMotDirToWall((char *)a0);
         }
@@ -4540,7 +4487,7 @@ inline void motCommonBoxPull(GObj *volatile a0)
     s->pushDir = -1;
     while (1) {
         if (IsThisBoxTruck(s->box) == 0) {
-            SetMotionDirection(a0, (char *)GOBJ_ACT(a0)->work + 0x530);
+            SetMotionDirection(a0, GOBJ_WORK(a0)->boxDir);
         } else {
             actMotDirToWall((char *)a0);
         }
@@ -4794,9 +4741,6 @@ static char commonOrient[16];
 
 static float commonPos[4];
 
-/* kept local: agrees with motionManager2.h, which this TU does not include */
-extern void _GetMotionDirection(float *dir, GObj *obj);
-
 inline float *test_CURRENTORIENT(GObj *a0)
 {
     if (a0 != boyGObj && a0 != girlGObj && a0->kind != 4) {
@@ -4858,21 +4802,21 @@ inline int FloorIsTruck(GObj *a0)
 
 inline void _ACTMotDir_V(void *a0, void *a1)
 {
-    int local[4];
+    float local[4];
     sceVu0ScaleVector(local, a1, -1.0f);
     SetMotionDirection(a0, local);
 }
 
 inline void ACTMotDirToWall(GObj *a0)
 {
-    int local[4];
-    sceVu0ScaleVector(local, (char *)GOBJ_ACT(a0) + 0x4B0, -1.0f);
+    float local[4];
+    sceVu0ScaleVector(local, GOBJ_ACT(a0)->wallOrient, -1.0f);
     SetMotionDirection(a0, local);
 }
 
 inline void SetCorrectOrientOfChain(void *a0)
 {
-    int local[4];
+    float local[4];
     GetCorrectOrientOfChain(local, a0);
     SetMotionDirection(a0, local);
 }

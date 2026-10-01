@@ -1731,8 +1731,8 @@ void ACTGame_BeforeFunc(GObj *self)
         GOBJ_WORK(self)->carryGirlFrames = 0;
     }
 
-    if (GOBJ_WORK(self)->timer394 != 0) {
-        (GOBJ_WORK(self)->timer394)--;
+    if (GOBJ_WORK(self)->leverTimer != 0) {
+        (GOBJ_WORK(self)->leverTimer)--;
     }
     if (GOBJ_WORK(self)->noInterpTimer > 0) {
         (GOBJ_WORK(self)->noInterpTimer)--;
@@ -1742,11 +1742,11 @@ void ACTGame_BeforeFunc(GObj *self)
         SetDirectMotionProgramInterpInfo(self, 0x22, 0.0f);
         SetDirectMotionProgramInterpInfo(self, 0x23, 0.0f);
     }
-    if (GOBJ_WORK(self)->timer3A0 != 0) {
-        (GOBJ_WORK(self)->timer3A0)--;
+    if (GOBJ_WORK(self)->sofaTimer != 0) {
+        (GOBJ_WORK(self)->sofaTimer)--;
     }
-    if (GOBJ_WORK(self)->timer3A4 != 0) {
-        (GOBJ_WORK(self)->timer3A4)--;
+    if (GOBJ_WORK(self)->sofaRestTimer != 0) {
+        (GOBJ_WORK(self)->sofaRestTimer)--;
     }
     if (GOBJ_WORK(self)->timer3AC != 0) {
         (GOBJ_WORK(self)->timer3AC)--;
@@ -1924,7 +1924,7 @@ void ACTEnvGetTest(GObj *self, void *a1)
         *(EnvOct *)((char *)s + 0x660) = *(EnvOct *)((char *)&old + 0x1B0);
         *(EnvOct *)((char *)s + 0x640) = *(EnvOct *)((char *)&old + 0x190);
         ACTGetEnvironment(self, a1, test_CURRENTORIENT(self), (char *)s + 0x47C,
-                          (ActEnv *)&s->wallOrientX);
+                          (ActEnv *)s->wallOrient);
         break;
 
     case 10:
@@ -3306,7 +3306,7 @@ inline int ACTChkAttackIgnore_BOY(GObj *a0, GObj *actor)
 {
     Act *s = GOBJ_ACT(a0);
     if (s->actMode == 0x35 ||
-        (((ActWork *)s->work)->timer394 != 0 && scpBoyControlReadDisable != 0) ||
+        (((ActWork *)s->work)->leverTimer != 0 && scpBoyControlReadDisable != 0) ||
         ((int)(s->flags18.ll >> 35) & 1) == 0) {
         return 1;
     }

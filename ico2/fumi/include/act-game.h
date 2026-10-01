@@ -32,24 +32,22 @@ typedef struct ActWork { /* field names derived */
     float lockedMaxRotate; /* 0x344 */
     float parallelInterp;  /* 0x348 */
     char pad34C[4];
-    float padWishX; /* 0x350 */
-    float padWishY; /* 0x354 */
-    float padWishZ; /* 0x358 */
-    char pad35C[20];
-    char *hideObj;       /* 0x370 */
-    void *floorObj;      /* 0x374 */
-    void *bga;           /* 0x378 */
-    int downTimer;       /* 0x37C */
-    int brainTimer;      /* 0x380 */
-    int turnTimer;       /* 0x384 */
-    int turnTimer2;      /* 0x388 */
+    float padWish[4]; /* 0x350, the pad wish direction a jump turns to (funcCommonJumpDircorrect) */
+    float fallDir[4]; /* 0x360, the direction a fall turns to (funcCommonFallDircorrect) */
+    char *hideObj;    /* 0x370 */
+    void *floorObj;   /* 0x374 */
+    void *bga;        /* 0x378 */
+    int downTimer;    /* 0x37C */
+    int brainTimer;   /* 0x380 */
+    int turnTimer;    /* 0x384 */
+    int turnTimer2;   /* 0x388 */
     int noInterpTimer;   /* 0x38C */
     int wishHoldTimer;   /* 0x390 */
-    int timer394;        /* 0x394 */
+    int leverTimer;      /* 0x394, frames the boy keeps hold of a lever (actCommonLever) */
     int nakaBossCount;   /* 0x398 */
     int carryGirlFrames; /* 0x39C */
-    int timer3A0;        /* 0x3A0 */
-    int timer3A4;        /* 0x3A4 */
+    int sofaTimer;       /* 0x3A0, frames since the actor sat on the sofa (actCommonSofa) */
+    int sofaRestTimer;   /* 0x3A4, the longer sofa rest the girl's attract waits out */
     int orientFrames;    /* 0x3A8 */
     int timer3AC;        /* 0x3AC */
     int timer3B0;        /* 0x3B0 */
@@ -90,17 +88,19 @@ typedef struct ActWork { /* field names derived */
     float pinchPosZ; /* 0x4A8 */
     char pad4AC[4];
     int pinchFrames; /* 0x4B0 */
-    char pad4B4[28];
-    int basePosSet; /* 0x4D0 */
+    char pad4B4[12];
+    float handrailOrient[4]; /* 0x4C0, the wall orientation actCommonHandrail keeps */
+    int basePosSet;          /* 0x4D0 */
     char pad4D4[12];
-    float basePosX; /* 0x4E0 */
-    float basePosY; /* 0x4E4 */
-    float basePosZ; /* 0x4E8 */
-    char pad4EC[52];
-    float hintPosX; /* 0x520 */
-    float hintPosY; /* 0x524 */
-    float hintPosZ; /* 0x528 */
-    char pad52C[500];
+    float basePos[4]; /* 0x4E0, the position the enemy guards when basePosSet */
+    char pad4F0[32];
+    float boyOrient[4]; /* 0x510, the girl's direction to the boy (ACTGetEnvironment) */
+    float hintPosX;     /* 0x520 */
+    float hintPosY;     /* 0x524 */
+    float hintPosZ;     /* 0x528 */
+    char pad52C[4];
+    float boxDir[4]; /* 0x530, the direction a box is pushed and pulled in (actCommonBox) */
+    char pad540[480];
     int view720; /* 0x720 */
     char pad724[124];
     void *view7A0; /* 0x7A0 */

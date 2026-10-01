@@ -71,7 +71,7 @@ void ACTGetWish_FromPad(GObj *a0, float *a1)
     if (a0 == boyGObj) {
         if (0.1f < s->stickMag && ((int)(s->wish1.ll >> 5) & 1) &&
             chkOrient((char *)s, a1, u, 80.0f)) {
-            if (!(s->padNow & 8) || girlGObj == 0 || GOBJ_WORK(girlGObj)->timer3A0 == 0) {
+            if (!(s->padNow & 8) || girlGObj == 0 || GOBJ_WORK(girlGObj)->sofaTimer == 0) {
                 s->wish3.ll |= 0x20;
             }
         }
@@ -198,9 +198,9 @@ void ACTGetWish_FromPad(GObj *a0, float *a1)
             s->wish2.ll |= 1ULL << 40;
 
             s->wish2.ll |= 1ULL << 41;
-            GOBJ_WORK(a0)->padWishX = a1[0];
-            GOBJ_WORK(a0)->padWishY = a1[1];
-            GOBJ_WORK(a0)->padWishZ = a1[2];
+            GOBJ_WORK(a0)->padWish[0] = a1[0];
+            GOBJ_WORK(a0)->padWish[1] = a1[1];
+            GOBJ_WORK(a0)->padWish[2] = a1[2];
         }
         s->wish2.ll |= 1ULL << 42;
         s->wish2.ll |= 1ULL << 43;

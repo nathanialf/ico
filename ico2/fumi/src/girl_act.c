@@ -36,6 +36,7 @@
 #include "fieldCollision.h"
 #include <assert.h>
 #include "camera-editor.h"
+#include "motionManager2.h"
 
 typedef struct GirlStand {
     sceVu0FVECTOR prev; /* 0x00 last frame's root position */
@@ -60,9 +61,6 @@ union GAIF {
     float f;
 };
 
-/* kept local: agrees with motionManager2.h, which this TU does not include */
-extern int GetSkeltonFocusNode(GObj *a0, int a1);
-
 void GetEyeDirection(char *dir, char *obj)
 {
     int node = GetSkeltonFocusNode(obj, 0x23);
@@ -84,9 +82,6 @@ void funcGirlHandDisconnect(void)
     ACTGame_DisconnectHand();
     debug_StdPrintfDummy("--disconnect--\n");
 }
-
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern void SetMotionDirection(void *a0, float *a1);
 
 /* The three climb headers (omori/include/g50climb.h, g100climb.h,
    g200climb.h in the listing) textually included here: each defines the
@@ -556,9 +551,6 @@ static inline void ATGoalTurnSendMail(GObj *self)
         ACTSendMailCorrect(self, mail);
     }
 }
-
-/* kept local: agrees with motionManager2.h, which this TU does not include */
-extern void GetRootProjectionPosOfGObj(float *pos, GObj *obj);
 
 /* girl_brain_main.c.inc:279-293: the wire-string marker (colour, a
    MatrixDrive transform of the position, DispWireString, colour reset).
@@ -1862,9 +1854,9 @@ void subGirlBrain_Pulledup(GObj *volatile a0)
         boy_pos[1] = boy_pos[1] - 10.0f;
     }
     if (GOBJ_ACT(((int *)boyGObj))->actMode == 0x58) {
-        boy_pos[0] = GOBJ_ACT(((int *)boyGObj))->ditchPosX;
-        boy_pos[1] = GOBJ_ACT(((int *)boyGObj))->ditchPosY;
-        boy_pos[2] = GOBJ_ACT(((int *)boyGObj))->ditchPosZ;
+        boy_pos[0] = GOBJ_ACT(((int *)boyGObj))->ditchPos[0];
+        boy_pos[1] = GOBJ_ACT(((int *)boyGObj))->ditchPos[1];
+        boy_pos[2] = GOBJ_ACT(((int *)boyGObj))->ditchPos[2];
     }
     if (!ACTWayMove_BeginDetail((void *)a0, self_pos, boy_pos, 0, 0, 0)) {
         while (1) {
@@ -3323,8 +3315,6 @@ static char *wayTestStateName[9] = {"IDLE",    "SEARCHWAY", "LOSTTWAY", "APPROAC
 GirlBrainWork brain_val = {0};
 
 extern float GetDifferenceFromLowerField(void *obj, int node);
-/* kept local: agrees with motionManager2.h, which this TU does not include */
-extern void _GetMotionDirection(float *dir, GObj *obj);
 
 /* MAIN.MAP globals of girl_act.o's .sdata (declared in girl_act.h) */
 int hyde_test = 0;
@@ -3610,8 +3600,6 @@ void subGirlControl(GObj *volatile a0)
 
 extern void brainLevelProcess(Brain *b);
 extern double fptodp(float v);
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern void SetMotionDirection(void *a0, float *a1);
 
 void subGirlCollision(GObj *volatile a0)
 {
@@ -3816,8 +3804,6 @@ void subGirlCollision(GObj *volatile a0)
 
 /* kept local: this TU's uses of GetHeightOfFieldPlaneDifference do not fit the
    prototype in motionManager2.h */
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern float GetHeightOfFieldPlaneDifference(int *a, int *b);
 
 inline int NotNeedBackHand(void)
 {
@@ -3996,9 +3982,9 @@ void actGirlHand(GObj *volatile a0)
                 ACTSendMailCorrect((void *)a0, 0x3E);
                 debug_StdPrintfDummy("dist error\n");
             } else if (grab) {
-                h = GetHeightOfFieldPlaneDifference(((int *)boyGObj), (void *)girlGObj) < 0.0f
-                        ? -GetHeightOfFieldPlaneDifference(((int *)boyGObj), (void *)girlGObj)
-                        : GetHeightOfFieldPlaneDifference(((int *)boyGObj), (void *)girlGObj);
+                h = GetHeightOfFieldPlaneDifference(boyGObj, girlGObj) < 0.0f
+                        ? -GetHeightOfFieldPlaneDifference(boyGObj, girlGObj)
+                        : GetHeightOfFieldPlaneDifference(boyGObj, girlGObj);
                 if (h < 150.0f) {
                     _OrientXZGV(d, test_CURRENTROOT((boyGObj)), test_CURRENTROOT((void *)a0));
                     if (((int)(sub->flags18.ll >> 44) & 1) &&
@@ -4236,11 +4222,6 @@ typedef struct {
     int w[8];
 } GirlPullBlk;
 
-/* kept local: motionManager2.h lists the parameters as (self, obj, x, y, z, mode, node, w, quat);
-   the callers pass them in this order */
-extern void SetMotionNodeFixModeParameter(char *self, char *obj, int mode, int node, void *quat,
-                                          float x, float y, float z, float w);
-
 inline void afterGirlPulledGo(void *a0)
 {
     void *volatile q = a0;
@@ -4263,8 +4244,7 @@ void actGirlPulledGo(GObj *volatile a0)
     memset(q, 0, 0x10);
     q[3] = 1.0f;
     RotQuaternionY(q, 0);
-    SetMotionNodeFixModeParameter((char *)girlGObj, (char *)boyGObj, 2, 6, q, 0.0f, 0.0f, 0.0f,
-                                  1.0f);
+    SetMotionNodeFixModeParameter(girlGObj, boyGObj, 2, 6, q, 0.0f, 0.0f, 0.0f, 1.0f);
     while (1) {
         if (!PAIR_IsStatus_BOY_PULL()) {
             ACTSendMailCorrect((void *)a0, 0x53);
@@ -4471,8 +4451,7 @@ inline void actGirlBehanged(GObj *volatile a0)
         memset(q, 0, 0x10);
         q[3] = 1.0f;
         RotQuaternionY(q, 0);
-        SetMotionNodeFixModeParameter((char *)girlGObj, (char *)boyGObj, 2, 6, q, 0.0f, 0.0f, 0.0f,
-                                      1.0f);
+        SetMotionNodeFixModeParameter(girlGObj, boyGObj, 2, 6, q, 0.0f, 0.0f, 0.0f, 1.0f);
         _ACTWait(1);
     }
 }
@@ -4502,9 +4481,6 @@ void actGirlReadyMove(GObj *volatile a0)
         _ACTWait(1);
     }
 }
-
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern void SetMotionDirection(void *a0, float *a1);
 
 void actGirlRescueDst(GObj *volatile a0)
 {
@@ -4642,8 +4618,7 @@ void actGirlSupportBGBegin(GObj *volatile a0)
     memset(q, 0, 0x10);
     q[3] = 1.0f;
     RotQuaternionY(q, 0);
-    SetMotionNodeFixModeParameter((char *)girlGObj, (char *)boyGObj, 2, 6, q, 0.0f, 0.0f, 0.0f,
-                                  1.0f);
+    SetMotionNodeFixModeParameter(girlGObj, boyGObj, 2, 6, q, 0.0f, 0.0f, 0.0f, 1.0f);
     s->after = (void *)afterGirlSupportBGBegin;
     ACTGame_ConnectHand();
     while (1) {

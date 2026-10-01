@@ -58,14 +58,14 @@ inline void GetSofaPosition(GObj *a0, char *a1)
 {
     Act *w = GOBJ_ACT(a0);
     VECTOR v = sofaSeatOffset;
-    *(float *)((char *)w + 0x560) = w->wallOrientX;
-    *(float *)((char *)w + 0x564) = w->wallOrientY;
-    *(float *)((char *)w + 0x568) = w->wallOrientZ;
+    w->sofaOrient[0] = w->wallOrient[0];
+    w->sofaOrient[1] = w->wallOrient[1];
+    w->sofaOrient[2] = w->wallOrient[2];
     if (a0 == boyGObj) {
         v.x = -v.x;
     }
     v.w = 1.0f;
-    sceVu0ApplyMatrix((char *)w + 0x5B0,
+    sceVu0ApplyMatrix(w->sofaPos,
                       *(void **)((char *)((union ENVIF *)((char *)a1 + 0x15C))->i + 0xC), &v);
 }
 
@@ -783,8 +783,8 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
                     float rad = (a0 == boyGObj) ? 30.0f : 10.0f;
 
                     GetSofaPosition(a0, obj);
-                    debug_NMarker((float *)((char *)sub + 0x5B0), 0, 0xFF, 0, 100.0f);
-                    if (_DistxzSqGV(prj, (char *)sub + 0x5B0) < rad * rad) {
+                    debug_NMarker(sub->sofaPos, 0, 0xFF, 0, 100.0f);
+                    if (_DistxzSqGV(prj, sub->sofaPos) < rad * rad) {
                         flags[1].w |= 0x20;
                         env->sofaObj = (int)obj;
                     }
@@ -1005,7 +1005,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
                 rr = 0.0f;
             if (_DistSqGV(p60, pos) < rr * rr &&
                 _FrontGV(p60, pos, test_CURRENTORIENT(a0), 45)) {
-                _OrientXZGV((char *)GOBJ_ACT(a0)->work + 0x510, p60, pos);
+                _OrientXZGV(GOBJ_WORK(a0)->boyOrient, p60, pos);
                 flags[0].w |= 0x800;
             }
         }

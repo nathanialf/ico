@@ -1351,38 +1351,22 @@ typedef struct Act { /* field names derived */
     ActWishWord wish3; /* 0x490 */
     ActWishWord wish4; /* 0x498 */
     char pad4A0[16];
-    float
-        wallOrientX; /* 0x4B0, the environment record (act-env.h's ActEnv) starts here: the wall orientation, x */
-    float wallOrientY; /* 0x4B4, the wall orientation, y */
-    float wallOrientZ; /* 0x4B8, the wall orientation, z */
-    char pad4BC[4];
-    float cliffOrientX; /* 0x4C0, the cliff orientation, x */
-    float cliffOrientY; /* 0x4C4, the cliff orientation, y */
-    float cliffOrientZ; /* 0x4C8, the cliff orientation, z */
-    char pad4CC[68];
-    float ditchPosX; /* 0x510, the ditch position, x */
-    float ditchPosY; /* 0x514, the ditch position, y */
-    float ditchPosZ; /* 0x518, the ditch position, z */
-    char pad51C[20];
+    float wallOrient[4];     /* 0x4B0, act-env.h's ActEnv starts here: the wall orientation */
+    float cliffOrient[4];    /* 0x4C0, the cliff orientation */
+    float torchOrient[4];    /* 0x4D0, the direction to the torch to light (actCommonCatchFire) */
+    float torchRevOrient[4]; /* 0x4E0, the direction to the torch to put out (actCommonPutFire) */
+    char pad4F0[32];
+    float ditchPos[4]; /* 0x510, the ditch position */
+    char pad520[16];
     unsigned char byte530; /* 0x530 */
-    char pad531[63];
-    float edgePosX; /* 0x570, the edge position, x */
-    char pad574[4];
-    float edgePosZ; /* 0x578, the edge position, z */
-    float edgePosW; /* 0x57C, the edge position's fourth word */
+    char pad531[47];
+    float sofaOrient[4]; /* 0x560, the sofa seat orientation (GetSofaPosition) */
+    float edgePos[4];    /* 0x570, the edge position, [3] nonzero while it is to be taken */
     char pad580[32];
-    float pullPosX; /* 0x5A0, the pull position, x */
-    float pullPosY; /* 0x5A4, the pull position, y */
-    float pullPosZ; /* 0x5A8, the pull position, z */
-    char pad5AC[4];
-    float sofaPosX; /* 0x5B0, the sofa position, x */
-    float sofaPosY; /* 0x5B4, the sofa position, y */
-    float sofaPosZ; /* 0x5B8, the sofa position, z */
-    char pad5BC[4];
-    float turnDirX; /* 0x5C0, the direction the enemy turns from, x */
-    float turnDirY; /* 0x5C4, the direction the enemy turns from, y */
-    float turnDirZ; /* 0x5C8, the direction the enemy turns from, z */
-    char pad5CC[20];
+    float pullPos[4]; /* 0x5A0, the pull position */
+    float sofaPos[4]; /* 0x5B0, the sofa seat position (GetSofaPosition) */
+    float turnDir[4]; /* 0x5C0, the direction the enemy turns from */
+    char pad5D0[16];
     int wallWord;      /* 0x5E0, the wall's attribute word */
     int cliffSel;      /* 0x5E4, the cliff selection */
     float cliffHeight; /* 0x5E8, the cliff height */

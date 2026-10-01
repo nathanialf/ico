@@ -41,6 +41,7 @@
 #include <assert.h>
 #include "poly-flat.h"
 #include "fieldCollision.h"
+#include "motionManager2.h"
 
 typedef struct {
     int a, b, c;
@@ -206,9 +207,6 @@ void findChainInJump(void *self)
     }
 }
 
-/* kept local: agrees with motionManager2.h, which this TU does not include */
-extern void GetRootProjectionPosOfGObj(float *pos, GObj *obj);
-
 /* dir: subBoyCollision passes the motion direction (sub + 0x120) in $6; this
    body never reads it */
 int CorrectOrient_RopeCliff(float *out, void *gobj, float *dir)
@@ -326,9 +324,6 @@ void motBoyHand50(GObj *volatile a0)
         _ACTWait(1);
     }
 }
-
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern void SetMotionDirection(void *a0, float *a1);
 
 /* boyact.c rows 1522-1529 of the listing: the shared "face the girl" prologue
    the b100climb.h / b200climb.h climb motions open with. */
@@ -527,9 +522,6 @@ done:
     }
 }
 
-/* kept local: agrees with motionManager2.h, which this TU does not include */
-extern float GetHeightOfFieldPlaneDifference(GObj *a, GObj *b);
-
 /* One 0x50-byte record per act status, indexed by sub->0x34. */
 
 /* boyact.c:1547 and :1562 are one source line each: ABSF applied TWICE to the
@@ -585,9 +577,6 @@ static BoyWallHit sofaWallHit; /* derived name */
 static int attrWallHit[3]; /* derived name */
 
 static long long boyInfo[12]; /* derived name */
-
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern int CheckFloorAttribute(GObj *self, int attr);
 
 void CheckCollisionAttr(void *self)
 {
@@ -877,11 +866,7 @@ int GetChainSlope(void)
 
 /* kept local: this TU's uses of these do not fit the prototypes in the headers
    the rest of the file reaches. */
-/* kept local: agrees with motionManager2.h, which this TU does not include */
-extern void _GetMotionDirection(float *dir, GObj *obj);
 extern float GetDifferenceFromLowerField(int self, int a1);
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern int GetMotionFrameFlag1(char *self);
 extern void IncreasePdlChain(int id);
 extern void DecreasePdlChain(int id);
 /* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
@@ -1241,8 +1226,8 @@ void subBoyControl(GObj *volatile a0)
             break;
         case 26:
             if (0.1f < s->stickMag && !((unsigned int)(s->stickAngle + 134) < 269)) {
-                sceVu0ScaleVector((char *)GOBJ_ACT(a0)->work + 0x360,
-                                  (char *)GOBJ_ACT(a0)->work + 0x8D0, -1.0f);
+                sceVu0ScaleVector(GOBJ_WORK(a0)->fallDir, (char *)GOBJ_ACT(a0)->work + 0x8D0,
+                                  -1.0f);
                 ACTSendMailCorrect(a0, 0x139);
             }
             break;
@@ -1701,9 +1686,6 @@ void InitSwapWeapon(void *self)
         BOYINFO.f48 = row->rot[2] * 3.1415927f / 180.0f;
     }
 }
-
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern void InitMotionGeoInfo(char *self, float x, float y, float z, float rx, float ry, float rz);
 
 void PutWeapon(void)
 {
@@ -2404,8 +2386,6 @@ void subBoyCollision(GObj *volatile a0)
 }
 
 inline void afterBoySwim(GObj *volatile a0);
-/* kept local: agrees with motionManager2.h, which this TU does not include */
-extern int GetSkeltonFocusNode(GObj *a0, int a1);
 extern void MoveFloatingBox(void *box, int self, void *m, void *p, float d);
 
 /* the record Act+0x680 points at, with the fields actBoyBelift and actBoySwim
@@ -2551,8 +2531,6 @@ inline void actBoyFall(GObj *volatile a0)
 }
 
 extern void BoyAttackCenter(int a0);
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern void SetMotionDirectionWithLimit(void *self, float *dir, float lim0, float lim1);
 
 /* INTERIM: ACTSearchEnemy is a file-scope `inline` in the original TU (rows
    1671/1674, around ACTSearchGObj's 1644-1661; see ACTSearchGObj_inl above
@@ -2588,9 +2566,6 @@ void actBoyAttack(GObj *volatile a0)
         _ACTWait(1);
     }
 }
-
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern void SetMotionDirection(void *a0, float *a1);
 
 void actBoyTakeWeaponReady(GObj *volatile a0)
 {
@@ -2910,10 +2885,6 @@ void actBoyPullupGo(GObj *volatile a0)
     }
 }
 
-/* kept local: motionManager2.h lists the parameters as (self, obj, x, y, z, mode, node, w, quat);
-   the callers pass them in this order */
-extern void SetMotionNodeFixModeParameter(char *self, char *obj, int mode, int node, void *quat,
-                                          float x, float y, float z, float w);
 extern void InsertCamera_Set(float *pos, float *tgt, int frames);
 
 void actBoyBelift(GObj *volatile a0)
@@ -3556,9 +3527,9 @@ inline void actBoyHangBefore(GObj *volatile a0)
     Act *sub = GOBJ_ACT(a0);
 
     ACTAdjustPlane(a0, (char *)HANG_TARGET(a0) + 0x8C0);
-    HANG_TARGET(a0)->f470 = sub->cliffOrientX;
-    HANG_TARGET(a0)->f474 = sub->cliffOrientY;
-    HANG_TARGET(a0)->f478 = sub->cliffOrientZ;
+    HANG_TARGET(a0)->f470 = sub->cliffOrient[0];
+    HANG_TARGET(a0)->f474 = sub->cliffOrient[1];
+    HANG_TARGET(a0)->f478 = sub->cliffOrient[2];
     HANG_TARGET(a0)->f480 = *(S12 *)((char *)sub + 0x630);
     while (1) {
         ACTSendMailCorrect(a0, 0x128);

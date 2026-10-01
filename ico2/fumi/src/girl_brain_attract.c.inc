@@ -268,12 +268,12 @@ restart:
         tgt = attractSofaParam;
         tgt.obj = cur;
         GetSofaPosition(girlGObj, (char *)param);
-        tgt.pos[0] = sub->sofaPosX;
-        tgt.pos[1] = sub->sofaPosY;
-        tgt.pos[2] = sub->sofaPosZ;
-        ((GirlSofaWork *)GOBJ_ACT(a0)->enemy)->pos[0] = sub->sofaPosX;
-        ((GirlSofaWork *)GOBJ_ACT(a0)->enemy)->pos[1] = sub->sofaPosY;
-        ((GirlSofaWork *)GOBJ_ACT(a0)->enemy)->pos[2] = sub->sofaPosZ;
+        tgt.pos[0] = sub->sofaPos[0];
+        tgt.pos[1] = sub->sofaPos[1];
+        tgt.pos[2] = sub->sofaPos[2];
+        ((GirlSofaWork *)GOBJ_ACT(a0)->enemy)->pos[0] = sub->sofaPos[0];
+        ((GirlSofaWork *)GOBJ_ACT(a0)->enemy)->pos[1] = sub->sofaPos[1];
+        ((GirlSofaWork *)GOBJ_ACT(a0)->enemy)->pos[2] = sub->sofaPos[2];
         _GetRootObjectOrient(((GirlSofaWork *)GOBJ_ACT(a0)->enemy)->dir, param);
         tgt.dir[0] = ((GirlSofaWork *)GOBJ_ACT(a0)->enemy)->dir[0];
         tgt.dir[1] = ((GirlSofaWork *)GOBJ_ACT(a0)->enemy)->dir[1];
@@ -458,7 +458,7 @@ restart:
                     break;
                 }
             } else if (type == 1) {
-                if (tgt.obj != (void *)boyGObj && GOBJ_WORK(a0)->timer3A4 != 0) {
+                if (tgt.obj != (void *)boyGObj && GOBJ_WORK(a0)->sofaRestTimer != 0) {
                     setMode(8);
                     sub->stickMag = 0.0f;
                     break;
