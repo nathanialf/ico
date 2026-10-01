@@ -1,4 +1,5 @@
 #include "debug.h"
+#include "Basic.h"
 #include "memory.h"
 #include "DisplayList.h"
 #include "MicroCode.h"
@@ -668,8 +669,6 @@ void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
 typedef struct { /* field names derived */
     long long d[2];
 } PrimQw; /* derived name */
-
-extern void malloc_MemCpy(void *dst, void *src, int n);
 
 PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, int a1, char *name,
                                            int a3, void *heap)

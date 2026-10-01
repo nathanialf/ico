@@ -844,8 +844,6 @@ void tex_convertImage(void *dst, void *src, short fmt, short w, short h)
     sceGsSyncPath(0, 0);
 }
 
-extern void malloc_MemCpy(void *dst, void *src, int n);
-
 void tex_makeCopyImage(Tim2Picture *pic, CdvdRec *t, char *src, int convert)
 {
     Tim2Mipmap *mip = (Tim2Mipmap *)(pic + 1);

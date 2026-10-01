@@ -35,6 +35,15 @@ typedef struct PObjMatDef { /* field names derived */
     float alpha; /* 0x0C */
 } PObjMatDef;    /* derived name */
 
+/* one texture a part names, 0x90 bytes: the texture's name and the scale its
+ * texture coordinates are multiplied by */
+typedef struct PObjTexDef { /* field names derived */
+    char name[132];         /* 0x00 */
+    float scaleU;           /* 0x84 */
+    float scaleV;           /* 0x88 */
+    char pad8C[4];
+} PObjTexDef; /* derived name */
+
 /* The display's view of the model record ico2/common/src/PObj.c builds (its
  * PObj) and of the 0x180-byte part record the model's 0x40 points at (its
  * PObjSub).  Sub15C + 0x854 holds the object's model and + 0x858 the shadow
@@ -56,16 +65,18 @@ typedef struct PObjPart { /* field names derived */
     char padC4[12];
     PObjMatDef *mats;      /* 0xD0 */
     unsigned int matCount; /* 0xD4 */
-    char padD8[12];
-    int texCount; /* 0xE4 */
+    char padD8[8];
+    PObjTexDef *texDefs; /* 0xE0 */
+    int texCount;        /* 0xE4 */
     char padE8[8];
     void *polys;            /* 0xF0 */
     unsigned int polyCount; /* 0xF4 */
     char padF8[8];
     void *strips;            /* 0x100 */
     unsigned int stripCount; /* 0x104 */
-    char pad108[12];
-    int lineCount; /* 0x114 */
+    char pad108[8];
+    char *lines;            /* 0x110, 80 bytes a line */
+    unsigned int lineCount; /* 0x114 */
     char pad118[8];
     PObjMorph **morphs;      /* 0x120 */
     unsigned int morphCount; /* 0x124 */
@@ -104,18 +115,33 @@ typedef struct PObjMaterial { /* field names derived */
     char pad68[8];
 } PObjMaterial; /* derived name */
 
+/* one texture slot of a part, 80 bytes, pac_getTextureInfo fills it: the
+ * texture's name and the names with "_l" and "_ref" appended, the three
+ * texture numbers (-1 where there is none), and a bit per number found:
+ * bit 0 the texture (or no texture asked for), bit 1 "_l", bit 2 "_ref" */
+typedef struct PObjTexInfo { /* field names derived */
+    char name[24];           /* 0x00 */
+    char nameL[24];          /* 0x18 */
+    char nameRef[24];        /* 0x30 */
+    short tex;               /* 0x48 */
+    short texL;              /* 0x4A */
+    short texRef;            /* 0x4C */
+    unsigned short found;    /* 0x4E */
+} PObjTexInfo;               /* derived name */
+
 /* one part's group record, 48 bytes a part: the part's material table (0x70
- * bytes a material), its texture-info table, its first packet, its morph
- * packets and the two table counts */
+ * bytes a material), its texture-info table, its first packet (a PacHeader;
+ * a line part's record is Packet.c's MatLine, whose 0x08 is the line set),
+ * the copies of the packets the morphs rewrite and the two table counts */
 typedef struct PObjGroup {   /* field names derived */
     PObjMaterial *materials; /* 0x00 */
-    char *texs;              /* 0x04 */
+    PObjTexInfo *texs;       /* 0x04 */
     void *packets;           /* 0x08 */
-    struct PacHeader *morph; /* 0x0C */
+    void *morph;             /* 0x0C */
     short matCount;          /* 0x10 */
     short texCount;          /* 0x12 */
-    char pad14[28];
-} PObjGroup; /* derived name */
+    char name[28];           /* 0x14, the model's name, in the first part's record */
+} PObjGroup;                 /* derived name */
 
 typedef struct PObjModel { /* field names derived */
     char name[36];         /* 0x00 */

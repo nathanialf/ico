@@ -103,7 +103,7 @@ void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, PObjMaterial *ma
             n = *(short *)v;
             v += 0x10;
             while (pk != 0) {
-                if (*(short *)(v + 0xE) == pk->shape && *(short *)(v + 0xC) == pk->mat) {
+                if (*(short *)(v + 0xE) == pk->texSlot && *(short *)(v + 0xC) == pk->mat) {
                     break;
                 }
                 pk = pk->next;
@@ -190,7 +190,7 @@ int reg_clipPacketBoundingBox(PacHeader *pk)
 
     _SetCurrentMatrix(matrixptr + 0x300);
 
-    type = ((unsigned char *)&pk->size)[3];
+    type = pk->clip;
     switch (type) {
     case 0:
         ret = -1;
@@ -684,7 +684,7 @@ static void reg_dispSpecular(PacHeader *a0, int a1, int a2) /* derived name */
     dl_OpenDma(2, regSpecularPacket, 5);
     dl_CloseDma();
     reg_chooseSpecularMicroCode(a2, a1, 4);
-    dl_OpenDma(2, a0->data, (a0->size & 0xFFFFFF) >> 4);
+    dl_OpenDma(2, a0->data, a0->size >> 4);
     dl_CloseDma();
 }
 
@@ -879,7 +879,7 @@ void reg_dispNObj(Sub15C *o)
                         regTransTexturePacket(pkt->tex, pri);
                         reg_transMaterialPacket(pkt, grp);
                         reg_chooseMicroCode(&grp->materials[pkt->mat], r, pri);
-                        dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
+                        dl_OpenDma(2, pkt->data, pkt->size >> 4);
                         dl_CloseDma();
                         if (o->lightMtx->mode == 2) {
                             if (pkt->tex1 != -1) {
@@ -897,7 +897,7 @@ void reg_dispNObj(Sub15C *o)
                             dl_OpenDma(2, regReflectionPacket, 6);
                             dl_CloseDma();
                             reg_chooseReflectionMicroCode(0, r, 4);
-                            dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
+                            dl_OpenDma(2, pkt->data, pkt->size >> 4);
                             dl_CloseDma();
                             if (mode == 0) {
                                 mc_TransMicroCode(1, 0x10);
@@ -991,7 +991,7 @@ void reg_dispMObj(Sub15C *o)
                     }
                     if (dis != -1) {
                         reg_chooseMicroCode(&grp->materials[pkt->mat], r, pri);
-                        dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
+                        dl_OpenDma(2, pkt->data, pkt->size >> 4);
                         dl_CloseDma();
                         if (o->lightMtx->mode == 2) {
                             if (pkt->tex1 != -1) {
@@ -1009,7 +1009,7 @@ void reg_dispMObj(Sub15C *o)
                             dl_OpenDma(2, regReflectionPacket, 6);
                             dl_CloseDma();
                             reg_chooseReflectionMicroCode(0, r, 4);
-                            dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
+                            dl_OpenDma(2, pkt->data, pkt->size >> 4);
                             dl_CloseDma();
                             if (mode == 0) {
                                 mc_TransMicroCode(1, 0x10);
@@ -1060,7 +1060,7 @@ void reg_dispSObj(Sub15C *o, int idx)
                 regTransTexturePacket(pkt->tex, pri);
                 reg_transMaterialPacket(pkt, grp);
                 reg_chooseMicroCode(&grp->materials[pkt->mat], r, pri);
-                dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
+                dl_OpenDma(2, pkt->data, pkt->size >> 4);
                 dl_CloseDma();
                 if (o->lightMtx->mode == 2) {
                     if (pkt->tex1 != -1) {
@@ -1078,7 +1078,7 @@ void reg_dispSObj(Sub15C *o, int idx)
                     dl_OpenDma(2, regReflectionPacket, 6);
                     dl_CloseDma();
                     reg_chooseReflectionMicroCode(0, r, 4);
-                    dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
+                    dl_OpenDma(2, pkt->data, pkt->size >> 4);
                     dl_CloseDma();
                     if (mode == 0) {
                         mc_TransMicroCode(1, 0x10);
@@ -1126,7 +1126,7 @@ void reg_dispCObj(Sub15C *o)
             regTransTexturePacket(pkt->tex, pri);
             reg_transMaterialPacket(pkt, grp);
             reg_chooseMicroCode(&grp->materials[pkt->mat], 0, pri);
-            dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
+            dl_OpenDma(2, pkt->data, pkt->size >> 4);
             dl_CloseDma();
             if (debug_specular_flag == 2 && o->lightMtx->mode == 2) {
                 if (pkt->tex1 != -1) {
@@ -1622,7 +1622,7 @@ void reg_DispAccessoryWithShadow(Sub15C *o, Sub15C *src)
                         regTransTexturePacket(pkt->tex, pri);
                         reg_transMaterialPacket(pkt, grp);
                         reg_chooseMicroCode(&grp->materials[pkt->mat], r, pri);
-                        dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
+                        dl_OpenDma(2, pkt->data, pkt->size >> 4);
                         dl_CloseDma();
                         if (o->lightMtx->mode == 2) {
                             if (pkt->tex1 != -1) {
@@ -1640,7 +1640,7 @@ void reg_DispAccessoryWithShadow(Sub15C *o, Sub15C *src)
                             dl_OpenDma(2, regReflectionPacket, 6);
                             dl_CloseDma();
                             reg_chooseReflectionMicroCode(0, r, 4);
-                            dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
+                            dl_OpenDma(2, pkt->data, pkt->size >> 4);
                             dl_CloseDma();
                             if (mode == 0) {
                                 mc_TransMicroCode(1, 0x10);
@@ -1685,7 +1685,7 @@ void reg_RenderReflection(Sub15C *o, int pri)
                 regTransTexturePacket(pkt->tex, pri);
                 reg_transMaterialPacket(pkt, grp);
                 reg_chooseMicroCode(&grp->materials[pkt->mat], r, pri);
-                dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
+                dl_OpenDma(2, pkt->data, pkt->size >> 4);
                 dl_CloseDma();
             }
             pkt = pkt->next;
@@ -1803,7 +1803,7 @@ void reg_DispEnemy(void *sub)
                 regTransTexturePacket(pkt->tex, pri);
                 reg_transMaterialPacket(pkt, grp);
                 reg_chooseMicroCode(&grp->materials[pkt->mat], 0, pri);
-                dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
+                dl_OpenDma(2, pkt->data, pkt->size >> 4);
                 dl_CloseDma();
                 pkt = pkt->next;
             }
@@ -1879,7 +1879,7 @@ void reg_DispMultiPri(Sub15C *o, int pri)
                 }
                 if (dis != -1) {
                     reg_chooseMicroCode(&grp->materials[pkt->mat], r, pri);
-                    dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
+                    dl_OpenDma(2, pkt->data, pkt->size >> 4);
                     dl_CloseDma();
                     if (o->lightMtx->mode == 2) {
                         if (pkt->tex1 != -1) {
@@ -1897,7 +1897,7 @@ void reg_DispMultiPri(Sub15C *o, int pri)
                         dl_OpenDma(2, regReflectionPacket, 6);
                         dl_CloseDma();
                         reg_chooseReflectionMicroCode(0, r, 4);
-                        dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
+                        dl_OpenDma(2, pkt->data, pkt->size >> 4);
                         dl_CloseDma();
                         if (mode == 0) {
                             mc_TransMicroCode(1, 0x10);

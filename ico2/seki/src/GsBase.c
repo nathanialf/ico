@@ -23,6 +23,7 @@
 #include "Matrix.h"
 #include "DmaPacket.h"
 #include "DisplayList.h"
+#include "main.h"
 #include <libgraph.h>
 #include <libcdvd.h>
 
@@ -97,11 +98,6 @@ void gsb_SetFrame(sceGsDBuff *db, int a1, int a2, int psm, short zbp)
     sceGsSetDefDispEnv(&db->disp[0], 0, w, h, 0, 0);
     sceGsSetDefDispEnv(disp1, 0, w, h, 0, 0);
 }
-
-/* as in main.h, which this TU does not include */
-extern int systemStatus[];
-/* as in main.h, which this TU does not include */
-extern int buffer_ID;
 
 /* Bring the GS up for the frame size the stage record asks for: 512 by 448
  * interlaced, 512 by 512 in the tall mode and 512 by 448 otherwise, then set
@@ -208,13 +204,6 @@ static int reductionRed; /* derived name */
 static int reductionGreen; /* derived name */
 
 static int reductionBlue; /* derived name */
-
-/* as in main.h, which this TU does not include */
-extern int optionScreenMode;
-/* as in main.h, which this TU does not include */
-extern StageSetting GlobalStageSetting;
-/* as in main.h, which this TU does not include */
-extern PadState pad[16];
 
 /* Reduce the frame into the feedback area: one 22 qword GIF packet, built on
  * the stack and sent down the GIF channel by hand, that first clears the
@@ -687,11 +676,6 @@ void gsb_setParticleReg(int ctx)
     gif_EndPacketPath1();
 }
 
-/* as in main.h, which this TU does not include */
-extern int game_pause;
-/* as in main.h, which this TU does not include */
-extern char *matrixptr;
-
 /* the head of the common matrix packet: the three constant rows of the VU
    parameter block (the unit w, the clip extents and a zero row) and the GIF
    tag of the strip the microcode sends */
@@ -903,13 +887,6 @@ int gsb_PostEffect(void)
 /* gsb_InitGSSystem's first call brings every module up */
 static int firstGsInit = 1; /* derived name */
 
-/* as in main.h, which this TU does not include */
-extern int screen_offset_y;
-/* as in main.h, which this TU does not include */
-extern int screen_offset_x;
-/* sceGsDBuff here, int [140] in main.h */
-extern sceGsDBuff db;
-
 void gsb_InitGSSystem(void)
 {
     screen_offset_y = 0;
@@ -979,13 +956,6 @@ inline int gsb_SyncGSSystem(void)
     gsb_PostEffect();
     return 0;
 }
-
-/* as in main.h, which this TU does not include */
-extern int frame_count;
-/* as in main.h, which this TU does not include */
-extern int odd_even;
-/* as in main.h, which this TU does not include */
-extern int GlobalTimer;
 
 /* One frame boundary: take the field parity from the GS CSR, run the
  * reduction pass, flip the double buffer and hand the display list back
@@ -1286,9 +1256,6 @@ typedef struct sceCdCLOCK {
     unsigned char month;
     unsigned char year;
 } sceCdCLOCK;
-
-/* as in main.h, which this TU does not include */
-extern int stage_no;
 
 inline int gsb_LoadStageSettings(void)
 {

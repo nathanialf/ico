@@ -109,9 +109,9 @@ inline int freeseki(void *a0)
     }
 }
 
-void malloc_MemCpy(int a0, int a1, int a2, int a3)
+void malloc_MemCpy(void *dst, void *src, int size)
 {
-    memcpy(a0, a1, a2, a3);
+    memcpy(dst, src, size);
 }
 
 /* The DMA channel handles and the screen fade state. */

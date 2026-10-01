@@ -20,6 +20,7 @@ int reallocseki(int size, int align);
 
 void dma_init(void);
 void matrix_init(void);
+void malloc_MemCpy(void *dst, void *src, int size);
 
 /* ABSF and SIGNF below: a float's absolute value and its sign (-1, 0 or 1).
  * Texture.c's tex_scrollClut takes the sign of an int through them and
