@@ -23,13 +23,6 @@ static int demoEnd;
 
 extern PadState D_0028F8F0[];
 /* st13a.o's own .sdata run; MAIN.MAP names all seven. */
-extern int st13a_up;
-extern int st13a_down;
-extern int sekizo13a;
-extern unsigned int st13a_yure;
-extern unsigned char st13a_yure_vol;
-extern int sekizo_13a;
-extern unsigned char sekizo_13a_vol;
 void actSt13aElevUpSub(volatile int a0);
 void actSt13aElevDownSub(volatile int a0);
 void actSt13aElevDownChk(volatile int a0);
@@ -61,6 +54,21 @@ static ActMail chainOk_mes[2] = {{430}, {429}};
 static ActMail chainOK_mes[2] = {{430}, {429}};
 
 static ActMail chainNG_mes[2] = {{430}, {429}};
+
+/* .sdata, owned by st13a.o, in the ROM's order: the lift and statue stream handles and shakes. */
+int st13a_up = 0;
+
+int st13a_down = 0;
+
+int sekizo13a = 0;
+
+unsigned int st13a_yure = 0;
+
+unsigned char st13a_yure_vol = 0;
+
+int sekizo_13a = 0;
+
+unsigned char sekizo_13a_vol = 0;
 
 void actSt13aElevUpSub(volatile int a0)
 {

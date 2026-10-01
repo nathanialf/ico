@@ -7,6 +7,7 @@
 #include "mv_vibuf.h"
 #include "mv_vobuf.h"
 #include "typedef.h"
+#include "ios.h"
 
 /* the MPEG library's callbacks; their out-of-line copies are deferred to the
    end of the file */
@@ -52,7 +53,6 @@ void free_buf(int a0)
 extern void debug_assert(const char *file, int line);
 extern void __assert(const char *file, int line, const char *expr);
 extern void *memset(void *p, int c, int n);
-extern int D_0063A468;
 extern int sceMpegCreate(void *self, void *buf, int size);
 extern int sceMpegAddCallback(void *self, int id, void *fn, void *arg);
 
@@ -60,7 +60,7 @@ int videoDecCreate(int self)
 {
     int p;
 
-    p = iosMallocAlignDebug(D_0063A468, 0x1C8200, 0x40, "../ito/include/mv_defs.h", 0x2B);
+    p = iosMallocAlignDebug(ios_partition_mpeg, 0x1C8200, 0x40, "../ito/include/mv_defs.h", 0x2B);
     if (p == 0) {
         debug_assert("../ito/include/mv_defs.h", 0x2C);
         __assert("../ito/include/mv_defs.h", 0x2C, "p != NULL");

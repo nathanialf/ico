@@ -12,6 +12,9 @@
 #ifndef ST05E_H
 #define ST05E_H
 
+/* st05e.o's .sdata globals (MAIN.MAP) */
+extern int solar;
+
 void actSt05eSolarChk(volatile int a0);
 void actSt05eWaterFlagOn(volatile int a0);
 void actSt05eWaterMain(volatile int a0);

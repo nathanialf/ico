@@ -14,6 +14,7 @@
 #include <string.h>
 #include "GsBase.h"
 #include "motionFileManager.h"
+#include "ios.h"
 
 struct MvObj;
 
@@ -62,7 +63,6 @@ static float motionSpeed = 1.0f; /* derived name */
 
 extern MotionOrientEntry D_002ADD60[];
 extern char D_005D1278[][0x20];
-extern int D_0063A438;
 
 static inline int countMotionKinds(int id, int from, int to)
 {
@@ -85,7 +85,7 @@ static inline int makeMotionKindList(MvMenuEnt *ent, int base)
     int i;
     int k;
 
-    list = iosMallocDebug(D_0063A438, n * 8, __FILE__, 93);
+    list = iosMallocDebug(ios_partition_sugipon, n * 8, __FILE__, 93);
     if (n) {
         k = 0;
         for (i = from; i < to; i++) {

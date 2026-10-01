@@ -1,6 +1,7 @@
 #include "matrixDrive.h"
 #include "quaternion.h"
 #include "multiBgaManager.h"
+#include "ios.h"
 
 /* the TU's whole .data */
 BgaAnimeState InitialBgaMultiAnimeState = {
@@ -12,7 +13,6 @@ BgaAnimeState InitialBgaMultiAnimeState = {
     0,
 };
 
-extern int D_0063A438;
 extern int D_0028F4C0[];
 /* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
 extern void _AddVector(void *a0, void *a1, void *a2);
@@ -33,7 +33,8 @@ static inline void entryMultiBga(BgaDisp *bga, int no, int kind, void *pos, void
 
 void *InitMultiBgaManager(int n)
 {
-    MultiBga *base = (MultiBga *)iosMallocDebug(D_0063A438, n * 0x50, "src/multiBgaManager.c", 11);
+    MultiBga *base =
+        (MultiBga *)iosMallocDebug(ios_partition_sugipon, n * 0x50, "src/multiBgaManager.c", 11);
     int i;
     for (i = 0; i < n; i++) {
         base[i] = *(MultiBga *)&InitialBgaMultiAnimeState;

@@ -42,10 +42,6 @@ extern Pad D_0028F8F0[];
 extern PObjGObjSt10L *scpSearchGobj(int a0);
 /* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
-extern int floor10l;
-extern int st10l_gondola_up;
-extern int st10l_gondola_down;
-extern int chain10l;
 /* kept local: script.h's prototypes do not fit this TU's calls */
 extern int scpBoyControlReadDisable;
 extern int D_00639EA4;
@@ -151,6 +147,15 @@ static ActMail chain_mes[2] = {{430}, {429}};
 static ActMail chainSwitch_mes[2] = {{430}, {429}};
 
 static ActMail eneKill_mes[2] = {{430}, {429}};
+
+/* .sdata, owned by st10l.o, in the ROM's order: the floor, gondola and chain stream handles. */
+int floor10l = 0;
+
+int st10l_gondola_up = 0;
+
+int st10l_gondola_down = 0;
+
+int chain10l = 0;
 
 void actSt10lInit(void)
 {

@@ -12,6 +12,9 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
+/* message.o's .sdata global (MAIN.MAP): the signal thread's record */
+extern int *th_sig;
+
 void iosMsgInit(void);
 void iosMsgQueueCreate(void *q, void *buf, int n);
 void iosMsgQueueDestroy(void *q);

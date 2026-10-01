@@ -87,10 +87,23 @@ extern void scpPlayPosSet(int a0, float x, float y, float z);
 extern void scpPlayWaitMotEnd(int a0);
 /* kept local: this TU's uses of ScpCallCameraSetTarget do not fit the prototype in script.h */
 extern void ScpCallCameraSetTarget(float x, float y, float z);
+
 /* file-static sound / pad handles, .sbss 0x0063C05C..0x0063C078 */
-extern int sekizo47a;
-extern int sekizo_47a;
-extern unsigned char sekizo_47a_vol;
+
+/* .sdata, owned by st47a.o, in the ROM's order: the statue and wing stream handles and the statue's shake. */
+int sekizo47a = 0;
+
+int hane1up = 0;
+
+int hane2up = 0;
+
+int hane1down = 0;
+
+int hane2down = 0;
+
+int sekizo_47a = 0;
+
+unsigned char sekizo_47a_vol = 0;
 
 void actSt47aSekizo1Chk(volatile int a0)
 {
@@ -211,8 +224,8 @@ extern int scpFadeChk(void);
    pad, trg at 0x4. */
 
 extern Pad D_0028F8F0[];
+
 /* file-static sound handles, .sbss 0x0063C05C..0x0063C078 */
-extern int hane1down;
 
 static ActMail sekizo1_mes[2] = {{430}, {429}};
 
@@ -304,7 +317,6 @@ void actSt47aHane1Down(volatile int a0)
 
 /* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
-extern int hane1up;
 
 void actSt47aHane1Up(volatile int a0)
 {
@@ -365,8 +377,6 @@ void actSt47aHane1Up(volatile int a0)
     _ACTWait(0);
 }
 
-extern int hane2down;
-
 void actSt47aHane2Down(volatile int a0)
 {
     Act *self = ((PObjGObj *)a0)->act;
@@ -416,8 +426,6 @@ void actSt47aHane2Down(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern int hane2up;
 
 void actSt47aHane2Up(volatile int a0)
 {

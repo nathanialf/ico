@@ -12,6 +12,11 @@
 #ifndef ST06A_H
 #define ST06A_H
 
+/* st06a.o's .sdata globals (MAIN.MAP) */
+extern int suimon;
+extern char *shutter;
+extern int toge;
+
 void actSt06aBallDeleteChk(volatile int a0);
 void actSt06aBox2Chk(volatile int a0);
 void actSt06aBox3Chk(volatile int a0);

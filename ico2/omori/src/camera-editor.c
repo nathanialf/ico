@@ -11,6 +11,7 @@
 #include <sifdev.h>
 #include <string.h>
 #include "typedef.h"
+#include "ios.h"
 
 typedef struct CamMgr {
     int count;        /* 0x00 */
@@ -19,14 +20,12 @@ typedef struct CamMgr {
     char flags[0x64]; /* 0x0C */
 } CamMgr;
 
-extern int D_0063A450;
-
 int curmenu;
 
 void EnterMenu(void *a0, int a1, void *a2)
 {
-    char *m = iosMallocDebug(D_0063A450, 0x78, __FILE__, 217);
-    iosThreadCreateS(m, 1, a0, m, D_0063A450, 0x1000, 0x17);
+    char *m = iosMallocDebug(ios_partition_oomori, 0x78, __FILE__, 217);
+    iosThreadCreateS(m, 1, a0, m, ios_partition_oomori, 0x1000, 0x17);
     *(int *)(m + 0x74) = a1;
     *(void **)(m + 0x70) = a2;
     iosThreadStart(m);
@@ -126,7 +125,7 @@ void saveEditedDataBinary(int no, int a1, int a2)
     S4C *data;
 
     size = GetSizeOfCameraSetBinary((S4C *)a1, a2) + 0x10;
-    buf = (int *)iosMallocDebug(D_0063A450, size, __FILE__, 404);
+    buf = (int *)iosMallocDebug(ios_partition_oomori, size, __FILE__, 404);
     data = (S4C *)(buf + 4);
     buf[2] = a2;
     buf[0] = 0x1234;

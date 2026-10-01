@@ -12,6 +12,12 @@
 #ifndef ST19A_H
 #define ST19A_H
 
+/* st19a.o's .sdata globals (MAIN.MAP) */
+extern char *fence_up_19a;
+extern char *fence_down_19a;
+extern char *hgrm_19a;
+extern char *pipe19a;
+
 void actSt19aChainDown(volatile int a0);
 void actSt19aChainDownSub(volatile int a0);
 void actSt19aChainMain(volatile int a0);

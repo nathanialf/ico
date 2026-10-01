@@ -28,7 +28,8 @@ typedef struct {
     /* 0x08 */ Fan2DVtx *buf;
 } Fan2D;
 
-extern void *D_0063A44C;
+/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+extern void *ios_partition_seki;
 
 Fan2D *prim_InitFan2D(int n, float *pos, unsigned int cc, unsigned int rc, float r)
 {
@@ -37,8 +38,8 @@ Fan2D *prim_InitFan2D(int n, float *pos, unsigned int cc, unsigned int rc, float
     Fan2DVtx *first;
     int i;
 
-    f = (Fan2D *)iosMallocDebug(D_0063A44C, 12, "src/Primitive.c", 318);
-    f->buf = (Fan2DVtx *)iosMallocDebug(D_0063A44C, (n + 2) * 32, "src/Primitive.c", 319);
+    f = (Fan2D *)iosMallocDebug(ios_partition_seki, 12, "src/Primitive.c", 318);
+    f->buf = (Fan2DVtx *)iosMallocDebug(ios_partition_seki, (n + 2) * 32, "src/Primitive.c", 319);
     q = f->buf;
 
     f->n = n;
@@ -382,12 +383,15 @@ Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col
     Mesh3D *m;
     int i;
 
-    m = (Mesh3D *)iosMallocDebug(D_0063A44C, 144, "src/Primitive.c", 576);
+    m = (Mesh3D *)iosMallocDebug(ios_partition_seki, 144, "src/Primitive.c", 576);
     m->nx = nx;
     m->ny = ny;
-    m->pos = (Prim3DVec *)iosMallocDebug(D_0063A44C, m->nx * 16 * m->ny, "src/Primitive.c", 579);
-    m->uv = (Prim3DVec *)iosMallocDebug(D_0063A44C, m->nx * 16 * m->ny, "src/Primitive.c", 580);
-    m->nrm = (Prim3DVec *)iosMallocDebug(D_0063A44C, m->nx * 16 * m->ny, "src/Primitive.c", 581);
+    m->pos =
+        (Prim3DVec *)iosMallocDebug(ios_partition_seki, m->nx * 16 * m->ny, "src/Primitive.c", 579);
+    m->uv =
+        (Prim3DVec *)iosMallocDebug(ios_partition_seki, m->nx * 16 * m->ny, "src/Primitive.c", 580);
+    m->nrm =
+        (Prim3DVec *)iosMallocDebug(ios_partition_seki, m->nx * 16 * m->ny, "src/Primitive.c", 581);
     for (i = 0; i < m->nx * m->ny; i++) {
         m->pos[i].x = m->pos[i].y = m->pos[i].z = 0.0f;
         m->pos[i].w = 1.0f;
@@ -403,8 +407,8 @@ Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col
 
     m->f78 = m->f54 * (m->f50 * (f58 + 2) + 4);
 
-    m->bufs[0] = iosMallocDebug(D_0063A44C, m->f78 * 16, "src/Primitive.c", 597);
-    m->bufs[1] = iosMallocDebug(D_0063A44C, m->f78 * 16, "src/Primitive.c", 598);
+    m->bufs[0] = iosMallocDebug(ios_partition_seki, m->f78 * 16, "src/Primitive.c", 597);
+    m->bufs[1] = iosMallocDebug(ios_partition_seki, m->f78 * 16, "src/Primitive.c", 598);
 
     _InitCurrentMatrix();
     _RotCurrentMatrixZ((short)((float)(rot % 4) * 3.1415927f * 0.5f * 10430.3779f));
@@ -1015,9 +1019,9 @@ void prim_DispWireBox(float *sz, void *col)
     }
 }
 
-extern void *D_0063A450;
+extern void *ios_partition_oomori;
 
 PrimParticle *prim_InitParticle(int num, float x, float y, float z, int a1, char *name, int a3)
 {
-    return prim_InitParticleByPartition(num, x, y, z, a1, name, a3, D_0063A450);
+    return prim_InitParticleByPartition(num, x, y, z, a1, name, a3, ios_partition_oomori);
 }

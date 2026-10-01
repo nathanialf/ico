@@ -1389,7 +1389,6 @@ extern char D_005D3F30[];
 /* The stage table sits in .rodata, so it is declared const: its loads are then
    unchanging and do not order against soundSeEnvNotUseClose's `p = 0` store. */
 extern const StgPre D_005F5D50[];
-extern int D_0063A458;
 extern int D_0028F4C0[];
 extern int SgGetSlotStatus(int a0, int a1);
 
@@ -1502,7 +1501,7 @@ void soundSeEnvPlay(void)
             slot->unk3C = e;
             soundSeEnvDefaultSet(slot);
             if (e->b0 == 1) {
-                slot->unk34 = iosMallocDebug(D_0063A458, 16, __FILE__, 1565);
+                slot->unk34 = iosMallocDebug(ios_partition_sound, 16, __FILE__, 1565);
             }
         }
     }

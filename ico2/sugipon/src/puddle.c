@@ -82,7 +82,8 @@ static float savedMatrix340[16]; /* derived name */
    memset there (ROM bytes 0x1BD6D0 frame). The non-standard prototype is
    what keeps the builtin off in this file. */
 extern void memset(void *p, int c, int n);
-extern void *D_0063A438;
+/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+extern void *ios_partition_sugipon;
 extern char D_002A79B8[];
 extern char *matrixptr;
 extern int stage_no;
@@ -93,7 +94,7 @@ int puddleRideFunc(char **a0, char *a1);
 
 PuddleWork *InitPuddleGeo(char *a0, char *a1)
 {
-    PuddleWork *w = (PuddleWork *)iosMallocDebug(D_0063A438, 0xD0, __FILE__, 69);
+    PuddleWork *w = (PuddleWork *)iosMallocDebug(ios_partition_sugipon, 0xD0, __FILE__, 69);
     float *v;
     int i;
 

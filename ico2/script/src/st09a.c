@@ -53,8 +53,10 @@ static ActMail hint1_mes[2] = {{430}, {429}};
 
 static ActMail hint2_mes[2] = {{430}, {429}};
 
-extern int st09a_brg;
 extern int D_0028F8F4[];
+
+/* .sdata, owned by st09a.o, in the ROM's order: the bridge stream handle. */
+int st09a_brg = 0;
 
 void actSt09aInit(void)
 {

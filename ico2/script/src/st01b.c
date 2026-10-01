@@ -88,9 +88,12 @@ typedef struct {
     int f2C;
 } FloorRec;
 
-extern FloorRec *st01b_floor;
-extern unsigned int st01b_yure;
-extern unsigned char st01b_yure_vol;
+/* .sdata, owned by st01b.o (MAIN.MAP globals) */
+FloorRec *st01b_floor = 0;
+
+unsigned int st01b_yure = 0;
+
+unsigned char st01b_yure_vol = 0;
 
 /* .sbss, owned by st01b.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the

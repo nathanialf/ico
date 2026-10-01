@@ -4,8 +4,6 @@
 #include "geometryManager.h"
 #include "matrixDrive.h"
 
-extern int D_0063A438; /* game heap handle */
-
 /* Per-object force-field state, hung off the actor's sub-object by the caller
    (GirlForceFieldDL reads it back at sub+0x830). */
 typedef struct GirlForceFieldWork {
@@ -22,6 +20,7 @@ typedef union GObjSubSlot {
 } GObjSubSlot;
 
 #include "girlForceField.h"
+#include "ios.h"
 
 /* The TU's .data (VMA 0x4EB430, 16 B = MAIN.MAP girlForceField.o .data): the
    girl's blue, the colour boy.c's position-sync marker draws her sphere in.
@@ -36,7 +35,7 @@ static int forceFieldColor[4] = {64, 96, 128, 128}; /* derived name */
 inline GirlForceFieldWork *InitGirlForceFieldGeo(char *self, char *param)
 {
     GirlForceFieldWork *w =
-        (GirlForceFieldWork *)iosMallocDebug(D_0063A438, 12, "src/girlForceField.c", 23);
+        (GirlForceFieldWork *)iosMallocDebug(ios_partition_sugipon, 12, "src/girlForceField.c", 23);
     float *c;
     w->radius = *(float *)(param + 0x28);
     w->invRadius = 1.0f / w->radius;

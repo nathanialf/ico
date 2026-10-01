@@ -18,7 +18,6 @@ typedef struct GProc {
 } GProc;
 
 extern void cut_gobj_process_link(GProc *p);
-extern int D_0063A430;
 
 /* .sbss, owned by gobj_process.o and reached only from this file (MAIN.MAP
    names no symbol in the run), in the ROM's run order: the process pool and
@@ -29,6 +28,7 @@ static int procMax;
 
 #include "gobj_process.h"
 #include "thread.h"
+#include "ios.h"
 
 void isysGObjProcessInit(unsigned int a0)
 {
@@ -37,7 +37,7 @@ void isysGObjProcessInit(unsigned int a0)
 
 inline void isysGObjProcessAlloc(unsigned int a0)
 {
-    int ret = iosMallocDebug(D_0063A430, a0 * 0x94, "isys/gobj_process.c", 73);
+    int ret = iosMallocDebug(ios_partition_isys, a0 * 0x94, "isys/gobj_process.c", 73);
     unsigned int i;
     procMax = a0;
     procPool = (char *)ret;
@@ -85,7 +85,7 @@ int isysGObjProcAdd_(int a0, int a1, int a2, unsigned char a3, int a4, int a5)
     }
     p->self = p;
     if (a3 == 0) {
-        iosThreadCreateS(p->thread, 1, a2, a1 ? a1 : (int)p, D_0063A430, a5, a4);
+        iosThreadCreateS(p->thread, 1, a2, a1 ? a1 : (int)p, ios_partition_isys, a5, a4);
         iosThreadStart(p->thread);
         p->func = 0;
     } else {

@@ -466,16 +466,17 @@ extern int game_pause;
 extern int D_00639EA0;
 /* the areas debug_Load parcels its files into; the report prints how much of
    each one is in use once the file has been allocated out of it */
-extern IosMemPart *D_0063A434; /* hara */
-extern IosMemPart *D_0063A438; /* sugi */
-extern IosMemPart *D_0063A43C; /* static object */
-extern IosMemPart *D_0063A440; /* dynamic motion */
-extern IosMemPart *D_0063A444; /* static motion */
-extern IosMemPart *D_0063A44C; /* seki */
-extern IosMemPart *D_0063A450; /* oomori */
-extern IosMemPart *D_0063A454; /* horagai */
-extern IosMemPart *D_0063A458; /* sound */
-extern IosMemPart *D_0063A45C; /* sound_semi */
+/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+extern IosMemPart *ios_partition_hara;       /* hara */
+extern IosMemPart *ios_partition_sugipon;    /* sugi */
+extern IosMemPart *ios_partition_common;     /* static object */
+extern IosMemPart *ios_partition_dmotion;    /* dynamic motion */
+extern IosMemPart *ios_partition_smotion;    /* static motion */
+extern IosMemPart *ios_partition_seki;       /* seki */
+extern IosMemPart *ios_partition_oomori;     /* oomori */
+extern IosMemPart *ios_partition_horagai;    /* horagai */
+extern IosMemPart *ios_partition_sound;      /* sound */
+extern IosMemPart *ios_partition_sound_semi; /* sound_semi */
 
 /* one glyph's image packet, built by debug_MakeFont and sent by
    debug_PrintCharacter: its size in quadwords and its address */
@@ -800,8 +801,6 @@ extern void iosMcChdirProduct(McReq *mc);
 extern void iosMcGetDir(McReq *mc);
 /* kept local: this TU's uses of iosMcSync do not fit the prototype in mcard.h */
 extern int iosMcSync();
-extern char D_004DA788[];
-extern char D_004DD700[];
 /* kept local: this TU's uses of iosMcGetBlockSaveInfo do not fit the prototype in mcard.h */
 extern void iosMcGetBlockSaveInfo(McReq *mc);
 /* kept local: this TU's uses of iosMcSaveIconBlock do not fit the prototype in mcard.h */
@@ -1308,61 +1307,61 @@ int debug_Load(char **dst, char *name, int kind)
         switch (kind) {
         case 0:
         default:
-            *dst = iosMallocDebug(D_0063A44C, sz, "src/debug.c", 1958);
+            *dst = iosMallocDebug(ios_partition_seki, sz, "src/debug.c", 1958);
             loadReport();
             debug_StdPrintfDummy(" to seki area.(%2.1f%%)\n",
-                                 (*dst + sz - D_0063A44C->start) * 100.0f / 10059776.0f);
+                                 (*dst + sz - ios_partition_seki->start) * 100.0f / 10059776.0f);
             break;
         case 1:
-            *dst = iosMallocDebug(D_0063A438, sz, "src/debug.c", 1965);
+            *dst = iosMallocDebug(ios_partition_sugipon, sz, "src/debug.c", 1965);
             loadReport();
             debug_StdPrintfDummy(" to sugi area.(%2.1f%%/%2.1f%%)\n", sz * 100.0f / 524288.0f,
-                                 (*dst + sz - D_0063A438->start) * 100.0f / 524288.0f);
+                                 (*dst + sz - ios_partition_sugipon->start) * 100.0f / 524288.0f);
             break;
         case 2:
-            *dst = iosMallocDebug(D_0063A43C, sz, "src/debug.c", 1973);
+            *dst = iosMallocDebug(ios_partition_common, sz, "src/debug.c", 1973);
             loadReport();
             debug_StdPrintfDummy(" to static object area.(%2.1f%%/%2.1f%%)\n", sz * 100.0f / 2.0f,
-                                 (*dst + sz - D_0063A43C->start) * 100.0f / 2.0f);
+                                 (*dst + sz - ios_partition_common->start) * 100.0f / 2.0f);
             break;
         case 3:
-            *dst = iosMallocDebug(D_0063A444, sz, "src/debug.c", 1982);
+            *dst = iosMallocDebug(ios_partition_smotion, sz, "src/debug.c", 1982);
             loadReport();
             debug_StdPrintfDummy(" to static motion area.(%2.1f%%/%2.1f%%)\n",
                                  sz * 100.0f / 1179648.0f,
-                                 (*dst + sz - D_0063A444->start) * 100.0f / 1179648.0f);
+                                 (*dst + sz - ios_partition_smotion->start) * 100.0f / 1179648.0f);
             break;
         case 5:
-            *dst = iosMallocDebug(D_0063A440, sz, "src/debug.c", 1991);
+            *dst = iosMallocDebug(ios_partition_dmotion, sz, "src/debug.c", 1991);
             loadReport();
             debug_StdPrintfDummy(" to dynamic motion area.(%2.1f%%/%2.1f%%)\n",
                                  sz * 100.0f / 3670016.0f,
-                                 (*dst + sz - D_0063A440->start) * 100.0f / 3670016.0f);
+                                 (*dst + sz - ios_partition_dmotion->start) * 100.0f / 3670016.0f);
             break;
         case 6:
-            *dst = iosMallocDebug(D_0063A434, sz, "src/debug.c", 2000);
+            *dst = iosMallocDebug(ios_partition_hara, sz, "src/debug.c", 2000);
             loadReport();
             debug_StdPrintfDummy(" to hara-area.(%2.1f%%)\n",
-                                 (*dst + sz - D_0063A434->start) * 100.0f);
+                                 (*dst + sz - ios_partition_hara->start) * 100.0f);
             break;
         case 7:
-            *dst = iosMallocDebug(D_0063A450, sz, "src/debug.c", 2007);
+            *dst = iosMallocDebug(ios_partition_oomori, sz, "src/debug.c", 2007);
             loadReport();
             debug_StdPrintfDummy(" to oomori area.(%2.1f%%)\n",
-                                 (*dst + sz - D_0063A450->start) * 100.0f / 327680.0f);
+                                 (*dst + sz - ios_partition_oomori->start) * 100.0f / 327680.0f);
             break;
         case 8:
-            *dst = iosMallocDebug(D_0063A454, sz, "src/debug.c", 2014);
+            *dst = iosMallocDebug(ios_partition_horagai, sz, "src/debug.c", 2014);
             loadReport();
             debug_StdPrintfDummy(" to horagai-area.\n");
             break;
         case 9:
-            *dst = iosMallocDebug(D_0063A458, sz, "src/debug.c", 2019);
+            *dst = iosMallocDebug(ios_partition_sound, sz, "src/debug.c", 2019);
             loadReport();
             debug_StdPrintfDummy(" to sound-area.\n");
             break;
         case 10:
-            *dst = iosMallocDebug(D_0063A45C, sz, "src/debug.c", 2024);
+            *dst = iosMallocDebug(ios_partition_sound_semi, sz, "src/debug.c", 2024);
             loadReport();
             debug_StdPrintfDummy(" to sound_semi-area.\n");
             break;
@@ -1390,7 +1389,7 @@ void debug_MakeFont(void)
     struct { float v[4]; char *volatile ptr; } w; /* the cursor is re-read from the frame at every push */
     char *base;
     unsigned short *a, *b; unsigned short m0, m1; int i, j, k, n;
-    base = iosMallocDebug(D_0063A44C, 1, "src/debug.c", 2069); w.ptr = base;
+    base = iosMallocDebug(ios_partition_seki, 1, "src/debug.c", 2069); w.ptr = base;
     *((int *)w.ptr)++ = 0x1400000C;
     *((int *)w.ptr)++ = 0;
     *((long long *)w.ptr)++ = 0;
@@ -1411,7 +1410,7 @@ void debug_MakeFont(void)
 
 
             fontPacket[i].qwc = n + 3;
-            w.ptr = fontPacket[i].packet = iosMallocDebug(D_0063A44C, (n + 3) * 16, "src/debug.c", 2090);
+            w.ptr = fontPacket[i].packet = iosMallocDebug(ios_partition_seki, (n + 3) * 16, "src/debug.c", 2090);
             *((long long *)w.ptr)++ = 0;
             *((int *)w.ptr)++ = 0;
             *((int *)w.ptr)++ = ((n + 1) << 16) | 0x6C008000;
@@ -3050,8 +3049,8 @@ int debug_mcSaveMainBlock(McReq *mc)
         }
         break;
     case 9:
-        gamesysMemorySave(D_004DA788, D_004DD700, 0);
-        iosMcSaveGameBlock(mc, D_004DD700);
+        gamesysMemorySave(gameSysMemoryFuncList, gameSysMainSaveBuff, 0);
+        iosMcSaveGameBlock(mc, gameSysMainSaveBuff);
         saveState++;
         break;
     default:
@@ -3119,11 +3118,11 @@ int debug_mcLoadMainBlock(McReq *mc)
         }
         break;
     case 7:
-        iosMcLoadGameBlock(mc, D_004DD700);
+        iosMcLoadGameBlock(mc, gameSysMainSaveBuff);
         loadState++;
         break;
     case 9:
-        gamesysMemoryLoad(D_004DA788, D_004DD700, 0);
+        gamesysMemoryLoad(gameSysMemoryFuncList, gameSysMainSaveBuff, 0);
         scpBoyControlReadDisable = 0;
         loadState++;
         break;

@@ -28,8 +28,6 @@ typedef struct TorchGeoWork {
     /* 0x4C */ int unk4C;
 } __attribute__((aligned(16))) TorchGeoWork;
 
-extern int D_0063A438;
-
 /* torch.o's whole .data run: the torch work record InitTorchGeo starts every
    torch from.  The 0x50 malloc right above the copy proves the size. */
 static TorchGeoWork emptyTorchWork = {
@@ -39,6 +37,7 @@ static TorchGeoWork emptyTorchWork = {
 #include "torch.h"
 #include <libvu0.h>
 #include "particleEffect.h"
+#include "ios.h"
 
 inline void SetTorchChainReactionFlag(char *a0, int a1)
 {
@@ -50,8 +49,6 @@ void torchOffSE(int a0)
     StopSEPackage(a0);
     ExecuteSEPackage(a0, 0x43);
 }
-
-extern int D_0063A44C;
 
 void LightTorchOn(char *gobj)
 {
@@ -81,17 +78,17 @@ void LightTorchOn(char *gobj)
         if (n > 0) {
             return;
         }
-        w->unk38 = SetParticleEffectByPartition(0x15, pos, IdentityQuaternion, D_0063A44C);
-        w->unk44 = SetParticleEffectByPartition(0x13, pos, IdentityQuaternion, D_0063A44C);
+        w->unk38 = SetParticleEffectByPartition(0x15, pos, IdentityQuaternion, ios_partition_seki);
+        w->unk44 = SetParticleEffectByPartition(0x13, pos, IdentityQuaternion, ios_partition_seki);
         break;
     case 4:
-        w->unk34 = SetParticleEffectByPartition(0x17, pos, IdentityQuaternion, D_0063A44C);
+        w->unk34 = SetParticleEffectByPartition(0x17, pos, IdentityQuaternion, ios_partition_seki);
         break;
     default:
-        w->unk40 = SetParticleEffectByPartition(7, pos, IdentityQuaternion, D_0063A44C);
-        w->unk34 = SetParticleEffectByPartition(5, pos, IdentityQuaternion, D_0063A44C);
-        w->unk38 = SetParticleEffectByPartition(9, pos, IdentityQuaternion, D_0063A44C);
-        w->unk44 = SetParticleEffectByPartition(0x13, pos, IdentityQuaternion, D_0063A44C);
+        w->unk40 = SetParticleEffectByPartition(7, pos, IdentityQuaternion, ios_partition_seki);
+        w->unk34 = SetParticleEffectByPartition(5, pos, IdentityQuaternion, ios_partition_seki);
+        w->unk38 = SetParticleEffectByPartition(9, pos, IdentityQuaternion, ios_partition_seki);
+        w->unk44 = SetParticleEffectByPartition(0x13, pos, IdentityQuaternion, ios_partition_seki);
         break;
     }
     w->unk24 = 0;
@@ -204,7 +201,7 @@ inline void SetTorchLife(char *a0, int a1, int a2)
 
 inline char *InitTorchGeo(char *a0, char *a1)
 {
-    TorchGeoWork *p = (TorchGeoWork *)iosMallocDebug(D_0063A438, 0x50, __FILE__, 232);
+    TorchGeoWork *p = (TorchGeoWork *)iosMallocDebug(ios_partition_sugipon, 0x50, __FILE__, 232);
     *p = emptyTorchWork;
     sceVu0UnitMatrix((char *)*(void **)(a0 + 0x15C) + 0x20);
     *(void **)((char *)*(void **)(a0 + 0x15C) + 0x830) = p;

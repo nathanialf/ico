@@ -12,6 +12,11 @@
 #ifndef ST02A_H
 #define ST02A_H
 
+/* st02a.o's .sdata globals (MAIN.MAP) */
+extern int st02a_fence;
+extern int gondola;
+extern int gondola_test;
+
 void actSt02aDoorDownChk(volatile int a0);
 void actSt02aDoorDownEffect(volatile int a0);
 void actSt02aDoorUpChk(volatile int a0);

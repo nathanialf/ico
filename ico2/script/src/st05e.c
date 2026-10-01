@@ -95,13 +95,15 @@ void actSt05eWaterStop(volatile int a0)
     SetWayGroupActive(5, 1);
 }
 
-extern int solar;
 /* kept local: this TU's uses of scpIsRotObjectZPlusDirInclude do not fit the prototype in script.h */
 extern int scpIsRotObjectZPlusDirInclude(int a0, int a1, int a2);
 /* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *h, int a2, int a3, int a4);
 /* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmFadeCloseFunc(int *h, short a1);
+
+/* .sdata, owned by st05e.o, in the ROM's order: the solar stream handle. */
+int solar = 0;
 
 /* listing lines 319-389 */
 void actSt05eSolarChk(volatile int a0)

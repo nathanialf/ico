@@ -70,7 +70,35 @@ extern char *D_00639EA8;
 extern int D_0028F4C0[];
 /* kept local: script.h's prototypes do not fit this TU's calls */
 extern float scpSeEnvMasterVolRate;
-extern ActMail D_004F85D0[];
+
+/* .data, owned by st04a.o, in the ROM's order ahead of model_on and model_off
+   (MAIN.MAP sizes the member's run 0x160 in the January link): each action's
+   mail pair, the check handler stored into its first entry at run time, and
+   the matrix finishCallBackFunc writes into every joint. */
+static ActMail gate_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail gate_open_mail[2] = {{430}, {429}}; /* derived name */
+
+static Mtx44 jointMtxInit = {{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+                              1.0f, 0.0f, 0.0f, 0.0f, 1.0f}}; /* derived name */
+
+static ActMail gate_open2_ready_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail gate_open2_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail gate_open3_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail gate_l_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail gate_r_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail torch1_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail girl_sit_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail torch_hint_mail[2] = {{430}, {429}}; /* derived name */
+
+static ActMail model_mail[2] = {{430}, {429}}; /* derived name */
 
 void actSt04aGate(volatile int a0)
 {
@@ -92,8 +120,8 @@ void actSt04aGate(volatile int a0)
 
         gflagOff(390);
 
-        D_004F85D0[0].func = actSt04aGateChk;
-        self->mail = D_004F85D0;
+        gate_mail[0].func = actSt04aGateChk;
+        self->mail = gate_mail;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -115,12 +143,14 @@ typedef struct AnimList28 {
     int v[28];
 } AnimList28;
 
-extern AnimList28 D_00622878;
-extern long long D_006228F0[];
-extern long long D_00622900[];
 extern char D_00618D80[];
-extern char D_00622840[];
-extern int D_0063BE98;
+
+/* .sdata, owned by st04a.o, the head of the run: the first gate's stream
+   handle and gate1, which the retail code does not use (MAIN.MAP globals).
+   actSt04aConte06's "!!\n" trace follows them. */
+int gate1st = 0;
+
+int gate1 = 0;
 
 /* .sbss, owned by st04a.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by
@@ -189,7 +219,7 @@ void actSt04aGateChk(volatile int a0)
 
     i = 0;
     while (CheckReadyStreamMotion() == 0) {
-        debug_StdPrintfDummy(D_00622840, ++i);
+        debug_StdPrintfDummy("Now waiting for standby stream motion system... %d\n", ++i);
         _ACTWait(1);
     }
 
@@ -201,8 +231,8 @@ void actSt04aGateChk(volatile int a0)
 
     SetStaticBlur(0);
 
-    scpAdpcmPlayRequestFunc(23, &D_0063BE98, 1, 1, 0);
-    while (D_0063BE98 == 0) {
+    scpAdpcmPlayRequestFunc(23, &gate1st, 1, 1, 0);
+    while (gate1st == 0) {
         _ACTWait(1);
     }
 
@@ -235,7 +265,7 @@ void actSt04aGateChk(volatile int a0)
     n = demoEnd ^ 1;
 
     if (n != 0) {
-        scpAdpcmFadeCloseFunc(&D_0063BE98, 0xC0);
+        scpAdpcmFadeCloseFunc(&gate1st, 0xC0);
 
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
@@ -253,10 +283,15 @@ void actSt04aGateChk(volatile int a0)
 
     if (n != 0) {
         {
+            /* the gate-open animations, in the order they start */
+            static const AnimList28 gateOpenAnims = {{555, 489, 648, 649, 650, 651, 652, 653,
+                                                      654, 655, 656, 657, 658, 659, 660, 661,
+                                                      662, 663, 664, 665, 666, 667, 668, 669,
+                                                      670, 671, 672, 673}}; /* derived name */
             AnimList28 anim;
             unsigned int j;
 
-            anim = D_00622878;
+            anim = gateOpenAnims;
             for (j = 0; j < 28; j++) {
                 stage_SetAnimation(anim.v[j], 1, -1);
                 _ACTWait(1);
@@ -278,15 +313,20 @@ void actSt04aGateChk(volatile int a0)
         reg_SetScissorSw(0);
 
         {
+            /* the boy's and the girl's root positions after the gate opens */
+            static const ConstVec boyRootPos __attribute__((aligned(16))) = {
+                {1.635725f, -72.36407f, -1233.2648f, 0.0f}}; /* derived name */
+            static const ConstVec girlRootPos __attribute__((aligned(16))) = {
+                {7.660961f, -88.9936f, -1293.0424f, 0.0f}}; /* derived name */
             long long p1[2];
             long long p2[2];
 
-            p1[0] = D_006228F0[0];
-            p1[1] = D_006228F0[1];
+            p1[0] = boyRootPos.d[0];
+            p1[1] = boyRootPos.d[1];
             SetDirectRootPosition(D_00639EA4, p1);
 
-            p2[0] = D_00622900[0];
-            p2[1] = D_00622900[1];
+            p2[0] = girlRootPos.d[0];
+            p2[1] = girlRootPos.d[1];
             SetDirectRootPosition(D_00639EA8, p2);
         }
 
@@ -338,17 +378,12 @@ void actSt04aGateChk(volatile int a0)
 /* kept local: this TU's uses of scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag do not fit the prototype in script.h */
 extern void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
 extern int D_00639EAC;
-extern int D_0063BEBC;
-extern unsigned char D_0063BEC0;
-extern char D_0063BEA0[];
-extern char D_00622910[];
-extern char D_00622920[];
 
 void actSt04aConte06(volatile int a0)
 {
     stage_SetAnimation(648, 1, 0);
 
-    AdpcmPlay(*(int *)(D_0063BE98 + 0x2C));
+    AdpcmPlay(*(int *)(gate1st + 0x2C));
 
     while (stage_ContinueAnimation(648, 649) == 0) {
         _ACTWait(1);
@@ -362,9 +397,9 @@ void actSt04aConte06(volatile int a0)
 
     _ACTWait(240);
 
-    D_0063BEBC = iosPadActRequest(D_00639EAC, 9);
-    D_0063BEC0 = 0x40;
-    iosPadActVolumeSet(D_0063BEBC, 0x40);
+    gate_yure_low = iosPadActRequest(D_00639EAC, 9);
+    gate_yure_low_vol = 0x40;
+    iosPadActVolumeSet(gate_yure_low, 0x40);
 
     while (stage_ContinueAnimation(651, 652) == 0) {
         _ACTWait(1);
@@ -394,12 +429,12 @@ void actSt04aConte06(volatile int a0)
     stage_SetLoopFlag(555, 1);
     stage_SetAnimation(555, 1, 0);
 
-    debug_StdPrintfDummy(D_0063BEA0);
+    debug_StdPrintfDummy("!!\n");
 
     stage_SetAnimation(489, 1, 0);
 
-    tex_SetUVScroll(D_00622910, 0.0f, 0.0f, 0.25f, 0.0625f, 0.99f, 0.99f, 1);
-    tex_SetUVScroll(D_00622920, 0.0f, 0.0f, 0.25f, 0.0625f, 0.1f, 0.1f, 1);
+    tex_SetUVScroll("face_sadow_sd", 0.0f, 0.0f, 0.25f, 0.0625f, 0.99f, 0.99f, 1);
+    tex_SetUVScroll("face_sadow_sd_00", 0.0f, 0.0f, 0.25f, 0.0625f, 0.1f, 0.1f, 1);
 
     while (stage_ContinueAnimation(656, 657) == 0) {
         _ACTWait(1);
@@ -408,15 +443,15 @@ void actSt04aConte06(volatile int a0)
         _ACTWait(1);
     }
 
-    iosPadActStop(D_0063BEBC);
+    iosPadActStop(gate_yure_low);
 
     while (stage_CheckAnimationFrame(658, 150, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
-    tex_SetUVScroll(D_00622910, 0.0f, 0.0f, 0.25f, 0.0625f, 0.8f, 0.8f, 1);
-    tex_SetUVScroll(D_00622920, 0.0f, 0.0f, 0.25f, 0.0625f, 0.45f, 0.45f, 1);
+    tex_SetUVScroll("face_sadow_sd", 0.0f, 0.0f, 0.25f, 0.0625f, 0.8f, 0.8f, 1);
+    tex_SetUVScroll("face_sadow_sd_00", 0.0f, 0.0f, 0.25f, 0.0625f, 0.45f, 0.45f, 1);
 
     while (stage_ContinueAnimation(658, 659) == 0) {
         _ACTWait(1);
@@ -487,6 +522,34 @@ void actSt04aConte06(volatile int a0)
     demoEnd = 1;
     _ACTWait(0);
 }
+
+/* .sdata, the rest of st04a.o's run after actSt04aConte06's trace: the gate
+   and torch stream handles (the first three are the retail object's own, the
+   next three MAIN.MAP's globals), then the pad shakes and their volumes
+   (MAIN.MAP globals, declared in st04a.h for actSt04aConte06). */
+static int gate_open = 0; /* derived name */
+
+static int gate_open2 = 0; /* derived name */
+
+static int conte09_2 = 0; /* derived name */
+
+int gate_ready_l = 0;
+
+int gate_ready_r = 0;
+
+int torch = 0;
+
+int gate_yure_low = 0;
+
+unsigned char gate_yure_low_vol = 0;
+
+int yure1 = 0;
+
+unsigned char vol1 = 0;
+
+int yure2 = 0;
+
+unsigned char vol2 = 0;
 
 void actSt04aConte06Jimaku(volatile int a0)
 {
@@ -592,8 +655,6 @@ void actSt04aConte06Jimaku(volatile int a0)
     _ACTWait(0);
 }
 
-extern ActMail D_004F85F0[];
-
 void actSt04aGateOpen(volatile int a0)
 {
     int x = a0;
@@ -607,8 +668,8 @@ void actSt04aGateOpen(volatile int a0)
 
         scpSearchGobj(669)->f16C = 0;
 
-        D_004F85F0[0].func = actSt04aGateOpenChk;
-        self->mail = D_004F85F0;
+        gate_open_mail[0].func = actSt04aGateOpenChk;
+        self->mail = gate_open_mail;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -628,12 +689,15 @@ typedef struct AnimList {
     int v[13];
 } AnimList;
 
-extern AnimList D_00622938;
-extern long long D_00622970[];
-extern long long D_00622980[];
-extern long long D_00622990[];
+/* .rodata, used here and by actConte09_2 (MAIN.MAP names no symbol in
+   st04a.o's run): the two lift offsets.  Declared ahead and defined after
+   actSt04aGateOpenChk: the ROM emits them after that function's own block
+   constants. */
+static const ConstVec liftOfs1;
+
+static const ConstVec liftOfs2;
+
 extern char D_00618DB0[];
-extern int D_0063BEA4;
 /* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
 extern void scpSleepEnemyAll(void);
 /* kept local: this TU's uses of scpKillEnemyAll do not fit the prototype in script.h */
@@ -688,12 +752,12 @@ void actSt04aGateOpenChk(volatile int a0)
     i = 0;
     while (CheckReadyStreamMotion() == 0) {
         i++;
-        debug_StdPrintfDummy(D_00622840, i);
+        debug_StdPrintfDummy("Now waiting for standby stream motion system... %d\n", i);
         _ACTWait(1);
     }
 
-    scpAdpcmPlayRequestFunc(31, &D_0063BEA4, 1, 1, 1);
-    while (D_0063BEA4 == 0) {
+    scpAdpcmPlayRequestFunc(31, &gate_open, 1, 1, 1);
+    while (gate_open == 0) {
         _ACTWait(1);
     }
 
@@ -711,7 +775,7 @@ void actSt04aGateOpenChk(volatile int a0)
     n = demoEnd ^ 1;
 
     if (n != 0) {
-        scpAdpcmFadeCloseFunc(&D_0063BEA4, 0xC0);
+        scpAdpcmFadeCloseFunc(&gate_open, 0xC0);
 
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
@@ -729,10 +793,13 @@ void actSt04aGateOpenChk(volatile int a0)
 
     if (n != 0) {
         {
+            /* the second gate's animations, in the order they start */
+            static const AnimList gateOpen2Anims = {{712, 713, 714, 715, 716, 717, 718, 719, 720,
+                                                     721, 722, 723, 724}}; /* derived name */
             AnimList anim;
             unsigned int j;
 
-            anim = D_00622938;
+            anim = gateOpen2Anims;
             for (j = 0; j < 13; j++) {
                 stage_SetAnimation(anim.v[j], 1, -1);
                 _ACTWait(1);
@@ -756,15 +823,20 @@ void actSt04aGateOpenChk(volatile int a0)
         SetGirlHairDispSwitch(D_00639EA8, 1);
 
         {
+            /* the boy's and the girl's root positions after the second gate */
+            static const ConstVec boyRootPos2 __attribute__((aligned(16))) = {
+                {29.91216f, -71.98232f, -118.11676f, 0.0f}}; /* derived name */
+            static const ConstVec girlRootPos2 __attribute__((aligned(16))) = {
+                {-49.44171f, -76.71414f, -142.27318f, 0.0f}}; /* derived name */
             long long p1[2];
             long long p2[2];
 
-            p1[0] = D_00622970[0];
-            p1[1] = D_00622970[1];
+            p1[0] = boyRootPos2.d[0];
+            p1[1] = boyRootPos2.d[1];
             SetDirectRootPosition(D_00639EA4, p1);
 
-            p2[0] = D_00622980[0];
-            p2[1] = D_00622980[1];
+            p2[0] = girlRootPos2.d[0];
+            p2[1] = girlRootPos2.d[1];
             SetDirectRootPosition(D_00639EA8, p2);
         }
 
@@ -785,8 +857,8 @@ void actSt04aGateOpenChk(volatile int a0)
 
         scpPlayMot(D_00639EA4, 0);
 
-        ofs[0] = D_00622990[0];
-        ofs[1] = D_00622990[1];
+        ofs[0] = liftOfs1.d[0];
+        ofs[1] = liftOfs1.d[1];
         sceVu0SubVector(dir, ofs, test_CURRENTROOT((int)D_00639EA8));
         scpPlayMotDir(D_00639EA8, dir);
     }
@@ -805,8 +877,9 @@ void actSt04aGateOpenChk(volatile int a0)
     scpSearchGobj(648)->f16C = 0;
 }
 
-extern int D_0063BEC4;
-extern unsigned char D_0063BEC8;
+static const ConstVec liftOfs1 __attribute__((aligned(16))) = {{0.0f, 0.0f, 6000.0f, 1.0f}};
+
+static const ConstVec liftOfs2 __attribute__((aligned(16))) = {{-5000.0f, 0.0f, 5300.0f, 1.0f}};
 
 void actConte09(volatile int a0)
 {
@@ -884,9 +957,9 @@ void actConte09(volatile int a0)
 
     _ACTWait(120);
 
-    D_0063BEC4 = iosPadActRequest(D_00639EAC, 0xA);
-    D_0063BEC8 = 0x80;
-    iosPadActVolumeSet(D_0063BEC4, 0x80);
+    yure1 = iosPadActRequest(D_00639EAC, 0xA);
+    vol1 = 0x80;
+    iosPadActVolumeSet(yure1, 0x80);
 
     while (stage_ContinueAnimation(719, 720) == 0) {
         _ACTWait(1);
@@ -898,7 +971,7 @@ void actConte09(volatile int a0)
         _ACTWait(1);
     }
 
-    iosPadActStop(D_0063BEC4);
+    iosPadActStop(yure1);
 
     while (stage_ContinueAnimation(721, 722) == 0) {
         _ACTWait(1);
@@ -967,11 +1040,10 @@ void actConte09Jimaku(volatile int a0)
     _ACTWait(0);
 }
 
-extern int D_0063BEA8;
 /* kept local: this TU's uses of scpPlayMotReq do not fit the prototype in script.h */
 extern void scpPlayMotReq(void *a0, int mot);
+
 /* st04a.o's own .rodata: the gate-open exit direction vector. */
-extern long long D_006229A0[];
 
 void actSt04aGateOpen2Chk(volatile int a0)
 {
@@ -991,8 +1063,8 @@ void actSt04aGateOpen2Chk(volatile int a0)
 
     scpPlayMot(D_00639EA4, 0);
 
-    ofs[0] = D_006229A0[0];
-    ofs[1] = D_006229A0[1];
+    ofs[0] = liftOfs2.d[0];
+    ofs[1] = liftOfs2.d[1];
     sceVu0SubVector(dir, ofs, test_CURRENTROOT((int)D_00639EA4));
     scpPlayMotDir(D_00639EA4, dir);
 
@@ -1004,11 +1076,11 @@ void actSt04aGateOpen2Chk(volatile int a0)
 
     scpDisActivateAllWithKind(0x13);
 
-    while (D_0063BEA8 == 0) {
+    while (gate_open2 == 0) {
         _ACTWait(1);
     }
 
-    AdpcmPlay(*(int *)(D_0063BEA8 + 0x2C));
+    AdpcmPlay(*(int *)(gate_open2 + 0x2C));
 
     actCreateSubThread(actConte09_2, 21);
 }
@@ -1016,10 +1088,8 @@ void actSt04aGateOpen2Chk(volatile int a0)
 /* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
 extern void scpPlayPosSet(char *a0, float x, float y, float z);
 extern char D_00618E10[];
+
 /* st04a.o's own .rodata: the two demo exit direction vectors. */
-extern int D_0063BEAC;
-extern int D_0063BECC;
-extern unsigned char D_0063BED0;
 
 void actConte09_2(volatile int a0)
 {
@@ -1074,9 +1144,9 @@ void actConte09_2(volatile int a0)
         _ACTWait(1);
     }
 
-    D_0063BECC = iosPadActRequest(D_00639EAC, 0xA);
-    D_0063BED0 = 0x80;
-    iosPadActVolumeSet(D_0063BECC, 0x80);
+    yure2 = iosPadActRequest(D_00639EAC, 0xA);
+    vol2 = 0x80;
+    iosPadActVolumeSet(yure2, 0x80);
 
     stage_SetAnimation(273, 1, 0);
 
@@ -1102,8 +1172,8 @@ void actConte09_2(volatile int a0)
 
     scpPlayPosSet(D_00639EA8, 14.8948f, 210.136f, 4858.48f);
 
-    ofs[0] = D_00622990[0];
-    ofs[1] = D_00622990[1];
+    ofs[0] = liftOfs1.d[0];
+    ofs[1] = liftOfs1.d[1];
     sceVu0SubVector(dir, ofs, test_CURRENTROOT((int)D_00639EA8));
     scpPlayMotDir(D_00639EA8, dir);
 
@@ -1114,10 +1184,10 @@ void actConte09_2(volatile int a0)
     }
     _ACTWait(1);
 
-    iosPadActStop(D_0063BECC);
+    iosPadActStop(yure2);
 
-    ofs[0] = D_006229A0[0];
-    ofs[1] = D_006229A0[1];
+    ofs[0] = liftOfs2.d[0];
+    ofs[1] = liftOfs2.d[1];
     sceVu0SubVector(dir, ofs, test_CURRENTROOT((int)D_00639EA4));
     scpPlayMotDir(D_00639EA4, dir);
 
@@ -1126,11 +1196,11 @@ void actConte09_2(volatile int a0)
     i = 0;
     while (CheckReadyStreamMotion() == 0) {
         i++;
-        debug_StdPrintfDummy(D_00622840, i);
+        debug_StdPrintfDummy("Now waiting for standby stream motion system... %d\n", i);
         _ACTWait(1);
     }
 
-    scpAdpcmPlayRequestFunc(33, &D_0063BEAC, 1, 1, 0);
+    scpAdpcmPlayRequestFunc(33, &conte09_2, 1, 1, 0);
 
     scpPlayEnd(D_00639EA4);
 
@@ -1138,8 +1208,6 @@ void actConte09_2(volatile int a0)
 
     gflagOn(141);
 }
-
-extern ActMail D_004F8690[];
 
 void actSt04aGateOpen3(volatile int a0)
 {
@@ -1155,8 +1223,8 @@ void actSt04aGateOpen3(volatile int a0)
         }
         _ACTWait(1);
 
-        D_004F8690[0].func = actSt04aGateOpen3Chk;
-        self->mail = D_004F8690;
+        gate_open3_mail[0].func = actSt04aGateOpen3Chk;
+        self->mail = gate_open3_mail;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -1187,15 +1255,15 @@ void actSt04aGateOpen3Chk(volatile int a0)
     scpPlayStart(D_00639EA4);
     scpPlayStart(D_00639EA8);
 
-    if (D_0063BEA8 != 0) {
-        scpAdpcmFadeCloseFunc(&D_0063BEA8, 0x50);
+    if (gate_open2 != 0) {
+        scpAdpcmFadeCloseFunc(&gate_open2, 0x50);
     }
 
-    while (D_0063BEAC == 0) {
+    while (conte09_2 == 0) {
         _ACTWait(1);
     }
 
-    AdpcmPlay(*(int *)(D_0063BEAC + 0x2C));
+    AdpcmPlay(*(int *)(conte09_2 + 0x2C));
 
     actCreateSubThread(actSt04aEnvSeWakare2, 21);
     actCreateSubThread(actConte09_3, 21);
@@ -1356,8 +1424,8 @@ void actConte09_3(volatile int a0)
     stage_SetLoopFlag(555, 1);
     stage_SetAnimation(555, 1, 0);
 
-    tex_SetUVScroll(D_00622910, 0.0f, 0.0f, 0.25f, 0.0625f, 0.99f, 0.99f, 1);
-    tex_SetUVScroll(D_00622920, 0.0f, 0.0f, 0.25f, 0.0625f, 0.1f, 0.1f, 1);
+    tex_SetUVScroll("face_sadow_sd", 0.0f, 0.0f, 0.25f, 0.0625f, 0.99f, 0.99f, 1);
+    tex_SetUVScroll("face_sadow_sd_00", 0.0f, 0.0f, 0.25f, 0.0625f, 0.1f, 0.1f, 1);
 
     _ACTWait(1);
 
@@ -1370,8 +1438,8 @@ void actConte09_3(volatile int a0)
     }
     _ACTWait(1);
 
-    tex_SetUVScroll(D_00622910, 0.0f, 0.0f, 0.25f, 0.0625f, 0.8f, 0.8f, 1);
-    tex_SetUVScroll(D_00622920, 0.0f, 0.0f, 0.25f, 0.0625f, 0.45f, 0.45f, 1);
+    tex_SetUVScroll("face_sadow_sd", 0.0f, 0.0f, 0.25f, 0.0625f, 0.8f, 0.8f, 1);
+    tex_SetUVScroll("face_sadow_sd_00", 0.0f, 0.0f, 0.25f, 0.0625f, 0.45f, 0.45f, 1);
 
     while (stage_ContinueAnimation(753, 754) == 0) {
         _ACTWait(1);
@@ -1452,7 +1520,6 @@ void actConte09_3(volatile int a0)
 extern PadState D_0028F8F0[];
 /* kept local: this TU's uses of preload do not fit the prototype in script.h */
 extern void preload(int idx);
-extern int D_0063BEB0;
 
 void actSt04aGateLChk(volatile int a0)
 {
@@ -1467,8 +1534,8 @@ void actSt04aGateLChk(volatile int a0)
     scpBoyControlReadDisable = 1;
     gflagOn(138);
 
-    scpAdpcmPlayRequestFunc(29, &D_0063BEB0, 1, 1, 1);
-    while (D_0063BEB0 == 0) {
+    scpAdpcmPlayRequestFunc(29, &gate_ready_l, 1, 1, 1);
+    while (gate_ready_l == 0) {
         _ACTWait(1);
     }
 
@@ -1493,7 +1560,7 @@ void actSt04aGateLChk(volatile int a0)
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
 
-        scpAdpcmFadeCloseFunc(&D_0063BEB0, 0x100);
+        scpAdpcmFadeCloseFunc(&gate_ready_l, 0x100);
 
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -1510,8 +1577,6 @@ void actSt04aGateLChk(volatile int a0)
 
     RequestStageChange(4, D_00639EA4, 0, 1.0f, 8.0f);
 }
-
-extern int D_0063BEB4;
 
 void actSt04aGateRChk(volatile int a0)
 {
@@ -1532,8 +1597,8 @@ void actSt04aGateRChk(volatile int a0)
         _ACTWait(1);
     }
 
-    scpAdpcmPlayRequestFunc(30, &D_0063BEB4, 1, 1, 1);
-    while (D_0063BEB4 == 0) {
+    scpAdpcmPlayRequestFunc(30, &gate_ready_r, 1, 1, 1);
+    while (gate_ready_r == 0) {
         _ACTWait(1);
     }
 
@@ -1572,7 +1637,7 @@ void actSt04aGateRChk(volatile int a0)
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
 
-        scpAdpcmFadeCloseFunc(&D_0063BEB4, 0x100);
+        scpAdpcmFadeCloseFunc(&gate_ready_r, 0x100);
 
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -1592,7 +1657,6 @@ void actSt04aGateRChk(volatile int a0)
 
 /* kept local: this TU's uses of scpTorchLightOn do not fit the prototype in script.h */
 extern void scpTorchLightOn(int a0);
-extern ActMail D_004F86F0[];
 
 void actSt04aTorch1(volatile int a0)
 {
@@ -1644,8 +1708,8 @@ void actSt04aTorch1(volatile int a0)
             stage_SetAnimation(290, 0, -1);
         }
 
-        D_004F86F0[0].func = actSt04aTorch1Chk;
-        self->mail = D_004F86F0;
+        torch1_mail[0].func = actSt04aTorch1Chk;
+        self->mail = torch1_mail;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
@@ -1759,8 +1823,6 @@ void actSt04aTorch1Chk(volatile int a0)
     }
 }
 
-extern int D_0063BEB8;
-
 void actSt04aTorchAllFlagfChk(volatile int a0)
 {
     int i;
@@ -1777,8 +1839,8 @@ void actSt04aTorchAllFlagfChk(volatile int a0)
     gflagOn(153);
     WakeupHint(6);
     WakeupHint(4);
-    scpAdpcmPlayRequestFunc(85, &D_0063BEB8, 1, 1, 1);
-    while (D_0063BEB8 == 0) {
+    scpAdpcmPlayRequestFunc(85, &torch, 1, 1, 1);
+    while (torch == 0) {
         _ACTWait(1);
     }
 
@@ -1816,7 +1878,7 @@ void actSt04aTorchAllFlagfChk(volatile int a0)
     }
 
     if (skip != 0) {
-        scpAdpcmFadeCloseFunc(&D_0063BEB8, 0xC0);
+        scpAdpcmFadeCloseFunc(&torch, 0xC0);
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -1863,8 +1925,6 @@ void actSt04aTorchHintChk(volatile int a0)
     gflagOn(156);
 }
 
-extern ActMail D_004F86B0[];
-
 void actSt04aGateL(volatile int a0)
 {
     int x = a0;
@@ -1878,14 +1938,12 @@ void actSt04aGateL(volatile int a0)
 
         stage_SetAnimation(295, 0, 0);
 
-        D_004F86B0[0].func = actSt04aGateLChk;
-        self->mail = D_004F86B0;
+        gate_l_mail[0].func = actSt04aGateLChk;
+        self->mail = gate_l_mail;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
-
-extern ActMail D_004F86D0[];
 
 void actSt04aGateR(volatile int a0)
 {
@@ -1900,8 +1958,8 @@ void actSt04aGateR(volatile int a0)
 
         stage_SetAnimation(293, 0, -1);
 
-        D_004F86D0[0].func = actSt04aGateRChk;
-        self->mail = D_004F86D0;
+        gate_r_mail[0].func = actSt04aGateRChk;
+        self->mail = gate_r_mail;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
@@ -1941,8 +1999,6 @@ void actSt04aDeadCam(volatile int a0)
     _ACTWait(1);
 }
 
-extern ActMail D_004F8670[];
-
 void actSt04aGateOpen2(volatile int a0)
 {
     int x = a0;
@@ -1952,14 +2008,12 @@ void actSt04aGateOpen2(volatile int a0)
     if (gflagChk(141) == 0) {
         scpSearchGobj(669)->f16C = 0;
 
-        D_004F8670[0].func = actSt04aGateOpen2Chk;
-        self->mail = D_004F8670;
+        gate_open2_mail[0].func = actSt04aGateOpen2Chk;
+        self->mail = gate_open2_mail;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
-
-extern ActMail D_004F8650[];
 
 void actSt04aGateOpen2Ready(volatile int a0)
 {
@@ -1967,13 +2021,11 @@ void actSt04aGateOpen2Ready(volatile int a0)
     ActSt04A *self = actInitialize(a0);
     _ACTWait(1);
 
-    D_004F8650[0].func = actSt04aGateOpen2ReadyChk;
-    self->mail = D_004F8650;
+    gate_open2_ready_mail[0].func = actSt04aGateOpen2ReadyChk;
+    self->mail = gate_open2_ready_mail;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern ActMail D_004F8710[];
 
 void actSt04aGirlSit(volatile int a0)
 {
@@ -1981,13 +2033,11 @@ void actSt04aGirlSit(volatile int a0)
     ActSt04A *self = actInitialize(a0);
     _ACTWait(1);
 
-    D_004F8710[0].func = actSt04aGirlSitChk;
-    self->mail = D_004F8710;
+    girl_sit_mail[0].func = actSt04aGirlSitChk;
+    self->mail = girl_sit_mail;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern ActMail D_004F8730[];
 
 void actSt04aTorchHint(volatile int a0)
 {
@@ -1996,14 +2046,12 @@ void actSt04aTorchHint(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(153) == 0) {
-        D_004F8730[0].func = actSt04aTorchHintChk;
-        self->mail = D_004F8730;
+        torch_hint_mail[0].func = actSt04aTorchHintChk;
+        self->mail = torch_hint_mail;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     }
 }
-
-extern ActMail D_004F8750[];
 
 void actSt04aModel(volatile int a0)
 {
@@ -2013,8 +2061,8 @@ void actSt04aModel(volatile int a0)
 
     scpSearchGobj(648)->f16C = 0;
 
-    D_004F8750[0].func = actSt04aModelOnChk;
-    self->mail = D_004F8750;
+    model_mail[0].func = actSt04aModelOnChk;
+    self->mail = model_mail;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -2077,7 +2125,6 @@ typedef struct {
 extern void _ApplyMatrix(int dst, int m, int src);
 /* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector(int dst, int src);
-extern Mtx44 D_004F8610;
 
 void finishCallBackFunc(int a0)
 {
@@ -2089,7 +2136,7 @@ void finishCallBackFunc(int a0)
     _NormalizeVector((int)GOBJ_SUB(a0) + 0x520, (int)&v);
 
     for (i = 0; i < GOBJ_SUB(a0)->f_88; i++) {
-        *(Mtx44 *)(*(int *)((int)GOBJ_SUB(a0) + 0x80C) + i * 64) = D_004F8610;
+        *(Mtx44 *)(*(int *)((int)GOBJ_SUB(a0) + 0x80C) + i * 64) = jointMtxInit;
     }
 }
 
@@ -2112,11 +2159,11 @@ void actSt04aGateOpen2ReadyChk(volatile int a0)
     i = 0;
     while (CheckReadyStreamMotion() == 0) {
         i++;
-        debug_StdPrintfDummy(D_00622840, i);
+        debug_StdPrintfDummy("Now waiting for standby stream motion system... %d\n", i);
         _ACTWait(1);
     }
 
-    scpAdpcmPlayRequestFunc(32, &D_0063BEA8, 1, 0, 0);
+    scpAdpcmPlayRequestFunc(32, &gate_open2, 1, 0, 0);
 }
 
 void actSt04aEnvSeWakare2(volatile int a0)

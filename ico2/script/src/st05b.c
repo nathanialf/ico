@@ -47,9 +47,6 @@ void actSt05bCrest01XL(volatile int a0)
     }
 }
 
-extern int sekizo5b;
-extern int sekizo_5b;
-extern unsigned char sekizo_5b_vol;
 extern int D_00639EA4;
 extern int D_00639EA8;
 extern int D_00639EAC;
@@ -77,6 +74,13 @@ extern void scpPlayPosSet(int gobj, float x, float y, float z);
 extern void scpPlayMotDir(int gobj, float *dir);
 /* kept local: this TU's uses of scpSekizouCheckPoint do not fit the prototype in script.h */
 extern void scpSekizouCheckPoint(void);
+
+/* .sdata, owned by st05b.o, in the ROM's order: the stone statue's stream handle, its shake and the shake's volume. */
+int sekizo5b = 0;
+
+int sekizo_5b = 0;
+
+unsigned char sekizo_5b_vol = 0;
 
 void actSt05bSekizoChk(volatile int a0)
 {

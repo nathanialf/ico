@@ -17,6 +17,7 @@
 #include "tableSin.h"
 #include "debug.h"
 #include <string.h>
+#include "sceneManager.h"
 
 typedef struct {
     char c[16];
@@ -192,7 +193,7 @@ void GetPoolGlobalDrainVector(void *dst, char *a0)
 
 /* RECONSTRUCTION, read from the ROM.  The 64-byte record CSVSYSTEM_InitDObj
    takes as its layout: the position at 0x00, the rotation at 0x10, the scale
-   at 0x20 and the object word at 0x30.  The copy out of D_004E45C0 is ld/sd
+   at 0x20 and the object word at 0x30.  The copy out of InitialSObjSimpleSetting is ld/sd
    pairs, so the record is 8-aligned; ico2/sugipon/src/attackCheckBoundary.c
    carries the same record under its own name. */
 typedef struct {
@@ -215,8 +216,6 @@ typedef struct {
     PoolQuad scale; /* 0x20 */
 } PoolDisp;
 
-extern PoolLayout D_004E45C0;
-
 /* RECONSTRUCTION, read from the ROM.  The stage's CSV object table, one
    40-byte record per stage entry: the object id at 0x00 and the three
    placement angles at 0x0C.  ico2/sugipon/src/puddle.c reaches the same
@@ -232,14 +231,15 @@ typedef struct {
 } StgCsvEnt;
 
 extern StgCsvEnt D_002A79B8[];
-extern IosMemPart *D_0063A438;
+/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+extern IosMemPart *ios_partition_sugipon;
 /* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
 extern void _UnitMatrix(void *m);
 int poolRideFunc(char **a0, char *a1);
 
 char *InitPoolGeo(char *self, char *lay)
 {
-    char *w = iosMallocDebug(D_0063A438, 224, "src/pool.c", 316);
+    char *w = iosMallocDebug(ios_partition_sugipon, 224, "src/pool.c", 316);
     char *rip;
     int i;
     int j;
@@ -258,11 +258,11 @@ char *InitPoolGeo(char *self, char *lay)
         *(float *)(w + 0x3C) = *(float *)(lay + 0x24);
 
         *(char **)(w + 0x4C) =
-            iosMallocDebug(D_0063A438, *(int *)(w + 0x34) * 4, "src/pool.c", 330);
+            iosMallocDebug(ios_partition_sugipon, *(int *)(w + 0x34) * 4, "src/pool.c", 330);
 
         for (i = 0; i < *(int *)(w + 0x34); i++) {
             *(char **)(*(char **)(w + 0x4C) + i * 4) =
-                iosMallocDebug(D_0063A438, *(int *)(w + 0x38) * 4, "src/pool.c", 334);
+                iosMallocDebug(ios_partition_sugipon, *(int *)(w + 0x38) * 4, "src/pool.c", 334);
         }
 
         *(char **)(w + 0x44) = prim_InitMesh3D(*(int *)(w + 0x38), *(int *)(w + 0x34), 1, 0x1C,
@@ -273,7 +273,7 @@ char *InitPoolGeo(char *self, char *lay)
 
         *(short *)(w + 0xCC) = 0;
         *(char **)(w + 0x48) =
-            iosMallocDebug(D_0063A438, *(int *)(w + 0x34) * 4, "src/pool.c", 357);
+            iosMallocDebug(ios_partition_sugipon, *(int *)(w + 0x34) * 4, "src/pool.c", 357);
 
         for (j = 0; j < *(int *)(w + 0x34); j++) {
             (*(float ***)(w + 0x48))[j] =
@@ -290,7 +290,7 @@ char *InitPoolGeo(char *self, char *lay)
         *(int *)(w + 0xC8) = 0;
 
         if (*(int *)(*(char **)(self + 0x15C) + 0x844) != 26) {
-            PoolLayout obj = D_004E45C0;
+            PoolLayout obj = *(PoolLayout *)&InitialSObjSimpleSetting;
 
             obj.x = -D_002A79B8[*(int *)(*(char **)(self + 0x15C) + 0x844)].f_C;
             obj.y = -D_002A79B8[*(int *)(*(char **)(self + 0x15C) + 0x844)].f_10;
@@ -787,13 +787,14 @@ void InitLimitedPoolReflactionMesh(char *a0)
     *(char **)(a0 + 0x10) = prim_InitMesh3D(*(int *)(a0 + 0x4), *(int *)(a0 + 0x0), 1, 0x1C,
                                             *(unsigned int *)(a0 + 0x1C), 1);
     *(char ****)(a0 + 0x14) =
-        (char ***)iosMallocDebug(D_0063A438, *(int *)(a0 + 0x0) * 4, "src/pool.c", 884);
-    *(char **)(a0 + 0x18) = iosMallocDebug(D_0063A438, *(int *)(a0 + 0x0) * 4, "src/pool.c", 885);
+        (char ***)iosMallocDebug(ios_partition_sugipon, *(int *)(a0 + 0x0) * 4, "src/pool.c", 884);
+    *(char **)(a0 + 0x18) =
+        iosMallocDebug(ios_partition_sugipon, *(int *)(a0 + 0x0) * 4, "src/pool.c", 885);
     for (i = 0; i < *(int *)(a0 + 0x0); i++) {
         *(char **)(*(char **)(a0 + 0x18) + i * 4) =
             *(char **)(*(char **)(a0 + 0x10) + 0x6C) + i * *(int *)(a0 + 0x4) * 16;
-        (*(char ****)(a0 + 0x14))[i] =
-            (char **)iosMallocDebug(D_0063A438, *(int *)(a0 + 0x4) * 4, "src/pool.c", 890);
+        (*(char ****)(a0 + 0x14))[i] = (char **)iosMallocDebug(
+            ios_partition_sugipon, *(int *)(a0 + 0x4) * 4, "src/pool.c", 890);
         for (j = 0; j < *(int *)(a0 + 0x4); j++) {
             (*(char ****)(a0 + 0x14))[i][j] = 0;
         }

@@ -27,6 +27,7 @@
 #include "weapon.h"
 #include "motionOrientManager.h"
 #include "DisplayP2O.h"
+#include "ios.h"
 
 typedef struct {
     float v[4];
@@ -56,7 +57,6 @@ typedef struct QueenMailQueue {
     /* 0x08 */ QueenMailEntry e[1];
 } QueenMailQueue;
 
-extern int D_0063A438;
 extern int stage_no;
 
 /* .bss, owned by queen.o and reached only from this file (MAIN.MAP names no
@@ -1383,7 +1383,7 @@ void *InitQueenGeo(char *g)
     char *w;
     int i;
 
-    w = (char *)iosMallocDebug(D_0063A438, 0x18, queenFile, 732);
+    w = (char *)iosMallocDebug(ios_partition_sugipon, 0x18, queenFile, 732);
     memset(w, 0, 0x18);
     for (i = 3; i >= 0; i--) {
         queenBga[i] = 0;
@@ -1909,7 +1909,7 @@ void *InitQueenBarrierGeo(char *g)
 
     Sub15C *ext = GOBJ_SUB(g);
 
-    w = (char *)iosMallocDebug(D_0063A438, 0x30, queenFile, 991);
+    w = (char *)iosMallocDebug(ios_partition_sugipon, 0x30, queenFile, 991);
     memset(w, 0, 0x30);
     *(char **)((char *)ext + 0x830) = w;
     *(float *)(w + 0x14) = 300.0f;
@@ -1956,7 +1956,7 @@ void *InitQueenBallGeo(char *g)
 
     Sub15C *ext = GOBJ_SUB(g);
 
-    w = (char *)iosMallocDebug(D_0063A438, 0x20, queenFile, 1284);
+    w = (char *)iosMallocDebug(ios_partition_sugipon, 0x20, queenFile, 1284);
     *(char **)((char *)ext + 0x830) = w;
     memset(w, 0, 0x20);
     *(float *)(w + 0x14) = 0.0f;

@@ -299,7 +299,7 @@ int WayPointWithRangeFromPos(float *pos, int mode, float range)
     return NumOfWpPos();
 }
 
-extern WpNode D_004F31E0[];
+extern WpNode way_point[];
 
 /* One entry of the way-edge table: the pair of waypoint nodes an edge joins
    (f8/fC), the two node indices it spans (f20[]) and its enable flags. */
@@ -316,7 +316,7 @@ typedef struct WayEdge {
     int _2C[2];
 } WayEdge;
 
-extern WayEdge D_004F1EC0[];
+extern WayEdge way_group[];
 extern float D_0063BD6C[];
 /* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
 extern void _SubVector(float *dst, float *a, float *b);
@@ -426,7 +426,7 @@ int WayPointWithRangeFromPos2(float *pos, WayWork *w, float *dst, int chk)
         break;
     found:
         cur = searchNodes[i];
-        edge = &D_004F1EC0[cur->f20];
+        edge = &way_group[cur->f20];
         debug_StdPrintfDummy("srh wp %p group id %d %d\n", cur, cur->f20, i);
         searchNodes[i] = 0;
         debug_StdPrintfDummy("active %d\n", edge->f28);
@@ -446,7 +446,7 @@ int WayPointWithRangeFromPos2(float *pos, WayWork *w, float *dst, int chk)
                cannot tie the two, and combine keeps mult + addu where a
                hoisted base gives an EE madd (r5900_madd_profitable_p). What
                they cannot pin: the statement's text. */
-            k = edge - D_004F1EC0;
+            k = edge - way_group;
             wayKidnapDebugEdge(k);
             found = SearchOpenNode(cur);
         }
@@ -455,42 +455,42 @@ int WayPointWithRangeFromPos2(float *pos, WayWork *w, float *dst, int chk)
         }
         if (edge->f18 == 0) {
             for (k = 0; k < 94; k++) {
-                if (D_004F1EC0[k].f0 == 0) {
+                if (way_group[k].f0 == 0) {
                     continue;
                 }
-                if (D_004F1EC0[k].f18 == 0) {
+                if (way_group[k].f18 == 0) {
                     continue;
                 }
                 for (j = 0; j < 2; j++) {
-                    if (cur->f20 != ((WpNode *)D_004F31E0)[D_004F1EC0[k].f20[j]].f20) {
+                    if (cur->f20 != ((WpNode *)way_point)[way_group[k].f20[j]].f20) {
                         continue;
                     }
                     if (edgeDone[k] != 0) {
                         continue;
                     }
                     edgeDone[k] = 1;
-                    if (chk && D_004F1EC0[k].f28 == 0) {
+                    if (chk && way_group[k].f28 == 0) {
                         continue;
                     }
                     if (j == 0) {
-                        searchNodes[n++] = D_004F1EC0[k].f8;
+                        searchNodes[n++] = way_group[k].f8;
                     } else {
-                        searchNodes[n++] = D_004F1EC0[k].fC;
+                        searchNodes[n++] = way_group[k].fC;
                     }
                     debug_StdPrintfDummy("add no bridge wp %p %d %d\n", searchNodes[n - 1], j, k);
                 }
             }
         } else {
             for (j = 0; j < 2; j++) {
-                k = ((WpNode *)D_004F31E0)[edge->f20[j]].f20;
+                k = ((WpNode *)way_point)[edge->f20[j]].f20;
                 if (edgeDone[k] != 0) {
                     continue;
                 }
                 edgeDone[k] = 1;
-                if (chk && D_004F1EC0[k].f28 == 0) {
+                if (chk && way_group[k].f28 == 0) {
                     continue;
                 }
-                searchNodes[n++] = &D_004F31E0[edge->f20[j]];
+                searchNodes[n++] = &way_point[edge->f20[j]];
                 debug_StdPrintfDummy("add bridge wp %p %d %d\n", searchNodes[n - 1], j, k);
             }
         }
@@ -508,8 +508,8 @@ ret:
         debug_StdPrintfDummy(
             "見付からないので全WAYPOOINTから アクティブグループで巣許可の一番近いポイントを検索");
         for (i = 0; i < 275; i++) {
-            cur = &D_004F31E0[i];
-            if (cur->f0 == 0 || cur->f30 != 0 || D_004F1EC0[cur->f20].f28 == 0) {
+            cur = &way_point[i];
+            if (cur->f0 == 0 || cur->f30 != 0 || way_group[cur->f20].f28 == 0) {
                 continue;
             }
             _SubVector(v, pos, cur->pos);

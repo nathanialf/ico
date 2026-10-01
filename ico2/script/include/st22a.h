@@ -12,6 +12,9 @@
 #ifndef ST22A_H
 #define ST22A_H
 
+/* st22a.o's .sdata globals (MAIN.MAP) */
+extern int lightning;
+
 void actSt22aIntroSub(volatile int a0);
 
 #endif /* ST22A_H */

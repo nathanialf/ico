@@ -126,7 +126,6 @@ extern int D_00639EA4;
 extern int D_00639EA8;
 /* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
-extern int sekizo_4r;
 
 /* .sbss, owned by st04r.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the pad actuator handle openGate
@@ -144,9 +143,6 @@ static int subStarted;
 
 extern int D_00639EAC;
 extern int D_00639ED4;
-extern char *sekizo5c;
-extern unsigned char st05d_hasi;
-extern int crest1_4r;
 extern int D_0028F8F4[];
 /* as script.h declares it; this TU does not include that header */
 extern void scpSleepEnemyAll(void);
@@ -185,7 +181,6 @@ extern void scpPlayMotDir(int a0, void *dir);
 extern void scpPlayPosSet(int a0, float x, float y, float z);
 /* kept local: this TU's uses of scpPlayWaitMotEnd do not fit the prototype in script.h */
 extern void scpPlayWaitMotEnd(int a0);
-extern int crest3_4r;
 
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc
@@ -202,9 +197,6 @@ extern void scpKillEnemyAll(void);
 extern void scpMaskGeneratorAll(void);
 /* as script.h declares it; this TU does not include that header */
 extern void scpSekizouCheckPoint(void);
-extern int stair5d;
-extern int st04r_yure;
-extern unsigned char st04r_yure_vol;
 
 /* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
    pad, trg at 0x4. */
@@ -214,7 +206,33 @@ extern Pad D_0028F8F0[];
 extern void scpSleepEnemyOne(int a0);
 /* as script.h declares it; this TU does not include that header */
 extern void scpWakeupEnemyOne(int a0);
-extern int solar4r;
+
+/* .sdata, owned by st04r.o, in the ROM's order: the room's stream handles and shakes (the three balls and crest2_4r unused by the retail code). */
+int solar4r = 0;
+
+int ball1_4r = 0;
+
+int ball2_4r = 0;
+
+int ball3_4r = 0;
+
+int crest1_4r = 0;
+
+int crest2_4r = 0;
+
+int crest3_4r = 0;
+
+int stair5d = 0;
+
+char *sekizo5c = 0;
+
+unsigned char st05d_hasi = 0;
+
+int st04r_yure = 0;
+
+unsigned char st04r_yure_vol = 0;
+
+int sekizo_4r = 0;
 
 void actSt05eEnd(void)
 {

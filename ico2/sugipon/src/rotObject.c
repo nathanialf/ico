@@ -10,6 +10,7 @@
 #include "debug.h"
 #include <math.h>
 #include <libvu0.h>
+#include "ios.h"
 
 /* the name every iosMallocDebug in this file reports itself under */
 static const char rotObjectFile[] = "src/rotObject.c";
@@ -238,7 +239,6 @@ void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, void *gobj, void *posM
     }
 }
 
-extern int D_0063A438;
 /* kept local: this TU's uses of ZeroPoint do not fit the prototype in matrixDrive.h */
 extern char ZeroPoint[];
 
@@ -252,7 +252,7 @@ typedef union RotObjWord {
 
 char *InitRotObjectGeo(char *gobj, char *src)
 {
-    char *p = iosMallocDebug(D_0063A438, 0x40, (void *)rotObjectFile, 57);
+    char *p = iosMallocDebug(ios_partition_sugipon, 0x40, (void *)rotObjectFile, 57);
 
     *(int *)(p + 0x30) = rotObjectPhase;
     rotObjectPhase = (rotObjectPhase + 1) % 30;

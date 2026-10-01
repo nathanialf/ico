@@ -685,8 +685,9 @@ static ChainRecord chainRecordDefault = {
     1,
     0};
 
-extern void *D_0063A438;
-extern void *D_0063A44C;
+/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+extern void *ios_partition_sugipon;
+extern void *ios_partition_seki;
 
 /* The geometry request the caller fills in: the anchor position, the probe
  * direction at 0x10 and 0x14, the hang height at 0x18, the start angle at 0x20,
@@ -745,7 +746,7 @@ char *InitChainGeo(char *gobj, ChainGeoReq *req)
         __assert(__FILE__, 1178, "0");
     }
 
-    cw = (char *)iosMallocDebug((void *)D_0063A438, (n << 5) + 0xE0, __FILE__, 1181);
+    cw = (char *)iosMallocDebug((void *)ios_partition_sugipon, (n << 5) + 0xE0, __FILE__, 1181);
 
     *(ChainRecTemplate *)cw = *(ChainRecTemplate *)&chainRecordDefault;
 
@@ -808,16 +809,16 @@ char *InitChainGeo(char *gobj, ChainGeoReq *req)
     }
     *(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0xC) = 0;
     *(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x10) = 0;
-    *(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0xC) =
-        (char *)iosMallocDebug((void *)D_0063A44C, (*(int *)(cw + 0x74) - 1) << 6, __FILE__, 1245);
-    *(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x10) =
-        (char *)iosMallocDebug((void *)D_0063A44C, (*(int *)(cw + 0x74) - 1) << 4, __FILE__, 1245);
+    *(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0xC) = (char *)iosMallocDebug(
+        (void *)ios_partition_seki, (*(int *)(cw + 0x74) - 1) << 6, __FILE__, 1245);
+    *(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x10) = (char *)iosMallocDebug(
+        (void *)ios_partition_seki, (*(int *)(cw + 0x74) - 1) << 4, __FILE__, 1245);
     *(int *)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x8) = *(int *)(cw + 0x74) - 1;
     if (*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870) != 0) {
         iosFree((void *)((int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870) & 0x0FFFFFFF));
     }
-    *(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870) =
-        (char *)iosMallocDebug((void *)D_0063A44C, (*(int *)(cw + 0x74) - 1) * 80, __FILE__, 1245);
+    *(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870) = (char *)iosMallocDebug(
+        (void *)ios_partition_seki, (*(int *)(cw + 0x74) - 1) * 80, __FILE__, 1245);
 
     for (i = 0; i < *(int *)(cw + 0x74) - 1; i++) {
         {

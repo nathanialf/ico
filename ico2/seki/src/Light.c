@@ -9,6 +9,7 @@
 #include <math.h>
 #include <string.h>
 #include <libvu0.h>
+#include "ios.h"
 
 typedef struct Light {
     char _pad0[0x10];
@@ -126,7 +127,6 @@ static int flatLightSlot[3] = {0, 0, 0};
 extern void _CopyVector(void *dst, void *src);
 /* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector(void *dst, void *src);
-extern int D_0063A44C;
 /* kept local: this TU's uses of light_resetFlatLight do not fit the prototype in Light.h */
 extern void light_resetFlatLight(void);
 
@@ -191,7 +191,7 @@ Light *light_AddLight(char *self, int b, int kind)
         if (*(int *)(self + 0x15C) == 0) {
             return 0;
         }
-        q = (Light *)iosMallocDebug(D_0063A44C, 0x50, "src/Light.c", 620);
+        q = (Light *)iosMallocDebug(ios_partition_seki, 0x50, "src/Light.c", 620);
         *(int *)(*(int *)(self + 0x15C) + 0x83C) = b;
         q->f_40 = self;
         q->f_44 = kind;
@@ -215,7 +215,7 @@ Light *light_AddLight(char *self, int b, int kind)
     case 3: {
         Light *r;
 
-        r = (Light *)iosMallocDebug(D_0063A44C, 0x50, "src/Light.c", 685);
+        r = (Light *)iosMallocDebug(ios_partition_seki, 0x50, "src/Light.c", 685);
         r->f_44 = kind;
         r->f_30 = 1.0f;
         r->f_34 = 32768.0f;
@@ -1244,7 +1244,7 @@ AmbientVolume *light_AddAmbientObject(int obj)
 {
     AmbientVolume *p;
 
-    p = (AmbientVolume *)iosMallocDebug(D_0063A44C, 0xA0, "src/Light.c", 723);
+    p = (AmbientVolume *)iosMallocDebug(ios_partition_seki, 0xA0, "src/Light.c", 723);
     p->f_90 = obj;
     p->f_80 = 1.0f;
     light_setLinkAmbient(p);

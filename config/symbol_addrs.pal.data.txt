@@ -93,6 +93,11 @@ D_004E5550 = 0x004E5550; // can_be_referenced:False
 // the TU's own C (finishing pass P1-6b).
 D_00620174 = 0x00620174; // can_be_referenced:False
 
+// A data word (0x004E0048, three times, each beside 0x00040000) in cod/1A79B8's
+// motion table that splat read as a pointer into gamesys.o's save buffer, which
+// is now the TU's own C (finishing pass P1-8e).
+D_004E0048 = 0x004E0048; // can_be_referenced:False
+
 // ==== BEGIN GENERATED — tools/gen_pal_data_symbols.py ====
 
 __ps2_klibinfo__ = 0x0028ED00; // size:0xC  // (vendor)  // map-ordinal 1of1 from klib.o

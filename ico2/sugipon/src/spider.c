@@ -15,7 +15,8 @@
 #include "spiderGroupManager.h"
 #include <stdlib.h>
 
-extern void *D_0063A438;
+/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+extern void *ios_partition_sugipon;
 
 /* spider.o's whole .rodata run starts here.  These three are named objects,
    not literals at their use sites: the two group-wake messages are used near
@@ -51,14 +52,15 @@ char *InitSpiderLayoutGeo(char *self, char *lay)
     int i;
     int k;
 
-    w = (char *)iosMallocDebug((int)D_0063A438, 64, spiderFile, 43);
+    w = (char *)iosMallocDebug((int)ios_partition_sugipon, 64, spiderFile, 43);
     l = *(SpiderLay *)lay;
 
     k = *(int *)(lay + 0x30);
     n = D_0062B588[k].n;
     *(int *)(w + 0x20) = n;
     *(int *)(w + 0x34) = k;
-    *(char **)(w + 0x24) = (char *)iosMallocDebug((int)D_0063A438, n * 4, spiderFile, 47);
+    *(char **)(w + 0x24) =
+        (char *)iosMallocDebug((int)ios_partition_sugipon, n * 4, spiderFile, 47);
     *(int *)(w + 0x28) = 0;
     *(int *)(w + 0x00) = -1;
     *(int *)(w + 0x2C) = 0;

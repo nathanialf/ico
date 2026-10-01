@@ -12,6 +12,15 @@
 #ifndef ST47A_H
 #define ST47A_H
 
+/* st47a.o's .sdata globals (MAIN.MAP) */
+extern int sekizo47a;
+extern int hane1up;
+extern int hane2up;
+extern int hane1down;
+extern int hane2down;
+extern int sekizo_47a;
+extern unsigned char sekizo_47a_vol;
+
 void actSt47aBarricadeChk(volatile int a0);
 void actSt47aEneChk(volatile int a0);
 void actSt47aExit2Chk(volatile int a0);

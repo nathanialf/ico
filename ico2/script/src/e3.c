@@ -71,6 +71,24 @@ extern void scpFadeIn(float t);
 
 #include "e3.h"
 
+/* .sdata, owned by e3.o in the ROM's order: the title stream's handle, the
+   capsule's, the cage fall's, the first gate's, the stone statue's and its
+   volume word (MAIN.MAP globals), then the statue shake's volume, which the
+   retail object adds. */
+static int e3title = 0; /* derived name */
+
+int e3capsule = 0;
+
+static int e3cage = 0; /* derived name */
+
+int e3gate1st = 0;
+
+int sekizo_e3 = 0;
+
+int sekizo_e3_vol = 0;
+
+static unsigned char e3sekizo_yure_vol = 0; /* derived name */
+
 static ActMail title_mes[2] = {{430}, {429}};
 
 static ActMail inst1_mes[2] = {{430}, {429}};
@@ -105,8 +123,6 @@ static ActMail st09aBrg_mes[2] = {{430}, {429}};
 
 static ActMail st09aBrgSwitch_mes[2] = {{430}, {429}};
 
-extern int D_0063BDF4;
-
 void actE3Title(volatile int a0)
 {
     int x = a0;
@@ -119,8 +135,8 @@ void actE3Title(volatile int a0)
 
     gflagOff(356);
 
-    D_0063BDF4 = 0;
-    scpAdpcmPlayRequestFunc(5, &D_0063BDF4, 0, 1, 0);
+    e3title = 0;
+    scpAdpcmPlayRequestFunc(5, &e3title, 0, 1, 0);
 
     while (kanbanBootEnd == 0) {
         _ACTWait(1);
@@ -130,7 +146,7 @@ void actE3Title(volatile int a0)
 
     scpFadeOut(255.0f, 0, 0, 0);
 
-    while (D_0063BDF4 == 0) {
+    while (e3title == 0) {
         _ACTWait(1);
     }
 
@@ -171,7 +187,7 @@ void actE3TitleChk(volatile int a0)
     gflagOn(357);
     debug_StdPrintfDummy("game_start\n");
 
-    AdpcmPlay(*(int *)(D_0063BDF4 + 0x2C));
+    AdpcmPlay(*(int *)(e3title + 0x2C));
 
     scpFadeOut(4.0f, 0, 0, 0);
     while (scpFadeChk() != 0) {
@@ -267,8 +283,8 @@ void actE3TitleFrameChk(volatile int a0)
 
         gflagOn(356);
 
-        if (D_0063BDF4 != 0) {
-            scpAdpcmCloseFunc(&D_0063BDF4);
+        if (e3title != 0) {
+            scpAdpcmCloseFunc(&e3title);
         }
 
         mpegPlayReturnStage = 0x5F;
@@ -372,8 +388,6 @@ void actE3Capsule(volatile int a0)
 static int capsuleDemoThread;
 
 static int demoEnd;
-
-extern int e3capsule;
 
 void actE3CapsuleDemoCancel(volatile int a0)
 {
@@ -513,7 +527,6 @@ void actE3CageFall(volatile int a0)
 extern int scpTriggerBall(int a0, int gobj, float r);
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int id);
-extern int D_0063BDFC;
 
 void actE3CageFallChk(volatile int a0)
 {
@@ -535,11 +548,11 @@ void actE3CageFallChk(volatile int a0)
 
     gflagOn(360);
 
-    while (D_0063BDFC == 0) {
+    while (e3cage == 0) {
         _ACTWait(1);
     }
 
-    AdpcmPlay(*(int *)(D_0063BDFC + 0x2C));
+    AdpcmPlay(*(int *)(e3cage + 0x2C));
 
     actCreateSubThread(actE3CageFallDemo, 21);
 
@@ -822,8 +835,6 @@ extern void scpKillEnemyAll(void);
 extern void scpMaskGeneratorAll(void);
 /* kept local: this TU's uses of scpPlayWaitMotEnd do not fit the prototype in script.h */
 extern void scpPlayWaitMotEnd(int a0);
-extern int sekizo_e3_vol;
-extern unsigned char D_0063BE0C;
 /* kept local: this TU's uses of _SCPMoveCharactorByWay do not fit the prototype in script.h */
 extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
 /* kept local: this TU's uses of RequestStageChangeDirect do not fit the prototype in script.h */
@@ -878,7 +889,7 @@ void actE3St09aSekizoChk(volatile int a0)
     stage_SetAnimation(376, 1, 0);
 
     sekizo_e3_vol = iosPadActRequest(D_00639EAC, 9);
-    D_0063BE0C = 0x80;
+    e3sekizo_yure_vol = 0x80;
     iosPadActVolumeSet(sekizo_e3_vol, 0x80);
 
     scpPlayStart(D_00639EA4);
@@ -924,7 +935,6 @@ void actE3St09aSekizoChk(volatile int a0)
 }
 
 extern char D_00618F00[];
-extern int e3gate1st;
 
 void actE3GateChk(volatile int a0)
 {
@@ -1106,8 +1116,6 @@ void actE3St01bInit(void)
 {
     stage_SetAnimation(183, 0, -1);
 }
-
-extern int sekizo_e3;
 
 void actE3St09aBrgDown(volatile int a0)
 {
@@ -1500,12 +1508,12 @@ inline void actE3CageFallReadyChk(volatile int a0)
 {
     int x = a0;
     actInitialize(a0);
-    D_0063BDFC = 0;
+    e3cage = 0;
     _ACTWait(1);
     while (scpTriggerFloorAttr(D_00639EA4, 0x2000000) == 0) {
         _ACTWait(1);
     }
-    scpAdpcmPlayRequestFunc(3, &D_0063BDFC, 1, 1, 0);
+    scpAdpcmPlayRequestFunc(3, &e3cage, 1, 1, 0);
 }
 
 inline void actE3St01bEneChk(volatile int a0)

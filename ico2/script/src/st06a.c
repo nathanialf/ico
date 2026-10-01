@@ -225,7 +225,6 @@ extern void scpSleepEnemyAll(void);
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 /* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
-extern char *shutter;
 /* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
 extern void scpWakeupEnemyAll(void);
 /* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
@@ -236,9 +235,15 @@ extern void scpFadeOut(float a0, int a1, int a2, int a3);
 extern void scpFadeIn(float f);
 /* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
-extern int suimon;
 /* kept local: this TU's uses of scpGetRotObjectRotCount do not fit the prototype in script.h */
 extern float scpGetRotObjectRotCount(int a0);
+
+/* .sdata, owned by st06a.o, in the ROM's order: the sluice, shutter and spike stream handles. */
+int suimon = 0;
+
+char *shutter = 0;
+
+int toge = 0;
 
 void actSt06aSuimonChk(volatile int a0)
 {
@@ -565,7 +570,6 @@ void actSt06aStatueChk(volatile int a0)
     gflagOn(113);
 }
 
-extern int toge;
 /* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(void *a0, int a1);
 

@@ -21,8 +21,6 @@
 /* kept local: script.h's prototypes do not fit this TU's calls */
 extern int scpBoyControlReadDisable;
 extern int D_00639EAC;
-extern int D_0063BFF4;
-extern unsigned char D_0063BFF8;
 
 /* .sbss, owned by st13b.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, the conte-02
@@ -64,8 +62,6 @@ extern void scpAdpcmPlayRequestFunc(int a0, int *h, int a2, int a3, int a4);
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
 /* kept local: this TU's uses of ScpCallCameraSetTarget do not fit the prototype in script.h */
 extern void ScpCallCameraSetTarget(float x, float y, float z);
-extern int D_0063BFC0;
-extern int boss;
 extern float scpSeEnvMasterVolRate;
 extern PadState D_0028F8F0[];
 extern int D_0028F8F4[];
@@ -75,9 +71,6 @@ extern int scpFadeChk(void);
 extern void scpFadeIn(float f);
 /* kept local: this TU's uses of preload do not fit the prototype in script.h */
 extern void preload(int a0);
-extern int st13b_down;
-extern int st13b_up;
-extern int sd;
 /* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
 extern void scpPlayPosSet(void *a0, float x, float y, float z);
 /* kept local: this TU's uses of scpAdpcmCloseChkFunc do not fit the prototype in script.h */
@@ -94,15 +87,9 @@ extern void scpPlayMotDir(int a0, float *dir);
 extern void scpSekizouCheckPoint(void);
 /* kept local: this TU's uses of scpGameStat_BoyWeaponkind do not fit the prototype in script.h */
 extern int scpGameStat_BoyWeaponkind(void);
-extern int boss_dead;
-extern int sekizo13b;
-extern int sekizo13b2;
-extern int meets_again;
 extern StgPre D_005F5D50[];
 extern const ExitData D_0055C518[];
 extern int stage_no;
-extern int sekizo_13b;
-extern int sekizo_13b_vol;
 
 static ActMail floor_mes[2] = {{430}, {429}};
 
@@ -140,8 +127,36 @@ static ActMail elev2Chara_mes[2] = {{430}, {429}};
 
 static ActMail elev2CharaChk_mes[2] = {{430}, {429}};
 
-extern int st13b_yure;
-extern unsigned char st13b_yure_vol;
+/* .sdata, owned by st13b.o, in the ROM's order: the scene stream MAIN.MAP leaves unnamed, the stream handles and shakes (MAIN.MAP globals), then the shake and volume the retail object adds. */
+static int st13b_adpcm = 0; /* derived name */
+
+int sekizo13b = 0;
+
+int sekizo13b2 = 0;
+
+int meets_again = 0;
+
+int boss = 0;
+
+int sd = 0;
+
+int boss_dead = 0;
+
+int st13b_up = 0;
+
+int st13b_down = 0;
+
+int sekizo_13b = 0;
+
+int sekizo_13b_vol = 0;
+
+int st13b_yure = 0;
+
+unsigned char st13b_yure_vol = 0;
+
+static int st13b_boss_yure = 0; /* derived name */
+
+static unsigned char st13b_boss_yure_vol = 0; /* derived name */
 
 void actSt13bFloor(volatile int a0)
 {
@@ -185,11 +200,11 @@ void actSt13bFloorChk(volatile int a0)
     actCreateSubThread(actSt13bConte02Jimaku, 21);
 
     conte02End = 0;
-    D_0063BFC0 = 0;
+    st13b_adpcm = 0;
 
     do {
         _ACTWait(1);
-    } while (D_0063BFC0 == 0);
+    } while (st13b_adpcm == 0);
 
     while (conte02End == 0 &&
            ((D_0028F8F0[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
@@ -200,8 +215,8 @@ void actSt13bFloorChk(volatile int a0)
         v = 0x40;
     }
 
-    if (D_0063BFC0 != 0) {
-        scpAdpcmFadeCloseFunc(&D_0063BFC0, v);
+    if (st13b_adpcm != 0) {
+        scpAdpcmFadeCloseFunc(&st13b_adpcm, v);
     }
 
     RequestStageChange(4, D_00639EA4, 0, 0.025f, 2.0f);
@@ -211,9 +226,9 @@ void actSt13bConte02(volatile int a0)
 {
     scpPlayStart(D_00639EA4);
     stgmgrNextStagePreLoadForceStageSet(0);
-    scpAdpcmPlayRequestFunc(11, &D_0063BFC0, 0, 1, 0);
+    scpAdpcmPlayRequestFunc(11, &st13b_adpcm, 0, 1, 0);
 
-    while (D_0063BFC0 == 0) {
+    while (st13b_adpcm == 0) {
         _ACTWait(1);
     }
 
@@ -241,7 +256,7 @@ void actSt13bConte02(volatile int a0)
         _ACTWait((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 1.0);
     }
 
-    AdpcmPlay(*(int *)(D_0063BFC0 + 0x2C));
+    AdpcmPlay(*(int *)(st13b_adpcm + 0x2C));
 
     while (stage_ContinueAnimation(586, 587) == 0) {
         _ACTWait(1);
@@ -791,9 +806,9 @@ void actSt13bElevDownSub(volatile int a0)
         _ACTWait(1);
     }
     _ACTWait(1);
-    D_0063BFF4 = iosPadActRequest(D_00639EAC, 9);
-    D_0063BFF8 = 0x80;
-    iosPadActVolumeSet(D_0063BFF4, 0x80);
+    st13b_boss_yure = iosPadActRequest(D_00639EAC, 9);
+    st13b_boss_yure_vol = 0x80;
+    iosPadActVolumeSet(st13b_boss_yure, 0x80);
 
     while (stage_CheckAnimationFrame(40, 450, 0) == 0) {
         _ACTWait(1);
@@ -816,7 +831,7 @@ void actSt13bElevDown(volatile int a0)
     }
 
     preload(3);
-    D_0063BFF4 = -1;
+    st13b_boss_yure = -1;
     th = actCreateSubThread(actSt13bElevDownSub, 21);
     demoEnd = 0;
 
@@ -839,8 +854,8 @@ void actSt13bElevDown(volatile int a0)
         }
     }
 
-    if (D_0063BFF4 >= 0) {
-        iosPadActStop(D_0063BFF4);
+    if (st13b_boss_yure >= 0) {
+        iosPadActStop(st13b_boss_yure);
     }
 
     RequestStageChange(3, D_00639EA4, 0, 2.0f, 4.0f);
@@ -885,7 +900,7 @@ void actSt13bElevUpChk(volatile int a0)
     th = actCreateSubThread(actSt13bElevUpSub, 21);
 
     demoEnd = 0;
-    D_0063BFF4 = -1;
+    st13b_boss_yure = -1;
 
     while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
@@ -909,8 +924,8 @@ void actSt13bElevUpChk(volatile int a0)
         _ACTWait(2);
         scpPlayPosSet((void *)D_00639EA4, -772.0f, 527.0f, -226.0f);
 
-        if (D_0063BFF4 >= 0) {
-            iosPadActStop(D_0063BFF4);
+        if (st13b_boss_yure >= 0) {
+            iosPadActStop(st13b_boss_yure);
         }
 
         scpFadeIn(3.0f);
@@ -1248,15 +1263,15 @@ void actSt13bElevSwitch(volatile int a0)
 void actSt13bElevUpSub(volatile int a0)
 {
     stage_SetAnimation(40, 1, 0);
-    D_0063BFF4 = iosPadActRequest(D_00639EAC, 9);
-    D_0063BFF8 = 0x80;
-    iosPadActVolumeSet(D_0063BFF4, 0x80);
+    st13b_boss_yure = iosPadActRequest(D_00639EAC, 9);
+    st13b_boss_yure_vol = 0x80;
+    iosPadActVolumeSet(st13b_boss_yure, 0x80);
     while (stage_CheckAnimationFrame(40, 200, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     iosPadActRequest(D_00639EAC, 0x11);
-    iosPadActStop(D_0063BFF4);
+    iosPadActStop(st13b_boss_yure);
     while (stage_CheckAnimationFrame(40, 234, 1) == 0) {
         _ACTWait(1);
     }

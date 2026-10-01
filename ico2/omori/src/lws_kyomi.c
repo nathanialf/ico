@@ -4,6 +4,7 @@
 #include "debug.h"
 #include <string.h>
 #include "typedef.h"
+#include "ios.h"
 
 struct HintInfo {
     int _0;
@@ -32,7 +33,6 @@ static struct {
 } hintWork;          /* derived name */
 
 extern int D_0028F4C0[];
-extern int D_0063A438;
 /* kept local: brain.h is not in this TU's include list (its prototypes do not fit this TU's uses) */
 extern Brain brainGirl;
 /* kept local: this TU's uses of brainStatusDefaultSet do not fit the prototype in brain.h */
@@ -55,7 +55,7 @@ char *CreateKyomiGObj(int no)
     lay[9] = 1.0f;
     lay[10] = 1.0f;
     gobj = CreateLayoutedGObj(61, 0x4B, -1, 0, lay, 1, 7, 0);
-    hint = (struct HintInfo *)iosMallocDebug(D_0063A438, 16, "src/lws_kyomi.c", 101);
+    hint = (struct HintInfo *)iosMallocDebug(ios_partition_sugipon, 16, "src/lws_kyomi.c", 101);
     *(struct HintInfo **)(*(char **)(gobj + 0x15C) + 0x830) = hint;
     *hint = hintDefault;
     hint->_0 = no;

@@ -12,6 +12,15 @@
 #ifndef GAMESYS_H
 #define GAMESYS_H
 
+#include "backStage.h"
+
+/* gamesys.c's .data, MAIN.MAP's gamesys.o globals in its order */
+extern char stamp_str[];
+extern void *gameSysMemoryFuncList[];
+extern int gamesysStageExitTime[];
+extern GamesysObjInfo gameSysObjInfo[];
+extern char gameSysMainSaveBuff[];
+
 int gamesysGetGirlStageIDAndPosition(int a0);
 void gamesysMemoryHandlerRead(int *self, int a1, int a2);
 void gamesysMemoryHandlerWrite(int *self, int n, int a2);

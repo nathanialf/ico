@@ -67,13 +67,13 @@ typedef union {
         }                                                                                          \
         *(char **)((o) + 0xC) = 0;                                                                 \
         *(char **)((o) + 0x10) = 0;                                                                \
-        *(char **)((o) + 0xC) = iosMallocDebug(D_0063A44C, (num) * 64, __FILE__, __LINE__);        \
-        *(char **)((o) + 0x10) = iosMallocDebug(D_0063A44C, (num) * 16, __FILE__, __LINE__);       \
+        *(char **)((o) + 0xC) = iosMallocDebug(ios_partition_seki, (num) * 64, __FILE__, __LINE__);        \
+        *(char **)((o) + 0x10) = iosMallocDebug(ios_partition_seki, (num) * 16, __FILE__, __LINE__);       \
         *(int *)((o) + 0x8) = (num);                                                               \
         if (*(int *)((o) + 0x870) != 0) {                                                          \
             iosFree((void *)(*(int *)((o) + 0x870) & 0x0FFFFFFF));                                 \
         }                                                                                          \
-        *(char **)((o) + 0x870) = iosMallocDebug(D_0063A44C, (num) * 80, __FILE__, __LINE__);      \
+        *(char **)((o) + 0x870) = iosMallocDebug(ios_partition_seki, (num) * 80, __FILE__, __LINE__);      \
         for (n = 0; n < (num); n++) {                                                              \
             float zero = 0.0f;                                                                     \
             ((FlagNodeWord *)(*(char **)((o) + 0x870) + n * 80 + 0x38))->ll &= ~1;                 \

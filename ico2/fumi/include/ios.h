@@ -12,6 +12,28 @@
 #ifndef IOS_H
 #define IOS_H
 
+/* ios.o's .sdata globals (MAIN.MAP): the IOP heap shortfall and the memory
+   partition handles iosMallocSetPartition hands back */
+extern int iopBuffOver;
+extern int ios_partition_root;
+extern int ios_partition_event;
+extern int ios_partition_isys;
+extern int ios_partition_hara;
+extern int ios_partition_sugipon;
+extern int ios_partition_common;
+extern int ios_partition_dmotion;
+extern int ios_partition_smotion;
+extern int ios_partition_s2motion;
+extern int ios_partition_seki;
+extern int ios_partition_oomori;
+extern int ios_partition_horagai;
+extern int ios_partition_sound;
+extern int ios_partition_sound_semi;
+extern int ios_partition_shock;
+extern int ios_partition_inflate;
+extern int ios_partition_mpeg;
+extern int global_variable;
+
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order ios.c's inline tail has. */

@@ -111,7 +111,16 @@ static const EffectArg tsuroEffect8Pos = {{-1223.0f, 1325.0f, -1101.0f, 1.0f}};
 
 static const EffectArg tsuroEffect9Pos = {{-1273.0f, 1325.0f, -873.0f, 1.0f}};
 
-extern int bridge;
+/* .sdata, owned by st07a.o, in the ROM's order: the bridge and statue stream handles and the statue's shake (MAIN.MAP globals), then the shake volume the retail object adds. */
+int bridge = 0;
+
+int sekizo7a = 0;
+
+int sekizo_7a = 0;
+
+int sekizo_7a_vol = 0;
+
+static unsigned char st07a_yure_vol = 0; /* derived name */
 
 void actSt07aChanChk(volatile int a0)
 {
@@ -266,8 +275,6 @@ void actSt07aChanEffect(volatile int a0)
     } while (t < 1600.0f);
     _ACTWait(0);
 }
-
-extern int sekizo7a;
 
 void actSt07aTsuroChk(volatile int a0)
 {
@@ -440,10 +447,6 @@ void actSt07aTsuroEffect(volatile int a0)
     _ACTWait(0);
 }
 
-extern int sekizo_7a;
-extern int sekizo_7a_vol;
-extern unsigned char D_0063BF78;
-
 void actSt07aSekizoChk(volatile int a0)
 {
     /* the family's SE-handle slot at 4(sp): sound-subsystem owned (st13c
@@ -486,7 +489,7 @@ void actSt07aSekizoChk(volatile int a0)
     ReviveAllCarryableItemsWithNonSleepFrame(250);
 
     sekizo_7a_vol = iosPadActRequest(D_00639EAC, 9);
-    D_0063BF78 = 0x80;
+    st07a_yure_vol = 0x80;
     iosPadActVolumeSet(sekizo_7a_vol, 0x80);
 
     se = soundSeDefPlay(1217, 0, 0, 1);

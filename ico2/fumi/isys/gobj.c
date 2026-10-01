@@ -1,5 +1,6 @@
 #include "debug.h"
 #include "memory.h"
+#include "ios.h"
 
 struct GObj__p4 {
     int unk0;
@@ -65,8 +66,6 @@ void isysGObjInit(int n)
     isysGObjKindTableInit();
 }
 
-extern int D_0063A430;
-
 /* .sbss, owned by gobj.o and reached only from this file (MAIN.MAP names no
    symbol in the run), in the ROM's run order: the object table and how many
    0x174-byte entries isysGObjAlloc gave it. */
@@ -79,7 +78,7 @@ inline void isysGObjAlloc(int n)
     struct GObj__p4 *tbl;
     unsigned int i;
 
-    gobjTable = iosMallocDebug(D_0063A430, n * sizeof(struct GObj__p4), __FILE__, 174);
+    gobjTable = iosMallocDebug(ios_partition_isys, n * sizeof(struct GObj__p4), __FILE__, 174);
     gobjMax = n;
     tbl = (struct GObj__p4 *)gobjTable;
     for (i = 0; i < n; i++) {

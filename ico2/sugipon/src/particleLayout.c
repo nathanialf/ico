@@ -1,13 +1,11 @@
 #include "particleEffect.h"
-
-extern int D_0063A438;
-
 #include "particleLayout.h"
+#include "ios.h"
 
 inline int *InitParticleLayoutGeo(char *self, int *other)
 {
     int *r;
-    r = iosMallocDebug(D_0063A438, 4, "src/particleLayout.c", 12);
+    r = iosMallocDebug(ios_partition_sugipon, 4, "src/particleLayout.c", 12);
     *r = SetParticleEffect(other[0x30 / 4], other, *(char **)(self + 0x15C) + 0x60);
     return r;
 }

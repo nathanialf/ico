@@ -5,6 +5,7 @@
 #include "streamMotionManager.h"
 #include "GsBase.h"
 #include "BgAnimation.h"
+#include "ios.h"
 
 /* The TU's .sdata (MAIN.MAP names nothing in it), in ROM order: the stream
    entry count and state, the background reader's state and id, the ring
@@ -405,12 +406,10 @@ void ExecStreamMotionManager(void)
     }
 }
 
-extern int D_0063A438;
-
 void MallocStreamMotionBuffer(void)
 {
-    ringBuf = iosMallocDebug(D_0063A438, 0x28000, "src/streamMotionManager.c", 602);
-    readBufRaw = iosMallocDebug(D_0063A438, 0x28040, "src/streamMotionManager.c", 604);
+    ringBuf = iosMallocDebug(ios_partition_sugipon, 0x28000, "src/streamMotionManager.c", 602);
+    readBufRaw = iosMallocDebug(ios_partition_sugipon, 0x28040, "src/streamMotionManager.c", 604);
     readBuf = (readBufRaw + 0x3F) & 0xFFFFFFC0;
     if (ringBuf == 0 || readBuf == 0) {
         /* "could not allocate the stream buffer memory" */

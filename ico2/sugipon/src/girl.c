@@ -19,6 +19,7 @@
 #include "quaternion.h"
 #include "wireLetter.h"
 #include <libvu0.h>
+#include "ios.h"
 
 /* census: sugipon/src/girl.c:706 `execClothes` (a TU-static; `static` keeps the ELF
  * symbol local, so it cannot collide with the sugipon/src/boy global). */
@@ -175,8 +176,6 @@ typedef struct GirlWork {
     int f3C; /* 0x3C */
     int f40; /* 0x40 */
 } GirlWork;
-
-extern int D_0063A438;
 
 /* The girl's eight generated cloth meshes: the five InitGirlGeo builds for the
    game, named after the work slot each fills, and the three the demo kind
@@ -1772,7 +1771,7 @@ void *InitGirlGeo(char *gobj, char *csv)
     int p;
     int kind;
 
-    w = iosMallocDebug(D_0063A438, 0x44, __FILE__, 892);
+    w = iosMallocDebug(ios_partition_sugipon, 0x44, __FILE__, 892);
     p = (int)GOBJ_SUB(gobj);
     w->f38 = 0;
     w->f34 = 0;

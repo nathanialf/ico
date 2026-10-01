@@ -53,6 +53,7 @@ extern int matrixptr;
 #include <libvu0.h>
 #include <string.h>
 #include "typedef.h"
+#include "ios.h"
 
 inline void ActSetStartBrainStatus(char *self, int status)
 {
@@ -238,13 +239,12 @@ typedef struct {
 } PadConf;
 
 extern PadConf iosPadConfDefault;
-extern int D_0063A44C;
 extern void *isysCurrentGObjProcess;
 
 void actInitialize_ext_charcter(char *self)
 {
     Act *g = GOBJ_ACT(self);
-    char *p = (char *)iosMallocDebug(D_0063A44C, 0x400, __FILE__, 885);
+    char *p = (char *)iosMallocDebug(ios_partition_seki, 0x400, __FILE__, 885);
 
     memset(p, 0, 0x400);
     *(char **)((char *)g + 0x680) = p;
@@ -280,7 +280,7 @@ typedef struct {
 void actInitialize_only_charcter(char *self)
 {
     char *g = (char *)*(int *)(self + 0x164);
-    char *p = (char *)iosMallocDebug(D_0063A44C, 0x980, __FILE__, 907);
+    char *p = (char *)iosMallocDebug(ios_partition_seki, 0x980, __FILE__, 907);
     Vec4 *q;
     int i;
 
@@ -303,7 +303,7 @@ void actInitialize_only_charcter(char *self)
 
 char *actInitialize(char *self)
 {
-    char *w = (char *)iosMallocDebug(D_0063A44C, 0x850, __FILE__, 934);
+    char *w = (char *)iosMallocDebug(ios_partition_seki, 0x850, __FILE__, 934);
 
     *(char **)(self + 0x164) = w;
     memset(w, 0, 0x850);

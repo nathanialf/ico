@@ -12,6 +12,12 @@
 #ifndef LAYOUT_TEXTURE_H
 #define LAYOUT_TEXTURE_H
 
+/* layout_texture.o's .sdata globals: current_layout_id and
+   lt_item_select_disable (MAIN.MAP), and the continue screen's decided flag */
+extern int lt_continue_selected;
+extern int current_layout_id;
+extern int lt_item_select_disable;
+
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order layout_texture.c's inline tail has. */

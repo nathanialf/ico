@@ -38,8 +38,8 @@ typedef struct {
     char pad2C[0x8]; /* 0x2C */
 } WayGroup;
 
-extern WayGroup D_004F1EC0[];
-extern Nd D_004F31E0[];
+extern WayGroup way_group[];
+extern Nd way_point[];
 
 typedef struct WgAll2 {
     int f0, f4, f8, fC, f10, f14, f18;
@@ -96,7 +96,7 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
 
     if ((unsigned int)w->w30 < (unsigned int)(lock_execIcoMisc - 1) || w->w2C == 0) {
         if (w->w64 >= 0) {
-            wp = findTemp((void *)a2, ((WVTElem *)D_004F31E0)[w->w64].f20);
+            wp = findTemp((void *)a2, ((WVTElem *)way_point)[w->w64].f20);
         } else {
             wp = findTemp((void *)a2, -1);
         }
@@ -104,7 +104,7 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
         w->w2C = wp;
     } else {
         if (w->w64 >= 0) {
-            wp = findTemp(w->w2C + 0x10, ((WVTElem *)D_004F31E0)[w->w64].f20);
+            wp = findTemp(w->w2C + 0x10, ((WVTElem *)way_point)[w->w64].f20);
         } else {
             wp = findTemp(w->w2C + 0x10, -1);
         }
@@ -114,7 +114,7 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
         goto out;
     }
 
-    if (D_004F1EC0[*(int *)(wp + 0x20)].f28 == 0) {
+    if (way_group[*(int *)(wp + 0x20)].f28 == 0) {
         wp = findGid((void *)a2, *(int *)(wp + 0x20));
         if (wp == 0) {
             goto out;
@@ -159,7 +159,7 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
     if (r == -1) {
         w->w70 = 1;
 
-        if (D_004F1EC0[g1].f28 == 0) {
+        if (way_group[g1].f28 == 0) {
             goto out;
         }
         r = GetWgAll(g0, g1, work);
@@ -200,17 +200,17 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
     w->w38 = 1;
     w->w3C = 1;
     if (r == g0) {
-        WayGroup *a = &D_004F1EC0[*(int *)(wp + 0x20)];
-        WayGroup *b = &D_004F1EC0[*(int *)(wp0 + 0x20)];
+        WayGroup *a = &way_group[*(int *)(wp + 0x20)];
+        WayGroup *b = &way_group[*(int *)(wp0 + 0x20)];
 
         switch (a->f18) {
         case 1:
             if (wp == a->f8) {
-                if (((WVTElem *)D_004F31E0)[a->f20].f20 == r) {
+                if (((WVTElem *)way_point)[a->f20].f20 == r) {
                     w->w3C = 0;
                 }
             } else if (wp == a->fC) {
-                if (((WVTElem *)D_004F31E0)[a->f24].f20 == r) {
+                if (((WVTElem *)way_point)[a->f24].f20 == r) {
                     w->w3C = 0;
                 }
             }
@@ -367,7 +367,7 @@ int avoid_obstacle2(float *pos, float *wp, WVTObj *w)
     if (w->w64 >= 0) {
         debug_StdPrintfDummy("delete guide point at avoid\n");
 
-        DeleteWayGroup(((WVTElem *)D_004F31E0)[w->w64].f20);
+        DeleteWayGroup(((WVTElem *)way_point)[w->w64].f20);
         w->w64 = -1;
     }
 
@@ -452,8 +452,8 @@ int avoid_obstacle2(float *pos, float *wp, WVTObj *w)
 
     w->w64 = ids[0];
     w->w28 = w->w20;
-    w->w24 = (char *)&D_004F31E0[ids[2]];
-    w->w20 = (char *)&D_004F31E0[ids[0]];
+    w->w24 = (char *)&way_point[ids[2]];
+    w->w20 = (char *)&way_point[ids[0]];
 
     w->w38 = 1;
     w->w34 = 1;
@@ -519,12 +519,12 @@ void create_box_bridge(char *g)
             AddWayPoint(id, CreateWayPoint(wp[j]));
         }
         set_bridge(id);
-        D_004F1EC0[id].f1C = 1;
-        if (D_004F1EC0[id].f18 == 0) {
+        way_group[id].f1C = 1;
+        if (way_group[id].f18 == 0) {
             DeleteWayGroup(id);
         } else {
-            WVTElem *a = &((WVTElem *)D_004F31E0)[D_004F1EC0[id].f20];
-            WVTElem *b = &((WVTElem *)D_004F31E0)[D_004F1EC0[id].f24];
+            WVTElem *a = &((WVTElem *)way_point)[way_group[id].f20];
+            WVTElem *b = &((WVTElem *)way_point)[way_group[id].f24];
 
             if (a->f20 == b->f20) {
                 DeleteWayGroup(id);
@@ -565,7 +565,7 @@ inline void DeleteGuideWay(WVTObj *o)
     if (o->w64 >= 0) {
         debug_StdPrintfDummy("delete guide point group:%d\n", o->w64);
         {
-            WVTElem *e = &((WVTElem *)D_004F31E0)[o->w64];
+            WVTElem *e = &((WVTElem *)way_point)[o->w64];
             DeleteWayGroup(e->f20);
         }
         o->w64 = -1;
@@ -625,14 +625,14 @@ int GetWay_next(WVTObj *w, float *pos)
         if (0) {
             debug_StdPrintfDummy("WGROUP STAT OTHER\n");
         }
-        if (w->w20 != w->w28 && D_004F1EC0[*(int *)(w->w20 + 0x20)].f18 == 0) {
+        if (w->w20 != w->w28 && way_group[*(int *)(w->w20 + 0x20)].f18 == 0) {
             if (way_wall_between(pos, w->w28) == 0) {
                 w->w20 = w->w28;
                 blocked = 0;
                 debug_StdPrintfDummy("short cut 2:%p\n", w->w20);
                 if (w->w64 >= 0) {
                     debug_StdPrintfDummy("delete guide point\n");
-                    DeleteWayGroup(((WVTElem *)D_004F31E0)[w->w64].f20);
+                    DeleteWayGroup(((WVTElem *)way_point)[w->w64].f20);
                     w->w64 = -1;
                 }
                 break;
@@ -723,7 +723,7 @@ int GetWay_next(WVTObj *w, float *pos)
             w->w20 = w->w28;
             if (w->w64 >= 0) {
                 debug_StdPrintfDummy("delete guide point\n");
-                DeleteWayGroup(((WVTElem *)D_004F31E0)[w->w64].f20);
+                DeleteWayGroup(((WVTElem *)way_point)[w->w64].f20);
                 w->w64 = -1;
             }
             w->w2C = w->w24;
@@ -765,7 +765,6 @@ typedef struct NigeEnt {
    GetNearNigePointN fills and sorts by path length. */
 static NigeEnt nigePointTbl[275];
 
-extern Nd D_004F31F0[];
 extern WayGroup *WayBridge_begin(void);
 extern WayGroup *WayBridge_next(WayGroup *g);
 extern float _GetLength(void *a, void *b);
@@ -786,7 +785,7 @@ int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)
     int cnt = 0;
 
     Nd *base = (Nd *)visible_waypoint_of_all_except_temp(pos, -1);
-    WayGroup *ga = &D_004F1EC0[base->f20];
+    WayGroup *ga = &way_group[base->f20];
 
     /* census rows 1146-1150 */
     __inline__ void nige_swap(NigeEnt * tbl, int a, int b)
@@ -810,7 +809,7 @@ int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)
 
     w->w68 = 0;
 
-    gb = &D_004F1EC0[base->f20];
+    gb = &way_group[base->f20];
     if (gb->f18 != 0) {
         n = base;
         d = _GetLength(pos, base->pos);
@@ -821,7 +820,7 @@ int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)
             n = n->f8;
         }
 
-        m = &D_004F31E0[gb->f20];
+        m = &way_point[gb->f20];
         d += _GetLength((char *)gb->f8 + 0x10, m->pos);
         cnt = nige_add(nigePointTbl, cnt, m, d);
 
@@ -838,7 +837,7 @@ int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)
             n = n->fC;
         }
 
-        m = &D_004F31E0[gb->f24];
+        m = &way_point[gb->f24];
         d += _GetLength((char *)gb->fC + 0x10, m->pos);
         cnt = nige_add(nigePointTbl, cnt, m, d);
     } else {
@@ -898,11 +897,11 @@ int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)
                     d += _GetLength(m->pos, m->fC->pos);
                     m = m->fC;
                 }
-                d += _GetLength(gb->fC + 0x10, (float *)&D_004F31F0[gb->f24]);
+                d += _GetLength(gb->fC + 0x10, way_point[gb->f24].pos);
                 if (gb->f20 == base->f4) {
-                    cnt = nige_add(nigePointTbl, cnt, &D_004F31E0[gb->f24], d);
+                    cnt = nige_add(nigePointTbl, cnt, &way_point[gb->f24], d);
                 } else {
-                    cnt = nige_add(nigePointTbl, cnt, &D_004F31E0[gb->f20], d);
+                    cnt = nige_add(nigePointTbl, cnt, &way_point[gb->f20], d);
                 }
                 w->w68 = 1;
             }
@@ -917,7 +916,7 @@ int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)
                 nige_swap(nigePointTbl, j, j - 1);
             }
         }
-        CopyVector((char *)out + i * 16, (float *)&D_004F31F0[nigePointTbl[i].id]);
+        CopyVector((char *)out + i * 16, way_point[nigePointTbl[i].id].pos);
     }
     return cnt;
 }

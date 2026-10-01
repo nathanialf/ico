@@ -542,9 +542,11 @@ void actSt17aHasiEvent(int x)
     volatile int local = x;
 }
 
-extern int cam;
 /* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
+
+/* .sdata, owned by st17a.o, in the ROM's order: the camera stream handle. */
+int cam = 0;
 
 void actSt17aIntroChk(volatile int a0)
 {

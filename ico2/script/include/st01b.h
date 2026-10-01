@@ -12,6 +12,10 @@
 #ifndef ST01B_H
 #define ST01B_H
 
+/* st01b.o's .sdata globals (MAIN.MAP); st01b_floor is declared with its record in st01b.c */
+extern unsigned int st01b_yure;
+extern unsigned char st01b_yure_vol;
+
 void actSt01bEneChk(volatile int a0);
 void actSt01bFloorChk(volatile int a0);
 void actSt01bFloorChkSub(volatile int a0);

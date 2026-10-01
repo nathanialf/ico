@@ -12,6 +12,18 @@
 #ifndef ST04L_H
 #define ST04L_H
 
+/* st04l.o's .sdata globals (MAIN.MAP) */
+extern unsigned int ball1_4l;
+extern int ball2_4l;
+extern int ball3_4l;
+extern int crest1;
+extern int crest2;
+extern int solar4l;
+extern unsigned int oriup4c;
+extern unsigned char oridown4c;
+extern unsigned int st04l_yure;
+extern unsigned char st04l_yure_vol;
+
 void actSt04eSolarBeamChk(volatile int a0);
 void actSt04eSolarBeamChkSub(volatile int a0);
 void actSt04lBallTurnCommon(volatile int a0);

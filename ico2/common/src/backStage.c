@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include "boyact.h"
 #include "geometryManager.h"
+#include "layout_texture.h"
 
 extern int D_0063ACF0;
 
@@ -82,7 +83,10 @@ typedef struct {
     char pad18[0x4C - 0x18];
 } GenGeoRec;
 
-extern GamesysObjInfoBackstage D_004DA980[];
+/* kept local: gamesys.c's object-info records in this TU's view of the record
+   (gamesys.h declares them with the record backStage.h carries, and this TU
+   does not include gamesys.h) */
+extern GamesysObjInfoBackstage gameSysObjInfo[];
 extern GenGeoRec D_002C2DC8[];
 
 /* .bss, owned by backStage.o and reached only from this file: the nest position
@@ -90,7 +94,6 @@ extern GenGeoRec D_002C2DC8[];
 static float nestPos[4];
 
 extern int gamesysAnotherStageTsuresari;
-extern int D_0063B60C;
 extern int stage_no;
 
 static int wayKidnap; /* the carrier walks the waypoint route instead of a generator */
@@ -122,7 +125,8 @@ extern void CopyWpPos(float *out, int i, int j);
 /* kept local: this TU's uses of _InnerProduct do not fit the prototype in Matrix.h */
 extern float _InnerProduct(float *a, float *b);
 extern int D_0028F4C0[];
-extern int D_004DA7D0[];
+/* kept local with gamesys.h's declaration, which this TU does not include */
+extern int gamesysStageExitTime[];
 extern unsigned int gamesysTimeCount;
 extern int D_00639EA8;
 /* kept local: warpGirl.h is not in this TU's include list */
@@ -165,18 +169,18 @@ void backStageProcessOutStage(void)
         kidnapState = 0;
         done = 1;
     }
-    if (D_004DA980[1].stage == stage_no && done == 0) {
+    if (gameSysObjInfo[1].stage == stage_no && done == 0) {
         debug_StdPrintfDummy("girl nokori");
         pinchTold = 0;
         kidnapObjIdx = -1;
         for (i = 2; i < 22; i++) {
-            if (D_004DA980[i].no == 0) {
+            if (gameSysObjInfo[i].no == 0) {
                 continue;
             }
-            if (D_004DA980[i].stage != stage_no) {
+            if (gameSysObjInfo[i].stage != stage_no) {
                 continue;
             }
-            if (D_004DA980[i].work[0] == 4) {
+            if (gameSysObjInfo[i].work[0] == 4) {
                 kidnapObjIdx = i;
                 break;
             }
@@ -195,7 +199,7 @@ void backStageProcessOutStage(void)
                 m = *(ActorWorkRec **)(e + 0x164);
                 kidnapObjIdx = (unsigned int)((char *)gamesysObjInfoPosSetStage((int *)e, m->objNo,
                                                                                 0, stage_no) -
-                                              (char *)D_004DA980) >>
+                                              (char *)gameSysObjInfo) >>
                                6;
             }
         } else {
@@ -203,7 +207,7 @@ void backStageProcessOutStage(void)
             pinchTold = 1;
         }
         if (kidnapState == 1 || kidnapState == 2) {
-            gen = eBrainGetTargetGeneratorFromLabel(D_004DA980[kidnapObjIdx].no);
+            gen = eBrainGetTargetGeneratorFromLabel(gameSysObjInfo[kidnapObjIdx].no);
             p = isysGObjSearchFromObjLayoutID(gen);
             if (p == 0) {
                 kidnapState = 0;
@@ -271,10 +275,10 @@ void backStageProcessMain(void)
     if (gflagChk(390) != 0) {
         return;
     }
-    if (D_0063B60C != 0x36) {
+    if (current_layout_id != 0x36) {
         return;
     }
-    if (stage_no == D_004DA980[1].stage) {
+    if (stage_no == gameSysObjInfo[1].stage) {
         return;
     }
     switch (kidnapState) {
@@ -282,8 +286,8 @@ void backStageProcessMain(void)
         if (kidnapTime-- < 0) {
             kidnapState = 2;
             if (wayKidnap == 0) {
-                GamesysObjInfoBackstage *s = &D_004DA980[kidnapObjIdx];
-                sceVu0CopyVector(&s->pos, &D_004DA980[1].pos);
+                GamesysObjInfoBackstage *s = &gameSysObjInfo[kidnapObjIdx];
+                sceVu0CopyVector(&s->pos, &gameSysObjInfo[1].pos);
                 s->work[0] = 4;
             } else {
                 memset(&tmp, 0, sizeof(tmp));
@@ -291,13 +295,14 @@ void backStageProcessMain(void)
                 tmp.f[1] = D_002C2DC8[0xEAE].rot[1];
                 tmp.f[2] = D_002C2DC8[0xEAE].rot[2];
                 rot = tmp;
-                g1 = gamesysObjInfoPosNewStageSet(0xEAD, 4, D_004DA980[1].stage,
-                                                  D_004DA980[1].pos.f, D_004DA980[1].rot.f);
-                kidnapObjIdx = (unsigned int)((char *)g1 - (char *)D_004DA980) >> 6;
+                g1 = gamesysObjInfoPosNewStageSet(0xEAD, 4, gameSysObjInfo[1].stage,
+                                                  gameSysObjInfo[1].pos.f, gameSysObjInfo[1].rot.f);
+                kidnapObjIdx = (unsigned int)((char *)g1 - (char *)gameSysObjInfo) >> 6;
                 pos.f[0] = nestPos[0];
                 pos.f[2] = nestPos[2];
                 pos.f[1] = nestPos[1] - 10.0f;
-                g2 = gamesysObjInfoPosNewStageSet(0xEAE, 0x21, D_004DA980[1].stage, pos.f, rot.f);
+                g2 = gamesysObjInfoPosNewStageSet(0xEAE, 0x21, gameSysObjInfo[1].stage, pos.f,
+                                                  rot.f);
                 SetInfoSpKidnapGenerator(g2->work);
                 SetInfoSpKidnapEnemy(g1->work);
                 if (g1 != 0 && g2 != 0) {
@@ -317,9 +322,9 @@ void backStageProcessMain(void)
             }
             gamesysAnotherStageTsuresari = 1;
             if (carryTime-- < 0) {
-                int st = D_004DA980[1].stage;
+                int st = gameSysObjInfo[1].stage;
                 RequestStageChangeKidnapEnd(
-                    st, eBrainGetTargetGeneratorFromLabel(D_004DA980[kidnapObjIdx].no));
+                    st, eBrainGetTargetGeneratorFromLabel(gameSysObjInfo[kidnapObjIdx].no));
             }
         }
         break;
@@ -405,14 +410,14 @@ void backStageProcessInStage(float arg)
     int gobj;
     int t;
 
-    range = (float)((unsigned int)(gamesysTimeCount - D_004DA7D0[stage_no]) /
+    range = (float)((unsigned int)(gamesysTimeCount - gamesysStageExitTime[stage_no]) /
                     ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1])) *
             40.0f;
     if (arg != 0.0f) {
         range = arg;
-        debug_StdPrintfDummy(D_0063ACF8, (int)(*(long long *)&D_004DA980[1] >> 1) & 1);
+        debug_StdPrintfDummy(D_0063ACF8, (int)(*(long long *)&gameSysObjInfo[1] >> 1) & 1);
     } else {
-        if (D_004DA7D0[stage_no] == 0) {
+        if (gamesysStageExitTime[stage_no] == 0) {
             return;
         }
         if (gflagChk(390) != 0) {
@@ -424,7 +429,7 @@ void backStageProcessInStage(float arg)
         range = limit;
     }
     if (D_0063ACF0 == 0 && IsGirlEscortedInCurrentStage() == 0 && gflagChk(394) == 0 &&
-        D_004DA980[1].stage == stage_no && warpGirlInStageSet == 0) {
+        gameSysObjInfo[1].stage == stage_no && warpGirlInStageSet == 0) {
         /* the heroine is not held, so the position is changed at random */
         debug_StdPrintfDummy("ヒロイン捕まっていないのでランダムで位置変更");
         if (gflagChk(391) == 0) {

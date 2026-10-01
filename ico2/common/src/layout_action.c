@@ -1,4 +1,6 @@
 #include "layout_action.h"
+#include "gamesys.h"
+#include "op.h"
 #include "debug.h"
 #include "layout_texture.h"
 #include "pad.h"
@@ -141,7 +143,25 @@ void la_TESTFUNCTION(void)
     debug_StdPrintfDummy("sync end\n");
 }
 
-extern int mc[];
+/* .data, owned by layout_action.o and the first object of its run: the
+   game-flag ids the load carries across gflagInit.  The ROM's list holds five
+   ids and the key-config tables follow it; the keep/restore loops below walk
+   twenty words. */
+static int keepFlagNo[5] = {388, 384, 383, 385, 382}; /* derived name */
+
+/* .data, owned by layout_action.o, after keepFlagNo: the eight pad button
+   codes the key-config screen offers, and the six-plus-two slot assignments it
+   edits. */
+static int keyConfigCode[8] = {16, 128, 32, 64, 8, 2, 1, 4}; /* derived name */
+
+static int keyConfigSlot[8] = {1, 2, 3, 4, 5, 0, 0, 0}; /* derived name */
+
+/* .data, the last object of the run: the memory-card request block the
+   layout actions drive (MAIN.MAP global).  The ROM places it on a 64-byte
+   boundary after the key tables (MAIN.MAP too, at member offset 0x80), the
+   alignment common/src/kanbanBoot.c's own request block carries. */
+int mc[640] __attribute__((aligned(64))) = {0};
+
 /* kept local: this TU's uses of iosMcSync do not fit the prototype in mcard.h */
 extern int iosMcSync(unsigned long *a0);
 extern int D_00534CC0[];
@@ -171,15 +191,11 @@ extern int IosMcPreviewInfo[];
 extern int D_005343C8[];
 extern void stgmgrForceSwitchWithFade(float a0, float a1, int a2);
 extern int lock_execIcoMisc;
-extern int D_0063BE68;
-extern int D_0063B5F8;
-extern int D_0063B620;
 extern int D_0028F4D4[];
 extern int D_00534400[];
 /* the custom pad configuration ios/pad.c owns, reached here as its words
    (the sixteen button bits from word 44) */
 extern int iosPadConfCustom[];
-extern char *D_0063BE6C;
 extern int D_0028F4D0[];
 extern void CheckPoint(void);
 extern int stage_no;
@@ -724,10 +740,10 @@ int la_vibe_select(void)
             iosPadActRequestEnable = 0;
             break;
         }
-        if (D_0063BE6C != 0) {
-            *(short *)(*(int *)(D_0063BE6C + 0x2C) + 0x44) = 0x80;
+        if (titleAdpcm != 0) {
+            *(short *)(*(int *)(titleAdpcm + 0x2C) + 0x44) = 0x80;
         }
-        D_0063BE6C = 0;
+        titleAdpcm = 0;
         gflagInit();
         keyconfig_reset();
         D_0028F4D0[0] = 0;
@@ -779,7 +795,7 @@ static int continueDecided = 0; /* derived name */
 int la_title_continue_or_new(int a0)
 {
     if (a0) {
-        D_0063BE68 = 1;
+        opTitleLogoMode = 1;
         continueIcoMiscLock = lock_execIcoMisc;
         iosPadEnable();
         isysGObjActiveLink(0, 1);
@@ -789,28 +805,28 @@ int la_title_continue_or_new(int a0)
             gflagOn(385);
         }
         continueDecided = 0;
-        D_0063B5F8 = 0;
+        lt_continue_selected = 0;
     }
     if (continueDecided != 0) {
-        D_0063B620 = 0;
+        lt_item_select_disable = 0;
         lt_mask_property(0x31, 0);
         lt_mask_property(0x32, 0);
     } else {
-        D_0063B620 = 1;
+        lt_item_select_disable = 1;
         lt_mask_property(0x31, 1);
         lt_mask_property(0x32, 1);
     }
     if (continueDecided != 0 && (D_0028F8F4[0] & 0x840) && lt_fade_status() == 2) {
-        D_0063B5F8 = 1;
+        lt_continue_selected = 1;
         soundSeDefPlay(414, 0xFFFFFFFF, 0, 0);
         switch (lt_current_property_item()) {
         case 0x31:
-            D_0063BE68 = 2;
+            opTitleLogoMode = 2;
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x14;
         case 0x32:
-            D_0063BE68 = 2;
+            opTitleLogoMode = 2;
             gFlagGameClear = 0;
             lt_set_item_select_func(0);
             actionStarted = 0;
@@ -842,7 +858,7 @@ static int newGameDecided = 0; /* derived name */
 int la_title_new_game_only(int a0)
 {
     if (a0) {
-        D_0063BE68 = 1;
+        opTitleLogoMode = 1;
         newGameIcoMiscLock = lock_execIcoMisc;
         iosPadEnable();
         isysGObjActiveLink(0, 1);
@@ -852,20 +868,20 @@ int la_title_new_game_only(int a0)
             gflagOn(385);
         }
         newGameDecided = 0;
-        D_0063B5F8 = 0;
+        lt_continue_selected = 0;
         lastPort = -1;
     }
     if (newGameDecided != 0) {
-        D_0063B620 = 0;
+        lt_item_select_disable = 0;
         lt_mask_property(51, 0);
     } else {
-        D_0063B620 = 1;
+        lt_item_select_disable = 1;
         lt_mask_property(51, 1);
     }
     if (newGameDecided != 0 && (D_0028F8F4[0] & 0x840) && lt_fade_status() == 2) {
         soundSeDefPlay(414, 0xFFFFFFFF, 0, 0);
-        D_0063B5F8 = 1;
-        D_0063BE68 = 2;
+        lt_continue_selected = 1;
+        opTitleLogoMode = 2;
         gFlagGameClear = 0;
         lt_set_item_select_func(0);
         actionStarted = 0;
@@ -974,7 +990,7 @@ int la_mc_file_select(int a0)
     }
 
     if (actionStarted == 0) {
-        D_0063B620 = 1;
+        lt_item_select_disable = 1;
         return -1;
     }
 
@@ -1416,15 +1432,10 @@ int la_load_start_check(int a0)
 /* the load-phase messages in .rodata, VMA 0x61D9A8..0x61DA30 */
 /* "chk:%d\n" and "case 4\n", short strings in this TU's .sdata at VMA
    0x63B588 and 0x63B590 */
-/* the twenty game-flag ids the load carries across gflagInit */
-extern int D_004E3B40[];
-extern char D_004DA788[];
-extern char D_004DD700[];
+
 /* kept local: s_init.h's soundDataOpen and soundDataOpenSync prototypes do not fit this TU's uses */
 extern int seEnvForceClose;
 /* the current game's save record, as in la_system_save_processing */
-/* kept local with gamesys.h's prototype, which this TU does not include */
-extern void gamesysMemoryLoad(void **tbl, int a1, void *a2);
 /* kept local: this TU's uses of iosMcLoadGameBlock do not fit the prototype
    in mcard.h, exactly as in common/src/debug.c */
 extern void iosMcLoadGameBlock(void *a0, void *buf);
@@ -1451,7 +1462,7 @@ static inline void gflagKeepState(void)
     unsigned int i;
 
     for (i = 0; i < 20; i++) {
-        keepFlags[i] = gflagChk(D_004E3B40[i]);
+        keepFlags[i] = gflagChk(keepFlagNo[i]);
     }
 }
 
@@ -1462,9 +1473,9 @@ static inline void gflagRestoreState(void)
 
     for (i = 0; i < 20; i++) {
         if (keepFlags[i]) {
-            gflagOn(D_004E3B40[i]);
+            gflagOn(keepFlagNo[i]);
         } else {
-            gflagOff(D_004E3B40[i]);
+            gflagOff(keepFlagNo[i]);
         }
     }
 }
@@ -1540,13 +1551,13 @@ int la_load_processing(int a0)
     case 7:
         debug_StdPrintfDummy("case %d\n", loadStep);
         debug_StdPrintfDummy("=== LoadGameBlock ===\n");
-        iosMcLoadGameBlock(mc, D_004DD700);
+        iosMcLoadGameBlock(mc, gameSysMainSaveBuff);
         loadStep++;
         break;
     case 10:
         gflagKeepState();
         gflagInit();
-        gamesysMemoryLoad(D_004DA788, D_004DD700, 0);
+        gamesysMemoryLoad(gameSysMemoryFuncList, gameSysMainSaveBuff, 0);
         gflagRestoreState();
         D_0028F4C0[3] = 1;
         D_0028F4C0[4] = 1;
@@ -1557,10 +1568,10 @@ int la_load_processing(int a0)
         loadSerial = mcSetFileNo(mc[2], mc[16]);
         debug_StdPrintfDummy("stage no %d\n", gFlagSaveStage);
         seEnvForceClose = 1;
-        if (D_0063BE6C != 0) {
-            *(short *)(*(int *)(D_0063BE6C + 0x2C) + 0x44) = 0x40;
+        if (titleAdpcm != 0) {
+            *(short *)(*(int *)(titleAdpcm + 0x2C) + 0x44) = 0x40;
         }
-        D_0063BE6C = 0;
+        titleAdpcm = 0;
         if (gflagChk(395)) {
             lt_set_item_select_func(0);
             actionStarted = 0;
@@ -2238,7 +2249,6 @@ inline int la_format_processing(int a0)
 extern void iosMcSaveIconBlock(void *a0);
 extern void iosMcSaveProductBlock(void *a0);
 extern void iosMcSaveGameBlock(void *a0, void *buf);
-extern char D_004DD700[];
 /* the current game's save record (la_save_confirm_complete copies the
    preview from it) */
 /* kept local: this TU's spelling predates sce/libc/string.h; the game compiled
@@ -2349,7 +2359,7 @@ int la_system_save_processing(int a0)
         }
         break;
     case 7:
-        iosMcSaveGameBlock(mc, D_004DD700);
+        iosMcSaveGameBlock(mc, gameSysMainSaveBuff);
         systemSaveStep++;
         barStep++;
         break;
@@ -2461,7 +2471,7 @@ int la_save_processing(int a0)
         break;
     case 7:
         CheckPoint();
-        iosMcSaveGameBlock(mc, D_004DD700);
+        iosMcSaveGameBlock(mc, gameSysMainSaveBuff);
         saveStep++;
         break;
     case 10:
@@ -2870,11 +2880,6 @@ inline int la_switching_stage(void)
     return -1;
 }
 
-/* the eight pad button codes the key-config screen offers, VMA 0x004E3B58, and
-   the six-plus-two slot assignments it edits, VMA 0x004E3B78 */
-extern int D_004E3B58[];
-extern int D_004E3B78[];
-
 /* layout_action.c:3941-3947 in the listing: the key-config property sweep,
    inlined into la_key_config twice; it has no symbol of its own in the ROM and
    no census row, so the name is descriptive. */
@@ -2907,7 +2912,7 @@ static inline int keyCodeIndex(int v)
     int i;
 
     for (i = 0; i < 8; i++) {
-        if (v == D_004E3B58[i]) {
+        if (v == keyConfigCode[i]) {
             return i;
         }
     }
@@ -2920,7 +2925,7 @@ static inline int keyAssignIndex(int v)
     int i;
 
     for (i = 0; i < 8; i++) {
-        if (v == D_004E3B58[D_004E3B78[i]]) {
+        if (v == keyConfigCode[keyConfigSlot[i]]) {
             return i;
         }
     }
@@ -2943,7 +2948,7 @@ int la_key_config(int a0)
         D_00534CC0[0] = 323;
         for (i = 0; i < 16; i++) {
             if ((keyConfigMask >> i) & 1) {
-                D_004E3B78[keyCodeIndex((iosPadConfCustom + 44)[i])] = keyCodeIndex(1 << i);
+                keyConfigSlot[keyCodeIndex((iosPadConfCustom + 44)[i])] = keyCodeIndex(1 << i);
             }
         }
     }
@@ -2955,21 +2960,21 @@ int la_key_config(int a0)
             if (k != -1) {
                 n = keyAssignIndex(m);
                 if (n != -1) {
-                    D_004E3B78[n] = D_004E3B78[sel];
+                    keyConfigSlot[n] = keyConfigSlot[sel];
                 }
-                D_004E3B78[sel] = k;
+                keyConfigSlot[sel] = k;
             }
         }
     }
     keyconfigMaskAll();
     for (i = 0; i < 6; i++) {
-        lt_mask_property(i * 8 + 342 + D_004E3B78[i], 0);
-        lt_default_mask_property(i * 8 + 342 + D_004E3B78[i], 0);
+        lt_mask_property(i * 8 + 342 + keyConfigSlot[i], 0);
+        lt_default_mask_property(i * 8 + 342 + keyConfigSlot[i], 0);
     }
     if (D_0028F8F0[0].flags & 0x40) {
         if (lt_current_property_item() == 391) {
             for (i = 7; i >= 0; i--) {
-                D_004E3B78[i] = i;
+                keyConfigSlot[i] = i;
             }
             NEGATIVE_SE();
         }
@@ -2983,12 +2988,13 @@ int la_key_config(int a0)
                 }
             }
             for (i = 0; i < 8; i++) {
-                (iosPadConfCustom + 44)[keyBitIndex(D_004E3B58[D_004E3B78[i]])] = D_004E3B58[i];
+                (iosPadConfCustom + 44)[keyBitIndex(keyConfigCode[keyConfigSlot[i]])] =
+                    keyConfigCode[i];
             }
             keyconfigMaskAll();
             for (i = 0; i < 6; i++) {
-                lt_default_mask_property(i * 8 + 342 + D_004E3B78[i], 0);
-                lt_mask_property(i * 8 + 342 + D_004E3B78[i], 0);
+                lt_default_mask_property(i * 8 + 342 + keyConfigSlot[i], 0);
+                lt_mask_property(i * 8 + 342 + keyConfigSlot[i], 0);
             }
             lt_set_item_select_func(0);
             actionStarted = 0;

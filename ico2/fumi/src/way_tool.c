@@ -16,6 +16,7 @@
 #include "typedef.h"
 #include "vobj.h"
 #include "geometryManager.h"
+#include "ios.h"
 
 /* way_tool.o .data +0x00: the scratch world position the tool builds a point
    at; the fourth word is the homogeneous 1.0f. */
@@ -25,7 +26,7 @@ static float wayWorkPos[4] = {0.0f, 0.0f, 0.0f, 1.0f};
    point_nige moves it and set_way_point_color highlights it */
 static int wayPointSel = -1; /* derived name */
 
-extern WayRec D_004F1EC0[];
+extern WayRec way_group[];
 extern int D_00639EA4;
 
 /* .sbss, owned by way_tool.o (MAIN.MAP names no symbol in the run), in the ROM's run order: the way
@@ -87,7 +88,7 @@ int group_create(void)
 
         createState = 1;
         current_select_gid = g;
-        selectedWay = &D_004F1EC0[g];
+        selectedWay = &way_group[g];
         debug_StdPrintfDummy("search:%p %p\n", isysGObjSearchFromObjKindID_begin(0), D_00639EA4);
         return 0;
     }
@@ -160,9 +161,9 @@ static inline void relabel_way_groups(void)
     int i;
 
     for (i = 0; i < 94; i++) {
-        if (D_004F1EC0[i].w[0] == 1) {
-            sprintf(debugWayGroupSelect[n].s, "% 2d (% 2d) ", n, D_004F1EC0[i].w[4]);
-            if (D_004F1EC0[i].w[6] == 1) {
+        if (way_group[i].w[0] == 1) {
+            sprintf(debugWayGroupSelect[n].s, "% 2d (% 2d) ", n, way_group[i].w[4]);
+            if (way_group[i].w[6] == 1) {
                 strcat(debugWayGroupSelect[n].s, "b");
             }
             n++;
@@ -186,7 +187,7 @@ static int group_select(void)
     if (state == 0) {
         relabel_way_groups();
         for (i = 0; i < 94; i++) {
-            e = &D_004F1EC0[i];
+            e = &way_group[i];
             if (e->w[0] == 1) {
                 if (i == current_select_gid) {
                     wayGroupSel = i;
@@ -200,7 +201,7 @@ static int group_select(void)
             set_bridge(current_select_gid);
             relabel_way_groups();
         } else if ((*(int *)&wayToolPad[12]) & 0x8000) {
-            D_004F1EC0[current_select_gid].w[6] = 0;
+            way_group[current_select_gid].w[6] = 0;
             relabel_way_groups();
         }
         r = debug_SelectCsvWindow("group + select", 0x12, 0x36, 0xB, debugWayGroupSelect, 8, 0, 1,
@@ -229,7 +230,7 @@ extern char *waypoint_with_range(int *, float);
 
 int point_delete(void)
 {
-    WayRec *entry = &D_004F1EC0[current_select_gid];
+    WayRec *entry = &way_group[current_select_gid];
     int f;
 
     if (debug_font_flag & 1) {
@@ -270,7 +271,7 @@ extern void *nearest_waypoint_by_lineseg(void *a0);
 int point_insert(void)
 {
     static int insertState = 0; /* derived name */
-    WayRec *entry = &D_004F1EC0[current_select_gid];
+    WayRec *entry = &way_group[current_select_gid];
     int f;
 
     if (debug_font_flag & 1) {
@@ -477,7 +478,7 @@ typedef struct {
 extern StgPre D_005F5D50[];
 extern WaySrcGrp wayGroupSheet[];
 extern WaySrcPt wayPointSheet[];
-extern WayNode D_004F31E0[];
+extern WayNode way_point[];
 extern void memset(void *p, int a, int n);
 extern WayBridge *WayBridgeAll_begin(void);
 extern WayBridge *WayBridgeAll_next(WayBridge *p);
@@ -502,10 +503,10 @@ void ExtractWayData(int stage_no)
     for (i = start; i < end; i++) {
         e = &wayGroupSheet[i];
         g = CreateWayGroup();
-        D_004F1EC0[g].w[6] = e->f2C;
-        D_004F1EC0[g].w[8] = e->f30;
-        D_004F1EC0[g].w[9] = e->f34;
-        D_004F1EC0[g].w[10] = e->f38;
+        way_group[g].w[6] = e->f2C;
+        way_group[g].w[8] = e->f30;
+        way_group[g].w[9] = e->f34;
+        way_group[g].w[10] = e->f38;
         for (j = e->firstPoint; j < e->lastPoint; j++) {
             q = &wayPointSheet[j];
             {
@@ -519,7 +520,7 @@ void ExtractWayData(int stage_no)
             }
             p = CreateWayPoint(&v);
             AddWayPoint(g, p);
-            w = &D_004F31E0[p];
+            w = &way_point[p];
             w->f24 = q->fC;
             w->f28 = q->f10;
             w->f2C = q->f14;
@@ -644,7 +645,7 @@ static inline void set_way_point_color(char *p, WayCol *col)
 
 void draw_way_group(int g, WayCol *col)
 {
-    WayRec *e = &D_004F1EC0[g];
+    WayRec *e = &way_group[g];
     WayVec m;
     WayVec blink;
     char *p;
@@ -673,15 +674,6 @@ void draw_way_group(int g, WayCol *col)
     }
 }
 
-/* the way node position vectors: D_004F31F0 is the +0x10 member of the first
-   0x40-byte node of D_004F31E0, so this view indexes the same nodes by their
-   position */
-typedef struct {
-    float v[4];
-    char _10[0x30];
-} WayNodePos;
-
-extern WayNodePos D_004F31F0[];
 /* kept local: this TU's uses of visible_waypoint_of_all do not fit the prototype in way_util.h */
 extern char *visible_waypoint_of_all(void *pos);
 /* kept local: this TU's uses of ez_circle do not fit the prototype in way_util.h */
@@ -714,7 +706,7 @@ void way_toolDL(int a0)
     DrawVObj(0, &wayColorCursor);
 
     for (i = 0; i < 94; i++) {
-        e = &D_004F1EC0[i];
+        e = &way_group[i];
         if (e->w[0] == 1) {
             if (e->w[10] != 0) {
                 if (i == current_select_gid) {
@@ -733,9 +725,9 @@ void way_toolDL(int a0)
                 sceVu0UnitMatrix(MatrixDrive_GetMatrix());
                 gif_StartPacketPri(11);
                 if (e->w[8] != -1) {
-                    DrawLine(*(char **)&e->w[2] + 0x10, D_004F31F0[e->w[8]].v, &wayColorBridge,
+                    DrawLine(*(char **)&e->w[2] + 0x10, way_point[e->w[8]].pos, &wayColorBridge,
                              0x800000);
-                    DrawLine(*(char **)&e->w[3] + 0x10, D_004F31F0[e->w[9]].v, &wayColorBridge,
+                    DrawLine(*(char **)&e->w[3] + 0x10, way_point[e->w[9]].pos, &wayColorBridge,
                              0x800000);
                 }
                 gif_EndPacket();
@@ -782,7 +774,6 @@ WayMenu debugWayMenu[9] = {{"group + create", group_create},  {"      + select",
                            {"quick save", quick_save_wpfile}, {"quick load", quick_load_wpfile},
                            {"save text", wp_print_out}};
 
-extern int D_0063A44C;
 extern int D_00639EC0;
 extern char iosPadConfDefault[];
 /* kept local: the declaration in way_tool.h changes this TU codegen */
@@ -800,7 +791,8 @@ int debug_WayTool(void)
     cursorGObj = isysGObjSearchFromObjLayoutID(2);
     if (cursorGObj != 0) {
         if (first_waytool == 0) {
-            *(void **)(cursorGObj + 0x164) = iosMallocDebug(D_0063A44C, 0x850, __FILE__, 0x4AA);
+            *(void **)(cursorGObj + 0x164) =
+                iosMallocDebug(ios_partition_seki, 0x850, __FILE__, 0x4AA);
             isysGObjProcAdd(cursorGObj, cursor_control, 0, 0x13);
             isysGObjLinkObjDL(cursorGObj, way_toolDL, 0, 0, 0xFFFFFFFF);
             first_waytool = 1;

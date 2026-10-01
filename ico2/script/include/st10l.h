@@ -12,6 +12,12 @@
 #ifndef ST10L_H
 #define ST10L_H
 
+/* st10l.o's .sdata globals (MAIN.MAP) */
+extern int floor10l;
+extern int st10l_gondola_up;
+extern int st10l_gondola_down;
+extern int chain10l;
+
 void actSt10lBoxAChk(volatile int a0);
 void actSt10lBoxBChk(volatile int a0);
 void actSt10lBoxChk(volatile int a0);

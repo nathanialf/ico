@@ -404,7 +404,8 @@ static void execClothes(char *gobj)
     }
 }
 
-extern void *D_0063A438;
+/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+extern void *ios_partition_sugipon;
 
 /* the one LightLineExt InitLightLineGeo fills; its definition closes the
    TU's .data, after the sync marker colours */
@@ -419,13 +420,13 @@ LightLineExt *InitLightLineGeo(char *gobj, float *pos)
     float f;
 
     llExtGeo = &lightLineExt;
-    llExtGeo->phase = iosMallocDebug(D_0063A438, 0x190, "src/boy.c", 161);
-    llExtGeo->speed = iosMallocDebug(D_0063A438, 0x190, "src/boy.c", 162);
-    llExtGeo->line = iosMallocDebug(D_0063A438, 0x190, "src/boy.c", 163);
+    llExtGeo->phase = iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", 161);
+    llExtGeo->speed = iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", 162);
+    llExtGeo->line = iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", 163);
     for (i = 0; i < 100; i++) {
         llExtGeo->phase[i] = 0.0f;
         llExtGeo->speed[i] = random_unit() * 0.1f + 0.01f;
-        llExtGeo->line[i] = iosMallocDebug(D_0063A438, 0x140, "src/boy.c", 168);
+        llExtGeo->line[i] = iosMallocDebug(ios_partition_sugipon, 0x140, "src/boy.c", 168);
         CopyVector(llExtGeo->line[i], &v);
         llExtGeo->line[i][0].x += (float)((i - 0x32) * 5);
         for (j = 1; j < 20; j++) {
@@ -554,7 +555,7 @@ inline void SelectBoyCrown(char *a0, int a1)
    ld/or/sd and ld/and/sd, and a 16-bit field two bytes into the same
    container reached with a plain sh; the same union src/enemyParts.c uses. */
 
-extern void *D_0063A44C;
+extern void *ios_partition_seki;
 
 /* The two points the boy's mantle hangs from, once for each cloth.  MAIN.MAP
    names no symbol in boy.o's .data, so these names are ours. */
@@ -576,7 +577,7 @@ char *InitBoyGeo(char *gobj, void *csv)
     char *p;
     int i;
 
-    w = (char *)iosMallocDebug(D_0063A438, 0x68, "src/boy.c", 280);
+    w = (char *)iosMallocDebug(ios_partition_sugipon, 0x68, "src/boy.c", 280);
     *(char **)(*(char **)(gobj + 0x15C) + 0x830) = w;
     p = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
     *(char **)(p + 0x20) = InitCloth4D(gobj, &mantleMesh, mantleHang);
@@ -595,13 +596,16 @@ char *InitBoyGeo(char *gobj, void *csv)
     }
     *(int *)(*(char **)(w + 0x8) + 0xC) = 0;
     *(int *)(*(char **)(w + 0x8) + 0x10) = 0;
-    *(int *)(*(char **)(w + 0x8) + 0xC) = (int)iosMallocDebug(D_0063A44C, 0x80, "src/boy.c", 291);
-    *(int *)(*(char **)(w + 0x8) + 0x10) = (int)iosMallocDebug(D_0063A44C, 0x20, "src/boy.c", 291);
+    *(int *)(*(char **)(w + 0x8) + 0xC) =
+        (int)iosMallocDebug(ios_partition_seki, 0x80, "src/boy.c", 291);
+    *(int *)(*(char **)(w + 0x8) + 0x10) =
+        (int)iosMallocDebug(ios_partition_seki, 0x20, "src/boy.c", 291);
     *(int *)(*(char **)(w + 0x8) + 0x8) = 2;
     if (*(int *)(*(char **)(w + 0x8) + 0x870) != 0) {
         iosFree(*(int *)(*(char **)(w + 0x8) + 0x870) & 0xFFFFFFF);
     }
-    *(int *)(*(char **)(w + 0x8) + 0x870) = (int)iosMallocDebug(D_0063A44C, 0xA0, "src/boy.c", 291);
+    *(int *)(*(char **)(w + 0x8) + 0x870) =
+        (int)iosMallocDebug(ios_partition_seki, 0xA0, "src/boy.c", 291);
     for (i = 0; i < 2; i++) {
         ((DlFlag *)(i * 0x50 + *(int *)(*(char **)(w + 0x8) + 0x870) + 0x38))->ll &= ~1;
         ((DlFlag *)(i * 0x50 + *(int *)(*(char **)(w + 0x8) + 0x870) + 0x38))->ll &= ~2;

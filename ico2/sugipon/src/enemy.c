@@ -35,11 +35,11 @@ extern EnemyDef D_00624880[];
 #include "quaternion.h"
 #include <libvu0.h>
 #include <stdlib.h>
+#include "ios.h"
 
 /* kept local: this TU's uses of prim_InitParticle do not fit the prototype in Primitive.h */
 extern int prim_InitParticle(float f12, float f13, float f14, int num, int a1, char *tag, int a3);
 extern void __assert(char *file, int line, char *mes);
-extern int D_0063A438;
 
 typedef struct {
     float x;
@@ -89,9 +89,9 @@ void setEnemyParticleObject(char *self, int pid)
 
     size = (*(float *)(p + 0x20) + *(float *)(p + 0x24) + *(float *)(p + 0x28)) * 32.0f * 0.33333f *
            0.5f * 10.0f;
-    parts = (int *)iosMallocDebug(D_0063A438, n * 4, "src/enemy.c", 130);
+    parts = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 130);
     *(int **)(w + 0x10) = parts;
-    fl = (int *)iosMallocDebug(D_0063A438, n * 4, "src/enemy.c", 132);
+    fl = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 132);
     *(int **)(w + 0x30) = fl;
     clearEnemyParticleFlags(fl, n);
     for (i = 0; i < n; i++) {
@@ -480,7 +480,7 @@ static inline int enemyInitPartsList(char *self, char *param)
      * view of the slot produces (evidence rung: ROM bytes). */
     w = (char *)*(int *)(SUBOF(self) + 0x830);
 
-    parts = (int *)iosMallocDebug(D_0063A438, n * 4, "src/enemy.c", 285);
+    parts = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 285);
     *(int **)(w + 0x14) = parts;
     clearEnemyParticleFlags(parts, n);
     *(int *)(w + 0x0) = kind;
@@ -494,7 +494,7 @@ void *InitEnemyGeo(char *self, char *param)
     int kind;
     int no;
 
-    w = (char *)iosMallocDebug(D_0063A438, 0x54, "src/enemy.c", 641);
+    w = (char *)iosMallocDebug(ios_partition_sugipon, 0x54, "src/enemy.c", 641);
     *(char **)(SUBOF(self) + 0x830) = w;
     *(int *)(w + 0x1C) = 0;
     *(void **)(w + 0x18) = InitEnemyEye(10, 0, 10);

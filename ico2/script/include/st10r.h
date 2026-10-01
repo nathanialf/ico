@@ -12,6 +12,11 @@
 #ifndef ST10R_H
 #define ST10R_H
 
+/* st10r.o's .sdata globals (MAIN.MAP) */
+extern int st10r_floor;
+extern char *cage10r;
+extern char *chain10r;
+
 void actSt10rCageMain(volatile int a0);
 void actSt10rCageSub(volatile int a0);
 void actSt10rChainMain(volatile int a0);

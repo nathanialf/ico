@@ -334,7 +334,8 @@ out:
     return ret;
 }
 
-extern void *D_0063A428;
+/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+extern void *ios_partition_root;
 
 void iosThreadMessage(int a0)
 {
@@ -343,7 +344,7 @@ void iosThreadMessage(int a0)
     if (obj->hasQueue == 0) {
         void *r;
         obj->hasQueue = 1;
-        r = iosMallocDebug(D_0063A428, 0x50, __FILE__, 478);
+        r = iosMallocDebug(ios_partition_root, 0x50, __FILE__, 478);
         obj->queue = r;
         iosMsgQueueCreate(r, (char *)r + 0x30, 8);
     }
@@ -357,7 +358,7 @@ inline int iosThreadJoin(void *a0)
     if (((IOSThread *)a0)->hasQueue == 0) {
         void *r;
         ((IOSThread *)a0)->hasQueue = 1;
-        r = iosMallocDebug(D_0063A428, 0x50, __FILE__, 506);
+        r = iosMallocDebug(ios_partition_root, 0x50, __FILE__, 506);
         ((IOSThread *)a0)->queue = r;
         iosMsgQueueCreate(r, (char *)r + 0x30, 8);
     }

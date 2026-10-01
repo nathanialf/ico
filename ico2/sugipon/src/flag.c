@@ -71,8 +71,8 @@ void SetFlag4PointFixID(char *self, int a1, int id)
     prim_UpdateMesh3D(*(char **)(*(char **)(*(char **)(w + 0x4) + 0x4)), 8, 1);
 }
 
-extern void *D_0063A438;
-extern void *D_0063A44C;
+extern void *ios_partition_sugipon; /* kept local: this TU's view (ios.h: int) */
+extern void *ios_partition_seki;
 /* the cloth layout rows, 104 bytes each (layout-cloth-def.o) */
 extern char layoutClothDef[];
 extern int InitClothesNoShade(char *p);
@@ -84,7 +84,7 @@ static ClothCfg flagCfg = {8, 50.0f, 10, 0, 0, 0, 5.0f};
 /* clang-format off */
 char *InitFlagGeo(char *self, char *arg)
 {
-    char *p = iosMallocDebug(D_0063A438, 20, __FILE__, __LINE__);
+    char *p = iosMallocDebug(ios_partition_sugipon, 20, __FILE__, __LINE__);
     Vec4Flag v[4];
     char *mesh;
     Vec4Flag *q;
@@ -92,14 +92,14 @@ char *InitFlagGeo(char *self, char *arg)
     float k = *(float *)(ent + 0x60) / (float)*(int *)(ent + 0x5C);
     float d;
     int type, i, j;
-    char *cl = iosMallocDebug(D_0063A438, 56, __FILE__, __LINE__);
+    char *cl = iosMallocDebug(ios_partition_sugipon, 56, __FILE__, __LINE__);
     *(ClothCfg *)cl = flagCfg;
     *(float *)(cl + 0x18) = *(float *)(ent + 0x64);
     *(int *)(cl + 0x1C) = -1;
     *(int *)(cl + 0x0) = *(int *)(ent + 0x58);
     *(int *)(cl + 0x8) = *(int *)(ent + 0x5C);
 
-    mesh = iosMallocDebug(D_0063A438, *(int *)(cl + 0x0) * 48, __FILE__, __LINE__);
+    mesh = iosMallocDebug(ios_partition_sugipon, *(int *)(cl + 0x0) * 48, __FILE__, __LINE__);
     ((FlagNodeWord *)(cl + 0x10))->i = (int)mesh;
     /* a union member store (alias set 0): the ROM's schedule keeps it, and
        line 126's store, ahead of every ent load below */
@@ -142,7 +142,7 @@ char *InitFlagGeo(char *self, char *arg)
            block forces the re-read the ROM does and the buffer words keep
            their pointer types; the other slot reads here are GOBJ_SUB's */
     case 0:
-        *(char **)(cl + 0x14) = iosMallocDebug(D_0063A438, strlen(ent) + 1, __FILE__, __LINE__);
+        *(char **)(cl + 0x14) = iosMallocDebug(ios_partition_sugipon, strlen(ent) + 1, __FILE__, __LINE__);
         strcpy(*(char **)(cl + 0x14), ent);
 
 
@@ -169,7 +169,7 @@ char *InitFlagGeo(char *self, char *arg)
 
 
     case 4:
-        *(char **)(cl + 0x14) = iosMallocDebug(D_0063A438, strlen(ent) + 1, __FILE__, __LINE__);
+        *(char **)(cl + 0x14) = iosMallocDebug(ios_partition_sugipon, strlen(ent) + 1, __FILE__, __LINE__);
         strcpy(*(char **)(cl + 0x14), ent);
         /* 179 and 191 index v, the walking pointer being loop.c's giv (the
            ROM initialises it after gcse's preheader insertions); 191 and 196

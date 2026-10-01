@@ -24,25 +24,77 @@ typedef union {
     GamesysObjInfo info;
 } GamesysObjInfoFlag;
 
-extern char D_004DA980[];
 extern int stage_no;
+void gamesysVersionLoad(int *self);
+void gamesysVersionSave(int a0);
+void gamesysObjInfoLoad(void *h);
+void gamesysObjInfoSave(void *h);
+void gamesysGeneratorInfoLoad(int *a0);
+void gamesysGeneratorInfoSave(int *self);
+void gamesysHintInfoLoad(int *a0);
+void gamesysHintInfoSave(int *self);
+void gamesysCharacterInfoLoad(int *a0);
+void gamesysCharacterInfoSave(int *self);
+/* the other TUs' save-area handlers the table carries; no header declares them */
+extern void gflagLoad(void *fp);
+extern void gflagSave(void *fp);
+extern void backStageLoad(void *a0);
+extern void backStageSave(void *a0);
+extern void itouGflagLoad(int a0, int a1, int a2, int a3);
+extern void itouGflagSave(void);
+
+/* .data, owned by gamesys.o in MAIN.MAP's order (all five are the map's
+   globals): the build stamp written into the save area and compared against
+   the one the card holds; the save area's handler table, a load and a save
+   handler per record, which gamesysMemoryLoad and gamesysMemorySave walk to
+   the zero pair; the per-stage exit times; the object-info records; the save
+   image itself.  The buffers are zero-initialised, so they sit in .data. */
+char stamp_str[] = "12/12/01 17:53:37";
+
+void *gameSysMemoryFuncList[] = {
+    gamesysVersionLoad,
+    gamesysVersionSave,
+    gflagLoad,
+    gflagSave,
+    gamesysObjInfoLoad,
+    gamesysObjInfoSave,
+    gamesysGeneratorInfoLoad,
+    gamesysGeneratorInfoSave,
+    gamesysHintInfoLoad,
+    gamesysHintInfoSave,
+    gamesysCharacterInfoLoad,
+    gamesysCharacterInfoSave,
+    backStageLoad,
+    backStageSave,
+    itouGflagLoad,
+    itouGflagSave,
+    0,
+    0,
+};
+
+int gamesysStageExitTime[106] = {0};
+
+/* the ROM starts the records on a 16-byte boundary, eight bytes past the
+   exit-time table (MAIN.MAP's link, whose table ends on one, shows no gap) */
+GamesysObjInfo gameSysObjInfo[182] __attribute__((aligned(16))) = {0};
+
+char gameSysMainSaveBuff[25596] = {0};
 
 static inline GamesysObjInfo *gamesysObjInfoSearch(GamesysObjInfoReq *req, int no)
 {
     int i;
 
     for (i = req->start; i < req->end; i++) {
-        if (((GamesysObjInfo *)D_004DA980)[i].no == no) {
+        if (gameSysObjInfo[i].no == no) {
             break;
         }
     }
     if (i == req->end) {
         return 0;
     }
-    return &((GamesysObjInfo *)D_004DA980)[i];
+    return &gameSysObjInfo[i];
 }
 
-extern int D_004DA7D0[];
 extern void memset(char *p, int a, int n);
 
 void gamesysObjInfoInit(void)
@@ -50,11 +102,11 @@ void gamesysObjInfoInit(void)
     int i;
 
     for (i = 0; i <= 181; i++) {
-        ((GamesysObjInfo *)D_004DA980)[i].no = 0;
-        ((GamesysObjInfo *)D_004DA980)[i].stage = 0xFFFF;
+        gameSysObjInfo[i].no = 0;
+        gameSysObjInfo[i].stage = 0xFFFF;
     }
 
-    memset((char *)D_004DA7D0, 0, 0x1A8);
+    memset((char *)gamesysStageExitTime, 0, 0x1A8);
     backStageProcessInit();
 }
 
@@ -69,7 +121,7 @@ void gamesysObjInfoSave(void *h)
 
     gamesysMemoryHandlerWrite(h, &gamesysTimeCount, 4);
 
-    p = D_004DA980;
+    p = (char *)gameSysObjInfo;
 
     save = (int)(*(long long *)(p + 0x40) >> 1) & 1;
     *(long long *)(p + 0x40) = *(long long *)(p + 0x40) | 2;
@@ -78,14 +130,14 @@ void gamesysObjInfoSave(void *h)
 
     *(long long *)(p + 0x40) = (*(long long *)(p + 0x40) & -3) | ((long long)save << 1);
 
-    gamesysMemoryHandlerWrite(h, D_004DA7D0, 0x1A8);
+    gamesysMemoryHandlerWrite(h, gamesysStageExitTime, 0x1A8);
 }
 
 void gamesysObjInfoLoad(void *h)
 {
     gamesysMemoryHandlerRead(h, &gamesysTimeCount, 4);
-    gamesysMemoryHandlerRead(h, D_004DA980, 0x2D80);
-    gamesysMemoryHandlerRead(h, D_004DA7D0, 0x1A8);
+    gamesysMemoryHandlerRead(h, gameSysObjInfo, 0x2D80);
+    gamesysMemoryHandlerRead(h, gamesysStageExitTime, 0x1A8);
 }
 
 /* unsigned: the ROM reads it with lhu (0x1B6928). */
@@ -109,7 +161,7 @@ static inline GamesysObjInfo *gamesysObjInfoOldestSearch(GamesysObjInfoReq *req)
         k = -1;
         t = 0xFFFFFFFF;
         for (i = req->start; i < req->end; i++) {
-            p = &((GamesysObjInfo *)D_004DA980)[i];
+            p = &gameSysObjInfo[i];
             if ((unsigned int)p->time < t && p->stage != stage_no && p->stage != D_0063B418) {
                 t = p->time;
                 k = i;
@@ -119,7 +171,7 @@ static inline GamesysObjInfo *gamesysObjInfoOldestSearch(GamesysObjInfoReq *req)
             debug_StdPrintfDummy("gamesysObjInfoEmptyAreaSearch not area found");
             return 0;
         }
-        p = &((GamesysObjInfo *)D_004DA980)[k];
+        p = &gameSysObjInfo[k];
     }
     ((GamesysObjInfoFlag *)p)->flag &= ~2;
     return p;
@@ -214,7 +266,7 @@ int *gamesysObjInfoBaseSet(int *self, int stage)
 
 void gamesysBackStageProcess(void)
 {
-    unsigned short *h = (unsigned short *)D_004DA980;
+    unsigned short *h = (unsigned short *)gameSysObjInfo;
     if (h[0x21] == 0x94) {
         D_0063B418 = h[0x22];
     }
@@ -302,7 +354,7 @@ void gamesysCharacterInfoLoad(int *a0)
 void gamesysNObjInfoInit(void)
 {
     int mask = 0xFFFF;
-    char *p = D_004DA980;
+    char *p = (char *)gameSysObjInfo;
     int i = 0x8B;
     p += 0xA80;
     do {
@@ -316,7 +368,7 @@ void gamesysNObjInfoInit(void)
 void gamesysObjInfoStageInitFlagCls(void)
 {
     long long mask = -2LL;
-    long long *p = (long long *)D_004DA980;
+    long long *p = (long long *)gameSysObjInfo;
     int i = 0xB5;
     do {
         *p &= mask;
@@ -328,7 +380,7 @@ void gamesysObjInfoStageInitFlagCls(void)
 void gamesysObjInfoStageInitPosSaveUnlock(void)
 {
     long long mask = -3LL;
-    long long *p = (long long *)D_004DA980;
+    long long *p = (long long *)gameSysObjInfo;
     int i = 0xB5;
     do {
         *p &= mask;
@@ -438,20 +490,22 @@ void gamesysObjInfoCls(int kind, int no)
     }
 }
 
-extern unsigned short D_004DA9C0[];
-
 int gamesysGirlStageGet(void)
 {
-    if (D_004DA9C0[1])
-        return D_004DA9C0[2];
+    GamesysObjInfo *girl = &gameSysObjInfo[1];
+
+    if (girl->no)
+        return girl->stage;
     return 4;
 }
 
 int gamesysGetGirlStageIDAndPosition(int a0)
 {
-    if (D_004DA9C0[1] != 0) {
-        CopyVector(a0, (int *)((char *)D_004DA9C0 + 0x10));
-        return D_004DA9C0[2];
+    GamesysObjInfo *girl = &gameSysObjInfo[1];
+
+    if (girl->no != 0) {
+        CopyVector(a0, (int *)girl->pos);
+        return girl->stage;
     }
     CopyVector(a0, (int *)ZeroPoint);
     return 4;
@@ -459,7 +513,7 @@ int gamesysGetGirlStageIDAndPosition(int a0)
 
 void gamesysStageExitTimeSet(int a0)
 {
-    D_004DA7D0[a0] = gamesysTimeCount;
+    gamesysStageExitTime[a0] = gamesysTimeCount;
 }
 
 void gamesysMemoryHandlerRead(int *self, int a1, int a2)
@@ -470,7 +524,7 @@ void gamesysMemoryHandlerRead(int *self, int a1, int a2)
     self[0x4 / 4] = self[0x4 / 4] + a2;
 }
 
-/* The same table gamesysMemoryLoad walks (both are called with D_004DA788):
+/* The same table gamesysMemoryLoad walks (both are called with gameSysMemoryFuncList):
    each entry is a load handler and a save handler. */
 void gamesysMemorySave(void **tbl, int a1, void *a2)
 {
@@ -495,10 +549,6 @@ void gamesysMemoryLoad(void **tbl, int a1, void *a2)
     gflagOn(394);
 }
 
-/* .data, owned by gamesys.o and read only here: the build stamp written into
-   the save area, compared against the one the card holds. */
-static char gamesysVersion[] = "12/12/01 17:53:37";
-
 extern int gamesysVersionDiff;
 extern int strcmp(int *p, int *buf);
 
@@ -506,7 +556,7 @@ void gamesysVersionLoad(int *self)
 {
     int buf[8];
     gamesysMemoryHandlerRead(self, buf, 18);
-    if (strcmp((int *)gamesysVersion, buf) != 0) {
+    if (strcmp((int *)stamp_str, buf) != 0) {
         gamesysVersionDiff = 1;
     } else {
         gamesysVersionDiff = 0;
@@ -516,7 +566,7 @@ void gamesysVersionLoad(int *self)
 void gamesysVersionSave(int a0)
 {
     if (gamesysVersionDiff == 0) {
-        gamesysMemoryHandlerWrite((int *)a0, (int)gamesysVersion, 18);
+        gamesysMemoryHandlerWrite((int *)a0, (int)stamp_str, 18);
         return;
     }
     {

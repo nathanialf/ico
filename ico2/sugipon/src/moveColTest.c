@@ -6,14 +6,14 @@
 #include "quaternion.h"
 #include "moveColTest.h"
 #include <stdlib.h>
+#include "ios.h"
 
 /* kept local: this TU's uses of p2o_DispVU1 do not fit the prototype in DisplayP2O.h */
 extern void p2o_DispVU1();
-extern int D_0063A438;
 
 inline short *InitMoveColTestGeo(int a0, int *self)
 {
-    short *r = iosMallocDebug(D_0063A438, 12, "src/moveColTest.c", 28);
+    short *r = iosMallocDebug(ios_partition_sugipon, 12, "src/moveColTest.c", 28);
     *(int *)r = self[0x30 / 4];
     r[2] = (short)rand();
     r[3] = (short)rand();

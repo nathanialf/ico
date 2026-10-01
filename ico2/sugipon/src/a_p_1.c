@@ -161,8 +161,9 @@ extern void _UnitMatrix(void *m);
 /* kept local: this TU's uses of GetSkeltonFocusNode do not fit the prototype in motionManager2.h */
 extern int GetSkeltonFocusNode(void *self, int id);
 extern void __assert(char *file, int line, char *expr);
-extern void *D_0063A438;
-extern void *D_0063A44C;
+/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+extern void *ios_partition_sugipon;
+extern void *ios_partition_seki;
 
 /* the name every iosMallocDebug and assert in this file reports itself under */
 static const char a_p_1File[] = "src/a_p_1.c";
@@ -194,7 +195,7 @@ char *InitAP1(char *self, char *arg)
     char *d;
     int i;
 
-    p = iosMallocDebug(D_0063A438, 0x280, a_p_1File, 0xE4);
+    p = iosMallocDebug(ios_partition_sugipon, 0x280, a_p_1File, 0xE4);
     *(char **)((int)GOBJ_SUB(self) + 0x830) = p;
     *(int *)p = *(int *)(arg + 0x30);
     *(int *)(p + 0x4) = 1;
@@ -232,15 +233,15 @@ char *InitAP1(char *self, char *arg)
         *(int *)(*(char **)(p + 0x194) + 0xC) = 0;
         *(int *)(*(char **)(p + 0x194) + 0x10) = 0;
         *(int *)(*(char **)(p + 0x194) + 0xC) =
-            (int)iosMallocDebug(D_0063A44C, 0x100, a_p_1File, 0x105);
+            (int)iosMallocDebug(ios_partition_seki, 0x100, a_p_1File, 0x105);
         *(int *)(*(char **)(p + 0x194) + 0x10) =
-            (int)iosMallocDebug(D_0063A44C, 0x40, a_p_1File, 0x105);
+            (int)iosMallocDebug(ios_partition_seki, 0x40, a_p_1File, 0x105);
         *(int *)(*(char **)(p + 0x194) + 0x8) = 4;
         if (*(int *)(*(char **)(p + 0x194) + 0x870) != 0) {
             iosFree(*(int *)(*(char **)(p + 0x194) + 0x870) & 0xFFFFFFF);
         }
         *(int *)(*(char **)(p + 0x194) + 0x870) =
-            (int)iosMallocDebug(D_0063A44C, 0x140, a_p_1File, 0x105);
+            (int)iosMallocDebug(ios_partition_seki, 0x140, a_p_1File, 0x105);
         {
             int n;
 
@@ -275,15 +276,15 @@ char *InitAP1(char *self, char *arg)
         *(int *)(*(char **)(p + 0x198) + 0xC) = 0;
         *(int *)(*(char **)(p + 0x198) + 0x10) = 0;
         *(int *)(*(char **)(p + 0x198) + 0xC) =
-            (int)iosMallocDebug(D_0063A44C, 0x100, a_p_1File, 0x108);
+            (int)iosMallocDebug(ios_partition_seki, 0x100, a_p_1File, 0x108);
         *(int *)(*(char **)(p + 0x198) + 0x10) =
-            (int)iosMallocDebug(D_0063A44C, 0x40, a_p_1File, 0x108);
+            (int)iosMallocDebug(ios_partition_seki, 0x40, a_p_1File, 0x108);
         *(int *)(*(char **)(p + 0x198) + 0x8) = 4;
         if (*(int *)(*(char **)(p + 0x198) + 0x870) != 0) {
             iosFree(*(int *)(*(char **)(p + 0x198) + 0x870) & 0xFFFFFFF);
         }
         *(int *)(*(char **)(p + 0x198) + 0x870) =
-            (int)iosMallocDebug(D_0063A44C, 0x140, a_p_1File, 0x108);
+            (int)iosMallocDebug(ios_partition_seki, 0x140, a_p_1File, 0x108);
         {
             int n;
 

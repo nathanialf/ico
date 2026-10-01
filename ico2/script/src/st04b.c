@@ -50,9 +50,6 @@ extern int D_00639EA4;
 extern int D_00639EAC;
 /* kept local: script.h's prototypes do not fit this TU's calls */
 extern int scpBoyControlReadDisable;
-extern int sekizo4b;
-extern int sekizo_4b;
-extern unsigned char sekizo_4b_vol;
 /* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int gobj, float r);
 /* as script.h declares it; this TU does not include that header */
@@ -75,6 +72,13 @@ extern void scpSekizouCheckPoint(void);
 extern void scpPlayWaitMotEnd(int a0);
 /* as script.h declares it; this TU does not include that header */
 extern void scpPlayEnd(int a0);
+
+/* .sdata, owned by st04b.o, in the ROM's order: the stone statue's stream handle, its shake and the shake's volume. */
+int sekizo4b = 0;
+
+int sekizo_4b = 0;
+
+unsigned char sekizo_4b_vol = 0;
 
 void actSt04bSekizoChk(volatile int a0)
 {

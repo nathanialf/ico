@@ -2,16 +2,14 @@
 #include "DisplayP2O.h"
 #include "matrixDrive.h"
 #include "tableSin.h"
-
-extern int D_0063A438;
-
 #include "sugiTree.h"
 #include <stdlib.h>
 #include <libvu0.h>
+#include "ios.h"
 
 inline short *InitSugiLeafGeo(void)
 {
-    short *h = iosMallocDebug(D_0063A438, 2, (void *)"src/sugiTree.c", 12);
+    short *h = iosMallocDebug(ios_partition_sugipon, 2, (void *)"src/sugiTree.c", 12);
     int r = rand();
     *h = r % 0x10000;
     return h;
@@ -33,7 +31,7 @@ inline short *InitSugiLeafGeo2(void *gobj)
 {
     Sub15C *p = GOBJ_SUB(gobj);
     int n = *(signed char *)(*(char **)((char *)p + 0x854) + 0x2E);
-    short *buf = iosMallocDebug(D_0063A438, n * 2, (void *)"src/sugiTree.c", 35);
+    short *buf = iosMallocDebug(ios_partition_sugipon, n * 2, (void *)"src/sugiTree.c", 35);
     int i;
 
     for (i = 0; i < n; i++) {

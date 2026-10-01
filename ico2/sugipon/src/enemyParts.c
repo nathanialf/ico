@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include "sugiCommon.h"
 #include "GsBase.h"
+#include "sceneManager.h"
 
 /* The packed colour word.  ROM copies it with lwl/lwr + swl/swr, which is
    gcc's unaligned block move: the type is a four-byte record of chars, so
@@ -121,9 +122,9 @@ int UpdatePointBlur(PointBlur *p, void *mtx, void *a2, float f)
     return 1;
 }
 
-extern void *D_0063A438;
-extern void *D_0063A44C;
-extern char D_004E45C0[];
+/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+extern void *ios_partition_sugipon;
+extern void *ios_partition_seki;
 
 /* enemyParts.o's whole .data run, in ROM order: the templates the loops and
    struct assignments copy out of. */
@@ -188,13 +189,13 @@ static DlVtxTemplate footPrintVtxTemplate = {{-1, 1.0f, {0, 0, 0, 0, 0, 0}}};
    which carries the same body and emits no out-of-line code of its own. */
 static inline PointBlur *initPointBlurAt(int num, int a1, int *col, void *pos)
 {
-    PointBlur *p = (PointBlur *)iosMallocDebug(D_0063A438, 0x40, "src/enemyParts.c", 16);
+    PointBlur *p = (PointBlur *)iosMallocDebug(ios_partition_sugipon, 0x40, "src/enemyParts.c", 16);
     *p = pointBlurTemplate;
 
     p->f0 = a1;
-    p->fC = iosMallocDebug(D_0063A438, num << 5, "src/enemyParts.c", 20);
-    p->f8 = iosMallocDebug(D_0063A438, num << 4, "src/enemyParts.c", 21);
-    p->f10 = (Rgba *)iosMallocDebug(D_0063A438, num << 3, "src/enemyParts.c", 22);
+    p->fC = iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c", 20);
+    p->f8 = iosMallocDebug(ios_partition_sugipon, num << 4, "src/enemyParts.c", 21);
+    p->f10 = (Rgba *)iosMallocDebug(ios_partition_sugipon, num << 3, "src/enemyParts.c", 22);
     p->num = num;
     p->col.r = col[0];
     p->col.g = col[1];
@@ -208,10 +209,10 @@ char *InitEnemyEye(int num, int a1, int a2)
 {
     char *p;
 
-    p = (char *)iosMallocDebug(D_0063A438, 0x60, "src/enemyParts.c", 137);
+    p = (char *)iosMallocDebug(ios_partition_sugipon, 0x60, "src/enemyParts.c", 137);
     *(EnemyEyeTmpl *)p = enemyEyeTemplate;
 
-    *(char **)(p + 0x50) = CSVSYSTEM_InitDObj(0x52A, D_004E45C0);
+    *(char **)(p + 0x50) = CSVSYSTEM_InitDObj(0x52A, (float *)&InitialSObjSimpleSetting);
     ((DlFlag *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x38))->ll |= 1;
     *(float *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x30) = 1e-5f;
     ((DlFlag *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x38))->ll |= 4;
@@ -220,7 +221,7 @@ char *InitEnemyEye(int num, int a1, int a2)
             *(float *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x28) = 3.0f;
     *(short *)(*(char **)(p + 0x50) + 0x84C) = 2;
 
-    *(char **)(p + 0x54) = CSVSYSTEM_InitDObj(0x52B, D_004E45C0);
+    *(char **)(p + 0x54) = CSVSYSTEM_InitDObj(0x52B, (float *)&InitialSObjSimpleSetting);
     ((DlFlag *)(*(int *)(*(char **)(p + 0x54) + 0x870) + 0x38))->ll |= 1;
     *(float *)(*(int *)(*(char **)(p + 0x54) + 0x870) + 0x30) = 1e-5f;
     ((DlFlag *)(*(int *)(*(char **)(p + 0x54) + 0x870) + 0x38))->ll &= ~4;
@@ -229,7 +230,7 @@ char *InitEnemyEye(int num, int a1, int a2)
             *(float *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x28) = 3.0f;
     *(short *)(*(char **)(p + 0x54) + 0x84C) = 2;
 
-    *(char **)(p + 0x58) = CSVSYSTEM_InitDObj(0x52C, D_004E45C0);
+    *(char **)(p + 0x58) = CSVSYSTEM_InitDObj(0x52C, (float *)&InitialSObjSimpleSetting);
     ((DlFlag *)(*(int *)(*(char **)(p + 0x58) + 0x870) + 0x38))->ll |= 1;
     *(float *)(*(int *)(*(char **)(p + 0x58) + 0x870) + 0x30) = 1e-5f;
     ((DlFlag *)(*(int *)(*(char **)(p + 0x58) + 0x870) + 0x38))->ll &= ~4;
@@ -252,11 +253,12 @@ char *InitEnemyFootPrint(int num)
     int i;
     int j;
 
-    p = (char *)iosMallocDebug(D_0063A438, 0x10, "src/enemyParts.c", 226);
+    p = (char *)iosMallocDebug(ios_partition_sugipon, 0x10, "src/enemyParts.c", 226);
     *(EnemyFootPrintHead *)p = footPrintHeadTemplate;
     *(int *)p = num;
-    *(int *)(p + 0xC) = (int)iosMallocDebug(D_0063A438, num << 5, "src/enemyParts.c", 229);
-    d = CSVSYSTEM_InitDObj(0x50F, D_004E45C0);
+    *(int *)(p + 0xC) =
+        (int)iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c", 229);
+    d = CSVSYSTEM_InitDObj(0x50F, (float *)&InitialSObjSimpleSetting);
     *(char **)(p + 0x4) = d;
     if (*(int *)(d + 0xC) != 0) {
         iosFree(*(int *)(d + 0xC) & 0xFFFFFFF);
@@ -267,15 +269,15 @@ char *InitEnemyFootPrint(int num)
     *(int *)(*(char **)(p + 0x4) + 0xC) = 0;
     *(int *)(*(char **)(p + 0x4) + 0x10) = 0;
     *(int *)(*(char **)(p + 0x4) + 0xC) =
-        (int)iosMallocDebug(D_0063A44C, num << 6, "src/enemyParts.c", 232);
+        (int)iosMallocDebug(ios_partition_seki, num << 6, "src/enemyParts.c", 232);
     *(int *)(*(char **)(p + 0x4) + 0x10) =
-        (int)iosMallocDebug(D_0063A44C, num << 4, "src/enemyParts.c", 232);
+        (int)iosMallocDebug(ios_partition_seki, num << 4, "src/enemyParts.c", 232);
     *(int *)(*(char **)(p + 0x4) + 0x8) = num;
     if (*(int *)(*(char **)(p + 0x4) + 0x870) != 0) {
         iosFree(*(int *)(*(char **)(p + 0x4) + 0x870) & 0xFFFFFFF);
     }
     *(int *)(*(char **)(p + 0x4) + 0x870) =
-        (int)iosMallocDebug(D_0063A44C, num * 0x50, "src/enemyParts.c", 232);
+        (int)iosMallocDebug(ios_partition_seki, num * 0x50, "src/enemyParts.c", 232);
     for (i = 0; i < num; i++) {
         ((DlFlag *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x38))->ll &= ~1;
         ((DlFlag *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x38))->ll &= ~2;
@@ -379,13 +381,13 @@ int DispEnemyFootPrints(int *a0)
 
 PointBlur *InitPointBlur(int num, int a1, int *col, void *pos)
 {
-    PointBlur *p = (PointBlur *)iosMallocDebug(D_0063A438, 0x40, "src/enemyParts.c", 16);
+    PointBlur *p = (PointBlur *)iosMallocDebug(ios_partition_sugipon, 0x40, "src/enemyParts.c", 16);
     *p = pointBlurTemplate;
 
     p->f0 = a1;
-    p->fC = iosMallocDebug(D_0063A438, num << 5, "src/enemyParts.c", 20);
-    p->f8 = iosMallocDebug(D_0063A438, num << 4, "src/enemyParts.c", 21);
-    p->f10 = (Rgba *)iosMallocDebug(D_0063A438, num << 3, "src/enemyParts.c", 22);
+    p->fC = iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c", 20);
+    p->f8 = iosMallocDebug(ios_partition_sugipon, num << 4, "src/enemyParts.c", 21);
+    p->f10 = (Rgba *)iosMallocDebug(ios_partition_sugipon, num << 3, "src/enemyParts.c", 22);
     p->num = num;
     p->col.r = col[0];
     p->col.g = col[1];

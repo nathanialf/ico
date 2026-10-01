@@ -12,6 +12,21 @@
 #ifndef ST04R_H
 #define ST04R_H
 
+/* st04r.o's .sdata globals (MAIN.MAP) */
+extern int solar4r;
+extern int ball1_4r;
+extern int ball2_4r;
+extern int ball3_4r;
+extern int crest1_4r;
+extern int crest2_4r;
+extern int crest3_4r;
+extern int stair5d;
+extern char *sekizo5c;
+extern unsigned char st05d_hasi;
+extern int st04r_yure;
+extern unsigned char st04r_yure_vol;
+extern int sekizo_4r;
+
 void actSt04rBrg1Chk(volatile int a0);
 void actSt04rBrg1Sub(volatile int a0);
 void actSt04rBrg1WayChk(volatile int a0);

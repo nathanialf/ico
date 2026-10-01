@@ -16,9 +16,11 @@ typedef struct {
     unsigned char hi;
 } DObjBlk8;
 
-extern int D_0063A438;
-
 #include "DObj.h"
+
+/* kept local with ios.h's declaration: this TU keeps its own pointer view of
+   ios_partition_seki below and so does not include ios.h */
+extern int ios_partition_sugipon;
 
 typedef union {
     char *p;
@@ -148,9 +150,9 @@ void initGeometryState(char *self, float *lay)
             *(float *)(p->data.p + 0x1DC) + *(float *)(*(char **)(p->data.p + 0x8C) + 0x14) *
                                                 *(float *)(*(char **)(self + 0x870) + 0x20);
         *(void **)(p->data.p + 0x7D0) =
-            iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 5, __FILE__, 125);
+            iosMallocDebug(ios_partition_sugipon, *(int *)(p->data.p + 0x88) << 5, __FILE__, 125);
         *(void **)(p->data.p + 0x7B4) =
-            iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 5, __FILE__, 127);
+            iosMallocDebug(ios_partition_sugipon, *(int *)(p->data.p + 0x88) << 5, __FILE__, 127);
         InitMotionRotElem(*(void **)(p->data.p + 0x7D0), *(int *)(p->data.p + 0x88));
         InitMotionRotElem(*(void **)(p->data.p + 0x7B4), *(int *)(p->data.p + 0x88));
         CopyVector(p->data.p + 0x7E0, ZeroPoint);
@@ -159,27 +161,27 @@ void initGeometryState(char *self, float *lay)
         *(int *)(p->data.p + 0x808) = 0;
         *(DObjBlk8 *)(p->data.p + 0x800) = *(DObjBlk8 *)&InitialObjPointer;
         *(void **)(p->data.p + 0x80C) =
-            iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 6, __FILE__, 137);
+            iosMallocDebug(ios_partition_sugipon, *(int *)(p->data.p + 0x88) << 6, __FILE__, 137);
         for (i = 0; i < *(int *)(p->data.p + 0x88); i++) {
             *(DObjBlk40 *)(*(char **)(p->data.p + 0x80C) + i * 64) = initialRotElem;
         }
         *(void **)(p->data.p + 0x810) =
-            iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 2, __FILE__, 145);
+            iosMallocDebug(ios_partition_sugipon, *(int *)(p->data.p + 0x88) << 2, __FILE__, 145);
         for (j = 0; j < *(int *)(p->data.p + 0x88); j++) {
             *(int *)(*(char **)(p->data.p + 0x810) + j * 4) = 0;
         }
         *(void **)(p->data.p + 0x814) =
-            iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 4, __FILE__, 153);
+            iosMallocDebug(ios_partition_sugipon, *(int *)(p->data.p + 0x88) << 4, __FILE__, 153);
         for (k = 0; k < *(int *)(p->data.p + 0x88); k++) {
             CopyVector(*(char **)(p->data.p + 0x814) + k * 16, ZeroVector);
         }
         *(void **)(p->data.p + 0x818) =
-            iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88) << 6, __FILE__, 161);
+            iosMallocDebug(ios_partition_sugipon, *(int *)(p->data.p + 0x88) << 6, __FILE__, 161);
         for (m = 0; m < *(int *)(p->data.p + 0x88); m++) {
             *(DObjBlk40 *)(*(char **)(p->data.p + 0x818) + m * 64) = initialBlendRot;
         }
         *(void **)(p->data.p + 0x820) =
-            iosMallocDebug(D_0063A438, *(int *)(p->data.p + 0x88), __FILE__, 169);
+            iosMallocDebug(ios_partition_sugipon, *(int *)(p->data.p + 0x88), __FILE__, 169);
         for (n = 0; n < *(int *)(p->data.p + 0x88); n++) {
             *(char *)(*(char **)(p->data.p + 0x820) + n) = 0;
         }
@@ -232,7 +234,9 @@ typedef union {
     int i[2];
 } DObjFlags;
 
-extern void *D_0063A44C;
+/* kept local: this TU's view of ios.c's seki partition handle is a pointer
+   (ios.h declares the handles int, and that view changes this TU's code) */
+extern void *ios_partition_seki;
 
 void allocObjectData(char *self, char *lay, int n)
 {
@@ -241,7 +245,7 @@ void allocObjectData(char *self, char *lay, int n)
     int k;
 
     *(DObjNode **)(self + 0x870) =
-        (DObjNode *)iosMallocDebug((int)D_0063A44C, n * 80, __FILE__, 299);
+        (DObjNode *)iosMallocDebug((int)ios_partition_seki, n * 80, __FILE__, 299);
     for (i = 0; i < n; i++) {
         {
             char *e = (char *)(i * 80 + (int)*(DObjNode **)(self + 0x870));
@@ -301,7 +305,7 @@ void allocObjectData(char *self, char *lay, int n)
 
 void initInitialInverseMatrix(char *a0)
 {
-    char *m = iosMallocDebug(D_0063A438, *(int *)(a0 + 0x88) << 6, __FILE__, 0x14D);
+    char *m = iosMallocDebug(ios_partition_sugipon, *(int *)(a0 + 0x88) << 6, __FILE__, 0x14D);
     *(char **)(a0 + 0x90) = m;
     GetInitialInverseMatrixByDObj(m, a0);
 }
@@ -319,7 +323,7 @@ static inline void initPolyHead(char *d)
 
     h = *(char **)(d + 0x854);
     q = *(char **)(h + 0x28);
-    *(char **)(d + 0x874) = iosMallocDebug((int)D_0063A44C, 0x100, __FILE__, 238);
+    *(char **)(d + 0x874) = iosMallocDebug((int)ios_partition_seki, 0x100, __FILE__, 238);
     *(int *)(*(char **)(d + 0x874) + 0xF0) = *(int *)(*(char **)(q + 0x874) + 0xF0);
     if (*(int *)(*(char **)(d + 0x874) + 0xF0) == 4) {
         ((PolyFlags *)(h + 0x30))->kind = 3;
@@ -336,8 +340,8 @@ static inline void allocMatrixArrays(char *d, int n)
 {
     int i;
 
-    *(char **)(d + 0xC) = iosMallocDebug((int)D_0063A44C, n * 64, __FILE__, 259);
-    *(char **)(d + 0x10) = iosMallocDebug((int)D_0063A44C, n * 16, __FILE__, 259);
+    *(char **)(d + 0xC) = iosMallocDebug((int)ios_partition_seki, n * 64, __FILE__, 259);
+    *(char **)(d + 0x10) = iosMallocDebug((int)ios_partition_seki, n * 16, __FILE__, 259);
     *(int *)(d + 0x8) = n;
     for (i = 0; i < n; i++) {
         _CopyMatrix(*(char **)(d + 0xC) + i * 64, d + 0x20);
@@ -361,7 +365,7 @@ static inline void allocIntTable(char *d, int n)
 {
     int i;
 
-    *(char **)(d + 0x838) = iosMallocDebug((int)D_0063A44C, n * 4, __FILE__, 283);
+    *(char **)(d + 0x838) = iosMallocDebug((int)ios_partition_seki, n * 4, __FILE__, 283);
     for (i = 0; i < n; i++) {
         *(int *)(*(char **)(d + 0x838) + i * 4) = 0;
     }
@@ -445,7 +449,7 @@ static inline void makeSlotTable(char *d)
 {
     int i;
 
-    *(char **)(d + 0x840) = iosMallocDebug(D_0063A438, 53, __FILE__, 440);
+    *(char **)(d + 0x840) = iosMallocDebug(ios_partition_sugipon, 53, __FILE__, 440);
     for (i = 0; i < 53; i++) {
         (*(char **)(d + 0x840))[i] = findSlot(d, i);
     }
@@ -455,7 +459,7 @@ char *CSVSYSTEM_InitDObj(int id, float *lay)
 {
     char *d;
 
-    d = iosMallocDebug((int)D_0063A44C, sizeof(DObjRecord), __FILE__, 463);
+    d = iosMallocDebug((int)ios_partition_seki, sizeof(DObjRecord), __FILE__, 463);
     *(DObjRecord *)d = emptyDObj;
     if (id != 0x610) {
         CSVSYSTEM_ReadCharFiles(d, id);

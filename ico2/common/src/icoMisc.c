@@ -12,22 +12,26 @@
 #include "spiderGroupManager.h"
 #include "stageMultiBgaManager.h"
 #include "icoMisc.h"
+#include "gamesys.h"
 #include "s_init.h"
 #include "script.h"
 #include <stdio.h>
 #include "GsBase.h"
+#include "ios.h"
+#include "layout_texture.h"
 
-extern void *D_0063A428;
 extern int debug_bar_flag;
-extern void *D_0063A430;
-extern void *D_0063A43C;
-extern void *D_0063A444;
-extern void *D_0063A448;
 extern unsigned int D_0063B428;
 extern char D_0063B430[];
 extern char D_0063B438[];
-extern int D_004E3B00[];
-extern int D_004E3B10[];
+
+/* .data, owned by icoMisc.o (MAIN.MAP sizes the run 0x30 and names no symbol
+   in it): the partition bar's two line colours and the wind-field line colour,
+   RGBA as Draw2DLine and DrawLineG take them. */
+static int partitionFreeColor[4] = {255, 128, 64, 128}; /* derived name */
+
+static int partitionUsedColor[4] = {64, 128, 255, 128}; /* derived name */
+
 /* kept local: this TU's use of gif_MakeSpriteNoTexture does not fit the
    prototype in GifPacket.h (the colour word arrives as a 32-bit unsigned,
    which the ROM materialises with lui + ori). */
@@ -82,7 +86,8 @@ static __inline__ void partitionBarDebugDisp(void)
 
 void disp_memory_partition_bar(void)
 {
-    char *parts[5] = {D_0063A430, D_0063A448, D_0063A444, D_0063A43C, 0};
+    char *parts[5] = {ios_partition_isys, ios_partition_s2motion, ios_partition_smotion,
+                      ios_partition_common, 0};
     D2Pos st;
     D2Pos ed;
     char buf[1024];
@@ -123,9 +128,9 @@ void disp_memory_partition_bar(void)
         st.x = ed.x = (int)(((float)(-(ScreenWidth >> 1) + 130) + 2048.0f) * 16.0f +
                             (float)j * (float)(ScreenWidth - 200) / (float)max * 16.0f);
         if (k % 10) {
-            Draw2DLine((int *)&st, (int *)&ed, D_004E3B10, -1);
+            Draw2DLine((int *)&st, (int *)&ed, partitionUsedColor, -1);
         } else {
-            Draw2DLine((int *)&st, (int *)&ed, D_004E3B00, -1);
+            Draw2DLine((int *)&st, (int *)&ed, partitionFreeColor, -1);
         }
         k++;
     }
@@ -154,12 +159,12 @@ void disp_memory_partition_bar(void)
         st.x = (int)(((float)(-(ScreenWidth >> 1) + 130) + 2048.0f) * 16.0f);
         ed.x = (int)((float)st.x +
                      (float)(total - used) * (float)(ScreenWidth - 200) / (float)max * 16.0f);
-        Draw2DLine((int *)&st, (int *)&ed, D_004E3B00, -1);
+        Draw2DLine((int *)&st, (int *)&ed, partitionFreeColor, -1);
         x = (int)(((float)(-(ScreenWidth >> 1) + 130) + 2048.0f) * 16.0f);
         st.x = (int)((float)x + (float)total * (float)(ScreenWidth - 200) / (float)max * 16.0f);
         ed.x = (int)((float)x +
                      (float)(total - used) * (float)(ScreenWidth - 200) / (float)max * 16.0f);
-        Draw2DLine((int *)&st, (int *)&ed, D_004E3B10, -1);
+        Draw2DLine((int *)&st, (int *)&ed, partitionUsedColor, -1);
     }
     gif_SetAlpha(1, 4, 128);
     partitionBarDebugDisp();
@@ -187,8 +192,8 @@ void disp_memory_partition(void)
     char *p;
     int y = 0x70;
     debug_PrintfDummy(24, 100, 0xFFFFFF00, "partition             total free/all      max free");
-    iosMallocCheckLeak(D_0063A428);
-    p = *(char **)((char *)D_0063A428 + 0x28);
+    iosMallocCheckLeak(ios_partition_root);
+    p = *(char **)((char *)ios_partition_root + 0x28);
     if (p != 0) {
         do {
             unsigned int sum = 0;
@@ -217,8 +222,6 @@ void disp_memory_partition(void)
 }
 
 extern int D_0063B448;
-extern int D_0063A3E0;
-extern int D_0063B60C;
 extern int D_0063B444;
 extern int D_0063B440;
 extern int graphics_ready;
@@ -273,8 +276,8 @@ void ExecIcoMisc(void)
             D_0063B448 = 0;
         }
     }
-    if (D_0063A3E0 != 0) {
-        debug_PrintfDummy(250, 100, 0xFF000000, (int)"IOP BUFF OVER -%d bytes", D_0063A3E0);
+    if (iopBuffOver != 0) {
+        debug_PrintfDummy(250, 100, 0xFF000000, (int)"IOP BUFF OVER -%d bytes", iopBuffOver);
     }
     iosOmGetGObjStatus(&total, &used);
     if (debug_font_flag2 != 0 || (debug_font_flag & 1) != 0) {
@@ -307,7 +310,7 @@ void ExecIcoMisc(void)
         ExecGameOverEffect();
         D_0063B444 = 0;
     } else {
-        if (D_0063B60C == 28) {
+        if (current_layout_id == 28) {
             D_0063B444 = 1;
         }
         if (D_0063B444 != 0) {
@@ -393,8 +396,6 @@ extern int D_0063B458;
    named sbss symbols); the frame stamp the load-time report below prints. */
 static int load_time;
 
-extern char D_004DA788[];
-extern char D_004DD700[];
 extern char D_0063B460[];
 extern char D_0063B468[];
 extern char D_0063B470[];
@@ -403,7 +404,6 @@ extern void debug_StdPrintfDummy();
 extern void InitializeStaticBlur(void);
 extern void InitStreamMotionManager(void);
 extern void InitFlyManager(void);
-extern void gamesysMemoryLoad(void *a0, void *a1, int a2);
 extern void ACTGame_SetActors_Debug(int stage, int a1);
 extern void light_InitLight(void);
 extern void InitStageLight(int stage);
@@ -455,7 +455,7 @@ void InitIcoMisc(int *arg)
     InitFlyManager();
 
     if (D_0028F4C0[3] != 0 && D_0028F4C0[4] != 0) {
-        gamesysMemoryLoad(D_004DA788, D_004DD700, 0);
+        gamesysMemoryLoad(gameSysMemoryFuncList, gameSysMainSaveBuff, 0);
         scpBoyControlReadDisable = 0;
         D_0028F4C0[4] = 0;
     }
@@ -508,7 +508,7 @@ void InitIcoMisc(int *arg)
                 "\033[33mこのステージは前のステージと異なるモーションセグメントを使用します。\033[m\n");
             ResetStatic2MotionManager(D_0063B458);
         }
-        iosMallocResetPartition(D_0063A448);
+        iosMallocResetPartition(ios_partition_s2motion);
         iosCdvdLoadPackFile(pack, fname, 0);
         D_0063B458 = D_005F5D50[stage].mot;
     }
@@ -579,7 +579,8 @@ void InitIcoMisc(int *arg)
     iosThreadDestroy(0);
 }
 
-extern char D_004E3B20[];
+static int windLineColor[4] = {0, 128, 255, 128}; /* derived name */
+
 /* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
 extern void _UnitMatrix(void *m);
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
@@ -624,7 +625,7 @@ void DispIcoMisc(void)
 
                 _ScaleVectorXYZ(tip, GetWindVector(0, pos), 10.0f);
                 _AddVectorXYZ(tip, pos, tip);
-                DrawLineG(tip, D_004E3B20, pos, D_004E3B20, 0);
+                DrawLineG(tip, windLineColor, pos, windLineColor, 0);
             }
         }
         gif_EndPacket();

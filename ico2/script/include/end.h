@@ -12,6 +12,16 @@
 #ifndef END_H
 #define END_H
 
+/* end.o's .sdata globals (MAIN.MAP) */
+extern int ed1;
+extern int ed2;
+extern int ed3;
+extern int ed4;
+extern int ed5;
+extern int ed6;
+extern int sea;
+extern int happy_end;
+
 void actConte14_1(volatile int a0);
 void actConte14_10(volatile int a0);
 void actConte14_10_Jimaku(volatile int a0);

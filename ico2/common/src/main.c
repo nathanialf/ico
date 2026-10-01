@@ -123,8 +123,6 @@ extern int mpegInitDone;
 extern int mpegPlayInitColor;
 extern int mpegPlayReturnStage;
 extern float mpegPlayFadeInSpeed;
-extern int D_0063A430;
-extern int D_0063A468;
 extern int debug_TryToGetStartStage(void);
 extern void debug_VariableInit(void);
 extern void InitDelayFree(void);
@@ -214,7 +212,7 @@ void Main(void)
             if (iosCdvdBackGroundMgrRunning != 0) {
                 continue;
             }
-            D_0063A468 = D_0063A430;
+            ios_partition_mpeg = ios_partition_isys;
             AdpcmStreamFree();
             soundAllocIopFree();
             movie_init(&D_005D3CE8[mpegPlay * 0x20], 720, systemStatus[0] ? 576 : 480, 36, 12,

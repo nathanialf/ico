@@ -31,4 +31,8 @@ extern int first_waytool;
 extern int n_way_group;
 extern int current_select_gid;
 
+/* way_llf.o's .data globals (MAIN.MAP), the way-group and way-point tables,
+   are declared by each user in its own view of the records (way_kidnap,
+   way_sys, way_tool and way_util each carry one). */
+
 #endif /* WAY_LLF_H */

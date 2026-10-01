@@ -1,6 +1,7 @@
 #include "debug.h"
 #include "memory.h"
 #include <eeregs.h>
+#include "ios.h"
 
 typedef struct IosMsg {
     char pad0[0x44];
@@ -60,17 +61,13 @@ extern int AddIntcHandler(int ch, void *fn, int a2);
 extern int EnableIntc(int ch);
 /* kept local: this TU's uses of signal_handler do not fit the prototype in message.h */
 extern int signal_handler(int a0);
-extern int D_0063A42C;
-extern int *D_0063A530;
+/* kept local with message.h's declaration (this TU does not include it): the
+   signal thread's record, defined after the functions whose strings precede it */
+extern int *th_sig;
 
 /* .bss, owned by message.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the queue registered against each semaphore id. */
 static int msgQueueTable[256];
-
-extern char D_0063A510[];
-extern char D_0063A518[];
-extern char D_0063A520[];
-extern char D_0063A528[];
 
 void deq_mes_th(IosMsgQueue *self)
 {
@@ -98,7 +95,7 @@ void iosMsgQueueCreate(IosMsgQueue *q, int *buf, int size)
     q->sema = CreateSema(&q->sem);
     if (q->sema < 0) {
         debug_assert("ios/message.c", 120);
-        __assert("ios/message.c", 120, D_0063A510);
+        __assert("ios/message.c", 120, "0");
     }
     ((IosMsgQueue **)msgQueueTable)[q->sema] = q;
     debug_StdPrintfDummy("sema[%d] = %p\n", q->sema, q);
@@ -106,10 +103,10 @@ void iosMsgQueueCreate(IosMsgQueue *q, int *buf, int size)
 
 void iosMsgQueueDestroy(IosMsgQueue *q)
 {
-    debug_StdPrintfDummy(D_0063A518, q);
+    debug_StdPrintfDummy("%p\n", q);
     if (q->sema < 0) {
         debug_assert("ios/message.c", 136);
-        __assert("ios/message.c", 136, D_0063A510);
+        __assert("ios/message.c", 136, "0");
     }
     ((IosMsgQueue **)msgQueueTable)[q->sema] = 0;
     DeleteSema(q->sema);
@@ -126,7 +123,7 @@ static inline int msgSend(IosMsgQueue *q, int val, int mode)
     if (q == 0) {
         debug_StdPrintfDummy("msg:null message queue\n");
         debug_assert("ios/message.c", 293);
-        __assert("ios/message.c", 293, D_0063A510);
+        __assert("ios/message.c", 293, "0");
     }
     ReferSemaStatus(q->sema, st);
     if (q->num == st[1]) {
@@ -149,8 +146,8 @@ void send_signal_message(void)
     MsgEventThread *self = (MsgEventThread *)iosGetIOSThreadFromId(GetThreadId());
     MsgEventThread *th = (MsgEventThread *)self->arg;
 
-    D_0063A530 = (int *)self;
-    debug_StdPrintfDummy(D_0063A520, self->id, th->val);
+    th_sig = (int *)self;
+    debug_StdPrintfDummy("%d %d\n", self->id, th->val);
 
     for (;;) {
         iosThreadSleep();
@@ -166,7 +163,7 @@ void iosMsgSetEvent(int intc, IosMsgQueue *q, int val)
     if (q == 0) {
         debug_StdPrintfDummy("evt:null message queue\n");
     }
-    th = iosMallocDebug(D_0063A42C, 0x40C0, "ios/message.c", 453);
+    th = iosMallocDebug(ios_partition_event, 0x40C0, "ios/message.c", 453);
     iosThreadCreate(th, 4, send_signal_message, (int)th, (char *)th + 0x70, 0x4000, 0xB);
     th->queue = q;
     th->val = val;
@@ -175,9 +172,13 @@ void iosMsgSetEvent(int intc, IosMsgQueue *q, int val)
     debug_StdPrintfDummy("where is here\n");
     AddIntcHandler(intc, signal_handler, -1);
     ret = EnableIntc(intc);
-    debug_StdPrintfDummy(D_0063A528, ret);
+    debug_StdPrintfDummy("evt:%d\n", ret);
     debug_StdPrintfDummy("evt:signal added\n");
 }
+
+/* .sdata, after the short strings above: the signal thread's record
+   (MAIN.MAP global), which iosMsgInit's handler wakes. */
+int *th_sig = 0;
 
 void iosMsgInit(void)
 {
@@ -196,7 +197,7 @@ int iosMsgSend(char *q, int val, int mode)
     if (q == 0) {
         debug_StdPrintfDummy("msg:null message queue\n");
         debug_assert("ios/message.c", 293);
-        __assert("ios/message.c", 293, D_0063A510);
+        __assert("ios/message.c", 293, "0");
     }
     ReferSemaStatus(*(int *)(q + 0x2C), st);
     if (*(int *)(q + 8) == st[1]) {
@@ -220,7 +221,7 @@ int iosMsgRecv(char *q, int *out, int mode)
     if (q == 0) {
         debug_StdPrintfDummy("msg:null message queue\n");
         debug_assert("ios/message.c", 329);
-        __assert("ios/message.c", 329, D_0063A510);
+        __assert("ios/message.c", 329, "0");
     }
     ReferSemaStatus(*(int *)(q + 0x2C), st);
     if (*(int *)(q + 8) == 0) {
@@ -262,7 +263,7 @@ int signal_handler(int a0)
     if (a0 == 2) {
         volatile unsigned long long *reg = (volatile unsigned long long *)GS_CSR;
         odd_even = (int)(((*reg >> 13) & 1) ^ 1);
-        iWakeupThread(D_0063A530[12]);
+        iWakeupThread(th_sig[12]);
     }
     return 0;
 }

@@ -120,7 +120,8 @@ extern int D_0028F4C0[];
 extern void bga_SetUniqAnimationFlag(int val);
 /* kept local: this TU's uses of bga_CalcAnimation do not fit the prototype in BgAnimation.h */
 extern void bga_CalcAnimation(void *a0, int a1, int a2);
-extern IosMemPart *D_0063A44C;
+/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+extern IosMemPart *ios_partition_seki;
 /* kept local: this TU's uses of bga_DispLightning do not fit the prototype in BgAnimation.h */
 extern void bga_DispLightning(void);
 /* kept local: this TU's uses of bga_CheckAnimationFrameIn do not fit the prototype in BgAnimation.h */
@@ -450,9 +451,9 @@ int stage_Init(void)
                 *(int *)(STG_DAT(e->objs[k]) + 0xC) = 0;
                 *(int *)(STG_DAT(e->objs[k]) + 0x10) = 0;
                 *(int *)(STG_DAT(e->objs[k]) + 0xC) = (int)iosMallocDebug(
-                    D_0063A44C, *(int *)(STG_DAT(e->objs[k]) + 0x8) << 6, __FILE__, 761);
+                    ios_partition_seki, *(int *)(STG_DAT(e->objs[k]) + 0x8) << 6, __FILE__, 761);
                 *(int *)(STG_DAT(e->objs[k]) + 0x10) = (int)iosMallocDebug(
-                    D_0063A44C, *(int *)(STG_DAT(e->objs[k]) + 0x8) << 4, __FILE__, 761);
+                    ios_partition_seki, *(int *)(STG_DAT(e->objs[k]) + 0x8) << 4, __FILE__, 761);
                 /* The reallocation block's own count line (`X->8 = N;`, as
                    chain.c, boy.c and box.c spell the same block), here passed
                    the count field itself (listing 762; all three allocations
@@ -464,7 +465,7 @@ int stage_Init(void)
                     iosFree((void *)(*(int *)(STG_DAT(e->objs[k]) + 0x870) & 0x0FFFFFFF));
                 }
                 *(int *)(STG_DAT(e->objs[k]) + 0x870) = (int)iosMallocDebug(
-                    D_0063A44C, *(int *)(STG_DAT(e->objs[k]) + 0x8) * 0x50, __FILE__, 761);
+                    ios_partition_seki, *(int *)(STG_DAT(e->objs[k]) + 0x8) * 0x50, __FILE__, 761);
                 for (t = 0; t < *(int *)(STG_DAT(e->objs[k]) + 0x8); t++) {
                     ((PlayWord *)(STG_NODE(e->objs[k], t) + 0x38))->l &= ~1;
                     ((PlayWord *)(STG_NODE(e->objs[k], t) + 0x38))->l &= ~2;
@@ -1135,7 +1136,7 @@ int *stage_MakePlayBgAnimation(int key)
         return 0;
     }
 
-    p = (int *)iosMallocDebug(D_0063A44C, 0x40, __FILE__, 1494);
+    p = (int *)iosMallocDebug(ios_partition_seki, 0x40, __FILE__, 1494);
     if (p == 0) {
         /* "cannot allocate memory for the stage segment (heap exhausted)" */
         debug_StdPrintfDummy("ステージセグメントにメモリが確保できません.(ヒープメモリ不足)\n");

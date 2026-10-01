@@ -12,6 +12,9 @@
 #ifndef ST17A_H
 #define ST17A_H
 
+/* st17a.o's .sdata globals (MAIN.MAP) */
+extern int cam;
+
 void actLinkTestChk(volatile int a0);
 void actSt17aDoorDownChk(volatile int a0);
 void actSt17aDoorDownEffect(volatile int a0);

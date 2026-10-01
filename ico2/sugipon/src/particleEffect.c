@@ -6,6 +6,7 @@
 #include <string.h>
 #include "memory.h"
 #include "typedef.h"
+#include "ios.h"
 
 typedef struct PEGeo PEGeo; /* the allocated per-effect geometry object */
 
@@ -697,8 +698,6 @@ void ExecParticleEffect(int no)
     }
 }
 
-extern int D_0063A450;
-
 void ResetParticleEffectPackages(int *pkg)
 {
     PEVector pos;
@@ -706,7 +705,7 @@ void ResetParticleEffectPackages(int *pkg)
     int part;
     int i;
 
-    part = D_0063A450;
+    part = ios_partition_oomori;
     for (i = 0; i < 128; i++) {
         if (particleEffects[i].used != 0 &&
             *(int **)((char *)particleEffects[i].geo + 0x20) == pkg) {
@@ -823,7 +822,7 @@ extern int SetParticleEffectByPartition(int no, PEVector *pos, PEQuaternion *qua
 
 int SetParticleEffect(int no, PEVector *pos, PEQuaternion *quat)
 {
-    return SetParticleEffectByPartition(no, pos, quat, D_0063A450);
+    return SetParticleEffectByPartition(no, pos, quat, ios_partition_oomori);
 }
 
 /* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
@@ -833,7 +832,7 @@ int SetParticleEffect(int no, PEVector *pos, PEQuaternion *quat)
  * static stand-in SetParticleEffect_inl, which collapses at layout. */
 static inline int SetParticleEffect_inl(int no, PEVector *pos, PEQuaternion *quat)
 {
-    return SetParticleEffectByPartition(no, pos, quat, D_0063A450);
+    return SetParticleEffectByPartition(no, pos, quat, ios_partition_oomori);
 }
 
 int SetParticleEffectActiveSensing(int no, PEVector *pos, PEQuaternion *quat)

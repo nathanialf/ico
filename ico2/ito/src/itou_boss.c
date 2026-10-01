@@ -583,7 +583,8 @@ inline void actBossCtrlStart(void *a0)
     }
 }
 
-extern void *D_0063A438;
+/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+extern void *ios_partition_sugipon;
 /* kept local: this TU's uses of ico_m33_to_quat do not fit the prototype in itou_sub.h */
 extern void ico_m33_to_quat(void *a0, void *a1);
 
@@ -598,7 +599,7 @@ inline int InitBossCtrlGeo(void *a0)
     char *q;
     char *r;
 
-    ret = iosMallocDebug(D_0063A438, 0, __FILE__, 350);
+    ret = iosMallocDebug(ios_partition_sugipon, 0, __FILE__, 350);
     actInitialize(a0);
     actInitialize_ext_charcter(a0);
     debug_StdPrintfDummy("N_CAPSULE %d\n", 53);

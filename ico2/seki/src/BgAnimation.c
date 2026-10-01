@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "GsBase.h"
+#include "ios.h"
 
 /* .data, carved VMA 0x4EE5B0..0x4EE5F0, bytes verified against
    baserom/pal/baseelf.rom.  D_004EE5B0 is the 0x30-byte default record
@@ -333,8 +334,6 @@ typedef struct BgaParticleEnt {
     /* 0x20 */ BgaParticleBits u;
 } BgaParticleEnt;
 
-extern int D_0063A44C;
-
 typedef struct BgaLightEnv {
     /* 0x00 */ char pad00[0x20];
     /* 0x20 */ float col[4];
@@ -431,7 +430,7 @@ void bga_ApplyDObject(BgaDObjEnt *p, void **objs, int n, int no)
     case 13:
         i = GetParticleIDWithName(p->name);
         if (i != -1) {
-            p->u.obj = iosMallocDebug(D_0063A44C, 0x30, __FILE__, 1177);
+            p->u.obj = iosMallocDebug(ios_partition_seki, 0x30, __FILE__, 1177);
             ((BgaParticleEnt *)p->u.obj)->u.b.id = i;
             ((BgaParticleEnt *)p->u.obj)->u.b.loop =
                 GetParticleLoopFlag(((BgaParticleEnt *)p->u.obj)->u.b.id);
@@ -2128,7 +2127,7 @@ void bga_addLightning(int kind, char *a1, float *vec, int id, int t0, float f)
             }
         }
     }
-    p = iosMallocDebug(D_0063A44C, 0x160, __FILE__, 2968);
+    p = iosMallocDebug(ios_partition_seki, 0x160, __FILE__, 2968);
     *(char **)(p + 0x154) = bgaLightningList;
     *(int *)(p + 0x144) = id;
     *(int *)(p + 0x140) = 1;

@@ -12,6 +12,11 @@
 #ifndef ST05B_H
 #define ST05B_H
 
+/* st05b.o's .sdata globals (MAIN.MAP) */
+extern int sekizo5b;
+extern int sekizo_5b;
+extern unsigned char sekizo_5b_vol;
+
 void actSt05bGirlWay(volatile int a0);
 void actSt05bSekizoChk(volatile int a0);
 

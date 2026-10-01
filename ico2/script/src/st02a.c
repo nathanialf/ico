@@ -222,7 +222,10 @@ void actSt02aDoorDownChk(volatile int a0)
 extern int D_0028F8F4[];
 /* kept local: script.h's prototypes do not fit this TU's calls */
 extern int scpBoyControlReadDisable;
-extern int st02a_fence;
+
+/* .sdata, owned by st02a.o (MAIN.MAP global, as are gondola and gondola_test
+   below) */
+int st02a_fence = 0;
 
 /* .sbss, owned by st02a.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
@@ -357,7 +360,8 @@ void actSt02aWaterFallChk(volatile int a0)
     ReInitBoxGeo(scpSearchGobj(1707));
 }
 
-extern int gondola;
+int gondola = 0;
+
 extern int D_00639EAC;
 /* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
@@ -407,7 +411,7 @@ void actSt02aGondolaUp(volatile int a0)
     _ACTWait(0);
 }
 
-extern int gondola_test;
+int gondola_test = 0;
 
 void actSt02aGondolaDown(volatile int a0)
 {

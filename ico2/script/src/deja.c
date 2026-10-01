@@ -50,7 +50,9 @@ typedef struct {
 extern const StgPre D_005F5D50[];
 extern const StgEntry D_0055C518[];
 void actDejaAfterChk(volatile int a0);
-extern char *deja;
+
+/* .sdata, owned by deja.o: the scene's stream handle (MAIN.MAP global) */
+char *deja = 0;
 
 static const Vec16 afterChkPos = {{-1000.0f, 0.0f, -2200.0f, 1.0f}};
 

@@ -30,8 +30,11 @@ static int stageStartWait2;
 
 static int stageStartWait3;
 
-extern char D_0063B640;
-extern int D_0063B644;
+/* .sdata, owned by sceneManager.o (MAIN.MAP names no symbol in the run):
+   set while MoveNextStage_Set's request stands, and the stage it is for. */
+static char nextStageSet = 0; /* derived name */
+
+static int nextStageNo = -1; /* derived name */
 
 /* .bss, owned by sceneManager.o (MAIN.MAP line 7741, 0x20 bytes, no symbol
    named): the position and rotation MoveNextStage_Set keeps for the next
@@ -48,6 +51,15 @@ extern int exit_no;
 #include "backStage.h"
 #include "typedef.h"
 
+/* .data, owned by sceneManager.o: the default layout a scene object is
+   created with, at the origin, unrotated, at unit scale. */
+SObjSimpleSetting InitialSObjSimpleSetting = {
+    {0.0f, 0.0f, 0.0f, 0.0f},
+    {0.0f, 0.0f, 0.0f, 0.0f},
+    {1.0f, 1.0f, 1.0f, 1.0f},
+    0,
+};
+
 inline void MoveNextStage_Set(float *a0, float *a1, int a2, int a3, int a4, int a5)
 {
     nextStagePos[0] = a0[0];
@@ -56,11 +68,11 @@ inline void MoveNextStage_Set(float *a0, float *a1, int a2, int a3, int a4, int 
     stageStartWait1 = a2;
     stageStartWait2 = a3;
     stageStartWait3 = a4;
-    D_0063B644 = a5;
+    nextStageNo = a5;
     nextStageRot[0] = a1[0];
     nextStageRot[1] = a1[1];
     nextStageRot[2] = a1[2];
-    D_0063B640 = 1;
+    nextStageSet = 1;
 }
 
 inline void test_nextstage_firstwalk_set(int unused, int a, int b, int c)
@@ -109,8 +121,8 @@ inline void ChangeStageStartInfo(int a0, int a1, int a2, int a3, int t0)
 
 inline void MoveNextStage_Clear(void)
 {
-    D_0063B640 = 0;
-    D_0063B644 = -1;
+    nextStageSet = 0;
+    nextStageNo = -1;
 }
 
 extern const StgPre D_005F5D50[];
@@ -389,7 +401,7 @@ extern int stage_no;
    MoveNextStage_Set and MoveNextStage_Clear. */
 static inline void MoveNextStage_Get(ActInit *a, int kind)
 {
-    if (stage_no == D_0063B644 && kind == 1) {
+    if (stage_no == nextStageNo && kind == 1) {
         a->pos[0] = nextStagePos[0];
         a->pos[1] = nextStagePos[1];
         a->pos[2] = nextStagePos[2];
@@ -523,7 +535,6 @@ void initSceneGObj(int stage, int no)
     MakeCollisionDependGObjList();
 }
 
-extern char D_0063B648[];
 extern void __assert(char *file, int line, char *expr);
 
 /* sceneManager.c:486-514 in the listing.  The parent id is read before the
@@ -555,7 +566,7 @@ void initParentLink(int id)
                     "\"%s\"の親子関係づけをしようとしましたが、自分を親にしようとしています。\n",
                     lay);
                 debug_assert(__FILE__, 502);
-                __assert(__FILE__, 502, D_0063B648);
+                __assert(__FILE__, 502, "0");
             }
             debug_StdPrintfDummy("Parentize \"%s\"\n", lay);
             *(int *)(*(int *)(self + 0x15C)) = parent;
@@ -565,7 +576,7 @@ void initParentLink(int id)
             debug_StdPrintfDummy("\"%s\"の親子関係づけをしようとしましたが、親が見つかりません。\n",
                                  lay);
             debug_assert(__FILE__, 511);
-            __assert(__FILE__, 511, D_0063B648);
+            __assert(__FILE__, 511, "0");
         }
     }
 }
@@ -574,7 +585,6 @@ void initParentLink(int id)
    inlines into InitSceneObjects; they have no symbol of their own in the ROM
    and no census row, so the names below are descriptive. */
 
-extern GamesysObjInfoFlag D_004DA980[];
 /* kept local: this TU's uses of isysGObjSearchFromObjKindID_begin do not fit the prototype in gobj.h */
 extern int *isysGObjSearchFromObjKindID_begin(int kind);
 /* kept local: this TU's uses of isysGObjSearchFromObjKindID_next do not fit the prototype in gobj.h */
@@ -607,7 +617,7 @@ static inline void setEnemyGeneratorDispFlag(void)
 
 static inline void initGamesysSceneGObjs(int stage)
 {
-    GamesysObjInfoFlag *p = D_004DA980;
+    GamesysObjInfoFlag *p = (GamesysObjInfoFlag *)gameSysObjInfo;
     int i;
 
     for (i = 0; i <= 181; i++, p++) {

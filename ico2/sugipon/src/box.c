@@ -14,6 +14,7 @@
 #include <libvu0.h>
 #include <string.h>
 #include "motionFileManager.h"
+#include "sceneManager.h"
 
 /* kept local: this TU's uses of UpdateRootMatrix do not fit the prototype in geometryManager.h */
 extern void UpdateRootMatrix(void *a0);
@@ -403,9 +404,9 @@ int AlignBox(char *a0, float grid)
    (ico2/fumi/include/memory.h has them with an IosMemPart * partition) */
 extern void *iosMallocDebug(void *part, int size, char *file, int line);
 extern void iosFree(void *p);
-/* the heap partition the wheel buffers come from, read by VMA: D_0063A44C
-   is the gp-relative partition handle */
-extern void *D_0063A44C;
+/* kept local: this TU's view of ios.c's partition handle is a pointer, which
+   initWheels' schedule needs (ios.h declares the handles int) */
+extern void *ios_partition_seki;
 extern GenGeo D_002C2DC8[];
 
 /* box.c:546-565 in the listing.  Lines 558 to 560 are one call-site line in
@@ -432,14 +433,16 @@ void initWheels(char *self, float *lay)
         }
         *(int *)(*(char **)(w + 0x11C) + 0xC) = 0;
         *(int *)(*(char **)(w + 0x11C) + 0x10) = 0;
-        *(int *)(*(char **)(w + 0x11C) + 0xC) = (int)iosMallocDebug(D_0063A44C, 128, __FILE__, 560);
-        *(int *)(*(char **)(w + 0x11C) + 0x10) = (int)iosMallocDebug(D_0063A44C, 32, __FILE__, 560);
+        *(int *)(*(char **)(w + 0x11C) + 0xC) =
+            (int)iosMallocDebug(ios_partition_seki, 128, __FILE__, 560);
+        *(int *)(*(char **)(w + 0x11C) + 0x10) =
+            (int)iosMallocDebug(ios_partition_seki, 32, __FILE__, 560);
         *(int *)(*(char **)(w + 0x11C) + 0x8) = 2;
         if (*(int *)(*(char **)(w + 0x11C) + 0x870) != 0) {
             iosFree((void *)(*(int *)(*(char **)(w + 0x11C) + 0x870) & 0x0FFFFFFF));
         }
         *(int *)(*(char **)(w + 0x11C) + 0x870) =
-            (int)iosMallocDebug(D_0063A44C, 160, __FILE__, 560);
+            (int)iosMallocDebug(ios_partition_seki, 160, __FILE__, 560);
 
         for (i = 0; i < 2; i++) {
             {
@@ -2219,8 +2222,6 @@ void ReInitBoxGeo(char *a0)
    VMA 0x4E45C0) */
 static unsigned char boxSerial = 0; /* derived name */
 
-extern char D_004E45C0[];
-
 /* The 64-byte layout record InitBoxGeo is handed; the word at 0x30 packs the
    route number in its low half and the sub-box model in its high half. */
 typedef struct {
@@ -2240,7 +2241,7 @@ typedef struct {
 /* box.c:2014-2102 in the listing. */
 char *InitBoxGeo(char *self, BoxLayout *lay)
 {
-    char *w = (char *)iosMallocDebug(D_0063A438, 416, __FILE__, 2017);
+    char *w = (char *)iosMallocDebug(ios_partition_sugipon, 416, __FILE__, 2017);
     char *o;
     char *g;
     int sub;
@@ -2260,7 +2261,7 @@ char *InitBoxGeo(char *self, BoxLayout *lay)
 
     *(int *)(w + 0x2C) = *(int *)(*(char **)(self + 0x15C) + 0x70);
 
-    *(int *)(w + 0x160) = (int)CSVSYSTEM_InitDObj(63, (float *)D_004E45C0);
+    *(int *)(w + 0x160) = (int)CSVSYSTEM_InitDObj(63, (float *)&InitialSObjSimpleSetting);
 
     *(int *)(w + 0x58) = lay->kind & 0xFFFF;
     *(void **)((char *)GOBJ_SUB(self) + 0x81C) = (void *)BoxRideFunc;

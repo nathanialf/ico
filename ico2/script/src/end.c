@@ -20,6 +20,32 @@
 #include "layout_action.h"
 #include "GsBase.h"
 
+/* .sdata, owned by end.o in the ROM's order: the ending scenes' stream handles
+   (MAIN.MAP globals, ed5 and happy_end unused by the retail code), then the
+   three the retail object adds for the staff roll, the fourteenth demo and
+   the st27a ending. */
+int ed1 = 0;
+
+int ed2 = 0;
+
+int ed3 = 0;
+
+int ed4 = 0;
+
+int ed5 = 0;
+
+int ed6 = 0;
+
+int sea = 0;
+
+int happy_end = 0;
+
+static int staff3 = 0; /* derived name */
+
+static int endDemo14 = 0; /* derived name */
+
+static int st27aEnd = 0; /* derived name */
+
 /* kept local: this TU's bytes only come out with its own view of PObjGObj, so it
    keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
 typedef struct PObjGObjEnd {
@@ -470,8 +496,6 @@ void actEndDemo10(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern int ed6;
 
 void actConte14_10(volatile int a0)
 {
@@ -950,8 +974,6 @@ extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
    this TU's own terse snake_case house style (its MAIN.MAP globals are
    ed1..ed6, sea, happy_end) for the ending demo it belongs to. */
 
-extern int D_0063BE34;
-
 void actEndDemo14(volatile int a0)
 {
     int x = a0;
@@ -971,9 +993,9 @@ void actEndDemo14(volatile int a0)
     fbKeep = 0;
     ScpCallCameraSetTarget(7046.0f, -77.0f, 1678.0f);
 
-    scpAdpcmPlayRequestFunc(95, &D_0063BE34, 1, 0, 1);
+    scpAdpcmPlayRequestFunc(95, &endDemo14, 1, 0, 1);
 
-    while (D_0063BE34 == 0) {
+    while (endDemo14 == 0) {
         _ACTWait(1);
     }
 
@@ -1086,7 +1108,6 @@ void actSt27aEnd(volatile int a0)
 }
 
 extern float scpSeEnvMasterVolRate;
-extern int D_0063BE38;
 extern int D_0028F4C0[];
 /* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int gobj, int attr);
@@ -1113,11 +1134,11 @@ void actSt27aEndChk(volatile int a0)
         scpPlayMot(D_00639EA4, 157);
     }
 
-    if (D_0063BE34 != 0) {
-        scpAdpcmFadeCloseFunc(&D_0063BE34, 0x1B);
+    if (endDemo14 != 0) {
+        scpAdpcmFadeCloseFunc(&endDemo14, 0x1B);
     }
-    scpAdpcmPlayRequestFunc(51, &D_0063BE38, 0, 1, 1);
-    while (D_0063BE38 == 0) {
+    scpAdpcmPlayRequestFunc(51, &st27aEnd, 0, 1, 1);
+    while (st27aEnd == 0) {
         _ACTWait(1);
     }
 
@@ -1192,8 +1213,8 @@ void actSt27aEndDemo(volatile int a0)
 
         RequestStageChange(1, D_00639EA4, D_00639EA8, 1.0f, 8.0f);
     } else {
-        if (D_0063BE38 != 0) {
-            scpAdpcmFadeCloseFunc(&D_0063BE38, 0x50);
+        if (st27aEnd != 0) {
+            scpAdpcmFadeCloseFunc(&st27aEnd, 0x50);
         }
 
         while (stage_CheckAnimationFrame(868, 390, 0) == 0) {
@@ -1469,8 +1490,6 @@ void actEndLogo(volatile int a0)
     _ACTWait(0);
 }
 
-extern int ed1;
-
 void actEndDemo01Chk(volatile int a0)
 {
     scpAdpcmPlayRequestFunc(43, &ed1, 0, 1, 1);
@@ -1494,8 +1513,6 @@ void actEndDemo01Chk(volatile int a0)
     actCreateSubThread(actConte14_1, 21);
 }
 
-extern int ed2;
-
 void actEndDemo02Chk(volatile int a0)
 {
     scpAdpcmPlayRequestFunc(44, &ed2, 0, 1, 1);
@@ -1512,8 +1529,6 @@ void actEndDemo02Chk(volatile int a0)
 
     actCreateSubThread(actConte14_2, 21);
 }
-
-extern int ed3;
 
 void actEndDemo03Chk(volatile int a0)
 {
@@ -1543,8 +1558,6 @@ void actConte14_3(volatile int a0)
 
     RequestStageChange(2, D_00639EA4, 0, 1.0f, 8.0f);
 }
-
-extern int ed4;
 
 void actEndDemo04Chk(volatile int a0)
 {
@@ -1595,8 +1608,6 @@ void actConte14_5(volatile int a0)
 
     RequestStageChange(6, D_00639EA4, D_00639EA8, 1.0f, 8.0f);
 }
-
-extern int sea;
 
 void actEndDemo06Chk(volatile int a0)
 {
@@ -1746,13 +1757,11 @@ void actStaff2Chk(volatile int a0)
     actCreateSubThread(actStaff2Demo, 21);
 }
 
-extern int D_0063BE30;
-
 void actStaff3Chk(volatile int a0)
 {
-    scpAdpcmPlayRequestFunc(49, &D_0063BE30, 0, 1, 1);
+    scpAdpcmPlayRequestFunc(49, &staff3, 0, 1, 1);
 
-    while (D_0063BE30 == 0) {
+    while (staff3 == 0) {
         _ACTWait(1);
     }
 
@@ -1787,7 +1796,6 @@ void actEndDemo14Chk(volatile int a0)
     actCreateSubThread(actConte14_14, 21);
 }
 
-extern int D_0063B60C;
 extern int optionScreenMode;
 
 void actEndingSave(volatile int a0)
@@ -1803,7 +1811,7 @@ void actEndingSave(volatile int a0)
         lt_switch_layout(28);
         _ACTWait(60);
 
-        while (D_0063B60C != 0x36) {
+        while (current_layout_id != 0x36) {
             _ACTWait(1);
         }
         gFlagGameClear = 0;

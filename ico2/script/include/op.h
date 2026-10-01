@@ -12,6 +12,12 @@
 #ifndef OP_H
 #define OP_H
 
+/* op.o's .sdata globals (MAIN.MAP) */
+extern int op2;
+extern int adpcm_conte01_sea;
+extern int opTitleLogoMode;
+extern char *titleAdpcm;
+
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order op.c's inline tail has. */

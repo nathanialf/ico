@@ -11,6 +11,7 @@
 #include "quaternion.h"
 #include <libvu0.h>
 #include <stdlib.h>
+#include "ios.h"
 
 typedef struct {
     float v[4];
@@ -991,7 +992,6 @@ int clipCylinderCollision(char *p, void *pt)
     return -1;
 }
 
-extern int D_0063A438;
 /* kept local: this TU's uses of ZeroPoint do not fit the prototype in matrixDrive.h */
 extern char ZeroPoint[];
 
@@ -1002,20 +1002,21 @@ ChainSet *InitChains(char *a0)
     int j;
     float step;
 
-    r = (ChainSet *)iosMallocDebug(D_0063A438, 0x10, "src/clothAnimation.c", 0x4A8);
+    r = (ChainSet *)iosMallocDebug(ios_partition_sugipon, 0x10, "src/clothAnimation.c", 0x4A8);
     r->cfg = a0;
     while (*(int *)(i * 0x50 + (int)a0) != -1) {
         i++;
     }
     r->num = i;
-    r->nodes = (ChainNode *)iosMallocDebug(D_0063A438, i * 0x1A0, "src/clothAnimation.c", 0x4AE);
+    r->nodes = (ChainNode *)iosMallocDebug(ios_partition_sugipon, i * 0x1A0, "src/clothAnimation.c",
+                                           0x4AE);
     r->f3 = 0;
     for (i = 0; i < r->num; i++) {
-        r->nodes[i].p0 = iosMallocDebug(D_0063A438, *(int *)(i * 0x50 + (int)a0) * 16,
+        r->nodes[i].p0 = iosMallocDebug(ios_partition_sugipon, *(int *)(i * 0x50 + (int)a0) * 16,
                                         "src/clothAnimation.c", 0x4B2);
-        r->nodes[i].p4 = iosMallocDebug(D_0063A438, *(int *)(i * 0x50 + (int)a0) * 16,
+        r->nodes[i].p4 = iosMallocDebug(ios_partition_sugipon, *(int *)(i * 0x50 + (int)a0) * 16,
                                         "src/clothAnimation.c", 0x4B3);
-        r->nodes[i].p8 = iosMallocDebug(D_0063A438, *(int *)(i * 0x50 + (int)a0) * 4,
+        r->nodes[i].p8 = iosMallocDebug(ios_partition_sugipon, *(int *)(i * 0x50 + (int)a0) * 4,
                                         "src/clothAnimation.c", 0x4B4);
         r->nodes[i].fC = 0;
         for (j = 0; j < 5; j++) {
@@ -1058,13 +1059,13 @@ ClothSet *InitClothes(int cfg)
     float aa[4];
     float bb[4];
 
-    r = (ClothSet *)iosMallocDebug(D_0063A438, 8, "src/clothAnimation.c", 1235);
+    r = (ClothSet *)iosMallocDebug(ios_partition_sugipon, 8, "src/clothAnimation.c", 1235);
     debug_StdPrintfDummy("\x1b[36mALLOC CLOTHES\x1b[m\n");
     while (*(int *)(i * 0x1C + cfg) != -1) {
         i++;
     }
     r->num = i;
-    r->rec = (int **)iosMallocDebug(D_0063A438, i * 0x2E0, "src/clothAnimation.c", 1240);
+    r->rec = (int **)iosMallocDebug(ios_partition_sugipon, i * 0x2E0, "src/clothAnimation.c", 1240);
     for (i = 0; i < r->num; i++) {
         if (*(int *)(i * 0x1C + cfg + 0x14) != 0) {
             *(char **)(i * 0x2E0 + (int)r->rec) = prim_InitMesh3D(
@@ -1077,20 +1078,22 @@ ClothSet *InitClothes(int cfg)
                 *(int *)(i * 0x1C + cfg + 8), *(int *)(i * 0x1C + cfg), 1, 0x4C, 0xFFFFFF80, 1);
             *(int *)(i * 0x2E0 + (int)r->rec + 0x10) = 0;
         }
-        *(char **)(i * 0x2E0 + (int)r->rec + 4) =
-            iosMallocDebug(D_0063A438, *(int *)(i * 0x1C + cfg) * 4, "src/clothAnimation.c", 1268);
-        *(char **)(i * 0x2E0 + (int)r->rec + 8) =
-            iosMallocDebug(D_0063A438, *(int *)(i * 0x1C + cfg) * 4, "src/clothAnimation.c", 1269);
-        *(char **)(i * 0x2E0 + (int)r->rec + 0xC) =
-            iosMallocDebug(D_0063A438, *(int *)(i * 0x1C + cfg) * 4, "src/clothAnimation.c", 1270);
+        *(char **)(i * 0x2E0 + (int)r->rec + 4) = iosMallocDebug(
+            ios_partition_sugipon, *(int *)(i * 0x1C + cfg) * 4, "src/clothAnimation.c", 1268);
+        *(char **)(i * 0x2E0 + (int)r->rec + 8) = iosMallocDebug(
+            ios_partition_sugipon, *(int *)(i * 0x1C + cfg) * 4, "src/clothAnimation.c", 1269);
+        *(char **)(i * 0x2E0 + (int)r->rec + 0xC) = iosMallocDebug(
+            ios_partition_sugipon, *(int *)(i * 0x1C + cfg) * 4, "src/clothAnimation.c", 1270);
         for (m = 0; m < *(int *)(i * 0x1C + cfg); m++) {
             *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 4)) =
                 (char *)(*(int *)(*(char **)(i * 0x2E0 + (int)r->rec) + 0x6C) +
                          m * *(int *)(i * 0x1C + cfg + 8) * 16);
-            *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 8)) = iosMallocDebug(
-                D_0063A438, *(int *)(i * 0x1C + cfg + 8) * 16, "src/clothAnimation.c", 1275);
-            *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 0xC)) = iosMallocDebug(
-                D_0063A438, *(int *)(i * 0x1C + cfg + 8) * 4, "src/clothAnimation.c", 1276);
+            *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 8)) =
+                iosMallocDebug(ios_partition_sugipon, *(int *)(i * 0x1C + cfg + 8) * 16,
+                               "src/clothAnimation.c", 1275);
+            *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 0xC)) =
+                iosMallocDebug(ios_partition_sugipon, *(int *)(i * 0x1C + cfg + 8) * 4,
+                               "src/clothAnimation.c", 1276);
             memset(aa, 0, 16);
             aa[3] = 1.0f;
             memset(bb, 0, 16);
@@ -1117,13 +1120,13 @@ ClothSet *InitClothesNoShade(int cfg)
     float aa[4];
     float bb[4];
 
-    r = (ClothSet *)iosMallocDebug(D_0063A438, 8, "src/clothAnimation.c", 1296);
+    r = (ClothSet *)iosMallocDebug(ios_partition_sugipon, 8, "src/clothAnimation.c", 1296);
     debug_StdPrintfDummy("\x1b[36mALLOC CLOTHES\x1b[m\n");
     while (*(int *)(i * 0x1C + cfg) != -1) {
         i++;
     }
     r->num = i;
-    r->rec = (int **)iosMallocDebug(D_0063A438, i * 0x2E0, "src/clothAnimation.c", 1301);
+    r->rec = (int **)iosMallocDebug(ios_partition_sugipon, i * 0x2E0, "src/clothAnimation.c", 1301);
     for (i = 0; i < r->num; i++) {
         if (*(int *)(i * 0x1C + cfg + 0x14) != 0) {
             *(char **)(i * 0x2E0 + (int)r->rec) = prim_InitMesh3D(
@@ -1136,20 +1139,22 @@ ClothSet *InitClothesNoShade(int cfg)
                 *(int *)(i * 0x1C + cfg + 8), *(int *)(i * 0x1C + cfg), 1, 0x4C, 0xFFFFFF80, 0);
             *(int *)(i * 0x2E0 + (int)r->rec + 0x10) = 0;
         }
-        *(char **)(i * 0x2E0 + (int)r->rec + 4) =
-            iosMallocDebug(D_0063A438, *(int *)(i * 0x1C + cfg) * 4, "src/clothAnimation.c", 1329);
-        *(char **)(i * 0x2E0 + (int)r->rec + 8) =
-            iosMallocDebug(D_0063A438, *(int *)(i * 0x1C + cfg) * 4, "src/clothAnimation.c", 1330);
-        *(char **)(i * 0x2E0 + (int)r->rec + 0xC) =
-            iosMallocDebug(D_0063A438, *(int *)(i * 0x1C + cfg) * 4, "src/clothAnimation.c", 1331);
+        *(char **)(i * 0x2E0 + (int)r->rec + 4) = iosMallocDebug(
+            ios_partition_sugipon, *(int *)(i * 0x1C + cfg) * 4, "src/clothAnimation.c", 1329);
+        *(char **)(i * 0x2E0 + (int)r->rec + 8) = iosMallocDebug(
+            ios_partition_sugipon, *(int *)(i * 0x1C + cfg) * 4, "src/clothAnimation.c", 1330);
+        *(char **)(i * 0x2E0 + (int)r->rec + 0xC) = iosMallocDebug(
+            ios_partition_sugipon, *(int *)(i * 0x1C + cfg) * 4, "src/clothAnimation.c", 1331);
         for (m = 0; m < *(int *)(i * 0x1C + cfg); m++) {
             *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 4)) =
                 (char *)(*(int *)(*(char **)(i * 0x2E0 + (int)r->rec) + 0x6C) +
                          m * *(int *)(i * 0x1C + cfg + 8) * 16);
-            *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 8)) = iosMallocDebug(
-                D_0063A438, *(int *)(i * 0x1C + cfg + 8) * 16, "src/clothAnimation.c", 1336);
-            *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 0xC)) = iosMallocDebug(
-                D_0063A438, *(int *)(i * 0x1C + cfg + 8) * 4, "src/clothAnimation.c", 1337);
+            *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 8)) =
+                iosMallocDebug(ios_partition_sugipon, *(int *)(i * 0x1C + cfg + 8) * 16,
+                               "src/clothAnimation.c", 1336);
+            *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 0xC)) =
+                iosMallocDebug(ios_partition_sugipon, *(int *)(i * 0x1C + cfg + 8) * 4,
+                               "src/clothAnimation.c", 1337);
             memset(aa, 0, 16);
             aa[3] = 1.0f;
             memset(bb, 0, 16);
@@ -2126,7 +2131,7 @@ Cloth4D *InitCloth4D(int a0, Cloth4DCfg *cfg, int tbl)
     int j;
     float sc;
 
-    r = (Cloth4D *)iosMallocDebug(D_0063A438, 0x300, "src/clothAnimation.c", 2183);
+    r = (Cloth4D *)iosMallocDebug(ios_partition_sugipon, 0x300, "src/clothAnimation.c", 2183);
     r->gobj = a0;
     r->cfg = (int)cfg;
     r->f2F4 = 0;
@@ -2136,13 +2141,16 @@ Cloth4D *InitCloth4D(int a0, Cloth4DCfg *cfg, int tbl)
     } else {
         r->mesh = (Mesh3D *)prim_InitMesh3D(cfg->ny, cfg->nx, 1, 0x4C, 0xFFFFFF80, 1);
     }
-    r->p8 = (char **)iosMallocDebug(D_0063A438, cfg->nx * 4, "src/clothAnimation.c", 2218);
-    r->pC = (char **)iosMallocDebug(D_0063A438, cfg->nx * 4, "src/clothAnimation.c", 2219);
-    r->p10 = (char **)iosMallocDebug(D_0063A438, cfg->nx * 4, "src/clothAnimation.c", 2220);
+    r->p8 =
+        (char **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4, "src/clothAnimation.c", 2218);
+    r->pC =
+        (char **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4, "src/clothAnimation.c", 2219);
+    r->p10 =
+        (char **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4, "src/clothAnimation.c", 2220);
     for (i = 0; i < cfg->nx; i++) {
         *(char **)(i * 4 + (int)r->p8) = (char *)((int)r->mesh->p6C + i * cfg->ny * 16);
         *(char **)(i * 4 + (int)r->pC) =
-            iosMallocDebug(D_0063A438, cfg->ny * 16, "src/clothAnimation.c", 2224);
+            iosMallocDebug(ios_partition_sugipon, cfg->ny * 16, "src/clothAnimation.c", 2224);
         *(char **)(i * 4 + (int)r->p10) = (char *)((int)r->mesh->p70 + i * cfg->ny * 16);
         for (j = 0; j < cfg->ny; j++) {
             CopyVector(*(char **)(i * 4 + (int)r->p8) + j * 16, ZeroPoint);
@@ -2162,9 +2170,11 @@ Cloth4D *InitCloth4D(int a0, Cloth4DCfg *cfg, int tbl)
             i++;
         }
         r->n2E4 = i;
-        r->p2F0 = iosMallocDebug(D_0063A438, i * 0x40, "src/clothAnimation.c", 2253);
-        r->p2EC = iosMallocDebug(D_0063A438, r->n2E4 * 0x40, "src/clothAnimation.c", 2254);
-        r->p2E8 = (char **)iosMallocDebug(D_0063A438, r->n2E4 * 4, "src/clothAnimation.c", 2255);
+        r->p2F0 = iosMallocDebug(ios_partition_sugipon, i * 0x40, "src/clothAnimation.c", 2253);
+        r->p2EC =
+            iosMallocDebug(ios_partition_sugipon, r->n2E4 * 0x40, "src/clothAnimation.c", 2254);
+        r->p2E8 = (char **)iosMallocDebug(ios_partition_sugipon, r->n2E4 * 4,
+                                          "src/clothAnimation.c", 2255);
         for (i = 0; *(int *)(i * 0x40 + tbl) != -1; i++) {
             *(Blob64 *)(i * 0x40 + (int)r->p2F0) = *(Blob64 *)(i * 0x40 + tbl);
             *(float *)(i * 0x40 + (int)r->p2F0 + 0xC) =

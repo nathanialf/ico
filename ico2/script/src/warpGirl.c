@@ -34,23 +34,12 @@ typedef struct WarpRec {
     char _p55[0x58 - 0x55];
 } WarpRec;
 
-/* the stage table the trigger scan walks: 0x40 bytes per stage */
-typedef struct StageRec {
-    char _p00[0x02];
-    unsigned short live; /* 0x02 */
-    unsigned short to;   /* 0x04 */
-    char _p06[0x30 - 0x06];
-    int kind; /* 0x30 */
-    char _p34[0x40 - 0x34];
-} StageRec;
-
 /* the 16-byte vector this file copies whole */
 typedef union Vec16 {
     float f[4];
     long long q[2];
 } Vec16;
 
-extern StageRec D_004DA980[];
 extern WarpRec girlWarpList[];
 extern int stage_no;
 
@@ -81,7 +70,7 @@ void warpGirlOutStage(int stage, int noSet)
     int hit;
 
     hit = 0;
-    if (D_004DA980[1].to != stage) {
+    if (gameSysObjInfo[1].stage != stage) {
         return;
     }
     if (D_00639EA8 == 0) {
@@ -98,7 +87,8 @@ void warpGirlOutStage(int stage, int noSet)
     }
     warpGirlId = 0;
     for (j = 2; j < 22; j++) {
-        if (D_004DA980[j].live != 0 && D_004DA980[j].to == stage_no && D_004DA980[j].kind == 4) {
+        if (gameSysObjInfo[j].no != 0 && gameSysObjInfo[j].stage == stage_no &&
+            gameSysObjInfo[j].work[0] == 4) {
             hit = 1;
             break;
         }

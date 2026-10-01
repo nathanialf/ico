@@ -13,6 +13,14 @@
 #include "item.h"
 #include "typedef.h"
 
+/* .sdata, owned by st00a.o (MAIN.MAP globals): the prototype stair's stream
+   handle, its shake and the shake's volume. */
+int proto = 0;
+
+unsigned int proto_yure = 0;
+
+unsigned char proto_yure_vol = 0;
+
 /* st00a.o's whole .rodata run: six 16-byte constant vectors in ROM order, each
    named for the first actor that copies it. The float view carries the values,
    the long long view is the one the copies read, which is what makes gcc emit
@@ -141,8 +149,6 @@ void actSt00aEneChk(volatile int a0)
 extern PObjGObj *scpSearchGobj(int a0);
 /* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int a1, float f);
-extern int D_0063BE70;
-extern unsigned int D_0063BE74;
 
 /* .sbss, owned by st00a.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the flag the stair-check subthread raises when the demo
@@ -185,13 +191,13 @@ void actSt00aStairChk(volatile int a0)
     while (fightSoundPlayChk() != 0) {
         _ACTWait(1);
     }
-    scpAdpcmPlayRequestFunc(21, &D_0063BE70, 1, 1, 1);
-    while (D_0063BE70 == 0) {
+    scpAdpcmPlayRequestFunc(21, &proto, 1, 1, 1);
+    while (proto == 0) {
         _ACTWait(1);
     }
     stage_SetAnimation(87, 1, 0);
     ReviveAllCarryableItemsWithNonSleepFrame(260);
-    D_0063BE74 = 0xFFFFFFFF;
+    proto_yure = 0xFFFFFFFF;
     th = actCreateSubThread(actSt00aStairChkSub, 21);
     demoEnd = 0;
     while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
@@ -199,7 +205,7 @@ void actSt00aStairChk(volatile int a0)
     }
     fade = demoEnd ^ 1;
     if (fade) {
-        scpAdpcmFadeCloseFunc(&D_0063BE70, 0x100);
+        scpAdpcmFadeCloseFunc(&proto, 0x100);
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -211,7 +217,7 @@ void actSt00aStairChk(volatile int a0)
         stage_SetAnimation(87, 0, -1);
         scpFadeIn(3.0f);
     }
-    iosPadActStop(D_0063BE74);
+    iosPadActStop(proto_yure);
     while (stage_CheckAnimationFinish(90) == 0) {
         _ACTWait(1);
     }
@@ -548,7 +554,6 @@ void actSt00aAtr2Chk(volatile int a0)
 }
 
 extern int D_00639EAC;
-extern unsigned char D_0063BE78;
 
 void actSt00aStairChkSub(volatile int a0)
 {
@@ -560,9 +565,9 @@ void actSt00aStairChkSub(volatile int a0)
     _ACTWait(1);
     stage_SetAnimation(89, 1, 0);
     stage_SetAnimation(90, 1, 0);
-    D_0063BE74 = iosPadActRequest(D_00639EAC, 9);
-    D_0063BE78 = 0x80;
-    iosPadActVolumeSet(D_0063BE74, 0x80);
+    proto_yure = iosPadActRequest(D_00639EAC, 9);
+    proto_yure_vol = 0x80;
+    iosPadActVolumeSet(proto_yure, 0x80);
     _ACTWait(500);
     demoEnd = 1;
     _ACTWait(0);

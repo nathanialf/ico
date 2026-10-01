@@ -19,6 +19,7 @@
 #include <libvu0.h>
 #include "geometryManager.h"
 #include "typedef.h"
+#include "ios.h"
 
 void bombSparkStartSE(int a0)
 {
@@ -181,8 +182,6 @@ void ThrowItem(char *gobj, void *vel)
     SetIdentityQuaternion(*(char **)(gobj + 0x15C) + 0x150);
 }
 
-extern int D_0063A438;
-
 typedef union {
     float f[4];
     long long ll[2];
@@ -213,7 +212,7 @@ char *InitItemGeo(char *gobj, ItemLayout *layout)
     ItemParentLink link;
     ItemLayout lay;
     char *w = (char *)*(int *)(gobj + 0x15C);
-    char *p = (char *)iosMallocDebug(D_0063A438, 0xA0, __FILE__, 446);
+    char *p = (char *)iosMallocDebug(ios_partition_sugipon, 0xA0, __FILE__, 446);
 
     *(char **)((char *)*(int *)(gobj + 0x15C) + 0x830) = p;
     *(ItemWorkImage *)p = emptyItemWork;

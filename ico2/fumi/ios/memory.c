@@ -30,8 +30,6 @@ typedef struct IosMemNode {
 
 extern int strcmp(int *a0, const char *a1);
 extern void strcpy(unsigned char *ptr, int value);
-extern char D_0063A4E0[];
-extern char D_0063A4F0[];
 extern void __assert(char *file, int line, char *expr);
 extern int strncmp(void *a0, void *a1, int a2);
 
@@ -41,7 +39,6 @@ extern int strncmp(void *a0, void *a1, int a2);
 static char nodeName[32];
 
 extern int strncpy(char *dst, int src, int n);
-extern char D_0063A4E8[];
 
 inline IosMemPart *iosMallocInitPartition(unsigned int start, unsigned int end)
 {
@@ -210,7 +207,10 @@ void iosMallocClearPartition(IosMemPart *part)
     *(IosMemTag *)part = *(IosMemTag *)" del partition ";
 }
 
-extern int D_0063A4D8;
+/* .sdata, memory.o's one word ahead of its short strings (MAIN.MAP names no
+   symbol in the run): set while an allocation is in progress, which the
+   re-entry check tests. */
+static int mallocBusy = 0; /* derived name */
 
 /* .sbss, memory.o's two words in the ROM's order (MAIN.MAP line 7583 sizes
    the run 8 and names no symbol in it, so the names are ours): the file and
@@ -240,24 +240,24 @@ void *_iosMallocDebug(IosMemPart *part, int size, char *file, int line)
     int q;
     int n;
 
-    if (D_0063A4D8 != 0) {
+    if (mallocBusy != 0) {
         sprintf(buf, "MALLOC: REENTER FOR PARTITION \"%s\" SIZE %d\nBEFORE FILE %s LINE %d",
                 part->name, size, mallocFile, mallocLine);
         debug_assertMessage(file, line, buf);
     }
-    D_0063A4D8 = 1;
+    mallocBusy = 1;
     mallocFile = file;
     mallocLine = line;
     if (part == 0) {
         debug_assertMessage(__FILE__, 555, "IOSMALLOC():\nNULL PARTITION POINTER AT MALLOC\n");
-        __assert(__FILE__, 555, D_0063A4E0);
-        D_0063A4D8 = 0;
+        __assert(__FILE__, 555, "e");
+        mallocBusy = 0;
         return 0;
     }
     if (strcmp((int *)part, "<PARTITION>____") != 0) {
         debug_assertMessage(__FILE__, 562, "IOSMALLOC():\nNULL PARTITION POINTER AT MALLOC\n");
-        __assert(__FILE__, 562, D_0063A4E0);
-        D_0063A4D8 = 0;
+        __assert(__FILE__, 562, "e");
+        mallocBusy = 0;
         return 0;
     }
     need = (((size + 0xF) & 0xFFFFFFF0) + 0x40) >> 4;
@@ -277,9 +277,9 @@ void *_iosMallocDebug(IosMemPart *part, int size, char *file, int line)
                 debug_StdPrintfDummy("mem:next magic %s\n", node->next);
             }
             debug_StdPrintfDummy("mem:called by %s of line %d\n", file, line);
-            D_0063A4D8 = 0;
+            mallocBusy = 0;
             debug_assert(__FILE__, 598);
-            __assert(__FILE__, 598, D_0063A4E8);
+            __assert(__FILE__, 598, "0");
             return 0;
         }
         if (node->size >= need) {
@@ -340,7 +340,7 @@ void *_iosMallocDebug(IosMemPart *part, int size, char *file, int line)
             best->name[15] = 0;
             debug_StdPrintfDummy("cur: %8p %s\n", best, best);
             debug_StdPrintfDummy("next:%8p %s\n", best->next, best->next);
-            D_0063A4D8 = 0;
+            mallocBusy = 0;
             return (char *)best + 0x40;
         }
 #ifdef DEBUG
@@ -349,7 +349,7 @@ void *_iosMallocDebug(IosMemPart *part, int size, char *file, int line)
         debug_StdPrintfDummy("mem:skip %s size %d need %d\n", tag.c, node->size, need);
 #endif
     }
-    D_0063A4D8 = 0;
+    mallocBusy = 0;
     return 0;
 }
 
@@ -367,7 +367,7 @@ inline void *iosMallocDebug(IosMemPart *part, int size, char *file, int line)
         debug_assertMessage(file, line, buf);
         __asm__ __volatile__("break");
         debug_assert(__FILE__, 716);
-        __assert(__FILE__, 716, D_0063A4E8);
+        __assert(__FILE__, 716, "0");
     }
     return ptr;
 }
@@ -428,12 +428,12 @@ void *iosFree(void *ptr)
         debug_StdPrintfDummy("null memory pointer\n");
         __asm__ __volatile__("break");
         debug_assertMessage(__FILE__, 820, "IOSFREE(): NULL MEMORY POINTER\n");
-        __assert(__FILE__, 820, D_0063A4E0);
+        __assert(__FILE__, 820, "e");
         return 0;
     }
     prev = (IosMemNode *)((char *)ptr - 0x10);
     next = ptr;
-    if (strncmp(prev, D_0063A4F0, 5) == 0) {
+    if (strncmp(prev, "align", 5) == 0) {
         n = atoi((char *)ptr - 0xB);
         *((char *)ptr - 0x10) = 0;
         next = (IosMemNode *)((char *)prev - (n - 0x10));
@@ -443,7 +443,7 @@ void *iosFree(void *ptr)
         sprintf(buf, "IOSFREE():\n\tPREV MAGIC: %s\n\t CUR MAGIC: %s\n\tNEXT MAGIC: %s\n",
                 node->prev, node, node->next);
         debug_assertMessage(__FILE__, 836, buf);
-        __assert(__FILE__, 836, D_0063A4E0);
+        __assert(__FILE__, 836, "e");
         return 0;
     }
     next = node->next;
@@ -492,7 +492,7 @@ void *iosFree(void *ptr)
                     next->prev = prev;
                 } else {
                     debug_assertMessage(__FILE__, 905, "IOSFREE(): MEMORY LINK MISS\n");
-                    __assert(__FILE__, 905, D_0063A4E0);
+                    __assert(__FILE__, 905, "e");
                     return 0;
                 }
             } else {
@@ -557,25 +557,21 @@ tail_node:
         node->free_next->free_prev = node;
     }
     debug_assertMessage(__FILE__, 962, "IOSFREE(): ALLOC NULL\n");
-    __assert(__FILE__, 962, D_0063A4E0);
+    __assert(__FILE__, 962, "e");
     goto tag_free;
 err_3b5:
     debug_assertMessage(__FILE__, 965, "IOSFREE(): MEMORY LINK MISS\n");
-    __assert(__FILE__, 965, D_0063A4E0);
+    __assert(__FILE__, 965, "e");
     return 0;
 tag_free:
     *(IosMemTag *)node = *(IosMemTag *)"<FREE AREA>____";
     goto ret_ptr;
 err_3bf:
     debug_assertMessage(__FILE__, 975, "IOSFREE(): ??\n");
-    __assert(__FILE__, 975, D_0063A4E0);
+    __assert(__FILE__, 975, "e");
 ret_ptr:
     return ptr;
 }
-
-extern char D_0063A4F8[];
-extern char D_0063A500[];
-extern char D_0063A508[];
 
 void iosMallocCheckLeak(IosMemPart *part)
 {
@@ -603,7 +599,7 @@ void iosMallocCheckLeak(IosMemPart *part)
         while (node != 0) {
             debug_StdPrintfDummy("mem:addr:$%08x ", node);
             if (strcmp((int *)node, "<ALLOC>________") == 0) {
-                debug_StdPrintfDummy(D_0063A4F8);
+                debug_StdPrintfDummy("ALLOC ");
             } else if (strcmp((int *)node, "<FREE AREA>____") == 0) {
                 debug_StdPrintfDummy("FREEAREA ");
             } else if (strcmp((int *)node, " free memory   ") == 0) {
@@ -614,9 +610,9 @@ void iosMallocCheckLeak(IosMemPart *part)
             }
             debug_StdPrintfDummy("siz:$%5x ", node->size << 4);
             for (p = 0; p < 12; p++) {
-                debug_StdPrintfDummy(D_0063A500, node->name[p]);
+                debug_StdPrintfDummy("%c", node->name[p]);
             }
-            debug_StdPrintfDummy(D_0063A508);
+            debug_StdPrintfDummy("\n");
             node = node->next;
         }
     }
@@ -677,12 +673,12 @@ void *iosReallocDebug(void *ptr, unsigned int size)
 
     if (ptr == 0) {
         debug_assertMessage(__FILE__, 1182, "IOSREALLOC():\nNULL MEMORY POINTER AT MALLOC\n");
-        __assert(__FILE__, 1182, D_0063A4E0);
+        __assert(__FILE__, 1182, "e");
         return 0;
     }
     next = ptr;
     prev = (IosMemNode *)((char *)ptr - 0x10);
-    if (strncmp(prev, D_0063A4F0, 5) == 0) {
+    if (strncmp(prev, "align", 5) == 0) {
         n = atoi((char *)ptr - 0xB);
         next = (IosMemNode *)((char *)prev - (n - 0x10));
         *((char *)ptr - 0x10) = 0;
@@ -692,7 +688,7 @@ void *iosReallocDebug(void *ptr, unsigned int size)
         sprintf(buf, "IOSFREE():\n\tPREV MAGIC: %s\n\t CUR MAGIC: %s\n\tNEXT MAGIC: %s\n",
                 node->prev, node, node->next);
         debug_assertMessage(__FILE__, 1199, buf);
-        __assert(__FILE__, 1199, D_0063A4E0);
+        __assert(__FILE__, 1199, "e");
         return 0;
     }
     nd = node->next;

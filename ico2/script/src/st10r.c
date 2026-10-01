@@ -76,7 +76,6 @@ static ActMail tower_resque_mes[2] = {{430}, {429}};
 extern PObjGObjSt10R *scpSearchGobj(int a0);
 /* kept local: this TU's uses of scpSetCageVelocityFriction do not fit the prototype in script.h */
 extern void scpSetCageVelocityFriction(int id, float f);
-extern char *cage10r;
 extern int D_00639EAC;
 
 /* .sbss, owned by st10r.o and reached only from this file (MAIN.MAP names no
@@ -95,7 +94,6 @@ extern int D_00639EA8;
 extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
 /* kept local: script.h's prototypes do not fit this TU's calls */
 extern int scpBoyControlReadDisable;
-extern char *chain10r;
 extern int D_00639EA4;
 /* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
@@ -120,6 +118,15 @@ extern void scpPlayPosSet(int a0, float f12, float f13, float f14);
 extern void scpPlayMot(int a0, int mot);
 /* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
 extern void scpPlayEnd(int a0);
+
+/* .sdata, owned by st10r.o, in the ROM's order: the floor and cage stream handles (MAIN.MAP globals), the scene stream MAIN.MAP leaves unnamed, the chain's. */
+int st10r_floor = 0;
+
+char *cage10r = 0;
+
+static char *st10r_adpcm = 0; /* derived name */
+
+char *chain10r = 0;
 
 void actSt10rInit(void)
 {
@@ -170,7 +177,6 @@ extern void scpFadeIn(float f);
 /* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
 extern int D_0028F8F4[];
-extern int st10r_floor;
 
 void actSt10rFloorChk(volatile int a0)
 {
@@ -312,7 +318,6 @@ void actSt10rCageMain(volatile int a0)
     lt_switch_layout(54);
 }
 
-extern char *D_0063BF9C;
 /* kept local: this TU's uses of scpIsBombExplode do not fit the prototype in script.h */
 extern int scpIsBombExplode(int a0);
 
@@ -338,10 +343,10 @@ void actSt10rTowerChk(volatile int a0)
 
     reg_SetScissorSw(1);
 
-    scpAdpcmPlayRequestFunc(72, &D_0063BF9C, 1, 1, 0);
+    scpAdpcmPlayRequestFunc(72, &st10r_adpcm, 1, 1, 0);
 
     _ACTWait(60);
-    while (D_0063BF9C == 0) {
+    while (st10r_adpcm == 0) {
         _ACTWait(1);
     }
 
@@ -357,7 +362,7 @@ void actSt10rTowerChk(volatile int a0)
     f = demoEnd ^ 1;
 
     if (f) {
-        scpAdpcmFadeCloseFunc(&D_0063BF9C, 0xC0);
+        scpAdpcmFadeCloseFunc(&st10r_adpcm, 0xC0);
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -401,7 +406,7 @@ void actSt10rTowerConte(volatile int a0)
 {
     stage_SetAnimation(389, 1, 0);
 
-    AdpcmPlay(*(int *)(D_0063BF9C + 0x2C));
+    AdpcmPlay(*(int *)(st10r_adpcm + 0x2C));
 
     scpSearchGobj(1594)->f16C = 0;
     scpSearchGobj(1595)->f16C = 0;

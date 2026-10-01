@@ -16,8 +16,9 @@ extern float _GetLength(void *a, void *b);
 /* kept local: this TU's uses of VectorLength do not fit the prototype in matrixDrive.h */
 extern float VectorLength(void *v);
 extern float _GetRandom(void);
-extern void *D_0063A438;
-extern void *D_0063A44C;
+/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+extern void *ios_partition_sugipon;
+extern void *ios_partition_seki;
 
 /* the TU's one .sdata word (MAIN.MAP worm.o .sdata 0x4, no symbol) */
 static int wormFirst = 1; /* derived name */
@@ -419,8 +420,8 @@ void *InitWormGeo(int act, WormInit *ini)
     int num;
     int i;
 
-    w = (WormWork *)iosMallocDebug(D_0063A438, 16, __FILE__, 328);
-    seg = (WormSeg *)iosMallocDebug(D_0063A438, 880, __FILE__, 329);
+    w = (WormWork *)iosMallocDebug(ios_partition_sugipon, 16, __FILE__, 328);
+    seg = (WormSeg *)iosMallocDebug(ios_partition_sugipon, 880, __FILE__, 329);
 
     nseg = (int)ini->nseg;
     if (nseg == 0) {
@@ -431,7 +432,7 @@ void *InitWormGeo(int act, WormInit *ini)
         num = 20;
     }
 
-    w->src = (WormVec **)iosMallocDebug(D_0063A438, nseg * 4, __FILE__, 334);
+    w->src = (WormVec **)iosMallocDebug(ios_partition_sugipon, nseg * 4, __FILE__, 334);
 
     for (i = 0; i < nseg; i++) {
         WormVec pos = {ini->pos[0] + (_GetRandom() * 2.0f - 1.0f) * 50.0f,
@@ -444,7 +445,7 @@ void *InitWormGeo(int act, WormInit *ini)
         seg[i].pm.rate = (int)ini->rate != 0 ? ini->rate : 20.0f;
         seg[i].pm.f30 = 10.0f;
 
-        w->src[i] = (WormVec *)iosMallocDebug(D_0063A438, 160, __FILE__, 350);
+        w->src[i] = (WormVec *)iosMallocDebug(ios_partition_sugipon, 160, __FILE__, 350);
     }
 
     seg[nseg].num = -1;
@@ -468,13 +469,14 @@ void *InitWormGeo(int act, WormInit *ini)
     }
     d->f_C = 0;
     d->f_10 = 0;
-    d->f_C = (int)iosMallocDebug(D_0063A44C, num * 0x40, __FILE__, 367);
-    d->f_10 = (int)iosMallocDebug(D_0063A44C, num * 0x10, __FILE__, 367);
+    d->f_C = (int)iosMallocDebug(ios_partition_seki, num * 0x40, __FILE__, 367);
+    d->f_10 = (int)iosMallocDebug(ios_partition_seki, num * 0x10, __FILE__, 367);
     d->f_8 = num;
     if (*(int *)((char *)d + 0x870) != 0) {
         iosFree(*(int *)((char *)d + 0x870) & 0xFFFFFFF);
     }
-    *(int *)((char *)d + 0x870) = (int)iosMallocDebug(D_0063A44C, num * 0x50, __FILE__, 367);
+    *(int *)((char *)d + 0x870) =
+        (int)iosMallocDebug(ios_partition_seki, num * 0x50, __FILE__, 367);
     {
         int n;
 

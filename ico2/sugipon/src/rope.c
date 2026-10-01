@@ -9,8 +9,9 @@
 /* kept local: this TU's uses of GetChainCollision do not fit the prototype in clothAnimation.h */
 extern float GetChainCollision(void *a0, void *a1, float w);
 extern void *D_00639EA4;
-extern IosMemPart *D_0063A438;
-extern IosMemPart *D_0063A44C;
+/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+extern IosMemPart *ios_partition_sugipon;
+extern IosMemPart *ios_partition_seki;
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 extern void *MatrixDrive_GetMatrix(void);
@@ -96,8 +97,8 @@ void *InitRopeGeo(char *o, const float *p)
     int i;
 
     sub = *(char **)(o + 0x15C);
-    w = (RopeGeoWork *)iosMallocDebug(D_0063A438, 0x14, __FILE__, 38);
-    c = (RopeChainSys *)iosMallocDebug(D_0063A438, 0xA0, __FILE__, 39);
+    w = (RopeGeoWork *)iosMallocDebug(ios_partition_sugipon, 0x14, __FILE__, 38);
+    c = (RopeChainSys *)iosMallocDebug(ios_partition_sugipon, 0xA0, __FILE__, 39);
 
     ((RopeTemplate *)c)[0] = ropeChainInit[0];
     ((RopeTemplate *)c)[1] = ropeChainInit[1];
@@ -158,13 +159,13 @@ void *InitRopeGeo(char *o, const float *p)
     }
     *(void **)(sub + 0xC) = 0;
     *(void **)(sub + 0x10) = 0;
-    *(void **)(sub + 0xC) = iosMallocDebug(D_0063A44C, (c->n - 1) * 64, __FILE__, 82);
-    *(void **)(sub + 0x10) = iosMallocDebug(D_0063A44C, (c->n - 1) * 16, __FILE__, 82);
+    *(void **)(sub + 0xC) = iosMallocDebug(ios_partition_seki, (c->n - 1) * 64, __FILE__, 82);
+    *(void **)(sub + 0x10) = iosMallocDebug(ios_partition_seki, (c->n - 1) * 16, __FILE__, 82);
     *(int *)(sub + 8) = *(int *)c - 1;
     if (*(int *)(sub + 0x870) != 0) {
         iosFree((void *)(*(int *)(sub + 0x870) & 0x0FFFFFFF));
     }
-    *(void **)(sub + 0x870) = iosMallocDebug(D_0063A44C, (c->n - 1) * 0x50, __FILE__, 82);
+    *(void **)(sub + 0x870) = iosMallocDebug(ios_partition_seki, (c->n - 1) * 0x50, __FILE__, 82);
     for (i = 0; i < c->n - 1; i++) {
         {
             char *e = (char *)(i * 80 + (int)*(char **)(sub + 0x870));

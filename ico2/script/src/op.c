@@ -19,21 +19,25 @@
 /* the three functions at the head of the TU need their callees declared here,
    above their definitions */
 
-extern void *D_0063BE6C;
-
 /* .sbss, owned by op.o and reached only from this file, in the ROM's run order
    0x63C4E8..0x63C4F8 (MAIN.MAP has no .sbss for op.o, the January object; the
    run sits between e3's and st00a's in the alphabetical link order).  The
    names are ours: titleSubEnd and demoSubEnd are the flags a title or demo
-   sub-thread raises when it is done and its parent waits on, titleAdpcm and
+   sub-thread raises when it is done and its parent waits on, titleSubAdpcm and
    demoAdpcm the stream handles scpAdpcmPlayRequestFunc fills. */
 static int titleSubEnd;
 
-static int titleAdpcm;
+static int titleSubAdpcm;
 
 static int demoSubEnd;
 
 static int demoAdpcm;
+
+/* .sdata, owned by op.o: the opening demo's step and the step it returns to,
+   ahead of the demo's "mode" traces; the globals follow the demo below. */
+static int opDemoMode = 0; /* derived name */
+
+static int opDemoNextMode = 0; /* derived name */
 
 extern char *D_00639EA4;
 /* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
@@ -44,7 +48,6 @@ extern char *scpSearchGobj(int id);
 extern void scpFadeIn(float t);
 /* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int kind, void *id, int a2, int a3, int a4);
-extern int D_0063BE68;
 
 void actTitleCamera2(volatile int a0)
 {
@@ -52,19 +55,19 @@ void actTitleCamera2(volatile int a0)
 
     enable_game_pause = 1;
 
-    D_0063BE68 = 0;
+    opTitleLogoMode = 0;
     actInitialize(a0);
     _ACTWait(1);
 
     while (1) {
-        switch (D_0063BE68) {
+        switch (opTitleLogoMode) {
         case 1:
             stage_SetAnimation(0, 1, 0);
             while (stage_CheckAnimationFinish(0) == 0) {
                 _ACTWait(1);
             }
             _ACTWait(1);
-            while (D_0063BE68 == 1) {
+            while (opTitleLogoMode == 1) {
                 _ACTWait(1);
             }
             break;
@@ -75,14 +78,14 @@ void actTitleCamera2(volatile int a0)
                 _ACTWait(1);
             }
             _ACTWait(1);
-            while (D_0063BE68 == 2) {
+            while (opTitleLogoMode == 2) {
                 _ACTWait(1);
             }
             break;
 
         case 0:
             stage_SetAnimation(2, 0, -1);
-            while (D_0063BE68 == 0) {
+            while (opTitleLogoMode == 0) {
                 _ACTWait(1);
             }
             break;
@@ -100,13 +103,6 @@ extern int optionScreenMode;
 extern int D_00639EA0;
 /* kept local: script.h's prototypes do not fit this TU's calls */
 extern int scpBoyControlReadDisable;
-extern int D_0063BE40;
-extern int D_0063BE44;
-extern char D_0063BE48[];
-extern char D_0063BE50[];
-extern char D_0063BE58[];
-extern int D_0063B60C;
-extern int D_0063B5F8;
 extern int mpegPlayReturnStage;
 /* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
 extern int scpFadeChk(void);
@@ -132,7 +128,7 @@ void actTitleShortCut(volatile int a0);
    why case 0's `b` carries its break's line 689 and falls into case 1's copy
    at 706.  Case 1's loop leaves through the break inside its test, so the
    tail starts at the loop's exit label and sched1 cannot pull its argument
-   moves above the D_0063BE40 store; that keeps the two copies identical for
+   moves above the opDemoMode store; that keeps the two copies identical for
    the cross-jump.  The duplicated tail also sets the outer loop's size at
    loop time, which is what keeps the 60 of the timer out of the outer loop's
    preheader (move_movables' threshold test). */
@@ -144,13 +140,13 @@ void actOpDemo01(volatile int a0)
 
     inline int tick(void)
     {
-        if ((D_0063B60C == 12 || D_0063B60C == 13) && D_0063B5F8 == 0) {
+        if ((current_layout_id == 12 || current_layout_id == 13) && lt_continue_selected == 0) {
             t--;
         } else {
             t = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 10;
         }
         if (t < 0) {
-            D_0063B60C = 55;
+            current_layout_id = 55;
             return 1;
         }
         return 0;
@@ -175,14 +171,14 @@ void actOpDemo01(volatile int a0)
     }
 
     scpFadeOut(0, 0, 0, 255.0f);
-    D_0063BE6C = 0;
+    titleAdpcm = 0;
 
     while (1) {
         titleSubEnd = 0;
         while (scpFadeChk() != 0) {
             _ACTWait(1);
         }
-        D_0063BE68 = 0;
+        opTitleLogoMode = 0;
 
         stage_SetAnimation(571, -1, -2);
         stage_SetAnimation(563, -1, -2);
@@ -192,20 +188,20 @@ void actOpDemo01(volatile int a0)
         stage_SetAnimation(568, -1, -2);
         stage_SetAnimation(569, -1, -2);
 
-        switch (D_0063BE40) {
+        switch (opDemoMode) {
         case 0:
-            debug_StdPrintfDummy(D_0063BE48);
-            D_0063B60C = 55;
+            debug_StdPrintfDummy("mode 0");
+            current_layout_id = 55;
 
-            if (D_0063BE6C != 0) {
-                scpAdpcmFadeCloseFunc(&D_0063BE6C, 288);
+            if (titleAdpcm != 0) {
+                scpAdpcmFadeCloseFunc(&titleAdpcm, 288);
             }
-            D_0063BE6C = 0;
             titleAdpcm = 0;
+            titleSubAdpcm = 0;
             th = actCreateSubThread(actTitleReadTimeDemo0, 21);
 
             t = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 10;
-            while (titleAdpcm == 0) {
+            while (titleSubAdpcm == 0) {
                 _ACTWait(1);
             }
             _ACTWait(30);
@@ -214,26 +210,26 @@ void actOpDemo01(volatile int a0)
                 _ACTWait(1);
                 if (titleSubEnd == 0) {
                     if (D_0028F8F0[0].flags & 0x800) {
-                        D_0063BE40 = 1;
-                        D_0063BE44 = 2;
+                        opDemoMode = 1;
+                        opDemoNextMode = 2;
                         break;
                     }
                 } else if (tick()) {
-                    D_0063BE40 = 2;
+                    opDemoMode = 2;
                     break;
                 }
             }
 
-            if (titleAdpcm != 0) {
-                scpAdpcmCloseFunc(&titleAdpcm);
+            if (titleSubAdpcm != 0) {
+                scpAdpcmCloseFunc(&titleSubAdpcm);
             }
             iosThreadSetPri((int *)(th + 0x24), 34);
             scpFadeOut(0, 0, 0, 16.0f);
             break;
 
         case 1:
-            debug_StdPrintfDummy(D_0063BE50);
-            D_0063BE68 = 1;
+            debug_StdPrintfDummy("mode 1");
+            opTitleLogoMode = 1;
             lt_switch_layout(12);
             th = actCreateSubThread(actTitleShortCut, 21);
 
@@ -243,7 +239,7 @@ void actOpDemo01(volatile int a0)
                 _ACTWait(1);
                 if (titleSubEnd != 0 && tick()) {
                     lt_switch_layout(55);
-                    D_0063BE40 = D_0063BE44;
+                    opDemoMode = opDemoNextMode;
                     break;
                 }
             }
@@ -252,17 +248,17 @@ void actOpDemo01(volatile int a0)
             break;
 
         case 2:
-            debug_StdPrintfDummy(D_0063BE58);
-            D_0063BE40 = 1;
-            D_0063BE44 = 0;
+            debug_StdPrintfDummy("mode 2");
+            opDemoMode = 1;
+            opDemoNextMode = 0;
             mpegPlayReturnStage = 1;
-            if (D_0063BE6C != 0) {
-                scpAdpcmFadeCloseFunc(&D_0063BE6C, 1024);
-                while (scpAdpcmCloseChkFunc(&D_0063BE6C) != 0) {
+            if (titleAdpcm != 0) {
+                scpAdpcmFadeCloseFunc(&titleAdpcm, 1024);
+                while (scpAdpcmCloseChkFunc(&titleAdpcm) != 0) {
                     _ACTWait(1);
                 }
             }
-            D_0063BE6C = 0;
+            titleAdpcm = 0;
             _ACTWait(1);
             stgmgrForceSwitchWithFade(D_0028F4C0[0] != 0 ? 58 : 57, 256.0f, 4.0f);
             _ACTWait(0);
@@ -270,6 +266,17 @@ void actOpDemo01(volatile int a0)
         }
     }
 }
+
+/* .sdata, after actOpDemo01's traces: MAIN.MAP's four op.o globals, the
+   second demo's and the first scene's stream handles, the title logo's step
+   and the title's stream handle (declared in op.h). */
+int op2 = 0;
+
+int adpcm_conte01_sea = 0;
+
+int opTitleLogoMode = 0;
+
+char *titleAdpcm = 0;
 
 void actTitleShortCut(volatile int a0)
 {
@@ -282,8 +289,8 @@ void actTitleShortCut(volatile int a0)
     if (D_00639EA4 != 0) {
         scpPlayStart(D_00639EA4);
     }
-    if (D_0063BE6C == 0) {
-        scpAdpcmPlayRequestFunc(56, &D_0063BE6C, 0, 0, 1);
+    if (titleAdpcm == 0) {
+        scpAdpcmPlayRequestFunc(56, &titleAdpcm, 0, 0, 1);
     }
     stage_SetAnimation(571, 1, 0x547);
 
@@ -298,7 +305,7 @@ void actTitleShortCut(volatile int a0)
     *(int *)(scpSearchGobj(50) + 0x16C) = 1;
     *(int *)(scpSearchGobj(51) + 0x16C) = 1;
 
-    while (D_0063BE6C != 0) {
+    while (titleAdpcm != 0) {
         _ACTWait(1);
     }
 
@@ -344,10 +351,8 @@ extern void scpPlayMot(char *self, int mot);
 /* kept local: this TU's uses of RequestStageChangeWithColor do not fit the prototype in script.h */
 extern int RequestStageChangeWithColor(int a0, char *a1, int a2, float a3, float a4, int r, int g,
                                        int b);
-extern int D_0063BE64;
 /* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
 extern int scpAdpcmPlayRequestNum(void);
-extern int D_0063BE60;
 extern JimakuArg jimaku_msg;
 extern int jimakuOn;
 
@@ -381,8 +386,8 @@ void actTitleReadTimeDemo0(volatile int a0)
 
     *(int *)(scpSearchGobj(46) + 0x16C) = 1;
 
-    scpAdpcmPlayRequestFunc(6, &titleAdpcm, 1, 1, 1);
-    while (titleAdpcm == 0) {
+    scpAdpcmPlayRequestFunc(6, &titleSubAdpcm, 1, 1, 1);
+    while (titleSubAdpcm == 0) {
         _ACTWait(1);
     }
 
@@ -529,7 +534,7 @@ void actTitleReadTimeDemo0(volatile int a0)
 
     _ACTWait(1000);
 
-    D_0063BE68 = 1;
+    opTitleLogoMode = 1;
     while (stage_CheckAnimationFrame(571, 1300, 0) == 0) {
         _ACTWait(1);
     }
@@ -541,8 +546,8 @@ void actTitleReadTimeDemo0(volatile int a0)
 
     lt_switch_layout(12);
 
-    if (D_0063BE6C == 0) {
-        scpAdpcmPlayRequestFunc(56, &D_0063BE6C, 0, 0, 1);
+    if (titleAdpcm == 0) {
+        scpAdpcmPlayRequestFunc(56, &titleAdpcm, 0, 0, 1);
     }
     titleSubEnd = 1;
 
@@ -574,14 +579,14 @@ void actOpDemo01_2(volatile int a0)
 
     scpFadeOut(0, 0, 0, 255.0f);
 
-    D_0063BE64 = 0;
-    D_0063BE60 = 0;
+    adpcm_conte01_sea = 0;
+    op2 = 0;
 
     lt_switch_layout(55);
     scpBoyControlReadDisable = 1;
 
-    scpAdpcmPlayRequestFunc(7, &D_0063BE64, 0, 0, 1);
-    while (D_0063BE64 != 0) {
+    scpAdpcmPlayRequestFunc(7, &adpcm_conte01_sea, 0, 0, 1);
+    while (adpcm_conte01_sea != 0) {
         _ACTWait(1);
     }
     scpFadeIn(2.0f);
@@ -596,8 +601,8 @@ void actOpDemo01_2(volatile int a0)
         _ACTWait(1);
     }
 
-    if (D_0063BE64 != 0) {
-        scpAdpcmFadeCloseFunc(&D_0063BE64, 0x80);
+    if (adpcm_conte01_sea != 0) {
+        scpAdpcmFadeCloseFunc(&adpcm_conte01_sea, 0x80);
     }
 
     RequestStageChangeWithColor(1, D_00639EA4, 0, 1.0f, 4.0f, 255, 255, 255);
@@ -650,7 +655,7 @@ void actOpDemo01_2Chk(volatile int a0)
 
     stage_SetAnimation(574, 1, 0);
 
-    scpAdpcmPlayRequestFunc(10, &D_0063BE60, 0, 1, 1);
+    scpAdpcmPlayRequestFunc(10, &op2, 0, 1, 1);
 
     stage_SetAnimation(9, 1, 0);
 
@@ -700,8 +705,8 @@ void actOpDemo02(volatile int a0)
         _ACTWait(1);
     }
 
-    if (D_0063BE60 == 0) {
-        scpAdpcmPlayRequestFunc(10, &D_0063BE60, 0, 1, 1);
+    if (op2 == 0) {
+        scpAdpcmPlayRequestFunc(10, &op2, 0, 1, 1);
     }
 
     opDemo02_mes[0].func = actOpDemo02Chk;
@@ -730,8 +735,8 @@ inline void actOpDemo02Chk(volatile int a0)
         if (demoAdpcm != 0) {
             scpAdpcmFadeCloseFunc(&demoAdpcm, 0x200);
         }
-        if (D_0063BE60 != 0) {
-            scpAdpcmFadeCloseFunc(&D_0063BE60, 0x40);
+        if (op2 != 0) {
+            scpAdpcmFadeCloseFunc(&op2, 0x40);
         }
     }
 
@@ -884,8 +889,8 @@ void actOpDemo03Chk(volatile int a0)
 
     scpFadeOut(0, 0, 0, 255.0f);
 
-    scpAdpcmPlayRequestFunc(9, &D_0063BE60, 0, 1, 1);
-    while (D_0063BE60 == 0) {
+    scpAdpcmPlayRequestFunc(9, &op2, 0, 1, 1);
+    while (op2 == 0) {
         _ACTWait(1);
     }
     scpFadeIn(3.0f);
@@ -901,8 +906,8 @@ void actOpDemo03Chk(volatile int a0)
     }
 
     if (demoSubEnd == 0) {
-        if (D_0063BE60 != 0) {
-            scpAdpcmFadeCloseFunc(&D_0063BE60, 0x80);
+        if (op2 != 0) {
+            scpAdpcmFadeCloseFunc(&op2, 0x80);
             t = 16.0f;
         }
     }

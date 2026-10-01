@@ -14,7 +14,16 @@
 #include "typedef.h"
 
 /* The TU starts at 0x00252418, where MAIN.MAP puts st22a.o. */
-extern int D_0063C048;
+
+/* Declared ahead with no size: actSt22aIntroChk reaches the animation pair
+   with a %hi/%lo pair, which gcc emits for a symbol whose first declaration
+   is incomplete; the sized definition below puts it in .sdata. */
+static int lightningAnims[];
+
+/* .sdata, owned by st22a.o, in the ROM's order: the lightning stream handle (MAIN.MAP global) and the two animation numbers the lightning plays. */
+int lightning = 0;
+
+static int lightningAnims[2] = {758, 759}; /* derived name */
 
 void actSt22aLightningVolime(volatile int a0)
 {
@@ -34,7 +43,7 @@ void actSt22aLightningVolime(volatile int a0)
     float *pos;
     float v;
 
-    while (D_0063C048 == 0) {
+    while (lightning == 0) {
         _ACTWait(1);
     }
     for (;;) {
@@ -43,7 +52,7 @@ void actSt22aLightningVolime(volatile int a0)
         if (v < 0.1f) {
             v = 0.1f;
         }
-        AdpcmVolumeSet(D_0063C048, (int)(v * 16383.0f));
+        AdpcmVolumeSet(lightning, (int)(v * 16383.0f));
         _ACTWait(1);
     }
 }
@@ -67,8 +76,8 @@ void actSt22aIntro(volatile int a0)
     float dir[4];
 
     _ACTWait(1);
-    D_0063C048 = 0;
-    scpAdpcmPlayRequestFunc(94, &D_0063C048, 1, 0, 1);
+    lightning = 0;
+    scpAdpcmPlayRequestFunc(94, &lightning, 1, 0, 1);
     actCreateSubThread(actSt22aLightningVolime, 21);
     ScpCallCameraSetTarget(7000.0f, 280.0f, 4938.0f);
     SetCageChainHangableFlag(scpSearchGobj(1847), 0);
@@ -113,8 +122,6 @@ typedef struct St22Anims {
     int id[2];
 } St22Anims;
 
-extern int D_0063C050[];
-
 void actSt22aIntroChk(volatile int a0)
 {
     St22Anims anims;
@@ -147,7 +154,7 @@ void actSt22aIntroChk(volatile int a0)
     }
     iosThreadSetPri(th + 0x24, 34);
     if (fin != 0) {
-        anims = *(St22Anims *)D_0063C050;
+        anims = *(St22Anims *)lightningAnims;
         for (i = 0; i < 2; i++) {
             stage_SetAnimation(anims.id[i], 1, -1);
             _ACTWait(1);

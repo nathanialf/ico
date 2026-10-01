@@ -114,15 +114,23 @@ static ActMail rescue_mes[2] = {{430}, {429}};
 
 static ActMail buki_mes[2] = {{430}, {429}};
 
-extern int bmg;
-extern int hand;
 extern int D_00639EAC;
-extern unsigned char D_0063C014;
-extern int D_0063C010;
-extern int D_0063C000;
-extern int D_0063C004;
-extern int D_0063C00C;
 extern int D_00639EA8;
+
+/* .sdata, owned by st13c.o, in the ROM's order: bmg and hand (MAIN.MAP globals) around the two scene streams MAIN.MAP leaves unnamed, then a word no retail code uses and the shake and volume the retail object adds. */
+int bmg = 0;
+
+static int st13c_adpcm = 0; /* derived name */
+
+static int st13c_adpcm2 = 0; /* derived name */
+
+int hand = 0;
+
+static int st13c_reserved = 0; /* derived name */
+
+static int st13c_yure = 0; /* derived name */
+
+static unsigned char st13c_yure_vol = 0; /* derived name */
 
 void actSt13cInit(void)
 {
@@ -421,9 +429,9 @@ void actSt13cCage1stDown(volatile int a0)
     lt_switch_layout(55);
     gflagOn(20);
 
-    scpAdpcmPlayRequestFunc(14, &D_0063C000, 1, 1, 1);
+    scpAdpcmPlayRequestFunc(14, &st13c_adpcm, 1, 1, 1);
 
-    while (D_0063C000 == 0) {
+    while (st13c_adpcm == 0) {
         _ACTWait(1);
     }
 
@@ -531,11 +539,11 @@ void actSt13cCageFallChk(volatile int a0)
 
     gflagOn(21);
 
-    while (D_0063C004 == 0) {
+    while (st13c_adpcm2 == 0) {
         _ACTWait(1);
     }
 
-    AdpcmPlay(((AdpcmSlot *)D_0063C004)->unk2C);
+    AdpcmPlay(((AdpcmSlot *)st13c_adpcm2)->unk2C);
 
     th1 = actCreateSubThread(actSt13cConte05, 21);
     th2 = actCreateSubThread(actSt13cConte05Jimaku, 21);
@@ -557,7 +565,7 @@ void actSt13cCageFallChk(volatile int a0)
     cancel = demoEnd ^ 1;
 
     if (cancel) {
-        scpAdpcmFadeCloseFunc(&D_0063C004, 0x100);
+        scpAdpcmFadeCloseFunc(&st13c_adpcm2, 0x100);
 
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
@@ -959,9 +967,9 @@ void actSt13cSekizoChk(volatile int a0)
 
     stage_SetAnimation(77, 1, 0);
 
-    D_0063C010 = iosPadActRequest(D_00639EAC, 9);
-    D_0063C014 = 0x80;
-    iosPadActVolumeSet(D_0063C010, 0x80);
+    st13c_yure = iosPadActRequest(D_00639EAC, 9);
+    st13c_yure_vol = 0x80;
+    iosPadActVolumeSet(st13c_yure, 0x80);
 
     scpPlayStart(D_00639EA4);
     scpPlayStart(D_00639EA8);
@@ -993,7 +1001,7 @@ void actSt13cSekizoChk(volatile int a0)
     }
     _ACTWait(1);
 
-    iosPadActStop(D_0063C010);
+    iosPadActStop(st13c_yure);
 
     while (stage_CheckAnimationFinish(77) == 0) {
         _ACTWait(1);
@@ -1099,8 +1107,8 @@ void actSt13cHandChk(volatile int a0)
     sceVu0SubVector(dir, test_CURRENTROOT(D_00639EA4), test_CURRENTROOT(D_00639EA8));
     scpPlayMotDir(D_00639EA8, dir);
 
-    scpAdpcmPlayRequestFunc(16, &D_0063C00C, 1, 1, 1);
-    while (D_0063C00C == 0) {
+    scpAdpcmPlayRequestFunc(16, &st13c_reserved, 1, 1, 1);
+    while (st13c_reserved == 0) {
         _ACTWait(1);
     }
 
@@ -1124,7 +1132,7 @@ void actSt13cHandChk(volatile int a0)
     iosThreadSetPri((int *)(th1 + 0x24), 34);
 
     if (demoEnd == 0) {
-        scpAdpcmFadeCloseFunc(&D_0063C00C, 0x200);
+        scpAdpcmFadeCloseFunc(&st13c_reserved, 0x200);
 
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
@@ -1489,7 +1497,7 @@ void actSt13cCageFallReadyChk(volatile int a0)
         _ACTWait(1);
     }
 
-    scpAdpcmPlayRequestFunc(15, &D_0063C004, 1, 1, 0);
+    scpAdpcmPlayRequestFunc(15, &st13c_adpcm2, 1, 1, 0);
 }
 
 void actSt13cCageFallEvent(int x)

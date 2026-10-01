@@ -12,6 +12,12 @@
 #ifndef E3_H
 #define E3_H
 
+/* e3.o's .sdata globals (MAIN.MAP) */
+extern int e3capsule;
+extern int e3gate1st;
+extern int sekizo_e3;
+extern int sekizo_e3_vol;
+
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order e3.c's inline tail has. */

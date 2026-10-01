@@ -3,11 +3,43 @@
 #include "gflag.h"
 #include "layout_action.h"
 
-extern int D_0063B60C;
-extern unsigned int D_0063B610;
-extern int D_0063B618;
-extern int D_0063B61C;
-extern int D_0063B624;
+typedef struct {
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+    unsigned char a;
+} SprCol;
+
+/* .sdata, layout_texture.o's run in the ROM's order (MAIN.MAP names
+   current_layout_id and lt_item_select_disable; the January link had the
+   continue flag's slot elsewhere): the continue screen's decided flag, which
+   layout_action sets and op's countdown waits on; the two highlight colours;
+   the current layout; the selected item; the item-select handler's flag; the
+   fade state and type; lt_item_select_disable; the fade-end handler; the
+   highlight blink's count and length.  The two short strings follow. */
+int lt_continue_selected = 0; /* derived name */
+
+static unsigned char ltCursorColor[4] = {128, 128, 128, 127}; /* derived name */
+
+static SprCol ltHighlightColor = {128, 128, 128, 127}; /* derived name */
+
+int current_layout_id = 0;
+
+static unsigned int ltCurrentItem = -1; /* derived name */
+
+static int ltSelectFlag = 1; /* derived name */
+
+static int fadeState = 0; /* derived name */
+
+static int fadeType = 0; /* derived name */
+
+int lt_item_select_disable = 0;
+
+static int fadeCallback = 0; /* derived name */
+
+static unsigned int ltBlinkCount = 0; /* derived name */
+
+static unsigned int ltBlinkLength = 0; /* derived name */
 
 /* .sbss, layout_texture.o's nine words in the ROM's order (MAIN.MAP line 7619
    gives the January object's 8 bytes and no symbol, so the names are ours and
@@ -75,7 +107,6 @@ typedef struct LtProperty {
 
 extern LtProperty D_0030CFF8[];
 extern StgPre D_005F5D50[];
-extern int D_0063B614;
 extern int mpegPlayReturnStage;
 
 /* The 0x38-byte layout property records this TU shares with src/kanban. */
@@ -207,7 +238,6 @@ void lt_analog2Pad(void)
 
 extern int frame_count;
 extern int D_0028F8F4[];
-extern int D_0063B620;
 /* census display_texture: a file static here (the name is also src/jimaku's
    global and src/kanban's file-local one). */
 static void display_texture(int no, LtProperty *e);
@@ -220,7 +250,7 @@ static inline int lt_property_visible(int no)
 {
     int vis = 1;
 
-    if (gFlagGameClear == 0 && D_0063B60C == 58 && no >= 300 &&
+    if (gFlagGameClear == 0 && current_layout_id == 58 && no >= 300 &&
         (no < 308 || (no < 330 ? no >= 325 : 0))) {
         vis = 0;
     }
@@ -249,38 +279,38 @@ extern int D_0028F4C0[];
    call sites below need static inline stand-ins (INTERIM: they go away when the
    deferred tail is closed and the public definition can be marked inline).
    The two copies are NOT identical: the first site's else arm stores 7 to
-   D_0063B618 where the out-of-line function and the second site store 3.  That is
-   what the ROM has (0x001BF548 `addiu $3,$0,0x7` feeding `sw $3,%gp_rel(D_0063B618)`
+   fadeState where the out-of-line function and the second site store 3.  That is
+   what the ROM has (0x001BF548 `addiu $3,$0,0x7` feeding `sw $3,%gp_rel(fadeState)`
    against 0x001BF5EC's `sw $2` with $2 = 3), and it is also what keeps the two
    else arms from cross-jumping: with one constant the pair of stores is the
-   ordinary adjacent-store reversal (D_0063B618 first, then nextFadeState) and with two
+   ordinary adjacent-store reversal (fadeState first, then nextFadeState) and with two
    it stays in source order, so the tails do not match.  A single stand-in taking
    the value as a parameter compiles one instruction short for exactly that
    reason. */
 static inline void lt_switch_layout_7(int no)
 {
-    if ((D_0063B618 == 2 && no != D_0063B60C) || no == 62) {
+    if ((fadeState == 2 && no != current_layout_id) || no == 62) {
         nextLayout = no;
-        display_texture_fade_cancel_chk(D_0063B60C, no);
-        if (D_0063B61C == 1) {
-            D_0063B618 = 5;
+        display_texture_fade_cancel_chk(current_layout_id, no);
+        if (fadeType == 1) {
+            fadeState = 5;
         } else {
             nextFadeState = 3;
-            D_0063B618 = 7;
+            fadeState = 7;
         }
     }
 }
 
 static inline void lt_switch_layout_3(int no)
 {
-    if ((D_0063B618 == 2 && no != D_0063B60C) || no == 62) {
+    if ((fadeState == 2 && no != current_layout_id) || no == 62) {
         nextLayout = no;
-        display_texture_fade_cancel_chk(D_0063B60C, no);
-        if (D_0063B61C == 1) {
-            D_0063B618 = 5;
+        display_texture_fade_cancel_chk(current_layout_id, no);
+        if (fadeType == 1) {
+            fadeState = 5;
         } else {
             nextFadeState = 3;
-            D_0063B618 = 3;
+            fadeState = 3;
         }
     }
 }
@@ -295,13 +325,13 @@ void default_item_select(int no)
     if (p->f2C < 0) {
         return;
     }
-    if (D_0063B620 != 0) {
+    if (lt_item_select_disable != 0) {
         return;
     }
-    if (D_0063B618 != 2) {
+    if (fadeState != 2) {
         return;
     }
-    if (D_0063B624 == 0) {
+    if (fadeCallback == 0) {
         lt_analog2Pad();
         prev = p->f2C;
         if ((D_0028F8F0.trigger & 0x50) == 0) {
@@ -329,14 +359,14 @@ void default_item_select(int no)
             glowCount = 0;
         }
     } else {
-        p->f2C = ((int (*)(void))D_0063B624)();
-        D_0063B624 = 0;
+        p->f2C = ((int (*)(void))fadeCallback)();
+        fadeCallback = 0;
     }
 
     e = &D_0030CFF8[p->f2C];
     if (D_0028F8F0.trigger & 0x40) {
         if (e->right >= 0) {
-            if (D_0063B618 == 2) {
+            if (fadeState == 2) {
                 soundSeDefPlay(412, 0xFFFFFFFE, 0, 0);
                 lt_switch_layout_7(e->right);
                 return;
@@ -345,7 +375,7 @@ void default_item_select(int no)
     }
     if (D_0028F8F0.trigger & 0x10) {
         if (e->left >= 0) {
-            if (D_0063B618 == 2) {
+            if (fadeState == 2) {
                 soundSeDefPlay(413, 0xFFFFFFFE, 0, 0);
                 lt_switch_layout_3(e->left);
             }
@@ -366,99 +396,95 @@ static inline void lt_reset_property_chain(int no)
     }
 }
 
-extern unsigned char D_0063B600[4];
-extern unsigned int D_0063B628;
-extern unsigned int D_0063B62C;
-
-/* source lines 748-859.  The fade state D_0063B618 is read and written as the
+/* source lines 748-859.  The fade state fadeState is read and written as the
    global itself, as the rest of this TU does (the listing puts each `li N` on
    the line of its store, 783, 802, 815).  gcse's load/store PRE then carries the
    value in one register into the second switch, and its edge block for the
-   D_0063B61C default path (the load reorg later moves into the bne delay slot)
+   fadeType default path (the load reorg later moves into the bne delay slot)
    sits between case 3's store and the join at jump2, which is what keeps case 0
    from cross-jumping into it; case 3's store then comes back inline after the
    `sb` with no line of its own, as rows 771-772 show. */
 void texture_fading(LtProp *p)
 {
-    unsigned char *col = D_0063B600;
+    unsigned char *col = ltCursorColor;
     int *cur;
 
-    switch (D_0063B61C) {
+    switch (fadeType) {
     case 1:
-        if (D_0063B618 < 2) {
-            if (D_0063B618 >= 0) {
-                D_0063B618 = 2;
+        if (fadeState < 2) {
+            if (fadeState >= 0) {
+                fadeState = 2;
             }
         }
         break;
     case 0:
-        switch (D_0063B618) {
+        switch (fadeState) {
         case 0:
             if (p->f8 == 0.0f) {
-                D_0063B618 = 2;
+                fadeState = 2;
             }
             break;
         case 3:
             if (p->fC == 0.0f) {
-                D_0063B618 = 6;
+                fadeState = 6;
                 col[3] = 127;
             }
             break;
         }
         break;
     }
-    switch (D_0063B618) {
+    switch (fadeState) {
     case 0:
-        D_0063B618 = 1;
-        D_0063B62C = (int)(p->f8 * ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
-        D_0063B628 = D_0063B62C;
+        fadeState = 1;
+        ltBlinkLength = (int)(p->f8 * ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+        ltBlinkCount = ltBlinkLength;
         /* fall through */
     case 1:
-        col[3] = (D_0063B62C - D_0063B628) * 127 / D_0063B62C;
-        D_0063B628--;
-        if (D_0063B628 == 0) {
-            D_0063B618 = 2;
+        col[3] = (ltBlinkLength - ltBlinkCount) * 127 / ltBlinkLength;
+        ltBlinkCount--;
+        if (ltBlinkCount == 0) {
+            fadeState = 2;
         }
         break;
     case 2:
         col[3] = 127;
         break;
     case 7:
-        D_0063B618 = 8;
+        fadeState = 8;
         fadeLength = (unsigned int)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 0.25f);
         fadeCount = 0;
         /* fall through */
     case 8:
         if (++fadeCount >= fadeLength) {
-            D_0063B618 = nextFadeState;
+            fadeState = nextFadeState;
         }
         break;
     case 3:
-        D_0063B618 = 4;
-        D_0063B62C = (int)(p->fC * ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
-        D_0063B628 = D_0063B62C;
+        fadeState = 4;
+        ltBlinkLength = (int)(p->fC * ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+        ltBlinkCount = ltBlinkLength;
         break;
     case 4:
-        col[3] = D_0063B628 * 127 / D_0063B62C;
-        D_0063B628--;
-        if (D_0063B628 == 0) {
-            D_0063B618 = 5;
+        col[3] = ltBlinkCount * 127 / ltBlinkLength;
+        ltBlinkCount--;
+        if (ltBlinkCount == 0) {
+            fadeState = 5;
         }
         break;
     case 5:
         col[3] = 0;
         /* fall through */
     case 6:
-        D_0063B60C = nextLayout;
-        cur = &D_00533FE8[D_0063B60C].f2C;
-        *cur = D_00533FE8[D_0063B60C].f28;
-        D_0063B614 = 1;
-        D_0063B618 = 0;
-        if (D_00533FE8[D_0063B60C].f8 == 0.0f) {
-            D_0063B620 = 1;
-            D_0063B618 = 2;
+        current_layout_id = nextLayout;
+        cur = &D_00533FE8[current_layout_id].f2C;
+        *cur = D_00533FE8[current_layout_id].f28;
+        ltSelectFlag = 1;
+        fadeState = 0;
+        if (D_00533FE8[current_layout_id].f8 == 0.0f) {
+            lt_item_select_disable = 1;
+            fadeState = 2;
         }
-        lt_reset_property_chain(D_0063B60C);
+        lt_reset_property_chain(current_layout_id);
         break;
     }
     if (glowOn != 0) {
@@ -481,19 +507,10 @@ extern void gif_SpriteSensitive(void *rect, unsigned int z, void *uv, void *col,
 /* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
 extern void gif_EndPacket(void);
 extern void texture_fading(LtProp *p);
-
-typedef struct {
-    unsigned char r;
-    unsigned char g;
-    unsigned char b;
-    unsigned char a;
-} SprCol;
-
 /* The census display_texture body below reads these:
-   D_0063B608 is the second highlight colour, D_0028F720 the system record whose
+   ltHighlightColor is the second highlight colour, D_0028F720 the system record whose
    bytes at 0xD0/0xD4/0xD8 it inverts, and GetTableSin/gif_SpriteSensitiveOffset/
    gif_PointOffset/gif_SetGsReg/rand are its callees. */
-extern SprCol D_0063B608;
 extern unsigned char D_0028F720[];
 extern float GetTableSin(int a);
 extern void gif_SpriteSensitiveOffset(void *rect, unsigned int z, void *ofs, void *col, int prim);
@@ -560,7 +577,7 @@ static void display_texture(int no, LtProperty *e)
     box.y = (e->f50 - 113) * 16;
 
     sel = (e == &D_0030CFF8[D_00533FE8[no].f2C]);
-    if (sel && D_0063B620 == 0 && D_0063B618 == 2 && e->f6C_b3 == 0) {
+    if (sel && lt_item_select_disable == 0 && fadeState == 2 && e->f6C_b3 == 0) {
         SprCol pcol;
 
         memset(&pcol, 0, sizeof(pcol));
@@ -594,9 +611,9 @@ static void display_texture(int no, LtProperty *e)
         box.w = box.w - 16;
         ofs.w = ofs.w - 16;
         if (e->fade_cancel == 0) {
-            u.col = *(SprCol *)D_0063B600;
+            u.col = *(SprCol *)ltCursorColor;
         } else {
-            u.col = *(SprCol *)&D_0063B608;
+            u.col = *(SprCol *)&ltHighlightColor;
         }
         u.col.r = ~D_0028F720[0xD0];
         u.col.g = ~D_0028F720[0xD4];
@@ -627,7 +644,7 @@ static void display_texture(int no, LtProperty *e)
         }
         gif_SpriteSensitiveOffset(&box, 0xFFFFFF9B, &ofs, &u.col, 1);
 
-        if (e->f6C_b3 != 0 && sel != 0 && D_0063B618 == 8) {
+        if (e->f6C_b3 != 0 && sel != 0 && fadeState == 8) {
             float t = (float)fadeCount / (float)fadeLength;
 
             lt_glow_sprite(&box, &ofs, 80, 80, 80, t, 55, 50);
@@ -668,7 +685,7 @@ void display_primary_texture_layout(int no, int sel)
     col.b = (int)(p->f18 * 255.0f);
     col.a = (int)(p->f1C * 127.0f);
     lt_draw_primary_sprite(&col);
-    if (p->f20 != 0 && (D_0063B618 == 1 || D_0063B618 == 2)) {
+    if (p->f20 != 0 && (fadeState == 1 || fadeState == 2)) {
         if (p->f2C >= 0) {
             int *e = (int *)((char *)D_0030CFF8 + p->f2C * 0x70);
 
@@ -676,29 +693,29 @@ void display_primary_texture_layout(int no, int sel)
         } else {
             m = 0;
         }
-        sel = ((int (*)(int, int))p->f20)(D_0063B614, sel);
+        sel = ((int (*)(int, int))p->f20)(ltSelectFlag, sel);
         if (sel != -1) {
             flag = 0;
             if ((D_0028F8F4[0] & 0x40) != 0) {
                 flag = m == 1;
             }
-            if ((D_0063B618 == 2 && sel != D_0063B60C) || sel == 62) {
+            if ((fadeState == 2 && sel != current_layout_id) || sel == 62) {
                 nextLayout = sel;
-                display_texture_fade_cancel_chk(D_0063B60C, sel);
-                if (D_0063B61C == 1) {
-                    D_0063B618 = 5;
+                display_texture_fade_cancel_chk(current_layout_id, sel);
+                if (fadeType == 1) {
+                    fadeState = 5;
                 } else {
                     nextFadeState = 3;
-                    D_0063B618 = flag ? 7 : 3;
+                    fadeState = flag ? 7 : 3;
                 }
             }
         } else if ((D_0028F8F4[0] & 0x40) != 0) {
             if (m == 2) {
                 nextFadeState = m;
-                D_0063B618 = 7;
+                fadeState = 7;
             }
         }
-        D_0063B614 = 0;
+        ltSelectFlag = 0;
     }
     texture_fading(p);
     lt_draw_layout(no);
@@ -717,7 +734,7 @@ void exec_layout_texture(void)
     if (frame_count - selectFrame == 0 || frame_count - selectFrame == 1) {
         D_0028F8F4[0] = 0;
     }
-    p = &D_00533FE8[D_0063B60C];
+    p = &D_00533FE8[current_layout_id];
     for (;;) {
         for (j = p->first; j < p->last; j++) {
             LtProperty *e = &D_0030CFF8[j];
@@ -735,28 +752,28 @@ void exec_layout_texture(void)
     for (n--; n != -1; n--) {
         p = &D_00533FE8[list[n]];
         v = p->f2C;
-        D_0063B610 = v;
-        if (p->f20 != 0 && (D_0063B618 == 1 || D_0063B618 == 2)) {
+        ltCurrentItem = v;
+        if (p->f20 != 0 && (fadeState == 1 || fadeState == 2)) {
             ret = ((int (*)(int, int))p->f20)(p->f24, ret);
             p->f24 = 0;
             v = p->f2C;
         } else {
             ret = -1;
         }
-        if (v >= 0 && D_0063B620 == 0) {
+        if (v >= 0 && lt_item_select_disable == 0) {
             default_item_select(list[n]);
         }
     }
-    p = &D_00533FE8[D_0063B60C];
-    D_0063B610 = p->f2C;
-    display_primary_texture_layout(D_0063B60C, ret);
-    if (p->f2C >= 0 && D_0063B620 == 0) {
-        default_item_select(D_0063B60C);
+    p = &D_00533FE8[current_layout_id];
+    ltCurrentItem = p->f2C;
+    display_primary_texture_layout(current_layout_id, ret);
+    if (p->f2C >= 0 && lt_item_select_disable == 0) {
+        default_item_select(current_layout_id);
     }
     for (k = 0; list[k] >= 0; k++) {
         lt_draw_layout(list[k]);
     }
-    D_0063B620 = 0;
+    lt_item_select_disable = 0;
 }
 
 /* census init_textures_of_specified_property, a file static; MAIN.MAP carries no
@@ -764,8 +781,6 @@ void exec_layout_texture(void)
    `static` here keeps this one's ELF symbol local */
 extern char D_00535168[][0x34];
 extern char D_0030D014[];
-extern char D_0063B630[]; /* "/" */
-extern char D_0063B638[]; /* "0" */
 extern char *strtok(char *s, const char *sep);
 extern char *strrchr(const char *s, int c);
 extern void debug_assert(char *file, int line);
@@ -782,11 +797,11 @@ static inline char *lt_texture_base_name(char *src)
 
     strcpy(buf, src);
 
-    t = strtok(buf, D_0063B630);
+    t = strtok(buf, "/");
     if (t != 0) {
         do {
             p = t;
-            t = strtok(0, D_0063B630);
+            t = strtok(0, "/");
         } while (t != 0);
     }
     if ((t = strrchr(p, '.')) != 0) {
@@ -812,7 +827,7 @@ static inline int lt_texture_no_of_property(int idx)
     if (no < 0) {
         debug_StdPrintfDummy("no texture loaded.(%s)\n", src);
         debug_assert(__FILE__, 0x507);
-        __assert(__FILE__, 0x507, D_0063B638);
+        __assert(__FILE__, 0x507, "0");
     }
     return no;
 }
@@ -842,57 +857,57 @@ static inline void lt_init_stage_textures(int stage)
     for (; i < last; i++) {
         init_textures_of_specified_property(D_00533FE8[i].first, D_00533FE8[i].last);
     }
-    D_0063B610 = D_00533FE8[D_0063B60C].f28;
+    ltCurrentItem = D_00533FE8[current_layout_id].f28;
 }
 
 void init_layout_texture(int stage)
 {
-    D_0063B624 = 0;
+    fadeCallback = 0;
     if (stage == 1) {
         gflagInit();
         if (layout_boot_flag == 0) {
-            D_0063B60C = 7;
+            current_layout_id = 7;
         } else if (mpegPlayReturnStage == stage) {
             mpegPlayReturnStage = 0;
             if (stage_after_skipping_demo == 0xFFFFFFFE) {
                 title_demo_mode = title_demo_mode ^ 1;
-                D_0063B60C = 13;
+                current_layout_id = 13;
             } else if (stage_after_skipping_demo == 0xFFFFFFFF) {
-                D_0063B60C = 10;
+                current_layout_id = 10;
                 title_demo_mode = title_demo_mode ^ 1;
             } else {
-                D_0063B60C = 13;
+                current_layout_id = 13;
             }
         } else {
-            D_0063B60C = 13;
+            current_layout_id = 13;
         }
     } else {
-        D_0063B60C = 54;
+        current_layout_id = 54;
     }
     lt_init_stage_textures(stage);
-    D_00533FE8[D_0063B60C].f2C = D_00533FE8[D_0063B60C].f28;
-    D_0063B614 = 1;
-    D_0063B618 = 0;
-    lt_reset_property_chain(D_0063B60C);
+    D_00533FE8[current_layout_id].f2C = D_00533FE8[current_layout_id].f28;
+    ltSelectFlag = 1;
+    fadeState = 0;
+    lt_reset_property_chain(current_layout_id);
 }
 
 inline void lt_switch_layout(int no)
 {
-    if ((D_0063B618 == 2 && no != D_0063B60C) || no == 62) {
+    if ((fadeState == 2 && no != current_layout_id) || no == 62) {
         nextLayout = no;
-        display_texture_fade_cancel_chk(D_0063B60C, no);
-        if (D_0063B61C == 1) {
-            D_0063B618 = 5;
+        display_texture_fade_cancel_chk(current_layout_id, no);
+        if (fadeType == 1) {
+            fadeState = 5;
         } else {
             nextFadeState = 3;
-            D_0063B618 = 3;
+            fadeState = 3;
         }
     }
 }
 
 inline int lt_current_property_item(void)
 {
-    return D_0063B610;
+    return ltCurrentItem;
 }
 
 inline int lt_link_layout(int dir)
@@ -912,22 +927,22 @@ inline int lt_link_layout(int dir)
 
 inline int lt_prev_layout(int stage)
 {
-    D_0063B60C = D_0063B60C - 1;
-    if (D_0063B60C < D_005F5D50[stage].layoutFirst) {
-        D_0063B60C = D_005F5D50[stage].layoutLast - 1;
+    current_layout_id = current_layout_id - 1;
+    if (current_layout_id < D_005F5D50[stage].layoutFirst) {
+        current_layout_id = D_005F5D50[stage].layoutLast - 1;
     }
-    lt_switch_layout(D_0063B60C);
-    return D_0063B60C;
+    lt_switch_layout(current_layout_id);
+    return current_layout_id;
 }
 
 inline int lt_next_layout(int stage)
 {
-    D_0063B60C = D_0063B60C + 1;
-    if (D_0063B60C >= D_005F5D50[stage].layoutLast) {
-        D_0063B60C = D_005F5D50[stage].layoutFirst;
+    current_layout_id = current_layout_id + 1;
+    if (current_layout_id >= D_005F5D50[stage].layoutLast) {
+        current_layout_id = D_005F5D50[stage].layoutFirst;
     }
-    lt_switch_layout(D_0063B60C);
-    return D_0063B60C;
+    lt_switch_layout(current_layout_id);
+    return current_layout_id;
 }
 
 inline void lt_mask_property(int idx, int flag)
@@ -944,15 +959,15 @@ inline void lt_default_mask_property(int idx, int flag)
 
 inline int lt_fade_status(void)
 {
-    return D_0063B618;
+    return fadeState;
 }
 
 inline void lt_set_item_select_func(int val)
 {
-    D_0063B624 = val;
+    fadeCallback = val;
 }
 
 inline void lt_set_fade_mode(int val)
 {
-    D_0063B61C = val;
+    fadeType = val;
 }

@@ -84,10 +84,6 @@ void actSt20aEnd(void)
     gamesysObjInfoCls(*(int *)(scpSearchGobj(2023) + 0xC), *(int *)(scpSearchGobj(2023) + 8));
 }
 
-extern int brg20a;
-extern int gondola_up;
-extern int gondola_down;
-extern unsigned int st20a_yure;
 extern int D_00639EAC;
 
 /* .sbss, owned by st20a.o and reached only from this file (MAIN.MAP names no
@@ -96,6 +92,17 @@ extern int D_00639EAC;
 static int demoEnd;
 
 extern int D_0028F8F4[];
+
+/* .sdata, owned by st20a.o, in the ROM's order: the bridge and gondola stream handles and the shake. */
+int brg20a = 0;
+
+int gondola_up = 0;
+
+int gondola_down = 0;
+
+unsigned int st20a_yure = 0;
+
+unsigned char st20a_yure_vol = 0;
 
 void actSt20aBridgeDown(volatile int a0)
 {
@@ -552,8 +559,6 @@ void actSt20aBridgeSwitch(volatile int a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-extern unsigned char st20a_yure_vol;
 
 void actSt20aBridgeDownSub(volatile int a0)
 {

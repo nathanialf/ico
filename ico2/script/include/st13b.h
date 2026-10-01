@@ -12,6 +12,20 @@
 #ifndef ST13B_H
 #define ST13B_H
 
+/* st13b.o's .sdata globals (MAIN.MAP) */
+extern int sekizo13b;
+extern int sekizo13b2;
+extern int meets_again;
+extern int boss;
+extern int sd;
+extern int boss_dead;
+extern int st13b_up;
+extern int st13b_down;
+extern int sekizo_13b;
+extern int sekizo_13b_vol;
+extern int st13b_yure;
+extern unsigned char st13b_yure_vol;
+
 void actConte10c(volatile int a0);
 void actSt13bBossAfterChk(volatile int a0);
 void actSt13bBossChk(volatile int a0);

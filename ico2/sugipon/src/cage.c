@@ -6,6 +6,7 @@
 #include "tableSin.h"
 #include <libvu0.h>
 #include <math.h>
+#include "ios.h"
 
 /* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
@@ -66,10 +67,9 @@ inline int GetCageChainPoint(char *a0, char *a1, char *a2)
 /* kept local: this TU's uses of these do not fit the prototypes in memory.h */
 extern void *iosMallocDebug(void *part, int size, char *file, int line);
 extern void iosFree(void *p);
+
 /* the game heap handles, declared int as sugipon's other TUs do
    (girlForceField.c, candle.c) and cast at the allocator calls */
-extern int D_0063A438;
-extern int D_0063A44C;
 
 /* RECONSTRUCTION: one 80-byte chain-parameter record per chain, the list
  * InitChains walks until num is -1.  The fields are the ones clothAnimation.c
@@ -119,8 +119,8 @@ char *InitCageGeo(char *self, char *lay)
     int i;
     float one;
 
-    w = (char *)iosMallocDebug((void *)D_0063A438, 80, __FILE__, 97);
-    ch = (char *)iosMallocDebug((void *)D_0063A438, 160, __FILE__, 98);
+    w = (char *)iosMallocDebug((void *)ios_partition_sugipon, 80, __FILE__, 97);
+    ch = (char *)iosMallocDebug((void *)ios_partition_sugipon, 160, __FILE__, 98);
     *(char **)w = CSVSYSTEM_InitDObj(
         *(int *)(D_002A79B8 + *(int *)(((GObjSubSlot *)(self + 0x15C))->handle + 0x844) * 40),
         (float *)lay);
@@ -168,15 +168,15 @@ char *InitCageGeo(char *self, char *lay)
     }
     *(char **)(*(char **)w + 0x10) = *(char **)(*(char **)w + 0xC) = 0;
     *(void **)(*(char **)w + 0xC) =
-        iosMallocDebug((void *)D_0063A44C, *(int *)(w + 0x2C) << 6, __FILE__, 128);
+        iosMallocDebug((void *)ios_partition_seki, *(int *)(w + 0x2C) << 6, __FILE__, 128);
     *(void **)(*(char **)w + 0x10) =
-        iosMallocDebug((void *)D_0063A44C, *(int *)(w + 0x2C) << 4, __FILE__, 128);
+        iosMallocDebug((void *)ios_partition_seki, *(int *)(w + 0x2C) << 4, __FILE__, 128);
     *(int *)(*(char **)w + 0x8) = *(int *)(w + 0x2C);
     if (*(void **)(*(char **)w + 0x870) != 0) {
         iosFree((void *)((int)*(void **)(*(char **)w + 0x870) & 0x0FFFFFFF));
     }
     *(void **)(*(char **)w + 0x870) =
-        iosMallocDebug((void *)D_0063A44C, *(int *)(w + 0x2C) * 80, __FILE__, 128);
+        iosMallocDebug((void *)ios_partition_seki, *(int *)(w + 0x2C) * 80, __FILE__, 128);
     for (i = 0; i < *(int *)(w + 0x2C); i++) {
         {
             char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));

@@ -12,6 +12,7 @@
 #include "typedef.h"
 #include "gflag.h"
 #include <eeregs.h>
+#include "layout_texture.h"
 
 /* Declared here, not through string.h: with newlib's prototype in scope gcc
    expands gsb_scissorOnDemo's four-byte zero fill as one store, and the ROM
@@ -504,8 +505,6 @@ void gsb_SetMotionBlur(void)
     }
 }
 
-extern int D_0063B60C;
-
 /* gsb_scissorOnDemo's state: the demo state it last saw, the band level and
    its step */
 static int scissorLastState = 54; /* derived name */
@@ -539,12 +538,12 @@ void gsb_scissorOnDemo(void)
     unsigned char col[4];
     int i;
 
-    if (D_0063B60C == 55 && scissorLastState != D_0063B60C) {
+    if (current_layout_id == 55 && scissorLastState != current_layout_id) {
         scissorStep = 2.5f;
-    } else if (scissorLastState != D_0063B60C) {
+    } else if (scissorLastState != current_layout_id) {
         scissorStep = -2.5f;
     }
-    scissorLastState = D_0063B60C;
+    scissorLastState = current_layout_id;
 
     scissorLevel = scissorLevel + scissorStep;
     if (scissorLevel <= 0.0f) {
@@ -923,7 +922,6 @@ inline void gsb_ResetFilmNoise(void)
     }
 }
 
-extern int D_0063B60C;
 extern int staffRollStartFlag;
 extern void FullScreenEffectAfter(void);
 extern void shadow_Draw(void);
@@ -946,7 +944,7 @@ int gsb_PostEffect(void)
 {
     if (debug_font_flag & 1) {
         debug_Printf(0xA, ScreenHeight / 2 - 8, 0xCCCCCC00, "LID:%3d / FADE%d:%3.0f(%d)",
-                     D_0063B60C, fadeStatus, fadeLevel, fadeColor[3]);
+                     current_layout_id, fadeStatus, fadeLevel, fadeColor[3]);
     }
     if (D_0028F4C0[0x18 / 4] != 0 && (debug_font_flag & 1)) {
         debug_Printf(0x230, ScreenHeight / 2 - 8, 0xCCCCCC00, "L");

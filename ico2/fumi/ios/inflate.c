@@ -3,6 +3,7 @@
 #include "mblock.h"
 #include "memory.h"
 #include <string.h>
+#include "ios.h"
 
 int huft_free(char *p);
 
@@ -87,8 +88,6 @@ static unsigned short cpdext[30] = {0, 0, 0, 0, 1, 1, 2, 2,  3,  3,  4,  4,  5, 
 
 #define BMAX 16
 #define N_MAX 288
-
-extern int D_0063A464;
 
 int huft_build(unsigned int *b, unsigned int n, unsigned int s, unsigned short *d,
                unsigned short *e, struct huft **t, int *m, void *mb)
@@ -206,8 +205,8 @@ int huft_build(unsigned int *b, unsigned int n, unsigned int s, unsigned short *
 
                 /* allocate and link in new table */
                 if (mb == 0)
-                    q = (struct huft *)iosMallocDebug(D_0063A464, (z + 1) * sizeof(struct huft),
-                                                      __FILE__, 241);
+                    q = (struct huft *)iosMallocDebug(ios_partition_inflate,
+                                                      (z + 1) * sizeof(struct huft), __FILE__, 241);
                 else
                     q = (struct huft *)new_segment(mb, (z + 1) * sizeof(struct huft));
                 if (q == (struct huft *)0) {
@@ -674,7 +673,7 @@ void close_inflate_handler(void *a0)
     }
     reuse_mblock((char *)a0 + 0x18098);
     iosFree(a0);
-    iosMallocResetPartition(D_0063A464);
+    iosMallocResetPartition(ios_partition_inflate);
 }
 
 long long inflate(void *w, unsigned char *out, long long outlen)
@@ -778,15 +777,12 @@ long long inflate(void *w, unsigned char *out, long long outlen)
     return total;
 }
 
-extern int D_0063A450;
-extern int D_0063A470;
-
 int open_inflate_handler(int a0, int a1)
 {
-    int g = D_0063A450;
+    int g = ios_partition_oomori;
     int *s1;
-    D_0063A464 = g;
-    D_0063A470 = 0;
+    ios_partition_inflate = g;
+    free_mblock_list = 0;
     s1 = (int *)iosMallocDebug(g, 0x180A8, __FILE__, 739);
     inflate_start(s1);
     s1[0] = a1;

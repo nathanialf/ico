@@ -12,6 +12,19 @@
 #ifndef ST04A_H
 #define ST04A_H
 
+/* st04a.o's .sdata globals (MAIN.MAP) */
+extern int gate1st;
+extern int gate1;
+extern int gate_ready_l;
+extern int gate_ready_r;
+extern int torch;
+extern int gate_yure_low;
+extern unsigned char gate_yure_low_vol;
+extern int yure1;
+extern unsigned char vol1;
+extern int yure2;
+extern unsigned char vol2;
+
 void actConte09(volatile int a0);
 void actConte09Jimaku(volatile int a0);
 void actConte09_2(volatile int a0);

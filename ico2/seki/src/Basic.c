@@ -12,8 +12,6 @@ static int mallocPartition = -1; /* derived name */
 
 static int mallocTotal = 0; /* derived name */
 
-extern int D_0063A43C;
-extern int D_0063A44C;
 extern void debug_assert(const char *file, int line);
 extern void __assert(const char *file, int line, char *expr);
 /* kept local: this TU's uses of iosMallocDebug do not fit the prototype in memory.h */
@@ -24,6 +22,7 @@ extern int iosFree();
 extern int iosReallocDebug(int size, int align, const char *file, int line);
 
 #include "Basic.h"
+#include "ios.h"
 
 void dma_init(void)
 {
@@ -75,10 +74,10 @@ inline int mallocseki(int size)
     switch (mallocPartition) {
     case 0:
         mallocTotal += size + 0x30;
-        ptr = iosMallocDebug(D_0063A43C, size, "src/Basic.c", 379);
+        ptr = iosMallocDebug(ios_partition_common, size, "src/Basic.c", 379);
         break;
     case 1:
-        ptr = iosMallocDebug(D_0063A44C, size, "src/Basic.c", 382);
+        ptr = iosMallocDebug(ios_partition_seki, size, "src/Basic.c", 382);
         break;
     }
     return ptr;

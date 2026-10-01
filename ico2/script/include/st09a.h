@@ -12,6 +12,9 @@
 #ifndef ST09A_H
 #define ST09A_H
 
+/* st09a.o's .sdata globals (MAIN.MAP) */
+extern int st09a_brg;
+
 void actSt09aBrgDown(volatile int a0);
 void actSt09aBrgDownSub(volatile int a0);
 void actSt09aBrgMain(volatile int a0);

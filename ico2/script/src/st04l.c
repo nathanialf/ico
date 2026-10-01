@@ -23,6 +23,7 @@
 #include "weapon.h"
 #include <libvu0.h>
 #include "typedef.h"
+#include "st04r.h"
 
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
@@ -34,10 +35,6 @@ extern void scpTorchLightOn(int a0);
 extern int scpBoyControlReadDisable;
 extern Pad D_0028F8F0[];
 extern int D_0028F8F4[];
-extern int crest2;
-extern int crest1;
-extern int ball2_4l;
-extern int ball3_4l;
 /* as script.h declares it; this TU does not include that header */
 extern int scpGameStat_BoyWeaponkind(void);
 /* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
@@ -60,11 +57,7 @@ typedef struct AdpcmReq {
     int unk2C;        /* 0x2C */
 } AdpcmReq;
 
-extern AdpcmReq *st04d_hasi;
-extern AdpcmReq *sekizo4c;
 extern int D_00639EAC;
-extern unsigned char oridown4c;
-extern unsigned int oriup4c;
 
 /* .sbss, owned by st04l.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the four arguments turnBall hands
@@ -85,13 +78,11 @@ static int crest2Anim;
 
 static int subStarted;
 
-extern unsigned int ball1_4l;
 extern int D_0028F4C0[];
 /* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, void *a1, int a2, int a3, int a4);
 extern float scpSeEnvMasterVolRate;
 extern int D_00639ED4;
-extern int sekizo_4r;
 /* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, void *a1, float radius);
 /* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
@@ -110,8 +101,6 @@ extern void scpPlayEnd(void *a0);
 extern void scpPlayMotReq(void *a0, int mot);
 /* as script.h declares it; this TU does not include that header */
 extern void scpSleepEnemyAll(void);
-extern AdpcmReq *crest3;
-extern AdpcmReq *stair4d;
 
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc
@@ -119,8 +108,6 @@ extern AdpcmReq *stair4d;
 
 static const ConstVec stairSubPos = {{0.0f, 0.0f, -5000.0f, 1.0f}};
 
-extern unsigned int st04l_yure;
-extern unsigned char st04l_yure_vol;
 /* as script.h declares it; this TU does not include that header */
 extern void scpKillEnemyAll(void);
 /* as script.h declares it; this TU does not include that header */
@@ -137,6 +124,35 @@ extern void scpPlayWaitMotEnd(void *a0);
 extern void scpSleepEnemyOne(int a0);
 /* as script.h declares it; this TU does not include that header */
 extern void scpWakeupEnemyOne(int a0);
+
+/* .sdata, owned by st04l.o, in the ROM's order: the room's stream handles and shakes (solar4l unused by the retail code). */
+unsigned int ball1_4l = 0;
+
+int ball2_4l = 0;
+
+int ball3_4l = 0;
+
+int crest1 = 0;
+
+int crest2 = 0;
+
+AdpcmReq *crest3 = 0;
+
+int solar4l = 0;
+
+AdpcmReq *stair4d = 0;
+
+AdpcmReq *st04d_hasi = 0;
+
+AdpcmReq *sekizo4c = 0;
+
+unsigned int oriup4c = 0;
+
+unsigned char oridown4c = 0;
+
+unsigned int st04l_yure = 0;
+
+unsigned char st04l_yure_vol = 0;
 
 void actSt04cInit(void)
 {

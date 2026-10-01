@@ -12,6 +12,19 @@
 #ifndef SCENEMANAGER_H
 #define SCENEMANAGER_H
 
+/* the layout record CSVSYSTEM_InitDObj starts a scene object from: position,
+   rotation, scale and the object word */
+typedef struct {
+    float pos[4];
+    float rot[4];
+    float scale[4];
+    int obj;
+    int pad34[3];
+} SObjSimpleSetting; /* derived name */
+
+/* sceneManager.c's .data (MAIN.MAP's sceneManager.o global) */
+extern SObjSimpleSetting InitialSObjSimpleSetting;
+
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order sceneManager.c's inline tail has. */

@@ -7,6 +7,7 @@
 #include <eekernel.h>
 #include <libdma.h>
 #include "GsBase.h"
+#include "ios.h"
 
 typedef struct {
     int f_0;                 /* 0x00 */
@@ -33,7 +34,6 @@ static DlEntry dlEntries[13];
 static int dlBufferHead[2][13];
 
 extern int dmaVif;
-extern int D_0063A43C;
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
@@ -59,7 +59,8 @@ void dl_Init(void)
     for (i = 0; i < 2; i++) {
         for (j = 0; j < 13; j++) {
             dlBufferHead[i][j] =
-                (int)iosMallocDebug(D_0063A43C, dlBufferSize[j], __FILE__, 393) | 0x30000000;
+                (int)iosMallocDebug(ios_partition_common, dlBufferSize[j], __FILE__, 393) |
+                0x30000000;
         }
     }
     dlBank = 0;

@@ -17,7 +17,6 @@ extern PObjGObj *scpSearchGobj(int a0);
 extern void ScpCallCameraSetTarget(float x, float y, float z);
 /* kept local: script.h's prototypes do not fit this TU's calls */
 extern int scpBoyControlReadDisable;
-extern char *pipe19a;
 
 /* .sbss, owned by st19a.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
@@ -60,11 +59,19 @@ extern void scpFadeOut(float t, int a1, int a2, int a3);
 extern int scpFadeChk(void);
 /* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float t);
-extern char *fence_up_19a;
 /* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, char **a1, int a2, int a3, int a4);
 /* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
 extern void scpAdpcmFadeCloseFunc(char **a0, int a1);
+
+/* .sdata, owned by st19a.o, in the ROM's order: the fence, horn and pipe stream handles. */
+char *fence_up_19a = 0;
+
+char *fence_down_19a = 0;
+
+char *hgrm_19a = 0;
+
+char *pipe19a = 0;
 
 void actSt19aOriUp(volatile int a0)
 {
@@ -144,8 +151,6 @@ void actSt19aHaguruma(volatile int a0)
     }
 }
 
-extern char *fence_down_19a;
-
 void actSt19aHagurumaChk(volatile int a0)
 {
     int skip = 0;
@@ -204,7 +209,6 @@ done:
     lt_switch_layout(54);
 }
 
-extern char *hgrm_19a;
 /* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(int a0);
 /* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */

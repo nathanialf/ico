@@ -6,6 +6,7 @@
 #include <libvu0.h>
 #include <string.h>
 #include "typedef.h"
+#include "ios.h"
 
 /* One sampled pad buffer: the two button bytes the device leaves at +2 and
    +3, active low. */
@@ -390,7 +391,6 @@ int controler_stable_check(void *a0)
     return phase;
 }
 
-extern int D_0063A428;
 extern int iosThreadCreateS(void *th, int prio, void *func, int arg, int stack, int size,
                             int flags);
 extern void iosThreadStart(void *th);
@@ -402,7 +402,7 @@ int iosPadDevInit(void *a0)
 {
     int i;
 
-    iosThreadCreateS(th_iosPadDevManager, 10, iosPadDevManager, 0, D_0063A428, 4096, 17);
+    iosThreadCreateS(th_iosPadDevManager, 10, iosPadDevManager, 0, ios_partition_root, 4096, 17);
     iosThreadStart(th_iosPadDevManager);
 
     if (scePadInit(0) != 1) {

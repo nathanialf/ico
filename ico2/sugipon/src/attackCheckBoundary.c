@@ -11,8 +11,6 @@
 #include "weapon.h"
 #include <libvu0.h>
 
-extern int D_0063A438;
-
 /* the TU's whole .data (MAIN.MAP attackCheckBoundary.o .data 0x10, no symbol):
    the colour the debug display draws a boundary sphere in */
 static unsigned int acbSphereColor[4] = {0, 128, 255, 128}; /* derived name */
@@ -42,9 +40,8 @@ typedef struct {
     int unk34[3];        /* 0x34 */
 } AcbLayout;
 
-extern AcbLayout D_004E45C0;
-
 #include "attackCheckBoundary.h"
+#include "ios.h"
 
 static inline char *createAttackCheckBoundaryGObj(AcbLayout *lay)
 {
@@ -64,7 +61,7 @@ typedef struct {
 
 inline int InitAttackCheckBoundaryGeo(int unused, void *obj)
 {
-    AcbWork *w = (AcbWork *)iosMallocDebug(D_0063A438, 0xC, __FILE__, 27);
+    AcbWork *w = (AcbWork *)iosMallocDebug(ios_partition_sugipon, 0xC, __FILE__, 27);
 
     w->handle = (int *)((AcbLayout *)obj)->obj;
     w->f4 = 0;
@@ -127,7 +124,7 @@ inline float GetAttackCheckBoundaryRadius(char *a0)
 
 inline char *CreateAttackCheckBoundary(int *obj, float x, float y, float z, float r)
 {
-    AcbLayout lay = D_004E45C0;
+    AcbLayout lay = *(AcbLayout *)&InitialSObjSimpleSetting;
 
     lay.pos[0] = x;
     lay.pos[1] = y;
@@ -260,11 +257,11 @@ AcbMgr *InitAttackCheckBoundaryManagerGeo(int a0, char *a1)
     char *g;
 
     rec = &layoutClothDef[*(int *)(a1 + 0x30)];
-    mgr = (AcbMgr *)iosMallocDebug(D_0063A438, 0x10, __FILE__, 180);
+    mgr = (AcbMgr *)iosMallocDebug(ios_partition_sugipon, 0x10, __FILE__, 180);
     mgr->prev = mgr->cur;
     mgr->cur = 0;
     mgr->count = rec->count;
-    mgr->list = (AcbEntry *)iosMallocDebug(D_0063A438, mgr->count * 8, __FILE__, 189);
+    mgr->list = (AcbEntry *)iosMallocDebug(ios_partition_sugipon, mgr->count * 8, __FILE__, 189);
     v0[0] = rec->pt[0][0];
     v0[1] = -rec->pt[0][1];
     v0[2] = rec->pt[0][2];

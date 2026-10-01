@@ -1,8 +1,11 @@
 #include "memory.h"
 #include "mblock.h"
 #include <string.h>
+#include "ios.h"
 
-extern int D_0063A470;
+/* .sdata, owned by mblock.o: the free node list (MAIN.MAP global) */
+int free_mblock_list = 0;
+
 extern MBlockNode *new_mblock_node(unsigned int size);
 
 inline void init_mblock(int *a0)
@@ -11,39 +14,37 @@ inline void init_mblock(int *a0)
     a0[1] = 0;
 }
 
-extern int D_0063A464;
-
 /* listing lines 16-51 */
 MBlockNode *new_mblock_node(unsigned int size)
 {
     MBlockNode *node;
 
     if (size > 0x2000) {
-        node = iosMallocDebug(D_0063A464, sizeof(MBlockNode), "ios/mblock.c", 21);
+        node = iosMallocDebug(ios_partition_inflate, sizeof(MBlockNode), "ios/mblock.c", 21);
         if (node == 0) {
             return 0;
         }
-        node->buf = iosMallocDebug(D_0063A464, size, "ios/mblock.c", 23);
+        node->buf = iosMallocDebug(ios_partition_inflate, size, "ios/mblock.c", 23);
         if (node->buf == 0) {
             iosFree(node);
             return 0;
         }
         node->size = size;
     } else {
-        if (D_0063A470 == 0) {
-            node = iosMallocDebug(D_0063A464, 0x2000, "ios/mblock.c", 32);
+        if (free_mblock_list == 0) {
+            node = iosMallocDebug(ios_partition_inflate, 0x2000, "ios/mblock.c", 32);
             if (node == 0) {
                 return 0;
             }
-            node->buf = iosMallocDebug(D_0063A464, 0x2000, "ios/mblock.c", 34);
+            node->buf = iosMallocDebug(ios_partition_inflate, 0x2000, "ios/mblock.c", 34);
             if (node->buf == 0) {
                 iosFree(node);
                 return 0;
             }
             node->size = 0x2000;
         } else {
-            node = (MBlockNode *)D_0063A470;
-            D_0063A470 = (int)node->next;
+            node = (MBlockNode *)free_mblock_list;
+            free_mblock_list = (int)node->next;
         }
     }
     node->used = 0;
@@ -92,8 +93,8 @@ inline void *new_segment(MBlock *mb, unsigned int len)
 void reuse_mblock1(int *a0)
 {
     if ((unsigned int)a0[1] < 0x2001) {
-        int tmp = D_0063A470;
-        D_0063A470 = (int)a0;
+        int tmp = free_mblock_list;
+        free_mblock_list = (int)a0;
         a0[3] = tmp;
         return;
     }

@@ -12,6 +12,12 @@
 #ifndef ST07A_H
 #define ST07A_H
 
+/* st07a.o's .sdata globals (MAIN.MAP) */
+extern int bridge;
+extern int sekizo7a;
+extern int sekizo_7a;
+extern int sekizo_7a_vol;
+
 void actSt07aChanChainChk(volatile int a0);
 void actSt07aChanChk(volatile int a0);
 void actSt07aChanEffect(volatile int a0);

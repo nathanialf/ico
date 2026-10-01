@@ -24,7 +24,6 @@ typedef struct {
     unsigned int f48;
 } GVGeo2;
 
-extern int D_0063A438;
 /* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
 extern void _ApplyRyGV(void *a0, float a1);
 extern StgPre D_005F5D50[];
@@ -41,6 +40,7 @@ extern char D_00308924[];
 
 #include "generator.h"
 #include <string.h>
+#include "ios.h"
 
 inline int SearchActiveGenerator(void)
 {
@@ -781,7 +781,7 @@ void generatorBeforeFunc(char *gobj)
 
 inline char *InitGeneratorGeo(char *gobj, char *src)
 {
-    char *p = iosMallocDebug(D_0063A438, 0x70, __FILE__, 1230);
+    char *p = iosMallocDebug(ios_partition_sugipon, 0x70, __FILE__, 1230);
     int i;
 
     *(int *)(p + 0x0) = 0;

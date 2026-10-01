@@ -11,6 +11,7 @@
 #include "matrixDrive.h"
 #include <libvu0.h>
 #include <string.h>
+#include "ios.h"
 
 typedef struct CamSetItem {
     char pad[0x48];
@@ -177,7 +178,6 @@ typedef struct CamItemV2 { /* 0x50 */
     unsigned char _0[0x50];
 } CamItemV2;
 
-extern int D_0063A44C;
 /* kept local: this TU's uses of ReadCameraSet do not fit the prototype in camera-ico2.h */
 extern void *ReadCameraSet(CamSetFile *f, int stage);
 extern char D_002AD010[][0x20];
@@ -827,15 +827,14 @@ inline void MakeCameraSetBinary(S4C *src, int count, S4C *dst)
     }
 }
 
-extern int D_0063A450;
-
 void ReflectCameraSetBinary(S4C *src, int count)
 {
     if (cameraSetBuf != 0) {
         iosFree(cameraSetBuf);
     }
 
-    cameraSetBuf = iosMallocDebug(D_0063A450, GetSizeOfCameraSetBinary(src, count), __FILE__, 1577);
+    cameraSetBuf =
+        iosMallocDebug(ios_partition_oomori, GetSizeOfCameraSetBinary(src, count), __FILE__, 1577);
     cameraSetGroups = cameraSetBuf;
     cameraSetGroupsEnd = cameraSetBuf + count * 0x4C;
     cameraSetGroupNum = count;
@@ -1095,8 +1094,8 @@ static inline CamSetFile *allocCameraSet(CamSetFile *f)
 {
     CamSetFile *p;
 
-    p = (CamSetFile *)iosMallocDebug(D_0063A44C, 16 + f->count * 0x4C + f->total * 0x5C, __FILE__,
-                                     2166);
+    p = (CamSetFile *)iosMallocDebug(ios_partition_seki, 16 + f->count * 0x4C + f->total * 0x5C,
+                                     __FILE__, 2166);
     *p = *f;
     p->magic = 0x1234;
     p->ver = 3;

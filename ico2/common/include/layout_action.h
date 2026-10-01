@@ -25,6 +25,9 @@ extern int title_demo_mode;
 extern int laoutActionPauseRequest;
 extern unsigned int stage_after_skipping_demo;
 extern int layoutActPushStartNew;
+/* mc, the memory-card request block (MAIN.MAP global), is declared by each
+   user in its own view of the block: common/src/debug.c's McReq record,
+   layout_action.c's word array. */
 
 void _la_mask_preview_info(void);
 int _la_mcard_error_check(void *a0);

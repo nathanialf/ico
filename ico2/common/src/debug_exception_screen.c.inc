@@ -58,11 +58,14 @@ extern void sceVif1PkCnt();
 extern void sceVif1PkOpenDirectCode();
 extern void sceVif1PkOpenGifTag(void *packet, u128_dbgscr tag);
 extern void sceVif1PkAddGsData(void *packet, unsigned long long data);
-extern int D_0063B370;
-extern unsigned int D_0063B374;
-extern unsigned int D_0063B378;
-extern u128_dbgscr D_0061CF20[];
-extern u128_dbgscr D_0061CF30[];
+
+/* The packet side OpenVif1DirectPacket builds into, flipped every packet, and
+   the Q words SetPrimColor and SetPrimColorTex send with the colour (1.0f). */
+static int vif1PacketSide = 0; /* derived name */
+
+static unsigned int primQ = 0x3F800000; /* derived name */
+
+static unsigned int primTexQ = 0x3F800000; /* derived name */
 
 /* GIF tags for the sprite packets, PACKED with EOP and NLOOP left for
    sceVif1PkCloseGifTag: UV and XYZ2 for a textured sprite, XYZ2 alone for a
@@ -71,10 +74,12 @@ static GifTag spriteTexTag = {0x2400000000008000LL, 0x43};
 
 static GifTag spriteTag = {0x1400000000008000LL, 0x4};
 
-extern int D_0063B37C;
-extern int D_0063B380;
-extern int D_0063B384;
-extern const unsigned char D_0061C590[];
+/* The colour PutFont draws with, set per character from its screen cell. */
+static int fontR = 255; /* derived name */
+
+static int fontG = 255; /* derived name */
+
+static int fontB = 255; /* derived name */
 
 /* The font's tag: XYZ2 pairs, one sprite per lit pixel. */
 static GifTag fontTag = {0x1400000000008000LL, 0x4};
@@ -89,10 +94,15 @@ typedef struct {
 /* The 26-line, 256-column character screen the report is printed into. */
 static DbgChar charScreen[26][256];
 
-extern DbgChar D_0063B388;
-extern int D_0063B394;
-extern int D_0063B398;
-extern int D_0063B390;
+/* The blank a cleared or scrolled cell takes, the first line shown, and the
+   print cursor. */
+static DbgChar blankChar = {0, ' '}; /* derived name */
+
+static int scrollTop = 0; /* derived name */
+
+static int cursorX = 0; /* derived name */
+
+static int cursorY = 0; /* derived name */
 
 typedef struct {
     int _0;
@@ -102,7 +112,10 @@ typedef struct {
 } DbgPad;
 
 extern DbgPad D_0028F8F0[];
-extern int D_0063B39C;
+
+/* The cursor blink's phase, stepped every frame. */
+static int blinkPhase = 0; /* derived name */
+
 extern int buffer_ID;
 extern int odd_even;
 extern int frame_count;
@@ -111,11 +124,11 @@ extern int sceGsSyncV(int a0);
 
 inline void OpenVif1DirectPacket(void *packet)
 {
-    sceVif1PkInit(packet, (D_0063B370 << 13) | 0x70000000);
+    sceVif1PkInit(packet, (vif1PacketSide << 13) | 0x70000000);
     sceVif1PkReset(packet);
     sceVif1PkCnt(packet, 0);
     sceVif1PkOpenDirectCode(packet, 0);
-    D_0063B370 = (D_0063B370 + 1) & 1;
+    vif1PacketSide = (vif1PacketSide + 1) & 1;
 }
 
 void CloseVif1DirectPacket(int a0)
@@ -223,23 +236,29 @@ void SetDrawEnvironment(int mode)
 
 inline void SetPrimColor(int prim, int r, int g, int b, int a)
 {
+    /* REGLIST with EOP, PRIM then RGBAQ, NLOOP left for sceVif1PkCloseGifTag */
+    static const unsigned long long primTag[2]
+        __attribute__((aligned(16))) = {0x2400000000008000LL, 0x10}; /* derived name */
     Vif1Packet packet;
     OpenVif1DirectPacket(&packet);
-    sceVif1PkOpenGifTag(&packet, D_0061CF20[0]);
+    sceVif1PkOpenGifTag(&packet, *(u128_dbgscr *)primTag);
     sceVif1PkAddGsData(&packet, prim | 0x40);
     sceVif1PkAddGsData(&packet, (unsigned long long)r | ((unsigned long long)g << 8) |
                                     ((unsigned long long)b << 16) | ((unsigned long long)a << 24) |
-                                    ((unsigned long long)D_0063B374 << 32));
+                                    ((unsigned long long)primQ << 32));
     CloseVif1DirectPacket((int)&packet);
     SendVif1DirectPacket((int *)&packet);
 }
 
 inline void SetPrimColorTex(int prim, int r, int g, int b, int a, int fst)
 {
+    /* the same tag, PRIM then RGBAQ */
+    static const unsigned long long primTag[2]
+        __attribute__((aligned(16))) = {0x2400000000008000LL, 0x10}; /* derived name */
     Vif1Packet packet;
     unsigned long long data;
     OpenVif1DirectPacket(&packet);
-    sceVif1PkOpenGifTag(&packet, D_0061CF30[0]);
+    sceVif1PkOpenGifTag(&packet, *(u128_dbgscr *)primTag);
     data = prim | 0x10;
     if (fst != 0) {
         data |= 0x100;
@@ -247,7 +266,7 @@ inline void SetPrimColorTex(int prim, int r, int g, int b, int a, int fst)
     sceVif1PkAddGsData(&packet, data);
     sceVif1PkAddGsData(&packet, (unsigned long long)r | ((unsigned long long)g << 8) |
                                     ((unsigned long long)b << 16) | ((unsigned long long)a << 24) |
-                                    ((unsigned long long)D_0063B378 << 32));
+                                    ((unsigned long long)primTexQ << 32));
     CloseVif1DirectPacket((int)&packet);
     SendVif1DirectPacket((int *)&packet);
 }
@@ -292,13 +311,13 @@ void PutFont(int c, int x, int y)
     int i, j;
     int y2 = y + 2;
 
-    SetPrimColor(6, D_0063B37C >> 2, D_0063B380 >> 2, D_0063B384 >> 2, 0x40);
+    SetPrimColor(6, fontR >> 2, fontG >> 2, fontB >> 2, 0x40);
     OpenVif1DirectPacket(&packet);
     sceVif1PkOpenGifTag(&packet, *(u128_dbgscr *)fontTag);
     for (j = 0; j < 8; j++) {
         int oy = j * 2 + 0x800;
         for (i = 0; i < 8; i++) {
-            if ((D_0061C590[j + c * 8] >> i) & 1) {
+            if ((dbgFont[j + c * 8] >> i) & 1) {
                 sceVif1PkAddGsData(&packet, (unsigned long long)((x + i - 2 + 0x800) << 4) |
                                                 ((unsigned long long)((y + oy - 1) << 4) << 16) |
                                                 0x0080000000000000ULL);
@@ -311,13 +330,13 @@ void PutFont(int c, int x, int y)
     CloseVif1DirectPacket((int)&packet);
     SendVif1DirectPacket((int *)&packet);
 
-    SetPrimColor(0, D_0063B37C, D_0063B380, D_0063B384, 0x80);
+    SetPrimColor(0, fontR, fontG, fontB, 0x80);
     OpenVif1DirectPacket(&packet);
     sceVif1PkOpenGifTag(&packet, *(u128_dbgscr *)fontTag);
     for (j = 0; j < 8; j++) {
         int oy = j * 2 + 0x800;
         for (i = 0; i < 8; i++) {
-            if ((D_0061C590[j + c * 8] >> i) & 1) {
+            if ((dbgFont[j + c * 8] >> i) & 1) {
                 sceVif1PkAddGsData(&packet, (unsigned long long)((x + i + 0x800) << 4) |
                                                 ((unsigned long long)((y + oy) << 4) << 16) |
                                                 0x0080000000000000ULL);
@@ -359,7 +378,7 @@ static inline void scrollDbgScreen(void)
         }
     }
     for (j = 0; j < 256; j++) {
-        charScreen[25][j] = D_0063B388;
+        charScreen[25][j] = blankChar;
     }
 }
 
@@ -372,21 +391,21 @@ void putString(unsigned int color, char *fmt, ...)
     vsprintf(buf, fmt, (char *)__builtin_next_arg(fmt) - 0x30);
     for (i = 0; i < strlen(str); i++) {
         if (str[i] == '\t') {
-            D_0063B394 += 2;
+            cursorX += 2;
         } else if (str[i] == '\n') {
-            D_0063B398++;
-            D_0063B394 = 0;
+            cursorY++;
+            cursorX = 0;
         } else {
-            charScreen[D_0063B398][D_0063B394].col = color;
-            charScreen[D_0063B398][D_0063B394].ch = str[i];
-            D_0063B394++;
+            charScreen[cursorY][cursorX].col = color;
+            charScreen[cursorY][cursorX].ch = str[i];
+            cursorX++;
         }
-        if (D_0063B394 >= 256) {
-            D_0063B394 = 255;
+        if (cursorX >= 256) {
+            cursorX = 255;
         }
-        if (D_0063B398 >= 26) {
+        if (cursorY >= 26) {
             scrollDbgScreen();
-            D_0063B398 = 25;
+            cursorY = 25;
         }
     }
 }
@@ -405,23 +424,23 @@ void drawWin(void)
 
         if (j < 50) {
             st = 0;
-        } else if (j - D_0063B390 - 50 >= 0) {
-            st = D_0063B390;
+        } else if (j - scrollTop - 50 >= 0) {
+            st = scrollTop;
         } else {
             st = j - 50;
         }
         for (k = 0; k < 50; k++) {
             DbgChar *p = &charScreen[i][st + k];
             if (p->ch != ' ') {
-                D_0063B37C = ((p->col >> 24) & 0xFF) * 0.8f;
-                D_0063B380 = ((p->col >> 16) & 0xFF) * 0.8f;
-                D_0063B384 = ((p->col >> 8) & 0xFF) * 0.8f;
+                fontR = ((p->col >> 24) & 0xFF) * 0.8f;
+                fontG = ((p->col >> 16) & 0xFF) * 0.8f;
+                fontB = ((p->col >> 8) & 0xFF) * 0.8f;
                 PutFont(p->ch, k * 10 - 250, (i - 13) * 16);
             }
         }
     }
-    if (len - D_0063B390 - 50 < 0) {
-        D_0063B390 = len - 50;
+    if (len - scrollTop - 50 < 0) {
+        scrollTop = len - 50;
     }
 }
 
@@ -435,14 +454,14 @@ void saveBack(void)
 static inline void putBaseChar(int c)
 {
     unsigned int col = 0xFFFFFF00;
-    charScreen[D_0063B398][D_0063B394].col = col;
-    charScreen[D_0063B398][D_0063B394].ch = c;
+    charScreen[cursorY][cursorX].col = col;
+    charScreen[cursorY][cursorX].ch = c;
 }
 
 static inline void dispBase(void)
 {
     int c;
-    switch (D_0063B39C) {
+    switch (blinkPhase) {
     case 0:
     default:
         c = '-';
@@ -458,17 +477,17 @@ static inline void dispBase(void)
         break;
     }
     putBaseChar(c);
-    D_0063B39C = (D_0063B39C + 1) & 3;
+    blinkPhase = (blinkPhase + 1) & 3;
 }
 
 void baseFunc(void)
 {
     if (D_0028F8F0[0].btn & 0x8000)
-        if (--D_0063B390 < 0)
-            D_0063B390 = 0;
+        if (--scrollTop < 0)
+            scrollTop = 0;
     if (D_0028F8F0[0].btn & 0x2000)
-        if (++D_0063B390 >= 50)
-            D_0063B390 = 49;
+        if (++scrollTop >= 50)
+            scrollTop = 49;
     SetDrawEnvironment(1);
     dispBase();
     drawWin();

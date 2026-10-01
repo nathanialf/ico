@@ -83,8 +83,6 @@ static int stageMgrMsgBuf;
 static int stagePreLoadForceStageNo;
 
 extern int D_0028F4C0[];
-extern int D_004DA788[];
-extern int D_004DD700[];
 
 typedef struct {
     int cmd;
@@ -108,7 +106,8 @@ extern int D_0028F4F0[];
 /* */
 static unsigned int initIcoMiscThread[28];
 
-extern void *D_0063A428;
+/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+extern void *ios_partition_root;
 extern int D_00639ED4;
 extern int mpegPlay;
 extern int mpegInitDone;
@@ -129,12 +128,12 @@ extern int stgMgrWakeupRequest;
 extern void jimakuEnd();
 extern int game_pause;
 extern int before_stage_no;
-extern void *D_0063A430;
-extern void *D_0063A438;
-extern void *D_0063A440;
-extern void *D_0063A44C;
-extern void *D_0063A450;
-extern void *D_0063A458;
+extern void *ios_partition_isys;
+extern void *ios_partition_sugipon;
+extern void *ios_partition_dmotion;
+extern void *ios_partition_seki;
+extern void *ios_partition_oomori;
+extern void *ios_partition_sound;
 extern void *D_00639EA4;
 extern void *D_00639EA8;
 extern int jimaku_msg[];
@@ -173,15 +172,15 @@ void stop_free_resources(void)
     }
     if (sndInitBgmCancelFlag == 0) {
         debug_StdPrintfDummy("sound partition reset\n");
-        iosMallocResetPartition(D_0063A458);
+        iosMallocResetPartition(ios_partition_sound);
     } else {
         debug_StdPrintfDummy("sound partition not reset\n");
     }
-    iosMallocResetPartition(D_0063A44C);
-    iosMallocResetPartition(D_0063A438);
-    iosMallocResetPartition(D_0063A440);
-    iosMallocResetPartition(D_0063A450);
-    iosMallocResetPartition(D_0063A430);
+    iosMallocResetPartition(ios_partition_seki);
+    iosMallocResetPartition(ios_partition_sugipon);
+    iosMallocResetPartition(ios_partition_dmotion);
+    iosMallocResetPartition(ios_partition_oomori);
+    iosMallocResetPartition(ios_partition_isys);
     ResetDynamicMotionManager();
     debug_StdPrintfDummy(D_0063ACB0);
     InitDelayFree();
@@ -247,8 +246,8 @@ void start_stage_Load_thread(int stage)
         iosThreadCancelWakeup(0);
         gsb_SetMotionBlur();
         D_00639ED4 = stage;
-        iosThreadCreateS(initIcoMiscThread, 1, InitIcoMisc, (int)&stage_no, D_0063A428, 0x18000,
-                         27);
+        iosThreadCreateS(initIcoMiscThread, 1, InitIcoMisc, (int)&stage_no, ios_partition_root,
+                         0x18000, 27);
         iosThreadStart(initIcoMiscThread);
         flags = initIcoMiscThread[15];
         debug_StdPrintfDummy("auto stack %d\n", (int)flags & 1);
@@ -523,7 +522,7 @@ void StageManager(void)
 inline void CheckPoint(void)
 {
     if (D_0028F4C0[2]) {
-        gamesysMemorySave(D_004DA788, D_004DD700, 0);
+        gamesysMemorySave(gameSysMemoryFuncList, gameSysMainSaveBuff, 0);
         D_0028F4C0[3] = 1;
     }
 }

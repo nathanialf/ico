@@ -12,6 +12,10 @@
 #ifndef ST13C_H
 #define ST13C_H
 
+/* st13c.o's .sdata globals (MAIN.MAP) */
+extern int bmg;
+extern int hand;
+
 void actSt13cBmg1Chk(volatile int a0);
 void actSt13cBukiChk(volatile int a0);
 void actSt13cCage1stDown(volatile int a0);

@@ -2,13 +2,11 @@
 #include "memory.h"
 #include "fieldCollision.h"
 #include "lineManager.h"
-
-extern int D_0063A438;
-
 #include "stormTest.h"
 #include <string.h>
 #include <libvu0.h>
 #include "typedef.h"
+#include "ios.h"
 
 /* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
 extern char ZeroVector[];
@@ -99,13 +97,13 @@ StormPackage *InitStormPackage(int mode, int num, int flag)
     float t[4];
     int i;
 
-    pkg = (StormPackage *)iosMallocDebug(D_0063A438, 0x1C, "src/stormTest.c", 67);
+    pkg = (StormPackage *)iosMallocDebug(ios_partition_sugipon, 0x1C, "src/stormTest.c", 67);
     pkg->mode = mode;
     pkg->num = num;
-    pkg->pos = (float (*)[4])iosMallocDebug(D_0063A438, num * 16, "src/stormTest.c", 71);
-    pkg->vel = (float (*)[4])iosMallocDebug(D_0063A438, num * 16, "src/stormTest.c", 72);
-    pkg->disp = (int (*)[4])iosMallocDebug(D_0063A438, num * 16, "src/stormTest.c", 73);
-    pkg->rate = (float *)iosMallocDebug(D_0063A438, num * 4, "src/stormTest.c", 74);
+    pkg->pos = (float (*)[4])iosMallocDebug(ios_partition_sugipon, num * 16, "src/stormTest.c", 71);
+    pkg->vel = (float (*)[4])iosMallocDebug(ios_partition_sugipon, num * 16, "src/stormTest.c", 72);
+    pkg->disp = (int (*)[4])iosMallocDebug(ios_partition_sugipon, num * 16, "src/stormTest.c", 73);
+    pkg->rate = (float *)iosMallocDebug(ios_partition_sugipon, num * 4, "src/stormTest.c", 74);
 
     for (i = 0; i < num; i++) {
         CopyVector(pkg->vel[i], ZeroVector);
@@ -295,7 +293,7 @@ void DispStormPackage(StormPackage *pkg, void *color)
 
 inline int *InitStormTestGeo(int a0, int *a1)
 {
-    int *obj = (int *)iosMallocDebug(D_0063A438, 0x30, "src/stormTest.c", 283);
+    int *obj = (int *)iosMallocDebug(ios_partition_sugipon, 0x30, "src/stormTest.c", 283);
     register int v = *(int *)((char *)a1 + 0x30);
     register int flag = 1;
     *obj = v;

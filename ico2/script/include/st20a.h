@@ -12,6 +12,13 @@
 #ifndef ST20A_H
 #define ST20A_H
 
+/* st20a.o's .sdata globals (MAIN.MAP) */
+extern int brg20a;
+extern int gondola_up;
+extern int gondola_down;
+extern unsigned int st20a_yure;
+extern unsigned char st20a_yure_vol;
+
 void actSt20aBridgeDown(volatile int a0);
 void actSt20aBridgeDownSub(volatile int a0);
 void actSt20aBridgeMain(volatile int a0);

@@ -46,8 +46,6 @@ typedef struct SwordObj {
     void *unk2C;      /* 0x2C */
 } SwordObj;
 
-extern SwordObj *sword;
-
 /* .sbss, owned by st24a.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
    subthread the wait loop below spins for. */
@@ -74,6 +72,9 @@ extern void scpPlayPosSet(void *a0, float x, float y, float z);
 extern int scpSearchGobj(int a0);
 /* kept local: this TU's uses of scpSetBoyWeaponGObj do not fit the prototype in script.h */
 extern void scpSetBoyWeaponGObj(int a0);
+
+/* .sdata, owned by st24a.o, in the ROM's order: the sword's object. */
+SwordObj *sword = 0;
 
 void actSt24aSwordChk(volatile int self)
 {

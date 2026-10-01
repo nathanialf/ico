@@ -525,11 +525,12 @@ void iosCdvdMgrLoad(char *self)
     }
 }
 
-extern void *D_0063A44C;
+/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+extern void *ios_partition_seki;
 
 void temp_loadfunc(int *self, int name, int size, int a3, int a4, int a5, int seg)
 {
-    void *p = (void *)iosMallocDebug(D_0063A44C, size, __FILE__, 1102);
+    void *p = (void *)iosMallocDebug(ios_partition_seki, size, __FILE__, 1102);
 
     iosCdvdHandlerRead(self, p, size);
     debug_StdPrintfDummy("temp_loadfunc::%s  (size:%d)(segid=%d)\n", name, size, seg);
@@ -654,7 +655,7 @@ void iosCdvdMgrPackLoad(char *self)
         D_0028F4C0[7] = *num;
         D_0028F4C0[8] = 0;
         size = *num * sizeof(PackEnt);
-        ent = (PackEnt *)iosMallocDebug(D_0063A44C, size, __FILE__, 1174);
+        ent = (PackEnt *)iosMallocDebug(ios_partition_seki, size, __FILE__, 1174);
         iosCdvdHandlerRead((int *)self, ent, size);
         pk = ent;
         for (seg = 0; seg < *num; seg++, pk++) {
