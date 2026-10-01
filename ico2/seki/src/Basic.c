@@ -12,7 +12,7 @@ static int mallocPartition = -1; /* derived name */
 static int mallocTotal = 0; /* derived name */
 
 /* memory.h is not included: its iosFree and iosReallocDebug disagree with
-   the calls below (see them); const char * here, char * there */
+   the calls below (see them); iosMallocDebug as memory.h declares it */
 struct IosMemPart;
 
 extern void *iosMallocDebug(struct IosMemPart *part, int size, const char *file, int line);

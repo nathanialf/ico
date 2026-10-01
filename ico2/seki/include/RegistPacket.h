@@ -12,6 +12,8 @@
 
 struct PacHeader;
 
+struct PObjMaterial;
+
 void reg_DispAccessoryWithShadow(Sub15C *o, Sub15C *src);
 void reg_DispEnemy(void *sub);
 void reg_DispMultiPri(Sub15C *o, int pri);
@@ -33,6 +35,6 @@ void reg_setCMatrixPacket(Sub15C *o, float alpha, int prilist);
 int reg_setDissolve(float a, int pri);
 char *reg_setMMatrixPacket(Sub15C *o, int idx);
 char *reg_setNMatrixPacket(Sub15C *o, int idx);
-void reg_setShape(Sub15C *o, int idx, int flag, struct PacHeader *pkt, char *mat);
+void reg_setShape(Sub15C *o, int idx, int flag, struct PacHeader *pkt, struct PObjMaterial *mat);
 
 #endif /* REGISTPACKET_H */

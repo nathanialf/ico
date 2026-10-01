@@ -1,5 +1,6 @@
 #include "debug.h"
 #include "Basic.h"
+#include "GsBase.h"
 #include "Packet.h"
 #include "RegistPacket.h"
 #include "Shadow.h"
@@ -55,21 +56,6 @@ int screenOffsetY; /* derived name */
 int vsWidth; /* derived name */
 
 int vsHeight; /* derived name */
-
-/* GsBase.c's `inline` functions, in the order of their definitions'
-   out-of-line copies at the end of the object (first-declaration order). */
-void gsb_SetBGColor(void *a0, int r, int g, int b);
-void gsb_GetBGColor(unsigned char *a0);
-void gsb_ResetFilmNoise(void);
-void gsb_SetZoom(float a, float b);
-int gsb_SyncGSSystem(void);
-int gsb_LoadStageSettings(void);
-int gsb_SaveStageSettings(void);
-void gsb_ClearFrameBuffer(void);
-int gsb_ResetSnap(void);
-int gsb_TakeSnap(void);
-int lockOtherEditing(void);
-int unlockOtherEditing(void);
 
 /* The stage lock state, the word gsb_Init clears (nothing reads it), the GS
    system flag, the zoom easing (target, current, speed) and the last
@@ -131,8 +117,6 @@ extern int systemStatus[];
 extern int buffer_ID;
 extern void sceGsSetDefDBuff(void *db, short psm, short w, short h, short ztst, short zpsm,
                              short flag);
-/* GsBase.h is not included: its gsb_PostEffect does not agree with this file */
-extern void gsb_SetVSMatrix(int w, int h, float d);
 
 /* Bring the GS up for the frame size the stage record asks for: 512 by 448
  * interlaced, 512 by 512 in the tall mode and 512 by 448 otherwise, then set
@@ -991,9 +975,6 @@ static int gsbUnused5 = 0; /* derived name */
 inline int gsb_ResetSnap(void) {}
 
 inline int gsb_TakeSnap(void) {}
-
-/* GsBase.h is not included: its gsb_PostEffect does not agree with this file */
-extern void gsb_ResetGSSystem(void);
 
 /* the frames gsb_SyncGSSystem has waited on the GS */
 static int syncRetry = 0; /* derived name */

@@ -20,13 +20,13 @@
 /* the scissor switch reg_SetScissorSw sets and reg_Init clears */
 static int scissorSw = 0; /* derived name */
 
-void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, char *mat)
+void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, PObjMaterial *mat)
 {
     float vec[4];
     PObjModel *mdl;
     PObjPart *s;
     char *p;
-    char *m;
+    PObjMorph *m;
     char *v;
     PacHeader *pk;
     char *t;
@@ -56,42 +56,42 @@ void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, char *mat)
         if (o->morphWeight[i] != 0.0f) {
             m = s->morphs[i];
             if (m != 0) {
-                while (*(int *)(m + 0x10) != -1) {
-                    _ScaleVectorXYZ(vec, m, o->morphWeight[i]);
-                    if (*(float *)(m + 0xC) == 1.0f) {
-                        if (*(unsigned int *)(m + 0x10) >= s->vtxCount) {
+                while (m->index != -1) {
+                    _ScaleVectorXYZ(vec, m->delta, o->morphWeight[i]);
+                    if (m->isVertex == 1.0f) {
+                        if (m->index >= s->vtxCount) {
                             debug_StdPrintfDummy("reg_setShape:illegal vertex index. %d/%d\n",
-                                                 *(unsigned int *)(m + 0x10), s->vtxCount);
+                                                 m->index, s->vtxCount);
                             debug_assert("src/RegistPacket.c", 635);
                             __assert("src/RegistPacket.c", 635, "0");
                         }
                         t = s->vtx;
-                        t += *(int *)(m + 0x10) * 0x10;
+                        t += m->index * 0x10;
                         _AddVectorXYZ(t, t, vec);
-                    } else if (*(float *)(m + 0xC) == 0.0f) {
-                        if ((((int)(*(long long *)(mat + 0x60) >> 5)) & 3) == 0) {
-                            switch (*(int *)(mat + 0x60) & 1) {
+                    } else if (m->isVertex == 0.0f) {
+                        if ((((int)(mat->attr.bits >> 5)) & 3) == 0) {
+                            switch (mat->attr.word & 1) {
                             case 1:
                                 break;
                             default:
                                 goto nextbone;
                             }
                         }
-                        if (*(unsigned int *)(m + 0x10) >= s->nrmCount) {
+                        if (m->index >= s->nrmCount) {
                             debug_StdPrintfDummy("reg_setShape:illegal normal index. %d/%d\n",
-                                                 *(unsigned int *)(m + 0x10), s->nrmCount);
+                                                 m->index, s->nrmCount);
                             debug_assert("src/RegistPacket.c", 642);
                             __assert("src/RegistPacket.c", 642, "0");
                         }
                         t = s->nrm;
-                        t += *(int *)(m + 0x10) * 0x10;
+                        t += m->index * 0x10;
                         _AddVectorXYZ(t, t, vec);
                     } else {
                         debug_assert("src/RegistPacket.c", 647);
                         __assert("src/RegistPacket.c", 647, "0");
                     }
                 nextbone:
-                    m += 0x20;
+                    m++;
                 }
             }
         }
@@ -118,8 +118,8 @@ void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, char *mat)
                     do {
                         _CopyVector(p, s->vtx + *(short *)(v + 4) * 0x10);
                         p += 0x10;
-                        if ((((int)(*(long long *)(mat + 0x60) >> 5)) & 3) == 0) {
-                            switch (*(int *)(mat + 0x60) & 1) {
+                        if ((((int)(mat->attr.bits >> 5)) & 3) == 0) {
+                            switch (mat->attr.word & 1) {
                             case 1:
                                 break;
                             default:
@@ -196,16 +196,16 @@ int reg_clipPacketBoundingBox(PacHeader *pk)
         ret = -1;
         break;
     case 1:
-        ret = gsb_ClipBox(pk);
+        ret = gsb_ClipBox(pk->box[0]);
         if (ret == 2) {
             ret = 1;
         }
         break;
     case 2:
-        ret = gsb_ClipBox(pk);
+        ret = gsb_ClipBox(pk->box[0]);
         break;
     case 3:
-        ret = gsb_ClipBox(pk);
+        ret = gsb_ClipBox(pk->box[0]);
         if (ret == 1) {
             ret = 2;
         }
@@ -242,10 +242,10 @@ void reg_transMicroCode(Sub15C *a0, int mask)
 /* MicroCode.h is not included: its mc_TransMicroCode does not agree with this file */
 extern void mc_SetMicroCode();
 
-void reg_chooseMicroCode(char *self, int b, int c)
+void reg_chooseMicroCode(PObjMaterial *self, int b, int c)
 {
-    long long v_ll = *(long long *)(self + 0x60);
-    int v_int = *(int *)(self + 0x60);
+    long long v_ll = self->attr.bits;
+    int v_int = self->attr.word;
     mc_SetMicroCode(v_int & 1, ((int)(v_ll >> 5)) & 3, 0, b, c);
 }
 
@@ -330,7 +330,7 @@ char *reg_setNMatrixPacket(Sub15C *o, int idx)
         PacketBufferStruct.ptr.c = n + 0xC;
     }
     char *pkt;
-    char *box;
+    float *box;
     struct DObjNode *scl;
     int mode;
 
@@ -346,7 +346,7 @@ char *reg_setNMatrixPacket(Sub15C *o, int idx)
     }
     _MulMatrix(matrixptr + 0x300, matrixptr + 0x280, matrixptr + 0x40);
     _MulMatrix(matrixptr + 0x140, matrixptr + 0x100, matrixptr + 0x40);
-    box = (char *)o->model->box;
+    box = o->model->box[0];
     _SetCurrentMatrix(matrixptr + 0x300);
     if (gsb_ClipBox(box) == 0) {
         if (o->shadow != 0) {
@@ -397,7 +397,7 @@ char *reg_setMMatrixPacket(Sub15C *o, int idx)
     RegVec s;
     RegVec v;
     char *pkt;
-    char *box;
+    float *box;
     struct DObjNode *w;
     int mode;
 
@@ -522,7 +522,7 @@ char *reg_setMMatrixPacket(Sub15C *o, int idx)
         _MulMatrix(matrixptr + 0x140, matrixptr + 0x100, matrixptr + 0x40);
         _MulMatrix(matrixptr + 0x300, matrixptr + 0x280, matrixptr + 0x40);
     }
-    box = (char *)o->model->box;
+    box = o->model->box[0];
     _SetCurrentMatrix(matrixptr + 0x300);
     if (gsb_ClipBox(box) == 0) {
         if (o->shadow != 0) {
@@ -688,11 +688,11 @@ static void reg_dispSpecular(PacHeader *a0, int a1, int a2) /* derived name */
     dl_CloseDma();
 }
 
-void reg_transMaterialPacket(PacHeader *self, int *p)
+void reg_transMaterialPacket(PacHeader *self, PObjGroup *grp)
 {
     short idx = self->mat;
     if (idx != -1) {
-        char *v = (char *)*p + idx * 0x70;
+        PObjMaterial *v = &grp->materials[idx];
         dl_OpenDma(2, v, 6);
         dl_CloseDma();
     }
@@ -814,13 +814,14 @@ static inline int regGetShinePri(int a0) /* derived name */
 }
 
 /* Pick the display-list priority for one material and install it. */
-static inline int regMaterialDLPri(int *grp, int nodeIdx, int *ext, float fade) /* derived name */
+static inline int regMaterialDLPri(PObjGroup *grp, int nodeIdx, int *ext,
+                                   float fade) /* derived name */
 {
-    char *mat = (char *)(*grp + nodeIdx * 0x70);
+    PObjMaterial *mat = &grp->materials[nodeIdx];
     int pri = 0;
 
-    if ((((int)(*(long long *)(mat + 0x60) >> 1)) & 3) != 0) {
-        switch (*(int *)(mat + 0x60) & 1) {
+    if ((((int)(mat->attr.bits >> 1)) & 3) != 0) {
+        switch (mat->attr.word & 1) {
         case 0:
             pri = 2;
             break;
@@ -842,10 +843,10 @@ static inline int regMaterialDLPri(int *grp, int nodeIdx, int *ext, float fade) 
 void reg_dispNObj(Sub15C *o)
 {
     PObjModel *mdl;
-    char *grp;
+    PObjGroup *grp;
     char *pk;
     PacHeader *pkt;
-    char *box;
+    float *box;
     int i;
     int j;
     int r;
@@ -866,19 +867,18 @@ void reg_dispNObj(Sub15C *o)
                 dl_CloseDma();
             }
         }
-        for (j = 0; j < mdl->partCount; j++, grp += 0x30) {
-            box = (char *)(j * 128 + (int)o->model->boxes);
+        for (j = 0; j < mdl->partCount; j++, grp++) {
+            box = (float *)(j * 128 + (int)o->model->boxes);
             _SetCurrentMatrix(matrixptr + 0x300);
             if (gsb_ClipBox(box) != 0) {
-                pkt = *(PacHeader **)(grp + 8);
+                pkt = grp->packets;
                 while (pkt != 0) {
                     r = reg_clipPacketBoundingBox(pkt);
                     if (r != 0) {
-                        pri = regMaterialDLPri((int *)grp, pkt->mat, tex_GetTexExtData(pkt->tex),
-                                               0.0f);
+                        pri = regMaterialDLPri(grp, pkt->mat, tex_GetTexExtData(pkt->tex), 0.0f);
                         regTransTexturePacket(pkt->tex, pri);
-                        reg_transMaterialPacket(pkt, (int *)grp);
-                        reg_chooseMicroCode((char *)(*(int *)grp + pkt->mat * 0x70), r, pri);
+                        reg_transMaterialPacket(pkt, grp);
+                        reg_chooseMicroCode(&grp->materials[pkt->mat], r, pri);
                         dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
                         dl_CloseDma();
                         if (o->lightMtx->mode == 2) {
@@ -926,7 +926,7 @@ static const unsigned int regDissolveResetPacket[4][4] __attribute__((aligned(16
 void reg_dispMObj(Sub15C *o)
 {
     PObjModel *mdl;
-    char *grp;
+    PObjGroup *grp;
     PacHeader *pkt;
     char *pk;
     struct DObjNode *w;
@@ -943,7 +943,7 @@ void reg_dispMObj(Sub15C *o)
     mdl = o->model;
     grp = mdl->groups;
     reg_transMicroCode(o, 0x3B5);
-    for (i = 0; i < *(int *)((char *)o + 8); i++) {
+    for (i = 0; i < o->nodeNum; i++) {
         w = (struct DObjNode *)(i * 80 + (int)o->nodes);
         alpha = 1.0f - (1.0f - w->fade) * w->alpha;
         if ((alpha < 0.0f ? -alpha : alpha) == 1.0f) {
@@ -960,19 +960,18 @@ void reg_dispMObj(Sub15C *o)
                 }
             }
             if (mdl->parts[i].morphCount != 0) {
-                if (*(char **)(grp + 0xC) != 0) {
+                if (grp->morph != 0) {
                     if (buffer_ID != 0) {
-                        pkt = *(PacHeader **)(grp + 8);
+                        pkt = grp->packets;
                     } else {
-                        pkt = *(PacHeader **)(grp + 0xC);
+                        pkt = grp->morph;
                     }
-                    reg_setShape(o, i, buffer_ID == 0, pkt,
-                                 (char *)(*(int *)grp + pkt->mat * 0x70));
+                    reg_setShape(o, i, buffer_ID == 0, pkt, &grp->materials[pkt->mat]);
                 } else {
-                    pkt = *(PacHeader **)(grp + 8);
+                    pkt = grp->packets;
                 }
             } else {
-                pkt = *(PacHeader **)(grp + 8);
+                pkt = grp->packets;
             }
             while (pkt != 0) {
                 r = reg_clipPacketBoundingBox(pkt);
@@ -983,15 +982,15 @@ void reg_dispMObj(Sub15C *o)
                             fade = 1;
                         }
                     }
-                    pri = regMaterialDLPri((int *)grp, pkt->mat, tex_GetTexExtData(pkt->tex), fade);
+                    pri = regMaterialDLPri(grp, pkt->mat, tex_GetTexExtData(pkt->tex), fade);
                     regTransTexturePacket(pkt->tex, pri);
-                    reg_transMaterialPacket(pkt, (int *)grp);
+                    reg_transMaterialPacket(pkt, grp);
                     dis = 0;
                     if (fade != 0) {
                         dis = reg_setDissolve(alpha, pri);
                     }
                     if (dis != -1) {
-                        reg_chooseMicroCode((char *)(*(int *)grp + pkt->mat * 0x70), r, pri);
+                        reg_chooseMicroCode(&grp->materials[pkt->mat], r, pri);
                         dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
                         dl_CloseDma();
                         if (o->lightMtx->mode == 2) {
@@ -1032,7 +1031,7 @@ void reg_dispMObj(Sub15C *o)
 
 void reg_dispSObj(Sub15C *o, int idx)
 {
-    char *grp;
+    PObjGroup *grp;
     PacHeader *pkt;
     char *pk;
     int i;
@@ -1041,7 +1040,7 @@ void reg_dispSObj(Sub15C *o, int idx)
     int mode;
 
     grp = o->model->groups;
-    pkt = *(PacHeader **)(grp + 8);
+    pkt = grp->packets;
     reg_transMicroCode(o, 0x3B5);
     pk = reg_setMMatrixPacket(o, idx);
     if (pk != 0) {
@@ -1057,10 +1056,10 @@ void reg_dispSObj(Sub15C *o, int idx)
         while (pkt != 0) {
             r = reg_clipPacketBoundingBox(pkt);
             if (r != 0) {
-                pri = regMaterialDLPri((int *)grp, pkt->mat, tex_GetTexExtData(pkt->tex), 0.0f);
+                pri = regMaterialDLPri(grp, pkt->mat, tex_GetTexExtData(pkt->tex), 0.0f);
                 regTransTexturePacket(pkt->tex, pri);
-                reg_transMaterialPacket(pkt, (int *)grp);
-                reg_chooseMicroCode((char *)(*(int *)grp + pkt->mat * 0x70), r, pri);
+                reg_transMaterialPacket(pkt, grp);
+                reg_chooseMicroCode(&grp->materials[pkt->mat], r, pri);
                 dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
                 dl_CloseDma();
                 if (o->lightMtx->mode == 2) {
@@ -1097,7 +1096,7 @@ void reg_dispSObj(Sub15C *o, int idx)
 void reg_dispCObj(Sub15C *o)
 {
     PObjModel *mdl;
-    char *grp;
+    PObjGroup *grp;
     PacHeader *pkt;
     PacHeader *node;
     int i;
@@ -1107,26 +1106,26 @@ void reg_dispCObj(Sub15C *o)
     grp = mdl->groups;
     reg_transMicroCode(o, 0x3B3);
     reg_setCMatrixPacket(o, 1.0f, 0x3B3);
-    for (i = 0; i < mdl->partCount; i++, grp += 0x30) {
+    for (i = 0; i < mdl->partCount; i++, grp++) {
         if (mdl->parts[i].morphCount != 0) {
-            node = *(PacHeader **)(grp + 0xC);
+            node = grp->morph;
             if (node != 0) {
                 pkt = node;
                 if (buffer_ID != 0) {
-                    pkt = *(PacHeader **)(grp + 8);
+                    pkt = grp->packets;
                 }
-                reg_setShape(o, i, buffer_ID == 0, pkt, (char *)(*(int *)grp + pkt->mat * 0x70));
+                reg_setShape(o, i, buffer_ID == 0, pkt, &grp->materials[pkt->mat]);
             } else {
-                pkt = *(PacHeader **)(grp + 8);
+                pkt = grp->packets;
             }
         } else {
-            pkt = *(PacHeader **)(grp + 8);
+            pkt = grp->packets;
         }
         while (pkt != 0) {
-            pri = regMaterialDLPri((int *)grp, pkt->mat, tex_GetTexExtData(pkt->tex), 0.0f);
+            pri = regMaterialDLPri(grp, pkt->mat, tex_GetTexExtData(pkt->tex), 0.0f);
             regTransTexturePacket(pkt->tex, pri);
-            reg_transMaterialPacket(pkt, (int *)grp);
-            reg_chooseMicroCode((char *)(*(int *)grp + pkt->mat * 0x70), 0, pri);
+            reg_transMaterialPacket(pkt, grp);
+            reg_chooseMicroCode(&grp->materials[pkt->mat], 0, pri);
             dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
             dl_CloseDma();
             if (debug_specular_flag == 2 && o->lightMtx->mode == 2) {
@@ -1424,7 +1423,7 @@ void reg_dispLine(char *node, float alpha)
 void reg_dispPointLineObj(Sub15C *o)
 {
     PObjModel *mdl;
-    char *grp;
+    PObjGroup *grp;
     char *hdr;
     char *node;
     struct DObjNode *w;
@@ -1449,9 +1448,9 @@ void reg_dispPointLineObj(Sub15C *o)
     if (currentScreenWidth != 0 || GlobalTimer != 0) {
         flag = 1;
     }
-    for (i = 0; i < *(int *)((char *)o + 8); i++) {
+    for (i = 0; i < o->nodeNum; i++) {
         w = (struct DObjNode *)(i * 80 + (int)o->nodes);
-        node = *(char **)(grp + 8);
+        node = grp->packets;
         alpha = 1.0f - (1.0f - w->fade) * w->alpha;
         if (!flag && (alpha < 0.0f ? -alpha : alpha) == 1.0f) {
             continue;
@@ -1535,7 +1534,7 @@ void reg_DispAccessoryWithShadow(Sub15C *o, Sub15C *src)
             PacketBufferStruct.ptr.c = n + 0xC;
         }
         char *pkt;
-        char *box;
+        float *box;
         struct DObjNode *scl;
         int mode;
 
@@ -1552,7 +1551,7 @@ void reg_DispAccessoryWithShadow(Sub15C *o, Sub15C *src)
         }
         _MulMatrix(matrixptr + 0x300, matrixptr + 0x280, matrixptr + 0x40);
         _MulMatrix(matrixptr + 0x140, matrixptr + 0x100, matrixptr + 0x40);
-        box = (char *)o->model->box;
+        box = o->model->box[0];
         _SetCurrentMatrix(matrixptr + 0x300);
         if (gsb_ClipBox(box) == 0) {
             return 0;
@@ -1587,10 +1586,10 @@ void reg_DispAccessoryWithShadow(Sub15C *o, Sub15C *src)
         return pkt;
     }
     PObjModel *mdl;
-    char *grp;
+    PObjGroup *grp;
     char *pk;
     PacHeader *pkt;
-    char *box;
+    float *box;
     int i;
     int j;
     int r;
@@ -1611,19 +1610,18 @@ void reg_DispAccessoryWithShadow(Sub15C *o, Sub15C *src)
                 dl_CloseDma();
             }
         }
-        for (j = 0; j < mdl->partCount; j++, grp += 0x30) {
-            box = (char *)(j * 128 + (int)o->model->boxes);
+        for (j = 0; j < mdl->partCount; j++, grp++) {
+            box = (float *)(j * 128 + (int)o->model->boxes);
             _SetCurrentMatrix(matrixptr + 0x300);
             if (gsb_ClipBox(box) != 0) {
-                pkt = *(PacHeader **)(grp + 8);
+                pkt = grp->packets;
                 while (pkt != 0) {
                     r = reg_clipPacketBoundingBox(pkt);
                     if (r != 0) {
-                        pri = regMaterialDLPri((int *)grp, pkt->mat, tex_GetTexExtData(pkt->tex),
-                                               0.0f);
+                        pri = regMaterialDLPri(grp, pkt->mat, tex_GetTexExtData(pkt->tex), 0.0f);
                         regTransTexturePacket(pkt->tex, pri);
-                        reg_transMaterialPacket(pkt, (int *)grp);
-                        reg_chooseMicroCode((char *)(*(int *)grp + pkt->mat * 0x70), r, pri);
+                        reg_transMaterialPacket(pkt, grp);
+                        reg_chooseMicroCode(&grp->materials[pkt->mat], r, pri);
                         dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
                         dl_CloseDma();
                         if (o->lightMtx->mode == 2) {
@@ -1662,7 +1660,7 @@ void reg_DispAccessoryWithShadow(Sub15C *o, Sub15C *src)
 void reg_RenderReflection(Sub15C *o, int pri)
 {
     PObjModel *mdl;
-    char *grp;
+    PObjGroup *grp;
     PacHeader *pkt;
     char *pk;
     int i;
@@ -1680,19 +1678,19 @@ void reg_RenderReflection(Sub15C *o, int pri)
     dl_OpenDma(5, pk, 0);
     dl_CloseDma();
     for (i = 0; i < mdl->partCount; i++) {
-        pkt = *(PacHeader **)(grp + 8);
+        pkt = grp->packets;
         while (pkt != 0) {
             r = reg_clipPacketBoundingBox(pkt);
             if (r != 0) {
                 regTransTexturePacket(pkt->tex, pri);
-                reg_transMaterialPacket(pkt, (int *)grp);
-                reg_chooseMicroCode((char *)(*(int *)grp + pkt->mat * 0x70), r, pri);
+                reg_transMaterialPacket(pkt, grp);
+                reg_chooseMicroCode(&grp->materials[pkt->mat], r, pri);
                 dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
                 dl_CloseDma();
             }
             pkt = pkt->next;
         }
-        grp += 0x30;
+        grp++;
     }
 }
 
@@ -1704,7 +1702,7 @@ void reg_DispEnemy(void *sub)
 {
     Sub15C *o = sub;
     PObjModel *mdl;
-    char *grp;
+    PObjGroup *grp;
     PacHeader *pkt;
     float alpha;
     int i;
@@ -1785,27 +1783,26 @@ void reg_DispEnemy(void *sub)
         goto done;
     }
     {
-        for (i = 0; i < mdl->partCount; i++, grp += 0x30) {
+        for (i = 0; i < mdl->partCount; i++, grp++) {
             if (mdl->parts[i].morphCount != 0) {
-                if (*(char **)(grp + 0xC) != 0) {
+                if (grp->morph != 0) {
                     if (buffer_ID != 0) {
-                        pkt = *(PacHeader **)(grp + 8);
+                        pkt = grp->packets;
                     } else {
-                        pkt = *(PacHeader **)(grp + 0xC);
+                        pkt = grp->morph;
                     }
-                    reg_setShape(o, i, buffer_ID == 0, pkt,
-                                 (char *)(*(int *)grp + pkt->mat * 0x70));
+                    reg_setShape(o, i, buffer_ID == 0, pkt, &grp->materials[pkt->mat]);
                 } else {
-                    pkt = *(PacHeader **)(grp + 8);
+                    pkt = grp->packets;
                 }
             } else {
-                pkt = *(PacHeader **)(grp + 8);
+                pkt = grp->packets;
             }
             while (pkt != 0) {
-                pri = regMaterialDLPri((int *)grp, pkt->mat, tex_GetTexExtData(pkt->tex), 0.0f);
+                pri = regMaterialDLPri(grp, pkt->mat, tex_GetTexExtData(pkt->tex), 0.0f);
                 regTransTexturePacket(pkt->tex, pri);
-                reg_transMaterialPacket(pkt, (int *)grp);
-                reg_chooseMicroCode((char *)(*(int *)grp + pkt->mat * 0x70), 0, pri);
+                reg_transMaterialPacket(pkt, grp);
+                reg_chooseMicroCode(&grp->materials[pkt->mat], 0, pri);
                 dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
                 dl_CloseDma();
                 pkt = pkt->next;
@@ -1821,7 +1818,7 @@ done:
 void reg_DispMultiPri(Sub15C *o, int pri)
 {
     PObjModel *mdl;
-    char *grp;
+    PObjGroup *grp;
     PacHeader *pkt;
     PacHeader *node;
     char *pk;
@@ -1838,7 +1835,7 @@ void reg_DispMultiPri(Sub15C *o, int pri)
     mdl = o->model;
     grp = mdl->groups;
     reg_transMicroCode(o, 1 << pri);
-    for (i = 0; i < *(int *)((char *)o + 8); i++) {
+    for (i = 0; i < o->nodeNum; i++) {
         w = (struct DObjNode *)(i * 80 + (int)o->nodes);
         alpha = 1.0f - (1.0f - w->fade) * w->alpha;
         if ((alpha < 0.0f ? -alpha : alpha) == 1.0f) {
@@ -1856,14 +1853,14 @@ void reg_DispMultiPri(Sub15C *o, int pri)
                 dl_CloseDma();
             }
         }
-        if (mdl->parts[i].morphCount != 0 && (node = *(PacHeader **)(grp + 0xC)) != 0) {
+        if (mdl->parts[i].morphCount != 0 && (node = grp->morph) != 0) {
             pkt = node;
             if (buffer_ID != 0) {
-                pkt = *(PacHeader **)(grp + 8);
+                pkt = grp->packets;
             }
-            reg_setShape(o, i, buffer_ID == 0, pkt, (char *)(*(int *)grp + pkt->mat * 0x70));
+            reg_setShape(o, i, buffer_ID == 0, pkt, &grp->materials[pkt->mat]);
         } else {
-            pkt = *(PacHeader **)(grp + 8);
+            pkt = grp->packets;
         }
         while (pkt != 0) {
             r = reg_clipPacketBoundingBox(pkt);
@@ -1875,13 +1872,13 @@ void reg_DispMultiPri(Sub15C *o, int pri)
                     }
                 }
                 regTransTexturePacket(pkt->tex, pri);
-                reg_transMaterialPacket(pkt, (int *)grp);
+                reg_transMaterialPacket(pkt, grp);
                 dis = 0;
                 if (fade != 0) {
                     dis = reg_setDissolve(alpha, pri);
                 }
                 if (dis != -1) {
-                    reg_chooseMicroCode((char *)(*(int *)grp + pkt->mat * 0x70), r, pri);
+                    reg_chooseMicroCode(&grp->materials[pkt->mat], r, pri);
                     dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
                     dl_CloseDma();
                     if (o->lightMtx->mode == 2) {

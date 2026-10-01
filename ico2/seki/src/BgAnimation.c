@@ -1520,8 +1520,6 @@ typedef struct BgaObj { /* field names derived */
     /* 0x870 */ BgaNodeBits *work;
 } BgaObj; /* derived name */
 
-extern void SetParamKyomiGObj(void *o, float *pos, float *scale);
-
 /* The lightning record bga_addLightning allocates: ten 0x20-byte segments,
    the live segment count, the two flags, the frame, the definition it was
    built from and the list link. */

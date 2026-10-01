@@ -20,8 +20,10 @@
 #include <assert.h>
 
 /* ios/thread.c's entry points as the menus call them, each with the menu's
-   thread record (thread.h declares Sleep with no argument, so it is not
-   included) */
+   thread record.  thread.h is not included: the ROM loads a0 before every
+   iosThreadSleep call here while thread.c defines it (void), so the
+   developer's own declarations disagreed, and these calls were compiled
+   against a one-argument declaration like this one. */
 extern void iosThreadCreateS(void *th, int no, void (*func)(), int arg, void *heap, long stackSize,
                              int pri);
 extern void iosThreadStart(void *th);

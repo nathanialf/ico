@@ -17,6 +17,7 @@ void Hint_Init(void);
 int IsTopHint(void *gobj);
 void MakeHintSaveInfo(void);
 void ReadHintSaveInfo(void);
+void SetParamKyomiGObj(void *gobj, float *root, float *param);
 void SleepHint(int no);
 void WakeupHint(int no);
 

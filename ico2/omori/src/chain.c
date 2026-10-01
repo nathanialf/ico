@@ -953,10 +953,10 @@ void ChainGeo(GObj *gobj)
 
         GetRootPositionHandExtra(boyGObj, p);
         if (isChainHitByHand(gobj, p, v, test_CURRENTORIENT(boyGObj), lim)) {
-            iosOmSendMail(boyGObj, 21, (int)gobj);
+            iosOmSendMail(boyGObj, 21, gobj);
         }
         if (_DistSqGV(p, cw->rootPos) < 900.0f) {
-            iosOmSendMail(boyGObj, 166, (int)gobj);
+            iosOmSendMail(boyGObj, 166, gobj);
         }
     }
 
