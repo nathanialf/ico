@@ -29,4 +29,7 @@ int iosOmExeMail(void (*func)(IosMail));
 void _iosOmMain(int a0, int a1, int a2, int a3);
 void iosOmInit(void);
 
+void iosOmMain(int a0, int a1, int a2, int a3);
+void iosOmCreateDL(void);
+
 #endif /* OBJ_MANAGER_H */

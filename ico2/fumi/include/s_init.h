@@ -60,4 +60,7 @@ extern float soundSeEnvMasterVolRate;
 extern int seEnvForceClose;
 extern int soundIopHeapAddrs;
 
+void soundAllocIopFree(void);
+void soundSeEnvPlay(void);
+
 #endif /* S_INIT_H */

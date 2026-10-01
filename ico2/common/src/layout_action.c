@@ -11,6 +11,11 @@
 #include "kanbanBoot.h"
 #include "script.h"
 #include "GsBase.h"
+#include <string.h>
+#include "StageAnimation.h"
+#include "Basic.h"
+#include <stdlib.h>
+#include "boyact.h"
 
 /* the custom key map's sixteen pad button codes (iosPadConfCustom[44..59]),
    the default one bit per button */
@@ -123,7 +128,7 @@ void CUR_SE(void)
     soundSeDefPlay(411, 0xFFFFFFFE, 0, 0);
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: R58 [] here, PadState [16] in main.h */
 extern R58 pad[];
 
 inline int PSH_POSITIVE_OR_NEGATIVE(int idx)
@@ -163,12 +168,11 @@ static int keyConfigSlot[8] = {1, 2, 3, 4, 5, 0, 0, 0}; /* derived name */
    alignment common/src/kanbanBoot.c's own request block carries. */
 int mc[640] __attribute__((aligned(64))) = {0};
 
-/* kept local: this TU's uses of iosMcSync do not fit the prototype in mcard.h */
+/* kept local: agrees with mcard.h, which this TU does not include (iosMcGetBlockSaveInfo, iosMcLoadGameBlock differ) */
 extern int iosMcSync(unsigned long *a0);
 extern int D_00534CC0[];
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (pad differ) */
 extern int systemStatus[];
-extern int D_0028F8F4[];
 
 typedef struct {
     unsigned int _0;
@@ -189,15 +193,20 @@ typedef struct {
 /* kept local (mcard.h's entry points do not fit this file's calls): mcard.c's
    save records, read here as this file's R1F0, and its preview record */
 extern R1F0 IosMcProductFile[];
+/* kept local: agrees with mcard.h, which this TU does not include (iosMcGetBlockSaveInfo, iosMcLoadGameBlock differ) */
 extern int IosMcPreviewInfo[];
 extern int D_005343C8[];
+/* kept local: void (float, float, int) here, void (int, float, float) in StageManager.h */
 extern void stgmgrForceSwitchWithFade(float a0, float a1, int a2);
+/* kept local: agrees with main.h, which this TU does not include (pad differ) */
 extern int lock_execIcoMisc;
 extern int D_00534400[];
 /* the custom pad configuration ios/pad.c owns, reached here as its words
    (the sixteen button bits from word 44) */
 extern int iosPadConfCustom[];
+/* kept local: agrees with StageManager.h, which this TU does not include (stgmgrForceSwitchWithFade differ) */
 extern void CheckPoint(void);
+/* kept local: agrees with main.h, which this TU does not include (pad differ) */
 extern int stage_no;
 
 /* the memory-card error messages, VMA 0x61D760..0x61D840 */
@@ -270,12 +279,14 @@ typedef struct {
 
 /* file-local: nothing outside this TU calls it */
 int _la_memory_card_check(McWork *p, int a1);
-extern void *memset(void *a0, int a1, int a2);
+/* kept local: agrees with mcard.h, which this TU does not include (iosMcGetBlockSaveInfo, iosMcLoadGameBlock differ) */
 extern int iosMcGetInfo(void *a0);
 /* kept local: this TU's uses of these two do not fit the prototypes in
    mcard.h (no caller reads a result; la_load_processing's registers after
    both calls are those of a void call) */
+/* kept local: void (void *) here, int (void *) in mcard.h */
 extern void iosMcLoadProductBlock(void *a0);
+/* kept local: void (void *) here, int (void *) in mcard.h */
 extern void iosMcGetBlockSaveInfo(void *a0);
 
 /* .sdata, layout_action.o's run in the ROM's order (VMA 0x63B4D8..0x63B5F8,
@@ -711,7 +722,7 @@ inline int la_boot_no_free_area(int a0, int a1)
 
 inline int la_boot_confirm_memory_card(void)
 {
-    if (D_0028F8F4[0] & 0x40) {
+    if (pad[0].flags & 0x40) {
         return lt_link_layout(0);
     }
     return -1;
@@ -728,7 +739,7 @@ inline void keyconfig_reset(void)
 /* layout_action.c:1455-1490 in the listing. */
 int la_vibe_select(void)
 {
-    if (lt_fade_status() == 2 && (D_0028F8F4[0] & 0x840)) {
+    if (lt_fade_status() == 2 && (pad[0].flags & 0x840)) {
         soundSeDefPlay(415, 0xFFFFFFFF, 0, 0);
         switch (lt_current_property_item()) {
         case 0x2C:
@@ -751,7 +762,7 @@ int la_vibe_select(void)
     if (lt_fade_status() != 2) {
         return -1;
     }
-    if ((D_0028F8F4[0] & 0x10) == 0) {
+    if ((pad[0].flags & 0x10) == 0) {
         return -1;
     }
     NEGATIVE_SE();
@@ -760,7 +771,7 @@ int la_vibe_select(void)
     return 0xC;
 }
 
-/* kept local: this TU's uses of stgmgrNextStagePreLoadForceStageSet do not fit the prototype in StageManager.h */
+/* kept local: agrees with StageManager.h, which this TU does not include (stgmgrForceSwitchWithFade differ) */
 extern void stgmgrNextStagePreLoadForceStageSet(int val);
 
 inline int la_scei_logo(int a0)
@@ -813,7 +824,7 @@ int la_title_continue_or_new(int a0)
         lt_mask_property(0x31, 1);
         lt_mask_property(0x32, 1);
     }
-    if (continueDecided != 0 && (D_0028F8F4[0] & 0x840) && lt_fade_status() == 2) {
+    if (continueDecided != 0 && (pad[0].flags & 0x840) && lt_fade_status() == 2) {
         lt_continue_selected = 1;
         soundSeDefPlay(414, 0xFFFFFFFF, 0, 0);
         switch (lt_current_property_item()) {
@@ -875,7 +886,7 @@ int la_title_new_game_only(int a0)
         lt_item_select_disable = 1;
         lt_mask_property(51, 1);
     }
-    if (newGameDecided != 0 && (D_0028F8F4[0] & 0x840) && lt_fade_status() == 2) {
+    if (newGameDecided != 0 && (pad[0].flags & 0x840) && lt_fade_status() == 2) {
         soundSeDefPlay(414, 0xFFFFFFFF, 0, 0);
         lt_continue_selected = 1;
         opTitleLogoMode = 2;
@@ -921,13 +932,13 @@ inline int la_mc_saved_file_select(int a0)
 
     lt_analog2Pad();
     do {
-        if (D_0028F8F4[0] & 0x1000) {
+        if (pad[0].flags & 0x1000) {
             i += 5;
-        } else if (D_0028F8F4[0] & 0x4000) {
+        } else if (pad[0].flags & 0x4000) {
             i -= 5;
-        } else if (D_0028F8F4[0] & 0x8000) {
+        } else if (pad[0].flags & 0x8000) {
             i -= 1;
-        } else if (D_0028F8F4[0] & 0x2000) {
+        } else if (pad[0].flags & 0x2000) {
             i += 1;
         } else if (IosMcProductFile[filePort].f[i]._0 == 0xFFFFFFFF) {
             i++;
@@ -1189,7 +1200,7 @@ int la_load_game_memory_card_check(int a0)
 inline int la_mc_load_current_slot_select(void)
 {
     _la_mask_preview_info();
-    if (D_0028F8F4[0] & 0x40) {
+    if (pad[0].flags & 0x40) {
         curPort = lt_current_property_item() - 0xBA;
         lastPort = curPort;
         curPortInfo = &mcPortInfo[curPort];
@@ -1198,7 +1209,7 @@ inline int la_mc_load_current_slot_select(void)
         actionStarted = 0;
         return 0x13;
     }
-    if (D_0028F8F4[0] & 0x10) {
+    if (pad[0].flags & 0x10) {
         NEGATIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;
@@ -1239,14 +1250,14 @@ int la_mc_load_file_select(int a0, int a1)
     }
     lt_set_item_select_func((int)la_mc_saved_file_select);
 
-    if (D_0028F8F4[0] & 0x10) {
+    if (pad[0].flags & 0x10) {
         NEGATIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;
         return 12;
     }
 
-    if ((fileMask != 0 || loadFileChosen != 0) && (D_0028F8F4[0] & 0x40)) {
+    if ((fileMask != 0 || loadFileChosen != 0) && (pad[0].flags & 0x40)) {
         POSITIVE_SE();
         if (IosMcProductFile[filePort].f[a1]._0 != 0xFFFFFFFF) {
             selectFile = a1;
@@ -1430,12 +1441,14 @@ int la_load_start_check(int a0)
 /* "chk:%d\n" and "case 4\n", short strings in this TU's .sdata at VMA
    0x63B588 and 0x63B590 */
 
-/* kept local: s_init.h's soundDataOpen and soundDataOpenSync prototypes do not fit this TU's uses */
+/* kept local: agrees with s_init.h, which this TU does not include (soundDataOpen, soundDataOpenSync differ) */
 extern int seEnvForceClose;
 /* the current game's save record, as in la_system_save_processing */
 /* kept local: this TU's uses of iosMcLoadGameBlock do not fit the prototype
    in mcard.h, exactly as in common/src/debug.c */
+/* kept local: void (void *, void *) here, int (void *, int) in mcard.h */
 extern void iosMcLoadGameBlock(void *a0, void *buf);
+/* kept local: void (int, int) here, void (int, unsigned char) in act-game.h */
 extern void ACTGame_SetActors_Debug(int a0, int a1);
 
 /* layout_action.c:1796-1800 in the listing: the saved file's serial read
@@ -1587,17 +1600,17 @@ int la_load_processing(int a0)
 
 inline int la_general_mc_confirm(void)
 {
-    if (D_0028F8F4[0] & 0x40) {
+    if (pad[0].flags & 0x40) {
         return lt_current_property_item();
     }
     return -1;
 }
 
-extern int fadeStatus;
-extern void scpFadeIn(float sec);
+/* kept local: agrees with s_init.h, which this TU does not include (soundDataOpen, soundDataOpenSync differ) */
 extern void soundSePlayModeStop(int a0);
-extern void iosPadActStopAll(void);
+/* kept local: void (void *, int, int, int, int) here, void (int *, int, int, int, int) in s_init.h */
 extern void soundDataOpen(void *p, int a1, int a2, int a3, int t0);
+/* kept local: char * (void *) here, int * (int *) in s_init.h */
 extern char *soundDataOpenSync(void *p);
 
 /* layout_action.c:2565-2570 in the listing: inlined into la_game_over_continue
@@ -1703,7 +1716,7 @@ int la_mc_confirm_save_file(int a0, int a1)
             if (lt_fade_status() != 2) {
                 return -1;
             }
-            if ((D_0028F8F4[0] & 0x10) == 0) {
+            if ((pad[0].flags & 0x10) == 0) {
                 return -1;
             }
             if (stage_no == 0x3F) {
@@ -1785,7 +1798,7 @@ int la_save_game_memory_card_check(int a0)
 
 inline int la_mc_save_current_slot_select(void)
 {
-    if (D_0028F8F4[0] & 0x40) {
+    if (pad[0].flags & 0x40) {
         POSITIVE_SE();
         curPort = lt_current_property_item() - 0xBA;
         lastPort = curPort;
@@ -1794,7 +1807,7 @@ inline int la_mc_save_current_slot_select(void)
         actionStarted = 0;
         return 0x21;
     }
-    if (D_0028F8F4[0] & 0x10) {
+    if (pad[0].flags & 0x10) {
         NEGATIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;
@@ -1819,12 +1832,17 @@ typedef struct {
     unsigned char a;
 } SprCol;
 
-/* kept local: this TU's uses of these do not fit the prototypes in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_Sprite differ) */
 extern void gif_StartPacketPri(int pri);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_Sprite differ) */
 extern void gif_SetZTest(int on);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_Sprite differ) */
 extern void gif_SetZWrite(int on);
+/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
+/* kept local: void (void *, unsigned int, void *, void *, int) here, void (int *, long long, int *, unsigned char *, int) in GifPacket.h */
 extern void gif_Sprite(void *rect, unsigned int z, void *uv, void *col, int prim);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_Sprite differ) */
 extern void gif_EndPacket(void);
 
 static int barStep = 0; /* derived name */
@@ -1907,7 +1925,7 @@ int la_mc_save_file_select(int a0, int a1)
     }
 
     if (actionStarted != 0) {
-        if (D_0028F8F4[0] & 0x10) {
+        if (pad[0].flags & 0x10) {
             NEGATIVE_SE();
             lt_set_item_select_func(0);
             actionStarted = 0;
@@ -1915,7 +1933,7 @@ int la_mc_save_file_select(int a0, int a1)
         }
     }
 
-    if ((fileMask != 0 || saveSelectReady != 0) && (D_0028F8F4[0] & 0x40)) {
+    if ((fileMask != 0 || saveSelectReady != 0) && (pad[0].flags & 0x40)) {
         POSITIVE_SE();
         selectFile = a1;
         lt_set_item_select_func(0);
@@ -2093,7 +2111,7 @@ int la_save_confirm_overwrite(int a0, int a1)
     }
     fileMask = 0x3FF;
     _la_set_preview_info();
-    if (lt_fade_status() == 2 && (D_0028F8F4[0] & 0x10)) {
+    if (lt_fade_status() == 2 && (pad[0].flags & 0x10)) {
         NEGATIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;
@@ -2149,7 +2167,7 @@ int la_format_confirm(int a0, int a1)
     if (a0) {
         filePort = curPort;
     }
-    if (lt_fade_status() == 2 && (D_0028F8F4[0] & 0x10)) {
+    if (lt_fade_status() == 2 && (pad[0].flags & 0x10)) {
         NEGATIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;
@@ -2199,7 +2217,7 @@ int la_format_confirm(int a0, int a1)
     return -1;
 }
 
-/* kept local: the declaration in mcard.h changes this TU codegen */
+/* kept local: void (void *) here, int (void *) in mcard.h */
 extern void iosMcFormat(void *a0);
 
 static int formatStep = 0; /* derived name */
@@ -2243,15 +2261,18 @@ inline int la_format_processing(int a0)
 /* the system-save error message, VMA 0x61DBB8 */
 /* kept local: this TU's uses of the block calls do not fit the prototypes in
    mcard.h, exactly as in common/src/debug.c */
+/* kept local: void (void *) here, int (void *) in mcard.h */
 extern void iosMcSaveIconBlock(void *a0);
+/* kept local: void (void *) here, int (void *) in mcard.h */
 extern void iosMcSaveProductBlock(void *a0);
+/* kept local: void (void *, void *) here, int (void *, int) in mcard.h */
 extern void iosMcSaveGameBlock(void *a0, void *buf);
+
 /* the current game's save record (la_save_confirm_complete copies the
    preview from it) */
 /* kept local: this TU's spelling predates sce/libc/string.h; the game compiled
    with builtins live, so a copy of a constant string is the builtin block
    move */
-extern char *strcpy(char *dst, const char *src);
 
 /* the CD real-time clock record sceCdReadClock fills in; kept local because
    the disc records no declaration-only header and seki/src/GsBase.c carries
@@ -2268,7 +2289,6 @@ typedef struct {
 } sceCdCLOCK;
 
 extern int sceCdReadClock(sceCdCLOCK *clock);
-extern int rand(void);
 
 /* layout_action.c:1766-1776 in the listing: the save serial, the clock
    packed into one word or a random number when the clock cannot be read;
@@ -2375,7 +2395,6 @@ int la_system_save_processing(int a0)
 }
 
 /* the second save-phase message, VMA 0x61DC00 */
-extern int GetSaveSofaLayoutID(void);
 
 /* layout_action.c:1802-1805 in the listing: the save side's readback, the
    serial kept as both the saved and the current one; inlined into
@@ -2506,10 +2525,9 @@ inline int la_save_confirm_complete(int a0, int a1)
     return -1;
 }
 
+/* kept local: agrees with main.h, which this TU does not include (pad differ) */
 extern int optionScreenMode;
-extern void gflagInit(void);
-extern void fightSoundProcessRequestPause(void);
-/* kept local: this TU's uses of soundDataSegAllClose do not fit the prototype in s_init.h */
+/* kept local: agrees with s_init.h, which this TU does not include (soundDataOpen, soundDataOpenSync differ) */
 extern void soundDataSegAllClose(int a0, int a1);
 
 /* layout_action.c:3462-3499 in the listing. */
@@ -2565,7 +2583,7 @@ int la_end_confirm(void)
 
 inline int la_save_confirm_yesno(void)
 {
-    if (D_0028F8F4[0] & 0x10) {
+    if (pad[0].flags & 0x10) {
         return lt_current_property_item();
     }
     return -1;
@@ -2618,7 +2636,7 @@ inline int la_delete_confirm(int a0, int a1)
     return -1;
 }
 
-/* kept local: this TU's uses of iosMcDelete do not fit the prototype in mcard.h */
+/* kept local: void (void *) here, int (void *) in mcard.h */
 extern void iosMcDelete(void *a0);
 
 static int deleteStep = 0; /* derived name */
@@ -2659,7 +2677,7 @@ int la_delete_processing(int a0)
 inline int la_delete_confirm_complete(void)
 {
     int ret;
-    if ((D_0028F8F4[0] & 0x10) == 0)
+    if ((pad[0].flags & 0x10) == 0)
         goto fail;
     lt_set_item_select_func(0);
     actionStarted = 0;
@@ -2724,7 +2742,7 @@ int la_game_loop(int a0)
     } else {
         laoutActionPauseRequest = 0;
     }
-    if ((startStagePauseDisableTimer >= 11 && (D_0028F8F4[0] & 0x800)) ||
+    if ((startStagePauseDisableTimer >= 11 && (pad[0].flags & 0x800)) ||
         (float)laoutActionPauseRequest >
             (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f) {
         if (enable_game_pause == 0) {
@@ -2748,15 +2766,13 @@ inline int la_game_demo_pause(int a0)
     if (a0) {
         systemStatus[5] = 1;
     }
-    if ((D_0028F8F4[0] & 0x800) == 0) {
+    if ((pad[0].flags & 0x800) == 0) {
         return -1;
     }
     lt_set_item_select_func(0);
     actionStarted = 0;
     return 0x37;
 }
-
-/* kept local: the declaration in StageManager.h changes this TU codegen */
 
 inline int la_game_demo(int a0)
 {
@@ -2765,7 +2781,7 @@ inline int la_game_demo(int a0)
             iosPadDisable();
         }
     }
-    if ((D_0028F8F4[0] & 0x800) && gflagChk(388)) {
+    if ((pad[0].flags & 0x800) && gflagChk(388)) {
         debug_StdPrintfDummy("push start\n");
         gflagOff(388);
         title_demo_mode ^= 1;
@@ -2839,7 +2855,7 @@ int la_game_over_continue(int a0)
     } else {
         switch (lt_current_property_item()) {
         case 0x1AD:
-            if ((D_0028F8F4[0] & 0x40) == 0 || lt_fade_status() != 2) {
+            if ((pad[0].flags & 0x40) == 0 || lt_fade_status() != 2) {
                 return -1;
             }
             POSITIVE_SE();
@@ -2850,7 +2866,7 @@ int la_game_over_continue(int a0)
             actionStarted = 0;
             return 0x3F;
         case 0x1AE:
-            if ((D_0028F8F4[0] & 0x40) == 0 || lt_fade_status() != 2) {
+            if ((pad[0].flags & 0x40) == 0 || lt_fade_status() != 2) {
                 return -1;
             }
             POSITIVE_SE();
@@ -2998,8 +3014,9 @@ int la_key_config(int a0)
     return -1;
 }
 
+/* kept local: agrees with main.h, which this TU does not include (pad differ) */
 extern int optionControlType;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (pad differ) */
 extern int girlControlMode;
 
 /* the option screen's layout items: the five screen modes, the stage
@@ -3014,11 +3031,10 @@ static const int screenModeAnim[5] = {-1, 67, 68, 69, 70}; /* derived name */
 
 static const int choiceItem[4] = {321, 322, 328, 329}; /* derived name */
 
-/* kept local: this TU carries no other use of s_init.h or StageAnimation.h */
+/* kept local: agrees with s_init.h, which this TU does not include (soundDataOpen, soundDataOpenSync differ) */
 extern int soundOutputModeGet(void);
+/* kept local: agrees with s_init.h, which this TU does not include (soundDataOpen, soundDataOpenSync differ) */
 extern void soundOutputModeSet(int a0);
-extern void stage_SetLoopFlag(int key, int a1);
-extern void stage_SetAnimation(int a0, int a1, int a2);
 
 /* layout_action.c:4272-4371 in the listing.  The switch table is jtbl_0061DCC0
    (26 arms over the property item, cases 300..325; VMA 0x61DCC0..0x61DD28). */

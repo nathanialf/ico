@@ -1,13 +1,16 @@
 #include "gobj_cam_dl.h"
 #include "gobj_dl.h"
+#include "main.h"
 
-/* kept local: this TU's uses of isysGObjInit do not fit the prototype in gobj.h */
+/* kept local: agrees with gobj.h, which this TU does not include (isysGetNbAllocedGObjs differ) */
 extern void isysGObjInit();
+/* kept local: agrees with isys.h, which this TU does not include (gobj_camera_dl_link_head, gobj_dl_link_head differ) */
 extern int *gobj_link_head[];
-/* kept local: this TU's uses of isysGetNbAllocedGObjs do not fit the prototype in gobj.h */
+/* kept local: agrees with gobj.h, which this TU does not include */
 extern int isysGetNbAllocedGObjs();
+/* kept local: agrees with isys.h, which this TU does not include (gobj_camera_dl_link_head, gobj_dl_link_head differ) */
 extern char *isysCurrentGObj;
-/* kept local: this TU's uses of isysGObjRemove do not fit the prototype in gobj.h */
+/* kept local: agrees with gobj.h, which this TU does not include (isysGetNbAllocedGObjs differ) */
 extern void isysGObjRemove(char *g);
 
 typedef struct {
@@ -234,9 +237,9 @@ typedef struct OmGObj {
     int pauseExempt; /* 0x170 */
 } OmGObj;
 
-/* kept local: main.c's global; this TU does not include main.h */
-extern int systemStatus[];
+/* kept local: agrees with isys.h, which this TU does not include (gobj_camera_dl_link_head, gobj_dl_link_head differ) */
 extern int active_gobj_link;
+/* kept local: OmProc * here, void * in isys.h */
 extern OmProc *isysCurrentGObjProcess;
 
 void _iosOmMain(int a0, int a1, int a2, int a3)
@@ -327,7 +330,9 @@ typedef struct OmObj {
     int active; /* 0x16C */
 } OmObj;
 
+/* kept local: OmCam * here, int * in isys.h */
 extern OmCam *gobj_camera_dl_link_head;
+/* kept local: OmObj * [] here, int * [8] in isys.h */
 extern OmObj *gobj_dl_link_head[];
 
 void iosOmCreateDL(void)

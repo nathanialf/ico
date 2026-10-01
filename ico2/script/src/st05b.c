@@ -13,9 +13,9 @@
 
 static ActMail sekizo_mes[2] = {{430}, {429}};
 
-/* kept local: this TU's uses of ScpCallCameraSetTarget do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayMot differ) */
 extern void ScpCallCameraSetTarget(float x, float y, float z);
-/* kept local: this TU's uses of scpTorchLightOn do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayMot differ) */
 extern void scpTorchLightOn(int id);
 
 void actSt05bCrest01XL(volatile int a0)
@@ -47,35 +47,35 @@ void actSt05bCrest01XL(volatile int a0)
     }
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int girlGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int boyPad;
-/* kept local: script.h's prototypes do not fit this TU's calls */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayMot differ) */
 extern int scpBoyControlReadDisable;
-/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
+/* kept local: int (int, int, float) here, int (char *, char *, float) in script.h */
 extern int scpTriggerBall(int a0, int gobj, float r);
-/* kept local: this TU's uses of scpKillEnemyAll do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayMot differ) */
 extern void scpKillEnemyAll(void);
-/* kept local: this TU's uses of scpMaskGeneratorAll do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayMot differ) */
 extern void scpMaskGeneratorAll(void);
-/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
+/* kept local: void (int, int *, int, int, int) here, void (int, char **, int, int, int) in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayMot differ) */
 extern void scpPlayStart(int gobj);
-/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
+/* kept local: void (int, int) here, void (char *, int) in script.h */
 extern void scpPlayMot(int gobj, int mot);
-/* kept local: this TU's uses of scpPlayWaitMotEnd do not fit the prototype in script.h */
+/* kept local: void (int) here, void (char *) in script.h */
 extern void scpPlayWaitMotEnd(int gobj);
-/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayMot differ) */
 extern void scpPlayEnd(int gobj);
-/* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
+/* kept local: void (int, float, float, float) here, void (void *, float, float, float) in script.h */
 extern void scpPlayPosSet(int gobj, float x, float y, float z);
-/* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
+/* kept local: void (int, float *) here, void (char *, float *) in script.h */
 extern void scpPlayMotDir(int gobj, float *dir);
-/* kept local: this TU's uses of scpSekizouCheckPoint do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayMot differ) */
 extern void scpSekizouCheckPoint(void);
 
 /* .sdata, owned by st05b.o, in the ROM's order: the stone statue's stream handle, its shake and the shake's volume. */
@@ -241,9 +241,9 @@ static const ConstVec girlWay2Pos = {{139.0f, -177.0f, 1670.0f, 0.0f}};
 
 /* Returns int: st04b.c carries the same prototype, and the live $2 at the
  * call boundary is what puts the second way record's %hi in $3. */
-/* kept local: this TU's uses of _SCPMoveCharactorByWay do not fit the prototype in script.h */
+/* kept local: int (int, int, int *, int, float) here, int (char *, int, int, float, int) in script.h */
 extern int _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
-/* kept local: this TU's uses of RequestStageChangeDirect do not fit the prototype in script.h */
+/* kept local: void (int, int, int *, int) here, void (int *) in script.h */
 extern void RequestStageChangeDirect(int a0, int a1, int *buf, int a3);
 
 void actSt05bGirlWay(volatile int a0)

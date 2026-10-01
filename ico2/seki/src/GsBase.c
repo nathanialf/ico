@@ -1291,6 +1291,7 @@ void gsb_SetVSMatrixSub(float *a, float *b, float *c, float *d, float *vs)
     _CopyMatrix(matrixptr + 0x680, m1);
 }
 
+/* kept local: pad + 0x58 as int [] here; pad is PadState [16] in main.h and GsbPad [] (16 bytes a record) in this TU */
 extern int D_0028F948[];
 
 /* The view record gsb_SetVSMatrixSub builds the view and screen matrices

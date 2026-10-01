@@ -63,4 +63,7 @@ extern int current_stage_no;
 extern void (*system_stage_func)(void);
 extern int InterStageSwitchLock;
 
+void Main(void);
+void Emergency_DestroyAllThread(void);
+
 #endif /* MAIN_H */

@@ -37,65 +37,65 @@ typedef struct PObjGObjSt10L {
 /* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
    pad, trg at 0x4. */
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: Pad [] here, PadState [16] in main.h */
 extern Pad pad[];
-/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
+/* kept local: PObjGObjSt10L * (int) here, int (int) in script.h */
 extern PObjGObjSt10L *scpSearchGobj(int a0);
-/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
+/* kept local: int (int, int) here, int (char *, int) in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
-/* kept local: script.h's prototypes do not fit this TU's calls */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern int scpBoyControlReadDisable;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int girlGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int boyPad;
-/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
+/* kept local: int (int, int, float) here, int (char *, char *, float) in script.h */
 extern int scpTriggerBall(int a0, int a1, float radius);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpSleepEnemyAll(void);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpKillEnemyOne(int a0);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpKillSpiderGroup(int a0);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpWakeupEnemyAll(void);
-/* kept local: this TU's uses of _SCPMoveCharactorByWay do not fit the prototype in script.h */
+/* kept local: void (int, int, int *, int, float) here, int (char *, int, int, float, int) in script.h */
 extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int systemStatus[];
-/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
+/* kept local: void (int, int *, int, int, int) here, void (int, char **, int, int, int) in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
+/* kept local: void (int *, int) here, int (char **, short) in script.h */
 extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
-/* kept local: this TU's uses of scpAdpcmCloseChkFunc do not fit the prototype in script.h */
+/* kept local: int (int *) here, int (char **) in script.h */
 extern int scpAdpcmCloseChkFunc(int *handle);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpSleepEnemyOne(int a0);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpWakeupEnemyOne(int a0);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpSleepSpiderGroupOne(int a0);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpWakeupSpiderGroupOne(int a0);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern int scpAdpcmPlayRequestNum(void);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpFadeIn(float f);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern int scpFadeChk(void);
-/* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
+/* kept local: void (int, float, float, float) here, void (void *, float, float, float) in script.h */
 extern void scpPlayPosSet(int a0, float f12, float f13, float f14);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpPlayStart(int a0);
-/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
+/* kept local: void (int, int) here, void (char *, int) in script.h */
 extern void scpPlayMot(int a0, int mot);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpPlayEnd(int a0);
-/* kept local: this TU's uses of scpSekizou do not fit the prototype in script.h */
+/* kept local: void (int, int, int, int, int, float, float, float, float, float, float) here, void (char *, int, int, int, int, float, float, float, float, float, float) in script.h */
 extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);
 

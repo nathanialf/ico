@@ -281,7 +281,6 @@ int Vibration_WaveDecode(SHOCKREQUEST *p, int level)
 
 /* Declared void ahead of their definitions: Shock_Request's inlined call sets
  * no return value (local-alloc then gives the next byte load $2, as the ROM). */
-extern void Vibration_SetDecodeData(void *a0, int a1, int a2, unsigned char a3, unsigned char a4);
 extern void ShockRequestBox_Regst(struct PadNode **head, struct PadNode *new_node);
 
 /* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines

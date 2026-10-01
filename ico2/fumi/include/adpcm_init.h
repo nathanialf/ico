@@ -95,4 +95,6 @@ void adpcmTickProc2(int *a0);
 /* MAIN.MAP global of adpcm_init.o's .sdata */
 extern int debugAdpcmOn;
 
+void AdpcmStreamFree(void);
+
 #endif /* ADPCM_INIT_H */

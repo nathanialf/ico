@@ -84,28 +84,28 @@ typedef struct IosSema {
     int id;                  /* 0x30 */
 } IosSema;                   /* derived name */
 
-/* kept local: this TU's uses of iosThreadCreate do not fit the prototype in thread.h */
+/* kept local: void (IOSThread *, int, void (*)(), int, void *, long, int) here, void (void *, int, void (*)(), int, void *, long, int) in thread.h */
 extern void iosThreadCreate(IOSThread *th, int no, void (*func)(), int arg, void *stack,
                             long stackSize, int pri);
-/* kept local: this TU's uses of iosThreadGetPri do not fit the prototype in thread.h */
+/* kept local: agrees with thread.h, which this TU does not include (iosSemaCreate, iosSemaDelete differ) */
 extern int iosThreadGetPri(int *a0);
-/* kept local: this TU's uses of iosGetIOSThreadFromId do not fit the prototype in thread.h */
+/* kept local: agrees with thread.h, which this TU does not include (iosSemaCreate, iosSemaDelete differ) */
 extern int iosGetIOSThreadFromId(unsigned int a0);
-/* kept local: this TU's uses of iosThreadWakeup do not fit the prototype in thread.h */
+/* kept local: agrees with thread.h, which this TU does not include (iosSemaCreate, iosSemaDelete differ) */
 extern int iosThreadWakeup(int *self);
-/* kept local: this TU's uses of iosThreadJoin do not fit the prototype in thread.h */
+/* kept local: agrees with thread.h, which this TU does not include (iosSemaCreate, iosSemaDelete differ) */
 extern int iosThreadJoin(void *a0);
-/* kept local: this TU's uses of iosThreadCancelWakeup do not fit the prototype in thread.h */
+/* kept local: agrees with thread.h, which this TU does not include (iosSemaCreate, iosSemaDelete differ) */
 extern int iosThreadCancelWakeup(int *self);
-/* kept local: this TU's uses of iosSemaCreate do not fit the prototype in thread.h */
+/* kept local: int (IosSema *, int, int, int) here, int (int *, int, int, int) in thread.h */
 extern int iosSemaCreate(IosSema *self, int initCount, int maxCount, int option);
-/* kept local: this TU's uses of iosSemaDelete do not fit the prototype in thread.h */
+/* kept local: int (IosSema *) here, int (int *) in thread.h */
 extern int iosSemaDelete(IosSema *self);
-/* kept local: this TU's uses of iosSemaWait do not fit the prototype in thread.h */
+/* kept local: int (IosSema *) here, int (int *) in thread.h */
 extern int iosSemaWait(IosSema *self);
-/* kept local: this TU's uses of iosSemaSignal do not fit the prototype in thread.h */
+/* kept local: int (IosSema *) here, int (int *) in thread.h */
 extern int iosSemaSignal(IosSema *self);
-/* kept local: this TU's uses of iosSemaReferStatus do not fit the prototype in thread.h */
+/* kept local: int (IosSema *) here, int (int *) in thread.h */
 extern int iosSemaReferStatus(IosSema *self);
 
 /* .bss, owned by thread.o and reached only from this file (MAIN.MAP names no
@@ -123,7 +123,7 @@ static IOSThread iosBootThread;
    this object's */
 static char iosBootStack[8192] __attribute__((aligned(16)));
 
-/* kept local: this TU's uses of iosThreadSetPri do not fit the prototype in thread.h */
+/* kept local: agrees with thread.h, which this TU does not include (iosSemaCreate, iosSemaDelete differ) */
 extern void iosThreadSetPri(int *a0, int a1);
 
 void iosThreadMain(void *arg)
@@ -148,6 +148,7 @@ extern int _gp; /* linker-defined global pointer */
 static int n_thread = 0; /* derived name: the number of live IOS threads */
 
 inline void iosThreadDestroyMgr(); /* deferred-tail member; see the emission-order note */
+/* kept local: void (const char *, int) here, void (char *, int) in debug_exception.h */
 extern void debug_assert(const char *file, int line);
 extern void __assert(const char *file, int line, const char *expr);
 
@@ -321,7 +322,7 @@ out:
     return ret;
 }
 
-/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_root;
 
 void iosThreadMessage(int a0)
@@ -354,6 +355,7 @@ inline int iosThreadJoin(void *a0)
     return buf[0];
 }
 
+/* kept local: agrees with string.h, which this TU does not include */
 extern void strcpy();
 
 void iosThreadName(int a0)

@@ -117,7 +117,7 @@ typedef struct WayWork {
     char unk74[0xC];
 } WayWork;
 
-/* kept local: this TU's uses of _GetLength do not fit the prototype in Matrix.h */
+/* kept local: float (float *, float *) here, void (void *, void *, void *) in Matrix.h */
 extern float _GetLength(float *a, float *b);
 
 float WayLengthOfPos_Pos(float *pos0, float *pos1)
@@ -318,9 +318,9 @@ typedef struct WayEdge {
 
 extern WayEdge way_group[];
 extern float D_0063BD6C[];
-/* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
+/* kept local: void (float *, float *, float *) here, void (void *, void *, void *) in Matrix.h */
 extern void _SubVector(float *dst, float *a, float *b);
-/* kept local: this TU's uses of _InnerProduct do not fit the prototype in Matrix.h */
+/* kept local: float (float *, float *) here, float (void *, void *) in Matrix.h */
 extern float _InnerProduct(float *a, float *b);
 
 static inline WpNode *SearchOpenNode(WpNode *start)
@@ -542,7 +542,7 @@ inline int WayPointWithRangeFromGObj(void *obj, float f)
     return WayPointWithRangeFromPos(pos, 0, f);
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *girlGObj;
 
 void *NearestEnemyFromGirl(float *len)

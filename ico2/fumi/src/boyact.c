@@ -17,6 +17,10 @@
 #include "act-game.h"
 #include "motionOrientManager.h"
 #include "motionFileManager.h"
+#include "matrixDrive.h"
+#include "debug_exception.h"
+#include "layout_texture.h"
+#include "motionManager.h"
 
 typedef struct {
     int a, b, c;
@@ -37,20 +41,28 @@ typedef union BoyVal {
 } BoyVal;
 
 extern char motionKind[];
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
 extern int systemStatus[];
-extern void *isysGObjSearchFromObjKindID_begin(int id);
+/* kept local: CCPResult * (void *) here, void * (void *) in commonact.h */
 extern CCPResult *test_CURRENTROOT(void *a0);
+/* kept local: void * (void *) here, void * (char *) in commonact.h */
 extern void *test_CURRENTORIENT(void *a0);
+/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistxzSqGV(void *a, void *b);
+/* kept local: void (void *, void *, void *) here, void (int) in gv.h */
 extern void _OrientXZGV(void *dst, void *a, void *b);
+/* kept local: agrees with gv.h, which this TU does not include (GetMatrixDirectionToZ, _DistxzSqGV differ) */
 extern int _RotyGV();
+/* kept local: void (void *, void *) here, void (float *, float *) in gv.h */
 extern void GetMatrixDirectionToZ(void *dst, void *orient);
+/* kept local: void (void *, CCPResult *, CCPResult *) here, void (void *, void *, void *) in libvu0.h */
 extern void sceVu0SubVector(void *dst, CCPResult *a, CCPResult *b);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0Normalize, sceVu0SubVector differ) */
 extern void sceVu0ApplyMatrix(void *dst, void *m, void *v);
 extern void GetChainNearestNodePosition(float *out, void *g, float *ref);
+/* kept local: int (float *, float *, void *) here, int (char *, char *, char *) in cage.h */
 extern int GetCageChainPoint(float *a, float *b, void *obj);
-extern void GetRootPositionHandExtra(void *self, float *out);
+/* kept local: void (int, int) here, void (char *, int) in commonact.h */
 extern void ACTSendMailCorrect(int a0, int mail);
 
 /* one 0x194-byte motion row per motion id; 0x182/0x186 are the halfwords
@@ -214,13 +226,13 @@ void findChainInJump(void *self)
     }
 }
 
-/* kept local: this TU's uses of GetRootProjectionPosOfGObj do not fit the prototype in motionManager2.h */
+/* kept local: void (void *, void *) here, void (int, int) in motionManager2.h */
 extern void GetRootProjectionPosOfGObj(void *out, void *obj);
-/* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
+/* kept local: void (void *, void *, void *) here, void (int) in gv.h */
 extern void _OrientXZGV(void *dst, void *a, void *b);
-/* kept local: this TU's uses of _DistxzSqGV do not fit the prototype in gv.h */
+/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistxzSqGV(void *a, void *b);
-/* kept local: this TU's uses of _AbsRotyGV do not fit the prototype in gv.h */
+/* kept local: agrees with gv.h, which this TU does not include (GetMatrixDirectionToZ, _DistxzSqGV differ) */
 extern int _AbsRotyGV(void *a, void *b);
 
 /* dir: subBoyCollision passes the motion direction (sub + 0x120) in $6; this
@@ -274,12 +286,13 @@ int CorrectOrient_RopeCliff(float *out, void *gobj, float *dir)
     return 0;
 }
 
-/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
+/* kept local: agrees with act.h, which this TU does not include (actInitialize, actInitialize_ext_charcter differ) */
 extern void _ACTWait(int a0);
-/* kept local: this TU's uses of ACTSendMailCorrect do not fit the prototype in commonact.h */
+/* kept local: void (int, int) here, void (char *, int) in commonact.h */
 extern void ACTSendMailCorrect(int a0, int mail);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *girlGObj;
+/* kept local: void * here, char * in isys.h */
 extern void *isysCurrentGObj;
 
 /* The three climb headers (omori/include/b50climb.h, b100climb.h,
@@ -349,13 +362,17 @@ void motBoyHand50(volatile int a0)
     }
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
 extern int systemStatus[];
+/* kept local: CCPResult * (void *) here, void * (void *) in commonact.h */
 extern CCPResult *test_CURRENTROOT(void *a0);
+/* kept local: void (void *, CCPResult *, CCPResult *) here, void (void *, void *, void *) in libvu0.h */
 extern void sceVu0SubVector(void *, CCPResult *, CCPResult *);
+/* kept local: void (float *, float *) here, void (void *, void *) in libvu0.h */
 extern void sceVu0Normalize(float *dst, float *src);
+/* kept local: agrees with motionManager2.h, which this TU does not include (CheckFloorAttribute, GetHeightOfFieldPlaneDifference differ) */
 extern void SetMotionDirection(void *self, float *dir);
 
 /* boyact.c rows 1522-1529 of the listing: the shared "face the girl" prologue
@@ -555,14 +572,14 @@ done:
     }
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *boyGObj;
 extern char actModeTbl[];
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
+/* kept local: CCPResult * (void *) here, void * (void *) in commonact.h */
 extern CCPResult *test_CURRENTROOT(void *a0);
-/* kept local: this TU's uses of _DistxzGV do not fit the prototype in gv.h */
+/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistxzGV(void *a, void *b);
-/* kept local: this TU's uses of GetHeightOfFieldPlaneDifference do not fit the prototype in motionManager2.h */
+/* kept local: float (void *, void *) here, float (int *, int *) in motionManager2.h */
 extern float GetHeightOfFieldPlaneDifference(void *boy, void *girl);
 
 /* One 0x50-byte record per act status, indexed by sub->0x34. */
@@ -621,16 +638,17 @@ static int attrWallHit[3]; /* derived name */
 
 static long long boyInfo[12]; /* derived name */
 
-/* kept local: this TU's uses of CheckFloorAttribute do not fit the prototype in motionManager2.h */
+/* kept local: int (void *, int) here, int (char *, int) in motionManager2.h */
 extern int CheckFloorAttribute(void *self, int id);
-/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
+/* kept local: void (int, void *, void *, float, float) here, int (int, char *, int, float, float) in script.h */
 extern void RequestStageChange(int id, void *boy, void *girl, float a, float b);
+/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
 extern int stage_no;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
 extern int gameover_flag;
-/* kept local: script.h's scpPlay* and RequestStageChange prototypes do not fit this TU's calls */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMotReq differ) */
 extern int scpBoyControlReadDisable;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
 extern int itemWatchOff;
 
 void CheckCollisionAttr(void *self)
@@ -753,15 +771,16 @@ float test_rope_velo[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 float add_rope_vec[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
-/* kept local: this TU's uses of test_CURRENTORIENT do not fit the prototype in commonact.h */
+/* kept local: void * (void *) here, void * (char *) in commonact.h */
 extern void *test_CURRENTORIENT(void *a0);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0Normalize, sceVu0SubVector differ) */
 extern void sceVu0ScaleVector(void *dst, void *src, float s);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0Normalize, sceVu0SubVector differ) */
 extern void sceVu0AddVector(void *dst, void *a, void *b);
-/* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
+/* kept local: void (void *, float) here, void (float *, float) in gv.h */
 extern void _ApplyRyGV(void *v, float ry);
-/* kept local: the declaration in StageAnimation.h changes this TU codegen */
+/* kept local: float (float, int, void *, void *) here, float (int, float, void *, void *) in StageAnimation.h */
 extern float stage_PlayBgAnimation(float frame, int id, void *a, void *b);
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
 void BoyBgaManager(void *self, int id, void *dst)
@@ -853,11 +872,11 @@ static int sitCount; /* derived name */
 
 static void *beliftGirl; /* derived name */
 
-/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
+/* kept local: void (void *) here, void (int) in script.h */
 extern void scpPlayStart(void *a0);
-/* kept local: this TU's uses of scpPlayMotReq do not fit the prototype in script.h */
+/* kept local: void (void *, int) here, void (char *, int) in script.h */
 extern void scpPlayMotReq(void *a0, int a1);
-/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
+/* kept local: void (void *) here, void (int) in script.h */
 extern void scpPlayEnd(void *a0);
 
 void E3_StageStartBoy(void *self)
@@ -895,7 +914,7 @@ void E3_StageStartBoy(void *self)
     _ACTWait(w3);
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
 extern int systemStatus[];
 extern int fptodp(float v);
 
@@ -938,25 +957,39 @@ int GetChainSlope(void)
 
 /* kept local: this TU's uses of these do not fit the prototypes in the headers
    the rest of the file reaches. */
+/* kept local: agrees with act.h, which this TU does not include (actInitialize, actInitialize_ext_charcter differ) */
 extern void ConvertStickToAbsCoord();
+/* kept local: void (void *, void *) here, int (WVTObj *, float *) in way_sys.h */
 extern void GetWay_next(void *way, void *pos);
+/* kept local: int (void *, void *, void *) here, int (void *, int, int) in way_sys.h */
 extern int GetWay_begin(void *a, void *way, void *b);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0Normalize, sceVu0SubVector differ) */
 extern void sceVu0CopyVector(void *dst, void *src);
+/* kept local: float (void *, void *) here, float (float *, float *) in fuzio.h */
 extern float fzMagnitude2fv(void *a, void *b);
+/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistSqGV(void *a, void *b);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0Normalize, sceVu0SubVector differ) */
 extern float sceVu0InnerProduct(void *a, void *b);
+/* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipWall(void *w);
+/* kept local: agrees with way_sys.h, which this TU does not include (GetWay_begin, GetWay_next differ) */
 extern void BridgeBox(void);
-extern int PrivInsCamChk(void);
-extern unsigned char PrivInsCamChk_Control(void);
+/* kept local: float (void *, void *) here, void (void *, void *) in poly-flat.h */
 extern float IsPointIsInScreen(void *dst, void *pos);
+/* kept local: int (void *, int, int, void *) here, int (void *, int, int, int) in pad.h */
 extern int iosPadConnect(void *pad, int a, int b, void *conf);
+/* kept local: agrees with pad.h, which this TU does not include (iosPadConnect differ) */
 extern int iosPadRead(void *pad);
+/* kept local: agrees with pad.h, which this TU does not include (iosPadConnect differ) */
 extern int iosPadGetStick(void *pad, void *out, int a, int b, int c, int d);
+/* kept local: void (void *, void *) here, void (int, int) in motionManager2.h */
 extern void _GetMotionDirection(void *dst, void *g);
 extern void _ACTCommonMailTest(int a0, int a, int b, int c);
 extern float GetDifferenceFromLowerField(int self, int a1);
+/* kept local: int (void *) here, int (char *) in motionManager2.h */
 extern int GetMotionFrameFlag1(void *self);
+/* kept local: agrees with act.h, which this TU does not include (actInitialize, actInitialize_ext_charcter differ) */
 extern void ACTDebugMove(int a0, int a1);
 extern void IncreasePdlChain(int id);
 extern void DecreasePdlChain(int id);
@@ -967,13 +1000,15 @@ typedef struct {
 } PadConf;
 
 extern PadConf iosPadConfCustom;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
 extern int boyPad;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *CurrentTargetGObj;
+/* kept local: void * here, int in main.h */
 extern void *optionControlType;
-/* kept local: camera-root.h's GetCurrentCameraSet2 does not fit this TU's uses */
+/* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
 extern int InsertCameraWorkingFlag;
+/* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
 extern int FixViewInGameCameraFlag;
 
 /* the ClipWall work record as this function uses it: the two segment
@@ -1834,11 +1869,11 @@ void InitSwapWeapon(void *self)
     }
 }
 
-/* kept local: this TU's uses of InitMotionGeoInfo do not fit the prototype in motionManager2.h */
+/* kept local: void (void *, float, float, float, float, float, float) here, void (char *, float, float, float, float, float, float) in motionManager2.h */
 extern void InitMotionGeoInfo(void *node, float x, float y, float z, float rx, float ry, float rz);
-/* kept local: this TU's uses of CheckWeaponKind do not fit the prototype in weapon.h */
+/* kept local: int (void *) here, int (char *) in weapon.h */
 extern int CheckWeaponKind(void *w);
-/* kept local: this TU's uses of SetWeaponOffsetMode do not fit the prototype in weapon.h */
+/* kept local: void (void *, int) here, void (char *, int) in weapon.h */
 extern void SetWeaponOffsetMode(void *w, int mode);
 
 void PutWeapon(void)
@@ -1856,9 +1891,9 @@ void PutWeapon(void)
     }
 }
 
-/* kept local: this TU's uses of PickupWeapon do not fit the prototype in weapon.h */
+/* kept local: void (void *, void *, int) here, void (char *, char *, int) in weapon.h */
 extern void PickupWeapon(void *w, void *boy, int kind);
-/* kept local: this TU's uses of ReleaseWeapon do not fit the prototype in weapon.h */
+/* kept local: void (void *) here, void (char *) in weapon.h */
 extern void ReleaseWeapon(void *w);
 
 /* boyact.c:3002-3021 in the PAL listing: a static helper with no out-of-line
@@ -1890,7 +1925,7 @@ static inline int SwapBoyWeapon(void *oldW, void *newW, void *boy)
     return 1;
 }
 
-/* kept local: the declaration in camera-root.h changes this TU codegen */
+/* kept local: float * (void) here, int * (void) in camera-root.h */
 extern float *GetCurrentCameraSet2(void);
 
 void OtherStageGirlPinchCamera_After(float t)
@@ -1930,9 +1965,9 @@ static int characterPacket[8]; /* derived name */
 
 static PrivInsCam privInsCam; /* derived name */
 
-/* kept local: this TU's uses of _InterGV do not fit the prototype in gv.h */
+/* kept local: void (void *, void *, void *, float, float) here, void (float *, float *, float *, float, float) in gv.h */
 extern void _InterGV(void *dst, void *a, void *b, float t, float u);
-/* kept local: this TU's uses of InsertCamera_SetDetail do not fit the prototype in camera-root.h */
+/* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
 extern void InsertCamera_SetDetail(float *cam, float *p, int a2, int a3, int a4, int a5, float f);
 
 void PrivInsCamProcess(void)
@@ -1983,29 +2018,34 @@ void PrivInsCamProcess(void)
     }
 }
 
-/* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
+/* kept local: float (CCPResult *, CCPResult *) here, void (void *, void *) in gv.h */
 extern float _DistGV(CCPResult *a, CCPResult *b);
 /* kept local: poly-flat.h declares IsPointIsInScreen void, the callers here
    read the float it returns */
+/* kept local: float (void *, void *) here, void (void *, void *) in poly-flat.h */
 extern float IsPointIsInScreen(void *dst, void *pos);
-extern void lt_switch_layout(int no);
 extern void ACTGame_CommonLoop(void *self);
 extern void ACTParaStatus_Exec(void *self);
 extern void ACTLookTargetSystem_Exec(void *self);
+/* kept local: void (void *) here, void (char *) in attackhit.h */
 extern void CommonAttackCenter(void *self);
 extern float GetDifferenceFromLowerField(int self, int a1);
-extern int NotNeedBackHand(void);
 extern int isBottomOfChain(void *chain);
+/* kept local: agrees with commonact.h, which this TU does not include (ACTSendMailCorrect, test_CURRENTORIENT differ) */
 extern void GetCorrectOrientOfChain(void *buf, void *obj);
-/* kept local: this TU's uses of SetMotionDirectionSmooze do not fit the prototype in commonact.h */
+/* kept local: void (void *, float *, float) here, int (int, float *, float) in commonact.h */
 extern void SetMotionDirectionSmooze(void *self, float *dir, float t);
+/* kept local: int (void *, int, void *, void *) here, int (char *, int, void *, void *) in mail-add-data.h */
 extern int ActSendMail_WithAdditionalData(void *gop, int msg, void *sender, void *data);
+/* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
 extern void Camctrl_SetTarget(int self, int obj, int a2);
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMotReq differ) */
 extern void ScpCallCameraGetTarget(float *dst);
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMotReq differ) */
 extern void ScpCallCameraSetTarget(float x, float y, float z);
-/* kept local: this TU's uses of debug_NMarker do not fit the prototype in camera-editor.h */
+/* kept local: void (float *, int, int, int, float) here, void (int *, int, int, int, float) in camera-editor.h */
 extern void debug_NMarker(float *pos, int r, int g, int b, float size);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, int in main.h */
 extern void *girlControlMode;
 
 /* the boy's work record at Act+0x688.  subBoyCollision's stores through it are
@@ -2581,13 +2621,16 @@ void subBoyCollision(volatile int a0)
 }
 
 void afterBoySwim(volatile int a0);
+/* kept local: S12 here, FcColInfo in fieldCollision.h */
 extern S12 InitialColInfo;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
 extern int boyPad;
+/* kept local: agrees with pad.h, which this TU does not include (iosPadConnect differ) */
 extern int iosPadActRequest(int port, int id);
+/* kept local: agrees with motionManager2.h, which this TU does not include (CheckFloorAttribute, GetHeightOfFieldPlaneDifference differ) */
 extern int GetSkeltonFocusNode(char *a0, int a1);
 extern void MoveFloatingBox(void *box, int self, void *m, void *p, float d);
-/* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
+/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistSqGV(void *a, void *b);
 
 /* the record Act+0x680 points at, with the fields actBoyBelift and actBoySwim
@@ -2735,7 +2778,7 @@ inline void actBoyFall(volatile int a0)
 }
 
 extern void BoyAttackCenter(int a0);
-/* kept local: this TU's uses of SetMotionDirectionWithLimit do not fit the prototype in motionManager2.h */
+/* kept local: agrees with motionManager2.h, which this TU does not include (CheckFloorAttribute, GetHeightOfFieldPlaneDifference differ) */
 extern void SetMotionDirectionWithLimit(void *self, float *dir, float lo, float hi);
 
 /* INTERIM: ACTSearchEnemy is a file-scope `inline` in the original TU (rows
@@ -2773,9 +2816,9 @@ void actBoyAttack(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of SetMotionDirection do not fit the prototype in motionManager2.h */
+/* kept local: agrees with motionManager2.h, which this TU does not include (CheckFloorAttribute, GetHeightOfFieldPlaneDifference differ) */
 extern void SetMotionDirection(void *self, float *dir);
-/* kept local: this TU's uses of _ACTMotDirSmzDirect do not fit the prototype in commonact.h */
+/* kept local: void (void *, float *) here, int (char *, float *) in commonact.h */
 extern void _ACTMotDirSmzDirect(void *self, float *dir);
 
 void actBoyTakeWeaponReady(volatile int a0)
@@ -2864,11 +2907,11 @@ void actBoyTakeWeapon(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of ACTAdjustPlane do not fit the prototype in commonact.h */
+/* kept local: void (int, void *) here, void (int, int) in commonact.h */
 extern void ACTAdjustPlane(int a0, void *p);
-/* kept local: this TU's uses of GetOrientOfWall do not fit the prototype in fieldCollision.h */
+/* kept local: void (void *, void *, void *) here, void (void *, void *, int *) in fieldCollision.h */
 extern void GetOrientOfWall(void *out, void *wall, void *pos);
-/* kept local: this TU's uses of CompareAttribute do not fit the prototype in fieldCollision.h */
+/* kept local: int (int, int) here, int (unsigned int, unsigned int) in fieldCollision.h */
 extern int CompareAttribute(int attr, int mask);
 
 #define BOY_WALL(o) (*(char **)(*(char **)((char *)(o) + 0x164) + 0x688))
@@ -2976,9 +3019,11 @@ static inline void ACTSendMail_PULLUP_START(void)
     }
 }
 
+/* kept local: void (void *, CCPResult *, CCPResult *) here, void (void *, void *, void *) in libvu0.h */
 extern void sceVu0SubVector(void *, CCPResult *, CCPResult *);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0Normalize, sceVu0SubVector differ) */
 extern float sceVu0InnerProduct(void *a, void *b);
-/* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
+/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistSqGV(void *a, void *b);
 
 int pullup_check_heroin_position(void)
@@ -3036,8 +3081,9 @@ int ditch_check_heroin_position(void)
 }
 
 extern char D_0055FFA8[];
-/* kept local: this TU's uses of _MoveGV do not fit the prototype in gv.h */
+/* kept local: void (float *, float *, float *, float) here, float (float *, float *, float *, float) in gv.h */
 extern void _MoveGV(float *dst, float *from, float *to, float d);
+/* kept local: agrees with commonact.h, which this TU does not include (ACTSendMailCorrect, test_CURRENTORIENT differ) */
 extern int IsCorrectPosition(char *a0);
 
 void actBoyPullupReady(volatile int a0)
@@ -3116,12 +3162,11 @@ void actBoyPullupGo(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of RotQuaternionX do not fit the prototype in quaternion.h */
+/* kept local: void (float *, short) here, void (void *, int) in quaternion.h */
 extern void RotQuaternionX(float *q, short a);
-/* kept local: this TU's uses of SetMotionNodeFixModeParameter do not fit the prototype in motionManager2.h */
+/* kept local: void (void *, void *, int, int, float *, float, float, float, float) here, void (char *, char *, float, float, float, int, int, float, void *) in motionManager2.h */
 extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float *q, float x,
                                           float y, float z, float w);
-extern int ACTCheckCollis_WF(float f, void *p0, void *p1, void *actor, void *posout);
 extern void InsertCamera_Set(float *pos, float *tgt, int frames);
 extern char D_005577F4[];
 
@@ -3380,8 +3425,6 @@ void actBoyRescueReady(volatile int a0)
     }
 }
 
-extern int ResetMotionProgramInterpInfo(char *a0, int a1);
-
 void actBoyDitch3mReady(volatile int a0)
 {
     Act *sub = GOBJ_ACT(a0);
@@ -3498,7 +3541,7 @@ void actBoyDitch3mReady(volatile int a0)
 }
 
 extern char D_0055FFA8[];
-/* kept local: this TU's uses of _MoveGV do not fit the prototype in gv.h */
+/* kept local: void (float *, float *, float *, float) here, float (float *, float *, float *, float) in gv.h */
 extern void _MoveGV(float *dst, float *from, float *to, float d);
 
 void actBoyRescueGirlBhang(volatile int a0)
@@ -3565,7 +3608,7 @@ void actBoyRescueGirlBhang(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of RequestStageChangeSimple do not fit the prototype in script.h */
+/* kept local: int (void *, int, int, int, float, float) here, int (int, float, float, unsigned char, unsigned char, unsigned char) in script.h */
 extern int RequestStageChangeSimple(void *a0, int a1, int a2, int a3, float a4, float a5);
 
 inline int RequestStageChangeKidnapEnd(void *a0, int a1)
@@ -3584,7 +3627,7 @@ inline int RequestStageChangeKidnapEnd(void *a0, int a1)
     return rv;
 }
 
-/* kept local: this TU's uses of InsertCamera_SetNoraml do not fit the prototype in camera-root.h */
+/* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
 extern void InsertCamera_SetNoraml(float *a, float *b, int c, int d);
 
 void SetStatusBoy_OtherStageGirlPinch(void)
@@ -3626,16 +3669,18 @@ void *gopp_subBoyControl;
 
 /* not declared by the headers this TU includes; the act.c entry points as
    girl_act.c declares them for actGirlStart */
+/* kept local: char * (void *) here, char * (char *) in act.h */
 extern char *actInitialize(void *self);
+/* kept local: void (void *) here, void (char *) in act.h */
 extern void actInitialize_ext_charcter(void *self);
+/* kept local: void (void *) here, void (char *) in act.h */
 extern void actInitialize_only_charcter(void *self);
+/* kept local: agrees with act.h, which this TU does not include (actInitialize, actInitialize_ext_charcter differ) */
 extern void actInitialize_geo(void *self);
+/* kept local: int (void *, int) here, int (void *, void *) in act.h */
 extern int actCreateSubThread(void *entry, int prio);
+/* kept local: void (void) here, void (volatile int) in commonact.h */
 extern void subCommonIdle(void);
-extern void subBoyBrainMain(int a0);
-extern void *MatrixDrive_GetMatrix(void);
-extern void CopyMatrix(void *dst, void *src);
-extern void MatrixDrive_TransMatrix(float x, float y, float z);
 extern void LightTorchOnOfWeaponWithNoSE(void *w);
 
 void actBoyStart(int a0)
@@ -3762,9 +3807,9 @@ void actBoyStart(int a0)
     _ACTWait(0);
 }
 
-/* kept local: this TU's uses of ConvertStickToAbsCoord do not fit the prototype in act.h */
+/* kept local: agrees with act.h, which this TU does not include (actInitialize, actInitialize_ext_charcter differ) */
 extern void ConvertStickToAbsCoord();
-/* kept local: this TU's uses of _RotyGV do not fit the prototype in gv.h */
+/* kept local: agrees with gv.h, which this TU does not include (GetMatrixDirectionToZ, _DistxzSqGV differ) */
 extern int _RotyGV();
 
 /* `stick` is never named in the body: the ROM leaves $a1 untouched and
@@ -4272,6 +4317,7 @@ inline void ACTSearchGObj(void *a0, int a1, int a2, int *out_id, float *out_vec,
     }
 }
 
+/* kept local: S12 here, FcColInfo in fieldCollision.h */
 extern S12 InitialColInfo;
 
 inline void afterBoySwim(volatile int a0)
@@ -4309,7 +4355,7 @@ inline void afterBoyRescueGirlBhang(volatile int a0)
     ACTGame_DisconnectHand();
 }
 
-/* kept local: this TU's uses of _ACTWait do not fit the prototype in act.h */
+/* kept local: agrees with act.h, which this TU does not include (actInitialize, actInitialize_ext_charcter differ) */
 extern void _ACTWait();
 
 inline void subBoyBrainMain(int a0)

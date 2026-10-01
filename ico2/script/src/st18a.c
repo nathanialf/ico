@@ -43,7 +43,7 @@ static ActMail ene_mes[2] = {{430}, {429}};
 
 static ActMail ene2_mes[2] = {{430}, {429}};
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *girlGObj;
 
 void actSt18aEnd(void)
@@ -65,9 +65,9 @@ typedef struct PadStateSt18A {
     char unk08[0x50]; /* 0x08 */
 } PadStateSt18A;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: PadStateSt18A [] here, PadState [16] in main.h */
 extern PadStateSt18A pad[];
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
 
 void actSt18aIntroChk(volatile int a0)
@@ -109,7 +109,7 @@ void actSt18aIntroChk(volatile int a0)
     scpBoyControlReadDisable = 0;
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int systemStatus[];
 
 void actSt18aSwitchLChk(volatile int a0)

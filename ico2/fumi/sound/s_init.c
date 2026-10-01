@@ -14,6 +14,8 @@
 #include <string.h>
 #include <libvu0.h>
 #include <eekernel.h>
+#include "GifPacket.h"
+#include "debug_exception.h"
 
 typedef struct SqEntry {
     unsigned short num;        /* 0x0 */
@@ -142,9 +144,6 @@ static int outputMode = 0; /* derived name */
 
 static int seSemiCommonLoaded = 0; /* derived name */
 
-extern int sceSifDmaStat(int h);
-extern int sceSifSetDma(int p, int a);
-
 inline int Ee2Iop(int a0, int a1, int a2)
 {
     int buf[4];
@@ -168,7 +167,9 @@ extern void SgInit(void);
 extern void SgSetDigitalOutputMode(int a0);
 extern void SgSetTickMode(int a0);
 extern void SgSetReverbEndAddr(int a0, int a1);
+/* kept local: agrees with sound.h, which this TU does not include */
 extern void SgSetReverbType(int a0, int a1);
+/* kept local: agrees with sound.h, which this TU does not include */
 extern void SgSetReverbDepth(int a0, int a1, int a2);
 extern void SgSetMasterVol(int a0, int a1, int a2);
 
@@ -258,7 +259,7 @@ void soundAllocIopFree(void)
 }
 
 extern void __assert(char *file, int line, char *msg);
-extern void debug_assert(char *file, int line);
+/* kept local: int (int, int) here, int (int *, int) in sound.h */
 extern int SgVabOpenFakeBody(int a0, int a1);
 extern void SgSetSeMasterVol(int vab, int vol);
 extern int SgBgmOpen(int vab, int a1);
@@ -328,8 +329,6 @@ inline char *soundDataAreaSearch(int *pk)
 found:
     return (char *)r;
 }
-
-extern int memset(void *dst, int val, int size);
 
 inline char *soundDataAreaGet(int a0, int a1, int a2, int a3)
 {
@@ -783,11 +782,9 @@ typedef struct DbgPad {
     int trg;
 } DbgPad;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: DbgPad [] here, PadState [16] in main.h */
 extern DbgPad pad[];
 static inline void soundSeEnvDefaultSet(SeSlot *self);
-extern void gif_StartPacketPri(int pri);
-extern void gif_EndPacket(void);
 
 static void debug_DispSEInfo(void)
 {
@@ -1073,10 +1070,10 @@ typedef struct SeKind {
 extern unsigned short seKind[];
 extern SeKind seList[];
 extern char seDef[];
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (pad differ) */
 extern int boyPad;
+/* kept local: agrees with main.h, which this TU does not include (pad differ) */
 extern int stage_no;
-extern int memcmp(void *a, void *b, int n);
 extern int SgSePlay(int vab, int a1, int a2);
 
 inline void soundSeGroupStop(int arg)
@@ -1390,7 +1387,7 @@ extern char seEnv[];
 /* The stage table sits in .rodata, so it is declared const: its loads are then
    unchanging and do not order against soundSeEnvNotUseClose's `p = 0` store. */
 extern const StgPre stageData[];
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (pad differ) */
 extern int systemStatus[];
 extern int SgGetSlotStatus(int a0, int a1);
 

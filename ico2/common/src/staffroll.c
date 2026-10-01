@@ -2,6 +2,8 @@
 #include "debug.h"
 #include "DisplayFont.h"
 #include <string.h>
+#include "main.h"
+#include "debug_exception.h"
 
 /* staffroll.o's whole .data run: the roll's display area, centred on the
    origin, {x, y, width, height}.  Only the first word is read here, as the
@@ -41,9 +43,6 @@ static int rollStep; /* the roll's own sequence step */
 /* .bss, owned by staffroll.o and reached only from this file: the posted
    lines, 0x12C0 bytes of StaffRollEntry. */
 static StaffRollEntry rollLines[300];
-
-/* kept local: main.c's global; this TU does not include main.h */
-extern int systemStatus[];
 
 /* staffroll.o's .sdata run (VMA 0x63B650..0x63B670, 0x20 B = MAIN.MAP), in
    the ROM's order: the three MAIN.MAP globals the roll's state starts with,
@@ -117,7 +116,6 @@ int staffRollScroll(void)
 extern char *staffRollNameData[];
 /* staffroll_dat.o's entry count (MAIN.MAP; a data-only member) */
 extern int staffRollNameDataNum;
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
 int staffRollNameOut(void)

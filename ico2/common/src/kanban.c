@@ -1,5 +1,6 @@
 #include "debug.h"
 #include "Texture.h"
+#include "debug_exception.h"
 
 typedef struct {
     unsigned char b[4];
@@ -79,7 +80,7 @@ int kanbanCommonRead = 0;
 /* the colour a new sign starts with */
 static Col4 kanbanStartCol = {{0x80, 0x80, 0x80, 0}}; /* derived name */
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include */
 extern int systemStatus[];
 
 typedef struct {
@@ -107,7 +108,8 @@ typedef struct {
 
 extern LayoutTex texProperty[];
 extern char D_0030D014[];
-extern int D_0028F8F0[];
+/* kept local: int [] here, PadState [16] in main.h */
+extern int pad[];
 /* census display_texture, a file static; MAIN.MAP carries no global of that
    name, so the twins in ico2/fumi/src/jimaku and ico2/common/src/layout_texture
    are statics too and `static` here keeps this one's ELF symbol local */
@@ -115,25 +117,24 @@ static void display_texture(KanbanProp *pr, LayoutTex *e, Col4 *col);
 extern char texFile[][0x34];
 extern char *strtok(char *s, const char *sep);
 extern char *strrchr(const char *s, int c);
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 extern void display_layout(Node *a0);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SpriteSensitive differ) */
 extern void gif_EndPacket(void);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
+/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
-/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SpriteSensitive differ) */
 extern void gif_SetZTest(int a0);
-/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SpriteSensitive differ) */
 extern void gif_SetZWrite(int a0);
-/* kept local: this TU's uses of gif_SpriteSensitive do not fit the prototype in GifPacket.h */
+/* kept local: void (void *, unsigned int, int, void *, int) here, void (int *, long long, int *, unsigned char *, int) in GifPacket.h */
 extern void gif_SpriteSensitive(void *a0, unsigned int a1, int a2, void *a3, int a4);
-/* kept local: this TU's uses of gif_SpriteSensitiveOffset do not fit the prototype in GifPacket.h */
+/* kept local: void (int *, unsigned int, int *, unsigned char *, int) here, void (int *, long long, int *, unsigned char *, int) in GifPacket.h */
 extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, unsigned char *col,
                                       int prim);
-/* kept local: this TU's uses of gif_PointOffset do not fit the prototype in GifPacket.h */
+/* kept local: void (int *, unsigned int, unsigned char *, int) here, void (int *, long long, unsigned char *, int) in GifPacket.h */
 extern void gif_PointOffset(int *v, unsigned int z, unsigned char *col, int prim);
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SpriteSensitive differ) */
 extern void gif_StartPacketPri(int a0);
 
 #include "kanban.h"
@@ -199,21 +200,21 @@ static inline int kanban_layout_key(KanbanProp *pr)
     int ret = 0;
     LayoutTex *e = &texProperty[pr->f2C];
 
-    if ((D_0028F8F0[1] & 0x1000) && e->f3C > 0) {
+    if ((pad[1] & 0x1000) && e->f3C > 0) {
         pr->f2C = e->f3C;
-    } else if ((D_0028F8F0[1] & 0x4000) && e->f38 > 0) {
+    } else if ((pad[1] & 0x4000) && e->f38 > 0) {
         pr->f2C = e->f38;
-    } else if ((D_0028F8F0[1] & 0x8000) && e->f34 > 0) {
+    } else if ((pad[1] & 0x8000) && e->f34 > 0) {
         pr->f2C = e->f34;
-    } else if ((D_0028F8F0[1] & 0x2000) && e->f30 > 0) {
+    } else if ((pad[1] & 0x2000) && e->f30 > 0) {
         pr->f2C = e->f30;
     } else {
-        unsigned long pad = D_0028F8F0[1];
+        unsigned long button = pad[1]; /* derived name */
 
-        if (pad & 0x40) {
+        if (button & 0x40) {
             ret = 1;
         } else {
-            ret = (pad & 0x10) ? 2 : 0;
+            ret = (button & 0x10) ? 2 : 0;
         }
     }
     return ret;

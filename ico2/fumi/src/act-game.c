@@ -20,6 +20,11 @@
 #include "motionManager2.h"
 #include "geometryManager.h"
 #include "act-parallel-control.h"
+#include "brain.h"
+#include <string.h>
+#include "gflag.h"
+#include "Matrix.h"
+#include "debug_exception.h"
 
 typedef struct {
     char _0[0x1C];
@@ -73,40 +78,45 @@ typedef struct {
 } MotionRec;
 
 extern MotionRec motionKind[];
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlControlMode differ) */
 extern int stage_no;
 
 /* The exit table: one 40-byte entry per exit, in .rodata. */
 
 extern const ExitData exitData[];
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlControlMode differ) */
 extern int exit_no;
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector differ) */
 extern void sceVu0ScaleVector(void *dst, void *src, float k);
 
 typedef struct {
     float x, y, z, w;
 } __attribute__((aligned(16))) Vec4S;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *girlGObj;
-extern void *memset(void *a0, int a1, int a2);
-/* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
+/* kept local: void (void *, float) here, void (float *, float) in gv.h */
 extern void _ApplyRyGV(void *v, float ry);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector differ) */
 extern void sceVu0AddVector(void *dst, void *a, void *b);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *boyGObj;
-extern void gflagOn(int id);
+/* kept local: agrees with boyact.h, which this TU does not include (PrivInsCamSet differ) */
 extern void SetBoyInfo(int *a0, int *a1);
+/* kept local: agrees with boyact.h, which this TU does not include (PrivInsCamSet differ) */
 extern void BoyInfoUpdate_StageChange(void);
-extern void debug_StdPrintfDummy();
 extern const StgPre stageData[];
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *boyGObj;
-/* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
+/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistGV(void *a, void *b);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector differ) */
 extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector differ) */
 extern void sceVu0SubVector(void *dst, void *a, void *b);
-/* kept local: this TU's uses of test_CURRENTORIENT do not fit the prototype in commonact.h */
+/* kept local: float * (char *) here, void * (char *) in commonact.h */
 extern float *test_CURRENTORIENT(char *a0);
-/* kept local: this TU's uses of _RotyGV do not fit the prototype in gv.h */
+/* kept local: int (void *, void *) here, int (float *, float *) in gv.h */
 extern int _RotyGV(void *a, void *b);
 
 /* One table: a 100-entry object list, two parallel per-entry int arrays
@@ -125,23 +135,23 @@ typedef struct {
    anywhere in the ROM and stay in the blob. */
 static ActGameViewTbl actGameView;
 
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
+/* kept local: int * (int *) here, void * (void *) in commonact.h */
 extern int *test_CURRENTROOT(int *a0);
-/* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
+/* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipWall(void *);
-/* kept local: this TU's uses of ClipFloor do not fit the prototype in fieldCollision.h */
+/* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipFloor(void *);
-/* kept local: this TU's uses of _DistxzSqGV do not fit the prototype in gv.h */
+/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistxzSqGV(void *a, void *b);
-extern float _GetRandom(void);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlControlMode differ) */
 extern int systemStatus[];
-/* kept local: this TU's uses of actEnemyFlagCheckActive do not fit the prototype in enemy_act.h */
+/* kept local: int (void *) here, int (int *) in enemy_act.h */
 extern int actEnemyFlagCheckActive(void *g);
-/* kept local: this TU's uses of isysGObjSearchFromObjKindID_begin do not fit the prototype in gobj.h */
+/* kept local: int * (int) here, void * (int) in gobj.h */
 extern int *isysGObjSearchFromObjKindID_begin(int);
-/* kept local: this TU's uses of isysGObjSearchFromObjKindID_next do not fit the prototype in gobj.h */
+/* kept local: int * (int *) here, void * (char *) in gobj.h */
 extern int *isysGObjSearchFromObjKindID_next(int *);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector differ) */
 extern void sceVu0ApplyMatrix(void *dst, void *m, void *v);
 extern char actModeTbl[];
 
@@ -164,9 +174,9 @@ typedef enum { MPSR_OFF, MPSR_ONESHOT, MPSR_HOLD } MpsrMode;
    store), so it is spelled as one accessor rather than a cached local. */
 #define ACTWORK(g) ((char *)*(int *)((char *)*(int *)((g) + 0x164) + 0x688))
 
-/* kept local: this TU's uses of actEnemy_GetClingTarget do not fit the prototype in enemy_act.h */
+/* kept local: char * (void *) here, int (char *) in enemy_act.h */
 extern char *actEnemy_GetClingTarget(void *g);
-/* kept local: this TU's uses of iosOmSendMail do not fit the prototype in obj_manager.h */
+/* kept local: agrees with obj_manager.h, which this TU does not include */
 extern int iosOmSendMail();
 
 /* The environment work block the actor rebuilds every frame: 464 bytes at
@@ -184,18 +194,19 @@ typedef struct {
     float f[8];
 } EnvOct;
 
-/* kept local: this TU's uses of ACTSendMailCorrect do not fit the prototype in commonact.h */
+/* kept local: agrees with commonact.h, which this TU does not include (test_CURRENTORIENT, test_CURRENTROOT differ) */
 extern void ACTSendMailCorrect(char *self, int mail);
-/* kept local: this TU's uses of CheckWeaponKind do not fit the prototype in weapon.h */
+/* kept local: agrees with weapon.h, which this TU does not include (GetTorchGObjOfWeapon differ) */
 extern int CheckWeaponKind();
-/* kept local: this TU's uses of CompareAttribute do not fit the prototype in fieldCollision.h */
+/* kept local: int (int, int) here, int (unsigned int, unsigned int) in fieldCollision.h */
 extern int CompareAttribute(int attr, int mask);
-/* kept local: this TU's uses of GetOrientOfWall do not fit the prototype in fieldCollision.h */
+/* kept local: void (void *, int, void *) here, void (void *, void *, int *) in fieldCollision.h */
 extern void GetOrientOfWall(void *out, int n, void *vec);
-/* kept local: this TU's uses of SwapGV do not fit the prototype in gv.h */
+/* kept local: void (void *, void *) here, void (float *, float *) in gv.h */
 extern void SwapGV(void *a, void *b);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector differ) */
 extern float sceVu0InnerProduct(void *a, void *b);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, int in main.h */
 extern char *girlControlMode;
 
 /* The actor's orient-request bitfield: three 64-bit request words at
@@ -221,8 +232,9 @@ typedef struct {
 
 static HandClInfo handClInfoClear = {0}; /* derived name */
 
-/* kept local: this TU's uses of debug_Arrow do not fit the prototype in camera-editor.h */
+/* kept local: void (void *, void *, float, int, int, int) here, void (void) in camera-editor.h */
 extern void debug_Arrow(void *root, void *vec, float len, int r, int g, int b);
+/* kept local: void (void *, int) here, void (void *, void *) in libvu0.h */
 extern void sceVu0CopyVector(void *buf, int x);
 
 /* The hand-mode rows the motion record's two hand nibbles index: 16 bytes a
@@ -233,45 +245,44 @@ typedef struct {
 } HandModeRow;
 
 extern HandModeRow motionIKEffKind[];
-/* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
+/* kept local: float (int *, int) here, void (void *, void *) in gv.h */
 extern float _DistSqGV(int *a0, int a1);
-/* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
+/* kept local: void (void *, void *, void *) here, void (int) in gv.h */
 extern void _OrientXZGV(void *dst, void *a, void *b);
-/* kept local: gv.h cannot be included beside the two declarations above */
+/* kept local: agrees with gv.h, which this TU does not include (_ApplyRyGV, _DistGV differ) */
 extern int _AbsRotyGV(void *a, void *b);
 /* kept local: brain.h is not in this TU's include list and does not declare
    brainAddLevelGirlDetail */
 extern void brainAddLevelGirlDetail(int a0, float f);
-extern void brainSetSpMode(void);
-extern void brainAddLevelGirl(float f);
-/* kept local: this TU's call does not fit the prototype in act_bird.h */
+/* kept local: void (int *, int, char *) here, void (void *, void *, void *) in act_bird.h */
 extern void _ACTSendMailToBird(int *bird, int mail, char *self);
 void ACTItemWatchMotion(char *self);
-/* kept local: this TU's uses of debug_NMarker do not fit the prototype in camera-editor.h */
+/* kept local: void (float *, int, int, int, float) here, void (int *, int, int, int, float) in camera-editor.h */
 extern void debug_NMarker(float *pos, int r, int g, int b, float size);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector differ) */
 extern void sceVu0AddVector(void *a0, void *a1, void *a2);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector differ) */
 extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
 /* The look-target candidate table: 27 rows, one column per character kind
    (self->_164->_48). */
 extern int lookTargetData[][3];
 extern float gameParam[];
-/* kept local: this TU's uses of GetItemKind do not fit the prototype in item.h */
+/* kept local: int (int) here, int (char *) in item.h */
 extern int GetItemKind(int item);
-/* kept local: this TU's uses of ThrowItem do not fit the prototype in item.h */
+/* kept local: void (int, float *) here, void (char *, void *) in item.h */
 extern void ThrowItem(int item, float *v);
-/* kept local: this TU's uses of HoldItem do not fit the prototype in item.h */
+/* kept local: void (int, char *) here, void (char *, char *) in item.h */
 extern void HoldItem(int item, char *self);
-/* kept local: this TU's uses of ReleaseItem do not fit the prototype in item.h */
+/* kept local: void (int) here, void (char *) in item.h */
 extern void ReleaseItem(int item);
-/* kept local: this TU's uses of SetBoyInfo do not fit the prototype in boyact.h */
+/* kept local: agrees with boyact.h, which this TU does not include (PrivInsCamSet differ) */
 extern void SetBoyInfo(int *a0, int *a1);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlControlMode differ) */
 extern int itemWatchOff;
-/* kept local: this TU's uses of IsPointIsInScreen do not fit the prototype in poly-flat.h */
+/* kept local: float (void *, void *) here, void (void *, void *) in poly-flat.h */
 extern float IsPointIsInScreen(void *dst, void *root);
-/* kept local: the declaration in boyact.h changes this TU codegen */
+/* kept local: void (void *, void *, void *, int, int, int, float, float) here, void (float *, float *, int, int, int, float, float, unsigned char) in boyact.h */
 extern void PrivInsCamSet(void *a0, void *a1, void *a2, int a3, int a4, int a5, float f0, float f1);
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
 /* The pending hand-mode command record: two ints at +0x314 (connect) and
@@ -281,17 +292,20 @@ typedef struct {
     int f_4;
 } HandModeCmd;
 
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector differ) */
 extern void sceVu0Normalize(void *a0, void *a1);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector differ) */
 extern void sceVu0SubVector(void *a0, void *a1, void *a2);
-/* kept local: this TU's uses of GetTorchGObjOfWeapon do not fit the prototype in weapon.h */
+/* kept local: int (int *) here, int (char *) in weapon.h */
 extern int GetTorchGObjOfWeapon(int *self);
-/* kept local: this TU's uses of ClipWallField do not fit the prototype in fieldCollision.h */
+/* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipWallField(void *);
 extern WeaponEntry weaponKind[];
-/* kept local: this TU's uses of _GetDirection do not fit the prototype in gv.h */
+/* kept local: float (void *) here, float (float *) in gv.h */
 extern float _GetDirection(void *v);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector differ) */
 extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
-/* kept local: this TU's uses of _OrientGV do not fit the prototype in gv.h */
+/* kept local: void (float *, float *, float *) here, void (int) in gv.h */
 extern void _OrientGV(float *dst, float *a, float *b);
 
 inline void ACTGameCollisionOff(volatile int *self)

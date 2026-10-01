@@ -97,4 +97,6 @@ void _Clip(char *a0, int a1);
 int clip_floor_1(void *a0, int a1, int a2);
 int clip_wall_1(void *a0, FcWallEnt *a1, int a2, int a3);
 
+void MakeCollisionDependGObjList(void);
+
 #endif /* FIELDCOLLISION_H */

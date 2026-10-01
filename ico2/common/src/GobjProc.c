@@ -12,7 +12,7 @@ extern int D_0063C0C8;
    symbol in the run): the table of created game objects, 208 entries. */
 static PObjGObj *gobj_table[208];
 
-/* kept local: the declaration in gobj_cam_dl.h changes this TU codegen */
+/* kept local: void (void *, int, int, int, unsigned int) here, void (char *, int, int, int, int) in gobj_cam_dl.h */
 extern void isysGObjLinkCameraDL(void *a0, int a1, int a2, int a3, unsigned int a4);
 
 void ResetGObjProc(void)

@@ -42,15 +42,21 @@ static struct SemaParam sndLockSemaParam;
 
 static struct SemaParam stgMgrLockSemaParam;
 
+/* kept local: agrees with main.h, which this TU does not include (system_stage_func differ) */
 extern int IosPadLock;
+/* kept local: agrees with main.h, which this TU does not include (system_stage_func differ) */
 extern int IosCdLock;
+/* kept local: agrees with main.h, which this TU does not include (system_stage_func differ) */
 extern int IosStgMgrLock;
+/* kept local: agrees with main.h, which this TU does not include (system_stage_func differ) */
 extern int IosSndLock;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, void (*system_stage_func)(void) in main.h */
 extern int system_stage_func;
+/* kept local: agrees with main.h, which this TU does not include (system_stage_func differ) */
 extern int screen_offset_x;
+/* kept local: agrees with main.h, which this TU does not include (system_stage_func differ) */
 extern int screen_offset_y;
-/* kept local: this TU's uses of InitKeyInput do not fit the prototype in keyInput.h */
+/* kept local: agrees with keyInput.h, which this TU does not include */
 extern void InitKeyInput();
 extern void SgSndn2RemoteInit(void);
 

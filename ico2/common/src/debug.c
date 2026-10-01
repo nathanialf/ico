@@ -27,6 +27,13 @@
 #include "adpcm_init.h"
 #include "script.h"
 #include <eeregs.h>
+#include "Matrix.h"
+#include "Basic.h"
+#include "geometryManager.h"
+#include "Primitive.h"
+#include "debug_menu.h"
+#include "way_tool.h"
+#include "camera-editor.h"
 
 /* debug_exception_screen.c.inc (compiled into debug_exception.o) */
 
@@ -454,22 +461,30 @@ static int startStageNo = -1; /* derived name */
 
 int debugBackGroundDisableFlag = 0;
 
+/* kept local: int (char *) here, int (void *) in stdlib.h */
 extern int atoi(char *s);
-extern int strcmp();
 extern int debug_bar_flag;
-extern int game_pause;
 /* the areas debug_Load parcels its files into; the report prints how much of
    each one is in use once the file has been allocated out of it */
-/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
-extern IosMemPart *ios_partition_hara;       /* hara */
-extern IosMemPart *ios_partition_sugipon;    /* sugi */
-extern IosMemPart *ios_partition_common;     /* static object */
-extern IosMemPart *ios_partition_dmotion;    /* dynamic motion */
-extern IosMemPart *ios_partition_smotion;    /* static motion */
-extern IosMemPart *ios_partition_seki;       /* seki */
-extern IosMemPart *ios_partition_oomori;     /* oomori */
-extern IosMemPart *ios_partition_horagai;    /* horagai */
-extern IosMemPart *ios_partition_sound;      /* sound */
+/* kept local: IosMemPart * here, int in ios.h */
+extern IosMemPart *ios_partition_hara; /* hara */
+/* kept local: IosMemPart * here, int in ios.h */
+extern IosMemPart *ios_partition_sugipon; /* sugi */
+/* kept local: IosMemPart * here, int in ios.h */
+extern IosMemPart *ios_partition_common; /* static object */
+/* kept local: IosMemPart * here, int in ios.h */
+extern IosMemPart *ios_partition_dmotion; /* dynamic motion */
+/* kept local: IosMemPart * here, int in ios.h */
+extern IosMemPart *ios_partition_smotion; /* static motion */
+/* kept local: IosMemPart * here, int in ios.h */
+extern IosMemPart *ios_partition_seki; /* seki */
+/* kept local: IosMemPart * here, int in ios.h */
+extern IosMemPart *ios_partition_oomori; /* oomori */
+/* kept local: IosMemPart * here, int in ios.h */
+extern IosMemPart *ios_partition_horagai; /* horagai */
+/* kept local: IosMemPart * here, int in ios.h */
+extern IosMemPart *ios_partition_sound; /* sound */
+/* kept local: IosMemPart * here, int in ios.h */
 extern IosMemPart *ios_partition_sound_semi; /* sound_semi */
 
 /* one glyph's image packet, built by debug_MakeFont and sent by
@@ -621,21 +636,22 @@ typedef struct {
     /* 0x1C */ char *end;
 } DbgDpk;
 
+/* kept local: DbgDpk here, DpkCtl in DmaPacket.h */
 extern DbgDpk PacketBufferStruct;
-extern void _CopyIVector(void *dst, void *src);
-/* kept local: this TU's uses of gif_CheckOpen do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_Line, gif_Sprite differ) */
 extern int gif_CheckOpen(void);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_Line, gif_Sprite differ) */
 extern void gif_EndPacket(void);
 /* GifPacket.h's parameter list: debug_DrawBar passes its 64-bit alpha untruncated */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_Line, gif_Sprite differ) */
 extern void gif_SetAlpha(long long a0, long long a1, long long a2);
-/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_Line, gif_Sprite differ) */
 extern void gif_SetZTest(int a0);
-/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_Line, gif_Sprite differ) */
 extern void gif_SetZWrite(int a0);
-/* kept local: this TU's uses of gif_Sprite do not fit the prototype in GifPacket.h */
+/* kept local: void (void *, unsigned int, int, void *, int) here, void (int *, long long, int *, unsigned char *, int) in GifPacket.h */
 extern void gif_Sprite(void *a0, unsigned int a1, int a2, void *a3, int a4);
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_Line, gif_Sprite differ) */
 extern void gif_StartPacketPri(int a0);
 
 typedef struct {
@@ -647,7 +663,7 @@ typedef struct {
 } DbgVtx;
 
 extern float brainGetLevel(Brain *b, BrainTarget *t);
-/* kept local: this TU's uses of gif_Line do not fit the prototype in GifPacket.h */
+/* kept local: void (void *, void *, unsigned int, unsigned int, void *, int) here, void (int *, int *, long long, long long, unsigned char *, int) in GifPacket.h */
 extern void gif_Line(void *v0, void *v1, unsigned int z0, unsigned int z1, void *col, int prim);
 
 /* .sbss, owned by debug.o (MAIN.MAP debug.o .sbss 0x10; it names no symbol,
@@ -666,12 +682,10 @@ static int debugBarCount;
 
 /* the two sprite rectangles and the three line colours the bar display
    starts from */
-/* kept local: DmaPacket.h's PacketBufferStruct record does not fit this TU's view of it */
+/* kept local: agrees with DmaPacket.h, which this TU does not include (PacketBufferStruct differ) */
 extern int used_dma_memory;
 
 /* clang-format on */
-
-extern int frame_count;
 
 /* TIM2 image file: a 16-byte file header followed by one 48-byte picture
    header and the raw 32-bit image, one row per write */
@@ -726,7 +740,6 @@ typedef struct {
 extern void sceGsSetDefStoreImage(void *si, short fbp, short fbw, short psm, short x, short y,
                                   short w, short h);
 extern void sceGsExecStoreImage(void *si, unsigned int addr);
-extern void dma_init(void);
 extern float dptofp(double v);
 
 typedef struct {
@@ -736,12 +749,12 @@ typedef struct {
     int trg;
 } DbgReverbPad;
 
+/* kept local: DbgReverbPad [] here, PadState [16] in main.h (pad) */
 extern DbgReverbPad D_0028F8F0[];
 
 /* clang-format on */
 
 extern StgPre stageData[];
-extern int stage_no;
 extern int mpegPlayReturnStage;
 
 /* memory-card request block */
@@ -774,8 +787,6 @@ typedef struct {
     long long blockFlags; /* 0x9C0 -- one bit per save block, set where a block holds data */
 } McReq;
 
-extern int D_0028F8F4[];
-
 /* src/debug.c:4415-4423 in the listing: a static helper both mc(Un)format
    inline -- prints the confirmation prompt and reads the pad:
    circle (0x20) = yes -> 1, cross (0x40) = cancel -> -1, otherwise 0. */
@@ -786,34 +797,32 @@ typedef struct {
     char c[2];
 } McPat;
 
-/* kept local: this TU's uses of iosMcChdirProduct do not fit the prototype in mcard.h */
+/* kept local: void (McReq *) here, int (void *) in mcard.h */
 extern void iosMcChdirProduct(McReq *mc);
-/* kept local: this TU's uses of iosMcGetDir do not fit the prototype in mcard.h */
+/* kept local: void (McReq *) here, int (void *) in mcard.h */
 extern void iosMcGetDir(McReq *mc);
-/* kept local: this TU's uses of iosMcSync do not fit the prototype in mcard.h */
+/* kept local: agrees with mcard.h, which this TU does not include (iosMcChdirProduct, iosMcGetBlockSaveInfo differ) */
 extern int iosMcSync();
-/* kept local: this TU's uses of iosMcGetBlockSaveInfo do not fit the prototype in mcard.h */
+/* kept local: void (McReq *) here, int (void *) in mcard.h */
 extern void iosMcGetBlockSaveInfo(McReq *mc);
-/* kept local: this TU's uses of iosMcSaveIconBlock do not fit the prototype in mcard.h */
+/* kept local: void (McReq *) here, int (void *) in mcard.h */
 extern void iosMcSaveIconBlock(McReq *mc);
-/* kept local: this TU's uses of iosMcSaveProductBlock do not fit the prototype in mcard.h */
+/* kept local: void (McReq *) here, int (void *) in mcard.h */
 extern void iosMcSaveProductBlock(McReq *mc);
-/* kept local: this TU's uses of iosMcSaveGameBlock do not fit the prototype in mcard.h */
+/* kept local: void (McReq *, void *) here, int (void *, int) in mcard.h */
 extern void iosMcSaveGameBlock(McReq *mc, void *buf);
-extern int debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5,
-                                    int (*fn)(int, int), int a7);
 
 /* the default save-file name "game." lives in .sdata as 6 bytes */
 typedef struct {
     char c[6];
 } McName6;
 
-/* kept local: this TU's uses of iosMcLoadProductBlock do not fit the prototype in mcard.h */
+/* kept local: void (McReq *) here, int (void *) in mcard.h */
 extern void iosMcLoadProductBlock(McReq *mc);
-/* kept local: this TU's uses of iosMcLoadGameBlock do not fit the prototype in mcard.h */
+/* kept local: void (McReq *, void *) here, int (void *, int) in mcard.h */
 extern void iosMcLoadGameBlock(McReq *mc, void *buf);
 extern int debug_selectFile(McReq *mc);
-/* kept local: this TU's uses of iosMcDelete do not fit the prototype in mcard.h */
+/* kept local: void (McReq *) here, int (void *) in mcard.h */
 extern void iosMcDelete(McReq *mc);
 
 /* one line of the memory-card menu: the label debug_SelectCsvWindow prints and
@@ -831,8 +840,9 @@ typedef struct {
 } McTypeMsg;
 
 extern McReq mc;
-/* kept local: this TU's uses of iosMcGetInfo do not fit the prototype in mcard.h */
+/* kept local: void (McReq *) here, int (void *) in mcard.h */
 extern void iosMcGetInfo(McReq *mc);
+/* kept local: char * here, GObj * in main.h (boyGObj) */
 extern char *D_00639EA4;
 extern GsysObjInfo seDef[];
 extern int SgGetSlotStatus(int a0, int slot);
@@ -867,14 +877,14 @@ typedef struct {
 
 /* the four-row initialiser template (centerX, centerY, centerZ, radius), blob-owned
    by address until the TU's plain .rodata run closes up */
-extern void GetRootPosition(void *a0, char *outer);
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_TransMatrixV differ) */
 extern void *MatrixDrive_GetMatrix(void);
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_TransMatrixV differ) */
 extern void MatrixDrive_PushMatrix(void);
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_TransMatrixV differ) */
 extern void MatrixDrive_PopMatrix(void);
+/* kept local: void (void *) here, void (char *) in matrixDrive.h */
 extern void MatrixDrive_TransMatrixV(void *a0);
-extern void sceVu0UnitMatrix(void *m);
-extern void prim_DispWireSphere(float r, void *col, int nu, int nv);
-extern int scpTriggerPosBall(float *pos, float *target, float r);
 
 /* iosPadGetStick's output block: the raw pair at +0 and +4, the camera-space
    pair at +0xC/+0x10 and the stick deflection at +0x14 (the same record
@@ -892,34 +902,20 @@ typedef struct {
 /* The strings these tables point at stay blob-owned by address until the
    TU's plain .rodata and .sdata runs close up. */
 /* the menu's handlers defined further down this file or in other TUs */
-extern int debug_Mode(void);
-extern int debug_FreeCamera(int a0);
-extern int debug_TargetGObj(int reset);
 extern int gsb_StageSetting(void);
-extern int debug_WayTool(void);
-extern int debug_CameraEditor(void);
 extern int MotionViewer(void);
 extern int EffectTool(void);
 extern int tex_ListTool(void);
-extern int debug_SnapShot(int idx);
-extern int debug_STAFFROLLTest(void);
-extern int debug_AdpcmTest(int a0);
-extern int debug_reverbTest(void);
-extern int debug_GameOver(void);
-extern int debug_EndingDemo(void);
-extern int debug_BackStageTest(void);
-extern int debugCdvdLoadInfoSegDisp(void);
-extern int debug_SelectPad2ControlGobj(int reset);
-extern int debug_CollisionTest(int reset);
-extern int debug_hintStart(void);
-extern int debug_tsuresariTimeZero(void);
 extern char iosPadConfDefault[];
+/* kept local: int (void *, int, int, void *) here, int (void *, int, int, int) in pad.h */
 extern int iosPadConnect(void *dev, int a1, int a2, void *conf);
+/* kept local: agrees with pad.h, which this TU does not include (iosPadConnect differ) */
 extern int iosPadRead(void *dev);
+/* kept local: agrees with pad.h, which this TU does not include (iosPadConnect differ) */
 extern int iosPadGetStick(void *dev, void *out, int mode, int a3, int a4, int a5);
+/* kept local: agrees with pad.h, which this TU does not include (iosPadConnect differ) */
 extern void iosPadStickCameraCoord(void *out, float *stick);
-/* kept local: this TU's use of _AddVector does not fit the prototype in Matrix.h */
-extern void _AddVector(void *dst, void *a, void *b);
+/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_TransMatrixV differ) */
 extern void CopyVector(void *dst, void *src);
 extern void DebugDisp1Collision(void *hit);
 /* Profiler bar table: 0x400 entries of 0x1C bytes; debugBarCount = live count.
@@ -927,20 +923,19 @@ extern void DebugDisp1Collision(void *hit);
    main.c and motionManager2.c, where a3 is literally the caller's line number.
    +0x14 samples the EE timer T0_COUNT at 0x10000000; volatile because it is a
    hardware counter (and the ROM's 32-bit `lw` shows the read is not narrowed). */
-/* kept local: this TU's uses of iosMcFormat do not fit the prototype in mcard.h */
+/* kept local: void (int) here, int (void *) in mcard.h */
 extern void iosMcFormat(int port);
-/* kept local: this TU's uses of iosMcSync do not fit the prototype in mcard.h */
+/* kept local: int (int) here, int (unsigned long *) in mcard.h */
 extern int iosMcSync(int port);
-/* kept local: this TU's uses of iosMcUnformat do not fit the prototype in mcard.h */
+/* kept local: void (int) here, int (void *) in mcard.h */
 extern void iosMcUnformat(int port);
-/* kept local: this TU's uses of iosMcTest do not fit the prototype in mcard.h */
+/* kept local: agrees with mcard.h, which this TU does not include (iosMcChdirProduct, iosMcGetBlockSaveInfo differ) */
 extern void iosMcTest(void);
-/* kept local: the declaration in staffroll.h changes this TU codegen */
+/* kept local: void (int, float) here, void (float, int) in staffroll.h */
 extern void staffRollStart(int a0, float a1);
 extern unsigned short seKind[];
 /* pad state block: +0x4 held buttons, +0xC newly-pressed (trigger) buttons */
 extern char adpcmFile[];
-extern void *D_00639ED0;
 
 inline void ChangeGirlControlMode(int a0)
 {
@@ -2787,10 +2782,10 @@ static inline int debug_mcConfirm(char *msg)
 {
     int yes = 0;
     debug_PrintfDummy(80, 70, 0xFFFFFF00u, (int)"%s? Yes:O No:X", (int)msg);
-    if (D_0028F8F4[0] & 0x20) {
+    if (pad[0].flags & 0x20) {
         yes = 1;
     }
-    return (D_0028F8F4[0] & 0x40) ? -1 : yes;
+    return (pad[0].flags & 0x40) ? -1 : yes;
 }
 
 /* src/debug.c:4426-4435 in the listing: the sibling of debug_mcConfirm that
@@ -2799,10 +2794,10 @@ static inline int debug_mcAsk(char *msg)
 {
     int yes = 0;
     debug_PrintfDummy(80, 70, 0xFFFFFF00u, (int)"%s", (int)msg);
-    if (D_0028F8F4[0] & 0x20) {
+    if (pad[0].flags & 0x20) {
         yes = 1;
     }
-    if (D_0028F8F4[0] & 0x40) {
+    if (pad[0].flags & 0x40) {
         yes = -1;
     }
     return yes;
@@ -2955,10 +2950,10 @@ int debug_selectFile(McReq *mc)
     default:
         debug_SelectCsvWindow("FILE LIST", 0x50, 0x46, 0xA, mc->dir, 0x40, 0x20, 0, mc->num,
                               &mc->sel);
-        if (D_0028F8F4[0] & 0x20) {
+        if (pad[0].flags & 0x20) {
             r = 1;
         }
-        if (D_0028F8F4[0] & 0x40) {
+        if (pad[0].flags & 0x40) {
             r = -1;
         }
         break;
@@ -3237,7 +3232,7 @@ int debug_MemoryCard(void)
                 mcState = 0;
                 return -1;
             }
-        } else if (D_0028F8F4[0] & 0x40) {
+        } else if (pad[0].flags & 0x40) {
             mcState = 0;
             return -1;
         }
@@ -3411,7 +3406,7 @@ inline int debugCdvdLoadInfoSegDisp(void)
     }
     r = debug_SelectCsvWindowVal((int)title, 0x50, 0x46, 0xA, 0x1A, (int)&loadInfoSelect,
                                  (int (*)(int, int))debugCdvdLoadInfoSegDispFunc, loadInfoPage);
-    if (D_0028F8F4[0] & 0x10) {
+    if (pad[0].flags & 0x10) {
         int i;
         int *p = (int *)((char *)loadInfoSeg + loadInfoPage * 0xD0);
         for (i = 0x19; i >= 0; i--) {
@@ -3525,7 +3520,7 @@ inline int debug_SelectPad2ControlGobj(int reset)
     }
     r = debug_SelectCsvWindow("CHARACTER PAD2 CONTROL", 0xA, 0x32, 0xB, list, 8, 0, 1, n, &pad2GobjSelect);
     if (r > 0) {
-        D_00639ED0 = list[pad2GobjSelect].obj;
+        CurrentTargetGObjSub = list[pad2GobjSelect].obj;
         return 1;
     }
     return (r == -1) ? -1 : 0;
@@ -3802,7 +3797,7 @@ inline int debug_FreeCamera(int a0)
         CameraSetMode(1);
     }
     CameraSetMode(1);
-    return (D_0028F8F4[0] & 0x100) ? -1 : 0;
+    return (pad[0].flags & 0x100) ? -1 : 0;
 }
 
 int LoadFileType = 1;

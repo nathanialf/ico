@@ -30,6 +30,8 @@
 #include "matrixDrive.h"
 #include "script.h"
 #include "layout_action.h"
+#include "Basic.h"
+#include "GifPacket.h"
 
 /* script.o's .sdata, in the ROM's order.  MAIN.MAP lists all but the three
    hint-voice words, which the retail build added after scpSeEnvMasterVolRate
@@ -124,12 +126,13 @@ struct S {
     int b;
 };
 
-/* kept local: this TU's uses of SetMotionDirection do not fit the prototype in motionManager2.h */
+/* kept local: void (char *, float *) here, void (void *, float *) in motionManager2.h */
 extern void SetMotionDirection(char *self, float *dir);
 /* SCE VU0 library: sceVu0Normalize(dst, src) -- normalised in place here, so
    the second argument is already in $a1 and cse drops the redundant copy. */
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0AddVector, sceVu0InnerProduct differ) */
 extern void sceVu0Normalize();
-/* kept local: this TU's uses of SetMotionDirectionSmooze do not fit the prototype in commonact.h */
+/* kept local: void (char *, float *, float) here, int (int, float *, float) in commonact.h */
 extern void SetMotionDirectionSmooze(char *self, float *dir, float ang);
 
 extern struct MotTblRec {
@@ -138,30 +141,29 @@ extern struct MotTblRec {
     char _188[0xC];
 } motionKind[];
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *girlGObj;
-/* kept local: this TU's uses of isysGObjSearchFromObjLayoutID do not fit the prototype in gobj.h */
+/* kept local: agrees with gobj.h, which this TU does not include (isysGObjSearchFromObjKindID_begin, isysGObjSearchFromObjKindID_next differ) */
 extern int isysGObjSearchFromObjLayoutID();
-/* kept local: this TU's uses of ACTItemForceDrop do not fit the prototype in act-game.h */
+/* kept local: void (int) here, void (char *) in act-game.h */
 extern void ACTItemForceDrop(int a0);
-/* kept local: this TU's uses of SetLodLevel do not fit the prototype in lodManager.h */
+/* kept local: agrees with lodManager.h, which this TU does not include */
 extern int SetLodLevel();
-/* as geometryManager.h declares it; this TU does not include that header */
+/* kept local: agrees with geometryManager.h, which this TU does not include (GetRootMatrixRotOffset, GetRootMatrixTransOffset differ) */
 extern void SetRootMatrixWithTransOffset(void *a0, float x, float y, float z);
+/* kept local: void (float *, float *, float *) here, void (void *, void *, void *) in libvu0.h */
 extern void sceVu0SubVector(float *d, float *a, float *b);
+/* kept local: float (float *, float *) here, float (void *, void *) in libvu0.h */
 extern float sceVu0InnerProduct(float *a, float *b);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0AddVector, sceVu0InnerProduct differ) */
 extern void sceVu0UnitMatrix(void *m);
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
-extern void gif_StartPacketPri(int pri);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
-extern void gif_EndPacket(void);
-/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
+/* kept local: void (void *, void *) here, void (void *, char *) in geometryManager.h */
 extern void GetRootPosition(void *dst, void *obj);
-/* kept local: this TU's uses of GetRootMatrixTransOffset do not fit the prototype in geometryManager.h */
+/* kept local: void (float *, void *) here, void (char *, char *) in geometryManager.h */
 extern void GetRootMatrixTransOffset(float *dst, void *obj);
-/* kept local: this TU's uses of ACTSendMailCorrect do not fit the prototype in commonact.h */
+/* kept local: void (int, int) here, void (char *, int) in commonact.h */
 extern void ACTSendMailCorrect(int a0, int mail);
 
 /* .data, first in script.o's run: the colour packet prim_DispWireBox draws the
@@ -195,26 +197,27 @@ struct ScpAct {
     ActMail *mail;     /* 0xD4 */
 };
 
-/* kept local: this TU's uses of AdpcmFreeAreaGet do not fit the prototype in adpcm_init.h */
+/* kept local: agrees with adpcm_init.h, which this TU does not include (AdpcmFadeCloseAll, AdpcmPlay differ) */
 extern int AdpcmFreeAreaGet(void);
-/* kept local: this TU's uses of AdpcmNotUseIopAreaFree do not fit the prototype in adpcm_init.h */
+/* kept local: agrees with adpcm_init.h, which this TU does not include (AdpcmFadeCloseAll, AdpcmPlay differ) */
 extern int AdpcmNotUseIopAreaFree(void);
-/* kept local: this TU's uses of AdpcmFadeCloseAll do not fit the prototype in adpcm_init.h */
+/* kept local: void (int) here, void (short) in adpcm_init.h */
 extern void AdpcmFadeCloseAll(int a0);
-/* kept local: this TU's uses of soundDataOpen do not fit the prototype in s_init.h */
+/* kept local: void (void *, int, int, int, int) here, void (int *, int, int, int, int) in s_init.h */
 extern void soundDataOpen(void *work, int mode, int kind, int a3, int a4);
-/* kept local: this TU's uses of soundDataOpenSync do not fit the prototype in s_init.h */
+/* kept local: char * (void *) here, int * (int *) in s_init.h */
 extern char *soundDataOpenSync(void *work);
-/* kept local: this TU's uses of AdpcmPlay do not fit the prototype in adpcm_init.h */
+/* kept local: void (int) here, void (void *) in adpcm_init.h */
 extern void AdpcmPlay(int a0);
-/* kept local: this TU's uses of soundDataClose do not fit the prototype in s_init.h */
+/* kept local: void (char *) here, void (int *) in s_init.h */
 extern void soundDataClose(char *h);
-/* kept local: this TU's uses of _SubVector do not fit the prototype in Matrix.h */
+/* kept local: void (float *, float *, float *) here, void (void *, void *, void *) in Matrix.h */
 extern void _SubVector(float *dst, float *a, float *b);
-/* kept local: this TU's uses of _InnerProduct do not fit the prototype in Matrix.h */
+/* kept local: float (float *, float *) here, float (void *, void *) in Matrix.h */
 extern float _InnerProduct(float *a, float *b);
 /* kept local: this TU's uses of AdpcmInterStereoVolumeSet do not fit the
    prototype in adpcm_init.h */
+/* kept local: void (void *, int) here, void () in adpcm_init.h */
 extern void AdpcmInterStereoVolumeSet(void *h, int a1);
 
 /* the 0x30-byte wood-bridge table entry at woodBoxTbl: an object id, the
@@ -231,28 +234,29 @@ struct WoodBoxEnt {
     float b3;       /* 0x2C */
 };
 
+/* kept local: void (float *, float *, float *) here, void (void *, void *, void *) in libvu0.h */
 extern void sceVu0AddVector(float *dst, float *a, float *b);
-/* kept local: this TU's uses of ReviveAllCarryableItemsWithNonSleepFrame do not fit the prototype in item.h */
+/* kept local: void (int) here, int (int) in item.h */
 extern void ReviveAllCarryableItemsWithNonSleepFrame(int frames);
-/* kept local: this TU's uses of iosPadActRequest do not fit the prototype in pad.h */
+/* kept local: int (char *, int) here, int (int, int) in pad.h */
 extern int iosPadActRequest(char *g, int no);
-/* kept local: this TU's uses of iosPadActVolumeSet do not fit the prototype in pad.h */
+/* kept local: void (int, int) here, int * (int, unsigned int) in pad.h */
 extern void iosPadActVolumeSet(int h, int vol);
-/* kept local: this TU's uses of iosPadActStop do not fit the prototype in pad.h */
+/* kept local: agrees with pad.h, which this TU does not include (iosPadActRequest, iosPadActVolumeSet differ) */
 extern void iosPadActStop(int h);
-/* kept local: this TU's uses of soundSeDefPlay do not fit the prototype in s_init.h */
+/* kept local: int (int, int, void *, int) here, int (int, int, int, int) in s_init.h */
 extern int soundSeDefPlay(int no, int a1, void *pos, int a3);
-/* kept local: this TU's uses of soundSeDefStop do not fit the prototype in s_init.h */
+/* kept local: agrees with s_init.h, which this TU does not include (soundDataClose, soundDataOpen differ) */
 extern void soundSeDefStop(int h);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, int in main.h */
 extern char *boyPad;
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
+/* kept local: float * (char *) here, void * (void *) in commonact.h */
 extern float *test_CURRENTROOT(char *target);
-/* kept local: this TU's uses of ClearMotionGeometryInfo do not fit the prototype in motionManager2.h */
+/* kept local: void (void *) here, void (int *) in motionManager2.h */
 extern void ClearMotionGeometryInfo(void *a0);
-/* kept local: this TU's uses of SetDirectRootPosition do not fit the prototype in geometryManager.h */
+/* kept local: agrees with geometryManager.h, which this TU does not include (GetRootMatrixRotOffset, GetRootMatrixTransOffset differ) */
 extern void SetDirectRootPosition();
-/* kept local: the declaration in fieldCollision.h changes this TU codegen */
+/* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipWall(void *w);
 
 /* the wall-collision result the ClipWall work area hands back at +0x80 */
@@ -267,7 +271,9 @@ typedef struct {
     char _08C[0x34];    /* 0x8C */
 } ClipWorkScript;       /* 0xC0 */
 
+/* kept local: void (float *, float *, float) here, void (void *, void *, float) in libvu0.h */
 extern void sceVu0ScaleVector(float *dst, float *src, float scale);
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, boyPad differ) */
 extern int stage_no;
 
 /* the 0x28-byte stage table at exitData and the per-stage 0x194-byte link
@@ -279,13 +285,13 @@ struct StgEnt {
 
 extern struct StgEnt exitData[];
 extern StgPre stageData[];
-/* kept local: this TU's uses of SetBoyWeaponGObj do not fit the prototype in boyact.h */
+/* kept local: agrees with boyact.h, which this TU does not include */
 extern void SetBoyWeaponGObj();
-/* kept local: this TU's uses of isysGObjSearchFromObjKindID_begin do not fit the prototype in gobj.h */
+/* kept local: agrees with gobj.h, which this TU does not include (isysGObjSearchFromObjKindID_next, isysGObjSearchFromObjLayoutID differ) */
 extern int isysGObjSearchFromObjKindID_begin();
-/* kept local: this TU's uses of isysGObjSearchFromObjKindID_next do not fit the prototype in gobj.h */
+/* kept local: agrees with gobj.h, which this TU does not include (isysGObjSearchFromObjKindID_begin, isysGObjSearchFromObjLayoutID differ) */
 extern int isysGObjSearchFromObjKindID_next();
-/* kept local: this TU's uses of GetSkeltonFocusNode do not fit the prototype in motionManager2.h */
+/* kept local: int (int, int) here, int (char *, int) in motionManager2.h */
 extern int GetSkeltonFocusNode(int a0, int a1);
 
 /* .data, last in script.o's run: the wood-bridge trigger table, one row per
@@ -304,29 +310,29 @@ static struct WoodBoxEnt woodBoxTbl[11] = {
     {3294, 9, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, 0.0f, 0.0f, 0.0f, 0.0f},
 };
 
-/* kept local: this TU's uses of IsBombExplode do not fit the prototype in item.h */
+/* kept local: agrees with item.h, which this TU does not include (BreakItemFromOutside, ReviveAllCarryableItemsWithNonSleepFrame differ) */
 extern int IsBombExplode(char *self);
-/* kept local: this TU's uses of GetRotObjectRotCount do not fit the prototype in rotObject.h */
+/* kept local: float (int) here, float (char *) in rotObject.h */
 extern float GetRotObjectRotCount(int a0);
-/* kept local: this TU's uses of GetRotObjectZPlusDirection do not fit the prototype in rotObject.h */
+/* kept local: int (int) here, int (void *) in rotObject.h */
 extern int GetRotObjectZPlusDirection(int a0);
-/* kept local: this TU's uses of GetRootMatrixRotOffset do not fit the prototype in geometryManager.h */
+/* kept local: void (float *, void *) here, void (void *, int) in geometryManager.h */
 extern void GetRootMatrixRotOffset(float *q, void *obj);
-/* kept local: this TU's uses of SetRootMatrixRotOffset do not fit the prototype in geometryManager.h */
+/* kept local: void (void *, float *) here, void (int, void *) in geometryManager.h */
 extern void SetRootMatrixRotOffset(void *obj, float *q);
-/* kept local: this TU's uses of RotQuaternionX do not fit the prototype in quaternion.h */
+/* kept local: void (float *, int) here, void (void *, int) in quaternion.h */
 extern void RotQuaternionX(float *q, int step);
-/* kept local: this TU's uses of RotQuaternionY do not fit the prototype in quaternion.h */
+/* kept local: void (float *, int) here, void (void *, int) in quaternion.h */
 extern void RotQuaternionY(float *q, int step);
-/* kept local: this TU's uses of RotQuaternionZ do not fit the prototype in quaternion.h */
+/* kept local: void (float *, int) here, void (void *, int) in quaternion.h */
 extern void RotQuaternionZ(float *q, int step);
-/* kept local: this TU's uses of _ACTGame_GetParamF do not fit the prototype in act-game.h */
+/* kept local: agrees with act-game.h, which this TU does not include (ACTGame_StageChangeGObjDirect, ACTGame_isHangChain differ) */
 extern float _ACTGame_GetParamF(int idx);
-/* kept local: this TU's uses of CheckFloorAttribute do not fit the prototype in motionManager2.h */
+/* kept local: agrees with motionManager2.h, which this TU does not include (ClearMotionGeometryInfo, GetSkeltonFocusNode differ) */
 extern int CheckFloorAttribute(char *self, int attr);
-/* kept local: this TU's uses of CheckWallAttribute do not fit the prototype in motionManager2.h */
+/* kept local: int (char *, int) here, int (char *) in motionManager2.h */
 extern int CheckWallAttribute(char *self, int attr);
-/* kept local: this TU's uses of SetIdentityQuaternion do not fit the prototype in quaternion.h */
+/* kept local: void (int) here, void (void *) in quaternion.h */
 extern void SetIdentityQuaternion(int a0);
 extern char objLayout[];
 
@@ -335,11 +341,11 @@ struct EnemyEnt {
     unsigned short f42;
 }; /* 0x4C stride */
 
-/* kept local: this TU's uses of ACTCharctrl_Lock do not fit the prototype in act-game.h */
+/* kept local: agrees with act-game.h, which this TU does not include (ACTGame_StageChangeGObjDirect, ACTGame_isHangChain differ) */
 extern void ACTCharctrl_Lock(char *self);
-/* kept local: this TU's uses of test_CURRENTORIENT do not fit the prototype in commonact.h */
+/* kept local: float * (char *) here, void * (char *) in commonact.h */
 extern float *test_CURRENTORIENT(char *target);
-/* kept local: this TU's uses of SetMotionNodeFixModeParameter do not fit the prototype in motionManager2.h */
+/* kept local: void (void *, void *, int, int, void *, float, float, float, float) here, void (char *, char *, float, float, float, int, int, float, void *) in motionManager2.h */
 extern void SetMotionNodeFixModeParameter(void *a0, void *a1, int a2, int a3, void *a4, float f12,
                                           float f13, float f14, float f15);
 
@@ -347,49 +353,45 @@ extern void SetMotionNodeFixModeParameter(void *a0, void *a1, int a2, int a3, vo
    been requested and no further one is accepted. */
 static int stageChangeReq;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, boyPad differ) */
 extern int gameover_flag;
-/* kept local: this TU's uses of ACTGame_StageChangeGObj do not fit the prototype in act-game.h */
+/* kept local: agrees with act-game.h, which this TU does not include (ACTGame_StageChangeGObjDirect, ACTGame_isHangChain differ) */
 extern void ACTGame_StageChangeGObj(char *g, int no);
-/* kept local: this TU's uses of BoyInfoUpdate_StageChange do not fit the prototype in boyact.h */
+/* kept local: agrees with boyact.h, which this TU does not include (SetBoyWeaponGObj differ) */
 extern void BoyInfoUpdate_StageChange(void);
-/* kept local: this TU's uses of ACTCharctrl_Lock do not fit the prototype in act-game.h */
+/* kept local: agrees with act-game.h, which this TU does not include (ACTGame_StageChangeGObjDirect, ACTGame_isHangChain differ) */
 extern void ACTCharctrl_Lock(char *a0);
-/* kept local: this TU's uses of ACTGame_StageChangeGObjDirect do not fit the prototype in act-game.h */
+/* kept local: agrees with act-game.h, which this TU does not include (ACTGame_isHangChain, ACTItemForceDrop differ) */
 extern void ACTGame_StageChangeGObjDirect();
-extern int fadeStatus;
-extern float fadeSpeed;
-extern int fadeContinue;
-extern unsigned char fadeColor[4];
 /* kept local: this TU's uses of IsWallLeverStatus do not fit the prototype in box.h */
 extern int IsWallLeverStatus(void);
 /* kept local: this TU's uses of ACTGame_isHangChain do not fit the prototype in act-game.h */
-/* kept local: this TU's uses of ACTGame_isHangChain do not fit the prototype in act-game.h */
+/* kept local: agrees with act-game.h, which this TU does not include (ACTGame_StageChangeGObjDirect, ACTItemForceDrop differ) */
 extern int ACTGame_isHangChain();
 
 /* the last object of script.o's .data (VMA 0x2A5400..0x2A5440): the layout
    record scpBornSpider fills and hands MakeAP1GObj for each spider */
 static struct DQW spiderLayout = {0, 0, 0, 0, 0, 0, {0}, {1.0f, 1.0f, 1.0f}}; /* derived name */
 
-/* kept local: this TU's uses of WakeUpAP1 do not fit the prototype in act_a_p_1.h */
+/* kept local: void (int) here, void (int *) in act_a_p_1.h */
 extern void WakeUpAP1(int a0);
-/* kept local: this TU's uses of ReviveCarryableItemsWithBoundary do not fit the prototype in item.h */
+/* kept local: int (float *, float) here, int (void *, float) in item.h */
 extern int ReviveCarryableItemsWithBoundary(float *pos, float r);
-/* kept local: this TU's uses of CheckReadyAllSwitches do not fit the prototype in box.h */
+/* kept local: agrees with box.h, which this TU does not include (IsWallLeverStatus differ) */
 extern int CheckReadyAllSwitches();
-/* kept local: this TU's uses of GetRootPosition do not fit the prototype in geometryManager.h */
+/* kept local: void (void *, void *) here, void (void *, char *) in geometryManager.h */
 extern void GetRootPosition(void *a0, void *a1);
-/* kept local: this TU's uses of SetDirectRootPosition do not fit the prototype in geometryManager.h */
+/* kept local: void (void *, void *) here, void (char *, void *) in geometryManager.h */
 extern void SetDirectRootPosition(void *a0, void *a1);
-/* kept local: this TU's uses of BreakItemFromOutside do not fit the prototype in item.h */
+/* kept local: void (void *) here, int (char *) in item.h */
 extern void BreakItemFromOutside(void *o);
-/* kept local: this TU's uses of CheckItemDead do not fit the prototype in item.h */
+/* kept local: int (void *) here, int (char *) in item.h */
 extern int CheckItemDead(void *o);
-/* kept local: this TU's uses of GetItemKind do not fit the prototype in item.h */
+/* kept local: int (void *) here, int (char *) in item.h */
 extern int GetItemKind(void *o);
-/* kept local: this TU's uses of IsActCharDead do not fit the prototype in act_a_p_1.h */
+/* kept local: int (char *) here, int (int *) in act_a_p_1.h */
 extern int IsActCharDead(char *g);
-/* kept local: this TU's uses of GetRotObjectGameSysObjInfoExtData do not fit the prototype in rotObject.h */
+/* kept local: agrees with rotObject.h, which this TU does not include (GetRotObjectRotCount, GetRotObjectZPlusDirection differ) */
 extern void GetRotObjectGameSysObjInfoExtData(short *a0, int *a1, char *a2);
 extern ActMail queen_appear_mes[];
 
@@ -672,7 +674,6 @@ inline void scpPlayMotNode(void *a0, int a1, void *a2, int a3)
     scpPlayMot(a0, a1);
 }
 
-/* kept local: this TU's uses of SetMotionRequest do not fit the prototype in motionOrientManager.h */
 void scpPlayMot(char *self, int mot)
 {
     Act *act = GOBJ_ACT(self);

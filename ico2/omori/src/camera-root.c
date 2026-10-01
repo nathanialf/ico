@@ -195,7 +195,8 @@ typedef struct EditPad {
     unsigned char stick[4]; /* 0xAC */
 } EditPad;
 
-extern EditPad D_0028F8F0;
+/* kept local: EditPad here, PadState [16] in main.h */
+extern EditPad pad;
 
 /* the manual camera's speed, 1 to 4 on the pad's buttons */
 static int manualCameraSpeed = 2; /* derived name */
@@ -208,24 +209,24 @@ void CameraEditManual(CameraSet2 *set, int noLock)
     float v[4];
     float out[4];
 
-    if (D_0028F8F0.trg & 0x1000) {
+    if (pad.trg & 0x1000) {
         manualCameraSpeed = 1;
     }
-    if (D_0028F8F0.trg & 0x2000) {
+    if (pad.trg & 0x2000) {
         manualCameraSpeed = 2;
     }
-    if (D_0028F8F0.trg & 0x4000) {
+    if (pad.trg & 0x4000) {
         manualCameraSpeed = 3;
     }
-    if (D_0028F8F0.trg & 0x8000) {
+    if (pad.trg & 0x8000) {
         manualCameraSpeed = 4;
     }
 
-    d = 0x80 - D_0028F8F0.stick[1];
+    d = 0x80 - pad.stick[1];
     if ((d < 0 ? -d : d) < 0x32) {
         d = 0;
     }
-    if (D_0028F8F0.mode & 2) {
+    if (pad.mode & 2) {
         if ((d < 0 ? -d : d) >= 0x33) {
             if (d < 0x32) {
                 t = (d + 0x32) * 10;
@@ -247,7 +248,7 @@ void CameraEditManual(CameraSet2 *set, int noLock)
         }
     }
 
-    d = 0x80 - D_0028F8F0.stick[0];
+    d = 0x80 - pad.stick[0];
     if ((d < 0 ? -d : d) < 0x32) {
         d = 0;
     }
@@ -260,12 +261,12 @@ void CameraEditManual(CameraSet2 *set, int noLock)
         }
     }
 
-    d = 0x80 - D_0028F8F0.stick[3];
+    d = 0x80 - pad.stick[3];
     if ((d < 0 ? -d : d) < 0x32) {
         d = 0;
     }
     if ((d < 0 ? -d : d) >= 0x33) {
-        if (noLock || (D_0028F8F0.flags & 1) == 0) {
+        if (noLock || (pad.flags & 1) == 0) {
             if (d < 0x32) {
                 t = (d + 0x32) * 10;
                 mz = (float)(manualCameraSpeed * t) / 78.0f;
@@ -277,12 +278,12 @@ void CameraEditManual(CameraSet2 *set, int noLock)
         }
     }
 
-    d = 0x80 - D_0028F8F0.stick[2];
+    d = 0x80 - pad.stick[2];
     if ((d < 0 ? -d : d) < 0x32) {
         d = 0;
     }
     if ((d < 0 ? -d : d) >= 0x33) {
-        if ((D_0028F8F0.flags & 0x200) == 0) {
+        if ((pad.flags & 0x200) == 0) {
             if (d < 0x32) {
                 t = (d + 0x32) * 10;
                 mx = (float)(manualCameraSpeed * t) / 78.0f;
@@ -611,7 +612,7 @@ void SetCameraMatrix(void)
     int zoomMax;
     int target;
     int step;
-    char *pad;
+    char *p; /* derived name */
     float zoom;
 
     useDemo = 0;
@@ -642,7 +643,7 @@ void SetCameraMatrix(void)
         if (debug_font_flag3 != 0 || (debug_font_flag & 1) != 0) {
             debug_Printf(220, 30, 0xFFFFFF00, "FREECAM");
         }
-        if ((D_0028F8F0.flags & 2) != 0 && (D_0028F8F0.trg04 & 0x100) != 0) {
+        if ((pad.flags & 2) != 0 && (pad.trg04 & 0x100) != 0) {
             cameraSetMode(3);
         }
         break;
@@ -662,7 +663,7 @@ void SetCameraMatrix(void)
         if (debug_font_flag3 != 0 || (debug_font_flag & 1) != 0) {
             debug_Printf(220, 30, 0xFFFFFF00, "HANDCAM");
         }
-        if ((D_0028F8F0.trg04 & 0x100) != 0) {
+        if ((pad.trg04 & 0x100) != 0) {
             cameraSetMode(3);
         }
         break;
@@ -782,13 +783,13 @@ void SetCameraMatrix(void)
         ply = boyGObj;
         if (ply != 0 && useDemo == 0) {
             ply = *(int *)((char *)ply + 0x164);
-            pad = (char *)ply + 0x2D8;
+            p = (char *)ply + 0x2D8;
         } else {
-            pad = (char *)padCtx;
+            p = (char *)padCtx;
         }
         if (zoomRequest != 0) {
             step = 2;
-        } else if (*(int *)(pad + 8) & 2) {
+        } else if (*(int *)(p + 8) & 2) {
             step = 1;
         } else {
             step = 0;
@@ -1035,32 +1036,26 @@ void SetZoomMaxValInDemo(int a0)
     zoomMaxInDemo = a0;
 }
 
-extern int D_0028F8B0[];
-
 void ResetZoomMaxValInDemo(void)
 {
-    zoomMaxInDemo = D_0028F8B0[0];
+    zoomMaxInDemo = GlobalStageSetting[0x190 / 4];
 }
-
-extern int D_0028F8A0[];
 
 int UpdateHandCameraLimitP(void)
 {
-    handCameraLimitP = D_0028F8A0[0];
+    handCameraLimitP = GlobalStageSetting[0x180 / 4];
     return 0;
 }
 
-extern int D_0028F8A4[];
-
 int UpdateHandCameraLimitV(void)
 {
-    handCameraLimitV = D_0028F8A4[0];
+    handCameraLimitV = GlobalStageSetting[0x184 / 4];
     return 0;
 }
 
 int UpdateZoomMaxVallInDemo(void)
 {
-    zoomMaxInDemo = D_0028F8B0[0];
+    zoomMaxInDemo = GlobalStageSetting[0x190 / 4];
     return 0;
 }
 

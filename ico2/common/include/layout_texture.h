@@ -37,4 +37,7 @@ void display_primary_texture_layout(int no, int sel);
 void display_texture_fade_cancel_chk(int from, int to);
 void lt_analog2Pad(void);
 
+void exec_layout_texture(void);
+void init_layout_texture(int stage);
+
 #endif /* LAYOUT_TEXTURE_H */

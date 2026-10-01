@@ -35,4 +35,7 @@ extern int current_select_gid;
    are declared by each user in its own view of the records (way_kidnap,
    way_sys, way_tool and way_util each carry one). */
 
+int CreateTempWayGroup(void);
+void InitWayPointSystem(void);
+
 #endif /* WAY_LLF_H */

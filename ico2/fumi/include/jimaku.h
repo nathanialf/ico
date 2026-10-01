@@ -30,4 +30,8 @@ extern int jimakuMsgQ[];
 extern int jimakuOn;
 extern int jimakuMsgBuf[2];
 
+void jimakuMgrBegin(struct jArg *p);
+void jimakuMgrNext(struct jArg *p);
+void jimakuDisp(char *self);
+
 #endif /* JIMAKU_H */

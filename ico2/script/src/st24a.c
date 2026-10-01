@@ -24,21 +24,21 @@ typedef struct EditPad {
     char _p8[0x58 - 0x8];
 } EditPad;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: EditPad here, PadState [16] in main.h */
 extern EditPad pad;
-/* kept local: script.h's prototypes do not fit this TU's calls */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmFadeCloseFunc, scpAdpcmPlayRequestFunc differ) */
 extern int scpBoyControlReadDisable;
-/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmFadeCloseFunc, scpAdpcmPlayRequestFunc differ) */
 extern void scpFadeIn(float t);
-/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmFadeCloseFunc, scpAdpcmPlayRequestFunc differ) */
 extern void scpFadeOut(float t, int a1, int a2, int a3);
-/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmFadeCloseFunc, scpAdpcmPlayRequestFunc differ) */
 extern int scpFadeChk(void);
-/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmFadeCloseFunc, scpAdpcmPlayRequestFunc differ) */
 extern int scpAdpcmPlayRequestNum(void);
-/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
+/* kept local: int (int, void *, float) here, int (char *, char *, float) in script.h */
 extern int scpTriggerBall(int self, void *target, float r);
 
 /* the 16-byte vector this file copies whole */
@@ -55,24 +55,23 @@ static int demoEnd;
 
 static const Vec16 swordChkPos = {{1685.0f, -1080.0f, -1000.0f, 1.0f}};
 
-extern int D_0028F8F4[];
-/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
+/* kept local: void (int, SwordObj **, int, int, int) here, void (int, char **, int, int, int) in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, SwordObj **h, int a2, int a3, int a4);
-/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
+/* kept local: void (SwordObj **, int) here, int (char **, short) in script.h */
 extern void scpAdpcmFadeCloseFunc(SwordObj **h, int a1);
-/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
+/* kept local: void (void *) here, void (int) in script.h */
 extern void scpPlayStart(void *a0);
-/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
+/* kept local: void (void *) here, void (int) in script.h */
 extern void scpPlayEnd(void *a0);
-/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
+/* kept local: void (void *, int) here, void (char *, int) in script.h */
 extern void scpPlayMot(void *a0, int a1);
-/* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
+/* kept local: void (void *, float *) here, void (char *, float *) in script.h */
 extern void scpPlayMotDir(void *a0, float *dir);
-/* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmFadeCloseFunc, scpAdpcmPlayRequestFunc differ) */
 extern void scpPlayPosSet(void *a0, float x, float y, float z);
-/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmFadeCloseFunc, scpAdpcmPlayRequestFunc differ) */
 extern int scpSearchGobj(int a0);
-/* kept local: this TU's uses of scpSetBoyWeaponGObj do not fit the prototype in script.h */
+/* kept local: void (int) here, void (int, int, int, int) in script.h */
 extern void scpSetBoyWeaponGObj(int a0);
 
 /* .sdata, owned by st24a.o, in the ROM's order: the sword's object. */
@@ -96,7 +95,7 @@ void actSt24aSwordChk(volatile int self)
     scpAdpcmPlayRequestFunc(34, &sword, 1, 1, 0);
     th = (char *)actCreateSubThread(actSt24aSwordSub, 21);
     demoEnd = 0;
-    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad.trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
     iosThreadSetPri(th + 0x24, 34);
@@ -158,7 +157,7 @@ void actSt24aDemoCamChk(volatile int a0)
     scpBoyControlReadDisable = 0;
 }
 
-/* kept local: this TU's uses of ScpCallCameraSetTarget do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmFadeCloseFunc, scpAdpcmPlayRequestFunc differ) */
 extern void ScpCallCameraSetTarget(float x, float y, float z);
 
 void actSt24aSword(volatile int a0)

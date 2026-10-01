@@ -26,6 +26,7 @@
 #include "motionFileManager.h"
 #include "streamMotionManager.h"
 #include "tableSin.h"
+#include "Basic.h"
 
 typedef struct {
     char name[0x110];
@@ -56,6 +57,7 @@ int stageMgrMsgQ[12] = {0};
 
 StgSlot stageExitData[15] = {0};
 
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int stage_no;
 extern StgFile D_0055C53C[];
 extern const StgPre stageData[];
@@ -69,9 +71,6 @@ extern int stagePreLoadLsn;
 extern int stagePreLoadSectorCnt;
 extern int stageExitDataCnt;
 extern int stgmgrNextStagePreLoad(CdvdBgReq *bg);
-/* kept local: the declaration in StageManager.h changes this TU codegen */
-extern void stgmgrForceSwitchWithFadeColor(int stage, float fadeIn, float fadeOut, unsigned char r,
-                                           unsigned char g, unsigned char b);
 extern int D_0063ACCC;
 
 /* .sbss, owned by StageManager.o (VMA 0x63C348..0x63C350, no MAIN.MAP symbol,
@@ -82,7 +81,7 @@ static int stageMgrMsgBuf;
 
 static int stagePreLoadForceStageNo;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int systemStatus[];
 
 typedef struct {
@@ -96,11 +95,12 @@ typedef struct {
     unsigned char b;
 } StgMgrMsg;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: StgMgrMsg here, int [6] in main.h */
 extern StgMgrMsg stageMgrMsg;
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int graphics_ready;
 extern unsigned int mpegPlayInitColor;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int db[];
 
 /* .bss, owned by StageManager.o (the retail run is 0x70, the size of thread.c's
@@ -109,35 +109,41 @@ extern int db[];
 /* */
 static unsigned int initIcoMiscThread[28];
 
-/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_root;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int current_stage_no;
 extern int mpegPlay;
 extern int mpegInitDone;
 extern int stageManagerFreeResourceFlag;
 extern char D_0063ACE0[];
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int IosCdLock;
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int IosStgMgrLock;
-extern int fadeStatus;
-extern float fadeSpeed;
-extern int fadeContinue;
-extern unsigned char fadeColor[4];
 extern float mpegPlayFadeInSpeed;
 extern int stgMgrWakeupRequest;
-/* kept local: this TU's uses of jimakuEnd do not fit the prototype in jimaku.h */
+/* kept local: agrees with jimaku.h, which this TU does not include */
 extern void jimakuEnd();
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int game_pause;
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int before_stage_no;
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_isys;
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_sugipon;
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_dmotion;
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_seki;
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_oomori;
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_sound;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *girlGObj;
 extern int jimaku_msg[];
 extern char D_0063ACB0[];

@@ -19,6 +19,24 @@
 #include "GsBase.h"
 #include "ios.h"
 #include "layout_texture.h"
+#include "kanban.h"
+#include "kanbanBoot.h"
+#include "Matrix.h"
+#include "cdvd.h"
+#include "sceneManager.h"
+#include "charFileManager.h"
+#include "access.h"
+#include "warpGirl.h"
+#include "jimaku.h"
+#include "streamMotionManager.h"
+#include "motionFileManager.h"
+#include "way_llf.h"
+#include "waterDot.h"
+#include "windManager.h"
+#include "objact.h"
+#include "soundManager.h"
+#include "pad.h"
+#include "thread.h"
 
 extern int debug_bar_flag;
 extern unsigned int D_0063B428;
@@ -45,11 +63,11 @@ static char printBuf[128];
 
 inline void ExitIcoMisc(void) {}
 
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differ) */
 extern void gif_StartPacketPri(int pri);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
+/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differ) */
 extern void gif_EndPacket(void);
 
 /* two-dimensional screen position handed to Draw2DLine */
@@ -224,41 +242,31 @@ void disp_memory_partition(void)
 extern int D_0063B448;
 extern int D_0063B444;
 extern int D_0063B440;
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int graphics_ready;
-extern int kanbanCommonRead;
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int stage_no;
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int fall_death_active;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *girlGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int systemStatus[];
 extern char jimaku_msg[];
-extern void disp_memory_partition(void);
-extern void disp_memory_partition_bar(void);
-extern void debug_SESlotDisp(void);
-extern int iosCdvdDiskStatusGet(void);
 /* debug_Printf comes from debug.h */
+/* kept local: void (int *, int *) here, void (int, int) in obj_manager.h */
 extern void iosOmGetGObjStatus(int *a0, int *a1);
-extern void exec_layout_texture(void);
-extern void kanbanBootMain(void);
-extern void kanbanExec(void);
 extern void ExecParticleEffects(void);
 extern void ExecStreamMotionManager(void);
 extern void ExecWindManager(void);
 extern void ExecSpiderGroupManager(void);
-extern void ExecGameOverEffect(void);
-extern void gamesysBackStageProcess(void);
-extern void warpGirlOutStage(int stage, int flag);
+/* kept local: int (void) here, void * (void) in camera-root.h */
 extern int GetCameraPos(void);
-extern void soundSeEnvPlay(void);
-extern void soundReqTickProc(void);
 extern void scpGirlHintVoiceTickProc(int cam);
 extern void fightSoundProcess(void);
 extern void eBrainProcess(void);
-extern void lt_switch_layout(int id);
-extern void jimakuDisp(char *self);
 
 void ExecIcoMisc(void)
 {
@@ -383,13 +391,19 @@ extern const ScnPre motionKind[];
    ROM's schedule shows (RTX_UNCHANGING_P, see the printf site in the scan loop) */
 extern const EffEnt motionEffKind[];
 extern char particleEffectFile[][0x50];
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int systemStatus[];
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int debugMoveMode;
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int motionFrameUpdate;
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int thisIsYourStartStage;
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int frame_count;
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int graphics_ready;
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int stage_no;
 extern unsigned char D_0063B44C;
 extern int D_0063B450;
@@ -404,41 +418,17 @@ extern char D_0063B460[];
 extern char D_0063B468[];
 extern char D_0063B470[];
 extern char D_0063B478[];
-extern void debug_StdPrintfDummy();
 extern void InitializeStaticBlur(void);
-extern void InitStreamMotionManager(void);
+/* kept local: agrees with flyManager.h, which this TU does not include */
 extern void InitFlyManager(void);
+/* kept local: void (int, int) here, void (int, unsigned char) in act-game.h */
 extern void ACTGame_SetActors_Debug(int stage, int a1);
 extern void light_InitLight(void);
-extern void InitStageLight(int stage);
 extern void enemy_Initialize(void);
-extern void InitCharFileManager(void);
-extern void ResetCharFileManager(void);
-extern void debugCdvdLoadInfoSegInit(int a0);
-extern char *GetDataFileName();
-extern char *GetDataFileName2();
-extern void iosCdvdLoadPackFile(int a0, char *name, int a2);
-extern void kanbanInit(int a0);
-extern void kanbanBootInit(void);
-extern void kanbanBootStart(void);
-extern void ResetStatic2MotionManager(int a0);
-extern void InitWayPointSystem(void);
 extern void fog_MakeFogClut(void);
 extern void InitParticleEffects(void);
-extern void InitializeWaterDot(void);
-extern void InitSceneObjects(int stage);
-extern void InitWindManager(int stage);
-extern void init_layout_texture(int stage);
-extern int *GetParticleEffectPackage(int id);
 extern void gsb_ResetFilmNoise(void);
 extern void stage_Init(void);
-extern void ObjAction_Init(void);
-extern void InitStageChange(void);
-extern void sndInit(int stage);
-extern void iosPadActInit(void);
-extern void MakeCollisionDependGObjList(void);
-extern void gamesysObjInfoStageInitPosSaveUnlock(void);
-extern void iosThreadDestroy(int a0);
 
 void InitIcoMisc(int *arg)
 {
@@ -585,20 +575,14 @@ void InitIcoMisc(int *arg)
 
 static int windLineColor[4] = {0, 128, 255, 128}; /* derived name */
 
-/* kept local: this TU's uses of _UnitMatrix do not fit the prototype in Matrix.h */
-extern void _UnitMatrix(void *m);
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differ) */
 extern void gif_StartPacketPri(int pri);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
+/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differ) */
 extern void gif_EndPacket(void);
-/* kept local: this TU's uses of GetWindVector do not fit the prototype in windField.h */
+/* kept local: void * (int, void *) here, int (void) in windField.h */
 extern void *GetWindVector(int a0, void *pos);
-/* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
-extern void _ScaleVectorXYZ(void *dst, void *src, float k);
-/* kept local: this TU's uses of _AddVectorXYZ do not fit the prototype in Matrix.h */
-extern void _AddVectorXYZ(void *dst, void *a, void *b);
 
 void DispIcoMisc(void)
 {

@@ -18,6 +18,7 @@
 #include "motionManager2.h"
 #include "rotObject.h"
 #include "typedef.h"
+#include "stageSEProc.h"
 
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copies read. */
@@ -154,13 +155,13 @@ static ActMail sound2_mes[2] = {{430}, {429}};
 
 static float sound2_chk_pos[4] = {87.0f, -772.0f, 1135.0f, 0.0f};
 
-/* kept local: script.h's prototypes do not fit this TU's calls */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern int scpBoyControlReadDisable;
-/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
+/* kept local: PObjGObj * (int) here, int (int) in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
+/* kept local: int (int, void *, float) here, int (char *, char *, float) in script.h */
 extern int scpTriggerBall(int a0, void *a1, float radius);
-/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
+/* kept local: int (void *, int) here, int (char *, int) in script.h */
 extern int scpTriggerFloorAttr(void *obj, int attr);
 
 /* .sbss, owned by st06a.o and reached only from this file (MAIN.MAP names no
@@ -171,9 +172,9 @@ static int demoEnd;
 
 static int demoSkipped;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *girlGObj;
 
 void actSt06aInit(void)
@@ -220,25 +221,25 @@ void actSt06aSuimon(volatile int a0)
     }
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: Pad [] here, PadState [16] in main.h */
 extern Pad pad[];
-/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpSleepEnemyAll(void);
-/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
+/* kept local: void (int, int *, int, int, int) here, void (int, char **, int, int, int) in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
+/* kept local: void (int *, int) here, int (char **, short) in script.h */
 extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
-/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpWakeupEnemyAll(void);
-/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern int scpAdpcmPlayRequestNum(void);
-/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
-/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpFadeIn(float f);
-/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern int scpFadeChk(void);
-/* kept local: this TU's uses of scpGetRotObjectRotCount do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern float scpGetRotObjectRotCount(int a0);
 
 /* .sdata, owned by st06a.o, in the ROM's order: the sluice, shutter and spike stream handles. */
@@ -347,9 +348,9 @@ void actSt06aDoor(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of scpTriggerFloorAttrTargetMan do not fit the prototype in script.h */
+/* kept local: int (int, int) here, int (char *, int) in script.h */
 extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
-/* kept local: this TU's uses of scpWakeupItemWithBoundary do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpWakeupItemWithBoundary(float a0, float a1, float a2, float a3);
 
 void actSt06aDoorUpChk(volatile int a0)
@@ -573,7 +574,7 @@ void actSt06aStatueChk(volatile int a0)
     gflagOn(113);
 }
 
-/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
+/* kept local: void (void *, int) here, void (char *, int) in script.h */
 extern void scpPlayMot(void *a0, int a1);
 
 void actSt06aHeadChk(volatile int a0)
@@ -1097,7 +1098,7 @@ void actSt06aSuimonEvent(int x)
     volatile int local = x;
 }
 
-/* kept local: this TU's uses of scpEffectStart do not fit the prototype in script.h */
+/* kept local: int (int *, int) here, int (void *, int) in script.h */
 extern int scpEffectStart(int *buf, int a1);
 
 void actSt06aSuimonEffect(volatile int a0)
@@ -1130,10 +1131,8 @@ void actSt06aSuimonEffect(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int systemStatus[];
-/* kept local: stageSEProc.c defines it and has no header */
-extern float riverFadeSpeed;
 
 void actSt06aSuimonFlagOn(volatile int a0)
 {
@@ -1266,7 +1265,7 @@ void actSt06aShutterOpenSub(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
+/* kept local: int (int, void *, int, float, float) here, int (int, char *, int, float, float) in script.h */
 extern int RequestStageChange(int a0, void *a1, int a2, float a3, float a4);
 
 void actSt06aExitChk(volatile int a0)
@@ -1279,9 +1278,9 @@ void actSt06aExitChk(volatile int a0)
     RequestStageChange(3, boyGObj, 0, 16.0f, 16.0f);
 }
 
-/* kept local: this TU's uses of RequestStageChangeDirect do not fit the prototype in script.h */
+/* kept local: void (void *, int, void *, int) here, void (int *) in script.h */
 extern void RequestStageChangeDirect(void *a0, int a1, void *buf, int a3);
-/* kept local: this TU's uses of ScpCallCameraSetTarget do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void ScpCallCameraSetTarget(float x, float y, float z);
 
 void actSt06aExitGirlChk(volatile int a0)
@@ -1385,7 +1384,7 @@ void actSt06aBoxEvent2OutChk(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: this TU's uses of scpCheckExistAliveEnemy do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern int scpCheckExistAliveEnemy(void);
 
 void actSt06aWayOnChk(volatile int a0)
@@ -1428,7 +1427,7 @@ void actSt06aWayOffChk(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: this TU's uses of scpIsRotObjectZPlusDirInclude do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern int scpIsRotObjectZPlusDirInclude(int a0, int a1, int a2);
 
 void actSt06aWallWayOnChk(volatile int a0)
@@ -1620,7 +1619,7 @@ void actSt06aJumpSub(volatile int a0)
     _ACTWait(1);
 }
 
-/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
+/* kept local: int (void *, int) here, int (char *, int) in script.h */
 extern int scpTriggerFloorAttr(void *a0, int a1);
 
 /* The piston-ride-on watcher's own mail record (installs

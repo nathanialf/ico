@@ -25,10 +25,17 @@
 #include "darkVolume.h"
 #include "sugiCommon.h"
 #include <libvu0.h>
+#include "act-way.h"
+#include "isys.h"
+#include "Matrix.h"
+#include "GifPacket.h"
+#include "debug_exception.h"
+#include "enemy-control.h"
+#include "Primitive.h"
 
 int entesty;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *girlGObj;
 
 /* The brain-mode table, one 28-byte record per mode: its name, its priority
@@ -85,7 +92,6 @@ EnemyBrainMode brainModeTable[] = {
    4-byte array. */
 static const int brainTargetNone[1] = {0}; /* derived name */
 
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
 /* A 64-bit flag word with a byte view (the enemy work's +0x210 status word and
@@ -150,7 +156,7 @@ typedef struct {
     EnemyActSub *sub;
 } EnemyBattleGObj;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
 extern int systemStatus[];
 
 #define BOSS_START_WORK(self) (*(int *)(*(int *)((self) + 0x164) + 0x680))
@@ -167,7 +173,7 @@ typedef struct {
 #define BOSS_EFFECT_WORK(self) ((char *)*(int *)(*(int *)((self) + 0x164) + 0x680))
 #define BOSS_EFFECT_PARTS(self, i) ((BossPart *)((i) * 0x20 + BOSS_EFFECT_WORK(self) + 0x360))
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *boyGObj;
 
 typedef struct {
@@ -183,15 +189,17 @@ typedef struct {
 } EnemyParaRow;
 
 extern EnemyParaRow motionKind[];
-/* kept local: this TU's uses of _DistxzSqGV do not fit the prototype in gv.h */
+/* kept local: float (float *, float *) here, void (void *, void *) in gv.h */
 extern float _DistxzSqGV(float *a0, float *a1);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *CurrentTargetGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *CurrentTargetGObjSub;
 /* kept local: this TU's uses of _GetMotionDirection do not fit the prototype in
    motionManager2.h */
+/* kept local: void (void *, int) here, void (int, int) in motionManager2.h */
 extern void _GetMotionDirection(void *dir, int self);
+/* kept local: agrees with motionManager2.h, which this TU does not include (GetMotionFrameFlag2, SetMotionNodeFixModeParameter differ) */
 extern int CheckFloorAttribute(char *self, int attr);
 extern void _ACTCommonMailTest(int self, int a1, int a2, int a3);
 
@@ -204,33 +212,33 @@ extern void _ACTCommonMailTest(int self, int a1, int a2, int a3);
 #define ENEMY_DEBUG_HOLD 0
 #endif
 
+/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
 extern int stage_no;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
 extern int girlControlMode;
-/* kept local: this TU's uses of _RotyGV do not fit the prototype in gv.h */
+/* kept local: int (float *, void *) here, int (float *, float *) in gv.h */
 extern int _RotyGV(float *a0, void *a1);
 extern void ACTGame_CommonLoop(void *self);
 /* kept local: enemy_act.c does not carry multiBgaManager.h, and this TU reads
    only the display list pointer it hands the manager. */
+/* kept local: void (int, void *, int) here, void (int, BgaDisp *, int) in multiBgaManager.h */
 extern void DispMultiBgaManagerWithKind(int kind, void *base, int n);
 /* The pad record layout_texture.c reconstructs as LtPad; this TU reads only its
    button word at +0, and the incomplete array type is what keeps ROM's %hi/%lo
    pair where a small scalar would go gp-relative under -G 8. */
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int [] here, PadState [16] in main.h */
 extern int pad[];
 extern void ACTParaStatus_Exec(void *self);
 extern float GetEnemyDefParaIndex(void *self);
-extern void afterCommonCarry(volatile int a0);
-extern int FlyMail(void *a0);
-/* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
+/* kept local: void (float *, float *, float *) here, void (int) in gv.h */
 extern void _OrientXZGV(float *dst, float *a, float *b);
-/* kept local: this TU's uses of SetMotionDirection do not fit the prototype in motionManager2.h */
+/* kept local: agrees with motionManager2.h, which this TU does not include (GetMotionFrameFlag2, SetMotionNodeFixModeParameter differ) */
 extern void SetMotionDirection(void *self, float *dir);
-/* kept local: this TU's uses of GetMotionFrameFlag2 do not fit the prototype in motionManager2.h */
+/* kept local: int (void *) here, int (char *) in motionManager2.h */
 extern int GetMotionFrameFlag2(void *self);
-/* kept local: this TU's uses of SetMotionDirectionWithLimit do not fit the prototype in motionManager2.h */
+/* kept local: agrees with motionManager2.h, which this TU does not include (GetMotionFrameFlag2, SetMotionNodeFixModeParameter differ) */
 extern void SetMotionDirectionWithLimit(void *self, float *buf, float a, float b);
-/* kept local: this TU's uses of EnemyAttackCenter do not fit the prototype in attackhit.h */
+/* kept local: void (void *) here, void (void) in attackhit.h */
 extern void EnemyAttackCenter(void *self);
 
 /* The actor sub-state's requested motion direction, a 3-float vector at
@@ -244,26 +252,29 @@ typedef struct {
     float dir[3];
 } ActSubDir;
 
-/* kept local: this TU's uses of InitMotionGeoInfo do not fit the prototype in motionManager2.h */
+/* kept local: agrees with motionManager2.h, which this TU does not include (GetMotionFrameFlag2, SetMotionNodeFixModeParameter differ) */
 extern void InitMotionGeoInfo(char *p, float x, float y, float z, float a, float b, float c);
 extern char D_002A8570[];
-/* kept local: this TU's uses of SetMotionNodeFixModeParameter do not fit the prototype in motionManager2.h */
+/* kept local: void (void *, void *, int, int, float *, float, float, float, float) here, void (char *, char *, float, float, float, int, int, float, void *) in motionManager2.h */
 extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float *q, float e,
                                           float f, float g, float h);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
 extern int gameover_flag;
+/* kept local: agrees with gv.h, which this TU does not include (_DistxzSqGV, _OrientXZGV differ) */
 extern void _InterGV(float *dst, float *a, float *b, float t, float u);
+/* kept local: void (void *, int, int, void *, void *) here, void (BgaDisp *, int, int, void *, void *) in multiBgaManager.h */
 extern void EntryMultiBgaManager(void *bga, int no, int kind, void *pos, void *rot);
+/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistGV(void *a, void *b);
-/* kept local: this TU's uses of GetRootProjectionPosOfGObj do not fit the prototype in motionManager2.h */
+/* kept local: void (float *, char *) here, void (int, int) in motionManager2.h */
 extern void GetRootProjectionPosOfGObj(float *dst, char *gobj);
-/* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
+/* kept local: agrees with gv.h, which this TU does not include (_DistxzSqGV, _OrientXZGV differ) */
 extern void _ApplyRyGV(float *v, float ang);
-/* kept local: this TU's uses of GetMatrixDirectionToZ do not fit the prototype in gv.h */
+/* kept local: void (float *, void *) here, void (float *, float *) in gv.h */
 extern void GetMatrixDirectionToZ(float *dst, void *ori);
-/* kept local: this TU's uses of _DistSqGV do not fit the prototype in gv.h */
+/* kept local: float (float *, float *) here, void (void *, void *) in gv.h */
 extern float _DistSqGV(float *a, float *b);
-/* kept local: this TU's uses of GetMotionFrameFlag1 do not fit the prototype in motionManager2.h */
+/* kept local: int (void *) here, int (char *) in motionManager2.h */
 extern int GetMotionFrameFlag1(void *self);
 
 /* The point the lifting enemy turns to.  RECONSTRUCTION: the ROM holds three
@@ -278,7 +289,6 @@ static sceVu0FVECTOR bodyliftTarget[3] = {
 };
 
 extern char objLayout[];
-extern char *isysCurrentGObj;
 extern char actModeTbl[];
 /* FLT_MAX word in .sdata; the incomplete array type is what keeps the ROM's
    %hi/%lo pair instead of a gp-relative load. */
@@ -291,12 +301,11 @@ extern void BossEnemyFunc(void *self);
    macro.  The name is ours. */
 #define EA_CHKBIT(f, n) (((int)((long long)(f) >> (n))) & 1)
 
-/* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
+/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistGV(void *a, void *b);
-extern float _GetRandom(void);
-/* kept local: this TU's uses of _DistxzGV do not fit the prototype in gv.h */
+/* kept local: float (float *, void *) here, void (void *, void *) in gv.h */
 extern float _DistxzGV(float *a, void *b);
-/* kept local: this TU's uses of _AbsRotyGV do not fit the prototype in gv.h */
+/* kept local: int (float *, float *) here, int (void *, void *) in gv.h */
 extern int _AbsRotyGV(float *a, float *b);
 
 /* GetFlyPosition's points: the four the enemy measures against, the four it
@@ -322,8 +331,6 @@ static sceVu0FVECTOR flyEscapePos = {1712.0f, -600.0f, 0.0f, 1.0f};
    functions of two parents, so file scope (the TU's whole .sbss). */
 static char *brainTarget;
 
-extern int isLiftBoyEnable(void);
-
 /* "change to kidnap": the string follows subEnemyBrain_ToBoy's two jump tables
    in the ROM's .rodata (0x5536C8), so it stays in the blob while the TU's own
    .rodata run ends at the tables. */
@@ -331,30 +338,14 @@ extern int isLiftBoyEnable(void);
 /* kept local: enemy_act.c carries none of these owners' headers, and the ROM
    proves gif_StartPacketPri takes the packet priority its GifPacket.h
    prototype does not name. */
-extern int IsSelectID_EnemyCtrl(int a0);
-extern int ACTWayMove_BeginDetail(char *self, float *goal, float *from, void *tgt, void *e,
-                                  unsigned char sub);
-extern int ACTWayMove_NextDetail(char *self, float *node, float *goal, unsigned char d,
-                                 unsigned char e);
-extern unsigned char WayMove_CheckCollis(float *p0, float *p1, void *a2, void *a3);
-extern int ACTWay_IsMustWalkFromWay(char *a0);
+/* kept local: agrees with flyManager.h, which this TU does not include */
 extern int GetFlyLimitClearance(void *pos);
+/* kept local: agrees with motionManager2.h, which this TU does not include (GetMotionFrameFlag2, SetMotionNodeFixModeParameter differ) */
 extern int CheckFloorAttribute(char *self, int attr);
-extern void MatrixDrive_PushMatrix(void);
-extern void MatrixDrive_PopMatrix(void);
-extern void *MatrixDrive_GetMatrix(void);
-extern void MatrixDrive_TransMatrixV(char *a0);
-extern void _UnitMatrix(void *p0);
-extern void gif_StartPacketPri(int pri);
-extern void gif_EndPacket(void);
-extern void prim_DispWireSphere(float r, void *col, int nu, int nv);
 /* the three actor sub-threads this function starts; their bodies are below */
-extern void subEnemyControl(volatile int a0);
-extern void subEnemyCollision(volatile int a0);
-extern void subEnemyBrainMain(volatile int a0);
 extern char D_002A84F8[];
+/* kept local: int (int) here, void * (int) in multiBgaManager.h */
 extern int InitMultiBgaManager(int a0);
-extern int GetMotherGenerator(int label);
 
 /* One start record per motion phase; the four of them are the actor's whole
    start parameter block. */
@@ -390,8 +381,7 @@ typedef enum { ACT_KIND_NONE = -1, ACT_KIND_GIRL = 1, ACT_KIND_ENEMY = 2 } ActKi
 
 #define ENEMY_START_WORK(self) (*(int *)(*(int *)((self) + 0x164) + 0x680))
 
-extern char *isysCurrentGObj;
-/* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
+/* kept local: void (float *, float *, float *) here, void (int) in gv.h */
 extern void _OrientXZGV(float *out, float *a, float *b);
 
 typedef struct {

@@ -6,6 +6,8 @@
 #include "gflag.h"
 #include "matrixDrive.h"
 #include "motionManager2.h"
+#include <string.h>
+#include "warpGirl.h"
 /* header prototypes (order fixes the inline tail) */
 #include "backStage.h"
 #include <libvu0.h>
@@ -35,9 +37,9 @@ static float enemySec; /* enemyDist scaled to seconds */
 
 static float nestSec; /* nestDist scaled to seconds */
 
-/* kept local: this TU's uses of gamesysMemoryHandlerWrite do not fit the prototype in gamesys.h */
+/* kept local: int (void *, void *, int) here, void (int *, int, int) in gamesys.h */
 extern int gamesysMemoryHandlerWrite(void *, void *, int);
-/* kept local: this TU's uses of gamesysMemoryHandlerRead do not fit the prototype in gamesys.h */
+/* kept local: int (void *, void *, int) here, void (int *, int, int) in gamesys.h */
 extern int gamesysMemoryHandlerRead(void *, void *, int);
 
 static int pinchTold; /* the boy has already been told the heroine is in trouble */
@@ -86,6 +88,7 @@ typedef struct {
 /* kept local: gamesys.c's object-info records in this TU's view of the record
    (gamesys.h declares them with the record backStage.h carries, and this TU
    does not include gamesys.h) */
+/* kept local: GamesysObjInfoBackstage [] here, GamesysObjInfo [] in gamesys.h */
 extern GamesysObjInfoBackstage gameSysObjInfo[];
 extern GenGeoRec objLayout[];
 
@@ -94,53 +97,52 @@ extern GenGeoRec objLayout[];
 static float nestPos[4];
 
 extern int gamesysAnotherStageTsuresari;
+/* kept local: agrees with main.h, which this TU does not include (girlGObj differ) */
 extern int stage_no;
 
 static int wayKidnap; /* the carrier walks the waypoint route instead of a generator */
 
-extern void *memset(void *p, int c, int n);
-/* kept local: this TU's uses of gamesysObjInfoPosNewStageSet do not fit the prototype in gamesys.h */
+/* kept local: GamesysObjInfoBackstage * (int, int, int, float *, float *) here, GamesysObjInfo * (int, int, int, float *, float *) in gamesys.h */
 extern GamesysObjInfoBackstage *gamesysObjInfoPosNewStageSet(int no, int kind, int stage,
                                                              float *pos, float *rot);
-/* kept local: this TU's uses of SetInfoSpKidnapGenerator do not fit the prototype in generator.h */
+/* kept local: void (int *) here, void (short *) in generator.h */
 extern void SetInfoSpKidnapGenerator(int *work);
-/* kept local: this TU's uses of SetInfoSpKidnapEnemy do not fit the prototype in generator.h */
+/* kept local: void (int *) here, void (void) in generator.h */
 extern void SetInfoSpKidnapEnemy(int *work);
-/* kept local: this TU's uses of NearestEnemyFromGirl do not fit the prototype in way_kidnap.h */
+/* kept local: int (float *) here, void * (float *) in way_kidnap.h */
 extern int NearestEnemyFromGirl(float *dist);
-/* kept local: this TU's uses of gamesysObjInfoPosSetStage do not fit the prototype in gamesys.h */
+/* kept local: agrees with gamesys.h, which this TU does not include (gameSysObjInfo, gamesysMemoryHandlerRead differ) */
 extern int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3);
-/* kept local: this TU's uses of WayLengthOfPos_Pos do not fit the prototype in way_kidnap.h */
+/* kept local: agrees with way_kidnap.h, which this TU does not include (CopyWpPos, NearestEnemyFromGirl differ) */
 extern float WayLengthOfPos_Pos(float *a, float *b);
-/* kept local: this TU's uses of WayPointWithRangeFromPos2 do not fit the prototype in way_kidnap.h */
+/* kept local: int (float *, void *, float *, int) here, int (float *, struct WayWork *, float *, int) in way_kidnap.h */
 extern int WayPointWithRangeFromPos2(float *pos, void *a1, float *out, int flag);
-/* kept local: this TU's uses of gamesysObjInfoCls do not fit the prototype in gamesys.h */
+/* kept local: agrees with gamesys.h, which this TU does not include (gameSysObjInfo, gamesysMemoryHandlerRead differ) */
 extern void gamesysObjInfoCls(int kind, int no);
-/* kept local: this TU's uses of WayLengthOfGObj_GObj do not fit the prototype in way_kidnap.h */
+/* kept local: agrees with way_kidnap.h, which this TU does not include (CopyWpPos, NearestEnemyFromGirl differ) */
 extern float WayLengthOfGObj_GObj(void *obj0, void *obj1);
-/* kept local: this TU's uses of NumOfWpPos do not fit the prototype in way_kidnap.h */
+/* kept local: agrees with way_kidnap.h, which this TU does not include (CopyWpPos, NearestEnemyFromGirl differ) */
 extern int NumOfWpPos(void);
-/* kept local: this TU's uses of CopyWpPos do not fit the prototype in way_kidnap.h */
+/* kept local: void (float *, int, int) here, int (float [][4], int, int) in way_kidnap.h */
 extern void CopyWpPos(float *out, int i, int j);
-/* kept local: this TU's uses of _InnerProduct do not fit the prototype in Matrix.h */
+/* kept local: float (float *, float *) here, float (void *, void *) in Matrix.h */
 extern float _InnerProduct(float *a, float *b);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (girlGObj differ) */
 extern int systemStatus[];
 /* kept local with gamesys.h's declaration, which this TU does not include */
+/* kept local: agrees with gamesys.h, which this TU does not include (gameSysObjInfo, gamesysMemoryHandlerRead differ) */
 extern int gamesysStageExitTime[];
 extern unsigned int gamesysTimeCount;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int girlGObj;
-/* kept local: warpGirl.h is not in this TU's include list */
-extern int warpGirlInStageSet;
 extern char D_0063ACF8[];
-/* kept local: this TU's uses of WayPointWithRangeFromPos do not fit the prototype in way_kidnap.h */
+/* kept local: void (float *, float, int) here, int (float *, int, float) in way_kidnap.h */
 extern void WayPointWithRangeFromPos(float *pos, float range, int flag);
-/* kept local: this TU's uses of isysGObjSearchFromObjKindID_begin do not fit the prototype in gobj.h */
+/* kept local: int (int) here, void * (int) in gobj.h */
 extern int isysGObjSearchFromObjKindID_begin(int kind);
-/* kept local: this TU's uses of isysGObjSearchFromObjKindID_next do not fit the prototype in gobj.h */
+/* kept local: int (int) here, void * (char *) in gobj.h */
 extern int isysGObjSearchFromObjKindID_next(int gobj);
-/* kept local: this TU's uses of isysGObjSearchFromObjLayoutID do not fit the prototype in gobj.h */
+/* kept local: int (int) here, void * (int) in gobj.h */
 extern int isysGObjSearchFromObjLayoutID(int id);
 
 inline void backStageProcessInit(void)

@@ -12,34 +12,34 @@
 #include "motionManager2.h"
 #include "rotObject.h"
 #include "typedef.h"
+#include "stageSEProc.h"
 
-/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
+/* kept local: PObjGObj * (int) here, int (int) in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
+/* kept local: int (int, int, float) here, int (char *, char *, float) in script.h */
 extern int scpTriggerBall(int a0, int gobj, float r);
-/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
+/* kept local: int (int, int) here, int (char *, int) in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
-/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpSleepEnemyAll(void);
-/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpWakeupEnemyAll(void);
-/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern int scpAdpcmPlayRequestNum(void);
-/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpFadeOut(float f, int a1, int a2, int a3);
-/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern int scpFadeChk(void);
-/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpFadeIn(float f);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
 extern int systemStatus[];
-extern int D_0028F8F4[];
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include */
+extern PadState pad[];
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
-/* kept local: script.h's prototypes do not fit this TU's calls */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern int scpBoyControlReadDisable;
-/* kept local: stageSEProc.c defines it and has no header */
-extern float riverFadeSpeed;
 
 /* .sbss, owned by st04e.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
@@ -83,7 +83,7 @@ void actSt04eWaterStop(volatile int a0)
 
     th = actCreateSubThread(actSt04eWaterStopSub, 21);
 
-    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 

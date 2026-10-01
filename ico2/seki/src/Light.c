@@ -369,8 +369,6 @@ void light_getNearLight(char *self, int idx)
     }
 }
 
-extern float D_0028F780[4];
-
 /* Light.c lines 1024-1025 call _GetNorm three times per value (once for the
    sign test, once in each arm), which is what a macro does to a call
    argument: ABS is a macro here, not a function. */
@@ -395,10 +393,10 @@ void light_getAmbientLight(char *a, int b)
 
     scale = 1.0f;
     if (lastAmbient == 0) {
-        _CopyVector(*(char **)(a + 0x874) + 0xE0, D_0028F780);
+        _CopyVector(*(char **)(a + 0x874) + 0xE0, GlobalStageSetting.ambientCol);
         return;
     }
-    _CopyVector(*(char **)(a + 0x874) + 0xE0, D_0028F780);
+    _CopyVector(*(char **)(a + 0x874) + 0xE0, GlobalStageSetting.ambientCol);
     best = 3.0f;
     if (*(unsigned short *)(a + 0x84C) == 2) {
         _CopyVector(pos, *(char **)(a + 0xC) + (b << 6) + 0x30);
@@ -434,7 +432,7 @@ void light_getAmbientLight(char *a, int b)
             if (ny <= 1.0f) {
                 rx = nx - 1.0f;
                 ry = 1.0f - ny;
-                _SubVectorXYZ(s0, D_0028F780, v->f_40);
+                _SubVectorXYZ(s0, GlobalStageSetting.ambientCol, v->f_40);
                 _ScaleVectorXYZ(s0, s0, rx / (rx + ry));
                 _AddVector(s0, v->f_40, s0);
                 my = s0[0] + s0[1] + s0[2];
@@ -467,7 +465,7 @@ void light_getAmbientLight(char *a, int b)
                 }
                 mx = mx - 1.0f;
                 my = 1.0f - my;
-                _SubVectorXYZ(s1, D_0028F780, v->f_40);
+                _SubVectorXYZ(s1, GlobalStageSetting.ambientCol, v->f_40);
                 _ScaleVectorXYZ(s1, s1, mx / (mx + my));
                 _AddVector(s1, v->f_40, s1);
                 sum = s1[0] + s1[1] + s1[2];

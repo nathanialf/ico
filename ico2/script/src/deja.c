@@ -25,9 +25,9 @@ static ActMail after_mes[2] = {{430}, {429}};
 
 /* --- su-b sweep decls --- */
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
 extern PadState pad[];
 
 /* .sbss, owned by deja.o and reached only from this file (MAIN.MAP names no
@@ -36,6 +36,7 @@ extern PadState pad[];
 static int demoEnd;
 
 void actDejaDemo(volatile int a0);
+/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
 extern int stage_no;
 
 /* the 0x28-byte stage-manager table entry */

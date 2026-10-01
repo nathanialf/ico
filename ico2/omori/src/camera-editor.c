@@ -885,6 +885,7 @@ void CameraEdit_DispBoxType2(int a0, int a1)
 /* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
    pad, trg at 0x4 */
 
+/* kept local: Pad [] here, PadState [16] in main.h (pad; Pad has the stick bytes at 0x54) */
 extern Pad D_0028F8F0[];
 
 int print_y;
@@ -1284,7 +1285,6 @@ void menuPinEdit(char *m)
     }
 }
 
-extern int D_0028F94C[];
 extern char D_002AD010[];
 
 inline void menu_2(char *m)
@@ -1332,7 +1332,7 @@ void wakeup_cameraedit(void)
     print_y = 50;
     if (curmenu != 0) {
         iosThreadWakeup((void *)curmenu);
-        if (D_0028F94C[0] & 0x400) {
+        if (pad[1].flags & 0x400) {
             saveEditedDataBinary((int)&D_002AD010[stageData[stage_no].camSetId * 0x20],
                                  cameraSetEdit[1], cameraSetEdit[0]);
         }

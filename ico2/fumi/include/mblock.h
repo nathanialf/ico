@@ -35,4 +35,6 @@ void *new_segment(MBlock *mb, unsigned int len);
 void reuse_mblock(int *a0);
 char *strdup_mblock(MBlock *mb, const char *str);
 
+MBlockNode *new_mblock_node(unsigned int size);
+
 #endif /* MBLOCK_H */

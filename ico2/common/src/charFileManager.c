@@ -15,6 +15,7 @@
 #include "motionFileManager.h"
 #include "particleEffect.h"
 #include "tableSin.h"
+#include <string.h>
 
 extern void __assert(char *file, int line, char *expr);
 
@@ -105,9 +106,9 @@ void ResetCharFileManager(void)
     InitCameraSetManager();
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting differ) */
 extern int systemStatus[];
-/* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_seki;
 extern PObj *InitPObj(void *buf, int a1, int id);
 
@@ -227,8 +228,9 @@ typedef struct {
 } TexRec;       /* 0x34 */
 
 extern TexRec texFile[];
+/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting differ) */
 extern int NonLinearCameraMove;
-/* kept local: this TU's uses of tex_InitTexture do not fit the prototype in Texture.h */
+/* kept local: int (int, void *) here, int () in Texture.h */
 extern int tex_InitTexture(int id, void *buf);
 
 void ReadTextureFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
@@ -267,7 +269,6 @@ typedef struct {
 } SkelEnt; /* 0x8C */
 
 extern SkelEnt modelData[];
-extern int strcmp(const char *a, const char *b);
 
 /* sugipon/include/sugiCommon.h: byte checksum helper, inlined at its call site */
 static inline int SumBytes(unsigned char *p, int n)
@@ -435,8 +436,11 @@ typedef struct {
 } MotEnt; /* 0x194 */
 
 extern MotEnt motionKind[];
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_dmotion;
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_smotion;
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_s2motion;
 
 void ReadMotionFile(void *h, int a1, int size, int id, int a4, int a5, int a6)
@@ -475,6 +479,7 @@ void ReadMotionFile(void *h, int a1, int size, int id, int a4, int a5, int a6)
                          (float)GetMotionMemorySize(a6) / 1024.0f / 1024.0f);
 }
 
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_sugipon;
 
 void ReadParticleEffectFile(void *h, int a1, int size, int a3)
@@ -539,7 +544,9 @@ typedef struct {
    load */
 static char *semiCommonHdBuf = 0; /* derived name */
 
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_sound_semi;
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_sound;
 
 void ReadSoundHdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6)
@@ -595,6 +602,7 @@ void ReadSoundHdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6
     debug_StdPrintfDummy("ReadSoundHdFile:loaded::[%d]%s  (size:%d)\n", a3, a1, size);
 }
 
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_shock;
 
 typedef struct {
@@ -701,6 +709,7 @@ void ReadShockFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
     debug_StdPrintfDummy("ReadShockData:loaded::[%d]%s  (size:%d)\n", a3, a1, size);
 }
 
+/* kept local: void * here, int in ios.h */
 extern void *ios_partition_oomori;
 
 void ReadCamerasetFile(void *h, int a1, int size, int a3)
@@ -728,10 +737,9 @@ void ReadEndCheckFile(void *h, int a1, int size)
     iosFree(buf);
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char [] here, StageSetting in main.h */
 extern char GlobalStageSetting[];
-extern void *memcpy(void *dst, const void *src, int n);
-/* kept local: this TU's uses of tex_RemakeRegistersSampleMin do not fit the prototype in Texture.h */
+/* kept local: void (int) here, int (void) in Texture.h */
 extern void tex_RemakeRegistersSampleMin(int a);
 
 void ReadStageSettingFile(void *h, int a1, int size)

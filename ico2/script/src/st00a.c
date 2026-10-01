@@ -91,7 +91,7 @@ void actSt00aInit(void)
     }
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *girlGObj;
 
 void actSt00aEnd(void)
@@ -103,17 +103,17 @@ void actSt00aEnd(void)
     }
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int systemStatus[];
-/* kept local: script.h's prototypes do not fit this TU's calls */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
 extern int scpBoyControlReadDisable;
-/* kept local: this TU's uses of scpSleepEnemyOne do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
 extern void scpSleepEnemyOne(int a0);
-/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
 extern void scpSleepEnemyAll(void);
-/* kept local: this TU's uses of scpWakeupEnemyOne do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
 extern void scpWakeupEnemyOne(int a0);
-/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
 extern void scpWakeupEnemyAll(void);
 
 void actSt00aEneChk(volatile int a0)
@@ -147,9 +147,9 @@ void actSt00aEneChk(volatile int a0)
     gflagOff(39);
 }
 
-/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
+/* kept local: PObjGObj * (int) here, int (int) in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
+/* kept local: int (int, int, float) here, int (char *, char *, float) in script.h */
 extern int scpTriggerBall(int a0, int a1, float f);
 
 /* .sbss, owned by st00a.o and reached only from this file (MAIN.MAP names no
@@ -157,18 +157,19 @@ extern int scpTriggerBall(int a0, int a1, float f);
    is over, which the wait loop below spins for. */
 static int demoEnd;
 
-extern int D_0028F8F4[];
-/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
+/* kept local: agrees with main.h, which this TU does not include */
+extern PadState pad[];
+/* kept local: void (int, int *, int, int, int) here, void (int, char **, int, int, int) in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
 extern int scpAdpcmPlayRequestNum(void);
-/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
+/* kept local: int (int *, short) here, int (char **, short) in script.h */
 extern int scpAdpcmFadeCloseFunc(int *h, short fade);
-/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
 extern void scpFadeOut(float f, int a1, int a2, int a3);
-/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
 extern int scpFadeChk(void);
-/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
 extern void scpFadeIn(float f);
 void actSt00aStairChkSub(volatile int a0);
 
@@ -202,7 +203,7 @@ void actSt00aStairChk(volatile int a0)
     proto_yure = 0xFFFFFFFF;
     th = actCreateSubThread(actSt00aStairChkSub, 21);
     demoEnd = 0;
-    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
     fade = demoEnd ^ 1;
@@ -237,7 +238,7 @@ void actSt00aStairChk(volatile int a0)
     fightSoundProcessRequestStart();
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
 void actSt00aDoor2DownChk(int a0);
 void actSt00aDoor2UpChk(int a0);
@@ -265,9 +266,9 @@ void actSt00aDoor2(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of scpTriggerFloorAttrTargetMan do not fit the prototype in script.h */
+/* kept local: int (int, int) here, int (char *, int) in script.h */
 extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
-/* kept local: this TU's uses of scpWakeupItemWithBoundary do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpSearchGobj differ) */
 extern void scpWakeupItemWithBoundary(float x, float y, float z, float r);
 void actSt00aDoor2UpEffect(volatile int a0);
 
@@ -542,7 +543,7 @@ void actSt00aAtr2(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
+/* kept local: int (int, int) here, int (char *, int) in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
 
 void actSt00aAtr2Chk(volatile int a0)
@@ -556,7 +557,7 @@ void actSt00aAtr2Chk(volatile int a0)
     gflagOn(42);
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int boyPad;
 
 void actSt00aStairChkSub(volatile int a0)
@@ -582,7 +583,7 @@ void actSt00aDoor2Event(int x)
     volatile int local = x;
 }
 
-/* kept local: this TU's uses of scpEffectStart do not fit the prototype in script.h */
+/* kept local: void (int *, int) here, int (void *, int) in script.h */
 extern void scpEffectStart(int *buf, int a1);
 
 void actSt00aDoor2UpEffect(volatile int a0)

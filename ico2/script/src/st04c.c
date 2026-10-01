@@ -11,7 +11,7 @@
 #include "typedef.h"
 #include "generator.h"
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *girlGObj;
 
 void actSt04cEnd(void)
@@ -35,9 +35,9 @@ static const ConstVec doorDownEffect2Pos = {{-2.0f, 250.0f, -1450.0f, 1.0f}};
 
 static const ConstVec doorDownEffect3Pos = {{5.0f, 260.0f, -1450.0f, 1.0f}};
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
-/* kept local: the declaration in script.h changes this TU codegen */
+/* kept local: int (int, int, float) here, int (char *, char *, float) in script.h */
 extern int scpTriggerBall(int a0, int gobj, float r);
 
 /* listing lines 326-357 */
@@ -69,7 +69,7 @@ void actSt04cDoorDownChk(volatile int a0)
     gflagOn(162);
 }
 
-/* kept local: script.h's prototypes do not fit this TU's calls */
+/* kept local: agrees with script.h, which this TU does not include (scpTriggerBall differ) */
 extern int scpBoyControlReadDisable;
 
 /* .sbss, owned by st04c.o and reached only from this file (MAIN.MAP names no
@@ -77,14 +77,15 @@ extern int scpBoyControlReadDisable;
    subthread the wait loop below spins for. */
 static int demoEnd;
 
-extern int D_0028F8F4[];
-/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
+/* kept local: int [] here, PadState [16] in main.h */
+extern int pad[];
+/* kept local: agrees with script.h, which this TU does not include (scpTriggerBall differ) */
 extern int scpAdpcmPlayRequestNum(void);
-/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpTriggerBall differ) */
 extern void scpFadeOut(float f, int a1, int a2, int a3);
-/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpTriggerBall differ) */
 extern int scpFadeChk(void);
-/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpTriggerBall differ) */
 extern void scpFadeIn(float f);
 
 /* listing lines 592-637 */
@@ -108,7 +109,7 @@ void actSt04cIntroChk(volatile int a0)
     th = actCreateSubThread(actSt04cIntroChkSub, 21);
     demoEnd = 0;
 
-    while (demoEnd == 0 && (!(D_0028F8F4[0] & 0x800) || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && (!(pad[1] & 0x800) || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -130,13 +131,11 @@ void actSt04cIntroChk(volatile int a0)
     scpBoyControlReadDisable = 0;
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
-extern int pad[];
-/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpTriggerBall differ) */
 extern int scpSearchGobj(int a0);
-/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpTriggerBall differ) */
 extern void scpSleepEnemyAll(void);
-/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpTriggerBall differ) */
 extern void scpWakeupEnemyAll(void);
 
 /* listing lines 705-753 */

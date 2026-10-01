@@ -47,4 +47,6 @@ int gameblock_read(int *self, void *buf);
 int iosMcHandlerRead();
 int iosMcHandlerWrite();
 
+void iosMcManager(void);
+
 #endif /* MCARD_H */

@@ -56,4 +56,11 @@ void subCommonIdle(volatile int a0);
 void *test_CURRENTORIENT(char *a0);
 void *test_CURRENTROOT(void *a0);
 
+void DownFunc(char *a0);
+int FloorIsTruck(void *a0);
+void afterCommonRopeCliff(char *a0);
+void afterCommonBox(volatile int a0);
+void actAfterFall(volatile int a0);
+void ClipCollisionWithField(char *a0);
+
 #endif /* COMMONACT_H */

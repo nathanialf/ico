@@ -1047,6 +1047,7 @@ void calcSun(void)
     _ApplyMatrix(sunView, matrixptr + 0x80, sunDir);
 }
 
+/* kept local: pad + 0x64 as int [] here; pad is PadState [16] in main.h, which has no field at pad[1] + 0xC */
 extern int D_0028F954[];
 
 static int colorSettingItem = 0; /* derived name */
@@ -1385,11 +1386,9 @@ void SetMotionBlur(int val)
     motionBlurAlpha = val;
 }
 
-extern int D_0028F808[];
-
 void SetStaticBlur(int x)
 {
-    D_0028F808[0] = x;
+    GlobalStageSetting.field_E8 = x;
 }
 
 void SetDepthFadeParam(float f12, float f13, int a0)

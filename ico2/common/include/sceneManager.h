@@ -39,4 +39,6 @@ void InitStageLight(int stage);
 void initParentLink(int id);
 void initSceneGObj(int stage, int id);
 
+void InitSceneObjects(int stage);
+
 #endif /* SCENEMANAGER_H */

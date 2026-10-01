@@ -10,6 +10,7 @@
 #include "windManager.h"
 #include <libvu0.h>
 #include <string.h>
+#include "stageSEProc.h"
 
 typedef struct {
     float f0;
@@ -52,7 +53,7 @@ static const Blk16 se10lBoxCenter = {{141.0f, 1328.0f, -122.0f, 0.0f}};
 
 static const Blk16 se10lBoxSize = {{600.0f, 700.0f, 1000.0f, 0.0f}};
 
-/* kept local: this TU's uses of GetCameraPos do not fit the prototype in camera-root.h */
+/* kept local: agrees with camera-root.h, which this TU does not include */
 extern int *GetCameraPos();
 
 /* SRCFILE.TXT rows 579 to 583 and 696 to 698: the two box tests are each their
@@ -90,7 +91,7 @@ typedef struct {
     int *mail;        /* 0x3C */
 } SEObj;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
 
 /* The wind-speed cache the strong-wind routines share: the last value of
@@ -160,6 +161,7 @@ int stageSEtaimatsu(SEObj *self)
     return rv;
 }
 
+/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
 extern int stage_no;
 
 /* .sbss, owned by stageSEProc.o (MAIN.MAP names no symbol in the run): the
@@ -175,7 +177,6 @@ static float river06aLevel;
    (0.005f, or 1000.0f to cut the river at once).  Defined after
    stageSE19ataki, where its .sdata word follows that function's FLT_MAX
    literal. */
-extern float riverFadeSpeed;
 
 /* the river fade-out the PAL listing places at stageSEProc.c lines 397-401 and
  * inlines into stageSE04eriver (twice) and stageSE06ariver; it is not emitted
@@ -265,6 +266,7 @@ int stageSE06ariver(SEObj *a0)
     return 1;
 }
 
+/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
 extern int frame_count;
 
 int stageSE10lstrong2(char *a0)

@@ -57,21 +57,21 @@ typedef struct PObjGObjSt04A {
     int f16C;          /* 0x16C */
 } PObjGObjSt04A;
 
-/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
+/* kept local: PObjGObjSt04A * (int) here, int (int) in script.h */
 extern PObjGObjSt04A *scpSearchGobj(int a0);
-/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
+/* kept local: int (int, void *, float) here, int (char *, char *, float) in script.h */
 extern int scpTriggerBall(int a0, void *a1, float radius);
-/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
+/* kept local: int (void *, int) here, int (char *, int) in script.h */
 extern int scpTriggerFloorAttr(void *a0, int a1);
-/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *girlGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int systemStatus[];
-/* kept local: script.h's prototypes do not fit this TU's calls */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern float scpSeEnvMasterVolRate;
 
 /* .data, owned by st04a.o, in the ROM's order ahead of model_on and model_off
@@ -136,10 +136,11 @@ void actSt04aGate(volatile int a0)
 }
 
 extern JimakuArg jimaku_msg;
+/* kept local: agrees with jimaku.h, which this TU does not include (jimakuUndisp differ) */
 extern int jimakuOn;
-/* kept local: this TU's uses of jimakuBegin do not fit the prototype in jimaku.h */
+/* kept local: agrees with jimaku.h, which this TU does not include (jimakuUndisp differ) */
 extern void jimakuBegin(int a0);
-/* kept local: this TU's uses of jimakuJump do not fit the prototype in jimaku.h */
+/* kept local: agrees with jimaku.h, which this TU does not include (jimakuUndisp differ) */
 extern void jimakuJump(int a0);
 
 typedef struct AnimList28 {
@@ -163,29 +164,31 @@ static int demoEnd;
 
 static int conte09_3Running;
 
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern int scpBoyControlReadDisable;
-extern int D_0028F8F4[];
-/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
+extern PadState pad[];
+/* kept local: void (char *) here, void (int) in script.h */
 extern void scpPlayStart(char *a0);
-/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
+/* kept local: void (char *) here, void (int) in script.h */
 extern void scpPlayEnd(char *a0);
-/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
+/* kept local: void (void *, int) here, void (char *, int) in script.h */
 extern void scpPlayMot(void *o, int mot);
-/* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
+/* kept local: void (void *, void *) here, void (char *, float *) in script.h */
 extern void scpPlayMotDir(void *a0, void *dir);
-/* kept local: this TU's uses of scpDispOffAllWithKind do not fit the prototype in script.h */
+/* kept local: void (int) here, void (void) in script.h */
 extern void scpDispOffAllWithKind(int a0);
-/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
+/* kept local: void (int, void *, int, int, int) here, void (int, char **, int, int, int) in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, void *a1, int a2, int a3, int a4);
-/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
+/* kept local: void (int *, int) here, int (char **, short) in script.h */
 extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
-/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern int scpAdpcmPlayRequestNum(void);
-/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpFadeIn(float t);
-/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern int scpFadeChk(void);
-/* kept local: this TU's uses of jimakuUndisp do not fit the prototype in jimaku.h */
+/* kept local: void (JimakuArg *) here, void (void) in jimaku.h */
 extern void jimakuUndisp(JimakuArg *a0);
 
 void actSt04aGateChk(volatile int a0)
@@ -261,7 +264,7 @@ void actSt04aGateChk(volatile int a0)
     _ACTWait((int)((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 2.5));
 
     demoEnd = 0;
-    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -378,9 +381,9 @@ void actSt04aGateChk(volatile int a0)
     stgmgrNextStagePreLoadDistBoyMode();
 }
 
-/* kept local: this TU's uses of scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int boyPad;
 
 void actSt04aConte06(volatile int a0)
@@ -702,13 +705,13 @@ static const ConstVec liftOfs1;
 static const ConstVec liftOfs2;
 
 extern char D_00618DB0[];
-/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpSleepEnemyAll(void);
-/* kept local: this TU's uses of scpKillEnemyAll do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpKillEnemyAll(void);
-/* kept local: this TU's uses of scpDispOnAllWithKind do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpDispOnAllWithKind(int a0);
-/* kept local: this TU's uses of scpDisActivateAllWithKind do not fit the prototype in script.h */
+/* kept local: void (int) here, void (void) in script.h */
 extern void scpDisActivateAllWithKind(int a0);
 
 void actSt04aGateOpenChk(volatile int a0)
@@ -772,7 +775,7 @@ void actSt04aGateOpenChk(volatile int a0)
     th3 = (int *)actCreateSubThread(actConte09Jimaku, 21);
 
     demoEnd = 0;
-    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -1044,7 +1047,7 @@ void actConte09Jimaku(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: this TU's uses of scpPlayMotReq do not fit the prototype in script.h */
+/* kept local: void (void *, int) here, void (char *, int) in script.h */
 extern void scpPlayMotReq(void *a0, int mot);
 
 /* st04a.o's own .rodata: the gate-open exit direction vector. */
@@ -1089,7 +1092,7 @@ void actSt04aGateOpen2Chk(volatile int a0)
     actCreateSubThread(actConte09_2, 21);
 }
 
-/* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
+/* kept local: void (char *, float, float, float) here, void (void *, float, float, float) in script.h */
 extern void scpPlayPosSet(char *a0, float x, float y, float z);
 extern char D_00618E10[];
 
@@ -1274,13 +1277,13 @@ void actSt04aGateOpen3Chk(volatile int a0)
     actCreateSubThread(actConte09_3Jimaku, 21);
 }
 
-/* kept local: this TU's uses of scpSetStreamMotionRootOffset do not fit the prototype in script.h */
+/* kept local: void (char *, float, float, float) here, void (int, float, float, float) in script.h */
 extern void scpSetStreamMotionRootOffset(char *o, float x, float y, float z);
-/* kept local: this TU's uses of scpTorchLightOff do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpTorchLightOff(int a0);
-/* kept local: this TU's uses of scpGameStat_BoyWeaponkind do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern int scpGameStat_BoyWeaponkind(void);
-/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern int RequestStageChange(int a0, char *a1, int a2, float a3, float a4);
 
 void actConte09_3(volatile int a0)
@@ -1521,9 +1524,7 @@ void actConte09_3(volatile int a0)
     RequestStageChange(3, boyGObj, 0, 16.0f, 16.0f);
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
-extern PadState pad[];
-/* kept local: this TU's uses of preload do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void preload(int idx);
 
 void actSt04aGateLChk(volatile int a0)
@@ -1660,7 +1661,7 @@ void actSt04aGateRChk(volatile int a0)
     RequestStageChange(stage, boyGObj, 0, 1.0f, 8.0f);
 }
 
-/* kept local: this TU's uses of scpTorchLightOn do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpSearchGobj, scpTriggerBall differ) */
 extern void scpTorchLightOn(int a0);
 
 void actSt04aTorch1(volatile int a0)
@@ -2126,9 +2127,9 @@ typedef struct {
     float m[4];
 } Vec4St04A;
 
-/* kept local: this TU's uses of _ApplyMatrix do not fit the prototype in Matrix.h */
+/* kept local: void (int, int, int) here, void (void *, void *, void *) in Matrix.h */
 extern void _ApplyMatrix(int dst, int m, int src);
-/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
+/* kept local: void (int, int) here, void (void *, void *) in Matrix.h */
 extern void _NormalizeVector(int dst, int src);
 
 void finishCallBackFunc(int a0)

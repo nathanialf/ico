@@ -45,11 +45,15 @@ void isysGObjKindTableInit(void)
     memset(gobjKindHead, 0, sizeof(gobjKindHead));
 }
 
+/* kept local: char [] here, int * [8] in isys.h */
 extern char gobj_link_head[];
+/* kept local: char * [] here, int * [8] in isys.h */
 extern char *gobj_link_tail[];
+/* kept local: agrees with isys.h, which this TU does not include (active_gobj_dl_link, gobj_link_head differ) */
 extern int active_gobj_link;
+/* kept local: unsigned int here, int in isys.h */
 extern unsigned int active_gobj_dl_link;
-/* kept local: this TU's uses of isysGObjAlloc do not fit the prototype in gobj.h */
+/* kept local: agrees with gobj.h, which this TU does not include */
 extern void isysGObjAlloc(int n);
 
 void isysGObjInit(int n)
@@ -257,9 +261,9 @@ void add_gobj_to_head(char *g, int a1, int a2)
     *(char **)(*(char **)(g + 0x10) + 0x14) = g;
 }
 
-/* kept local: this TU's uses of add_gobj_to_tail do not fit the prototype in gobj.h */
+/* kept local: agrees with gobj.h, which this TU does not include */
 extern void add_gobj_to_tail(int a0, int a1, int a2);
-/* kept local: this TU's uses of cut_gobj_link do not fit the prototype in gobj.h */
+/* kept local: agrees with gobj.h, which this TU does not include */
 extern void cut_gobj_link(int a0);
 
 void isysGObjMove(int a0, unsigned char a1, int a2)
@@ -268,7 +272,7 @@ void isysGObjMove(int a0, unsigned char a1, int a2)
     return add_gobj_to_tail(a0, a1, a2);
 }
 
-/* kept local: this TU's uses of add_gobj_to_head do not fit the prototype in gobj.h */
+/* kept local: agrees with gobj.h, which this TU does not include */
 extern void add_gobj_to_head(char *a0, int a1, int a2);
 
 void isysGObjMoveHead(int a0, unsigned char a1, int a2)
@@ -412,11 +416,11 @@ inline void isysGObjRemove(char *g)
     }
 }
 
-/* kept local: this TU's uses of isysGObjSearchFromObjKindID_begin do not fit the prototype in gobj.h */
+/* kept local: agrees with gobj.h, which this TU does not include */
 extern void *isysGObjSearchFromObjKindID_begin(int kind);
-/* kept local: this TU's uses of isysGObjSearchFromObjKindID_next do not fit the prototype in gobj.h */
+/* kept local: agrees with gobj.h, which this TU does not include */
 extern void *isysGObjSearchFromObjKindID_next(char *g);
-/* kept local: this TU's uses of isysGObjKindTableRemove do not fit the prototype in gobj.h */
+/* kept local: agrees with gobj.h, which this TU does not include */
 extern void isysGObjKindTableRemove(char *g);
 
 inline void isysGObjKindTableAdd(char *g, int kind)

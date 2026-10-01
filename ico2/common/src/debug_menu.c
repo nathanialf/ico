@@ -3,19 +3,17 @@
 #include "camera-root.h"
 #include "debug_menu.h"
 
-/* kept local: this TU's uses of GetMaxGObj do not fit the prototype in GobjProc.h */
+/* kept local: agrees with GobjProc.h, which this TU does not include (GetGObjP differ) */
 extern int GetMaxGObj(void);
-/* kept local: this TU's uses of GetGObjP do not fit the prototype in GobjProc.h */
+/* kept local: agrees with GobjProc.h, which this TU does not include */
 extern int GetGObjP(); /* unprototyped: C89 default int return, a GObj handle */
-/* kept local: this TU's uses of GetGObjId do not fit the prototype in GobjProc.h */
+/* kept local: agrees with GobjProc.h, which this TU does not include (GetGObjP differ) */
 extern int GetGObjId(int gobj);
-extern int debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5,
-                                    int (*fn)(int, int), int a7);
 extern int D_0063B404;
 extern int *D_0063B408;
 extern int D_0063B40C;
 extern int D_0063B410;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int CurrentTargetGObj;
 
 /* .sbss, owned by debug_menu.o and reached only from this file (MAIN.MAP names
@@ -79,7 +77,7 @@ void init_debug_menu(void)
 }
 
 extern ObjKindEnt objKindData[];
-/* kept local: this TU's uses of GetGObjP do not fit the prototype in GobjProc.h */
+/* kept local: agrees with GobjProc.h, which this TU does not include */
 extern int GetGObjP();
 
 char *debug_TargetGObj_Func(void)

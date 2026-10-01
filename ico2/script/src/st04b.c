@@ -17,15 +17,15 @@ static ActMail sekizo_mes[2] = {{430}, {429}};
 
 static ActMail ene1_mes[2] = {{430}, {429}};
 
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChangeDirect, _SCPMoveCharactorByWay differ) */
 extern void ScpCallCameraSetTarget(float x, float y, float z);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChangeDirect, _SCPMoveCharactorByWay differ) */
 extern void scpTorchLightOn(int a0);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int girlGObj;
-/* kept local: this TU's uses of _SCPMoveCharactorByWay do not fit the prototype in script.h */
+/* kept local: int (int, int, int *, int, float) here, int (char *, int, int, float, int) in script.h */
 extern int _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
-/* kept local: this TU's uses of RequestStageChangeDirect do not fit the prototype in script.h */
+/* kept local: void (int, int, int *, int) here, void (int *) in script.h */
 extern void RequestStageChangeDirect(int a0, int a1, int *buf, int a3);
 
 /* A 16-byte constant vector template: the float view carries the values,
@@ -47,33 +47,33 @@ void actSt04bEnd(void)
     }
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int boyPad;
-/* kept local: script.h's prototypes do not fit this TU's calls */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChangeDirect, _SCPMoveCharactorByWay differ) */
 extern int scpBoyControlReadDisable;
-/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
+/* kept local: int (int, int, float) here, int (char *, char *, float) in script.h */
 extern int scpTriggerBall(int a0, int gobj, float r);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChangeDirect, _SCPMoveCharactorByWay differ) */
 extern void scpKillEnemyOne(int a0);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChangeDirect, _SCPMoveCharactorByWay differ) */
 extern void scpMaskGeneratorAll(void);
-/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
+/* kept local: void (int, int *, int, int, int) here, void (int, char **, int, int, int) in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChangeDirect, _SCPMoveCharactorByWay differ) */
 extern void scpPlayStart(int a0);
-/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
+/* kept local: void (int, int) here, void (char *, int) in script.h */
 extern void scpPlayMot(int a0, int mot);
-/* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
+/* kept local: void (int, float, float, float) here, void (void *, float, float, float) in script.h */
 extern void scpPlayPosSet(int a0, float x, float y, float z);
-/* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
+/* kept local: void (int, void *) here, void (char *, float *) in script.h */
 extern void scpPlayMotDir(int a0, void *dir);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChangeDirect, _SCPMoveCharactorByWay differ) */
 extern void scpSekizouCheckPoint(void);
-/* kept local: this TU's uses of scpPlayWaitMotEnd do not fit the prototype in script.h */
+/* kept local: void (int) here, void (char *) in script.h */
 extern void scpPlayWaitMotEnd(int a0);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChangeDirect, _SCPMoveCharactorByWay differ) */
 extern void scpPlayEnd(int a0);
 
 /* .sdata, owned by st04b.o, in the ROM's order: the stone statue's stream handle, its shake and the shake's volume. */
@@ -178,11 +178,11 @@ void actSt04bSekizoChk(volatile int a0)
     scpBoyControlReadDisable = 0;
 }
 
-/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
+/* kept local: int (int, int) here, int (char *, int) in script.h */
 extern int scpTriggerFloorAttr(int a0, int attr);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChangeDirect, _SCPMoveCharactorByWay differ) */
 extern void scpSleepEnemyOne(int a0);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChangeDirect, _SCPMoveCharactorByWay differ) */
 extern void scpWakeupEnemyOne(int a0);
 
 void actSt04bEne1Chk(volatile int a0)

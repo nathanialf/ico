@@ -54,10 +54,8 @@ static int jimakuShownSema[13];
 
 static int jimakuFrameSema[13];
 
-extern void jimakuMgrNext(struct jArg *p);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting differ) */
 extern int systemStatus[];
-extern void jimakuMgrBegin(struct jArg *p);
 
 #include "jimaku.h"
 #include "gflag.h"
@@ -107,21 +105,21 @@ static int jimakuDispOn = 0; /* derived name */
 
 int jimakuOn = 1;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: unsigned char [] here, StageSetting in main.h */
 extern unsigned char GlobalStageSetting[];
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetGsReg differ) */
 extern void gif_StartPacketPri(int pri);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
+/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
-/* kept local: this TU's uses of gif_SetGsReg do not fit the prototype in GifPacket.h */
+/* kept local: void (int, long long) here, void (long long, long long) in GifPacket.h */
 extern void gif_SetGsReg(int reg, long long v);
-/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetGsReg differ) */
 extern void gif_SetZWrite(int on);
-/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetGsReg differ) */
 extern void gif_SetZTest(int on);
-/* kept local: this TU's uses of gif_SpriteSensitiveOffset do not fit the prototype in GifPacket.h */
+/* kept local: void (int *, unsigned int, int *, JimCol *, int) here, void (int *, long long, int *, unsigned char *, int) in GifPacket.h */
 extern void gif_SpriteSensitiveOffset(int *dst, unsigned int rgba, int *src, JimCol *col, int flag);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetGsReg differ) */
 extern void gif_EndPacket(void);
 
 void display_texture(JimTex *t)
@@ -217,6 +215,7 @@ int jimakuHandler(int self, struct jArg *p)
     return 0;
 }
 
+/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting differ) */
 extern int NonLinearCameraMove;
 extern char jimakuFileName[][32];
 
@@ -281,6 +280,7 @@ void jimakuMgrBegin(struct jArg *p)
     }
 }
 
+/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting differ) */
 extern int lock_execIcoMisc;
 extern void __assert(char *file, int line, char *expr);
 
@@ -445,6 +445,7 @@ void jimakuEnd(void)
     jimakuMgrEnd();
 }
 
+/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting differ) */
 extern int lock_execIcoMisc;
 
 /* the 0x70-byte layout-texture property records (LtProperty in

@@ -2,11 +2,7 @@
 #include "matrixDrive.h"
 #include <libvu0.h>
 #include "vobj.h"
-
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
-extern void gif_StartPacketPri(int a0);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
-extern void gif_EndPacket(void);
+#include "GifPacket.h"
 
 /* one 4-float vertex per entry; [3] is the run flag: 0 = keep drawing,
  * 2 = break the run and skip a vertex, anything else = end of list. */

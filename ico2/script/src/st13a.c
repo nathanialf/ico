@@ -13,9 +13,9 @@
 #include <libvu0.h>
 #include "typedef.h"
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
 extern int boyPad;
 
 /* .sbss, owned by st13a.o and reached only from this file (MAIN.MAP names no
@@ -23,7 +23,7 @@ extern int boyPad;
    subthreads the wait loops below spin for. */
 static int demoEnd;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
 extern PadState pad[];
 /* st13a.o's own .sdata run; MAIN.MAP names all seven. */
 void actSt13aElevUpSub(volatile int a0);

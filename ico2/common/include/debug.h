@@ -203,4 +203,11 @@ void getBuffer(int a0);
 void getLineBuffer(int a0, int a1, int a2);
 void debug_FlushFont(void);
 
+void debug_VariableInit(void);
+int debug_SnapShot(int idx);
+int debug_Mode(void);
+int debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5, int (*fn)(int, int), int a7);
+void debug_SESlotDisp(void);
+int debug_CollisionTest(int reset);
+
 #endif /* DEBUG_H */

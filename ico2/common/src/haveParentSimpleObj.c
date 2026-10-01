@@ -1,8 +1,8 @@
 #include "haveParentSimpleObj.h"
 
-/* kept local: this TU's uses of UpdateRootMatrix do not fit the prototype in geometryManager.h */
+/* kept local: agrees with geometryManager.h, which this TU does not include */
 extern void UpdateRootMatrix();
-/* kept local: this TU's uses of p2o_DispVU1 do not fit the prototype in DisplayP2O.h */
+/* kept local: agrees with DisplayP2O.h, which this TU does not include */
 extern void p2o_DispVU1();
 
 inline int InitParentSimpleObjGeo(void)

@@ -20,4 +20,8 @@ void ExitIcoMisc(void);
 void DispIcoMisc(void);
 void InitIcoMisc();
 
+void disp_memory_partition_bar(void);
+void disp_memory_partition(void);
+void ExecIcoMisc(void);
+
 #endif /* ICOMISC_H */

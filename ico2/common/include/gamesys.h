@@ -28,12 +28,17 @@ void gamesysMemoryLoad(void **tbl, int a1, void *a2);
 void gamesysMemorySave(void **tbl, int a1, void *a2);
 int *gamesysObjInfoBaseSet(int *self, int stage);
 void gamesysObjInfoCls(int kind, int no);
-void *gamesysObjInfoGet(int a0, int a1);
+GamesysObjInfo *gamesysObjInfoGet(int kind, int no);
 void gamesysObjInfoInit(void);
-void gamesysObjInfoPosNewStageSet(char *self, char *other, int v, float *tmp_a, float *tmp_b);
+GamesysObjInfo *gamesysObjInfoPosNewStageSet(int no, int kind, int stage, float *pos, float *rot);
 int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3);
 void gamesysObjInfoStageInitFlagCls(void);
 int *gamesysObjInfoUniqDataSet(int a0);
 void gamesysStageExitTimeSet(int a0);
+
+void gamesysBackStageProcess(void);
+void gamesysNObjInfoInit(void);
+void gamesysObjInfoStageInitPosSaveUnlock(void);
+int gamesysGirlStageGet(void);
 
 #endif /* GAMESYS_H */

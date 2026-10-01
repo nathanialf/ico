@@ -6,8 +6,6 @@
 /* .sdata, owned by mblock.o: the free node list (MAIN.MAP global) */
 int free_mblock_list = 0;
 
-extern MBlockNode *new_mblock_node(unsigned int size);
-
 inline void init_mblock(int *a0)
 {
     a0[0] = 0;

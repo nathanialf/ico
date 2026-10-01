@@ -14,4 +14,6 @@
 
 void init_debug_menu(void);
 
+int debug_TargetGObj(int reset);
+
 #endif /* DEBUG_MENU_H */

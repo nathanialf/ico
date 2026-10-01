@@ -1,4 +1,6 @@
 #include "debug_exception.h"
+#include "pad.h"
+#include "keyInput.h"
 
 /* The EE exceptions the debug monitor traps: {cause code, printable name}. */
 typedef struct {
@@ -205,7 +207,9 @@ static unsigned int regQuad[4] __attribute__((aligned(128)));
 #include <sifdev.h>
 #include <string.h>
 
+/* kept local: agrees with libcdvd.h, which this TU does not include (sceFsReset differ) */
 extern int sceCdSync(int mode);
+/* kept local: void (void) here, int (void) in libcdvd.h */
 extern void sceFsReset(void);
 
 /* The disc settle the debug monitor does around every raw file operation: wait
@@ -547,10 +551,9 @@ typedef struct {
     unsigned int w[4];
 } EeReg128;
 
+/* kept local: agrees with main.h, which this TU does not include */
 extern void Emergency_DestroyAllThread(void);
 extern int SetDebugHandler();
-extern void iosPadEnable(void);
-extern void ExecKeyInput(void);
 
 /* debug_exception_screen.c.inc(476-477, 493-495): blank the character screen
    and put the cursor back at the top left.  Written as a helper because

@@ -41,4 +41,6 @@ int ShockRequestBox_RequestCancel(int a0_, int a1);
 int Shock_SetShockVoiceSet(int idx, int val);
 int dumyAllocFunc(void);
 
+void Vibration_SetDecodeData(void *a0, int a1, int a2, unsigned char a3, unsigned char a4);
+
 #endif /* SHOCKDRIVER_H */

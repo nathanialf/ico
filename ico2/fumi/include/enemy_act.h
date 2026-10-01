@@ -78,4 +78,8 @@ int flyMailCore(void *self);
 /* MAIN.MAP global of enemy_act.o's .sdata, the run's last word (act.c sets it) */
 extern int entesty;
 
+void subEnemyControl(volatile int a0);
+void subEnemyCollision(volatile int a0);
+void subEnemyBrainMain(volatile int a0);
+
 #endif /* ENEMY_ACT_H */

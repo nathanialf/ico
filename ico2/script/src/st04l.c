@@ -25,32 +25,31 @@
 #include "typedef.h"
 #include "st04r.h"
 
-/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
+/* kept local: PObjGObj * (int) here, int (int) in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmFadeCloseFunc differ) */
 extern int scpIsTorchLightOn(int a0);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmFadeCloseFunc differ) */
 extern void scpTorchLightOn(int a0);
-/* kept local: script.h's prototypes do not fit this TU's calls */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmFadeCloseFunc differ) */
 extern int scpBoyControlReadDisable;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: Pad [] here, PadState [16] in main.h */
 extern Pad pad[];
-extern int D_0028F8F4[];
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmFadeCloseFunc differ) */
 extern int scpGameStat_BoyWeaponkind(void);
-/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
+/* kept local: int (void *, int) here, int (char **, short) in script.h */
 extern int scpAdpcmFadeCloseFunc(void *a0, int a1);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmFadeCloseFunc differ) */
 extern int scpAdpcmPlayRequestNum(void);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmFadeCloseFunc differ) */
 extern int scpFadeChk(void);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmFadeCloseFunc differ) */
 extern void scpFadeIn(float f);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmFadeCloseFunc differ) */
 extern void preload(int idx);
-/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
+/* kept local: int (int, void *, int, float, float) here, int (int, char *, int, float, float) in script.h */
 extern int RequestStageChange(int a0, void *a1, int a2, float a3, float a4);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmFadeCloseFunc differ) */
 extern void scpWakeupEnemyAll(void);
 
 typedef struct AdpcmReq {
@@ -58,7 +57,7 @@ typedef struct AdpcmReq {
     int unk2C;        /* 0x2C */
 } AdpcmReq;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int boyPad;
 
 /* .sbss, owned by st04l.o and reached only from this file (MAIN.MAP names no
@@ -80,32 +79,33 @@ static int crest2Anim;
 
 static int subStarted;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int systemStatus[];
-/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
+/* kept local: void (int, void *, int, int, int) here, void (int, char **, int, int, int) in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, void *a1, int a2, int a3, int a4);
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmFadeCloseFunc differ) */
 extern float scpSeEnvMasterVolRate;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int current_stage_no;
-/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
+/* kept local: int (int, void *, float) here, int (char *, char *, float) in script.h */
 extern int scpTriggerBall(int a0, void *a1, float radius);
-/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
+/* kept local: void (void *, int) here, void (char *, int) in script.h */
 extern void scpPlayMot(void *a0, int mot);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmFadeCloseFunc differ) */
 extern void scpFadeOut(float t, int a1, int a2, int a3);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *girlGObj;
-/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
+/* kept local: int (void *, int) here, int (char *, int) in script.h */
 extern int scpTriggerFloorAttr(void *obj, int attr);
-/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
+/* kept local: void (void *) here, void (int) in script.h */
 extern void scpPlayStart(void *a0);
-/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
+/* kept local: void (void *) here, void (int) in script.h */
 extern void scpPlayEnd(void *a0);
-/* kept local: this TU's uses of scpPlayMotReq do not fit the prototype in script.h */
+/* kept local: void (void *, int) here, void (char *, int) in script.h */
 extern void scpPlayMotReq(void *a0, int mot);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmFadeCloseFunc differ) */
 extern void scpSleepEnemyAll(void);
 
 /* A 16-byte constant vector template: the float view carries the values,
@@ -114,21 +114,21 @@ extern void scpSleepEnemyAll(void);
 
 static const ConstVec stairSubPos = {{0.0f, 0.0f, -5000.0f, 1.0f}};
 
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmFadeCloseFunc differ) */
 extern void scpKillEnemyAll(void);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmFadeCloseFunc differ) */
 extern void scpMaskGeneratorAll(void);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmFadeCloseFunc differ) */
 extern void scpPlayPosSet(void *a0, float x, float y, float z);
-/* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
+/* kept local: void (void *, float *) here, void (char *, float *) in script.h */
 extern void scpPlayMotDir(void *a0, float *dir);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmFadeCloseFunc differ) */
 extern void scpSekizouCheckPoint(void);
-/* kept local: this TU's uses of scpPlayWaitMotEnd do not fit the prototype in script.h */
+/* kept local: void (void *) here, void (char *) in script.h */
 extern void scpPlayWaitMotEnd(void *a0);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmFadeCloseFunc differ) */
 extern void scpSleepEnemyOne(int a0);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpAdpcmFadeCloseFunc differ) */
 extern void scpWakeupEnemyOne(int a0);
 
 /* .sdata, owned by st04l.o, in the ROM's order: the room's stream handles and shakes (solar4l unused by the retail code). */
@@ -364,7 +364,7 @@ void actSt04lBallTurnCommon(volatile int a0)
     demoEnd = 0;
     ball1_4l = 0xFFFFFFFF;
 
-    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -618,7 +618,7 @@ void actSt04lCrestMain(volatile int a0)
     demoEnd = 0;
     oriup4c = 0xFFFFFFFF;
 
-    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -719,7 +719,7 @@ void actSt04lCrest2Main(volatile int a0)
     demoEnd = 0;
     oriup4c = 0xFFFFFFFF;
 
-    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -807,7 +807,7 @@ void actSt04lCrest3Main(volatile int a0)
     demoEnd = 0;
     oriup4c = 0xFFFFFFFF;
 
-    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -977,7 +977,7 @@ void actSt04lStairChk(volatile int a0)
     subStarted = 0;
     oriup4c = 0xFFFFFFFF;
 
-    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -1720,7 +1720,7 @@ void actSt04lOriChk(volatile int a0)
 
     demoEnd = 0;
 
-    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -1909,7 +1909,7 @@ void actSt04lOri2Chk(volatile int a0)
 
     demoEnd = 0;
 
-    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 

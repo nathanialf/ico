@@ -9,15 +9,23 @@
  * this file for these functions and MAIN.MAP lists them under debug_exception.o; debug.c calls them as externs.
  * The three Vif1/GIF helpers are inline (they inline into drawSprite/PutFont and their out-of-line copies close the
  * object); the rest are ordinary functions emitted in this order. */
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (pad differ) */
 extern int db[];
+/* kept local: agrees with libpkt.h, which this TU does not include (sceVif1PkAddGsData, sceVif1PkReset differ) */
 extern void sceVif1PkCloseDirectCode();
+/* kept local: agrees with libpkt.h, which this TU does not include (sceVif1PkAddGsData, sceVif1PkReset differ) */
 extern void sceVif1PkCloseGifTag();
+/* kept local: agrees with libpkt.h, which this TU does not include (sceVif1PkAddGsData, sceVif1PkReset differ) */
 extern void sceVif1PkEnd();
+/* kept local: agrees with libpkt.h, which this TU does not include (sceVif1PkAddGsData, sceVif1PkReset differ) */
 extern void sceVif1PkTerminate();
+/* kept local: agrees with libgraph.h, which this TU does not include (sceGsSwapDBuff, sceGsSyncV differ) */
 extern void sceGsSyncPath();
+/* kept local: agrees with libgraph.h, which this TU does not include (sceGsSwapDBuff, sceGsSyncV differ) */
 extern int sceGsSetDefTexEnv();
+/* kept local: agrees with libgraph.h, which this TU does not include (sceGsSwapDBuff, sceGsSyncV differ) */
 extern int sceGsSetDefAlphaEnv();
+/* kept local: agrees with libgraph.h, which this TU does not include (sceGsSwapDBuff, sceGsSyncV differ) */
 extern int sceGsSetDefDrawEnv();
 
 /* The four GS environment packets the screen sends with sceGsPutDrawEnv: a
@@ -53,11 +61,16 @@ typedef struct {
     int f_18[2];
 } Vif1Packet;
 
+/* kept local: agrees with libpkt.h, which this TU does not include (sceVif1PkAddGsData, sceVif1PkReset differ) */
 extern void sceVif1PkInit();
+/* kept local: agrees with libpkt.h, which this TU does not include (sceVif1PkAddGsData, sceVif1PkTerminate differ) */
 extern void sceVif1PkReset();
+/* kept local: agrees with libpkt.h, which this TU does not include (sceVif1PkAddGsData, sceVif1PkReset differ) */
 extern void sceVif1PkCnt();
+/* kept local: agrees with libpkt.h, which this TU does not include (sceVif1PkAddGsData, sceVif1PkReset differ) */
 extern void sceVif1PkOpenDirectCode();
 extern void sceVif1PkOpenGifTag(void *packet, u128_dbgscr tag);
+/* kept local: void (void *, unsigned long long) here, void (int **, long long) in libpkt.h */
 extern void sceVif1PkAddGsData(void *packet, unsigned long long data);
 
 /* The packet side OpenVif1DirectPacket builds into, flipped every packet, and
@@ -85,6 +98,7 @@ static int fontB = 255; /* derived name */
 /* The font's tag: XYZ2 pairs, one sprite per lit pixel. */
 static GifTag fontTag = {0x1400000000008000LL, 0x4};
 
+/* kept local: agrees with libgraph.h, which this TU does not include (sceGsSwapDBuff, sceGsSyncV differ) */
 extern void sceGsResetPath(void);
 
 typedef struct {
@@ -112,16 +126,21 @@ typedef struct {
     int btn;
 } DbgPad;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: DbgPad [] here, PadState [16] in main.h */
 extern DbgPad pad[];
 
 /* The cursor blink's phase, stepped every frame. */
 static int blinkPhase = 0; /* derived name */
 
+/* kept local: agrees with main.h, which this TU does not include (pad differ) */
 extern int buffer_ID;
+/* kept local: agrees with main.h, which this TU does not include (pad differ) */
 extern int odd_even;
+/* kept local: agrees with main.h, which this TU does not include (pad differ) */
 extern int frame_count;
+/* kept local: void (void *, int) here, int (void *, int) in libgraph.h */
 extern void sceGsSwapDBuff(void *a0, int a1);
+/* kept local: int (int) here, int (void) in libgraph.h */
 extern int sceGsSyncV(int a0);
 
 inline void OpenVif1DirectPacket(void *packet)

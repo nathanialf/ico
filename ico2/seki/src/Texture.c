@@ -627,7 +627,8 @@ void tex_initClutTexture(Tim2Picture *pic, CdvdRec *t)
     }
 }
 
-extern int D_0028F804[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int GlobalStageSetting[];
 
 void tex_setRegisters(Tim2Picture *pic, CdvdRec *t)
 {
@@ -638,7 +639,7 @@ void tex_setRegisters(Tim2Picture *pic, CdvdRec *t)
     int cw = 0;
     int ch = 0;
     int mmag = 1;
-    int mmin = D_0028F804[0];
+    int mmin = GlobalStageSetting[0xE4 / 4];
     int aref = 96;
     int atst = 1;
     int k = -165;
@@ -2025,7 +2026,7 @@ static int listTexNo = 0; /* derived name */
 static inline void remakeSampling(CdvdRec *t)
 {
     int mmag = 1;
-    int mmin = D_0028F804[0];
+    int mmin = GlobalStageSetting[0xE4 / 4];
 
     if (t->x2A8 != 0) {
         mmag = t->ext.x28;
@@ -2246,7 +2247,7 @@ void tex_UpdateMipMapLevel(void)
             k = -165;
             l = 0;
             mmag = 1;
-            mmin = D_0028F804[0];
+            mmin = GlobalStageSetting[0xE4 / 4];
         }
         tex->x78 = ((long long)(mxl - 1) << 2) | ((long long)mmag << 5) | ((long long)mmin << 6) |
                    ((long long)l << 19) | ((long long)k << 32);

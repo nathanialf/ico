@@ -11,6 +11,8 @@
 #include <string.h>
 #include "GsBase.h"
 #include <eeregs.h>
+#include "main.h"
+#include "Matrix.h"
 
 typedef struct {
     char _0[0x10];
@@ -27,9 +29,9 @@ typedef struct {
 } FcColor;
 
 typedef int (*FcFunc)(void *a0, int a1);
-/* kept local: this TU's uses of isysGObjGetExist_begin do not fit the prototype in gobj.h */
+/* kept local: agrees with gobj.h, which this TU does not include (isysGObjGetExist_next differ) */
 extern void *isysGObjGetExist_begin(void);
-/* kept local: this TU's uses of isysGObjGetExist_next do not fit the prototype in gobj.h */
+/* kept local: void * (void) here, void * (void *) in gobj.h */
 extern void *isysGObjGetExist_next(void);
 extern void __assert(char *file, int line, char *expr);
 
@@ -139,9 +141,13 @@ void MakeCollisionDependGObjList(void)
     }
 }
 
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector, sceVu0InnerProduct differ) */
 extern void sceVu0AddVector(void *a0, void *a1, void *a2);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector, sceVu0InnerProduct differ) */
 extern void sceVu0ScaleVector(void *a0, void *a1, float a2);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector, sceVu0InnerProduct differ) */
 extern void sceVu0ScaleVectorXYZ(void *a0, void *a1, float a2);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector, sceVu0InnerProduct differ) */
 extern void sceVu0SubVector(void *a0, void *a1, void *a2);
 
 void GetReflectionElement(char *a0, float arg0, float arg1)
@@ -167,6 +173,7 @@ void GetReflectionElement(char *a0, float arg0, float arg1)
     }
 }
 
+/* kept local: void (int *, int *) here, void (void *, void *) in libvu0.h */
 extern void sceVu0CopyVector(int *dst, int *src);
 
 inline void SetSimplePlane(float *self, float a, float b, float c, float d)
@@ -465,8 +472,6 @@ inline void ResetCollisionPC(void)
     pcFloor1 = 0;
     pcFloorR1 = 0;
 }
-
-extern int game_pause;
 
 void DispCollisionPC(void)
 {
@@ -978,8 +983,9 @@ static float clipMatrix[16] = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0}; 
 
 static float clipPlanePos[4] = {0}; /* derived name */
 
-extern void _ApplyMatrix(void *dst, void *m, void *src);
+/* kept local: float (int, int) here, float (void *, void *) in libvu0.h */
 extern float sceVu0InnerProduct(int a0, int a1);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector, sceVu0InnerProduct differ) */
 extern void sceVu0ApplyMatrix(void *a0, void *a1, void *buf);
 
 typedef union {
@@ -1125,14 +1131,15 @@ void _Clip(char *self, int mode)
     }
 }
 
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differ) */
 extern void gif_StartPacketPri(int a0);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
+/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector, sceVu0InnerProduct differ) */
 extern void sceVu0UnitMatrix(void *m);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differ) */
 extern void gif_EndPacket(void);
-/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differ) */
 extern void gif_SetZTest(int a0);
 
 void __ClipWall(ClipWork *a0, int a1)
@@ -1731,6 +1738,7 @@ inline void GetOrientOfWall(void *a0, void *a1, int *a2)
     }
 }
 
+/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0CopyVector, sceVu0InnerProduct differ) */
 extern void sceVu0SubVector(void *dst, void *a, void *b);
 
 void DrawCollisionRay(char *ray)
@@ -1800,8 +1808,6 @@ inline int GetFloorAttribute(int a0)
         return 0;
     return *(int *)(a0 + 0x98);
 }
-
-extern int frame_count;
 
 void MakeExitAttributeIndex(void)
 {

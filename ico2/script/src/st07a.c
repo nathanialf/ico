@@ -55,7 +55,7 @@ void actSt07aInit(void)
     }
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int girlGObj;
 
 void actSt07aEnd(void)
@@ -68,9 +68,9 @@ void actSt07aEnd(void)
     }
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: Pad [] here, PadState [16] in main.h */
 extern Pad pad[];
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
 
 /* .sbss, owned by st07a.o and reached only from this file (MAIN.MAP names no
@@ -78,9 +78,9 @@ extern int boyGObj;
    subthreads the wait loops below spin for. */
 static int demoEnd;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int boyPad;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int systemStatus[];
 
 /* A 16-byte constant vector: the float view carries the values, the long

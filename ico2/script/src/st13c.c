@@ -60,13 +60,13 @@ typedef struct PObjGObjSt13c {
     int unk16C;        /* 0x16C */
 } PObjGObjSt13c;
 
-/* kept local: this TU's uses of jimakuBegin do not fit the prototype in jimaku.h */
+/* kept local: agrees with jimaku.h, which this TU does not include (jimakuUndisp differ) */
 extern void jimakuBegin(int a0);
-/* kept local: this TU's uses of jimakuUndisp do not fit the prototype in jimaku.h */
+/* kept local: void (int) here, void (void) in jimaku.h */
 extern void jimakuUndisp(int a0);
-/* kept local: this TU's uses of jimakuJump do not fit the prototype in jimaku.h */
+/* kept local: agrees with jimaku.h, which this TU does not include (jimakuUndisp differ) */
 extern void jimakuJump(int a0);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
 
 /* .sbss, owned by st13c.o and reached only from this file (MAIN.MAP names no
@@ -76,10 +76,12 @@ static int demoEnd;
 
 static int bossGenerator;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int systemStatus[];
-extern int D_0028F8F4[];
+/* kept local: agrees with main.h, which this TU does not include */
+extern PadState pad[];
 extern JimakuArg jimaku_msg;
+/* kept local: agrees with jimaku.h, which this TU does not include (jimakuUndisp differ) */
 extern int jimakuOn;
 
 /* st13c.o's own .data run (no MAIN.MAP symbols): actor mail packets. */
@@ -116,9 +118,9 @@ static ActMail rescue_mes[2] = {{430}, {429}};
 
 static ActMail buki_mes[2] = {{430}, {429}};
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int boyPad;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int girlGObj;
 
 /* .sdata, owned by st13c.o, in the ROM's order: bmg and hand (MAIN.MAP globals) around the two scene streams MAIN.MAP leaves unnamed, then a word no retail code uses and the shake and volume the retail object adds. */
@@ -254,7 +256,7 @@ void actSt13cBmg1Chk(volatile int a0)
 
     demoEnd = 0;
 
-    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -384,7 +386,7 @@ void actSt13cCage1stDownDemoCancel(volatile int a0)
 
     th = (int *)(actCreateSubThread(actSt13cCage1stDownDemo, 21) + 0x24);
 
-    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -562,7 +564,7 @@ void actSt13cCageFallChk(volatile int a0)
 
     demoEnd = 0;
 
-    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -1127,7 +1129,7 @@ void actSt13cHandChk(volatile int a0)
 
     demoEnd = 0;
 
-    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 

@@ -12,6 +12,7 @@
 #include <libvu0.h>
 #include "st04c.h"
 #include "typedef.h"
+#include "gamesys.h"
 
 /* The TU starts at 0x00252418, where MAIN.MAP puts st22a.o. */
 
@@ -57,7 +58,7 @@ void actSt22aLightningVolime(volatile int a0)
     }
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
 
 static ActMail intro_mes[2] = {{430}, {429}};
@@ -66,7 +67,6 @@ static ActMail intro_mes[2] = {{430}, {429}};
 static const StVec introFacePos = {{-2000.0f, 0.0f, -1129.0f, 1.0f}}; /* derived name */
 
 /* no header declares it; gamesys.c defines it */
-extern void gamesysNObjInfoInit(void);
 void actSt22aIntroChk(volatile int a0);
 
 void actSt22aIntro(volatile int a0)
@@ -116,9 +116,10 @@ void actSt22aIntro(volatile int a0)
    subthread the wait loop below spins for. */
 static int demoEnd;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
 extern int systemStatus[];
-extern int D_0028F8F4[];
+/* kept local: agrees with main.h, which this TU does not include */
+extern PadState pad[];
 
 typedef struct St22Anims {
     int id[2];
@@ -144,7 +145,7 @@ void actSt22aIntroChk(volatile int a0)
     scpFadeIn(6.0f);
     th = actCreateSubThread(actSt22aIntroSub, 21);
     demoEnd = 0;
-    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
     fin = demoEnd ^ 1;

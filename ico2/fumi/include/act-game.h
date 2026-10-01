@@ -118,4 +118,6 @@ typedef struct {
     unsigned int f_4C;
 } StatusAttr;
 
+void ACTGameView_Loop(char *self);
+
 #endif /* ACT_GAME_H */

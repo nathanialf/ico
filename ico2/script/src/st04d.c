@@ -6,9 +6,9 @@
 #include "StageAnimation.h"
 #include "typedef.h"
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *girlGObj;
 
 /* A 16-byte constant vector template: the float view carries the values,

@@ -1,6 +1,7 @@
 #include "debug.h"
 #include <libvu0.h>
 #include "act-game.h"
+#include "torch.h"
 
 union ENVIF {
     int i;
@@ -43,18 +44,22 @@ typedef struct {
    TU's .rodata run (VMA 0x621A00). */
 static const Vec4 sofaSeatOffset = {30.0f, 0.0f, -50.0f, 0.0f};
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
-/* kept local: this TU's uses of CheckPureWallAttribute do not fit the prototype in motionManager2.h */
+/* kept local: agrees with motionManager2.h, which this TU does not include (CheckWallAttribute differ) */
 extern int CheckPureWallAttribute();
-/* kept local: this TU's uses of CheckWallAttribute do not fit the prototype in motionManager2.h */
+/* kept local: agrees with motionManager2.h, which this TU does not include (CheckPureWallAttribute differ) */
 extern int CheckWallAttribute();
 /* same prototype motionManager2.h carries; kept local because this TU does not include it */
+/* kept local: agrees with motionManager2.h, which this TU does not include (CheckPureWallAttribute, CheckWallAttribute differ) */
 extern float GetHeightOfFieldPlaneDifference(int *a, int *b);
 /* same prototype motionManager2.h carries; kept local because this TU does not include it */
+/* kept local: agrees with motionManager2.h, which this TU does not include (CheckPureWallAttribute, CheckWallAttribute differ) */
 extern void SetMotionDirection(void *a0, float *a1);
 /* same prototype motionManager2.h carries; kept local because this TU does not include it */
+/* kept local: agrees with motionManager2.h, which this TU does not include (CheckPureWallAttribute, CheckWallAttribute differ) */
 extern void GetRootProjectionPosOfGObj(int a0, int a1);
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int stage_no;
 
 #include "act-env.h"
@@ -74,21 +79,20 @@ inline void GetSofaPosition(char *a0, char *a1)
                       &v);
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *girlGObj;
 
 /* Where the first carrier stands in the stage 8 ditch below the -3000 line
    (VMA 0x621A10, the run's second object). */
 static const Vec4 ditchCarryPos = {767.0f, -3775.0f, 2621.0f, 1.0f};
 
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
+/* kept local: float * (void *) here, void * (void *) in commonact.h */
 extern float *test_CURRENTROOT(void *a0);
-extern void sceVu0SubVector(void *out, void *a, void *b);
-/* kept local: this TU's uses of _GetDirection do not fit the prototype in gv.h */
+/* kept local: float (void *) here, float (float *) in gv.h */
 extern float _GetDirection(void *orient);
-/* kept local: this TU's uses of _ApplyRyGV do not fit the prototype in gv.h */
+/* kept local: void (void *, float) here, void (float *, float) in gv.h */
 extern void _ApplyRyGV(void *v, float ry);
-/* kept local: this TU's uses of _OrientXZGV do not fit the prototype in gv.h */
+/* kept local: void (void *, void *, void *) here, void (int) in gv.h */
 extern void _OrientXZGV(void *out, void *a, void *b);
 
 static inline int getDitchCarryMode(void)
@@ -193,7 +197,7 @@ typedef struct {
     char _98[0x28];
 } ClipWork;
 
-/* kept local: the declaration in fieldCollision.h changes this TU codegen */
+/* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipFloor(void *a0);
 
 int GetDitchPosition(float *out, float *org, float *dir, float d0, float d1, float h)
@@ -357,28 +361,27 @@ typedef struct {
     float f_5A4; /* 0x5A4 */
 } EnvSub;
 
-/* kept local: this TU's uses do not fit the prototypes in the owners' headers */
+/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistxzSqGV(void *a0, void *a1);
+/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
 extern float _DistSqGV(void *a0, void *a1);
 extern int _FrontGV(float *a0, float *a1, void *ori, int deg);
-extern float sceVu0InnerProduct(void *a0, void *a1);
-extern void sceVu0Normalize(void *out, void *v);
 extern int CheckPureCliffAttribute(void *a0, int attr);
 extern float GetCorrectDistance(float d, int n);
 extern void GetOrientOfCliffOfGObj(void *out, void *obj);
 /* same prototype as its definition in weapon.c; kept local because no header carries it */
 extern char *CheckSwapableWeapon(char *a0, float dist);
-extern char *CheckTorchChainReaction(char *a0, float dist);
 extern char *CheckTorchChainReactionReverse(char *a0, float dist);
 extern char *GetBombTorchGObj(char *a0);
+/* kept local: void * (void *) here, void * (char *) in gobj.h */
 extern void *isysGObjSearchFromObjKindID_next(void *o);
 extern int GetBoxHoldPoint(float *out, char *self, void *chara);
-/* kept local: this TU's uses of debug_NMarker do not fit the prototype in camera-editor.h */
+/* kept local: void (float *, int, int, int, float) here, void (int *, int, int, int, float) in camera-editor.h */
 extern void debug_NMarker(float *pos, int r, int g, int b, float size);
 extern char D_0063BD50[];
 extern float D_0063BD54[];
 extern float D_0063BD58[];
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, int in main.h */
 extern char *girlControlMode;
 
 /* kept local, as act-game.c keeps it: the 0x194-byte-per-entry motion record

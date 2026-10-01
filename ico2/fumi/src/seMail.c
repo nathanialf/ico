@@ -28,9 +28,9 @@ typedef struct SeRec {
 } SeRec;
 
 extern SeRec seDef[];
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int girlGObj;
 void setMailTarget(int a0, int *a1, int *a2);
 

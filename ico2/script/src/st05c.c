@@ -12,31 +12,31 @@
 #include "st04c.h"
 #include "typedef.h"
 
-/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
+/* kept local: PObjGObj * (int) here, int (int) in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
+/* kept local: int (int, int, float) here, int (char *, char *, float) in script.h */
 extern int scpTriggerBall(int a0, int gobj, float r);
-/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpSearchGobj differ) */
 extern void scpSleepEnemyAll(void);
-/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpSearchGobj differ) */
 extern void scpWakeupEnemyAll(void);
-/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpSearchGobj differ) */
 extern int scpAdpcmPlayRequestNum(void);
-/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpSearchGobj differ) */
 extern void scpFadeOut(float f, int a1, int a2, int a3);
-/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpSearchGobj differ) */
 extern int scpFadeChk(void);
-/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpSearchGobj differ) */
 extern void scpFadeIn(float f);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: Pad [] here, PadState [16] in main.h */
 extern Pad pad[];
-/* kept local: this TU's uses of scpEffectStart do not fit the prototype in script.h */
+/* kept local: int (StVec *, int) here, int (void *, int) in script.h */
 extern int scpEffectStart(StVec *a0, int a1);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int girlGObj;
-/* kept local: script.h's prototypes do not fit this TU's calls */
+/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpSearchGobj differ) */
 extern int scpBoyControlReadDisable;
 
 /* .sbss, owned by st05c.o and reached only from this file (MAIN.MAP names no

@@ -29,4 +29,6 @@ extern int conte12;
 extern int sd2;
 extern int dead;
 
+void BoySekikaTexScroll(void);
+
 #endif /* ST25A_H */

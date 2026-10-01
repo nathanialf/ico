@@ -14,6 +14,12 @@
 #include <eekernel.h>
 #include "main.h"
 #include <eeregs.h>
+#include "s_init.h"
+#include "delayFreeManager.h"
+#include "adpcm_init.h"
+#include "fieldCollision.h"
+#include "icoMisc.h"
+#include "soundManager.h"
 
 /* main.c's own .data, VMA 0x0028F4C0..0x0028FEB8 (0x9F8 B), the six globals
    MAIN.MAP lists for main.o in ROM order. Each has an initialiser: the ROM
@@ -102,33 +108,29 @@ static const ThreadTbl allThreads = {{mainThread, schedulerThread, mcThread, cdv
  * 0x1B000, and as an `int` the SImode large_int splitter in mips.md cuts it into lui and ori
  * before sched1, which then hoists the lui five slots ahead of its ori; as a `long` it stays one
  * DImode `dli` the assembler expands into the adjacent lui/ori pair the ROM has. */
+/* kept local: void (void *, int, void (*)(void), int, void *, long, int) here, void (void *, int, void (*)(), int, void *, long, int) in thread.h */
 extern void iosThreadCreate(void *th, int a1, void (*entry)(void), int a3, void *stack, long size,
                             int pri);
-/* kept local: this TU's uses of iosThreadStart do not fit the prototype in thread.h */
+/* kept local: void (void *) here, void (int) in thread.h */
 extern void iosThreadStart(void *th);
-/* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
+/* kept local: agrees with thread.h, which this TU does not include (iosThreadCancelWakeup, iosThreadStart differ) */
 extern void iosThreadSleep(void);
 void idle(void);
 void scheduler(void);
 extern int mpegPlay;
 extern int stageManagerFreeResourceFlag;
 extern int stgMgrWakeupRequest;
+/* kept local: void (int) here, int (void) in libgraph.h */
 extern void sceGsSyncV(int mode);
-/* kept local: this TU's uses of iosThreadCancelWakeup do not fit the prototype in thread.h */
+/* kept local: int (void *) here, int (int *) in thread.h */
 extern int iosThreadCancelWakeup(void *th);
-/* kept local: this TU's uses of iosThreadWakeup do not fit the prototype in thread.h */
+/* kept local: int (void *) here, int (int *) in thread.h */
 extern int iosThreadWakeup(void *th);
 extern char movieFile[];
 extern int mpegInitDone;
 extern int mpegPlayInitColor;
 extern int mpegPlayReturnStage;
 extern float mpegPlayFadeInSpeed;
-extern int debug_TryToGetStartStage(void);
-extern void debug_VariableInit(void);
-extern void InitDelayFree(void);
-extern void stgmgrForceSwitchWithFade(int stage, float a, float b);
-extern void _InitRandom(float seed);
-extern void gsb_InitGSSystem(void);
 /* gsb_ResetSnap and gsb_TakeSnap return a value the callers drop, and the ROM
    proves it here: the load that follows each of the two calls takes $3, not
    $2, because local-alloc still has $2 live over the load's birth index for
@@ -136,25 +138,18 @@ extern void gsb_InitGSSystem(void);
    gsb_TakeSnap). Their definitions in ico2/seki/src/GsBase.c are empty, so the
    declaration is the only evidence; GsBase.o is byte-identical either way. */
 extern int gsb_ResetSnap(void);
-extern void AdpcmStreamFree(void);
-extern void soundAllocIopFree(void);
-extern int soundOutputModeGet(void);
 extern void movie_init(void *p, int w, int h, int a3, int a4, int a5, int col);
 extern int movie_proc(int (*abort)(void));
-extern void soundAllocIopHeap(void);
-extern void AdpcmStreamHeap(void);
+/* kept local: void (int, int) here, void (int, unsigned char) in act-game.h */
 extern void ACTGame_SetActors_Debug(int stage, int a1);
-extern void gsb_Init(void *p);
-extern void debug_ResetBar(void);
-extern void MakeCollisionDependGObjList(void);
 extern void MakeCharGObjList(void);
-extern void ExecIcoMisc(void);
 extern void stage_ResetAnimation(void);
 extern void stage_CalcAnimationNoParent(void);
+/* kept local: void (void) here, void (int, int, int, int) in obj_manager.h */
 extern void iosOmMain(void);
 extern void stage_CalcAnimationParent(void);
+/* kept local: agrees with obj_manager.h, which this TU does not include (iosOmMain differ) */
 extern void iosOmCreateDL(void);
-extern void ExecDelayFree(void);
 extern int gsb_TakeSnap(void);
 int movie_abort_check(void);
 
@@ -258,13 +253,7 @@ void Main(void)
     }
 }
 
-extern char jimakuThread[];
-extern char jimakuThreadStack[];
-extern void iosCdvdManager(void);
-extern void iosMcManager(void);
-extern void jimakuManager(void);
-extern void sndManager(void);
-extern void Main(void);
+/* kept local: void (int, int) here, void (int *, int) in thread.h */
 extern void iosThreadSetPri(int id, int pri);
 
 /* main.c's own first two small-bss cells, at 0x0063C100 and 0x0063C104, ahead of
@@ -392,7 +381,7 @@ void boot(void)
     iosThreadSleep();
 }
 
-/* kept local: this TU's uses of iosThreadDestroy do not fit the prototype in thread.h */
+/* kept local: void (int *) here, void (int) in thread.h */
 extern void iosThreadDestroy(int *th);
 
 void Emergency_DestroyAllThread(void)

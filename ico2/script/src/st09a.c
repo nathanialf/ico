@@ -13,9 +13,9 @@
 #include "motionManager2.h"
 #include "typedef.h"
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
 extern int boyPad;
 
 /* .sbss, owned by st09a.o and reached only from this file (MAIN.MAP names no
@@ -55,7 +55,8 @@ static ActMail hint1_mes[2] = {{430}, {429}};
 
 static ActMail hint2_mes[2] = {{430}, {429}};
 
-extern int D_0028F8F4[];
+/* kept local: agrees with main.h, which this TU does not include */
+extern PadState pad[];
 
 /* .sdata, owned by st09a.o, in the ROM's order: the bridge stream handle. */
 int st09a_brg = 0;
@@ -117,7 +118,7 @@ void actSt09aBrgDown(volatile int a0)
     th = actCreateSubThread(actSt09aBrgDownSub, 21);
     demoEnd = 0;
 
-    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 

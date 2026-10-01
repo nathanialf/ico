@@ -55,4 +55,9 @@ void iosCdvdMgrSearchFile(char *self);
 void iosCdvdMgrStStart(char *self);
 void iosCdvdMgrStStop(char *self);
 
+void iosCdvdDiskReadyBlock(void);
+void iosCdvdManager(void);
+void iosCdvdLoadPackFile(int a0, char *name, int a2);
+void iosCdvdBackGroundMgrInit(void);
+
 #endif /* CDVD_H */

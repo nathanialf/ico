@@ -12,6 +12,9 @@
 #include <libvu0.h>
 #include <math.h>
 #include "Matrix.h"
+#include "gamesys.h"
+#include <string.h>
+#include "main.h"
 
 typedef struct {
     int start;
@@ -25,7 +28,6 @@ typedef union {
     GamesysObjInfo info;
 } GamesysObjInfoFlag;
 
-extern int stage_no;
 void gamesysVersionLoad(int *self);
 void gamesysVersionSave(int a0);
 void gamesysObjInfoLoad(void *h);
@@ -37,10 +39,6 @@ void gamesysHintInfoSave(int *self);
 void gamesysCharacterInfoLoad(int *a0);
 void gamesysCharacterInfoSave(int *self);
 /* the other TUs' save-area handlers the table carries; no header declares them */
-extern void gflagLoad(void *fp);
-extern void gflagSave(void *fp);
-extern void backStageLoad(void *a0);
-extern void backStageSave(void *a0);
 extern void itouGflagLoad(int a0, int a1, int a2, int a3);
 extern void itouGflagSave(void);
 
@@ -96,8 +94,6 @@ static inline GamesysObjInfo *gamesysObjInfoSearch(GamesysObjInfoReq *req, int n
     return &gameSysObjInfo[i];
 }
 
-extern void memset(char *p, int a, int n);
-
 void gamesysObjInfoInit(void)
 {
     int i;
@@ -112,8 +108,6 @@ void gamesysObjInfoInit(void)
 }
 
 extern int gamesysTimeCount;
-/* kept local: this TU's uses of gamesysMemoryHandlerWrite do not fit the prototype in gamesys.h */
-extern void gamesysMemoryHandlerWrite();
 
 void gamesysObjInfoSave(void *h)
 {
@@ -273,6 +267,7 @@ void gamesysBackStageProcess(void)
     backStageProcessMain();
 }
 
+/* kept local: declaring it only through string.h moves this TU's bytes */
 extern void memcpy();
 
 void gamesysMemoryHandlerWrite(int *self, int n, int a2)
@@ -387,9 +382,6 @@ void gamesysObjInfoStageInitPosSaveUnlock(void)
         i--;
     } while (i >= 0);
 }
-
-/* kept local: this TU's uses of gamesysObjInfoBaseSet do not fit the prototype in gamesys.h */
-extern int *gamesysObjInfoBaseSet(int *self, int a1);
 
 int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3)
 {
@@ -549,7 +541,6 @@ void gamesysMemoryLoad(void **tbl, int a1, void *a2)
 }
 
 extern int gamesysVersionDiff;
-extern int strcmp(int *p, int *buf);
 
 void gamesysVersionLoad(int *self)
 {

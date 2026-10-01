@@ -38,4 +38,7 @@ typedef struct {
     int work[4];
 } GamesysObjInfo;
 
+void backStageSave(void *a0);
+void backStageLoad(void *a0);
+
 #endif /* BACKSTAGE_H */

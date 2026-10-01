@@ -1,7 +1,6 @@
 #include "cdvd.h"
-
-int iosMcIconWriteIconsys(int self, int *p);
-int iosMcIconWriteIcon(int self, int *p);
+#include "mcdata.h"
+#include "thread.h"
 
 struct McIconWork {
     int remain;
@@ -9,17 +8,14 @@ struct McIconWork {
     void *buf;
 };
 
-/* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
-extern void iosThreadSleep(void);
-
 /* .sbss, owned by mcdata.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the flag the mcard thread raises when the request the
    caller is spinning on has finished. */
 static int mcDataDone;
 
-/* kept local: this TU's uses of iosMcMgrSync do not fit the prototype in mcard.h */
+/* kept local: void (int) here, void (void *) in mcard.h */
 extern void iosMcMgrSync(int self);
-/* kept local: this TU's uses of iosMcHandlerWrite do not fit the prototype in mcard.h */
+/* kept local: void (int, void *, int) here, int () in mcard.h */
 extern void iosMcHandlerWrite(int self, void *buf, int size);
 
 /* Background-read callback: pulls the icon file off the disc a chunk at a

@@ -71,9 +71,9 @@ typedef struct WpSortEnt {
     float d;
 } WpSortEnt;
 
-/* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
+/* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipWall(void *);
-/* kept local: this TU's uses of ClipWallField do not fit the prototype in fieldCollision.h */
+/* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipWallField(void *);
 
 /* the name every iosMallocDebug and assert in this file reports itself under */
@@ -257,6 +257,7 @@ void ez_circle(void)
     volatile int local[12];
 }
 
+/* kept local: void * (void *, int, int) here, void * (void *, int, unsigned int) in string.h */
 extern void *memset(void *dst, int c, int n);
 
 int short_direction_between_wp(char *from, char *to)
@@ -350,6 +351,7 @@ char *visible_waypoint_from_gobj(void *dobj, int handle);
 void *get_wp_nearest_bridge_side_me(int arg0, int arg1);
 int get_wp_nearest_bridge_side_bridge(int arg0, int arg1);
 extern void __assert(void *a0, int a1, void *a2);
+/* kept local: void (void *, int) here, void (char *, int) in debug_exception.h */
 extern void debug_assert(void *a0, int a1);
 
 inline int direction_across_bridge(void *a0, int a1)
@@ -677,6 +679,7 @@ void set_check_wp(CheckWp *out, int wp, int gid)
     }
 }
 
+/* kept local: void * (void *, int, int) here, void * (void *, int, unsigned int) in string.h */
 extern void *memset(void *dst, int c, int n);
 
 typedef struct WayDist {
@@ -1033,7 +1036,7 @@ inline char *nearest_waypoint_of_all(int *a0)
     return best;
 }
 
-/* kept local: the declaration in way_util.h changes this TU codegen */
+/* kept local: agrees with way_util.h, which this TU does not include */
 extern char *visible_waypoint_of_all_except_gid(int *arg0, int gid);
 
 inline int visible_waypoint_of_all(void *a0)
@@ -1048,7 +1051,7 @@ inline void visible_waypoint_of_all_from_gobj(void *a0)
     visible_waypoint_of_all_except_gid(buf, -1);
 }
 
-/* kept local: this TU's uses of ClipWall do not fit the prototype in fieldCollision.h */
+/* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipWall(void *);
 
 inline char *visible_waypoint(int *arg0, int handle)

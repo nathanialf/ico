@@ -22,4 +22,6 @@ void sndBgmReadyNextStage(int *a, int *b);
 /* MAIN.MAP global, soundManager.o's whole .sdata */
 extern int sndInitBgmCancelFlag;
 
+void sndInit(int idx);
+
 #endif /* SOUNDMANAGER_H */

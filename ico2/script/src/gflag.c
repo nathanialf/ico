@@ -7,12 +7,10 @@
 #include "lws_kyomi.h"
 #include "warpGirl.h"
 #include <string.h>
+#include "main.h"
 
 /* the story flag bitmap, one bit per event flag; saved and restored whole */
 static unsigned char gflags[50] = {0};
-
-/* kept local: main.c's global; this TU does not include main.h */
-extern int systemStatus[];
 
 /* gflag.o's .sdata run (VMA 0x63AA00..0x63AA08; MAIN.MAP's January object
    is the one word gFlagSaveStage): the game-clear state, saved and loaded
@@ -21,10 +19,8 @@ int gFlagGameClear = 0; /* derived name */
 
 int gFlagSaveStage = 0;
 
-extern int before_stage_no;
 extern int gamesysVersionDiff;
-extern int stage_no;
-/* kept local: this TU's uses of itouGFlagInit do not fit the prototype in itou_gflag.h */
+/* kept local: agrees with itou_gflag.h, which this TU does not include */
 extern void itouGFlagInit();
 int gflagChk(int bit_idx);
 void gflagOn(int bit_idx);

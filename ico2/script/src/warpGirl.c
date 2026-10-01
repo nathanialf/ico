@@ -41,13 +41,14 @@ typedef union Vec16 {
 } Vec16;
 
 extern WarpRec girlWarpList[];
+/* kept local: agrees with main.h, which this TU does not include (girlGObj differ) */
 extern int stage_no;
 
 /* .sbss, owned by warpGirl.o and reached only from this file (MAIN.MAP names
    no symbol in the run): set when a warp destination has been found. */
 static int warpFound;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int girlGObj;
 
 /* warpGirl.c:75-81 in the listing: the "this record wins" setter.  No MAIN.MAP

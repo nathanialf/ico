@@ -8,6 +8,7 @@
  * translation unit, not by the included file. */
 
 int ATGoalTurnMail(void *actor, float *dir, int node);
+/* kept local: void (void *, int, void *, void *) here, int (char *, int, void *, void *) in mail-add-data.h */
 extern void ActSendMail_WithAdditionalData(void *gop, int msg, void *sender, void *data);
 
 static void *attractMailData; /* derived name */
@@ -44,9 +45,9 @@ static inline int girlAttractTurnMailR(void *actor, float *from, float *to)
     return 1;
 }
 
-/* kept local: this TU's uses of GetSkeltonOrient do not fit the prototype in act-game.h */
+/* kept local: agrees with act-game.h, which this TU does not include */
 extern void GetSkeltonOrient(float *out, void *obj, int node);
-/* kept local: this TU's uses of _RotyGV do not fit the prototype in gv.h */
+/* kept local: int (void *, void *) here, int (float *, float *) in gv.h */
 extern int _RotyGV(void *buf, void *vec);
 
 int ATGoalTurnMail(void *actor, float *dir, int node)
@@ -92,7 +93,7 @@ int ATGoalTurnMail(void *actor, float *dir, int node)
     return ret;
 }
 
-/* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
+/* kept local: agrees with commonact.h, which this TU does not include */
 extern void *test_CURRENTROOT(void *a0);
 
 int checkWaterfallResult(float *out)
@@ -174,10 +175,9 @@ int checkWaterfallResult(float *out)
     return ret;
 }
 
-/* kept local: this TU's uses of IsTopHint do not fit the prototype in lws_kyomi.h */
-extern int IsTopHint(void *gobj);
 /* kept local: brain.h has no row for the target timer; the ROM passes the target object. */
 extern int brainDecTargetTimer(void *gobj);
+/* kept local: void (void *, int) here, void (void *, char *) in act-game.h */
 extern void _GetRootObjectOrient(void *out, int gobj);
 
 /* One 0x50-byte record per act status, indexed by the actor's status at

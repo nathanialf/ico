@@ -30,4 +30,7 @@ void iosPadStickCameraCoord(void *a0, float *a1);
 /* pad.c's vibration enable flag (MAIN.MAP's pad.o .sdata name). */
 extern int iosPadActRequestEnable;
 
+int controler_stable_check(void *a0);
+void iosPadActInit(void);
+
 #endif /* PAD_H */

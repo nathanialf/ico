@@ -2,6 +2,9 @@
 #include "debug.h"
 #include "gflag.h"
 #include "layout_action.h"
+#include <string.h>
+#include <stdlib.h>
+#include "debug_exception.h"
 
 typedef struct {
     unsigned char r;
@@ -134,8 +137,8 @@ extern LtProp texLayout[];
 /* No <string.h>: display_texture's 4-byte zero fill is a `jal memset` in the
    ROM, so newlib's builtin-compatible prototype was not in scope; memset is
    declared as layout_action.c (same directory) declares it. */
+/* kept local: void * (void *, int, int) here, void * (void *, int, unsigned int) in string.h */
 extern void *memset(void *dst, int c, int n);
-extern char *strcpy(char *dst, const char *src);
 
 #include "Texture.h"
 
@@ -205,7 +208,7 @@ typedef struct LtPad {
     unsigned char rx; /* 0x57 */
 } LtPad;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: LtPad here, PadState [16] in main.h */
 extern LtPad pad;
 
 void lt_analog2Pad(void)
@@ -237,8 +240,8 @@ void lt_analog2Pad(void)
     lastButton = pad.button;
 }
 
+/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, pad differ) */
 extern int frame_count;
-extern int D_0028F8F4[];
 /* census display_texture: a file static here (the name is also src/jimaku's
    global and src/kanban's file-local one). */
 static void display_texture(int no, LtProperty *e);
@@ -271,9 +274,9 @@ static inline void lt_draw_layout(int no)
     }
 }
 
-/* kept local: the declaration in s_init.h changes this TU codegen */
+/* kept local: int (int, unsigned int, float *, int) here, int (int, int, int, int) in s_init.h */
 extern int soundSeDefPlay(int se, unsigned int handle, float *pos, int a3);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, pad differ) */
 extern int systemStatus[];
 
 /* Source lines 441-451.  lt_switch_layout is a real global at its own ROM slot
@@ -496,30 +499,33 @@ void texture_fading(LtProp *p)
     }
 }
 
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SpriteSensitive differ) */
 extern void gif_StartPacketPri(int pri);
-/* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SpriteSensitive differ) */
 extern void gif_SetZTest(int on);
-/* kept local: this TU's uses of gif_SetZWrite do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SpriteSensitive differ) */
 extern void gif_SetZWrite(int on);
-/* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
+/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
-/* kept local: this TU's uses of gif_SpriteSensitive do not fit the prototype in GifPacket.h */
+/* kept local: void (void *, unsigned int, void *, void *, int) here, void (int *, long long, int *, unsigned char *, int) in GifPacket.h */
 extern void gif_SpriteSensitive(void *rect, unsigned int z, void *uv, void *col, int prim);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SpriteSensitive differ) */
 extern void gif_EndPacket(void);
 extern void texture_fading(LtProp *p);
 /* The census display_texture body below reads these:
    ltHighlightColor is the second highlight colour, GlobalStageSetting the system record whose
    bytes at 0xD0/0xD4/0xD8 it inverts, and GetTableSin/gif_SpriteSensitiveOffset/
    gif_PointOffset/gif_SetGsReg/rand are its callees. */
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: unsigned char [] here, StageSetting in main.h */
 extern unsigned char GlobalStageSetting[];
+/* kept local: float (int) here, float (short) in tableSin.h */
 extern float GetTableSin(int a);
+/* kept local: void (void *, unsigned int, void *, void *, int) here, void (int *, long long, int *, unsigned char *, int) in GifPacket.h */
 extern void gif_SpriteSensitiveOffset(void *rect, unsigned int z, void *ofs, void *col, int prim);
+/* kept local: void (void *, unsigned int, void *, int) here, void (int *, long long, unsigned char *, int) in GifPacket.h */
 extern void gif_PointOffset(void *pt, unsigned int z, void *col, int prim);
+/* kept local: void (int, int) here, void (long long, long long) in GifPacket.h */
 extern void gif_SetGsReg(int reg, int val);
-extern int rand(void);
 
 /* source lines 870-887: the pulsing highlight sprite, inlined three times by
    display_texture.  The listing puts the parameter setup on the brace line
@@ -699,7 +705,7 @@ void display_primary_texture_layout(int no, int sel)
         sel = ((int (*)(int, int))p->f20)(ltSelectFlag, sel);
         if (sel != -1) {
             flag = 0;
-            if ((D_0028F8F4[0] & 0x40) != 0) {
+            if ((pad.trigger & 0x40) != 0) {
                 flag = m == 1;
             }
             if ((fadeState == 2 && sel != current_layout_id) || sel == 62) {
@@ -712,7 +718,7 @@ void display_primary_texture_layout(int no, int sel)
                     fadeState = flag ? 7 : 3;
                 }
             }
-        } else if ((D_0028F8F4[0] & 0x40) != 0) {
+        } else if ((pad.trigger & 0x40) != 0) {
             if (m == 2) {
                 nextFadeState = m;
                 fadeState = 7;
@@ -735,7 +741,7 @@ void exec_layout_texture(void)
     int k;
 
     if (frame_count - selectFrame == 0 || frame_count - selectFrame == 1) {
-        D_0028F8F4[0] = 0;
+        pad.trigger = 0;
     }
     p = &texLayout[current_layout_id];
     for (;;) {
@@ -786,7 +792,6 @@ extern char texFile[][0x34];
 extern char D_0030D014[];
 extern char *strtok(char *s, const char *sep);
 extern char *strrchr(const char *s, int c);
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
 /* source lines 1249-1259 */

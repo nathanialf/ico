@@ -15,9 +15,9 @@
 #include "waySystemManager.h"
 
 extern ObjKindEnt objKindData[];
-/* kept local: this TU's uses of isysGObjGetExist_begin do not fit the prototype in gobj.h */
+/* kept local: int * (int) here, void * (void) in gobj.h */
 extern int *isysGObjGetExist_begin(int a0);
-/* kept local: this TU's uses of isysGObjGetExist_next do not fit the prototype in gobj.h */
+/* kept local: int * (int *) here, void * (void *) in gobj.h */
 extern int *isysGObjGetExist_next(int *a0);
 
 /* .sbss, owned by sceneManager.o and reached only from this file (MAIN.MAP
@@ -45,6 +45,7 @@ static sceVu0FVECTOR nextStagePos;
 
 static sceVu0FVECTOR nextStageRot;
 
+/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, boyGObj differ) */
 extern int exit_no;
 
 #include "sceneManager.h"
@@ -126,7 +127,9 @@ inline void MoveNextStage_Clear(void)
 }
 
 extern const StgPre stageData[];
+/* kept local: int (float, float, float) here, int (void) in enemy_act.h */
 extern int GetEnemyType(float x, float y, float z);
+/* kept local: agrees with Matrix.h, which this TU does not include (_NormalizeVector differ) */
 extern float _GetRandom(void);
 
 /* RECONSTRUCTION: the 0x28-byte enemy-model record; the two members named are the
@@ -245,13 +248,13 @@ typedef struct StageSettingScenemanager {
     int subMotionBlur[4]; /* 0x1BC */
 } StageSettingScenemanager;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: StageSettingScenemanager here, StageSetting in main.h */
 extern StageSettingScenemanager GlobalStageSetting;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, boyGObj differ) */
 extern int db[];
-/* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
+/* kept local: void (float *, float *) here, void (void *, void *) in Matrix.h */
 extern void _NormalizeVector(float *dst, float *src);
-/* kept local: this TU's uses of tex_RemakeRegistersSampleMin do not fit the prototype in Texture.h */
+/* kept local: void (int) here, int (void) in Texture.h */
 extern void tex_RemakeRegistersSampleMin(int a);
 
 void InitStageLight(int stage)
@@ -379,7 +382,7 @@ typedef union {
 
 extern GenGeo objLayout[];
 extern void *D_0063ACF0;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *boyGObj;
 
 /* RECONSTRUCTION: the 0x40-byte actor-init record CreateLayoutedGObj hands to the
@@ -396,6 +399,7 @@ typedef struct {
     int f30;             /* 0x30 */
 } ActInit;
 
+/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, boyGObj differ) */
 extern int stage_no;
 
 /* sceneManager.c:118-127: the static helper that restores the position the
@@ -412,13 +416,12 @@ static inline void MoveNextStage_Get(ActInit *a, int kind)
     }
 }
 
-extern int gamesysGirlStageGet(void);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *girlGObj;
-extern void MakeCollisionDependGObjList(void);
 /* kept local: this TU passes a 64-bit process priority where the prototype in
    gobj_process.h carries an int, and the ROM's `dsll $8, $2, 10` proves the
    fifth argument is 64 bits wide. */
+/* kept local: int (char *, int, int, int, long long) here, int (int, int, int, int, int) in gobj_process.h */
 extern int isysGObjProcAddS(char *gobj, int fn, int a2, int a3, long long pri);
 
 void initSceneGObj(int stage, int no)
@@ -589,9 +592,9 @@ void initParentLink(int id)
    inlines into InitSceneObjects; they have no symbol of their own in the ROM
    and no census row, so the names below are descriptive. */
 
-/* kept local: this TU's uses of isysGObjSearchFromObjKindID_begin do not fit the prototype in gobj.h */
+/* kept local: int * (int) here, void * (int) in gobj.h */
 extern int *isysGObjSearchFromObjKindID_begin(int kind);
-/* kept local: this TU's uses of isysGObjSearchFromObjKindID_next do not fit the prototype in gobj.h */
+/* kept local: int * (int *) here, void * (char *) in gobj.h */
 extern int *isysGObjSearchFromObjKindID_next(int *gobj);
 
 static inline void initSceneGObjRange(int stage, int first, int last)
@@ -636,21 +639,21 @@ void initWayData(int stage)
     ExtractWayData(stage);
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *girlGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, int in main.h */
 extern void *boyPad;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, int in main.h */
 extern void *girlPad;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, int in main.h */
 extern void *gameover_flag;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, int in main.h */
 extern void *gameover_layout_flag;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, int in main.h */
 extern void *itemWatchOff;
-/* kept local: this TU's uses of isysGObjMoveAfterGObj do not fit the prototype in gobj.h */
+/* kept local: void (void *, int *) here, void (char *, char *) in gobj.h */
 extern void isysGObjMoveAfterGObj(void *gobj, int *after);
 
 void InitSceneObjects(int stage)

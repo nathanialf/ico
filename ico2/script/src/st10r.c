@@ -72,11 +72,11 @@ static ActMail way_offchk_mes[2] = {{430}, {429}};
 
 static ActMail tower_resque_mes[2] = {{430}, {429}};
 
-/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
+/* kept local: PObjGObjSt10R * (int) here, int (int) in script.h */
 extern PObjGObjSt10R *scpSearchGobj(int a0);
-/* kept local: this TU's uses of scpSetCageVelocityFriction do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
 extern void scpSetCageVelocityFriction(int id, float f);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int boyPad;
 
 /* .sbss, owned by st10r.o and reached only from this file (MAIN.MAP names no
@@ -90,15 +90,15 @@ static int demoEnd;
 
 static const ConstVec girlWayPos = {{-296.0f, 327.0f, 2125.0f, 0.0f}};
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int girlGObj;
-/* kept local: this TU's uses of _SCPMoveCharactorByWay do not fit the prototype in script.h */
+/* kept local: void (int, int, int *, int, float) here, int (char *, int, int, float, int) in script.h */
 extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
-/* kept local: script.h's prototypes do not fit this TU's calls */
+/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
 extern int scpBoyControlReadDisable;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
-/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
+/* kept local: int (int, int) here, int (char *, int) in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
 
 /* The second fence-up watcher's mail record: it installs
@@ -107,19 +107,19 @@ extern int scpTriggerFloorAttr(int a0, int a1);
    .func is filled in at run time. Named for the thread that owns and posts
    it. */
 
-/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
+/* kept local: int (int, int, float) here, int (char *, char *, float) in script.h */
 extern int scpTriggerBall(int a0, int a1, float radius);
-/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
+/* kept local: int (int, int, int, float, float) here, int (int, char *, int, float, float) in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
-/* kept local: this TU's uses of scpCheckExistAliveEnemy do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
 extern int scpCheckExistAliveEnemy(void);
-/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
 extern void scpPlayStart(int a0);
-/* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
+/* kept local: void (int, float, float, float) here, void (void *, float, float, float) in script.h */
 extern void scpPlayPosSet(int a0, float f12, float f13, float f14);
-/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
+/* kept local: void (int, int) here, void (char *, int) in script.h */
 extern void scpPlayMot(int a0, int mot);
-/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
 extern void scpPlayEnd(int a0);
 
 /* .sdata, owned by st10r.o, in the ROM's order: the floor and cage stream handles (MAIN.MAP globals), the scene stream MAIN.MAP leaves unnamed, the chain's. */
@@ -163,23 +163,24 @@ void actSt10rEnd(void)
     gamesysObjInfoCls(scpSearchGobj(1632)->f0C, scpSearchGobj(1632)->f08);
 }
 
-/* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
 extern void scpSleepEnemyAll(void);
-/* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
 extern void scpWakeupEnemyAll(void);
-/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
+/* kept local: void (int, void *, int, int, int) here, void (int, char **, int, int, int) in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, void *a1, int a2, int a3, int a4);
-/* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
 extern int scpAdpcmPlayRequestNum(void);
-/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
+/* kept local: void (void *, int) here, int (char **, short) in script.h */
 extern void scpAdpcmFadeCloseFunc(void *a0, int a1);
-/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
 extern void scpFadeOut(float t, int a1, int a2, int a3);
-/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
 extern void scpFadeIn(float f);
-/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
 extern int scpFadeChk(void);
-extern int D_0028F8F4[];
+/* kept local: agrees with main.h, which this TU does not include */
+extern PadState pad[];
 
 void actSt10rFloorChk(volatile int a0)
 {
@@ -205,7 +206,7 @@ void actSt10rFloorChk(volatile int a0)
 
     demoEnd = 0;
     th = actCreateSubThread(actSt10rFloorSub, 21);
-    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -230,7 +231,7 @@ void actSt10rFloorChk(volatile int a0)
     lt_switch_layout(54);
 }
 
-/* kept local: this TU's uses of scpGetRotObjectRotCount do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
 extern float scpGetRotObjectRotCount(int a0);
 
 void actSt10rFloorHitChk(volatile int a0)
@@ -283,7 +284,7 @@ void actSt10rCageMain(volatile int a0)
 
     th = actCreateSubThread(actSt10rCageSub, 21);
 
-    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -321,7 +322,7 @@ void actSt10rCageMain(volatile int a0)
     lt_switch_layout(54);
 }
 
-/* kept local: this TU's uses of scpIsBombExplode do not fit the prototype in script.h */
+/* kept local: int (int) here, int * (int) in script.h */
 extern int scpIsBombExplode(int a0);
 
 void actSt10rTowerChk(volatile int a0)
@@ -358,7 +359,7 @@ void actSt10rTowerChk(volatile int a0)
     th = actCreateSubThread(actSt10rTowerConte, 21);
     demoEnd = 0;
 
-    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -403,7 +404,7 @@ void actSt10rTowerChk(volatile int a0)
     gflagOn(303);
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int systemStatus[];
 
 void actSt10rTowerConte(volatile int a0)
@@ -468,7 +469,7 @@ void actSt10rChainMove(volatile int a0)
 
     th = actCreateSubThread(actSt10rChainMoveSub, 21);
 
-    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -506,7 +507,7 @@ void actSt10rChainMove(volatile int a0)
     lt_switch_layout(54);
 }
 
-/* kept local: this TU's uses of scpLinkBGAtoLayoutedTarget do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (_SCPMoveCharactorByWay, scpSearchGobj differ) */
 extern void scpLinkBGAtoLayoutedTarget(int a0, int a1);
 
 void actSt10rFence(volatile int a0)
@@ -827,7 +828,7 @@ void actSt10rChain(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of scpSekizou do not fit the prototype in script.h */
+/* kept local: void (int, int, int, int, int, float, float, float, float, float, float) here, void (char *, int, int, int, int, float, float, float, float, float, float) in script.h */
 extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);
 

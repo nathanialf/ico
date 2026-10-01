@@ -210,7 +210,7 @@ void actSt27aWave1(volatile int a0)
     }
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
 
 void actSpiderChk(volatile int a0)
@@ -224,7 +224,7 @@ void actSpiderChk(volatile int a0)
     }
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
 extern PadState pad[];
 
 void actSt17aTestChk(volatile int a0)

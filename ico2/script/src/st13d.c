@@ -15,7 +15,7 @@ typedef union PosBox {
 
 typedef struct Act Act;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *boyGObj;
 
 static const PosBox exitPos = {{854.0f, -156.0f, 0.0f, 0.0f}};

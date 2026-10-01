@@ -23,4 +23,6 @@ int quick_load_wpfile(void);
 int quick_save_wpfile(void);
 int wp_print_out(void);
 
+int debug_WayTool(void);
+
 #endif /* WAY_TOOL_H */

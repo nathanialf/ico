@@ -57,7 +57,7 @@ typedef struct PObjGObjEnd {
     int f16C;          /* 0x16C */
 } PObjGObjEnd;
 
-/* kept local: this TU's uses of scpFadeOut do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMot differ) */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
 
 static ActMail demo01_mes[2] = {{430}, {429}};
@@ -96,7 +96,7 @@ static ActMail logo_mes[2] = {{430}, {429}};
 
 static ActMail end_mes[2] = {{430}, {429}};
 
-/* kept local: script.h's prototypes do not fit this TU's calls */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMot differ) */
 extern int scpBoyControlReadDisable;
 
 void actEndDemo01(volatile int a0)
@@ -125,17 +125,17 @@ void actEndDemo01(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMot differ) */
 extern void scpPlayStart(int a0);
-/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
+/* kept local: void (int, int) here, void (char *, int) in script.h */
 extern void scpPlayMot(int a0, int mot);
-/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
+/* kept local: PObjGObjEnd * (int) here, int (int) in script.h */
 extern PObjGObjEnd *scpSearchGobj(int a0);
-/* kept local: this TU's uses of scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMot differ) */
 extern void scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
-/* kept local: this TU's uses of RequestStageChange do not fit the prototype in script.h */
+/* kept local: int (int, int, int, float, float) here, int (int, char *, int, float, float) in script.h */
 extern int RequestStageChange(int a0, int a1, int a2, float a3, float a4);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
 
 void actConte14_1(volatile int a0)
@@ -214,7 +214,7 @@ void actConte14_1(volatile int a0)
     RequestStageChange(2, boyGObj, 0, 1.0f, 8.0f);
 }
 
-/* kept local: this TU's uses of scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMot differ) */
 extern void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
 
 void actEndDemo02(volatile int a0)
@@ -247,7 +247,7 @@ void actEndDemo02(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: this TU's uses of scpPlayEnd do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMot differ) */
 extern void scpPlayEnd(int a0);
 
 void actConte14_2(volatile int a0)
@@ -352,9 +352,9 @@ void actEndDemo06(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of preload do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMot differ) */
 extern void preload(int idx);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int girlGObj;
 
 void actConte14_6(volatile int a0)
@@ -415,11 +415,11 @@ void actEndDemo07(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
+/* kept local: void (int, float, float, float) here, void (void *, float, float, float) in script.h */
 extern void scpPlayPosSet(int a0, float x, float y, float z);
-/* kept local: this TU's uses of scpPlayMotDir do not fit the prototype in script.h */
+/* kept local: void (int, void *) here, void (char *, float *) in script.h */
 extern void scpPlayMotDir(int a0, void *dir);
-/* kept local: this TU's uses of scpPlayMotNode do not fit the prototype in script.h */
+/* kept local: void (int, int, int, int) here, void (void *, int, void *, int) in script.h */
 extern void scpPlayMotNode(int a0, int mot, int node, int a3);
 
 /* A 16-byte constant vector template: the float view carries the values,
@@ -603,7 +603,7 @@ void actConte14_10(volatile int a0)
     RequestStageChange(3, boyGObj, girlGObj, 1.0f, 8.0f);
 }
 
-/* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMot differ) */
 extern void scpFadeIn(float f);
 
 void actConte14_13(volatile int a0)
@@ -660,9 +660,9 @@ void actStaff1(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: the declaration in staffroll.h changes this TU codegen */
+/* kept local: void (int, float) here, void (float, int) in staffroll.h */
 extern void staffRollStart(int a0, float a1);
-/* kept local: this TU's uses of scpFadeChk do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMot differ) */
 extern int scpFadeChk(void);
 
 void actStaff1Demo(volatile int a0)
@@ -965,9 +965,9 @@ void actStaff3Demo(volatile int a0)
     scpFadeOut(6.0f, 0, 0, 0);
 }
 
-/* kept local: this TU's uses of ScpCallCameraSetTarget do not fit the prototype in script.h */
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMot differ) */
 extern void ScpCallCameraSetTarget(float x, float y, float z);
-/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
+/* kept local: void (int, int *, int, int, int) here, void (int, char **, int, int, int) in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 
 /* Demo 14's mail record: the actor installs actEndDemo14Chk in it and posts
@@ -1109,14 +1109,15 @@ void actSt27aEnd(volatile int a0)
     }
 }
 
+/* kept local: agrees with script.h, which this TU does not include (RequestStageChange, scpPlayMot differ) */
 extern float scpSeEnvMasterVolRate;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int systemStatus[];
-/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
+/* kept local: int (int, int) here, int (char *, int) in script.h */
 extern int scpTriggerFloorAttr(int gobj, int attr);
-/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
+/* kept local: void (int *, int) here, int (char **, short) in script.h */
 extern void scpAdpcmFadeCloseFunc(int *handle, int mask);
-/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
+/* kept local: void (int, int *, int, int, int) here, void (int, char **, int, int, int) in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *h, int a2, int a3, int a4);
 
 /* listing lines 2614-2661 */
@@ -1159,7 +1160,7 @@ void actSt27aEndChk(volatile int a0)
     scpSeEnvMasterVolRate = 0;
 }
 
-/* kept local: this TU's uses of scpDisActivateAllWithKind do not fit the prototype in script.h */
+/* kept local: void (int) here, void (void) in script.h */
 extern void scpDisActivateAllWithKind(int a0);
 
 void actSt27aEndDemo(volatile int a0)
@@ -1276,6 +1277,7 @@ void actSt27aEndDemo(volatile int a0)
    belongs to; among the role-plausible spellings this is one that also puts
    the record ahead of the handler in gcc's expression-hash order. */
 
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int NonLinearCameraMove;
 
 void actEndLogoChk(volatile int a0)
@@ -1439,7 +1441,7 @@ void actEndDemo13(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: this TU's uses of scpSetBoyWeaponGObj do not fit the prototype in script.h */
+/* kept local: void (PObjGObjEnd *) here, void (int, int, int, int) in script.h */
 extern void scpSetBoyWeaponGObj(PObjGObjEnd *gobj);
 
 void actStaff2(volatile int a0)
@@ -1658,7 +1660,6 @@ void actEndDemo10Chk(volatile int a0)
 }
 
 extern JimakuArg jimaku_msg;
-extern int jimakuOn;
 
 void actConte14_10_Jimaku(volatile int a0)
 {
@@ -1721,7 +1722,7 @@ void actEndDemo12Chk(volatile int a0)
     actCreateSubThread(actConte14_12, 21);
 }
 
-/* kept local: this TU's uses of RequestStageChangeWithColor do not fit the prototype in script.h */
+/* kept local: int (int, int, int, float, float, int, int, int) here, int (int, char *, int, float, float, unsigned char, unsigned char, unsigned char) in script.h */
 extern int RequestStageChangeWithColor(int a0, int a1, int a2, float a3, float a4, int r, int g,
                                        int b);
 
@@ -1775,6 +1776,7 @@ void actStaff3Chk(volatile int a0)
     actCreateSubThread(actStaff3RollChk, 21);
 }
 
+/* kept local: agrees with staffroll.h, which this TU does not include (staffRollStart differ) */
 extern int staffRollStartFlag;
 
 void actStaff3RollChk(volatile int a0)
@@ -1799,6 +1801,7 @@ void actEndDemo14Chk(volatile int a0)
     actCreateSubThread(actConte14_14, 21);
 }
 
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int optionScreenMode;
 
 void actEndingSave(volatile int a0)

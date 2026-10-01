@@ -5,13 +5,19 @@
 #include "commonact.h"
 #include "mail-add-data.h"
 #include "motionOrientManager.h"
+#include "GifPacket.h"
+#include "matrixDrive.h"
+#include "motionManager2.h"
+#include "isys.h"
+#include "geometryManager.h"
+#include "thread.h"
 
 extern char objLayout[];
-/* kept local: this TU's uses of isysGObjProcAdd do not fit the prototype in gobj_process.h */
+/* kept local: int (void *, void *, int, void *) here, int (int, int, int, int) in gobj_process.h */
 extern int isysGObjProcAdd(void *a0, void *a1, int a2, void *a3);
-/* kept local: this TU's uses of isysGObjProcAddS do not fit the prototype in gobj_process.h */
+/* kept local: int (void *, void *, int, void *, long long) here, int (int, int, int, int, int) in gobj_process.h */
 extern int isysGObjProcAddS(void *a0, void *a1, int a2, void *a3, long long a4);
-/* kept local: this TU's uses of isysGObjProcRemove do not fit the prototype in gobj_process.h */
+/* kept local: agrees with gobj_process.h, which this TU does not include (isysGObjProcAdd, isysGObjProcAddS differ) */
 extern void isysGObjProcRemove();
 
 /* One 0x50-byte record per act status, indexed by the actor status index; the
@@ -40,13 +46,11 @@ typedef struct {
 } StatusAttrAct;
 
 extern const StatusAttrAct actModeTbl[];
-extern char *isysCurrentGObj;
-/* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
-extern void iosThreadSleep(void);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
 extern int systemStatus[];
-/* kept local: this TU's uses of isysGObjProcAddGOppArg do not fit the prototype in gobj_process.h */
+/* kept local: agrees with gobj_process.h, which this TU does not include (isysGObjProcAdd, isysGObjProcAddS differ) */
 extern int isysGObjProcAddGOppArg();
+/* kept local: int here, char * in main.h */
 extern int matrixptr;
 
 #include "act.h"
@@ -240,7 +244,6 @@ typedef struct {
 } PadConf;
 
 extern PadConf iosPadConfDefault;
-extern void *isysCurrentGObjProcess;
 
 void actInitialize_ext_charcter(char *self)
 {
@@ -545,7 +548,7 @@ extern ActMotionRec motionKind[];
 extern IntrMail actIntrList[];
 /* the boy object, typed as the work block object pointers it is compared and
    exchanged with (ActObjRefs below; void * as in boyact.c and chain.c) */
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, GObj * in main.h */
 extern void *boyGObj;
 
 /* one flag per mail list: a list whose flag is set is not checked for an
@@ -729,35 +732,25 @@ typedef struct {
     char _18[0x08];
 } ActPadStick;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *CurrentTargetGObj;
-extern void sceVu0CopyVector(void *dst, void *src);
-extern void sceVu0UnitMatrix(void *m);
-extern void GetRootPosition(void *out, char *self);
-extern void SetDirectRootPositionNoFitting(char *self, void *v);
 extern void GetLowerPlaneCollision(void *work, void *pos);
+/* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipFloor(void *work);
+/* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipFloorR(void *work);
+/* kept local: agrees with fieldCollision.h, which this TU does not include (ClipFloor, ClipFloorR differ) */
 extern int CompareAttribute(unsigned int a, unsigned int b);
+/* kept local: agrees with fieldCollision.h, which this TU does not include (ClipFloor, ClipFloorR differ) */
 extern void SetSimplePlane(float *plane, float a, float b, float c, float d);
-extern void CopyVector(void *dst, void *src);
+/* kept local: void (void *, void *, void *, void *, int) here, void (int *, int *, int *, int *, int) in lineManager.h */
 extern void DrawLineG(void *a, void *ca, void *b, void *cb, int flag);
 /* kept local: this TU passes the packet priority that the prototype in
    seki/include/GifPacket.h leaves out */
-extern void gif_StartPacketPri(int pri);
-extern void gif_SetAlpha(long long a0, long long a1, long long a2);
-extern void gif_SetZWrite(int on);
-extern void gif_SetZTest(int on);
-extern void gif_EndPacket(void);
-extern void MatrixDrive_PushMatrix(void);
-extern void *MatrixDrive_GetMatrix(void);
-extern void MatrixDrive_PopMatrix(void);
+/* kept local: void (void *) here, int (void *) in pad.h */
 extern void iosPadRead(void *pad);
+/* kept local: agrees with pad.h, which this TU does not include (iosPadRead differ) */
 extern int iosPadGetStick(void *dev, void *out, int mode, int a3, int a4, int a5);
-extern void DisableChangeRootUpdateMode(char *self);
-extern void EnableChangeRootUpdateMode(char *self);
-extern void SetRootUpdateMode(char *self, int val);
-extern int AdjustMotionHeightToNearestField(char *self);
 
 void ACTDebugMove(int a0, int a1)
 {

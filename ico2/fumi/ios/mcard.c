@@ -1,6 +1,8 @@
 #include "debug.h"
 #include "s_init.h"
 #include "pad.h"
+#include "main.h"
+#include "mcdata.h"
 
 typedef union {
     long long ll;
@@ -199,18 +201,15 @@ extern McSaveRec IosMcProductFile[];
 /* the custom pad configuration ios/pad.c owns, saved from its button bits
    (0xB0) */
 extern char iosPadConfCustom[];
-extern int optionControlType;
-extern int D_0028F4C0[];
-extern int NonLinearCameraMove;
 
 inline int product_write(int *self)
 {
-    (IosMcProductFile + self[2])->soundMode = D_0028F4C0[11];
+    (IosMcProductFile + self[2])->soundMode = systemStatus[11];
     (IosMcProductFile + self[2])->outputMode = soundOutputModeGet();
     (IosMcProductFile + self[2])->unk198 = iosPadActRequestEnable;
     (IosMcProductFile + self[2])->gobj = optionControlType;
     (IosMcProductFile + self[2])->cameraMove = NonLinearCameraMove;
-    (IosMcProductFile + self[2])->unk1EC = D_0028F4C0[0];
+    (IosMcProductFile + self[2])->unk1EC = systemStatus[0];
     *(McBlk *)(IosMcProductFile + self[2])->blk = *(McBlk *)(iosPadConfCustom + 0xB0);
     iosMcHandlerWrite((int)self, (int)(IosMcProductFile + self[2]), 0x1F0);
     return 0;
@@ -223,29 +222,24 @@ inline int product_read(int *self)
     return self[0x10 / 4];
 }
 
-extern int optionScreenMode;
-extern int D_00639EA0;
-
 inline int gameblock_write(int self, void *buf)
 {
     iosMcHandlerWrite(self, buf, 0x63F4);
     iosMcHandlerWrite(self, &optionScreenMode, 4);
-    iosMcHandlerWrite(self, &D_00639EA0, 4);
+    iosMcHandlerWrite(self, &girlControlMode, 4);
     return 0;
 }
-
-extern int D_0028F4EC[];
 
 inline int gameblock_read(int *self, void *buf)
 {
     iosMcHandlerRead((int)self, (int)buf, 0x63F4);
-    D_0028F4EC[0] = (IosMcProductFile + self[2])->soundMode;
+    systemStatus[11] = (IosMcProductFile + self[2])->soundMode;
     soundOutputModeSet((IosMcProductFile + self[2])->outputMode);
     iosPadActRequestEnable = (IosMcProductFile + self[2])->unk198;
     optionControlType = (IosMcProductFile + self[2])->gobj;
     *(McBlk *)(iosPadConfCustom + 0xB0) = *(McBlk *)(IosMcProductFile + self[2])->blk;
     iosMcHandlerRead((int)self, (int)&optionScreenMode, 4);
-    iosMcHandlerRead((int)self, (int)&D_00639EA0, 4);
+    iosMcHandlerRead((int)self, (int)&girlControlMode, 4);
     return self[4];
 }
 
@@ -430,6 +424,7 @@ static inline void iosMcMgrSum(McMgr *mp, void *q, int n)
     }
 }
 
+/* kept local: void * (void *, void *, int) here, void * (void *, const void *, unsigned int) in string.h */
 extern void *memcpy(void *dst, void *src, int n);
 
 int iosMcHandlerWrite(McMgr *mp, unsigned char *buf, int len)
@@ -607,7 +602,9 @@ retry:
     }
 }
 
+/* kept local: void (char *, char *) here, char * (char *, const char *) in string.h */
 extern void strcpy(char *dst, char *src);
+/* kept local: void (char *, char *) here, char * (char *, const char *) in string.h */
 extern void strcat(char *dst, char *src);
 
 /* the per-slot segment table: one record per loadable block */
@@ -618,8 +615,6 @@ typedef struct {
 } McSegEnt;
 
 /* mcdata.c's icon writers */
-extern int iosMcIconWriteIconsys();
-extern int iosMcIconWriteIcon();
 
 McSegEnt iOSMcSaveList[6] = {
     {1, 0, iosMcIconWriteIconsys},    {2, 0, iosMcIconWriteIcon},
@@ -819,6 +814,7 @@ void iosMcMgrLoadProductBlock(void *a0)
     iosMcMgrLoadSeg(a0, 0);
 }
 
+/* kept local: int (char *) here, unsigned int (const char *) in string.h */
 extern int strlen(char *s);
 
 static inline void iosMcMgrSaveGame(McMgr *mp)

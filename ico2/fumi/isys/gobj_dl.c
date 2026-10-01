@@ -2,7 +2,9 @@
 #include "gobj_dl.h"
 
 static void add_gobj_to_head(int a0, int a1, int a2);
+/* kept local: int [] here, int * [8] in isys.h */
 extern int gobj_dl_link_head[];
+/* kept local: int [] here, int * [8] in isys.h */
 extern int gobj_dl_link_tail[];
 
 /* census add_gobj_to_head, a file static, every gobj list TU has its own copy and

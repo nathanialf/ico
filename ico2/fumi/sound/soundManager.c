@@ -2,35 +2,35 @@
 #include "debug.h"
 #include "adpcm_init.h"
 #include "Matrix.h"
+#include "main.h"
 
-/* kept local: this TU's uses of soundDataSegAllClose do not fit the prototype in s_init.h */
+/* kept local: agrees with s_init.h, which this TU does not include (soundSeKindBuild differ) */
 extern void soundDataSegAllClose(int a0, int a1);
-/* kept local: this TU's uses of soundDataSegNextStageNotUseClose do not fit the prototype in s_init.h */
+/* kept local: agrees with s_init.h, which this TU does not include (soundSeKindBuild differ) */
 extern void soundDataSegNextStageNotUseClose();
-/* kept local: this TU's uses of soundSeEnvNotUseClose do not fit the prototype in s_init.h */
+/* kept local: agrees with s_init.h, which this TU does not include (soundSeKindBuild differ) */
 extern void soundSeEnvNotUseClose();
-/* kept local: this TU's uses of soundSePlayModeStop do not fit the prototype in s_init.h */
+/* kept local: agrees with s_init.h, which this TU does not include (soundSeKindBuild differ) */
 extern void soundSePlayModeStop(int arg);
-/* kept local: this TU's uses of soundDataSegNextStageNotUseClose do not fit the prototype in s_init.h */
+/* kept local: void (int, int *) here, void () in s_init.h */
 extern void soundDataSegNextStageNotUseClose(int x, int *p);
-/* kept local: this TU's uses of soundSeEnvNotUseClose do not fit the prototype in s_init.h */
+/* kept local: void (int *, int *) here, void () in s_init.h */
 extern void soundSeEnvNotUseClose(int *a, int *b);
 extern StgPre stageData[];
-/* kept local: this TU's uses of soundReverbDepthSet do not fit the prototype in s_init.h */
+/* kept local: agrees with s_init.h, which this TU does not include (soundSeKindBuild differ) */
 extern void soundReverbDepthSet(int a0);
-/* kept local: this TU's uses of soundSeKindBuild do not fit the prototype in s_init.h */
+/* kept local: void (int) here, void (void) in s_init.h */
 extern void soundSeKindBuild(int idx);
-extern int IosSndLock;
 extern int mpegPlay;
-/* kept local: this TU's uses of iosThreadCancelWakeup do not fit the prototype in thread.h */
+/* kept local: void (int) here, int (int *) in thread.h */
 extern void iosThreadCancelWakeup(int mode);
-/* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
+/* kept local: agrees with thread.h, which this TU does not include (iosThreadCancelWakeup differ) */
 extern void iosThreadSleep();
 extern int SgSndn2RemoteSync();
 extern void SgCalledTickProc();
-/* kept local: this TU's uses of soundVBlank do not fit the prototype in s_init.h */
+/* kept local: agrees with s_init.h, which this TU does not include (soundSeKindBuild differ) */
 extern void soundVBlank();
-/* kept local: this TU's uses of soundOutputModeGet do not fit the prototype in s_init.h */
+/* kept local: agrees with s_init.h, which this TU does not include (soundSeKindBuild differ) */
 extern int soundOutputModeGet();
 
 #include "soundManager.h"

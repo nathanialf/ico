@@ -7,7 +7,9 @@ typedef struct EnNode {
     struct EnNode *prev;
 } EnNode;
 
+/* kept local: agrees with isys.h, which this TU does not include (gobj_camera_dl_link_tail differ) */
 extern int *gobj_camera_dl_link_head;
+/* kept local: AdpT * here, int * in isys.h */
 extern AdpT *gobj_camera_dl_link_tail;
 static void add_gobj_to_tail();
 

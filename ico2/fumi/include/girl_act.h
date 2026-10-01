@@ -69,4 +69,6 @@ extern int girlcalled;
 extern struct GirlBrainWork brain_val;
 extern struct GirlStand handmgr;
 
+int isEnterHideadv(void);
+
 #endif /* GIRL_ACT_H */

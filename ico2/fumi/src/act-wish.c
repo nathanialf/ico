@@ -27,16 +27,17 @@ typedef union {
    pointer alias set, gcc CSEs the three loads into one and hoists it into the
    line-586 branch delay slot -- two instructions short of ROM. */
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: char * here, GObj * in main.h */
 extern char *girlGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: void * here, int in main.h */
 extern void *girlControlMode;
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlControlMode differ) */
 extern int optionControlType;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlControlMode differ) */
 extern int systemStatus[];
-/* kept local: this TU's uses of ACTSearchGObj do not fit the prototype in boyact.h */
+/* kept local: void (char *, float, int, int, char **, float *) here, void (void *, int, int, int *, float *, float) in boyact.h */
 extern void ACTSearchGObj(char *a0, float a1, int a2, int a3, char **a4, float *a5);
 
 static inline unsigned char chkOrient(char *s, float *dir, float *w, float deg)

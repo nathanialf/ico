@@ -29,17 +29,17 @@ static ActMail doorDownChk_mes[2] = {{430}, {429}};
 
 static ActMail ene_mes[2] = {{430}, {429}};
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int girlGObj;
-/* kept local: script.h's prototypes do not fit this TU's calls */
+/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpPlayMot differ) */
 extern int scpBoyControlReadDisable;
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpPlayMot differ) */
 extern void scpPlayEnd(int a0);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpPlayMot differ) */
 extern void scpPlayStart(int a0);
-/* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
+/* kept local: void (int, int) here, void (char *, int) in script.h */
 extern void scpPlayMot(int a0, int mot);
-/* kept local: this TU's uses of scpPlayWaitMotEnd do not fit the prototype in script.h */
+/* kept local: void (int) here, void (char *) in script.h */
 extern void scpPlayWaitMotEnd(int a0);
 
 /* A 16-byte constant vector template: the float view carries the values,
@@ -56,25 +56,25 @@ static const ConstVec doorUpEffectPos = {{-505.0f, -1200.0f, -5671.0f, 1.0f}};
 
 static const ConstVec doorUpEffect2Pos = {{-505.0f, -1447.0f, -5671.0f, 1.0f}};
 
-/* kept local: this TU's uses of scpEffectStart do not fit the prototype in script.h */
+/* kept local: void (int *, int) here, int (void *, int) in script.h */
 extern void scpEffectStart(int *buf, int a1);
-/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
+/* kept local: int (int, int) here, int (char *, int) in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
-/* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
+/* kept local: int (int, int, float) here, int (char *, char *, float) in script.h */
 extern int scpTriggerBall(int a0, int a1, float radius);
-/* kept local: this TU's uses of scpTriggerFloorAttrTargetMan do not fit the prototype in script.h */
+/* kept local: int (int, int) here, int (char *, int) in script.h */
 extern int scpTriggerFloorAttrTargetMan(int a0, int attr);
-/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
+/* kept local: void (int, int *, int, int, int) here, void (int, char **, int, int, int) in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *h, int a2, int a3, int a4);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpPlayMot differ) */
 extern int scpAdpcmPlayRequestNum(void);
-/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
+/* kept local: void (int *, int) here, int (char **, short) in script.h */
 extern void scpAdpcmFadeCloseFunc(int *h, int a1);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpPlayMot differ) */
 extern void scpFadeOut(float a0, int a1, int a2, int a3);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpPlayMot differ) */
 extern int scpFadeChk(void);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpPlayMot differ) */
 extern void scpFadeIn(float a0);
 
 typedef union Pos {
@@ -82,22 +82,22 @@ typedef union Pos {
     float f[4];
 } Pos;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern PadState pad[];
 void actSt08bKurenLeft(volatile int a0);
 void actSt08bKurenRight(volatile int a0);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpEffectStart, scpPlayMot differ) */
 extern void scpWakeupItemWithBoundary(float a0, float a1, float a2, float a3);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
 /* The door-boundary X/Z corners live in the -G8 gp float pool and are written
    by the stage's layout/script side, so their loads may not sink into the jal
    delay slot; ROM has a nop at both call sites. */
 void actSt08bDoorUpChk(volatile int a0);
 void actSt08bDoorDownChk(volatile int a0);
-/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
+/* kept local: PObjGObj * (int) here, int (int) in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int boyPad;
 
 /* .sbss, owned by st08b.o and reached only from this file (MAIN.MAP names no

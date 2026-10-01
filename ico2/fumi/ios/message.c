@@ -3,6 +3,9 @@
 #include <eekernel.h>
 #include <eeregs.h>
 #include "ios.h"
+#include "thread.h"
+#include "debug_exception.h"
+#include "main.h"
 
 typedef struct IosMsg {
     char pad0[0x44];
@@ -31,21 +34,12 @@ typedef struct MsgEventThread {
     int intc;           /* 0x4098 */
 } MsgEventThread;
 
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
-/* kept local: this TU's uses of iosGetIOSThreadFromId do not fit the prototype in thread.h */
-extern int iosGetIOSThreadFromId(unsigned int a0);
-/* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
-extern void iosThreadSleep(void);
-/* kept local: this TU's uses of iosThreadCreate do not fit the prototype in thread.h */
-extern void iosThreadCreate(void *th, int no, void (*func)(), int arg, void *stack, long stackSize,
-                            int pri);
-/* kept local: this TU's uses of iosThreadStart do not fit the prototype in thread.h */
-extern void iosThreadStart(int a0);
-/* kept local: this TU's uses of signal_handler do not fit the prototype in message.h */
+/* kept local: agrees with message.h, which this TU does not include */
 extern int signal_handler(int a0);
 /* kept local with message.h's declaration (this TU does not include it): the
    signal thread's record, defined after the functions whose strings precede it */
+/* kept local: agrees with message.h, which this TU does not include */
 extern int *th_sig;
 
 /* .bss, owned by message.o and reached only from this file (MAIN.MAP names no
@@ -237,8 +231,6 @@ void iosMsgQueueDestroyAll(void)
         i--;
     } while (i >= 0);
 }
-
-extern int odd_even;
 
 int signal_handler(int a0)
 {

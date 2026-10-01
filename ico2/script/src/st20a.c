@@ -61,9 +61,9 @@ static ActMail girlPos_mes[2] = {{430}, {429}};
 
 static ActMail hint1_mes[2] = {{430}, {429}};
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int girlGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
 
 void actSt20aInit(void)
@@ -86,7 +86,7 @@ void actSt20aEnd(void)
     gamesysObjInfoCls(*(int *)(scpSearchGobj(2023) + 0xC), *(int *)(scpSearchGobj(2023) + 8));
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int boyPad;
 
 /* .sbss, owned by st20a.o and reached only from this file (MAIN.MAP names no
@@ -94,7 +94,8 @@ extern int boyPad;
    subthread the wait loop below spins for. */
 static int demoEnd;
 
-extern int D_0028F8F4[];
+/* kept local: agrees with main.h, which this TU does not include */
+extern PadState pad[];
 
 /* .sdata, owned by st20a.o, in the ROM's order: the bridge and gondola stream handles and the shake. */
 int brg20a = 0;
@@ -119,7 +120,7 @@ void actSt20aBridgeDown(volatile int a0)
     demoEnd = 0;
     scpAdpcmPlayRequestFunc(71, &brg20a, 1, 1, 0);
     th = actCreateSubThread(actSt20aBridgeDownSub, 21);
-    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
     iosThreadSetPri(th + 0x24, 34);

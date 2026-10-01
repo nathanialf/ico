@@ -18,6 +18,7 @@
 #include "vobj.h"
 #include "geometryManager.h"
 #include "ios.h"
+#include "GifPacket.h"
 
 /* way_tool.o .data +0x00: the scratch world position the tool builds a point
    at; the fourth word is the homogeneous 1.0f. */
@@ -28,7 +29,7 @@ static float wayWorkPos[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 static int wayPointSel = -1; /* derived name */
 
 extern WayRec way_group[];
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
 
 /* .sbss, owned by way_tool.o (MAIN.MAP names no symbol in the run), in the ROM's run order: the way
@@ -150,8 +151,9 @@ WayMenuLine debugWayGroupSelect[64] = {
     {"55 ( -)  ", 0}, {"56 ( -)  ", 0}, {"57 ( -)  ", 0}, {"58 ( -)  ", 0}, {"59 ( -)  ", 0},
     {"60 ( -)  ", 0}, {"61 ( -)  ", 0}, {"62 ( -)  ", 0}, {"63 ( -)  ", 0}};
 
+/* kept local: char * (char *, char *) here, char * (char *, const char *) in string.h */
 extern char *strcat(char *d, char *s);
-/* kept local: this TU's uses of set_bridge do not fit the prototype in way_util.h */
+/* kept local: agrees with way_util.h, which this TU does not include (ez_circle, nearest_waypoint_by_lineseg differ) */
 extern int set_bridge(int gid);
 
 /* relabels the way-group selector; the 2001 source has it as a helper between
@@ -227,7 +229,7 @@ static int group_select(void)
     return 0;
 }
 
-/* kept local: this TU's uses of waypoint_with_range do not fit the prototype in way_util.h */
+/* kept local: agrees with way_util.h, which this TU does not include (ez_circle, nearest_waypoint_by_lineseg differ) */
 extern char *waypoint_with_range(int *, float);
 
 int point_delete(void)
@@ -267,7 +269,7 @@ int point_delete(void)
     return 0;
 }
 
-/* kept local: this TU's uses of nearest_waypoint_by_lineseg do not fit the prototype in way_util.h */
+/* kept local: void * (void *) here, char * (void *) in way_util.h */
 extern void *nearest_waypoint_by_lineseg(void *a0);
 
 int point_insert(void)
@@ -364,7 +366,7 @@ inline int point_nige(void)
     return 0;
 }
 
-/* kept local: way_util.h's prototypes do not fit this TU's uses */
+/* kept local: agrees with way_util.h, which this TU does not include (ez_circle, nearest_waypoint_by_lineseg differ) */
 extern int load_save_flag;
 
 inline int quick_save_wpfile(void)
@@ -478,6 +480,7 @@ extern StgPre stageData[];
 extern WaySrcGrp wayGroupSheet[];
 extern WaySrcPt wayPointSheet[];
 extern WayNode way_point[];
+/* kept local: void (void *, int, int) here, void * (void *, int, unsigned int) in string.h */
 extern void memset(void *p, int a, int n);
 extern WayBridge *WayBridgeAll_begin(void);
 extern WayBridge *WayBridgeAll_next(WayBridge *p);
@@ -543,6 +546,7 @@ typedef struct {
     char s[8];
 } WpName;
 
+/* kept local: int (char *) here, unsigned int (const char *) in string.h */
 extern int strlen(char *s);
 extern WayRec *WayGroup_begin(void);
 extern WayRec *WayGroup_next(WayRec *p);
@@ -619,11 +623,8 @@ static WayCol wayColorClosedOther = {{0x40, 0x40, 0x00, 0x40}};
 
 static WayCol wayColorBridge = {{0xFF, 0x00, 0xFF, 0xFF}};
 
+/* kept local: unsigned int here, int in main.h */
 extern unsigned int frame_count;
-/* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
-extern void gif_StartPacketPri(int pri);
-/* kept local: this TU's uses of gif_EndPacket do not fit the prototype in GifPacket.h */
-extern void gif_EndPacket(void);
 
 static inline void set_way_point_color(char *p, WayCol *col)
 {
@@ -672,9 +673,9 @@ void draw_way_group(int g, WayCol *col)
     }
 }
 
-/* kept local: this TU's uses of visible_waypoint_of_all do not fit the prototype in way_util.h */
+/* kept local: char * (void *) here, int (void *) in way_util.h */
 extern char *visible_waypoint_of_all(void *pos);
-/* kept local: this TU's uses of ez_circle do not fit the prototype in way_util.h */
+/* kept local: void (void *, void *, unsigned int, float) here, void (void) in way_util.h */
 extern void ez_circle(void *pos, void *base, unsigned int col, float r);
 
 void way_toolDL(int a0)
@@ -749,21 +750,21 @@ typedef struct {
 
 /* way_tool.o .data +0x2A0: the way-tool menu, nine {label, action} lines.
    Line 5's label is the play/stop text the tool rewrites at runtime. */
-/* kept local: the declaration in way_tool.h changes this TU codegen */
+/* kept local: agrees with way_tool.h, which this TU does not include */
 extern int group_create(void);
-/* kept local: the declaration in way_tool.h changes this TU codegen */
+/* kept local: agrees with way_tool.h, which this TU does not include */
 extern int point_delete(void);
-/* kept local: the declaration in way_tool.h changes this TU codegen */
+/* kept local: agrees with way_tool.h, which this TU does not include */
 extern int point_insert(void);
-/* kept local: the declaration in way_tool.h changes this TU codegen */
+/* kept local: agrees with way_tool.h, which this TU does not include */
 extern int point_nige(void);
-/* kept local: the declaration in way_tool.h changes this TU codegen */
+/* kept local: agrees with way_tool.h, which this TU does not include */
 extern int play_way(void);
-/* kept local: the declaration in way_tool.h changes this TU codegen */
+/* kept local: agrees with way_tool.h, which this TU does not include */
 extern int quick_save_wpfile(void);
-/* kept local: the declaration in way_tool.h changes this TU codegen */
+/* kept local: agrees with way_tool.h, which this TU does not include */
 extern int quick_load_wpfile(void);
-/* kept local: the declaration in way_tool.h changes this TU codegen */
+/* kept local: agrees with way_tool.h, which this TU does not include */
 extern int wp_print_out(void);
 
 WayMenu debugWayMenu[9] = {{"group + create", group_create},  {"      + select", group_select},
@@ -772,10 +773,10 @@ WayMenu debugWayMenu[9] = {{"group + create", group_create},  {"      + select",
                            {"quick save", quick_save_wpfile}, {"quick load", quick_load_wpfile},
                            {"save text", wp_print_out}};
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int CurrentTargetGObj;
 extern char iosPadConfDefault[];
-/* kept local: the declaration in way_tool.h changes this TU codegen */
+/* kept local: agrees with way_tool.h, which this TU does not include */
 extern void cursor_control(volatile int a0);
 
 int debug_WayTool(void)

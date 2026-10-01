@@ -2,6 +2,7 @@
 #include "Basic.h"
 #include "DisplayP2O.h"
 #include <stdio.h>
+#include "debug_exception.h"
 
 /* RECONSTRUCTION, PUBLIC SDK NAMING RUNG for the shape (libvu0's
    sceVu0FVECTOR, a 16-byte aligned float[4]); the name is ours.  The ROM pins
@@ -232,7 +233,6 @@ static __inline__ void SetPObjVector(Vec v, float x, float y, float z)
 }
 
 extern void MakeBoundingBox(PObj *p);
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
 
 typedef struct ObjHdr { /* the loaded model file image */
@@ -377,7 +377,7 @@ PObj *AllocPObj(ObjHdr *h, char *name, int n)
     return p;
 }
 
-/* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
+/* kept local: void (Vec, Vec, Vec) here, void (void *, void *, void *) in Matrix.h */
 extern void _AddVector(Vec d, Vec a, Vec b);
 
 PObj *InitPObj(int a0, int a1, int n)

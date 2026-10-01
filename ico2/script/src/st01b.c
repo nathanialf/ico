@@ -42,17 +42,17 @@ void actSt01bInit(void)
     return FinishHint(9);
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: int here, GObj * in main.h */
 extern int girlGObj;
-/* kept local: script.h's prototypes do not fit this TU's calls */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayPosSet differ) */
 extern int scpBoyControlReadDisable;
-/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
+/* kept local: int (int, int) here, int (char *, int) in script.h */
 extern int scpTriggerFloorAttr(int gobj, int attr);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayPosSet differ) */
 extern void scpSleepEnemyOne(int id);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayPosSet differ) */
 extern void scpWakeupEnemyOne(int id);
 
 void actSt01bEneChk(volatile int a0)
@@ -105,7 +105,7 @@ static int demoEnd;
 
 static int seHandle;
 
-/* kept local: main.c's global; this TU does not include main.h */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int boyPad;
 
 /* A 16-byte constant vector template: the float view carries the values,
@@ -143,28 +143,29 @@ void actSt01bFloorChkSub(volatile int a0)
     _ACTWait(0);
 }
 
-extern int D_0028F8F4[];
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with main.h, which this TU does not include */
+extern PadState pad[];
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayPosSet differ) */
 extern int scpIsHangChainOptional(int gobj, int id);
-/* kept local: this TU's uses of scpPlayPosSet do not fit the prototype in script.h */
+/* kept local: void (int, float, float, float) here, void (void *, float, float, float) in script.h */
 extern void scpPlayPosSet(int gobj, float x, float y, float z);
-/* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
+/* kept local: void (int, void *, int, int, int) here, void (int, char **, int, int, int) in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, void *a1, int a2, int a3, int a4);
-/* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
+/* kept local: int (void *, int) here, int (char **, short) in script.h */
 extern int scpAdpcmFadeCloseFunc(void *h, int fade);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayPosSet differ) */
 extern int scpAdpcmPlayRequestNum(void);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayPosSet differ) */
 extern void scpFadeOut(float t, int a1, int a2, int a3);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayPosSet differ) */
 extern void scpFadeIn(float t);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayPosSet differ) */
 extern int scpFadeChk(void);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayPosSet differ) */
 extern void scpSleepEnemyAll(void);
-/* as script.h declares it; this TU does not include that header */
+/* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayPosSet differ) */
 extern void scpWakeupEnemyAll(void);
-/* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
+/* kept local: void * (int) here, int (int) in script.h */
 extern void *scpSearchGobj(int id);
 
 void actSt01bFloorChk(volatile int a0)
@@ -191,7 +192,7 @@ void actSt01bFloorChk(volatile int a0)
     demoEnd = 0;
     st01b_floor = 0;
 
-    while (demoEnd == 0 && ((D_0028F8F4[0] & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -232,7 +233,7 @@ void actSt01bFloorChk(volatile int a0)
     lt_switch_layout(54);
 }
 
-/* kept local: this TU's uses of scpSekizou do not fit the prototype in script.h */
+/* kept local: void (int, int, int, int, int, float, float, float, float, float, float) here, void (char *, int, int, int, int, float, float, float, float, float, float) in script.h */
 extern void scpSekizou(int a0, int a1, int a2, int a3, int a4, float x1, float y1, float z1,
                        float x2, float y2, float z2);
 
@@ -412,7 +413,7 @@ void actSt01bFloorEvent(int x)
     volatile int local = x;
 }
 
-/* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
+/* kept local: int (int, int) here, int (char *, int) in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
 
 void actSt01bWayOnChk(volatile int a0)

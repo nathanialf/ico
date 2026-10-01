@@ -5,9 +5,8 @@
 #include <libscf.h>
 #include "kanban.h"
 #include "GsBase.h"
-
-/* kept local: main.c's global; this TU does not include main.h */
-extern int systemStatus[];
+#include "main.h"
+#include "Basic.h"
 
 /* kanbanBoot.o's .sdata run (VMA 0x63B4BC..0x63B4D4, 0x18 B; MAIN.MAP's
    January object is 0x10), in the ROM's order: the boot sequence's step, the
@@ -24,8 +23,6 @@ static int mcRetryCount = 10; /* derived name */
 static int bootKanbanDone = 0; /* derived name */
 
 int kanbanBootEnd = 0;
-
-extern int fadeStatus;
 
 inline void kanbanBootInit(void)
 {
@@ -93,14 +90,13 @@ static int mcPort; /* the card slot being checked, 0 then 1 */
 
 static int bootVideoMode; /* the video mode in force when the sign went up */
 
-extern int NonLinearCameraMove;
-/* kept local: this TU's uses of iosMcChdirProduct do not fit the prototype in mcard.h */
+/* kept local: void (McReq *) here, int (void *) in mcard.h */
 extern void iosMcChdirProduct(McReq *mc);
-/* kept local: this TU's uses of iosMcSync do not fit the prototype in mcard.h */
+/* kept local: int (McReq *) here, int (unsigned long *) in mcard.h */
 extern int iosMcSync(McReq *mc);
-/* kept local: this TU's uses of iosMcLoadProductBlock do not fit the prototype in mcard.h */
+/* kept local: void (McReq *) here, int (void *) in mcard.h */
 extern void iosMcLoadProductBlock(McReq *mc);
-/* kept local: this TU's uses of gsResetFunc do not fit the prototype in debug.h */
+/* kept local: void (int) here, int (void) in debug.h */
 extern void gsResetFunc(int a0);
 extern KanbanReq *kanbanReqAdd(int a0, int a1);
 

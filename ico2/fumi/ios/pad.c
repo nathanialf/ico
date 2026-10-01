@@ -7,6 +7,8 @@
 #include <string.h>
 #include "typedef.h"
 #include "ios.h"
+#include "debug_exception.h"
+#include "matrixDrive.h"
 
 /* One sampled pad buffer: the two button bytes the device leaves at +2 and
    +3, active low. */
@@ -186,7 +188,6 @@ extern int scePadEnterPressMode(int port, int slot);
 extern int scePadInfoAct(int port, int slot, int actno, int term);
 extern int scePadSetActAlign(int port, int slot, void *align);
 extern int scePadGetState(int port, int slot);
-extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *msg);
 
 int controler_stable_check(void *a0)
@@ -391,8 +392,10 @@ int controler_stable_check(void *a0)
     return phase;
 }
 
+/* kept local: int (void *, int, void *, int, int, int, int) here, void (unsigned int *, int, void (*)(), int, void *, long, int) in thread.h */
 extern int iosThreadCreateS(void *th, int prio, void *func, int arg, int stack, int size,
                             int flags);
+/* kept local: void (void *) here, void (int) in thread.h */
 extern void iosThreadStart(void *th);
 extern int scePadInit(int mode);
 extern int scePadPortOpen(int port, int slot, void *buf);
@@ -430,11 +433,12 @@ int iosPadDevInit(void *a0)
 }
 
 /* the frame counter this TU reads unsigned: the ROM divides it with divu */
+/* kept local: unsigned int here, int in main.h */
 extern unsigned int frame_count;
+/* kept local: int (int, int, void *) here, int (int, int, int) in libpad.h */
 extern int scePadRead(int port, int slot, void *buf);
 extern void Shock_Decode(void *box, unsigned char *pFlags, unsigned char *pLevel);
 extern void Shock_SetMotor(int flags, int level, void *box, int port, int slot);
-extern int controler_stable_check(void *dev);
 void iosPadActTickProc(void);
 
 int iosPadDevReadFunc(void)
@@ -546,8 +550,7 @@ int iosPadRead(void *pad)
     return 0;
 }
 
-extern float FSqrt(float x);
-extern void sceVu0Normalize(void *dst, void *src);
+/* kept local: float (void *) here, float (float *) in gv.h */
 extern float _GetDirection(void *v);
 
 float iosPadNormalizeStick(void *p)
@@ -763,6 +766,7 @@ int iosPadGetStick(void *dev, void *out, int mode, int a3, int a4, int a5)
     return rv;
 }
 
+/* kept local: int here, char * in main.h */
 extern int matrixptr;
 
 void iosPadStickCameraCoord(void *a0, float *a1)

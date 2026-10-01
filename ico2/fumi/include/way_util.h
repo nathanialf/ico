@@ -22,4 +22,13 @@ int visible_waypoint_of_all(void *a0);
 char *visible_waypoint_of_all_except_gid(int *pos, int gid);
 char *waypoint_with_range(int *arg0, float thresh);
 
+char *visible_waypoint_of_all_except_gid_ThreadVersion(int *pos, int gid);
+char *visible_waypoint_of_all_except_temp(int *pos, int gid);
+char *visible_waypoint_of_all_except_temp_ThreadVersion(int *pos, int gid);
+void ez_line(void);
+int short_direction_between_wp(char *from, char *to);
+void *WayUtilWorkAlloc(void);
+void WayUtilWorkFree(int *self);
+char *nearest_waypoint_of_group(int *arg0, int handle);
+
 #endif /* WAY_UTIL_H */

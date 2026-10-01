@@ -19,4 +19,7 @@ void ReadSoundSqFile(void *h, int a1, int size, int a3, int kind, int a5, int a6
 void ReadSoundAdpcmFile(void *h, int a1, int size, int a3, int a4, int a5, int a6);
 
 
+void InitCharFileManager(void);
+void ResetCharFileManager(void);
+
 #endif /* CHARFILEMANAGER_H */
