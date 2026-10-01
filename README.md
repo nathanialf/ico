@@ -1,14 +1,14 @@
 # ico
 
 <!-- progress:begin -->
-![.text progress](https://img.shields.io/badge/text-100.00%20%25%20C-brightgreen.svg)
-![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25%20C-brightgreen.svg)
-![.data progress](https://img.shields.io/badge/data-72.54%20%25%20C%20%2B%2027.46%20%25%20table-brightgreen.svg)
-![.rodata progress](https://img.shields.io/badge/rodata-9.49%20%25%20C%20%2B%2090.51%20%25%20table-brightgreen.svg)
-![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25%20C-brightgreen.svg)
-![.sdata progress](https://img.shields.io/badge/sdata-99.91%20%25%20C%20%2B%200.09%20%25%20table-brightgreen.svg)
-![.sbss progress](https://img.shields.io/badge/sbss-99.68%20%25%20C%20%2B%200.32%20%25%20table-brightgreen.svg)
-![.bss progress](https://img.shields.io/badge/bss-100.00%20%25%20C-brightgreen.svg)
+![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg)
+![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg)
+![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2872.54%20%25%20C%20%2B%2027.46%20%25%20table%29-brightgreen.svg)
+![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.49%20%25%20C%20%2B%2090.51%20%25%20table%29-brightgreen.svg)
+![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25-brightgreen.svg)
+![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2899.91%20%25%20C%20%2B%200.09%20%25%20table%29-brightgreen.svg)
+![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25%20%2899.68%20%25%20C%20%2B%200.32%20%25%20table%29-brightgreen.svg)
+![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg)
 <!-- progress:end -->
 
 **[Live progress dashboard](https://nathanialf.github.io/ico/#pal)**: decomp status per directory, TU and function for this branch's target (PAL retail, SCES-50760), updated on every push. The dashboard covers all three targets; switch with the picker at the top.

@@ -815,11 +815,12 @@ def _badge_color(m: int, t: int) -> str:
 
 
 def _badge_text(m: int, x: int, t: int) -> str:
-    """`100.00 % C`, or `72.54 % C + 27.46 % table` when part of the section
-    is extracted data."""
-    text = f"{_fmt_pct(m, t)} C"
+    """The identical share first, then how it is built: `100.00 %` for a
+    section that is all C, `100.00 % (72.54 % C + 27.46 % table)` when part
+    of the section is extracted data."""
+    text = _fmt_pct(m + x, t)
     if x:
-        text += f" + {_fmt_pct(x, t)} table"
+        text += f" ({_fmt_pct(m, t)} C + {_fmt_pct(x, t)} table)"
     return text
 
 

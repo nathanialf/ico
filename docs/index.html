@@ -496,8 +496,8 @@ function sectionStrip(T){
       + `<span class="secnm">${n}</span>`
       + `<span class="secmt">${own ? "owned" : (x ? "C+table" : "matched")}</span>`
       + bars
-      + `<span class="pct">${fmtPct(m,t)}</span>`
-      + `<span class="secsz">${x ? `+${fmtPct(x,t)} table` : `${fmtB(m)} / ${fmtB(t)}`}</span>`
+      + `<span class="pct">${fmtPct(m+x,t)}</span>`
+      + `<span class="secsz">${x ? `${fmtPct(m,t)} C + ${fmtPct(x,t)} table` : `${fmtB(m)} / ${fmtB(t)}`}</span>`
       + `</div>`;
   }).join("");
 }
