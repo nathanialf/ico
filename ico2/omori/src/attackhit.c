@@ -398,11 +398,11 @@ static void AttackMail(GObj *self, AttackPack *pack)
         GetRootPosition(v1, self);
         sceVu0SubVector(v2, v0, v1);
         sceVu0Normalize(v2, v2);
-        GOBJ_ACT(self)->attackDirX = v2[0];
-        GOBJ_ACT(self)->attackDirY = v2[1];
-        GOBJ_ACT(self)->attackDirZ = v2[2];
+        GOBJ_ACT(self)->attackDir[0] = v2[0];
+        GOBJ_ACT(self)->attackDir[1] = v2[1];
+        GOBJ_ACT(self)->attackDir[2] = v2[2];
         if (pack->hasDir != 0) {
-            sceVu0ScaleVector(&GOBJ_ACT(self)->attackDirX, pack->dir, -1.0f);
+            sceVu0ScaleVector(GOBJ_ACT(self)->attackDir, pack->dir, -1.0f);
         }
     }
 }

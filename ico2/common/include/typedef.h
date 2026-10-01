@@ -321,7 +321,7 @@ struct MotRoot {       /* field names derived */
     int handTurnIK;   /* 0x31C, the motion turns toward the hand targets (1) */
     int fieldWall;    /* 0x320, the motion clips against field walls */
     int fuchiMode;    /* 0x324, the edge reaction mode */
-    int cylinder;     /* 0x328, the motion record's cylinder flag: the object takes part in cylinder collision */
+    int cylinder; /* 0x328, the motion record's cylinder flag: the object takes part in cylinder collision */
     int avgWallPlane; /* 0x32C, the motion averages four wall planes */
     int flag330;      /* 0x330, the motion drops node 4's own turn */
     int flag334;      /* 0x334, the motion drops node 6's own turn */
@@ -336,7 +336,7 @@ struct MotRoot {       /* field names derived */
     float holdPoint[4]; /* 0x370, the point the hang hold is measured from */
     int ropeState;      /* 0x380, 0, or -1 and 1 by the hold height on the chain */
     int fixObj; /* 0x384, the object SetMotionNodeFixModeParameter fixes the node to; held as a word: stored as GObj * (or char *, P4-xcut), SetMotionNodeFixModeParameter's code changes (measured) */
-    int fixNode;        /* 0x388, the focus node on that object */
+    int fixNode; /* 0x388, the focus node on that object */
     char _pad38C[4];
     float fixQuat[4];     /* 0x390, the fixed node's turn */
     float fixPos[4];      /* 0x3A0, the fixed node's offset */
@@ -406,15 +406,15 @@ struct MotCtrl {           /* field names derived */
     int blendCount;       /* 0xA0 */
     int blendFrames;      /* 0xA4 */
     char _padA8[8];
-    float dir[4];       /* 0xB0, the motion direction */
-    float lastDir[4];   /* 0xC0 */
-    int orientKind;     /* 0xD0 */
-    int wordD4;         /* 0xD4 */
-    int wordD8;         /* 0xD8 */
-    int wordDC;         /* 0xDC */
-    int catchBoy;       /* 0xE0, 1 while the enemy holds the boy */
-    int sideWallCheck;  /* 0xE4, nonzero runs checkWallSideState after the cliff and wall checks (InitBoyGeo sets it) */
-    int variation;      /* 0xE8, the enemy's variation counter, 0 to 9: its parity alternates the cliff and the wall check */
+    float dir[4];     /* 0xB0, the motion direction */
+    float lastDir[4]; /* 0xC0 */
+    int orientKind;   /* 0xD0 */
+    int wordD4;       /* 0xD4 */
+    int wordD8;       /* 0xD8 */
+    int wordDC;       /* 0xDC */
+    int catchBoy;     /* 0xE0, 1 while the enemy holds the boy */
+    int sideWallCheck; /* 0xE4, nonzero runs checkWallSideState after the cliff and wall checks (InitBoyGeo sets it) */
+    int variation; /* 0xE8, the enemy's variation counter, 0 to 9: its parity alternates the cliff and the wall check */
     float fallHeight;   /* 0xEC, the fall height the death checks compare */
     float groundHeight; /* 0xF0, the root's height above the ground */
     int wallHit;        /* 0xF4, a wall was hit this frame */
@@ -451,7 +451,8 @@ struct MotCtrl {           /* field names derived */
     int trigger2Done; /* 0x1A4 */
     float
         ropeHangPos; /* 0x1A8, where the boy hangs on the rope (the rope's chain collision, GetRopeHangablePos) */
-    int seGroup[2]; /* 0x1AC, the two SE groups InitMotionOrient takes (soundSeGroupGet); shiftMotionOrientEndFunc asserts on -1 */
+    int seGroup
+        [2]; /* 0x1AC, the two SE groups InitMotionOrient takes (soundSeGroupGet); shiftMotionOrientEndFunc asserts on -1 */
     int slipFlags;     /* 0x1B4 */
     int lastSlipFlags; /* 0x1B8 */
     int slipOn;        /* 0x1BC, the floor slip attribute bits take effect */
@@ -486,10 +487,11 @@ typedef struct SkelNode { /* field names derived */
     int pad3C;
 } SkelNode;
 
-struct Sub15C {     /* field names derived */
-    ObjNode parent; /* 0x0, the object and node this one hangs from (LinkParentOfDObj), obj 0 for none */
-    int nodeNum;  /* 0x8, the count of node matrices and quaternions at 0xC and 0x10 */
-    int nodeMtx;  /* 0xC, one 64-byte matrix a node; held as a word: typed float (*)[4][4], attackhit.o and act-game.o move, where the ROM adds a byte offset to it (measured, P4-xcut) */
+struct Sub15C { /* field names derived */
+    ObjNode
+        parent; /* 0x0, the object and node this one hangs from (LinkParentOfDObj), obj 0 for none */
+    int nodeNum; /* 0x8, the count of node matrices and quaternions at 0xC and 0x10 */
+    int nodeMtx; /* 0xC, one 64-byte matrix a node; held as a word: typed float (*)[4][4], attackhit.o and act-game.o move, where the ROM adds a byte offset to it (measured, P4-xcut) */
     int nodeQuat; /* 0x10, one quaternion a node; held as a word: typed float (*)[4], GetMatrixOfMotion's int-typed read of it moves (measured, P4-xcut) */
     char pad14[12];
     int matrix; /* 0x20, the object's own matrix starts here (initMatrixDObj) */
@@ -532,7 +534,10 @@ struct Sub15C {     /* field names derived */
     int nodeLimit;     /* 0x810, one rotation limit record pointer a skeleton node */
     int nodeVec;       /* 0x814, one vector a skeleton node */
     char pad818[4];
-    int (*rideFunc)(ObjNode *on, GObj *rider); /* 0x81C, called for an object that comes to stand on this one (CageRideFunc, poolRideFunc) */
+    int (*rideFunc)(
+        ObjNode *on,
+        GObj *
+            rider); /* 0x81C, called for an object that comes to stand on this one (CageRideFunc, poolRideFunc) */
     char *blendless;  /* 0x820, one byte a node, set where the motion blend leaves the node alone */
     float scaleRatio; /* 0x824, the geometry scale ratio initGeometryScaleRatio sets */
     char pad828[8];
@@ -1284,16 +1289,13 @@ typedef struct Act { /* field names derived */
     char pad1AC[4];
     GObj *attacker; /* 0x1B0, the object whose attack hit the actor */
     char pad1B4[12];
-    float attackDirX; /* 0x1C0, the attack direction, x */
-    float attackDirY; /* 0x1C4, the attack direction, y */
-    float attackDirZ; /* 0x1C8, the attack direction, z */
-    char pad1CC[4];
-    int damage;       /* 0x1D0, the damage of the attack that hit the actor */
-    int hitGroup;     /* 0x1D4, the attack group that hit the actor */
-    char downHit;     /* 0x1D8, nonzero when the hit knocks the actor down */
-    char stoneHit;    /* 0x1D9, nonzero when the hit turns the actor to stone */
-    char hit;         /* 0x1DA, set when the actor goes down, cleared each frame */
-    char unguardable; /* 0x1DB, nonzero when the hit cannot be guarded */
+    float attackDir[4]; /* 0x1C0, the attack direction */
+    int damage;         /* 0x1D0, the damage of the attack that hit the actor */
+    int hitGroup;       /* 0x1D4, the attack group that hit the actor */
+    char downHit;       /* 0x1D8, nonzero when the hit knocks the actor down */
+    char stoneHit;      /* 0x1D9, nonzero when the hit turns the actor to stone */
+    char hit;           /* 0x1DA, set when the actor goes down, cleared each frame */
+    char unguardable;   /* 0x1DB, nonzero when the hit cannot be guarded */
     char pad1DC[4];
     float life;      /* 0x1E0, the actor's life */
     float maxLife;   /* 0x1E4, the life the enemy restarts with */

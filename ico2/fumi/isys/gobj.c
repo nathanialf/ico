@@ -98,29 +98,37 @@ void cut_gobj_link(GObj *p)
     }
 }
 
-/* a file-static copy of isysGObjRemove (and, through it, of
- * isysGObjKindTableRemove), which isysGObjDelete inlines; the two bodies are
- * the same */
-static __inline__ void removeGObjEntry(GObj *g) /* derived name */
+/* the kind-table unlink, which isysGObjKindTableRemove and the object
+ * removal inline */
+static __inline__ void kindTableRemove(GObj *g) /* derived name */
 {
     int kind = g->kind;
-    struct GProc *proc = g->procHead;
     GObj *p;
     if ((unsigned int)(kind - 1) < 69) {
         p = gobjKindHead[kind];
         if (p == g) {
             gobjKindHead[kind] = g->kindNext;
-        } else if (p != 0) {
-            while (p->kindNext != g) {
-                if (p == 0) {
-                    debug_assert(__FILE__, 146);
-                    __assert(__FILE__, 146, "0");
-                }
-                p = p->kindNext;
-            }
-            p->next = g->kindNext;
+            return;
         }
+        if (p == 0)
+            return;
+        while (p->kindNext != g) {
+            if (p == 0) {
+                debug_assert(__FILE__, 146);
+                __assert(__FILE__, 146, "0");
+            }
+            p = p->kindNext;
+        }
+        p->next = g->kindNext;
     }
+}
+
+/* the object removal, which isysGObjRemove and isysGObjRemoveAll inline */
+static __inline__ void removeGObjEntry(GObj *g) /* derived name */
+{
+    struct GProc *proc = g->procHead;
+
+    kindTableRemove(g);
     cut_gobj_link(g);
     g->self = 0;
     while (proc != 0) {
@@ -344,30 +352,7 @@ int isysGetNbAllocedGObjs(void)
 
 inline void isysGObjRemove(GObj *g)
 {
-    int kind = g->kind;
-    struct GProc *proc = g->procHead;
-    GObj *p;
-    if ((unsigned int)(kind - 1) < 69) {
-        p = gobjKindHead[kind];
-        if (p == g) {
-            gobjKindHead[kind] = g->kindNext;
-        } else if (p != 0) {
-            while (p->kindNext != g) {
-                if (p == 0) {
-                    debug_assert(__FILE__, 146);
-                    __assert(__FILE__, 146, "0");
-                }
-                p = p->kindNext;
-            }
-            p->next = g->kindNext;
-        }
-    }
-    cut_gobj_link(g);
-    g->self = 0;
-    while (proc != 0) {
-        isysGObjProcRemove(proc);
-        proc = g->procHead;
-    }
+    removeGObjEntry(g);
 }
 
 inline void isysGObjKindTableAdd(GObj *g, int kind)
@@ -402,25 +387,7 @@ inline void isysGObjKindTableAdd(GObj *g, int kind)
 
 inline void isysGObjKindTableRemove(GObj *g)
 {
-    int kind = g->kind;
-    GObj *p;
-    if ((unsigned int)(kind - 1) < 69) {
-        p = gobjKindHead[kind];
-        if (p == g) {
-            gobjKindHead[kind] = g->kindNext;
-            return;
-        }
-        if (p == 0)
-            return;
-        while (p->kindNext != g) {
-            if (p == 0) {
-                debug_assert(__FILE__, 146);
-                __assert(__FILE__, 146, "0");
-            }
-            p = p->kindNext;
-        }
-        p->next = g->kindNext;
-    }
+    kindTableRemove(g);
 }
 
 inline void isysGObjMoveAfterGObj(GObj *self, GObj *other)

@@ -178,7 +178,7 @@ inline void isysGObjMoveObjDLBeforeGObj(DLN *self, DLN *obj)
     }
 }
 
-void isysGObjLinkObjDL(void *a0, void *a1, unsigned char a2, void *a3, void *a4)
+void isysGObjLinkObjDL(void *a0, void *a1, unsigned char a2, int a3, unsigned int a4)
 {
     debug_StdPrintfDummy("GObjLinkDL in\n");
     if (a1 != 0) {
@@ -189,7 +189,7 @@ void isysGObjLinkObjDL(void *a0, void *a1, unsigned char a2, void *a3, void *a4)
     }
 }
 
-void isysGObjLinkObjDLHead(void *a0, void *a1, unsigned char a2, void *a3, void *a4)
+void isysGObjLinkObjDLHead(void *a0, void *a1, unsigned char a2, int a3, unsigned int a4)
 {
     if (a1 != 0) {
         ((DLN *)a0)->dl = a1;
@@ -198,7 +198,7 @@ void isysGObjLinkObjDLHead(void *a0, void *a1, unsigned char a2, void *a3, void 
     }
 }
 
-void isysGObjLinkObjDLAfterGObj(DLN *self, void *a1, void *a2, DLN *a3)
+void isysGObjLinkObjDLAfterGObj(DLN *self, void *a1, int a2, DLN *a3)
 {
     DLN *t0;
     DLN *v34;
@@ -224,7 +224,7 @@ void isysGObjLinkObjDLAfterGObj(DLN *self, void *a1, void *a2, DLN *a3)
     }
 }
 
-void isysGObjLinkObjDLBeforeGObj(DLN *self, void *a1, void *a2, DLN *a3)
+void isysGObjLinkObjDLBeforeGObj(DLN *self, void *a1, int a2, DLN *a3)
 {
     DLN *t0;
     DLN *v34;

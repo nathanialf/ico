@@ -283,9 +283,9 @@ inline int direction_across_bridge(WayGroup *bridge, int a1)
     return 0;
 }
 
-/* a file-static copy of waybridge_between_group, defined below, which this
-   caller inlines */
-static inline WayGroup *waybridge_between_groupInline(int a0, int a1) /* derived name */
+/* the bridge between two groups, which waybridge_between_group and
+   wgid_next inline */
+static inline WayGroup *bridgeBetweenGroups(int a0, int a1) /* derived name */
 {
     WayGroup *p = WayBridge_begin();
     while (p != 0) {
@@ -326,7 +326,7 @@ int wgid_next(int me, int target)
                 }
             }
 
-            br = waybridge_between_groupInline(me, target);
+            br = bridgeBetweenGroups(me, target);
             if (br != 0) {
                 debug_StdPrintfDummy("target is over bridge\n");
                 return br->index;
@@ -532,11 +532,10 @@ int GetWgAll(int from, int to, WgAll *w)
     return i;
 }
 
-/* file-static copies of waypoint_connect_group_side_me and
-   waypoint_connect_group_side_bridge, defined below, which this caller
-   inlines */
-static inline WayPoint *waypoint_connect_group_side_meInline(WayGroup *a0,
-                                                             int a1) /* derived name */
+/* the end of a group on a given side: waypoint_connect_group_side_me and
+   set_check_wp inline the first; set_check_wp inlines the second, a
+   file-static copy of waypoint_connect_group_side_bridge */
+static inline WayPoint *groupSideMe(WayGroup *a0, int a1) /* derived name */
 {
     WayPoint *e = &way_point[a0->end[0]];
     if (e->group == a1)
@@ -545,8 +544,7 @@ static inline WayPoint *waypoint_connect_group_side_meInline(WayGroup *a0,
     return e->group == a1 ? e : 0;
 }
 
-static inline WayPoint *waypoint_connect_group_side_bridgeInline(WayGroup *a0,
-                                                                 int a1) /* derived name */
+static inline WayPoint *groupSideBridge(WayGroup *a0, int a1) /* derived name */
 {
     WayPoint *e = &way_point[a0->end[0]];
     if (e->group == a1)
@@ -563,16 +561,16 @@ void set_check_wp(CheckWp *out, int wp, int gid)
     case 0: {
         WayGroup *f = &way_group[wp];
 
-        out->start = waypoint_connect_group_side_meInline(f, gid);
-        out->cross = waypoint_connect_group_side_bridgeInline(f, gid);
+        out->start = groupSideMe(f, gid);
+        out->cross = groupSideBridge(f, gid);
         debug_StdPrintfDummy("set_check_wp:%p %p\n", out->start, out->cross);
         break;
     }
     case 1: {
         WayGroup *g = &way_group[gid];
 
-        out->start = waypoint_connect_group_side_bridgeInline(g, wp);
-        out->cross = waypoint_connect_group_side_meInline(g, wp);
+        out->start = groupSideBridge(g, wp);
+        out->cross = groupSideMe(g, wp);
         break;
     }
     }
@@ -1025,21 +1023,7 @@ inline WayPoint *get_wp_nearest_bridge_side_bridge(int arg0, int arg1)
 
 inline WayGroup *waybridge_between_group(int a0, int a1)
 {
-    WayGroup *p = WayBridge_begin();
-    while (p != 0) {
-        WayPoint *eA = &way_point[p->end[0]];
-        WayPoint *eB = &way_point[p->end[1]];
-        int a = eA->group;
-        int b = eB->group;
-        if (a == a0 && b == a1) {
-            return p;
-        }
-        if (b == a0 && a == a1) {
-            return p;
-        }
-        p = WayBridge_next(p);
-    }
-    return 0;
+    return bridgeBetweenGroups(a0, a1);
 }
 
 inline WayPoint *bridge_waypoint_side_me(int me, int target)
@@ -1060,11 +1044,7 @@ inline WayPoint *bridge_waypoint_side_me(int me, int target)
 
 inline WayPoint *waypoint_connect_group_side_me(WayGroup *a0, int a1)
 {
-    WayPoint *e = &way_point[a0->end[0]];
-    if (e->group == a1)
-        return e;
-    e = &way_point[a0->end[1]];
-    return e->group == a1 ? e : 0;
+    return groupSideMe(a0, a1);
 }
 
 inline WayPoint *bridge_waypoint_side_bridge(int a0, int a1)

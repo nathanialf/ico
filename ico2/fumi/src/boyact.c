@@ -861,8 +861,6 @@ int GetChainSlope(void)
 /* this TU's uses of these do not fit the prototypes in the headers the rest
    of the file reaches */
 extern float GetDifferenceFromLowerField(int self, int a1);
-extern void IncreasePdlChain(int id);
-extern void DecreasePdlChain(int id);
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
 extern int InsertCameraWorkingFlag;
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
@@ -891,8 +889,9 @@ static inline void SaveBoyOrientForScript(void) /* derived name */
     add_rope_vec[2] = test_CURRENTORIENT(boy)[2];
 }
 
-/* a file-static copy of CorrectStickInfo, which subBoyControl inlines */
-static inline int CorrectStickInfo_inl(void *dir, void *stick) /* derived name */
+/* the stick's angle from a direction, which CorrectStickInfo and
+   subBoyControl inline */
+static inline int correctStick(void *dir, void *stick) /* derived name */
 {
     int buf[4];
 
@@ -1030,7 +1029,7 @@ void subBoyControl(GObj *volatile a0)
                 ableBoyControl = 0;
             }
             _GetMotionDirection(dir, (void *)a0);
-            CorrectStickInfo_inl(dir, (char *)s + 0x338);
+            correctStick(dir, (char *)s + 0x338);
             if (s->padTrg & 1) {
                 BridgeBox();
             }
@@ -1839,10 +1838,10 @@ static inline void PrivInsCamInit(void) /* derived name */
     privInsCam = privInsCamDefault;
 }
 
-/* a file-static copy of ACTSearchGObj, which subBoyCollision and
-   actBoyAttack inline */
-static inline void ACTSearchGObj_inl(void *a0, int a1, int a2, int *out_id, float *out_vec,
-                                     float thresh) /* derived name */
+/* the nearest object of a kind in front of the actor, which ACTSearchGObj,
+   subBoyCollision and actBoyAttack inline */
+static inline void searchGObj(void *a0, int a1, int a2, int *out_id, float *out_vec,
+                              float thresh) /* derived name */
 {
     float buf[4];
     void *node;
@@ -1942,7 +1941,7 @@ void subBoyCollision(GObj *volatile a0)
             if (sub->padTrg & 0x20) {
                 int hit;
 
-                ACTSearchGObj_inl((void *)a0, 0x13, 0x2D, &hit, vec, 100.0f);
+                searchGObj((void *)a0, 0x13, 0x2D, &hit, vec, 100.0f);
             }
         }
         switch (sub->actMode) {
@@ -2472,11 +2471,11 @@ inline void actBoyFall(GObj *volatile a0)
 
 extern void BoyAttackCenter(int a0);
 
-/* a file-static copy of ACTSearchEnemy (see ACTSearchGObj_inl above
-   subBoyCollision) */
-static inline void ACTSearchEnemy_inl(void *a0, int *out_id, float *out_vec) /* derived name */
+/* the nearest enemy in front of the actor, which ACTSearchEnemy and
+   actBoyAttack inline */
+static inline void searchEnemy(void *a0, int *out_id, float *out_vec) /* derived name */
 {
-    ACTSearchGObj_inl(a0, (*(int *)((char *)a0 + 0xC) ^ 1) ? 1 : 4, 0x5A, out_id, out_vec, 300.0f);
+    searchGObj(a0, (*(int *)((char *)a0 + 0xC) ^ 1) ? 1 : 4, 0x5A, out_id, out_vec, 300.0f);
 }
 
 void actBoyAttack(GObj *volatile a0)
@@ -2490,7 +2489,7 @@ void actBoyAttack(GObj *volatile a0)
     debug_StdPrintfDummy("attack sub id [%d]\n", mot);
     debug_StdPrintfDummy("enter actBoyAttack\n");
     _ACTWait(2);
-    ACTSearchEnemy_inl((void *)a0, (int *)((char *)sub + 0x188), vec);
+    searchEnemy((void *)a0, (int *)((char *)sub + 0x188), vec);
     while (1) {
         if (*(int *)((char *)sub + 0x188)) {
             if (ACTGame_NoWeapon(a0)) {
@@ -3401,10 +3400,7 @@ void actBoyStart(GObj *a0)
 
 inline int CorrectStickInfo(void *dir, void *stick)
 {
-    int buf[4];
-    ConvertStickToAbsCoord(buf, stick);
-
-    return _RotyGV(buf, dir);
+    return correctStick(dir, stick);
 }
 
 inline void *GetBoyWeaponGObj(void)
@@ -3558,41 +3554,7 @@ inline unsigned char IsAbleBoyControl(void)
 
 inline void ACTSearchEnemy(void *a0, int *out_id, float *out_vec)
 {
-    float buf[4];
-    void *node;
-    int best;
-    float thresh = 300.0f;
-
-    node = isysGObjSearchFromObjKindID_begin((*(int *)((char *)a0 + 0xC) ^ 1) ? 1 : 4);
-    *out_id = 0;
-    best = 0x5A;
-    if (node != 0) {
-        do {
-            if (*(int *)((char *)node + 0x16C) != 0) {
-                float *r1 = test_CURRENTROOT(a0);
-                if (_DistGV(r1, test_CURRENTROOT(node)) < thresh) {
-                    int sign;
-                    int dist;
-                    float *r4 = test_CURRENTROOT(node);
-                    sceVu0SubVector(buf, r4, test_CURRENTROOT(a0));
-                    sign = ((int (*)(void *, void *))_RotyGV)(buf, test_CURRENTORIENT(a0));
-                    if (sign < 0) {
-                        dist = -((int (*)(void *, void *))_RotyGV)(buf, test_CURRENTORIENT(a0));
-                    } else {
-                        dist = ((int (*)(void *, void *))_RotyGV)(buf, test_CURRENTORIENT(a0));
-                    }
-                    if (dist < best) {
-                        best = dist;
-                        out_vec[0] = buf[0];
-                        out_vec[1] = buf[1];
-                        out_vec[2] = buf[2];
-                        *out_id = (int)node;
-                    }
-                }
-            }
-            node = isysGObjSearchFromObjKindID_next(node);
-        } while (node != 0);
-    }
+    searchEnemy(a0, out_id, out_vec);
 }
 
 inline void DeleteBoyWeapon(void)
@@ -3860,40 +3822,7 @@ inline void ReadCharacterPacket(void)
 
 inline void ACTSearchGObj(void *a0, int a1, int a2, int *out_id, float *out_vec, float thresh)
 {
-    float buf[4];
-    void *node;
-    int best;
-
-    node = isysGObjSearchFromObjKindID_begin(a1);
-    *out_id = 0;
-    best = a2;
-    if (node != 0) {
-        do {
-            if (*(int *)((char *)node + 0x16C) != 0) {
-                float *r1 = test_CURRENTROOT(a0);
-                if (_DistGV(r1, test_CURRENTROOT(node)) < thresh) {
-                    int sign;
-                    int dist;
-                    float *r4 = test_CURRENTROOT(node);
-                    sceVu0SubVector(buf, r4, test_CURRENTROOT(a0));
-                    sign = ((int (*)(void *, void *))_RotyGV)(buf, test_CURRENTORIENT(a0));
-                    if (sign < 0) {
-                        dist = -((int (*)(void *, void *))_RotyGV)(buf, test_CURRENTORIENT(a0));
-                    } else {
-                        dist = ((int (*)(void *, void *))_RotyGV)(buf, test_CURRENTORIENT(a0));
-                    }
-                    if (dist < best) {
-                        best = dist;
-                        out_vec[0] = buf[0];
-                        out_vec[1] = buf[1];
-                        out_vec[2] = buf[2];
-                        *out_id = (int)node;
-                    }
-                }
-            }
-            node = isysGObjSearchFromObjKindID_next(node);
-        } while (node != 0);
-    }
+    searchGObj(a0, a1, a2, out_id, out_vec, thresh);
 }
 
 inline void afterBoySwim(GObj *volatile a0)

@@ -158,10 +158,6 @@ int checkWaterfallResult(float *out)
     return ret;
 }
 
-/* brain.h does not declare the target timer; this call passes the target
-   object */
-extern int brainDecTargetTimer(void *gobj);
-
 /* The record Act.enemy points at, as far as this file uses it: the sofa
    position the attract state hands over (copied from the actor's 0x5B0) and
    the facing _GetRootObjectOrient fills for it. */

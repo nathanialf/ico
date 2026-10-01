@@ -11,21 +11,21 @@
 #include <eekernel.h>
 
 /* --- ios thread object (SCE ee_thread_t at offset 0 + ICO bookkeeping) --- */
-typedef struct IOSThread {    /* field names derived */
-    struct ThreadParam param; /* 0x00 the kernel's thread record */
-    int id;                   /* 0x30 kernel thread id                */
-    int arg;                  /* 0x34 argument handed to func         */
-    void (*func)();           /* 0x38 body run by iosThreadMain       */
-    int flags;                /* 0x3C, bit 0: the stack was allocated (iosThreadCreateS) */
-    int sleeping;             /* 0x40 read by iosThreadMain           */
-    int pad44;                /* 0x44 */
-    int hasQueue;             /* 0x48 */
+typedef struct IOSThread {     /* field names derived */
+    struct ThreadParam param;  /* 0x00 the kernel's thread record */
+    int id;                    /* 0x30 kernel thread id                */
+    int arg;                   /* 0x34 argument handed to func         */
+    void (*func)();            /* 0x38 body run by iosThreadMain       */
+    int flags;                 /* 0x3C, bit 0: the stack was allocated (iosThreadCreateS) */
+    int sleeping;              /* 0x40 read by iosThreadMain           */
+    int pad44;                 /* 0x44 */
+    int hasQueue;              /* 0x48 */
     struct IosMsgQueue *queue; /* 0x4C, the join queue iosThreadMessage creates */
-    char name[16];            /* 0x50 */
-    char pad60[16];           /* 0x60: the record is 0x70 bytes, the gap
+    char name[16];             /* 0x50 */
+    char pad60[16];            /* 0x60: the record is 0x70 bytes, the gap
                             between the boot thread and its stack in
                             .bss */
-} IOSThread; /* derived name */
+} IOSThread;                   /* derived name */
 
 /* --- ios semaphore object: the parameter block CreateSema is handed (and
    iosSemaWait refers the status into), the status iosSemaReferStatus last
@@ -59,8 +59,8 @@ void iosThreadCreateS(IOSThread *th, int no, void (*func)(), int arg, void *heap
 void iosThreadDestroy(IOSThread *th);
 void iosThreadInit(void);
 void iosThreadSetPri(IOSThread *th, int pri);
-/* No caller passes an argument; ios/thread.c's definition takes four and
-   hands them to SleepThread. */
+/* omori/src/camera-editor.c alone passes an argument, through its own
+   one-argument declaration; ios/thread.c defines it (void). */
 void iosThreadSleep(void);
 void iosThreadStart(IOSThread *th);
 void iosThreadStop(IOSThread *th);

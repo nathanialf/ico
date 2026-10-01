@@ -716,9 +716,10 @@ int ShockRequestBox_RequestDirectCancel(int *a0, int *a1)
     return 1;
 }
 
-/* after the guards the manager is reached through the global it has just
-   been stored in */
-void Init_ShockDriver(ShockMgr *m, int *arr, int num)
+/* the driver manager's setup, which Init_ShockDriver and Init_Shock
+   inline; after the guards the manager is reached through the global it
+   has just been stored in */
+static inline void initShockDriver(ShockMgr *m, int *arr, int num) /* derived name */
 {
     int i;
     if (m == 0)
@@ -731,6 +732,11 @@ void Init_ShockDriver(ShockMgr *m, int *arr, int num)
     for (i = 0; i < num; i++)
         System_shock_driver->arr[i] = 0;
     System_shock_driver->level = 0;
+}
+
+void Init_ShockDriver(ShockMgr *m, int *arr, int num)
+{
+    initShockDriver(m, arr, num);
 }
 
 int ShockDriver_VoiceSet_NumberRegist(unsigned int idx, int val)
@@ -849,7 +855,9 @@ typedef struct { /* field names derived */
     char *buf;
 } ShockReqAlloc; /* derived name */
 
-void Init_ShockRequestAlloc(ShockReqAlloc *a0, char *a1, int a2)
+/* the request pool's setup, which Init_ShockRequestAlloc and Init_Shock
+   inline */
+static inline void initShockRequestAlloc(ShockReqAlloc *a0, char *a1, int a2) /* derived name */
 {
     int i;
     if (a0 != 0 && a1 != 0) {
@@ -861,6 +869,11 @@ void Init_ShockRequestAlloc(ShockReqAlloc *a0, char *a1, int a2)
     } else {
         a0->num = 0;
     }
+}
+
+void Init_ShockRequestAlloc(ShockReqAlloc *a0, char *a1, int a2)
+{
+    initShockRequestAlloc(a0, a1, a2);
 }
 
 void *Get_ShockRequestStruct(int *a0)
@@ -918,37 +931,6 @@ Ldec:
     a0 = (diff < a1) ? diff : a0;
 Lend:
     return a0;
-}
-
-/* file-static copies of Init_ShockDriver and Init_ShockRequestAlloc, which
- * Init_Shock inlines */
-static inline void initShockDriver(ShockMgr *m, int *arr, int num) /* derived name */
-{
-    int i;
-    if (m == 0)
-        return;
-    if (arr == 0)
-        return;
-    System_shock_driver = m;
-    System_shock_driver->count = num;
-    System_shock_driver->arr = arr;
-    for (i = 0; i < num; i++)
-        System_shock_driver->arr[i] = 0;
-    System_shock_driver->level = 0;
-}
-
-static inline void initShockRequestAlloc(ShockReqAlloc *a0, char *a1, int a2) /* derived name */
-{
-    int i;
-    if (a0 != 0 && a1 != 0) {
-        a0->num = a2;
-        a0->buf = a1;
-        for (i = 0; i < a2; i++) {
-            a1[i * 0x40] = 0;
-        }
-    } else {
-        a0->num = 0;
-    }
 }
 
 void Init_Shock(void)

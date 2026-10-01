@@ -21,7 +21,7 @@ typedef struct IosMemPart {    /* field names derived */
     char *end;                 /* 0x3C */
     int total;                 /* 0x40 */
     struct IosMemNode *head;   /* 0x44 */
-} IosMemPart; /* derived name */
+} IosMemPart;                  /* derived name */
 
 /* one block of a partition, allocated or on its free list */
 typedef struct IosMemNode {       /* field names derived */
@@ -37,17 +37,15 @@ typedef struct IosMemNode {       /* field names derived */
     int pad3C;                    /* 0x3C */
     struct IosMemNode *pad40;     /* 0x40 (partition header view) */
     struct IosMemNode *head;      /* 0x44 (partition header view: free-list head) */
-} IosMemNode; /* derived name */
+} IosMemNode;                     /* derived name */
 
 /* memory.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
 IosMemPart *iosMallocInitPartition(unsigned int start, unsigned int end);
 void *iosMallocDebug(IosMemPart *part, int size, const char *file, int line);
-void *_iosMallocDebug();
+void *_iosMallocDebug(IosMemPart *part, int size, const char *file, int line);
 void *iosFree(void *ptr);
 void iosMallocCheckLeak(IosMemPart *part);
-/* unprototyped: ios/memory.c defines it as `(void)` while seki/src/Primitive.c
-   and sugipon/src/particleEffect.c call it with four arguments. */
 IosMemPart *iosMallocResetPartition(IosMemPart *part);
 IosMemPart *iosMallocSetPartition(IosMemPart *part, int size, int align);
 int iosMallocSetPartitionName(IosMemPart *part, char *name);

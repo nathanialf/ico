@@ -18,7 +18,9 @@
 #include <libcdvd.h>
 #include <sound.h>
 
-union U001325D8 { /* field names derived */
+/* a handle's control doubleword: bit 0 asks for the inflating read, word 1
+   is the command */
+union IosCdvdCtl { /* field names derived */
     long long ll;
     int i[2];
 }; /* derived name */
@@ -40,7 +42,7 @@ typedef struct sceCdlFILE {
  * directory record, the sceCdRead mode, the inflate handle, the stream
  * buffer, the 32 KB sector buffer and the streamed file's size. */
 typedef struct IosCdvdHandle { /* field names derived */
-    union U001325D8 ctl;       /* 0x00, bit 0 asks for the inflating read; word 1 is
+    union IosCdvdCtl ctl;      /* 0x00, bit 0 asks for the inflating read; word 1 is
                             the command: 0 wait for the disc, 1 load, 2 pack
                             load */
     char pad8[4];
@@ -303,9 +305,9 @@ inline void iosCdvdDiskReadyBlock(void)
     }
 }
 
-/* a file-static copy of iosCdvdGetFileLsn, defined below, which
- * iosCdvdBackGroundMgrAdd inlines */
-static inline int getFileLsnInlined(char *name, int *size) /* derived name */
+/* the search-cache lookup of a file's sector, which iosCdvdGetFileLsn and
+ * iosCdvdBackGroundMgrAdd inline */
+static inline int getFileLsn(char *name, int *size) /* derived name */
 {
     int i;
 
@@ -416,9 +418,9 @@ void iosCdvdMgrStStop(IosCdvdHandle *self)
     close_inflate_handler(self->inflate);
 }
 
-/* a file-static copy of iosCdvdChgFileName, defined below, which
- * unifile_read_func inlines */
-static inline int chgFileNameInlined(int a0) /* derived name */
+/* a file name in the disc's form (a leading backslash, upper case, ";1"),
+ * which iosCdvdChgFileName and the load paths inline */
+static inline int chgFileName(int a0) /* derived name */
 {
     char buf[256];
     char *p = buf;
@@ -441,7 +443,7 @@ void iosCdvdMgrLoad(IosCdvdHandle *self)
 {
     int rv;
 
-    chgFileNameInlined((int)self->name);
+    chgFileName((int)self->name);
     self->mode.trycount = 0;
     self->mode.spindlctrl = cdSpindlCtrl;
     self->mode.datapattern = 0;
@@ -540,7 +542,7 @@ void iosCdvdMgrPackLoad(IosCdvdHandle *self)
     int start = lock_execIcoMisc;
     float sec;
 
-    chgFileNameInlined((int)self->name);
+    chgFileName((int)self->name);
     self->mode.trycount = 0;
     self->mode.spindlctrl = cdSpindlCtrl;
     self->mode.datapattern = 0;
@@ -776,7 +778,7 @@ int unifile_read_func(IosCdvdHandle *self)
     while (cnt-- > 0) {
         iosCdvdHandlerRead(self, work, 32);
         sprintf(self->name, "DFDATAS/%s", work);
-        chgFileNameInlined((int)self->name);
+        chgFileName((int)self->name);
         strcpy(iosCdvdSrhBuff[srhBuffCnt].name, self->name);
         iosCdvdHandlerRead(self, &lsn, 4);
         iosCdvdSrhBuff[srhBuffCnt].lsn = lsn / 2048 + self->file.lsn;
@@ -875,14 +877,14 @@ void iosCdvdManager(void)
 
 void iosCdvdDiskReady(int a0)
 {
-    union U001325D8 *p = (union U001325D8 *)a0;
+    union IosCdvdCtl *p = (union IosCdvdCtl *)a0;
     p->i[1] = 0;
     iosMsgSend(&CdvdMsgQ, a0, 0);
 }
 
 void iosCdvdLoad(int a0, int a1)
 {
-    union U001325D8 *p = (union U001325D8 *)a0;
+    union IosCdvdCtl *p = (union IosCdvdCtl *)a0;
     p->i[1] = 1;
     p->ll = (p->ll & ~1LL) | (a1 & 1);
     iosMsgSend(&CdvdMsgQ, a0, 0);
@@ -937,8 +939,8 @@ found:
         p = bg->name;
     }
     sprintf(buf, "DFDATAS/%s", p);
-    chgFileNameInlined((int)buf);
-    bg->lsn = getFileLsnInlined(buf, &size);
+    chgFileName((int)buf);
+    bg->lsn = getFileLsn(buf, &size);
     bg->size = size;
     /* a print compiled out of the retail build; its string stays in
      * .rodata */
@@ -996,7 +998,7 @@ void cdWait(int *busy)
                 cdWaitParamSet = 1;
             }
             strcpy(file, "SCES_507.60");
-            chgFileNameInlined((int)file);
+            chgFileName((int)file);
             r = sceCdDiskReady(1);
             if (r == 2 && sceCdGetDiskType() == cdDiskType && sceCdSearchFile(&fp, file) != 0) {
                 self->flags.ready = 1;
@@ -1122,7 +1124,7 @@ void iosCdvdDirectStOpen(IosCdvdHandle *self)
     }
     sprintf(buf, "DFDATAS/%s", name);
     strcpy(self->name, buf);
-    chgFileNameInlined((int)self->name);
+    chgFileName((int)self->name);
     self->mode.trycount = 0;
     self->mode.spindlctrl = 0;
     self->mode.datapattern = 0;
@@ -1159,36 +1161,12 @@ void iosCdvdDirectStClose(IosCdvdHandle *self)
  * toupper reads. */
 int iosCdvdChgFileName(int a0)
 {
-    char buf[256];
-    char *p = buf;
-    char c;
-
-    sprintf(buf, "\\%s;1", a0);
-
-    do {
-        if ((c = *p) == '/') {
-            *p = '\\';
-        } else {
-            *p = toupper(c);
-        }
-        p++;
-    } while (*p != 0);
-    return strcpy(a0, buf);
+    return chgFileName(a0);
 }
 
 int iosCdvdGetFileLsn(char *name, int *size)
 {
-    int i;
-
-    for (i = 0; i < srhBuffCnt; i++) {
-        if (strcmp(name, iosCdvdSrhBuff[i].name) == 0)
-            goto found;
-    }
-    debug_assert(__FILE__, 749);
-    __assert(__FILE__, 749, "0");
-found:
-    *size = iosCdvdSrhBuff[i].size;
-    return iosCdvdSrhBuff[i].lsn;
+    return getFileLsn(name, size);
 }
 
 int iosCdvdSync(int a0)

@@ -321,7 +321,7 @@ extern int girlControlMode;
 extern MotionDef motionKind[];
 
 /* the negated-orient angle, eight call sites */
-static inline int H0950(void *o, float *v) /* derived name */
+static inline int rotyFromBack(void *o, float *v) /* derived name */
 {
     float t[4];
 
@@ -330,7 +330,7 @@ static inline int H0950(void *o, float *v) /* derived name */
 }
 
 /* the same with the scale as a parameter, two sites */
-static inline int H0960(void *o, float *v, float s) /* derived name */
+static inline int rotyFromScaled(void *o, float *v, float s) /* derived name */
 {
     float t[4];
 
@@ -339,22 +339,22 @@ static inline int H0960(void *o, float *v, float s) /* derived name */
 }
 
 /* the absolute values of the two above */
-static inline int H0968(void *o, float *v) /* derived name */
+static inline int absRotyFromBack(void *o, float *v) /* derived name */
 {
-    int r = H0950(o, v);
+    int r = rotyFromBack(o, v);
 
     return (r < 0) ? -r : r;
 }
 
-static inline int H0973(void *o, float *v, float s) /* derived name */
+static inline int absRotyFromScaled(void *o, float *v, float s) /* derived name */
 {
-    int r = H0960(o, v, s);
+    int r = rotyFromScaled(o, v, s);
 
     return (r < 0) ? -r : r;
 }
 
 /* the ditch-height probe, one site */
-static inline unsigned char H1000(GObj *o, float h) /* derived name */
+static inline unsigned char ditchProbe(GObj *o, float h) /* derived name */
 {
     ClipWork work;
     Act *s;
@@ -381,7 +381,7 @@ static inline unsigned char H1000(GObj *o, float h) /* derived name */
 /* The collision-centre wrapper and the scaled offset around it, four sites
    with scales 5, 45, 30, 30.  It reads the wall record (+0x188) or the cliff
    record (+0x198) of the object's collision data, as `cliff` selects. */
-static inline void H1228(float *out, void *ref, void *o, int cliff) /* derived name */
+static inline void collisCenter(float *out, void *ref, void *o, int cliff) /* derived name */
 {
     float *p;
 
@@ -398,23 +398,23 @@ static inline void H1228(float *out, void *ref, void *o, int cliff) /* derived n
 
 /* the wrapper with no reference object, two sites (the wall and the cliff
    collision centres) */
-static inline void H1253(float *out, void *o, int cliff) /* derived name */
+static inline void collisCenterOwn(float *out, void *o, int cliff) /* derived name */
 {
-    H1228(out, 0, o, cliff);
+    collisCenter(out, 0, o, cliff);
 }
 
-static inline void H1263(float *out, void *o, void *ref, float k) /* derived name */
+static inline void pullPosition(float *out, void *o, void *ref, float k) /* derived name */
 {
     char *s = *(char **)((char *)o + 0x164);
     float t[4];
-    H1228(out, ref, o, 0);
+    collisCenter(out, ref, o, 0);
     sceVu0ScaleVector(t, (float *)(s + 0x4B0), k);
     sceVu0AddVector(out, out, t);
 }
 
-/* written out twice in the source; the two copies differ only in the
-   -20.0f and 5.0f */
-static inline void H1366(void *o, float *v, float top, float *out) /* derived name */
+/* the actor's position moved back from the wall by the wall distance less
+   a margin: -20 for an enemy (kind 4), 5 for the others */
+static inline void wallContactPosEnemy(void *o, float *v, float top, float *out) /* derived name */
 {
     float p[4], t[4];
     float d = -20.0f;
@@ -424,7 +424,7 @@ static inline void H1366(void *o, float *v, float top, float *out) /* derived na
     sceVu0AddVector(out, p, t);
 }
 
-static inline void H1379(void *o, float *v, float top, float *out) /* derived name */
+static inline void wallContactPos(void *o, float *v, float top, float *out) /* derived name */
 {
     float p[4], t[4];
     float d = 5.0f;
@@ -596,17 +596,17 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
                     c1 = 0;
             }
             GetSkeltonOrient(p60, a0, 0x2C);
-            r = H0950(p60, env->wallOrient);
+            r = rotyFromBack(p60, env->wallOrient);
             if (c2 && 30 < r)
                 flags[0].w |= 0x20;
             if (c1 && r < -30)
                 flags[0].w |= 0x10;
         }
         if (w574 != 0) {
-            if (dist < 40.0f && H0968(a1, env->wallOrient) < 75)
+            if (dist < 40.0f && absRotyFromBack(a1, env->wallOrient) < 75)
                 flags[0].w |= 2;
             if (dist < k) {
-                int ry = H0968(a1, env->wallOrient);
+                int ry = absRotyFromBack(a1, env->wallOrient);
 
                 sub->flags18.ll |= (1ULL << 60);
                 if (dist < 60.0f && ry < 30)
@@ -616,7 +616,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
     }
     if (w564 == 0 && GOBJ_SUB(a0)->ctrl.sideWall) {
         if (GOBJ_SUB(a0)->ctrl.sideWallDist < 100.0f) {
-            if (H0968(a1, (float *)((char *)GOBJ_SUB(a0) + 0x5D0)) < 40) {
+            if (absRotyFromBack(a1, (float *)((char *)GOBJ_SUB(a0) + 0x5D0)) < 40) {
                 sub->flags18.ll |= (1ULL << 44);
                 sub->flags18.ll |= (1ULL << 45);
             }
@@ -626,7 +626,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
         void *ori2 = test_CURRENTORIENT(a0);
         int v1F8;
 
-        v1F8 = H0968(ori2, env->wallOrient);
+        v1F8 = absRotyFromBack(ori2, env->wallOrient);
         env->wallWord = *(int *)(*(char **)((char *)env + 0x178) + 0x48);
         w564 = (char *)(CheckPureWallAttribute(a0, 0x1000) & 0xFF);
         env->wallObj = (int)obj;
@@ -638,8 +638,8 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
         if (dist < 300.0f && PosOrFar() <= 250.0f)
             flags[0].w |= 4;
         if (a0 == ((char *)girlGObj) && dist < 300.0f && *(int *)(obj + 0xC) == 0x11 &&
-            IsThisBoxTruck(obj) == 7 && H0968(a1, env->wallOrient) < 45 &&
-            H0968(a2, env->wallOrient) < 45 && _AbsRotyGV(a1, a2) < 45)
+            IsThisBoxTruck(obj) == 7 && absRotyFromBack(a1, env->wallOrient) < 45 &&
+            absRotyFromBack(a2, env->wallOrient) < 45 && _AbsRotyGV(a1, a2) < 45)
             sub->flags20.ll |= (1ULL << 38);
         if (CheckWallAttributeNotYorda(0xB000, 1) || CheckWallAttributeNotYorda(0xE000, 1) ||
             CheckWallAttributeNotYorda(0xC000, 0) || CheckWallAttributeNotYorda(0xD000, 1) ||
@@ -741,9 +741,9 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
                 if (*(unsigned long long *)((char *)sub + 0x480) & 0x3C0000) {
                     if (((int)(*(unsigned long long *)((char *)sub + 0x480) >> 20) & 1) &&
                         *(int *)(a0 + 0xC) == 4)
-                        H1366(a0, env->wallOrient, dist, (float *)((char *)sub + 0x590));
+                        wallContactPosEnemy(a0, env->wallOrient, dist, (float *)((char *)sub + 0x590));
                     else
-                        H1379(a0, env->wallOrient, dist, (float *)((char *)sub + 0x590));
+                        wallContactPos(a0, env->wallOrient, dist, (float *)((char *)sub + 0x590));
                 }
                 if (80.0f < hgt && hgt < 180.0f) {
                     if (*(int *)(obj + 0xC) == 0x11)
@@ -786,13 +786,13 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
             flags[2].w |= 0x80;
             env->pullObj = (int)obj;
             env->pullKind = kind;
-            H1263(env->pullPos, a0, obj, 5.0f);
+            pullPosition(env->pullPos, a0, obj, 5.0f);
         }
         if (*(int *)(obj + 0xC) == 0x16 && CheckWallAttribute(a0, 0x500) &&
             CanFloorLeverPull(obj)) {
             flags[2].w |= 0x100;
             env->pullObj = (int)obj;
-            H1263(env->pullPos, a0, obj, 45.0f);
+            pullPosition(env->pullPos, a0, obj, 45.0f);
             {
                 float p70[4];
 
@@ -805,13 +805,13 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
             CanWallLeverPull(obj)) {
             flags[2].w |= 0x200;
             env->pullObj = (int)obj;
-            H1263(env->pullPos, a0, obj, 30.0f);
+            pullPosition(env->pullPos, a0, obj, 30.0f);
         }
         if (*(int *)(obj + 0xC) == 0x19 && CheckWallAttribute(a0, 0x600) &&
             CanWallLeverPull(obj)) {
             flags[2].w |= 0x400;
             env->pullObj = (int)obj;
-            H1263(env->pullPos, a0, obj, 30.0f);
+            pullPosition(env->pullPos, a0, obj, 30.0f);
         }
     }
     if (dist < 200.0f) {
@@ -824,7 +824,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
             env->edgeOrient[0] = env->wallOrient[0];
             env->edgeOrient[1] = env->wallOrient[1];
             env->edgeOrient[2] = env->wallOrient[2];
-            H1253(env->edgePos, a0, 0);
+            collisCenterOwn(env->edgePos, a0, 0);
             {
                 float p70[4];
 
@@ -872,7 +872,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
         else if (CheckWallAttributeEdegWall((int)a0)) {
             flags[2].bit.b21 = c60b;
             if (((unsigned int)flags[2].w >> 21) & 1) {
-                if (H1000(a0, hgt) == 0)
+                if (ditchProbe(a0, hgt) == 0)
                     flags[2].w &= ~0x200000;
             }
         }
@@ -887,7 +887,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
                 flags[2].bit.b13 = c60c;
         }
     }
-    if (dist < 50.0f && H0968(a2, env->wallOrient) < 40 &&
+    if (dist < 50.0f && absRotyFromBack(a2, env->wallOrient) < 40 &&
         (a0 == boyGObj || a0 == ((char *)girlGObj) || (130.0f < hgt && *(int *)(obj + 0xC) != 0x10)))
         *(unsigned long long *)((char *)sub + 0x488) |= 8;
     if (((int)(*(unsigned long long *)((char *)sub + 0x488) >> 3) & 1) && 65.0f < PosOrFar() &&
@@ -929,7 +929,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
 
         GetOrientOfCliffOfGObj(env->cliffOrient, a0);
         env->cliffOrient[3] = 1.0f;
-        r = H0973(test_CURRENTORIENT(a0), env->cliffOrient, 1.0f);
+        r = absRotyFromScaled(test_CURRENTORIENT(a0), env->cliffOrient, 1.0f);
         if (a0 == boyGObj && ((char *)girlGObj) != 0) {
             float p60[4];
 
@@ -1093,9 +1093,9 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
                 env->edgeOrient[1] = env->cliffOrient[1];
                 env->edgeOrient[2] = env->cliffOrient[2];
                 flags[2].w |= 0x2000000;
-                if (hh < 10.0f && H0973(ori, env->cliffOrient, 1.0f) < 60)
+                if (hh < 10.0f && absRotyFromScaled(ori, env->cliffOrient, 1.0f) < 60)
                     flags[2].w |= 0x4000000;
-                H1253(env->edgePos, a0, 1);
+                collisCenterOwn(env->edgePos, a0, 1);
                 env->edgePos[3] = 1.0f;
             }
             if (CheckPureCliffAttribute(a0, 0xC000))

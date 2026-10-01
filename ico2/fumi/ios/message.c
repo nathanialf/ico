@@ -75,7 +75,7 @@ void iosMsgQueueDestroy(IosMsgQueue *q)
     DeleteSema(q->sema);
 }
 
-/* a file-static copy of iosMsgSend, which send_signal_message inlines */
+/* a message send, which iosMsgSend and send_signal_message inline */
 static inline int msgSend(IosMsgQueue *q, int val, int mode) /* derived name */
 {
     struct SemaParam st;
@@ -153,26 +153,7 @@ void iosMsgInit(void)
 
 int iosMsgSend(IosMsgQueue *q, int val, int mode)
 {
-    struct SemaParam st;
-    if (q == 0) {
-        debug_StdPrintfDummy("msg:null message queue\n");
-        debug_assert("ios/message.c", 293);
-        __assert("ios/message.c", 293, "0");
-    }
-    ReferSemaStatus(q->sema, &st);
-    if (q->num == st.maxCount) {
-        if (mode != 1) {
-            debug_StdPrintfDummy("MSG NO SEND\n");
-            return -1;
-        }
-        WaitSema(q->sema);
-    }
-    q->buf[(q->rd + q->num) % st.maxCount] = val;
-    q->num += 1;
-    if (st.numWaitThreads > 0) {
-        SignalSema(q->sema);
-    }
-    return 0;
+    return msgSend(q, val, mode);
 }
 
 int iosMsgRecv(IosMsgQueue *q, int *out, int mode)

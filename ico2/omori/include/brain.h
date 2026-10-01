@@ -19,6 +19,7 @@ int brainCheckView(Brain *b, BrainTarget *t);
 void brainClsTargetLevel(Brain *b);
 float brainGetLevel(Brain *b, BrainTarget *t);
 void brainGetTarget(Brain *b);
+int brainDecTargetTimer(GObj *gobj);
 void brainInit(void);
 void brainInitGirlSet(void *girl, int cur);
 void brainLevelProcess(Brain *b);

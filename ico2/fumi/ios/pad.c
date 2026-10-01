@@ -349,8 +349,8 @@ int controler_stable_check(void *a0)
             return -1;
         }
         if (state == 6 || state == 2) {
-            /* the `id = padTermId;` inside the if is dead: the line after reassigns
-               id */
+            /* the line after assigns id again; the object keeps this arm's
+               own copy of the assignment */
             if (id != 0 && padTermId != id) {
                 phase = 0;
                 id = padTermId;

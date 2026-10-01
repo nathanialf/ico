@@ -231,7 +231,6 @@ int ChangeMailInLadder(GObj *a0, int a1)
 }
 
 void DamageFunc(char *a0);
-extern int IsAbleChainHang(char *a0);
 extern int EnemyGetNSafeParts(char *a0);
 /* motionOrientManager.h declares none of the motion tables */
 extern MotionDef motionKind[];
@@ -239,7 +238,7 @@ extern MotionDef motionKind[];
 /* a static inline used only by _ACTCorrectMsg */
 static inline int GetHitDirIdx(GObj *self) /* derived name */
 {
-    char *p = (char *)GOBJ_ACT(self) + 0x1C0;
+    float *p = GOBJ_ACT(self)->attackDir;
     int a = _RotyGV(test_CURRENTORIENT(self), p);
 
     if (-45 <= a && a <= 45) {
@@ -489,16 +488,15 @@ int _ACTCorrectMsg(GObj *self, int msg, void *param)
                 }
             }
         }
-        if (_AbsRotyGV(test_CURRENTORIENT(self), (void *)((int)GOBJ_ACT(self) + 0x1C0)) < 60 &&
+        if (_AbsRotyGV(test_CURRENTORIENT(self), GOBJ_ACT(self)->attackDir) < 60 &&
             sk->actMode != 15 && sk->actMode != 20 && GOBJ_ACT(self)->unguardable == 0 &&
             !((int)(sk->flags18.ll >> 51) & 1)) {
             iosOmSendMail(self, 283, param);
             debug_StdPrintfDummy("guard mail\n");
         } else {
-            debug_StdPrintfDummy(
-                "guard error=[%d][%d][%d][%d]\n",
-                _AbsRotyGV(test_CURRENTORIENT(self), (void *)((int)GOBJ_ACT(self) + 0x1C0)),
-                sk->actMode, 15, 20);
+            debug_StdPrintfDummy("guard error=[%d][%d][%d][%d]\n",
+                                 _AbsRotyGV(test_CURRENTORIENT(self), GOBJ_ACT(self)->attackDir),
+                                 sk->actMode, 15, 20);
         }
         if (GOBJ_ACT(self)->stoneHit != 0) {
             GOBJ_ACT(self)->enemy->stoneLevel += 1;
@@ -1006,9 +1004,9 @@ void actCommonRope(GObj *volatile a0)
     }
 }
 
-/* a file-static copy of SetCorrectOrientOfChain, defined later in this file,
-   which this caller inlines */
-static inline void setCorrectOrientOfChain_inl(void *a0) /* derived name */
+/* the turn to the chain's corrected orient, which SetCorrectOrientOfChain
+   and the rope turns inline */
+static inline void setCorrectOrientOfChain(void *a0) /* derived name */
 {
     float local[4];
     GetCorrectOrientOfChain(local, a0);
@@ -1031,7 +1029,7 @@ void motCommonRopeTurnR(GObj *volatile a0)
         SetMotionDirection(a0, dir);
         deg += 5;
         if (i % wait == 0) {
-            setCorrectOrientOfChain_inl((void *)a0);
+            setCorrectOrientOfChain((void *)a0);
             ACTSendMailCorrect(a0, 0x150);
         }
         _ACTWait(1);
@@ -1054,7 +1052,7 @@ void motCommonRopeTurnL(GObj *volatile a0)
         SetMotionDirection(a0, dir);
         deg += 5;
         if (i % wait == 0) {
-            setCorrectOrientOfChain_inl((void *)a0);
+            setCorrectOrientOfChain((void *)a0);
             ACTSendMailCorrect(a0, 0x150);
         }
         _ACTWait(1);
@@ -1471,8 +1469,8 @@ void SetDirectRootPositionXZ(void *a0, void *a1)
     SetDirectRootPositionNoFitting(a0, a1);
 }
 
-/* a file-static copy of ACTMotDirToWall, defined below, which actCommonLever
-   inlines */
+/* the turn away from the wall, which ACTMotDirToWall and the lever, box,
+   bar and truck functions inline */
 static inline void actMotDirToWall(char *a0) /* derived name */
 {
     float local[4];
@@ -1558,7 +1556,7 @@ void DownFunc(char *a0)
 inline void actCommonDamage(GObj *volatile a0)
 {
     debug_StdPrintfDummy("enter actCommonDamage\n");
-    SetMotionDirection(a0, (char *)GOBJ_ACT(a0) + 0x1C0);
+    SetMotionDirection(a0, GOBJ_ACT(a0)->attackDir);
     DamageFunc((char *)a0);
     if (GOBJ_ACT(a0)->enemy->liftKind == 3) {
         _ACTWait(360);
@@ -1582,10 +1580,10 @@ void actCommonDown(GObj *volatile a0)
             brainAddLevelGirl(1000.0f);
         }
         if ((char *)a0 == (char *)girlGObj) {
-            sceVu0ScaleVector(v, (char *)GOBJ_ACT(a0) + 0x1C0, -1.0f);
+            sceVu0ScaleVector(v, GOBJ_ACT(a0)->attackDir, -1.0f);
             SetMotionDirection(a0, v);
         } else {
-            SetMotionDirection(a0, (char *)GOBJ_ACT(a0) + 0x1C0);
+            SetMotionDirection(a0, GOBJ_ACT(a0)->attackDir);
         }
         DownFunc((char *)a0);
     }
@@ -1635,7 +1633,7 @@ void actCommonDie(GObj *volatile a0)
         corpse = 0;
     }
     debug_StdPrintfDummy("enter actCommonDie\n");
-    SetMotionDirection(a0, (char *)GOBJ_ACT(a0) + 0x1C0);
+    SetMotionDirection(a0, GOBJ_ACT(a0)->attackDir);
     DownFunc((char *)a0);
     GOBJ_ACT(a0)->hit = 1;
     dieNotifyObjects();
@@ -1648,7 +1646,7 @@ void actCommonDie(GObj *volatile a0)
         }
         if (a0->kind == 4) {
             _ACTWait(1);
-            enemySetParticleDie(test_CURRENTROOT((void *)a0), (char *)GOBJ_ACT(a0) + 0x1C0);
+            enemySetParticleDie(test_CURRENTROOT((void *)a0), GOBJ_ACT(a0)->attackDir);
             EnemySetfDisappearAll(a0);
             actEnemyFlagOnDead(a0);
             ACTGame_DeleteActorInformation(a0);
@@ -1772,7 +1770,7 @@ void actCommonStoneDead(GObj *volatile a0)
         SetMotionDirection(a0, dir);
     } else {
         ACTSetPositionWithFitting((void *)a0, test_CURRENTROOT((void *)a0));
-        SetMotionDirection(a0, (char *)GOBJ_ACT(a0) + 0x1C0);
+        SetMotionDirection(a0, GOBJ_ACT(a0)->attackDir);
         a0->drawMask = 0;
     }
     enable_game_pause = 0;
@@ -3196,7 +3194,7 @@ inline void actCommonGuard(GObj *volatile a0)
     Act *s = GOBJ_ACT(a0);
 
     debug_StdPrintfDummy("enter actCommonGuard\n");
-    SetMotionDirection(a0, (char *)GOBJ_ACT(a0) + 0x1C0);
+    SetMotionDirection(a0, GOBJ_ACT(a0)->attackDir);
     if (a0->kind == 4) {
         EBRAIN_SEND_MES((void *)a0, 6);
         ACTGame_LwsEffect_Guard((void *)a0);
@@ -4743,16 +4741,12 @@ inline void _ACTMotDir_V(void *a0, void *a1)
 
 inline void ACTMotDirToWall(GObj *a0)
 {
-    float local[4];
-    sceVu0ScaleVector(local, GOBJ_ACT(a0)->wallOrient, -1.0f);
-    SetMotionDirection(a0, local);
+    actMotDirToWall((char *)a0);
 }
 
 inline void SetCorrectOrientOfChain(void *a0)
 {
-    float local[4];
-    GetCorrectOrientOfChain(local, a0);
-    SetMotionDirection(a0, local);
+    setCorrectOrientOfChain(a0);
 }
 
 inline void actAfterForceRopeSwing(GObj *volatile a0)
