@@ -9,9 +9,8 @@
 #include "tableSin.h"
 #include <libvu0.h>
 #include "Matrix.h"
-
-/* kept local: int here, GObj * in main.h */
-extern int girlGObj;
+#include "main.h"
+#include "GifPacket.h"
 
 /* The TU's .data, in ROM run order (names ours): the centre the game-over
    dark volume and its shock ring spread from, and the position of the
@@ -45,9 +44,6 @@ static float prevY;
 static float edgeX;
 
 static float edgeY;
-
-/* kept local: void (int, long) here, void (long long, long long) in GifPacket.h */
-extern void gif_SetGsReg(int code, long data);
 
 /* The TU's .sdata opens with draw and drawHT's state (MAIN.MAP names nothing in
    the run): the two strip halves' written flags, the half being filled, and the
@@ -208,8 +204,6 @@ static float sinB[8];
 static float sinA[8];
 
 extern int D_0028FF00[];
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern char *matrixptr;
 void _SetCurrentMatrix(void *m);
 
 /* listing lines 62-65: load the VU0 screen clamp limits vmaxx and vminix read
@@ -321,8 +315,6 @@ extern DVDpk PacketBufferStruct;
 void dl_SetDLPriority(int a0);
 void dl_OpenDma(int a0, int a1, int a2);
 void dl_CloseDma(void);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetGsReg differs) */
-extern void gif_StartPacketPri(int pri);
 void gif_EndPacket(void);
 
 /* The packet writer's cursor check (our name and test), built only when
@@ -817,11 +809,6 @@ void SetDarkVolumeEffect(int a0, float a1)
     darkVolumeTarget = a1;
     CopyVector(darkVolumeCenter, (void *)a0);
 }
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int systemStatus[];
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
 
 /* listing lines 566-568: the per-object hit test, inlined at all three sites */
 static inline void sendGameOverMail(void *gobj, float r2)

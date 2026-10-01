@@ -23,6 +23,9 @@
 #include "Matrix.h"
 #include "stageMultiBgaManager.h"
 #include "boyact.h"
+#include "quaternion.h"
+#include "main.h"
+#include "fieldCollision.h"
 
 /* kept local: agrees with motionOrientManager.h, which this TU does not include (SetMotionRequest differs) */
 extern void ExecMotionOrient();
@@ -237,26 +240,10 @@ void trans_bird(void *self, float *w)
     SetRootPosition(self, pos);
 }
 
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
-extern void ClipWall(void *w);
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
-extern void ClipFloor(void *w);
-/* kept local: int (void *) here, int (int) in fieldCollision.h */
-extern int GetFloorAttribute(void *w);
 /* kept local: void (void *, int) here, void (int *, int *) in itou_sub.h */
 extern void pbga_start(void *slot, int n);
-/* kept local: agrees with quaternion.h, which this TU does not include (IdentityQuaternion differs) */
-extern void CopyQuaternion(void *dst, void *src);
 /* kept local: void (const char *, ...) here, void (char *, ...) in debug.h */
 extern void debug_StdPrintfDummy(const char *fmt, ...);
-/* kept local: int [] here, float [4] in quaternion.h */
-extern int IdentityQuaternion[];
-/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, CurrentTargetGObjSub differ) */
-extern int systemStatus[];
-/* kept local: int here, char * in main.h */
-extern int matrixptr;
-/* kept local: char * here, GObj * in main.h */
-extern char *CurrentTargetGObj;
 
 /* rows 256-263: point the bird `ang` radians round from where it faces. */
 static __inline__ void turn_bird(void *self, float ang)
@@ -863,9 +850,6 @@ void Debug_WireString_Bird(float *pos, char *fmt, ...)
     MatrixDrive_PopMatrix();
 }
 
-/* kept local: char * here, GObj * in main.h */
-extern char *CurrentTargetGObjSub;
-
 void Debug_StickControl(char *self)
 {
     float dir[4];
@@ -894,9 +878,6 @@ void BirdGeo(int a0, int a1, int a2, int a3)
 {
     ExecMotionOrient(a0, a1, a2, a3);
 }
-
-/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, CurrentTargetGObjSub differ) */
-extern int stage_no;
 
 /* census: ito/src/act_bird.c BirdDL, def line 1024 */
 void BirdDL(void *gobj)

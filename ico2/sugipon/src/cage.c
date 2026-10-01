@@ -8,13 +8,7 @@
 #include <math.h>
 #include "ios.h"
 #include "Matrix.h"
-
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, ZeroVector differ) */
-extern void CopyVector(void *dst, void *src);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, ZeroVector differ) */
-extern float FSqrt(float x);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, ZeroVector differ) */
-extern float VectorLength(void *v);
+#include "matrixDrive.h"
 
 int CageRideFunc(char **self, char *rider)
 {
@@ -243,9 +237,6 @@ inline void SetCageChainHangableFlag(char *a0, int a1)
     *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x40) = a1;
 }
 
-/* kept local: char [] here, float [4] in matrixDrive.h */
-extern char ZeroVector[];
-
 void HotInitCageGeo(char *self)
 {
     char *w = *(char **)((char *)GOBJ_SUB(self) + 0x830);
@@ -323,19 +314,6 @@ static inline void AddCageWindForce(char *n, float k)
     _ScaleVector(v, v, k / *(float *)(n + 0x44));
     _AddVector(n + 0x30, n + 0x30, v);
 }
-
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, ZeroVector differ) */
-extern void *MatrixDrive_GetMatrix(void);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, ZeroVector differ) */
-extern void MatrixDrive_TransMatrix(float x, float y, float z);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, ZeroVector differ) */
-extern void CopyMatrix(void *dst, void *src);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, ZeroVector differ) */
-extern void MatrixDrive_PushMatrix(void);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, ZeroVector differ) */
-extern void MatrixDrive_PopMatrix(void);
-/* kept local: void (int) here, void (short) in matrixDrive.h */
-extern void MatrixDrive_RotMatrixX(int angle);
 
 void CageGeo(char *self)
 {

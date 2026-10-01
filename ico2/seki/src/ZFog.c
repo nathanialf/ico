@@ -4,6 +4,7 @@
 #include "typedef.h"
 #include "Texture.h"
 #include "ZFog.h"
+#include "main.h"
 
 /* The fog CLUT upload packet: a VIF code quad (nop, nop, FLUSHA, DIRECT 65),
  * a GIFtag (EOP, NLOOP=64, FLG=IMAGE), the 256-entry 32-bit CLUT itself and a
@@ -17,27 +18,6 @@ typedef struct FogClutPacket {
 
 static FogClutPacket
     fogClutPacket; /* static: fog_DrawFog and fog_MakeFogClut reach it as a local symbol, as the ROM's relocations do */
-
-/* kept local: the stage settings record's fog words, which the shared
-   StageSetting (typedef.h) still carries as padding; read as fields, as
-   GsBase.c and Light.c read the record (the ROM's single base register). */
-typedef struct FogStage {
-    char pad000[0x80];
-    int fogOn; /* 0x080 */
-    char pad084[0xC];
-    int fogColR;    /* 0x090 */
-    int fogColG;    /* 0x094 */
-    int fogColB;    /* 0x098 */
-    int fogColA;    /* 0x09C */
-    int fogOffsetA; /* 0x0A0 */
-    int fogNear;    /* 0x0A4 */
-    int fogFar;     /* 0x0A8 */
-    char pad0AC[0x74];
-    int fogStrength; /* 0x120 */
-} FogStage;
-
-/* kept local: main.c's global; this TU does not include main.h */
-extern FogStage GlobalStageSetting;
 
 void fog_MakeFogClut(void)
 {
@@ -269,7 +249,6 @@ void fog_DrawFog(void)
 
     FOG_START_PACKET();
 
-
     FOG_SET_GSREG(0x50, ((long long)vram << 32) |
                   0x0001000000000000LL);
     FOG_SET_GSREG(0x51, 0);
@@ -278,14 +257,12 @@ void fog_DrawFog(void)
 
     FOG_END_PACKET();
 
-
     dl_OpenDma(2, (void *)((int)&fogClutPacket & 0x0FFFFFFF), 67);
     dl_CloseDma();
 
     FOG_START_PACKET();
 
     FOG_SET_GSREG(63, 1);
-
 
     FOG_SET_GSREG(0x50, 0x1800 | ((long long)(ScreenWidth / 64) << 16) | ((long long)0x30 << 24) |
                   ((long long)0x2800 << 32) |
@@ -315,13 +292,8 @@ void fog_DrawFog(void)
     FOG_SPRITE_UV(rc0, rc1, cl, 342, 0xFFFFFFLL);
     FOG_SET_GSREG(20, 96);
 
-
     if (GlobalStageSetting.fogOffsetA > 0) {
         unsigned char cl2[4] = {GlobalStageSetting.fogColR, GlobalStageSetting.fogColG, GlobalStageSetting.fogColB, GlobalStageSetting.fogOffsetA};
-
-
-
-
 
         FOG_SET_GSREG(71, 0x30000);
         FOG_SPRITE_RECT(rc0, cl2, 1094, 0xFFFFFFFFLL);
@@ -335,8 +307,6 @@ void fog_DrawFog(void)
 
 /* clang-format on */
 
-/* the shared pad-state array (GsBase.c's GsbPad): trg at 0x4, rep at 0xC */
-
 /* one row of the fog debug menu: a label, the int it edits and its range */
 typedef struct FogToolItem {
     char *name; /* 0x0 */
@@ -344,9 +314,6 @@ typedef struct FogToolItem {
     int min;    /* 0x8 */
     int max;    /* 0xC */
 } FogToolItem;
-
-/* kept local: main.c's global; this TU does not include main.h */
-extern GsbPad pad[];
 
 /* the two labels the 0/1 row prints; the unspecified bound keeps the 8-byte
    pointer array out of small data under -G 8, which is where the ROM has it */
@@ -418,7 +385,7 @@ int fog_FogTool(void)
             *fogToolItems[toolRow].val = fogToolItems[toolRow].max;
         }
     }
-    if (pad[0].trg & 0x20) {
+    if (pad[0].flags & 0x20) {
         for (i = 0; i < 9; i++) {
             if (fogToolItems[i].min == 0 && fogToolItems[i].max == 1) {
                 debug_StdPrintfDummy("Fog %s => %s\n", fogToolItems[i].name,
@@ -429,7 +396,7 @@ int fog_FogTool(void)
         }
         ret = 1;
     }
-    if (pad[0].trg & 0x40) {
+    if (pad[0].flags & 0x40) {
         ret = -1;
     }
     if (ret != 0) {

@@ -6,22 +6,8 @@
 #include <libvu0.h>
 #include <stdio.h>
 #include "GsBase.h"
-
-struct D275 {
-    char pad[0xE8];
-    int field_E8;
-    int field_EC;
-    int field_F0;
-    int field_F4;
-    int field_F8;
-    char pad2[0x104 - 0xFC];
-    int field_104;
-    char pad3[0x110 - 0x108];
-    int field_110;
-    int field_114;
-    int field_118;
-    int field_11C;
-};
+#include "main.h"
+#include "Matrix.h"
 
 /* .data, owned by staticBlur.o and reached only from this file (MAIN.MAP line
    5986 gives the member, 0x100 in its link, and names no symbol in the run):
@@ -193,26 +179,15 @@ void auraInspireBefore(void)
     gif_EndPacket();
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
-extern int systemStatus[];
-
 /* .bss, owned by staticBlur.o (0x30, the run): the twelve texture and
    rectangle coordinates the two blur sprites are built from. */
 /* */
 static int blurUv[12];
 
-/* kept local: agrees with main.h, which this TU does not include (matrixptr differs) */
-extern int GlobalTimer;
-
 /* .sbss, owned by staticBlur.o and reached only from this file (MAIN.MAP names
    no symbol in the run): the blur sprite's RGBA, whose alpha byte the ROM also
    addresses on its own. */
 static SprCol blurCol;
-
-/* kept local: int here, char * in main.h */
-extern int matrixptr;
-/* kept local: void (void *, int, void *) here, void (void *, void *, void *) in Matrix.h */
-extern void _ApplyMatrix(void *a0, int a1, void *a2);
 
 void auraInspireAfter(int mode)
 {
@@ -980,9 +955,6 @@ void depthField(float depth, float alpha, float rate)
     gif_EndPacket();
 }
 
-/* kept local: agrees with Matrix.h, which this TU does not include (_ApplyMatrix differs) */
-extern void _NormalizeVector();
-
 void GetSunWorldPos(int a0)
 {
     _NormalizeVector(a0, sunDir);
@@ -1024,15 +996,6 @@ void MotionBlur(void)
     gif_SetGsReg(0x47, 0x5000D);
     gif_EndPacket();
 }
-
-/* kept local: agrees with Matrix.h, which this TU does not include (_ApplyMatrix differs) */
-extern void _AddVectorXYZ(void *a0, void *a1, void *a2);
-/* kept local: agrees with Matrix.h, which this TU does not include (_ApplyMatrix differs) */
-extern void _FTOI0Vector(void *a0, void *a1);
-/* kept local: agrees with Matrix.h, which this TU does not include (_ApplyMatrix differs) */
-extern void _ScaleVector(void *a0, void *a1, float f);
-/* kept local: agrees with Matrix.h, which this TU does not include (_ApplyMatrix differs) */
-extern void _ScaleVectorXYZ(void *a0, void *a1, float f);
 
 void calcSun(void)
 {
@@ -1206,22 +1169,19 @@ void dispFeedInfo(void)
     }
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
-extern struct D275 GlobalStageSetting;
-
 void FullScreenEffectBefore(void)
 {
     if (debug_fullscreen_effect == 0) {
         return;
     }
 
-    postModeRequest = GlobalStageSetting.field_E8;
-    feedModeRequest = GlobalStageSetting.field_104;
+    postModeRequest = GlobalStageSetting.postEffect;
+    feedModeRequest = GlobalStageSetting.feedbackEffect;
 
-    blurCol.f[0] = GlobalStageSetting.field_110;
-    blurCol.f[1] = GlobalStageSetting.field_114;
-    blurCol.f[2] = GlobalStageSetting.field_118;
-    blurCol.f[3] = GlobalStageSetting.field_11C;
+    blurCol.f[0] = GlobalStageSetting.feedbackCol[0];
+    blurCol.f[1] = GlobalStageSetting.feedbackCol[1];
+    blurCol.f[2] = GlobalStageSetting.feedbackCol[2];
+    blurCol.f[3] = GlobalStageSetting.feedbackCol[3];
 
     if (postMode != postModeRequest) {
         postMode = postModeRequest;
@@ -1344,8 +1304,8 @@ void FullScreenEffectAfter(void)
         auraInspireAfter(feedMode);
     }
 
-    depthFadeDepth = GlobalStageSetting.field_EC;
-    depthFadeAlpha = GlobalStageSetting.field_F0;
+    depthFadeDepth = GlobalStageSetting.depthFieldStart;
+    depthFadeAlpha = GlobalStageSetting.depthFieldWidth;
 
     tex_UnlockHeadTBP(7);
     tex_UnlockHeadTBP(8);
@@ -1388,14 +1348,14 @@ void SetMotionBlur(int val)
 
 void SetStaticBlur(int x)
 {
-    GlobalStageSetting.field_E8 = x;
+    GlobalStageSetting.postEffect = x;
 }
 
 void SetDepthFadeParam(float f12, float f13, int a0)
 {
-    GlobalStageSetting.field_EC = (int)f12;
-    GlobalStageSetting.field_F0 = (int)f13;
-    GlobalStageSetting.field_F8 = a0;
+    GlobalStageSetting.depthFieldStart = (int)f12;
+    GlobalStageSetting.depthFieldWidth = (int)f13;
+    GlobalStageSetting.depthFieldLevel = a0;
 }
 
 void SetAuraInspireParam(float a0)

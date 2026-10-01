@@ -6,9 +6,7 @@
 #include <math.h>
 #include <string.h>
 #include <libvu0.h>
-
-/* kept local: main.c's global; this TU does not include main.h */
-extern int systemStatus[];
+#include "main.h"
 
 /* .sbss, owned by hand-camera.o (MAIN.MAP names no symbol in the run), in the ROM's run order: the
    correction rate scaled by the frame budget, and the correction mode

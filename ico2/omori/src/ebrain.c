@@ -9,6 +9,7 @@
 #include <string.h>
 #include "typedef.h"
 #include "debug_exception.h"
+#include "main.h"
 
 int eBrainBoyChaseCount;
 
@@ -112,11 +113,6 @@ inline int eBrainStatusSet(void *a0, int a1)
     slot->f10 = 0;
     return (int)slot;
 }
-
-/* kept local: void * here, GObj * in main.h */
-extern void *boyGObj;
-/* kept local: void * here, GObj * in main.h */
-extern void *girlGObj;
 
 static EBSlot *boyTargets[32];
 

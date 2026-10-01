@@ -81,34 +81,34 @@ extern float sceVu0InnerProduct(void *a0, void *a1);
 /* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ApplyMatrix, sceVu0InterVector differ) */
 extern void sceVu0SubVector();
 
-void _DistxzSqGV(void *a0, void *a1)
+float _DistxzSqGV(void *a0, void *a1)
 {
     char buf[0x10];
     sceVu0SubVector(buf, a0, a1);
     *(int *)(buf + 4) = 0;
-    sceVu0InnerProduct(buf, buf);
+    return sceVu0InnerProduct(buf, buf);
 }
 
-void _DistSqGV(void *a0, void *a1)
+float _DistSqGV(void *a0, void *a1)
 {
     char buf[0x10];
     sceVu0SubVector(buf, a0, a1);
-    sceVu0InnerProduct(buf, buf);
+    return sceVu0InnerProduct(buf, buf);
 }
 
-void _DistGV(void *a0, void *a1)
+float _DistGV(void *a0, void *a1)
 {
     char buf[0x10];
     sceVu0SubVector(buf, a0, a1);
-    FSqrt(sceVu0InnerProduct(buf, buf));
+    return FSqrt(sceVu0InnerProduct(buf, buf));
 }
 
-void _DistxzGV(void *a0, void *a1)
+float _DistxzGV(void *a0, void *a1)
 {
     char buf[0x10];
     sceVu0SubVector(buf, a0, a1);
     *(int *)(buf + 4) = 0;
-    FSqrt(sceVu0InnerProduct(buf, buf));
+    return FSqrt(sceVu0InnerProduct(buf, buf));
 }
 
 /* kept local: agrees with gv.h; including it here moves this TU's bytes */
@@ -201,19 +201,19 @@ inline float _RotGVF(float *a0, float *a1)
     return _RotGV(a0, a1) * 3.1415927f / 180.0f;
 }
 
-inline void _OrientXZGV(int a0)
+inline void _OrientXZGV(float *dst, float *a, float *b)
 {
     int buf[4];
-    sceVu0SubVector(buf);
+    sceVu0SubVector(buf, a, b);
     buf[1] = 0;
-    sceVu0Normalize((void *)a0, buf);
+    sceVu0Normalize(dst, buf);
 }
 
-inline void _OrientGV(int a0)
+inline void _OrientGV(float *dst, float *a, float *b)
 {
     int buf[4];
-    sceVu0SubVector(buf);
-    sceVu0Normalize((void *)a0, buf);
+    sceVu0SubVector(buf, a, b);
+    sceVu0Normalize(dst, buf);
 }
 
 inline int _FrontGV(int a0, int a1, int a2, int a3)

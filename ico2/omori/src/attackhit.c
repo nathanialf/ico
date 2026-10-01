@@ -9,6 +9,7 @@
 #include "motionManager2.h"
 #include "weapon.h"
 #include "debug_exception.h"
+#include "gv.h"
 
 typedef struct AttackPack {
     /* 0x00 */ unsigned char active;
@@ -44,9 +45,7 @@ extern void __assert(char *file, int line, char *expr);
 
 #include "attackhit.h"
 #include <libvu0.h>
-
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistGV(void *a, void *b);
+#include "main.h"
 
 /* listing lines 174-185 */
 static inline int inner_check_core(float *d0, float *d1, float *d2)
@@ -146,8 +145,6 @@ typedef struct {
 extern WeaponKindEntry weaponKind[];
 /* kept local: float * (void *) here, void * (void *) in commonact.h */
 extern float *test_CURRENTROOT(void *gobj);
-/* kept local: void (float *, float *, float *) here, void (int) in gv.h */
-extern void _OrientGV(float *dst, float *a, float *b);
 
 /* the 0x5C word is written through a union view at this one site: the ROM pins the
    weapon-table flag load behind this store, which only an alias-set-0 store does */
@@ -347,9 +344,6 @@ int AttackCheckSameGroup(char *self, char *other, char *third)
     return g1 == g0;
 }
 
-/* kept local: char * here, GObj * in main.h */
-extern char *boyGObj;
-
 void AttackMail(char *self, AttackPack *pack)
 {
     float v0[4];
@@ -420,10 +414,6 @@ void AttackMail(char *self, AttackPack *pack)
 
 /* kept local: agrees with act-game.h, which this TU does not include (ACTChkAttackIgnore_BOY, ACTChkAttackIgnore_ENEMY differ) */
 extern float _ACTGame_GetParamF(int idx);
-/* kept local: agrees with gv.h, which this TU does not include (_DistGV, _DistSqGV differ) */
-extern void _InterGV(float *dst, float *a, float *b, float ta, float tb);
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistSqGV(void *a, void *b);
 
 int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
 {
@@ -550,8 +540,6 @@ int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
     return j;
 }
 
-/* kept local: char * here, GObj * in main.h */
-extern char *girlGObj;
 /* kept local: int (char *, void *) here, int (char *) in act-game.h */
 extern int ACTChkAttackIgnore_BOY(char *gobj, void *actor);
 /* kept local: int (char *, void *) here, int (char *, int *) in act-game.h */

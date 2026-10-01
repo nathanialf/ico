@@ -14,15 +14,17 @@
 #include "ios.h"
 #include "tableSin.h"
 #include <string.h>
+#include "matrixDrive.h"
+#include "main.h"
+#include "fieldCollision.h"
+#include "GifPacket.h"
+#include "Matrix.h"
 
 typedef struct {
     float v[4];
     unsigned short a;
     unsigned short b;
 } ClothBuf;
-
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnYAngleXZ, MatrixDrive_SetTransposeMatrix differ) */
-extern void CopyVector(void *dst, void *src);
 
 /* .rodata, first two objects of clothAnimation.o's run: the two line colours
    the chain debug draw alternates between, as the quadword DrawLine takes.
@@ -36,15 +38,6 @@ typedef struct {
 static const LineColor chainLineColor0 = {255, 255, 255, 128};
 
 static const LineColor chainLineColor1 = {255, 0, 0, 128};
-
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnYAngleXZ, MatrixDrive_SetTransposeMatrix differ) */
-extern void *MatrixDrive_GetMatrix(void);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetGsReg differ) */
-extern void gif_StartPacketPri(int a0);
-/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
-extern void gif_SetAlpha(int a0, int a1, int a2);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetGsReg differ) */
-extern void gif_EndPacket(void);
 
 void TestDispChainAnimation(int *a0)
 {
@@ -106,17 +99,6 @@ typedef struct {
     ChainNode *nodes;
     int f3;
 } ChainSet;
-
-/* kept local: agrees with main.h, which this TU does not include (matrixptr differs) */
-extern int systemStatus[];
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnYAngleXZ, MatrixDrive_SetTransposeMatrix differ) */
-extern void AddVectorXYZ(void *dst, void *a, void *b);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnYAngleXZ, MatrixDrive_SetTransposeMatrix differ) */
-extern void SubVectorXYZ(void *dst, void *a, void *b);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnYAngleXZ, MatrixDrive_SetTransposeMatrix differ) */
-extern float VectorLengthSquare(void *v);
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern float _Sqrt(float x);
 
 /* The chain's debug draw of its previous segment, built only when DEBUG is
    defined (the retail build does not define it, so the preprocessor leaves
@@ -419,9 +401,6 @@ void GetChainAnimation(ChainSet *sys, int obj, char *mtx)
     sys->f3 = sys->f3 == 0;
 }
 
-/* kept local: char [] here, float [4] in matrixDrive.h */
-extern char ZeroVector[];
-
 int SetChainExtendedWeight(int *a0, int idx, float w0, float w1)
 {
     int i;
@@ -450,26 +429,8 @@ int SetChainExtendedWeight(int *a0, int idx, float w0, float w1)
     return -1;
 }
 
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern void _ScaleVector(void *dst, void *src, float k);
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern void _AddVectorXYZ(void *dst, void *a, void *b);
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern void _ApplyMatrix(void *dst, void *m, void *src);
 /* kept local: void * (void *, void *) here, int (void) in windField.h */
 extern void *GetWindVector(void *out, void *pos);
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern void _SubVector(void *dst, void *a, void *b);
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern void _OuterProduct(void *dst, void *a, void *b);
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern void _SubVectorXYZ(void *dst, void *a, void *b);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnYAngleXZ, MatrixDrive_SetTransposeMatrix differ) */
-extern float VectorLength(void *v);
-/* kept local: void (void *, void *) here, void (float *, int *) in fieldCollision.h */
-extern void GetGlobalWallPlane(void *plane, void *query);
 
 /* clothAnimation.c:22-30 in the listing: push a point back to the inner side
    of a wall plane.  Only ever inlined; its VECTOR temp is the caller's. */
@@ -993,9 +954,6 @@ int clipCylinderCollision(char *p, void *pt)
     return -1;
 }
 
-/* kept local: char [] here, float [4] in matrixDrive.h */
-extern char ZeroPoint[];
-
 ChainSet *InitChains(char *a0)
 {
     ChainSet *r;
@@ -1171,15 +1129,6 @@ ClothSet *InitClothesNoShade(int cfg)
     return r;
 }
 
-/* kept local: agrees with main.h, which this TU does not include (matrixptr differs) */
-extern int buffer_ID;
-/* kept local: int here, char * in main.h */
-extern int matrixptr;
-/* kept local: void (int) here, void (void *) in Matrix.h */
-extern void _SetCurrentMatrix(int a0);
-/* kept local: void (int, int) here, void (long long, long long) in GifPacket.h */
-extern void gif_SetGsReg(int a0, int a1);
-
 void DispClothMesh(int *a0, void *a1, void *a2)
 {
     int t;
@@ -1198,11 +1147,6 @@ void DispClothMesh(int *a0, void *a1, void *a2)
     }
     prim_DispMesh3D(a0[0], a1, a2, t);
 }
-
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetGsReg differ) */
-extern void gif_SetZTest(int a0);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetGsReg differ) */
-extern void gif_SetZWrite(int a0);
 
 /* the wire mesh's three line colours, one word per channel, RGBA: the cross
    links between rows, the general line, and the seam columns (i == 0 and the
@@ -1320,13 +1264,6 @@ static sceVu0FMATRIX procMatrix = {
     {1.0f, 0.0f, 1.0f, 0.0f},
     {0.0f, 0.0f, 0.0f, 1.0f},
 };
-
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern void _MulMatrix(void *dst, void *a, void *b);
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern void _ApplyCurrentMatrix(void *dst, void *src);
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern void _ScaleVectorXYZ(void *dst, void *src, float k);
 
 /* clothAnimation.c:1522-1528 and 1531-1536 in the listing: the two point
    writers, only ever inlined, sharing one VECTOR temp at frame 0x50. */
@@ -1462,23 +1399,6 @@ void getCloth4D_preProcess(void *a0, float g, float damp, float z, float w, int 
         }
     }
 }
-
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnYAngleXZ, MatrixDrive_SetTransposeMatrix differ) */
-extern void CopyMatrix(void *dst, void *src);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnYAngleXZ, MatrixDrive_SetTransposeMatrix differ) */
-extern void SubVectorXYZ(void *a0, void *a1, void *a2);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnYAngleXZ, MatrixDrive_SetTransposeMatrix differ) */
-extern float FSqrt(float a0);
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern float _InnerProduct(void *a, void *b);
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern void _UnitMatrix(void *p0);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnYAngleXZ, MatrixDrive_SetTransposeMatrix differ) */
-extern void MatrixDrive_RotMatrixZ(short a0);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnYAngleXZ, MatrixDrive_SetTransposeMatrix differ) */
-extern void MatrixDrive_ScaleMatrix(float x, float y, float z);
-/* kept local: void (void *, void *) here, void (float *, float *) in matrixDrive.h */
-extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
 
 /* the four procMatrix elements proc writes its Y rotation through, the rest of
    the TU's .sdata */
@@ -2015,8 +1935,6 @@ void getCloth4D_postProcess(int *a0, int **a1)
 /* kept local: clothAnimation.h does not compile in this TU (conflicting types for `GetChainAnimation') */
 extern void getCloth4D(void *a0, int **rows);
 extern char motionKind[];
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern void _SubVectorXYZ(void *dst, void *a, void *b);
 
 void _getCloth4D(int *a0, float x, float y, float z, float w, int tight, void *a6, void *a7)
 {
@@ -2201,10 +2119,6 @@ Cloth4D *InitCloth4D(int a0, Cloth4DCfg *cfg, int tbl)
     return r;
 }
 
-/* kept local: void (unsigned short *, unsigned short *, float, float, float) here, void (short *, short *, float, float, float) in matrixDrive.h */
-extern void MatrixDrive_GetTurnYAngleXZ(unsigned short *o1, unsigned short *o2, float x, float y,
-                                        float z);
-
 void GetChainNodeGlobalQuaternion(void *a0, int *a1, int count)
 {
     ClothBuf buf;
@@ -2253,9 +2167,6 @@ float GetChainNodeID(int a0, float f)
 {
     return f / *(float *)(a0 + 0x14);
 }
-
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnYAngleXZ, MatrixDrive_SetTransposeMatrix differ) */
-extern void CopyVector(void *a0, void *a1);
 
 void ResetClothAnimation(int *a0, int *a1, int *a2)
 {

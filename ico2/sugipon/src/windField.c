@@ -5,6 +5,8 @@
 #include "tableSin.h"
 #include "debug.h"
 #include <libvu0.h>
+#include "main.h"
+#include "GifPacket.h"
 
 /* the TU's .sdata (MAIN.MAP names nothing in it), in ROM order: the field mode,
    the wind vector function and the fan blade angle */
@@ -154,13 +156,6 @@ static float baseLines[12][4] = {
     {0.0f, -100.0f, 0.0f, 1.0f},  {-10000.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f},
 };
 
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_EndPacket(void);
-/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
-extern void gif_SetAlpha(int a0, int a1, int a2);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_StartPacketPri(int a0);
-
 void drawSenpuuki(float scale)
 {
     char *cur;
@@ -186,9 +181,6 @@ void drawSenpuuki(float scale)
     drawSenpuukiHaneUnit(scale);
     gif_EndPacket();
 }
-
-/* kept local: main.c's global; this TU does not include main.h */
-extern int systemStatus[];
 
 /* The cell centre ExecWindField samples, rewritten per cell; w stays 1. */
 static float samplePos[4] = {0.0f, 0.0f, 0.0f, 1.0f};

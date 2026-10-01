@@ -38,6 +38,8 @@ typedef struct { /* 0x10 */
 
 #include "boy.h"
 #include "debug.h"
+#include "main.h"
+#include "GifPacket.h"
 
 /* The boy's five generated cloth meshes, in the order InitBoyGeo hands them to
    InitCloth4D: the mantle, the tape belt and the three loose tape strips.
@@ -462,12 +464,6 @@ inline void LightLineGeo(void)
     }
 }
 
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_StartPacketPri(int a0);
-/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
-extern void gif_SetAlpha(int a0, int a1, int a2);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_EndPacket(void);
 /* lineManager.h declares DrawLineG with int * endpoints; this TU hands it the
    vector and colour records it builds on its own frame. */
 /* kept local: void (LLVec *, LLColor *, LLVec *, LLColor *, int) here, void (int *, int *, int *, int *, int) in lineManager.h */
@@ -655,8 +651,6 @@ typedef struct MotSyncPair { /* 0x08 */
 } MotSyncPair;
 
 extern MotSyncPair motSyncPairs[]; /* derived name */
-/* kept local: char * here, GObj * in main.h */
-extern char *girlGObj;
 
 /* the two wire spheres the girl-to-boy position sync draws when the debug flag
    is on: blue for the girl, orange for the boy */
@@ -809,10 +803,6 @@ inline void SetBoyStonizedVisual(char *a0)
     *(int *)((int)GOBJ_SUB(a0) + 0x62C) = 0;
 }
 
-/* kept local: agrees with main.h, which this TU does not include (girlGObj differs) */
-extern int stage_no;
-/* kept local: agrees with main.h, which this TU does not include (girlGObj differs) */
-extern int systemStatus[];
 /* kept local: float (int, void *, void *, float) here, float (int, float, void *, void *) in StageAnimation.h */
 extern float stage_PlayBgAnimation(int obj, void *a1, void *a2, float f);
 void dispSubParts(char *gobj);

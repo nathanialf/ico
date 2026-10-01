@@ -14,6 +14,8 @@
 #include "quaternion.h"
 #include "tableSin.h"
 #include "Matrix.h"
+#include "matrixDrive.h"
+#include "main.h"
 
 typedef struct AP1Vec {
     float x;
@@ -146,9 +148,6 @@ int standAI(char *self)
 
     return AP1MotReq(self, 1) ? 1 : -1;
 }
-
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_SetTransposeMatrix differs) */
-extern float VectorLengthSquare(void *v);
 
 int walkAI(char *self)
 {
@@ -292,10 +291,6 @@ void WakeUpAP1(int *a0)
 /* Three static helpers the January-2002 listing places at act_a_p_1.c lines
  * 320-331, 335-344 and 346-352, expanded into subAP1BrainMain; never emitted
  * out of line, so none has a MAIN.MAP symbol and these three names are ours. */
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_SetTransposeMatrix differs) */
-extern float VectorLength(void *v);
-/* kept local: void (void *, void *) here, void (float *, float *) in matrixDrive.h */
-extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
 
 typedef struct AP1Mtx {
     float m[16];
@@ -336,10 +331,6 @@ static inline void AP1ToLocal(char *self, AP1Vec *v)
     _ApplyMatrix(v, &m, v);
 }
 
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_SetTransposeMatrix differs) */
-extern void CopyVector(void *dst, void *src);
 /* kept local: int (int, int) here, int (char *, int) in motionManager2.h */
 extern int CheckFloorAttribute(int self, int attr);
 
@@ -461,9 +452,6 @@ void SetAP1DeadStatus(int *a0)
     *(char *)(((U *)((char *)a0 + 0x164))->i + 0x1DA) = 1;
     AP1MotReqForce((int)a0, 5);
 }
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int boyPad;
 
 typedef struct AP1MailEntry {
     /* 0x0 */ unsigned int mail;
@@ -611,8 +599,6 @@ typedef struct AP1Spec {
 } AP1Spec;
 
 extern AP1Spec D_0062B588[];
-/* kept local: void * here, GObj * in main.h */
-extern void *girlGObj;
 void subAP1Control(int x);
 
 void actAP1Start(char *g)

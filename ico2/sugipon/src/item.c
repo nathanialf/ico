@@ -23,6 +23,10 @@
 #include "Matrix.h"
 #include "tableSin.h"
 #include <string.h>
+#include "matrixDrive.h"
+#include "quaternion.h"
+#include "main.h"
+#include "fieldCollision.h"
 
 void bombSparkStartSE(int a0)
 {
@@ -51,14 +55,6 @@ static inline int IsItemKindBomb(char *gobj)
 /* kept local: void (const char *, int) here, void (char *, int) in debug_exception.h */
 extern void debug_assert(const char *file, int line);
 extern void __assert(const char *file, int line, char *expr);
-/* kept local: agrees with quaternion.h, which this TU does not include (GetInverseQuaternion, RotQuaternionX differ) */
-extern void SetIdentityQuaternion(void *q);
-/* kept local: void (void *, void *) here, void (int, int) in quaternion.h */
-extern void GetInverseQuaternion(void *dst, void *src);
-/* kept local: agrees with quaternion.h, which this TU does not include (GetInverseQuaternion, RotQuaternionX differ) */
-extern void MultiQuaternion(void *dst, void *a, void *b);
-/* kept local: agrees with quaternion.h, which this TU does not include (GetInverseQuaternion, RotQuaternionX differ) */
-extern float IdentityQuaternion[4];
 
 void HoldItem(char *gobj, char *holder)
 {
@@ -137,9 +133,6 @@ static float carryOfsPlayer[4] = {-3.3333335f, -27.777779f, 0.0f, 1.0f};
 
 static float carryOfsOther[4] = {-10.0f, -15.0f, 0.0f, 1.0f};
 
-/* kept local: void (int) here, int (void *) in fieldCollision.h */
-extern void ClipWall(int arg);
-
 void avoidInsideOfWall(void *self, int arg)
 {
     char *p;
@@ -154,9 +147,6 @@ void avoidInsideOfWall(void *self, int arg)
     SetDirectRootPositionNoFitting(self, p + 0x20);
 }
 
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnZAngleYX, MatrixDrive_SetTransposeMatrix differ) */
-extern void CopyVector(void *dst, void *src);
-
 void ReleaseItem(char *gobj)
 {
     char *p = (char *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
@@ -169,9 +159,6 @@ void ReleaseItem(char *gobj)
     CopyVector((char *)*(int *)(gobj + 0x15C) + 0x130, zeroVelocity);
     SetIdentityQuaternion((char *)*(int *)(gobj + 0x15C) + 0x150);
 }
-
-/* kept local: agrees with main.h, which this TU does not include (girlGObj differs) */
-extern int systemStatus[];
 
 void ThrowItem(char *gobj, void *vel)
 {
@@ -240,20 +227,6 @@ char *InitItemGeo(char *gobj, ItemLayout *layout)
     gamesysObjInfoCls(*(int *)(gobj + 0xC), *(int *)(gobj + 8));
     return p;
 }
-
-/* kept local: void (void *, short) here, void (void *, int) in quaternion.h */
-extern void RotQuaternionY(void *q, short ang);
-/* kept local: agrees with quaternion.h, which this TU does not include (GetInverseQuaternion, RotQuaternionX differ) */
-extern void CopyQuaternion(void *dst, void *src);
-/* kept local: void (void *, void *) here, void (float *, float *) in matrixDrive.h */
-extern void MatrixDrive_SetTransposeMatrix(void *dst, void *m);
-/* kept local: void (unsigned short *, unsigned short *, float, float, float) here, void (short *, short *, float, float, float) in matrixDrive.h */
-extern void MatrixDrive_GetTurnZAngleYX(unsigned short *y, unsigned short *x, float vx, float vy,
-                                        float vz);
-/* kept local: void (void *, short) here, void (void *, int) in quaternion.h */
-extern void RotQuaternionX(void *q, short ang);
-/* kept local: char * here, GObj * in main.h */
-extern char *girlGObj;
 
 /* The holder's 0x15C sub-handle is read through the SubHandle union at every
    site in this function: the ROM keeps the three-load chain of line 511 below
@@ -408,31 +381,6 @@ typedef struct ClipWorkItem {
     float plane[4]; /* 0xA0 */
     float f_B0[4];  /* 0xB0 */
 } ClipWorkItem;
-
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnZAngleYX, MatrixDrive_SetTransposeMatrix differ) */
-extern void AddVectorXYZ(void *dst, void *a, void *b);
-/* kept local: agrees with quaternion.h, which this TU does not include (GetInverseQuaternion, RotQuaternionX differ) */
-extern void GetSlerpQuaternion(void *dst, void *a, void *b, float t);
-/* kept local: agrees with quaternion.h, which this TU does not include (GetInverseQuaternion, RotQuaternionX differ) */
-extern void RegularizeQuaternion(void *q);
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
-extern void ClipWallWaveForce(void *w);
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
-extern void ClipFloor(void *w);
-/* kept local: agrees with fieldCollision.h, which this TU does not include (ClipFloor, ClipWall differ) */
-extern float GetDistanceFromPlane(void *plane, void *v);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnZAngleYX, MatrixDrive_SetTransposeMatrix differ) */
-extern float VectorLength(void *v);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnZAngleYX, MatrixDrive_SetTransposeMatrix differ) */
-extern float VectorLengthSquare(void *v);
-/* kept local: int (void *) here, int (int) in fieldCollision.h */
-extern int GetWallAttribute(void *w);
-/* kept local: int (void *) here, int (int) in fieldCollision.h */
-extern int GetFloorAttribute(void *w);
-/* kept local: void (void *, float, float) here, void (char *, float, float) in fieldCollision.h */
-extern void GetReflectionElement(void *w, float a, float b);
-/* kept local: void (void *, short, float, float, float) here, void (int *, short, float, float, float) in quaternion.h */
-extern void SetQuaternionByAxisRotate(void *q, short ang, float x, float y, float z);
 
 /* src/item.c:135-178 in the January-2002 listing: a static helper with no
    out-of-line copy, inlined only into uncarriedItemGeo's wall-hit arm.
@@ -842,9 +790,6 @@ void ItemDL(char *gobj)
     }
     p2o_DispVU1(gobj);
 }
-
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetTurnZAngleYX, MatrixDrive_SetTransposeMatrix differ) */
-extern float ZeroVector[4];
 
 /* INTERIM stand-in: GetItemKind is a real TU function with its own ROM slot
    (matched below), but the compiler inlines it into BreakItemFromOutside.

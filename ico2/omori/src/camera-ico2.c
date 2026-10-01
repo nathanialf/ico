@@ -14,6 +14,8 @@
 #include "ios.h"
 #include "camera-root.h"
 #include "debug_exception.h"
+#include "main.h"
+#include "gv.h"
 
 typedef struct CamSetItem {
     char pad[0x48];
@@ -30,10 +32,6 @@ typedef struct CamSetHdr {
 /* kept local: void (S4C *, int) here, void (int, int) in camera-ico2.h */
 extern void ReflectCameraSetBinary(S4C *src, int count);
 extern const StgPre stageData[];
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differs) */
-extern int stage_no;
-/* kept local: int * here, GObj * in main.h */
-extern int *boyGObj;
 /* kept local: boyact.h does not compile in this TU (too many arguments to function `GetBoyRootPositionForCamera') */
 extern void GetBoyRootPositionForCamera();
 
@@ -114,13 +112,6 @@ static float handCameraAtRate;
 static unsigned char cameraGroupChanged;
 
 static int pluralCameraSetNum;
-
-/* kept local: void (void *, float) here, void (float *, float) in gv.h */
-extern void _ApplyRyGV(void *a0, float v);
-/* kept local: float (void *) here, float (float *) in gv.h */
-extern float _GetDirection(void *a0);
-/* kept local: void (void *, void *, void *, float, float) here, void (float *, float *, float *, float, float) in gv.h */
-extern void _InterGV(void *a0, void *a1, void *a2, float f12, float f13);
 
 typedef struct IosPadStick {
     int x; /* 0x00 */
@@ -360,11 +351,6 @@ void initMonitorCamera(unsigned char init)
     if (init)
         SetMonitorCameraInitializeFlag();
 }
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differs) */
-extern int systemStatus[];
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistGV(void *a0, void *a1);
 
 /* The retail build compiles out this function's debug arms (listing lines
  * 1033-1063 and 1109-1131 carry no instructions), which is why `vDbg` is read

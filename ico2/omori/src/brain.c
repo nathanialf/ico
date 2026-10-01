@@ -4,10 +4,10 @@
 #include "ebrain.h"
 #include "typedef.h"
 #include "brain.h"
+#include "main.h"
+#include "gv.h"
 
 extern ObjKindEnt objKindData[];
-/* kept local: main.c's global; this TU does not include main.h */
-extern int systemStatus[];
 
 static inline void brainSetTargetTimer(BrainTarget *t)
 {
@@ -122,9 +122,6 @@ void brainStatusDefaultSet(Brain *b, int gobj, int idx)
     }
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
-extern char *girlGObj;
-
 /* RECONSTRUCTION: listing brain.c:450-456 is a file-static helper the ROM only
  * ever expands; MAIN.MAP has no symbol for it, so the name is ours. */
 static inline void brainLevelUp(BrainTarget *t)
@@ -179,7 +176,7 @@ void brainLevelProcess(Brain *b)
             continue;
         }
         if (t != b->cur && t->level > 1.9 && girlGObj != 0 &&
-            ((int)(*(long long *)(*(int *)(girlGObj + 0x164) + 0x20) >> 27) & 1)) {
+            ((int)(*(long long *)(*(int *)((char *)girlGObj + 0x164) + 0x20) >> 27) & 1)) {
             float r;
             /* 3.40282347e+38f is FLT_MAX: outside mips_const_double_ok's li.s
                range, so each function that uses it gets its own constant-pool
@@ -218,9 +215,6 @@ void brainLevelProcess(Brain *b)
         }
     }
 }
-
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistSqGV(void *a, void *b);
 
 /* INTERIM stand-in for brainGetLevel (listing brain.c:541-545), which the ROM
  * expands into brainGetTarget; the out-of-line definition keeps its ROM slot

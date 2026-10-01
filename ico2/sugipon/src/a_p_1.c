@@ -10,10 +10,17 @@
 #include "enemyParts.h"
 #include "geometryManager.h"
 #include "pool.h"
-#include "tableSin.h"
 #include <stdlib.h>
 #include "typedef.h"
 #include "sugiCommon.h"
+#include "matrixDrive.h"
+#include "main.h"
+
+/* kept local: int (float) here, short (float) in tableSin.h: under the short return
+   calcSubMission spills its frame addresses in another order */
+extern int GetTableArcCos(float x);
+/* kept local: agrees with tableSin.h, which this TU does not include (GetTableArcCos differs) */
+extern short GetTableArcTan2(float f12, float f13);
 
 typedef struct {
     float m[4];
@@ -154,8 +161,6 @@ static inline void applyPartOrients(char *g)
     }
 }
 
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, MatrixDrive_RotMatrixY differ) */
-extern void CopyVector(void *dst, void *src);
 /* kept local: agrees with Matrix.h, which this TU does not include (_ApplyMatrix, _InnerProduct differ) */
 extern void _UnitMatrix(void *m);
 /* kept local: int (void *, int) here, int (char *, int) in motionManager2.h */
@@ -325,11 +330,11 @@ char *InitAP1(char *self, char *arg)
     return p;
 }
 
-/* kept local: void (int, int) here, void (char *, char *) in quaternion.h */
+/* kept local: void (int, int) here, void (float *, float *) in quaternion.h */
 extern void GetMatrixFromQuaternion(int dst, int src);
 /* kept local: void (int, int, int) here, void (void *, void *, void *) in quaternion.h */
 extern void MultiQuaternion(int dst, int a, int b);
-/* kept local: void (int, int, int) here, void (int *, short, int *) in quaternion.h */
+/* kept local: void (int, int, int) here, void (float *, short, float *) in quaternion.h */
 extern void SetQuaternionByAxisRotateV(int dst, int p, int src);
 /* kept local: float (int, int) here, float (void *, void *) in Matrix.h */
 extern float _InnerProduct(int dst, int v);
@@ -361,9 +366,6 @@ void yAxisRotFitting(int *self, int arg2)
         SetRootQuaternion((int)self, (int)&l70);
     }
 }
-
-/* kept local: char [] here, float [4] in matrixDrive.h */
-extern char ZUnitVector[];
 
 void zAxisRotFitting(int *self, int arg2)
 {
@@ -407,7 +409,7 @@ static inline int clipAndTakeHit(AP1ColHit *dst, char *col)
     return 0;
 }
 
-/* kept local: void (void *, void *) here, void (int, int) in quaternion.h */
+/* kept local: void (void *, void *) here, void (float *, float *) in quaternion.h */
 extern void GetInverseQuaternion(void *dst, void *src);
 /* kept local: agrees with Matrix.h, which this TU does not include (_ApplyMatrix, _InnerProduct differ) */
 extern void _SubVectorXYZ(void *dst, void *a, void *b);
@@ -576,14 +578,10 @@ int fitToCol(char *self, int arg1)
     return 2;
 }
 
-/* kept local: void (void *, void *) here, void (float *, float *) in matrixDrive.h */
-extern void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
 /* kept local: agrees with Matrix.h, which this TU does not include (_ApplyMatrix, _InnerProduct differ) */
 extern void _ScaleVector(void *dst, void *src, float s);
 /* kept local: agrees with Matrix.h, which this TU does not include (_ApplyMatrix, _InnerProduct differ) */
 extern void _AddVectorXYZ(void *dst, void *a, void *b);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, MatrixDrive_RotMatrixY differ) */
-extern float VectorLength(void *v);
 
 typedef union {
     int i;
@@ -627,16 +625,12 @@ int walkMot(char *a0)
     return 1;
 }
 
-/* kept local: int (void *, int) here, int (char *) in motionManager2.h */
+/* kept local: int (void *, int) here, int (char *, int) in motionManager2.h */
 extern int CheckWallAttribute(void *gobj, int mask);
 /* kept local: int (void *, int) here, int (char *, int) in motionManager2.h */
 extern int CheckFloorAttribute(void *gobj, int mask);
 /* kept local: int (void *, void *, void *, float) here, int (char *, char *, float *, float) in motionManager2.h */
 extern int CheckFieldContact(void *col, void *gobj, void *pos, float r);
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differs) */
-extern int systemStatus[];
-/* kept local: char [] here, float [4] in matrixDrive.h */
-extern char ZeroVector[];
 
 int rolling(char *a0)
 {
@@ -700,22 +694,6 @@ int rolling(char *a0)
     return -1;
 }
 
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, MatrixDrive_RotMatrixY differ) */
-extern void *MatrixDrive_GetMatrix(void);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, MatrixDrive_RotMatrixY differ) */
-extern void MatrixDrive_PushMatrix(void);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, MatrixDrive_RotMatrixY differ) */
-extern void MatrixDrive_PopMatrix(void);
-/* kept local: void (int) here, void (short) in matrixDrive.h */
-extern void MatrixDrive_RotMatrixX(int ang);
-/* kept local: void (int) here, void (short) in matrixDrive.h */
-extern void MatrixDrive_RotMatrixY(int ang);
-/* kept local: void (int) here, void (short) in matrixDrive.h */
-extern void MatrixDrive_RotMatrixZ(int ang);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, MatrixDrive_RotMatrixY differ) */
-extern void MatrixDrive_TurnXObjectMatrixYZ(float x, float y, float z);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, MatrixDrive_RotMatrixY differ) */
-extern void CopyMatrix(void *dst, void *src);
 /* kept local: agrees with Matrix.h, which this TU does not include (_ApplyMatrix, _InnerProduct differ) */
 extern void _MulMatrix(void *dst, void *a, void *b);
 /* kept local: agrees with Matrix.h, which this TU does not include (_ApplyMatrix, _InnerProduct differ) */
@@ -880,13 +858,13 @@ void calcSubMission(char *self)
     }
 }
 
-/* kept local: void (void *, short) here, void (void *, int) in quaternion.h */
+/* kept local: agrees with quaternion.h, which this TU does not include (GetMatrixFromQuaternion, SetQuaternionByAxisRotateV differ) */
 extern void RotQuaternionX(void *q, short ang);
-/* kept local: void (void *, short) here, void (void *, int) in quaternion.h */
+/* kept local: agrees with quaternion.h, which this TU does not include (GetMatrixFromQuaternion, SetQuaternionByAxisRotateV differ) */
 extern void RotQuaternionZ(void *q, short ang);
-/* kept local: void (void *, void *, void *) here, void (char *, char *, char *) in quaternion.h */
+/* kept local: void (void *, void *, void *) here, void (float *, float *, float *) in quaternion.h */
 extern void GetMatrixFromQuaternionPos(void *m, void *q, void *pos);
-/* kept local: agrees with quaternion.h, which this TU does not include (GetInverseQuaternion, GetMatrixFromQuaternion differ) */
+/* kept local: agrees with quaternion.h, which this TU does not include (GetMatrixFromQuaternion, SetQuaternionByAxisRotateV differ) */
 extern void GetSlerpQuaternion(void *dst, void *a, void *b, float t);
 
 void updateMatrix(char *a0)
@@ -1016,7 +994,7 @@ void SetAP1VisualState(char *a0, int a1)
     *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x278) = a1;
 }
 
-/* kept local: void (int, int) here, void (void *, int) in quaternion.h */
+/* kept local: void (int, int) here, void (void *, short) in quaternion.h */
 extern void RotQuaternionY(int q, int ang);
 /* kept local: void (int) here, void (void *) in quaternion.h */
 extern void RegularizeQuaternion(int q);
@@ -1117,9 +1095,6 @@ int rollingMot(char *a0)
     *(int *)(p + 0x1C8) = 0;
     return 2;
 }
-
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
 
 typedef struct {
     int state;     /* 0x00 */

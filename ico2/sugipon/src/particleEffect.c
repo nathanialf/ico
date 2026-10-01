@@ -9,6 +9,7 @@
 #include "ios.h"
 #include "Matrix.h"
 #include "main.h"
+#include "matrixDrive.h"
 
 typedef struct PEGeo PEGeo; /* the allocated per-effect geometry object */
 
@@ -83,9 +84,6 @@ typedef struct {
     int unk_9C;
 } PEPackage;
 
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, MatrixDrive_RotMatrixY differ) */
-extern void CopyVector();
-
 /* the listing's lines 129-137: a static free-slot search with no out-of-line
  * copy, inlined at its one call site. It sits here, ahead of
  * setParticleEffectGeometry (the listing's 141), because the listing's line
@@ -110,7 +108,7 @@ static inline int searchFreeParticleEffect(void)
 
 void setParticleEffectGeometry(int a0, int a1, int a2)
 {
-    CopyVector(a0);
+    CopyVector(a0, a1);
     CopyQuaternion(a0 + 0x10, a2);
 }
 
@@ -192,17 +190,6 @@ static PEffect emptyEffect = {0, 0, 1, 0, 0, 0, 0};
    default package, after it in the TU's .data. */
 static sceVu0FVECTOR spreadVector; /* derived name */
 
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, MatrixDrive_RotMatrixY differ) */
-extern void CopyMatrix(void *dst, void *src);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, MatrixDrive_RotMatrixY differ) */
-extern void CopyIVector(void *dst, void *src);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, MatrixDrive_RotMatrixY differ) */
-extern void *MatrixDrive_GetMatrix(void);
-/* kept local: void (int) here, void (short) in matrixDrive.h */
-extern void MatrixDrive_RotMatrixX(int angle);
-/* kept local: void (int) here, void (short) in matrixDrive.h */
-extern void MatrixDrive_RotMatrixY(int angle);
-
 /* sugiCommon.h:47 and :55 in the PAL listing: two nested static helpers, the
    inner one the raw 0..1 draw and the outer one the same draw mapped onto
    -1..1. Both are inlined at every site here. */
@@ -258,11 +245,6 @@ void _setParticleEffect(char *out, char *pkg, char *m, float k)
     w->v = (float)*(int *)(pkg + 0x84) * 0.25f;
     *(PEPartRec *)out = particleWork;
 }
-
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, MatrixDrive_RotMatrixY differ) */
-extern void MatrixDrive_PushMatrix(void);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_RotMatrixX, MatrixDrive_RotMatrixY differ) */
-extern void MatrixDrive_PopMatrix(void);
 
 /* particleEffect.c:358-367 in the PAL listing, rows outside dispParticleEffect's
    own span (443-484): a static helper with no out-of-line copy, inlined at the

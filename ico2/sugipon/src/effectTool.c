@@ -11,6 +11,9 @@
 #include "geometryManager.h"
 #include "script.h"
 #include <string.h>
+#include "quaternion.h"
+#include "main.h"
+#include "GifPacket.h"
 
 /* the effect-parameter descriptor table _dispParam/editParam walk: 0x1C per
  * entry, name pointer first, NULL-terminated.  `off` is the byte offset of the
@@ -113,19 +116,6 @@ void _dispParam(int *pkg, int idx, int x, int y, int col)
     debug_PrintfDummy(x, y, col, "%-20s:%s", lbl, val);
 }
 
-/* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
- * pad, trg at 0x4 and rep at 0xC; this tool reads pad 0 and pad 1. */
-typedef struct {
-    int unk00;        /* 0x00 */
-    int trg;          /* 0x04 */
-    int unk08;        /* 0x08 */
-    int rep;          /* 0x0C */
-    char unk10[0x48]; /* 0x10 */
-} EffToolPad;
-
-/* kept local: EffToolPad [] here, PadState [16] in main.h */
-extern EffToolPad pad[];
-
 typedef union {
     int i;
     float f;
@@ -153,8 +143,8 @@ int editParam(int id, int sel)
     float step;
     int v;
 
-    if ((pad[0].unk00 & 0x8000) || (pad[1].unk00 & 0x8000) || (pad[0].unk00 & 0x2000) ||
-        (pad[1].unk00 & 0x2000)) {
+    if ((pad[0].now & 0x8000) || (pad[1].now & 0x8000) || (pad[0].now & 0x2000) ||
+        (pad[1].now & 0x2000)) {
         holdCount++;
     } else {
         holdCount = 0;
@@ -251,7 +241,7 @@ int editParam(int id, int sel)
     if (changed) {
         effectToolDirty[id] |= 1;
     }
-    return (changed && e->step != 0) || (pad[0].trg & 0x20) || (pad[1].trg & 0x20);
+    return (changed && e->step != 0) || (pad[0].flags & 0x20) || (pad[1].flags & 0x20);
 }
 
 /* the tool's line colour (r=0, g=0xC0, b=0xFF, a=0x1C) and the dimmed copy the
@@ -359,30 +349,12 @@ static int savedTarget = 0; /* derived name */
 
 int targetMemo = 0;
 
-/* kept local: void (int *, short) here, void (void *, int) in quaternion.h */
-extern void RotQuaternionX(int *self, short y);
-/* kept local: void (int *, short) here, void (void *, int) in quaternion.h */
-extern void RotQuaternionY(int *self, short y);
-/* kept local: void (int *) here, void (void *) in quaternion.h */
-extern void SetIdentityQuaternion(int *self);
-
 void setQ(int *self)
 {
     SetIdentityQuaternion(self);
     RotQuaternionY(self, -viewRotY);
     RotQuaternionX(self, -viewRotX);
 }
-
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_StartPacketPri(int pri);
-/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
-extern void gif_SetAlpha(int a, int b, int c);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_SetZTest(int on);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_EndPacket(void);
-/* kept local: void (int *) here, void (void *) in quaternion.h */
-extern void MultiMatrixByQuaternion(int *q);
 
 void dispEffectToolField(int idx)
 {
@@ -481,7 +453,7 @@ int EditTarget(int id)
             paramCursor = 0;
         }
     }
-    if ((pad[0].trg & 0x40) || (pad[1].trg & 0x40)) {
+    if ((pad[0].flags & 0x40) || (pad[1].flags & 0x40)) {
         return -1;
     }
     return 0;
@@ -620,10 +592,10 @@ int execEffectTool(void)
             lastEffectId = effectId;
             paramCursor = 0;
         }
-        if (pad[1].trg & 0x10) {
+        if (pad[1].flags & 0x10) {
             saveEffectData(effectId);
         }
-        if (pad[1].trg & 0x20) {
+        if (pad[1].flags & 0x20) {
             r = 1;
         }
         if (pad[1].rep & 0x1000) {
@@ -652,7 +624,7 @@ int execEffectTool(void)
         break;
     }
     moveEffectToolGeometry(effectId);
-    if ((pad[0].trg & 0x80) || (pad[1].trg & 0x80)) {
+    if ((pad[0].flags & 0x80) || (pad[1].flags & 0x80)) {
         fieldDisp = (fieldDisp == 0);
     }
     if (fieldDisp) {

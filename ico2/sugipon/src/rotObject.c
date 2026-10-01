@@ -12,6 +12,7 @@
 #include <libvu0.h>
 #include "ios.h"
 #include "Matrix.h"
+#include "matrixDrive.h"
 
 /* the name every iosMallocDebug in this file reports itself under */
 static const char rotObjectFile[] = "src/rotObject.c";
@@ -41,17 +42,6 @@ void RotObjectGeo(char *a0)
     }
 }
 
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_SetTransposeMatrix, ZUnitVector differ) */
-extern void *MatrixDrive_GetMatrix(void);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_SetTransposeMatrix, ZUnitVector differ) */
-extern void MatrixDrive_RotMatrixY(short a0);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_SetTransposeMatrix, ZUnitVector differ) */
-extern void UnitRotation(void *m);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_SetTransposeMatrix, ZUnitVector differ) */
-extern void CopyMatrix(void *dst, void *src);
-/* kept local: char [] here, float [4] in matrixDrive.h */
-extern char ZUnitVector[];
-
 static inline void getRotObjectDriveMatrix(void *gobj, void *dst)
 {
     float v[4];
@@ -67,9 +57,6 @@ static inline void getRotObjectDriveMatrix(void *gobj, void *dst)
     MatrixDrive_RotMatrixY(atan2f(v[0], v[2]) * 10430.378f);
     CopyMatrix(dst, MatrixDrive_GetMatrix());
 }
-
-/* kept local: void (void *, int) here, void (float *, float *) in matrixDrive.h */
-extern void MatrixDrive_SetTransposeMatrix(void *a0, int a1);
 
 void GetRotObjectHoldPoint(void *a0, void *a1, void *a2, void *a3)
 {
@@ -98,11 +85,6 @@ void GetRotObjectHoldPoint(void *a0, void *a1, void *a2, void *a3)
     *(float *)((char *)a0 + 4) = -50.0f;
     sceVu0Normalize(a1, a1);
 }
-
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_SetTransposeMatrix, ZUnitVector differ) */
-extern float FSqrt(float x);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_SetTransposeMatrix, ZUnitVector differ) */
-extern void CopyVector(void *dst, void *src);
 
 int MoveRotObjectWithHoldPoint(void *bar, void *hold, void *self, void *dir, void *up)
 {
@@ -231,9 +213,6 @@ void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, void *gobj, void *posM
         debug_StdPrintfDummy("%s\n", "GetRotObjectGlobalHoldGeometry");
     }
 }
-
-/* kept local: char [] here, float [4] in matrixDrive.h */
-extern char ZeroPoint[];
 
 /* A GObj slot read as an int but written elsewhere as a float: reading it
  * through the union keeps both views in one alias set, so the reload of

@@ -8,6 +8,7 @@
 #include "matrixDrive.h"
 #include "spiderGroupManager.h"
 #include "spider.h"
+#include "main.h"
 
 /* The TU's .sdata, in ROM order (MAIN.MAP names nothing in it): the manager's
    counters and the revive state, then EntrySpiderGroupManager's assert literal. */
@@ -50,9 +51,6 @@ static int spiderGroupIds[64];
 static SpiderGroupEnt spiderGroups[64];
 
 static int reviveGroupIds[64];
-
-/* kept local: int [] here, PadState [16] in main.h */
-extern int pad[];
 
 /* one RGBA tint per spider group, alpha 0x80 throughout */
 static int spiderGroupColors[7][4] = {{0x7F, 0x00, 0x00, 0x80}, {0x40, 0x7F, 0x00, 0x80},
@@ -177,9 +175,6 @@ int tryToRevive(void)
     return 0;
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
-extern int systemStatus[];
-
 void ExecSpiderGroupManager(void)
 {
     int i;
@@ -232,7 +227,7 @@ void ExecSpiderGroupManager(void)
 
 inline void DispAllSpiderGroups(void)
 {
-    int v = pad[1];
+    int v = pad[0].flags;
     sgInfoLine = 0;
     if (v & 0x1000) {
         sgSelLine = sgSelLine - 1;

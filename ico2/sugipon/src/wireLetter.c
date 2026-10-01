@@ -3,6 +3,7 @@
 #include "wireLetter.h"
 #include "debug.h"
 #include <string.h>
+#include "GifPacket.h"
 
 typedef struct {
     float x;
@@ -277,11 +278,6 @@ static int wireStringColorDefault[4] = {0x80, 0xC8, 0xFF, 0x80};
 
 static int wireStringColor[4] = {0x80, 0xC8, 0xFF, 0x80};
 
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_EndPacket(void);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_StartPacketPri(int a0);
-
 inline void Draw2DBox(float x0, float y0, float x1, float y1)
 {
     WLBoxPnt a = {x0, y0, 0};
@@ -296,8 +292,6 @@ inline void Draw2DBox(float x0, float y0, float x1, float y1)
     gif_EndPacket();
 }
 
-/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
-extern void gif_SetAlpha(int a, int b, int c);
 void DispWireLetter(int c);
 
 void DispWireLetter(int c)

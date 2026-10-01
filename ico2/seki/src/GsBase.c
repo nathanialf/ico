@@ -19,6 +19,7 @@
 #include <eekernel.h>
 #include "ZFog.h"
 #include "Light.h"
+#include "Matrix.h"
 
 /* Declared here, not through string.h: with newlib's prototype in scope gcc
    expands gsb_scissorOnDemo's four-byte zero fill as one store, and the ROM
@@ -120,9 +121,9 @@ void gsb_SetFrame(int *db, int a1, int a2, int psm, short zbp)
     sceGsSetDefDispEnv(disp1, 0, w, h, 0, 0);
 }
 
-/* kept local: agrees with main.h, which this TU does not include (db, pad differ) */
+/* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern int systemStatus[];
-/* kept local: agrees with main.h, which this TU does not include (db, pad differ) */
+/* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern int buffer_ID;
 /* kept local: void (int) here, int (void) in libgraph.h */
 extern void sceGsSyncV(int a0);
@@ -244,12 +245,12 @@ static int reductionGreen;
 
 static int reductionBlue;
 
-/* kept local: agrees with main.h, which this TU does not include (db, pad differ) */
+/* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern int optionScreenMode;
-/* kept local: agrees with main.h, which this TU does not include (db, pad differ) */
+/* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern StageSetting GlobalStageSetting;
-/* kept local: GsbPad [] here, PadState [16] in main.h */
-extern GsbPad pad[];
+/* kept local: agrees with main.h, which this TU does not include (db differs) */
+extern PadState pad[16];
 
 /* Reduce the frame into the feedback area: one 22 qword GIF packet, built on
  * the stack and sent down the GIF channel by hand, that first clears the
@@ -320,7 +321,7 @@ void gsb_Reduction(void)
     *D2_MADR = (int)pk & 0x0FFFFFFF;
     *D2_CHCR = 0x101;
     sceGsSyncPath(0, 0);
-    if (pad[0].trg & 0x20) {
+    if (pad[0].flags & 0x20) {
         debug_StdPrintfDummy("Film Noise:%d\n", optionScreenMode);
     }
     if (optionScreenMode) {
@@ -509,9 +510,9 @@ clear:
     fadeStatus = 0;
 }
 
-/* kept local: agrees with main.h, which this TU does not include (db, pad differ) */
+/* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern int optionScreenMode;
-/* kept local: agrees with main.h, which this TU does not include (db, pad differ) */
+/* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern StageSetting GlobalStageSetting;
 
 void gsb_SetMotionBlur(void)
@@ -596,7 +597,7 @@ void gsb_scissorOnDemo(void)
     }
 }
 
-/* kept local: agrees with main.h, which this TU does not include (db, pad differ) */
+/* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern int systemStatus[];
 /* kept local: void (int, long long) here, void (long long, long long) in GifPacket.h */
 extern void gif_SetGsReg(int a0, long long a1);
@@ -678,8 +679,8 @@ void gsb_antiAlias(void)
     int lv[2];
 
     if (optionScreenMode == 0) {
-        lv[0] = GlobalStageSetting.f0FC;
-        lv[1] = GlobalStageSetting.f100;
+        lv[0] = GlobalStageSetting.antiLevel0;
+        lv[1] = GlobalStageSetting.antiLevel1;
     } else {
         lv[0] = GlobalStageSetting.f19C[optionScreenMode].a;
         lv[1] = GlobalStageSetting.f19C[optionScreenMode].b;
@@ -771,16 +772,10 @@ void gsb_setParticleReg(int ctx)
     gif_EndPacketPath1();
 }
 
-/* kept local: agrees with main.h, which this TU does not include (db, pad differ) */
+/* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern int game_pause;
-/* kept local: agrees with main.h, which this TU does not include (db, pad differ) */
+/* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern char *matrixptr;
-/* kept local: agrees with Matrix.h, which this TU does not include (_UnitMatrix differs) */
-extern void _MulMatrix(void *d, void *a, void *b);
-/* kept local: agrees with Matrix.h, which this TU does not include (_UnitMatrix differs) */
-extern void _InversMatrix(void *d, void *s);
-/* kept local: agrees with Matrix.h, which this TU does not include (_UnitMatrix differs) */
-extern void _CopyMatrix(void *d, void *s);
 /* kept local: void (int, char *, int) here, void (int, int, int) in DisplayList.h */
 extern void dl_OpenDma(int a0, char *a1, int a2);
 /* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */
@@ -1006,9 +1001,9 @@ int gsb_PostEffect(void)
 /* gsb_InitGSSystem's first call brings every module up */
 static int firstGsInit = 1; /* derived name */
 
-/* kept local: agrees with main.h, which this TU does not include (db, pad differ) */
+/* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern int screen_offset_y;
-/* kept local: agrees with main.h, which this TU does not include (db, pad differ) */
+/* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern int screen_offset_x;
 /* kept local: char [] here, int [140] in main.h */
 extern char db[];
@@ -1098,13 +1093,13 @@ inline int gsb_SyncGSSystem(void)
     return 0;
 }
 
-/* kept local: agrees with main.h, which this TU does not include (db, pad differ) */
+/* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern int frame_count;
-/* kept local: agrees with main.h, which this TU does not include (db, pad differ) */
+/* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern int buffer_ID;
-/* kept local: agrees with main.h, which this TU does not include (db, pad differ) */
+/* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern int odd_even;
-/* kept local: agrees with main.h, which this TU does not include (db, pad differ) */
+/* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern int GlobalTimer;
 extern void sceGsSetHalfOffset(void *env, short x, short y, int field);
 /* kept local: GsBase.h does not compile in this TU (conflicting types for `gsb_PostEffect') */
@@ -1150,7 +1145,7 @@ void gsb_UpdateGSSystem(int keep)
     light_ResetLight();
 }
 
-/* kept local: agrees with main.h, which this TU does not include (db, pad differ) */
+/* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern int systemStatus[];
 /* kept local: agrees with libgraph.h, which this TU does not include (sceGsSetDefDispEnv, sceGsSyncPath differ) */
 extern void sceGsResetGraph(short mode, short inter, short omode, short ffmd);
@@ -1183,9 +1178,6 @@ void gsb_ResetGSSystem(void)
     dl_Swap();
     gsb_SetGsDefault();
 }
-
-/* kept local: void (float *) here, void (void *) in Matrix.h */
-extern void _UnitMatrix(float *m);
 
 /* the 1500 unit screen the projection b is scaled to */
 static const float vsScreenSize[] = {1500.0f, 1500.0f, 0.0f, 0.0f}; /* derived name */
@@ -1429,7 +1421,7 @@ typedef struct sceCdCLOCK {
     unsigned char year;
 } sceCdCLOCK;
 
-/* kept local: agrees with main.h, which this TU does not include (db, pad differ) */
+/* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern int stage_no;
 extern char D_005F5D90[];
 
@@ -1586,8 +1578,8 @@ static char *filmNoiseOnOffText[] = {"Off", "On"};
 
 static int filmNoiseRow = 0; /* derived name */ /* the highlighted row */
 
-/* kept local: GsbPad [] here, PadState [16] in main.h */
-extern GsbPad pad[];
+/* kept local: agrees with main.h, which this TU does not include (db differs) */
+extern PadState pad[16];
 
 /* The film noise page of the debug menu: seven editable words of the stage
  * record for the target this page names, the pad keys that walk and change
@@ -1676,7 +1668,7 @@ int gsb_FilmNoiseTool(int target)
             filmNoiseItems[page][filmNoiseRow].fn(0);
         }
     }
-    if (pad[0].trg & 0x10) {
+    if (pad[0].flags & 0x10) {
         if (filmNoiseItems[page][filmNoiseRow].isFloat == 0) {
             *(int *)filmNoiseItems[page][filmNoiseRow].val = filmNoiseItems[page][filmNoiseRow].def;
         } else {
@@ -1684,7 +1676,7 @@ int gsb_FilmNoiseTool(int target)
                 filmNoiseItems[page][filmNoiseRow].def;
         }
     }
-    if (pad[0].trg & 0x20) {
+    if (pad[0].flags & 0x20) {
         for (i = 0; i < 7; i++) {
             if (filmNoiseItems[page][i].min == 0.0f && filmNoiseItems[page][i].max == 1.0f &&
                 filmNoiseItems[page][i].isFloat == 0) {
@@ -1700,15 +1692,15 @@ int gsb_FilmNoiseTool(int target)
         }
         ret = 1;
     }
-    if (pad[0].trg & 0x80) {
+    if (pad[0].flags & 0x80) {
         GlobalStageSetting.targetCol[target][0] = GlobalStageSetting.reductionCol[0];
         GlobalStageSetting.targetCol[target][1] = GlobalStageSetting.reductionCol[1];
         GlobalStageSetting.targetCol[target][2] = GlobalStageSetting.reductionCol[2];
         GlobalStageSetting.subMotionBlur[target] = GlobalStageSetting.motionBlur;
-        GlobalStageSetting.f19C[target].a = GlobalStageSetting.f0FC;
-        GlobalStageSetting.f19C[target].b = GlobalStageSetting.f100;
+        GlobalStageSetting.f19C[target].a = GlobalStageSetting.antiLevel0;
+        GlobalStageSetting.f19C[target].b = GlobalStageSetting.antiLevel1;
     }
-    if (pad[0].trg & 0x40) {
+    if (pad[0].flags & 0x40) {
         ret = -1;
     }
     if (ret != 0) {
@@ -1729,26 +1721,29 @@ static const GsbToolItem stageSettingItems[] = {
     {" HighLight Color B   ", &GlobalStageSetting.reductionCol[2], 0, 0.0f, 255.0f, 128.0f, 1.0f,
      0},
     {" Zoom Offset         ", &GlobalStageSetting.viewScale, 0, 5e+01f, 4e+02f, 1e+02f, 1.0f, 0},
-    {" Def Tex Sample Mode ", &GlobalStageSetting.pad0E4[0], 0, 0.0f, 5.0f, 5.0f, 1.0f,
+    {" Def Tex Sample Mode ", &GlobalStageSetting.texSampleMode, 0, 0.0f, 5.0f, 5.0f, 1.0f,
      tex_RemakeRegistersSampleMin},
-    {" Post Effect         ", &GlobalStageSetting.pad0E4[4], 0, 0.0f, 8.0f, 0.0f, 1.0f, 0},
-    {" Feedback Effect     ", &GlobalStageSetting.pad104[0], 0, 0.0f, 3.0f, 0.0f, 1.0f, 0},
-    {" Feedback Effect R   ", &GlobalStageSetting.pad104[12], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
-    {" Feedback Effect G   ", &GlobalStageSetting.pad104[16], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
-    {" Feedback Effect B   ", &GlobalStageSetting.pad104[20], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
-    {" Feedback Effect A   ", &GlobalStageSetting.pad104[24], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
-    {" DepthField Level    ", &GlobalStageSetting.pad0F8[0], 0, 0.0f, 1e+03f, 1e+02f, 1.0f, 0},
-    {" DepthField Start    ", &GlobalStageSetting.pad0E4[8], 0, 0.0f, 2e+04f, 2e+03f, 2e+01f, 0},
-    {" DepthField Width    ", &GlobalStageSetting.pad0E4[12], 0, 0.0f, 2e+04f, 1e+04f, 2e+01f, 0},
-    {" HandCamera Limit P  ", &GlobalStageSetting.pad174[12], 0, 0.0f, 1.8e+02f, 1.2e+02f, 1.0f,
-     UpdateHandCameraLimitP},
-    {" HandCamera Limit V  ", &GlobalStageSetting.pad174[16], 0, 0.0f, 9e+01f, 8e+01f, 1.0f,
+    {" Post Effect         ", &GlobalStageSetting.postEffect, 0, 0.0f, 8.0f, 0.0f, 1.0f, 0},
+    {" Feedback Effect     ", &GlobalStageSetting.feedbackEffect, 0, 0.0f, 3.0f, 0.0f, 1.0f, 0},
+    {" Feedback Effect R   ", &GlobalStageSetting.feedbackCol[0], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
+    {" Feedback Effect G   ", &GlobalStageSetting.feedbackCol[1], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
+    {" Feedback Effect B   ", &GlobalStageSetting.feedbackCol[2], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
+    {" Feedback Effect A   ", &GlobalStageSetting.feedbackCol[3], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
+    {" DepthField Level    ", &GlobalStageSetting.depthFieldLevel, 0, 0.0f, 1e+03f, 1e+02f, 1.0f,
+     0},
+    {" DepthField Start    ", &GlobalStageSetting.depthFieldStart, 0, 0.0f, 2e+04f, 2e+03f, 2e+01f,
+     0},
+    {" DepthField Width    ", &GlobalStageSetting.depthFieldWidth, 0, 0.0f, 2e+04f, 1e+04f, 2e+01f,
+     0},
+    {" HandCamera Limit P  ", &GlobalStageSetting.handCameraLimitP, 0, 0.0f, 1.8e+02f, 1.2e+02f,
+     1.0f, UpdateHandCameraLimitP},
+    {" HandCamera Limit V  ", &GlobalStageSetting.handCameraLimitV, 0, 0.0f, 9e+01f, 8e+01f, 1.0f,
      UpdateHandCameraLimitV},
-    {" ZOOM MAX IN DEMO    ", &GlobalStageSetting.pad174[28], 0, 0.0f, 3e+02f, 2e+02f, 1.0f,
+    {" ZOOM MAX IN DEMO    ", &GlobalStageSetting.zoomMaxInDemo, 0, 0.0f, 3e+02f, 2e+02f, 1.0f,
      UpdateZoomMaxVallInDemo},
     {" Motion Blur         ", &GlobalStageSetting.motionBlur, 0, 0.0f, 127.0f, 32.0f, 1.0f, 0},
-    {" AntiLevel0          ", &GlobalStageSetting.f0FC, 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
-    {" AntiLevel1          ", &GlobalStageSetting.f100, 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
+    {" AntiLevel0          ", &GlobalStageSetting.antiLevel0, 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
+    {" AntiLevel1          ", &GlobalStageSetting.antiLevel1, 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
     {" Film Noise Tex Rep  ", &GlobalStageSetting.grainScale, 1, 1.0f, 8.0f, 6.0f, 0.1f, 0},
 };
 
@@ -1847,7 +1842,7 @@ int gsb_StageSettingTool(void)
             stageSettingItems[stageSettingRow].fn(0);
         }
     }
-    if (pad[0].trg & 0x10) {
+    if (pad[0].flags & 0x10) {
         if (stageSettingItems[stageSettingRow].isFloat == 0) {
             *(int *)stageSettingItems[stageSettingRow].val = stageSettingItems[stageSettingRow].def;
         } else {
@@ -1855,7 +1850,7 @@ int gsb_StageSettingTool(void)
                 stageSettingItems[stageSettingRow].def;
         }
     }
-    if (pad[0].trg & 0x20) {
+    if (pad[0].flags & 0x20) {
         for (i = 0; i < 21; i++) {
             if (stageSettingItems[i].min == 0.0f && stageSettingItems[i].max == 1.0f &&
                 stageSettingItems[i].isFloat == 0) {
@@ -1871,7 +1866,7 @@ int gsb_StageSettingTool(void)
         }
         ret = 1;
     }
-    if (pad[0].trg & 0x40) {
+    if (pad[0].flags & 0x40) {
         ret = -1;
     }
     if (ret != 0) {
@@ -2077,15 +2072,15 @@ int gsb_StageSetting(void)
             if (menuCursor < 0)
                 menuCursor = 10;
         }
-        if (pad[0].trg & 0x20) {
+        if (pad[0].flags & 0x20) {
             menuSelected = menuCursor;
         }
     } else {
         debug_PrintfDummy(26, 22, 0xFFFFFFFF, "NO ONE EDITS THIS STAGE'S SETTING.");
         debug_PrintfDummy(18, 38, menuRowColor[1], "%s", lockedMenu[0].name);
-        if (pad[0].trg & 0x20) {
+        if (pad[0].flags & 0x20) {
             lockedMenu[0].fn(1);
         }
     }
-    return (pad[0].trg & 0x40) ? -1 : 0;
+    return (pad[0].flags & 0x40) ? -1 : 0;
 }

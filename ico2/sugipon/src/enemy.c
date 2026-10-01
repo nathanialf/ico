@@ -804,9 +804,6 @@ float GetEnemyDefParaIndex(char *a0)
     return D_00624880[*(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 8)].paraIndex;
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
-extern int systemStatus[];
-
 void ResetEnemyPositionInfo(char *self)
 {
     char *w = *(char **)((char *)GOBJ_SUB(self) + 0x830);

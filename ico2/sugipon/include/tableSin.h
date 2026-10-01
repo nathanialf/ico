@@ -18,8 +18,8 @@
 float GetTableSin(short a0);
 float GetTableCos(short a0);
 void InitTableSin(void);
-int GetTableArcSin(float x);
-int GetTableArcCos(float x);
+short GetTableArcSin(float x);
+short GetTableArcCos(float x);
 short GetTableArcTan2(float f12, float f13);
 
 /* The declarations below lead this header because their order is load-bearing:

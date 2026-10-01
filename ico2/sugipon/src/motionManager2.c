@@ -10,6 +10,11 @@
 #include "pool.h"
 #include "geometryManager.h"
 #include "main.h"
+#include "matrixDrive.h"
+#include "quaternion.h"
+#include "fieldCollision.h"
+#include "GifPacket.h"
+#include "Matrix.h"
 
 struct Pack32 {
     long long a, b, c, d;
@@ -34,20 +39,8 @@ typedef struct {
     char pad2[0x10];
 } StreamNode;
 
-/* kept local: agrees with fieldCollision.h, which this TU does not include (ClipFloor, ClipFloorE differ) */
-extern int GetFloorAttribute();
-/* kept local: agrees with fieldCollision.h, which this TU does not include (ClipFloor, ClipFloorE differ) */
-extern int CompareAttribute();
-/* kept local: float (float *) here, float (void *) in matrixDrive.h */
-extern float VectorLengthSquare(float *v);
 /* kept local: void (float *, float *, float *) here, void (void *, void *, void *) in libvu0.h */
 extern void sceVu0AddVector(float *dst, float *a, float *b);
-/* kept local: void (float *, float *, float *) here, void (void *, void *, void *) in matrixDrive.h */
-extern void AddVectorXYZ(float *dst, float *a, float *b);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (AddVectorXYZ, MatrixDrive_TransMatrixV differ) */
-extern void CopyVector();
-/* kept local: char [] here, float [4] in matrixDrive.h */
-extern char ZeroVector[];
 
 int GetWaterReaction(float *outH, int *outFlag, char *info, float *pos, float *vel, float h0,
                      float h1, float h2, float scaleIn, float amp)
@@ -110,22 +103,6 @@ int GetWaterReaction(float *outH, int *outFlag, char *info, float *pos, float *v
 /* 8-aligned RGBA quad, for the same reason; the components are signed (the
    colour scaling in dispPlane is cvt.s.w). */
 
-/* kept local: agrees with matrixDrive.h, which this TU does not include (AddVectorXYZ, MatrixDrive_TransMatrixV differ) */
-extern void CopyIVector(void *dst, void *src);
-/* kept local: float (void *, float *) here, float (float *, float *) in fieldCollision.h */
-extern float GetYProjectionOfPlane(void *plane, float *p);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_StartPacketPri(int pri);
-/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
-extern void gif_SetAlpha(int a, int b, int c);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_EndPacket(void);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (AddVectorXYZ, MatrixDrive_TransMatrixV differ) */
-extern void MatrixDrive_PushMatrix(void);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (AddVectorXYZ, MatrixDrive_TransMatrixV differ) */
-extern void *MatrixDrive_GetMatrix(void);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (AddVectorXYZ, MatrixDrive_TransMatrixV differ) */
-extern void MatrixDrive_PopMatrix(void);
 /* kept local: agrees with libvu0.h, which this TU does not include (sceVu0AddVector, sceVu0ApplyMatrix differ) */
 extern void sceVu0UnitMatrix(void *m);
 
@@ -259,16 +236,8 @@ void _GetMotionDirection(int a0, int a1)
     GetGlobalDirectionOrient(a0, a1, (int)((GObj *)(a1))->p_15C + 0x520);
 }
 
-/* kept local: void (float *, float *) here, void (int, int) in quaternion.h */
-extern void GetInverseQuaternion(float *dst, float *src);
-/* kept local: void (float *, float *) here, void (char *, char *) in quaternion.h */
-extern void GetMatrixFromQuaternion(float *m, float *q);
 /* kept local: void (float *, float *, float *) here, void (void *, void *, void *) in libvu0.h */
 extern void sceVu0ApplyMatrix(float *dst, float *m, float *v);
-/* kept local: void (void *, short) here, void (void *, int) in quaternion.h */
-extern void RotQuaternionY(void *q, short ang);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (AddVectorXYZ, MatrixDrive_TransMatrixV differ) */
-extern float ZUnitVector[];
 
 void SetMotionDirectionWithLimit(void *self, float *dir, float lim0, float lim1)
 {
@@ -303,18 +272,12 @@ void SetMotionDirectionWithLimit(void *self, float *dir, float lim0, float lim1)
     SetMotionDirection(self, v);
 }
 
-/* kept local: agrees with matrixDrive.h, which this TU does not include (AddVectorXYZ, MatrixDrive_TransMatrixV differ) */
-extern void SubVectorXYZ();
-
 void GetRootPosOfNextFrame(int a0, int *a1)
 {
     char *sub = (char *)((GObj *)(a1))->p_15C + 0xA0;
     CopyVector(a0, (int)(sub + 0x90));
     SubVectorXYZ(a0, a0, (int)sub);
 }
-
-/* kept local: float () here, float (float *, float *) in fieldCollision.h */
-extern float GetYProjectionOfPlane();
 
 void AdjustMotionHeightToField(int *a0)
 {
@@ -324,9 +287,6 @@ void AdjustMotionHeightToField(int *a0)
     debug_StdPrintfDummy("Adjust Motion Height To Field. --------------\n");
 }
 
-/* kept local: void () here, int (void *) in fieldCollision.h */
-extern void ClipFloor();
-
 void GetLowerPlaneCollision(int a0, int a1)
 {
     CopyVector(a0, a1);
@@ -334,9 +294,6 @@ void GetLowerPlaneCollision(int a0, int a1)
     *(float *)(a0 + 0x14) = *(float *)(a0 + 0x14) + 10000.0f;
     ClipFloor(a0);
 }
-
-/* kept local: void () here, int (void *) in fieldCollision.h */
-extern void ClipFloorE();
 
 void getLowerPlaneCollisionE(int a0, int a1)
 {
@@ -378,25 +335,9 @@ static inline int adjustMotionHeightToNearestField(char *o, float *pos)
     return 1;
 }
 
-/* kept local: void (void *, short) here, void (void *, int) in quaternion.h */
-extern void RotQuaternionX(void *q, short ang);
 /* RotQuaternionZ's second parameter is `int`, not `short`: calcFootIK's dev line
    1035 passes the raw GetTableArcSin result with no sign extension, and its 1040
    site sign-extends explicitly.  InitMotionGeoInfo's site carries the (short). */
-/* kept local: agrees with quaternion.h, which this TU does not include (DivQuaternion, GetInverseQuaternion differ) */
-extern void RotQuaternionZ(void *q, int ang);
-/* kept local: agrees with quaternion.h, which this TU does not include (DivQuaternion, GetInverseQuaternion differ) */
-extern void SetIdentityQuaternion(void *q);
-/* kept local: agrees with quaternion.h, which this TU does not include (DivQuaternion, GetInverseQuaternion differ) */
-extern void CopyQuaternion(void *dst, void *src);
-/* kept local: void (void *, void *, void *) here, void (int, int, int) in quaternion.h */
-extern void DivQuaternion(void *dst, void *a, void *b);
-/* kept local: agrees with quaternion.h, which this TU does not include (DivQuaternion, GetInverseQuaternion differ) */
-extern void MultiQuaternion(void *dst, void *a, void *b);
-/* kept local: void (void *) here, void (char *) in matrixDrive.h */
-extern void MatrixDrive_TransMatrixV(void *v);
-/* kept local: agrees with quaternion.h, which this TU does not include (DivQuaternion, GetInverseQuaternion differ) */
-extern void MultiMatrixByQuaternion(void *q);
 /* kept local: void (float *, float *) here, void (void *, void *) in libvu0.h */
 extern void sceVu0TransposeMatrix(float *dst, float *src);
 /* kept local: void (float *, float *, float) here, void (void *, void *, float) in libvu0.h */
@@ -423,7 +364,7 @@ int calcFootIK(char *skel, char *arg, int node, float scale, float ratio)
     int j;
     int k;
     int n;
-    int ang;
+    short ang;
     short ang2;
 
     memset(qa, 0, 16);
@@ -934,11 +875,6 @@ static MotionStateInfo motionStateInfoTemplate = {
     0,
 };
 
-/* kept local: agrees with quaternion.h, which this TU does not include (DivQuaternion, GetInverseQuaternion differ) */
-extern void RegularizeQuaternion(void *q);
-/* kept local: void (void *, float, float, float, float) here, void (float *, float, float, float, float) in fieldCollision.h */
-extern void SetSimplePlane(void *plane, float x, float y, float z, float d);
-
 void InitMotionGeoInfo(char *self, float x, float y, float z, float rx, float ry, float rz)
 {
     *(MotionGeoInfo *)self = motionGeoInfoTemplate;
@@ -968,9 +904,6 @@ static void *skelGObj;
 static int skelDispFlag;
 
 static void *skelNodes;
-
-/* kept local: agrees with matrixDrive.h, which this TU does not include (AddVectorXYZ, MatrixDrive_TransMatrixV differ) */
-extern void CopyMatrix(void *dst, void *src);
 
 /* census file static; ico2/sugipon/src/motionManager holds the other static of
    that name. */
@@ -1131,10 +1064,6 @@ extern void sceVu0SubVector(float *dst, float *a, float *b);
 extern void sceVu0OuterProduct(float *dst, float *a, float *b);
 /* kept local: float (float *, float *) here, float (void *, void *) in libvu0.h */
 extern float sceVu0InnerProduct(float *a, float *b);
-/* kept local: float () here, float (float *, float *) in fieldCollision.h */
-extern float GetYDistanceFromPlane();
-/* kept local: agrees with fieldCollision.h, which this TU does not include (ClipFloor, ClipFloorE differ) */
-extern void GetWallGlobalInfo();
 extern void __assert(char *file, int line, char *expr);
 
 /* The tail of motionManager2.o's .rodata run: four named objects, in the
@@ -1248,9 +1177,6 @@ int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *pts
     return bestIdx;
 }
 
-/* kept local: agrees with Matrix.h, which this TU does not include (_InnerProduct, _InterVectorXYZ differ) */
-extern void _NormalizeVector();
-
 void getVerticalElementOfWallNormal(int *self, int *p, int *cfg)
 {
     int *obj = (int *)cfg[0];
@@ -1262,19 +1188,6 @@ void getVerticalElementOfWallNormal(int *self, int *p, int *cfg)
     p[1] = 0;
     _NormalizeVector(p, p);
 }
-
-/* kept local: agrees with Matrix.h, which this TU does not include (_InnerProduct, _InterVectorXYZ differ) */
-extern void _SetCurrentMatrix(void *m);
-/* kept local: agrees with Matrix.h, which this TU does not include (_InnerProduct, _InterVectorXYZ differ) */
-extern void _ApplyCurrentMatrix(void *dst, void *src);
-/* kept local: void (float *, float *, float *) here, void (void *, void *, void *) in Matrix.h */
-extern void _OuterProduct(float *dst, float *a, float *b);
-/* kept local: float (float *, float *) here, float (void *, void *) in Matrix.h */
-extern float _InnerProduct(float *a, float *b);
-/* kept local: void (float *, float *, float *, float) here, void (void *, void *, void *, float) in Matrix.h */
-extern void _InterVectorXYZ(float *dst, float *a, float *b, float t);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (AddVectorXYZ, MatrixDrive_TransMatrixV differ) */
-extern float YUnitVector[];
 
 void AdjustVerticalSidePlaneOfWall(float *out, int *cfg, float *pos, float t)
 {
@@ -1487,8 +1400,6 @@ typedef struct {
     unsigned short a, b, c;
 } MotElemS;
 
-/* kept local: agrees with matrixDrive.h, which this TU does not include (AddVectorXYZ, MatrixDrive_TransMatrixV differ) */
-extern float FSqrt(float x);
 /* kept local: motionManager2.h does not compile in this TU (conflicting types for `CopyMotionWithNodeHrc') */
 extern void _getS16MotRotElem(void *dst, void *src);
 
@@ -1570,13 +1481,6 @@ void _getMotion(void *dst, void *m, int node, int frame)
     }
     }
 }
-
-/* kept local: agrees with quaternion.h, which this TU does not include (DivQuaternion, GetInverseQuaternion differ) */
-extern void CopyQuaternion();
-/* kept local: agrees with quaternion.h, which this TU does not include (DivQuaternion, GetInverseQuaternion differ) */
-extern void MultiQuaternion(void *a0, void *a1, void *a2);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (AddVectorXYZ, MatrixDrive_TransMatrixV differ) */
-extern float ZeroPoint[];
 
 /* dev lines 1552-1558: the shared root-position helper GetMotionRootPos (1564)
    and GetStreamMotion (1815) both expand.  INTERIM stand-in, see
@@ -1672,9 +1576,6 @@ static inline void getBlendedMotionRootPos(float *dst, float *a, float *b, float
     dst[2] = a[2] * t + b[2] * u;
 }
 
-/* kept local: void (float *, float *, float *, float) here, void (void *, void *, void *, float) in quaternion.h */
-extern void GetSlerpQuaternionNoRegularize(float *dst, float *a, float *b, float t);
-
 /* INTERIM (same reason as getSkeltonFocusNode above): the listing shows the dev's
    TU inlining GetMotion (five sites) and GetBlendedMotion (one) into
    GetFloatingMotion, so both are `inline` there; while this tail still has asm
@@ -1769,9 +1670,6 @@ void GetFloatingMotion(StreamElem *dst, float *root, void *motion, int count, un
         getBlendedMotion(dst, root, buf1, rootB, buf0, rootA, mask, count, frac);
     }
 }
-
-/* kept local: void (float *, float *, unsigned int) here, void (float *, float *, int) in quaternion.h */
-extern void GetMirrorQuaternion(float *a0, float *a1, unsigned int a2);
 
 int MakeMirrorMotion(StreamElem *a, StreamNode *b)
 {
@@ -2056,28 +1954,28 @@ void DisableMotionOrientUpdate(char *self)
     ((GObj *)(self))->p_15C->f_4E4 = 1;
 }
 
-int CheckFloorAttribute(char *self)
+int CheckFloorAttribute(char *self, int attr)
 {
     char *sub = ((GObj *)(self))->p_15C;
-    return CompareAttribute(*(int *)(sub + 0x5F8));
+    return CompareAttribute(*(int *)(sub + 0x5F8), attr);
 }
 
-int CheckWallAttribute(char *self)
+int CheckWallAttribute(char *self, int attr)
 {
     char *sub = ((GObj *)(self))->p_15C;
-    return CompareAttribute(*(int *)(sub + 0x5F4));
+    return CompareAttribute(*(int *)(sub + 0x5F4), attr);
 }
 
-int CheckPureWallAttribute(char *self)
+int CheckPureWallAttribute(char *self, int attr)
 {
     char *sub = ((GObj *)(self))->p_15C;
-    return CompareAttribute(*(int *)(sub + 0x5EC));
+    return CompareAttribute(*(int *)(sub + 0x5EC), attr);
 }
 
-int CheckPureCliffAttribute(char *self)
+int CheckPureCliffAttribute(char *self, int attr)
 {
     char *sub = ((GObj *)(self))->p_15C;
-    return CompareAttribute(*(int *)(sub + 0x5F0));
+    return CompareAttribute(*(int *)(sub + 0x5F0), attr);
 }
 
 int GetStreamShapeMotion(float *dst, FloorAttr *a1)
@@ -2095,9 +1993,6 @@ int GetStreamShapeMotion(float *dst, FloorAttr *a1)
     }
     return 0;
 }
-
-/* kept local: float (void *, void *) here, float (float *, float *) in fieldCollision.h */
-extern float GetYDistanceFromPlane(void *a0, void *a1);
 
 float GetDifferenceFromWallUpperField(char *a0, int a1)
 {
@@ -2205,9 +2100,6 @@ float GetHeightOfCliffFromGObj(char *self)
     char *sub = ((GObj *)(self))->p_15C;
     return *(float *)(sub + 0x580);
 }
-
-/* kept local: agrees with quaternion.h, which this TU does not include (DivQuaternion, GetInverseQuaternion differ) */
-extern void SetIdentityQuaternion();
 
 void InitMotionRotElem(int *a0, int count)
 {
@@ -2392,9 +2284,6 @@ void LockForceGroundParent(int gobj) {}
 
 void UnlockForceGroundParent(int gobj) {}
 
-/* kept local: void (void *, void *) here, void (float *, int *) in fieldCollision.h */
-extern void GetGlobalWallPlane(void *a0, void *a1);
-
 void GetOutOutsideOfWall(void *obj, float threshold)
 {
     int buf0[4];
@@ -2413,9 +2302,6 @@ void GetOutOutsideOfWall(void *obj, float threshold)
         SetDirectRootPosition(obj, buf0);
     }
 }
-
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
-extern void ClipWall(void *a0);
 
 void AdjustRootPositionToVerticalSidePlaneOfWall(void *a0, void *a1, float f)
 {
@@ -2439,9 +2325,6 @@ void fitYToPlane(long long *src, int *dest)
     buf[1] = src[1];
     *(float *)((char *)dest + 4) = GetYProjectionOfPlane((int *)buf, dest);
 }
-
-/* kept local: agrees with matrixDrive.h, which this TU does not include (AddVectorXYZ, MatrixDrive_TransMatrixV differ) */
-extern float FSqrt(float a0);
 
 void GetBlendedMotionRootPos(float *dst, float *a, float *b,
                              float t) /* same note as GetMotionRootPos */

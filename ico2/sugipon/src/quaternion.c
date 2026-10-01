@@ -1,6 +1,8 @@
 #include "typedef.h"
 #include "debug.h"
 #include "quaternion.h"
+#include "matrixDrive.h"
+#include "Matrix.h"
 
 /* the TU's one .sdata word (MAIN.MAP quaternion.o .sdata 0x4, no symbol): the
    current depth of the quaternion stack below */
@@ -10,38 +12,38 @@ static int quatStackIndex = -1; /* derived name */
    no symbol in the run; its quaternion.o .bss size 0x400 fixes the length).
    The 64-deep quaternion stack; GetLastQuaternion reads one slot below the
    current one, which is the ROM's second %hi/%lo base. */
-static int quatStack[64 * 4];
+static float quatStack[64][4];
 
 void MultiCurrentQuaternion(void *a0)
 {
-    int *q = &quatStack[quatStackIndex * 4];
+    float *q = quatStack[quatStackIndex];
     MultiQuaternion(q, q, a0);
 }
 
 void InvertCurrentQuaternion(void)
 {
-    int *p = &quatStack[quatStackIndex * 4];
+    float *p = quatStack[quatStackIndex];
     GetInverseQuaternion(p, p);
 }
 
-void SetCurrentQuaternion(int a0)
+void SetCurrentQuaternion(float *a0)
 {
-    CopyQuaternion(&quatStack[quatStackIndex * 4], a0);
+    CopyQuaternion(quatStack[quatStackIndex], a0);
 }
 
 void RotCurrentQuaternionX(short a0)
 {
-    RotQuaternionX(&quatStack[quatStackIndex * 4], a0);
+    RotQuaternionX(quatStack[quatStackIndex], a0);
 }
 
 void RotCurrentQuaternionY(short a0)
 {
-    RotQuaternionY(&quatStack[quatStackIndex * 4], a0);
+    RotQuaternionY(quatStack[quatStackIndex], a0);
 }
 
 void RotCurrentQuaternionZ(short a0)
 {
-    RotQuaternionZ(&quatStack[quatStackIndex * 4], a0);
+    RotQuaternionZ(quatStack[quatStackIndex], a0);
 }
 
 void PushQuaternion(void)
@@ -61,7 +63,7 @@ void PushQuaternion(void)
     }
     {
         int idx = *(volatile int *)&quatStackIndex;
-        CopyQuaternion(&quatStack[idx * 4], &quatStack[idx * 4 - 4]);
+        CopyQuaternion(quatStack[idx], quatStack[idx - 1]);
     }
 }
 
@@ -81,15 +83,10 @@ void SetIdentityQuaternion(void *a0)
     CopyQuaternion(a0, IdentityQuaternion);
 }
 
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, XUnitVector differ) */
-extern void CopyVector();
-/* kept local: char [] here, float [4] in matrixDrive.h */
-extern char ZeroPoint[];
-
 /* the {1, 1, 1, sqrt(2)} multiplier GetMatrixFromQuaternion feeds $vf12 */
 static float quatToMatrixScale[4] = {1.0f, 1.0f, 1.0f, 1.41421356f};
 
-void GetMatrixFromQuaternion(char *a0, char *a1)
+void GetMatrixFromQuaternion(float *a0, float *a1)
 {
     __asm__ __volatile__(".set noreorder\n"
                          "lqc2 $vf11, 0x0($5)\n"
@@ -124,13 +121,8 @@ void GetMatrixFromQuaternion(char *a0, char *a1)
                          :
                          : "r"(quatToMatrixScale)
                          : "memory");
-    CopyVector(a0 + 0x30, ZeroPoint);
+    CopyVector(a0 + 12, ZeroPoint);
 }
-
-/* kept local: agrees with Matrix.h, which this TU does not include (_NormalizeVector, _ScaleVectorXYZ differ) */
-extern void _TransposeMatrix(void *a0, void *a1);
-/* kept local: agrees with Matrix.h, which this TU does not include (_NormalizeVector, _ScaleVectorXYZ differ) */
-extern float _Sqrt(float);
 
 /* the file's `nxt` permutation table */
 static int nxt[3] = {1, 2, 0};
@@ -186,17 +178,11 @@ void CopyQuaternion(void *a0, void *a1)
     CopyVector(a0, a1);
 }
 
-/* kept local: void (int, int, float) here, void (void *, void *, float) in Matrix.h */
-extern void _ScaleVectorXYZ(int a0, int a1, float f);
-
-void GetInverseQuaternion(int a0, int a1)
+void GetInverseQuaternion(float *a0, float *a1)
 {
     CopyQuaternion(a0, a1);
     _ScaleVectorXYZ(a0, a1, -1.0f);
 }
-
-/* kept local: agrees with Matrix.h, which this TU does not include (_NormalizeVector, _ScaleVectorXYZ differ) */
-extern void _ScaleVector(void *a, void *b, float c);
 
 void RegularizeQuaternion(void *a0)
 {
@@ -236,14 +222,10 @@ inline float GetQuaternionCosRadian(void *p0, void *p1)
     return r;
 }
 
-/* kept local: agrees with tableSin.h, which this TU does not include (GetTableCos, GetTableSin differ) */
+/* kept local: int (float) here, short (float) in tableSin.h */
 extern int GetTableArcCos(float c);
 /* kept local: float (int) here, float (short) in tableSin.h */
 extern float GetTableSin(int x);
-/* kept local: agrees with Matrix.h, which this TU does not include (_NormalizeVector, _ScaleVectorXYZ differ) */
-extern void _InterVector(void *out, void *a, void *b, float t);
-/* kept local: agrees with Matrix.h, which this TU does not include (_NormalizeVector, _ScaleVectorXYZ differ) */
-extern void _AddVector(void *out, void *a, void *b);
 
 void GetSlerpQuaternionNoRegularize(void *out, void *qa, void *qb, float t)
 {
@@ -287,14 +269,14 @@ void GetSlerpQuaternion(void *out, void *qa, void *qb, float t)
     RegularizeQuaternion(out);
 }
 
-inline int *GetCurrentQuaternion(void)
+inline float *GetCurrentQuaternion(void)
 {
-    return &quatStack[quatStackIndex * 4];
+    return quatStack[quatStackIndex];
 }
 
-inline int *GetLastQuaternion(void)
+inline float *GetLastQuaternion(void)
 {
-    return &quatStack[quatStackIndex * 4 - 4];
+    return quatStack[quatStackIndex - 1];
 }
 
 inline void PushQuaternionWithNoCopy(void)
@@ -323,34 +305,33 @@ inline void PopQuaternion(void)
     }
 }
 
-/* kept local: void (void *, int *) here, void (void *, void *) in Matrix.h */
-extern void _NormalizeVector(void *out, int *p);
 /* kept local: float (int) here, float (short) in tableSin.h */
 extern float GetTableCos(int x);
 
-inline void SetQuaternionByAxisRotateVWithNoRegularize(int *self, short a1, void *src)
+inline void SetQuaternionByAxisRotateVWithNoRegularize(float *self, short a1, float *src)
 {
     int half = a1 >> 1;
     float f;
     f = GetTableSin(half);
     _ScaleVector(self, src, f);
-    *(float *)((char *)self + 0xC) = GetTableCos(half);
+    self[3] = GetTableCos(half);
 }
 
-inline void SetQuaternionByAxisRotateV(int *self, short a1, int *src)
+inline void SetQuaternionByAxisRotateV(float *self, short a1, float *src)
 {
     char buf[0x10];
     _NormalizeVector(buf, src);
     SetQuaternionByAxisRotateVWithNoRegularize(self, a1, buf);
 }
 
-inline void SetQuaternionByAxisRotate(int *self, short a1, float x, float y, float z)
+inline void SetQuaternionByAxisRotate(float *self, short a1, float x, float y, float z)
 {
     float v[4] = {x, y, z, 0.0f};
-    SetQuaternionByAxisRotateV(self, a1, (int *)v);
+    SetQuaternionByAxisRotateV(self, a1, v);
 }
 
-inline void SetQuaternionByAxisRotateWithNoRegularize(int *self, int a1, float x, float y, float z)
+inline void SetQuaternionByAxisRotateWithNoRegularize(float *self, short a1, float x, float y,
+                                                      float z)
 {
     char buf[0x10];
     int half = (a1 << 16) >> 17;
@@ -361,7 +342,7 @@ inline void SetQuaternionByAxisRotateWithNoRegularize(int *self, int a1, float x
     *(int *)(buf + 0xC) = 0;
     f = GetTableSin(half);
     _ScaleVector(self, buf, f);
-    *(float *)((char *)self + 0xC) = GetTableCos(half);
+    self[3] = GetTableCos(half);
 }
 
 inline void SetQuaternionByAxisRotateVEAngle(void *a0, float *a1, void *a2)
@@ -400,9 +381,9 @@ inline void MultiQuaternion(void *p0, void *p1, void *p2)
     VU0_LSV(sqc2, 13, 0x0, 4);
 }
 
-inline void DivQuaternion(int self, int a1, int a2)
+inline void DivQuaternion(float *self, float *a1, float *a2)
 {
-    int buf[4];
+    float buf[4];
     GetInverseQuaternion(buf, a2);
     /* ROM calls MultiQuaternion out of line here; the call goes through a
        cast of the existing declaration because this TU's definition still
@@ -410,7 +391,7 @@ inline void DivQuaternion(int self, int a1, int a2)
     ((void (*)(int, int, int))MultiQuaternion)(self, buf, a1);
 }
 
-inline void GetMatrixFromQuaternionRotElem(char *a0, char *a1)
+inline void GetMatrixFromQuaternionRotElem(float *a0, float *a1)
 {
     __asm__ __volatile__(".set noreorder\n"
                          "lqc2 $vf11, 0x0($5)\n"
@@ -447,7 +428,7 @@ inline void GetMatrixFromQuaternionRotElem(char *a0, char *a1)
                          : "memory");
 }
 
-inline void GetMatrixFromQuaternionPos(char *a0, char *a1, char *a2)
+inline void GetMatrixFromQuaternionPos(float *a0, float *a1, float *a2)
 {
     __asm__ __volatile__(".set noreorder\n"
                          "lqc2 $vf11, 0x0(%2)\n"
@@ -482,18 +463,13 @@ inline void GetMatrixFromQuaternionPos(char *a0, char *a1, char *a2)
                          :
                          : "r"(quatToMatrixScale), "r"(a0), "r"(a1)
                          : "memory");
-    CopyVector(a0 + 0x30, a2);
-    *(float *)(a0 + 0x3C) = 1.0f;
+    CopyVector(a0 + 12, a2);
+    a0[15] = 1.0f;
 }
-
-/* kept local: int * () here, void * (void) in matrixDrive.h */
-extern int *MatrixDrive_GetMatrix();
-/* kept local: agrees with Matrix.h, which this TU does not include (_NormalizeVector, _ScaleVectorXYZ differ) */
-extern void _MulMatrix();
 
 inline void MultiMatrixByQuaternion(void *src)
 {
-    int local[16];
+    float local[16];
     void *r1, *r2;
     GetMatrixFromQuaternion(local, src);
     r1 = MatrixDrive_GetMatrix();
@@ -535,10 +511,7 @@ inline void GetMirrorQuaternion(float *dst, float *src, int mode)
     }
 }
 
-/* kept local: char [] here, float [4] in matrixDrive.h */
-extern char XUnitVector[];
-
-inline void RotQuaternionX(void *self, int a1)
+inline void RotQuaternionX(void *self, short a1)
 {
     char buf[0x10];
     int half = (-(a1 << 16)) >> 17;
@@ -567,10 +540,7 @@ inline void RotQuaternionX(void *self, int a1)
                          : "memory");
 }
 
-/* kept local: char [] here, float [4] in matrixDrive.h */
-extern char YUnitVector[];
-
-inline void RotQuaternionY(void *self, int a1)
+inline void RotQuaternionY(void *self, short a1)
 {
     char buf[0x10];
     int half = (-(a1 << 16)) >> 17;
@@ -599,10 +569,7 @@ inline void RotQuaternionY(void *self, int a1)
                          : "memory");
 }
 
-/* kept local: char [] here, float [4] in matrixDrive.h */
-extern char ZUnitVector[];
-
-inline void RotQuaternionZ(void *self, int a1)
+inline void RotQuaternionZ(void *self, short a1)
 {
     char buf[0x10];
     int half = (-(a1 << 16)) >> 17;
@@ -727,11 +694,6 @@ inline void SetQuaternionByCosineAxisRotateV(void *a0, void *a1, float angle)
     _NormalizeVector(buf, a1);
     SetQuaternionByCosineAxisRotateVWithNoRegularize(a0, buf, angle);
 }
-
-/* kept local: agrees with Matrix.h, which this TU does not include (_NormalizeVector, _ScaleVectorXYZ differ) */
-extern void _OuterProduct(void *out, void *a, void *b);
-/* kept local: agrees with Matrix.h, which this TU does not include (_NormalizeVector, _ScaleVectorXYZ differ) */
-extern float _InnerProduct(void *a, void *b);
 
 inline void GetDifferencialQuaternionWithNoRegularize(void *out, void *a, void *b)
 {

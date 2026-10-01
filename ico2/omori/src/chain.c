@@ -12,9 +12,9 @@
 #include "Matrix.h"
 #include "debug_exception.h"
 #include "motionManager2.h"
-
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistSqGV(void *a, void *b);
+#include "main.h"
+#include "fieldCollision.h"
+#include "gv.h"
 
 typedef struct {
     float x, y, z, w;
@@ -142,8 +142,6 @@ static int chainDebugY;
 
 /* kept local: void (float, void *, void *, int, int, int) here, void (void) in camera-editor.h */
 extern void debug_Arrow(float len, void *from, void *to, int r, int g, int b);
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
-extern void ClipWall(void *w);
 
 /* The wall-clip request the chain hands to ClipWall: the segment endpoints, the
  * clip radius at 0x70 and the hit result at 0x88. */
@@ -191,8 +189,6 @@ int collisionCheck(char *gobj)
     return 0;
 }
 
-/* kept local: agrees with gv.h, which this TU does not include (_ApplyRyGV, _DistSqGV differ) */
-extern float _GetDirection(float *a0);
 /* kept local: chain.h does not compile in this TU (conflicting types for `ChainGeo') */
 extern int collisionCheck(char *gobj);
 /* kept local: chain.h does not compile in this TU (conflicting types for `ChainGeo') */
@@ -270,9 +266,6 @@ void chain_simulate_term_loop(int a0)
     chain_simulate_term_simple(a0);
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
-extern int systemStatus[];
-
 void chain_simulate_term_swingready(int a0)
 {
     char *cw = (char *)GOBJ_SUB(a0)->f_830;
@@ -291,9 +284,6 @@ void chain_simulate_term_swingready(int a0)
     }
     chain_simulate_term_simple(a0);
 }
-
-/* kept local: main.c's global; this TU does not include main.h */
-extern void *boyGObj;
 
 void chain_simulate_term_swingstart(int a0)
 {
@@ -330,9 +320,6 @@ void chain_simulate_term_swingstart(int a0)
     }
     chain_simulate_term_simple(a0);
 }
-
-/* kept local: void (void *, float) here, void (float *, float) in gv.h */
-extern void _ApplyRyGV(void *a0, float a1);
 
 void chain_simulate_term_moveup(int a0)
 {
@@ -610,8 +597,6 @@ unsigned char flag;
 
 /* kept local: this TU does not include fieldCollision.h, whose third parameter
  * type is not the float pair the chain hands over */
-/* kept local: void (void *, int, float *) here, void (void *, void *, int *) in fieldCollision.h */
-extern void GetOrientOfWall(void *out, int wall, float *pos);
 /* kept local: this TU does not include memory.h, whose first parameter type is
  * not the plain partition word the chain code hands over */
 /* kept local: void * (void *, int, char *, int) here, void * (IosMemPart *, int, char *, int) in memory.h */
@@ -1263,9 +1248,6 @@ void ChainDL(char *gobj)
     p2o_DispVU1DObjMulti(ext);
 }
 
-/* kept local: void (void *, void *, void *, float, float) here, void (float *, float *, float *, float, float) in gv.h */
-extern void _InterGV(void *elem, void *base, void *v, float a, float b);
-
 static inline void ChainNodeSpan(char *cw, float *pos, int *i0, int *i1)
 {
     ChainNode *nd = *(ChainNode **)(cw + 0xD0);
@@ -1776,11 +1758,6 @@ void ChainPositionReset(char *a0)
     GetRootPosition(pos, a0);
     ResetChainNodes(cw, pos);
 }
-
-/* kept local: agrees with gv.h, which this TU does not include (_ApplyRyGV, _DistSqGV differ) */
-extern int RoundDegGV(int a0);
-/* kept local: agrees with gv.h, which this TU does not include (_ApplyRyGV, _DistSqGV differ) */
-extern int AlignDegGV(int a0);
 
 void _GetCorrectOrientOfChain(float *out, char *gobj, float *dir)
 {

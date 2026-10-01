@@ -15,15 +15,6 @@
    the colour the debug display draws a boundary sphere in */
 static unsigned int acbSphereColor[4] = {0, 128, 255, 128}; /* derived name */
 
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_EndPacket(void);
-/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
-extern void gif_SetAlpha(int a0, int a1, int a2);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_SetZTest(int a0);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_StartPacketPri(int a0);
-
 /* What the bytes pin (InitAttackCheckBoundaryManagerGeo's copy of the
    template, listing lines 85 to 91): an 8-aligned record, since the 0x40-byte
    copy is eight ld/sd pairs; position members that are plain float arrays,
@@ -42,6 +33,8 @@ typedef struct {
 
 #include "attackCheckBoundary.h"
 #include "ios.h"
+#include "main.h"
+#include "GifPacket.h"
 
 static inline char *createAttackCheckBoundaryGObj(AcbLayout *lay)
 {
@@ -145,9 +138,6 @@ inline void actAttackCheckBoundaryStart(int *self)
     v |= 1LL << 32;
     *(long long *)((char *)p + 0x18) = v;
 }
-
-/* kept local: main.c's global; this TU does not include main.h */
-extern char *boyGObj;
 
 /* mail-add-data.c defines this returning int; declaring it void costs the
    $v1 allocation of the reloaded state pointer in the mail block below. */

@@ -15,24 +15,24 @@
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order quaternion.c's inline tail has. */
-int *GetCurrentQuaternion(void);
-int *GetLastQuaternion(void);
+float *GetCurrentQuaternion(void);
+float *GetLastQuaternion(void);
 void PushQuaternionWithNoCopy(void);
 void PopQuaternion(void);
-void SetQuaternionByAxisRotate(int *self, short a1, float x, float y, float z);
-void SetQuaternionByAxisRotateWithNoRegularize(int *self, int a1, float x, float y, float z);
+void SetQuaternionByAxisRotate(float *self, short a1, float x, float y, float z);
+void SetQuaternionByAxisRotateWithNoRegularize(float *self, short a1, float x, float y, float z);
 void SetQuaternionByAxisRotateEAngle(float *out, float *in, float x, float y, float z);
-void SetQuaternionByAxisRotateV(int *self, short a1, int *src);
-void SetQuaternionByAxisRotateVWithNoRegularize(int *self, short a1, void *src);
+void SetQuaternionByAxisRotateV(float *self, short a1, float *src);
+void SetQuaternionByAxisRotateVWithNoRegularize(float *self, short a1, float *src);
 void MultiQuaternion(void *p0, void *p1, void *p2);
-void DivQuaternion(int self, int a1, int a2);
-void GetMatrixFromQuaternionRotElem(char *a0, char *a1);
-void GetMatrixFromQuaternionPos(char *a0, char *a1, char *a2);
+void DivQuaternion(float *self, float *a1, float *a2);
+void GetMatrixFromQuaternionRotElem(float *a0, float *a1);
+void GetMatrixFromQuaternionPos(float *a0, float *a1, float *a2);
 void MultiMatrixByQuaternion(void *src);
 void GetMirrorQuaternion(float *dst, float *src, int mode);
-void RotQuaternionX(void *self, int a1);
-void RotQuaternionY(void *self, int a1);
-void RotQuaternionZ(void *self, int a1);
+void RotQuaternionX(void *self, short a1);
+void RotQuaternionY(void *self, short a1);
+void RotQuaternionZ(void *self, short a1);
 void RotQuaternionEAX(void *self, float *in);
 void RotQuaternionEAZ(void *self, float *in);
 void GetXUnitVectorOfQuaternion(float *out, float *q);
@@ -45,8 +45,8 @@ void SetQuaternionByCosineAxisRotateV(void *a0, void *a1, float angle);
 void SetQuaternionByAxisRotateVEAngle(void *a0, float *a1, void *a2);
 float GetQuaternionCosRadian(void *p0, void *p1);
 void CopyQuaternion(void *a0, void *a1);
-void GetInverseQuaternion(int a0, int a1);
-void GetMatrixFromQuaternion(char *a0, char *a1);
+void GetInverseQuaternion(float *a0, float *a1);
+void GetMatrixFromQuaternion(float *a0, float *a1);
 /* The ROM proves the arity: GetSlerpQuaternion is a forwarder that saves a0,
  * calls GetSlerpQuaternionNoRegularize and tail-calls RegularizeQuaternion,
  * so its other three arguments reach the callee untouched in $5, $6 and $f12
@@ -57,7 +57,7 @@ extern float IdentityQuaternion[4];
 void InitQuaternionDrive(void);
 void PushQuaternion(void);
 void RegularizeQuaternion(void *a0);
-void SetCurrentQuaternion(int a0);
+void SetCurrentQuaternion(float *a0);
 void SetIdentityQuaternion(void *a0);
 void MultiCurrentQuaternion(void *a0);
 

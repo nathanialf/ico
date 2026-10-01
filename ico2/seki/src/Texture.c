@@ -9,6 +9,7 @@
 #include <libgraph.h>
 #include <eekernel.h>
 #include "tableSin.h"
+#include "main.h"
 
 /* One mipmap level of a texture record: the ROM reads addr with lw at +0, dbw
  * and vramSize with lh at +4 and +6, and indexes a 13-entry short table at +8
@@ -627,9 +628,6 @@ void tex_initClutTexture(Tim2Picture *pic, CdvdRec *t)
     }
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
-extern int GlobalStageSetting[];
-
 void tex_setRegisters(Tim2Picture *pic, CdvdRec *t)
 {
     int *p;
@@ -639,7 +637,7 @@ void tex_setRegisters(Tim2Picture *pic, CdvdRec *t)
     int cw = 0;
     int ch = 0;
     int mmag = 1;
-    int mmin = GlobalStageSetting[0xE4 / 4];
+    int mmin = GlobalStageSetting.texSampleMode;
     int aref = 96;
     int atst = 1;
     int k = -165;
@@ -1446,9 +1444,6 @@ void tex_scrollClut(int a0, int a1, int a2, int a3, int a4, void *a5, int a6, vo
     }
 }
 
-/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, pad differ) */
-extern int systemStatus[];
-
 void tex_textureAnimation(void)
 {
     int i;
@@ -1594,9 +1589,6 @@ static inline void resetVramPri(int pri)
     }
 }
 
-/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, pad differ) */
-extern int systemStatus[];
-
 /* tex_Init's first-call flag: the table is marked free once, later calls
    recount the loaded entries.  The .sdata word follows the defocus colour
    template and precedes tex_Tool's labels. */
@@ -1721,11 +1713,9 @@ static inline void toolMakeRegs(CdvdRec *t, int lv)
              (long long)ztst << 17;
 }
 
-/* the shared pad-state array (GsBase.c's GsbPad): holding the 0x10 button on
+/* the shared pad-state array (main.c's PadState): holding the 0x10 button on
  * pad 0 drops alpha blending from the PRIM word. Declared as the array, so the
  * word is reached %hi/%lo as the ROM does, not gp-relative. */
-/* kept local: GsbPad [] here, PadState [16] in main.h */
-extern GsbPad pad[];
 
 void tex_printTexture(int id)
 {
@@ -1757,7 +1747,7 @@ void tex_printTexture(int id)
         setGsReg(0x08, 0);
         setGsReg(0x47, 0x30000);
         setGsReg(0x4E, 0x1300000C0LL);
-        *PacketBufferStruct.ptr++ = (pad[0]._0 & 0x10) == 0 ? 0x56 : 0x16;
+        *PacketBufferStruct.ptr++ = (pad[0].now & 0x10) == 0 ? 0x56 : 0x16;
         *PacketBufferStruct.ptr++ = 0x00;
         /* Q is the bits of `one`, read unsigned the way gsb_filmNoise in
          * GsBase.c reads its scale. The ROM pins the unsigned read: cse2 folds
@@ -1972,7 +1962,7 @@ int tex_Tool(int *tno)
                 break;
             }
         }
-        ret = (pad[0].trg & 0x40) ? -1 : 0;
+        ret = (pad[0].flags & 0x40) ? -1 : 0;
         if (pad[0].rep & 0x1000) {
             toolRow--;
             stepScale = 1;
@@ -1987,7 +1977,7 @@ int tex_Tool(int *tno)
         if (16 < toolRow) {
             toolRow = 0;
         }
-        if (pad[0].trg & 0x20) {
+        if (pad[0].flags & 0x20) {
             stepScale = stepScale * 10;
         }
         if (1000 < stepScale) {
@@ -2026,7 +2016,7 @@ static int listTexNo = 0; /* derived name */
 static inline void remakeSampling(CdvdRec *t)
 {
     int mmag = 1;
-    int mmin = GlobalStageSetting[0xE4 / 4];
+    int mmin = GlobalStageSetting.texSampleMode;
 
     if (t->x2A8 != 0) {
         mmag = t->ext.x28;
@@ -2100,7 +2090,7 @@ int tex_ListTool(void)
 
     debug_PrintfDummy(10, row * 8 + 50, 0xFF800000, "   %17s %7d ", "TotalTextureSize", total);
 
-    if ((pad[0].trg & 0x80) != 0) {
+    if ((pad[0].flags & 0x80) != 0) {
         TexEntry *e = &texTable[listTexNo];
         CdvdRec *t = &e->rec;
 
@@ -2122,10 +2112,10 @@ int tex_ListTool(void)
             listTexNo = texCount - 1;
         }
     }
-    if ((pad[0].trg & 0x20) != 0) {
+    if ((pad[0].flags & 0x20) != 0) {
         listEditing = 1;
     }
-    if ((pad[0].trg & 0x40) != 0) {
+    if ((pad[0].flags & 0x40) != 0) {
         ret = -1;
     }
     if (ret != 0) {
@@ -2247,7 +2237,7 @@ void tex_UpdateMipMapLevel(void)
             k = -165;
             l = 0;
             mmag = 1;
-            mmin = GlobalStageSetting[0xE4 / 4];
+            mmin = GlobalStageSetting.texSampleMode;
         }
         tex->x78 = ((long long)(mxl - 1) << 2) | ((long long)mmag << 5) | ((long long)mmin << 6) |
                    ((long long)l << 19) | ((long long)k << 32);
@@ -2329,16 +2319,13 @@ void tex_Init(void)
     }
 }
 
-/* kept local: int [] here, StageSetting in main.h */
-extern int GlobalStageSetting[];
-
 int tex_RemakeRegistersSampleMin(void)
 {
     int count = texCount;
     int i;
     for (i = 0; i < count; i++) {
         CdvdRec *b = &texTable[i].rec;
-        int f5 = GlobalStageSetting[57];
+        int f5 = GlobalStageSetting.texSampleMode;
         int f8 = 1;
         if (b->x2A8 != 0) {
             f8 = b->ext.x28;

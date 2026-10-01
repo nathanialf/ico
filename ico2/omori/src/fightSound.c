@@ -3,6 +3,7 @@
 #include "s_init.h"
 #include "act-game.h"
 #include "debug_exception.h"
+#include "main.h"
 
 /* set while the fight music is paused */
 static int fightSoundPause = 0; /* derived name */
@@ -15,16 +16,9 @@ static int fightSnd[8];
 /* the fight music's step: 1 once the open is requested, 2 after it */
 static int fightSoundState = 0; /* derived name */
 
-/* kept local: main.c's global; this TU does not include main.h */
-extern int systemStatus[];
-
 /* set while the girl is held (status 9) or taken off the stage */
 static int fightSoundGirlTaken = 0; /* derived name */
 
-/* kept local: main.c's global; this TU does not include main.h */
-extern int boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
-extern int girlGObj;
 extern int gamesysAnotherStageTsuresari;
 
 void fightSoundProcessMain(void)

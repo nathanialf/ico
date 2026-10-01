@@ -23,7 +23,6 @@ extern char *scpDummyGObj;
 extern char *scpDummyGObj2;
 extern int sekizo_yure;
 extern unsigned char sekizo_yure_vol;
-
 /* The entry points script.o defines inline, in the order its end-of-file
  * block emits them: ee-gcc 2.9 defers every inline definition to the end of
  * the object and writes it out in first-declaration order, so this block is
@@ -105,7 +104,7 @@ int scpCheckExistAliveEnemy(void);
 int scpCheckExistAliveSpider(void);
 void scpLockMaxRotate(char *a0, float f12);
 void scpUnLockMaxRotate(char *a0);
-int scpGetRotObjectCurrentRot(int no);
+short scpGetRotObjectCurrentRot(int no);
 void scpCheckDisconnectWallStart(char *a0);
 void scpCheckDisconnectWallEnd(char *a0);
 int scpTriggerIgnore(char *self);

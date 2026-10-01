@@ -18,6 +18,9 @@
 #include "debug.h"
 #include <string.h>
 #include "sceneManager.h"
+#include "main.h"
+#include "GifPacket.h"
+#include "Matrix.h"
 
 typedef struct {
     char c[16];
@@ -45,18 +48,6 @@ static int workVram = 0; /* derived name */
 
 static int work1Vram = 0; /* derived name */
 
-/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
-extern void gif_SetAlpha(int a0, int a1, int a2);
-/* kept local: void (int, int, int, int, int, int) here, void (unsigned long long, unsigned long long, unsigned int, unsigned int, int, int) in GifPacket.h */
-extern void gif_SetDrawEnviroment(int a0, int a1, int a2, int a3, int a4, int a5);
-/* kept local: void (int, long long) here, void (long long, long long) in GifPacket.h */
-extern void gif_SetGsReg(int a0, long long a1);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetDrawEnviroment differ) */
-extern void gif_SetZTest(int a0);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetDrawEnviroment differ) */
-extern void gif_SetZWrite(int a0);
-/* kept local: void (void *, int, void *, void *, int) here, void (int *, long long, int *, unsigned char *, int) in GifPacket.h */
-extern void gif_SpriteSensitiveOrg(void *a0, int a1, void *a2, void *a3, int a4);
 /* kept local: agrees with Texture.h, which this TU does not include (tex_ResetVramPri differs) */
 extern int tex_AllocVramAuto(int a0, int a1);
 /* kept local: void (void) here, void (int) in Texture.h */
@@ -110,13 +101,6 @@ void flushWork(int pri)
     gif_SpriteSensitiveOrg(buf, 0, 0, buf + 0x10, 0);
     gif_SetZTest(1);
 }
-
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern void _SubVector(void *dst, void *a, void *b);
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern void _AddVector(void *dst, void *a, void *b);
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern void _ScaleVectorXYZ(void *dst, void *src, float k);
 
 /* The listing gives this body rows 178 to 186 and attributes those rows to
    both SetFallDownSplash and InitPoolGeo, so it is a static of this file that
@@ -233,8 +217,6 @@ typedef struct {
 extern StgCsvEnt D_002A79B8[];
 /* kept local: IosMemPart * here, int in ios.h */
 extern IosMemPart *ios_partition_sugipon;
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern void _UnitMatrix(void *m);
 int poolRideFunc(char **a0, char *a1);
 
 char *InitPoolGeo(char *self, char *lay)
@@ -335,9 +317,6 @@ char *InitPoolGeo(char *self, char *lay)
     return w;
 }
 
-/* kept local: agrees with main.h, which this TU does not include (matrixptr differs) */
-extern int systemStatus[];
-
 static inline void decayRipple(char *c)
 {
     if (*(float *)(c + 0x10) < 0.0f) {
@@ -436,25 +415,6 @@ static inline void makeWaveGrid(char *w, float **grid, int ang)
 
 /* The GS drawing-area origin, the centre of the 4096-unit primitive space. */
 static const ConstVec screenOrigin = {{2048.0f, 2048.0f, 0.0f, 0.0f}};
-
-/* kept local: agrees with main.h, which this TU does not include (matrixptr differs) */
-extern int buffer_ID;
-/* kept local: int here, char * in main.h */
-extern int matrixptr;
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern float _InnerProduct(void *a, void *b);
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern void _AddVectorXYZ(void *dst, void *a, void *b);
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern void _ApplyCurrentMatrix(void *dst, void *src);
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern void _InitCurrentMatrix(void);
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern void _NormalizeVector(void *dst, void *src);
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern void _ScaleVector(void *dst, void *src, float k);
-/* kept local: void (int) here, void (void *) in Matrix.h */
-extern void _SetCurrentMatrix(int m);
 
 void updatePoolGeo(char *self)
 {
@@ -636,15 +596,6 @@ static float workLightNormal[4][4] = {
     {1.0f, 1.0f, 1.0f, 0.0f},
     {0.0f, 0.0f, 0.0f, 1.0f},
 };
-
-/* kept local: agrees with main.h, which this TU does not include (matrixptr differs) */
-extern int stage_no;
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern void _MulMatrix(void *dst, void *a, void *b);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetDrawEnviroment differ) */
-extern void gif_EndPacket(void);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetDrawEnviroment differ) */
-extern void gif_StartPacketPri(int pri);
 
 void dispPool(char *self)
 {
@@ -865,9 +816,6 @@ void SetLayoutedPoolReflactionMesh(char *a0)
     prim_UpdateMesh3D(mesh, 9, buffer_ID);
 }
 
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern void _InterVectorXYZ(void *dst, void *p0, void *p1, float t);
-
 void SetLimitedPoolReflactionMesh(char *a0, char *a1, char *a2)
 {
     char *w = *(char **)((char *)GOBJ_SUB(a1) + 0x830);
@@ -1000,9 +948,6 @@ int CheckPoolHasGridMesh(char *a0)
 {
     return *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x30) != 0;
 }
-
-/* kept local: agrees with Matrix.h, which this TU does not include (_SetCurrentMatrix differs) */
-extern void _InterVectorXYZ(void *p0, void *p1, void *p2, float t);
 
 void InitLayoutedPoolReflactionMesh(char *a0, char *a1)
 {

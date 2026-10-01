@@ -1,30 +1,11 @@
 #include "debug.h"
 #include <eekernel.h>
 #include "keyInput.h"
-
-/* one 0x58-byte pad record; the engine keeps two of them */
-/* kept local: this TU's bytes only come out with its own view of Pad. */
-typedef struct Pad {
-    int now;               /* 0x00  buttons this frame */
-    int f04;               /* 0x04 */
-    int f08;               /* 0x08 */
-    int trg;               /* 0x0C  repeat/edge mask built below */
-    int old;               /* 0x10  buttons last frame */
-    unsigned int hist[16]; /* 0x14  per-button held-frame counter */
-    unsigned char lx;      /* 0x54 */
-    unsigned char ly;      /* 0x55 */
-    unsigned char rx;      /* 0x56 */
-    unsigned char ry;      /* 0x57 */
-} Pad;
-
-/* kept local: main.c's global; this TU does not include main.h */
-extern Pad pad[];
+#include "main.h"
 
 /* the pad device descriptor InitKeyInput hands to iosPadDevInit */
 static int keyInputPadDev[6] = {7, 2, 0, 0, 0, 0};
 
-/* kept local: main.h does not compile in this TU (redefinition of `struct Pad') */
-extern int IosPadLock;
 /* kept local: void (void *) here, int (void *) in pad.h */
 extern void iosPadDevInit(void *a0);
 
@@ -38,9 +19,9 @@ void InitKeyInput(void)
     iosPadDevInit(keyInputPadDev);
     for (i = 0; i < 2; i++) {
         pad[i].old = 0;
-        pad[i].f04 = 0;
-        pad[i].f08 = 0;
-        pad[i].trg = 0;
+        pad[i].flags = 0;
+        pad[i].unk08 = 0;
+        pad[i].rep = 0;
         for (j = 15; j >= 0; j--) {
             pad[i].hist[j] = 0;
         }
@@ -84,15 +65,15 @@ void ExecKeyInput(void)
         iosPadConnect(&buf, 7, i, iosPadConfDefault);
         iosPadRead(&buf);
         pad[i].now = buf.f18;
-        pad[i].f04 = buf.f1C;
-        pad[i].f08 = buf.f20;
-        pad[i].trg = 0;
+        pad[i].flags = buf.f1C;
+        pad[i].unk08 = buf.f20;
+        pad[i].rep = 0;
         iosPadGetStick(&buf, stL, 1, 127, 127, 0);
-        pad[i].lx = stL[0];
-        pad[i].ly = stL[4];
+        pad[i].ana[0] = stL[0];
+        pad[i].ana[1] = stL[4];
         iosPadGetStick(&buf, stR, 0, 127, 127, 0);
-        pad[i].rx = stR[0];
-        pad[i].ry = stR[4];
+        pad[i].ana[2] = stR[0];
+        pad[i].ana[3] = stR[4];
         for (j = 0; j < 16; j++) {
             if ((pad[i].now >> j) & 1) {
                 pad[i].hist[j]++;
@@ -102,9 +83,9 @@ void ExecKeyInput(void)
             if (pad[i].hist[j] == 1 ||
                 (float)pad[i].hist[j] >
                     (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f * 20.0f) {
-                pad[i].trg |= 1 << j;
+                pad[i].rep |= 1 << j;
             } else {
-                pad[i].trg &= ~(1 << j);
+                pad[i].rep &= ~(1 << j);
             }
         }
     }

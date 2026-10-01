@@ -3,33 +3,15 @@
 #include "GsBase.h"
 #include "main.h"
 
-/* kept local: void () here, void (long long, long long, long long) in GifPacket.h */
-extern void gif_SetAlpha();
-/* kept local: agrees with GifPacket.h, which this TU does not include (_IsInScreen, gif_MakeLine2D differ) */
-extern void gif_StartPacketPri();
-/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
-extern void gif_SetAlpha(int a0, int a1, int a2);
-/* kept local: agrees with GifPacket.h, which this TU does not include (_IsInScreen, gif_MakeLine2D differ) */
-extern void gif_StartPacketPri(int a0);
-/* kept local: agrees with GifPacket.h, which this TU does not include (_IsInScreen, gif_MakeLine2D differ) */
-extern void gif_EndPacket();
-
 /* the TU's whole .data run, VMA 0x2A6030..0x2A6070 (0x40, = MAIN.MAP
    poly-flat.o .data 0x40, which names this object at offset 0): the
    world-space matrix before_DrawLine copies the caller's into and every
    line transform reads back. */
 float drawline_ws_matrix[16] = {0};
 
-/* kept local: agrees with GifPacket.h, which this TU does not include (_IsInScreen, gif_MakeLine2D differ) */
-extern void gif_DrawPolyF4(void *a0, void *a1, void *a2, void *a3, int b0, int b1, int b2, int b3,
-                           int last);
-/* kept local: int (int *) here, int (volatile int *) in GifPacket.h */
-extern int _IsInScreen(int *p);
-/* kept local: void (int *, int *, int, int, unsigned char *, int) here, void (int *, int *, long long, long long, unsigned char *, int) in GifPacket.h */
-extern void gif_MakeLine2D(int *v0, int *v1, int z0, int z1, unsigned char *col, int n);
-
 #include "poly-flat.h"
 #include <libvu0.h>
+#include "GifPacket.h"
 
 static inline unsigned char DrawLineTrans(int *dst, void *src)
 {
@@ -49,9 +31,9 @@ void before_DrawPolygon(void)
     gif_SetAlpha(1, 2, 0x40);
 }
 
-void after_DrawPolygon(int a0, int a1, int a2, int a3)
+void after_DrawPolygon(void)
 {
-    gif_EndPacket(a0, a1, a2, a3);
+    gif_EndPacket();
 }
 
 inline void DrawPolygon(void *a0, void *a1, void *a2, void *a3, unsigned char *a4, void *a5)
@@ -121,12 +103,12 @@ void before_DrawLine(int a0)
     gif_StartPacketPri(0xB);
 }
 
-void after_DrawLine(int a0, int a1, int a2, int a3)
+void after_DrawLine(void)
 {
-    gif_EndPacket(a0, a1, a2, a3);
+    gif_EndPacket();
 }
 
-inline void do_DrawLine(void *p0, void *p1, int *c)
+inline void do_DrawLine(void *p0, void *p1, int *c, int a3)
 {
     unsigned char col[4] = {c[0], c[1], c[2], c[3]};
     int v0[4];

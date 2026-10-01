@@ -21,6 +21,7 @@ typedef union GObjSubSlot {
 
 #include "girlForceField.h"
 #include "ios.h"
+#include "main.h"
 
 /* The TU's .data (VMA 0x4EB430, 16 B = MAIN.MAP girlForceField.o .data): the
    girl's blue, the colour boy.c's position-sync marker draws her sphere in.
@@ -48,8 +49,6 @@ inline GirlForceFieldWork *InitGirlForceFieldGeo(char *self, char *param)
 inline void GirlForceFieldGeo(void) {}
 
 /* The girl's GObj, or NULL before she is spawned. */
-/* kept local: main.c's global; this TU does not include main.h */
-extern void *girlGObj;
 
 /* The per-object-kind action record table (0x4C bytes/entry, indexed by the
    GObj's kind id at +8) and the animation-record table it selects into. */

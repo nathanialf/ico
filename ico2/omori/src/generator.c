@@ -10,6 +10,7 @@
 #include "geometryManager.h"
 #include "multiBgaManager.h"
 #include "debug_exception.h"
+#include "gv.h"
 
 typedef union {
     unsigned long ll;
@@ -25,12 +26,8 @@ typedef struct {
     unsigned int f48;
 } GVGeo2;
 
-/* kept local: void (void *, float) here, void (float *, float) in gv.h */
-extern void _ApplyRyGV(void *a0, float a1);
 extern StgPre stageData[];
 extern GVGeo2 objLayout[];
-/* kept local: agrees with main.h, which this TU does not include (girlGObj differs) */
-extern int stage_no;
 
 /* .bss, owned by generator.o (0x2C10, the run, tiled exactly; the packet
    read into it is 11277 bytes, which is what GetsizeGeneratorPacket returns,
@@ -43,6 +40,7 @@ extern char D_00308924[];
 #include "generator.h"
 #include <string.h>
 #include "ios.h"
+#include "main.h"
 
 inline int SearchActiveGenerator(void)
 {
@@ -66,8 +64,6 @@ inline int SearchActiveGenerator(void)
 extern void sceVu0ScaleVector(float *dst, float *src, float t);
 /* kept local: void (float *, float *, float *) here, void (void *, void *, void *) in libvu0.h */
 extern void sceVu0AddVector(float *dst, float *a, float *b);
-/* kept local: float (float *, float *) here, void (void *, void *) in gv.h */
-extern float _DistxzSqGV(float *a, float *b);
 
 int CheckGeneratorCollision(char *gobj, float *dir)
 {
@@ -176,9 +172,6 @@ void GetGeneratorSafePosition(float *dst, char *gobj)
         dst[2] = probe[2];
     }
 }
-
-/* kept local: agrees with main.h, which this TU does not include (girlGObj differs) */
-extern int systemStatus[];
 
 void switch_MainStatus(char *gobj, unsigned char st)
 {
@@ -828,8 +821,6 @@ inline char *InitGeneratorGeo(char *gobj, char *src)
 extern void sceVu0ApplyMatrix(void *dst, void *m, void *v);
 /* kept local: void (float, void *, void *, int, int, int) here, void (void) in camera-editor.h */
 extern void debug_Arrow(float len, void *from, void *to, int r, int g, int b);
-/* kept local: char * here, GObj * in main.h */
-extern char *girlGObj;
 
 /* generator.c:1259-1270, a static inline helper of this TU: the listing gives
    GeneratorGeo the rows 1262-1268, outside its own 1274-1410 span. */

@@ -7,20 +7,10 @@
 #include "typedef.h"
 #include "debug.h"
 #include "Matrix.h"
+#include "matrixDrive.h"
+#include "quaternion.h"
 
 /* getBone is defined as a nested function inside connectToTarget below. */
-/* kept local: char [] here, float [4] in matrixDrive.h */
-extern char YUnitVector[];
-/* kept local: agrees with matrixDrive.h, which this TU does not include (XUnitVector, YUnitVector differ) */
-extern float VectorLength(void *v);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (XUnitVector, YUnitVector differ) */
-extern float VectorLengthSquare(void *v);
-/* kept local: void (void *, int, void *) here, void (int *, short, int *) in quaternion.h */
-extern void SetQuaternionByAxisRotateV(void *dst, int ang, void *axis);
-/* kept local: void (void *, void *) here, void (char *, char *) in quaternion.h */
-extern void GetMatrixFromQuaternion(void *dst, void *q);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (XUnitVector, YUnitVector differ) */
-extern void CopyVector(void *dst, void *src);
 
 void connectToTarget(char *obj, char *hw, int na, int nb, int nc)
 {
@@ -127,23 +117,12 @@ void connectToTarget(char *obj, char *hw, int na, int nb, int nc)
     }
 }
 
-/* kept local: void (void *, int, void *) here, void (int *, short, void *) in quaternion.h */
-extern void SetQuaternionByAxisRotateVWithNoRegularize(void *a0, int a1, void *a2);
-/* kept local: agrees with quaternion.h, which this TU does not include (GetMatrixFromQuaternion, SetQuaternionByAxisRotateV differ) */
-extern void SetIdentityQuaternion(void *a0);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (XUnitVector, YUnitVector differ) */
-extern void *MatrixDrive_GetMatrix(void);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (XUnitVector, YUnitVector differ) */
-extern void MatrixDrive_TransMatrix(float a0, float a1, float a2);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (XUnitVector, YUnitVector differ) */
-extern void CopyMatrix(void *dst, void *src);
-
 static inline void SetHandQuaternion(char *hw, char *vec, char *ref)
 {
     char *q = hw + 0x40;
     Vec4 n;
     Vec4 v;
-    int ang;
+    short ang;
 
     v.f[0] = *(float *)(vec + 0);
     v.f[1] = *(float *)(vec + 4);
@@ -237,8 +216,6 @@ float _handManager(char *obj, char *hw, char *vec, char *ref, int node)
 
 extern char motionKind[];
 extern char motionIKEffKind[];
-/* kept local: char [] here, float [4] in matrixDrive.h */
-extern char XUnitVector[];
 
 static inline void ResetHandTarget(char *obj, int off)
 {

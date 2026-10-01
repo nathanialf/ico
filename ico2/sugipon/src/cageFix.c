@@ -1,10 +1,6 @@
 #include "typedef.h"
 #include "cageFix.h"
-
-/* kept local: int (int) here, void (void *) in DisplayP2O.h */
-extern int p2o_DispVU1DObjMulti(int a0);
-/* kept local: int (int) here, void (void) in DisplayP2O.h */
-extern int p2o_SetDefaultEnviroment(int a0);
+#include "DisplayP2O.h"
 
 inline int InitCageFixGeo(void)
 {
@@ -24,7 +20,7 @@ void CageFixDL(int a0)
 {
     int *s0 = ((GObj *)((char *)a0))->p_15C;
     if (s0[0x74 / 4] != 0) {
-        p2o_SetDefaultEnviroment(a0);
+        p2o_SetDefaultEnviroment();
         return p2o_DispVU1DObjMulti((int)s0);
     }
 }

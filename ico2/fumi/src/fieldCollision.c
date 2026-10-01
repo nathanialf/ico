@@ -1223,49 +1223,49 @@ inline int ChangeFieldCollisionDebugMode(int a0)
     return 0;
 }
 
-inline int ClipWallDebug(void *a0)
+inline void ClipWallDebug(void *a0)
 {
-    return clipWallFunc(a0, 0);
+    clipWallFunc(a0, 0);
 }
 
-inline int ClipWall(void *a0)
+inline void ClipWall(void *a0)
 {
-    return clipWallFunc(a0, 0x1);
+    clipWallFunc(a0, 0x1);
 }
 
-inline int ClipWallR(void *a0)
+inline void ClipWallR(void *a0)
 {
-    return clipWallFunc(a0, 0x2);
+    clipWallFunc(a0, 0x2);
 }
 
-inline int ClipWallWaveForce(void *a0)
+inline void ClipWallWaveForce(void *a0)
 {
-    return clipWallFunc(a0, 0x6);
+    clipWallFunc(a0, 0x6);
 }
 
-inline int ClipWallFuchiHangWalkStop(void *a0)
+inline void ClipWallFuchiHangWalkStop(void *a0)
 {
-    return clipWallFunc(a0, 0x7);
+    clipWallFunc(a0, 0x7);
 }
 
-inline int ClipWallField(void *a0)
+inline void ClipWallField(void *a0)
 {
-    return clipWallFunc(a0, 0x3);
+    clipWallFunc(a0, 0x3);
 }
 
-inline int ClipWallEField(void *a0)
+inline void ClipWallEField(void *a0)
 {
-    return clipWallFunc(a0, 0x5);
+    clipWallFunc(a0, 0x5);
 }
 
-inline int ClipWallBoxStop(void *a0)
+inline void ClipWallBoxStop(void *a0)
 {
-    return clipWallFunc(a0, 0xA);
+    clipWallFunc(a0, 0xA);
 }
 
-inline int ClipWallAdjustPos(void *a0)
+inline void ClipWallAdjustPos(void *a0)
 {
-    return clipWallFunc(a0, 0xB);
+    clipWallFunc(a0, 0xB);
 }
 
 inline void ClipWallE(void *a0)
@@ -1285,24 +1285,24 @@ inline void ClipWallFieldCheckCB(void *a0, int a1)
     clipWallFunc(a0, 9);
 }
 
-inline int ClipFloor(void *a0)
+inline void ClipFloor(void *a0)
 {
-    return clipFloorFunc(a0, 0xC);
+    clipFloorFunc(a0, 0xC);
 }
 
-inline int ClipFloorE(void *a0)
+inline void ClipFloorE(void *a0)
 {
-    return clipFloorFunc(a0, 0xD);
+    clipFloorFunc(a0, 0xD);
 }
 
-inline int ClipFloorR(void *a0)
+inline void ClipFloorR(void *a0)
 {
-    return clipFloorFunc(a0, 0xE);
+    clipFloorFunc(a0, 0xE);
 }
 
-inline int ClipFloorIH(void *a0)
+inline void ClipFloorIH(void *a0)
 {
-    return clipFloorFunc(a0, 0xF);
+    clipFloorFunc(a0, 0xF);
 }
 
 inline void ClipFloorCheckCB(void *a0, int a1)

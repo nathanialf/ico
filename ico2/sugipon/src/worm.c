@@ -4,16 +4,9 @@
 #include "lineManager.h"
 #include "motionManager2.h"
 #include "Matrix.h"
+#include "DisplayP2O.h"
 
-/* kept local: main.c's global; this TU does not include main.h */
-extern PadState pad[];
-/* kept local: main.c's global; this TU does not include main.h */
-extern int boyGObj;
 void GetWormCaptureVector(void *out, void *act, void *node, float scale);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_GetTurnYAngleXZ differ) */
-extern float VectorLengthSquare(void *v);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_GetTurnYAngleXZ differ) */
-extern float VectorLength(void *v);
 /* kept local: void * here, int in ios.h */
 extern void *ios_partition_sugipon;
 /* kept local: void * here, int in ios.h */
@@ -27,40 +20,7 @@ typedef union {
     long long ll;
 } WormFlag;
 
-/* kept local: char [] here, float [4] in matrixDrive.h */
-extern char ZeroVector[];
 void disp(void *act);
-/* kept local: void (void *) here, void (void) in DisplayP2O.h */
-extern void p2o_SetDefaultEnviroment(void *a0);
-/* kept local: agrees with DisplayP2O.h, which this TU does not include (p2o_SetDefaultEnviroment differs) */
-extern void p2o_DispVU1DObjMulti(void *a0);
-/* kept local: float * (void) here, void * (void) in matrixDrive.h */
-extern float *MatrixDrive_GetMatrix(void);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_GetTurnYAngleXZ differ) */
-extern void MatrixDrive_TransMatrix(float x, float y, float z);
-/* kept local: void (unsigned short *, unsigned short *, float, float, float) here, void (short *, short *, float, float, float) in matrixDrive.h */
-extern void MatrixDrive_GetTurnYAngleXZ(unsigned short *o1, unsigned short *o2, float x, float y,
-                                        float z);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_GetTurnYAngleXZ differ) */
-extern void MatrixDrive_RotMatrixX(short a0);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_GetTurnYAngleXZ differ) */
-extern void MatrixDrive_RotMatrixY(short a0);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_GetTurnYAngleXZ differ) */
-extern void MatrixDrive_RotMatrixZ(short a0);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_GetTurnYAngleXZ differ) */
-extern void MatrixDrive_PushMatrix(void);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_GetTurnYAngleXZ differ) */
-extern void MatrixDrive_PopMatrix(void);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_GetTurnYAngleXZ differ) */
-extern void MatrixDrive_ScaleMatrix(float x, float y, float z);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_GetTurnYAngleXZ differ) */
-extern void CopyMatrix(void *dst, void *src);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_StartPacketPri(int a0);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_EndPacket(void);
-/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
-extern void gif_SetAlpha(int a, int b, int c);
 
 /* A 16-byte GS colour: four 8-bit RGBA components, one per word, handed to
    DrawLine through the float view the call expects. */
@@ -123,8 +83,6 @@ typedef struct {
     float ratio;
 } WormWork;
 
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_GetTurnYAngleXZ differ) */
-extern void CopyVector(void *dst, void *src);
 void simulate(WormVec *v, int n, float len);
 void GetWormRoute(int act, WormVec *target);
 
@@ -132,6 +90,9 @@ void GetWormRoute(int act, WormVec *target);
 #include <libvu0.h>
 #include <string.h>
 #include "typedef.h"
+#include "matrixDrive.h"
+#include "main.h"
+#include "GifPacket.h"
 
 void outerProcess(int act)
 {
@@ -146,7 +107,7 @@ void outerProcess(int act)
         SetWormReduceRatio(act, 1.0f);
     }
 
-    if ((pad[1].unk00 & 0x40) != 0) {
+    if ((pad[1].now & 0x40) != 0) {
         n = GetSkeltonFocusNode(boyGObj, 22);
         SetDirectWormTargetPos(act, *(char **)((char *)GOBJ_SUB(boyGObj) + 0xC) + n * 0x40 + 0x30);
         GetWormCaptureVector(v, (void *)act,
@@ -260,7 +221,7 @@ void disp(void *act)
     int j;
     int k;
 
-    p2o_SetDefaultEnviroment(act);
+    p2o_SetDefaultEnviroment();
 
     for (i = 0; i < r->nseg; i++) {
         int num = r->seg[i].num;

@@ -20,6 +20,9 @@
 #include <math.h>
 #include <string.h>
 #include "Matrix.h"
+#include "matrixDrive.h"
+#include "main.h"
+#include "fieldCollision.h"
 
 void torchOnOfWeaponSE(int a0)
 {
@@ -46,11 +49,6 @@ void weaponStickSE(int a0)
 {
     ExecuteSEPackage(a0, 0x5D);
 }
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differs) */
-extern int systemStatus[];
-/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroVector differs) */
-extern void CopyVector(void *dst, void *src);
 
 /* INTERIM NAME, chosen and not recovered: the PAL listing carries this
    file-static helper at weapon.c:262-265 and inlines it here, so it has no
@@ -247,9 +245,6 @@ static float pathOfsFwd[4] = {0.0f, 0.0f, 1.0f, 1.0f};
 
 static float pathOfsBack[4] = {0.0f, 0.0f, 1.0f, 1.0f};
 
-/* kept local: char [] here, float [4] in matrixDrive.h */
-extern char ZeroVector[];
-
 /* INTERIM NAMES, chosen and not recovered: the PAL listing carries these two
    file-static helpers at weapon.c:362-373 and 375-385 and inlines them here,
    so neither has a census row or a name in any map. */
@@ -334,19 +329,6 @@ static const CollWork collWorkInit = /* derived name */
 
 /* the offset the wall test pushes the blade tip along, its z set per test */
 static float hitOfs[4] = {0.0f, 0.0f, 1.0f, 1.0f};
-
-/* kept local: void (void *) here, void (int *) in fieldCollision.h */
-extern void ClipCollision(void *cc);
-/* kept local: void (void *, float, float) here, void (char *, float, float) in fieldCollision.h */
-extern void GetReflectionElement(void *cc, float a, float b);
-/* kept local: int (void *) here, int (int) in fieldCollision.h */
-extern int GetWallAttribute(void *cc);
-/* kept local: int (void *) here, int (int) in fieldCollision.h */
-extern int GetFloorAttribute(void *cc);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroVector differs) */
-extern float VectorLengthSquare(void *v);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroVector differs) */
-extern float VectorLength(void *v);
 
 /* calcDynamicGeometry's TTY trace, built only when DEBUG is defined; the
    retail build does not define it, so the preprocessor leaves the helper
@@ -516,13 +498,6 @@ void calcDynamicGeometry(char *g)
     }
 }
 
-/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroVector differs) */
-extern void CopyMatrix(void *dst, void *src);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroVector differs) */
-extern void *MatrixDrive_GetMatrix(void);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroVector differs) */
-extern void MatrixDrive_TransMatrix(float x, float y, float z);
-
 /* INTERIM: a stand-in for SetWeaponOffsetMode, which the PAL listing inlines
    here (its rows at weapon.c:196 and 197 appear inside getGeometry and
    InitWeaponGeo) while keeping its own out-of-line copy at its ROM slot
@@ -601,15 +576,6 @@ void ExecWeaponHitReaction(int a0, int a1, int a2, int a3)
 
 /* the blade tip in the sword's own frame */
 static float swordTip[4] = {0.0f, 0.0f, 80.0f, 1.0f};
-
-/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroVector differs) */
-extern void MatrixDrive_PushMatrix(void);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroVector differs) */
-extern void MatrixDrive_PopMatrix(void);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroVector differs) */
-extern void MatrixDrive_TransMatrixV(char *v);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroVector differs) */
-extern void SubVectorXYZ(void *dst, void *a, void *b);
 
 void checkHit(char *g)
 {
@@ -774,9 +740,6 @@ void *InitWeaponGeo(char *g, QSwordLayout *lay)
     return w;
 }
 
-/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroVector differs) */
-extern void MatrixDrive_ScaleMatrix(float x, float y, float z);
-
 void dispLaserSword(char *g, float t)
 {
     char *w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
@@ -827,9 +790,6 @@ void dispInsectNet(char *g)
     gif_EndPacket();
 }
 
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differs) */
-extern char *matrixptr;
-
 void dispBlur(char *g)
 {
     char *w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
@@ -867,9 +827,6 @@ void dispBlur(char *g)
         gif_EndPacket();
     }
 }
-
-/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroVector differs) */
-extern float ZUnitVector[];
 
 void calcBlur(char *g, float t)
 {
@@ -957,9 +914,6 @@ void calcBlur(char *g, float t)
         }
     }
 }
-
-/* kept local: void * here, GObj * in main.h */
-extern void *boyGObj;
 
 typedef struct {
     char pad00[0x190]; /* 0x000 */
@@ -1090,9 +1044,6 @@ void PickupWeapon(char *a0, char *a1, int a2)
     *(int *)(p + 0xC) = GetSkeltonFocusNode(a1, a2);
     GOBJ_SUB(a1)->f_630 = (int)a0;
 }
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differs) */
-extern int stage_no;
 
 char *CheckSwapableWeapon(char *a0, float dist)
 {

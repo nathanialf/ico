@@ -6,18 +6,17 @@
 #include "sugiCommon.h"
 #include <libvu0.h>
 #include "debug_exception.h"
+#include "main.h"
+#include "fieldCollision.h"
+#include "DisplayP2O.h"
 
 /* kept local: float (void *, void *, float) here, float (int *, void *, float) in clothAnimation.h */
 extern float GetChainCollision(void *a0, void *a1, float w);
-/* kept local: void * here, GObj * in main.h */
-extern void *boyGObj;
 /* kept local: IosMemPart * here, int in ios.h */
 extern IosMemPart *ios_partition_sugipon;
 /* kept local: IosMemPart * here, int in ios.h */
 extern IosMemPart *ios_partition_seki;
 extern void __assert(char *file, int line, char *expr);
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
-extern void ClipWall(void *w);
 /* kept local: int (void *) here, void * (char *) in clothAnimation.h */
 extern int InitChains(void *c);
 
@@ -338,10 +337,6 @@ inline void RopeGeo(void *a0)
     ropeChainCollision(a0);
 }
 
-/* kept local: void (void *) here, void (void) in DisplayP2O.h */
-extern void p2o_SetDefaultEnviroment(void *a0);
-/* kept local: agrees with DisplayP2O.h, which this TU does not include (p2o_SetDefaultEnviroment differs) */
-extern void p2o_DispVU1DObjMulti(void *a0);
 /* kept local: void (void *) here, void (int *) in clothAnimation.h */
 extern void TestDispChainAnimation(void *a0);
 
@@ -357,7 +352,7 @@ void RopeDL(void *a0)
     int n;
     float (*v)[4];
 
-    p2o_SetDefaultEnviroment(a0);
+    p2o_SetDefaultEnviroment();
     for (i = 0; i < *(int *)(set + 4); i++) {
         n = *(int *)(*(char **)set + i * 0x50);
         v = (float (*)[4]) * (int *)(*(char **)(set + 8) + i * 0x1A0);

@@ -523,7 +523,7 @@ inline float scpGetRotObjectRotCount(int id)
     return 0.0f;
 }
 
-inline int scpGetRotObjectCurrentRot(int no)
+inline short scpGetRotObjectCurrentRot(int no)
 {
     short rot;
     int ext;

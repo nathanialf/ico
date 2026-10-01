@@ -10,6 +10,8 @@
 #include "enemyParts.h"
 #include "GifPacket.h"
 #include "main.h"
+#include "matrixDrive.h"
+#include "Matrix.h"
 
 /* The packed colour word.  ROM copies it with lwl/lwr + swl/swr, which is
    gcc's unaligned block move: the type is a four-byte record of chars, so
@@ -33,33 +35,7 @@ typedef struct PointBlur {
     /* 0x38 */ char _pad38[8];
 } PointBlur;
 
-/* kept local: char [] here, float [4] in matrixDrive.h */
-extern char ZUnitVector[];
 extern void moveDataElements(PointBlur *p);
-/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
-extern void _ApplyMatrix(void *dst, void *m, void *src);
-/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
-extern void _SetCurrentMatrix(void *m);
-/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
-extern void _RotTransPersCurrentMatrix(void *dst, void *src);
-/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
-extern void _SubVector(void *d, void *a, void *b);
-/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
-extern void _OuterProduct(void *d, void *a, void *b);
-/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
-extern void _NormalizeVector(void *d, void *s);
-/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
-extern void _ScaleVector(void *d, void *s, float k);
-/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
-extern void _AddVectorXYZ(void *d, void *a, void *b);
-/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
-extern void _SubVectorXYZ(void *d, void *a, void *b);
-/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
-extern void _FTOI4Vector(void *d, void *s);
-/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
-extern void _CopyVector(void *dst, void *src);
-/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
-extern void _CopyIVector(void *d, void *s);
 
 typedef struct IVec {
     float x, y, z, w;
@@ -308,9 +284,6 @@ char *InitEnemyFootPrint(int num)
     return p;
 }
 
-/* kept local: char [] here, float [4] in matrixDrive.h */
-extern char YUnitVector[];
-
 int ExecEnemyFootPrints(char *self)
 {
     int q[4];
@@ -408,9 +381,6 @@ int DispPointBlur(int *self)
     return 1;
 }
 
-/* kept local: void (void *, int, void *) here, void (void *, void *, void *) in Matrix.h */
-extern void _MulMatrix(void *a0, int a1, void *a2);
-
 int UpdateEnemyEye(char *a0, int a1, float f)
 {
     _MulMatrix(a0 + 0x10, a1, enemyEyeScaleMatrix);
@@ -419,9 +389,6 @@ int UpdateEnemyEye(char *a0, int a1, float f)
     }
     return 1;
 }
-
-/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
-extern void _CopyMatrix();
 
 int DispEnemyEye(char *a0)
 {
@@ -443,9 +410,6 @@ int ResetEnemyEye(char *self)
     *(int *)(p + 0x30) = 1;
     return 1;
 }
-
-/* kept local: agrees with Matrix.h, which this TU does not include (_MulMatrix differs) */
-extern void _CopyIVector(void *dst, void *src);
 
 /* Two strip vertices per footprint: fC holds the IVec positions (2 x 0x10),
  * f10 the packed RGBA words (2 x 4). The alpha lives in byte 3 of the word,

@@ -29,6 +29,8 @@
 #include "DisplayP2O.h"
 #include "ios.h"
 #include <string.h>
+#include "main.h"
+#include "Matrix.h"
 
 typedef struct {
     float v[4];
@@ -57,9 +59,6 @@ typedef struct QueenMailQueue {
     /* 0x04 */ int num;
     /* 0x08 */ QueenMailEntry e[1];
 } QueenMailQueue;
-
-/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, CurrentTargetGObjSub differ) */
-extern int stage_no;
 
 /* .bss, owned by queen.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the queen's four ball-ring animations. */
@@ -805,8 +804,6 @@ static float queenSpawnPos[6][4] = {
    timestamp every wait in her state machine is measured against */
 static int queenFrame;
 
-/* kept local: char * here, GObj * in main.h */
-extern char *boyGObj;
 /* kept local: void (char *) here, void (void *) in boyact.h */
 extern void ACTDispLwsBoyStonize_InQueenStage(char *g);
 
@@ -842,7 +839,7 @@ void scale_m34(LVec *a0, void *a1, float f)
 static void effect_end_func(int no)
 {
     char *g = isysGObjSearchFromObjKindID_begin(47);
-    char *weapon = *(char **)(*(char **)(boyGObj + 0x164) + 0x150);
+    char *weapon = *(char **)(*(char **)((char *)boyGObj + 0x164) + 0x150);
 
     if (g != 0) {
         *(int *)(GOBJ_SUB(g)->f_830 + 4) += 1;
@@ -946,7 +943,7 @@ void queenBeforeFunc(char *g)
             }
             break;
         case 0x12: {
-            char *boy = *(char **)(*(char **)(boyGObj + 0x164) + 0x150);
+            char *boy = *(char **)(*(char **)((char *)boyGObj + 0x164) + 0x150);
 
             debug_StdPrintfDummy(enemyDeadMsg, boy);
             if (e->data != 0 && boy != 0) {
@@ -981,10 +978,6 @@ static const QueenGenTable genEnemyTable[2] = {
 
 static const char genEnemyStatFmt[] = "n_enemy_max:%d n_enemy:%d counter:%d";
 
-/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, CurrentTargetGObjSub differ) */
-extern int systemStatus[];
-/* kept local: agrees with Matrix.h, which this TU does not include (_GetLength differs) */
-extern float _GetRandom(void);
 /* kept local: agrees with itou_sub.h, which this TU does not include (apply_matrix_w1, ico_m33_to_quat differ) */
 extern void lw_pos_to_ico_pos(float *dst, float *src);
 
@@ -1319,7 +1312,7 @@ void subQueenBrainMain(volatile int g)
                 break;
             }
         }
-        boy = *(char **)(*(char **)(boyGObj + 0x164) + 0x150);
+        boy = *(char **)(*(char **)((char *)boyGObj + 0x164) + 0x150);
         if (boy != 0) {
             GetRootPosition(&target, boy);
             ParticleEffects_SetAllGoal(&target);
@@ -1329,10 +1322,6 @@ void subQueenBrainMain(volatile int g)
     }
 }
 
-/* kept local: char * here, GObj * in main.h */
-extern char *CurrentTargetGObj;
-/* kept local: char * here, GObj * in main.h */
-extern char *CurrentTargetGObjSub;
 /* kept local: agrees with boyact.h, which this TU does not include (ACTDispLwsBoyStonize_InQueenStage differs) */
 extern int CorrectStickInfo(void *dir, void *stick);
 
@@ -1527,7 +1516,7 @@ void QueenBarrierGeo(char *g)
         void *weapon;
 
         *(int *)(qw + 4) = 0;
-        weapon = (void *)*(int *)(*(int *)(boyGObj + 0x164) + 0x150);
+        weapon = (void *)*(int *)(*(int *)((char *)boyGObj + 0x164) + 0x150);
         if (weapon != 0) {
             LightTorchOffOfWeapon(weapon);
         }
@@ -1562,12 +1551,8 @@ void QueenBarrierDL(char *g)
 extern void ico_m33_to_quat(void *dst, void *m);
 /* kept local: void (int *, int) here, void (int *, int *) in itou_sub.h */
 extern void pbga_start(int *bga, int id);
-/* kept local: float (QVec *, QVec *) here, float (void *, void *) in Matrix.h */
-extern float _GetLength(QVec *a, QVec *b);
 /* kept local: void (QVec *, QMat33 *, QVec *) here, void (void *, void *, void *) in itou_sub.h */
 extern void apply_matrix_w1(QVec *dst, QMat33 *m, QVec *src);
-/* kept local: agrees with Matrix.h, which this TU does not include (_GetLength differs) */
-extern void _CopyVector(void *dst, void *src);
 
 /* PAL listing rows 1069-1081: a static helper that QueenBallGeo and QueenBallDL
  * each expand inline. */
@@ -1678,11 +1663,11 @@ void QueenBallGeo(char *g)
     ball = isysGObjSearchFromObjKindID_begin(54);
     num = (ball != 0) ? *(int *)(*(char **)((char *)GOBJ_SUB(ball) + 0x830) + 0x18) : 0;
     r = *(float *)(w + 0x14) * 100.0f;
-    weapon = *(char **)(*(char **)(boyGObj + 0x164) + 0x150);
+    weapon = *(char **)(*(char **)((char *)boyGObj + 0x164) + 0x150);
     GetRootMatrix(m, g);
     GetRootPosition(&queenPos, boyGObj);
     i = 0;
-    act = *(char **)(boyGObj + 0x164);
+    act = *(char **)((char *)boyGObj + 0x164);
     hit = (*(int *)(act + 0x34) == 0x31);
     if (*(signed char *)(w + 0x11) != 0) {
         for (o = isysGObjSearchFromObjKindID_begin(17); o != 0;

@@ -201,11 +201,6 @@ static void limitHPAngleAndSetB(short *hp, short *pp, short *bp, char *lim, shor
     }
 }
 
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
-extern void MatrixDrive_GetTurnYAngleXZ(short *a0, short *a1, float x, float y, float z);
-/* kept local: char [] here, float [4] in matrixDrive.h */
-extern char YUnitVector[];
-
 /* RECONSTRUCTED NAME: the PAL listing shows this body only inlined (rows
  * 104-133, above every def line in this file), so it carries no symbol in
  * MAIN.MAP.  It clamps a turn angle to the motion-program interp range and
@@ -296,61 +291,12 @@ void avoidReverseInterpOnCurrentMatrixWithLimit(char *q, char *info, void *outA,
     }
 }
 
-/* kept local: void * (void) here, int * (void) in quaternion.h */
-extern void *GetLastQuaternion(void);
-/* kept local: agrees with quaternion.h, which this TU does not include (DivQuaternion, GetCurrentQuaternion differ) */
-extern void GetMatrixFromQuaternionRotElem(char *a0, char *a1);
-/* kept local: void (void *, void *, void *) here, void (int, int, int) in quaternion.h */
-extern void DivQuaternion(void *dst, void *a, void *b);
-/* kept local: agrees with quaternion.h, which this TU does not include (DivQuaternion, GetCurrentQuaternion differ) */
-extern void GetSlerpQuaternion(void *dst, void *a, void *b, float t);
-/* kept local: agrees with quaternion.h, which this TU does not include (DivQuaternion, GetCurrentQuaternion differ) */
-extern void MultiCurrentQuaternion(void *q);
-/* kept local: void (void *, void *) here, void (int, int) in quaternion.h */
-extern void GetInverseQuaternion(void *dst, void *q);
-/* kept local: agrees with quaternion.h, which this TU does not include (DivQuaternion, GetCurrentQuaternion differ) */
-extern void RegularizeQuaternion(void *q);
-/* kept local: void (void *, short) here, void (void *, int) in quaternion.h */
-extern void RotQuaternionX(void *q, short ang);
-/* kept local: void (void *, short) here, void (void *, int) in quaternion.h */
-extern void RotQuaternionZ(void *q, short ang);
-/* kept local: void (int) here, void (short) in matrixDrive.h */
-extern void MatrixDrive_RotMatrixX(int a0);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
-extern void MatrixDrive_GetTurnMinusZAngleXY(short *a0, short *a1, float x, float y, float z);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
-extern void MatrixDrive_GetTurnZAngleXY(short *a0, short *a1, float x, float y, float z);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
-extern void MatrixDrive_GetTurnXAngleZY(short *a0, short *a1, float x, float y, float z);
-/* kept local: void (void *, short, float, float, float) here, void (int *, int, float, float, float) in quaternion.h */
-extern void SetQuaternionByAxisRotateWithNoRegularize(void *q, short ang, float x, float y,
-                                                      float z);
-/* kept local: agrees with tableSin.h, which this TU does not include (GetTableArcCos differs) */
-extern float GetTableCos(short a);
-/* kept local: agrees with tableSin.h, which this TU does not include (GetTableArcCos differs) */
-extern float GetTableSin(short a);
-/* kept local: short (float) here, int (float) in tableSin.h */
-extern short GetTableArcCos(float c);
-/* kept local: agrees with Matrix.h, which this TU does not include (_AddVectorXYZ, _ApplyMatrix differ) */
-extern float _InnerProduct(void *a, void *b);
-/* kept local: agrees with Matrix.h, which this TU does not include (_AddVectorXYZ, _ApplyMatrix differ) */
-extern void _OuterProduct(void *dst, void *a, void *b);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
-extern float VectorLength(void *v);
 /* kept local: float (int) here, float (char *) in weapon.h */
 extern float GetWeaponWeight(int w);
 /* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ApplyMatrix, sceVu0MulMatrix differ) */
 extern void sceVu0ScaleVectorXYZ(void *dst, void *src, float s);
 /* kept local: void (int, int) here, void (void *, void *) in libvu0.h */
 extern void sceVu0TransposeMatrix(int dst, int src);
-/* kept local: agrees with Matrix.h, which this TU does not include (_AddVectorXYZ, _ApplyMatrix differ) */
-extern void _AddVector(void *dst, void *a, void *b);
-/* kept local: char [] here, float [4] in matrixDrive.h */
-extern char XUnitVector[];
-/* kept local: char [] here, float [4] in matrixDrive.h */
-extern char ZeroPoint[];
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, pad differ) */
-extern int systemStatus[];
 
 /* The arm IK's angles: the shoulder's turns about Z and Y and the two
    joints' bends. */
@@ -1156,8 +1102,6 @@ void _getFinalMatrix(int id)
 }
 
 extern double fptodp(float v);
-/* kept local: unsigned char [] here, PadState [16] in main.h */
-extern unsigned char pad[];
 
 /* RECONSTRUCTION: the pad snapshot at pad as this TU reads it; only the
  * two words the rotation-emphasis editor uses carry names. */
@@ -1259,13 +1203,6 @@ void getFinalMatrix(int id)
     MatrixDrive_PopMatrix();
     getFinalMatrixCore(id);
 }
-
-/* kept local: this TU's uses of GetMatrixFromQuaternionRotElem do not fit the
- * prototype in quaternion.h.  It must be prototyped above its only call site:
- * left implicit it returns int, which reserves $2 at the call and moves the
- * skelGObj chase off the ROM's registers. */
-/* kept local: agrees with quaternion.h, which this TU does not include (DivQuaternion, GetCurrentQuaternion differ) */
-extern void GetMatrixFromQuaternionRotElem(char *a0, char *a1);
 
 /* RECONSTRUCTED NAME: rows 1440-1447, inlined only into
  * getFinalMatrixWithNaturalGeometry (def line 1452), no MAIN.MAP symbol. */

@@ -20,6 +20,8 @@
 #include "wireLetter.h"
 #include <libvu0.h>
 #include "ios.h"
+#include "main.h"
+#include "DisplayP2O.h"
 
 /* census: sugipon/src/girl.c:706 `execClothes` (a TU-static; `static` keeps the ELF
  * symbol local, so it cannot collide with the sugipon/src/boy global). */
@@ -1817,9 +1819,6 @@ void *InitGirlGeo(char *gobj, char *csv)
     return w;
 }
 
-/* kept local: main.c's global; this TU does not include main.h */
-extern char *boyGObj;
-
 void GirlGeo(char *a0)
 {
     float v[4];
@@ -1915,9 +1914,6 @@ void GirlAI(char *a0)
     }
 }
 
-/* kept local: int here, char * in main.h */
-extern int matrixptr;
-
 /* the name the cloth debug display prints for each girl kind */
 static char *girlClothName[4] = {"", "DEVIL", "STONE", 0};
 
@@ -1946,14 +1942,9 @@ void debugWireStringGirl(char *a0)
     MatrixDrive_PopMatrix();
 }
 
-/* kept local: void (int) here, void (GObj *) in DisplayP2O.h */
-extern void p2o_DispVU1(int a0);
-/* kept local: void (int) here, void (void) in DisplayP2O.h */
-extern void p2o_SetDefaultEnviroment(int a0);
-
 void GirlDL(int a0)
 {
-    p2o_SetDefaultEnviroment(a0);
+    p2o_SetDefaultEnviroment();
     p2o_DispVU1(a0);
     dispClothes((char *)a0);
     return debugWireStringGirl((char *)a0);

@@ -4,41 +4,8 @@
 #include "Shadow.h"
 #include "Texture.h"
 #include "geometryManager.h"
-
-/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, pad differ) */
-extern char *matrixptr;
-/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
-extern void _CopyVector(void *a0, void *a1);
-/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
-extern void _SetCurrentMatrix(void *a0);
-/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
-extern void _ClearTransCurrentMatrix(void);
-/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
-extern void _ApplyCurrentMatrix(void *a0, void *a1);
-/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
-extern void _NormalizeVector(void *a0, void *a1);
-/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
-extern void _PopCurrentMatrix(void);
-/* kept local: void (void *) here, void (void) in Matrix.h */
-extern void _PushCurrentMatrix(void *a0);
-/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
-extern void _ScaleVector(void *a0, void *a1, float a2);
-/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
-extern void _TransposeCurrentMatrix(void);
-/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
-extern void _ScaleVectorXYZ(void *a0, void *a1, float a2);
-/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
-extern void _AddVectorXYZ(void *a0, void *a1, void *a2);
-/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
-extern void _InterVectorXYZ(void *a0, void *a1, void *a2, float t);
-/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
-extern void _MulCurrentMatrixL(void *a0);
-/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
-extern void _InitCurrentMatrix(void);
-/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
-extern void _MulCurrentMatrixR(void *a0);
-/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
-extern void _GetCurrentMatrix(void *a0);
+#include "main.h"
+#include "Matrix.h"
 
 /* .bss, Shadow.o's two objects in the ROM's order (MAIN.MAP line 7683 sizes
  * the run 0x1028 and names no symbol in it, so the names are ours).  One
@@ -253,10 +220,6 @@ void shadow_Reset(void)
 /* the 12.4 window offsets XYOFFSET_1 is programmed with for the screen pass */
 /* the debug flag word: bit 0 turns the on-screen labels on */
 /* "S", the one character label this pass prints */
-/* kept local: this TU reads the stage setting record for its tint bytes only,
- * so it takes the byte view src/layout_texture.c also uses */
-/* kept local: unsigned char [] here, StageSetting in main.h */
-extern unsigned char GlobalStageSetting[];
 
 void shadow_Draw(void)
 {
@@ -290,7 +253,7 @@ void shadow_Draw(void)
                           {4, 4, ScreenWidth * 2, ScreenHeight * 2}};
         int off[4] = {-(ScreenWidth >> 1) * 16, -(ScreenHeight >> 1) * 16, ScreenWidth * 16,
                       ScreenHeight * 16};
-        unsigned char col[4] = {128, 128, 128, GlobalStageSetting[0xAC]};
+        unsigned char col[4] = {128, 128, 128, GlobalStageSetting.shadowDepth};
         int dbg = 0; /* local debug switch, see the test in the upward loop */
         int i;
         char *c;
@@ -327,8 +290,9 @@ void shadow_Draw(void)
         setGsReg(0x47, 0x3400D);
 
         for (i = 3; i > 0; i--) {
-            unsigned char col2[4] = {GlobalStageSetting[0xC0], GlobalStageSetting[0xC4],
-                                     GlobalStageSetting[0xC8], GlobalStageSetting[0xB0 + i * 4]};
+            unsigned char col2[4] = {GlobalStageSetting.shadowColR, GlobalStageSetting.shadowColG,
+                                     GlobalStageSetting.shadowColB,
+                                     GlobalStageSetting.shadowBlend[i]};
 
             /* Local debug switch, off. What the bytes pin: the ROM's seven
                spill slots (ScreenHeight 0x80, ScreenWidth 0x84, the two window
@@ -984,7 +948,7 @@ static inline unsigned long long *emitVolumeStrip(unsigned long long *p, float s
 
 void __GetCameraPos(void *a0)
 {
-    _PushCurrentMatrix(a0);
+    _PushCurrentMatrix();
     _SetCurrentMatrix(matrixptr + 0x80);
     _ClearTransCurrentMatrix();
     _TransposeCurrentMatrix();
@@ -996,8 +960,6 @@ void __GetCameraPos(void *a0)
 
 /* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */
 extern int dl_GetPri(void);
-/* kept local: agrees with Matrix.h, which this TU does not include (_PushCurrentMatrix differs) */
-extern float _GetLength(void *a, void *b);
 
 /* One sixteen-byte record of a part's silhouette strip list. A strip opens
  * with a record whose count is its vertex count (0 ends the list); each
@@ -1380,14 +1342,14 @@ typedef struct ShadowToolRow {
  * its colour and the four blend weights */
 static const ShadowToolRow shadowToolRows[] = {
     /* derived name */
-    {" Shadow Depth      ", (int *)(GlobalStageSetting + 0xAC), 0, 128},
-    {" Shadow Color R    ", (int *)(GlobalStageSetting + 0xC0), 0, 255},
-    {" Shadow Color G    ", (int *)(GlobalStageSetting + 0xC4), 0, 255},
-    {" Shadow Color B    ", (int *)(GlobalStageSetting + 0xC8), 0, 255},
-    {" Shadow Blend 1/1  ", (int *)(GlobalStageSetting + 0xB0), 0, 128},
-    {" Shadow Blend 1/4  ", (int *)(GlobalStageSetting + 0xB4), 0, 128},
-    {" Shadow Blend 1/16 ", (int *)(GlobalStageSetting + 0xB8), 0, 128},
-    {" Shadow Blend 1/64 ", (int *)(GlobalStageSetting + 0xBC), 0, 128},
+    {" Shadow Depth      ", &GlobalStageSetting.shadowDepth, 0, 128},
+    {" Shadow Color R    ", &GlobalStageSetting.shadowColR, 0, 255},
+    {" Shadow Color G    ", &GlobalStageSetting.shadowColG, 0, 255},
+    {" Shadow Color B    ", &GlobalStageSetting.shadowColB, 0, 255},
+    {" Shadow Blend 1/1  ", &GlobalStageSetting.shadowBlend[0], 0, 128},
+    {" Shadow Blend 1/4  ", &GlobalStageSetting.shadowBlend[1], 0, 128},
+    {" Shadow Blend 1/16 ", &GlobalStageSetting.shadowBlend[2], 0, 128},
+    {" Shadow Blend 1/64 ", &GlobalStageSetting.shadowBlend[3], 0, 128},
 };
 
 /* the two menu colours, unselected then selected, ZFog's fogRowColor idiom:
@@ -1408,20 +1370,6 @@ static char *shadowOnOffText[] = {"Off", "On"};
 /* the row the tool has selected */
 static int toolRow = 0; /* derived name */
 
-/* the pad record this TU reads, the same one common/src/layout_action.c calls
- * R58: the flag word it tests for the two buttons at 4 and the auto-repeat
- * word it tests for the four directions at 0xC */
-typedef struct PadRec {
-    int _0;
-    int flags;
-    int _8;
-    int repeat;
-    char _10[0x48];
-} PadRec;
-
-/* kept local: PadRec [] here, PadState [16] in main.h */
-extern PadRec pad[];
-
 int shadow_Tool(void)
 {
     int ret = 0;
@@ -1438,24 +1386,24 @@ int shadow_Tool(void)
                               (int)shadowToolRows[i].name, *shadowToolRows[i].val);
         }
     }
-    if (pad[0].repeat & 0x4000) {
+    if (pad[0].rep & 0x4000) {
         toolRow++;
         if (8 <= toolRow) {
             toolRow = 0;
         }
     }
-    if (pad[0].repeat & 0x1000) {
+    if (pad[0].rep & 0x1000) {
         toolRow--;
         if (toolRow < 0) {
             toolRow = 7;
         }
     }
-    if (pad[0].repeat & 0x2000) {
+    if (pad[0].rep & 0x2000) {
         if (++*shadowToolRows[toolRow].val > shadowToolRows[toolRow].max) {
             *shadowToolRows[toolRow].val = shadowToolRows[toolRow].min;
         }
     }
-    if (pad[0].repeat & 0x8000) {
+    if (pad[0].rep & 0x8000) {
         if (--*shadowToolRows[toolRow].val < shadowToolRows[toolRow].min) {
             *shadowToolRows[toolRow].val = shadowToolRows[toolRow].max;
         }

@@ -15,6 +15,8 @@
 #include "GsBase.h"
 #include "motionFileManager.h"
 #include "ios.h"
+#include "main.h"
+#include "GifPacket.h"
 
 struct MvObj;
 
@@ -136,18 +138,6 @@ typedef struct {
 } MotRec;
 
 extern MotRec motionKind[];
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SpriteSensitiveOrg differ) */
-extern void gif_StartPacketPri(int pri);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SpriteSensitiveOrg differ) */
-extern void gif_SetZTest(int on);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SpriteSensitiveOrg differ) */
-extern void gif_SetZWrite(int on);
-/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
-extern void gif_SetAlpha(int a, int b, int c);
-/* kept local: void (void *, int, int, void *, int) here, void (int *, long long, int *, unsigned char *, int) in GifPacket.h */
-extern void gif_SpriteSensitiveOrg(void *rect, int a1, int a2, void *col, int a4);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SpriteSensitiveOrg differ) */
-extern void gif_EndPacket(void);
 
 void dispMotFrameProgress(int obj, float cur)
 {
@@ -249,9 +239,6 @@ typedef struct MvObj {
     MvSub *sub; /* 0x15C */
 } MvObj;
 
-/* kept local: MvObj * here, GObj * in main.h */
-extern MvObj *CurrentTargetGObj;
-
 static int lastObjSel = -1; /* derived name */
 
 static char *savedMotTbl = 0; /* derived name */
@@ -313,19 +300,7 @@ int objMenuProc(void)
     return ret;
 }
 
-typedef struct MvPad {
-    int now;   /* 0x00 */
-    int trg;   /* 0x04 */
-    int unk08; /* 0x08 */
-    int rep;   /* 0x0C */
-    char unk10[0x54 - 0x10];
-    unsigned char stick[4]; /* 0x54, the two analog sticks */
-} MvPad;
-
 /* motionOrientManager's table row (same object as src/motionOrientManager.c) */
-
-/* kept local: MvPad [] here, PadState [16] in main.h */
-extern MvPad pad[];
 
 static int lastMotSel = -1; /* derived name */
 
@@ -375,7 +350,7 @@ int motKindMenuProc(void)
                          base + ent->motFirst);
         lastMotSel = motSel;
     }
-    if (pad[0].trg & 0x10) {
+    if (pad[0].flags & 0x10) {
         InitMotionOrient(viewObj, base + ent->oriFrom, base + ent->oriTo, -1, -1,
                          base + ent->motFirst);
     }
@@ -448,9 +423,9 @@ int motOriMenuProc(void)
         }
     } else {
         debug_PrintfDummy(10, 50, 0xFF000000, "NO ORIENT for \"%s\"", &D_0055FF18[cur * 404]);
-        ret = (pad[0].trg & 0x40) ? -1 : 0;
+        ret = (pad[0].flags & 0x40) ? -1 : 0;
     }
-    if (pad[0].trg & 0x10) {
+    if (pad[0].flags & 0x10) {
         initOrient();
     }
     if (ret == 1) {
@@ -489,7 +464,7 @@ void modeMessage(void)
        completeness pass 57), with the whole object byte-identical; an
        explicit fptodp call on the plain global reverses the pair. */
     debug_PrintfDummy(470, 74, 0xFFFFFF00, "\206\207: x%1.2f", motionSpeed);
-    if (pad[0].trg & 0x80) {
+    if (pad[0].flags & 0x80) {
         switch (rootUpdateMode) {
         case 0:
         default:
@@ -661,8 +636,6 @@ static int lookHeadStep = 0; /* derived name */
 
 static float lookRadius = 100.0f; /* derived name */
 
-/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, pad differ) */
-extern char *matrixptr;
 extern void dispPlane(MvVec *plane, MvVec *pos);
 /* kept local: void (MvVec *, void *, MvVec *) here, void (void *, void *, void *) in libvu0.h */
 extern void sceVu0ApplyMatrix(MvVec *dst, void *m, MvVec *src);
@@ -710,8 +683,8 @@ int MotionViewer(void)
 
     if (viewObj != 0) {
         memset(&dir, 0, sizeof(dir));
-        dir.x = (pad[1].stick[2] - 128) * 0.0078125f;
-        dir.z = (128 - pad[1].stick[3]) * 0.0078125f;
+        dir.x = (pad[1].ana[2] - 128) * 0.0078125f;
+        dir.z = (128 - pad[1].ana[3]) * 0.0078125f;
         v = dir;
         sceVu0TransposeMatrix(m, matrixptr + 128);
         sceVu0ApplyMatrix(&dir, m, &v);
@@ -731,7 +704,7 @@ int MotionViewer(void)
         p = q.v;
         dispPlane(&p, &pos);
 
-        if (pad[1].trg & 0x8) {
+        if (pad[1].flags & 0x8) {
             mode = testMode + 1;
             mode %= 3;
             viewObj->sub->testMode = testMode = mode;
@@ -742,8 +715,8 @@ int MotionViewer(void)
             break;
 
         case 1:
-            lookAtTest(&p, 50.0f, &testAxisColor, &testRingColor, (pad[1].stick[1] - 128) * 2.0f,
-                       -pad[1].stick[0] * 256);
+            lookAtTest(&p, 50.0f, &testAxisColor, &testRingColor, (pad[1].ana[1] - 128) * 2.0f,
+                       -pad[1].ana[0] * 256);
             CopyVector(viewObj->sub->testAt, &p);
             mode = testMode;
             break;
@@ -775,9 +748,9 @@ int MotionViewer(void)
         memset(&col, 0, sizeof(col));
         col.a = 128;
         if (pad[1].now & 0x200) {
-            lookRadius = pad[1].stick[2] * 100.0f / 255.0f;
+            lookRadius = pad[1].ana[2] * 100.0f / 255.0f;
         }
-        if (pad[1].trg & 0x2) {
+        if (pad[1].flags & 0x2) {
             switch (lookHeadStep) {
             default:
             case 0:
@@ -814,8 +787,8 @@ int MotionViewer(void)
         viewObj->sub->lookMode = lookMode;
         if (lookMode != 0) {
             int n;
-            lookAtTest(&look, lookRadius, &p, &q.v, (pad[1].stick[1] - 128) * 2.0f,
-                       -pad[1].stick[0] * 256);
+            lookAtTest(&look, lookRadius, &p, &q.v, (pad[1].ana[1] - 128) * 2.0f,
+                       -pad[1].ana[0] * 256);
             CopyVector(viewObj->sub->lookAt, &look);
             gif_StartPacketPri(0xB);
             n = GetSkeltonFocusNode(viewObj, 3);
@@ -826,8 +799,8 @@ int MotionViewer(void)
         viewObj->sub->headMode = headMode;
         if (headMode != 0) {
             int n;
-            lookAtTest(&head, lookRadius, &p, &q.v, (pad[1].stick[1] - 128) * 2.0f,
-                       -pad[1].stick[0] * 256);
+            lookAtTest(&head, lookRadius, &p, &q.v, (pad[1].ana[1] - 128) * 2.0f,
+                       -pad[1].ana[0] * 256);
             CopyVector(viewObj->sub->headAt, &head);
             gif_StartPacketPri(0xB);
             n = GetSkeltonFocusNode(viewObj, 0x13);

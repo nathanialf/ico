@@ -13,6 +13,7 @@
 #include "Matrix.h"
 #include "main.h"
 #include "debug_exception.h"
+#include "GifPacket.h"
 
 typedef struct {
     /* 0x00 */ int cr;
@@ -592,14 +593,6 @@ void prim_UpdateMesh3D(Mesh3D *m, int flags, int idx)
    before the argument copy and ties the pointer to $a0 (measured, 52 of 53
    or 16 words).  Rows 809 and 810 are the same statement, so every packet
    copy here is spelled the same way. */
-/* kept local: this TU's uses of the gif packet calls do not fit GifPacket.h
-   (gif_StartPacketPri takes the priority, gif_SetGsReg two ints here) */
-/* kept local: void (int, int) here, void (long long, long long) in GifPacket.h */
-extern void gif_SetGsReg(int reg, int val);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetGsReg differs) */
-extern void gif_StartPacketPri(int pri);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetGsReg differs) */
-extern void gif_EndPacket(void);
 
 void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
 {
@@ -770,9 +763,6 @@ typedef struct {
     /* 0x190 */ int f190;
     /* 0x194 */ int f194;
 } PrimParticle;
-
-/* kept local: main.c's global; this TU does not include main.h */
-extern int systemStatus[];
 
 /* One 16-byte constant packet template, copied to the stack. */
 typedef struct {

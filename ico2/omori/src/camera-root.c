@@ -12,6 +12,8 @@
 #include "hand-camera.h"
 #include "BgAnimation.h"
 #include "act-game.h"
+#include "main.h"
+#include "gv.h"
 
 union PendCopy {
     float f[8];
@@ -168,9 +170,6 @@ void MakeMatrixFromCameraSet2(void *dst, CameraSet2 *cs)
     MatrixDrive_PopMatrix();
 }
 
-/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, boyGObj differ) */
-extern char *matrixptr;
-
 void MakeCameraMatrix(CameraSet2 *cs)
 {
     float mat[16];
@@ -185,19 +184,6 @@ void MakeCameraMatrix(CameraSet2 *cs)
     gsb_MakeCommonMatrix();
 }
 
-typedef struct EditPad {
-    int flags; /* 0x00 */
-    int trg04; /* 0x04 */
-    char pad08[0x58 - 0x08];
-    int mode; /* 0x58 */
-    int trg;  /* 0x5C */
-    char pad60[0xAC - 0x60];
-    unsigned char stick[4]; /* 0xAC */
-} EditPad;
-
-/* kept local: EditPad here, PadState [16] in main.h */
-extern EditPad pad;
-
 /* the manual camera's speed, 1 to 4 on the pad's buttons */
 static int manualCameraSpeed = 2; /* derived name */
 
@@ -209,24 +195,24 @@ void CameraEditManual(CameraSet2 *set, int noLock)
     float v[4];
     float out[4];
 
-    if (pad.trg & 0x1000) {
+    if (pad[1].flags & 0x1000) {
         manualCameraSpeed = 1;
     }
-    if (pad.trg & 0x2000) {
+    if (pad[1].flags & 0x2000) {
         manualCameraSpeed = 2;
     }
-    if (pad.trg & 0x4000) {
+    if (pad[1].flags & 0x4000) {
         manualCameraSpeed = 3;
     }
-    if (pad.trg & 0x8000) {
+    if (pad[1].flags & 0x8000) {
         manualCameraSpeed = 4;
     }
 
-    d = 0x80 - pad.stick[1];
+    d = 0x80 - pad[1].ana[1];
     if ((d < 0 ? -d : d) < 0x32) {
         d = 0;
     }
-    if (pad.mode & 2) {
+    if (pad[1].now & 2) {
         if ((d < 0 ? -d : d) >= 0x33) {
             if (d < 0x32) {
                 t = (d + 0x32) * 10;
@@ -248,7 +234,7 @@ void CameraEditManual(CameraSet2 *set, int noLock)
         }
     }
 
-    d = 0x80 - pad.stick[0];
+    d = 0x80 - pad[1].ana[0];
     if ((d < 0 ? -d : d) < 0x32) {
         d = 0;
     }
@@ -261,12 +247,12 @@ void CameraEditManual(CameraSet2 *set, int noLock)
         }
     }
 
-    d = 0x80 - pad.stick[3];
+    d = 0x80 - pad[1].ana[3];
     if ((d < 0 ? -d : d) < 0x32) {
         d = 0;
     }
     if ((d < 0 ? -d : d) >= 0x33) {
-        if (noLock || (pad.flags & 1) == 0) {
+        if (noLock || (pad[0].now & 1) == 0) {
             if (d < 0x32) {
                 t = (d + 0x32) * 10;
                 mz = (float)(manualCameraSpeed * t) / 78.0f;
@@ -278,12 +264,12 @@ void CameraEditManual(CameraSet2 *set, int noLock)
         }
     }
 
-    d = 0x80 - pad.stick[2];
+    d = 0x80 - pad[1].ana[2];
     if ((d < 0 ? -d : d) < 0x32) {
         d = 0;
     }
     if ((d < 0 ? -d : d) >= 0x33) {
-        if ((pad.flags & 0x200) == 0) {
+        if ((pad[0].now & 0x200) == 0) {
             if (d < 0x32) {
                 t = (d + 0x32) * 10;
                 mx = (float)(manualCameraSpeed * t) / 78.0f;
@@ -315,8 +301,6 @@ void DebugCameraManual(void)
 }
 
 extern void ConvertCameraSet(CameraSet2 *dst, union CameraSetIn *src);
-/* kept local: float (void *, void *, void *, float) here, float (float *, float *, float *, float) in gv.h */
-extern float _MoveGV(void *a0, void *a1, void *a2, float t);
 
 void DebugCameraSemiAuto(void)
 {
@@ -339,8 +323,6 @@ void DebugCameraSemiAuto(void)
 
 /* kept local: void (void *, void *, float) here, void (void *, float) in camera-ico2.h */
 extern void SetCameraTargetPosition(void *, void *, float);
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistGV(void *, void *);
 
 void BackToGameCamera(void)
 {
@@ -371,9 +353,6 @@ void GetCameraInfomationFromGlobalPosition(int a0, int a1, int a2, int a3, int a
     *(float *)a4 = (float)debug_zoom_per / 100.0f;
     CameraGetOtherObjOffset(a0, a1, a2);
 }
-
-/* kept local: int * here, GObj * in main.h */
-extern int *boyGObj;
 
 static inline int getCameraDefaultTargetGObj(void)
 {
@@ -421,8 +400,6 @@ static inline void InsertCamera_Clear(void)
 
 /* kept local: agrees with camera-ico2.h, which this TU does not include (SetCameraTargetPosition differs) */
 extern void InitIco2Camera(void);
-/* kept local: int [] here, StageSetting in main.h */
-extern int GlobalStageSetting[];
 
 int CameraCalclated_f;
 
@@ -455,9 +432,9 @@ void InitCamera(void)
     InsertCameraWorkingFlag = 0;
     monitorCameraHold = 0;
     debug_zoom_per = 100;
-    handCameraLimitP = GlobalStageSetting[0x180 / 4];
-    handCameraLimitV = GlobalStageSetting[0x184 / 4];
-    zoomMaxInDemo = GlobalStageSetting[0x190 / 4];
+    handCameraLimitP = GlobalStageSetting.handCameraLimitP;
+    handCameraLimitV = GlobalStageSetting.handCameraLimitV;
+    zoomMaxInDemo = GlobalStageSetting.zoomMaxInDemo;
 }
 
 /* camera-root.c lines 1051-1352.  The listing inlines five helpers into this
@@ -489,10 +466,6 @@ union CamWork {
     CamZoomTbl zoom;
 };
 
-/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, boyGObj differ) */
-extern int systemStatus[];
-/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, boyGObj differ) */
-extern char *matrixptr;
 /* kept local: float () here, void (void *, void *) in poly-flat.h */
 extern float IsPointIsInScreen();
 /* same prototype as commonact.h's, kept local: this TU includes no commonact.h */
@@ -579,15 +552,7 @@ extern int debug_font_flag3;
 extern int debug_zoom_per;
 /* kept local: agrees with debug.h, which this TU does not include (debug_Printf differs) */
 extern int debug_hand_camera;
-/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, boyGObj differ) */
-extern int GlobalTimer;
 extern char iosPadConfCustom[];
-/* kept local: void (void *, float) here, void (float *, float) in gv.h */
-extern void _ApplyRyGV(void *v, float ry);
-/* kept local: float (void *) here, float (float *) in gv.h */
-extern float _GetDirection(void *v);
-/* kept local: void (void *, void *, void *, float, float) here, void (float *, float *, float *, float, float) in gv.h */
-extern void _InterGV(void *dst, void *a, void *b, float ta, float tb);
 /* kept local: agrees with camera-ico2.h, which this TU does not include (SetCameraTargetPosition differs) */
 extern void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag);
 /* kept local: agrees with camera-ico2.h, which this TU does not include (SetCameraTargetPosition differs) */
@@ -643,7 +608,7 @@ void SetCameraMatrix(void)
         if (debug_font_flag3 != 0 || (debug_font_flag & 1) != 0) {
             debug_Printf(220, 30, 0xFFFFFF00, "FREECAM");
         }
-        if ((pad.flags & 2) != 0 && (pad.trg04 & 0x100) != 0) {
+        if ((pad[0].now & 2) != 0 && (pad[0].flags & 0x100) != 0) {
             cameraSetMode(3);
         }
         break;
@@ -663,7 +628,7 @@ void SetCameraMatrix(void)
         if (debug_font_flag3 != 0 || (debug_font_flag & 1) != 0) {
             debug_Printf(220, 30, 0xFFFFFF00, "HANDCAM");
         }
-        if ((pad.trg04 & 0x100) != 0) {
+        if ((pad[0].flags & 0x100) != 0) {
             cameraSetMode(3);
         }
         break;
@@ -909,9 +874,6 @@ int CameraGetMode(void)
     return cameraMode;
 }
 
-/* kept local: float (void *) here, float (float *) in gv.h */
-extern float _GetDirection(void *v);
-
 void CameraGetOtherObjOffset(float *pos, float *outDist, int *outAngle)
 {
     float v[4];
@@ -1027,8 +989,8 @@ void SetHandCameraLimitInDemo(int a0, int a1)
 
 void ResetHandCameraLimitInDemo(void)
 {
-    handCameraLimitP = GlobalStageSetting[0x180 / 4];
-    handCameraLimitV = GlobalStageSetting[0x184 / 4];
+    handCameraLimitP = GlobalStageSetting.handCameraLimitP;
+    handCameraLimitV = GlobalStageSetting.handCameraLimitV;
 }
 
 void SetZoomMaxValInDemo(int a0)
@@ -1038,24 +1000,24 @@ void SetZoomMaxValInDemo(int a0)
 
 void ResetZoomMaxValInDemo(void)
 {
-    zoomMaxInDemo = GlobalStageSetting[0x190 / 4];
+    zoomMaxInDemo = GlobalStageSetting.zoomMaxInDemo;
 }
 
 int UpdateHandCameraLimitP(void)
 {
-    handCameraLimitP = GlobalStageSetting[0x180 / 4];
+    handCameraLimitP = GlobalStageSetting.handCameraLimitP;
     return 0;
 }
 
 int UpdateHandCameraLimitV(void)
 {
-    handCameraLimitV = GlobalStageSetting[0x184 / 4];
+    handCameraLimitV = GlobalStageSetting.handCameraLimitV;
     return 0;
 }
 
 int UpdateZoomMaxVallInDemo(void)
 {
-    zoomMaxInDemo = GlobalStageSetting[0x190 / 4];
+    zoomMaxInDemo = GlobalStageSetting.zoomMaxInDemo;
     return 0;
 }
 

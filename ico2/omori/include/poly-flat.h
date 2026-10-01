@@ -16,11 +16,10 @@
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order poly-flat.c's inline tail has. */
 void DrawPolygon(void *a0, void *a1, void *a2, void *a3, unsigned char *a4, void *a5);
-void do_DrawLine(void *p0, void *p1, int *c);
+void do_DrawLine(void *p0, void *p1, int *c, int a3);
 void IsPointIsInScreen(void *a0, void *a1);
-
-void after_DrawLine(int a0, int a1, int a2, int a3);
-void after_DrawPolygon(int a0, int a1, int a2, int a3);
+void after_DrawLine(void);
+void after_DrawPolygon(void);
 void before_DrawLine(int a0);
 void before_DrawPolygon(void);
 

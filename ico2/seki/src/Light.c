@@ -14,6 +14,8 @@
 #include "Primitive.h"
 #include "debug_exception.h"
 #include "wireLetter.h"
+#include "main.h"
+#include "GifPacket.h"
 
 typedef struct Light {
     char _pad0[0x10];
@@ -111,16 +113,6 @@ void light_killLinkAmbient(AmbientVolume *p)
     }
     freeseki(p);
 }
-
-/* kept local: this TU's bytes only come out with its own view of StageSetting. */
-typedef struct StageSetting {
-    float flatLightDir[3][4]; /* 0x00 */
-    float flatLightCol[3][4]; /* 0x30 */
-    float ambientCol[4];      /* 0x60 */
-} StageSetting;
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, pad differ) */
-extern StageSetting GlobalStageSetting;
 
 /* .data, owned by Light.o and read only here (MAIN.MAP names no symbol in the
    run).  The three flat lights light_AddLight registers, kept so
@@ -534,28 +526,6 @@ void light_MakeLightMatrix(char *a, int b)
    copy all sit on that row), and the temporary is the slot the extents
    re-take. */
 
-/* RECONSTRUCTION, ROM BYTES: the 16-byte wire colour the debug draws pass to
- * prim_DispWireSphere and prim_DispWireBox, the same record typedef.h calls
- * Col4 for debug.c and girl_act.c (this file cannot include typedef.h, which
- * redefines StageSetting and Pad).  The long long member gives the 8-byte
- * alignment the ROM's ld/sd copy of the initializer's temporary shows. */
-typedef union {
-    int c[4];
-    long long ll[2];
-} Col4;
-
-/* kept local: char * here, GObj * in main.h */
-extern char *boyGObj;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, pad differ) */
-extern char *matrixptr;
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_StartPacketPri(int pri);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_SetZTest(int on);
-/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
-extern void gif_SetAlpha(int a, int b, int c);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_EndPacket(void);
 /* kept local: int (char *, char *, ...) here, int (void *, int, ...) in stdio.h */
 extern int sprintf(char *buf, char *fmt, ...);
 
@@ -715,21 +685,6 @@ inline void light_resetFlatLight(void)
     }
 }
 
-/* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
-   pad, trg at 0x4; the right analog stick pair sits at 0x54 of pad 1. */
-/* kept local: this TU's bytes only come out with its own view of Pad. */
-typedef struct Pad {
-    int unk00;            /* 0x00 */
-    int trg;              /* 0x04 */
-    int unk08;            /* 0x08 */
-    int rep;              /* 0x0C */
-    char unk10[0x44];     /* 0x10 */
-    unsigned char ana[4]; /* 0x54 */
-} Pad;
-
-/* kept local: Pad [] here, PadState [16] in main.h */
-extern Pad pad[];
-
 void light_GetColorAnalog(float *col)
 {
     float x;
@@ -812,11 +767,6 @@ typedef union LtVec {
     sceVu0FVECTOR f;
     int i[4];
 } LtVec;
-
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_StartPacketPri(int pri);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_EndPacket(void);
 
 void light_DrawCursor(float *dir, int mode)
 {
@@ -906,9 +856,6 @@ static int toolItem = 0; /* derived name */ /* the selected component: 0 x/r, 1 
 
 static int toolLight = 0; /* derived name */ /* the selected flat light: 0..2 */
 
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, pad differ) */
-extern int frame_count;
-
 int light_Tool(void)
 {
     float dir[4];
@@ -921,22 +868,22 @@ int light_Tool(void)
     short rot;
     float (*c)[4];
 
-    if (pad[0].trg & 0x4000) {
+    if (pad[0].flags & 0x4000) {
         if (++toolPage == 3) {
             toolPage = 0;
         }
     }
-    if (pad[0].trg & 0x1000) {
+    if (pad[0].flags & 0x1000) {
         if (--toolPage == -1) {
             toolPage = 2;
         }
     }
-    if (pad[0].trg & 0x1) {
+    if (pad[0].flags & 0x1) {
         if (++toolLight == 3) {
             toolLight = 0;
         }
     }
-    if (pad[0].trg & 0x100) {
+    if (pad[0].flags & 0x100) {
         pageIdle[0] = pageIdle[1] = pageIdle[2] = 1;
         ret = -1;
     }
@@ -949,7 +896,7 @@ int light_Tool(void)
     case 0:
         pageIdle[1] = pageIdle[2] = 1;
         light_GetColorAnalog(col1);
-        if ((pad[0].trg & 0x400) && toolItem == 3) {
+        if ((pad[0].flags & 0x400) && toolItem == 3) {
             pageIdle[0] ^= 1;
         }
         if (pageIdle[0] == 0 && toolItem == 3) {
@@ -964,12 +911,12 @@ int light_Tool(void)
             c[3][2] = col1[2] / 128.0f;
             break;
         }
-        if (pad[0].trg & 0x2000) {
+        if (pad[0].flags & 0x2000) {
             if (++toolItem == 4) {
                 toolItem = 0;
             }
         }
-        if (pad[0].trg & 0x8000) {
+        if (pad[0].flags & 0x8000) {
             if (--toolItem == -1) {
                 toolItem = 3;
             }
@@ -996,19 +943,19 @@ int light_Tool(void)
         break;
     case 1:
         pageIdle[0] = pageIdle[2] = 1;
-        if ((pad[0].trg & 0x400) && toolItem == 3) {
+        if ((pad[0].flags & 0x400) && toolItem == 3) {
             pageIdle[1] ^= 1;
         }
         if (pageIdle[1] == 0 && toolItem == 3) {
             _CopyVector(GlobalStageSetting.flatLightDir[toolLight], dir);
             break;
         }
-        if (pad[0].trg & 0x2000) {
+        if (pad[0].flags & 0x2000) {
             if (++toolItem == 4) {
                 toolItem = 0;
             }
         }
-        if (pad[0].trg & 0x8000) {
+        if (pad[0].flags & 0x8000) {
             if (--toolItem == -1) {
                 toolItem = 3;
             }
@@ -1039,7 +986,7 @@ int light_Tool(void)
     case 2:
         pageIdle[0] = pageIdle[1] = 1;
         light_GetColorAnalog(col2);
-        if ((pad[0].trg & 0x400) && toolItem == 3) {
+        if ((pad[0].flags & 0x400) && toolItem == 3) {
             pageIdle[2] ^= 1;
         }
         if (pageIdle[2] == 0 && toolItem == 3) {
@@ -1048,12 +995,12 @@ int light_Tool(void)
             GlobalStageSetting.ambientCol[2] = col2[2] / 255.0f;
             break;
         }
-        if (pad[0].trg & 0x2000) {
+        if (pad[0].flags & 0x2000) {
             if (++toolItem == 4) {
                 toolItem = 0;
             }
         }
-        if (pad[0].trg & 0x8000) {
+        if (pad[0].flags & 0x8000) {
             if (--toolItem == -1) {
                 toolItem = 3;
             }

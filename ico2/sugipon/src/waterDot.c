@@ -4,6 +4,9 @@
 #include "geometryManager.h"
 #include "matrixDrive.h"
 #include "waterDot.h"
+#include "main.h"
+#include "GifPacket.h"
+#include "Matrix.h"
 
 /* One dot of the splash: 0x30 bytes, sized by AllocWaterDot's `mult ,0x30`. */
 /* 0x30 */
@@ -18,9 +21,6 @@ static WaterDotWork *waterDots[5];
 
 /* the TU's .sdata (MAIN.MAP names nothing in it): how many are registered */
 static int waterDotCount = 0; /* derived name */
-
-/* kept local: void (VECTOR *, VECTOR *, VECTOR *) here, void (void *, void *, void *) in Matrix.h */
-extern void _AddVectorXYZ(VECTOR *dst, VECTOR *a, VECTOR *b);
 
 inline void InitializeWaterDot(void)
 {
@@ -97,12 +97,8 @@ inline void EntryWaterDot(WaterDotWork *w, VECTOR *pos, VECTOR *vel, float range
         w->cur = 0;
 }
 
-/* kept local: agrees with main.h, which this TU does not include (matrixptr differs) */
-extern int systemStatus[];
 /* kept local: void * (int, void *) here, int (void) in windField.h */
 extern void *GetWindVector(int a0, void *pos);
-/* kept local: agrees with Matrix.h, which this TU does not include (_AddVectorXYZ, _ApplyMatrix differ) */
-extern void _ScaleVectorXYZ(void *dst, void *src, float k);
 
 /* waterDot.c:71-78 in the PAL listing, rows inside ExecWaterDot's span but
    above its def line: a static helper with no out-of-line copy, inlined at
@@ -155,31 +151,9 @@ void ExecWaterDot(WaterDotWork *w)
     }
 }
 
-/* kept local: int here, char * in main.h */
-extern int matrixptr;
-
 /* the PRIM register value the splash packet draws with, the TU's second
    .sdata word */
 static int waterDotPrim = 0x1C0; /* derived name */
-
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_StartPacketPri(int a0);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_SetGsReg(long long a0, long long a1);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_SetZTest(int a0);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_SetZWrite(int a0);
-/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
-extern void gif_SetAlpha(int a0, int a1, int a2);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_EndPacket(void);
-/* kept local: void (void *, int, void *) here, void (void *, void *, void *) in Matrix.h */
-extern void _ApplyMatrix(void *dst, int m, void *src);
-/* kept local: agrees with Matrix.h, which this TU does not include (_AddVectorXYZ, _ApplyMatrix differ) */
-extern void _ScaleVector(void *dst, void *src, float k);
-/* kept local: agrees with Matrix.h, which this TU does not include (_AddVectorXYZ, _ApplyMatrix differ) */
-extern void _FTOI4Vector(void *dst, void *src);
 
 /* waterDot.c:121-126 in the PAL listing, rows inside DispWaterDot's span but
    above its def line: a static helper with no out-of-line copy, inlined at its

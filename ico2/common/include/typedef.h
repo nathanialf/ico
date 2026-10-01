@@ -71,7 +71,10 @@
  * keep it on one line: the listing puts every instruction of both
  * expansions on that line.
  * ------------------------------------------------------------------ */
-static inline float absf(float x) { return x < 0.0f ? -x : x; }
+static inline float absf(float x)
+{
+    return x < 0.0f ? -x : x;
+}
 
 /*
  * RECONSTRUCTION.  Every shape below was read back out of the binary's own
@@ -381,7 +384,7 @@ typedef int sceVu0IVECTOR[4] __attribute__((aligned(16)));
  * sugipon/src/matrixDrive), so it is a macro argument.  dst/src are
  * implicit in $4/$5: the macro is the BODY of a two-pointer wrapper. */
 #define QCOPY16(scratch)                                                                           \
-    __asm__ __volatile__("lq " scratch ", 0($5)" : : : "memory");                                 \
+    __asm__ __volatile__("lq " scratch ", 0($5)" : : : "memory");                                  \
     __asm__ __volatile__("sq " scratch ", 0($4)" : : : "memory")
 
 /* ------------------------------------------------------------------ *
@@ -534,7 +537,24 @@ typedef struct StageSetting {
     float flatLightDir[3][4]; /* 0x000 */
     float flatLightCol[3][4]; /* 0x030 */
     float ambientCol[4];      /* 0x060 */
-    char pad070[0x60];        /* 0x070 */
+    char pad070[0x10];        /* 0x070 */
+    /* the fog words, as ico2/seki/src/ZFog.c reads and edits them */
+    int fogOn;        /* 0x080 */
+    char pad084[0xC]; /* 0x084 */
+    int fogColR;      /* 0x090 */
+    int fogColG;      /* 0x094 */
+    int fogColB;      /* 0x098 */
+    int fogColA;      /* 0x09C */
+    int fogOffsetA;   /* 0x0A0 */
+    int fogNear;      /* 0x0A4 */
+    int fogFar;       /* 0x0A8 */
+    /* the shadow words, as ico2/seki/src/Shadow.c's tool labels them */
+    int shadowDepth; /* 0x0AC */                                        /* derived name */
+    int shadowBlend[4]; /* 0x0B0, the 1/1, 1/4, 1/16 and 1/64 blends */ /* derived name */
+    int shadowColR; /* 0x0C0 */                                         /* derived name */
+    int shadowColG; /* 0x0C4 */                                         /* derived name */
+    int shadowColB; /* 0x0C8 */                                         /* derived name */
+    char pad0CC[0x4];                                                   /* 0x0CC */
     /* RECONSTRUCTION: the reduction tint used while no sub target is current,
        and the per sub target row whose fourth word is the film grain tint
        ico2/seki/src/GsBase.c reads at 0x13C. */
@@ -543,13 +563,22 @@ typedef struct StageSetting {
     /* RECONSTRUCTION: the stage's view scale, a percentage that
        ico2/seki/src/GsBase.c's gsb_SetVSMatrix divides by 100 into the zoom
        and again into the mip map level. */
-    int viewScale;     /* 0x0E0 */
-    char pad0E4[0x10]; /* 0x0E4 */
-    int motionBlur;    /* 0x0F4 */
-    char pad0F8[0x4];  /* 0x0F8 */
-    int f0FC;          /* 0x0FC */
-    int f100;          /* 0x100 */
-    char pad104[0x2C]; /* 0x104 */
+    int viewScale; /* 0x0E0 */
+    /* 0x0E4 to 0x110: named after the labels ico2/seki/src/GsBase.c's stage
+       setting menu prints for them */
+    int texSampleMode; /* 0x0E4, "Def Tex Sample Mode" */         /* derived name */
+    int postEffect; /* 0x0E8, "Post Effect" */                    /* derived name */
+    int depthFieldStart; /* 0x0EC, "DepthField Start" */          /* derived name */
+    int depthFieldWidth; /* 0x0F0, "DepthField Width" */          /* derived name */
+    int motionBlur;                                               /* 0x0F4, "Motion Blur" */
+    int depthFieldLevel; /* 0x0F8, "DepthField Level" */          /* derived name */
+    int antiLevel0; /* 0x0FC, "AntiLevel0" */                     /* derived name */
+    int antiLevel1; /* 0x100, "AntiLevel1" */                     /* derived name */
+    int feedbackEffect; /* 0x104, "Feedback Effect" */            /* derived name */
+    char pad108[0x8];                                             /* 0x108 */
+    int feedbackCol[4]; /* 0x110, "Feedback Effect R, G, B, A" */ /* derived name */
+    int fogStrength;                                              /* 0x120 */
+    char pad124[0xC];                                             /* 0x124 */
 
     /* RECONSTRUCTION: each target row is a 16 byte aligned quadword (red,
        green, blue, then the film grain tint), the ROM's own proof being
@@ -566,8 +595,15 @@ typedef struct StageSetting {
 
     /* RECONSTRUCTION: the film grain's UV step, which
        ico2/seki/src/GsBase.c's gsb_filmNoise passes as raw bits. */
-    float grainScale;  /* 0x170 */
-    char pad174[0x28]; /* 0x174 */
+    float grainScale; /* 0x170 */
+    char pad174[0xC]; /* 0x174 */
+    /* the camera limits ico2/omori/src/camera-root.c loads per stage, named
+       after GsBase.c's menu labels */
+    int handCameraLimitP; /* 0x180, "HandCamera Limit P" */ /* derived name */
+    int handCameraLimitV; /* 0x184, "HandCamera Limit V" */ /* derived name */
+    char pad188[0x8];                                       /* 0x188 */
+    int zoomMaxInDemo; /* 0x190, "ZOOM MAX IN DEMO" */      /* derived name */
+    char pad194[0x8];                                       /* 0x194 */
 
     struct {
         int a;
@@ -582,7 +618,6 @@ typedef union {
     int c[4];
     long long ll[2];
 } __attribute__((aligned(16))) Col4;
-
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
 typedef struct {
@@ -644,9 +679,13 @@ typedef union {
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 12 TUs that carried 3 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
 typedef struct PadState {
-    int unk00;        /* 0x00 */
-    int flags;        /* 0x04 */
-    char unk08[0x50]; /* 0x08 */
+    int now; /* 0x00, the buttons held this frame */                /* derived name */
+    int flags;                                                      /* 0x04, the trigger bits */
+    int unk08;                                                      /* 0x08 */
+    int rep; /* 0x0C, the auto-repeat bits */                       /* derived name */
+    int old; /* 0x10, last frame's buttons (keyInput.c fills it) */ /* derived name */
+    unsigned int hist[16]; /* 0x14, per-button held-frame counts */ /* derived name */
+    unsigned char ana[4]; /* 0x54, the two analog sticks */         /* derived name */
 } PadState;
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 8 TUs that carried 6 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
@@ -758,14 +797,14 @@ typedef struct {
     float b[4];   /* 0x10 end point     */
     float pos[4]; /* 0x20 clipped point */
     char _30[0x40];
-    float radius;    /* 0x70 clip radius */
-    int skipSrc[2];  /* 0x74 the pair _Clip passes with an element, for the element
+    float radius;              /* 0x70 clip radius */
+    int skipSrc[2];            /* 0x74 the pair _Clip passes with an element, for the element
                         the search must skip */
-    int skipElem;    /* 0x7C */
-    int wallSrc[2];  /* 0x80 the same pair for the wall the search hit */
+    int skipElem;              /* 0x7C */
+    int wallSrc[2];            /* 0x80 the same pair for the wall the search hit */
     struct FcWallEnt *wallHit; /* 0x88, fieldCollision.h's wall record */
-    int floorSrc[2]; /* 0x8C the same pair for the floor the search hit */
-    int floorHit;    /* 0x94 */
+    int floorSrc[2];           /* 0x8C the same pair for the floor the search hit */
+    int floorHit;              /* 0x94 */
     char _98[0x8];
     float normal[4]; /* 0xA0 */
     int f_B0;        /* 0xB0 */
@@ -985,13 +1024,5 @@ typedef struct {
 typedef struct {
     float m[16];
 } Mtx44 __attribute__((aligned(16)));
-
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 2 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
-typedef struct {
-    int _0;
-    int trg; /* 0x4 */
-    int _8;
-    int rep; /* 0xC */
-} GsbPad;
 
 #endif /* TYPEDEF_H */

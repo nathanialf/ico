@@ -18,6 +18,8 @@
 #include "fieldCollision.h"
 #include <math.h>
 #include "lineManager.h"
+#include "main.h"
+#include "Matrix.h"
 
 /* The rope's interpolation rate: the chain's geometry sets it from the hang
    height and rootUpdateY_Rope moves the root by it.  The first word of the
@@ -380,11 +382,6 @@ static __inline__ int checkMotionShiftRange(int mot, float t, float t2)
     return 1;
 }
 
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int systemStatus[];
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int motionFrameUpdate;
-
 int UpdateFrameCounter(void *self)
 {
     char *m = MOWORK(self);
@@ -498,9 +495,6 @@ inline MotionOrientEntry *getMotionOrient(int i, int n, int id, int kind)
     }
     return &D_002BC4A8;
 }
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern char *matrixptr;
 
 void sendStateMail(void *self)
 {
@@ -773,8 +767,6 @@ inline void CopyBlendMotionDataSource(void *self, short ang)
     }
 }
 
-/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
-extern void _NormalizeVector(void *dst, void *src);
 /* kept local: GetOutOutsideOfWall is defined in src/motionManager2 and no header of
  * this tree declares it */
 /* kept local: agrees with motionManager2.h, which this TU does not include (CopyMotionWithNodeHrc, DispSkelton differ) */
@@ -971,22 +963,11 @@ int parallelMotionShift(void *self)
     return 0;
 }
 
-/* kept local: void * here, GObj * in main.h */
-extern void *boyGObj;
-/* kept local: void * here, GObj * in main.h */
-extern void *girlGObj;
-
 /* The ignored-request report: how many times in a row, and for which
    motion. */
 static int ignoreCount = 0; /* derived name */
 
-/* kept local: int [] here, PadState [16] in main.h */
-extern int pad[];
-
 static int ignoreMotion = 0; /* derived name */
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int frame_count;
 
 /* The four one-character spinners the debug line cycles with the frame count. */
 typedef struct MotOriSpin {
@@ -1027,7 +1008,7 @@ char *SetMotionRequest(void *self, int mot, MotOriReq req)
         }
     } else {
         *(int *)(w + 0xD0) = old;
-        if (pad[0] & 0x2) {
+        if (pad[0].now & 0x2) {
             if ((debug_mot_debug_target == 0 && self == boyGObj) ||
                 (debug_mot_debug_target == 1 && self == girlGObj) ||
                 (debug_mot_debug_target == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
@@ -1137,15 +1118,11 @@ extern void DispSkelton(void *self, void *m);
 /* kept local: agrees with motionManager2.h, which this TU does not include (CopyMotionWithNodeHrc, DispSkelton differ) */
 extern void GetBlendedMotion(void *dst, float *dv, void *m1, float *v1, void *m0, float *v0,
                              float t, int tbl, int n);
-/* kept local: agrees with Matrix.h, which this TU does not include (_ScaleVectorXYZ differs) */
-extern void _ApplyMatrix(void *dst, void *m, void *v);
 /* kept local: void (float *, int *, float) here, void (float *, void *, float) in motionManager2.h */
 extern void GetFloatingMotionRootPos(float *v, int *md, float f);
 extern void MakeMirrorMotion(void *dst, int *p);
 /* kept local: void (void *, void *, float *, float *, int) here, void (GObj *, char *, int, Vec4 *) in motionManager2.h */
 extern void SlopeIKControl(void *self, void *m, float *v, float *r, int n);
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int stage_no;
 
 /* Listing lines 1150 to 1160: a static inline with no symbol and no census row,
  * between SetParallelMotionTable (last line 1145) and getNodeBlendedFloatingMotion
@@ -1483,8 +1460,6 @@ void getShapeGeometry(void *self)
 
 /* kept local: int (void *, float *, void *, int) here, int (char *, float *, char *, char *) in motionManager2.h */
 extern int GetStreamMotion(void *dst, float *v, void *sm, int n);
-/* kept local: void (float *, float *, float) here, void (void *, void *, float) in Matrix.h */
-extern void _ScaleVectorXYZ(float *dst, float *src, float s);
 /* kept local: void (void *, void *) here, void (GObj *, int) in motionManager2.h */
 extern void DispSkelton(void *self, void *m);
 

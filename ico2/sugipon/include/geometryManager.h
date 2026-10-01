@@ -45,6 +45,7 @@ void SetRootMatrixRotOffset(int a0, void *a1);
 void SetRootMatrixWithTransOffset(void *obj, float x, float y, float z);
 void SetRootPosition(char *a0, void *a1);
 void SetRootQuaternion(char *a0, void *a1);
+void SetRootBaseQuaternion(int a0, float *q);
 void UpdateRootMatrix(int a0);
 void UpdateRootMatrixByDObj(char *a0);
 

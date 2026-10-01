@@ -15,6 +15,7 @@
 #include "sugiCommon.h"
 #include <string.h>
 #include <libvu0.h>
+#include "main.h"
 
 /* One capsule: its BGA, its state (0 closed, 1 gathering, 2 open), the
    placement InitBossCtrlGeo gives it, its release point, and whether a
@@ -330,9 +331,6 @@ void bossCtrlBeforeFunc(char *self)
     *(int *)(p + 4) = 0;
 }
 
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, pad differ) */
-extern int stage_no;
-
 inline int InqCapsuleGhostBossStage(void)
 {
     int r = 0;
@@ -365,13 +363,6 @@ void BossEnemyFunc(void *self)
         }
     }
 }
-
-/* kept local: int [] here, PadState [16] in main.h */
-extern int pad[];
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, pad differ) */
-extern int systemStatus[];
-/* kept local: char * here, GObj * in main.h */
-extern char *boyGObj;
 
 /* The TU's .sbss (VMA 0x63C2EC, 8 B, MAIN.MAP itou_boss.o .sbss 0x8): the
    number of gene_enemy threads started, which indexes their done flags, and
@@ -448,7 +439,7 @@ static void gene_enemy(volatile int a0)
         total = 0;
         alive = 0;
         if (stage_no == 0x56) {
-            if ((pad[1] & 0x40) != 0) {
+            if ((pad[0].flags & 0x40) != 0) {
                 gflag[0] = 1;
             }
         }

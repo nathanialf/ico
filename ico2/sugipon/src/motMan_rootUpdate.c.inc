@@ -7,39 +7,23 @@ extern int ClipFloorE(void *a0);
 extern int GetFloorAttribute(void *a0);
 /* kept local: agrees with fieldCollision.h, which this TU does not include (ClipFloor, ClipFloorIH differ) */
 extern int CompareAttribute(unsigned int a, unsigned int b);
-/* kept local: agrees with tableSin.h, which this TU does not include (GetTableArcCos differs) */
-extern short GetTableArcTan2(float f12, float f13);
-/* kept local: void (void *, short) here, void (void *, int) in quaternion.h */
-extern void RotQuaternionX(void *q, short ang);
 /* kept local: this TU's uses of these do not fit the prototypes in
  * fieldCollision.h / math.h. */
 /* kept local: void (int, void *, int, char *) here, void (char *, void *, char *, void *) in fieldCollision.h */
 extern void GetWallGlobalInfo(int a0, void *v, int a2, char *node);
-/* kept local: char [] here, float [4] in matrixDrive.h */
-extern char ZeroPoint[];
 /* kept local: this TU does not include fieldCollision.h (its prototypes
    conflict here) and reads the pair as its own MotShift */
 /* kept local: MotShift here, FcBlk8 in fieldCollision.h */
 extern MotShift InitialObjPointer;
 /* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ApplyMatrix, sceVu0MulMatrix differ) */
 extern void sceVu0AddVector(void *a0, void *a1, void *a2);
-/* kept local: void (void *, void *, void *, float, float) here, void (float *, float *, float *, float, float) in gv.h */
-extern void _InterGV(void *elem, void *base, void *v, float a, float b);
-/* kept local: char [] here, float [4] in matrixDrive.h */
-extern char ZeroVector[];
-/* kept local: agrees with quaternion.h, which this TU does not include (DivQuaternion, GetCurrentQuaternion differ) */
-extern void MultiQuaternion(void *p0, void *p1, void *p2);
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
+/* kept local: agrees with fieldCollision.h, which this TU does not include (InitialColInfo, InitialObjPointer differ) */
 extern void ClipWallAdjustPos(void *a0);
 /* kept local: agrees with fieldCollision.h, which this TU does not include (ClipFloor, ClipFloorIH differ) */
 extern void ClipWallE(void *a0);
-/* kept local: agrees with quaternion.h, which this TU does not include (DivQuaternion, GetCurrentQuaternion differ) */
-extern void CopyQuaternion(void *a0, void *a1);
 /* kept local: void (void *, void *) here, void (int, int) in geometryManager.h */
 extern void GetRootQuaternion(void *q, void *obj);
 /* the two ints the demo timer keeps: the elapsed count and its divisor. */
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, pad differ) */
-extern int systemStatus[];
 extern int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *ptsIn, int *cfg,
                                                  int flip, char *self);
 /* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ApplyMatrix, sceVu0MulMatrix differ) */
@@ -51,7 +35,7 @@ extern WallCfg InitialColInfo;
 extern void GetLowerPlaneCollision(void *work, void *pos);
 extern int GetWaterReaction(void *w, int *hit, void *plane, void *pos, void *vel, float low,
                             float mid, float high, float k, float acc);
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
+/* kept local: agrees with fieldCollision.h, which this TU does not include (InitialColInfo, InitialObjPointer differ) */
 extern void ClipWallWaveForce(void *a0);
 
 /* 12-byte plane record copied out of the motion work block. */
@@ -453,11 +437,6 @@ int getFieldCollision(char *w)
 /* RECONSTRUCTED NAMES for two helpers the PAL listing shows only inlined into
  * setIKAndAdjustRootHeight (rows 439-483 and 492-517, both above its def line
  * 548), so neither carries a symbol in MAIN.MAP. */
-
-/* kept local: this TU's uses of these do not fit the prototypes in
- * Matrix.h / debug.h. */
-/* kept local: agrees with Matrix.h, which this TU does not include (_AddVectorXYZ, _ApplyMatrix differ) */
-extern float _InnerProduct(void *a, void *b);
 
 /* "PLANE<EUC-JP riMItto desu> %f <EUC-JP abunai node rakka sasemasu>\n":
  * the plane limit was exceeded, so the actor is dropped. */

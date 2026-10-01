@@ -14,6 +14,8 @@
 #include "matrixDrive.h"
 #include "spiderGroupManager.h"
 #include <stdlib.h>
+#include "main.h"
+#include "GifPacket.h"
 
 /* kept local: void * here, int in ios.h */
 extern void *ios_partition_sugipon;
@@ -98,11 +100,6 @@ void WakeUpLayoutedSpiders(void *self)
     wakeSpiderGroup((char *)self);
     ExecuteSEPackage((char *)self, 106);
 }
-
-/* kept local: main.c's global; this TU does not include main.h */
-extern void *boyGObj;
-/* kept local: main.c's global; this TU does not include main.h */
-extern void *girlGObj;
 
 /* listing lines 324-331 */
 static inline void setSpiderGroupHost(char *self, void *host)
@@ -277,15 +274,6 @@ int sgSelLine = 0;
 
 /* spider.o's whole .data run: the white the debug wire sphere is drawn in. */
 static int spiderWireColor[4] = {0xFF, 0xFF, 0xFF, 0xFF};
-
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_StartPacketPri(int pri);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_SetZTest(int on);
-/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
-extern void gif_SetAlpha(int a, int b, int c);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differs) */
-extern void gif_EndPacket(void);
 
 typedef struct {
     char pad[0x20];

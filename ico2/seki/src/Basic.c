@@ -5,8 +5,6 @@
 extern int *sceDmaGetChan(int a0);
 /* kept local: void (int) here, int (int) in libdma.h */
 extern void sceDmaReset(int a0);
-/* kept local: int here, char * in main.h */
-extern int matrixptr;
 /* kept local: declaring it only through string.h moves this TU's bytes */
 extern void memcpy();
 
@@ -28,6 +26,7 @@ extern int iosReallocDebug(int size, int align, const char *file, int line);
 
 #include "Basic.h"
 #include "ios.h"
+#include "main.h"
 
 void dma_init(void)
 {

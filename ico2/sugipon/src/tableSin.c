@@ -10,8 +10,8 @@
 float GetTableSin(short a0);
 float GetTableCos(short a0);
 void InitTableSin(void);
-int GetTableArcSin(float x);
-int GetTableArcCos(float x);
+short GetTableArcSin(float x);
+short GetTableArcCos(float x);
 int GetTableArcTan2(float f12, float f13);
 
 /* .bss, owned by tableSin.o and reached only from this file (MAIN.MAP names no
@@ -84,7 +84,7 @@ inline int GetTableArcTan2(float f12, float f13)
     return f12 < 0.0f ? (short)-GetTableArcCos(f13) : GetTableArcCos(f13);
 }
 
-inline int GetTableArcSin(float x)
+inline short GetTableArcSin(float x)
 {
     int neg;
     int hi;
@@ -94,7 +94,7 @@ inline int GetTableArcSin(float x)
     return (short)(neg ? -hi : hi);
 }
 
-inline int GetTableArcCos(float x)
+inline short GetTableArcCos(float x)
 {
     int neg;
     int hi;

@@ -7,6 +7,8 @@
 #include "geometryManager.h"
 #include "typedef.h"
 #include "matrixDrive.h"
+#include "quaternion.h"
+#include "main.h"
 
 typedef struct {
     int se[2];
@@ -137,7 +139,7 @@ typedef struct SECondEntry { /* 0x0C */
 extern SECondEntry D_00626F28[];
 /* kept local: int (void *, int) here, int (char *, int) in motionManager2.h */
 extern int CheckFloorAttribute(void *self, int id);
-/* kept local: int (void *, int) here, int (char *) in motionManager2.h */
+/* kept local: int (void *, int) here, int (char *, int) in motionManager2.h */
 extern int CheckWallAttribute(void *self, int id);
 /* Declared before the three predicates: gcc 2.9 emits deferred inline bodies
    in first-declaration order, and the ROM has execSE before them. */
@@ -218,16 +220,8 @@ typedef struct EffEntry { /* 0x24 */
 } EffEntry;
 
 extern EffEntry motionEffKind[];
-/* kept local: agrees with main.h, which this TU does not include (girlControlMode differs) */
-extern int stage_no;
 /* kept local: int (void *, int) here, int (char *, int) in motionManager2.h */
 extern int GetSkeltonFocusNode(void *gobj, int node);
-/* kept local: void (float *, short) here, void (void *, int) in quaternion.h */
-extern void RotQuaternionX(float *q, short a);
-/* kept local: void (float *, short) here, void (void *, int) in quaternion.h */
-extern void RotQuaternionY(float *q, short a);
-/* kept local: void (float *, short) here, void (void *, int) in quaternion.h */
-extern void RotQuaternionZ(float *q, short a);
 
 void playEff(int no)
 {
@@ -347,10 +341,6 @@ done:
     return 1;
 }
 
-/* kept local: void * here, int in main.h */
-extern void *girlControlMode;
-/* kept local: agrees with main.h, which this TU does not include (girlControlMode differs) */
-extern int girlPad;
 /* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
 extern void StopFDSVibration(void *a0);
 
@@ -645,9 +635,6 @@ inline int checkWeaponType(void *a0, int a1)
     }
     return 0;
 }
-
-/* kept local: agrees with main.h, which this TU does not include (girlControlMode differs) */
-extern int boyPad;
 
 inline int execVib(int a0, void *a1)
 {

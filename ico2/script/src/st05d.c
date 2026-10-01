@@ -145,7 +145,7 @@ void actSt05dEne(volatile int a0)
     int x = a0;
     Act *self = actInitialize(a0);
     int g;
-    int rot;
+    short rot;
 
     _ACTWait(1);
 

@@ -14,6 +14,8 @@
 #include "ios.h"
 #include "main.h"
 #include "debug_exception.h"
+#include "GifPacket.h"
+#include "poly-flat.h"
 
 typedef struct CamMgr {
     int count;        /* 0x00 */
@@ -205,9 +207,6 @@ void saveEditedData(int *range)
     iosThreadMessage(2);
 }
 
-/* kept local: void (int, long) here, void (long long, long long) in GifPacket.h */
-extern void gif_SetGsReg(int code, long data);
-
 /* The listing's rows 478 to 504 carry no code. What the bytes pin: the
    format "illegal message %d\n", which the ROM's .rodata holds between
    saveEditedData's strings and dispPinRange's colour with no reader, so a
@@ -229,10 +228,6 @@ void gif_test(int *a0, int *a1, int *a2, unsigned char *a3)
 
 /* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ScaleVector differs) */
 extern void sceVu0UnitMatrix(void *m);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetGsReg differ) */
-extern void gif_StartPacketPri(int prio);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetGsReg differ) */
-extern void gif_EndPacket(void);
 
 static inline void dispPinRange(int box, int from, int to)
 {
@@ -283,18 +278,6 @@ typedef union {
 
 /* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ScaleVector differs) */
 extern void sceVu0MulMatrix(void *dst, void *a, void *b);
-/* kept local: agrees with poly-flat.h, which this TU does not include (after_DrawLine, after_DrawPolygon differ) */
-extern void before_DrawPolygon(void);
-/* kept local: agrees with poly-flat.h, which this TU does not include (after_DrawLine, after_DrawPolygon differ) */
-extern void DrawPolygon(void *p0, void *p1, void *p2, void *p3, unsigned char *col, void *m);
-/* kept local: void (void) here, void (int, int, int, int) in poly-flat.h */
-extern void after_DrawPolygon(void);
-/* kept local: void (void *) here, void (int) in poly-flat.h */
-extern void before_DrawLine(void *m);
-/* kept local: void (void *, void *, void *, int) here, void (void *, void *, int *) in poly-flat.h */
-extern void do_DrawLine(void *p0, void *p1, void *col, int f);
-/* kept local: void (void) here, void (int, int, int, int) in poly-flat.h */
-extern void after_DrawLine(void);
 
 void DebugDispBox(BoxVec *c, BoxVec *s)
 {
@@ -509,10 +492,6 @@ static AxisPair axisArrows[3] = {
 extern void sceVu0ApplyMatrix(void *dst, void *m, void *v);
 /* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ScaleVector differs) */
 extern void sceVu0Normalize(void *dst, void *src);
-/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
-extern void gif_SetAlpha(int a, int b, int c);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetGsReg differ) */
-extern void gif_SetZTest(int a);
 
 void DispAxisArrow(int mask, void *col)
 {
@@ -566,9 +545,6 @@ void DispAxisArrow(int mask, void *col)
         gif_EndPacket();
     }
 }
-
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetGsReg differ) */
-extern void gif_SetZWrite(int a);
 
 /* the pin arrow colours: the first pair is drawn depth-tested (the part in
    front of the level), the second pair through it, and each pair has a colour

@@ -21,8 +21,9 @@ int CheckFieldContact(char *info, char *self, float *pos, float lim);
 /* ROM: two arguments, the GObj and the attribute mask (act_bird.c:806 passes
    0x40 and 0x50 in $5, boyact/script/a_p_1/frameDependSequence do the same). */
 int CheckFloorAttribute(char *self, int attr);
-int CheckPureWallAttribute(char *self);
-int CheckWallAttribute(char *self);
+int CheckPureWallAttribute(char *self, int attr);
+int CheckWallAttribute(char *self, int attr);
+int CheckPureCliffAttribute(char *self, int attr);
 void ClearMotionBlendlessNode(char *a0);
 void ClearMotionGeometryInfo(int *self);
 void CopyMotion(void *dst, void *src, int n);

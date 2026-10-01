@@ -1,5 +1,6 @@
 #include "typedef.h"
 #include "sugiCommon.h"
+#include "main.h"
 #include "debug_exception.h"
 #include "obj_manager.h"
 #include "Primitive.h"
@@ -8,6 +9,11 @@
 #include "motionOrientManager.h"
 #include "debug.h"
 #include "pool.h"
+#include "matrixDrive.h"
+#include "quaternion.h"
+#include "tableSin.h"
+#include "Matrix.h"
+#include "gv.h"
 
 typedef struct {
     char b[0x20];
@@ -146,27 +152,6 @@ static char *skelNode; /* derived name */
 
 static int skelGObj; /* derived name */
 
-/* kept local: int (void) here, void * (void) in matrixDrive.h */
-extern int MatrixDrive_GetMatrix(void);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
-extern void CopyMatrix(void *dst, void *src);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
-extern void MatrixDrive_PopMatrix(void);
-/* kept local: void * (void) here, int * (void) in quaternion.h */
-extern void *GetCurrentQuaternion(void);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
-extern void MatrixDrive_PushMatrixWithNoCopy(void);
-/* kept local: agrees with quaternion.h, which this TU does not include (DivQuaternion, GetCurrentQuaternion differ) */
-extern void PushQuaternionWithNoCopy(void);
-/* kept local: char [] here, float [4] in matrixDrive.h */
-extern char ZUnitVector[];
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
-extern void MatrixDrive_PushMatrix(void);
-/* kept local: void (void *, short, void *) here, void (int *, short, int *) in quaternion.h */
-extern void SetQuaternionByAxisRotateV(void *dst, short ang, void *v);
-/* kept local: void (void *, int, char *) here, void (void *, void *, void *) in Matrix.h */
-extern void _ApplyMatrix(void *a0, int a1, char *a2);
-
 /* The TU's .sdata opens with the collision display switches
    SetHitCollisionDisplay sets (the second one draws the wall and cliff rays)
    and the skeleton's scale. */
@@ -179,40 +164,16 @@ static int hitColRayDisp = 0; /* derived name */
  * across its stores to the geo block because those are structure members. */
 static float skelScale = 1.0f; /* derived name */
 
-/* kept local: void (void *, void *) here, void (char *, char *) in quaternion.h */
-extern void GetMatrixFromQuaternion(void *a0, void *a1);
-/* kept local: void (void *, void *, void *) here, void (char *, char *, char *) in quaternion.h */
-extern void GetMatrixFromQuaternionPos(void *a0, void *a1, void *a2);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
-extern void *MatrixDrive_GetLastMatrix(void);
-/* kept local: agrees with Matrix.h, which this TU does not include (_AddVectorXYZ, _ApplyMatrix differ) */
-extern void _MulMatrix(void *a0, void *a1, void *a2);
-/* kept local: agrees with Matrix.h, which this TU does not include (_AddVectorXYZ, _ApplyMatrix differ) */
-extern void _ScaleVectorXYZ(void *buf, void *p1, float f);
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
+/* kept local: agrees with fieldCollision.h, which this TU does not include (InitialColInfo, InitialObjPointer differ) */
 extern void ClipWall(void *a0);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
-extern void CopyVector(void *dst, void *src);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
-extern float GetPointDistance(void *a0, void *a1);
-/* kept local: void (void *) here, void (char *) in matrixDrive.h */
-extern void MatrixDrive_TransMatrixV(void *a0);
 /* kept local: void (int *, int, char *) here, void (void *, void *, void *) in libvu0.h */
 extern void sceVu0ApplyMatrix(int *a0, int a1, char *a2);
 /* kept local: float (int, int) here, float (float *, float *) in fieldCollision.h */
 extern float GetYProjectionOfPlane(int a0, int a1);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
-extern void MatrixDrive_TransMatrix(float, float, float);
-/* kept local: void (char *) here, void (void *) in quaternion.h */
-extern void MultiMatrixByQuaternion(char *p);
-/* kept local: void (int) here, void (void *) in Matrix.h */
-extern void _UnitMatrix(int a0);
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
+/* kept local: agrees with fieldCollision.h, which this TU does not include (InitialColInfo, InitialObjPointer differ) */
 extern void ClipWallFuchiHangWalkStop(void *a0);
 /* kept local: int (void *) here, int (int) in fieldCollision.h */
 extern int GetWallAttribute(void *a0);
-/* kept local: void (int, int, void *) here, void (void *, void *, void *) in Matrix.h */
-extern void _AddVectorXYZ(int a0, int a1, void *a2);
 /* kept local: void (int) here, void (void *) in libvu0.h */
 extern void sceVu0UnitMatrix(int);
 
@@ -221,18 +182,6 @@ typedef struct {
     int b;
 } MotShift;
 
-/* kept local: agrees with quaternion.h, which this TU does not include (DivQuaternion, GetCurrentQuaternion differ) */
-extern void PushQuaternion(void);
-/* kept local: agrees with quaternion.h, which this TU does not include (DivQuaternion, GetCurrentQuaternion differ) */
-extern void PopQuaternion(void);
-/* kept local: agrees with quaternion.h, which this TU does not include (DivQuaternion, GetCurrentQuaternion differ) */
-extern void SetIdentityQuaternion(void *q);
-/* kept local: void (void *, short) here, void (void *, int) in quaternion.h */
-extern void RotQuaternionY(void *q, short ang);
-/* kept local: void (void *) here, void (int) in quaternion.h */
-extern void SetCurrentQuaternion(void *q);
-/* kept local: void (void *, int) here, void (float *, float *) in matrixDrive.h */
-extern void MatrixDrive_SetTransposeMatrix(void *a0, int a1);
 /* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ApplyMatrix, sceVu0MulMatrix differ) */
 extern void sceVu0Normalize(void *dst, void *src);
 extern void __assert(char *file, int line, char *expr);
@@ -255,39 +204,14 @@ extern void gif_EndPacket();
 extern void gif_SetAlpha();
 /* kept local: agrees with GifPacket.h; including it here moves this TU's bytes */
 extern void gif_StartPacketPri();
-/* kept local: agrees with Matrix.h, which this TU does not include (_AddVectorXYZ, _ApplyMatrix differ) */
-extern void _SubVectorXYZ(void *dst, void *a, void *b);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
-extern float VectorLengthSquare(void *v);
-/* kept local: void (int) here, void (void *) in matrixDrive.h */
-extern void UnitRotation(int m);
-/* kept local: agrees with Matrix.h, which this TU does not include (_AddVectorXYZ, _ApplyMatrix differ) */
-extern float _Sqrt(float x);
 /* kept local: void (int, int) here, void (char *, int) in fieldCollision.h */
 extern void DrawGObjWallCollision(int a0, int a1);
 extern unsigned char objLayout[];
-/* kept local: void (int) here, void (short) in matrixDrive.h */
-extern void MatrixDrive_RotMatrixZ(int a0);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
-extern void AddVectorXYZ(void *dst, void *a, void *b);
-/* kept local: agrees with Matrix.h, which this TU does not include (_AddVectorXYZ, _ApplyMatrix differ) */
-extern void _SubVector(void *dst, void *a, void *b);
-/* kept local: agrees with Matrix.h, which this TU does not include (_AddVectorXYZ, _ApplyMatrix differ) */
-extern void _NormalizeVector(void *dst, void *a);
-/* kept local: agrees with Matrix.h, which this TU does not include (_AddVectorXYZ, _ApplyMatrix differ) */
-extern void _ScaleVector(void *dst, void *a, float s);
-/* kept local: agrees with Matrix.h, which this TU does not include (_AddVectorXYZ, _ApplyMatrix differ) */
-extern void _AddVector(void *dst, void *a, void *b);
 
 typedef struct {
     int obj;
     int node;
 } ActPt;
-
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
-/* kept local: agrees with Matrix.h, which this TU does not include (_AddVectorXYZ, _ApplyMatrix differ) */
-extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
 
 /* The wall-hit record at ClipBuf+0x80: the object and its node, then the hit
    count.  GetPureVerticalPlane reads it as its `int *cfg` argument (see
@@ -319,28 +243,18 @@ typedef struct {
     long long c[8];  /* 0x80 */
 } __attribute__((aligned(16))) ClipBuf;
 
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
+/* kept local: agrees with fieldCollision.h, which this TU does not include (InitialColInfo, InitialObjPointer differ) */
 extern void ClipWallField(void *a0);
 /* kept local: void (void *) here, void (char *) in fieldCollision.h */
 extern void DrawCollisionRay(void *a0);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
-extern void SubVectorXYZ(void *dst, void *a, void *b);
 /* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ApplyMatrix, sceVu0MulMatrix differ) */
 extern float sceVu0InnerProduct(void *a, void *b);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
-extern float FSqrt(float x);
-/* kept local: agrees with matrixDrive.h, which this TU does not include (MatrixDrive_GetMatrix, MatrixDrive_RotMatrixX differ) */
-extern void MatrixDrive_ScaleMatrix(float, float, float);
 /* kept local: DisplayP2O.h does not compile in this TU (too few arguments to function `p2o_DispVU1') */
 extern void p2o_DispVU1();
-/* kept local: void (int) here, void (short) in matrixDrive.h */
-extern void MatrixDrive_RotMatrixX(int a0);
 static void getInitialMatrix(int a0, int a1);
 /* kept local: void (int, int, int) here, void (void *, void *, void *) in libvu0.h */
 extern void sceVu0MulMatrix(int a0, int a1, int a2);
-/* kept local: char [] here, float [4] in quaternion.h */
-extern char IdentityQuaternion[];
-/* kept local: void () here, int (void *) in fieldCollision.h */
+/* kept local: void () here, void (void *) in fieldCollision.h */
 extern void ClipFloor();
 
 #include "motionManager.h"
@@ -555,7 +469,7 @@ extern void sceVu0ScaleVector(void *dst, void *src, float s);
 extern float GetYDistanceFromPlane(void *plane, void *pos);
 /* kept local: void (void *, float, float, float, float) here, void (float *, float, float, float, float) in fieldCollision.h */
 extern void SetSimplePlane(void *plane, float x, float y, float z, float d);
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
+/* kept local: agrees with fieldCollision.h, which this TU does not include (InitialColInfo, InitialObjPointer differ) */
 extern void ClipFloorR(void *a0);
 /* kept local: void (void *, void *, void *) here, void (void *, void *, int *) in fieldCollision.h */
 extern void GetOrientOfWall(void *out, void *wall, void *vec);
@@ -658,9 +572,9 @@ void checkWallState(int flag)
 extern void sceVu0AddVector(void *a0, void *a1, void *a2);
 /* kept local: agrees with fieldCollision.h, which this TU does not include (ClipFloor, ClipFloorIH differ) */
 extern float GetDistanceFromPlane(void *plane, void *pos);
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
+/* kept local: agrees with fieldCollision.h, which this TU does not include (InitialColInfo, InitialObjPointer differ) */
 extern void ClipWallR(void *a0);
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
+/* kept local: agrees with fieldCollision.h, which this TU does not include (InitialColInfo, InitialObjPointer differ) */
 extern void ClipFloorIH(void *a0);
 
 void checkCliffState(int a0)
@@ -1405,10 +1319,6 @@ static void dispSkeltonHierarchy(int node)
    a file static: MAIN.MAP carries no global of that name, so the twin in
    ico2/sugipon/src/geometryManager is a static too and `static` here keeps this
    one's ELF symbol local.  No INCLUDE_ASM sibling in this TU calls it. */
-/* kept local: void (int) here, void (short) in matrixDrive.h */
-extern void MatrixDrive_RotMatrixY(int a0);
-/* kept local: unsigned char [] here, PadState [16] in main.h */
-extern unsigned char pad[];
 
 static void getInitialMatrix(int obj, int idx)
 {
@@ -1423,8 +1333,8 @@ static void getInitialMatrix(int obj, int idx)
     case 19:
     case 20:
     case 22:
-        MatrixDrive_RotMatrixY((short)((pad[0x54] - 0x80) << 7));
-        MatrixDrive_RotMatrixZ((short)((pad[0x55] - 0x80) << 7));
+        MatrixDrive_RotMatrixY((short)((pad[0].ana[0] - 0x80) << 7));
+        MatrixDrive_RotMatrixZ((short)((pad[0].ana[1] - 0x80) << 7));
         break;
     }
     mtx = *(char **)(obj + 0xC) + idx * 0x40;

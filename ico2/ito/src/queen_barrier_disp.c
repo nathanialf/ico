@@ -9,6 +9,8 @@
 #include <libvu0.h>
 #include "Texture.h"
 #include "geometryManager.h"
+#include "main.h"
+#include "Matrix.h"
 
 typedef struct MeshST { /* the 0x10 stride texture coordinate record */
     float s;            /* 0x0 */
@@ -33,11 +35,6 @@ static Mesh3D *barrierMesh;
 static int damageTimer;
 
 static int ripplePhase;
-
-/* kept local: void (QVec *, QVec *, float) here, void (void *, void *, float) in Matrix.h */
-extern void _ScaleVectorXYZ(QVec *dst, QVec *src, float k);
-/* kept local: void (QVec *, QVec *) here, void (void *, void *) in Matrix.h */
-extern void _NormalizeVector(QVec *dst, QVec *src);
 
 /* The screen rectangle and the texture rectangle this packet draws, in the
    1/16-unit form the GS registers take. */
@@ -121,13 +118,6 @@ inline void queen_barrier_anim(void)
     }
 }
 
-/* kept local: float (QVec *) here, float (void *) in Matrix.h */
-extern float _GetNorm(QVec *v);
-/* kept local: void (QVec *, QVec *, QVec *) here, void (void *, void *, void *) in Matrix.h */
-extern void _AddVectorXYZ(QVec *dst, QVec *a, QVec *b);
-/* kept local: void (QVec *, QVec *) here, void (void *, void *) in Matrix.h */
-extern void _RotTransPersCurrentMatrix(QVec *dst, QVec *src);
-
 void makeRefractST(float k)
 {
     QVec v;
@@ -172,13 +162,6 @@ void makeRefractST(float k)
         }
     }
 }
-
-/* kept local: int here, char * in main.h */
-extern int matrixptr;
-/* kept local: agrees with main.h, which this TU does not include (matrixptr differs) */
-extern int buffer_ID;
-/* kept local: agrees with Matrix.h, which this TU does not include (_AddVectorXYZ, _GetNorm differ) */
-extern void _SetCurrentMatrix(void *m);
 
 /* rows 86 and 93 to 105: the barrier tint, faded from a to b across the
    damage timer and packed into the mesh colour word.
