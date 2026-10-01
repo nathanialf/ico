@@ -13,53 +13,52 @@
 #include "stageSEProc.h"
 #include "main.h"
 
-typedef struct {
+typedef struct { /* field names derived */
     float f0;
     float f4;
     float f8;
-} AudFrame;
+} AudFrame; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     float f0;
     float f4;
     float f8;
-} LoadImg;
+} LoadImg; /* derived name */
 
-typedef union {
+typedef union { /* field names derived */
     float f[4];
 
     struct {
         long long a;
         long long b;
     } q;
-} Blk16;
+} Blk16; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     Blk16 a;
     Blk16 b;
-} Blk32;
+} Blk32; /* derived name */
 
-/* .rodata, VMA 0x006230F0..0x00623150: the two points stageSE02astrong measures
-   the camera against, and the centre and half size of the two trigger boxes
-   stageSE08astrong and stageSE10lstrong hand scpTriggerPosBox. MAIN.MAP names
-   no symbol in this run; the names are ours. */
+/* .rodata: the two points stageSE02astrong measures the camera against, and
+   the centre and half size of the two trigger boxes stageSE08astrong and
+   stageSE10lstrong hand scpTriggerPosBox. */
 static const Blk32 se02aPoints = {{{-1137.0f, -659.0f, 432.0f, 0.0f}},
-                                  {{-1822.0f, -1071.0f, 2165.0f, 0.0f}}};
+                                  {{-1822.0f, -1071.0f, 2165.0f, 0.0f}}}; /* derived name */
 
-static const Blk16 se08aBoxCenter = {{-2050.0f, -2005.0f, 3529.0f, 0.0f}};
+static const Blk16 se08aBoxCenter = {{-2050.0f, -2005.0f, 3529.0f, 0.0f}}; /* derived name */
 
-static const Blk16 se08aBoxSize = {{1400.0f, 1400.0f, 2400.0f, 0.0f}};
+static const Blk16 se08aBoxSize = {{1400.0f, 1400.0f, 2400.0f, 0.0f}}; /* derived name */
 
-static const Blk16 se10lBoxCenter = {{141.0f, 1328.0f, -122.0f, 0.0f}};
+static const Blk16 se10lBoxCenter = {{141.0f, 1328.0f, -122.0f, 0.0f}}; /* derived name */
 
-static const Blk16 se10lBoxSize = {{600.0f, 700.0f, 1000.0f, 0.0f}};
+static const Blk16 se10lBoxSize = {{600.0f, 700.0f, 1000.0f, 0.0f}}; /* derived name */
 
-/* kept local: returns int * here, void * in camera-root.h */
+/* declared int * here; camera-root.h returns void * */
 extern int *GetCameraPos();
 
-/* SRCFILE.TXT rows 579 to 583 and 696 to 698: the two box tests are each their
-   own routine, inlined at every site, and each names its own pair. */
-static inline int se08aInStrongBox(void)
+/* the two box tests are each their own routine, inlined at every site, and
+   each names its own pair */
+static inline int se08aInStrongBox(void) /* derived name */
 {
     float *pos = (float *)GetCameraPos();
     Blk16 center = se08aBoxCenter;
@@ -68,17 +67,17 @@ static inline int se08aInStrongBox(void)
     return scpTriggerPosBox(pos, (float *)&center, (float *)&size);
 }
 
-static inline int se10lInStrongBox(float *pos)
+static inline int se10lInStrongBox(float *pos) /* derived name */
 {
     Blk16 center = se10lBoxCenter;
     Blk16 size = se10lBoxSize;
     return scpTriggerPosBox(pos, (float *)&center, (float *)&size);
 }
 
-typedef union {
+typedef union { /* field names derived */
     int i;
     float f;
-} SEVal;
+} SEVal; /* derived name */
 
 /* the stage sound object each stageSE routine is handed */
 typedef struct { /* field names derived */
@@ -91,12 +90,11 @@ typedef struct { /* field names derived */
     float *pos; /* 0x34, where the sound plays from */
     char pad38[4];
     int *mail; /* 0x3C */
-} SEObj;
+} SEObj;       /* derived name */
 
 /* The wind-speed cache the strong-wind routines share: the last value of
-   GetRegularizedWindSpeed and the frame_count it was read on.  Both carry an
-   explicit 0 so they sit in .sdata ahead of stageSEtaimatsu's FLT_MAX literal,
-   the TU's .sdata order. */
+   GetRegularizedWindSpeed and the frame_count it was read on, both in .sdata
+   with an explicit 0. */
 static float windCache = 0.0f; /* derived name */
 
 static int windCacheFrame = 0; /* derived name */
@@ -160,24 +158,17 @@ int stageSEtaimatsu(SEObj *self)
     return rv;
 }
 
-/* .sbss, owned by stageSEProc.o (MAIN.MAP names no symbol in the run): the
-   running level of each river sound effect, held across frames so SEFadeOut can
-   walk it down to silence. */
-static float river04eLevelA;
+/* .sbss: the running level of each river sound effect, held across frames so
+   SEFadeOut can walk it down to silence. */
+static float river04eLevelA; /* derived name */
 
-static float river04eLevelB;
+static float river04eLevelB; /* derived name */
 
-static float river06aLevel;
+static float river06aLevel; /* derived name */
 
-/* the per-frame fade step SEFadeOut subtracts; st04e, st05e and st06a set it
-   (0.005f, or 1000.0f to cut the river at once).  Defined after
-   stageSE19ataki, where its .sdata word follows that function's FLT_MAX
-   literal. */
-
-/* the river fade-out the PAL listing places at stageSEProc.c lines 397-401 and
- * inlines into stageSE04eriver (twice) and stageSE06ariver; it is not emitted
- * out of line, so it has no MAIN.MAP symbol and this name is ours. */
-static inline int SEFadeOut(SEObj *a0, float *lvl)
+/* the river fade-out, inlined into stageSE04eriver (twice) and
+ * stageSE06ariver */
+static inline int SEFadeOut(SEObj *a0, float *lvl) /* derived name */
 {
     float v = *lvl - riverFadeSpeed;
 
@@ -296,7 +287,7 @@ int stageSE10lstrong2(SEObj *a0)
     return -1;
 }
 
-static inline Blk16 *SENearestPoint(Blk16 *list, int n)
+static inline Blk16 *SENearestPoint(Blk16 *list, int n) /* derived name */
 {
     Blk16 d;
     Blk16 *best;
@@ -320,12 +311,12 @@ static inline Blk16 *SENearestPoint(Blk16 *list, int n)
     return best;
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     float x;
     float y;
     float z;
     float w;
-} __attribute__((aligned(16))) SEVec;
+} __attribute__((aligned(16))) SEVec; /* derived name */
 
 int stageSE19ataki(SEObj *self)
 {
@@ -341,6 +332,8 @@ int stageSE19ataki(SEObj *self)
     return 1;
 }
 
+/* the per-frame fade step SEFadeOut subtracts; st04e, st05e and st06a set it
+   (0.005f, or 1000.0f to cut the river at once) */
 float riverFadeSpeed = 0.0f; /* derived name */
 
 int stageSE02astrong(SEObj *a0)
@@ -732,12 +725,8 @@ int stageSE13cNoise(SEObj *a0)
     return 1;
 }
 
-/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
-   stageSE13dterrace into stageSE13dstrong, so it is `inline` in the dev's TU;
-   while this tail still has asm members a deferred inline would land at the
-   object end instead of here, so the public body stays a plain definition at
-   its ROM position and stageSE13dstrong calls the static stand-in below.
-   Collapses to one `inline` definition at layout. */
+/* stageSE13dterrace, and below it the static inline copy of the same body
+   that stageSE13dstrong calls */
 int stageSE13dterrace(void)
 {
     float *p = (float *)GetCameraPos();
@@ -746,7 +735,7 @@ int stageSE13dterrace(void)
     return -1;
 }
 
-static inline int stageSE13dterrace_(void)
+static inline int stageSE13dterrace_(void) /* derived name */
 {
     float *p = (float *)GetCameraPos();
     if (p[1] > -1000.0f)

@@ -57,10 +57,9 @@ void actE3WarningChk(GObj *volatile a0)
 
 #include "e3.h"
 
-/* .sdata, owned by e3.o in the ROM's order: the title stream's handle, the
-   capsule's, the cage fall's, the first gate's, the stone statue's and its
-   volume word (MAIN.MAP globals), then the statue shake's volume, which the
-   retail object adds. */
+/* .sdata: the title stream's handle, the capsule's, the cage fall's, the
+   first gate's, the stone statue's and its volume word, then the statue
+   shake's volume. */
 static char *e3title = 0; /* derived name */
 
 char *e3capsule = 0;
@@ -75,39 +74,39 @@ int sekizo_e3_vol = 0;
 
 static unsigned char e3sekizo_yure_vol = 0; /* derived name */
 
-static ActMail title_mes[2] = {{430}, {429}};
+static ActMail title_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail inst1_mes[2] = {{430}, {429}};
+static ActMail inst1_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail capsule_mes[2] = {{430}, {429}};
+static ActMail capsule_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail doorMain_mes[2] = {{406, actE3DoorSwitch}, {429}};
+static ActMail doorMain_mes[2] = {{406, actE3DoorSwitch}, {429}}; /* derived name */
 
-static ActMail door_mes[2] = {{430}, {429}};
+static ActMail door_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail doorSwitch_mes[2] = {{430}, {429}};
+static ActMail doorSwitch_mes[2] = {{430}, {429}}; /* derived name */
 
-static float doorUpPos[4] = {-3434.0f, -200.0f, 0.0f, 0.0f};
+static float doorUpPos[4] = {-3434.0f, -200.0f, 0.0f, 0.0f}; /* derived name */
 
-static ActMail st13cIntro_mes[2] = {{430}, {429}};
+static ActMail st13cIntro_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail cageFallReady_mes[2] = {{430}, {429}};
+static ActMail cageFallReady_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail cageFall_mes[2] = {{430}, {429}};
+static ActMail cageFall_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail st01bEne_mes[2] = {{430}, {429}};
+static ActMail st01bEne_mes[2] = {{430}, {429}}; /* derived name */
 
-static float st09aSekizoPos[4] = {1548.0f, -412.0f, -608.0f, 0.0f};
+static float st09aSekizoPos[4] = {1548.0f, -412.0f, -608.0f, 0.0f}; /* derived name */
 
-static ActMail st09aSekizo_mes[2] = {{430}, {429}};
+static ActMail st09aSekizo_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail gate_mes[2] = {{430}, {429}};
+static ActMail gate_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail st09aBrgMain_mes[2] = {{407, actE3St09aBrgSwitch}, {429}};
+static ActMail st09aBrgMain_mes[2] = {{407, actE3St09aBrgSwitch}, {429}}; /* derived name */
 
-static ActMail st09aBrg_mes[2] = {{430}, {429}};
+static ActMail st09aBrg_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail st09aBrgSwitch_mes[2] = {{430}, {429}};
+static ActMail st09aBrgSwitch_mes[2] = {{430}, {429}}; /* derived name */
 
 void actE3Title(GObj *volatile a0)
 {
@@ -358,10 +357,9 @@ void actE3Capsule(GObj *volatile a0)
     }
 }
 
-/* .sbss, owned by e3.o and reached only from this file (MAIN.MAP names no
-   symbol in the run), in the ROM's run order: the capsule demo's sub-thread
-   and the flag that thread raises when the demo has finished. */
-static GProc *capsuleDemoThread;
+/* .sbss: the capsule demo's sub-thread and the flag that thread raises when
+   the demo has finished. */
+static GProc *capsuleDemoThread; /* derived name */
 
 static int demoEnd;
 
@@ -646,10 +644,6 @@ void actE3CageFallDemo(GObj *volatile a0)
     gflagOff(381);
 }
 
-/* no prototype in the dev's TU: the C89 implicit-int return is what makes
-   ee-gcc treat $v0 as clobbered at every call site. The definition in
-   src/script.c is void. */
-
 inline void actE3CapsuleDemoEnd(GObj *volatile a0)
 {
     scpPlayMot(boyGObj, 307);
@@ -750,8 +744,6 @@ void actE3CageFallEffect(GObj *volatile a0)
         }
     } while (t < 400.0f);
 }
-
-/* e3.o's own .data run (no MAIN.MAP symbol): the sekizou's SE position. */
 
 void actE3St09aSekizo(GObj *volatile a0)
 {
@@ -870,8 +862,8 @@ void actE3St09aSekizoChk(GObj *volatile a0)
     ScpCallCameraSetTarget(1421.0f, 97.0f, -1885.0f);
 }
 
-/* stream-motion-def's table; kept local: streamMotionManager.h, which defines
-   the record, does not declare it */
+/* stream-motion-def's table; streamMotionManager.h, which defines the
+   record, does not declare it */
 extern StreamMotionFile streamMotion[];
 
 void actE3GateChk(GObj *volatile a0)
@@ -1101,7 +1093,7 @@ void actE3Warning(GObj *volatile a0)
     RequestStageChange(1, boyGObj, 0, 255.0f, 0.0f);
 }
 
-/* kept local: typedef.h carries StgPre but declares no stageData */
+/* typedef.h carries StgPre but declares no stageData */
 extern const StgPre stageData[];
 
 void actE3Inst1(GObj *volatile a0)
@@ -1353,8 +1345,6 @@ void actE3CapsuleChk(GObj *volatile a0)
     capsuleDemoThread = actCreateSubThread(actE3CapsuleDemo, 21);
 }
 
-/* e3.o's own .data run (no MAIN.MAP symbol): actor mail packets. */
-
 inline void actE3DoorMain(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
@@ -1381,8 +1371,6 @@ inline void actE3DoorSwitch(GObj *volatile a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-/* e3.o's own .data run (no MAIN.MAP symbol): the door's SE position. */
 
 inline void actE3DoorUp(GObj *volatile a0)
 {

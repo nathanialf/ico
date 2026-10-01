@@ -13,7 +13,7 @@
 #include "main.h"
 #include "script.h"
 
-static ActMail sekizo_mes[2] = {{430}, {429}};
+static ActMail sekizo_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt05bCrest01XL(GObj *volatile a0)
 {
@@ -44,7 +44,7 @@ void actSt05bCrest01XL(GObj *volatile a0)
     }
 }
 
-/* .sdata, owned by st05b.o, in the ROM's order: the stone statue's stream handle, its shake and the shake's volume. */
+/* .sdata: the stone statue's stream handle, its shake and the shake's volume. */
 char *sekizo5b = 0;
 
 int sekizo_5b = 0;
@@ -198,15 +198,11 @@ void actSt05bSekizoEvent(int x)
 }
 
 /* A 16-byte constant vector template: the float view carries the values,
-   the long long view is the one the copy reads, which is what makes gcc
-   emit the ld/sd pair the ROM has. */
+   the long long view is the one the copy reads. */
 
-static const ConstVec girlWayPos = {{10750.0f, -2122.0f, 0.0f, 0.0f}};
+static const ConstVec girlWayPos = {{10750.0f, -2122.0f, 0.0f, 0.0f}}; /* derived name */
 
-static const ConstVec girlWay2Pos = {{139.0f, -177.0f, 1670.0f, 0.0f}};
-
-/* Returns int: st04b.c carries the same prototype, and the live $2 at the
- * call boundary is what puts the second way record's %hi in $3. */
+static const ConstVec girlWay2Pos = {{139.0f, -177.0f, 1670.0f, 0.0f}}; /* derived name */
 
 void actSt05bGirlWay(GObj *volatile a0)
 {

@@ -17,28 +17,19 @@
 #include "main.h"
 #include "script.h"
 
-/* The TU starts at 0x0021F060, where MAIN.MAP puts op.o: these three sit before
-   the functions the listing hashes named. */
+/* .sbss: titleSubEnd and demoSubEnd are the flags a title or demo sub-thread
+   raises when it is done and its parent waits on, titleSubAdpcm and demoAdpcm
+   the stream handles scpAdpcmPlayRequestFunc fills. */
+static int titleSubEnd; /* derived name */
 
-/* the three functions at the head of the TU need their callees declared here,
-   above their definitions */
+static char *titleSubAdpcm; /* derived name */
 
-/* .sbss, owned by op.o and reached only from this file, in the ROM's run order
-   0x63C4E8..0x63C4F8 (MAIN.MAP has no .sbss for op.o, the January object; the
-   run sits between e3's and st00a's in the alphabetical link order).  The
-   names are ours: titleSubEnd and demoSubEnd are the flags a title or demo
-   sub-thread raises when it is done and its parent waits on, titleSubAdpcm and
-   demoAdpcm the stream handles scpAdpcmPlayRequestFunc fills. */
-static int titleSubEnd;
+static int demoSubEnd; /* derived name */
 
-static char *titleSubAdpcm;
+static char *demoAdpcm; /* derived name */
 
-static int demoSubEnd;
-
-static char *demoAdpcm;
-
-/* .sdata, owned by op.o: the opening demo's step and the step it returns to,
-   ahead of the demo's "mode" traces; the globals follow the demo below. */
+/* .sdata: the opening demo's step and the step it returns to, ahead of the
+   demo's "mode" traces; the globals follow the demo below. */
 static int opDemoMode = 0; /* derived name */
 
 static int opDemoNextMode = 0; /* derived name */
@@ -91,32 +82,20 @@ void actTitleCamera2(GObj *volatile a0)
     }
 }
 
-/* kept local, the sibling script TUs' spelling: this TU's uses of
-   scpAdpcmCloseFunc and scpAdpcmCloseChkFunc do not fit script.h's */
-/* thread.h's prototype; op.c does not include thread.h */
 void actTitleReadTimeDemo0(GObj *volatile a0);
 void actTitleShortCut(GObj *volatile a0);
 
-/* op.c:605-736 in the listing.  The timer countdown at 617-623 is a GNU
-   nested function declared inline at the head of the body: it reads and
-   writes the parent's `t` through the static chain (the listing's inlined
-   copies address it as 4($a0) with $a0 = $sp) and is inlined at both of its
-   calls.  The tail after each demo (the thread priority and the fade out) is
-   written in case 0 and in case 1: jump2 cross-jumps the two copies, which is
-   why case 0's `b` carries its break's line 689 and falls into case 1's copy
-   at 706.  Case 1's loop leaves through the break inside its test, so the
-   tail starts at the loop's exit label and sched1 cannot pull its argument
-   moves above the opDemoMode store; that keeps the two copies identical for
-   the cross-jump.  The duplicated tail also sets the outer loop's size at
-   loop time, which is what keeps the 60 of the timer out of the outer loop's
-   preheader (move_movables' threshold test). */
+/* The timer countdown is a GNU nested function declared inline at the head
+   of the body: it reads and writes the parent's `t` and is inlined at both of
+   its calls.  The tail after each demo (the thread priority and the fade out)
+   is written out in case 0 and again in case 1. */
 void actOpDemo01(GObj *volatile a0)
 {
     GObj *x = a0;
     GProc *th;
     int t = (60 - systemStatus[0] * 10) / systemStatus[1] * 10;
 
-    inline int tick(void)
+    inline int tick(void) /* derived name */
     {
         if ((current_layout_id == 12 || current_layout_id == 13) && lt_continue_selected == 0) {
             t--;
@@ -245,9 +224,9 @@ void actOpDemo01(GObj *volatile a0)
     }
 }
 
-/* .sdata, after actOpDemo01's traces: MAIN.MAP's four op.o globals, the
-   second demo's and the first scene's stream handles, the title logo's step
-   and the title's stream handle (declared in op.h). */
+/* .sdata, after actOpDemo01's traces: the second demo's and the first
+   scene's stream handles, the title logo's step and the title's stream handle
+   (declared in op.h). */
 char *op2 = 0;
 
 char *adpcm_conte01_sea = 0;
@@ -298,26 +277,14 @@ void actTitleShortCut(GObj *volatile a0)
     _ACTWait(0);
 }
 
-/* .data, the whole of op.o's run: the two demo mail pairs, each the mail the
-   demo thread answers and the 429 end marker. */
-static ActMail opDemo02_mes[2] = {{430}, {429}};
+/* .data: the two demo mail pairs, each the mail the demo thread answers and
+   the 429 end marker. */
+static ActMail opDemo02_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail opDemo03_mes[2] = {{430}, {429}};
+static ActMail opDemo03_mes[2] = {{430}, {429}}; /* derived name */
 
-/* the retail build's printf stub; the 2001 declaration was unprototyped, which
-   is why the extra arguments still travel in $a1/$a2 rather than on the stack */
-
-/* the 0x194-byte per-stage record; the cutscene entries read their exit index
-   out of `ent`.  The leading padding is spelled `int` so the record is 4-byte
-   aligned: at 2-byte alignment gcc folds the member offset into the array base
-   before the index add, which swaps which of the two values ends up in $a1 and
-   which in $a2. */
-
-/* stageData lives in the ELF's .rodata run, so `const` is what it is, as
-   typedef.h has exitData, and it is load-bearing: only a reference rooted at a const object
-   makes the `ent` load unchanging, and only then is that load free of the
-   `GObj *volatile a0` parameter home's memory dependence, which is what lets the
-   home store issue three slots later. */
+/* stageData is read-only, so `const`, as typedef.h has exitData; the
+   cutscene entries read their exit index out of `ent`. */
 extern const StgPre stageData[];
 
 inline void actSubMpegReturnPreload(GObj *volatile a0)

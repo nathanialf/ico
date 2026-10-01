@@ -19,20 +19,17 @@ inline void warpGirlInit(void)
     warpGirlId = 0;
 }
 
-/* one 0x58-byte girl-warp record (MAIN.MAP: girlWarpList, from girl-warp-list.o) */
 /* the 16-byte vector this file copies whole */
 typedef union WarpVec { /* derived name */ /* field names derived */
     float f[4];
     long long q[2];
 } WarpVec;
 
-/* .sbss, owned by warpGirl.o and reached only from this file (MAIN.MAP names
-   no symbol in the run): set when a warp destination has been found. */
-static int warpFound;
+/* .sbss: set when a warp destination has been found. */
+static int warpFound; /* derived name */
 
-/* warpGirl.c:75-81 in the listing: the "this record wins" setter.  No MAIN.MAP
-   symbol (the listing inlines it), so the name is ours. */
-static inline void warpGirlOutSet(int id, int noSet)
+/* the "this record wins" setter */
+static inline void warpGirlOutSet(int id, int noSet) /* derived name */
 {
     if (noSet != 0) {
         return;

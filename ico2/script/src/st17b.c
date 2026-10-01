@@ -5,9 +5,9 @@
 #include "script.h"
 #include "typedef.h"
 
-static ActMail check_mes[2] = {{430}, {429}};
+static ActMail check_mes[2] = {{430}, {429}}; /* derived name */
 
-/* .sdata, owned by st17b.o, in the ROM's order: the lightning stream handle. */
+/* .sdata: the lightning stream handle. */
 char *lightning2 = 0;
 
 void actSt17bTest(GObj *volatile a0)

@@ -16,23 +16,20 @@
 #include "gamesys.h"
 #include "main.h"
 
-/* The TU starts at 0x00252418, where MAIN.MAP puts st22a.o. */
-
-/* Declared ahead with no size: actSt22aIntroChk reaches the animation pair
-   with a %hi/%lo pair, which gcc emits for a symbol whose first declaration
-   is incomplete; the sized definition below puts it in .sdata. */
+/* declared ahead with no size for actSt22aIntroChk; the sized definition
+   follows the stream handle in .sdata */
 static int lightningAnims[];
 
-/* .sdata, owned by st22a.o, in the ROM's order: the lightning stream handle (MAIN.MAP global) and the two animation numbers the lightning plays. */
+/* .sdata: the lightning stream handle and the two animation numbers the
+   lightning plays. */
 int lightning = 0;
 
 static int lightningAnims[2] = {758, 759}; /* derived name */
 
 void actSt22aLightningVolime(GObj *volatile a0)
 {
-    /* Listing rows 123-127 sit above the loop's own rows and run inside it:
-       an inline helper nested in this function. */
-    inline float getVolume(float y)
+    /* the lightning's volume for height y, nested in this function */
+    inline float getVolume(float y) /* derived name */
     {
         float lo = -8000.0f, hi = -1355.0f;
 
@@ -60,7 +57,7 @@ void actSt22aLightningVolime(GObj *volatile a0)
     }
 }
 
-static ActMail intro_mes[2] = {{430}, {429}};
+static ActMail intro_mes[2] = {{430}, {429}}; /* derived name */
 
 /* the point the boy turns to face when the intro is skipped */
 static const StVec introFacePos = {{-2000.0f, 0.0f, -1129.0f, 1.0f}}; /* derived name */
@@ -110,14 +107,13 @@ void actSt22aIntro(GObj *volatile a0)
     }
 }
 
-/* .sbss, owned by st22a.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the demo's own end flag, raised by the
-   subthread the wait loop below spins for. */
+/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
+   spins for. */
 static int demoEnd;
 
-typedef struct St22Anims {
+typedef struct St22Anims { /* field names derived */
     int id[2];
-} St22Anims;
+} St22Anims; /* derived name */
 
 void actSt22aIntroChk(GObj *volatile a0)
 {

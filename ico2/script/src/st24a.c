@@ -14,23 +14,17 @@
 #include "script.h"
 #include "main.h"
 
-/* The actor mail table entries this TU installs live in the shared
- * src/cod .data carve, so they stay extern here. */
+static ActMail sword_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail sword_mes[2] = {{430}, {429}};
+static ActMail demoCam_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail demoCam_mes[2] = {{430}, {429}};
-
-/* the 16-byte vector this file copies whole */
-
-/* .sbss, owned by st24a.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the demo's own end flag, raised by the
-   subthread the wait loop below spins for. */
+/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
+   spins for. */
 static int demoEnd;
 
-static const Vec16 swordChkPos = {{1685.0f, -1080.0f, -1000.0f, 1.0f}};
+static const Vec16 swordChkPos = {{1685.0f, -1080.0f, -1000.0f, 1.0f}}; /* derived name */
 
-/* .sdata, owned by st24a.o, in the ROM's order: the sword's object. */
+/* .sdata: the sword's object. */
 char *sword = 0;
 
 void actSt24aSwordChk(volatile int self)

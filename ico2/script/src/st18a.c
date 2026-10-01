@@ -15,35 +15,35 @@
 #include "typedef.h"
 #include "main.h"
 
-static ActMail intro_mes[2] = {{430}, {429}};
+static ActMail intro_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail switchL_mes[2] = {{430}, {429}};
+static ActMail switchL_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail switchLUp_mes[2] = {{430}, {429}};
+static ActMail switchLUp_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail switchLChk_mes[2] = {{430}, {429}};
+static ActMail switchLChk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail switchLUpChk_mes[2] = {{430}, {429}};
+static ActMail switchLUpChk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail switchR_mes[2] = {{430}, {429}};
+static ActMail switchR_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail switchRUp_mes[2] = {{430}, {429}};
+static ActMail switchRUp_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail switchRChk_mes[2] = {{430}, {429}};
+static ActMail switchRChk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail switchRUpChk_mes[2] = {{430}, {429}};
+static ActMail switchRUpChk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail door_mes[2] = {{430}, {429}};
+static ActMail door_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail doorDown_mes[2] = {{430}, {429}};
+static ActMail doorDown_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail doorChk_mes[2] = {{430}, {429}};
+static ActMail doorChk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail doorDownChk_mes[2] = {{430}, {429}};
+static ActMail doorDownChk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail ene_mes[2] = {{430}, {429}};
+static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail ene2_mes[2] = {{430}, {429}};
+static ActMail ene2_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt18aEnd(void)
 {
@@ -133,8 +133,6 @@ void actSt18aSwitchLChk(GObj *volatile a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-/* TU-owned .data record (VMA 0x004FB0F0..0x004FB10F, ROM 0x3FB0F0). */
 
 void actSt18aSwitchLUpChk(GObj *volatile a0)
 {
@@ -241,13 +239,12 @@ void actSt18aSwitchRUpChk(GObj *volatile a0)
     _ACTWait(0);
 }
 
-/* .sbss, owned by st18a.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the demo's own end flag, raised by the
-   subthread the wait loop below spins for, and the flag actSt18aDoorChkSub
-   raises when the door check is done. */
+/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
+   spins for, and the flag actSt18aDoorChkSub raises when the door check is
+   done. */
 static int demoEnd;
 
-static int doorChkDone;
+static int doorChkDone; /* derived name */
 
 void actSt18aDoorChk(GObj *volatile a0)
 {
@@ -302,10 +299,6 @@ void actSt18aDoorChk(GObj *volatile a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-/* TU-owned .data record (VMA 0x004FB1F0..0x004FB20F, ROM 0x3FB1F0): the mail
-   table actSt18aDoorDownChk hands back to the door actor. Role-named file
-   static per the 2026-09-07 ruling, same shape as st17a's doorDownChk_mes. */
 
 void actSt18aDoorDownChk(GObj *volatile a0)
 {

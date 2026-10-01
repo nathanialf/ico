@@ -21,61 +21,61 @@
 #include "main.h"
 #include "script.h"
 
-/* .sbss, owned by st13b.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the demo's own end flag, the conte-02
-   end flag, the pad actuator handle and volume byte the door-up subthread
-   holds, and the flag actSt13bDoorUpSub raises when the door is up. */
+/* .sbss: the demo's own end flag, the conte-02 end flag, the pad actuator
+   handle and volume byte the door-up subthread holds, and the flag
+   actSt13bDoorUpSub raises when the door is up. */
 static int demoEnd;
 
-static int conte02End;
+static int conte02End; /* derived name */
 
-static int padAct;
+static int padAct; /* derived name */
 
-static unsigned char padActVolume;
+static unsigned char padActVolume; /* derived name */
 
-static int doorUpDone;
+static int doorUpDone; /* derived name */
 
-/* st13b.o's own .data run (no MAIN.MAP symbols): actor mail packets. */
-/* kept local: typedef.h carries StgPre but declares no stageData */
+/* .data: actor mail packets. */
+/* typedef.h carries StgPre but declares no stageData */
 extern const StgPre stageData[];
 
-static ActMail floor_mes[2] = {{430}, {429}};
+static ActMail floor_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail sekizo_mes[2] = {{430}, {429}};
+static ActMail sekizo_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail sekizo2_mes[2] = {{430}, {429}};
+static ActMail sekizo2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail meetAgain_mes[2] = {{430}, {429}};
+static ActMail meetAgain_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail boss_mes[2] = {{430}, {429}};
+static ActMail boss_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail bossAfter_mes[2] = {{430}, {429}};
+static ActMail bossAfter_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail elevMain_mes[2] = {{406, actSt13bElevSwitch}, {429}};
+static ActMail elevMain_mes[2] = {{406, actSt13bElevSwitch}, {429}}; /* derived name */
 
-static ActMail elev_mes[2] = {{430}, {429}};
+static ActMail elev_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail elevSwitch_mes[2] = {{430}, {429}};
+static ActMail elevSwitch_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail elevUp_mes[2] = {{430}, {429}};
+static ActMail elevUp_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail doorMain_mes[2] = {{407, actSt13bDoorSwitch}, {429}};
+static ActMail doorMain_mes[2] = {{407, actSt13bDoorSwitch}, {429}}; /* derived name */
 
-static ActMail door_mes[2] = {{430}, {429}};
+static ActMail door_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail doorSwitch_mes[2] = {{430}, {429}};
+static ActMail doorSwitch_mes[2] = {{430}, {429}}; /* derived name */
 
-static float doorUpSubPos[4] = {-3434.0f, -200.0f, 0.0f, 0.0f};
+static float doorUpSubPos[4] = {-3434.0f, -200.0f, 0.0f, 0.0f}; /* derived name */
 
-static ActMail elev2Chk_mes[2] = {{430}, {429}};
+static ActMail elev2Chk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail elev2Chk2_mes[2] = {{430}, {429}};
+static ActMail elev2Chk2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail elev2Chara_mes[2] = {{430}, {429}};
+static ActMail elev2Chara_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail elev2CharaChk_mes[2] = {{430}, {429}};
+static ActMail elev2CharaChk_mes[2] = {{430}, {429}}; /* derived name */
 
-/* .sdata, owned by st13b.o, in the ROM's order: the scene stream MAIN.MAP leaves unnamed, the stream handles and shakes (MAIN.MAP globals), then the shake and volume the retail object adds. */
+/* .sdata: the scene stream, the stream handles and shakes, then a further
+   shake and volume. */
 static char *st13b_adpcm = 0; /* derived name */
 
 char *sekizo13b = 0;

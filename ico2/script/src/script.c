@@ -50,10 +50,8 @@
 #include "fieldCollision.h"
 #include "main.h"
 
-/* script.o's .sdata, in the ROM's order.  MAIN.MAP lists all but the three
-   hint-voice words, which the retail build added after scpSeEnvMasterVolRate
-   (the January map has sekizo_common at +8): the ADPCM handle of the girl's
-   hint voice and the distance range its volume follows. */
+/* .sdata.  The three words after scpSeEnvMasterVolRate are the girl's hint
+   voice: its ADPCM handle and the distance range its volume follows. */
 int scpBoyControlReadDisable = 0;
 
 float scpSeEnvMasterVolRate = 1.0f;
@@ -76,7 +74,7 @@ unsigned char sekizo_yure_vol = 0;
 
 /* a 0x40-byte layout record as CreateLayoutedGObj takes it: position,
    rotation, the unit scale at 0x20 and the kind index at 0x30 */
-struct DQW {
+struct DQW { /* derived name */ /* field names derived */
     float f0, f4, f8, fc, f10, f14;
     char pad18[8];
     float scale[3];
@@ -85,141 +83,119 @@ struct DQW {
     int _34[3];
 };
 
-struct SPMD {
+struct SPMD { /* derived name */ /* field names derived */
     int a;
     int b;
 };
 
-struct SVF {
+struct SVF { /* derived name */ /* field names derived */
     int a;
     int b;
 };
 
-/* the 16-byte work vector scpSekizou reuses for the motion direction and
-   for the stone-statue SE position it copies out of .rodata */
-
-/* MUST be above the TU's first call site: with the implicit `int` return the
-   call SETs $2 and global-alloc picks different scratch registers. */
-
-/* ACT+0x20 / ACT+0x18 are the 64-bit actor status words.  The dev header
-   declares them as a UNION (cf. `union ActStatus` in src/st13c.c and
-   src/st04a.c), not as a bare `unsigned long long`: a union-member access has
-   alias set 0, so a store through it aliases every other load -- which is why
-   ROM re-loads `gobj->0x164` after a status store. */
-
-/* the wall-collision result scpWallCollision and its sibling hand back; the
-   record leads script.o's .bss run, so it is defined ahead of the ADPCM table */
-struct WallColPos {
+/* the wall-collision result scpWallCollision and its sibling hand back */
+struct WallColPos { /* derived name */ /* field names derived */
     int f00, f04;
 };
 
-struct WallCol {
+struct WallCol { /* derived name */ /* field names derived */
     struct WallColPos pos;
     int f08;
 };
 
-/* .bss, owned by script.o and reached only from this file (MAIN.MAP names no
-   symbol in the run), in the ROM's run order: the wall-collision result, the
-   two-slot ADPCM play-request table (2 x 0x18 bytes), and the camera target
-   the script last asked for. */
-static struct WallCol wallColResult;
+/* .bss: the wall-collision result, the two-slot ADPCM play-request table
+   (2 x 0x18 bytes), and the camera target the script last asked for. */
+static struct WallCol wallColResult; /* derived name */
 
 /* the two-slot ADPCM play-request table */
-typedef struct AdpcmReq {
-    int kind;  /* 0x00, 0 == slot free */
-    char **id; /* 0x04: the caller's handle variable */
-    int unk08; /* 0x08 */
-    int unk0C; /* 0x0C */
-    int unk10; /* 0x10 */
-    int unk14; /* 0x14 */
-} AdpcmReq;
+typedef struct AdpcmReq { /* field names derived */
+    int kind;             /* 0x00, 0 == slot free */
+    char **id;            /* 0x04: the caller's handle variable */
+    int unk08;            /* 0x08 */
+    int unk0C;            /* 0x0C */
+    int unk10;            /* 0x10 */
+    int unk14;            /* 0x14 */
+} AdpcmReq;               /* derived name */
 
-static AdpcmReq adpcmReq[2];
+static AdpcmReq adpcmReq[2]; /* derived name */
 
-static float scriptCameraTarget[4];
+static float scriptCameraTarget[4]; /* derived name */
 
-struct S {
+struct S { /* derived name */ /* field names derived */
     int a;
     int b;
 };
 
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+/* as in motionManager2.h, which this TU does not include */
 extern void SetMotionDirection(void *a0, float *a1);
 
-/* SCE VU0 library: sceVu0Normalize(dst, src) -- normalised in place here, so
-   the second argument is already in $a1 and cse drops the redundant copy. */
-
-/* kept local: sugipon's motionKind (MotionDef, motionOrientManager.h) in this TU's view */
-extern struct MotTblRec {
+/* sugipon's motionKind (MotionDef, motionOrientManager.h), read here through
+   this file's own view of the record */
+extern struct MotTblRec { /* derived name */ /* field names derived */
     char pad0[390];
     short smzAngle;
     char pad188[12];
 } motionKind[];
 
-/* .data, first in script.o's run: the colour packet prim_DispWireBox draws the
-   debug trigger box with.  Declared as the whole 4-word record so gcc reaches
-   it with a %hi/%lo pair rather than gp-relative (-G 8). */
-static int wireBoxColor[4] = {0, 16, 32, 128};
+/* .data: the colour packet prim_DispWireBox draws the debug trigger box
+   with, declared as the whole 4-word record. */
+static int wireBoxColor[4] = {0, 16, 32, 128}; /* derived name */
 
-/* .data.  MAIN.MAP line 5865/5866 names the two exported door tables at +0x10
-   and +0x30 of script.o's run; the five below it are read only here.  Each is
+/* .data: the two exported door tables, then five read only here.  Each is
    the usual actor mail pair: the mail the door thread answers, then the 429
    end marker act.c walks to. */
 ActMail scpInterDoorUpLever1[2] = {{406, scpDoorTypeUpSwitch}, {429}};
 
 ActMail scpInterDoorUpLever2[2] = {{407, scpDoorTypeUpSwitch}, {429}};
 
-static ActMail doorTypeUp_mes[2] = {{430}, {429}};
+static ActMail doorTypeUp_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail doorTypeUpSwitchDown_mes[2] = {{430}, {429}};
+static ActMail doorTypeUpSwitchDown_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail doorTypeUpSwitchUp_mes[2] = {{430}, {429}};
+static ActMail doorTypeUpSwitchUp_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail doorTypeUpDown_mes[2] = {{430}, {429}};
+static ActMail doorTypeUpDown_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail doorTypeUpUp_mes[2] = {{430}, {429}};
-
-/* kept local: this TU's uses of AdpcmInterStereoVolumeSet do not fit the
-   prototype in adpcm_init.h */
+static ActMail doorTypeUpUp_mes[2] = {{430}, {429}}; /* derived name */
 
 /* the 0x30-byte wood-bridge table entry at woodBoxTbl: an object id, the
    trigger `kind` that selects which axis test runs, the bridge end offset the
    way group is built from, and the four axis bounds the tests read. */
-struct WoodBoxEnt {
-    short id;      /* 0x00 */
-    char kind;     /* 0x02 */
-    char pad3[13]; /* 0x03 */
-    float ofs[4];  /* 0x10 */
-    float b0;      /* 0x20 */
-    float b1;      /* 0x24 */
-    float b2;      /* 0x28 */
-    float b3;      /* 0x2C */
+struct WoodBoxEnt { /* derived name */ /* field names derived */
+    short id;                          /* 0x00 */
+    char kind;                         /* 0x02 */
+    char pad3[13];                     /* 0x03 */
+    float ofs[4];                      /* 0x10 */
+    float b0;                          /* 0x20 */
+    float b1;                          /* 0x24 */
+    float b2;                          /* 0x28 */
+    float b3;                          /* 0x2C */
 };
 
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+/* as in motionManager2.h, which this TU does not include */
 extern void ClearMotionGeometryInfo(int *self);
 
 /* the wall-collision result the ClipWall work area hands back at +0x80 */
 
-typedef struct {
-    float p0[4];        /* 0x00 */
-    float p1[4];        /* 0x10 */
-    char pad20[80];     /* 0x20 */
-    float f70;          /* 0x70 */
-    char pad74[12];     /* 0x74 */
-    struct WallCol res; /* 0x80 */
-    char pad8C[52];     /* 0x8C */
-} ClipWorkScript;       /* 0xC0 */
+typedef struct {                     /* field names derived */
+    float p0[4];                     /* 0x00 */
+    float p1[4];                     /* 0x10 */
+    char pad20[80];                  /* 0x20 */
+    float f70;                       /* 0x70 */
+    char pad74[12];                  /* 0x74 */
+    struct WallCol res;              /* 0x80 */
+    char pad8C[52];                  /* 0x8C */
+} ClipWorkScript; /* derived name */ /* 0xC0 */
 
 /* the per-stage records: row [stage_no], entry .ent[no - 1] the stage's
    exits in exitData. */
-/* kept local: typedef.h carries StgPre but declares no stageData */
+/* typedef.h carries StgPre but declares no stageData */
 extern const StgPre stageData[];
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+/* as in motionManager2.h, which this TU does not include */
 extern int GetSkeltonFocusNode(char *a0, int a1);
 
-/* .data, last in script.o's run: the wood-bridge trigger table, one row per
-   bridge object, walked by object id. */
+/* .data: the wood-bridge trigger table, one row per bridge object, walked by
+   object id. */
 static struct WoodBoxEnt woodBoxTbl[11] = {
     {276, 6, {0}, {0.0f, -100.0f, 100.0f, 0.0f}, 1068.0f, -135.0f, 200.0f, 580.0f},
     {1710, 0, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, -1410.0f, 1000.0f, 0.0f, 0.0f},
@@ -232,40 +208,34 @@ static struct WoodBoxEnt woodBoxTbl[11] = {
     {1773, 7, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, 0.0f, 0.0f, 0.0f, 0.0f},
     {1626, 1, {0}, {100.0f, -200.0f, 0.0f, 0.0f}, 680.0f, 230.0f, 0.0f, 0.0f},
     {3294, 9, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, 0.0f, 0.0f, 0.0f, 0.0f},
-};
+}; /* derived name */
 
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+/* as in motionManager2.h, which this TU does not include */
 extern int CheckFloorAttribute(GObj *self, int attr);
-/* kept local: agrees with motionManager2.h, which this TU does not include */
+/* as in motionManager2.h, which this TU does not include */
 extern int CheckWallAttribute(GObj *self, int attr);
-/* kept local: motionManager2.h lists the parameters as (self, obj, x, y, z, mode, node, w, quat);
+/* motionManager2.h lists the parameters as (self, obj, x, y, z, mode, node, w, quat);
    the callers pass them in this order */
 extern void SetMotionNodeFixModeParameter(char *self, char *obj, int mode, int node, void *quat,
                                           float x, float y, float z, float w);
 
-/* .sbss, owned by script.o and reached only from this file: a stage change has
-   been requested and no further one is accepted. */
-static int stageChangeReq;
+/* .sbss: a stage change has been requested and no further one is
+   accepted. */
+static int stageChangeReq; /* derived name */
 
-/* kept local: a0 is void here, char * in switch.h */
+/* declared (void) here; switch.h takes a char * */
 extern int IsWallLeverStatus(void);
 
-/* kept local: this TU's uses of ACTGame_isHangChain do not fit the prototype in act-game.h */
-
-/* the last object of script.o's .data (VMA 0x2A5400..0x2A5440): the layout
-   record scpBornSpider fills and hands MakeAP1GObj for each spider */
+/* .data: the layout record scpBornSpider fills and hands MakeAP1GObj for
+   each spider */
 static struct DQW spiderLayout = {0, 0, 0, 0, 0, 0, {0}, {1.0f, 1.0f, 1.0f}}; /* derived name */
 
-/* kept local: agrees with box.h, which this TU does not include */
+/* as in box.h, which this TU does not include */
 extern int CheckReadyAllSwitches();
 
-/* The January listing has no row for this function (its body is st25a.c's
- * actSt25aQueenAppear there); the retail object emits it last in the inline
- * block.  WHAT THE BYTES PIN: its first declaration follows
- * scpDoorTypeUpMain's (script.h), and its definition precedes every inline it
- * calls (ScpCallCameraSetTarget, scpSearchGobj and
- * scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag stay calls).  WHAT THEY
- * CANNOT PIN: its source line, so it opens the function list here. */
+/* Before flag 332 this hands the actor queen_appear_mes and posts it; after
+ * it, it shows object 2149, plays its motion and starts the face shadow
+ * scrolls and the stage animations. */
 inline void actSubSekizoSe(GObj *volatile a0)
 {
     GObj *x = a0;
@@ -612,7 +582,7 @@ void scpTrans(void *a0, float *rot)
 }
 
 /* one linear step of *p toward TARGET; returns non-zero once it arrives */
-static inline int scpTransStep(float *p, float target, float step)
+static inline int scpTransStep(float *p, float target, float step) /* derived name */
 {
     int done = 0;
 
@@ -954,10 +924,9 @@ inline int scpAdpcmPlayRequestNum(void)
     return n;
 }
 
-/* the PAL listing's static helper at script.c:1636-1644 (inlined into
-   scpAdpcmCloseChkFunc, scpGirlHintVoiceCancel, ... -- it has no MAIN.MAP
-   symbol, so its rows show up outside every caller's own line span) */
-static inline int scpAdpcmRequestSlot(char **id)
+/* the slot of the pending play request whose id is ID, or -1 (inlined into
+   scpAdpcmCloseChkFunc, scpGirlHintVoiceCancel and others) */
+static inline int scpAdpcmRequestSlot(char **id) /* derived name */
 {
     int i;
     for (i = 0; i < 2; i++) {
@@ -969,10 +938,9 @@ found:
     return i;
 }
 
-/* the PAL listing's second static helper at script.c:1651-1653 (inlined into
-   scpAdpcmCloseFunc and scpAdpcmFadeCloseFunc): flag the pending play request
-   whose id is ID so the ADPCM daemon closes it. */
-static inline void scpAdpcmRequestClose(char **id)
+/* flag the pending play request whose id is ID so the ADPCM daemon closes
+   it (inlined into scpAdpcmCloseFunc and scpAdpcmFadeCloseFunc) */
+static inline void scpAdpcmRequestClose(char **id) /* derived name */
 {
     int i;
     for (i = 0; i < 2; i++)
@@ -1081,11 +1049,9 @@ inline int scpAdpcmCloseChkFunc(char **h)
     return no < scpAdpcmRequestSlot(h);
 }
 
-/* the listing's rows put a label of TickProc's own at script.c:1773 after
-   the inlined scpAdpcmCloseChkFunc (1760-1767): a static inline of its own
-   that returns that check for the hint voice's slot, used only here (the name
-   is ours; it has no out-of-line copy and no MAIN.MAP symbol) */
-static inline int scpGirlHintVoiceChk(void)
+/* scpAdpcmCloseChkFunc's check for the hint voice's slot, used only by
+   scpGirlHintVoiceTickProc */
+static inline int scpGirlHintVoiceChk(void) /* derived name */
 {
     return scpAdpcmCloseChkFunc(&girlHintVoice);
 }
@@ -1171,8 +1137,8 @@ inline void scpGirlHintVoiceCancel(void)
 
 void scpGirlHintVoiceTickProc(void)
 {
-    float rmin = girlHintRangeMin; /* the listing's line 1892: both range globals are
-                                read into locals before the early returns */
+    float rmin = girlHintRangeMin; /* both range globals are read into locals
+                                      before the early returns */
     float rmax = girlHintRangeMax;
     float pos[4];
     float dist;
@@ -1201,19 +1167,13 @@ void scpGirlHintVoiceTickProc(void)
         dist = dist - rmin;
         vol = 1.0f / (dist / (rmax - rmin) + 1.0f) - 0.5f;
     }
-    /* What the bytes pin (listing lines 1923 and 1925): the angle is read into
-       adeg on a line of its own and the negation reads the angle again, so the
-       conditional move keeps adeg in the load's register and jump's copy of
-       the compared value carries the angle into the sign test below. What they
-       cannot pin: whether the test was spelled `<= -1` or `< 0` (the same
-       code). */
+    /* adeg is the angle's magnitude: the angle is copied first and the
+       negation reads it again */
     adeg = deg;
     if (adeg <= -1)
         adeg = -deg;
     lr = (float)adeg * -0.0027777778f + 1.0f;
-    /* each arm sets its fixed side first: the ROM keeps r in the register of
-       the 1.0f the lr line loaded (no copy in this arm) and builds r from l
-       in the other */
+    /* each arm sets its fixed side first */
     if (deg >= 0) {
         r = 1.0f;
         adeg = deg;
@@ -1580,10 +1540,6 @@ void _SCPBoySupportGirl(float x0, float y0, float z0, float x1, float y1, float 
     }
 }
 
-/* declared int: the call's result register is live-out of the call in ROM's
-   allocation (the same C89 default-int prototype the TU's other way/thread
-   callees carry) */
-
 inline int _SCPMoveCharactorByWay(GObj *self, int a1, float *dir, float speed, int a3)
 {
     Act *act = GOBJ_ACT(self);
@@ -1850,9 +1806,7 @@ inline void ScpCallCameraOn(void)
 
 inline void ScpCallCameraSetTarget(float x, float y, float z)
 {
-    /* the camera target is the NEGATED point, as a homogeneous vector; the
-       block initializer is what keeps ROM's 0/4/8/C store order (a separate
-       `pos[3] = 1.0f` statement lets sched hoist the constant store first) */
+    /* the camera target is the NEGATED point, as a homogeneous vector */
     float pos[4] = {-x, -y, -z, 1.0f};
     GObj *g = boyGObj;
 

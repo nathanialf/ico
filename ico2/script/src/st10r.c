@@ -23,76 +23,67 @@
 #include "main.h"
 #include "script.h"
 
-/* kept local: this TU's bytes only come out with its own view of GObj, so it
-   keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
-typedef struct PObjGObjSt10R {
-    char pad00[8];   /* 0x000 */
-    int f08;         /* 0x008 */
-    int f0C;         /* 0x00C */
-    char pad10[332]; /* 0x010 */
-    char *f15C;      /* 0x15C */
-    char pad160[4];  /* 0x160 */
-    Act *act;        /* 0x164 */
-    char pad168[4];  /* 0x168 */
-    int f16C;        /* 0x16C */
-} PObjGObjSt10R;
+/* this file's own view of GObj (the shared one is in typedef.h) */
+typedef struct PObjGObjSt10R { /* field names derived */
+    char pad00[8];             /* 0x000 */
+    int f08;                   /* 0x008 */
+    int f0C;                   /* 0x00C */
+    char pad10[332];           /* 0x010 */
+    char *f15C;                /* 0x15C */
+    char pad160[4];            /* 0x160 */
+    Act *act;                  /* 0x164 */
+    char pad168[4];            /* 0x168 */
+    int f16C;                  /* 0x16C */
+} PObjGObjSt10R;               /* derived name */
 
-static ActMail floor_mes[2] = {{430}, {429}};
+static ActMail floor_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail floor_hit_mes[2] = {{430}, {429}};
+static ActMail floor_hit_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail cage_mes[2] = {{430}, {429}};
+static ActMail cage_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail tower_mes[2] = {{430}, {429}};
+static ActMail tower_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail exit_mes[2] = {{430}, {429}};
+static ActMail exit_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail chain_main_mes[2] = {{408, actSt10rChainSwitch}, {429}};
+static ActMail chain_main_mes[2] = {{408, actSt10rChainSwitch}, {429}}; /* derived name */
 
-static ActMail chain_mes[2] = {{430}, {429}};
+static ActMail chain_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail chain_switch_mes[2] = {{430}, {429}};
+static ActMail chain_switch_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail ene_mes[2] = {{430}, {429}};
+static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail fence_mes[2] = {{430}, {429}};
+static ActMail fence_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail fence2_mes[2] = {{430}, {429}};
+static ActMail fence2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail fence_down1_mes[2] = {{430}, {429}};
+static ActMail fence_down1_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail fence_up1_mes[2] = {{430}, {429}};
+static ActMail fence_up1_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail fence_down2_mes[2] = {{430}, {429}};
+static ActMail fence_down2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail fence_up2_mes[2] = {{430}, {429}};
+static ActMail fence_up2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail way_mes[2] = {{430}, {429}};
+static ActMail way_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail way_onchk_mes[2] = {{430}, {429}};
+static ActMail way_onchk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail way_offchk_mes[2] = {{430}, {429}};
+static ActMail way_offchk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail tower_resque_mes[2] = {{430}, {429}};
+static ActMail tower_resque_mes[2] = {{430}, {429}}; /* derived name */
 
-/* .sbss, owned by st10r.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the demo's own end flag, raised by the
-   subthreads the wait loops below spin for. */
+/* .sbss: the demo's own end flag, raised by the subthreads the wait loops
+   below spin for. */
 static int demoEnd;
 
 /* A 16-byte constant vector template: the float view carries the values,
-   the long long view is the one the copy reads, which is what makes gcc
-   emit the ld/sd pair the ROM has. */
+   the long long view is the one the copy reads. */
 
-static const ConstVec girlWayPos = {{-296.0f, 327.0f, 2125.0f, 0.0f}};
+static const ConstVec girlWayPos = {{-296.0f, 327.0f, 2125.0f, 0.0f}}; /* derived name */
 
-/* The second fence-up watcher's mail record: it installs
-   actSt10rFenceDownChk2 here and posts it. Word 0 of each entry is the mail
-   id the entry answers (430 the actor post, 429 the trailing entry);
-   .func is filled in at run time. Named for the thread that owns and posts
-   it. */
-
-/* .sdata, owned by st10r.o, in the ROM's order: the floor and cage stream handles (MAIN.MAP globals), the scene stream MAIN.MAP leaves unnamed, the chain's. */
+/* .sdata: the floor and cage stream handles, the scene stream, the chain's. */
 char *st10r_floor = 0;
 
 char *cage10r = 0;
@@ -542,8 +533,6 @@ void actSt10rFenceDownChk(GObj *volatile a0)
     _ACTWait(0);
 }
 
-/*SWEEPactSt10rFenceUpChk*/
-
 void actSt10rFenceUpChk(GObj *volatile a0)
 {
     Act *sub = ((PObjGObjSt10R *)a0)->act;
@@ -581,8 +570,6 @@ void actSt10rFenceUpChk(GObj *volatile a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-/*SWEEP-ENDactSt10rFenceUpChk*/
 
 void actSt10rFenceDownChk2(GObj *volatile a0)
 {

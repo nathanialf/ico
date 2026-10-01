@@ -12,38 +12,26 @@
 #include "typedef.h"
 #include "main.h"
 
-/* PAL listing rows: every instruction of actDeja is attributed to
- * script/src/deja.c lines 170-189 -- no inlined helper bodies.
- *
- * actDejaChk is this TU's own first function (the PAL listing names it
- * actDejaChk, deja.c:196); actDeja installs it as the actor's next mail
- * handler.  _mes is the 2-entry mail table that lives in the shared
- * src/cod .data carve, so it stays extern here. */
+/* actDeja installs actDejaChk as the actor's next mail handler. */
 
-static ActMail _mes[2] = {{430}, {429}};
+static ActMail _mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail after_mes[2] = {{430}, {429}};
+static ActMail after_mes[2] = {{430}, {429}}; /* derived name */
 
-/* --- su-b sweep decls --- */
-
-/* .sbss, owned by deja.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the demo's own end flag, raised by the handler the wait
-   loop below is spinning for. */
+/* .sbss: the demo's own end flag, raised by the handler the wait loop below
+   is spinning for. */
 static int demoEnd;
 
 void actDejaDemo(GObj *volatile a0);
-/* stageData is in the ELF's .rodata run (0x54D380..0x638A98), so `const` is
-   what it is, as typedef.h has exitData.  It is also load-bearing: only a reference
-   rooted at a const object makes the `nextStage` load unchanging, and only
-   then is it free of the `GObj *volatile a0` parameter home's memory
-   dependence, which is what lets the home store issue two slots later. */
+/* stageData is read-only, so `const`, as typedef.h has exitData; typedef.h
+   declares no stageData. */
 extern const StgPre stageData[];
 void actDejaAfterChk(GObj *volatile a0);
 
-/* .sdata, owned by deja.o: the scene's stream handle (MAIN.MAP global) */
+/* .sdata: the scene's stream handle */
 char *deja = 0;
 
-static const Vec16 afterChkPos = {{-1000.0f, 0.0f, -2200.0f, 1.0f}};
+static const Vec16 afterChkPos = {{-1000.0f, 0.0f, -2200.0f, 1.0f}}; /* derived name */
 
 inline void actEnemySleep(GObj *volatile a0)
 {

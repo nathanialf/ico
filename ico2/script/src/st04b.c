@@ -15,17 +15,16 @@
 #include "main.h"
 #include "script.h"
 
-static ActMail sekizo_mes[2] = {{430}, {429}};
+static ActMail sekizo_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail ene1_mes[2] = {{430}, {429}};
+static ActMail ene1_mes[2] = {{430}, {429}}; /* derived name */
 
 /* A 16-byte constant vector template: the float view carries the values,
-   the long long view is the one the copy reads, which is what makes gcc
-   emit the ld/sd pair the ROM has. */
+   the long long view is the one the copy reads. */
 
-static const ConstVec girlWayPos = {{-10750.0f, -2122.0f, 0.0f, 0.0f}};
+static const ConstVec girlWayPos = {{-10750.0f, -2122.0f, 0.0f, 0.0f}}; /* derived name */
 
-static const ConstVec girlWay2Pos = {{-139.0f, -177.0f, 1670.0f, 0.0f}};
+static const ConstVec girlWay2Pos = {{-139.0f, -177.0f, 1670.0f, 0.0f}}; /* derived name */
 
 void actSt04bEnd(void)
 {
@@ -38,7 +37,7 @@ void actSt04bEnd(void)
     }
 }
 
-/* .sdata, owned by st04b.o, in the ROM's order: the stone statue's stream handle, its shake and the shake's volume. */
+/* .sdata: the stone statue's stream handle, its shake and the shake's volume. */
 char *sekizo4b = 0;
 
 int sekizo_4b = 0;
@@ -47,9 +46,8 @@ unsigned char sekizo_4b_vol = 0;
 
 void actSt04bSekizoChk(GObj *volatile a0)
 {
-    /* the SE handle is memory-resident in ROM: soundSeDefPlay hands back a slot
-       id the sound side keeps updating, so it is re-read at the stop site rather
-       than carried in a callee-saved register */
+    /* soundSeDefPlay hands back a slot id the sound side keeps updating, so
+       the handle is read again at the stop site */
     volatile int se;
     float v[4];
     int key;

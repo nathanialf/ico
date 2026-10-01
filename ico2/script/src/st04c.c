@@ -24,18 +24,16 @@ void actSt04cEnd(void)
 }
 
 /* A 16-byte constant vector template: the float view carries the values,
-   the long long view is the one the copy reads, which is what makes gcc
-   emit the ld/sd pair the ROM has. */
+   the long long view is the one the copy reads. */
 
-static const StVec doorDownChkPos = {{0.0f, 84.0f, -1359.0f, 0.0f}};
+static const StVec doorDownChkPos = {{0.0f, 84.0f, -1359.0f, 0.0f}}; /* derived name */
 
-static const ConstVec doorDownEffectPos = {{0.0f, 50.0f, -1450.0f, 1.0f}};
+static const ConstVec doorDownEffectPos = {{0.0f, 50.0f, -1450.0f, 1.0f}}; /* derived name */
 
-static const ConstVec doorDownEffect2Pos = {{-2.0f, 250.0f, -1450.0f, 1.0f}};
+static const ConstVec doorDownEffect2Pos = {{-2.0f, 250.0f, -1450.0f, 1.0f}}; /* derived name */
 
-static const ConstVec doorDownEffect3Pos = {{5.0f, 260.0f, -1450.0f, 1.0f}};
+static const ConstVec doorDownEffect3Pos = {{5.0f, 260.0f, -1450.0f, 1.0f}}; /* derived name */
 
-/* listing lines 326-357 */
 void actSt04cDoorDownChk(GObj *volatile a0)
 {
     StVec pos;
@@ -64,12 +62,10 @@ void actSt04cDoorDownChk(GObj *volatile a0)
     gflagOn(162);
 }
 
-/* .sbss, owned by st04c.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the demo's own end flag, raised by the
-   subthread the wait loop below spins for. */
+/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
+   spins for. */
 static int demoEnd;
 
-/* listing lines 592-637 */
 void actSt04cIntroChk(GObj *volatile a0)
 {
     GProc *th;
@@ -112,7 +108,6 @@ void actSt04cIntroChk(GObj *volatile a0)
     scpBoyControlReadDisable = 0;
 }
 
-/* listing lines 705-753 */
 void actSt04lDoorChk(GObj *volatile a0)
 {
     GObj *x = a0;
@@ -192,13 +187,13 @@ void actSt04cSolarXL(GObj *volatile a0)
     }
 }
 
-static ActMail doorDown_mes[2] = {{430}, {429}};
+static ActMail doorDown_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail ene_mes[2] = {{430}, {429}};
+static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail intro_mes[2] = {{430}, {429}};
+static ActMail intro_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail st04lDoor_mes[2] = {{430}, {429}};
+static ActMail st04lDoor_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt04lDoor(GObj *volatile a0)
 {
@@ -314,10 +309,6 @@ void actSt04cDoorDownEvent(int x)
 {
     volatile int local = x;
 }
-
-/* Effect-parameter triples in .rodata; the `const` is the data model and is
-   load-bearing: RTX_UNCHANGING_P is what keeps sched2 from ordering each
-   b[0] store behind the b[1] load in the two remat'd-address switch arms. */
 
 void actSt04cDoorDownEffect(GObj *volatile a0)
 {

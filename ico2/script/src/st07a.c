@@ -67,45 +67,41 @@ void actSt07aEnd(void)
     }
 }
 
-/* .sbss, owned by st07a.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the demo's own end flag, raised by the
-   subthreads the wait loops below spin for. */
+/* .sbss: the demo's own end flag, raised by the subthreads the wait loops
+   below spin for. */
 static int demoEnd;
 
-/* A 16-byte constant vector: the float view carries the values, the long
-   long view is the one the whole-object copy reads. */
-
 /* A 16-byte constant vector template: the float view carries the values,
-   the long long view is the one the copy reads, which is what makes gcc
-   emit the ld/sd pair the ROM has. */
+   the long long view is the one the copy reads. */
 
-static const ConstVec chanChkPos = {{10000.0f, 0.0f, 0.0f, 1.0f}};
+static const ConstVec chanChkPos = {{10000.0f, 0.0f, 0.0f, 1.0f}}; /* derived name */
 
-static const ConstVec chanWay1Pos = {{-875.0f, 77.0f, -958.0f, 0.0f}};
+static const ConstVec chanWay1Pos = {{-875.0f, 77.0f, -958.0f, 0.0f}}; /* derived name */
 
-static const ConstVec chanWay2Pos = {{-264.0f, 1277.0f, -292.0f, 0.0f}};
+static const ConstVec chanWay2Pos = {{-264.0f, 1277.0f, -292.0f, 0.0f}}; /* derived name */
 
-static const ConstVec tsuroChkPos = {{-123.0f, -72.0f, -945.0f, 0.0f}};
+static const ConstVec tsuroChkPos = {{-123.0f, -72.0f, -945.0f, 0.0f}}; /* derived name */
 
-static const EffectArg tsuroEffectPos = {{-1793.0f, 132.0f, -942.0f, 1.0f}};
+static const EffectArg tsuroEffectPos = {{-1793.0f, 132.0f, -942.0f, 1.0f}}; /* derived name */
 
-static const EffectArg tsuroEffect2Pos = {{-2406.0f, 182.0f, -975.0f, 1.0f}};
+static const EffectArg tsuroEffect2Pos = {{-2406.0f, 182.0f, -975.0f, 1.0f}}; /* derived name */
 
-static const EffectArg tsuroEffect3Pos = {{-1005.0f, 1349.0f, -493.0f, 1.0f}};
+static const EffectArg tsuroEffect3Pos = {{-1005.0f, 1349.0f, -493.0f, 1.0f}}; /* derived name */
 
-static const EffectArg tsuroEffect4Pos = {{-1320.0f, 1346.0f, -806.0f, 1.0f}};
+static const EffectArg tsuroEffect4Pos = {{-1320.0f, 1346.0f, -806.0f, 1.0f}}; /* derived name */
 
-static const EffectArg tsuroEffect5Pos = {{-1885.0f, 1360.0f, -842.0f, 1.0f}};
+static const EffectArg tsuroEffect5Pos = {{-1885.0f, 1360.0f, -842.0f, 1.0f}}; /* derived name */
 
-static const EffectArg tsuroEffect6Pos = {{-1864.0f, 1360.0f, -1106.0f, 1.0f}};
+static const EffectArg tsuroEffect6Pos = {{-1864.0f, 1360.0f, -1106.0f, 1.0f}}; /* derived name */
 
-static const EffectArg tsuroEffect7Pos = {{-1327.0f, 1327.0f, -1141.0f, 1.0f}};
+static const EffectArg tsuroEffect7Pos = {{-1327.0f, 1327.0f, -1141.0f, 1.0f}}; /* derived name */
 
-static const EffectArg tsuroEffect8Pos = {{-1223.0f, 1325.0f, -1101.0f, 1.0f}};
+static const EffectArg tsuroEffect8Pos = {{-1223.0f, 1325.0f, -1101.0f, 1.0f}}; /* derived name */
 
-static const EffectArg tsuroEffect9Pos = {{-1273.0f, 1325.0f, -873.0f, 1.0f}};
+static const EffectArg tsuroEffect9Pos = {{-1273.0f, 1325.0f, -873.0f, 1.0f}}; /* derived name */
 
-/* .sdata, owned by st07a.o, in the ROM's order: the bridge and statue stream handles and the statue's shake (MAIN.MAP globals), then the shake volume the retail object adds. */
+/* .sdata: the bridge and statue stream handles and the statue's shake, then
+   the shake's volume. */
 char *bridge = 0;
 
 char *sekizo7a = 0;
@@ -443,8 +439,8 @@ void actSt07aTsuroEffect(GObj *volatile a0)
 
 void actSt07aSekizoChk(GObj *volatile a0)
 {
-    /* the family's SE-handle slot at 4(sp): sound-subsystem owned (st13c
-       actSt13cSekizoChk uses the same slot) */
+    /* the SE handle, which the sound subsystem owns (st13c's
+       actSt13cSekizoChk keeps one the same way) */
     volatile int se;
     float dir[4];
 
@@ -538,21 +534,21 @@ void actSt07aSekizoChk(GObj *volatile a0)
     lt_switch_layout(54);
 }
 
-static ActMail chanReady_mes[2] = {{430}, {429}};
+static ActMail chanReady_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail chanChain_mes[2] = {{430}, {429}};
+static ActMail chanChain_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail chan_mes[2] = {{430}, {429}};
+static ActMail chan_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail tsuro_mes[2] = {{430}, {429}};
+static ActMail tsuro_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail intro_mes[2] = {{430}, {429}};
+static ActMail intro_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail sekizo_mes[2] = {{430}, {429}};
+static ActMail sekizo_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail ene_mes[2] = {{430}, {429}};
+static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail ene2_mes[2] = {{430}, {429}};
+static ActMail ene2_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt07aEne(GObj *volatile a0)
 {

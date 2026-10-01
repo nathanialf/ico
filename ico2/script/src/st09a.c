@@ -15,44 +15,39 @@
 #include "typedef.h"
 #include "main.h"
 
-/* .sbss, owned by st09a.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the demo's own end flag, raised by the
-   subthread the wait loop below spins for. */
+/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
+   spins for. */
 static int demoEnd;
 
-/* st09a.o's own .rodata run 0x00622DA0..0x00622DE0 (no MAIN.MAP symbols):
-   the two hint-finished debug strings. */
+/* .data: actor mail packets. */
 
-/* st09a.o's own .data run 0x004FA2F0..0x004FA480 (no MAIN.MAP symbols):
-   actor mail packets. */
+static ActMail elvMain_mes[2] = {{406, actSt09aElvSwitch}, {429}}; /* derived name */
 
-static ActMail elvMain_mes[2] = {{406, actSt09aElvSwitch}, {429}};
+static ActMail elv_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail elv_mes[2] = {{430}, {429}};
+static ActMail elvSwitchUp_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail elvSwitchUp_mes[2] = {{430}, {429}};
+static ActMail elvSwitchDown_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail elvSwitchDown_mes[2] = {{430}, {429}};
+static ActMail elvDown_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail elvDown_mes[2] = {{430}, {429}};
+static ActMail elvUp_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail elvUp_mes[2] = {{430}, {429}};
+static float sekizoPos[4] = {1548.0f, -412.0f, -608.0f, 0.0f}; /* derived name */
 
-static float sekizoPos[4] = {1548.0f, -412.0f, -608.0f, 0.0f};
+static ActMail intro_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail intro_mes[2] = {{430}, {429}};
+static ActMail brgMain_mes[2] = {{407, actSt09aBrgSwitch}, {429}}; /* derived name */
 
-static ActMail brgMain_mes[2] = {{407, actSt09aBrgSwitch}, {429}};
+static ActMail brg_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail brg_mes[2] = {{430}, {429}};
+static ActMail brgSwitch_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail brgSwitch_mes[2] = {{430}, {429}};
+static ActMail hint1_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail hint1_mes[2] = {{430}, {429}};
+static ActMail hint2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail hint2_mes[2] = {{430}, {429}};
-
-/* .sdata, owned by st09a.o, in the ROM's order: the bridge stream handle. */
+/* .sdata: the bridge stream handle. */
 char *st09a_brg = 0;
 
 void actSt09aInit(void)
@@ -67,8 +62,8 @@ void actSt09aInit(void)
 void actSt09aElvDown(GObj *volatile a0)
 {
     Act *self = GOBJ_ACT(a0);
-    /* sound handle owned by the sound subsystem: ROM homes it at 4(sp)
-       across the animation wait and reloads it for soundSeDefStop. */
+    /* the sound handle, which the sound subsystem owns; it is kept across
+       the animation wait and read again for soundSeDefStop */
     volatile int se;
 
     lt_switch_layout(55);
@@ -275,8 +270,8 @@ void actSt09aElvSwitch(GObj *volatile a0)
 void actSt09aElvUp(GObj *volatile a0)
 {
     Act *self = GOBJ_ACT(a0);
-    /* sound handle owned by the sound subsystem: ROM homes it at 4(sp)
-       across the animation wait and reloads it for soundSeDefStop. */
+    /* the sound handle, which the sound subsystem owns; it is kept across
+       the animation wait and read again for soundSeDefStop */
     volatile int se;
 
     lt_switch_layout(55);

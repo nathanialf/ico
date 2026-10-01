@@ -17,47 +17,47 @@
 #include "main.h"
 #include "script.h"
 
-static ActMail switchL_mes[2] = {{430}, {429}};
+static ActMail switchL_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail switchLUp_mes[2] = {{430}, {429}};
+static ActMail switchLUp_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail switchLChk_mes[2] = {{430}, {429}};
+static ActMail switchLChk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail switchLUpChk_mes[2] = {{430}, {429}};
+static ActMail switchLUpChk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail switchR_mes[2] = {{430}, {429}};
+static ActMail switchR_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail switchRUp_mes[2] = {{430}, {429}};
+static ActMail switchRUp_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail switchRChk_mes[2] = {{430}, {429}};
+static ActMail switchRChk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail switchRUpChk_mes[2] = {{430}, {429}};
+static ActMail switchRUpChk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail girlCam_mes[2] = {{430}, {429}};
+static ActMail girlCam_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail girlCamStartChk_mes[2] = {{430}, {429}};
+static ActMail girlCamStartChk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail girlCamEndChk_mes[2] = {{430}, {429}};
+static ActMail girlCamEndChk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail ene_mes[2] = {{430}, {429}};
+static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail wayOn_mes[2] = {{430}, {429}};
+static ActMail wayOn_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail wayOff_mes[2] = {{430}, {429}};
+static ActMail wayOff_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail wayOnChk_mes[2] = {{430}, {429}};
+static ActMail wayOnChk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail wayOffChk_mes[2] = {{430}, {429}};
+static ActMail wayOffChk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail girlPos_mes[2] = {{430}, {429}};
+static ActMail girlPos_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail girlUp_mes[2] = {{430}, {429}};
+static ActMail girlUp_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail hint1Sleep_mes[2] = {{430}, {429}};
+static ActMail hint1Sleep_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail hint1OffChk_mes[2] = {{430}, {429}};
+static ActMail hint1OffChk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail hint1OnChk_mes[2] = {{430}, {429}};
+static ActMail hint1OnChk_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt03tSwitchL(GObj *volatile a0)
 {
@@ -571,11 +571,6 @@ void actSt03tEneChk(GObj *volatile a0)
     scpWakeupEnemyOne(3757);
 }
 
-/* The way-on watcher's mail record: it installs actSt03tWayOffChk here and
-   posts it. Word 0 of each entry is the mail id the entry answers (430 the
-   actor post, 429 the trailing entry); .func is filled in at run time.
-   Named for the thread that owns and posts it. */
-
 void actSt03tWayOnChk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
@@ -595,8 +590,6 @@ void actSt03tWayOnChk(GObj *volatile a0)
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
-
-/* The way-off watcher's own mail record (installs actSt03tWayOnChk). */
 
 void actSt03tWayOffChk(GObj *volatile a0)
 {

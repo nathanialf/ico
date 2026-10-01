@@ -25,43 +25,43 @@
    record is posted. The two main-thread records answer their own ids and
    carry their switch handler from the start. Each record is named for the
    actor thread that owns and posts it. */
-static ActMail bridgeMain_mes[2] = {{406, actSt20aBridgeSwitch}, {429}};
+static ActMail bridgeMain_mes[2] = {{406, actSt20aBridgeSwitch}, {429}}; /* derived name */
 
-static ActMail bridge_mes[2] = {{430}, {429}};
+static ActMail bridge_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail bridgeSwitch_mes[2] = {{430}, {429}};
+static ActMail bridgeSwitch_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail gondolaMain_mes[2] = {{407, actSt20aGondolaSwitch}, {429}};
+static ActMail gondolaMain_mes[2] = {{407, actSt20aGondolaSwitch}, {429}}; /* derived name */
 
-static ActMail gondola_mes[2] = {{430}, {429}};
+static ActMail gondola_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail gondolaSwitchUp_mes[2] = {{430}, {429}};
+static ActMail gondolaSwitchUp_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail gondolaSwitchDown_mes[2] = {{430}, {429}};
+static ActMail gondolaSwitchDown_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail gondolaDown_mes[2] = {{430}, {429}};
+static ActMail gondolaDown_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail gondolaUp_mes[2] = {{430}, {429}};
+static ActMail gondolaUp_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail exit_mes[2] = {{430}, {429}};
+static ActMail exit_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail ene_mes[2] = {{430}, {429}};
+static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail fence_mes[2] = {{430}, {429}};
+static ActMail fence_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail fence2_mes[2] = {{430}, {429}};
+static ActMail fence2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail fenceDownChk_mes[2] = {{430}, {429}};
+static ActMail fenceDownChk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail fenceUpChk_mes[2] = {{430}, {429}};
+static ActMail fenceUpChk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail fenceDownChk2_mes[2] = {{430}, {429}};
+static ActMail fenceDownChk2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail fenceUpChk2_mes[2] = {{430}, {429}};
+static ActMail fenceUpChk2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail girlPos_mes[2] = {{430}, {429}};
+static ActMail girlPos_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail hint1_mes[2] = {{430}, {429}};
+static ActMail hint1_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt20aInit(void)
 {
@@ -83,12 +83,11 @@ void actSt20aEnd(void)
     gamesysObjInfoCls(scpSearchGobj(2023)->kind, scpSearchGobj(2023)->labelId);
 }
 
-/* .sbss, owned by st20a.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the demo's own end flag, raised by the
-   subthread the wait loop below spins for. */
+/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
+   spins for. */
 static int demoEnd;
 
-/* .sdata, owned by st20a.o, in the ROM's order: the bridge and gondola stream handles and the shake. */
+/* .sdata: the bridge and gondola stream handles and the shake. */
 char *brg20a = 0;
 
 char *gondola_up = 0;

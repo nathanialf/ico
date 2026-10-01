@@ -14,26 +14,23 @@
 #include "script.h"
 #include "main.h"
 
-/* st05e.o's own .data run 0x4F98A0..0x4F9920 (0x80, no MAIN.MAP symbols):
-   four 0x20-byte actor mail packets, one per thread hand-off. */
+/* .data: four 0x20-byte actor mail packets, one per thread hand-off. */
 
-static ActMail waterMain_mes[2] = {{406, actSt05eWaterSwitch}, {429}};
+static ActMail waterMain_mes[2] = {{406, actSt05eWaterSwitch}, {429}}; /* derived name */
 
-static ActMail water_mes[2] = {{430}, {429}};
+static ActMail water_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail waterSwitch_mes[2] = {{430}, {429}};
+static ActMail waterSwitch_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail solar_mes[2] = {{430}, {429}};
+static ActMail solar_mes[2] = {{430}, {429}}; /* derived name */
 
-/* .sbss, owned by st05e.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the demo's own end flag, raised by the
-   subthread the wait loop below spins for, and its complement, true when the
-   player skipped the demo with START. */
+/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
+   spins for, and its complement, true when the player skipped the demo with
+   START. */
 static int demoEnd;
 
-static int demoSkipped;
+static int demoSkipped; /* derived name */
 
-/* listing lines 228-270 */
 void actSt05eWaterStop(GObj *volatile a0)
 {
     GProc *th;
@@ -77,10 +74,9 @@ void actSt05eWaterStop(GObj *volatile a0)
     SetWayGroupActive(5, 1);
 }
 
-/* .sdata, owned by st05e.o, in the ROM's order: the solar stream handle. */
+/* .sdata: the solar stream handle. */
 char *solar = 0;
 
-/* listing lines 319-389 */
 void actSt05eSolarChk(GObj *volatile a0)
 {
     while (scpIsRotObjectZPlusDirInclude(1556, 0x10D, 0x10F) == 0) {

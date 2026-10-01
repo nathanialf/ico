@@ -22,15 +22,15 @@
    entry); the handler in .func is installed at run time just before the
    record is posted. Each record is named for the actor thread that owns
    and posts it. */
-static ActMail ene_mes[2] = {{430}, {429}};
+static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail floor_mes[2] = {{430}, {429}};
+static ActMail floor_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail way_mes[2] = {{430}, {429}};
+static ActMail way_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail way_on_mes[2] = {{430}, {429}};
+static ActMail way_on_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail way_off_mes[2] = {{430}, {429}};
+static ActMail way_off_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt01bInit(void)
 {
@@ -75,26 +75,23 @@ void actSt01bEneChk(GObj *volatile a0)
     scpWakeupEnemyOne(3757);
 }
 
-/* .sdata, owned by st01b.o (MAIN.MAP globals) */
+/* .sdata */
 char *st01b_floor = 0;
 
 unsigned int st01b_yure = 0;
 
 unsigned char st01b_yure_vol = 0;
 
-/* .sbss, owned by st01b.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the demo's own end flag, raised by the
-   subthread the wait loop below spins for, and the handle of the looping
-   sound effect the demo starts. */
+/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
+   spins for, and the handle of the looping sound effect the demo starts. */
 static int demoEnd;
 
-static int seHandle;
+static int seHandle; /* derived name */
 
 /* A 16-byte constant vector template: the float view carries the values,
-   the long long view is the one the copy reads, which is what makes gcc
-   emit the ld/sd pair the ROM has. */
+   the long long view is the one the copy reads. */
 
-static const ConstVec floorChkSubPos = {{-101.0f, -381.0f, -398.0f, 0.0f}};
+static const ConstVec floorChkSubPos = {{-101.0f, -381.0f, -398.0f, 0.0f}}; /* derived name */
 
 void actSt01bFloorChkSub(GObj *volatile a0)
 {

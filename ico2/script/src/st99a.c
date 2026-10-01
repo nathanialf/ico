@@ -6,19 +6,19 @@
 #include "typedef.h"
 #include "main.h"
 
-static ActMail explode_mes[2] = {{430}, {429}};
+static ActMail explode_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail splash1_mes[2] = {{430}, {429}};
+static ActMail splash1_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail splash2_mes[2] = {{430}, {429}};
+static ActMail splash2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail wave_mes[2] = {{430}, {429}};
+static ActMail wave_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail st27aWave_mes[2] = {{430}, {429}};
+static ActMail st27aWave_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail spider_mes[2] = {{430}, {429}};
+static ActMail spider_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail st17aTest_mes[2] = {{430}, {429}};
+static ActMail st17aTest_mes[2] = {{430}, {429}}; /* derived name */
 
 void actExplode(GObj *volatile a0)
 {

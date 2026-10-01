@@ -20,13 +20,12 @@
 #include "main.h"
 #include "script.h"
 
-/* The TU's .data run, VMA 0x004F8050..0x004F8330 (0x2E0 B, MAIN.MAP's st02a.o
- * .data size), declared in the ROM's own order: one mail record per posting
- * site.  Word 0 of each entry is the mail id the entry answers (430 the actor
- * post, 429 the trailing entry); .func is filled in at run time before the
- * post, except in the two main-mail records, which answer 406 and 407 with
- * their switch threads.  Each record is named for the thread that owns and
- * posts it; where one thread owns two, for the watcher it installs. */
+/* .data: one mail record per posting site. Word 0 of each entry is the mail id
+ * the entry answers (430 the actor post, 429 the trailing entry); .func is
+ * filled in at run time before the post, except in the two main-mail records,
+ * which answer 406 and 407 with their switch threads. Each record is named for
+ * the thread that owns and posts it; where one thread owns two, for the
+ * watcher it installs. */
 void actSt02aFenceSwitch(GObj *volatile a0);
 void actSt02aGondolaSwitch(GObj *volatile a0);
 
@@ -109,22 +108,15 @@ void actSt02aDoor(GObj *volatile a0)
     }
 }
 
-/* The TU's .rodata run, VMA 0x00622710..0x00622820, declared in the ROM's own
- * order.  MAIN.MAP names no symbol in it and sizes the January link's st02a.o
- * .rodata at 0xb0 against the retail run's 0x110; the run is st02a.o's whole
- * run all the same, since st01b.o ends at 0x00622710, st03t.o starts at
- * 0x00622820 and no TU sorts between them, and every word is reached from this
- * file alone. */
-
 /* The two-part door's SE position, copied into the local the sound call reads. */
-static const ConstVec doorSePos = {{-1823.0f, -1174.0f, 2429.0f, 0.0f}};
+static const ConstVec doorSePos = {{-1823.0f, -1174.0f, 2429.0f, 0.0f}}; /* derived name */
 
 /* The door's two effect positions; the up sequence plays them in this order and
  * the down sequence in the other.  ico2/script/src/st08b.c carries the same two
  * points for its own door. */
-static const ConstVec doorUpEffectPos = {{-505.0f, -1200.0f, -5671.0f, 1.0f}};
+static const ConstVec doorUpEffectPos = {{-505.0f, -1200.0f, -5671.0f, 1.0f}}; /* derived name */
 
-static const ConstVec doorUpEffect2Pos = {{-505.0f, -1447.0f, -5671.0f, 1.0f}};
+static const ConstVec doorUpEffect2Pos = {{-505.0f, -1447.0f, -5671.0f, 1.0f}}; /* derived name */
 
 /* The two boundary points the boy's splash check tests against. */
 static const ConstVec boySplashPos[2] = {{{840.0f, 235.0f, 560.0f, 1.0f}},
@@ -133,10 +125,10 @@ static const ConstVec boySplashPos[2] = {{{840.0f, 235.0f, 560.0f, 1.0f}},
 /* The waterfall's two reflection meshes and the two layout quads they are
  * stretched over: the first quad drops from y 280 to y 0, which is the falling
  * water, and the second is flat at y 0, which is the pool below it.  The value
- * at offset 0x1C is a hardware field and keeps its ROM spelling. */
-static const PoolMesh fallReflactionMesh = {30, 20, 0, 0, 0, 0, 0, 0x60687080};
+ * at offset 0x1C is a hardware field. */
+static const PoolMesh fallReflactionMesh = {30, 20, 0, 0, 0, 0, 0, 0x60687080}; /* derived name */
 
-static const PoolMesh poolReflactionMesh = {10, 10, 0, 0, 0, 0, 0, 0x60687080};
+static const PoolMesh poolReflactionMesh = {10, 10, 0, 0, 0, 0, 0, 0x60687080}; /* derived name */
 
 static const PoolMeshQuad fallReflactionQuad = {{{650.0f, 280.0f, 550.0f, 1.0f},
                                                  {650.0f, 0.0f, 700.0f, 1.0f},
@@ -210,13 +202,11 @@ void actSt02aDoorDownChk(GObj *volatile a0)
     _ACTWait(0);
 }
 
-/* .sdata, owned by st02a.o (MAIN.MAP global, as are gondola and gondola_test
-   below) */
+/* .sdata */
 char *st02a_fence = 0;
 
-/* .sbss, owned by st02a.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the demo's own end flag, raised by the
-   subthread the wait loop below spins for. */
+/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
+   spins for. */
 static int demoEnd;
 
 void actSt02aFenceOpen(GObj *volatile a0)

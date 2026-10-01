@@ -19,43 +19,42 @@
 #include "main.h"
 #include "script.h"
 
-static ActMail ene1_mes[2] = {{430}, {429}};
+static ActMail ene1_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail ene2_mes[2] = {{430}, {429}};
+static ActMail ene2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail door_main_mes[2] = {{407, actSt08aDoorSwitch}, {429}};
+static ActMail door_main_mes[2] = {{407, actSt08aDoorSwitch}, {429}}; /* derived name */
 
-static ActMail door_mes[2] = {{430}, {429}};
+static ActMail door_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail door_switch_mes[2] = {{430}, {429}};
+static ActMail door_switch_mes[2] = {{430}, {429}}; /* derived name */
 
-static float door_up_sound_pos[4] = {-3092.0f, -2727.0f, 3711.0f, 0.0f};
+static float door_up_sound_pos[4] = {-3092.0f, -2727.0f, 3711.0f, 0.0f}; /* derived name */
 
-static ActMail intro_mes[2] = {{430}, {429}};
+static ActMail intro_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail girl_pos_mes[2] = {{430}, {429}};
+static ActMail girl_pos_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail hint1_mes[2] = {{430}, {429}};
+static ActMail hint1_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail hasi_main_mes[2] = {{408, actSt08aHasiSwitch}, {429}};
+static ActMail hasi_main_mes[2] = {{408, actSt08aHasiSwitch}, {429}}; /* derived name */
 
-static ActMail hasi_mes[2] = {{430}, {429}};
+static ActMail hasi_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail hasi_switch_mes[2] = {{430}, {429}};
+static ActMail hasi_switch_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail torch_mes[2] = {{430}, {429}};
+static ActMail torch_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail torch_on_mes[2] = {{430}, {429}};
+static ActMail torch_on_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail torch_off_mes[2] = {{430}, {429}};
+static ActMail torch_off_mes[2] = {{430}, {429}}; /* derived name */
 
-/* .sbss, owned by st08a.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the demo's own end flag, raised by the
-   subthreads the wait loops below spin for, and the flag actSt08aDoorUpSub
-   raises when the door is all the way up. */
+/* .sbss: the demo's own end flag, raised by the subthreads the wait loops
+   below spin for, and the flag actSt08aDoorUpSub raises when the door is all
+   the way up. */
 static int demoEnd;
 
-static int doorUpDone;
+static int doorUpDone; /* derived name */
 
 void actSt08aEnd(void)
 {
@@ -187,7 +186,7 @@ void actSt08aDoorUp(GObj *volatile a0)
     lt_switch_layout(54);
 }
 
-/* .sdata, owned by st08a.o, in the ROM's order: the scene's stream handle (MAIN.MAP has no .sdata for the January object). */
+/* .sdata: the scene's stream handle. */
 static char *st08a_adpcm = 0; /* derived name */
 
 void actSt08aHasiUpSub(GObj *volatile a0)

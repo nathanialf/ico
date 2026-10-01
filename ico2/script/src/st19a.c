@@ -14,34 +14,33 @@
 #include "main.h"
 #include "script.h"
 
-/* .sbss, owned by st19a.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the demo's own end flag, raised by the
-   subthread the wait loop below spins for. */
+/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
+   spins for. */
 static int demoEnd;
 
-/* st19a.o's own .data run (no MAIN.MAP symbols): actor mail packets. */
+/* .data: actor mail packets. */
 
-static ActMail oriMain_mes[2] = {{407, actSt19aOriSwitch}, {429}};
+static ActMail oriMain_mes[2] = {{407, actSt19aOriSwitch}, {429}}; /* derived name */
 
-static ActMail ori_mes[2] = {{430}, {429}};
+static ActMail ori_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail oriSwitch_mes[2] = {{430}, {429}};
+static ActMail oriSwitch_mes[2] = {{430}, {429}}; /* derived name */
 
-static float oriXLPos[4] = {-642.0f, 2132.0f, -2861.0f, 0.0f};
+static float oriXLPos[4] = {-642.0f, 2132.0f, -2861.0f, 0.0f}; /* derived name */
 
-static float haguruma2Pos[4] = {486.0f, 2386.0f, -2917.0f, 0.0f};
+static float haguruma2Pos[4] = {486.0f, 2386.0f, -2917.0f, 0.0f}; /* derived name */
 
-static ActMail haguruma_mes[2] = {{430}, {429}};
+static ActMail haguruma_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail pipe_mes[2] = {{430}, {429}};
+static ActMail pipe_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail chainMain_mes[2] = {{406, actSt19aChainSwitch}, {429}};
+static ActMail chainMain_mes[2] = {{406, actSt19aChainSwitch}, {429}}; /* derived name */
 
-static ActMail chain_mes[2] = {{430}, {429}};
+static ActMail chain_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail chainSwitch_mes[2] = {{430}, {429}};
+static ActMail chainSwitch_mes[2] = {{430}, {429}}; /* derived name */
 
-/* .sdata, owned by st19a.o, in the ROM's order: the fence, horn and pipe stream handles. */
+/* .sdata: the fence, horn and pipe stream handles. */
 char *fence_up_19a = 0;
 
 char *fence_down_19a = 0;
@@ -93,10 +92,9 @@ void actSt19aOriUp(GObj *volatile a0)
 }
 
 /* A 16-byte constant vector template: the float view carries the values,
-   the long long view is the one the copy reads, which is what makes gcc
-   emit the ld/sd pair the ROM has. */
+   the long long view is the one the copy reads. */
 
-static const ConstVec hagurumaPos = {{-642.0f, 2132.0f, -2861.0f, 0.0f}};
+static const ConstVec hagurumaPos = {{-642.0f, 2132.0f, -2861.0f, 0.0f}}; /* derived name */
 
 void actSt19aHaguruma(GObj *volatile a0)
 {

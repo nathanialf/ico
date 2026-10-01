@@ -15,17 +15,15 @@
 #include "typedef.h"
 #include "main.h"
 
-/* .sbss, owned by st13a.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the demo's own end flag, raised by the
-   subthreads the wait loops below spin for. */
+/* .sbss: the demo's own end flag, raised by the subthreads the wait loops
+   below spin for. */
 static int demoEnd;
 
-/* st13a.o's own .sdata run; MAIN.MAP names all seven. */
 void actSt13aElevUpSub(GObj *volatile a0);
 void actSt13aElevDownSub(GObj *volatile a0);
 void actSt13aElevDownChk(GObj *volatile a0);
 
-/* st13a.o's own .data run (no MAIN.MAP symbols): actor mail packets. */
+/* .data: actor mail packets. */
 
 /* The chain-OK watcher's mail record: it installs actSt13aChainNG here and
    posts it to hand the chain back to the NG (hang-disabled) watcher. Word 0
@@ -33,27 +31,27 @@ void actSt13aElevDownChk(GObj *volatile a0);
    429 the trailing entry); .func is filled in at run time. Named for the
    thread that owns and posts it. */
 
-static ActMail elevMain_mes[2] = {{406, actSt13aElevSwitch}, {429}};
+static ActMail elevMain_mes[2] = {{406, actSt13aElevSwitch}, {429}}; /* derived name */
 
-static ActMail elev_mes[2] = {{430}, {429}};
+static ActMail elev_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail elevSwitch_mes[2] = {{430}, {429}};
+static ActMail elevSwitch_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail elevDown_mes[2] = {{430}, {429}};
+static ActMail elevDown_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail sekizo_mes[2] = {{430}, {429}};
+static ActMail sekizo_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail check_mes[2] = {{430}, {429}};
+static ActMail check_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail chainNg_mes[2] = {{430}, {429}};
+static ActMail chainNg_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail chainOk_mes[2] = {{430}, {429}};
+static ActMail chainOk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail chainOK_mes[2] = {{430}, {429}};
+static ActMail chainOK_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail chainNG_mes[2] = {{430}, {429}};
+static ActMail chainNG_mes[2] = {{430}, {429}}; /* derived name */
 
-/* .sdata, owned by st13a.o, in the ROM's order: the lift and statue stream handles and shakes. */
+/* .sdata: the lift and statue stream handles and shakes. */
 char *st13a_up = 0;
 
 char *st13a_down = 0;

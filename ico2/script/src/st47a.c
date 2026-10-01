@@ -50,12 +50,7 @@ void actSt47aEnd(void)
     }
 }
 
-/* the 16-byte work vector the stone-statue cutscene reuses for both motion
-   directions (src/script.c's scpSekizou uses the same union) */
-
-/* file-static sound / pad handles, .sbss 0x0063C05C..0x0063C078 */
-
-/* .sdata, owned by st47a.o, in the ROM's order: the statue and wing stream handles and the statue's shake. */
+/* .sdata: the statue and wing stream handles and the statue's shake. */
 char *sekizo47a = 0;
 
 char *hane1up = 0;
@@ -72,8 +67,8 @@ unsigned char sekizo_47a_vol = 0;
 
 void actSt47aSekizo1Chk(GObj *volatile a0)
 {
-    /* sound handle owned by the sound subsystem: ROM homes it at 4(sp) across
-       the whole cutscene and reloads it for soundSeDefStop. */
+    /* the sound handle, which the sound subsystem owns; it is kept across
+       the whole cutscene and read again for soundSeDefStop */
     volatile int se;
 
     if (girlGObj == 0) {
@@ -176,45 +171,43 @@ void actSt47aSekizo1Chk(GObj *volatile a0)
 /* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
    pad, trg at 0x4. */
 
-/* file-static sound handles, .sbss 0x0063C05C..0x0063C078 */
+static ActMail sekizo1_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail sekizo1_mes[2] = {{430}, {429}};
+static ActMail hane1Main_mes[2] = {{406, actSt47aHane1Switch}, {429}}; /* derived name */
 
-static ActMail hane1Main_mes[2] = {{406, actSt47aHane1Switch}, {429}};
+static ActMail hane1_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail hane1_mes[2] = {{430}, {429}};
+static ActMail hane1SwitchUp_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail hane1SwitchUp_mes[2] = {{430}, {429}};
+static ActMail hane1SwitchDown_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail hane1SwitchDown_mes[2] = {{430}, {429}};
+static ActMail hane1Down_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail hane1Down_mes[2] = {{430}, {429}};
+static ActMail hane1Up_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail hane1Up_mes[2] = {{430}, {429}};
+static ActMail hane2Main_mes[2] = {{407, actSt47aHane2Switch}, {429}}; /* derived name */
 
-static ActMail hane2Main_mes[2] = {{407, actSt47aHane2Switch}, {429}};
+static ActMail hane2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail hane2_mes[2] = {{430}, {429}};
+static ActMail hane2SwitchUp_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail hane2SwitchUp_mes[2] = {{430}, {429}};
+static ActMail hane2SwitchDown_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail hane2SwitchDown_mes[2] = {{430}, {429}};
+static ActMail hane2Down_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail hane2Down_mes[2] = {{430}, {429}};
+static ActMail hane2Up_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail hane2Up_mes[2] = {{430}, {429}};
+static ActMail rope_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail rope_mes[2] = {{430}, {429}};
+static ActMail barricade_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail barricade_mes[2] = {{430}, {429}};
+static ActMail exit_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail exit_mes[2] = {{430}, {429}};
+static ActMail exit2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail exit2_mes[2] = {{430}, {429}};
+static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail ene_mes[2] = {{430}, {429}};
-
-static ActMail hint2On_mes[2] = {{430}, {429}};
+static ActMail hint2On_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt47aHane1Down(GObj *volatile a0)
 {
@@ -451,9 +444,8 @@ void actSt47aRope(GObj *volatile a0)
     }
 }
 
-/* .sbss, owned by st47a.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the demo's own end flag, raised by the
-   subthread the wait loop below spins for. */
+/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
+   spins for. */
 static int demoEnd;
 
 void actSt47aRopeChk(GObj *volatile a0)
@@ -812,16 +804,15 @@ void actSt47aSekizo1Event(int x)
 }
 
 /* A 16-byte constant vector template: the float view carries the values,
-   the long long view is the one the copy reads, which is what makes gcc
-   emit the ld/sd pair the ROM has. */
+   the long long view is the one the copy reads. */
 
-static const ConstVec girlWayPos = {{2266.0f, -272.0f, 0.0f, 0.0f}};
+static const ConstVec girlWayPos = {{2266.0f, -272.0f, 0.0f, 0.0f}}; /* derived name */
 
-static const ConstVec hane1_1GirlPos = {{-1076.0f, -1972.0f, 755.0f, 0.0f}};
+static const ConstVec hane1_1GirlPos = {{-1076.0f, -1972.0f, 755.0f, 0.0f}}; /* derived name */
 
-static const ConstVec hane1_2GirlPos = {{1028.0f, -1972.0f, 744.0f, 0.0f}};
+static const ConstVec hane1_2GirlPos = {{1028.0f, -1972.0f, 744.0f, 0.0f}}; /* derived name */
 
-static const ConstVec hane2GirlPos = {{-1031.0f, -1972.0f, -747.0f, 0.0f}};
+static const ConstVec hane2GirlPos = {{-1031.0f, -1972.0f, -747.0f, 0.0f}}; /* derived name */
 
 void actSt47aGirlWay(GObj *volatile a0)
 {

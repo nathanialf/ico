@@ -13,31 +13,30 @@
 #include "main.h"
 
 /* A 16-byte constant vector template: the float view carries the values,
-   the long long view is the one the copy reads, which is what makes gcc
-   emit the ld/sd pair the ROM has. */
+   the long long view is the one the copy reads. */
 
-static const ConstVec door2UpChkPos = {{-702.0f, -1886.0f, -5680.0f, 0.0f}};
+static const ConstVec door2UpChkPos = {{-702.0f, -1886.0f, -5680.0f, 0.0f}}; /* derived name */
 
-static const ConstVec door2UpEffectPos = {{-704.0f, -1700.0f, -5679.0f, 1.0f}};
+static const ConstVec door2UpEffectPos = {{-704.0f, -1700.0f, -5679.0f, 1.0f}}; /* derived name */
 
-static const ConstVec door2UpEffect2Pos = {{-704.0f, -1955.0f, -5679.0f, 1.0f}};
+static const ConstVec door2UpEffect2Pos = {{-704.0f, -1955.0f, -5679.0f, 1.0f}}; /* derived name */
 
 void actSt05dDoor2UpEffect(GObj *volatile a0);
 void actSt05dDoor2DownEffect(GObj *volatile a0);
 void actSt05dEneChk(GObj *volatile a0);
 void actSt05dCrestHintChk(GObj *volatile a0);
 
-static ActMail door2Down_mes[2] = {{430}, {429}};
+static ActMail door2Down_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail door2Up_mes[2] = {{430}, {429}};
+static ActMail door2Up_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail door2UpChk_mes[2] = {{430}, {429}};
+static ActMail door2UpChk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail door2DownChk_mes[2] = {{430}, {429}};
+static ActMail door2DownChk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail ene_mes[2] = {{430}, {429}};
+static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail crestHint_mes[2] = {{430}, {429}};
+static ActMail crestHint_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt05dDoor2DownChk(GObj *volatile a0);
 void actSt05dDoor2UpChk(GObj *volatile a0);

@@ -11,11 +11,10 @@
 #include "main.h"
 
 /* the story flag bitmap, one bit per event flag; saved and restored whole */
-static unsigned char gflags[50] = {0};
+static unsigned char gflags[50] = {0}; /* derived name */
 
-/* gflag.o's .sdata run (VMA 0x63AA00..0x63AA08; MAIN.MAP's January object
-   is the one word gFlagSaveStage): the game-clear state, saved and loaded
-   with the flags, then the stage the save was made on (MAIN.MAP global). */
+/* .sdata: the game-clear state, saved and loaded with the flags, then the
+   stage the save was made on. */
 int gFlagGameClear = 0; /* derived name */
 
 int gFlagSaveStage = 0;

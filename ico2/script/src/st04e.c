@@ -17,33 +17,32 @@
 #include "main.h"
 #include "script.h"
 
-/* .sbss, owned by st04e.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the demo's own end flag, raised by the
-   subthread the wait loop below spins for, and its complement, true when the
-   player skipped the demo with START. */
+/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
+   spins for, and its complement, true when the player skipped the demo with
+   START. */
 static int demoEnd;
 
-static int demoSkipped;
+static int demoSkipped; /* derived name */
 
-static ActMail waterMain_mes[2] = {{406, actSt04eWaterSwitch}, {429}};
+static ActMail waterMain_mes[2] = {{406, actSt04eWaterSwitch}, {429}}; /* derived name */
 
-static ActMail water_mes[2] = {{430}, {429}};
+static ActMail water_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail waterSwitch_mes[2] = {{430}, {429}};
+static ActMail waterSwitch_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail hint1_mes[2] = {{430}, {429}};
+static ActMail hint1_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail fuchi1_mes[2] = {{430}, {429}};
+static ActMail fuchi1_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail fuchi2_mes[2] = {{430}, {429}};
+static ActMail fuchi2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail fuchi3_mes[2] = {{430}, {429}};
+static ActMail fuchi3_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail se_mes[2] = {{430}, {429}};
+static ActMail se_mes[2] = {{430}, {429}}; /* derived name */
 
-static float seChkPos[4] = {0.0f, -171.0f, -8000.0f, 0.0f};
+static float seChkPos[4] = {0.0f, -171.0f, -8000.0f, 0.0f}; /* derived name */
 
-static ActMail hint1WakeUp_mes[2] = {{430}, {429}};
+static ActMail hint1WakeUp_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt04eWaterStop(GObj *volatile a0)
 {

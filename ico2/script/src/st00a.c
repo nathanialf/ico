@@ -16,62 +16,55 @@
 #include "main.h"
 #include "script.h"
 
-/* .sdata, owned by st00a.o (MAIN.MAP globals): the prototype stair's stream
-   handle, its shake and the shake's volume. */
+/* .sdata: the prototype stair's stream handle, its shake and the shake's
+   volume. */
 char *proto = 0;
 
 unsigned int proto_yure = 0;
 
 unsigned char proto_yure_vol = 0;
 
-/* st00a.o's whole .rodata run: six 16-byte constant vectors in ROM order, each
-   named for the first actor that copies it. The float view carries the values,
-   the long long view is the one the copies read, which is what makes gcc emit
-   the ld/sd pairs the ROM has. */
+/* .rodata: six 16-byte constant vectors, each named for the first actor that
+   copies it.  The float view carries the values, the long long view is the
+   one the copies read. */
 
-static const ConstVec door2UpChkPos = {{0.0f, -422.0f, 1630.0f, 0.0f}};
+static const ConstVec door2UpChkPos = {{0.0f, -422.0f, 1630.0f, 0.0f}}; /* derived name */
 
-static const ConstVec door2UpEffectPos = {{0.0f, -150.0f, 1640.0f, 1.0f}};
+static const ConstVec door2UpEffectPos = {{0.0f, -150.0f, 1640.0f, 1.0f}}; /* derived name */
 
-static const ConstVec door2UpEffect2Pos = {{0.0f, -450.0f, 1640.0f, 1.0f}};
+static const ConstVec door2UpEffect2Pos = {{0.0f, -450.0f, 1640.0f, 1.0f}}; /* derived name */
 
-static const ConstVec door1UpChkPos = {{-1.0f, -184.0f, -57.0f, 0.0f}};
+static const ConstVec door1UpChkPos = {{-1.0f, -184.0f, -57.0f, 0.0f}}; /* derived name */
 
-static const ConstVec door1UpEffectPos = {{-505.0f, -1200.0f, -5671.0f, 1.0f}};
+static const ConstVec door1UpEffectPos = {{-505.0f, -1200.0f, -5671.0f, 1.0f}}; /* derived name */
 
-static const ConstVec door1UpEffect2Pos = {{-505.0f, -1447.0f, -5671.0f, 1.0f}};
+static const ConstVec door1UpEffect2Pos = {{-505.0f, -1447.0f, -5671.0f, 1.0f}}; /* derived name */
 
-/* st00a.o's whole .data run: eleven actor mail records in ROM order, each the
-   usual pair, the 430 entry whose handler the sender fills in and the 429
-   terminator, named for the actor that installs it. */
-static ActMail atr2_mes[2] = {{430}, {429}};
+/* .data: eleven actor mail records, each the usual pair, the 430 entry whose
+   handler the sender fills in and the 429 terminator, named for the actor that
+   installs it. */
+static ActMail atr2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail ene_mes[2] = {{430}, {429}};
+static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail stair_mes[2] = {{430}, {429}};
+static ActMail stair_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail door2Down_mes[2] = {{430}, {429}};
+static ActMail door2Down_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail door2Up_mes[2] = {{430}, {429}};
+static ActMail door2Up_mes[2] = {{430}, {429}}; /* derived name */
 
-/* The four check records' names are ours and not settled. Each check actor hoists the
-   record's %hi and its handler's %hi out of its trigger loop, and which of the two takes
-   $20 falls to the order of their gcse hash buckets, i.e. to the record's NAME: st05d's
-   spelling door2UpChk_mes (bucket 34 of 43, handler 30) gives actSt00aDoor2UpChk the
-   other register order and door1UpChk_mes (37 of 41, handler 2) does the same to
-   actSt00aDoor1UpChk, while the lower-case chk that st05d and st08b first carried fits
-   all four. The bytes pin the buckets, not the text. */
-static ActMail door2Upchk_mes[2] = {{430}, {429}};
+/* the four door checks' records */
+static ActMail door2Upchk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail door2Downchk_mes[2] = {{430}, {429}};
+static ActMail door2Downchk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail door1Down_mes[2] = {{430}, {429}};
+static ActMail door1Down_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail door1Up_mes[2] = {{430}, {429}};
+static ActMail door1Up_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail door1Upchk_mes[2] = {{430}, {429}};
+static ActMail door1Upchk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail door1Downchk_mes[2] = {{430}, {429}};
+static ActMail door1Downchk_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt00aInit(void)
 {
@@ -134,9 +127,8 @@ void actSt00aEneChk(GObj *volatile a0)
     gflagOff(39);
 }
 
-/* .sbss, owned by st00a.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the flag the stair-check subthread raises when the demo
-   is over, which the wait loop below spins for. */
+/* .sbss: the flag the stair-check subthread raises when the demo is over,
+   which the wait loop below spins for. */
 static int demoEnd;
 
 void actSt00aStairChkSub(GObj *volatile a0);

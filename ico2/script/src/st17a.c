@@ -14,39 +14,36 @@
 #include "script.h"
 #include "main.h"
 
-static ActMail linkTest_mes[2] = {{430}, {429}};
+static ActMail linkTest_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail doorInit_mes[2] = {{430}, {429}};
+static ActMail doorInit_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail doorDown_mes[2] = {{430}, {429}};
+static ActMail doorDown_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail doorUp_mes[2] = {{430}, {429}};
+static ActMail doorUp_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail doorUpChk_mes[2] = {{430}, {429}};
+static ActMail doorUpChk_mes[2] = {{430}, {429}}; /* derived name */
 
-/* actSt17aDoorDownChk's record. The name is ours (no map names a file static)
-   but not free: gcse.c hashes a SYMBOL_REF by its characters, and the spellings
-   doorDownChk_mes and door_down_chk_mes both swap that function's s4/s5 (the
-   complete66 audit, re-measured in chain 1 pass 108); door_mes gives the ROM's. */
-static ActMail door_mes[2] = {{430}, {429}};
+/* actSt17aDoorDownChk's record */
+static ActMail door_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail hasi_mes[2] = {{430}, {429}};
+static ActMail hasi_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail intro_mes[2] = {{430}, {429}};
+static ActMail intro_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail hint1_mes[2] = {{430}, {429}};
+static ActMail hint1_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail fall_mes[2] = {{430}, {429}};
+static ActMail fall_mes[2] = {{430}, {429}}; /* derived name */
 
-static const ConstVec doorChkSePos = {{6646.0f, -2157.0f, 1102.0f, 0.0f}};
+static const ConstVec doorChkSePos = {{6646.0f, -2157.0f, 1102.0f, 0.0f}}; /* derived name */
 
-static const ConstVec doorUpEffectPos = {{6690.0f, -2000.0f, 1100.0f, 1.0f}};
+static const ConstVec doorUpEffectPos = {{6690.0f, -2000.0f, 1100.0f, 1.0f}}; /* derived name */
 
-static const ConstVec doorDownEffectPos = {{6690.0f, -2300.0f, 1100.0f, 1.0f}};
+static const ConstVec doorDownEffectPos = {{6690.0f, -2300.0f, 1100.0f, 1.0f}}; /* derived name */
 
-static const ConstVec doorDownEffect2Pos = {{6600.0f, -2000.0f, 1100.0f, 1.0f}};
+static const ConstVec doorDownEffect2Pos = {{6600.0f, -2000.0f, 1100.0f, 1.0f}}; /* derived name */
 
-static const ConstVec hasiChkSePos = {{3587.0f, -2072.0f, 1124.0f, 0.0f}};
+static const ConstVec hasiChkSePos = {{3587.0f, -2072.0f, 1124.0f, 0.0f}}; /* derived name */
 
 void actSt17aDoor(GObj *volatile a0)
 {
@@ -250,9 +247,7 @@ void actSt17aHasiChk(GObj *volatile a0)
 }
 
 /* The seven spawn positions are initialised block locals, as in e3.c's
- * actE3CageFallEffect: their templates are this TU's anonymous .rodata
- * (VMA 0x622FB0..0x623020), and loop.c hoists each template's first
- * doubleword out of the frame loop because the constant cannot change. */
+ * actE3CageFallEffect. */
 void actSt17aHasiEffect(GObj *volatile a0)
 {
     float t;
@@ -303,13 +298,12 @@ void actSt17aHasiEffect(GObj *volatile a0)
     } while (t < 1000.0f);
 }
 
-/* .sbss, owned by st17a.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the demo's own end flag, raised by the
-   subthread the wait loop below spins for. */
+/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
+   spins for. */
 static int demoEnd;
 
-/* a0 is the actor entry parameter: its stack home is the actor-thread frame
-   slot the scheduler reads, so it is volatile like every other stage actor. */
+/* a0 is the actor entry parameter, volatile like every other stage
+   actor's. */
 void actSt17aIntroCancel(GObj *volatile a0)
 {
     demoEnd = 0;
@@ -497,7 +491,7 @@ void actSt17aHasiEvent(int x)
     volatile int local = x;
 }
 
-/* .sdata, owned by st17a.o, in the ROM's order: the camera stream handle. */
+/* .sdata: the camera stream handle. */
 char *cam = 0;
 
 void actSt17aIntroChk(GObj *volatile a0)

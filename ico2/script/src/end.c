@@ -23,10 +23,8 @@
 #include "script.h"
 #include "staffroll.h"
 
-/* .sdata, owned by end.o in the ROM's order: the ending scenes' stream handles
-   (MAIN.MAP globals, ed5 and happy_end unused by the retail code), then the
-   three the retail object adds for the staff roll, the fourteenth demo and
-   the st27a ending. */
+/* .sdata: the ending scenes' stream handles (ed5 and happy_end unused), then
+   the staff roll's, the fourteenth demo's and the st27a ending's. */
 char *ed1 = 0;
 
 char *ed2 = 0;
@@ -49,41 +47,41 @@ static char *endDemo14 = 0; /* derived name */
 
 static char *st27aEnd = 0; /* derived name */
 
-static ActMail demo01_mes[2] = {{430}, {429}};
+static ActMail demo01_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail demo02_mes[2] = {{430}, {429}};
+static ActMail demo02_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail demo03_mes[2] = {{430}, {429}};
+static ActMail demo03_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail demo04_mes[2] = {{430}, {429}};
+static ActMail demo04_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail demo05_mes[2] = {{430}, {429}};
+static ActMail demo05_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail demo06_mes[2] = {{430}, {429}};
+static ActMail demo06_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail demo07_mes[2] = {{430}, {429}};
+static ActMail demo07_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail demo10_mes[2] = {{430}, {429}};
+static ActMail demo10_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail demo11_mes[2] = {{430}, {429}};
+static ActMail demo11_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail demo12_mes[2] = {{430}, {429}};
+static ActMail demo12_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail demo13_mes[2] = {{430}, {429}};
+static ActMail demo13_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail staff1_mes[2] = {{430}, {429}};
+static ActMail staff1_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail staff2_mes[2] = {{430}, {429}};
+static ActMail staff2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail staff3_mes[2] = {{430}, {429}};
+static ActMail staff3_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail ed_demo14_mes[2] = {{430}, {429}};
+static ActMail ed_demo14_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail st27aEnd_mes[2] = {{430}, {429}};
+static ActMail st27aEnd_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail logo_mes[2] = {{430}, {429}};
+static ActMail logo_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail end_mes[2] = {{430}, {429}};
+static ActMail end_mes[2] = {{430}, {429}}; /* derived name */
 
 void actEndDemo01(GObj *volatile a0)
 {
@@ -377,15 +375,14 @@ void actEndDemo07(GObj *volatile a0)
     }
 }
 
-/* A 16-byte constant vector template: the float view carries the values,
-   the long long view is the one the copy reads, which is what makes gcc
-   emit the ld/sd pair the ROM has. */
+/* 16-byte constant vector templates: the float view carries the values, the
+   long long view is the one the copy reads. */
 
-static const ConstVec conte14_7Pos = {{-4743.0f, -661.0f, 2503.0f, 1.0f}};
+static const ConstVec conte14_7Pos = {{-4743.0f, -661.0f, 2503.0f, 1.0f}}; /* derived name */
 
-static const ConstVec staff3DemoPos = {{-800.0f, 0.0f, -1000.0f, 1.0f}};
+static const ConstVec staff3DemoPos = {{-800.0f, 0.0f, -1000.0f, 1.0f}}; /* derived name */
 
-static const ConstVec conte14_14Pos = {{16975.0f, 71.0f, -4332.0f, 1.0f}};
+static const ConstVec conte14_14Pos = {{16975.0f, 71.0f, -4332.0f, 1.0f}}; /* derived name */
 
 void actConte14_7(GObj *volatile a0)
 {
@@ -912,12 +909,6 @@ void actStaff3Demo(GObj *volatile a0)
     scpFadeOut(6.0f, 0, 0, 0);
 }
 
-/* Demo 14's mail record: the actor installs actEndDemo14Chk in it and posts
-   it. Word 0 of each entry is the mail id the entry answers (430 the actor
-   post, 429 the trailing entry); .func is filled in at run time. Named in
-   this TU's own terse snake_case house style (its MAIN.MAP globals are
-   ed1..ed6, sea, happy_end) for the ending demo it belongs to. */
-
 void actEndDemo14(GObj *volatile a0)
 {
     GObj *x = a0;
@@ -1051,7 +1042,6 @@ void actSt27aEnd(GObj *volatile a0)
     }
 }
 
-/* listing lines 2614-2661 */
 void actSt27aEndChk(GObj *volatile a0)
 {
     float max;
@@ -1196,14 +1186,6 @@ void actSt27aEndDemo(GObj *volatile a0)
         RequestStageChange(1, boyGObj, girlGObj, 1.0f, 8.0f);
     }
 }
-
-/* The ending's save hand-off mail record: the logo watcher installs
-   actEndingSave in it and posts it. Word 0 of each entry is the mail id the
-   entry answers (430 the actor post, 429 the trailing entry); .func is
-   filled in at run time. Named in this TU's own terse snake_case house style
-   (its MAIN.MAP globals are ed1..ed6, sea, happy_end) for the sequence it
-   belongs to; among the role-plausible spellings this is one that also puts
-   the record ahead of the handler in gcc's expression-hash order. */
 
 void actEndLogoChk(GObj *volatile a0)
 {

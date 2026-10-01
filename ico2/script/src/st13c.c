@@ -33,73 +33,71 @@
 /* scpEffectStart's argument block: a 16-byte spawn position, copied as a
    pair of doublewords and written as four floats. */
 
-typedef struct AnimSet {
-    int anim[5]; /* 0x00 */
-} AnimSet;
+typedef struct AnimSet { /* field names derived */
+    int anim[5];         /* 0x00 */
+} AnimSet;               /* derived name */
 
-typedef struct AnimSet16 {
-    int anim[16]; /* 0x00 */
-} AnimSet16;
+typedef struct AnimSet16 { /* field names derived */
+    int anim[16];          /* 0x00 */
+} AnimSet16;               /* derived name */
 
-typedef struct MotObj {
-    char pad00[1300]; /* 0x000 */
-    int unk514;       /* 0x514 */
-} MotObj;
+typedef struct MotObj { /* field names derived */
+    char pad00[1300];   /* 0x000 */
+    int unk514;         /* 0x514 */
+} MotObj;               /* derived name */
 
-/* kept local: this TU's bytes only come out with its own view of PObjGObjSt13c. */
-/* kept local: this TU's bytes only come out with its own view of GObj, so it
-   keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
-typedef struct PObjGObjSt13c {
-    char pad00[348]; /* 0x000 */
-    int unk15C;      /* 0x15C */
-    int unk160;      /* 0x160 */
-    int act;         /* 0x164 (Act * handle) */
-    int unk168;      /* 0x168 */
-    int unk16C;      /* 0x16C */
-} PObjGObjSt13c;
+/* this file's own view of GObj (the shared one is in typedef.h) */
+typedef struct PObjGObjSt13c { /* field names derived */
+    char pad00[348];           /* 0x000 */
+    int unk15C;                /* 0x15C */
+    int unk160;                /* 0x160 */
+    int act;                   /* 0x164 (Act * handle) */
+    int unk168;                /* 0x168 */
+    int unk16C;                /* 0x16C */
+} PObjGObjSt13c;               /* derived name */
 
-/* .sbss, owned by st13c.o and reached only from this file (MAIN.MAP names no
-   symbol in the run), in the ROM's run order: the flag each demo raises when
-   it is over, and the generator the boss fight calls through. */
+/* .sbss: the flag each demo raises when it is over, and the generator the boss
+   fight calls through. */
 static int demoEnd;
 
-static int bossGenerator;
+static int bossGenerator; /* derived name */
 
-/* st13c.o's own .data run (no MAIN.MAP symbols): actor mail packets. */
+/* .data: actor mail packets. */
 
-static ActMail bmg1_mes[2] = {{430}, {429}};
+static ActMail bmg1_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail sleep_mes[2] = {{430}, {429}};
+static ActMail sleep_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail cageDownMain_mes[2] = {{406, actSt13cCageDownSwitch}, {429}};
+static ActMail cageDownMain_mes[2] = {{406, actSt13cCageDownSwitch}, {429}}; /* derived name */
 
-static ActMail cageDown_mes[2] = {{430}, {429}};
+static ActMail cageDown_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail cageDownSwitch_mes[2] = {{430}, {429}};
+static ActMail cageDownSwitch_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail cageFallReady_mes[2] = {{430}, {429}};
+static ActMail cageFallReady_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail cageFall_mes[2] = {{430}, {429}};
+static ActMail cageFall_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail cageFall2_mes[2] = {{430}, {429}};
+static ActMail cageFall2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail sekizoJimaku_mes[2] = {{430}, {429}};
+static ActMail sekizoJimaku_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail sekizo_mes[2] = {{430}, {429}};
+static ActMail sekizo_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail girlCarry_mes[2] = {{430}, {429}};
+static ActMail girlCarry_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail girlCarryChk_mes[2] = {{430}, {429}};
+static ActMail girlCarryChk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail girlCarryAgainChk_mes[2] = {{430}, {429}};
+static ActMail girlCarryAgainChk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail hand_mes[2] = {{430}, {429}};
+static ActMail hand_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail rescue_mes[2] = {{430}, {429}};
+static ActMail rescue_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail buki_mes[2] = {{430}, {429}};
+static ActMail buki_mes[2] = {{430}, {429}}; /* derived name */
 
-/* .sdata, owned by st13c.o, in the ROM's order: bmg and hand (MAIN.MAP globals) around the two scene streams MAIN.MAP leaves unnamed, then a word no retail code uses and the shake and volume the retail object adds. */
+/* .sdata: bmg and hand around the two scene streams, then a word no code
+   uses, a shake and its volume. */
 char *bmg = 0;
 
 static char *st13c_adpcm = 0; /* derived name */
@@ -131,40 +129,40 @@ void actSt13cEnd(void)
 
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads. */
-/* kept local: this TU's bytes only come out with its own view of ConstVecSt13c. */
-typedef union {
+typedef union { /* field names derived */
     float f[4];
     long long d[2];
-} __attribute__((aligned(16))) ConstVecSt13c;
+} __attribute__((aligned(16))) ConstVecSt13c; /* derived name */
 
 /* The animations actSt13cConte04 steps through. */
-static const AnimSet conte04Anims = {{625, 626, 627, 628, 629}};
+static const AnimSet conte04Anims = {{625, 626, 627, 628, 629}}; /* derived name */
 
 /* Where actSt13cSleepChk turns the sleeping girl to face. */
-static const ConstVecSt13c sleepFacePos = {{-800.0f, 0.0f, -1000.0f, 1.0f}};
+static const ConstVecSt13c sleepFacePos = {{-800.0f, 0.0f, -1000.0f, 1.0f}}; /* derived name */
 
 /* The animations actSt13cConte05 steps through. */
 static const AnimSet16 conte05Anims = {
+    /* derived name */
     {630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645}};
 
 /* actSt13cCageFallEffect's nine effect spawns, in the frame order it fires them. */
-static const EffectArg cageFallEffect1 = {{-88.0f, -50.0f, -1.0f, 1.0f}};
+static const EffectArg cageFallEffect1 = {{-88.0f, -50.0f, -1.0f, 1.0f}}; /* derived name */
 
-static const EffectArg cageFallEffect2 = {{-96.0f, -45.0f, 34.0f, 1.0f}};
+static const EffectArg cageFallEffect2 = {{-96.0f, -45.0f, 34.0f, 1.0f}}; /* derived name */
 
-static const EffectArg cageFallEffect3 = {{72.0f, -50.0f, 8.0f, 1.0f}};
+static const EffectArg cageFallEffect3 = {{72.0f, -50.0f, 8.0f, 1.0f}}; /* derived name */
 
-static const EffectArg cageFallEffect4 = {{80.0f, -50.0f, 2.0f, 1.0f}};
+static const EffectArg cageFallEffect4 = {{80.0f, -50.0f, 2.0f, 1.0f}}; /* derived name */
 
-static const EffectArg cageFallEffect5 = {{-27.0f, -50.0f, 100.0f, 1.0f}};
+static const EffectArg cageFallEffect5 = {{-27.0f, -50.0f, 100.0f, 1.0f}}; /* derived name */
 
-static const EffectArg cageFallEffect6 = {{-56.0f, -50.0f, 66.0f, 1.0f}};
+static const EffectArg cageFallEffect6 = {{-56.0f, -50.0f, 66.0f, 1.0f}}; /* derived name */
 
-static const EffectArg cageFallEffect7 = {{-5.0f, -50.0f, 42.0f, 1.0f}};
+static const EffectArg cageFallEffect7 = {{-5.0f, -50.0f, 42.0f, 1.0f}}; /* derived name */
 
-static const EffectArg cageFallEffect8 = {{-10.0f, 0.0f, 466.0f, 1.0f}};
+static const EffectArg cageFallEffect8 = {{-10.0f, 0.0f, 466.0f, 1.0f}}; /* derived name */
 
-static const EffectArg cageFallEffect9 = {{-25.0f, 0.0f, 450.0f, 1.0f}};
+static const EffectArg cageFallEffect9 = {{-25.0f, 0.0f, 450.0f, 1.0f}}; /* derived name */
 
 void actSt13cBmg1(GObj *volatile a0)
 {
@@ -921,8 +919,8 @@ void actSt13cCageFallEffect(GObj *volatile a0)
 
 void actSt13cSekizoChk(GObj *volatile a0)
 {
-    /* the family's SE-handle slot at 4(sp): sound-subsystem owned, and here
-       never written before soundSeDefStop reads it back (ROM: lw $4,4($sp)). */
+    /* the SE handle, which the sound subsystem owns; here it is never
+       written before soundSeDefStop reads it back */
     volatile int se;
     float dir[4];
 

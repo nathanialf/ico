@@ -16,84 +16,75 @@
 #include "script.h"
 #include "main.h"
 
-/* kept local: this TU's bytes only come out with its own view of ActSt10L. */
-/* kept local: this TU's bytes only come out with its own view of Act, so it
-   keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
-typedef struct ActSt10L {
-    char pad0[52];     /* 0x00 */
-    int f34;           /* 0x34 */
-    char pad38[152];   /* 0x38 */
-    ActMail *mainMail; /* 0xD0 */
-    ActMail *mail;     /* 0xD4 */
-} ActSt10L;
+/* this file's own view of Act (the shared one is in typedef.h) */
+typedef struct ActSt10L { /* field names derived */
+    char pad0[52];        /* 0x00 */
+    int f34;              /* 0x34 */
+    char pad38[152];      /* 0x38 */
+    ActMail *mainMail;    /* 0xD0 */
+    ActMail *mail;        /* 0xD4 */
+} ActSt10L;               /* derived name */
 
-/* kept local: this TU's bytes only come out with its own view of GObj, so it
-   keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
-typedef struct PObjGObjSt10L {
-    char pad00[356]; /* 0x000 */
-    ActSt10L *act;   /* 0x164 */
-    char pad168[4];  /* 0x168 */
-    int f16C;        /* 0x16C */
-} PObjGObjSt10L;
+/* this file's own view of GObj (the shared one is in typedef.h) */
+typedef struct PObjGObjSt10L { /* field names derived */
+    char pad00[356];           /* 0x000 */
+    ActSt10L *act;             /* 0x164 */
+    char pad168[4];            /* 0x168 */
+    int f16C;                  /* 0x16C */
+} PObjGObjSt10L;               /* derived name */
 
-/* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
-   pad, trg at 0x4. */
+/* .rodata: the girl's way-point packet for actSt10lEneCam3Chk, a 16-byte
+   constant vector template whose long long view the copy reads */
 
-/* st10l.o's own .rodata run 0x00622DE0..0x00622DF0 (no MAIN.MAP symbol):
-   the girl's way-point packet for actSt10lEneCam3Chk. */
-/* A 16-byte constant vector template: the float view carries the values,
-   the long long view is the one the copy reads, which is what makes gcc
-   emit the ld/sd pair the ROM has. */
+static const ConstVec eneCam3ChkPos = {{-33.0f, -72.0f, 470.0f, 0.0f}}; /* derived name */
 
-static const ConstVec eneCam3ChkPos = {{-33.0f, -72.0f, 470.0f, 0.0f}};
+/* .data: actor mail packets. */
 
-/* st10l.o's own .data run (no MAIN.MAP symbols): actor mail packets. */
+static ActMail floorMain_mes[2] = {{406, actSt10lFloorSwitch}, {429}}; /* derived name */
 
-static ActMail floorMain_mes[2] = {{406, actSt10lFloorSwitch}, {429}};
+static ActMail floor_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail floor_mes[2] = {{430}, {429}};
+static ActMail floorSwitchRight_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail floorSwitchRight_mes[2] = {{430}, {429}};
+static ActMail floorSwitchLeft_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail floorSwitchLeft_mes[2] = {{430}, {429}};
+static ActMail floorLeft_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail floorLeft_mes[2] = {{430}, {429}};
+static ActMail floorRight_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail floorRight_mes[2] = {{430}, {429}};
+static ActMail gondolaMain_mes[2] = {{407, actSt10lGondolaSwitch}, {429}}; /* derived name */
 
-static ActMail gondolaMain_mes[2] = {{407, actSt10lGondolaSwitch}, {429}};
+static ActMail gondola_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail gondola_mes[2] = {{430}, {429}};
+static ActMail gondolaSwitchDown_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail gondolaSwitchDown_mes[2] = {{430}, {429}};
+static ActMail gondolaSwitchUp_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail gondolaSwitchUp_mes[2] = {{430}, {429}};
+static ActMail gondolaUp_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail gondolaUp_mes[2] = {{430}, {429}};
+static ActMail gondolaDown_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail gondolaDown_mes[2] = {{430}, {429}};
+static ActMail eneCam1_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail eneCam1_mes[2] = {{430}, {429}};
+static ActMail box_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail box_mes[2] = {{430}, {429}};
+static ActMail eneCam2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail eneCam2_mes[2] = {{430}, {429}};
+static ActMail eneCam3_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail eneCam3_mes[2] = {{430}, {429}};
+static ActMail boxA_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail boxA_mes[2] = {{430}, {429}};
+static ActMail boxB_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail boxB_mes[2] = {{430}, {429}};
+static ActMail chainMain_mes[2] = {{408, actSt10lChainSwitch}, {429}}; /* derived name */
 
-static ActMail chainMain_mes[2] = {{408, actSt10lChainSwitch}, {429}};
+static ActMail chain_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail chain_mes[2] = {{430}, {429}};
+static ActMail chainSwitch_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail chainSwitch_mes[2] = {{430}, {429}};
+static ActMail eneKill_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail eneKill_mes[2] = {{430}, {429}};
-
-/* .sdata, owned by st10l.o, in the ROM's order: the floor, gondola and chain stream handles. */
+/* .sdata: the floor, gondola and chain stream handles. */
 char *floor10l = 0;
 
 char *st10l_gondola_up = 0;
@@ -115,7 +106,6 @@ void actSt10lInit(void)
     }
 }
 
-/*SWEEPactSt10lFloorLeft*/
 void actSt10lFloorLeft(GObj *volatile a0)
 {
     ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
@@ -177,7 +167,6 @@ void actSt10lFloorLeft(GObj *volatile a0)
     _ACTWait(0);
 }
 
-/*SWEEP-ENDactSt10lFloorLeft*/
 void actSt10lFloorRight(GObj *volatile a0)
 {
     ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;

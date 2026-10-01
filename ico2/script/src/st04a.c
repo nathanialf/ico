@@ -35,37 +35,34 @@
 #include "jimaku.h"
 #include "main.h"
 
-/* kept local: this TU's bytes only come out with its own view of Act, so it
-   keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
-typedef struct ActSt04A {
-    char pad0[32];     /* 0x00 */
-    ActStatus flags20; /* 0x20 */
-    char pad28[12];    /* 0x28 */
-    int unk34;         /* 0x34 */
-    char unk38[152];   /* 0x38 */
-    ActMail *mainMail; /* 0xD0 */
-    ActMail *mail;     /* 0xD4 */
-    char padD8[920];   /* 0xD8 */
-    int unk470;        /* 0x470 */
-    void *unk474;      /* 0x474 */
-    int unk478;        /* 0x478 */
-} ActSt04A;
+/* this file's own view of Act (the shared one is in typedef.h) */
+typedef struct ActSt04A { /* field names derived */
+    char pad0[32];        /* 0x00 */
+    ActStatus flags20;    /* 0x20 */
+    char pad28[12];       /* 0x28 */
+    int unk34;            /* 0x34 */
+    char unk38[152];      /* 0x38 */
+    ActMail *mainMail;    /* 0xD0 */
+    ActMail *mail;        /* 0xD4 */
+    char padD8[920];      /* 0xD8 */
+    int unk470;           /* 0x470 */
+    void *unk474;         /* 0x474 */
+    int unk478;           /* 0x478 */
+} ActSt04A;               /* derived name */
 
-/* kept local: this TU's bytes only come out with its own view of GObj, so it
-   keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
-typedef struct PObjGObjSt04A {
-    char pad00[348]; /* 0x000 */
-    char *f15C;      /* 0x15C */
-    char pad160[4];  /* 0x160 */
-    ActSt04A *act;   /* 0x164 */
-    char pad168[4];  /* 0x168 */
-    int f16C;        /* 0x16C */
-} PObjGObjSt04A;
+/* this file's own view of GObj (the shared one is in typedef.h) */
+typedef struct PObjGObjSt04A { /* field names derived */
+    char pad00[348];           /* 0x000 */
+    char *f15C;                /* 0x15C */
+    char pad160[4];            /* 0x160 */
+    ActSt04A *act;             /* 0x164 */
+    char pad168[4];            /* 0x168 */
+    int f16C;                  /* 0x16C */
+} PObjGObjSt04A;               /* derived name */
 
-/* .data, owned by st04a.o, in the ROM's order ahead of model_on and model_off
-   (MAIN.MAP sizes the member's run 0x160 in the January link): each action's
-   mail pair, the check handler stored into its first entry at run time, and
-   the matrix finishCallBackFunc writes into every joint. */
+/* .data, ahead of model_on and model_off: each action's mail pair, the check
+   handler stored into its first entry at run time, and the matrix
+   finishCallBackFunc writes into every joint. */
 static ActMail gate_mail[2] = {{430}, {429}}; /* derived name */
 
 static ActMail gate_open_mail[2] = {{430}, {429}}; /* derived name */
@@ -123,28 +120,26 @@ void actSt04aGate(GObj *volatile a0)
     }
 }
 
-typedef struct AnimList28 {
+typedef struct AnimList28 { /* field names derived */
     int v[28];
-} AnimList28;
+} AnimList28; /* derived name */
 
-/* stream-motion-def's table; kept local: streamMotionManager.h, which defines
-   the record, does not declare it */
+/* stream-motion-def's table; streamMotionManager.h, which defines the
+   record, does not declare it */
 extern StreamMotionFile streamMotion[];
 
-/* .sdata, owned by st04a.o, the head of the run: the first gate's stream
-   handle and gate1, which the retail code does not use (MAIN.MAP globals).
+/* .sdata: the first gate's stream handle and gate1, which no code uses.
    actSt04aConte06's "!!\n" trace follows them. */
 char *gate1st = 0;
 
 int gate1 = 0;
 
-/* .sbss, owned by st04a.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the demo's own end flag, raised by
-   the subthread the wait loops below spin for, and a running flag set for the
-   length of the conte09_3 cutscene that nothing in the ROM reads back. */
+/* .sbss: the demo's own end flag, raised by the subthread the wait loops below
+   spin for, and a running flag set for the length of the conte09_3 cutscene
+   that nothing reads back. */
 static int demoEnd;
 
-static int conte09_3Running;
+static int conte09_3Running; /* derived name */
 
 void actSt04aGateChk(GObj *volatile a0)
 {
@@ -480,10 +475,9 @@ void actSt04aConte06(GObj *volatile a0)
     _ACTWait(0);
 }
 
-/* .sdata, the rest of st04a.o's run after actSt04aConte06's trace: the gate
-   and torch stream handles (the first three are the retail object's own, the
-   next three MAIN.MAP's globals), then the pad shakes and their volumes
-   (MAIN.MAP globals, declared in st04a.h for actSt04aConte06). */
+/* .sdata, after actSt04aConte06's trace: the gate and torch stream handles,
+   then the pad shakes and their volumes (declared in st04a.h for
+   actSt04aConte06). */
 static char *gate_open = 0; /* derived name */
 
 static char *gate_open2 = 0; /* derived name */
@@ -642,14 +636,12 @@ void actSt04aGateOpen(GObj *volatile a0)
     }
 }
 
-typedef struct AnimList {
+typedef struct AnimList { /* field names derived */
     int v[13];
-} AnimList;
+} AnimList; /* derived name */
 
-/* .rodata, used here and by actConte09_2 (MAIN.MAP names no symbol in
-   st04a.o's run): the two lift offsets.  Declared ahead and defined after
-   actSt04aGateOpenChk: the ROM emits them after that function's own block
-   constants. */
+/* .rodata, used here and by actConte09_2: the two lift offsets, declared
+   ahead and defined after actSt04aGateOpenChk. */
 static const ConstVec liftOfs1;
 
 static const ConstVec liftOfs2;
@@ -824,9 +816,9 @@ void actSt04aGateOpenChk(GObj *volatile a0)
     scpSearchGobj(648)->active = 0;
 }
 
-static const ConstVec liftOfs1 = {{0.0f, 0.0f, 6000.0f, 1.0f}};
+static const ConstVec liftOfs1 = {{0.0f, 0.0f, 6000.0f, 1.0f}}; /* derived name */
 
-static const ConstVec liftOfs2 = {{-5000.0f, 0.0f, 5300.0f, 1.0f}};
+static const ConstVec liftOfs2 = {{-5000.0f, 0.0f, 5300.0f, 1.0f}}; /* derived name */
 
 void actConte09(GObj *volatile a0)
 {
@@ -987,8 +979,6 @@ void actConte09Jimaku(GObj *volatile a0)
     _ACTWait(0);
 }
 
-/* st04a.o's own .rodata: the gate-open exit direction vector. */
-
 void actSt04aGateOpen2Chk(GObj *volatile a0)
 {
     long long ofs[2];
@@ -1028,8 +1018,6 @@ void actSt04aGateOpen2Chk(GObj *volatile a0)
 
     actCreateSubThread(actConte09_2, 21);
 }
-
-/* st04a.o's own .rodata: the two demo exit direction vectors. */
 
 void actConte09_2(GObj *volatile a0)
 {
@@ -2041,9 +2029,9 @@ void actSt04aEnvSeWakare1(GObj *volatile a0)
     _ACTWait(0);
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     float m[4];
-} Vec4St04A;
+} Vec4St04A; /* derived name */
 
 void finishCallBackFunc(GObj *a0)
 {
@@ -2193,7 +2181,7 @@ void actSt04aGirlSitChk(GObj *volatile a0)
    and posts it. Word 0 of each entry is the mail id the entry answers (430
    the actor post, 429 the trailing entry); .func is filled in at run time.
    Named for the thread that owns and posts it. */
-static ActMail model_on[2] = {{430}, {429}};
+static ActMail model_on[2] = {{430}, {429}}; /* derived name */
 
 void actSt04aModelOnChk(GObj *volatile a0)
 {
@@ -2212,7 +2200,7 @@ void actSt04aModelOnChk(GObj *volatile a0)
 }
 
 /* The model-off watcher's own mail record (installs actSt04aModelOnChk). */
-static ActMail model_off[2] = {{430}, {429}};
+static ActMail model_off[2] = {{430}, {429}}; /* derived name */
 
 void actSt04aModelOffChk(GObj *volatile a0)
 {

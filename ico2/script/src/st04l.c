@@ -28,32 +28,29 @@
 #include "script.h"
 #include "main.h"
 
-/* .sbss, owned by st04l.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the four arguments turnBall hands
-   to the ball-turn actor through file scope, the demo's own end flag, the
-   crest-2 animation the room selects, and the flag the stair subthread raises
-   once it is past its setup. */
-static int turnFlag;
+/* .sbss: the four arguments turnBall hands to the ball-turn actor through file
+   scope, the demo's own end flag, the crest-2 animation the room selects, and
+   the flag the stair subthread raises once it is past its setup. */
+static int turnFlag; /* derived name */
 
-static int turnAnim;
+static int turnAnim; /* derived name */
 
-static int turnGobj1;
+static int turnGobj1; /* derived name */
 
-static int turnGobj2;
+static int turnGobj2; /* derived name */
 
 static int demoEnd;
 
-static int crest2Anim;
+static int crest2Anim; /* derived name */
 
-static int subStarted;
+static int subStarted; /* derived name */
 
 /* A 16-byte constant vector template: the float view carries the values,
-   the long long view is the one the copy reads, which is what makes gcc
-   emit the ld/sd pair the ROM has. */
+   the long long view is the one the copy reads. */
 
-static const ConstVec stairSubPos = {{0.0f, 0.0f, -5000.0f, 1.0f}};
+static const ConstVec stairSubPos = {{0.0f, 0.0f, -5000.0f, 1.0f}}; /* derived name */
 
-/* .sdata, owned by st04l.o, in the ROM's order: the room's stream handles and shakes (solar4l unused by the retail code). */
+/* .sdata: the room's stream handles and shakes (solar4l unused). */
 unsigned int ball1_4l = 0;
 
 char *ball2_4l = 0;
@@ -325,118 +322,116 @@ void actSt04lBallTurnCommon(GObj *volatile a0)
     lt_switch_layout(54);
 }
 
-static ActMail c1BallMain_mes[2] = {{406, actSt04lC1BallSwitch}, {429}};
+static ActMail c1BallMain_mes[2] = {{406, actSt04lC1BallSwitch}, {429}}; /* derived name */
 
-static ActMail c1Ball_mes[2] = {{430}, {429}};
+static ActMail c1Ball_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail c1BallSwitch_mes[2] = {{430}, {429}};
+static ActMail c1BallSwitch_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail c1BallTurn_mes[2] = {{430}, {429}};
+static ActMail c1BallTurn_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail turnBall_mes[2] = {{430}, {429}};
+static ActMail turnBall_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail c2BallMain_mes[2] = {{406, actSt04lC2BallSwitch}, {429}};
+static ActMail c2BallMain_mes[2] = {{406, actSt04lC2BallSwitch}, {429}}; /* derived name */
 
-static ActMail c2Ball_mes[2] = {{430}, {429}};
+static ActMail c2Ball_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail c2BallSwitch_mes[2] = {{430}, {429}};
+static ActMail c2BallSwitch_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail c2BallTurn_mes[2] = {{430}, {429}};
+static ActMail c2BallTurn_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail c3BallMain_mes[2] = {{407, actSt04lC3BallSwitch}, {429}};
+static ActMail c3BallMain_mes[2] = {{407, actSt04lC3BallSwitch}, {429}}; /* derived name */
 
-static ActMail c3Ball_mes[2] = {{430}, {429}};
+static ActMail c3Ball_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail c3BallSwitch_mes[2] = {{430}, {429}};
+static ActMail c3BallSwitch_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail c3BallTurn_mes[2] = {{430}, {429}};
+static ActMail c3BallTurn_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail crest01_mes[2] = {{430}, {429}};
+static ActMail crest01_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail crest02_mes[2] = {{430}, {429}};
+static ActMail crest02_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail crest03_mes[2] = {{430}, {429}};
+static ActMail crest03_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail st04eSolarBeam_mes[2] = {{430}, {429}};
+static ActMail st04eSolarBeam_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail stair_mes[2] = {{430}, {429}};
+static ActMail stair_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail rope1_mes[2] = {{430}, {429}};
+static ActMail rope1_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail rope2_mes[2] = {{430}, {429}};
+static ActMail rope2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail brg1_mes[2] = {{430}, {429}};
+static ActMail brg1_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail brg1Chk_mes[2] = {{430}, {429}};
+static ActMail brg1Chk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail rope3_mes[2] = {{430}, {429}};
+static ActMail rope3_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail rope4_mes[2] = {{430}, {429}};
+static ActMail rope4_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail brg2_mes[2] = {{430}, {429}};
+static ActMail brg2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail brg2Chk_mes[2] = {{430}, {429}};
+static ActMail brg2Chk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail brg1Way_mes[2] = {{430}, {429}};
+static ActMail brg1Way_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail brg2Way_mes[2] = {{430}, {429}};
+static ActMail brg2Way_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail sekizo_mes[2] = {{430}, {429}};
+static ActMail sekizo_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail turi_mes[2] = {{430}, {429}};
+static ActMail turi_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail gondola_mes[2] = {{430}, {429}};
+static ActMail gondola_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail gondola2_mes[2] = {{430}, {429}};
+static ActMail gondola2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail gondolaChk_mes[2] = {{430}, {429}};
+static ActMail gondolaChk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail gondola_chara[2] = {{430}, {429}};
+static ActMail gondola_chara[2] = {{430}, {429}}; /* derived name */
 
-static ActMail monyou01_mes[2] = {{430}, {429}};
+static ActMail monyou01_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail monyou02_mes[2] = {{430}, {429}};
+static ActMail monyou02_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail monyou03_mes[2] = {{430}, {429}};
+static ActMail monyou03_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail monyou04_mes[2] = {{430}, {429}};
+static ActMail monyou04_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail monyou05_mes[2] = {{430}, {429}};
+static ActMail monyou05_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail monyou06_mes[2] = {{430}, {429}};
+static ActMail monyou06_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail monyou07_mes[2] = {{430}, {429}};
+static ActMail monyou07_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail ori_mes[2] = {{430}, {429}};
+static ActMail ori_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail oriRopeCutR_mes[2] = {{430}, {429}};
+static ActMail oriRopeCutR_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail oriRopeCutL_mes[2] = {{430}, {429}};
+static ActMail oriRopeCutL_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail ori2_mes[2] = {{430}, {429}};
+static ActMail ori2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail sword_mes[2] = {{430}, {429}};
+static ActMail sword_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail torch1_1_mes[2] = {{430}, {429}};
+static ActMail torch1_1_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail torch1_2_mes[2] = {{430}, {429}};
+static ActMail torch1_2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail torch2_1_mes[2] = {{430}, {429}};
+static ActMail torch2_1_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail torch2_2_mes[2] = {{430}, {429}};
+static ActMail torch2_2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail torch3_1_mes[2] = {{430}, {429}};
+static ActMail torch3_1_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail torch3_2_mes[2] = {{430}, {429}};
+static ActMail torch3_2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail torch2_1XL_mes[2] = {{430}, {429}};
+static ActMail torch2_1XL_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail torch2_2XL_mes[2] = {{430}, {429}};
+static ActMail torch2_2XL_mes[2] = {{430}, {429}}; /* derived name */
 
 void turnBall(GObj *a0, int a1, int a2, int a3, int a4)
 {
-    /* the 0x164 chase is spelled int-typed: ROM re-chases it in the int
-       alias set of the turnFlag.. stores, so it cannot be sunk below them */
     Act *sub = GOBJ_ACT(a0);
 
     turnFlag = a1;
@@ -2954,9 +2949,6 @@ void actSt04lTuriChk(GObj *volatile a0)
     _ACTWait(1);
     lt_switch_layout(54);
 }
-
-/* This actor's mail record.  Role-named for the actor that owns and posts it,
-   the convention every carved stage record in this tree follows. */
 
 void actSt04lGondolaCharaChk(GObj *volatile a0)
 {

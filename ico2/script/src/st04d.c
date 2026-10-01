@@ -7,19 +7,14 @@
 #include "typedef.h"
 #include "main.h"
 
-/* A 16-byte constant vector template: the float view carries the values,
-   the long long view is the one the copy reads, which is what makes gcc
-   emit the ld/sd pair the ROM has. */
-
-/* prototypes: their order is the inline tail's emission order */
 inline void actSt04dDoor1Event(int x)
 {
     volatile int local = x;
 }
 
-static ActMail door1_down_mes[2] = {{430}, {429}};
+static ActMail door1_down_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail door1_up_mes[2] = {{430}, {429}};
+static ActMail door1_up_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt04dDoor1(GObj *volatile a0)
 {
@@ -47,13 +42,13 @@ void actSt04dDoor1(GObj *volatile a0)
 
 inline void actSt04dDoor1UpEffect(GObj *volatile a0);
 
-static const ConstVec door1SoundPos = {{-498.0f, -1418.0f, -5663.0f, 0.0f}};
+static const ConstVec door1SoundPos = {{-498.0f, -1418.0f, -5663.0f, 0.0f}}; /* derived name */
 
-static const ConstVec door1UpEffectPos = {{-505.0f, -1200.0f, -5671.0f, 1.0f}};
+static const ConstVec door1UpEffectPos = {{-505.0f, -1200.0f, -5671.0f, 1.0f}}; /* derived name */
 
-static const ConstVec door1DownEffectPos = {{-505.0f, -1447.0f, -5671.0f, 1.0f}};
+static const ConstVec door1DownEffectPos = {{-505.0f, -1447.0f, -5671.0f, 1.0f}}; /* derived name */
 
-static ActMail door1_up_chk_mes[2] = {{430}, {429}};
+static ActMail door1_up_chk_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt04dDoor1UpChk(GObj *volatile a0)
 {
@@ -136,7 +131,7 @@ inline void actSt04dDoor1DownEffect(GObj *volatile a0)
     }
 }
 
-static ActMail door1_down_chk_mes[2] = {{430}, {429}};
+static ActMail door1_down_chk_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt04dDoor1DownChk(GObj *volatile a0)
 {
@@ -176,9 +171,9 @@ inline void actSt04dDoor2Event(int x)
     volatile int local = x;
 }
 
-static ActMail door2_down_mes[2] = {{430}, {429}};
+static ActMail door2_down_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail door2_up_mes[2] = {{430}, {429}};
+static ActMail door2_up_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt04dDoor2(GObj *volatile a0)
 {
@@ -206,13 +201,13 @@ void actSt04dDoor2(GObj *volatile a0)
 
 inline void actSt04dDoor2UpEffect(GObj *volatile a0);
 
-static const ConstVec door2SoundPos = {{702.0f, -1886.0f, -5680.0f, 0.0f}};
+static const ConstVec door2SoundPos = {{702.0f, -1886.0f, -5680.0f, 0.0f}}; /* derived name */
 
-static const ConstVec door2UpEffectPos = {{704.0f, -1700.0f, -5679.0f, 1.0f}};
+static const ConstVec door2UpEffectPos = {{704.0f, -1700.0f, -5679.0f, 1.0f}}; /* derived name */
 
-static const ConstVec door2DownEffectPos = {{704.0f, -1955.0f, -5679.0f, 1.0f}};
+static const ConstVec door2DownEffectPos = {{704.0f, -1955.0f, -5679.0f, 1.0f}}; /* derived name */
 
-static ActMail door2_up_chk_mes[2] = {{430}, {429}};
+static ActMail door2_up_chk_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt04dDoor2UpChk(GObj *volatile a0)
 {
@@ -295,7 +290,7 @@ inline void actSt04dDoor2DownEffect(GObj *volatile a0)
     }
 }
 
-static ActMail door2_down_chk_mes[2] = {{430}, {429}};
+static ActMail door2_down_chk_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt04dDoor2DownChk(GObj *volatile a0)
 {

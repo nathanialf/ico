@@ -16,52 +16,47 @@
 #include "main.h"
 #include "script.h"
 
-static ActMail kurenMain_mes[2] = {{406, actSt08bKurenSwitch}, {429}};
+static ActMail kurenMain_mes[2] = {{406, actSt08bKurenSwitch}, {429}}; /* derived name */
 
-static ActMail kuren_mes[2] = {{430}, {429}};
+static ActMail kuren_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail kurenSwitch_mes[2] = {{430}, {429}};
+static ActMail kurenSwitch_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail doorDown_mes[2] = {{430}, {429}};
+static ActMail doorDown_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail doorUp_mes[2] = {{430}, {429}};
+static ActMail doorUp_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail doorUpChk_mes[2] = {{430}, {429}};
+static ActMail doorUpChk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail doorDownChk_mes[2] = {{430}, {429}};
+static ActMail doorDownChk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail ene_mes[2] = {{430}, {429}};
+static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
 
 /* A 16-byte constant vector template: the float view carries the values,
-   the long long view is the one the copy reads, which is what makes gcc
-   emit the ld/sd pair the ROM has. */
+   the long long view is the one the copy reads. */
 
-static const ConstVec kurenSwitchPos = {{248.0f, -2626.0f, 705.0f, 1.0f}};
+static const ConstVec kurenSwitchPos = {{248.0f, -2626.0f, 705.0f, 1.0f}}; /* derived name */
 
-static const ConstVec kurenSwitch2Pos = {{280.0f, -3748.0f, 2416.0f, 1.0f}};
+static const ConstVec kurenSwitch2Pos = {{280.0f, -3748.0f, 2416.0f, 1.0f}}; /* derived name */
 
-static const ConstVec doorUpChkPos = {{-1319.0f, -2429.0f, -405.0f, 0.0f}};
+static const ConstVec doorUpChkPos = {{-1319.0f, -2429.0f, -405.0f, 0.0f}}; /* derived name */
 
-static const ConstVec doorUpEffectPos = {{-505.0f, -1200.0f, -5671.0f, 1.0f}};
+static const ConstVec doorUpEffectPos = {{-505.0f, -1200.0f, -5671.0f, 1.0f}}; /* derived name */
 
-static const ConstVec doorUpEffect2Pos = {{-505.0f, -1447.0f, -5671.0f, 1.0f}};
+static const ConstVec doorUpEffect2Pos = {{-505.0f, -1447.0f, -5671.0f, 1.0f}}; /* derived name */
 
-typedef union Pos {
+typedef union Pos { /* field names derived */
     long long ll[2];
     float f[4];
-} Pos;
+} Pos; /* derived name */
 
 void actSt08bKurenLeft(GObj *volatile a0);
 void actSt08bKurenRight(GObj *volatile a0);
-/* The door-boundary X/Z corners live in the -G8 gp float pool and are written
-   by the stage's layout/script side, so their loads may not sink into the jal
-   delay slot; ROM has a nop at both call sites. */
 void actSt08bDoorUpChk(GObj *volatile a0);
 void actSt08bDoorDownChk(GObj *volatile a0);
 
-/* .sbss, owned by st08b.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the demo's own end flag, raised by the
-   subthreads the wait loop below spins for. */
+/* .sbss: the demo's own end flag, raised by the subthreads the wait loop below
+   spins for. */
 static int demoEnd;
 
 inline void actSt08bKuren(GObj *volatile a0)
@@ -373,10 +368,6 @@ inline void actSt08bDoorDownEffect(GObj *volatile a0)
         _ACTWait(1);
     }
 }
-
-/* The door records are named for the actor that posts them: the door actor's
-   doorDown_mes and doorUp_mes, each check thread's own doorUpChk_mes and
-   doorDownChk_mes (st04d's door1_up_chk_mes idiom, st18a's switchLUpChk_mes). */
 
 void actSt08bDoorDownChk(GObj *volatile a0)
 {

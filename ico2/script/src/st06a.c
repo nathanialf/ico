@@ -26,145 +26,135 @@
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copies read. */
 
-static const ConstVec doorUpEffectPos = {{0.0f, 50.0f, -1450.0f, 1.0f}};
+static const ConstVec doorUpEffectPos = {{0.0f, 50.0f, -1450.0f, 1.0f}}; /* derived name */
 
-static const ConstVec doorUpEffect2Pos = {{-2.0f, 250.0f, -1450.0f, 1.0f}};
+static const ConstVec doorUpEffect2Pos = {{-2.0f, 250.0f, -1450.0f, 1.0f}}; /* derived name */
 
-static const ConstVec doorUpEffect3Pos = {{5.0f, 260.0f, -1450.0f, 1.0f}};
+static const ConstVec doorUpEffect3Pos = {{5.0f, 260.0f, -1450.0f, 1.0f}}; /* derived name */
 
-static const ConstVec suimonSubPos = {{-1869.0f, -1147.0f, -664.0f, 0.0f}};
+static const ConstVec suimonSubPos = {{-1869.0f, -1147.0f, -664.0f, 0.0f}}; /* derived name */
 
-static const ConstVec jumpPos = {{-505.0f, -1200.0f, -5671.0f, 1.0f}};
+static const ConstVec jumpPos = {{-505.0f, -1200.0f, -5671.0f, 1.0f}}; /* derived name */
 
-static const ConstVec jumpPos2 = {{-505.0f, -1447.0f, -5671.0f, 1.0f}};
+static const ConstVec jumpPos2 = {{-505.0f, -1447.0f, -5671.0f, 1.0f}}; /* derived name */
 
-static const ConstVec kyomiPos = {{-985.0f, -177.0f, -696.0f, 0.0f}};
+static const ConstVec kyomiPos = {{-985.0f, -177.0f, -696.0f, 0.0f}}; /* derived name */
 
-static const ConstVec farPos = {{0.0f, 0.0f, -1000000.0f, 1.0f}};
+static const ConstVec farPos = {{0.0f, 0.0f, -1000000.0f, 1.0f}}; /* derived name */
 
-/* Deferred-`inline` tail members: ee-gcc 2.9 emits a plain-`inline` function's
-   out-of-line copy at the END of the object in PROTOTYPE order, while its
-   string constants are emitted where the function is DEFINED.  That pair of
-   rules is what puts "FALLDOWN..." first in this TU's .rodata run while
-   actSt06aPistonRideOffChk's code sits near the end of its .text. */
+/* st06a.c's `inline` functions, in the order of their definitions'
+   out-of-line copies at the end of the object (first-declaration order). */
 inline void actSt06aPistonRideOffChk(GObj *volatile a0);
 inline void actSt06aPistonFlagOffChk(GObj *volatile a0);
 inline void actSt06aSoundChk(GObj *volatile a0);
 inline void actSt06aSound2Chk(GObj *volatile a0);
 
-static ActMail suimon_mes[2] = {{430}, {429}};
+static ActMail suimon_mes[2] = {{430}, {429}}; /* derived name */
 
-static float suimon_sound_pos[4] = {810.0f, -346.0f, 381.0f, 0.0f};
+static float suimon_sound_pos[4] = {810.0f, -346.0f, 381.0f, 0.0f}; /* derived name */
 
-static ActMail door_down_mes[2] = {{430}, {429}};
+static ActMail door_down_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail door_up_mes[2] = {{430}, {429}};
+static ActMail door_up_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail door_upchk_mes[2] = {{430}, {429}};
+static ActMail door_upchk_mes[2] = {{430}, {429}}; /* derived name */
 
-/* The name is ours and not settled: the TU's idiom would spell it door_downchk_mes, which moves
-   this function's register allocation (the complete66 mail-record audit); the bytes pin the hash class. */
-static ActMail door_dnchk_mes[2] = {{430}, {429}};
+static ActMail door_dnchk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail shutter_main_mes[2] = {{406, actSt06aShutterSwitch}, {429}};
+static ActMail shutter_main_mes[2] = {{406, actSt06aShutterSwitch}, {429}}; /* derived name */
 
-static ActMail shutter_mes[2] = {{430}, {429}};
+static ActMail shutter_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail shutter_switch_mes[2] = {{430}, {429}};
+static ActMail shutter_switch_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail exit_mes[2] = {{430}, {429}};
+static ActMail exit_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail exit_girl_mes[2] = {{430}, {429}};
+static ActMail exit_girl_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail box_mes[2] = {{430}, {429}};
+static ActMail box_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail box2_mes[2] = {{430}, {429}};
+static ActMail box2_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail box3_mes[2] = {{430}, {429}};
+static ActMail box3_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail ball_delete_mes[2] = {{430}, {429}};
+static ActMail ball_delete_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail box_event2_in_mes[2] = {{430}, {429}};
+static ActMail box_event2_in_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail box_event2_out_mes[2] = {{430}, {429}};
+static ActMail box_event2_out_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail box_event2_inchk_mes[2] = {{430}, {429}};
+static ActMail box_event2_inchk_mes[2] = {{430}, {429}}; /* derived name */
 
-/* The name is ours and not settled: the TU's idiom would spell it box_event2_outchk_mes, which moves
-   this function's register allocation (the complete66 mail-record audit); the bytes pin the hash class. */
-static ActMail box_event2_out_chk_mes[2] = {{430}, {429}};
+static ActMail box_event2_out_chk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail way_mes[2] = {{430}, {429}};
+static ActMail way_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail way_onchk_mes[2] = {{430}, {429}};
+static ActMail way_onchk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail way_offchk_mes[2] = {{430}, {429}};
+static ActMail way_offchk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail wall_way_on_mes[2] = {{430}, {429}};
+static ActMail wall_way_on_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail wall_way_off_mes[2] = {{430}, {429}};
+static ActMail wall_way_off_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail wall_way_onchk_mes[2] = {{430}, {429}};
+static ActMail wall_way_onchk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail wall_way_offchk_mes[2] = {{430}, {429}};
+static ActMail wall_way_offchk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail wall_way2_on_mes[2] = {{430}, {429}};
+static ActMail wall_way2_on_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail wall_way2_off_mes[2] = {{430}, {429}};
+static ActMail wall_way2_off_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail wall_way2_onchk_mes[2] = {{430}, {429}};
+static ActMail wall_way2_onchk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail wall_way2_offchk_mes[2] = {{430}, {429}};
+static ActMail wall_way2_offchk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail statue_mes[2] = {{430}, {429}};
+static ActMail statue_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail head_mes[2] = {{430}, {429}};
+static ActMail head_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail tree_mes[2] = {{430}, {429}};
+static ActMail tree_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail kyomi_mes[2] = {{430}, {429}};
+static ActMail kyomi_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail kyomi_onchk_mes[2] = {{430}, {429}};
+static ActMail kyomi_onchk_mes[2] = {{430}, {429}}; /* derived name */
 
-/* The name is ours and not settled: the TU's idiom would spell it kyomi_offchk_mes, which moves
-   this function's register allocation (the complete66 mail-record audit); the bytes pin the hash class. */
-static ActMail kyomi_off_chk_mes[2] = {{430}, {429}};
+static ActMail kyomi_off_chk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail jump_main_mes[2] = {{407, actSt06aJumpSwitch}, {429}};
+static ActMail jump_main_mes[2] = {{407, actSt06aJumpSwitch}, {429}}; /* derived name */
 
-static ActMail jump_mes[2] = {{430}, {429}};
+static ActMail jump_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail jump_switch_mes[2] = {{430}, {429}};
+static ActMail jump_switch_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail piston_mes[2] = {{430}, {429}};
+static ActMail piston_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail piston_ride_onchk_mes[2] = {{430}, {429}};
+static ActMail piston_ride_onchk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail piston_ride_offchk_mes[2] = {{430}, {429}};
+static ActMail piston_ride_offchk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail piston_flag_mes[2] = {{430}, {429}};
+static ActMail piston_flag_mes[2] = {{430}, {429}}; /* derived name */
 
-static float piston_flag_sound_pos[4] = {87.0f, -772.0f, 1135.0f, 0.0f};
+static float piston_flag_sound_pos[4] = {87.0f, -772.0f, 1135.0f, 0.0f}; /* derived name */
 
-static ActMail piston_flag_onchk_mes[2] = {{430}, {429}};
+static ActMail piston_flag_onchk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail piston_flag_offchk_mes[2] = {{430}, {429}};
+static ActMail piston_flag_offchk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail sound_mes[2] = {{430}, {429}};
+static ActMail sound_mes[2] = {{430}, {429}}; /* derived name */
 
-static float sound_chk_pos[4] = {810.0f, -346.0f, 381.0f, 0.0f};
+static float sound_chk_pos[4] = {810.0f, -346.0f, 381.0f, 0.0f}; /* derived name */
 
-static ActMail sound2_mes[2] = {{430}, {429}};
+static ActMail sound2_mes[2] = {{430}, {429}}; /* derived name */
 
-static float sound2_chk_pos[4] = {87.0f, -772.0f, 1135.0f, 0.0f};
+static float sound2_chk_pos[4] = {87.0f, -772.0f, 1135.0f, 0.0f}; /* derived name */
 
-/* .sbss, owned by st06a.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the demo's own end flag, raised by the
-   subthreads the wait loops below spin for, and its complement, true when the
-   player skipped the demo with START. */
+/* .sbss: the demo's own end flag, raised by the subthreads the wait loops
+   below spin for, and its complement, true when the player skipped the demo
+   with START. */
 static int demoEnd;
 
-static int demoSkipped;
+static int demoSkipped; /* derived name */
 
 void actSt06aInit(void)
 {
@@ -210,7 +200,7 @@ void actSt06aSuimon(GObj *volatile a0)
     }
 }
 
-/* .sdata, owned by st06a.o, in the ROM's order: the sluice, shutter and spike stream handles. */
+/* .sdata: the sluice, shutter and spike stream handles. */
 char *suimon = 0;
 
 char *shutter = 0;
@@ -1388,11 +1378,6 @@ void actSt06aWallWayOnChk(GObj *volatile a0)
     _ACTWait(0);
 }
 
-/* The wall-way-off watcher's mail record: it installs actSt06aWallWayOnChk
-   here and posts it. Word 0 of each entry is the mail id the entry answers
-   (430 the actor post, 429 the trailing entry); .func is filled in at
-   run time. Named for the thread that owns and posts it. */
-
 void actSt06aWallWayOffChk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
@@ -1558,9 +1543,6 @@ void actSt06aJumpSub(GObj *volatile a0)
     demoEnd = 1;
     _ACTWait(1);
 }
-
-/* The piston-ride-on watcher's own mail record (installs
-   actSt06aPistonRideOffChk). */
 
 void actSt06aPistonRideOnChk(GObj *volatile a0)
 {

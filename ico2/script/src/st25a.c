@@ -30,10 +30,8 @@
 #include "script.h"
 #include "jimaku.h"
 
-/* st25a.o's .sdata run (VMA 0x63AA30..0x63AA4C, 0x1C B; MAIN.MAP's January
-   object is 0x14), in the ROM's order: the ADPCM request slots the scenes
-   hand scpAdpcmPlayRequestFunc and wait on (conte12, sd2 and dead are
-   MAIN.MAP globals), and conte12's flag. */
+/* .sdata: the ADPCM request slots the scenes hand scpAdpcmPlayRequestFunc
+   and wait on, and conte12's flag. */
 static char *conte11 = 0; /* derived name */
 
 char *conte12 = 0;
@@ -48,22 +46,19 @@ static char *elevAgain = 0; /* derived name */
 
 static char *elevFirst = 0; /* derived name */
 
-/* stream-motion-def's table; kept local: streamMotionManager.h, which defines
-   the record, does not declare it */
+/* stream-motion-def's table; streamMotionManager.h, which defines the
+   record, does not declare it */
 extern StreamMotionFile streamMotion[];
 
-/* st25a.o's whole .rodata run, in the order the object emits it; the 0.15
-   double that closes the run is actSt25aElevChk's own constant-pool operand. */
-/* kept local: this TU's bytes only come out with its own view of Vec4, so it
-   keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
-typedef union Vec4St25A {
+/* this file's own view of Vec4 (the shared one is in typedef.h) */
+typedef union Vec4St25A { /* derived name */ /* field names derived */
     float f[4];
     long long d[2];
 } __attribute__((aligned(16))) Vec4St25A;
 
-typedef struct AnimSet18 {
-    int anim[18]; /* 0x00 */
-} AnimSet18;
+typedef struct AnimSet18 { /* field names derived */
+    int anim[18];          /* 0x00 */
+} AnimSet18;               /* derived name */
 
 /* the two face-shadow textures ConteQueenDead scrolls the UVs of. */
 const char faceShadowTex[] = "face_sadow_sd"; /* script.c scrolls it too */
@@ -71,44 +66,47 @@ const char faceShadowTex[] = "face_sadow_sd"; /* script.c scrolls it too */
 const char faceShadowTex00[] = "face_sadow_sd_00";
 
 /* The offset the sekika boy is dropped by. */
-static const Vec4St25A sekikaOfs = {{2000.0f, 0.0f, 0.0f, 1.0f}};
+static const Vec4St25A sekikaOfs = {{2000.0f, 0.0f, 0.0f, 1.0f}}; /* derived name */
 
-static const char streamWaitFmt[] = "Now waiting for standby stream motion system... %d\n";
+static const char streamWaitFmt[] =
+    "Now waiting for standby stream motion system... %d\n"; /* derived name */
 
 /* The eighteen stage animations the cancelled ending restores. */
 static const AnimSet18 cancelAnimSet = {
+    /* derived name */
     {784, 785, 786, 787, 788, 789, 790, 791, 792, 793, 794, 795, 796, 797, 798, 799, 800, 801}};
 
 /* Where the boy is put back when the ending is cancelled. */
-static const Vec4St25A cancelBoyPos = {{-1472.7711f, 928.20026f, -18.074427f, 0.0f}};
+static const Vec4St25A cancelBoyPos = {
+    {-1472.7711f, 928.20026f, -18.074427f, 0.0f}}; /* derived name */
 
-static const char queenBallScrTexture[] = "queen_ball_scr";
+static const char queenBallScrTexture[] = "queen_ball_scr"; /* derived name */
 
-static const char sekikaBoyTexture[] = "sekika_boy";
+static const char sekikaBoyTexture[] = "sekika_boy"; /* derived name */
 
-/* st25a.o's whole .data run: ten actor mail records, in ROM order.  Each is
+/* .data: ten actor mail records.  Each is
    the usual pair, the 430 entry whose handler the sender fills in and the 429
    terminator.  queen_appear_mes is the only one another TU sends, so it is the
    only global of the ten. */
-static ActMail queen_before_mes[2] = {{430}, {429}};
+static ActMail queen_before_mes[2] = {{430}, {429}}; /* derived name */
 
 ActMail queen_appear_mes[2] = {{430}, {429}};
 
-static ActMail queen_talk_mes[2] = {{430}, {429}};
+static ActMail queen_talk_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail queen_dead_ready_mes[2] = {{430}, {429}};
+static ActMail queen_dead_ready_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail queen_dead_mes[2] = {{430}, {429}};
+static ActMail queen_dead_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail queen_attack_mes[2] = {{430}, {429}};
+static ActMail queen_attack_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail elev_up_mes[2] = {{430}, {429}};
+static ActMail elev_up_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail elev_down_mes[2] = {{430}, {429}};
+static ActMail elev_down_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail elev_chara_mes[2] = {{430}, {429}};
+static ActMail elev_chara_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail elev_end_mes[2] = {{430}, {429}};
+static ActMail elev_end_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt25aQueenBeforeChk(GObj *volatile a0);
 void actSt25aQueenDeadReadyChk(GObj *volatile a0);
@@ -202,12 +200,11 @@ typedef union TalkWork { /* derived name */ /* field names derived */
     Vec4St25A v[3];
 } TalkWork;
 
-/* .sbss, owned by st25a.o and reached only from this file (MAIN.MAP names no
-   symbol in the run), in the ROM's run order: the flag the demo raises when it
-   is over, and the one its inner event raises when that has run. */
+/* .sbss: the flag the demo raises when it is over, and the one its inner event
+   raises when that has run. */
 static int demoEnd;
 
-static int eventDone;
+static int eventDone; /* derived name */
 
 void actSt25aQueenTalkChk(GObj *volatile a0)
 {
@@ -543,7 +540,7 @@ void actConte12Jimaku(GObj *volatile a0)
     _ACTWait(0);
 }
 
-/* kept local: typedef.h carries StgPre but declares no stageData */
+/* typedef.h carries StgPre but declares no stageData */
 extern const StgPre stageData[];
 
 void actSt25aQueenDeadChk(GObj *volatile a0)
