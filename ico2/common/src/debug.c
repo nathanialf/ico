@@ -1606,7 +1606,7 @@ void debug_brainBar(void)
             col = &c1;
         }
         gif_Line(&a, &b, 0xFFFFFFFFU, 0xFFFFFFFFU, col, 1);
-        if (((GObj *)brain->tgt[i].gobj)->kind == 0x3D) {
+        if (brain->tgt[i].gobj->kind == 0x3D) {
             /* a.z is never written: the copy reads it uninitialised */
             c.x = a.x;
             c.y = a.y;

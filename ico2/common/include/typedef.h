@@ -246,7 +246,8 @@ struct MotRoot {       /* field names derived */
     float move[4]; /* 0x90 */
     float
         step[4]; /* 0xA0, the root step of the frame (GetGeometryOfMotion copies it to rootStep) */
-    char _padB0[16];
+    float itemQuat
+        [4]; /* 0xB0, the held item's turn (item.c resets it on a pickup, weapon.c turns the blade by it) */
     float height; /* 0xC0 */
     char _padC4[12];
     float delta[4];     /* 0xD0 */
@@ -447,7 +448,8 @@ struct MotCtrl {           /* field names derived */
     int trigger1Done; /* 0x19C */
     int trigger2;     /* 0x1A0, the second frame trigger fired this frame */
     int trigger2Done; /* 0x1A4 */
-    char _pad1A8[4];
+    float
+        ropeHangPos; /* 0x1A8, where the boy hangs on the rope (the rope's chain collision, GetRopeHangablePos) */
     int word1AC; /* 0x1AC */
     char _pad1B0[4];
     int slipFlags;     /* 0x1B4 */
@@ -829,7 +831,7 @@ typedef union { /* field names derived */
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
 typedef struct { /* field names derived */
-    int gobj;
+    GObj *gobj;
     float level;
     float levelCap; /* 0x08, the most the level climbs to */
     float capStep;  /* 0x0C, what brainClsTargetLevel takes off the cap */

@@ -10,6 +10,7 @@
 #include "s_init.h"
 #include <assert.h>
 #include "charFileManager.h"
+#include "main.h"
 
 typedef struct {
     unsigned char r;
@@ -130,50 +131,35 @@ void display_texture_fade_cancel_chk(int from, int to)
     }
 }
 
-/* The pad record at pad: the button word at +0 and the trigger word at
-   +4, with the two analog-stick axes as unsigned bytes at +0x56 and +0x57. */
-typedef struct LtPad {
-    int button;  /* 0x00 */
-    int trigger; /* 0x04 */
-    char pad8[0x56 - 8];
-    unsigned char ry; /* 0x56 */
-    unsigned char rx; /* 0x57 */
-} LtPad;
-
-/* read here as LtPad; main.h declares PadState [16] */
-extern LtPad pad;
-
 void lt_analog2Pad(void)
 {
-    if (pad.rx < 20) {
-        pad.button |= 0x1000;
+    if (pad[0].ana[3] < 20) {
+        pad[0].now |= 0x1000;
         if ((lastButton & 0x1000) == 0) {
-            pad.trigger |= 0x1000;
+            pad[0].flags |= 0x1000;
         }
     }
-    if (pad.rx >= 236) {
-        pad.button |= 0x4000;
+    if (pad[0].ana[3] >= 236) {
+        pad[0].now |= 0x4000;
         if ((lastButton & 0x4000) == 0) {
-            pad.trigger |= 0x4000;
+            pad[0].flags |= 0x4000;
         }
     }
-    if (pad.ry < 20) {
-        pad.button |= 0x8000;
+    if (pad[0].ana[2] < 20) {
+        pad[0].now |= 0x8000;
         if ((lastButton & 0x8000) == 0) {
-            pad.trigger |= 0x8000;
+            pad[0].flags |= 0x8000;
         }
     }
-    if (pad.ry >= 236) {
-        pad.button |= 0x2000;
+    if (pad[0].ana[2] >= 236) {
+        pad[0].now |= 0x2000;
         if ((lastButton & 0x2000) == 0) {
-            pad.trigger |= 0x2000;
+            pad[0].flags |= 0x2000;
         }
     }
-    lastButton = pad.button;
+    lastButton = pad[0].now;
 }
 
-/* as in main.h, which this TU does not include */
-extern int frame_count;
 /* a file static (src/jimaku has a global of the same name and src/kanban a
    file static) */
 static void display_texture(int no, LtProperty *e);
@@ -202,9 +188,6 @@ static inline void lt_draw_layout(int no) /* derived name */
         }
     }
 }
-
-/* as in main.h, which this TU does not include */
-extern int systemStatus[];
 
 /* lt_switch_layout's body as default_item_select's two call sites have it.
    The copies differ: the first site's else arm sets fadeState to 7 where the
@@ -255,20 +238,20 @@ void default_item_select(int no)
     if (fadeCallback == 0) {
         lt_analog2Pad();
         prev = p->curItem;
-        if ((pad.trigger & 0x50) == 0) {
-            if ((pad.trigger & 0x1000) && e->upItem >= 0) {
+        if ((pad[0].flags & 0x50) == 0) {
+            if ((pad[0].flags & 0x1000) && e->upItem >= 0) {
                 p->curItem = e->upItem;
                 while (!lt_property_visible(p->curItem)) {
                     p->curItem = texProperty[p->curItem].upItem;
                 }
-            } else if ((pad.trigger & 0x4000) && e->downItem >= 0) {
+            } else if ((pad[0].flags & 0x4000) && e->downItem >= 0) {
                 p->curItem = e->downItem;
                 while (!lt_property_visible(p->curItem)) {
                     p->curItem = texProperty[p->curItem].downItem;
                 }
-            } else if ((pad.trigger & 0x8000) && e->leftItem >= 0) {
+            } else if ((pad[0].flags & 0x8000) && e->leftItem >= 0) {
                 p->curItem = e->leftItem;
-            } else if ((pad.trigger & 0x2000) && e->rightItem >= 0) {
+            } else if ((pad[0].flags & 0x2000) && e->rightItem >= 0) {
                 p->curItem = e->rightItem;
             }
         }
@@ -285,7 +268,7 @@ void default_item_select(int no)
     }
 
     e = &texProperty[p->curItem];
-    if (pad.trigger & 0x40) {
+    if (pad[0].flags & 0x40) {
         if (e->right >= 0) {
             if (fadeState == 2) {
                 soundSeDefPlay(412, 0xFFFFFFFE, 0, 0);
@@ -294,7 +277,7 @@ void default_item_select(int no)
             }
         }
     }
-    if (pad.trigger & 0x10) {
+    if (pad[0].flags & 0x10) {
         if (e->left >= 0) {
             if (fadeState == 2) {
                 soundSeDefPlay(413, 0xFFFFFFFE, 0, 0);
@@ -420,8 +403,6 @@ extern void gif_EndPacket(void);
 /* display_texture below reads these: ltHighlightColor is the second highlight colour, GlobalStageSetting the system record whose
    reduction tint it inverts, and GetTableSin/gif_SpriteSensitiveOffset/
    gif_PointOffset/gif_SetGsReg/rand are its callees. */
-/* as in main.h */
-extern StageSetting GlobalStageSetting;
 extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, unsigned char *col,
                                       int prim);
 extern void gif_PointOffset(int *v, long long z, unsigned char *col, int prim);
@@ -597,7 +578,7 @@ void display_primary_texture_layout(int no, int sel)
         sel = ((int (*)(int, int))p->proc)(ltSelectFlag, sel);
         if (sel != -1) {
             flag = 0;
-            if ((pad.trigger & 0x40) != 0) {
+            if ((pad[0].flags & 0x40) != 0) {
                 flag = m == 1;
             }
             if ((fadeState == 2 && sel != current_layout_id) || sel == 62) {
@@ -610,7 +591,7 @@ void display_primary_texture_layout(int no, int sel)
                     fadeState = flag ? 7 : 3;
                 }
             }
-        } else if ((pad.trigger & 0x40) != 0) {
+        } else if ((pad[0].flags & 0x40) != 0) {
             if (m == 2) {
                 nextFadeState = m;
                 fadeState = 7;
@@ -633,7 +614,7 @@ void exec_layout_texture(void)
     int k;
 
     if (frame_count - selectFrame == 0 || frame_count - selectFrame == 1) {
-        pad.trigger = 0;
+        pad[0].flags = 0;
     }
     p = &texLayout[current_layout_id];
     for (;;) {

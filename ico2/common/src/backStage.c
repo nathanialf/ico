@@ -19,6 +19,7 @@
 #include "gobj.h"
 #include "way_kidnap.h"
 #include "main.h"
+#include "gamesys.h"
 
 /* the enemy the heroine is carried off by */
 int backStageGirlTargetEnemyGop = 0;
@@ -42,59 +43,19 @@ static float enemySec; /* derived name */ /* enemyDist scaled to seconds */
 
 static float nestSec; /* derived name */ /* nestDist scaled to seconds */
 
-/* as in gamesys.h, which this TU does not include */
-extern void gamesysMemoryHandlerWrite(int *self, void *src, int size);
-/* as in gamesys.h, which this TU does not include */
-extern void gamesysMemoryHandlerRead(int *self, void *dst, int size);
-
 /* the boy has already been told the heroine is in trouble */
 static int pinchTold; /* derived name */
-
-/* --- su-b sweep decls --- */
-
-/* the 0x40-byte gamesys object-info record (src/gamesys.c GamesysObjInfoBackstage) */
-typedef struct {
-    short flag;           /* 0x00 */
-    unsigned short no;    /* 0x02 */
-    unsigned short stage; /* 0x04 */
-    short pad06;          /* 0x06 */
-    int time;             /* 0x08 */
-    int uniq;             /* 0x0C */
-    Vec16 pos;            /* 0x10 */
-    Vec16 rot;            /* 0x20 */
-    int work[4];          /* 0x30 */
-} GamesysObjInfoBackstage;
-
-/* gamesys.c's object-info records, read here as GamesysObjInfoBackstage;
-   gamesys.h, which this TU does not include, declares GamesysObjInfo [] */
-extern GamesysObjInfoBackstage gameSysObjInfo[];
-/* as in gamesys.h */
-extern GenGeo objLayout[];
 
 /* .bss: the nest position the carrier walks to */
 static float nestPos[4]; /* derived name */
 
-/* as in gamesys.h, which this TU does not include */
-extern int gamesysAnotherStageTsuresari;
-
 /* the carrier walks the waypoint route instead of a generator */
 static int wayKidnap; /* derived name */
 
-/* as in gamesys.h, which this TU does not include */
-extern GamesysObjInfo *gamesysObjInfoPosNewStageSet(int no, int kind, int stage, float *pos,
-                                                    float *rot);
 /* as in generator.h, which this TU does not include */
 extern void SetInfoSpKidnapGenerator(short *a0);
 /* this TU passes an int *; generator.h declares a short * */
 extern void SetInfoSpKidnapEnemy(int *work);
-/* as in gamesys.h, which this TU does not include */
-extern GamesysObjInfo *gamesysObjInfoPosSetStage(GObj *self, int a1, int a2, int a3);
-/* as in gamesys.h, which this TU does not include */
-extern void gamesysObjInfoCls(int kind, int no);
-/* as in gamesys.h, which this TU does not include */
-extern int gamesysStageExitTime[];
-/* read here as unsigned; gamesys.h declares an int */
-extern unsigned int gamesysTimeCount;
 
 inline void backStageProcessInit(void)
 {
@@ -224,7 +185,7 @@ void backStageProcessMain(void)
     Vec16 pos;
     Vec16 rot;
     Vec16 tmp;
-    GamesysObjInfoBackstage *g1;
+    GamesysObjInfo *g1;
     GamesysObjInfo *g2;
 
     gamesysAnotherStageTsuresari = 0;
@@ -242,8 +203,8 @@ void backStageProcessMain(void)
         if (kidnapTime-- < 0) {
             kidnapState = 2;
             if (wayKidnap == 0) {
-                GamesysObjInfoBackstage *s = &gameSysObjInfo[kidnapObjIdx];
-                sceVu0CopyVector(&s->pos, &gameSysObjInfo[1].pos);
+                GamesysObjInfo *s = &gameSysObjInfo[kidnapObjIdx];
+                sceVu0CopyVector(s->pos, gameSysObjInfo[1].pos);
                 s->work[0] = 4;
             } else {
                 memset(&tmp, 0, sizeof(tmp));
@@ -252,7 +213,7 @@ void backStageProcessMain(void)
                 tmp.f[2] = objLayout[3758].rot[2];
                 rot = tmp;
                 g1 = gamesysObjInfoPosNewStageSet(0xEAD, 4, gameSysObjInfo[1].stage,
-                                                  gameSysObjInfo[1].pos.f, gameSysObjInfo[1].rot.f);
+                                                  gameSysObjInfo[1].pos, gameSysObjInfo[1].rot);
                 kidnapObjIdx = (unsigned int)((char *)g1 - (char *)gameSysObjInfo) >> 6;
                 pos.f[0] = nestPos[0];
                 pos.f[2] = nestPos[2];
