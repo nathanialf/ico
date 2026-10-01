@@ -966,7 +966,7 @@ static void *skelNodes;
 extern void CopyMatrix(void *dst, void *src);
 
 /* census file static; ico2/sugipon/src/motionManager holds the other static of
-   that name, still the placeholder func_001ECE40. */
+   that name. */
 static void dispSkeltonHierarchy(int node)
 {
     if (*(int *)((char *)skelNodes + node * 64 + 0x38) != -1) {

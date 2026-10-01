@@ -454,8 +454,8 @@ void dispSource(SrcRef ref, int lines)
    never read, which is why nothing is copied out of a1.  `regs` is the flat
    {value, name} pair array regInfo, two words per EE register, so
    regs[62] is the saved ra and regs[58] the saved sp. */
-void display(int code, unsigned int cause, unsigned int epc, unsigned int badvaddr,
-             unsigned int status, unsigned int *regs, int page)
+static void display(int code, unsigned int cause, unsigned int epc, unsigned int badvaddr,
+                    unsigned int status, unsigned int *regs, int page)
 {
     unsigned char buf[1024];
     unsigned char buf2[1024];
@@ -551,8 +551,6 @@ extern void Emergency_DestroyAllThread(void);
 extern int SetDebugHandler();
 extern void iosPadEnable(void);
 extern void ExecKeyInput(void);
-extern void display(int code, unsigned int cause, unsigned int epc, unsigned int badvaddr,
-                    unsigned int status, unsigned int *regs, int page);
 
 /* debug_exception_screen.c.inc(476-477, 493-495): blank the character screen
    and put the cursor back at the top left.  Written as a helper because

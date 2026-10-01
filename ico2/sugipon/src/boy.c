@@ -651,7 +651,7 @@ typedef struct MotSyncPair { /* 0x08 */
     int boy;                 /* 0x04 */
 } MotSyncPair;
 
-extern MotSyncPair D_00533FC0[];
+extern MotSyncPair motSyncPairs[]; /* derived name */
 extern char *D_00639EA8;
 
 /* the two wire spheres the girl-to-boy position sync draws when the debug flag
@@ -681,7 +681,7 @@ void synchronizeMotionOutputOriginForGirl(char *gobj)
     int okB = 0;
 
     if (D_00639EA8 != 0) {
-        p = D_00533FC0;
+        p = motSyncPairs;
         for (i = 0; i < 5; i++) {
             if (GOBJ_SUB(D_00639EA8)->f_4A0 == p->girl) {
                 okA = 1;

@@ -4,7 +4,8 @@
 #include <string.h>
 #include "GsBase.h"
 
-unsigned int D_004EE5F0[64] = {
+static unsigned int fontKerning[64] = {
+    /* derived name */
     0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
     0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
     0x0B080000, 0x10030C07, 0x11020F04, 0x0C071003, 0x0D070C06, 0x10030F04, 0x0C070B08, 0x0E050B08,
@@ -161,8 +162,8 @@ void font_Print(unsigned int color, unsigned char *str, float x, float y, int al
             } else if (ch == '}') {
                 brace = 0;
             } else if (brace == 0) {
-                int ca = ((signed char *)D_004EE5F0)[ch * 2];
-                int cb = ((signed char *)D_004EE5F0)[ch * 2 + 1];
+                int ca = ((signed char *)fontKerning)[ch * 2];
+                int cb = ((signed char *)fontKerning)[ch * 2 + 1];
                 int w = cb - ca;
 
                 int cw = w + 1;
@@ -234,8 +235,8 @@ void font_Print(unsigned int color, unsigned char *str, float x, float y, int al
             cx += 8.0f;
             continue;
         }
-        ca = ((signed char *)D_004EE5F0)[c * 2];
-        cb = ((signed char *)D_004EE5F0)[c * 2 + 1];
+        ca = ((signed char *)fontKerning)[c * 2];
+        cb = ((signed char *)fontKerning)[c * 2 + 1];
         u = (c - 0x20) % 12 * 20 + ca;
         v = (c - 0x20) / 12 * 20;
         w = cb - ca;

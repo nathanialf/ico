@@ -717,7 +717,8 @@ void gif_LineOffset(int *v0, int *v1, long long z0, long long z1, unsigned char 
 /* .rodata, carved VMA 0x54E0B0..0x54E170; the 12 ALPHA_1/2 blend-parameter
    quadruples gif_SetAlpha packs into the GS ALPHA register, bytes verified
    against baserom/pal/baseelf.rom */
-const GsAlphaEnt D_0054E0B0[12] = {
+static const GsAlphaEnt alphaTable[12] = {
+    /* derived name */
     {0, 2, 2, 1}, {2, 0, 2, 1}, {0, 1, 2, 1}, {1, 2, 2, 0}, {0, 1, 0, 1}, {0, 2, 0, 1},
     {2, 0, 0, 1}, {0, 1, 0, 1}, {0, 2, 1, 1}, {2, 0, 1, 1}, {0, 1, 1, 1}, {1, 2, 0, 1},
 };
@@ -736,10 +737,10 @@ void gif_SetAlpha(long long a0, long long a1, long long a2)
     *(volatile unsigned long long *)p = 0x49;
     *(unsigned long long *volatile *)&PacketBufferStruct.ptr = p + 1;
     a1 = 0x42;
-    v = (unsigned long long)D_0054E0B0[idx].a | ((unsigned long long)a2 << 32);
+    v = (unsigned long long)alphaTable[idx].a | ((unsigned long long)a2 << 32);
     v |=
-        ((unsigned long long)D_0054E0B0[idx].c << 4) | ((unsigned long long)D_0054E0B0[idx].b << 2);
-    v |= (unsigned long long)D_0054E0B0[idx].d << 6;
+        ((unsigned long long)alphaTable[idx].c << 4) | ((unsigned long long)alphaTable[idx].b << 2);
+    v |= (unsigned long long)alphaTable[idx].d << 6;
     *(volatile unsigned long long *)(p + 1) = v;
     *(unsigned long long *volatile *)&PacketBufferStruct.ptr = p + 2;
     q = p + 3;

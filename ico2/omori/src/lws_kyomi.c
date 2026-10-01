@@ -14,7 +14,7 @@ struct HintInfo {
 };
 
 /* The hint TABLE's element type differs from the per-GObj record above in one
- * field: D_002ADBA0[i].time is a float (seconds), the record's is an int
+ * field: hintTable[i].time is a float (seconds), the record's is an int
  * (frames).  CreateKyomiGObj converts one into the other. */
 struct HintDef {
     int _0;
@@ -23,7 +23,7 @@ struct HintDef {
     int flags;
 };
 
-extern struct HintDef D_002ADBA0[];
+extern struct HintDef hintTable[]; /* derived name */
 
 /* The TU's .bss: the two 4-byte hint flag sets the save block carries, then
    one timer per hint; Hint_Init clears the whole record. */
@@ -60,9 +60,9 @@ char *CreateKyomiGObj(int no)
     *hint = hintDefault;
     hint->_0 = no;
     for (i = 0; i < 28; i++) {
-        if (D_002ADBA0[i]._0 == stage_no && D_002ADBA0[i].no == no) {
+        if (hintTable[i]._0 == stage_no && hintTable[i].no == no) {
             hint->no = i;
-            hint->time = (int)(D_002ADBA0[i].time * 60.0f * 60.0f *
+            hint->time = (int)(hintTable[i].time * 60.0f * 60.0f *
                                (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 60.0f);
         }
     }
@@ -86,8 +86,8 @@ void LwsKyomiGeo(void *gobj)
     hint = *(struct HintInfo **)(*(char **)((char *)gobj + 0x15C) + 0x830);
     hint->flags &= ~1;
     for (i = 0; i < 28; i++) {
-        if (D_002ADBA0[i]._0 == stage_no && (D_002ADBA0[i].flags & 1) == 0) {
-            if ((((unsigned int)D_002ADBA0[i].flags >> 1) & 1) == 0 && i == hint->no) {
+        if (hintTable[i]._0 == stage_no && (hintTable[i].flags & 1) == 0) {
+            if ((((unsigned int)hintTable[i].flags >> 1) & 1) == 0 && i == hint->no) {
                 hint->flags |= 1;
             }
             break;
@@ -119,7 +119,7 @@ void LwsKyomiGeo(void *gobj)
         hintWork.save[(off) + i] = 0;                                                              \
     }                                                                                              \
     for (i = 0; i < 28; i++) {                                                                     \
-        if (((unsigned int)D_002ADBA0[i].flags >> (bit)) & 1) {                                    \
+        if (((unsigned int)hintTable[i].flags >> (bit)) & 1) {                                     \
             int m = 1 << (i % 8);                                                                  \
             (buf)[i / 8] |= m;                                                                     \
         }                                                                                          \
@@ -138,13 +138,13 @@ void MakeHintSaveInfo(void)
 #define READ_HINT_SAVE_BITS(buf, bit)                                                              \
     end = 0;                                                                                       \
     for (k = 0; k < 28; k++) {                                                                     \
-        (D_002ADBA0 + k)->flags &= ~(1 << (bit));                                                  \
+        (hintTable + k)->flags &= ~(1 << (bit));                                                   \
     }                                                                                              \
     n = 0;                                                                                         \
     for (k = 0; k < 4; k++) {                                                                      \
         for (j = 0; j < 8; j++) {                                                                  \
             if ((((unsigned char *)(buf))[k] >> j) & 1) {                                          \
-                (D_002ADBA0 + n)->flags |= 1 << (bit);                                             \
+                (hintTable + n)->flags |= 1 << (bit);                                              \
             }                                                                                      \
             n++;                                                                                   \
             if (n < 28) {                                                                          \
@@ -207,17 +207,17 @@ void SetParamKyomiGObj(void *gobj, int a1, float *param)
 
 void FinishHint(int no)
 {
-    (D_002ADBA0 + no)->flags |= 1;
+    (hintTable + no)->flags |= 1;
 }
 
 void SleepHint(int no)
 {
-    (D_002ADBA0 + no)->flags |= 2;
+    (hintTable + no)->flags |= 2;
 }
 
 void WakeupHint(int no)
 {
-    (D_002ADBA0 + no)->flags &= ~2;
+    (hintTable + no)->flags &= ~2;
 }
 
 int IsTopHint(void *gobj)
@@ -257,7 +257,7 @@ void Hint_Init(void)
 
     hintTimers = hintWork.timer;
     memset(&hintWork, 0, sizeof(hintWork));
-    p = D_002ADBA0;
+    p = hintTable;
     for (i = 0; i < 28; i++) {
         p->flags &= ~2;
         p->flags &= ~1;

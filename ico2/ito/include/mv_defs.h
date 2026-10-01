@@ -25,8 +25,8 @@
 #ifndef MV_DEFS_H
 #define MV_DEFS_H
 
-/* lines 30-31 - PROVEN: factored out of 4 matched hosts (Free/mv_videodec,
-   func_001A7318/mv_vobuf, func_0025A4A8/mv_vibuf, loadImage/mv_disp). */
+/* lines 30-31 - PROVEN: factored out of 4 matched hosts (the Free copies in
+   mv_videodec, mv_vobuf and mv_vibuf, and loadImage/mv_disp). */
 static __inline__ int phys_addr(int p)
 { return p & 0x0FFFFFFF; }
 
@@ -87,7 +87,7 @@ static __inline__ int alloc_zeroed(int size, int align)  /* RECONSTRUCTION; 5 ce
    does not call it in C drop the definition (unused static), breaking the
    asm callers' relocs, and it would collide with the copy mv_videodec.c
    already defines. Materialise it once its callers are C; until then each
-   TU keeps its own copy (Free, func_001A7318, func_0025A4A8), all three of
-   which now call phys_addr() from this header. */
+   TU keeps its own copy named Free, all three of which now call
+   phys_addr() from this header. */
 
 #endif /* MV_DEFS_H */

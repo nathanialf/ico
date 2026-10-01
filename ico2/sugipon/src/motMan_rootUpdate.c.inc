@@ -90,7 +90,7 @@ void _wallHitReaction(char *w, void *pos, void *last, int noSlide)
     SubVectorXYZ(&mv, w + 0x10, w + 0x20);
     SubVectorXYZ(pos, pos, &mv);
     GetOrientOfWall(&nrm, *(void **)(w + 0x88), w + 0x80);
-    *(int *)(D_0063C494 + 0x14) = *(int *)(D_0063C494 + 0x14) | 2;
+    *(int *)(skelMotCtrl + 0x14) = *(int *)(skelMotCtrl + 0x14) | 2;
 
     CopyVector(&pl, &nrm);
     pl.f[3] = -sceVu0InnerProduct(pos, &nrm);
@@ -110,7 +110,7 @@ void _wallHitReaction(char *w, void *pos, void *last, int noSlide)
 
         *(WallObj *)((char *)&cw + 0x74) = *(WallObj *)(w + 0x80);
         *(void **)((char *)&cw + 0x7C) = *(void **)(w + 0x88);
-        if (*(int *)(D_0063C490 + 0x320) != 0) {
+        if (*(int *)(skelRoot + 0x320) != 0) {
             ClipWallEField(&cw);
         } else {
             ClipWallE(&cw);
@@ -162,7 +162,7 @@ void _wallHitReaction(char *w, void *pos, void *last, int noSlide)
                                 WallCfg disp = {((WallCfg *)((char *)&cw2 + 0x80))->o,
                                                 ((WallCfg *)((char *)&cw2 + 0x80))->n};
 
-                                DebugDisp1CollisionWithColor(&disp, D_004ECA50);
+                                DebugDisp1CollisionWithColor(&disp, wallHitColor);
                             }
                         }
                     }
@@ -174,7 +174,7 @@ void _wallHitReaction(char *w, void *pos, void *last, int noSlide)
                 WallCfg disp = {((WallCfg *)((char *)&cw + 0x80))->o,
                                 ((WallCfg *)((char *)&cw + 0x80))->n};
 
-                DebugDisp1CollisionWithColor(&disp, D_004ECA60);
+                DebugDisp1CollisionWithColor(&disp, wallHitColor2);
             }
         } else {
             _AddVectorXYZ((int)pos, (int)pos, &slide);
@@ -271,14 +271,14 @@ void _wallCollisionPreProcess(char *w, void *p, void *q, float dy)
     if (debug_col_old_proc != 0) {
         CopyVector(w, q);
     } else {
-        CopyVector(w, D_0063C490 + 0x160);
+        CopyVector(w, skelRoot + 0x160);
     }
     CopyVector(w + 0x10, p);
-    *(FieldBlk12 *)(w + 0x74) = *(FieldBlk12 *)(D_0063C490 + 0x120);
+    *(FieldBlk12 *)(w + 0x74) = *(FieldBlk12 *)(skelRoot + 0x120);
     *(float *)(w + 4) = *(float *)(w + 4) + dy;
     *(float *)(w + 0x14) = *(float *)(w + 0x14) + dy;
-    if (*(int *)(D_0063C490 + 0x320) != 0) {
-        r = *(float *)(D_0063C490 + 0x338);
+    if (*(int *)(skelRoot + 0x320) != 0) {
+        r = *(float *)(skelRoot + 0x338);
         if (r < 20.0f) {
             *(float *)(w + 0x70) = skelScale * 20.0f;
         } else {
@@ -286,7 +286,7 @@ void _wallCollisionPreProcess(char *w, void *p, void *q, float dy)
         }
         ClipWallField(w);
     } else {
-        *(float *)(w + 0x70) = *(float *)(D_0063C490 + 0x338) * skelScale;
+        *(float *)(w + 0x70) = *(float *)(skelRoot + 0x338) * skelScale;
         CopyVector(&save, w + 0x10);
         if (*(int *)(w + 0x74) != 0) {
             ClipWallE(w);
@@ -328,7 +328,7 @@ static inline int wallCollisionAndFloorFit(char *cur, char *last, float dy)
 static inline void wallCollisionAndReact(float dy)
 {
     ClipBuf w;
-    char *g = D_0063C490;
+    char *g = skelRoot;
     char *last = g + 0x150;
 
     _wallCollisionPreProcess((char *)&w, g, last, dy);
@@ -355,10 +355,10 @@ static inline void waveForceReaction(char *cur, char *last, float dy)
         CopyVector(&w, cur + 0x160);
     }
     CopyVector((char *)&w + 0x10, cur);
-    *(FieldBlk12 *)((char *)&w + 0x74) = *(FieldBlk12 *)(D_0063C490 + 0x120);
+    *(FieldBlk12 *)((char *)&w + 0x74) = *(FieldBlk12 *)(skelRoot + 0x120);
     *(float *)((char *)&w + 4) = *(float *)((char *)&w + 4) + dy;
     *(float *)((char *)&w + 0x14) = *(float *)((char *)&w + 0x14) + dy;
-    w.rad = *(float *)(D_0063C490 + 0x338) + 200.0f;
+    w.rad = *(float *)(skelRoot + 0x338) + 200.0f;
     CopyVector((char *)&w + 0x10, &w);
     ClipWallWaveForce(&w);
     if (*(int *)((char *)&w + 0x88) != 0) {
@@ -372,7 +372,7 @@ static inline void waveForceReaction(char *cur, char *last, float dy)
             *(float *)cur = *(float *)cur + ((Vec16 *)((char *)&w + 0xA0))->f[0] * 100.0f * k;
             *(float *)(cur + 8) =
                 *(float *)(cur + 8) + ((Vec16 *)((char *)&w + 0xA0))->f[2] * 100.0f * k;
-            *(int *)(D_0063C494 + 0x14) |= 0x2000;
+            *(int *)(skelMotCtrl + 0x14) |= 0x2000;
         }
     }
 }
@@ -396,9 +396,9 @@ static inline void setPoolHeightOfFloor(char *w)
      * same word of the same work block as `char **`. */
     char *obj = *(char **)(w + 0x8C);
 
-    *(char **)(D_0063C494 + 0x1D8) = obj;
-    *(float *)(D_0063C494 + 0x1D0) = GetPoolGlobalHeight(obj);
-    *(float *)(D_0063C494 + 0x1D4) = *(float *)(w + 0x24) - *(float *)(D_0063C494 + 0x1D0);
+    *(char **)(skelMotCtrl + 0x1D8) = obj;
+    *(float *)(skelMotCtrl + 0x1D0) = GetPoolGlobalHeight(obj);
+    *(float *)(skelMotCtrl + 0x1D4) = *(float *)(w + 0x24) - *(float *)(skelMotCtrl + 0x1D0);
 }
 
 static inline void checkPoolFloor(char *w)
@@ -406,7 +406,7 @@ static inline void checkPoolFloor(char *w)
     int attr = GetFloorAttribute(w);
 
     if (CompareAttribute(attr, 0x50) != 0) {
-        if (*(float *)(w + 0x24) - *(float *)(D_0063C490 + 4) < *(float *)(D_0063C490 + 0x1D0)) {
+        if (*(float *)(w + 0x24) - *(float *)(skelRoot + 4) < *(float *)(skelRoot + 0x1D0)) {
             setPoolHeightOfFloor(w);
         }
     }
@@ -416,19 +416,19 @@ int getFieldCollision(char *w)
 {
     float d;
 
-    CopyVector(w, D_0063C490);
+    CopyVector(w, skelRoot);
     CopyVector(w + 0x10, w);
     *(float *)(w + 4) = *(float *)(w + 4) - 50.0f;
     *(float *)(w + 0x14) = *(float *)(w + 0x14) + 50000.0f;
-    if (*(int *)(D_0063C490 + 0x120) != 0) {
-        *(FieldBlk12 *)(w + 0x74) = *(FieldBlk12 *)(D_0063C490 + 0x120);
+    if (*(int *)(skelRoot + 0x120) != 0) {
+        *(FieldBlk12 *)(w + 0x74) = *(FieldBlk12 *)(skelRoot + 0x120);
         ClipFloorE(w);
     } else {
         ClipFloor(w);
     }
     if (*(int *)(w + 0x94) != 0) {
         checkPoolFloor(w);
-        d = GetYDistanceFromPlane(D_0063C490 + 0x130, w + 0x20);
+        d = GetYDistanceFromPlane(skelRoot + 0x130, w + 0x20);
         if (d <= 35.0f) {
             return 1;
         }
@@ -521,12 +521,12 @@ static void setIKAndAdjustRootHeight(char *mv)
     int steep;
     int node;
 
-    if (*(int *)(D_0063C490 + 0x364) < 0) {
+    if (*(int *)(skelRoot + 0x364) < 0) {
         return;
     }
-    steep = makeRootFitPlane((char *)&pl, D_0063C490);
-    h = GetYProjectionOfPlane((int)&pl, (int)D_0063C490) + *(float *)(mv + 4) -
-        *(float *)(D_0063C490 + 4);
+    steep = makeRootFitPlane((char *)&pl, skelRoot);
+    h = GetYProjectionOfPlane((int)&pl, (int)skelRoot) + *(float *)(mv + 4) -
+        *(float *)(skelRoot + 4);
     /* Disabled in retail: the root height report.  What the bytes pin: its
        text in .rodata after _checkCliffAndWall's messages and before this
        function's PLANE message (row 571), with no instruction; rows 559-561
@@ -534,45 +534,45 @@ static void setIKAndAdjustRootHeight(char *mv)
        condition that disabled it and its two arguments. */
     if (0) {
         debug_StdPrintfDummy("regular height: %f (%f)\n", fptodp(h),
-                             fptodp(*(float *)(D_0063C490 + 4)));
+                             fptodp(*(float *)(skelRoot + 4)));
     }
     if (steep != 0) {
         if ((h < 0.0f ? -h : h) < 35.0f) {
-            *(float *)(D_0063C490 + 4) = *(float *)(D_0063C490 + 4) + h;
-            *(float *)(D_0063C490 + 0x154) = *(float *)(D_0063C490 + 0x154) + h;
+            *(float *)(skelRoot + 4) = *(float *)(skelRoot + 4) + h;
+            *(float *)(skelRoot + 0x154) = *(float *)(skelRoot + 0x154) + h;
             return;
         }
-        *(int *)(D_0063C494 + 0x14) = *(int *)(D_0063C494 + 0x14) | 4;
-        *(float *)(D_0063C490 + 0x154) = *(float *)(D_0063C490 + 4);
+        *(int *)(skelMotCtrl + 0x14) = *(int *)(skelMotCtrl + 0x14) | 4;
+        *(float *)(skelRoot + 0x154) = *(float *)(skelRoot + 4);
         /* retail links debug_StdPrintfDummy in place of the listing's printf. */
         /* EUC-JP: "PLANE limit %f, it is steep so it is dropped" */
         debug_StdPrintfDummy("PLANEリミットです %f 急なので落下させます\n", fptodp(h));
 
         return;
     }
-    if (*(int *)(D_0063C494 + 0x68) == 0x14) {
-        *(float *)(D_0063C490 + 4) = *(float *)(D_0063C490 + 4) + h;
-        *(float *)(D_0063C490 + 0x154) = *(float *)(D_0063C490 + 0x154) + h;
+    if (*(int *)(skelMotCtrl + 0x68) == 0x14) {
+        *(float *)(skelRoot + 4) = *(float *)(skelRoot + 4) + h;
+        *(float *)(skelRoot + 0x154) = *(float *)(skelRoot + 0x154) + h;
         return;
     }
     if (*(float *)(skelNode + 0x14) * skelScale < (h < 0.0f ? -h : h)) {
-        *(float *)(D_0063C490 + 4) = *(float *)(D_0063C490 + 4) + h;
-        *(float *)(D_0063C490 + 0x154) = *(float *)(D_0063C490 + 0x154) + h;
+        *(float *)(skelRoot + 4) = *(float *)(skelRoot + 4) + h;
+        *(float *)(skelRoot + 0x154) = *(float *)(skelRoot + 0x154) + h;
         return;
     }
 
-    makeRootFitPlane((char *)&pl, D_0063C490);
+    makeRootFitPlane((char *)&pl, skelRoot);
 
-    AddVectorXYZ(&p0, D_0063C488 + *(int *)(D_0063C490 + 0x364) * 0x10, mv);
+    AddVectorXYZ(&p0, nodePos2 + *(int *)(skelRoot + 0x364) * 0x10, mv);
 
-    AddVectorXYZ(&p1, D_0063C488 + *(int *)(D_0063C490 + 0x364) * 0x10, D_0063C490);
+    AddVectorXYZ(&p1, nodePos2 + *(int *)(skelRoot + 0x364) * 0x10, skelRoot);
 
     p1.f[1] = p1.f[1] - p0.f[1];
 
-    d0 = getFloorDropAt((char *)&p1, (char *)&pl, D_0063C490);
+    d0 = getFloorDropAt((char *)&p1, (char *)&pl, skelRoot);
 
     dy = d0;
-    switch (*(int *)(skelNode + *(int *)(D_0063C490 + 0x364) * 0x40 + 4)) {
+    switch (*(int *)(skelNode + *(int *)(skelRoot + 0x364) * 0x40 + 4)) {
     case 0x30:
         node = GetSkeltonFocusNode((char *)skelGObj, 0x34);
         break;
@@ -586,25 +586,25 @@ static void setIKAndAdjustRootHeight(char *mv)
     if (node != -1) {
         Vec16 p3;
 
-        AddVectorXYZ(&p2, D_0063C488 + node * 0x10, D_0063C490);
+        AddVectorXYZ(&p2, nodePos2 + node * 0x10, skelRoot);
 
         p2.f[1] = p1.f[1];
         CopyVector(&p3, &p2);
         p3.f[1] = p3.f[1] - d0;
 
-        d1 = getFloorDropAt((char *)&p3, (char *)&pl, D_0063C490);
+        d1 = getFloorDropAt((char *)&p3, (char *)&pl, skelRoot);
 
         if (d1 < 0.0f) {
             dy = d0 + d1;
         }
 
-        if (*(int *)(D_0063C494 + 0x1BC) == 0 || (*(int *)(D_0063C494 + 0x188) & 0xF00000) == 0) {
+        if (*(int *)(skelMotCtrl + 0x1BC) == 0 || (*(int *)(skelMotCtrl + 0x188) & 0xF00000) == 0) {
             Vec16 pl2;
 
             pl2 = pl;
             pl2.f[3] = 0.0f;
 
-            t = GetYDistanceFromPlane(&pl2, D_0063C490 + 0x90);
+            t = GetYDistanceFromPlane(&pl2, skelRoot + 0x90);
 
             if (!(5.0f < (t < 0.0f ? -t : t))) {
                 if (debug_mot_slope_interp == 0) {
@@ -620,38 +620,38 @@ static void setIKAndAdjustRootHeight(char *mv)
                 }
             }
         }
-        if (*(int *)(D_0063C490 + 0x200) != 0) {
-            *(int *)(D_0063C490 + 0x204) = 1;
-            if (*(int *)(skelNode + *(int *)(D_0063C490 + 0x364) * 0x40 + 4) == 0x30) {
+        if (*(int *)(skelRoot + 0x200) != 0) {
+            *(int *)(skelRoot + 0x204) = 1;
+            if (*(int *)(skelNode + *(int *)(skelRoot + 0x364) * 0x40 + 4) == 0x30) {
                 if (0.0f < d1) {
-                    ((MotGeoTurn *)D_0063C490)->lift[0] = 0.0f;
-                    ((MotGeoTurn *)D_0063C490)->lift[1] = -d1;
+                    ((MotGeoTurn *)skelRoot)->lift[0] = 0.0f;
+                    ((MotGeoTurn *)skelRoot)->lift[1] = -d1;
                 } else {
-                    ((MotGeoTurn *)D_0063C490)->lift[0] = d1;
-                    ((MotGeoTurn *)D_0063C490)->lift[1] = 0.0f;
+                    ((MotGeoTurn *)skelRoot)->lift[0] = d1;
+                    ((MotGeoTurn *)skelRoot)->lift[1] = 0.0f;
                 }
             } else {
                 if (0.0f < d1) {
-                    ((MotGeoTurn *)D_0063C490)->lift[0] = -d1;
-                    ((MotGeoTurn *)D_0063C490)->lift[1] = 0.0f;
+                    ((MotGeoTurn *)skelRoot)->lift[0] = -d1;
+                    ((MotGeoTurn *)skelRoot)->lift[1] = 0.0f;
                 } else {
-                    ((MotGeoTurn *)D_0063C490)->lift[0] = 0.0f;
-                    ((MotGeoTurn *)D_0063C490)->lift[1] = d1;
+                    ((MotGeoTurn *)skelRoot)->lift[0] = 0.0f;
+                    ((MotGeoTurn *)skelRoot)->lift[1] = d1;
                 }
             }
-            if (((MotGeoTurn *)D_0063C490)->lift[0] <
+            if (((MotGeoTurn *)skelRoot)->lift[0] <
                 -(*(float *)(skelNode + 0x14) * skelScale * 0.5f)) {
-                ((MotGeoTurn *)D_0063C490)->lift[0] =
+                ((MotGeoTurn *)skelRoot)->lift[0] =
                     -(*(float *)(skelNode + 0x14) * skelScale * 0.5f);
             }
-            if (((MotGeoTurn *)D_0063C490)->lift[1] <
+            if (((MotGeoTurn *)skelRoot)->lift[1] <
                 -(*(float *)(skelNode + 0x14) * skelScale * 0.5f)) {
-                ((MotGeoTurn *)D_0063C490)->lift[1] =
+                ((MotGeoTurn *)skelRoot)->lift[1] =
                     -(*(float *)(skelNode + 0x14) * skelScale * 0.5f);
             }
         }
     }
-    *(float *)(D_0063C490 + 4) = *(float *)(D_0063C490 + 4) - dy;
+    *(float *)(skelRoot + 4) = *(float *)(skelRoot + 4) - dy;
 }
 
 /* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into
@@ -662,18 +662,17 @@ static inline int getFlyFieldCollision(char *w)
 {
     float y;
 
-    y = *(float *)(D_0063C4A8 + 0x120);
+    y = *(float *)(skelMotDef + 0x120);
     if (y < -0.5f) {
         return 0;
     }
     *(int *)(w + 0x70) = 0;
-    CopyVector(w, D_0063C490);
-    *(float *)(w + 4) = *(float *)(D_0063C490 + 0x164);
-    CopyVector(w + 0x10, D_0063C490);
+    CopyVector(w, skelRoot);
+    *(float *)(w + 4) = *(float *)(skelRoot + 0x164);
+    CopyVector(w + 0x10, skelRoot);
     *(float *)(w + 0x14) = *(float *)(w + 0x14) + 10000.0f;
     ClipFloor(w);
-    return CheckFieldContact(w, (char *)skelGObj, (float *)D_0063C490,
-                             *(float *)(D_0063C490 + 0x1D0));
+    return CheckFieldContact(w, (char *)skelGObj, (float *)skelRoot, *(float *)(skelRoot + 0x1D0));
 }
 
 /* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into
@@ -689,15 +688,15 @@ static inline void adjustRootByLandingPlane(char *plane, float rate)
 
     CopyVector(&pl, plane);
     pl.f[3] = 0.0f;
-    d = plane_distance(D_0063C490 + 0x90, &pl);
+    d = plane_distance(skelRoot + 0x90, &pl);
     if (d < 0.0f) {
         _ScaleVector(&push, &pl, d);
         push.f[3] = 0.0f;
-        _SubVector(&half, D_0063C490 + 0x90, &push);
+        _SubVector(&half, skelRoot + 0x90, &push);
         half.f[3] = 0.0f;
         half.f[1] = 0.0f;
         _ScaleVectorXYZ(&half, &half, rate);
-        _SubVectorXYZ(D_0063C490 + 0x150, D_0063C490, &half);
+        _SubVectorXYZ(skelRoot + 0x150, skelRoot, &half);
     }
 }
 
@@ -705,14 +704,14 @@ void landingFieldAction(char *w)
 {
     float h;
 
-    *(float *)(D_0063C490 + 4) = *(float *)(w + 0x24) - *(float *)(D_0063C490 + 0x1D0);
+    *(float *)(skelRoot + 4) = *(float *)(w + 0x24) - *(float *)(skelRoot + 0x1D0);
     adjustRootByLandingPlane(w + 0xA0, 0.5f);
-    h = *(float *)(D_0063C490 + 0x1B4);
-    CopyVector(D_0063C490 + 0x130, w + 0xA0);
-    *(float *)(D_0063C494 + 0xEC) = GetYProjectionOfPlane((int)(w + 0xA0), (int)D_0063C490) - h;
-    CopyVector(D_0063C490 + 0x1B0, D_0063C490);
-    *(float *)(D_0063C490 + 0x1B4) = *(float *)(w + 0x24);
-    *(int *)(D_0063C494 + 0x14) |= 8;
+    h = *(float *)(skelRoot + 0x1B4);
+    CopyVector(skelRoot + 0x130, w + 0xA0);
+    *(float *)(skelMotCtrl + 0xEC) = GetYProjectionOfPlane((int)(w + 0xA0), (int)skelRoot) - h;
+    CopyVector(skelRoot + 0x1B0, skelRoot);
+    *(float *)(skelRoot + 0x1B4) = *(float *)(w + 0x24);
+    *(int *)(skelMotCtrl + 0x14) |= 8;
 }
 
 /* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into
@@ -721,7 +720,7 @@ void landingFieldAction(char *w)
  * 809 and floorFitting's 861, so it carries no symbol in MAIN.MAP. */
 static inline void markPoolContact(char *w)
 {
-    *(int *)(D_0063C494 + 0x14) |= 0x400;
+    *(int *)(skelMotCtrl + 0x14) |= 0x400;
     setPoolHeightOfFloor(w);
 }
 
@@ -733,16 +732,16 @@ void floorFitting(int kind)
     short ang;
 
     if (kind == 0x11 || kind == 0x14) {
-        plane = *(Vec16 *)(D_0063C490 + 0x130);
-        GetMatrixFromQuaternion(mtx, D_0063C490 + 0x30);
+        plane = *(Vec16 *)(skelRoot + 0x130);
+        GetMatrixFromQuaternion(mtx, skelRoot + 0x30);
         _ApplyMatrix(&dir, (int)mtx, ZUnitVector);
         plane.f[3] = 0.0f;
-        D_004ECA70[1] = GetYDistanceFromPlane(&plane, &dir);
-        D_004ECA70[2] = 1.0f;
-        _NormalizeVector(D_004ECA70, D_004ECA70);
-        ang = GetTableArcTan2(D_004ECA70[1], D_004ECA70[2]);
-        RotQuaternionX(D_0063C490 + 0x30, ang);
-        *(int *)(D_0063C490 + 0x204) = 0;
+        floorSlope[1] = GetYDistanceFromPlane(&plane, &dir);
+        floorSlope[2] = 1.0f;
+        _NormalizeVector(floorSlope, floorSlope);
+        ang = GetTableArcTan2(floorSlope[1], floorSlope[2]);
+        RotQuaternionX(skelRoot + 0x30, ang);
+        *(int *)(skelRoot + 0x204) = 0;
     }
 }
 
@@ -756,7 +755,7 @@ static inline int getFloorAttributeUnderNode(void)
 
     memset(&w, 0, 0xC0);
     node = GetSkeltonFocusNode((char *)skelGObj, 51);
-    _AddVectorXYZ((int)&w, (int)D_0063C490, D_0063C488 + node * 0x10);
+    _AddVectorXYZ((int)&w, (int)skelRoot, nodePos2 + node * 0x10);
     CopyVector((char *)&w + 0x10, &w);
     *(float *)((char *)&w + 4) = *(float *)((char *)&w + 4) - 50.0f;
     *(float *)((char *)&w + 0x14) = *(float *)((char *)&w + 0x14) + 50.0f;
@@ -775,14 +774,14 @@ extern void sceVu0SubVector(void *dst, void *a, void *b);
  * waveForceReaction expansion ONE row at each of rootUpdateXZ's three uses
  * (1037, 1120, 1133), where rootUpdateXZ_MotPos's written-out copy has three. */
 #define WALL_COLLISION_AND_WAVE_FORCE()                                                            \
-    if (wallCollisionAndFloorFit(D_0063C490, D_0063C490 + 0x150,                                   \
-                                 *(float *)(D_0063C490 + 0x1D0) + -30.0f) == 0) {                  \
-        if (*(int *)(D_0063C494 + 0xD8) != 0) {                                                    \
-            wallCollisionAndFloorFit(D_0063C490, D_0063C490 + 0x150, 5.0f);                        \
+    if (wallCollisionAndFloorFit(skelRoot, skelRoot + 0x150,                                       \
+                                 *(float *)(skelRoot + 0x1D0) + -30.0f) == 0) {                    \
+        if (*(int *)(skelMotCtrl + 0xD8) != 0) {                                                   \
+            wallCollisionAndFloorFit(skelRoot, skelRoot + 0x150, 5.0f);                            \
         }                                                                                          \
     }                                                                                              \
-    if (*(int *)(D_0063C494 + 0xD8) != 0) {                                                        \
-        waveForceReaction(D_0063C490, D_0063C490 + 0x150, 0.0f);                                   \
+    if (*(int *)(skelMotCtrl + 0xD8) != 0) {                                                       \
+        waveForceReaction(skelRoot, skelRoot + 0x150, 0.0f);                                       \
     }
 
 MotShift rootUpdateXZ(int kind, int no)
@@ -792,26 +791,26 @@ MotShift rootUpdateXZ(int kind, int no)
     MotShift ret = {0, -1};
     float mtx[16];
 
-    GetMatrixFromQuaternion(mtx, D_0063C490 + 0x30);
-    sceVu0ApplyMatrix((int *)&mv, (int)mtx, (char *)D_007201F0);
-    sceVu0ApplyMatrix((int *)&step, (int)mtx, D_0063C490 + 0x170);
-    AddVectorXYZ(D_0063C490, D_0063C490, D_0063C490 + 0x10);
-    AddVectorXYZ(D_0063C490 + 0x150, D_0063C490 + 0x150, D_0063C490 + 0x10);
+    GetMatrixFromQuaternion(mtx, skelRoot + 0x30);
+    sceVu0ApplyMatrix((int *)&mv, (int)mtx, (char *)rootMove);
+    sceVu0ApplyMatrix((int *)&step, (int)mtx, skelRoot + 0x170);
+    AddVectorXYZ(skelRoot, skelRoot, skelRoot + 0x10);
+    AddVectorXYZ(skelRoot + 0x150, skelRoot + 0x150, skelRoot + 0x10);
 
     if (no != -1) {
         Vec16 focus;
 
-        *(int *)(D_0063C490 + 0x364) = no;
-        CopyVector(&focus, D_0063C484 + no * 0x10);
+        *(int *)(skelRoot + 0x364) = no;
+        CopyVector(&focus, nodePos + no * 0x10);
         switch (*(int *)(skelNode + no * 0x40 + 4)) {
         case 47:
-            *(int *)(D_0063C490 + 0x364) = GetSkeltonFocusNode((char *)skelGObj, 48);
+            *(int *)(skelRoot + 0x364) = GetSkeltonFocusNode((char *)skelGObj, 48);
             break;
         case 51:
-            *(int *)(D_0063C490 + 0x364) = GetSkeltonFocusNode((char *)skelGObj, 52);
+            *(int *)(skelRoot + 0x364) = GetSkeltonFocusNode((char *)skelGObj, 52);
             break;
         }
-        if (*(int *)(D_0063C490 + 0x180) == no) {
+        if (*(int *)(skelRoot + 0x180) == no) {
             Vec16 dir;
             float keep = 1.0f;
             float give = 0.0f;
@@ -826,14 +825,14 @@ MotShift rootUpdateXZ(int kind, int no)
 
                 MatrixDrive_PushMatrix();
                 sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-                MultiMatrixByQuaternion(D_0063C490 + 0x30);
-                sceVu0ApplyMatrix((int *)&nodePos, MatrixDrive_GetMatrix(), D_0063C490 + 0x1A0);
+                MultiMatrixByQuaternion(skelRoot + 0x30);
+                sceVu0ApplyMatrix((int *)&nodePos, MatrixDrive_GetMatrix(), skelRoot + 0x1A0);
                 SubVectorXYZ(&dir, &nodePos, &focus);
                 MatrixDrive_PopMatrix();
-                CopyVector(&pl, D_0063C490 + 0x130);
+                CopyVector(&pl, skelRoot + 0x130);
                 pl.f[3] = 0.0f;
-                if (*(int *)(D_0063C494 + 0x1BC) != 0 &&
-                    (*(int *)(D_0063C494 + 0x188) & 0xF00000) != 0) {
+                if (*(int *)(skelMotCtrl + 0x1BC) != 0 &&
+                    (*(int *)(skelMotCtrl + 0x188) & 0xF00000) != 0) {
                     memset(&fall, 0, 16);
                     fall.f[1] = 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f *
                                 (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
@@ -842,41 +841,41 @@ MotShift rootUpdateXZ(int kind, int no)
                     d = GetDistanceFromPlane(&pl, &pos);
                     sceVu0ScaleVector(&n, &pl, -d);
                     sceVu0SubVector(&fall, &n, &pos);
-                    AddVectorXYZ(D_0063C490 + 0x90, D_0063C490 + 0x90, &fall);
-                    if (*(int *)(D_0063C494 + 0x1BC) != 0 &&
-                        (*(int *)(D_0063C494 + 0x188) & 0x100000) != 0) {
+                    AddVectorXYZ(skelRoot + 0x90, skelRoot + 0x90, &fall);
+                    if (*(int *)(skelMotCtrl + 0x1BC) != 0 &&
+                        (*(int *)(skelMotCtrl + 0x188) & 0x100000) != 0) {
                         rate = 0.5f;
                     }
-                    if (*(int *)(D_0063C494 + 0x1BC) != 0 &&
-                        (*(int *)(D_0063C494 + 0x188) & 0x200000) != 0) {
+                    if (*(int *)(skelMotCtrl + 0x1BC) != 0 &&
+                        (*(int *)(skelMotCtrl + 0x188) & 0x200000) != 0) {
                         rate = 0.7f;
                     }
-                    if (*(int *)(D_0063C494 + 0x1BC) != 0 &&
-                        (*(int *)(D_0063C494 + 0x188) & 0x400000) != 0) {
+                    if (*(int *)(skelMotCtrl + 0x1BC) != 0 &&
+                        (*(int *)(skelMotCtrl + 0x188) & 0x400000) != 0) {
                         rate = 0.8f;
                     }
-                    if (*(int *)(D_0063C494 + 0x1BC) != 0 &&
-                        (*(int *)(D_0063C494 + 0x188) & 0x800000) != 0) {
+                    if (*(int *)(skelMotCtrl + 0x1BC) != 0 &&
+                        (*(int *)(skelMotCtrl + 0x188) & 0x800000) != 0) {
                         rate = 0.95f;
                     }
                     keep = 1.0f - rate;
                     give = rate;
-                    *(int *)(D_0063C494 + 0x1B4) = *(int *)(D_0063C494 + 0x188);
+                    *(int *)(skelMotCtrl + 0x1B4) = *(int *)(skelMotCtrl + 0x188);
                 }
             }
             sceVu0ScaleVector(&dir, &dir, keep);
-            sceVu0ScaleVector(D_0063C490 + 0x90, D_0063C490 + 0x90, give);
-            AddVectorXYZ(D_0063C490 + 0x90, D_0063C490 + 0x90, &dir);
+            sceVu0ScaleVector(skelRoot + 0x90, skelRoot + 0x90, give);
+            AddVectorXYZ(skelRoot + 0x90, skelRoot + 0x90, &dir);
             {
                 Vec16 t;
 
-                CopyVector(&t, D_0063C490 + 0x90);
+                CopyVector(&t, skelRoot + 0x90);
                 t.f[1] = 0.0f;
-                AddVectorXYZ(D_0063C490, D_0063C490, &t);
+                AddVectorXYZ(skelRoot, skelRoot, &t);
             }
         } else {
-            AddVectorXYZ(D_0063C490, D_0063C490, &step);
-            CopyVector(D_0063C490 + 0x90, &step);
+            AddVectorXYZ(skelRoot, skelRoot, &step);
+            CopyVector(skelRoot + 0x90, &step);
         }
         WALL_COLLISION_AND_WAVE_FORCE();
         /* The ROM keeps this work block (sp+0xB0) out of reach of the else
@@ -887,71 +886,71 @@ MotShift rootUpdateXZ(int kind, int no)
             int attr;
 
             if (getFieldCollision((char *)&w) != 0) {
-                CopyVector(D_0063C490 + 0x130, (char *)&w + 0xA0);
-                *(int *)(D_0063C494 + 0x188) = attr = GetFloorAttribute(&w);
-                if (*(int *)(D_0063C490 + 0x180) == -1) {
-                    *(int *)(D_0063C494 + 0xEC) = 0;
+                CopyVector(skelRoot + 0x130, (char *)&w + 0xA0);
+                *(int *)(skelMotCtrl + 0x188) = attr = GetFloorAttribute(&w);
+                if (*(int *)(skelRoot + 0x180) == -1) {
+                    *(int *)(skelMotCtrl + 0xEC) = 0;
                     adjustRootByLandingPlane(
-                        D_0063C490 + 0x130,
-                        (*(int *)(D_0063C494 + 0x1BC) != 0 && (attr & 0xF00000) != 0) ? 0.5f
-                                                                                      : 1.0f);
+                        skelRoot + 0x130,
+                        (*(int *)(skelMotCtrl + 0x1BC) != 0 && (attr & 0xF00000) != 0) ? 0.5f
+                                                                                       : 1.0f);
                 }
                 ret = *(MotShift *)((char *)&w + 0x8C);
             } else {
-                *(int *)(D_0063C494 + 0x14) |= 4;
+                *(int *)(skelMotCtrl + 0x14) |= 4;
             }
             setIKAndAdjustRootHeight((char *)&mv);
         }
         checkCliffAndWallStateOfLastPlane();
         MatrixDrive_PushMatrix();
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-        MultiMatrixByQuaternion(D_0063C490 + 0x30);
+        MultiMatrixByQuaternion(skelRoot + 0x30);
         CopyVector((void *)(MatrixDrive_GetMatrix() + 0x30), ZeroPoint);
         sceVu0TransposeMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix());
-        sceVu0ApplyMatrix((int *)(D_0063C490 + 0x1A0), MatrixDrive_GetMatrix(), (char *)&focus);
+        sceVu0ApplyMatrix((int *)(skelRoot + 0x1A0), MatrixDrive_GetMatrix(), (char *)&focus);
         MatrixDrive_PopMatrix();
-        *(float *)(D_0063C490 + 0xC0) = GetYDistanceFromPlane(D_0063C490 + 0x130, D_0063C490);
+        *(float *)(skelRoot + 0xC0) = GetYDistanceFromPlane(skelRoot + 0x130, skelRoot);
         {
             Vec16 sum;
             float proj, gap;
 
-            AddVectorXYZ(&sum, D_0063C488 + no * 0x10, D_0063C490);
-            sceVu0CopyVector(D_0063C490 + 0x1B0, &sum);
-            *(float *)(D_0063C490 + 0x1BC) = 1.0f;
-            proj = GetYProjectionOfPlane((int)(D_0063C490 + 0x130), (int)&sum);
-            gap = proj - *(float *)(D_0063C490 + 0x1B4);
+            AddVectorXYZ(&sum, nodePos2 + no * 0x10, skelRoot);
+            sceVu0CopyVector(skelRoot + 0x1B0, &sum);
+            *(float *)(skelRoot + 0x1BC) = 1.0f;
+            proj = GetYProjectionOfPlane((int)(skelRoot + 0x130), (int)&sum);
+            gap = proj - *(float *)(skelRoot + 0x1B4);
             if ((gap < 0.0f ? -gap : gap) < *(float *)(skelNode + 0x14) * skelScale) {
-                *(float *)(D_0063C490 + 0x1B4) = proj;
+                *(float *)(skelRoot + 0x1B4) = proj;
             }
         }
-        CopyVector(D_0063C490 + 0x190, &focus);
+        CopyVector(skelRoot + 0x190, &focus);
     } else {
         ClipBuf w;
 
-        if (*(int *)(D_0063C490 + 0x30C) != 0) {
-            *(float *)(D_0063C490 + 0x94) +=
+        if (*(int *)(skelRoot + 0x30C) != 0) {
+            *(float *)(skelRoot + 0x94) +=
                 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f *
                 (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1])) *
                 (D_0028F4C0[0] != 0 ? 0.7f : 1.0f);
-            AddVectorXYZ(D_0063C490, D_0063C490, D_0063C490 + 0x90);
+            AddVectorXYZ(skelRoot, skelRoot, skelRoot + 0x90);
             WALL_COLLISION_AND_WAVE_FORCE();
         } else {
-            if (*(int *)(D_0063C490 + 0x180) != no) {
-                CopyVector(D_0063C490 + 0x90, &step);
+            if (*(int *)(skelRoot + 0x180) != no) {
+                CopyVector(skelRoot + 0x90, &step);
             }
-            *(float *)(D_0063C490 + 0x94) = 0.0f;
-            AddVectorXYZ(D_0063C490, D_0063C490, D_0063C490 + 0x90);
+            *(float *)(skelRoot + 0x94) = 0.0f;
+            AddVectorXYZ(skelRoot, skelRoot, skelRoot + 0x90);
             WALL_COLLISION_AND_WAVE_FORCE();
-            if (*(int *)(D_0063C490 + 0x310) != 0) {
+            if (*(int *)(skelRoot + 0x310) != 0) {
                 if (getFieldCollision((char *)&w) != 0) {
-                    CopyVector(D_0063C490 + 0x130, (char *)&w + 0xA0);
+                    CopyVector(skelRoot + 0x130, (char *)&w + 0xA0);
                     ret = *(MotShift *)((char *)&w + 0x8C);
                     setIKAndAdjustRootHeight((char *)&mv);
                 } else {
-                    *(int *)(D_0063C494 + 0x14) |= 4;
+                    *(int *)(skelMotCtrl + 0x14) |= 4;
                 }
             } else {
-                *(float *)(D_0063C490 + 4) = mv.f[1] + *(float *)(D_0063C490 + 0x1B4);
+                *(float *)(skelRoot + 4) = mv.f[1] + *(float *)(skelRoot + 0x1B4);
             }
         }
         checkCliffAndWallStateAtJump();
@@ -976,23 +975,23 @@ MotShift rootUpdateXZ(int kind, int no)
             break;
         }
     }
-    if (*(int *)(D_0063C494 + 0x100) != 0) {
-        if (*(float *)(D_0063C494 + 0x138) < 20.0f && -10.0f < *(float *)(D_0063C494 + 0x130)) {
-            *(unsigned int *)(D_0063C494 + 0x14) &= ~4;
+    if (*(int *)(skelMotCtrl + 0x100) != 0) {
+        if (*(float *)(skelMotCtrl + 0x138) < 20.0f && -10.0f < *(float *)(skelMotCtrl + 0x130)) {
+            *(unsigned int *)(skelMotCtrl + 0x14) &= ~4;
         }
     }
     if (kind == 20) {
         int attr = getFloorAttributeUnderNode();
 
         if (attr != -1) {
-            *(int *)(D_0063C494 + 0x188) = attr;
+            *(int *)(skelMotCtrl + 0x188) = attr;
         }
     }
-    SubVectorXYZ(D_0063C490 + 0x90, D_0063C490, D_0063C490 + 0x150);
-    CopyVector(D_0063C490 + 0x150, D_0063C490);
-    *(int *)(D_0063C490 + 0x180) = no;
-    CopyVector(D_0063C490 + 0x10, ZeroPoint);
-    CopyVector(D_0063C490 + 0xD0, D_00720210);
+    SubVectorXYZ(skelRoot + 0x90, skelRoot, skelRoot + 0x150);
+    CopyVector(skelRoot + 0x150, skelRoot);
+    *(int *)(skelRoot + 0x180) = no;
+    CopyVector(skelRoot + 0x10, ZeroPoint);
+    CopyVector(skelRoot + 0xD0, rootDelta);
     return ret;
 }
 
@@ -1006,51 +1005,51 @@ MotShift rootUpdateXZ_MotPos(int kind, int no)
     float lim;
     int r;
 
-    GetMatrixFromQuaternion(mtx, D_0063C490 + 0x30);
-    sceVu0ApplyMatrix((int *)&mv, (int)mtx, (char *)D_007201F0);
-    sceVu0ApplyMatrix((int *)&step, (int)mtx, D_00720200);
-    AddVectorXYZ(D_0063C490, D_0063C490, &step);
+    GetMatrixFromQuaternion(mtx, skelRoot + 0x30);
+    sceVu0ApplyMatrix((int *)&mv, (int)mtx, (char *)rootMove);
+    sceVu0ApplyMatrix((int *)&step, (int)mtx, rootStep);
+    AddVectorXYZ(skelRoot, skelRoot, &step);
 
     if (no != -1) {
-        CopyVector(D_0063C490 + 0xD0, D_00720210);
+        CopyVector(skelRoot + 0xD0, rootDelta);
     } else {
-        if (*(int *)(D_0063C494 + 0x58) != 0) {
+        if (*(int *)(skelMotCtrl + 0x58) != 0) {
             if (D_0028F4C0[0] == 1) {
-                AddVectorXYZ(D_0063C490, D_0063C490, D_0063C490 + 0x90);
+                AddVectorXYZ(skelRoot, skelRoot, skelRoot + 0x90);
             }
         }
-        if (*(int *)(D_0063C494 + 0x30) == 21) {
+        if (*(int *)(skelMotCtrl + 0x30) == 21) {
             lim = -(60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 10.0f);
-            if (*(float *)(D_0063C490 + 0xD4) < lim) {
-                *(float *)(D_0063C490 + 0xD4) = lim;
+            if (*(float *)(skelRoot + 0xD4) < lim) {
+                *(float *)(skelRoot + 0xD4) = lim;
                 /* retail links debug_StdPrintfDummy in place of the listing's printf. */
                 debug_StdPrintfDummy("inertia cancel.\n");
             }
         }
-        AddVectorXYZ(D_0063C490, D_0063C490, D_0063C490 + 0xD0);
+        AddVectorXYZ(skelRoot, skelRoot, skelRoot + 0xD0);
     }
 
-    if (wallCollisionAndFloorFit(D_0063C490, D_0063C490 + 0x150,
-                                 *(float *)(D_0063C490 + 0x1D0) + -30.0f) == 0) {
-        if (*(int *)(D_0063C494 + 0xD8) != 0) {
-            wallCollisionAndFloorFit(D_0063C490, D_0063C490 + 0x150, 5.0f);
+    if (wallCollisionAndFloorFit(skelRoot, skelRoot + 0x150,
+                                 *(float *)(skelRoot + 0x1D0) + -30.0f) == 0) {
+        if (*(int *)(skelMotCtrl + 0xD8) != 0) {
+            wallCollisionAndFloorFit(skelRoot, skelRoot + 0x150, 5.0f);
         }
     }
 
-    if (*(int *)(D_0063C494 + 0xD4) != 0) {
-        if (no != -1 || *(int *)(D_0063C490 + 0x310) != 0) {
+    if (*(int *)(skelMotCtrl + 0xD4) != 0) {
+        if (no != -1 || *(int *)(skelRoot + 0x310) != 0) {
             if (getFieldCollision((char *)&w) != 0) {
-                CopyVector(D_0063C490 + 0x130, (char *)&w + 0xA0);
-                *(float *)(D_0063C490 + 4) = *(float *)((char *)&w + 0x24) + mv.f[1];
-                if (no != -1 || *(int *)(D_0063C494 + 0x30) == 75 ||
-                    *(int *)(D_0063C494 + 0x30) == 599 || *(int *)(D_0063C494 + 0x30) == 58) {
-                    *(int *)(D_0063C494 + 0x188) = GetFloorAttribute((char *)&w);
+                CopyVector(skelRoot + 0x130, (char *)&w + 0xA0);
+                *(float *)(skelRoot + 4) = *(float *)((char *)&w + 0x24) + mv.f[1];
+                if (no != -1 || *(int *)(skelMotCtrl + 0x30) == 75 ||
+                    *(int *)(skelMotCtrl + 0x30) == 599 || *(int *)(skelMotCtrl + 0x30) == 58) {
+                    *(int *)(skelMotCtrl + 0x188) = GetFloorAttribute((char *)&w);
                     ret = *(MotShift *)((char *)&w + 0x8C);
                 } else {
-                    *(int *)(D_0063C494 + 0x188) = 0;
+                    *(int *)(skelMotCtrl + 0x188) = 0;
                 }
             } else {
-                *(int *)(D_0063C494 + 0x14) = *(int *)(D_0063C494 + 0x14) | 4;
+                *(int *)(skelMotCtrl + 0x14) = *(int *)(skelMotCtrl + 0x14) | 4;
             }
         } else {
             getFieldCollision((char *)&w);
@@ -1058,8 +1057,8 @@ MotShift rootUpdateXZ_MotPos(int kind, int no)
         r = getFlyFieldCollision((char *)&w);
         switch (r) {
         case 1:
-            if (*(float *)(D_0063C4A8 + 0x120) > *(float *)(D_0063C494 + 0x3C)) {
-                *(float *)(D_0063C490 + 4) = *(float *)((char *)&w + 0x24) + mv.f[1];
+            if (*(float *)(skelMotDef + 0x120) > *(float *)(skelMotCtrl + 0x3C)) {
+                *(float *)(skelRoot + 4) = *(float *)((char *)&w + 0x24) + mv.f[1];
             } else {
                 landingFieldAction((char *)&w);
             }
@@ -1072,11 +1071,11 @@ MotShift rootUpdateXZ_MotPos(int kind, int no)
 
     checkCliffAndWallStateAtJump();
     floorFitting(kind);
-    *(float *)(D_0063C490 + 0xC0) = D_007201F0[1];
-    SubVectorXYZ(D_0063C490 + 0x90, D_0063C490, D_0063C490 + 0x150);
-    CopyVector(D_0063C490 + 0x10, ZeroPoint);
-    CopyVector(D_0063C490 + 0x150, D_0063C490);
-    *(int *)(D_0063C490 + 0x180) = no;
+    *(float *)(skelRoot + 0xC0) = rootMove[1];
+    SubVectorXYZ(skelRoot + 0x90, skelRoot, skelRoot + 0x150);
+    CopyVector(skelRoot + 0x10, ZeroPoint);
+    CopyVector(skelRoot + 0x150, skelRoot);
+    *(int *)(skelRoot + 0x180) = no;
     return ret;
 }
 
@@ -1108,8 +1107,8 @@ int adjustSideWall(char *w, int a1, int a2)
     if ((t < 0.0f ? -t : t) < 0.8f) {
         CopyVector(&push, &pl1);
         push.f[3] = 0.0f;
-        sceVu0ScaleVectorXYZ(&push, &push, GetDistanceFromPlane(&pl1, D_0063C490) - 30.0f);
-        SubVectorXYZ(D_0063C490, D_0063C490, &push);
+        sceVu0ScaleVectorXYZ(&push, &push, GetDistanceFromPlane(&pl1, skelRoot) - 30.0f);
+        SubVectorXYZ(skelRoot, skelRoot, &push);
     }
     return 0;
 }
@@ -1129,12 +1128,12 @@ int checkSideWall(int a0, int a1, int p, int a3, int a4)
     if (*(int *)(p + 0x88) != 0) {
         goto disp_one;
     }
-    if (*(int *)(D_0063C490 + 0x324) != 0) {
+    if (*(int *)(skelRoot + 0x324) != 0) {
         ClipWallFuchiHangWalkStop((void *)p);
         if (*(int *)(p + 0x88) != 0) {
             flag = 0;
             mag = GetWallAttribute((void *)p);
-            switch (*(int *)(D_0063C490 + 0x324)) {
+            switch (*(int *)(skelRoot + 0x324)) {
             default:
             case 1:
                 mask = 0x20000000;
@@ -1156,7 +1155,7 @@ int checkSideWall(int a0, int a1, int p, int a3, int a4)
         }
     }
 block12:
-    _ApplyMatrix(buf, a1, D_004ECA80);
+    _ApplyMatrix(buf, a1, sideWallProbe);
     CopyVector((void *)p, (void *)(p + 0x10));
     _AddVectorXYZ(p + 0x10, p, buf);
     ClipWall((void *)p);
@@ -1176,13 +1175,13 @@ block12:
 void forceFallDown(void)
 {
     iosOmSendMail(skelGObj, 0x18, skelGObj);
-    CopyVector(D_0063C490 + 0x150, D_0063C490);
+    CopyVector(skelRoot + 0x150, skelRoot);
 }
 
 void forceReset(void)
 {
     iosOmSendMail(skelGObj, 0x103, skelGObj);
-    CopyVector((char *)D_0063C490 + 0x150, (char *)D_0063C490);
+    CopyVector((char *)skelRoot + 0x150, (char *)skelRoot);
 }
 
 void checkWallUpperWall(void)
@@ -1192,10 +1191,10 @@ void checkWallUpperWall(void)
     v = MatrixDrive_GetMatrix();
     sceVu0UnitMatrix(v);
     {
-        register float *p = (float *)D_0063C490;
-        MatrixDrive_TransMatrix(p[0], p[1] - D_007201F0[1], p[2]);
+        register float *p = (float *)skelRoot;
+        MatrixDrive_TransMatrix(p[0], p[1] - rootMove[1], p[2]);
     }
-    MultiMatrixByQuaternion((char *)D_0063C490 + 0x30);
+    MultiMatrixByQuaternion((char *)skelRoot + 0x30);
     checkUpperWallState();
     MatrixDrive_PopMatrix();
 }
@@ -1207,10 +1206,10 @@ static inline void dropWhenFloorTooFar(void)
 {
     ClipBuf w;
 
-    if (0.0f <= plane_distance(D_0063C490, D_0063C490 + 0x130)) {
+    if (0.0f <= plane_distance(skelRoot, skelRoot + 0x130)) {
         return;
     }
-    CopyVector(&w, D_0063C490);
+    CopyVector(&w, skelRoot);
     CopyVector((char *)&w + 0x10, &w);
     *(float *)((char *)&w + 0x14) = *(float *)((char *)&w + 0x14) + 50.0f;
     ClipFloor(&w);
@@ -1230,23 +1229,23 @@ void calcWallFittingGeometry(void)
     Vec16 rot;
     short ang;
 
-    GetWallGlobalInfo(0, &v, *(int *)(D_0063C490 + 0xE8),
-                      *(char **)(*(char **)(*(char **)(D_0063C490 + 0xE0) + 0x15C) + 0xC) +
-                          *(int *)(D_0063C490 + 0xE4) * 0x40);
+    GetWallGlobalInfo(0, &v, *(int *)(skelRoot + 0xE8),
+                      *(char **)(*(char **)(*(char **)(skelRoot + 0xE0) + 0x15C) + 0xC) +
+                          *(int *)(skelRoot + 0xE4) * 0x40);
     MatrixDrive_SetTransposeMatrix(mtx, MatrixDrive_GetMatrix());
     _ApplyMatrix(&v, (int)mtx, (char *)&v);
     v.f[0] = 0.0f;
     _NormalizeVector(&v, &v);
     ang = (short)(atan2f(v.f[1], -v.f[2]) * 10430.378f);
-    RotQuaternionX(D_0063C490 + 0x30, ang);
+    RotQuaternionX(skelRoot + 0x30, ang);
     MatrixDrive_PushMatrix();
-    _ApplyMatrix(&base, MatrixDrive_GetMatrix(), (char *)D_007201F0);
+    _ApplyMatrix(&base, MatrixDrive_GetMatrix(), (char *)rootMove);
     MatrixDrive_RotMatrixX(ang);
-    _ApplyMatrix(&rot, MatrixDrive_GetMatrix(), (char *)D_007201F0);
-    _SubVector(D_0063C490 + 0x10, &rot, &base);
-    *(int *)(D_0063C490 + 0x1C) = 0;
+    _ApplyMatrix(&rot, MatrixDrive_GetMatrix(), (char *)rootMove);
+    _SubVector(skelRoot + 0x10, &rot, &base);
+    *(int *)(skelRoot + 0x1C) = 0;
     MatrixDrive_PopMatrix();
-    *(int *)(D_0063C490 + 0xC0) = 0;
+    *(int *)(skelRoot + 0xC0) = 0;
 }
 
 MotShift rootUpdateHang(int kind, int a1, int a2)
@@ -1261,21 +1260,21 @@ MotShift rootUpdateHang(int kind, int a1, int a2)
     Vec16 pos;
     int hit;
 
-    GetMatrixFromQuaternion(mtx, D_0063C490 + 0x30);
-    sceVu0ApplyMatrix((int *)&up, (int)mtx, (char *)D_007201F0);
-    sceVu0ApplyMatrix((int *)&mv, (int)mtx, (char *)D_00720200);
-    AddVectorXYZ(D_0063C490, D_0063C490, &mv);
-    *(float *)(D_0063C490 + 0xC0) = D_007201F0[1];
+    GetMatrixFromQuaternion(mtx, skelRoot + 0x30);
+    sceVu0ApplyMatrix((int *)&up, (int)mtx, (char *)rootMove);
+    sceVu0ApplyMatrix((int *)&mv, (int)mtx, (char *)rootStep);
+    AddVectorXYZ(skelRoot, skelRoot, &mv);
+    *(float *)(skelRoot + 0xC0) = rootMove[1];
     hit = 0;
-    CopyVector(&pos, D_0063C490);
-    pos.f[1] = pos.f[1] - (D_007201F0[1] - 30.0f);
+    CopyVector(&pos, skelRoot);
+    pos.f[1] = pos.f[1] - (rootMove[1] - 30.0f);
     MatrixDrive_PushMatrix();
-    GetMatrixFromQuaternionPos((void *)MatrixDrive_GetMatrix(), D_0063C490 + 0x30, &pos);
-    MatrixDrive_TransMatrix(0.0f, 0.0f, -D_007201F0[2] - 10.0f);
+    GetMatrixFromQuaternionPos((void *)MatrixDrive_GetMatrix(), skelRoot + 0x30, &pos);
+    MatrixDrive_TransMatrix(0.0f, 0.0f, -rootMove[2] - 10.0f);
     CopyMatrix(mtx2, (void *)MatrixDrive_GetMatrix());
     MatrixDrive_PopMatrix();
-    sceVu0ApplyMatrix((int *)&w, (int)mtx2, (char *)D_004ECA90);
-    sceVu0ApplyMatrix((int *)((char *)&w + 0x10), (int)mtx2, (char *)D_004ECAA0);
+    sceVu0ApplyMatrix((int *)&w, (int)mtx2, (char *)hangBack);
+    sceVu0ApplyMatrix((int *)((char *)&w + 0x10), (int)mtx2, (char *)hangFront);
     w.rad = 0.0f;
 
     /* The frame pins two block levels around the work records (not their
@@ -1286,29 +1285,28 @@ MotShift rootUpdateHang(int kind, int a1, int a2)
         int n;
         int attr;
 
-        if (*(int *)(D_0063C494 + 0x64) == 0) {
+        if (*(int *)(skelMotCtrl + 0x64) == 0) {
             ClipWall(&w);
             if (*(int *)((char *)&w + 0x88) != 0) {
                 WallCfg rec = {((WallCfg *)((char *)&w + 0x80))->o,
                                ((WallCfg *)((char *)&w + 0x80))->n};
 
-                n = GetPureVerticalPlaneOfCurrentPosition(D_0063C490 + 0x130, &pl, 0, (int *)&rec,
-                                                          0, D_0063C490);
-                if (-0.25f < *(float *)(D_0063C490 + 0x134)) {
+                n = GetPureVerticalPlaneOfCurrentPosition(skelRoot + 0x130, &pl, 0, (int *)&rec, 0,
+                                                          skelRoot);
+                if (-0.25f < *(float *)(skelRoot + 0x134)) {
                     /* EUC-JP: "the wall angle is steep, so fall" */
                     debug_StdPrintfDummy("壁の角度が急なので落下\n");
                     forceFallDown();
                     goto out;
                 }
                 CopyVector(&pl2, &pl);
-                if (*(int *)(D_0063C490 + 0xE0) == rec.o.obj &&
-                    *(int *)(D_0063C490 + 0xE4) == rec.o.node &&
-                    *(int *)(D_0063C490 + 0xE8) == rec.n) {
-                    hit = *(int *)(D_0063C490 + 0xEC) == n;
+                if (*(int *)(skelRoot + 0xE0) == rec.o.obj &&
+                    *(int *)(skelRoot + 0xE4) == rec.o.node && *(int *)(skelRoot + 0xE8) == rec.n) {
+                    hit = *(int *)(skelRoot + 0xEC) == n;
                 }
-                *(WallCfg *)(D_0063C490 + 0xE0) = rec;
-                *(int *)(D_0063C490 + 0xEC) = n;
-                *(int *)(D_0063C494 + 0x17C) = *(int *)(D_0063C494 + 0x184) = attr =
+                *(WallCfg *)(skelRoot + 0xE0) = rec;
+                *(int *)(skelRoot + 0xEC) = n;
+                *(int *)(skelMotCtrl + 0x17C) = *(int *)(skelMotCtrl + 0x184) = attr =
                     GetWallAttribute(&w);
                 if (attr == 768) {
                     forceFallDown();
@@ -1323,8 +1321,8 @@ MotShift rootUpdateHang(int kind, int a1, int a2)
                 goto out;
             }
         } else {
-            *(int *)(D_0063C494 + 0x64) = 0;
-            GetPureVerticalPlane(D_0063C490 + 0x130, &pl, 0, (int *)(D_0063C490 + 0xE0), 0);
+            *(int *)(skelMotCtrl + 0x64) = 0;
+            GetPureVerticalPlane(skelRoot + 0x130, &pl, 0, (int *)(skelRoot + 0xE0), 0);
             hit = 1;
             CopyVector(&pl2, &pl);
         }
@@ -1341,9 +1339,9 @@ MotShift rootUpdateHang(int kind, int a1, int a2)
             float dd;
 
             pl2.f[3] = 0.0f;
-            CopyVector(&v, D_0063C490);
-            v.f[1] = v.f[1] - D_007201F0[1];
-            d = GetDistanceFromPlane(D_0063C490 + 0x130, &v);
+            CopyVector(&v, skelRoot);
+            v.f[1] = v.f[1] - rootMove[1];
+            d = GetDistanceFromPlane(skelRoot + 0x130, &v);
             if (hit == 0) {
                 if (d < 0.0f ? 30.0f < -d : 30.0f < d) {
                     /* EUC-JP: "no hold point on the wall, so fall (step: %f)" */
@@ -1353,17 +1351,17 @@ MotShift rootUpdateHang(int kind, int a1, int a2)
                 }
             }
             dd = -d;
-            sceVu0ScaleVector(&sc, D_0063C490 + 0x130, dd);
+            sceVu0ScaleVector(&sc, skelRoot + 0x130, dd);
             AddVectorXYZ(&v, &v, &sc);
             d = GetDistanceFromPlane(&pl, &v);
-            sceVu0ScaleVector(&sc, &pl, -d - D_007201F0[2]);
+            sceVu0ScaleVector(&sc, &pl, -d - rootMove[2]);
             AddVectorXYZ(&v, &v, &sc);
-            CopyVector(D_0063C490, &v);
-            CopyVector(D_0063C490 + 0x1B0, D_0063C490);
-            *(float *)(D_0063C490 + 4) = *(float *)(D_0063C490 + 4) + D_007201F0[1];
+            CopyVector(skelRoot, &v);
+            CopyVector(skelRoot + 0x1B0, skelRoot);
+            *(float *)(skelRoot + 4) = *(float *)(skelRoot + 4) + rootMove[1];
 
-            r1 = checkSideWall((int)D_004ECAB0, (int)mtx2, (int)&sw1, (int)&w, (int)&pl2);
-            r2 = checkSideWall((int)D_004ECAC0, (int)mtx2, (int)&sw2, (int)&w, (int)&pl2);
+            r1 = checkSideWall((int)hangLeft, (int)mtx2, (int)&sw1, (int)&w, (int)&pl2);
+            r2 = checkSideWall((int)hangRight, (int)mtx2, (int)&sw2, (int)&w, (int)&pl2);
             if (r1 == -1 || r2 == -1) {
                 /* EUC-JP: "hit a forced-fall wall, so fall" */
                 debug_StdPrintfDummy("強制落下の壁に当たったので落下\n");
@@ -1372,32 +1370,32 @@ MotShift rootUpdateHang(int kind, int a1, int a2)
             }
             if (r1 != 0 && r2 != 0) {
                 sceVu0SubVector(&dv, (char *)&sw2 + 0x20, (char *)&sw1 + 0x20);
-                sceVu0OuterProduct(D_0063C494 + 0xB0, &dv, YUnitVector);
-                *(int *)(D_0063C494 + 0xB4) = 0;
-                sceVu0Normalize(D_0063C494 + 0xB0, D_0063C494 + 0xB0);
+                sceVu0OuterProduct(skelMotCtrl + 0xB0, &dv, YUnitVector);
+                *(int *)(skelMotCtrl + 0xB4) = 0;
+                sceVu0Normalize(skelMotCtrl + 0xB0, skelMotCtrl + 0xB0);
             } else {
-                CopyVector(D_0063C494 + 0xB0, &pl2);
-                *(float *)(D_0063C494 + 0xB0) = -*(float *)(D_0063C494 + 0xB0);
-                *(float *)(D_0063C494 + 0xB8) = -*(float *)(D_0063C494 + 0xB8);
+                CopyVector(skelMotCtrl + 0xB0, &pl2);
+                *(float *)(skelMotCtrl + 0xB0) = -*(float *)(skelMotCtrl + 0xB0);
+                *(float *)(skelMotCtrl + 0xB8) = -*(float *)(skelMotCtrl + 0xB8);
             }
         }
     }
 
     checkWallUpperWall();
     dropWhenFloorTooFar();
-    wallCollisionAndFloorFit(D_0063C490, D_0063C490 + 0x150, 0.0f);
+    wallCollisionAndFloorFit(skelRoot, skelRoot + 0x150, 0.0f);
 
 out:
-    CopyVector(D_0063C490 + 0x10, ZeroPoint);
+    CopyVector(skelRoot + 0x10, ZeroPoint);
     if (kind == 15) {
         calcWallFittingGeometry();
     }
-    SubVectorXYZ(D_0063C490 + 0x60, D_0063C490, &up);
-    SubVectorXYZ(D_0063C490 + 0x90, D_0063C490, D_0063C490 + 0x150);
-    CopyVector(D_0063C490 + 0x150, D_0063C490);
-    CopyVector(D_0063C490 + 0xD0, D_00720210);
-    *(int *)(D_0063C490 + 0x180) = -1;
-    return *(MotShift *)(D_0063C490 + 0xE0);
+    SubVectorXYZ(skelRoot + 0x60, skelRoot, &up);
+    SubVectorXYZ(skelRoot + 0x90, skelRoot, skelRoot + 0x150);
+    CopyVector(skelRoot + 0x150, skelRoot);
+    CopyVector(skelRoot + 0xD0, rootDelta);
+    *(int *)(skelRoot + 0x180) = -1;
+    return *(MotShift *)(skelRoot + 0xE0);
 }
 
 MotShift rootUpdateSwim(void)
@@ -1409,51 +1407,50 @@ MotShift rootUpdateSwim(void)
     int node;
 
     node = GetSkeltonFocusNode((char *)skelGObj, 34);
-    GetMatrixFromQuaternion(mtx, D_0063C490 + 0x30);
-    sceVu0ApplyMatrix((int *)&v, (int)mtx, D_00720200);
+    GetMatrixFromQuaternion(mtx, skelRoot + 0x30);
+    sceVu0ApplyMatrix((int *)&v, (int)mtx, rootStep);
     v.f[0] = v.f[0] * 0.2f;
     v.f[1] = v.f[1] * 0.2f;
     v.f[2] = v.f[2] * 0.2f;
-    sceVu0AddVector(D_0063C490 + 0x90, D_0063C490 + 0x90, &v);
-    GetLowerPlaneCollision(&w, D_0063C490);
-    if (GetWaterReaction(0, 0, &w, D_0063C490, D_0063C490 + 0x90,
-                         *(float *)(D_0063C490 + 4) - 80.0f,
-                         *(float *)(D_0063C490 + 4) + *(float *)(D_0063C484 + node * 0x10 + 4),
-                         *(float *)(D_0063C490 + 4) + 80.0f, 0.9f,
+    sceVu0AddVector(skelRoot + 0x90, skelRoot + 0x90, &v);
+    GetLowerPlaneCollision(&w, skelRoot);
+    if (GetWaterReaction(0, 0, &w, skelRoot, skelRoot + 0x90, *(float *)(skelRoot + 4) - 80.0f,
+                         *(float *)(skelRoot + 4) + *(float *)(nodePos + node * 0x10 + 4),
+                         *(float *)(skelRoot + 4) + 80.0f, 0.9f,
                          60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * -0.1f *
                              (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]))) != 0) {
         /* listing row 1884 holds only the load of this constant; the
          * subtractions are on the rows that use it. */
         float depth = 10.0f;
 
-        if (*(float *)((char *)&w + 0x24) - depth < *(float *)(D_0063C490 + 4)) {
-            *(float *)(D_0063C490 + 4) = *(float *)((char *)&w + 0x24) - depth;
-            *(float *)(D_0063C490 + 0x154) = *(float *)((char *)&w + 0x24) - depth;
+        if (*(float *)((char *)&w + 0x24) - depth < *(float *)(skelRoot + 4)) {
+            *(float *)(skelRoot + 4) = *(float *)((char *)&w + 0x24) - depth;
+            *(float *)(skelRoot + 0x154) = *(float *)((char *)&w + 0x24) - depth;
         }
         setPoolHeightOfFloor((char *)&w);
     } else {
-        *(int *)(D_0063C494 + 0x14) |= 0x800;
+        *(int *)(skelMotCtrl + 0x14) |= 0x800;
         /* retail links debug_StdPrintfDummy in place of the listing's printf. */
         /* EUC-JP: "there is no DWATER water bottom below.  If this message keeps coming, it has not left the swim state" */
         debug_StdPrintfDummy(
             "下にDWATERの水底がないです。このメッセージが連続で\n出てるなら、泳ぎから遷移していない状態です\n\n");
     }
     if (*(int *)((char *)&w + 0x94) != 0) {
-        *(int *)(D_0063C494 + 0x188) = GetFloorAttribute(&w);
-        CopyVector(D_0063C490 + 0x130, (char *)&w + 0xA0);
+        *(int *)(skelMotCtrl + 0x188) = GetFloorAttribute(&w);
+        CopyVector(skelRoot + 0x130, (char *)&w + 0xA0);
     }
-    wallCollisionAndFloorFit(D_0063C490, D_0063C490 + 0x150, 0.0f);
-    if (*(int *)(D_0063C494 + 0xD8) != 0) {
-        waveForceReaction(D_0063C490, D_0063C490 + 0x150, 0.0f);
+    wallCollisionAndFloorFit(skelRoot, skelRoot + 0x150, 0.0f);
+    if (*(int *)(skelMotCtrl + 0xD8) != 0) {
+        waveForceReaction(skelRoot, skelRoot + 0x150, 0.0f);
     }
     checkCliffAndWallStateAtJump();
-    SubVectorXYZ(D_0063C490 + 0x90, D_0063C490, D_0063C490 + 0x150);
-    CopyVector(D_0063C490 + 0x1B0, D_0063C490);
-    CopyVector(D_0063C490 + 0x150, D_0063C490);
-    CopyVector(D_0063C490 + 0x10, ZeroPoint);
-    CopyVector(D_0063C490 + 0xD0, D_00720210);
-    *(int *)(D_0063C490 + 0xC0) = 0;
-    *(int *)(D_0063C490 + 0x180) = -1;
+    SubVectorXYZ(skelRoot + 0x90, skelRoot, skelRoot + 0x150);
+    CopyVector(skelRoot + 0x1B0, skelRoot);
+    CopyVector(skelRoot + 0x150, skelRoot);
+    CopyVector(skelRoot + 0x10, ZeroPoint);
+    CopyVector(skelRoot + 0xD0, rootDelta);
+    *(int *)(skelRoot + 0xC0) = 0;
+    *(int *)(skelRoot + 0x180) = -1;
     return shift;
 }
 
@@ -1465,9 +1462,9 @@ static inline void clipWallAhead(ClipBuf *w)
 {
     float mtx[16];
 
-    GetMatrixFromQuaternionPos(mtx, D_0063C490 + 0x30, D_0063C490);
-    sceVu0ApplyMatrix((int *)w, (int)mtx, (char *)D_004ECAD0);
-    sceVu0ApplyMatrix((int *)((char *)w + 0x10), (int)mtx, (char *)D_004ECAE0);
+    GetMatrixFromQuaternionPos(mtx, skelRoot + 0x30, skelRoot);
+    sceVu0ApplyMatrix((int *)w, (int)mtx, (char *)clipWallBack);
+    sceVu0ApplyMatrix((int *)((char *)w + 0x10), (int)mtx, (char *)clipWallFront);
     w->rad = 0.0f;
     ClipWall(w);
 }
@@ -1490,9 +1487,9 @@ static inline void pushRootAlongSideWall(char *w)
 
     _ScaleVectorXYZ(&t, w + 0xA0, 40.0f);
     _AddVectorXYZ((int)&t, (int)(w + 0x20), &t);
-    _SubVectorXYZ(&t, &t, D_0063C490);
+    _SubVectorXYZ(&t, &t, skelRoot);
     _ScaleVectorXYZ(&t, &t, 0.07f);
-    _AddVectorXYZ((int)D_0063C490, (int)D_0063C490, &t);
+    _AddVectorXYZ((int)skelRoot, (int)skelRoot, &t);
 }
 
 int avoidSideAdjustWall(void)
@@ -1501,12 +1498,12 @@ int avoidSideAdjustWall(void)
     char w[0xD0];
 
     memset(w, 0, 0xC0);
-    GetMatrixFromQuaternionPos(mtx, D_0063C490 + 0x30, D_0063C490);
-    _ApplyMatrix(w, (int)mtx, D_004ECAF0);
-    _ApplyMatrix(w + 0x10, (int)mtx, D_004ECB00);
+    GetMatrixFromQuaternionPos(mtx, skelRoot + 0x30, skelRoot);
+    _ApplyMatrix(w, (int)mtx, avoidLeft);
+    _ApplyMatrix(w + 0x10, (int)mtx, avoidRight);
     if (clipSideWallAndHit(w) == 0) {
-        _ApplyMatrix(w, (int)mtx, D_004ECB00);
-        _ApplyMatrix(w + 0x10, (int)mtx, D_004ECAF0);
+        _ApplyMatrix(w, (int)mtx, avoidRight);
+        _ApplyMatrix(w + 0x10, (int)mtx, avoidLeft);
         if (clipSideWallAndHit(w) == 0) {
             return 0;
         }
@@ -1537,123 +1534,122 @@ MotShift rootUpdateStepSolution(int kind)
     int node;
     int i;
 
-    GetMatrixFromQuaternion(mtx, D_0063C490 + 0x30);
-    sceVu0ApplyMatrix((int *)&mv, (int)mtx, (char *)D_00720200);
-    sceVu0ApplyMatrix((int *)&up, (int)mtx, (char *)D_007201F0);
-    if (D_0063C49C != -1) {
-        node = GetSkeltonFocusNode((char *)skelGObj, D_0063C49C);
+    GetMatrixFromQuaternion(mtx, skelRoot + 0x30);
+    sceVu0ApplyMatrix((int *)&mv, (int)mtx, (char *)rootStep);
+    sceVu0ApplyMatrix((int *)&up, (int)mtx, (char *)rootMove);
+    if (stepFocusNode != -1) {
+        node = GetSkeltonFocusNode((char *)skelGObj, stepFocusNode);
         _SubVectorXYZ(&d2, *(char **)(*(char **)(skelGObj + 0x15C) + 0xC) + node * 0x40 + 0x30,
                       *(char **)(*(char **)(skelGObj + 0x15C) + 0xC) + 0x30);
-        _SubVectorXYZ(&d1, D_0063C488 + node * 0x10, &d2);
-        _SubVectorXYZ(D_0063C490, D_0063C490, &d1);
+        _SubVectorXYZ(&d1, nodePos2 + node * 0x10, &d2);
+        _SubVectorXYZ(skelRoot, skelRoot, &d1);
     } else {
-        AddVectorXYZ(D_0063C490, D_0063C490, &mv);
+        AddVectorXYZ(skelRoot, skelRoot, &mv);
     }
-    *(float *)(D_0063C490 + 0xC0) = D_007201F0[1];
+    *(float *)(skelRoot + 0xC0) = rootMove[1];
 
     switch (kind) {
     case 9:
-        cfg = *(WallCfg *)(D_0063C490 + 0xF0);
+        cfg = *(WallCfg *)(skelRoot + 0xF0);
         dir = 1.0f;
-        GetPureVerticalPlane(D_0063C490 + 0x130, pl, (float *)corner, (int *)&cfg, 0);
+        GetPureVerticalPlane(skelRoot + 0x130, pl, (float *)corner, (int *)&cfg, 0);
         break;
     case 13:
-        cfg = *(WallCfg *)(D_0063C490 + 0xF0);
+        cfg = *(WallCfg *)(skelRoot + 0xF0);
         dir = 1.0f;
-        GetPureVerticalPlane(D_0063C490 + 0x130, pl, (float *)corner, (int *)&cfg, 1);
+        GetPureVerticalPlane(skelRoot + 0x130, pl, (float *)corner, (int *)&cfg, 1);
         break;
     case 7:
     case 16:
     default:
-        cfg = *(WallCfg *)(D_0063C490 + 0xE0);
+        cfg = *(WallCfg *)(skelRoot + 0xE0);
         dir = -1.0f;
-        GetPureVerticalPlane(D_0063C490 + 0x130, pl, (float *)corner, (int *)&cfg, 0);
+        GetPureVerticalPlane(skelRoot + 0x130, pl, (float *)corner, (int *)&cfg, 0);
         break;
     case 8:
-        cfg = *(WallCfg *)(D_0063C490 + 0xE0);
+        cfg = *(WallCfg *)(skelRoot + 0xE0);
         dir = -1.0f;
-        GetPureVerticalPlane(D_0063C490 + 0x130, pl, (float *)corner, (int *)&cfg, 1);
+        GetPureVerticalPlane(skelRoot + 0x130, pl, (float *)corner, (int *)&cfg, 1);
         break;
     }
 
     CopyVector(pl2, pl);
     pl2[3] = 0.0f;
-    if (*(int *)(D_0063C490 + 0x32C) != 0) {
+    if (*(int *)(skelRoot + 0x32C) != 0) {
         memset(&avg, 0, 16);
         avg.f[3] = 1.0f;
         for (i = 0; i < 4; i++) {
             AddVectorXYZ(&avg, &avg, &corner[i]);
         }
         sceVu0ScaleVector(&avg, &avg, 0.25f);
-        *(float *)(D_0063C490 + 0) =
-            *(float *)(D_0063C490 + 0) + (avg.f[0] - *(float *)(D_0063C490 + 0)) * 0.2f;
-        *(float *)(D_0063C490 + 8) =
-            *(float *)(D_0063C490 + 8) + (avg.f[2] - *(float *)(D_0063C490 + 8)) * 0.2f;
+        *(float *)(skelRoot + 0) =
+            *(float *)(skelRoot + 0) + (avg.f[0] - *(float *)(skelRoot + 0)) * 0.2f;
+        *(float *)(skelRoot + 8) =
+            *(float *)(skelRoot + 8) + (avg.f[2] - *(float *)(skelRoot + 8)) * 0.2f;
     }
 
-    CopyVector(&pos, D_0063C490);
-    pos.f[1] = pos.f[1] - D_007201F0[1];
-    d = GetDistanceFromPlane(D_0063C490 + 0x130, &pos);
-    sceVu0ScaleVector(&adj, D_0063C490 + 0x130, -d);
+    CopyVector(&pos, skelRoot);
+    pos.f[1] = pos.f[1] - rootMove[1];
+    d = GetDistanceFromPlane(skelRoot + 0x130, &pos);
+    sceVu0ScaleVector(&adj, skelRoot + 0x130, -d);
     AddVectorXYZ(&pos, &pos, &adj);
     d = GetDistanceFromPlane(pl, &pos);
-    sceVu0ScaleVector(&adj, pl, -d + D_007201F0[2] * dir);
+    sceVu0ScaleVector(&adj, pl, -d + rootMove[2] * dir);
     AddVectorXYZ(&pos, &pos, &adj);
-    CopyVector(D_0063C490, &pos);
-    *(float *)(D_0063C490 + 4) = *(float *)(D_0063C490 + 4) + D_007201F0[1];
-    sceVu0ScaleVectorXYZ(D_0063C494 + 0xB0, pl2, dir);
+    CopyVector(skelRoot, &pos);
+    *(float *)(skelRoot + 4) = *(float *)(skelRoot + 4) + rootMove[1];
+    sceVu0ScaleVectorXYZ(skelMotCtrl + 0xB0, pl2, dir);
 
-    CopyVector(&w, D_0063C490);
+    CopyVector(&w, skelRoot);
     CopyVector((char *)&w + 0x10, &w);
     *(float *)((char *)&w + 0x14) =
-        *(float *)((char *)&w + 0x14) + (*(float *)(D_0063C490 + 0x1D0) + 10.0f);
+        *(float *)((char *)&w + 0x14) + (*(float *)(skelRoot + 0x1D0) + 10.0f);
     ClipFloor(&w);
     if (*(int *)((char *)&w + 0x94) != 0) {
-        *(int *)(D_0063C494 + 0x188) = GetFloorAttribute(&w) & 0xF0;
+        *(int *)(skelMotCtrl + 0x188) = GetFloorAttribute(&w) & 0xF0;
     }
 
-    if (*(int *)(D_0063C490 + 0x324) != 0) {
+    if (*(int *)(skelRoot + 0x324) != 0) {
         avoidSideAdjustWall();
     }
 
     if (kind >= 7 && (kind < 9 || kind == 16)) {
-        if (*(int *)(D_0063C494 + 0xD8) != 0) {
-            if (*(int *)(D_0063C4A8 + 0x130) == 0) {
-                clipStepWallAndReact(D_0063C490, D_0063C490 + 0x150, *(float *)(D_0063C490 + 0x338),
+        if (*(int *)(skelMotCtrl + 0xD8) != 0) {
+            if (*(int *)(skelMotDef + 0x130) == 0) {
+                clipStepWallAndReact(skelRoot, skelRoot + 0x150, *(float *)(skelRoot + 0x338),
                                      &cfg);
             }
-            if (upperFieldCheck(D_0063C490, -50.0f) != 0) {
+            if (upperFieldCheck(skelRoot, -50.0f) != 0) {
                 forceFallDown();
             }
         }
         checkWallUpperWall();
-        if (*(int *)(D_0063C494 + 0x30) == 85) {
+        if (*(int *)(skelMotCtrl + 0x30) == 85) {
             MatrixDrive_PushMatrix();
             _UnitMatrix(MatrixDrive_GetMatrix());
-            MatrixDrive_TransMatrix(
-                *(float *)(D_0063C490 + 0),
-                GetYProjectionOfPlane((int)(D_0063C490 + 0x130), (int)D_0063C490),
-                *(float *)(D_0063C490 + 8));
-            MultiMatrixByQuaternion(D_0063C490 + 0x30);
+            MatrixDrive_TransMatrix(*(float *)(skelRoot + 0),
+                                    GetYProjectionOfPlane((int)(skelRoot + 0x130), (int)skelRoot),
+                                    *(float *)(skelRoot + 8));
+            MultiMatrixByQuaternion(skelRoot + 0x30);
             checkCliffState(1);
             MatrixDrive_PopMatrix();
         }
     } else {
-        clipStepWallAndReact(D_0063C490, D_0063C490 + 0x150, *(float *)(D_0063C490 + 0x338), &cfg);
+        clipStepWallAndReact(skelRoot, skelRoot + 0x150, *(float *)(skelRoot + 0x338), &cfg);
     }
 
-    if (clipFuchiWallAndReact(D_0063C490, D_0063C490 + 0x150, *(int *)(D_0063C490 + 0x324),
-                              *(float *)(D_0063C490 + 0x338)) != 0) {
+    if (clipFuchiWallAndReact(skelRoot, skelRoot + 0x150, *(int *)(skelRoot + 0x324),
+                              *(float *)(skelRoot + 0x338)) != 0) {
         /* EUC-JP: "hit an extension wall" */
         debug_StdPrintfDummy("拡張壁に当たった\n");
     }
-    if (*(int *)(D_0063C490 + 0x320) != 0) {
-        if (clipFieldWallAndReset(D_0063C490, D_0063C490 + 0x150) != 0) {
+    if (*(int *)(skelRoot + 0x320) != 0) {
+        if (clipFieldWallAndReset(skelRoot, skelRoot + 0x150) != 0) {
             forceReset();
         }
     }
 
-    CopyVector(D_0063C490 + 0x10, ZeroPoint);
+    CopyVector(skelRoot + 0x10, ZeroPoint);
     switch (kind) {
     case 16:
         calcWallFittingGeometry();
@@ -1669,10 +1665,9 @@ MotShift rootUpdateStepSolution(int kind)
             Vec16 wp;
 
             if (*(int *)((char *)&cw + 0x88) != 0) {
-                *(WallCfg *)(D_0063C490 + 0x100) = rec;
+                *(WallCfg *)(skelRoot + 0x100) = rec;
                 GetPureVerticalPlane(&wp, 0, 0, (int *)&rec, 0);
-                *(float *)(D_0063C494 + 0x178) =
-                    GetDistanceFromPlane(&wp, D_0063C490) - D_007201F0[1];
+                *(float *)(skelMotCtrl + 0x178) = GetDistanceFromPlane(&wp, skelRoot) - rootMove[1];
             }
         }
     } break;
@@ -1681,15 +1676,15 @@ MotShift rootUpdateStepSolution(int kind)
         break;
     }
 
-    SubVectorXYZ(D_0063C490 + 0x60, D_0063C490, &up);
-    SubVectorXYZ(D_0063C490 + 0x90, D_0063C490, D_0063C490 + 0x150);
-    CopyVector(D_0063C490 + 0x90, ZeroVector);
-    CopyVector(D_0063C490 + 0x1B0, D_0063C490);
-    *(float *)(D_0063C490 + 0x1B4) = *(float *)(D_0063C490 + 0x1B4) - D_007201F0[1];
-    CopyVector(D_0063C490 + 0x150, D_0063C490);
-    CopyVector(D_0063C490 + 0xD0, D_00720210);
-    *(int *)(D_0063C490 + 0x180) = -1;
-    *(WallCfg *)(D_0063C490 + 0xE0) = cfg;
+    SubVectorXYZ(skelRoot + 0x60, skelRoot, &up);
+    SubVectorXYZ(skelRoot + 0x90, skelRoot, skelRoot + 0x150);
+    CopyVector(skelRoot + 0x90, ZeroVector);
+    CopyVector(skelRoot + 0x1B0, skelRoot);
+    *(float *)(skelRoot + 0x1B4) = *(float *)(skelRoot + 0x1B4) - rootMove[1];
+    CopyVector(skelRoot + 0x150, skelRoot);
+    CopyVector(skelRoot + 0xD0, rootDelta);
+    *(int *)(skelRoot + 0x180) = -1;
+    *(WallCfg *)(skelRoot + 0xE0) = cfg;
     return *(MotShift *)&cfg;
 }
 
@@ -1699,18 +1694,18 @@ MotShift rootUpdateTrueMotion(int a0)
     Vec16 v;
     int noMove = a0;
 
-    GetMatrixFromQuaternion(mtx, D_0063C490 + 0x30);
+    GetMatrixFromQuaternion(mtx, skelRoot + 0x30);
     if (noMove == 0) {
-        sceVu0ApplyMatrix((int *)&v, (int)mtx, (char *)D_007201F0);
+        sceVu0ApplyMatrix((int *)&v, (int)mtx, (char *)rootMove);
         v.f[1] = v.f[1] + *(float *)(skelNode + 0x14);
         v.f[0] = v.f[2] = 0.0f;
-        CopyVector(D_0063C490 + 0x10, &v);
+        CopyVector(skelRoot + 0x10, &v);
     } else {
-        CopyVector(D_0063C490 + 0x10, ZeroPoint);
+        CopyVector(skelRoot + 0x10, ZeroPoint);
     }
-    *(int *)(D_0063C490 + 0x180) = -1;
-    *(int *)(D_0063C490 + 0xC0) = 0;
-    CopyVector(D_0063C490 + 0xD0, D_00720210);
+    *(int *)(skelRoot + 0x180) = -1;
+    *(int *)(skelRoot + 0xC0) = 0;
+    CopyVector(skelRoot + 0xD0, rootDelta);
     return InitialObjPointer;
 }
 
@@ -1719,20 +1714,20 @@ MotShift rootUpdateDirectPlayForStream(void)
     float *p;
     int *q;
 
-    SetIdentityQuaternion(D_0063C490 + 0x30);
-    RotQuaternionY(D_0063C490 + 0x30, -32768);
-    CopyVector(D_0063C490, D_007201F0);
-    p = (float *)D_0063C490;
+    SetIdentityQuaternion(skelRoot + 0x30);
+    RotQuaternionY(skelRoot + 0x30, -32768);
+    CopyVector(skelRoot, rootMove);
+    p = (float *)skelRoot;
     p[0] = -p[0];
     p[2] = -p[2];
-    CopyVector(D_0063C490 + 0x150, D_0063C490);
-    CopyVector(D_0063C490 + 0x90, ZeroVector);
-    CopyVector(D_0063C490 + 0x10, ZeroVector);
-    q = (int *)D_0063C490;
+    CopyVector(skelRoot + 0x150, skelRoot);
+    CopyVector(skelRoot + 0x90, ZeroVector);
+    CopyVector(skelRoot + 0x10, ZeroVector);
+    q = (int *)skelRoot;
     q[0x60] = -1;
     q[0x30] = 0;
     AdjustMotionHeightToNearestField((char *)skelGObj);
-    CopyVector(D_0063C490 + 0xD0, D_00720210);
+    CopyVector(skelRoot + 0xD0, rootDelta);
     return InitialObjPointer;
 }
 
@@ -1743,13 +1738,13 @@ MotShift rootUpdateDirectPlay(int a0)
     int *q;
     float s;
 
-    SetIdentityQuaternion(D_0063C490 + 0x30);
-    RotQuaternionY(D_0063C490 + 0x30, -32768);
-    CopyVector(D_0063C490, D_007201F0);
-    p = (float *)D_0063C490;
-    p[0] = p[0] - *(float *)(D_0063C4A8 + 0x124);
-    p[1] = p[1] - *(float *)(D_0063C4A8 + 0x128);
-    p[2] = p[2] + *(float *)(D_0063C4A8 + 0x12C);
+    SetIdentityQuaternion(skelRoot + 0x30);
+    RotQuaternionY(skelRoot + 0x30, -32768);
+    CopyVector(skelRoot, rootMove);
+    p = (float *)skelRoot;
+    p[0] = p[0] - *(float *)(skelMotDef + 0x124);
+    p[1] = p[1] - *(float *)(skelMotDef + 0x128);
+    p[2] = p[2] + *(float *)(skelMotDef + 0x12C);
     if (kind == 14) {
         s = 1.0f / skelScale;
         p[0] = p[0] * -s;
@@ -1759,14 +1754,14 @@ MotShift rootUpdateDirectPlay(int a0)
         p[0] = -p[0];
         p[2] = -p[2];
     }
-    CopyVector(D_0063C490 + 0x150, D_0063C490);
-    CopyVector(D_0063C490 + 0x90, ZeroVector);
-    CopyVector(D_0063C490 + 0x10, ZeroVector);
-    q = (int *)D_0063C490;
+    CopyVector(skelRoot + 0x150, skelRoot);
+    CopyVector(skelRoot + 0x90, ZeroVector);
+    CopyVector(skelRoot + 0x10, ZeroVector);
+    q = (int *)skelRoot;
     q[0x60] = -1;
     q[0x30] = 0;
     AdjustMotionHeightToNearestField((char *)skelGObj);
-    CopyVector(D_0063C490 + 0xD0, D_00720210);
+    CopyVector(skelRoot + 0xD0, rootDelta);
     return InitialObjPointer;
 }
 
@@ -1786,58 +1781,58 @@ MotShift rootUpdateNodeFix(void)
         sceVu0ApplyMatrix((int *)&v, (int)mtx, ZUnitVector);
         v.f[1] = 0.0f;
         sceVu0Normalize(&v, &v);
-        SetIdentityQuaternion(D_0063C490 + 0x30);
-        RotQuaternionY(D_0063C490 + 0x30, -GetTableArcTan2(v.f[0], -v.f[2]));
-        MultiQuaternion(D_0063C490 + 0x30, D_0063C490 + 0x30, D_0063C490 + 0x390);
+        SetIdentityQuaternion(skelRoot + 0x30);
+        RotQuaternionY(skelRoot + 0x30, -GetTableArcTan2(v.f[0], -v.f[2]));
+        MultiQuaternion(skelRoot + 0x30, skelRoot + 0x30, skelRoot + 0x390);
         CopyMatrix((void *)MatrixDrive_GetMatrix(),
-                   *(char **)(*(char **)(*(char **)(D_0063C490 + 0x384) + 0x15C) + 0xC) +
-                       *(int *)(D_0063C490 + 0x388) * 0x40);
-        MatrixDrive_TransMatrixV(D_0063C490 + 0x3A0);
+                   *(char **)(*(char **)(*(char **)(skelRoot + 0x384) + 0x15C) + 0xC) +
+                       *(int *)(skelRoot + 0x388) * 0x40);
+        MatrixDrive_TransMatrixV(skelRoot + 0x3A0);
         UnitRotation(MatrixDrive_GetMatrix());
-        MultiMatrixByQuaternion((char *)D_0063C490 + 0x30);
-        MatrixDrive_TransMatrix(D_007201F0[0], D_007201F0[1], D_007201F0[2]);
-        CopyVector(D_0063C490, (char *)MatrixDrive_GetMatrix() + 0x30);
+        MultiMatrixByQuaternion((char *)skelRoot + 0x30);
+        MatrixDrive_TransMatrix(rootMove[0], rootMove[1], rootMove[2]);
+        CopyVector(skelRoot, (char *)MatrixDrive_GetMatrix() + 0x30);
     }
 
     Vec16 rq;
     Vec16 va;
     Vec16 vb;
 
-    CopyQuaternion(&rq, *(char **)(*(char **)(*(char **)(D_0063C490 + 0x384) + 0x15C) + 0x10) +
-                            *(int *)(D_0063C490 + 0x388) * 0x10);
-    switch (*(unsigned int *)(D_0063C490 + 0x3B4)) {
+    CopyQuaternion(&rq, *(char **)(*(char **)(*(char **)(skelRoot + 0x384) + 0x15C) + 0x10) +
+                            *(int *)(skelRoot + 0x388) * 0x10);
+    switch (*(unsigned int *)(skelRoot + 0x3B4)) {
     default:
     case 0:
-        MultiQuaternion(D_0063C490 + 0x30, &rq, D_0063C490 + 0x390);
+        MultiQuaternion(skelRoot + 0x30, &rq, skelRoot + 0x390);
         CopyMatrix((void *)MatrixDrive_GetMatrix(),
-                   *(char **)(*(char **)(*(char **)(D_0063C490 + 0x384) + 0x15C) + 0xC) +
-                       *(int *)(D_0063C490 + 0x388) * 0x40);
-        MultiMatrixByQuaternion((char *)D_0063C490 + 0x390);
-        MatrixDrive_TransMatrixV(D_0063C490 + 0x3A0);
-        MatrixDrive_TransMatrix(D_007201F0[0], D_007201F0[1], D_007201F0[2]);
-        CopyVector(D_0063C490, (char *)MatrixDrive_GetMatrix() + 0x30);
+                   *(char **)(*(char **)(*(char **)(skelRoot + 0x384) + 0x15C) + 0xC) +
+                       *(int *)(skelRoot + 0x388) * 0x40);
+        MultiMatrixByQuaternion((char *)skelRoot + 0x390);
+        MatrixDrive_TransMatrixV(skelRoot + 0x3A0);
+        MatrixDrive_TransMatrix(rootMove[0], rootMove[1], rootMove[2]);
+        CopyVector(skelRoot, (char *)MatrixDrive_GetMatrix() + 0x30);
         break;
     case 1:
         break;
     case 3:
-        GetRootQuaternion(&rq, *(char **)(D_0063C490 + 0x384));
-        MultiQuaternion(&rq, &rq, *(char **)(*(char **)(D_0063C490 + 0x384) + 0x15C) + 0xE0);
+        GetRootQuaternion(&rq, *(char **)(skelRoot + 0x384));
+        MultiQuaternion(&rq, &rq, *(char **)(*(char **)(skelRoot + 0x384) + 0x15C) + 0xE0);
         /* fall through */
     case 2:
         keepVerticalZWithQ(&rq);
         break;
     }
-    _ScaleVector(&va, D_0063C490 + 0x150, 1.0f - *(float *)(D_0063C490 + 0x3B0));
-    _ScaleVector(&vb, D_0063C490, *(float *)(D_0063C490 + 0x3B0));
-    _AddVector(D_0063C490, &va, &vb);
-    CopyVector(D_0063C490 + 0x150, D_0063C490);
-    CopyVector(D_0063C490 + 0x1B0, D_0063C490);
-    CopyVector(D_0063C490 + 0x90, ZeroVector);
-    CopyVector(D_0063C490 + 0x10, ZeroPoint);
-    CopyVector(D_0063C490 + 0xD0, D_00720210);
-    *(int *)(D_0063C490 + 0x180) = -1;
-    *(int *)(D_0063C490 + 0xC0) = 0;
-    *(int *)(D_0063C494 + 0x188) = 0;
+    _ScaleVector(&va, skelRoot + 0x150, 1.0f - *(float *)(skelRoot + 0x3B0));
+    _ScaleVector(&vb, skelRoot, *(float *)(skelRoot + 0x3B0));
+    _AddVector(skelRoot, &va, &vb);
+    CopyVector(skelRoot + 0x150, skelRoot);
+    CopyVector(skelRoot + 0x1B0, skelRoot);
+    CopyVector(skelRoot + 0x90, ZeroVector);
+    CopyVector(skelRoot + 0x10, ZeroPoint);
+    CopyVector(skelRoot + 0xD0, rootDelta);
+    *(int *)(skelRoot + 0x180) = -1;
+    *(int *)(skelRoot + 0xC0) = 0;
+    *(int *)(skelMotCtrl + 0x188) = 0;
     return InitialObjPointer;
 }
 
@@ -1857,15 +1852,15 @@ MotShift rootUpdateY(void)
     float d;
     int i;
 
-    GetMatrixFromQuaternion(mtx, D_0063C490 + 0x30);
-    sceVu0ApplyMatrix((int *)&mv, (int)mtx, (char *)D_007201F0);
-    sceVu0ApplyMatrix((int *)&mv2, (int)mtx, (char *)D_00720200);
+    GetMatrixFromQuaternion(mtx, skelRoot + 0x30);
+    sceVu0ApplyMatrix((int *)&mv, (int)mtx, (char *)rootMove);
+    sceVu0ApplyMatrix((int *)&mv2, (int)mtx, (char *)rootStep);
 
-    CopyVector(D_0063C490 + 0x90, &mv2);
-    sceVu0AddVector(D_0063C490, D_0063C490, D_0063C490 + 0x90);
-    CopyVector(D_0063C490 + 0x1B0, D_0063C490);
+    CopyVector(skelRoot + 0x90, &mv2);
+    sceVu0AddVector(skelRoot, skelRoot, skelRoot + 0x90);
+    CopyVector(skelRoot + 0x1B0, skelRoot);
 
-    GetPureVerticalPlane(0, vp, (float *)corner, (int *)(D_0063C490 + 0xE0), 0);
+    GetPureVerticalPlane(0, vp, (float *)corner, (int *)(skelRoot + 0xE0), 0);
     CopyVector(plane, vp);
     plane[3] = 0.0f;
 
@@ -1875,23 +1870,23 @@ MotShift rootUpdateY(void)
         AddVectorXYZ(&center, &center, &corner[i]);
     }
     sceVu0ScaleVector(&center, &center, 0.25f);
-    *(float *)(D_0063C490 + 0) = center.f[0];
-    *(float *)(D_0063C490 + 8) = center.f[2];
-    *(float *)(D_0063C490 + 0) = *(float *)(D_0063C490 + 0) + mv.f[0];
-    *(float *)(D_0063C490 + 8) = *(float *)(D_0063C490 + 8) + mv.f[2];
+    *(float *)(skelRoot + 0) = center.f[0];
+    *(float *)(skelRoot + 8) = center.f[2];
+    *(float *)(skelRoot + 0) = *(float *)(skelRoot + 0) + mv.f[0];
+    *(float *)(skelRoot + 8) = *(float *)(skelRoot + 8) + mv.f[2];
 
-    CopyVector(&pos, D_0063C490);
-    pos.f[1] = pos.f[1] - D_007201F0[1];
+    CopyVector(&pos, skelRoot);
+    pos.f[1] = pos.f[1] - rootMove[1];
     d = GetDistanceFromPlane(vp, &pos);
-    sceVu0ScaleVector(&push, vp, -d - D_007201F0[2]);
+    sceVu0ScaleVector(&push, vp, -d - rootMove[2]);
     AddVectorXYZ(&pos, &pos, &push);
     pos.f[3] = 1.0f;
-    CopyVector(D_0063C490, &pos);
-    *(float *)(D_0063C490 + 4) = *(float *)(D_0063C490 + 4) + D_007201F0[1];
-    sceVu0ScaleVectorXYZ(D_0063C494 + 0xB0, plane, -1.0f);
+    CopyVector(skelRoot, &pos);
+    *(float *)(skelRoot + 4) = *(float *)(skelRoot + 4) + rootMove[1];
+    sceVu0ScaleVectorXYZ(skelMotCtrl + 0xB0, plane, -1.0f);
 
-    if (*(int *)(D_0063C490 + 0x314) != 0) {
-        float t = *(float *)(D_0063C490 + 4) - mv.f[1];
+    if (*(int *)(skelRoot + 0x314) != 0) {
+        float t = *(float *)(skelRoot + 4) - mv.f[1];
         float e;
 
         t = t - (float)((int)(t / 50.0f) * 50);
@@ -1900,34 +1895,34 @@ MotShift rootUpdateY(void)
         }
         if (t > 25.0f) {
             e = 50.0f - t;
-            *(float *)(D_0063C490 + 4) = *(float *)(D_0063C490 + 4) + e;
+            *(float *)(skelRoot + 4) = *(float *)(skelRoot + 4) + e;
         } else {
-            *(float *)(D_0063C490 + 4) = *(float *)(D_0063C490 + 4) - t;
+            *(float *)(skelRoot + 4) = *(float *)(skelRoot + 4) - t;
         }
     }
 
     getFieldCollision((char *)&w);
-    CopyVector(D_0063C490 + 0x130, (char *)&w + 0xA0);
+    CopyVector(skelRoot + 0x130, (char *)&w + 0xA0);
     clipWallAhead(&cw);
     if (*(int *)((char *)&cw + 0x88) != 0) {
         WallCfg rec = {((WallCfg *)((char *)&cw + 0x80))->o, ((WallCfg *)((char *)&cw + 0x80))->n};
 
-        *(WallCfg *)(D_0063C490 + 0x100) = rec;
+        *(WallCfg *)(skelRoot + 0x100) = rec;
     }
 
     MatrixDrive_PushMatrix();
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-    MatrixDrive_TransMatrix(*(float *)(D_0063C490 + 0), *(float *)(D_0063C490 + 4) + 100.0f,
-                            *(float *)(D_0063C490 + 8));
-    MultiMatrixByQuaternion(D_0063C490 + 0x30);
+    MatrixDrive_TransMatrix(*(float *)(skelRoot + 0), *(float *)(skelRoot + 4) + 100.0f,
+                            *(float *)(skelRoot + 8));
+    MultiMatrixByQuaternion(skelRoot + 0x30);
     checkWallState(2);
     MatrixDrive_PopMatrix();
 
-    CopyVector(D_0063C490 + 0x150, D_0063C490);
-    CopyVector(D_0063C490 + 0xD0, D_00720210);
-    CopyVector(D_0063C490 + 0x10, ZeroVector);
-    *(int *)(D_0063C490 + 0x180) = -1;
-    return *(MotShift *)(D_0063C490 + 0xE0);
+    CopyVector(skelRoot + 0x150, skelRoot);
+    CopyVector(skelRoot + 0xD0, rootDelta);
+    CopyVector(skelRoot + 0x10, ZeroVector);
+    *(int *)(skelRoot + 0x180) = -1;
+    return *(MotShift *)(skelRoot + 0xE0);
 }
 
 /* The parameter is unused: the ROM overwrites $4 with the first load. */
@@ -1941,39 +1936,39 @@ MotShift rootUpdateY_Rope(int a0)
     float save;
     int mode;
 
-    CopyVector(D_0063C490 + 0x1B0, D_0063C490);
-    mode = *(int *)(D_0063C490 + 0x380);
+    CopyVector(skelRoot + 0x1B0, skelRoot);
+    mode = *(int *)(skelRoot + 0x380);
     if (mode >= 2) {
-        GetMatrixFromQuaternion(mtx, D_0063C490 + 0x30);
-        sceVu0ApplyMatrix((int *)&dir, (int)mtx, (char *)D_007201F0);
-        sceVu0AddVector(&pos, D_0063C490 + 0x370, &dir);
-        *(float *)D_0063C490 = pos.f[0];
-        *(float *)(D_0063C490 + 8) = pos.f[2];
+        GetMatrixFromQuaternion(mtx, skelRoot + 0x30);
+        sceVu0ApplyMatrix((int *)&dir, (int)mtx, (char *)rootMove);
+        sceVu0AddVector(&pos, skelRoot + 0x370, &dir);
+        *(float *)skelRoot = pos.f[0];
+        *(float *)(skelRoot + 8) = pos.f[2];
     } else if (mode != 0) {
         int node = GetSkeltonFocusNode((char *)skelGObj, 22);
 
-        v.f[0] = *(float *)D_0063C490;
-        v.f[1] = *(float *)(D_0063C490 + 4);
-        v.f[2] = *(float *)(D_0063C490 + 8);
-        _SubVector(D_0063C490, D_0063C490 + 0x370, D_0063C488 + node * 0x10);
-        if (*(int *)(D_0063C490 + 0x380) < 0) {
-            _InterGV(D_0063C490, &v, D_0063C490, ropeInterRate, 1.0f);
+        v.f[0] = *(float *)skelRoot;
+        v.f[1] = *(float *)(skelRoot + 4);
+        v.f[2] = *(float *)(skelRoot + 8);
+        _SubVector(skelRoot, skelRoot + 0x370, nodePos2 + node * 0x10);
+        if (*(int *)(skelRoot + 0x380) < 0) {
+            _InterGV(skelRoot, &v, skelRoot, ropeInterRate, 1.0f);
         }
     }
-    save = *(float *)(D_0063C490 + 0x338);
-    CopyVector(&cur, D_0063C490);
-    CopyVector(&v, D_0063C490 + 0x150);
-    *(float *)(D_0063C490 + 0x338) = 60.0f;
+    save = *(float *)(skelRoot + 0x338);
+    CopyVector(&cur, skelRoot);
+    CopyVector(&v, skelRoot + 0x150);
+    *(float *)(skelRoot + 0x338) = 60.0f;
     wallCollisionAndFloorFit((char *)&cur, (char *)&v, 5.0f);
-    *(float *)(D_0063C490 + 0x338) = save;
+    *(float *)(skelRoot + 0x338) = save;
     /* 0xEC is the float landingFieldAction and rootUpdateFly write. */
-    *(float *)(D_0063C494 + 0xEC) = 0.0f;
-    *(int *)(D_0063C490 + 0xC0) = 0;
-    SubVectorXYZ(D_0063C490 + 0x90, D_0063C490, D_0063C490 + 0x150);
-    CopyVector(D_0063C490 + 0x10, ZeroPoint);
-    CopyVector(D_0063C490 + 0x1B0, D_0063C490);
-    CopyVector(D_0063C490 + 0x150, D_0063C490);
-    *(int *)(D_0063C490 + 0x180) = -1;
+    *(float *)(skelMotCtrl + 0xEC) = 0.0f;
+    *(int *)(skelRoot + 0xC0) = 0;
+    SubVectorXYZ(skelRoot + 0x90, skelRoot, skelRoot + 0x150);
+    CopyVector(skelRoot + 0x10, ZeroPoint);
+    CopyVector(skelRoot + 0x1B0, skelRoot);
+    CopyVector(skelRoot + 0x150, skelRoot);
+    *(int *)(skelRoot + 0x180) = -1;
     return InitialObjPointer;
 }
 
@@ -1985,28 +1980,28 @@ MotShift rootUpdateFly(void)
     float h;
     float d;
 
-    *(int *)(D_0063C494 + 0x188) = 0;
+    *(int *)(skelMotCtrl + 0x188) = 0;
     contact = getFlyFieldCollision(w);
     switch (contact) {
     case 1:
-        *(int *)(D_0063C494 + 0x14) |= 8;
-        h = *(float *)(D_0063C490 + 0x1B4);
-        CopyVector(D_0063C490 + 0x130, w + 0xA0);
-        d = GetYProjectionOfPlane((int)(w + 0xA0), (int)D_0063C490);
+        *(int *)(skelMotCtrl + 0x14) |= 8;
+        h = *(float *)(skelRoot + 0x1B4);
+        CopyVector(skelRoot + 0x130, w + 0xA0);
+        d = GetYProjectionOfPlane((int)(w + 0xA0), (int)skelRoot);
         d = d - h;
-        *(float *)(D_0063C494 + 0xEC) = d;
+        *(float *)(skelMotCtrl + 0xEC) = d;
         break;
     case 2:
         markPoolContact(w);
         break;
     }
     wallCollisionAndReact(*(float *)(skelNode + 0x14));
-    *(int *)(D_0063C490 + 0xC0) = 0;
-    SubVectorXYZ(D_0063C490 + 0x90, D_0063C490, D_0063C490 + 0x150);
-    CopyVector(D_0063C490 + 0x10, ZeroPoint);
-    CopyVector(D_0063C490 + 0x90, ZeroVector);
-    CopyVector(D_0063C490 + 0x150, D_0063C490);
-    *(int *)(D_0063C490 + 0x180) = -1;
+    *(int *)(skelRoot + 0xC0) = 0;
+    SubVectorXYZ(skelRoot + 0x90, skelRoot, skelRoot + 0x150);
+    CopyVector(skelRoot + 0x10, ZeroPoint);
+    CopyVector(skelRoot + 0x90, ZeroVector);
+    CopyVector(skelRoot + 0x150, skelRoot);
+    *(int *)(skelRoot + 0x180) = -1;
     return shift;
 }
 
@@ -2016,26 +2011,26 @@ MotShift rootUpdateEnemyFly(void)
     char w[0xC0];
     int contact;
 
-    AddVectorXYZ(D_0063C490, D_0063C490, D_0063C490 + 0x90);
+    AddVectorXYZ(skelRoot, skelRoot, skelRoot + 0x90);
     if (*(int *)((int)GOBJ_SUB(skelGObj) + 0x654) == 0) {
         wallCollisionAndReact(0.0f);
         contact = getFlyFieldCollision(w);
         switch (contact) {
         case 1:
-            CopyVector(D_0063C490 + 0x1B0, D_0063C490);
-            *(float *)(D_0063C494 + 0xEC) = 0.0f;
-            CopyVector(D_0063C490 + 0x130, w + 0xA0);
-            *(int *)(D_0063C494 + 0x14) |= 8;
+            CopyVector(skelRoot + 0x1B0, skelRoot);
+            *(float *)(skelMotCtrl + 0xEC) = 0.0f;
+            CopyVector(skelRoot + 0x130, w + 0xA0);
+            *(int *)(skelMotCtrl + 0x14) |= 8;
             break;
         case 2:
             markPoolContact(w);
             break;
         }
     }
-    *(int *)(D_0063C490 + 0xC0) = 0;
-    SubVectorXYZ(D_0063C490 + 0x90, D_0063C490, D_0063C490 + 0x150);
-    CopyVector(D_0063C490 + 0x10, ZeroPoint);
-    CopyVector(D_0063C490 + 0x150, D_0063C490);
-    *(int *)(D_0063C490 + 0x180) = -1;
+    *(int *)(skelRoot + 0xC0) = 0;
+    SubVectorXYZ(skelRoot + 0x90, skelRoot, skelRoot + 0x150);
+    CopyVector(skelRoot + 0x10, ZeroPoint);
+    CopyVector(skelRoot + 0x150, skelRoot);
+    *(int *)(skelRoot + 0x180) = -1;
     return shift;
 }

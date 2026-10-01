@@ -16,9 +16,9 @@
 #include "ios.h"
 
 /* .data, carved VMA 0x4EE5B0..0x4EE5F0, bytes verified against
-   baserom/pal/baseelf.rom.  D_004EE5B0 is the 0x30-byte default record
+   baserom/pal/baseelf.rom.  bgaAnimDefault is the 0x30-byte default record
    bga_InitData block-copies into its mallocseki() allocation (two
-   (0,0,0,1.0f) vectors then four words); D_004EE5E0 is the (0,0,0,1.0f)
+   (0,0,0,1.0f) vectors then four words); bgaParticlePos is the (0,0,0,1.0f)
    position vector bga_ApplyDObject hands to
    SetParticleEffectActiveSensing. */
 typedef struct BgaAnimDefault {
@@ -30,11 +30,12 @@ typedef struct BgaAnimDefault {
     /* 0x2C */ int f2C;
 } BgaAnimDefault;
 
-BgaAnimDefault D_004EE5B0 = {
+static BgaAnimDefault bgaAnimDefault = {
+    /* derived name */
     {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 0, -1, 1, 0,
 };
 
-float D_004EE5E0[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+static float bgaParticlePos[4] = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
 struct BgaLightEnv;
 
@@ -204,7 +205,7 @@ char *bga_InitData(char *p)
     *(int *)(p + 0xC) += (int)p;
     p[0xA] = -1;
     *(BgaAnimDefault **)(p + 0x24) = (BgaAnimDefault *)mallocseki(sizeof(BgaAnimDefault));
-    **(BgaAnimDefault **)(p + 0x24) = D_004EE5B0;
+    **(BgaAnimDefault **)(p + 0x24) = bgaAnimDefault;
     d = (BgaDObjEnt *)*(int *)(p + 0xC);
     while (1) {
         d->f34 += (int)p;
@@ -436,7 +437,7 @@ void bga_ApplyDObject(BgaDObjEnt *p, void **objs, int n, int no)
                 GetParticleLoopFlag(((BgaParticleEnt *)p->u.obj)->u.b.id);
             if (((BgaParticleEnt *)p->u.obj)->u.b.loop) {
                 ((BgaParticleEnt *)p->u.obj)->u.b.eff = SetParticleEffectActiveSensing(
-                    ((BgaParticleEnt *)p->u.obj)->u.b.id, D_004EE5E0, IdentityQuaternion);
+                    ((BgaParticleEnt *)p->u.obj)->u.b.id, bgaParticlePos, IdentityQuaternion);
             } else {
                 ((BgaParticleEnt *)p->u.obj)->u.b.eff = -1;
             }

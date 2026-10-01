@@ -33,9 +33,9 @@ MvVoBuf voBuf = {0};
 
 /* the movie's display environment: the five GS privileged registers
    sceGsSetDefDispEnv fills (sce/libgraph/graph009.c's sceGsDispEnv) and the
-   six words mv_disp.c's setDispEnv keeps after them.  MAIN.MAP calls this
-   object `display`; the name has to wait, because ico2/common/src/debug_
-   exception's still-asm `display` stub emits a global of that name. */
+   six words mv_disp.c's setDispEnv keeps after them.  MAIN.MAP's name;
+   debug_exception's `display` routine, absent from MAIN.MAP, is that TU's
+   file static. */
 typedef struct {
     long long pmode;   /* 0x00 */
     long long smode2;  /* 0x08 */
@@ -50,7 +50,7 @@ typedef struct {
     int f3C;           /* 0x3C */
 } MvDispEnv;
 
-MvDispEnv D_002A7978 = {0};
+MvDispEnv display = {0};
 
 /* .sbss, owned by mv_main.o (MAIN.MAP names no symbol in the run), in the ROM's
    run order: the two callback argument pairs videoDecSetStream is handed by
@@ -313,8 +313,8 @@ int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
     videoDec[0xC0 / 4] = -1;
     decThreadStarted = 0;
 
-    dispCreate(&D_002A7978, a1, a2, a3, p4);
-    dispClear(&D_002A7978, p7);
+    dispCreate(&display, a1, a2, a3, p4);
+    dispClear(&display, p7);
 
     savedDmaCtrl = *D_CTRL;
     debug_StdPrintfDummy("D_CTRL %x\n", *D_CTRL);
@@ -362,7 +362,7 @@ int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
     debug_StdPrintfDummy("start thread\n");
 
     decThreadArg.dec = videoDec;
-    decThreadArg.disp = &D_002A7978;
+    decThreadArg.disp = &display;
     decThreadArg.vo = &voBuf;
     StartThread(decThreadId, &decThreadArg);
     decThreadStarted = 1;
@@ -415,7 +415,7 @@ void termAll(void)
     voBufDelete(&voBuf);
     videoDecDelete(videoDec);
     audioDecDelete(&audioDec);
-    dispDelete(&D_002A7978);
+    dispDelete(&display);
     *D_CTRL = savedDmaCtrl;
 }
 
@@ -467,7 +467,7 @@ void movie_end(void)
     unsigned int i;
     unsigned int j;
 
-    dispClear(&D_002A7978, 0x80000000);
+    dispClear(&display, 0x80000000);
     termAll();
     DIntr();
     debug_StdPrintfDummy("sceGsGetIMR() %lx\n", sceGsGetIMR());

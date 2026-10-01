@@ -745,15 +745,15 @@ static const unsigned int regSpecularPacket[5][4] __attribute__((aligned(16))) =
     {0x48, 0x80, 0x42, 0}, {0x15000000, 0, 0, 0},
 };
 
-/* This helper has NO NAME IN THE DISC MAPS, so it keeps the placeholder on
-   purpose.  The retail object out-of-lines it and tail-calls it from all six
+/* This helper has NO NAME IN THE DISC MAPS, so the name is ours, from what it
+   draws (the specular pass).  The retail object out-of-lines it and tail-calls it from all six
    reg_disp* functions; the January listing inlines the same block at every site
    (it cites RegistPacket.c lines 1290-1313 inside reg_dispCObj) and so gives it
    no label, and MAIN.MAP has no global for it.  A helper the map does not export
    is a file static, which is what it is here.  Every other function of the TU
    aligns one-to-one with the listing around it, between reg_setCMatrixPacket and
    reg_transMaterialPacket. */
-static void func_00121428(char *a0, int a1, int a2)
+static void reg_dispSpecular(char *a0, int a1, int a2) /* derived name */
 {
     short h;
     dl_SetDLPriority(4);
@@ -874,7 +874,7 @@ static inline void regTransTexturePacket(int tex, int pri)
 
 /* ===== su-a sweep begin ===== */
 
-static void func_00121428(char *pkt, int r, int c);
+static void reg_dispSpecular(char *pkt, int r, int c);
 
 /* The GS state the reflection pass draws in: a VIF DIRECT of four qwords, a
    GIF A+D tag with CLAMP_1, PABE and ALPHA_1, then the VIF MSCNT; qword aligned because
@@ -978,7 +978,7 @@ void reg_dispNObj(char *o)
                         dl_CloseDma();
                         if (*(int *)(*(char **)(o + 0x874) + 0xF0) == 2) {
                             if (*(short *)(pkt + 0x86) != -1) {
-                                func_00121428(pkt, r, 0);
+                                reg_dispSpecular(pkt, r, 0);
                             }
                         }
                         mode = *(int *)(*(char **)(o + 0x874) + 0xF0);
@@ -1098,7 +1098,7 @@ void reg_dispMObj(char *o)
                         dl_CloseDma();
                         if (*(int *)(*(char **)(o + 0x874) + 0xF0) == 2) {
                             if (*(short *)(pkt + 0x86) != -1) {
-                                func_00121428(pkt, r, 0);
+                                reg_dispSpecular(pkt, r, 0);
                             }
                         }
                         mode = *(int *)(*(char **)(o + 0x874) + 0xF0);
@@ -1169,7 +1169,7 @@ void reg_dispSObj(char *o, int idx)
                 dl_CloseDma();
                 if (*(int *)(*(char **)(o + 0x874) + 0xF0) == 2) {
                     if (*(short *)(pkt + 0x86) != -1) {
-                        func_00121428(pkt, r, 0);
+                        reg_dispSpecular(pkt, r, 0);
                     }
                 }
                 mode = *(int *)(*(char **)(o + 0x874) + 0xF0);
@@ -1237,7 +1237,7 @@ void reg_dispCObj(char *o)
             dl_CloseDma();
             if (debug_specular_flag == 2 && *(int *)(*(char **)(o + 0x874) + 0xF0) == 2) {
                 if (*(short *)(pkt + 0x86) != -1) {
-                    func_00121428(pkt, 0, 1);
+                    reg_dispSpecular(pkt, 0, 1);
                 }
             }
             pkt = *(char **)(pkt + 0x94);
@@ -1749,7 +1749,7 @@ void reg_DispAccessoryWithShadow(char *o, char *src)
                         dl_CloseDma();
                         if (*(int *)(*(char **)(o + 0x874) + 0xF0) == 2) {
                             if (*(short *)(pkt + 0x86) != -1) {
-                                func_00121428(pkt, r, 0);
+                                reg_dispSpecular(pkt, r, 0);
                             }
                         }
                         mode = *(int *)(*(char **)(o + 0x874) + 0xF0);
@@ -2017,7 +2017,7 @@ void reg_DispMultiPri(char *o, int pri)
                     dl_CloseDma();
                     if (*(int *)(*(char **)(o + 0x874) + 0xF0) == 2) {
                         if (*(short *)(pkt + 0x86) != -1) {
-                            func_00121428(pkt, r, 0);
+                            reg_dispSpecular(pkt, r, 0);
                         }
                     }
                     mode = *(int *)(*(char **)(o + 0x874) + 0xF0);

@@ -1297,24 +1297,23 @@ void DispCloth4DWithAdd(int *a0, void *a1, void *a2)
     }
 }
 
-/* The rest of the TU's .data run, reached only by the three stubs below and
-   so non-static under these names until they land (the stubs' placeholders:
-   windNoise D_004E6F40, clothUpVector D_004E6FF0, clothDownVector D_004E7000,
-   cylinderColor D_004E7010, procMatrix D_004E7020).  windNoise is the ring of
+/* The rest of the TU's .data run; MAIN.MAP names nothing in clothAnimation.o's
+   .data, so these are file statics and every name is ours.  windNoise is the ring of
    eleven random wind vectors getCloth4D_preProcess fills and cycles through
    (its wrap is `== 11`), explicitly zeroed so it lives in .data; the up and
    down vectors are what getCloth4D applies the node matrix to; cylinderColor
    is its debug wire cylinder's colour; procMatrix is the matrix the nested
    proc applies (what it means is not read off the bytes: the name is ours). */
-sceVu0FVECTOR windNoise[11] = {{0.0f, 0.0f, 0.0f, 0.0f}};
+static sceVu0FVECTOR windNoise[11] = {{0.0f, 0.0f, 0.0f, 0.0f}}; /* derived name */
 
-sceVu0FVECTOR clothUpVector = {0.0f, 1.0f, 0.0f, 0.0f};
+static sceVu0FVECTOR clothUpVector = {0.0f, 1.0f, 0.0f, 0.0f}; /* derived name */
 
-sceVu0FVECTOR clothDownVector = {0.0f, -1.0f, 0.0f, 0.0f};
+static sceVu0FVECTOR clothDownVector = {0.0f, -1.0f, 0.0f, 0.0f}; /* derived name */
 
-int cylinderColor[4] = {32, 64, 128, 128};
+static int cylinderColor[4] = {32, 64, 128, 128}; /* derived name */
 
-sceVu0FMATRIX procMatrix = {
+static sceVu0FMATRIX procMatrix = {
+    /* derived name */
     {1.0f, 0.0f, 1.0f, 0.0f},
     {0.0f, 1.0f, 0.0f, 0.0f},
     {1.0f, 0.0f, 1.0f, 0.0f},

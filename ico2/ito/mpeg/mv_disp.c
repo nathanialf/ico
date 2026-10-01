@@ -249,7 +249,8 @@ void dispSwitch(int *a0, int flag)
     return sceGsPutDispEnv(a0);
 }
 
-extern int D_002A7978[];
+/* kept local: mv_main.c's MvDispEnv is private to that TU; this TU reads it as words */
+extern int display[];
 
 int vblankHandler(void)
 {
@@ -271,11 +272,11 @@ int vblankHandler(void)
                 return 0;
             }
             if (*(volatile int *)&D_0063C0C0 == 0 && tag[0] == 2) {
-                dispSwitch(D_002A7978, 0);
+                dispSwitch(display, 0);
                 loadImage((int)tag + 0x26740);
                 tag[0] = 1;
             } else if (*(volatile int *)&D_0063C0C0 != 0 && (st = tag[0]) == 1) {
-                dispSwitch(D_002A7978, 1);
+                dispSwitch(display, 1);
                 loadImage((int)tag + 0x40);
                 tag[0] = 0;
                 *(volatile int *)&D_0063C0BC = st;
