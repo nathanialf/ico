@@ -238,20 +238,9 @@ _kDebugException:
 /* The member's .bss (MAIN.MAP tlbtrap.o 0x122C, 64-byte aligned there): the
    handlers' 0x1000-byte stack, whose top is the register save area the
    entries store the 32 GPRs into, then HI, HI1, LO, LO1, SA and the EPC.
-   Local in the source, declared .globl below.  This tree's SDK assembler
-   writes a .symtab whose sh_info omits a local symbol that is not a
-   section symbol; the period linker (ld 2.10) reads such an object and
-   keeps the symbols local, while a modern ld refuses it.  The .globl
-   lines date from the earlier link with a modern ld. */
+   All local: MAIN.MAP names no global in tlbtrap.o's .bss. */
 	.bss
 	.align	6
-	.globl	_tlbSaveGpr
-	.globl	_tlbSaveHi
-	.globl	_tlbSaveHi1
-	.globl	_tlbSaveLo
-	.globl	_tlbSaveLo1
-	.globl	_tlbSaveSa
-	.globl	_tlbSaveEpc
 	.space	0x1000
 _tlbSaveGpr:	/* derived name */
 	.space	32 * 16

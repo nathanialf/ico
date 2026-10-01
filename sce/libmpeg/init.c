@@ -49,16 +49,35 @@ MpegHandle *_theSceMpeg = 0;
 
 int _bsDatap = 0;
 
+/* kept local: var.o's _mbcont (sce/libmpeg/libmpeg_internal.h's MCState) as
+   this member declares it, only the words _clearOnce sets: the first
+   record's two scratchpad areas as ints, the second record's as pointers,
+   and the current-record index as a float.  MAIN.MAP lists init.o and mpc.o
+   as separate members, and the types of these stores prove the two views:
+   the index store is a single-precision move of 0.0, and the second
+   record's stores fall in an alias set apart from the first record's int
+   stores (with one record type for both, sched2 orders the five stores
+   differently). */
+extern struct mbcontInit { /* derived name */
+    int refBuf0;           /* 0x000 */
+    int ipuBuf0;           /* 0x004 */
+    int rest0[78];         /* 0x008 */
+    void *refBuf1;         /* 0x140 */
+    void *ipuBuf1;         /* 0x144 */
+    int rest1[78];         /* 0x148 */
+    float cur;             /* 0x280 */
+} _mbcont;
+
 void _clearOnce(void)
 {
     int v;
     _ipuSetMPEG1(1);
     v = sprBase;
-    _mbcont[0] = v;
-    _mbcont[1] = v + 0x1800;
-    *(void **)&_mbcont[0x50] = (void *)(v + 0x1B00);
-    *(void **)&_mbcont[0x51] = (void *)(v + 0x3300);
-    *(float *)((char *)_mbcont + 0x280) = 0.0f;
+    _mbcont.refBuf0 = v;
+    _mbcont.ipuBuf0 = v + 0x1800;
+    _mbcont.refBuf1 = (void *)(v + 0x1B00);
+    _mbcont.ipuBuf1 = (void *)(v + 0x3300);
+    _mbcont.cur = 0.0f;
 }
 
 /* kept local: libipu.h declares sceIpuSync(int); this member passes two arguments */

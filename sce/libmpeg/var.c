@@ -231,7 +231,7 @@ int _refBot1[26] = {0};
 
 int _refBot2[26] = {0};
 
-int _mbcont[162] = {0};
+MCState _mbcont = {0};
 
 int _isOutputPicture = 0;
 

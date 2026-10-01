@@ -73,8 +73,8 @@ extern int *_curBot;
 extern int *_curFrame;
 extern int *_curTop;
 
-int _decMB0(int *mb_type, int *motion_type, int *dct_type, int PMV[2][2][2],
-            int mv_field_sel[2][2], int *dmvector);
+int _decMB0(int *mb_type, int *motion_type, int *dct_type, int PMV[2][2][2], int mv_field_sel[2][2],
+            int *dmvector);
 
 int _decPicture(int a0, int a1);
 int _decodeOrSkip(int a0, int a1, int a2);
@@ -100,8 +100,10 @@ void _extrainfo(void);
 extern int _f_code[2][2];
 extern int _field_sequence;
 void _flushBuf(int a0);
+
 void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_field_sel,
                  int *dmvector);
+
 extern int *_forwBot;
 extern int *_forwFrame;
 extern int *_forwTop;
@@ -116,8 +118,10 @@ extern int _full_pel_backward_vector;
 extern int _full_pel_forward_vector;
 void _getPtsDtsFlags(int *img, void *a1, void *a2, void *a3);
 int _getpic(int a0);
+
 void _getRef0(int *img, int lineOff, int predIdx, int yoff, int h, int x, int y, int mvx, int mvy,
               int fld, int avg);
+
 void _groupOfPicturesHeader(void);
 extern long long _headerDts;
 extern long long _headerPts;
@@ -148,12 +152,59 @@ int _markOutput(void);
 extern int _matrix_coefficients;
 extern int _maxval;
 int _mbAddressIncrement(void);
-extern int _mbcont[];
+
+/* one reference's copy descriptor, the argument a lumaCopy or chromaCopy
+ * routine takes: where the prediction goes, the horizontal fraction, the rows
+ * read from the first and the second source block, the source row step and
+ * the two source blocks (the second is the next block down) */
+typedef struct { /* derived name */
+    void *dst;   /* 0x00 */
+    int xoff;    /* 0x04 */
+    int rows0;   /* 0x08 */
+    int rows1;   /* 0x0C */
+    int stride;  /* 0x10 */
+    void *src0;  /* 0x14 */
+    void *src1;  /* 0x18 */
+} MCRefDesc;
+
+/* one macroblock's motion-compensation record, 0x140 bytes: _motionComp0 sets
+ * the flags and the destination, _getRef0 appends one reference per call
+ * (the two source addresses DMA'd into refBuf, the copy routines and their
+ * descriptors), _decMB0 has the IPU write its output (the intra block or the
+ * residual) into ipuBuf and _doMC finishes it.  Every field name is ours. */
+typedef struct {           /* derived name */
+    int refBuf;            /* 0x000 scratchpad area the references land in */
+    int ipuBuf;            /* 0x004 scratchpad area the IPU writes into */
+    void *srcAddr[2][4];   /* 0x008 */
+    void (*lumaFn[4])();   /* 0x028 */
+    void (*chromaFn[4])(); /* 0x038 */
+    MCRefDesc luma[4];     /* 0x048 */
+    MCRefDesc chroma[4];   /* 0x0B8 */
+    void *dst;             /* 0x128 */
+    int count;             /* 0x12C */
+    int intra;             /* 0x130 */
+    int coded;             /* 0x134 */
+    int busy;              /* 0x138 the reference DMA is under way */
+    int skip;              /* 0x13C no residual: the prediction is the block */
+} MCRecord;
+
+/* var.o's _mbcont, as var.c defines it and mpc.c declares it: two records,
+ * double-buffered (one is filled while the other is finished), and the
+ * index of the current one.  init.c declares its own view. */
+typedef struct {     /* derived name */
+    MCRecord rec[2]; /* 0x000 */
+    int cur;         /* 0x280 */
+    int aux;         /* 0x284 zeroed beside cur, read by no member */
+} MCState;
+
 int _motionComp0(int a0, int a1, int a2, int a3, int *PMV, int *mv_field_sel, int *dmvector);
+
 void _motionVector(int *PMV, int *dmvector, int h_r_size, int v_r_size, int dmv, int mvscale,
                    int full_pel);
+
 void _motionVectors(int PMV[2][2][2], int *dmvector, int mv_field_sel[2][2], int s, int mv_count,
                     int mv_format, int h_r_size, int v_r_size, int dmv, int mvscale);
+
 unsigned int _nextBit(int a0);
 int _nextHeader(void);
 void _nextStartCode(void);

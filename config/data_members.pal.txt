@@ -66,7 +66,7 @@ data tex-property 0x30cff8 0x318eb8 texProperty@0x0
 # weapon-def: C:attackhit.c WeaponKindEntry D_00318EB8 (0x24 rows x10 end exactly at DObj); MAP puts weapon-def in .rodata. ROM span 0x168 != MAIN.MAP 0x120 (+72 B); MAIN.MAP section .rodata
 data weapon-def 0x318eb8 0x319020 weaponKind@0x0
 
-# ---- .data: after 0x4e4610, before 0x4e5520 (a_p_1 .data (still in blob cod/3E4610))
+# ---- .data: after 0x4e4610, before 0x4e5520 (a_p_1 .data (C))
 # staffroll_dat: C:staffroll.c staffRollNameData (symbol_addrs); a_p_1 .data = its map size 0x510 back from act_a_p_1 0x4e5a30. ROM span 0xf10 != MAIN.MAP 0x10c8 (-440 B); the last 9 B are zero (fill or table tail)
 data staffroll_dat 0x4e4610 0x4e5520 staffRollNameData@0x0
 
@@ -125,7 +125,7 @@ rodata motion-ik-eff-def 0x5d1208 0x5d1278 motionIKEffKind@0x0
 rodata motion-orient-def 0x5d1278 0x5d3b58 motionOriKind@0x0
 
 # ---- .rodata: after 0x5d3b58, before 0x5d3ce8 (motion-random-def bytes are C today)
-# motion-random-def: C:act-parallel-control.c static actPara_MakeTblTbl[100] (yaml C row 0x4D3B58); ends where movieFile starts. ROM span 0x190 != MAIN.MAP 0x128 (+104 B)
+# motion-random-def: C:act-parallel-control.c static actPara_MakeTblTbl[100]; ends where movieFile starts. ROM span 0x190 != MAIN.MAP 0x128 (+104 B)
 rodata motion-random-def 0x5d3b58 0x5d3ce8 randomMotionKind@0x0
 
 # ---- .rodata: after 0x5d3ce8, before 0x618f30 (DObj.o .rodata (C))
@@ -189,7 +189,7 @@ rodata motion-se-condition-def 0x626f28 0x627910 motSECondKind@0x0
 rodata motion-se-random-def 0x627910 0x629d08 randomSEKind@0x0
 
 # ---- .rodata: after 0x629d08, before 0x629e40 (obj-trigger-def and obj-trigger bytes are C today)
-# obj-trigger-def: C:objact.c static objActMailId[12] (yaml C row 0x529D08). size = MAIN.MAP 0x2c + 4 B fill before next
+# obj-trigger-def: C:objact.c static objActMailId[12]. size = MAIN.MAP 0x2c + 4 B fill before next
 rodata obj-trigger-def 0x629d08 0x629d34 objTriggerDef@0x0
 # obj-trigger: C:objact.c static objActMailTable[33]. ROM span 0x108 != MAIN.MAP 0xf8 (+16 B)
 rodata obj-trigger 0x629d38 0x629e40 objTrigger@0x0
@@ -204,14 +204,15 @@ rodata spider-def 0x62b588 0x62b648 spiderDef@0x0
 # way-group: C:way_tool.c wayGroupSheet (symbol_addrs). ROM span 0xa978 != MAIN.MAP 0xa1f4 (+1924 B)
 rodata way-group 0x62b648 0x635fc0 wayGroupSheet@0x0
 
-# ---- .sdata: after 0x63b670, before 0x63b678 (a_p_1 .sdata (still in blob cod/53B518))
+# ---- .sdata: after 0x63b670, before 0x63b678 (a_p_1 .sdata (C))
 # staffroll_dat: pointer targets: 780 staffRollNameData words point at 0x63b670; a_p_1's .data points at 0x63b678; staffRollNameOut's gp load at 0x63b674. ROM span 0x8 != MAIN.MAP 0x10 (-8 B); staffRollNameDataNum: MAIN.MAP offset 0xc, ROM 0x4 (staffRollNameOut gp load at 0x63b674)
 sdata staffroll_dat 0x63b670 0x63b678 staffRollNameDataNum@0x4
 
 # ---- .sbss: after boyact.o's run (0x63C1F0..0x63C204), before enemy_act.o's (0x63C208)
-# TRANSITIONAL: owner ico2/fumi/src/enemy_act, carve pending. Four zero bytes no code reads: the
+# TRANSITIONAL: owner ico2/fumi/src/enemy_act.c. Four zero bytes no code reads: the
 # fill before enemy_act.o's .sbss, which the ROM starts 8-aligned (MAIN.MAP's January link has the
 # same *fill* before its 4-byte run). The 4-byte brainTarget is 8-aligned in the developer's object;
-# typing it as an aggregate gives the alignment but moves ChangeBrain_ToAttack's else arm (see
-# .claude/.decomp_stash/finish/reports/P1-12.md). No placeholder labels: nothing names these bytes.
+# typing it as an aggregate (struct or array) gives the alignment but moves ChangeBrain_ToAttack's
+# else arm (a0/a1 swap, measured). The row goes when enemy_act.c's .sbss carries the alignment.
+# No placeholder labels: nothing names these bytes.
 sbss transitional_0063C204 0x63c204 0x63c208 -

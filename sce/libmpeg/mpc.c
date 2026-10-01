@@ -10,6 +10,12 @@
 #include <eekernel.h>
 #include <stdio.h>
 
+/* kept local: var.o's _mbcont as this member reads it, the two macroblock
+   records indexed by the current one.  MAIN.MAP lists init.o and mpc.o as
+   separate members, and the types of init.o's stores show that it declared
+   the same words its own way (sce/libmpeg/init.c). */
+extern MCState _mbcont;
+
 int _motionComp0(int a0, int a1, int a2, int a3, int *PMV, int *mv_field_sel, int *dmvector)
 {
     int col = a0 % _widthMB;
@@ -20,7 +26,7 @@ int _motionComp0(int a0, int a1, int a2, int a3, int *PMV, int *mv_field_sel, in
 
     if (intra) {
         while (((*(volatile unsigned int *)D9_CHCR) >> 8) & 1) {}
-        *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x138) = 0;
+        _mbcont.rec[_mbcont.cur].busy = 0;
     } else {
         long long *tag;
         int cnt;
@@ -34,43 +40,35 @@ int _motionComp0(int a0, int a1, int a2, int a3, int *PMV, int *mv_field_sel, in
         _getAllRefs(x, y, a2, a3, PMV, mv_field_sel, dmvector);
         while (((*(volatile unsigned int *)D9_CHCR) >> 8) & 1) {}
         tag = (long long *)((_sprtag & 0x0FFFFFFF) | 0x20000000);
-        cnt = *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x12C);
+        cnt = _mbcont.rec[_mbcont.cur].count;
         for (i = 0; i < cnt; i++) {
             int id;
-            tag[0] =
-                ((long long)(((int *)((char *)_mbcont + i * 4 + _mbcont[0x280 / 4] * 0x140))[2] &
-                             0x0FFFFFFF)
-                 << 32) |
-                (3 << 28) | 0x30;
+            tag[0] = ((long long)((int)_mbcont.rec[_mbcont.cur].srcAddr[0][i] & 0x0FFFFFFF) << 32) |
+                     (3 << 28) | 0x30;
             id = i == cnt - 1 ? 0 : 3;
-            tag[2] =
-                ((long long)(((int *)((char *)_mbcont + i * 4 + _mbcont[0x280 / 4] * 0x140))[6] &
-                             0x0FFFFFFF)
-                 << 32) |
-                ((long long)id << 28) | 0x30;
+            tag[2] = ((long long)((int)_mbcont.rec[_mbcont.cur].srcAddr[1][i] & 0x0FFFFFFF) << 32) |
+                     ((long long)id << 28) | 0x30;
             tag += 4;
         }
         __asm__ __volatile__("sync");
-        *D9_SADR = *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140);
+        *D9_SADR = _mbcont.rec[_mbcont.cur].refBuf;
         *D9_TADR = _sprtag;
         *D9_QWC = 0;
         *D9_CHCR = 0x105;
-        *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x138) = 1;
+        _mbcont.rec[_mbcont.cur].busy = 1;
     }
     if (a1 == 1 && (a2 & 2)) {
-        *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x134) = a1;
+        _mbcont.rec[_mbcont.cur].coded = a1;
     } else {
-        *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x134) = 0;
+        _mbcont.rec[_mbcont.cur].coded = 0;
     }
-    ((int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140))[0x130 / 4] = intra;
+    _mbcont.rec[_mbcont.cur].intra = intra;
     if (_picture_structure == 3) {
         int *p = _curFrame;
-        *(void **)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x128) =
-            (void *)(p[0] + (col * p[4] + row) * 0x180);
+        _mbcont.rec[_mbcont.cur].dst = (void *)(p[0] + (col * p[4] + row) * 0x180);
     } else {
         int *p = _picture_structure == 2 ? _curBot : _curTop;
-        *(void **)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x128) =
-            (void *)(p[0] + (col * p[4] + row) * 0x180);
+        _mbcont.rec[_mbcont.cur].dst = (void *)(p[0] + (col * p[4] + row) * 0x180);
     }
     return 1;
 }
@@ -83,7 +81,7 @@ void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_f
     int fld = 1;
     int avg = 0;
 
-    *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x12C) = 0;
+    _mbcont.rec[_mbcont.cur].count = 0;
     if ((mbflags & 8) || _picture_coding_type == 2) {
         if (_picture_structure == 3) {
             if (motion_type == 2 || (mbflags & 8) == 0) {
@@ -201,10 +199,9 @@ static void (*lumaCopy[8])() = {_rix_000, _rix_001, _rix_010, _rix_011,
 static void (*chromaCopy[8])() = {_ri0_000, _ri0_001, _ri0_010, _ri0_011,
                                   _ri0_100, _ri0_101, _ri0_110, _ri0_111}; /* derived name */
 
-/* Append one reference block to the current macroblock record: the luma
- * descriptor at +0x48 and the chroma descriptor at +0xB8 (seven ints each,
- * one per reference), then the two source addresses and the two copy
- * routines in the record's four parallel arrays at +8, +0x18, +0x28 and +0x38.
+/* Append one reference block to the current macroblock record: its luma and
+ * chroma copy descriptors, then the two source addresses and the two copy
+ * routines in the record's srcAddr, lumaFn and chromaFn arrays.
  * fld is 1 when the reference is read field-organised out of a frame buffer,
  * which doubles every vertical step and halves every vertical extent. The
  * chroma half reuses the luma half's position, fraction and half-pel
@@ -212,9 +209,9 @@ static void (*chromaCopy[8])() = {_ri0_000, _ri0_001, _ri0_010, _ri0_011,
 void _getRef0(int *img, int lineOff, int predIdx, int yoff, int h, int x, int y, int mvx, int mvy,
               int fld, int avg)
 {
-    int n = *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x12C);
-    int *luma = (int *)((char *)_mbcont + 0x48 + _mbcont[0x280 / 4] * 0x140 + n * 0x1C);
-    int *chroma = (int *)((char *)_mbcont + 0xB8 + _mbcont[0x280 / 4] * 0x140 + n * 0x1C);
+    int n = _mbcont.rec[_mbcont.cur].count;
+    MCRefDesc *luma = &_mbcont.rec[_mbcont.cur].luma[n];
+    MCRefDesc *chroma = &_mbcont.rec[_mbcont.cur].chroma[n];
     int dst;
     int lumaCmd, chromaCmd;
     int ix, rx, ry, px, py, fy, blk, t, xh, yh;
@@ -235,33 +232,33 @@ void _getRef0(int *img, int lineOff, int predIdx, int yoff, int h, int x, int y,
     fy = ry - py * 16;
     xh = mvx & 1;
     yh = mvy & 1;
-    luma[1] = rx - px * 16;
-    ((void **)luma)[0] = (void *)(dst + (predIdx + yoff) * 32);
+    luma->xoff = rx - px * 16;
+    luma->dst = (void *)(dst + (predIdx + yoff) * 32);
     if (yh) {
         if (fy + (h << fld) >= 16) {
             t = (16 >> fld) - (fy >> fld) - 1;
-            luma[2] = t;
-            luma[3] = h - t;
+            luma->rows0 = t;
+            luma->rows1 = h - t;
         } else {
-            luma[2] = h;
-            luma[3] = 0;
+            luma->rows0 = h;
+            luma->rows1 = 0;
         }
     } else {
         if (fy + (h << fld) >= 17) {
             t = (16 >> fld) - (fy >> fld);
-            luma[2] = t;
-            luma[3] = h - t;
+            luma->rows0 = t;
+            luma->rows1 = h - t;
         } else {
-            luma[2] = h;
-            luma[3] = 0;
+            luma->rows0 = h;
+            luma->rows1 = 0;
         }
     }
-    base = *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140) + n * 0x600;
+    base = _mbcont.rec[_mbcont.cur].refBuf + n * 0x600;
     lrow = fy * 16;
-    ((void **)luma)[5] = (void *)(base + lrow);
+    luma->src0 = (void *)(base + lrow);
     lrow2 = lrow + 0x300;
-    ((void **)luma)[6] = (void *)(base + lrow2);
-    luma[4] = 16 << fld;
+    luma->src1 = (void *)(base + lrow2);
+    luma->stride = 16 << fld;
     lumaCmd = (avg << 2) | (xh << 1) | yh;
 
     cmvx = mvx / 2;
@@ -279,70 +276,42 @@ void _getRef0(int *img, int lineOff, int predIdx, int yoff, int h, int x, int y,
     fy = ry - cpy * 8;
     xh = cmvx & 1;
     yh = cmvy & 1;
-    chroma[1] = rx - cpx * 8;
-    ((void **)chroma)[0] = (void *)(dst + 0x200 + (predIdx + cyoff) * 16);
+    chroma->xoff = rx - cpx * 8;
+    chroma->dst = (void *)(dst + 0x200 + (predIdx + cyoff) * 16);
     if (yh) {
         if (fy + (ch << fld) >= 8) {
             t = (8 >> fld) - (fy >> fld) - 1;
-            chroma[2] = t;
-            chroma[3] = ch - t;
+            chroma->rows0 = t;
+            chroma->rows1 = ch - t;
         } else {
-            chroma[2] = ch;
-            chroma[3] = 0;
+            chroma->rows0 = ch;
+            chroma->rows1 = 0;
         }
     } else {
         if (fy + (ch << fld) >= 9) {
             t = (8 >> fld) - (fy >> fld);
-            chroma[2] = t;
-            chroma[3] = ch - t;
+            chroma->rows0 = t;
+            chroma->rows1 = ch - t;
         } else {
-            chroma[2] = ch;
-            chroma[3] = 0;
+            chroma->rows0 = ch;
+            chroma->rows1 = 0;
         }
     }
     cbase = ((cpx - px) * 2 + (cpy - py)) * 0x180 + base;
     crow = fy * 8 + 0x100;
     crow2 = fy * 8 + 0x400;
-    ((void **)chroma)[5] = (void *)(cbase + crow);
-    ((void **)chroma)[6] = (void *)(cbase + crow2);
-    chroma[4] = 8 << fld;
+    chroma->src0 = (void *)(cbase + crow);
+    chroma->src1 = (void *)(cbase + crow2);
+    chroma->stride = 8 << fld;
     chromaCmd = (avg << 2) | (xh << 1) | yh;
 
-    idx = _mbcont[0x280 / 4];
-    ((void **)((char *)_mbcont + n * 4 + idx * 0x140))[2] = (void *)(img[0] + blk * 0x180);
-    ((void **)((char *)_mbcont + n * 4 + idx * 0x140))[6] =
-        (void *)(img[0] + (blk + img[0x10 / 4]) * 0x180);
-    ((void (**)())((char *)_mbcont + n * 4 + idx * 0x140))[10] = lumaCopy[lumaCmd];
-    ((void (**)())((char *)_mbcont + n * 4 + idx * 0x140))[14] = chromaCopy[chromaCmd];
-    *(int *)((char *)_mbcont + idx * 0x140 + 0x12C) += 1;
+    idx = _mbcont.cur;
+    _mbcont.rec[idx].srcAddr[0][n] = (void *)(img[0] + blk * 0x180);
+    _mbcont.rec[idx].srcAddr[1][n] = (void *)(img[0] + (blk + img[0x10 / 4]) * 0x180);
+    _mbcont.rec[idx].lumaFn[n] = lumaCopy[lumaCmd];
+    _mbcont.rec[idx].chromaFn[n] = chromaCopy[chromaCmd];
+    _mbcont.rec[idx].count += 1;
 }
-
-/* One macroblock's motion-compensation record, 0x140 bytes, as the members of
- * this file fill it: _motionComp0 sets the IPU output base, the destination and
- * the flags, _getRef0 appends one reference per call (source addresses, copy
- * routines, a seven-int luma and a seven-int chroma descriptor). */
-typedef struct {
-    void *ipuOut;
-    void *src;
-    void *refAddr[2][4];
-    void (*lumaFn[4])();
-    void (*chromaFn[4])();
-    int luma[4][7];
-    int chroma[4][7];
-    void *dst;
-    int count;
-    int intra;
-    int _134;
-    int busy;
-    int skip;
-} MCRecord;
-
-/* _mbcont: two records, double-buffered, and the index of the current one
- * (the `_mbcont[0x280 / 4]` the other members read). */
-typedef struct {
-    MCRecord rec[2];
-    int cur;
-} MCState;
 
 /* Finish record a0: run each reference's luma and chroma copy routines into
  * the prediction buffer, then copy the intra block, the prediction (skipped
@@ -351,22 +320,21 @@ void _doMC(int a0)
 {
     int i;
 
-    if (((MCState *)_mbcont)->rec[a0].busy != 0) {
-        for (i = 0; i < ((MCState *)_mbcont)->rec[a0].count; i++) {
-            ((MCState *)_mbcont)->rec[a0].lumaFn[i](((MCState *)_mbcont)->rec[a0].luma[i]);
-            ((MCState *)_mbcont)->rec[a0].chromaFn[i](((MCState *)_mbcont)->rec[a0].chroma[i]);
+    if (_mbcont.rec[a0].busy != 0) {
+        for (i = 0; i < _mbcont.rec[a0].count; i++) {
+            _mbcont.rec[a0].lumaFn[i](&_mbcont.rec[a0].luma[i]);
+            _mbcont.rec[a0].chromaFn[i](&_mbcont.rec[a0].chroma[i]);
         }
     }
-    if (((MCState *)_mbcont)->rec[a0].intra != 0 && ((MCState *)_mbcont)->rec[a0].skip != 0) {
+    if (_mbcont.rec[a0].intra != 0 && _mbcont.rec[a0].skip != 0) {
         _Error("intra && skip MB");
     }
-    if (((MCState *)_mbcont)->rec[a0].intra != 0) {
-        _copyRefImage(((MCState *)_mbcont)->rec[a0].dst, ((MCState *)_mbcont)->rec[a0].src);
-    } else if (((MCState *)_mbcont)->rec[a0].skip != 0) {
-        _copyRefImage(((MCState *)_mbcont)->rec[a0].dst, (void *)_refBlockp);
+    if (_mbcont.rec[a0].intra != 0) {
+        _copyRefImage(_mbcont.rec[a0].dst, (void *)_mbcont.rec[a0].ipuBuf);
+    } else if (_mbcont.rec[a0].skip != 0) {
+        _copyRefImage(_mbcont.rec[a0].dst, (void *)_refBlockp);
     } else {
-        _copyAddRefImage(((MCState *)_mbcont)->rec[a0].dst, (void *)_refBlockp,
-                         ((MCState *)_mbcont)->rec[a0].src);
+        _copyAddRefImage(_mbcont.rec[a0].dst, (void *)_refBlockp, (void *)_mbcont.rec[a0].ipuBuf);
     }
 }
 
@@ -1603,8 +1571,8 @@ int _pictureData0(int a0)
     int n = _widthMB * _heightMB;
     int r;
 
-    _mbcont[0x280 / 4] = 0;
-    _mbcont[0x284 / 4] = 0;
+    _mbcont.cur = 0;
+    _mbcont.aux = 0;
     if (_picture_structure != 3) {
         n = n >> 1;
     }
@@ -1617,7 +1585,7 @@ int _pictureData0(int a0)
     }
     while (((*(volatile unsigned int *)D9_CHCR) >> 8) & 1) {}
     if (r == 0) {
-        _doMC(_mbcont[0x280 / 4] == 0);
+        _doMC(_mbcont.cur == 0);
     }
     if (r == 1 || r == 2) {
         _Error("= Skip to the next picture =");
@@ -1683,7 +1651,7 @@ int _slice0(int a0, int a1)
         if (mba >= a1) {
             return 0;
         }
-        *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x13C) = 0;
+        _mbcont.rec[_mbcont.cur].skip = 0;
         if (_waitBdecOut() == 0) {
             return 2;
         }
@@ -1718,22 +1686,22 @@ int _slice0(int a0, int a1)
             return 2;
         }
         if (mba != 0) {
-            _doMC(_mbcont[0x280 / 4] ^ 1);
+            _doMC(_mbcont.cur ^ 1);
         }
         mba = mba + 1;
         n = n - 1;
-        _mbcont[0x280 / 4] = _mbcont[0x280 / 4] ^ 1;
+        _mbcont.cur = _mbcont.cur ^ 1;
     }
 }
 
 int _skipMB0(int *PMV, int *motion_type, int *mv_field_sel, int *mb_type)
 {
     int ret = 1;
-    char *p;
+    MCRecord *p;
 
     _sp_dcr = 1;
-    p = (char *)_mbcont + _mbcont[0xA0] * 0x140;
-    *(int *)(p + 0x13C) = 1;
+    p = &_mbcont.rec[_mbcont.cur];
+    p->skip = 1;
     if (_picture_coding_type == 2) {
         PMV[0] = PMV[1] = PMV[4] = PMV[5] = 0;
     }
@@ -1763,7 +1731,7 @@ int _decMB0(int *mb_type, int *motion_type, int *dct_type, int PMV[2][2][2], int
     int mv_format;
     int dmv;
     int mvscale;
-    int *p;
+    MCRecord *p;
     int cmd;
     int cmd2;
 
@@ -1829,8 +1797,8 @@ int _decMB0(int *mb_type, int *motion_type, int *dct_type, int PMV[2][2][2], int
         _flushBuf(1);
     }
     if (mb_type[0] & 3) {
-        p = (int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140);
-        *D3_MADR = (p[1] & 0x0FFFFFFF) | 0x80000000;
+        p = &_mbcont.rec[_mbcont.cur];
+        *D3_MADR = (p->ipuBuf & 0x0FFFFFFF) | 0x80000000;
         *D3_QWC = 0x30;
         *D3_CHCR = 0x100;
         _waitIpuIdle();
@@ -1838,7 +1806,7 @@ int _decMB0(int *mb_type, int *motion_type, int *dct_type, int PMV[2][2][2], int
         cmd2 = (_sp_dcr << 26) | 0x20000000;
         _sendIpuCommand(cmd | cmd2 | (dct_type[0] << 25));
     } else {
-        *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x13C) = 1;
+        _mbcont.rec[_mbcont.cur].skip = 1;
     }
     _sp_dcr = 0;
     if (_isError) {
