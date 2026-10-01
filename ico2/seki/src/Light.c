@@ -561,7 +561,7 @@ void light_DispVolume(void)
                     break;
                 }
                 _UnitMatrix(MatrixDrive_GetMatrix());
-                _CopyVector((char *)MatrixDrive_GetMatrix() + 0x30, lp);
+                _CopyVector(MatrixDrive_GetMatrix()[3], lp);
                 _TransposeMatrix(m, matrixptr + 0x80);
                 m[0][3] = m[1][3] = m[2][3] = 0.0f;
                 _MulMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix(), m);
@@ -579,7 +579,7 @@ void light_DispVolume(void)
                 black[0] = black[1] = black[2] = 0;
                 black[3] = 128;
                 _UnitMatrix(MatrixDrive_GetMatrix());
-                _CopyVector((char *)MatrixDrive_GetMatrix() + 0x30, lp);
+                _CopyVector(MatrixDrive_GetMatrix()[3], lp);
                 gif_SetZTest(1);
                 gif_SetAlpha(1, 2, 64);
                 prim_DispWireSphere(lp->range * 0.1f, col, 6, 6);

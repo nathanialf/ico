@@ -1374,7 +1374,7 @@ extern char D_005F5D90[];
 
 inline int gsb_LoadStageSettings(void)
 {
-    char buf[0x100];
+    char buf[256];
     int fd;
     sprintf(buf, "object/stagesetting/%s.ssb", D_005F5D90 + stage_no * 0x194);
     fd = debugSceOpen(buf, 1);
@@ -1418,7 +1418,7 @@ void appendLogFile(void)
 
 inline int gsb_SaveStageSettings(void)
 {
-    char buf[0x100];
+    char buf[256];
     int fd;
     if (otherEditingLocked == 0) {
         sprintf(buf, "object/stagesetting/%s.ssb", D_005F5D90 + stage_no * 0x194);
@@ -1836,7 +1836,7 @@ static char lockOwner[72];
 
 void updateOtherEditingLockFlag(void)
 {
-    char buf[0x100];
+    char buf[256];
     int fd;
 
     sprintf(lockFileName, "object/stagesetting/%s.lock", D_005F5D90 + stage_no * 0x194);
@@ -1871,7 +1871,7 @@ static inline char *makeLockFileName(void)
 
 int createLockFile(void)
 {
-    char buf[0x100];
+    char buf[256];
     char *name = makeLockFileName();
     int fd = debugSceOpen(name, 0x602);
     if (fd < 0) {
@@ -1888,7 +1888,7 @@ int createLockFile(void)
 
 int removeLockFile(void)
 {
-    char buf[0x100];
+    char buf[256];
     char *name = makeLockFileName();
     int fd = debugSceOpen(name, 0x602);
     if (fd < 0) {

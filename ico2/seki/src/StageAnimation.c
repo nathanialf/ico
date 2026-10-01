@@ -52,7 +52,7 @@ struct B8 {
 
 typedef struct AnimNode {
     long field0; /* 0x00 */
-    char _pad[0x14 - 0x8];
+    char _pad[12];
     struct AnimNode *next; /* 0x14 */
 } AnimNode;
 
@@ -171,7 +171,7 @@ void stage_MakeGObj(int *dat, int no)
 void stage_ApplyData(char *name, char *data)
 {
     char *tbl[2] = {D_005F5E70 + stage_no * 0x194, D_005F5E70 + 8 + stage_no * 0x194};
-    char buf[0x400];
+    char buf[1024];
     int m;
     int i;
     int j;
@@ -525,7 +525,7 @@ void stage_SetAnimation(int key, int p1, int p2)
             }
             bga_SetFrame(e->entry2, p2, p1, e->entry1[0x50 / 4]);
             for (k = 0; k < ((e->flags.i << 22) >> 22); k++) {
-                *(int *)(*(char **)&e->obj[k]->dobj + 0x74) = 1;
+                e->obj[k]->dobj->disp = 1;
             }
             break;
         case 1:
@@ -545,7 +545,7 @@ void stage_SetAnimation(int key, int p1, int p2)
             }
             for (k = 0; k < ((e->flags.i << 22) >> 22); k++) {
                 if (*(char **)&e->obj[k]->dobj != 0) {
-                    *(int *)(*(char **)&e->obj[k]->dobj + 0x74) = 0;
+                    e->obj[k]->dobj->disp = 0;
                 }
             }
         }
@@ -688,8 +688,8 @@ void stage_CalcAnimationNoParent(void)
                     char *objs = (char *)e->obj;
                     char *o = *(char **)(objs + (k << 2));
 
-                    ((int *)*(int *)(o + 0x15C))[0x74 / 4] = 0;
-                    if (((int *)*(int *)(o + 0x15C))[0x8 / 4] != 0) {
+                    GOBJ_SUB(o)->disp = 0;
+                    if (GOBJ_SUB(o)->nodeNum != 0) {
                         *(int *)((int *)*(int *)(o + 0x15C))[0xC / 4] = 0;
                     }
                 }
@@ -760,8 +760,8 @@ void stage_CalcAnimationParent(void)
             for (k = 0; k < e->flags.b.count; k++) {
                 char *objs = (char *)e->obj;
                 char *o = *(char **)(objs + (k << 2));
-                ((int *)*(int *)(o + 0x15C))[0x74 / 4] = 0;
-                if (((int *)*(int *)(o + 0x15C))[0x8 / 4] != 0) {
+                GOBJ_SUB(o)->disp = 0;
+                if (GOBJ_SUB(o)->nodeNum != 0) {
                     *(int *)((int *)*(int *)(o + 0x15C))[0xC / 4] = 0;
                 }
             }
@@ -1018,7 +1018,7 @@ float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv
         CopyQuaternion(*(char **)(e->entry2 + 0x24) + 0x10, q);
         bga_SetFrame(e->entry2, (int)r, 1, e->entry1[0x50 / 4]);
         for (k = 0; k < e->flags.b.count; k++) {
-            *(int *)(*(char **)&e->obj[k]->dobj + 0x74) = 1;
+            e->obj[k]->dobj->disp = 1;
         }
         if (systemStatus[0x14 / 4] != 0) {
             break;

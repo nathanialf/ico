@@ -191,24 +191,24 @@ void dispMotFrameProgress(int obj, float cur)
 }
 
 typedef struct MvSub {
-    char pad000[0xC];
+    char pad000[12];
     char *nodes; /* 0x00C, per-node 0x40 matrices */
-    char pad010[0x8C - 0x10];
+    char pad010[124];
     float *ground; /* 0x08C */
-    char pad090[0xF0 - 0x90];
+    char pad090[96];
     short rot; /* 0x0F0 */
     char padF2[2];
     float speed; /* 0x0F4 */
-    char padF8[0x180 - 0xF8];
-    char motionRequest[0x2D0 - 0x180]; /* 0x180, SetMotionRequest work area */
-    int lookMode;                      /* 0x2D0 */
-    char pad2D4[0x2E0 - 0x2D4];
+    char padF8[136];
+    char motionRequest[336]; /* 0x180, SetMotionRequest work area */
+    int lookMode;            /* 0x2D0 */
+    char pad2D4[12];
     float lookAt[4]; /* 0x2E0 */
-    char pad2F0[0x330 - 0x2F0];
+    char pad2F0[64];
     int headMode; /* 0x330 */
-    char pad334[0x340 - 0x334];
+    char pad334[12];
     float headAt[4]; /* 0x340 */
-    char pad350[0x380 - 0x350];
+    char pad350[48];
 
     /* 0x380. Reconstruction: an enumerated type, not int. MotionViewer's
        gcse needs this store outside int's alias set so the in-block read of
@@ -217,16 +217,16 @@ typedef struct MvSub {
        (measured 0x814 against 0x810). Enumerator names are ours. */
     enum { TEST_OFF, TEST_PAD, TEST_RANDOM } testMode;
 
-    char pad384[0x390 - 0x384];
+    char pad384[12];
     float testAt[4]; /* 0x390 */
-    char pad3A0[0x488 - 0x3A0];
+    char pad3A0[232];
     int select; /* 0x488, "this object is the viewer target" */
 } MvSub;
 
 typedef struct MvObj {
-    char pad00[0x28];
+    char pad00[40];
     void *motTbl; /* 0x28, parallel motion table, parked while viewing */
-    char pad2C[0x15C - 0x2C];
+    char pad2C[304];
     MvSub *sub; /* 0x15C */
 } MvObj;
 

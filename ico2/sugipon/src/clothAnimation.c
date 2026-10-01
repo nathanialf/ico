@@ -79,11 +79,11 @@ void GetChainExWeightGlobalPos(float *pos, char *nodes, int idx)
 
 typedef struct {
     float w;
-    char pad[0xC];
+    char pad[12];
     VECTOR v0;
     VECTOR v1;
     VECTOR v2;
-    char pad2[0x10];
+    char pad2[16];
 } ExW;
 
 typedef struct {
@@ -488,7 +488,7 @@ void GetClothAnimation(int a0, void *a1, GObj *a2, void *m, ClothCfg *cfg, int n
         nwall = 0;
     }
     if (a2 != 0) {
-        focus = *(int *)(*(int *)((char *)a2 + 0x15C) + 0x8C);
+        focus = GOBJ_SUB(a2)->skel;
     }
     for (i = 0; i < n0; i++) {
         float damp = 0.8f;
@@ -1308,12 +1308,12 @@ typedef struct {
 
 typedef struct {
     float f00;
-    char pad04[0x10 - 0x04];
+    char pad04[12];
     float pos[4];
     float dir[4];
     Cloth4DLink link[2]; /* 0x30 */
     float (*uv)[2];
-    char pad44[0x50 - 0x44];
+    char pad44[12];
     float f50[4];
 } Cloth4DCol;
 
@@ -1428,11 +1428,11 @@ typedef struct {
     float y;
     float z;
     float r;
-    char pad10[0x20 - 0x10];
+    char pad10[16];
     float v20[4];
     float f30;
     float f34;
-    char pad38[0x40 - 0x38];
+    char pad38[8];
 } ClothPoint;
 
 static __inline__ float fSqrtInv_i(float x)

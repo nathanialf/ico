@@ -12,12 +12,14 @@
 #ifndef TORCH_H
 #define TORCH_H
 
+#include "sceneManager.h"
+
 struct GObj;
 
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order torch.c's inline tail has. */
-char *InitTorchGeo(struct GObj *a0, char *a1);
+char *InitTorchGeo(struct GObj *a0, SObjSimpleSetting *a1);
 void TorchDL(void);
 int IsTorchLightOn(struct GObj *a0);
 char *CheckTorchChainReaction(struct GObj *a0, float dist);

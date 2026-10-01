@@ -10,10 +10,10 @@ typedef struct WindParam {
     /* the splat label D_005F5E1C sits on this member; the entry's direction
        vector lives 0xC bytes in front of it. */
     float pos[3]; /* +0x00 */
-    char pad0[0x8C - 0x0C];
+    char pad0[128];
     float amp;   /* +0x8C */
     float speed; /* +0x90 */
-    char pad1[0x194 - 0x94];
+    char pad1[256];
 } WindParam;
 
 extern WindParam D_005F5E1C[];

@@ -41,7 +41,7 @@ typedef struct {
    the member spiders, and the counters SpiderLayoutGeo runs. */
 typedef struct {
     int state;              /* 0x00 */
-    char pad04[0x1C];       /* 0x04 */
+    char pad04[28];         /* 0x04 */
     int n;                  /* 0x20, member count */
     GObj **members;         /* 0x24, the member AP1 objects */
     int awake;              /* 0x28 */
@@ -308,7 +308,7 @@ void DispAllMemberOfSpider(GObj *self, int *col)
     for (i = 0; i < g->n; i++) {
         if (g->members[i] != 0) {
             _UnitMatrix(MatrixDrive_GetMatrix());
-            GetRootPosition((char *)MatrixDrive_GetMatrix() + 0x30, g->members[i]);
+            GetRootPosition(MatrixDrive_GetMatrix()[3], g->members[i]);
             MatrixDrive_RotMatrixX((short)rand());
             MatrixDrive_RotMatrixY((short)rand());
             MatrixDrive_RotMatrixZ((short)rand());
@@ -335,7 +335,7 @@ void DispAllMemberOfSpider(GObj *self, int *col)
     p = *(GObj **)*(char **)&self->dobj;
     if (p != 0 && p->kind != 33) {
         _UnitMatrix(MatrixDrive_GetMatrix());
-        GetRootPosition((char *)MatrixDrive_GetMatrix() + 0x30, *(void **)*(char **)&self->dobj);
+        GetRootPosition(MatrixDrive_GetMatrix()[3], *(void **)*(char **)&self->dobj);
         MatrixDrive_RotMatrixX((short)rand());
         MatrixDrive_RotMatrixY((short)rand());
         MatrixDrive_RotMatrixZ((short)rand());

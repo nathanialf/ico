@@ -30,10 +30,10 @@ typedef struct PEGeo {
     int floorOn;             /* 0x38 */
     float floor;             /* 0x3C */
     float rate;              /* 0x40 */
-    char pad44[0x20];        /* 0x44 */
+    char pad44[32];          /* 0x44 */
     int (*proc)(void *);     /* 0x64 */
     int f68;                 /* 0x68 */
-    char pad6C[0x14];        /* 0x6C */
+    char pad6C[20];          /* 0x6C */
 } PEGeo;
 
 /* one vertex of the particle primitive's buffers */

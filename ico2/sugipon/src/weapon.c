@@ -93,7 +93,7 @@ void weaponStickSE(GObj *a0)
 static inline void releaseWeaponHolder(WeaponWork *w)
 {
     if (w->holder != 0) {
-        *(int *)(*(char **)&w->holder->dobj + 0x630) = 0;
+        w->holder->dobj->pickedWeapon = 0;
     }
     w->holderId = -1;
 }
@@ -306,17 +306,17 @@ int calcDynamicPathGeometry(GObj *g)
 typedef struct {
     sceVu0FVECTOR p0;  /* 0x00 start of the swept segment */
     sceVu0FVECTOR p1;  /* 0x10 end of the swept segment */
-    char pad20[0x10];  /* 0x20 */
+    char pad20[16];    /* 0x20 */
     sceVu0FVECTOR d;   /* 0x30 the clipped travel */
-    char pad40[0x10];  /* 0x40 */
+    char pad40[16];    /* 0x40 */
     sceVu0FVECTOR hit; /* 0x50 */
     sceVu0FVECTOR dir; /* 0x60 */
     float f70;         /* 0x70 */
-    char pad74[0x14];  /* 0x74 */
+    char pad74[20];    /* 0x74 */
     int wall;          /* 0x88 */
-    char pad8C[0x8];   /* 0x8C */
+    char pad8C[8];     /* 0x8C */
     int hit94;         /* 0x94 */
-    char pad98[0x28];  /* 0x98 */
+    char pad98[40];    /* 0x98 */
 } CollWork;
 
 /* the query calcDynamicGeometry starts from: all clear but the 0x70 word */
@@ -521,7 +521,7 @@ void getGeometry(GObj *g)
 
         CopyMatrix(MatrixDrive_GetMatrix(), *(char **)(d + 0xC) + n * 0x40);
         MatrixDrive_TransMatrix(7.0f, -3.0f, 0.0f);
-        CopyVector(pos, (char *)MatrixDrive_GetMatrix() + 0x30);
+        CopyVector(pos, MatrixDrive_GetMatrix()[3]);
         CopyQuaternion(quat, *(char **)(d + 0x10) + n * 0x10);
         if (((int *)(*(char **)(*(char **)&w->holder->dobj + 0x8C) + n * 0x40))[1] == 22) {
             RotQuaternionY(quat, -32768);
@@ -587,13 +587,13 @@ void checkHit(GObj *g)
     MatrixDrive_PushMatrix();
     GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), (char *)p + 0xD0, (char *)p + 0xA0);
     MatrixDrive_TransMatrixV((char *)swordTip);
-    CopyVector(v0, (char *)MatrixDrive_GetMatrix() + 0x30);
+    CopyVector(v0, MatrixDrive_GetMatrix()[3]);
     GetInverseQuaternion(quat, (char *)p + 0x150);
     MultiQuaternion(quat, (char *)p + 0xD0, quat);
     SubVectorXYZ(pos, (char *)p + 0xA0, (char *)p + 0x130);
     GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), quat, pos);
     MatrixDrive_TransMatrixV((char *)swordTip);
-    CopyVector(v1, (char *)MatrixDrive_GetMatrix() + 0x30);
+    CopyVector(v1, MatrixDrive_GetMatrix()[3]);
     MatrixDrive_PopMatrix();
     CopyVector(w->hit[1], v0);
     CopyVector(w->hit[2], v1);
@@ -610,9 +610,9 @@ typedef struct {
 /* The 64-byte layout record InitDemoQueensSword passes through; only the
    word at 0x30 is ever named here. */
 typedef struct {
-    char pad00[0x30];
+    char pad00[48];
     int kind; /* 0x30 */
-    char pad34[0xC];
+    char pad34[12];
 } __attribute__((aligned(8))) QSwordLayout;
 
 /* the queen's sword offset, its z set per sword */
@@ -653,7 +653,7 @@ void initializeQueenzSword(GObj *g, int index, QSwordLayout *lay)
 typedef struct {
     int model0; /* 0x00 */
     int model1; /* 0x04 */
-    char pad08[0x20];
+    char pad08[32];
 } WeaponCsvEntry;
 
 extern WeaponCsvEntry D_002A79B8[];
@@ -929,8 +929,7 @@ void WeaponGeo(GObj *g)
     w->bladeOn = 0;
     if (w->kind >= 10 || kind < 8) {
         if (w->state == 1 ||
-            (w->holder != 0 &&
-             motionKind[*(int *)(*(char **)&w->holder->dobj + 0x4A0)].flags2.bits.weaponSwing)) {
+            (w->holder != 0 && motionKind[w->holder->dobj->motion].flags2.bits.weaponSwing)) {
             calcBlur(g, weaponKind[kind].length);
             w->bladeOn = 1;
         }
@@ -974,7 +973,7 @@ void WeaponGeo(GObj *g)
     }
 
     GetRootMatrix(MatrixDrive_GetMatrix(), g);
-    CopyVector(w->tipPos, (char *)MatrixDrive_GetMatrix() + 0x30);
+    CopyVector(w->tipPos, MatrixDrive_GetMatrix()[3]);
     if (w->offsetMode != 0) {
         float v[4] = {0.0f, 0.0f, 1.0f, 0.0f};
 
@@ -1064,7 +1063,7 @@ void ReleaseWeapon(GObj *a0)
 {
     WeaponWork *p = GOBJ_SUB(a0)->work;
     if (p->holder) {
-        *(int *)(*(char **)&p->holder->dobj + 0x630) = 0;
+        p->holder->dobj->pickedWeapon = 0;
     }
     p->holder = 0;
     p->holderId = -1;
@@ -1134,7 +1133,7 @@ void ReleaseWeaponWithFumble(GObj *a0, void *a1, void *a2)
     char *f = (char *)e + 0xA0;
 
     if (w->holder) {
-        *(int *)(*(char **)&w->holder->dobj + 0x630) = 0;
+        w->holder->dobj->pickedWeapon = 0;
     }
     w->holder = 0;
     w->holderId = -1;

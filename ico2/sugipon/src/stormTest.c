@@ -154,7 +154,7 @@ void ClipStormByCamera(StormPackage *pkg)
 
     MatrixDrive_SetTransposeMatrix(MatrixDrive_GetMatrix(), matrixptr + 0x80);
     MatrixDrive_TransMatrix(0.0f, 0.0f, 500.0f);
-    CopyVector(cam, (char *)MatrixDrive_GetMatrix() + 0x30);
+    CopyVector(cam, MatrixDrive_GetMatrix()[3]);
     for (i = 0; i < pkg->num; i++) {
         float *p = pkg->pos[i];
 
@@ -228,7 +228,7 @@ void DispStormPackage(StormPackage *pkg, void *color)
 
     MatrixDrive_SetTransposeMatrix(MatrixDrive_GetMatrix(), matrixptr + 0x80);
     sceVu0ApplyMatrix(plane, MatrixDrive_GetMatrix(), stormClipPlane);
-    plane[3] = -sceVu0InnerProduct(plane, (char *)MatrixDrive_GetMatrix() + 0x30);
+    plane[3] = -sceVu0InnerProduct(plane, MatrixDrive_GetMatrix()[3]);
     gif_StartPacketPri(11);
     gif_SetZTest(1);
     gif_SetZWrite(0);

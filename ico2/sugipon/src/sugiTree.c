@@ -68,7 +68,7 @@ void SugiLeafDL2(GObj *gobj)
 {
     Sub15C *p = GOBJ_SUB(gobj);
     int n = p->model->partCount;
-    char save[n][0x40];
+    char save[n][64];
     int i;
 
     for (i = 0; i < n; i++) {

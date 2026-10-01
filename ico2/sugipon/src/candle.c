@@ -13,12 +13,12 @@ typedef struct CandleFlame {
 } CandleFlame;
 
 typedef struct CandleWork {
-    char _pad0[0x8];
+    char _pad0[8];
     int num;   /* 0x8 , flame count */
     char *mtx; /* 0xC , the per-flame 0x40-byte matrix run */
-    char _pad_10[0x74 - 0x10];
+    char _pad_10[100];
     int alive; /* 0x74 */
-    char _pad_78[0x830 - 0x78];
+    char _pad_78[1976];
     CandleFlame *flame; /* 0x830 */
 } CandleWork;
 
@@ -39,8 +39,7 @@ int InitCandleGeo(void *self, void *mtx)
         for (i = 0; i < w->num; i++) {
             CopyMatrix(MatrixDrive_GetMatrix(), w->mtx + i * 0x40);
             MatrixDrive_TransMatrix(0.0f, -40.0f, 0.0f);
-            flame[i].effect =
-                SetParticleEffect(4, (char *)MatrixDrive_GetMatrix() + 0x30, IdentityQuaternion);
+            flame[i].effect = SetParticleEffect(4, MatrixDrive_GetMatrix()[3], IdentityQuaternion);
             flame[i].off = 0;
         }
     } else {
@@ -74,7 +73,7 @@ void CandleGeo(void *self)
             CopyMatrix(MatrixDrive_GetMatrix(), CANDLE_WORK(self)->mtx + i * 0x40);
             MatrixDrive_TransMatrix(0.0f, -40.0f, 0.0f);
             if (flame[i].effect != -1) {
-                SetParticleEffectGeometry(flame[i].effect, (char *)MatrixDrive_GetMatrix() + 0x30,
+                SetParticleEffectGeometry(flame[i].effect, MatrixDrive_GetMatrix()[3],
                                           IdentityQuaternion);
             }
         }

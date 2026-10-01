@@ -43,15 +43,15 @@ typedef struct {
    block opens with. */
 typedef struct ClipBuf {
     float pt[3][4]; /* 0x00 the start, end and clipped points */
-    char _30[0x40];
+    char _30[64];
     float rad;      /* 0x70 sweep radius */
     WallCfg filter; /* 0x74 the element the search skips */
     WallCfg wall;   /* 0x80 the wall the search hit */
     WallCfg floor;  /* 0x8C the floor the search hit */
     int attr;       /* 0x98 */
-    char _9C[0x4];
+    char _9C[4];
     Vec16 normal; /* 0xA0 the hit plane */
-    char _B0[0x10];
+    char _B0[16];
 } __attribute__((aligned(16))) ClipBuf;
 
 /* RECONSTRUCTION, names ours: a node's 0x40-byte IK state: the blend rate
@@ -96,74 +96,75 @@ enum MotOriShiftMode { MOTORI_SHIFT_0, MOTORI_SHIFT_1, MOTORI_SHIFT_2, MOTORI_SH
 struct MotRoot {
     float pos[4];   /* 0x0 */
     float trans[4]; /* 0x10 */
-    char _pad20[0x10];
+    float baseQuat[4]; /* 0x20, the base turn SetRootBaseQuaternion sets */
     float quat[4]; /* 0x30 */
-    char _pad40[0x10];
+    float motionQuat[4]; /* 0x40, the root turn the motion gives over the base (getMotionGeometry) */
     short twist; /* 0x50 */
-    char _pad52[0x2];
+    char _pad52[2];
     float twistRate; /* 0x54 */
-    char _pad58[0x8];
+    char _pad58[8];
     float up[4];      /* 0x60 */
     float savePos[4]; /* 0x70 */
     ObjNode hitObj;   /* 0x80 */
-    char _pad88[0x8];
+    char _pad88[8];
     float move[4]; /* 0x90 */
-    char _padA0[0x20];
+    float step[4]; /* 0xA0, the root step of the frame (GetGeometryOfMotion copies it to rootStep) */
+    char _padB0[16];
     float height; /* 0xC0 */
-    char _padC4[0xC];
+    char _padC4[12];
     float delta[4];     /* 0xD0 */
     WallCfg wall;       /* 0xE0 */
     int wallCount;      /* 0xEC */
     WallCfg cliffWall;  /* 0xF0, the wall found under the cliff edge (checkCliffState) */
     int cliffWallCount; /* 0xFC, its hit count, -1 once copied */
     WallCfg aheadWall;  /* 0x100, the wall clipWallAhead hit */
-    char _pad10C[0x14];
+    char _pad10C[20];
     WallCfg filter; /* 0x120 */
-    char _pad12C[0x4];
+    char _pad12C[4];
     Vec16 plane; /* 0x130 */
-    char _pad140[0x4];
+    char _pad140[4];
     void *cliffFloor; /* 0x144, the floor under the cliff edge, 0 for none */
-    char _pad148[0x8];
+    char _pad148[8];
     float last[4];     /* 0x150 */
     float clipFrom[4]; /* 0x160, where the root's wall clip starts */
     float stepMove
         [4]; /* 0x170, the step the motion moves the root by, rotated by the root quaternion */
     int standNode; /* 0x180, the skeleton node the root stands on, -1 for none */
-    char _pad184[0xC];
+    char _pad184[12];
     float focusPos[4];   /* 0x190, the focus node's position */
     float focusLocal[4]; /* 0x1A0, the focus node's position in the root's frame */
     float footPos[4];    /* 0x1B0, the foot position fitted to the floor */
     float reservePos[4]; /* 0x1C0, the reserved position, in world space */
     float
         projHeight; /* 0x1D0, the height above the floor the root keeps (GetRootProjectionPosOfGObj adds it) */
-    char _pad1D4[0x2C];
+    char _pad1D4[44];
     int word200;   /* 0x200, set by the jump setup, read by the root update */
     int word204;   /* 0x204, set while the root update runs the jump */
     float lift[2]; /* 0x208 */
-    char _pad210[0x20];
+    char _pad210[32];
     int hand1IKMode; /* 0x230, hand 1's turn IK mode, 0 for off */
     int hand1IKLock; /* 0x234 */
-    char _pad238[0x8];
+    char _pad238[8];
     float hand1IKDir[4];  /* 0x240, hand 1's turn target */
     float hand1IKQuat[4]; /* 0x250 */
-    char _pad260[0x30];
+    char _pad260[48];
     int hand0IKMode; /* 0x290, hand 0's turn IK mode, 0 for off */
     int hand0IKLock; /* 0x294 */
-    char _pad298[0x8];
+    char _pad298[8];
     float hand0IKDir[4];  /* 0x2A0, hand 0's turn target */
     float hand0IKQuat[4]; /* 0x2B0 */
     float hand0IKRate;    /* 0x2C0, the slerp rate toward the target */
     int hand0IKReached;   /* 0x2C4, 1 once the target is reached */
     int hand0IKFlag;      /* 0x2C8 */
-    char _pad2CC[0x4];
+    char _pad2CC[4];
     float armTwist[4]; /* 0x2D0, the arm turn eased toward the hand targets */
     int lookMode;      /* 0x2E0, the look-target mode, 2 to turn the head fully */
-    char _pad2E4[0xC];
+    char _pad2E4[12];
     float lookPos[4]; /* 0x2F0, the look target */
     short h;          /* 0x300 */
     short p;          /* 0x302 */
     short b;          /* 0x304 */
-    char _pad306[0x2];
+    char _pad306[2];
     int noStepSearch; /* 0x308, the motion forbids the stand-node search */
     int gravity;      /* 0x30C, the motion falls under gravity */
     int slopeIK;      /* 0x310, the motion runs the slope foot IK */
@@ -179,16 +180,16 @@ struct MotRoot {
     float radius;     /* 0x338, the clip radius */
     float radiusTo;   /* 0x33C, the clip radius a shift eases to */
     float radiusFrom; /* 0x340, the clip radius it eases from */
-    char _pad344[0xC];
+    char _pad344[12];
     float cliffPlane[4]; /* 0x350, the plane at the cliff floor's height */
     enum MotOriShiftMode handIK; /* 0x360, nonzero while HandManager runs the hand IK */
     int stepNode;        /* 0x364, the focus node the step solution walks on */
-    char _pad368[0x8];
+    char _pad368[8];
     float holdPoint[4]; /* 0x370, the point the hang hold is measured from */
     int ropeState;      /* 0x380, 0, or -1 and 1 by the hold height on the chain */
     char *fixObj;       /* 0x384, the object SetMotionNodeFixModeParameter fixes the node to */
     int fixNode;        /* 0x388, the focus node on that object */
-    char _pad38C[0x4];
+    char _pad38C[4];
     float fixQuat[4];     /* 0x390, the fixed node's turn */
     float fixPos[4];      /* 0x3A0, the fixed node's offset */
     float fixWeight;      /* 0x3B0 */
@@ -198,7 +199,7 @@ struct MotRoot {
     float handRate;       /* 0x3C0, the hand IK's blend rate */
     float ikRate1;        /* 0x3C4 */
     float ikRate2;        /* 0x3C8 */
-    char _pad3CC[0x4];
+    char _pad3CC[4];
 };
 
 /* the 0x08C counter (cleared by shiftMotionData, stepped by
@@ -245,7 +246,7 @@ struct MotCtrl {
     int parallelEnded;     /* 0x6C */
     int parallel;          /* 0x70, the motion is a parallel one */
     int orientUpdateOff;   /* 0x74, 1 while the motion orient update is disabled */
-    char _pad78[0x4];
+    char _pad78[4];
     int posReserve;       /* 0x7C, 1 while a position reservation is pending */
     int loopFlag;         /* 0x80 */
     int reserveBlend;     /* 0x84, frames left of the reservation blend */
@@ -257,7 +258,7 @@ struct MotCtrl {
     int shiftFrame;       /* 0x9C, the frame the last motion was left at */
     int blendCount;       /* 0xA0 */
     int blendFrames;      /* 0xA4 */
-    char _padA8[0x8];
+    char _padA8[8];
     float dir[4];       /* 0xB0, the motion direction */
     float lastDir[4];   /* 0xC0 */
     int orientKind;     /* 0xD0 */
@@ -278,12 +279,12 @@ struct MotCtrl {
     int sideWall;       /* 0x10C, a side wall was found */
     float cliffHeight;  /* 0x110, the floor above the edge */
     float cliffDist;    /* 0x114, the distance to the edge */
-    char _pad118[0x8];
+    char _pad118[8];
     float cliffNormal[4];  /* 0x120 */
     float wallFloorHeight; /* 0x130, the floor beyond the wall */
     float wallTopHeight;   /* 0x134 */
     float wallDist;        /* 0x138 */
-    char _pad13C[0x4];
+    char _pad13C[4];
     float wallDir[4];        /* 0x140 */
     float wallNormal[4];     /* 0x150 */
     float sideWallNormal[4]; /* 0x160 */
@@ -294,28 +295,28 @@ struct MotCtrl {
     int pureCliffAttr;       /* 0x180 */
     int wallAttr;            /* 0x184, the attribute of the wall the root touches */
     int floorAttr;           /* 0x188, the attribute of the floor the root stands on */
-    char _pad18C[0x4];
+    char _pad18C[4];
     int frameFlag1;   /* 0x190 */
     int frameFlag2;   /* 0x194 */
     int trigger1;     /* 0x198, the first frame trigger fired this frame */
     int trigger1Done; /* 0x19C */
     int trigger2;     /* 0x1A0, the second frame trigger fired this frame */
     int trigger2Done; /* 0x1A4 */
-    char _pad1A8[0x4];
+    char _pad1A8[4];
     int word1AC; /* 0x1AC */
-    char _pad1B0[0x4];
+    char _pad1B0[4];
     int slipFlags;     /* 0x1B4 */
     int lastSlipFlags; /* 0x1B8 */
     int slipOn;        /* 0x1BC, the floor slip attribute bits take effect */
     int pickedWeapon;  /* 0x1C0, the weapon PickupWeapon picked up */
-    char _pad1C4[0x8];
+    char _pad1C4[8];
     int word1CC;      /* 0x1CC */
     float waterY;     /* 0x1D0, the water surface height */
     float waterDepth; /* 0x1D4, the depth under the pool surface */
     char *obj;        /* 0x1D8 */
     int contactFlags; /* 0x1DC, the field contact bits CheckFieldContact sets */
     int word1E0;      /* 0x1E0 */
-    char _pad1E4[0xC];
+    char _pad1E4[12];
 };
 
 /* The declarations below lead this header because their order is load-bearing:
@@ -324,7 +325,7 @@ struct MotCtrl {
 void SetHitCollisionDisplay(int a, int b);
 int ResetMotionProgramInterpInfo(struct GObj *a0, int a1);
 int SetDirectMotionProgramInterpInfo(struct GObj *a0, int a1, float f);
-void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, char *tbl, int k);
+void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, float *step, int k);
 void _checkCliffAndWall(void);
 void _getFinalMatrix(int id);
 int adjustSideWall(ClipBuf *w, int a1, Vec16 *wallPlane);

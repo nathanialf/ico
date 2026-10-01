@@ -88,7 +88,7 @@ void copyToWork(int pri)
 
 void flushWork(int pri)
 {
-    char buf[0x20];
+    char buf[32];
 
     tex_ResetVramPri();
     workVram = tex_AllocVramAuto(0, 0x400);
@@ -190,11 +190,11 @@ void SetFallDownSplash(GObj *pool, GObj *self)
     PoolWork *w = GOBJ_SUB(pool)->work;
 
     GetRootPosition(pos, self);
-    _ScaleVectorXYZ(tmp, *(char **)(((char *)self) + 0x15C) + 0x130, 2.0f);
+    _ScaleVectorXYZ(tmp, (char *)GOBJ_SUB(self) + 0x130, 2.0f);
     _AddVector(pos, pos, tmp);
     pos[1] = w->pos[1];
 
-    if (*(int *)(*(char **)(((char *)self) + 0x15C) + 0x8C) != 0) {
+    if (GOBJ_SUB(self)->skel != 0) {
         setNodePursueParticleEffectWithUpperLimit((char *)48, self, 51, pos[1]);
         setNodePursueParticleEffectWithUpperLimit((char *)48, self, 47, pos[1]);
     }
@@ -455,7 +455,7 @@ void updatePoolGeo(GObj *self)
     float out[4];
     float nrm[4];
     float eye[4];
-    char mat[0x40];
+    char mat[64];
     float ref[4];
     float dir[4];
     float tmp[4];
@@ -632,11 +632,11 @@ static float workLightNormal[4][4] = {
 
 void dispPool(GObj *self)
 {
-    char m0[0x40];
-    char m1[0x40];
-    char m2[0x40];
-    char m3[0x40];
-    char m4[0x40];
+    char m0[64];
+    char m1[64];
+    char m2[64];
+    char m3[64];
+    char m4[64];
     PoolWork *w = GOBJ_SUB(self)->work;
 
     gif_StartPacketPri(4);

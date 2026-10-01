@@ -484,9 +484,9 @@ static inline void AP1SetMode(GObj *self, int mode)
 
 static inline void AP1DeadEffect(GObj *self)
 {
-    char *p = *(char **)(((char *)self) + 0x164);
+    Act *p = GOBJ_ACT(self);
 
-    if (*(int *)(p + 0x34) != 4) {
+    if (p->actMode != 4) {
         int pos[4];
         int quat[4];
 
@@ -504,9 +504,9 @@ static inline void AP1DeadMode(GObj *self)
 
 static inline void AP1DeadEffectHit(GObj *self)
 {
-    char *p = *(char **)(((char *)self) + 0x164);
+    Act *p = GOBJ_ACT(self);
 
-    if (*(int *)(p + 0x34) != 4) {
+    if (p->actMode != 4) {
         int pos[4];
         int quat[4];
 

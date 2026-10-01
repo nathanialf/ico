@@ -83,7 +83,7 @@ typedef struct BoxWork { /* field names derived */
     int charHit;       /* 0x164, set when a character pushed the floating box this frame */
     char pad168[8];
     float floatAnchor[4]; /* 0x170, the floating box's resting X and Z */
-    char *subGObj;        /* 0x180, the layouted sub GObj */
+    int subGObj;          /* 0x180, the layouted sub GObj */
     char pad184[12];
     float moveDir[4]; /* 0x190, the direction of the last push */
 } __attribute__((aligned(8))) BoxWork;
@@ -414,7 +414,7 @@ int AlignBox(GObj *a0, float grid)
     float pos[4];
     float quat[4];
     Sub15C *sub = GOBJ_SUB(a0);
-    BoxWork *q = *(BoxWork **)((char *)sub + 0x830);
+    BoxWork *q = sub->work;
 
     GetInverseQuaternion(quat, (char *)sub + 0x60);
     SetRootQuaternion(a0, quat);
@@ -438,111 +438,108 @@ extern GenGeo objLayout[];
    560 the allocator records is the dev source line. */
 void initWheels(GObj *self, float *lay)
 {
-    char *w = GOBJ_SUB(self)->work;
+    BoxWork *w = GOBJ_SUB(self)->work;
     int i;
 
     if (objLayout[self->labelId].accessary == 26 ||
         D_002A79B8[GOBJ_SUB(self)->accessary].dobj0 == 0x610) {
-        *(int *)(w + 0x11C) = 0;
+        w->wheelDObj = 0;
     } else {
-        *(char **)(w + 0x11C) =
-            CSVSYSTEM_InitDObj(D_002A79B8[GOBJ_SUB(self)->accessary].dobj0, lay);
-        if (*(int *)(*(char **)(w + 0x11C) + 0xC) != 0) {
-            iosFree((void *)(*(int *)(*(char **)(w + 0x11C) + 0xC) & 0x0FFFFFFF));
+        w->wheelDObj = CSVSYSTEM_InitDObj(D_002A79B8[GOBJ_SUB(self)->accessary].dobj0, lay);
+        if (*(int *)(w->wheelDObj + 0xC) != 0) {
+            iosFree((void *)(*(int *)(w->wheelDObj + 0xC) & 0x0FFFFFFF));
         }
-        if (*(int *)(*(char **)(w + 0x11C) + 0x10) != 0) {
-            iosFree((void *)(*(int *)(*(char **)(w + 0x11C) + 0x10) & 0x0FFFFFFF));
+        if (*(int *)(w->wheelDObj + 0x10) != 0) {
+            iosFree((void *)(*(int *)(w->wheelDObj + 0x10) & 0x0FFFFFFF));
         }
-        *(int *)(*(char **)(w + 0x11C) + 0xC) = 0;
-        *(int *)(*(char **)(w + 0x11C) + 0x10) = 0;
-        *(int *)(*(char **)(w + 0x11C) + 0xC) =
-            (int)iosMallocDebug(ios_partition_seki, 128, __FILE__, 560);
-        *(int *)(*(char **)(w + 0x11C) + 0x10) =
-            (int)iosMallocDebug(ios_partition_seki, 32, __FILE__, 560);
-        *(int *)(*(char **)(w + 0x11C) + 0x8) = 2;
-        if (*(int *)(*(char **)(w + 0x11C) + 0x870) != 0) {
-            iosFree((void *)(*(int *)(*(char **)(w + 0x11C) + 0x870) & 0x0FFFFFFF));
+        *(int *)(w->wheelDObj + 0xC) = 0;
+        *(int *)(w->wheelDObj + 0x10) = 0;
+        *(int *)(w->wheelDObj + 0xC) = (int)iosMallocDebug(ios_partition_seki, 128, __FILE__, 560);
+        *(int *)(w->wheelDObj + 0x10) = (int)iosMallocDebug(ios_partition_seki, 32, __FILE__, 560);
+        *(int *)(w->wheelDObj + 0x8) = 2;
+        if (*(int *)(w->wheelDObj + 0x870) != 0) {
+            iosFree((void *)(*(int *)(w->wheelDObj + 0x870) & 0x0FFFFFFF));
         }
-        *(int *)(*(char **)(w + 0x11C) + 0x870) =
+        *(int *)(w->wheelDObj + 0x870) =
             (int)iosMallocDebug(ios_partition_seki, 160, __FILE__, 560);
 
         for (i = 0; i < 2; i++) {
             {
                 struct DObjNode *e =
-                    (struct DObjNode *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                    (struct DObjNode *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
                 e->flags.ll &= ~1;
             }
             {
                 struct DObjNode *e =
-                    (struct DObjNode *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                    (struct DObjNode *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
                 e->flags.ll &= ~2;
             }
             {
                 struct DObjNode *e =
-                    (struct DObjNode *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                    (struct DObjNode *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
                 e->pos[0] = 0.0f;
             }
             {
                 struct DObjNode *e =
-                    (struct DObjNode *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                    (struct DObjNode *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
                 e->pos[1] = 0.0f;
             }
             {
                 struct DObjNode *e =
-                    (struct DObjNode *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                    (struct DObjNode *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
                 e->pos[2] = 0.0f;
             }
             {
                 struct DObjNode *e =
-                    (struct DObjNode *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                    (struct DObjNode *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
                 e->pos[3] = 1.0f;
             }
             {
                 struct DObjNode *e =
-                    (struct DObjNode *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                    (struct DObjNode *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
                 e->flags.ll &= ~4;
             }
             {
                 struct DObjNode *e =
-                    (struct DObjNode *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                    (struct DObjNode *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
                 e->fade = 0;
             }
             {
                 struct DObjNode *e =
-                    (struct DObjNode *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                    (struct DObjNode *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
                 e->alpha = 1.0f;
             }
             {
-                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                char *e = (char *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
                 *(short *)(e + 0x3A) = 0;
             }
             {
                 struct DObjNode *e =
-                    (struct DObjNode *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                    (struct DObjNode *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
                 e->scale[0] = 1.0f;
             }
             {
                 struct DObjNode *e =
-                    (struct DObjNode *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                    (struct DObjNode *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
                 e->scale[1] = 1.0f;
             }
             {
                 struct DObjNode *e =
-                    (struct DObjNode *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                    (struct DObjNode *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
                 e->scale[2] = 1.0f;
             }
         }
-        *(short *)(*(char **)(w + 0x11C) + 0x84C) = 2;
+        *(short *)(w->wheelDObj + 0x84C) = 2;
 
         /* the sub-object handle at 0x15C read through the TU's IntFloat union
            (alias set 0), as the wheel-float stores are: the ROM keeps the first
            handle load behind the 0x84C store above, which a plain int read,
            free to move past a short store, does not give */
-        ((IntFloat *)(w + 0x128))->f =
+        ((IntFloat *)&w->wheelHeight)->f =
             D_002A79B8[*(int *)(((IntFloat *)&self->dobj)->i + 0x844)].wheelHeight;
-        ((IntFloat *)(w + 0x12C))->f =
+        ((IntFloat *)&w->wheelFront)->f =
             D_002A79B8[*(int *)(((IntFloat *)&self->dobj)->i + 0x844)].wheelFront;
-        ((IntFloat *)(w + 0x130))->f =
+        ((IntFloat *)&w->wheelRear)->f =
             D_002A79B8[*(int *)(((IntFloat *)&self->dobj)->i + 0x844)].wheelRear;
     }
 }
@@ -1057,8 +1054,8 @@ int playAnimationCore(GObj *a0)
     RotQuaternionY(q, -16384);
     MultiQuaternion(q, q, (char *)GOBJ_SUB(a0) + 0xE0);
     SetRootQuaternion(a0, q);
-    sceVu0SubVector(&GOBJ_SUB(a0)->moveX, pos, (char *)GOBJ_SUB(a0) + 0x1F0);
-    CopyVector((char *)GOBJ_SUB(a0) + 0x1F0, pos);
+    sceVu0SubVector(&GOBJ_SUB(a0)->moveX, pos, GOBJ_SUB(a0)->lastPos);
+    CopyVector(GOBJ_SUB(a0)->lastPos, pos);
     SetRootPosition(a0, pos);
     ExecFrameDependSequence(a0);
     return UpdateFrameCounter(a0);
@@ -1176,24 +1173,24 @@ static float floatPushDir[8][4] = {
    scratch vectors are the CALLER's: the ROM's frame places them among
    execFloating's own locals, ahead of the word whose address goes to
    GetWaterReaction. */
-static inline void pushOutFloatingBox(char *cw, float *m, float *sv, float *dv, float *pos,
+static inline void pushOutFloatingBox(ClipBuf *cw, float *m, float *sv, float *dv, float *pos,
                                       float *q, float r)
 {
     float *dir;
     float len;
     int i;
 
-    memset(cw, 0, 0xC0);
+    memset(cw, 0, sizeof(ClipBuf));
     /* the counter is only read by the test, so loop.c reverses it: the ROM
        counts down from 7 while the direction pointer still walks up. */
     for (i = 0, dir = floatPushDir[0]; i < 8; i++, dir += 4) {
-        CopyVector(cw, pos);
+        CopyVector(cw->pt[0], pos);
         GetMatrixFromQuaternionPos(m, q, pos);
         _ScaleVectorXYZ(sv, dir, r);
-        _ApplyMatrix(cw + 0x10, m, sv);
+        _ApplyMatrix(cw->pt[1], m, sv);
         ClipWall(cw);
-        if (*(int *)(cw + 0x88) != 0) {
-            _SubVectorXYZ(dv, cw + 0x20, cw + 0x10);
+        if (cw->wall.n != 0) {
+            _SubVectorXYZ(dv, cw->pt[2], cw->pt[1]);
             len = VectorLengthSquare(dv);
             if (1.0f < len) {
                 _ScaleVector(dv, dv, 1.0f / _Sqrt(len));
@@ -1255,7 +1252,7 @@ static float floatTiltAxis[4] = {0.0f, 1.0f, 0.0f, 0.0f};
 
 void execFloating(GObj *self)
 {
-    char fw[0xC0];
+    ClipBuf fw;
     float pos[4];
     float d[4];
     float g[4];
@@ -1266,7 +1263,7 @@ void execFloating(GObj *self)
     float q[4];
     float rot[4];
     float m[16];
-    char cw[0xC0];
+    ClipBuf cw;
     float cm[16];
     float sv[4];
     float dv[4];
@@ -1288,7 +1285,7 @@ void execFloating(GObj *self)
         avoidCharGObj(self, girlGObj);
     }
     GetRootPosition(pos, self);
-    GetLowerPlaneCollision(fw, pos);
+    GetLowerPlaneCollision(&fw, pos);
     len = VectorLengthSquare((char *)GOBJ_SUB(self) + 0x130);
     if (100.0f < len) {
         _ScaleVectorXYZ((char *)GOBJ_SUB(self) + 0x130, (char *)GOBJ_SUB(self) + 0x130,
@@ -1297,13 +1294,13 @@ void execFloating(GObj *self)
     /* the three water-probe heights are written as additions of the offset, not
        as subtractions: the ROM adds -50.0f and -25.0f and gcc 2.9 emits sub.s
        for a written subtraction (line 1128 below is one). */
-    if (GetWaterReaction(w->waterHeight, &hit, fw, pos, (char *)GOBJ_SUB(self) + 0x130,
+    if (GetWaterReaction(w->waterHeight, &hit, &fw, pos, (char *)GOBJ_SUB(self) + 0x130,
                          pos[1] + -50.0f, pos[1] + -25.0f, pos[1] + 50.0f, 0.9f,
                          60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * -0.1f *
                              (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1])) *
                              3.0f) != 0) {
-        if (*(float *)(fw + 0x24) - 50.0f < pos[1]) {
-            pos[1] = *(float *)(fw + 0x24) - 50.0f;
+        if (fw.pt[2][1] - 50.0f < pos[1]) {
+            pos[1] = fw.pt[2][1] - 50.0f;
         }
         _SubVector(d, pos, w->floatAnchor);
         d[1] = 0.0f;
@@ -1338,21 +1335,21 @@ void execFloating(GObj *self)
         sceVu0SubVector(pos, pos, sub);
         CopyVector(w->lastOffset, ofs);
         r = w->scaleX > w->scaleZ ? w->scaleX * 50.0f : w->scaleZ * 50.0f;
-        pushOutFloatingBox(cw, cm, sv, dv, pos, q, r);
-        _AddVectorXYZ(cw, pos, ofs);
-        *(float *)(cw + 0xC) = 0.0f;
-        _SubVector((char *)GOBJ_SUB(self) + 0x130, cw, w->lastPos);
+        pushOutFloatingBox(&cw, cm, sv, dv, pos, q, r);
+        _AddVectorXYZ(cw.pt[0], pos, ofs);
+        cw.pt[0][3] = 0.0f;
+        _SubVector((char *)GOBJ_SUB(self) + 0x130, cw.pt[0], w->lastPos);
         GOBJ_SUB(self)->word13C = 0;
-        CopyVector(w->lastPos, cw);
+        CopyVector(w->lastPos, cw.pt[0]);
         SetRootPosition(self, pos);
     }
     GOBJ_SUB(self)->moveY += GetTableSin(w->floatPhase) * 0.1f;
     w->floatPhase += 2048;
     w->charHit = 0;
     if (w->floatPhase == 0) {
-        CopyVector(cw, pos);
-        *(float *)(cw + 4) = w->waterHeight[0];
-        EntryStageMultiBgaManager(491, cw, IdentityQuaternion);
+        CopyVector(cw.pt[0], pos);
+        cw.pt[0][1] = w->waterHeight[0];
+        EntryStageMultiBgaManager(491, cw.pt[0], IdentityQuaternion);
     }
 }
 
@@ -1985,7 +1982,7 @@ int MoveBoxWithHoldPoint(GObj *a0, void *a1, GObj *a2, int a3, float *a4)
 
     sceVu0ScaleVector(mv, nv, dist);
 
-    if (*(int *)((char *)GOBJ_SUB(a0)->work + 0x58) != 0) {
+    if (((BoxWork *)GOBJ_SUB(a0)->work)->route != 0) {
         float m[16];
 
         _ScaleVector(mv, mv, 0.05f);
@@ -2042,16 +2039,16 @@ inline int BoxRideFunc(ObjNode *a0, GObj *a1)
 {
     GObj *obj = a0->obj;
     Sub15C *p15c = GOBJ_SUB(obj);
-    char *s0 = *(char **)((char *)p15c + 0x830);
-    char buf[0x20];
-    if (*(int *)(s0 + 0x20) != 5) {
+    BoxWork *s0 = p15c->work;
+    char buf[32];
+    if (s0->mode != 5) {
         return 0;
     }
     p15c->moveY += 0.5f;
     GetRootPosition(buf + 0x10, obj);
     CopyVector(buf, (char *)GOBJ_SUB(a1) + 0xA0);
     *(int *)(buf + 4) = 0;
-    sceVu0AddVector(s0 + 0xD0, s0 + 0xD0, buf);
+    sceVu0AddVector(s0->tiltVel, s0->tiltVel, buf);
     return 1;
 }
 
@@ -2121,10 +2118,10 @@ static unsigned char boxSerial = 0; /* derived name */
 /* The 64-byte layout record InitBoxGeo is handed; the word at 0x30 packs the
    route number in its low half and the sub-box model in its high half. */
 typedef struct {
-    char pad00[0x20];
+    char pad00[32];
     float scale[4]; /* 0x20 */
     int kind;       /* 0x30 */
-    char pad34[0xC];
+    char pad34[12];
 } __attribute__((aligned(8))) BoxLayout;
 
 /* The parent-link record LinkParentOfDObj copies as one word pair: the
@@ -2135,47 +2132,47 @@ typedef struct {
 } BoxLink;
 
 /* box.c:2014-2102 in the listing. */
-char *InitBoxGeo(GObj *self, BoxLayout *lay)
+BoxWork *InitBoxGeo(GObj *self, BoxLayout *lay)
 {
-    char *w = (char *)iosMallocDebug(ios_partition_sugipon, 416, __FILE__, 2017);
+    BoxWork *w = iosMallocDebug(ios_partition_sugipon, 416, __FILE__, 2017);
     char *o;
     char *g;
     int sub;
 
-    (char *)GOBJ_SUB(self)->work = w;
+    GOBJ_SUB(self)->work = w;
 
-    *(BoxWork *)w = boxWorkInit;
+    *w = boxWorkInit;
 
-    *(int *)w = boxSerial;
+    w->serial = boxSerial;
     boxSerial = (boxSerial + 1) % 30;
 
-    ((IntFloat *)(w + 0x24))->f = lay->scale[0];
-    ((IntFloat *)(w + 0x28))->f = lay->scale[2];
+    ((IntFloat *)&w->scaleX)->f = lay->scale[0];
+    ((IntFloat *)&w->scaleZ)->f = lay->scale[2];
     ((IntFloat *)((char *)GOBJ_SUB(self)->nodes + 0x20))->f =
         ((IntFloat *)((char *)GOBJ_SUB(self)->nodes + 0x24))->f =
             ((IntFloat *)((char *)GOBJ_SUB(self)->nodes + 0x28))->f = 1.0f;
 
-    *(int *)(w + 0x2C) = GOBJ_SUB(self)->colData;
+    w->colData = GOBJ_SUB(self)->colData;
 
-    *(int *)(w + 0x160) = (int)CSVSYSTEM_InitDObj(63, (float *)&InitialSObjSimpleSetting);
+    w->effectDObj = (int)CSVSYSTEM_InitDObj(63, (float *)&InitialSObjSimpleSetting);
 
-    *(int *)(w + 0x58) = lay->kind & 0xFFFF;
+    w->route = lay->kind & 0xFFFF;
     *(void **)((char *)GOBJ_SUB(self) + 0x81C) = (void *)BoxRideFunc;
 
     g = CreateLayoutedGObj(0, 64, -1, 0, (int)lay, 0, 7, 0);
-    *(int *)(w + 0x180) = (int)g;
+    w->subGObj = (int)g;
 
     GOBJ_SUB(g)->disp = 1;
     *(int *)(g + 0x16C) = 0;
 
-    if (*(int *)(w + 0x58) != 0) {
-        *(int *)(w + 0x5C) = countPathPoints(*(int *)(w + 0x58));
-        *(float *)(w + 0x134) = 0.98f;
+    if (w->route != 0) {
+        w->pointCount = countPathPoints(w->route);
+        w->friction = 0.98f;
         onPathInitialize(self);
         onPath(self);
         initWheels(self, (float *)lay);
         execNormalMove(self, 1);
-        debug_StdPrintfDummy("%d\n", *(int *)(w + 0x5C));
+        debug_StdPrintfDummy("%d\n", w->pointCount);
 
         if ((lay->kind & 0xFFFF0000) != 0) {
             BoxLayout r = *lay;
@@ -2210,14 +2207,14 @@ char *InitBoxGeo(GObj *self, BoxLayout *lay)
 
             SetSwitchTriggerFunc(o, (void *)moveBoxAutoMatic);
 
-            *(float *)(w + 0x134) = 0.85f;
+            w->friction = 0.85f;
         }
         UpdateRootMatrix(self);
         return w;
     }
 
-    *(float *)(w + 0xF0) = random_signed() * 50.0f * 0.5f;
-    *(float *)(w + 0xF4) = random_signed() * 50.0f * 0.5f;
+    w->tiltForce[0] = random_signed() * 50.0f * 0.5f;
+    w->tiltForce[1] = random_signed() * 50.0f * 0.5f;
     ReInitBoxGeo(self);
 
     return w;
@@ -2245,7 +2242,7 @@ inline void BoxDL(GObj *a0)
     }
     if (systemStatus[5] != 0) {
         StopSEPackageWithGroupVariation(a0, 1);
-        *(int *)((char *)GOBJ_SUB(a0)->work + 0x138) = 0;
+        ((BoxWork *)GOBJ_SUB(a0)->work)->autoDir = 0;
     }
 }
 
@@ -2273,5 +2270,7 @@ inline int BoxMemoryFunc(void)
 
 int GetBoxMode(GObj *a0)
 {
-    return *(int *)((char *)GOBJ_SUB(a0)->work + 0x20);
+    BoxWork *q = GOBJ_SUB(a0)->work;
+
+    return q->mode;
 }

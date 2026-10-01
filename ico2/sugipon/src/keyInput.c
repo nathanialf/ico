@@ -30,11 +30,11 @@ void InitKeyInput(void)
 }
 
 typedef struct PadBuf {
-    char _p0[0x18];
+    char _p0[24];
     int f18; /* 0x18 */
     int f1C; /* 0x1C */
     int f20; /* 0x20 */
-    char _p24[0x60 - 0x24];
+    char _p24[60];
 } PadBuf;
 
 extern char iosPadConfDefault[];
@@ -42,8 +42,8 @@ extern char iosPadConfDefault[];
 void ExecKeyInput(void)
 {
     PadBuf buf;
-    unsigned char stR[0x20];
-    unsigned char stL[0x20];
+    unsigned char stR[32];
+    unsigned char stL[32];
     int i;
     unsigned int j;
 

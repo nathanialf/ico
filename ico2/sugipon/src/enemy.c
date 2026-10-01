@@ -24,6 +24,7 @@
 #include "ios.h"
 #include "main.h"
 #include <assert.h>
+#include "sceneManager.h"
 
 /* kept local: int (float, float, float, int, int, char *, int) here, int (int, int, int, int) in Primitive.h */
 extern int prim_InitParticle(float f12, float f13, float f14, int num, int a1, char *tag, int a3);
@@ -333,7 +334,7 @@ void dispEnemyObject(void *self)
  * EnemyCheckHit's allocation after the call shows (chain 2 pass 8). */
 static inline int enemySetParticle(int kind, void *obj, float *dir)
 {
-    char buf[0x20];
+    char buf[32];
     MatrixDrive_GetTurnZAngleXY(buf + 0x10, buf + 0x12, dir[0], dir[1], -dir[2]);
     SetIdentityQuaternion(buf);
     RotQuaternionX(buf, (short)(-*(unsigned short *)(buf + 0x10)));
@@ -474,9 +475,9 @@ static int enemyVariation = 0; /* derived name */
 /* static helper the listing places at enemy.c lines 281-290, expanded only into
  * InitEnemyGeo; never emitted out of line, so it has no MAIN.MAP symbol and this
  * name is ours.  Its own body inlines the lines 99-100 clear loop. */
-static inline int enemyInitPartsList(GObj *self, char *param)
+static inline int enemyInitPartsList(GObj *self, SObjSimpleSetting *param)
 {
-    int kind = *(int *)(param + 0x30);
+    int kind = param->obj;
     EnemyWork *w;
     int n;
     int *parts;
@@ -495,7 +496,7 @@ static inline int enemyInitPartsList(GObj *self, char *param)
     return setEnemyObject(self, kind, &w->ctr);
 }
 
-void *InitEnemyGeo(GObj *self, char *param)
+void *InitEnemyGeo(GObj *self, SObjSimpleSetting *param)
 {
     EnemyWork *w;
     int kind;
@@ -701,7 +702,7 @@ void EnemySetfDisappear(GObj *self, float *dir)
 
 void enemySetParticleDie(void *a0, float *a1)
 {
-    char buf[0x20];
+    char buf[32];
     MatrixDrive_GetTurnZAngleXY(buf + 0x10, buf + 0x12, a1[0], a1[1], -a1[2]);
     SetIdentityQuaternion(buf);
     RotQuaternionX(buf, (short)(-*(unsigned short *)(buf + 0x10)));

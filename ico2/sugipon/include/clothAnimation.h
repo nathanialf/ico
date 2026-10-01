@@ -48,13 +48,13 @@ typedef struct {
     float ofsY; /* 0x08, likewise */
     float ofsZ; /* 0x0C, likewise; the init also stores 1 / (ofsZ + ofsZ) at 0x34 */
     int node;   /* 0x10, the argument GetSkeltonFocusNode is called with */
-    char pad14[0x20 - 0x14];
+    char pad14[12];
     float float20; /* 0x20 */
     float float24; /* 0x24 */
-    char pad28[0x2C - 0x28];
+    char pad28[4];
     float float2C; /* 0x2C */
     float float30; /* 0x30 */
-    char pad34[0x40 - 0x34];
+    char pad34[12];
 } ClothHangCfg;
 
 /* RECONSTRUCTION.  The generated cloth mesh InitCloth4D's second argument
@@ -66,7 +66,7 @@ typedef struct {
  * and queen.o. */
 typedef struct {
     float length; /* 0x00, the column's length, scaled by the actor scale */
-    char pad04[0x10 - 0x04];
+    char pad04[12];
     float pos[4];   /* 0x10, the point the column hangs from */
     float dir[4];   /* 0x20, a unit vector */
     int node0;      /* 0x30, a skeleton node, blended with node1 */
@@ -74,7 +74,7 @@ typedef struct {
     int node1;      /* 0x38, -1 when the column hangs from node0 alone */
     float weight1;  /* 0x3C */
     float (*uv)[2]; /* 0x40, ny texture coordinates */
-    char pad44[0x50 - 0x44];
+    char pad44[12];
     float vec50[4]; /* 0x50 */
 } __attribute__((aligned(16))) Cloth4DCol;
 

@@ -19,7 +19,7 @@
 #include <assert.h>
 
 typedef struct {
-    char b[0x20];
+    char b[32];
 } ShiftBlk;
 
 /* .sbss, owned by motionManager.o (0x38, the run and MAIN.MAP's own size; MAIN.MAP
@@ -54,7 +54,7 @@ static char *naturalMotion; /* derived name */
 /* the current motion's motionKind record, held as a byte pointer: the blend
    factor _getFinalMatrix reads at 0x158 schedules as the ROM has it only as a
    byte-offset float load (a MotionDef pointer moves 88 bytes) */
-static char *skelMotDef; /* derived name */
+static const MotionDef *skelMotDef; /* derived name */
 
 /* .data, owned by motionManager.o (VMA 0x4EC950..0x4ECBE0), in the ROM's run
    order, which is the source order of each object's first user. MAIN.MAP names
@@ -375,7 +375,7 @@ void checkUpperWallState(void)
     memset(&buf, 0, 0xC0);
     MatrixDrive_PushMatrix();
     MatrixDrive_TransMatrixV(wallCheckBase);
-    CopyVector(&buf, (void *)(MatrixDrive_GetMatrix() + 0x30));
+    CopyVector(&buf, (void *)(MatrixDrive_GetMatrix()[3]));
     sceVu0ApplyMatrix((int *)buf.pt[1], MatrixDrive_GetMatrix(), wallCheckAhead);
     MatrixDrive_PopMatrix();
     ClipWall(&buf);
@@ -398,7 +398,7 @@ void checkWallSideState(void)
 
     MatrixDrive_PushMatrix();
     MatrixDrive_TransMatrixV(wallCheckBase);
-    CopyVector((void *)p, (void *)(MatrixDrive_GetMatrix() + 0x30));
+    CopyVector((void *)p, (void *)(MatrixDrive_GetMatrix()[3]));
     sceVu0ApplyMatrix((int *)p->pt[1], MatrixDrive_GetMatrix(), wallCheckAhead);
     MatrixDrive_PopMatrix();
 
@@ -442,7 +442,7 @@ void checkWallState(int flag)
                            the assembler pulls into PushMatrix's delay slot */
     MatrixDrive_PushMatrix();
     MatrixDrive_TransMatrixV(wallCheckBase);
-    CopyVector((void *)p, (void *)(MatrixDrive_GetMatrix() + 0x30));
+    CopyVector((void *)p, (void *)(MatrixDrive_GetMatrix()[3]));
     sceVu0ApplyMatrix((int *)p->pt[1], MatrixDrive_GetMatrix(), wallCheckAhead);
     MatrixDrive_PopMatrix();
 
@@ -539,7 +539,7 @@ void checkCliffState(int a0)
     cliffCheckBase[2] = k;
     MatrixDrive_PushMatrix();
     MatrixDrive_TransMatrixV(cliffCheckBase);
-    CopyVector(p, (void *)(MatrixDrive_GetMatrix() + 0x30));
+    CopyVector(p, (void *)(MatrixDrive_GetMatrix()[3]));
     sceVu0ApplyMatrix((int *)p->pt[1], MatrixDrive_GetMatrix(), cliffCheckAhead);
     _ApplyMatrix(mv, MatrixDrive_GetMatrix(), ZUnitVector);
     MatrixDrive_PopMatrix();
@@ -697,11 +697,9 @@ void _checkCliffAndWall(void)
                 MatrixDrive_PushMatrix();
                 UnitRotation(MatrixDrive_GetMatrix());
                 _ScaleVectorXYZ(v, v, 1.0f / _Sqrt(d));
-                *(float *)(MatrixDrive_GetMatrix() + 0x00) =
-                    *(float *)(MatrixDrive_GetMatrix() + 0x28) = v[2];
-                *(float *)(MatrixDrive_GetMatrix() + 0x08) = -v[0];
-                *(float *)(MatrixDrive_GetMatrix() + 0x20) =
-                    -*(float *)(MatrixDrive_GetMatrix() + 0x08);
+                MatrixDrive_GetMatrix()[0][0] = MatrixDrive_GetMatrix()[2][2] = v[2];
+                MatrixDrive_GetMatrix()[0][2] = -v[0];
+                MatrixDrive_GetMatrix()[2][0] = -MatrixDrive_GetMatrix()[0][2];
                 checkCliffState(0);
                 MatrixDrive_PopMatrix();
             }
@@ -763,7 +761,7 @@ void dispActNode(int id)
     gif_SetAlpha(1, 5, 0x80);
     MatrixDrive_PushMatrix();
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-    CopyVector((void *)(MatrixDrive_GetMatrix() + 0x30),
+    CopyVector((void *)(MatrixDrive_GetMatrix()[3]),
                (void *)((char *)GOBJ_SUB(skelGObj)->nodeMtx + id * 0x40 + 0x30));
     MatrixDrive_ScaleMatrix(5.0f, 5.0f, 5.0f);
     dispSquare(0xFF);
@@ -809,7 +807,7 @@ static inline void calcMaxNodeHeight(int n)
 void _getGeometryOfMotion(ObjNode *out, int second)
 {
     float v[4];
-    char q[0x10];
+    char q[16];
     int save180 = skelRoot->standNode;
 
     MatrixDrive_PushMatrix();
@@ -854,11 +852,11 @@ void _getGeometryOfMotion(ObjNode *out, int second)
         pm = skelMotCtrl;
         switch (pm->rootUpdateMode) {
         default: {
-            char buf[0x400];
+            char buf[1024];
             sprintf(
                 buf,
                 "MAY BE MOTION ORIENT DATA WAS BROKEN\n(MOTIONNAME:\"%s\" ID:%d: rootUpdateMode:%d)\n",
-                skelMotDef + 0xC0, pm->motion, pm->rootUpdateMode);
+                skelMotDef->name, pm->motion, pm->rootUpdateMode);
             debug_assertMessage(__FILE__, 997, buf);
             __assert(__FILE__, 997, "e");
         } break;
@@ -932,7 +930,7 @@ inline void getGeometryOfMotion(ObjNode *out, int second)
 {
     ShiftBlk buf;
     Sub15C *p;
-    buf = *(ShiftBlk *)(*(char **)((char *)skelGObj + 0x15C) + 0x180);
+    buf = *(ShiftBlk *)((char *)GOBJ_SUB(skelGObj) + 0x180);
     _getGeometryOfMotion(out, second);
     p = ((GObj *)skelGObj)->dobj;
     if (p->keepWall != 0) {
@@ -1025,7 +1023,7 @@ typedef union MotWorkRef {
 
 #define MOWORK(self) (((MotWorkRef *)((char *)(self) + 0x15C))->sub)
 
-void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, char *tbl, int k)
+void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, float *step, int k)
 {
     ObjNode sh;
     float v2[4];
@@ -1034,15 +1032,14 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, char
     stepFocusNode = k;
     if ((char *)MOWORK(self)->localObj != 0) {
         MOWORK(self)->localPos[3] = 1.0f;
-        CopyVector(v2, (char *)MOWORK(self) + 0x7E0);
+        CopyVector(v2, MOWORK(self)->localPos);
         sceVu0ApplyMatrix((int *)v2,
                           *(int *)(*(int *)((char *)MOWORK(self)->localObj + 0x15C) + 0xC) +
                               MOWORK(self)->localNode * 0x40,
                           (char *)v2);
     } else {
-        AddVectorXYZ((char *)MOWORK(self) + 0x7E0, (char *)MOWORK(self) + 0x7E0,
-                     (char *)MOWORK(self) + 0x7F0);
-        CopyVector(v2, (char *)MOWORK(self) + 0x7E0);
+        AddVectorXYZ(MOWORK(self)->localPos, MOWORK(self)->localPos, (char *)MOWORK(self) + 0x7F0);
+        CopyVector(v2, MOWORK(self)->localPos);
     }
     v2[1] = v2[1] + MOWORK(self)->localHeight;
     v2[3] = 1.0f;
@@ -1061,9 +1058,9 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, char
         skelRoot = (struct MotRoot *)((char *)MOWORK(self) + 0xA0);
         skelMotCtrl = (struct MotCtrl *)((char *)MOWORK(self) + 0x470);
         skelNode = (char *)*(MotNode **)((char *)MOWORK(self) + 0x8C);
-        skelMotDef = (char *)&motionKind[skelMotCtrl->motion];
+        skelMotDef = &motionKind[skelMotCtrl->motion];
         CopyVector(rootMove, v);
-        CopyVector(rootStep, tbl);
+        CopyVector(rootStep, step);
         skelMotCtrl->flags = 0;
         sceVu0SubVector(rootDelta, skelRoot->last, skelRoot->clipFrom);
         if (MOWORK(self)->word638 != 0) {
@@ -1076,10 +1073,10 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, char
         if (MOWORK(self)->word4E8 == 1) {
             sh = InitialObjPointer;
         }
-        AddVectorXYZ((char *)MOWORK(self) + 0x7C0, skelRoot->pos, skelRoot->trans);
+        AddVectorXYZ(MOWORK(self)->motionPos, skelRoot->pos, skelRoot->trans);
         MOWORK(self)->motionPos[3] = 1.0f;
         MOWORK(self)->motionPos[1] = MOWORK(self)->motionPos[1] * r + v2[1] * (1.0f - r);
-        GetMatrixOfMotion(self, m1, (char *)MOWORK(self) + 0x7C0);
+        GetMatrixOfMotion(self, m1, MOWORK(self)->motionPos);
     }
     if (debug_wallcheck_flag != 0) {
         gif_StartPacketPri(0xB);
@@ -1106,9 +1103,9 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, char
     }
     MOWORK(self)->motionPos[1] = MOWORK(self)->motionPos[1] - skelRoot->height;
     if (sh.obj != 0) {
-        float m[0x10];
+        float m[16];
         MatrixDrive_SetTransposeMatrix((void *)m, GOBJ_SUB(sh.obj)->nodeMtx + sh.node * 0x40);
-        sceVu0ApplyMatrix((int *)((char *)MOWORK(self) + 0x7C0), m, (char *)MOWORK(self) + 0x7C0);
+        sceVu0ApplyMatrix((int *)(MOWORK(self)->motionPos), m, MOWORK(self)->motionPos);
     }
     execPositionReserver(self, sh);
 }
@@ -1281,7 +1278,7 @@ static void getInitialMatrix(int obj, int idx)
  * SkelTestGeo below call this function with one argument, as ROM does. */
 void dispSkelton()
 {
-    float *v;
+    float (*v)[4];
     gif_StartPacketPri(0xB);
     gif_SetAlpha(1, 5, 0x80);
     MatrixDrive_PushMatrix();

@@ -12,6 +12,7 @@
 #include "matrixDrive.h"
 #include "memory.h"
 #include "windField.h"
+#include "sceneManager.h"
 
 /* RECONSTRUCTION, names ours: the cage's 80-byte work record, InitCageGeo's
    allocation, kept at +0x830 of the object's motion work: the cage and chain
@@ -113,7 +114,7 @@ static CageChainParam cageChainParam[2] = {
 extern char D_002A79B8[];
 
 /* listing rows sugipon/src/cage.c:96-132 */
-char *InitCageGeo(char *self, char *lay)
+char *InitCageGeo(char *self, SObjSimpleSetting *lay)
 {
     CageWork *w;
     char *ch;
@@ -128,18 +129,18 @@ char *InitCageGeo(char *self, char *lay)
         *(int *)(D_002A79B8 + ((SubHandle *)(self + 0x15C))->sub->accessary * 40 + 4),
         (float *)lay);
     w->damping = 0.995f;
-    w->mass = *(float *)(lay + 0x20);
+    w->mass = lay->scale[0];
     ((CageChainParam *)ch)[0] = cageChainParam[0];
     ((CageChainParam *)ch)[1] = cageChainParam[1];
-    *(float *)(ch + 0x20) = *(float *)lay;
-    *(float *)(ch + 0x24) = *(float *)(lay + 4);
-    *(float *)(ch + 0x28) = *(float *)(lay + 8);
-    *(float *)(ch + 0x14) = *(float *)(lay + 0x24);
+    *(float *)(ch + 0x20) = lay->pos[0];
+    *(float *)(ch + 0x24) = lay->pos[1];
+    *(float *)(ch + 0x28) = lay->pos[2];
+    *(float *)(ch + 0x14) = lay->scale[1];
     SetIdentityQuaternion(w->rot);
     w->chains = (char *)InitChains(ch);
     w->upperNode = SetChainExtendedWeight(*(int **)(w->chains + 8), 1, 0.0f, 600.0f);
     w->lowerNode = SetChainExtendedWeight(*(int **)(w->chains + 8), 1, 500.0f, 1400.0f);
-    w->angle = (short)(-*(float *)(lay + 0x14) * 10430.378f);
+    w->angle = (short)(-lay->rot[1] * 10430.378f);
     w->rideable = 1;
     one = 1.0f;
     {
@@ -152,8 +153,8 @@ char *InitCageGeo(char *self, char *lay)
 
         e->rot[0] = e->rot[1] = e->rot[2] = 0;
     }
-    w->linkLength = *(float *)(lay + 0x28);
-    w->linkCount = (int)(*(float *)(lay + 0x24) / w->linkLength);
+    w->linkLength = lay->scale[2];
+    w->linkCount = (int)(lay->scale[1] / w->linkLength);
 
     /* listing line 128 carries everything from here to the 0x84C store: one
        macro, the DObj buffer reallocation box.c, boy.c and omori's chain.c
@@ -368,8 +369,7 @@ void CageGeo(GObj *self)
                                *(char **)(*(char **)(w->chains + 8)));
         GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), q,
                                    *(char **)(*(char **)(w->chains + 8)));
-        CopyVector((char *)MatrixDrive_GetMatrix() + 0x30,
-                   *(char **)(*(char **)(w->chains + 8)) + 0x10);
+        CopyVector(MatrixDrive_GetMatrix()[3], *(char **)(*(char **)(w->chains + 8)) + 0x10);
     }
     MatrixDrive_TransMatrix(0.0f, -(w->linkLength * 0.5f - 20.0f), 0.0f);
 

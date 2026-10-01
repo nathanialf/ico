@@ -166,7 +166,7 @@ static inline int PutHandOnLadder(char *hw, int node)
     CopyMatrix(MatrixDrive_GetMatrix(),
                (char *)*(int *)(*(int *)(*(int *)(hw + 4) + 0x15C) + 0xC) + (node << 6));
     MatrixDrive_TransMatrix(7.0f, -4.0f, 0.0f);
-    CopyVector(hw + 0x30, (char *)MatrixDrive_GetMatrix() + 0x30);
+    CopyVector(hw + 0x30, MatrixDrive_GetMatrix()[3]);
     if (*(int *)(hw + 0x54) == 0) {
         return 0;
     }

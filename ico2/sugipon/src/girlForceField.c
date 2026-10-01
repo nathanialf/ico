@@ -16,6 +16,7 @@ typedef struct GirlForceFieldWork {
 #include "ios.h"
 #include "main.h"
 #include "StageAnimation.h"
+#include "sceneManager.h"
 
 /* The TU's .data (VMA 0x4EB430, 16 B = MAIN.MAP girlForceField.o .data): the
    girl's blue, the colour boy.c's position-sync marker draws her sphere in.
@@ -27,12 +28,12 @@ typedef struct GirlForceFieldWork {
    cannot pin: the name or the display it fed. */
 static int forceFieldColor[4] = {64, 96, 128, 128}; /* derived name */
 
-inline GirlForceFieldWork *InitGirlForceFieldGeo(char *self, char *param)
+inline GirlForceFieldWork *InitGirlForceFieldGeo(char *self, SObjSimpleSetting *param)
 {
     GirlForceFieldWork *w =
         (GirlForceFieldWork *)iosMallocDebug(ios_partition_sugipon, 12, "src/girlForceField.c", 23);
     struct DObjNode *c;
-    w->radius = *(float *)(param + 0x28);
+    w->radius = param->scale[2];
     w->invRadius = 1.0f / w->radius;
     w->frame = 0;
     c = ((SubHandle *)(self + 0x15C))->sub->nodes;

@@ -821,8 +821,8 @@ void dispSubParts(GObj *gobj);
 
 void BoyDL(GObj *gobj)
 {
-    char pos[0x10];
-    char quat[0x10];
+    char pos[16];
+    char quat[16];
     BoyWork *w = GOBJ_SUB(gobj)->work;
     PoolMesh *m;
     Sub15C *sub;

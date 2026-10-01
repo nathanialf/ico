@@ -67,7 +67,7 @@ inline void InitFlyManager(void)
 
 inline int GetFlyLimitClearance(void *pos)
 {
-    char work[0xC0];
+    char work[192];
 
     if (flyGObj != 0) {
         memset(work, 0, 0xC0);
@@ -80,7 +80,7 @@ inline int GetFlyLimitClearance(void *pos)
 
 inline int GetFlyLimitHeight(FlyLimitInfo *info, void *pos)
 {
-    char work[0xC0];
+    char work[192];
 
     if (flyGObj != 0) {
         memset(work, 0, 0xC0);

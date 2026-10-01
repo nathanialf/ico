@@ -92,7 +92,7 @@ inline void AttackCheckBoundaryDL(GObj *obj)
         gif_SetZTest(1);
         gif_SetAlpha(1, 5, 0x80);
         _UnitMatrix(MatrixDrive_GetMatrix());
-        CopyVector((char *)MatrixDrive_GetMatrix() + 0x30, (char *)GOBJ_SUB(obj)->nodeMtx + 0x30);
+        CopyVector(MatrixDrive_GetMatrix()[3], (char *)GOBJ_SUB(obj)->nodeMtx + 0x30);
         r = GetAttackCheckBoundaryRadius(obj);
         prim_DispWireSphere(r, acbSphereColor, 4, 4);
         gif_EndPacket();
@@ -105,7 +105,7 @@ inline void SetAttackCheckBoundaryAttribute(char *a0, int a1)
        the sub-object chase is int-typed (the engine's int handle), so the
        attribute store kills it and the manager's owner store at line 218
        reloads 0x15C */
-    char *w = (char *)*(int *)(*(int *)(a0 + 0x15C) + 0x830);
+    char *w = GOBJ_SUB(a0)->work;
     *(int *)(w + 8) = a1;
 }
 
@@ -204,7 +204,7 @@ typedef struct AcbMgr {
    there): the blank roster entry each slot starts from */
 static AcbEntry acbBlankEntry = {0, 0}; /* derived name */
 
-AcbMgr *InitAttackCheckBoundaryManagerGeo(int a0, char *a1)
+AcbMgr *InitAttackCheckBoundaryManagerGeo(int a0, SObjSimpleSetting *a1)
 {
     float v0[4];
     float v1[4];
@@ -216,7 +216,7 @@ AcbMgr *InitAttackCheckBoundaryManagerGeo(int a0, char *a1)
     int i;
     char *g;
 
-    rec = &layoutClothDef[*(int *)(a1 + 0x30)];
+    rec = &layoutClothDef[a1->obj];
     mgr = (AcbMgr *)iosMallocDebug(ios_partition_sugipon, 0x10, __FILE__, 180);
     mgr->prev = mgr->cur;
     mgr->cur = 0;
@@ -259,8 +259,8 @@ void AttackCheckBoundaryManagerGeo(GObj *self)
 
         /* int-typed chase (types.h GOBJ_SUB): the int store below may-alias the
            chase, so ROM reloads 0x15C/0x830 for the second access */
-        m->list[i].hit = *(int *)(*(int *)(*(int *)(e + 0x15C) + 0x830) + 4);
-        *(int *)(*(int *)(*(int *)(e + 0x15C) + 0x830) + 4) = 0;
+        m->list[i].hit = *(int *)(*(int *)((char *)GOBJ_SUB(e) + 0x830) + 4);
+        *(int *)(*(int *)((char *)GOBJ_SUB(e) + 0x830) + 4) = 0;
         *(int *)(e + 0x16C) = 1;
     }
     m->prev = m->cur;

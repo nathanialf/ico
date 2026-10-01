@@ -13,6 +13,8 @@
 #ifndef SWITCH_H
 #define SWITCH_H
 
+#include "sceneManager.h"
+
 struct GObj;
 
 /* The floor and wall lever geometry block InitFloorLeverGeo returns: eight
@@ -42,12 +44,12 @@ void SetSwitchTriggerFunc(char *a0, void *a1);
 void SetSwitchState(char *a0, int a1);
 void SetFloorLeverWithNodePoint(struct GObj *a0, struct GObj *a1, int a2);
 int CanFloorLeverPull(char *a0);
-LeverGeoWork *InitFloorLeverGeo(char *a0, char *a1);
+LeverGeoWork *InitFloorLeverGeo(char *a0, SObjSimpleSetting *a1);
 int GetFloorLeverAngle(char *a0);
 void SetWallLeverWithNodePoint(struct GObj *a0, struct GObj *a1, int a2);
 int CanWallLeverPull(char *a0);
 int IsWallLeverStatus(char *a0);
-LeverGeoWork *InitWallLeverGeo(char *a0, char *a1);
+LeverGeoWork *InitWallLeverGeo(char *a0, SObjSimpleSetting *a1);
 int GetWallLeverAngle(char *a0);
 
 #endif /* SWITCH_H */

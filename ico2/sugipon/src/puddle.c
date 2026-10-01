@@ -10,6 +10,7 @@
 #include "tableSin.h"
 #include "main.h"
 #include "ios.h"
+#include "sceneManager.h"
 
 /* 16-byte aligned: the template copy in InitPuddleGeo is ld/sd, not ldl/ldr. */
 typedef struct {
@@ -90,7 +91,7 @@ void PuddleGeo(GObj *a0);
 void EntryRippleToPuddle(GObj *a0, void *vec);
 int puddleRideFunc(char **a0, char *a1);
 
-PuddleWork *InitPuddleGeo(GObj *a0, char *a1)
+PuddleWork *InitPuddleGeo(GObj *a0, SObjSimpleSetting *a1)
 {
     PuddleWork *w = (PuddleWork *)iosMallocDebug(ios_partition_sugipon, 0xD0, __FILE__, 69);
     float *v;

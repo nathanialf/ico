@@ -292,7 +292,7 @@ void GlobalizeGeometry(GObj *gobj)
     if (*(GObj **)SUBOF(gobj) != 0) {
         sceVu0ApplyMatrix(
             m, (char *)SUBOF(*(GObj **)SUBOF(gobj))->nodeMtx + (SUBOF(gobj)->parentNode << 6), m);
-        sceVu0ApplyMatrix((char *)SUBOF(gobj) + 0x1F0,
+        sceVu0ApplyMatrix(SUBOF(gobj)->lastPos,
                           (char *)SUBOF(*(GObj **)SUBOF(gobj))->nodeMtx +
                               (SUBOF(gobj)->parentNode << 6),
                           (char *)SUBOF(gobj) + 0x1F0);
@@ -898,7 +898,7 @@ void GetRootPosition(void *dst, GObj *obj)
 
 void GetRootOrient(char *a0, GObj *a1)
 {
-    char buf[0x40];
+    char buf[64];
     Sub15C *sub = GOBJ_SUB(a1);
     char *p = (char *)sub + 0xA0;
     GetMatrixFromQuaternionPos(buf, (char *)sub + 0xD0, p);
@@ -935,7 +935,7 @@ int LimitExistGeometry(float *pos, int *exist)
 
 void GetRootMatrixTransOffsetByDObj(char *dst, char *src)
 {
-    char tmp[0x40];
+    char tmp[64];
     MatrixDrive_SetTransposeMatrix(tmp, src + 0x20);
     sceVu0MulMatrix(tmp, tmp, *(int *)(src + 0xC));
     CopyVector(dst, (tmp + 0x30));
@@ -943,7 +943,7 @@ void GetRootMatrixTransOffsetByDObj(char *dst, char *src)
 
 void GetRootMatrixTransOffset(char *dst, GObj *src)
 {
-    char tmp[0x40];
+    char tmp[64];
     Sub15C *p = GOBJ_SUB(src);
     MatrixDrive_SetTransposeMatrix(tmp, (char *)p + 0x20);
     sceVu0MulMatrix(tmp, tmp, p->nodeMtx);
@@ -952,8 +952,8 @@ void GetRootMatrixTransOffset(char *dst, GObj *src)
 
 void GetRootMotionOrient(char *a0, GObj *a1)
 {
-    char m[0x40];
-    char buf[0x40];
+    char m[64];
+    char buf[64];
     char *b = buf;
     Sub15C *sub = GOBJ_SUB(a1);
     char *p = (char *)sub + 0xA0;
@@ -972,7 +972,7 @@ void GetRootMotionOrient(char *a0, GObj *a1)
 
 void GetRootMotionMatrix(char *a0, GObj *a1)
 {
-    char buf[0x40];
+    char buf[64];
     Sub15C *sub = GOBJ_SUB(a1);
     char *p = (char *)sub + 0xA0;
     GetMatrixFromQuaternionPos(buf, (char *)sub + 0xD0, p);

@@ -70,14 +70,14 @@ typedef struct {
     Vec4A_P_1 from; /* 0x00 */
     Vec4A_P_1 to;   /* 0x10 */
     Vec4A_P_1 pos;  /* 0x20 */
-    char pad30[0x40];
+    char pad30[64];
     float radius; /* 0x70 */
-    char pad74[0xC];
+    char pad74[12];
     AP1ColHit wall;  /* 0x80 */
     AP1ColHit floor; /* 0x8C */
-    char pad98[0x8];
+    char pad98[8];
     Vec4A_P_1 normal; /* 0xA0 */
-    char padB0[0x10];
+    char padB0[16];
 } AP1Clip;
 
 /* RECONSTRUCTION, read from the ROM.  The 0x280-byte work record InitAP1
@@ -226,7 +226,7 @@ typedef union {
     long long ll;
 } AP1Flag;
 
-char *InitAP1(GObj *self, char *arg)
+char *InitAP1(GObj *self, SObjSimpleSetting *arg)
 {
     AP1Work *p;
     char *d;
@@ -234,7 +234,7 @@ char *InitAP1(GObj *self, char *arg)
 
     p = iosMallocDebug(ios_partition_sugipon, sizeof(AP1Work), a_p_1File, 228);
     GOBJ_SUB(self)->work = p;
-    p->layout = *(int *)(arg + 0x30);
+    p->layout = arg->obj;
     p->skel = 1;
     p->f_16C = 0;
     p->mode = 7;
@@ -350,12 +350,11 @@ char *InitAP1(GObj *self, char *arg)
     return p;
 }
 
-/* kept local: void (int, int) here, void (float *, float *) in quaternion.h */
-extern void GetMatrixFromQuaternion(int dst, int src);
-/* kept local: void (int, int, int) here, void (void *, void *, void *) in quaternion.h */
-extern void MultiQuaternion(int dst, int a, int b);
-/* kept local: void (int, int, int) here, void (float *, short, float *) in quaternion.h */
-extern void SetQuaternionByAxisRotateV(int dst, int p, int src);
+/* kept local: quaternion.h is not included in this TU, whose SetQuaternionByAxisRotateV and
+ * RotQuaternionY calls pass the angle as an int (quaternion.h: short), unextended in the ROM */
+extern void GetMatrixFromQuaternion(void *mtx, void *q);
+extern void MultiQuaternion(void *dst, void *a, void *b);
+extern void SetQuaternionByAxisRotateV(void *dst, int ang, void *axis);
 
 void yAxisRotFitting(GObj *self, void *arg2)
 {
@@ -368,15 +367,15 @@ void yAxisRotFitting(GObj *self, void *arg2)
     float f;
 
     GetRootQuaternion(&l70, self);
-    GetMatrixFromQuaternion((int)&m20, (int)&l70);
+    GetMatrixFromQuaternion(&m20, &l70);
     _ApplyMatrix(&l0, &m20, &ap1DownVector);
     f = _InnerProduct(&l0, arg2);
     r = GetTableArcCos(f);
     if (r != 0) {
         _OuterProduct(&l10, arg2, &l0);
         _NormalizeVector(&l10, &l10);
-        SetQuaternionByAxisRotateV((int)&l60, r, (int)&l10);
-        MultiQuaternion((int)&l70, (int)&l60, (int)&l70);
+        SetQuaternionByAxisRotateV(&l60, r, &l10);
+        MultiQuaternion(&l70, &l60, &l70);
         SetRootQuaternion(self, &l70);
     }
 }
@@ -392,15 +391,15 @@ void zAxisRotFitting(GObj *self, void *arg2)
     float f;
 
     GetRootQuaternion(&l70, self);
-    GetMatrixFromQuaternion((int)&m20, (int)&l70);
+    GetMatrixFromQuaternion(&m20, &l70);
     _ApplyMatrix(&l0, &m20, ZUnitVector);
     f = _InnerProduct(&l0, arg2);
     r = GetTableArcCos(f);
     if (r != 0) {
         _OuterProduct(&l10, arg2, &l0);
         _NormalizeVector(&l10, &l10);
-        SetQuaternionByAxisRotateV((int)&l60, r, (int)&l10);
-        MultiQuaternion((int)&l70, (int)&l60, (int)&l70);
+        SetQuaternionByAxisRotateV(&l60, r, &l10);
+        MultiQuaternion(&l70, &l60, &l70);
         SetRootQuaternion(self, &l70);
     }
 }
@@ -437,13 +436,12 @@ static inline void fitYawToVector(GObj *self, Vec4A_P_1 *dir)
 
     GetRootQuaternion(&q, self);
     GetInverseQuaternion(&qi, &q);
-    GetMatrixFromQuaternion((int)&mm, (int)&qi);
+    GetMatrixFromQuaternion(&mm, &qi);
     _ApplyMatrix(&v, &mm, dir);
     v.m[2] = 0.0f;
     _NormalizeVector(&v, &v);
-    SetQuaternionByAxisRotateV((int)&rot, (short)-GetTableArcTan2(v.m[0], -v.m[1]),
-                               (int)ZUnitVector);
-    MultiQuaternion((int)&q, (int)&q, (int)&rot);
+    SetQuaternionByAxisRotateV(&rot, (short)-GetTableArcTan2(v.m[0], -v.m[1]), ZUnitVector);
+    MultiQuaternion(&q, &q, &rot);
     SetRootQuaternion(self, &q);
 }
 
@@ -646,7 +644,7 @@ int rolling(GObj *a0)
                   (char *)GOBJ_SUB(a0) + 0x130);
     {
         char *col = (char *)&ap1RollClip;
-        CopyVector(col, (char *)GOBJ_SUB(a0) + 0x1F0);
+        CopyVector(col, GOBJ_SUB(a0)->lastPos);
         CopyVector(col + 0x10, (char *)GOBJ_SUB(a0) + 0xA0);
         *(float *)(col + 4) -= 50.0f;
         if (clipAndTakeHit(&info, col)) {
@@ -733,7 +731,7 @@ void calcSubMission(GObj *self)
     CopyMatrix(MatrixDrive_GetMatrix(), p->mtx);
     MatrixDrive_RotMatrixZ(0x4000);
     MatrixDrive_RotMatrixX(0x4000);
-    CopyVector(&base, (char *)MatrixDrive_GetMatrix() + 0x30);
+    CopyVector(&base, MatrixDrive_GetMatrix()[3]);
     GetRootQuaternion(&rq, self);
     _ApplyMatrix(&axis, MatrixDrive_GetMatrix(), &ap1AttackAxis);
     MatrixDrive_SetTransposeMatrix(tm.m, MatrixDrive_GetMatrix());
@@ -796,14 +794,14 @@ void calcSubMission(GObj *self)
         MatrixDrive_TurnXObjectMatrixYZ(lv.m[0], lv.m[1], lv.m[2]);
 
         _ScaleVector(&v, &dir, 50.0f);
-        SetQuaternionByAxisRotateV((int)&q, (short)-ang, (int)&w);
-        GetMatrixFromQuaternion((int)&rm, (int)&q);
+        SetQuaternionByAxisRotateV(&q, (short)-ang, &w);
+        GetMatrixFromQuaternion(&rm, &q);
         _ApplyMatrix(&v, &rm, &v);
         _AddVectorXYZ(&part->knee, &base, &v);
 
-        CopyVector(&save, (char *)MatrixDrive_GetMatrix() + 0x30);
+        CopyVector(&save, MatrixDrive_GetMatrix()[3]);
         _MulMatrix(MatrixDrive_GetMatrix(), &rm, MatrixDrive_GetMatrix());
-        CopyVector((char *)MatrixDrive_GetMatrix() + 0x30, &save);
+        CopyVector(MatrixDrive_GetMatrix()[3], &save);
 
         if (p->skel != 0) {
             _MulMatrix((char *)GOBJ_SUB(self)->nodeMtx + ((&p->focus[1])[i * 2] << 6),
@@ -814,17 +812,17 @@ void calcSubMission(GObj *self)
         }
 
         _ScaleVector(&v2, &dir, 50.0f);
-        SetQuaternionByAxisRotateV((int)&q, (short)ang, (int)&w);
-        GetMatrixFromQuaternion((int)&rm, (int)&q);
+        SetQuaternionByAxisRotateV(&q, (short)ang, &w);
+        GetMatrixFromQuaternion(&rm, &q);
         _ApplyMatrix(&v2, &rm, &v2);
         _AddVectorXYZ(&part->tip, &part->knee, &v2);
 
         _MulMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix(), ap1ArmOffset);
 
-        CopyVector(&save2, (char *)MatrixDrive_GetMatrix() + 0x30);
+        CopyVector(&save2, MatrixDrive_GetMatrix()[3]);
         _MulMatrix(MatrixDrive_GetMatrix(), &rm, MatrixDrive_GetMatrix());
         _MulMatrix(MatrixDrive_GetMatrix(), &rm, MatrixDrive_GetMatrix());
-        CopyVector((char *)MatrixDrive_GetMatrix() + 0x30, &save2);
+        CopyVector(MatrixDrive_GetMatrix()[3], &save2);
 
         if (part->state == 2) {
             atk = attackCenterOffset;
@@ -860,7 +858,7 @@ void updateMatrix(GObj *a0)
     float mtx[16];
     AP1Work *p = GOBJ_SUB(a0)->work;
 
-    CopyVector((char *)GOBJ_SUB(a0) + 0x1F0, (char *)GOBJ_SUB(a0) + 0xA0);
+    CopyVector(GOBJ_SUB(a0)->lastPos, (char *)GOBJ_SUB(a0) + 0xA0);
     UpdateRootMatrix(a0);
     CopyMatrix(p->root, (void *)GOBJ_SUB(a0)->nodeMtx);
 
@@ -980,10 +978,10 @@ void SetAP1VisualState(GObj *a0, int a1)
     ((AP1Work *)GOBJ_SUB(a0)->work)->visible = a1;
 }
 
-/* kept local: void (int, int) here, void (void *, short) in quaternion.h */
-extern void RotQuaternionY(int q, int ang);
-/* kept local: void (int) here, void (void *) in quaternion.h */
-extern void RegularizeQuaternion(int q);
+/* kept local: the angle passes as an int here (quaternion.h: short), unextended in the ROM */
+extern void RotQuaternionY(void *q, int ang);
+/* kept local: quaternion.h is not included in this TU (see RotQuaternionY above) */
+extern void RegularizeQuaternion(void *q);
 
 int AP1Turn(GObj *a0, short a1)
 {
@@ -994,8 +992,8 @@ int AP1Turn(GObj *a0, short a1)
             goto out;
     }
     GetRootQuaternion(&q, a0);
-    RotQuaternionY((int)&q, a1);
-    RegularizeQuaternion((int)&q);
+    RotQuaternionY(&q, a1);
+    RegularizeQuaternion(&q);
     SetRootQuaternion(a0, &q);
     updateMatrix(a0);
     return 1;

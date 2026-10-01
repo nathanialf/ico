@@ -234,12 +234,12 @@ void ClearStreamMotionEntry(GObj *gobj)
 {
     *(int *)((char *)GOBJ_SUB(gobj) + 0x470) = -1;
     GOBJ_SUB(gobj)->streamScale = 1;
-    CopyVector((char *)GOBJ_SUB(gobj) + 0x670, ZeroVector);
+    CopyVector(GOBJ_SUB(gobj)->streamOfs, ZeroVector);
     GOBJ_SUB(gobj)->catchBoy = 1;
     if (0) {
         float v[4];
 
-        CopyVector(v, (char *)GOBJ_SUB(gobj) + 0x670);
+        CopyVector(v, GOBJ_SUB(gobj)->streamOfs);
         debug_StdPrintfDummy("ADJUST %08x(%f)\n", gobj, v[0]);
     }
 }

@@ -635,7 +635,7 @@ static inline int getFlyFieldCollision(ClipBuf *w)
 {
     float y;
 
-    y = *(float *)(skelMotDef + 0x120);
+    y = skelMotDef->landFrame;
     if (y < -0.5f) {
         return 0;
     }
@@ -870,7 +870,7 @@ ObjNode rootUpdateXZ(int kind, int no)
         MatrixDrive_PushMatrix();
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
         MultiMatrixByQuaternion(skelRoot->quat);
-        CopyVector((void *)(MatrixDrive_GetMatrix() + 0x30), ZeroPoint);
+        CopyVector((void *)(MatrixDrive_GetMatrix()[3]), ZeroPoint);
         sceVu0TransposeMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix());
         sceVu0ApplyMatrix((int *)skelRoot->focusLocal, MatrixDrive_GetMatrix(), (char *)&focus);
         MatrixDrive_PopMatrix();
@@ -1022,7 +1022,7 @@ ObjNode rootUpdateXZ_MotPos(int kind, int no)
         r = getFlyFieldCollision(&w);
         switch (r) {
         case 1:
-            if (*(float *)(skelMotDef + 0x120) > skelMotCtrl->animFrame) {
+            if (skelMotDef->landFrame > skelMotCtrl->animFrame) {
                 skelRoot->pos[1] = w.pt[2][1] + mv.f[1];
             } else {
                 landingFieldAction(&w);
@@ -1080,7 +1080,7 @@ int adjustSideWall(ClipBuf *w, int a1, Vec16 *wallPlane)
 
 int checkSideWall(float *probe, float *mtx, ClipBuf *p, ClipBuf *a3, Vec16 *wallPlane)
 {
-    char buf[0x10];
+    char buf[16];
     int flag;
     int mag;
     int mask;
@@ -1151,7 +1151,7 @@ void forceReset(void)
 
 void checkWallUpperWall(void)
 {
-    float *v;
+    float (*v)[4];
     MatrixDrive_PushMatrix();
     v = MatrixDrive_GetMatrix();
     sceVu0UnitMatrix(v);
@@ -1460,7 +1460,7 @@ int avoidSideAdjustWall(void)
     float mtx[16];
     /* a 0xD0-byte block cleared to the clip request's 0xC0: the ROM's frame
        is 16 bytes larger than a ClipBuf local gives (measured) */
-    char w[0xD0];
+    char w[208];
 
     memset(w, 0, 0xC0);
     GetMatrixFromQuaternionPos(mtx, skelRoot->quat, skelRoot->pos);
@@ -1577,7 +1577,7 @@ ObjNode rootUpdateStepSolution(int kind)
 
     if (kind >= 7 && (kind < 9 || kind == 16)) {
         if (skelMotCtrl->wordD8 != 0) {
-            if (*(int *)(skelMotDef + 0x130) == 0) {
+            if (skelMotDef->wallFeedback == 0) {
                 clipStepWallAndReact(skelRoot, skelRoot->last, skelRoot->radius, &cfg);
             }
             if (upperFieldCheck(skelRoot->pos, -50.0f) != 0) {
@@ -1699,9 +1699,9 @@ ObjNode rootUpdateDirectPlay(int a0)
     RotQuaternionY(skelRoot->quat, -32768);
     CopyVector(skelRoot->pos, rootMove);
     p = skelRoot->pos;
-    p[0] = p[0] - *(float *)(skelMotDef + 0x124);
-    p[1] = p[1] - *(float *)(skelMotDef + 0x128);
-    p[2] = p[2] + *(float *)(skelMotDef + 0x12C);
+    p[0] = p[0] - skelMotDef->rootOffset[0];
+    p[1] = p[1] - skelMotDef->rootOffset[1];
+    p[2] = p[2] + skelMotDef->rootOffset[2];
     if (kind == 14) {
         s = 1.0f / skelScale;
         p[0] = p[0] * -s;
@@ -1747,7 +1747,7 @@ ObjNode rootUpdateNodeFix(void)
         UnitRotation(MatrixDrive_GetMatrix());
         MultiMatrixByQuaternion(skelRoot->quat);
         MatrixDrive_TransMatrix(rootMove[0], rootMove[1], rootMove[2]);
-        CopyVector(skelRoot->pos, (char *)MatrixDrive_GetMatrix() + 0x30);
+        CopyVector(skelRoot->pos, MatrixDrive_GetMatrix()[3]);
     }
 
     Vec16 rq;
@@ -1766,7 +1766,7 @@ ObjNode rootUpdateNodeFix(void)
         MultiMatrixByQuaternion(skelRoot->fixQuat);
         MatrixDrive_TransMatrixV(skelRoot->fixPos);
         MatrixDrive_TransMatrix(rootMove[0], rootMove[1], rootMove[2]);
-        CopyVector(skelRoot->pos, (char *)MatrixDrive_GetMatrix() + 0x30);
+        CopyVector(skelRoot->pos, MatrixDrive_GetMatrix()[3]);
         break;
     case 1:
         break;

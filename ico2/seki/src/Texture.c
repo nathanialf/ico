@@ -13,6 +13,7 @@
 #include "DmaPacket.h"
 #include "FileManager.h"
 #include <assert.h>
+#include <stdio.h>
 
 /* One mipmap level of a texture record: the ROM reads addr with lw at +0, dbw
  * and vramSize with lh at +4 and +6, and indexes a 13-entry short table at +8
@@ -22,8 +23,8 @@
  * makes the ROM multiply the loop index by 0x24 and fold the 0x108 into the
  * displacement instead of adding one to the index. The array length is not
  * pinned by the ROM, only the two bases and the stride; tex_initTM2 clears
- * seven of them and they end at 0x204, below the packet tex_TransTexture
- * passes at 0x208. */
+ * seven of them and they end at 0x204, below the TIM2 picture header the
+ * record keeps at 0x208. */
 typedef struct TexLevel {
     void *addr;
     short dbw;
@@ -69,10 +70,10 @@ typedef struct Tim2Ext { /* field names derived */
  * record hands the display list: the two scroll offsets tex_textureAnimation
  * writes and tex_SetUVScroll seeds sit in its second quadword. */
 typedef struct TexUV { /* field names derived */
-    char pad0[0x10];
+    char pad0[16];
     float uOfs;
     float vOfs;
-    char pad18[0x30 - 0x18];
+    char pad18[24];
 } TexUV;
 
 /* the record's own five-quadword GS packet at 0x58 (the GIF tag, TEX1 and
@@ -107,15 +108,49 @@ typedef struct TexExt { /* field names derived */
     unsigned short level : 15;
     unsigned short pad6F : 1;
     short partition; /* the allocator partition the record was built in */
-    char pad72[0x78 - 0x72];
+    char pad72[6];
 } TexExt;
+
+/* PUBLIC SDK NAMING RUNG: the TIM2 picture header. The fields this TU reads off
+ * it are clutColors at 0x0E, clutType at 0x12 (masked with 0x3F where the
+ * compound bits have to go), imageType at 0x13 and the width and height at
+ * 0x14 and 0x16. */
+typedef struct Tim2Picture {
+    unsigned int totalSize;
+    unsigned int clutSize;
+    unsigned int imageSize;
+    unsigned short headerSize;
+    unsigned short clutColors;
+    unsigned char picFormat;
+    unsigned char mipMapTextures;
+    unsigned char clutType;
+    unsigned char imageType;
+    unsigned short imageWidth;
+    unsigned short imageHeight;
+    unsigned long long GsTex0;
+    unsigned long long GsTex1;
+    unsigned int GsRegs;
+    unsigned int GsTexClut;
+} Tim2Picture;
+
+/* PUBLIC SDK NAMING RUNG: the mipmap header that follows the picture header
+ * when there is more than one level, two MIPTBP registers and then one image
+ * size per level. tex_makeTexturePacket proves the split: it copies 0x30 bytes
+ * of picture header into the record and a second 0x30 bytes of mipmap header
+ * after it, and it steps over a variable number of size words through the
+ * mipmap_header_size table before it reaches the ICO block. */
+typedef struct Tim2Mipmap {
+    unsigned long long GsMiptbp1;
+    unsigned long long GsMiptbp2;
+    unsigned int sizes[8];
+} Tim2Mipmap;
 
 typedef struct CdvdRec { /* field names derived */
     /* the trimmed name tex_GetTextureNo compares against, and behind it the
      * path the texture was loaded from, which tex_initTextureSub keeps so a
      * second read of the same name from a different path can be reported */
-    char name[0x18];
-    char file[0x40];
+    char name[24];
+    char file[64];
     TexPkt pkt; /* 0x58 */
     TexUV uv;   /* 0xA8 */
     /* the base of the per-level transfer packets tex_setRegisters allocates */
@@ -123,14 +158,14 @@ typedef struct CdvdRec { /* field names derived */
     /* the TIM2 file image the record was built from */
     void *tim2;
     unsigned short levelNum; /* the mipmap level count */
-    char padE2[0xE4 - 0xE2];
+    char padE2[2];
     TexLevel clut;
     TexLevel lv[7];
-    char pad204[0x20C - 0x204];
-    /* the byte count tex_Tool hands malloc_MemCpy when it rebuilds the three
-     * shadow copies of the image after an edit */
-    int clutSize;
-    char pad210[0x268 - 0x210];
+    char pad204[4];
+    /* the TIM2 picture and mipmap headers tex_makeTexturePacket copies in;
+     * tex_Tool rebuilds the three CLUT copies from the picture's clutSize */
+    Tim2Picture pic; /* 0x208 */
+    Tim2Mipmap mip;  /* 0x238 */
     /* the animation record, opening with the 0x40-byte ICO block copied
      * whole from the TIM2 header */
     TexExt ext;
@@ -192,40 +227,6 @@ static TexEntry texTable[200];
 static int headTbp[14];
 
 static Tim2Ext toolExt;
-
-/* PUBLIC SDK NAMING RUNG: the TIM2 picture header. The fields this TU reads off
- * it are clutColors at 0x0E, clutType at 0x12 (masked with 0x3F where the
- * compound bits have to go), imageType at 0x13 and the width and height at
- * 0x14 and 0x16. */
-typedef struct Tim2Picture {
-    unsigned int totalSize;
-    unsigned int clutSize;
-    unsigned int imageSize;
-    unsigned short headerSize;
-    unsigned short clutColors;
-    unsigned char picFormat;
-    unsigned char mipMapTextures;
-    unsigned char clutType;
-    unsigned char imageType;
-    unsigned short imageWidth;
-    unsigned short imageHeight;
-    unsigned long long GsTex0;
-    unsigned long long GsTex1;
-    unsigned int GsRegs;
-    unsigned int GsTexClut;
-} Tim2Picture;
-
-/* PUBLIC SDK NAMING RUNG: the mipmap header that follows the picture header
- * when there is more than one level, two MIPTBP registers and then one image
- * size per level. tex_makeTexturePacket proves the split: it copies 0x30 bytes
- * of picture header into the record and a second 0x30 bytes of mipmap header
- * after it, and it steps over a variable number of size words through the
- * mipmap_header_size table before it reaches the ICO block. */
-typedef struct Tim2Mipmap {
-    unsigned long long GsMiptbp1;
-    unsigned long long GsMiptbp2;
-    unsigned int sizes[8];
-} Tim2Mipmap;
 
 /* The two VRAM bump allocators tex_AllocVramAuto dispatches to. The listing
    attributes them to two separate line runs of Texture.c (533/535 and
@@ -966,9 +967,6 @@ void tex_makeCopyImage(Tim2Picture *pic, CdvdRec *t, char *src, int convert)
     }
 }
 
-/* kept local: int (char *, const char *, ...) here, int (void *, int, ...) in stdio.h */
-extern int sprintf(char *buf, const char *fmt, ...);
-
 /* "ICO" */
 /* "e" */
 /* "0" */
@@ -1035,9 +1033,9 @@ void tex_makeTexturePacket(void *file, CdvdRec *t)
         t->lv[i].addr = 0;
     }
 
-    *(Tim2Picture *)((char *)t + 0x208) = *pic;
+    *&t->pic = *pic;
     if (2 <= pic->mipMapTextures) {
-        *(Tim2Mipmap *)((char *)t + 0x238) = *mip;
+        t->mip = *mip;
     }
 
     if (strcmp(ext->magic, "ICO") == 0 &&
@@ -1148,26 +1146,26 @@ void *pkt;
     sprintf(t->file, "%s", name);
     sprintf(t->name, "%s", buf);
     tex_makeTexturePacket(pkt, t);
-    tex_initTM2((Tim2Picture *)((char *)t + 0x208), t);
+    tex_initTM2(&t->pic, t);
     no = texCount;
 
-    *(int *)((char *)t + 0x2AC) = 0;
-    *(int *)((char *)t + 0x2B0) = 0;
-    *(int *)((char *)t + 0x2B4) = 0;
-    *(short *)((char *)t + 0x2B8) = 0;
-    *(short *)((char *)t + 0x2BA) = 0;
+    t->ext.uLimit = 0;
+    t->ext.vLimit = 0;
+    t->ext.limitOn = 0;
+    t->ext.frame = 0;
+    t->ext.clutFrame = 0;
     if (t->ext.animated != 0) {
-        t->ext.clutA = mallocseki(t->clutSize);
+        t->ext.clutA = mallocseki(t->pic.clutSize);
 
-        t->ext.clutB = mallocseki(t->clutSize);
+        t->ext.clutB = mallocseki(t->pic.clutSize);
 
-        t->ext.clutOrg = mallocseki(t->clutSize);
+        t->ext.clutOrg = mallocseki(t->pic.clutSize);
 
-        malloc_MemCpy(t->ext.clutA, (char *)t->clut.addr + 0x20, t->clutSize);
+        malloc_MemCpy(t->ext.clutA, (char *)t->clut.addr + 0x20, t->pic.clutSize);
 
-        malloc_MemCpy(t->ext.clutB, (char *)t->clut.addr + 0x20, t->clutSize);
+        malloc_MemCpy(t->ext.clutB, (char *)t->clut.addr + 0x20, t->pic.clutSize);
 
-        malloc_MemCpy(t->ext.clutOrg, (char *)t->clut.addr + 0x20, t->clutSize);
+        malloc_MemCpy(t->ext.clutOrg, (char *)t->clut.addr + 0x20, t->pic.clutSize);
     } else {
         t->ext.clutA = 0;
         t->ext.clutB = 0;
@@ -1221,7 +1219,7 @@ int tex_TransTexture(int id, int ret)
     if (id < 0) {
         ret = -1;
     } else if (*(int *)((char *)t + 0xDC) != 0) {
-        ret = tex_transTM2((Tim2Picture *)((char *)t + 0x208), t, id, ret);
+        ret = tex_transTM2(&t->pic, t, id, ret);
     } else {
         ret = -1;
     }
@@ -1246,9 +1244,9 @@ int tex_TransTexture(int id, int ret)
 
 /* the same stand-in for tex_GetTextureData, whose body the listing inlines
  * here at row 1642. */
-static inline int *getTextureDataDefocus(int idx)
+static inline CdvdRec *getTextureDataDefocus(int idx)
 {
-    return (int *)&texTable[idx].rec;
+    return &texTable[idx].rec;
 }
 
 typedef struct TexColor {
@@ -1273,7 +1271,7 @@ extern void gif_SpriteSensitiveOrg(int *r, unsigned int z, int *uv, unsigned cha
 
 void tex_TransTextureDefocus(int id, int lv)
 {
-    int *p;
+    CdvdRec *p;
     int w;
     int h;
     int tbp;
@@ -1282,8 +1280,8 @@ void tex_TransTextureDefocus(int id, int lv)
     tex_TransTexture(id, dl_GetPri());
 
     p = getTextureDataDefocus(id);
-    w = *(unsigned short *)((char *)p + 0x21C) >> lv;
-    h = *(unsigned short *)((char *)p + 0x21E) >> lv;
+    w = p->pic.imageWidth >> lv;
+    h = p->pic.imageHeight >> lv;
 
     tbp = tex_AllocVramAuto(0, w * h / 64);
 
@@ -1293,8 +1291,7 @@ void tex_TransTextureDefocus(int id, int lv)
     rect[2] = w * 16;
     rect[3] = h * 16;
     {
-        int uv[4] = {8, 8, *(unsigned short *)((char *)p + 0x21C) * 16,
-                     *(unsigned short *)((char *)p + 0x21E) * 16};
+        int uv[4] = {8, 8, p->pic.imageWidth * 16, p->pic.imageHeight * 16};
         TexColor col = {128, 128, 128, 128};
         gif_SetZTest(0);
         gif_SetZWrite(0);
@@ -1480,8 +1477,8 @@ void tex_textureAnimation(void)
             e->frame++;
 
             if (e->file.csSpd != 0 && e->file.csStp != 0 && e->file.csBgn != e->file.csEnd) {
-                int clut = psmTable[*(unsigned char *)((char *)t + 0x21A) & 0x3F].f4;
-                unsigned int n = *(unsigned int *)((char *)t + 0x20C) >> 2;
+                int clut = psmTable[t->pic.clutType & 0x3F].f4;
+                unsigned int n = t->pic.clutSize >> 2;
 
                 tex_scrollClut((char *)t->clut.addr + 0x20, e->clutA, e->clutB, clut, n, e,
                                e->clutFrame, t);
@@ -1497,8 +1494,8 @@ void tex_SetClutAnimation(int id, int frame)
     TexExt *c = &t->ext;
 
     if (c->animated != 0) {
-        int clut = psmTable[*((unsigned char *)t + 0x21A) & 0x3F].f4;
-        unsigned int n = (unsigned int)t->clutSize >> 2;
+        int clut = psmTable[t->pic.clutType & 0x3F].f4;
+        unsigned int n = t->pic.clutSize >> 2;
 
         if (frame != -1) {
             c->clutFrame = frame;
@@ -1692,25 +1689,24 @@ static inline void toolMakeRegs(CdvdRec *t, int lv)
 
 void tex_printTexture(int id)
 {
-    char *p = texTable[id].rec.name;
+    CdvdRec *p = &texTable[id].rec;
     int lv = texTable[id].rec.ext.level;
     float st[4];
 
     debug_PrintfDummy(ScreenWidth - 160, 195, 0xFF800000, "%8s:SIZE=%3dX%3d",
-                      textype[*(unsigned char *)(p + 0x21B)], *(unsigned short *)(p + 0x21C) >> lv,
-                      *(unsigned short *)(p + 0x21E) >> lv);
+                      textype[p->pic.imageType], p->pic.imageWidth >> lv, p->pic.imageHeight >> lv);
 
     tex_TransTexture(id, 11);
     gif_StartPacketPri(11);
     {
         float one = 1.0f;
         TexColor col = {128, 128, 128, 128};
-        int w = *(unsigned short *)(p + 0x21C) >> lv;
-        int h = *(unsigned short *)(p + 0x21E) >> lv;
+        int w = p->pic.imageWidth >> lv;
+        int h = p->pic.imageHeight >> lv;
         int rect[4] = {(304 - w) * 16, -1536, w * 16, h / 2 * 16};
 
-        st[0] = *(float *)(p + 0xB8);
-        st[1] = *(float *)(p + 0xBC);
+        st[0] = p->uv.uOfs;
+        st[1] = p->uv.vOfs;
         st[2] = st[0] + one;
         st[3] = st[1] + one;
         FlushCache(0);
@@ -1896,9 +1892,9 @@ int tex_Tool(int *tno)
                 }
                 return 0;
             }
-            malloc_MemCpy((char *)rec->clut.addr + 0x20, rec->ext.clutOrg, rec->clutSize);
-            malloc_MemCpy(rec->ext.clutA, rec->ext.clutOrg, rec->clutSize);
-            malloc_MemCpy(rec->ext.clutB, rec->ext.clutOrg, rec->clutSize);
+            malloc_MemCpy((char *)rec->clut.addr + 0x20, rec->ext.clutOrg, rec->pic.clutSize);
+            malloc_MemCpy(rec->ext.clutA, rec->ext.clutOrg, rec->pic.clutSize);
+            malloc_MemCpy(rec->ext.clutB, rec->ext.clutOrg, rec->pic.clutSize);
             rec->ext.clutFrame = 0;
         }
         toolMakeRegs(rec, texTable[*tno].rec.ext.level);
@@ -2025,7 +2021,7 @@ int tex_ListTool(void)
 
         sum = 0;
         for (j = 0; j < t->levelNum; j++) {
-            sum += *(unsigned int *)((char *)t + 0x208) >> (j * 2);
+            sum += t->pic.totalSize >> (j * 2);
         }
         total += sum;
     }
@@ -2042,21 +2038,19 @@ int tex_ListTool(void)
 
         sum = 0;
         for (j = 0; j < t->levelNum; j++) {
-            sum += *(unsigned int *)((char *)t + 0x208) >> (j * 2);
+            sum += t->pic.totalSize >> (j * 2);
         }
 
         if (i == listTexNo) {
             debug_PrintfDummy(10, row * 8 + 50, 0xFF808000, "%03d%18s%7d:%1d/%1d:%s:%s:%s",
                               listTexNo, (int)t, sum, texTable[listTexNo].rec.ext.level + 1,
-                              t->levelNum, imageTypeName[*(unsigned char *)((char *)t + 0x21B)],
-                              clutTypeName[*(unsigned char *)((char *)t + 0x21A) & 0x3F],
-                              headerName[*(int *)((char *)t + 0x2A8)]);
+                              t->levelNum, imageTypeName[t->pic.imageType],
+                              clutTypeName[t->pic.clutType & 0x3F], headerName[t->ext.animated]);
         } else {
             debug_PrintfDummy(10, row * 8 + 50, 0xFFFFFF00, "%03d%18s%7d:%1d/%1d:%s:%s:%s", i,
                               (int)t, sum, texTable[i].rec.ext.level + 1, t->levelNum,
-                              imageTypeName[*(unsigned char *)((char *)t + 0x21B)],
-                              clutTypeName[*(unsigned char *)((char *)t + 0x21A) & 0x3F],
-                              headerName[*(int *)((char *)t + 0x2A8)]);
+                              imageTypeName[t->pic.imageType], clutTypeName[t->pic.clutType & 0x3F],
+                              headerName[t->ext.animated]);
         }
         row++;
     }
@@ -2167,9 +2161,9 @@ int *tex_GetTextureData(int idx)
     return (int *)&texTable[idx].rec;
 }
 
-static inline int *getTextureData(int idx)
+static inline CdvdRec *getTextureData(int idx)
 {
-    return (int *)&texTable[idx].rec;
+    return &texTable[idx].rec;
 }
 
 int *tex_GetTextureName(int idx)
@@ -2258,9 +2252,9 @@ int tex_GetTextureNum(void)
 void tex_SetUVScroll(char *name, float u, float v, float su, float sv, float ou, float ov, int a1)
 {
     int no = getTextureNo(name);
-    char *tex = (char *)getTextureData(no);
-    TexExt *ext = (TexExt *)(tex + 0x268);
-    TexUV *uv = (TexUV *)(tex + 0xA8);
+    CdvdRec *tex = getTextureData(no);
+    TexExt *ext = &tex->ext;
+    TexUV *uv = &tex->uv;
 
     if (ext->animated != 0) {
         ext->file.scrlU = su;

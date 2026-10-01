@@ -304,7 +304,7 @@ extern const MotionDef motionKind[];
 #define MOT_FPS ((float)((60 - systemStatus[0] * 10) / systemStatus[1]))
 #define MOT_SPEED                                                                                  \
     (debug_now_motion_viewer != 0 ? (float)debug_face_rot_w_ratio * 0.01f                          \
-                                  : *(float *)(skelMotDef + 0x158))
+                                  : skelMotDef->faceRotRatio)
 #define MOT_RATE(f) (skelRoot->f * (60.0f / MOT_FPS))
 #define MOT_BLEND(off) (MOT_RATE(off) + (1.0f - MOT_RATE(off)) * MOT_SPEED)
 
@@ -355,7 +355,7 @@ void _getFinalMatrix(int id)
 
     if (*(int *)(node + 0x38) != -1) {
         sceVu0ScaleVectorXYZ(v, node + 0x10, skelScale);
-        sceVu0ApplyMatrix(MatrixDrive_GetMatrix() + 0x30, MatrixDrive_GetLastMatrix(), v);
+        sceVu0ApplyMatrix(MatrixDrive_GetMatrix()[3], MatrixDrive_GetLastMatrix(), v);
     } else {
         ikRotZ = ikRotY = ikBend0 = ikBend1 = 0;
     }
@@ -666,7 +666,7 @@ void _getFinalMatrix(int id)
                         GetMatrixFromQuaternion((void *)MatrixDrive_GetMatrix(),
                                                 skelMotion + n * 0x20 + 0x10);
                         MatrixDrive_TransMatrix(5.0f, -3.0f, 0.0f);
-                        CopyVector(p, (void *)(MatrixDrive_GetMatrix() + 0x30));
+                        CopyVector(p, (void *)(MatrixDrive_GetMatrix()[3]));
                         _AddVector(t, skelNode + *(int *)(node + 0x30) * 0x40 + 0x10, p);
                         l = skelScale * VectorLength(t);
                         w[0] = l;
@@ -963,12 +963,12 @@ void _getFinalMatrix(int id)
             float d2;
             float aa;
             float bb;
-            float *m;
+            float (*m)[4];
 
             GET_NODE_ROT(q, dq);
             flag = 0;
             MatrixDrive_PushMatrix();
-            CopyVector((void *)(MatrixDrive_GetMatrix() + 0x30), ZeroPoint);
+            CopyVector((void *)(MatrixDrive_GetMatrix()[3]), ZeroPoint);
             MultiMatrixByQuaternion(dq);
             MatrixDrive_PushMatrix();
             for (i = 0, cn = node; i < 2; i++) {
@@ -983,7 +983,7 @@ void _getFinalMatrix(int id)
                 MultiMatrixByQuaternion(skelMotion + ci * 0x20 + 0x10);
                 len[i] = skelScale * VectorLength(cn + 0x10);
             }
-            CopyVector(p, (void *)(MatrixDrive_GetMatrix() + 0x30));
+            CopyVector(p, (void *)(MatrixDrive_GetMatrix()[3]));
             switch (*(int *)(node + 4)) {
             case 45:
                 p[1] += skelRoot->lift[0];
@@ -1054,7 +1054,7 @@ extern double fptodp(float v);
 /* RECONSTRUCTION: the pad snapshot at pad as this TU reads it; only the
  * two words the rotation-emphasis editor uses carry names. */
 typedef struct {
-    int _00[0x17];
+    int _00[23];
     int trg; /* 0x5C */
     int _60;
     int hold; /* 0x64 */
@@ -1159,8 +1159,7 @@ static inline void applyNaturalGeometry(int id)
 
     if (*(int *)(e + 0x38) != -1) {
         _ScaleVectorXYZ(&t, e + 0x10, skelScale);
-        _ApplyMatrix((char *)MatrixDrive_GetMatrix() + 0x30, MatrixDrive_GetLastMatrix(),
-                     (char *)&t);
+        _ApplyMatrix(MatrixDrive_GetMatrix()[3], MatrixDrive_GetLastMatrix(), (char *)&t);
     }
     MultiQuaternion(GetCurrentQuaternion(), GetLastQuaternion(), skelMotion + id * 0x20 + 0x10);
     GetMatrixFromQuaternionRotElem((char *)MatrixDrive_GetMatrix(), (char *)GetCurrentQuaternion());
@@ -1191,7 +1190,7 @@ void _calcNaturalGeometry(int a0)
 {
     char *elemA = skelNode + a0 * 0x40;
     char *elemB = naturalMotion + a0 * 0x20;
-    float *x;
+    float (*x)[4];
     if (*(int *)(elemA + 0x38) != -1) {
         _ScaleVectorXYZ(naturalTrans, elemA + 0x10, skelScale);
         GetMatrixFromQuaternionPos(naturalMatrix, elemB + 0x10, naturalTrans);
@@ -1208,12 +1207,12 @@ static inline void pursueNaturalGeometry(int id)
     int child = *(int *)(e + 0x30);
     int next = *(int *)(e + 0x34);
     char *o;
-    float *m;
+    float (*m)[4];
     MatrixDrive_PushMatrixWithNoCopy();
     _calcNaturalGeometry(id);
     o = naturalNodePos + id * 0x10;
     m = MatrixDrive_GetMatrix();
-    CopyVector(o, m + 12);
+    CopyVector(o, m[3]);
     if (child != -1) {
         pursueNaturalGeometry(child);
     }

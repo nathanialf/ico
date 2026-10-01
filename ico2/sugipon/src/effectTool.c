@@ -519,7 +519,7 @@ typedef struct {
 void moveEffectToolGeometry(int idx)
 {
     float v[4];
-    int padCtx[0x60 / 4];
+    int padCtx[96 / 4];
     EffToolStick st0;
     EffToolStick st1;
     int q[4];

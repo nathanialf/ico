@@ -263,7 +263,7 @@ void HoldRope(void *a0, void *a1)
     int w2 = SetChainExtendedWeight(sys[2], n, 100.0f, 300.0f);
 
     GetRootPosition(v, a1);
-    CopyVector(u, *(char **)((char *)a1 + 0x15C) + 0x130);
+    CopyVector(u, (char *)GOBJ_SUB(a1) + 0x130);
     CopyVector((float *)((char *)sys[2] + (w1 * 0x50 + 0x10)) + 12, u);
     CopyVector((float *)((char *)sys[2] + (w2 * 0x50 + 0x10)) + 12, u);
     CopyVector((float *)((char *)sys[2] + (w1 * 0x50 + 0x10)) + 4, v);

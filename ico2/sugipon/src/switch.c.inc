@@ -33,7 +33,7 @@ void GetFloorLeverGlobalHoldPoint(void *dst, GObj *a1)
     GetRootMatrix(MatrixDrive_GetMatrix(), a1);
     MatrixDrive_RotMatrixZ(p->angle);
     MatrixDrive_TransMatrix(0.0f, -50.0f, 0.0f);
-    CopyVector(dst, MatrixDrive_GetMatrix() + 0x30);
+    CopyVector(dst, MatrixDrive_GetMatrix()[3]);
 }
 
 inline void SetFloorLeverWithNodePoint(GObj *a0, GObj *a1, int a2)
@@ -94,7 +94,7 @@ typedef struct {       /* field names derived */
 
 extern BoxModelRec D_002A79B8[];
 
-inline LeverGeoWork *InitFloorLeverGeo(char *a0, char *a1)
+inline LeverGeoWork *InitFloorLeverGeo(char *a0, SObjSimpleSetting *a1)
 {
     /* "src/switch.c" is this file's __FILE__ in the retail build (the listing
        names it sugipon/src/switch.c, included by src/box.c); __FILE__ here
@@ -102,7 +102,7 @@ inline LeverGeoWork *InitFloorLeverGeo(char *a0, char *a1)
     LeverGeoWork *g =
         (LeverGeoWork *)iosMallocDebug(ios_partition_sugipon, 0x20, "src/switch.c", 141);
     *g = leverGeoInit;
-    if (*(int *)(a1 + 0x30) != 0) {
+    if (a1->obj != 0) {
         g->linked = 1;
     } else {
         g->linked = 0;
@@ -182,7 +182,7 @@ void FloorLeverGeo(GObj *a0)
             SetIdentityQuaternion(q);
             RotQuaternionX(q, 0x4000);
             GetRootMatrix(MatrixDrive_GetMatrix(), a0);
-            SetParticleEffect(0, (char *)MatrixDrive_GetMatrix() + 0x30, q);
+            SetParticleEffect(0, MatrixDrive_GetMatrix()[3], q);
             p->state = 0;
             p->timer = 0;
             if (p->trigger != 0) {
@@ -230,7 +230,7 @@ void GetWallLeverGlobalHoldPoint(void *dst, void *lev)
     GetRootMatrix(MatrixDrive_GetMatrix(), lev);
     MatrixDrive_RotMatrixZ(p->angle);
     MatrixDrive_TransMatrix(-50.0f, 0.0f, 0.0f);
-    CopyVector(dst, (char *)MatrixDrive_GetMatrix() + 0x30);
+    CopyVector(dst, MatrixDrive_GetMatrix()[3]);
 }
 
 inline void SetWallLeverWithNodePoint(GObj *a0, GObj *a1, int a2)
@@ -256,12 +256,12 @@ inline int CanWallLeverPull(char *a0)
     return ((LeverGeoWork *)GOBJ_SUB(a0)->work)->state == 0;
 }
 
-inline LeverGeoWork *InitWallLeverGeo(char *a0, char *a1)
+inline LeverGeoWork *InitWallLeverGeo(char *a0, SObjSimpleSetting *a1)
 {
     LeverGeoWork *g =
         (LeverGeoWork *)iosMallocDebug(ios_partition_sugipon, 0x20, "src/switch.c", 300);
     *g = leverGeoInit;
-    if (*(int *)(a1 + 0x30) != 0) {
+    if (a1->obj != 0) {
         g->linked = 1;
     } else {
         g->linked = 0;
@@ -320,7 +320,7 @@ void WallLeverGeo(GObj *a0)
             SetIdentityQuaternion(q);
             RotQuaternionX(q, 0x4000);
             GetRootMatrix(MatrixDrive_GetMatrix(), a0);
-            SetParticleEffect(0, (char *)MatrixDrive_GetMatrix() + 0x30, q);
+            SetParticleEffect(0, MatrixDrive_GetMatrix()[3], q);
             p->state = 0;
 
             p->timer = 0;

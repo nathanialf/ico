@@ -22,6 +22,7 @@
 #include "ios.h"
 #include "main.h"
 #include "DisplayP2O.h"
+#include "sceneManager.h"
 
 /* The girl's work record: her kind, the four cloths and the hair she wears
    with the switches SetGirlClothDispSwitch sets (case 0 for cloth0, 1 for
@@ -1773,7 +1774,7 @@ inline void setGirlClothSetting(int a0)
     }
 }
 
-void *InitGirlGeo(GObj *gobj, char *csv)
+void *InitGirlGeo(GObj *gobj, SObjSimpleSetting *csv)
 {
     GirlWork *w;
     int p;
@@ -1787,7 +1788,7 @@ void *InitGirlGeo(GObj *gobj, char *csv)
     w->hint1Played = 0;
     w->ornamentDisp = 0;
     *(int *)(p + 0x848) = (int)setGirlClothSetting;
-    kind = *(int *)(csv + 0x30);
+    kind = csv->obj;
     w->crown = 0;
     w->ornament1 = 0;
     w->ornament0 = 0;

@@ -1,6 +1,7 @@
 #include "typedef.h"
 #include "cageFix.h"
 #include "DisplayP2O.h"
+#include "matrixDrive.h"
 
 inline int InitCageFixGeo(void)
 {
@@ -12,7 +13,7 @@ void CageFixGeo(GObj *a0)
     char *g = isysGObjSearchFromObjKindID_begin(44);
     if (g != 0) {
         CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(a0)->nodeMtx);
-        SetCageFixGeometry(g, MatrixDrive_GetMatrix() + 0x30, GOBJ_SUB(a0)->nodeQuat);
+        SetCageFixGeometry(g, MatrixDrive_GetMatrix()[3], GOBJ_SUB(a0)->nodeQuat);
     }
 }
 

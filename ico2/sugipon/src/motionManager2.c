@@ -37,9 +37,9 @@ typedef struct {
 
 typedef struct {
     int idx;
-    char pad[0x1C];
+    char pad[28];
     float q[4];
-    char pad2[0x10];
+    char pad2[16];
 } StreamNode;
 
 int GetWaterReaction(float *outH, int *outFlag, ClipBuf *info, float *pos, float *vel, float h0,
@@ -389,7 +389,7 @@ int calcFootIK(SkelNode *skel, char *arg, int node, float scale, float ratio)
         MatrixDrive_TransMatrixV(v);
         MultiMatrixByQuaternion(arg + j * 0x20 + 0x10);
     }
-    CopyVector(dir, ((char *)MatrixDrive_GetMatrix() + 0x30));
+    CopyVector(dir, (MatrixDrive_GetMatrix()[3]));
     MatrixDrive_PopMatrix();
 
     m = (float *)MatrixDrive_GetMatrix();
@@ -960,10 +960,10 @@ static inline float getSlopeDifference(GObj *self, char *arg, char *p)
 
     GetRootMatrix(MatrixDrive_GetMatrix(), self);
     MultiMatrixByQuaternion(q);
-    CopyVector(v, (char *)MatrixDrive_GetMatrix() + 0x30);
+    CopyVector(v, MatrixDrive_GetMatrix()[3]);
     MatrixDrive_TransMatrixV(&up);
     y0 = GetYProjectionOfPlane(p + 0x1D0, v);
-    y1 = GetYProjectionOfPlane(p + 0x1D0, (char *)MatrixDrive_GetMatrix() + 0x30);
+    y1 = GetYProjectionOfPlane(p + 0x1D0, MatrixDrive_GetMatrix()[3]);
     return y1 - y0;
 }
 

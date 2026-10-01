@@ -64,7 +64,7 @@ typedef union {
 } PacCursor;
 
 typedef struct {
-    char name[0x20];
+    char name[32];
     unsigned int dmaTag;
     unsigned int vifCode;
     unsigned int gifTag;
@@ -861,7 +861,7 @@ int pac_makeStrip(char **out, char *obj, char **tbl, int shpno, int matno, int l
 /* The material table entry's 64-bit mode word at +0x60: the same qword
    pac_setMaterialPacket reads back as its three mode selectors. */
 typedef struct MatEnt {
-    char pad0[0x60];
+    char pad0[96];
     unsigned long long b0 : 1;
     unsigned long long b1 : 2;
     unsigned long long b3 : 2;
@@ -950,20 +950,20 @@ typedef struct MatSrc {
 } MatSrc;
 
 typedef struct MatObj {
-    char pad0[0xA0];
+    char pad0[160];
     int f_A0;
-    char pad1[0xC];
+    char pad1[12];
     int f_B0;
-    char pad2[0xC];
+    char pad2[12];
     int f_C0;
-    char pad3[0xC];
+    char pad3[12];
     MatSrc *f_D0;
     unsigned int f_D4;
 } MatObj;
 
 typedef struct MatTab {
     MatEnt *f_0;
-    char pad0[0xC];
+    char pad0[12];
     short f_10;
 } MatTab;
 
@@ -1163,7 +1163,7 @@ void pac_makeShapeTable(int a0, char *obj)
    in-struct: both are what the ROM's instruction order needs. */
 typedef struct {
     sceVu0FVECTOR pad0[2];
-    char pad1[0xE];
+    char pad1[14];
     char nsub;
     signed char disp;
     unsigned short : 16;

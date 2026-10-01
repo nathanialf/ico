@@ -44,11 +44,10 @@ void MoveColTestGeo(GObj *self)
     MctWork *w = GOBJ_SUB(self)->work;
     int c;
 
-    CopyMatrix(MatrixDrive_GetMatrix(), *(char **)(((char *)self) + 0x15C) + 0x20);
+    CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(self) + 0x20);
     MatrixDrive_RotMatrixZ(w->angle);
-    CopyQuaternion(*(char **)(((char *)self) + 0x15C) + 0xD0,
-                   *(char **)(((char *)self) + 0x15C) + 0x60);
-    RotQuaternionZ(*(char **)(((char *)self) + 0x15C) + 0xD0, w->angle);
+    CopyQuaternion((char *)GOBJ_SUB(self) + 0xD0, (char *)GOBJ_SUB(self) + 0x60);
+    RotQuaternionZ((char *)GOBJ_SUB(self) + 0xD0, w->angle);
     CopyMatrix((void *)GOBJ_SUB(self)->nodeMtx, MatrixDrive_GetMatrix());
     UpdateRootMatrix(self);
 

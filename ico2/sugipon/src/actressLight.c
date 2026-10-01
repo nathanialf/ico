@@ -5,7 +5,7 @@
 
 void SetActressLight(GObj *a0, int a1, int a2, int a3)
 {
-    char buf[0x10];
+    char buf[16];
     int r1 = GetSkeltonFocusNode(a0, a1);
     int r2 = GetSkeltonFocusNode(a0, a2);
     stage_SetLoopFlag(a3, 1);

@@ -32,6 +32,7 @@ static TorchGeoWork emptyTorchWork = {
 #include "particleEffect.h"
 #include "ios.h"
 #include "main.h"
+#include "sceneManager.h"
 
 inline void SetTorchChainReactionFlag(GObj *a0, int a1)
 {
@@ -199,18 +200,18 @@ inline void SetTorchLife(GObj *a0, int a1, int a2)
     *(int *)(p + 0x2C) = a1 - a2;
 }
 
-inline char *InitTorchGeo(GObj *a0, char *a1)
+inline char *InitTorchGeo(GObj *a0, SObjSimpleSetting *a1)
 {
     TorchGeoWork *p = (TorchGeoWork *)iosMallocDebug(ios_partition_sugipon, 0x50, __FILE__, 232);
     *p = emptyTorchWork;
     sceVu0UnitMatrix((char *)*(void **)(((char *)a0) + 0x15C) + 0x20);
     *(void **)((char *)*(void **)(((char *)a0) + 0x15C) + 0x830) = p;
-    if (*(int *)(a1 + 0x30) & 1) {
+    if (a1->obj & 1) {
         LightTorchOn(a0);
     } else {
         *(int *)((char *)*(void **)(((char *)a0) + 0x15C) + 0x83C) = 0;
     }
-    p->flags = *(int *)(a1 + 0x30) & ~1;
+    p->flags = a1->obj & ~1;
     GetRootPosition(p->pos, a0);
     return (char *)p;
 }

@@ -16,17 +16,17 @@ extern void _ACTWait(int a0);
 
 typedef struct ClipColWork {
     int result; /* 0x00 */
-    char _p04[0xC];
+    char _p04[12];
     float p0[4]; /* 0x10 */
     float p1[4]; /* 0x20 */
-    char _p30[0x68];
+    char _p30[104];
     /* the two clip results the callback fills in: _clipF stores the floor
        record pointer at +0xA4 and _Clip dereferences +0x98 as the wall
        record (lw 0x4C/0x48 off it), so both are pointers, not flags. */
     void *hitWall; /* 0x98 */
-    char _p9C[0x8];
+    char _p9C[8];
     void *hitFloor; /* 0xA4 */
-    char _pA8[0x28];
+    char _pA8[40];
     char *gobj;           /* 0xD0 */
     void (*func)(void *); /* 0xD4 */
 } ClipColWork;
@@ -61,18 +61,18 @@ void actClipCollisionCore(volatile unsigned int self)
     while (1) {
         clung = 0;
         if (w->gobj != 0) {
-            clung = *(int *)(*(char **)(w->gobj + 0x15C) + 0x74);
+            clung = GOBJ_SUB(w->gobj)->disp;
         }
         CopyVector(a, w->p0);
         CopyVector(b, w->p1);
         _InterVectorXYZ(w->p0, b, a, (float)i * step);
         _InterVectorXYZ(w->p1, b, a, (float)(i + 1) * step);
         if (clung != 0) {
-            *(int *)(*(char **)(w->gobj + 0x15C) + 0x74) = 0;
+            GOBJ_SUB(w->gobj)->disp = 0;
         }
         w->func(w->p0);
         if (clung != 0) {
-            *(int *)(*(char **)(w->gobj + 0x15C) + 0x74) = 1;
+            GOBJ_SUB(w->gobj)->disp = 1;
         }
         CopyVector(w->p0, a);
         CopyVector(w->p1, b);

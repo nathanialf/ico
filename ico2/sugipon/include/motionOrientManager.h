@@ -142,10 +142,8 @@ typedef struct {              /* field names derived */
     int noStepSearch;         /* 0x114, MotCtrl noStepSearch */
     int rootUpdateMode;       /* 0x118 */
     int stepNode;             /* 0x11C, the focus node the step solution walks on */
-    float float120;           /* 0x120 */
-    int word124;              /* 0x124 */
-    float float128;           /* 0x128 */
-    int word12C;              /* 0x12C */
+    float landFrame;          /* 0x120, a flying motion follows the floor before this frame, -1 for no floor */
+    float rootOffset[3];      /* 0x124, the root's offset the direct-play update takes off the position */
     int wallFeedback;         /* 0x130, the wall work is fed back to the brain */
     int node_id;              /* 0x134, the motion file's node */
     float weaponFrame;        /* 0x138 */
@@ -195,8 +193,8 @@ typedef struct {  /* field names derived */
 MotionOrientEntry *GetMotionOrient(int i, int n, int id, int kind);
 MotionOrientEntry *getMotionOrient(int i, int n, int id, int kind);
 void CopyBlendMotionDataSource(void *self, short ang);
-void SetParallelMotionTableWithNoRequest(void *self, int a1, int a2);
-void SetParallelMotionTable(void *self, int a1, int a2, int a3, int a4);
+void SetParallelMotionTableWithNoRequest(void *self, int *a1, int *a2);
+void SetParallelMotionTable(void *self, int *a1, int *a2, int a3, int a4);
 void InitMotionOrient(void *self, int a1, int a2, int a3, int a4, int a5);
 
 struct GObj;

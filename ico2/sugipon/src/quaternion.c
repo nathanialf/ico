@@ -133,7 +133,7 @@ static int nxt[3] = {1, 2, 0};
 void GetQuaternionFromMatrix(void *a0, void *a1)
 {
     auto void getQuaternionFromMatrix(float *q, float (*m)[4]);
-    char local[0x40];
+    char local[64];
 
     void getQuaternionFromMatrix(float *q, float (*m)[4])
     {
@@ -316,7 +316,7 @@ inline void SetQuaternionByAxisRotateVWithNoRegularize(float *self, short a1, fl
 
 inline void SetQuaternionByAxisRotateV(float *self, short a1, float *src)
 {
-    char buf[0x10];
+    char buf[16];
     _NormalizeVector(buf, src);
     SetQuaternionByAxisRotateVWithNoRegularize(self, a1, buf);
 }
@@ -330,7 +330,7 @@ inline void SetQuaternionByAxisRotate(float *self, short a1, float x, float y, f
 inline void SetQuaternionByAxisRotateWithNoRegularize(float *self, short a1, float x, float y,
                                                       float z)
 {
-    char buf[0x10];
+    char buf[16];
     int half = (a1 << 16) >> 17;
     float f;
     *(float *)(buf + 0) = x;
@@ -512,7 +512,7 @@ inline void GetMirrorQuaternion(float *dst, float *src, int mode)
 
 inline void RotQuaternionX(void *self, short a1)
 {
-    char buf[0x10];
+    char buf[16];
     int half = (-(a1 << 16)) >> 17;
     char *axis = XUnitVector;
     float f;
@@ -541,7 +541,7 @@ inline void RotQuaternionX(void *self, short a1)
 
 inline void RotQuaternionY(void *self, short a1)
 {
-    char buf[0x10];
+    char buf[16];
     int half = (-(a1 << 16)) >> 17;
     char *axis = YUnitVector;
     float f;
@@ -570,7 +570,7 @@ inline void RotQuaternionY(void *self, short a1)
 
 inline void RotQuaternionZ(void *self, short a1)
 {
-    char buf[0x10];
+    char buf[16];
     int half = (-(a1 << 16)) >> 17;
     char *axis = ZUnitVector;
     float f;
