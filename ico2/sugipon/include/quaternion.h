@@ -58,5 +58,7 @@ void MultiCurrentQuaternion(void *a0);
 void RotCurrentQuaternionX(short a0);
 void RotCurrentQuaternionY(short a0);
 void RotCurrentQuaternionZ(short a0);
+void InvertCurrentQuaternion(void);
+void GetQuaternionFromMatrix(void *a0, void *a1);
 
 #endif /* QUATERNION_H */

@@ -40,21 +40,21 @@ typedef struct RotObjWork { /* field names derived */
 
 /* the two words MemoryRotObject saves in the object's gamesys info record and
    RestoreRotObjectExtGeo and GetRotObjectGameSysObjInfoExtData read back */
-typedef struct {          /* field names derived */
-    unsigned short angle; /* 0x0 */
+typedef struct RotObjMemory { /* field names derived */
+    unsigned short angle;     /* 0x0 */
     short pad02;
     int turnCount; /* 0x4 */
 } RotObjMemory;    /* derived name */
 
-static void moveStartSE(GObj *a0, int a1, int a2, int a3)
+static void moveStartSE(GObj *self)
 {
-    ExecuteSEPackage(a0, 0x35);
+    ExecuteSEPackage(self, 53);
 }
 
-static void moveEndSE(GObj *a0, int a1, int a2, int a3)
+static void moveEndSE(GObj *self)
 {
-    StopSEPackage(a0);
-    ExecuteSEPackage(a0, 0x3A);
+    StopSEPackage(self);
+    ExecuteSEPackage(self, 58);
 }
 
 void RotObjectGeo(GObj *a0)
@@ -199,14 +199,14 @@ int MoveRotObjectWithHoldPoint(GObj *bar, void *hold, void *self, void *dir, voi
     return 1;
 }
 
-void ExecRotObjectMoveStartReaction(GObj *a0, int a1, int a2, int a3)
+void ExecRotObjectMoveStartReaction(GObj *self)
 {
-    moveStartSE(a0, a1, a2, a3);
+    moveStartSE(self);
 }
 
-void ExecRotObjectMoveEndReaction(GObj *a0, int a1, int a2, int a3)
+void ExecRotObjectMoveEndReaction(GObj *self)
 {
-    moveEndSE(a0, a1, a2, a3);
+    moveEndSE(self);
 }
 
 void SetRotObjectArmRadius(GObj *a0, float f)

@@ -16,4 +16,8 @@
 GirlForceFieldWork *InitGirlForceFieldGeo(char *self, SObjSimpleSetting *param);
 void GirlForceFieldGeo(void);
 
+struct GObj;
+
+void GirlForceFieldDL(struct GObj *self);
+
 #endif /* GIRLFORCEFIELD_H */

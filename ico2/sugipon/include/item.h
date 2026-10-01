@@ -41,4 +41,13 @@ int ReviveAllCarryableItemsWithRandomVelocity(float up, float horz);
 int ReviveCarryableItemsWithBoundary(void *center, float radius);
 void ThrowItem(struct GObj *gobj, void *vel);
 
+struct ItemLayout;
+
+char *InitItemGeo(char *gobj, struct ItemLayout *layout);
+void ItemGeo(struct GObj *gobj);
+void ItemDL(struct GObj *gobj);
+int IsItemHoldable(struct GObj *a0);
+void *GetBombTorchGObj(struct GObj *item);
+void StopItemExplodeAnimationAll(void);
+
 #endif /* ITEM_H */

@@ -13,4 +13,9 @@
  * first-declaration order, so this is the order moveColTest.c's inline tail has. */
 short *InitMoveColTestGeo(int a0, int *self);
 
+struct GObj;
+
+void MoveColTestGeo(struct GObj *self);
+void MoveColTestDL(int a0, int a1, int a2, int a3);
+
 #endif /* MOVECOLTEST_H */

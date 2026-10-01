@@ -578,7 +578,7 @@ typedef struct { /* field names derived */
 
 /* The 64-byte layout record InitDemoQueensSword passes through; only the
    word at 0x30 is ever named here. */
-typedef struct { /* field names derived */
+typedef struct QSwordLayout { /* field names derived */
     char pad00[48];
     int kind; /* 0x30 */
     char pad34[12];
@@ -977,7 +977,7 @@ void PickupWeapon(GObj *a0, GObj *a1, int a2)
     GOBJ_SUB(a1)->ctrl.pickedWeapon = a0;
 }
 
-GObj *CheckSwapableWeapon(GObj *a0, float dist)
+GObj *CheckSwapableWeapon(GObj *self, float dist)
 {
     GObj *found = 0;
     float best = dist * dist;
@@ -985,13 +985,13 @@ GObj *CheckSwapableWeapon(GObj *a0, float dist)
     float pos[4];
     float d;
 
-    GetRootPosition(pos, a0);
+    GetRootPosition(pos, self);
 
     for (; g != 0; g = isysGObjSearchFromObjKindID_next(g)) {
         WeaponWork *w;
         float *wp;
 
-        if (g == a0)
+        if (g == self)
             continue;
 
         w = GOBJ_SUB(g)->work;

@@ -47,4 +47,11 @@ void SetFallDownSplash(GObj *pool, struct GObj *self);
 void SetLayoutedPoolReflactionMesh(PoolMesh *a0);
 void SetLimitedPoolReflactionMesh(PoolMesh *a0, GObj *a1, GObj *a2);
 
+struct SObjSimpleSetting;
+
+char *InitPoolGeo(char *self, struct SObjSimpleSetting *lay);
+void PoolDL(GObj *self);
+void PoolGeo(void);
+float getWave(float t);
+
 #endif /* POOL_H */

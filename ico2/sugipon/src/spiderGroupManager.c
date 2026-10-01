@@ -35,7 +35,7 @@ typedef struct { /* field names derived */
 
 typedef struct {  /* field names derived */
     GObj *gobj;   /* 0x00 */
-    int rev;      /* 0x04 */
+    int rev;      /* 0x04, the enemy layout object locked for the revive, held as a word */
 } SpiderGroupEnt; /* derived name */
 
 /* the spiders found inside a revive range, the pairs picked out of them,
@@ -75,7 +75,7 @@ inline void InitSpiderGroupManager(void)
     reviveDone = 0;
 }
 
-inline int *getReviveEnemyGObj(int count)
+inline GObj *getReviveEnemyGObj(int count)
 {
     GObj *p = isysGObjSearchFromObjKindID_begin(4);
     int i;
@@ -99,14 +99,14 @@ inline void EntryRevivedSpiderGroupManager(int a0)
 
 void EntrySpiderGroupManager(int gobj)
 {
-    int *p;
+    GObj *p;
 
     spiderGroups[spiderGroupCount].gobj = (GObj *)gobj;
     p = getReviveEnemyGObj(spiderGroupIdCount);
     if (p != 0) {
-        debug_StdPrintfDummy("LOCK %p for LABEL %d, ID:%d\n", p, p[2], spiderGroupCount);
+        debug_StdPrintfDummy("LOCK %p for LABEL %d, ID:%d\n", p, p->labelId, spiderGroupCount);
         LockEnemyGenerate(p);
-        *(int *)((char *)p + 0x16C) = 0;
+        p->active = 0;
     } else {
         debug_assertMessage(
             "src/spiderGroupManager.c", 85,
@@ -131,7 +131,7 @@ static int tryToRevive(void)
     int i;
     int j;
     int n;
-    void *p;
+    GObj *p;
 
     if (reviveMaster != 0) {
         GetRootPosition(pos, reviveMaster);
@@ -147,10 +147,10 @@ static int tryToRevive(void)
                         if (reviveNext < spiderGroupCount) {
                             int m;
 
-                            p = spiderGroups[reviveNext].rev;
+                            p = (GObj *)spiderGroups[reviveNext].rev;
                             UnlockEnemyGenerate(p);
                             debug_StdPrintfDummy("UNLOCK %p: (id:%d)\n", p, reviveNext);
-                            *(int *)((char *)p + 0x16C) = 1;
+                            p->active = 1;
                             if (DirectCallEnemy(p, 0, pos, ZUnitVector, 0) == 0) {
                                 return 0;
                             }

@@ -38,7 +38,7 @@ typedef struct {  /* field names derived */
     float rotZ;   /* 0x14 */
 } FumbleRow;      /* derived name */
 
-struct GObj *CheckSwapableWeapon(struct GObj *a0, float dist);
+struct GObj *CheckSwapableWeapon(struct GObj *self, float dist);
 int CheckWeaponKind(struct GObj *a0);
 void ExecWeaponHitReaction(struct GObj *a0);
 int GetTorchGObjOfWeapon(struct GObj *a0);
@@ -54,5 +54,21 @@ void dispInsectNet(struct GObj *g);
 /* unprototyped: the third argument is weapon.c's own layout record type. */
 void weaponHitReactionSE(struct GObj *);
 float GetWeaponWeight(struct GObj *a0);
+
+struct QSwordLayout;
+
+void torchOnOfWeaponSE(struct GObj *a0);
+void torchOffOfWeaponSE(struct GObj *a0);
+void weaponFumbleSE(struct GObj *a0);
+void weaponStickSE(struct GObj *a0);
+void ReleaseWeaponWithFumbleTargetPos(struct GObj *g, void *pos, void *quat, void *rot, float t);
+void WeaponHitEffect(struct GObj *a0, void *a1);
+void *InitWeaponGeo(struct GObj *g, struct QSwordLayout *lay);
+void WeaponGeo(struct GObj *g);
+void WeaponDL(struct GObj *g);
+void ReleaseWeaponWithFumble(struct GObj *a0, void *a1, void *a2);
+int InitWeaponFumbleSequence(struct GObj *a0);
+void *InitDemoQueensSword(struct GObj *a0, void *a1);
+void ExecDemoQueensSword(struct GObj *a0);
 
 #endif /* WEAPON_H */

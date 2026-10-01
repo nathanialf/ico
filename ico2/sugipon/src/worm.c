@@ -45,13 +45,13 @@ typedef struct { /* field names derived */
     WormPnt *pnt;
 } WormRoute; /* derived name */
 
-typedef struct {  /* field names derived */
-    float pos[3]; /* 0x00 */
-    int pad0C;    /* 0x0C */
-    float nseg;   /* 0x10 */
-    float rate;   /* 0x14 */
-    float num;    /* 0x18 */
-} WormInit;       /* derived name */
+typedef struct WormInit { /* field names derived */
+    float pos[3];         /* 0x00 */
+    int pad0C;            /* 0x0C */
+    float nseg;           /* 0x10 */
+    float rate;           /* 0x14 */
+    float num;            /* 0x18 */
+} WormInit;               /* derived name */
 
 typedef struct { /* field names derived */
     WormRoute *route;

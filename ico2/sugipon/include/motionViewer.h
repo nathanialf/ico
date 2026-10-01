@@ -9,5 +9,6 @@
 #define MOTIONVIEWER_H
 
 int MotionViewer(void);
+void modeMessage(void);
 
 #endif /* MOTIONVIEWER_H */

@@ -13,15 +13,15 @@
    (zero unless entered sensitive), the rotation quaternion, the animation and
    whether it stays on its last frame.  The record is quadword aligned, as its
    vectors are. */
-typedef struct {    /* field names derived */
-    float frame;    /* 0x00 */
-    float pad04[3]; /* 0x04 */
-    float pos[4];   /* 0x10 */
-    float vel[4];   /* 0x20 */
-    float rot[4];   /* 0x30 */
-    int kind;       /* 0x40, -1 for none */
-    int stay;       /* 0x44 */
-    int pad48[2];   /* 0x48 */
+typedef struct {                        /* field names derived */
+    float frame;                        /* 0x00 */
+    float pad04[3];                     /* 0x04 */
+    float pos[4];                       /* 0x10 */
+    float vel[4];                       /* 0x20 */
+    float rot[4];                       /* 0x30 */
+    int kind;                           /* 0x40, -1 for none */
+    int stay;                           /* 0x44 */
+    int pad48[2];                       /* 0x48 */
 } __attribute__((aligned(16))) BgaDisp; /* derived name */
 
 /* The declarations below lead this header because their order is load-bearing:
@@ -46,8 +46,9 @@ typedef struct {    /* field names derived */
     int kind;       /* 0x40 */
     int stay;       /* 0x44 */
     int pad48[2];   /* 0x48 */
-} BgaAnimeState; /* derived name */
+} BgaAnimeState;    /* derived name */
 
 extern BgaAnimeState InitialBgaMultiAnimeState;
+void DispMultiBgaManager(BgaDisp *base, int n);
 
 #endif /* MULTIBGAMANAGER_H */

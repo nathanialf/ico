@@ -15,8 +15,11 @@ void CopyVector(void *dst, void *src);
 float FSqrt(float a0);
 float GetPointDistance(void *a0, void *a1);
 void InitMatrixDrive(void);
+
 float (*MatrixDrive_GetLastMatrix(void))[4];
+
 float (*MatrixDrive_GetMatrix(void))[4];
+
 void MatrixDrive_GetTurnXAngleYZ(short *a0, short *a1, float x, float y, float z);
 void MatrixDrive_GetTurnYAngleXZ(short *a0, short *a1, float x, float y, float z);
 void MatrixDrive_GetTurnZAngleXY(short *a0, short *a1, float x, float y, float z);
@@ -45,5 +48,10 @@ extern float ZeroVector[4];
 void MatrixDrive_TurnXObjectMatrixYZ(float x, float y, float z);
 void MatrixDrive_GetTurnXAngleZY(short *a0, short *a1, float x, float y, float z);
 void MatrixDrive_GetTurnMinusZAngleXY(short *a0, short *a1, float x, float y, float z);
+void MatrixDrive_TurnViewMatrix(float x, float y, float z);
+void MatrixDrive_TurnXObjectMatrixZY(float x, float y, float z);
+void MatrixDrive_TurnZObjectMatrixXY(float x, float y, float z);
+void MatrixDrive_GetTurnYEAngleXZ(float *a0, float *a1, float x, float y, float z);
+void CopyMatrixUncached(void *dst, void *src);
 
 #endif /* MATRIXDRIVE_H */

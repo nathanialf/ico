@@ -13,7 +13,7 @@
  * first-declaration order, so this is the order wireLetter.c's inline tail has. */
 void ChangeColorWireString(int a0, int a1, int a2);
 void Draw2DBox(float x0, float y0, float x1, float y1);
-
 void DispWireString(char *s);
+void DefaultColorWireString(void);
 
 #endif /* WIRELETTER_H */

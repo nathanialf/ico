@@ -33,12 +33,12 @@ static char *ap1ModeTag[] = {"ST", "WA", "JM", "AT", "DE", "SL"}; /* derived nam
 
 inline char *GetAP1AIMode(GObj *self)
 {
-    char *p = *(char **)&self->act;
+    Act *p = GOBJ_ACT(self);
 
-    if (p == 0 || *(unsigned int *)(p + 0x34) >= 6) {
+    if (p == 0 || (unsigned int)p->actMode >= 6) {
         return "--";
     }
-    return ap1ModeTag[*(int *)(p + 0x34)];
+    return ap1ModeTag[p->actMode];
 }
 
 /* the fixed hop walkAI asks for when it is boxed in: straight down and
@@ -157,7 +157,7 @@ static int walkAI(GObj *self)
 
             if (p->modeFrame >= 31) {
                 AP1Turn(self, boyYaw);
-                if (AP1JumpReq(self, 2, (char *)p + 0xF0)) {
+                if (AP1JumpReq(self, 2, p->jump)) {
                     p->modeFrame = 0;
                     return 2;
                 }
@@ -554,7 +554,7 @@ void actAP1Start(GObj *g)
         AP1Vec v = {spiderDef[s->actKind].jump[0], spiderDef[s->actKind].jump[1],
                     spiderDef[s->actKind].jump[2], 0};
 
-        CopyVector((char *)s + 0xF0, &v);
+        CopyVector(s->jump, &v);
     }
 
     s->attack = (unsigned int)spiderDef[s->actKind].attack;

@@ -62,5 +62,9 @@ void SetHitCollisionDisplay(int a, int b);
 int ResetMotionProgramInterpInfo(struct GObj *a0, int a1);
 int SetDirectMotionProgramInterpInfo(struct GObj *a0, int a1, float f);
 void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, float *step, int k);
+void EditRotEmphasys(void);
+void landingFieldAction(ClipBuf *w);
+void SkelTest(GObj *a0);
+void SkelTestGeo(GObj *a0);
 
 #endif /* MOTIONMANAGER_H */

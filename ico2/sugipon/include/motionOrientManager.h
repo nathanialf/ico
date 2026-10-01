@@ -217,5 +217,6 @@ char *SetMotionRequest(void *self, int mot, MotOriReq req);
 void SetNodeRotationLimitDataTable(void *self, int a1, int a2);
 /* the rope interpolation rate the chain sets (motionOrientManager.c) */
 extern float ropeInterRate;
+void ForTest_ForceShiftMotion(int a0, int a1);
 
 #endif /* MOTIONORIENTMANAGER_H */

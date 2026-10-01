@@ -13,4 +13,9 @@
  * first-declaration order, so this is the order ropeFix.c's inline tail has. */
 int InitRopeFixGeo(void);
 
+struct GObj;
+
+void RopeFixGeo(int a0);
+void RopeFixDL(struct GObj *a0);
+
 #endif /* ROPEFIX_H */

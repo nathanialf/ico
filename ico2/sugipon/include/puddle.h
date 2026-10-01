@@ -18,4 +18,11 @@ void drawRipple(float t, void *pos);
 void drawRipples(struct GObj *a0, int pri);
 void leveldown(int pri);
 
+struct PuddleWork;
+
+struct SObjSimpleSetting;
+
+struct PuddleWork *InitPuddleGeo(struct GObj *a0, struct SObjSimpleSetting *a1);
+void PuddleDL(struct GObj *a0);
+
 #endif /* PUDDLE_H */

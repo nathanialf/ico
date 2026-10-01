@@ -23,7 +23,7 @@ typedef struct {   /* field names derived */
     int targetBoy; /* 0x14, 1 to call the group to the boy as well */
     float upY;     /* 0x18 */
     float attack;  /* 0x1C */
-} SpiderKindRec; /* derived name */
+} SpiderKindRec;   /* derived name */
 
 extern const SpiderKindRec spiderDef[];
 extern int sgSelLine;
@@ -38,5 +38,20 @@ void SetSpiderGroupReviveStatus(struct GObj *a0);
 void SleepSpiderGroup(struct GObj *gp);
 void WakeUpLayoutedSpiders(struct GObj *self);
 void WakeupSpiderGroup(struct GObj *gp);
+
+struct SObjSimpleSetting;
+
+struct SpiderWork;
+
+struct SpiderMemory;
+
+struct SpiderWork *InitSpiderLayoutGeo(struct GObj *self, struct SObjSimpleSetting *lay);
+int CallSpidersToReviveEnemy(struct GObj *self);
+void SpiderLayoutGeo(struct GObj *self);
+int GetNearestOfLayoutSpiders(float *dist, struct GObj *gp, void *center);
+int RestoreSpiderLayoutGeo(void);
+int RestoreSpiderLayoutExtGeo(struct GObj *a0, char *a1);
+int MemorySpiderLayout(struct SpiderMemory *dst, struct GObj *gp);
+void WakeUpSpidersFromGenerator(struct GObj *gp);
 
 #endif /* SPIDER_H */

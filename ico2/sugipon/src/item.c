@@ -206,11 +206,11 @@ typedef union { /* field names derived */
     long long ll[2];
 } ItemVec; /* derived name */
 
-typedef struct {   /* field names derived */
-    ItemVec pos;   /* 0x00 */
-    ItemVec rot;   /* 0x10 */
-    ItemVec scale; /* 0x20 */
-    int kind;      /* 0x30, the item kind; the torch InitItemGeo lights is made as kind 2 */
+typedef struct ItemLayout { /* field names derived */
+    ItemVec pos;            /* 0x00 */
+    ItemVec rot;            /* 0x10 */
+    ItemVec scale;          /* 0x20 */
+    int kind; /* 0x30, the item kind; the torch InitItemGeo lights is made as kind 2 */
     char pad34[12];
 } ItemLayout; /* derived name */
 
@@ -864,10 +864,10 @@ int IsBombExplode(GObj *a0)
     return p->fuse.state == 2;
 }
 
-void *GetBombTorchGObj(GObj *a0)
+void *GetBombTorchGObj(GObj *item)
 {
-    ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(a0)->work;
-    if (IsItemKindBomb(a0)) {
+    ItemWork *p = GOBJ_SUB(item)->work;
+    if (IsItemKindBomb(item)) {
         return p->fuse.torch;
     }
     return 0;

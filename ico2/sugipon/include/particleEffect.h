@@ -45,5 +45,7 @@ void SetParticleEffectPackage(int a0, int *a1, int a2);
 void SetParticleEffectPauseFlag(int a0, int a1);
 void SetParticleEffectUpperLimit(int no, float f);
 void SetParticleEffectClipEnableFlag(int a0, int a1);
+void DeleteParticleEffectsByPackage(int *pkg);
+void DeleteParticleEffectsByID(int id);
 
 #endif /* PARTICLEEFFECT_H */

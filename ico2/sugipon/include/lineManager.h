@@ -14,5 +14,6 @@ void DrawLine(void *p1, void *p2, void *color, int z);
 void DrawLineG(void *p0, void *c0, void *p1, void *c1, int z);
 int _getLine(float *o1, float *o2, float *p1, float *p2);
 void Draw2DLine(int *p1, int *p2, int *color, int z);
+void Draw2DLineG(int *p1, int *c1, int *p2, int *c2, int z);
 
 #endif /* LINEMANAGER_H */

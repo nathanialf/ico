@@ -16,5 +16,7 @@ struct GObj;
 short *InitSugiLeafGeo(void);
 void SugiLeafGeo(struct GObj *gobj);
 short *InitSugiLeafGeo2(struct GObj *gobj);
+void SugiLeafGeo2(struct GObj *gobj);
+void SugiLeafDL2(struct GObj *gobj);
 
 #endif /* SUGITREE_H */

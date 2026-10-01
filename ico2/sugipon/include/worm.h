@@ -17,4 +17,10 @@ void SetDirectWormTargetPos(struct GObj *act, void *pos);
 void SetWormReduceRatio(struct GObj *a0, float f12);
 void TraceWormRoute(struct GObj *act, float t);
 
+struct WormInit;
+
+void *InitWormGeo(struct GObj *act, struct WormInit *ini);
+void WormGeo(struct GObj *act);
+void WormDL(void *act);
+
 #endif /* WORM_H */

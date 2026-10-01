@@ -14,5 +14,16 @@ void SetStaticBlur(int x);
 void MotionBlur(void);
 void FullScreenEffectBefore(void);
 void FullScreenEffectAfter(void);
+void makeFullScreenFlareBefore(int mode);
+void makeFullScreenFlareAfter(int mode);
+void depthField(float depth, float alpha, float rate);
+void GetSunWorldPos(int a0);
+int InitStaticBlur(void);
+void StaticBlur(void);
+void StaticBlurDL(void);
+void SetDepthFadeParam(float f12, float f13, int a0);
+void InitializeStaticBlur(void);
+void _initStaticBlur(void);
+void SetAuraEffect(void);
 
 #endif /* STATICBLUR_H */

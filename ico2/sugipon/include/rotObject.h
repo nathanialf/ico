@@ -21,4 +21,21 @@ int MoveRotObjectWithHoldPoint(struct GObj *bar, void *hold, void *self, void *d
 void SetRotObjectArmRadius(struct GObj *a0, float f);
 void SetRotObjectLockFlag(struct GObj *a0, int a1);
 
+struct RotObjWork;
+
+struct SObjSimpleSetting;
+
+struct GamesysObjInfo;
+
+struct RotObjMemory;
+
+void RotObjectGeo(struct GObj *a0);
+void ExecRotObjectMoveStartReaction(struct GObj *self);
+void ExecRotObjectMoveEndReaction(struct GObj *self);
+struct RotObjWork *InitRotObjectGeo(struct GObj *gobj, struct SObjSimpleSetting *src);
+void RotObjectDL(struct GObj *gobj);
+int RestoreRotObjectGeo(void);
+int RestoreRotObjectExtGeo(struct GObj *a0, struct GamesysObjInfo *a1);
+int MemoryRotObject(struct RotObjMemory *a0, struct GObj *a1);
+
 #endif /* ROTOBJECT_H */

@@ -17,5 +17,8 @@ int CheckRopeUpperWallClimbable(int a0, struct GObj *a1);
 void ReleaseRope(void);
 void RopeGeo(void *a0);
 void SetRopeFixPoint(struct GObj *rope, void *pos, int flag);
+void *InitRopeGeo(struct GObj *o, const float *p);
+void HoldRope(void *a0, void *a1);
+void RopeDL(struct GObj *a0);
 
 #endif /* ROPE_H */

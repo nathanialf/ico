@@ -33,7 +33,7 @@ static const char spiderWakeNoParentMsg[] =
    work word: the group's state (-1 laid out, 0 entered in the group manager,
    1 awake, 2 calling the master back), the member spiders, and the counters
    SpiderLayoutGeo runs. */
-typedef struct {            /* field names derived */
+typedef struct SpiderWork { /* field names derived */
     int state;              /* 0x00 */
     char pad04[28];         /* 0x04 */
     int n;                  /* 0x20, member count */
@@ -47,11 +47,11 @@ typedef struct {            /* field names derived */
 } SpiderWork;               /* derived name */
 
 /* the three words MemorySpiderLayout saves */
-typedef struct { /* field names derived */
-    int awake;   /* 0x0 */
-    int alive;   /* 0x4 */
-    int revived; /* 0x8 */
-} SpiderMemory;  /* derived name */
+typedef struct SpiderMemory { /* field names derived */
+    int awake;                /* 0x0 */
+    int alive;                /* 0x4 */
+    int revived;              /* 0x8 */
+} SpiderMemory;               /* derived name */
 
 SpiderWork *InitSpiderLayoutGeo(GObj *self, SObjSimpleSetting *lay)
 {

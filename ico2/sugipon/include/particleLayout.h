@@ -15,4 +15,8 @@ int *InitParticleLayoutGeo(struct GObj *self, int *other);
 void ParticleLayoutDL(void);
 void DeleteParticleLayout(struct GObj *a0);
 
+struct GObj;
+
+void ParticleLayoutGeo(struct GObj *self);
+
 #endif /* PARTICLELAYOUT_H */

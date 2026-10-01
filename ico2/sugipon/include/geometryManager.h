@@ -65,4 +65,18 @@ typedef union SubHandle { /* field names derived */
 int GetCylinderCollisionWithExceptOwnCollision(struct GObj *self, struct GObj *target, float r,
                                                float h, float s, float t, int ctrl);
 
+void SetRootMatrixWithTransOffsetByDObj(struct Sub15C *dobj, float x, float y, float z);
+void GetRootMatrixRotOffsetByDObj(void *q, struct Sub15C *dobj);
+void SetRootMatrixRotOffsetByDObj(struct Sub15C *dobj, void *q);
+void GetRootVelocity(float *vel, struct GObj *obj);
+void GetInitialInverseMatrixByDObj(char *mat, char *mdl);
+void GetInitialInverseMatrix(char *mat, struct GObj *gobj);
+void MakeCharGObjList(void);
+
+int GetCylinderCollision(struct GObj *self, struct GObj *target, float r, float h, float s,
+                         int ctrl);
+
+void GetRootMatrixByDObj(float *m, struct Sub15C *src);
+void GetRootMatrixTransOffsetByDObj(float *dst, char *src);
+
 #endif /* GEOMETRYMANAGER_H */

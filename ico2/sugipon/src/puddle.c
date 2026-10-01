@@ -20,8 +20,8 @@ typedef struct { /* field names derived */
     float pad[3];
 } __attribute__((aligned(16))) Ripple; /* derived name */
 
-typedef struct {     /* field names derived */
-    Sub15C *reflect; /* the reflection display object */
+typedef struct PuddleWork { /* field names derived */
+    Sub15C *reflect;        /* the reflection display object */
     int idx;
     int pad8[2];
     Ripple rip[6];

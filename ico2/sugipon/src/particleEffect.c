@@ -14,8 +14,6 @@
 #include "windField.h"
 #include "particleEffect.h"
 
-/* memory.h does not declare it */
-void *iosMallocDebugNoAssert(IosMemPart *part, int size, const char *file, int line);
 static int setParticleEffect(struct PEGeo *self, struct PEPackage *pkg, struct IosMemPart *part);
 
 /* The 128-byte per-effect geometry object SetParticleEffectByPartition
