@@ -484,56 +484,68 @@ void initWheels(char *self, float *lay)
 
         for (i = 0; i < 2; i++) {
             {
-                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
-                ((DlFlag *)(e + 0x38))->ll &= ~1;
+                struct DObjNode *e =
+                    (struct DObjNode *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                e->flags.ll &= ~1;
             }
             {
-                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
-                ((DlFlag *)(e + 0x38))->ll &= ~2;
+                struct DObjNode *e =
+                    (struct DObjNode *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                e->flags.ll &= ~2;
             }
             {
-                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
-                *(float *)(e + 0x40) = 0.0f;
+                struct DObjNode *e =
+                    (struct DObjNode *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                e->pos[0] = 0.0f;
             }
             {
-                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
-                *(float *)(e + 0x44) = 0.0f;
+                struct DObjNode *e =
+                    (struct DObjNode *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                e->pos[1] = 0.0f;
             }
             {
-                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
-                *(float *)(e + 0x48) = 0.0f;
+                struct DObjNode *e =
+                    (struct DObjNode *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                e->pos[2] = 0.0f;
             }
             {
-                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
-                *(float *)(e + 0x4C) = 1.0f;
+                struct DObjNode *e =
+                    (struct DObjNode *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                e->pos[3] = 1.0f;
             }
             {
-                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
-                ((DlFlag *)(e + 0x38))->ll &= ~4;
+                struct DObjNode *e =
+                    (struct DObjNode *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                e->flags.ll &= ~4;
             }
             {
-                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
-                *(int *)(e + 0x30) = 0;
+                struct DObjNode *e =
+                    (struct DObjNode *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                e->fade = 0;
             }
             {
-                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
-                *(float *)(e + 0x34) = 1.0f;
+                struct DObjNode *e =
+                    (struct DObjNode *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                e->alpha = 1.0f;
             }
             {
                 char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
                 *(short *)(e + 0x3A) = 0;
             }
             {
-                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
-                *(float *)(e + 0x20) = 1.0f;
+                struct DObjNode *e =
+                    (struct DObjNode *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                e->scale[0] = 1.0f;
             }
             {
-                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
-                *(float *)(e + 0x24) = 1.0f;
+                struct DObjNode *e =
+                    (struct DObjNode *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                e->scale[1] = 1.0f;
             }
             {
-                char *e = (char *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
-                *(float *)(e + 0x28) = 1.0f;
+                struct DObjNode *e =
+                    (struct DObjNode *)(i * 80 + (int)*(char **)(*(char **)(w + 0x11C) + 0x870));
+                e->scale[2] = 1.0f;
             }
         }
         *(short *)(*(char **)(w + 0x11C) + 0x84C) = 2;

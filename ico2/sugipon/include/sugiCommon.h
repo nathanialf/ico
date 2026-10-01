@@ -111,7 +111,9 @@ static __inline__ float plane_distance(const void *pos, const void *plane)
                          "vaddw.x $vf3, $vf3, $vf2w\n\t"
                          "qmfc2.ni $2, $vf3\n\t"
                          "mtc1 $2, %0"
-                         : "=f"(d) : "r"(pos), "r"(plane) : "$2");
+                         : "=f"(d)
+                         : "r"(pos), "r"(plane)
+                         : "$2");
     return d;
 }
 
@@ -140,7 +142,9 @@ static __inline__ float distance_squared(const void *a, const void *b)
                          "vaddz.x $vf3, $vf3, $vf3z\n\t"
                          "qmfc2.ni $2, $vf3\n\t"
                          "mtc1 $2, %0"
-                         : "=f"(d) : "r"(a), "r"(b) : "$2");
+                         : "=f"(d)
+                         : "r"(a), "r"(b)
+                         : "$2");
     return d;
 }
 
@@ -188,7 +192,9 @@ static __inline__ float distance_squared_xz(const void *a, const void *b)
                          "vaddz.x $vf3, $vf3, $vf3z\n\t"
                          "qmfc2.ni $2, $vf3\n\t"
                          "mtc1 $2, %0"
-                         : "=f"(d) : "r"(a), "r"(b) : "$2");
+                         : "=f"(d)
+                         : "r"(a), "r"(b)
+                         : "$2");
     return d;
 }
 
@@ -212,5 +218,18 @@ typedef union DlFlag {
     int i;
     long long ll;
 } DlFlag;
+
+/* One 64-byte node of an object's skeleton, the array Sub15C + 0x8C holds:
+   the node's rest position and rotation, its first child, its next sibling
+   and its parent, -1 where there is none. */
+typedef struct SkelNode { /* field names derived */
+    char pad00[16];
+    float pos[4];  /* 0x10 */
+    float quat[4]; /* 0x20 */
+    int child;     /* 0x30 */
+    int sibling;   /* 0x34 */
+    int parent;    /* 0x38 */
+    int pad3C;
+} SkelNode;
 
 #endif /* SUGICOMMON_H */

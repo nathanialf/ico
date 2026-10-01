@@ -262,8 +262,8 @@ extern void bga_InitBGA(void);
 extern void bga_ResetCamera(void);
 extern void bga_ApplyDObject(char *a0, char **a1, int a2, int a3);
 
-#define STG_DAT(o) ((char *)((AnimWord *)((char *)(o) + 0x15C))->i)
-#define STG_NODE(o, t) ((char *)((AnimWord *)(STG_DAT(o) + 0x870))->i + (t) * 0x50)
+/* an animated object's DObj, its 0x15C word read through AnimWord */
+#define STG_SUB(o) ((Sub15C *)((AnimWord *)((char *)(o) + 0x15C))->i) /* derived name */
 
 /* The stage animation TTY trace (our name and text), built only when DEBUG is
    defined; the retail build does not define it, so the preprocessor leaves
@@ -429,8 +429,8 @@ int stage_Init(void)
                 continue;
             }
             for (k = 0; k < e->flags.b.count; k++) {
-                if (STG_DAT(e->obj[k]) != 0) {
-                    *(int *)(STG_DAT(e->obj[k]) + 0x8) = 0;
+                if (STG_SUB(e->obj[k]) != 0) {
+                    STG_SUB(e->obj[k])->f_8 = 0;
                 }
             }
             k = 0;
@@ -448,52 +448,51 @@ int stage_Init(void)
             }
             e->flags.b.nodes = 0;
             for (k = 0; k < e->flags.b.count; k++) {
-                if (*(int *)(STG_DAT(e->obj[k]) + 0xC) != 0) {
-                    iosFree((void *)(*(int *)(STG_DAT(e->obj[k]) + 0xC) & 0x0FFFFFFF));
+                if (STG_SUB(e->obj[k])->f_C != 0) {
+                    iosFree((void *)(STG_SUB(e->obj[k])->f_C & 0x0FFFFFFF));
                 }
-                if (*(int *)(STG_DAT(e->obj[k]) + 0x10) != 0) {
-                    iosFree((void *)(*(int *)(STG_DAT(e->obj[k]) + 0x10) & 0x0FFFFFFF));
+                if (STG_SUB(e->obj[k])->f_10 != 0) {
+                    iosFree((void *)(STG_SUB(e->obj[k])->f_10 & 0x0FFFFFFF));
                 }
-                *(int *)(STG_DAT(e->obj[k]) + 0xC) = 0;
-                *(int *)(STG_DAT(e->obj[k]) + 0x10) = 0;
-                *(int *)(STG_DAT(e->obj[k]) + 0xC) = (int)iosMallocDebug(
-                    ios_partition_seki, *(int *)(STG_DAT(e->obj[k]) + 0x8) << 6, __FILE__, 761);
-                *(int *)(STG_DAT(e->obj[k]) + 0x10) = (int)iosMallocDebug(
-                    ios_partition_seki, *(int *)(STG_DAT(e->obj[k]) + 0x8) << 4, __FILE__, 761);
+                STG_SUB(e->obj[k])->f_C = 0;
+                STG_SUB(e->obj[k])->f_10 = 0;
+                STG_SUB(e->obj[k])->f_C = (int)iosMallocDebug(
+                    ios_partition_seki, STG_SUB(e->obj[k])->f_8 << 6, __FILE__, 761);
+                STG_SUB(e->obj[k])->f_10 = (int)iosMallocDebug(
+                    ios_partition_seki, STG_SUB(e->obj[k])->f_8 << 4, __FILE__, 761);
                 /* The reallocation block's own count line (`X->8 = N;`, as
                    chain.c, boy.c and box.c spell the same block), here passed
                    the count field itself (listing 762; all three allocations
                    pass line 761, one macro invocation). reload_cse deletes it
                    as a no-op and turns the 0x870 test's load into the ROM's
                    register copy. */
-                *(int *)(STG_DAT(e->obj[k]) + 0x8) = *(int *)(STG_DAT(e->obj[k]) + 0x8);
-                if (*(int *)(STG_DAT(e->obj[k]) + 0x870) != 0) {
-                    iosFree((void *)(*(int *)(STG_DAT(e->obj[k]) + 0x870) & 0x0FFFFFFF));
+                STG_SUB(e->obj[k])->f_8 = STG_SUB(e->obj[k])->f_8;
+                if ((int)STG_SUB(e->obj[k])->p_870 != 0) {
+                    iosFree((void *)((int)STG_SUB(e->obj[k])->p_870 & 0x0FFFFFFF));
                 }
-                *(int *)(STG_DAT(e->obj[k]) + 0x870) = (int)iosMallocDebug(
-                    ios_partition_seki, *(int *)(STG_DAT(e->obj[k]) + 0x8) * 0x50, __FILE__, 761);
-                for (t = 0; t < *(int *)(STG_DAT(e->obj[k]) + 0x8); t++) {
-                    ((PlayWord *)(STG_NODE(e->obj[k], t) + 0x38))->l &= ~1;
-                    ((PlayWord *)(STG_NODE(e->obj[k], t) + 0x38))->l &= ~2;
-                    *(int *)(STG_NODE(e->obj[k], t) + 0x40) = 0;
-                    *(int *)(STG_NODE(e->obj[k], t) + 0x44) = 0;
-                    *(int *)(STG_NODE(e->obj[k], t) + 0x48) = 0;
-                    *(float *)(STG_NODE(e->obj[k], t) + 0x4C) = 1.0f;
-                    ((PlayWord *)(STG_NODE(e->obj[k], t) + 0x38))->l &= ~4;
-                    *(int *)(STG_NODE(e->obj[k], t) + 0x30) = 0;
-                    *(float *)(STG_NODE(e->obj[k], t) + 0x34) = 1.0f;
-                    *(short *)(STG_NODE(e->obj[k], t) + 0x3A) = 0;
-                    *(float *)(STG_NODE(e->obj[k], t) + 0x20) = 1.0f;
-                    *(float *)(STG_NODE(e->obj[k], t) + 0x24) = 1.0f;
-                    *(float *)(STG_NODE(e->obj[k], t) + 0x28) = 1.0f;
+                STG_SUB(e->obj[k])->p_870 =
+                    iosMallocDebug(ios_partition_seki, STG_SUB(e->obj[k])->f_8 * 80, __FILE__, 761);
+                for (t = 0; t < STG_SUB(e->obj[k])->f_8; t++) {
+                    STG_SUB(e->obj[k])->p_870[t].flags.ll &= ~1;
+                    STG_SUB(e->obj[k])->p_870[t].flags.ll &= ~2;
+                    STG_SUB(e->obj[k])->p_870[t].pos[0] = 0;
+                    STG_SUB(e->obj[k])->p_870[t].pos[1] = 0;
+                    STG_SUB(e->obj[k])->p_870[t].pos[2] = 0;
+                    STG_SUB(e->obj[k])->p_870[t].pos[3] = 1.0f;
+                    STG_SUB(e->obj[k])->p_870[t].flags.ll &= ~4;
+                    STG_SUB(e->obj[k])->p_870[t].fade = 0;
+                    STG_SUB(e->obj[k])->p_870[t].alpha = 1.0f;
+                    *(short *)((char *)&STG_SUB(e->obj[k])->p_870[t] + 0x3A) = 0;
+                    STG_SUB(e->obj[k])->p_870[t].scale[0] = 1.0f;
+                    STG_SUB(e->obj[k])->p_870[t].scale[1] = 1.0f;
+                    STG_SUB(e->obj[k])->p_870[t].scale[2] = 1.0f;
                 }
-                *(short *)(STG_DAT(e->obj[k]) + 0x84C) = 2;
+                STG_SUB(e->obj[k])->dispType = 2;
                 e->flags.i = (e->flags.i & 0xFFF003FF) |
-                             ((e->flags.b.nodes + *(int *)(STG_DAT(e->obj[k]) + 0x8)) & 0x3FF)
-                                 << 10;
-                for (u = 0; u < *(int *)(STG_DAT(e->obj[k]) + 0x8); u++) {
-                    _UnitMatrix((void *)(*(int *)(STG_DAT(e->obj[k]) + 0xC) + u * 64));
-                    SetIdentityQuaternion((void *)(*(int *)(STG_DAT(e->obj[k]) + 0x10) + u * 16));
+                             ((e->flags.b.nodes + STG_SUB(e->obj[k])->f_8) & 0x3FF) << 10;
+                for (u = 0; u < STG_SUB(e->obj[k])->f_8; u++) {
+                    _UnitMatrix((void *)(STG_SUB(e->obj[k])->f_C + u * 64));
+                    SetIdentityQuaternion((void *)(STG_SUB(e->obj[k])->f_10 + u * 16));
                 }
             }
         }
@@ -511,14 +510,14 @@ int stage_Init(void)
                 tbl2 = objKindData + *(int *)((char *)e->data[k] + 4) * 100;
                 fn = *(int (**)(char *, StageGObjInit *))(tbl2 + 0x58);
                 if (fn != 0) {
-                    *(int *)(STG_DAT(e->obj[k]) + 0x830) = fn(g, &arg);
+                    STG_SUB(e->obj[k])->f_830 = (void *)fn(g, &arg);
                 }
                 isysGObjProcAdd(g, *(int *)(tbl2 + 0x5C), 1, 0x16);
                 isysGObjProcAdd(g, *(int *)(tbl2 + 0x50), 1, 0x17);
                 isysGObjProcAdd(g, *(int *)(tbl2 + 0x4C), 1, 0x18);
                 isysGObjLinkObjDL(g, 0, 0, 7, 0xFFFFFFFF);
                 *(int *)(g + 0x16C) = 1;
-                *(int *)(STG_DAT(e->obj[k]) + 0x74) = 0;
+                STG_SUB(e->obj[k])->f_74 = 0;
             }
         }
     }
@@ -854,9 +853,9 @@ void stage_DispAnimation(void)
         }
         for (k = 0; k < e->flags.b.count; k++) {
             char *objs = (char *)e->obj;
-            char *d = *(char **)(*(char **)(objs + (k << 2)) + 0x15C);
+            Sub15C *d = ((GObj *)*(char **)(objs + (k << 2)))->p_15C;
 
-            if (*(int *)(d + 0x74) != 0) {
+            if (d->f_74 != 0) {
                 reg_DispObj(d);
             }
         }
@@ -960,17 +959,10 @@ void stage_SetScale(int key, float scale)
         if (key == e->entry1[0x58 / 4]) {
             if ((e->flags.i >> 30) == 0) {
                 for (j = 0; j < e->flags.b.count; j++) {
-                    for (k = 0; k < *(int *)((char *)((AnimWord *)(e->obj[j] + 0x15C))->i + 0x8);
-                         k++) {
-                        *(float *)(*(char **)((char *)((AnimWord *)(e->obj[j] + 0x15C))->i +
-                                              0x870) +
-                                   k * 0x50 + 0x20) =
-                            *(float *)(*(char **)((char *)((AnimWord *)(e->obj[j] + 0x15C))->i +
-                                                  0x870) +
-                                       k * 0x50 + 0x24) =
-                                *(float *)(*(char **)((char *)((AnimWord *)(e->obj[j] + 0x15C))->i +
-                                                      0x870) +
-                                           k * 0x50 + 0x28) = scale;
+                    for (k = 0; k < STG_SUB(e->obj[j])->f_8; k++) {
+                        STG_SUB(e->obj[j])->p_870[k].scale[0] =
+                            STG_SUB(e->obj[j])->p_870[k].scale[1] =
+                                STG_SUB(e->obj[j])->p_870[k].scale[2] = scale;
                     }
                 }
             }
@@ -1030,10 +1022,10 @@ float stage_PlayBgAnimation(int key, float t, void *v, void *q)
         }
         for (k = 0; k < e->flags.b.count; k++) {
             char *objs = (char *)e->obj;
-            char *d = *(char **)(*(char **)(objs + (k << 2)) + 0x15C);
+            Sub15C *d = ((GObj *)*(char **)(objs + (k << 2)))->p_15C;
 
             reg_DispObj(d);
-            *(int *)(d + 0x74) = 0;
+            d->f_74 = 0;
         }
         *(signed char *)(e->entry2 + 0xA) = -1;
     }
@@ -1091,13 +1083,13 @@ float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv
         }
         stageAnimDebugHook();
         for (k = 0; k < e->flags.b.count; k++) {
-            char *d = *(char **)(e->obj[k] + 0x15C);
+            Sub15C *d = ((GObj *)e->obj[k])->p_15C;
 
-            for (m = 0; m < *(int *)(d + 0x8); m++) {
-                *(float *)(*(int *)(d + 0x870) + m * 80 + 0x34) = dv;
+            for (m = 0; m < d->f_8; m++) {
+                d->p_870[m].alpha = dv;
             }
             reg_DispObj(d);
-            *(int *)(d + 0x74) = 0;
+            d->f_74 = 0;
             stageAnimDebugHook();
         }
         stageAnimDebugHook();

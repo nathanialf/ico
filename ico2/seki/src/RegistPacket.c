@@ -1,6 +1,7 @@
 #include "typedef.h"
 #include "Packet.h"
 #include "RegistPacket.h"
+#include "DisplayP2O.h"
 #include "debug.h"
 #include "DisplayList.h"
 #include "GsBase.h"
@@ -21,11 +22,11 @@ static int scissorSw = 0; /* derived name */
 
 extern void __assert(char *file, int line, char *expr);
 
-void reg_setShape(char *o, int idx, int flag, PacHeader *pkt, char *mat)
+void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, char *mat)
 {
     float vec[4];
-    char *mdl;
-    char *s;
+    PObjModel *mdl;
+    PObjPart *s;
     char *p;
     char *m;
     char *v;
@@ -35,39 +36,38 @@ void reg_setShape(char *o, int idx, int flag, PacHeader *pkt, char *mat)
     int i;
     int n;
 
-    mdl = *(char **)(o + 0x854);
-    s = *(char **)(mdl + 0x40) + idx * 0x180;
+    mdl = o->model;
+    s = &mdl->parts[idx];
     {
-        char *dst = *(char **)(s + 0x90);
+        char *dst = s->vtx;
 
-        for (i = 0; i < *(unsigned int *)(s + 0x94); i++) {
-            _CopyVector(dst + i * 0x10, *(char **)(s + 0x174) + i * 0x10);
+        for (i = 0; i < s->vtxCount; i++) {
+            _CopyVector(dst + i * 0x10, s->vtxSave + i * 0x10);
         }
     }
     {
-        char *dst = *(char **)(s + 0xA0);
+        char *dst = s->nrm;
 
         if (dst != 0) {
-            for (i = 0; i < *(unsigned int *)(s + 0xA4); i++) {
-                _CopyVector(dst + i * 0x10, *(char **)(s + 0x178) + i * 0x10);
+            for (i = 0; i < s->nrmCount; i++) {
+                _CopyVector(dst + i * 0x10, s->nrmSave + i * 0x10);
             }
         }
     }
-    for (i = 0; i < *(unsigned int *)(s + 0x124); i++) {
-        if (*(float *)(i * 4 + *(int *)(o + 0x838)) != 0.0f) {
-            m = *(char **)(i * 4 + *(int *)(s + 0x120));
+    for (i = 0; i < s->morphCount; i++) {
+        if (o->morphWeight[i] != 0.0f) {
+            m = s->morphs[i];
             if (m != 0) {
                 while (*(int *)(m + 0x10) != -1) {
-                    _ScaleVectorXYZ(vec, m, *(float *)(i * 4 + *(int *)(o + 0x838)));
+                    _ScaleVectorXYZ(vec, m, o->morphWeight[i]);
                     if (*(float *)(m + 0xC) == 1.0f) {
-                        if (*(unsigned int *)(m + 0x10) >= *(unsigned int *)(s + 0x94)) {
+                        if (*(unsigned int *)(m + 0x10) >= s->vtxCount) {
                             debug_StdPrintfDummy("reg_setShape:illegal vertex index. %d/%d\n",
-                                                 *(unsigned int *)(m + 0x10),
-                                                 *(unsigned int *)(s + 0x94));
+                                                 *(unsigned int *)(m + 0x10), s->vtxCount);
                             debug_assert("src/RegistPacket.c", 635);
                             __assert("src/RegistPacket.c", 635, "0");
                         }
-                        t = *(char **)(s + 0x90);
+                        t = s->vtx;
                         t += *(int *)(m + 0x10) * 0x10;
                         _AddVectorXYZ(t, t, vec);
                     } else if (*(float *)(m + 0xC) == 0.0f) {
@@ -79,14 +79,13 @@ void reg_setShape(char *o, int idx, int flag, PacHeader *pkt, char *mat)
                                 goto nextbone;
                             }
                         }
-                        if (*(unsigned int *)(m + 0x10) >= *(unsigned int *)(s + 0xA4)) {
+                        if (*(unsigned int *)(m + 0x10) >= s->nrmCount) {
                             debug_StdPrintfDummy("reg_setShape:illegal normal index. %d/%d\n",
-                                                 *(unsigned int *)(m + 0x10),
-                                                 *(unsigned int *)(s + 0xA4));
+                                                 *(unsigned int *)(m + 0x10), s->nrmCount);
                             debug_assert("src/RegistPacket.c", 642);
                             __assert("src/RegistPacket.c", 642, "0");
                         }
-                        t = *(char **)(s + 0xA0);
+                        t = s->nrm;
                         t += *(int *)(m + 0x10) * 0x10;
                         _AddVectorXYZ(t, t, vec);
                     } else {
@@ -99,8 +98,8 @@ void reg_setShape(char *o, int idx, int flag, PacHeader *pkt, char *mat)
             }
         }
     }
-    for (i = 0; i < *(unsigned int *)(s + 0x104); i++) {
-        v = *(char **)(i * 4 + *(int *)(s + 0x100));
+    for (i = 0; i < s->stripCount; i++) {
+        v = ((char **)s->strips)[i];
         while (*(short *)v != -1) {
             pk = pkt;
             n = *(short *)v;
@@ -119,7 +118,7 @@ void reg_setShape(char *o, int idx, int flag, PacHeader *pkt, char *mat)
             if (*(int *)(v - 0xC) != 0) {
                 if (n != 0) {
                     do {
-                        _CopyVector(p, *(char **)(s + 0x90) + *(short *)(v + 4) * 0x10);
+                        _CopyVector(p, s->vtx + *(short *)(v + 4) * 0x10);
                         p += 0x10;
                         if ((((int)(*(long long *)(mat + 0x60) >> 5)) & 3) == 0) {
                             switch (*(int *)(mat + 0x60) & 1) {
@@ -129,10 +128,10 @@ void reg_setShape(char *o, int idx, int flag, PacHeader *pkt, char *mat)
                                 goto nocopy;
                             }
                         }
-                        _CopyVector(p, *(char **)(s + 0xA0) + *(short *)(v + 6) * 0x10);
+                        _CopyVector(p, s->nrm + *(short *)(v + 6) * 0x10);
                         p += 0x10;
                     nocopy:
-                        if (*(signed char *)(mdl + 0x2F) != 0) {
+                        if (mdl->disp != 0) {
                             p += 0x10;
                         }
                         n--;
@@ -229,13 +228,13 @@ int reg_clipPacketBoundingBox(PacHeader *pk)
 extern void
 mc_TransMicroCode(); /* K&R: called 1-ary here and 2-ary in reg_DispAccessoryWithShadow */
 
-void reg_transMicroCode(char *a0, int mask)
+void reg_transMicroCode(Sub15C *a0, int mask)
 {
-    if (*(signed char *)(*(char **)(a0 + 0x854) + 0x2F) != 0) {
+    if (a0->model->disp != 0) {
         mc_TransMicroCode(3);
         return;
     }
-    if (*(int *)(*(char **)(a0 + 0x874) + 0xF0) == 0) {
+    if (a0->p_874->mode == 0) {
         mc_TransMicroCode(1);
         return;
     }
@@ -285,7 +284,7 @@ typedef int Qw128 __attribute__((mode(TI)));
  * types beyond one 64-bit packet pointer and one byte pointer. The matched
  * functions of this TU are byte-identical under either field typing. */
 
-char *reg_setNMatrixPacket(char *o, int idx)
+char *reg_setNMatrixPacket(Sub15C *o, int idx)
 {
     void setMatrix(void)
     {
@@ -332,7 +331,7 @@ char *reg_setNMatrixPacket(char *o, int idx)
         _GetCurrentMatrix(c + 0x10);
         m = PacketBufferStruct.ptr.c;
         PacketBufferStruct.ptr.c = m + 0x80;
-        _CopyMatrix(m + 0x40, *(char **)(o + 0x874) + 0x40);
+        _CopyMatrix(m + 0x40, (char *)o->p_874 + 64);
         n = PacketBufferStruct.ptr.c;
         ((RegPkWord *)n)->w[0] = 0x15000012;
         n += 4;
@@ -344,27 +343,25 @@ char *reg_setNMatrixPacket(char *o, int idx)
     }
     char *pkt;
     char *box;
-    float *scl;
+    struct DObjNode *scl;
     int mode;
 
-    scl = (float *)(idx * 0x50 + *(int *)(o + 0x870));
-    mode = *(int *)(*(int *)(o + 0x874) + 0xF0);
-    if (scl[8] != 1.0f || scl[9] != 1.0f || scl[10] != 1.0f) {
+    scl = (struct DObjNode *)(idx * 80 + (int)o->p_870);
+    mode = o->p_874->mode;
+    if (scl->scale[0] != 1.0f || scl->scale[1] != 1.0f || scl->scale[2] != 1.0f) {
         _InitCurrentMatrix();
-        _SetCurrentMatrix(*(char **)(o + 0xC) + idx * 0x40);
-        _ScaleCurrentMatrix(*(float *)(idx * 0x50 + *(int *)(o + 0x870) + 0x20),
-                            *(float *)(idx * 0x50 + *(int *)(o + 0x870) + 0x24),
-                            *(float *)(idx * 0x50 + *(int *)(o + 0x870) + 0x28));
+        _SetCurrentMatrix((char *)o->f_C + idx * 64);
+        _ScaleCurrentMatrix(o->p_870[idx].scale[0], o->p_870[idx].scale[1], o->p_870[idx].scale[2]);
         _GetCurrentMatrix(matrixptr + 0x40);
     } else {
-        _CopyMatrix(matrixptr + 0x40, *(char **)(o + 0xC) + idx * 0x40);
+        _CopyMatrix(matrixptr + 0x40, (char *)o->f_C + idx * 64);
     }
     _MulMatrix(matrixptr + 0x300, matrixptr + 0x280, matrixptr + 0x40);
     _MulMatrix(matrixptr + 0x140, matrixptr + 0x100, matrixptr + 0x40);
-    box = *(char **)(o + 0x854) + 0x50;
+    box = (char *)o->model->box;
     _SetCurrentMatrix(matrixptr + 0x300);
     if (gsb_ClipBox(box) == 0) {
-        if (*(int *)(o + 0x858) != 0) {
+        if (o->shadow != 0) {
             light_MakeLightMatrix(o, idx);
         }
         return 0;
@@ -379,7 +376,7 @@ char *reg_setNMatrixPacket(char *o, int idx)
         light_MakeLightMatrix(o, idx);
         _SetCurrentMatrix(matrixptr + 0x40);
         _ClearTransCurrentMatrix();
-        _MulCurrentMatrixL(*(char **)(o + 0x874));
+        _MulCurrentMatrixL((char *)o->p_874);
         setLight();
     }
     {
@@ -407,13 +404,13 @@ typedef struct {
     RegVec r[4];
 } RegMtx;
 
-char *reg_setMMatrixPacket(char *o, int idx)
+char *reg_setMMatrixPacket(Sub15C *o, int idx)
 {
     RegVec s;
     RegVec v;
     char *pkt;
     char *box;
-    char *w;
+    struct DObjNode *w;
     int mode;
 
     void setMatrix(void)
@@ -431,7 +428,7 @@ char *reg_setMMatrixPacket(char *o, int idx)
         ((RegPkWord *)(c + 8))->w[1] = 0x6C0C8000;
         PacketBufferStruct.ptr.c = c + 0x50;
         _CopyMatrix(c + 0x10, matrixptr + 0x140);
-        if ((*(long long *)(*(int *)(o + 0x870) + idx * 0x50 + 0x38) & 6) != 0) {
+        if ((o->p_870[idx].flags.ll & 6) != 0) {
             _MulMatrix(PacketBufferStruct.ptr.c, matrixptr + 0x1C0, matrixptr + 0x180);
         } else {
             _MulMatrix(matrixptr + 0x180, matrixptr + 0x80, matrixptr + 0x40);
@@ -466,7 +463,7 @@ char *reg_setMMatrixPacket(char *o, int idx)
         _GetCurrentMatrix(c + 0x10);
         m = PacketBufferStruct.ptr.c;
         PacketBufferStruct.ptr.c = m + 0x80;
-        _CopyMatrix(m + 0x40, *(char **)(o + 0x874) + 0x40);
+        _CopyMatrix(m + 0x40, (char *)o->p_874 + 64);
         n = PacketBufferStruct.ptr.c;
         ((RegPkWord *)n)->w[0] = 0x15000012;
         n += 4;
@@ -476,12 +473,12 @@ char *reg_setMMatrixPacket(char *o, int idx)
         ((RegPkWord *)(n + 4))->d = 0;
         PacketBufferStruct.ptr.c = n + 0xC;
     }
-    w = (char *)(idx * 0x50 + (int)((Sub15C *)o)->p_870);
-    mode = ((LightMatrix *)((Sub15C *)o)->p_874)->mode;
-    if ((*(long long *)(w + 0x38) & 2) != 0) {
+    w = (struct DObjNode *)(idx * 80 + (int)o->p_870);
+    mode = o->p_874->mode;
+    if ((w->flags.ll & 2) != 0) {
         RegMtx um;
 
-        _SetCurrentMatrix(*(char **)(o + 0xC) + idx * 0x40);
+        _SetCurrentMatrix((char *)o->f_C + idx * 64);
         _ClearTransCurrentMatrix();
         _UnitMatrix(&um);
         _ApplyCurrentMatrix(&v, &um.r[0]);
@@ -491,23 +488,23 @@ char *reg_setMMatrixPacket(char *o, int idx)
         _ApplyCurrentMatrix(&v, &um.r[2]);
         s.z = _GetLength(&v, &um.r[3]);
         _InitCurrentMatrix();
-        if (*(float *)(idx * 0x50 + *(int *)(o + 0x870) + 0x48) < 5.0f) {
+        if (o->p_870[idx].pos[2] < 5.0f) {
             _ScaleVectorXYZ(&s, &s, 5.0f);
             _ScaleCurrentMatrix(s.x, s.y, s.z);
-            _ScaleVectorXYZ(&s, (char *)(*(int *)(o + 0x870) + idx * 0x50) + 0x40, 5.0f);
+            _ScaleVectorXYZ(&s, o->p_870[idx].pos, 5.0f);
             s.w = 1.0f;
             _SetTransCurrentMatrix(&s);
         } else {
             _ScaleCurrentMatrix(s.x, s.y, s.z);
-            _SetTransCurrentMatrix((char *)(*(int *)(o + 0x870) + idx * 0x50) + 0x40);
+            _SetTransCurrentMatrix(o->p_870[idx].pos);
         }
         _GetCurrentMatrix(matrixptr + 0x180);
         _MulMatrix(matrixptr + 0x140, matrixptr + 0x640, matrixptr + 0x180);
         _MulMatrix(matrixptr + 0x300, matrixptr + 0x680, matrixptr + 0x180);
-    } else if ((*(long long *)(w + 0x38) & 4) != 0) {
+    } else if ((w->flags.ll & 4) != 0) {
         RegMtx um2;
 
-        _MulMatrix(matrixptr + 0x180, matrixptr + 0x80, *(char **)(o + 0xC) + idx * 0x40);
+        _MulMatrix(matrixptr + 0x180, matrixptr + 0x80, (char *)o->f_C + idx * 64);
         _UnitMatrix(&um2);
         _SetCurrentMatrix(matrixptr + 0x180);
         _ClearTransCurrentMatrix();
@@ -519,30 +516,28 @@ char *reg_setMMatrixPacket(char *o, int idx)
         s.z = _GetLength(&v, &um2.r[3]);
         _InitCurrentMatrix();
         _TransCurrentMatrix(matrixptr + 0x1B0);
-        _RotCurrentMatrixZ(*(short *)(idx * 0x50 + *(int *)(o + 0x870) + 0x3A));
+        _RotCurrentMatrixZ(*(short *)((char *)&o->p_870[idx] + 58));
         _ScaleCurrentMatrix(s.x, s.y, s.z);
         _GetCurrentMatrix(matrixptr + 0x180);
         _MulMatrix(matrixptr + 0x140, matrixptr + 0xC0, matrixptr + 0x180);
         _MulMatrix(matrixptr + 0x300, matrixptr + 0x240, matrixptr + 0x180);
     } else {
-        if (*(float *)(w + 0x20) != 1.0f || *(float *)(w + 0x24) != 1.0f ||
-            *(float *)(w + 0x28) != 1.0f) {
+        if (w->scale[0] != 1.0f || w->scale[1] != 1.0f || w->scale[2] != 1.0f) {
             _InitCurrentMatrix();
-            _SetCurrentMatrix(*(char **)(o + 0xC) + idx * 0x40);
-            _ScaleCurrentMatrix(*(float *)(idx * 0x50 + *(int *)(o + 0x870) + 0x20),
-                                *(float *)(idx * 0x50 + *(int *)(o + 0x870) + 0x24),
-                                *(float *)(idx * 0x50 + *(int *)(o + 0x870) + 0x28));
+            _SetCurrentMatrix((char *)o->f_C + idx * 64);
+            _ScaleCurrentMatrix(o->p_870[idx].scale[0], o->p_870[idx].scale[1],
+                                o->p_870[idx].scale[2]);
             _GetCurrentMatrix(matrixptr + 0x40);
         } else {
-            _CopyMatrix(matrixptr + 0x40, *(char **)(o + 0xC) + idx * 0x40);
+            _CopyMatrix(matrixptr + 0x40, (char *)o->f_C + idx * 64);
         }
         _MulMatrix(matrixptr + 0x140, matrixptr + 0x100, matrixptr + 0x40);
         _MulMatrix(matrixptr + 0x300, matrixptr + 0x280, matrixptr + 0x40);
     }
-    box = *(char **)(o + 0x854) + 0x50;
+    box = (char *)o->model->box;
     _SetCurrentMatrix(matrixptr + 0x300);
     if (gsb_ClipBox(box) == 0) {
-        if (*(int *)(o + 0x858) != 0) {
+        if (o->shadow != 0) {
             light_MakeLightMatrix(o, idx);
         }
         return 0;
@@ -557,7 +552,7 @@ char *reg_setMMatrixPacket(char *o, int idx)
         light_MakeLightMatrix(o, idx);
         _SetCurrentMatrix(matrixptr + 0x40);
         _ClearTransCurrentMatrix();
-        _MulCurrentMatrixL(*(char **)(o + 0x874));
+        _MulCurrentMatrixL((char *)o->p_874);
         setLight();
     }
     {
@@ -574,7 +569,7 @@ char *reg_setMMatrixPacket(char *o, int idx)
     return pkt;
 }
 
-void reg_setCMatrixPacket(char *o, float alpha, int prilist)
+void reg_setCMatrixPacket(Sub15C *o, float alpha, int prilist)
 {
     int i;
     int haslight;
@@ -585,7 +580,7 @@ void reg_setCMatrixPacket(char *o, float alpha, int prilist)
         char *m;
         int n;
 
-        n = ((Sub15C *)o)->f_8 * 4;
+        n = o->f_8 * 4;
         c = PacketBufferStruct.ptr.c;
         PacketBufferStruct.tail.c = c;
         *(long long *)c = n | 0x10000002;
@@ -603,9 +598,8 @@ void reg_setCMatrixPacket(char *o, float alpha, int prilist)
         PacketBufferStruct.ptr.c = c + 0x1C;
         *(float *)(c + 0x1C) = alpha;
         PacketBufferStruct.ptr.c = c + 0x20;
-        for (i = 0; i < ((Sub15C *)o)->f_8; i++) {
-            _MulMatrix(PacketBufferStruct.ptr.c, *(char **)(o + 0xC) + i * 0x40,
-                       *(char **)(o + 0x90) + i * 0x40);
+        for (i = 0; i < o->f_8; i++) {
+            _MulMatrix(PacketBufferStruct.ptr.c, (char *)o->f_C + i * 64, o->clusterMtx + i * 64);
             PacketBufferStruct.ptr.c = PacketBufferStruct.ptr.c + 0x40;
         }
         m = PacketBufferStruct.ptr.c;
@@ -634,8 +628,8 @@ void reg_setCMatrixPacket(char *o, float alpha, int prilist)
          * setLight uses; the listing's line 1217 has no instruction, the c + 0x10 store
          * being dead under the first increment's store */
         PacketBufferStruct.ptr.c = c + 0x10;
-        _CopyMatrix(((float (*)[16])PacketBufferStruct.ptr.c)++, *(char **)(o + 0x874));
-        _CopyMatrix(((float (*)[16])PacketBufferStruct.ptr.c)++, *(char **)(o + 0x874) + 0x40);
+        _CopyMatrix(((float (*)[16])PacketBufferStruct.ptr.c)++, (char *)o->p_874);
+        _CopyMatrix(((float (*)[16])PacketBufferStruct.ptr.c)++, (char *)o->p_874 + 64);
         n = PacketBufferStruct.ptr.c;
         *(int *)n = 0x15000012;
         n += 4;
@@ -646,7 +640,7 @@ void reg_setCMatrixPacket(char *o, float alpha, int prilist)
         PacketBufferStruct.ptr.c = n + 0xC;
     }
 
-    haslight = ((LightMatrix *)((Sub15C *)o)->p_874)->mode != 0;
+    haslight = o->p_874->mode != 0;
     light_MakeLightMatrix(o, 0);
     PacketBufferStruct.dma.c = PacketBufferStruct.ptr.c;
     PacketBufferStruct.tail.c = 0;
@@ -656,7 +650,7 @@ void reg_setCMatrixPacket(char *o, float alpha, int prilist)
     if (haslight) {
         light();
     } else {
-        debug_StdPrintfDummy("no light calc cluster model %s\n", *(char **)(o + 0x854));
+        debug_StdPrintfDummy("no light calc cluster model %s\n", o->model);
         debug_assert("src/RegistPacket.c", 1238);
         __assert("src/RegistPacket.c", 1238, "0");
     }
@@ -874,9 +868,9 @@ static inline int regMaterialDLPri(int *grp, int nodeIdx, int *ext, float fade)
     return pri;
 }
 
-void reg_dispNObj(char *o)
+void reg_dispNObj(Sub15C *o)
 {
-    char *mdl;
+    PObjModel *mdl;
     char *grp;
     char *pk;
     PacHeader *pkt;
@@ -887,8 +881,8 @@ void reg_dispNObj(char *o)
     int pri;
     int mode;
 
-    mdl = *(char **)(o + 0x854);
-    grp = *(char **)(mdl + 0x48);
+    mdl = o->model;
+    grp = mdl->groups;
     reg_transMicroCode(o, 0x3B5);
     pk = reg_setNMatrixPacket(o, 0);
     if (pk != 0) {
@@ -901,8 +895,8 @@ void reg_dispNObj(char *o)
                 dl_CloseDma();
             }
         }
-        for (j = 0; j < *(signed char *)(mdl + 0x2E); j++, grp += 0x30) {
-            box = (char *)(j * 0x80 + *(int *)(*(char **)(o + 0x854) + 0x44));
+        for (j = 0; j < mdl->partCount; j++, grp += 0x30) {
+            box = (char *)(j * 128 + (int)o->model->boxes);
             _SetCurrentMatrix(matrixptr + 0x300);
             if (gsb_ClipBox(box) != 0) {
                 pkt = *(PacHeader **)(grp + 8);
@@ -916,12 +910,12 @@ void reg_dispNObj(char *o)
                         reg_chooseMicroCode((char *)(*(int *)grp + pkt->mat * 0x70), r, pri);
                         dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
                         dl_CloseDma();
-                        if (*(int *)(*(char **)(o + 0x874) + 0xF0) == 2) {
+                        if (o->p_874->mode == 2) {
                             if (pkt->tex1 != -1) {
                                 reg_dispSpecular(pkt, r, 0);
                             }
                         }
-                        mode = *(int *)(*(char **)(o + 0x874) + 0xF0);
+                        mode = o->p_874->mode;
                         if (pkt->tex2 != -1) {
                             if (mode == 0) {
                                 debug_StdPrintfDummy("光源オフでリフレクションを表示.\n");
@@ -944,7 +938,7 @@ void reg_dispNObj(char *o)
             }
         }
     }
-    if (*(int *)(o + 0x858) != 0) {
+    if (o->shadow != 0) {
         shadow_RenderVolume(o);
     }
 }
@@ -961,13 +955,13 @@ static const unsigned int regDissolveResetPacket[4][4] __attribute__((aligned(16
     {0x15000000, 0, 0, 0},
 };
 
-void reg_dispMObj(char *o)
+void reg_dispMObj(Sub15C *o)
 {
-    char *mdl;
+    PObjModel *mdl;
     char *grp;
     PacHeader *pkt;
     char *pk;
-    float *w;
+    struct DObjNode *w;
     float alpha;
     int i;
     int j;
@@ -978,12 +972,12 @@ void reg_dispMObj(char *o)
     int mode;
     int prilist;
 
-    mdl = *(char **)(o + 0x854);
-    grp = *(char **)(mdl + 0x48);
+    mdl = o->model;
+    grp = mdl->groups;
     reg_transMicroCode(o, 0x3B5);
-    for (i = 0; i < *(int *)(o + 8); i++) {
-        w = (float *)(i * 0x50 + *(int *)(o + 0x870));
-        alpha = 1.0f - (1.0f - w[12]) * w[13];
+    for (i = 0; i < *(int *)((char *)o + 8); i++) {
+        w = (struct DObjNode *)(i * 80 + (int)o->p_870);
+        alpha = 1.0f - (1.0f - w->fade) * w->alpha;
         if ((alpha < 0.0f ? -alpha : alpha) == 1.0f) {
             continue;
         }
@@ -997,7 +991,7 @@ void reg_dispMObj(char *o)
                     dl_CloseDma();
                 }
             }
-            if (*(int *)(i * 0x180 + *(int *)(mdl + 0x40) + 0x124) != 0) {
+            if (mdl->parts[i].morphCount != 0) {
                 if (*(char **)(grp + 0xC) != 0) {
                     if (buffer_ID != 0) {
                         pkt = *(PacHeader **)(grp + 8);
@@ -1016,7 +1010,7 @@ void reg_dispMObj(char *o)
                 r = reg_clipPacketBoundingBox(pkt);
                 if (r != 0) {
                     fade = 0;
-                    if ((*(long long *)(i * 0x50 + *(int *)(o + 0x870) + 0x38) & 1) == 1) {
+                    if ((o->p_870[i].flags.ll & 1) == 1) {
                         if (alpha != 0.0f) {
                             fade = 1;
                         }
@@ -1032,12 +1026,12 @@ void reg_dispMObj(char *o)
                         reg_chooseMicroCode((char *)(*(int *)grp + pkt->mat * 0x70), r, pri);
                         dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
                         dl_CloseDma();
-                        if (*(int *)(*(char **)(o + 0x874) + 0xF0) == 2) {
+                        if (o->p_874->mode == 2) {
                             if (pkt->tex1 != -1) {
                                 reg_dispSpecular(pkt, r, 0);
                             }
                         }
-                        mode = *(int *)(*(char **)(o + 0x874) + 0xF0);
+                        mode = o->p_874->mode;
                         if (pkt->tex2 != -1) {
                             if (mode == 0) {
                                 debug_StdPrintfDummy("光源オフでリフレクションを表示.\n");
@@ -1062,13 +1056,13 @@ void reg_dispMObj(char *o)
                 pkt = pkt->next;
             }
         }
-        if (*(int *)(o + 0x858) != 0) {
+        if (o->shadow != 0) {
             shadow_RenderVolumeMulti(o, i);
         }
     }
 }
 
-void reg_dispSObj(char *o, int idx)
+void reg_dispSObj(Sub15C *o, int idx)
 {
     char *grp;
     PacHeader *pkt;
@@ -1078,7 +1072,7 @@ void reg_dispSObj(char *o, int idx)
     int pri;
     int mode;
 
-    grp = *(char **)(*(char **)(o + 0x854) + 0x48);
+    grp = o->model->groups;
     pkt = *(PacHeader **)(grp + 8);
     reg_transMicroCode(o, 0x3B5);
     pk = reg_setMMatrixPacket(o, idx);
@@ -1101,12 +1095,12 @@ void reg_dispSObj(char *o, int idx)
                 reg_chooseMicroCode((char *)(*(int *)grp + pkt->mat * 0x70), r, pri);
                 dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
                 dl_CloseDma();
-                if (*(int *)(*(char **)(o + 0x874) + 0xF0) == 2) {
+                if (o->p_874->mode == 2) {
                     if (pkt->tex1 != -1) {
                         reg_dispSpecular(pkt, r, 0);
                     }
                 }
-                mode = *(int *)(*(char **)(o + 0x874) + 0xF0);
+                mode = o->p_874->mode;
                 if (pkt->tex2 != -1) {
                     if (mode == 0) {
                         debug_StdPrintfDummy("光源オフでリフレクションを表示.\n");
@@ -1127,26 +1121,26 @@ void reg_dispSObj(char *o, int idx)
             pkt = pkt->next;
         }
     }
-    if (*(int *)(o + 0x858) != 0) {
+    if (o->shadow != 0) {
         shadow_RenderVolume(o);
     }
 }
 
-void reg_dispCObj(char *o)
+void reg_dispCObj(Sub15C *o)
 {
-    char *mdl;
+    PObjModel *mdl;
     char *grp;
     PacHeader *pkt;
     PacHeader *node;
     int i;
     int pri;
 
-    mdl = *(char **)(o + 0x854);
-    grp = *(char **)(mdl + 0x48);
+    mdl = o->model;
+    grp = mdl->groups;
     reg_transMicroCode(o, 0x3B3);
     reg_setCMatrixPacket(o, 1.0f, 0x3B3);
-    for (i = 0; i < *(signed char *)(mdl + 0x2E); i++, grp += 0x30) {
-        if (*(int *)(i * 0x180 + *(int *)(mdl + 0x40) + 0x124) != 0) {
+    for (i = 0; i < mdl->partCount; i++, grp += 0x30) {
+        if (mdl->parts[i].morphCount != 0) {
             node = *(PacHeader **)(grp + 0xC);
             if (node != 0) {
                 pkt = node;
@@ -1167,7 +1161,7 @@ void reg_dispCObj(char *o)
             reg_chooseMicroCode((char *)(*(int *)grp + pkt->mat * 0x70), 0, pri);
             dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
             dl_CloseDma();
-            if (debug_specular_flag == 2 && *(int *)(*(char **)(o + 0x874) + 0xF0) == 2) {
+            if (debug_specular_flag == 2 && o->p_874->mode == 2) {
                 if (pkt->tex1 != -1) {
                     reg_dispSpecular(pkt, 0, 1);
                 }
@@ -1175,7 +1169,7 @@ void reg_dispCObj(char *o)
             pkt = pkt->next;
         }
     }
-    if (*(int *)(o + 0x858) != 0) {
+    if (o->shadow != 0) {
         shadow_RenderVolume(o);
     }
 }
@@ -1459,22 +1453,22 @@ void reg_dispLine(char *node, float alpha)
     }
 }
 
-void reg_dispPointLineObj(char *o)
+void reg_dispPointLineObj(Sub15C *o)
 {
-    char *mdl;
+    PObjModel *mdl;
     char *grp;
     char *hdr;
     char *node;
-    float *w;
+    struct DObjNode *w;
     long long h;
     float alpha;
     int idx;
     int flag;
     int i;
 
-    mdl = *(char **)(o + 0x854);
-    grp = *(char **)(mdl + 0x48);
-    hdr = *(char **)(o + 0x850);
+    mdl = o->model;
+    grp = mdl->groups;
+    hdr = o->lineHdr;
     if (hdr != 0) {
         idx = *(unsigned short *)(hdr + 2) % 3;
     } else {
@@ -1487,14 +1481,14 @@ void reg_dispPointLineObj(char *o)
     if (currentScreenWidth != 0 || GlobalTimer != 0) {
         flag = 1;
     }
-    for (i = 0; i < *(int *)(o + 8); i++) {
-        w = (float *)(i * 0x50 + *(int *)(o + 0x870));
+    for (i = 0; i < *(int *)((char *)o + 8); i++) {
+        w = (struct DObjNode *)(i * 80 + (int)o->p_870);
         node = *(char **)(grp + 8);
-        alpha = 1.0f - (1.0f - w[12]) * w[13];
+        alpha = 1.0f - (1.0f - w->fade) * w->alpha;
         if (!flag && (alpha < 0.0f ? -alpha : alpha) == 1.0f) {
             continue;
         }
-        _SetCurrentMatrix(*(char **)(o + 0xC) + i * 0x40);
+        _SetCurrentMatrix((char *)o->f_C + i * 64);
         _MulCurrentMatrixL(matrixptr + 0x100);
         node = *(char **)(node + 0xC);
         h = *(long long *)(node + 0xB8);
@@ -1513,9 +1507,9 @@ void reg_dispPointLineObj(char *o)
     }
 }
 
-void reg_DispAccessoryWithShadow(char *o, char *src)
+void reg_DispAccessoryWithShadow(Sub15C *o, Sub15C *src)
 {
-    char *reg_setNMatrixPacketNoLightCalc(char *o, char *src, int idx)
+    char *reg_setNMatrixPacketNoLightCalc(Sub15C * o, Sub15C * src, int idx)
     {
         void setMatrix(void)
         {
@@ -1562,7 +1556,7 @@ void reg_DispAccessoryWithShadow(char *o, char *src)
             _GetCurrentMatrix(c + 0x10);
             m = PacketBufferStruct.ptr.c;
             PacketBufferStruct.ptr.c = m + 0x80;
-            _CopyMatrix(m + 0x40, *(char **)(o + 0x874) + 0x40);
+            _CopyMatrix(m + 0x40, (char *)o->p_874 + 64);
             n = PacketBufferStruct.ptr.c;
             ((RegPkWord *)n)->w[0] = 0x15000012;
             n += 4;
@@ -1574,24 +1568,23 @@ void reg_DispAccessoryWithShadow(char *o, char *src)
         }
         char *pkt;
         char *box;
-        float *scl;
+        struct DObjNode *scl;
         int mode;
 
-        scl = (float *)(idx * 0x50 + *(int *)(o + 0x870));
-        mode = *(int *)(*(int *)(o + 0x874) + 0xF0);
-        if (scl[8] != 1.0f || scl[9] != 1.0f || scl[10] != 1.0f) {
+        scl = (struct DObjNode *)(idx * 80 + (int)o->p_870);
+        mode = o->p_874->mode;
+        if (scl->scale[0] != 1.0f || scl->scale[1] != 1.0f || scl->scale[2] != 1.0f) {
             _InitCurrentMatrix();
-            _SetCurrentMatrix(*(char **)(o + 0xC) + idx * 0x40);
-            _ScaleCurrentMatrix(*(float *)(idx * 0x50 + *(int *)(o + 0x870) + 0x20),
-                                *(float *)(idx * 0x50 + *(int *)(o + 0x870) + 0x24),
-                                *(float *)(idx * 0x50 + *(int *)(o + 0x870) + 0x28));
+            _SetCurrentMatrix((char *)o->f_C + idx * 64);
+            _ScaleCurrentMatrix(o->p_870[idx].scale[0], o->p_870[idx].scale[1],
+                                o->p_870[idx].scale[2]);
             _GetCurrentMatrix(matrixptr + 0x40);
         } else {
-            _CopyMatrix(matrixptr + 0x40, *(char **)(o + 0xC) + idx * 0x40);
+            _CopyMatrix(matrixptr + 0x40, (char *)o->f_C + idx * 64);
         }
         _MulMatrix(matrixptr + 0x300, matrixptr + 0x280, matrixptr + 0x40);
         _MulMatrix(matrixptr + 0x140, matrixptr + 0x100, matrixptr + 0x40);
-        box = *(char **)(o + 0x854) + 0x50;
+        box = (char *)o->model->box;
         _SetCurrentMatrix(matrixptr + 0x300);
         if (gsb_ClipBox(box) == 0) {
             return 0;
@@ -1603,13 +1596,13 @@ void reg_DispAccessoryWithShadow(char *o, char *src)
         PacketBufferStruct.end.c = 0;
         setMatrix();
         if (mode != 0 && mode != 3) {
-            *(float *)(*(char **)(o + 0x854) + 0x3C) = *(float *)(*(char **)(src + 0x854) + 0x3C);
-            _CopyVector(o + 0x860, src + 0x860);
-            _CopyMatrix(*(char **)(o + 0x874), *(char **)(src + 0x874));
-            _CopyMatrix(*(char **)(o + 0x874) + 0x40, *(char **)(src + 0x874) + 0x40);
+            o->model->shadowLength = src->model->shadowLength;
+            _CopyVector((char *)o + 0x860, (char *)src + 0x860);
+            _CopyMatrix((char *)o->p_874, (char *)src->p_874);
+            _CopyMatrix((char *)o->p_874 + 64, (char *)src->p_874 + 64);
             _SetCurrentMatrix(matrixptr + 0x40);
             _ClearTransCurrentMatrix();
-            _MulCurrentMatrixL(*(char **)(o + 0x874));
+            _MulCurrentMatrixL((char *)o->p_874);
             setLight();
         }
         {
@@ -1625,7 +1618,7 @@ void reg_DispAccessoryWithShadow(char *o, char *src)
         }
         return pkt;
     }
-    char *mdl;
+    PObjModel *mdl;
     char *grp;
     char *pk;
     PacHeader *pkt;
@@ -1636,8 +1629,8 @@ void reg_DispAccessoryWithShadow(char *o, char *src)
     int pri;
     int mode;
 
-    mdl = *(char **)(o + 0x854);
-    grp = *(char **)(mdl + 0x48);
+    mdl = o->model;
+    grp = mdl->groups;
     reg_transMicroCode(o, 0x3B5);
     pk = reg_setNMatrixPacketNoLightCalc(o, src, 0);
     if (pk != 0) {
@@ -1650,8 +1643,8 @@ void reg_DispAccessoryWithShadow(char *o, char *src)
                 dl_CloseDma();
             }
         }
-        for (j = 0; j < *(signed char *)(mdl + 0x2E); j++, grp += 0x30) {
-            box = (char *)(j * 0x80 + *(int *)(*(char **)(o + 0x854) + 0x44));
+        for (j = 0; j < mdl->partCount; j++, grp += 0x30) {
+            box = (char *)(j * 128 + (int)o->model->boxes);
             _SetCurrentMatrix(matrixptr + 0x300);
             if (gsb_ClipBox(box) != 0) {
                 pkt = *(PacHeader **)(grp + 8);
@@ -1665,12 +1658,12 @@ void reg_DispAccessoryWithShadow(char *o, char *src)
                         reg_chooseMicroCode((char *)(*(int *)grp + pkt->mat * 0x70), r, pri);
                         dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
                         dl_CloseDma();
-                        if (*(int *)(*(char **)(o + 0x874) + 0xF0) == 2) {
+                        if (o->p_874->mode == 2) {
                             if (pkt->tex1 != -1) {
                                 reg_dispSpecular(pkt, r, 0);
                             }
                         }
-                        mode = *(int *)(*(char **)(o + 0x874) + 0xF0);
+                        mode = o->p_874->mode;
                         if (pkt->tex2 != -1) {
                             if (mode == 0) {
                                 debug_StdPrintfDummy("光源オフでリフレクションを表示.\n");
@@ -1692,7 +1685,7 @@ void reg_DispAccessoryWithShadow(char *o, char *src)
                 }
             }
         }
-        if (*(int *)(o + 0x858) != 0) {
+        if (o->shadow != 0) {
             shadow_RenderVolume(o);
         }
     }
@@ -1700,17 +1693,17 @@ void reg_DispAccessoryWithShadow(char *o, char *src)
 
 /* ===== su-a sweep end ===== */
 
-void reg_RenderReflection(char *o, int pri)
+void reg_RenderReflection(Sub15C *o, int pri)
 {
-    char *mdl;
+    PObjModel *mdl;
     char *grp;
     PacHeader *pkt;
     char *pk;
     int i;
     int r;
 
-    mdl = *(char **)(o + 0x854);
-    grp = *(char **)(mdl + 0x48);
+    mdl = o->model;
+    grp = mdl->groups;
     dl_SetDLPriority(pri);
     reg_transMicroCode(o, 1 << pri);
     pk = reg_setNMatrixPacket(o, 0);
@@ -1720,7 +1713,7 @@ void reg_RenderReflection(char *o, int pri)
     dl_SetDLPriority(pri);
     dl_OpenDma(5, pk, 0);
     dl_CloseDma();
-    for (i = 0; i < *(signed char *)(mdl + 0x2E); i++) {
+    for (i = 0; i < mdl->partCount; i++) {
         pkt = *(PacHeader **)(grp + 8);
         while (pkt != 0) {
             r = reg_clipPacketBoundingBox(pkt);
@@ -1743,15 +1736,15 @@ static const sceVu0IVECTOR regEnemyEndTag = {0x15000010, 0, 0, 0};
 
 void reg_DispEnemy(void *sub)
 {
-    char *o = sub;
-    char *mdl;
+    Sub15C *o = sub;
+    PObjModel *mdl;
     char *grp;
     PacHeader *pkt;
     float alpha;
     int i;
     int pri;
 
-    void reg_setEMatrixPacket(char *o, int prilist, float alpha)
+    void reg_setEMatrixPacket(Sub15C * o, int prilist, float alpha)
     {
         int i;
 
@@ -1764,9 +1757,9 @@ void reg_DispEnemy(void *sub)
             /* the object's matrix count through the object record, the view
              * reg_setMMatrixPacket takes of o: an in-struct reference, so the
              * frame home of i does not wait for the loop test (alias.c
-             * fixed_scalar_and_varying_struct_p); `*(int *)(o + 8)` in the
+             * fixed_scalar_and_varying_struct_p); `*(int *)((char *)o + 8)` in the
              * loop test costs the blez delay slot */
-            n = ((Sub15C *)o)->f_8 * 4;
+            n = o->f_8 * 4;
             c = PacketBufferStruct.ptr.c;
             PacketBufferStruct.tail.c = c;
             *(long long *)c = n | 0x10000002;
@@ -1784,9 +1777,9 @@ void reg_DispEnemy(void *sub)
             PacketBufferStruct.ptr.c = c + 0x1C;
             *(float *)(c + 0x1C) = alpha;
             PacketBufferStruct.ptr.c = c + 0x20;
-            for (i = 0; i < ((Sub15C *)o)->f_8; i++) {
-                _MulMatrix(PacketBufferStruct.ptr.c, *(char **)(o + 0xC) + i * 0x40,
-                           *(char **)(o + 0x90) + i * 0x40);
+            for (i = 0; i < o->f_8; i++) {
+                _MulMatrix(PacketBufferStruct.ptr.c, (char *)o->f_C + i * 64,
+                           o->clusterMtx + i * 64);
                 PacketBufferStruct.ptr.c = PacketBufferStruct.ptr.c + 0x40;
             }
             m = PacketBufferStruct.ptr.c;
@@ -1820,17 +1813,17 @@ void reg_DispEnemy(void *sub)
         }
     }
 
-    mdl = *(char **)(o + 0x854);
-    grp = *(char **)(mdl + 0x48);
-    alpha = 1.0f - *(float *)(*(int *)(o + 0x870) + 0x30);
+    mdl = o->model;
+    grp = mdl->groups;
+    alpha = 1.0f - o->p_870->fade;
     reg_transMicroCode(o, 0x3A0);
     reg_setEMatrixPacket(o, 0x3A0, alpha);
     if ((alpha < 0.0f ? -alpha : alpha) == 0.0f) {
         goto done;
     }
     {
-        for (i = 0; i < *(signed char *)(mdl + 0x2E); i++, grp += 0x30) {
-            if (*(int *)(i * 0x180 + *(int *)(mdl + 0x40) + 0x124) != 0) {
+        for (i = 0; i < mdl->partCount; i++, grp += 0x30) {
+            if (mdl->parts[i].morphCount != 0) {
                 if (*(char **)(grp + 0xC) != 0) {
                     if (buffer_ID != 0) {
                         pkt = *(PacHeader **)(grp + 8);
@@ -1857,19 +1850,19 @@ void reg_DispEnemy(void *sub)
         }
     }
 done:
-    if (*(int *)(o + 0x858) != 0) {
+    if (o->shadow != 0) {
         shadow_RenderVolume(o);
     }
 }
 
-void reg_DispMultiPri(char *o, int pri)
+void reg_DispMultiPri(Sub15C *o, int pri)
 {
-    char *mdl;
+    PObjModel *mdl;
     char *grp;
     PacHeader *pkt;
     PacHeader *node;
     char *pk;
-    float *w;
+    struct DObjNode *w;
     float alpha;
     int i;
     int j;
@@ -1879,12 +1872,12 @@ void reg_DispMultiPri(char *o, int pri)
     int mode;
     int prilist;
 
-    mdl = *(char **)(o + 0x854);
-    grp = *(char **)(mdl + 0x48);
+    mdl = o->model;
+    grp = mdl->groups;
     reg_transMicroCode(o, 1 << pri);
-    for (i = 0; i < *(int *)(o + 8); i++) {
-        w = (float *)(i * 0x50 + *(int *)(o + 0x870));
-        alpha = 1.0f - (1.0f - w[12]) * w[13];
+    for (i = 0; i < *(int *)((char *)o + 8); i++) {
+        w = (struct DObjNode *)(i * 80 + (int)o->p_870);
+        alpha = 1.0f - (1.0f - w->fade) * w->alpha;
         if ((alpha < 0.0f ? -alpha : alpha) == 1.0f) {
             continue;
         }
@@ -1900,8 +1893,7 @@ void reg_DispMultiPri(char *o, int pri)
                 dl_CloseDma();
             }
         }
-        if (*(int *)(i * 0x180 + *(int *)(mdl + 0x40) + 0x124) != 0 &&
-            (node = *(PacHeader **)(grp + 0xC)) != 0) {
+        if (mdl->parts[i].morphCount != 0 && (node = *(PacHeader **)(grp + 0xC)) != 0) {
             pkt = node;
             if (buffer_ID != 0) {
                 pkt = *(PacHeader **)(grp + 8);
@@ -1914,7 +1906,7 @@ void reg_DispMultiPri(char *o, int pri)
             r = reg_clipPacketBoundingBox(pkt);
             if (r != 0) {
                 fade = 0;
-                if ((*(long long *)(i * 0x50 + *(int *)(o + 0x870) + 0x38) & 1) == 1) {
+                if ((o->p_870[i].flags.ll & 1) == 1) {
                     if (alpha != 0.0f) {
                         fade = 1;
                     }
@@ -1929,12 +1921,12 @@ void reg_DispMultiPri(char *o, int pri)
                     reg_chooseMicroCode((char *)(*(int *)grp + pkt->mat * 0x70), r, pri);
                     dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
                     dl_CloseDma();
-                    if (*(int *)(*(char **)(o + 0x874) + 0xF0) == 2) {
+                    if (o->p_874->mode == 2) {
                         if (pkt->tex1 != -1) {
                             reg_dispSpecular(pkt, r, 0);
                         }
                     }
-                    mode = *(int *)(*(char **)(o + 0x874) + 0xF0);
+                    mode = o->p_874->mode;
                     if (pkt->tex2 != -1) {
                         if (mode == 0) {
                             debug_StdPrintfDummy("光源オフでリフレクションを表示.\n");
@@ -1961,10 +1953,10 @@ void reg_DispMultiPri(char *o, int pri)
     }
 }
 
-void reg_DispObj(char *o)
+void reg_DispObj(Sub15C *o)
 {
-    if (*(unsigned short *)(o + 0x84C) == 2) {
-        unsigned short type = *(unsigned long long *)(*(char **)(o + 0x854) + 0x30) >> 16;
+    if (o->dispType == 2) {
+        unsigned short type = (unsigned long long)o->model->mode.bits >> 16;
 
         if ((type & 3) == 2) {
             reg_dispPointLineObj(o);
@@ -1972,7 +1964,7 @@ void reg_DispObj(char *o)
             reg_dispMObj(o);
         }
     } else {
-        unsigned short type = *(unsigned long long *)(*(char **)(o + 0x854) + 0x30) >> 16;
+        unsigned short type = (unsigned long long)o->model->mode.bits >> 16;
 
         switch (type & 3) {
         case 0:
@@ -1988,7 +1980,7 @@ void reg_DispObj(char *o)
     }
 }
 
-void reg_DispObj2(char *o, int idx)
+void reg_DispObj2(Sub15C *o, int idx)
 {
     reg_dispSObj(o, idx);
 }

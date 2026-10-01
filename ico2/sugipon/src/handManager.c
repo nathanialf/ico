@@ -20,7 +20,7 @@ void connectToTarget(char *obj, char *hw, int na, int nb, int nc)
     void getBone(float *out, char *o)
     {
         int sub = (int)GOBJ_SUB(o);
-        float scale = *(float *)(*(int *)(sub + 0x870) + 0x20);
+        float scale = ((Sub15C *)sub)->p_870->scale[0];
         int nodes = *(int *)(sub + 0x8C);
         float a;
         float b;

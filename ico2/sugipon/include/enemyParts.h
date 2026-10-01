@@ -17,12 +17,12 @@
    translation row is the blur's point) and the three eye objects.  8-aligned:
    ROM copies the template with the MIPS back end's block-move LOOP (four ld /
    four sd per turn, 0x20 at a time). */
-typedef struct EnemyEye {
+typedef struct EnemyEye {   /* field names derived */
     int blurOn;             /* 0x00 */
     struct PointBlur *blur; /* 0x04 */
     int pad8[2];            /* 0x08 */
     float mtx[4][4];        /* 0x10 */
-    char *dobj[3];          /* 0x50 */
+    Sub15C *dobj[3];        /* 0x50 */
     int pad5C;              /* 0x5C */
 } __attribute__((aligned(8))) EnemyEye;
 
@@ -36,11 +36,11 @@ typedef struct EnemyFootPrint {
     float pos[4]; /* 0x10 */
 } __attribute__((aligned(8))) EnemyFootPrint;
 
-typedef struct EnemyFootPrintHead {
-    int num;             /* 0x00 */
-    char *dobj;          /* 0x04 */
-    int idx;             /* 0x08 */
-    EnemyFootPrint *buf; /* 0x0C */
+typedef struct EnemyFootPrintHead { /* field names derived */
+    int num;                        /* 0x00 */
+    Sub15C *dobj;                   /* 0x04 */
+    int idx;                        /* 0x08 */
+    EnemyFootPrint *buf;            /* 0x0C */
 } EnemyFootPrintHead;
 
 int DispEnemyEye(EnemyEye *a0);

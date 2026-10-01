@@ -12,16 +12,18 @@
 #ifndef SHADOW_H
 #define SHADOW_H
 
+#include "typedef.h"
+
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order Shadow.c's inline tail has. */
 void shadow_KillShadow(int val);
 void shadow_DispCancel(int a0, int a1);
-void shadow_SetLength(char *a0, float f);
+void shadow_SetLength(Sub15C *a0, float f);
 void shadow_Init(void);
-void shadow_Render(char *o);
-void shadow_RenderVolume(char *o);
-void shadow_RenderVolumeMulti(char *o, int idx);
+void shadow_Render(Sub15C *o);
+void shadow_RenderVolume(Sub15C *o);
+void shadow_RenderVolumeMulti(Sub15C *o, int idx);
 void shadow_Reset(void);
 void shadow_Draw(void);
 int shadow_Tool(void);

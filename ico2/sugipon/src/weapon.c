@@ -725,9 +725,9 @@ void *InitWeaponGeo(char *g, QSwordLayout *lay)
             w->buf = iosMallocDebug(ios_partition_sugipon, 0x160, __FILE__, 870);
             w->net = iosMallocDebug(ios_partition_sugipon, 8, __FILE__, 871);
             w->model0 =
-                CSVSYSTEM_InitDObj(D_002A79B8[*(int *)(*(char **)(g + 0x15C) + 0x844)].model0, lay);
+                CSVSYSTEM_InitDObj(D_002A79B8[((SubHandle *)(g + 0x15C))->sub->f_844].model0, lay);
             w->model1 =
-                CSVSYSTEM_InitDObj(D_002A79B8[*(int *)(*(char **)(g + 0x15C) + 0x844)].model1, lay);
+                CSVSYSTEM_InitDObj(D_002A79B8[((SubHandle *)(g + 0x15C))->sub->f_844].model1, lay);
             CopyQuaternion(*(char **)(g + 0x15C) + 0xD0, *(char **)(g + 0x15C) + 0x60);
             UpdateRootMatrix(g);
             setWeaponOffsetMode(g, 1);

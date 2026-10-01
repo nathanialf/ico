@@ -117,6 +117,26 @@ typedef struct Obj7F0 Obj7F0; /* *(Sub15C + 0x7F0), shared geometry/model obj (~
 
 typedef struct GeoNode GeoNode; /* *(Obj7F0  + 0x20) */
 
+/* The 80-byte record Sub15C + 0x870 points at, one per display node; the
+ * buffer is reallocated with the 0xC matrices and 0x10 vectors for the node
+ * count.  The display (RegistPacket.c) draws a node with alpha
+ * 1 - (1 - fade) * alpha, fading when bit 0 of the flag word is set, turns it
+ * by the Z angle at 0x3A and places it at pos. */
+struct DObjNode {   /* field names derived */
+    int rot[4];     /* 0x00, the angles, read back as shorts */
+    int word10[4];  /* 0x10 */
+    float scale[4]; /* 0x20 */
+    float fade;     /* 0x30 */
+    float alpha;    /* 0x34 */
+
+    union {
+        int i;
+        long long ll; /* bit 0 fade, bits 1 and 2 */
+    } flags;          /* 0x38; its 0x3A half is also stored as a short, the Z angle */
+
+    float pos[4]; /* 0x40, reset to 0 0 0 1 */
+};
+
 typedef struct GeoSub GeoSub; /* *(GeoNode + 0x8)  */
 
 /* GObj and PObjGObj below are two views of ONE record: the game object.  GObj
@@ -196,7 +216,9 @@ struct Sub15C {
     int f_84; /* 0x84 */
     int f_88; /* 0x88 */
     int f_8C; /* 0x8C */
-    char _pad90[0x14];
+    char *
+        clusterMtx; /* 0x90, one matrix a node, applied before the node's own for a cluster shadow */
+    char _pad94[0x10];
     float f_A4; /* 0xA4 */
     char _padA8[0x28];
     int f_D0; /* 0xD0 */
@@ -332,12 +354,13 @@ struct Sub15C {
     int f_578; /* 0x578 */
     int f_57C; /* 0x57C */
     char _pad580[0x60];
-    float f_5E0; /* 0x5E0 */
-    float f_5E4; /* 0x5E4 */
-    float f_5E8; /* 0x5E8 */
-    char _pad5EC[0x8];
-    int f_5F4; /* 0x5F4 */
-    int f_5F8; /* 0x5F8 */
+    float f_5E0;       /* 0x5E0 */
+    float f_5E4;       /* 0x5E4 */
+    float f_5E8;       /* 0x5E8 */
+    int pureWallAttr;  /* 0x5EC */
+    int pureCliffAttr; /* 0x5F0 */
+    int f_5F4;         /* 0x5F4 */
+    int f_5F8;         /* 0x5F8 */
     char _pad5FC[0x4];
     int f_600;   /* 0x600 */
     int f_604;   /* 0x604 */
@@ -379,22 +402,28 @@ struct Sub15C {
     int f_810;   /* 0x810 */
     int f_814;   /* 0x814 */
     char _pad818[0x4];
-    int f_81C; /* 0x81C */
-    char _pad820[0x4];
-    float f_824; /* 0x824 */
+    int f_81C;       /* 0x81C */
+    char *blendless; /* 0x820, one byte a node, set where the motion blend leaves the node alone */
+    float f_824;     /* 0x824 */
     char _pad828[0x8];
     void *f_830; /* 0x830, the actor's own work record; each actor TU casts it to its own shape */
     int f_834;   /* 0x834 */
-    int f_838;   /* 0x838 */
-    char _pad83C[0x8];
-    int f_844; /* 0x844 */
+    float *morphWeight; /* 0x838, one weight a morph target of the model's parts */
+    int lightId;        /* 0x83C, the light the object carries (0 for none), Light.c */
+    char *
+        focusNodes; /* 0x840, the skeleton node for each focus point GetSkeltonFocusNode looks up */
+    int f_844;      /* 0x844 */
     char _pad848[0x4];
-    short f_84C; /* 0x84C */
-    char _pad84E[0x6];
-    int f_854; /* 0x854 */
-    char _pad858[0x18];
-    void *p_870; /* 0x870 */
-    void *p_874; /* 0x874, LightMatrix (Light.h); most readers cast it to char * */
+    unsigned short
+        dispType; /* 0x84C, 2 when the object draws its node list, 1 for a cluster model */
+    char _pad84E[0x2];
+    char *lineHdr;            /* 0x850, read by RegistPacket.c's point and line display */
+    struct PObjModel *model;  /* 0x854, DisplayP2O.h */
+    struct PObjModel *shadow; /* 0x858 */
+    char _pad85C[0x4];
+    float shadowDir[4];        /* 0x860, the direction the shadow is cast in */
+    struct DObjNode *p_870;    /* 0x870 */
+    struct LightMatrix *p_874; /* 0x874, the object's light matrices (Light.h) */
 };
 
 /* Geometry/model object hanging off Sub15C + 0x7F0. The p_7F0 field is read

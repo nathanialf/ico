@@ -60,12 +60,12 @@ void SetRootBaseQuaternion(int a0, float *q)
 void SetRootQuaternion(char *a0, void *a1)
 {
     char *q = (char *)GOBJ_SUB(a0) + 0xD0;
-    char *p;
+    Sub15C *p;
     CopyQuaternion(q, a1);
-    p = (char *)GOBJ_SUB(a0);
+    p = GOBJ_SUB(a0);
     if (*(int *)p != 0) {
         char *m = *(char **)(*(int *)p + 0x15C);
-        DivQuaternion(q, a1, *(int *)(m + 0x10) + (*(int *)(p + 4) << 4));
+        DivQuaternion(q, a1, *(int *)(m + 0x10) + (p->f_4 << 4));
     }
 }
 
@@ -119,26 +119,24 @@ typedef union {
     long long ll[2];
 } SdrpVec4i;
 
-static __inline__ void GetRootPositionByDObj_i(void *a0, char *src)
+static __inline__ void GetRootPositionByDObj_i(void *a0, Sub15C *src)
 {
-    float *p = (float *)(src + 0xA0);
+    float *p = (float *)((char *)src + 0xA0);
     float f0;
     int *g = *(int **)src;
     if (g) {
-        sceVu0ApplyMatrix(
-            (int *)a0, *(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (*(int *)(src + 4) << 6),
-            (char *)p);
+        sceVu0ApplyMatrix((int *)a0, ((GObj *)g)->p_15C->f_C + (src->f_4 << 6), (char *)p);
     } else {
         CopyVector((int)a0, (int)p);
     }
     f0 = p[0x30];
-    *(float *)((char *)a0 + 0x4) += f0;
-    *(float *)((char *)a0 + 0xC) = 1.0f;
+    ((float *)a0)[1] += f0;
+    ((float *)a0)[3] = 1.0f;
 }
 
 static __inline__ void GetRootPosition_i(void *a0, char *outer)
 {
-    GetRootPositionByDObj_i(a0, (char *)((GObj *)(outer))->p_15C);
+    GetRootPositionByDObj_i(a0, ((GObj *)outer)->p_15C);
 }
 
 static __inline__ void SetRootPosition_ii(char *a0, void *a1)
@@ -149,11 +147,10 @@ static __inline__ void SetRootPosition_ii(char *a0, void *a1)
     p->f[1] = p->f[1] - *(float *)((char *)p + 0xC0);
     p->f[3] = 1.0f;
     {
-        char *sub = (char *)GOBJ_SUB(a0);
+        Sub15C *sub = GOBJ_SUB(a0);
         char *q = *(char **)sub;
         if (q != 0) {
-            MatrixDrive_SetTransposeMatrix(buf,
-                                           (char *)(GOBJ_SUB(q)->f_C + (*(int *)(sub + 4) << 6)));
+            MatrixDrive_SetTransposeMatrix(buf, (char *)(GOBJ_SUB(q)->f_C + (sub->f_4 << 6)));
             sceVu0ApplyMatrix(p, buf, p);
         }
     }
@@ -231,8 +228,8 @@ static __inline__ void LocalizeDirectionOrient_i(int *self, int *a1)
 {
     int buf[16];
     char *obj = (char *)a1[0];
-    char *ctx = ((GObj *)(obj))->p_15C;
-    CopyMatrix(buf, (void *)(*(int *)(ctx + 0xC) + (a1[1] << 6)));
+    Sub15C *ctx = ((GObj *)(obj))->p_15C;
+    CopyMatrix(buf, (void *)(ctx->f_C + (a1[1] << 6)));
     MatrixDrive_SetTransposeMatrix((char *)buf, (char *)buf);
     sceVu0ApplyMatrix((int *)((char *)((GObj *)((char *)self))->p_15C + 0x520), (int)buf,
                       (char *)((GObj *)((char *)self))->p_15C + 0x520);
@@ -276,8 +273,8 @@ void GetGlobalDirectionOrient(int *self, int *other, char *p)
         char *sub = ((GObj *)((char *)other))->p_15C;
         char *a = *(char **)sub;
         if (a != 0) {
-            char *inner_struct = ((GObj *)(a))->p_15C;
-            int inner_field = *(int *)(inner_struct + 0xC);
+            Sub15C *inner_struct = ((GObj *)(a))->p_15C;
+            int inner_field = inner_struct->f_C;
             int idx = *(int *)(sub + 0x4);
             sceVu0ApplyMatrix(self, inner_field + (idx << 6), p);
         }
@@ -317,25 +314,25 @@ void GetRootVelocity(int a0, int a1)
 void GetInitialInverseMatrixByDObj(char *mat, char *mdl)
 {
     int no;
-    char *nd;
+    SkelNode *nd;
 
     MatrixDrive_PushMatrix();
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     no = 0;
 loop:
     {
-        nd = *(char **)(mdl + 0x8C) + (no << 6);
+        nd = (SkelNode *)(*(char **)(mdl + 0x8C) + (no << 6));
         MatrixDrive_PushMatrix();
-        MatrixDrive_TransMatrixV(nd + 0x10);
-        MultiMatrixByQuaternion(nd + 0x20);
+        MatrixDrive_TransMatrixV(nd->pos);
+        MultiMatrixByQuaternion(nd->quat);
         MatrixDrive_SetTransposeMatrix(mat + (no << 6), MatrixDrive_GetMatrix());
-        if (*(int *)(nd + 0x30) != -1) {
-            getInitialInverseMatrix(mat, mdl, *(int *)(nd + 0x30));
+        if (nd->child != -1) {
+            getInitialInverseMatrix(mat, mdl, nd->child);
         }
         MatrixDrive_PopMatrix();
     }
-    if (*(int *)(nd + 0x34) != -1) {
-        no = *(int *)(nd + 0x34);
+    if (nd->sibling != -1) {
+        no = nd->sibling;
         goto loop;
     }
     MatrixDrive_PopMatrix();
@@ -345,7 +342,7 @@ void GetInitialInverseMatrix(char *mat, char *gobj)
 {
     char *mdl;
     int no;
-    char *nd;
+    SkelNode *nd;
 
     MatrixDrive_PushMatrix();
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
@@ -353,18 +350,18 @@ void GetInitialInverseMatrix(char *mat, char *gobj)
     no = 0;
 loop:
     {
-        nd = *(char **)(mdl + 0x8C) + (no << 6);
+        nd = (SkelNode *)(*(char **)(mdl + 0x8C) + (no << 6));
         MatrixDrive_PushMatrix();
-        MatrixDrive_TransMatrixV(nd + 0x10);
-        MultiMatrixByQuaternion(nd + 0x20);
+        MatrixDrive_TransMatrixV(nd->pos);
+        MultiMatrixByQuaternion(nd->quat);
         MatrixDrive_SetTransposeMatrix(mat + (no << 6), MatrixDrive_GetMatrix());
-        if (*(int *)(nd + 0x30) != -1) {
-            getInitialInverseMatrix(mat, mdl, *(int *)(nd + 0x30));
+        if (nd->child != -1) {
+            getInitialInverseMatrix(mat, mdl, nd->child);
         }
         MatrixDrive_PopMatrix();
     }
-    if (*(int *)(nd + 0x34) != -1) {
-        no = *(int *)(nd + 0x34);
+    if (nd->sibling != -1) {
+        no = nd->sibling;
         goto loop;
     }
     MatrixDrive_PopMatrix();
@@ -373,7 +370,7 @@ loop:
 void GetInitialSkeltonMatrixByDObj(char *mdl)
 {
     int no;
-    char *nd;
+    SkelNode *nd;
     char *dst;
 
     MatrixDrive_PushMatrix();
@@ -382,19 +379,19 @@ void GetInitialSkeltonMatrixByDObj(char *mdl)
     no = 0;
 loop:
     {
-        nd = *(char **)(mdl + 0x8C) + (no << 6);
+        nd = (SkelNode *)(*(char **)(mdl + 0x8C) + (no << 6));
         MatrixDrive_PushMatrix();
-        MatrixDrive_TransMatrixV(nd + 0x10);
-        MultiMatrixByQuaternion(nd + 0x20);
+        MatrixDrive_TransMatrixV(nd->pos);
+        MultiMatrixByQuaternion(nd->quat);
         dst = *(char **)(mdl + 0xC) + (no << 6);
         CopyMatrix(dst, MatrixDrive_GetMatrix());
-        if (*(int *)(nd + 0x30) != -1) {
-            getInitialMatrix(mdl, *(int *)(nd + 0x30));
+        if (nd->child != -1) {
+            getInitialMatrix(mdl, nd->child);
         }
         MatrixDrive_PopMatrix();
     }
-    if (*(int *)(nd + 0x34) != -1) {
-        no = *(int *)(nd + 0x34);
+    if (nd->sibling != -1) {
+        no = nd->sibling;
         goto loop;
     }
     MatrixDrive_PopMatrix();
@@ -470,14 +467,14 @@ typedef struct {
 
 static __inline__ void GetRootPosition_cc(void *a0, char *outer)
 {
-    char *src = ((GObj *)(outer))->p_15C;
-    float *p = (float *)(src + 0xA0);
+    Sub15C *src = ((GObj *)(outer))->p_15C;
+    float *p = (float *)((char *)src + 0xA0);
     float f0;
     int *g = *(int **)src;
     if (g) {
-        sceVu0ApplyMatrix(
-            (int *)a0, *(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (*(int *)(src + 4) << 6),
-            (char *)p);
+        sceVu0ApplyMatrix((int *)a0,
+                          *(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (src->f_4 << 6),
+                          (char *)p);
     } else {
         CopyVector((int)a0, (int)p);
     }
@@ -505,11 +502,10 @@ static __inline__ void SetRootPosition_c(char *a0, void *a1)
     p->f[1] = p->f[1] - *(float *)((char *)p + 0xC0);
     p->f[3] = 1.0f;
     {
-        char *sub = *(char **)(a0 + 0x15C);
+        Sub15C *sub = ((GObj *)a0)->p_15C;
         char *q = *(char **)sub;
         if (q != 0) {
-            MatrixDrive_SetTransposeMatrix(buf,
-                                           (char *)(GOBJ_SUB(q)->f_C + (*(int *)(sub + 4) << 6)));
+            MatrixDrive_SetTransposeMatrix(buf, (char *)(GOBJ_SUB(q)->f_C + (sub->f_4 << 6)));
             sceVu0ApplyMatrix(p, buf, p);
         }
     }
@@ -517,20 +513,20 @@ static __inline__ void SetRootPosition_c(char *a0, void *a1)
 
 static __inline__ void SetDirectRootPositionNoFitting_c(char *self, void *v)
 {
-    char *sub = *(char **)(self + 0x15C);
-    char *p = sub + 0xA0;
+    Sub15C *sub = ((GObj *)self)->p_15C;
+    char *p = (char *)sub + 0xA0;
     char pos[0x10];
     char tmp[0x10];
 
     CopyVector(pos, v);
     CopyVector(tmp, p);
     SetRootPosition_c(self, pos);
-    CopyVector(sub + 0x1F0, p);
-    CopyVector(sub + 0x110, p);
+    CopyVector((char *)sub + 0x1F0, p);
+    CopyVector((char *)sub + 0x110, p);
     GOBJ_SUB(self)->f_4EC = 0;
-    CopyVector(sub + 0x200, v);
-    CopyVector(sub + 0x130, ZeroVector);
-    CopyVector(sub + 0x170, ZeroVector);
+    CopyVector((char *)sub + 0x200, v);
+    CopyVector((char *)sub + 0x130, ZeroVector);
+    CopyVector((char *)sub + 0x170, ZeroVector);
 }
 
 int cylinderCollisionCheck(void *self, void *ppos, int target, float r, float rr, float h, float s,
@@ -636,8 +632,8 @@ void LocalizeDirectionOrient(int *self, int *a1)
 {
     int buf[16];
     char *obj = (char *)a1[0];
-    char *ctx = ((GObj *)(obj))->p_15C;
-    CopyMatrix(buf, (void *)(*(int *)(ctx + 0xC) + (a1[1] << 6)));
+    Sub15C *ctx = ((GObj *)(obj))->p_15C;
+    CopyMatrix(buf, (void *)(ctx->f_C + (a1[1] << 6)));
     MatrixDrive_SetTransposeMatrix((char *)buf, (char *)buf);
     sceVu0ApplyMatrix((int *)((char *)((GObj *)((char *)self))->p_15C + 0x520), (int)buf,
                       (char *)((GObj *)((char *)self))->p_15C + 0x520);
@@ -652,14 +648,14 @@ void LocalizeDirectionOrient(int *self, int *a1)
  * still has asm members, so their bodies are repeated here as static stand-ins. */
 static __inline__ void GetRootPosition_ic(void *a0, char *outer)
 {
-    char *src = ((GObj *)(outer))->p_15C;
-    float *p = (float *)(src + 0xA0);
+    Sub15C *src = ((GObj *)(outer))->p_15C;
+    float *p = (float *)((char *)src + 0xA0);
     float f0;
     int *g = *(int **)src;
     if (g) {
-        sceVu0ApplyMatrix(
-            (int *)a0, *(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (*(int *)(src + 4) << 6),
-            (char *)p);
+        sceVu0ApplyMatrix((int *)a0,
+                          *(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (src->f_4 << 6),
+                          (char *)p);
     } else {
         CopyVector((int)a0, (int)p);
     }
@@ -697,11 +693,11 @@ static __inline__ int CylinderCollisionWithControlDynamics_i(char *self, int gro
     int hit = 0;
     int i;
     char *o;
-    char *sub;
+    Sub15C *sub;
     float rr;
 
-    sub = (char *)GOBJ_SUB(self);
-    if (*(int *)(sub + 0x7C) == 0 || *(int *)(sub + 0x3C8) == 0) {
+    sub = GOBJ_SUB(self);
+    if (sub->f_7C == 0 || *(int *)((char *)sub + 0x3C8) == 0) {
         return 0;
     }
     GetRootPosition_ic(pos, self);
@@ -734,11 +730,11 @@ int CylinderCollisionWithControlDynamics(char *self, int group, int ctrl, float 
     int hit = 0;
     int i;
     char *o;
-    char *sub;
+    Sub15C *sub;
     float rr;
 
-    sub = (char *)GOBJ_SUB(self);
-    if (*(int *)(sub + 0x7C) == 0 || *(int *)(sub + 0x3C8) == 0) {
+    sub = GOBJ_SUB(self);
+    if (sub->f_7C == 0 || *(int *)((char *)sub + 0x3C8) == 0) {
         return 0;
     }
     GetRootPosition_ic(pos, self);
@@ -778,36 +774,33 @@ void GetRootMatrixByDObj(void *a0, char *src)
 
 void GetRootMatrix(void *a0, char *outer)
 {
-    char *src = ((GObj *)(outer))->p_15C;
-    float *p = (float *)(src + 0xA0);
-    GetMatrixFromQuaternionPos(a0, src + 0xD0, p);
+    Sub15C *src = ((GObj *)(outer))->p_15C;
+    float *p = (float *)((char *)src + 0xA0);
+    GetMatrixFromQuaternionPos(a0, (char *)src + 0xD0, p);
     {
         int *g = *(int **)src;
         if (g) {
-            sceVu0MulMatrix(a0,
-                            (char *)(*(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) +
-                                     (*(int *)(src + 4) << 6)),
-                            (int)a0);
+            sceVu0MulMatrix(
+                a0, (char *)(*(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (src->f_4 << 6)),
+                (int)a0);
         }
     }
     *(float *)((char *)a0 + 0x34) += p[0x30];
 }
 
-void GetRootPositionByDObj(void *a0, char *src)
+void GetRootPositionByDObj(void *a0, Sub15C *src)
 {
-    float *p = (float *)(src + 0xA0);
+    float *p = (float *)((char *)src + 0xA0);
     float f0;
     int *g = *(int **)src;
     if (g) {
-        sceVu0ApplyMatrix(
-            (int *)a0, *(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (*(int *)(src + 4) << 6),
-            (char *)p);
+        sceVu0ApplyMatrix((int *)a0, ((GObj *)g)->p_15C->f_C + (src->f_4 << 6), (char *)p);
     } else {
         CopyVector((int)a0, (int)p);
     }
     f0 = p[0x30];
-    *(float *)((char *)a0 + 0x4) += f0;
-    *(float *)((char *)a0 + 0xC) = 1.0f;
+    ((float *)a0)[1] += f0;
+    ((float *)a0)[3] = 1.0f;
 }
 
 /* INTERIM: ROM inlines SetRootPosition into this function and into
@@ -826,11 +819,10 @@ static __inline__ void SetRootPosition_i(char *a0, void *a1)
     p->f[1] = p->f[1] - *(float *)((char *)p + 0xC0);
     p->f[3] = 1.0f;
     {
-        char *sub = (char *)GOBJ_SUB(a0);
+        Sub15C *sub = GOBJ_SUB(a0);
         char *q = *(char **)sub;
         if (q != 0) {
-            MatrixDrive_SetTransposeMatrix(buf,
-                                           (char *)(GOBJ_SUB(q)->f_C + (*(int *)(sub + 4) << 6)));
+            MatrixDrive_SetTransposeMatrix(buf, (char *)(GOBJ_SUB(q)->f_C + (sub->f_4 << 6)));
             sceVu0ApplyMatrix(p, buf, p);
         }
     }
@@ -873,7 +865,7 @@ void SetDirectRootPositionNoFitting(char *self, void *v)
     CopyVector((char *)sub + 0x170, ZeroVector);
 }
 
-/* The root position at sub+0xA0 is a 4-lane vector the engine also moves as
+/* The root position at (char *)sub+0xA0 is a 4-lane vector the engine also moves as
  * two quadwords (CopyVector); the union is the TU's view of it. */
 
 void SetRootPosition(char *a0, void *a1)
@@ -884,11 +876,10 @@ void SetRootPosition(char *a0, void *a1)
     p->f[1] = p->f[1] - *(float *)((char *)p + 0xC0);
     p->f[3] = 1.0f;
     {
-        char *sub = (char *)GOBJ_SUB(a0);
+        Sub15C *sub = GOBJ_SUB(a0);
         char *q = *(char **)sub;
         if (q != 0) {
-            MatrixDrive_SetTransposeMatrix(buf,
-                                           (char *)(GOBJ_SUB(q)->f_C + (*(int *)(sub + 4) << 6)));
+            MatrixDrive_SetTransposeMatrix(buf, (char *)(GOBJ_SUB(q)->f_C + (sub->f_4 << 6)));
             sceVu0ApplyMatrix(p, buf, p);
         }
     }
@@ -896,14 +887,14 @@ void SetRootPosition(char *a0, void *a1)
 
 void GetRootPosition(void *a0, char *outer)
 {
-    char *src = ((GObj *)(outer))->p_15C;
-    float *p = (float *)(src + 0xA0);
+    Sub15C *src = ((GObj *)(outer))->p_15C;
+    float *p = (float *)((char *)src + 0xA0);
     float f0;
     int *g = *(int **)src;
     if (g) {
-        sceVu0ApplyMatrix(
-            (int *)a0, *(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (*(int *)(src + 4) << 6),
-            (char *)p);
+        sceVu0ApplyMatrix((int *)a0,
+                          *(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (src->f_4 << 6),
+                          (char *)p);
     } else {
         CopyVector((int)a0, (int)p);
     }
@@ -915,13 +906,13 @@ void GetRootPosition(void *a0, char *outer)
 void GetRootOrient(char *a0, char *a1)
 {
     char buf[0x40];
-    char *sub = (char *)GOBJ_SUB(a1);
-    char *p = sub + 0xA0;
-    GetMatrixFromQuaternionPos(buf, sub + 0xD0, p);
+    Sub15C *sub = GOBJ_SUB(a1);
+    char *p = (char *)sub + 0xA0;
+    GetMatrixFromQuaternionPos(buf, (char *)sub + 0xD0, p);
     {
         char *q = *(char **)sub;
         if (q != 0) {
-            sceVu0MulMatrix(buf, (char *)(GOBJ_SUB(q)->f_C + (*(int *)(sub + 4) << 6)), (int)buf);
+            sceVu0MulMatrix(buf, (char *)(GOBJ_SUB(q)->f_C + (sub->f_4 << 6)), (int)buf);
         }
     }
     *(float *)(buf + 0x34) = *(float *)(buf + 0x34) + *(float *)(p + 0xC0);
@@ -971,13 +962,13 @@ void GetRootMotionOrient(char *a0, char *a1)
     char m[0x40];
     char buf[0x40];
     char *b = buf;
-    char *sub = (char *)GOBJ_SUB(a1);
-    char *p = sub + 0xA0;
-    GetMatrixFromQuaternionPos(b, sub + 0xD0, p);
+    Sub15C *sub = GOBJ_SUB(a1);
+    char *p = (char *)sub + 0xA0;
+    GetMatrixFromQuaternionPos(b, (char *)sub + 0xD0, p);
     {
         char *q = *(char **)sub;
         if (q != 0) {
-            sceVu0MulMatrix(b, (char *)(GOBJ_SUB(q)->f_C + (*(int *)(sub + 4) << 6)), (int)b);
+            sceVu0MulMatrix(b, (char *)(GOBJ_SUB(q)->f_C + (sub->f_4 << 6)), (int)b);
         }
     }
     *(float *)(b + 0x34) = *(float *)(b + 0x34) + *(float *)(p + 0xC0);
@@ -989,13 +980,13 @@ void GetRootMotionOrient(char *a0, char *a1)
 void GetRootMotionMatrix(char *a0, char *a1)
 {
     char buf[0x40];
-    char *sub = (char *)GOBJ_SUB(a1);
-    char *p = sub + 0xA0;
-    GetMatrixFromQuaternionPos(buf, sub + 0xD0, p);
+    Sub15C *sub = GOBJ_SUB(a1);
+    char *p = (char *)sub + 0xA0;
+    GetMatrixFromQuaternionPos(buf, (char *)sub + 0xD0, p);
     {
         char *q = *(char **)sub;
         if (q != 0) {
-            sceVu0MulMatrix(buf, (char *)(GOBJ_SUB(q)->f_C + (*(int *)(sub + 4) << 6)), (int)buf);
+            sceVu0MulMatrix(buf, (char *)(GOBJ_SUB(q)->f_C + (sub->f_4 << 6)), (int)buf);
         }
     }
     *(float *)(buf + 0x34) = *(float *)(buf + 0x34) + *(float *)(p + 0xC0);
@@ -1041,32 +1032,32 @@ int *GetCharGObjList(void)
 
 void getInitialInverseMatrix(char *mat, char *mdl, int no)
 {
-    char *nd = *(char **)(mdl + 0x8C) + (no << 6);
+    SkelNode *nd = (SkelNode *)(*(char **)(mdl + 0x8C) + (no << 6));
     MatrixDrive_PushMatrix();
-    MatrixDrive_TransMatrixV(nd + 0x10);
-    MultiMatrixByQuaternion(nd + 0x20);
+    MatrixDrive_TransMatrixV(nd->pos);
+    MultiMatrixByQuaternion(nd->quat);
     MatrixDrive_SetTransposeMatrix(mat + (no << 6), MatrixDrive_GetMatrix());
-    if (*(int *)(nd + 0x30) != -1) {
-        getInitialInverseMatrix(mat, mdl, *(int *)(nd + 0x30));
+    if (nd->child != -1) {
+        getInitialInverseMatrix(mat, mdl, nd->child);
     }
     MatrixDrive_PopMatrix();
-    if (*(int *)(nd + 0x34) != -1) {
-        getInitialInverseMatrix(mat, mdl, *(int *)(nd + 0x34));
+    if (nd->sibling != -1) {
+        getInitialInverseMatrix(mat, mdl, nd->sibling);
     }
 }
 
 void getInitialMatrix(char *mdl, int no)
 {
-    char *nd = *(char **)(mdl + 0x8C) + (no << 6);
+    SkelNode *nd = (SkelNode *)(*(char **)(mdl + 0x8C) + (no << 6));
     MatrixDrive_PushMatrix();
-    MatrixDrive_TransMatrixV(nd + 0x10);
-    MultiMatrixByQuaternion(nd + 0x20);
+    MatrixDrive_TransMatrixV(nd->pos);
+    MultiMatrixByQuaternion(nd->quat);
     CopyMatrix(*(char **)(mdl + 0xC) + (no << 6), MatrixDrive_GetMatrix());
-    if (*(int *)(nd + 0x30) != -1) {
-        getInitialMatrix(mdl, *(int *)(nd + 0x30));
+    if (nd->child != -1) {
+        getInitialMatrix(mdl, nd->child);
     }
     MatrixDrive_PopMatrix();
-    if (*(int *)(nd + 0x34) != -1) {
-        getInitialMatrix(mdl, *(int *)(nd + 0x34));
+    if (nd->sibling != -1) {
+        getInitialMatrix(mdl, nd->sibling);
     }
 }

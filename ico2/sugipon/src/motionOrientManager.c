@@ -1675,8 +1675,8 @@ inline unsigned int GetCurrentMotionDirectionAdjustFlag(char *a0)
 
 inline int ExecuteSlipProc(char *a0)
 {
-    char *e = *(char **)(a0 + 0x15C);
-    if (*(int *)(e + 0x628) != *(int *)(e + 0x624)) {
+    Sub15C *e = ((GObj *)a0)->p_15C;
+    if (e->f_628 != e->f_624) {
         StopSEPackageWithGroupVariation(a0, 1);
         if (GOBJ_SUB(a0)->f_624 & 0x100000) {
             ExecuteSEPackageWithGroupVariation(a0, 0x72, 1);

@@ -12,6 +12,8 @@
 #ifndef PACKET_H
 #define PACKET_H
 
+#include "typedef.h"
+
 /* RECONSTRUCTION (names ours): the header of one packet pac_MakePacket
    builds: the bounding box's eight corners, the material, shape and texture
    numbers, the packet size (the byte count in the low 24 bits, the clip type
@@ -36,7 +38,7 @@ void pac_Dump(int *a0, int size);
 void pac_Init(void);
 void pac_DispVu1Memory(int idx, int n, int size);
 void pac_DispQW(void *p, int size);
-void pac_MakePacket(char *a0);
+void pac_MakePacket(Sub15C *a0);
 void pac_makePacket(void *a0, int a1, int a2);
 int pac_makeNormalStrip(char *obj, short *strip, int num);
 int pac_makeClusterStrip(char *obj, short *strip, int num);

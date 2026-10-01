@@ -325,15 +325,15 @@ char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
     }
 
     {
-        PoolDisp *q = GOBJ_SUB(self)->p_870;
+        PoolDisp *q = (PoolDisp *)GOBJ_SUB(self)->p_870;
         q->pos.i[0] = q->pos.i[1] = q->pos.i[2] = 0;
     }
     {
-        PoolDisp *q = GOBJ_SUB(self)->p_870;
+        PoolDisp *q = (PoolDisp *)GOBJ_SUB(self)->p_870;
         q->scale.f[0] = q->scale.f[1] = q->scale.f[2] = 1.0f;
     }
     {
-        PoolDisp *q = GOBJ_SUB(self)->p_870;
+        PoolDisp *q = (PoolDisp *)GOBJ_SUB(self)->p_870;
         q->rot.f[0] = q->rot.f[1] = q->rot.f[2] = 0.0f;
     }
 
@@ -346,7 +346,7 @@ char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
     w->splashNo = 0;
     w->splash = InitMultiBgaManager(2);
 
-    *(int *)(*(char **)(self + 0x15C) + 0x81C) = (int)poolRideFunc;
+    ((SubHandle *)(self + 0x15C))->sub->f_81C = (int)poolRideFunc;
 
     return (char *)w;
 }
@@ -681,7 +681,7 @@ void dispPool(char *self)
 
     _UnitMatrix(MatrixDrive_GetMatrix());
     CopyMatrix((char *)GOBJ_SUB(self)->f_C, MatrixDrive_GetMatrix());
-    reg_RenderReflection((char *)GOBJ_SUB(self), 4);
+    reg_RenderReflection(GOBJ_SUB(self), 4);
 
     if (w->dobj != 0) {
         CopyMatrix(MatrixDrive_GetMatrix(), w->dobj + 0x20);
@@ -695,7 +695,7 @@ void dispPool(char *self)
 
         CopyMatrix(*(char **)(w->dobj + 0xC), MatrixDrive_GetMatrix());
 
-        reg_RenderReflection(w->dobj, 4);
+        reg_RenderReflection((Sub15C *)w->dobj, 4);
 
         if (systemStatus[5] == 0) {
             if (++w->spin > 1600) {

@@ -103,7 +103,7 @@ typedef struct {
 void setEnemyParticleObject(char *self, int pid)
 {
     Sub15C *sub = GOBJ_SUB(self);
-    EnemyWork *w = *(EnemyWork **)((char *)sub + 0x830);
+    EnemyWork *w = sub->f_830;
     int n = sub->f_88;
     char *tbl = *(char **)((char *)sub + 0x8C);
     char *p = *(char **)((char *)sub + 0x870);
@@ -205,31 +205,31 @@ static inline int enemyRandomizeID(int kind, int *ctr)
 
 int setEnemyObject(char *self, int kind, int *ctr)
 {
-    char *p;
-    char *sub;
+    struct DObjNode *p;
+    Sub15C *sub;
     EnemyWork *w;
     float sc;
     int obj;
     int pid;
 
 retry:
-    sub = (char *)GOBJ_SUB(self);
-    w = *(EnemyWork **)(sub + 0x830);
+    sub = GOBJ_SUB(self);
+    w = sub->f_830;
     if (kind > 0xFFFF) {
         kind = enemyRandomizeID(kind, ctr);
         goto retry;
     }
-    p = *(char **)(sub + 0x870);
+    p = sub->p_870;
     sc = D_00624880[kind].d;
-    *(float *)(p + 0x28) = sc;
-    *(float *)(p + 0x24) = sc;
-    *(float *)(p + 0x20) = sc;
+    p->scale[2] = sc;
+    p->scale[1] = sc;
+    p->scale[0] = sc;
     w->scale = sc;
     obj = D_00624880[kind].a;
     if (obj != 0x610) {
-        GOBJ_SUB(self)->f_854 = GetPObjAddress(obj);
+        *(int *)&GOBJ_SUB(self)->model = GetPObjAddress(obj);
         GOBJ_SUB(self)->f_84 = obj;
-        debug_StdPrintfDummy("%p\n", GOBJ_SUB(self)->f_854);
+        debug_StdPrintfDummy("%p\n", GOBJ_SUB(self)->model);
         w->loaded = 1;
     }
     pid = D_00624880[kind].b;
@@ -366,22 +366,22 @@ static inline int enemySetParticle(int kind, void *obj, float *dir)
 int EnemyCheckHit(char *self, float *pos, float *dir)
 {
     int eff = 0;
-    char *sub;
+    Sub15C *sub;
     EnemyWork *w;
     int n;
     int i;
     int cnt;
     int flags;
 
-    sub = *(char **)(self + 0x15C);
-    w = *(EnemyWork **)(sub + 0x830);
-    n = *(int *)(sub + 0x88);
+    sub = ((GObj *)self)->p_15C;
+    w = sub->f_830;
+    n = sub->f_88;
     cnt = 0;
     flags = 0;
     for (i = 0; i < n; i++) {
         if ((w->broken)[i] == 0) {
-            if (distance_squared(*(char **)(sub + 0xC) + i * 0x40 + 0x30, pos) < 10000.0f) {
-                enemySetParticle(8, *(char **)(sub + 0xC) + i * 0x40 + 0x30, dir);
+            if (distance_squared((char *)sub->f_C + i * 64 + 0x30, pos) < 10000.0f) {
+                enemySetParticle(8, (char *)sub->f_C + i * 64 + 0x30, dir);
                 /* The hand-written form the helper call replaced, the way
                    CheckEnemyHit still spells it, switched off by a local effect
                    switch, CheckEnemyHit's own `eff` with the other value.
@@ -401,7 +401,7 @@ int EnemyCheckHit(char *self, float *pos, float *dir)
                     SetIdentityQuaternion(q);
                     RotQuaternionX(q, -rx);
                     RotQuaternionY(q, -ry);
-                    SetParticleEffect(8, *(char **)(sub + 0xC) + i * 0x40 + 0x30, q);
+                    SetParticleEffect(8, (char *)sub->f_C + i * 64 + 0x30, q);
                 }
                 flags |= 1;
                 (w->broken)[i] = 1;
@@ -440,10 +440,10 @@ int EnemyCheckHit(char *self, float *pos, float *dir)
 int CheckEnemyHit(char *self, float *pos, float *a, float *b)
 {
     int eff = 1;
-    char *sub = *(char **)(self + 0x15C);
-    EnemyWork *w = *(EnemyWork **)(sub + 0x830);
+    Sub15C *sub = ((GObj *)self)->p_15C;
+    EnemyWork *w = sub->f_830;
     int i;
-    int n = *(int *)(sub + 0x88);
+    int n = sub->f_88;
 
     if (2500.0f < distance_squared(pos, a)) {
         /* Walk the parts still alive and take the first one within reach
@@ -457,9 +457,9 @@ int CheckEnemyHit(char *self, float *pos, float *a, float *b)
         i = 0;
         if (n > 0) for (; i < n; i++)
             if ((w->broken)[i] == 0) {
-                if (distance_squared(*(char **)(sub + 0xC) + i * 0x40 + 0x30, pos) < 10000.0f &&
-                    distance_squared(*(char **)(sub + 0xC) + i * 0x40 + 0x30, a) < 10000.0f &&
-                    distance_squared(*(char **)(sub + 0xC) + i * 0x40 + 0x30, b) < 10000.0f) {
+                if (distance_squared((char *)sub->f_C + i * 64 + 0x30, pos) < 10000.0f &&
+                    distance_squared((char *)sub->f_C + i * 64 + 0x30, a) < 10000.0f &&
+                    distance_squared((char *)sub->f_C + i * 64 + 0x30, b) < 10000.0f) {
                     float q[4];
                     unsigned short ax, ay;
                     if (eff) {
@@ -470,7 +470,7 @@ int CheckEnemyHit(char *self, float *pos, float *a, float *b)
                         SetIdentityQuaternion(q);
                         RotQuaternionX(q, (short)-ax);
                         RotQuaternionY(q, (short)-ay);
-                        SetParticleEffect(8, *(char **)(sub + 0xC) + i * 0x40 + 0x30, q);
+                        SetParticleEffect(8, (char *)sub->f_C + i * 64 + 0x30, q);
                     }
 
                     (w->broken)[i] = 1;
@@ -654,11 +654,11 @@ void SetEnemyDissolve(char *self, float ratio)
 {
     Sub15C *sub = GOBJ_SUB(self);
 
-    *(float *)(*(char **)((char *)sub + 0x870) + 0x30) = ratio;
-    if (*(float *)(*(char **)((char *)sub + 0x870) + 0x30) < 0.0f)
-        *(float *)(*(char **)((char *)sub + 0x870) + 0x30) = 0.0f;
-    if (*(float *)(*(char **)((char *)sub + 0x870) + 0x30) > 1.0f)
-        *(float *)(*(char **)((char *)sub + 0x870) + 0x30) = 1.0f;
+    sub->p_870->fade = ratio;
+    if (sub->p_870->fade < 0.0f)
+        sub->p_870->fade = 0.0f;
+    if (sub->p_870->fade > 1.0f)
+        sub->p_870->fade = 1.0f;
 }
 
 void SetEnemyFlyXZAccel(char *a0, float f)
@@ -709,7 +709,7 @@ void EnemySetfDisappear(char *self, float *dir)
 {
     Sub15C *sub = GOBJ_SUB(self);
     int n = sub->f_88;
-    EnemyWork *w = *(EnemyWork **)((char *)sub + 0x830);
+    EnemyWork *w = sub->f_830;
     int i;
 
     for (i = 0; i < n; i++) {
@@ -758,13 +758,13 @@ int EnemyGetNSafeParts(char *self)
 
 void EnemyDeleteParticle(char *self, float *dir, short *list)
 {
-    char *sub = *(char **)(self + 0x15C);
+    Sub15C *sub = ((GObj *)self)->p_15C;
     int i;
     int n;
 
     n = 2;
     for (i = 0; list[i] >= 0 && n > 0; i++, n--) {
-        enemySetParticle(8, *(char **)(sub + 0xC) + list[i] * 0x40 + 0x30, dir);
+        enemySetParticle(8, *(char **)((char *)sub + 0xC) + list[i] * 0x40 + 0x30, dir);
     }
 }
 
@@ -796,7 +796,7 @@ int GetEnemyHitNodeFlag(char *a0)
 int RandomizeEnemy(char *self)
 {
     Sub15C *sub = GOBJ_SUB(self);
-    EnemyWork *w = *(EnemyWork **)((char *)sub + 0x830);
+    EnemyWork *w = sub->f_830;
     int kind = w->kind;
 
     *(int *)(*(char **)((char *)sub + 0x870) + 0x30) = 0;

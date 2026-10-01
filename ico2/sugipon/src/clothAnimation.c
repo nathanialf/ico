@@ -1545,7 +1545,7 @@ void getCloth4D(void *a0, int **rows)
     int ny = cfg[1];
     int cnt = ((int *)a0)[190] ? ((int *)a0)[185] : 0;
     ClothPoint *pts = (ClothPoint *)((int *)a0)[188];
-    float scale = *(float *)(*(int *)(*(int *)(*(int *)a0 + 0x15C) + 0x870) + 0x20);
+    float scale = GOBJ_SUB(*(int *)a0)->p_870->scale[0];
     float inv = 1.0f / scale;
     float tbase = *(float *)&cfg[10] * scale;
     int nyArr[ny];
@@ -2078,7 +2078,7 @@ Cloth4D *InitCloth4D(int a0, Cloth4DCfg *cfg, int tbl)
     prim_UpdateMesh3D(r->mesh, 8, (buffer_ID + 1) & 1);
     if (tbl != 0) {
         i = 0;
-        sc = *(float *)(*(int *)(*(int *)(r->gobj + 0x15C) + 0x870) + 0x20);
+        sc = GOBJ_SUB(r->gobj)->p_870->scale[0];
         while (*(int *)(i * 0x40 + tbl) != -1) {
             i++;
         }

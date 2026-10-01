@@ -938,12 +938,12 @@ void _getGeometryOfMotion(ObjNode *out, int second)
 inline void getGeometryOfMotion(ObjNode *out, int second)
 {
     ShiftBlk buf;
-    char *p;
+    Sub15C *p;
     buf = *(ShiftBlk *)(*(char **)((char *)skelGObj + 0x15C) + 0x180);
     _getGeometryOfMotion(out, second);
-    p = *(char **)((char *)skelGObj + 0x15C);
-    if (*(int *)(p + 0x634) != 0) {
-        *(ShiftBlk *)(p + 0x180) = buf;
+    p = ((GObj *)skelGObj)->p_15C;
+    if (p->f_634 != 0) {
+        *(ShiftBlk *)((char *)p + 0x180) = buf;
     }
 }
 
@@ -1073,7 +1073,7 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, char
         nodePos2 = (char *)wk1;
         skelMotion = m0;
         skelMotion2 = m1;
-        skelScale = *(float *)((char *)(MotHdr *)MOWORK(self)->p_870 + 0x20);
+        skelScale = MOWORK(self)->p_870->scale[0];
         skelRoot = (struct MotRoot *)((char *)MOWORK(self) + 0xA0);
         skelMotCtrl = (struct MotCtrl *)((char *)MOWORK(self) + 0x470);
         skelNode = (char *)*(MotNode **)((char *)MOWORK(self) + 0x8C);
@@ -1153,7 +1153,7 @@ void GetMatrixOfMotion(char *self, char *tbl, void *ofs)
     skelMotion = tbl;
     skelQuat = (char *)GOBJ_SUB(self)->f_10;
     skelNode = (char *)*(int *)((int)GOBJ_SUB(self) + 0x8C);
-    skelScale = *(float *)(*(int *)((int)GOBJ_SUB(self) + 0x870) + 0x20);
+    skelScale = GOBJ_SUB(self)->p_870->scale[0];
     skelRoot = (struct MotRoot *)((int)GOBJ_SUB(self) + 0xA0);
     skelMotCtrl = (struct MotCtrl *)((int)GOBJ_SUB(self) + 0x470);
     skelNodeNum = GOBJ_SUB(self)->f_88;

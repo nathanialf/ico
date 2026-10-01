@@ -5,6 +5,8 @@
 #include "Matrix.h"
 #include "Texture.h"
 #include "Packet.h"
+#include "DisplayP2O.h"
+#include "Light.h"
 #include <stdio.h>
 #include "debug_exception.h"
 
@@ -1423,10 +1425,10 @@ void pac_makePacket(void *a0, int a1, int a2)
     }
 }
 
-void pac_MakePacket(char *a0)
+void pac_MakePacket(Sub15C *a0)
 {
-    char *p = *(char **)(a0 + 0x854);
-    pac_makePacket(p, *(int *)(*(char **)(a0 + 0x874) + 0xF0), *(signed char *)(p + 0x2F) > 0);
+    PObjModel *p = a0->model;
+    pac_makePacket(p, a0->p_874->mode, p->disp > 0);
 }
 
 inline void pac_Init(void)

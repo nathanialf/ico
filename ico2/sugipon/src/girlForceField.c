@@ -12,13 +12,6 @@ typedef struct GirlForceFieldWork {
     int frame;
 } GirlForceFieldWork;
 
-/* The 0x15C sub-object slot is a word the engine reads either as an int handle
-   or as a pointer (see GOBJ_SUB in ../common/include/typedef.h). */
-typedef union GObjSubSlot {
-    int handle;
-    void *p;
-} GObjSubSlot;
-
 #include "girlForceField.h"
 #include "ios.h"
 #include "main.h"
@@ -38,12 +31,12 @@ inline GirlForceFieldWork *InitGirlForceFieldGeo(char *self, char *param)
 {
     GirlForceFieldWork *w =
         (GirlForceFieldWork *)iosMallocDebug(ios_partition_sugipon, 12, "src/girlForceField.c", 23);
-    float *c;
+    struct DObjNode *c;
     w->radius = *(float *)(param + 0x28);
     w->invRadius = 1.0f / w->radius;
     w->frame = 0;
-    c = *(float **)(((GObjSubSlot *)(self + 0x15C))->handle + 0x870);
-    c[8] = c[9] = c[10] = 1.0f;
+    c = ((SubHandle *)(self + 0x15C))->sub->p_870;
+    c->scale[0] = c->scale[1] = c->scale[2] = 1.0f;
     return w;
 }
 

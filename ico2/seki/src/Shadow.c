@@ -2,6 +2,7 @@
 #include "GsBase.h"
 #include "debug.h"
 #include "Shadow.h"
+#include "DisplayP2O.h"
 #include "Texture.h"
 #include "geometryManager.h"
 #include "main.h"
@@ -334,7 +335,7 @@ void shadow_Draw(void)
 
 #ifdef DEBUG
 
-void shadow_getShadowVectorAverage(void *a0, char *a1);
+void shadow_getShadowVectorAverage(void *a0, Sub15C *a1);
 
 #endif
 
@@ -344,7 +345,7 @@ void shadow_getShadowVectorAverage(void *a0, char *a1);
    keeps dir's declaration, the ROM's 16 bytes of vars under the saved $ra; the
    listing's rows 525-599 after the print carry no code.  The DEBUG report is
    ours. */
-void shadow_Render(char *o)
+void shadow_Render(Sub15C *o)
 {
     float dir[4];
 
@@ -355,9 +356,9 @@ void shadow_Render(char *o)
 #endif
 }
 
-void shadow_getShadowVectorAverage(void *a0, char *a1)
+void shadow_getShadowVectorAverage(void *a0, Sub15C *a1)
 {
-    _CopyVector(a0, a1 + 0x860);
+    _CopyVector(a0, a1->shadowDir);
     _SetCurrentMatrix(matrixptr + 0x80);
     _ClearTransCurrentMatrix();
     _ApplyCurrentMatrix(a0, a0);
@@ -416,14 +417,14 @@ static inline void applyWeightedVtx(void *dst, void *src, float w)
                          : "$8");
 }
 
-void shadow_EntryClusterShadow(char *a0, float a1)
+void shadow_EntryClusterShadow(Sub15C *a0, float a1)
 {
     VECTOR zero = {0.0f, 0.0f, 0.0f, 1.0f};
     float v[4];
     float sa[4];
     float sb[4];
-    char *x = *(char **)(a0 + 0x858);
-    char *p;
+    PObjModel *x = a0->shadow;
+    PObjPart *p;
     int i;
     unsigned int k;
 
@@ -432,48 +433,48 @@ void shadow_EntryClusterShadow(char *a0, float a1)
     _ScaleVectorXYZ(sa, v, a1);
     _ScaleVectorXYZ(sb, v, 4.0f);
 
-    for (i = 0; i < *(int *)(a0 + 8); i++) {
-        _SetCurrentMatrix(*(char **)(a0 + 0xC) + i * 0x40);
-        _MulCurrentMatrixR(*(char **)(a0 + 0x90) + i * 0x40);
+    for (i = 0; i < a0->f_8; i++) {
+        _SetCurrentMatrix((char *)a0->f_C + i * 0x40);
+        _MulCurrentMatrixR(a0->clusterMtx + i * 0x40);
         _MulCurrentMatrixL(matrixptr + 0x80);
         _GetCurrentMatrix(clusterMatrix + i * 0x40);
     }
 
     __asm__ __volatile__("lq $8, 0(%0)" : : "r"(&zero) : "$8");
-    for (i = 0, p = *(char **)(x + 0x40); i < *(char *)(x + 0x2E); i++, p += 0x180) {
-        for (k = 0; k < *(unsigned int *)(p + 0x94); k++) {
-            __asm__ __volatile__("sq $8, 0(%0)" : : "r"((Qw128 *)*(char **)(p + 0x174) + k) : "$8");
+    for (i = 0, p = x->parts; i < x->partCount; i++, p++) {
+        for (k = 0; k < p->vtxCount; k++) {
+            __asm__ __volatile__("sq $8, 0(%0)" : : "r"((Qw128 *)p->vtxSave + k) : "$8");
         }
     }
 
-    for (i = 0, p = *(char **)(x + 0x40); i < *(char *)(x + 0x2E); i++, p += 0x180) {
-        for (k = 0; k < *(unsigned int *)(p + 0xF4); k++) {
+    for (i = 0, p = x->parts; i < x->partCount; i++, p++) {
+        for (k = 0; k < p->polyCount; k++) {
             ClusterWeight *e;
             VECTOR *dst;
             VECTOR *src;
 
-            _SetCurrentMatrix(clusterMatrix + (*(ClusterPoly **)(p + 0xF0))[k].matrix * 0x40);
-            e = (*(ClusterPoly **)(p + 0xF0))[k].run;
+            _SetCurrentMatrix(clusterMatrix + ((ClusterPoly *)p->polys)[k].matrix * 0x40);
+            e = ((ClusterPoly *)p->polys)[k].run;
             /* the listing gives both base loads the run load's row (648) and
              * the -1 of the loop test the next row (649): they are read once
              * here, ahead of the loop, not inside it */
-            dst = *(VECTOR **)(p + 0x174);
-            src = *(VECTOR **)(p + 0x90);
+            dst = (VECTOR *)p->vtxSave;
+            src = (VECTOR *)p->vtx;
             do {
                 applyWeightedVtx(dst + e->idx, src + e->idx, e->w);
             } while ((++e)->idx != -1);
         }
-        for (k = 0; k < *(unsigned int *)(p + 0x94); k++) {
-            _AddVectorXYZ(*(char **)(p + 0x178) + k * 16, *(char **)(p + 0x174) + k * 16, sa);
-            _AddVectorXYZ(*(char **)(p + 0x174) + k * 16, *(char **)(p + 0x174) + k * 16, sb);
+        for (k = 0; k < p->vtxCount; k++) {
+            _AddVectorXYZ(p->nrmSave + k * 16, p->vtxSave + k * 16, sa);
+            _AddVectorXYZ(p->vtxSave + k * 16, p->vtxSave + k * 16, sb);
         }
     }
 
-    for (i = 0, p = *(char **)(x + 0x40); i < *(char *)(x + 0x2E); i++, p += 0x180) {
-        VECTOR *va = (VECTOR *)*(char **)(p + 0x174);
-        VECTOR *vb = (VECTOR *)*(char **)(p + 0x178);
+    for (i = 0, p = x->parts; i < x->partCount; i++, p++) {
+        VECTOR *va = (VECTOR *)p->vtxSave;
+        VECTOR *vb = (VECTOR *)p->nrmSave;
 
-        for (k = 0; k < *(unsigned int *)(p + 0x94); k++) {
+        for (k = 0; k < p->vtxCount; k++) {
             if (1.0f <= va[k].z && 1.0f <= vb[k].z) {
             } else if (va[k].z < 1.0f && vb[k].z < 1.0f) {
                 vb[k].w = -1.0f;
@@ -513,39 +514,39 @@ static inline void applyCurrentMatrixV(void *dst, void *src)
                          : "r"(dst), "r"(src));
 }
 
-void shadow_EntryNormalShadow(char *a0, int a1, float a2)
+void shadow_EntryNormalShadow(Sub15C *a0, int a1, float a2)
 {
     float v[4];
     float sa[4];
     float sb[4];
-    char *x = *(char **)(a0 + 0x858);
+    PObjModel *x = a0->shadow;
     int i;
     int j;
-    char *p;
+    PObjPart *p;
 
     shadow_getShadowVectorAverage(v, a0);
     _ScaleVectorXYZ(sa, v, a2);
     _ScaleVectorXYZ(sb, v, 4.0f);
-    _SetCurrentMatrix(*(char **)(a0 + 0xC) + a1 * 0x40);
+    _SetCurrentMatrix((char *)a0->f_C + a1 * 0x40);
     _MulCurrentMatrixL(matrixptr + 0x80);
 
-    p = *(char **)(x + 0x40);
-    for (i = 0; i < *(char *)(x + 0x2E); i++, p += 0x180) {
-        for (j = 0; j < *(unsigned int *)(p + 0x94); j++) {
-            applyCurrentMatrixV(*(char **)(p + 0x174) + j * 16, *(char **)(p + 0x90) + j * 16);
+    p = x->parts;
+    for (i = 0; i < x->partCount; i++, p++) {
+        for (j = 0; j < p->vtxCount; j++) {
+            applyCurrentMatrixV(p->vtxSave + j * 16, p->vtx + j * 16);
         }
-        for (j = 0; j < *(unsigned int *)(p + 0x94); j++) {
-            _AddVectorXYZ(*(char **)(p + 0x178) + j * 16, *(char **)(p + 0x174) + j * 16, sa);
-            _AddVectorXYZ(*(char **)(p + 0x174) + j * 16, *(char **)(p + 0x174) + j * 16, sb);
+        for (j = 0; j < p->vtxCount; j++) {
+            _AddVectorXYZ(p->nrmSave + j * 16, p->vtxSave + j * 16, sa);
+            _AddVectorXYZ(p->vtxSave + j * 16, p->vtxSave + j * 16, sb);
         }
     }
 
-    p = *(char **)(x + 0x40);
-    for (i = 0; i < *(char *)(x + 0x2E); i++, p += 0x180) {
-        VECTOR *va = (VECTOR *)*(char **)(p + 0x174);
-        VECTOR *vb = (VECTOR *)*(char **)(p + 0x178);
+    p = x->parts;
+    for (i = 0; i < x->partCount; i++, p++) {
+        VECTOR *va = (VECTOR *)p->vtxSave;
+        VECTOR *vb = (VECTOR *)p->nrmSave;
 
-        for (j = 0; j < *(unsigned int *)(p + 0x94); j++) {
+        for (j = 0; j < p->vtxCount; j++) {
             if (1.0f <= va[j].z && 1.0f <= vb[j].z) {
             } else if (va[j].z < 1.0f && vb[j].z < 1.0f) {
                 vb[j].w = -1.0f;
@@ -928,7 +929,7 @@ static inline unsigned long long *emitVolumeStrip(unsigned long long *p, float s
     return p;
 }
 
-void __GetCameraPos(void *a0)
+void __GetCameraPos(VECTOR *a0)
 {
     _PushCurrentMatrix();
     _SetCurrentMatrix(matrixptr + 0x80);
@@ -936,7 +937,7 @@ void __GetCameraPos(void *a0)
     _TransposeCurrentMatrix();
     _ApplyCurrentMatrix(a0, matrixptr + 0xB0);
     _ScaleVector(a0, a0, -1.0f);
-    *(float *)((char *)a0 + 0xC) = 1.0f;
+    a0->w = 1.0f;
     _PopCurrentMatrix();
 }
 
@@ -948,24 +949,24 @@ extern int dl_GetPri(void);
  * vertex record that follows carries its facing flag in the same short and
  * its vertex index at +4. Only two-byte aligned, which is why
  * shadow_MakeObjectData copies it with ldl/ldr. */
-typedef struct ShadowRun {
+typedef struct ShadowRun { /* field names derived */
     short count;
-    short _2;
+    short pad2;
     short vtx;
-    char _6[0xA];
+    char pad6[10];
 } ShadowRun;
 
-void shadow_RenderVolume(char *o)
+void shadow_RenderVolume(Sub15C *o)
 {
     VECTOR pos;
     VECTOR cam;
-    char *x = *(char **)(o + 0x858);
-    float len = *(float *)(*(char **)(o + 0x854) + 0x3C);
+    PObjModel *x = o->shadow;
+    float len = o->model->shadowLength;
     unsigned long long *p;
     unsigned long long *start;
     char *c;
     char *q;
-    char *part;
+    PObjPart *part;
     ShadowRun *e;
     VECTOR *top;
     VECTOR *bot;
@@ -977,16 +978,16 @@ void shadow_RenderVolume(char *o)
     float sgn;
     float r;
 
-    if (*(long long *)(x + 0x30) & 0x04000000) {
+    if (x->mode.bits & 0x04000000) {
         return;
     }
-    if (len != *(float *)(x + 0x3C) && 0.0f < *(float *)(x + 0x3C)) {
-        len = *(float *)(x + 0x3C);
+    if (len != x->shadowLength && 0.0f < x->shadowLength) {
+        len = x->shadowLength;
     }
     __GetCameraPos(&cam);
     GetRootPositionByDObj(&pos, o);
     _GetLength(&pos, &cam);
-    if (*(unsigned short *)(o + 0x84C) == 1) {
+    if (o->dispType == 1) {
         shadow_EntryClusterShadow(o, len);
     } else {
         shadow_EntryNormalShadow(o, 0, len);
@@ -1005,12 +1006,12 @@ void shadow_RenderVolume(char *o)
     PacketBufferStruct.ptr.c = (c + 0x10);
     p = PacketBufferStruct.ptr.d;
     start = p;
-    for (i = 0; i < *(char *)(x + 0x2E); i++) {
-        part = *(char **)(x + 0x40) + i * 0x180;
-        top = (VECTOR *)*(char **)(part + 0x174);
-        bot = (VECTOR *)*(char **)(part + 0x178);
-        for (j = 0; j < *(unsigned int *)(part + 0x104); j++) {
-            e = (*(ShadowRun ***)(part + 0x100))[j];
+    for (i = 0; i < x->partCount; i++) {
+        part = &x->parts[i];
+        top = (VECTOR *)part->vtxSave;
+        bot = (VECTOR *)part->nrmSave;
+        for (j = 0; j < part->stripCount; j++) {
+            e = ((ShadowRun **)part->strips)[j];
             while ((n = (e++)->count) != 0) {
                 sgn = e->count != 0 ? 1.0f : -1.0f;
                 state = clipVolumeHead(&top[e[0].vtx], &bot[e[0].vtx], &top[e[1].vtx],
@@ -1058,17 +1059,17 @@ void shadow_RenderVolume(char *o)
     dl_SetDLPriority(0);
 }
 
-void shadow_RenderVolumeMulti(char *o, int idx)
+void shadow_RenderVolumeMulti(Sub15C *o, int idx)
 {
     VECTOR pos;
     VECTOR cam;
-    char *x = *(char **)(o + 0x858);
-    float len = *(float *)(*(char **)(o + 0x854) + 0x3C);
+    PObjModel *x = o->shadow;
+    float len = o->model->shadowLength;
     unsigned long long *p;
     unsigned long long *start;
     char *c;
     char *q;
-    char *part;
+    PObjPart *part;
     ShadowRun *e;
     VECTOR *top;
     VECTOR *bot;
@@ -1080,11 +1081,11 @@ void shadow_RenderVolumeMulti(char *o, int idx)
     float sgn;
     float r;
 
-    if (*(long long *)(x + 0x30) & 0x04000000) {
+    if (x->mode.bits & 0x04000000) {
         return;
     }
-    if (len != *(float *)(x + 0x3C) && 0.0f < *(float *)(x + 0x3C)) {
-        len = *(float *)(x + 0x3C);
+    if (len != x->shadowLength && 0.0f < x->shadowLength) {
+        len = x->shadowLength;
     }
     __GetCameraPos(&cam);
     GetRootPositionByDObj(&pos, o);
@@ -1104,12 +1105,12 @@ void shadow_RenderVolumeMulti(char *o, int idx)
     PacketBufferStruct.ptr.c = (c + 0x10);
     p = PacketBufferStruct.ptr.d;
     start = p;
-    for (i = 0; i < *(char *)(x + 0x2E); i++) {
-        part = *(char **)(x + 0x40) + i * 0x180;
-        top = (VECTOR *)*(char **)(part + 0x174);
-        bot = (VECTOR *)*(char **)(part + 0x178);
-        for (j = 0; j < *(unsigned int *)(part + 0x104); j++) {
-            e = (*(ShadowRun ***)(part + 0x100))[j];
+    for (i = 0; i < x->partCount; i++) {
+        part = &x->parts[i];
+        top = (VECTOR *)part->vtxSave;
+        bot = (VECTOR *)part->nrmSave;
+        for (j = 0; j < part->stripCount; j++) {
+            e = ((ShadowRun **)part->strips)[j];
             while ((n = (e++)->count) != 0) {
                 sgn = e->count != 0 ? 1.0f : -1.0f;
                 state = clipVolumeHead(&top[e[0].vtx], &bot[e[0].vtx], &top[e[1].vtx],
@@ -1178,7 +1179,7 @@ typedef struct ShadowPoly {
     int _C;
 } __attribute__((aligned(16))) ShadowPoly;
 
-void shadow_MakeObjectData(char *a0)
+void shadow_MakeObjectData(PObjModel *a0)
 {
     int i;
     int j;
@@ -1189,52 +1190,52 @@ void shadow_MakeObjectData(char *a0)
     int m = 0;
     int n;
     int c;
-    char *p;
+    PObjPart *p;
     ShadowVtx *q;
     ShadowPoly *r;
     ShadowVtx *t;
     ShadowRun **s;
     ShadowRun *u;
 
-    for (i = 0; i < *(char *)(a0 + 0x2E); i++) {
-        p = *(char **)(a0 + 0x40) + i * 0x180;
-        if (*(char *)(a0 + 0x2F) != 0) {
-            *(void **)(p + 0x174) = mallocseki(*(unsigned int *)(p + 0x94) * 16);
-            *(void **)(p + 0x178) = mallocseki(*(unsigned int *)(p + 0x94) * 16);
-            q = (ShadowVtx *)mallocseki(*(unsigned int *)(p + 0x94) * 16);
-            for (j = 0; j < *(unsigned int *)(p + 0x94); j++) {
-                _CopyVector(&q[j], *(char **)(p + 0x90) + j * 16);
+    for (i = 0; i < a0->partCount; i++) {
+        p = &a0->parts[i];
+        if (a0->disp != 0) {
+            p->vtxSave = mallocseki(p->vtxCount * 16);
+            p->nrmSave = mallocseki(p->vtxCount * 16);
+            q = (ShadowVtx *)mallocseki(p->vtxCount * 16);
+            for (j = 0; j < p->vtxCount; j++) {
+                _CopyVector(&q[j], p->vtx + j * 16);
             }
-            *(ShadowVtx **)(p + 0x90) = q;
+            p->vtx = (char *)q;
 
-            r = (ShadowPoly *)mallocseki(*(unsigned int *)(p + 0xF4) * 16);
-            for (j = 0; j < *(unsigned int *)(p + 0xF4); j++) {
-                r[j] = (*(ShadowPoly **)(p + 0xF0))[j];
+            r = (ShadowPoly *)mallocseki(p->polyCount * 16);
+            for (j = 0; j < p->polyCount; j++) {
+                r[j] = ((ShadowPoly *)p->polys)[j];
                 while (r[j].pts[m]._0 != -1) {
                     m++;
                 }
                 t = r[j].pts = (ShadowVtx *)mallocseki((m + 1) * 16);
                 for (l = 0; l < m + 1; l++) {
-                    *t++ = (*(ShadowPoly **)(p + 0xF0))[j].pts[l];
+                    *t++ = ((ShadowPoly *)p->polys)[j].pts[l];
                 }
                 m = 0;
             }
-            *(ShadowPoly **)(p + 0xF0) = r;
+            p->polys = r;
         } else {
-            *(void **)(p + 0x174) = mallocseki(*(unsigned int *)(p + 0x94) * 16);
-            *(void **)(p + 0x178) = mallocseki(*(unsigned int *)(p + 0x94) * 16);
-            q = (ShadowVtx *)mallocseki(*(unsigned int *)(p + 0x94) * 16);
-            for (j = 0; j < *(unsigned int *)(p + 0x94); j++) {
-                _CopyVector(&q[j], *(char **)(p + 0x90) + j * 16);
+            p->vtxSave = mallocseki(p->vtxCount * 16);
+            p->nrmSave = mallocseki(p->vtxCount * 16);
+            q = (ShadowVtx *)mallocseki(p->vtxCount * 16);
+            for (j = 0; j < p->vtxCount; j++) {
+                _CopyVector(&q[j], p->vtx + j * 16);
             }
-            *(ShadowVtx **)(p + 0x90) = q;
+            p->vtx = (char *)q;
         }
 
-        s = (ShadowRun **)mallocseki(*(unsigned int *)(p + 0x104) * 4);
+        s = (ShadowRun **)mallocseki(p->stripCount * 4);
         /* the strip pass reuses the outer loop's own index, which is what
          * makes the ROM step the outer loop on from where this one ended */
-        for (i = 0; i < *(unsigned int *)(p + 0x104); i++) {
-            u = (*(ShadowRun ***)(p + 0x100))[i];
+        for (i = 0; i < p->stripCount; i++) {
+            u = ((ShadowRun **)p->strips)[i];
             n = 0;
             for (;;) {
                 c = u->count;
@@ -1247,10 +1248,10 @@ void shadow_MakeObjectData(char *a0)
             n++;
             s[i] = (ShadowRun *)mallocseki(n * 16);
             for (j = 0; j < n; j++) {
-                s[i][j] = (*(ShadowRun ***)(p + 0x100))[i][j];
+                s[i][j] = ((ShadowRun **)p->strips)[i][j];
             }
         }
-        *(ShadowRun ***)(p + 0x100) = s;
+        p->strips = s;
     }
 }
 
@@ -1265,15 +1266,14 @@ inline void shadow_DispCancel(int a0, int a1)
     if (obj != 0) {
         long long bit = (long long)(a1 & 1) << 26;
         do {
-            char *node = *(char **)(obj + 0x15C);
+            Sub15C *node = ((GObj *)obj)->p_15C;
             if (node != 0) {
-                char *dl = *(char **)(node + 0x854);
+                PObjModel *dl = node->model;
                 if (dl != 0) {
-                    char *x = *(char **)(node + 0x858);
+                    PObjModel *x = node->shadow;
                     if (x != 0) {
-                        if (*(short *)(dl + 0x30) == a0) {
-                            *(long long *)(x + 0x30) =
-                                (*(long long *)(x + 0x30) & ~0x04000000) | bit;
+                        if (dl->mode.s.id == a0) {
+                            x->mode.bits = (x->mode.bits & ~0x04000000) | bit;
                         }
                     }
                 }
@@ -1283,12 +1283,12 @@ inline void shadow_DispCancel(int a0, int a1)
     }
 }
 
-inline void shadow_SetLength(char *a0, float f)
+inline void shadow_SetLength(Sub15C *a0, float f)
 {
     if (0.0f < f) {
-        *(float *)(*(char **)(a0 + 0x858) + 0x3C) = f;
+        a0->shadow->shadowLength = f;
     } else {
-        *(float *)(*(char **)(a0 + 0x858) + 0x3C) = *(float *)(*(char **)(a0 + 0x854) + 0x3C);
+        a0->shadow->shadowLength = a0->model->shadowLength;
     }
 }
 
@@ -1298,13 +1298,13 @@ inline void shadow_Init(void)
     killShadow = 0;
     killShadowRequest = 0;
     for (obj = isysGObjGetExist_begin(); obj != 0; obj = isysGObjGetExist_next(obj)) {
-        char *node = *(char **)(obj + 0x15C);
+        Sub15C *node = GOBJ_SUB(obj);
         if (node != 0) {
-            char *dl = *(char **)(node + 0x854);
+            PObjModel *dl = node->model;
             if (dl != 0) {
-                char *x = *(char **)(node + 0x858);
+                PObjModel *x = node->shadow;
                 if (x != 0) {
-                    *(long long *)(x + 0x30) &= ~0x04000000;
+                    x->mode.bits &= ~0x04000000;
                 }
             }
         }

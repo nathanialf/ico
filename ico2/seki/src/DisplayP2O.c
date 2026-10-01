@@ -19,9 +19,9 @@ static int dispObjCount = -1; /* derived name */
 /* kept local: int here, int * in Basic.h */
 extern int dmaVif;
 
-void p2o_MakePacket(char *a0)
+void p2o_MakePacket(Sub15C *a0)
 {
-    *(char **)(*(char **)(a0 + 0x854) + 0x28) = a0;
+    a0->model->dobj = a0;
     pac_MakePacket(a0);
 }
 
@@ -29,7 +29,7 @@ inline void p2o_SetDefaultEnviroment(void) {}
 
 void p2o_DispShadowVolume(int a0)
 {
-    shadow_Render((int)((GObj *)(a0))->p_15C);
+    shadow_Render(((GObj *)a0)->p_15C);
 }
 
 void p2o_HideDispVU1(int a0)

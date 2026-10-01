@@ -114,11 +114,11 @@ static void dispCrown(char *gobj, char *acc)
     if (w->f28 != 0) {
         CopyMatrix(*(char **)((char *)w->f2C + 0xC), MatrixDrive_GetMatrix());
         CopyMatrix(*(char **)((char *)w->f30 + 0xC), MatrixDrive_GetMatrix());
-        reg_DispAccessoryWithShadow((char *)w->f30, (char *)GOBJ_SUB(gobj));
-        reg_DispAccessoryWithShadow((char *)w->f2C, (char *)GOBJ_SUB(gobj));
+        reg_DispAccessoryWithShadow((Sub15C *)w->f30, GOBJ_SUB(gobj));
+        reg_DispAccessoryWithShadow((Sub15C *)w->f2C, GOBJ_SUB(gobj));
     } else {
         CopyMatrix(*(char **)(acc + 0xC), MatrixDrive_GetMatrix());
-        reg_DispAccessoryWithShadow(acc, (char *)GOBJ_SUB(gobj));
+        reg_DispAccessoryWithShadow((Sub15C *)acc, GOBJ_SUB(gobj));
     }
 }
 
@@ -1828,7 +1828,7 @@ void GirlGeo(char *a0)
     int n1;
     float len;
     float ratio;
-    char *w;
+    Sub15C *w;
 
     HandManager(a0);
     ExecMotionOrient(a0);
@@ -1840,8 +1840,8 @@ void GirlGeo(char *a0)
         iosOmSendMail(a0, 6, a0);
         GirlAct_BoyAndMeCollisionMail(a0);
     } else {
-        w = (char *)GOBJ_SUB(a0);
-        if (*(int *)(w + 0x310) == 4 && *(int *)(w + 0x7C) != 0 && *(int *)(w + 0x3C8) != 0) {
+        w = GOBJ_SUB(a0);
+        if (w->f_310 == 4 && w->f_7C != 0 && *(int *)((char *)w + 0x3C8) != 0) {
             n0 = GetSkeltonFocusNode(boyGObj, 6);
             n1 = GetSkeltonFocusNode(a0, 0x16);
             sceVu0SubVector(v, (char *)GOBJ_SUB(boyGObj)->f_C + n0 * 64 + 0x30,

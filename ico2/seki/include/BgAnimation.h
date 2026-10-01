@@ -30,7 +30,10 @@ void bga_SetCamFrame(char *p, int frame, int mode);
 void bga_SetCameraForceOff(void);
 void bga_SetFrame();
 void bga_SetUniqAnimationFlag(int val);
-void bga_addLightning(int kind, char *a1, float *vec, int id, int t0, float f);
+
+struct BgaLightningDef;
+
+void bga_addLightning(int kind, struct BgaLightningDef *a1, float *vec, int id, int t0, float f);
 void bga_ResetCamera(void);
 int bga_GetCameraMatrix(void *p);
 void bga_InitBGA(void);

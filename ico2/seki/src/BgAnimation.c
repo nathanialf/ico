@@ -38,6 +38,23 @@ static BgaAnimDefault bgaAnimDefault = {
     {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 0, -1, 1, 0,
 };
 
+/* RECONSTRUCTION, read from the ROM: the head of a BGA file, its "BGA"
+   magic, the play state (-1 off, 0 held, 1 playing), the camera-cut flag, the
+   DObj list and the root list bga_InitData builds from it, the frame range,
+   the step and the current frame, and the animation record it allocates. */
+typedef struct BgaHeader { /* field names derived */
+    char magic[10];
+    signed char mode;     /* 0x0A */
+    char cut;             /* 0x0B */
+    int dobjs;            /* 0x0C */
+    int roots;            /* 0x10 */
+    float start;          /* 0x14 */
+    float end;            /* 0x18 */
+    float step;           /* 0x1C */
+    float frame;          /* 0x20 */
+    BgaAnimDefault *anim; /* 0x24 */
+} BgaHeader;
+
 static float bgaParticlePos[4] = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
 struct BgaLightEnv;
@@ -96,7 +113,7 @@ static int bgaUniqAnimationFlag = 1; /* derived name */
 
 static int bgaCameraForceOff = 0; /* derived name */
 
-static char *bgaLightningList = 0; /* derived name */
+static struct BgaLightning *bgaLightningList = 0; /* derived name */
 
 /* Listing rows 806-890 of BgAnimation.c: four static helpers the January
    link inlines whole into bga_InitData and that carry no symbol of their
@@ -127,16 +144,16 @@ static inline void bga_linkToParent(BgaDObjEnt *q, BgaDObjEnt *d, int no)
     } while (1);
 }
 
-static inline void bga_linkTree(char *p)
+static inline void bga_linkTree(BgaHeader *p)
 {
     BgaDObjEnt *d;
     int no;
 
-    d = (BgaDObjEnt *)*(int *)(p + 0xC);
+    d = (BgaDObjEnt *)p->dobjs;
     do {
         no = d->parent;
         if (no != -1) {
-            bga_linkToParent((BgaDObjEnt *)*(int *)(p + 0xC), d, no);
+            bga_linkToParent((BgaDObjEnt *)p->dobjs, d, no);
         }
         if (d->u.next == 0) {
             break;
@@ -145,12 +162,12 @@ static inline void bga_linkTree(char *p)
     } while (1);
 }
 
-static inline void bga_makeRootList(char *p)
+static inline void bga_makeRootList(BgaHeader *p)
 {
     BgaDObjEnt *d;
     int n;
 
-    d = (BgaDObjEnt *)*(int *)(p + 0xC);
+    d = (BgaDObjEnt *)p->dobjs;
     n = 0;
     do {
         if (d->parent == -1) {
@@ -158,13 +175,13 @@ static inline void bga_makeRootList(char *p)
         }
     } while ((d = (BgaDObjEnt *)d->u.next) != 0);
 
-    *(int *)(p + 0x10) = mallocseki((n + 1) * 4);
-    ((int *)*(int *)(p + 0x10))[n] = 0;
-    d = (BgaDObjEnt *)*(int *)(p + 0xC);
+    p->roots = mallocseki((n + 1) * 4);
+    ((int *)p->roots)[n] = 0;
+    d = (BgaDObjEnt *)p->dobjs;
     n = 0;
     do {
         if (d->parent == -1) {
-            ((int *)*(int *)(p + 0x10))[n] = (int)d;
+            ((int *)p->roots)[n] = (int)d;
             n++;
         }
         if (d->u.next == 0) {
@@ -181,9 +198,9 @@ void bga_ResetCamera(void);
 int bga_GetCameraMatrix(void *p);
 char *bga_InitSdfCamera(char *a0);
 void bga_SetCamFrame(char *data, int frame, int mode);
-int bga_CheckAnimationFinish(char *p);
-int bga_CheckAnimationFrame(char *p, int frame, int reset);
-int bga_CheckAnimationFrameIn(char *p, int in, int out);
+int bga_CheckAnimationFinish(BgaHeader *p);
+int bga_CheckAnimationFrame(BgaHeader *p, int frame, int reset);
+int bga_CheckAnimationFrameIn(BgaHeader *p, int in, int out);
 int bga_CheckSdfCameraFinish(char *data);
 int bga_CheckSdfCameraFrame(char *data, int frame, int reset);
 int bga_CheckSdfCameraFrameIn(char *data, int in, int out);
@@ -193,23 +210,23 @@ void bga_SetUniqAnimationFlag(int val);
 void bga_ResetAnimation(void);
 float bga_GetZoom(void);
 
-char *bga_InitData(char *p)
+char *bga_InitData(BgaHeader *p)
 {
     BgaDObjEnt *d;
     int i;
     unsigned int j;
     int k;
 
-    if (strncmp(p, "BGA", 3) != 0) {
+    if (strncmp(p->magic, "BGA", 3) != 0) {
         debug_StdPrintfDummy("this is not bga file.\n");
         debug_assert(__FILE__, 952);
         __assert(__FILE__, 952, "FALSE");
     }
-    *(int *)(p + 0xC) += (int)p;
-    p[0xA] = -1;
-    *(BgaAnimDefault **)(p + 0x24) = (BgaAnimDefault *)mallocseki(sizeof(BgaAnimDefault));
-    **(BgaAnimDefault **)(p + 0x24) = bgaAnimDefault;
-    d = (BgaDObjEnt *)*(int *)(p + 0xC);
+    p->dobjs += (int)p;
+    p->mode = -1;
+    p->anim = (BgaAnimDefault *)mallocseki(sizeof(BgaAnimDefault));
+    *p->anim = bgaAnimDefault;
+    d = (BgaDObjEnt *)p->dobjs;
     while (1) {
         d->f34 += (int)p;
         if (d->env != 0) {
@@ -270,7 +287,7 @@ char *bga_InitData(char *p)
     }
     bga_makeRootList(p);
     bga_linkTree(p);
-    return p;
+    return (char *)p;
 }
 
 typedef struct BgaSdfKey {
@@ -1262,22 +1279,6 @@ static inline float bga_palFrame(float f)
     return f;
 }
 
-/* The 0x50-byte per-node work record the object keeps at +0x870: the
-   envelope writes one float into it and sets the low bit of the flag word,
-   which is the union ico2/common/src/DObj.c reads and writes it through
-   (DObjFlags).  Field names are ours. */
-typedef struct BgaNodeWork {
-    /* 0x00 */ char pad00[0x30];
-    /* 0x30 */ float f30;
-    /* 0x34 */ int f34;
-    /* 0x38 */ union {
-        long long ll;
-        int i[2];
-    } f38;
-
-    /* 0x40 */ char pad40[0x10];
-} BgaNodeWork;
-
 /* Listing rows 1991-2001: step an envelope's motion by dt and, once it runs
    past its length (scaled for PAL, as bga_CalcSdfCamera scales it), wrap it
    to 0 when looping or hold it at the end.  The helper reads the entry's data
@@ -1315,9 +1316,9 @@ void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int a1, int a2)
         switch (e->type) {
         case 0:
             if (p->u.obj != 0) {
-                ((BgaNodeWork *)*(int *)((char *)p->u.obj + 0x870))[p->num].f30 =
+                ((Sub15C *)p->u.obj)->p_870[p->num].fade =
                     bga_GetExtMotion((BgaExtMotion *)e->data);
-                ((BgaNodeWork *)*(int *)((char *)p->u.obj + 0x870))[p->num].f38.ll |= 1;
+                ((Sub15C *)p->u.obj)->p_870[p->num].flags.ll |= 1;
                 bga_stepEnvelope(e, dt, a2);
             }
             break;
@@ -1360,7 +1361,7 @@ void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int a1, int a2)
             break;
         case 6:
             if (p->u.obj != 0) {
-                bga_GetGizmoMotion((BgaMotion *)e->data, *(float **)((char *)p->u.obj + 0x838));
+                bga_GetGizmoMotion((BgaMotion *)e->data, ((Sub15C *)p->u.obj)->morphWeight);
                 bga_stepEnvelope(e, dt, a2);
             }
             break;
@@ -1542,8 +1543,50 @@ extern void SetParamKyomiGObj(void *o, float *pos, float *scale);
 extern void RotCurrentQuaternionX(int a);
 extern void RotCurrentQuaternionY(int a);
 extern void RotCurrentQuaternionZ(int a);
+
+/* The lightning record bga_addLightning allocates: ten 0x20-byte segments,
+   the live segment count, the two flags, the frame, the definition it was
+   built from and the list link.  Field names are ours. */
+typedef struct BgaLightningSeg {
+    /* 0x00 */ float v[4];
+    /* 0x10 */ int key;
+    /* 0x14 */ int f14;
+    /* 0x18 */ int f18;
+    /* 0x1C */ int f1C;
+} BgaLightningSeg;
+
+/* The lightning definition the BGA file carries: the kind at +0x02 picks the
+   object the bolt is drawn against, the four bytes at +0x04 are its colour
+   and the ten floats from +0x08 are DrawLightningN's shape parameters. */
+typedef struct BgaLightningDef {
+    /* 0x00 */ short f00;
+    /* 0x02 */ short kind;
+    /* 0x04 */ unsigned char col[4];
+    /* 0x08 */ float f08;
+    /* 0x0C */ float f0C;
+    /* 0x10 */ float f10;
+    /* 0x14 */ float f14;
+    /* 0x18 */ float f18;
+    /* 0x1C */ float f1C;
+    /* 0x20 */ float f20;
+    /* 0x24 */ float f24;
+    /* 0x28 */ float f28;
+    /* 0x2C */ short f2C;
+    /* 0x2E */ short f2E;
+} BgaLightningDef;
+
+typedef struct BgaLightning { /* field names derived */
+    /* 0x000 */ BgaLightningSeg seg[10];
+    /* 0x140 */ int n;
+    /* 0x144 */ int id;
+    /* 0x148 */ int t0;
+    /* 0x14C */ float frame;
+    /* 0x150 */ BgaLightningDef *def;
+    /* 0x154 */ struct BgaLightning *next;
+} BgaLightning;
+
 /* kept local: BgAnimation.h does not compile in this TU (conflicting types for `bga_InitData') */
-extern void bga_addLightning(int kind, char *a1, float *vec, int id, int t0, float f);
+extern void bga_addLightning(int kind, BgaLightningDef *a1, float *vec, int id, int t0, float f);
 
 static inline void bga_checkCameraDistance(void)
 {
@@ -1809,41 +1852,41 @@ void bga_resetObjectCounter(BgaCntNode *o, float f, int a1)
 }
 
 /* kept local: BgAnimation.h does not compile in this TU (conflicting types for `bga_InitData') */
-extern void bga_CalcAnimation(char *p, int a1, int a2);
+extern void bga_CalcAnimation(BgaHeader *p, int a1, int a2);
 
-void bga_SetFrame(char *p, int frame, int mode, int a3)
+void bga_SetFrame(BgaHeader *p, int frame, int mode, int a3)
 {
     float f;
 
-    if (p[0xB]) {
+    if (p->cut) {
         GlobalTimer = 1;
         bgaStreamSync = 1;
         _CopyVector(bgaLastCameraPos, bgaCameraMatrix[3]);
     }
     switch (frame) {
     case 0:
-        *(float *)(p + 0x20) = bga_palFrame(*(float *)(p + 0x14));
-        p[0xA] = mode;
+        p->frame = bga_palFrame(p->start);
+        p->mode = mode;
         break;
     case -1:
-        debug_StdPrintfDummy("lws animation last %s\n", *(char **)(p + 0xC) + 4);
-        *(float *)(p + 0x20) = bga_palFrame(*(float *)(p + 0x18));
-        p[0xA] = mode;
+        debug_StdPrintfDummy("lws animation last %s\n", (char *)p->dobjs + 4);
+        p->frame = bga_palFrame(p->end);
+        p->mode = mode;
         break;
     case -2:
-        debug_StdPrintfDummy("lws animation off %s\n", *(char **)(p + 0xC) + 4);
-        *(float *)(p + 0x20) = bga_palFrame(*(float *)(p + 0x14));
-        p[0xA] = -1;
+        debug_StdPrintfDummy("lws animation off %s\n", (char *)p->dobjs + 4);
+        p->frame = bga_palFrame(p->start);
+        p->mode = -1;
         return;
     default:
         f = (float)frame;
-        *(float *)(p + 0x20) = bga_palFrame(f);
-        if (f < *(float *)(p + 0x14)) {
-            *(float *)(p + 0x20) = bga_palFrame(*(float *)(p + 0x14));
-        } else if (*(float *)(p + 0x18) < f) {
-            *(float *)(p + 0x20) = bga_palFrame(*(float *)(p + 0x18));
+        p->frame = bga_palFrame(f);
+        if (f < p->start) {
+            p->frame = bga_palFrame(p->start);
+        } else if (p->end < f) {
+            p->frame = bga_palFrame(p->end);
         }
-        p[0xA] = mode;
+        p->mode = mode;
         break;
     }
     bga_CalcAnimation(p, a3, 1);
@@ -1868,9 +1911,9 @@ typedef struct BgaAnimEnt {
     /* 0x28 */ int root;
 } BgaAnimEnt;
 
-#define BGA_ANIM_ENT(p) (*(BgaAnimEnt **)((p) + 0x24))
+#define BGA_ANIM_ENT(p) ((BgaAnimEnt *)(p)->anim)
 
-void bga_CalcAnimation(char *p, int a1, int a2)
+void bga_CalcAnimation(BgaHeader *p, int a1, int a2)
 {
     float m[4][4];
     float rm[4][4];
@@ -1879,11 +1922,11 @@ void bga_CalcAnimation(char *p, int a1, int a2)
     int f1;
     int f2;
 
-    if (p[0xA] == -1) {
+    if (p->mode == -1) {
         return;
     }
 
-    if (p[0xB]) {
+    if (p->cut) {
         bgaCameraActive = 1;
     }
 
@@ -1914,38 +1957,37 @@ void bga_CalcAnimation(char *p, int a1, int a2)
     MultiQuaternion(GetCurrentQuaternion(), GetCurrentQuaternion(), BGA_ANIM_ENT(p)->quat);
 
     for (i = 0;; i++) {
-        f2 = (p[0xA] == 1);
-        f1 = p[0xB] && f2;
-        o = (*(BgaCntNode ***)(p + 0x10))[i];
+        f2 = (p->mode == 1);
+        f1 = p->cut && f2;
+        o = ((BgaCntNode **)p->roots)[i];
         if (o == 0) {
             break;
         }
         PushQuaternion();
         _PushCurrentMatrix();
         if (a2 == 1) {
-            bga_resetObjectCounter(o, *(float *)(p + 0x20), a1);
+            bga_resetObjectCounter(o, p->frame, a1);
         }
-        bga_CalcObject((BgaDObjEnt *)o, *(float *)(p + 0x1C), *(float *)(p + 0x20), f1, f2, a1);
+        bga_CalcObject((BgaDObjEnt *)o, p->step, p->frame, f1, f2, a1);
         _PopCurrentMatrix();
         PopQuaternion();
     }
 
-    bgaFrame = (int)*(float *)(p + 0x20);
+    bgaFrame = (int)p->frame;
     if (a2) {
         return;
     }
 
-    if (p[0xA] == 1) {
-        float end = *(float *)(p + 0x18);
+    if (p->mode == 1) {
+        float end = p->end;
 
-        *(float *)(p + 0x20) += *(float *)(p + 0x1C);
-        if (systemStatus[0] ? end * 0.82812935f < *(float *)(p + 0x20)
-                            : end < *(float *)(p + 0x20)) {
+        p->frame += p->step;
+        if (systemStatus[0] ? end * 0.82812935f < p->frame : end < p->frame) {
             if (a1 == 0) {
-                *(float *)(p + 0x20) = bga_palFrame(*(float *)(p + 0x18));
-                p[0xA] = 0;
+                p->frame = bga_palFrame(p->end);
+                p->mode = 0;
             } else {
-                *(float *)(p + 0x20) = 0.0f;
+                p->frame = 0.0f;
             }
         }
     }
@@ -2055,29 +2097,29 @@ void bga_CalcSdfCamera(char *data, int loop)
     p->frame += 1.0f;
 }
 
-void bga_addLightning(int kind, char *a1, float *vec, int id, int t0, float f)
+void bga_addLightning(int kind, BgaLightningDef *a1, float *vec, int id, int t0, float f)
 {
-    char *p;
+    BgaLightning *p;
 
-    for (p = bgaLightningList; p != 0; p = *(char **)(p + 0x154)) {
-        if (*(int *)(p + 0x144) == id) {
+    for (p = bgaLightningList; p != 0; p = p->next) {
+        if (p->id == id) {
             switch (kind) {
             case 15:
-                *(short *)(a1 + 2) = -1;
+                a1->kind = -1;
                 /* FALLTHROUGH */
             case 14:
-                *(char **)(p + 0x150) = a1;
-                *(float *)(p + 0x14C) = f;
-                *(int *)(p + 0x148) = t0;
-                *(int *)(p + 0x10) = -1;
-                _CopyVector(p, vec);
+                p->def = a1;
+                p->frame = f;
+                p->t0 = t0;
+                p->seg[0].key = -1;
+                _CopyVector(p->seg[0].v, vec);
                 return;
             case 16: {
-                char *e = p + *(int *)(p + 0x140) * 0x20;
+                BgaLightningSeg *e = &p->seg[p->n];
 
-                *(int *)(e + 0x10) = *(short *)(a1 + 2);
-                _CopyVector(p + *(int *)(p + 0x140) * 0x20, vec);
-                *(int *)(p + 0x140) = *(int *)(p + 0x140) + 1;
+                e->key = a1->kind;
+                _CopyVector(p->seg[p->n].v, vec);
+                p->n = p->n + 1;
                 return;
             }
             default:
@@ -2088,29 +2130,29 @@ void bga_addLightning(int kind, char *a1, float *vec, int id, int t0, float f)
             }
         }
     }
-    p = iosMallocDebug(ios_partition_seki, 0x160, __FILE__, 2968);
-    *(char **)(p + 0x154) = bgaLightningList;
-    *(int *)(p + 0x144) = id;
-    *(int *)(p + 0x140) = 1;
+    p = iosMallocDebug(ios_partition_seki, 352, __FILE__, 2968);
+    p->next = bgaLightningList;
+    p->id = id;
+    p->n = 1;
     bgaLightningList = p;
     switch (kind) {
     case 15:
-        *(short *)(a1 + 2) = -1;
+        a1->kind = -1;
         /* FALLTHROUGH */
     case 14:
-        *(char **)(p + 0x150) = a1;
-        *(float *)(p + 0x14C) = f;
-        *(int *)(p + 0x148) = t0;
-        _CopyVector(p, vec);
+        p->def = a1;
+        p->frame = f;
+        p->t0 = t0;
+        _CopyVector(p->seg[0].v, vec);
         break;
     case 16: {
-        char *e = p + *(int *)(p + 0x140) * 0x20;
+        BgaLightningSeg *e = &p->seg[p->n];
 
-        *(int *)(e + 0x10) = *(short *)(a1 + 2);
-        _CopyVector(p + *(int *)(p + 0x140) * 0x20, vec);
-        *(int *)(p + 0x150) = 0;
-        _UnitVector(p);
-        *(int *)(p + 0x140) = *(int *)(p + 0x140) + 1;
+        e->key = a1->kind;
+        _CopyVector(p->seg[p->n].v, vec);
+        p->def = 0;
+        _UnitVector(p->seg[0].v);
+        p->n = p->n + 1;
         break;
     }
     default:
@@ -2120,47 +2162,6 @@ void bga_addLightning(int kind, char *a1, float *vec, int id, int t0, float f)
         break;
     }
 }
-
-/* The lightning record bga_addLightning allocates: ten 0x20-byte segments,
-   the live segment count, the two flags, the frame, the definition it was
-   built from and the list link.  Field names are ours. */
-typedef struct BgaLightningSeg {
-    /* 0x00 */ float v[4];
-    /* 0x10 */ int key;
-    /* 0x14 */ int f14;
-    /* 0x18 */ int f18;
-    /* 0x1C */ int f1C;
-} BgaLightningSeg;
-
-/* The lightning definition the BGA file carries: the kind at +0x02 picks the
-   object the bolt is drawn against, the four bytes at +0x04 are its colour
-   and the ten floats from +0x08 are DrawLightningN's shape parameters. */
-typedef struct BgaLightningDef {
-    /* 0x00 */ short f00;
-    /* 0x02 */ short kind;
-    /* 0x04 */ unsigned char col[4];
-    /* 0x08 */ float f08;
-    /* 0x0C */ float f0C;
-    /* 0x10 */ float f10;
-    /* 0x14 */ float f14;
-    /* 0x18 */ float f18;
-    /* 0x1C */ float f1C;
-    /* 0x20 */ float f20;
-    /* 0x24 */ float f24;
-    /* 0x28 */ float f28;
-    /* 0x2C */ short f2C;
-    /* 0x2E */ short f2E;
-} BgaLightningDef;
-
-typedef struct BgaLightning {
-    /* 0x000 */ BgaLightningSeg seg[10];
-    /* 0x140 */ int n;
-    /* 0x144 */ int f144;
-    /* 0x148 */ int f148;
-    /* 0x14C */ float frame;
-    /* 0x150 */ BgaLightningDef *def;
-    /* 0x154 */ struct BgaLightning *next;
-} BgaLightning;
 
 /* DrawLightningN reads the colour as four words, so it is a 16-byte record
    here and not four separate ints. */
@@ -2218,7 +2219,7 @@ void bga_DispLightning(void)
 
     cnt = 0;
     num = 0;
-    for (p = (BgaLightning *)bgaLightningList; p != 0; p = p->next) {
+    for (p = bgaLightningList; p != 0; p = p->next) {
         if (p->def->kind == 0) {
             list[num++] = p;
         }
@@ -2231,7 +2232,7 @@ void bga_DispLightning(void)
             if (isEnemyHyde(o) != 0) {
                 continue;
             }
-            if (*(int *)((char *)o + 0x16C) == 0) {
+            if (((GObj *)o)->f_16C == 0) {
                 continue;
             }
             cnt++;
@@ -2257,7 +2258,7 @@ void bga_DispLightning(void)
             z += 0.01f;
         }
     }
-    for (p = (BgaLightning *)bgaLightningList; p != 0; p = p->next) {
+    for (p = bgaLightningList; p != 0; p = p->next) {
         g = p->def;
         if (g == 0) {
             debug_StdPrintfDummy(
@@ -2267,7 +2268,7 @@ void bga_DispLightning(void)
             continue;
         }
         col = bga_lightningColor(g);
-        if (p->f148 != 0) {
+        if (p->t0 != 0) {
             continue;
         }
         switch (g->kind) {
@@ -2363,56 +2364,56 @@ inline void bga_SetCamFrame(char *data, int frame, int mode)
     }
 }
 
-inline int bga_CheckAnimationFinish(char *p)
+inline int bga_CheckAnimationFinish(BgaHeader *p)
 {
-    float f = *(float *)(p + 0x18);
-    float t = *(float *)(p + 0x20);
+    float f = p->end;
+    float t = p->frame;
     int r = 0;
 
     if (systemStatus[0]) {
-        if (f * 0.82812935f <= t || p[0xA] != 1) {
+        if (f * 0.82812935f <= t || p->mode != 1) {
             r = 1;
         }
     } else {
-        if (f <= t || p[0xA] != 1) {
+        if (f <= t || p->mode != 1) {
             r = 1;
         }
     }
     return r;
 }
 
-inline int bga_CheckAnimationFrame(char *p, int frame, int reset)
+inline int bga_CheckAnimationFrame(BgaHeader *p, int frame, int reset)
 {
     float f = frame;
-    float t = *(float *)(p + 0x20);
+    float t = p->frame;
     int r = 0;
 
     if (systemStatus[0]) {
-        if (f * 0.82812935f <= t || p[0xA] != 1) {
+        if (f * 0.82812935f <= t || p->mode != 1) {
             r = 1;
         }
     } else {
-        if (f <= t || p[0xA] != 1) {
+        if (f <= t || p->mode != 1) {
             r = 1;
         }
     }
     if (r && reset) {
-        p[0xA] = 0;
+        p->mode = 0;
     }
     return r;
 }
 
-inline int bga_CheckAnimationFrameIn(char *p, int in, int out)
+inline int bga_CheckAnimationFrameIn(BgaHeader *p, int in, int out)
 {
     float a = in;
-    float t = *(float *)(p + 0x20);
+    float t = p->frame;
     int r = 0;
 
     if (systemStatus[0] ? a * 0.82812935f <= t : a <= t) {
         float b = out;
 
         if (systemStatus[0] ? t < b * 0.82812935f : t < b) {
-            r = p[0xA] == 1;
+            r = p->mode == 1;
         }
     }
     return r;
@@ -2483,18 +2484,18 @@ inline void bga_SetUniqAnimationFlag(int val)
 
 inline void bga_ResetAnimation(void)
 {
-    void *p;
+    BgaLightning *p;
     bgaCameraActive = 0;
     if (systemStatus[5] != 0) {
         return;
     }
-    p = (void *)bgaLightningList;
+    p = bgaLightningList;
     bgaLightningList = 0;
     if (p == 0) {
         return;
     }
     do {
-        void *next = *(void **)((char *)p + 0x154);
+        BgaLightning *next = p->next;
         freeseki(p);
         p = next;
     } while (p != 0);

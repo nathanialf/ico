@@ -196,7 +196,7 @@ void *MatrixDrive_GetLastMatrix(void)
 /* kept local: matrixDrive.h does not compile in this TU (conflicting types for `UnitRotation') */
 extern void CopyVector(void *dst, void *src);
 
-void MatrixDrive_TransMatrixV(char *a0)
+void MatrixDrive_TransMatrixV(void *a0)
 {
     float buf[4];
     sceVu0ApplyMatrix((int *)buf, &matrixStack[matrixStackIndex * 0x40], (int)a0);

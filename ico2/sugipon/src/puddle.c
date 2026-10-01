@@ -142,7 +142,7 @@ void baseSetup(char *a0)
     gif_SetZTest(1);
     gif_EndPacket();
 
-    reg_RenderReflection(*(char **)(a0 + 0x15C), 4);
+    reg_RenderReflection(((GObj *)a0)->p_15C, 4);
 }
 
 /* the sprite rectangle drawAreaSetup blits the frame through, in GS primitive
@@ -386,7 +386,7 @@ void PuddleDL(char *a0)
     drawAreaSetup();
     _UnitMatrix(MatrixDrive_GetMatrix());
     CopyMatrix(*(void **)(p + 0xC), MatrixDrive_GetMatrix());
-    reg_RenderReflection(p, 4);
+    reg_RenderReflection((Sub15C *)p, 4);
     drawAreaRestore();
     leveldown(4);
     drawRipples(a0, 4);

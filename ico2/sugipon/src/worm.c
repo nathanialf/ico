@@ -11,11 +11,6 @@ void GetWormCaptureVector(void *out, void *act, void *node, float scale);
 /* the TU's one .sdata word (MAIN.MAP worm.o .sdata 0x4, no symbol) */
 static int wormFirst = 1; /* derived name */
 
-typedef union {
-    int i;
-    long long ll;
-} WormFlag;
-
 void disp(void *act);
 
 /* A 16-byte GS colour: four 8-bit RGBA components, one per word, handed to
@@ -411,9 +406,9 @@ void *InitWormGeo(int act, WormInit *ini)
     *(float *)(*(char **)((char *)d + 0x870) + 0x4) = 0.0f;
     *(float *)(*(char **)((char *)d + 0x870) + 0x0) = 0.0f;
 
-    *(float *)(*(char **)((char *)d + 0x870) + 0x28) = 1.0f;
-    *(float *)(*(char **)((char *)d + 0x870) + 0x24) = 1.0f;
-    *(float *)(*(char **)((char *)d + 0x870) + 0x20) = 1.0f;
+    d->p_870->scale[2] = 1.0f;
+    d->p_870->scale[1] = 1.0f;
+    d->p_870->scale[0] = 1.0f;
 
     if (d->f_C != 0) {
         iosFree(d->f_C & 0xFFFFFFF);
@@ -426,31 +421,30 @@ void *InitWormGeo(int act, WormInit *ini)
     d->f_C = (int)iosMallocDebug(ios_partition_seki, num * 0x40, __FILE__, 367);
     d->f_10 = (int)iosMallocDebug(ios_partition_seki, num * 0x10, __FILE__, 367);
     d->f_8 = num;
-    if (*(int *)((char *)d + 0x870) != 0) {
-        iosFree(*(int *)((char *)d + 0x870) & 0xFFFFFFF);
+    if ((int)d->p_870 != 0) {
+        iosFree((int)d->p_870 & 0xFFFFFFF);
     }
-    *(int *)((char *)d + 0x870) =
-        (int)iosMallocDebug(ios_partition_seki, num * 0x50, __FILE__, 367);
+    d->p_870 = iosMallocDebug(ios_partition_seki, num * 80, __FILE__, 367);
     {
         int n;
 
         for (n = 0; n < num; n++) {
-            ((WormFlag *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x38))->ll &= ~1;
-            ((WormFlag *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x38))->ll &= ~2;
-            *(float *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x40) = 0.0f;
-            *(float *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x44) = 0.0f;
-            *(float *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x48) = 0.0f;
-            *(float *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x4C) = 1.0f;
-            ((WormFlag *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x38))->ll &= ~4;
-            *(int *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x30) = 0;
-            *(float *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x34) = 1.0f;
-            *(short *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x3A) = 0;
-            *(float *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x20) = 1.0f;
-            *(float *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x24) = 1.0f;
-            *(float *)(*(char **)((char *)d + 0x870) + n * 0x50 + 0x28) = 1.0f;
+            d->p_870[n].flags.ll &= ~1;
+            d->p_870[n].flags.ll &= ~2;
+            d->p_870[n].pos[0] = 0.0f;
+            d->p_870[n].pos[1] = 0.0f;
+            d->p_870[n].pos[2] = 0.0f;
+            d->p_870[n].pos[3] = 1.0f;
+            d->p_870[n].flags.ll &= ~4;
+            d->p_870[n].fade = 0.0f;
+            d->p_870[n].alpha = 1.0f;
+            *(short *)((char *)&d->p_870[n] + 0x3A) = 0;
+            d->p_870[n].scale[0] = 1.0f;
+            d->p_870[n].scale[1] = 1.0f;
+            d->p_870[n].scale[2] = 1.0f;
         }
     }
-    *(short *)((char *)d + 0x84C) = 2;
+    d->dispType = 2;
 
     return w;
 }

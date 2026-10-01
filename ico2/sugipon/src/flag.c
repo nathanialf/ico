@@ -129,15 +129,15 @@ char *InitFlagGeo(char *self, char *arg)
     switch (type) {
     case 1:
     case 2:
-        FLAG_ALLOC_NODES((char *)((GObjSubSlot *)(self + 0x15C))->handle, *(int *)(cl + 0x8) - 1);
-        CopyVector((char *)((GObjSubSlot *)(self + 0x15C))->handle + 0xA0, ZeroPoint);
+        FLAG_ALLOC_NODES(((SubHandle *)(self + 0x15C))->sub, *(int *)(cl + 0x8) - 1);
+        CopyVector(((SubHandle *)(self + 0x15C))->p + 0xA0, ZeroPoint);
         CopyVector(mesh + 0x10, &v[0]);
         CopyVector(mesh + 0x20, &v[1]);
         *(int *)mesh = -1;
         *(float *)(mesh + 4) = k;
         *(int *)(p + 4) = InitClothes(cl);
         break;
-        /* 132-133 read the 0x15C slot through GObjSubSlot, as cage.c and
+        /* 132-133 read the 0x15C slot through SubHandle, as cage.c and
            girlForceField.c do: an alias-set-0 read, so each store in the
            block forces the re-read the ROM does and the buffer words keep
            their pointer types; the other slot reads here are GOBJ_SUB's */
@@ -217,8 +217,8 @@ char *InitFlagGeo(char *self, char *arg)
 
     GOBJ_SUB(self)->f_74 = 0;
 
-    *(int *)((char *)GOBJ_SUB(self)->p_870 + 0x0) = *(int *)((char *)GOBJ_SUB(self)->p_870 + 0x4) = *(int *)((char *)GOBJ_SUB(self)->p_870 + 0x8) = 0;
-    ((FlagNodeWord *)((char *)GOBJ_SUB(self)->p_870 + 0x20))->f = ((FlagNodeWord *)((char *)GOBJ_SUB(self)->p_870 + 0x24))->f = ((FlagNodeWord *)((char *)GOBJ_SUB(self)->p_870 + 0x28))->f = 1.0f;
+    GOBJ_SUB(self)->p_870->rot[0] = GOBJ_SUB(self)->p_870->rot[1] = GOBJ_SUB(self)->p_870->rot[2] = 0;
+    ((FlagNodeWord *)&GOBJ_SUB(self)->p_870->scale[0])->f = ((FlagNodeWord *)&GOBJ_SUB(self)->p_870->scale[1])->f = ((FlagNodeWord *)&GOBJ_SUB(self)->p_870->scale[2])->f = 1.0f;
 
     SetIdentityQuaternion((char *)GOBJ_SUB(self) + 0xD0);
 
@@ -302,12 +302,12 @@ void FlagDL(char *self)
         p2o_DispVU1Multi(self);
         break;
     case 0:
-        light_MakeLightMatrix((char *)GOBJ_SUB(self), 0);
+        light_MakeLightMatrix(GOBJ_SUB(self), 0);
         m = (char *)GOBJ_SUB(self)->p_874;
         DispClothMesh(*(char **)(o + 0x4), m + 0x40, m);
         break;
     case 4:
-        light_MakeLightMatrix((char *)GOBJ_SUB(self), 0);
+        light_MakeLightMatrix(GOBJ_SUB(self), 0);
         m = (char *)GOBJ_SUB(self)->p_874;
         DispClothMesh(*(char **)(o + 0x4), m + 0x40, m);
         break;

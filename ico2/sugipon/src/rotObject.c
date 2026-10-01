@@ -245,8 +245,8 @@ char *InitRotObjectGeo(char *gobj, char *src)
         CopyVector((char *)((RotObjWord *)(gobj + 0x15C))->i + 0xA0, ZeroPoint);
     }
     {
-        char *q = (char *)GOBJ_SUB(gobj)->p_870;
-        *(float *)(q + 0x20) = *(float *)(q + 0x24) = *(float *)(q + 0x28) = 1.0f;
+        struct DObjNode *q = GOBJ_SUB(gobj)->p_870;
+        q->scale[0] = q->scale[1] = q->scale[2] = 1.0f;
     }
     return p;
 }

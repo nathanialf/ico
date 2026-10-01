@@ -12,6 +12,8 @@
 #ifndef GEOMETRYMANAGER_H
 #define GEOMETRYMANAGER_H
 
+struct Sub15C;
+
 int CylinderCollision(char *self, int group, float r, float h, float s);
 
 int CylinderCollisionWithControlDynamics(char *self, int group, int ctrl, float r, float h,
@@ -29,7 +31,7 @@ void GetRootMatrixTransOffset(char *dst, char *src);
 void GetRootMotionOrient(char *a0, char *a1);
 void GetRootOrient(char *a0, char *a1);
 void GetRootPosition(void *a0, char *outer);
-void GetRootPositionByDObj(void *a0, char *src);
+void GetRootPositionByDObj(void *a0, struct Sub15C *src);
 void GetRootQuaternion(int a0, int a1);
 void GetRootQuaternionByDObj(int a0, int *a1);
 void GlobalizeGeometry(char *gobj);

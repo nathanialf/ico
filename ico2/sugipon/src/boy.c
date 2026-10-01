@@ -360,15 +360,15 @@ static Cloth4DCol tapeBoro2MeshCols[2] = {
    head, body and three crown display objects, the stonized state and its BG
    animation, the five cloths, the pool reflection mesh, the water drops and
    the drip state actionOfWater runs. */
-typedef struct BoyWork {
-    int crown;     /* 0x00, 1 or 2 picks crown1 or crown2, else crown0 */
-    char *head;    /* 0x04 */
-    Sub15C *body;  /* 0x08 */
-    char *crown0;  /* 0x0C */
-    char *crown1;  /* 0x10 */
-    char *crown2;  /* 0x14 */
-    int stone;     /* 0x18 */
-    int stoneAnim; /* 0x1C */
+typedef struct BoyWork { /* field names derived */
+    int crown;           /* 0x00, 1 or 2 picks crown1 or crown2, else crown0 */
+    Sub15C *head;        /* 0x04 */
+    Sub15C *body;        /* 0x08 */
+    char *crown0;        /* 0x0C */
+    char *crown1;        /* 0x10 */
+    char *crown2;        /* 0x14 */
+    int stone;           /* 0x18 */
+    int stoneAnim;       /* 0x1C */
     /* the cloth handles InitCloth4D returns, held as char *: typed Cloth4D * or
        void * their stores in InitBoyGeo move across the 0x554 store (measured) */
     char *mantle;           /* 0x20 */
@@ -607,7 +607,7 @@ BoyWork *InitBoyGeo(char *gobj, void *csv)
     p->tapeBoro1 = (char *)InitCloth4D(gobj, &tapeBoro1Mesh, 0);
     p->tapeBoro2 = (char *)InitCloth4D(gobj, &tapeBoro2Mesh, 0);
     *(int *)(*(char **)(gobj + 0x15C) + 0x554) = 1;
-    w->head = CSVSYSTEM_InitDObj(2, csv);
+    w->head = (Sub15C *)CSVSYSTEM_InitDObj(2, csv);
     w->body = (Sub15C *)CSVSYSTEM_InitDObj(3, csv);
     if (w->body->f_C != 0) {
         iosFree(w->body->f_C & 0xFFFFFFF);
@@ -617,32 +617,32 @@ BoyWork *InitBoyGeo(char *gobj, void *csv)
     }
     w->body->f_C = 0;
     w->body->f_10 = 0;
-    w->body->f_C = (int)iosMallocDebug(ios_partition_seki, 0x80, "src/boy.c", 291);
-    w->body->f_10 = (int)iosMallocDebug(ios_partition_seki, 0x20, "src/boy.c", 291);
+    w->body->f_C = (int)iosMallocDebug(ios_partition_seki, 128, "src/boy.c", 291);
+    w->body->f_10 = (int)iosMallocDebug(ios_partition_seki, 32, "src/boy.c", 291);
     w->body->f_8 = 2;
     if ((int)w->body->p_870 != 0) {
         iosFree((int)w->body->p_870 & 0xFFFFFFF);
     }
-    w->body->p_870 = iosMallocDebug(ios_partition_seki, 0xA0, "src/boy.c", 291);
+    w->body->p_870 = iosMallocDebug(ios_partition_seki, 160, "src/boy.c", 291);
     for (i = 0; i < 2; i++) {
-        ((DlFlag *)(i * 0x50 + (int)w->body->p_870 + 0x38))->ll &= ~1;
-        ((DlFlag *)(i * 0x50 + (int)w->body->p_870 + 0x38))->ll &= ~2;
-        *(float *)(i * 0x50 + (int)w->body->p_870 + 0x40) = 0.0f;
-        *(float *)(i * 0x50 + (int)w->body->p_870 + 0x44) = 0.0f;
-        *(float *)(i * 0x50 + (int)w->body->p_870 + 0x48) = 0.0f;
-        *(float *)(i * 0x50 + (int)w->body->p_870 + 0x4C) = 1.0f;
-        ((DlFlag *)(i * 0x50 + (int)w->body->p_870 + 0x38))->ll &= ~4;
-        *(float *)(i * 0x50 + (int)w->body->p_870 + 0x30) = 0.0f;
-        *(float *)(i * 0x50 + (int)w->body->p_870 + 0x34) = 1.0f;
-        *(short *)(i * 0x50 + (int)w->body->p_870 + 0x3A) = 0;
-        *(float *)(i * 0x50 + (int)w->body->p_870 + 0x20) = 1.0f;
-        *(float *)(i * 0x50 + (int)w->body->p_870 + 0x24) = 1.0f;
-        *(float *)(i * 0x50 + (int)w->body->p_870 + 0x28) = 1.0f;
+        ((struct DObjNode *)(i * 80 + (int)w->body->p_870))->flags.ll &= ~1;
+        ((struct DObjNode *)(i * 80 + (int)w->body->p_870))->flags.ll &= ~2;
+        ((struct DObjNode *)(i * 80 + (int)w->body->p_870))->pos[0] = 0.0f;
+        ((struct DObjNode *)(i * 80 + (int)w->body->p_870))->pos[1] = 0.0f;
+        ((struct DObjNode *)(i * 80 + (int)w->body->p_870))->pos[2] = 0.0f;
+        ((struct DObjNode *)(i * 80 + (int)w->body->p_870))->pos[3] = 1.0f;
+        ((struct DObjNode *)(i * 80 + (int)w->body->p_870))->flags.ll &= ~4;
+        ((struct DObjNode *)(i * 80 + (int)w->body->p_870))->fade = 0.0f;
+        ((struct DObjNode *)(i * 80 + (int)w->body->p_870))->alpha = 1.0f;
+        *(short *)(i * 80 + (int)w->body->p_870 + 0x3A) = 0;
+        ((struct DObjNode *)(i * 80 + (int)w->body->p_870))->scale[0] = 1.0f;
+        ((struct DObjNode *)(i * 80 + (int)w->body->p_870))->scale[1] = 1.0f;
+        ((struct DObjNode *)(i * 80 + (int)w->body->p_870))->scale[2] = 1.0f;
     }
-    w->body->f_84C = 2;
+    w->body->dispType = 2;
     w->crown0 = CSVSYSTEM_InitDObj(1, csv);
-    w->crown1 = CSVSYSTEM_InitDObj(0xF, csv);
-    w->crown2 = CSVSYSTEM_InitDObj(0x10, csv);
+    w->crown1 = CSVSYSTEM_InitDObj(15, csv);
+    w->crown2 = CSVSYSTEM_InitDObj(16, csv);
     (*(BoyWork **)(*(char **)(gobj + 0x15C) + 0x830))->crown = 0;
     sceVu0UnitMatrix(w->crown0 + 0x20);
     InitMotionOrient(gobj, 0, 0x503, 0, 0xC, 0);
@@ -777,8 +777,8 @@ void dispSubParts(char *gobj)
     char *c;
     int node;
 
-    a = w->head;
-    node = GetSkeltonFocusNode(gobj, 0x23);
+    a = (char *)w->head;
+    node = GetSkeltonFocusNode(gobj, 35);
     CopyMatrix(*(char **)(a + 0xC), (char *)GOBJ_SUB(gobj)->f_C + (node << 6));
     p2o_DispVU1DObj(w->head);
     a = (char *)w->body;
@@ -810,7 +810,7 @@ void dispCrown(char *gobj)
     CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(gobj)->f_C + (node << 6));
     MatrixDrive_RotMatrixX(-0x8000);
     CopyMatrix(*(char **)(obj + 0xC), MatrixDrive_GetMatrix());
-    reg_DispAccessoryWithShadow(obj, (char *)GOBJ_SUB(gobj));
+    reg_DispAccessoryWithShadow((Sub15C *)obj, GOBJ_SUB(gobj));
 }
 
 inline void SetBoyStonizedVisual(char *a0)
@@ -832,7 +832,7 @@ void BoyDL(char *gobj)
     char quat[0x10];
     BoyWork *w = GOBJ_SUB(gobj)->f_830;
     PoolMesh *m;
-    char *sub;
+    Sub15C *sub;
     int r;
 
     ExecutePauseSlipProc(gobj);
@@ -853,9 +853,9 @@ void BoyDL(char *gobj)
     }
     if (stage_no == 0x27 && 20.0f < GOBJ_SUB(gobj)->f_644 && GOBJ_SUB(gobj)->f_648 != 0 &&
         CheckPoolHasGridMesh((char *)GOBJ_SUB(gobj)->f_648) == 0) {
-        sub = (char *)GOBJ_SUB(gobj);
-        m = (PoolMesh *)(*(char **)(sub + 0x830) + 0x34);
-        SetLimitedPoolReflactionMesh(m, *(int *)(sub + 0x648), gobj);
+        sub = GOBJ_SUB(gobj);
+        m = (PoolMesh *)(sub->f_830 + 0x34);
+        SetLimitedPoolReflactionMesh(m, sub->f_648, gobj);
         DispLimitedPoolReflactionMesh(m);
     }
     DispWaterDot((int)w->waterDot);

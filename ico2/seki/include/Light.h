@@ -13,6 +13,7 @@
 #define LIGHT_H
 
 #include <libvu0.h>
+#include "typedef.h"
 
 /* RECONSTRUCTION: the per-object light matrix record at *(Sub15C + 0x874)
  * (typedef.h's Sub15C keeps the slot as void *).  Rung: ROM bytes for every
@@ -48,9 +49,9 @@ void light_DispVolume(void);
 void light_DrawCursor(float *dir, int mode);
 void light_GetColorAnalog(float *col);
 void light_KillAllFixLight(void);
-void light_MakeLightMatrix(char *a, int b);
-void light_getAmbientLight(char *a, int b);
-void light_getNearLight(char *a, int b);
+void light_MakeLightMatrix(Sub15C *a, int b);
+void light_getAmbientLight(Sub15C *a, int b);
+void light_getNearLight(Sub15C *a, int b);
 void light_killLinkAmbient();
 void light_killLinkLight(char *node);
 void light_resetFlatLight(void);
