@@ -140,11 +140,11 @@ int checkWaterfallResult(float *out)
         return 1;
     }
     if (r0 == 1) {
-        if (*(void **)(*(char **)((char *)boyGObj + 0x15C)) != 0 &&
-            *(int *)((char *)*(void **)(*(char **)((char *)boyGObj + 0x15C)) + 0xC) == 17) {
-            t.f[0] = (test_CURRENTROOT(*(void **)(*(char **)((char *)boyGObj + 0x15C))))[0];
-            t.f[1] = (test_CURRENTROOT(*(void **)(*(char **)((char *)boyGObj + 0x15C))))[1];
-            t.f[2] = (test_CURRENTROOT(*(void **)(*(char **)((char *)boyGObj + 0x15C))))[2];
+        if (*(void **)((char *)GOBJ_SUB(boyGObj)) != 0 &&
+            *(int *)((char *)*(void **)((char *)GOBJ_SUB(boyGObj)) + 0xC) == 17) {
+            t.f[0] = (test_CURRENTROOT(*(void **)((char *)GOBJ_SUB(boyGObj))))[0];
+            t.f[1] = (test_CURRENTROOT(*(void **)((char *)GOBJ_SUB(boyGObj))))[1];
+            t.f[2] = (test_CURRENTROOT(*(void **)((char *)GOBJ_SUB(boyGObj))))[2];
         } else {
             return 1;
         }
@@ -257,7 +257,7 @@ void subGirlBrain_Attract(volatile int a0)
         } else if (*(int *)((char *)cur + 0xC) == 16) {
             return 1;
         } else if (GOBJ_ACT(boyGObj)->unk34 == 49 &&
-                   *(int *)GOBJ_SUB(girlGObj) == *(int *)((char *)GOBJ_ACT(boyGObj) + 0x158)) {
+                   *(int *)GOBJ_SUB(girlGObj) == (int)GOBJ_ACT(boyGObj)->box) {
             return 2;
         }
         return 3;
@@ -274,7 +274,7 @@ restart:
     switch (kind) {
     case 0:
         type = 1;
-        param = *(int *)((char *)GOBJ_ACT(boyGObj) + 0x61C);
+        param = GOBJ_ACT(boyGObj)->f_61C;
         break;
     case 1:
         type = 1;
@@ -299,12 +299,12 @@ restart:
         tgt = attractSofaParam;
         tgt.obj = cur;
         GetSofaPosition(girlGObj, (char *)param);
-        tgt.pos[0] = *(float *)((char *)sub + 0x5B0);
-        tgt.pos[1] = *(float *)((char *)sub + 0x5B4);
-        tgt.pos[2] = *(float *)((char *)sub + 0x5B8);
-        ((GirlSofaWork *)GOBJ_ACT(a0)->f_680)->pos[0] = *(float *)((char *)sub + 0x5B0);
-        ((GirlSofaWork *)GOBJ_ACT(a0)->f_680)->pos[1] = *(float *)((char *)sub + 0x5B4);
-        ((GirlSofaWork *)GOBJ_ACT(a0)->f_680)->pos[2] = *(float *)((char *)sub + 0x5B8);
+        tgt.pos[0] = sub->f_5B0;
+        tgt.pos[1] = sub->f_5B4;
+        tgt.pos[2] = sub->f_5B8;
+        ((GirlSofaWork *)GOBJ_ACT(a0)->f_680)->pos[0] = sub->f_5B0;
+        ((GirlSofaWork *)GOBJ_ACT(a0)->f_680)->pos[1] = sub->f_5B4;
+        ((GirlSofaWork *)GOBJ_ACT(a0)->f_680)->pos[2] = sub->f_5B8;
         _GetRootObjectOrient(((GirlSofaWork *)GOBJ_ACT(a0)->f_680)->dir, param);
         tgt.dir[0] = ((GirlSofaWork *)GOBJ_ACT(a0)->f_680)->dir[0];
         tgt.dir[1] = ((GirlSofaWork *)GOBJ_ACT(a0)->f_680)->dir[1];
@@ -335,9 +335,9 @@ restart:
             far = 1;
         }
         if (!ACTGame_FLAG_TETSUNAGI()) {
-            *(unsigned long long *)((char *)sub + 0x20) |= 0x2000000000ULL;
+            sub->flags20.ll |= 0x2000000000ULL;
         }
-        if (type == 0 && tgt.obj == (void *)boyGObj && *(int *)(GOBJ_ACT(a0)->f_688 + 0x380) != 0) {
+        if (type == 0 && tgt.obj == (void *)boyGObj && GOBJ_WORK(a0)->f_380 != 0) {
             noTurn = 0;
         }
         if (*(int *)GOBJ_SUB(a0) != 0 && *(int *)(*(int *)GOBJ_SUB(a0) + 0xC) == 17 &&
@@ -348,7 +348,7 @@ restart:
             hint = 1;
             escape = 1;
         }
-        if ((int)(*(unsigned long long *)((char *)sub + 0x20) >> 38) & 1) {
+        if ((int)(sub->flags20.ll >> 38) & 1) {
             hint = 1;
         }
         if (0 < brain_val.f_590C) {
@@ -378,7 +378,7 @@ restart:
             } else {
                 GetRootProjectionPosOfGObj(tgt.pos, tgt.obj);
             }
-            if ((int)(*(unsigned long long *)((char *)GOBJ_ACT(boyGObj) + 0x20) >> 43) & 1) {
+            if ((int)(GOBJ_ACT(boyGObj)->flags20.ll >> 43) & 1) {
                 float wp[4];
 
                 switch (checkWaterfallResult(wp)) {
@@ -406,8 +406,7 @@ restart:
             }
         }
         if (boyGObj != 0 && GOBJ_ACT(boyGObj)->unk34 == 49) {
-            if (tgt.obj == (void *)boyGObj ||
-                tgt.obj == *(void **)((char *)GOBJ_ACT(boyGObj) + 0x158)) {
+            if (tgt.obj == (void *)boyGObj || tgt.obj == GOBJ_ACT(boyGObj)->box) {
                 GirlBrainClearTarget((void *)a0, &tgt);
             }
         }
@@ -448,8 +447,7 @@ restart:
                 ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)a0, v, 1);
             }
         }
-        if (((int)(*(unsigned long long *)((char *)sub + 0x18) >> 62) & 1) && type == 0 &&
-            tgt.obj == (void *)boyGObj) {
+        if (((int)(sub->flags18.ll >> 62) & 1) && type == 0 && tgt.obj == (void *)boyGObj) {
             if (sub->f_350 == 7) {
                 if (!(_DistSqGV(test_CURRENTROOT(boyGObj), test_CURRENTROOT(girlGObj)) <
                       10000.0f)) {
@@ -460,7 +458,7 @@ restart:
         switch (sub->f_350) {
         case 0:
             _ACTLookTarget_Set((void *)a0, 0, 0, 6, 1);
-            *(float *)((char *)sub + 0x34C) = 0.0f;
+            sub->f_34C = 0.0f;
             setMode(6);
             break;
         case 1: {
@@ -491,12 +489,12 @@ restart:
                     break;
                 }
             } else if (type == 1) {
-                if (tgt.obj != (void *)boyGObj && *(int *)(GOBJ_ACT(a0)->f_688 + 0x3A4) != 0) {
+                if (tgt.obj != (void *)boyGObj && GOBJ_WORK(a0)->f_3A4 != 0) {
                     setMode(8);
-                    *(float *)((char *)sub + 0x34C) = 0.0f;
+                    sub->f_34C = 0.0f;
                     break;
                 }
-                if (type == 1 && ((int)(*(unsigned long long *)((char *)sub + 0x20) >> 12) & 1) &&
+                if (type == 1 && ((int)(sub->flags20.ll >> 12) & 1) &&
                     _DistSqGV(test_CURRENTROOT((void *)a0), tgt.pos) < 40000.0f) {
                     setMode(2);
                     break;
@@ -504,7 +502,7 @@ restart:
             }
             if (p == 0) {
                 setMode(2);
-            } else if ((int)(*(unsigned long long *)((char *)sub + 0x3F0) >> 17) & 1) {
+            } else if ((int)((unsigned long long)sub->f_3F0 >> 17) & 1) {
                 setMode(2);
             } else if (hint) {
                 setMode(2);
@@ -516,25 +514,22 @@ restart:
                 } else {
                     margin = 0.0f;
                 }
-                sub->f_120 = *(float *)((char *)sub + 0x3E0);
-                sub->f_124 = *(float *)((char *)sub + 0x3E4);
-                sub->f_128 = *(float *)((char *)sub + 0x3E8);
+                sub->dir[0] = sub->f_3E0;
+                sub->dir[1] = sub->f_3E4;
+                sub->dir[2] = sub->f_3E8;
                 if (waterHit) {
-                    if (*(float *)((char *)sub + 0x3F8) < 50.0f &&
-                        *(float *)((char *)sub + 0x3FC) < tgt.f_2C) {
+                    if (sub->f_3F8 < 50.0f && sub->f_3FC < tgt.f_2C) {
                         setMode(4);
-                        *(float *)((char *)sub + 0x34C) = 0.0f;
-                    } else if (*(float *)((char *)sub + 0x3F8) < 300.0f) {
+                        sub->f_34C = 0.0f;
+                    } else if (sub->f_3F8 < 300.0f) {
                         girlBrainSetWalkRatio((void *)a0, 0.5f);
                     } else {
                         ratio = far ? 1.0f : girlBrainGetTypeRatio(type2);
                         girlBrainSetWalkRatio((void *)a0, ratio);
                     }
                 } else {
-                    if (*(float *)((char *)sub + 0x3F8) < tgt.f_28 + margin &&
-                        ((*(float *)((char *)sub + 0x3FC) < 0.0f)
-                             ? -*(float *)((char *)sub + 0x3FC)
-                             : *(float *)((char *)sub + 0x3FC)) < tgt.f_2C) {
+                    if (sub->f_3F8 < tgt.f_28 + margin &&
+                        ((sub->f_3FC < 0.0f) ? -sub->f_3FC : sub->f_3FC) < tgt.f_2C) {
                         if (tgt.f_50) {
                             if (ATGoalTurnMail((void *)a0, tgt.dir, 0x23)) {
                                 noTurn = 0;
@@ -543,16 +538,13 @@ restart:
                         if (noTurn) {
                             setMode(4);
                         } else {
-                            *(float *)((char *)sub + 0x34C) = 0.0f;
+                            sub->f_34C = 0.0f;
                         }
                     } else {
                         ratio = far ? 1.0f : girlBrainGetTypeRatio(type2);
                         girlBrainSetWalkRatio((void *)a0, ratio);
-                        if (*(float *)((char *)sub + 0x3F8) < tgt.f_54) {
-                            *(float *)((char *)sub + 0x34C) =
-                                (0.5f < *(float *)((char *)sub + 0x34C))
-                                    ? 0.5f
-                                    : *(float *)((char *)sub + 0x34C);
+                        if (sub->f_3F8 < tgt.f_54) {
+                            sub->f_34C = (0.5f < sub->f_34C) ? 0.5f : sub->f_34C;
                         }
                     }
                 }
@@ -580,10 +572,10 @@ restart:
                 }
             }
             if (tgt.obj != 0 && IsTopHint(tgt.obj) &&
-                ((int)(*(unsigned long long *)((char *)sub + 0x3F0) >> 18) & 1)) {
+                ((int)((unsigned long long)sub->f_3F0 >> 18) & 1)) {
                 hintCnt = hintCnt + ((GirlStatusAttr *)actModeTbl)[GOBJ_ACT(a0)->unk34].b4;
                 if ((60 - systemStatus[0] * 10) / systemStatus[1] * 4 < hintCnt) {
-                    *(float *)((char *)sub + 0x34C) = 0.0f;
+                    sub->f_34C = 0.0f;
                 }
                 if ((60 - systemStatus[0] * 10) / systemStatus[1] * 5 < hintCnt) {
                     setMode(2);
@@ -612,7 +604,7 @@ restart:
                     }
                 }
                 if (tgt.obj == (void *)boyGObj && sub->f_350 == 2 && escape == 0 &&
-                    *(int *)(GOBJ_ACT(a0)->f_688 + 0x3B0) == 0 && girlControlMode == 0 &&
+                    GOBJ_WORK(a0)->f_3B0 == 0 && girlControlMode == 0 &&
                     brain_val.targetFlag != 0) {
                     girlAttractTurnMailR((void *)a0, tgt.pos, mypos);
                     if (sub->unk34 == 77) {
@@ -623,9 +615,8 @@ restart:
                 _ACTLookTarget_Set((void *)a0, 0, 0, 6, 1);
                 setMode(8);
             }
-            if (((int)(*(unsigned long long *)((char *)sub + 0x18) >> 63) & 1) ||
-                (*(int *)((char *)sub + 0x20) & 1)) {
-                *(unsigned long long *)((char *)sub + 0x20) |= 2;
+            if (((int)(sub->flags18.ll >> 63) & 1) || (*(int *)((char *)sub + 0x20) & 1)) {
+                sub->flags20.ll |= 2;
             }
             break;
         case 4:
@@ -640,7 +631,7 @@ restart:
                             ((tgt.obj != 0 && IsTopHint(tgt.obj))
                                  ? (60 - systemStatus[0] * 10) / systemStatus[1] * 2
                                  : 0)) {
-                *(float *)((char *)sub + 0x34C) = 0.0f;
+                sub->f_34C = 0.0f;
                 if (tgt.obj != 0 && IsTopHint(tgt.obj) && girlControlMode == 0) {
                     girlAttractTurnMailL((void *)a0, tgt.obj, tgt.pos, mypos);
                     if (((GirlStatusAttr *)actModeTbl)[GOBJ_ACT(a0)->unk34].b3) {

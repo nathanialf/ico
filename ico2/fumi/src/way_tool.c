@@ -22,6 +22,7 @@
 #include <string.h>
 #include "way_util.h"
 #include "way_tool.h"
+#include "main.h"
 
 /* way_tool.o .data +0x00: the scratch world position the tool builds a point
    at; the fourth word is the homogeneous 1.0f. */
@@ -30,9 +31,6 @@ static float wayWorkPos[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 /* the way point the tool has picked, -1 for none: point_delete sets it,
    point_nige moves it and set_way_point_color highlights it */
 static int wayPointSel = -1; /* derived name */
-
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
 
 /* .sbss, owned by way_tool.o (MAIN.MAP names no symbol in the run), in the ROM's run order: the way
    record the tool is showing, the group the selection window is on, the camera
@@ -94,7 +92,7 @@ int group_create(void)
         createState = 1;
         current_select_gid = g;
         selectedWay = &way_group[g];
-        debug_StdPrintfDummy("search:%p %p\n", isysGObjSearchFromObjKindID_begin(0), boyGObj);
+        debug_StdPrintfDummy("search:%p %p\n", isysGObjSearchFromObjKindID_begin(0), (int)boyGObj);
         return 0;
     }
     if (createState != 1) {
@@ -583,9 +581,6 @@ static WayCol wayColorClosedOther = {{0x40, 0x40, 0x00, 0x40}};
 
 static WayCol wayColorBridge = {{0xFF, 0x00, 0xFF, 0xFF}};
 
-/* kept local: unsigned int here, int in main.h */
-extern unsigned int frame_count;
-
 static inline void set_way_point_color(WayPoint *p, WayCol *col)
 {
     WayCol *d = &wayDrawCol;
@@ -597,7 +592,7 @@ static inline void set_way_point_color(WayPoint *p, WayCol *col)
     } else {
         *d = *col;
     }
-    if (p->f30 != 0 && (frame_count & 0x10)) {
+    if (p->f30 != 0 && (((unsigned int)frame_count) & 0x10)) {
         *d = wayColorBlink;
     }
 }
@@ -611,7 +606,7 @@ void draw_way_group(int g, WayCol *col)
     float *q;
 
     memset(&blink, 0, 16);
-    blink.f[1] = (float)frame_count * 0.116355285f;
+    blink.f[1] = (float)((unsigned int)frame_count) * 0.116355285f;
     m = blink;
 
     p = e->f8;
@@ -654,7 +649,7 @@ void way_toolDL(int a0)
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
 
     memset(&blink, 0, 16);
-    blink.f[1] = (float)frame_count * 0.116355285f;
+    blink.f[1] = (float)((unsigned int)frame_count) * 0.116355285f;
     m = blink;
     SetVObjRT(&m, wayWorkPos);
     DrawVObj(0, &wayColorCursor);
@@ -688,8 +683,8 @@ void way_toolDL(int a0)
     }
     MatrixDrive_PopMatrix();
 
-    GetRootPosition(&blink, boyGObj);
-    GetRootProjectionPosOfGObj(&pp, boyGObj);
+    GetRootPosition(&blink, (int)boyGObj);
+    GetRootProjectionPosOfGObj(&pp, (int)boyGObj);
     w = visible_waypoint_of_all(&pp);
     if (w != 0) {
         ez_circle(w->pos, &blink, 0x80800080, 20.0f);
@@ -710,8 +705,6 @@ WayMenu debugWayMenu[9] = {{"group + create", group_create},  {"      + select",
                            {"quick save", quick_save_wpfile}, {"quick load", quick_load_wpfile},
                            {"save text", wp_print_out}};
 
-/* kept local: int here, GObj * in main.h */
-extern int CurrentTargetGObj;
 extern char iosPadConfDefault[];
 
 int debug_WayTool(void)
@@ -735,11 +728,11 @@ int debug_WayTool(void)
     }
 
     if (first_waytool == 1) {
-        savedCamTarget = CurrentTargetGObj;
+        savedCamTarget = (int)CurrentTargetGObj;
         CurrentTargetGObj = (int)cursorGObj;
         GetRootPosition(pos, savedCamTarget);
-        SetDirectRootPosition((void *)CurrentTargetGObj, pos);
-        Camctrl_SetTarget(CurrentTargetGObj, 0, 3);
+        SetDirectRootPosition((void *)((int)CurrentTargetGObj), pos);
+        Camctrl_SetTarget((int)CurrentTargetGObj, 0, 3);
         first_waytool = 2;
     }
 
@@ -757,7 +750,7 @@ int debug_WayTool(void)
             first_waytool = 1;
             menuState = 1;
             CurrentTargetGObj = savedCamTarget;
-            Camctrl_SetTarget(CurrentTargetGObj, 0, 3);
+            Camctrl_SetTarget((int)CurrentTargetGObj, 0, 3);
             return -1;
         default:
             first_waytool = 1;
@@ -789,7 +782,7 @@ inline void cursor_control(volatile int a0)
     while (1) {
         iosPadRead((char *)w + 0x2D8);
 
-        if (a0 == CurrentTargetGObj && (w->unk2E4 & 1)) {
+        if (a0 == (int)CurrentTargetGObj && (w->unk2E4 & 1)) {
             ACTDebugMove(a0, 1);
         }
         _ACTWait(1);

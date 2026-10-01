@@ -23,6 +23,7 @@
 #include "thread.h"
 #include "act-game.h"
 #include "obj_manager.h"
+#include "libgraph.h"
 
 /* main.c's own .data, VMA 0x0028F4C0..0x0028FEB8 (0x9F8 B), the six globals
    MAIN.MAP lists for main.o in ROM order. Each has an initialiser: the ROM
@@ -113,8 +114,6 @@ static const ThreadTbl allThreads = {{mainThread, schedulerThread, mcThread, cdv
  * DImode `dli` the assembler expands into the adjacent lui/ori pair the ROM has. */
 void idle(void);
 void scheduler(void);
-/* kept local: void (int) here, int (void) in libgraph.h */
-extern void sceGsSyncV(int mode);
 extern char movieFile[];
 /* gsb_ResetSnap and gsb_TakeSnap return a value the callers drop, and the ROM
    proves it here: the load that follows each of the two calls takes $3, not

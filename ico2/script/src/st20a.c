@@ -138,7 +138,7 @@ void actSt20aBridgeDown(volatile int a0)
 
 void actSt20aGondolaDown(volatile int a0)
 {
-    Act *sub = (Act *)*(int *)(a0 + 0x164);
+    Act *sub = GOBJ_ACT(a0);
 
     SetGirlDangerGObj(boyGObj);
     scpAdpcmPlayRequestFunc(69, &gondola_down, 1, 1, 1);
@@ -172,7 +172,7 @@ void actSt20aGondolaDown(volatile int a0)
 
 void actSt20aGondolaUp(volatile int a0)
 {
-    Act *sub = (Act *)*(int *)(a0 + 0x164);
+    Act *sub = GOBJ_ACT(a0);
 
     scpAdpcmPlayRequestFunc(70, &gondola_up, 1, 1, 1);
     while (gondola_up == 0) {
@@ -260,7 +260,7 @@ void actSt20aFence(volatile int a0)
 
 void actSt20aFenceDownChk(volatile int a0)
 {
-    Act *sub = (Act *)*(int *)(a0 + 0x164);
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpTriggerBall(a0, scpSearchGobj(2022), 5.0f) == 0) {
         _ACTWait(1);
@@ -289,7 +289,7 @@ void actSt20aFenceDownChk(volatile int a0)
 
 void actSt20aFenceUpChk(volatile int a0)
 {
-    Act *sub = (Act *)*(int *)(a0 + 0x164);
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpTriggerBall(a0, scpSearchGobj(2022), 5.0f) != 0) {
         _ACTWait(1);
@@ -318,7 +318,7 @@ void actSt20aFenceUpChk(volatile int a0)
 
 void actSt20aFenceDownChk2(volatile int a0)
 {
-    Act *sub = (Act *)*(int *)(a0 + 0x164);
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpTriggerBall(a0, scpSearchGobj(2024), 5.0f) == 0) {
         _ACTWait(1);
@@ -347,7 +347,7 @@ void actSt20aFenceDownChk2(volatile int a0)
 
 void actSt20aFenceUpChk2(volatile int a0)
 {
-    Act *sub = (Act *)*(int *)(a0 + 0x164);
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpTriggerBall(a0, scpSearchGobj(2024), 5.0f) != 0) {
         _ACTWait(1);
@@ -535,7 +535,7 @@ void actSt20aGirlPos(volatile int a0)
 /* the actor entry's parameter is its frame home: the thread switch writes it */
 void actSt20aBridgeMain(volatile int a0)
 {
-    *(char **)(*(int *)(a0 + 0x164) + 0xD0) = (char *)bridgeMain_mes;
+    *(char **)((int)GOBJ_ACT(a0) + 0xD0) = (char *)bridgeMain_mes;
     scpBoyControlReadDisable = 0;
     while (1) {
         _ACTWait(1);
@@ -544,7 +544,7 @@ void actSt20aBridgeMain(volatile int a0)
 
 void actSt20aBridgeSwitch(volatile int a0)
 {
-    Act *sub = (Act *)*(int *)(a0 + 0x164);
+    Act *sub = GOBJ_ACT(a0);
 
     scpBoyControlReadDisable = 1;
     bridgeSwitch_mes[0].func = actSt20aBridgeDown;
@@ -588,7 +588,7 @@ void actSt20aGondolaMain(volatile int a0)
 
 void actSt20aGondolaSwitch(volatile int a0)
 {
-    Act *sub = (Act *)*(int *)(a0 + 0x164);
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = 0;
     lt_switch_layout(55);

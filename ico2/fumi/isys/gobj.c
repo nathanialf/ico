@@ -275,7 +275,7 @@ static __inline__ GObj *allocGObjEntry(void)
     /* the entry's address as the ROM forms it, the scaled index first:
        integer arithmetic on the table's address, not &gobjTable[i] */
     g = (GObj *)(i * sizeof(GObj) + (int)gobjTable);
-    g->p_164 = 0;
+    g->act = 0;
     g->f_170 = 0;
     return g;
 }

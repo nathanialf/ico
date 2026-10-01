@@ -250,7 +250,7 @@ void MakeAttackPack_Actor(AttackPack *pack, char *gobj, void *weapon)
                 pack->radius1 = pack->radius1 * 4.0f;
             }
             if (*(int *)(gobj + 0xC) == 4) {
-                if ((*(int *)(GOBJ_ACT(gobj)->f_680 + 0x210) & 1) != 0) {
+                if ((*(int *)((char *)GOBJ_ACT(gobj)->f_680 + 0x210) & 1) != 0) {
                     pack->f01 = 1;
                 }
             }
@@ -467,7 +467,7 @@ int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
         break;
 
     case 4:
-        hitR = (int)(*(float *)(GOBJ_ACT(gobj)->f_680 + 0x1E0) * 30.0f);
+        hitR = (int)(GOBJ_ACT(gobj)->f_680->bodySize * 30.0f);
         i = 0;
         break;
 

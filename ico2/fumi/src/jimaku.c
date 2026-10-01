@@ -2,6 +2,7 @@
 #include "message.h"
 #include "thread.h"
 #include "Texture.h"
+#include "main.h"
 
 struct jNode {
     char _0[4];
@@ -36,9 +37,6 @@ static int jimakuReadSema[13];
 static int jimakuShownSema[13];
 
 static int jimakuFrameSema[13];
-
-/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting differ) */
-extern int systemStatus[];
 
 #include "jimaku.h"
 #include "gflag.h"
@@ -88,8 +86,6 @@ static int jimakuDispOn = 0; /* derived name */
 
 int jimakuOn = 1;
 
-/* kept local: unsigned char [] here, StageSetting in main.h */
-extern unsigned char GlobalStageSetting[];
 /* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetGsReg differ) */
 extern void gif_StartPacketPri(int pri);
 /* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
@@ -133,9 +129,9 @@ void display_texture(JimTex *t)
     gif_SetGsReg(74, 0);
     gif_SetZWrite(0);
     gif_SetZTest(0);
-    col.r = ~GlobalStageSetting[0xD0];
-    col.g = ~GlobalStageSetting[0xD4];
-    col.b = ~GlobalStageSetting[0xD8];
+    col.r = ~GlobalStageSetting.reductionCol[0];
+    col.g = ~GlobalStageSetting.reductionCol[1];
+    col.b = ~GlobalStageSetting.reductionCol[2];
     gif_SpriteSensitiveOffset(dst, 0xFFFFFF9B, src, &col, 1);
     gif_SetZWrite(1);
     gif_SetZTest(1);
@@ -198,8 +194,6 @@ int jimakuHandler(int self, JimakuArg *p)
     return 0;
 }
 
-/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting differ) */
-extern int NonLinearCameraMove;
 extern char jimakuFileName[][32];
 
 void jimakuMgrBegin(JimakuArg *p)
@@ -263,8 +257,6 @@ void jimakuMgrBegin(JimakuArg *p)
     }
 }
 
-/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting differ) */
-extern int lock_execIcoMisc;
 extern void __assert(char *file, int line, char *expr);
 
 /* The DEBUG build's switch to print the way groups' states after each Next
@@ -428,9 +420,6 @@ void jimakuEnd(JimakuArg *msg)
     systemStatus[10] = 0;
     jimakuMgrEnd();
 }
-
-/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting differ) */
-extern int lock_execIcoMisc;
 
 /* the 0x70-byte layout-texture property records (LtProperty in
    src/layout_texture.c); jimaku owns entries 434 and 435. */

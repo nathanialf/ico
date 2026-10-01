@@ -18,6 +18,7 @@
 #include "Matrix.h"
 #include "gobj.h"
 #include "way_kidnap.h"
+#include "main.h"
 
 /* .sdata, owned by backStage.o (VMA 0x63ACF0..0x63ACFC): the enemy the heroine is
    carried off by, then backStageProcessOutStage's "%d\n" (MAIN.MAP global). */
@@ -103,8 +104,6 @@ static float nestPos[4];
 
 /* kept local: agrees with gamesys.h, which this TU does not include (gameSysObjInfo, gamesysMemoryHandlerRead differ) */
 extern int gamesysAnotherStageTsuresari;
-/* kept local: agrees with main.h, which this TU does not include (girlGObj differ) */
-extern int stage_no;
 
 static int wayKidnap; /* the carrier walks the waypoint route instead of a generator */
 
@@ -119,15 +118,11 @@ extern void SetInfoSpKidnapEnemy(int *work);
 extern int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3);
 /* kept local: agrees with gamesys.h, which this TU does not include (gameSysObjInfo, gamesysMemoryHandlerRead differ) */
 extern void gamesysObjInfoCls(int kind, int no);
-/* kept local: agrees with main.h, which this TU does not include (girlGObj differ) */
-extern int systemStatus[];
 /* kept local with gamesys.h's declaration, which this TU does not include */
 /* kept local: agrees with gamesys.h, which this TU does not include (gameSysObjInfo, gamesysMemoryHandlerRead differ) */
 extern int gamesysStageExitTime[];
 /* kept local: unsigned int here, int in gamesys.h */
 extern unsigned int gamesysTimeCount;
-/* kept local: int here, GObj * in main.h */
-extern int girlGObj;
 
 inline void backStageProcessInit(void)
 {
@@ -213,11 +208,11 @@ void backStageProcessOutStage(void)
             kidnapState = 1;
             enemySec = (float)((StageInfoRec *)(stageData + stage_no * 0x194))->wayBits;
             kidnapTime = (int)(enemySec * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
-            if (WayPointWithRangeFromPos2(a.f, *(char **)(girlGObj + 0x164) + 0x360, nestPos, 1) ==
+            if (WayPointWithRangeFromPos2(a.f, (char *)GOBJ_ACT(girlGObj) + 0x360, nestPos, 1) ==
                 0) {
                 /* no ACTIVE connection was found */
                 debug_StdPrintfDummy("繋がりACTIVEでみつからなかった");
-                if (WayPointWithRangeFromPos2(a.f, *(char **)(girlGObj + 0x164) + 0x360, nestPos,
+                if (WayPointWithRangeFromPos2(a.f, (char *)GOBJ_ACT(girlGObj) + 0x360, nestPos,
                                               0) == 0) {
                     /* no connection was found, so the nest is placed at the heroine */
                     debug_StdPrintfDummy("繋がりみつからなかったのでヒロインの位置に巣を配置");
@@ -387,7 +382,7 @@ static inline void kidnapWarpToWaypoint(int gobj, float range)
     }
     k = (n * (rand() & 0xFFFF)) >> 16;
     CopyWpPos(wp.f, k, k);
-    wp.f[1] = wp.f[1] - *(float *)(*(int *)(*(int *)(gobj + 0x15C) + 0x8C) + 0x14);
+    wp.f[1] = wp.f[1] - *(float *)(GOBJ_SUB(gobj)->f_8C + 0x14);
     SetDirectRootPosition(gobj, wp.f);
 }
 
@@ -463,9 +458,7 @@ void backStageProcessInStage(float arg)
                     }
                     debug_StdPrintfDummy("set pos %f %f %f\n", pos.f[0], pos.f[1], pos.f[2]);
                     pos.f[1] =
-                        pos.f[1] -
-                        *(float *)(*(int *)(*(int *)(backStageGirlTargetEnemyGop + 0x15C) + 0x8C) +
-                                   0x14);
+                        pos.f[1] - *(float *)(GOBJ_SUB(backStageGirlTargetEnemyGop)->f_8C + 0x14);
                     SetDirectRootPosition(backStageGirlTargetEnemyGop, pos.f);
                 }
             }

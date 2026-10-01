@@ -568,8 +568,8 @@ void initParentLink(int id)
                 __assert(__FILE__, 502, "0");
             }
             debug_StdPrintfDummy("Parentize \"%s\"\n", lay);
-            *(int *)(*(int *)(self + 0x15C)) = parent;
-            *(int *)(*(int *)(self + 0x15C) + 4) = 0;
+            *(int *)((int)GOBJ_SUB(self)) = parent;
+            *(int *)((int)GOBJ_SUB(self) + 4) = 0;
         } else {
             /* tried to make "%s" a parent-child link, but the parent cannot be found */
             debug_StdPrintfDummy("\"%s\"の親子関係づけをしようとしましたが、親が見つかりません。\n",

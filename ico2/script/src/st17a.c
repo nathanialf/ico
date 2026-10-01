@@ -12,6 +12,7 @@
 #include "e3.h"
 #include "typedef.h"
 #include "script.h"
+#include "main.h"
 
 static ActMail linkTest_mes[2] = {{430}, {429}};
 
@@ -47,11 +48,6 @@ static const ConstVec doorDownEffect2Pos = {{6600.0f, -2000.0f, 1100.0f, 1.0f}};
 
 static const ConstVec hasiChkSePos = {{3587.0f, -2072.0f, 1124.0f, 0.0f}};
 
-/* kept local: int * here, GObj * in main.h */
-extern int *boyGObj;
-/* kept local: void * here, GObj * in main.h */
-extern void *girlGObj;
-
 void actSt17aDoor(volatile int a0)
 {
     int x = a0;
@@ -66,8 +62,8 @@ void actSt17aDoor(volatile int a0)
         self->mail = doorInit_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
-    } else if (scpTriggerBall(a0, boyGObj, 200.0f) != 0 ||
-               (girlGObj != 0 && scpTriggerBall(a0, girlGObj, 400.0f) != 0)) {
+    } else if (scpTriggerBall(a0, ((int *)boyGObj), 200.0f) != 0 ||
+               ((void *)girlGObj != 0 && scpTriggerBall(a0, (void *)girlGObj, 400.0f) != 0)) {
         stage_SetLoopFlag(131, 1);
         stage_SetAnimation(131, 1, 0);
 
@@ -170,24 +166,19 @@ void actSt17aDoorDownChk(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: void * here, int in main.h */
-extern void *boyPad;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, boyPad differ) */
-extern int systemStatus[];
-
 void actSt17aHasiChk(volatile int a0)
 {
-    if (girlGObj == 0) {
+    if ((void *)girlGObj == 0) {
         _ACTWait(0);
     }
 
     while (1) {
-        if ((*(int *)(*(int *)((char *)girlGObj + 0x164) + 0x34) != 0x6F && girlGObj != 0 &&
-             scpTriggerFloorAttr(girlGObj, 0x1000000) != 0 &&
-             scpTriggerFloorAttr(boyGObj, 0x2000000) != 0) ||
-            (*(int *)(*(int *)((char *)girlGObj + 0x164) + 0x34) != 0x6F && girlGObj != 0 &&
-             scpTriggerFloorAttr(girlGObj, 0x4000000) != 0 &&
-             scpTriggerFloorAttr(boyGObj, 0x2000000) != 0)) {
+        if ((GOBJ_ACT(girlGObj)->unk34 != 0x6F && (void *)girlGObj != 0 &&
+             scpTriggerFloorAttr((void *)girlGObj, 0x1000000) != 0 &&
+             scpTriggerFloorAttr(((int *)boyGObj), 0x2000000) != 0) ||
+            (GOBJ_ACT(girlGObj)->unk34 != 0x6F && (void *)girlGObj != 0 &&
+             scpTriggerFloorAttr((void *)girlGObj, 0x4000000) != 0 &&
+             scpTriggerFloorAttr(((int *)boyGObj), 0x2000000) != 0)) {
             break;
         }
         _ACTWait(1);
@@ -195,7 +186,7 @@ void actSt17aHasiChk(volatile int a0)
 
     gflagOn(33);
 
-    iosPadActRequest(boyPad, 0xF);
+    iosPadActRequest((void *)boyPad, 0xF);
     SetWayGroupActive(3, 0);
 
     scpSearchGobj(243)->f16C = 0;
@@ -209,7 +200,7 @@ void actSt17aHasiChk(volatile int a0)
     if (ACTGame_FLAG_TETSUNAGI() == 0) {
         long long buf[2];
 
-        scpPlayStart(girlGObj);
+        scpPlayStart((void *)girlGObj);
 
         stage_SetAnimation(132, 1, 0);
 
@@ -217,21 +208,21 @@ void actSt17aHasiChk(volatile int a0)
         buf[1] = hasiChkSePos.d[1];
         soundSeDefPlay(1290, 0, (float *)buf, 1);
 
-        scpPlayMot(girlGObj, 723);
-        scpPlayWaitMotEnd(girlGObj);
+        scpPlayMot((void *)girlGObj, 723);
+        scpPlayWaitMotEnd((void *)girlGObj);
 
-        scpPlayMot(girlGObj, 532);
+        scpPlayMot((void *)girlGObj, 532);
         GOBJ_SUB(girlGObj)->f_514 =
             (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
 
-        scpPlayEnd(girlGObj);
+        scpPlayEnd((void *)girlGObj);
 
         scpBoyControlReadDisable = 0;
     } else {
         long long buf2[2];
 
-        scpPlayStart(boyGObj);
-        scpPlayStart(girlGObj);
+        scpPlayStart(((int *)boyGObj));
+        scpPlayStart((void *)girlGObj);
 
         stage_SetAnimation(132, 1, 0);
 
@@ -239,15 +230,15 @@ void actSt17aHasiChk(volatile int a0)
         buf2[1] = hasiChkSePos.d[1];
         soundSeDefPlay(1290, 0, (float *)buf2, 1);
 
-        scpPlayMot(boyGObj, 262);
-        scpPlayMot(girlGObj, 722);
-        scpPlayWaitMotEnd(boyGObj);
+        scpPlayMot(((int *)boyGObj), 262);
+        scpPlayMot((void *)girlGObj, 722);
+        scpPlayWaitMotEnd(((int *)boyGObj));
 
-        scpPlayEnd(boyGObj);
-        scpPlayEnd(girlGObj);
+        scpPlayEnd(((int *)boyGObj));
+        scpPlayEnd((void *)girlGObj);
 
-        scpPlayMot(boyGObj, 0);
-        scpPlayMot(girlGObj, 532);
+        scpPlayMot(((int *)boyGObj), 0);
+        scpPlayMot((void *)girlGObj, 532);
         GOBJ_SUB(girlGObj)->f_514 =
             (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
     }
@@ -311,9 +302,6 @@ void actSt17aHasiEffect(volatile int a0)
         }
     } while (t < 1000.0f);
 }
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, boyPad differ) */
-extern PadState pad[];
 
 /* .sbss, owned by st17a.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
@@ -445,8 +433,8 @@ void actSt17aSekizoEvent(int x)
 
 void actLinkTestChk(volatile int a0)
 {
-    *(int *)(boyGObj[0x57] + 0x4E8) = 1;
-    *(int *)(boyGObj[0x57] + 0x4E8) = 0;
+    *(int *)(((int *)boyGObj)[0x57] + 0x4E8) = 1;
+    *(int *)(((int *)boyGObj)[0x57] + 0x4E8) = 0;
     scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
     _ACTWait(60);
 }
@@ -534,12 +522,12 @@ void actSt17aGirlWay(volatile int a0)
 {
     EffectArg buf = {{1547.0f, -2070.0f, 1495.0f, 0.0f}};
 
-    _SCPMoveCharactorByWay(girlGObj, 0, buf.f, 100.0f, 2);
+    _SCPMoveCharactorByWay((void *)girlGObj, 0, buf.f, 100.0f, 2);
 }
 
 void actSt17aHint1Chk(volatile int a0)
 {
-    while (scpTriggerBall(a0, boyGObj, 200.0f) == 0) {
+    while (scpTriggerBall(a0, ((int *)boyGObj), 200.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -551,11 +539,11 @@ void actSt17aHint1Chk(volatile int a0)
 
 void actSt17aFallChk(volatile int a0)
 {
-    while (!(gflagChk(33) && scpTriggerBall(a0, boyGObj, 1800.0f))) {
+    while (!(gflagChk(33) && scpTriggerBall(a0, ((int *)boyGObj), 1800.0f))) {
         _ACTWait(1);
     }
 
     debug_StdPrintfDummy("FAAAAALL!\n");
 
-    iosOmSendMail(boyGObj, 0xE2, boyGObj);
+    iosOmSendMail(((int *)boyGObj), 0xE2, ((int *)boyGObj));
 }

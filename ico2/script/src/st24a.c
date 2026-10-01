@@ -43,8 +43,7 @@ void actSt24aSwordChk(volatile int self)
     float dir[4];
     char *th;
 
-    while ((*(int *)(*(int *)((char *)boyGObj + 0x164) + 0x2E4) & 0x20) == 0 ||
-           scpTriggerBall(self, boyGObj, 100.0f) == 0) {
+    while ((GOBJ_ACT(boyGObj)->unk2E4 & 0x20) == 0 || scpTriggerBall(self, boyGObj, 100.0f) == 0) {
         _ACTWait(1);
     }
     lt_switch_layout(55);

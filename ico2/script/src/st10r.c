@@ -947,9 +947,9 @@ void actSt10rExitChk(volatile int a0)
 
 void actSt10rChainMain(volatile int a0)
 {
-    int sub = *(int *)(a0 + 0x164);
+    Act *sub = GOBJ_ACT(a0);
 
-    *(int *)(sub + 0xD0) = (int)chain_main_mes;
+    *(int *)((int)sub + 0xD0) = (int)chain_main_mes;
     while (1) {
         _ACTWait(1);
     }

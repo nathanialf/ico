@@ -77,13 +77,13 @@ inline void actSt08bKuren(volatile int a0)
 
 inline void actSt08bKurenMain(volatile int a0)
 {
-    int sub = *(int *)(a0 + 0x164);
+    Act *sub = GOBJ_ACT(a0);
 
     scpBoyControlReadDisable = 0;
     if (girlGObj != 0) {
         scpPlayEnd(girlGObj);
     }
-    *(int *)(sub + 0xD0) = (int)kurenMain_mes;
+    *(int *)((int)sub + 0xD0) = (int)kurenMain_mes;
     while (1) {
         _ACTWait(1);
     }
@@ -158,7 +158,7 @@ void actSt08bKurenSwitch(volatile int a0)
             } else {
                 p2.ll[0] = kurenSwitch2Pos.d[0];
                 p2.ll[1] = kurenSwitch2Pos.d[1];
-                p2.f[1] += *(float *)(*(int *)((int)GOBJ_SUB(girlGObj) + 0x8C) + 0x14);
+                p2.f[1] += *(float *)(GOBJ_SUB(girlGObj)->f_8C + 0x14);
                 SetDirectRootPosition(girlGObj, &p2);
             }
         }
@@ -167,7 +167,7 @@ void actSt08bKurenSwitch(volatile int a0)
 
     if (girlGObj != 0) {
         GetRootPosition(&p1, girlGObj);
-        *(float *)((int)GOBJ_SUB(girlGObj) + 0x254) = p1.f[1];
+        GOBJ_SUB(girlGObj)->f_254 = p1.f[1];
     }
 
     while (stage_CheckAnimationFrame(370, frame, 1) == 0) {

@@ -108,13 +108,13 @@ static int colObjListNum = 0; /* derived name */
 void MakeCollisionDependGObjList(void)
 {
     char *g;
-    char *sub;
+    Sub15C *sub;
 
     colObjListNum = 0;
     for (g = isysGObjGetExist_begin(); g != 0; g = isysGObjGetExist_next()) {
-        sub = (char *)GOBJ_SUB(g);
-        if (sub != 0 && *(int *)(sub + 0x70) != 0 && *(int *)(g + 0x16C) != 0 &&
-            *(int *)(g + 0x4) == 1 && *(int *)(g + 0x8) >= 0 && *(int *)(sub + 0x74) != 0) {
+        sub = GOBJ_SUB(g);
+        if ((char *)sub != 0 && sub->f_70 != 0 && *(int *)(g + 0x16C) != 0 &&
+            *(int *)(g + 0x4) == 1 && *(int *)(g + 0x8) >= 0 && sub->f_74 != 0) {
             colObjList[colObjListNum] = g;
             colObjListNum = colObjListNum + 1;
         }
@@ -1508,13 +1508,13 @@ void DrawGObjFloorCollision(char *gobj, int col)
     if (GOBJ_SUB(gobj)->f_80 != 0) {
         n = GOBJ_SUB(gobj)->f_8;
     }
-    cd = *(char **)((char *)GOBJ_SUB(gobj) + 0x70);
+    cd = (char *)GOBJ_SUB(gobj)->f_70;
     gif_StartPacketPri(11);
     MatrixDrive_PushMatrix();
     gif_SetAlpha(1, 5, 0);
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     for (i = 0; i < n; i++) {
-        CopyMatrix(MatrixDrive_GetMatrix(), *(char **)((char *)GOBJ_SUB(gobj) + 0xC) + (i << 6));
+        CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(gobj)->f_C + (i << 6));
         if (GOBJ_SUB(gobj)->f_78 == 0) {
             UnitRotation(MatrixDrive_GetMatrix());
         }

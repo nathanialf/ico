@@ -40,6 +40,7 @@
 #include "obj_manager.h"
 #include "camera-root.h"
 #include "act-game.h"
+#include "main.h"
 
 extern int debug_bar_flag;
 
@@ -252,18 +253,6 @@ static int seEnvMute = 0; /* derived name */
 
 static int diskErrorBlink = 0; /* derived name */
 
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int graphics_ready;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int stage_no;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int fall_death_active;
-/* kept local: char * here, GObj * in main.h */
-extern char *boyGObj;
-/* kept local: char * here, GObj * in main.h */
-extern char *girlGObj;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int systemStatus[];
 /* debug_Printf comes from debug.h */
 extern void ExecParticleEffects(void);
 extern void ExecStreamMotionManager(void);
@@ -356,12 +345,12 @@ void ExecIcoMisc(void)
     eBrainProcess();
     if (fall_death_active != 0) {
         if (boyGObj != 0) {
-            if (*(float *)(*(char **)(boyGObj + 0x15C) + 0x55C) > 1000.0f) {
+            if (GOBJ_SUB(boyGObj)->f_55C > 1000.0f) {
                 lt_switch_layout(62);
             }
         }
         if (girlGObj != 0) {
-            if (*(float *)(*(char **)(girlGObj + 0x15C) + 0x55C) > 1000.0f) {
+            if (GOBJ_SUB(girlGObj)->f_55C > 1000.0f) {
                 lt_switch_layout(62);
             }
         }
@@ -396,20 +385,6 @@ extern const ScnPre motionKind[];
    ROM's schedule shows (RTX_UNCHANGING_P, see the printf site in the scan loop) */
 extern const EffEnt motionEffKind[];
 extern char particleEffectFile[][0x50];
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int systemStatus[];
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int debugMoveMode;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int motionFrameUpdate;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int thisIsYourStartStage;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int frame_count;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int graphics_ready;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int stage_no;
 
 static unsigned char setActorsDebugPending = 1; /* derived name */
 

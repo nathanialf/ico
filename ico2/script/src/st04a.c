@@ -32,6 +32,7 @@
 #include "Matrix.h"
 #include "script.h"
 #include "jimaku.h"
+#include "main.h"
 
 /* kept local: this TU's bytes only come out with its own view of Act, so it
    keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
@@ -59,13 +60,6 @@ typedef struct PObjGObjSt04A {
     char pad168[0x4];  /* 0x168 */
     int f16C;          /* 0x16C */
 } PObjGObjSt04A;
-
-/* kept local: char * here, GObj * in main.h */
-extern char *boyGObj;
-/* kept local: char * here, GObj * in main.h */
-extern char *girlGObj;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int systemStatus[];
 
 /* .data, owned by st04a.o, in the ROM's order ahead of model_on and model_off
    (MAIN.MAP sizes the member's run 0x160 in the January link): each action's
@@ -148,9 +142,6 @@ int gate1 = 0;
 static int demoEnd;
 
 static int conte09_3Running;
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern PadState pad[];
 
 void actSt04aGateChk(volatile int a0)
 {
@@ -341,9 +332,6 @@ void actSt04aGateChk(volatile int a0)
 
     stgmgrNextStagePreLoadDistBoyMode();
 }
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int boyPad;
 
 void actSt04aConte06(volatile int a0)
 {
@@ -2068,7 +2056,7 @@ void finishCallBackFunc(int a0)
     _NormalizeVector((int)GOBJ_SUB(a0) + 0x520, (int)&v);
 
     for (i = 0; i < GOBJ_SUB(a0)->f_88; i++) {
-        *(Mtx44 *)(*(int *)((int)GOBJ_SUB(a0) + 0x80C) + i * 64) = jointMtxInit;
+        *(Mtx44 *)(GOBJ_SUB(a0)->p_80C + i * 64) = jointMtxInit;
     }
 }
 
@@ -2188,7 +2176,7 @@ void actSt04aGirlSitChk(volatile int a0)
     while (gflagChk(140) == 0) {
         _ACTWait(1);
     }
-    ((ActStatus *)(*(char **)(girlGObj + 0x164) + 0x20))->ll |= 0x10000;
+    ((ActStatus *)((char *)GOBJ_ACT(girlGObj) + 0x20))->ll |= 0x10000;
     n = 0;
     for (;;) {
         if ((int)(GOBJ_ACT(girlGObj)->flags20.ll >> 20) & 1) {

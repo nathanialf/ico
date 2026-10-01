@@ -1,10 +1,13 @@
+#include "typedef.h"
 #include "debug.h"
 #include "commonact.h"
 #include "gv.h"
 #include "item.h"
 #include <libvu0.h>
 #include "act-wish.h"
+#include "act-game.h"
 #include "boyact.h"
+#include "main.h"
 
 /* The wish/flag words the pad handler ORs into the actor's sub-record are a
    64-bit word that the engine also reads a word at a time; declaring them as
@@ -28,17 +31,6 @@ typedef union {
    pointer alias set, gcc CSEs the three loads into one and hoists it into the
    line-586 branch delay slot -- two instructions short of ROM. */
 
-/* kept local: char * here, GObj * in main.h */
-extern char *boyGObj;
-/* kept local: char * here, GObj * in main.h */
-extern char *girlGObj;
-/* kept local: void * here, int in main.h */
-extern void *girlControlMode;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlControlMode differ) */
-extern int optionControlType;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlControlMode differ) */
-extern int systemStatus[];
-
 static inline unsigned char chkOrient(char *s, float *dir, float *w, float deg)
 {
     float *q = (float *)(s + 0x4B0);
@@ -60,255 +52,250 @@ void ACTGetWish_FromPad(char *a0, float *a1)
     float u[4];
     float p[4];
     char *o;
-    char *s = (char *)*(int *)(a0 + 0x164);
+    Act *s = GOBJ_ACT(a0);
     float deg;
 
     v[0] = test_CURRENTROOT(a0)[0];
     v[1] = test_CURRENTROOT(a0)[1];
     v[2] = test_CURRENTROOT(a0)[2];
 
-    WISH(s + 0x488) |= 1ULL << 37;
-    WISH(s + 0x488) |= 1ULL << 36;
-    WISH(s + 0x488) |= 1ULL << 33;
+    WISH((char *)s + 0x488) |= 1ULL << 37;
+    WISH((char *)s + 0x488) |= 1ULL << 36;
+    WISH((char *)s + 0x488) |= 1ULL << 33;
 
-    WISH(s + 0x498) |= 2;
+    WISH((char *)s + 0x498) |= 2;
 
-    if ((*(int *)(s + 0x2E0) & 0x20) ||
-        *(float *)(*(char **)(*(int *)(a0 + 0x164) + 0x688) + 0x340) < 0.9) {
-        WISH(s + 0x498) |= 4;
+    if ((s->f_2E0 & 0x20) || GOBJ_WORK(a0)->f_340 < 0.9) {
+        WISH((char *)s + 0x498) |= 4;
     }
-    WISH(s + 0x490) |= 1ULL << 63;
-    WISH(s + 0x498) |= 1;
+    WISH((char *)s + 0x490) |= 1ULL << 63;
+    WISH((char *)s + 0x498) |= 1;
 
-    WISH(s + 0x490) |= 1ULL << 62;
+    WISH((char *)s + 0x490) |= 1ULL << 62;
 
-    WISH(s + 0x490) |= 1ULL << 55;
-    WISH(s + 0x490) |= 1ULL << 56;
-    WISH(s + 0x490) |= 1ULL << 57;
-    WISH(s + 0x490) |= 1ULL << 58;
-    WISH(s + 0x498) |= 0x20;
-    WISH(s + 0x498) |= 0x40;
-    WISH(s + 0x498) |= 0x400;
-    WISH(s + 0x498) |= 0x800;
-    WISH(s + 0x498) |= 0x1000;
-    WISH(s + 0x488) |= 1ULL << 59;
-    WISH(s + 0x488) |= 1ULL << 62;
-    WISH(s + 0x488) |= 1ULL << 63;
-    WISH(s + 0x490) |= 1;
-    WISH(s + 0x490) |= 2;
+    WISH((char *)s + 0x490) |= 1ULL << 55;
+    WISH((char *)s + 0x490) |= 1ULL << 56;
+    WISH((char *)s + 0x490) |= 1ULL << 57;
+    WISH((char *)s + 0x490) |= 1ULL << 58;
+    WISH((char *)s + 0x498) |= 0x20;
+    WISH((char *)s + 0x498) |= 0x40;
+    WISH((char *)s + 0x498) |= 0x400;
+    WISH((char *)s + 0x498) |= 0x800;
+    WISH((char *)s + 0x498) |= 0x1000;
+    WISH((char *)s + 0x488) |= 1ULL << 59;
+    WISH((char *)s + 0x488) |= 1ULL << 62;
+    WISH((char *)s + 0x488) |= 1ULL << 63;
+    WISH((char *)s + 0x490) |= 1;
+    WISH((char *)s + 0x490) |= 2;
 
-    WISH(s + 0x490) |= 1ULL << 34;
+    WISH((char *)s + 0x490) |= 1ULL << 34;
 
     if (a0 == boyGObj) {
-        if (0.1f < *(float *)(s + 0x34C) && ((int)(WISH(s + 0x480) >> 5) & 1) &&
-            chkOrient(s, a1, u, 80.0f)) {
-            if (!(*(int *)(s + 0x2E0) & 8) || girlGObj == 0 ||
-                *(int *)(*(char **)(*(char **)(girlGObj + 0x164) + 0x688) + 0x3A0) == 0) {
-                WISH(s + 0x490) |= 0x20;
+        if (0.1f < s->f_34C && ((int)(WISH((char *)s + 0x480) >> 5) & 1) &&
+            chkOrient((char *)s, a1, u, 80.0f)) {
+            if (!(s->f_2E0 & 8) || girlGObj == 0 || GOBJ_WORK(girlGObj)->f_3A0 == 0) {
+                WISH((char *)s + 0x490) |= 0x20;
             }
         }
     } else {
-        WISH(s + 0x490) |= 0x20;
+        WISH((char *)s + 0x490) |= 0x20;
     }
 
-    WISH(s + 0x490) |= 0x800;
-    WISH(s + 0x490) |= 0x1000;
-    WISH(s + 0x490) |= 0x2000;
-    WISH(s + 0x490) |= 0x4000;
-    WISH(s + 0x490) |= 0x8000;
-    WISH(s + 0x490) |= 0x10000;
-    WISH(s + 0x490) |= 0x20000;
-    WISH(s + 0x498) |= 0x4000;
+    WISH((char *)s + 0x490) |= 0x800;
+    WISH((char *)s + 0x490) |= 0x1000;
+    WISH((char *)s + 0x490) |= 0x2000;
+    WISH((char *)s + 0x490) |= 0x4000;
+    WISH((char *)s + 0x490) |= 0x8000;
+    WISH((char *)s + 0x490) |= 0x10000;
+    WISH((char *)s + 0x490) |= 0x20000;
+    WISH((char *)s + 0x498) |= 0x4000;
 
-    WISH(s + 0x490) |= 1ULL << 59;
-    WISH(s + 0x490) |= 1ULL << 60;
-    WISH(s + 0x490) |= 1ULL << 61;
-    WISH(s + 0x488) |= 1ULL << 60;
-    WISH(s + 0x488) |= 1ULL << 61;
+    WISH((char *)s + 0x490) |= 1ULL << 59;
+    WISH((char *)s + 0x490) |= 1ULL << 60;
+    WISH((char *)s + 0x490) |= 1ULL << 61;
+    WISH((char *)s + 0x488) |= 1ULL << 60;
+    WISH((char *)s + 0x488) |= 1ULL << 61;
 
-    WISH(s + 0x490) |= 0x1000000;
-    WISH(s + 0x490) |= 0x4000000;
-    WISH(s + 0x490) |= 0x2000000;
+    WISH((char *)s + 0x490) |= 0x1000000;
+    WISH((char *)s + 0x490) |= 0x4000000;
+    WISH((char *)s + 0x490) |= 0x2000000;
 
-    WISH(s + 0x490) |= 1ULL << 50;
-    WISH(s + 0x490) |= 1ULL << 51;
-    WISH(s + 0x490) |= 1ULL << 49;
-    WISH(s + 0x490) |= 0x80;
-    if (0.1f < *(float *)(s + 0x34C) && (*(int *)(s + 0x340) >= -45 && *(int *)(s + 0x340) <= 45)) {
-        WISH(s + 0x490) |= 0x200;
-        WISH(s + 0x490) |= 0x100;
+    WISH((char *)s + 0x490) |= 1ULL << 50;
+    WISH((char *)s + 0x490) |= 1ULL << 51;
+    WISH((char *)s + 0x490) |= 1ULL << 49;
+    WISH((char *)s + 0x490) |= 0x80;
+    if (0.1f < s->f_34C && (s->f_340 >= -45 && s->f_340 <= 45)) {
+        WISH((char *)s + 0x490) |= 0x200;
+        WISH((char *)s + 0x490) |= 0x100;
     }
 
-    switch (*(unsigned int *)(s + 0x34)) {
+    switch ((unsigned int)s->unk34) {
     case 1:
-        if (*(int *)(s + 0x4C) >= 181) {
-            WISH(s + 0x488) |= 1ULL << 38;
+        if (s->f_4C >= 181) {
+            WISH((char *)s + 0x488) |= 1ULL << 38;
         }
         break;
     case 4:
     case 5:
     case 18:
     case 62:
-        WISH(s + 0x490) |= 1ULL << 46;
-        WISH(s + 0x490) |= 1ULL << 45;
-        WISH(s + 0x490) |= 1ULL << 47;
-        WISH(s + 0x490) |= 1ULL << 48;
-        WISH(s + 0x490) |= 1ULL << 52;
-        WISH(s + 0x490) |= 1ULL << 53;
-        WISH(s + 0x490) |= 1ULL << 54;
+        WISH((char *)s + 0x490) |= 1ULL << 46;
+        WISH((char *)s + 0x490) |= 1ULL << 45;
+        WISH((char *)s + 0x490) |= 1ULL << 47;
+        WISH((char *)s + 0x490) |= 1ULL << 48;
+        WISH((char *)s + 0x490) |= 1ULL << 52;
+        WISH((char *)s + 0x490) |= 1ULL << 53;
+        WISH((char *)s + 0x490) |= 1ULL << 54;
         break;
     case 13:
-        WISH(s + 0x488) |= 1ULL << 54;
+        WISH((char *)s + 0x488) |= 1ULL << 54;
         break;
     }
 
-    if (WISH(s + 0x480) & 0xC00000) {
+    if (WISH((char *)s + 0x480) & 0xC00000) {
         if (a0 == boyGObj) {
-            if (chkOrient(s, a1, u, 80.0f)) {
-                WISH(s + 0x490) |= 0x400000;
-                if (*(int *)(s + 0x2E0) & 0x10) {
-                    WISH(s + 0x490) |= 0x800000;
+            if (chkOrient((char *)s, a1, u, 80.0f)) {
+                WISH((char *)s + 0x490) |= 0x400000;
+                if (s->f_2E0 & 0x10) {
+                    WISH((char *)s + 0x490) |= 0x800000;
                 }
             }
         } else {
-            WISH(s + 0x490) |= 0x400000;
+            WISH((char *)s + 0x490) |= 0x400000;
         }
     }
 
-    if (((int)(WISH(s + 0x480) >> 18) & 1) && chkOrient(s, a1, u, 80.0f)) {
-        WISH(s + 0x490) |= 0x40000;
+    if (((int)(WISH((char *)s + 0x480) >> 18) & 1) && chkOrient((char *)s, a1, u, 80.0f)) {
+        WISH((char *)s + 0x490) |= 0x40000;
     }
 
-    if (((int)(WISH(s + 0x480) >> 3) & 1) && (*(int *)(s + 0x2E0) & 0x10) &&
-        chkOrient(s, a1, u, 90.0f)) {
-        WISH(s + 0x490) |= 8;
+    if (((int)(WISH((char *)s + 0x480) >> 3) & 1) && (s->f_2E0 & 0x10) &&
+        chkOrient((char *)s, a1, u, 90.0f)) {
+        WISH((char *)s + 0x490) |= 8;
     }
 
-    if (((int)(WISH(s + 0x478) >> 32) & 1) && chkOrient(s, a1, u, 80.0f)) {
+    if (((int)(WISH((char *)s + 0x478) >> 32) & 1) && chkOrient((char *)s, a1, u, 80.0f)) {
         if (a0 == boyGObj) {
-            if (*(int *)(s + 0x2E0) & 0x10) {
-                WISH(s + 0x490) |= 0x80000;
+            if (s->f_2E0 & 0x10) {
+                WISH((char *)s + 0x490) |= 0x80000;
 
-                WISH(s + 0x490) |= 0x40;
+                WISH((char *)s + 0x490) |= 0x40;
             }
         } else {
-            WISH(s + 0x490) |= 0x80000;
-            WISH(s + 0x490) |= 0x8000000;
-            WISH(s + 0x490) |= 0x10000000;
-            WISH(s + 0x490) |= 0x20000000;
+            WISH((char *)s + 0x490) |= 0x80000;
+            WISH((char *)s + 0x490) |= 0x8000000;
+            WISH((char *)s + 0x490) |= 0x10000000;
+            WISH((char *)s + 0x490) |= 0x20000000;
             if (a0 == girlGObj && girlControlMode == 0 &&
-                (WISH(s + 0x20) & (0xC000ULL << 23)) == (0xC000ULL << 23)) {
-                WISH(s + 0x490) &= ~0x80000;
+                (WISH((char *)s + 0x20) & (0xC000ULL << 23)) == (0xC000ULL << 23)) {
+                WISH((char *)s + 0x490) &= ~0x80000;
             }
         }
     }
 
-    if (((int)(WISH(s + 0x480) >> 20) & 1) && chkOrient(s, a1, u, 80.0f)) {
-        WISH(s + 0x490) |= 0x100000;
+    if (((int)(WISH((char *)s + 0x480) >> 20) & 1) && chkOrient((char *)s, a1, u, 80.0f)) {
+        WISH((char *)s + 0x490) |= 0x100000;
     }
 
     if (a0 == girlGObj && girlControlMode != 0) {
-        if (!(*(int *)(s + 0x2E0) & 0x10)) {
-            WISH(s + 0x490) &= ~0x80000;
-            WISH(s + 0x490) &= ~0x100000;
+        if (!(s->f_2E0 & 0x10)) {
+            WISH((char *)s + 0x490) &= ~0x80000;
+            WISH((char *)s + 0x490) &= ~0x100000;
         }
     }
 
-    WISH(s + 0x498) |= 0x10;
+    WISH((char *)s + 0x498) |= 0x10;
 
-    if (((int)(WISH(s + 0x488) >> 3) & 1) && chkOrient(s, a1, u, 60.0f)) {
-        WISH(s + 0x498) |= 8;
+    if (((int)(WISH((char *)s + 0x488) >> 3) & 1) && chkOrient((char *)s, a1, u, 60.0f)) {
+        WISH((char *)s + 0x498) |= 8;
     }
 
-    if (0.1f < *(float *)(s + 0x34C) || ((int)(WISH(s + 0x20) >> 3) & 1)) {
-        WISH(s + 0x488) |= 1ULL << 34;
-        WISH(s + 0x488) |= 1ULL << 35;
+    if (0.1f < s->f_34C || ((int)(WISH((char *)s + 0x20) >> 3) & 1)) {
+        WISH((char *)s + 0x488) |= 1ULL << 34;
+        WISH((char *)s + 0x488) |= 1ULL << 35;
     }
 
-    if (*(int *)(s + 0x2E4) & 0x10) {
-        WISH(s + 0x488) |= 1ULL << 39;
-        if (0.1f < *(float *)(s + 0x34C)) {
-            WISH(s + 0x488) |= 1ULL << 40;
+    if (s->unk2E4 & 0x10) {
+        WISH((char *)s + 0x488) |= 1ULL << 39;
+        if (0.1f < s->f_34C) {
+            WISH((char *)s + 0x488) |= 1ULL << 40;
 
-            WISH(s + 0x488) |= 1ULL << 41;
-            *(float *)(*(char **)(*(int *)(a0 + 0x164) + 0x688) + 0x350) = a1[0];
-            *(float *)(*(char **)(*(int *)(a0 + 0x164) + 0x688) + 0x354) = a1[1];
-            *(float *)(*(char **)(*(int *)(a0 + 0x164) + 0x688) + 0x358) = a1[2];
+            WISH((char *)s + 0x488) |= 1ULL << 41;
+            GOBJ_WORK(a0)->f_350 = a1[0];
+            GOBJ_WORK(a0)->f_354 = a1[1];
+            GOBJ_WORK(a0)->f_358 = a1[2];
         }
-        WISH(s + 0x488) |= 1ULL << 42;
-        WISH(s + 0x488) |= 1ULL << 43;
+        WISH((char *)s + 0x488) |= 1ULL << 42;
+        WISH((char *)s + 0x488) |= 1ULL << 43;
     }
 
-    if (*(int *)(s + 0x2E4) & 0x80) {
+    if (s->unk2E4 & 0x80) {
         /* Both arms set the same bit; gcc cross-jumps them and drops the
-           branch, leaving the compare's two operands as dead instructions --
+           branch, leaving the compare'(char *)s two operands as dead instructions --
            which is exactly what ROM has here. */
         if (*(int *)(a0 + 0xC) == 1) {
-            WISH(s + 0x488) |= 1ULL << 44;
+            WISH((char *)s + 0x488) |= 1ULL << 44;
         } else {
-            WISH(s + 0x488) |= 1ULL << 44;
+            WISH((char *)s + 0x488) |= 1ULL << 44;
         }
 
-        if (0.1f < *(float *)(s + 0x34C)) {
-            WISH(s + 0x488) |= 1ULL << 45;
-        }
-    }
-
-    if ((0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 4 < *(int *)(s + 0x28) &&
-        (*(int *)(s + 0x2E0) & 8)) {
-        WISH(s + 0x18) |= 1ULL << 43;
-    }
-
-    if (*(int *)(s + 0x2E0) & 8) {
-        if (*(int *)(*(char **)(a0 + 0x15C) + 0x4A0) == 0xBA) {
-            *(int *)(*(char **)(*(int *)(a0 + 0x164) + 0x688) + 0x38C) =
-                (0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 6;
-        }
-        if (*(int *)(*(char **)(*(int *)(a0 + 0x164) + 0x688) + 0x390) == 0) {
-            *(int *)(*(char **)(*(int *)(a0 + 0x164) + 0x688) + 0x390) =
-                (0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0x50 / 0x3C;
-        }
-        WISH(s + 0x488) |= 1ULL << 46;
-        WISH(s + 0x498) |= 0x80;
-        WISH(s + 0x498) |= 0x100;
-        WISH(s + 0x498) |= 0x200;
-        WISH(s + 0x488) |= 1ULL << 56;
-        WISH(s + 0x488) |= 1ULL << 58;
-        WISH(s + 0x488) |= 1ULL << 57;
-        WISH(s + 0x498) |= 0x2000;
-        if (!(0.1f < *(float *)(s + 0x34C))) {
-            WISH(s + 0x490) |= 4;
-            WISH(s + 0x490) |= 0x10;
+        if (0.1f < s->f_34C) {
+            WISH((char *)s + 0x488) |= 1ULL << 45;
         }
     }
 
-    if (*(int *)(*(char **)(*(int *)(a0 + 0x164) + 0x688) + 0x390) != 0) {
-        WISH(s + 0x488) |= 1ULL << 46;
+    if ((0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 4 < s->f_28 && (s->f_2E0 & 8)) {
+        WISH((char *)s + 0x18) |= 1ULL << 43;
     }
 
-    if (optionControlType == 1 ? (*(int *)(s + 0x2E4) & 8) != 0 : (*(int *)(s + 0x2E0) & 8) != 0) {
-        WISH(s + 0x488) |= 1ULL << 47;
+    if (s->f_2E0 & 8) {
+        if (GOBJ_SUB(a0)->f_4A0 == 0xBA) {
+            GOBJ_WORK(a0)->f_38C = (0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 6;
+        }
+        if (GOBJ_WORK(a0)->f_390 == 0) {
+            GOBJ_WORK(a0)->f_390 = (0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0x50 / 0x3C;
+        }
+        WISH((char *)s + 0x488) |= 1ULL << 46;
+        WISH((char *)s + 0x498) |= 0x80;
+        WISH((char *)s + 0x498) |= 0x100;
+        WISH((char *)s + 0x498) |= 0x200;
+        WISH((char *)s + 0x488) |= 1ULL << 56;
+        WISH((char *)s + 0x488) |= 1ULL << 58;
+        WISH((char *)s + 0x488) |= 1ULL << 57;
+        WISH((char *)s + 0x498) |= 0x2000;
+        if (!(0.1f < s->f_34C)) {
+            WISH((char *)s + 0x490) |= 4;
+            WISH((char *)s + 0x490) |= 0x10;
+        }
     }
 
-    if (optionControlType == 1 ? (*(int *)(s + 0x2E4) & 8) != 0 : (*(int *)(s + 0x2E0) & 8) == 0) {
-        WISH(s + 0x488) |= 1ULL << 48;
+    if (GOBJ_WORK(a0)->f_390 != 0) {
+        WISH((char *)s + 0x488) |= 1ULL << 46;
     }
 
-    if (*(int *)(s + 0x2E0) & 0x20) {
-        WISH(s + 0x490) |= 1ULL << 36;
-        WISH(s + 0x490) |= 1ULL << 37;
-        WISH(s + 0x490) |= 1ULL << 38;
-        WISH(s + 0x490) |= 1ULL << 39;
-        WISH(s + 0x490) |= 1ULL << 40;
-        WISH(s + 0x490) |= 1ULL << 41;
-        WISH(s + 0x490) |= 1ULL << 42;
+    if (optionControlType == 1 ? (s->unk2E4 & 8) != 0 : (s->f_2E0 & 8) != 0) {
+        WISH((char *)s + 0x488) |= 1ULL << 47;
     }
 
-    if (*(int *)(s + 0x2E4) & 0x20) {
-        WISH(s + 0x490) |= 1ULL << 44;
+    if (optionControlType == 1 ? (s->unk2E4 & 8) != 0 : (s->f_2E0 & 8) == 0) {
+        WISH((char *)s + 0x488) |= 1ULL << 48;
     }
 
-    if (*(int *)(s + 0x2E0) & 0x20) {
+    if (s->f_2E0 & 0x20) {
+        WISH((char *)s + 0x490) |= 1ULL << 36;
+        WISH((char *)s + 0x490) |= 1ULL << 37;
+        WISH((char *)s + 0x490) |= 1ULL << 38;
+        WISH((char *)s + 0x490) |= 1ULL << 39;
+        WISH((char *)s + 0x490) |= 1ULL << 40;
+        WISH((char *)s + 0x490) |= 1ULL << 41;
+        WISH((char *)s + 0x490) |= 1ULL << 42;
+    }
+
+    if (s->unk2E4 & 0x20) {
+        WISH((char *)s + 0x490) |= 1ULL << 44;
+    }
+
+    if (s->f_2E0 & 0x20) {
         ACTSearchGObj(a0, 0x13, 0x2D, &o, u, 100.0f);
 
         if (o != 0 && CheckCarryableItem(o)) {
@@ -317,48 +304,45 @@ void ACTGetWish_FromPad(char *a0, float *a1)
             p[1] = test_CURRENTROOT(o)[1];
             p[2] = test_CURRENTROOT(o)[2];
             if (p[1] > v[1] && (float)(p[1] - v[1] < 0.0f ? -(p[1] - v[1]) : (p[1] - v[1])) < deg) {
-                *(int *)(s + 0x184) = (int)o;
-                WISH(s + 0x490) |= 1ULL << 43;
+                *(int *)((char *)s + 0x184) = (int)o;
+                WISH((char *)s + 0x490) |= 1ULL << 43;
             }
         }
-        WISH(s + 0x488) |= 1ULL << 54;
-        WISH(s + 0x488) |= 1ULL << 55;
+        WISH((char *)s + 0x488) |= 1ULL << 54;
+        WISH((char *)s + 0x488) |= 1ULL << 55;
     }
 
-    if (*(int *)(s + 0x2E0) & 0x10) {
-        WISH(s + 0x490) |= 0x400;
+    if (s->f_2E0 & 0x10) {
+        WISH((char *)s + 0x490) |= 0x400;
     }
 
-    if (0.1f < *(float *)(s + 0x34C)) {
-        WISH(s + 0x488) |= 1ULL << 49;
+    if (0.1f < s->f_34C) {
+        WISH((char *)s + 0x488) |= 1ULL << 49;
     }
 
     if (a0 == boyGObj) {
-        if (*(int *)(s + 0x2E4) & 0x40) {
-            if (0.1f < *(float *)(s + 0x34C) &&
-                (*(int *)(s + 0x340) >= -45 && *(int *)(s + 0x340) <= 45)) {
-                WISH(s + 0x488) |= 1ULL << 50;
-            } else if (0.1f < *(float *)(s + 0x34C) &&
-                       (*(int *)(s + 0x340) >= 46 && *(int *)(s + 0x340) <= 134)) {
-                WISH(s + 0x488) |= 1ULL << 52;
-            } else if (0.1f < *(float *)(s + 0x34C) && *(int *)(s + 0x340) >= -134 &&
-                       *(int *)(s + 0x340) <= -46) {
-                WISH(s + 0x488) |= 1ULL << 53;
+        if (s->unk2E4 & 0x40) {
+            if (0.1f < s->f_34C && (s->f_340 >= -45 && s->f_340 <= 45)) {
+                WISH((char *)s + 0x488) |= 1ULL << 50;
+            } else if (0.1f < s->f_34C && (s->f_340 >= 46 && s->f_340 <= 134)) {
+                WISH((char *)s + 0x488) |= 1ULL << 52;
+            } else if (0.1f < s->f_34C && s->f_340 >= -134 && s->f_340 <= -46) {
+                WISH((char *)s + 0x488) |= 1ULL << 53;
             }
-            WISH(s + 0x488) |= 1ULL << 51;
+            WISH((char *)s + 0x488) |= 1ULL << 51;
         }
     }
 
-    if (*(int *)(s + 0x2E4) & 0x20) {
-        WISH(s + 0x490) |= 1ULL << 35;
-        WISH(s + 0x490) |= 1ULL << 33;
+    if (s->unk2E4 & 0x20) {
+        WISH((char *)s + 0x490) |= 1ULL << 35;
+        WISH((char *)s + 0x490) |= 1ULL << 33;
     }
 
-    if ((int)(WISH(s + 0x490) >> 37) & 1) {
-        if ((int)(WISH(s + 0x480) >> 37) & 1) {
-            *(int *)(*(char **)(*(int *)(a0 + 0x164) + 0x680) + 0x2C0) = 1;
+    if ((int)(WISH((char *)s + 0x490) >> 37) & 1) {
+        if ((int)(WISH((char *)s + 0x480) >> 37) & 1) {
+            *(int *)((char *)GOBJ_ACT(a0)->f_680 + 0x2C0) = 1;
         }
     } else {
-        *(int *)(*(char **)(*(int *)(a0 + 0x164) + 0x680) + 0x2C0) = 0;
+        *(int *)((char *)GOBJ_ACT(a0)->f_680 + 0x2C0) = 0;
     }
 }

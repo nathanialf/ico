@@ -4,6 +4,7 @@
 #include "script.h"
 #include "StageAnimation.h"
 #include "typedef.h"
+#include "main.h"
 
 static ActMail explode_mes[2] = {{430}, {429}};
 
@@ -210,22 +211,16 @@ void actSt27aWave1(volatile int a0)
     }
 }
 
-/* kept local: int here, GObj * in main.h */
-extern int boyGObj;
-
 void actSpiderChk(volatile int a0)
 {
     while (1) {
-        while ((*(int *)(*(int *)(boyGObj + 0x164) + 0x2E4) & 0x400) == 0) {
+        while ((GOBJ_ACT(boyGObj)->unk2E4 & 0x400) == 0) {
             _ACTWait(1);
         }
         scpBornSpider(2, 0.0f, -500.0f, 0.0f, 500.0f);
         _ACTWait(1);
     }
 }
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differ) */
-extern PadState pad[];
 
 void actSt17aTestChk(volatile int a0)
 {

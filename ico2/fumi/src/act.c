@@ -14,6 +14,7 @@
 #include "lineManager.h"
 #include "pad.h"
 #include "gobj_process.h"
+#include "main.h"
 
 extern char objLayout[];
 
@@ -43,10 +44,6 @@ typedef struct {
 } StatusAttrAct;
 
 extern const StatusAttrAct actModeTbl[];
-/* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
-extern int systemStatus[];
-/* kept local: int here, char * in main.h */
-extern int matrixptr;
 
 /* .sdata, owned by act.o (VMA 0x63BD5C..0x63BD60, 4 B = MAIN.MAP act.o .sdata,
    which names no symbol in it): one zero word that nothing in the ROM reads,
@@ -65,7 +62,7 @@ inline void ActSetStartBrainStatus(char *self, int status)
 {
     Act *brain = GOBJ_ACT(self);
     if (brain != 0) {
-        *(int *)((char *)brain + 0x448) = status;
+        brain->f_448 = status;
     }
 }
 
@@ -156,7 +153,7 @@ inline void ConvertStickToAbsCoord(void *a0, float *a1)
 {
     Vec4 v = {{a1[3], 0.0f, -a1[4], 0.0f}};
     float m[16];
-    sceVu0TransposeMatrix(m, (void *)(matrixptr + 0x80));
+    sceVu0TransposeMatrix(m, (void *)((int)matrixptr + 0x80));
     sceVu0ApplyMatrix(a0, m, &v);
 }
 
@@ -214,25 +211,23 @@ void after_func_exec(char *self, int oldst, int newst)
 {
     Act *g = GOBJ_ACT(self);
 
-    if (actModeTbl[oldst].ent[*(int *)((char *)g + 0x48)].f4 !=
-        actModeTbl[newst].ent[*(int *)((char *)g + 0x48)].f4) {
-        if (g->f_14 != 0) {
+    if (actModeTbl[oldst].ent[g->f_48].f4 != actModeTbl[newst].ent[g->f_48].f4) {
+        if (g->after != 0) {
             (*(void (**)(char *))((char *)g + 0x14))(self);
-            g->f_14 = 0;
+            g->after = 0;
         }
     }
     if (actModeTbl[oldst].b2 != actModeTbl[newst].b2) {
-        if (g->f_14 != 0) {
+        if (g->after != 0) {
             (*(void (**)(char *))((char *)g + 0x14))(self);
-            g->f_14 = 0;
+            g->after = 0;
         }
     }
-    if (actModeTbl[oldst].ent[*(int *)((char *)g + 0x48)].f4 == 0 &&
-        actModeTbl[newst].ent[*(int *)((char *)g + 0x48)].f4 == 0 && actModeTbl[oldst].b2 == 0 &&
-        actModeTbl[newst].b2 == 0) {
-        if (g->f_14 != 0) {
+    if (actModeTbl[oldst].ent[g->f_48].f4 == 0 && actModeTbl[newst].ent[g->f_48].f4 == 0 &&
+        actModeTbl[oldst].b2 == 0 && actModeTbl[newst].b2 == 0) {
+        if (g->after != 0) {
             (*(void (**)(char *))((char *)g + 0x14))(self);
-            g->f_14 = 0;
+            g->after = 0;
         }
     }
 }
@@ -253,13 +248,13 @@ void actInitialize_ext_charcter(char *self)
 
     memset(p, 0, 0x400);
     *(char **)((char *)g + 0x680) = p;
-    *(float *)(*(char **)(*(int *)(self + 0x164) + 0x680) + 0x58) = 1.0f;
-    *(int *)(*(char **)(*(int *)(self + 0x164) + 0x680) + 0x2A0) = -1;
-    *(int *)(*(char **)(*(int *)(self + 0x164) + 0x680) + 0x2A4) = -1;
-    *(int *)(*(char **)(*(int *)(self + 0x164) + 0x680) + 0x2A8) = -1;
-    *(int *)(*(char **)(*(int *)(self + 0x164) + 0x680) + 0x2AC) = -1;
-    *(int *)(*(char **)(*(int *)(self + 0x164) + 0x680) + 0x2B0) = -1;
-    InitMailAdditionalData(self, *(char **)(*(int *)(self + 0x164) + 0x680));
+    *(float *)(*(char **)((int)GOBJ_ACT(self) + 0x680) + 0x58) = 1.0f;
+    *(int *)(*(char **)((int)GOBJ_ACT(self) + 0x680) + 0x2A0) = -1;
+    *(int *)(*(char **)((int)GOBJ_ACT(self) + 0x680) + 0x2A4) = -1;
+    *(int *)(*(char **)((int)GOBJ_ACT(self) + 0x680) + 0x2A8) = -1;
+    *(int *)(*(char **)((int)GOBJ_ACT(self) + 0x680) + 0x2AC) = -1;
+    *(int *)(*(char **)((int)GOBJ_ACT(self) + 0x680) + 0x2B0) = -1;
+    InitMailAdditionalData(self, *(char **)((int)GOBJ_ACT(self) + 0x680));
 }
 
 /* The actor object: only the work pointer at +0x164 matters here. */
@@ -373,9 +368,9 @@ char *actInitialize(char *self)
            adjacent pair of independent stores below, so the emitted order is
            the byte store first with the word store in the alignment test's
            delay slot. */
-        char *p = (char *)*(int *)(self + 0x164);
-        *(int *)(p + 0x1B0) = 0;
-        *(char *)(p + 0x1DA) = 0;
+        Act *p = GOBJ_ACT(self);
+        p->f_1B0 = 0;
+        p->f_1DA = 0;
     }
     *(PadConf *)(w + 0x1E8) = iosPadConfDefault;
 
@@ -395,9 +390,9 @@ char *actInitialize(char *self)
 inline int ACTReserveTarget(char *self, void *a1, int a2)
 {
     Act *g = GOBJ_ACT(self);
-    if (*(int *)((char *)g + 0x13C) == 0) {
+    if (g->f_13C == 0) {
         *(char **)((char *)g + 0x13C) = self;
-        *(int *)((char *)g + 0x140) = a2;
+        g->f_140 = a2;
         iosOmSendMail(self, a2, a1);
         return 1;
     }
@@ -463,7 +458,7 @@ IntrMail *act_check_intr_list(char *self, IntrMail *m, void **out)
                     *(int *)((char *)w + 0x3C) = mot;
                     *(void **)((char *)w + 0x2C) = k->ent[i].f4;
                     *(char **)((char *)w + 0x30) = GetMailAdditionalData(self, i);
-                    *(IntrOrient *)(*(char **)(*(int *)(self + 0x164) + 0x688) + 0x8B0) = buf;
+                    *(IntrOrient *)(*(char **)((int)GOBJ_ACT(self) + 0x688) + 0x8B0) = buf;
                     *out = &k->ent[i];
                     return m;
                 }
@@ -501,7 +496,7 @@ void act_check_mail(char *self, IntrMail *m)
             ((ActStatusWord *)((char *)w + 0x18))->q |= 0x8000LL << 47;
             break;
         case 0x1A9:
-            *(int *)(*(int *)(*(int *)(self + 0x164) + 0x680) + 0x2B0) = 0;
+            GOBJ_ACT(self)->f_680->f_2B0 = 0;
             break;
         case 0xF:
             ((ActStatusWord *)((char *)w + 0x20))->q |= 1;
@@ -547,10 +542,6 @@ typedef struct {
 
 extern ActMotionRec motionKind[];
 extern IntrMail actIntrList[];
-/* the boy object, typed as the work block object pointers it is compared and
-   exchanged with (ActObjRefs below; void * as in boyact.c and chain.c) */
-/* kept local: void * here, GObj * in main.h */
-extern void *boyGObj;
 
 /* one flag per mail list: a list whose flag is set is not checked for an
    interrupt while the status record's b11 is set */
@@ -558,22 +549,9 @@ typedef struct {
     unsigned int w[4];
 } IntrSkip;
 
-/* The work block's object pointers: +0x2C takes a mail entry's object
-   (act_check_mail), +0x80 and +0x84 are the targets src/act-game.c reads
-   beside boyGObj.  Reconstruction, rung: ROM bytes (BeforeFunc's clears
-   are record-field stores in the load's alias set: the sw 0x2C and sw 0x80
-   follow the boyGObj load at sched2). */
-typedef struct {
-    char _0[0x2C];
-    void *f_2C;
-    char _30[0x50];
-    void *f_80;
-    void *f_84;
-} ActObjRefs;
-
 void BeforeFunc(char *self)
 {
-    char *w = (char *)((ActSelf *)self)->work;
+    Act *w = GOBJ_ACT(self);
     char *mb = self + 0x54;
     IntrMail *intr;
     char *g;
@@ -582,50 +560,50 @@ void BeforeFunc(char *self)
     int i;
     int old;
 
-    ((ActObjRefs *)w)->f_2C = 0;
-    *(char **)(w + 0x30) = 0;
-    *(int *)(w + 0x4C) += 1;
-    *(int *)(w + 0x10) += 1;
-    ((ActStatusWord *)(w + 0x18))->q &= ~(1LL << 52);
-    ((ActStatusWord *)(w + 0x18))->q &= ~(1LL << 62);
-    ((ActStatusWord *)(w + 0x18))->q &= ~(1LL << 63);
-    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 0);
-    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 1);
-    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 2);
-    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 3);
-    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 4);
-    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 5);
-    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 8);
-    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 10);
-    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 18);
-    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 22);
-    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 37);
-    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 44);
-    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 45);
-    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 12);
-    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 31);
-    ((ActStatusWord *)(w + 0x18))->q &= ~(1LL << 36);
-    ((ActStatusWord *)(w + 0x18))->q &= ~(1LL << 37);
-    ((ActStatusWord *)(w + 0x18))->q &= ~(1LL << 38);
-    ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 35);
-    ((ActObjRefs *)w)->f_80 = 0;
-    ((ActObjRefs *)w)->f_84 = 0;
-    if (self == boyGObj) {
-        char *p = *(char **)(*(char **)(self + 0x164) + 0x688);
+    ((Act *)(char *)w)->f_2C = 0;
+    *(char **)((char *)w + 0x30) = 0;
+    w->f_4C += 1;
+    w->f_10 += 1;
+    ((ActStatusWord *)((char *)w + 0x18))->q &= ~(1LL << 52);
+    ((ActStatusWord *)((char *)w + 0x18))->q &= ~(1LL << 62);
+    ((ActStatusWord *)((char *)w + 0x18))->q &= ~(1LL << 63);
+    ((ActStatusWord *)((char *)w + 0x20))->q &= ~(1LL << 0);
+    ((ActStatusWord *)((char *)w + 0x20))->q &= ~(1LL << 1);
+    ((ActStatusWord *)((char *)w + 0x20))->q &= ~(1LL << 2);
+    ((ActStatusWord *)((char *)w + 0x20))->q &= ~(1LL << 3);
+    ((ActStatusWord *)((char *)w + 0x20))->q &= ~(1LL << 4);
+    ((ActStatusWord *)((char *)w + 0x20))->q &= ~(1LL << 5);
+    ((ActStatusWord *)((char *)w + 0x20))->q &= ~(1LL << 8);
+    ((ActStatusWord *)((char *)w + 0x20))->q &= ~(1LL << 10);
+    ((ActStatusWord *)((char *)w + 0x20))->q &= ~(1LL << 18);
+    ((ActStatusWord *)((char *)w + 0x20))->q &= ~(1LL << 22);
+    ((ActStatusWord *)((char *)w + 0x20))->q &= ~(1LL << 37);
+    ((ActStatusWord *)((char *)w + 0x20))->q &= ~(1LL << 44);
+    ((ActStatusWord *)((char *)w + 0x20))->q &= ~(1LL << 45);
+    ((ActStatusWord *)((char *)w + 0x20))->q &= ~(1LL << 12);
+    ((ActStatusWord *)((char *)w + 0x20))->q &= ~(1LL << 31);
+    ((ActStatusWord *)((char *)w + 0x18))->q &= ~(1LL << 36);
+    ((ActStatusWord *)((char *)w + 0x18))->q &= ~(1LL << 37);
+    ((ActStatusWord *)((char *)w + 0x18))->q &= ~(1LL << 38);
+    ((ActStatusWord *)((char *)w + 0x20))->q &= ~(1LL << 35);
+    ((Act *)(char *)w)->f_80 = 0;
+    ((Act *)(char *)w)->f_84 = 0;
+    if (self == (void *)boyGObj) {
+        ActWork *p = GOBJ_WORK(self);
 
-        ((ActFloat *)(*(char **)(self + 0x15C) + 0x45C))->f = *(float *)(p + 0x320);
-        ((ActFloat *)(*(char **)(self + 0x15C) + 0x464))->f = *(float *)(p + 0x324);
-        ((ActFloat *)(*(char **)(self + 0x15C) + 0x468))->f = *(float *)(p + 0x328);
+        ((ActFloat *)(*(char **)(self + 0x15C) + 0x45C))->f = p->f_320;
+        ((ActFloat *)(*(char **)(self + 0x15C) + 0x464))->f = p->f_324;
+        ((ActFloat *)(*(char **)(self + 0x15C) + 0x468))->f = p->f_328;
     }
-    if (*(int *)(w + 0x50) != 0) {
-        *(int *)(w + 0x50) -= 1;
+    if (w->f_50 != 0) {
+        w->f_50 -= 1;
     }
     {
-        IntrMail *mails[5] = {&actIntrList[0], &actIntrList[3], *(IntrMail **)(w + 0xD4),
-                              *(IntrMail **)(w + 0xD0), (IntrMail *)0xFFFFFFFF};
+        IntrMail *mails[5] = {&actIntrList[0], &actIntrList[3], (IntrMail *)w->mail,
+                              (IntrMail *)w->mainMail, (IntrMail *)0xFFFFFFFF};
         IntrSkip skip = {{0, 1, 0, 1}};
 
-        ACTSendMailCorrect(self, actModeTbl[*(int *)(w + 0x34)].f48);
+        ACTSendMailCorrect(self, actModeTbl[w->unk34].f48);
         for (i = 0; i < *(int *)(mb + 4); i++) {
             ((IntrList *)mb)->ent[i].id =
                 _ACTCorrectMsg(self, *(int *)(mb + 8 + i * 8), *(void **)(mb + 0xC + i * 8));
@@ -636,7 +614,7 @@ void BeforeFunc(char *self)
         }
         intr = 0;
         for (i = 0; mails[i] != (IntrMail *)0xFFFFFFFF; i++) {
-            if (skip.w[i] == 0 || actModeTbl[*(int *)(w + 0x34)].b11 == 0) {
+            if (skip.w[i] == 0 || actModeTbl[w->unk34].b11 == 0) {
                 intr = act_check_intr_list(self, mails[i], (void **)&ent);
                 if (intr != 0) {
                     break;
@@ -645,22 +623,22 @@ void BeforeFunc(char *self)
         }
     }
     g = *(char **)(self + 0x15C);
-    *(char **)(w + 0x40) = *(char **)(g + 0x540);
+    *(char **)((char *)w + 0x40) = *(char **)(g + 0x540);
     if ((((&motionKind[*(int *)(*(char **)(self + 0x15C) + 0x4A0)])->f18C >> 1) & 1) != 0 &&
         *(float *)(*(char **)(self + 0x15C) + 0x4AC) < 3.0f) {
-        ((ActStatusWord *)(w + 0x20))->q |= 1LL << 18;
+        ((ActStatusWord *)((char *)w + 0x20))->q |= 1LL << 18;
     }
     if (intr != 0) {
-        old = *(int *)(w + 0xD8);
-        *(int *)(w + 0xD8) = (short)intr->kind;
-        act = (void *)actModeTbl[intr->f12].ent[*(int *)(w + 0x48)].f0;
+        old = w->f_D8;
+        w->f_D8 = (short)intr->kind;
+        act = (void *)actModeTbl[intr->f12].ent[w->f_48].f0;
         if (act != 0) {
-            after_func_exec(self, *(int *)(w + 0x34), intr->f12);
-            if (*(int *)(w + 0x18) != 0) {
-                (*(void (**)(char *))(w + 0x18))(self);
-                *(int *)(w + 0x18) = 0;
+            after_func_exec(self, w->unk34, intr->f12);
+            if (*(int *)((char *)w + 0x18) != 0) {
+                (*(void (**)(char *))((char *)w + 0x18))(self);
+                *(int *)((char *)w + 0x18) = 0;
             }
-            *(int *)(w + 0x4C) = 0;
+            w->f_4C = 0;
             for (i = 9; i > 0; i--) {
                 ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a900[i] =
                     ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a900[i - 1];
@@ -669,34 +647,34 @@ void BeforeFunc(char *self)
                 ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a950[i] =
                     ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a950[i - 1];
             }
-            ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a900[0] = *(int *)(w + 0x34);
-            ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a928[0] = *(int *)(w + 0x10);
+            ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a900[0] = w->unk34;
+            ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a928[0] = w->f_10;
             ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a950[0] = old;
-            *(int *)(w + 0x34) = intr->f12;
-            ((ActStatusWord *)(w + 0x18))->q =
-                (((ActStatusWord *)(w + 0x18))->q & ~(1LL << 39)) |
-                ((unsigned long long)actModeTbl[*(int *)(w + 0x34)].b10 << 39);
-            ((ActStatusWord *)(w + 0x18))->q =
-                (((ActStatusWord *)(w + 0x18))->q & ~(1LL << 50)) |
+            w->unk34 = intr->f12;
+            ((ActStatusWord *)((char *)w + 0x18))->q =
+                (((ActStatusWord *)((char *)w + 0x18))->q & ~(1LL << 39)) |
+                ((unsigned long long)actModeTbl[w->unk34].b10 << 39);
+            ((ActStatusWord *)((char *)w + 0x18))->q =
+                (((ActStatusWord *)((char *)w + 0x18))->q & ~(1LL << 50)) |
                 ((unsigned long long)actModeTbl[intr->f12].b12 << 50);
-            ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 11);
-            *(IntrMail **)(w + 0xD4) = &actIntrList[actModeTbl[*(int *)(w + 0x34)].ent[5].f8];
-            actChangeActMain(isysCurrentGObj, act, (void **)(w + 4));
+            ((ActStatusWord *)((char *)w + 0x20))->q &= ~(1LL << 11);
+            *(IntrMail **)((char *)w + 0xD4) = &actIntrList[actModeTbl[w->unk34].ent[5].f8];
+            actChangeActMain(isysCurrentGObj, act, (void **)((char *)w + 4));
         }
         if (intr->f0 != 0) {
-            *(int *)(w + 0x38) = 0;
-            actCreateMotionThread(intr->f0, (void *)21, (void **)(w + 8));
+            *(int *)((char *)w + 0x38) = 0;
+            actCreateMotionThread(intr->f0, (void *)21, (void **)((char *)w + 8));
         }
         if (intr->f4 != 0) {
-            actCreateMotionThread(intr->f4, (void *)22, (void **)(w + 0xC));
+            actCreateMotionThread(intr->f4, (void *)22, (void **)((char *)w + 0xC));
         }
         if (intr->f0C != 0) {
             intr->f0C(self, ent->id, ent->f4);
         }
         ACTAcceptMail(self, (short)intr->kind);
     }
-    ((ActStatusWord *)(w + 0x138))->q &= ~(1LL << 0);
-    *(int *)(w + 0x13C) = 0;
+    ((ActStatusWord *)((char *)w + 0x138))->q &= ~(1LL << 0);
+    w->f_13C = 0;
     *(int *)(mb + 4) = 0;
     ClearMailAdditionalData(self);
     ACTGame_BeforeFunc(self);
@@ -733,8 +711,6 @@ typedef struct {
     char _18[0x08];
 } ActPadStick;
 
-/* kept local: char * here, GObj * in main.h */
-extern char *CurrentTargetGObj;
 extern void GetLowerPlaneCollision(void *work, void *pos);
 
 /* kept local: this TU passes the packet priority that the prototype in
@@ -746,28 +722,28 @@ void ACTDebugMove(int a0, int a1)
     float dir[4];
     float pos[4];
     ActPadStick st;
-    char *ext;
+    Act *ext;
     char *p;
     float h;
     int mode = 1;
     int dbg = 0; /* local debug switch, see the test at the end of the loop */
 
-    ext = *(char **)(self + 0x164);
-    p = *(char **)(*(char **)(self + 0x15C) + 0x8C);
+    ext = GOBJ_ACT(self);
+    p = (char *)GOBJ_SUB(self)->f_8C;
     h = (p != 0) ? *(float *)(p + 0x14) : 0.0f;
     DisableChangeRootUpdateMode(self);
     SetRootUpdateMode(self, 0);
-    while (((*(int *)(ext + 0x2E0) & 1) != 0 || mode == 1) && self == CurrentTargetGObj) {
+    while (((ext->f_2E0 & 1) != 0 || mode == 1) && self == (char *)CurrentTargetGObj) {
         _ACTWait(1);
-        iosPadRead(ext + 0x2D8);
-        iosPadGetStick(ext + 0x2D8, ext + 0x338, 0, 2, 2, 0);
-        iosPadGetStick(ext + 0x2D8, &st, 1, 2, 2, 0);
-        if (0.001f < *(float *)(ext + 0x34C)) {
-            ConvertStickToAbsCoord(dir, (float *)(ext + 0x338));
+        iosPadRead((char *)ext + 0x2D8);
+        iosPadGetStick((char *)ext + 0x2D8, (char *)ext + 0x338, 0, 2, 2, 0);
+        iosPadGetStick((char *)ext + 0x2D8, &st, 1, 2, 2, 0);
+        if (0.001f < ext->f_34C) {
+            ConvertStickToAbsCoord(dir, (float *)((char *)ext + 0x338));
         }
         GetRootPosition(pos, self);
-        pos[0] += dir[0] * *(float *)(ext + 0x34C) * 32.0f;
-        pos[2] += dir[2] * *(float *)(ext + 0x34C) * 32.0f;
+        pos[0] += dir[0] * ext->f_34C * 32.0f;
+        pos[2] += dir[2] * ext->f_34C * 32.0f;
         if (0.001f < st.mag) {
             mode = 1;
         }
@@ -775,7 +751,7 @@ void ACTDebugMove(int a0, int a1)
         case 0: {
             ActClipWork w;
 
-            if ((*(int *)(ext + 0x2E4) & 0x200) != 0) {
+            if ((ext->unk2E4 & 0x200) != 0) {
                 sceVu0CopyVector(w.a, pos);
                 sceVu0CopyVector(w.b, pos);
                 w.b[1] -= 10000.0f;
@@ -803,7 +779,7 @@ void ACTDebugMove(int a0, int a1)
             break;
         }
         case 1:
-            if ((*(int *)(ext + 0x2E4) & 0x200) != 0) {
+            if ((ext->unk2E4 & 0x200) != 0) {
                 SetRootUpdateMode(self, 1);
                 mode = 0;
             } else {
@@ -839,10 +815,10 @@ void ACTDebugMove(int a0, int a1)
                     gif_EndPacket();
                 }
             } else {
-                SetSimplePlane((float *)(*(char **)(self + 0x15C) + 0x1D0), 0.0f, -1.0f, 0.0f,
+                SetSimplePlane((float *)((char *)GOBJ_SUB(self) + 0x1D0), 0.0f, -1.0f, 0.0f,
                                pos[1] + h);
-                CopyVector(*(char **)(self + 0x15C) + 0x250, pos);
-                *(float *)(*(char **)(self + 0x15C) + 0x254) += h;
+                CopyVector((char *)GOBJ_SUB(self) + 0x250, pos);
+                GOBJ_SUB(self)->f_254 += h;
             }
         }
         debug_PrintfDummy(10, 185, 0xFFFFFF00u, (int)"LW's coord:");

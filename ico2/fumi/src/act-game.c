@@ -87,13 +87,13 @@ typedef struct {
 } MotionRec;
 
 extern MotionRec motionKind[];
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlControlMode differ) */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, ((char *)girlControlMode) differ) */
 extern int stage_no;
 
 /* The exit table: one 40-byte entry per exit, in .rodata. */
 
 extern const ExitData exitData[];
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlControlMode differ) */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, ((char *)girlControlMode) differ) */
 extern int exit_no;
 
 typedef struct {
@@ -101,7 +101,7 @@ typedef struct {
 } __attribute__((aligned(16))) Vec4S;
 
 /* kept local: char * here, GObj * in main.h */
-extern char *girlGObj;
+extern GObj *girlGObj;
 /* kept local: char * here, GObj * in main.h */
 extern char *boyGObj;
 /* kept local: agrees with boyact.h, which this TU does not include (PrivInsCamSet differ) */
@@ -128,7 +128,7 @@ typedef struct {
    anywhere in the ROM and stay in the blob. */
 static ActGameViewTbl actGameView;
 
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlControlMode differ) */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, ((char *)girlControlMode) differ) */
 extern int systemStatus[];
 extern char actModeTbl[];
 
@@ -149,7 +149,7 @@ typedef enum { MPSR_OFF, MPSR_ONESHOT, MPSR_HOLD } MpsrMode;
 /* self->0x164->0x688 -- the per-actor motion work block.  Every use in this
    function re-derives the chase (the ROM reloads both links after each
    store), so it is spelled as one accessor rather than a cached local. */
-#define ACTWORK(g) ((char *)*(int *)((char *)*(int *)((g) + 0x164) + 0x688))
+#define ACTWORK(g) ((char *)GOBJ_ACT(g)->f_688)
 
 /* The environment work block the actor rebuilds every frame: 464 bytes at
    +0x4B0, plus the four sub-blocks that survive the rebuild. */
@@ -169,7 +169,7 @@ typedef struct {
 /* kept local: agrees with weapon.h, which this TU does not include (GetTorchGObjOfWeapon differ) */
 extern int CheckWeaponKind();
 /* kept local: char * here, int in main.h */
-extern char *girlControlMode;
+extern int girlControlMode;
 
 /* The actor's orient-request bitfield: three 64-bit request words at
    sub+0x478, each paired with the permission mask 16 bytes further on. */
@@ -217,7 +217,7 @@ extern int lookTargetData[][3];
 extern float gameParam[];
 /* kept local: agrees with boyact.h, which this TU does not include (PrivInsCamSet differ) */
 extern void SetBoyInfo(int *a0, int *a1);
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlControlMode differ) */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, ((char *)girlControlMode) differ) */
 extern int itemWatchOff;
 /* kept local: float (void *, void *) here, void (void *, void *) in poly-flat.h */
 extern float IsPointIsInScreen(void *dst, void *root);
@@ -270,8 +270,7 @@ inline int ACTGame_CheckItemMotion(char *a0)
 void ACTGame_SaveActorInformation(char *a0)
 {
     Act *s = GOBJ_ACT(a0);
-    if (((int)(*(unsigned long long *)((char *)s + 0x18) >> 39) & 1) &&
-        *(int *)((char *)s + 0x4C) % 30 == 0) {
+    if (((int)(s->flags18.ll >> 39) & 1) && s->f_4C % 30 == 0) {
         gamesysObjInfoPosSetStage((int *)a0, s->f_444, 0, stage_no);
     }
 }
@@ -320,10 +319,10 @@ void ACTGame_StageChangeGObj(char *self, int idx)
         _ApplyRyGV(buf, -tmp_b[1]);
         sceVu0AddVector(tmp_a, tmp_a, buf);
     }
-    if (self == girlGObj) {
-        if (0.0f <= *(float *)((char *)GOBJ_ACT(self)->f_688 + 0x330)) {
+    if (self == ((char *)girlGObj)) {
+        if (0.0f <= GOBJ_WORK(self)->f_330) {
             memset(&buf3, 0, 0x10);
-            buf3.z = -*(float *)(*(char **)(*(char **)(girlGObj + 0x164) + 0x688) + 0x330);
+            buf3.z = -GOBJ_WORK(((char *)girlGObj))->f_330;
             buf2 = buf3;
             _ApplyRyGV(&buf2, -tmp_b[1]);
             sceVu0AddVector(tmp_a, tmp_a, &buf2);
@@ -368,9 +367,9 @@ void ACTGame_SetActors_Debug(int stage, unsigned char flag)
     gflagOn(394);
     if (flag != 0) {
         if (boyGObj != 0) {
-            char *s = *(char **)(boyGObj + 0x164);
-            boy = *(char **)(s + 0x150);
-            girl = *(char **)(s + 0x154);
+            Act *s = GOBJ_ACT(boyGObj);
+            boy = (char *)s->f_150;
+            girl = s->f_154;
             SetBoyInfo((int *)boy, (int *)girl);
             BoyInfoUpdate_StageChange();
         }
@@ -441,7 +440,7 @@ inline unsigned char ACTGame_FLAG_TETSUNAGI(void)
     int flag;
     if (g == 0)
         return 0;
-    flag = (int)(*(unsigned long long *)(*(char **)(g + 0x164) + 0x18) >> 40) & 1;
+    flag = (int)(GOBJ_ACT(g)->flags18.ll >> 40) & 1;
     return flag;
 }
 
@@ -450,12 +449,12 @@ inline int ACTGame_FLAG_TETSUNAGI_VISUAL(void)
     char *g = girlGObj;
     if (g == 0)
         return 0;
-    return (int)(*(unsigned long long *)(*(char **)(g + 0x164) + 0x18) >> 42) & 1;
+    return (int)(GOBJ_ACT(g)->flags18.ll >> 42) & 1;
 }
 
 void ACTGame_TryConnectHand(void)
 {
-    RequestChangeHandMode(boyGObj, 1, 5, 5, (int)girlGObj, 0, 0);
+    RequestChangeHandMode(boyGObj, 1, 5, 5, (int)((char *)girlGObj), 0, 0);
 }
 
 void ACTGame_TryDisconnectHand(void)
@@ -465,10 +464,10 @@ void ACTGame_TryDisconnectHand(void)
 
 inline void ACTGame_ConnectHand(void)
 {
-    Act *s = GOBJ_ACT(girlGObj);
-    RequestChangeHandMode(girlGObj, 0, 5, 6, (int)boyGObj, 0, 0);
-    RequestChangeHandMode(boyGObj, 1, 5, 5, (int)girlGObj, 0, 0);
-    *(unsigned long long *)((char *)s + 0x18) |= (1ULL << 40);
+    Act *s = GOBJ_ACT(((char *)girlGObj));
+    RequestChangeHandMode(((char *)girlGObj), 0, 5, 6, (int)boyGObj, 0, 0);
+    RequestChangeHandMode(boyGObj, 1, 5, 5, (int)((char *)girlGObj), 0, 0);
+    s->flags18.ll |= (1ULL << 40);
 }
 
 void ACTGame_DisconnectHand_WithMail(void)
@@ -479,10 +478,10 @@ void ACTGame_DisconnectHand_WithMail(void)
 
 inline void ACTGame_DisconnectHand(void)
 {
-    Act *s = GOBJ_ACT(girlGObj);
-    RequestChangeHandMode(girlGObj, 0, 5, 0, 0, 0, 0);
+    Act *s = GOBJ_ACT(((char *)girlGObj));
+    RequestChangeHandMode(((char *)girlGObj), 0, 5, 0, 0, 0, 0);
     RequestChangeHandMode(boyGObj, 1, 5, 0, 0, 0, 0);
-    *(unsigned long long *)((char *)s + 0x18) &= ~(1ULL << 40);
+    s->flags18.ll &= ~(1ULL << 40);
 }
 
 inline unsigned char ACTGame_CheckPriInputFrame(char *a0)
@@ -503,7 +502,7 @@ inline unsigned char ACTGame_CheckPriInputFrame(char *a0)
 
 inline int ACTGame_GetCurrentCallStatus(char *a0)
 {
-    char *s = (char *)*(int *)(a0 + 0x164);
+    Act *s = GOBJ_ACT(a0);
 
     if (a0 != boyGObj) {
         return 0;
@@ -516,14 +515,13 @@ inline int ACTGame_GetCurrentCallStatus(char *a0)
     case 3:
         return 0;
     }
-    if (((int)(*(unsigned long long *)(s + 0x478) >> 46) & 1) &&
-        ((int)(*(unsigned long long *)(s + 0x488) >> 46) & 1)) {
-        /* The ROM's `sltiu 4; beqz` then `st != 0` pair is the decision tree
+    if (((int)(s->f_478 >> 46) & 1) && ((int)(s->f_488 >> 46) & 1)) {
+        /* The ROM'(char *)s `sltiu 4; beqz` then `st != 0` pair is the decision tree
            of a switch on an unsigned index (listing row 1298 holds the whole
            dispatch, rows 1299-1306 are code-free case lines); the cast
-           stands for the status field's own unsigned type, which the bytes
+           stands for the status field'(char *)s own unsigned type, which the bytes
            cannot name. */
-        switch ((unsigned int)*(int *)(s + 0x34)) {
+        switch ((unsigned int)s->unk34) {
         case 1:
         case 2:
         case 3:
@@ -535,7 +533,7 @@ inline int ACTGame_GetCurrentCallStatus(char *a0)
 
 inline void PAIR_GetPosition_BOY_DITCH(float *a0, float *a1)
 {
-    float *q = (float *)*(char **)(boyGObj + 0x164);
+    float *q = (float *)(char *)GOBJ_ACT(boyGObj);
     a0[0] = q[0x510 / 4];
     a0[1] = q[0x514 / 4];
     a0[2] = q[0x518 / 4];
@@ -548,7 +546,7 @@ inline int PAIR_IsStatus_BOY_DITCH(void)
 {
     char *b = boyGObj;
 
-    switch (*(unsigned int *)(*(char **)(b + 0x164) + 0x34)) {
+    switch ((unsigned int)GOBJ_ACT(b)->unk34) {
     case 0x58:
         if (motionKind[GOBJ_SUB(b)->f_4A0].f_150 != 1) {
             break;
@@ -571,7 +569,7 @@ inline int PAIR_IsStatus_BOY_DITCH(void)
 
 inline void PAIR_GetPosition_BOY(float *a0, float *a1)
 {
-    float *q = (float *)*(char **)(boyGObj + 0x164);
+    float *q = (float *)(char *)GOBJ_ACT(boyGObj);
     a0[0] = q[0x500 / 4];
     a0[1] = q[0x504 / 4];
     a0[2] = q[0x508 / 4];
@@ -582,7 +580,7 @@ inline void PAIR_GetPosition_BOY(float *a0, float *a1)
 
 inline int PAIR_IsStatus_BOY_PULL(void)
 {
-    switch (*(unsigned int *)(*(char **)(boyGObj + 0x164) + 0x34)) {
+    switch ((unsigned int)GOBJ_ACT(boyGObj)->unk34) {
     case 0x4E:
     case 0x4F:
         return 1;
@@ -600,7 +598,7 @@ inline int PAIR_IsStatus_BOY_PULL(void)
 
 inline int PAIR_IsStatus_GIRL_PULL(void)
 {
-    switch (*(unsigned int *)(*(char **)(girlGObj + 0x164) + 0x34)) {
+    switch ((unsigned int)GOBJ_ACT(((char *)girlGObj))->unk34) {
     case 4:
     case 0x45:
     case 0x50:
@@ -623,7 +621,7 @@ inline int PAIR_IsStatus_BOY_WAIT(void)
     char *b = boyGObj;
 
     if (b != 0) {
-        switch (*(unsigned int *)(*(char **)(b + 0x164) + 0x34)) {
+        switch ((unsigned int)GOBJ_ACT(b)->unk34) {
         case 0x4E:
         case 0x58:
             if (motionKind[GOBJ_SUB(b)->f_4A0].f_150 == 1) {
@@ -997,67 +995,65 @@ void ACTGameView_Loop(char *self)
         actGameView.view[i] = 0;
     }
 
-    switch (*(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800)) {
+    switch (GOBJ_WORK(self)->f_800) {
     case 0:
         if (5000.0f <
             _DistGV(test_CURRENTROOT((int *)self), test_CURRENTROOT((int *)actGameView.obj[i]))) {
-            *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 6;
+            GOBJ_WORK(self)->f_800 = 6;
         } else {
-            *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 1;
+            GOBJ_WORK(self)->f_800 = 1;
         }
         break;
     case 1:
-        *(void (**)(void *))(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x7F4) = ClipWall;
-        *(char **)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x7F0) = actGameView.obj[i];
-        *(void **)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x7A0) = 0;
-        GetSkeltonPosition((float *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x730), self,
-                           (void *)0x23);
-        GetRootPosition(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x740, actGameView.obj[i]);
-        RequestClipCollision(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x720);
-        *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 2;
+        *(void (**)(void *))(GOBJ_ACT(self)->f_688 + 0x7F4) = ClipWall;
+        GOBJ_WORK(self)->f_7F0 = actGameView.obj[i];
+        GOBJ_WORK(self)->f_7A0 = 0;
+        GetSkeltonPosition((float *)(GOBJ_ACT(self)->f_688 + 0x730), self, (void *)0x23);
+        GetRootPosition(GOBJ_ACT(self)->f_688 + 0x740, actGameView.obj[i]);
+        RequestClipCollision(GOBJ_ACT(self)->f_688 + 0x720);
+        GOBJ_WORK(self)->f_800 = 2;
         break;
     case 2:
-        if (*(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x720) != 0) {
-            if (*(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x7B8) != 0) {
-                *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 6;
+        if (GOBJ_WORK(self)->f_720 != 0) {
+            if (GOBJ_WORK(self)->f_7B8 != 0) {
+                GOBJ_WORK(self)->f_800 = 6;
             } else {
-                *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 3;
+                GOBJ_WORK(self)->f_800 = 3;
             }
         }
         break;
     case 3:
-        *(void (**)(void *))(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x7F4) = ClipFloor;
-        *(char **)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x7F0) = actGameView.obj[i];
-        *(void **)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x7A0) = 0;
-        GetSkeltonPosition((float *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x730), self,
-                           (void *)0x23);
-        GetRootPosition(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x740, actGameView.obj[i]);
-        RequestClipCollision(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x720);
-        *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 4;
+        *(void (**)(void *))(GOBJ_ACT(self)->f_688 + 0x7F4) = ClipFloor;
+        GOBJ_WORK(self)->f_7F0 = actGameView.obj[i];
+        GOBJ_WORK(self)->f_7A0 = 0;
+        GetSkeltonPosition((float *)(GOBJ_ACT(self)->f_688 + 0x730), self, (void *)0x23);
+        GetRootPosition(GOBJ_ACT(self)->f_688 + 0x740, actGameView.obj[i]);
+        RequestClipCollision(GOBJ_ACT(self)->f_688 + 0x720);
+        GOBJ_WORK(self)->f_800 = 4;
         break;
     case 4:
-        if (*(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x720) != 0) {
-            if (*(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x7C4) != 0) {
-                *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 6;
+        if (GOBJ_WORK(self)->f_720 != 0) {
+            if (GOBJ_WORK(self)->f_7C4 != 0) {
+                GOBJ_WORK(self)->f_800 = 6;
             } else {
-                *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 5;
+                GOBJ_WORK(self)->f_800 = 5;
             }
         }
         break;
     case 5:
         actGameView.simple[i] = 1;
-        *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 7;
+        GOBJ_WORK(self)->f_800 = 7;
         break;
     case 6:
         actGameView.simple[i] = 0;
-        *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 7;
+        GOBJ_WORK(self)->f_800 = 7;
         break;
     case 7:
         actGameView.cur++;
         if (!(actGameView.cur < actGameView.num)) {
             actGameView.cur = 0;
         }
-        *(int *)(*(int *)(*(int *)(self + 0x164) + 0x688) + 0x800) = 0;
+        GOBJ_WORK(self)->f_800 = 0;
         break;
     }
 }
@@ -1086,7 +1082,7 @@ inline int ACTGameViewSimple_Check(int a0, int a1)
 
 void ACTGame_LwsEffectProcess(char *a0)
 {
-    int m = *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1B8);
+    int m = GOBJ_ACT(a0)->f_680->f_1B8;
     if (m != 0) {
         DispMultiBgaManagerWithKind(0x1F8, m, 1);
     }
@@ -1094,22 +1090,22 @@ void ACTGame_LwsEffectProcess(char *a0)
 
 inline void ACTGame_LwsEffectInit(char *a0)
 {
-    *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1B8) = InitMultiBgaManager(1);
+    GOBJ_ACT(a0)->f_680->f_1B8 = InitMultiBgaManager(1);
 }
 
 inline void ACTGame_LwsEffect_Guard(char *a0)
 {
     float q[4];
     float v[4];
-    char *p;
+    EnemyBattleWork *p;
 
     _OrientXZGV(v, test_CURRENTROOT((int *)boyGObj), test_CURRENTROOT((int *)a0));
     ActGame_GetOrientQ(q, v, 0);
 
     stage_SetLoopFlag(504, 0);
     stage_SetFrameStep(0x1F8, 1);
-    p = *(char **)(*(char **)(a0 + 0x164) + 0x680);
-    EntryMultiBgaManager(*(int *)(p + 0x1B8), 0, -1, test_CURRENTROOT((int *)a0), q);
+    p = GOBJ_ACT(a0)->f_680;
+    EntryMultiBgaManager(p->f_1B8, 0, -1, test_CURRENTROOT((int *)a0), q);
 }
 
 inline void ActGame_GetOrientQ(void *q, void *v, int deg)
@@ -1126,15 +1122,15 @@ inline void ActGame_GetOrientQ(void *q, void *v, int deg)
 inline void ACTCharctrl_Lock(char *a0)
 {
     Act *s = GOBJ_ACT(a0);
-    *(unsigned long long *)((char *)s + 0x18) &= ~(1ULL << 48);
-    *(unsigned long long *)((char *)s + 0x18) &= ~(1ULL << 49);
+    s->flags18.ll &= ~(1ULL << 48);
+    s->flags18.ll &= ~(1ULL << 49);
 }
 
 inline void ACTCharctrl_Unlock(char *a0)
 {
     Act *p = GOBJ_ACT(a0);
-    *(unsigned long long *)((char *)p + 0x18) |= (1ULL << 48);
-    *(unsigned long long *)((char *)p + 0x18) |= (1ULL << 49);
+    p->flags18.ll |= (1ULL << 48);
+    p->flags18.ll |= (1ULL << 49);
 }
 
 inline int *ACTGame_GetNearestGObj(int a0, int a1)
@@ -1160,7 +1156,7 @@ inline int *ACTGame_GetNearestGObj(int a0, int a1)
 inline void _GetRootObjectOrient(void *a0, char *a1)
 {
     float v[4] = {0.0f, 0.0f, 1.0f, 0.0f};
-    sceVu0ApplyMatrix(a0, *(void **)((char *)GOBJ_SUB(a1) + 0xC), v);
+    sceVu0ApplyMatrix(a0, (void *)GOBJ_SUB(a1)->f_C, v);
 }
 
 inline int ACTGame_isWeaponEnableCatchfire(int *self)
@@ -1198,7 +1194,7 @@ inline int ACTGame_GetMotOrientFromWeapon(int a0)
 
 inline unsigned char ACTGame_NoWeapon(char *a0)
 {
-    char *w = *(char **)(*(char **)(a0 + 0x164) + 0x150);
+    char *w = (char *)GOBJ_ACT(a0)->f_150;
     unsigned char r = 0;
     if (w == 0 || CheckWeaponKind(w) == 0)
         r = 1;
@@ -1242,7 +1238,7 @@ inline void ACTLookTarget_Init(char *a0)
 {
     Act *s = GOBJ_ACT(a0);
     s->f_A8 = 0;
-    *(int *)((char *)s + 0xB0) = 0;
+    s->f_B0 = 0;
     s->f_AC = 0;
 }
 
@@ -1256,11 +1252,11 @@ inline int _ACTLookTarget_Set(char *a0, int a1, float *a2, int a3, int a4)
     } else if (a3 >= s->f_AC) {
         s->f_A8 = a1;
         if (a2 != 0) {
-            *(float *)((char *)s + 0xC0) = a2[0];
-            *(float *)((char *)s + 0xC4) = a2[1];
-            *(float *)((char *)s + 0xC8) = a2[2];
+            s->f_C0 = a2[0];
+            s->f_C4 = a2[1];
+            s->f_C8 = a2[2];
         }
-        *(int *)((char *)s + 0xB0) = a4;
+        s->f_B0 = a4;
         s->f_AC = a3;
         ret = 1;
     }
@@ -1271,7 +1267,7 @@ int ACTLookTarget_Exec(char *a0)
 {
     float pos[4];
     Act *s = GOBJ_ACT(a0);
-    char *t = *(char **)((char *)s + 0xA8);
+    char *t = (char *)s->f_A8;
     int rv;
     int b0;
 
@@ -1283,9 +1279,9 @@ int ACTLookTarget_Exec(char *a0)
         GOBJ_SUB(a0)->f_380 = 0;
     } else {
         if (t == 0) {
-            pos[0] = *(float *)((char *)s + 0xC0);
-            pos[1] = *(float *)((char *)s + 0xC4);
-            pos[2] = *(float *)((char *)s + 0xC8);
+            pos[0] = s->f_C0;
+            pos[1] = s->f_C4;
+            pos[2] = s->f_C8;
         } else if (t == boyGObj) {
             /* the boy's skeleton position read in place: the listing gives
                the focus-node call line 2243 and all three copies line 2244,
@@ -1297,7 +1293,7 @@ int ACTLookTarget_Exec(char *a0)
         } else {
             GetRootPosition(pos, t);
         }
-        b0 = *(int *)((char *)s + 0xB0);
+        b0 = s->f_B0;
         rv = 1;
         ((IntFloat *)((char *)(int)GOBJ_SUB(a0) + 0x390))->f = pos[0];
         ((IntFloat *)((char *)(int)GOBJ_SUB(a0) + 0x394))->f = pos[1];
@@ -1325,42 +1321,40 @@ void ACTParaStatus_Clear(char *a0)
 inline void _ACTParaStatus_Set(char *a0, int bit)
 {
     Act *s = GOBJ_ACT(a0);
-    *(unsigned long long *)((char *)s + 0x90) |=
-        (1ULL << bit) & ~*(unsigned long long *)((char *)s + 0xA0);
+    *(unsigned long long *)((char *)s + 0x90) |= (1ULL << bit) & ~(unsigned long long)s->flags;
 }
 
 inline unsigned long long _ACTParaStatus_Check(char *a0, int bit)
 {
     Act *s = GOBJ_ACT(a0);
-    return (*(unsigned long long *)((char *)s + 0x90) >> bit) & 1;
+    return ((unsigned long long)s->f_90 >> bit) & 1;
 }
 
 void ACTParaStatus_Exec(char *self)
 {
-    char *s = (char *)*(int *)(self + 0x164);
-    char *sub;
-    char *p;
+    Act *s = GOBJ_ACT(self);
+    Sub15C *sub;
+    EnemyBattleWork *p;
     int changed;
 
     changed = 0;
-    if ((int)(*(unsigned long long *)(s + 0x20) >> 16) & 1) {
+    if ((int)(s->flags20.ll >> 16) & 1) {
         _ACTParaStatus_Set(self, 42);
     }
-    if ((int)(*(unsigned long long *)(s + 0x20) >> 17) & 1) {
+    if ((int)(s->flags20.ll >> 17) & 1) {
         _ACTParaStatus_Set(self, 43);
     }
-    if (*(unsigned long long *)(s + 0x90) != *(unsigned long long *)(s + 0x98)) {
-        *(unsigned long long *)(s + 0x98) = *(unsigned long long *)(s + 0x90);
+    if ((unsigned long long)s->f_90 != s->f_98) {
+        s->f_98 = (unsigned long long)s->f_90;
         changed = 1;
     }
-    p = *(char **)(s + 0x680);
-    if ((*(int *)(p + 0x5C))++ >= 121) {
-        sub = (char *)GOBJ_SUB(self);
-        if ((*(int *)(sub + 0x480) & 0x16) || *(int *)(sub + 0x4CC) != 0) {
-            if (motionKind[*(int *)(sub + 0x4A0)].f_150 == 1) {
-                *(int *)(*(char **)((char *)*(int *)(self + 0x164) + 0x680) + 0x5C) = 0;
-                *(int *)(*(char **)((char *)*(int *)(self + 0x164) + 0x680) + 0x60) =
-                    (int)(_GetRandom() * 10.0f);
+    p = s->f_680;
+    if ((p->f_5C)++ >= 121) {
+        sub = GOBJ_SUB(self);
+        if ((sub->f_480 & 0x16) || (int)sub->f_4CC != 0) {
+            if (motionKind[sub->f_4A0].f_150 == 1) {
+                GOBJ_ACT(self)->f_680->f_5C = 0;
+                GOBJ_ACT(self)->f_680->f_60 = (int)(_GetRandom() * 10.0f);
                 changed = 1;
             }
         }
@@ -1369,10 +1363,9 @@ void ACTParaStatus_Exec(char *self)
     if (changed == 0) {
         return;
     }
-    ActPara_MakeTbl(GOBJ_ACT(self)->f_688, *(long long *)(s + 0x90),
-                    *(int *)(*(char **)((char *)*(int *)(self + 0x164) + 0x680) + 0x60));
+    ActPara_MakeTbl(GOBJ_ACT(self)->f_688, s->f_90, GOBJ_ACT(self)->f_680->f_60);
     SetParallelMotionTable(self, GOBJ_ACT(self)->f_688, ActPara_GetDefTbl(), 0,
-                           (int)*(float *)(GOBJ_ACT(self)->f_688 + 0x348));
+                           (int)GOBJ_WORK(self)->f_348);
 }
 
 inline void _ACTCharStatus_Init(int **a0)
@@ -1385,14 +1378,14 @@ inline void _ACTCharStatus_Init(int **a0)
 void _ACTCharStatus_Clear(char *a0)
 {
     Act *s = GOBJ_ACT(a0);
-    int old = *(int *)((char *)s + 0x7C);
+    int old = s->f_7C;
     int *sel;
     int *g;
     float nearest;
     float d;
 
     memset((char *)s + 0x58, 0, 0x38);
-    if (a0 == boyGObj || a0 == girlGObj) {
+    if (a0 == boyGObj || a0 == ((char *)girlGObj)) {
         nearest = 3.40282347e+38f; /* FLT_MAX */
         sel = 0;
         g = isysGObjSearchFromObjKindID_begin(4);
@@ -1409,7 +1402,7 @@ void _ACTCharStatus_Clear(char *a0)
         *(int **)((char *)s + 0x7C) = sel;
         if (a0 == boyGObj) {
             if (old != 0 && s->f_10 % ((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 2) != 0) {
-                *(int *)((char *)s + 0x7C) = old;
+                s->f_7C = old;
             }
         }
     }
@@ -1423,42 +1416,42 @@ inline void _ACTCharStatus_Set(char *a0, int bit, float f, int val)
 
     switch (bit) {
     case 8:
-        *(float *)((char *)s + 0x68) = f;
+        s->f_68 = f;
         break;
 
     case 5:
-        *(float *)((char *)s + 0x6C) = f;
+        s->f_6C = f;
         break;
 
     case 17:
-        *(float *)((char *)s + 0x70) = f;
+        s->f_70 = f;
         break;
 
     case 18:
-        *(int *)((char *)s + 0x74) = val;
+        s->f_74 = val;
         break;
 
     case 10:
-        *(int *)((char *)s + 0x78) = val;
+        s->f_78 = val;
         break;
 
     case 2:
-        *(int *)((char *)s + 0x7C) = val;
+        s->f_7C = val;
         break;
 
     case 11:
-        *(int *)((char *)s + 0x88) = val;
+        s->f_88 = val;
         break;
     }
 }
 
 inline unsigned char _ACTCharStatus_Check(char *a0, int bit)
 {
-    char *s = (char *)*(int *)(a0 + 0x164);
+    Act *s = GOBJ_ACT(a0);
     int r;
 
-    if (s != 0) {
-        r = (*(unsigned long long *)(s + 0x58) >> bit) & 1;
+    if ((char *)s != 0) {
+        r = (*(unsigned long long *)((char *)s + 0x58) >> bit) & 1;
         if (r != 0) {
             return 1;
         }
@@ -1470,17 +1463,17 @@ inline void _ACTCharStatus_Exec(void) {}
 
 inline void ACTGame_SetMotionPlaySpeedRatio_Clear(char *a0)
 {
-    char *p = (char *)*(int *)((char *)*(int *)(a0 + 0x164) + 0x680);
-    *(float *)(p + 0x58) = 1.0f;
-    *(MpsrMode *)(p + 0x54) = MPSR_OFF;
+    EnemyBattleWork *p = GOBJ_ACT(a0)->f_680;
+    p->f_58 = 1.0f;
+    *(MpsrMode *)((char *)p + 0x54) = MPSR_OFF;
 }
 
 inline void ACTGame_SetMotionPlaySpeedRatio_Reserve(char *a0, float f, unsigned int a1)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x164) + 0x680);
-    if (*(unsigned int *)(p + 0x54) <= a1) {
-        *(float *)(p + 0x58) = f;
-        *(unsigned int *)(p + 0x54) = a1;
+    EnemyBattleWork *p = GOBJ_ACT(a0)->f_680;
+    if (p->f_54 <= a1) {
+        p->f_58 = f;
+        p->f_54 = a1;
     }
 }
 
@@ -1512,16 +1505,15 @@ inline void ACTGame_SetMotionPlaySpeedRatio_Exec(char *a0)
     int keep;
 
     ratio = 1.0f;
-    keep = (unsigned int)*(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x54) < 3 &&
-           a0 == girlGObj;
-    if (*(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x54) == 1) {
+    keep = (unsigned int)(int)GOBJ_ACT(a0)->f_680->f_54 < 3 && a0 == girlGObj;
+    if ((int)GOBJ_ACT(a0)->f_680->f_54 == 1) {
         if (((&motionKind[GOBJ_SUB(a0)->f_4A0])->f_18C >> 30) & 1) {
-            ratio = *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x58);
+            ratio = GOBJ_ACT(a0)->f_680->f_58;
             keep = 0;
         }
     } else {
         if ((((&motionKind[GOBJ_SUB(a0)->f_4A0])->f_18C >> 26) & 1) == 0) {
-            ratio = *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x58);
+            ratio = GOBJ_ACT(a0)->f_680->f_58;
         }
     }
     if (keep) {
@@ -1587,10 +1579,10 @@ static inline void actGame_SendMailToBirds(char *self)
     int *bird;
     int mail;
 
-    char *s = *(char **)(self + 0x164);
+    Act *s = GOBJ_ACT(self);
     bird = isysGObjSearchFromObjKindID_begin(32);
     mail = 423;
-    if (*(int *)(s + 0x34) == 3) {
+    if (s->unk34 == 3) {
         mail = 424;
     }
     GetRootPosition(mine, self);
@@ -1628,15 +1620,12 @@ void ACTGame_InnerVelocityUpdate(char *self)
     pos[0] = test_CURRENTROOT((int *)self)[0];
     pos[1] = test_CURRENTROOT((int *)self)[1];
     pos[2] = test_CURRENTROOT((int *)self)[2];
-    sceVu0SubVector((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x430, pos,
-                    (char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x420);
-    speed = FSqrt(*(float *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x430) *
-                      *(float *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x430) +
-                  *(float *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x434) *
-                      *(float *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x434) +
-                  *(float *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x438) *
-                      *(float *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x438));
-    p = (char *)*(int *)(self + 0x164);
+    sceVu0SubVector((char *)GOBJ_ACT(self)->f_688 + 0x430, pos,
+                    (char *)GOBJ_ACT(self)->f_688 + 0x420);
+    speed = FSqrt(GOBJ_WORK(self)->f_430 * GOBJ_WORK(self)->f_430 +
+                  GOBJ_WORK(self)->f_434 * GOBJ_WORK(self)->f_434 +
+                  GOBJ_WORK(self)->f_438 * GOBJ_WORK(self)->f_438);
+    p = (char *)GOBJ_ACT(self);
     p = (char *)*(int *)(p + 0x688);
     *(float *)(p + 0x440) = speed;
     *(float *)(p + 0x420) = pos[0];
@@ -1649,57 +1638,50 @@ void ACTGame_InnerVelocityUpdate(char *self)
         stop = 1;
     }
     if (slow != 0) {
-        *(int *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x444) += 1;
+        GOBJ_WORK(self)->f_444 += 1;
     } else {
-        *(int *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x444) = 0;
+        GOBJ_WORK(self)->f_444 = 0;
     }
     if (stop != 0) {
-        *(int *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x448) += 1;
+        GOBJ_WORK(self)->f_448 += 1;
     } else {
-        *(int *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x448) = 0;
+        GOBJ_WORK(self)->f_448 = 0;
     }
-    if (4 <= *(int *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x444)) {
-        ((ActStatusWord *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x448))->q |=
-            1ULL << 32;
+    if (4 <= GOBJ_WORK(self)->f_444) {
+        ((ActStatusWord *)((char *)GOBJ_ACT(self)->f_688 + 0x448))->q |= 1ULL << 32;
     } else {
-        ((ActStatusWord *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x448))->q &=
-            ~(1ULL << 32);
+        ((ActStatusWord *)((char *)GOBJ_ACT(self)->f_688 + 0x448))->q &= ~(1ULL << 32);
     }
-    if (4 <= *(int *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x448)) {
-        ((ActStatusWord *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x448))->q |=
-            1ULL << 33;
+    if (4 <= GOBJ_WORK(self)->f_448) {
+        ((ActStatusWord *)((char *)GOBJ_ACT(self)->f_688 + 0x448))->q |= 1ULL << 33;
     } else {
-        ((ActStatusWord *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x448))->q &=
-            ~(1ULL << 33);
+        ((ActStatusWord *)((char *)GOBJ_ACT(self)->f_688 + 0x448))->q &= ~(1ULL << 33);
     }
     nomove = 0;
-    if (((&motionKind[*(int *)(*(char **)(self + 0x15C) + 0x4A0)])->f_18C >> 10) & 1) {
-        if (*(float *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x440) < 4.0f) {
+    if (((&motionKind[GOBJ_SUB(self)->f_4A0])->f_18C >> 10) & 1) {
+        if (GOBJ_WORK(self)->f_440 < 4.0f) {
             nomove = 1;
         }
     }
     if (nomove != 0) {
-        *(int *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x450) += 1;
+        GOBJ_WORK(self)->f_450 += 1;
     } else {
-        *(int *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x450) = 0;
+        GOBJ_WORK(self)->f_450 = 0;
     }
-    if (*(int *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x450) >
-        (60 - systemStatus[0] * 10) / systemStatus[1] * 5) {
-        ((ActStatusWord *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x450))->q |=
-            1ULL << 32;
+    if (GOBJ_WORK(self)->f_450 > (60 - systemStatus[0] * 10) / systemStatus[1] * 5) {
+        ((ActStatusWord *)((char *)GOBJ_ACT(self)->f_688 + 0x450))->q |= 1ULL << 32;
     } else {
-        ((ActStatusWord *)((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x688) + 0x450))->q &=
-            ~(1ULL << 32);
+        ((ActStatusWord *)((char *)GOBJ_ACT(self)->f_688 + 0x450))->q &= ~(1ULL << 32);
     }
 }
 
 inline int ACTNotNeedCameraOffset(char *a0)
 {
-    char *s;
+    Act *s;
     if (a0 != 0 && a0 == boyGObj) {
-        s = *(char **)(a0 + 0x164);
-        if (s != 0) {
-            return (int)(*(unsigned long long *)(s + 0x20) >> 41) & 1;
+        s = GOBJ_ACT(a0);
+        if ((char *)s != 0) {
+            return (int)(s->flags20.ll >> 41) & 1;
         }
     }
     return 0;
@@ -1707,146 +1689,145 @@ inline int ACTNotNeedCameraOffset(char *a0)
 
 void ACTGame_BeforeFunc(char *self)
 {
-    char *s = (char *)*(int *)(self + 0x164);
+    Act *s = GOBJ_ACT(self);
 
-    *(float *)((char *)*(int *)(s + 0x688) + 0x348) = 3.0f;
+    ((ActWork *)s->f_688)->f_348 = 3.0f;
     ACTGame_InnerVelocityUpdate(self);
 
-    switch (*(unsigned int *)(s + 0x34)) {
+    switch ((unsigned int)s->unk34) {
     case 1:
     case 2:
     case 3: {
-        char *p = (char *)*(int *)(self + 0x164);
-        *(int *)(p + 0x1B0) = 0;
-        *(char *)(p + 0x1DA) = 0;
+        Act *p = GOBJ_ACT(self);
+        p->f_1B0 = 0;
+        p->f_1DA = 0;
         break;
     }
     }
 
-    if (((int)(*(unsigned long long *)(s + 0x20) >> 40) & 1) == 0 &&
+    if (((int)(s->flags20.ll >> 40) & 1) == 0 &&
         ((int)(&motionKind[GOBJ_SUB(self)->f_4A0])->f_18C >= 0 || GOBJ_SUB(self)->f_4F8 != 0)) {
-        GetRootPosition(s + 0x110, self);
+        GetRootPosition((char *)s + 0x110, self);
     }
 
-    *(unsigned long long *)(s + 0x20) &= ~(1ULL << 41);
-    *(unsigned long long *)(s + 0x20) &= ~(1ULL << 40);
+    s->flags20.ll &= ~(1ULL << 41);
+    s->flags20.ll &= ~(1ULL << 40);
 
     ACTParaStatus_Clear(self);
     _ACTCharStatus_Clear(self);
     ACTLookTarget_Init(self);
 
-    memset(s + 0x47C, 0, 0x10);
-    memset(s + 0x48C, 0, 0x10);
+    memset((char *)s + 0x47C, 0, 0x10);
+    memset((char *)s + 0x48C, 0, 0x10);
 
     ACTGame_SetMotionPlaySpeedRatio_Clear(self);
 
-    if (*(int *)(ACTWORK(self) + 0x37C) > 0) {
-        (*(int *)(ACTWORK(self) + 0x37C))--;
+    if (GOBJ_WORK(self)->f_37C > 0) {
+        (GOBJ_WORK(self)->f_37C)--;
     }
-    if (*(short *)(s + 0x13A) > 0) {
-        (*(short *)(s + 0x13A))--;
+    if (s->f_13A > 0) {
+        (s->f_13A)--;
     }
-    if (*(int *)(ACTWORK(self) + 0x384) > 0) {
-        (*(int *)(ACTWORK(self) + 0x384))--;
+    if (GOBJ_WORK(self)->f_384 > 0) {
+        (GOBJ_WORK(self)->f_384)--;
     }
-    if (*(int *)(ACTWORK(self) + 0x388) > 0) {
-        (*(int *)(ACTWORK(self) + 0x388))--;
+    if (GOBJ_WORK(self)->f_388 > 0) {
+        (GOBJ_WORK(self)->f_388)--;
     }
-    if (*(int *)(ACTWORK(self) + 0x390) != 0) {
-        (*(int *)(ACTWORK(self) + 0x390))--;
+    if (GOBJ_WORK(self)->f_390 != 0) {
+        (GOBJ_WORK(self)->f_390)--;
 
-        switch (*(unsigned int *)(s + 0x34)) {
+        switch ((unsigned int)s->unk34) {
         case 2:
         case 3:
             break;
 
         default:
-            *(int *)(ACTWORK(self) + 0x390) = 0;
+            GOBJ_WORK(self)->f_390 = 0;
             break;
         }
         if (scpBoyControlReadDisable != 0) {
-            *(int *)(ACTWORK(self) + 0x390) = 0;
+            GOBJ_WORK(self)->f_390 = 0;
         }
     }
 
-    if (girlGObj != 0 && GOBJ_ACT(girlGObj)->unk34 == 0x6F &&
-        GOBJ_ACT(girlGObj)->f_144 == (int)self &&
-        ((int)(*(unsigned long long *)(s + 0x20) >> 21) & 1) == 0) {
-        (*(int *)(ACTWORK(self) + 0x39C))++;
+    if (((char *)girlGObj) != 0 && GOBJ_ACT(((char *)girlGObj))->unk34 == 0x6F &&
+        GOBJ_ACT(((char *)girlGObj))->f_144 == (int)self && ((int)(s->flags20.ll >> 21) & 1) == 0) {
+        (GOBJ_WORK(self)->f_39C)++;
     } else {
-        *(int *)(ACTWORK(self) + 0x39C) = 0;
+        GOBJ_WORK(self)->f_39C = 0;
     }
 
-    if (*(int *)(ACTWORK(self) + 0x394) != 0) {
-        (*(int *)(ACTWORK(self) + 0x394))--;
+    if (GOBJ_WORK(self)->f_394 != 0) {
+        (GOBJ_WORK(self)->f_394)--;
     }
-    if (*(int *)(ACTWORK(self) + 0x38C) > 0) {
-        (*(int *)(ACTWORK(self) + 0x38C))--;
+    if (GOBJ_WORK(self)->f_38C > 0) {
+        (GOBJ_WORK(self)->f_38C)--;
         SetDirectMotionProgramInterpInfo(self, 0x2C, 0.0f);
         SetDirectMotionProgramInterpInfo(self, 0, 0.0f);
         SetDirectMotionProgramInterpInfo(self, 1, 0.0f);
         SetDirectMotionProgramInterpInfo(self, 0x22, 0.0f);
         SetDirectMotionProgramInterpInfo(self, 0x23, 0.0f);
     }
-    if (*(int *)(ACTWORK(self) + 0x3A0) != 0) {
-        (*(int *)(ACTWORK(self) + 0x3A0))--;
+    if (GOBJ_WORK(self)->f_3A0 != 0) {
+        (GOBJ_WORK(self)->f_3A0)--;
     }
-    if (*(int *)(ACTWORK(self) + 0x3A4) != 0) {
-        (*(int *)(ACTWORK(self) + 0x3A4))--;
+    if (GOBJ_WORK(self)->f_3A4 != 0) {
+        (GOBJ_WORK(self)->f_3A4)--;
     }
-    if (*(int *)(ACTWORK(self) + 0x3AC) != 0) {
-        (*(int *)(ACTWORK(self) + 0x3AC))--;
+    if (GOBJ_WORK(self)->f_3AC != 0) {
+        (GOBJ_WORK(self)->f_3AC)--;
     }
-    if (*(int *)(ACTWORK(self) + 0x3B0) != 0) {
-        (*(int *)(ACTWORK(self) + 0x3B0))--;
+    if (GOBJ_WORK(self)->f_3B0 != 0) {
+        (GOBJ_WORK(self)->f_3B0)--;
     }
-    if (*(int *)(ACTWORK(self) + 0x3B4) != 0) {
-        (*(int *)(ACTWORK(self) + 0x3B4))--;
+    if (GOBJ_WORK(self)->f_3B4 != 0) {
+        (GOBJ_WORK(self)->f_3B4)--;
     }
-    if (*(int *)(ACTWORK(self) + 0x3C4) != 0) {
-        (*(int *)(ACTWORK(self) + 0x3C4))--;
+    if (GOBJ_WORK(self)->f_3C4 != 0) {
+        (GOBJ_WORK(self)->f_3C4)--;
     }
-    if (*(int *)(ACTWORK(self) + 0x3C8) != 0) {
-        (*(int *)(ACTWORK(self) + 0x3C8))--;
+    if (GOBJ_WORK(self)->f_3C8 != 0) {
+        (GOBJ_WORK(self)->f_3C8)--;
     }
 
-    if ((int)(((ActStatusWord *)(s + 0x18))->q >> 36) & 1) {
-        (*(int *)(ACTWORK(self) + 0x3B8))++;
+    if ((int)(((ActStatusWord *)((char *)s + 0x18))->q >> 36) & 1) {
+        (GOBJ_WORK(self)->f_3B8)++;
     } else {
-        *(int *)(ACTWORK(self) + 0x3B8) = 0;
+        GOBJ_WORK(self)->f_3B8 = 0;
     }
-    if ((int)(((ActStatusWord *)(s + 0x18))->q >> 37) & 1) {
-        (*(int *)(ACTWORK(self) + 0x3BC))++;
+    if ((int)(((ActStatusWord *)((char *)s + 0x18))->q >> 37) & 1) {
+        (GOBJ_WORK(self)->f_3BC)++;
     } else {
-        *(int *)(ACTWORK(self) + 0x3BC) = 0;
+        GOBJ_WORK(self)->f_3BC = 0;
     }
 
     if ((((&motionKind[GOBJ_SUB(self)->f_4A0])->f_18C >> 14) & 1) ||
         ((((StatusAttr *)(actModeTbl + GOBJ_ACT(self)->unk34 * 0x50))->f_4C >> 14) & 1)) {
-        ((ActStatusWord *)(s + 0x18))->q |= 1ULL << 38;
+        ((ActStatusWord *)((char *)s + 0x18))->q |= 1ULL << 38;
         if (self == boyGObj) {
-            if (girlGObj != 0) {
-                *(int *)(ACTWORK(girlGObj) + 0x3B0) =
+            if (((char *)girlGObj) != 0) {
+                GOBJ_WORK(((char *)girlGObj))->f_3B0 =
                     (0x3C - systemStatus[0] * 0xA) / systemStatus[1];
             }
         }
     }
 
-    if ((int)(((ActStatusWord *)(s + 0x18))->q >> 38) & 1) {
-        (*(int *)(ACTWORK(self) + 0x3C0))++;
+    if ((int)(((ActStatusWord *)((char *)s + 0x18))->q >> 38) & 1) {
+        (GOBJ_WORK(self)->f_3C0)++;
     } else {
-        *(int *)(ACTWORK(self) + 0x3C0) = 0;
+        GOBJ_WORK(self)->f_3C0 = 0;
     }
 
-    if (self == girlGObj) {
+    if (self == ((char *)girlGObj)) {
         ACTGame_GirlBeforeFunc(self);
     }
 
     if (*(int *)(self + 0x8) == 0xEAD) {
-        if ((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 2 < *(int *)(s + 0x10)) {
-            if (!(girlGObj != 0 && GOBJ_ACT(girlGObj)->unk34 == 0x6F &&
-                  GOBJ_ACT(girlGObj)->f_144 == (int)self)) {
-                *(unsigned long long *)(s + 0x20) &= ~(1ULL << 30);
+        if ((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 2 < s->f_10) {
+            if (!(((char *)girlGObj) != 0 && GOBJ_ACT(((char *)girlGObj))->unk34 == 0x6F &&
+                  GOBJ_ACT(((char *)girlGObj))->f_144 == (int)self)) {
+                s->flags20.ll &= ~(1ULL << 30);
             }
         }
     }
@@ -1876,17 +1857,17 @@ static inline void andRequestFlags(char *d, char *m)
 void FunctionAboutClingedStatus(char *self)
 {
     int buf[4];
-    char *s;
+    Act *s;
     int *g;
     int clinged;
     int mode;
     int st;
-    char *p;
+    EnemyBattleWork *p;
     unsigned char cl;
 
     clinged = 0;
     mode = 0;
-    s = *(char **)(self + 0x164);
+    s = GOBJ_ACT(self);
     g = isysGObjSearchFromObjKindID_begin(4);
     while (g != 0) {
         if (self == actEnemy_GetClingTarget(g)) {
@@ -1901,16 +1882,15 @@ void FunctionAboutClingedStatus(char *self)
     }
     cl = _ACTCharStatus_Check(self, 30);
     if (cl != 0) {
-        st = *(int *)(s + 0x34);
+        st = s->unk34;
         if (st != 0) {
             if ((unsigned int)st >= 4) {
                 if (st == 15) {
                     mode = 1;
-                    if (*(int *)(s + 0x4C) == 0) {
-                        p = *(char **)((char *)*(int *)(self + 0x164) + 0x680);
-                        *(int *)(p + 0x260) += 1;
-                        if (*(int *)(*(char **)((char *)*(int *)(self + 0x164) + 0x680) + 0x260) >=
-                            5) {
+                    if (s->f_4C == 0) {
+                        p = GOBJ_ACT(self)->f_680;
+                        p->f_260 += 1;
+                        if (GOBJ_ACT(self)->f_680->f_260 >= 5) {
                             mode = 2;
                         }
                     }
@@ -1920,7 +1900,7 @@ void FunctionAboutClingedStatus(char *self)
             }
         }
     } else {
-        *(int *)(*(char **)((char *)*(int *)(self + 0x164) + 0x680) + 0x260) = 0;
+        GOBJ_ACT(self)->f_680->f_260 = 0;
     }
     switch (mode) {
     case 0:
@@ -1928,7 +1908,7 @@ void FunctionAboutClingedStatus(char *self)
     case 1:
         memset(buf, 0, 0x10);
         buf[0] |= 0x1000;
-        andRequestFlags(s + 0x48C, (char *)buf);
+        andRequestFlags((char *)s + 0x48C, (char *)buf);
         ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 1.0f / ((float)clinged * 0.25f + 1.0f), 6);
         break;
     case 2:
@@ -1940,7 +1920,7 @@ void FunctionAboutClingedStatus(char *self)
             }
             g = isysGObjSearchFromObjKindID_next(g);
         }
-        *(int *)(*(char **)((char *)*(int *)(self + 0x164) + 0x680) + 0x260) = 0;
+        GOBJ_ACT(self)->f_680->f_260 = 0;
         break;
     }
 }
@@ -1950,12 +1930,12 @@ void ACTEnvGetTest(char *self, void *a1)
     EnvWork old;
     Act *s = GOBJ_ACT(self);
 
-    *(unsigned long long *)((char *)s + 0x18) &= ~(1ULL << 59);
-    *(unsigned long long *)((char *)s + 0x18) &= ~(1ULL << 60);
-    *(unsigned long long *)((char *)s + 0x18) &= ~(1ULL << 61);
-    *(unsigned long long *)((char *)s + 0x20) &= ~(1ULL << 19);
-    *(unsigned long long *)((char *)s + 0x20) &= ~(1ULL << 38);
-    *(unsigned long long *)((char *)s + 0x20) &= ~(1ULL << 39);
+    s->flags18.ll &= ~(1ULL << 59);
+    s->flags18.ll &= ~(1ULL << 60);
+    s->flags18.ll &= ~(1ULL << 61);
+    s->flags20.ll &= ~(1ULL << 19);
+    s->flags20.ll &= ~(1ULL << 38);
+    s->flags20.ll &= ~(1ULL << 39);
 
     switch (s->unk34) {
     case 38:
@@ -2012,26 +1992,26 @@ void ACTEnvGetTest(char *self, void *a1)
         memset((char *)s + 0x49C, 0, 0x10);
     }
 
-    if ((int)(*(unsigned long long *)((char *)s + 0x498) >> 39) & 1) {
-        *(unsigned long long *)((char *)s + 0x488) |= 1ULL << 39;
+    if ((int)(s->f_498 >> 39) & 1) {
+        s->f_488 |= 1ULL << 39;
     }
-    if ((int)(*(unsigned long long *)((char *)s + 0x498) >> 44) & 1) {
-        *(unsigned long long *)((char *)s + 0x488) |= 1ULL << 44;
+    if ((int)(s->f_498 >> 44) & 1) {
+        s->f_488 |= 1ULL << 44;
     }
-    if ((int)(*(unsigned long long *)((char *)s + 0x498) >> 45) & 1) {
-        *(unsigned long long *)((char *)s + 0x488) |= 1ULL << 45;
+    if ((int)(s->f_498 >> 45) & 1) {
+        s->f_488 |= 1ULL << 45;
     }
-    if ((int)(*(unsigned long long *)((char *)s + 0x498) >> 50) & 1) {
-        *(unsigned long long *)((char *)s + 0x488) |= 1ULL << 50;
+    if ((int)(s->f_498 >> 50) & 1) {
+        s->f_488 |= 1ULL << 50;
     }
-    if ((int)(*(unsigned long long *)((char *)s + 0x498) >> 51) & 1) {
-        *(unsigned long long *)((char *)s + 0x488) |= 1ULL << 51;
+    if ((int)(s->f_498 >> 51) & 1) {
+        s->f_488 |= 1ULL << 51;
     }
-    if ((int)(*(unsigned long long *)((char *)s + 0x498) >> 52) & 1) {
-        *(unsigned long long *)((char *)s + 0x488) |= 1ULL << 52;
+    if ((int)(s->f_498 >> 52) & 1) {
+        s->f_488 |= 1ULL << 52;
     }
-    if ((int)(*(unsigned long long *)((char *)s + 0x498) >> 53) & 1) {
-        *(unsigned long long *)((char *)s + 0x488) |= 1ULL << 53;
+    if ((int)(s->f_498 >> 53) & 1) {
+        s->f_488 |= 1ULL << 53;
     }
     FunctionAboutClingedStatus(self);
 }
@@ -2053,29 +2033,29 @@ void ActOrientTest(char *self)
     float sk4[4];
     float d3[4];
     float ow[4];
-    char *s = *(char **)(self + 0x164);
+    Act *s = GOBJ_ACT(self);
     char *vel;
     int hitA;
     int hitB;
     int near;
     int i;
 
-    if (ORBIT(ORQ(s, 0), 39) && ORBIT(ORM(s, 0), 39)) {
+    if (ORBIT(ORQ((char *)s, 0), 39) && ORBIT(ORM((char *)s, 0), 39)) {
         ACTSendMailCorrect(self, 189);
     }
-    if (ORBIT(ORQ(s, 0), 40) && ORBIT(ORM(s, 0), 40)) {
+    if (ORBIT(ORQ((char *)s, 0), 40) && ORBIT(ORM((char *)s, 0), 40)) {
         ACTSendMailCorrect(self, 191);
     }
-    if (ORBIT(ORQ(s, 0), 41) && ORBIT(ORM(s, 0), 41)) {
+    if (ORBIT(ORQ((char *)s, 0), 41) && ORBIT(ORM((char *)s, 0), 41)) {
         ACTSendMailCorrect(self, 192);
     }
-    if (ORBIT(ORQ(s, 0), 42) && ORBIT(ORM(s, 0), 42)) {
+    if (ORBIT(ORQ((char *)s, 0), 42) && ORBIT(ORM((char *)s, 0), 42)) {
         ACTSendMailCorrect(self, 193);
     }
-    if (ORBIT(ORQ(s, 0), 43) && ORBIT(ORM(s, 0), 43)) {
+    if (ORBIT(ORQ((char *)s, 0), 43) && ORBIT(ORM((char *)s, 0), 43)) {
         ACTSendMailCorrect(self, 197);
     }
-    if (ORBIT(ORQ(s, 0), 44) && ORBIT(ORM(s, 0), 44)) {
+    if (ORBIT(ORQ((char *)s, 0), 44) && ORBIT(ORM((char *)s, 0), 44)) {
         if (*(int *)(self + 0xC) == 4) {
             if (rand() & 1) {
                 ACTSendMailCorrect(self, 205);
@@ -2086,135 +2066,135 @@ void ActOrientTest(char *self)
             ACTSendMailCorrect(self, 205);
         }
     }
-    if (ORBIT(ORQ(s, 0), 45) && ORBIT(ORM(s, 0), 45)) {
+    if (ORBIT(ORQ((char *)s, 0), 45) && ORBIT(ORM((char *)s, 0), 45)) {
         ACTSendMailCorrect(self, 206);
     }
-    if (ORBIT(ORQ(s, 0), 51) && ORBIT(ORM(s, 0), 51)) {
+    if (ORBIT(ORQ((char *)s, 0), 51) && ORBIT(ORM((char *)s, 0), 51)) {
         ACTSendMailCorrect(self, 279);
     }
     if (self != boyGObj) {
-        if (ORBIT(ORQ(s, 0), 50) && ORBIT(ORM(s, 0), 50)) {
+        if (ORBIT(ORQ((char *)s, 0), 50) && ORBIT(ORM((char *)s, 0), 50)) {
             ACTSendMailCorrect(self, 278);
         }
-        if (ORBIT(ORQ(s, 0), 52) && ORBIT(ORM(s, 0), 52)) {
+        if (ORBIT(ORQ((char *)s, 0), 52) && ORBIT(ORM((char *)s, 0), 52)) {
             ACTSendMailCorrect(self, 280);
         }
-        if (ORBIT(ORQ(s, 0), 53) && ORBIT(ORM(s, 0), 53)) {
+        if (ORBIT(ORQ((char *)s, 0), 53) && ORBIT(ORM((char *)s, 0), 53)) {
             ACTSendMailCorrect(self, 281);
         }
     }
-    if (ORBIT(ORQ(s, 0), 55) && ORBIT(ORM(s, 0), 55)) {
+    if (ORBIT(ORQ((char *)s, 0), 55) && ORBIT(ORM((char *)s, 0), 55)) {
         ACTSendMailCorrect(self, 203);
     }
-    if (ORBIT(ORQ(s, 0), 54) && ORBIT(ORM(s, 0), 54)) {
+    if (ORBIT(ORQ((char *)s, 0), 54) && ORBIT(ORM((char *)s, 0), 54)) {
         if (ACTGame_NoWeapon(self)) {
             ACTSendMailCorrect(self, 202);
         } else {
             ACTSendMailCorrect(self, 201);
         }
     }
-    if (ORBIT(ORQ(s, 0), 56) && ORBIT(ORM(s, 0), 56)) {
+    if (ORBIT(ORQ((char *)s, 0), 56) && ORBIT(ORM((char *)s, 0), 56)) {
         ACTSendMailCorrect(self, 348);
     }
-    if (ORBIT(ORQ(s, 0), 58) && ORBIT(ORM(s, 0), 58)) {
+    if (ORBIT(ORQ((char *)s, 0), 58) && ORBIT(ORM((char *)s, 0), 58)) {
         ACTSendMailCorrect(self, 345);
     }
-    if (ORBIT(ORQ(s, 0), 57) && ORBIT(ORM(s, 0), 57)) {
+    if (ORBIT(ORQ((char *)s, 0), 57) && ORBIT(ORM((char *)s, 0), 57)) {
         ACTSendMailCorrect(self, 346);
     }
-    if (ORBIT(ORQ(s, 0), 59) && ORBIT(ORM(s, 0), 59)) {
+    if (ORBIT(ORQ((char *)s, 0), 59) && ORBIT(ORM((char *)s, 0), 59)) {
         ACTSendMailCorrect(self, 378);
     }
-    if (ORBIT(ORQ(s, 0), 62) && ORBIT(ORM(s, 0), 62)) {
+    if (ORBIT(ORQ((char *)s, 0), 62) && ORBIT(ORM((char *)s, 0), 62)) {
         ACTSendMailCorrect(self, 209);
     }
-    if (ORBIT(ORQ(s, 0), 63) && ORBIT(ORM(s, 0), 63)) {
+    if (ORBIT(ORQ((char *)s, 0), 63) && ORBIT(ORM((char *)s, 0), 63)) {
         ACTSendMailCorrect(self, 210);
     }
-    if (ORBIT(ORQ(s, 1), 0) && ORBIT(ORM(s, 1), 0)) {
+    if (ORBIT(ORQ((char *)s, 1), 0) && ORBIT(ORM((char *)s, 1), 0)) {
         ACTSendMailCorrect(self, 212);
     }
-    if (ORBIT(ORQ(s, 1), 1) && ORBIT(ORM(s, 1), 1)) {
+    if (ORBIT(ORQ((char *)s, 1), 1) && ORBIT(ORM((char *)s, 1), 1)) {
         ACTSendMailCorrect(self, 213);
     }
-    if (ORBIT(ORQ(s, 1), 2) && ORBIT(ORM(s, 1), 2)) {
+    if (ORBIT(ORQ((char *)s, 1), 2) && ORBIT(ORM((char *)s, 1), 2)) {
         ActSendMail_WithAdditionalData(self, 263, self, ACTWORK(self) + 2064);
     }
-    if (ORBIT(ORQ(s, 1), 3) && ORBIT(ORM(s, 1), 3)) {
+    if (ORBIT(ORQ((char *)s, 1), 3) && ORBIT(ORM((char *)s, 1), 3)) {
         ActSendMail_WithAdditionalData(self, 264, self, ACTWORK(self) + 2112);
     }
-    if (ORBIT(ORQ(s, 1), 4) && ORBIT(ORM(s, 1), 4)) {
+    if (ORBIT(ORQ((char *)s, 1), 4) && ORBIT(ORM((char *)s, 1), 4)) {
         ActSendMail_WithAdditionalData(self, 265, self, ACTWORK(self) + 2160);
     }
-    if (ORBIT(ORQ(s, 0), 60) && ORBIT(ORM(s, 0), 60)) {
+    if (ORBIT(ORQ((char *)s, 0), 60) && ORBIT(ORM((char *)s, 0), 60)) {
         ACTSendMailCorrect(self, 174);
         ACTSendMailCorrect(self, 173);
     }
-    if (ORBIT(ORQ(s, 0), 61) && ORBIT(ORM(s, 0), 61)) {
+    if (ORBIT(ORQ((char *)s, 0), 61) && ORBIT(ORM((char *)s, 0), 61)) {
         ACTSendMailCorrect(self, 166);
     }
-    if (ORBIT(ORQ(s, 1), 11) && ORBIT(ORM(s, 1), 11)) {
+    if (ORBIT(ORQ((char *)s, 1), 11) && ORBIT(ORM((char *)s, 1), 11)) {
         ACTSendMailCorrect(self, 216);
         debug_StdPrintfDummy("shoal mail\n");
-    } else if (*(int *)(s + 0x34) == 43) {
+    } else if (s->unk34 == 43) {
         ACTSendMailCorrect(self, 217);
     }
-    if (ORBIT(ORQ(s, 1), 12) && ORBIT(ORM(s, 1), 12)) {
+    if (ORBIT(ORQ((char *)s, 1), 12) && ORBIT(ORM((char *)s, 1), 12)) {
         ACTSendMailCorrect(self, 218);
     }
-    if (ORBIT(ORQ(s, 1), 13) && ORBIT(ORM(s, 1), 13)) {
+    if (ORBIT(ORQ((char *)s, 1), 13) && ORBIT(ORM((char *)s, 1), 13)) {
         ACTSendMailCorrect(self, 219);
     }
-    if (ORBIT(ORQ(s, 1), 14) && ORBIT(ORM(s, 1), 14)) {
+    if (ORBIT(ORQ((char *)s, 1), 14) && ORBIT(ORM((char *)s, 1), 14)) {
         ACTSendMailCorrect(self, 220);
     }
-    if (ORBIT(ORQ(s, 1), 15) && ORBIT(ORM(s, 1), 15)) {
+    if (ORBIT(ORQ((char *)s, 1), 15) && ORBIT(ORM((char *)s, 1), 15)) {
         ACTSendMailCorrect(self, 223);
     }
-    if (ORBIT(ORQ(s, 1), 16) && ORBIT(ORM(s, 1), 16)) {
+    if (ORBIT(ORQ((char *)s, 1), 16) && ORBIT(ORM((char *)s, 1), 16)) {
         ACTSendMailCorrect(self, 224);
     }
-    if (ORBIT(ORQ(s, 1), 17) && ORBIT(ORM(s, 1), 17)) {
+    if (ORBIT(ORQ((char *)s, 1), 17) && ORBIT(ORM((char *)s, 1), 17)) {
         ACTSendMailCorrect(self, 225);
     }
-    if (ORBIT(ORQ(s, 1), 36) && ORBIT(ORM(s, 1), 36)) {
+    if (ORBIT(ORQ((char *)s, 1), 36) && ORBIT(ORM((char *)s, 1), 36)) {
         ACTSendMailCorrect(self, 121);
     }
-    if (ORBIT(ORQ(s, 1), 38) && ORBIT(ORM(s, 1), 38)) {
+    if (ORBIT(ORQ((char *)s, 1), 38) && ORBIT(ORM((char *)s, 1), 38)) {
         ACTSendMailCorrect(self, 122);
     }
-    if (ORBIT(ORQ(s, 1), 40) && ORBIT(ORM(s, 1), 40)) {
+    if (ORBIT(ORQ((char *)s, 1), 40) && ORBIT(ORM((char *)s, 1), 40)) {
         ACTSendMailCorrect(self, 130);
     }
-    if (ORBIT(ORQ(s, 1), 39) && ORBIT(ORM(s, 1), 39)) {
+    if (ORBIT(ORQ((char *)s, 1), 39) && ORBIT(ORM((char *)s, 1), 39)) {
         ACTSendMailCorrect(self, 127);
     }
-    if (ORBIT(ORQ(s, 1), 41) && ORBIT(ORM(s, 1), 41)) {
+    if (ORBIT(ORQ((char *)s, 1), 41) && ORBIT(ORM((char *)s, 1), 41)) {
         ACTSendMailCorrect(self, 131);
     }
-    if (ORBIT(ORQ(s, 1), 42) && ORBIT(ORM(s, 1), 42)) {
+    if (ORBIT(ORQ((char *)s, 1), 42) && ORBIT(ORM((char *)s, 1), 42)) {
         ACTSendMailCorrect(self, 132);
     }
-    if (ORBIT(ORQ(s, 1), 43) && ORBIT(ORM(s, 1), 43)) {
+    if (ORBIT(ORQ((char *)s, 1), 43) && ORBIT(ORM((char *)s, 1), 43)) {
         ACTSendMailCorrect(self, 123);
     }
-    if (ORBIT(ORQ(s, 1), 44) && ORBIT(ORM(s, 1), 44)) {
+    if (ORBIT(ORQ((char *)s, 1), 44) && ORBIT(ORM((char *)s, 1), 44)) {
         ACTSendMailCorrect(self, 124);
         ACTSendMailCorrect(self, 125);
     }
-    if (ORBIT(ORQ(s, 1), 33) && ORBIT(ORM(s, 1), 33)) {
+    if (ORBIT(ORQ((char *)s, 1), 33) && ORBIT(ORM((char *)s, 1), 33)) {
         ACTSendMailCorrect(self, 118);
     }
-    if (ORBIT(ORQ(s, 1), 34) && ORBIT(ORM(s, 1), 34)) {
+    if (ORBIT(ORQ((char *)s, 1), 34) && ORBIT(ORM((char *)s, 1), 34)) {
         ACTSendMailCorrect(self, 119);
     }
-    if (ORBIT(ORQ(s, 1), 35) && ORBIT(ORM(s, 1), 35)) {
+    if (ORBIT(ORQ((char *)s, 1), 35) && ORBIT(ORM((char *)s, 1), 35)) {
         ACTSendMailCorrect(self, 120);
     }
-    if (ORBIT(ORQ(s, 1), 5) && ORBIT(ORM(s, 1), 5)) {
-        if (self == girlGObj) {
+    if (ORBIT(ORQ((char *)s, 1), 5) && ORBIT(ORM((char *)s, 1), 5)) {
+        if (self == ((char *)girlGObj)) {
             int ok = 0;
-            if (girlControlMode != 0) {
+            if (((char *)girlControlMode) != 0) {
                 ok = 1;
             }
             if (GOBJ_ACT(self)->unk34 == 0x75) {
@@ -2227,143 +2207,143 @@ void ActOrientTest(char *self)
             ACTSendMailCorrect(self, 114);
         }
     }
-    if (ORBIT(ORQ(s, 1), 6) && ORBIT(ORM(s, 1), 6)) {
+    if (ORBIT(ORQ((char *)s, 1), 6) && ORBIT(ORM((char *)s, 1), 6)) {
         ACTSendMailCorrect(self, 324);
     }
-    if (ORBIT(ORQ(s, 1), 8) && ORBIT(ORM(s, 1), 8)) {
+    if (ORBIT(ORQ((char *)s, 1), 8) && ORBIT(ORM((char *)s, 1), 8)) {
         ACTSendMailCorrect(self, 325);
     }
-    if (ORBIT(ORQ(s, 1), 7) && ORBIT(ORM(s, 1), 7)) {
+    if (ORBIT(ORQ((char *)s, 1), 7) && ORBIT(ORM((char *)s, 1), 7)) {
         ACTSendMailCorrect(self, 326);
     }
-    if (ORBIT(ORQ(s, 1), 9) && ORBIT(ORM(s, 1), 9)) {
+    if (ORBIT(ORQ((char *)s, 1), 9) && ORBIT(ORM((char *)s, 1), 9)) {
         ACTSendMailCorrect(self, 328);
     }
-    if (ORBIT(ORQ(s, 1), 18) && ORBIT(ORM(s, 1), 18)) {
+    if (ORBIT(ORQ((char *)s, 1), 18) && ORBIT(ORM((char *)s, 1), 18)) {
         ACTSendMailCorrect(self, 317);
     }
-    if (ORBIT(ORQ(s, 1), 19) && ORBIT(ORM(s, 1), 19)) {
+    if (ORBIT(ORQ((char *)s, 1), 19) && ORBIT(ORM((char *)s, 1), 19)) {
         ACTSendMailCorrect(self, 318);
     }
-    if (ORBIT(ORQ(s, 1), 20) && ORBIT(ORM(s, 1), 20)) {
+    if (ORBIT(ORQ((char *)s, 1), 20) && ORBIT(ORM((char *)s, 1), 20)) {
         ACTSendMailCorrect(self, 319);
     }
-    if (ORBIT(ORQ(s, 1), 22) && ORBIT(ORM(s, 1), 22)) {
+    if (ORBIT(ORQ((char *)s, 1), 22) && ORBIT(ORM((char *)s, 1), 22)) {
         ACTSendMailCorrect(self, 320);
     }
-    if (ORBIT(ORQ(s, 1), 23) && ORBIT(ORM(s, 1), 23)) {
+    if (ORBIT(ORQ((char *)s, 1), 23) && ORBIT(ORM((char *)s, 1), 23)) {
         ACTSendMailCorrect(self, 320);
     }
-    if (ORBIT(ORQ(s, 1), 27) && ORBIT(ORM(s, 1), 27)) {
+    if (ORBIT(ORQ((char *)s, 1), 27) && ORBIT(ORM((char *)s, 1), 27)) {
         ACTSendMailCorrect(self, 317);
     }
-    if (ORBIT(ORQ(s, 1), 28) && ORBIT(ORM(s, 1), 28)) {
+    if (ORBIT(ORQ((char *)s, 1), 28) && ORBIT(ORM((char *)s, 1), 28)) {
         ACTSendMailCorrect(self, 318);
     }
-    if (ORBIT(ORQ(s, 1), 29) && ORBIT(ORM(s, 1), 29)) {
+    if (ORBIT(ORQ((char *)s, 1), 29) && ORBIT(ORM((char *)s, 1), 29)) {
         ACTSendMailCorrect(self, 319);
     }
-    if (ORBIT(ORQ(s, 1), 55) && ORBIT(ORM(s, 1), 55)) {
+    if (ORBIT(ORQ((char *)s, 1), 55) && ORBIT(ORM((char *)s, 1), 55)) {
         ACTSendMailCorrect(self, 42);
     }
-    if (ORBIT(ORQ(s, 1), 56) && ORBIT(ORM(s, 1), 56)) {
+    if (ORBIT(ORQ((char *)s, 1), 56) && ORBIT(ORM((char *)s, 1), 56)) {
         ACTSendMailCorrect(self, 41);
     }
-    if (ORBIT(ORQ(s, 1), 57) && ORBIT(ORM(s, 1), 57)) {
+    if (ORBIT(ORQ((char *)s, 1), 57) && ORBIT(ORM((char *)s, 1), 57)) {
         ACTSendMailCorrect(self, 135);
     }
-    if (ORBIT(ORQ(s, 1), 58) && ORBIT(ORM(s, 1), 58)) {
+    if (ORBIT(ORQ((char *)s, 1), 58) && ORBIT(ORM((char *)s, 1), 58)) {
         ACTSendMailCorrect(self, 136);
     }
-    if (ORBIT(ORQ(s, 1), 63) && ORBIT(ORM(s, 1), 63)) {
+    if (ORBIT(ORQ((char *)s, 1), 63) && ORBIT(ORM((char *)s, 1), 63)) {
         ACTSendMailCorrect(self, 297);
     }
-    if (ORBIT(ORQ(s, 2), 0) && ORBIT(ORM(s, 2), 0)) {
+    if (ORBIT(ORQ((char *)s, 2), 0) && ORBIT(ORM((char *)s, 2), 0)) {
         ACTSendMailCorrect(self, 299);
     }
-    if ((ORBIT(ORQ(s, 2), 1) && ORBIT(ORM(s, 2), 1)) ||
-        (ORBIT(ORQ(s, 2), 2) && ORBIT(ORM(s, 2), 2))) {
+    if ((ORBIT(ORQ((char *)s, 2), 1) && ORBIT(ORM((char *)s, 2), 1)) ||
+        (ORBIT(ORQ((char *)s, 2), 2) && ORBIT(ORM((char *)s, 2), 2))) {
         ACTSendMailCorrect(self, 295);
     }
-    if (ORBIT(ORQ(s, 1), 53) && ORBIT(ORM(s, 1), 53)) {
+    if (ORBIT(ORQ((char *)s, 1), 53) && ORBIT(ORM((char *)s, 1), 53)) {
         ACTSendMailCorrect(self, 301);
     }
-    if (ORBIT(ORQ(s, 1), 54) && ORBIT(ORM(s, 1), 54)) {
+    if (ORBIT(ORQ((char *)s, 1), 54) && ORBIT(ORM((char *)s, 1), 54)) {
         ACTSendMailCorrect(self, 146);
     }
-    if (ORBIT(ORQ(s, 1), 45) && ORBIT(ORM(s, 1), 45)) {
+    if (ORBIT(ORQ((char *)s, 1), 45) && ORBIT(ORM((char *)s, 1), 45)) {
         ACTSendMailCorrect(self, 295);
     }
-    if (ORBIT(ORQ(s, 1), 46) && ORBIT(ORM(s, 1), 46)) {
+    if (ORBIT(ORQ((char *)s, 1), 46) && ORBIT(ORM((char *)s, 1), 46)) {
         ACTSendMailCorrect(self, 300);
     }
-    if (ORBIT(ORQ(s, 1), 47) && ORBIT(ORM(s, 1), 47)) {
+    if (ORBIT(ORQ((char *)s, 1), 47) && ORBIT(ORM((char *)s, 1), 47)) {
         ACTSendMailCorrect(self, 306);
         if (stage_no == 32) {
             ACTSendMailCorrect(self, 308);
         }
     }
-    if (ORBIT(ORQ(s, 1), 48) && ORBIT(ORM(s, 1), 48)) {
+    if (ORBIT(ORQ((char *)s, 1), 48) && ORBIT(ORM((char *)s, 1), 48)) {
         ACTSendMailCorrect(self, 307);
     }
-    if (ORBIT(ORQ(s, 1), 50) && ORBIT(ORM(s, 1), 50)) {
+    if (ORBIT(ORQ((char *)s, 1), 50) && ORBIT(ORM((char *)s, 1), 50)) {
         ACTSendMailCorrect(self, 310);
     }
-    if (ORBIT(ORQ(s, 1), 51) && ORBIT(ORM(s, 1), 51)) {
+    if (ORBIT(ORQ((char *)s, 1), 51) && ORBIT(ORM((char *)s, 1), 51)) {
         ACTSendMailCorrect(self, 311);
     }
-    if (ORBIT(ORQ(s, 1), 49) && ORBIT(ORM(s, 1), 49)) {
+    if (ORBIT(ORQ((char *)s, 1), 49) && ORBIT(ORM((char *)s, 1), 49)) {
         ACTSendMailCorrect(self, 309);
     }
-    if (ORBIT(ORQ(s, 1), 52) && ORBIT(ORM(s, 1), 52)) {
+    if (ORBIT(ORQ((char *)s, 1), 52) && ORBIT(ORM((char *)s, 1), 52)) {
         ACTSendMailCorrect(self, 312);
     }
-    if (ORBIT(ORQ(s, 2), 10) && ORBIT(ORM(s, 2), 10)) {
+    if (ORBIT(ORQ((char *)s, 2), 10) && ORBIT(ORM((char *)s, 2), 10)) {
         ACTSendMailCorrect(self, 90);
     }
-    if (ORBIT(ORQ(s, 2), 11) && ORBIT(ORM(s, 2), 11)) {
+    if (ORBIT(ORQ((char *)s, 2), 11) && ORBIT(ORM((char *)s, 2), 11)) {
         ACTSendMailCorrect(self, 91);
     }
-    if (ORBIT(ORQ(s, 2), 12) && ORBIT(ORM(s, 2), 12)) {
-        (*(int *)(ACTWORK(self) + 0x3A8))++;
+    if (ORBIT(ORQ((char *)s, 2), 12) && ORBIT(ORM((char *)s, 2), 12)) {
+        (GOBJ_WORK(self)->f_3A8)++;
     } else {
-        *(int *)(ACTWORK(self) + 0x3A8) = 0;
+        GOBJ_WORK(self)->f_3A8 = 0;
     }
-    if (ORBIT(ORQ(s, 2), 7) && ORBIT(ORM(s, 2), 7)) {
+    if (ORBIT(ORQ((char *)s, 2), 7) && ORBIT(ORM((char *)s, 2), 7)) {
         ACTSendMailCorrect(self, 72);
-        *(int *)(s + 0x44) = 106;
+        s->f_44 = 106;
     }
-    if (ORBIT(ORQ(s, 2), 8) && ORBIT(ORM(s, 2), 8)) {
+    if (ORBIT(ORQ((char *)s, 2), 8) && ORBIT(ORM((char *)s, 2), 8)) {
         ACTSendMailCorrect(self, 72);
-        *(int *)(s + 0x44) = 108;
+        s->f_44 = 108;
     }
-    if (ORBIT(ORQ(s, 2), 9) && ORBIT(ORM(s, 2), 9)) {
+    if (ORBIT(ORQ((char *)s, 2), 9) && ORBIT(ORM((char *)s, 2), 9)) {
         ACTSendMailCorrect(self, 72);
-        *(int *)(s + 0x44) = 110;
+        s->f_44 = 110;
     }
-    if (ORBIT(ORQ(s, 1), 24) && ORBIT(ORM(s, 1), 24)) {
+    if (ORBIT(ORQ((char *)s, 1), 24) && ORBIT(ORM((char *)s, 1), 24)) {
         ACTSendMailCorrect(self, 321);
     }
-    if (ORBIT(ORQ(s, 1), 25) && ORBIT(ORM(s, 1), 25)) {
+    if (ORBIT(ORQ((char *)s, 1), 25) && ORBIT(ORM((char *)s, 1), 25)) {
         ACTSendMailCorrect(self, 322);
     }
-    if (ORBIT(ORQ(s, 1), 26) && ORBIT(ORM(s, 1), 26)) {
+    if (ORBIT(ORQ((char *)s, 1), 26) && ORBIT(ORM((char *)s, 1), 26)) {
         ACTSendMailCorrect(self, 323);
     }
-    if (ORBIT(ORQ(s, 1), 62) && ORBIT(ORM(s, 1), 62)) {
+    if (ORBIT(ORQ((char *)s, 1), 62) && ORBIT(ORM((char *)s, 1), 62)) {
         ACTSendMailCorrect(self, 165);
     }
-    if (ORBIT(ORQ(s, 2), 13) && ORBIT(ORM(s, 2), 13)) {
+    if (ORBIT(ORQ((char *)s, 2), 13) && ORBIT(ORM((char *)s, 2), 13)) {
         ACTSendMailCorrect(self, 392);
     }
-    if (ORBIT(ORQ(s, 2), 14) && ORBIT(ORM(s, 2), 14)) {
-        vel = s + 0x4C0;
+    if (ORBIT(ORQ((char *)s, 2), 14) && ORBIT(ORM((char *)s, 2), 14)) {
+        vel = (char *)s + 0x4C0;
         sceVu0ScaleVector(v0, vel, -sceVu0InnerProduct((char *)(int)GOBJ_SUB(self) + 0x130, vel));
         sceVu0AddVector((char *)(int)GOBJ_SUB(self) + 0x130, (char *)(int)GOBJ_SUB(self) + 0x130,
                         v0);
-        SetRootPosition(self, s + 0x540);
+        SetRootPosition(self, (char *)s + 0x540);
     }
-    if (*(int *)(*(char **)((char *)*(int *)(self + 0x164) + 0x680) + 0x29C) > 0) {
+    if (GOBJ_ACT(self)->f_680->f_29C > 0) {
         ACTSendMailCorrect(self, 111);
     }
     if (((&motionKind[GOBJ_SUB(self)->f_4A0])->f_190 >> 2) & 1) {
@@ -2384,11 +2364,11 @@ void ActOrientTest(char *self)
                 ACTSendMailCorrect(self, 327);
             }
             if (CompareAttribute(w1._98, 0x20000)) {
-                if (*(int *)(s + 0x68C) != 0) {
+                if (*(int *)((char *)s + 0x68C) != 0) {
                     if (GetMotionFrameFlag1(self)) {
                         char *ext;
-                        *(U64ag *)*(int *)(s + 0x68C) = *(U64ag *)((char *)&w1 + 0x80);
-                        ext = (char *)*(int *)(s + 0x68C);
+                        *(U64ag *)*(int *)((char *)s + 0x68C) = *(U64ag *)((char *)&w1 + 0x80);
+                        ext = (char *)*(int *)((char *)s + 0x68C);
                         *(int *)(ext + 8) = *(int *)((char *)&w1 + 0x88);
                         ActSendMail_WithAdditionalData(self, 298, self, ext);
                     }
@@ -2429,11 +2409,11 @@ void ActOrientTest(char *self)
             ACTSendMailCorrect(self, 310);
         }
     }
-    if (*(int *)(s + 0xD8) == 313) {
+    if (s->f_D8 == 313) {
         return;
     }
     for (i = 0; i < 2; i++) {
-        if (((int)(*(unsigned long long *)(s + 0x20) >> 42) & 1) == 0) {
+        if (((int)(s->flags20.ll >> 42) & 1) == 0) {
             continue;
         }
         memset(&w3, 0, 0xC0);
@@ -2456,7 +2436,7 @@ void ActOrientTest(char *self)
         if (w3._88 != 0) {
             GetOrientOfWall(ow, w3._88, &w3._80);
             SetMotionDirection(self, ow);
-            *(unsigned long long *)(s + 0x20) &= ~(1ULL << 42);
+            s->flags20.ll &= ~(1ULL << 42);
             return;
         }
     }
@@ -2472,12 +2452,12 @@ void GetGirlHandlinkClInfo(void)
     int ok;
     float dy;
 
-    *(HandClInfo *)(*(char **)(*(char **)(girlGObj + 0x164) + 0x688) + 0x540) = handClInfoClear;
-    if (boyGObj == 0 || girlGObj == 0) {
+    *(HandClInfo *)((char *)GOBJ_ACT(((char *)girlGObj))->f_688 + 0x540) = handClInfoClear;
+    if (boyGObj == 0 || ((char *)girlGObj) == 0) {
         return;
     }
     GetRootProjectionPosOfGObj(boyPos, boyGObj);
-    GetRootProjectionPosOfGObj(girlPos, girlGObj);
+    GetRootProjectionPosOfGObj(girlPos, ((char *)girlGObj));
     if (ACTGame_FLAG_TETSUNAGI() == 0) {
         if (!(_DistxzSqGV(boyPos, girlPos) < 12100.0f)) {
             goto draw;
@@ -2494,43 +2474,41 @@ void GetGirlHandlinkClInfo(void)
         }
     }
 work:
-    ((HandClInfo *)(*(char **)(*(char **)(girlGObj + 0x164) + 0x688) + 0x540))->on = 1;
+    ((HandClInfo *)((char *)GOBJ_ACT(((char *)girlGObj))->f_688 + 0x540))->on = 1;
     GetSkeltonPosition(boyHand, boyGObj, (void *)44);
-    GetSkeltonPosition(girlHand, girlGObj, (void *)44);
+    GetSkeltonPosition(girlHand, ((char *)girlGObj), (void *)44);
 
     ok = ACTCheckCollis_W(
         20.0f, girlHand, boyHand, 0, 0,
-        ((HandClInfo *)(*(char **)(*(char **)(girlGObj + 0x164) + 0x688) + 0x540))->orient, &attr);
-    ((HandClInfo *)(*(char **)(*(char **)(girlGObj + 0x164) + 0x688) + 0x540))->hit = ok;
+        ((HandClInfo *)((char *)GOBJ_ACT(((char *)girlGObj))->f_688 + 0x540))->orient, &attr);
+    ((HandClInfo *)((char *)GOBJ_ACT(((char *)girlGObj))->f_688 + 0x540))->hit = ok;
     if (CompareAttribute(attr, 0x40000)) {
-        ((HandClInfo *)(*(char **)(*(char **)(girlGObj + 0x164) + 0x688) + 0x540))->attr = 1;
+        ((HandClInfo *)((char *)GOBJ_ACT(((char *)girlGObj))->f_688 + 0x540))->attr = 1;
     }
     ok = ACTCheckCollis_W(
         20.0f, boyHand, girlHand, 0, 0,
-        ((HandClInfo *)(*(char **)(*(char **)(girlGObj + 0x164) + 0x688) + 0x540))->orient2, &attr);
-    ((HandClInfo *)(*(char **)(*(char **)(girlGObj + 0x164) + 0x688) + 0x540))->hit2 = ok;
+        ((HandClInfo *)((char *)GOBJ_ACT(((char *)girlGObj))->f_688 + 0x540))->orient2, &attr);
+    ((HandClInfo *)((char *)GOBJ_ACT(((char *)girlGObj))->f_688 + 0x540))->hit2 = ok;
     if (CompareAttribute(attr, 0x40000)) {
-        ((HandClInfo *)(*(char **)(*(char **)(girlGObj + 0x164) + 0x688) + 0x540))->attr2 = 1;
+        ((HandClInfo *)((char *)GOBJ_ACT(((char *)girlGObj))->f_688 + 0x540))->attr2 = 1;
     }
 
 draw:
-    if (((HandClInfo *)(*(char **)(*(char **)(girlGObj + 0x164) + 0x688) + 0x540))->hit) {
-        debug_Arrow(
-            test_CURRENTROOT((int *)girlGObj),
-            ((HandClInfo *)(*(char **)(*(char **)(girlGObj + 0x164) + 0x688) + 0x540))->orient,
-            100.0f, 255, 0, 0);
+    if (((HandClInfo *)((char *)GOBJ_ACT(((char *)girlGObj))->f_688 + 0x540))->hit) {
+        debug_Arrow(test_CURRENTROOT((int *)((char *)girlGObj)),
+                    ((HandClInfo *)((char *)GOBJ_ACT(((char *)girlGObj))->f_688 + 0x540))->orient,
+                    100.0f, 255, 0, 0);
     }
-    if (((HandClInfo *)(*(char **)(*(char **)(girlGObj + 0x164) + 0x688) + 0x540))->hit2) {
-        debug_Arrow(
-            test_CURRENTROOT((int *)boyGObj),
-            ((HandClInfo *)(*(char **)(*(char **)(girlGObj + 0x164) + 0x688) + 0x540))->orient2,
-            100.0f, 0, 0, 255);
+    if (((HandClInfo *)((char *)GOBJ_ACT(((char *)girlGObj))->f_688 + 0x540))->hit2) {
+        debug_Arrow(test_CURRENTROOT((int *)boyGObj),
+                    ((HandClInfo *)((char *)GOBJ_ACT(((char *)girlGObj))->f_688 + 0x540))->orient2,
+                    100.0f, 0, 0, 255);
     }
 }
 
 void ACTGame_CommonLoop(char *self)
 {
-    char *s = (char *)*(int *)(self + 0x164);
+    Act *s = GOBJ_ACT(self);
     int *gobj;
     unsigned char handL;
     unsigned char handR;
@@ -2543,16 +2521,16 @@ void ACTGame_CommonLoop(char *self)
         float boy[4];
         float girl[4];
 
-        if (boyGObj == 0 || girlGObj == 0) {
+        if (boyGObj == 0 || ((char *)girlGObj) == 0) {
             return 0;
         }
         if (debug_font_flag & 1) {
-            unsigned char *d = (unsigned char *)GOBJ_ACT(girlGObj)->f_688;
+            unsigned char *d = (unsigned char *)GOBJ_ACT(((char *)girlGObj))->f_688;
 
             debug_Printf(10, 120, 0x0FFFFFFF, "[%d] [%d] [%d] [%d] [%d]\n", d[0x540], d[0x541],
                          d[0x542], d[0x560], d[0x561]);
         }
-        h = (unsigned char *)GOBJ_ACT(girlGObj)->f_688;
+        h = (unsigned char *)GOBJ_ACT(((char *)girlGObj))->f_688;
         if (h[0x540] != 0) {
             if (h[0x541] != 0 || h[0x560] != 0) {
                 if (h[0x542] != 0) {
@@ -2567,20 +2545,21 @@ void ACTGame_CommonLoop(char *self)
         boy[0] = test_CURRENTROOT((int *)boyGObj)[0];
         boy[1] = test_CURRENTROOT((int *)boyGObj)[1];
         boy[2] = test_CURRENTROOT((int *)boyGObj)[2];
-        girl[0] = test_CURRENTROOT((int *)girlGObj)[0];
-        girl[1] = test_CURRENTROOT((int *)girlGObj)[1];
-        girl[2] = test_CURRENTROOT((int *)girlGObj)[2];
-        if (GOBJ_ACT(girlGObj)->unk34 != 29 || _DistSqGV((int *)boy, (int)girl) < 10000.0f) {
+        girl[0] = test_CURRENTROOT((int *)((char *)girlGObj))[0];
+        girl[1] = test_CURRENTROOT((int *)((char *)girlGObj))[1];
+        girl[2] = test_CURRENTROOT((int *)((char *)girlGObj))[2];
+        if (GOBJ_ACT(((char *)girlGObj))->unk34 != 29 ||
+            _DistSqGV((int *)boy, (int)girl) < 10000.0f) {
             return 0;
         }
         return 0;
     }
 
-    if (self == girlGObj) {
+    if (self == ((char *)girlGObj)) {
         GetGirlHandlinkClInfo();
     }
 
-    ACTEnvGetTest(self, s + 0x120);
+    ACTEnvGetTest(self, (char *)s + 0x120);
 
     ActOrientTest(self);
 
@@ -2603,37 +2582,32 @@ void ACTGame_CommonLoop(char *self)
         _ACTCharStatus_Set(self, 19, 0.0f, 0);
     }
 
-    if (((int)(*(unsigned long long *)(s + 0x488) >> 5) & 1) &&
-        ((int)(*(unsigned long long *)(s + 0x498) >> 5) & 1)) {
+    if (((int)(s->f_488 >> 5) & 1) && ((int)(s->f_498 >> 5) & 1)) {
         _ACTParaStatus_Set(self, 18);
         _ACTCharStatus_Set(self, 24, 0.0f, 0);
     }
 
-    if ((((int)(*(unsigned long long *)(s + 0x488) >> 3) & 1) &&
-         ((int)(*(unsigned long long *)(s + 0x498) >> 3) & 1)) ||
-        (((int)(*(unsigned long long *)(s + 0x488) >> 4) & 1) &&
-         ((int)(*(unsigned long long *)(s + 0x498) >> 4) & 1))) {
+    if ((((int)(s->f_488 >> 3) & 1) && ((int)(s->f_498 >> 3) & 1)) ||
+        (((int)(s->f_488 >> 4) & 1) && ((int)(s->f_498 >> 4) & 1))) {
         _ACTParaStatus_Set(self, 26);
         _ACTCharStatus_Set(self, 23, 0.0f, 0);
     }
 
-    if (girlControlMode != 0 && ((int)(*(unsigned long long *)(s + 0x478) >> 33) & 1) &&
-        ((int)(*(unsigned long long *)(s + 0x488) >> 33) & 1)) {
+    if (((char *)girlControlMode) != 0 && ((int)(s->f_478 >> 33) & 1) &&
+        ((int)(s->f_488 >> 33) & 1)) {
         _ACTParaStatus_Set(self, 27);
     }
 
     handL = 0;
     handR = 0;
-    if (((int)(*(unsigned long long *)(s + 0x478) >> 36) & 1) &&
-        ((int)(*(unsigned long long *)(s + 0x488) >> 36) & 1)) {
+    if (((int)(s->f_478 >> 36) & 1) && ((int)(s->f_488 >> 36) & 1)) {
         _ACTParaStatus_Set(self, 24);
         handL =
             (((&motionKind[*(int *)((char *)((IntFloat *)(self + 0x15C))->i + 0x4A0)])->u_188.w >>
               12) &
              0xF) != 0;
     }
-    if (((int)(*(unsigned long long *)(s + 0x478) >> 37) & 1) &&
-        ((int)(*(unsigned long long *)(s + 0x488) >> 37) & 1)) {
+    if (((int)(s->f_478 >> 37) & 1) && ((int)(s->f_488 >> 37) & 1)) {
         _ACTParaStatus_Set(self, 25);
         handR =
             (((&motionKind[*(int *)((char *)((IntFloat *)(self + 0x15C))->i + 0x4A0)])->u_188.w >>
@@ -2668,23 +2642,20 @@ void ACTGame_CommonLoop(char *self)
         RequestChangeHandMode(self, 1, 1, 0, 0, 0, 0);
     }
 
-    if (((int)(*(unsigned long long *)(s + 0x478) >> 34) & 1) &&
-        ((int)(*(unsigned long long *)(s + 0x488) >> 34) & 1)) {
+    if (((int)(s->f_478 >> 34) & 1) && ((int)(s->f_488 >> 34) & 1)) {
         _ACTCharStatus_Set(self, 25, 0.0f, 0);
     }
-    if (((int)(*(unsigned long long *)(s + 0x478) >> 35) & 1) &&
-        ((int)(*(unsigned long long *)(s + 0x488) >> 35) & 1)) {
+    if (((int)(s->f_478 >> 35) & 1) && ((int)(s->f_488 >> 35) & 1)) {
         _ACTCharStatus_Set(self, 26, 0.0f, 0);
     }
 
-    if ((unsigned int)*(int *)(s + 0x34) < 4) {
-        if (*(int *)(s + 0x34) != 0) {
+    if ((unsigned int)s->unk34 < 4) {
+        if (s->unk34 != 0) {
             _ACTCharStatus_Set(self, 27, 0.0f, 0);
         }
     }
 
-    if (girlGObj != 0 &&
-        ((int)(*(unsigned long long *)(*(char **)(girlGObj + 0x164) + 0x18) >> 40) & 1)) {
+    if (((char *)girlGObj) != 0 && ((int)(GOBJ_ACT(((char *)girlGObj))->flags18.ll >> 40) & 1)) {
         _ACTCharStatus_Set(self, 15, 0.0f, 0);
     }
 
@@ -2702,27 +2673,26 @@ void ACTGame_CommonLoop(char *self)
         int limit;
         int connect;
 
-        if (self == boyGObj && *(int *)(s + 0x34) == 1 &&
+        if (self == boyGObj && s->unk34 == 1 &&
             (((unsigned long long)(&motionKind[*(int *)((char *)((IntFloat *)(self + 0x15C))->i +
                                                         0x4A0)])
                   ->f_190 >>
               7) &
              1)) {
             limit = 100;
-            if ((int)(*(unsigned long long *)(s + 0x20) >> 24) & 3) {
+            if ((int)(s->flags20.ll >> 24) & 3) {
                 tgt = target;
                 ScpCallCameraGetTarget(tgt);
                 _OrientXZGV(orient, tgt, test_CURRENTROOT((int *)boyGObj));
-            } else if (girlGObj != 0) {
-                tgt = test_CURRENTROOT((int *)girlGObj);
+            } else if (((char *)girlGObj) != 0) {
+                tgt = test_CURRENTROOT((int *)((char *)girlGObj));
                 _OrientXZGV(orient, tgt, test_CURRENTROOT((int *)boyGObj));
             } else {
                 GetOtherStageGirlOrient(orient, test_CURRENTROOT((int *)self));
                 orient[1] = 0.0f;
                 limit = 45;
             }
-            if (((int)(*(unsigned long long *)(s + 0x20) >> 23) & 1) &&
-                !((int)(*(unsigned long long *)(s + 0x480) >> 2) & 1)) {
+            if (((int)(s->flags20.ll >> 23) & 1) && !((int)(s->f_480 >> 2) & 1)) {
                 if (limit < _AbsRotyGV(orient, test_CURRENTORIENT(self))) {
                     SetMotionDirection(self, orient);
                     ResetMotionProgramInterpInfo(self, 35);
@@ -2732,31 +2702,31 @@ void ACTGame_CommonLoop(char *self)
         brainAddLevelGirlDetail(1, 20.0f);
         brainSetSpMode();
         if (hand_able_connect()) {
-            /* Boy first: the inline's first parameter binding is the
-               boyGObj load (listing row 932), and the ROM's `and` takes
-               the boy's bit as its first operand. */
-            if (ACTGame_CheckHandMotion(boyGObj, girlGObj)) {
+            /* Boy first: the inline'(char *)s first parameter binding is the
+               boyGObj load (listing row 932), and the ROM'(char *)s `and` takes
+               the boy'(char *)s bit as its first operand. */
+            if (ACTGame_CheckHandMotion(boyGObj, ((char *)girlGObj))) {
                 connect = 1;
             } else {
                 connect = 0;
             }
-            if (GOBJ_ACT(girlGObj)->unk34 == 74) {
+            if (GOBJ_ACT(((char *)girlGObj))->unk34 == 74) {
                 connect = 1;
             }
-            if (connect && (*(int *)(s + 0x2E0) & 8)) {
-                iosOmSendMail(girlGObj, 63, boyGObj);
+            if (connect && (s->f_2E0 & 8)) {
+                iosOmSendMail(((char *)girlGObj), 63, boyGObj);
             }
         }
         break;
     }
     default:
-        if (ACTGame_FLAG_TETSUNAGI() && GOBJ_ACT(girlGObj)->unk34 != 81) {
+        if (ACTGame_FLAG_TETSUNAGI() && GOBJ_ACT(((char *)girlGObj))->unk34 != 81) {
             brainAddLevelGirl(3.0f);
         }
         break;
     }
 
-    if ((int)(*(unsigned long long *)(s + 0x18) >> 58) & 1) {
+    if ((int)(s->flags18.ll >> 58) & 1) {
         if (ACTGame_FLAG_TETSUNAGI() && hand_able_connect() == 0) {
             ACTSendMailCorrect(self, 62);
         }
@@ -2765,61 +2735,61 @@ void ACTGame_CommonLoop(char *self)
     third = (60 - systemStatus[0] * 10) / systemStatus[1] / 3;
     half = (60 - systemStatus[0] * 10) / systemStatus[1] / 2;
 
-    if ((*(int *)(s + 0x2E4) & 0xF0) != 0) {
-        (*(int *)(((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x680)) + 0xCC))--;
+    if ((s->unk2E4 & 0xF0) != 0) {
+        (*(int *)(((char *)GOBJ_ACT(self)->f_680) + 0xCC))--;
     }
 
-    if (*(int *)(((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x680)) + 0xC4) != 0) {
-        if (0.5f < *(float *)(s + 0x34C)) {
-            *(int *)(((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x680)) + 0xC4) =
-                !*(int *)(((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x680)) + 0xC4);
-            (*(int *)(((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x680)) + 0xCC))--;
-            *(int *)(((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x680)) + 0xD4) = third;
+    if (*(int *)(((char *)GOBJ_ACT(self)->f_680) + 0xC4) != 0) {
+        if (0.5f < s->f_34C) {
+            *(int *)(((char *)GOBJ_ACT(self)->f_680) + 0xC4) =
+                !*(int *)(((char *)GOBJ_ACT(self)->f_680) + 0xC4);
+            (*(int *)(((char *)GOBJ_ACT(self)->f_680) + 0xCC))--;
+            *(int *)(((char *)GOBJ_ACT(self)->f_680) + 0xD4) = third;
         }
     } else {
-        if (!(0.5f < *(float *)(s + 0x34C))) {
-            *(int *)(((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x680)) + 0xC4) =
-                !*(int *)(((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x680)) + 0xC4);
+        if (!(0.5f < s->f_34C)) {
+            *(int *)(((char *)GOBJ_ACT(self)->f_680) + 0xC4) =
+                !*(int *)(((char *)GOBJ_ACT(self)->f_680) + 0xC4);
         }
     }
 
-    if (0.5f < *(float *)(s + 0x34C)) {
-        switch (*(int *)(((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x680)) + 0xC8)) {
+    if (0.5f < s->f_34C) {
+        switch (*(int *)(((char *)GOBJ_ACT(self)->f_680) + 0xC8)) {
         case 0:
-            if (0.5f < *(float *)(s + 0x348)) {
-                *(int *)(((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x680)) + 0xC8) = 1;
-                (*(int *)(((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x680)) + 0xCC))--;
-                *(int *)(((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x680)) + 0xD4) = half;
+            if (0.5f < s->f_348) {
+                *(int *)(((char *)GOBJ_ACT(self)->f_680) + 0xC8) = 1;
+                (*(int *)(((char *)GOBJ_ACT(self)->f_680) + 0xCC))--;
+                *(int *)(((char *)GOBJ_ACT(self)->f_680) + 0xD4) = half;
             }
             break;
         case 1:
-            if (!(0.5f < *(float *)(s + 0x348))) {
-                *(int *)(((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x680)) + 0xC8) = 0;
-                (*(int *)(((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x680)) + 0xCC))--;
-                *(int *)(((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x680)) + 0xD4) = half;
+            if (!(0.5f < s->f_348)) {
+                *(int *)(((char *)GOBJ_ACT(self)->f_680) + 0xC8) = 0;
+                (*(int *)(((char *)GOBJ_ACT(self)->f_680) + 0xCC))--;
+                *(int *)(((char *)GOBJ_ACT(self)->f_680) + 0xD4) = half;
             }
             break;
         case -1:
-            if (0.5f < *(float *)(s + 0x348)) {
-                *(int *)(((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x680)) + 0xC8) = 1;
+            if (0.5f < s->f_348) {
+                *(int *)(((char *)GOBJ_ACT(self)->f_680) + 0xC8) = 1;
             } else {
-                *(int *)(((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x680)) + 0xC8) = 0;
+                *(int *)(((char *)GOBJ_ACT(self)->f_680) + 0xC8) = 0;
             }
             break;
         }
     } else {
-        *(int *)(((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x680)) + 0xC8) = -1;
+        *(int *)(((char *)GOBJ_ACT(self)->f_680) + 0xC8) = -1;
     }
 
-    if (*(int *)(((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x680)) + 0xD4) > 0) {
-        *(int *)(((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x680)) + 0xD0) = 1;
+    if (*(int *)(((char *)GOBJ_ACT(self)->f_680) + 0xD4) > 0) {
+        *(int *)(((char *)GOBJ_ACT(self)->f_680) + 0xD0) = 1;
     } else {
-        *(int *)(((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x680)) + 0xD0) = 0;
+        *(int *)(((char *)GOBJ_ACT(self)->f_680) + 0xD0) = 0;
     }
-    (*(int *)(((char *)*(int *)((char *)*(int *)(self + 0x164) + 0x680)) + 0xD4))--;
+    (*(int *)(((char *)GOBJ_ACT(self)->f_680) + 0xD4))--;
 
     if ((&motionKind[*(int *)((char *)((IntFloat *)(self + 0x15C))->i + 0x4A0)])->f_190 & 1) {
-        *(int *)(s + 0x50) = (60 - systemStatus[0] * 10) / systemStatus[1] / 3;
+        s->f_50 = (60 - systemStatus[0] * 10) / systemStatus[1] / 3;
     }
 
     ACTGame_LwsEffectProcess(self);
@@ -2939,9 +2909,9 @@ void ACTLookTargetSystem_Exec(char *self)
             rv = 1;
             break;
         case 14:
-            pos[0] = *(float *)((char *)GOBJ_ACT(self)->f_688 + 0x520);
-            pos[1] = *(float *)((char *)GOBJ_ACT(self)->f_688 + 0x524);
-            pos[2] = *(float *)((char *)GOBJ_ACT(self)->f_688 + 0x528);
+            pos[0] = GOBJ_WORK(self)->f_520;
+            pos[1] = GOBJ_WORK(self)->f_524;
+            pos[2] = GOBJ_WORK(self)->f_528;
             rv = 1;
             break;
         }
@@ -2983,7 +2953,7 @@ void ACTLookTargetSystem_Exec(char *self)
         flags |= 0x20;
     }
     if (_ACTCharStatus_Check(self, 28)) {
-        if (*(float *)((char *)GOBJ_ACT(self)->f_688 + 0x32C) < 300.0f) {
+        if (GOBJ_WORK(self)->f_32C < 300.0f) {
             flags |= 0x40;
         } else {
             flags |= 0x800;
@@ -2996,7 +2966,7 @@ void ACTLookTargetSystem_Exec(char *self)
         flags |= 0x1000;
     }
     if (_ACTCharStatus_Check(self, 15)) {
-        if (self == girlGObj) {
+        if (self == ((char *)girlGObj)) {
             if ((int)(*(unsigned long long *)(s + 0x20) >> 14) & 1) {
                 flags |= 0x200;
             }
@@ -3077,7 +3047,7 @@ void ACTLookTargetSystem_Exec(char *self)
         *(float *)((char *)((IntFloat *)(self + 0x15C))->i + 0x394) = pos[1];
         *(float *)((char *)((IntFloat *)(self + 0x15C))->i + 0x398) = pos[2];
         *(int *)((char *)((IntFloat *)(self + 0x15C))->i + 0x380) = mode;
-        if (self == girlGObj) {
+        if (self == ((char *)girlGObj)) {
             debug_NMarker((float *)((char *)(int)GOBJ_SUB(self) + 0x390), 0xFF, 0xFF, 0xFF, 100.0f);
         }
     } else {
@@ -3101,15 +3071,20 @@ inline void ACTGame_SendSoundMail(char *a0, int mail, int a2, int a3, int a4)
         if (a3 == 0) {
             break;
         }
-        GOBJ_ACT(a0)->f_134 = a3;
-        *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x138) =
-            (*(unsigned long long *)(*(char **)(a0 + 0x164) + 0x138) & ~1ULL) | (a4 & 1);
+        {
+            Act *act = GOBJ_ACT(a0);
+            act->f_134 = a3;
+            *(unsigned long long *)((char *)act + 0x138) =
+                (*(unsigned long long *)((char *)act + 0x138) & ~1ULL) | (a4 & 1);
+        }
         break;
 
     case 0x1A1:
         iosOmSendMail(a0, 0x1A1, a2);
-
-        GOBJ_ACT(a0)->f_134 = a3;
+        {
+            Act *act = GOBJ_ACT(a0);
+            act->f_134 = a3;
+        }
         break;
     }
 }
@@ -3117,7 +3092,7 @@ inline void ACTGame_SendSoundMail(char *a0, int mail, int a2, int a3, int a4)
 void ACTItemWatchMotion(char *self)
 {
     MotionRec *rec = &motionKind[GOBJ_SUB(self)->f_4A0];
-    char *sub = (char *)*(int *)(self + 0x164);
+    Act *sub = GOBJ_ACT(self);
     int mode = rec->u_188.w >> 19;
     int frame = rec->u_188.b;
 
@@ -3125,13 +3100,13 @@ void ACTItemWatchMotion(char *self)
        request, expanded at the four motion arms below. */
     inline void ItemHold(void)
     {
-        if (*(int *)(sub + 0x180) != 0) {
+        if (*(int *)((char *)sub + 0x180) != 0) {
             return;
         }
-        if ((*(int *)(sub + 0x180) = *(int *)(sub + 0x184)) == 0) {
+        if ((*(int *)((char *)sub + 0x180) = *(int *)((char *)sub + 0x184)) == 0) {
             return;
         }
-        HoldItem(*(int *)(sub + 0x180), self);
+        HoldItem(*(int *)((char *)sub + 0x180), self);
     }
 
     /* Nested inline (dev lines 4474-4476): drop whatever is held.  The two
@@ -3140,52 +3115,52 @@ void ACTItemWatchMotion(char *self)
        read and cleared through `char **`. */
     inline void ItemRelease(void)
     {
-        if (*(char **)(sub + 0x180) == 0) {
+        if (*(char **)((char *)sub + 0x180) == 0) {
             return;
         }
-        ReleaseItem((int)*(char **)(sub + 0x180));
-        *(char **)(sub + 0x184) = *(char **)(sub + 0x180) = 0;
+        ReleaseItem((int)*(char **)((char *)sub + 0x180));
+        *(char **)((char *)sub + 0x184) = *(char **)((char *)sub + 0x180) = 0;
     }
 
     /* A real GNU nested function: ROM passes the parent's frame in $2
-       (STATIC_CHAIN_REGNUM) and the body reads `sub` at 0($2) and `self`
+       (STATIC_CHAIN_REGNUM) and the body reads `(char *)sub` at 0($2) and `self`
        at 4($2) through it. */
     void ACTItemThrow(void)
     {
         float v[4];
         int kind;
 
-        if (*(int *)(sub + 0x180) == 0) {
+        if (*(int *)((char *)sub + 0x180) == 0) {
             return;
         }
         sceVu0ScaleVector(v, test_CURRENTORIENT(self),
                           _ACTGame_GetParamF(9) + _ACTGame_GetParamF(9));
-        kind = GetItemKind(*(int *)(sub + 0x180));
+        kind = GetItemKind(*(int *)((char *)sub + 0x180));
         if (kind == 1 || kind == 6) {
             debug_StdPrintfDummy("BOMB!!\n");
             v[0] *= 0.5f;
             v[1] -= 25.0f;
             v[2] *= 0.5f;
         }
-        ThrowItem(*(int *)(sub + 0x180), v);
-        *(int *)(sub + 0x184) = *(int *)(sub + 0x180) = 0;
+        ThrowItem(*(int *)((char *)sub + 0x180), v);
+        *(int *)((char *)sub + 0x184) = *(int *)((char *)sub + 0x180) = 0;
     }
 
     mode &= 7;
 
-    if (self == girlGObj && boyGObj != 0) {
-        if (*(char **)(sub + 0x184) != 0) {
+    if (self == ((char *)girlGObj) && boyGObj != 0) {
+        if (*(char **)((char *)sub + 0x184) != 0) {
             Act *o = GOBJ_ACT(boyGObj);
-            if (*(char **)(sub + 0x184) == *(char **)((char *)o + 0x184) ||
-                *(char **)(sub + 0x184) == *(char **)((char *)o + 0x180)) {
-                *(char **)(sub + 0x184) = 0;
+            if (*(char **)((char *)sub + 0x184) == *(char **)((char *)o + 0x184) ||
+                *(char **)((char *)sub + 0x184) == *(char **)((char *)o + 0x180)) {
+                *(char **)((char *)sub + 0x184) = 0;
             }
         }
-        if (*(char **)(sub + 0x180) != 0) {
+        if (*(char **)((char *)sub + 0x180) != 0) {
             Act *o = GOBJ_ACT(boyGObj);
-            if (*(char **)(sub + 0x180) == *(char **)((char *)o + 0x184) ||
-                *(char **)(sub + 0x180) == *(char **)((char *)o + 0x180)) {
-                *(char **)(sub + 0x180) = 0;
+            if (*(char **)((char *)sub + 0x180) == *(char **)((char *)o + 0x184) ||
+                *(char **)((char *)sub + 0x180) == *(char **)((char *)o + 0x180)) {
+                *(char **)((char *)sub + 0x180) = 0;
             }
         }
     }
@@ -3194,9 +3169,9 @@ void ACTItemWatchMotion(char *self)
     case 2:
         if ((float)frame < GOBJ_SUB(self)->f_4AC) {
             ItemHold();
-        } else if (*(int *)(sub + 0x180) != 0) {
+        } else if (*(int *)((char *)sub + 0x180) != 0) {
             float pos[4];
-            GetRootPosition(pos, *(int *)(sub + 0x180));
+            GetRootPosition(pos, *(int *)((char *)sub + 0x180));
             SetDirectRootPositionNoFittingWithNodePoint(self, (void *)0x16, pos, 0.2f);
             debug_StdPrintfDummy("!!\n");
         }
@@ -3228,22 +3203,23 @@ void ACTItemWatchMotion(char *self)
     }
 
     if (self == boyGObj && itemWatchOff == 0) {
-        *(int *)(sub + 0x154) = *(int *)(sub + 0x180);
-        SetBoyInfo(*(void **)(sub + 0x150), *(void **)(sub + 0x180));
+        *(int *)((char *)sub + 0x154) = *(int *)((char *)sub + 0x180);
+        SetBoyInfo((void *)sub->f_150, *(void **)((char *)sub + 0x180));
     }
-    if (self == girlGObj) {
-        *(int *)(sub + 0x154) = *(int *)(sub + 0x180);
+    if (self == ((char *)girlGObj)) {
+        *(int *)((char *)sub + 0x154) = *(int *)((char *)sub + 0x180);
         if (mode != 0) {
-            int item = *(int *)(sub + 0x180);
+            int item = *(int *)((char *)sub + 0x180);
             int drop = 0;
             if (item != 0) {
                 drop = *(int *)(item + 0x16C) == 0;
             }
-            if (*(int *)(sub + 0x180) == 0 && *(int *)(sub + 0x184) == 0) {
+            if (*(int *)((char *)sub + 0x180) == 0 && *(int *)((char *)sub + 0x184) == 0) {
                 drop = 1;
             }
             if (drop) {
-                *(int *)(sub + 0x154) = *(int *)(sub + 0x180) = *(int *)(sub + 0x184) = 0;
+                *(int *)((char *)sub + 0x154) = *(int *)((char *)sub + 0x180) =
+                    *(int *)((char *)sub + 0x184) = 0;
                 ACTSendMailCorrect(self, 0x7E);
             }
         }
@@ -3253,10 +3229,10 @@ void ACTItemWatchMotion(char *self)
 inline void ACTItemForceDrop(char *a0)
 {
     Act *s = GOBJ_ACT(a0);
-    int item = *(int *)((char *)s + 0x180);
+    int item = s->f_180;
     if (item != 0) {
         ReleaseItem(item);
-        *(int *)((char *)s + 0x180) = 0;
+        s->f_180 = 0;
         *(int *)((char *)s + 0x184) = 0;
     }
 }
@@ -3267,22 +3243,22 @@ void ACTGame_InsertCamera_GirlIsPinch(void)
     float p1[4];
     float p2[4];
 
-    if (boyGObj == 0 || girlGObj == 0) {
+    if (boyGObj == 0 || ((char *)girlGObj) == 0) {
         return;
     }
     GetRootPosition(p0, boyGObj);
-    GetRootPosition(p1, girlGObj);
+    GetRootPosition(p1, ((char *)girlGObj));
     if (_DistSqGV((int *)p0, (int)p1) < 22500.0f) {
         return;
     }
-    if (IsPointIsInScreen(p2, test_CURRENTROOT((int *)girlGObj)) > 0.0f) {
+    if (IsPointIsInScreen(p2, test_CURRENTROOT((int *)((char *)girlGObj))) > 0.0f) {
         return;
     }
-    if (boyGObj == 0 || girlGObj == 0) {
+    if (boyGObj == 0 || ((char *)girlGObj) == 0) {
         return;
     }
-    PrivInsCamSet(test_CURRENTROOT((int *)boyGObj), test_CURRENTROOT((int *)girlGObj), boyGObj,
-                  (0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 100 / 60,
+    PrivInsCamSet(test_CURRENTROOT((int *)boyGObj), test_CURRENTROOT((int *)((char *)girlGObj)),
+                  boyGObj, (0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 100 / 60,
                   (0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 45 / 60, 1, 0.05f, 0.25f);
 }
 
@@ -3324,10 +3300,10 @@ void RequestChangeHandMode(char *self, int mode, int pri, int flag, int p5, int 
 
     switch (mode) {
     case 0:
-        hmc = (HandModeCmd *)(*(char **)(*(char **)(self + 0x164) + 0x680) + 0x314);
+        hmc = (HandModeCmd *)((char *)GOBJ_ACT(self)->f_680 + 0x314);
         break;
     case 1:
-        hmc = (HandModeCmd *)(*(char **)(*(char **)(self + 0x164) + 0x680) + 0x31C);
+        hmc = (HandModeCmd *)((char *)GOBJ_ACT(self)->f_680 + 0x31C);
         break;
     default:
         debug_assert("src/act-game.c", 4727);
@@ -3352,15 +3328,14 @@ void RequestChangeHandMode(char *self, int mode, int pri, int flag, int p5, int 
 
 inline void _ACTSetEnemyDisappearSpeed(char *a0, float f)
 {
-    *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x334) = f;
+    GOBJ_WORK(a0)->f_334 = f;
 }
 
 inline int ACTChkAttackIgnore_BOY(char *a0)
 {
     Act *s = GOBJ_ACT(a0);
-    if (s->unk34 == 0x35 ||
-        (*(int *)(*(char **)((char *)s + 0x688) + 0x394) != 0 && scpBoyControlReadDisable != 0) ||
-        ((int)(*(unsigned long long *)((char *)s + 0x18) >> 35) & 1) == 0) {
+    if (s->unk34 == 0x35 || (((ActWork *)s->f_688)->f_394 != 0 && scpBoyControlReadDisable != 0) ||
+        ((int)(s->flags18.ll >> 35) & 1) == 0) {
         return 1;
     }
     return 0;
@@ -3388,14 +3363,14 @@ inline int ACTChkAttackIgnore_ENEMY(char *a0)
 
     switch (s->unk34) {
     case 0x67:
-        if ((60 - systemStatus[0] * 10) / systemStatus[1] / 2 < *(int *)((char *)s + 0x4C)) {
+        if ((60 - systemStatus[0] * 10) / systemStatus[1] / 2 < s->f_4C) {
             return 1;
         }
         break;
 
     case 6:
-        if (((int)(*(unsigned long long *)((char *)s + 0x18) >> 57) & 1) && stage_no != 0x56 &&
-            stage_no != 3 && stage_no != 0x2E) {
+        if (((int)(s->flags18.ll >> 57) & 1) && stage_no != 0x56 && stage_no != 3 &&
+            stage_no != 0x2E) {
             return 1;
         }
         break;

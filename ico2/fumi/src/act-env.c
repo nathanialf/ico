@@ -1,3 +1,4 @@
+#include "typedef.h"
 #include "debug.h"
 #include <libvu0.h>
 #include "act-game.h"
@@ -38,14 +39,9 @@ static float ditchSofaTarget[4] = {749.0f, -3775.0f, 2650.0f, 1.0f}; /* derived 
 
 static float ditchSofaPos[4] = {559.0f, -3775.0f, 2503.0f, 1.0f}; /* derived name */
 
-/* kept local: this TU's bytes only come out with its own view of Vec4. */
-typedef struct {
-    float x, y, z, w;
-} Vec4 __attribute__((aligned(16)));
-
 /* The sofa seat offset in the room's local space, the first object of the
    TU's .rodata run (VMA 0x621A00). */
-static const Vec4 sofaSeatOffset = {30.0f, 0.0f, -50.0f, 0.0f};
+static const VECTOR sofaSeatOffset = {30.0f, 0.0f, -50.0f, 0.0f};
 
 /* kept local: int here, GObj * in main.h */
 extern int boyGObj;
@@ -62,7 +58,7 @@ extern void SetMotionDirection(void *a0, float *a1);
 /* same prototype motionManager2.h carries; kept local because this TU does not include it */
 /* kept local: agrees with motionManager2.h, which this TU does not include (CheckPureWallAttribute, CheckWallAttribute differ) */
 extern void GetRootProjectionPosOfGObj(int a0, int a1);
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj, ((char *)girlGObj) differ) */
 extern int stage_no;
 
 #include "act-env.h"
@@ -71,34 +67,34 @@ extern int stage_no;
 
 inline void GetSofaPosition(char *a0, char *a1)
 {
-    char *w = *(char **)(a0 + 0x164);
-    Vec4 v = sofaSeatOffset;
-    *(float *)(w + 0x560) = *(float *)(w + 0x4B0);
-    *(float *)(w + 0x564) = *(float *)(w + 0x4B4);
-    *(float *)(w + 0x568) = *(float *)(w + 0x4B8);
+    Act *w = GOBJ_ACT(a0);
+    VECTOR v = sofaSeatOffset;
+    *(float *)((char *)w + 0x560) = w->f_4B0;
+    *(float *)((char *)w + 0x564) = w->f_4B4;
+    *(float *)((char *)w + 0x568) = w->f_4B8;
     if (a0 == boyGObj) {
         v.x = -v.x;
     }
     v.w = 1.0f;
-    sceVu0ApplyMatrix(w + 0x5B0, *(void **)((char *)((union ENVIF *)((char *)a1 + 0x15C))->i + 0xC),
-                      &v);
+    sceVu0ApplyMatrix((char *)w + 0x5B0,
+                      *(void **)((char *)((union ENVIF *)((char *)a1 + 0x15C))->i + 0xC), &v);
 }
 
 /* kept local: char * here, GObj * in main.h */
-extern char *girlGObj;
+extern GObj *girlGObj;
 
 /* Where the first carrier stands in the stage 8 ditch below the -3000 line
    (VMA 0x621A10, the run's second object). */
-static const Vec4 ditchCarryPos = {767.0f, -3775.0f, 2621.0f, 1.0f};
+static const VECTOR ditchCarryPos = {767.0f, -3775.0f, 2621.0f, 1.0f};
 
 static inline int getDitchCarryMode(void)
 {
     void *a;
     void *b;
 
-    if (boyGObj != 0 && girlGObj != 0) {
-        a = *(void **)*(char **)(boyGObj + 0x15C);
-        b = *(void **)*(char **)(girlGObj + 0x15C);
+    if (boyGObj != 0 && ((char *)girlGObj) != 0) {
+        a = *(void **)(char *)GOBJ_SUB(boyGObj);
+        b = *(void **)(char *)GOBJ_SUB(((char *)girlGObj));
 
         if (a != 0 && *(int *)((char *)a + 0xC) == 0x2C)
             return 1;
@@ -118,7 +114,7 @@ static inline int getDitchCarryModeStage8(void)
 
 void getDitchDistTbl(float **tbl, float *range, int *sofa, float *pos, void *obj, int *carry)
 {
-    Vec4 v;
+    VECTOR v;
     int mode;
 
     *tbl = ditchDistTbl;
@@ -179,20 +175,6 @@ void getDitchDistTbl(float **tbl, float *range, int *sofa, float *pos, void *obj
     }
 }
 
-/* kept local: this TU's bytes only come out with its own view of ClipWork. */
-typedef struct {
-    float a[4];   /* 0x00 start point   */
-    float b[4];   /* 0x10 end point     */
-    float pos[4]; /* 0x20 clipped point */
-    char _30[0x40];
-    float f_70;
-    char _74[0x14];
-    int f_88;
-    char _8c[0x08];
-    int f_94;
-    char _98[0x28];
-} ClipWork;
-
 int GetDitchPosition(float *out, float *org, float *dir, float d0, float d1, float h)
 {
     ClipWork work;
@@ -214,7 +196,7 @@ int GetDitchPosition(float *out, float *org, float *dir, float d0, float d1, flo
     work.a[1] -= 100.0f;
     work.b[1] += h + 100.0f;
     ClipFloor(&work);
-    if (work.f_94 != 0) {
+    if (work.floorHit != 0) {
 #ifdef DEBUG
         sceVu0ScaleVector(tmp2, dir, d0);
         sceVu0AddVector(work2.a, org, tmp2);
@@ -224,7 +206,7 @@ int GetDitchPosition(float *out, float *org, float *dir, float d0, float d1, flo
         work2.a[1] -= 100.0f;
         work2.b[1] += h + 100.0f;
         ClipFloor(&work2);
-        if (work2.f_94 == 0) {
+        if (work2.floorHit == 0) {
             scePrintf("env: ditch without floor at its near edge\n");
         }
 #endif
@@ -251,7 +233,7 @@ inline void GetCollisCenterPositionSimple(void *a0, void *a1, void *a2)
     sceVu0ScaleVector((float *)a0, acc, 0.25f);
     if (a1 != 0) {
         ((union ENVIF *)((char *)a0 + 0xC))->f = 1.0f;
-        sceVu0ApplyMatrix(a0, (void *)*(int *)(*(char **)((char *)a1 + 0x15C) + 0xC), a0);
+        sceVu0ApplyMatrix(a0, (void *)GOBJ_SUB(a1)->f_C, a0);
     }
 }
 
@@ -290,27 +272,27 @@ void DebugActOrientFlag(unsigned int *f)
 
 inline void ACTSetEnvAllmighty(char *a0)
 {
-    char *s = *(char **)(a0 + 0x164);
-    *(unsigned long long *)(s + 0x478) |= (1ULL << 38);
-    *(unsigned long long *)(s + 0x478) |= (1ULL << 39);
-    *(unsigned long long *)(s + 0x478) |= (1ULL << 40);
-    *(unsigned long long *)(s + 0x478) |= (1ULL << 41);
-    *(unsigned long long *)(s + 0x478) |= (1ULL << 44);
-    *(unsigned long long *)(s + 0x478) |= (1ULL << 45);
+    Act *s = GOBJ_ACT(a0);
+    s->f_478 |= (1ULL << 38);
+    s->f_478 |= (1ULL << 39);
+    s->f_478 |= (1ULL << 40);
+    s->f_478 |= (1ULL << 41);
+    s->f_478 |= (1ULL << 44);
+    s->f_478 |= (1ULL << 45);
     if (ACTGame_FLAG_TETSUNAGI()) {
-        *(unsigned long long *)(s + 0x18) &= ~(1ULL << 43);
-        *(int *)(s + 0x28) = 0;
+        s->flags18.ll &= ~(1ULL << 43);
+        s->f_28 = 0;
     } else {
-        if ((int)(*(unsigned long long *)(s + 0x18) >> 43) & 1)
-            *(unsigned long long *)(s + 0x478) |= (1ULL << 46);
-        *(int *)(s + 0x28) += 1;
+        if ((int)(s->flags18.ll >> 43) & 1)
+            s->f_478 |= (1ULL << 46);
+        s->f_28 += 1;
     }
-    *(unsigned long long *)(s + 0x478) |= (1ULL << 50);
-    *(unsigned long long *)(s + 0x478) |= (1ULL << 51);
-    *(unsigned long long *)(s + 0x478) |= (1ULL << 52);
-    *(unsigned long long *)(s + 0x478) |= (1ULL << 53);
-    *(unsigned long long *)(s + 0x478) |= (1ULL << 49);
-    *(unsigned long long *)(s + 0x480) |= (1ULL << 43);
+    s->f_478 |= (1ULL << 50);
+    s->f_478 |= (1ULL << 51);
+    s->f_478 |= (1ULL << 52);
+    s->f_478 |= (1ULL << 53);
+    s->f_478 |= (1ULL << 49);
+    s->f_480 |= (1ULL << 43);
 }
 
 inline int CheckWallAttributeEdegWall(int a0)
@@ -361,7 +343,7 @@ extern char *CheckTorchChainReactionReverse(char *a0, float dist);
 extern char *GetBombTorchGObj(char *a0);
 extern int GetBoxHoldPoint(float *out, char *self, void *chara);
 /* kept local: char * here, int in main.h */
-extern char *girlControlMode;
+extern int girlControlMode;
 
 /* kept local, as act-game.c keeps it: the 0x194-byte-per-entry motion record
    table indexed by the object's current motion id (obj->0x15C->0x4A0). */
@@ -391,21 +373,7 @@ typedef struct {
 } MotionRec;
 
 extern MotionRec motionKind[];
-
-/* kept local, in typedef.h's StgPre layout (this TU cannot include typedef.h:
-   it keeps its own Vec4 and ClipWork): the 0x194-byte stage record, only the
-   words this TU reads named. */
-typedef struct {
-    char _000[0x180];
-    float f_180; /* 0x180 */
-    char _184[0xC];
-    unsigned int flag0 : 1; /* 0x190 */
-    unsigned int flag1 : 1;
-    unsigned int flag2 : 1;
-    unsigned int flag3 : 1;
-} StageRec;
-
-extern const StageRec stageData[];
+extern const StgPre stageData[];
 
 /* act-env.c:949-953: the negated-orient angle, eight call sites.  Interim
    name: the listing inlines it everywhere, so neither MAIN.MAP nor the
@@ -446,19 +414,18 @@ static inline int H0973(void *o, float *v, float s)
 static inline unsigned char H1000(void *o, float h)
 {
     ClipWork work;
-    char *s;
+    Act *s;
     float y, d;
 
-    s = *(char **)((char *)o + 0x164);
-    if (o == boyGObj && stageData[stage_no].flag2 &&
-        (*(int *)(s + 0x34) == 4 || *(int *)(s + 0x34) == 5)) {
+    s = GOBJ_ACT(o);
+    if (o == boyGObj && stageData[stage_no].flag2 && (s->unk34 == 4 || s->unk34 == 5)) {
         memset(&work, 0, 0xC0);
         GetSkeltonPosition(work.a, o, (void *)0x2C);
         work.b[0] = work.a[0];
         work.b[2] = work.a[2];
         work.b[1] = work.a[1] + 200.0f;
         ClipFloor(&work);
-        if (work.f_94) {
+        if (work.floorHit) {
             y = work.pos[1] - work.a[1];
             d = h + y;
             if (d < 250.0f)
@@ -484,7 +451,7 @@ static inline void H1228(float *out, void *ref, void *o, int cliff)
     GetCollisCenterPositionSimple(out, 0, p);
     if (ref != 0) {
         ((union ENVIF *)((char *)out + 0xC))->f = 1.0f;
-        sceVu0ApplyMatrix(out, *(void **)(*(char **)((char *)ref + 0x15C) + 0xC), out);
+        sceVu0ApplyMatrix(out, (void *)GOBJ_SUB(ref)->f_C, out);
     }
 }
 
@@ -574,11 +541,11 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
        and below its 1403 def line.  `inline` is required or gcc emits
        out-of-line copies ahead of this function and breaks the TU order. */
     char *sub = *(char **)(a0 + 0x164);
-    char *obj = ((EnvSub *)*(char **)(a0 + 0x15C))->f_180;
-    int kind = ((EnvSub *)*(char **)(a0 + 0x15C))->f_0;
+    char *obj = ((EnvSub *)(char *)GOBJ_SUB(a0))->f_180;
+    int kind = ((EnvSub *)(char *)GOBJ_SUB(a0))->f_0;
     float dist = ((EnvMotion *)*(char **)(sub + 0x130))->f_138;
     float hgt = -((EnvMotion *)*(char **)(sub + 0x130))->f_130;
-    float wallh = -((EnvSub *)*(char **)(a0 + 0x15C))->f_5A4;
+    float wallh = -((EnvSub *)(char *)GOBJ_SUB(a0))->f_5A4;
     float hh = ((EnvMotion *)*(char **)(sub + 0x130))->f_114;
     float f26 = ((EnvMotion *)*(char **)(sub + 0x130))->f_110;
     int v1D8 = 1;
@@ -586,8 +553,8 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
     int v1E0;
     int v1E4 = 0;
     int v1E8 = 0;
-    char *w564 = ((EnvSub *)*(char **)(a0 + 0x15C))->f_564;
-    char *w574 = ((EnvSub *)*(char **)(a0 + 0x15C))->f_574;
+    char *w564 = ((EnvSub *)(char *)GOBJ_SUB(a0))->f_564;
+    char *w574 = ((EnvSub *)(char *)GOBJ_SUB(a0))->f_574;
     char *v1EC = 0;
     float k;
     float kk;
@@ -598,7 +565,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
     {
         int o = (int)a0;
 
-        if (notYorda && o == (int)girlGObj)
+        if (notYorda && o == (int)((char *)girlGObj))
             return 0;
         return CheckWallAttribute(o, attr);
     }
@@ -613,24 +580,24 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
     char *o;
 
     memset(prj, 0, 16);
-    if (*(char **)(*(char **)(a0 + 0x15C) + 0x188) == 0) {
+    if ((char *)GOBJ_SUB(a0)->f_188 == 0) {
         w574 = 0;
         w564 = 0;
     }
     if (w574 == 0 && w564 == 0)
         dist = 3.40282347e+38f /* FLT_MAX */;
-    if (*(int *)(*(char **)(a0 + 0x15C) + 0x568) == 0)
+    if (GOBJ_SUB(a0)->f_568 == 0)
         hh = 3.40282347e+38f /* FLT_MAX */;
     if ((int)(*(unsigned long long *)(sub + 0x18) >> 52) & 1)
         v1D8 = 0;
-    if (((EnvSub *)*(char **)(a0 + 0x15C))->f_560 > _ACTGame_GetParamF(2)) {
+    if (((EnvSub *)(char *)GOBJ_SUB(a0))->f_560 > _ACTGame_GetParamF(2)) {
         v1D8 = 0;
         v1DC = 0;
     }
     GetRootProjectionPosOfGObj((int)prj, (int)a0);
     GetRootPosition(pos, a0);
     GetSkeltonOrient(ori, a0, 0x2C);
-    *(ClipCopy *)(env + 0x170) = *(ClipCopy *)(*(char **)(a0 + 0x15C) + 0x180);
+    *(ClipCopy *)(env + 0x170) = *(ClipCopy *)((char *)GOBJ_SUB(a0) + 0x180);
     ((ActStatusWord *)(sub + 0x18))->q &= ~(1ULL << 44);
     ((ActStatusWord *)(sub + 0x18))->q &= ~(1ULL << 45);
     ((ActStatusWord *)(sub + 0x20))->q &= ~(1ULL << 7);
@@ -646,7 +613,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
         k = 300.0f;
         v1E0 = 1;
     }
-    if (a0 == girlGObj)
+    if (a0 == ((char *)girlGObj))
         v1E0 = 0;
     {
         float p40[4], p50[4], p60[4], p70[4], p80[4];
@@ -679,14 +646,14 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
             CheckPureWallAttribute(a0, 0x600))
             hgt = wallh = 3.40282347e+38f /* FLT_MAX */;
     }
-    if (*(int *)(*(char **)(a0 + 0x15C) + 0x568)) {
+    if (GOBJ_SUB(a0)->f_568) {
         if (CheckPureCliffAttribute(a0, 0x300) || CheckPureCliffAttribute(a0, 0x500) ||
             CheckPureCliffAttribute(a0, 0x600))
             hh = 3.40282347e+38f /* FLT_MAX */;
     }
-    if ((w574 != 0 || w564 != 0) && *(char **)(*(char **)(a0 + 0x15C) + 0x188) != 0) {
-        GetOrientOfWall(env, *(void **)(*(char **)(a0 + 0x15C) + 0x188),
-                        (int *)(*(char **)(a0 + 0x15C) + 0x180));
+    if ((w574 != 0 || w564 != 0) && (char *)GOBJ_SUB(a0)->f_188 != 0) {
+        GetOrientOfWall(env, (void *)GOBJ_SUB(a0)->f_188,
+                        (int *)((char *)GOBJ_SUB(a0) + 0x180));
         *(float *)(env + 0xC) = 1.0f;
         if (w564 != 0) {
             float p60[4];
@@ -697,7 +664,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
             if (ACTGame_FLAG_TETSUNAGI()) {
                 if (a0 == boyGObj)
                     c2 = 0;
-                if (a0 == girlGObj)
+                if (a0 == ((char *)girlGObj))
                     c1 = 0;
             }
             GetSkeltonOrient(p60, a0, 0x2C);
@@ -719,9 +686,9 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
             }
         }
     }
-    if (w564 == 0 && *(int *)(*(char **)(a0 + 0x15C) + 0x57C)) {
-        if (*(float *)(*(char **)(a0 + 0x15C) + 0x5E4) < 100.0f) {
-            if (H0968(a1, (float *)(*(char **)(a0 + 0x15C) + 0x5D0)) < 40) {
+    if (w564 == 0 && GOBJ_SUB(a0)->f_57C) {
+        if (GOBJ_SUB(a0)->f_5E4 < 100.0f) {
+            if (H0968(a1, (float *)((char *)GOBJ_SUB(a0) + 0x5D0)) < 40) {
                 *(unsigned long long *)(sub + 0x18) |= (1ULL << 44);
                 *(unsigned long long *)(sub + 0x18) |= (1ULL << 45);
             }
@@ -742,7 +709,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
             *(unsigned long long *)(sub + 0x18) |= (1ULL << 60);
         if (dist < 300.0f && PosOrFar() <= 250.0f)
             flags[0].w |= 4;
-        if (a0 == girlGObj && dist < 300.0f && *(int *)(obj + 0xC) == 0x11 &&
+        if (a0 == ((char *)girlGObj) && dist < 300.0f && *(int *)(obj + 0xC) == 0x11 &&
             IsThisBoxTruck(obj) == 7 && H0968(a1, (float *)env) < 45 &&
             H0968(a2, (float *)env) < 45 && _AbsRotyGV(a1, a2) < 45)
             ((ActStatusWord *)(sub + 0x20))->q |= (1ULL << 38);
@@ -750,11 +717,11 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
             CheckWallAttributeNotYorda(0xC000, 0) || CheckWallAttributeNotYorda(0xD000, 1) ||
             CheckWallAttributeEdegWall((int)a0) || CheckWallAttributeNotYorda(0x3000, 0))
             hgt = wallh;
-        if (a0 == girlGObj && CheckPureWallAttribute(a0, 0x7000)) {
+        if (a0 == ((char *)girlGObj) && CheckPureWallAttribute(a0, 0x7000)) {
             wallh = 3.40282347e+38f /* FLT_MAX */;
             hgt = wallh;
             if (ACTGame_FLAG_TETSUNAGI() &&
-                test_CURRENTROOT(girlGObj)[1] >
+                test_CURRENTROOT(((char *)girlGObj))[1] >
                     test_CURRENTROOT(boyGObj)[1] + 50.0f) {
                 float p60[4], p70[4], p80[4];
                 float p90[4][4];
@@ -762,7 +729,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                 sceVu0ScaleVector(p60, (float *)env, -1.0f);
                 GetMatrixDirectionToZ(p90[0], p60);
                 sceVu0SubVector(p70, test_CURRENTROOT(boyGObj),
-                                test_CURRENTROOT(girlGObj));
+                                test_CURRENTROOT(((char *)girlGObj)));
                 p70[3] = 0.0f;
                 sceVu0ApplyMatrix(p80, p90, p70);
                 if (dist < p80[2])
@@ -787,7 +754,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
 
             if (190.0f < hgt && hgt < 210.0f && hgt < 40.0f) {
             }
-            row = &motionKind[*(int *)(*(char **)(a0 + 0x15C) + 0x4A0)];
+            row = &motionKind[GOBJ_SUB(a0)->f_4A0];
             g = 1;
             if ((row->u_188.w >> 19) & 7) {
                 kk = 60.0f;
@@ -807,16 +774,16 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                 *(int *)((char *)*(int *)((char *)*(int *)(a0 + 0x164) + 0x688) + 0x868) = 1;
                 flags[1].w |= 8;
             }
-            if (a0 == girlGObj && _ACTCharStatus_Check(a0, 0x1C)) {
-                sceVu0SubVector(p60, test_CURRENTROOT(girlGObj),
+            if (a0 == ((char *)girlGObj) && _ACTCharStatus_Check(a0, 0x1C)) {
+                sceVu0SubVector(p60, test_CURRENTROOT(((char *)girlGObj)),
                                 test_CURRENTROOT(boyGObj));
                 p60[1] = 0.0f;
                 if (sceVu0InnerProduct(p60, test_CURRENTORIENT(boyGObj)) < 100.0f) {
                     int t = 0;
 
                     if (*(int *)(obj + 0xC) == 0x11)
-                        t = (*(char **)*(char **)(boyGObj + 0x15C) != 0 &&
-                             obj != *(char **)*(char **)(boyGObj + 0x15C));
+                        t = (*(char **)(char *)GOBJ_SUB(boyGObj) != 0 &&
+                             obj != *(char **)(char *)GOBJ_SUB(boyGObj));
                     else
                         t = 0;
                     if (!t)
@@ -943,7 +910,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
             flags[2].w |= 0x20000;
         }
     }
-    switch (((int)(&motionKind[*(int *)(*(char **)(a0 + 0x15C) + 0x4A0)])->u_188.w << 6) >> 30) {
+    switch (((int)(&motionKind[GOBJ_SUB(a0)->f_4A0])->u_188.w << 6) >> 30) {
     default:
         kd = 60.0f;
         break;
@@ -951,7 +918,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
         if (CheckWallAttributeEdegWall((int)a0)) {
             kd = 30.0f;
         } else {
-            kd = GetCorrectDistance(motionKind[*(int *)(*(char **)(a0 + 0x15C) + 0x4A0)].f_164 + 2.0f,
+            kd = GetCorrectDistance(motionKind[GOBJ_SUB(a0)->f_4A0].f_164 + 2.0f,
                                     v1F8);
         }
         kd = (kd < 0.0f) ? 0.0f : ((30.0f < kd) ? 30.0f : kd);
@@ -966,7 +933,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
         int c60b = (60.0f < hgt && hgt < 150.0f);
         int c60c = (60.0f < hgt && hgt < 230.0f);
 
-        if (a0 == girlGObj)
+        if (a0 == ((char *)girlGObj))
             c60a = (60.0f < hgt && hgt < 130.0f);
         if (CheckWallAttribute(a0, 0xB000))
             flags[2].bit.b15 = c60b;
@@ -983,7 +950,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
         }
         else if (CheckWallAttribute(a0, 0x3000))
             flags[2].bit.b22 = c60b;
-        else if (*(int *)(*(char **)(a0 + 0x15C) + 0x1E4)) {
+        else if (GOBJ_SUB(a0)->f_1E4) {
             flags[2].bit.b14 = c60a;
             flags[2].bit.b13 = c130;
             if (debug_no_breast_hang)
@@ -993,7 +960,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
         }
     }
     if (dist < 50.0f && H0968(a2, (float *)env) < 40 &&
-        (a0 == boyGObj || a0 == girlGObj || (130.0f < hgt && *(int *)(obj + 0xC) != 0x10)))
+        (a0 == boyGObj || a0 == ((char *)girlGObj) || (130.0f < hgt && *(int *)(obj + 0xC) != 0x10)))
         *(unsigned long long *)(sub + 0x488) |= 8;
     if (((int)(*(unsigned long long *)(sub + 0x488) >> 3) & 1) && 65.0f < PosOrFar() &&
         (float)v1F8 < 30.0f)
@@ -1018,7 +985,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
         }
     }
     if (*(int *)(a0 + 0xC) == 4 && *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1E4) == 3 &&
-        dist < 180.0f && *(int *)(*(char **)(a0 + 0x15C) + 0x1E4)) {
+        dist < 180.0f && GOBJ_SUB(a0)->f_1E4) {
         if (40.0f <= hgt && hgt < 300.0f)
             flags[1].w |= 0x8000000;
         else if (300.0f <= hgt && hgt < 500.0f)
@@ -1028,19 +995,19 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
     }
         }
     }
-    if (hh != 3.40282347e+38f /* FLT_MAX */ && *(int *)(*(char **)(a0 + 0x15C) + 0x568) && v1DC) {
+    if (hh != 3.40282347e+38f /* FLT_MAX */ && GOBJ_SUB(a0)->f_568 && v1DC) {
         float rr;
         int r;
 
         GetOrientOfCliffOfGObj(env + 0x10, a0);
         *(float *)(env + 0x1C) = 1.0f;
         r = H0973(test_CURRENTORIENT(a0), (float *)(env + 0x10), 1.0f);
-        if (a0 == boyGObj && girlGObj != 0) {
+        if (a0 == boyGObj && ((char *)girlGObj) != 0) {
             float p60[4];
 
-            p60[0] = test_CURRENTROOT(girlGObj)[0];
-            p60[1] = test_CURRENTROOT(girlGObj)[1];
-            p60[2] = test_CURRENTROOT(girlGObj)[2];
+            p60[0] = test_CURRENTROOT(((char *)girlGObj))[0];
+            p60[1] = test_CURRENTROOT(((char *)girlGObj))[1];
+            p60[2] = test_CURRENTROOT(((char *)girlGObj))[2];
             if (_DistSqGV(pos, p60) < stageData[stage_no].f_180 * stageData[stage_no].f_180) {
                 float p70[4][4];
                 float pB0[4], pC0[4];
@@ -1055,13 +1022,13 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                     v1E4 = 1;
             }
         }
-        if (a0 == boyGObj && hh < 80.0f && girlGObj != 0 &&
-            171 <= _AbsRotyGV(test_CURRENTORIENT(girlGObj), env + 0x10)) {
-            if (*(int *)(*(char **)(girlGObj + 0x164) + 0x34) == 0x1D &&
-                _DistSqGV(pos, test_CURRENTROOT(girlGObj)) < 14400.0f)
+        if (a0 == boyGObj && hh < 80.0f && ((char *)girlGObj) != 0 &&
+            171 <= _AbsRotyGV(test_CURRENTORIENT(((char *)girlGObj)), env + 0x10)) {
+            if (*(int *)(*(char **)(((char *)girlGObj) + 0x164) + 0x34) == 0x1D &&
+                _DistSqGV(pos, test_CURRENTROOT(((char *)girlGObj))) < 14400.0f)
                 flags[0].w |= 0x4000000;
-            if (*(int *)(*(char **)(girlGObj + 0x164) + 0x34) == 0x1C &&
-                _DistSqGV(pos, test_CURRENTROOT(girlGObj)) < 40000.0f)
+            if (*(int *)(*(char **)(((char *)girlGObj) + 0x164) + 0x34) == 0x1C &&
+                _DistSqGV(pos, test_CURRENTROOT(((char *)girlGObj))) < 40000.0f)
                 flags[0].w |= 0x2000000;
         }
         if (hh < 20.0f && 45 < r) {
@@ -1070,9 +1037,9 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                 *(unsigned long long *)(sub + 0x20) &= ~(1ULL << 42);
             }
         }
-        if (girlControlMode != 0 && stage_no == 26 && 3000.0f < pos[2])
+        if (((char *)girlControlMode) != 0 && stage_no == 26 && 3000.0f < pos[2])
             v1E8 = 1;
-        if ((v1E8 ? hh < 35.0f : hh < 50.0f) && a0 == girlGObj && boyGObj != 0 &&
+        if ((v1E8 ? hh < 35.0f : hh < 50.0f) && a0 == ((char *)girlGObj) && boyGObj != 0 &&
             *(int *)(*(char **)(boyGObj + 0x164) + 0x34) == 0x58) {
             float p60[4];
 
@@ -1192,7 +1159,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
             break;
         }
         if (ACTGame_FLAG_TETSUNAGI() && hh < 40.0f && 1000.0f < f26) {
-            *(ClipCopy *)(env + 0x190) = *(ClipCopy *)(*(char **)(a0 + 0x15C) + 0x180);
+            *(ClipCopy *)(env + 0x190) = *(ClipCopy *)((char *)GOBJ_SUB(a0) + 0x180);
             flags[0].w |= 0x8000000;
         }
         if (hh < 40.0f) {
@@ -1211,8 +1178,8 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                 flags[2].w |= 0x80000;
         }
         if (hh < 25.0f && v1E0 &&
-            !(girlGObj != 0 && *(int *)(*(char **)(girlGObj + 0x164) + 0x34) == 0x6F &&
-              *(char **)(*(char **)(girlGObj + 0x164) + 0x144) == a0)) {
+            !(((char *)girlGObj) != 0 && *(int *)(*(char **)(((char *)girlGObj) + 0x164) + 0x34) == 0x6F &&
+              *(char **)(*(char **)(((char *)girlGObj) + 0x164) + 0x144) == a0)) {
             if (f26 < 55.0f)
                 ((ActStatusWord *)(sub + 0x480))->q |= (1ULL << 24);
             else if (f26 < 105.0f)
@@ -1232,20 +1199,20 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
         float lim;
         float hdif;
 
-        if (a0 == boyGObj && girlGObj != 0 &&
-            *(int *)(*(char **)(girlGObj + 0x164) + 0x34) != 0x26 && hh < 200.0f &&
+        if (a0 == boyGObj && ((char *)girlGObj) != 0 &&
+            *(int *)(*(char **)(((char *)girlGObj) + 0x164) + 0x34) != 0x26 && hh < 200.0f &&
             !ACTGame_FLAG_TETSUNAGI() && !CheckPureCliffAttribute(a0, 0x7000) &&
             !CheckPureCliffAttribute(a0, 0x400) &&
             _AbsRotyGV(env + 0x10, ori) < 60) {
             v200 = 1;
-            hdif = -GetHeightOfFieldPlaneDifference((int *)boyGObj, (int *)girlGObj);
+            hdif = -GetHeightOfFieldPlaneDifference((int *)boyGObj, (int *)((char *)girlGObj));
             if (!(hh < 60.0f))
                 v200 = 0;
             v204 = 1;
             sel = 0;
             lim = 3.40282347e+38f /* FLT_MAX */;
             GetRootPosition(p60, boyGObj);
-            GetRootPosition(p70, girlGObj);
+            GetRootPosition(p70, ((char *)girlGObj));
             if (f26 < 55.0f) {
             } else if (f26 < 155.0f) {
                 lim = 80.0f;
@@ -1260,12 +1227,12 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                 lim = 160.0f;
                 sel = 300;
             }
-            if (girlGObj != 0 && boyGObj != 0 &&
-                test_CURRENTROOT(girlGObj)[1] >
+            if (((char *)girlGObj) != 0 && boyGObj != 0 &&
+                test_CURRENTROOT(((char *)girlGObj))[1] >
                     test_CURRENTROOT(boyGObj)[1] + 800.0f)
                 v204 = 0;
             if (stage_no == 7) {
-                GetRootProjectionPosOfGObj((int)p80, (int)girlGObj);
+                GetRootProjectionPosOfGObj((int)p80, (int)((char *)girlGObj));
                 if (sel == 200) {
                     if (!(180.0f < p80[1] - prj[1]))
                         v204 = 0;
@@ -1351,19 +1318,19 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                 }
             }
         }
-        if (girlGObj != 0 && a0 == boyGObj && hh < 200.0f && 350.0f < f26 &&
+        if (((char *)girlGObj) != 0 && a0 == boyGObj && hh < 200.0f && 350.0f < f26 &&
             v1E4 && !ACTGame_FLAG_TETSUNAGI() &&
-            !(_DistSqGV(test_CURRENTROOT(boyGObj), test_CURRENTROOT(girlGObj)) <
+            !(_DistSqGV(test_CURRENTROOT(boyGObj), test_CURRENTROOT(((char *)girlGObj))) <
               10000.0f) &&
-            !(girlGObj != 0 && boyGObj != 0 &&
-              test_CURRENTROOT(girlGObj)[1] >
+            !(((char *)girlGObj) != 0 && boyGObj != 0 &&
+              test_CURRENTROOT(((char *)girlGObj))[1] >
                   test_CURRENTROOT(boyGObj)[1] + 800.0f) &&
-            (*(int *)(*(char **)(girlGObj + 0x164) + 0x34) == 4 ||
-             !(_DistxzSqGV(test_CURRENTROOT(boyGObj), test_CURRENTROOT(girlGObj)) <
+            (*(int *)(*(char **)(((char *)girlGObj) + 0x164) + 0x34) == 4 ||
+             !(_DistxzSqGV(test_CURRENTROOT(boyGObj), test_CURRENTROOT(((char *)girlGObj))) <
                (hh + 100.0f) * (hh + 100.0f))) &&
-            !(_DistxzSqGV(test_CURRENTROOT(boyGObj), test_CURRENTROOT(girlGObj)) < 40000.0f &&
-              300.0f < GetHeightOfFieldPlaneDifference((int *)girlGObj, (int *)boyGObj))) {
-            _OrientXZGV(p130, test_CURRENTROOT(girlGObj), test_CURRENTROOT(boyGObj));
+            !(_DistxzSqGV(test_CURRENTROOT(boyGObj), test_CURRENTROOT(((char *)girlGObj))) < 40000.0f &&
+              300.0f < GetHeightOfFieldPlaneDifference((int *)((char *)girlGObj), (int *)boyGObj))) {
+            _OrientXZGV(p130, test_CURRENTROOT(((char *)girlGObj)), test_CURRENTROOT(boyGObj));
             if (_AbsRotyGV(p130, env + 0x10) < 80) {
                 float *tbl;
                 float range;
@@ -1465,7 +1432,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
         }
     }
     CheckFloorAttribute(a0, 0x200);
-    if (a0 == girlGObj && *(int *)(sub + 0x34) == 0x45) {
+    if (a0 == ((char *)girlGObj) && *(int *)(sub + 0x34) == 0x45) {
         float hd = -GetHeightOfFieldPlaneDifference((int *)boyGObj, (int *)a0);
 
         if (((int)(*(unsigned long long *)(sub + 0x480) >> 18) & 1) && 5.0f < hd) {
@@ -1488,7 +1455,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
        argument, `daddu $5,$6`, while nothing of it survives); they do not
        pin its text.  The assignment to the loop cursor is our spelling. */
     o = a0;
-    if (girlGObj != 0) {
+    if (((char *)girlGObj) != 0) {
         ((ActStatusWord *)(sub + 0x478))->q |= (1ULL << 47);
         ((ActStatusWord *)(sub + 0x478))->q |= (1ULL << 48);
     }
@@ -1528,14 +1495,14 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
             *(unsigned long long *)(sub + 0x480) |= (1ULL << 61);
         }
     }
-    if (a0 == boyGObj && girlGObj != 0 &&
-        *(int *)(*(char **)(girlGObj + 0x164) + 0x34) == 0x6F) {
-        char *h = *(char **)(*(char **)(girlGObj + 0x164) + 0x144);
+    if (a0 == boyGObj && ((char *)girlGObj) != 0 &&
+        *(int *)(*(char **)(((char *)girlGObj) + 0x164) + 0x34) == 0x6F) {
+        char *h = *(char **)(*(char **)(((char *)girlGObj) + 0x164) + 0x144);
 
         if (*(int *)(*(char **)(h + 0x164) + 0x34) == 0x67 && GetMotionFrameFlag1(h)) {
             float p60[4], p70[4];
 
-            if (_ACTGame_SearchGObj(a0, girlGObj, 200.0f, 400.0f, 0x78, p60)) {
+            if (_ACTGame_SearchGObj(a0, ((char *)girlGObj), 200.0f, 400.0f, 0x78, p60)) {
                 char *n = ACTGame_GetNearestGObj(test_CURRENTROOT(h), 0x21);
 
                 p70[0] = test_CURRENTROOT(n)[0];
@@ -1555,7 +1522,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
     if (CheckFloorAttribute(a0, 0x800000)) {
         float p60[4];
 
-        sceVu0Normalize(p60, *(char **)(a0 + 0x15C) + 0x1D0);
+        sceVu0Normalize(p60, (char *)GOBJ_SUB(a0) + 0x1D0);
         *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x270) = p60[0];
         *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x274) = p60[1];
         *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x278) = p60[2];
@@ -1569,11 +1536,11 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
     }
     if (CheckFloorAttribute(a0, 0x50)) {
         ((ActStatusWord *)(sub + 0x480))->q |= 0x1000;
-        if (*(float *)(*(char **)(a0 + 0x15C) + 0x644) > (a0 == boyGObj ? 110.0f : 135.0f)) {
+        if (GOBJ_SUB(a0)->f_644 > (a0 == boyGObj ? 110.0f : 135.0f)) {
             *(unsigned long long *)(sub + 0x480) |= 0x2000;
             debug_StdPrintfDummy("enter water\n");
         }
-        if (*(float *)(*(char **)(a0 + 0x15C) + 0x644) < (a0 == boyGObj ? 105.0f : 130.0f)) {
+        if (GOBJ_SUB(a0)->f_644 < (a0 == boyGObj ? 105.0f : 130.0f)) {
             *(unsigned long long *)(sub + 0x480) |= 0x4000;
             debug_StdPrintfDummy("exit water\n");
         }
@@ -1587,7 +1554,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
         int x;
         int n;
         float rad;
-        MotionRec *row = &motionKind[*(int *)(*(char **)(a0 + 0x15C) + 0x4A0)];
+        MotionRec *row = &motionKind[GOBJ_SUB(a0)->f_4A0];
 
         rad = ((row->u_188.w >> 19) & 7) ? 100.0f : 90.0f;
         c = CheckTorchChainReaction(a0, 200.0f);
@@ -1606,8 +1573,8 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
         }
         c = CheckTorchChainReactionReverse(a0, 200.0f);
         if (c != 0) {
-            int skip = (*(char **)*(char **)(c + 0x15C) != 0 &&
-                        *(int *)(*(char **)*(char **)(c + 0x15C) + 0xC) == 0x13);
+            int skip = (*(char **)(char *)GOBJ_SUB(c) != 0 &&
+                        *(int *)(*(char **)(char *)GOBJ_SUB(c) + 0xC) == 0x13);
 
             GetRootPosition(p70, c);
             if (!skip && _DistxzSqGV(prj, p70) < 12100.0f && p70[1] < prj[1] &&
@@ -1642,8 +1609,8 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
             }
         }
         n = 0;
-        if (*(int *)(*(char **)(a0 + 0x15C) + 0x578)) {
-            if (*(float *)(*(char **)(a0 + 0x15C) + 0x5E0) < 50.0f)
+        if (GOBJ_SUB(a0)->f_578) {
+            if (GOBJ_SUB(a0)->f_5E0 < 50.0f)
                 n = 1;
         }
         if (!n)

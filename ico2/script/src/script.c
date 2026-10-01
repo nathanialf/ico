@@ -48,6 +48,7 @@
 #include "act-game.h"
 #include "commonact.h"
 #include "fieldCollision.h"
+#include "main.h"
 
 /* script.o's .sdata, in the ROM's order.  MAIN.MAP lists all but the three
    hint-voice words, which the retail build added after scpSeEnvMasterVolRate
@@ -154,11 +155,6 @@ extern struct MotTblRec {
     char _188[0xC];
 } motionKind[];
 
-/* kept local: char * here, GObj * in main.h */
-extern char *boyGObj;
-/* kept local: char * here, GObj * in main.h */
-extern char *girlGObj;
-
 /* .data, first in script.o's run: the colour packet prim_DispWireBox draws the
    debug trigger box with.  Declared as the whole 4-word record so gcc reaches
    it with a %hi/%lo pair rather than gp-relative (-G 8). */
@@ -207,8 +203,6 @@ struct WoodBoxEnt {
     float b3;       /* 0x2C */
 };
 
-/* kept local: char * here, int in main.h */
-extern char *boyPad;
 /* kept local: void (void *) here, void (int *) in motionManager2.h */
 extern void ClearMotionGeometryInfo(void *a0);
 
@@ -223,9 +217,6 @@ typedef struct {
     struct WallCol res; /* 0x80 */
     char _08C[0x34];    /* 0x8C */
 } ClipWorkScript;       /* 0xC0 */
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, boyPad differ) */
-extern int stage_no;
 
 /* the 0x28-byte stage table at exitData and the per-stage 0x194-byte link
    table at stageData: row [stage_no], entry .ent[no - 1] at +0xA0. */
@@ -274,8 +265,6 @@ extern void SetMotionNodeFixModeParameter(void *a0, void *a1, int a2, int a3, vo
    been requested and no further one is accepted. */
 static int stageChangeReq;
 
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, boyPad differ) */
-extern int gameover_flag;
 /* kept local: this TU's uses of IsWallLeverStatus do not fit the prototype in box.h */
 extern int IsWallLeverStatus(void);
 
@@ -612,7 +601,7 @@ inline void scpPlayPosSet(void *a0, float f12, float f13, float f14)
 void scpPlayJump(char *a0, int a1)
 {
     ACTItemForceDrop(a0);
-    *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0xC0) = a1;
+    GOBJ_ACT(a0)->f_680->f_C0 = a1;
     iosOmSendMail(a0, 0x2D, a0);
 }
 
@@ -632,7 +621,7 @@ void scpPlayEnd(int a0)
 inline void scpPlayWaitMotEnd(char *a0)
 {
     Act *p = GOBJ_ACT(a0);
-    while ((*(int *)(*(char **)((char *)p + 0x130) + 0x5C) & 1) == 0) {
+    while ((*(int *)((char *)p->f_130 + 0x5C) & 1) == 0) {
         _ACTWait(1);
     }
 }
@@ -786,8 +775,7 @@ inline int scpTriggerIgnore(char *self)
     while (ignoreKind[i] != -1) {
         if (*(int *)(self + 0xC) == ignoreKind[i]) {
             Sub15C *sub = GOBJ_SUB(self);
-            if (_ACTGame_GetParamF(2) < *(float *)((char *)sub + 0x560) ||
-                GOBJ_ACT(self)->unk34 == 0x16) {
+            if (_ACTGame_GetParamF(2) < sub->f_560 || GOBJ_ACT(self)->unk34 == 0x16) {
                 return 1;
             }
         }
@@ -869,10 +857,9 @@ inline void scpDoorTypeUp(volatile int a0)
 {
     Act *act = GOBJ_ACT(a0);
 
-    if (gflagChk(*(int *)((char *)act + 0x454)) != 0) {
+    if (gflagChk(act->f_454) != 0) {
         int self = a0;
-        scpTransLinear((void *)self, 1, -*(float *)((char *)act + 0x458),
-                       *(float *)((char *)act + 0x458));
+        scpTransLinear((void *)self, 1, -act->f_458, act->f_458);
     }
     doorTypeUp_mes[0].func = scpDoorTypeUpMain;
     ((struct ScpAct *)act)->mail = doorTypeUp_mes;
@@ -883,7 +870,7 @@ inline void scpDoorTypeUp(volatile int a0)
 inline void scpDoorTypeUpMain(volatile int a0)
 {
     Act *p = GOBJ_ACT(a0);
-    *(int *)((char *)p + 0xD0) = *(int *)((char *)p + 0x460);
+    *(int *)((char *)p + 0xD0) = p->f_460;
     for (;;) {
         _ACTWait(1);
     }
@@ -891,7 +878,7 @@ inline void scpDoorTypeUpMain(volatile int a0)
 
 inline void scpDoorTypeUpSwitch(volatile int a0)
 {
-    struct ScpAct *act = (struct ScpAct *)*(char **)(a0 + 0x164);
+    struct ScpAct *act = (struct ScpAct *)(char *)GOBJ_ACT(a0);
 
     act->mainMail = 0;
     if (gflagChk(*(int *)((char *)act + 0x454)) != 0) {
@@ -910,17 +897,17 @@ void scpDoorTypeUpDown(volatile int a0)
 {
     Act *act = GOBJ_ACT(a0);
 
-    if (*(int *)((char *)act + 0x46C) != 0) {
-        Camctrl_SetTarget(*(int *)((char *)act + 0x46C), 0, 3);
-        if (*(int *)((char *)act + 0x464) != 0) {
-            _ACTWait(*(int *)((char *)act + 0x464));
+    if (act->f_46C != 0) {
+        Camctrl_SetTarget(act->f_46C, 0, 3);
+        if (act->f_464 != 0) {
+            _ACTWait(act->f_464);
         }
     }
     debug_StdPrintfDummy("start animation down\n");
-    gflagOff(*(int *)((char *)act + 0x454));
-    scpTransLinear((void *)a0, 1, *(float *)((char *)act + 0x458), *(float *)((char *)act + 0x45C));
-    if (*(int *)((char *)act + 0x468) != 0) {
-        _ACTWait(*(int *)((char *)act + 0x468));
+    gflagOff(act->f_454);
+    scpTransLinear((void *)a0, 1, act->f_458, act->f_45C);
+    if (act->f_468 != 0) {
+        _ACTWait(act->f_468);
     }
     Camctrl_ExitEveRock();
     doorTypeUpDown_mes[0].func = scpDoorTypeUpMain;
@@ -933,18 +920,17 @@ void scpDoorTypeUpUp(volatile int a0)
 {
     Act *act = GOBJ_ACT(a0);
 
-    if (*(int *)((char *)act + 0x46C) != 0) {
-        Camctrl_SetTarget(*(int *)((char *)act + 0x46C), 0, 3);
-        if (*(int *)((char *)act + 0x464) != 0) {
-            _ACTWait(*(int *)((char *)act + 0x464));
+    if (act->f_46C != 0) {
+        Camctrl_SetTarget(act->f_46C, 0, 3);
+        if (act->f_464 != 0) {
+            _ACTWait(act->f_464);
         }
     }
     debug_StdPrintfDummy("start animation up\n");
-    gflagOn(*(int *)((char *)act + 0x454));
-    scpTransLinear((void *)a0, 1, -*(float *)((char *)act + 0x458),
-                   *(float *)((char *)act + 0x45C));
-    if (*(int *)((char *)act + 0x468) != 0) {
-        _ACTWait(*(int *)((char *)act + 0x468));
+    gflagOn(act->f_454);
+    scpTransLinear((void *)a0, 1, -act->f_458, act->f_45C);
+    if (act->f_468 != 0) {
+        _ACTWait(act->f_468);
     }
     Camctrl_ExitEveRock();
     doorTypeUpUp_mes[0].func = scpDoorTypeUpMain;
@@ -1509,19 +1495,19 @@ inline int RequestStageChangeWithColor(int no, char *g, int flag, float speed, f
 {
     int ret;
     short next;
-    char *act;
+    Act *act;
 
     next = stageData[stage_no].ent[no - 1];
     ret = 0;
     if (gameover_flag == 0 && stageChangeReq == 0 && next != 0) {
         if (g != 0) {
-            act = *(char **)(g + 0x164);
+            act = GOBJ_ACT(g);
             ACTGame_StageChangeGObj(g, next);
-            if (*(char **)(act + 0x150) != 0) {
-                ACTGame_StageChangeGObj(*(char **)(act + 0x150), next);
+            if ((char *)act->f_150 != 0) {
+                ACTGame_StageChangeGObj((char *)act->f_150, next);
             }
-            if (*(char **)(act + 0x154) != 0) {
-                ACTGame_StageChangeGObj(*(char **)(act + 0x154), next);
+            if (act->f_154 != 0) {
+                ACTGame_StageChangeGObj(act->f_154, next);
             }
             BoyInfoUpdate_StageChange();
         }
@@ -1607,8 +1593,8 @@ void _SCPBoySupportGirl(float x0, float y0, float z0, float x1, float y1, float 
     sceVu0ScaleVector(v1, v1, -1.0f);
     wc = scpGetWallCollision(v0[0], v0[1], v0[2], v1[0], v1[1], v1[2]);
     if (wc != 0) {
-        *(struct WallCol *)(*(char **)(boyGObj + 0x164) + 0x670) = *wc;
-        *(struct WallCol *)(*(char **)(girlGObj + 0x164) + 0x660) = *wc;
+        *(struct WallCol *)((char *)GOBJ_ACT(boyGObj) + 0x670) = *wc;
+        *(struct WallCol *)((char *)GOBJ_ACT(girlGObj) + 0x660) = *wc;
         iosOmSendMail(boyGObj, 385, boyGObj);
         iosOmSendMail(girlGObj, 386, boyGObj);
     }
@@ -1620,7 +1606,7 @@ void _SCPBoySupportGirl(float x0, float y0, float z0, float x1, float y1, float 
 
 inline int _SCPMoveCharactorByWay(char *self, int a1, float *dir, float speed, int a3)
 {
-    struct ScpAct *act = (struct ScpAct *)*(char **)(self + 0x164);
+    struct ScpAct *act = (struct ScpAct *)(char *)GOBJ_ACT(self);
 
     act->st18.ll |= 1ULL << 47;
     ACTCharctrl_Lock(self);
@@ -1633,7 +1619,7 @@ inline int _SCPMoveCharactorByWay(char *self, int a1, float *dir, float speed, i
 
 void _SCPMoveCharactorByWay_Cancel(char *a0)
 {
-    *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x18) &= ~(1ULL << 47);
+    GOBJ_ACT(a0)->flags18.ll &= ~(1ULL << 47);
     ACTCharctrl_Unlock(a0);
 }
 
@@ -1643,7 +1629,7 @@ inline void _SCPCharacterStop(char *self)
     *(int *)((char *)p + 0x120) = 0;
     *(int *)((char *)p + 0x124) = 0;
     *(int *)((char *)p + 0x128) = 0;
-    *(int *)((char *)p + 0x338) = *(int *)((char *)p + 0x33C) = 0x7F;
+    p->f_338 = p->f_33C = 0x7F;
     p->f_34C = 0;
 }
 
@@ -1663,7 +1649,7 @@ inline int _SCPMoveByWay_ToChar(char *self, char *target, int deg, int a3, float
 
 inline int scpGameStat_BoyWeaponkind(void)
 {
-    char *w = *(char **)(*(char **)(boyGObj + 0x164) + 0x150);
+    char *w = (char *)GOBJ_ACT(boyGObj)->f_150;
     if (w == 0)
         return 0;
     return CheckWeaponKind(w);
@@ -1870,7 +1856,7 @@ inline void ScpCallCameraOff(void)
 {
     char *g = boyGObj;
     if (g != 0) {
-        *(unsigned long long *)(*(char **)(g + 0x164) + 0x20) &= ~(1ULL << 23);
+        GOBJ_ACT(g)->flags20.ll &= ~(1ULL << 23);
     }
 }
 
@@ -1878,7 +1864,7 @@ inline void ScpCallCameraOn(void)
 {
     char *g = boyGObj;
     if (g != 0) {
-        *(long long *)(*(char **)(g + 0x164) + 0x20) |= 0x800000;
+        *(long long *)((char *)GOBJ_ACT(g) + 0x20) |= 0x800000;
     }
 }
 
@@ -1891,7 +1877,7 @@ inline void ScpCallCameraSetTarget(float x, float y, float z)
     char *g = boyGObj;
 
     if (g != 0) {
-        ActStatus *st = (ActStatus *)(*(char **)(g + 0x164) + 0x20);
+        ActStatus *st = (ActStatus *)((char *)GOBJ_ACT(g) + 0x20);
         st->ll = (st->ll & ~(3ULL << 24)) | (1ULL << 24);
         scriptCameraTarget[0] = pos[0];
         scriptCameraTarget[1] = pos[1];
@@ -1903,7 +1889,7 @@ inline void ScpCallCameraTargetOff(void)
 {
     char *g = boyGObj;
     if (g != 0) {
-        *(unsigned long long *)(*(char **)(g + 0x164) + 0x20) &= ~(3ULL << 24);
+        GOBJ_ACT(g)->flags20.ll &= ~(3ULL << 24);
     }
 }
 
@@ -1949,7 +1935,7 @@ inline int scpActStatusDeathFall(char *self)
 {
     char *sub;
 
-    switch (*(unsigned int *)(*(char **)(self + 0x164) + 0x34)) {
+    switch ((unsigned int)GOBJ_ACT(self)->unk34) {
     case 4:
     case 5:
     case 0x3E:
@@ -2017,21 +2003,21 @@ inline int scpCheckExistAliveSpider(void)
 
 inline void scpLockMaxRotate(char *a0, float f12)
 {
-    ((ActStatus *)(*(char **)(a0 + 0x164) + 0x20))->ll |= (1ULL << 33);
-    *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x344) = f12;
+    ((ActStatus *)((char *)GOBJ_ACT(a0) + 0x20))->ll |= (1ULL << 33);
+    GOBJ_WORK(a0)->f_344 = f12;
 }
 
 inline void scpUnLockMaxRotate(char *a0)
 {
-    *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x20) &= ~(1ULL << 33);
+    GOBJ_ACT(a0)->flags20.ll &= ~(1ULL << 33);
 }
 
 inline void scpCheckDisconnectWallStart(char *a0)
 {
-    *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x18) |= (1ULL << 58);
+    GOBJ_ACT(a0)->flags18.ll |= (1ULL << 58);
 }
 
 inline void scpCheckDisconnectWallEnd(char *a0)
 {
-    *(unsigned long long *)(*(char **)(a0 + 0x164) + 0x18) &= ~(1ULL << 58);
+    GOBJ_ACT(a0)->flags18.ll &= ~(1ULL << 58);
 }

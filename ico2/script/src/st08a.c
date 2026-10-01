@@ -552,11 +552,11 @@ void actSt08aInit(void)
 
 void actSt08aDoorMain(volatile int a0)
 {
-    int sub = *(int *)(a0 + 0x164);
+    Act *sub = GOBJ_ACT(a0);
 
     scpBoyControlReadDisable = 0;
 
-    *(int *)(sub + 0xD0) = (int)door_main_mes;
+    *(int *)((int)sub + 0xD0) = (int)door_main_mes;
     while (1) {
         _ACTWait(1);
     }
@@ -640,11 +640,11 @@ void actSt08aHint1Chk(volatile int a0)
 
 void actSt08aHasiMain(volatile int a0)
 {
-    int sub = *(int *)(a0 + 0x164);
+    Act *sub = GOBJ_ACT(a0);
 
     scpBoyControlReadDisable = 0;
 
-    *(int *)(sub + 0xD0) = (int)hasi_main_mes;
+    *(int *)((int)sub + 0xD0) = (int)hasi_main_mes;
     while (1) {
         _ACTWait(1);
     }

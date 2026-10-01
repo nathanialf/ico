@@ -441,7 +441,7 @@ void turnBall(int a0, int a1, int a2, int a3, int a4)
 {
     /* the 0x164 chase is spelled int-typed: ROM re-chases it in the int
        alias set of the turnFlag.. stores, so it cannot be sunk below them */
-    Act *sub = (Act *)*(int *)(a0 + 0x164);
+    Act *sub = GOBJ_ACT(a0);
 
     turnFlag = a1;
     turnAnim = a2;

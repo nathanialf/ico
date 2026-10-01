@@ -12,6 +12,7 @@
 #include "thread.h"
 #include <libpad.h>
 #include "gv.h"
+#include "main.h"
 
 /* One sampled pad buffer: the two button bytes the device leaves at +2 and
    +3, active low. */
@@ -431,8 +432,6 @@ int iosPadDevInit(void *a0)
 }
 
 /* the frame counter this TU reads unsigned: the ROM divides it with divu */
-/* kept local: unsigned int here, int in main.h */
-extern unsigned int frame_count;
 extern void Shock_Decode(void *box, unsigned char *pFlags, unsigned char *pLevel);
 extern void Shock_SetMotor(int flags, int level, void *box, int port, int slot);
 void iosPadActTickProc(void);
@@ -452,7 +451,7 @@ int iosPadDevReadFunc(void)
         }
         if (dev->error != 0) {
             controler_stable_check(dev);
-            if (frame_count % 120 == 0) {
+            if (((unsigned int)frame_count) % 120 == 0) {
                 debug_StdPrintfDummy("pad:checking controler... ");
                 debug_StdPrintfDummy("port:%d, slot:%d\n", dev->port, dev->slot);
             }
@@ -759,14 +758,11 @@ int iosPadGetStick(void *dev, void *out, int mode, int a3, int a4, int a5)
     return rv;
 }
 
-/* kept local: int here, char * in main.h */
-extern int matrixptr;
-
 void iosPadStickCameraCoord(void *a0, float *a1)
 {
     Vec4 v = {{a1[3], 0.0f, -a1[4], 0.0f}};
     float m[16];
-    sceVu0TransposeMatrix(m, (void *)(matrixptr + 0x80));
+    sceVu0TransposeMatrix(m, (void *)((int)matrixptr + 0x80));
     sceVu0ApplyMatrix(a0, m, &v);
 }
 
