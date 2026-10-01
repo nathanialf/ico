@@ -36,43 +36,43 @@ inline void ActSetStartBrainStatus(GObj *self, int status)
     }
 }
 
-void actChangeActBrain(GObj *a0, void (*a1)(), GProc **a2)
+void actChangeActBrain(GObj *self, void (*func)(), GProc **proc)
 {
-    GProc *old = *a2;
-    GProc *n = actCreateSubThread(a1, 20);
-    *a2 = n;
+    GProc *old = *proc;
+    GProc *n = actCreateSubThread(func, 20);
+    *proc = n;
     if (old != 0) {
-        debug_StdPrintfDummy("--b-- %p:act brain del %p\n", a0, n);
+        debug_StdPrintfDummy("--b-- %p:act brain del %p\n", self, n);
         isysGObjProcRemove(old);
     } else {
-        debug_StdPrintfDummy("--b-- %p:act brain NULL %p\n", a0, n);
+        debug_StdPrintfDummy("--b-- %p:act brain NULL %p\n", self, n);
     }
 }
 
-void actChangeActMain(GObj *a0, void (*a1)(), GProc **a2)
+void actChangeActMain(GObj *self, void (*func)(), GProc **proc)
 {
-    unsigned short fld = objLayout[a0->labelId].procPri;
-    GProc *old = *a2;
+    unsigned short fld = objLayout[self->labelId].procPri;
+    GProc *old = *proc;
     GProc *ret;
     if (((long long)fld << 10) == 0) {
-        ret = isysGObjProcAdd(a0, a1, 0, 0x13);
+        ret = isysGObjProcAdd(self, func, 0, 0x13);
     } else {
-        ret = isysGObjProcAddS(a0, a1, 0, 0x13, (long long)fld << 10);
+        ret = isysGObjProcAddS(self, func, 0, 0x13, (long long)fld << 10);
     }
-    *a2 = ret;
+    *proc = ret;
     if (old != 0) {
-        debug_StdPrintfDummy("--m-- %p:act main del %p\n", a0, ret);
+        debug_StdPrintfDummy("--m-- %p:act main del %p\n", self, ret);
         isysGObjProcRemove(old);
     } else {
-        debug_StdPrintfDummy("--m-- %p:act main NULL %p\n", a0, ret);
+        debug_StdPrintfDummy("--m-- %p:act main NULL %p\n", self, ret);
     }
 }
 
-void actCreateMotionThread(void (*a0)(), int a1, GProc **a2)
+void actCreateMotionThread(void (*func)(), int pri, GProc **proc)
 {
-    GProc *old = *a2;
-    GProc *ret = isysGObjProcAdd(isysCurrentGObj, a0, 0, a1);
-    *a2 = ret;
+    GProc *old = *proc;
+    GProc *ret = isysGObjProcAdd(isysCurrentGObj, func, 0, pri);
+    *proc = ret;
     if (old != 0) {
         debug_StdPrintfDummy("--t-- %p:act mot del %p\n", *(int *)((char *)old + 4), ret);
         isysGObjProcRemove(old);
@@ -81,7 +81,7 @@ void actCreateMotionThread(void (*a0)(), int a1, GProc **a2)
     }
 }
 
-GProc *actCreateSubThread(void (*a0)(), int a1)
+GProc *actCreateSubThread(void (*func)(), int pri)
 {
     unsigned short fld;
     GProc *p;
@@ -98,17 +98,17 @@ GProc *actCreateSubThread(void (*a0)(), int a1)
     }
     fld = objLayout[isysCurrentGObj->labelId].procPri;
     if (((long long)fld << 10) == 0) {
-        p = isysGObjProcAdd(isysCurrentGObj, a0, 0, a1);
+        p = isysGObjProcAdd(isysCurrentGObj, func, 0, pri);
     } else {
-        p = isysGObjProcAddS(isysCurrentGObj, a0, 0, a1, (long long)fld << 10);
+        p = isysGObjProcAddS(isysCurrentGObj, func, 0, pri, (long long)fld << 10);
     }
     p->thread.sleeping = 1;
     return p;
 }
 
-inline GProc *actCreateSubThreadGOppArg(void (*a0)(), int a1)
+inline GProc *actCreateSubThreadGOppArg(void (*func)(), int pri)
 {
-    GProc *p = isysGObjProcAddGOppArg(isysCurrentGObj, a0, 0, a1);
+    GProc *p = isysGObjProcAddGOppArg(isysCurrentGObj, func, 0, pri);
 
     p->thread.sleeping = 1;
     return p;
@@ -119,12 +119,12 @@ inline void actSetInterrupt(char *self, int val)
     *(int *)(self + 0x0) = val;
 }
 
-inline void ConvertStickToAbsCoord(void *a0, float *a1)
+inline void ConvertStickToAbsCoord(void *out, float *stick)
 {
-    Vec4 v = {{a1[3], 0.0f, -a1[4], 0.0f}};
+    Vec4 v = {{stick[3], 0.0f, -stick[4], 0.0f}};
     float m[16];
     sceVu0TransposeMatrix(m, (void *)((int)matrixptr + 0x80));
-    sceVu0ApplyMatrix(a0, m, &v);
+    sceVu0ApplyMatrix(out, m, &v);
 }
 
 inline void _ACTRun(int n)
@@ -140,10 +140,10 @@ inline void _ACTRun(int n)
     }
 }
 
-inline void _ACTWait(int a0)
+inline void _ACTWait(int frames)
 {
-    int count = (a0 * ((0x3C - systemStatus[0] * 0xA) / systemStatus[1])) / 0x3C;
-    if (a0 != 0) {
+    int count = (frames * ((60 - systemStatus[0] * 10) / systemStatus[1])) / 60;
+    if (frames != 0) {
         if (count == 0) {
             count = 1;
         }
@@ -151,12 +151,12 @@ inline void _ACTWait(int a0)
     _ACTRun(count);
 }
 
-inline void actWaitCondition(int a0, int a1)
+inline void actWaitCondition(int value, int mask)
 {
-    int t = a0 & a1;
+    int t = value & mask;
     if (t == 0) {
         do {
-            int count = (0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 0x3C;
+            int count = (60 - systemStatus[0] * 10) / systemStatus[1] / 60;
             int n = 1;
             if (count != 0) {
                 n = count;
@@ -346,13 +346,13 @@ Act *actInitialize(GObj *self)
     return (Act *)w;
 }
 
-inline int ACTReserveTarget(GObj *self, void *a1, int a2)
+inline int ACTReserveTarget(GObj *self, void *arg, int mail)
 {
     Act *g = GOBJ_ACT(self);
     if (g->reserved == 0) {
         *(char **)((char *)g + 0x13C) = self;
-        g->reservedMail = a2;
-        iosOmSendMail(self, a2, a1);
+        g->reservedMail = mail;
+        iosOmSendMail(self, mail, arg);
         return 1;
     }
     return 0;
@@ -654,9 +654,8 @@ extern void GetLowerPlaneCollision(void *work, void *pos);
 /* this TU passes the packet priority that the prototype in
    seki/include/GifPacket.h leaves out */
 
-void ACTDebugMove(GObj *a0, int a1)
+void ACTDebugMove(GObj *self, int a1)
 {
-    GObj *self = (char *)a0;
     float dir[4];
     float pos[4];
     ActPadStick st;
@@ -671,7 +670,7 @@ void ACTDebugMove(GObj *a0, int a1)
     h = (p != 0) ? p->pos[1] : 0.0f;
     DisableChangeRootUpdateMode(self);
     SetRootUpdateMode(self, 0);
-    while (((ext->padNow & 1) != 0 || mode == 1) && self == (char *)CurrentTargetGObj) {
+    while (((ext->padNow & 1) != 0 || mode == 1) && self == CurrentTargetGObj) {
         _ACTWait(1);
         iosPadRead((char *)ext + 0x2D8);
         iosPadGetStick((char *)ext + 0x2D8, (char *)ext + 0x338, 0, 2, 2, 0);

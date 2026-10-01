@@ -17,43 +17,39 @@ struct huft {
     } v;
 };
 
-typedef struct InflateWork { /* field names derived */
-    char pad0[72];
-    int wp;                /* 0x48 window position */
-    unsigned int insize;   /* 0x4C */
-    unsigned int inptr;    /* 0x50 */
-    struct huft *tl;       /* 0x54 */
-    struct huft *td;       /* 0x58 */
-    int bl;                /* 0x5C */
-    int bd;                /* 0x60 */
-    int unk64;             /* 0x64 */
-    unsigned long long bb; /* 0x68 bit buffer */
-    unsigned long long bk; /* 0x70 bits in buffer */
-    int t;                 /* 0x78 block type, -1 = need a new header */
-    int last;              /* 0x7C final block seen */
-    int n;                 /* 0x80 bytes left in the current block */
-    int copy_src;          /* 0x84 window read position of a running copy */
-    struct huft *w_tl;     /* 0x88 also the "a huffman block is in progress" flag */
-    struct huft *w_td;     /* 0x8C */
-    int w_bl;              /* 0x90 */
-    int w_bd;              /* 0x94 */
-} InflateWork;             /* derived name */
-
-typedef struct InflateHandler { /* field names derived */
+/* The inflate handle: open_inflate_handler allocates one, the decoder state
+   lives after the window and the input buffer. */
+struct InflateHandler {         /* field names derived */
     void *handle;               /* 0x00000 what the read callback is given */
     InflateReadFn read;         /* 0x00004 the read callback */
     unsigned char slide[65536]; /* 0x00008 sliding window */
     unsigned char inbuf[32768]; /* 0x10008 compressed input */
-} InflateHandler;               /* derived name */
+    char pad18008[64];
+    int wp;              /* 0x18048 window position */
+    unsigned int insize; /* 0x1804C bytes in inbuf */
+    unsigned int inptr;  /* 0x18050 next byte of inbuf */
+    struct huft *tl;     /* 0x18054 */
+    struct huft *td;     /* 0x18058 */
+    int bl;              /* 0x1805C */
+    int bd;              /* 0x18060 */
+    char pad18064[4];
+    unsigned long long bb; /* 0x18068 bit buffer */
+    unsigned long long bk; /* 0x18070 bits in buffer */
+    int t;                 /* 0x18078 block type, -1 = need a new header */
+    int last;              /* 0x1807C final block seen */
+    int n;                 /* 0x18080 bytes left in the current block */
+    int copy_src;          /* 0x18084 window read position of a running copy */
+    struct huft *w_tl;     /* 0x18088 also the "a huffman block is in progress" flag */
+    struct huft *w_td;     /* 0x1808C */
+    int w_bl;              /* 0x18090 */
+    int w_bd;              /* 0x18094 */
+    MBlock mb;             /* 0x18098 the code tables' blocks */
+    char pad180A0[8];
+};
 
-#define IWORK(p) ((InflateWork *)((char *)(p) + 0x18000)) /* derived name */
-#define ISLIDE(p) (((InflateHandler *)(p))->slide)        /* derived name */
-#define IINBUF(p) (((InflateHandler *)(p))->inbuf)        /* derived name */
+static int fill_inbuf(InflateHandler *h);
 
-static int fill_inbuf(void *a0);
-
-#define NEXTBYTE(w) /* derived name */                                                             \
-    (IWORK(w)->inptr < IWORK(w)->insize ? IINBUF(w)[IWORK(w)->inptr++] : fill_inbuf(w))
+#define NEXTBYTE(w) /* derived name */ (w->inptr < w->insize ? w->inbuf[w->inptr++] : fill_inbuf(w))
 #define NEEDBITS(w, j) /* derived name */                                                          \
     {                                                                                              \
         while (k < (j)) {                                                                          \
@@ -92,7 +88,7 @@ static unsigned short cpdext[30] = {
 #define N_MAX 288 /* derived name */
 
 static int huft_build(unsigned int *b, unsigned int n, unsigned int s, unsigned short *d,
-                      unsigned short *e, struct huft **t, int *m, void *mb)
+                      unsigned short *e, struct huft **t, int *m, MBlock *mb)
 {
     unsigned int a;           /* counter for codes of length k */
     unsigned int c[BMAX + 1]; /* bit length count table */
@@ -289,7 +285,7 @@ end:
     return 0;
 }
 
-static long long inflate_codes(void *w, unsigned char *out, long long outlen)
+static long long inflate_codes(InflateHandler *w, unsigned char *out, long long outlen)
 {
     unsigned int e;
     unsigned int n;
@@ -305,16 +301,16 @@ static long long inflate_codes(void *w, unsigned char *out, long long outlen)
     unsigned long long b;
     unsigned long long k;
 
-    b = IWORK(w)->bb;
-    k = IWORK(w)->bk;
+    b = w->bb;
+    k = w->bk;
     if (outlen == 0)
         return 0;
-    slide = ISLIDE(w);
-    tl = IWORK(w)->w_tl;
-    td = IWORK(w)->w_td;
-    bl = IWORK(w)->w_bl;
-    bd = IWORK(w)->w_bd;
-    wp = IWORK(w)->wp;
+    slide = w->slide;
+    tl = w->w_tl;
+    td = w->w_td;
+    bl = w->w_bl;
+    bd = w->w_bd;
+    wp = w->wp;
     nout = 0;
     for (;;) {
         NEEDBITS(w, (unsigned int)bl)
@@ -336,9 +332,9 @@ static long long inflate_codes(void *w, unsigned char *out, long long outlen)
             wp &= 0x7fff;
             out[nout++] = slide[wp++] = (unsigned char)t->v.n;
             if (nout == outlen) {
-                IWORK(w)->wp = wp;
-                IWORK(w)->bb = b;
-                IWORK(w)->bk = k;
+                w->wp = wp;
+                w->bb = b;
+                w->bk = k;
                 return outlen;
             }
         } else {
@@ -372,23 +368,23 @@ static long long inflate_codes(void *w, unsigned char *out, long long outlen)
                 out[nout++] = slide[wp++] = slide[d++];
             }
             if (nout == outlen) {
-                IWORK(w)->n = n;
-                IWORK(w)->wp = wp;
-                IWORK(w)->copy_src = d;
-                IWORK(w)->bb = b;
-                IWORK(w)->bk = k;
+                w->n = n;
+                w->wp = wp;
+                w->copy_src = d;
+                w->bb = b;
+                w->bk = k;
                 return outlen;
             }
         }
     }
-    IWORK(w)->wp = wp;
-    IWORK(w)->t = -1;
-    IWORK(w)->bb = b;
-    IWORK(w)->bk = k;
+    w->wp = wp;
+    w->t = -1;
+    w->bb = b;
+    w->bk = k;
     return nout;
 }
 
-static long long inflate_stored(void *w, unsigned char *out, long long outlen)
+static long long inflate_stored(InflateHandler *w, unsigned char *out, long long outlen)
 {
     unsigned int n;
     int wp;
@@ -397,8 +393,8 @@ static long long inflate_stored(void *w, unsigned char *out, long long outlen)
     unsigned long long b;
     unsigned long long k;
 
-    b = IWORK(w)->bb;
-    k = IWORK(w)->bk;
+    b = w->bb;
+    k = w->bk;
 
     n = k & 7;
     DUMPBITS(n)
@@ -409,39 +405,39 @@ static long long inflate_stored(void *w, unsigned char *out, long long outlen)
     NEEDBITS(w, 16)
     m = ~b & 0xffff;
     if (n != m) {
-        IWORK(w)->bb = b;
-        IWORK(w)->bk = k;
+        w->bb = b;
+        w->bk = k;
         return -1;
     }
     DUMPBITS(16)
 
-    IWORK(w)->n = n;
+    w->n = n;
 
     n = 0;
     cnt = m;
-    wp = IWORK(w)->wp;
+    wp = w->wp;
     while (cnt != 0 && n < outlen) {
         cnt--;
         wp &= 0x7fff;
         NEEDBITS(w, 8)
-        out[n++] = ISLIDE(w)[wp++] = (unsigned char)(b & 0xff);
+        out[n++] = w->slide[wp++] = (unsigned char)(b & 0xff);
         DUMPBITS(8)
     }
     if (cnt == 0)
-        IWORK(w)->t = -1;
-    IWORK(w)->n = cnt;
-    IWORK(w)->wp = wp;
-    IWORK(w)->bb = b;
-    IWORK(w)->bk = k;
+        w->t = -1;
+    w->n = cnt;
+    w->wp = wp;
+    w->bb = b;
+    w->bk = k;
     return n;
 }
 
-static long long inflate_fixed(void *w, unsigned char *out, long long outlen)
+static long long inflate_fixed(InflateHandler *w, unsigned char *out, long long outlen)
 {
     int i;
     unsigned int l[288];
 
-    if (IWORK(w)->tl == (struct huft *)0) {
+    if (w->tl == (struct huft *)0) {
         for (i = 0; i < 144; i++)
             l[i] = 8;
         for (i = 144; i < 256; i++)
@@ -450,25 +446,24 @@ static long long inflate_fixed(void *w, unsigned char *out, long long outlen)
             l[i] = 7;
         for (; i < 288; i++)
             l[i] = 8;
-        IWORK(w)->bl = 7;
-        if ((i = huft_build(l, 288, 257, cplens, cplext, &IWORK(w)->tl, &IWORK(w)->bl,
-                            (void *)0)) != 0) {
-            IWORK(w)->tl = (struct huft *)0;
+        w->bl = 7;
+        if ((i = huft_build(l, 288, 257, cplens, cplext, &w->tl, &w->bl, (void *)0)) != 0) {
+            w->tl = (struct huft *)0;
             return -1;
         }
         for (i = 0; i < 30; i++)
             l[i] = 5;
-        IWORK(w)->bd = 5;
-        if (huft_build(l, 30, 0, cpdist, cpdext, &IWORK(w)->td, &IWORK(w)->bd, (void *)0) > 1) {
-            huft_free((char *)IWORK(w)->tl);
-            IWORK(w)->tl = (struct huft *)0;
+        w->bd = 5;
+        if (huft_build(l, 30, 0, cpdist, cpdext, &w->td, &w->bd, (void *)0) > 1) {
+            huft_free((char *)w->tl);
+            w->tl = (struct huft *)0;
             return -1;
         }
     }
-    IWORK(w)->w_tl = IWORK(w)->tl;
-    IWORK(w)->w_td = IWORK(w)->td;
-    IWORK(w)->w_bl = IWORK(w)->bl;
-    IWORK(w)->w_bd = IWORK(w)->bd;
+    w->w_tl = w->tl;
+    w->w_td = w->td;
+    w->w_bl = w->bl;
+    w->w_bd = w->bd;
     return inflate_codes(w, out, outlen);
 }
 
@@ -477,9 +472,7 @@ static long long inflate_fixed(void *w, unsigned char *out, long long outlen)
 static int border[19] = {16, 17, 18, 0, 8,  7, 9,  6, 10, 5,
                          11, 4,  12, 3, 13, 2, 14, 1, 15}; /* derived name */
 
-#define IMB(w) ((void *)((char *)(w) + 0x18098)) /* derived name */
-
-static int inflate_dynamic(void *w, unsigned char *out, long long outlen)
+static int inflate_dynamic(InflateHandler *w, unsigned char *out, long long outlen)
 {
     int i;
     unsigned int j;
@@ -496,9 +489,9 @@ static int inflate_dynamic(void *w, unsigned char *out, long long outlen)
     unsigned long long k;
     unsigned long long b;
 
-    b = IWORK(w)->bb;
-    k = IWORK(w)->bk;
-    reuse_mblock(IMB(w));
+    b = w->bb;
+    k = w->bk;
+    reuse_mblock(&w->mb);
 
     NEEDBITS(w, 5)
     nl = 257 + (b & 0x1f);
@@ -510,8 +503,8 @@ static int inflate_dynamic(void *w, unsigned char *out, long long outlen)
     nb = 4 + (b & 0xf);
     DUMPBITS(4)
     if (nl > 286 || nd > 30) {
-        IWORK(w)->bb = b;
-        IWORK(w)->bk = k;
+        w->bb = b;
+        w->bk = k;
         return -1;
     }
 
@@ -524,11 +517,11 @@ static int inflate_dynamic(void *w, unsigned char *out, long long outlen)
         ll[border[j]] = 0;
 
     bl = 7;
-    if ((i = huft_build(ll, 19, 19, (unsigned short *)0, (unsigned short *)0, &tl, &bl, IMB(w))) !=
+    if ((i = huft_build(ll, 19, 19, (unsigned short *)0, (unsigned short *)0, &tl, &bl, &w->mb)) !=
         0) {
-        reuse_mblock(IMB(w));
-        IWORK(w)->bb = b;
-        IWORK(w)->bk = k;
+        reuse_mblock(&w->mb);
+        w->bb = b;
+        w->bk = k;
         return -1;
     }
 
@@ -546,8 +539,8 @@ static int inflate_dynamic(void *w, unsigned char *out, long long outlen)
             j = 3 + (b & 3);
             DUMPBITS(2)
             if ((unsigned int)i + j > n) {
-                IWORK(w)->bb = b;
-                IWORK(w)->bk = k;
+                w->bb = b;
+                w->bk = k;
                 return -1;
             }
             while (j--)
@@ -557,8 +550,8 @@ static int inflate_dynamic(void *w, unsigned char *out, long long outlen)
             j = 3 + (b & 7);
             DUMPBITS(3)
             if ((unsigned int)i + j > n) {
-                IWORK(w)->bb = b;
-                IWORK(w)->bk = k;
+                w->bb = b;
+                w->bk = k;
                 return -1;
             }
             while (j--)
@@ -569,8 +562,8 @@ static int inflate_dynamic(void *w, unsigned char *out, long long outlen)
             j = 11 + (b & 0x7f);
             DUMPBITS(7)
             if ((unsigned int)i + j > n) {
-                IWORK(w)->bb = b;
-                IWORK(w)->bk = k;
+                w->bb = b;
+                w->bk = k;
                 return -1;
             }
             while (j--)
@@ -579,70 +572,69 @@ static int inflate_dynamic(void *w, unsigned char *out, long long outlen)
         }
     }
 
-    IWORK(w)->bb = b;
-    IWORK(w)->bk = k;
-    reuse_mblock(IMB(w));
+    w->bb = b;
+    w->bk = k;
+    reuse_mblock(&w->mb);
 
     bl = 9;
-    i = huft_build(ll, nl, 257, cplens, cplext, &tl, &bl, IMB(w));
+    i = huft_build(ll, nl, 257, cplens, cplext, &tl, &bl, &w->mb);
     if (bl == 0)
         i = 1;
     if (i != 0) {
         if (i == 1)
             debug_StdPrintfDummy(" incomplete literal tree\n");
-        reuse_mblock(IMB(w));
+        reuse_mblock(&w->mb);
         return -1;
     }
 
     bd = 6;
-    i = huft_build(ll + nl, nd, 0, cpdist, cpdext, &td, &bd, IMB(w));
+    i = huft_build(ll + nl, nd, 0, cpdist, cpdext, &td, &bd, &w->mb);
     if (bd == 0 && nl > 257) {
         debug_StdPrintfDummy(" incomplete distance tree\n");
-        reuse_mblock(IMB(w));
+        reuse_mblock(&w->mb);
         return -1;
     }
     if (i == 1)
         debug_StdPrintfDummy(" incomplete distance tree\n");
     if (i != 0) {
-        reuse_mblock(IMB(w));
+        reuse_mblock(&w->mb);
         return -1;
     }
 
-    IWORK(w)->w_tl = tl;
-    IWORK(w)->w_td = td;
-    IWORK(w)->w_bl = bl;
-    IWORK(w)->w_bd = bd;
+    w->w_tl = tl;
+    w->w_td = td;
+    w->w_bl = bl;
+    w->w_bd = bd;
     i = inflate_codes(w, out, outlen);
     if (i == -1) {
-        reuse_mblock(IMB(w));
+        reuse_mblock(&w->mb);
         return -1;
     }
     return i;
 }
 
-static void inflate_start(void *a0)
+static void inflate_start(InflateHandler *h)
 {
-    InflateWork *w = IWORK(a0);
-    w->t = -1;
-    w->wp = 0;
-    w->bb = 0;
-    w->bk = 0;
-    w->inptr = 0;
-    w->insize = 0;
-    w->tl = 0;
-    w->td = 0;
-    w->last = 0;
-    w->copy_src = 0;
-    w->n = 0;
-    w->w_tl = 0;
-    init_mblock(IMB(a0));
+    h->t = -1;
+    h->wp = 0;
+    h->bb = 0;
+    h->bk = 0;
+    h->inptr = 0;
+    h->insize = 0;
+    h->tl = 0;
+    h->td = 0;
+    h->last = 0;
+    h->copy_src = 0;
+    h->n = 0;
+    h->w_tl = 0;
+    init_mblock(&h->mb);
 }
 
-void close_inflate_handler(void *a0)
+void close_inflate_handler(InflateHandler *h)
 {
     char *p;
-    if (IWORK(a0)->tl != 0) {
-        p = (char *)IWORK(a0)->td;
+    if (h->tl != 0) {
+        p = (char *)h->td;
         if (p != 0) {
             p -= 8;
             for (;;) {
@@ -654,7 +646,7 @@ void close_inflate_handler(void *a0)
                 p -= 8;
             }
         }
-        p = (char *)IWORK(a0)->tl;
+        p = (char *)h->tl;
         if (p != 0) {
             p -= 8;
             for (;;) {
@@ -666,15 +658,15 @@ void close_inflate_handler(void *a0)
                 p -= 8;
             }
         }
-        IWORK(a0)->tl = 0;
-        IWORK(a0)->td = 0;
+        h->tl = 0;
+        h->td = 0;
     }
-    reuse_mblock(IMB(a0));
-    iosFree(a0);
+    reuse_mblock(&h->mb);
+    iosFree(h);
     iosMallocResetPartition(ios_partition_inflate);
 }
 
-long long inflate(void *w, unsigned char *out, long long outlen)
+long long inflate(InflateHandler *w, unsigned char *out, long long outlen)
 {
     long long total;
     long long ret;
@@ -684,78 +676,78 @@ long long inflate(void *w, unsigned char *out, long long outlen)
 
     total = 0;
     while (total < outlen) {
-        if (IWORK(w)->last != 0 && IWORK(w)->t == -1)
+        if (w->last != 0 && w->t == -1)
             return total;
 
-        if (IWORK(w)->n != 0) {
-            cnt = IWORK(w)->n;
-            wp = IWORK(w)->wp;
-            if (IWORK(w)->t != 0) {
-                src = IWORK(w)->copy_src;
+        if (w->n != 0) {
+            cnt = w->n;
+            wp = w->wp;
+            if (w->t != 0) {
+                src = w->copy_src;
                 while (cnt != 0 && total < outlen) {
                     cnt--;
                     src &= 0x7fff;
                     wp &= 0x7fff;
-                    out[total++] = ISLIDE(w)[wp++] = ISLIDE(w)[src++];
+                    out[total++] = w->slide[wp++] = w->slide[src++];
                 }
-                IWORK(w)->copy_src = src;
+                w->copy_src = src;
             } else {
                 unsigned long long b;
                 unsigned long long k;
 
-                b = IWORK(w)->bb;
-                k = IWORK(w)->bk;
+                b = w->bb;
+                k = w->bk;
                 while (cnt != 0 && total < outlen) {
                     cnt--;
                     wp &= 0x7fff;
                     NEEDBITS(w, 8)
-                    out[total++] = ISLIDE(w)[wp++] = (unsigned char)(b & 0xff);
+                    out[total++] = w->slide[wp++] = (unsigned char)(b & 0xff);
                     DUMPBITS(8)
                 }
-                IWORK(w)->bb = b;
-                IWORK(w)->bk = k;
+                w->bb = b;
+                w->bk = k;
                 if (cnt == 0)
-                    IWORK(w)->t = -1;
+                    w->t = -1;
             }
-            IWORK(w)->n = cnt;
-            IWORK(w)->wp = wp;
+            w->n = cnt;
+            w->wp = wp;
             if (total == outlen)
                 return total;
         }
 
-        if (IWORK(w)->t == -1) {
+        if (w->t == -1) {
             unsigned long long k;
             unsigned long long b;
 
-            b = IWORK(w)->bb;
-            k = IWORK(w)->bk;
-            if (IWORK(w)->last != 0)
+            b = w->bb;
+            k = w->bk;
+            if (w->last != 0)
                 return total;
             NEEDBITS(w, 1)
             if (b & 1)
-                IWORK(w)->last = 1;
+                w->last = 1;
             DUMPBITS(1)
             NEEDBITS(w, 2)
-            IWORK(w)->t = b & 3;
+            w->t = b & 3;
             DUMPBITS(2)
-            IWORK(w)->w_tl = (struct huft *)0;
-            IWORK(w)->n = 0;
-            IWORK(w)->bb = b;
-            IWORK(w)->bk = k;
+            w->w_tl = (struct huft *)0;
+            w->n = 0;
+            w->bb = b;
+            w->bk = k;
         }
 
-        switch (IWORK(w)->t) {
+        switch (w->t) {
         case 0:
             ret = inflate_stored(w, out + total, outlen - total);
             break;
         case 1:
-            if (IWORK(w)->w_tl != (struct huft *)0)
+            if (w->w_tl != (struct huft *)0)
                 ret = inflate_codes(w, out + total, outlen - total);
             else
                 ret = inflate_fixed(w, out + total, outlen - total);
             break;
         case 2:
-            if (IWORK(w)->w_tl != (struct huft *)0)
+            if (w->w_tl != (struct huft *)0)
                 ret = inflate_codes(w, out + total, outlen - total);
             else
                 ret = inflate_dynamic(w, out + total, outlen - total);
@@ -766,7 +758,7 @@ long long inflate(void *w, unsigned char *out, long long outlen)
         }
 
         if (ret == -1) {
-            if (IWORK(w)->last != 0)
+            if (w->last != 0)
                 return 0;
             return -1;
         }
@@ -775,13 +767,13 @@ long long inflate(void *w, unsigned char *out, long long outlen)
     return total;
 }
 
-void *open_inflate_handler(InflateReadFn read, void *handle)
+InflateHandler *open_inflate_handler(InflateReadFn read, void *handle)
 {
     struct IosMemPart *g = ios_partition_oomori;
     InflateHandler *h;
     ios_partition_inflate = g;
     free_mblock_list = 0;
-    h = iosMallocDebug(g, 98472, __FILE__, 739);
+    h = iosMallocDebug(g, sizeof(InflateHandler), __FILE__, 739);
     inflate_start(h);
     h->handle = handle;
     if (read == 0) {
@@ -795,21 +787,19 @@ void *open_inflate_handler(InflateReadFn read, void *handle)
 /* Refill the input buffer through the handler's read callback: as many reads
  * as it takes to fill the buffer or reach the end of the data, then the first
  * byte.  */
-static int fill_inbuf(void *a0)
+static int fill_inbuf(InflateHandler *h)
 {
     int len;
 
-    IWORK(a0)->insize = 0;
+    h->insize = 0;
     do {
-        len = ((InflateHandler *)a0)
-                  ->read(IINBUF(a0) + IWORK(a0)->insize, 32768 - IWORK(a0)->insize,
-                         ((InflateHandler *)a0)->handle);
+        len = h->read(h->inbuf + h->insize, 32768 - h->insize, h->handle);
         if (len == 0 || len == -1)
             break;
-        IWORK(a0)->insize += len;
-    } while (IWORK(a0)->insize < 32768);
-    if (IWORK(a0)->insize == 0)
+        h->insize += len;
+    } while (h->insize < 32768);
+    if (h->insize == 0)
         return -1;
-    IWORK(a0)->inptr = 1;
-    return IINBUF(a0)[0];
+    h->inptr = 1;
+    return h->inbuf[0];
 }

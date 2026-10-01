@@ -66,9 +66,9 @@ void BeforeFunc2(GObj *self)
     }
 }
 
-void actDummy(GObj *volatile a0)
+void actDummy(GObj *volatile self)
 {
-    GObj *x = a0;
-    actInitialize(a0);
+    GObj *x = self;
+    actInitialize(self);
     _ACTWait(1);
 }

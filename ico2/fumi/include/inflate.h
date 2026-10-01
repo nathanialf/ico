@@ -10,8 +10,9 @@
 
 /* reads up to size bytes of compressed data into buf */
 typedef long long (*InflateReadFn)(void *buf, long long size, void *handle); /* derived name */
-void close_inflate_handler(void *a0);
-long long inflate(void *w, unsigned char *out, long long outlen);
-void *open_inflate_handler(InflateReadFn read, void *handle);
+typedef struct InflateHandler InflateHandler; /* derived name */
+void close_inflate_handler(InflateHandler *h);
+long long inflate(InflateHandler *w, unsigned char *out, long long outlen);
+InflateHandler *open_inflate_handler(InflateReadFn read, void *handle);
 
 #endif /* INFLATE_H */

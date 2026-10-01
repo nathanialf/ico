@@ -7,10 +7,6 @@
 #include <string.h>
 #include <assert.h>
 
-/* the TUs that call iosMallocDebugNoAssert declare it themselves; it passes
-   its four arguments straight through to _iosMallocDebug. */
-void *iosMallocDebugNoAssert(IosMemPart *part, int size, const char *file, int line);
-
 typedef struct IosMemTag { /* field names derived */
     char c[16];
 } IosMemTag; /* derived name */
@@ -28,7 +24,7 @@ inline IosMemPart *iosMallocInitPartition(unsigned int start, unsigned int end)
     part = (IosMemPart *)((start + 0xF) & 0xFFFFFFF0);
     top = (end + 1) & 0xFFFFFFF0;
 
-    if (top - (unsigned int)part < 0xA0) {
+    if (top - (unsigned int)part < 160) {
         debug_StdPrintfDummy("mem:partition size too small\n");
         return 0;
     }
@@ -39,7 +35,7 @@ inline IosMemPart *iosMallocInitPartition(unsigned int start, unsigned int end)
     part->next = 0;
     part->parent = 0;
 
-    part->start = (char *)(node = (IosMemNode *)((char *)part + 0x50));
+    part->start = (char *)(node = (IosMemNode *)((char *)part + 80));
     part->end = (char *)top;
     part->total = (top - (unsigned int)node) >> 4;
 
@@ -75,7 +71,7 @@ IosMemPart *iosMallocSetPartition(IosMemPart *part, int size, int align)
         return 0;
     }
     avail = part->free - 5;
-    need = (((size + 0xF) & 0xFFFFFFF0) + 0x90) >> 4;
+    need = (((size + 0xF) & 0xFFFFFFF0) + 144) >> 4;
     if (avail < need) {
         debug_StdPrintfDummy("mem: memory lack %dqw > parent:%dqw\n", need, avail);
         return 0;
@@ -231,21 +227,21 @@ static void *_iosMallocDebug(IosMemPart *part, int size, const char *file, int l
         mallocBusy = 0;
         return 0;
     }
-    need = (((size + 0xF) & 0xFFFFFFF0) + 0x40) >> 4;
+    need = (((size + 0xF) & 0xFFFFFFF0) + 64) >> 4;
     for (node = part->head; node != 0; node = node->free_next) {
         if (strcmp(node->tag, "<FREE AREA>____") != 0) {
             debug_StdPrintfDummy("mem:illegal free area pointer\n");
             if (node->prev != 0) {
                 debug_StdPrintfDummy("mem: prev block, %08x called at %s\n", node->prev,
                                      node->prev->name);
-                debug_StdPrintfDummy("mem:prev magic %s\n", node->prev);
+                debug_StdPrintfDummy("mem:prev magic %s\n", node->prev->tag);
             }
             debug_StdPrintfDummy("mem:cur block, %08x called at %s\n", node, node->name);
-            debug_StdPrintfDummy("mem:cur magic %s\n", node);
+            debug_StdPrintfDummy("mem:cur magic %s\n", node->tag);
             if (node->next != 0) {
                 debug_StdPrintfDummy("mem: next block, %08x called at %s\n", node->next,
                                      node->next->name);
-                debug_StdPrintfDummy("mem:next magic %s\n", node->next);
+                debug_StdPrintfDummy("mem:next magic %s\n", node->next->tag);
             }
             debug_StdPrintfDummy("mem:called by %s of line %d\n", file, line);
             mallocBusy = 0;
@@ -306,10 +302,10 @@ static void *_iosMallocDebug(IosMemPart *part, int size, const char *file, int l
             best->next = newnode;
             best->size = need - 4;
             best->name[15] = 0;
-            debug_StdPrintfDummy("cur: %8p %s\n", best, best);
-            debug_StdPrintfDummy("next:%8p %s\n", best->next, best->next);
+            debug_StdPrintfDummy("cur: %8p %s\n", best, best->tag);
+            debug_StdPrintfDummy("next:%8p %s\n", best->next, best->next->tag);
             mallocBusy = 0;
-            return (char *)best + 0x40;
+            return (char *)best + 64;
         }
 #ifdef DEBUG
         tag = *(IosMemTag *)node;
@@ -364,19 +360,19 @@ void *iosMallocAlignDebug(IosMemPart *part, int size, int align, const char *fil
     return (void *)ptr;
 }
 
-void _iosFreeWithFill(int *a0, int a1, int a2)
+void _iosFreeWithFill(int *ptr, char *file, int line)
 {
-    int *end = *(int **)((char *)a0 - 0x1C);
+    int *end = *(int **)((char *)ptr - 0x1C);
     FlushCache(0);
-    iosFree(a0);
-    debug_StdPrintfDummy("IOSFILLFREE %s(%d) %p - %p\n", a1, a2, a0, end);
+    iosFree(ptr);
+    debug_StdPrintfDummy("IOSFILLFREE %s(%d) %p - %p\n", file, line, ptr, end);
     {
-        register int g = (unsigned int)a0 < (unsigned int)end;
+        register int g = (unsigned int)ptr < (unsigned int)end;
         if (g) {
             do {
-                *(unsigned int *)a0 = 0xFFFFFFFFu;
-                a0++;
-            } while ((unsigned int)a0 < (unsigned int)end);
+                *(unsigned int *)ptr = 0xFFFFFFFFu;
+                ptr++;
+            } while ((unsigned int)ptr < (unsigned int)end);
         }
     }
     FlushCache(0);
@@ -399,17 +395,17 @@ void *iosFree(void *ptr)
         __assert(__FILE__, 820, "e");
         return 0;
     }
-    prev = (IosMemNode *)((char *)ptr - 0x10);
+    prev = (IosMemNode *)((char *)ptr - 16);
     next = ptr;
-    if (strncmp(prev, "align", 5) == 0) {
-        n = atoi((char *)ptr - 0xB);
-        *((char *)ptr - 0x10) = 0;
-        next = (IosMemNode *)((char *)prev - (n - 0x10));
+    if (strncmp(prev->tag, "align", 5) == 0) {
+        n = atoi((char *)ptr - 11);
+        *((char *)ptr - 16) = 0;
+        next = (IosMemNode *)((char *)prev - (n - 16));
     }
-    node = (IosMemNode *)((char *)next - 0x40);
+    node = (IosMemNode *)((char *)next - 64);
     if (strcmp(node->tag, "<ALLOC>________") != 0) {
         sprintf(buf, "IOSFREE():\n\tPREV MAGIC: %s\n\t CUR MAGIC: %s\n\tNEXT MAGIC: %s\n",
-                node->prev, node, node->next);
+                node->prev->tag, node->tag, node->next->tag);
         debug_assertMessage(__FILE__, 836, buf);
         __assert(__FILE__, 836, "e");
         return 0;
@@ -586,27 +582,27 @@ void iosMallocCheckLeak(IosMemPart *part)
     }
 }
 
-void iosMallocCheckLeak2(int a0, int a1)
+void iosMallocCheckLeak2(int part, int offset)
 {
-    int node = *(int *)(a0 + a1 + 0x38);
+    int node = *(int *)(part + offset + 0x38);
     int i;
 
-    debug_StdPrintfDummy("<<< check leak2 >>> %p\n", a0);
+    debug_StdPrintfDummy("<<< check leak2 >>> %p\n", part);
     if (node == 0) {
         return;
     }
     do {
-        node += a1;
-        strncpy(nodeName, node + 0x10, 0xF);
-        nodeName[0xF] = 0;
-        if (strcmp((int *)node, "<ALLOC>________") == 0) {
-            debug_StdPrintfDummy("%p:ALLOC %s\n", node - a1, nodeName);
-        } else if (strcmp((int *)node, "<FREE AREA>____") == 0) {
-            debug_StdPrintfDummy("%p:FREEAREA\n", node - a1);
-        } else if (strcmp((int *)node, " free memory   ") == 0) {
+        node += offset;
+        strncpy(nodeName, node + 16, 15);
+        nodeName[15] = 0;
+        if (strcmp((char *)node, "<ALLOC>________") == 0) {
+            debug_StdPrintfDummy("%p:ALLOC %s\n", node - offset, nodeName);
+        } else if (strcmp((char *)node, "<FREE AREA>____") == 0) {
+            debug_StdPrintfDummy("%p:FREEAREA\n", node - offset);
+        } else if (strcmp((char *)node, " free memory   ") == 0) {
             debug_StdPrintfDummy("%p:DELETED_MEMORY\n");
         } else {
-            debug_StdPrintfDummy("%p:!!! unrecognized block!!!:%s\n", node - a1, node);
+            debug_StdPrintfDummy("%p:!!! unrecognized block!!!:%s\n", node - offset, node);
             return;
         }
         for (i = 0; i < 12; i++) {}
@@ -644,16 +640,16 @@ void *iosReallocDebug(void *ptr, unsigned int size)
         return 0;
     }
     next = ptr;
-    prev = (IosMemNode *)((char *)ptr - 0x10);
-    if (strncmp(prev, "align", 5) == 0) {
-        n = atoi((char *)ptr - 0xB);
-        next = (IosMemNode *)((char *)prev - (n - 0x10));
-        *((char *)ptr - 0x10) = 0;
+    prev = (IosMemNode *)((char *)ptr - 16);
+    if (strncmp(prev->tag, "align", 5) == 0) {
+        n = atoi((char *)ptr - 11);
+        next = (IosMemNode *)((char *)prev - (n - 16));
+        *((char *)ptr - 16) = 0;
     }
-    node = (IosMemNode *)((char *)next - 0x40);
+    node = (IosMemNode *)((char *)next - 64);
     if (strcmp(node->tag, "<ALLOC>________") != 0) {
         sprintf(buf, "IOSFREE():\n\tPREV MAGIC: %s\n\t CUR MAGIC: %s\n\tNEXT MAGIC: %s\n",
-                node->prev, node, node->next);
+                node->prev->tag, node->tag, node->next->tag);
         debug_assertMessage(__FILE__, 1199, buf);
         __assert(__FILE__, 1199, "e");
         return 0;

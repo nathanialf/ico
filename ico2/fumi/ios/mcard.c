@@ -4,23 +4,6 @@
 #include "main.h"
 #include "mcdata.h"
 #include <string.h>
-
-typedef union { /* field names derived */
-    long long ll;
-
-    struct {
-        int lo, hi;
-    } w;
-} McHdr; /* derived name */
-
-typedef union { /* field names derived */
-    long long ll;
-
-    struct {
-        int lo, hi;
-    } w;
-} McTestVal; /* derived name */
-
 #include "mcard.h"
 #include <eekernel.h>
 #include <libmc.h>
@@ -69,111 +52,111 @@ inline void iosMcMgrSync(void *mp)
 
 inline void iosMcTest(void) {}
 
-inline int iosMcSync(unsigned long *a0)
+inline int iosMcSync(unsigned long *req)
 {
-    unsigned long x = *a0;
+    unsigned long x = *req;
     char y = x;
     unsigned long z = y & 1ul;
     y = z;
     return -((int)y);
 }
 
-inline int iosMcGetInfo(void *a0)
+inline int iosMcGetInfo(void *req)
 {
-    McTestVal *v = (McTestVal *)a0;
-    v->w.hi = 0;
-    v->ll = v->ll & -2;
-    return iosMsgSend(&McMsgQ, a0, 0);
+    McMgr *mp = req;
+    mp->flags.w.command = 0;
+    mp->flags.ll = mp->flags.ll & -2;
+    return iosMsgSend(&McMsgQ, req, 0);
 }
 
-inline int iosMcFormat(void *a0)
+inline int iosMcFormat(void *req)
 {
-    McTestVal *v = (McTestVal *)a0;
-    v->w.hi = 3;
-    v->ll = v->ll & -2;
-    return iosMsgSend(&McMsgQ, a0, 0);
+    McMgr *mp = req;
+    mp->flags.w.command = 3;
+    mp->flags.ll = mp->flags.ll & -2;
+    return iosMsgSend(&McMsgQ, req, 0);
 }
 
-inline int iosMcUnformat(void *a0)
+inline int iosMcUnformat(void *req)
 {
-    McTestVal *v = (McTestVal *)a0;
-    v->w.hi = 4;
-    v->ll = v->ll & -2;
-    return iosMsgSend(&McMsgQ, a0, 0);
+    McMgr *mp = req;
+    mp->flags.w.command = 4;
+    mp->flags.ll = mp->flags.ll & -2;
+    return iosMsgSend(&McMsgQ, req, 0);
 }
 
-inline int iosMcGetDir(void *a0)
+inline int iosMcGetDir(void *req)
 {
-    McHdr *v = (McHdr *)a0;
-    v->w.hi = 6;
-    v->ll = v->ll & -2;
-    return iosMsgSend(&McMsgQ, a0, 0);
+    McMgr *mp = req;
+    mp->flags.w.command = 6;
+    mp->flags.ll = mp->flags.ll & -2;
+    return iosMsgSend(&McMsgQ, req, 0);
 }
 
-inline int iosMcDelete(void *a0)
+inline int iosMcDelete(void *req)
 {
-    McHdr *v = (McHdr *)a0;
-    v->w.hi = 2;
-    v->ll = v->ll & -2;
-    return iosMsgSend(&McMsgQ, a0, 0);
+    McMgr *mp = req;
+    mp->flags.w.command = 2;
+    mp->flags.ll = mp->flags.ll & -2;
+    return iosMsgSend(&McMsgQ, req, 0);
 }
 
-inline int iosMcSaveIconBlock(void *a0)
+inline int iosMcSaveIconBlock(void *req)
 {
-    McHdr *v = (McHdr *)a0;
-    v->w.hi = 7;
-    v->ll = v->ll & -2;
-    return iosMsgSend(&McMsgQ, a0, 0);
+    McMgr *mp = req;
+    mp->flags.w.command = 7;
+    mp->flags.ll = mp->flags.ll & -2;
+    return iosMsgSend(&McMsgQ, req, 0);
 }
 
-inline int iosMcSaveProductBlock(void *a0)
+inline int iosMcSaveProductBlock(void *req)
 {
-    McHdr *v = (McHdr *)a0;
-    v->w.hi = 8;
-    v->ll = v->ll & -2;
-    return iosMsgSend(&McMsgQ, a0, 0);
+    McMgr *mp = req;
+    mp->flags.w.command = 8;
+    mp->flags.ll = mp->flags.ll & -2;
+    return iosMsgSend(&McMsgQ, req, 0);
 }
 
-inline int iosMcLoadProductBlock(void *a0)
+inline int iosMcLoadProductBlock(void *req)
 {
-    McHdr *v = (McHdr *)a0;
-    v->w.hi = 9;
-    v->ll = v->ll & -2;
-    return iosMsgSend(&McMsgQ, a0, 0);
+    McMgr *mp = req;
+    mp->flags.w.command = 9;
+    mp->flags.ll = mp->flags.ll & -2;
+    return iosMsgSend(&McMsgQ, req, 0);
 }
 
-inline int iosMcSaveGameBlock(void *a0, int a1)
+inline int iosMcSaveGameBlock(void *req, int arg)
 {
-    McHdr *v = (McHdr *)a0;
-    v->w.hi = 0xA;
-    *(int *)((char *)a0 + 0x48) = a1;
-    v->ll = v->ll & -2;
-    return iosMsgSend(&McMsgQ, a0, 0);
+    McMgr *mp = req;
+    mp->flags.w.command = 10;
+    mp->segArg = arg;
+    mp->flags.ll = mp->flags.ll & -2;
+    return iosMsgSend(&McMsgQ, req, 0);
 }
 
-inline int iosMcLoadGameBlock(void *a0, int a1)
+inline int iosMcLoadGameBlock(void *req, int arg)
 {
-    McHdr *v = (McHdr *)a0;
-    v->w.hi = 0xB;
-    *(int *)((char *)a0 + 0x48) = a1;
-    v->ll = v->ll & -2;
-    return iosMsgSend(&McMsgQ, a0, 0);
+    McMgr *mp = req;
+    mp->flags.w.command = 11;
+    mp->segArg = arg;
+    mp->flags.ll = mp->flags.ll & -2;
+    return iosMsgSend(&McMsgQ, req, 0);
 }
 
-inline int iosMcChdirProduct(void *a0)
+inline int iosMcChdirProduct(void *req)
 {
-    McHdr *v = (McHdr *)a0;
-    v->w.hi = 0xC;
-    v->ll = v->ll & -2;
-    return iosMsgSend(&McMsgQ, a0, 0);
+    McMgr *mp = req;
+    mp->flags.w.command = 12;
+    mp->flags.ll = mp->flags.ll & -2;
+    return iosMsgSend(&McMsgQ, req, 0);
 }
 
-inline int iosMcGetBlockSaveInfo(void *a0)
+inline int iosMcGetBlockSaveInfo(void *req)
 {
-    McHdr *v = (McHdr *)a0;
-    v->w.hi = 0xD;
-    v->ll = v->ll & -2;
-    return iosMsgSend(&McMsgQ, a0, 0);
+    McMgr *mp = req;
+    mp->flags.w.command = 13;
+    mp->flags.ll = mp->flags.ll & -2;
+    return iosMsgSend(&McMsgQ, req, 0);
 }
 
 typedef struct { /* field names derived */
@@ -368,7 +351,7 @@ static inline void iosMcMgrSum(McMgr *mp, void *q, int n) /* derived name */
     }
 }
 
-int iosMcHandlerWrite(McMgr *mp, unsigned char *buf, int len)
+void iosMcHandlerWrite(McMgr *mp, unsigned char *buf, int len)
 {
     int n;
     int m;
@@ -430,7 +413,7 @@ int iosMcHandlerWrite(McMgr *mp, unsigned char *buf, int len)
     iosMcMgrSync(mp);
 }
 
-int iosMcHandlerRead(McMgr *mp, unsigned char *buf, int len)
+void iosMcHandlerRead(McMgr *mp, unsigned char *buf, int len)
 {
     int n;
 
@@ -730,16 +713,16 @@ static inline void iosMcMgrSaveIcon(McMgr *mp) /* derived name */
     iosMcMgrSaveIconDebugResult(mp->result);
 }
 
-static void iosMcMgrSaveProductBlock(void *a0)
+static void iosMcMgrSaveProductBlock(McMgr *mp)
 {
-    *(int *)((char *)a0 + 0x24) = 0;
-    iosMcMgrSaveSeg(a0, 0);
+    mp->segment = 0;
+    iosMcMgrSaveSeg(mp, 0);
 }
 
-static void iosMcMgrLoadProductBlock(void *a0)
+static void iosMcMgrLoadProductBlock(McMgr *mp)
 {
-    *(int *)((char *)a0 + 0x24) = 0;
-    iosMcMgrLoadSeg(a0, 0);
+    mp->segment = 0;
+    iosMcMgrLoadSeg(mp, 0);
 }
 
 static inline void iosMcMgrSaveGame(McMgr *mp) /* derived name */

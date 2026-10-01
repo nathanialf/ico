@@ -48,19 +48,19 @@ typedef struct SqEntry { /* field names derived */
    out-of-line copies at the end of the object (first-declaration order), from
    Ee2Iop to soundSeSemiCommonLoadChk; the file statics soundSeEnvDefaultSet
    and debug_req, first declared in s_init.c, follow. */
-int Ee2Iop(int a0, int a1, int a2);
+int Ee2Iop(int ee, int iop, int size);
 int soundOutputModeGet(void);
 int soundReverbDepthGet(void);
 int soundBufAdpcmChAlloc(SqEntry *self, int *chp);
 void soundBufAdpcmFree(SqEntry *self);
-SqEntry *soundDataAreaSearch(int *a0);
+SqEntry *soundDataAreaSearch(int *pk);
 SqEntry *soundDataAreaGet(int no, int bank, int mode, int seg);
 SqEntry *soundHDDataSet(void *hd, int no, int bank, int mode, int seg);
 SqEntry *soundSQDataSet(void *sq, int no, int bank, int mode, int seg);
-int soundSeDefPlay(int a0, unsigned int a1, float *pos, int a3);
-int soundSeDefPlayWithVolumeRate(int a0, unsigned int a1, float *pos, int a3, float rate);
-float soundSeDefVolumeRateGet(int a0);
-void soundSeDefVolumeRateSet(int a0, float f);
+int soundSeDefPlay(int kind, unsigned int owner, float *pos, int playMode);
+int soundSeDefPlayWithVolumeRate(int kind, unsigned int owner, float *pos, int playMode, float rate);
+float soundSeDefVolumeRateGet(int id);
+void soundSeDefVolumeRateSet(int id, float rate);
 void soundSeGroupStop(int arg);
 int soundSeGroupGet(void);
 void soundSePlayModeStop(int arg);
@@ -68,7 +68,7 @@ void soundReqTickProc(void);
 void soundVBlank(void);
 void soundSeKindBuild(void);
 int soundSeSemiCommonLoadChk(void);
-void _soundSeDefStop(int a0, int a1);
+void _soundSeDefStop(int id, int noRelease);
 void soundAllocIopHeap(void);
 SqEntry *soundBDDataSet(int bd, int no, int bank, int mode, int seg, int size);
 void soundBufSegFree(int seg, int mode);
@@ -76,12 +76,12 @@ void soundDataClose(SqEntry *self);
 void soundDataOpen(struct AdpcmOpenReq *work, int mode, int no, int ch, int loopNum);
 SqEntry *soundDataOpenSync(struct AdpcmOpenReq *work);
 void soundDataSegAllClose(int seg, int mode);
-void soundDataSegNextStageNotUseClose(int a0, int a1);
+void soundDataSegNextStageNotUseClose(int mode, int stage);
 int soundInit(void);
-void soundOutputModeSet(int a0);
-void soundReverbDepthSet(int a0);
-void soundSeDefStop(int a0);
-void soundSeDefStopNoRelease(int a0);
+void soundOutputModeSet(int mode);
+void soundReverbDepthSet(int depth);
+void soundSeDefStop(int id);
+void soundSeDefStopNoRelease(int id);
 void soundSeEnvNotUseClose(int a, int b);
 /* s_init.o's .sdata globals */
 extern float soundSeEnvMasterVolRate;

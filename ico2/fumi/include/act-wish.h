@@ -10,6 +10,6 @@
 
 #include "typedef.h"
 
-void ACTGetWish_FromPad(GObj *a0, float *a1);
+void ACTGetWish_FromPad(GObj *self, float *dir);
 
 #endif /* ACT_WISH_H */

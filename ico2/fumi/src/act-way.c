@@ -128,7 +128,7 @@ static int checkPositionIllegal(GObj *self, float *pos)
     return dy > 40.0f;
 }
 
-inline unsigned char WayMove_CheckCollis(float *p0, float *p1, void *a2, void *a3)
+inline unsigned char WayMove_CheckCollis(float *p0, float *p1, void *actor, void *posout)
 {
     float a[4];
     float b[4];
@@ -141,7 +141,7 @@ inline unsigned char WayMove_CheckCollis(float *p0, float *p1, void *a2, void *a
     b[2] = p1[2];
     a[1] -= 50.0f;
     b[1] -= 50.0f;
-    return ACTCheckCollis_WAY(10.0f, a, b, a2, a3);
+    return ACTCheckCollis_WAY(10.0f, a, b, actor, posout);
 }
 
 /* three helpers inlined into ACTWayMove_BeginDetail and
@@ -513,12 +513,12 @@ done:
     return 1;
 }
 
-int ACTWayExec_Position(GObj *self, int a1, float *dir, float speed, int a3)
+int ACTWayExec_Position(GObj *self, int tgt, float *dir, float speed, int flags)
 {
-    /* an inline function nested in the body: whether a3 has the mask's bits */
+    /* an inline function nested in the body: whether flags has the mask's bits */
     inline unsigned char way_flag(int mask) /* derived name */
     {
-        if (a3 & mask) {
+        if (flags & mask) {
             return 1;
         }
         return 0;
@@ -540,7 +540,7 @@ int ACTWayExec_Position(GObj *self, int a1, float *dir, float speed, int a3)
         v[2] = dir[2];
     }
     if (way_flag(4)) {
-        GetRootProjectionPosOfGObj(pos, a1);
+        GetRootProjectionPosOfGObj(pos, tgt);
         if (WayMove_CheckCollis(pos, v, 0, 0)) {
             v[0] = pos[0];
             v[1] = pos[1];
@@ -551,7 +551,7 @@ int ACTWayExec_Position(GObj *self, int a1, float *dir, float speed, int a3)
     d2[1] = v[1];
     d2[2] = v[2];
     GetRootProjectionPosOfGObj(p2, self);
-    if (ACTWayMove_BeginDetail(self, p2, d2, (void *)a1, 0, 0) == 0) {
+    if (ACTWayMove_BeginDetail(self, p2, d2, (void *)tgt, 0, 0) == 0) {
         return 0;
     }
     node = (char *)w + 0x120;
@@ -581,9 +581,9 @@ int ACTWayExec_Position(GObj *self, int a1, float *dir, float speed, int a3)
     }
 }
 
-int ACTWay_IsMustWalkFromWay(GObj *a0)
+int ACTWay_IsMustWalkFromWay(GObj *self)
 {
-    char *w = GOBJ_ACT(a0)->wayPoint;
+    char *w = GOBJ_ACT(self)->wayPoint;
     float d;
 
     if (w == 0) {
@@ -591,7 +591,7 @@ int ACTWay_IsMustWalkFromWay(GObj *a0)
     }
     d = *(float *)(w + 0x2C);
     if (d != 0.0f) {
-        return _DistxzSqGV(w + 0x10, test_CURRENTROOT(a0)) < d * d;
+        return _DistxzSqGV(w + 0x10, test_CURRENTROOT(self)) < d * d;
     }
     return 0;
 }

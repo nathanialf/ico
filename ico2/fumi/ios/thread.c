@@ -72,7 +72,7 @@ inline void iosThreadCreate(IOSThread *th, int no, void (*func)(), int arg, void
 
     th->arg = arg;
 
-    if (th->id >= 0x100) {
+    if (th->id >= 256) {
         debug_StdPrintfDummy("thr:thread table over flow\n");
         debug_assert(__FILE__, 141);
         __assert(__FILE__, 141, "0");
@@ -168,11 +168,11 @@ static inline void iosThreadDestroyMgr(void)
 
 void iosThreadDestroy(IOSThread *th)
 {
-    IOSThread *a1 = th;
+    IOSThread *target = th;
     if (th == 0) {
-        a1 = iosThreadTable[GetThreadId()];
+        target = iosThreadTable[GetThreadId()];
     }
-    iosMsgSend(&iosThreadDestroyQueue, (int)a1, 0);
+    iosMsgSend(&iosThreadDestroyQueue, (int)target, 0);
 }
 
 inline int iosThreadGetPri(IOSThread *th)
@@ -200,32 +200,32 @@ void iosThreadSetPri(IOSThread *th, int pri)
     ChangeThreadPriority(v->id, pri);
 }
 
-inline IOSThread *iosGetIOSThreadFromId(unsigned int a0)
+inline IOSThread *iosGetIOSThreadFromId(unsigned int id)
 {
     IOSThread *ret;
-    if (a0 < 0x101)
+    if (id < 257)
         goto valid;
     debug_StdPrintfDummy("thr:id out of range\n");
     ret = 0;
     goto out;
 valid:
-    ret = iosThreadTable[a0];
+    ret = iosThreadTable[id];
 out:
     return ret;
 }
 
-void iosThreadMessage(int a0)
+void iosThreadMessage(int msg)
 {
     IOSThread *obj = iosThreadTable[GetThreadId()];
     int q;
     if (obj->hasQueue == 0) {
         void *r;
         obj->hasQueue = 1;
-        r = iosMallocDebug(ios_partition_root, 0x50, __FILE__, 478);
+        r = iosMallocDebug(ios_partition_root, 80, __FILE__, 478);
         obj->queue = r;
-        iosMsgQueueCreate(r, (int *)((char *)r + 0x30), 8);
+        iosMsgQueueCreate(r, (int *)((char *)r + 48), 8);
     }
-    q = iosMsgSend(obj->queue, a0, 0);
+    q = iosMsgSend(obj->queue, msg, 0);
     debug_StdPrintfDummy("th:msg %d\n", q);
 }
 
@@ -235,9 +235,9 @@ inline int iosThreadJoin(IOSThread *th)
     if (th->hasQueue == 0) {
         void *r;
         th->hasQueue = 1;
-        r = iosMallocDebug(ios_partition_root, 0x50, __FILE__, 506);
+        r = iosMallocDebug(ios_partition_root, 80, __FILE__, 506);
         th->queue = r;
-        iosMsgQueueCreate(r, (int *)((char *)r + 0x30), 8);
+        iosMsgQueueCreate(r, (int *)((char *)r + 48), 8);
     }
     iosMsgRecv(th->queue, buf, 1);
     debug_StdPrintfDummy("th:thread joined\n");

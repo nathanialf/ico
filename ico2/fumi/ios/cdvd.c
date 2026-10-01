@@ -64,7 +64,7 @@ typedef struct IosCdvdHandle { /* field names derived */
     char name[256];                                      /* 0x38 */
     sceCdlFILE file;                                     /* 0x138 */
     CdRMode mode;                                        /* 0x15C */
-    void *inflate;                                       /* 0x160 */
+    InflateHandler *inflate;                             /* 0x160 */
     int stMem;                                           /* 0x164 */
     int stBuf;                                           /* 0x168, stMem rounded up to 16 */
     char pad16C[20];
@@ -1263,8 +1263,9 @@ int iosCdvdDirectStRead(int a0, void *dst, int size, int *err)
 /* The inflate handler's read callback (installed by iosCdvdMgrStStart): hand
  * the decoder at most as many bytes as are still left in the streamed file --
  * its total length at +0x13C minus the bytes already consumed at +0x28.  */
-long long inflate_cd_read_func(void *buf, long long size, IosCdvdHandle *self)
+long long inflate_cd_read_func(void *buf, long long size, void *handle)
 {
+    IosCdvdHandle *self = handle;
     long long rest;
     long long len;
 

@@ -22,7 +22,7 @@ typedef struct IosMsgQueue { /* field names derived */
 } IosMsgQueue;               /* derived name */
 
 /* message.o's .sdata global: the signal thread's record */
-extern int *th_sig;
+extern struct IOSThread *th_sig;
 void iosMsgInit(void);
 void iosMsgQueueCreate(IosMsgQueue *q, int *buf, int size);
 void iosMsgQueueDestroy(IosMsgQueue *q);

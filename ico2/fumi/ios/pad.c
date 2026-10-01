@@ -36,56 +36,42 @@ typedef struct { /* field names derived */
     unsigned char motor0; /* 0x10 */
     unsigned char motor1; /* 0x11 */
     char pad12[2];
-    int f14;   /* 0x14 */
+    int motor; /* 0x14 the motor state Shock_SetMotor keeps, which Init_Controler clears */
 } IosPadShock; /* derived name */
 
-typedef struct {      /* field names derived */
-    int port;         /* 0x00 */
-    int slot;         /* 0x04 */
-    int f8;           /* 0x08 */
-    int idx;          /* 0x0C */
-    IosPadBuf buf[2]; /* 0x10 */
+typedef struct IosPadDevRec { /* field names derived */
+    int port;                 /* 0x00 */
+    int slot;                 /* 0x04 */
+    int termId;               /* 0x08 */
+    int idx;                  /* 0x0C */
+    IosPadBuf buf[2];         /* 0x10 */
     char pad50[48];
     /* 0x80, scePadPortOpen's DMA buffer, which the library requires
        64-byte aligned: the record's stride of 0x200 and the 64-aligned
        start of pad.o's .data follow from it */
     unsigned char dmaBuf[256] __attribute__((aligned(64)));
-    int f180; /* 0x180 */
-    int f184; /* 0x184 */
-    int f188; /* 0x188 */
-    int f18C; /* 0x18C */
-    int _190;
+    int state;      /* 0x180 the last scePadGetState */
+    int phase;      /* 0x184 controler_stable_check's step, 99 when stable */
+    int errCount;   /* 0x188 */
+    int lastTermId; /* 0x18C */
+    char pad190[4];
     unsigned int error;   /* 0x194 */
     unsigned char act[6]; /* 0x198 */
     char pad19E[6];
     IosPadShock shock; /* 0x1A4 */
     char pad1BC[4];
-    unsigned long long f1C0; /* 0x1C0 */
-} IosPadDevRec;              /* derived name */
-
-/* The caller's pad handle, the record iosPadConnect fills in. */
-typedef struct {       /* field names derived */
-    IosPadDevRec *dev; /* 0x00 */
-    PadConf *conf;     /* 0x04 */
-    int now;           /* 0x08 */
-    int trg;           /* 0x0C */
-    int rel;           /* 0x10 */
-    int f14;           /* 0x14 */
-    int now2;          /* 0x18 */
-    int trg2;          /* 0x1C */
-    int rel2;          /* 0x20 */
-    int f24;           /* 0x24 */
-} IosPadCtx;           /* derived name */
+    unsigned long long flags; /* 0x1C0 */
+} IosPadDevRec;               /* derived name */
 
 /* The stick reading iosPadGetStick hands back: the raw pair at +0 and +4 and
    the normalised direction and magnitude the reader wants. */
 typedef struct { /* field names derived */
     int x;       /* 0x00 */
     int y;       /* 0x04 */
-    int _8;      /* 0x08 */
-    float dx;    /* 0x0C */
-    float dz;    /* 0x10 */
-    float mag;   /* 0x14 */
+    char pad8[4];
+    float dx;  /* 0x0C */
+    float dz;  /* 0x10 */
+    float mag; /* 0x14 */
     char pad18[8];
 } IosPadStick; /* derived name */
 
@@ -99,7 +85,7 @@ typedef struct { /* field names derived */
 typedef struct {          /* field names derived */
     int key;              /* 0x00 */
     int box;              /* 0x04 */
-    int player;           /* 0x08 */
+    int voice;            /* 0x08 the shockList row's voice */
     ShockPrm prm;         /* 0x0C */
     short life;           /* 0x10 */
     short tick;           /* 0x12 */
@@ -109,7 +95,7 @@ typedef struct {          /* field names derived */
 
 /* with the two below: shockdriver.c's definitions take its own records, and
    this TU hands them the box and parameter as its PadAct holds them */
-extern int Shock_Request(int box, int player, ShockPrm prm, int key, int a4);
+extern int Shock_Request(int box, int voice, ShockPrm prm, int key, int arg);
 
 /* the terminal id the reconnect check compares against, which nothing in the
    retail build writes, and the enable flag iosPadEnable and iosPadDisable
@@ -173,15 +159,14 @@ char th_iosPadDevManager[112] = {0};
 
 IosMsgQueue padDevMgrMsgQ = {0};
 
-static int controler_stable_check(void *a0)
+static int controler_stable_check(IosPadDevRec *dev)
 {
-    IosPadDevRec *dev = (IosPadDevRec *)a0;
     int port = dev->port;
     int slot = dev->slot;
-    int prev = dev->f180;
-    int phase = dev->f184;
-    int cnt = dev->f188;
-    int id = dev->f18C;
+    int prev = dev->state;
+    int phase = dev->phase;
+    int cnt = dev->errCount;
+    int id = dev->lastTermId;
     int state;
     int mode;
     int orig;
@@ -205,17 +190,17 @@ static int controler_stable_check(void *a0)
     }
     switch (phase) {
     case 0:
-        dev->f1C0 &= ~0x40000;
+        dev->flags &= ~0x40000;
         phase++;
     case 1:
         if (state == 0) {
-            dev->f1C0 |= 0x10000;
+            dev->flags |= 0x10000;
         }
         if (state != 6 && state != 2) {
             dev->error = 1;
             break;
         }
-        dev->f1C0 &= ~0x10000;
+        dev->flags &= ~0x10000;
         mode = scePadInfoMode(port, slot, 1, 0);
         orig = mode;
         debug_StdPrintfDummy("pad id:%d\n", mode);
@@ -240,13 +225,13 @@ static int controler_stable_check(void *a0)
             if (orig != mode) {
                 phase = 30;
             } else {
-                dev->f1C0 |= 0x40000;
+                dev->flags |= 0x40000;
             }
             break;
         case 7:
             debug_StdPrintfDummy("pad:7\n");
             phase = 70;
-            if (((int)(dev->f1C0 >> 18) & 1) == 0) {
+            if (((int)(dev->flags >> 18) & 1) == 0) {
                 phase = 0;
             }
             break;
@@ -340,10 +325,10 @@ static int controler_stable_check(void *a0)
     default:
         if (state == 7) {
             cnt++;
-            dev->f180 = prev;
-            dev->f184 = -1;
-            dev->f188 = cnt;
-            dev->f18C = id;
+            dev->state = prev;
+            dev->phase = -1;
+            dev->errCount = cnt;
+            dev->lastTermId = id;
             debug_assert(__FILE__, 468);
             __assert(__FILE__, 468, "0");
             return -1;
@@ -355,20 +340,20 @@ static int controler_stable_check(void *a0)
                 phase = 0;
                 id = padTermId;
             }
-            dev->f8 = id = padTermId;
+            dev->termId = id = padTermId;
         }
         break;
     }
-    dev->f180 = state;
-    dev->f184 = phase;
-    dev->f188 = cnt;
-    dev->f18C = id;
+    dev->state = state;
+    dev->phase = phase;
+    dev->errCount = cnt;
+    dev->lastTermId = id;
     return phase;
 }
 
 static void iosPadDevManager(void);
 
-int iosPadDevInit(void *a0)
+int iosPadDevInit(void *desc)
 {
     int i;
 
@@ -386,9 +371,9 @@ int iosPadDevInit(void *a0)
 
         dev->port = i;
         dev->slot = 0;
-        dev->f184 = 0;
+        dev->phase = 0;
         dev->error = 0xFFFFFFFFu;
-        dev->f180 = 0xFFFF;
+        dev->state = 0xFFFF;
         if (scePadPortOpen(i, 0, dev->dmaBuf) == 0) {
             debug_StdPrintfDummy("ERROR: scePadPortOpen port%d slot%d\n", i, 0);
             debug_assert(__FILE__, 569);
@@ -399,7 +384,8 @@ int iosPadDevInit(void *a0)
     return 1;
 }
 
-/* the frame counter this TU reads unsigned */
+/* shockdriver.c's decoder and motor output: its definitions take its own box
+   records, which this TU passes as the device record holds them */
 extern void Shock_Decode(void *box, unsigned char *pFlags, unsigned char *pLevel);
 extern void Shock_SetMotor(int flags, int level, void *box, int port, int slot);
 static void iosPadActTickProc(void);
@@ -414,7 +400,7 @@ static int iosPadDevReadFunc(void)
         int port;
 
         dev->idx ^= 1;
-        if (dev->f184 == 99) {
+        if (dev->phase == 99) {
             dev->error = 0;
         }
         if (dev->error != 0) {
@@ -427,7 +413,7 @@ static int iosPadDevReadFunc(void)
             if (scePadRead(dev->port, dev->slot, &dev->buf[dev->idx]) == 0) {
                 debug_StdPrintfDummy("err %d\n", scePadGetState(dev->port, dev->slot));
                 if (scePadGetState(dev->port, dev->slot) == 0) {
-                    dev->f184 = 0;
+                    dev->phase = 0;
                     dev->error = 1;
                 }
             } else {
@@ -446,7 +432,7 @@ static int iosPadDevReadFunc(void)
             dev->error != 0) {
             port = -1;
         }
-        Shock_SetMotor(sh->motor0, sh->motor1, &dev->shock.f14, port, dev->slot);
+        Shock_SetMotor(sh->motor0, sh->motor1, &dev->shock.motor, port, dev->slot);
     }
     iosPadActTickProc();
     return 0;
@@ -489,18 +475,18 @@ int iosPadRead(void *pad)
     ctx->now2 = now;
     ctx->trg2 = ctx->trg;
     ctx->rel2 = ctx->rel;
-    ctx->f24 = ctx->f14;
+    ctx->word24 = ctx->word14;
 
     if (dev->error != 0) {
         ctx->now = 0;
         ctx->trg = 0;
         ctx->rel = 0;
-        ctx->f14 = 0;
+        ctx->word14 = 0;
 
         ctx->now2 = 0;
         ctx->trg2 = 0;
         ctx->rel2 = 0;
-        ctx->f24 = 0;
+        ctx->word24 = 0;
         return 0;
     }
     if (padEnabled == 0) {
@@ -508,7 +494,7 @@ int iosPadRead(void *pad)
         ctx->now &= mask;
         ctx->trg &= mask;
         ctx->rel &= mask;
-        ctx->f14 &= mask;
+        ctx->word14 &= mask;
     }
     return 0;
 }
@@ -551,7 +537,7 @@ float iosPadNormalizeStick(void *p)
     return (len - 48.0f) / 72.0f;
 }
 
-static int iosPadGetStick_func(void *dev, void *out, int mode, int a3, int a4, int a5)
+static int iosPadGetStick_func(void *dev, void *out, int mode, int a3, int a4, int simulate)
 {
     IosPadCtx *ctx = (IosPadCtx *)dev;
     IosPadStick *st = (IosPadStick *)out;
@@ -580,7 +566,7 @@ static int iosPadGetStick_func(void *dev, void *out, int mode, int a3, int a4, i
         st->y = buf->ly;
         st->mag = iosPadNormalizeStick(st);
 
-        if (st->mag == 0.0f && a5 != 0) {
+        if (st->mag == 0.0f && simulate != 0) {
             st->x = (int)ox;
             st->y = (int)oy;
 
@@ -643,7 +629,7 @@ go:
     if (port == 0 || iosPadActRequestEnable == 0 || entry == 0) {
         return 0;
     }
-    entry->player = shockList[id].player;
+    entry->voice = shockList[id].voice;
     entry->life = shockList[id].life;
     entry->tick = 0;
     entry->box = (int)(((PadDev *)port)->box + 0x1A4);
@@ -651,7 +637,7 @@ go:
     entry->prm.volume = 255;
     entry->volume = 255;
     entry->prm.b3 = 32;
-    if (Shock_Request(entry->box, entry->player, entry->prm, padActKey, 0) == 0) {
+    if (Shock_Request(entry->box, entry->voice, entry->prm, padActKey, 0) == 0) {
         return 0;
     }
     entry->key = padActKey++;
@@ -667,24 +653,24 @@ int iosPadDevRead(void)
     return 0;
 }
 
-int iosPadGetPort(int a0, int a1)
+int iosPadGetPort(int a0, int dev)
 {
-    return iosPadDev[a1].port;
+    return iosPadDev[dev].port;
 }
 
-int iosPadGetSlot(int a0, int a1)
+int iosPadGetSlot(int a0, int dev)
 {
-    return iosPadDev[a1].slot;
+    return iosPadDev[dev].slot;
 }
 
-int iosPadGetDevice(int a, int b)
+int iosPadGetDevice(int port, int slot)
 {
     int *p = (int *)iosPadDev;
     int count = 0;
     do {
         count++;
-        if (p[0] == a) {
-            if (p[1] == b) {
+        if (p[0] == port) {
+            if (p[1] == slot) {
                 return p[2];
             }
         }
@@ -701,21 +687,21 @@ int iosPadConnect(void *pad, int a1, int port, PadConf *conf)
     return 0;
 }
 
-int iosPadGetStick(void *dev, void *out, int mode, int a3, int a4, int a5)
+int iosPadGetStick(void *dev, void *out, int mode, int a3, int a4, int simulate)
 {
     int rv;
     _PushVu0Registers();
-    rv = iosPadGetStick_func(dev, out, mode, a3, a4, a5);
+    rv = iosPadGetStick_func(dev, out, mode, a3, a4, simulate);
     _PopVu0Registers();
     return rv;
 }
 
-void iosPadStickCameraCoord(void *a0, float *a1)
+void iosPadStickCameraCoord(void *out, float *stick)
 {
-    Vec4 v = {{a1[3], 0.0f, -a1[4], 0.0f}};
+    Vec4 v = {{stick[3], 0.0f, -stick[4], 0.0f}};
     float m[16];
     sceVu0TransposeMatrix(m, (void *)((int)matrixptr + 0x80));
-    sceVu0ApplyMatrix(a0, m, &v);
+    sceVu0ApplyMatrix(out, m, &v);
 }
 
 void iosPadEnable(void)
@@ -862,7 +848,7 @@ static void iosPadActTickProc(void)
             if (req == 0) {
                 p->tick++;
                 if (p->life == 0 || p->tick < p->life) {
-                    Shock_Request(p->box, p->player, p->prm, p->key, 0);
+                    Shock_Request(p->box, p->voice, p->prm, p->key, 0);
                 } else {
                     p->key = 0;
                 }

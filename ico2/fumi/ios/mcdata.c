@@ -1,6 +1,7 @@
 #include "cdvd.h"
 #include "mcdata.h"
 #include "thread.h"
+#include "mcard.h"
 
 struct McIconWork { /* field names derived */
     int remain;
@@ -12,16 +13,11 @@ struct McIconWork { /* field names derived */
    on has finished */
 static int mcDataDone; /* derived name */
 
-/* as in mcard.h, which this TU does not include (iosMcHandlerWrite differs) */
-extern void iosMcMgrSync(void *mp);
-/* void here, int in mcard.h */
-extern void iosMcHandlerWrite();
-
 /* Background-read callback: pulls the icon file off the disc a chunk at a
    time into a 64-byte aligned buffer and waits for the writer to drain it. */
 static inline int _iosMcIconWriteIconsys(int self, struct McIconWork *p)
 {
-    char buf[0xC800 + 0x40];
+    char buf[51200 + 64];
     char *ptr;
     int size;
     int loop = 1;
@@ -30,7 +26,7 @@ static inline int _iosMcIconWriteIconsys(int self, struct McIconWork *p)
     p->buf = ptr;
 
     do {
-        size = p->remain > 0xC800 ? 0xC800 : p->remain;
+        size = p->remain > 51200 ? 51200 : p->remain;
         iosCdvdBackGroundRead(self, ptr, size);
         p->size = size;
         p->remain -= size;
@@ -55,7 +51,7 @@ inline int iosMcIconWriteIconsys(int self, int *p)
     int size;
     int len;
 
-    work.remain = (p[8] + 0x7FF) / 0x800 * 0x800;
+    work.remain = (p[8] + 2047) / 2048 * 2048;
 
     hdl = iosCdvdBackGroundMgrAdd(p, _iosMcIconWriteIconsys, &work, 0, 0, 0, 0, 0);
 

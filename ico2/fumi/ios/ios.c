@@ -32,36 +32,36 @@ inline int iosSifAllocIopHeapDebug(int size, char *file, int line)
     return p;
 }
 
-/* the four semaphore descriptors iosInit fills in and hands to CreateSema */
-static struct SemaParam cdLockSemaParam;
+/* the four semaphore descriptors ios_init_plus fills in and hands to CreateSema */
+static struct SemaParam padLockSemaParam; /* derived name */
 
-static struct SemaParam faultSemaParam;
+static struct SemaParam stgMgrLockSemaParam; /* derived name */
 
-static struct SemaParam sndLockSemaParam;
+static struct SemaParam cdLockSemaParam; /* derived name */
 
-static struct SemaParam stgMgrLockSemaParam;
+static struct SemaParam sndLockSemaParam; /* derived name */
 
 /* keyInput.h declares InitKeyInput (void); this call passes 0 */
 extern void InitKeyInput();
 
 static void ios_init_plus(void)
 {
+    padLockSemaParam.attr = 1;
+    padLockSemaParam.maxCount = 1;
+    padLockSemaParam.initCount = 0;
+    IosPadLock = CreateSema(&padLockSemaParam);
     cdLockSemaParam.attr = 1;
     cdLockSemaParam.maxCount = 1;
     cdLockSemaParam.initCount = 0;
-    IosPadLock = CreateSema(&cdLockSemaParam);
-    sndLockSemaParam.attr = 1;
-    sndLockSemaParam.maxCount = 1;
-    sndLockSemaParam.initCount = 0;
-    IosCdLock = CreateSema(&sndLockSemaParam);
-    faultSemaParam.attr = 1;
-    faultSemaParam.maxCount = 1;
-    faultSemaParam.initCount = 0;
-    IosStgMgrLock = CreateSema(&faultSemaParam);
+    IosCdLock = CreateSema(&cdLockSemaParam);
     stgMgrLockSemaParam.attr = 1;
     stgMgrLockSemaParam.maxCount = 1;
     stgMgrLockSemaParam.initCount = 0;
-    IosSndLock = CreateSema(&stgMgrLockSemaParam);
+    IosStgMgrLock = CreateSema(&stgMgrLockSemaParam);
+    sndLockSemaParam.attr = 1;
+    sndLockSemaParam.maxCount = 1;
+    sndLockSemaParam.initCount = 0;
+    IosSndLock = CreateSema(&sndLockSemaParam);
     system_stage_func = 0;
     InitKeyInput(0);
     debug_StdPrintfDummy("SgSndn2RemoteInit()\n");
@@ -79,18 +79,18 @@ void iosInitialize(void)
     debug_StdPrintfDummy("iosInitialize()\n");
     iosThreadInit();
     ios_partition_root = iosMallocInitPartition(0x760000, 0x1FEFFF0);
-    ios_partition_common = iosMallocSetPartition(ios_partition_root, 0x408000, 0x10);
-    ios_partition_smotion = iosMallocSetPartition(ios_partition_root, 0x120000, 0x10);
-    ios_partition_s2motion = iosMallocSetPartition(ios_partition_root, 0x300000, 0x10);
-    ios_partition_event = iosMallocSetPartition(ios_partition_root, 0x40000, 0x10);
-    ios_partition_oomori = iosMallocSetPartition(ios_partition_root, 0x50000, 0x10);
-    ios_partition_horagai = iosMallocSetPartition(ios_partition_root, 1, 0x10);
-    ios_partition_sound = iosMallocSetPartition(ios_partition_root, 0x8000, 0x10);
-    ios_partition_sound_semi = iosMallocSetPartition(ios_partition_root, 0x5000, 0x10);
-    ios_partition_shock = iosMallocSetPartition(ios_partition_root, 0x2800, 0x10);
-    ios_partition_hara = iosMallocSetPartition(ios_partition_root, 1, 0x10);
+    ios_partition_common = iosMallocSetPartition(ios_partition_root, 4227072, 16);
+    ios_partition_smotion = iosMallocSetPartition(ios_partition_root, 1179648, 16);
+    ios_partition_s2motion = iosMallocSetPartition(ios_partition_root, 3145728, 16);
+    ios_partition_event = iosMallocSetPartition(ios_partition_root, 262144, 16);
+    ios_partition_oomori = iosMallocSetPartition(ios_partition_root, 327680, 16);
+    ios_partition_horagai = iosMallocSetPartition(ios_partition_root, 1, 16);
+    ios_partition_sound = iosMallocSetPartition(ios_partition_root, 32768, 16);
+    ios_partition_sound_semi = iosMallocSetPartition(ios_partition_root, 20480, 16);
+    ios_partition_shock = iosMallocSetPartition(ios_partition_root, 10240, 16);
+    ios_partition_hara = iosMallocSetPartition(ios_partition_root, 1, 16);
     ios_partition_isys = ios_partition_seki = ios_partition_sugipon = ios_partition_dmotion =
-        iosMallocSetPartition(ios_partition_root, 0xF18000, 0x10);
+        iosMallocSetPartition(ios_partition_root, 15826944, 16);
     iosMallocSetPartitionName(ios_partition_isys, "stage");
     iosMallocSetPartitionName(ios_partition_smotion, "stat mot");
     iosMallocSetPartitionName(ios_partition_s2motion, "demo mot");

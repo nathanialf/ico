@@ -42,7 +42,7 @@ void iosThreadCreate(IOSThread *th, int no, void (*func)(), int arg, void *stack
                      int pri);
 
 int iosThreadGetPri(IOSThread *th);
-IOSThread *iosGetIOSThreadFromId(unsigned int a0);
+IOSThread *iosGetIOSThreadFromId(unsigned int id);
 int iosThreadWakeup(IOSThread *th);
 int iosThreadJoin(IOSThread *th);
 int iosThreadCancelWakeup(IOSThread *th);
@@ -64,6 +64,6 @@ void iosThreadSetPri(IOSThread *th, int pri);
 void iosThreadSleep(void);
 void iosThreadStart(IOSThread *th);
 void iosThreadStop(IOSThread *th);
-void iosThreadMessage(int a0);
+void iosThreadMessage(int msg);
 
 #endif /* THREAD_H */

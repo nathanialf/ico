@@ -14,7 +14,7 @@ typedef struct IosMsg { /* field names derived */
     struct IosMsg *next; /* 0x44 */
 } IosMsg;                /* derived name */
 
-/* the event thread iosMsgSetEvent spawns, one 0x40C0-byte block: the
+/* the event thread iosMsgSetEvent spawns, one 16576-byte block: the
    IOSThread, its 16 KB stack and three trailing words of its own
    bookkeeping. */
 typedef struct MsgEventThread { /* field names derived */
@@ -27,10 +27,10 @@ typedef struct MsgEventThread { /* field names derived */
 } MsgEventThread;       /* derived name */
 
 /* the interrupt handler iosMsgSetEvent installs, defined at the end */
-static int signal_handler(int a0);
+static int signal_handler(int cause);
 
 /* the queue registered against each semaphore id */
-static int msgQueueTable[256]; /* derived name */
+static IosMsgQueue *msgQueueTable[256]; /* derived name */
 
 static void deq_mes_th(IosMsgQueue *self)
 {
@@ -60,7 +60,7 @@ void iosMsgQueueCreate(IosMsgQueue *q, int *buf, int size)
         debug_assert("ios/message.c", 120);
         __assert("ios/message.c", 120, "0");
     }
-    ((IosMsgQueue **)msgQueueTable)[q->sema] = q;
+    msgQueueTable[q->sema] = q;
     debug_StdPrintfDummy("sema[%d] = %p\n", q->sema, q);
 }
 
@@ -71,7 +71,7 @@ void iosMsgQueueDestroy(IosMsgQueue *q)
         debug_assert("ios/message.c", 136);
         __assert("ios/message.c", 136, "0");
     }
-    ((IosMsgQueue **)msgQueueTable)[q->sema] = 0;
+    msgQueueTable[q->sema] = 0;
     DeleteSema(q->sema);
 }
 
@@ -106,7 +106,7 @@ static void send_signal_message(void)
     MsgEventThread *self = (MsgEventThread *)iosGetIOSThreadFromId(GetThreadId());
     MsgEventThread *th = (MsgEventThread *)self->th.arg;
 
-    th_sig = (int *)self;
+    th_sig = &self->th;
     debug_StdPrintfDummy("%d %d\n", self->th.id, th->val);
 
     for (;;) {
@@ -123,8 +123,8 @@ void iosMsgSetEvent(int intc, IosMsgQueue *q, int val)
     if (q == 0) {
         debug_StdPrintfDummy("evt:null message queue\n");
     }
-    th = iosMallocDebug(ios_partition_event, 0x40C0, "ios/message.c", 453);
-    iosThreadCreate(&th->th, 4, send_signal_message, (int)th, th->stack, 0x4000, 0xB);
+    th = iosMallocDebug(ios_partition_event, 16576, "ios/message.c", 453);
+    iosThreadCreate(&th->th, 4, send_signal_message, (int)th, th->stack, 16384, 11);
     th->queue = q;
     th->val = val;
     th->intc = intc;
@@ -138,14 +138,14 @@ void iosMsgSetEvent(int intc, IosMsgQueue *q, int val)
 
 /* .sdata, after the short strings above: the signal thread's record, which
    iosMsgInit's handler wakes */
-int *th_sig = 0;
+IOSThread *th_sig = 0;
 
 void iosMsgInit(void)
 {
-    int *p = msgQueueTable;
+    IosMsgQueue **p = msgQueueTable;
     int i;
-    p += 0xFF;
-    for (i = 0xFF; i >= 0; i--) {
+    p += 255;
+    for (i = 255; i >= 0; i--) {
         *p = 0;
         p--;
     }
@@ -183,25 +183,25 @@ int iosMsgRecv(IosMsgQueue *q, int *out, int mode)
 
 void iosMsgQueueDestroyAll(void)
 {
-    int *p;
+    IosMsgQueue *p;
     int i;
-    int **q = (int **)msgQueueTable;
-    i = 0xFF;
+    IosMsgQueue **q = msgQueueTable;
+    i = 255;
     do {
         p = *q++;
         if (p != 0) {
-            iosMsgQueueDestroy((IosMsgQueue *)p);
+            iosMsgQueueDestroy(p);
         }
         i--;
     } while (i >= 0);
 }
 
-static int signal_handler(int a0)
+static int signal_handler(int cause)
 {
-    if (a0 == 2) {
+    if (cause == 2) {
         volatile unsigned long long *reg = (volatile unsigned long long *)GS_CSR;
         odd_even = (int)(((*reg >> 13) & 1) ^ 1);
-        iWakeupThread(th_sig[12]);
+        iWakeupThread(th_sig->id);
     }
     return 0;
 }

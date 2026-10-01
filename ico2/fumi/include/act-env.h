@@ -12,10 +12,10 @@
 struct GObj;
 /* act-env.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
-void ACTSetEnvAllmighty(struct GObj *a0);
-void GetSofaPosition(struct GObj *a0, char *a1);
-void GetCollisCenterPositionSimple(void *a0, void *a1, void *a2);
-int CheckWallAttributeEdegWall(int a0);
+void ACTSetEnvAllmighty(struct GObj *self);
+void GetSofaPosition(struct GObj *self, char *sofa);
+void GetCollisCenterPositionSimple(void *out, void *obj, void *corners);
+int CheckWallAttributeEdegWall(int obj);
 
 /* ACTGetEnvironment's flag words (the caller passes the actor's status block
  * + 0x47C), set both bit by bit and by whole-word ORs.  The bits are named by
@@ -105,6 +105,6 @@ typedef struct {             /* field names derived */
     ClipCopy cliffContact; /* 0x190 */
 } ActEnv; /* derived name */
 
-void ACTGetEnvironment(void *self, void *a1, float *orient, EnvFlag *flags, ActEnv *env);
+void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, ActEnv *env);
 
 #endif /* ACT_ENV_H */

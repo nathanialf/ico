@@ -19,21 +19,21 @@ extern struct IosMsgQueue McMsgQ;
  * out-of-line copies at the end of the object (first-declaration order). */
 void iosMcMgrSync(void *mp);
 void iosMcTest(void);
-int iosMcSync(unsigned long *a0);
-int iosMcGetInfo(void *a0);
-int iosMcFormat(void *a0);
-int iosMcUnformat(void *a0);
-int iosMcGetDir(void *a0);
-int iosMcDelete(void *a0);
-int iosMcSaveIconBlock(void *a0);
-int iosMcSaveProductBlock(void *a0);
-int iosMcLoadProductBlock(void *a0);
-int iosMcSaveGameBlock(void *a0, int a1);
-int iosMcLoadGameBlock(void *a0, int a1);
-int iosMcChdirProduct(void *a0);
-int iosMcGetBlockSaveInfo(void *a0);
-int iosMcHandlerRead();
-int iosMcHandlerWrite();
+int iosMcSync(unsigned long *req);
+int iosMcGetInfo(void *req);
+int iosMcFormat(void *req);
+int iosMcUnformat(void *req);
+int iosMcGetDir(void *req);
+int iosMcDelete(void *req);
+int iosMcSaveIconBlock(void *req);
+int iosMcSaveProductBlock(void *req);
+int iosMcLoadProductBlock(void *req);
+int iosMcSaveGameBlock(void *req, int arg);
+int iosMcLoadGameBlock(void *req, int arg);
+int iosMcChdirProduct(void *req);
+int iosMcGetBlockSaveInfo(void *req);
+void iosMcHandlerRead();
+void iosMcHandlerWrite();
 void iosMcManager(void);
 
 /* iconfile: one memory card icon file, 0x24 bytes. Reader: ico2/fumi/ios/

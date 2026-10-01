@@ -97,15 +97,15 @@ static int outputMode = 0; /* derived name */
 
 static int seSemiCommonLoaded = 0; /* derived name */
 
-inline int Ee2Iop(int a0, int a1, int a2)
+inline int Ee2Iop(int ee, int iop, int size)
 {
     sceSifDmaData d;
     int x;
     debug_StdPrintfDummy("Spu2DmaWriteEe2Iop\n");
-    debug_StdPrintfDummy("ee %x iop %x size %x\n", a0, a1, a2);
-    d.src = a0;
-    d.dest = a1;
-    d.size = a2;
+    debug_StdPrintfDummy("ee %x iop %x size %x\n", ee, iop, size);
+    d.src = ee;
+    d.dest = iop;
+    d.size = size;
     d.u.attr = 0;
     FlushCache(0);
     x = sceSifSetDma(&d, 1);
@@ -154,10 +154,10 @@ int soundInit(void)
     return 0;
 }
 
-void soundOutputModeSet(int a0)
+void soundOutputModeSet(int mode)
 {
-    outputMode = a0;
-    SgSetOutputMode(a0);
+    outputMode = mode;
+    SgSetOutputMode(mode);
 }
 
 inline int soundOutputModeGet(void)
@@ -165,11 +165,11 @@ inline int soundOutputModeGet(void)
     return outputMode;
 }
 
-void soundReverbDepthSet(int a0)
+void soundReverbDepthSet(int depth)
 {
     int val;
-    reverbDepth = a0;
-    val = (a0 * 32767) / 100;
+    reverbDepth = depth;
+    val = (depth * 32767) / 100;
     SgSetReverbDepth(0, val, val);
     SgSetReverbDepth(1, val, val);
     SgSetMasterVol(0, 0x3FFF, 0x3FFF);
@@ -1004,8 +1004,8 @@ inline void soundSePlayModeStop(int arg)
     } while (i < 48);
 }
 
-static int _soundSeDefPlay(int kind, unsigned int a1, float *a2, int a3, const SeEnvDef *env,
-                           SeSlot **out, float vol)
+static int _soundSeDefPlay(int kind, unsigned int owner, float *pos, int playMode,
+                           const SeEnvDef *env, SeSlot **out, float vol)
 {
     SeDef *src;
     const SeKind *def;
@@ -1052,7 +1052,7 @@ static int _soundSeDefPlay(int kind, unsigned int a1, float *a2, int a3, const S
     }
     t = e->seg;
     if (t == 1)
-        a3 = (a3 != 0) ? a3 : t;
+        playMode = (playMode != 0) ? playMode : t;
     switch (src->playMode) {
     case 1:
         if (se_find_slot(src, out) < 0) {
@@ -1081,7 +1081,7 @@ static int _soundSeDefPlay(int kind, unsigned int a1, float *a2, int a3, const S
     if (out != 0) {
         *out = slot;
     }
-    slot->flag.bit.playMode = a3;
+    slot->flag.bit.playMode = playMode;
     slot->src = src;
     slot->flag.bit.audible = src->audible;
     if (vol < 0.0f) {
@@ -1092,7 +1092,7 @@ static int _soundSeDefPlay(int kind, unsigned int a1, float *a2, int a3, const S
     slot->attenuator = 1000.0f;
     slot->maxVolumeRange = 500.0f;
     slot->volumeLength = 3000.0f;
-    slot->pos = a2;
+    slot->pos = pos;
     slot->level0 = slot->level1 = 4096;
     slot->vol0 = slot->flag.bit.vol1 = -1;
     slot->flag.bit.soloMute = 0;
@@ -1101,7 +1101,7 @@ static int _soundSeDefPlay(int kind, unsigned int a1, float *a2, int a3, const S
     slot->flag.bit.maxVolumeType = 1;
     slot->stereoRate = 0.1f;
     slot->proc = (int (*)())cb;
-    slot->owner = a1;
+    slot->owner = owner;
     slot->env = env;
     if (stage_no == 37) {
         slot->volumeLength = 10000.0f;
@@ -1120,27 +1120,28 @@ static int _soundSeDefPlay(int kind, unsigned int a1, float *a2, int a3, const S
     return (slot->num << 8) | ch;
 }
 
-inline int soundSeDefPlay(int a0, unsigned int a1, float *pos, int a3)
+inline int soundSeDefPlay(int kind, unsigned int owner, float *pos, int playMode)
 {
-    int idx = _soundSeDefPlay(a0, a1, pos, a3, 0, 0, -1.0f);
+    int idx = _soundSeDefPlay(kind, owner, pos, playMode, 0, 0, -1.0f);
     if (idx >= 0) {
         sound3DParamSet(&seSlotTbl[idx & 0xFF]);
     }
     return idx;
 }
 
-inline int soundSeDefPlayWithVolumeRate(int a0, unsigned int a1, float *pos, int a3, float rate)
+inline int soundSeDefPlayWithVolumeRate(int kind, unsigned int owner, float *pos, int playMode,
+                                        float rate)
 {
-    int idx = _soundSeDefPlay(a0, a1, pos, a3, 0, 0, rate);
+    int idx = _soundSeDefPlay(kind, owner, pos, playMode, 0, 0, rate);
     if (idx >= 0) {
         sound3DParamSet(&seSlotTbl[idx & 0xFF]);
     }
     return idx;
 }
 
-void _soundSeDefStop(int a0, int a1)
+void _soundSeDefStop(int id, int noRelease)
 {
-    int ch = a0 & 0xFF;
+    int ch = id & 0xFF;
     SeSlot *self = &seSlotTbl[ch];
     short h;
     SeDef *src;
@@ -1148,11 +1149,11 @@ void _soundSeDefStop(int a0, int a1)
     h = self->handle;
     if (h < 0)
         return;
-    a0 = a0 >> 8;
-    if (a0 != self->num)
+    id = id >> 8;
+    if (id != self->num)
         return;
     seReqRelease(ch);
-    if (a1 == 0) {
+    if (noRelease == 0) {
         SgSeStop(h);
     } else {
         SgSeStop(h | 0x8000);
@@ -1164,37 +1165,37 @@ void _soundSeDefStop(int a0, int a1)
     }
 }
 
-void soundSeDefStop(int a0)
+void soundSeDefStop(int id)
 {
-    _soundSeDefStop(a0, 0);
+    _soundSeDefStop(id, 0);
 }
 
-void soundSeDefStopNoRelease(int a0)
+void soundSeDefStopNoRelease(int id)
 {
-    _soundSeDefStop(a0, 1);
+    _soundSeDefStop(id, 1);
 }
 
 /* sound.h leaves it out: this call passes one argument and the definition
    takes two */
 extern void SgSetSePitchDirect();
 
-void soundSeDefPitchSet(int a0)
+void soundSeDefPitchSet(int id)
 {
     SeSlot *entry;
-    short id;
-    entry = &seSlotTbl[a0 & 0xFF];
-    id = entry->handle;
-    if (id < 0)
+    short h;
+    entry = &seSlotTbl[id & 0xFF];
+    h = entry->handle;
+    if (h < 0)
         return;
-    a0 = a0 >> 8;
-    if (a0 != entry->num)
+    id = id >> 8;
+    if (id != entry->num)
         return;
-    SgSetSePitchDirect(id);
+    SgSetSePitchDirect(h);
 }
 
-inline float soundSeDefVolumeRateGet(int a0)
+inline float soundSeDefVolumeRateGet(int id)
 {
-    int off = (a0 & 0xFF) * 64;
+    int off = (id & 0xFF) * 64;
     char *e = (char *)seSlotTbl + off;
     if (*(short *)(e + 0x10) >= 0) {
         goto check;
@@ -1202,21 +1203,21 @@ inline float soundSeDefVolumeRateGet(int a0)
 fail:
     return 0.0f;
 check:
-    a0 = a0 >> 8;
-    if (a0 != *(unsigned short *)e) {
+    id = id >> 8;
+    if (id != *(unsigned short *)e) {
         goto fail;
     }
     return *(float *)((char *)seSlotTbl + off + 0x18);
 }
 
-inline void soundSeDefVolumeRateSet(int a0, float f)
+inline void soundSeDefVolumeRateSet(int id, float rate)
 {
-    int off = (a0 & 0xFF) * 64;
+    int off = (id & 0xFF) * 64;
     char *e = (char *)seSlotTbl + off;
     if (*(short *)(e + 0x10) >= 0) {
-        a0 = a0 >> 8;
-        if (a0 == *(unsigned short *)e) {
-            *(float *)((char *)seSlotTbl + off + 0x18) = f;
+        id = id >> 8;
+        if (id == *(unsigned short *)e) {
+            *(float *)((char *)seSlotTbl + off + 0x18) = rate;
         }
     }
 }
@@ -1439,7 +1440,7 @@ void soundSeEnvNotUseClose(int a, int b)
     }
 }
 
-void soundDataSegNextStageNotUseClose(int a0, int a1)
+void soundDataSegNextStageNotUseClose(int mode, int stage)
 {
     int i;
     int closed = 0;
@@ -1449,20 +1450,20 @@ void soundDataSegNextStageNotUseClose(int a0, int a1)
        keeps the walk on the entry pointer and the test against the table end */
     for (i = 0, tbl = (char *)soundDataTbl; i < 768; i += 0x30) {
         SqEntry *p = (SqEntry *)(tbl + i);
-        if (*(int *)p != 0 && p->seg == 1 && p->mode == a0) {
+        if (*(int *)p != 0 && p->seg == 1 && p->mode == mode) {
             found = 1;
-            switch (a0) {
+            switch (mode) {
             case 0:
                 break;
             case 1:
-                if (stageData[a1].seSegData1 != p->num) {
+                if (stageData[stage].seSegData1 != p->num) {
                     closed++;
                     soundDataClose(p);
                     soundBufSegFree(1, 1);
                 }
                 break;
             case 2:
-                if (stageData[a1].seSegData2 != p->num) {
+                if (stageData[stage].seSegData2 != p->num) {
                     soundDataClose(p);
                 }
                 break;
@@ -1473,10 +1474,10 @@ void soundDataSegNextStageNotUseClose(int a0, int a1)
             }
         }
     }
-    if (a0 == 1) {
+    if (mode == 1) {
         sndInitBgmCancelFlag = 0;
         if (found != 0 && closed == 0) {
-            sndInitBgmCancelFlag = a0;
+            sndInitBgmCancelFlag = mode;
         }
     }
 }

@@ -60,7 +60,7 @@ extern int iosCdvdMediaType;
 extern int iosCdvdBackGroundMgrRunning;
 extern int iosCdvdStDelayCnt;
 extern float inflateSec;
-long long inflate_cd_read_func(void *buf, long long size, struct IosCdvdHandle *self);
+long long inflate_cd_read_func(void *buf, long long size, void *handle);
 
 CdvdBgReq *iosCdvdBackGroundMgrAdd(const char *name, void *readFunc, int readArg, void *readyFunc,
                                    void *resumeFunc, int cbArg, void *closeFunc, int closeArg);

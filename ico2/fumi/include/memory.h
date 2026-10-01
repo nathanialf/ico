@@ -47,5 +47,6 @@ IosMemPart *iosMallocResetPartition(IosMemPart *part);
 IosMemPart *iosMallocSetPartition(IosMemPart *part, int size, int align);
 int iosMallocSetPartitionName(IosMemPart *part, char *name);
 void *iosReallocDebug(void *ptr, unsigned int size);
+void *iosMallocDebugNoAssert(IosMemPart *part, int size, const char *file, int line);
 
 #endif /* MEMORY_H */
