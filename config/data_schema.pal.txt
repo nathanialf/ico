@@ -34,7 +34,7 @@
 
 accessary data AccessaryRec ico2/sugipon/include/box.h 26 accessary@0
 act-data-tbl data IdleRangeRec ico2/fumi/include/commonact.h 3 actDataTbl@0
-act-intrlist data IntrMail config/data_schema.pal.h 875 actIntrList@0 hex=flags
+act-intrlist data IntrMail ico2/fumi/include/act.h 875 actIntrList@0 hex=flags
 camera-set data CameraSetFile config/data_schema.pal.h 87 cameraSetList@0
 game-param data float config/data_schema.pal.h 44 gameParam@0
 unmapped_002ADBA0 data HintDef config/data_schema.pal.h 28 hintTable@0 hex=flags
@@ -42,7 +42,7 @@ motion-orient data MotionOrientEntry ico2/sugipon/include/motionOrientManager.h 
 node-fix-ofs data ClingRec ico2/fumi/include/commonact.h 15 clingData@0
 obj-action data OaRecB ico2/common/include/typedef.h 967 objAction@0 hex=flags
 obj-kind-data data ObjKindEnt ico2/common/include/typedef.h 70 objKindData@0
-obj-layout data GenGeo config/data_schema.pal.h 3759 objLayout@0 hex=procMask,flags
+obj-layout data GenGeo ico2/common/include/typedef.h 3759 objLayout@0 hex=procPri,flags
 parallel-motion-tbl data ParallelMotionRow ico2/fumi/include/act-parallel-control.h 86 parallelMotionTbl@0
 sekind data unsigned_short config/data_schema.pal.h 1420 seKind@0
 tex-property data LtProperty ico2/common/include/layout_texture.h 436 texProperty@0
@@ -57,7 +57,7 @@ texture-layout data LtProp ico2/common/include/layout_texture.h 80 texLayout@0
 texture-path data TexRec ico2/common/include/charFileManager.h 74 texFile@0
 way-point data WaySrcPt ico2/fumi/include/way_tool.h 2924 wayPointSheet@0
 weapon-fumble-def data FumbleRow ico2/sugipon/include/weapon.h 21 weaponFumbleGeo@0
-act-mode-def rodata ActModeRec ico2/fumi/include/act.h 120 actModeTbl@0 hex=flags
+act-mode-def rodata ActModeRec ico2/fumi/include/act.h 120 actModeTbl@0
 adpcmfile rodata AdpcmDataRec ico2/fumi/include/adpcm_init.h 105 adpcmFile@0
 attack-def rodata AttackKindEntry config/data_schema.pal.h 20 attackData@0 hex=flags
 auto-escort rodata EscortPoint ico2/fumi/include/girl_act.h 98 autoEscortData@0

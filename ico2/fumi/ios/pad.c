@@ -641,10 +641,6 @@ static PadAct padActs[16];
 
 static int padActKey = 1; /* derived name */
 
-/* The per-request definition table: eight bytes an entry, read through the
-   request index. */
-extern PadActDef shockList[];
-
 /* the pad device the request hangs off: only the shock box pointer at +0 is read */
 typedef struct {
     char *box;

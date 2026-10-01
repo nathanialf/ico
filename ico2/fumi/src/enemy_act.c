@@ -54,18 +54,18 @@ typedef struct {
     int f18;
 } EnemyBrainMode;
 
-void subEnemyBrain_Await(GObj *volatile a0);
+inline void subEnemyBrain_Await(GObj *volatile a0);
 void subEnemyBrain_ToBoy(GObj *volatile a0);
 void subEnemyBrain_ToGirl(GObj *volatile a0);
 void subEnemyBrain_ToGenerator(GObj *self);
-void subEnemyBrain_FindGirl(GObj *volatile a0);
-void subEnemyBrain_BodyGuard(GObj *volatile a0);
+inline void subEnemyBrain_FindGirl(GObj *volatile a0);
+inline void subEnemyBrain_BodyGuard(GObj *volatile a0);
 void subEnemyBrain_Cling(GObj *volatile a0);
 void subEnemyBrain_Attack(GObj *volatile a0);
-void subEnemyBrain_Shoulder(GObj *volatile a0);
-void subEnemyBrain_Pickup(GObj *volatile a0);
-void subEnemyBrain_Bodyslam(GObj *volatile a0);
-void subEnemyBrain_Irregular(GObj *volatile a0);
+inline void subEnemyBrain_Shoulder(GObj *volatile a0);
+inline void subEnemyBrain_Pickup(GObj *volatile a0);
+inline void subEnemyBrain_Bodyslam(GObj *volatile a0);
+inline void subEnemyBrain_Irregular(GObj *volatile a0);
 
 EnemyBrainMode brainModeTable[] = {
     {"START", 0, subEnemyBrain_Idle, 0, 0, 1, 0},
@@ -122,11 +122,10 @@ typedef struct {
 extern EnemyParaRow motionKind[];
 /* kept local: this TU's uses of _GetMotionDirection do not fit the prototype in
    motionManager2.h */
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern void _GetMotionDirection(int a0, int a1);
+/* kept local: agrees with motionManager2.h, which this TU does not include */
+extern void _GetMotionDirection(float *dir, GObj *obj);
 /* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
 extern int CheckFloorAttribute(GObj *self, int attr);
-extern void _ACTCommonMailTest(GObj *self, int a1, int a2, int a3);
 
 /* The DEBUG build holds the enemy's stick poll while the debug flag word's
    hold bit is set, a frame at a time, the way boyact.c's subBoyControl repeats
@@ -137,7 +136,6 @@ extern void _ACTCommonMailTest(GObj *self, int a1, int a2, int a3);
 #define ENEMY_DEBUG_HOLD 0
 #endif
 
-extern void ACTGame_CommonLoop(GObj *self);
 /* kept local: enemy_act.c does not carry multiBgaManager.h, and this TU reads
    only the display list pointer it hands the manager. */
 /* The pad record layout_texture.c reconstructs as LtPad; this TU reads only its
@@ -155,13 +153,12 @@ extern void SetMotionDirectionWithLimit(void *self, float *dir, float lim0, floa
 extern void EnemyAttackCenter(void *self);
 /* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
 extern void InitMotionGeoInfo(char *self, float x, float y, float z, float rx, float ry, float rz);
-extern char D_002A8570[];
 /* kept local: motionManager2.h lists the parameters as (self, obj, x, y, z, mode, node, w, quat);
    the callers pass them in this order */
 extern void SetMotionNodeFixModeParameter(char *self, char *obj, int mode, int node, void *quat,
                                           float x, float y, float z, float w);
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern void GetRootProjectionPosOfGObj(int a0, int a1);
+/* kept local: agrees with motionManager2.h, which this TU does not include */
+extern void GetRootProjectionPosOfGObj(float *pos, GObj *obj);
 /* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
 extern int GetMotionFrameFlag1(char *self);
 
@@ -176,8 +173,7 @@ static sceVu0FVECTOR bodyliftTarget[3] = {
     {-770.0f, -1445.0f, -749.0f, 0.0f},
 };
 
-extern char objLayout[];
-extern char actModeTbl[];
+extern GenGeo objLayout[];
 /* FLT_MAX word in .sdata; the incomplete array type is what keeps the ROM's
    %hi/%lo pair instead of a gp-relative load. */
 extern void SetEnemyStonizedVisual(void *self);
@@ -223,8 +219,6 @@ static char *brainTarget;
 extern int GetFlyLimitClearance(void *pos);
 /* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
 extern int CheckFloorAttribute(GObj *self, int attr);
-/* the three actor sub-threads this function starts; their bodies are below */
-extern char D_002A84F8[];
 
 /* One start record per motion phase; the four of them are the actor's whole
    start parameter block. */
@@ -319,7 +313,7 @@ void setBattleStatus(GObj *self)
 
 inline void boss_effect_callback(int id)
 {
-    char *g;
+    GObj *g;
     int i;
     char *p;
     for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
@@ -679,7 +673,7 @@ void subEnemyCollision(GObj *volatile a0)
             if (0 < GOBJ_ACT(a0)->enemy->slowTimer) {
                 float rate = (60 - GOBJ_ACT(a0)->enemy->slowTimer) / 60.0f;
                 float speed = (rate < 0.1f) ? 0.1f : ((1.0f < rate) ? 1.0f : rate);
-                ACTGame_SetMotionPlaySpeedRatio_Reserve((char *)a0, speed, 8);
+                ACTGame_SetMotionPlaySpeedRatio_Reserve(a0, speed, 8);
             }
         }
         ACTGame_CommonLoop((void *)a0);
@@ -861,26 +855,26 @@ inline void actEnemyHyde(int *self)
 
 inline int isEnemyHyde(int *a0)
 {
-    int *p = (int *)(objLayout + a0[2] * 0x4C);
-    return (((unsigned int)p[0x48 / 4] >> 21) & 1) ^ 1;
+    GenGeo *g = &objLayout[a0[2]];
+    return ((g->flags >> 21) & 1) ^ 1;
 }
 
 inline void actEnemyFlagOnFree(int *a0)
 {
-    char *base = objLayout + a0[2] * 0x4C;
-    *(int *)(base + 0x48) &= ~0x200000;
+    GenGeo *g = &objLayout[a0[2]];
+    g->flags &= ~0x200000;
 }
 
 inline void actEnemyFlagOnDead(int *a0)
 {
-    char *base = objLayout + a0[2] * 0x4C;
-    *(int *)(base + 0x48) |= 0x40000;
+    GenGeo *g = &objLayout[a0[2]];
+    g->flags |= 0x40000;
 }
 
 inline int actEnemyFlagCheckDead(int *a0)
 {
-    int *p = (int *)(objLayout + a0[2] * 0x4C);
-    return ((unsigned int)p[0x48 / 4] >> 18) & 1;
+    GenGeo *g = &objLayout[a0[2]];
+    return (g->flags >> 18) & 1;
 }
 
 inline int isEnemyActive(int *self)
@@ -894,8 +888,8 @@ inline int isEnemyActive(int *self)
 
 inline int actEnemyFlagCheckActive(int *a0)
 {
-    unsigned int *p = (unsigned int *)(objLayout + a0[2] * 0x4C);
-    unsigned int field = p[0x48 / 4];
+    GenGeo *g = &objLayout[a0[2]];
+    unsigned int field = g->flags;
     unsigned int v0 = (field >> 18) & 1;
     if (v0 != 0)
         goto zero;
@@ -1009,7 +1003,7 @@ void actEnemyRestart(GObj *self, float *pos, float *dir, int kind, int mot)
     } else {
         sub->restartMot = 0;
     }
-    *(int *)((char *)sub + 0xD4) = (int)D_002A8570;
+    *(int *)((char *)sub + 0xD4) = (int)&actIntrList[79];
     ACTSendMailCorrect(self, mail);
     InitMotionGeoInfo((char *)GOBJ_SUB(self) + 0xA0, pos[0], pos[1], pos[2], 0.0f, 0.0f, 0.0f);
     ResetEnemyPositionInfo(self);
@@ -1174,7 +1168,7 @@ void actEnemyKidnapEnd(GObj *volatile a0)
     kidnapEndCount = 0;
     while (1) {
         if (((int)((long long)sub->flags20.ll >> 21)) & 1) {
-            ACTGame_SetMotionPlaySpeedRatio_Reserve((char *)a0, 0.0001f, 9);
+            ACTGame_SetMotionPlaySpeedRatio_Reserve(a0, 0.0001f, 9);
         }
         if (gflagChk(392) != 0) {
             stgmgrNextStagePreLoadForceStageSet(gFlagSaveStage);
@@ -1190,7 +1184,7 @@ void actEnemyKidnapEnd(GObj *volatile a0)
             }
         }
         if (GetEfStageCameraTargetID() != 0) {
-            ACTGame_SetMotionPlaySpeedRatio_Reserve((char *)a0, 2.0f, 0);
+            ACTGame_SetMotionPlaySpeedRatio_Reserve(a0, 2.0f, 0);
             if ((0x3C - systemStatus[0] * 10) / systemStatus[1] * 5 < sub->modeFrame) {
                 goto gameover;
             }
@@ -1209,8 +1203,7 @@ void actEnemyKidnapEnd(GObj *volatile a0)
 
             if ((char *)girlGObj == 0 || act != carriedAct || gsub->carrier != a0) {
                 ratio = dist / (float)((0x3C - systemStatus[0] * 10) / systemStatus[1]);
-                SetEnemyDissolve((char *)a0,
-                                 (ratio < 0.01) ? 0.01f : ((1.0f < ratio) ? 1.0f : ratio));
+                SetEnemyDissolve(a0, (ratio < 0.01) ? 0.01f : ((1.0f < ratio) ? 1.0f : ratio));
                 dist = dist + 1.0f;
             }
             if (50.0f < GOBJ_SUB(a0)->animFrame) {
@@ -1223,7 +1216,7 @@ void actEnemyKidnapEnd(GObj *volatile a0)
                             q.i[1] = 0;
                             if ((void *)boyGObj != 0 && (char *)girlGObj != 0) {
                                 GetRootPosition(pos, (void *)boyGObj);
-                                GetRootPosition(tmp, (char *)girlGObj);
+                                GetRootPosition(tmp, girlGObj);
                                 best = GetPointDistance(pos, tmp) + 1000.0f;
                                 debug_StdPrintfDummy("radius: %f\n", best);
                             }
@@ -1263,7 +1256,7 @@ void actEnemyKidnapEnd(GObj *volatile a0)
             pos[2] = test_CURRENTROOT(target)[2];
             pos[1] = test_CURRENTROOT((void *)a0)[1];
             _InterGV(tmp, p, test_CURRENTROOT((void *)a0), 5.0f, 1.0f);
-            SetRootPosition((char *)a0, tmp);
+            SetRootPosition(a0, tmp);
         }
         ACTSendMailCorrect(a0, 0x16B);
         if ((char *)girlGObj == 0 || GOBJ_ACT(girlGObj)->actMode != 0x6F ||
@@ -1369,7 +1362,7 @@ void MoveChestForCatchBoy(GObj *self)
     GOBJ_SUB(self)->catchBoy = 1;
     GOBJ_SUB(self)->lookMode = 2;
     GetRootProjectionPosOfGObj(p0, self);
-    GetRootProjectionPosOfGObj(p1, (char *)((void *)boyGObj));
+    GetRootProjectionPosOfGObj(p1, ((void *)boyGObj));
     GetSkeltonPosition(sk, self, 1);
     t = (p0[1] - p1[1]) / 600.0f;
     t = (t < 0.0f) ? 0.0f : ((1.0f < t) ? 1.0f : t);
@@ -1826,8 +1819,7 @@ void subEnemyBrainMain(GObj *volatile a0)
             while (1) {
                 if ((char *)girlGObj == 0 || GOBJ_ACT(girlGObj)->actMode != 0x6F ||
                     GOBJ_ACT(girlGObj)->carrier != (int)a0) {
-                    if ((((StatusAttr *)(actModeTbl + GOBJ_ACT(a0)->actMode * 0x50))->flags >> 5) &
-                        1) {
+                    if (actModeTbl[GOBJ_ACT(a0)->actMode].bit5) {
                         ACTSendMailCorrect((void *)a0, 0x102);
                     }
                 }
@@ -2162,7 +2154,7 @@ inline void EnemyUtil_TurnToBoy(GObj *self, GObj *tgt, int smooze)
 
 inline int EnemyUtil_isOtherStatus(char *self, int mode)
 {
-    char *g;
+    GObj *g;
     for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
         if (g != self) {
@@ -2588,7 +2580,7 @@ void subEnemyBrain_ToGirl(GObj *volatile a0)
     found = (unsigned char)_ApproachTarget(a0, girl, (char *)sub + 0x120, (void *)enemy_dodge,
                                            130.0f, 0);
     GetRootProjectionPosOfGObj(p0, girl);
-    GetRootProjectionPosOfGObj(p1, (char *)a0);
+    GetRootProjectionPosOfGObj(p1, a0);
     if (50.0f < (p0[1] - p1[1] < 0.0f ? -(p0[1] - p1[1]) : p0[1] - p1[1])) {
         found = 0;
     }
@@ -2617,7 +2609,7 @@ int _ApproachTarget_Boss(GObj *self, void *tgt, void *pos, void *fn, float range
     Act *sub = GOBJ_ACT(self);
 
     for (;;) {
-        GetRootProjectionPosOfGObj(p0, (char *)tgt);
+        GetRootProjectionPosOfGObj(p0, tgt);
         GetRootProjectionPosOfGObj(p1, self);
         if (fn != 0) {
             ((void (*)(char *, void *, float))fn)(
@@ -2720,7 +2712,7 @@ int _ApproachTarget_Way(GObj *self, void *tgt, void *pos, void *fn, float range,
     int i;
     int ret;
 
-    GetRootProjectionPosOfGObj(p0, (char *)tgt);
+    GetRootProjectionPosOfGObj(p0, tgt);
     GetRootProjectionPosOfGObj(p1, self);
     for (i = 0; i < (0x3C - systemStatus[0] * 10) / systemStatus[1] * 40 / 60; i++) {
         if (IsSelectID_EnemyCtrl(*(int *)((char *)self + 8)) != 0) {
@@ -2736,7 +2728,7 @@ int _ApproachTarget_Way(GObj *self, void *tgt, void *pos, void *fn, float range,
         }
     }
     while (1) {
-        GetRootProjectionPosOfGObj(p0, (char *)tgt);
+        GetRootProjectionPosOfGObj(p0, tgt);
         GetRootProjectionPosOfGObj(p1, self);
         if (!(_DistSqGV(p1, p0) < 1440000.0f) ||
             140.0f < ((p1[1] - p0[1] < 0.0f) ? -(p1[1] - p0[1]) : (p1[1] - p0[1]))) {
@@ -2930,14 +2922,14 @@ void actEnemyStart(GObj *self)
     if (GOBJ_WORK(self)->motherLabel != -1) {
         GOBJ_WORK(self)->motherGObj = isysGObjSearchFromObjLayoutID(GOBJ_WORK(self)->motherLabel);
     }
-    *(char **)(act + 0xD0) = D_002A84F8;
+    *(IntrMail **)(act + 0xD0) = &actIntrList[74];
     if (debug_brain_flag != 0) {
         actCreateSubThread((void *)subEnemyBrainMain, 20);
     }
     actCreateSubThread((void *)subEnemyControl, 21);
     actCreateSubThread((void *)subEnemyCollision, 21);
     actCreateSubThread((void *)subCommonIdle, 21);
-    *(char **)(act + 0xD4) = D_002A84F8 + 0x78;
+    *(IntrMail **)(act + 0xD4) = &actIntrList[79];
     *(ActKind *)(act + 0x48) = ACT_KIND_ENEMY;
     life = getEnemyRestartLife(self);
     *(float *)(act + 0x1E0) = *(float *)(act + 0x1E4) = life;

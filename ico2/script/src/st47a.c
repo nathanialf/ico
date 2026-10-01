@@ -56,7 +56,7 @@ void actSt47aEnd(void)
 /* file-static sound / pad handles, .sbss 0x0063C05C..0x0063C078 */
 
 /* .sdata, owned by st47a.o, in the ROM's order: the statue and wing stream handles and the statue's shake. */
-int sekizo47a = 0;
+char *sekizo47a = 0;
 
 char *hane1up = 0;
 
@@ -833,7 +833,7 @@ void actSt47aGirlWay(GObj *volatile a0)
     _SCPMoveCharactorByWay(girlGObj, 0, (float *)buf, 100.0f, 0);
 
     memset(way, 0, 0x10);
-    RequestStageChangeDirect(girlGObj, 0xB, (int *)way, 0xB4);
+    RequestStageChangeDirect(girlGObj, 0xB, way, 0xB4);
     brainUnlockGirl();
 }
 

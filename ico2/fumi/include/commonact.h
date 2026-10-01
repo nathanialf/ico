@@ -18,16 +18,13 @@ void ACTAcceptMail(struct GObj *a0, int a1);
 void ACTAdjustPlane(struct GObj *a0, void *wall); /* wall: the wall record the root is laid against */
 int ACTGetOrientFromIntrK(char *self, int kind, void *buf, int i);
 
-/* Reconstruction: the 0x18-byte actor mail record ico2/fumi/src/act.c
- * reconstructs as IntrMail (id at 0x10, flag word at 0x14); commonact.c
- * spells its members where the body needs them. */
-struct IntrRec;
+struct IntrMail; /* act.h */
 
-void ACTRunIntrCorrect(struct GObj *self, struct IntrRec *a1, struct IntrRec *a2);
+void ACTRunIntrCorrect(struct GObj *self, struct IntrMail *a1, struct IntrMail *a2);
 void ACTSendMailCorrect(struct GObj *a0, int a1);
 void ACTSetPositionWithFitting(void *a0, float *pos);
 void ACT_LAYOUT_GAMEOVER(void);
-int CollisCheckInRope(void *a0, int chain);
+int CollisCheckInRope(void *a0, struct GObj *chain);
 void ContinueCorrectPosition(void *obj);
 void ControlMotionOrient(int a0, int a1);
 void DamageFunc(char *a0);
@@ -53,7 +50,7 @@ void afterCommonRope(struct GObj *volatile a0);
 void afterCommonRopeTurnSpecial(struct GObj *volatile a0);
 void afterCommonStone(struct GObj *volatile a0);
 void afterCommonTruckLever(struct GObj *volatile a0);
-void flyCoreLoop(char *a0, char *target, int flag);
+void flyCoreLoop(struct GObj *a0, struct GObj *target, int flag);
 void subCommonIdle(struct GObj *volatile a0);
 float *test_CURRENTORIENT(struct GObj *a0);
 float *test_CURRENTROOT(struct GObj *a0);
@@ -69,6 +66,7 @@ void ClipCollisionWithField(char *a0);
 typedef struct {   /* field names derived */
     int motion[3]; /* 0x00, indexed by Act+0x48 */
 } IdlingDef;       /* derived name */
+extern const IdlingDef idlingDef[];
 
 /* act-data-tbl: one idle-motion range, 0x14 bytes, indexed by Act+0x48.
  * Reader: ico2/fumi/src/commonact.c (SetIdleMotionRange, subCommonIdle).
@@ -80,6 +78,7 @@ typedef struct {     /* field names derived */
     int orientFirst; /* 0x0C, the rows whose id takes the motion */
     int orientEnd;   /* 0x10 */
 } IdleRangeRec;      /* derived name */
+extern IdleRangeRec actDataTbl[];
 
 /* node-fix-ofs: one cling pose, 0x24 bytes. Reader:
  * ico2/fumi/src/commonact.c (ClingRec, SetMotionNodeFixModeParameter's
@@ -91,6 +90,7 @@ typedef struct {  /* field names derived */
     int motion;   /* 0x1C, the motion the cling plays */
     int node;     /* 0x20 */
 } ClingRec;       /* derived name */
+extern ClingRec clingData[];
 
 /* pair-motion: one paired motion, 8 bytes. Reader: ico2/fumi/src/
  * commonact.c (BecPair). Owner: ico2/fumi/include/commonact.h. */
@@ -98,5 +98,8 @@ typedef struct { /* field names derived */
     int mot;     /* 0x00 */
     int req;     /* 0x04 */
 } BecPair;       /* derived name */
+extern const BecPair pairMotion[];
+
+void _ACTCommonMailTest(struct GObj *self, int a1, int a2, int a3);
 
 #endif /* COMMONACT_H */

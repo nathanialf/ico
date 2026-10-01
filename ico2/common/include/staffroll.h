@@ -20,4 +20,8 @@ extern float staffRollCenterOffsetXDest;
 extern int staffRollAlpha;
 void staffRollMain(void);
 
+/* the data-only member staffroll_dat: the roll's lines and their count */
+extern char *staffRollNameData[];
+extern int staffRollNameDataNum;
+
 #endif /* STAFFROLL_H */

@@ -424,13 +424,11 @@ typedef struct {
 } __attribute__((aligned(8))) WayPos;
 
 extern StgPre stageData[];
-extern WaySrcGrp wayGroupSheet[];
-extern WaySrcPt wayPointSheet[];
 
 void ExtractWayData(int stage_no)
 {
     WayPos v;
-    WaySrcGrp *e;
+    const WaySrcGrp *e;
     WaySrcPt *q;
     WayPoint *w;
     WayGroup *b;
@@ -662,8 +660,8 @@ void way_toolDL(int a0)
     }
     MatrixDrive_PopMatrix();
 
-    GetRootPosition(&blink, (int)boyGObj);
-    GetRootProjectionPosOfGObj(&pp, (int)boyGObj);
+    GetRootPosition(&blink, boyGObj);
+    GetRootProjectionPosOfGObj(&pp, boyGObj);
     w = visible_waypoint_of_all(&pp);
     if (w != 0) {
         ez_circle(w->pos, &blink, 0x80800080, 20.0f);

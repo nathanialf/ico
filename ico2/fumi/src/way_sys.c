@@ -233,15 +233,7 @@ typedef struct {
 
 typedef float WayVec[4] __attribute__((aligned(16)));
 
-/* The scene's generated-geometry record, 0x4C bytes; this TU reads only the
-   kind byte at 0x46 (the same record ico2/common/src/sceneManager.c carves). */
-typedef struct {
-    char pad00[70];     /* 0x00 */
-    unsigned char kind; /* 0x46 */
-    char pad47[5];      /* 0x47 */
-} GenGeoKind;
-
-extern GenGeoKind objLayout[];
+extern GenGeo objLayout[];
 
 /* census rows 582-593: a wall probe between two points, both lifted 75 units. */
 static inline int way_probe(float *a, float *b)
@@ -286,7 +278,7 @@ int avoid_obstacle2(float *pos, float *wp, WVTObj *w)
         return 0;
     }
     obj = cc.f80;
-    if (((GenGeoKind *)objLayout)[*(int *)(obj + 8)].kind != 0x11) {
+    if (objLayout[*(int *)(obj + 8)].kind != 17) {
         return 0;
     }
 

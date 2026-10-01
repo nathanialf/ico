@@ -79,12 +79,12 @@ int AdpcmUseAreaGet(void);
 int AdpcmFreeAreaGet(void);
 void AdpcmInterStereoVolumeSetAll(void);
 short AdpcmInterLeaveVolumeGet(char *self, int idx);
-short AdpcmVolumeGet(char *self);
-int adpcmTickProc(int self, int obj);
-void adpcmDiskNotReady(void);
-void adpcmDiskReturnReady(void);
-int adpcmOpenProc(int a0, int a1);
-void adpcmOpenDiskNotReady(void);
+inline short AdpcmVolumeGet(char *self);
+inline int adpcmTickProc(int self, int obj);
+inline void adpcmDiskNotReady(void);
+inline void adpcmDiskReturnReady(void);
+inline int adpcmOpenProc(int a0, int a1);
+inline void adpcmOpenDiskNotReady(void);
 void AdpcmInterStereoVolumeSet();
 void AdpcmOpen(AdpcmOpenReq *self, int no, int a2, int a3);
 void AdpcmPlay(void *a0);
@@ -104,5 +104,6 @@ typedef struct {   /* field names derived */
     int pitch;     /* 0x38 */
     int channels;  /* 0x3C */
 } AdpcmDataRec;    /* derived name */
+extern const AdpcmDataRec adpcmFile[];
 
 #endif /* ADPCM_INIT_H */

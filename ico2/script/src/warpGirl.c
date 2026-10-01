@@ -26,8 +26,6 @@ typedef union WarpVec { /* derived name */ /* field names derived */
     long long q[2];
 } WarpVec;
 
-extern WarpRec girlWarpList[];
-
 /* .sbss, owned by warpGirl.o and reached only from this file (MAIN.MAP names
    no symbol in the run): set when a warp destination has been found. */
 static int warpFound;
@@ -81,7 +79,7 @@ void warpGirlOutStage(int stage, int noSet)
     }
     warpFound = 0;
     for (i = 1; i < 25 && warpFound == 0; i++) {
-        WarpRec *w = &girlWarpList[i];
+        const WarpRec *w = &girlWarpList[i];
 
         if (w->from != stage) {
             continue;
@@ -124,7 +122,7 @@ void warpGirlInStage(int stageNo)
     float pos[4];
     float rot[4];
     float ry;
-    WarpRec *w = &girlWarpList[warpGirlId];
+    const WarpRec *w = &girlWarpList[warpGirlId];
 
     warpGirlInStageSet = 0;
     if (IsGirlEscortedInNextStage() != 0) {

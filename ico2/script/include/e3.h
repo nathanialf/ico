@@ -22,16 +22,16 @@ extern int sekizo_e3_vol;
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order e3.c's inline tail has. */
-void actE3CapsuleDemoEnd(GObj *volatile a0);
-void actE3DoorMain(GObj *volatile a0);
-void actE3DoorSwitch(GObj *volatile a0);
-void actE3DoorUp(GObj *volatile a0);
-void actE3St13cIntroChk(GObj *volatile a0);
-void actE3CageFallReadyChk(GObj *volatile a0);
-void actE3St01bEneChk(GObj *volatile a0);
+inline void actE3CapsuleDemoEnd(GObj *volatile a0);
+inline void actE3DoorMain(GObj *volatile a0);
+inline void actE3DoorSwitch(GObj *volatile a0);
+inline void actE3DoorUp(GObj *volatile a0);
+inline void actE3St13cIntroChk(GObj *volatile a0);
+inline void actE3CageFallReadyChk(GObj *volatile a0);
+inline void actE3St01bEneChk(GObj *volatile a0);
 void actE3St09aGirlWay(GObj *volatile a0);
-void actE3St09aBrgMain(GObj *volatile a0);
-void actE3St09aBrgSwitch(GObj *volatile a0);
+inline void actE3St09aBrgMain(GObj *volatile a0);
+inline void actE3St09aBrgSwitch(GObj *volatile a0);
 void actE3CageFallChk(GObj *volatile a0);
 void actE3CageFallDemo(GObj *volatile a0);
 void actE3CageFallEffect(GObj *volatile a0);

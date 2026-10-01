@@ -8,7 +8,7 @@
 static ActMail check_mes[2] = {{430}, {429}};
 
 /* .sdata, owned by st17b.o, in the ROM's order: the lightning stream handle. */
-int lightning2 = 0;
+char *lightning2 = 0;
 
 void actSt17bTest(GObj *volatile a0)
 {

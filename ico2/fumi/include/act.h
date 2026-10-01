@@ -35,7 +35,7 @@ void actWaitCondition(int a0, int a1);
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order act.c's inline tail has. */
 
-void ACTDebugMove(int a0, int a1);
+void ACTDebugMove(struct GObj *a0, int a1);
 void actChangeActBrain(struct GObj *self, void (*fn)(), struct GProc **slot);
 void actChangeActMain(struct GObj *self, void (*fn)(), struct GProc **slot);
 void actCreateMotionThread(void (*fn)(), int pri, struct GProc **slot);
@@ -45,9 +45,9 @@ void actInitialize_ext_charcter(char *self);
 void actInitialize_only_charcter(char *self);
 
 /* act-mode-def: one act mode, 0x50 bytes, indexed by Act+0x34. Readers:
- * ico2/fumi/src/act.c (StatusAttrAct: the act per actor kind, the mail, the
- * intr-list start, the flag bits), commonact.c (CarryRec: name, flags).
- * Owner: ico2/fumi/include/act.h. */
+ * ico2/fumi/src/act.c (the act per actor kind, the mail, the intr-list
+ * start, the flag bits), commonact.c, act-game.c, boyact.c, enemy_act.c,
+ * girl_act.c (the flag bits, the name). Owner: ico2/fumi/include/act.h. */
 typedef struct { /* field names derived */
 
     struct {
@@ -59,7 +59,39 @@ typedef struct { /* field names derived */
     char name[32];      /* 0x24, the debug name */
     int intrList;       /* 0x44, the first actIntrList row */
     int mail;           /* 0x48, ACTSendMailCorrect's mail */
-    unsigned int flags; /* 0x4C */
-} ActModeRec;           /* derived name */
+    /* 0x4C, the mode's flag bits */
+    unsigned int carried : 1;  /* bit 0, the girl is carried */
+    unsigned int bit1 : 1;
+    unsigned int onChain : 1;  /* bit 2, ACTGame_isHangChain */
+    unsigned int attractWait : 1; /* bit 3, the girl holds an attract turn 10 s */
+    unsigned int hintCount : 1; /* bit 4, the girl counts hint frames */
+    unsigned int bit5 : 1;
+    unsigned int keepHand : 1; /* bit 6, the boy keeps the girl's hand */
+    unsigned int bit7 : 1;
+    unsigned int softIk : 1; /* bit 8, the girl's soft IK rate */
+    unsigned int bit9 : 1;
+    unsigned int bit10 : 1;
+    unsigned int skipMarked : 1; /* bit 11, the flagged mail lists are skipped */
+    unsigned int bit12 : 1;
+    unsigned int escort : 1; /* bit 13, an escort status */
+    unsigned int bit14 : 1;
+    unsigned int : 17;
+} ActModeRec; /* derived name */
+extern const ActModeRec actModeTbl[];
+
+/* act-intrlist: one actor mail entry, 0x18 bytes; lists end at the entry
+ * whose kind is 429. Readers: ico2/fumi/src/act.c (BeforeFunc,
+ * act_check_intr_list, act_check_mail) and commonact.c (ACTRunIntrCorrect).
+ * Owner: ico2/fumi/include/act.h. */
+typedef struct IntrMail {                           /* field names derived */
+    void (*motion)(int);                            /* 0x00, motion thread 21 */
+    void (*extra)(int);                             /* 0x04, motion thread 22 */
+    void (*handler)(char *self, int id, void *arg); /* 0x08, every frame the mail is held */
+    void (*accept)(char *self, int id, void *arg);  /* 0x0C, when the mail is accepted */
+    unsigned short kind;                            /* 0x10, the mail id */
+    short mode;                                     /* 0x12, the act mode it switches to */
+    unsigned int flags;                             /* 0x14, bit 18: entry live */
+} IntrMail;
+extern IntrMail actIntrList[];
 
 #endif /* ACT_H */

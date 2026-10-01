@@ -276,18 +276,18 @@ void gamesysBackStageProcess(void)
 /* kept local: declaring it only through string.h moves this TU's bytes */
 extern void memcpy();
 
-void gamesysMemoryHandlerWrite(int *self, int n, int a2)
+void gamesysMemoryHandlerWrite(int *self, void *src, int size)
 {
-    if (n != 0) {
-        memcpy(self[0] + self[1], n);
+    if (src != 0) {
+        memcpy(self[0] + self[1], src);
     }
-    self[1] += a2;
+    self[1] += size;
     debug_StdPrintfDummy("write size %d\n", self[1]);
 }
 
 void gamesysGeneratorInfoSave(int *self)
 {
-    int buf;
+    int *buf;
     int size;
 
     MakeGeneratorPacket();
@@ -309,7 +309,7 @@ void gamesysGeneratorInfoLoad(int *a0)
 
 void gamesysHintInfoSave(int *self)
 {
-    int buf;
+    char *buf;
     int size;
 
     MakeHintSaveInfo();
@@ -331,7 +331,7 @@ void gamesysHintInfoLoad(int *a0)
 
 void gamesysCharacterInfoSave(int *self)
 {
-    int buf;
+    int *buf;
     int size;
 
     MakeCharacterPacket();
@@ -496,15 +496,15 @@ int gamesysGirlStageGet(void)
     return 4;
 }
 
-int gamesysGetGirlStageIDAndPosition(int a0)
+int gamesysGetGirlStageIDAndPosition(int *pos)
 {
     GamesysObjInfo *girl = &gameSysObjInfo[1];
 
     if (girl->no != 0) {
-        CopyVector(a0, (int *)girl->pos);
+        CopyVector(pos, (int *)girl->pos);
         return girl->stage;
     }
-    CopyVector(a0, (int *)ZeroPoint);
+    CopyVector(pos, (int *)ZeroPoint);
     return 4;
 }
 
@@ -513,17 +513,17 @@ void gamesysStageExitTimeSet(int a0)
     gamesysStageExitTime[a0] = gamesysTimeCount;
 }
 
-void gamesysMemoryHandlerRead(int *self, int a1, int a2)
+void gamesysMemoryHandlerRead(int *self, void *dst, int size)
 {
-    if (a1 != 0) {
-        memcpy(a1, self[0] + self[0x4 / 4]);
+    if (dst != 0) {
+        memcpy(dst, self[0] + self[0x4 / 4]);
     }
-    self[0x4 / 4] = self[0x4 / 4] + a2;
+    self[0x4 / 4] = self[0x4 / 4] + size;
 }
 
 /* The same table gamesysMemoryLoad walks (both are called with gameSysMemoryFuncList):
    each entry is a load handler and a save handler. */
-void gamesysMemorySave(void **tbl, int a1, void *a2)
+void gamesysMemorySave(void **tbl, void *a1, void *a2)
 {
     int buf[2];
     buf[0] = a1;
@@ -534,7 +534,7 @@ void gamesysMemorySave(void **tbl, int a1, void *a2)
     }
 }
 
-void gamesysMemoryLoad(void **tbl, int a1, void *a2)
+void gamesysMemoryLoad(void **tbl, void *a1, void *a2)
 {
     int buf[2];
     buf[0] = a1;
@@ -564,12 +564,12 @@ void gamesysVersionLoad(int *self)
 void gamesysVersionSave(int a0)
 {
     if (gamesysVersionDiff == 0) {
-        gamesysMemoryHandlerWrite((int *)a0, (int)stamp_str, 18);
+        gamesysMemoryHandlerWrite((int *)a0, stamp_str, 18);
         return;
     }
     {
         char buf[32];
         memset(buf, 0, 18);
-        gamesysMemoryHandlerWrite((int *)a0, (int)buf, 18);
+        gamesysMemoryHandlerWrite((int *)a0, buf, 18);
     }
 }

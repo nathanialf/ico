@@ -24,6 +24,7 @@
 #include "act-game.h"
 #include "obj_manager.h"
 #include "libgraph.h"
+#include <stdlib.h>
 
 /* main.c's own .data, VMA 0x0028F4C0..0x0028FEB8 (0x9F8 B), the six globals
    MAIN.MAP lists for main.o in ROM order. Each has an initialiser: the ROM
@@ -123,7 +124,6 @@ extern char movieFile[];
    declaration is the only evidence; GsBase.o is byte-identical either way. */
 extern int gsb_ResetSnap(void);
 extern void movie_init(void *p, int w, int h, int a3, int a4, int a5, int col);
-extern int movie_proc(int (*abort)(void));
 extern void MakeCharGObjList(void);
 extern void stage_ResetAnimation(void);
 extern void stage_CalcAnimationNoParent(void);

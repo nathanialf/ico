@@ -5,7 +5,7 @@
 #include <string.h>
 #include "ios.h"
 
-int huft_free(char *p);
+inline int huft_free(char *p);
 
 struct huft {
     unsigned char e; /* 0x0 number of extra bits or operation */

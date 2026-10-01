@@ -166,7 +166,6 @@ int mc[640] __attribute__((aligned(64))) = {0};
 
 /* kept local: agrees with mcard.h, which this TU does not include (iosMcDelete, iosMcFormat, iosMcGetBlockSaveInfo, iosMcLoadGameBlock, iosMcLoadProductBlock, iosMcSaveGameBlock, iosMcSaveIconBlock, iosMcSaveProductBlock differ) */
 extern int iosMcSync(unsigned long *a0);
-extern int D_00534CC0[];
 
 typedef struct {
     unsigned int _0;
@@ -189,8 +188,6 @@ typedef struct {
 extern R1F0 IosMcProductFile[];
 /* kept local: agrees with mcard.h, which this TU does not include (iosMcGetBlockSaveInfo, iosMcLoadGameBlock differ) */
 extern int IosMcPreviewInfo[];
-extern int D_005343C8[];
-extern int D_00534400[];
 /* the custom pad configuration ios/pad.c owns; kept local: pad.h cannot
    declare it while camera-root.c declares it as a char array */
 extern PadConf iosPadConfCustom;
@@ -936,8 +933,6 @@ inline int la_mc_saved_file_select(int a0)
     return i + 0x3E;
 }
 
-extern int D_00534324[];
-
 /* layout_action.c:1780-1786 in the listing: inlined into la_mc_file_select
    both directly and through mcFileNoOfPort below, so it is a static inline here; it
    has no symbol of its own in the ROM and no census row, and the name is
@@ -989,7 +984,7 @@ int la_mc_file_select(int a0)
         } else {
             curFile = mcFileNoOfPort();
         }
-        D_00534324[0] = curFile + 62;
+        texLayout[14].curItem = curFile + 62;
         fileMoved = 1;
     }
 
@@ -1128,9 +1123,9 @@ inline int la_mc_current_slot(void)
 static inline void setLoadGameStartItem(void)
 {
     if (loadSerial == IosMcProductFile[0]._1E4 || saveSerial != IosMcProductFile[1]._1E4) {
-        D_005343C8[0] = 186;
+        texLayout[17].defaultItem = 186;
     } else {
-        D_005343C8[0] = 187;
+        texLayout[17].defaultItem = 187;
     }
 }
 
@@ -1707,9 +1702,9 @@ int la_mc_confirm_save_file(int a0, int a1)
 static inline void setSaveGameStartItem(void)
 {
     if (loadSerial == IosMcProductFile[0]._1E4 || loadSerial != IosMcProductFile[1]._1E4) {
-        D_00534400[0] = 186;
+        texLayout[18].defaultItem = 186;
     } else {
-        D_00534400[0] = 187;
+        texLayout[18].defaultItem = 187;
     }
 }
 
@@ -2762,7 +2757,7 @@ inline int la_game_pause(int a0)
     if (a0) {
         systemStatus[5] = 1;
         iosPadActStopAll();
-        D_00534CC0[0] = 0x134;
+        texLayout[58].defaultItem = 308;
     }
     if (lt_fade_status() != 2) {
         return -1;
@@ -2915,7 +2910,7 @@ int la_key_config(int a0)
 
     sel = lt_current_property_item() - 336;
     if (a0) {
-        D_00534CC0[0] = 323;
+        texLayout[58].defaultItem = 323;
         for (i = 0; i < 16; i++) {
             if ((keyConfigMask >> i) & 1) {
                 keyConfigSlot[keyCodeIndex(iosPadConfCustom.bit[i])] = keyCodeIndex(1 << i);
@@ -3114,7 +3109,7 @@ int la_adjust_screen(void)
 {
     int v;
 
-    D_00534CC0[0] = 324;
+    texLayout[58].defaultItem = 324;
     lt_analog2Pad();
     if (pad[0].flags & 0x8000) {
         v = systemStatus[11];

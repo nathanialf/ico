@@ -1818,7 +1818,7 @@ void MakeExitAttributeIndex(void)
     }
 }
 
-inline int PositionOfExit(int a0, int a1)
+inline int PositionOfExit(GObj *a0, int a1)
 {
     int v = (int)exitAttr[a1 & 0xF];
     if (v != 0) {

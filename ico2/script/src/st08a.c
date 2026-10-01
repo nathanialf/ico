@@ -188,7 +188,7 @@ void actSt08aDoorUp(GObj *volatile a0)
 }
 
 /* .sdata, owned by st08a.o, in the ROM's order: the scene's stream handle (MAIN.MAP has no .sdata for the January object). */
-static int *st08a_adpcm = 0; /* derived name */
+static char *st08a_adpcm = 0; /* derived name */
 
 void actSt08aHasiUpSub(GObj *volatile a0)
 {
@@ -205,7 +205,7 @@ void actSt08aHasiUpSub(GObj *volatile a0)
     }
 
     _ACTWait(1);
-    AdpcmPlay(st08a_adpcm[0x2C / 4]);
+    AdpcmPlay(((AdpcmObj *)st08a_adpcm)->stream);
 
     while (stage_CheckAnimationFrame(106, 180, 0) == 0) {
         _ACTWait(1);
@@ -233,7 +233,7 @@ void actSt08aHasiUp(GObj *volatile a0)
     scpSleepEnemyAll();
 
     demoEnd = 0;
-    scpAdpcmPlayRequestFunc(98, (int *)&st08a_adpcm, 1, 1, 0);
+    scpAdpcmPlayRequestFunc(98, &st08a_adpcm, 1, 1, 0);
 
     th = actCreateSubThread(actSt08aHasiUpSub, 21);
 
@@ -248,7 +248,7 @@ void actSt08aHasiUp(GObj *volatile a0)
         while (st08a_adpcm == 0) {
             _ACTWait(1);
         }
-        scpAdpcmFadeCloseFunc((int *)&st08a_adpcm, 0x200);
+        scpAdpcmFadeCloseFunc(&st08a_adpcm, 0x200);
         while (scpFadeChk() != 0) {
             _ACTWait(1);
         }

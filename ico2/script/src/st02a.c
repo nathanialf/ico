@@ -263,25 +263,25 @@ void actSt02aFenceOpen(GObj *volatile a0)
 
 void actSt02WaterFallBoySplashCheck(GObj *volatile a0)
 {
-    long long buf[4];
-    long long buf2[2];
+    ConstVec buf[2];
+    ConstVec buf2;
     int idx;
     if (boyGObj == 0)
         return;
-    buf[0] = boySplashPos[0].d[0];
-    buf[1] = boySplashPos[0].d[1];
-    buf[2] = boySplashPos[1].d[0];
-    buf[3] = boySplashPos[1].d[1];
+    buf[0].d[0] = boySplashPos[0].d[0];
+    buf[0].d[1] = boySplashPos[0].d[1];
+    buf[1].d[0] = boySplashPos[1].d[0];
+    buf[1].d[1] = boySplashPos[1].d[1];
     for (;;) {
         idx = GetSkeltonFocusNode(boyGObj, 0x23);
-        CopyVector(buf2, (float *)(GOBJ_SUB(boyGObj)->nodeMtx + (idx << 6) + 0x30));
-        if (scpTriggerPosBall(&buf[0], buf2, 100.0f))
-            scpEffectStart(buf2, 0x2F);
+        CopyVector(buf2.f, (float *)(GOBJ_SUB(boyGObj)->nodeMtx + (idx << 6) + 0x30));
+        if (scpTriggerPosBall(buf[0].f, buf2.f, 100.0f))
+            scpEffectStart(buf2.f, 0x2F);
         _ACTWait(10);
         idx = GetSkeltonFocusNode(boyGObj, 0x23);
-        CopyVector(buf2, (float *)(GOBJ_SUB(boyGObj)->nodeMtx + (idx << 6) + 0x30));
-        if (scpTriggerPosBall(&buf[2], buf2, 100.0f))
-            scpEffectStart(buf2, 0x2F);
+        CopyVector(buf2.f, (float *)(GOBJ_SUB(boyGObj)->nodeMtx + (idx << 6) + 0x30));
+        if (scpTriggerPosBall(buf[1].f, buf2.f, 100.0f))
+            scpEffectStart(buf2.f, 0x2F);
         _ACTWait(10);
     }
 }

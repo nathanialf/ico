@@ -68,7 +68,7 @@ void cdWait(int *busy);
 long long inflate_cd_read_func(void *buf, long long size, struct IosCdvdHandle *self);
 void iosCdvdBackGroundMgr(void);
 
-CdvdBgReq *iosCdvdBackGroundMgrAdd(char *name, void *readFunc, int readArg, void *readyFunc,
+CdvdBgReq *iosCdvdBackGroundMgrAdd(const char *name, void *readFunc, int readArg, void *readyFunc,
                                    void *resumeFunc, int cbArg, void *closeFunc, int closeArg);
 
 void iosCdvdBackGroundMgrDelete(CdvdBgReq *self);
@@ -90,7 +90,7 @@ void iosCdvdHandlerReadNoInflate(struct IosCdvdHandle *self, void *buf, int n);
 void iosCdvdMgrSearchFile(struct IosCdvdHandle *self);
 void iosCdvdMgrStStart(struct IosCdvdHandle *self);
 void iosCdvdMgrStStop(struct IosCdvdHandle *self);
-void iosCdvdDiskReadyBlock(void);
+inline void iosCdvdDiskReadyBlock(void);
 void iosCdvdManager(void);
 void iosCdvdLoadPackFile(int a0, char *name, int a2);
 void iosCdvdBackGroundMgrInit(void);
@@ -101,5 +101,6 @@ typedef struct {  /* field names derived */
     char ext[32]; /* 0x00 */
     void (*func)(char *self, char *name, int size, int a3, int a4, int a5, int seg); /* 0x20 */
 } PackKind; /* derived name */
+extern const PackKind initFunc[]; /* 26 rows */
 
 #endif /* CDVD_H */

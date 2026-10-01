@@ -43,7 +43,7 @@ void _soundSeDefStop(int a0, int a1);
 void soundAllocIopHeap(void);
 char *soundBDDataSet(int a0, int a1, int a2, int a3, int a4, int a5);
 void soundBufSegFree(int a0, int a1);
-void soundDataClose(int *obj);
+void soundDataClose(char *obj);
 void soundDataOpen(int *work, int mode, int a2, int a3, int a4);
 int *soundDataOpenSync(int *work);
 void soundDataSegAllClose(int a0, int a1);
@@ -96,6 +96,7 @@ typedef struct SeEnvDef { /* field names derived */
     unsigned int maxVolumeType : 1; /* the curve past maxVolumeRange */
     unsigned int : 28;
 } SeEnvDef;
+extern const SeEnvDef seEnv[];
 
 /* sefile: one sound bank, 0x64 bytes, the rows a stage's seSegFirst..
  * seSegLast covers. Reader: ico2/fumi/sound/s_init.c (soundSeEnvNotUseClose:
@@ -107,6 +108,7 @@ typedef struct SeBank { /* field names derived */
     unsigned int loaded : 1; /* 0x60 bit 0, set while the bank is loaded */
     unsigned int : 31;
 } SeBank;
+extern const SeBank seFile[];
 
 /* selist: one sound kind, 8 bytes. Reader: ico2/fumi/sound/s_init.c
  * (SeKind). Owner: ico2/fumi/include/s_init.h. */
@@ -116,5 +118,8 @@ typedef struct { /* field names derived */
     short half4; /* 0x04 */
     short idx;   /* 0x06 */
 } SeKind;        /* derived name */
+extern const SeKind seList[];
+
+extern unsigned short seKind[]; /* sekind: the selist row of each sound kind, filled at load */
 
 #endif /* S_INIT_H */

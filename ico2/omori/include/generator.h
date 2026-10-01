@@ -8,8 +8,8 @@
 #ifndef GENERATOR_H
 #define GENERATOR_H
 
-struct GVGeo2;
-struct GenWork *InitGeneratorGeo(struct GObj *gobj, struct GVGeo2 *src);
+struct GenGeo;
+struct GenWork *InitGeneratorGeo(struct GObj *gobj, struct GenGeo *src);
 void Generator_Call(struct GObj *gobj);
 void Generator_ResetCount(struct GObj *gobj);
 void Generator_Mask(struct GObj *gobj);

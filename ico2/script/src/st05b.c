@@ -45,7 +45,7 @@ void actSt05bCrest01XL(GObj *volatile a0)
 }
 
 /* .sdata, owned by st05b.o, in the ROM's order: the stone statue's stream handle, its shake and the shake's volume. */
-int sekizo5b = 0;
+char *sekizo5b = 0;
 
 int sekizo_5b = 0;
 
@@ -219,6 +219,6 @@ void actSt05bGirlWay(GObj *volatile a0)
 
     way[0] = girlWay2Pos.d[0];
     way[1] = girlWay2Pos.d[1];
-    RequestStageChangeDirect(girlGObj, 0x1C, (int *)way, 0xB4);
+    RequestStageChangeDirect(girlGObj, 0x1C, way, 0xB4);
     brainUnlockGirl();
 }

@@ -15,7 +15,7 @@
 #include "typedef.h"
 
 /* st17b.o's .sdata globals (MAIN.MAP) */
-extern int lightning2;
+extern char *lightning2;
 void actSt17bCheckChk(GObj *volatile a0);
 
 #endif /* ST17B_H */

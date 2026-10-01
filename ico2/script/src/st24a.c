@@ -23,11 +23,6 @@ static ActMail demoCam_mes[2] = {{430}, {429}};
 
 /* the 16-byte vector this file copies whole */
 
-typedef struct SwordObj {
-    char pad0[44]; /* 0x00 */
-    void *unk2C;   /* 0x2C */
-} SwordObj;
-
 /* .sbss, owned by st24a.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
    subthread the wait loop below spins for. */
@@ -36,7 +31,7 @@ static int demoEnd;
 static const Vec16 swordChkPos = {{1685.0f, -1080.0f, -1000.0f, 1.0f}};
 
 /* .sdata, owned by st24a.o, in the ROM's order: the sword's object. */
-SwordObj *sword = 0;
+char *sword = 0;
 
 void actSt24aSwordChk(volatile int self)
 {
@@ -161,7 +156,7 @@ void actSt24aSwordSub(GObj *volatile a0)
     while (sword == 0) {
         _ACTWait(1);
     }
-    AdpcmPlay(sword->unk2C);
+    AdpcmPlay(((AdpcmObj *)sword)->stream);
 
     stage_SetAnimation(153, 1, 0);
 

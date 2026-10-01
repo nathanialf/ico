@@ -15,7 +15,7 @@
 #include "typedef.h"
 
 /* st17a.o's .sdata globals (MAIN.MAP) */
-extern int cam;
+extern char *cam;
 void actLinkTestChk(GObj *volatile a0);
 void actSt17aDoorDownChk(GObj *volatile a0);
 void actSt17aDoorDownEffect(GObj *volatile a0);

@@ -48,9 +48,7 @@ IosMsgQueue stageMgrMsgQ = {0};
 
 StgSlot stageExitData[15] = {0};
 
-extern ExitData exitData[];
 extern const StgPre stageData[];
-extern int stgmgrNextStagePreLoad(CdvdBgReq *bg);
 
 /* .sbss, owned by StageManager.o (VMA 0x63C348..0x63C350, no MAIN.MAP symbol,
    so file statics; names ours): the one-entry buffer of the stage manager's

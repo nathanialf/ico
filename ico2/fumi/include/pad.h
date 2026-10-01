@@ -39,7 +39,8 @@ void iosPadActInit(void);
 typedef struct {         /* field names derived */
     int word0;           /* 0x00 */
     short player;        /* 0x04 */
-    unsigned short life; /* 0x06 */
+    short life;          /* 0x06 */
 } PadActDef;             /* derived name */
+extern const PadActDef shockList[];
 
 #endif /* PAD_H */

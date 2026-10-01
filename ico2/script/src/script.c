@@ -210,9 +210,8 @@ typedef struct {
     char pad8C[52];     /* 0x8C */
 } ClipWorkScript;       /* 0xC0 */
 
-/* the stage exits at exitData and the per-stage records at stageData: row
-   [stage_no], entry .ent[no - 1]. */
-extern ExitData exitData[];
+/* the per-stage records: row [stage_no], entry .ent[no - 1] the stage's
+   exits in exitData. */
 extern StgPre stageData[];
 /* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
 extern int GetSkeltonFocusNode(char *a0, int a1);
@@ -235,15 +234,9 @@ static struct WoodBoxEnt woodBoxTbl[11] = {
 
 /* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
 extern int CheckFloorAttribute(GObj *self, int attr);
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern int CheckWallAttribute(char *self, int attr);
-extern char objLayout[];
-
-struct EnemyEnt {
-    char pad0[66];
-    unsigned short f42;
-}; /* 0x4C stride */
-
+/* kept local: agrees with motionManager2.h, which this TU does not include */
+extern int CheckWallAttribute(GObj *self, int attr);
+extern GenGeo objLayout[];
 /* kept local: motionManager2.h lists the parameters as (self, obj, x, y, z, mode, node, w, quat);
    the callers pass them in this order */
 extern void SetMotionNodeFixModeParameter(char *self, char *obj, int mode, int node, void *quat,
@@ -264,7 +257,6 @@ static struct DQW spiderLayout = {0, 0, 0, 0, 0, 0, {0}, {1.0f, 1.0f, 1.0f}}; /*
 
 /* kept local: agrees with box.h, which this TU does not include */
 extern int CheckReadyAllSwitches();
-extern ActMail queen_appear_mes[];
 
 /* The January listing has no row for this function (its body is st25a.c's
  * actSt25aQueenAppear there); the retail object emits it last in the inline
@@ -310,7 +302,7 @@ inline void scpDispOffAllWithKind(int kind)
 
 inline void scpDispOnAllWithKind(int x)
 {
-    int *p = isysGObjSearchFromObjKindID_begin(x);
+    GObj *p = isysGObjSearchFromObjKindID_begin(x);
     while (p != 0) {
         ((unsigned int *)p)[0x50 / 4] = 0xFFFFFFFF;
         p = isysGObjSearchFromObjKindID_next(p);
@@ -361,7 +353,7 @@ void scpTorchLightOff(int id)
 
 inline int *scpIsBombExplode(int x)
 {
-    int *p = isysGObjSearchFromObjKindID_begin(x);
+    GObj *p = isysGObjSearchFromObjKindID_begin(x);
     if (p != 0) {
         do {
             if (IsBombExplode(p) != 0) {
@@ -373,11 +365,11 @@ inline int *scpIsBombExplode(int x)
     return 0;
 }
 
-void scpSetCageVelocityFriction(int id, float f12)
+void scpSetCageVelocityFriction(int id, float friction)
 {
     GObj *v = scpSearchGobj(id);
     if (v) {
-        SetCageVelocityFriction(v, f12);
+        SetCageVelocityFriction(v, friction);
     }
     /* no hanging object found */
     debug_StdPrintfDummy("ぶら下がりオブジェクトが見つかりません。(scpSetCageVelocityFriction)\n");
@@ -574,13 +566,13 @@ inline void scpPlayMotReq(GObj *a0, int a1)
     p->motReq = SetMotionRequest(a0, a1, p->motOriReq);
 }
 
-inline void scpPlayPosSet(void *a0, float f12, float f13, float f14)
+inline void scpPlayPosSet(void *a0, float x, float y, float z)
 {
     float buf[4];
     memset(buf, 0, 0x10);
-    buf[0] = f12;
-    buf[1] = f13;
-    buf[2] = f14;
+    buf[0] = x;
+    buf[1] = y;
+    buf[2] = z;
     SetDirectRootPosition(a0, buf);
     ClearMotionGeometryInfo(a0);
 }
@@ -1239,14 +1231,14 @@ void scpGirlHintVoiceTickProc(void)
     AdpcmInterStereoVolumeSet(snd, 0);
 }
 
-void scpWoodSrh(char *self, struct WoodBoxEnt *w)
+void scpWoodSrh(GObj *self, struct WoodBoxEnt *w)
 {
     float pos[4];
     float dst[4];
     float gpos[4];
     char *g;
     int st;
-    void *way = 0;
+    int way = 0;
 
     for (;;) {
         st = 0;
@@ -1526,15 +1518,15 @@ inline int RequestStageChangeSimple(int no, float speed, float wait, unsigned ch
 /* the root position a direct stage change parks the actor at, far out of the map */
 static const Vec16 farRootPos = {{-1000000.0f, 0.0f, 0.0f, 0.0f}}; /* derived name */
 
-inline void RequestStageChangeDirect(int *self, int a1, int *a2, int a3)
+inline void RequestStageChangeDirect(GObj *self, int a1, void *a2, int a3)
 
 {
     Vec16 pos;
     ACTGame_StageChangeGObjDirect(self, a1, a2, a3);
-    ACTCharctrl_Lock((int)self);
+    ACTCharctrl_Lock(self);
     pos = farRootPos;
     SetDirectRootPosition(self, &pos);
-    iosOmSendMail((int)self, 0x27, (int)self);
+    iosOmSendMail(self, 0x27, (int)self);
 }
 
 inline void scpFadeOut(float a0, int a1, int a2, int a3)
@@ -1668,7 +1660,7 @@ inline int scpIsHangChain(GObj *self)
     return ACTGame_isHangChain(self) != 0;
 }
 
-inline int scpIsHangChainOptional(int a0, int b)
+inline int scpIsHangChainOptional(GObj *a0, int b)
 {
     register int *p;         /* v1 */
     register int b_save;     /* s0 */
@@ -1746,7 +1738,7 @@ inline void scpKillEnemyOne(int id)
     int *p = isysGObjSearchFromObjLayoutID(id);
     if (p != 0) {
         iosOmSendMail((int)p, 0x26, (int)p);
-        ((struct EnemyEnt *)(p[0x8 / 4] * 0x4C + (char *)objLayout))->f42 = 0;
+        objLayout[p[0x8 / 4]].reviveCount = 0;
     }
 }
 
@@ -1757,7 +1749,7 @@ inline void scpKillEnemyAll(void)
     for (g = (char *)isysGObjSearchFromObjKindID_begin(4); g != 0;
          g = (char *)isysGObjSearchFromObjKindID_next(g)) {
         iosOmSendMail(g, 0x26, (int)g);
-        ((struct EnemyEnt *)(*(int *)(g + 8) * 0x4C + (char *)objLayout))->f42 = 0;
+        objLayout[*(int *)(g + 8)].reviveCount = 0;
     }
     for (g = (char *)isysGObjSearchFromObjKindID_begin(62); g != 0;
          g = (char *)isysGObjSearchFromObjKindID_next(g)) {
@@ -1799,7 +1791,7 @@ inline void scpBornSpider(int n, float a, float b, float c, float d)
     }
 }
 
-inline void scpSetStreamMotionRootOffset(int a0, float x, float y, float z)
+inline void scpSetStreamMotionRootOffset(GObj *a0, float x, float y, float z)
 {
     Vec4u v;
     v.f[0] = x;
@@ -1887,13 +1879,13 @@ inline void ScpCallCameraGetTarget(float *dst)
     dst[2] = scriptCameraTarget[2];
 }
 
-inline void scpTransGObj(void *a0, float f12, float f13, float f14)
+inline void scpTransGObj(void *a0, float dx, float dy, float dz)
 {
     float buf[4];
     GetRootPosition(buf, a0);
-    buf[0] = buf[0] + f12;
-    buf[1] = buf[1] + f13;
-    buf[2] = buf[2] + f14;
+    buf[0] = buf[0] + dx;
+    buf[1] = buf[1] + dy;
+    buf[2] = buf[2] + dz;
     SetDirectRootPosition(a0, buf);
 }
 
@@ -1988,10 +1980,10 @@ inline int scpCheckExistAliveSpider(void)
     return 0;
 }
 
-inline void scpLockMaxRotate(GObj *a0, float f12)
+inline void scpLockMaxRotate(GObj *a0, float rot)
 {
     GOBJ_ACT(a0)->flags20.ll |= (1ULL << 33);
-    GOBJ_WORK(a0)->lockedMaxRotate = f12;
+    GOBJ_WORK(a0)->lockedMaxRotate = rot;
 }
 
 inline void scpUnLockMaxRotate(GObj *a0)

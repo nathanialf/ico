@@ -28,11 +28,6 @@
 #include "script.h"
 #include "main.h"
 
-typedef struct AdpcmReq {
-    char pad00[44]; /* 0x00 */
-    int unk2C;      /* 0x2C */
-} AdpcmReq;
-
 /* .sbss, owned by st04l.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the four arguments turnBall hands
    to the ball-turn actor through file scope, the demo's own end flag, the
@@ -69,15 +64,15 @@ char *crest1 = 0;
 
 char *crest2 = 0;
 
-AdpcmReq *crest3 = 0;
+char *crest3 = 0;
 
 int solar4l = 0;
 
-AdpcmReq *stair4d = 0;
+char *stair4d = 0;
 
-AdpcmReq *st04d_hasi = 0;
+char *st04d_hasi = 0;
 
-AdpcmReq *sekizo4c = 0;
+char *sekizo4c = 0;
 
 unsigned int oriup4c = 0;
 
@@ -823,7 +818,7 @@ void actSt04lStairSub(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    AdpcmPlay(crest3->unk2C);
+    AdpcmPlay(((AdpcmObj *)crest3)->stream);
 
     stage_SetAnimation(258, 1, 0);
 
@@ -1592,7 +1587,7 @@ void actSt04lOriSub(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    AdpcmPlay(st04d_hasi->unk2C);
+    AdpcmPlay(((AdpcmObj *)st04d_hasi)->stream);
 
     stage_SetAnimation(243, 1, 0);
     stage_SetAnimation(245, 1, 0);
@@ -1790,7 +1785,7 @@ void actSt04lOri2Sub(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    AdpcmPlay(sekizo4c->unk2C);
+    AdpcmPlay(((AdpcmObj *)sekizo4c)->stream);
 
     stage_SetAnimation(248, 1, 0);
 

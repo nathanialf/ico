@@ -4,15 +4,14 @@
 #include "debug_exception.h"
 #include "layout_texture.h"
 #include <assert.h>
+#include "charFileManager.h"
 
 typedef struct { /* field names derived */
     unsigned char b[4];
 } KanbanCol; /* derived name */
 
-typedef struct KanbanProp KanbanProp;
-
 typedef struct Node {
-    KanbanProp *f0;
+    LtProp *f0;
     int f4;
     int f8;
     int fC;
@@ -49,23 +48,7 @@ static const char kanbanOverMsg[] = "かんばんクエストボックスオー�
    origin, the same rectangle src/staffroll.c uses for the roll. */
 static const Pkt16 kanbanSprite = {{-5120, -1792, 10240, 3584}};
 
-struct KanbanProp {
-    int first;
-    int last;
-    float f8;
-    float fC;
-    float f10;
-    float f14;
-    float f18;
-    float f1C;
-    unsigned char pad20[8];
-    int f28;
-    int f2C;
-    unsigned char pad30[8];
-};
-
 extern StgPre stageData[];
-extern KanbanProp texLayout[];
 
 /* kanban.o's .sdata run (VMA 0x63B498..0x63B4BC, 0x24 B = MAIN.MAP), in the
    ROM's order: kanbanCommonRead (MAIN.MAP global), the sign's initial colour,
@@ -76,15 +59,17 @@ int kanbanCommonRead = 0;
 /* the colour a new sign starts with */
 static KanbanCol kanbanStartCol = {{0x80, 0x80, 0x80, 0}}; /* derived name */
 
+/* kept local: texProperty's texNo column, &texProperty[0].texNo.  The ROM
+   reaches it as its own constant, hoisted out of
+   init_textures_of_specified_property's loop apart from texProperty's base,
+   which no index expression on texProperty gives (measured). */
 extern char D_0030D014[];
 /* census display_texture, a file static; MAIN.MAP carries no global of that
    name, so the twins in ico2/fumi/src/jimaku and ico2/common/src/layout_texture
    are statics too and `static` here keeps this one's ELF symbol local */
-static void display_texture(KanbanProp *pr, LtProperty *e, KanbanCol *col);
-extern char texFile[][52];
+static void display_texture(LtProp *pr, LtProperty *e, KanbanCol *col);
 extern char *strtok(char *s, const char *sep);
 extern char *strrchr(const char *s, int c);
-extern void display_layout(Node *a0);
 /* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
 extern void gif_EndPacket(void);
 /* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
@@ -139,7 +124,7 @@ static inline int get_texture_no_of_property(int idx)
     int no;
 
     n = texProperty[idx].texFileNo;
-    src = texFile[n];
+    src = texFile[n].path;
     name = get_texture_base_name(src);
 
     no = tex_GetTextureNo(name);
@@ -162,19 +147,19 @@ static inline void init_textures_of_property_range(int first, int last)
     }
 }
 
-static inline int kanban_layout_key(KanbanProp *pr)
+static inline int kanban_layout_key(LtProp *pr)
 {
     int ret = 0;
-    LtProperty *e = &texProperty[pr->f2C];
+    LtProperty *e = &texProperty[pr->curItem];
 
     if ((pad[0].flags & 0x1000) && e->upItem > 0) {
-        pr->f2C = e->upItem;
+        pr->curItem = e->upItem;
     } else if ((pad[0].flags & 0x4000) && e->downItem > 0) {
-        pr->f2C = e->downItem;
+        pr->curItem = e->downItem;
     } else if ((pad[0].flags & 0x8000) && e->leftItem > 0) {
-        pr->f2C = e->leftItem;
+        pr->curItem = e->leftItem;
     } else if ((pad[0].flags & 0x2000) && e->rightItem > 0) {
-        pr->f2C = e->rightItem;
+        pr->curItem = e->rightItem;
     } else {
         unsigned long button = pad[0].flags; /* derived name */
 
@@ -207,7 +192,7 @@ inline void kanbanReqAllDel(void)
 Node *kanbanReqAdd(int no, int pri)
 {
     Node *p;
-    KanbanProp *pr;
+    LtProp *pr;
     Node *cur;
     int i;
 
@@ -223,7 +208,7 @@ Node *kanbanReqAdd(int no, int pri)
 found:
     p->f0 = pr;
     p->f8 = 0;
-    pr->f2C = pr->f28;
+    pr->curItem = pr->defaultItem;
     p->fC &= ~1;
     p->f10 = 0;
     p->f14 = kanbanStartCol;
@@ -260,7 +245,7 @@ found:
         p->f18 = 0;
     }
 done:
-    if (pr->f28 != -1) {
+    if (pr->defaultItem != -1) {
         kanbanCurrent = (int)p;
     }
     return p;
@@ -331,7 +316,7 @@ void kanbanInit(int no)
     }
 }
 
-static void display_texture(KanbanProp *pr, LtProperty *e, KanbanCol *col)
+static void display_texture(LtProp *pr, LtProperty *e, KanbanCol *col)
 {
     int uv[4];
     int r[4];
@@ -379,7 +364,7 @@ static void display_texture(KanbanProp *pr, LtProperty *e, KanbanCol *col)
         gif_EndPacket();
     }
 
-    if (e == &texProperty[pr->f2C]) {
+    if (e == &texProperty[pr->curItem]) {
         /* its initialiser is the anonymous 4-byte template at the end of
            the TU's .sdata run, which the ROM reaches with %hi/%lo */
         KanbanCol col2 = {{0x80, 0x80, 0x80, 0x7F}};
@@ -408,7 +393,7 @@ int fade_exec(Node *p)
     float f;
 
     if ((p->fC & 1) == 0) {
-        f = 127.0f / (p->f0->f8 * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+        f = 127.0f / (p->f0->fadeInTime * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
         if (f == 0.0f) {
             f = 127.0f;
         }
@@ -419,7 +404,7 @@ int fade_exec(Node *p)
             ret = 1;
         }
     } else {
-        f = 127.0f / (p->f0->fC * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+        f = 127.0f / (p->f0->fadeOutTime * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
         if (f == 0.0f) {
             f = 127.0f;
         }
@@ -435,7 +420,7 @@ int fade_exec(Node *p)
 
 void display_layout(Node *k)
 {
-    KanbanProp *pr;
+    LtProp *pr;
     int i;
 
     pr = k->f0;

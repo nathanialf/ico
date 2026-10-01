@@ -18,6 +18,7 @@
 #include "enemy_act.h"
 #include "gobj_process.h"
 #include <assert.h>
+#include "main.h"
 
 extern ObjKindEnt objKindData[];
 
@@ -45,9 +46,6 @@ static int nextStageNo = -1; /* derived name */
 static sceVu0FVECTOR nextStagePos;
 
 static sceVu0FVECTOR nextStageRot;
-
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differs) */
-extern int exit_no;
 
 #include "sceneManager.h"
 #include "backStage.h"
@@ -84,7 +82,7 @@ inline void test_nextstage_firstwalk_set(int unused, int a, int b, int c)
     stageStartWait3 = c;
 }
 
-inline int GetStageStartInfo(int a0, int a1, int a2, int *p, int *q, int *r)
+inline int GetStageStartInfo(GObj *a0, int a1, int a2, int *p, int *q, int *r)
 {
     int ret = 1;
     if (exit_no == 0) {
@@ -128,10 +126,6 @@ inline void MoveNextStage_Clear(void)
 }
 
 extern const StgPre stageData[];
-/* RECONSTRUCTION: the 0x28-byte enemy-model record; the two members named are the
-   first and one-past-last index into the model-id list enemymodelTable. */
-extern EnemyMdlRec enemymodelGroup[];
-extern int enemymodelTable[];
 
 int GetRealModelId(int stageNo, char *gen)
 {
@@ -172,8 +166,6 @@ plain:
    record (typedef.h).  The stage-preset record is read through the stageData[stage] subscript on
    every line, which is what the listing's per-line pointer copies show. */
 extern StageSetting GlobalStageSetting;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differs) */
-extern int db[];
 /* kept local: Texture.h declares it (void); the callers here pass 0 */
 extern int tex_RemakeRegistersSampleMin(int a);
 
@@ -301,8 +293,6 @@ typedef union {
 } GamesysObjInfoFlag;
 
 extern GenGeo objLayout[];
-/* kept local: void * here, GObj * in main.h */
-extern void *boyGObj;
 
 /* RECONSTRUCTION: the 0x40-byte actor-init record CreateLayoutedGObj hands to the
    kind's constructor: position, angle and scale as VU0 vectors, then the
@@ -318,9 +308,6 @@ typedef struct {
     int f30;             /* 0x30 */
 } ActInit;
 
-/* kept local: agrees with main.h, which this TU does not include (boyGObj differs) */
-extern int stage_no;
-
 /* sceneManager.c:118-127: the static helper that restores the position the
    previous stage stored through MoveNextStage_Set.  It is fully inlined in the
    ROM, so it has no symbol and no census row; the name follows its two siblings
@@ -334,9 +321,6 @@ static inline void MoveNextStage_Get(ActInit *a, int kind)
         a->ang[1] = nextStageRot[1] * 3.1415927f / 180.0f;
     }
 }
-
-/* kept local: void * here, GObj * in main.h */
-extern void *girlGObj;
 
 /* kept local: this TU passes a 64-bit process priority where the prototype in
    gobj_process.h carries an int, and the ROM's `dsll $8, $2, 10` proves the
@@ -447,7 +431,7 @@ void initSceneGObj(int stage, int no)
         }
 
         if (gen->outGObj != 0) {
-            *gen->outGObj = (int)gobj;
+            *gen->outGObj = (char *)gobj;
         }
 
         brainStatusDefaultSet(&brainGirl, (int)gobj, no);
@@ -549,21 +533,6 @@ void initWayData(int stage)
 {
     ExtractWayData(stage);
 }
-
-/* kept local: void * here, GObj * in main.h */
-extern void *boyGObj;
-/* kept local: void * here, GObj * in main.h */
-extern void *girlGObj;
-/* kept local: void * here, int in main.h */
-extern void *boyPad;
-/* kept local: void * here, int in main.h */
-extern void *girlPad;
-/* kept local: void * here, int in main.h */
-extern void *gameover_flag;
-/* kept local: void * here, int in main.h */
-extern void *gameover_layout_flag;
-/* kept local: void * here, int in main.h */
-extern void *itemWatchOff;
 
 void InitSceneObjects(int stage)
 {

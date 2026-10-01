@@ -41,11 +41,6 @@ typedef struct AnimSet16 {
     int anim[16]; /* 0x00 */
 } AnimSet16;
 
-typedef struct AdpcmSlot {
-    char pad00[44]; /* 0x00 */
-    int unk2C;      /* 0x2C */
-} AdpcmSlot;
-
 typedef struct MotObj {
     char pad00[1300]; /* 0x000 */
     int unk514;       /* 0x514 */
@@ -530,7 +525,7 @@ void actSt13cCageFallChk(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    AdpcmPlay(((AdpcmSlot *)st13c_adpcm2)->unk2C);
+    AdpcmPlay(((AdpcmObj *)st13c_adpcm2)->stream);
 
     th1 = actCreateSubThread(actSt13cConte05, 21);
     th2 = actCreateSubThread(actSt13cConte05Jimaku, 21);

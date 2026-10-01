@@ -53,4 +53,7 @@ extern int stagePreLoadSectorCnt;
 extern float mpegPlayFadeInSpeed;
 extern int stageExitDataCnt;
 
+struct CdvdBgReq;
+int stgmgrNextStagePreLoad(struct CdvdBgReq *bg);
+
 #endif /* STAGEMANAGER_H */

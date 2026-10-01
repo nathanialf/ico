@@ -75,13 +75,8 @@ void actSt01bEneChk(GObj *volatile a0)
     scpWakeupEnemyOne(3757);
 }
 
-typedef struct {
-    char pad00[44];
-    int f2C;
-} FloorRec;
-
 /* .sdata, owned by st01b.o (MAIN.MAP globals) */
-FloorRec *st01b_floor = 0;
+char *st01b_floor = 0;
 
 unsigned int st01b_yure = 0;
 
@@ -108,7 +103,7 @@ void actSt01bFloorChkSub(GObj *volatile a0)
     while (st01b_floor == 0) {
         _ACTWait(1);
     }
-    AdpcmPlay(st01b_floor->f2C);
+    AdpcmPlay(((AdpcmObj *)st01b_floor)->stream);
     stage_SetAnimation(180, 1, 0);
     stage_SetAnimation(181, 1, 0);
     pos[0] = floorChkSubPos.d[0];

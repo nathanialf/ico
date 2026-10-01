@@ -33,12 +33,12 @@ typedef struct GProc {     /* field names derived */
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order gobj_process.c's inline tail has. */
-void isysGObjProcessAlloc(unsigned int a0);
+inline void isysGObjProcessAlloc(unsigned int a0);
 GProc *isysGObjProcAdd(GObj *g, void (*fn)(), int noThread, int pri);
 GProc *isysGObjProcAddS(GObj *g, void (*fn)(), int noThread, int pri, long stack);
 GProc *isysGObjProcAddGOppArg(GObj *g, void (*fn)(), int noThread, int pri);
 void isysGObjProcPause(char *self);
-void isysGObjProcPauseAll(int *p);
+void isysGObjProcPauseAll(struct GObj *p);
 void isysGObjProcPausePtr(void *a0, int a1);
 void isysGObjProcActive(char *self);
 void isysGObjProcActiveAll(void *a0);
@@ -53,5 +53,7 @@ GProc *isysGObjProcAdd_(GObj *g, GObj *arg, void (*fn)(), unsigned char noThread
 
 void isysGObjProcRemove(GProc *p);
 void isysGObjProcessInit(unsigned int a0);
+
+void cut_gobj_process_link(GProc *p);
 
 #endif /* GOBJ_PROCESS_H */

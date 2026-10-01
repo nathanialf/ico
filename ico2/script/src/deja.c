@@ -32,13 +32,12 @@ static ActMail after_mes[2] = {{430}, {429}};
 static int demoEnd;
 
 void actDejaDemo(GObj *volatile a0);
-/* Both tables are in the ELF's .rodata run (0x54D380..0x638A98), so `const`
-   is what they are.  It is also load-bearing on stageData: only a reference
+/* stageData is in the ELF's .rodata run (0x54D380..0x638A98), so `const` is
+   what it is, as typedef.h has exitData.  It is also load-bearing: only a reference
    rooted at a const object makes the `nextStage` load unchanging, and only
    then is it free of the `GObj *volatile a0` parameter home's memory
    dependence, which is what lets the home store issue two slots later. */
 extern const StgPre stageData[];
-extern const ExitData exitData[];
 void actDejaAfterChk(GObj *volatile a0);
 
 /* .sdata, owned by deja.o: the scene's stream handle (MAIN.MAP global) */

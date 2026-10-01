@@ -53,5 +53,8 @@ typedef struct {      /* field names derived */
     int bridgeEnd[2]; /* 0x30, WayGroup+0x20 */
     int active;       /* 0x38, WayGroup+0x28 */
 } WaySrcGrp;          /* derived name */
+extern const WaySrcGrp wayGroupSheet[];
+
+extern WaySrcPt wayPointSheet[];
 
 #endif /* WAY_TOOL_H */

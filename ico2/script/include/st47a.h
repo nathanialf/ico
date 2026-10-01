@@ -15,7 +15,7 @@
 #include "typedef.h"
 
 /* st47a.o's .sdata globals (MAIN.MAP) */
-extern int sekizo47a;
+extern char *sekizo47a;
 extern char *hane1up;
 extern char *hane2up;
 extern char *hane1down;

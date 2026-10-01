@@ -114,10 +114,6 @@ int staffRollScroll(void)
     return count;
 }
 
-extern char *staffRollNameData[];
-/* staffroll_dat.o's entry count (MAIN.MAP; a data-only member) */
-extern int staffRollNameDataNum;
-
 int staffRollNameOut(void)
 {
     StaffRollEntry *e;

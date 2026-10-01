@@ -127,7 +127,9 @@ typedef struct AnimList28 {
     int v[28];
 } AnimList28;
 
-extern char streamMotion[];
+/* stream-motion-def's table; kept local: streamMotionManager.h, which defines
+   the record, does not declare it */
+extern StreamMotionFile streamMotion[];
 
 /* .sdata, owned by st04a.o, the head of the run: the first gate's stream
    handle and gate1, which the retail code does not use (MAIN.MAP globals).
@@ -174,7 +176,7 @@ void actSt04aGateChk(GObj *volatile a0)
 
     scpPlayMot(boyGObj, 0);
 
-    StandbyStreamMotion(streamMotion + 48);
+    StandbyStreamMotion(streamMotion[1].path);
 
     i = 0;
     while (CheckReadyStreamMotion() == 0) {
@@ -208,7 +210,7 @@ void actSt04aGateChk(GObj *volatile a0)
 
     EntryStreamMotion(boyGObj);
     EntryStreamMotion(girlGObj);
-    EntryStreamMotion((char *)scpSearchGobj(590));
+    EntryStreamMotion(scpSearchGobj(590));
 
     PlayStreamMotion();
 
@@ -652,8 +654,6 @@ static const ConstVec liftOfs1;
 
 static const ConstVec liftOfs2;
 
-extern char D_00618DB0[];
-
 void actSt04aGateOpenChk(GObj *volatile a0)
 {
     GProc *th1;
@@ -694,7 +694,7 @@ void actSt04aGateOpenChk(GObj *volatile a0)
 
     scpPlayMot(girlGObj, 532);
 
-    StandbyStreamMotion(D_00618DB0);
+    StandbyStreamMotion(streamMotion[2].path);
 
     i = 0;
     while (CheckReadyStreamMotion() == 0) {
@@ -1029,8 +1029,6 @@ void actSt04aGateOpen2Chk(GObj *volatile a0)
     actCreateSubThread(actConte09_2, 21);
 }
 
-extern char D_00618E10[];
-
 /* st04a.o's own .rodata: the two demo exit direction vectors. */
 
 void actConte09_2(GObj *volatile a0)
@@ -1133,7 +1131,7 @@ void actConte09_2(GObj *volatile a0)
     sceVu0SubVector(dir, ofs, test_CURRENTROOT(boyGObj));
     scpPlayMotDir(boyGObj, dir);
 
-    StandbyStreamMotion(D_00618E10);
+    StandbyStreamMotion(streamMotion[4].path);
 
     i = 0;
     while (CheckReadyStreamMotion() == 0) {
@@ -1222,7 +1220,7 @@ void actConte09_3(GObj *volatile a0)
 
     EntryStreamMotion(boyGObj);
     EntryStreamMotion(girlGObj);
-    EntryStreamMotion((char *)scpSearchGobj(669));
+    EntryStreamMotion(scpSearchGobj(669));
 
     PlayStreamMotion();
 
@@ -2061,8 +2059,6 @@ void finishCallBackFunc(GObj *a0)
     }
 }
 
-extern char D_00618DE0[];
-
 void actSt04aGateOpen2ReadyChk(GObj *volatile a0)
 {
     GObj *x = a0;
@@ -2075,7 +2071,7 @@ void actSt04aGateOpen2ReadyChk(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    StandbyStreamMotion(D_00618DE0);
+    StandbyStreamMotion(streamMotion[3].path);
 
     i = 0;
     while (CheckReadyStreamMotion() == 0) {

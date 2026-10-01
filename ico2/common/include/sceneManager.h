@@ -12,6 +12,8 @@
 #ifndef SCENEMANAGER_H
 #define SCENEMANAGER_H
 
+
+struct GObj;
 /* the layout record CSVSYSTEM_InitDObj starts a scene object from: position,
    rotation, scale and the object word */
 typedef struct {
@@ -31,7 +33,7 @@ void ChangeStageStartInfo(int a0, int a1, int a2, int a3, int t0);
 char *CreateLayoutedGObj(int id, int a1, int a2, int a3, int a4, int a5, int a6, int a7);
 void MoveNextStage_Set(float *a0, float *a1, int a2, int a3, int a4, int a5);
 void test_nextstage_firstwalk_set(int unused, int a, int b, int c);
-int GetStageStartInfo(int a0, int a1, int a2, int *p, int *q, int *r);
+int GetStageStartInfo(struct GObj *a0, int a1, int a2, int *p, int *q, int *r);
 void MoveNextStage_Clear(void);
 void InitStageLight(int stage);
 void initParentLink(int id);
@@ -46,5 +48,7 @@ typedef struct {   /* field names derived */
     int first;     /* 0x20, the enemymodelTable range */
     int last;      /* 0x24 */
 } EnemyMdlRec;     /* derived name */
+extern const int enemymodelTable[]; /* enemy-model-tbl: the model ids enemymodelGroup ranges cover */
+extern const EnemyMdlRec enemymodelGroup[];
 
 #endif /* SCENEMANAGER_H */

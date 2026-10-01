@@ -15,7 +15,7 @@
 #include "typedef.h"
 
 /* st04b.o's .sdata globals (MAIN.MAP) */
-extern int sekizo4b;
+extern char *sekizo4b;
 extern int sekizo_4b;
 extern unsigned char sekizo_4b_vol;
 void actSt04bEne1Chk(GObj *volatile a0);

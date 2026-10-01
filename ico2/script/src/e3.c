@@ -785,7 +785,7 @@ inline void actE3St09aGirlWay(GObj *volatile a0)
     _SCPMoveCharactorByWay(girlGObj, 0, buf.f, 100.0f, 0);
 
     memset(way, 0, 0x10);
-    RequestStageChangeDirect((int)girlGObj, 0x66, (int *)way, 0xB4);
+    RequestStageChangeDirect(girlGObj, 0x66, way, 0xB4);
 
     lt_switch_layout(54);
 
@@ -802,7 +802,7 @@ void actE3St09aSekizoChk(GObj *volatile a0)
     }
 
     while (scpTriggerBall(a0, boyGObj, 200.0f) == 0 || scpTriggerBall(a0, girlGObj, 200.0f) == 0 ||
-           ForMotionViewer_GetCurrentMotion((int)boyGObj) == 0x4B) {
+           ForMotionViewer_GetCurrentMotion(boyGObj) == 0x4B) {
         _ACTWait(1);
     }
 
@@ -870,7 +870,9 @@ void actE3St09aSekizoChk(GObj *volatile a0)
     ScpCallCameraSetTarget(1421.0f, 97.0f, -1885.0f);
 }
 
-extern char D_00618F00[];
+/* stream-motion-def's table; kept local: streamMotionManager.h, which defines
+   the record, does not declare it */
+extern StreamMotionFile streamMotion[];
 
 void actE3GateChk(GObj *volatile a0)
 {
@@ -884,7 +886,7 @@ void actE3GateChk(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    StandbyStreamMotion(D_00618F00);
+    StandbyStreamMotion(streamMotion[9].path);
 
     i = 0;
     while (CheckReadyStreamMotion() == 0) {
@@ -920,9 +922,9 @@ void actE3GateDemo(GObj *volatile a0)
 {
     scpSearchGobj(3382)->active = 1;
 
-    EntryStreamMotion((int)boyGObj);
-    EntryStreamMotion((int)girlGObj);
-    EntryStreamMotion((int)scpSearchGobj(3382));
+    EntryStreamMotion(boyGObj);
+    EntryStreamMotion(girlGObj);
+    EntryStreamMotion(scpSearchGobj(3382));
 
     PlayStreamMotion();
 
@@ -1100,7 +1102,6 @@ void actE3Warning(GObj *volatile a0)
 }
 
 extern StgPre stageData[];
-extern int exitData[][10];
 
 void actE3Inst1(GObj *volatile a0)
 {
@@ -1116,7 +1117,7 @@ void actE3Inst1(GObj *volatile a0)
     }
 
     pre = &stageData[stage_no];
-    stgmgrNextStagePreLoadForceStageSet(exitData[pre->ent[0]][9]);
+    stgmgrNextStagePreLoadForceStageSet(exitData[pre->ent[0]].nextStage);
 
     inst1_mes[0].func = actE3Inst1Chk;
     sub->mail = inst1_mes;

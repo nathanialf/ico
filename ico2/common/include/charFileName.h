@@ -1,7 +1,7 @@
 /* charFileName.h -- the character-file id table's bound.
  *
- * Provenance: the retail ELF bakes the message at D_00619370 (.rodata,
- * VMA 0x00619370, rom offset 0x519370), which reads
+ * Provenance: the retail ELF bakes the message in .rodata at VMA
+ * 0x00619370 (rom offset 0x519370), which reads
  * "commmon/include/charFileName.h" followed by EUC-JP text asking the reader
  * to raise MAX_CHARS.  The path is hand typed into that message, three m's
  * and all: it is not a __FILE__ expansion, so it fixes the header's name and

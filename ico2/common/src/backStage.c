@@ -44,9 +44,9 @@ static float enemySec; /* enemyDist scaled to seconds */
 static float nestSec; /* nestDist scaled to seconds */
 
 /* kept local: agrees with gamesys.h, which this TU does not include */
-extern void gamesysMemoryHandlerWrite(int *self, int n, int a2);
+extern void gamesysMemoryHandlerWrite(int *self, void *src, int size);
 /* kept local: agrees with gamesys.h, which this TU does not include */
-extern void gamesysMemoryHandlerRead(int *self, int a1, int a2);
+extern void gamesysMemoryHandlerRead(int *self, void *dst, int size);
 
 static int pinchTold; /* the boy has already been told the heroine is in trouble */
 
@@ -74,19 +74,12 @@ typedef struct {
     int objNo; /* 0x444 */
 } ActorWorkRec;
 
-/* the 0x4C-byte generator-geometry record (src/ebrain.c GenGeo) */
-typedef struct {
-    float scale[3]; /* 0x00 */
-    float rot[3];   /* 0x0C */
-    char pad18[0x4C - 0x18];
-} GenGeoRec;
-
 /* kept local: gamesys.c's object-info records in this TU's view of the record
    (gamesys.h declares them with the record backStage.h carries, and this TU
    does not include gamesys.h) */
 /* kept local: GamesysObjInfoBackstage [] here, GamesysObjInfo [] in gamesys.h */
 extern GamesysObjInfoBackstage gameSysObjInfo[];
-extern GenGeoRec objLayout[];
+extern GenGeo objLayout[];
 
 /* .bss, owned by backStage.o and reached only from this file: the nest position
    the carrier walks to. */
@@ -135,7 +128,7 @@ void backStageProcessOutStage(void)
     int i;
     int gen;
     void *p;
-    int o;
+    char *o;
 
     done = 0;
     if (gflagChk(394) != 0) {
@@ -161,7 +154,7 @@ void backStageProcessOutStage(void)
         kidnapState = 0;
         wayKidnap = 0;
         if (kidnapObjIdx < 0) {
-            int e = NearestEnemyFromGirl(&enemyDist);
+            char *e = NearestEnemyFromGirl(&enemyDist);
 
             if (e != 0) {
                 ActorWorkRec *m;

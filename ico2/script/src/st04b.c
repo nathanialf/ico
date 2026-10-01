@@ -39,7 +39,7 @@ void actSt04bEnd(void)
 }
 
 /* .sdata, owned by st04b.o, in the ROM's order: the stone statue's stream handle, its shake and the shake's volume. */
-int sekizo4b = 0;
+char *sekizo4b = 0;
 
 int sekizo_4b = 0;
 
@@ -334,7 +334,7 @@ void actSt04bGirlWay(GObj *volatile a0)
 
     way[0] = girlWay2Pos.d[0];
     way[1] = girlWay2Pos.d[1];
-    RequestStageChangeDirect(girlGObj, 0x13, (int *)way, 0xB4);
+    RequestStageChangeDirect(girlGObj, 0x13, way, 0xB4);
 
     brainUnlockGirl();
 }

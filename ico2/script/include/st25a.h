@@ -30,4 +30,6 @@ extern char *sd2;
 extern char *dead;
 void BoySekikaTexScroll(void);
 
+extern ActMail queen_appear_mes[]; /* st25a.o .data: the queen-appear actor mail list */
+
 #endif /* ST25A_H */

@@ -55,5 +55,6 @@ void jimakuDisp(JimakuArg *msg);
 typedef struct {   /* field names derived */
     char path[32]; /* 0x00, "text/data_EG01.jim" ... */
 } JimakuFileName;  /* derived name */
+extern const JimakuFileName jimakuFileName[];
 
 #endif /* JIMAKU_H */

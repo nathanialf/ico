@@ -23,10 +23,10 @@ extern char *titleAdpcm;
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order op.c's inline tail has. */
 void actOpDemo03(GObj *volatile a0);
-void actSubMpegReturnPreload(GObj *volatile a0);
-void actSt26aConte01_1_newgame(GObj *volatile a0);
-void actOpDemo02Chk(GObj *volatile a0);
-void actSt24aConte01_2_Jimaku(GObj *volatile a0);
+inline void actSubMpegReturnPreload(GObj *volatile a0);
+inline void actSt26aConte01_1_newgame(GObj *volatile a0);
+inline void actOpDemo02Chk(GObj *volatile a0);
+inline void actSt24aConte01_2_Jimaku(GObj *volatile a0);
 void actOpDemo01_2Chk(GObj *volatile a0);
 void actOpDemo03Chk(GObj *volatile a0);
 void actSt13aConte01_3(GObj *volatile a0);

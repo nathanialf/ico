@@ -36,6 +36,8 @@
 #include "gv.h"
 #include "fieldCollision.h"
 #include <assert.h>
+#include "poly-flat.h"
+#include "act.h"
 
 typedef struct {
     char pad0[28];
@@ -90,10 +92,6 @@ typedef struct {
 
 extern MotionRec motionKind[];
 
-/* The exit table: one 40-byte entry per exit, in .rodata. */
-
-extern const ExitData exitData[];
-
 typedef struct {
     float x, y, z, w;
 } __attribute__((aligned(16))) Vec4S;
@@ -108,7 +106,7 @@ extern const StgPre stageData[];
    (the full view result and the simple one), the entry count and the
    round-robin cursor the loop below advances one entry per frame. */
 typedef struct {
-    char *obj[100];  /* 0x000 */
+    GObj *obj[100];  /* 0x000 */
     int view[100];   /* 0x190 */
     int simple[100]; /* 0x320 */
     int num;         /* 0x4B0 */
@@ -119,8 +117,6 @@ typedef struct {
    of act-game.o's .bss run; the 0x440 bytes before it are not reached from
    anywhere in the ROM and stay in the blob. */
 static ActGameViewTbl actGameView;
-
-extern char actModeTbl[];
 
 /* One 0x50-byte record per act status, indexed by sub->0x34. */
 
@@ -198,16 +194,10 @@ extern HandModeRow motionIKEffKind[];
    brainAddLevelGirlDetail */
 extern void brainAddLevelGirlDetail(int a0, float f);
 void ACTItemWatchMotion(GObj *self);
-/* kept local: agrees with camera-editor.h, which this TU does not include (debug_Arrow differs) */
-extern void debug_NMarker(int *self, int a1, int a2, int a3, float t);
-/* The look-target candidate table: 27 rows, one column per character kind
-   (self->_164->_48). */
-extern int lookTargetData[][3];
-extern float gameParam[];
+/* kept local: agrees with camera-editor.h, which this TU does not include */
+extern void debug_NMarker(float *pos, int r, int g, int b, float size);
 /* kept local: agrees with boyact.h, which this TU does not include (PrivInsCamSet differs) */
 extern void SetBoyInfo(int *a0, int *a1);
-/* kept local: returns float here, void in poly-flat.h */
-extern float IsPointIsInScreen(void *a0, void *a1);
 /* kept local: f5 is int here, float in boyact.h; a7 is float here, unsigned char in boyact.h */
 extern void PrivInsCamSet(float *pos, float *tgt, int a2, int a3, int a4, int a5, float f6,
                           float f1);
@@ -284,12 +274,12 @@ void EXITDATA_GetNextPosition(int idx, float *pos, float *rot)
     sceVu0ScaleVector(rot, rot, 0.017453292f);
 }
 
-inline void ACTGame_StageChangeGObjID(char *self, char *other, int idx)
+inline void ACTGame_StageChangeGObjID(int no, int kind, int idx)
 {
     float tmp_a[4];
     float tmp_b[4];
     EXITDATA_GetNextPosition(idx, tmp_a, tmp_b);
-    gamesysObjInfoPosNewStageSet(self, other, exitData[idx].nextStage, tmp_a, tmp_b);
+    gamesysObjInfoPosNewStageSet(no, kind, exitData[idx].nextStage, tmp_a, tmp_b);
 }
 
 void ACTGame_StageChangeGObj(char *self, int idx)
@@ -320,14 +310,14 @@ void ACTGame_StageChangeGObj(char *self, int idx)
                                  exitData[idx].nextStage, tmp_a, tmp_b);
 }
 
-inline void ACTGame_StageChangeGObjDirect(int *a0, int a1, void *a2, int a3)
+inline void ACTGame_StageChangeGObjDirect(GObj *a0, int a1, void *a2, int a3)
 {
     float buf0[4];
     float buf1[4];
     memset(buf1, 0, 0x10);
     buf1[1] = (float)a3 * 3.1415927f / 180.0f;
     sceVu0ScaleVector(buf0, a2, -1.0f);
-    gamesysObjInfoPosNewStageSet(a0[2], a0[3], a1, buf0, buf1);
+    gamesysObjInfoPosNewStageSet(a0->labelId, a0->kind, a1, buf0, buf1);
 }
 
 /* act-game.c:1069-1075 -- the exit whose f_24 names this stage. */
@@ -933,7 +923,7 @@ inline int ACTCheckViewClDetail(GObj *self, void *a1, void *a2, int range, float
    The list slot holds a pointer, so its store is in a different alias set
    from the two int stores -- that is what lets ROM schedule the +0x190
    address ahead of the list address. */
-inline void ACTGameView_Add(char *a0, char *a1)
+inline void ACTGameView_Add(GObj *a0, GObj *a1)
 {
     int n = actGameView.num++;
     if (n >= 100) {
@@ -955,11 +945,11 @@ inline void ACTGameView_Init(void)
 inline void ACTGameView_FirstSet(char *self)
 
 {
-    int *g;
+    GObj *g;
 
     g = isysGObjSearchFromObjKindID_begin(4);
     while (g != 0) {
-        ACTGameView_Add((char *)g, (char *)g);
+        ACTGameView_Add((GObj *)g, (GObj *)g);
         g = isysGObjSearchFromObjKindID_next(g);
     }
 }
@@ -1045,22 +1035,22 @@ void ACTGameView_Loop(GObj *self)
     }
 }
 
-inline int ACTGameView_Check(int a0, int a1)
+inline int ACTGameView_Check(GObj *self, GObj *obj)
 {
     int i;
     for (i = 0; i < actGameView.num; i++) {
-        if ((int)actGameView.obj[i] == a1) {
+        if (actGameView.obj[i] == obj) {
             return *(unsigned char *)&actGameView.view[i];
         }
     }
     return 0;
 }
 
-inline int ACTGameViewSimple_Check(int a0, int a1)
+inline int ACTGameViewSimple_Check(GObj *self, GObj *obj)
 {
     int i;
     for (i = 0; i < actGameView.num; i++) {
-        if ((int)actGameView.obj[i] == a1) {
+        if (actGameView.obj[i] == obj) {
             return *(unsigned char *)&actGameView.simple[i];
         }
     }
@@ -1120,7 +1110,7 @@ inline void ACTCharctrl_Unlock(GObj *a0)
     p->flags18.ll |= (1ULL << 49);
 }
 
-inline int *ACTGame_GetNearestGObj(int a0, int a1)
+inline int *ACTGame_GetNearestGObj(GObj *a0, int a1)
 {
     float best_val = 3.40282347e+38f; /* FLT_MAX */
     int *best = 0;
@@ -1160,15 +1150,15 @@ inline int ACTGame_isHangChain(GObj *a0)
 {
     Act *s = GOBJ_ACT(a0);
     if (a0 == boyGObj) {
-        char *attr = actModeTbl + s->actMode * 0x50;
-        if ((*(unsigned int *)(attr + 0x4C) >> 2) & 1) {
+        const ActModeRec *attr = &actModeTbl[s->actMode];
+        if (attr->onChain) {
             return s->chain;
         }
     }
     return 0;
 }
 
-inline int ACTGame_GetMotOrientFromWeapon(int a0)
+inline int ACTGame_GetMotOrientFromWeapon(GObj *a0)
 {
     int rv;
     if (a0 != 0) {
@@ -1361,7 +1351,7 @@ inline void _ACTCharStatus_Init(int **a0)
     p[0xC] = 0;
 }
 
-void _ACTCharStatus_Clear(char *a0)
+void _ACTCharStatus_Clear(void *a0)
 {
     Act *s = GOBJ_ACT(a0);
     int old = s->statusOther;
@@ -1376,7 +1366,7 @@ void _ACTCharStatus_Clear(char *a0)
         sel = 0;
         g = isysGObjSearchFromObjKindID_begin(4);
         while (g != 0) {
-            d = _DistGV(test_CURRENTROOT((int *)a0), test_CURRENTROOT(g));
+            d = _DistGV(test_CURRENTROOT(a0), test_CURRENTROOT(g));
             if (actEnemyFlagCheckActive(g)) {
                 if (d < nearest) {
                     sel = g;
@@ -1791,7 +1781,7 @@ void ACTGame_BeforeFunc(GObj *self)
     }
 
     if ((((&motionKind[GOBJ_SUB(self)->motion])->f_18C >> 14) & 1) ||
-        ((((StatusAttr *)(actModeTbl + GOBJ_ACT(self)->actMode * 0x50))->flags >> 14) & 1)) {
+        actModeTbl[GOBJ_ACT(self)->actMode].bit14) {
         s->flags18.ll |= 1ULL << 38;
         if (self == boyGObj) {
             if (((char *)girlGObj) != 0) {
@@ -2445,8 +2435,8 @@ void GetGirlHandlinkClInfo(void)
     if (boyGObj == 0 || ((char *)girlGObj) == 0) {
         return;
     }
-    GetRootProjectionPosOfGObj(boyPos, (char *)boyGObj);
-    GetRootProjectionPosOfGObj(girlPos, ((char *)girlGObj));
+    GetRootProjectionPosOfGObj(boyPos, boyGObj);
+    GetRootProjectionPosOfGObj(girlPos, girlGObj);
     if (ACTGame_FLAG_TETSUNAGI() == 0) {
         if (!(_DistxzSqGV(boyPos, girlPos) < 12100.0f)) {
             goto draw;
@@ -3023,7 +3013,7 @@ void ACTLookTargetSystem_Exec(GObj *self)
         }
     }
     for (i = 0; i < 27; i++) {
-        int kind = lookTargetData[i][col];
+        int kind = lookTargetData[i].kind[col];
         if ((flags >> i) & 1) {
             if (GetTarget(kind, pos, &mode) != 0) {
                 found = 1;
@@ -3232,8 +3222,8 @@ void ACTGame_InsertCamera_GirlIsPinch(void)
     if (boyGObj == 0 || ((char *)girlGObj) == 0) {
         return;
     }
-    GetRootPosition(p0, (char *)boyGObj);
-    GetRootPosition(p1, ((char *)girlGObj));
+    GetRootPosition(p0, boyGObj);
+    GetRootPosition(p1, girlGObj);
     if (_DistSqGV((int *)p0, p1) < 22500.0f) {
         return;
     }

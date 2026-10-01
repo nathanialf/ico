@@ -46,10 +46,10 @@ int isLiftBoyEnable(void);
 void SetKidnapInfo(int a0, int a1);
 void GetKidnapInfo(int *a0, int *a1);
 
-void PrivInsCamSet(float *pos, float *tgt, int a2, int a3, int a4, float f5, float f6,
+inline void PrivInsCamSet(float *pos, float *tgt, int a2, int a3, int a4, float f5, float f6,
                    unsigned char a7);
 
-void BoyInfoUpdate_StageChange(void);
+inline void BoyInfoUpdate_StageChange(void);
 int IsBoyStatus_EnemyMustWait(void);
 int IsGirlEscortedInNextStage(void);
 unsigned char IsGirlEscortedInCurrentStage(void);
@@ -60,8 +60,8 @@ int IsBoyStatus_NotDanger(void);
 int RequestStageChangeKidnapEnd(void *a0, int a1);
 int GetEfStageCameraTargetID(void);
 int IsBackFromEfStage(void);
-int PrivInsCamChk(void);
-unsigned char PrivInsCamChk_Control(void);
+inline int PrivInsCamChk(void);
+inline unsigned char PrivInsCamChk_Control(void);
 int *GetbufpCharacterPacket(void);
 int GetsizeCharacterPacket(void);
 void MakeCharacterPacket(void);
@@ -69,10 +69,10 @@ void ReadCharacterPacket(void);
 void ACTSearchGObj(void *a0, int a1, int a2, int *out_id, float *out_vec, float thresh);
 void afterBoySwim(GObj *volatile a0);
 void actBoyJump(GObj *volatile a0);
-void afterBoyTakeWeapon(GObj *volatile a0);
-void afterBoyHangG3M(int x);
-void afterBoyRescueGirlBhang(GObj *volatile a0);
-void subBoyBrainMain(int a0);
+inline void afterBoyTakeWeapon(GObj *volatile a0);
+inline void afterBoyHangG3M(int x);
+inline void afterBoyRescueGirlBhang(GObj *volatile a0);
+inline void subBoyBrainMain(int a0);
 void SetBoyInfo(int *a0, int *a1);
 void GetBoyRootPositionForCamera(float *out);
 void Boy_Init(void);

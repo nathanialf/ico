@@ -565,9 +565,6 @@ typedef struct PackEnt {
 } PackEnt;
 
 typedef void (*PackFunc)(char *self, char *name, int size, int a3, int a4, int a5, int seg);
-/* The extension table: 26 rows of a 0x20-byte suffix and the loader that
- * handles it. */
-extern PackKind initFunc[];
 extern int SgGetDmaTransferStatus(int ch);
 
 /* INTERIM: the listing expands the extension lookup (cdvd.c rows 1043-1050)
@@ -1005,7 +1002,7 @@ void iosCdvdPackLoad(void *a0)
 
 extern char *strrchr(const char *s, int c);
 
-CdvdBgReq *iosCdvdBackGroundMgrAdd(char *name, void *readFunc, int readArg, void *readyFunc,
+CdvdBgReq *iosCdvdBackGroundMgrAdd(const char *name, void *readFunc, int readArg, void *readyFunc,
                                    void *resumeFunc, int cbArg, void *closeFunc, int closeArg)
 {
     char buf[256];

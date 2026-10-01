@@ -26,5 +26,6 @@ extern const int randomMotionKind[];
 typedef struct {     /* field names derived */
     int motion[44];  /* 0x00, one per status bit */
 } ParallelMotionRow; /* derived name */
+extern ParallelMotionRow parallelMotionTbl[];
 
 #endif /* ACT_PARALLEL_CONTROL_H */

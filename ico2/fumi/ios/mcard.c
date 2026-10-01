@@ -763,8 +763,6 @@ void iosMcMgrLoadSeg(McMgr *mp, char *suffix)
     }
 }
 
-extern char D_0055F70C[];
-
 /* ios/mcard.c:1042-1053, 1109-1115 and 1127-1133: the three file-static block
    helpers the manager dispatch inlines. None has a ROM symbol of its own.
    The icon save ends with a DEBUG-build report of the card result (name and
@@ -783,7 +781,7 @@ static __inline__ void iosMcMgrSaveIconDebugResult(int result)
 static inline void iosMcMgrSaveIcon(McMgr *mp)
 {
     mp->f24 = 1;
-    mp->f48 = (int)D_0055F70C;
+    mp->f48 = (int)&iconFile[1];
     iosMcMgrSaveSeg(mp, 0);
 
     if (mp->f10 < 0) {
@@ -791,7 +789,7 @@ static inline void iosMcMgrSaveIcon(McMgr *mp)
     }
 
     mp->f24 = 2;
-    mp->f48 = (int)D_0055F70C + 0x24;
+    mp->f48 = (int)&iconFile[2];
     iosMcMgrSaveSeg(mp, 0);
     iosMcMgrSaveIconDebugResult(mp->f10);
 }

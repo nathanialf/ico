@@ -52,5 +52,6 @@ typedef struct {   /* field names derived */
     char name[32]; /* 0x00 */
     int size;      /* 0x20 */
 } IconFile;        /* derived name */
+extern const IconFile iconFile[];
 
 #endif /* MCARD_H */

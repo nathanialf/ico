@@ -4,9 +4,9 @@
 #include "typedef.h"
 #include "act2.h"
 
-/* the data-only members obj-layout.o, obj-action.o, read through this file's
-   views of their rows; no header declares them */
-extern OaRecA objLayout[];
+/* the data-only members obj-layout.o and obj-action.o, read as typedef.h's
+   GenGeo and OaRecB rows */
+extern GenGeo objLayout[];
 extern OaRecB objAction[];
 
 /* the object's action record, or none */

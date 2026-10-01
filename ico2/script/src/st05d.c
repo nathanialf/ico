@@ -140,7 +140,7 @@ void actSt05dEne(GObj *volatile a0)
 {
     GObj *x = a0;
     Act *self = actInitialize(a0);
-    int g;
+    GObj *g;
     short rot;
 
     _ACTWait(1);

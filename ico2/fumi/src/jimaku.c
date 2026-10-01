@@ -43,22 +43,6 @@ static IosSema jimakuFrameSema;
 #include "layout_texture.h" /* texProperty: jimaku owns rows 434 and 435 */
 #include "gflag.h"
 
-typedef struct JimTex {
-    char pad0[28];
-    int tex; /* 0x1C */
-    char pad20[36];
-    int centre; /* 0x44 */
-    int h;      /* 0x48 */
-    int w;      /* 0x4C */
-    int y;      /* 0x50 */
-    int x;      /* 0x54 */
-    char pad58[4];
-    int u;  /* 0x5C */
-    int tw; /* 0x60 */
-    int th; /* 0x64 */
-    int v;  /* 0x68 */
-} JimTex;
-
 typedef struct JimCol {
     unsigned char r;
     unsigned char g;
@@ -104,29 +88,29 @@ extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, unsigned 
 /* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
 extern void gif_EndPacket(void);
 
-void display_texture(JimTex *t)
+void display_texture(LtProperty *t)
 {
     JimCol col = {128, 128, 128, 128};
     int dst[4];
     int src[4];
 
-    src[0] = (t->u << 4) + 8;
-    src[1] = (t->v << 4) + 8;
-    src[2] = t->th << 4;
-    src[3] = t->tw << 4;
-    dst[2] = t->w << 4;
-    dst[3] = t->h << 3;
+    src[0] = (t->texU << 4) + 8;
+    src[1] = (t->texV << 4) + 8;
+    src[2] = t->texW << 4;
+    src[3] = t->texH << 4;
+    dst[2] = t->dispW << 4;
+    dst[3] = t->dispH << 3;
     if (dst[2] == 0)
         dst[2] = src[2];
     if (dst[3] == 0)
         dst[3] = src[3] >> 1;
     dst[3] = dst[3] * 2;
-    if (t->centre != 0)
+    if (t->centerX != 0)
         dst[0] = (10240 - dst[2]) / 2 - 5120;
     else
-        dst[0] = (t->x - 320) << 4;
-    dst[1] = (t->y - 112) << 4;
-    tex_TransTexture(t->tex, 11);
+        dst[0] = (t->dispX - 320) << 4;
+    dst[1] = (t->dispY - 112) << 4;
+    tex_TransTexture(t->texNo, 11);
     gif_StartPacketPri(11);
     gif_SetAlpha(1, 7, 0);
     gif_SetGsReg(74, 0);
@@ -197,8 +181,6 @@ int jimakuHandler(int self, JimakuArg *p)
     return 0;
 }
 
-extern char jimakuFileName[][32];
-
 void jimakuMgrBegin(JimakuArg *p)
 {
     JimakuSub *sub = &p->sub;
@@ -243,7 +225,8 @@ void jimakuMgrBegin(JimakuArg *p)
     if (gFlagGameClear != 0) {
         st = st + 1;
     }
-    sub->bg = (void *)iosCdvdBackGroundMgrAdd(jimakuFileName[st], jimakuHandler, p, 0, 0, 0, 0, 0);
+    sub->bg =
+        (void *)iosCdvdBackGroundMgrAdd(jimakuFileName[st].path, jimakuHandler, p, 0, 0, 0, 0, 0);
     {
         JimakuSub *q = &p->sub;
         int m;
@@ -421,10 +404,6 @@ void jimakuEnd(JimakuArg *msg)
     jimakuMgrEnd();
 }
 
-extern char D_00318DD8[];
-extern char D_00318E48[];
-extern void display_texture(JimTex *t);
-
 void jimakuDisp(JimakuArg *msg)
 {
     struct jWayGroup *g = &jimakuRing[msg->sub.n];
@@ -457,8 +436,8 @@ void jimakuDisp(JimakuArg *msg)
             return;
         }
         if (jimakuOn != 0) {
-            display_texture(D_00318DD8);
-            display_texture(D_00318E48);
+            display_texture(&texProperty[434]);
+            display_texture(&texProperty[435]);
         }
     }
 }

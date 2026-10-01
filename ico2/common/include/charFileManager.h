@@ -45,4 +45,8 @@ typedef struct PObjMdl { /* field names derived */
     unsigned int : 20;
 } PObjMdl;
 
+/* the data-only members texture-path and model-path */
+extern TexRec texFile[];
+extern PObjMdl modelData[];
+
 #endif /* CHARFILEMANAGER_H */

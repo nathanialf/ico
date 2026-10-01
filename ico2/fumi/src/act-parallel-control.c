@@ -6,8 +6,6 @@
    the layout table. */
 static int parallelIds[86];
 
-extern char parallelMotionTbl[];
-
 /* listing lines 23-80.  The helper's rows (28-55) sit INSIDE this function's
    own line span and below its head, so it is a GNU nested function of the
    2001 source; gcc inlines it (it is called once), and its reference to the
@@ -45,7 +43,7 @@ void ActPara_MakeTbl(int *tbl, unsigned long long mask, int n)
     for (i = 0; i < 44; i++) {
         if (((mask >> i) & 1) == 1) {
             for (j = 0; j < 86; j++) {
-                val = *(int *)(parallelMotionTbl + j * 0xB0 + i * 4);
+                val = parallelMotionTbl[j].motion[i];
                 val = resolve(val);
                 if (val != 0x47B) {
                     tbl[j] = val;
@@ -59,7 +57,7 @@ void ActPara_InitSystem(void)
 {
     int i;
     for (i = 0; i <= 85; i++) {
-        parallelIds[i] = *(int *)(parallelMotionTbl + i * 0xB0);
+        parallelIds[i] = parallelMotionTbl[i].motion[0];
     }
     /* A compiled-out overflow check.  What the bytes pin: its message and
        __FILE__ are act-parallel-control.o's whole .rodata and its "0" the

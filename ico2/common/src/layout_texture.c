@@ -9,6 +9,7 @@
 #include "tableSin.h"
 #include "s_init.h"
 #include <assert.h>
+#include "charFileManager.h"
 
 typedef struct {
     unsigned char r;
@@ -76,8 +77,6 @@ extern StgPre stageData[];
 
 #include "layout_texture.h"
 
-/* The 0x38-byte layout property records this TU shares with src/kanban. */
-extern LtProp texLayout[];
 /* No <string.h>: display_texture's 4-byte zero fill is a `jal memset` in the
    ROM, so newlib's builtin-compatible prototype was not in scope; memset is
    declared as layout_action.c (same directory) declares it. */
@@ -453,7 +452,6 @@ extern void gif_SetAlpha(long long a0, long long a1, long long a2);
 extern void gif_SpriteSensitive(int *r, unsigned int z, int *uv, unsigned char *col, int prim);
 /* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
 extern void gif_EndPacket(void);
-extern void texture_fading(LtProp *p);
 /* The census display_texture body below reads these:
    ltHighlightColor is the second highlight colour, GlobalStageSetting the system record whose
    reduction tint it inverts, and GetTableSin/gif_SpriteSensitiveOffset/
@@ -726,7 +724,10 @@ void exec_layout_texture(void)
 /* census init_textures_of_specified_property, a file static; MAIN.MAP carries no
    global of that name, so ico2/common/src/kanban's twin is a static too and
    `static` here keeps this one's ELF symbol local */
-extern char texFile[][52];
+/* kept local: texProperty's texNo column, &texProperty[0].texNo.  The ROM
+   reaches it as its own constant, hoisted out of
+   init_textures_of_specified_property's loop apart from texProperty's base,
+   which no index expression on texProperty gives (measured). */
 extern char D_0030D014[];
 extern char *strtok(char *s, const char *sep);
 extern char *strrchr(const char *s, int c);
@@ -764,7 +765,7 @@ static inline int lt_texture_no_of_property(int idx)
     int no;
 
     n = texProperty[idx].texFileNo;
-    src = texFile[n];
+    src = texFile[n].path;
     name = lt_texture_base_name(src);
 
     no = tex_GetTextureNo(name);

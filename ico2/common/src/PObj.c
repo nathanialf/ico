@@ -182,9 +182,6 @@ void MakeBoundingBox(PObj *self)
     }
 }
 
-/* the model table (model-path) */
-extern PObjMdl modelData[];
-
 void MakePacket(PObj *p, int n)
 {
     PObjPkt *q;

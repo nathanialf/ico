@@ -16,7 +16,7 @@
 #include "gobj_process.h"
 #include "main.h"
 
-extern char objLayout[];
+extern GenGeo objLayout[];
 
 /* One 0x50-byte record per act status, indexed by the actor status index; the
    six 12-byte entries at +4 are indexed by the work block's mode at +0x48.
@@ -25,25 +25,6 @@ extern char objLayout[];
    explicit `(x >> 2) & 1` on an `unsigned int` member folds the offset onto
    the symbol instead).  src/act-game.c reads bits 13 and 14 of the same
    word. */
-typedef struct {
-    struct {
-        int f0;
-        int f4;
-        int f8;
-    } ent[6];
-
-    int f48;
-
-    unsigned int _b0 : 2;
-    unsigned int b2 : 1;
-    unsigned int _b3 : 7;
-    unsigned int b10 : 1;
-    unsigned int b11 : 1;
-    unsigned int b12 : 1;
-    unsigned int _b13 : 19;
-} StatusAttrAct;
-
-extern const StatusAttrAct actModeTbl[];
 
 /* .sdata, owned by act.o (VMA 0x63BD5C..0x63BD60, 4 B = MAIN.MAP act.o .sdata,
    which names no symbol in it): one zero word that nothing in the ROM reads,
@@ -81,8 +62,7 @@ void actChangeActBrain(GObj *a0, void (*a1)(), GProc **a2)
 
 void actChangeActMain(GObj *a0, void (*a1)(), GProc **a2)
 {
-    char *e = objLayout + a0->labelId * 0x4C;
-    unsigned short fld = *(unsigned short *)(e + 0x40);
+    unsigned short fld = objLayout[a0->labelId].procPri;
     GProc *old = *a2;
     GProc *ret;
     if (((long long)fld << 10) == 0) {
@@ -114,7 +94,6 @@ void actCreateMotionThread(void (*a0)(), int a1, GProc **a2)
 
 GProc *actCreateSubThread(void (*a0)(), int a1)
 {
-    char *e;
     unsigned short fld;
     GProc *p;
 
@@ -128,8 +107,7 @@ GProc *actCreateSubThread(void (*a0)(), int a1)
             debug_StdPrintfDummy("    [%d]\n", lval->actMode);
         }
     }
-    e = objLayout + isysCurrentGObj->labelId * 0x4C;
-    fld = *(unsigned short *)(e + 0x40);
+    fld = objLayout[isysCurrentGObj->labelId].procPri;
     if (((long long)fld << 10) == 0) {
         p = isysGObjProcAdd(isysCurrentGObj, a0, 0, a1);
     } else {
@@ -207,24 +185,25 @@ inline void actWaitCondition(int a0, int a1)
     }
 }
 
-void after_func_exec(char *self, int oldst, int newst)
+void after_func_exec(void *self, int oldst, int newst)
 {
     Act *g = GOBJ_ACT(self);
 
-    if (actModeTbl[oldst].ent[g->actKind].f4 != actModeTbl[newst].ent[g->actKind].f4) {
+    if (actModeTbl[oldst].ent[g->actKind].word4 != actModeTbl[newst].ent[g->actKind].word4) {
         if (g->after != 0) {
             (*(void (**)(char *))((char *)g + 0x14))(self);
             g->after = 0;
         }
     }
-    if (actModeTbl[oldst].b2 != actModeTbl[newst].b2) {
+    if (actModeTbl[oldst].onChain != actModeTbl[newst].onChain) {
         if (g->after != 0) {
             (*(void (**)(char *))((char *)g + 0x14))(self);
             g->after = 0;
         }
     }
-    if (actModeTbl[oldst].ent[g->actKind].f4 == 0 && actModeTbl[newst].ent[g->actKind].f4 == 0 &&
-        actModeTbl[oldst].b2 == 0 && actModeTbl[newst].b2 == 0) {
+    if (actModeTbl[oldst].ent[g->actKind].word4 == 0 &&
+        actModeTbl[newst].ent[g->actKind].word4 == 0 && actModeTbl[oldst].onChain == 0 &&
+        actModeTbl[newst].onChain == 0) {
         if (g->after != 0) {
             (*(void (**)(char *))((char *)g + 0x14))(self);
             g->after = 0;
@@ -409,22 +388,11 @@ typedef struct {
     IntrEnt ent[1];
 } IntrList;
 
-/* One 0x18-byte entry of the actor's mail list. */
-typedef struct {
-    void *f0;                                       /* 0x00 */
-    void *f4;                                       /* 0x04 */
-    void (*handler)(char *self, int id, void *arg); /* 0x08 */
-    void (*f0C)(char *self, int id, void *arg);     /* 0x0C */
-    unsigned short kind;                            /* 0x10 */
-    short f12;                                      /* 0x12 */
-    unsigned int f14;                               /* 0x14 */
-} IntrMail;
-
 typedef struct {
     int w[8];
 } IntrOrient;
 
-IntrMail *act_check_intr_list(char *self, IntrMail *m, void **out)
+IntrMail *act_check_intr_list(void *self, IntrMail *m, void **out)
 {
     IntrList *k = (IntrList *)(self + 0x54);
     Act *w = GOBJ_ACT(self);
@@ -433,7 +401,7 @@ IntrMail *act_check_intr_list(char *self, IntrMail *m, void **out)
 
     if (m != 0) {
         while ((short)m->kind != 429) {
-            if ((m->f14 >> 18) & 1) {
+            if ((m->flags >> 18) & 1) {
                 for (i = 0; i < k->n; i++) {
                     int mot;
                     char *p;
@@ -448,7 +416,7 @@ IntrMail *act_check_intr_list(char *self, IntrMail *m, void **out)
                     *(char **)((char *)w + 0x130) = p;
                     if (*(int *)(p + 0xC) == 0 &&
                         (*(unsigned short *)((char *)m + 0x16) & 1) == 0 &&
-                        (w->actMode != 0 || m->f12 == 0)) {
+                        (w->actMode != 0 || m->mode == 0)) {
                         continue;
                     }
                     w->intrMot = mot;
@@ -465,7 +433,7 @@ IntrMail *act_check_intr_list(char *self, IntrMail *m, void **out)
     return 0;
 }
 
-void act_check_mail(char *self, IntrMail *m)
+void act_check_mail(void *self, IntrMail *m)
 {
     IntrList *k = (IntrList *)(self + 0x54);
     Act *w = GOBJ_ACT(self);
@@ -509,7 +477,7 @@ void act_check_mail(char *self, IntrMail *m)
         }
     }
     while ((short)m->kind != 429) {
-        if ((m->f14 >> 18) & 1) {
+        if ((m->flags >> 18) & 1) {
             for (i = 0; i < k->n; i++) {
                 id = k->ent[i].id;
                 if (id == (short)m->kind) {
@@ -537,7 +505,6 @@ typedef struct {
 } ActMotionRec;
 
 extern ActMotionRec motionKind[];
-extern IntrMail actIntrList[];
 
 /* one flag per mail list: a list whose flag is set is not checked for an
    interrupt while the status record's b11 is set */
@@ -599,18 +566,18 @@ void BeforeFunc(GObj *self)
                               (IntrMail *)w->mainMail, (IntrMail *)0xFFFFFFFF};
         IntrSkip skip = {{0, 1, 0, 1}};
 
-        ACTSendMailCorrect(self, actModeTbl[w->actMode].f48);
+        ACTSendMailCorrect(self, actModeTbl[w->actMode].mail);
         for (i = 0; i < *(int *)(mb + 4); i++) {
             ((IntrList *)mb)->ent[i].id =
                 _ACTCorrectMsg(self, *(int *)(mb + 8 + i * 8), *(void **)(mb + 0xC + i * 8));
         }
-        ACTRunIntrCorrect(self, (struct IntrRec *)mails[1], (struct IntrRec *)mails[2]);
+        ACTRunIntrCorrect(self, mails[1], mails[2]);
         for (i = 0; mails[i] != (IntrMail *)0xFFFFFFFF; i++) {
             act_check_mail(self, mails[i]);
         }
         intr = 0;
         for (i = 0; mails[i] != (IntrMail *)0xFFFFFFFF; i++) {
-            if (skip.w[i] == 0 || actModeTbl[w->actMode].b11 == 0) {
+            if (skip.w[i] == 0 || actModeTbl[w->actMode].skipMarked == 0) {
                 intr = act_check_intr_list(self, mails[i], (void **)&ent);
                 if (intr != 0) {
                     break;
@@ -627,9 +594,9 @@ void BeforeFunc(GObj *self)
     if (intr != 0) {
         old = w->intrKind;
         w->intrKind = (short)intr->kind;
-        act = (void *)actModeTbl[intr->f12].ent[w->actKind].f0;
+        act = (void *)actModeTbl[intr->mode].ent[w->actKind].act;
         if (act != 0) {
-            after_func_exec(self, w->actMode, intr->f12);
+            after_func_exec(self, w->actMode, intr->mode);
             if (*(int *)((char *)w + 0x18) != 0) {
                 (*(void (**)(char *))((char *)w + 0x18))(self);
                 *(int *)((char *)w + 0x18) = 0;
@@ -646,24 +613,24 @@ void BeforeFunc(GObj *self)
             ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a900[0] = w->actMode;
             ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a928[0] = w->frame;
             ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a950[0] = old;
-            w->actMode = intr->f12;
+            w->actMode = intr->mode;
             w->flags18.ll = (w->flags18.ll & ~(1LL << 39)) |
-                            ((unsigned long long)actModeTbl[w->actMode].b10 << 39);
+                            ((unsigned long long)actModeTbl[w->actMode].bit10 << 39);
             w->flags18.ll = (w->flags18.ll & ~(1LL << 50)) |
-                            ((unsigned long long)actModeTbl[intr->f12].b12 << 50);
+                            ((unsigned long long)actModeTbl[intr->mode].bit12 << 50);
             w->flags20.ll &= ~(1LL << 11);
-            *(IntrMail **)((char *)w + 0xD4) = &actIntrList[actModeTbl[w->actMode].ent[5].f8];
+            *(IntrMail **)((char *)w + 0xD4) = &actIntrList[actModeTbl[w->actMode].intrList];
             actChangeActMain(isysCurrentGObj, act, (void **)((char *)w + 4));
         }
-        if (intr->f0 != 0) {
+        if (intr->motion != 0) {
             *(int *)((char *)w + 0x38) = 0;
-            actCreateMotionThread(intr->f0, 21, ((char *)w + 8));
+            actCreateMotionThread(intr->motion, 21, ((char *)w + 8));
         }
-        if (intr->f4 != 0) {
-            actCreateMotionThread(intr->f4, 22, ((char *)w + 0xC));
+        if (intr->extra != 0) {
+            actCreateMotionThread(intr->extra, 22, ((char *)w + 0xC));
         }
-        if (intr->f0C != 0) {
-            intr->f0C(self, ent->id, ent->f4);
+        if (intr->accept != 0) {
+            intr->accept(self, ent->id, ent->f4);
         }
         ACTAcceptMail(self, (short)intr->kind);
     }
@@ -710,9 +677,9 @@ extern void GetLowerPlaneCollision(void *work, void *pos);
 /* kept local: this TU passes the packet priority that the prototype in
    seki/include/GifPacket.h leaves out */
 
-void ACTDebugMove(int a0, int a1)
+void ACTDebugMove(GObj *a0, int a1)
 {
-    char *self = (char *)a0;
+    GObj *self = (char *)a0;
     float dir[4];
     float pos[4];
     ActPadStick st;

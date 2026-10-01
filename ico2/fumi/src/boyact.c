@@ -39,6 +39,7 @@
 #include "act.h"
 #include "gv.h"
 #include <assert.h>
+#include "poly-flat.h"
 
 typedef struct {
     int a, b, c;
@@ -217,8 +218,8 @@ void findChainInJump(void *self)
     }
 }
 
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern void GetRootProjectionPosOfGObj(int a0, int a1);
+/* kept local: agrees with motionManager2.h, which this TU does not include */
+extern void GetRootProjectionPosOfGObj(float *pos, GObj *obj);
 
 /* dir: subBoyCollision passes the motion direction (sub + 0x120) in $6; this
    body never reads it */
@@ -538,9 +539,8 @@ done:
     }
 }
 
-extern char actModeTbl[];
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern float GetHeightOfFieldPlaneDifference(int *a, int *b);
+/* kept local: agrees with motionManager2.h, which this TU does not include */
+extern float GetHeightOfFieldPlaneDifference(GObj *a, GObj *b);
 
 /* One 0x50-byte record per act status, indexed by sub->0x34. */
 
@@ -558,7 +558,7 @@ void handoff_heroin(void)
 
     if (girlGObj != 0) {
         if (GOBJ_SUB(girlGObj)->hand0Mode == 6) {
-            if ((((StatusAttr *)(actModeTbl + GOBJ_ACT(boy)->actMode * 0x50))->flags >> 7) & 1) {
+            if (actModeTbl[GOBJ_ACT(boy)->actMode].bit7) {
             } else {
                 iosOmSendMail(girlGObj, 0x3E, (int)isysCurrentGObj);
             }
@@ -891,11 +891,8 @@ int GetChainSlope(void)
    the rest of the file reaches. */
 /* kept local: agrees with fieldCollision.h, which this TU does not include */
 extern void ClipWall(void *a0);
-/* kept local: returns float here, void in poly-flat.h */
-extern float IsPointIsInScreen(void *a0, void *a1);
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern void _GetMotionDirection(int a0, int a1);
-extern void _ACTCommonMailTest(GObj *a0, int a, int b, int c);
+/* kept local: agrees with motionManager2.h, which this TU does not include */
+extern void _GetMotionDirection(float *dir, GObj *obj);
 extern float GetDifferenceFromLowerField(int self, int a1);
 /* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
 extern int GetMotionFrameFlag1(char *self);
@@ -1689,25 +1686,14 @@ typedef struct {
    camera target id at +4 (BoyInfoUpdate_StageChange copies it whole as f50). */
 #define BOYEFSTAGE ((unsigned char *)boyInfo + 0x50)
 
-typedef struct {
-    char pad00[12];
-    float f0C; /* 0x0C */
-    float f10;
-    float f14;
-    float f18; /* 0x18 */
-    float f1C;
-    float f20;
-    char pad24[0x4C - 0x24];
-} WeaponOffsetRow; /* 0x4C */
-
-extern char objLayout[];
+extern GenGeo objLayout[];
 
 void InitSwapWeapon(void *self)
 {
     Act *sub = GOBJ_ACT(self);
     char *info;
     char *p;
-    WeaponOffsetRow *row;
+    GenGeo *row;
 
     if (BOYINFO.boyID != 0) {
         BOYINFO.weapon = isysGObjSearchFromObjLayoutID(BOYINFO.boyID);
@@ -1725,13 +1711,13 @@ void InitSwapWeapon(void *self)
         BOYINFO.f44 = *(float *)(p + 0x24);
         BOYINFO.f48 = *(float *)(p + 0x28);
     } else {
-        row = (WeaponOffsetRow *)(*(int *)(info + 0x8) * sizeof(WeaponOffsetRow) + objLayout);
-        BOYINFO.f30 = -row->f18;
-        BOYINFO.f34 = -row->f1C;
-        BOYINFO.f38 = -row->f20;
-        BOYINFO.f40 = row->f0C * 3.1415927f / 180.0f;
-        BOYINFO.f44 = row->f10 * 3.1415927f / 180.0f;
-        BOYINFO.f48 = row->f14 * 3.1415927f / 180.0f;
+        row = &objLayout[*(int *)(info + 0x8)];
+        BOYINFO.f30 = -row->pos[0];
+        BOYINFO.f34 = -row->pos[1];
+        BOYINFO.f38 = -row->pos[2];
+        BOYINFO.f40 = row->rot[0] * 3.1415927f / 180.0f;
+        BOYINFO.f44 = row->rot[1] * 3.1415927f / 180.0f;
+        BOYINFO.f48 = row->rot[2] * 3.1415927f / 180.0f;
     }
 }
 
@@ -1876,11 +1862,6 @@ void PrivInsCamProcess(void)
 
 /* kept local: poly-flat.h declares IsPointIsInScreen void, the callers here
    read the float it returns */
-/* kept local: returns float here, void in poly-flat.h */
-extern float IsPointIsInScreen(void *a0, void *a1);
-extern void ACTGame_CommonLoop(GObj *self);
-extern void ACTParaStatus_Exec(GObj *self);
-extern void ACTLookTargetSystem_Exec(GObj *self);
 extern float GetDifferenceFromLowerField(int self, int a1);
 extern int isBottomOfChain(void *chain);
 /* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
@@ -2441,11 +2422,11 @@ void subBoyCollision(GObj *volatile a0)
     }
 }
 
-void afterBoySwim(GObj *volatile a0);
+inline void afterBoySwim(GObj *volatile a0);
 /* kept local: S12 here, FcColInfo in fieldCollision.h */
 extern S12 InitialColInfo;
-/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern int GetSkeltonFocusNode(char *a0, int a1);
+/* kept local: agrees with motionManager2.h, which this TU does not include */
+extern int GetSkeltonFocusNode(GObj *a0, int a1);
 extern void MoveFloatingBox(void *box, int self, void *m, void *p, float d);
 
 /* the record Act+0x680 points at, with the fields actBoyBelift and actBoySwim
@@ -2501,7 +2482,7 @@ void actBoySwim(GObj *volatile a0)
             debug_NMarker(pos, 0xFF, 0, 0, 100.0f);
             MoveFloatingBox(box, a0,
                             *(char **)(GOBJ_SUBSLOT(a0) + 0xC) +
-                                GetSkeltonFocusNode((char *)a0, 0x13) * 0x40 + 0x30,
+                                GetSkeltonFocusNode(a0, 0x13) * 0x40 + 0x30,
                             BOY_EXT(a0)->f_2D0, 30.0f);
             if (!(_DistSqGV(test_CURRENTROOT((void *)a0), pos) < 4e+04f)) {
                 BOY_EXT(a0)->f_2C0 = 0;
@@ -2617,7 +2598,7 @@ void actBoyAttack(GObj *volatile a0)
     ACTSearchEnemy_inl((void *)a0, (int *)((char *)sub + 0x188), vec);
     while (1) {
         if (*(int *)((char *)sub + 0x188)) {
-            if (ACTGame_NoWeapon((char *)a0)) {
+            if (ACTGame_NoWeapon(a0)) {
                 SetMotionDirectionWithLimit((void *)a0, vec, 5.0f, 45.0f);
             } else {
                 SetMotionDirectionWithLimit((void *)a0, vec, 10.0f, 90.0f);
@@ -2694,7 +2675,7 @@ void actBoyTakeWeapon(GObj *volatile a0)
             if (30.0f < GOBJ_SUB(a0)->animFrame && !put) {
                 if (BOYINFO.weapon != 0) {
                     ReleaseWeapon(BOYINFO.weapon);
-                    ExecuteSEPackage((int)BOYINFO.weapon, 0x50);
+                    ExecuteSEPackage(BOYINFO.weapon, 0x50);
                 }
                 PutWeapon();
                 put = 1;
@@ -2908,7 +2889,7 @@ void actBoyPullupReady(GObj *volatile a0)
         if (*(unsigned char *)(BOY_WALL(a0) + 0x4F0) &&
             *(int *)(GOBJ_SUB(a0)->motion * 0x194 + D_0055FFA8) != 1) {
             _MoveGV(mv, test_CURRENTROOT((void *)a0), (float *)(BOY_WALL(a0) + 0x500), 3.0f);
-            SetRootPosition((char *)a0, mv);
+            SetRootPosition(a0, mv);
         }
         _ACTCharStatus_Set(a0, 0x1C, -1.0f, 0);
         if ((sub->padNow & 8) == 0 || isGirlWithinPullupHeight()) {
@@ -2961,7 +2942,6 @@ void actBoyPullupGo(GObj *volatile a0)
 extern void SetMotionNodeFixModeParameter(char *self, char *obj, int mode, int node, void *quat,
                                           float x, float y, float z, float w);
 extern void InsertCamera_Set(float *pos, float *tgt, int frames);
-extern char D_005577F4[];
 
 void actBoyBelift(GObj *volatile a0)
 {
@@ -3042,7 +3022,7 @@ void actBoyBelift(GObj *volatile a0)
         default:
             ACTSendMailCorrect(a0, 0xE2);
             debug_StdPrintfDummy("enemy error body slam[%s]\n",
-                                 D_005577F4 + (unsigned int)GOBJ_ACT(girl)->actMode * 0x50);
+                                 actModeTbl[(unsigned int)GOBJ_ACT(girl)->actMode].name);
             break;
         }
         _ACTWait(1);
@@ -3218,8 +3198,8 @@ void actBoyDitch3mReady(GObj *volatile a0)
 
     ACTAdjustPlane(a0, BOY_WALL(a0) + 0x8C0);
     _ACTWait(1);
-    ResetMotionProgramInterpInfo((char *)a0, 35);
-    ResetMotionProgramInterpInfo((char *)a0, 1);
+    ResetMotionProgramInterpInfo(a0, 35);
+    ResetMotionProgramInterpInfo(a0, 1);
 
     while (1) {
         a = 1;
@@ -3440,8 +3420,6 @@ void SetStatusBoy_OtherStageGirlPinch(void)
     InsertCamera_SetNoraml(cam, pos, frames, 0);
 }
 
-extern char D_002A84F8[];
-
 void *gopp_subBoyControl;
 
 /* not declared by the headers this TU includes; the act.c entry points as
@@ -3553,14 +3531,14 @@ void actBoyStart(GObj *a0)
 
     startWaitCancel = 0;
 
-    *(void **)(work + 0xD0) = D_002A84F8;
+    *(void **)(work + 0xD0) = &actIntrList[74];
 
     actCreateSubThread(subBoyBrainMain, 20);
     gopp_subBoyControl = (void *)actCreateSubThread(subBoyControl, 21);
     actCreateSubThread(subBoyCollision, 21);
     actCreateSubThread(subCommonIdle, 21);
 
-    *(void **)(work + 0xD4) = D_002A84F8 + 0x78;
+    *(void **)(work + 0xD4) = &actIntrList[79];
     ACTSendMailCorrect(a0, 0xC7);
 
     _ACTWait(1);

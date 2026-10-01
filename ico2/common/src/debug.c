@@ -818,7 +818,6 @@ extern McReq mc;
 extern void iosMcGetInfo(void *a0);
 extern GsysObjInfo seDef[];
 extern int SgGetSlotStatus(int a0, int slot);
-extern char initFunc[];
 
 /* src/debug.c:5364-5376 in the listing: the sibling of debug_ListPadControlGobj
    that lists the actor GObjs the debug menu can print (kinds 1, 2, 4 and 0x2F). */
@@ -887,9 +886,6 @@ extern int iosMcSync(unsigned long *a0);
 extern void iosMcUnformat(void *a0);
 /* kept local: agrees with mcard.h, which this TU does not include (iosMcChdirProduct, iosMcDelete, iosMcFormat, iosMcGetBlockSaveInfo, iosMcGetDir, iosMcGetInfo, iosMcLoadGameBlock, iosMcLoadProductBlock, iosMcSaveGameBlock, iosMcSaveIconBlock, iosMcSaveProductBlock, iosMcUnformat differ) */
 extern void iosMcTest(void);
-extern unsigned short seKind[];
-/* pad state block: +0x4 held buttons, +0xC newly-pressed (trigger) buttons */
-extern char adpcmFile[];
 
 inline void ChangeGirlControlMode(int a0)
 {
@@ -1445,13 +1441,13 @@ void debug_PrintCharacter(char *str, int x, int y, int r, int g, int b, int sz)
 
     PacketBufferStruct.tail = q + 0x2C; ((DbgPkWord *)(q + 0x2C))->d = 0x60000000; PacketBufferStruct.ptr = q + 0x34; ((DbgPkWord *)(q + 0x34))->w[0] = 0; PacketBufferStruct.ptr = q + 0x38; ((DbgPkWord *)(q + 0x38))->w[0] = 0; PacketBufferStruct.ptr = q + 0x3C;
 
-    dl_SetDLPriority(12); dl_OpenDma(5, (int)PacketBufferStruct.dma, 0); dl_CloseDma();
+    dl_SetDLPriority(12); dl_OpenDma(5, PacketBufferStruct.dma, 0); dl_CloseDma();
 
     dl_SetDLPriority(12);
     while ((c = (unsigned char)*str++) != 0) {
         /* clang-format on */
         if (fontPacket[c].packet != 0) {
-            dl_OpenDma(2, (int)fontPacket[c].packet, fontPacket[c].qwc);
+            dl_OpenDma(2, fontPacket[c].packet, fontPacket[c].qwc);
             dl_CloseDma();
         }
     }
@@ -2691,7 +2687,7 @@ void getBuffer(int a0)
     sprintf(a0, "%s");
 }
 
-int debug_SelectCsvWindow(char *title, int x, int y, int rows, void *base, int stride, int off,
+int debug_SelectCsvWindow(char *title, int x, int y, int rows, const void *base, int stride, int off,
                           int deref, int n, int *psel)
 {
     return _debug_SelectCsvWindow(title, x, y, rows, (int)base, stride, off, deref, n, psel,
@@ -3340,7 +3336,7 @@ char *debugCdvdLoadInfoSegDispFunc(int idx, int page)
     } else {
         sprintf(buf, " %6x", d);
     }
-    sprintf(loadInfoLine, "%3s %6x %6x %s", initFunc + idx * 0x24,
+    sprintf(loadInfoLine, "%3s %6x %6x %s", initFunc[idx].ext,
             *(int *)((char *)loadInfoSeg + (page * 0xD0 + idx * 8)),
             *(int *)((char *)loadInfoSeg + (page * 0xD0 + idx * 8) + 4), buf);
     return loadInfoLine;

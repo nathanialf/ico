@@ -5,7 +5,7 @@
 #include <libvu0.h>
 #include "main.h"
 
-void setMailTarget(int a0, int *a1, int *a2)
+void setMailTarget(GObj *a0, int *a1, int *a2)
 {
     int v = *a2;
     if (v >= 0x10) {
@@ -29,7 +29,7 @@ typedef struct SeRec {
 } SeRec;
 
 extern SeRec seDef[];
-void setMailTarget(int a0, int *a1, int *a2);
+void setMailTarget(GObj *a0, int *a1, int *a2);
 
 void seMail(GObj *self, int id)
 {

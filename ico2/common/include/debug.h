@@ -125,7 +125,7 @@ extern int debug_no_breast_hang;
 void debug_BeginTimer(int a0);
 float debug_GetTimerSec(void);
 float debug_GetTimerCount(void);
-void debug_ClearFontWindow(void);
+inline void debug_ClearFontWindow(void);
 void debug_ResizeFontWindowHeight(int val);
 void debug_SetBar(char *name, unsigned int col, char *file, int line);
 void debug_SetBar2(char *name, unsigned int col, char *file, int line);
@@ -139,16 +139,16 @@ int debug_SelectCsvWindowWithLine(char *title, int x, int y, int rows, void *bas
                                   int off, int deref, int n, int *psel);
 
 int debug_TryToGetStartStage(void);
-int debugSceOpen(int a0, int a1);
-int debugSceClose(int a0);
+inline int debugSceOpen(int a0, int a1);
+inline int debugSceClose(int a0);
 int debugSceCloseFdNew(void);
 void debug_closeLog(void);
 void debugCdvdLoadInfoSegInit(int page);
 void debugCdvdLoadInfoSegAdd(int page, int idx, int delta);
 void debugCdvdLoadInfoSegCls(int page, int idx);
-int gsResetFunc(int a0);
-void ChangeGirlControlMode(int a0);
-int debug_CallbackGsFinish(int channel);
+inline int gsResetFunc(int a0);
+inline void ChangeGirlControlMode(int a0);
+inline int debug_CallbackGsFinish(int channel);
 void debug_SaveStartStageFile(int stage);
 
 int _debug_SelectCsvWindow(char *title, int x, int y, int rows, int base, int stride, int off,
@@ -190,7 +190,7 @@ void debug_PrintfDummy(int a0, int a1, unsigned int a2, int a3, ...);
 int debug_SETest(int reset);
 int debug_SelectActGobj(int reset);
 
-int debug_SelectCsvWindow(char *title, int x, int y, int rows, void *base, int stride, int off,
+int debug_SelectCsvWindow(char *title, int x, int y, int rows, const void *base, int stride, int off,
                           int deref, int n, int *psel);
 
 int debug_SelectStage(void);

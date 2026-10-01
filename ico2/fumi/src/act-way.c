@@ -477,7 +477,7 @@ int ACTWayMove_NextDetail(GObj *self, float *node, float *goal, unsigned char d,
         if (stage_no == 8 || chk != 0) {
             if (self == girlGObj && wallGObj_ACTCheckCollis_WAY != 0 &&
                 *(int *)((char *)wallGObj_ACTCheckCollis_WAY + 0xC) == 17 &&
-                IsThisBoxTruck((char *)wallGObj_ACTCheckCollis_WAY) != 7 &&
+                IsThisBoxTruck(wallGObj_ACTCheckCollis_WAY) != 7 &&
                 _DistSqGV(goal, test_CURRENTROOT(wallGObj_ACTCheckCollis_WAY)) < 40000.0f &&
                 _DistxzSqGV(pos, test_CURRENTROOT(wallGObj_ACTCheckCollis_WAY)) < 40000.0f) {
                 ok = 0;

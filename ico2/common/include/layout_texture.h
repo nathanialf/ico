@@ -104,5 +104,8 @@ typedef struct {       /* field names derived */
     int link;          /* 0x30, the next layout, -1 for none */
     int word34;        /* 0x34 */
 } LtProp;              /* derived name */
+extern LtProp texLayout[];
+
+void texture_fading(LtProp *p);
 
 #endif /* LAYOUT_TEXTURE_H */

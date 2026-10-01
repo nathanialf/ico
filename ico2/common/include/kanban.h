@@ -27,4 +27,7 @@ void kanbanInit(int no);
 /* MAIN.MAP global of kanban.o's .sdata */
 extern int kanbanCommonRead;
 
+struct Node;
+void display_layout(struct Node *k);
+
 #endif /* KANBAN_H */

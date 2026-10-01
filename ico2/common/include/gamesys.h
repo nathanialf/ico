@@ -25,11 +25,11 @@ extern int gamesysAnotherStageTsuresari;
 extern int gamesysVersionDiff;
 extern int gamesysObjBuffOver;
 
-int gamesysGetGirlStageIDAndPosition(int a0);
-void gamesysMemoryHandlerRead(int *self, int a1, int a2);
-void gamesysMemoryHandlerWrite(int *self, int n, int a2);
-void gamesysMemoryLoad(void **tbl, int a1, void *a2);
-void gamesysMemorySave(void **tbl, int a1, void *a2);
+int gamesysGetGirlStageIDAndPosition(int *pos);
+void gamesysMemoryHandlerRead(int *self, void *dst, int size);
+void gamesysMemoryHandlerWrite(int *self, void *src, int size);
+void gamesysMemoryLoad(void **tbl, void *a1, void *a2);
+void gamesysMemorySave(void **tbl, void *a1, void *a2);
 int *gamesysObjInfoBaseSet(int *self, int stage);
 void gamesysObjInfoCls(int kind, int no);
 GamesysObjInfo *gamesysObjInfoGet(int kind, int no);

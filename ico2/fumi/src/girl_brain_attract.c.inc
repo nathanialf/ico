@@ -179,22 +179,6 @@ extern void _GetRootObjectOrient(void *a0, char *a1);
    0x34 (act.c reads the same table).  The flags word at 0x4C is a bitfield:
    the ROM keeps 0x4C as the load displacement at all three sites here, which
    only a bitfield reference produces.  The field names are ours. */
-typedef struct {
-    struct {
-        int f0;
-        int f4;
-        int f8;
-    } ent[6];
-
-    int f48;
-
-    unsigned int _b0 : 3;
-    unsigned int b3 : 1;
-    unsigned int b4 : 1;
-    unsigned int _b5 : 27;
-} GirlStatusAttr;
-
-extern char actModeTbl[];
 
 /* The record Act.enemy points at, as far as this file uses it: the sofa
    position the attract state hands over (copied from the actor's 0x5B0) and
@@ -552,7 +536,7 @@ restart:
                 last[2] = tgt.pos[2];
             }
             if (tgt.obj != (void *)boyGObj && !(tgt.obj != 0 && IsTopHint(tgt.obj)) &&
-                !ACTGameViewSimple_Check((void *)a0, tgt.obj)) {
+                !ACTGameViewSimple_Check(a0, tgt.obj)) {
                 switch (sub->actMode) {
                 case 2:
                     turnCnt = turnCnt + 1;
@@ -567,7 +551,7 @@ restart:
             }
             if (tgt.obj != 0 && IsTopHint(tgt.obj) &&
                 ((int)((unsigned long long)sub->wayFlags >> 18) & 1)) {
-                hintCnt = hintCnt + ((GirlStatusAttr *)actModeTbl)[GOBJ_ACT(a0)->actMode].b4;
+                hintCnt = hintCnt + actModeTbl[GOBJ_ACT(a0)->actMode].hintCount;
                 if ((60 - systemStatus[0] * 10) / systemStatus[1] * 4 < hintCnt) {
                     sub->stickMag = 0.0f;
                 }
@@ -594,7 +578,7 @@ restart:
                 if (tgt.obj != 0 && IsTopHint(tgt.obj) && sub->wayMode == 2 &&
                     girlControlMode == 0) {
                     girlAttractTurnMailL((void *)a0, tgt.obj, tgt.pos, mypos);
-                    if (((GirlStatusAttr *)actModeTbl)[GOBJ_ACT(a0)->actMode].b3) {
+                    if (actModeTbl[GOBJ_ACT(a0)->actMode].attractWait) {
                         cnt = (60 - systemStatus[0] * 10) / systemStatus[1] * 10;
                     }
                 }
@@ -629,7 +613,7 @@ restart:
                 sub->stickMag = 0.0f;
                 if (tgt.obj != 0 && IsTopHint(tgt.obj) && girlControlMode == 0) {
                     girlAttractTurnMailL((void *)a0, tgt.obj, tgt.pos, mypos);
-                    if (((GirlStatusAttr *)actModeTbl)[GOBJ_ACT(a0)->actMode].b3) {
+                    if (actModeTbl[GOBJ_ACT(a0)->actMode].attractWait) {
                         cnt = (60 - systemStatus[0] * 10) / systemStatus[1] * 10;
                     }
                 } else {

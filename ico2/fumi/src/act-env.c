@@ -572,7 +572,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
         v1D8 = 0;
         v1DC = 0;
     }
-    GetRootProjectionPosOfGObj((int)prj, (int)a0);
+    GetRootProjectionPosOfGObj(prj, a0);
     GetRootPosition(pos, a0);
     GetSkeltonOrient(ori, a0, 0x2C);
     env->wallContact = *(ClipCopy *)((char *)GOBJ_SUB(a0) + 0x180);
@@ -1210,7 +1210,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
                     test_CURRENTROOT(boyGObj)[1] + 800.0f)
                 v204 = 0;
             if (stage_no == 7) {
-                GetRootProjectionPosOfGObj((int)p80, (int)((char *)girlGObj));
+                GetRootProjectionPosOfGObj(p80, (int)((char *)girlGObj));
                 if (sel == 200) {
                     if (!(180.0f < p80[1] - prj[1]))
                         v204 = 0;
@@ -1411,7 +1411,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
     }
     CheckFloorAttribute(a0, 0x200);
     if (a0 == ((char *)girlGObj) && sub->actMode == 0x45) {
-        float hd = -GetHeightOfFieldPlaneDifference((int *)boyGObj, (int *)a0);
+        float hd = -GetHeightOfFieldPlaneDifference((int *)boyGObj, a0);
 
         if (((int)(*(unsigned long long *)((char *)sub + 0x480) >> 18) & 1) && 5.0f < hd) {
             *(unsigned long long *)((char *)sub + 0x488) |= 0x40;
@@ -1475,7 +1475,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
     }
     if (a0 == boyGObj && ((char *)girlGObj) != 0 &&
         GOBJ_ACT(girlGObj)->actMode == 0x6F) {
-        char *h = (char *)GOBJ_ACT(girlGObj)->carrier;
+        GObj *h = (char *)GOBJ_ACT(girlGObj)->carrier;
 
         if (GOBJ_ACT(h)->actMode == 0x67 && GetMotionFrameFlag1(h)) {
             float p60[4], p70[4];

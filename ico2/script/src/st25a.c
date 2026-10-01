@@ -48,7 +48,9 @@ static char *elevAgain = 0; /* derived name */
 
 static char *elevFirst = 0; /* derived name */
 
-extern char D_00618ED0[];
+/* stream-motion-def's table; kept local: streamMotionManager.h, which defines
+   the record, does not declare it */
+extern StreamMotionFile streamMotion[];
 
 /* st25a.o's whole .rodata run, in the order the object emits it; the 0.15
    double that closes the run is actSt25aElevChk's own constant-pool operand. */
@@ -200,8 +202,6 @@ typedef union TalkWork { /* derived name */ /* field names derived */
     Vec4St25A v[3];
 } TalkWork;
 
-extern char D_00618E70[];
-
 /* .sbss, owned by st25a.o and reached only from this file (MAIN.MAP names no
    symbol in the run), in the ROM's run order: the flag the demo raises when it
    is over, and the one its inner event raises when that has run. */
@@ -231,7 +231,7 @@ void actSt25aQueenTalkChk(GObj *volatile a0)
 
     scpPlayMotReq(boyGObj, 1);
 
-    StandbyStreamMotion((int)D_00618E70);
+    StandbyStreamMotion(streamMotion[6].path);
     i = 0;
     while (CheckReadyStreamMotion() == 0) {
         i++;
@@ -344,7 +344,7 @@ void actConte12(GObj *volatile a0)
 
     scpSearchGobj(2149)->active = 1;
     EntryStreamMotion(boyGObj);
-    EntryStreamMotion((int)scpSearchGobj(2149));
+    EntryStreamMotion(scpSearchGobj(2149));
     PlayStreamMotion();
 
     stage_SetAnimation(784, 1, 0);
@@ -544,7 +544,6 @@ void actConte12Jimaku(GObj *volatile a0)
 }
 
 extern const StgPre stageData[];
-extern const ExitData exitData[];
 
 void actSt25aQueenDeadChk(GObj *volatile a0)
 {
@@ -578,7 +577,7 @@ void actSt25aQueenDeadChk(GObj *volatile a0)
 
     scpSearchGobj(2149)->active = 1;
     EntryStreamMotion(boyGObj);
-    EntryStreamMotion((int)scpSearchGobj(2149));
+    EntryStreamMotion(scpSearchGobj(2149));
     PlayStreamMotion();
 
     actCreateSubThread(actConte13Jimaku, 21);
@@ -926,7 +925,7 @@ void actSt25aQueenDeadReadyChk(GObj *volatile a0)
     while (InqQueenBarrierExist() != 0 || gflagChk(334) == 0) {
         _ACTWait(1);
     }
-    StandbyStreamMotion((int)D_00618ED0);
+    StandbyStreamMotion(streamMotion[8].path);
     i = 0;
     while (CheckReadyStreamMotion() == 0) {
         i++;
@@ -944,7 +943,7 @@ void actSt25aQueenDeadEvent(int x)
 void actItouQueenAttackChk(GObj *volatile a0)
 {
     while (1) {
-        while (ForMotionViewer_GetCurrentMotion((char *)scpSearchGobj(3526)) != 0x436) {
+        while (ForMotionViewer_GetCurrentMotion(scpSearchGobj(3526)) != 0x436) {
             _ACTWait(1);
         }
         tex_SetUVScroll(queenBallScrTexture, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 1);

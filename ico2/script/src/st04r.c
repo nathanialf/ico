@@ -409,7 +409,7 @@ void openGateSub(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void openGate(int a0)
+void openGate(GObj *a0)
 {
     GProc *th;
 

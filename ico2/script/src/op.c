@@ -313,13 +313,12 @@ static ActMail opDemo03_mes[2] = {{430}, {429}};
    before the index add, which swaps which of the two values ends up in $a1 and
    which in $a2. */
 
-/* Both tables live in the ELF's .rodata run, so `const` is what they are, and
-   on stageData it is load-bearing: only a reference rooted at a const object
+/* stageData lives in the ELF's .rodata run, so `const` is what it is, as
+   typedef.h has exitData, and it is load-bearing: only a reference rooted at a const object
    makes the `ent` load unchanging, and only then is that load free of the
    `GObj *volatile a0` parameter home's memory dependence, which is what lets the
    home store issue three slots later. */
 extern const StgPre stageData[];
-extern const ExitData exitData[];
 
 inline void actSubMpegReturnPreload(GObj *volatile a0)
 {

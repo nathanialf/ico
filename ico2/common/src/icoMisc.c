@@ -41,6 +41,7 @@
 #include "camera-root.h"
 #include "act-game.h"
 #include "main.h"
+#include "windField.h"
 
 extern int debug_bar_flag;
 
@@ -569,8 +570,6 @@ extern void gif_StartPacketPri(int pri);
 extern void gif_SetAlpha(long long a0, long long a1, long long a2);
 /* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture differs) */
 extern void gif_EndPacket(void);
-/* kept local: returns void * here, int in windField.h; void is int here, void in windField.h */
-extern void *GetWindVector(int a0, void *pos);
 
 void DispIcoMisc(void)
 {

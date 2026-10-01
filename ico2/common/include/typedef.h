@@ -818,8 +818,8 @@ typedef struct { /* field names derived */
     float float15C;  /* 0x15C, no C reader */
     int word160;     /* 0x160, no C reader */
     int wayGroupEnd; /* 0x164 */
-    int word168;     /* 0x168, no C reader */
-    int word16C;     /* 0x16C, no C reader */
+    int seSegData1;  /* 0x168, the sound data segment 1 keeps into the stage */
+    int seSegData2;  /* 0x16C, the same for segment 2 */
     int wayGroupStart; /* 0x170 */
     int word174;       /* 0x174, no C reader */
     int word178;       /* 0x178, no C reader */
@@ -925,6 +925,7 @@ typedef struct { /* field names derived */
     int firstWalk2;
     int nextStage; /* 0x24, the stage the exit leads to */
 } ExitData;
+extern const ExitData exitData[]; /* exit-data, in .rodata */
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 38 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
 typedef struct ActMail {  /* field names derived */
@@ -1245,24 +1246,27 @@ typedef struct Act { /* field names derived */
     int work; /* 0x688, the actor's extended work block (act-game.h's ActWork) */
 } Act;
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 2 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
-typedef struct {            /* field names derived */
+/* obj-layout: one placed object of a stage, 0x4C bytes, indexed by the
+ * object's GObj labelId.  sceneManager.c creates the object from it; the
+ * generator (ico2/omori/src/generator.c) reads a generator's and its enemies'
+ * rows, objact.c the action row, enemy_act.c and ebrain.c the flag word. */
+typedef struct GenGeo {     /* field names derived */
     float scale[3];         /* 0x00 */
-    float rot[3];           /* 0x0C */
+    float rot[3];           /* 0x0C, degrees */
     float pos[3];           /* 0x18 */
-    int proc;               /* 0x24, a process the generator adds, 0 for the kind's own */
-    int *outGObj;           /* 0x28, where the created GObj is stored, 0 for nowhere */
+    void (*proc)();         /* 0x24, the object's own act process (scpDeamon), 0 for the kind's start */
+    char **outGObj;         /* 0x28, where the created GObj is stored (scpDummyGObj), 0 for nowhere */
     int mdl;                /* 0x2C */
-    int accessary;          /* 0x30, the accessary table row */
-    char pad34[4];          /* 0x34 */
+    int accessary;          /* 0x30, the accessary table row; for a generator the enemy kind it calls */
+    int action;             /* 0x34, the object's row in obj-action's objAction, 0 for none */
     int initArg;            /* 0x38, the last word of the create arguments */
-    char pad3C[4];          /* 0x3C */
+    int word3C;             /* 0x3C, no C reader */
     unsigned short procPri; /* 0x40, the process priority, shifted by 10 */
-    char pad42[2];
-    unsigned short parent; /* 0x44 */
-    unsigned char kind;    /* 0x46 */
-    unsigned char light;   /* 0x47, low five bits the light id */
-    unsigned int flags;    /* 0x48, display list in bits 14-16, the generator display bit 21 */
+    short reviveCount;      /* 0x42, enemies left to revive, -1 for unlimited */
+    unsigned short parent;  /* 0x44, the label of the object it belongs to (an enemy's generator) */
+    unsigned char kind;     /* 0x46, the object kind (33 for a generator) */
+    unsigned char light;    /* 0x47, low five bits the light id */
+    unsigned int flags;     /* 0x48, display list in bits 14-16, dead bit 18, the generator display bit 21 */
 } GenGeo;
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 2 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */

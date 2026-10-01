@@ -3,8 +3,6 @@
 #include "typedef.h"
 #include "gobj_process.h"
 
-extern void cut_gobj_process_link(GProc *p);
-
 /* .sbss, owned by gobj_process.o and reached only from this file (MAIN.MAP
    names no symbol in the run), in the ROM's run order: the process pool and
    how many 0x94-byte entries it holds. */
@@ -136,7 +134,7 @@ inline void isysGObjProcPause(char *self)
     ((GProc *)self)->active = 0;
 }
 
-inline void isysGObjProcPauseAll(int *p)
+inline void isysGObjProcPauseAll(GObj *p)
 {
     GProc *cur = ((GObj *)p)->procHead;
     if (cur != 0) {

@@ -132,12 +132,12 @@ void ACTGameCollisionOn(volatile int *self);
 void ACTGameCollisionOff(volatile int *self);
 int ACTGame_CheckItemMotion(struct GObj *a0);
 int ACTGame_CheckHandMotion(char *a0, char *a1);
-void ACTGame_StageChangeGObjID(char *self, char *other, int idx);
-void ACTGame_StageChangeGObjDirect(int *a0, int a1, void *a2, int a3);
+void ACTGame_StageChangeGObjID(int no, int kind, int idx);
+void ACTGame_StageChangeGObjDirect(struct GObj *a0, int a1, void *a2, int a3);
 int ACTGame_FLAG_LIFEPINCH(struct GObj *a0);
 unsigned char ACTGame_FLAG_TETSUNAGI(void);
 int ACTGame_FLAG_TETSUNAGI_VISUAL(void);
-void GetSkeltonPosition(float *dst, struct GObj *obj, int node);
+inline void GetSkeltonPosition(float *dst, struct GObj *obj, int node);
 
 void SetDirectRootPositionWithNodePointLimit(void *a0, void *a1, void *a2, float farg0,
                                              float farg1);
@@ -146,7 +146,7 @@ void ACTGameView_Init(void);
 void ACTCharctrl_Lock(struct GObj *a0);
 void ACTCharctrl_Unlock(struct GObj *a0);
 void ACTGame_ConnectHand(void);
-void ACTGame_DisconnectHand(void);
+inline void ACTGame_DisconnectHand(void);
 void PAIR_GetPosition_BOY(float *a0, float *a1);
 int PAIR_IsStatus_BOY_PULL(void);
 int PAIR_IsStatus_GIRL_PULL(void);
@@ -165,17 +165,17 @@ int ACTCheckCollis_WELL(void *p0, void *p1, void *actor, void *posout, float f);
 unsigned char ACTCheckCollis_WAY(float f, void *p0, void *p1, void *actor, void *posout);
 int ACTCheckViewCl(struct GObj *self, void *a1, void *a2, int range, float f);
 void ACTGameView_FirstSet(char *self);
-void ACTGameView_Add(char *a0, char *a1);
-int ACTGameView_Check(int a0, int a1);
-int ACTGameViewSimple_Check(int a0, int a1);
-int ACTGame_GetMotOrientFromWeapon(int a0);
+void ACTGameView_Add(struct GObj *self, struct GObj *obj);
+int ACTGameView_Check(struct GObj *self, struct GObj *obj);
+int ACTGameViewSimple_Check(struct GObj *self, struct GObj *obj);
+int ACTGame_GetMotOrientFromWeapon(struct GObj *a0);
 unsigned char ACTGame_NoWeapon(struct GObj *a0);
-int ACTGame_isWeaponCombustible(void);
-int *ACTGame_GetNearestGObj(int a0, int a1);
+inline int ACTGame_isWeaponCombustible(void);
+int *ACTGame_GetNearestGObj(struct GObj *a0, int a1);
 void ACTLookTarget_Init(struct GObj *a0);
 int _ACTLookTarget_Set(struct GObj *a0, int a1, float *a2, int a3, int a4);
 void ACTParaStatus_Init(struct GObj *a0);
-void _ACTParaStatus_Set(struct GObj *a0, int bit);
+inline void _ACTParaStatus_Set(struct GObj *a0, int bit);
 unsigned long long _ACTParaStatus_Check(struct GObj *a0, int bit);
 void _ACTCharStatus_Init(int **a0);
 void _ACTCharStatus_Set(struct GObj *a0, int bit, float f, int val);
@@ -189,10 +189,10 @@ unsigned char ACTGame_CheckPriInputFrame(struct GObj *a0);
 void ACTGame_SendSoundMail(struct GObj *a0, int mail, int a2, int a3, int a4);
 void ACTGame_LwsEffectInit(struct GObj *a0);
 void ACTGame_LwsEffect_Guard(struct GObj *a0);
-void ActGame_GetOrientQ(void *q, void *v, int deg);
+inline void ActGame_GetOrientQ(void *q, void *v, int deg);
 void _GetRootObjectOrient(void *a0, char *a1);
 void ACTItemForceDrop(struct GObj *a0);
-void GetOtherStageGirlOrient(float *a0, float *a1);
+inline void GetOtherStageGirlOrient(float *a0, float *a1);
 int ACTChkAttackIgnore_BOY(struct GObj *a0);
 int ACTChkAttackIgnore_GIRL(struct GObj *a0, int *a1);
 int ACTChkAttackIgnore_ENEMY(struct GObj *a0);
@@ -230,19 +230,20 @@ typedef union {
     unsigned int w[2];
 } ActStatusWord;
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 3 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
-typedef struct { /* field names derived */
-    char pad00[76];
-    unsigned int flags; /* 0x4C, the act mode's flag bits (ActModeRec's flags) */
-} StatusAttr;
-
 void ACTGameView_Loop(struct GObj *self);
 
-/* look-target-data: the look target kinds of one entry, 0x0C bytes.
- * Reader: ico2/fumi/src/act-game.c (int [][3]). Owner:
- * ico2/fumi/include/act-game.h. */
+/* look-target-data: the look target kinds of one entry, 0x0C bytes, 27
+ * rows, one column per character kind (Act+0x48). Reader:
+ * ico2/fumi/src/act-game.c. Owner: ico2/fumi/include/act-game.h. */
 typedef struct { /* field names derived */
     int kind[3]; /* 0x00, one per column */
 } LookTarget;    /* derived name */
+extern const LookTarget lookTargetData[];
+
+void ACTGame_CommonLoop(struct GObj *self);
+void ACTParaStatus_Exec(struct GObj *self);
+void ACTLookTargetSystem_Exec(struct GObj *self);
+
+extern float gameParam[]; /* game-param: the tuning values _ACTGame_GetParamF returns */
 
 #endif /* ACT_GAME_H */

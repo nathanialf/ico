@@ -56,6 +56,6 @@ void actSt04rTorch2_2Chk(GObj *volatile a0);
 void actSt04rTorch2_2XLChk(GObj *volatile a0);
 void actSt04rTorch3_1Chk(GObj *volatile a0);
 void actSt04rTorch3_2Chk(GObj *volatile a0);
-void openGate(int a0);
+void openGate(struct GObj *a0);
 
 #endif /* ST04R_H */

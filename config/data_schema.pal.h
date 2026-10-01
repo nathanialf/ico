@@ -12,47 +12,6 @@
 #ifndef DATA_SCHEMA_PAL_H
 #define DATA_SCHEMA_PAL_H
 
-/* act-intrlist: one actor mail entry, 0x18 bytes; lists end at the entry
- * whose kind is 429. Readers: ico2/fumi/src/act.c (BeforeFunc,
- * act_check_intr_list, act_check_mail, as IntrMail) and
- * ico2/fumi/src/commonact.c (ACTRunIntrCorrect, as IntrRec). */
-typedef struct { /* field names derived */
-    void (*motion)(int);                            /* 0x00, motion thread 21 */
-    void (*extra)(int);                             /* 0x04, motion thread 22 */
-    void (*handler)(char *self, int id, void *arg); /* 0x08, every frame the mail is held */
-    void (*accept)(char *self, int id, void *arg);  /* 0x0C, when the mail is accepted */
-    unsigned short kind;                            /* 0x10, the mail id */
-    short mode;                                     /* 0x12, the act mode it switches to */
-    unsigned int flags;                             /* 0x14, bit 18: entry live */
-} IntrMail; /* derived name */
-
-/* obj-layout: one placed object of a stage, 0x4C bytes, indexed by the
- * object's GObj+8. The layout of ico2/common/include/typedef.h's GenGeo, with
- * the types the member's values need: 0x24 holds the object's act function in
- * 498 rows and 0x28 the address of a GObj pointer in one, and 0x34 and 0x3C
- * hold words where GenGeo has pad bytes. Readers: ico2/omori/src/generator.c
- * (GVGeo2: rot, enemyKind, reviveCount, motherLabel, kind), objact.c (0x34),
- * ebrain.c and ico2/fumi/src/enemy_act.c (flags), ico2/fumi/src/act.c
- * (actChangeActMain, 0x40), way_sys.c and motionManager.c (kind). */
-typedef struct { /* field names derived */
-    float scale[3];             /* 0x00 */
-    float rot[3];               /* 0x0C */
-    float pos[3];               /* 0x18 */
-    void (*actMain)(int);       /* 0x24, the object's act function */
-    char **gobjHolder;          /* 0x28, receives the object's GObj */
-    int mdl;                    /* 0x2C */
-    int enemyKind;              /* 0x30, the enemy kind a generator calls */
-    int action;                 /* 0x34, index into obj-action's objAction */
-    int word38;                 /* 0x38 */
-    int word3C;                 /* 0x3C */
-    unsigned short procMask;    /* 0x40, shifted left 10 for isysGObjProcAddS */
-    short reviveCount;          /* 0x42, enemies left to revive, -1 for unlimited */
-    unsigned short motherLabel; /* 0x44, the label of the generator the object belongs to */
-    unsigned char kind;         /* 0x46, the object kind */
-    unsigned char byte47;       /* 0x47 */
-    unsigned int flags;         /* 0x48 */
-} GenGeo; /* derived name */
-
 
 
 /* camera-set: one camera data file name, 0x20 bytes. Readers:

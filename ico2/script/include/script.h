@@ -36,10 +36,10 @@ void scpDisActivateAllWithKind(int kind);
 void scpLinkBGAtoLayoutedTarget(int a0, int a1);
 void scpLinkBGAtoLayoutedTargetSkelton(int a0, int a1, int a2);
 void scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
-void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
+inline void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
 struct WallCol *scpGetWallCollision(float x0, float y0, float z0, float x1, float y1, float z1);
 void scpDoorTypeUp(struct GObj *volatile a0);
-void scpDoorTypeUpSwitch(struct GObj *volatile a0);
+inline void scpDoorTypeUpSwitch(struct GObj *volatile a0);
 void scpAdpcmPlayRequestFunc(int kind, char **id, int a2, int a3, int a4);
 int scpAdpcmPlayRequestNum(void);
 int scpAdpcmFadeCloseFunc(char **h, short fade);
@@ -62,8 +62,8 @@ int scpTriggerPosBox(float *p, float *pos, float *size);
 int scpEffectStart(void *pos, int kind);
 void scpSleepEnemyAll(void);
 void scpWakeupEnemyAll(void);
-void scpKillEnemyAll(void);
-void scpMaskGeneratorAll(void);
+inline void scpKillEnemyAll(void);
+inline void scpMaskGeneratorAll(void);
 void scpKillEnemyOne(int id);
 int _SCPMoveCharactorByWay(struct GObj *self, int a1, float *dir, float speed, int a3);
 
@@ -71,54 +71,54 @@ int _SCPMoveByWay_ToChar(struct GObj *self, struct GObj *target, int deg, int a3
                          float speed);
 
 void _SCPCharacterStop(struct GObj *self);
-struct GObj *scpSearchGobj(int id);
+inline struct GObj *scpSearchGobj(int id);
 void scpPlayMotNode(void *a0, int a1, void *a2, int a3);
 void scpPlayMotReq(struct GObj *a0, int a1);
-void scpPlayPosSet(void *a0, float f12, float f13, float f14);
+void scpPlayPosSet(void *a0, float x, float y, float z);
 void scpPlayWaitMotEnd(struct GObj *a0);
 void InitStageChange(void);
 int RequestStageChange(int no, struct GObj *g, struct GObj *girl, float speed, float wait);
 
-int RequestStageChangeWithColor(int no, struct GObj *g, struct GObj *girl, float speed, float wait,
+inline int RequestStageChangeWithColor(int no, struct GObj *g, struct GObj *girl, float speed, float wait,
                                 unsigned char r, unsigned char gr, unsigned char b);
 
 int RequestStageChangeSimple(int no, float speed, float wait, unsigned char r, unsigned char gr,
                              unsigned char b);
 
-void RequestStageChangeDirect(int *self, int a1, int *a2, int a3);
-void scpFadeOut(float a0, int a1, int a2, int a3);
-void scpFadeIn(float f);
+void RequestStageChangeDirect(struct GObj *self, int a1, void *a2, int a3);
+inline void scpFadeOut(float a0, int a1, int a2, int a3);
+inline void scpFadeIn(float f);
 int scpFadeChk(void);
 int scpGameStat_BoyWeaponkind(void);
 int scpIsWallLever2On(void);
 int scpIsHangChain(struct GObj *self);
-int scpIsHangChainOptional(int a0, int b);
+int scpIsHangChainOptional(struct GObj *a0, int b);
 void scpBornSpider(int n, float a, float b, float c, float d);
-int scpActStatusDeathFall(struct GObj *self);
-void scpSetStreamMotionRootOffset(int a0, float x, float y, float z);
+inline int scpActStatusDeathFall(struct GObj *self);
+void scpSetStreamMotionRootOffset(struct GObj *a0, float x, float y, float z);
 void scpWakeupItemWithBoundary(float x, float y, float z, float r);
 int scpCheckReadyAllObjects(void);
-void ScpCallCameraSetTarget(float x, float y, float z);
+inline void ScpCallCameraSetTarget(float x, float y, float z);
 void ScpCallCameraGetTarget(float *dst);
 void ScpCallCameraOff(void);
 void ScpCallCameraOn(void);
 void ScpCallCameraTargetOff(void);
-void scpTransGObj(void *a0, float f12, float f13, float f14);
+void scpTransGObj(void *a0, float dx, float dy, float dz);
 void scpExplodeSecretItem(void);
 int scpCheckExistAliveEnemy(void);
 int scpCheckExistAliveSpider(void);
-void scpLockMaxRotate(struct GObj *a0, float f12);
+void scpLockMaxRotate(struct GObj *a0, float rot);
 void scpUnLockMaxRotate(struct GObj *a0);
 short scpGetRotObjectCurrentRot(int no);
 void scpCheckDisconnectWallStart(struct GObj *a0);
 void scpCheckDisconnectWallEnd(struct GObj *a0);
 int scpTriggerIgnore(struct GObj *self);
-void scpDoorTypeUpMain(struct GObj *volatile a0);
+inline void scpDoorTypeUpMain(struct GObj *volatile a0);
 void actSubSekizoSe(struct GObj *volatile a0);
 /* The entry points script.o compiles in place, in its own parse order. */
 void scpTorchLightOn(int id);
 void scpTorchLightOff(int id);
-void scpSetCageVelocityFriction(int id, float f12);
+void scpSetCageVelocityFriction(int id, float friction);
 void scpPlayMotDir(struct GObj *self, float *dir);
 void scpPlayMot(struct GObj *self, int mot);
 void scpPlayStart(struct GObj *a0);
@@ -159,5 +159,6 @@ typedef struct {         /* field names derived */
     unsigned char kind;  /* 0x54 */
     char pad55[3];
 } WarpRec; /* derived name */
+extern const WarpRec girlWarpList[];
 
 #endif /* SCRIPT_H */

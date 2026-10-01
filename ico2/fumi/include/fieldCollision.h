@@ -12,6 +12,8 @@
 #ifndef FIELDCOLLISION_H
 #define FIELDCOLLISION_H
 
+
+struct GObj;
 /* The collision hit record a character starts from (the object, the node
    and the attribute of the last hit), and the empty one it is reset to. */
 typedef struct {
@@ -51,7 +53,7 @@ typedef struct FcWallEnt { /* field names derived */
  * gcc 2.9 writes deferred functions at the end of the file in the order of
  * their first declaration, so this block is that order. */
 void ClipWallDebug(void *a0);
-void ClipWall(void *a0);
+inline void ClipWall(void *a0);
 void ClipWallR(void *a0);
 void ClipWallWaveForce(void *a0);
 void ClipWallFuchiHangWalkStop(void *a0);
@@ -78,11 +80,11 @@ int GetWallAttribute(int a0);
 int GetFloorAttribute(int a0);
 int CompareAttribute(unsigned int a, unsigned int b);
 void GetWallGlobalInfo(char *pts, void *nrm, char *w, void *m);
-float GetDistanceFromPlane(void *a0, void *a1);
+inline float GetDistanceFromPlane(void *a0, void *a1);
 float GetYDistanceFromPlane(float *a0, float *a1);
 float GetYProjectionOfPlane(float *a0, float *a1);
 void ResetCollisionPC(void);
-int PositionOfExit(int a0, int a1);
+int PositionOfExit(struct GObj *a0, int a1);
 void GetGlobalWallPlane(float *plane, int *r);
 /* compiled in place */
 void ClipFloorByGObj(char *work, char *gobj);

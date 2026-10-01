@@ -498,7 +498,7 @@ void actSt17aHasiEvent(int x)
 }
 
 /* .sdata, owned by st17a.o, in the ROM's order: the camera stream handle. */
-int cam = 0;
+char *cam = 0;
 
 void actSt17aIntroChk(GObj *volatile a0)
 {

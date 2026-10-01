@@ -44,7 +44,7 @@ void afterGirlHand100(struct GObj *volatile a0);
 void actGirlHand200(struct GObj *volatile a0);
 void afterGirlHand200(struct GObj *volatile a0);
 int NotNeedBackHand(void);
-void SetGirlDangerGObj(int a0);
+void SetGirlDangerGObj(struct GObj *a0);
 void ClearGirlDangerGObj(void);
 void GirlAct_BoyAndMeCollisionMail(void *a0);
 int IsGirlStatusEscortEnable(int a0, int a1);
@@ -87,5 +87,6 @@ typedef struct {  /* field names derived */
     float range;  /* 0x14, the distance under which it applies */
     float rate;   /* 0x18, the distance factor into the girl's 0x330 */
 } EscortPoint;    /* derived name */
+extern const EscortPoint autoEscortData[];
 
 #endif /* GIRL_ACT_H */

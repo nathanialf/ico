@@ -29,7 +29,6 @@ void AdpcmStreamFree(void)
     sceSifFreeIopHeap(adpcmIopHeap);
 }
 
-extern const AdpcmDataRec adpcmFile[];
 extern int SgStAdpcmChannelPitch(long long mask, int pitch);
 extern int SgStAdpcmIopReadAddr(int addr);
 

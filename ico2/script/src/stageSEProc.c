@@ -105,9 +105,9 @@ int stageSEtaimatsu(SEObj *self)
 {
     Blk16 v;
     Blk16 d;
-    int *g = isysGObjSearchFromObjKindID_begin(10);
+    GObj *g = isysGObjSearchFromObjKindID_begin(10);
     int *best = 0;
-    int *torch = 0;
+    GObj *torch = 0;
     float bd = 3.40282347e+38f; /* FLT_MAX */
     int rv = 1;
     float *campos;
@@ -119,7 +119,7 @@ int stageSEtaimatsu(SEObj *self)
     campos = (float *)GetCameraPos();
     self->pitch.f = 0.5f;
     if (boyGObj != 0) {
-        int *w = GetBoyWeaponGObj();
+        GObj *w = GetBoyWeaponGObj();
 
         if (w != 0) {
             torch = GetTorchGObjOfWeapon(w);

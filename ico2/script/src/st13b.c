@@ -37,7 +37,6 @@ static int doorUpDone;
 
 /* st13b.o's own .data run (no MAIN.MAP symbols): actor mail packets. */
 extern StgPre stageData[];
-extern const ExitData exitData[];
 
 static ActMail floor_mes[2] = {{430}, {429}};
 

@@ -77,7 +77,6 @@ typedef struct {
 static McReq bootMcReq __attribute__((aligned(64)));
 /* kept local: mcard.c's save records, read here as this file's view */
 extern KanbanStageRec IosMcProductFile[];
-extern int D_00534010[];
 
 /* .sbss, owned by kanbanBoot.o and reached only from this file (MAIN.MAP names
    no symbol in the run), in the ROM's run order. */
@@ -196,7 +195,7 @@ int kanbanBootMcCheck(void)
         }
         mcKanbanId = -1;
         lang = sceScfGetLanguage();
-        lp = D_00534010;
+        lp = &texLayout[0].defaultItem;
         switch (lang) {
         case 1:
             *lp = 26;

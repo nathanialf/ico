@@ -51,7 +51,7 @@ typedef struct WVTObj { /* field names derived */
  * first-declaration order, so this is the order way_sys.c's inline tail has. */
 int GetWay_begin(void *a0, int a1, int a2);
 void BridgeBox(void);
-void DeleteGuideWay(WVTObj *o);
+inline void DeleteGuideWay(WVTObj *o);
 int GetWay_next(WVTObj *w, float *pos);
 int _FUNC_GetWay_begin(void *a0, WVTObj *a1, int a2, int a3);
 int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos);

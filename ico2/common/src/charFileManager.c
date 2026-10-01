@@ -219,7 +219,6 @@ void ReadShadowModelFile(void *h, int a1, int size, int id, int a4, int a5, int 
     iosFree(buf);
 }
 
-extern TexRec texFile[];
 /* kept local: agrees with Texture.h, which this TU does not include (tex_RemakeRegistersSampleMin differs) */
 extern int tex_InitTexture(int id, void *buf);
 
@@ -253,8 +252,6 @@ void ReadTextureFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
     debug_StdPrintfDummy("ReadTextureFile:loaded::(%d)%s(addr:%p/size:%d)\n", rv, a1, buf, size);
     iosFree(buf);
 }
-
-extern PObjMdl modelData[];
 
 /* sugipon/include/sugiCommon.h: byte checksum helper, inlined at its call site */
 static inline int SumBytes(unsigned char *p, int n)
@@ -455,14 +452,12 @@ void ReadMotionFile(void *h, int a1, int size, int id, int a4, int a5, int a6)
 
 void ReadParticleEffectFile(void *h, int a1, int size, int a3)
 {
-    char *buf = iosMallocDebug(ios_partition_sugipon, size, __FILE__, 0x228);
+    int *buf = iosMallocDebug(ios_partition_sugipon, size, __FILE__, 0x228);
     systemStatus[8]++;
     iosCdvdHandlerRead(h, buf, size);
     SetParticleEffectPackage(a3, buf, size);
     iosFree(buf);
 }
-
-extern SeBank seFile[];
 
 void ReadSoundBdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6)
 {
